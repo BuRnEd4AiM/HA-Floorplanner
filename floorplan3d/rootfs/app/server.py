@@ -18,6 +18,7 @@ STATIC_DIR = Path(__file__).parent / "static"
 SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN")
 HA_API = os.environ.get("HA_API", "http://supervisor/core/api")
 PORT = int(os.environ.get("PORT", "8099"))
+OPTIONS_FILE = Path(os.environ.get("OPTIONS_FILE", "/data/options.json"))
 
 MAX_MODEL_BYTES = 20 * 1024 * 1024
 MAX_LAYOUT_BYTES = 10 * 1024 * 1024
@@ -42,6 +43,7 @@ DEFAULT_SETTINGS = {
     "glowStrength": 1.0,
     "glowHeight": 1.6,         # metres the coloured glow climbs the walls
     "defaultLightColor": "#ffc861",
+    "userRooms": {},           # Home Assistant user name -> room name (one tablet per room)
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
@@ -85,12 +87,50 @@ def read_json(path: Path, default):
     return default
 
 
+# ---------- who is allowed to edit ----------
+def current_user(request) -> dict:
+    """Home Assistant Ingress tells us who is looking through X-Remote-User-* headers."""
+    h = request.headers
+    names = {v.strip().lower() for v in (h.get("X-Remote-User-Name"), h.get("X-Remote-User-Display-Name"),
+                                         h.get("X-Remote-User-Id")) if v and v.strip()}
+    return {"name": (h.get("X-Remote-User-Name") or h.get("X-Remote-User-Display-Name") or "").strip(), "ids": names}
+
+
+def editors() -> set:
+    """Add-on option `editors`: user names (or ids) that may edit. Empty = every user who can open the add-on."""
+    data = read_json(OPTIONS_FILE, {})
+    raw = data.get("editors") if isinstance(data, dict) else None
+    return {str(x).strip().lower() for x in raw if str(x).strip()} if isinstance(raw, list) else set()
+
+
+def can_edit(request) -> bool:
+    if not SUPERVISOR_TOKEN:          # standalone/dev mode: no Home Assistant, no users
+        return True
+    allowed = editors()
+    return not allowed or bool(allowed & current_user(request)["ids"])
+
+
+def forbidden():
+    return web.json_response({"error": "editing is not allowed for this user"}, status=403)
+
+
+async def get_me(request):
+    user = current_user(request)
+    rooms = read_json(data_dir(request) / "settings.json", {}).get("userRooms", {})
+    room = None
+    if isinstance(rooms, dict):
+        room = next((v for k, v in rooms.items() if str(k).strip().lower() in user["ids"]), None)
+    return web.json_response({"user": user["name"], "canEdit": can_edit(request), "room": room})
+
+
 # ---------- layout ----------
 async def get_layout(request):
     return web.json_response(read_json(data_dir(request) / "layout.json", EMPTY_LAYOUT))
 
 
 async def put_layout(request):
+    if not can_edit(request):
+        return forbidden()
     try:
         data = await request.json()
     except ValueError:
@@ -121,7 +161,10 @@ def validate_settings(data: dict) -> dict:
         if key not in data:
             continue
         val = data[key]
-        if isinstance(default, list):
+        if isinstance(default, dict):
+            out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v}
+                        if isinstance(val, dict) else {})
+        elif isinstance(default, list):
             out[key] = clean_stops(val, default)
         elif isinstance(default, str) and HEX.match(default):
             if isinstance(val, str) and HEX.match(val):
@@ -151,6 +194,8 @@ async def get_settings(request):
 
 
 async def put_settings(request):
+    if not can_edit(request):
+        return forbidden()
     try:
         data = await request.json()
     except ValueError:
@@ -180,6 +225,8 @@ async def list_models(request):
 
 
 async def upload_model(request):
+    if not can_edit(request):
+        return forbidden()
     reader = await request.multipart()
     field = await reader.next()
     if field is None or field.name != "file":
@@ -216,6 +263,8 @@ async def get_model(request):
 
 
 async def delete_model(request):
+    if not can_edit(request):
+        return forbidden()
     name = request.match_info["name"]
     p = models_dir(request) / f"{name}.glb"
     if not MODEL_NAME.match(name) or not p.is_file():
@@ -294,6 +343,7 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.get("/", index),
         web.get("/api/layout", get_layout),
         web.put("/api/layout", put_layout),
+        web.get("/api/me", get_me),
         web.get("/api/settings", get_settings),
         web.put("/api/settings", put_settings),
         web.get("/api/models", list_models),

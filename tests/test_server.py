@@ -126,3 +126,33 @@ async def test_settings_look_and_stops(client):
     assert s["bgTop"] == "#abcdef" and s["bgBottom"] == "#031547"
     assert [x["v"] for x in s["tempStops"]] == [10.0, 25.0]
     assert len(s["humidStops"]) == 4            # too few valid stops -> defaults
+
+
+async def test_editors_permissions(client, monkeypatch, tmp_path):
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["Florian"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    layout = {"version": 1, "floors": []}
+    tablet, admin = {"X-Remote-User-Name": "tablet_wz"}, {"X-Remote-User-Name": "florian"}
+    assert (await client.put("/api/layout", json=layout, headers=tablet)).status == 403
+    assert (await client.put("/api/settings", json={"grid": 0.5}, headers=tablet)).status == 403
+    assert (await client.put("/api/layout", json=layout)).status == 403                 # no user header at all
+    assert (await client.put("/api/layout", json=layout, headers=admin)).status == 200
+    assert (await client.get("/api/layout", headers=tablet)).status == 200              # reading is always allowed
+    me = await (await client.get("/api/me", headers=tablet)).json()
+    assert me["canEdit"] is False and me["user"] == "tablet_wz"
+    assert (await (await client.get("/api/me", headers=admin)).json())["canEdit"] is True
+
+
+async def test_editors_empty_means_everyone_and_room_mapping(client, monkeypatch, tmp_path):
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": []}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    admin = {"X-Remote-User-Name": "florian"}
+    r = await client.put("/api/settings", json={"userRooms": {"Tablet_WZ": "Wohnzimmer", "x": 5}}, headers=admin)
+    assert (await r.json())["userRooms"] == {"Tablet_WZ": "Wohnzimmer"}
+    me = await (await client.get("/api/me", headers={"X-Remote-User-Name": "tablet_wz"})).json()
+    assert me["room"] == "Wohnzimmer" and me["canEdit"] is True
+    assert (await (await client.get("/api/me", headers=admin)).json())["room"] is None
