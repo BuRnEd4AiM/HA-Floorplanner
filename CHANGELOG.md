@@ -4,6 +4,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 ### Added
+- Room isolation: tapping a room pill (or the room floor in live mode) shows only that room with its walls and devices
 - Light spreads from each lamp's position with falloff, in the lamp's (RGB) colour and brightness, only inside its own room; coloured glow climbs the walls
 - Room panel (entities per room) also in edit mode and by tapping a room
 - Settings: wall opacity, lamp reach/strength/glow height, default light colour, background colours, freely editable colour scales for temperature and humidity views
@@ -22,6 +23,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - Steeper default 3D camera, room names always readable
 
 ### Fixed
+- Lamps and other devices can be tapped through lowered or see-through walls (devices take priority over walls when picking; walls are ignored in live mode)
 - Small devices (ceiling lamps, switches) are easier to select and tap thanks to an invisible, padded hit box
 
 ## [0.2.0] - 2026-09-29

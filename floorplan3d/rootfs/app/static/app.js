@@ -237,6 +237,22 @@ function holoify(model, ghost) {
   }
 }
 
+function distToPoly(x, z, pts) {
+  let best = Infinity;
+  for (let i = 0; i < pts.length; i++) {
+    const [ax, az] = pts[i], [bx, bz] = pts[(i + 1) % pts.length];
+    const dx = bx - ax, dz = bz - az, l2 = dx * dx + dz * dz || 1;
+    const k = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / l2));
+    best = Math.min(best, Math.hypot(x - (ax + k * dx), z - (az + k * dz)));
+  }
+  return best;
+}
+/** Isolation: while a room is focused only that room, its walls and its devices are drawn. */
+const ISO_TOL = 0.45;
+function isolatedRoom() { return focusedRoom ? floor()?.rooms.find((r) => r.id === focusedRoom) ?? null : null; }
+const inIso = (room, x, z) => pointInPoly(x, z, room.points) || distToPoly(x, z, room.points) < ISO_TOL;
+const wallInIso = (room, w) => [0, 0.25, 0.5, 0.75, 1].some((k) => distToPoly(w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k, room.points) < ISO_TOL);
+
 function pointInPoly(x, z, pts) {
   let inside = false;
   for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
@@ -252,8 +268,10 @@ function build() {
   world.clear();
   registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roomMeshes.clear();
   const holo = isHolo();
+  const iso = isolatedRoom();
   layout.floors.forEach((f, i) => {
     if (i > floorIdx) return;
+    if (iso && i < floorIdx) return;            // no floors below while isolated
     const ghost = i < floorIdx;
     const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.15 : 0.95 }) : null;
     const g = new THREE.Group();
@@ -262,6 +280,7 @@ function build() {
 
     f.rooms.forEach((r) => {
       if (r.points.length < 3) return;
+      if (iso && !ghost && r.id !== iso.id) return;
       const shape = new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)));
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
@@ -295,6 +314,7 @@ function build() {
 
     f.walls.forEach((w) => {
       if (wallLength(w) < 0.01) return;
+      if (iso && !ghost && !wallInIso(iso, w)) return;
       const wallMat = holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.08 : settings.wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : mat('#d9d4cc', ghost);
@@ -308,6 +328,7 @@ function build() {
     });
 
     f.devices.forEach((d) => {
+      if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
       const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo) holoify(m, ghost); applyStates(); refreshSelHelper(); });
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.y = THREE.MathUtils.degToRad(d.rot || 0);
@@ -487,12 +508,18 @@ function groundPoint(e) {
 }
 function pickHit(e) {
   setRay(e);
+  const hits = [];
   for (const h of ray.intersectObjects(pickables, true)) {
     let o = h.object;
     while (o && !o.userData.kind) o = o.parent;
-    if (o) return { data: o.userData, point: h.point };
+    if (o) hits.push({ data: o.userData, point: h.point });
   }
-  return null;
+  // Devices win over walls, doors and floors even when a wall is in front (lowered or see-through walls
+  // must never steal a tap meant for a lamp); in live mode walls are ignored completely.
+  const dev = hits.find((h) => h.data.kind === 'device');
+  if (dev) return dev;
+  if (isLive()) return hits.find((h) => h.data.kind === 'room') ?? null;
+  return hits[0] ?? null;
 }
 const pick = (e) => pickHit(e)?.data ?? null;
 
@@ -779,8 +806,8 @@ function quickAction(entityId) {
 function handleLiveTap(e) {
   const h = pick(e);
   if (h?.kind === 'device') { livePopupFor = h.id; renderLivePopup(); }
-  else if (h?.kind === 'room') { closeLivePopup(); openRoomPanel(h.id); }
-  else { closeLivePopup(); closeRoomPanel(); }
+  else if (h?.kind === 'room') { closeLivePopup(); if (focusedRoom !== h.id) focusRoom(h.id); openRoomPanel(h.id); }
+  else closeLivePopup();
 }
 function closeLivePopup() { livePopupFor = null; $('#livePopup').hidden = true; }
 function renderLivePopup() {
@@ -821,7 +848,7 @@ function renderRoomPanel() {
   box.replaceChildren();
   const head = document.createElement('div'); head.className = 'rp-head';
   const title = document.createElement('b'); title.textContent = room.name || '';
-  const x = document.createElement('button'); x.className = 'rp-x'; x.textContent = '×'; x.addEventListener('click', closeRoomPanel);
+  const x = document.createElement('button'); x.className = 'rp-x'; x.textContent = '×'; x.addEventListener('click', () => { closeRoomPanel(); if (focusedRoom) focusRoom(null); });
   head.append(title, x);
   const area = document.createElement('div'); area.className = 'sub';
   area.textContent = imperial() ? `${(polyArea(room.points) * 10.7639).toFixed(0)} ft²` : `${polyArea(room.points).toFixed(1)} m²`;
@@ -892,7 +919,8 @@ document.querySelectorAll('#modeSwitch button').forEach((b) => b.addEventListene
 
 function floorBounds() {
   const f = floor();
-  const pts = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])];
+  const iso = isolatedRoom();
+  const pts = iso ? iso.points : [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])];
   if (!pts.length) return { cx: 0, cz: 0, size: 12 };
   const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
   const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
@@ -967,6 +995,7 @@ function clearFocusOutline() { focusGroup.clear(); }
 function focusRoom(id) {
   focusedRoom = id;
   clearFocusOutline();
+  build();                                   // isolate: only this room is drawn
   const room = id && floor().rooms.find((r) => r.id === id);
   if (room) {
     const pts = [...room.points, room.points[0]].map(([x, z]) => new THREE.Vector3(x, elev() + 0.06, z));
