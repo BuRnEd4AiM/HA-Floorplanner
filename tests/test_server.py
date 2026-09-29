@@ -100,3 +100,16 @@ async def test_service_whitelist(client, monkeypatch):
 async def test_index_served(client):
     r = await client.get("/")
     assert r.status == 200 and "3D Floorplan" in await r.text()
+
+
+async def test_service_data_validation(client, monkeypatch):
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    bad = [
+        {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"brightness_pct": 150}},
+        {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"evil": 1}},
+        {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"position": 5}},
+        {"domain": "cover", "service": "set_cover_position", "entity_id": "cover.x"},
+        {"domain": "cover", "service": "set_cover_position", "entity_id": "cover.x", "data": {"position": True}},
+    ]
+    for body in bad:
+        assert (await client.post("/api/service", json=body)).status == 400
