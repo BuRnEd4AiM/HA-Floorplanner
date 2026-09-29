@@ -297,6 +297,9 @@ async def get_entities(request):
             "brightness": _pct(st.get("attributes", {}).get("brightness"), 255),
             "position": st.get("attributes", {}).get("current_position"),
             "rgb": st.get("attributes", {}).get("rgb_color"),
+            "dc": st.get("attributes", {}).get("device_class"),
+            "ct": st.get("attributes", {}).get("current_temperature"),
+            "ch": st.get("attributes", {}).get("current_humidity"),
         }
         for st in states
     ])

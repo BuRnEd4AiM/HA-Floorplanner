@@ -82,7 +82,7 @@ function buildOpening(o, t, mats0, low) {
     g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
   }
   // invisible, slightly padded hit box: doors and windows stay easy to select even with a lamp or sensor in front of them
-  const proxy = new THREE.Mesh(new THREE.BoxGeometry(w + 0.1, h + 0.1, t + 0.3), new THREE.MeshBasicMaterial({ visible: false }));
+  const proxy = new THREE.Mesh(new THREE.BoxGeometry(w, h, t + 0.1), new THREE.MeshBasicMaterial({ visible: false }));
   proxy.position.set(cx, s + h / 2, 0);
   proxy.userData.proxy = true;
   g.add(proxy);

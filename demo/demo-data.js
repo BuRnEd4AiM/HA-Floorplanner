@@ -79,6 +79,8 @@ const layout = {
     devices: [
       { id: 'e1', type: 'bed', x: 2.5, z: 1.6, y: 0, rot: 0, scale: 1, name: 'Bett', entity: '' },
       { id: 'e2', type: 'light', x: 2.5, z: 2, y: 2.55, rot: 0, scale: 1.2, name: 'Licht Kinderzimmer', entity: 'light.schlafzimmer' },
+      { id: 'e4', type: 'sensor', x: 4.8, z: 1, y: 1.6, rot: 90, scale: 1, name: 'Temperatur Kinderzimmer', entity: 'sensor.kinder_temp' },
+      { id: 'e5', type: 'sensor', x: 5.2, z: 1, y: 1.6, rot: 270, scale: 1, name: 'Temperatur Gästezimmer', entity: 'sensor.gast_temp' },
       { id: 'e3', type: 'table', x: 7.5, z: 1.5, y: 0, rot: 0, scale: 0.8, name: 'Schreibtisch', entity: '' },
     ],
   }, {
@@ -93,6 +95,7 @@ const layout = {
       W('t4', [1, 3.5], [1, 0.5], 0.24, []),
     ],
     devices: [
+      { id: 'g3', type: 'sensor', x: 1.3, z: 3.2, y: 1.6, rot: 0, scale: 1, name: 'Temperatur Studio', entity: 'sensor.studio_temp' },
       { id: 'g1', type: 'sofa', x: 3.5, z: 2.6, y: 0, rot: 180, scale: 1, name: 'Sofa', entity: '' },
       { id: 'g2', type: 'lamp', x: 1.8, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Stehlampe Studio', entity: 'light.stehlampe' },
     ],
@@ -118,6 +121,10 @@ const entities = {
   'binary_sensor.fenster_kueche': { name: 'Fenster Küche', state: 'off' },
   'binary_sensor.tuer_buero': { name: 'Bürotür', state: 'off' },
   'binary_sensor.tuer_wohnzimmer_kueche': { name: 'Tür Wohnzimmer-Küche', state: 'on' },
+  'sensor.kinder_temp':     { name: 'Kinderzimmer Temperatur', state: '20.2', unit: '°C' },
+  'sensor.gast_temp':       { name: 'Gästezimmer Temperatur',  state: '17.4', unit: '°C' },
+  'sensor.studio_temp':     { name: 'Studio Temperatur',       state: '24.6', unit: '°C' },
+  'sensor.buero_temp':      { name: 'Büro Temperatur',         state: '23.0', unit: '°C', dc: 'temperature' },
   'sensor.bad_feuchte':      { name: 'Bad Luftfeuchte',        state: '64', unit: '%' },
 };
 
@@ -149,13 +156,13 @@ export function installDemoBackend() {
       return json([
         { id: 'wohnzimmer', name: 'Wohnzimmer', entities: ['light.wohnzimmer', 'light.stehlampe', 'media_player.tv', 'cover.wohnzimmer', 'climate.wohnzimmer', 'sensor.wohnzimmer_leistung'] },
         { id: 'schlafzimmer', name: 'Schlafzimmer', entities: ['light.schlafzimmer'] },
-        { id: 'buero', name: 'Büro', entities: ['light.buero'] },
+        { id: 'buero', name: 'Büro', entities: ['light.buero', 'sensor.buero_temp'] },
       ]);
     }
     if (path === 'api/entities') {
       return json(Object.entries(entities).map(([entity_id, e]) => ({
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
-        brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null })));
+        dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null })));
     }
     if (path === 'api/service' && method === 'POST') {
       const { service, entity_id: id, data } = JSON.parse(init.body);
