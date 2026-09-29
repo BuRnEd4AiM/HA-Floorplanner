@@ -16,7 +16,7 @@ def check(name, cond, extra=""):
 
 with sync_playwright() as p:
     b = p.chromium.launch(args=["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"])
-    pg = b.new_page(viewport={"width": 1400, "height": 850})
+    pg = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "florian"})
     pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
     pg.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
     pg.goto(BASE + "?debug=1"); pg.wait_for_timeout(1500)
@@ -89,6 +89,9 @@ with sync_playwright() as p:
 
     # --- settings: English + light theme + imperial
     pg.click("#settingsBtn"); pg.wait_for_timeout(200)
+    pg.fill("#setWallHeight", "2.2"); pg.press("#setWallHeight", "Tab"); pg.wait_for_timeout(400)
+    hs = {w["height"] for w in pg.evaluate("window.__fp.layout")["floors"][0]["walls"]}
+    check("wall height setting applies to existing walls", hs == {2.2}, hs)
     pg.select_option("#setLanguage", "en"); pg.select_option("#setTheme", "light"); pg.select_option("#setUnits", "imperial")
     pg.wait_for_timeout(600)
     check("language switched", pg.inner_text("button[data-tool=wall]") == "Wall", pg.inner_text("button[data-tool=wall]"))
@@ -118,7 +121,7 @@ with sync_playwright() as p:
     pg.click("#view3d"); pg.wait_for_timeout(600)
     pg.screenshot(path=f"{S}/edit3d.png")
     # --- 2D blueprint editor works on the same layout as the 3D view
-    pg2 = b.new_page(viewport={"width": 1400, "height": 850})
+    pg2 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "florian"})
     pg2.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
     pg2.goto(BASE + "?debug=1&mode=edit"); pg2.wait_for_timeout(1500)
     pg2.click("#view2d"); pg2.wait_for_timeout(500)
@@ -133,6 +136,13 @@ with sync_playwright() as p:
     pg2.click("#viewSplit"); pg2.wait_for_timeout(500)
     check("split view shows both", pg2.is_visible("#plan2d") and pg2.evaluate("getComputedStyle(document.querySelector('#view')).visibility") == "visible")
     pg2.close()
+    # --- a user who is neither admin nor editor only gets the read-only live view
+    pg3 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "tablet_wz"})
+    pg3.goto(BASE + "?debug=1"); pg3.wait_for_timeout(1500)
+    cls = pg3.evaluate("document.body.className")
+    check("non-editor gets read-only UI", "readonly" in cls and "kiosk" in cls, cls)
+    code = pg3.evaluate("fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({version:1,floors:[]})}).then(r => r.status)")
+    check("non-editor cannot save (403)", code == 403, code)
     b.close()
 
 bad = [e for e in errors if "favicon" not in e]

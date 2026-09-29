@@ -34,17 +34,19 @@ Please open an issue in the project repository and include the add-on version an
 
 ## Who may edit (permissions)
 
-The add-on panel is open to every Home Assistant user (`panel_admin: false`), but **editing is restricted**:
+The add-on panel is open to every Home Assistant user (`panel_admin: false`), but **only Home Assistant administrators can edit**:
 
-1. Open the add-on → **Configuration** and set `editors` to the user names that may edit, e.g.
+- **Administrators** (owner or "Administrator" group) always get the full editor: drawing, settings, saving. The add-on asks Home Assistant who the administrators are.
+- **Everyone else** (for example wall tablets or family members with a normal user) only sees the plan in **read-only live mode**: they can control lights, covers and so on, but the editor, the settings and saving are hidden and also blocked in the backend (HTTP 403).
+- **Extra editors:** to let a non-admin user edit as well, add the login name to the add-on **Configuration**:
 
-   ```yaml
-   editors:
-     - florian
-   ```
+  ```yaml
+  editors:
+    - florian
+  ```
 
-   Use the login name of the user (Settings → People → Users). Leave the list empty to let everyone who can open the panel edit.
-2. Everyone else sees the plan in **read-only live mode**: they can control lights, covers and so on, but the editor, the settings and saving are blocked, both in the interface and in the backend (HTTP 403).
+  Use the login name (Settings → People → Users). Leave the list empty if only administrators may edit.
+- If the administrators cannot be read (the add-on then shows "Editing locked" in the status line), add your own user to `editors` as above. Everything stays locked for all others until then.
 
 ## One tablet per room
 

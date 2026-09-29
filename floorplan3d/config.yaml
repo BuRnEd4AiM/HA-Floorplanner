@@ -1,5 +1,5 @@
 name: "3D Floorplan"
-version: "0.5.1"
+version: "0.6.0"
 slug: floorplan3d
 description: "Eigenen Grundriss zeichnen und Home-Assistant-Geräte in 3D platzieren"
 url: "https://github.com/wvssweber-max/HA-Floorplanner"
@@ -10,7 +10,7 @@ init: false
 ingress: true
 panel_icon: mdi:floor-plan
 panel_title: "3D Floorplan"
-panel_admin: false          # everyone may open the panel; who may EDIT is set with the option `editors`
+panel_admin: false          # everyone may open the panel; only administrators (and users in `editors`) may EDIT
 homeassistant_api: true
 map:
   - addon_config:rw
