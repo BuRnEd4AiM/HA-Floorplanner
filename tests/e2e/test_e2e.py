@@ -74,7 +74,7 @@ with sync_playwright() as p:
     # --- searchable entity picker in the properties panel
     pg.click("button[data-tool=select]"); pg.mouse.click(cx+40, cy-20); pg.wait_for_timeout(400)
     pg.fill(".entPicker input", "temp"); pg.wait_for_timeout(200)
-    opts = pg.eval_on_selector_all(".entPicker select option", "els => els.map(e => e.value)")
+    opts = pg.eval_on_selector_all(".entPicker .entItem", "els => els.map(e => e.dataset.id)")
     check("entity search filters the list", "sensor.temp" in opts and "light.wohnzimmer" not in opts, opts)
     pg.fill(".entPicker input", "wohnzimmer"); pg.keyboard.press("Enter"); pg.wait_for_timeout(300)
     sel = pg.evaluate("window.__fp.layout")["floors"][0]["devices"]
