@@ -58,12 +58,12 @@ const layout = {
 };
 
 const entities = {
-  'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70 },
+  'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70, rgb: [255, 140, 110] },
   'light.stehlampe':         { name: 'Stehlampe',              state: 'on' },
   'light.kueche':            { name: 'Küche Licht',            state: 'off' },
   'light.schlafzimmer':      { name: 'Schlafzimmer Licht',     state: 'off' },
   'light.bad':               { name: 'Bad Licht',              state: 'off' },
-  'light.buero':             { name: 'Büro Licht',             state: 'on' },
+  'light.buero':             { name: 'Büro Licht',             state: 'on', rgb: [255, 226, 110] },
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
   'switch.flur':             { name: 'Flur Schalter',          state: 'off' },
   'media_player.tv':         { name: 'Fernseher',              state: 'playing' },
@@ -101,7 +101,7 @@ export function installDemoBackend() {
     if (path === 'api/entities') {
       return json(Object.entries(entities).map(([entity_id, e]) => ({
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
-        brightness: e.brightness ?? null, position: e.position ?? null })));
+        brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null })));
     }
     if (path === 'api/service' && method === 'POST') {
       const { service, entity_id: id, data } = JSON.parse(init.body);

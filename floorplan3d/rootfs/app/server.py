@@ -213,6 +213,7 @@ async def get_entities(request):
             "unit": st.get("attributes", {}).get("unit_of_measurement"),
             "brightness": _pct(st.get("attributes", {}).get("brightness"), 255),
             "position": st.get("attributes", {}).get("current_position"),
+            "rgb": st.get("attributes", {}).get("rgb_color"),
         }
         for st in states
     ])

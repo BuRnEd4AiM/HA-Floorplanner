@@ -213,15 +213,23 @@ function build() {
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(geo, holo
-        ? new THREE.MeshBasicMaterial({ color: HOLO.floor, transparent: true, opacity: ghost ? 0.25 : 0.92, side: THREE.DoubleSide, depthWrite: false })
+        ? new THREE.MeshBasicMaterial({ color: HOLO.floor, transparent: true, opacity: ghost ? 0.25 : 1, side: THREE.DoubleSide, depthWrite: false })
         : mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
       m.position.y = 0.01;
       m.receiveShadow = true;
       g.add(m);
+      let wash = null;
+      if (holo && !ghost) {                          // coloured "air" that tints the room's inner walls when a light is on
+        const eg = new THREE.ExtrudeGeometry(shape, { depth: 1.1, bevelEnabled: false });
+        eg.rotateX(-Math.PI / 2);
+        wash = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.4, side: THREE.BackSide, depthWrite: false }));
+        wash.visible = false; wash.renderOrder = 1;
+        g.add(wash);
+      }
       if (!ghost) {
         m.userData = { kind: 'room', id: r.id };
         registry.set(r.id, m); pickables.push(m);
-        roomMeshes.set(r.id, { mesh: m, room: r });
+        roomMeshes.set(r.id, { mesh: m, room: r, wash });
         if (r.name) {
           const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);
           const sp = textSprite(is2d ? `${r.name} · ${imperial() ? (polyArea(r.points) * 10.7639).toFixed(0) + ' ft²' : polyArea(r.points).toFixed(1) + ' m²'}` : r.name);
@@ -234,7 +242,7 @@ function build() {
     f.walls.forEach((w) => {
       if (wallLength(w) < 0.01) return;
       const wallMat = holo
-        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.08 : 0.62, depthWrite: false, side: THREE.DoubleSide })
+        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.08 : 0.72, depthWrite: false, side: THREE.DoubleSide })
         : mat('#d9d4cc', ghost);
       const wg = buildWall(w, { material: wallMat, ghost, low: lowWalls, makeMat: mat, holo, edgeMaterial });
       g.add(wg);
@@ -317,16 +325,21 @@ function applyStates() {
     const sp = labelSprites.get(d.id);
     if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
   });
-  if (isHolo()) {                         // rooms glow orange while a light or switch inside is on
-    roomMeshes.forEach(({ mesh, room }) => {
-      const lit = f.devices.some((d) => d.entity && /^(light|switch)\./.test(d.entity)
+  if (isHolo()) {                         // lit rooms: floor + walls take the colour of the light inside
+    roomMeshes.forEach(({ mesh, room, wash }) => {
+      const lights = f.devices.filter((d) => d.entity && /^(light|switch)\./.test(d.entity)
         && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points));
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
-      if (heat) { mesh.material.color.setHex(heat); mesh.material.opacity = 0.75; }
-      else {
-        mesh.material.color.setHex(lit ? HOLO.floorLit : HOLO.floor);
-        mesh.material.opacity = lit ? 0.4 : 0.92;
+      let col = null;
+      if (heat) col = heat;
+      else if (lights.length) {
+        const rgb = lights.map((d) => states[d.entity]?.rgb).find(Array.isArray);
+        col = rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255).getHex() : 0xffc861;
       }
+      mesh.material.color.setHex(col ?? HOLO.floor);
+      if (col && !heat) mesh.material.color.multiplyScalar(0.8);
+      mesh.material.opacity = col ? (heat ? 0.85 : 0.75) : 1;
+      if (wash) { wash.visible = !!col && !heat; if (col) wash.material.color.setHex(col); }
     });
   }
   if (livePopupFor) renderLivePopup();
@@ -1147,7 +1160,7 @@ async function pollStates() {
     if (!Array.isArray(list)) return;
     const firstLoad = !entities.length;
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position }]));
+    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb }]));
     if (firstLoad) { fillEntities(); renderProps(); }
     applyStates();
   } catch { /* offline: ignore */ }
