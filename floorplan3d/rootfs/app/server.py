@@ -22,7 +22,7 @@ PORT = int(os.environ.get("PORT", "8099"))
 MAX_MODEL_BYTES = 20 * 1024 * 1024
 MAX_LAYOUT_BYTES = 10 * 1024 * 1024
 ALLOWED_DOMAINS = {"light", "switch", "cover", "fan", "media_player", "climate", "lock", "scene", "script", "input_boolean"}
-SERVICES = {"toggle", "turn_on", "turn_off", "open_cover", "close_cover", "stop_cover", "lock", "unlock"}
+SERVICES = {"toggle", "turn_on", "turn_off", "open_cover", "close_cover", "stop_cover", "lock", "unlock", "set_cover_position"}
 
 DEFAULT_SETTINGS = {
     "language": "de",          # de | en
@@ -191,6 +191,10 @@ async def delete_model(request):
 
 
 # ---------- Home Assistant ----------
+def _pct(v, scale):
+    return round(v * 100 / scale) if isinstance(v, (int, float)) else None
+
+
 async def get_entities(request):
     """Slim list of all entities (id, name, domain, state)."""
     if not SUPERVISOR_TOKEN:
@@ -207,6 +211,8 @@ async def get_entities(request):
             "domain": st["entity_id"].split(".")[0],
             "state": st["state"],
             "unit": st.get("attributes", {}).get("unit_of_measurement"),
+            "brightness": _pct(st.get("attributes", {}).get("brightness"), 255),
+            "position": st.get("attributes", {}).get("current_position"),
         }
         for st in states
     ])
@@ -223,9 +229,21 @@ async def call_service(request):
     if domain not in ALLOWED_DOMAINS or service not in SERVICES or not isinstance(entity, str) \
             or entity.split(".")[0] != domain:
         return web.json_response({"error": "domain/service/entity not allowed"}, status=400)
+    payload = {"entity_id": entity}
+    data = body.get("data")
+    if data is not None:
+        if not isinstance(data, dict):
+            return web.json_response({"error": "data must be an object"}, status=400)
+        for key, val in data.items():
+            ok_key = (key, domain) in (("brightness_pct", "light"), ("position", "cover"))
+            if not ok_key or isinstance(val, bool) or not isinstance(val, (int, float)) or not 0 <= val <= 100:
+                return web.json_response({"error": "data not allowed"}, status=400)
+            payload[key] = int(val)
+    if service == "set_cover_position" and "position" not in payload:
+        return web.json_response({"error": "position missing"}, status=400)
     async with aiohttp.ClientSession() as s:
         async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(),
-                          json={"entity_id": entity}) as r:
+                          json=payload) as r:
             ok = r.status == 200
             return web.json_response({"ok": ok}, status=200 if ok else 502)
 

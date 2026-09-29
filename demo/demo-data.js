@@ -38,6 +38,7 @@ const layout = {
       { id: 'd4',  type: 'light',      x: 3,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Deckenlicht',     entity: 'light.wohnzimmer' },
       { id: 'd5',  type: 'lamp',       x: 5.2, z: 3.9,  y: 0,    rot: 0,   scale: 1,   name: 'Stehlampe',       entity: 'light.stehlampe' },
       { id: 'd6',  type: 'thermostat', x: 0.2, z: 3.4,  y: 0.2,  rot: 90,  scale: 1,   name: 'Heizung',         entity: 'climate.wohnzimmer' },
+      { id: 'd7c', type: 'switch', x: 1.2, z: 0.2, y: 1.0, rot: 0, scale: 1, name: 'Rollladen', entity: 'cover.wohnzimmer' },
       { id: 'd7',  type: 'plant',      x: 0.7, z: 0.7,  y: 0,    rot: 0,   scale: 1.2, name: 'Pflanze',         entity: '' },
       { id: 'd8',  type: 'sensor',     x: 5.75, z: 0.9, y: 1.6,  rot: 90,  scale: 1,   name: 'Temperatur Wohnzimmer', entity: 'sensor.wohnzimmer_temp' },
       { id: 'd9',  type: 'table',      x: 8,   z: 2.2,  y: 0,    rot: 0,   scale: 1.1, name: 'Esstisch',        entity: '' },
@@ -56,12 +57,13 @@ const layout = {
 };
 
 const entities = {
-  'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on' },
+  'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70 },
   'light.stehlampe':         { name: 'Stehlampe',              state: 'on' },
   'light.kueche':            { name: 'Küche Licht',            state: 'off' },
   'light.schlafzimmer':      { name: 'Schlafzimmer Licht',     state: 'off' },
   'light.bad':               { name: 'Bad Licht',              state: 'off' },
   'light.buero':             { name: 'Büro Licht',             state: 'on' },
+  'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
   'switch.flur':             { name: 'Flur Schalter',          state: 'off' },
   'media_player.tv':         { name: 'Fernseher',              state: 'playing' },
   'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat' },
@@ -96,14 +98,18 @@ export function installDemoBackend() {
     }
     if (path === 'api/entities') {
       return json(Object.entries(entities).map(([entity_id, e]) => ({
-        entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null })));
+        entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
+        brightness: e.brightness ?? null, position: e.position ?? null })));
     }
     if (path === 'api/service' && method === 'POST') {
-      const { service, entity_id: id } = JSON.parse(init.body);
+      const { service, entity_id: id, data } = JSON.parse(init.body);
       const e = entities[id];
       if (!e) return json({ ok: false }, 502);
       if (service === 'toggle') e.state = e.state === 'on' ? 'off' : 'on';
-      if (service === 'turn_on') e.state = 'on';
+      if (service === 'turn_on') { e.state = 'on'; if (data?.brightness_pct != null) e.brightness = data.brightness_pct; }
+      if (service === 'set_cover_position') { e.position = data.position; e.state = data.position > 0 ? 'open' : 'closed'; }
+      if (service === 'open_cover') { e.state = 'open'; e.position = 100; }
+      if (service === 'close_cover') { e.state = 'closed'; e.position = 0; }
       if (service === 'turn_off') e.state = 'off';
       return json({ ok: true });
     }

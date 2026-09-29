@@ -108,3 +108,19 @@ html[data-theme="holo"], html[data-theme="holo"] body { background: radial-gradi
 [data-theme="holo"] .uploadBtn { border-radius: 14px; }
 [data-theme="holo"] dialog { border-radius: 22px; box-shadow: 0 0 40px rgba(35, 224, 255, .25); }
 [data-theme="holo"] #panel h3, [data-theme="holo"] dialog h3 { color: #4fd8ff; }
+
+/* Room detail panel (live mode): entities grouped by type with sliders */
+#roomPanel { position: absolute; top: 58px; right: 12px; bottom: 12px; width: 300px; max-width: calc(100% - 24px);
+  overflow-y: auto; padding: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+  z-index: 5; box-shadow: 0 0 30px rgba(35,224,255,.2); }
+#roomPanel .rp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+#roomPanel .rp-head b { font-size: 18px; }
+#roomPanel .rp-x { background: none; border: 0; color: var(--muted); font-size: 20px; cursor: pointer; }
+#roomPanel h4 { margin: 14px 0 6px; font-size: 11px; letter-spacing: .12em; color: var(--muted); }
+#roomPanel .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; margin-bottom: 6px;
+  border: 1px solid var(--line); border-radius: 12px; }
+#roomPanel .row.on { border-color: #ff9d2e; box-shadow: 0 0 12px rgba(255,157,46,.35); }
+#roomPanel .row .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#roomPanel .row .v { color: var(--muted); font-size: 12px; }
+#roomPanel .row input[type=range] { flex: 1 1 100%; accent-color: var(--accent); }
+#roomPanel .row button { min-height: 30px; border-radius: 999px; padding: 2px 12px; }

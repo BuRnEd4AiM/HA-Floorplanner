@@ -211,7 +211,7 @@ function build() {
         roomMeshes.set(r.id, { mesh: m, room: r });
         if (r.name) {
           const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);
-          const sp = textSprite(r.name);
+          const sp = textSprite(is2d ? `${r.name} · ${imperial() ? (polyArea(r.points) * 10.7639).toFixed(0) + ' ft²' : polyArea(r.points).toFixed(1) + ' m²'}` : r.name);
           sp.position.set(c[0], 0.45, c[1]);
           g.add(sp);
         }
@@ -299,6 +299,7 @@ function applyStates() {
     });
   }
   if (livePopupFor) renderLivePopup();
+  if (roomPanelFor && !document.activeElement?.matches?.('#roomPanel input')) renderRoomPanel();
 }
 
 function refreshSelHelper() {
@@ -661,12 +662,12 @@ const ACTION_LABEL = {
   close_cover: 'live.close', stop_cover: 'live.stop', lock: 'live.lock', unlock: 'live.unlock',
 };
 
-async function callService(entityId, service) {
+async function callService(entityId, service, data) {
   const domain = entityId.split('.')[0];
   const svc = domain === 'scene' || domain === 'script' ? 'turn_on' : service;
   try {
     const r = await fetch('api/service', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ domain, service: svc, entity_id: entityId }) });
+      body: JSON.stringify({ domain, service: svc, entity_id: entityId, ...(data ? { data } : {}) }) });
     if (!r.ok) throw new Error(String(r.status));
   } catch { setStatus(t('live.failed')); return; }
   setTimeout(pollStates, 400);
@@ -706,6 +707,64 @@ function renderLivePopup() {
   }
 }
 
+/* ---- Room panel: all entities of a room, grouped, with brightness / position sliders ---- */
+let roomPanelFor = null;
+const polyArea = (p) => Math.abs(p.reduce((s, [x, z], i) => { const [x2, z2] = p[(i + 1) % p.length]; return s + x * z2 - x2 * z; }, 0)) / 2;
+const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['sensor', 'rp.sensor']];
+const rpGroupOf = (dom) => (dom === 'binary_sensor' || dom === 'climate' ? 'sensor' : dom === 'fan' || dom === 'input_boolean' ? 'switch' : dom);
+
+function closeRoomPanel() { roomPanelFor = null; $('#roomPanel').hidden = true; }
+function renderRoomPanel() {
+  const box = $('#roomPanel');
+  const room = floor()?.rooms.find((r) => r.id === roomPanelFor);
+  if (!room) { closeRoomPanel(); return; }
+  box.hidden = false;
+  box.replaceChildren();
+  const head = document.createElement('div'); head.className = 'rp-head';
+  const title = document.createElement('b'); title.textContent = room.name || '';
+  const x = document.createElement('button'); x.className = 'rp-x'; x.textContent = '×'; x.addEventListener('click', closeRoomPanel);
+  head.append(title, x);
+  const area = document.createElement('div'); area.className = 'sub';
+  area.textContent = imperial() ? `${(polyArea(room.points) * 10.7639).toFixed(0)} ft²` : `${polyArea(room.points).toFixed(1)} m²`;
+  box.append(head, area);
+  const devs = floor().devices.filter((d) => d.entity && pointInPoly(d.x, d.z, room.points));
+  RP_GROUPS.forEach(([group, key]) => {
+    const list = devs.filter((d) => rpGroupOf(d.entity.split('.')[0]) === group);
+    if (!list.length) return;
+    const h = document.createElement('h4'); h.textContent = t(key); box.append(h);
+    list.forEach((d) => {
+      const dom = d.entity.split('.')[0], st = states[d.entity];
+      const row = document.createElement('div');
+      row.className = 'row' + (st && ON_STATES.has(st.state) ? ' on' : '');
+      const n = document.createElement('span'); n.className = 'n'; n.textContent = d.name || d.entity;
+      const v = document.createElement('span'); v.className = 'v'; v.textContent = stateText(d.entity);
+      row.append(n, v);
+      if (ACTIONS[dom] && dom !== 'cover') {
+        const b = document.createElement('button');
+        b.textContent = dom === 'scene' || dom === 'script' ? t('live.activate') : t('live.toggle');
+        b.addEventListener('click', () => quickAction(d.entity));
+        row.append(b);
+      }
+      const slider = (val, onChange) => {
+        const r = document.createElement('input'); r.type = 'range'; r.min = 0; r.max = 100; r.value = val ?? 0;
+        r.addEventListener('change', () => onChange(+r.value));
+        row.append(r);
+      };
+      if (dom === 'light' && st?.brightness != null) slider(st.brightness, (p) => callService(d.entity, 'turn_on', { brightness_pct: p }));
+      if (dom === 'cover') {
+        ['open_cover', 'stop_cover', 'close_cover'].forEach((a) => {
+          const b = document.createElement('button'); b.textContent = t(ACTION_LABEL[a]);
+          b.addEventListener('click', () => callService(d.entity, a)); row.append(b);
+        });
+        if (st?.position != null) slider(st.position, (p) => callService(d.entity, 'set_cover_position', { position: p }));
+      }
+      box.append(row);
+    });
+  });
+  if (!devs.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('rp.empty'); box.append(e); }
+}
+function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPanel(); }
+
 /* ================= Tools, views, mode ================= */
 function setTool(next) {
   tool = next; endDrawing(); setStatus('');
@@ -721,7 +780,7 @@ function setMode(next) {
   mode = next;
   document.body.classList.toggle('live', isLive());
   document.querySelectorAll('#modeSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.mode === next));
-  closeLivePopup(); selection = null;
+  closeLivePopup(); closeRoomPanel(); selection = null;
   if (isLive()) {
     setTool('select');
     $('#hintText').textContent = t('hint.live');
@@ -753,7 +812,7 @@ function setView(is2) {
   $('#view2d').classList.toggle('active', is2d);
   $('#view3d').classList.toggle('active', !is2d);
   controls.enableRotate = !is2d;
-  fitCamera();
+  build(); fitCamera();
 }
 $('#view2d').addEventListener('click', () => setView(true));
 $('#view3d').addEventListener('click', () => setView(false));
@@ -795,13 +854,13 @@ function buildNav(force = false) {
   navKey = key;
   const fp = $('#floorPills'), rp = $('#roomPills');
   fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx, () => switchFloor(i))));
-  rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => focusRoom(r.id === focusedRoom ? null : r.id))));
+  rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => { const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (isLive()) { if (off) closeRoomPanel(); else openRoomPanel(r.id); } })));
   $('#navSep').hidden = !rooms.length;
 }
 function fillFloorSelect() { buildNav(true); }
 
 function switchFloor(i) {
-  floorIdx = i; selection = null; focusedRoom = null; endDrawing(); closeLivePopup();
+  floorIdx = i; selection = null; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
   clearFocusOutline(); build(); fitCamera();
 }
 
@@ -1052,7 +1111,7 @@ async function pollStates() {
     if (!Array.isArray(list)) return;
     const firstLoad = !entities.length;
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit }]));
+    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position }]));
     if (firstLoad) { fillEntities(); renderProps(); }
     applyStates();
   } catch { /* offline: ignore */ }
