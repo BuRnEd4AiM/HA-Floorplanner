@@ -32,6 +32,8 @@ export const DEVICE_TYPES = {
   shower:     { label: 'Dusche',      y: 0 },
   carpet:     { label: 'Teppich',     y: 0 },
   car:        { label: 'Auto',        y: 0 },
+  orb:        { label: 'Lichtkugel',  y: 0.4 },
+  strip:      { label: 'LED-Streifen', y: 0.5 },
 };
 
 const std = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.05, ...extra });
@@ -51,6 +53,16 @@ function glowMat(color = 0xfff2cc) {
 }
 
 const builders = {
+  orb(g) {                      // glowing ball: one spot of an LED strip / accent light
+    const glow = glowMat();
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), glow));
+    g.userData.glow = [glow];
+  },
+  strip(g) {                    // 1 m LED strip, scale it to the real length
+    const glow = glowMat();
+    g.add(box(1, 0.025, 0.025, glow, 0, -0.0125, 0));
+    g.userData.glow = [glow];
+  },
   light(g) {
     const glow = glowMat();
     g.add(cyl(0.03, 0.03, 0.25, std('#555'), 0, 0.05, 0, 8));

@@ -13,7 +13,7 @@ Draw your home yourself, view it in 3D and place your Home Assistant devices rig
 - **Draw your own floor plan** – walls, rooms and multiple floors on a snapping grid
 - **3D view** – orbit, pan and zoom; 2D top view for precise editing; low-wall mode to look inside
 - **Doors and windows** – real openings cut into the walls, draggable along the wall with overlap protection
-- **Devices** – 27 built-in models (lights, switches, sensors, radiators, furniture, plants) plus your **own GLB models** with a model library
+- **Devices** – 29 built-in models (incl. light ball and LED strip) (lights, switches, sensors, radiators, furniture, plants) plus your **own GLB models** with a model library
 - **Home Assistant linked** – each device can be bound to an entity; lights glow when on, sensor values are shown at the device
 - **Live mode** – tap a device to see its state and control it (lights, switches, fans, covers, locks, scenes, scripts); `?kiosk=1` hides all editor UI for wall tablets
 - **Permissions and room tablets** – only chosen users may edit (`editors` option); every tablet can be locked to one room via its Home Assistant user
