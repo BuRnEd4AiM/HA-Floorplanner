@@ -195,7 +195,7 @@ void main(){ vec3 acc = vec3(0.0);
   acc *= uStr; float m = max(max(acc.r, acc.g), max(acc.b, 0.001));
   float a = clamp(m * 0.6, 0.0, 0.6) * (1.0 - smoothstep(0.0, uH, vP.y));
   if (a < 0.01) discard; gl_FragColor = vec4(acc / m, a); }`;
-function roomLightMat(kind, alpha = 1) {
+function roomLightMat(kind, alpha = 1, ghost = false) {
   const wash = kind === 'wash';
   return new THREE.ShaderMaterial({
     uniforms: {
@@ -204,12 +204,12 @@ function roomLightMat(kind, alpha = 1) {
       uCol: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector3()) },
     },
     vertexShader: VERT, fragmentShader: wash ? WASH_FS : FLOOR_FS,
-    transparent: wash || alpha < 1, depthWrite: !wash, side: wash ? THREE.BackSide : THREE.DoubleSide,
+    transparent: wash || alpha < 1, depthWrite: !wash && !ghost, side: wash ? THREE.BackSide : THREE.DoubleSide,
   });
 }
-function fillLights(m, lights) {
+function fillLights(m, lights, k = 1) {
   const U = m.uniforms;
-  U.uCount.value = lights.length; U.uStr.value = settings.glowStrength; U.uH.value = settings.glowHeight;
+  U.uCount.value = lights.length; U.uStr.value = settings.glowStrength * k; U.uH.value = settings.glowHeight;
   lights.forEach((l, i) => { U.uPos.value[i].set(l.x, l.y, l.z, l.r); U.uCol.value[i].copy(l.c); });
 }
 function colorFromStops(stops, v) {
@@ -312,28 +312,32 @@ function build() {
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(geo, holo
-        ? (ghost ? new THREE.MeshBasicMaterial({ color: HOLO.floor, transparent: true, opacity: 0.12 + 0.5 * settings.belowVisibility, side: THREE.DoubleSide, depthWrite: false })
+        ? (ghost ? roomLightMat('floor', 0.15 + 0.5 * settings.belowVisibility, true)
                  : roomLightMat('floor', floorIdx > 0 ? 1 - 0.65 * settings.belowVisibility : 1))
         : mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
       m.position.y = 0.01;
       m.receiveShadow = true;
       g.add(m);
       let wash = null;
-      if (holo && !ghost) {                          // coloured "air" that tints the room's inner walls when a light is on
+      if (holo) {                                    // coloured "air" that tints the room's inner walls when a light is on
         const eg = new THREE.ExtrudeGeometry(shape, { depth: settings.wallHeight, bevelEnabled: false });
         eg.rotateX(-Math.PI / 2);
         wash = new THREE.Mesh(eg, roomLightMat('wash'));
+        wash.userData.ghost = ghost;
         wash.renderOrder = 1;
         g.add(wash);
       }
+      roomMeshes.set(r.id, { mesh: m, room: r, wash, f, ghost });
       if (!ghost) {
         m.userData = { kind: 'room', id: r.id };
         registry.set(r.id, m); pickables.push(m);
-        roomMeshes.set(r.id, { mesh: m, room: r, wash });
+      }
+      {
         if (r.name) {
           const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);
           const sp = textSprite(is2d ? `${r.name} · ${imperial() ? (polyArea(r.points) * 10.7639).toFixed(0) + ' ft²' : polyArea(r.points).toFixed(1) + ' m²'}` : r.name);
           sp.position.set(c[0], 0.45, c[1]);
+          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * settings.belowVisibility; }
           g.add(sp);
         }
       }
@@ -351,8 +355,8 @@ function build() {
       if (!ghost) {
         cutawayWalls.push(wallCutawayInfo(w, wg));
         registry.set(w.id, wg); pickables.push(wg);
-        wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { registry.set(c.userData.id, c); pickables.push(c); } });
       }
+      wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { registry.set(c.userData.id, c); if (!ghost) pickables.push(c); } });
     });
 
     f.devices.forEach((d) => {
@@ -370,13 +374,16 @@ function build() {
       });
       model.userData.kind = 'device';
       model.userData.id = d.id;
+      model.userData.ghost = ghost;
       g.add(model);
-      if (!ghost) {
-        registry.set(d.id, model); pickables.push(model);
+      registry.set(d.id, model);
+      if (!ghost) pickables.push(model);
+      {
         const dom = d.entity?.split('.')[0];
         if (LABEL_DOMAINS.has(dom)) {
           const sp = textSprite('…', { size: 34, scaleX: 1.2, scaleY: 0.3 });
           sp.position.set(d.x, (d.y || 0) + 0.3 + 0.2 * (d.scale || 1), d.z);
+          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * settings.belowVisibility; }
           g.add(sp);
           labelSprites.set(d.id, sp);
         }
@@ -410,18 +417,19 @@ const OPEN_HEX = 0xff4a3d;
 const openingObjs = () => [...registry.values()].filter((o) => o.userData?.kind === 'opening' && o.userData.pivot);
 const isOpen = (entity) => !!entity && ON_STATES.has(states[entity]?.state);
 const openText = (entity) => (!entity ? '—' : isOpen(entity) ? t('state.open') : states[entity] ? t('state.closed') : '—');
-function applyOpenings(f) {
-  f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+function applyOpenings() {
+  let n = 0, any = false;
+  layout.floors.forEach((f) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+    if (o.entity) { any = true; if (isOpen(o.entity)) n++; }
     const obj = registry.get(o.id);
     if (!obj?.userData.pivot) return;
     const open = isOpen(o.entity);
     obj.userData.open = open;
     obj.userData.tint.forEach(({ m, base }) => m.color.setHex(open && o.entity ? OPEN_HEX : base));
     obj.userData.pivot.userData.target = open ? obj.userData.pivot.userData.dir * obj.userData.pivot.userData.max : 0;
-  }));
-  const n = f.walls.reduce((c, w) => c + (w.openings || []).filter((o) => o.entity && isOpen(o.entity)).length, 0);
+  })));
   const pill = $('#openPill');
-  pill.hidden = !f.walls.some((w) => (w.openings || []).some((o) => o.entity));
+  pill.hidden = !any;
   pill.textContent = n ? t('open.count', { n }) : t('open.allClosed');
   pill.classList.toggle('alert', n > 0);
 }
@@ -434,29 +442,35 @@ function animateOpenings() {
 }
 
 function applyStates() {
-  const f = layout.floors[floorIdx];
-  if (!f) return;
-  applyOpenings(f);
-  f.devices.forEach((d) => {
-    const obj = registry.get(d.id);
-    const on = d.entity && ON_STATES.has(states[d.entity]?.state);
-    obj?.userData.glow?.forEach((m) => {
-      m.emissive.set(on ? 0xffd27a : 0x000000);
-      m.emissiveIntensity = on ? 1.4 : 0;
+  if (!layout.floors[floorIdx]) return;
+  applyOpenings();
+  const bv = settings.belowVisibility;
+  for (let fi = 0; fi <= floorIdx; fi++) {
+    const f = layout.floors[fi], ghost = fi < floorIdx;
+    f.devices.forEach((d) => {
+      const obj = registry.get(d.id);
+      if (!obj) return;
+      const on = d.entity && ON_STATES.has(states[d.entity]?.state);
+      obj.userData.glow?.forEach((m) => {
+        m.emissive.set(on ? 0xffd27a : 0x000000);
+        m.emissiveIntensity = on ? 1.4 : 0;
+      });
+      const hg = obj.userData.holoGlow;
+      if (hg) {
+        const onOp = ghost ? 0.12 + 0.5 * bv : 0.8, offOp = ghost ? 0.03 + 0.2 * bv : 0.38;
+        hg.fill.forEach((m) => { m.color.setHex(on ? HOLO.on : HOLO.fill); m.opacity = on ? onOp : offOp; });
+        hg.edge.forEach((m) => m.color.setHex(on ? HOLO.onEdge : HOLO.edge));
+      }
+      const sp = labelSprites.get(d.id);
+      if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
     });
-    const hg = obj?.userData.holoGlow;
-    if (hg) {
-      hg.fill.forEach((m) => { m.color.setHex(on ? HOLO.on : HOLO.fill); m.opacity = on ? 0.8 : 0.38; });
-      hg.edge.forEach((m) => m.color.setHex(on ? HOLO.onEdge : HOLO.edge));
-    }
-    const sp = labelSprites.get(d.id);
-    if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
-  });
+  }
   if (isHolo()) {                         // lit rooms: light spreads from each lamp, in the lamp's colour
     const defCol = hexVec(cssHex(settings.defaultLightColor));
-    roomMeshes.forEach(({ mesh, room, wash }) => {
+    roomMeshes.forEach(({ mesh, room, wash, f, ghost }) => {
       const U = mesh.material.uniforms;
       if (!U) return;
+      const k = ghost ? 0.3 + 0.6 * bv : 1;
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
       const lights = heat ? [] : f.devices
         .filter((d) => d.entity && /^(light|switch)\./.test(d.entity) && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points))
@@ -468,9 +482,9 @@ function applyStates() {
           const sw = d.entity.startsWith('switch.') ? 0.6 : 1;
           return { x: d.x, y: d.y || 0, z: d.z, r: settings.glowRadius * (0.7 + 0.5 * br) * sw, c: c.multiplyScalar(br) };
         });
-      fillLights(mesh.material, lights);
+      fillLights(mesh.material, lights, ghost ? 1 : 1);
       U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
-      if (wash) { fillLights(wash.material, lights); wash.visible = lights.length > 0; }
+      if (wash) { fillLights(wash.material, lights, k); wash.visible = lights.length > 0; }
     });
   }
   if (livePopupFor) renderLivePopup();
