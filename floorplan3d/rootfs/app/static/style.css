@@ -160,3 +160,13 @@ dialog .stop.tablet select { width: 130px; }
 #livePopup .swatches { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; align-items: center; }
 #livePopup .sw { width: 30px; height: 30px; min-height: 0; padding: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); }
 #livePopup .sw-pick { width: 34px; height: 34px; padding: 0; border: 2px solid rgba(255,255,255,.5); border-radius: 50%; background: none; }
+
+.roomEnts h4 { margin: 12px 0 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent, #23e0ff); }
+.re-row { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: center; padding: 6px 8px; margin-bottom: 4px; border: 1px solid rgba(120,200,255,.25); border-radius: 10px; }
+.re-row.placed { cursor: pointer; }
+.re-row.placed:hover { background: rgba(35,224,255,.12); }
+.re-row.unplaced { border-style: dashed; opacity: .85; }
+.re-n { font-weight: 600; flex: 1 1 100%; }
+.re-s { font-size: 11px; color: var(--muted); flex: 1; word-break: break-all; }
+.re-row button { min-height: 28px; padding: 2px 10px; }
+.entState { font-size: 11px; color: var(--muted); margin-top: 4px; word-break: break-all; }
