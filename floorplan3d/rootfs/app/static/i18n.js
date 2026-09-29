@@ -40,6 +40,7 @@ const DICT = {
     'set.bgTop': 'Hintergrund oben', 'set.bgBottom': 'Hintergrund unten', 'set.bgGlow': 'Hintergrund-Leuchtfleck',
     'set.section.tempColors': 'Farben je Temperatur', 'set.section.humidColors': 'Farben je Luftfeuchte',
     'set.addStop': '+ Stufe', 'set.removeStop': 'Stufe entfernen', 'set.resetStops': 'Zurücksetzen',
+    'open.count': '{n} offen', 'open.allClosed': 'Alles zu', 'prop.contact': 'Kontakt', 'rp.openings': 'TÜREN & FENSTER', 'state.open': 'Offen', 'state.closed': 'Geschlossen',
     'rp.light': 'LICHT', 'rp.cover': 'ROLLLÄDEN', 'rp.media': 'MEDIEN', 'rp.switch': 'SCHALTER', 'rp.sensor': 'SENSOREN', 'rp.empty': 'Keine Geräte mit Entität in diesem Raum.',
     'live.stop': 'Stopp', 'live.lock': 'Sperren', 'live.unlock': 'Entsperren', 'live.activate': 'Aktivieren',
     'live.noEntity': 'Kein Gerät verknüpft', 'live.failed': 'Aktion fehlgeschlagen',
@@ -90,6 +91,7 @@ const DICT = {
     'set.bgTop': 'Background top', 'set.bgBottom': 'Background bottom', 'set.bgGlow': 'Background glow',
     'set.section.tempColors': 'Colours by temperature', 'set.section.humidColors': 'Colours by humidity',
     'set.addStop': '+ Stop', 'set.removeStop': 'Remove stop', 'set.resetStops': 'Reset',
+    'open.count': '{n} open', 'open.allClosed': 'All closed', 'prop.contact': 'Contact', 'rp.openings': 'DOORS & WINDOWS', 'state.open': 'Open', 'state.closed': 'Closed',
     'rp.light': 'LIGHTS', 'rp.cover': 'COVERS', 'rp.media': 'MEDIA', 'rp.switch': 'SWITCHES', 'rp.sensor': 'SENSORS', 'rp.empty': 'No devices with an entity in this room.',
     'live.stop': 'Stop', 'live.lock': 'Lock', 'live.unlock': 'Unlock', 'live.activate': 'Activate',
     'live.noEntity': 'No entity linked', 'live.failed': 'Action failed',
@@ -104,7 +106,11 @@ const DICT = {
 
 let lang = 'de';
 export function setLanguage(l) { lang = DICT[l] ? l : 'de'; document.documentElement.lang = lang; }
-export function t(key) { return DICT[lang][key] ?? DICT.de[key] ?? key; }
+export function t(key, vars) {
+  let s = DICT[lang][key] ?? DICT.de[key] ?? key;
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);
+  return s;
+}
 
 export function applyI18n(root = document) {
   root.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });

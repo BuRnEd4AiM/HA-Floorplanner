@@ -406,9 +406,37 @@ function roomHeat(room, f) {
   return colorFromStops(viewMode === 'temp' ? settings.tempStops : settings.humidStops, vals.reduce((x, y) => x + y) / vals.length);
 }
 
+const OPEN_HEX = 0xff4a3d;
+const openingObjs = () => [...registry.values()].filter((o) => o.userData?.kind === 'opening' && o.userData.pivot);
+const isOpen = (entity) => !!entity && ON_STATES.has(states[entity]?.state);
+const openText = (entity) => (!entity ? '—' : isOpen(entity) ? t('state.open') : states[entity] ? t('state.closed') : '—');
+function applyOpenings(f) {
+  f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+    const obj = registry.get(o.id);
+    if (!obj?.userData.pivot) return;
+    const open = isOpen(o.entity);
+    obj.userData.open = open;
+    obj.userData.tint.forEach(({ m, base }) => m.color.setHex(open && o.entity ? OPEN_HEX : base));
+    obj.userData.pivot.userData.target = open ? obj.userData.pivot.userData.dir * obj.userData.pivot.userData.max : 0;
+  }));
+  const n = f.walls.reduce((c, w) => c + (w.openings || []).filter((o) => o.entity && isOpen(o.entity)).length, 0);
+  const pill = $('#openPill');
+  pill.hidden = !f.walls.some((w) => (w.openings || []).some((o) => o.entity));
+  pill.textContent = n ? t('open.count', { n }) : t('open.allClosed');
+  pill.classList.toggle('alert', n > 0);
+}
+function animateOpenings() {
+  openingObjs().forEach((obj) => {
+    const p = obj.userData.pivot, tg = p.userData.target ?? 0;
+    const prop = p.userData.axis, cur = p.rotation[prop];
+    if (Math.abs(tg - cur) > 0.002) p.rotation[prop] = cur + (tg - cur) * 0.15;
+  });
+}
+
 function applyStates() {
   const f = layout.floors[floorIdx];
   if (!f) return;
+  applyOpenings(f);
   f.devices.forEach((d) => {
     const obj = registry.get(d.id);
     const on = d.entity && ON_STATES.has(states[d.entity]?.state);
@@ -546,7 +574,10 @@ function pickHit(e) {
   // must never steal a tap meant for a lamp); in live mode walls are ignored completely.
   const dev = hits.find((h) => h.data.kind === 'device');
   if (dev) return dev;
-  if (isLive()) return hits.find((h) => h.data.kind === 'room') ?? null;
+  if (isLive()) {
+    const op = hits.find((h) => h.data.kind === 'opening' && findOpening(h.data.id)?.opening.entity);
+    return op ?? hits.find((h) => h.data.kind === 'room') ?? null;
+  }
   return hits[0] ?? null;
 }
 const pick = (e) => pickHit(e)?.data ?? null;
@@ -833,20 +864,24 @@ function quickAction(entityId) {
 
 function handleLiveTap(e) {
   const h = pick(e);
-  if (h?.kind === 'device') { livePopupFor = h.id; renderLivePopup(); }
+  if (h?.kind === 'device' || h?.kind === 'opening') { livePopupFor = h.id; renderLivePopup(); }
   else if (h?.kind === 'room') { closeLivePopup(); if (focusedRoom !== h.id) focusRoom(h.id); openRoomPanel(h.id); }
   else closeLivePopup();
 }
 function closeLivePopup() { livePopupFor = null; $('#livePopup').hidden = true; }
 function renderLivePopup() {
   const box = $('#livePopup');
-  const d = floor()?.devices.find((v) => v.id === livePopupFor);
+  let d = floor()?.devices.find((v) => v.id === livePopupFor);
+  if (!d) {                                          // a door/window with a contact sensor
+    const fo = findOpening(livePopupFor);
+    if (fo) d = { name: fo.opening.name || t(`prop.${fo.opening.type}`), entity: fo.opening.entity, isOpening: true };
+  }
   if (!d) { closeLivePopup(); return; }
   box.hidden = false;
   box.innerHTML = '';
   const title = document.createElement('div'); title.className = 'title'; title.textContent = d.name || '';
   const sub = document.createElement('div'); sub.className = 'sub';
-  sub.textContent = d.entity ? `${stateText(d.entity)} · ${d.entity}` : t('live.noEntity');
+  sub.textContent = d.entity ? `${d.isOpening ? openText(d.entity) : stateText(d.entity)} · ${d.entity}` : t('live.noEntity');
   box.append(title, sub);
   const acts = d.entity ? ACTIONS[d.entity.split('.')[0]] : null;
   if (acts) {
@@ -867,6 +902,14 @@ const polyArea = (p) => Math.abs(p.reduce((s, [x, z], i) => { const [x2, z2] = p
 const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['sensor', 'rp.sensor']];
 const rpGroupOf = (dom) => (dom === 'binary_sensor' || dom === 'climate' ? 'sensor' : dom === 'fan' || dom === 'input_boolean' ? 'switch' : dom);
 
+function roomOpenings(room, f) {
+  const out = [];
+  f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+    const L = wallLength(w) || 1, k = o.pos / L;
+    if (distToPoly(w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k, room.points) < 0.35) out.push(o);
+  }));
+  return out;
+}
 function closeRoomPanel() { roomPanelFor = null; $('#roomPanel').hidden = true; }
 function renderRoomPanel() {
   const box = $('#roomPanel');
@@ -915,7 +958,18 @@ function renderRoomPanel() {
       box.append(row);
     });
   });
-  if (!devs.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('rp.empty'); box.append(e); }
+  const ops = roomOpenings(room, floor()).filter((o) => o.entity);
+  if (ops.length) {
+    const h = document.createElement('h4'); h.textContent = t('rp.openings'); box.append(h);
+    ops.forEach((o) => {
+      const row = document.createElement('div');
+      row.className = 'row' + (isOpen(o.entity) ? ' alert' : '');
+      const n = document.createElement('span'); n.className = 'n'; n.textContent = o.name || t(`prop.${o.type}`);
+      const v = document.createElement('span'); v.className = 'v'; v.textContent = openText(o.entity);
+      row.append(n, v); box.append(row);
+    });
+  }
+  if (!devs.length && !ops.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('rp.empty'); box.append(e); }
 }
 function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPanel(); }
 
@@ -1180,6 +1234,15 @@ function renderProps() {
       const p = clampOpeningPos(wall, it.width, v);
       if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p;
     })));
+    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    const csel = document.createElement('select');
+    csel.add(new Option(t('panel.noEntity'), ''));
+    const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
+    (contact.length ? contact : entities).slice(0, 500).forEach((e) => csel.add(new Option(`${e.name} (${e.entity_id})`, e.entity_id)));
+    if (it.entity && !entities.some((e) => e.entity_id === it.entity)) csel.add(new Option(it.entity, it.entity));
+    csel.value = it.entity || '';
+    csel.addEventListener('change', () => { snapshot(); it.entity = csel.value; changed(); });
+    body.append(field(t('prop.contact'), csel));
     if (it.type === 'door') {
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.flip;
       cb.addEventListener('change', () => { snapshot(); it.flip = cb.checked; changed(); });
@@ -1348,6 +1411,7 @@ function animate() {
   requestAnimationFrame(animate);
   controls.update();
   updateCutaway();
+  animateOpenings();
   selHelper?.update();
   renderer.render(scene, camera);
 }
