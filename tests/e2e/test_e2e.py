@@ -71,6 +71,15 @@ with sync_playwright() as p:
     check("custom model device type", any(d["type"] == "glb:tri" for d in devs))
     check("entities bound", {d["entity"] for d in devs} == {"", "light.wohnzimmer", "sensor.temp"}, devs)
 
+    # --- searchable entity picker in the properties panel
+    pg.click("button[data-tool=select]"); pg.mouse.click(cx+40, cy-20); pg.wait_for_timeout(400)
+    pg.fill(".entPicker input", "temp"); pg.wait_for_timeout(200)
+    opts = pg.eval_on_selector_all(".entPicker select option", "els => els.map(e => e.value)")
+    check("entity search filters the list", "sensor.temp" in opts and "light.wohnzimmer" not in opts, opts)
+    pg.fill(".entPicker input", "wohnzimmer"); pg.keyboard.press("Enter"); pg.wait_for_timeout(300)
+    sel = pg.evaluate("window.__fp.layout")["floors"][0]["devices"]
+    check("Enter in search assigns first match", any(d["entity"] == "light.wohnzimmer" for d in sel) and not any(d["entity"] == "sensor.temp" for d in sel), [d["entity"] for d in sel])
+
     # --- settings: English + light theme + imperial
     pg.click("#settingsBtn"); pg.wait_for_timeout(200)
     pg.select_option("#setLanguage", "en"); pg.select_option("#setTheme", "light"); pg.select_option("#setUnits", "imperial")
