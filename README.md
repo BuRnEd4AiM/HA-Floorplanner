@@ -12,7 +12,8 @@ Draw your home yourself, view it in 3D and place your Home Assistant devices rig
 - **Devices** – 10 built-in models (lights, switches, sensors, radiators, furniture, plants) plus your **own GLB models** with a model library
 - **Home Assistant linked** – each device can be bound to an entity; lights glow when on, sensor values are shown at the device
 - **Live mode** – tap a device to see its state and control it (lights, switches, fans, covers, locks, scenes, scripts); `?kiosk=1` hides all editor UI for wall tablets
-- **Settings** – language (DE/EN), light/dark theme, metric/imperial units, grid size, default wall size, shadows, autosave
+- **Hologram design** – translucent neon walls, glowing devices and lit rooms, pill navigation for floors and rooms
+- **Settings** – language (DE/EN), hologram/dark/light theme, metric/imperial units, grid size, default wall size, shadows, autosave
 - **Auto-save and undo** – changes are saved automatically, `Ctrl+Z` reverts
 - **Works offline** – three.js is bundled, no CDN required
 - **Ingress** – opens in the Home Assistant sidebar, no extra ports or logins
@@ -72,6 +73,9 @@ tests/                  backend tests
 ```
 
 ## Contributing
+
+New to Git? Start with the [beginner guide (German)](docs/GIT-EINSTIEG.md).
+
 
 Issues and pull requests are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md).
 

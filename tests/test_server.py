@@ -40,7 +40,7 @@ async def test_settings_defaults_and_validation(client):
     s = await r.json()
     assert s["language"] == "en"
     assert s["grid"] == 0.5
-    assert s["theme"] == "dark"       # invalid value falls back
+    assert s["theme"] == "holo"       # invalid value falls back to the default
     assert s["shadows"] is True       # wrong type ignored
     assert "evil" not in s
     assert (await (await client.get("/api/settings")).json()) == s

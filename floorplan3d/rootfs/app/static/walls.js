@@ -61,7 +61,7 @@ function buildOpening(o, t, mats, low) {
 }
 
 /** Returns a Group positioned at the wall centre with local x along the wall. */
-export function buildWall(w, { material, ghost = false, low = false, makeMat }) {
+export function buildWall(w, { material, ghost = false, low = false, makeMat, holo = false, edgeMaterial = null }) {
   const len = wallLength(w);
   const t = w.thickness;
   const H = (w.height || 2.6) * (low ? 0.12 : 1);
@@ -71,7 +71,12 @@ export function buildWall(w, { material, ghost = false, low = false, makeMat }) 
   if (!ghost) group.userData = { kind: 'wall', id: w.id };
 
   const openings = [...(w.openings || [])].sort((p, q) => p.pos - q.pos);
-  const mats = {
+  const basic = (color, opacity, depthWrite = true) =>
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: ghost ? Math.min(opacity, 0.1) : opacity, depthWrite });
+  const mats = holo ? {
+    frame: basic(0x3df2ff, 0.85), door: basic(0xff9d2e, 0.55, false),
+    metal: basic(0xffd08a, 1), glass: basic(0x22e0a8, 0.4, false),
+  } : {
     frame: makeMat('#f4f4f4', ghost), door: makeMat('#8a6a48', ghost), metal: makeMat('#c9c9c9', ghost),
     glass: makeMat('#9cc9ee', ghost, { opacity: ghost ? 0.15 : 0.45, roughness: 0.1 }),
   };
@@ -79,7 +84,8 @@ export function buildWall(w, { material, ghost = false, low = false, makeMat }) 
     y1 = Math.min(y1, H);
     if (x1 - x0 < 0.001 || y1 - y0 < 0.001) return;
     const m = boxMesh(x0, x1, y0, y1, t, material);
-    m.castShadow = !ghost; m.receiveShadow = true;
+    m.castShadow = !ghost && !holo; m.receiveShadow = true;
+    if (edgeMaterial) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMaterial));
     group.add(m);
   };
 
