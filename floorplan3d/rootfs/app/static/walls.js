@@ -126,7 +126,7 @@ export function buildWall(w, { material, ghost = false, low = false, makeMat, ho
     solid(x0, x1, o.sill + o.height, H);                  // above
     if (o.sill > 0) solid(x0, x1, 0, o.sill);             // below (windows)
     cursor = x1;
-    if (!ghost && !low) {
+    if (!low) {
       const og = buildOpening({ ...o }, t, mats, low);
       og.position.x = c;
       group.add(og);
