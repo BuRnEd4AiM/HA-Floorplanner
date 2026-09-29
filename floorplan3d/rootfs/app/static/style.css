@@ -146,3 +146,11 @@ dialog .stopTools { display: flex; gap: 8px; }
 
 #openPill.alert { background: #ff4a3d; border-color: #ff4a3d; color: #fff; box-shadow: 0 0 14px rgba(255,74,61,.7); }
 #roomPanel .row.alert { border-color: #ff4a3d; box-shadow: 0 0 12px rgba(255,74,61,.4); }
+
+/* Room tablet: locked to one room; the button in the nav bar switches between the room and the whole floor */
+body.roomtablet.iso #floorPills, body.roomtablet.iso #roomPills, body.roomtablet.iso #navSep { display: none; }
+body.roomtablet #houseToggle { font-weight: 600; }
+body.roomtablet #roomPanel { top: 58px; }
+dialog .hint { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
+dialog .stop.tablet input[type=text] { flex: 1; min-width: 0; width: auto; }
+dialog .stop.tablet select { width: 130px; }

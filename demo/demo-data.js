@@ -131,6 +131,7 @@ export function installDemoBackend() {
       if (method === 'PUT') return json({ ok: true });        // edits live only in this tab
       return json(layout);
     }
+    if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null });
     if (path === 'api/settings') {
       if (method === 'PUT') { settings = { ...settings, ...JSON.parse(init.body) }; return json(settings); }
       return json(settings);

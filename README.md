@@ -12,6 +12,7 @@ Draw your home yourself, view it in 3D and place your Home Assistant devices rig
 - **Devices** – 10 built-in models (lights, switches, sensors, radiators, furniture, plants) plus your **own GLB models** with a model library
 - **Home Assistant linked** – each device can be bound to an entity; lights glow when on, sensor values are shown at the device
 - **Live mode** – tap a device to see its state and control it (lights, switches, fans, covers, locks, scenes, scripts); `?kiosk=1` hides all editor UI for wall tablets
+- **Permissions and room tablets** – only chosen users may edit (`editors` option); every tablet can be locked to one room via its Home Assistant user
 - **Hologram design** – translucent neon walls, glowing devices and lit rooms, pill navigation for floors and rooms
 - **Settings** – language (DE/EN), hologram/dark/light theme, metric/imperial units, grid size, default wall size, shadows, autosave
 - **Auto-save and undo** – changes are saved automatically, `Ctrl+Z` reverts

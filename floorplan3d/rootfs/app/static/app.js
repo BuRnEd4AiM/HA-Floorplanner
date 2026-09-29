@@ -15,7 +15,7 @@ let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true,
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
-  belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2',
+  userRooms: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2',
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
   humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
 };
@@ -33,6 +33,8 @@ let states = {};                   // entity_id -> { state, unit }
 let customModels = [];
 let lowWalls = false;
 let is2d = false;
+let me = { user: '', canEdit: true, room: null };
+let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 let livePopupFor = null;           // device id
 const undoStack = [];
 let saveTimer = null;
@@ -104,6 +106,7 @@ function rebuildGrid() {
 const registry = new Map();       // id -> Object3D
 const pickables = [];
 const labelSprites = new Map();   // device id -> sprite
+const openingHandles = new Map();   // opening id -> { mesh, outline }: unscaled hit boxes that stay usable when the wall is lowered
 let cutawayWalls = [];            // { group, mid:[x,z], n:[nx,nz] } for the active floor
 
 function mat(color, ghost, extra = {}) {
@@ -293,9 +296,29 @@ function pointInPoly(x, z, pts) {
 
 const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate']);
 
+/** Doors/windows live inside their wall group, which is scaled down when the wall is lowered. This unscaled
+ *  hit box (with an outline shown only while the wall is lowered) keeps them selectable, movable and tappable. */
+function makeOpeningHandle(w, o, group) {
+  const L = wallLength(w) || 1;
+  const k = o.pos / L;
+  const geo = new THREE.BoxGeometry(o.width + 0.1, o.height + 0.1, w.thickness + 0.3);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ visible: false }));
+  mesh.position.set(w.a[0] + (w.b[0] - w.a[0]) * k, o.sill + o.height / 2, w.a[1] + (w.b[1] - w.a[1]) * k);
+  mesh.rotation.y = -Math.atan2(w.b[1] - w.a[1], w.b[0] - w.a[0]);
+  mesh.userData = { kind: 'opening', id: o.id, handle: true };
+  const outline = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0xffb04a }));
+  outline.visible = false;
+  mesh.add(outline);
+  group.add(mesh);
+  pickables.push(mesh);
+  const h = { mesh, outline };
+  openingHandles.set(o.id, h);
+  return h;
+}
+
 function build() {
   world.clear();
-  registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roomMeshes.clear();
+  registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roomMeshes.clear(); openingHandles.clear();
   const holo = isHolo();
   const iso = isolatedRoom();
   layout.floors.forEach((f, i) => {
@@ -355,7 +378,9 @@ function build() {
       const wg = buildWall(w, { material: wallMat, ghost, low: lowWalls, makeMat: mat, holo, edgeMaterial });
       g.add(wg);
       if (!ghost) {
-        cutawayWalls.push(wallCutawayInfo(w, wg));
+        const info = wallCutawayInfo(w, wg);
+        info.handles = (w.openings || []).map((o) => makeOpeningHandle(w, o, g));
+        cutawayWalls.push(info);
         registry.set(w.id, wg); pickables.push(wg);
       }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { registry.set(c.userData.id, c); if (!ghost) pickables.push(c); } });
@@ -495,7 +520,7 @@ function applyStates() {
 
 function refreshSelHelper() {
   if (selHelper) { scene.remove(selHelper); selHelper = null; }
-  const obj = selection && registry.get(selection.id);
+  const obj = selection && (selection.kind === 'opening' ? openingHandles.get(selection.id)?.mesh : registry.get(selection.id));
   if (!obj) return;
   selHelper = new THREE.BoxHelper(obj, 0x3fa9f5);
   scene.add(selHelper);
@@ -530,6 +555,8 @@ function updateCutaway() {
     c.low += (target - c.low) * 0.2;
     if (Math.abs(target - c.low) < 0.002) c.low = target;
     c.group.scale.y = c.low;
+    const show = c.low < 0.6 && !isLive();
+    c.handles?.forEach((h) => { h.outline.visible = show; });
   }
 }
 
@@ -584,16 +611,16 @@ function pickHit(e) {
   for (const h of ray.intersectObjects(pickables, true)) {
     let o = h.object;
     while (o && !o.userData.kind) o = o.parent;
-    if (o) hits.push({ data: o.userData, point: h.point });
+    if (o) hits.push({ data: o.userData, point: h.point, distance: h.distance });
   }
-  // Devices win over walls, doors and floors even when a wall is in front (lowered or see-through walls
-  // must never steal a tap meant for a lamp); in live mode walls are ignored completely.
-  const dev = hits.find((h) => h.data.kind === 'device');
-  if (dev) return dev;
-  if (isLive()) {
-    const op = hits.find((h) => h.data.kind === 'opening' && findOpening(h.data.id)?.opening.entity);
-    return op ?? hits.find((h) => h.data.kind === 'room') ?? null;
-  }
+  // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
+  // door/window the door/window wins unless the device is clearly in front of it (> 1.2 m nearer to the camera).
+  const live = isLive();
+  const op = hits.find((h) => h.data.kind === 'opening' && (!live || findOpening(h.data.id)?.opening.entity));
+  const dv = hits.find((h) => h.data.kind === 'device');
+  if (op && dv) return dv.distance < op.distance - 1.2 ? dv : op;
+  if (op || dv) return op || dv;
+  if (live) return hits.find((h) => h.data.kind === 'room') ?? null;
   return hits[0] ?? null;
 }
 const pick = (e) => pickHit(e)?.data ?? null;
@@ -1081,6 +1108,27 @@ function buildNav(force = false) {
   fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx, () => switchFloor(i))));
   rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => { const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id); })));
   $('#navSep').hidden = !rooms.length;
+  updateHouseToggle();
+}
+function updateHouseToggle() {
+  const b = $('#houseToggle');
+  b.hidden = !tabletRoom;
+  if (!tabletRoom) return;
+  b.textContent = focusedRoom ? t('nav.wholeFloor') : `‹ ${tabletRoom}`;
+}
+$('#houseToggle').addEventListener('click', () => {
+  const room = findRoomByName(tabletRoom);
+  if (!room) return;
+  if (focusedRoom) { focusRoom(null); closeRoomPanel(); }
+  else { switchFloor(room.floor); focusRoom(room.room.id); openRoomPanel(room.room.id); }
+});
+function findRoomByName(name) {
+  const n = String(name || '').trim().toLowerCase();
+  for (let i = 0; i < layout.floors.length; i++) {
+    const r = layout.floors[i].rooms.find((x) => x.name?.trim().toLowerCase() === n || x.id === name);
+    if (r) return { floor: i, room: r };
+  }
+  return null;
 }
 function fillFloorSelect() { buildNav(true); }
 
@@ -1092,6 +1140,7 @@ function switchFloor(i) {
 function clearFocusOutline() { focusGroup.clear(); }
 function focusRoom(id) {
   focusedRoom = id;
+  document.body.classList.toggle('iso', !!id);
   clearFocusOutline();
   build();                                   // isolate: only this room is drawn
   const room = id && floor().rooms.find((r) => r.id === id);
@@ -1301,9 +1350,44 @@ function fillSettingsForm() {
     else if (dispKeys.has(key)) el.value = toDisp(settings[key]);
     else el.value = String(settings[key]);
   }
+  renderTablets();
   renderStops('#tempStops', 'tempStops', '°C');
   renderStops('#humidStops', 'humidStops', '%');
 }
+function allRoomNames() {
+  return [...new Set(layout.floors.flatMap((f) => f.rooms.map((r) => r.name).filter(Boolean)))];
+}
+function renderTablets() {
+  const box = $('#tabletRows');
+  box.replaceChildren();
+  Object.entries(settings.userRooms || {}).forEach(([user, room]) => {
+    const row = document.createElement('div'); row.className = 'stop tablet';
+    const u = document.createElement('input'); u.type = 'text'; u.value = user; u.dataset.role = 'user'; u.placeholder = t('set.tabletUser');
+    const sel = document.createElement('select'); sel.dataset.role = 'room';
+    allRoomNames().forEach((n) => sel.add(new Option(n, n)));
+    if (room && !allRoomNames().includes(room)) sel.add(new Option(room, room));
+    sel.value = room;
+    const del = document.createElement('button'); del.type = 'button'; del.textContent = '×';
+    del.addEventListener('click', () => { delete settings.userRooms[user]; renderTablets(); commitSettings(); });
+    row.append(u, sel, del);
+    box.append(row);
+  });
+}
+function readTablets() {
+  const out = {};
+  document.querySelectorAll('#tabletRows .tablet').forEach((r) => {
+    const u = r.querySelector('[data-role=user]').value.trim(), v = r.querySelector('[data-role=room]').value;
+    if (u && v) out[u] = v;
+  });
+  return out;
+}
+$('#addTablet').addEventListener('click', () => {
+  const names = allRoomNames();
+  if (!names.length) return;
+  settings.userRooms = { ...(settings.userRooms || {}), [`tablet_${Object.keys(settings.userRooms || {}).length + 1}`]: names[0] };
+  renderTablets();
+  commitSettings();
+});
 function renderStops(sel, key, unit) {
   const box = $(sel);
   box.replaceChildren();
@@ -1348,6 +1432,7 @@ function readSettingsForm() {
     } else if (key === 'grid') next[key] = parseFloat(el.value);
     else next[key] = el.value;
   }
+  next.userRooms = readTablets();
   next.tempStops = readStops('#tempStops', settings.tempStops);
   next.humidStops = readStops('#humidStops', settings.humidStops);
   return next;
@@ -1410,6 +1495,11 @@ function normalizeLayout() {
 
 async function init() {
   if (params.get('kiosk')) document.body.classList.add('kiosk');
+  try { me = await (await fetch('api/me')).json(); } catch { /* standalone */ }
+  tabletRoom = params.get('room') || me.room || null;
+  if (!me.canEdit || tabletRoom) document.body.classList.add('kiosk');
+  if (tabletRoom) document.body.classList.add('roomtablet');
+  if (!me.canEdit) document.body.classList.add('readonly');
   try { settings = { ...settings, ...(await (await fetch('api/settings')).json()) }; } catch { /* defaults */ }
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
@@ -1418,7 +1508,12 @@ async function init() {
   await loadModels();
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera();
-  if (params.get('mode') === 'live' || params.get('kiosk')) setMode('live');
+  if (params.get('mode') === 'live' || params.get('kiosk') || tabletRoom || !me.canEdit) setMode('live');
+  if (tabletRoom) {
+    const hit = findRoomByName(tabletRoom);
+    if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); openRoomPanel(hit.room.id); }
+    updateHouseToggle();
+  }
   pollStates();
   setInterval(pollStates, 4000);
 }
@@ -1445,5 +1540,13 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     get layout() { return layout; },
+    pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
+    rayHits(x, y) { setRay({ clientX: x, clientY: y }); return ray.intersectObjects(pickables, true).map((h) => { let o = h.object; while (o && !o.userData.kind) o = o.parent; return `${o?.userData.kind}:${o?.userData.id}@${h.distance.toFixed(2)}${h.object.userData.proxy ? 'P' : ''}`; }); },
+    openingCenter(id) {                 // screen position of the middle of a door/window (not its base)
+      const o = registry.get(id); if (!o) return null;
+      const fo = findOpening(id); const v = o.getWorldPosition(new THREE.Vector3()); v.y += fo.opening.sill + fo.opening.height / 2;
+      v.project(camera); const r = canvas.getBoundingClientRect();
+      return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
+    },
   };
 }

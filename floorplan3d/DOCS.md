@@ -31,3 +31,28 @@ All other settings (language, theme, units, grid ...) live in the ⚙ dialog ins
 ## Support
 
 Please open an issue in the project repository and include the add-on version and browser console output.
+
+## Who may edit (permissions)
+
+The add-on panel is open to every Home Assistant user (`panel_admin: false`), but **editing is restricted**:
+
+1. Open the add-on → **Configuration** and set `editors` to the user names that may edit, e.g.
+
+   ```yaml
+   editors:
+     - florian
+   ```
+
+   Use the login name of the user (Settings → People → Users). Leave the list empty to let everyone who can open the panel edit.
+2. Everyone else sees the plan in **read-only live mode**: they can control lights, covers and so on, but the editor, the settings and saving are blocked, both in the interface and in the backend (HTTP 403).
+
+## One tablet per room
+
+Home Assistant does not pass URL parameters into add-on panels, so tablets are assigned by user:
+
+1. Create a normal (non-admin) Home Assistant user for each tablet, e.g. `tablet_wohnzimmer` (Settings → People → Users).
+2. Log the tablet into that user and open the add-on once.
+3. On your own account open the add-on → ⚙ → **Tablets per room**, press **+ Tablet**, type the user name and choose the room.
+
+That tablet now always starts with only its room shown, together with the room's entities. The button at the top (*Whole floor* / *‹ Room*) toggles between the room and the whole floor; in the whole-floor view the floor buttons are available as well.
+If you open the add-on directly (for example through a mapped port), `?room=Wohnzimmer` does the same.
