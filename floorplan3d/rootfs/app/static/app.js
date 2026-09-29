@@ -52,7 +52,7 @@ const fmtLen = (m) => (imperial() ? `${(m * M_TO_FT).toFixed(2)} ft` : `${m.toFi
 /* ================= Three.js setup ================= */
 const canvas = $('#view');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(devicePixelRatio, 3));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
@@ -60,6 +60,7 @@ const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
 camera.position.set(9, 10, 12);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
+controls.minDistance = 1.5;
 controls.maxPolarAngle = Math.PI / 2.02;
 
 scene.add(new THREE.HemisphereLight(0xffffff, 0x334455, 0.9));
@@ -114,8 +115,11 @@ function mat(color, ghost, extra = {}) {
 
 function textSprite(text, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = false } = {}) {
   const c = document.createElement('canvas');
-  c.width = 256; c.height = 64;
+  const S = 4;                                    // render text at 4x so it stays sharp when zooming in
+  c.width = 256 * S; c.height = 64 * S;
   const tex = new THREE.CanvasTexture(c);
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  tex.colorSpace = THREE.SRGBColorSpace;
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest }));
   s.scale.set(scaleX, scaleY, 1);
   s.renderOrder = 10;
@@ -124,6 +128,7 @@ function textSprite(text, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = f
     if (s.userData.text === key) return;
     s.userData.text = key;
     const g = c.getContext('2d');
+    g.setTransform(S, 0, 0, S, 0, 0);
     g.clearRect(0, 0, 256, 64);
     if (badge) {                                   // glowing orange pill, like the power badges in the reference
       const grad = g.createLinearGradient(0, 8, 0, 56);
