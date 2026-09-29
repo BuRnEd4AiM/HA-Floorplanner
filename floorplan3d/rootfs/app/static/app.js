@@ -1350,32 +1350,68 @@ function addEntityOptions(sel, list, room, current) {
   if (current && !list.some((e) => e.entity_id === current)) sel.add(new Option(current, current));
 }
 
-/* Searchable entity picker: search box (name, entity id, area; several words = AND) above a select grouped by area. */
+/* Entities grouped by HA area (room's area first) -> [{label, items}] */
+function groupEntities(list, room) {
+  const byArea = new Map();
+  list.forEach((e) => { const k = areaOf[e.entity_id] || ''; if (!byArea.has(k)) byArea.set(k, []); byArea.get(k).push(e); });
+  const nameOf = (k) => areas.find((q) => q.id === k)?.name || k;
+  const keys = [...byArea.keys()].sort((x, y) => {
+    if (room?.area && x === room.area) return -1;
+    if (room?.area && y === room.area) return 1;
+    if (!x) return 1; if (!y) return -1;
+    return nameOf(x).localeCompare(nameOf(y));
+  });
+  return keys.map((k) => ({ label: areas.length ? (k ? (room?.area === k ? t('area.here', { n: nameOf(k) }) : nameOf(k)) : t('area.unassigned')) : '', items: byArea.get(k) }));
+}
+
+/* Searchable entity picker: search box + roomy result list (full names wrap, grouped by area).
+   Search matches name, entity id and area; several words = AND; Enter picks the first match. */
 function entityPicker(list, room, current, onChange) {
   const wrap = document.createElement('div'); wrap.className = 'entPicker';
+  const cur = document.createElement('div'); cur.className = 'entCur';
   const search = document.createElement('input'); search.type = 'search'; search.placeholder = t('panel.entitySearch');
-  const sel = document.createElement('select');
+  const box = document.createElement('div'); box.className = 'entList'; box.hidden = true;
   const areaName = (e) => (areas.find((x) => x.id === areaOf[e.entity_id])?.name || '').toLowerCase();
-  const match = (e, words) => { const h = `${e.entity_id} ${e.name} ${areaName(e)}`.toLowerCase(); return words.every((w) => h.includes(w)); };
   let matches = [];
+  const showCur = () => {
+    const e = list.find((x) => x.entity_id === current);
+    cur.textContent = ''; cur.classList.toggle('none', !current);
+    if (!current) { cur.textContent = t('panel.noEntity'); return; }
+    const n = document.createElement('b'); n.textContent = e?.name || current;
+    const id = document.createElement('small'); id.textContent = current;
+    cur.append(n, id);
+  };
+  const choose = (id) => { current = id; search.value = ''; box.hidden = true; showCur(); onChange(id); };
+  const item = (id, name, sub) => {
+    const it = document.createElement('div'); it.className = 'entItem' + (id === current ? ' sel' : ''); it.dataset.id = id;
+    const n = document.createElement('span'); n.textContent = name; it.append(n);
+    if (sub) { const s = document.createElement('small'); s.textContent = sub; it.append(s); }
+    it.addEventListener('pointerdown', (ev) => { ev.preventDefault(); choose(id); });
+    return it;
+  };
   const fill = () => {
     const words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
-    matches = list.filter((e) => match(e, words)).slice(0, 300);
-    sel.innerHTML = '';
-    sel.add(new Option(t('panel.noEntity'), ''));
-    addEntityOptions(sel, matches, room, current);
-    sel.value = current || '';
-    sel.size = words.length ? Math.min(7, matches.length + 1) : 1;
+    matches = list.filter((e) => words.every((w) => `${e.entity_id} ${e.name} ${areaName(e)}`.toLowerCase().includes(w))).slice(0, 300);
+    box.innerHTML = '';
+    box.append(item('', t('panel.noEntity'), ''));
+    groupEntities(matches, room).forEach((g) => {
+      if (g.label) { const h = document.createElement('div'); h.className = 'entGroup'; h.textContent = g.label; box.append(h); }
+      g.items.forEach((e) => box.append(item(e.entity_id, e.name, e.entity_id)));
+    });
+    if (!matches.length) { const n = document.createElement('div'); n.className = 'entEmpty'; n.textContent = '–'; box.append(n); }
   };
-  search.addEventListener('input', fill);
+  search.addEventListener('focus', () => { fill(); box.hidden = false; });
+  search.addEventListener('input', () => { fill(); box.hidden = false; });
+  search.addEventListener('blur', () => { box.hidden = true; });
   search.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') { search.blur(); return; }
     if (ev.key !== 'Enter' || !matches.length) return;
-    ev.preventDefault(); current = matches[0].entity_id; fill(); onChange(current);
+    ev.preventDefault(); choose(matches[0].entity_id);
   });
-  sel.addEventListener('change', () => { current = sel.value; onChange(current); });
-  wrap.append(search, sel); fill();
+  wrap.append(cur, search, box); showCur();
   return wrap;
 }
+const pickerField = (label, picker) => { const w = field(label, picker); w.classList.add('stack'); return w; };
 const roomAt = (x, z) => floor()?.rooms.find((r) => pointInPoly(x, z, r.points));
 
 function fillEntities(filter = '') {
@@ -1563,7 +1599,7 @@ function renderProps() {
     })));
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
-    body.append(field(t('prop.contact'), entityPicker((contact.length ? contact : entities).slice(0, 1500), roomCtx ? f.rooms.find((r) => r.id === roomCtx) : null, it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
+    body.append(pickerField(t('prop.contact'), entityPicker((contact.length ? contact : entities).slice(0, 1500), roomCtx ? f.rooms.find((r) => r.id === roomCtx) : null, it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
     if (it.type === 'door') {
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.flip;
       cb.addEventListener('change', () => { snapshot(); it.flip = cb.checked; changed(); });
@@ -1576,7 +1612,7 @@ function renderProps() {
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => (it.rot = ((+v % 360) + 360) % 360), { step: 15 })));
     body.append(field(t('prop.height'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
-    body.append(field(t('prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
+    body.append(pickerField(t('prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();

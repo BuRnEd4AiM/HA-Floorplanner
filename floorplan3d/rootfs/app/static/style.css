@@ -200,5 +200,16 @@ body.live #plan2d { cursor: pointer; }
 
 body:not(.live) #roomPanel { display: none !important; }   /* edit mode: the side panel already lists the room's entities */
 
-.entPicker { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.entPicker input, .entPicker select { width: 100%; min-width: 0; box-sizing: border-box; }
+.prop.stack { flex-direction: column; align-items: stretch; gap: 4px; }
+.prop.stack > label { flex: none; }
+.entPicker { display: flex; flex-direction: column; gap: 4px; min-width: 0; width: 100%; }
+.entPicker input { width: 100%; min-width: 0; box-sizing: border-box; }
+.entCur { padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; overflow-wrap: anywhere; line-height: 1.25; }
+.entCur b { display: block; font-weight: 600; }
+.entCur small, .entItem small { display: block; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+.entCur.none { color: var(--muted); }
+.entList { max-height: 260px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.entGroup { position: sticky; top: 0; padding: 4px 8px; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--accent); background: var(--panel); }
+.entItem { padding: 6px 8px; cursor: pointer; overflow-wrap: anywhere; line-height: 1.25; }
+.entItem:hover, .entItem.sel { background: rgba(120, 200, 255, .16); }
+.entEmpty { padding: 6px 8px; color: var(--muted); }
