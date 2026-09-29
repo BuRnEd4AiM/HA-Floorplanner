@@ -72,6 +72,21 @@ const layout = {
       { id: 'e2', type: 'light', x: 2.5, z: 2, y: 2.55, rot: 0, scale: 1.2, name: 'Licht Kinderzimmer', entity: 'light.schlafzimmer' },
       { id: 'e3', type: 'table', x: 7.5, z: 1.5, y: 0, rot: 0, scale: 0.8, name: 'Schreibtisch', entity: '' },
     ],
+  }, {
+    id: 'dg', name: 'Dachgeschoss',
+    rooms: [
+      { id: 'p1', name: 'Studio', color: '#b0c8a0', points: [[1, 0.5], [6, 0.5], [6, 3.5], [1, 3.5]] },
+    ],
+    walls: [
+      W('t1', [1, 0.5], [6, 0.5], 0.24, [Win('t5', 2.5)]),
+      W('t2', [6, 0.5], [6, 3.5], 0.24, []),
+      W('t3', [6, 3.5], [1, 3.5], 0.24, [D('t6', 2.5)]),
+      W('t4', [1, 3.5], [1, 0.5], 0.24, []),
+    ],
+    devices: [
+      { id: 'g1', type: 'sofa', x: 3.5, z: 2.6, y: 0, rot: 180, scale: 1, name: 'Sofa', entity: '' },
+      { id: 'g2', type: 'lamp', x: 1.8, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Stehlampe Studio', entity: 'light.stehlampe' },
+    ],
   }],
 };
 
@@ -79,7 +94,7 @@ const entities = {
   'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70, rgb: [255, 140, 110] },
   'light.stehlampe':         { name: 'Stehlampe',              state: 'on' },
   'light.kueche':            { name: 'Küche Licht',            state: 'off' },
-  'light.schlafzimmer':      { name: 'Schlafzimmer Licht',     state: 'off' },
+  'light.schlafzimmer':      { name: 'Schlafzimmer Licht',     state: 'on', rgb: [130, 170, 255] },
   'light.bad':               { name: 'Bad Licht',              state: 'off' },
   'light.buero':             { name: 'Büro Licht',             state: 'on', rgb: [255, 226, 110] },
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
