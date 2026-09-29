@@ -248,10 +248,32 @@ function distToPoly(x, z, pts) {
   return best;
 }
 /** Isolation: while a room is focused only that room, its walls and its devices are drawn. */
-const ISO_TOL = 0.45;
+const ISO_TOL = 0.3;
 function isolatedRoom() { return focusedRoom ? floor()?.rooms.find((r) => r.id === focusedRoom) ?? null : null; }
 const inIso = (room, x, z) => pointInPoly(x, z, room.points) || distToPoly(x, z, room.points) < ISO_TOL;
-const wallInIso = (room, w) => [0, 0.25, 0.5, 0.75, 1].some((k) => distToPoly(w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k, room.points) < ISO_TOL);
+/** The part of wall w that runs along the room's outline (a long outer wall is cut down to this room), or null. */
+function clipWallToRoom(room, w) {
+  const L = wallLength(w), N = Math.max(8, Math.ceil(L / 0.1));
+  const near = [];
+  for (let i = 0; i <= N; i++) {
+    const k = i / N;
+    near.push(distToPoly(w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k, room.points) < ISO_TOL);
+  }
+  let best = null, start = -1;
+  for (let i = 0; i <= N + 1; i++) {
+    if (i <= N && near[i]) { if (start < 0) start = i; continue; }
+    if (start >= 0 && (!best || i - start > best[1] - best[0])) best = [start, i - 1];
+    start = -1;
+  }
+  if (!best || (best[1] - best[0]) / N * L < 0.3) return null;
+  if (best[0] === 0 && best[1] === N) return w;
+  const t0 = best[0] / N, t1 = best[1] / N;
+  const at = (k) => [w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k];
+  return {
+    ...w, a: at(t0), b: at(t1),
+    openings: (w.openings || []).filter((o) => o.pos >= t0 * L && o.pos <= t1 * L).map((o) => ({ ...o, pos: o.pos - t0 * L })),
+  };
+}
 
 function pointInPoly(x, z, pts) {
   let inside = false;
@@ -312,9 +334,10 @@ function build() {
       }
     });
 
-    f.walls.forEach((w) => {
+    f.walls.forEach((w0) => {
+      let w = w0;
       if (wallLength(w) < 0.01) return;
-      if (iso && !ghost && !wallInIso(iso, w)) return;
+      if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
       const wallMat = holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.08 : settings.wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : mat('#d9d4cc', ghost);
