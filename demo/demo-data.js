@@ -42,15 +42,24 @@ const layout = {
       { id: 'd7w', type: 'sensor', x: 4.5, z: 0.4, y: 1.4, rot: 0, scale: 1, name: 'Leistung', entity: 'sensor.wohnzimmer_leistung' },
       { id: 'd7',  type: 'plant',      x: 0.7, z: 0.7,  y: 0,    rot: 0,   scale: 1.2, name: 'Pflanze',         entity: '' },
       { id: 'd8',  type: 'sensor',     x: 5.75, z: 0.9, y: 1.6,  rot: 90,  scale: 1,   name: 'Temperatur Wohnzimmer', entity: 'sensor.wohnzimmer_temp' },
-      { id: 'd9',  type: 'table',      x: 8,   z: 2.2,  y: 0,    rot: 0,   scale: 1.1, name: 'Esstisch',        entity: '' },
+      { id: 'd9',  type: 'diningtable', x: 8,   z: 2.2,  y: 0,    rot: 0,   scale: 1, name: 'Esstisch',        entity: '' },
       { id: 'd10', type: 'light',      x: 8,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Küchenlicht',     entity: 'light.kueche' },
       { id: 'd11', type: 'sensor',     x: 9.85, z: 0.8, y: 1.6,  rot: 270, scale: 1,   name: 'Temperatur Küche', entity: 'sensor.kueche_temp' },
+      { id: 'n1', type: 'kitchen', x: 8, z: 0.35, y: 0, rot: 0, scale: 1, name: 'Küchenzeile', entity: '' },
+      { id: 'n2', type: 'fridge', x: 9.6, z: 0.4, y: 0, rot: 0, scale: 1, name: 'Kühlschrank', entity: '' },
+      { id: 'n3', type: 'bathtub', x: 0.5, z: 5.5, y: 0, rot: 90, scale: 0.9, name: 'Badewanne', entity: '' },
+      { id: 'n4', type: 'toilet', x: 2.6, z: 6.5, y: 0, rot: 180, scale: 1, name: 'WC', entity: '' },
+      { id: 'n5', type: 'basin', x: 2.6, z: 5.0, y: 0, rot: 0, scale: 1, name: 'Waschtisch', entity: '' },
+      { id: 'n6', type: 'wardrobe', x: 6.2, z: 6.65, y: 0, rot: 180, scale: 1, name: 'Schrank', entity: '' },
+      { id: 'n7', type: 'armchair', x: 1.0, z: 3.6, y: 0, rot: 135, scale: 1, name: 'Sessel', entity: '' },
+      { id: 'n8', type: 'carpet', x: 2.5, z: 2.8, y: 0, rot: 0, scale: 1.2, name: 'Teppich', entity: '' },
+      { id: 'n9', type: 'shelf', x: 5.5, z: 1.2, y: 0, rot: 270, scale: 1, name: 'Regal', entity: '' },
       { id: 'd12', type: 'bed',        x: 5,   z: 5.95, y: 0,    rot: 180, scale: 1,   name: 'Bett',            entity: '' },
       { id: 'd13', type: 'light',      x: 5,   z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Schlafzimmerlicht', entity: 'light.schlafzimmer' },
       { id: 'd14', type: 'sensor',     x: 3.15, z: 5.3, y: 1.6,  rot: 90,  scale: 1,   name: 'Temperatur Schlafzimmer', entity: 'sensor.schlafzimmer_temp' },
       { id: 'd15', type: 'light',      x: 1.5, z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Badlicht',        entity: 'light.bad' },
       { id: 'd16', type: 'sensor',     x: 2.85, z: 5.0, y: 1.6,  rot: 270, scale: 1,   name: 'Luftfeuchte Bad', entity: 'sensor.bad_feuchte' },
-      { id: 'd17', type: 'table',      x: 8.6, z: 6.0,  y: 0,    rot: 90,  scale: 1,   name: 'Schreibtisch',    entity: '' },
+      { id: 'd17', type: 'desk',       x: 8.6, z: 6.0,  y: 0,    rot: 90,  scale: 1,   name: 'Schreibtisch',    entity: '' },
       { id: 'd18', type: 'light',      x: 8.6, z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Bürolicht',       entity: 'light.buero' },
       { id: 'd19', type: 'switch',     x: 9.4, z: 6.88, y: 1.1,  rot: 0,   scale: 1,   name: 'Flurschalter',    entity: 'switch.flur' },
     ],
@@ -146,7 +155,7 @@ export function installDemoBackend() {
       const e = entities[id];
       if (!e) return json({ ok: false }, 502);
       if (service === 'toggle') e.state = e.state === 'on' ? 'off' : 'on';
-      if (service === 'turn_on') { e.state = 'on'; if (data?.brightness_pct != null) e.brightness = data.brightness_pct; }
+      if (service === 'turn_on') { e.state = 'on'; if (data?.brightness_pct != null) e.brightness = data.brightness_pct; if (data?.rgb_color) e.rgb = data.rgb_color; if (data?.color_temp_kelvin) e.rgb = data.color_temp_kelvin < 4500 ? [255, 190, 120] : [200, 220, 255]; }
       if (service === 'set_cover_position') { e.position = data.position; e.state = data.position > 0 ? 'open' : 'closed'; }
       if (service === 'open_cover') { e.state = 'open'; e.position = 100; }
       if (service === 'close_cover') { e.state = 'closed'; e.position = 0; }

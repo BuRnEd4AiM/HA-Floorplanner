@@ -108,6 +108,10 @@ async def test_service_data_validation(client, monkeypatch):
         {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"brightness_pct": 150}},
         {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"evil": 1}},
         {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"position": 5}},
+        {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"rgb_color": [300, 0, 0]}},
+        {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"rgb_color": [1, 2]}},
+        {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"color_temp_kelvin": 100}},
+        {"domain": "cover", "service": "turn_on", "entity_id": "cover.x", "data": {"rgb_color": [1, 2, 3]}},
         {"domain": "cover", "service": "set_cover_position", "entity_id": "cover.x"},
         {"domain": "cover", "service": "set_cover_position", "entity_id": "cover.x", "data": {"position": True}},
     ]

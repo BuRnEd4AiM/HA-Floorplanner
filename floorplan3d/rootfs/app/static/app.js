@@ -937,6 +937,42 @@ function renderLivePopup() {
     });
     box.append(row);
   }
+  if (d.entity && d.entity.startsWith('light.') && !d.isOpening) box.append(lightControls(d.entity));
+}
+
+const COLOR_PRESETS = ['#ff3b30', '#ff9500', '#ffd60a', '#34c759', '#23e0ff', '#0a84ff', '#bf5af2', '#ff2d92'];
+const hexToRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const rgbToHex = (c) => '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
+function lightControls(entity) {
+  const st = states[entity] || {};
+  const wrap = document.createElement('div'); wrap.className = 'lightctl';
+  const lbl = (k) => { const s = document.createElement('div'); s.className = 'sub'; s.textContent = t(k); return s; };
+  if (st.brightness != null) {
+    const r = document.createElement('input'); r.type = 'range'; r.min = 1; r.max = 100; r.value = st.brightness;
+    r.addEventListener('change', () => callService(entity, 'turn_on', { brightness_pct: +r.value }));
+    wrap.append(lbl('live.brightness'), r);
+  }
+  wrap.append(lbl('live.color'));
+  const sw = document.createElement('div'); sw.className = 'swatches';
+  const setRgb = (c) => callService(entity, 'turn_on', { rgb_color: c });
+  COLOR_PRESETS.forEach((h) => {
+    const b = document.createElement('button'); b.className = 'sw'; b.style.background = h; b.title = h;
+    b.addEventListener('click', () => setRgb(hexToRgb(h)));
+    sw.append(b);
+  });
+  const pick = document.createElement('input'); pick.type = 'color'; pick.className = 'sw-pick';
+  pick.value = Array.isArray(st.rgb) ? rgbToHex(st.rgb) : '#ffd9a0';
+  pick.addEventListener('change', () => setRgb(hexToRgb(pick.value)));
+  sw.append(pick);
+  wrap.append(sw);
+  const wr = document.createElement('div'); wr.className = 'actions';
+  [['live.warm', 2700], ['live.cold', 6500]].forEach(([k, kel]) => {
+    const b = document.createElement('button'); b.textContent = t(k);
+    b.addEventListener('click', () => callService(entity, 'turn_on', { color_temp_kelvin: kel }));
+    wr.append(b);
+  });
+  wrap.append(wr);
+  return wrap;
 }
 
 /* ---- Room panel: all entities of a room, grouped, with brightness / position sliders ---- */

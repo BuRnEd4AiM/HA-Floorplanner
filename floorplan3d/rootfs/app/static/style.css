@@ -154,3 +154,9 @@ body.roomtablet #roomPanel { top: 58px; }
 dialog .hint { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
 dialog .stop.tablet input[type=text] { flex: 1; min-width: 0; width: auto; }
 dialog .stop.tablet select { width: 130px; }
+
+#livePopup .lightctl { margin-top: 10px; }
+#livePopup .lightctl input[type=range] { width: 100%; }
+#livePopup .swatches { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; align-items: center; }
+#livePopup .sw { width: 30px; height: 30px; min-height: 0; padding: 0; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); }
+#livePopup .sw-pick { width: 34px; height: 34px; padding: 0; border: 2px solid rgba(255,255,255,.5); border-radius: 50%; background: none; }

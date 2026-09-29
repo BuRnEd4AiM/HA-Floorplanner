@@ -319,6 +319,17 @@ async def call_service(request):
         if not isinstance(data, dict):
             return web.json_response({"error": "data must be an object"}, status=400)
         for key, val in data.items():
+            if domain == "light" and key == "rgb_color":
+                if (not isinstance(val, list) or len(val) != 3
+                        or any(isinstance(v, bool) or not isinstance(v, (int, float)) or not 0 <= v <= 255 for v in val)):
+                    return web.json_response({"error": "data not allowed"}, status=400)
+                payload[key] = [int(v) for v in val]
+                continue
+            if domain == "light" and key == "color_temp_kelvin":
+                if isinstance(val, bool) or not isinstance(val, (int, float)) or not 1500 <= val <= 9000:
+                    return web.json_response({"error": "data not allowed"}, status=400)
+                payload[key] = int(val)
+                continue
             ok_key = (key, domain) in (("brightness_pct", "light"), ("position", "cover"))
             if not ok_key or isinstance(val, bool) or not isinstance(val, (int, float)) or not 0 <= val <= 100:
                 return web.json_response({"error": "data not allowed"}, status=400)

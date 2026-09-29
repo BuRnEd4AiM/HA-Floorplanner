@@ -15,6 +15,23 @@ export const DEVICE_TYPES = {
   door:       { label: 'Tür',         y: 0, hidden: true },     // legacy: doors/windows are wall openings now
   window:     { label: 'Fenster',     y: 0.9, hidden: true },
   plant:      { label: 'Pflanze',     y: 0 },
+  chair:      { label: 'Stuhl',       y: 0 },
+  armchair:   { label: 'Sessel',      y: 0 },
+  desk:       { label: 'Schreibtisch', y: 0 },
+  diningtable:{ label: 'Esstisch',    y: 0 },
+  coffeetable:{ label: 'Couchtisch',  y: 0 },
+  wardrobe:   { label: 'Schrank',     y: 0 },
+  shelf:      { label: 'Regal',       y: 0 },
+  sideboard:  { label: 'Sideboard',   y: 0 },
+  kitchen:    { label: 'Küchenzeile', y: 0 },
+  fridge:     { label: 'Kühlschrank', y: 0 },
+  washer:     { label: 'Waschmaschine', y: 0 },
+  bathtub:    { label: 'Badewanne',   y: 0 },
+  toilet:     { label: 'WC',          y: 0 },
+  basin:      { label: 'Waschtisch',  y: 0 },
+  shower:     { label: 'Dusche',      y: 0 },
+  carpet:     { label: 'Teppich',     y: 0 },
+  car:        { label: 'Auto',        y: 0 },
 };
 
 const std = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.05, ...extra });
@@ -120,6 +137,114 @@ const builders = {
     }
   },
 };
+
+Object.assign(builders, {
+  chair(g) {
+    const w = std('#a07b52');
+    g.add(box(0.42, 0.05, 0.42, w, 0, 0.45, 0));
+    [[-0.18, -0.18], [0.18, -0.18], [-0.18, 0.18], [0.18, 0.18]].forEach(([x, z]) => g.add(box(0.04, 0.45, 0.04, w, x, 0, z)));
+    g.add(box(0.42, 0.45, 0.04, w, 0, 0.5, -0.2));
+  },
+  armchair(g) {
+    const c = std('#7a6b8f');
+    g.add(box(0.9, 0.4, 0.85, c));
+    g.add(box(0.9, 0.45, 0.2, c, 0, 0.4, -0.33));
+    g.add(box(0.16, 0.25, 0.65, c, -0.37, 0.4, 0.08));
+    g.add(box(0.16, 0.25, 0.65, c, 0.37, 0.4, 0.08));
+  },
+  desk(g) {
+    const w = std('#b08a5c');
+    g.add(box(1.4, 0.04, 0.7, w, 0, 0.73, 0));
+    g.add(box(0.05, 0.73, 0.65, w, -0.65, 0, 0));
+    g.add(box(0.4, 0.6, 0.6, std('#9a7548'), 0.45, 0.13, 0));
+    const glow = glowMat(0x9db8ff);
+    g.add(box(0.55, 0.32, 0.02, std('#111'), 0, 0.85, -0.2));
+    g.add(box(0.5, 0.27, 0.01, glow, 0, 0.875, -0.19));
+    g.userData.glow = [glow];
+  },
+  diningtable(g) {
+    const wood = std('#a07b52');
+    g.add(box(1.8, 0.05, 0.95, wood, 0, 0.72, 0));
+    [[-0.82, -0.4], [0.82, -0.4], [-0.82, 0.4], [0.82, 0.4]].forEach(([x, z]) => g.add(box(0.06, 0.72, 0.06, wood, x, 0, z)));
+    const cw = std('#6f5a40');
+    [-0.5, 0.5].forEach((x) => [-0.62, 0.62].forEach((z) => {
+      g.add(box(0.4, 0.04, 0.4, cw, x, 0.45, z));
+      g.add(box(0.4, 0.4, 0.04, cw, x, 0.49, z + (z < 0 ? -0.18 : 0.18)));
+    }));
+  },
+  coffeetable(g) {
+    const w = std('#8b6b4a');
+    g.add(box(1.0, 0.04, 0.55, w, 0, 0.4, 0));
+    [[-0.45, -0.22], [0.45, -0.22], [-0.45, 0.22], [0.45, 0.22]].forEach(([x, z]) => g.add(box(0.04, 0.4, 0.04, w, x, 0, z)));
+  },
+  wardrobe(g) {
+    const w = std('#d8d3c8');
+    g.add(box(1.5, 2.1, 0.6, w));
+    g.add(box(0.01, 2.0, 0.01, std('#888'), 0, 0.05, 0.305));
+    g.add(box(0.03, 0.2, 0.02, std('#888'), -0.06, 1.0, 0.31));
+    g.add(box(0.03, 0.2, 0.02, std('#888'), 0.06, 1.0, 0.31));
+  },
+  shelf(g) {
+    const w = std('#a07b52');
+    g.add(box(0.9, 1.9, 0.04, std('#8a6a48'), 0, 0, -0.16));
+    for (let i = 0; i < 5; i++) g.add(box(0.9, 0.03, 0.34, w, 0, i * 0.45, 0));
+    g.add(box(0.03, 1.9, 0.34, w, -0.44, 0, 0));
+    g.add(box(0.03, 1.9, 0.34, w, 0.44, 0, 0));
+  },
+  sideboard(g) {
+    g.add(box(1.6, 0.75, 0.42, std('#c9b79a')));
+    g.add(box(0.01, 0.65, 0.01, std('#777'), -0.27, 0.05, 0.215));
+    g.add(box(0.01, 0.65, 0.01, std('#777'), 0.27, 0.05, 0.215));
+  },
+  kitchen(g) {
+    g.add(box(2.4, 0.86, 0.6, std('#e6e6e6')));
+    g.add(box(2.42, 0.04, 0.62, std('#555'), 0, 0.86, 0));
+    g.add(box(2.4, 0.7, 0.32, std('#e6e6e6'), 0, 1.4, -0.14));
+    [-0.3, 0, 0.3, 0.6].forEach((x) => g.add(cyl(0.09, 0.09, 0.01, std('#222'), x - 0.3, 0.9, 0.05, 16)));
+  },
+  fridge(g) {
+    g.add(box(0.6, 1.8, 0.65, std('#d4dbe0')));
+    g.add(box(0.02, 0.5, 0.03, std('#888'), 0.22, 1.1, 0.34));
+    g.add(box(0.5, 0.01, 0.01, std('#9aa'), 0, 0.6, 0.33));
+  },
+  washer(g) {
+    g.add(box(0.6, 0.85, 0.6, std('#f0f0f0')));
+    const glass = new THREE.MeshStandardMaterial({ color: 0x6fa8d8, roughness: 0.1, metalness: 0.3 });
+    g.add(cyl(0.2, 0.2, 0.02, glass, 0, 0.3, 0.3, 24).rotateX(Math.PI / 2));
+  },
+  bathtub(g) {
+    const w = std('#f4f6f8');
+    g.add(box(1.7, 0.55, 0.75, w));
+    g.add(box(1.5, 0.05, 0.55, new THREE.MeshStandardMaterial({ color: 0x9fd0ee, transparent: true, opacity: 0.7 }), 0, 0.42, 0));
+  },
+  toilet(g) {
+    const w = std('#f4f6f8');
+    g.add(box(0.38, 0.38, 0.5, w, 0, 0, 0.05));
+    g.add(box(0.38, 0.4, 0.16, w, 0, 0.38, -0.2));
+  },
+  basin(g) {
+    g.add(box(0.6, 0.8, 0.45, std('#c9c4b8')));
+    g.add(box(0.5, 0.08, 0.36, std('#f4f6f8'), 0, 0.8, 0));
+    g.add(cyl(0.015, 0.015, 0.2, std('#aaa'), 0, 0.88, -0.15, 8));
+  },
+  shower(g) {
+    g.add(box(0.9, 0.06, 0.9, std('#e8ecef')));
+    const glass = new THREE.MeshStandardMaterial({ color: 0x9cc9ee, transparent: true, opacity: 0.3, roughness: 0.1 });
+    g.add(box(0.9, 2.0, 0.02, glass, 0, 0.06, 0.44));
+    g.add(box(0.02, 2.0, 0.9, glass, 0.44, 0.06, 0));
+    g.add(cyl(0.1, 0.1, 0.02, std('#aaa'), -0.3, 2.0, -0.3, 12));
+  },
+  carpet(g) {
+    g.add(box(2.0, 0.015, 1.4, std('#7c8aa6')));
+  },
+  car(g) {
+    const body = std('#c4ccd6', { metalness: 0.4 });
+    g.add(box(1.8, 0.5, 4.2, body, 0, 0.25, 0));
+    g.add(box(1.6, 0.5, 2.2, std('#8fb4d6', { transparent: true, opacity: 0.7 }), 0, 0.75, -0.1));
+    const wh = std('#222');
+    [[-0.85, -1.3], [0.85, -1.3], [-0.85, 1.3], [0.85, 1.3]].forEach(([x, z]) => g.add(cyl(0.3, 0.3, 0.2, wh, x, 0, z, 16).rotateZ(Math.PI / 2)));
+  },
+});
 
 /* ---------- custom GLB models ---------- */
 const loader = new GLTFLoader();
