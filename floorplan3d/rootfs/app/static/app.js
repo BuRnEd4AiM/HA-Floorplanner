@@ -14,7 +14,12 @@ const params = new URLSearchParams(location.search);
 let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true,
+  wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
+  bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2',
+  tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
+  humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
 };
+const DEFAULT_LOOK = structuredClone(settings);
 let layout = { version: 1, floors: [] };
 let floorIdx = 0;
 let mode = 'edit';                 // 'edit' | 'live'
@@ -166,6 +171,54 @@ function addPickProxy(model) {
 
 const HOLO = { fill: 0x1f6fe0, edge: 0x3df2ff, on: 0xff9d2e, onEdge: 0xffd08a, floor: 0x0a1830, floorLit: 0xff9d2e };
 const isHolo = () => settings.theme === 'holo';
+
+/* ---- Room lighting: each lit lamp shines from its own position, so a room is brightest near the lamp ---- */
+const MAX_LIGHTS = 8;
+const hexVec = (h) => new THREE.Vector3(((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255);
+const cssHex = (s) => parseInt(s.slice(1), 16);
+const LIGHT_HEAD = `uniform int uCount; uniform vec4 uPos[${MAX_LIGHTS}]; uniform vec3 uCol[${MAX_LIGHTS}]; uniform float uStr; varying vec3 vP;`;
+const VERT = 'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
+const FLOOR_FS = `${LIGHT_HEAD} uniform vec3 uBase;
+void main(){ vec3 acc = vec3(0.0);
+  for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
+    float d = distance(vP.xz, uPos[i].xz) / uPos[i].w; acc += uCol[i] * exp(-d * d * 2.2); }
+  gl_FragColor = vec4(min(uBase + acc * uStr * 0.85, vec3(1.0)), 1.0); }`;
+const WASH_FS = `${LIGHT_HEAD} uniform float uH;
+void main(){ vec3 acc = vec3(0.0);
+  for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
+    float d = distance(vP, uPos[i].xyz) / uPos[i].w; acc += uCol[i] * exp(-d * d * 1.6); }
+  acc *= uStr; float m = max(max(acc.r, acc.g), max(acc.b, 0.001));
+  float a = clamp(m * 0.6, 0.0, 0.6) * (1.0 - smoothstep(0.0, uH, vP.y));
+  if (a < 0.01) discard; gl_FragColor = vec4(acc / m, a); }`;
+function roomLightMat(kind) {
+  const wash = kind === 'wash';
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uBase: { value: hexVec(HOLO.floor) }, uCount: { value: 0 }, uStr: { value: 1 }, uH: { value: 1.6 },
+      uPos: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector4()) },
+      uCol: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector3()) },
+    },
+    vertexShader: VERT, fragmentShader: wash ? WASH_FS : FLOOR_FS,
+    transparent: wash, depthWrite: !wash, side: wash ? THREE.BackSide : THREE.DoubleSide,
+  });
+}
+function fillLights(m, lights) {
+  const U = m.uniforms;
+  U.uCount.value = lights.length; U.uStr.value = settings.glowStrength; U.uH.value = settings.glowHeight;
+  lights.forEach((l, i) => { U.uPos.value[i].set(l.x, l.y, l.z, l.r); U.uCol.value[i].copy(l.c); });
+}
+function colorFromStops(stops, v) {
+  if (v <= stops[0].v) return cssHex(stops[0].c);
+  for (let i = 1; i < stops.length; i++) {
+    if (v <= stops[i].v) {
+      const k = (v - stops[i - 1].v) / (stops[i].v - stops[i - 1].v || 1);
+      const p = cssHex(stops[i - 1].c), q = cssHex(stops[i].c);
+      const mix = (s) => Math.round(((p >> s) & 255) * (1 - k) + ((q >> s) & 255) * k);
+      return (mix(16) << 16) | (mix(8) << 8) | mix(0);
+    }
+  }
+  return cssHex(stops[stops.length - 1].c);
+}
 const roomMeshes = new Map();     // room id -> { mesh, room }
 
 /** Turn a model into a translucent blue wireframe hologram; lit parts are remembered for state changes. */
@@ -213,17 +266,18 @@ function build() {
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(geo, holo
-        ? new THREE.MeshBasicMaterial({ color: HOLO.floor, transparent: true, opacity: ghost ? 0.25 : 1, side: THREE.DoubleSide, depthWrite: false })
+        ? (ghost ? new THREE.MeshBasicMaterial({ color: HOLO.floor, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthWrite: false })
+                 : roomLightMat('floor'))
         : mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
       m.position.y = 0.01;
       m.receiveShadow = true;
       g.add(m);
       let wash = null;
       if (holo && !ghost) {                          // coloured "air" that tints the room's inner walls when a light is on
-        const eg = new THREE.ExtrudeGeometry(shape, { depth: 1.1, bevelEnabled: false });
+        const eg = new THREE.ExtrudeGeometry(shape, { depth: settings.wallHeight, bevelEnabled: false });
         eg.rotateX(-Math.PI / 2);
-        wash = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.4, side: THREE.BackSide, depthWrite: false }));
-        wash.visible = false; wash.renderOrder = 1;
+        wash = new THREE.Mesh(eg, roomLightMat('wash'));
+        wash.renderOrder = 1;
         g.add(wash);
       }
       if (!ghost) {
@@ -242,7 +296,7 @@ function build() {
     f.walls.forEach((w) => {
       if (wallLength(w) < 0.01) return;
       const wallMat = holo
-        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.08 : 0.72, depthWrite: false, side: THREE.DoubleSide })
+        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.08 : settings.wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : mat('#d9d4cc', ghost);
       const wg = buildWall(w, { material: wallMat, ghost, low: lowWalls, makeMat: mat, holo, edgeMaterial });
       g.add(wg);
@@ -300,11 +354,7 @@ function roomHeat(room, f) {
     .filter(({ id, s }) => s && !isNaN(parseFloat(s.state)) && (viewMode === 'temp' ? s.unit === '°C' : s.unit === '%' && /feucht|humid/i.test(id)))
     .map(({ s }) => parseFloat(s.state));
   if (!vals.length) return null;
-  const v = vals.reduce((x, y) => x + y) / vals.length;
-  const k = viewMode === 'temp' ? Math.min(1, Math.max(0, (v - 16) / 12)) : Math.min(1, Math.max(0, (v - 30) / 50));
-  const c = new THREE.Color();
-  if (viewMode === 'temp') c.setHSL(0.62 - 0.62 * k, 0.85, 0.42); else c.setHSL(0.55, 0.3 + 0.6 * k, 0.55 - 0.25 * k);
-  return c.getHex();
+  return colorFromStops(viewMode === 'temp' ? settings.tempStops : settings.humidStops, vals.reduce((x, y) => x + y) / vals.length);
 }
 
 function applyStates() {
@@ -325,21 +375,25 @@ function applyStates() {
     const sp = labelSprites.get(d.id);
     if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
   });
-  if (isHolo()) {                         // lit rooms: floor + walls take the colour of the light inside
+  if (isHolo()) {                         // lit rooms: light spreads from each lamp, in the lamp's colour
+    const defCol = hexVec(cssHex(settings.defaultLightColor));
     roomMeshes.forEach(({ mesh, room, wash }) => {
-      const lights = f.devices.filter((d) => d.entity && /^(light|switch)\./.test(d.entity)
-        && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points));
+      const U = mesh.material.uniforms;
+      if (!U) return;
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
-      let col = null;
-      if (heat) col = heat;
-      else if (lights.length) {
-        const rgb = lights.map((d) => states[d.entity]?.rgb).find(Array.isArray);
-        col = rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255).getHex() : 0xffc861;
-      }
-      mesh.material.color.setHex(col ?? HOLO.floor);
-      if (col && !heat) mesh.material.color.multiplyScalar(0.8);
-      mesh.material.opacity = col ? (heat ? 0.85 : 0.75) : 1;
-      if (wash) { wash.visible = !!col && !heat; if (col) wash.material.color.setHex(col); }
+      const lights = heat ? [] : f.devices
+        .filter((d) => d.entity && /^(light|switch)\./.test(d.entity) && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points))
+        .slice(0, MAX_LIGHTS)
+        .map((d) => {
+          const st = states[d.entity];
+          const br = st.brightness != null ? 0.35 + 0.65 * st.brightness / 100 : 1;
+          const c = Array.isArray(st.rgb) ? new THREE.Vector3(st.rgb[0] / 255, st.rgb[1] / 255, st.rgb[2] / 255) : defCol.clone();
+          const sw = d.entity.startsWith('switch.') ? 0.6 : 1;
+          return { x: d.x, y: d.y || 0, z: d.z, r: settings.glowRadius * (0.7 + 0.5 * br) * sw, c: c.multiplyScalar(br) };
+        });
+      fillLights(mesh.material, lights);
+      U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
+      if (wash) { fillLights(wash.material, lights); wash.visible = lights.length > 0; }
     });
   }
   if (livePopupFor) renderLivePopup();
@@ -725,7 +779,8 @@ function quickAction(entityId) {
 function handleLiveTap(e) {
   const h = pick(e);
   if (h?.kind === 'device') { livePopupFor = h.id; renderLivePopup(); }
-  else closeLivePopup();
+  else if (h?.kind === 'room') { closeLivePopup(); openRoomPanel(h.id); }
+  else { closeLivePopup(); closeRoomPanel(); }
 }
 function closeLivePopup() { livePopupFor = null; $('#livePopup').hidden = true; }
 function renderLivePopup() {
@@ -898,7 +953,7 @@ function buildNav(force = false) {
   navKey = key;
   const fp = $('#floorPills'), rp = $('#roomPills');
   fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx, () => switchFloor(i))));
-  rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => { const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (isLive()) { if (off) closeRoomPanel(); else openRoomPanel(r.id); } })));
+  rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => { const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id); })));
   $('#navSep').hidden = !rooms.length;
 }
 function fillFloorSelect() { buildNav(true); }
@@ -1098,8 +1153,10 @@ const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
   shadows: '#setShadows', showLabels: '#setLabels', lowWalls: '#setLowWalls', cutaway: '#setCutaway',
+  wallOpacity: '#setWallOpacity', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
+  defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow',
 };
-const dispKeys = new Set(['wallHeight', 'wallThickness']);
+const dispKeys = new Set(['wallHeight', 'wallThickness', 'glowRadius', 'glowHeight']);
 
 function fillSettingsForm() {
   for (const [key, sel] of Object.entries(bindings)) {
@@ -1108,6 +1165,41 @@ function fillSettingsForm() {
     else if (dispKeys.has(key)) el.value = toDisp(settings[key]);
     else el.value = String(settings[key]);
   }
+  renderStops('#tempStops', 'tempStops', '°C');
+  renderStops('#humidStops', 'humidStops', '%');
+}
+function renderStops(sel, key, unit) {
+  const box = $(sel);
+  box.replaceChildren();
+  settings[key].forEach((s, i) => {
+    const row = document.createElement('div'); row.className = 'stop';
+    const num = document.createElement('input'); num.type = 'number'; num.step = 'any'; num.value = s.v; num.dataset.role = 'v';
+    const u = document.createElement('span'); u.textContent = unit;
+    const col = document.createElement('input'); col.type = 'color'; col.value = s.c; col.dataset.role = 'c';
+    const del = document.createElement('button'); del.type = 'button'; del.textContent = '×'; del.title = t('set.removeStop');
+    del.disabled = settings[key].length <= 2;
+    del.addEventListener('click', () => { settings[key].splice(i, 1); renderStops(sel, key, unit); commitSettings(); });
+    row.append(num, u, col, del);
+    box.append(row);
+  });
+  const bar = document.createElement('div'); bar.className = 'stopBar';
+  bar.style.background = `linear-gradient(90deg, ${settings[key].map((s) => s.c).join(',')})`;
+  const add = document.createElement('button'); add.type = 'button'; add.textContent = t('set.addStop');
+  add.disabled = settings[key].length >= 10;
+  add.addEventListener('click', () => {
+    const last = settings[key][settings[key].length - 1];
+    settings[key].push({ v: last.v + 5, c: last.c }); renderStops(sel, key, unit); commitSettings();
+  });
+  const reset = document.createElement('button'); reset.type = 'button'; reset.textContent = t('set.resetStops');
+  reset.addEventListener('click', () => { settings[key] = structuredClone(DEFAULT_LOOK[key]); renderStops(sel, key, unit); commitSettings(); });
+  const tools = document.createElement('div'); tools.className = 'stopTools'; tools.append(add, reset);
+  box.append(bar, tools);
+}
+function readStops(sel, fallback) {
+  const rows = [...$(sel).querySelectorAll('.stop')].map((r) => ({
+    v: parseFloat(r.querySelector('[data-role=v]').value), c: r.querySelector('[data-role=c]').value }))
+    .filter((s) => Number.isFinite(s.v));
+  return rows.length >= 2 ? rows.sort((x, y) => x.v - y.v) : fallback;
 }
 function readSettingsForm() {
   const next = { ...settings };
@@ -1120,11 +1212,15 @@ function readSettingsForm() {
     } else if (key === 'grid') next[key] = parseFloat(el.value);
     else next[key] = el.value;
   }
+  next.tempStops = readStops('#tempStops', settings.tempStops);
+  next.humidStops = readStops('#humidStops', settings.humidStops);
   return next;
 }
 function applySettings(prev = {}) {
   setLanguage(settings.language);
   document.documentElement.dataset.theme = settings.theme;
+  const rs = document.documentElement.style;
+  rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow);
   applyI18n();
   scene.background = isHolo() ? null : new THREE.Color(themeColors().scene);
   renderer.shadowMap.enabled = settings.shadows;

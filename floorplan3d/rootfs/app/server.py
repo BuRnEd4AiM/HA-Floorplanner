@@ -36,7 +36,21 @@ DEFAULT_SETTINGS = {
     "lowWalls": False,
     "showLabels": True,
     "cutaway": True,           # walls facing the camera sink down
+    "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
+    "glowRadius": 3.5,         # metres a lamp lights up
+    "glowStrength": 1.0,
+    "glowHeight": 1.6,         # metres the coloured glow climbs the walls
+    "defaultLightColor": "#ffc861",
+    "bgTop": "#0a3ba8",
+    "bgBottom": "#031547",
+    "bgGlow": "#28ebd2",
+    "tempStops": [{"v": 16, "c": "#2a6bff"}, {"v": 20, "c": "#2ad0a0"}, {"v": 23, "c": "#ffd84a"},
+                  {"v": 26, "c": "#ff8a2a"}, {"v": 30, "c": "#ff3a3a"}],
+    "humidStops": [{"v": 30, "c": "#e8d9a0"}, {"v": 50, "c": "#4fd0c8"}, {"v": 65, "c": "#2a7bff"},
+                   {"v": 80, "c": "#5a3aff"}],
 }
+RANGES = {"wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0)}
+HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 EMPTY_LAYOUT = {
     "version": 1,
     "floors": [{"id": "f1", "name": "Erdgeschoss", "walls": [], "rooms": [], "devices": []}],
@@ -87,6 +101,18 @@ async def put_layout(request):
 
 
 # ---------- settings ----------
+def clean_stops(val, default):
+    """Colour stops: [{"v": number, "c": "#rrggbb"}], 2..10 entries, sorted by value."""
+    if not isinstance(val, list):
+        return default
+    stops = []
+    for item in val[:10]:
+        if isinstance(item, dict) and isinstance(item.get("c"), str) and HEX.match(item["c"]) \
+                and isinstance(item.get("v"), (int, float)) and not isinstance(item["v"], bool):
+            stops.append({"v": float(item["v"]), "c": item["c"].lower()})
+    return sorted(stops, key=lambda x: x["v"]) if len(stops) >= 2 else default
+
+
 def validate_settings(data: dict) -> dict:
     """Keep only known keys with the right type; unknown keys are dropped."""
     out = dict(DEFAULT_SETTINGS)
@@ -94,7 +120,12 @@ def validate_settings(data: dict) -> dict:
         if key not in data:
             continue
         val = data[key]
-        if isinstance(default, bool):
+        if isinstance(default, list):
+            out[key] = clean_stops(val, default)
+        elif isinstance(default, str) and HEX.match(default):
+            if isinstance(val, str) and HEX.match(val):
+                out[key] = val.lower()
+        elif isinstance(default, bool):
             if isinstance(val, bool):
                 out[key] = val
         elif isinstance(default, (int, float)):
@@ -102,6 +133,8 @@ def validate_settings(data: dict) -> dict:
                 out[key] = float(val)
         elif isinstance(val, str):
             out[key] = val
+    for key, (lo, hi) in RANGES.items():
+        out[key] = min(hi, max(lo, out[key]))
     if out["language"] not in ("de", "en"):
         out["language"] = DEFAULT_SETTINGS["language"]
     if out["theme"] not in ("holo", "dark", "light"):

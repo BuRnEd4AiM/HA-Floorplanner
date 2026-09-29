@@ -4,7 +4,9 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 ### Added
-- Lit rooms take the colour of their light (RGB lights supported): opaque tinted floor plus a coloured glow along the inner walls
+- Light spreads from each lamp's position with falloff, in the lamp's (RGB) colour and brightness, only inside its own room; coloured glow climbs the walls
+- Room panel (entities per room) also in edit mode and by tapping a room
+- Settings: wall opacity, lamp reach/strength/glow height, default light colour, background colours, freely editable colour scales for temperature and humidity views
 - Hologram backdrop: royal-blue gradient with teal corner glow, fainter grid
 - Heat views *Normal / Temp. / Feuchte* colour rooms by sensor values; power sensors (W) appear as glowing orange badges
 - Room panel in live mode: tap a room pill to see all its entities grouped (lights, covers, media, switches, sensors) with brightness and cover-position sliders
