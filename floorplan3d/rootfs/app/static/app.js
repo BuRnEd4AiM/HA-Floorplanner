@@ -501,15 +501,16 @@ function applyStates() {
       const obj = registry.get(d.id);
       if (!obj) return;
       const on = d.entity && ON_STATES.has(states[d.entity]?.state);
+      const rgb = on && Array.isArray(states[d.entity]?.rgb) ? states[d.entity].rgb : null;   // lit parts take the light's colour
       obj.userData.glow?.forEach((m) => {
-        m.emissive.set(on ? 0xffd27a : 0x000000);
+        m.emissive.set(on ? (rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255) : 0xffd27a) : 0x000000);
         m.emissiveIntensity = on ? 1.4 : 0;
       });
       const hg = obj.userData.holoGlow;
       if (hg) {
         const onOp = ghost ? 0.12 + 0.5 * bv : 0.8, offOp = ghost ? 0.03 + 0.2 * bv : 0.38;
-        hg.fill.forEach((m) => { m.color.setHex(on ? HOLO.on : HOLO.fill); m.opacity = on ? onOp : offOp; });
-        hg.edge.forEach((m) => m.color.setHex(on ? HOLO.onEdge : HOLO.edge));
+        hg.fill.forEach((m) => { if (on && rgb) m.color.setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255); else m.color.setHex(on ? HOLO.on : HOLO.fill); m.opacity = on ? onOp : offOp; });
+        hg.edge.forEach((m) => { if (on && rgb) m.color.setRGB(Math.min(1, rgb[0] / 255 + 0.35), Math.min(1, rgb[1] / 255 + 0.35), Math.min(1, rgb[2] / 255 + 0.35)); else m.color.setHex(on ? HOLO.onEdge : HOLO.edge); });
       }
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }

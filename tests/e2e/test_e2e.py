@@ -71,6 +71,13 @@ with sync_playwright() as p:
     check("custom model device type", any(d["type"] == "glb:tri" for d in devs))
     check("entities bound", {d["entity"] for d in devs} == {"", "light.wohnzimmer", "sensor.temp"}, devs)
 
+    # --- light ball / LED strip devices
+    pg.click("button[data-tool=device]"); pg.select_option("#entitySelect", "")
+    pg.click('#paletteGrid button:has-text("Lichtkugel")'); pg.mouse.click(cx-120, cy-60); pg.wait_for_timeout(300)
+    pg.click('#paletteGrid button:has-text("LED-Streifen")'); pg.mouse.click(cx-120, cy+60); pg.wait_for_timeout(300)
+    types = [d["type"] for d in pg.evaluate("window.__fp.layout")["floors"][0]["devices"]]
+    check("light ball and LED strip placeable", "orb" in types and "strip" in types, types)
+
     # --- searchable entity picker in the properties panel
     pg.click("button[data-tool=select]"); pg.mouse.click(cx+40, cy-20); pg.wait_for_timeout(400)
     pg.fill(".entPicker input", "temp"); pg.wait_for_timeout(200)
@@ -105,7 +112,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(1800)
     pg.goto(BASE + "?debug=1&mode=live"); pg.wait_for_timeout(1500)
     lay = pg.evaluate("window.__fp.layout")["floors"][0]
-    check("layout survives reload", len(lay["walls"]) == 4 and len(lay["devices"]) == 3)
+    check("layout survives reload", len(lay["walls"]) == 4 and len(lay["devices"]) == 5)
     check("reload in live mode", pg.evaluate("document.body.classList.contains('live')"))
     pg.click("#modeSwitch button[data-mode=edit]"); pg.wait_for_timeout(300)
     pg.click("#view3d"); pg.wait_for_timeout(600)

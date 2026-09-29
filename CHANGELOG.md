@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-30
+### Added
+- New devices "Lichtkugel" (light ball) and "LED-Streifen" (1 m LED strip, scale it to the real length) for LED strips and accent lights; link them to any light entity
+- Lit device parts (all lights, balls, strips) take the colour of the light entity in 3D
+
 ## [0.4.1] - 2026-09-30
 ### Changed
 - Entity picker in the properties panel is full width with a roomy result list: names wrap instead of being cut off, the entity id is shown below, groups by area, and the current link is shown above
