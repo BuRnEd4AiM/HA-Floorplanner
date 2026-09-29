@@ -128,6 +128,21 @@
     <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
     <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
 
+    <h3 data-i18n="set.section.look"></h3>
+    <div class="row"><label for="setWallOpacity" data-i18n="set.wallOpacity"></label><input id="setWallOpacity" type="number" step="any" min="0.2" max="1"></div>
+    <div class="row"><label for="setGlowRadius" data-i18n="set.glowRadius"></label><input id="setGlowRadius" type="number" step="any"></div>
+    <div class="row"><label for="setGlowStrength" data-i18n="set.glowStrength"></label><input id="setGlowStrength" type="number" step="any"></div>
+    <div class="row"><label for="setGlowHeight" data-i18n="set.glowHeight"></label><input id="setGlowHeight" type="number" step="any"></div>
+    <div class="row"><label for="setDefaultLight" data-i18n="set.defaultLight"></label><input id="setDefaultLight" type="color"></div>
+    <div class="row"><label for="setBgTop" data-i18n="set.bgTop"></label><input id="setBgTop" type="color"></div>
+    <div class="row"><label for="setBgBottom" data-i18n="set.bgBottom"></label><input id="setBgBottom" type="color"></div>
+    <div class="row"><label for="setBgGlow" data-i18n="set.bgGlow"></label><input id="setBgGlow" type="color"></div>
+
+    <h3 data-i18n="set.section.tempColors"></h3>
+    <div id="tempStops" class="stops"></div>
+    <h3 data-i18n="set.section.humidColors"></h3>
+    <div id="humidStops" class="stops"></div>
+
     <menu><button value="close" class="primary" data-i18n="close"></button></menu>
   </form>
 </dialog>

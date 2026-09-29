@@ -113,3 +113,16 @@ async def test_service_data_validation(client, monkeypatch):
     ]
     for body in bad:
         assert (await client.post("/api/service", json=body)).status == 400
+
+
+async def test_settings_look_and_stops(client):
+    r = await client.put("/api/settings", json={
+        "wallOpacity": 5, "glowRadius": 0.01, "bgTop": "#ABCDEF", "bgBottom": "red",
+        "tempStops": [{"v": 25, "c": "#ff0000"}, {"v": 10, "c": "#0000ff"}, {"v": "x", "c": "#000000"}],
+        "humidStops": [{"v": 1, "c": "#ffffff"}],
+    })
+    s = await r.json()
+    assert s["wallOpacity"] == 1.0 and s["glowRadius"] == 0.5
+    assert s["bgTop"] == "#abcdef" and s["bgBottom"] == "#031547"
+    assert [x["v"] for x in s["tempStops"]] == [10.0, 25.0]
+    assert len(s["humidStops"]) == 4            # too few valid stops -> defaults

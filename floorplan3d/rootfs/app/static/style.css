@@ -128,10 +128,18 @@ html[data-theme="holo"], html[data-theme="holo"] body { background: #041a52; }
 /* Hologram backdrop: royal-blue gradient with a teal glow in the corner (reference video) */
 html[data-theme="holo"] #stage {
   background:
-    radial-gradient(circle at 92% 12%, rgba(40, 235, 210, .55) 0, rgba(40, 235, 210, .12) 9%, transparent 22%),
-    radial-gradient(ellipse at 50% 35%, rgba(30, 110, 230, .55), transparent 70%),
-    linear-gradient(180deg, #0a3ba8 0%, #072c86 45%, #031547 100%);
+    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--bg-glow, #28ebd2) 55%, transparent) 0, color-mix(in srgb, var(--bg-glow, #28ebd2) 12%, transparent) 9%, transparent 22%),
+    linear-gradient(180deg, var(--bg-top, #0a3ba8) 0%, color-mix(in srgb, var(--bg-top, #0a3ba8) 55%, var(--bg-bottom, #031547)) 45%, var(--bg-bottom, #031547) 100%);
 }
 #modeBar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 4; }
 html:not([data-theme="holo"]) #modeBar { display: none; }
 body.kiosk #modeBar { bottom: 10px; }
+
+dialog { max-height: 90vh; overflow-y: auto; }
+dialog .row input[type=color] { width: 150px; height: 30px; padding: 0; }
+dialog .stop { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+dialog .stop input[type=number] { width: 90px; }
+dialog .stop input[type=color] { width: 60px; height: 28px; padding: 0; }
+dialog .stop button { min-width: 28px; }
+dialog .stopBar { height: 10px; border-radius: 5px; margin: 8px 0; }
+dialog .stopTools { display: flex; gap: 8px; }
