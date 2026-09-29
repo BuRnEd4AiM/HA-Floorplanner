@@ -170,3 +170,9 @@ dialog .stop.tablet select { width: 130px; }
 .re-s { font-size: 11px; color: var(--muted); flex: 1; word-break: break-all; }
 .re-row button { min-height: 28px; padding: 2px 10px; }
 .entState { font-size: 11px; color: var(--muted); margin-top: 4px; word-break: break-all; }
+
+#objList details { margin-bottom: 6px; }
+#objList summary { cursor: pointer; font-size: 12px; color: var(--muted); padding: 4px 0; }
+#objList .obj { display: block; width: 100%; text-align: left; min-height: 30px; padding: 4px 10px; margin: 2px 0; border-radius: 8px; font-size: 13px; }
+#objList .obj.active { border-color: var(--accent, #23e0ff); background: rgba(35,224,255,.18); font-weight: 600; }
+#objListBody { max-height: 34vh; overflow: auto; }

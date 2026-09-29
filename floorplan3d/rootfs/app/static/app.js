@@ -591,6 +591,7 @@ function undo() {
 }
 function changed(rebuild = true) {
   if (rebuild) build();
+  renderObjList();
   scheduleSave();
 }
 function setStatus(txt) { $('#status').textContent = txt; }
@@ -1192,7 +1193,7 @@ function fillFloorSelect() { buildNav(true); }
 
 function switchFloor(i) {
   floorIdx = i; selection = null; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
-  clearFocusOutline(); build(); fitCamera();
+  clearFocusOutline(); build(); fitCamera(); refreshSelection();
 }
 
 function clearFocusOutline() { focusGroup.clear(); }
@@ -1398,7 +1399,47 @@ function renderRoomEntities() {
   if (!placed.length && !extra.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('re.empty'); box.append(e); }
 }
 
+/* Edit mode: every object of the floor as a list, so things that are hard to hit in 3D can be selected from the side */
+function renderObjList() {
+  const box = $('#objList'), body = $('#objListBody');
+  if (!box || !body) return;
+  const f = floor();
+  if (isLive() || !f) { box.hidden = true; return; }
+  box.hidden = false;
+  body.replaceChildren();
+  const openings = [];
+  f.walls.forEach((w, i) => (w.openings || []).forEach((o) => openings.push({ o, w })));
+  const groups = [
+    ['obj.rooms', f.rooms.map((r) => ({ kind: 'room', id: r.id, label: r.name || t('prop.room') }))],
+    ['obj.walls', f.walls.map((w, i) => ({ kind: 'wall', id: w.id, label: `${t('prop.wall')} ${i + 1} · ${wallLength(w).toFixed(1)} m` }))],
+    ['obj.openings', openings.map(({ o }) => ({ kind: 'opening', id: o.id, label: o.name || t(`prop.${o.type}`) }))],
+    ['obj.devices', f.devices.map((d) => ({ kind: 'device', id: d.id, label: d.name || t(`dev.${d.type}`) }))],
+  ];
+  groups.forEach(([key, items]) => {
+    if (!items.length) return;
+    const det = document.createElement('details');
+    det.open = objGroupOpen[key] ?? (key !== 'obj.walls');
+    det.addEventListener('toggle', () => { objGroupOpen[key] = det.open; });
+    const sum = document.createElement('summary'); sum.textContent = `${t(key)} (${items.length})`;
+    det.append(sum);
+    items.forEach((it) => {
+      const b = document.createElement('button');
+      b.className = 'obj' + (selection?.id === it.id ? ' active' : '');
+      b.textContent = it.label;
+      b.addEventListener('click', () => {
+        if (!registry.get(it.id)) return;
+        selection = { kind: it.kind, id: it.id };
+        refreshSelection();
+      });
+      det.append(b);
+    });
+    body.append(det);
+  });
+}
+const objGroupOpen = {};
+
 function renderProps() {
+  renderObjList();
   const box = $('#props'), body = $('#propsBody');
   body.innerHTML = '';
   if (!selection || isLive()) { box.hidden = true; return; }
@@ -1453,6 +1494,8 @@ function renderProps() {
     }
   } else {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
+    body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => (it.rot = ((+v % 360) + 360) % 360), { step: 15 })));
     body.append(field(t('prop.height'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
