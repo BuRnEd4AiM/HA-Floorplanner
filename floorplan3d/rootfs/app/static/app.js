@@ -303,7 +303,7 @@ const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate']);
 function makeOpeningHandle(w, o, group) {
   const L = wallLength(w) || 1;
   const k = o.pos / L;
-  const geo = new THREE.BoxGeometry(o.width + 0.1, o.height + 0.1, w.thickness + 0.3);
+  const geo = new THREE.BoxGeometry(o.width, o.height, w.thickness + 0.1);
   const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ visible: false }));
   mesh.position.set(w.a[0] + (w.b[0] - w.a[0]) * k, o.sill + o.height / 2, w.a[1] + (w.b[1] - w.a[1]) * k);
   mesh.rotation.y = -Math.atan2(w.b[1] - w.a[1], w.b[0] - w.a[0]);
@@ -433,13 +433,27 @@ function stateText(entityId) {
 }
 
 let viewMode = 'normal';           // normal | temp | humid (room colouring by sensor values)
+/* Temperature / humidity of a room: average of every matching sensor placed in it or assigned to its HA area
+   (sensors with °C/°F or device_class temperature/humidity, and the current values of climate entities). */
 function roomHeat(room, f) {
-  const vals = f.devices.filter((d) => d.entity && pointInPoly(d.x, d.z, room.points))
-    .map((d) => ({ id: d.entity, s: states[d.entity] }))
-    .filter(({ id, s }) => s && !isNaN(parseFloat(s.state)) && (viewMode === 'temp' ? s.unit === '°C' : s.unit === '%' && /feucht|humid/i.test(id)))
-    .map(({ s }) => parseFloat(s.state));
+  const ids = new Set(f.devices.filter((d) => d.entity && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
+  if (room.area) (areas.find((x) => x.id === room.area)?.entities || []).forEach((id) => ids.add(id));
+  const temp = viewMode === 'temp';
+  const vals = [];
+  ids.forEach((id) => {
+    const s = states[id];
+    if (!s) return;
+    const num = parseFloat(s.state);
+    if (id.startsWith('climate.')) {
+      const v = temp ? s.ct : s.ch;
+      if (typeof v === 'number') vals.push(v);
+    } else if (!isNaN(num) && id.startsWith('sensor.')) {
+      if (temp && (s.unit === '°C' || s.dc === 'temperature')) vals.push(s.unit === '°F' ? (num - 32) * 5 / 9 : num);
+      else if (!temp && s.unit === '%' && (s.dc === 'humidity' || /feucht|humid/i.test(id))) vals.push(num);
+    }
+  });
   if (!vals.length) return null;
-  return colorFromStops(viewMode === 'temp' ? settings.tempStops : settings.humidStops, vals.reduce((x, y) => x + y) / vals.length);
+  return colorFromStops(temp ? settings.tempStops : settings.humidStops, vals.reduce((x, y) => x + y) / vals.length);
 }
 
 const OPEN_HEX = 0xff4a3d;
@@ -731,9 +745,9 @@ canvas.addEventListener('pointerdown', (e) => {
   } else if (h?.kind === 'opening') {
     const f = findOpening(h.id);
     if (f) {
+      const wasSelected = selection?.kind === 'opening' && selection.id === h.id;
       selection = h; refreshSelection();
-      down.op = { ...f, moved: false };
-      controls.enabled = false;
+      if (wasSelected) { down.op = { ...f, moved: false }; controls.enabled = false; }   // first click only selects, so a stray click never drags it
     }
   }
 });
@@ -1613,7 +1627,7 @@ async function pollStates() {
     if (!Array.isArray(list)) return;
     const firstLoad = !entities.length;
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb }]));
+    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch }]));
     if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
     applyStates();
     renderRoomEntities(); renderEntState();
