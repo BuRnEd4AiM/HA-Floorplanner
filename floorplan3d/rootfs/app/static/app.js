@@ -24,6 +24,7 @@ let layout = { version: 1, floors: [] };
 let floorIdx = 0;
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
+let lockedSel = false;            // selected from the side list: only that object reacts to the mouse
 let selection = null;              // { kind: 'wall'|'room'|'device'|'opening', id }
 let deviceType = 'light';
 let openingType = 'door';
@@ -543,6 +544,8 @@ function refreshSelHelper() {
 }
 function refreshSelection() {
   if (selection && !registry.get(selection.id)) selection = null;
+  if (!selection) lockedSel = false;
+  document.body.classList.toggle('locksel', lockedSel);
   refreshSelHelper();
   renderProps();
 }
@@ -733,6 +736,17 @@ canvas.addEventListener('pointerdown', (e) => {
   if (e.button !== 0) return;
   down = { x: e.clientX, y: e.clientY, hit: null, drag: false, dev: null, op: null };
   if (isLive() || tool !== 'select') return;
+  if (lockedSel && selection) {                     // locked: drag moves only the selected object, from anywhere
+    down.hit = null;
+    if (selection.kind === 'device') {
+      const d = floor().devices.find((v) => v.id === selection.id), gp = groundPoint(e);
+      if (d && gp) { down.dev = { d, dx: d.x - gp[0], dz: d.z - gp[1], moved: false }; controls.enabled = false; }
+    } else if (selection.kind === 'opening') {
+      const f = findOpening(selection.id);
+      if (f) { down.op = { ...f, moved: false }; controls.enabled = false; }
+    }
+    return;
+  }
   const h = pick(e);
   down.hit = h;
   if (h?.kind === 'device') {
@@ -803,6 +817,7 @@ canvas.addEventListener('pointerup', (e) => {
 
   const gp = groundPoint(e);
   if (tool === 'select') {
+    if (lockedSel) return;                     // locked selection stays until released
     selection = st.hit; refreshSelection();
   } else if (tool === 'erase') {
     const h = pick(e);
@@ -880,7 +895,7 @@ function deleteItem({ kind, id }) {
 window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
-  if (k === 'escape') { endDrawing(); closeLivePopup(); setStatus(''); return; }
+  if (k === 'escape') { endDrawing(); closeLivePopup(); setStatus(''); if (lockedSel) { lockedSel = false; selection = null; refreshSelection(); } return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
   else if (k === 'delete' || k === 'backspace') { if (selection) { snapshot(); deleteItem(selection); } }
@@ -1077,6 +1092,7 @@ function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPane
 
 /* ================= Tools, views, mode ================= */
 function setTool(next) {
+  if (next !== 'select') lockedSel = false;
   tool = next; endDrawing(); setStatus('');
   document.querySelectorAll('#tools button').forEach((b) => b.classList.toggle('active', b.dataset.tool === next));
   $('#hintText').textContent = t(`hint.${next}`);
@@ -1090,7 +1106,7 @@ function setMode(next) {
   mode = next;
   document.body.classList.toggle('live', isLive());
   document.querySelectorAll('#modeSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.mode === next));
-  closeLivePopup(); closeRoomPanel(); selection = null;
+  closeLivePopup(); closeRoomPanel(); selection = null; lockedSel = false;
   if (isLive()) {
     setTool('select');
     $('#hintText').textContent = t('hint.live');
@@ -1192,7 +1208,7 @@ function findRoomByName(name) {
 function fillFloorSelect() { buildNav(true); }
 
 function switchFloor(i) {
-  floorIdx = i; selection = null; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
+  floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
   clearFocusOutline(); build(); fitCamera(); refreshSelection();
 }
 
@@ -1407,6 +1423,15 @@ function renderObjList() {
   if (isLive() || !f) { box.hidden = true; return; }
   box.hidden = false;
   body.replaceChildren();
+  const lockBar = document.createElement('div'); lockBar.className = 'lockbar' + (lockedSel ? ' on' : '');
+  const lockTxt = document.createElement('span'); lockTxt.textContent = lockedSel ? t('obj.locked') : t('obj.hint');
+  lockBar.append(lockTxt);
+  if (lockedSel) {
+    const rb = document.createElement('button'); rb.textContent = t('obj.release');
+    rb.addEventListener('click', () => { lockedSel = false; selection = null; refreshSelection(); });
+    lockBar.append(rb);
+  }
+  body.append(lockBar);
   const openings = [];
   f.walls.forEach((w, i) => (w.openings || []).forEach((o) => openings.push({ o, w })));
   const groups = [
@@ -1428,7 +1453,10 @@ function renderObjList() {
       b.textContent = it.label;
       b.addEventListener('click', () => {
         if (!registry.get(it.id)) return;
+        if (selection?.id === it.id && lockedSel) { lockedSel = false; selection = null; refreshSelection(); return; }   // click again: release
+        if (tool !== 'select') setTool('select');
         selection = { kind: it.kind, id: it.id };
+        lockedSel = true;
         refreshSelection();
       });
       det.append(b);

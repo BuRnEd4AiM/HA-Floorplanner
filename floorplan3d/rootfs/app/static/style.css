@@ -176,3 +176,8 @@ dialog .stop.tablet select { width: 130px; }
 #objList .obj { display: block; width: 100%; text-align: left; min-height: 30px; padding: 4px 10px; margin: 2px 0; border-radius: 8px; font-size: 13px; }
 #objList .obj.active { border-color: var(--accent, #23e0ff); background: rgba(35,224,255,.18); font-weight: 600; }
 #objListBody { max-height: 34vh; overflow: auto; }
+
+#objList .lockbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); padding: 4px 2px 8px; }
+#objList .lockbar.on { color: #ffb04a; }
+#objList .lockbar button { min-height: 26px; padding: 2px 10px; }
+body.locksel #view, body.locksel canvas { cursor: move; }
