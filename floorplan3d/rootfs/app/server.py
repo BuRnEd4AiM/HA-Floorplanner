@@ -36,6 +36,7 @@ DEFAULT_SETTINGS = {
     "lowWalls": False,
     "showLabels": True,
     "cutaway": True,           # walls facing the camera sink down
+    "belowVisibility": 0.5,    # how clearly floors below the current one shine through (0.05..1)
     "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
     "glowRadius": 3.5,         # metres a lamp lights up
     "glowStrength": 1.0,
@@ -49,7 +50,7 @@ DEFAULT_SETTINGS = {
     "humidStops": [{"v": 30, "c": "#e8d9a0"}, {"v": 50, "c": "#4fd0c8"}, {"v": 65, "c": "#2a7bff"},
                    {"v": 80, "c": "#5a3aff"}],
 }
-RANGES = {"wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0)}
+RANGES = {"belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0)}
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 EMPTY_LAYOUT = {
     "version": 1,

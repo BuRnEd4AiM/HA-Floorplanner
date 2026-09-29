@@ -15,7 +15,7 @@ let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true,
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
-  bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2',
+  belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2',
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
   humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
 };
@@ -183,11 +183,11 @@ const hexVec = (h) => new THREE.Vector3(((h >> 16) & 255) / 255, ((h >> 8) & 255
 const cssHex = (s) => parseInt(s.slice(1), 16);
 const LIGHT_HEAD = `uniform int uCount; uniform vec4 uPos[${MAX_LIGHTS}]; uniform vec3 uCol[${MAX_LIGHTS}]; uniform float uStr; varying vec3 vP;`;
 const VERT = 'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }';
-const FLOOR_FS = `${LIGHT_HEAD} uniform vec3 uBase;
+const FLOOR_FS = `${LIGHT_HEAD} uniform vec3 uBase; uniform float uAlpha;
 void main(){ vec3 acc = vec3(0.0);
   for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
     float d = distance(vP.xz, uPos[i].xz) / uPos[i].w; acc += uCol[i] * exp(-d * d * 2.2); }
-  gl_FragColor = vec4(min(uBase + acc * uStr * 0.85, vec3(1.0)), 1.0); }`;
+  gl_FragColor = vec4(min(uBase + acc * uStr * 0.85, vec3(1.0)), uAlpha); }`;
 const WASH_FS = `${LIGHT_HEAD} uniform float uH;
 void main(){ vec3 acc = vec3(0.0);
   for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
@@ -195,16 +195,16 @@ void main(){ vec3 acc = vec3(0.0);
   acc *= uStr; float m = max(max(acc.r, acc.g), max(acc.b, 0.001));
   float a = clamp(m * 0.6, 0.0, 0.6) * (1.0 - smoothstep(0.0, uH, vP.y));
   if (a < 0.01) discard; gl_FragColor = vec4(acc / m, a); }`;
-function roomLightMat(kind) {
+function roomLightMat(kind, alpha = 1) {
   const wash = kind === 'wash';
   return new THREE.ShaderMaterial({
     uniforms: {
-      uBase: { value: hexVec(HOLO.floor) }, uCount: { value: 0 }, uStr: { value: 1 }, uH: { value: 1.6 },
+      uBase: { value: hexVec(HOLO.floor) }, uAlpha: { value: alpha }, uCount: { value: 0 }, uStr: { value: 1 }, uH: { value: 1.6 },
       uPos: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector4()) },
       uCol: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector3()) },
     },
     vertexShader: VERT, fragmentShader: wash ? WASH_FS : FLOOR_FS,
-    transparent: wash, depthWrite: !wash, side: wash ? THREE.BackSide : THREE.DoubleSide,
+    transparent: wash || alpha < 1, depthWrite: !wash, side: wash ? THREE.BackSide : THREE.DoubleSide,
   });
 }
 function fillLights(m, lights) {
@@ -234,9 +234,9 @@ function holoify(model, ghost) {
   const hg = model.userData.holoGlow ||= { fill: [], edge: [] };
   for (const o of meshes) {
     const isGlow = glow.has(o.material);
-    o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.06 : 0.38, depthWrite: false });
+    o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.03 + 0.2 * settings.belowVisibility : 0.38, depthWrite: false });
     o.userData.holo = true;
-    const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.15 : 0.95 });
+    const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 });
     o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 25), em));
     if (isGlow) { hg.fill.push(o.material); hg.edge.push(em); }
   }
@@ -300,7 +300,7 @@ function build() {
     if (i > floorIdx) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
     const ghost = i < floorIdx;
-    const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.15 : 0.95 }) : null;
+    const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 }) : null;
     const g = new THREE.Group();
     g.position.y = elev(i);
     world.add(g);
@@ -312,8 +312,8 @@ function build() {
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(geo, holo
-        ? (ghost ? new THREE.MeshBasicMaterial({ color: HOLO.floor, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthWrite: false })
-                 : roomLightMat('floor'))
+        ? (ghost ? new THREE.MeshBasicMaterial({ color: HOLO.floor, transparent: true, opacity: 0.12 + 0.5 * settings.belowVisibility, side: THREE.DoubleSide, depthWrite: false })
+                 : roomLightMat('floor', floorIdx > 0 ? 1 - 0.65 * settings.belowVisibility : 1))
         : mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
       m.position.y = 0.01;
       m.receiveShadow = true;
@@ -344,7 +344,7 @@ function build() {
       if (wallLength(w) < 0.01) return;
       if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
       const wallMat = holo
-        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.08 : settings.wallOpacity, depthWrite: false, side: THREE.DoubleSide })
+        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * settings.belowVisibility : settings.wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : mat('#d9d4cc', ghost);
       const wg = buildWall(w, { material: wallMat, ghost, low: lowWalls, makeMat: mat, holo, edgeMaterial });
       g.add(wg);
@@ -1273,7 +1273,7 @@ const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
   shadows: '#setShadows', showLabels: '#setLabels', lowWalls: '#setLowWalls', cutaway: '#setCutaway',
-  wallOpacity: '#setWallOpacity', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
+  wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow',
 };
 const dispKeys = new Set(['wallHeight', 'wallThickness', 'glowRadius', 'glowHeight']);
