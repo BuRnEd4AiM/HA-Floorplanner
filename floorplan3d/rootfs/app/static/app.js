@@ -29,6 +29,8 @@ let deviceType = 'light';
 let openingType = 'door';
 let entityChoice = '';
 let entities = [];
+let areas = [];                      // Home Assistant areas: [{id, name, entities[]}]
+let areaOf = {};                     // entity_id -> area id
 let states = {};                   // entity_id -> { state, unit }
 let customModels = [];
 let lowWalls = false;
@@ -1004,6 +1006,12 @@ function renderRoomPanel() {
   area.textContent = imperial() ? `${(polyArea(room.points) * 10.7639).toFixed(0)} ft²` : `${polyArea(room.points).toFixed(1)} m²`;
   box.append(head, area);
   const devs = floor().devices.filter((d) => d.entity && pointInPoly(d.x, d.z, room.points));
+  const placedIds = new Set(floor().devices.map((d) => d.entity));
+  const inRp = (id) => RP_GROUPS.some(([g]) => g === rpGroupOf(id.split('.')[0]));
+  const extra = (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : [])
+    .filter((id) => !placedIds.has(id) && states[id] && inRp(id))
+    .map((id) => ({ entity: id, name: entities.find((e) => e.entity_id === id)?.name || id }));
+  devs.push(...extra);
   RP_GROUPS.forEach(([group, key]) => {
     const list = devs.filter((d) => rpGroupOf(d.entity.split('.')[0]) === group);
     if (!list.length) return;
@@ -1275,13 +1283,34 @@ document.querySelectorAll('#openingPalette button').forEach((b) => b.addEventLis
   document.querySelectorAll('#openingPalette button').forEach((x) => x.classList.toggle('active', x === b));
 }));
 
+/* Fill a <select> with entities grouped by HA area; the area of `room` comes first. */
+function addEntityOptions(sel, list, room, current) {
+  const byArea = new Map();
+  list.forEach((e) => { const k = areaOf[e.entity_id] || ''; if (!byArea.has(k)) byArea.set(k, []); byArea.get(k).push(e); });
+  const keys = [...byArea.keys()].sort((x, y) => {
+    if (room?.area && x === room.area) return -1;
+    if (room?.area && y === room.area) return 1;
+    if (!x) return 1; if (!y) return -1;
+    return (areas.find((q) => q.id === x)?.name || x).localeCompare(areas.find((q) => q.id === y)?.name || y);
+  });
+  const useGroups = areas.length > 0;
+  keys.forEach((k) => {
+    const parent = useGroups ? Object.assign(document.createElement('optgroup'), {
+      label: k ? (room?.area === k ? t('area.here', { n: areas.find((q) => q.id === k)?.name || k }) : areas.find((q) => q.id === k)?.name || k) : t('area.unassigned') }) : sel;
+    byArea.get(k).forEach((e) => parent.append(new Option(`${e.name} (${e.entity_id})`, e.entity_id)));
+    if (useGroups) sel.append(parent);
+  });
+  if (current && !list.some((e) => e.entity_id === current)) sel.add(new Option(current, current));
+}
+const roomAt = (x, z) => floor()?.rooms.find((r) => pointInPoly(x, z, r.points));
+
 function fillEntities(filter = '') {
   const sel = $('#entitySelect');
   sel.innerHTML = '';
   sel.add(new Option(t('panel.noEntity'), ''));
   const q = filter.toLowerCase();
-  entities.filter((e) => !q || e.entity_id.includes(q) || e.name.toLowerCase().includes(q))
-    .slice(0, 300).forEach((e) => sel.add(new Option(`${e.name} (${e.entity_id})`, e.entity_id)));
+  const list = entities.filter((e) => !q || e.entity_id.includes(q) || e.name.toLowerCase().includes(q) || (areas.find((x) => x.id === areaOf[e.entity_id])?.name || '').toLowerCase().includes(q)).slice(0, 300);
+  addEntityOptions(sel, list, floor()?.rooms.find((r) => r.id === focusedRoom) || null, entityChoice);
   sel.value = entityChoice;
 }
 $('#entitySearch').addEventListener('input', (e) => fillEntities(e.target.value));
@@ -1325,6 +1354,12 @@ function renderProps() {
   } else if (selection.kind === 'room') {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     body.append(field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v))));
+    const asel = document.createElement('select');
+    asel.add(new Option(t('area.none'), ''));
+    areas.forEach((x) => asel.add(new Option(x.name, x.id)));
+    asel.value = it.area || '';
+    asel.addEventListener('change', () => { snapshot(); it.area = asel.value || undefined; if (!it.name || areas.some((x) => x.name === it.name)) { const ar = areas.find((x) => x.id === asel.value); if (ar) it.name = ar.name; } changed(); renderProps(); });
+    body.append(field(t('prop.area'), asel));
   } else if (selection.kind === 'opening') {
     const { wall } = findOpening(it.id);
     const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
@@ -1356,8 +1391,7 @@ function renderProps() {
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
     const sel = document.createElement('select');
     sel.add(new Option(t('panel.noEntity'), ''));
-    entities.slice(0, 500).forEach((e) => sel.add(new Option(`${e.name} (${e.entity_id})`, e.entity_id)));
-    if (it.entity && !entities.some((e) => e.entity_id === it.entity)) sel.add(new Option(it.entity, it.entity));
+    addEntityOptions(sel, entities.slice(0, 1500), roomAt(it.x, it.z), it.entity);
     sel.value = it.entity || '';
     sel.addEventListener('change', () => { snapshot(); it.entity = sel.value; changed(); });
     body.append(field(t('prop.entity'), sel));
@@ -1505,6 +1539,16 @@ $('#settingsBtn').addEventListener('click', () => { fillSettingsForm(); dlg.show
 dlg.addEventListener('change', commitSettings);
 
 /* ================= Data loading ================= */
+async function loadAreas() {
+  try {
+    const r = await fetch('api/areas');
+    const list = r.ok ? await r.json() : [];
+    areas = Array.isArray(list) ? list : [];
+  } catch { areas = []; }
+  areaOf = {};
+  areas.forEach((x) => x.entities.forEach((e) => { areaOf[e] = x.id; }));
+}
+
 async function pollStates() {
   try {
     const r = await fetch('api/entities');
@@ -1514,7 +1558,7 @@ async function pollStates() {
     const firstLoad = !entities.length;
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
     states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb }]));
-    if (firstLoad) { fillEntities(); renderProps(); }
+    if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
     applyStates();
   } catch { /* offline: ignore */ }
 }

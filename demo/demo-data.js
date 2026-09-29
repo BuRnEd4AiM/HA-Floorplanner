@@ -9,11 +9,11 @@ const layout = {
   floors: [{
     id: 'eg', name: 'Erdgeschoss',
     rooms: [
-      { id: 'r1', name: 'Wohnzimmer',    color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
+      { id: 'r1', name: 'Wohnzimmer',    area: 'wohnzimmer', color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
       { id: 'r2', name: 'Küche',         color: '#c9c2b4', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
       { id: 'r3', name: 'Bad',           color: '#8fb1c2', points: [[0, 4.5], [3, 4.5], [3, 7], [0, 7]] },
-      { id: 'r4', name: 'Schlafzimmer',  color: '#a99bb8', points: [[3, 4.5], [7, 4.5], [7, 7], [3, 7]] },
-      { id: 'r5', name: 'Büro',          color: '#9db39a', points: [[7, 4.5], [10, 4.5], [10, 7], [7, 7]] },
+      { id: 'r4', name: 'Schlafzimmer',  area: 'schlafzimmer', color: '#a99bb8', points: [[3, 4.5], [7, 4.5], [7, 7], [3, 7]] },
+      { id: 'r5', name: 'Büro',          area: 'buero', color: '#9db39a', points: [[7, 4.5], [10, 4.5], [10, 7], [7, 7]] },
     ],
     walls: [
       W('w1', [0, 0], [6, 0], 0.24, [Win('o1', 1.6, { entity: 'binary_sensor.fenster_wohnzimmer', name: 'Fenster Wohnzimmer' }), Win('o2', 4.4)]),
@@ -144,6 +144,13 @@ export function installDemoBackend() {
     if (path === 'api/settings') {
       if (method === 'PUT') { settings = { ...settings, ...JSON.parse(init.body) }; return json(settings); }
       return json(settings);
+    }
+    if (path === 'api/areas') {
+      return json([
+        { id: 'wohnzimmer', name: 'Wohnzimmer', entities: ['light.wohnzimmer', 'light.stehlampe', 'media_player.tv', 'cover.wohnzimmer', 'climate.wohnzimmer', 'sensor.wohnzimmer_leistung'] },
+        { id: 'schlafzimmer', name: 'Schlafzimmer', entities: ['light.schlafzimmer'] },
+        { id: 'buero', name: 'Büro', entities: ['light.buero'] },
+      ]);
     }
     if (path === 'api/entities') {
       return json(Object.entries(entities).map(([entity_id, e]) => ({
