@@ -1,0 +1,23 @@
+name: "3D Floorplan"
+version: "0.2.0"
+slug: floorplan3d
+description: "Eigenen Grundriss zeichnen und Home-Assistant-Geräte in 3D platzieren"
+url: "https://github.com/"
+arch:
+  - amd64
+  - aarch64
+  - armv7
+init: false
+startup: application
+boot: auto
+ingress: true
+ingress_port: 8099
+panel_icon: mdi:floor-plan
+panel_title: "3D Floorplan"
+homeassistant_api: true
+map:
+  - addon_config:rw
+options:
+  log_level: info
+schema:
+  log_level: list(debug|info|warning|error)?

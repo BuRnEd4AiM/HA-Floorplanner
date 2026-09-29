@@ -1,0 +1,7 @@
+{
+  "name": "floorplan3d-demo",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": { "esbuild": "^0.24.0" }
+}

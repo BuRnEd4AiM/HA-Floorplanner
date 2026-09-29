@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3D Floorplan</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header id="toolbar">
+    <div class="group" id="modeSwitch">
+      <button data-mode="edit" class="active" data-i18n="mode.edit"></button>
+      <button data-mode="live" data-i18n="mode.live" data-i18n-title="mode.liveTip"></button>
+    </div>
+    <div class="group edit-only" id="tools">
+      <button data-tool="select" class="active" data-i18n="tool.select" data-i18n-title="tip.select"></button>
+      <button data-tool="wall" data-i18n="tool.wall" data-i18n-title="tip.wall"></button>
+      <button data-tool="room" data-i18n="tool.room" data-i18n-title="tip.room"></button>
+      <button data-tool="opening" data-i18n="tool.opening" data-i18n-title="tip.opening"></button>
+      <button data-tool="device" data-i18n="tool.device" data-i18n-title="tip.device"></button>
+      <button data-tool="erase" data-i18n="tool.erase" data-i18n-title="tip.erase"></button>
+    </div>
+    <div class="group">
+      <button id="view2d" data-i18n="view.2d"></button>
+      <button id="view3d" class="active" data-i18n="view.3d"></button>
+      <button id="wallToggle" data-i18n="view.lowWalls"></button>
+      <button id="fitBtn" data-i18n="view.fit"></button>
+    </div>
+    <div class="group">
+      <select id="floorSelect"></select>
+      <button id="addFloor" class="edit-only" data-i18n="floor.add"></button>
+    </div>
+    <div class="group right">
+      <span id="status"></span>
+      <button id="saveBtn" class="primary edit-only" data-i18n="save"></button>
+      <button id="settingsBtn" class="icon" data-i18n-title="settings" aria-label="Settings">⚙</button>
+    </div>
+  </header>
+
+  <main>
+    <canvas id="view"></canvas>
+    <div id="livePopup" hidden></div>
+
+    <aside id="panel">
+      <section id="hint">
+        <h3 data-i18n="panel.hint"></h3>
+        <p id="hintText"></p>
+      </section>
+
+      <section id="devicePalette" hidden>
+        <h3 data-i18n="panel.deviceType"></h3>
+        <div id="paletteGrid" class="palette"></div>
+        <h3 data-i18n="panel.models"></h3>
+        <div id="modelGrid" class="palette"></div>
+        <label class="uploadBtn"><span data-i18n="panel.upload"></span>
+          <input id="modelFile" type="file" accept=".glb,model/gltf-binary" hidden>
+        </label>
+        <h3 data-i18n="panel.entity"></h3>
+        <input id="entitySearch" type="search" data-i18n-placeholder="panel.entitySearch">
+        <select id="entitySelect" size="6"></select>
+      </section>
+
+      <section id="openingPalette" hidden>
+        <h3 data-i18n="panel.openingType"></h3>
+        <div class="palette two">
+          <button data-opening="door" class="active" data-i18n="prop.door"></button>
+          <button data-opening="window" data-i18n="prop.window"></button>
+        </div>
+      </section>
+
+      <section id="props" hidden>
+        <h3 id="propsTitle"></h3>
+        <div id="propsBody"></div>
+      </section>
+
+      <section id="controlsHelp">
+        <h3 data-i18n="panel.controls"></h3>
+        <ul class="keys">
+          <li data-i18n="keys.rotate"></li>
+          <li data-i18n="keys.pan"></li>
+          <li data-i18n="keys.zoom"></li>
+          <li data-i18n="keys.qe"></li>
+          <li data-i18n="keys.del"></li>
+          <li data-i18n="keys.esc"></li>
+          <li data-i18n="keys.undo"></li>
+        </ul>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<dialog id="settingsDialog">
+  <form method="dialog" novalidate>
+    <h2 data-i18n="settings"></h2>
+
+    <h3 data-i18n="set.section.general"></h3>
+    <div class="row"><label for="setLanguage" data-i18n="set.language"></label>
+      <select id="setLanguage"><option value="de">Deutsch</option><option value="en">English</option></select></div>
+    <div class="row"><label for="setTheme" data-i18n="set.theme"></label>
+      <select id="setTheme"><option value="dark" data-i18n="set.theme.dark"></option><option value="light" data-i18n="set.theme.light"></option></select></div>
+    <div class="row"><label for="setUnits" data-i18n="set.units"></label>
+      <select id="setUnits"><option value="metric" data-i18n="set.units.metric"></option><option value="imperial" data-i18n="set.units.imperial"></option></select></div>
+
+    <h3 data-i18n="set.section.drawing"></h3>
+    <div class="row"><label for="setGrid" data-i18n="set.grid"></label>
+      <select id="setGrid"><option value="0.05">5 cm</option><option value="0.1">10 cm</option><option value="0.25">25 cm</option><option value="0.5">50 cm</option><option value="1">1 m</option></select></div>
+    <div class="row"><label for="setWallHeight" data-i18n="set.wallHeight"></label>
+      <input id="setWallHeight" type="number" step="any"></div>
+    <div class="row"><label for="setWallThickness" data-i18n="set.wallThickness"></label>
+      <input id="setWallThickness" type="number" step="any"></div>
+    <div class="row"><label for="setAutosave" data-i18n="set.autosave"></label>
+      <input id="setAutosave" type="number" step="any"></div>
+
+    <h3 data-i18n="set.section.view"></h3>
+    <div class="row check"><input id="setShadows" type="checkbox"><label for="setShadows" data-i18n="set.shadows"></label></div>
+    <div class="row check"><input id="setLabels" type="checkbox"><label for="setLabels" data-i18n="set.labels"></label></div>
+    <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
+    <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
+
+    <menu><button value="close" class="primary" data-i18n="close"></button></menu>
+  </form>
+</dialog>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
