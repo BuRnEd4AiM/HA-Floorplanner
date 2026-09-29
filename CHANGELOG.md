@@ -26,6 +26,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - Steeper default 3D camera, room names always readable
 
 ### Fixed
+- Lamp light on floors below stays visible through several floors above (lit floor areas are more opaque); demo has a third floor
 - Labels and badges are rendered at 4x resolution and stay sharp when zooming in; minimum zoom distance so the camera cannot enter objects
 - Room isolation cuts long walls down to the part that borders the room, so no walls of other rooms remain
 - Device popup no longer overlaps the Normal/Temp./Feuchte buttons

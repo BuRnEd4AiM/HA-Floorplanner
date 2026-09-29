@@ -187,7 +187,9 @@ const FLOOR_FS = `${LIGHT_HEAD} uniform vec3 uBase; uniform float uAlpha;
 void main(){ vec3 acc = vec3(0.0);
   for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
     float d = distance(vP.xz, uPos[i].xz) / uPos[i].w; acc += uCol[i] * exp(-d * d * 2.2); }
-  gl_FragColor = vec4(min(uBase + acc * uStr * 0.85, vec3(1.0)), uAlpha); }`;
+  float lit = max(acc.r, max(acc.g, acc.b)) * uStr;
+  float alpha = uAlpha < 1.0 ? min(1.0, uAlpha + lit * 0.9) : 1.0;     // lit spots stay visible through floors above
+  gl_FragColor = vec4(min(uBase + acc * uStr * (uAlpha < 1.0 ? 1.0 : 0.85), vec3(1.0)), alpha); }`;
 const WASH_FS = `${LIGHT_HEAD} uniform float uH;
 void main(){ vec3 acc = vec3(0.0);
   for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
@@ -482,7 +484,7 @@ function applyStates() {
           const sw = d.entity.startsWith('switch.') ? 0.6 : 1;
           return { x: d.x, y: d.y || 0, z: d.z, r: settings.glowRadius * (0.7 + 0.5 * br) * sw, c: c.multiplyScalar(br) };
         });
-      fillLights(mesh.material, lights, ghost ? 1 : 1);
+      fillLights(mesh.material, lights, 1);
       U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
       if (wash) { fillLights(wash.material, lights, k); wash.visible = lights.length > 0; }
     });
