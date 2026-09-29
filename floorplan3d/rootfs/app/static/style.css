@@ -213,3 +213,5 @@ body:not(.live) #roomPanel { display: none !important; }   /* edit mode: the sid
 .entItem { padding: 6px 8px; cursor: pointer; overflow-wrap: anywhere; line-height: 1.25; }
 .entItem:hover, .entItem.sel { background: rgba(120, 200, 255, .16); }
 .entEmpty { padding: 6px 8px; color: var(--muted); }
+#roomEntSearch { width: 100%; box-sizing: border-box; margin: 2px 0 8px; }
+.re-row[hidden] { display: none; }

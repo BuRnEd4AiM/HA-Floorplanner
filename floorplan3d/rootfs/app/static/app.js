@@ -1453,12 +1453,21 @@ function renderEntState() {
   el.textContent = d?.entity ? `${d.entity} · ${stateText(d.entity)}` : '';
 }
 /* Edit mode: list of the selected room's entities (placed devices + unplaced entities of its HA area) with live state */
+let roomEntFilter = '';
 function renderRoomEntities() {
   const box = $('#roomEnts');
   const room = roomCtx ? floor()?.rooms.find((r) => r.id === roomCtx) : null;
   if (!box || !room) return;
+  const hadFocus = document.activeElement?.id === 'roomEntSearch';
   box.replaceChildren();
   const h = document.createElement('h4'); h.textContent = t('prop.roomEntities'); box.append(h);
+  const rs = document.createElement('input'); rs.type = 'search'; rs.id = 'roomEntSearch'; rs.placeholder = t('panel.entitySearch'); rs.value = roomEntFilter;
+  const applyFilter = () => {              // filter in place, so typing is never interrupted by a re-render
+    const words = roomEntFilter.toLowerCase().split(/\s+/).filter(Boolean);
+    box.querySelectorAll('.re-row').forEach((r) => { r.hidden = !words.every((w) => r.dataset.q.includes(w)); });
+  };
+  rs.addEventListener('input', () => { roomEntFilter = rs.value; applyFilter(); });
+  box.append(rs);
   const placed = floor().devices.filter((d) => pointInPoly(d.x, d.z, room.points));
   const placedIds = new Set(floor().devices.map((d) => d.entity).filter(Boolean));
   const row = (title, entity, btn) => {
@@ -1466,6 +1475,7 @@ function renderRoomEntities() {
     const n = document.createElement('span'); n.className = 're-n'; n.textContent = title;
     const s = document.createElement('span'); s.className = 're-s'; s.textContent = entity ? `${entity} · ${stateText(entity)}` : t('re.noEntity');
     r.append(n, s);
+    r.dataset.q = `${title} ${entity || ''} ${areas.find((x) => x.id === areaOf[entity])?.name || ''}`.toLowerCase();
     if (btn) r.append(btn);
     box.append(r);
     return r;
@@ -1498,6 +1508,8 @@ function renderRoomEntities() {
     });
     row(entities.find((e) => e.entity_id === id)?.name || id, id, b).classList.add('unplaced');
   });
+  applyFilter();
+  if (hadFocus) { rs.focus(); rs.setSelectionRange(rs.value.length, rs.value.length); }
   if (!placed.length && !extra.length && !box.querySelector('.re-row')) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('re.empty'); box.append(e); }
 }
 
