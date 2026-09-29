@@ -35,26 +35,54 @@ function boxMesh(x0, x1, y0, y1, depth, material) {
   return m;
 }
 
-function buildOpening(o, t, mats, low) {
+function buildOpening(o, t, mats0, low) {
   const g = new THREE.Group();
   g.userData = { kind: 'opening', id: o.id };
+  // every opening gets its own materials so a contact sensor can tint just this door/window
+  const mats = {};
+  for (const [k, m] of Object.entries(mats0)) mats[k] = m.clone();
   const cx = 0, w = o.width, h = o.height, s = o.sill;
   const fd = t + 0.02, ft = 0.05;                        // frame depth / thickness
   const x0 = cx - w / 2, x1 = cx + w / 2;
   g.add(boxMesh(x0, x0 + ft, s, s + h, fd, mats.frame));
   g.add(boxMesh(x1 - ft, x1, s, s + h, fd, mats.frame));
   g.add(boxMesh(x0, x1, s + h - ft, s + h, fd, mats.frame));
+  let pivot = null;
   if (o.type === 'door') {
-    g.add(boxMesh(x0 + ft, x1 - ft, s, s + h - ft, 0.04, mats.door));
+    // the leaf hangs on a pivot at the hinge so it can swing open when the contact reports "open"
+    pivot = new THREE.Group();
+    const hingeX = o.flip ? x1 - ft : x0 + ft;
+    pivot.position.set(hingeX, 0, 0);
+    const lw = w - 2 * ft;
+    const leaf = boxMesh(0, lw, s, s + h - ft, 0.04, mats.door);
+    leaf.position.x = o.flip ? -lw / 2 : lw / 2;
+    pivot.add(leaf);
     const knob = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), mats.metal);
-    knob.position.set(o.flip ? x0 + 0.12 : x1 - 0.12, s + 1.0, 0.045);
-    g.add(knob);
+    knob.position.set(o.flip ? -lw + 0.12 : lw - 0.12, s + 1.0, 0.045);
+    pivot.add(knob);
+    g.add(pivot);
+    pivot.userData.dir = o.flip ? 1 : -1;
+    pivot.userData.axis = 'y';
+    pivot.userData.max = 1.15;
   } else {
     g.add(boxMesh(x0, x1, s, s + ft, fd, mats.frame));
-    g.add(boxMesh(x0 + ft, x1 - ft, s + ft, s + h - ft, 0.015, mats.glass));
-    g.add(boxMesh(cx - 0.015, cx + 0.015, s + ft, s + h - ft, 0.04, mats.frame));
+    // window pane tilts inwards around its lower edge when open
+    pivot = new THREE.Group();
+    pivot.position.set(0, s + ft, 0);
+    const pane = boxMesh(x0 + ft, x1 - ft, 0, h - 2 * ft, 0.015, mats.glass);
+    pane.position.y = (h - 2 * ft) / 2;
+    pivot.add(pane);
+    const bar = boxMesh(cx - 0.015, cx + 0.015, 0, h - 2 * ft, 0.04, mats.frame);
+    bar.position.y = (h - 2 * ft) / 2;
+    pivot.add(bar);
+    g.add(pivot);
+    pivot.userData.dir = -1;
+    pivot.userData.axis = 'x';
+    pivot.userData.max = 0.4;
     g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
   }
+  g.userData.pivot = pivot;
+  g.userData.tint = Object.values(mats).map((m) => ({ m, base: m.color.getHex() }));
   g.traverse((m) => { if (m.isMesh) m.castShadow = true; });
   g.position.x = o.pos - 0;                              // replaced by caller (needs wall length)
   return g;

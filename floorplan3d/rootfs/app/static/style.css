@@ -143,3 +143,6 @@ dialog .stop input[type=color] { width: 60px; height: 28px; padding: 0; }
 dialog .stop button { min-width: 28px; }
 dialog .stopBar { height: 10px; border-radius: 5px; margin: 8px 0; }
 dialog .stopTools { display: flex; gap: 8px; }
+
+#openPill.alert { background: #ff4a3d; border-color: #ff4a3d; color: #fff; box-shadow: 0 0 14px rgba(255,74,61,.7); }
+#roomPanel .row.alert { border-color: #ff4a3d; box-shadow: 0 0 12px rgba(255,74,61,.4); }
