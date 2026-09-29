@@ -234,7 +234,7 @@ function build() {
     f.walls.forEach((w) => {
       if (wallLength(w) < 0.01) return;
       const wallMat = holo
-        ? new THREE.MeshBasicMaterial({ color: 0x1b62c9, transparent: true, opacity: ghost ? 0.05 : 0.22, depthWrite: false, side: THREE.DoubleSide })
+        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.08 : 0.62, depthWrite: false, side: THREE.DoubleSide })
         : mat('#d9d4cc', ghost);
       const wg = buildWall(w, { material: wallMat, ghost, low: lowWalls, makeMat: mat, holo, edgeMaterial });
       g.add(wg);
