@@ -1187,6 +1187,7 @@ function focusRoom(id) {
   document.body.classList.toggle('iso', !!id);
   clearFocusOutline();
   build();                                   // isolate: only this room is drawn
+  if (id && !isLive()) { selection = { kind: 'room', id }; refreshSelection(); }   // edit mode: show the room's entity list
   const room = id && floor().rooms.find((r) => r.id === id);
   if (room) {
     const pts = [...room.points, room.points[0]].map(([x, z]) => new THREE.Vector3(x, elev() + 0.06, z));
@@ -1334,6 +1335,55 @@ function inp(type, value, onInput, attrs = {}) {
 function lenInput(getM, setM, { min = 0, step = 0.05 } = {}) {
   return inp('number', toDisp(getM()), (v) => setM(Math.max(min, fromDisp(+v) || 0)), { step: imperial() ? step * 3 : step });
 }
+const DOMAIN_DEVICE = { light: 'light', cover: 'switch', switch: 'switch', climate: 'thermostat', media_player: 'tv', sensor: 'sensor', binary_sensor: 'sensor' };
+function renderEntState() {
+  const el = $('#entState');
+  if (!el) return;
+  const d = selection?.kind === 'device' ? floor()?.devices.find((v) => v.id === selection.id) : null;
+  el.textContent = d?.entity ? `${d.entity} · ${stateText(d.entity)}` : '';
+}
+/* Edit mode: list of the selected room's entities (placed devices + unplaced entities of its HA area) with live state */
+function renderRoomEntities() {
+  const box = $('#roomEnts');
+  const room = selection?.kind === 'room' ? floor()?.rooms.find((r) => r.id === selection.id) : null;
+  if (!box || !room) return;
+  box.replaceChildren();
+  const h = document.createElement('h4'); h.textContent = t('prop.roomEntities'); box.append(h);
+  const placed = floor().devices.filter((d) => pointInPoly(d.x, d.z, room.points));
+  const placedIds = new Set(floor().devices.map((d) => d.entity).filter(Boolean));
+  const row = (title, entity, btn) => {
+    const r = document.createElement('div'); r.className = 're-row';
+    const n = document.createElement('span'); n.className = 're-n'; n.textContent = title;
+    const s = document.createElement('span'); s.className = 're-s'; s.textContent = entity ? `${entity} · ${stateText(entity)}` : t('re.noEntity');
+    r.append(n, s);
+    if (btn) r.append(btn);
+    box.append(r);
+    return r;
+  };
+  placed.forEach((d) => {
+    const r = row(d.name || t(`dev.${d.type}`), d.entity, null);
+    r.classList.add('placed');
+    r.addEventListener('click', () => { selection = { kind: 'device', id: d.id }; refreshSelection(); });
+  });
+  const extra = (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []).filter((id) => !placedIds.has(id));
+  extra.forEach((id) => {
+    const b = document.createElement('button'); b.textContent = t('re.place');
+    b.addEventListener('click', () => {
+      snapshot();
+      const dom = id.split('.')[0], type = DOMAIN_DEVICE[dom] || 'sensor';
+      const xs = room.points.map((p) => p[0]), zs = room.points.map((p) => p[1]);
+      const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2;
+      const d = { id: uid(), type, x: pointInPoly(cx, cz, room.points) ? cx : room.points[0][0] + 0.5, z: pointInPoly(cx, cz, room.points) ? cz : room.points[0][1] + 0.5,
+        y: DEVICE_TYPES[type]?.y || 0, rot: 0, scale: 1, name: entities.find((e) => e.entity_id === id)?.name || id, entity: id };
+      floor().devices.push(d);
+      selection = { kind: 'device', id: d.id };
+      changed();
+    });
+    row(entities.find((e) => e.entity_id === id)?.name || id, id, b).classList.add('unplaced');
+  });
+  if (!placed.length && !extra.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('re.empty'); box.append(e); }
+}
+
 function renderProps() {
   const box = $('#props'), body = $('#propsBody');
   body.innerHTML = '';
@@ -1360,6 +1410,9 @@ function renderProps() {
     asel.value = it.area || '';
     asel.addEventListener('change', () => { snapshot(); it.area = asel.value || undefined; if (!it.name || areas.some((x) => x.name === it.name)) { const ar = areas.find((x) => x.id === asel.value); if (ar) it.name = ar.name; } changed(); renderProps(); });
     body.append(field(t('prop.area'), asel));
+    const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts';
+    body.append(ents);
+    renderRoomEntities();
   } else if (selection.kind === 'opening') {
     const { wall } = findOpening(it.id);
     const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
@@ -1395,6 +1448,9 @@ function renderProps() {
     sel.value = it.entity || '';
     sel.addEventListener('change', () => { snapshot(); it.entity = sel.value; changed(); });
     body.append(field(t('prop.entity'), sel));
+    const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
+    body.append(es);
+    renderEntState();
   }
   const del = document.createElement('button');
   del.textContent = t('panel.delete');
@@ -1560,6 +1616,7 @@ async function pollStates() {
     states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb }]));
     if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
     applyStates();
+    renderRoomEntities(); renderEntState();
   } catch { /* offline: ignore */ }
 }
 
