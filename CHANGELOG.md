@@ -23,6 +23,8 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - Steeper default 3D camera, room names always readable
 
 ### Fixed
+- Room isolation cuts long walls down to the part that borders the room, so no walls of other rooms remain
+- Device popup no longer overlaps the Normal/Temp./Feuchte buttons
 - Lamps and other devices can be tapped through lowered or see-through walls (devices take priority over walls when picking; walls are ignored in live mode)
 - Small devices (ceiling lamps, switches) are easier to select and tap thanks to an invisible, padded hit box
 
