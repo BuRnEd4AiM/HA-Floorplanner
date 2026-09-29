@@ -46,7 +46,7 @@ const fmtLen = (m) => (imperial() ? `${(m * M_TO_FT).toFixed(2)} ft` : `${m.toFi
 
 /* ================= Three.js setup ================= */
 const canvas = $('#view');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -81,7 +81,7 @@ function resize() {
 new ResizeObserver(resize).observe(canvas);
 
 function themeColors() {
-  if (settings.theme === 'holo') return { scene: 0x050d1c, gridA: 0x1c6f9a, gridB: 0x0c2c47 };
+  if (settings.theme === 'holo') return { scene: 0x050d1c, gridA: 0x2a9fd6, gridB: 0x14508a };
   const dark = settings.theme === 'dark';
   return { scene: dark ? 0x0f1419 : 0xe9edf1, gridA: dark ? 0x3a4756 : 0xb7c0c9, gridB: dark ? 0x232d38 : 0xd5dbe1 };
 }
@@ -89,7 +89,8 @@ function rebuildGrid() {
   if (grid) { scene.remove(grid); grid.geometry.dispose(); }
   const c = themeColors();
   const size = 60, div = Math.max(2, Math.round(size / Math.max(settings.grid, 0.1)));
-  grid = new THREE.GridHelper(size, Math.min(div, 600), c.gridA, c.gridB);
+  grid = new THREE.GridHelper(size, isHolo() ? 60 : Math.min(div, 600), c.gridA, c.gridB);
+  if (isHolo()) { [].concat(grid.material).forEach((m) => { m.transparent = true; m.opacity = 0.28; m.depthWrite = false; }); }
   scene.add(grid);
 }
 
@@ -113,11 +114,23 @@ function textSprite(text, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = f
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest }));
   s.scale.set(scaleX, scaleY, 1);
   s.renderOrder = 10;
-  s.userData.setText = (txt) => {
-    if (s.userData.text === txt) return;
-    s.userData.text = txt;
+  s.userData.setText = (txt, badge = false) => {
+    const key = txt + (badge ? '|b' : '');
+    if (s.userData.text === key) return;
+    s.userData.text = key;
     const g = c.getContext('2d');
     g.clearRect(0, 0, 256, 64);
+    if (badge) {                                   // glowing orange pill, like the power badges in the reference
+      const grad = g.createLinearGradient(0, 8, 0, 56);
+      grad.addColorStop(0, '#ffd45e'); grad.addColorStop(1, '#ff9d2e');
+      g.shadowColor = 'rgba(255,170,40,.9)'; g.shadowBlur = 14;
+      g.fillStyle = grad; g.beginPath(); g.roundRect(14, 10, 228, 44, 22); g.fill();
+      g.shadowBlur = 0;
+      g.font = `700 ${size}px system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillStyle = '#3b2400'; g.fillText(txt, 128, 33);
+      tex.needsUpdate = true;
+      return;
+    }
     g.font = `600 ${size}px system-ui, sans-serif`;
     g.textAlign = 'center'; g.textBaseline = 'middle';
     g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.75)';
@@ -272,6 +285,20 @@ function stateText(entityId) {
   return s.unit ? `${s.state} ${s.unit}` : s.state;
 }
 
+let viewMode = 'normal';           // normal | temp | humid (room colouring by sensor values)
+function roomHeat(room, f) {
+  const vals = f.devices.filter((d) => d.entity && pointInPoly(d.x, d.z, room.points))
+    .map((d) => ({ id: d.entity, s: states[d.entity] }))
+    .filter(({ id, s }) => s && !isNaN(parseFloat(s.state)) && (viewMode === 'temp' ? s.unit === '°C' : s.unit === '%' && /feucht|humid/i.test(id)))
+    .map(({ s }) => parseFloat(s.state));
+  if (!vals.length) return null;
+  const v = vals.reduce((x, y) => x + y) / vals.length;
+  const k = viewMode === 'temp' ? Math.min(1, Math.max(0, (v - 16) / 12)) : Math.min(1, Math.max(0, (v - 30) / 50));
+  const c = new THREE.Color();
+  if (viewMode === 'temp') c.setHSL(0.62 - 0.62 * k, 0.85, 0.42); else c.setHSL(0.55, 0.3 + 0.6 * k, 0.55 - 0.25 * k);
+  return c.getHex();
+}
+
 function applyStates() {
   const f = layout.floors[floorIdx];
   if (!f) return;
@@ -288,14 +315,18 @@ function applyStates() {
       hg.edge.forEach((m) => m.color.setHex(on ? HOLO.onEdge : HOLO.edge));
     }
     const sp = labelSprites.get(d.id);
-    if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity)); }
+    if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
   });
   if (isHolo()) {                         // rooms glow orange while a light or switch inside is on
     roomMeshes.forEach(({ mesh, room }) => {
       const lit = f.devices.some((d) => d.entity && /^(light|switch)\./.test(d.entity)
         && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points));
-      mesh.material.color.setHex(lit ? HOLO.floorLit : HOLO.floor);
-      mesh.material.opacity = lit ? 0.4 : 0.92;
+      const heat = viewMode === 'normal' ? null : roomHeat(room, f);
+      if (heat) { mesh.material.color.setHex(heat); mesh.material.opacity = 0.75; }
+      else {
+        mesh.material.color.setHex(lit ? HOLO.floorLit : HOLO.floor);
+        mesh.material.opacity = lit ? 0.4 : 0.92;
+      }
     });
   }
   if (livePopupFor) renderLivePopup();
@@ -891,6 +922,11 @@ $('#addFloor').addEventListener('click', () => {
   switchFloor(layout.floors.length - 1);
   scheduleSave();
 });
+document.querySelectorAll('#modeBar button').forEach((b) => b.addEventListener('click', () => {
+  viewMode = b.dataset.vm;
+  document.querySelectorAll('#modeBar button').forEach((x) => x.classList.toggle('active', x === b));
+  applyStates();
+}));
 $('#autoToggle').addEventListener('click', () => {
   $('#setCutaway').checked = !settings.cutaway;
   commitSettings();
@@ -1077,7 +1113,7 @@ function applySettings(prev = {}) {
   setLanguage(settings.language);
   document.documentElement.dataset.theme = settings.theme;
   applyI18n();
-  scene.background = new THREE.Color(themeColors().scene);
+  scene.background = isHolo() ? null : new THREE.Color(themeColors().scene);
   renderer.shadowMap.enabled = settings.shadows;
   sun.castShadow = settings.shadows;
   world.traverse((o) => { if (o.material) o.material.needsUpdate = true; });

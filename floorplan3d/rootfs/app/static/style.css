@@ -93,7 +93,7 @@ body.kiosk #toolbar { display: none; }
 .pill.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; box-shadow: var(--glow); }
 
 /* ---------- hologram look for the rest of the UI ---------- */
-html[data-theme="holo"], html[data-theme="holo"] body { background: radial-gradient(circle at 50% 30%, #0a1f3f, #050d1c 70%); }
+html[data-theme="holo"], html[data-theme="holo"] body { background: #041a52; }
 [data-theme="holo"] #toolbar, [data-theme="holo"] #panel, [data-theme="holo"] dialog, [data-theme="holo"] #livePopup {
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 [data-theme="holo"] #toolbar { border-bottom-color: var(--line); box-shadow: 0 1px 18px rgba(35, 224, 255, .12); }
@@ -124,3 +124,14 @@ html[data-theme="holo"], html[data-theme="holo"] body { background: radial-gradi
 #roomPanel .row .v { color: var(--muted); font-size: 12px; }
 #roomPanel .row input[type=range] { flex: 1 1 100%; accent-color: var(--accent); }
 #roomPanel .row button { min-height: 30px; border-radius: 999px; padding: 2px 12px; }
+
+/* Hologram backdrop: royal-blue gradient with a teal glow in the corner (reference video) */
+html[data-theme="holo"] #stage {
+  background:
+    radial-gradient(circle at 92% 12%, rgba(40, 235, 210, .55) 0, rgba(40, 235, 210, .12) 9%, transparent 22%),
+    radial-gradient(ellipse at 50% 35%, rgba(30, 110, 230, .55), transparent 70%),
+    linear-gradient(180deg, #0a3ba8 0%, #072c86 45%, #031547 100%);
+}
+#modeBar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 4; }
+html:not([data-theme="holo"]) #modeBar { display: none; }
+body.kiosk #modeBar { bottom: 10px; }
