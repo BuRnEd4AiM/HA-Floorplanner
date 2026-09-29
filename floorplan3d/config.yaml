@@ -1,8 +1,8 @@
 name: "3D Floorplan"
-version: "0.2.0"
+version: "0.3.0"
 slug: floorplan3d
 description: "Eigenen Grundriss zeichnen und Home-Assistant-Geräte in 3D platzieren"
-url: "https://github.com/"
+url: "https://github.com/wvssweber-max/HA-Floorplanner"
 arch:
   - amd64
   - aarch64

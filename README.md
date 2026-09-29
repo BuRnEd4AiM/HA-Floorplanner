@@ -2,6 +2,10 @@
 
 Draw your home yourself, view it in 3D and place your Home Assistant devices right where they are.
 
+[![Add repository to my Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fwvssweber-max%2FHA-Floorplanner)
+
+![3D and 2D split view](docs/img/split.png)
+
 > Status: early development (0.x). Layouts are stored in a versioned JSON format and will be migrated between releases.
 
 ## Features
@@ -9,7 +13,7 @@ Draw your home yourself, view it in 3D and place your Home Assistant devices rig
 - **Draw your own floor plan** – walls, rooms and multiple floors on a snapping grid
 - **3D view** – orbit, pan and zoom; 2D top view for precise editing; low-wall mode to look inside
 - **Doors and windows** – real openings cut into the walls, draggable along the wall with overlap protection
-- **Devices** – 10 built-in models (lights, switches, sensors, radiators, furniture, plants) plus your **own GLB models** with a model library
+- **Devices** – 27 built-in models (lights, switches, sensors, radiators, furniture, plants) plus your **own GLB models** with a model library
 - **Home Assistant linked** – each device can be bound to an entity; lights glow when on, sensor values are shown at the device
 - **Live mode** – tap a device to see its state and control it (lights, switches, fans, covers, locks, scenes, scripts); `?kiosk=1` hides all editor UI for wall tablets
 - **Permissions and room tablets** – only chosen users may edit (`editors` option); every tablet can be locked to one room via its Home Assistant user
@@ -37,10 +41,16 @@ Open the file by double-click. Changes are not saved in the demo.
 ### Add-on
 
 1. In Home Assistant open **Settings → Add-ons → Add-on Store → ⋮ → Repositories**.
-2. Add the URL of this repository.
-3. Install **3D Floorplan**, start it and enable **Show in sidebar**.
+2. Add `https://github.com/wvssweber-max/HA-Floorplanner` (or click the badge above).
+3. Reload the store, install **3D Floorplan**, start it and enable **Show in sidebar**.
 
 For local development copy the `floorplan3d/` folder to `/addons/` on your Home Assistant host instead.
+
+## Screenshots
+
+| 3D view | 2D blueprint editor |
+| --- | --- |
+| ![3D](docs/img/3d.png) | ![2D](docs/img/2d.png) |
 
 ## Usage
 
