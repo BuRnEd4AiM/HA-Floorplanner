@@ -16,7 +16,7 @@ Draw your home yourself, view it in 3D and place your Home Assistant devices rig
 - **Devices** – 29 built-in models (incl. light ball and LED strip) (lights, switches, sensors, radiators, furniture, plants) plus your **own GLB models** with a model library
 - **Home Assistant linked** – each device can be bound to an entity; lights glow when on, sensor values are shown at the device
 - **Live mode** – tap a device to see its state and control it (lights, switches, fans, covers, locks, scenes, scripts); `?kiosk=1` hides all editor UI for wall tablets
-- **Permissions and room tablets** – only chosen users may edit (`editors` option); every tablet can be locked to one room via its Home Assistant user
+- **Permissions and room tablets** – only Home Assistant administrators (plus users listed in `editors`) may edit; everyone else gets the read-only live view; every tablet can be locked to one room via its Home Assistant user
 - **2D blueprint editor** – draw and move walls, rooms, doors, windows and furniture in a top-down plan, linked live with the 3D view (split view)
 - **Hologram design** – translucent neon walls, glowing devices and lit rooms, pill navigation for floors and rooms
 - **Settings** – language (DE/EN), hologram/dark/light theme, metric/imperial units, grid size, default wall size, shadows, autosave

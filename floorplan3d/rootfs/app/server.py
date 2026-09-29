@@ -4,8 +4,10 @@
 - stores the floor plan layout, user settings and custom GLB models under DATA_DIR
 - reads entities and calls services through the Supervisor proxy
 """
+import asyncio
 import json
 import logging
+import time
 import os
 import re
 from pathlib import Path
@@ -97,17 +99,51 @@ def current_user(request) -> dict:
 
 
 def editors() -> set:
-    """Add-on option `editors`: user names (or ids) that may edit. Empty = every user who can open the add-on."""
+    """Add-on option `editors`: extra user names (or ids) that may edit besides the Home Assistant administrators."""
     data = read_json(OPTIONS_FILE, {})
     raw = data.get("editors") if isinstance(data, dict) else None
     return {str(x).strip().lower() for x in raw if str(x).strip()} if isinstance(raw, list) else set()
 
 
-def can_edit(request) -> bool:
+_admin_cache = {"at": 0.0, "ids": None}
+
+
+async def load_admin_ids():
+    """Ids and login names of all Home Assistant administrators (owner or group system-admin), or None if they cannot be read.
+    Asks Home Assistant's websocket API (config/auth/list) with the Supervisor token; cached for a minute."""
+    now = time.monotonic()
+    if now - _admin_cache["at"] < 60:
+        return _admin_cache["ids"]
+    ids = None
+    base = HA_API[:-4] if HA_API.endswith("/api") else HA_API
+    try:
+        async with aiohttp.ClientSession() as sess:
+            async with sess.ws_connect(base.rstrip("/") + "/websocket", timeout=aiohttp.ClientWSTimeout(ws_close=5) if hasattr(aiohttp, "ClientWSTimeout") else 5) as ws:
+                await asyncio.wait_for(ws.receive_json(), 5)                                   # auth_required
+                await ws.send_json({"type": "auth", "access_token": SUPERVISOR_TOKEN})
+                if (await asyncio.wait_for(ws.receive_json(), 5)).get("type") == "auth_ok":
+                    await ws.send_json({"id": 1, "type": "config/auth/list"})
+                    res = await asyncio.wait_for(ws.receive_json(), 5)
+                    if res.get("success") and isinstance(res.get("result"), list):
+                        ids = set()
+                        for u in res["result"]:
+                            if u.get("is_owner") or "system-admin" in (u.get("group_ids") or []):
+                                ids |= {str(v).strip().lower() for v in (u.get("id"), u.get("username")) if v}
+    except Exception as err:  # noqa: BLE001 - any failure means "unknown"
+        log.warning("Could not read the Home Assistant administrators (%s); only users listed in `editors` may edit", err)
+    _admin_cache.update(at=now, ids=ids)
+    return ids
+
+
+async def can_edit(request) -> bool:
+    """Administrators and users named in `editors` may edit; everybody else gets the read-only live view."""
     if not SUPERVISOR_TOKEN:          # standalone/dev mode: no Home Assistant, no users
         return True
-    allowed = editors()
-    return not allowed or bool(allowed & current_user(request)["ids"])
+    ids = current_user(request)["ids"]
+    if editors() & ids:
+        return True
+    admins = await load_admin_ids()
+    return bool(admins and admins & ids)
 
 
 def forbidden():
@@ -120,7 +156,9 @@ async def get_me(request):
     room = None
     if isinstance(rooms, dict):
         room = next((v for k, v in rooms.items() if str(k).strip().lower() in user["ids"]), None)
-    return web.json_response({"user": user["name"], "canEdit": can_edit(request), "room": room})
+    edit = await can_edit(request)
+    return web.json_response({"user": user["name"], "canEdit": edit, "room": room,
+                              "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
 
 
 # ---------- layout ----------
@@ -129,7 +167,7 @@ async def get_layout(request):
 
 
 async def put_layout(request):
-    if not can_edit(request):
+    if not await can_edit(request):
         return forbidden()
     try:
         data = await request.json()
@@ -194,7 +232,7 @@ async def get_settings(request):
 
 
 async def put_settings(request):
-    if not can_edit(request):
+    if not await can_edit(request):
         return forbidden()
     try:
         data = await request.json()
@@ -225,7 +263,7 @@ async def list_models(request):
 
 
 async def upload_model(request):
-    if not can_edit(request):
+    if not await can_edit(request):
         return forbidden()
     reader = await request.multipart()
     field = await reader.next()
@@ -263,7 +301,7 @@ async def get_model(request):
 
 
 async def delete_model(request):
-    if not can_edit(request):
+    if not await can_edit(request):
         return forbidden()
     name = request.match_info["name"]
     p = models_dir(request) / f"{name}.glb"

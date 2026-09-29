@@ -138,6 +138,8 @@ async def test_editors_permissions(client, monkeypatch, tmp_path):
     opts.write_text('{"editors": ["Florian"]}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    server._admin_cache.update(at=0.0, ids=None)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
     layout = {"version": 1, "floors": []}
     tablet, admin = {"X-Remote-User-Name": "tablet_wz"}, {"X-Remote-User-Name": "florian"}
     assert (await client.put("/api/layout", json=layout, headers=tablet)).status == 403
@@ -150,14 +152,80 @@ async def test_editors_permissions(client, monkeypatch, tmp_path):
     assert (await (await client.get("/api/me", headers=admin)).json())["canEdit"] is True
 
 
-async def test_editors_empty_means_everyone_and_room_mapping(client, monkeypatch, tmp_path):
+async def _no_admins():
+    return None
+
+
+async def test_admins_may_edit_everyone_else_is_read_only(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
     opts.write_text('{"editors": []}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+
+    async def admins():
+        return {"abc123", "florian"}
+    monkeypatch.setattr(server, "load_admin_ids", admins)
+    layout = {"version": 1, "floors": []}
+    by_id, by_name, tablet = {"X-Remote-User-Id": "ABC123"}, {"X-Remote-User-Name": "Florian"}, {"X-Remote-User-Name": "tablet_wz", "X-Remote-User-Id": "zzz"}
+    assert (await client.put("/api/layout", json=layout, headers=by_id)).status == 200
+    assert (await client.put("/api/layout", json=layout, headers=by_name)).status == 200
+    assert (await client.put("/api/layout", json=layout, headers=tablet)).status == 403
+    assert (await client.put("/api/layout", json=layout)).status == 403
+    assert (await (await client.get("/api/me", headers=tablet)).json())["canEdit"] is False
+
+
+async def test_unknown_admins_fail_closed_but_editors_still_work(client, monkeypatch, tmp_path):
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["florian"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    layout = {"version": 1, "floors": []}
+    assert (await client.put("/api/layout", json=layout, headers={"X-Remote-User-Name": "florian"})).status == 200
+    assert (await client.put("/api/layout", json=layout, headers={"X-Remote-User-Name": "other"})).status == 403
+
+
+async def test_room_mapping(client, monkeypatch, tmp_path):
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["florian"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
     admin = {"X-Remote-User-Name": "florian"}
     r = await client.put("/api/settings", json={"userRooms": {"Tablet_WZ": "Wohnzimmer", "x": 5}}, headers=admin)
     assert (await r.json())["userRooms"] == {"Tablet_WZ": "Wohnzimmer"}
     me = await (await client.get("/api/me", headers={"X-Remote-User-Name": "tablet_wz"})).json()
-    assert me["room"] == "Wohnzimmer" and me["canEdit"] is True
+    assert me["room"] == "Wohnzimmer" and me["canEdit"] is False
     assert (await (await client.get("/api/me", headers=admin)).json())["room"] is None
+
+
+async def test_load_admin_ids_via_websocket(aiohttp_server, monkeypatch):
+    from aiohttp import web
+
+    async def ws_handler(request):
+        ws = web.WebSocketResponse(); await ws.prepare(request)
+        await ws.send_json({"type": "auth_required"})
+        auth = await ws.receive_json()
+        assert auth["access_token"] == "tok"
+        await ws.send_json({"type": "auth_ok"})
+        msg = await ws.receive_json()
+        assert msg["type"] == "config/auth/list"
+        await ws.send_json({"id": msg["id"], "type": "result", "success": True, "result": [
+            {"id": "AAA", "username": "Florian", "group_ids": ["system-admin"], "is_owner": False},
+            {"id": "bbb", "username": "tablet", "group_ids": ["system-users"], "is_owner": False},
+            {"id": "ccc", "username": "owner", "group_ids": [], "is_owner": True}]})
+        await ws.close(); return ws
+    app = web.Application(); app.add_routes([web.get("/websocket", ws_handler)])
+    srv = await aiohttp_server(app)
+    monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "tok")
+    server._admin_cache.update(at=0.0, ids=None)
+    ids = await server.load_admin_ids()
+    assert ids == {"aaa", "florian", "ccc", "owner"}
+
+
+async def test_load_admin_ids_unreachable_is_none(monkeypatch):
+    monkeypatch.setattr(server, "HA_API", "http://localhost:9")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "tok")
+    server._admin_cache.update(at=0.0, ids=None)
+    assert await server.load_admin_ids() is None

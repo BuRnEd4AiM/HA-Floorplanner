@@ -1770,6 +1770,11 @@ async function commitSettings() {
   const prev = settings;
   settings = readSettingsForm();
   if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
+  if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones
+    snapshot();
+    layout.floors.forEach((f) => f.walls.forEach((w) => { w.height = settings.wallHeight; }));
+    changed();
+  }
   applySettings(prev);
   build();
   fillSettingsForm();
@@ -1846,6 +1851,7 @@ async function init() {
   if (!me.canEdit || tabletRoom) document.body.classList.add('kiosk');
   if (tabletRoom) document.body.classList.add('roomtablet');
   if (!me.canEdit) document.body.classList.add('readonly');
+  if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
   try { settings = { ...settings, ...(await (await fetch('api/settings')).json()) }; } catch { /* defaults */ }
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
