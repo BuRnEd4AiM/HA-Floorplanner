@@ -54,6 +54,24 @@ const layout = {
       { id: 'd18', type: 'light',      x: 8.6, z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Bürolicht',       entity: 'light.buero' },
       { id: 'd19', type: 'switch',     x: 9.4, z: 6.88, y: 1.1,  rot: 0,   scale: 1,   name: 'Flurschalter',    entity: 'switch.flur' },
     ],
+  }, {
+    id: 'og', name: 'Obergeschoss',
+    rooms: [
+      { id: 'q1', name: 'Kinderzimmer', color: '#a0b8d8', points: [[0, 0], [5, 0], [5, 4], [0, 4]] },
+      { id: 'q2', name: 'Gästezimmer', color: '#c8b0a0', points: [[5, 0], [10, 0], [10, 4], [5, 4]] },
+    ],
+    walls: [
+      W('u1', [0, 0], [10, 0], 0.24, [Win('u5', 2.5), Win('u6', 7.5)]),
+      W('u2', [10, 0], [10, 4], 0.24, [Win('u7', 2)]),
+      W('u3', [10, 4], [0, 4], 0.24, [D('u8', 2.5), D('u9', 7.5)]),
+      W('u4', [0, 4], [0, 0], 0.24, [Win('u10', 2)]),
+      W('u11', [5, 0], [5, 4], 0.12, []),
+    ],
+    devices: [
+      { id: 'e1', type: 'bed', x: 2.5, z: 1.6, y: 0, rot: 0, scale: 1, name: 'Bett', entity: '' },
+      { id: 'e2', type: 'light', x: 2.5, z: 2, y: 2.55, rot: 0, scale: 1.2, name: 'Licht Kinderzimmer', entity: 'light.schlafzimmer' },
+      { id: 'e3', type: 'table', x: 7.5, z: 1.5, y: 0, rot: 0, scale: 0.8, name: 'Schreibtisch', entity: '' },
+    ],
   }],
 };
 

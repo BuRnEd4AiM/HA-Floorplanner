@@ -4,6 +4,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 ### Added
+- Floors below shine through the current floor (see-through floor plate, ghosted walls and devices); strength adjustable in settings (*Floors below visible*); demo now has an upper floor
 - Door and window contacts: bind a sensor (binary_sensor, cover or lock) to any door or window; open ones turn red, doors swing open and windows tilt, a red "N open" pill shows the count, the room panel lists doors and windows with their state, tap one in live mode for details
 - Room isolation: tapping a room pill (or the room floor in live mode) shows only that room with its walls and devices
 - Light spreads from each lamp's position with falloff, in the lamp's (RGB) colour and brightness, only inside its own room; coloured glow climbs the walls
