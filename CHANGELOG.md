@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-29
+### Added
+- Searchable entity picker in the properties panel (devices and door/window contact sensors): search by name, entity id or HA area (several words = AND), Enter assigns the first match
+
 ## [0.3.1] - 2026-09-29
 ### Fixed
 - Dockerfile: default base image for `BUILD_FROM`

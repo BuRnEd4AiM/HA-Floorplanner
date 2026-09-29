@@ -199,3 +199,6 @@ body[data-tool="wall"] #plan2d, body[data-tool="room"] #plan2d, body[data-tool="
 body.live #plan2d { cursor: pointer; }
 
 body:not(.live) #roomPanel { display: none !important; }   /* edit mode: the side panel already lists the room's entities */
+
+.entPicker { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.entPicker input, .entPicker select { width: 100%; min-width: 0; box-sizing: border-box; }

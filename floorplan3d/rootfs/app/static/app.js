@@ -1349,6 +1349,33 @@ function addEntityOptions(sel, list, room, current) {
   });
   if (current && !list.some((e) => e.entity_id === current)) sel.add(new Option(current, current));
 }
+
+/* Searchable entity picker: search box (name, entity id, area; several words = AND) above a select grouped by area. */
+function entityPicker(list, room, current, onChange) {
+  const wrap = document.createElement('div'); wrap.className = 'entPicker';
+  const search = document.createElement('input'); search.type = 'search'; search.placeholder = t('panel.entitySearch');
+  const sel = document.createElement('select');
+  const areaName = (e) => (areas.find((x) => x.id === areaOf[e.entity_id])?.name || '').toLowerCase();
+  const match = (e, words) => { const h = `${e.entity_id} ${e.name} ${areaName(e)}`.toLowerCase(); return words.every((w) => h.includes(w)); };
+  let matches = [];
+  const fill = () => {
+    const words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
+    matches = list.filter((e) => match(e, words)).slice(0, 300);
+    sel.innerHTML = '';
+    sel.add(new Option(t('panel.noEntity'), ''));
+    addEntityOptions(sel, matches, room, current);
+    sel.value = current || '';
+    sel.size = words.length ? Math.min(7, matches.length + 1) : 1;
+  };
+  search.addEventListener('input', fill);
+  search.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Enter' || !matches.length) return;
+    ev.preventDefault(); current = matches[0].entity_id; fill(); onChange(current);
+  });
+  sel.addEventListener('change', () => { current = sel.value; onChange(current); });
+  wrap.append(search, sel); fill();
+  return wrap;
+}
 const roomAt = (x, z) => floor()?.rooms.find((r) => pointInPoly(x, z, r.points));
 
 function fillEntities(filter = '') {
@@ -1535,14 +1562,8 @@ function renderProps() {
       if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p;
     })));
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
-    const csel = document.createElement('select');
-    csel.add(new Option(t('panel.noEntity'), ''));
     const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
-    (contact.length ? contact : entities).slice(0, 500).forEach((e) => csel.add(new Option(`${e.name} (${e.entity_id})`, e.entity_id)));
-    if (it.entity && !entities.some((e) => e.entity_id === it.entity)) csel.add(new Option(it.entity, it.entity));
-    csel.value = it.entity || '';
-    csel.addEventListener('change', () => { snapshot(); it.entity = csel.value; changed(); });
-    body.append(field(t('prop.contact'), csel));
+    body.append(field(t('prop.contact'), entityPicker((contact.length ? contact : entities).slice(0, 1500), roomCtx ? f.rooms.find((r) => r.id === roomCtx) : null, it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
     if (it.type === 'door') {
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.flip;
       cb.addEventListener('change', () => { snapshot(); it.flip = cb.checked; changed(); });
@@ -1555,12 +1576,7 @@ function renderProps() {
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => (it.rot = ((+v % 360) + 360) % 360), { step: 15 })));
     body.append(field(t('prop.height'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
-    const sel = document.createElement('select');
-    sel.add(new Option(t('panel.noEntity'), ''));
-    addEntityOptions(sel, entities.slice(0, 1500), roomAt(it.x, it.z), it.entity);
-    sel.value = it.entity || '';
-    sel.addEventListener('change', () => { snapshot(); it.entity = sel.value; changed(); });
-    body.append(field(t('prop.entity'), sel));
+    body.append(field(t('prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();
