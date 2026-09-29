@@ -6,6 +6,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [0.3.0] - 2026-09-29
 ### Fixed
+- Dockerfile: default base image for `BUILD_FROM` (newer Supervisors no longer inject it, the local build failed with "base name should not be blank")
 - Add-on config: removed defaults (`boot`, `ingress_port`, `startup`) and the deprecated `armv7` architecture, so the add-on linter passes
 
 ### Added
