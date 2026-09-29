@@ -24,6 +24,7 @@ let layout = { version: 1, floors: [] };
 let floorIdx = 0;
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
+let roomCtx = null;                // room whose entity list stays visible while one of its objects is selected
 let lockedSel = false;            // selected from the side list: only that object reacts to the mouse
 let selection = null;              // { kind: 'wall'|'room'|'device'|'opening', id }
 let deviceType = 'light';
@@ -895,7 +896,7 @@ function deleteItem({ kind, id }) {
 window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
-  if (k === 'escape') { endDrawing(); closeLivePopup(); setStatus(''); if (lockedSel) { lockedSel = false; selection = null; refreshSelection(); } return; }
+  if (k === 'escape') { endDrawing(); closeLivePopup(); setStatus(''); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
   else if (k === 'delete' || k === 'backspace') { if (selection) { snapshot(); deleteItem(selection); } }
@@ -1376,7 +1377,7 @@ function renderEntState() {
 /* Edit mode: list of the selected room's entities (placed devices + unplaced entities of its HA area) with live state */
 function renderRoomEntities() {
   const box = $('#roomEnts');
-  const room = selection?.kind === 'room' ? floor()?.rooms.find((r) => r.id === selection.id) : null;
+  const room = roomCtx ? floor()?.rooms.find((r) => r.id === roomCtx) : null;
   if (!box || !room) return;
   box.replaceChildren();
   const h = document.createElement('h4'); h.textContent = t('prop.roomEntities'); box.append(h);
@@ -1394,7 +1395,14 @@ function renderRoomEntities() {
   placed.forEach((d) => {
     const r = row(d.name || t(`dev.${d.type}`), d.entity, null);
     r.classList.add('placed');
-    r.addEventListener('click', () => { selection = { kind: 'device', id: d.id }; refreshSelection(); });
+    if (selection?.id === d.id) r.classList.add('active');
+    r.addEventListener('click', () => { if (selection?.id === d.id && lockedSel) { releaseLock(); return; } selection = { kind: 'device', id: d.id }; lockedSel = true; refreshSelection(); });
+  });
+  roomOpenings(room, floor()).forEach((o) => {
+    const r = row(o.name || t(`prop.${o.type}`), o.entity, null);
+    r.classList.add('placed');
+    if (selection?.id === o.id) r.classList.add('active');
+    r.addEventListener('click', () => { if (selection?.id === o.id && lockedSel) { releaseLock(); return; } selection = { kind: 'opening', id: o.id }; lockedSel = true; refreshSelection(); });
   });
   const extra = (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []).filter((id) => !placedIds.has(id));
   extra.forEach((id) => {
@@ -1412,10 +1420,15 @@ function renderRoomEntities() {
     });
     row(entities.find((e) => e.entity_id === id)?.name || id, id, b).classList.add('unplaced');
   });
-  if (!placed.length && !extra.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('re.empty'); box.append(e); }
+  if (!placed.length && !extra.length && !box.querySelector('.re-row')) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('re.empty'); box.append(e); }
 }
 
 /* Edit mode: every object of the floor as a list, so things that are hard to hit in 3D can be selected from the side */
+function releaseLock() {                 // back to the room (if the object came from its list) or to no selection
+  lockedSel = false;
+  selection = roomCtx && floor()?.rooms.some((r) => r.id === roomCtx) ? { kind: 'room', id: roomCtx } : null;
+  refreshSelection();
+}
 function renderObjList() {
   const box = $('#objList'), body = $('#objListBody');
   if (!box || !body) return;
@@ -1428,7 +1441,7 @@ function renderObjList() {
   lockBar.append(lockTxt);
   if (lockedSel) {
     const rb = document.createElement('button'); rb.textContent = t('obj.release');
-    rb.addEventListener('click', () => { lockedSel = false; selection = null; refreshSelection(); });
+    rb.addEventListener('click', releaseLock);
     lockBar.append(rb);
   }
   body.append(lockBar);
@@ -1453,7 +1466,7 @@ function renderObjList() {
       b.textContent = it.label;
       b.addEventListener('click', () => {
         if (!registry.get(it.id)) return;
-        if (selection?.id === it.id && lockedSel) { lockedSel = false; selection = null; refreshSelection(); return; }   // click again: release
+        if (selection?.id === it.id && lockedSel) { releaseLock(); return; }   // click again: release
         if (tool !== 'select') setTool('select');
         selection = { kind: it.kind, id: it.id };
         lockedSel = true;
@@ -1470,7 +1483,7 @@ function renderProps() {
   renderObjList();
   const box = $('#props'), body = $('#propsBody');
   body.innerHTML = '';
-  if (!selection || isLive()) { box.hidden = true; return; }
+  if (!selection || isLive()) { roomCtx = null; box.hidden = true; return; }
   const f = floor();
   let it = null;
   if (selection.kind === 'wall') it = f.walls.find((x) => x.id === selection.id);
@@ -1493,6 +1506,7 @@ function renderProps() {
     asel.value = it.area || '';
     asel.addEventListener('change', () => { snapshot(); it.area = asel.value || undefined; if (!it.name || areas.some((x) => x.name === it.name)) { const ar = areas.find((x) => x.id === asel.value); if (ar) it.name = ar.name; } changed(); renderProps(); });
     body.append(field(t('prop.area'), asel));
+    roomCtx = it.id;
     const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts';
     body.append(ents);
     renderRoomEntities();
@@ -1536,6 +1550,15 @@ function renderProps() {
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();
+  }
+  if (selection.kind !== 'room') {
+    const rm = roomCtx && f.rooms.find((r) => r.id === roomCtx);
+    const inRoom = rm && (selection.kind === 'device' ? pointInPoly(it.x, it.z, rm.points) : selection.kind === 'opening' && roomOpenings(rm, f).some((o) => o.id === it.id));
+    if (inRoom) {
+      const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts';
+      body.append(ents);
+      renderRoomEntities();
+    } else roomCtx = null;
   }
   const del = document.createElement('button');
   del.textContent = t('panel.delete');
