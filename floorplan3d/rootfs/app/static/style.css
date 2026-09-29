@@ -181,3 +181,5 @@ dialog .stop.tablet select { width: 130px; }
 #objList .lockbar.on { color: #ffb04a; }
 #objList .lockbar button { min-height: 26px; padding: 2px 10px; }
 body.locksel #view, body.locksel canvas { cursor: move; }
+
+.re-row.active { border-color: var(--accent, #23e0ff); background: rgba(35,224,255,.18); }
