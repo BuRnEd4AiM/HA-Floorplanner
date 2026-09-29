@@ -72,7 +72,7 @@ const entities = {
 };
 
 let settings = {
-  language: 'de', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
+  language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true,
 };
 

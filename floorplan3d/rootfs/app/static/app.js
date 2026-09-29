@@ -12,7 +12,7 @@ const M_TO_FT = 3.28084;
 const params = new URLSearchParams(location.search);
 
 let settings = {
-  language: 'de', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
+  language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true,
 };
 let layout = { version: 1, floors: [] };
@@ -81,6 +81,7 @@ function resize() {
 new ResizeObserver(resize).observe(canvas);
 
 function themeColors() {
+  if (settings.theme === 'holo') return { scene: 0x050d1c, gridA: 0x1c6f9a, gridB: 0x0c2c47 };
   const dark = settings.theme === 'dark';
   return { scene: dark ? 0x0f1419 : 0xe9edf1, gridA: dark ? 0x3a4756 : 0xb7c0c9, gridB: dark ? 0x232d38 : 0xd5dbe1 };
 }
@@ -150,14 +151,45 @@ function addPickProxy(model) {
   model.add(proxy);
 }
 
+const HOLO = { fill: 0x1f6fe0, edge: 0x3df2ff, on: 0xff9d2e, onEdge: 0xffd08a, floor: 0x0a1830, floorLit: 0xff9d2e };
+const isHolo = () => settings.theme === 'holo';
+const roomMeshes = new Map();     // room id -> { mesh, room }
+
+/** Turn a model into a translucent blue wireframe hologram; lit parts are remembered for state changes. */
+function holoify(model, ghost) {
+  const glow = new Set(model.userData.glow || []);
+  const meshes = [];
+  model.traverse((o) => { if (o.isMesh && !o.userData.proxy && !o.userData.holo) meshes.push(o); });
+  const hg = model.userData.holoGlow ||= { fill: [], edge: [] };
+  for (const o of meshes) {
+    const isGlow = glow.has(o.material);
+    o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.06 : 0.38, depthWrite: false });
+    o.userData.holo = true;
+    const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.15 : 0.95 });
+    o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 25), em));
+    if (isGlow) { hg.fill.push(o.material); hg.edge.push(em); }
+  }
+}
+
+function pointInPoly(x, z, pts) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, zi] = pts[i], [xj, zj] = pts[j];
+    if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
 const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate']);
 
 function build() {
   world.clear();
-  registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = [];
+  registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roomMeshes.clear();
+  const holo = isHolo();
   layout.floors.forEach((f, i) => {
     if (i > floorIdx) return;
     const ghost = i < floorIdx;
+    const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.15 : 0.95 }) : null;
     const g = new THREE.Group();
     g.position.y = elev(i);
     world.add(g);
@@ -167,13 +199,16 @@ function build() {
       const shape = new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)));
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
-      const m = new THREE.Mesh(geo, mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
+      const m = new THREE.Mesh(geo, holo
+        ? new THREE.MeshBasicMaterial({ color: HOLO.floor, transparent: true, opacity: ghost ? 0.25 : 0.92, side: THREE.DoubleSide, depthWrite: false })
+        : mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
       m.position.y = 0.01;
       m.receiveShadow = true;
       g.add(m);
       if (!ghost) {
         m.userData = { kind: 'room', id: r.id };
         registry.set(r.id, m); pickables.push(m);
+        roomMeshes.set(r.id, { mesh: m, room: r });
         if (r.name) {
           const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);
           const sp = textSprite(r.name);
@@ -185,7 +220,10 @@ function build() {
 
     f.walls.forEach((w) => {
       if (wallLength(w) < 0.01) return;
-      const wg = buildWall(w, { material: mat('#d9d4cc', ghost), ghost, low: lowWalls, makeMat: mat });
+      const wallMat = holo
+        ? new THREE.MeshBasicMaterial({ color: 0x1b62c9, transparent: true, opacity: ghost ? 0.05 : 0.22, depthWrite: false, side: THREE.DoubleSide })
+        : mat('#d9d4cc', ghost);
+      const wg = buildWall(w, { material: wallMat, ghost, low: lowWalls, makeMat: mat, holo, edgeMaterial });
       g.add(wg);
       if (!ghost) {
         cutawayWalls.push(wallCutawayInfo(w, wg));
@@ -195,15 +233,16 @@ function build() {
     });
 
     f.devices.forEach((d) => {
-      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); applyStates(); refreshSelHelper(); });
+      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo) holoify(m, ghost); applyStates(); refreshSelHelper(); });
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.y = THREE.MathUtils.degToRad(d.rot || 0);
       model.scale.setScalar(d.scale || 1);
       if (!ghost) addPickProxy(model);
+      if (holo) holoify(model, ghost);
       model.traverse((o) => {
         if (!o.isMesh) return;
-        o.castShadow = true;
-        if (ghost) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.25; }
+        o.castShadow = !holo;
+        if (ghost && !holo) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.25; }
       });
       model.userData.kind = 'device';
       model.userData.id = d.id;
@@ -222,6 +261,7 @@ function build() {
   });
   applyStates();
   refreshSelection();
+  buildNav();
 }
 
 const ON_STATES = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'unlocked', 'home']);
@@ -242,9 +282,22 @@ function applyStates() {
       m.emissive.set(on ? 0xffd27a : 0x000000);
       m.emissiveIntensity = on ? 1.4 : 0;
     });
+    const hg = obj?.userData.holoGlow;
+    if (hg) {
+      hg.fill.forEach((m) => { m.color.setHex(on ? HOLO.on : HOLO.fill); m.opacity = on ? 0.8 : 0.38; });
+      hg.edge.forEach((m) => m.color.setHex(on ? HOLO.onEdge : HOLO.edge));
+    }
     const sp = labelSprites.get(d.id);
     if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity)); }
   });
+  if (isHolo()) {                         // rooms glow orange while a light or switch inside is on
+    roomMeshes.forEach(({ mesh, room }) => {
+      const lit = f.devices.some((d) => d.entity && /^(light|switch)\./.test(d.entity)
+        && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points));
+      mesh.material.color.setHex(lit ? HOLO.floorLit : HOLO.floor);
+      mesh.material.opacity = lit ? 0.4 : 0.92;
+    });
+  }
   if (livePopupFor) renderLivePopup();
 }
 
@@ -298,7 +351,7 @@ function undo() {
   if (!s) return;
   layout = JSON.parse(s);
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
-  selection = null;
+  selection = null; focusedRoom = null; clearFocusOutline();
   fillFloorSelect(); build(); scheduleSave();
 }
 function changed(rebuild = true) {
@@ -706,30 +759,82 @@ $('#view2d').addEventListener('click', () => setView(true));
 $('#view3d').addEventListener('click', () => setView(false));
 $('#fitBtn').addEventListener('click', fitCamera);
 $('#wallToggle').addEventListener('click', () => setLowWalls(!lowWalls));
+function updateNavToggles() {
+  $('#wallToggle').textContent = t(lowWalls ? 'view.wallsLow' : 'view.wallsHigh');
+  $('#wallToggle').classList.toggle('active', !lowWalls);
+  $('#autoToggle').classList.toggle('active', !!settings.cutaway);
+}
 function setLowWalls(v) {
   lowWalls = v;
-  $('#wallToggle').classList.toggle('active', lowWalls);
+  updateNavToggles();
   build();
 }
 $('#saveBtn').addEventListener('click', save);
 
-/* ================= Floors ================= */
-function fillFloorSelect() {
-  const s = $('#floorSelect');
-  s.innerHTML = '';
-  layout.floors.forEach((f, i) => s.add(new Option(f.name, i)));
-  s.value = floorIdx;
+/* ================= Floors, rooms, navigation pills ================= */
+let focusedRoom = null;
+let navKey = '';
+const focusGroup = new THREE.Group();
+scene.add(focusGroup);
+
+function pill(label, active, onClick, title = '') {
+  const b = document.createElement('button');
+  b.className = 'pill' + (active ? ' active' : '');
+  b.textContent = label;
+  if (title) b.title = title;
+  b.addEventListener('click', onClick);
+  return b;
 }
-$('#floorSelect').addEventListener('change', (e) => {
-  floorIdx = +e.target.value; selection = null; endDrawing(); closeLivePopup(); build(); fitCamera();
-});
+
+function buildNav(force = false) {
+  const f = floor();
+  if (!f) return;
+  const rooms = f.rooms.filter((r) => r.name);
+  const key = JSON.stringify([floorIdx, layout.floors.map((x) => x.name), rooms.map((r) => [r.id, r.name]), focusedRoom, settings.language]);
+  if (!force && key === navKey) return;
+  navKey = key;
+  const fp = $('#floorPills'), rp = $('#roomPills');
+  fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx, () => switchFloor(i))));
+  rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => focusRoom(r.id === focusedRoom ? null : r.id))));
+  $('#navSep').hidden = !rooms.length;
+}
+function fillFloorSelect() { buildNav(true); }
+
+function switchFloor(i) {
+  floorIdx = i; selection = null; focusedRoom = null; endDrawing(); closeLivePopup();
+  clearFocusOutline(); build(); fitCamera();
+}
+
+function clearFocusOutline() { focusGroup.clear(); }
+function focusRoom(id) {
+  focusedRoom = id;
+  clearFocusOutline();
+  const room = id && floor().rooms.find((r) => r.id === id);
+  if (room) {
+    const pts = [...room.points, room.points[0]].map(([x, z]) => new THREE.Vector3(x, elev() + 0.06, z));
+    focusGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x3df2ff })));
+    const xs = room.points.map((p) => p[0]), zs = room.points.map((p) => p[1]);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2;
+    const size = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs), 2.5);
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    controls.target.set(cx, elev(), cz);
+    camera.position.copy(controls.target).addScaledVector(dir, size * 2.4 + 3);
+    controls.update();
+  } else fitCamera();
+  buildNav();
+}
+
 $('#addFloor').addEventListener('click', () => {
   const name = prompt(t('floor.namePrompt'), `${t('floor.new')} ${layout.floors.length + 1}`);
   if (!name) return;
   snapshot();
   layout.floors.push({ id: uid(), name, walls: [], rooms: [], devices: [] });
-  floorIdx = layout.floors.length - 1;
-  fillFloorSelect(); build(); scheduleSave();
+  switchFloor(layout.floors.length - 1);
+  scheduleSave();
+});
+$('#autoToggle').addEventListener('click', () => {
+  $('#setCutaway').checked = !settings.cutaway;
+  commitSettings();
 });
 
 /* ================= Palettes: devices, custom models, openings ================= */
@@ -920,12 +1025,13 @@ function applySettings(prev = {}) {
   if (prev.grid !== settings.grid || prev.theme !== settings.theme || !grid) rebuildGrid();
   buildPalette(); fillEntities($('#entitySearch').value); renderProps();
   $('#hintText').textContent = isLive() ? t('hint.live') : t(`hint.${tool}`);
+  updateNavToggles(); buildNav(true);
   applyStates();
 }
 async function commitSettings() {
   const prev = settings;
   settings = readSettingsForm();
-  if (prev.lowWalls !== settings.lowWalls) { lowWalls = settings.lowWalls; $('#wallToggle').classList.toggle('active', lowWalls); }
+  if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
   applySettings(prev);
   build();
   fillSettingsForm();
@@ -966,7 +1072,6 @@ async function init() {
   if (params.get('kiosk')) document.body.classList.add('kiosk');
   try { settings = { ...settings, ...(await (await fetch('api/settings')).json()) }; } catch { /* defaults */ }
   lowWalls = settings.lowWalls;
-  $('#wallToggle').classList.toggle('active', lowWalls);
   setLanguage(settings.language);
   try { layout = await (await fetch('api/layout')).json(); } catch { setStatus(t('loadFailed')); }
   normalizeLayout();

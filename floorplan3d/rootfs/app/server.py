@@ -26,7 +26,7 @@ SERVICES = {"toggle", "turn_on", "turn_off", "open_cover", "close_cover", "stop_
 
 DEFAULT_SETTINGS = {
     "language": "de",          # de | en
-    "theme": "dark",           # dark | light
+    "theme": "holo",           # holo | dark | light
     "units": "metric",         # metric | imperial
     "grid": 0.25,              # meters
     "wallHeight": 2.6,
@@ -104,7 +104,7 @@ def validate_settings(data: dict) -> dict:
             out[key] = val
     if out["language"] not in ("de", "en"):
         out["language"] = DEFAULT_SETTINGS["language"]
-    if out["theme"] not in ("dark", "light"):
+    if out["theme"] not in ("holo", "dark", "light"):
         out["theme"] = DEFAULT_SETTINGS["theme"]
     if out["units"] not in ("metric", "imperial"):
         out["units"] = DEFAULT_SETTINGS["units"]

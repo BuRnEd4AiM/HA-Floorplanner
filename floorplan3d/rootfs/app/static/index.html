@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="dark">
+<html lang="de" data-theme="holo">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -24,11 +24,9 @@
     <div class="group">
       <button id="view2d" data-i18n="view.2d"></button>
       <button id="view3d" class="active" data-i18n="view.3d"></button>
-      <button id="wallToggle" data-i18n="view.lowWalls"></button>
       <button id="fitBtn" data-i18n="view.fit"></button>
     </div>
     <div class="group">
-      <select id="floorSelect"></select>
       <button id="addFloor" class="edit-only" data-i18n="floor.add"></button>
     </div>
     <div class="group right">
@@ -39,8 +37,18 @@
   </header>
 
   <main>
-    <canvas id="view"></canvas>
-    <div id="livePopup" hidden></div>
+    <div id="stage">
+      <canvas id="view"></canvas>
+      <nav id="navBar">
+        <div id="floorPills" class="pills"></div>
+        <span class="sep" id="navSep"></span>
+        <div id="roomPills" class="pills"></div>
+        <span class="spacer"></span>
+        <button id="autoToggle" class="pill" data-i18n="nav.auto" data-i18n-title="nav.autoTip"></button>
+        <button id="wallToggle" class="pill"></button>
+      </nav>
+      <div id="livePopup" hidden></div>
+    </div>
 
     <aside id="panel">
       <section id="hint">
@@ -98,7 +106,7 @@
     <div class="row"><label for="setLanguage" data-i18n="set.language"></label>
       <select id="setLanguage"><option value="de">Deutsch</option><option value="en">English</option></select></div>
     <div class="row"><label for="setTheme" data-i18n="set.theme"></label>
-      <select id="setTheme"><option value="dark" data-i18n="set.theme.dark"></option><option value="light" data-i18n="set.theme.light"></option></select></div>
+      <select id="setTheme"><option value="holo" data-i18n="set.theme.holo"></option><option value="dark" data-i18n="set.theme.dark"></option><option value="light" data-i18n="set.theme.light"></option></select></div>
     <div class="row"><label for="setUnits" data-i18n="set.units"></label>
       <select id="setUnits"><option value="metric" data-i18n="set.units.metric"></option><option value="imperial" data-i18n="set.units.imperial"></option></select></div>
 
