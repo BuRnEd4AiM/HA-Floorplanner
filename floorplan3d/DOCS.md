@@ -56,3 +56,12 @@ Home Assistant does not pass URL parameters into add-on panels, so tablets are a
 
 That tablet now always starts with only its room shown, together with the room's entities. The button at the top (*Whole floor* / *‹ Room*) toggles between the room and the whole floor; in the whole-floor view the floor buttons are available as well.
 If you open the add-on directly (for example through a mapped port), `?room=Wohnzimmer` does the same.
+
+## Home Assistant areas
+
+Select a room and pick its **HA area** in the properties panel. Afterwards:
+
+- entity lists (device properties and the sidebar search) are grouped by area, the area of the room the device stands in is on top, and searching for an area name finds its entities;
+- the room panel in live mode also shows the area's lights, covers, media players, switches and sensors that are not placed on the plan yet.
+
+Areas are read through Home Assistant's template API; if that is not available the lists simply stay ungrouped.

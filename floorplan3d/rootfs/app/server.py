@@ -302,6 +302,34 @@ async def get_entities(request):
     ])
 
 
+AREA_TEMPLATE = (
+    "{% set ns = namespace(o=[]) %}"
+    "{% for a in areas() %}"
+    "{% set ns.o = ns.o + [{'id': a, 'name': area_name(a), 'entities': area_entities(a)}] %}"
+    "{% endfor %}{{ ns.o | tojson }}"
+)
+
+
+async def get_areas(request):
+    """Home Assistant areas with their entity ids (via the template API); empty list if unavailable."""
+    if not SUPERVISOR_TOKEN:
+        return web.json_response([])
+    try:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{HA_API}/template", headers=ha_headers(), json={"template": AREA_TEMPLATE}) as r:
+                if r.status != 200:
+                    return web.json_response([])
+                data = json.loads(await r.text())
+    except (aiohttp.ClientError, ValueError):
+        return web.json_response([])
+    out = [
+        {"id": str(a["id"]), "name": str(a.get("name") or a["id"]),
+         "entities": [e for e in a.get("entities", []) if isinstance(e, str)]}
+        for a in data if isinstance(a, dict) and "id" in a
+    ]
+    return web.json_response(sorted(out, key=lambda a: a["name"].lower()))
+
+
 async def call_service(request):
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "no supervisor token"}, status=503)
@@ -362,6 +390,7 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.get("/api/models/{name}", get_model),
         web.delete("/api/models/{name}", delete_model),
         web.get("/api/entities", get_entities),
+        web.get("/api/areas", get_areas),
         web.post("/api/service", call_service),
         web.static("/", STATIC_DIR, show_index=False),
     ])

@@ -83,6 +83,7 @@ async def test_entities_and_service_without_supervisor(client):
     assert await (await client.get("/api/entities")).json() == []
     r = await client.post("/api/service", json={"domain": "light", "service": "toggle", "entity_id": "light.x"})
     assert r.status == 503
+    assert await (await client.get("/api/areas")).json() == []
 
 
 async def test_service_whitelist(client, monkeypatch):

@@ -15,6 +15,8 @@ async def service(r):
     if svc == "turn_on": STATE[body["entity_id"]] = "on"
     return web.json_response([])
 async def calls(r): return web.json_response(CALLS)
+async def template(r):
+    return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
-app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls)])
+app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.post("/template", template)])
 web.run_app(app, port=8123, print=None)
