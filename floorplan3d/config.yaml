@@ -6,12 +6,8 @@ url: "https://github.com/wvssweber-max/HA-Floorplanner"
 arch:
   - amd64
   - aarch64
-  - armv7
 init: false
-startup: application
-boot: auto
 ingress: true
-ingress_port: 8099
 panel_icon: mdi:floor-plan
 panel_title: "3D Floorplan"
 panel_admin: false          # everyone may open the panel; who may EDIT is set with the option `editors`
