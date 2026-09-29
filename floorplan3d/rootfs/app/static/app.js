@@ -5,6 +5,7 @@ import {
   OPENING_DEFAULTS, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
 } from './walls.js';
 import { t, setLanguage, applyI18n } from './i18n.js';
+import { createPlan } from './plan2d.js';
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -36,7 +37,9 @@ let areaOf = {};                     // entity_id -> area id
 let states = {};                   // entity_id -> { state, unit }
 let customModels = [];
 let lowWalls = false;
-let is2d = false;
+let is2d = false;                  // legacy top-down camera flag (the real 2D editor is plan2d.js)
+let plan = null;                   // 2D blueprint editor
+let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null };
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 let livePopupFor = null;           // device id
@@ -321,6 +324,7 @@ function makeOpeningHandle(w, o, group) {
 }
 
 function build() {
+  plan?.render();
   world.clear();
   registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roomMeshes.clear(); openingHandles.clear();
   const holo = isHolo();
@@ -487,6 +491,7 @@ function animateOpenings() {
 }
 
 function applyStates() {
+  if (plan?.isVisible()) plan.render();
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
   const bv = settings.belowVisibility;
@@ -544,6 +549,7 @@ function refreshSelHelper() {
   scene.add(selHelper);
 }
 function refreshSelection() {
+  plan?.render();
   if (selection && !registry.get(selection.id)) selection = null;
   if (!selection) lockedSel = false;
   document.body.classList.toggle('locksel', lockedSel);
@@ -714,6 +720,15 @@ function finishRoom() {
 }
 
 /** Compute where an opening would go for the wall under the pointer. */
+function newDevice(x, z) {
+  const custom = isCustom(deviceType);
+  const def = custom ? { y: 0 } : DEVICE_TYPES[deviceType];
+  const ent = entities.find((v) => v.entity_id === entityChoice);
+  return {
+    id: uid(), type: deviceType, x, z, y: def.y || 0, rot: 0, scale: 1,
+    name: ent?.name || (custom ? deviceType.slice(4) : t(`dev.${deviceType}`)), entity: entityChoice || '',
+  };
+}
 function openingTarget(e, ignoreId = null, def = OPENING_DEFAULTS[openingType], forcedWall = null) {
   let wall = forcedWall;
   let point = null;
@@ -852,14 +867,8 @@ canvas.addEventListener('pointerup', (e) => {
     }
   } else if (tool === 'device' && gp) {
     snapshot();
-    const custom = isCustom(deviceType);
-    const def = custom ? { y: 0 } : DEVICE_TYPES[deviceType];
-    const ent = entities.find((x) => x.entity_id === entityChoice);
     const [x, z] = snap(gp, true);
-    const d = {
-      id: uid(), type: deviceType, x, z, y: def.y || 0, rot: 0, scale: 1,
-      name: ent?.name || (custom ? deviceType.slice(4) : t(`dev.${deviceType}`)), entity: entityChoice || '',
-    };
+    const d = newDevice(x, z);
     floor().devices.push(d);
     selection = { kind: 'device', id: d.id };
     changed();
@@ -896,7 +905,8 @@ function deleteItem({ kind, id }) {
 window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
-  if (k === 'escape') { endDrawing(); closeLivePopup(); setStatus(''); if (lockedSel) releaseLock(); return; }
+  if (k === 'enter' && plan?.hasDraft() && tool === 'room') { plan.finishRoom(); return; }
+  if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
   else if (k === 'delete' || k === 'backspace') { if (selection) { snapshot(); deleteItem(selection); } }
@@ -938,8 +948,8 @@ function quickAction(entityId) {
   callService(entityId, acts.includes('toggle') ? 'toggle' : acts[0]);
 }
 
-function handleLiveTap(e) {
-  const h = pick(e);
+function handleLiveTap(e) { liveSelect(pick(e)); }
+function liveSelect(h) {
   if (h?.kind === 'device' || h?.kind === 'opening') { livePopupFor = h.id; renderLivePopup(); }
   else if (h?.kind === 'room') { closeLivePopup(); if (focusedRoom !== h.id) focusRoom(h.id); openRoomPanel(h.id); }
   else closeLivePopup();
@@ -1094,7 +1104,7 @@ function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPane
 /* ================= Tools, views, mode ================= */
 function setTool(next) {
   if (next !== 'select') lockedSel = false;
-  tool = next; endDrawing(); setStatus('');
+  tool = next; endDrawing(); plan?.reset(); document.body.dataset.tool = next; setStatus('');
   document.querySelectorAll('#tools button').forEach((b) => b.classList.toggle('active', b.dataset.tool === next));
   $('#hintText').textContent = t(`hint.${next}`);
   $('#devicePalette').hidden = next !== 'device';
@@ -1107,7 +1117,7 @@ function setMode(next) {
   mode = next;
   document.body.classList.toggle('live', isLive());
   document.querySelectorAll('#modeSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.mode === next));
-  closeLivePopup(); closeRoomPanel(); selection = null; lockedSel = false;
+  closeLivePopup(); closeRoomPanel(); selection = null; lockedSel = false; plan?.reset();
   if (isLive()) {
     setTool('select');
     $('#hintText').textContent = t('hint.live');
@@ -1129,22 +1139,26 @@ function floorBounds() {
 }
 function fitCamera() {
   const { cx, cz, size } = floorBounds();
-  const dist = size * 1.25 + 2;
+  const dist = (size * 1.25 + 2) * Math.max(1, 1.0 / (camera.aspect || 1));
   controls.target.set(cx, elev(), cz);
   if (is2d) camera.position.set(cx, elev() + dist * 1.2, cz + 0.001);
   else camera.position.set(cx + dist * 0.4, elev() + dist * 0.95, cz + dist * 0.7);
   controls.update();
 }
-function setView(is2) {
-  is2d = is2;
-  $('#view2d').classList.toggle('active', is2d);
-  $('#view3d').classList.toggle('active', !is2d);
-  controls.enableRotate = !is2d;
-  build(); fitCamera();
+function setLayoutMode(m) {
+  layoutMode = m;
+  document.body.classList.toggle('v-2d', m === '2d');
+  document.body.classList.toggle('v-split', m === 'split');
+  $('#view2d').classList.toggle('active', m === '2d');
+  $('#view3d').classList.toggle('active', m === '3d');
+  $('#viewSplit').classList.toggle('active', m === 'split');
+  plan.show(m !== '3d');
+  requestAnimationFrame(() => { resize(); if (m !== '2d') fitCamera(); });
 }
-$('#view2d').addEventListener('click', () => setView(true));
-$('#view3d').addEventListener('click', () => setView(false));
-$('#fitBtn').addEventListener('click', fitCamera);
+$('#view2d').addEventListener('click', () => setLayoutMode('2d'));
+$('#view3d').addEventListener('click', () => setLayoutMode('3d'));
+$('#viewSplit').addEventListener('click', () => setLayoutMode('split'));
+$('#fitBtn').addEventListener('click', () => { if (layoutMode !== '3d') plan.fit(); if (layoutMode !== '2d') fitCamera(); });
 $('#wallToggle').addEventListener('click', () => setLowWalls(!lowWalls));
 function updateNavToggles() {
   $('#wallToggle').textContent = t(lowWalls ? 'view.wallsLow' : 'view.wallsHigh');
@@ -1738,6 +1752,28 @@ function normalizeLayout() {
   });
 }
 
+plan = createPlan({
+  stage: $('#stage'),
+  floor: () => floor(), layout: () => layout, getFloorIdx: () => floorIdx, settings: () => settings,
+  getTool: () => tool, getOpeningType: () => openingType, isLive: () => isLive(), isLocked: () => lockedSel,
+  getSelection: () => selection,
+  setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
+  snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(),
+  liveMoveDevice(d) {
+    const obj = registry.get(d.id);
+    if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
+    const sp = labelSprites.get(d.id);
+    if (sp) sp.position.set(d.x, sp.position.y, d.z);
+    refreshSelHelper();
+  },
+  liveTap: (h) => liveSelect(h),
+  deviceDoubleClick: (id) => { const d = floor().devices.find((v) => v.id === id); if (d?.entity) quickAction(d.entity); },
+  newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, OPENING_DEFAULTS, uid, pointInPoly,
+  roomHeat: (room, f) => (viewMode === 'normal' ? null : roomHeat(room, f)),
+  states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, fmtLen, t, setStatus,
+  area: (p) => (imperial() ? `${(polyArea(p) * 10.7639).toFixed(0)} ft²` : `${polyArea(p).toFixed(1)} m²`),
+});
+
 async function init() {
   if (params.get('kiosk')) document.body.classList.add('kiosk');
   try { me = await (await fetch('api/me')).json(); } catch { /* standalone */ }
@@ -1785,6 +1821,8 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     get layout() { return layout; },
+    plan: () => plan,
+    topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
     pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
     rayHits(x, y) { setRay({ clientX: x, clientY: y }); return ray.intersectObjects(pickables, true).map((h) => { let o = h.object; while (o && !o.userData.kind) o = o.parent; return `${o?.userData.kind}:${o?.userData.id}@${h.distance.toFixed(2)}${h.object.userData.proxy ? 'P' : ''}`; }); },
     openingCenter(id) {                 // screen position of the middle of a door/window (not its base)

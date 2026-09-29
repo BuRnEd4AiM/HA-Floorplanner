@@ -65,3 +65,12 @@ Select a room and pick its **HA area** in the properties panel. Afterwards:
 - the room panel in live mode also shows the area's lights, covers, media players, switches and sensors that are not placed on the plan yet.
 
 Areas are read through Home Assistant's template API; if that is not available the lists simply stay ungrouped.
+
+## 2D editor
+
+Use the buttons **2D**, **3D** and **2D + 3D** at the top. The 2D plan and the 3D view show the same data: whatever you draw or move in one appears in the other immediately (best seen in the split view).
+
+- **Draw:** pick *Wall* or *Room* and click the corners. Double click, Enter or Esc finishes; clicking the first corner closes a room. Corners snap to the grid and to existing corners. Hold **Shift** for 45° angles, **Alt** to switch snapping off.
+- **Move:** with *Select*, drag furniture, doors/windows (along their wall), whole walls or rooms. A selected wall or room shows corner handles; connected walls and room corners move along.
+- **Navigate:** mouse wheel to zoom, right or middle mouse button (or dragging empty space) to pan, two fingers to pinch on touch screens. *Fit* recentres.
+- The object list, the *Lock* selection and the room entity list work the same in 2D.

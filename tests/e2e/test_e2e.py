@@ -23,7 +23,7 @@ with sync_playwright() as p:
 
     box = pg.locator("#view").bounding_box()
     cx, cy = box["x"] + box["width"]/2, box["y"] + box["height"]/2
-    pg.click("#view2d"); pg.wait_for_timeout(300)
+    pg.evaluate("window.__fp.topDown()"); pg.wait_for_timeout(300)
 
     # --- walls: a 6x4 m room (2 cm... snapped to 25 cm grid); scale: read from two clicks
     pg.click("button[data-tool=wall]")
@@ -101,9 +101,26 @@ with sync_playwright() as p:
     pg.click("#modeSwitch button[data-mode=edit]"); pg.wait_for_timeout(300)
     pg.click("#view3d"); pg.wait_for_timeout(600)
     pg.screenshot(path=f"{S}/edit3d.png")
+    # --- 2D blueprint editor works on the same layout as the 3D view
+    pg2 = b.new_page(viewport={"width": 1400, "height": 850})
+    pg2.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pg2.goto(BASE + "?debug=1&mode=edit"); pg2.wait_for_timeout(1500)
+    pg2.click("#view2d"); pg2.wait_for_timeout(500)
+    check("2D plan visible", pg2.is_visible("#plan2d") and pg2.evaluate("getComputedStyle(document.querySelector('#view')).visibility") == "hidden")
+    n0 = len(pg2.evaluate("window.__fp.layout.floors[0].walls"))
+    pg2.click("button[data-tool=wall]")
+    for (x, z) in [(-2, -2), (-2, 2)]:
+        c = pg2.evaluate(f"window.__fp.plan().toClient({x},{z})"); pg2.mouse.click(*c); pg2.wait_for_timeout(100)
+    pg2.keyboard.press("Escape")
+    n1 = len(pg2.evaluate("window.__fp.layout.floors[0].walls"))
+    check("wall drawn in 2D", n1 == n0 + 1, (n0, n1))
+    pg2.click("#viewSplit"); pg2.wait_for_timeout(500)
+    check("split view shows both", pg2.is_visible("#plan2d") and pg2.evaluate("getComputedStyle(document.querySelector('#view')).visibility") == "visible")
+    pg2.close()
     b.close()
 
 bad = [e for e in errors if "favicon" not in e]
+
 check("no console errors", not bad, bad)
 print("\n%d/%d passed" % (sum(ok for _, ok in results), len(results)))
 sys.exit(0 if all(ok for _, ok in results) else 1)
