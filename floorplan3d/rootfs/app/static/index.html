@@ -21,6 +21,7 @@
       <button data-tool="stairs" data-i18n="tool.stairs" data-i18n-title="tip.stairs"></button>
       <button data-tool="opening" data-i18n="tool.opening" data-i18n-title="tip.opening"></button>
       <button data-tool="device" data-i18n="tool.device" data-i18n-title="tip.device"></button>
+      <button data-tool="group" data-i18n="tool.group" data-i18n-title="tip.group"></button>
       <button data-tool="erase" data-i18n="tool.erase" data-i18n-title="tip.erase"></button>
     </div>
     <div class="group">
@@ -84,6 +85,11 @@
         <h3 data-i18n="panel.entity"></h3>
         <input id="entitySearch" type="search" data-i18n-placeholder="panel.entitySearch">
         <select id="entitySelect" size="6"></select>
+      </section>
+
+      <section id="groupPalette" hidden>
+        <h3 data-i18n="tool.group"></h3>
+        <div id="groupBody"></div>
       </section>
 
       <section id="blockPalette" hidden>
@@ -169,6 +175,7 @@
     <h3 data-i18n="set.section.view"></h3>
     <div class="row check"><input id="setShadows" type="checkbox"><label for="setShadows" data-i18n="set.shadows"></label></div>
     <div class="row check"><input id="setLabels" type="checkbox"><label for="setLabels" data-i18n="set.labels"></label></div>
+    <div class="row check"><input id="setWallStop" type="checkbox"><label for="setWallStop" data-i18n="set.wallStop"></label></div>
     <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
     <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
 
