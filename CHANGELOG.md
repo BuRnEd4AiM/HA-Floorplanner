@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-09-30
+### Fixed
+- Garden objects (lawn, tree, bush, pool, terrace, path, fence) keep their natural colours in the hologram theme instead of turning blue
+- Whole-house view: a basement is drawn translucent inside a block of earth under a green ground plane, so it no longer looks like another storey
+
 ## [0.9.0] - 2026-09-30
 ### Added
 - Floors: **move up/down** and **insert a basement** below the ground floor (panel *Etage verwalten*); the ground floor keeps height 0, floors get a type (floor / basement / roof) and can be deleted
