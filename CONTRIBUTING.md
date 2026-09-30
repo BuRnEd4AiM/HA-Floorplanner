@@ -5,7 +5,7 @@ Thanks for helping! Small, focused pull requests are easiest to review.
 1. Fork and create a branch from `main`.
 2. `pip install -r requirements-dev.txt` and run `pytest` before you push.
 3. Frontend code is plain ES modules without a build step. Keep it that way unless discussed first.
-4. Add a line to the `[Unreleased]` section of `CHANGELOG.md`.
+4. Add a line to the `[Unreleased]` section of `CHANGELOG.md` and copy the file to `floorplan3d/CHANGELOG.md` (Home Assistant shows that copy in the update dialog; a test checks both are identical).
 5. Open the pull request and describe what changed and how you tested it.
 
 ## Reporting bugs

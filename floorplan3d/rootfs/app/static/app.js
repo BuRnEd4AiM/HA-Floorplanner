@@ -37,6 +37,18 @@ let entityChoice = '';
 let entities = [];
 let areas = [];                      // Home Assistant areas: [{id, name, entities[]}]
 let areaOf = {};                     // entity_id -> area id
+/* Home Assistant reports only the NAME of a light effect (Nanoleaf scene, WLED ...), never its colours, and the light's own colour
+   is stale/white while an effect runs. So the display colour comes from the colour the user assigned to that effect, else from a colour word in its name. */
+const FX_WORDS = [[/(rot|red|feuer|fire|lava)/i, [255, 40, 30]], [/(orange|sunset|sonnenunter|amber)/i, [255, 130, 20]], [/(gelb|yellow|gold|sun)/i, [255, 214, 40]],
+  [/(gr[üu]n|green|forest|wald|matrix|nature)/i, [40, 220, 90]], [/(cyan|t[üu]rkis|turquoise|aqua|ocean|meer|ice|eis)/i, [35, 224, 255]], [/(blau|blue|sky|himmel|water|wasser)/i, [30, 110, 255]],
+  [/(lila|violett|purple|violet|gaming)/i, [170, 80, 255]], [/(pink|rosa|magenta|love|romantic)/i, [255, 60, 160]], [/(warm|kerze|candle|cozy|gem[üu]tlich)/i, [255, 170, 80]]];
+function fxRgb(name) {
+  if (!name || /^(none|off|aus|keine?r?)$/i.test(name)) return null;
+  const c = settings.effectColors?.[name];
+  if (c && /^#[0-9a-f]{6}$/i.test(c)) return [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+  return FX_WORDS.find(([re]) => re.test(name))?.[1] || null;
+}
+const effRgb = (e) => fxRgb(e.fxc) || e.rgb;
 let states = {};                   // entity_id -> { state, unit }
 let customModels = [];
 let lowWalls = false;
@@ -1386,10 +1398,29 @@ function lightControls(ids) {              // one light, or all lights of a room
     if (list.length === 1 && st.fxc && fx.includes(st.fxc)) sel.value = st.fxc;
     sel.addEventListener('change', () => { if (sel.value) all('turn_on', { effect: sel.value }); });
     wrap.append(lbl('live.effects'), sel);
+    if (list.length === 1 && st.fxc && fx.includes(st.fxc) && me.canEdit) {          // what the effect looks like is not known to HA: let the editor say
+      const row = document.createElement('div'); row.className = 'actions';
+      const cp = document.createElement('input'); cp.type = 'color'; cp.className = 'sw-pick'; cp.title = t('live.fxColorHint');
+      cp.value = Array.isArray(st.rgb) ? rgbToHex(st.rgb) : '#aa50ff';
+      cp.addEventListener('change', () => { settings.effectColors = { ...(settings.effectColors || {}), [st.fxc]: cp.value }; saveEffectColors(); });
+      const rs = document.createElement('button'); rs.textContent = '↺'; rs.title = t('live.fxColorReset');
+      rs.addEventListener('click', () => { const c = { ...(settings.effectColors || {}) }; delete c[st.fxc]; settings.effectColors = c; saveEffectColors(); });
+      const tx = document.createElement('span'); tx.className = 'sub'; tx.textContent = t('live.fxColor').replace('{fx}', st.fxc);
+      row.append(cp, rs, tx); wrap.append(row);
+    }
   }
   return wrap;
 }
 
+async function saveEffectColors() {
+  Object.values(states).forEach((v) => { v.rgb = fxRgb(v.fxc) || v.rgbRaw; });
+  applyStates();
+  try {
+    const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(settingsEtag ? { 'If-Match': settingsEtag } : {}) }, body: JSON.stringify(settings) });
+    if (r.ok) { settingsEtag = r.headers.get('ETag'); }
+    else if (r.status === 409) { alert(t('set.changedElsewhere')); location.reload(); }
+  } catch { /* offline */ }
+}
 /** scenes (scene.*) that set at least one of these entities */
 function scenesWith(ids) {
   const set = new Set(ids);
@@ -2814,10 +2845,10 @@ async function pollStates() {
     const list = await r.json();
     if (!Array.isArray(list)) return;
     const firstLoad = !entities.length;
-    const sig = JSON.stringify(list.map((e) => [e.entity_id, e.state, e.brightness, e.rgb, e.position]));
+    const sig = JSON.stringify(list.map((e) => [e.entity_id, e.state, e.brightness, e.rgb, e.fxc, e.position]));
     if (sig !== lastStateSig) { lastStateSig = sig; wake(); }
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members }]));
+    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e), rgbRaw: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members }]));
     if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
     applyStates();
     renderRoomEntities(); renderEntState();
