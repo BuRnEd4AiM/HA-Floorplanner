@@ -147,3 +147,11 @@ For a wall tablet, open the add-on with `?house=Parents` (name or id, case-insen
 ## Windows with several sensors
 
 For a double or triple window, the side panel lists **Individual panes**: pick one contact sensor per pane. Each pane then opens on its own in 3D, and the room panel shows every pane. Panes without their own sensor follow the window's main sensor.
+
+## Backup and restore
+
+*Houses & backup* in the side panel: **Download backup** saves everything (all houses, settings, pictures, custom 3D models) as one JSON file, **Restore backup…** replaces the current data with such a file. Handy before big changes, for moving to another Home Assistant or for copying a plan to a second installation. Before a restore, the current layouts and settings are copied to `/data/backups` on the server (last 5 kept). Only editors can export and import.
+
+## Resize and lock furniture
+
+Select a piece in the 2D plan: the two square handles on its edges stretch it in width and depth independently (Alt is not needed). Height and exact factors are in the side panel (*Breite / Höhe / Tiefe (Streckung)*). Tick **Sperren** to fix a piece in place.

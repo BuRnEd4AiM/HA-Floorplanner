@@ -70,6 +70,13 @@
       <details id="housePanel" class="edit-only">
         <summary data-i18n="house.panel"></summary>
         <div id="houseBody"></div>
+        <h4 data-i18n="backup.title"></h4>
+        <p class="sub" data-i18n="backup.hint"></p>
+        <div class="stopTools">
+          <a id="backupExport" class="btn" href="api/backup" download data-i18n="backup.export"></a>
+          <button type="button" id="backupImport" data-i18n="backup.import"></button>
+          <input type="file" id="backupFile" accept=".json,application/json" hidden>
+        </div>
       </details>
 
       <details id="floorPanel" class="edit-only">

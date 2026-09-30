@@ -252,3 +252,6 @@ body.readonly #bgPanel { display: none; }
 
 #houseSelect { max-width: 190px; }
 body.kiosk #houseGroup { display: none; }
+#backupExport { display: inline-block; text-decoration: none; color: var(--text); background: var(--field); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; font: inherit; }
+#backupExport:hover { border-color: var(--accent); }
+#housePanel h4 { margin: 12px 0 4px; }

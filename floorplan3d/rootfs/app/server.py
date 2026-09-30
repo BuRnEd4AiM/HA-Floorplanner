@@ -5,6 +5,8 @@
 - reads entities and calls services through the Supervisor proxy
 """
 import asyncio
+import base64
+import datetime
 import json
 import logging
 import time
@@ -625,6 +627,109 @@ async def index(request):
     return web.FileResponse(STATIC_DIR / "index.html")
 
 
+# ---------- backup: export / import everything (houses, settings, models, pictures) ----------
+BACKUP_FORMAT = "floorplan3d-backup"
+MAX_BACKUP_BYTES = 200 * 1024 * 1024
+MAX_HOUSES = 20
+
+
+def build_backup(request, with_files: bool = True) -> dict:
+    houses = []
+    for h in houses_index(request):
+        houses.append({"id": h["id"], "name": h["name"], "layout": read_json(house_file(request, h["id"]), EMPTY_LAYOUT)})
+    out = {"format": BACKUP_FORMAT, "version": 1, "exported": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+           "houses": houses, "settings": read_json(data_dir(request) / "settings.json", {}), "backgrounds": {}, "models": {}}
+    if with_files:
+        for d, key, pat in ((bg_dir(request), "backgrounds", "*.*"), (models_dir(request), "models", "*.glb")):
+            if d.is_dir():
+                for f in sorted(d.glob(pat)):
+                    if f.is_file() and (BG_NAME.match(f.name) if key == "backgrounds" else MODEL_NAME.match(f.stem)):
+                        out[key][f.name] = base64.b64encode(f.read_bytes()).decode("ascii")
+    return out
+
+
+async def get_backup(request):
+    if not await can_edit(request):
+        return forbidden()
+    data = build_backup(request, request.query.get("files", "1") != "0")
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
+    return web.Response(text=json.dumps(data), content_type="application/json",
+                        headers={"Content-Disposition": f'attachment; filename="floorplan3d-backup-{stamp}.json"'})
+
+
+def validate_backup(data):
+    """Return (houses, settings, backgrounds, models) as clean python values, or raise ValueError."""
+    if not isinstance(data, dict) or data.get("format") != BACKUP_FORMAT:
+        raise ValueError("not a 3D Floorplan backup file")
+    raw = data.get("houses")
+    if not isinstance(raw, list) or not 1 <= len(raw) <= MAX_HOUSES:
+        raise ValueError("no houses in backup")
+    houses, seen = [], set()
+    for h in raw:
+        if not isinstance(h, dict) or not HOUSE_ID.match(str(h.get("id", ""))) or h["id"] in seen:
+            raise ValueError("invalid house id")
+        lay = h.get("layout")
+        if not isinstance(lay, dict) or not isinstance(lay.get("floors"), list):
+            raise ValueError("invalid layout")
+        name = str(h.get("name", "")).strip()[:60] or "Haus"
+        seen.add(h["id"])
+        houses.append({"id": h["id"], "name": name, "layout": lay})
+    settings = data.get("settings")
+    settings = validate_settings(settings) if isinstance(settings, dict) and settings else {}
+    files = {}
+    for key, kind in (("backgrounds", "bg"), ("models", "model")):
+        items = {}
+        src = data.get(key) or {}
+        if not isinstance(src, dict):
+            raise ValueError(f"invalid {key}")
+        for name, b64 in src.items():
+            try:
+                raw_bytes = base64.b64decode(b64, validate=True)
+            except (ValueError, TypeError):
+                raise ValueError(f"invalid file {name}")
+            if kind == "bg":
+                ext = sniff_image(raw_bytes)
+                if not BG_NAME.match(name) or ext is None or not name.endswith("." + ext) or len(raw_bytes) > MAX_BG_BYTES:
+                    raise ValueError(f"invalid picture {name}")
+            else:
+                if not name.endswith(".glb") or not MODEL_NAME.match(name[:-4]) or raw_bytes[:4] != b"glTF" or len(raw_bytes) > MAX_MODEL_BYTES:
+                    raise ValueError(f"invalid model {name}")
+            items[name] = raw_bytes
+        files[key] = items
+    return houses, settings, files["backgrounds"], files["models"]
+
+
+async def post_backup(request):
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        data = await request.json()
+        houses, settings, bgs, models = validate_backup(data)
+    except ValueError as err:
+        return web.json_response({"error": str(err)}, status=400)
+    root = data_dir(request)
+    # safety copy of the current state (layouts and settings only), the last 5 are kept
+    bdir = root / "backups"
+    bdir.mkdir(parents=True, exist_ok=True)
+    write_json_atomic(bdir / f"before-restore-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}.json", build_backup(request, False))
+    for old in sorted(bdir.glob("before-restore-*.json"))[:-5]:
+        old.unlink()
+    old_ids = {h["id"] for h in houses_index(request)}
+    for h in houses:
+        write_json_atomic(house_file(request, h["id"]), h["layout"])
+    for gone in old_ids - {h["id"] for h in houses}:
+        house_file(request, gone).unlink(missing_ok=True)
+    save_houses(request, [{"id": h["id"], "name": h["name"]} for h in houses])
+    if settings:
+        write_json_atomic(root / "settings.json", settings)
+    for d, items in ((bg_dir(request), bgs), (models_dir(request), models)):
+        if items:
+            d.mkdir(parents=True, exist_ok=True)
+            for name, b in items.items():
+                (d / name).write_bytes(b)
+    return web.json_response({"ok": True, "houses": len(houses), "pictures": len(bgs), "models": len(models)})
+
+
 def make_app(data_path: Path | None = None) -> web.Application:
     app = web.Application(client_max_size=max(MAX_LAYOUT_BYTES, MAX_BG_BYTES + 1024 * 1024))
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
@@ -636,6 +741,7 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.post("/api/houses", post_house),
         web.patch("/api/houses/{id}", patch_house),
         web.delete("/api/houses/{id}", delete_house),
+        web.get("/api/backup", get_backup),
         web.get("/api/me", get_me),
         web.get("/api/users", get_users),
         web.get("/api/settings", get_settings),
@@ -652,6 +758,10 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.post("/api/service", call_service),
         web.static("/", STATIC_DIR, show_index=False),
     ])
+    sub = web.Application(client_max_size=MAX_BACKUP_BYTES)   # the restore upload may be far larger than any other request
+    sub[KEY_DATA] = app[KEY_DATA]
+    sub.add_routes([web.post("", post_backup)])
+    app.add_subapp("/api/backup", sub)
     return app
 
 

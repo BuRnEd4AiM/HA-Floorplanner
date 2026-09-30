@@ -75,8 +75,18 @@ export function createPlan(ctx) {
     const base = FOOT[d.type] || DEFAULT_FOOT;
     const k = d.scale || 1;
     if (d.type === 'picture') return { w: (d.w || 0.6) * k, d: 0.06 };
-    return base.r ? { r: base.r * k } : { w: base.w * k, d: base.d * k };
+    const kx = k * (d.sx || 1), kz = k * (d.sz || 1);
+    if (base.r) return (d.sx || 1) === 1 && (d.sz || 1) === 1 ? { r: base.r * k } : { w: 2 * base.r * kx, d: 2 * base.r * kz };
+    return { w: base.w * kx, d: base.d * kz };
   }
+  /* size handles of a selected device: middle of its local +x and +z edge */
+  const baseFoot = (d) => { const b = FOOT[d.type] || DEFAULT_FOOT; return b.r ? { w: 2 * b.r, d: 2 * b.r } : b; };
+  function devHandles(d) {
+    const f = footOf(d), w = f.r ? 2 * f.r : f.w, dp = f.r ? 2 * f.r : f.d, th = (-(d.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
+    const W = (lx, lz) => [d.x + lx * c - lz * sn, d.z + lx * sn + lz * c];
+    return { x: W(w / 2, 0), z: W(0, dp / 2) };
+  }
+  const devLocal = (d, x, z) => { const th = (-(d.rot || 0) * Math.PI) / 180, dx = x - d.x, dz = z - d.z; return [dx * Math.cos(th) + dz * Math.sin(th), -dx * Math.sin(th) + dz * Math.cos(th)]; };
   function devHit(d, x, z) {
     const f = footOf(d), pad = Math.max(0.05, 8 / s);
     const th = (-(d.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
@@ -159,6 +169,14 @@ export function createPlan(ctx) {
       if (st) {
         const hs = stairHandles(st, ctx.floorH());
         for (const which of ['len', 'wid']) { if (hs[which] && near(toWorld(st, hs[which][0], hs[which][1]))) return { type: 'stair-size', which, st }; }
+      }
+      return null;
+    }
+    if (sel.kind === 'device') {
+      const d = f.devices.find((q) => q.id === sel.id);
+      if (d && d.type !== 'picture' && !d.group && !d.locked) {
+        const hs = devHandles(d);
+        for (const which of ['x', 'z']) if (near(hs[which])) return { type: 'dev-size', which, d };
       }
       return null;
     }
@@ -401,6 +419,10 @@ export function createPlan(ctx) {
     if (!live && sel) {
       const hnd = (p, fill = '#fff') => `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="6" fill="${fill}" stroke="${C.sel}" stroke-width="2"/>`;
       if (sel.kind === 'wall') { const w = f.walls.find((q) => q.id === sel.id); if (w) o += hnd(w.a) + hnd(w.b); }
+      if (sel.kind === 'device') {
+        const d = f.devices.find((q) => q.id === sel.id);
+        if (d && d.type !== 'picture' && !d.group && !d.locked) { const hs = devHandles(d); ['x', 'z'].forEach((k) => { o += `<rect x="${sx(hs[k][0]) - 6}" y="${sy(hs[k][1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; }); }
+      }
       if (sel.kind === 'stair') {
         const st = (f.stairs || []).find((q) => q.id === sel.id), hs = st && stairHandles(st, H3);
         if (st) ['len', 'wid'].forEach((k) => { if (hs[k]) { const p = toWorld(st, hs[k][0], hs[k][1]); o += `<rect x="${sx(p[0]) - 6}" y="${sy(p[1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; } });
@@ -549,6 +571,7 @@ export function createPlan(ctx) {
     return [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...(f.blocks || []).flatMap((r) => r.points)];
   }
   function startHandleDrag(hd) {
+    if (hd.type === 'dev-size') return { type: 'devsize', which: hd.which, d: hd.d, moved: false };
     if (hd.type === 'stair-size') return { type: 'stairsize', which: hd.which, st: hd.st, moved: false };
     if (hd.type === 'wall-end') {
       const p = hd.wall[hd.end];
@@ -605,6 +628,16 @@ export function createPlan(ctx) {
     if (drag) {
       const moved = Math.hypot(px - drag.px, py - drag.py) > 4;
       if (drag.type === 'pan') { tx = drag.tx + (px - drag.px); ty = drag.ty + (py - drag.py); render(); return; }
+      if (drag.type === 'devsize' && moved) {
+        snapshotOnce();
+        const d = drag.d, [lx, lz] = devLocal(d, x, z), b = baseFoot(d), k = d.scale || 1;
+        const ext = Math.max(0.05, Math.round(2 * Math.abs(drag.which === 'x' ? lx : lz) * 20) / 20);   // 5 cm steps
+        const v = Math.max(0.1, Math.min(10, ext / ((drag.which === 'x' ? b.w : b.d) * k)));
+        const key = drag.which === 'x' ? 'sx' : 'sz';
+        if (Math.abs(v - 1) < 0.01) delete d[key]; else d[key] = +v.toFixed(3);
+        drag.moved = true; scheduleRebuild(); render();
+        return;
+      }
       if (drag.type === 'stairsize' && moved) {
         snapshotOnce();
         const st = drag.st, [lx, lz] = toLocal(st, x, z), { T, n1 } = stairCounts(st, ctx.floorH());
@@ -644,6 +677,7 @@ export function createPlan(ctx) {
         return;
       }
       if (drag.type === 'device' && moved) {
+        if (drag.d.locked) return;
         snapshotOnce();
         const [nx, nz] = snapPt(x + drag.dx, z + drag.dz, { fine: true, ends: false, free: e.altKey });
         ctx.moveDeviceTo(drag.d, nx, nz); drag.moved = true;
@@ -722,6 +756,7 @@ export function createPlan(ctx) {
     const moved = Math.hypot(px - (d.px ?? px), py - (d.py ?? py)) > 4;
     const tool = ctx.getTool();
 
+    if (d.type === 'devsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'stairsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'bgmove' || d.type === 'bgscale') { if (d.moved) { ctx.commit(); ctx.bgChanged(); } snapDone = false; return; }
     if (d.type === 'calib') {
@@ -858,6 +893,7 @@ export function createPlan(ctx) {
   new ResizeObserver(() => { if (visible) schedule(); }).observe(root);
 
   return {
+    footOf,
     el: root,
     show(v) {
       visible = v;
