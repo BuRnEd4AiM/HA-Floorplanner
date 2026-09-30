@@ -407,6 +407,14 @@ def _effects(attrs):
     return [str(x)[:64] for x in lst[:60]] if isinstance(lst, list) else None
 
 
+def _members(st):
+    """Entities a scene sets (its `entity_id` attribute), so the UI can offer the scenes a light belongs to."""
+    if not st["entity_id"].startswith("scene."):
+        return None
+    ids = st.get("attributes", {}).get("entity_id")
+    return [str(x) for x in ids[:200]] if isinstance(ids, list) else None
+
+
 async def get_entities(request):
     """Slim list of all entities (id, name, domain, state)."""
     if not SUPERVISOR_TOKEN:
@@ -431,6 +439,7 @@ async def get_entities(request):
             "ch": st.get("attributes", {}).get("current_humidity"),
             "fx": _effects(st.get("attributes", {})),
             "fxc": st.get("attributes", {}).get("effect"),
+            "members": _members(st),
         }
         for st in states
     ])

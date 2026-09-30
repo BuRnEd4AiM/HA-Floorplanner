@@ -107,6 +107,7 @@ with sync_playwright() as p:
     pg.mouse.click(s["x"], s["y"]); pg.wait_for_timeout(400)
     check("live popup shows", pg.is_visible("#livePopup"))
     check("popup has entity", "light.wohnzimmer" in pg.inner_text("#livePopup"), pg.inner_text("#livePopup"))
+    check("popup lists the scenes the light belongs to", pg.locator("#livePopup .sceneList button", has_text="Gaming").count() == 1, pg.inner_text("#livePopup"))
     pg.click("#livePopup .actions button:nth-child(3)"); pg.wait_for_timeout(900)
     check("service called", ["light", "toggle", "light.wohnzimmer"] in ha_calls(), ha_calls())
     pg.screenshot(path=f"{S}/live.png")
