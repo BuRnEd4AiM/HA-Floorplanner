@@ -579,16 +579,21 @@ const OPEN_HEX = 0xff4a3d;
 const openingObjs = () => [...registry.values()].filter((o) => o.userData?.kind === 'opening' && o.userData.pivot);
 const isOpen = (entity) => !!entity && ON_STATES.has(states[entity]?.state);
 const openText = (entity) => (!entity ? '—' : isOpen(entity) ? t('state.open') : states[entity] ? t('state.closed') : '—');
+/* entity of pane i: multi-pane windows may have one contact sensor per pane (o.paneEntities), falling back to the main sensor */
+const paneEntity = (o, i) => (o.paneEntities && o.paneEntities[i]) || o.entity || '';
+const openingEntities = (o) => [...new Set([o.entity, ...(o.paneEntities || [])].filter(Boolean))];
 function applyOpenings() {
   let n = 0, any = false;
   layout.floors.forEach((f) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
-    if (o.entity) { any = true; if (isOpen(o.entity)) n++; }
+    openingEntities(o).forEach((e) => { any = true; if (isOpen(e)) n++; });
     const obj = registry.get(o.id);
     if (!obj?.userData.pivot) return;
-    const open = isOpen(o.entity);
+    const pps = obj.userData.panePivots;
+    const opens = pps ? pps.map((_, i) => isOpen(paneEntity(o, i))) : [isOpen(o.entity)];
+    const open = opens.some(Boolean);
     obj.userData.open = open;
-    obj.userData.tint.forEach(({ m, base }) => m.color.setHex(open && o.entity ? OPEN_HEX : base));
-    obj.userData.pivot.userData.target = open ? obj.userData.pivot.userData.dir * obj.userData.pivot.userData.max : 0;
+    obj.userData.tint.forEach(({ m, base }) => m.color.setHex(open && openingEntities(o).length ? OPEN_HEX : base));
+    (pps || [obj.userData.pivot]).forEach((pv, i) => { pv.userData.target = opens[i] ? pv.userData.dir * pv.userData.max : 0; });
   })));
   const pill = $('#openPill');
   pill.hidden = !any;
@@ -597,10 +602,12 @@ function applyOpenings() {
 }
 function animateOpenings() {
   openingObjs().forEach((obj) => {
-    const p = obj.userData.pivot, tg = p.userData.target ?? 0;
+   (obj.userData.panePivots || [obj.userData.pivot]).forEach((p) => {
+    const tg = p.userData.target ?? 0;
     const prop = p.userData.axis, holder = p.userData.prop === 'position' ? p.position : p.rotation, cur = holder[prop];
     if (Math.abs(tg - cur) > 0.002) holder[prop] = cur + (tg - cur) * 0.15;
     (p.userData.followers || []).forEach((fp) => { fp.rotation[fp.userData.axis] = holder[prop] * (fp.userData.dir / (p.userData.dir || 1)); });   // second leaf of a double door
+   });
   });
 }
 
@@ -726,10 +733,78 @@ function scheduleSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(save, (settings.autosaveSeconds || 1.5) * 1000);
 }
+/* ================= Houses (several floor plans) ================= */
+let houses = [], houseId = null;
+const layoutUrl = () => `api/layout${houseId ? `?house=${encodeURIComponent(houseId)}` : ''}`;
+async function loadHouses() {
+  try { const l = await (await fetch('api/houses')).json(); if (Array.isArray(l) && l.length) houses = l; } catch { /* old backend: one house */ }
+  const want = (params.get('house') || '').trim().toLowerCase();
+  let saved = null; try { saved = localStorage.getItem('fp.house'); } catch { /* private mode */ }
+  const pickH = houses.find((h) => want && (h.id === want || h.name.trim().toLowerCase() === want)) || houses.find((h) => h.id === saved) || houses[0];
+  houseId = pickH?.id || null;
+}
+function renderHouseUi() {
+  const sel = $('#houseSelect');
+  if (!sel) return;
+  sel.replaceChildren(...houses.map((h) => new Option(h.name, h.id)));
+  sel.value = houseId || '';
+  $('#houseGroup').hidden = houses.length < 2;
+  const box = $('#houseBody');
+  if (!box) return;
+  box.innerHTML = '';
+  const cur = houses.find((h) => h.id === houseId);
+  const p = document.createElement('p'); p.className = 'sub'; p.textContent = `${t('house.current')}: ${cur?.name || ''}`; box.append(p);
+  const mk = (id, label, on, dis = false) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.disabled = dis; b.addEventListener('click', on); return b; };
+  const row = document.createElement('div'); row.className = 'stopTools';
+  row.append(mk('houseNew', t('house.new'), () => houseAction('new')), mk('houseCopy', t('house.copy'), () => houseAction('copy')),
+             mk('houseRename', t('house.rename'), () => houseAction('rename')), mk('houseDelete', t('house.delete'), () => houseAction('delete'), houses.length < 2));
+  box.append(row);
+}
+async function houseAction(kind) {
+  const cur = houses.find((h) => h.id === houseId);
+  try {
+    if (kind === 'delete') {
+      if (!confirm(t('house.deleteConfirm'))) return;
+      const r = await fetch(`api/houses/${houseId}`, { method: 'DELETE' });
+      if (!r.ok) throw new Error(r.status);
+      houses = houses.filter((h) => h.id !== houseId);
+      await switchHouse(houses[0].id);
+      return;
+    }
+    const name = prompt(t('house.namePrompt'), kind === 'rename' ? cur?.name : kind === 'copy' ? `${cur?.name} 2` : t('house.default'));
+    if (!name || !name.trim()) return;
+    if (kind === 'rename') {
+      const r = await fetch(`api/houses/${houseId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
+      if (!r.ok) throw new Error(r.status);
+      cur.name = name.trim(); renderHouseUi();
+      return;
+    }
+    await save();                                               // make sure the copy source is up to date
+    const r = await fetch('api/houses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, ...(kind === 'copy' ? { copyFrom: houseId } : {}) }) });
+    if (!r.ok) throw new Error(r.status);
+    const h = await r.json();
+    houses.push({ id: h.id, name: h.name });
+    await switchHouse(h.id);
+  } catch (err) { alert(`${t('saveFailed')}: ${err.message}`); }
+}
+async function switchHouse(id) {
+  if (id === houseId && layout) return;
+  if (saveTimer) await save();                                  // flush edits of the house we leave
+  houseId = id;
+  try { localStorage.setItem('fp.house', id); } catch { /* private mode */ }
+  try { layout = await (await fetch(layoutUrl())).json(); } catch { setStatus(t('loadFailed')); return; }
+  normalizeLayout();
+  undoStack.length = 0;
+  floorIdx = 0; selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');
+  clearFocusOutline(); renderHouseUi();
+  build(); fitCamera(); buildNav(true); renderBgPanel(); renderFloorPanel(); renderObjList(); refreshSelection();
+}
+$('#houseSelect').addEventListener('change', (e) => switchHouse(e.target.value));
+
 async function save() {
   clearTimeout(saveTimer);
   try {
-    const r = await fetch('api/layout', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(layout) });
+    const r = await fetch(layoutUrl(), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(layout) });
     setStatus(r.ok ? t('saved') : t('saveFailed'));
   } catch { setStatus(t('saveFailed')); }
 }
@@ -1333,15 +1408,21 @@ function renderRoomPanel() {
       box.append(row);
     });
   });
-  const ops = roomOpenings(room, floor()).filter((o) => o.entity);
+  const ops = roomOpenings(room, floor()).filter((o) => openingEntities(o).length);
   if (ops.length) {
     const h = document.createElement('h4'); h.textContent = t('rp.openings'); box.append(h);
     ops.forEach((o) => {
-      const row = document.createElement('div');
-      row.className = 'row' + (isOpen(o.entity) ? ' alert' : '');
-      const n = document.createElement('span'); n.className = 'n'; n.textContent = o.name || t(`prop.${o.type}`);
-      const v = document.createElement('span'); v.className = 'v'; v.textContent = openText(o.entity);
-      row.append(n, v); box.append(row);
+      const multi = o.paneEntities?.some(Boolean);
+      const count = multi ? (o.style === 'triple' ? 3 : 2) : 1;
+      for (let i = 0; i < count; i++) {
+        const e = multi ? paneEntity(o, i) : o.entity;
+        if (!e) continue;
+        const row = document.createElement('div');
+        row.className = 'row' + (isOpen(e) ? ' alert' : '');
+        const n = document.createElement('span'); n.className = 'n'; n.textContent = (o.name || t(`prop.${o.type}`)) + (multi ? ` · ${t('pane.n', { n: i + 1 })}` : '');
+        const v = document.createElement('span'); v.className = 'v'; v.textContent = openText(e);
+        row.append(n, v); box.append(row);
+      }
     });
   }
   if (!devs.length && !ops.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('rp.empty'); box.append(e); }
@@ -2284,6 +2365,16 @@ function renderProps() {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
     body.append(pickerField(t('prop.contact'), entityPicker((contact.length ? contact : entities).slice(0, 1500), roomCtx ? f.rooms.find((r) => r.id === roomCtx) : null, it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
+    if (it.type === 'window' && (it.style === 'double' || it.style === 'triple' || (!it.style))) {
+      const count = it.style === 'triple' ? 3 : 2;
+      const h = document.createElement('h4'); h.textContent = t('pane.title'); body.append(h);
+      for (let i = 0; i < count; i++) {
+        body.append(pickerField(t('pane.n', { n: i + 1 }), entityPicker((contact.length ? contact : entities).slice(0, 1500), roomCtx ? f.rooms.find((r) => r.id === roomCtx) : null, (it.paneEntities || [])[i] || '', (v) => {
+          snapshot(); const arr = it.paneEntities || []; while (arr.length < count) arr.push(''); arr[i] = v;
+          it.paneEntities = arr.some(Boolean) ? arr : undefined; changed();
+        })));
+      }
+    }
     if (it.type === 'door') {
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.flip;
       cb.addEventListener('change', () => { snapshot(); it.flip = cb.checked; changed(); });
@@ -2569,8 +2660,10 @@ async function init() {
   try { settings = { ...settings, ...(await (await fetch('api/settings')).json()) }; } catch { /* defaults */ }
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
-  try { layout = await (await fetch('api/layout')).json(); } catch { setStatus(t('loadFailed')); }
+  await loadHouses();
+  try { layout = await (await fetch(layoutUrl())).json(); } catch { setStatus(t('loadFailed')); }
   normalizeLayout();
+  renderHouseUi();
   await loadModels();
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); renderBgPanel(); renderFloorPanel();
@@ -2616,6 +2709,11 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     get layout() { return layout; },
+    houseId: () => houseId,
+    rebuild: () => build(),
+    switchHouse,
+    paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
+    fakeState(e, st) { states[e] = { ...(states[e] || {}), state: st }; applyOpenings(); },
     has: (id) => registry.has(id),
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
       const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');

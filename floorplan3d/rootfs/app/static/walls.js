@@ -120,20 +120,27 @@ function buildOpening(o, t, mats0, low) {
     if (o.sill > 0) g.add(boxMesh(x0, x1, s, s + ft, fd, mats.frame));
     const panes = st === 'triple' ? 3 : st === 'single' || st === 'fixed' ? 1 : 2;
     const inner = h - 2 * ft;
-    // window pane(s) tilt inwards around the lower edge when open (fixed glazing does not open)
-    const pv = new THREE.Group();
-    pv.position.set(0, s + ft, 0);
-    const pane = boxMesh(x0 + ft, x1 - ft, 0, inner, 0.015, mats.glass);
-    pane.position.y = inner / 2;
-    pv.add(pane);
+    // window pane(s) tilt inwards around the lower edge when open (fixed glazing does not open);
+    // multi-pane windows get one pivot per pane so every pane can follow its own sensor
+    const mkPane = (u0, u1) => {
+      const pv = new THREE.Group();
+      pv.position.set(0, s + ft, 0);
+      const pane = boxMesh(u0, u1, 0, inner, 0.015, mats.glass);
+      pane.position.y = inner / 2;
+      pv.add(pane);
+      g.add(pv);
+      if (st !== 'fixed') { pv.userData.dir = -1; pv.userData.axis = 'x'; pv.userData.max = 0.4; }
+      return pv;
+    };
+    const pvs = [];
+    for (let i = 0; i < panes; i++) pvs.push(mkPane(x0 + ft + ((w - 2 * ft) * i) / panes, x0 + ft + ((w - 2 * ft) * (i + 1)) / panes));
     for (let i = 1; i < panes; i++) {
       const bx = x0 + ft + ((w - 2 * ft) * i) / panes;
       const bar = boxMesh(bx - 0.015, bx + 0.015, 0, inner, 0.04, mats.frame);
-      bar.position.y = inner / 2;
-      pv.add(bar);
+      bar.position.y = s + ft + inner / 2;
+      g.add(bar);
     }
-    g.add(pv);
-    if (st !== 'fixed') { pivot = pv; pivot.userData.dir = -1; pivot.userData.axis = 'x'; pivot.userData.max = 0.4; }
+    if (st !== 'fixed') { pivot = pvs[0]; g.userData.panePivots = pvs; }
     if (o.sill > 0.2) g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
   }
   // invisible, slightly padded hit box: doors and windows stay easy to select even with a lamp or sensor in front of them

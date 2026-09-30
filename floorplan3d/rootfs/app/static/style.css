@@ -249,3 +249,6 @@ body.readonly #bgPanel { display: none; }
 .palette.thumbs button.dev img { width: 56px; height: 56px; object-fit: contain; pointer-events: none; }
 .palette.thumbs button.dev span { font-size: 11px; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .palette.thumbs button.dev.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+
+#houseSelect { max-width: 190px; }
+body.kiosk #houseGroup { display: none; }

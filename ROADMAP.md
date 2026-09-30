@@ -29,6 +29,7 @@ Progress is tracked with [milestones](https://github.com/wvssweber-max/HA-Floorp
 ## Backlog
 
 - [x] Placeholder blocks and stairs / stairwells (0.8.0)
+- [x] Several houses and per-pane window sensors (1.4.0)
 - [x] Furniture library with previews, search and categories, door/window variants, wall pictures (1.3.0)
 - [x] Move floors, basement, roof, garden objects, whole-house view (0.9.0)
 - [ ] Multi-segment LED strips and Nanoleaf panel shapes
