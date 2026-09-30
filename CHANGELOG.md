@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-09-30
+### Added
+- **Wall TV** (flat screen that clicks onto the wall like pictures; lights up when its media player is on)
+### Fixed
+- 3D and 2D now agree: all 3D furniture models are centred on their footprint (the corner sofa, piano and monitor sat up to 0.5 m off to one side in 3D compared to the 2D plan)
+
 ## [1.6.0] - 2026-09-30
 ### Added
 - Lock checkbox in the object list for every item; library search finds things by everyday names (e.g. *Fernseher*)

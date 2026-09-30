@@ -331,7 +331,7 @@ with sync_playwright() as p:
     pg2.fill("#paletteSearch", "stove"); pg2.wait_for_timeout(200)
     check("library search finds the stove", pg2.locator("#paletteGrid button.dev").count() == 1, pg2.locator("#paletteGrid button.dev").count())
     pg2.fill("#paletteSearch", "fernseher"); pg2.wait_for_timeout(200)
-    check("library search finds a TV by its everyday name", pg2.locator("#paletteGrid button.dev").count() >= 1)
+    check("library search finds a TV by its everyday name (incl. wall TV)", pg2.locator("#paletteGrid button.dev").count() >= 2, pg2.locator("#paletteGrid button.dev").count())
     pg2.fill("#paletteSearch", "")
     pg2.locator("#paletteCats button", has_text="Bath").click(); pg2.wait_for_timeout(200)
     nb = pg2.locator("#paletteGrid button.dev").count()

@@ -9,6 +9,7 @@ export const DEVICE_TYPES = {
   sensor:     { label: 'Sensor',      y: 1.8 },
   thermostat: { label: 'Heizung',     y: 0.2 },
   tv:         { label: 'TV',          y: 0.5 },
+  tv_wall:    { label: 'Wand-TV',     y: 1.0 },
   sofa:       { label: 'Sofa',        y: 0 },
   bed:        { label: 'Bett',        y: 0 },
   table:      { label: 'Tisch',       y: 0 },
@@ -86,7 +87,7 @@ export const DEVICE_TYPES = {
 
 /* Library categories (room types) for the palette */
 export const CATEGORIES = {
-  living:  ['sofa', 'sofa2', 'armchair', 'pouf', 'table', 'coffeetable', 'sidetable', 'diningtable', 'chair', 'barstool', 'tv', 'tvstand', 'sideboard', 'shelf', 'bookcase', 'fireplace', 'piano', 'carpet', 'curtain', 'plant'],
+  living:  ['sofa', 'sofa2', 'armchair', 'pouf', 'table', 'coffeetable', 'sidetable', 'diningtable', 'chair', 'barstool', 'tv', 'tv_wall', 'tvstand', 'sideboard', 'shelf', 'bookcase', 'fireplace', 'piano', 'carpet', 'curtain', 'plant'],
   kitchen: ['kitchen', 'island', 'sink', 'stove', 'oven', 'microwave', 'dishwasher', 'fridge', 'washer'],
   bath:    ['bathtub', 'shower', 'toilet', 'basin', 'doublebasin', 'mirror', 'towelrad'],
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
@@ -173,6 +174,12 @@ const builders = {
     g.add(box(0.9, 0.6, 0.08, std('#f4f4f4')));
     for (let i = 0; i < 6; i++) g.add(box(0.03, 0.5, 0.02, std('#dcdcdc'), -0.36 + i * 0.145, 0.05, 0.05));
     g.add(box(0.06, 0.04, 0.01, glow, 0.38, 0.5, 0.045));
+    g.userData.glow = [glow];
+  },
+  tv_wall(g) {
+    const glow = glowMat(0x9db8ff);
+    g.add(box(1.25, 0.73, 0.05, std('#111'), 0, 0, 0));
+    g.add(box(1.19, 0.67, 0.01, glow, 0, 0.03, 0.03));
     g.userData.glow = [glow];
   },
   tv(g) {
@@ -522,5 +529,14 @@ export function makeModel(type, onReady) {
     return g;
   }
   (builders[type] || builders.sensor)(g);
+  centreOnFootprint(g);
   return g;
+}
+/** The 2D plan draws every piece centred on its position, so the 3D model has to be centred the same way
+ *  (some builders, e.g. the corner sofa, extend to one side of their origin). Thin wall-hung parts are left alone. */
+function centreOnFootprint(g) {
+  g.updateMatrixWorld(true);
+  const bb = new THREE.Box3().setFromObject(g), c = bb.getCenter(new THREE.Vector3()), sz = bb.getSize(new THREE.Vector3());
+  if (bb.isEmpty() || sz.z < 0.1 || (Math.abs(c.x) < 0.08 && Math.abs(c.z) < 0.08)) return;
+  g.children.forEach((ch) => { ch.position.x -= c.x; ch.position.z -= c.z; });
 }
