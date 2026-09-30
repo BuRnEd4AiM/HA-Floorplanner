@@ -8,3 +8,4 @@ node_modules/
 .DS_Store
 demo/dist/
 tests/e2e/bg.png
+tests/e2e/stairs.png

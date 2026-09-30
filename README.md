@@ -23,7 +23,7 @@
 
 | | |
 | --- | --- |
-| **Draw it yourself** | Walls, rooms and several floors on a snapping grid, in a 2D blueprint editor that is linked live with the 3D view (split view). Load a scan of your floor plan as a template and trace it |
+| **Draw it yourself** | Walls, rooms and several floors on a snapping grid, in a 2D blueprint editor that is linked live with the 3D view (split view). Load a scan of your floor plan as a template and trace it. Placeholder blocks for floors you do not draw, stairs and stairwells with floor openings |
 | **Real 3D** | Orbit, pan, zoom; doors and windows cut real openings; low-wall mode; translucent neon hologram design |
 | **Home Assistant native** | Every device is bound to an entity; lights glow in their real colour, sensors show values, HA areas group your entities |
 | **Whole room at once** | Switch all lights of a room, set colour for all of them and start the room's scenes in one place |

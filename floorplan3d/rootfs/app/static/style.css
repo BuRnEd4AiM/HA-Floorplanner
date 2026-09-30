@@ -234,3 +234,8 @@ body.viewlock #view2d, body.viewlock #view3d, body.viewlock #viewSplit { display
 [data-theme="holo"] #bgPanel { border-radius: 14px; }
 #plan2d.bgmode { cursor: crosshair; }
 body.readonly #bgPanel { display: none; }
+
+/* block / stair palettes */
+#stairPalette .palette, #blockPalette .prop { margin-bottom: 8px; }
+#stairPalette .palette button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+#stairPalette .sub, #blockPalette .sub { margin: 8px 0 0; }

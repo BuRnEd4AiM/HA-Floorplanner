@@ -17,6 +17,8 @@
       <button data-tool="select" class="active" data-i18n="tool.select" data-i18n-title="tip.select"></button>
       <button data-tool="wall" data-i18n="tool.wall" data-i18n-title="tip.wall"></button>
       <button data-tool="room" data-i18n="tool.room" data-i18n-title="tip.room"></button>
+      <button data-tool="block" data-i18n="tool.block" data-i18n-title="tip.block"></button>
+      <button data-tool="stairs" data-i18n="tool.stairs" data-i18n-title="tip.stairs"></button>
       <button data-tool="opening" data-i18n="tool.opening" data-i18n-title="tip.opening"></button>
       <button data-tool="device" data-i18n="tool.device" data-i18n-title="tip.device"></button>
       <button data-tool="erase" data-i18n="tool.erase" data-i18n-title="tip.erase"></button>
@@ -77,6 +79,30 @@
         <h3 data-i18n="panel.entity"></h3>
         <input id="entitySearch" type="search" data-i18n-placeholder="panel.entitySearch">
         <select id="entitySelect" size="6"></select>
+      </section>
+
+      <section id="blockPalette" hidden>
+        <h3 data-i18n="block.title"></h3>
+        <div class="prop"><label for="blockFloor" data-i18n="block.belongsTo"></label>
+          <select id="blockFloor"><option value="below" data-i18n="block.below"></option><option value="this" data-i18n="block.this"></option></select></div>
+        <p class="sub" data-i18n="block.help"></p>
+      </section>
+
+      <section id="stairPalette" hidden>
+        <h3 data-i18n="stair.title"></h3>
+        <div class="palette" id="stairTypes">
+          <button data-stair="straight" class="active" data-i18n="stair.straight"></button>
+          <button data-stair="L" data-i18n="stair.L"></button>
+          <button data-stair="U" data-i18n="stair.U"></button>
+          <button data-stair="spiral" data-i18n="stair.spiral"></button>
+          <button data-stair="shaft" data-i18n="stair.shaft"></button>
+        </div>
+        <div class="prop"><label for="stairDir" data-i18n="stair.dir"></label>
+          <select id="stairDir"><option value="up" data-i18n="stair.up"></option><option value="down" data-i18n="stair.down"></option></select></div>
+        <div class="prop"><label for="stairTurn" data-i18n="stair.turn"></label>
+          <select id="stairTurn"><option value="right" data-i18n="stair.right"></option><option value="left" data-i18n="stair.left"></option></select></div>
+        <div class="prop"><label for="stairRot" data-i18n="prop.rotation"></label><input id="stairRot" type="number" step="15" value="0"></div>
+        <p class="sub" data-i18n="stair.help2"></p>
       </section>
 
       <section id="openingPalette" hidden>

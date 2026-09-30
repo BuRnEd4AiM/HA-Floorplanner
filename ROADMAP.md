@@ -28,6 +28,7 @@ Progress is tracked with [milestones](https://github.com/wvssweber-max/HA-Floorp
 
 ## Backlog
 
+- [x] Placeholder blocks and stairs / stairwells (0.8.0)
 - [ ] Multi-segment LED strips and Nanoleaf panel shapes
 - [ ] Automatic room detection from closed wall loops
 - [x] Background image / blueprint for tracing (0.7.2)
