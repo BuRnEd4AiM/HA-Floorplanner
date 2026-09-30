@@ -138,7 +138,7 @@ async def test_editors_permissions(client, monkeypatch, tmp_path):
     opts.write_text('{"editors": ["Florian"]}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
-    server._admin_cache.update(at=0.0, ids=None)
+    server._admin_cache.update(at=float("-inf"), ids=None)
     monkeypatch.setattr(server, "load_admin_ids", _no_admins)
     layout = {"version": 1, "floors": []}
     tablet, admin = {"X-Remote-User-Name": "tablet_wz"}, {"X-Remote-User-Name": "florian"}
@@ -219,7 +219,7 @@ async def test_load_admin_ids_via_websocket(aiohttp_server, monkeypatch):
     srv = await aiohttp_server(app)
     monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "tok")
-    server._admin_cache.update(at=0.0, ids=None)
+    server._admin_cache.update(at=float("-inf"), ids=None)
     ids = await server.load_admin_ids()
     assert ids == {"aaa", "florian", "ccc", "owner"}
 
@@ -227,7 +227,7 @@ async def test_load_admin_ids_via_websocket(aiohttp_server, monkeypatch):
 async def test_load_admin_ids_unreachable_is_none(monkeypatch):
     monkeypatch.setattr(server, "HA_API", "http://localhost:9")
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "tok")
-    server._admin_cache.update(at=0.0, ids=None)
+    server._admin_cache.update(at=float("-inf"), ids=None)
     assert await server.load_admin_ids() is None
 
 
