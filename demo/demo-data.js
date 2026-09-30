@@ -188,6 +188,7 @@ export function installDemoBackend() {
       if (service === 'turn_off') e.state = 'off';
       return json({ ok: true });
     }
+    if (path === 'api/backgrounds' && method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
     if (path === 'api/models') {
       if (method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
       return json([]);

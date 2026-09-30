@@ -87,3 +87,14 @@ Use the buttons **2D**, **3D** and **2D + 3D** at the top. The 2D plan and the 3
 - **Move:** with *Select*, drag furniture, doors/windows (along their wall), whole walls or rooms. A selected wall or room shows corner handles; connected walls and room corners move along.
 - **Navigate:** mouse wheel to zoom, right or middle mouse button (or dragging empty space) to pan, two fingers to pinch on touch screens. *Fit* recentres.
 - The object list, the *Lock* selection and the room entity list work the same in 2D.
+
+### Trace a floor plan (background image)
+
+Open the panel **Hintergrundbild** in the side bar (edit mode). Every floor has its own image.
+
+1. **Load image**: a scan or photo of your floor plan (PNG, JPG or WebP, max. 8 MB). It appears in the 2D view.
+2. **Set scale**: click *Maßstab setzen*, click the two ends of a distance you know (a wall, a door width, a dimension from the plan) and type its real length. The image is scaled around the first point.
+3. **Move** the image into place (drag it) or type X, Z and rotation; use *Opacity* to keep the lines readable.
+4. Draw the walls and rooms over it. *Hide* switches the template off without deleting it.
+
+The template is only shown in the editor, never in live mode. Images are stored in the add-on's data folder and are included in add-on backups.

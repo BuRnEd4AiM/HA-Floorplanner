@@ -223,3 +223,14 @@ body.viewlock #view2d, body.viewlock #view3d, body.viewlock #viewSplit { display
 .scenes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 .scenes button { flex: 0 1 auto; }
 .fxsel { width: 100%; margin-top: 4px; }
+
+/* background image panel */
+#bgPanel { margin-bottom: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+#bgPanel > summary { cursor: pointer; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+#bgPanel[open] > summary { margin-bottom: 8px; }
+#bgBody .sub { margin: 8px 0 0; }
+#bgBody input[type=range] { flex: 1; min-width: 0; }
+#bgBody .stopTools button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+[data-theme="holo"] #bgPanel { border-radius: 14px; }
+#plan2d.bgmode { cursor: crosshair; }
+body.readonly #bgPanel { display: none; }
