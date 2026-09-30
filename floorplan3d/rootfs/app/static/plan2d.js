@@ -9,6 +9,7 @@ const C = {
   grid1: 'rgba(160,215,255,.10)', grid2: 'rgba(160,215,255,.22)', text: '#eaf7ff', warn: '#ff4a3d',
 };
 
+const FLAT = new Set(['carpet', 'lawn', 'terrace', 'path', 'pool']);   // lie on the ground: drawn below, picked last
 /* footprint (m) of every device type: [w, d] or radius for round ones */
 const FOOT = {
   light: { r: 0.2 }, lamp: { r: 0.2 }, orb: { r: 0.11 }, strip: { w: 1, d: 0.06 }, switch: { w: 0.14, d: 0.14 }, sensor: { r: 0.09 }, thermostat: { w: 0.9, d: 0.16 },
@@ -17,6 +18,7 @@ const FOOT = {
   coffeetable: { w: 1.0, d: 0.55 }, wardrobe: { w: 1.5, d: 0.6 }, shelf: { w: 0.9, d: 0.34 }, sideboard: { w: 1.6, d: 0.42 },
   kitchen: { w: 2.4, d: 0.6 }, fridge: { w: 0.6, d: 0.65 }, washer: { w: 0.6, d: 0.6 }, bathtub: { w: 1.7, d: 0.75 },
   toilet: { w: 0.38, d: 0.5 }, basin: { w: 0.6, d: 0.45 }, shower: { w: 0.9, d: 0.9 }, carpet: { w: 2.0, d: 1.4 }, car: { w: 1.8, d: 4.2 },
+  tree: { w: 2, d: 2 }, bush: { w: 1, d: 1 }, pool: { w: 4, d: 2.5 }, lawn: { w: 6, d: 4 }, terrace: { w: 4, d: 3 }, path: { w: 1, d: 4 }, fence: { w: 3, d: 0.12 },
   door: { w: 0.95, d: 0.1 }, window: { w: 1.2, d: 0.1 },
 };
 const GLYPH = { light: '✦', lamp: '✦', orb: '●', strip: '', switch: '◧', sensor: '◉', thermostat: '≋', tv: '▭', plant: '❀', bed: '', sofa: '' };
@@ -117,7 +119,7 @@ export function createPlan(ctx) {
   }
   function pickAt(x, z) {
     const f = floor();
-    const devs = f.devices.filter((d) => devHit(d, x, z) && d.type !== 'carpet').sort((a, b) => {
+    const devs = f.devices.filter((d) => devHit(d, x, z) && !FLAT.has(d.type)).sort((a, b) => {
       const fa = footOf(a), fb = footOf(b);
       return (fa.r ? fa.r * fa.r * 3 : fa.w * fa.d) - (fb.r ? fb.r * fb.r * 3 : fb.w * fb.d);   // smallest first
     });
@@ -130,7 +132,7 @@ export function createPlan(ctx) {
     if (wb) return { kind: 'wall', id: wb.id };
     const stair = (f.stairs || []).find((q) => stairHit(q, x, z, ctx.floorH()));
     if (stair) return { kind: 'stair', id: stair.id };
-    const rug = f.devices.find((d) => d.type === 'carpet' && devHit(d, x, z));
+    const rug = f.devices.find((d) => FLAT.has(d.type) && devHit(d, x, z));
     if (rug) return { kind: 'device', id: rug.id };
     const rooms = f.rooms.filter((r) => ctx.pointInPoly(x, z, r.points));
     if (rooms.length) return { kind: 'room', id: rooms[rooms.length - 1].id };
@@ -323,7 +325,7 @@ export function createPlan(ctx) {
     }
 
     /* devices */
-    const devs = [...f.devices].sort((a, b) => (a.type === 'carpet' ? -1 : 0) - (b.type === 'carpet' ? -1 : 0));
+    const devs = [...f.devices].sort((a, b) => (FLAT.has(a.type) ? -1 : 0) - (FLAT.has(b.type) ? -1 : 0));
     devs.forEach((d) => {
       const fo = footOf(d);
       const isSel = sel?.kind === 'device' && sel.id === d.id;
@@ -343,12 +345,12 @@ export function createPlan(ctx) {
       else {
         const w = fo.w * s, h = fo.d * s;
         o += `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="${Math.min(4, h / 4)}" fill="${fill}" stroke="${stroke}" stroke-width="${isSel ? 2.2 : 1.4}"/>`;
-        if (h > 8 && d.type !== 'carpet') o += `<line x1="${-w / 2 + 3}" y1="${h / 2 - 3}" x2="${w / 2 - 3}" y2="${h / 2 - 3}" stroke="${stroke}" stroke-width="1" opacity=".55"/>`;   // front edge
+        if (h > 8 && !FLAT.has(d.type)) o += `<line x1="${-w / 2 + 3}" y1="${h / 2 - 3}" x2="${w / 2 - 3}" y2="${h / 2 - 3}" stroke="${stroke}" stroke-width="1" opacity=".55"/>`;   // front edge
       }
       o += '</g>';
       const gl = GLYPH[d.type];
       if (gl && s >= 20) o += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${Math.max(9, Math.min(18, (fo.r ? fo.r * s * 1.4 : Math.min(fo.w, fo.d) * s * .6)))}" fill="${on ? '#fff' : C.accent}">${gl}</text>`;
-      if (d.type !== 'carpet' && (d.name || d.entity) && (s >= 48 || (live && s >= 34 && st && (st.unit || d.entity.startsWith('sensor.'))))) {
+      if (!FLAT.has(d.type) && (d.name || d.entity) && (s >= 48 || (live && s >= 34 && st && (st.unit || d.entity.startsWith('sensor.'))))) {
         const off = (fo.r || Math.max(fo.w, fo.d) / 2) * s + 10;
         const label = live && st ? `${d.name || ''}${st.unit || /^(sensor)\./.test(d.entity) ? ' · ' + ctx.stateText(d.entity) : ''}` : d.name || '';
         o += `<text x="${cx}" y="${cy + Math.min(off, 40)}" text-anchor="middle" font-size="10" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(label)}</text>`;

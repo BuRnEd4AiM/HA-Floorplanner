@@ -51,7 +51,9 @@ let saveTimer = null;
 const $ = (s) => document.querySelector(s);
 const uid = () => Math.random().toString(36).slice(2, 9);
 const floor = () => layout.floors[floorIdx];
-const elev = (i = floorIdx) => i * FLOOR_H;
+const groundIdx = () => Math.max(0, layout.floors.findIndex((f) => f.kind !== 'basement'));   // first floor above ground
+const elev = (i = floorIdx) => (i - groundIdx()) * FLOOR_H;
+let houseMode = false;                 // "whole house" view: every floor solid, nothing ghosted
 const isLive = () => mode === 'live';
 
 /* unit helpers – data is always stored in meters */
@@ -325,21 +327,77 @@ function makeOpeningHandle(w, o, group) {
   return h;
 }
 
+/** footprint (bounding box) of everything under a roof floor */
+function roofBox(i) {
+  const pts = [];
+  layout.floors.forEach((f, k) => {
+    if (k >= i || f.kind === 'basement' || f.kind === 'roof') return;
+    f.walls.forEach((w) => pts.push(w.a, w.b));
+    f.rooms.forEach((r) => pts.push(...r.points));
+  });
+  if (!pts.length) return null;
+  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
+  return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) };
+}
+/** roof surface as triangles; pitch in degrees, ridge along the longer side unless set */
+function roofGeometry(bb, r) {
+  const o = r.overhang ?? 0.4, x0 = bb.x0 - o, x1 = bb.x1 + o, z0 = bb.z0 - o, z1 = bb.z1 + o;
+  const alongX = r.ridge ? r.ridge === 'x' : (x1 - x0) >= (z1 - z0);
+  const [a0, a1, b0, b1] = alongX ? [x0, x1, z0, z1] : [z0, z1, x0, x1];   // a = ridge axis, b = across
+  const half = (b1 - b0) / 2, bc = (b0 + b1) / 2;
+  const h = r.type === 'flat' ? 0.15 : half * Math.tan(((r.pitch ?? 35) * Math.PI) / 180);
+  const ins = r.type === 'hip' ? Math.min(half, (a1 - a0) / 2) : 0;
+  const P = (a, b, y) => (alongX ? [a, y, b] : [b, y, a]);
+  const tris = [];
+  const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
+  if (r.type === 'flat') {
+    quad(P(a0, b0, 0.1), P(a1, b0, 0.1), P(a1, b1, 0.1), P(a0, b1, 0.1));
+    quad(P(a0, b0, 0), P(a0, b1, 0), P(a1, b1, 0), P(a1, b0, 0));
+  } else {
+    quad(P(a0, b0, 0), P(a1, b0, 0), P(a1 - ins, bc, h), P(a0 + ins, bc, h));
+    quad(P(a1, b1, 0), P(a0, b1, 0), P(a0 + ins, bc, h), P(a1 - ins, bc, h));
+    tris.push(P(a0, b1, 0), P(a0, b0, 0), P(a0 + ins, bc, h));
+    tris.push(P(a1, b0, 0), P(a1, b1, 0), P(a1 - ins, bc, h));
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
+  geo.computeVertexNormals();
+  return geo;
+}
+function buildRoof(g, i, f, holo, ghost) {
+  const bb = roofBox(i);
+  if (!bb) return;
+  const geo = roofGeometry(bb, f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }));
+  const m = new THREE.Mesh(geo, holo
+    ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : 0.45, side: THREE.DoubleSide, depthWrite: false })
+    : mat('#a4493b', ghost, { side: THREE.DoubleSide }));
+  if (holo) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 })));
+  g.add(m);
+}
+
 function build() {
   plan?.render();
   world.clear();
   registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roomMeshes.clear(); openingHandles.clear();
   const holo = isHolo();
   const iso = isolatedRoom();
+  if (houseMode) {                              // ground reference for the plot
+    const hb = houseBounds(), sz = Math.ceil(Math.max(hb.size * 2, 20) / 2) * 2;
+    const grid = new THREE.GridHelper(sz, sz, holo ? HOLO.edge : 0x6c8a5c, holo ? 0x1a4fb8 : 0x88a878);
+    grid.position.set(hb.cx, -0.03, hb.cz);
+    grid.material.transparent = true; grid.material.opacity = 0.35;
+    world.add(grid);
+  }
   layout.floors.forEach((f, i) => {
-    if (i > floorIdx) return;
+    if (i > floorIdx && !houseMode) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
-    const ghost = i < floorIdx;
+    const ghost = i < floorIdx && !houseMode;
     const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 }) : null;
     const g = new THREE.Group();
     g.position.y = elev(i);
     world.add(g);
     const holes = holesForFloor(layout.floors, i, FLOOR_H);
+    if (f.kind === 'roof' && !iso) buildRoof(g, i, f, holo, ghost);
 
     f.rooms.forEach((r) => {
       if (r.points.length < 3) return;
@@ -626,7 +684,7 @@ function undo() {
   layout = JSON.parse(s);
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
   selection = null; focusedRoom = null; clearFocusOutline();
-  fillFloorSelect(); build(); scheduleSave(); renderBgPanel();
+  fillFloorSelect(); build(); scheduleSave(); renderBgPanel(); renderFloorPanel();
 }
 function changed(rebuild = true) {
   if (rebuild) build();
@@ -780,7 +838,7 @@ function openingTarget(e, ignoreId = null, def = OPENING_DEFAULTS[openingType], 
 canvas.addEventListener('pointerdown', (e) => {
   if (e.button !== 0) return;
   down = { x: e.clientX, y: e.clientY, hit: null, drag: false, dev: null, op: null };
-  if (isLive() || tool !== 'select') return;
+  if (isLive() || tool !== 'select' || houseMode) return;
   if (lockedSel && selection) {                     // locked: drag moves only the selected object, from anywhere
     down.hit = null;
     if (selection.kind === 'device') {
@@ -1233,12 +1291,20 @@ function floorBounds() {
   const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
   return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, size: Math.max(x1 - x0, z1 - z0, 4) };
 }
+function houseBounds() {
+  const pts = layout.floors.flatMap((f) => [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])]);
+  if (!pts.length) return { cx: 0, cz: 0, size: 12 };
+  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
+  const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+  return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, size: Math.max(x1 - x0, z1 - z0, 4) };
+}
 function fitCamera() {
-  const { cx, cz, size } = floorBounds();
+  const { cx, cz, size } = houseMode ? houseBounds() : floorBounds();
+  const midY = houseMode ? (elev(layout.floors.length - 1) + elev(0)) / 2 + FLOOR_H / 2 : elev();
   const dist = (size * 1.25 + 2) * Math.max(1, 1.0 / (camera.aspect || 1));
-  controls.target.set(cx, elev(), cz);
-  if (is2d) camera.position.set(cx, elev() + dist * 1.2, cz + 0.001);
-  else camera.position.set(cx + dist * 0.4, elev() + dist * 0.95, cz + dist * 0.7);
+  controls.target.set(cx, midY, cz);
+  if (is2d) camera.position.set(cx, midY + dist * 1.2, cz + 0.001);
+  else camera.position.set(cx + dist * 0.4, midY + dist * 0.95 + (houseMode ? size * 0.3 : 0), cz + dist * 0.7);
   controls.update();
 }
 function applyViewPolicy() {          // live mode: only the 3D view unless the user was given more (settings → users)
@@ -1292,11 +1358,12 @@ function buildNav(force = false) {
   const f = floor();
   if (!f) return;
   const rooms = f.rooms.filter((r) => r.name);
-  const key = JSON.stringify([floorIdx, layout.floors.map((x) => x.name), rooms.map((r) => [r.id, r.name]), focusedRoom, settings.language]);
+  const key = JSON.stringify([houseMode, floorIdx, layout.floors.map((x) => x.kind), layout.floors.map((x) => x.name), rooms.map((r) => [r.id, r.name]), focusedRoom, settings.language]);
   if (!force && key === navKey) return;
   navKey = key;
   const fp = $('#floorPills'), rp = $('#roomPills');
-  fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx, () => switchFloor(i))));
+  fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx && !houseMode, () => switchFloor(i))),
+    ...(layout.floors.length > 1 || layout.floors.some((x) => x.devices.length) ? [pill(t('nav.house'), houseMode, () => setHouseMode(!houseMode), t('nav.houseTip'))] : []));
   rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => { const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id); })));
   $('#navSep').hidden = !rooms.length;
   updateHouseToggle();
@@ -1323,10 +1390,16 @@ function findRoomByName(name) {
 }
 function fillFloorSelect() { buildNav(true); }
 
+function setHouseMode(on) {
+  houseMode = on; selection = null; lockedSel = false; focusedRoom = null; document.body.classList.toggle('house', on);
+  clearFocusOutline(); build(); fitCamera(); refreshSelection(); buildNav(true);
+}
 function switchFloor(i) {
+  houseMode = false; document.body.classList.remove('house');
   floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
   clearFocusOutline(); build(); fitCamera(); refreshSelection();
   if (bgMode) setBgMode(null); else renderBgPanel();
+  renderFloorPanel();
 }
 
 function clearFocusOutline() { focusGroup.clear(); }
@@ -1351,14 +1424,87 @@ function focusRoom(id) {
   buildNav();
 }
 
-$('#addFloor').addEventListener('click', () => {
-  const name = prompt(t('floor.namePrompt'), `${t('floor.new')} ${layout.floors.length + 1}`);
+function newFloor(kind, name) {
+  return { id: uid(), name, kind, walls: [], rooms: [], devices: [], blocks: [], stairs: [], ...(kind === 'roof' ? { roof: { type: 'gable', pitch: 35, overhang: 0.4 } } : {}) };
+}
+/** kind 'floor' goes on top, 'basement' below everything, 'roof' on top */
+function addFloorOf(kind) {
+  const label = kind === 'basement' ? t('floor.basement') : kind === 'roof' ? t('floor.roof') : `${t('floor.new')} ${layout.floors.length + 1}`;
+  const name = prompt(t('floor.namePrompt'), label);
   if (!name) return;
   snapshot();
-  layout.floors.push({ id: uid(), name, walls: [], rooms: [], devices: [], blocks: [], stairs: [] });
-  switchFloor(layout.floors.length - 1);
+  if (kind === 'basement') {
+    layout.floors.unshift(newFloor(kind, name));
+    switchFloor(0);
+  } else {
+    layout.floors.push(newFloor(kind, name));
+    switchFloor(layout.floors.length - 1);
+  }
   scheduleSave();
-});
+}
+function moveFloor(dir) {
+  const j = floorIdx + dir;
+  if (j < 0 || j >= layout.floors.length) return;
+  snapshot();
+  [layout.floors[floorIdx], layout.floors[j]] = [layout.floors[j], layout.floors[floorIdx]];
+  floorIdx = j;
+  selection = null; build(); fitCamera(); buildNav(true); renderFloorPanel(); renderObjList(); scheduleSave();
+}
+function deleteFloor() {
+  if (layout.floors.length < 2 || !confirm(t('floor.deleteConfirm'))) return;
+  snapshot();
+  layout.floors.splice(floorIdx, 1);
+  switchFloor(Math.min(floorIdx, layout.floors.length - 1));
+  scheduleSave();
+}
+function renderFloorPanel() {
+  const box = $('#floorBody');
+  if (!box) return;
+  box.innerHTML = '';
+  const f = floor();
+  if (!f) return;
+  const rowBtn = (id, label, on, disabled = false) => {
+    const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.disabled = disabled;
+    b.addEventListener('click', on); return b;
+  };
+  box.append(field(t('prop.name'), inp('text', f.name, (v) => { f.name = v || f.name; buildNav(true); })));
+  const ksel = document.createElement('select'); ksel.id = 'floorKind';
+  [['floor', t('floor.kind.floor')], ['basement', t('floor.kind.basement')], ['roof', t('floor.kind.roof')]].forEach(([v, l]) => {
+    const o = document.createElement('option'); o.value = v; o.textContent = l; ksel.append(o);
+  });
+  ksel.value = f.kind || 'floor';
+  ksel.addEventListener('change', () => {
+    snapshot(); f.kind = ksel.value;
+    if (f.kind === 'roof') f.roof ||= { type: 'gable', pitch: 35, overhang: 0.4 };
+    build(); fitCamera(); buildNav(true); renderFloorPanel(); scheduleSave();
+  });
+  box.append(field(t('floor.kind'), ksel));
+  const mv = document.createElement('div'); mv.className = 'stopTools';
+  mv.append(rowBtn('floorUp', t('floor.up'), () => moveFloor(1), floorIdx >= layout.floors.length - 1),
+            rowBtn('floorDown', t('floor.down'), () => moveFloor(-1), floorIdx <= 0));
+  box.append(mv);
+  const add = document.createElement('div'); add.className = 'stopTools';
+  add.append(rowBtn('addBasement', t('floor.addBasement'), () => addFloorOf('basement')),
+             rowBtn('addRoof', t('floor.addRoof'), () => addFloorOf('roof')),
+             rowBtn('delFloor', t('floor.delete'), deleteFloor, layout.floors.length < 2));
+  box.append(add);
+  if (f.kind === 'roof') {
+    const r = (f.roof ||= { type: 'gable', pitch: 35, overhang: 0.4 });
+    const tsel = document.createElement('select'); tsel.id = 'roofType';
+    ['gable', 'hip', 'flat'].forEach((v) => { const o = document.createElement('option'); o.value = v; o.textContent = t(`roof.${v}`); tsel.append(o); });
+    tsel.value = r.type || 'gable';
+    tsel.addEventListener('change', () => { snapshot(); r.type = tsel.value; build(); scheduleSave(); });
+    box.append(field(t('roof.type'), tsel));
+    box.append(field(t('roof.pitch'), inp('number', r.pitch ?? 35, (v) => (r.pitch = Math.max(5, Math.min(70, +v || 35))), { step: 1 })));
+    box.append(field(t('roof.overhang'), lenInput(() => r.overhang ?? 0.4, (v) => (r.overhang = v), { min: 0 })));
+    const rsel = document.createElement('select'); rsel.id = 'roofRidge';
+    [['', t('roof.auto')], ['x', 'X'], ['z', 'Z']].forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; rsel.append(o); });
+    rsel.value = r.ridge || '';
+    rsel.addEventListener('change', () => { snapshot(); r.ridge = rsel.value || undefined; build(); scheduleSave(); });
+    box.append(field(t('roof.ridge'), rsel));
+  }
+}
+$('#addFloor').addEventListener('click', () => addFloorOf('floor'));
 document.querySelectorAll('#modeBar button').forEach((b) => b.addEventListener('click', () => {
   viewMode = b.dataset.vm;
   document.querySelectorAll('#modeBar button').forEach((x) => x.classList.toggle('active', x === b));
@@ -2163,7 +2309,7 @@ function normalizeLayout() {
     layout = { version: 1, floors: [{ id: uid(), name: t('floor.default'), walls: [], rooms: [], devices: [], blocks: [], stairs: [] }] };
   }
   layout.floors.forEach((f) => {
-    f.walls ||= []; f.rooms ||= []; f.devices ||= []; f.blocks ||= []; f.stairs ||= [];
+    f.walls ||= []; f.rooms ||= []; f.devices ||= []; f.blocks ||= []; f.stairs ||= []; f.kind ||= 'floor';
     f.walls.forEach((w) => { w.openings ||= []; });
   });
 }
@@ -2206,7 +2352,7 @@ async function init() {
   normalizeLayout();
   await loadModels();
   applySettings();
-  fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); renderBgPanel();
+  fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); renderBgPanel(); renderFloorPanel();
   if (params.get('mode') === 'live' || params.get('kiosk') || tabletRoom || !me.canEdit) setMode('live');
   if (tabletRoom) {
     const hit = findRoomByName(tabletRoom);
@@ -2248,6 +2394,7 @@ if (params.get('debug')) {
       return +a.toFixed(3);
     },
     stairHandle(id, k) { const st = floor().stairs.find((v) => v.id === id); const h = st && stairHandles(st, FLOOR_H)[k]; return h ? toWorld(st, h[0], h[1]) : null; },
+    elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
     holeCount: (i) => holesForFloor(layout.floors, i, FLOOR_H).length,
     plan: () => plan,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
