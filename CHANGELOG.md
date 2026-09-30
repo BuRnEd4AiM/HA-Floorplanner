@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-09-30
+### Added
+- Nanoleaf panel shapes as placeable devices: **triangle, hexagon, square and line** (upright, wall-mounted, rotate with Q/E). Give several panels the same light entity and they glow together; effects/scenes of the light are offered in the live popup as before (#16)
+
 ## [0.9.3] - 2026-09-30
 ### Fixed
 - Release workflow: duplicate `push` trigger merged (the file was rejected by GitHub)
