@@ -1550,7 +1550,7 @@ async function uploadBackground(file) {
   f.bg = { img: name, x: keep?.x ?? 0, z: keep?.z ?? 0, w: keep?.w ?? 12, ar: +(nh / nw).toFixed(5), op: keep?.op ?? 0.5, rot: keep?.rot ?? 0 };
   changed();
   plan?.fit();
-  renderBgPanel();
+  setBgMode('move');                                      // handles are visible right away: drag to move, corners to resize
 }
 function renderBgPanel() {
   const box = $('#bgBody');
@@ -2151,7 +2151,7 @@ plan = createPlan({
   getSelection: () => selection,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
-  floorH: () => FLOOR_H, addBlock, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
+  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
   liveMoveDevice(d) {
     const obj = registry.get(d.id);
     if (obj) { obj.position.x = d.x; obj.position.z = d.z; }

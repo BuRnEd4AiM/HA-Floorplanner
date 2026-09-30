@@ -106,7 +106,7 @@ Open the panel **Hintergrundbild** in the side bar (edit mode). Every floor has 
 
 1. **Load image**: a scan or photo of your floor plan (PNG, JPG or WebP, max. 8 MB). It appears in the 2D view.
 2. **Set scale**: click *Maßstab setzen*, click the two ends of a distance you know (a wall, a door width, a dimension from the plan) and type its real length. The image is scaled around the first point.
-3. **Move** the image into place (drag it) or type X, Z and rotation; use *Opacity* to keep the lines readable.
+3. **Move / resize**: drag the image into place and drag its corner handles to make it bigger or smaller (the opposite corner stays), or type width, X, Z and rotation; use *Opacity* to keep the lines readable.
 4. Draw the walls and rooms over it. *Hide* switches the template off without deleting it.
 
 The template is only shown in the editor, never in live mode. Images are stored in the add-on's data folder and are included in add-on backups.
