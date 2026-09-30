@@ -7,3 +7,4 @@ node_modules/
 *.zip
 .DS_Store
 demo/dist/
+tests/e2e/bg.png

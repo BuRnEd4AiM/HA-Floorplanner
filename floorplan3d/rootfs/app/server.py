@@ -10,6 +10,7 @@ import logging
 import time
 import os
 import re
+import secrets
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -24,6 +25,7 @@ OPTIONS_FILE = Path(os.environ.get("OPTIONS_FILE", "/data/options.json"))
 
 MAX_MODEL_BYTES = 20 * 1024 * 1024
 MAX_LAYOUT_BYTES = 10 * 1024 * 1024
+MAX_BG_BYTES = 8 * 1024 * 1024
 ALLOWED_DOMAINS = {"light", "switch", "cover", "fan", "media_player", "climate", "lock", "scene", "script", "input_boolean"}
 SERVICES = {"toggle", "turn_on", "turn_off", "open_cover", "close_cover", "stop_cover", "lock", "unlock", "set_cover_position"}
 
@@ -329,6 +331,71 @@ async def delete_model(request):
     return web.json_response({"ok": True})
 
 
+# ---------- background images (floor plan templates for tracing) ----------
+BG_NAME = re.compile(r"^[a-f0-9]{12}\.(png|jpg|webp)$")
+BG_TYPES = {"png": "image/png", "jpg": "image/jpeg", "webp": "image/webp"}
+
+
+def bg_dir(request) -> Path:
+    return data_dir(request) / "backgrounds"
+
+
+def sniff_image(data: bytes):
+    """Return 'png' | 'jpg' | 'webp' from the magic bytes, else None (SVG etc. are refused on purpose)."""
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return "png"
+    if data[:3] == b"\xff\xd8\xff":
+        return "jpg"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp"
+    return None
+
+
+async def upload_background(request):
+    if not await can_edit(request):
+        return forbidden()
+    reader = await request.multipart()
+    field = await reader.next()
+    if field is None or field.name != "file":
+        return web.json_response({"error": "file field missing"}, status=400)
+    data = bytearray()
+    while True:
+        chunk = await field.read_chunk(64 * 1024)
+        if not chunk:
+            break
+        data.extend(chunk)
+        if len(data) > MAX_BG_BYTES:
+            return web.json_response({"error": "file too large (max 8 MB)"}, status=413)
+    ext = sniff_image(bytes(data))
+    if not ext:
+        return web.json_response({"error": "only PNG, JPG or WebP images are supported"}, status=400)
+    d = bg_dir(request)
+    d.mkdir(parents=True, exist_ok=True)
+    name = f"{secrets.token_hex(6)}.{ext}"
+    (d / name).write_bytes(bytes(data))
+    return web.json_response({"name": name, "size": len(data), "url": f"api/backgrounds/{name}"}, status=201)
+
+
+async def get_background(request):
+    name = request.match_info["name"]
+    p = bg_dir(request) / name
+    if not BG_NAME.match(name) or not p.is_file():
+        raise web.HTTPNotFound()
+    return web.FileResponse(p, headers={"Content-Type": BG_TYPES[name.rsplit(".", 1)[1]], "Cache-Control": "max-age=3600",
+                                        "X-Content-Type-Options": "nosniff"})
+
+
+async def delete_background(request):
+    if not await can_edit(request):
+        return forbidden()
+    name = request.match_info["name"]
+    p = bg_dir(request) / name
+    if not BG_NAME.match(name) or not p.is_file():
+        raise web.HTTPNotFound()
+    p.unlink()
+    return web.json_response({"ok": True})
+
+
 # ---------- Home Assistant ----------
 def _pct(v, scale):
     return round(v * 100 / scale) if isinstance(v, (int, float)) else None
@@ -448,7 +515,7 @@ async def index(request):
 
 
 def make_app(data_path: Path | None = None) -> web.Application:
-    app = web.Application(client_max_size=MAX_LAYOUT_BYTES)
+    app = web.Application(client_max_size=max(MAX_LAYOUT_BYTES, MAX_BG_BYTES + 1024 * 1024))
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
     app.add_routes([
         web.get("/", index),
@@ -462,6 +529,9 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.post("/api/models", upload_model),
         web.get("/api/models/{name}", get_model),
         web.delete("/api/models/{name}", delete_model),
+        web.post("/api/backgrounds", upload_background),
+        web.get("/api/backgrounds/{name}", get_background),
+        web.delete("/api/backgrounds/{name}", delete_background),
         web.get("/api/entities", get_entities),
         web.get("/api/areas", get_areas),
         web.post("/api/service", call_service),

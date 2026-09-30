@@ -276,3 +276,50 @@ async def test_light_effect_is_whitelisted(client, monkeypatch, aiohttp_server):
     assert bad.status == 400
     bad2 = await client.post("/api/service", json={"domain": "light", "service": "turn_on", "entity_id": "light.a", "data": {"effect": 5}})
     assert bad2.status == 400
+
+
+# ---------- background images ----------
+PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 32
+JPG = b"\xff\xd8\xff\xe0" + b"\x00" * 32
+WEBP = b"RIFF\x00\x00\x00\x00WEBP" + b"\x00" * 16
+
+
+async def test_background_upload_get_delete(client):
+    from aiohttp import FormData
+    for data, ctype in ((PNG, "image/png"), (JPG, "image/jpeg"), (WEBP, "image/webp")):
+        fd = FormData(); fd.add_field("file", data, filename="plan.whatever")
+        r = await client.post("/api/backgrounds", data=fd)
+        assert r.status == 201
+        name = (await r.json())["name"]
+        assert server.BG_NAME.match(name)
+        g = await client.get(f"/api/backgrounds/{name}")
+        assert g.status == 200 and g.headers["Content-Type"].startswith(ctype) and await g.read() == data
+        assert (await client.delete(f"/api/backgrounds/{name}")).status == 200
+        assert (await client.get(f"/api/backgrounds/{name}")).status == 404
+
+
+async def test_background_validation_and_traversal(client):
+    from aiohttp import FormData
+    fd = FormData(); fd.add_field("file", b"<svg onload=alert(1)></svg>", filename="x.png")
+    assert (await client.post("/api/backgrounds", data=fd)).status == 400       # SVG / not an image
+    fd = FormData(); fd.add_field("file", PNG + b"0" * (server.MAX_BG_BYTES + 1), filename="big.png")
+    assert (await client.post("/api/backgrounds", data=fd)).status == 413
+    assert (await client.get("/api/backgrounds/..%2Flayout.json")).status == 404
+    assert (await client.get("/api/backgrounds/aaaaaaaaaaaa.png")).status == 404
+    assert (await client.delete("/api/backgrounds/..%2Fsettings.json")).status == 404
+
+
+async def test_background_upload_needs_editor(client, monkeypatch, tmp_path):
+    from aiohttp import FormData
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["florian"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    fd = FormData(); fd.add_field("file", PNG, filename="a.png")
+    assert (await client.post("/api/backgrounds", data=fd, headers={"X-Remote-User-Name": "tablet"})).status == 403
+    fd = FormData(); fd.add_field("file", PNG, filename="a.png")
+    r = await client.post("/api/backgrounds", data=fd, headers={"X-Remote-User-Name": "florian"})
+    assert r.status == 201
+    name = (await r.json())["name"]
+    assert (await client.delete(f"/api/backgrounds/{name}", headers={"X-Remote-User-Name": "tablet"})).status == 403

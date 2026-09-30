@@ -40,6 +40,8 @@ export function createPlan(ctx) {
   let drag = null;                            // active pointer interaction
   let raf = 0, rebuildRaf = 0;
   let lastTap = null;
+  let bgMode = null;                          // null | 'move' | 'calib' (background image tools)
+  let calibPts = [], calibCur = null;
 
   const floor = () => ctx.floor();
   const sx = (x) => x * s + tx, sy = (z) => z * s + ty;
@@ -164,6 +166,13 @@ export function createPlan(ctx) {
     const sel = ctx.getSelection();
     const live = isLive();
     let o = '';
+
+    /* background image (edit mode only): a scan / photo of the floor plan to trace */
+    const bg = f.bg;
+    if (bg && bg.img && !bg.hidden && !live) {
+      const bw = bg.w * s, bh = bw * (bg.ar || 1);
+      o += `<image href="api/backgrounds/${esc(bg.img)}" x="${sx(bg.x).toFixed(1)}" y="${sy(bg.z).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" opacity="${bg.op ?? 0.5}" preserveAspectRatio="none" transform="rotate(${bg.rot || 0} ${sx(bg.x).toFixed(1)} ${sy(bg.z).toFixed(1)})" style="pointer-events:none"/>`;
+    }
 
     /* grid */
     const step = s >= 40 ? 0.5 : s >= 18 ? 1 : 5, minor = s >= 90 ? 0.1 : null;
@@ -329,6 +338,12 @@ export function createPlan(ctx) {
     }
     if (!live && cursor && (tool === 'wall' || tool === 'room' || tool === 'device')) o += `<circle cx="${sx(cursor[0])}" cy="${sy(cursor[1])}" r="5" fill="none" stroke="${C.accent}" stroke-width="1.5"/>`;
 
+    if (!live && bgMode === 'calib' && calibPts.length) {
+      const pl = calibCur && calibPts.length === 1 ? [...calibPts, calibCur] : calibPts;
+      o += `<polyline points="${pts(pl)}" fill="none" stroke="#ff4fd8" stroke-width="2" stroke-dasharray="6 4"/>`;
+      pl.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="5" fill="#ff4fd8" stroke="#fff" stroke-width="1.5"/>`; });
+    }
+
     svg.innerHTML = `<defs><radialGradient id="glow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>${o}`;
   }
 
@@ -339,6 +354,7 @@ export function createPlan(ctx) {
     const f = floor();
     if (!f || !W || !H) return;
     const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z])];
+    if (!p.length && f.bg?.img && !f.bg.hidden && !isLive()) p.push([f.bg.x, f.bg.z], [f.bg.x + f.bg.w, f.bg.z + f.bg.w * (f.bg.ar || 1)]);   // empty floor: frame the template
     if (!p.length) { s = 60; tx = W / 2 - 3 * s; ty = H / 2 - 2 * s; render(); return; }
     const xs = p.map((q) => q[0]), zs = p.map((q) => q[1]);
     const [a0, a1, b0, b1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
@@ -392,6 +408,8 @@ export function createPlan(ctx) {
     const live = isLive();
     const tool = ctx.getTool();
     if (live) { drag = { type: 'tap', px, py, moved: false }; return; }
+    if (bgMode === 'move' && floor()?.bg) { const b = floor().bg; drag = { type: 'bgmove', px, py, ox: b.x, oz: b.z, sx0: x, sz0: z, moved: false }; return; }
+    if (bgMode === 'calib') { drag = { type: 'calib', px, py }; return; }
 
     if (tool === 'select') {
       const sel = ctx.getSelection();
@@ -476,6 +494,13 @@ export function createPlan(ctx) {
     if (drag) {
       const moved = Math.hypot(px - drag.px, py - drag.py) > 4;
       if (drag.type === 'pan') { tx = drag.tx + (px - drag.px); ty = drag.ty + (py - drag.py); render(); return; }
+      if (drag.type === 'bgmove' && moved) {
+        snapshotOnce();
+        const b = floor().bg;
+        b.x = +(drag.ox + (x - drag.sx0)).toFixed(3); b.z = +(drag.oz + (z - drag.sz0)).toFixed(3);
+        drag.moved = true; render();
+        return;
+      }
       if (drag.type === 'device' && moved) {
         snapshotOnce();
         const [nx, nz] = snapPt(x + drag.dx, z + drag.dz, { fine: true, ends: false, free: e.altKey });
@@ -513,6 +538,7 @@ export function createPlan(ctx) {
 
     /* no button down: hover / previews */
     if (isLive()) return;
+    if (bgMode === 'calib') { calibCur = [x, z]; if (calibPts.length) render(); return; }
     if (tool === 'wall' || tool === 'room') {
       let p = snapPt(x, z, { free: e.altKey });
       if (drawPts.length && tool === 'wall' && shift) p = angleSnap(drawPts[drawPts.length - 1], p);
@@ -552,6 +578,15 @@ export function createPlan(ctx) {
     const moved = Math.hypot(px - (d.px ?? px), py - (d.py ?? py)) > 4;
     const tool = ctx.getTool();
 
+    if (d.type === 'bgmove') { if (d.moved) { ctx.commit(); } snapDone = false; return; }
+    if (d.type === 'calib') {
+      if (!moved) {
+        calibPts.push([x, z]);
+        if (calibPts.length === 2) { const [a, b] = calibPts; calibPts = []; calibCur = null; ctx.calibrate(a, b); } else ctx.setStatus(ctx.t('bg.calibB'));
+        render();
+      }
+      return;
+    }
     if (d.type === 'tap') { if (!moved) { const h = pickIfAllowed(x, z); ctx.liveTap(h); } return; }
     if (d.type === 'pan') {
       if (!moved && d.clear && !d.locked) { ctx.setSelection(null); }
@@ -647,7 +682,8 @@ export function createPlan(ctx) {
     render: schedule,
     fit,
     cancel,
-    reset() { drawPts = []; cursor = null; opPreview = null; },
+    reset() { drawPts = []; cursor = null; opPreview = null; calibPts = []; calibCur = null; },
+    setBgMode(m) { bgMode = m; calibPts = []; calibCur = null; root.classList.toggle('bgmode', !!m); render(); },
     hasDraft: () => drawPts.length > 0,
     finishRoom,
   };
