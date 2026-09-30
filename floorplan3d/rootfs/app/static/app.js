@@ -199,6 +199,10 @@ const isHolo = () => settings.theme === 'holo';
 
 /* ---- Room lighting: each lit lamp shines from its own position, so a room is brightest near the lamp ---- */
 const MAX_LIGHTS = 8;
+const LIGHT_PROFILE = {                       // r = reach relative to the setting, k = strength
+  light: { r: 0.85, k: 0.8 }, lamp: { r: 0.6, k: 0.6 }, orb: { r: 0.3, k: 0.4 }, strip: { r: 0.4, k: 0.4 },
+  panel_tri: { r: 0.35, k: 0.4 }, panel_hex: { r: 0.35, k: 0.4 }, panel_sq: { r: 0.35, k: 0.4 }, panel_bar: { r: 0.4, k: 0.4 },
+};
 const hexVec = (h) => new THREE.Vector3(((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255);
 const cssHex = (s) => parseInt(s.slice(1), 16);
 const LIGHT_HEAD = `uniform int uCount; uniform vec4 uPos[${MAX_LIGHTS}]; uniform vec3 uCol[${MAX_LIGHTS}]; uniform float uStr; varying vec3 vP;`;
@@ -209,7 +213,8 @@ void main(){ vec3 acc = vec3(0.0);
     float d = distance(vP.xz, uPos[i].xz) / uPos[i].w; acc += uCol[i] * exp(-d * d * 2.2); }
   float lit = max(acc.r, max(acc.g, acc.b)) * uStr;
   float alpha = uAlpha < 1.0 ? min(1.0, uAlpha + lit * 0.9) : 1.0;     // lit spots stay visible through floors above
-  gl_FragColor = vec4(min(uBase + acc * uStr * (uAlpha < 1.0 ? 1.0 : 0.85), vec3(1.0)), alpha); }`;
+  vec3 lc = vec3(1.0) - exp(-acc * uStr * 0.9);                        // soft roll-off: no burnt-out white
+  gl_FragColor = vec4(min(uBase + lc * (uAlpha < 1.0 ? 1.0 : 0.85), vec3(1.0)), alpha); }`;
 const WASH_FS = `${LIGHT_HEAD} uniform float uH;
 void main(){ vec3 acc = vec3(0.0);
   for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
@@ -635,10 +640,11 @@ function applyStates() {
         .slice(0, MAX_LIGHTS)
         .map((d) => {
           const st = states[d.entity];
-          const br = st.brightness != null ? 0.35 + 0.65 * st.brightness / 100 : 1;
+          const br = st.brightness != null ? 0.12 + 0.88 * st.brightness / 100 : 1;
           const c = Array.isArray(st.rgb) ? new THREE.Vector3(st.rgb[0] / 255, st.rgb[1] / 255, st.rgb[2] / 255) : defCol.clone();
           const sw = d.entity.startsWith('switch.') ? 0.6 : 1;
-          return { x: d.x, y: d.y || 0, z: d.z, r: settings.glowRadius * (0.7 + 0.5 * br) * sw, c: c.multiplyScalar(br) };
+          const prof = LIGHT_PROFILE[d.type] || LIGHT_PROFILE.light;      // an LED strip or a panel does not light the whole room like a ceiling lamp
+          return { x: d.x, y: d.y || 0, z: d.z, r: settings.glowRadius * (0.7 + 0.5 * br) * sw * prof.r, c: c.multiplyScalar(br * prof.k) };
         });
       fillLights(mesh.material, lights, 1);
       U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
