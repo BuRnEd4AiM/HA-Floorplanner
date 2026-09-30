@@ -161,7 +161,7 @@ export function createPlan(ctx) {
   /* handles of the selected wall (end points) or room (corners) */
   function handleAt(px, py) {
     const sel = ctx.getSelection();
-    if (!sel) return null;
+    if (!sel || ctx.isItemLocked?.(sel.kind, sel.id)) return null;
     const f = floor();
     const near = (p) => Math.hypot(sx(p[0]) - px, sy(p[1]) - py) <= 11;
     if (sel.kind === 'stair') {                                  // size handles: end of the run (length) and its side (width / radius)
@@ -582,6 +582,7 @@ export function createPlan(ctx) {
   }
   function startDrag(h, x, z, px, py) {
     const f = floor();
+    if (ctx.isItemLocked?.(h.kind, h.id)) return null;                  // locked: selectable, but not movable
     if (h.kind === 'device') {
       const d = f.devices.find((v) => v.id === h.id);
       return d ? { type: 'device', d, dx: d.x - x, dz: d.z - z, moved: false, px, py } : null;

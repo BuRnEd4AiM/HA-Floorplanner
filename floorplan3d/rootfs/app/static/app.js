@@ -1055,6 +1055,7 @@ canvas.addEventListener('pointermove', (e) => {
   }
   if (down?.op && down.drag) {
     const { wall, opening } = down.op;
+    if (opening.locked) return;
     const tgt = openingTarget(e, opening.id, opening, wall);
     if (tgt?.valid && Math.abs(tgt.pos - opening.pos) > 1e-6) {
       if (!down.op.moved) { snapshot(); down.op.moved = true; }
@@ -1146,7 +1147,16 @@ canvas.addEventListener('dblclick', (e) => {
   }
 });
 
+/** the layout object behind a selection handle (wall, room, opening, device, stair, block) */
+function itemOf(kind, id) {
+  const f = floor();
+  if (!f) return null;
+  if (kind === 'opening') return findOpening(id)?.opening || null;
+  const list = { wall: f.walls, room: f.rooms, device: f.devices, stair: f.stairs, block: f.blocks }[kind] || [];
+  return list.find((q) => q.id === id) || null;
+}
 function deleteItem({ kind, id }) {
+  if (itemOf(kind, id)?.locked) { setStatus(t('prop.lockedHint')); return; }
   const f = floor();
   if (kind === 'wall') f.walls = f.walls.filter((x) => x.id !== id);
   if (kind === 'room') f.rooms = f.rooms.filter((x) => x.id !== id);
@@ -1168,7 +1178,7 @@ window.addEventListener('keydown', (e) => {
   if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (bgMode) setBgMode(null); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
-  else if (k === 'delete' || k === 'backspace') { if (selection && !(selection.kind === 'device' && floor().devices.find((x) => x.id === selection.id)?.locked)) { snapshot(); deleteItem(selection); } }
+  else if (k === 'delete' || k === 'backspace') { if (selection) { snapshot(); deleteItem(selection); } }
   else if ((k === 'q' || k === 'e') && selection?.kind === 'stair') {
     const st = floor().stairs.find((v) => v.id === selection.id);
     if (st) { snapshot(); st.rot = ((st.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
@@ -1837,7 +1847,7 @@ function buildPalette() {
   grid3.innerHTML = '';
   const q = paletteQuery.trim().toLowerCase();
   Object.entries(DEVICE_TYPES).filter(([key, def]) => !def.hidden && (paletteCat === 'all' || catOf(key) === paletteCat)
-    && (!q || t(`dev.${key}`).toLowerCase().includes(q) || key.includes(q))).forEach(([key]) => {
+    && (!q || t(`dev.${key}`).toLowerCase().includes(q) || key.includes(q) || (SEARCH_ALIASES[key] || '').includes(q))).forEach(([key]) => {
     const b = document.createElement('button'); b.className = 'dev'; b.type = 'button';
     const url = thumbnail(key);
     if (url) { const im = document.createElement('img'); im.src = url; im.alt = ''; b.append(im); }
@@ -1848,6 +1858,12 @@ function buildPalette() {
   });
   renderModelPalette();
 }
+/* extra search words so the library also finds things under their everyday names */
+const SEARCH_ALIASES = {
+  tv: 'fernseher fernsehen television tele glotze', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
+  fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
+  light: 'leuchte lampe', lamp: 'leuchte stehlampe', bed: 'doppelbett', wardrobe: 'schrank kleiderschrank', shelf: 'regal', bookcase: 'bücherregal buecherregal',
+};
 $('#paletteSearch').addEventListener('input', (e) => { paletteQuery = e.target.value; buildPalette(); });
 function renderModelPalette() {
   const box = $('#modelGrid');
@@ -2308,7 +2324,7 @@ function renderObjList() {
     ['obj.rooms', f.rooms.map((r) => ({ kind: 'room', id: r.id, label: r.name || t('prop.room') }))],
     ['obj.walls', f.walls.map((w, i) => ({ kind: 'wall', id: w.id, label: `${t('prop.wall')} ${i + 1} · ${wallLength(w).toFixed(1)} m` }))],
     ['obj.openings', openings.map(({ o }) => ({ kind: 'opening', id: o.id, label: o.name || t(`prop.${o.type}`) }))],
-    ['obj.devices', f.devices.map((d) => ({ kind: 'device', id: d.id, label: (d.locked ? '🔒 ' : '') + (d.name || t(`dev.${d.type}`)) }))],
+    ['obj.devices', f.devices.map((d) => ({ kind: 'device', id: d.id, label: d.name || t(`dev.${d.type}`) }))],
     ['obj.stairs', (f.stairs || []).map((s) => ({ kind: 'stair', id: s.id, label: s.name || t(`stair.${s.type}`) }))],
     ['obj.blocks', (f.blocks || []).map((b) => ({ kind: 'block', id: b.id, label: b.name || t('prop.block') }))],
   ];
@@ -2320,8 +2336,12 @@ function renderObjList() {
     const sum = document.createElement('summary'); sum.textContent = `${t(key)} (${items.length})`;
     det.append(sum);
     items.forEach((it) => {
+      const rowEl = document.createElement('div'); rowEl.className = 'objrow';
+      const lk = document.createElement('input'); lk.type = 'checkbox'; lk.className = 'objlock'; lk.title = t('prop.lock');
+      lk.checked = !!itemOf(it.kind, it.id)?.locked;
+      lk.addEventListener('change', () => { const o = itemOf(it.kind, it.id); if (!o) return; snapshot(); if (lk.checked) o.locked = true; else delete o.locked; changed(); renderProps(); plan?.render(); });
       const b = document.createElement('button');
-      b.className = 'obj' + (selection?.id === it.id ? ' active' : '');
+      b.className = 'obj' + (selection?.id === it.id ? ' active' : '') + (itemOf(it.kind, it.id)?.locked ? ' locked' : '');
       b.textContent = it.label;
       b.addEventListener('click', () => {
         if (!registry.get(it.id)) return;
@@ -2331,7 +2351,8 @@ function renderObjList() {
         lockedSel = true;
         refreshSelection();
       });
-      det.append(b);
+      rowEl.append(lk, b);
+      det.append(rowEl);
     });
     body.append(det);
   });
@@ -2700,7 +2721,7 @@ plan = createPlan({
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
   bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
-  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z),
+  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
   groupToggle: (id) => groupToggle(id), groupPicked: () => groupPick,
   liveMoveDevice: (d) => liveMove(d),
   liveTap: (h) => liveSelect(h),
