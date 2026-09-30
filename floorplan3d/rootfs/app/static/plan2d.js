@@ -1,7 +1,7 @@
 /* 2D blueprint editor. Works directly on the shared layout object, so everything drawn here is the same
    data the 3D view builds from (and vice versa). Rendering is plain SVG in screen coordinates. */
 
-import { stairLocal, stairHit, polyToWorld, toWorld } from './stairs.js';
+import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts } from './stairs.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -144,6 +144,14 @@ export function createPlan(ctx) {
     if (!sel) return null;
     const f = floor();
     const near = (p) => Math.hypot(sx(p[0]) - px, sy(p[1]) - py) <= 11;
+    if (sel.kind === 'stair') {                                  // size handles: end of the run (length) and its side (width / radius)
+      const st = (f.stairs || []).find((q) => q.id === sel.id);
+      if (st) {
+        const hs = stairHandles(st, ctx.floorH());
+        for (const which of ['len', 'wid']) { if (hs[which] && near(toWorld(st, hs[which][0], hs[which][1]))) return { type: 'stair-size', which, st }; }
+      }
+      return null;
+    }
     if (sel.kind === 'wall') {
       const w = f.walls.find((q) => q.id === sel.id);
       if (w) { if (near(w.a)) return { type: 'wall-end', wall: w, end: 'a' }; if (near(w.b)) return { type: 'wall-end', wall: w, end: 'b' }; }
@@ -283,7 +291,7 @@ export function createPlan(ctx) {
         o += `<path d="M${jamb[0]}L${jamb[1]}M${jamb[2]}L${jamb[3]}" stroke="${col}" stroke-width="2" fill="none"/>`;
         if (op.type === 'door') {
           const hu = op.flip ? hw : -hw, closed = P(-hu, 0), hinge = P(hu, 0);
-          const leaf = P(hu, op.width);
+          const leaf = P(hu, op.inv ? -op.width : op.width);
           const v0 = [leaf[0] - hinge[0], leaf[1] - hinge[1]], v1 = [closed[0] - hinge[0], closed[1] - hinge[1]];
           const sweep = v0[0] * v1[1] - v0[1] * v1[0] > 0 ? 1 : 0;
           const R = op.width * s;
@@ -361,6 +369,10 @@ export function createPlan(ctx) {
     if (!live && sel) {
       const hnd = (p, fill = '#fff') => `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="6" fill="${fill}" stroke="${C.sel}" stroke-width="2"/>`;
       if (sel.kind === 'wall') { const w = f.walls.find((q) => q.id === sel.id); if (w) o += hnd(w.a) + hnd(w.b); }
+      if (sel.kind === 'stair') {
+        const st = (f.stairs || []).find((q) => q.id === sel.id), hs = st && stairHandles(st, H3);
+        if (st) ['len', 'wid'].forEach((k) => { if (hs[k]) { const p = toWorld(st, hs[k][0], hs[k][1]); o += `<rect x="${sx(p[0]) - 6}" y="${sy(p[1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; } });
+      }
       if (sel.kind === 'room' || sel.kind === 'block') { const rm = (sel.kind === 'room' ? f.rooms : f.blocks || []).find((q) => q.id === sel.id); if (rm) rm.points.forEach((p) => { o += hnd(p); }); }
     }
 
@@ -505,6 +517,7 @@ export function createPlan(ctx) {
     return [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...(f.blocks || []).flatMap((r) => r.points)];
   }
   function startHandleDrag(hd) {
+    if (hd.type === 'stair-size') return { type: 'stairsize', which: hd.which, st: hd.st, moved: false };
     if (hd.type === 'wall-end') {
       const p = hd.wall[hd.end];
       const refs = coincident(p, allCornerRefs());
@@ -560,6 +573,14 @@ export function createPlan(ctx) {
     if (drag) {
       const moved = Math.hypot(px - drag.px, py - drag.py) > 4;
       if (drag.type === 'pan') { tx = drag.tx + (px - drag.px); ty = drag.ty + (py - drag.py); render(); return; }
+      if (drag.type === 'stairsize' && moved) {
+        snapshotOnce();
+        const st = drag.st, [lx, lz] = toLocal(st, x, z), { T, n1 } = stairCounts(st, ctx.floorH());
+        if (drag.which === 'len') st.tread = Math.max(0.18, Math.min(0.45, Math.round((lx / (st.type === 'straight' ? T : n1)) * 100) / 100));
+        else st.w = st.type === 'spiral' ? Math.max(0.5, Math.min(2.5, Math.round(Math.hypot(lx, lz) * 20) / 20)) : Math.max(0.6, Math.min(3, Math.round(2 * Math.abs(lz) * 20) / 20));
+        drag.moved = true; scheduleRebuild(); render();
+        return;
+      }
       if (drag.type === 'bgscale' && moved) {                    // corner handle: uniform scale around the opposite corner
         snapshotOnce();
         const b = floor().bg, ar = b.ar || 1, th = ((b.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
@@ -670,6 +691,7 @@ export function createPlan(ctx) {
     const moved = Math.hypot(px - (d.px ?? px), py - (d.py ?? py)) > 4;
     const tool = ctx.getTool();
 
+    if (d.type === 'stairsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'bgmove' || d.type === 'bgscale') { if (d.moved) { ctx.commit(); ctx.bgChanged(); } snapDone = false; return; }
     if (d.type === 'calib') {
       if (!moved) {

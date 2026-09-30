@@ -85,6 +85,25 @@ export function stairLocal(st, H) {
   return { treads, hole, arrow };
 }
 
+/** tread counts: T treads in total; L/U stairs split into flight 1 (n1), landing and flight 2 (n2) */
+export function stairCounts(st, H) {
+  const T = stairSteps(H).n - 1, n1 = Math.floor((T - 1) / 2);
+  return { T, n1, n2: T - 1 - n1 };
+}
+/** length of the (first) run in metres, null for spiral stairs */
+export function stairLength(st, H) {
+  if (st.type === 'spiral') return null;
+  const { T, n1 } = stairCounts(st, H);
+  return (st.type === 'straight' ? T : n1) * (st.tread || 0.27);
+}
+/** local positions of the two size handles: `len` at the end of the first run, `wid` at its side */
+export function stairHandles(st, H) {
+  const w = st.w || 1;
+  if (st.type === 'spiral') return { len: null, wid: [w, 0] };
+  const L = stairLength(st, H);
+  return { len: [L, 0], wid: [L / 2, w / 2] };
+}
+
 /* ---- local <-> world (same convention as devices: rot degrees, three.js rotation.y) ---- */
 export function toWorld(st, lx, lz) {
   const th = ((st.rot || 0) * Math.PI) / 180, c = Math.cos(th), s = Math.sin(th);

@@ -6,7 +6,8 @@ import {
 } from './walls.js';
 import { t, setLanguage, applyI18n } from './i18n.js';
 import { createPlan } from './plan2d.js';
-import { STAIR_TYPES, stairDefaults, stairBounds, stairLocal, polyToWorld, holesForFloor, toWorld } from './stairs.js';
+import polygonClipping from './vendor/polygon-clipping.js';
+import { STAIR_TYPES, stairDefaults, stairBounds, stairLocal, polyToWorld, holesForFloor, toWorld, stairCounts, stairLength, stairHandles } from './stairs.js';
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -343,8 +344,7 @@ function build() {
     f.rooms.forEach((r) => {
       if (r.points.length < 3) return;
       if (iso && !ghost && r.id !== iso.id) return;
-      const shape = new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)));
-      holes.forEach((h) => { if (h.every(([hx, hz]) => pointInPoly(hx, hz, r.points))) shape.holes.push(new THREE.Path(h.map(([x, z]) => new THREE.Vector2(x, -z)))); });   // stairwell opening
+      const shape = floorShapes(r.points, holes);                 // the room minus stairwell openings (also where they only overlap it partly)
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(geo, holo
@@ -1411,6 +1411,21 @@ function renderModelPalette() {
   });
 }
 /* ================= Placeholder blocks and stairs ================= */
+/** THREE shapes of a floor polygon with the stairwell openings cut out (polygon boolean, so partial overlaps work too) */
+function floorShapes(points, holes) {
+  const v = (p) => new THREE.Vector2(p[0], -p[1]);
+  const plain = () => [new THREE.Shape(points.map(v))];
+  if (!holes.length) return plain();
+  let mp;
+  try { mp = polygonClipping.difference([points.map((p) => [p[0], p[1]])], ...holes.map((h) => [h.map((p) => [p[0], p[1]])])); } catch { return plain(); }
+  const shapes = mp.map((poly) => {
+    const sh = new THREE.Shape(poly[0].slice(0, -1).map(v));
+    poly.slice(1).forEach((ring) => sh.holes.push(new THREE.Path(ring.slice(0, -1).map(v))));
+    return sh;
+  });
+  return shapes;
+}
+
 let stairType = 'straight', stairDir = 'up', stairTurn = 'right', stairRot = 0;
 const stairTpl = () => ({ ...stairDefaults(stairType === 'shaft' ? 'U' : stairType), type: stairType === 'shaft' ? 'U' : stairType, dir: stairDir, turn: stairTurn, rot: stairRot });
 
@@ -1460,6 +1475,7 @@ function placeStair(x, z) {
   (f.stairs ||= []).push(st);
   selection = { kind: 'stair', id: st.id };
   changed();
+  setTool('select');                                              // size handles are usable right away
 }
 
 /** Treppenhaus preset: U stair + four walls + room + door, and the same shell on the next floor for an 'up' stair */
@@ -1492,6 +1508,7 @@ function placeShaft(cx, cz) {
   if (other) shell(other);                                        // same walls above so the shaft continues
   selection = { kind: 'stair', id: st.id };
   changed();
+  setTool('select');
 }
 
 document.querySelectorAll('#stairTypes button').forEach((b) => b.addEventListener('click', () => {
@@ -1906,6 +1923,10 @@ function renderProps() {
       body.append(field(t('stair.turn'), tsel));
     }
     body.append(field(it.type === 'spiral' ? t('stair.radius') : t('bg.width'), lenInput(() => it.w, (v) => (it.w = Math.max(0.5, v)), { min: 0.5 })));
+    if (it.type !== 'spiral') {
+      const cnt = stairCounts(it, FLOOR_H)[it.type === 'straight' ? 'T' : 'n1'];
+      body.append(field(t('stair.length'), lenInput(() => stairLength(it, FLOOR_H), (v) => (it.tread = Math.max(0.18, Math.min(0.45, v / cnt))), { min: 1 })));
+    }
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => (it.rot = ((+v % 360) + 360) % 360), { step: 15 })));
     body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
@@ -1927,6 +1948,9 @@ function renderProps() {
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.flip;
       cb.addEventListener('change', () => { snapshot(); it.flip = cb.checked; changed(); });
       body.append(field(t('prop.flip'), cb));
+      const ci = document.createElement('input'); ci.type = 'checkbox'; ci.checked = !!it.inv; ci.id = 'doorInv';
+      ci.addEventListener('change', () => { snapshot(); it.inv = ci.checked; changed(); });
+      body.append(field(t('prop.inv'), ci));
     }
   } else {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
@@ -2216,6 +2240,14 @@ if (params.get('debug')) {
     },
     get layout() { return layout; },
     has: (id) => registry.has(id),
+    roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
+      const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');
+      if (!pos) return null;
+      let a = 0;
+      for (let i = 0; i + 2 < pos.count; i += 3) a += Math.abs((pos.getX(i + 1) - pos.getX(i)) * (pos.getZ(i + 2) - pos.getZ(i)) - (pos.getX(i + 2) - pos.getX(i)) * (pos.getZ(i + 1) - pos.getZ(i))) / 2;
+      return +a.toFixed(3);
+    },
+    stairHandle(id, k) { const st = floor().stairs.find((v) => v.id === id); const h = st && stairHandles(st, FLOOR_H)[k]; return h ? toWorld(st, h[0], h[1]) : null; },
     holeCount: (i) => holesForFloor(layout.floors, i, FLOOR_H).length,
     plan: () => plan,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
