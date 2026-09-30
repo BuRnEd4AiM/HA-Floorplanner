@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-09-30
+### Added
+- Nanoleaf layout editor: **small triangle** (half size); it also snaps to either half of a large triangle's edge
+
 ## [2.0.0] - 2026-09-30
 ### Added
 - **Nanoleaf layout editor**: the new device *Nanoleaf Layout* opens an editor with a snap grid – pick triangle / hexagon / square / bar, click them together (edges click onto their neighbours, rotation is found automatically), right-click erases, undo, rotate with `R`
