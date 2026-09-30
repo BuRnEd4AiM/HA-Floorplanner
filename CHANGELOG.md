@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [0.9.3] - 2026-09-30
+### Fixed
+- Release workflow: duplicate `push` trigger merged (the file was rejected by GitHub)
+
 ## [0.9.2] - 2026-09-30
 ### Changed
 - The *Release* workflow now runs by itself when the version in `config.yaml` changes on `main`, so the release badge and the GitHub releases always match the current version (no manual *Run workflow* needed)
