@@ -30,5 +30,5 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 
 - [ ] Multi-segment LED strips and Nanoleaf panel shapes
 - [ ] Automatic room detection from closed wall loops
-- [ ] Background image / blueprint for tracing
+- [x] Background image / blueprint for tracing (0.7.2)
 - [ ] More languages

@@ -598,7 +598,7 @@ function undo() {
   layout = JSON.parse(s);
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
   selection = null; focusedRoom = null; clearFocusOutline();
-  fillFloorSelect(); build(); scheduleSave();
+  fillFloorSelect(); build(); scheduleSave(); renderBgPanel();
 }
 function changed(rebuild = true) {
   if (rebuild) build();
@@ -907,7 +907,7 @@ window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
   if (k === 'enter' && plan?.hasDraft() && tool === 'room') { plan.finishRoom(); return; }
-  if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (lockedSel) releaseLock(); return; }
+  if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (bgMode) setBgMode(null); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
   else if (k === 'delete' || k === 'backspace') { if (selection) { snapshot(); deleteItem(selection); } }
@@ -1161,6 +1161,7 @@ function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPane
 function setTool(next) {
   if (next !== 'select') lockedSel = false;
   tool = next; endDrawing(); plan?.reset(); document.body.dataset.tool = next; setStatus('');
+  if (bgMode) setBgMode(null);
   document.querySelectorAll('#tools button').forEach((b) => b.classList.toggle('active', b.dataset.tool === next));
   $('#hintText').textContent = t(`hint.${next}`);
   $('#devicePalette').hidden = next !== 'device';
@@ -1287,6 +1288,7 @@ function fillFloorSelect() { buildNav(true); }
 function switchFloor(i) {
   floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
   clearFocusOutline(); build(); fitCamera(); refreshSelection();
+  if (bgMode) setBgMode(null); else renderBgPanel();
 }
 
 function clearFocusOutline() { focusGroup.clear(); }
@@ -1370,6 +1372,95 @@ function renderModelPalette() {
     box.append(b);
   });
 }
+/* ================= Background image (template to trace) ================= */
+let bgMode = null;                                       // null | 'move' | 'calib'
+function setBgMode(m) {
+  bgMode = m;
+  if (m && !plan?.isVisible()) $('#view2d').click();      // the template only shows in the 2D editor
+  plan?.setBgMode(m);
+  setStatus(m === 'calib' ? t('bg.calibA') : m === 'move' ? t('bg.moveHint') : '');
+  renderBgPanel();
+}
+function calibrate(a, b) {
+  const f = floor(), bg = f?.bg;
+  const measured = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  if (!bg || measured < 0.01) { setBgMode(null); return; }
+  const raw = window.prompt(`${t('bg.askDist')} (${imperial() ? 'ft' : 'm'})`, '');
+  const real = fromDisp(parseFloat(String(raw ?? '').replace(',', '.')));
+  if (!(real > 0.05 && real < 500)) { setBgMode(null); return; }
+  const k = real / measured;
+  snapshot();
+  bg.w = +(bg.w * k).toFixed(4);
+  bg.x = +(a[0] + (bg.x - a[0]) * k).toFixed(4);
+  bg.z = +(a[1] + (bg.z - a[1]) * k).toFixed(4);
+  changed();
+  setBgMode(null);
+  setStatus(`${t('bg.scaleSet')}: ${fmtLen(bg.w)}`);
+}
+function imageSize(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { URL.revokeObjectURL(url); resolve([im.naturalWidth, im.naturalHeight]); };
+    im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
+    im.src = url;
+  });
+}
+async function uploadBackground(file) {
+  const f = floor();
+  if (!f || !file) return;
+  const [nw, nh] = await imageSize(file);
+  const fd = new FormData();
+  fd.append('file', file);
+  const r = await fetch('api/backgrounds', { method: 'POST', body: fd });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
+  const { name } = await r.json();
+  snapshot();
+  const keep = f.bg;                                      // replacing keeps position, scale and opacity
+  f.bg = { img: name, x: keep?.x ?? 0, z: keep?.z ?? 0, w: keep?.w ?? 12, ar: +(nh / nw).toFixed(5), op: keep?.op ?? 0.5, rot: keep?.rot ?? 0 };
+  changed();
+  plan?.fit();
+  renderBgPanel();
+}
+function renderBgPanel() {
+  const box = $('#bgBody');
+  if (!box) return;
+  box.innerHTML = '';
+  const f = floor();
+  if (!f) return;
+  const bg = f.bg;
+  const lab = document.createElement('label'); lab.className = 'uploadBtn';
+  const span = document.createElement('span'); span.textContent = t(bg ? 'bg.replace' : 'bg.load');
+  const file = document.createElement('input'); file.type = 'file'; file.hidden = true; file.id = 'bgFile'; file.accept = 'image/png,image/jpeg,image/webp';
+  file.addEventListener('change', async () => {
+    const fl = file.files[0]; file.value = '';
+    try { await uploadBackground(fl); } catch (err) { alert(`${t('panel.uploadFailed')}: ${err.message}`); }
+  });
+  lab.append(span, file);
+  box.append(lab);
+  if (!bg) { const p = document.createElement('p'); p.className = 'sub'; p.textContent = t('bg.help'); box.append(p); return; }
+
+  const op = document.createElement('input'); op.type = 'range'; op.min = 0.1; op.max = 1; op.step = 0.05; op.value = bg.op ?? 0.5; op.id = 'bgOpacity';
+  let snapped = false;
+  op.addEventListener('input', () => { if (!snapped) { snapshot(); snapped = true; } bg.op = +op.value; plan?.render(); });
+  op.addEventListener('change', () => { snapped = false; changed(false); });
+  box.append(field(t('bg.opacity'), op));
+  box.append(field(t('bg.width'), lenInput(() => bg.w, (v) => (bg.w = Math.max(0.5, v)), { min: 0.5 })));
+  box.append(field('X', lenInput(() => bg.x, (v) => (bg.x = v), { min: -1000 })));
+  box.append(field('Z', lenInput(() => bg.z, (v) => (bg.z = v), { min: -1000 })));
+  box.append(field(t('bg.rot'), inp('number', bg.rot || 0, (v) => (bg.rot = Math.max(-180, Math.min(180, +v || 0))), { step: 0.5 })));
+
+  const btns = document.createElement('div'); btns.className = 'stopTools';
+  const mk = (id, label, on, active = false) => {
+    const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label;
+    b.classList.toggle('active', active); b.addEventListener('click', on); btns.append(b); return b;
+  };
+  mk('bgCalib', t('bg.calib'), () => setBgMode(bgMode === 'calib' ? null : 'calib'), bgMode === 'calib');
+  mk('bgMove', t('bg.move'), () => setBgMode(bgMode === 'move' ? null : 'move'), bgMode === 'move');
+  mk('bgHide', t(bg.hidden ? 'bg.show' : 'bg.hide'), () => { snapshot(); bg.hidden = !bg.hidden; changed(false); plan?.render(); renderBgPanel(); });
+  mk('bgRemove', t('bg.remove'), () => { snapshot(); delete f.bg; if (bgMode) plan?.setBgMode(null), (bgMode = null); setStatus(''); changed(false); plan?.render(); renderBgPanel(); });
+  box.append(btns);
+}
+
 async function loadModels() {
   try { customModels = await (await fetch('api/models')).json(); } catch { customModels = []; }
 }
@@ -1901,7 +1992,7 @@ plan = createPlan({
   getTool: () => tool, getOpeningType: () => openingType, isLive: () => isLive(), isLocked: () => lockedSel,
   getSelection: () => selection,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
-  snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(),
+  snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
   liveMoveDevice(d) {
     const obj = registry.get(d.id);
     if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
@@ -1932,7 +2023,7 @@ async function init() {
   normalizeLayout();
   await loadModels();
   applySettings();
-  fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera();
+  fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); renderBgPanel();
   if (params.get('mode') === 'live' || params.get('kiosk') || tabletRoom || !me.canEdit) setMode('live');
   if (tabletRoom) {
     const hit = findRoomByName(tabletRoom);

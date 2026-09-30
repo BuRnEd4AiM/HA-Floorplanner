@@ -141,6 +141,39 @@ with sync_playwright() as p:
     check("wall drawn in 2D", n1 == n0 + 1, (n0, n1))
     pg2.click("#viewSplit"); pg2.wait_for_timeout(500)
     check("split view shows both", pg2.is_visible("#plan2d") and pg2.evaluate("getComputedStyle(document.querySelector('#view')).visibility") == "visible")
+    # --- background image: upload, calibrate scale, move, opacity, remove
+    import struct, zlib
+    def png(w, h):
+        raw = b"".join(b"\x00" + b"\x40\x80\xc0" * w for _ in range(h))
+        chunk = lambda t, d: struct.pack(">I", len(d)) + t + d + struct.pack(">I", zlib.crc32(t + d) & 0xffffffff)
+        return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b"")
+    Path(f"{S}/bg.png").write_bytes(png(200, 100))
+    pg2.click("#bgPanel > summary"); pg2.wait_for_timeout(200)
+    pg2.set_input_files("#bgFile", f"{S}/bg.png"); pg2.wait_for_timeout(900)
+    bg = pg2.evaluate("window.__fp.layout.floors[0].bg")
+    check("background image uploaded and stored on the floor", bg and bg["ar"] == 0.5 and bg["w"] == 12, bg)
+    check("background image is drawn in the 2D plan", pg2.locator("#plan2d image").count() == 1)
+    check("background file is served", pg2.evaluate(f"fetch('api/backgrounds/{bg['img']}').then(r => r.headers.get('content-type'))") == "image/png")
+    pg2.once("dialog", lambda d: d.accept("13.1234"))   # units are imperial here: 13.1234 ft = 4 m
+    pg2.click("#bgCalib"); pg2.wait_for_timeout(200)
+    for (x, z) in [(0, 0), (2, 0)]:
+        c = pg2.evaluate(f"window.__fp.plan().toClient({x},{z})"); pg2.mouse.click(*c); pg2.wait_for_timeout(150)
+    bg = pg2.evaluate("window.__fp.layout.floors[0].bg")
+    check("calibration scales the image (2 m clicked = 4 m real -> width x2)", abs(bg["w"] - 24) < 0.5, bg)
+    pg2.click("#bgMove"); pg2.wait_for_timeout(200)
+    x0 = bg["x"]
+    c = pg2.evaluate("window.__fp.plan().toClient(1,1)")
+    pg2.mouse.move(*c); pg2.mouse.down(); pg2.mouse.move(c[0] + 80, c[1] + 40, steps=5); pg2.mouse.up(); pg2.wait_for_timeout(200)
+    bg2 = pg2.evaluate("window.__fp.layout.floors[0].bg")
+    check("image can be dragged", bg2["x"] > x0 + 0.1, (x0, bg2["x"]))
+    pg2.keyboard.press("Escape")
+    pg2.fill("#bgOpacity", "0.8"); pg2.wait_for_timeout(300)
+    check("opacity changes", pg2.evaluate("window.__fp.layout.floors[0].bg.op") == 0.8)
+    pg2.wait_for_timeout(1800)
+    check("background persisted with the layout", api("api/layout")["floors"][0].get("bg", {}).get("img") == bg["img"])
+    pg2.click("#bgRemove"); pg2.wait_for_timeout(200)
+    check("background removed", pg2.evaluate("window.__fp.layout.floors[0].bg") is None and pg2.locator("#plan2d image").count() == 0)
+    pg2.wait_for_timeout(1800)
     pg2.close()
     # --- a user who is neither admin nor editor only gets the read-only live view
     pg3 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "tablet_wz"})
