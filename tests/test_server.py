@@ -229,3 +229,47 @@ async def test_load_admin_ids_unreachable_is_none(monkeypatch):
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "tok")
     server._admin_cache.update(at=0.0, ids=None)
     assert await server.load_admin_ids() is None
+
+
+async def test_user_views_validation_and_me_view(client, monkeypatch, tmp_path):
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["florian"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    admin = {"X-Remote-User-Name": "florian"}
+    r = await client.put("/api/settings", json={"userViews": {"tablet_wz": "split", "kid": "hologram", "x": 5}}, headers=admin)
+    assert (await r.json())["userViews"] == {"tablet_wz": "split"}
+    assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "tablet_wz"})).json())["view"] == "split"
+    assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "someone"})).json())["view"] == "3d"
+
+
+async def test_users_endpoint_editors_only(client, monkeypatch, tmp_path):
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["florian"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    server._admin_cache["users"] = [{"username": "florian", "name": "Florian", "admin": True}]
+    assert (await client.get("/api/users", headers={"X-Remote-User-Name": "tablet"})).status == 403
+    us = await (await client.get("/api/users", headers={"X-Remote-User-Name": "florian"})).json()
+    assert us == [{"username": "florian", "name": "Florian", "admin": True}]
+    server._admin_cache["users"] = []
+
+
+async def test_light_effect_is_whitelisted(client, monkeypatch, aiohttp_server):
+    from aiohttp import web
+    seen = []
+
+    async def svc(request):
+        seen.append(await request.json()); return web.json_response([])
+    app = web.Application(); app.add_routes([web.post("/services/{d}/{s}", svc)])
+    srv = await aiohttp_server(app)
+    monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    ok = await client.post("/api/service", json={"domain": "light", "service": "turn_on", "entity_id": "light.a", "data": {"effect": "Nordlicht"}})
+    assert ok.status == 200 and seen[0]["effect"] == "Nordlicht"
+    bad = await client.post("/api/service", json={"domain": "switch", "service": "turn_on", "entity_id": "switch.a", "data": {"effect": "x"}})
+    assert bad.status == 400
+    bad2 = await client.post("/api/service", json={"domain": "light", "service": "turn_on", "entity_id": "light.a", "data": {"effect": 5}})
+    assert bad2.status == 400

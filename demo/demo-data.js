@@ -37,7 +37,7 @@ const layout = {
       { id: 'd3',  type: 'table',      x: 2.5, z: 2.2,  y: 0,    rot: 0,   scale: 0.6, name: 'Couchtisch',      entity: '' },
       { id: 'd4',  type: 'light',      x: 3,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Deckenlicht',     entity: 'light.wohnzimmer' },
       { id: 'd20', type: 'strip',      x: 4.4, z: 1.2,  y: 0.45, rot: 0,   scale: 1.6, name: 'LED hinter TV',   entity: 'light.wohnzimmer' },
-      { id: 'd21', type: 'orb',        x: 3.6, z: 1.2,  y: 0.3,  rot: 0,   scale: 1,   name: 'Lichtkugel',      entity: 'light.stehlampe' },
+      { id: 'd21', type: 'orb',        x: 2.6, z: 1.7,  y: 0.3,  rot: 0,   scale: 1,   name: 'Nanoleaf Shapes',  entity: 'light.shapes_wz' },
       { id: 'd5',  type: 'lamp',       x: 5.2, z: 3.9,  y: 0,    rot: 0,   scale: 1,   name: 'Stehlampe',       entity: 'light.stehlampe' },
       { id: 'd6',  type: 'thermostat', x: 0.2, z: 3.4,  y: 0.2,  rot: 90,  scale: 1,   name: 'Heizung',         entity: 'climate.wohnzimmer' },
       { id: 'd7c', type: 'switch', x: 1.2, z: 0.2, y: 1.0, rot: 0, scale: 1, name: 'Rollladen', entity: 'cover.wohnzimmer' },
@@ -111,6 +111,9 @@ const entities = {
   'light.schlafzimmer':      { name: 'Schlafzimmer Licht',     state: 'on', rgb: [130, 170, 255] },
   'light.bad':               { name: 'Bad Licht',              state: 'off' },
   'light.buero':             { name: 'Büro Licht',             state: 'on', rgb: [255, 226, 110] },
+  'light.shapes_wz':         { name: 'Nanoleaf Shapes',        state: 'on', rgb: [120, 90, 255], brightness: 80, fx: ['Nordlicht', 'Sonnenuntergang', 'Wald', 'Pulsierend', 'Regenbogen'], fxc: 'Nordlicht' },
+  'scene.wz_gemuetlich':     { name: 'Wohnzimmer Gemütlich',   state: 'scening' },
+  'scene.wz_aus':            { name: 'Wohnzimmer Aus',         state: 'scening' },
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
   'switch.flur':             { name: 'Flur Schalter',          state: 'off' },
   'media_player.tv':         { name: 'Fernseher',              state: 'playing' },
@@ -149,14 +152,15 @@ export function installDemoBackend() {
       if (method === 'PUT') return json({ ok: true });        // edits live only in this tab
       return json(layout);
     }
-    if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null });
+    if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all' });
+    if (path === 'api/users') return json([{ username: 'florian', name: 'Florian', admin: true }, { username: 'tablet_wohnzimmer', name: 'Tablet Wohnzimmer', admin: false }, { username: 'familie', name: 'Familie', admin: false }]);
     if (path === 'api/settings') {
       if (method === 'PUT') { settings = { ...settings, ...JSON.parse(init.body) }; return json(settings); }
       return json(settings);
     }
     if (path === 'api/areas') {
       return json([
-        { id: 'wohnzimmer', name: 'Wohnzimmer', entities: ['light.wohnzimmer', 'light.stehlampe', 'media_player.tv', 'cover.wohnzimmer', 'climate.wohnzimmer', 'sensor.wohnzimmer_leistung'] },
+        { id: 'wohnzimmer', name: 'Wohnzimmer', entities: ['light.wohnzimmer', 'light.stehlampe', 'light.shapes_wz', 'scene.wz_gemuetlich', 'scene.wz_aus', 'media_player.tv', 'cover.wohnzimmer', 'climate.wohnzimmer', 'sensor.wohnzimmer_leistung'] },
         { id: 'schlafzimmer', name: 'Schlafzimmer', entities: ['light.schlafzimmer'] },
         { id: 'buero', name: 'Büro', entities: ['light.buero', 'sensor.buero_temp'] },
       ]);
@@ -164,12 +168,18 @@ export function installDemoBackend() {
     if (path === 'api/entities') {
       return json(Object.entries(entities).map(([entity_id, e]) => ({
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
-        dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null })));
+        dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null })));
     }
     if (path === 'api/service' && method === 'POST') {
       const { service, entity_id: id, data } = JSON.parse(init.body);
       const e = entities[id];
       if (!e) return json({ ok: false }, 502);
+      if (id.startsWith('scene.')) {                      // demo scenes: switch the living room lights
+        const wz = ['light.wohnzimmer', 'light.stehlampe', 'light.shapes_wz'];
+        wz.forEach((l) => { if (id.endsWith('_aus')) entities[l].state = 'off'; else { entities[l].state = 'on'; entities[l].rgb = [255, 170, 90]; } });
+        return json({ ok: true });
+      }
+      if (service === 'turn_on' && data?.effect) e.fxc = data.effect;
       if (service === 'toggle') e.state = e.state === 'on' ? 'off' : 'on';
       if (service === 'turn_on') { e.state = 'on'; if (data?.brightness_pct != null) e.brightness = data.brightness_pct; if (data?.rgb_color) e.rgb = data.rgb_color; if (data?.color_temp_kelvin) e.rgb = data.color_temp_kelvin < 4500 ? [255, 190, 120] : [200, 220, 255]; }
       if (service === 'set_cover_position') { e.position = data.position; e.state = data.position > 0 ? 'open' : 'closed'; }

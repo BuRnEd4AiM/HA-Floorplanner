@@ -16,7 +16,7 @@ let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true,
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
-  userRooms: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2',
+  userRooms: {}, userViews: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2',
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
   humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
 };
@@ -40,7 +40,7 @@ let lowWalls = false;
 let is2d = false;                  // legacy top-down camera flag (the real 2D editor is plan2d.js)
 let plan = null;                   // 2D blueprint editor
 let layoutMode = '3d';             // '3d' | '2d' | 'split'
-let me = { user: '', canEdit: true, room: null };
+let me = { user: '', canEdit: true, room: null, view: 'all' };
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 let livePopupFor = null;           // device id
 const undoStack = [];
@@ -981,24 +981,32 @@ function renderLivePopup() {
     });
     box.append(row);
   }
-  if (d.entity && d.entity.startsWith('light.') && !d.isOpening) box.append(lightControls(d.entity));
+  if (d.entity && d.entity.startsWith('light.') && !d.isOpening) box.append(lightControls([d.entity]));
+  if (d.entity && /^(light|scene)\./.test(d.entity) && !d.isOpening) {          // the whole room this device is in
+    const rm = floor().rooms.find((r) => pointInPoly(d.x, d.z, r.points));
+    const rc = rm && roomControls(rm);
+    if (rc) box.append(rc);
+  }
 }
 
 const COLOR_PRESETS = ['#ff3b30', '#ff9500', '#ffd60a', '#34c759', '#23e0ff', '#0a84ff', '#bf5af2', '#ff2d92'];
 const hexToRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const rgbToHex = (c) => '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
-function lightControls(entity) {
-  const st = states[entity] || {};
+function lightControls(ids) {              // one light, or all lights of a room
+  const list = [].concat(ids);
+  const sts = list.map((id) => states[id] || {});
+  const st = sts.find((x) => ON_STATES.has(x.state)) || sts[0] || {};
+  const all = (svc, data) => list.forEach((id) => callService(id, svc, data));
   const wrap = document.createElement('div'); wrap.className = 'lightctl';
   const lbl = (k) => { const s = document.createElement('div'); s.className = 'sub'; s.textContent = t(k); return s; };
-  if (st.brightness != null) {
-    const r = document.createElement('input'); r.type = 'range'; r.min = 1; r.max = 100; r.value = st.brightness;
-    r.addEventListener('change', () => callService(entity, 'turn_on', { brightness_pct: +r.value }));
+  if (sts.some((x) => x.brightness != null)) {
+    const r = document.createElement('input'); r.type = 'range'; r.min = 1; r.max = 100; r.value = st.brightness ?? 100;
+    r.addEventListener('change', () => all('turn_on', { brightness_pct: +r.value }));
     wrap.append(lbl('live.brightness'), r);
   }
   wrap.append(lbl('live.color'));
   const sw = document.createElement('div'); sw.className = 'swatches';
-  const setRgb = (c) => callService(entity, 'turn_on', { rgb_color: c });
+  const setRgb = (c) => all('turn_on', { rgb_color: c });
   COLOR_PRESETS.forEach((h) => {
     const b = document.createElement('button'); b.className = 'sw'; b.style.background = h; b.title = h;
     b.addEventListener('click', () => setRgb(hexToRgb(h)));
@@ -1012,10 +1020,55 @@ function lightControls(entity) {
   const wr = document.createElement('div'); wr.className = 'actions';
   [['live.warm', 2700], ['live.cold', 6500]].forEach(([k, kel]) => {
     const b = document.createElement('button'); b.textContent = t(k);
-    b.addEventListener('click', () => callService(entity, 'turn_on', { color_temp_kelvin: kel }));
+    b.addEventListener('click', () => all('turn_on', { color_temp_kelvin: kel }));
     wr.append(b);
   });
   wrap.append(wr);
+  const fx = sts.map((x) => x.fx || []).reduce((acc, cur) => acc.filter((e) => cur.includes(e)));   // effects (Nanoleaf, WLED, Hue ...) all lights have
+  if (fx.length) {
+    const sel = document.createElement('select'); sel.className = 'fxsel';
+    sel.add(new Option(t('live.effect'), ''));
+    fx.forEach((e) => sel.add(new Option(e, e)));
+    if (list.length === 1 && st.fxc && fx.includes(st.fxc)) sel.value = st.fxc;
+    sel.addEventListener('change', () => { if (sel.value) all('turn_on', { effect: sel.value }); });
+    wrap.append(lbl('live.effects'), sel);
+  }
+  return wrap;
+}
+
+/* ---- whole room: all lights at once + the room's scenes ---- */
+function roomEntityIds(room, domain) {
+  const f = floor();
+  const ids = new Set(f.devices.filter((d) => d.entity?.startsWith(`${domain}.`) && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
+  (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []).filter((id) => id.startsWith(`${domain}.`)).forEach((id) => ids.add(id));
+  return [...ids].filter((id) => states[id]);
+}
+function roomControls(room) {
+  const lights = roomEntityIds(room, 'light'), scenes = roomEntityIds(room, 'scene');
+  if (!lights.length && !scenes.length) return null;
+  const wrap = document.createElement('div'); wrap.className = 'roomctl';
+  const h = document.createElement('h4'); h.textContent = t('rc.title', { n: room.name || '' }); wrap.append(h);
+  if (lights.length) {
+    const on = lights.filter((id) => ON_STATES.has(states[id]?.state)).length;
+    const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = t('rc.lights', { on, n: lights.length }); wrap.append(sub);
+    const row = document.createElement('div'); row.className = 'actions';
+    [['turn_on', 'live.allOn'], ['turn_off', 'live.allOff']].forEach(([svc, k]) => {
+      const b = document.createElement('button'); b.textContent = t(k);
+      b.addEventListener('click', () => lights.forEach((id) => callService(id, svc)));
+      row.append(b);
+    });
+    wrap.append(row, lightControls(lights));
+  }
+  if (scenes.length) {
+    const sh = document.createElement('div'); sh.className = 'sub'; sh.textContent = t('rc.scenes'); wrap.append(sh);
+    const row = document.createElement('div'); row.className = 'scenes';
+    scenes.forEach((id) => {
+      const b = document.createElement('button'); b.textContent = entities.find((e) => e.entity_id === id)?.name || id;
+      b.addEventListener('click', () => callService(id, 'turn_on'));
+      row.append(b);
+    });
+    wrap.append(row);
+  }
   return wrap;
 }
 
@@ -1047,6 +1100,8 @@ function renderRoomPanel() {
   const area = document.createElement('div'); area.className = 'sub';
   area.textContent = imperial() ? `${(polyArea(room.points) * 10.7639).toFixed(0)} ft²` : `${polyArea(room.points).toFixed(1)} m²`;
   box.append(head, area);
+  const rc = roomControls(room);
+  if (rc) box.append(rc);
   const devs = floor().devices.filter((d) => d.entity && pointInPoly(d.x, d.z, room.points));
   const placedIds = new Set(floor().devices.map((d) => d.entity));
   const inRp = (id) => RP_GROUPS.some(([g]) => g === rpGroupOf(id.split('.')[0]));
@@ -1125,6 +1180,7 @@ function setMode(next) {
     canvas.style.cursor = 'pointer';
   } else setTool(tool);
   refreshSelection();
+  applyViewPolicy();
   requestAnimationFrame(resize);
 }
 document.querySelectorAll('#modeSwitch button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
@@ -1145,6 +1201,11 @@ function fitCamera() {
   if (is2d) camera.position.set(cx, elev() + dist * 1.2, cz + 0.001);
   else camera.position.set(cx + dist * 0.4, elev() + dist * 0.95, cz + dist * 0.7);
   controls.update();
+}
+function applyViewPolicy() {          // live mode: only the 3D view unless the user was given more (settings → users)
+  const lock = isLive() && me.view !== 'all';
+  document.body.classList.toggle('viewlock', lock);
+  if (lock) setLayoutMode(['2d', 'split'].includes(me.view) ? me.view : '3d');
 }
 function setLayoutMode(m) {
   layoutMode = m;
@@ -1670,36 +1731,48 @@ function fillSettingsForm() {
 function allRoomNames() {
   return [...new Set(layout.floors.flatMap((f) => f.rooms.map((r) => r.name).filter(Boolean)))];
 }
+let haUsers = [];
+async function loadHaUsers() {
+  try { const r = await fetch('api/users'); haUsers = r.ok ? await r.json() : []; } catch { haUsers = []; }
+  const dl = $('#haUsers'); dl.replaceChildren();
+  haUsers.forEach((u) => { const o = document.createElement('option'); o.value = u.username; o.label = u.name; dl.append(o); });
+}
+const VIEW_OPTS = ['3d', '2d', 'split', 'all'];
+function tabletRow(user = '', room = '', view = '3d') {
+  const row = document.createElement('div'); row.className = 'stop tablet';
+  const u = document.createElement('input'); u.type = 'text'; u.value = user; u.dataset.role = 'user'; u.placeholder = t('set.tabletUser'); u.setAttribute('list', 'haUsers');
+  const sel = document.createElement('select'); sel.dataset.role = 'room';
+  sel.add(new Option(t('set.wholeHouse'), ''));
+  allRoomNames().forEach((n) => sel.add(new Option(n, n)));
+  if (room && !allRoomNames().includes(room)) sel.add(new Option(room, room));
+  sel.value = room;
+  const vs = document.createElement('select'); vs.dataset.role = 'view';
+  VIEW_OPTS.forEach((v) => vs.add(new Option(t(`set.view.${v}`), v)));
+  vs.value = VIEW_OPTS.includes(view) ? view : '3d';
+  const del = document.createElement('button'); del.type = 'button'; del.textContent = '×';
+  del.addEventListener('click', () => { row.remove(); commitSettings(); });
+  row.append(u, sel, vs, del);
+  return row;
+}
 function renderTablets() {
   const box = $('#tabletRows');
   box.replaceChildren();
-  Object.entries(settings.userRooms || {}).forEach(([user, room]) => {
-    const row = document.createElement('div'); row.className = 'stop tablet';
-    const u = document.createElement('input'); u.type = 'text'; u.value = user; u.dataset.role = 'user'; u.placeholder = t('set.tabletUser');
-    const sel = document.createElement('select'); sel.dataset.role = 'room';
-    allRoomNames().forEach((n) => sel.add(new Option(n, n)));
-    if (room && !allRoomNames().includes(room)) sel.add(new Option(room, room));
-    sel.value = room;
-    const del = document.createElement('button'); del.type = 'button'; del.textContent = '×';
-    del.addEventListener('click', () => { delete settings.userRooms[user]; renderTablets(); commitSettings(); });
-    row.append(u, sel, del);
-    box.append(row);
-  });
+  const names = [...new Set([...Object.keys(settings.userRooms || {}), ...Object.keys(settings.userViews || {})])];
+  names.forEach((user) => box.append(tabletRow(user, (settings.userRooms || {})[user] || '', (settings.userViews || {})[user] || '3d')));
 }
 function readTablets() {
-  const out = {};
+  const rooms = {}, views = {};
   document.querySelectorAll('#tabletRows .tablet').forEach((r) => {
-    const u = r.querySelector('[data-role=user]').value.trim(), v = r.querySelector('[data-role=room]').value;
-    if (u && v) out[u] = v;
+    const u = r.querySelector('[data-role=user]').value.trim();
+    if (!u) return;
+    const room = r.querySelector('[data-role=room]').value;
+    if (room) rooms[u] = room;
+    views[u] = r.querySelector('[data-role=view]').value;
   });
-  return out;
+  return { rooms, views };
 }
 $('#addTablet').addEventListener('click', () => {
-  const names = allRoomNames();
-  if (!names.length) return;
-  settings.userRooms = { ...(settings.userRooms || {}), [`tablet_${Object.keys(settings.userRooms || {}).length + 1}`]: names[0] };
-  renderTablets();
-  commitSettings();
+  const row = tabletRow(); $('#tabletRows').append(row); row.querySelector('input').focus();
 });
 function renderStops(sel, key, unit) {
   const box = $(sel);
@@ -1745,7 +1818,7 @@ function readSettingsForm() {
     } else if (key === 'grid') next[key] = parseFloat(el.value);
     else next[key] = el.value;
   }
-  next.userRooms = readTablets();
+  const tb = readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views;
   next.tempStops = readStops('#tempStops', settings.tempStops);
   next.humidStops = readStops('#humidStops', settings.humidStops);
   return next;
@@ -1783,7 +1856,7 @@ async function commitSettings() {
     if (r.ok) settings = { ...settings, ...(await r.json()) };
   } catch { /* offline: settings stay for this session */ }
 }
-$('#settingsBtn').addEventListener('click', () => { fillSettingsForm(); dlg.showModal(); });
+$('#settingsBtn').addEventListener('click', () => { fillSettingsForm(); dlg.showModal(); loadHaUsers(); });
 dlg.addEventListener('change', commitSettings);
 
 /* ================= Data loading ================= */
@@ -1805,7 +1878,7 @@ async function pollStates() {
     if (!Array.isArray(list)) return;
     const firstLoad = !entities.length;
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch }]));
+    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc }]));
     if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
     applyStates();
     renderRoomEntities(); renderEntState();

@@ -48,16 +48,27 @@ The add-on panel is open to every Home Assistant user (`panel_admin: false`), bu
   Use the login name (Settings → People → Users). Leave the list empty if only administrators may edit.
 - If the administrators cannot be read (the add-on then shows "Editing locked" in the status line), add your own user to `editors` as above. Everything stays locked for all others until then.
 
-## One tablet per room
+## Users, tablets and views
 
-Home Assistant does not pass URL parameters into add-on panels, so tablets are assigned by user:
+Home Assistant does not pass URL parameters into add-on panels, so what someone sees is assigned **per user**:
 
-1. Create a normal (non-admin) Home Assistant user for each tablet, e.g. `tablet_wohnzimmer` (Settings → People → Users).
+1. Create a normal (non-admin) Home Assistant user for each tablet or family member, e.g. `tablet_wohnzimmer` (Settings → People → Users).
 2. Log the tablet into that user and open the add-on once.
-3. On your own account open the add-on → ⚙ → **Tablets per room**, press **+ Tablet**, type the user name and choose the room.
+3. On your own account open the add-on → ⚙ → **Users & tablets**, press **+ User** and pick the user from the list of Home Assistant users (you can also type to search).
+4. Choose what that user gets:
+   - **Room:** the tablet then starts with only its room (with the room's entities). A button at the top toggles between the room and the whole floor. *Whole house* shows everything.
+   - **View in live mode:** *3D only* (default for everybody without an entry), *2D only*, *2D + 3D* or *Switchable* (the user gets the 2D / 3D / split buttons).
 
-That tablet now always starts with only its room shown, together with the room's entities. The button at the top (*Whole floor* / *‹ Room*) toggles between the room and the whole floor; in the whole-floor view the floor buttons are available as well.
-If you open the add-on directly (for example through a mapped port), `?room=Wohnzimmer` does the same.
+If you open the add-on directly (for example through a mapped port), `?room=Wohnzimmer` does the same as the room assignment.
+
+## Whole room at once and scenes
+
+In live mode, tapping a light or scene opens its controls and, below them, **Whole room: <room>**. There you can switch **all lights of the room** on or off, set brightness, colour and warm/cold white for all of them, and start the room's **scenes**. The same block sits at the top of the room panel (tap a room).
+Lights and scenes belong to a room when they are placed inside it or assigned to the room's Home Assistant area.
+
+## Nanoleaf and other effect lights
+
+Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistant *Nanoleaf* integration: every panel set shows up as a light entity, place it like any other light (a *Lichtkugel* or *LED-Streifen* fits well). If a light offers effects (Nanoleaf scenes, WLED, Hue ...), the live popup shows an **Effects** drop-down; for a whole room the effects that all its lights share are offered.
 
 ## Home Assistant areas
 
