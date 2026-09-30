@@ -84,6 +84,7 @@ export const DEVICE_TYPES = {
   panel_sq:   { label: 'Nanoleaf Quadrat',  y: 1.4 },
   panel_bar:  { label: 'Nanoleaf Linie',    y: 1.4 },
   nanoleaf:   { label: 'Nanoleaf Layout',   y: 1.4 },
+  tv_led:     { label: 'TV-Hintergrundlicht', y: 1.0 },
 };
 
 
@@ -94,7 +95,7 @@ export const CATEGORIES = {
   bath:    ['bathtub', 'shower', 'toilet', 'basin', 'doublebasin', 'mirror', 'towelrad'],
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
-  lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf'],
+  lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led'],
   smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router'],
   outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car'],
   decor:   ['picture'],
@@ -146,6 +147,16 @@ function nanoleaf(g, d) {
 }
 
 const builders = {
+  tv_led(g) {                   // LED frame behind a wall TV: a thin glowing ring a little larger than the TV, so the light spills out around it
+    const glow = glowMat();
+    const W = 1.3, H = 0.78, t = 0.035;
+    [[W, t, 0, (H - t) / 2], [W, t, 0, -(H - t) / 2], [t, H, (W - t) / 2, 0], [t, H, -(W - t) / 2, 0]].forEach(([w, h, x, y]) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.02), glow);
+      m.position.set(x, y, -0.005);
+      g.add(m);
+    });
+    g.userData.glow = [glow];
+  },
   panel_tri(g) { panel(g, [[-0.12, -0.069], [0.12, -0.069], [0, 0.139]]); },
   panel_hex(g) { panel(g, ngon(6, 0.13, 0)); },
   panel_sq(g)  { panel(g, [[-0.12, -0.12], [0.12, -0.12], [0.12, 0.12], [-0.12, 0.12]]); },
