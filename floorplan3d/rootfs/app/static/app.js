@@ -511,7 +511,7 @@ function build() {
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
       model.rotation.set(THREE.MathUtils.degToRad(d.tiltX || 0), THREE.MathUtils.degToRad(d.rot || 0), THREE.MathUtils.degToRad(d.tiltZ || 0));
-      model.scale.setScalar(d.scale || 1);
+      model.scale.set((d.scale || 1) * (d.sx || 1), (d.scale || 1) * (d.sy || 1), (d.scale || 1) * (d.sz || 1));   // uniform size x independent stretch per axis
       if (d.mirror) model.scale.x *= -1;                              // mirrored shape (left-right)
       if (!ghost) addPickProxy(model);
       if (holo && !OUTDOOR.has(d.type)) holoify(model, ghost);
@@ -673,7 +673,12 @@ function refreshSelHelper() {
 }
 function refreshSelection() {
   plan?.render();
-  if (selection && !registry.get(selection.id)) selection = null;
+  // keep the selection even when the object is not drawn (e.g. hidden by a focused room or off screen), so it can still be found, moved to view or deleted
+  if (selection && !registry.get(selection.id)) {
+    const f = floor();
+    const exists = f && [f.walls, f.rooms, f.devices, f.blocks, f.stairs].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
+    if (!exists) selection = null;
+  }
   if (!selection) lockedSel = false;
   document.body.classList.toggle('locksel', lockedSel);
   refreshSelHelper();
@@ -799,6 +804,20 @@ async function switchHouse(id) {
   clearFocusOutline(); renderHouseUi();
   build(); fitCamera(); buildNav(true); renderBgPanel(); renderFloorPanel(); renderObjList(); refreshSelection();
 }
+$('#backupImport').addEventListener('click', () => $('#backupFile').click());
+$('#backupFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file || !confirm(t('backup.confirm'))) return;
+  try {
+    if (saveTimer) await save();
+    const r = await fetch('api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: await file.text() });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || r.status);
+    alert(t('backup.done', { h: j.houses }));
+    location.reload();
+  } catch (err) { alert(`${t('backup.failed')}: ${err.message}`); }
+});
 $('#houseSelect').addEventListener('change', (e) => switchHouse(e.target.value));
 
 async function save() {
@@ -1028,6 +1047,7 @@ canvas.addEventListener('pointermove', (e) => {
   const gp = groundPoint(e);
 
   if (down?.dev && gp) {
+    if (down.dev.d.locked) return;
     if (!down.dev.moved) { snapshot(); down.dev.moved = true; }
     const [x, z] = snap([gp[0] + down.dev.dx, gp[1] + down.dev.dz], true);
     moveDeviceTo(down.dev.d, x, z);
@@ -1148,7 +1168,7 @@ window.addEventListener('keydown', (e) => {
   if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (bgMode) setBgMode(null); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
-  else if (k === 'delete' || k === 'backspace') { if (selection) { snapshot(); deleteItem(selection); } }
+  else if (k === 'delete' || k === 'backspace') { if (selection && !(selection.kind === 'device' && floor().devices.find((x) => x.id === selection.id)?.locked)) { snapshot(); deleteItem(selection); } }
   else if ((k === 'q' || k === 'e') && selection?.kind === 'stair') {
     const st = floor().stairs.find((v) => v.id === selection.id);
     if (st) { snapshot(); st.rot = ((st.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
@@ -1617,24 +1637,55 @@ function liveMove(d) {
 }
 const groupMembers = (d) => (d.group ? floor().devices.filter((x) => x.group === d.group) : [d]);
 function groupCentre(ms) { return [ms.reduce((a, m) => a + m.x, 0) / ms.length, ms.reduce((a, m) => a + m.z, 0) / ms.length]; }
-/** does the straight move (x0,z0) -> (x1,z1) cross a wall? Open doors let it pass. */
-function wallBlocks(x0, z0, x1, z1) {
-  if (!settings.wallStop) return false;
-  const rx = x1 - x0, rz = z1 - z0;
-  return floor().walls.some((w) => {
-    const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, den = rx * sz - rz * sx;
-    if (Math.abs(den) < 1e-9) return false;
-    const t = ((ax - x0) * sz - (az - z0) * sx) / den, u = ((ax - x0) * rz - (az - z0) * rx) / den;
-    if (t < 0 || t > 1 || u < 0 || u > 1) return false;
-    const pos = u * Math.hypot(sx, sz);
-    return !(w.openings || []).some((o) => o.type === 'door' && Math.abs(o.pos - pos) <= o.width / 2);
-  });
+/* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
+   the wall instead of freezing, and door openings let it through. Wall-hung items, outdoor items and ceiling-free objects are exempt. */
+const STOP_EXEMPT = new Set([...WALL_TYPES_LIST(), ...OUTDOOR]);
+function WALL_TYPES_LIST() { return ['picture', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
+function penetration(m, x, z, w) {
+  const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L = Math.hypot(sx, sz) || 1e-9, ux = sx / L, uz = sz / L;
+  const along = (x - ax) * ux + (z - az) * uz;
+  const dist = Math.hypot(x - (ax + ux * Math.max(0, Math.min(L, along))), z - (az + uz * Math.max(0, Math.min(L, along))));
+  if ((w.openings || []).some((o) => o.type === 'door' && Math.abs(o.pos - along) <= o.width / 2)) return -1;   // through the doorway
+  const f = plan.footOf(m), hw = f.r ?? f.w / 2, hd = f.r ?? f.d / 2, th = ((m.rot || 0) * Math.PI) / 180;
+  const nx = -uz, nz = ux;                                                            // wall normal
+  const cu = Math.cos(th), su = -Math.sin(th), cv = Math.sin(th), sv = Math.cos(th);  // device axes
+  const rad = hw * Math.abs(nx * cu + nz * su) + hd * Math.abs(nx * cv + nz * sv);      // half extent of the footprint across the wall
+  return (w.thickness || 0.2) / 2 + rad - dist;                                        // > 0: overlaps the wall body
+}
+/** clamp the displacement (dx,dz) of the given members so none of them moves deeper into a wall; slide along it when possible */
+function stopMove(members, dx, dz) {
+  if (!settings.wallStop) return [dx, dz];
+  const ms = members.filter((m) => !STOP_EXEMPT.has(m.type));
+  if (!ms.length) return [dx, dz];
+  const walls = floor().walls;
+  // the move is checked in small steps so a fast drag cannot tunnel through a wall
+  const bad = (ex, ez) => {
+    const n = Math.min(80, Math.max(1, Math.ceil(Math.hypot(ex, ez) / 0.04)));
+    return walls.find((w) => ms.some((m) => {
+      let prev = penetration(m, m.x, m.z, w);
+      for (let i = 1; i <= n; i++) {
+        const p1 = penetration(m, m.x + (ex * i) / n, m.z + (ez * i) / n, w);
+        if (p1 > 0.001 && p1 > prev + 1e-4) return true;
+        prev = p1;
+      }
+      return false;
+    }));
+  };
+  let w = bad(dx, dz);
+  if (!w) return [dx, dz];
+  for (let i = 0; i < 3 && w; i++) {                                                  // slide: keep only the part of the move along the blocking wall
+    const [ax, az] = w.a, L = Math.hypot(w.b[0] - ax, w.b[1] - az) || 1, ux = (w.b[0] - ax) / L, uz = (w.b[1] - az) / L, k = dx * ux + dz * uz;
+    dx = ux * k; dz = uz * k;
+    w = bad(dx, dz);
+  }
+  return w ? [0, 0] : [dx, dz];
 }
 function moveDeviceTo(d, x, z) {
-  const dx = x - d.x, dz = z - d.z;
-  if (groupMembers(d).some((m) => wallBlocks(m.x, m.z, m.x + dx, m.z + dz))) return;     // stop at the wall
-  groupMembers(d).forEach((m) => { m.x = +(m.x + dx).toFixed(4); m.z = +(m.z + dz).toFixed(4); liveMove(m); });
-  d.x = x; d.z = z; liveMove(d);
+  const ms = groupMembers(d);
+  if (ms.some((m) => m.locked)) return;                          // locked things stay where they are
+  const [dx, dz] = stopMove(ms, x - d.x, z - d.z);
+  if (!dx && !dz) return;
+  ms.forEach((m) => { m.x = +(m.x + dx).toFixed(4); m.z = +(m.z + dz).toFixed(4); liveMove(m); });
 }
 function rotateGroup(d, delta) {
   const ms = groupMembers(d), [cx, cz] = groupCentre(ms), th = (delta * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
@@ -2257,7 +2308,7 @@ function renderObjList() {
     ['obj.rooms', f.rooms.map((r) => ({ kind: 'room', id: r.id, label: r.name || t('prop.room') }))],
     ['obj.walls', f.walls.map((w, i) => ({ kind: 'wall', id: w.id, label: `${t('prop.wall')} ${i + 1} · ${wallLength(w).toFixed(1)} m` }))],
     ['obj.openings', openings.map(({ o }) => ({ kind: 'opening', id: o.id, label: o.name || t(`prop.${o.type}`) }))],
-    ['obj.devices', f.devices.map((d) => ({ kind: 'device', id: d.id, label: d.name || t(`dev.${d.type}`) }))],
+    ['obj.devices', f.devices.map((d) => ({ kind: 'device', id: d.id, label: (d.locked ? '🔒 ' : '') + (d.name || t(`dev.${d.type}`)) }))],
     ['obj.stairs', (f.stairs || []).map((s) => ({ kind: 'stair', id: s.id, label: s.name || t(`stair.${s.type}`) }))],
     ['obj.blocks', (f.blocks || []).map((b) => ({ kind: 'block', id: b.id, label: b.name || t('prop.block') }))],
   ];
@@ -2384,12 +2435,23 @@ function renderProps() {
       body.append(field(t('prop.inv'), ci));
     }
   } else {
+    const bring = document.createElement('button'); bring.type = 'button'; bring.textContent = t('prop.bringHere');
+    bring.addEventListener('click', () => { snapshot(); it.x = +controls.target.x.toFixed(2); it.z = +controls.target.z.toFixed(2); if (WALL_TYPES.has(it.type)) snapToWall(it, 0.8); changed(); build(); refreshSelection(); });
+    body.append(bring);
+    const lk = document.createElement('input'); lk.type = 'checkbox'; lk.checked = !!it.locked; lk.id = 'devLock';
+    lk.addEventListener('change', () => { snapshot(); if (lk.checked) it.locked = true; else delete it.locked; changed(); renderProps(); renderObjList(); });
+    const lkl = document.createElement('label'); lkl.className = 'chk'; lkl.append(lk, document.createTextNode(' ' + t('prop.lock')));
+    body.append(lkl);
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { const nv = ((+v % 360) + 360) % 360; if (it.group) rotateGroup(it, nv - (it.rot || 0)); else it.rot = nv; }, { step: 15 })));
     body.append(field(t('prop.height'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
+    if (it.type !== 'picture') {
+      const stretch = (key, label) => field(label, inp('number', it[key] || 1, (v) => { const n = Math.max(0.1, Math.min(10, +v || 1)); if (Math.abs(n - 1) < 0.005) delete it[key]; else it[key] = +n.toFixed(3); }, { step: 0.1, min: 0.1 }));
+      body.append(stretch('sx', t('prop.stretchX')), stretch('sy', t('prop.stretchY')), stretch('sz', t('prop.stretchZ')));
+    }
     const angle = (key) => inp('number', it[key] || 0, (v) => { const a = ((+v % 360) + 360) % 360; if (a) it[key] = a; else delete it[key]; }, { step: 15 });
     body.append(field(t('prop.tiltX'), angle('tiltX')), field(t('prop.tiltZ'), angle('tiltZ')));
     const cm = document.createElement('input'); cm.type = 'checkbox'; cm.checked = !!it.mirror; cm.id = 'devMirror';

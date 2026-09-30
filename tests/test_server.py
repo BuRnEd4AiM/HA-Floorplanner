@@ -361,3 +361,36 @@ async def test_houses_need_editor(client, monkeypatch, tmp_path):
     tablet = {"X-Remote-User-Name": "tablet_wz"}
     assert (await client.post("/api/houses", json={"name": "X"}, headers=tablet)).status == 403
     assert (await client.delete("/api/houses/main", headers=tablet)).status == 403
+
+
+async def test_backup_roundtrip(client):
+    import base64
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * 32
+    layout = {"version": 1, "floors": [{"id": "a", "name": "Mein EG", "walls": [], "rooms": [], "devices": []}]}
+    assert (await client.put("/api/layout", json=layout)).status == 200
+    hid = (await (await client.post("/api/houses", json={"name": "Eltern"})).json())["id"]
+    import aiohttp
+    fd = aiohttp.FormData(); fd.add_field("file", png, filename="a.png")
+    bg = (await (await client.post("/api/backgrounds", data=fd)).json())["name"]
+    r = await client.get("/api/backup")
+    assert r.status == 200 and "attachment" in r.headers["Content-Disposition"]
+    backup = await r.json()
+    assert backup["format"] == "floorplan3d-backup" and len(backup["houses"]) == 2 and bg in backup["backgrounds"]
+    # wreck the data, then restore
+    assert (await client.delete(f"/api/houses/{hid}")).status == 200
+    assert (await client.delete(f"/api/backgrounds/{bg}")).status == 200
+    assert (await client.put("/api/layout", json={"version": 1, "floors": []})).status == 200
+    r = await client.post("/api/backup", json=backup)
+    assert r.status == 200 and (await r.json())["houses"] == 2
+    assert {h["name"] for h in await (await client.get("/api/houses")).json()} == {"Haus", "Eltern"}
+    assert (await (await client.get("/api/layout")).json()) == layout
+    assert (await client.get(f"/api/backgrounds/{bg}")).status == 200
+
+
+async def test_backup_rejects_bad_input(client):
+    assert (await client.post("/api/backup", json={"format": "x"})).status == 400
+    bad = {"format": "floorplan3d-backup", "houses": [{"id": "main", "name": "H", "layout": {"floors": []}}], "backgrounds": {"../../etc.png": "AAAA"}}
+    assert (await client.post("/api/backup", json=bad)).status == 400
+    bad["backgrounds"] = {}
+    bad["models"] = {"evil.glb": "AAAA"}
+    assert (await client.post("/api/backup", json=bad)).status == 400
