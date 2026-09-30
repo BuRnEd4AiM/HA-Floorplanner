@@ -174,6 +174,35 @@ with sync_playwright() as p:
     pg2.click("#bgRemove"); pg2.wait_for_timeout(200)
     check("background removed", pg2.evaluate("window.__fp.layout.floors[0].bg") is None and pg2.locator("#plan2d image").count() == 0)
     pg2.wait_for_timeout(1800)
+    # --- placeholder block for the floor below (created automatically on the first floor)
+    fl0 = pg2.evaluate("window.__fp.layout.floors.length")
+    pg2.click("button[data-tool=block]"); pg2.wait_for_timeout(200)
+    corners = [(-2.5, -2), (2.5, -2), (2.5, 2), (-2.5, 2), (-2.5, -2)]
+    for (x, z) in corners:
+        c = pg2.evaluate(f"window.__fp.plan().toClient({x},{z})"); pg2.mouse.click(*c); pg2.wait_for_timeout(120)
+    lay = pg2.evaluate("window.__fp.layout")
+    check("block: floor below created and holds the block", len(lay["floors"]) == fl0 + 1 and len(lay["floors"][0]["blocks"]) == 1 and lay["floors"][1]["walls"], (fl0, len(lay["floors"])))
+    check("block is drawn hatched in 2D and exists in 3D", pg2.locator('#plan2d polygon[fill="url(#hatch)"]').count() >= 1 and pg2.evaluate(f"window.__fp.has('{lay['floors'][0]['blocks'][0]['id']}')"))
+    # --- stairs: place, flip to 'comes from below' (opening in this floor), stairwell preset, delete, undo
+    pg2.click("button[data-tool=stairs]"); pg2.wait_for_timeout(200)
+    pg2.click("#stairTypes button[data-stair=U]")
+    c = pg2.evaluate("window.__fp.plan().toClient(0,0)"); pg2.mouse.click(*c); pg2.wait_for_timeout(300)
+    fl = pg2.evaluate("window.__fp.layout")["floors"][1]
+    check("U stair placed and selected", len(fl["stairs"]) == 1 and fl["stairs"][0]["type"] == "U" and pg2.evaluate(f"window.__fp.has('{fl['stairs'][0]['id']}')"), fl["stairs"])
+    pg2.select_option("#propsBody select >> nth=0", "down"); pg2.wait_for_timeout(300)
+    check("'comes from below' cuts an opening into this floor", pg2.evaluate("window.__fp.layout.floors[1].stairs[0].dir") == "down" and pg2.evaluate("window.__fp.holeCount(1)") == 1)
+    w0, r0 = len(fl["walls"]), len(fl["rooms"])
+    pg2.click("button[data-tool=stairs]"); pg2.click("#stairTypes button[data-stair=shaft]")
+    c = pg2.evaluate("window.__fp.plan().toClient(-1.5,-0.5)"); pg2.mouse.click(*c); pg2.wait_for_timeout(300)
+    fl = pg2.evaluate("window.__fp.layout")["floors"][1]
+    doors = sum(1 for w in fl["walls"] for o in w["openings"] if o["type"] == "door")
+    check("stairwell preset adds 4 walls, a room, a door and a stair", len(fl["walls"]) == w0 + 4 and len(fl["rooms"]) == r0 + 1 and len(fl["stairs"]) == 2 and doors >= 2, (len(fl["walls"]), w0, doors))
+    pg2.keyboard.press("Delete"); pg2.wait_for_timeout(200)
+    check("stair can be deleted", len(pg2.evaluate("window.__fp.layout.floors[1].stairs")) == 1)
+    pg2.keyboard.press("Control+z"); pg2.wait_for_timeout(200)
+    check("undo brings the stair back", len(pg2.evaluate("window.__fp.layout.floors[1].stairs")) == 2)
+    pg2.wait_for_timeout(1800)
+    pg2.screenshot(path=f"{S}/stairs.png")
     pg2.close()
     # --- a user who is neither admin nor editor only gets the read-only live view
     pg3 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "tablet_wz"})

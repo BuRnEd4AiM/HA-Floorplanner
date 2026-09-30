@@ -88,6 +88,18 @@ Use the buttons **2D**, **3D** and **2D + 3D** at the top. The 2D plan and the 3
 - **Navigate:** mouse wheel to zoom, right or middle mouse button (or dragging empty space) to pan, two fingers to pinch on touch screens. *Fit* recentres.
 - The object list, the *Lock* selection and the room entity list work the same in 2D.
 
+### Floors you do not draw: placeholder blocks
+
+Live on the first floor of a building and do not want to draw the ground floor below you? Use the tool **Block** (B): click the corners of the building outline (double click or the first point closes it). The block stands under your floor as a solid mass in 3D and as a hatched area in 2D, so you see where your flat sits. *Belongs to* chooses the floor below (default, created automatically on the first floor) or the current floor. Blocks cannot be controlled and are only for orientation; select one in the object list to rename it, change its height or drag its corners.
+
+### Stairs and stairwells
+
+Tool **Treppe** (T): pick *Gerade*, *L*, *U* (with landing) or *Wendel*, set the direction and click in the plan. The steps are calculated from the floor height (3 m). Q/E rotates, dragging moves, the side panel edits width or radius and the turning side.
+
+- **Leads up**: the stair belongs to this floor and climbs to the next one. The floor above gets an opening over the upper flight automatically (dashed orange in 2D, only where the opening lies completely inside a room).
+- **Comes from below**: the stair starts one floor lower (for example in a block) and ends on this floor; the opening is cut into this floor.
+- **Treppenhaus**: one click places a U stair with four walls, a room, a flat door and, for stairs leading up, the same shell on the next floor. Everything stays editable as normal walls, rooms and doors.
+
 ### Trace a floor plan (background image)
 
 Open the panel **Hintergrundbild** in the side bar (edit mode). Every floor has its own image.

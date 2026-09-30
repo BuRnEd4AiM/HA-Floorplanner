@@ -15,6 +15,10 @@ jobs:
           python-version: "3.12"
       - run: pip install -r requirements-dev.txt
       - run: pytest -q
+      - name: Stair geometry unit tests
+        run: |
+          cp floorplan3d/rootfs/app/static/stairs.js /tmp/stairs.mjs
+          STAIRS_MJS=/tmp/stairs.mjs node --test tests/stairs.test.mjs
       - name: Check frontend syntax
         run: |
           for f in floorplan3d/rootfs/app/static/*.js; do cp "$f" /tmp/check.mjs && node --check /tmp/check.mjs; done
