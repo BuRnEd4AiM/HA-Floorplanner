@@ -419,3 +419,14 @@ async def test_settings_restored_from_backup_when_file_damaged(client, tmp_path)
     for p in tmp_path.rglob("settings.json"):
         p.write_text("{ broken")
     assert (await (await client.get("/api/settings")).json())["userRooms"] == {"tablet": "WZFL"}
+
+
+def test_addon_changelog_is_current():
+    """Home Assistant shows floorplan3d/CHANGELOG.md in the update dialog - it must equal the root changelog."""
+    root = Path(__file__).resolve().parent.parent
+    assert (root / "floorplan3d" / "CHANGELOG.md").read_text() == (root / "CHANGELOG.md").read_text()
+
+
+def test_effect_colors_setting_is_kept_and_cleaned():
+    out = server.validate_settings({"effectColors": {"Gaming": "#aa50ff", "": "x", "Bad": 5}})
+    assert out["effectColors"] == {"Gaming": "#aa50ff"}
