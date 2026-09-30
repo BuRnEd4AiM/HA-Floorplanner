@@ -1087,7 +1087,11 @@ function renderLivePopup() {
     });
     box.append(row);
   }
-  if (d.entity && d.entity.startsWith('light.') && !d.isOpening) box.append(lightControls([d.entity]));
+  if (d.entity && d.entity.startsWith('light.') && !d.isOpening) {
+    box.append(lightControls([d.entity]));
+    const sc = sceneButtons(scenesWith([d.entity]), 'live.sceneWith');   // scenes this light is part of
+    if (sc) box.append(sc);
+  }
   if (d.entity && /^(light|scene)\./.test(d.entity) && !d.isOpening) {          // the whole room this device is in
     const rm = floor().rooms.find((r) => pointInPoly(d.x, d.z, r.points));
     const rc = rm && roomControls(rm);
@@ -1142,6 +1146,25 @@ function lightControls(ids) {              // one light, or all lights of a room
   return wrap;
 }
 
+/** scenes (scene.*) that set at least one of these entities */
+function scenesWith(ids) {
+  const set = new Set(ids);
+  return Object.entries(states).filter(([id, st]) => id.startsWith('scene.') && (st.members || []).some((m) => set.has(m))).map(([id]) => id);
+}
+function sceneButtons(ids, labelKey) {
+  if (!ids.length) return null;
+  const wrap = document.createElement('div'); wrap.className = 'sceneList';
+  const sh = document.createElement('div'); sh.className = 'sub'; sh.textContent = t(labelKey); wrap.append(sh);
+  const row = document.createElement('div'); row.className = 'scenes';
+  ids.forEach((id) => {
+    const b = document.createElement('button'); b.textContent = entities.find((e) => e.entity_id === id)?.name || id;
+    b.addEventListener('click', () => callService(id, 'turn_on'));
+    row.append(b);
+  });
+  wrap.append(row);
+  return wrap;
+}
+
 /* ---- whole room: all lights at once + the room's scenes ---- */
 function roomEntityIds(room, domain) {
   const f = floor();
@@ -1150,7 +1173,7 @@ function roomEntityIds(room, domain) {
   return [...ids].filter((id) => states[id]);
 }
 function roomControls(room) {
-  const lights = roomEntityIds(room, 'light'), scenes = roomEntityIds(room, 'scene');
+  const lights = roomEntityIds(room, 'light'), scenes = [...new Set([...roomEntityIds(room, 'scene'), ...scenesWith(roomEntityIds(room, 'light'))])];
   if (!lights.length && !scenes.length) return null;
   const wrap = document.createElement('div'); wrap.className = 'roomctl';
   const h = document.createElement('h4'); h.textContent = t('rc.title', { n: room.name || '' }); wrap.append(h);
@@ -2310,7 +2333,7 @@ async function pollStates() {
     if (!Array.isArray(list)) return;
     const firstLoad = !entities.length;
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc }]));
+    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members }]));
     if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
     applyStates();
     renderRoomEntities(); renderEntState();
