@@ -466,10 +466,11 @@ with sync_playwright() as p:
     pg10.click("[data-shape=tri]")
     for dx, dy in [(0.0, -0.3), (0.0, 0.3), (0.45, 0.0)]:
         pg10.mouse.click(box["x"] + box["width"] / 2 + dx * box["width"] * 0.35, box["y"] + box["height"] / 2 + dy * box["height"] * 0.6); pg10.wait_for_timeout(100)
+    pg10.click("[data-shape=tri2]"); pg10.mouse.click(box["x"] + box["width"] / 2 - 0.3 * box["width"] * 0.35, box["y"] + box["height"] / 2); pg10.wait_for_timeout(100)
     cnt = pg10.inner_text("#nanoCount")
     pg10.click("#nanoOk"); pg10.wait_for_timeout(500)
     np_ = pg10.evaluate("window.__fp.layout.floors[0].devices.find(d => d.id === 'nano1').panels.length")
-    check("nanoleaf editor adds snapped panels to one device", np_ >= 4 and pg10.locator("#nanoDialog").count() == 0, (np_, cnt))
+    check("nanoleaf editor adds snapped panels to one device", np_ >= 5 and pg10.locator("#nanoDialog").count() == 0, (np_, cnt))
     pg10.close()
     b.close()
 

@@ -5,6 +5,7 @@
 const ngon = (n, r) => Array.from({ length: n }, (_, k) => [Math.cos((k * 2 * Math.PI) / n) * r, Math.sin((k * 2 * Math.PI) / n) * r]);
 export const SHAPES = {
   tri: [[-0.12, -0.069], [0.12, -0.069], [0, 0.139]],
+  tri2: [[-0.06, -0.0346], [0.06, -0.0346], [0, 0.0693]],   // half-size triangle
   hex: ngon(6, 0.13),
   sq:  [[-0.12, -0.12], [0.12, -0.12], [0.12, 0.12], [-0.12, 0.12]],
   bar: [[-0.45, -0.02], [0.45, -0.02], [0.45, 0.02], [-0.45, 0.02]],
@@ -20,7 +21,7 @@ export function polyOf(p) {
 function edgesOf(poly) {
   return poly.map((a, i) => {
     const b = poly[(i + 1) % poly.length], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
-    return { m: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], n: [dy / L, -dx / L] };
+    return { m: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], n: [dy / L, -dx / L], L, t: [dx / L, dy / L] };
   });
 }
 export function nanoBounds(panels) {
@@ -62,11 +63,15 @@ export function placeAt(panels, s, x, y, rot = 0, reach = 0.22) {
     const probe = { s, x: 0, y: 0, r }, mine = edgesOf(polyOf(probe));
     for (const f of mine) for (const e of all) {
       if (f.n[0] * e.n[0] + f.n[1] * e.n[1] > -0.985) continue;
-      const cand = { s, x: e.m[0] - f.m[0], y: e.m[1] - f.m[1], r };
-      const dist = Math.hypot(cand.x - x, cand.y - y) + (r === rot ? 0 : 0.015);
-      if (dist > reach + 0.4 || (best && dist >= best.dist)) continue;
-      if (!free(cand, panels)) continue;
-      best = { dist, cand };
+      // edges of different length: also slide the new panel so it lines up with either end of the longer edge
+      const slide = Math.abs(e.L - f.L) > 0.01 ? [0, (e.L - f.L) / 2, -(e.L - f.L) / 2] : [0];
+      for (const sl of slide) {
+        const cand = { s, x: e.m[0] - f.m[0] + e.t[0] * sl, y: e.m[1] - f.m[1] + e.t[1] * sl, r };
+        const dist = Math.hypot(cand.x - x, cand.y - y) + (r === rot ? 0 : 0.015);
+        if (dist > reach + 0.4 || (best && dist >= best.dist)) continue;
+        if (!free(cand, panels)) continue;
+        best = { dist, cand };
+      }
     }
   }
   if (best && best.dist <= reach + 0.05) return { panel: { ...best.cand, x: +best.cand.x.toFixed(4), y: +best.cand.y.toFixed(4) }, snapped: true, ok: true };
@@ -82,7 +87,7 @@ export function openNanoEditor({ panels, t, onSave }) {
   dlg.innerHTML = `<form method="dialog" novalidate>
     <div class="dlgHead"><h2>${t('nano.title')}</h2><button type="submit" value="cancel" class="dlgClose" formnovalidate aria-label="${t('close')}">✕</button></div>
     <p class="hint">${t('nano.hint')}</p>
-    <div class="nanoBar">${SHAPE_KEYS.map((k) => `<button type="button" data-shape="${k}" title="${t('dev.panel_' + k)}">${{ tri: '▲', hex: '⬢', sq: '■', bar: '▬' }[k]}</button>`).join('')}
+    <div class="nanoBar">${SHAPE_KEYS.map((k) => `<button type="button" data-shape="${k}" title="${t('dev.panel_' + k)}">${{ tri: '▲', tri2: '▴', hex: '⬢', sq: '■', bar: '▬' }[k]}</button>`).join('')}
       <span class="sep"></span>
       <button type="button" id="nanoRot">↻ ${t('nano.rotate')}</button>
       <button type="button" id="nanoDel">🗑 ${t('nano.eraser')}</button>
