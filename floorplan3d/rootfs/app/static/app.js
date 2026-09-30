@@ -2347,22 +2347,37 @@ function renderObjList() {
     lockBar.append(rb);
   }
   body.append(lockBar);
-  const openings = [];
-  f.walls.forEach((w, i) => (w.openings || []).forEach((o) => openings.push({ o, w })));
-  const groups = [
-    ['obj.rooms', f.rooms.map((r) => ({ kind: 'room', id: r.id, label: r.name || t('prop.room') }))],
+  const fi = document.createElement('input'); fi.type = 'search'; fi.className = 'objfilter'; fi.placeholder = t('obj.filter'); fi.value = objFilter;
+  fi.addEventListener('input', () => { objFilter = fi.value; const pos = fi.selectionStart; renderObjList(); const n = $('#objListBody .objfilter'); n?.focus(); n?.setSelectionRange(pos, pos); });
+  body.append(fi);
+  /* grouped by room: the room itself, its doors / windows and its furniture; everything else below */
+  const q = (objFilter || '').trim().toLowerCase();
+  const used = new Set();
+  const take = (list) => list.filter((it) => { if (used.has(it.id)) return false; used.add(it.id); return true; });
+  const devItem = (d) => ({ kind: 'device', id: d.id, label: d.name || t(`dev.${d.type}`) });
+  const opItem = (o) => ({ kind: 'opening', id: o.id, label: o.name || t(`prop.${o.type}`) });
+  const groups = [];
+  f.rooms.forEach((r) => {
+    const items = [{ kind: 'room', id: r.id, label: `▣ ${r.name || t('prop.room')}` },
+      ...take(roomOpenings(r, f).map(opItem)), ...take(f.devices.filter((d) => pointInPoly(d.x, d.z, r.points)).map(devItem))];
+    groups.push([`room:${r.id}`, items, r.name || t('prop.room')]);
+  });
+  const restOps = take(f.walls.flatMap((w) => (w.openings || []).map(opItem)));
+  const restDevs = take(f.devices.map(devItem));
+  if (restOps.length || restDevs.length) groups.push(['obj.noRoom', [...restOps, ...restDevs], t('obj.noRoom')]);
+  groups.push(
     ['obj.walls', f.walls.map((w, i) => ({ kind: 'wall', id: w.id, label: `${t('prop.wall')} ${i + 1} · ${wallLength(w).toFixed(1)} m` }))],
-    ['obj.openings', openings.map(({ o }) => ({ kind: 'opening', id: o.id, label: o.name || t(`prop.${o.type}`) }))],
-    ['obj.devices', f.devices.map((d) => ({ kind: 'device', id: d.id, label: d.name || t(`dev.${d.type}`) }))],
     ['obj.stairs', (f.stairs || []).map((s) => ({ kind: 'stair', id: s.id, label: s.name || t(`stair.${s.type}`) }))],
     ['obj.blocks', (f.blocks || []).map((b) => ({ kind: 'block', id: b.id, label: b.name || t('prop.block') }))],
-  ];
-  groups.forEach(([key, items]) => {
+  );
+  groups.forEach(([key, allItems, title]) => {
+    const items = q ? allItems.filter((it) => it.label.toLowerCase().includes(q)) : allItems;
     if (!items.length) return;
     const det = document.createElement('details');
-    det.open = objGroupOpen[key] ?? (key !== 'obj.walls');
+    const holdsSel = items.some((it) => it.id === selection?.id);
+    det.open = q ? true : holdsSel || (objGroupOpen[key] ?? false);
     det.addEventListener('toggle', () => { objGroupOpen[key] = det.open; });
-    const sum = document.createElement('summary'); sum.textContent = `${t(key)} (${items.length})`;
+    const sum = document.createElement('summary'); sum.textContent = `${title ?? t(key)} (${items.length})`;
     det.append(sum);
     items.forEach((it) => {
       const rowEl = document.createElement('div'); rowEl.className = 'objrow';
@@ -2387,6 +2402,7 @@ function renderObjList() {
   });
 }
 const objGroupOpen = {};
+let objFilter = '';
 
 function renderProps() {
   renderObjList();
