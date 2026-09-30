@@ -1,0 +1,11 @@
+bug	d73a4a	Something is broken
+enhancement	a2eeef	New feature or improvement
+documentation	0075ca	Docs and guides
+testing	fbca04	Needs testing on real hardware / more tests
+good first issue	7057ff	Good for newcomers
+help wanted	008672	Extra attention is welcome
+area: 3d	1d76db	3D view and models
+area: 2d	1d76db	2D blueprint editor
+area: live	1d76db	Live mode and controls
+area: backend	1d76db	Python backend, permissions, API
+area: home-assistant	03a9f4	Home Assistant integration (add-on, entities, areas)

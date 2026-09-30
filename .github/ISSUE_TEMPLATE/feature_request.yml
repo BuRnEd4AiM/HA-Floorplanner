@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest an idea or improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What do you want to do?
+      description: Describe the goal or problem, not only the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How could it work?
+      description: Sketches, screenshots or examples from other tools are welcome.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [3D view, 2D editor, Live mode, Devices and models, Home Assistant integration, Settings / permissions, Documentation, Other]

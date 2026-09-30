@@ -1,0 +1,36 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, what happened instead? Screenshots help a lot.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Add-on version
+      placeholder: e.g. 0.7.1
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen?
+      options: [3D view, 2D editor, Live mode, Settings / permissions, Entities / areas, Add-on install / update, Other]
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Home Assistant and browser
+      placeholder: e.g. HAOS 2026.9 on Proxmox VM, Chrome 130
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Add-on log (Settings → Apps → 3D Floorplan → Log) and browser console output. Remove anything private.
+      render: shell
