@@ -207,6 +207,24 @@ with sync_playwright() as p:
     check("stair can be deleted", len(pg2.evaluate("window.__fp.layout.floors[1].stairs")) == 1)
     pg2.keyboard.press("Control+z"); pg2.wait_for_timeout(200)
     check("undo brings the stair back", len(pg2.evaluate("window.__fp.layout.floors[1].stairs")) == 2)
+    # --- rooms: double click on an edge adds a corner, double click on a corner removes it
+    pg2.click("button[data-tool=room]")
+    devs = pg2.evaluate("window.__fp.layout.floors[1].devices.map(d => [d.x, d.z])")
+    ox = next(o for o in (-2.4, -1.2, 0.0, 1.2, 2.4, 3.6) if all(abs(dx - (o + 0.6)) > 1.5 or abs(dz - 0.45) > 1.5 for dx, dz in devs))   # a spot without devices (a double click on a device toggles it)
+    sq = [(ox, 0.0), (ox + 1.2, 0.0), (ox + 1.2, 0.9), (ox, 0.9), (ox, 0.0)]
+    for (x, z) in sq:
+        c = pg2.evaluate(f"window.__fp.plan().toClient({x},{z})"); pg2.mouse.click(*c); pg2.wait_for_timeout(100)
+    pg2.click("button[data-tool=select]")
+    rm = pg2.evaluate("window.__fp.layout.floors[1].rooms.at(-1)")
+    pa, pb = rm["points"][0], rm["points"][1]
+    mid = pg2.evaluate(f"window.__fp.plan().toClient({(pa[0] + pb[0]) / 2},{(pa[1] + pb[1]) / 2})")
+    pg2.mouse.dblclick(*mid); pg2.wait_for_timeout(250)
+    rm2 = pg2.evaluate("window.__fp.layout.floors[1].rooms.at(-1)")
+    check("double click on a room edge inserts a corner on that edge", len(rm2["points"]) == len(rm["points"]) + 1 and abs(rm2["points"][1][1] - pa[1]) < 0.02, (len(rm["points"]), len(rm2["points"]), rm["points"], rm2["points"], mid, pg2.evaluate("window.__fp.layout.floors[1].rooms.length")))
+    p1 = pg2.evaluate(f"window.__fp.plan().toClient({rm2['points'][1][0]},{rm2['points'][1][1]})")
+    pg2.mouse.dblclick(*p1); pg2.wait_for_timeout(250)
+    rm3 = pg2.evaluate("window.__fp.layout.floors[1].rooms.at(-1)")
+    check("double click on a corner removes it again", len(rm3["points"]) == len(rm["points"]), len(rm3["points"]))
     pg2.wait_for_timeout(1800)
     pg2.screenshot(path=f"{S}/stairs.png")
     pg2.close()

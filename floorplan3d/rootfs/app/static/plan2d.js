@@ -759,10 +759,44 @@ export function createPlan(ctx) {
     else if (tool === 'room' || tool === 'block') finishRoom();
     else if (tool === 'select') {
       const [px, py] = local(e);
-      const h = pickAt(wx(px), wz(py));
-      if (h?.kind === 'device') ctx.deviceDoubleClick(h.id);
+      const x = wx(px), z = wz(py);
+      const h = pickAt(x, z);
+      if (h?.kind === 'device') { ctx.deviceDoubleClick(h.id); return; }
+      const hd = handleAt(px, py);
+      if (hd?.type === 'room-pt') {                                  // double click on a corner removes it (a room keeps at least 3)
+        if (hd.room.points.length > 3) { ctx.snapshot(); hd.room.points.splice(hd.i, 1); ctx.commit(); }
+        return;
+      }
+      const edge = edgeAt(x, z);
+      if (edge) {                                                    // double click on an edge adds a corner there
+        ctx.snapshot();
+        edge.poly.points.splice(edge.i + 1, 0, [+edge.pt[0].toFixed(3), +edge.pt[1].toFixed(3)]);
+        ctx.setSelection({ kind: edge.kind, id: edge.poly.id });
+        ctx.commit();
+      }
     }
   });
+
+  /* nearest edge of a room / block (the selected one wins) under the pointer, with the point on that edge */
+  function edgeAt(x, z) {
+    const f = floor(), sel = ctx.getSelection(), tol = Math.max(0.08, 10 / s);
+    const polys = [...f.rooms.map((p) => ({ kind: 'room', poly: p })), ...(f.blocks || []).map((p) => ({ kind: 'block', poly: p }))];
+    let best = null;
+    polys.forEach(({ kind, poly }) => {
+      const pts2 = poly.points, n = pts2.length;
+      const bonus = sel && sel.kind === kind && sel.id === poly.id ? 0.5 : 1;             // prefer the selected shape
+      for (let i = 0; i < n; i++) {
+        const a = pts2[i], b = pts2[(i + 1) % n];
+        const dx = b[0] - a[0], dz = b[1] - a[1], L2 = dx * dx + dz * dz;
+        if (L2 < 1e-6) continue;
+        const t = ((x - a[0]) * dx + (z - a[1]) * dz) / L2;
+        if (t < 0.02 || t > 0.98) continue;                                               // not on top of an existing corner
+        const pt = [a[0] + dx * t, a[1] + dz * t], d = Math.hypot(x - pt[0], z - pt[1]) * bonus;
+        if (d <= tol && (!best || d < best.d)) best = { kind, poly, i, pt, d };
+      }
+    });
+    return best;
+  }
   root.addEventListener('pointerleave', () => { if (!drag) { opPreview = null; if (!drawPts.length) cursor = null; render(); } });
 
   new ResizeObserver(() => { if (visible) schedule(); }).observe(root);
