@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-09-30
+### Fixed
+- Nanoleaf layouts stay solid in the hologram theme (no longer see-through from the side)
+- Their room light now shines from the real panel positions, a little off the wall, instead of one point
+
 ## [2.0.1] - 2026-09-30
 ### Added
 - Nanoleaf layout editor: **small triangle** (half size); it also snaps to either half of a large triangle's edge
