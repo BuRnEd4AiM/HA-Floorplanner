@@ -32,6 +32,13 @@ export const DEVICE_TYPES = {
   shower:     { label: 'Dusche',      y: 0 },
   carpet:     { label: 'Teppich',     y: 0 },
   car:        { label: 'Auto',        y: 0 },
+  tree:       { label: 'Baum',        y: 0 },
+  bush:       { label: 'Busch',       y: 0 },
+  pool:       { label: 'Pool',        y: 0 },
+  lawn:       { label: 'Rasen',       y: 0 },
+  terrace:    { label: 'Terrasse',    y: 0 },
+  path:       { label: 'Weg',         y: 0 },
+  fence:      { label: 'Zaun',        y: 0 },
   orb:        { label: 'Lichtkugel',  y: 0.4 },
   strip:      { label: 'LED-Streifen', y: 0.5 },
 };
@@ -248,6 +255,31 @@ Object.assign(builders, {
   },
   carpet(g) {
     g.add(box(2.0, 0.015, 1.4, std('#7c8aa6')));
+  },
+  tree(g) {
+    g.add(cyl(0.12, 0.16, 1.6, std('#6b4a2f'), 0, 0, 0, 10));
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(1.0, 16, 12), std('#3f8f4a')).translateY(2.3));
+  },
+  bush(g) {
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(0.5, 14, 10), std('#4a9a52')).translateY(0.4));
+  },
+  pool(g) {
+    g.add(box(4.0, 0.06, 2.5, std('#d8e4ea')));
+    g.add(box(3.7, 0.08, 2.2, std('#2fa8d8', { transparent: true, opacity: 0.8, emissive: 0x0a4a66 })));
+  },
+  lawn(g) {
+    g.add(box(6.0, 0.02, 4.0, std('#5aa04a')));
+  },
+  terrace(g) {
+    g.add(box(4.0, 0.06, 3.0, std('#b9a58a')));
+  },
+  path(g) {
+    g.add(box(1.0, 0.03, 4.0, std('#9a9488')));
+  },
+  fence(g) {
+    g.add(box(3.0, 0.08, 0.06, std('#8a6a44'), 0, 0.85));
+    g.add(box(3.0, 0.08, 0.06, std('#8a6a44'), 0, 0.4));
+    for (let i = 0; i <= 6; i++) g.add(box(0.07, 1.0, 0.07, std('#8a6a44'), -1.5 + i * 0.5, 0, 0));
   },
   car(g) {
     const body = std('#c4ccd6', { metalness: 0.4 });
