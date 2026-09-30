@@ -281,7 +281,7 @@ function holoify(model, ghost) {
   const hg = model.userData.holoGlow ||= { fill: [], edge: [] };
   for (const o of meshes) {
     const isGlow = glow.has(o.material);
-    o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.03 + 0.2 * settings.belowVisibility : 0.38, depthWrite: false });
+    o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.03 + 0.2 * settings.belowVisibility : (model.userData.solid ? 0.8 : 0.38), depthWrite: !!model.userData.solid && !ghost, side: model.userData.solid ? THREE.DoubleSide : THREE.FrontSide });
     o.userData.holo = true;
     const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 });
     o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 25), em));
@@ -654,7 +654,7 @@ function applyStates() {
       });
       const hg = obj.userData.holoGlow;
       if (hg) {
-        const onOp = ghost ? 0.12 + 0.5 * bv : 0.8, offOp = ghost ? 0.03 + 0.2 * bv : 0.38;
+        const solid = obj.userData.solid, onOp = ghost ? 0.12 + 0.5 * bv : (solid ? 1 : 0.8), offOp = ghost ? 0.03 + 0.2 * bv : (solid ? 0.8 : 0.38);
         hg.fill.forEach((m) => { if (on && rgb) m.color.setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255); else m.color.setHex(on ? HOLO.on : HOLO.fill); m.opacity = on ? onOp : offOp; });
         hg.edge.forEach((m) => { if (on && rgb) m.color.setRGB(Math.min(1, rgb[0] / 255 + 0.35), Math.min(1, rgb[1] / 255 + 0.35), Math.min(1, rgb[2] / 255 + 0.35)); else m.color.setHex(on ? HOLO.onEdge : HOLO.edge); });
       }
@@ -673,15 +673,23 @@ function applyStates() {
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
       const lights = heat ? [] : f.devices
         .filter((d) => d.entity && /^(light|switch)\./.test(d.entity) && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points))
-        .slice(0, MAX_LIGHTS)
-        .map((d) => {
+        .flatMap((d) => {
           const st = states[d.entity];
           const br = st.brightness != null ? 0.12 + 0.88 * st.brightness / 100 : 1;
           const c = Array.isArray(st.rgb) ? new THREE.Vector3(st.rgb[0] / 255, st.rgb[1] / 255, st.rgb[2] / 255) : defCol.clone();
           const sw = d.entity.startsWith('switch.') ? 0.6 : 1;
           const prof = LIGHT_PROFILE[d.type] || LIGHT_PROFILE.light;      // an LED strip or a panel does not light the whole room like a ceiling lamp
-          return { x: d.x, y: d.y || 0, z: d.z, r: settings.glowRadius * (0.7 + 0.5 * br) * sw * prof.r, c: c.multiplyScalar(br * prof.k) };
-        });
+          const r = settings.glowRadius * (0.7 + 0.5 * br) * sw * prof.r;
+          if (d.type === 'nanoleaf' && d.panels?.length) {                 // a layout shines from where its panels really are, a little off the wall
+            const n = Math.min(4, d.panels.length), a = ((d.rot || 0) * Math.PI) / 180, cs = Math.cos(a), sn = Math.sin(a), k2 = d.scale || 1;
+            return Array.from({ length: n }, (_, i) => d.panels[Math.floor((i * d.panels.length) / n)]).map((p) => ({
+              x: d.x + (p.x * cs * (d.mirror ? -1 : 1) * (d.sx || 1) + 0.12 * sn) * k2, y: (d.y || 0) + p.y * k2 * (d.sy || 1), z: d.z + (-p.x * sn * (d.mirror ? -1 : 1) * (d.sx || 1) + 0.12 * cs) * k2,
+              r: r * 0.75, c: c.clone().multiplyScalar(br * prof.k * 1.1 / Math.sqrt(n)),
+            }));
+          }
+          return [{ x: d.x, y: d.y || 0, z: d.z, r, c: c.multiplyScalar(br * prof.k) }];
+        })
+        .slice(0, MAX_LIGHTS);
       fillLights(target.material, lights, holo ? 1 : (ghost ? k : 1));
       if (holo) U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
       else glow.visible = lights.length > 0;

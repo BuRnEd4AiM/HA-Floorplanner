@@ -142,6 +142,7 @@ function nanoleaf(g, d) {
     g.add(m);
   });
   g.userData.glow = [glow];
+  g.userData.solid = true;          // in the hologram theme these stay solid (not see-through from the side)
 }
 
 const builders = {
