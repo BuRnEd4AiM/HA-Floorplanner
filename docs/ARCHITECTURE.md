@@ -6,7 +6,10 @@ Browser (Home Assistant sidebar, Ingress)
  ▼
 server.py  (aiohttp, port 8099)
  ├─ /                 static frontend
- ├─ /api/layout       floors, walls, rooms, devices      → /data/layout.json
+ ├─ /api/layout       floors, walls, rooms, devices      → /data/layout.json (first house), /data/layouts/<id>.json
+ ├─ /api/houses       house index (several floor plans)  → /data/houses.json
+ ├─ /api/backup       export / import everything         → /data/backups/ (safety copies)
+ ├─ /api/backgrounds  floor plan templates, wall pictures → /data/backgrounds/
  ├─ /api/settings     look, units, users/rooms/views     → /data/settings.json
  ├─ /api/models       uploaded GLB models                → /data/models/
  ├─ /api/entities     entity list with state             ← Home Assistant REST API
