@@ -1,6 +1,7 @@
 /* Minimal i18n: t('key') and applyI18n() for [data-i18n], [data-i18n-title], [data-i18n-placeholder]. */
 const DICT = {
   de: {
+    'tool.group': 'Gruppe', 'tip.group': 'Geräte zu einer Gruppe verbinden, die sich gemeinsam bewegt und dreht', 'hint.group': 'Klicke nacheinander die Geräte an, die zusammengehören (nochmal klicken = entfernen), dann „Gruppe bilden“.', 'group.picked': '{n} Geräte gewählt', 'group.make': 'Gruppe bilden', 'group.cancel': 'Abbrechen', 'group.info': 'Gruppe mit {n} Teilen: bewegt und dreht sich gemeinsam', 'group.mirror': 'Gruppe spiegeln', 'group.leave': 'Aus Gruppe lösen', 'group.dissolve': 'Gruppe auflösen',
     'tool.select': 'Auswählen', 'tool.wall': 'Wand', 'tool.room': 'Raum', 'tool.device': 'Gerät',
     'tool.opening': 'Tür/Fenster', 'tool.erase': 'Löschen', 'tool.block': 'Block', 'tool.stairs': 'Treppe',
     'tip.block': 'Platzhalter-Block für eine Etage, die du nicht zeichnest (B)', 'tip.stairs': 'Treppe oder Treppenhaus setzen (T)',
@@ -76,11 +77,12 @@ const DICT = {
     'bg.calibB': 'Jetzt den zweiten Punkt der Strecke klicken.', 'bg.askDist': 'Wie lang ist diese Strecke wirklich?',
     'bg.moveHint': 'Bild ziehen zum Verschieben, die Eckpunkte ziehen zum Vergrößern/Verkleinern. Esc beendet.', 'bg.scaleSet': 'Bildbreite',
     'set.grid': 'Raster', 'set.wallHeight': 'Wandhöhe (alle Wände)', 'set.wallThickness': 'Standard-Wanddicke',
-    'set.shadows': 'Schatten', 'set.labels': 'Werte an Geräten anzeigen', 'set.lowWalls': 'Wände niedrig starten', 'set.cutaway': 'Wände zur Kamera automatisch absenken',
+    'set.shadows': 'Schatten', 'set.labels': 'Werte an Geräten anzeigen', 'set.lowWalls': 'Wände niedrig starten', 'set.wallStop': 'Geräte stoppen an Wänden (Türen lassen sie durch)', 'set.cutaway': 'Wände zur Kamera automatisch absenken',
     'set.autosave': 'Autospeichern nach (s)', 'set.section.general': 'Allgemein', 'set.section.drawing': 'Zeichnen',
     'set.section.view': 'Ansicht',
   },
   en: {
+    'tool.group': 'Group', 'tip.group': 'Join devices into a group that moves and turns together', 'hint.group': 'Click the devices that belong together (click again to remove), then "Make group".', 'group.picked': '{n} devices picked', 'group.make': 'Make group', 'group.cancel': 'Cancel', 'group.info': 'Group of {n} pieces: moves and turns together', 'group.mirror': 'Mirror group', 'group.leave': 'Leave group', 'group.dissolve': 'Dissolve group',
     'tool.select': 'Select', 'tool.wall': 'Wall', 'tool.room': 'Room', 'tool.device': 'Device',
     'tool.opening': 'Door/Window', 'tool.erase': 'Erase', 'tool.block': 'Block', 'tool.stairs': 'Stairs',
     'tip.block': 'Placeholder block for a floor you do not draw (B)', 'tip.stairs': 'Place a staircase or stairwell (T)',
@@ -156,7 +158,7 @@ const DICT = {
     'bg.calibB': 'Now click the second point of the distance.', 'bg.askDist': 'How long is this distance in reality?',
     'bg.moveHint': 'Drag the image to move it, drag the corners to resize it. Esc ends.', 'bg.scaleSet': 'Image width',
     'set.grid': 'Grid', 'set.wallHeight': 'Wall height (all walls)', 'set.wallThickness': 'Default wall thickness',
-    'set.shadows': 'Shadows', 'set.labels': 'Show values on devices', 'set.lowWalls': 'Start with low walls', 'set.cutaway': 'Lower walls facing the camera automatically',
+    'set.shadows': 'Shadows', 'set.labels': 'Show values on devices', 'set.lowWalls': 'Start with low walls', 'set.wallStop': 'Devices stop at walls (doors let them pass)', 'set.cutaway': 'Lower walls facing the camera automatically',
     'set.autosave': 'Autosave after (s)', 'set.section.general': 'General', 'set.section.drawing': 'Drawing',
     'set.section.view': 'View',
   },

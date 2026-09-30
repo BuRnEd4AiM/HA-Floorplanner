@@ -41,6 +41,7 @@ DEFAULT_SETTINGS = {
     "lowWalls": False,
     "showLabels": True,
     "cutaway": True,           # walls facing the camera sink down
+    "wallStop": True,          # devices cannot be dragged through walls (doors let them pass)
     "belowVisibility": 0.5,    # how clearly floors below the current one shine through (0.05..1)
     "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
     "glowRadius": 3.5,         # metres a lamp lights up
