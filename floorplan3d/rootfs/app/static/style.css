@@ -133,7 +133,6 @@ html[data-theme="holo"] #stage {
     linear-gradient(180deg, var(--bg-top, #0a3ba8) 0%, color-mix(in srgb, var(--bg-top, #0a3ba8) 55%, var(--bg-bottom, #031547)) 45%, var(--bg-bottom, #031547) 100%);
 }
 #modeBar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 4; }
-html:not([data-theme="holo"]) #modeBar { display: none; }
 body.kiosk #modeBar { bottom: 10px; }
 
 dialog { max-height: 90vh; overflow-y: auto; }
@@ -282,3 +281,6 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 .nanoBar .sep { flex: 0 0 10px; }
 .nanoBar button.on { background: var(--accent); color: #001; }
 #nanoCanvas { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; touch-action: none; cursor: crosshair; }
+#roomPanel .row .rp-more { padding: 4px 8px; }
+#roomPanel .row .rp-more.on { border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
+#roomPanel .row .rp-ctl { flex: 1 1 100%; }

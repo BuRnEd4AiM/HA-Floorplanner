@@ -51,6 +51,7 @@ DEFAULT_SETTINGS = {
     "glowHeight": 1.6,         # metres the coloured glow climbs the walls
     "defaultLightColor": "#ffc861",
     "userRooms": {},           # Home Assistant user name -> room name (one tablet per room)
+    "effectColors": {},        # light effect / scene name -> display colour (HA does not report what an effect looks like)
     "userViews": {},           # Home Assistant user name -> 3d | 2d | split | all (what that user sees in live mode)
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
@@ -323,7 +324,7 @@ def validate_settings(data: dict) -> dict:
             continue
         val = data[key]
         if isinstance(default, dict):
-            out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v}
+            out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
         elif isinstance(default, list):
             out[key] = clean_stops(val, default)

@@ -1,5 +1,5 @@
 name: "3D Floorplan"
-version: "2.0.2"
+version: "2.4.0"
 slug: floorplan3d
 description: "Eigenen Grundriss zeichnen und Home-Assistant-Geräte in 3D platzieren"
 url: "https://github.com/wvssweber-max/HA-Floorplanner"

@@ -3,7 +3,260 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [2.4.0] - 2026-09-30
 ### Added
+- **Roofs make room for the camera**: a roof fades out smoothly when the camera gets close (from about 7 m, mostly transparent at about 2.5 m) and comes back when you zoom out
+- *Unsichtbar im Live-Modus (Licht bleibt)* is now offered for every lighting device (ceiling lamps, spots, wall lamps, strips ...), not only for LED types
+
+## [2.3.1] - 2026-09-30
+### Fixed
+- The *Normal / Temp. / Feuchte* buttons are available in every theme again (they were only shown in the hologram theme); in the solid themes the floor takes the temperature / humidity colour
+
+## [2.3.0] - 2026-09-30
+### Added
+- **Invisible lights**: checkbox *Unsichtbar im Live-Modus (Licht bleibt)* for LED strips, TV backlights, Nanoleaf panels/layouts, light balls and any device with a light entity. The model is not drawn in live mode (and cannot be tapped there), but its light keeps shining into the room; in edit mode it stays visible so you can still find and move it
+
+## [2.2.0] - 2026-09-30
+### Added
+- **TV backlight (LED)**: new device in the lighting category, a glowing frame for behind a wall TV (indirect light / ambilight). Put it on the TV, link it to the LED light entity (colour, brightness, effects work as for any light), and resize it with the width/height fields to match the TV
+
+## [2.1.1] - 2026-09-30
+### Added
+- Room panel: every light row has a 🎨 button that unfolds colour, warm/cold, effects (with the effect colour) and the light's scenes, so you no longer have to hit a small model in a crowded 3D view
+
+## [2.1.0] - 2026-09-30
+### Added
+- **Effect colours**: Home Assistant only reports the *name* of a light effect (Nanoleaf scene, WLED, Hue ...), not its colours, and the light's own colour is stale/white while an effect runs. A light with an active effect now shows the colour assigned to that effect (colour picker next to the effect list in the live popup, saved for everyone), or a colour recognised from a word in its name (*lila, purple, rot, blue, gaming* ...)
+
+### Fixed
+- The update dialog in Home Assistant showed an outdated changelog (stuck at 0.2.0): the add-on now ships the current `CHANGELOG.md`, and a test keeps both copies identical
+
+## [2.0.2] - 2026-09-30
+### Fixed
+- Nanoleaf layouts stay solid in the hologram theme (no longer see-through from the side)
+- Their room light now shines from the real panel positions, a little off the wall, instead of one point
+
+## [2.0.1] - 2026-09-30
+### Added
+- Nanoleaf layout editor: **small triangle** (half size); it also snaps to either half of a large triangle's edge
+
+## [2.0.0] - 2026-09-30
+### Added
+- **Nanoleaf layout editor**: the new device *Nanoleaf Layout* opens an editor with a snap grid – pick triangle / hexagon / square / bar, click them together (edges click onto their neighbours, rotation is found automatically), right-click erases, undo, rotate with `R`
+- The whole layout is **one object with one entity**: it moves, turns, mirrors, locks and hangs on the wall like a single device, and all panels show the entity's colour and brightness together
+- Edit later via *Layout bearbeiten* in the side panel
+
+## [1.9.4] - 2026-09-30
+### Fixed
+- *An Wand ausrichten* (and placing wall-hung items) now puts the item on the **inner** face of the wall, the side facing a room, instead of jumping to the outside
+## [1.9.3] - 2026-09-30
+### Added
+- Settings dialog: a fixed header with an ✕ button (also closes on a click outside) instead of only `Esc`
+### Fixed
+- **Tablet assignments (user → room / view) and other settings could get lost after an update**: a browser that failed to load the settings while the add-on was restarting, or an old open tab, could save defaults over the real settings. Now settings are only saved after they were loaded successfully, a stale browser can no longer overwrite newer settings (the page reloads instead), and the server keeps the last versions of the settings in `/data/backups` and restores from them if the file is damaged
+
+## [1.9.2] - 2026-09-30
+### Added
+- **Light glow in the dark and light themes**: lit lamps now colour the floor with a soft light pool and tint the room's walls, just like in the hologram theme
+## [1.9.1] - 2026-09-30
+### Changed
+- README, documentation and contributing guide: note that this is an AI-assisted project (with a lot of human work, testing and care), plus the newest features
+
+## [1.9.0] - 2026-09-30
+### Changed
+- **Object list grouped by room**: every room is a collapsible group with the room itself, its doors / windows and its furniture; leftovers are under *No room*, walls, stairs and blocks below. The group holding the selected item opens automatically
+### Added
+- Search field above the object list (opens all matching groups)
+
+## [1.8.1] - 2026-09-30
+### Changed
+- Completely revised README with feature overview and new screenshots (3D, 2D, split view, whole house, library, room panel, light popup)
+### Fixed
+- The house selector in the header was visible even with a single house
+
+## [1.8.0] - 2026-09-30
+### Added
+- **Resizable side panel**: drag its left edge to make it wider (remembered per browser)
+- **Real dimensions**: width, height and depth of a piece are entered in metres (e.g. sideboard 0.90 m high) instead of factors; *Höhe über Boden* is the elevation field
+### Fixed
+- Lock checkboxes in the object list and device panel were stretched and misaligned
+
+## [1.7.0] - 2026-09-30
+### Added
+- **Wall TV** (flat screen that clicks onto the wall like pictures; lights up when its media player is on)
+### Fixed
+- 3D and 2D now agree: all 3D furniture models are centred on their footprint (the corner sofa, piano and monitor sat up to 0.5 m off to one side in 3D compared to the 2D plan)
+
+## [1.6.0] - 2026-09-30
+### Added
+- Lock checkbox in the object list for every item; library search finds things by everyday names (e.g. *Fernseher*)
+
+## [1.5.0] - 2026-09-30
+### Added
+- **Stretch furniture per axis**: width, height and depth can be set independently (side panel, *Streckung*), and in the 2D plan the selected piece has two square handles on its right and front edge to drag it longer or wider (5 cm steps), e.g. a longer sideboard
+- **Lock items**: a checkbox before every name in the object list (rooms, walls, doors/windows, furniture, stairs, blocks) and in the device panel; a locked item can still be selected but cannot be moved, resized or deleted by accident
+- The furniture library search also finds things by everyday names (e.g. *Fernseher* finds the TV, *Couch* the sofa)
+### Changed
+- **Wall stop reworked**: footprint and wall thickness count now, the piece stops at the wall surface and slides along it, and fast drags can no longer jump through a wall. Wall-hung, ceiling and outdoor items are exempt; doorways let things pass
+- Selected objects that are not drawn (e.g. hidden by a focused room or off screen) stay selectable and deletable; new button *In die Bildmitte holen* in the device panel
+- **Backup export/import** (#12): *Houses & backup* in the side panel downloads one JSON file with all houses, settings, uploaded pictures and custom 3D models, and restores it again. Before a restore the server keeps a safety copy of the current layouts and settings (last 5 in `/data/backups`). Files are validated (picture and model formats, names, sizes) before anything is written
+
+## [1.4.0] - 2026-09-30
+### Added
+- **Several houses**: one floor plan per house (e.g. your own and your parents'). A house selector appears in the header, houses are created, duplicated, renamed and deleted in the side panel (*Manage houses*). Kiosk tablets open a specific house with `?house=<name>` in the URL. Existing installs keep their layout as the first house
+- **Individual panes of multi-pane windows**: double and triple windows can link a separate contact sensor per pane; every pane tilts open on its own and the room panel lists each pane
+
+## [1.3.0] - 2026-09-30
+### Added
+- **Furniture library** (#15): the device palette shows a preview image of every piece, has a search field and categories (Living, Kitchen, Bath, Bedroom, Office, Lighting, Tech, Outdoor, Decor)
+- **35 new pieces**: corner sofa, TV stand, bookcase, fireplace, piano, pouf, side table, curtain, bar stool, stove, oven, dishwasher, sink, kitchen island, microwave, mirror, towel radiator, double basin, single bed, nightstand, dresser, crib, computer desk, office chair, printer, pendant lamp, wall lamp, ceiling spot, radiator, water heater, camera, speaker, robot vacuum, smoke detector, router
+- **Door and window variants**: front door, glass door, double door, sliding door, passage (no leaf), single / double / triple window, balcony door, small bath window, fixed glazing; the style of a placed opening can be changed in the side panel. Double doors and sliding doors move when the contact sensor reports open
+- **Pictures on walls**: device *Bild*: upload a PNG/JPG/WebP in the side panel, set the width; pictures, mirrors, panels, radiators and other wall-hung items click flat onto the nearest wall when placed, and *An Wand ausrichten* does it later
+
+## [1.2.1] - 2026-09-30
+### Changed
+- Light simulation (hologram theme) is more realistic: LED strips, light balls and Nanoleaf panels only light their surroundings (short reach, low strength), a floor lamp less than a ceiling lamp; dimmed lights get much darker (down to 12 % instead of 35 %); several lamps no longer burn the floor out to white (soft roll-off). *Reach* and *Strength* in the settings still scale everything
+
+## [1.2.0] - 2026-09-30
+### Added
+- **Groups**: tool *Gruppe* – click several devices (e.g. all Nanoleaf panels of one logo) and press *Gruppe bilden*. A group moves, turns (Q/E or the *Drehung* field, around its centre) and mirrors (*Gruppe spiegeln*) as one shape, so the form never falls apart. Groups are outlined dashed in 2D; *Aus Gruppe lösen* / *Gruppe auflösen* undo it
+- **Wall stop**: devices can no longer be dragged through a wall by accident; they stop at it (open doors let them pass). Switch it off in the settings (*Geräte stoppen an Wänden*)
+
+## [1.1.0] - 2026-09-30
+### Added
+- Devices can be turned on **all axes**: besides *Drehung* (vertical axis) there are *Kippen vor/zurück* and *Drehen in der Fläche / seitlich* (roll, for a panel: turn it in the wall plane), plus **Spiegeln** to mirror a shape. Nanoleaf panels now turn around their middle instead of their bottom edge
+
+## [1.0.0] - 2026-09-30
+### Changed
+- First stable version number. No functional changes compared to 0.10.2; the jump also makes sure Home Assistant offers the update (some installs did not show 0.10.x)
+
+## [0.10.2] - 2026-09-30
+### Added
+- **Low-power mode for tablets and kiosk screens** (Fire tablets ...): resolution capped at 1.25x, no antialiasing, no shadows, 30 fps while you interact and only about 4 fps when nothing happens (back to full speed on touch, state changes and edits); nothing is drawn while the screen or tab is hidden. Automatic for `?kiosk=1`, `?room=...` and touch screens; `?perf=high` / `?perf=low` overrides. Desktop is unchanged
+
+## [0.10.1] - 2026-09-30
+### Added
+- Live popup of a light: **Szenen mit dieser Lampe** – all Home Assistant scenes (`scene.*`) that contain this light are listed as buttons and activate the whole scene (e.g. one *Gaming* scene that sets several LED strips to different colours). The room panel also offers the scenes that contain any of its lights, not only those of the room's area
+
+## [0.10.0] - 2026-09-30
+### Added
+- Nanoleaf panel shapes as placeable devices: **triangle, hexagon, square and line** (upright, wall-mounted, rotate with Q/E). Give several panels the same light entity and they glow together; effects/scenes of the light are offered in the live popup as before (#16)
+
+## [0.9.3] - 2026-09-30
+### Fixed
+- Release workflow: duplicate `push` trigger merged (the file was rejected by GitHub)
+
+## [0.9.2] - 2026-09-30
+### Changed
+- The *Release* workflow now runs by itself when the version in `config.yaml` changes on `main`, so the release badge and the GitHub releases always match the current version (no manual *Run workflow* needed)
+
+## [0.9.1] - 2026-09-30
+### Fixed
+- Garden objects (lawn, tree, bush, pool, terrace, path, fence) keep their natural colours in the hologram theme instead of turning blue
+- Whole-house view: a basement is drawn translucent inside a block of earth under a green ground plane, so it no longer looks like another storey
+
+## [0.9.0] - 2026-09-30
+### Added
+- Floors: **move up/down** and **insert a basement** below the ground floor (panel *Etage verwalten*); the ground floor keeps height 0, floors get a type (floor / basement / roof) and can be deleted
+- **Roof** as a floor type: gable, hip or flat roof, generated over the footprint of everything below (pitch, overhang, ridge direction)
+- **Outdoor / decoration** objects: tree, bush, pool, lawn, terrace, path, fence – placed like devices, also outside the house (flat ones are drawn below other objects in 2D)
+- View **Ganzes Haus**: all floors solid (no ghosting) plus the plot with ground grid; a click on a floor leaves it. Read-only (nothing is edited in this view)
+
+## [0.8.3] - 2026-09-30
+### Fixed
+- Stair opening: the floor above is now cut with a real polygon difference (small vendored library `polygon-clipping`, MIT). Before, the opening was only cut when it lay completely inside one room, so it failed over walls, corridors and between rooms
+### Added
+- Stairs: **size editing**: length field in the side panel and two handles in 2D (end of the run = step depth/length, side of the run = width or spiral radius). After placing a stair the *Select* tool is active so the handles work at once
+- Doors: **Aufschlag umkehren** – the door swings to the other side of the wall (2D arc and 3D leaf), independent of *Spiegeln* (hinge side)
+
+## [0.8.2] - 2026-09-30
+### Added
+- 2D editor: **double click on the outline of a room or block adds a corner** at that point (easy to reshape a room), double click on a corner removes it again (a room keeps at least three)
+
+## [0.8.1] - 2026-09-30
+### Changed
+- Background image: **resize by dragging the corner handles** (uniform scale around the opposite corner), drag the image to move it. Both are active right after loading an image and via the button "Verschieben / Größe"
+
+## [0.8.0] - 2026-09-30
+### Added
+- **Placeholder blocks** for floors you do not want to draw: tool *Block* (B), draw the building outline, it stands as a solid mass (3D) / hatched area (2D) for the floor below. On the first floor the floor below is created automatically (the default floor is renamed "1. Stock"). Blocks are not controllable and only give orientation
+- **Stairs** (tool *Treppe*, T): straight, L and U stairs with landing, spiral stairs. Steps are calculated from the floor height, shown as solid steps in 3D and as tread lines with a direction arrow in 2D. Q/E rotates, side panel edits width/radius, turning side, direction and position
+- **Floor opening**: the floor above (or the own floor for stairs that "come from below") gets an opening over the upper flight automatically, shown dashed orange in 2D
+- **Stairwell preset** (*Treppenhaus*): U stair, four walls, a room, a flat door and, for stairs leading up, the same shell on the next floor in one click
+- Stairs and blocks appear in the object list, can be dragged in 2D, deleted and undone
+- Unit tests for the stair geometry (`tests/stairs.test.mjs`, run in CI) and 7 new browser checks
+
+## [0.7.2] - 2026-09-30
+### Added
+- **Background image / blueprint for tracing** (roadmap issue #18): per floor you can load a scan or photo of your floor plan (PNG, JPG or WebP, up to 8 MB) as a template in the 2D editor. Panel "Hintergrundbild" with opacity, width, position and rotation, **Set scale** (click two points of a known distance, enter the real length) and **Move** (drag the image). The template is only visible in the editor and is stored with the layout
+- Backend: `POST/GET/DELETE /api/backgrounds` (editors only for writing, images are recognised by their content, SVG is refused, random file names)
+
+## [0.7.1] - 2026-09-30
+### Fixed
+- Admin detection: the cache started at monotonic time 0, so within the first minute after a host boot the check was skipped (also made the CI test fail on fresh runners)
+
+## [0.7.0] - 2026-09-30
+### Added
+- Live mode: **whole-room control.** Below a light's or scene's controls (and at the top of the room panel) there is "Ganzer Raum": switch all lights of the room on/off, brightness, colour and warm/cold white for all of them, plus the room's **scenes** as buttons (lights and scenes of the room = placed inside it or in its HA area)
+- **Effects** for lights that report an `effect_list` (Nanoleaf, WLED, Hue ...): drop-down in the live popup, for a room the effects all its lights share. The service whitelist allows `effect` for lights only
+- Settings → "Benutzer & Tablets": the user is picked from the **Home Assistant users** (new endpoint `/api/users`, editors only; typing still works), with room and **live view** per user (3D only / 2D only / 2D + 3D / switchable)
+### Changed
+- Live mode shows **only the 3D view** by default; the 2D and 2D + 3D buttons are hidden unless the user was given more in the settings (`userViews`, delivered through `/api/me`)
+
+## [0.6.0] - 2026-09-30
+### Changed
+- **Permissions:** Home Assistant administrators now always get the full editor; all other users only get the read-only live view (before, an empty `editors` list let everybody edit). `editors` still allows extra non-admin editors. The administrators are read from Home Assistant (websocket `config/auth/list`, cached for a minute); if that fails, only users in `editors` may edit and the status line says so
+- The wall height setting now applies to all walls (it only affected new walls before). Renamed to "Wandhöhe (alle Wände)"; individual wall heights can still be changed in the properties panel
+
+## [0.5.1] - 2026-09-30
+### Added
+- Search field above "Entitäten im Raum" (edit mode): filters the room's devices, openings and unplaced area entities by name, entity id or area
+
+## [0.5.0] - 2026-09-30
+### Added
+- New devices "Lichtkugel" (light ball) and "LED-Streifen" (1 m LED strip, scale it to the real length) for LED strips and accent lights; link them to any light entity
+- Lit device parts (all lights, balls, strips) take the colour of the light entity in 3D
+
+## [0.4.1] - 2026-09-30
+### Changed
+- Entity picker in the properties panel is full width with a roomy result list: names wrap instead of being cut off, the entity id is shown below, groups by area, and the current link is shown above
+
+## [0.4.0] - 2026-09-29
+### Added
+- Searchable entity picker in the properties panel (devices and door/window contact sensors): search by name, entity id or HA area (several words = AND), Enter assigns the first match
+
+## [0.3.1] - 2026-09-29
+### Fixed
+- Dockerfile: default base image for `BUILD_FROM`
+
+## [0.3.0] - 2026-09-29
+### Fixed
+- Add-on config: removed defaults (`boot`, `ingress_port`, `startup`) and the deprecated `armv7` architecture, so the add-on linter passes
+
+### Added
+- 2D blueprint editor (new `plan2d.js`): top-down SVG plan with grid, wall lengths, door swings, window symbols, room areas and furniture footprints. Draw walls/rooms, place doors/windows/devices, move everything (corner handles for walls and rooms, connected walls and room corners follow), erase, pan and zoom (wheel, right/middle drag, pinch). It edits the same layout as the 3D view; the new "2D + 3D" split view updates both live. Also works in live mode (states shown, tap to control)
+- Room selection: the room's list (all furniture, devices and doors/windows in it) stays visible; clicking an entry selects and locks it so only that object moves. Esc/"Lösen"/clicking it again goes back to the room
+- Selection lock: choosing an object from the side list locks the selection. Clicks and drags in the 3D view then only move that object (from anywhere); release with the list entry, the "Lösen" button or Esc
+- Edit mode: side list of all rooms, walls, doors/windows and devices of the floor for selecting objects that are hard to hit in 3D; devices now have X/Z position fields
+- Edit mode: selecting a room lists its entities (placed devices with their assigned entity and live state, plus unplaced entities of its HA area with a "+ place" button); a selected device shows its entity and state
+- Home Assistant areas: a room can be linked to an HA area (room properties). Entity pickers are grouped by area with the room's own area first, the search also matches area names, and the room panel additionally lists lights/covers/etc. of the area that are not placed on the plan (new endpoint `/api/areas`)
+- Live mode: tapping a light opens colour controls (8 presets, colour picker, warm/cool white, brightness); the room glow follows the chosen colour. The service whitelist now allows `rgb_color` and `color_temp_kelvin` for lights only
+- 17 new furniture types: chair, armchair, desk, dining table, coffee table, wardrobe, shelf, sideboard, kitchen unit, fridge, washing machine, bathtub, toilet, washbasin, shower, rug, car
+- Permissions: add-on option `editors` limits who may edit; other users get a read-only live view (enforced in the backend, HTTP 403); the panel is now open to all users (`panel_admin: false`)
+- Tablet per room: assign a Home Assistant user to a room in the settings; that screen starts with only the room and a button that toggles to the whole floor (`?room=` also works)
+- Floors below are shown with everything, just dimmed: lit rooms and lamp glow, room names, sensor values, power badges, door and window states
+- Floors below shine through the current floor (see-through floor plate, ghosted walls and devices); strength adjustable in settings (*Floors below visible*); demo now has an upper floor
+- Door and window contacts: bind a sensor (binary_sensor, cover or lock) to any door or window; open ones turn red, doors swing open and windows tilt, a red "N open" pill shows the count, the room panel lists doors and windows with their state, tap one in live mode for details
+- Room isolation: tapping a room pill (or the room floor in live mode) shows only that room with its walls and devices
+- Light spreads from each lamp's position with falloff, in the lamp's (RGB) colour and brightness, only inside its own room; coloured glow climbs the walls
+- Room panel (entities per room) also in edit mode and by tapping a room
+- Settings: wall opacity, lamp reach/strength/glow height, default light colour, background colours, freely editable colour scales for temperature and humidity views
+- Hologram backdrop: royal-blue gradient with teal corner glow, fainter grid
+- Heat views *Normal / Temp. / Feuchte* colour rooms by sensor values; power sensors (W) appear as glowing orange badges
+- Room panel in live mode: tap a room pill to see all its entities grouped (lights, covers, media, switches, sensors) with brightness and cover-position sliders
+- Room area (m²/ft²) shown in the 2D view
+- Backend: `/api/service` accepts `brightness_pct` (lights) and `position` (covers, `set_cover_position`); `/api/entities` returns brightness and position
 - Hologram theme (new default): translucent blue walls with neon edges, wireframe devices, teal windows, orange doors; active devices and rooms with a light on glow orange (theme *Hologram*, dark and light remain available)
 - Navigation pills above the scene: floors, rooms (tap to focus the camera), *Auto* (cutaway) and *Walls high/low*
 - Git guide for beginners (`docs/GIT-EINSTIEG.md`)
@@ -14,6 +267,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - Steeper default 3D camera, room names always readable
 
 ### Fixed
+- The status text no longer sits in the toolbar and pushes it into a second row, which shifted the view under the mouse while drawing
+- Doors/windows: hit boxes now match their real size, and an unselected door/window is only selected by the first click (dragging starts on an already selected one), so stray clicks no longer move it
+- Temperature/humidity view works on every floor and for every room: sensors are matched by unit or device_class (also °F), climate entities count with their current values, and sensors assigned to the room's HA area are included even if not placed
+- Doors and windows can be selected, moved and resized again, also while their wall is lowered by the cutaway (unscaled hit boxes with an outline); door/window hit boxes win over devices behind them
+- Lamp light on floors below stays visible through several floors above (lit floor areas are more opaque); demo has a third floor
+- Labels and badges are rendered at 4x resolution and stay sharp when zooming in; minimum zoom distance so the camera cannot enter objects
+- Room isolation cuts long walls down to the part that borders the room, so no walls of other rooms remain
+- Device popup no longer overlaps the Normal/Temp./Feuchte buttons
+- Lamps and other devices can be tapped through lowered or see-through walls (devices take priority over walls when picking; walls are ignored in live mode)
 - Small devices (ceiling lamps, switches) are easier to select and tap thanks to an invisible, padded hit box
 
 ## [0.2.0] - 2026-09-29

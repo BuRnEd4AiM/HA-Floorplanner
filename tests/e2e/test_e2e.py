@@ -96,6 +96,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(600)
     check("language switched", pg.inner_text("button[data-tool=wall]") == "Wall", pg.inner_text("button[data-tool=wall]"))
     check("theme switched", pg.evaluate("document.documentElement.dataset.theme") == "light")
+    check("temperature / humidity buttons stay visible in the light theme", pg.is_visible("#modeBar"))
     pg.click("#settingsDialog menu button"); pg.wait_for_timeout(300)
     st = api("api/settings")
     check("settings persisted", st["language"] == "en" and st["theme"] == "light" and st["units"] == "imperial", st)
@@ -115,6 +116,13 @@ with sync_playwright() as p:
     check("popup lists the scenes the light belongs to", pg.locator("#livePopup .sceneList button", has_text="Gaming").count() == 1, pg.inner_text("#livePopup"))
     pg.click("#livePopup .actions button:nth-child(3)"); pg.wait_for_timeout(900)
     check("service called", ["light", "toggle", "light.wohnzimmer"] in ha_calls(), ha_calls())
+    rid = pg.evaluate("""() => { const f = window.__fp.layout.floors.find(f => f.devices.some(d => d.entity === 'light.wohnzimmer')); const d = f.devices.find(d => d.entity === 'light.wohnzimmer');
+      const r = { id: 'rp_test', name: 'Testraum', color: '#8a7f70', points: [[d.x - 3, d.z - 3], [d.x + 3, d.z - 3], [d.x + 3, d.z + 3], [d.x - 3, d.z + 3]] }; f.rooms.push(r); return r.id; }""")
+    pg.evaluate(f"window.__fp.openRoomPanel({rid!r})"); pg.wait_for_timeout(300)
+    nmore = pg.locator("#roomPanel .rp-more").count()
+    if nmore:
+        pg.locator("#roomPanel .rp-more").first.click(); pg.wait_for_timeout(300)
+    check("room panel unfolds colours and scenes of a light", nmore > 0 and pg.locator("#roomPanel .rp-ctl .swatches").count() == 1, (rid, nmore))
     pg.screenshot(path=f"{S}/live.png")
 
     # --- persisted and reloadable
@@ -471,6 +479,12 @@ with sync_playwright() as p:
     pg10.click("#nanoOk"); pg10.wait_for_timeout(500)
     np_ = pg10.evaluate("window.__fp.layout.floors[0].devices.find(d => d.id === 'nano1').panels.length")
     check("nanoleaf editor adds snapped panels to one device", np_ >= 5 and pg10.locator("#nanoDialog").count() == 0, (np_, cnt))
+    pg10.evaluate("window.__fp.layout.floors[0].devices.find(d => d.id === 'nano1').hideModel = true; window.__fp.rebuild()")
+    pg10.click("#modeSwitch button[data-mode=live]"); pg10.wait_for_timeout(500)
+    hid = pg10.evaluate("window.__fp.isShown('nano1')")
+    pg10.click("#modeSwitch button[data-mode=edit]"); pg10.wait_for_timeout(500)
+    shown = pg10.evaluate("window.__fp.isShown('nano1')")
+    check("invisible light is hidden in live mode only", hid is False and shown is True, (hid, shown))
     pg10.close()
     b.close()
 
