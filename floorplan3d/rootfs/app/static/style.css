@@ -273,3 +273,12 @@ dialog .dlgHead { position: sticky; top: 0; z-index: 2; display: flex; align-ite
 dialog .dlgHead h2 { margin: 0; }
 dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: 16px; line-height: 1; flex: none; }
 #settingsDialog { padding-top: 0; }
+
+/* Nanoleaf layout editor */
+#nanoDialog { width: min(760px, 96vw); }
+#nanoDialog .hint { margin: 6px 0; opacity: .8; font-size: 13px; }
+.nanoBar, .nanoFoot { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+.nanoBar .sep, .nanoFoot .grow { flex: 1; }
+.nanoBar .sep { flex: 0 0 10px; }
+.nanoBar button.on { background: var(--accent); color: #001; }
+#nanoCanvas { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; touch-action: none; cursor: crosshair; }

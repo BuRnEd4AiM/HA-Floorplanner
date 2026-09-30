@@ -452,6 +452,20 @@ with sync_playwright() as p:
     w1 = pg9.evaluate("document.querySelector('#panel').getBoundingClientRect().width")
     check("side panel can be widened by dragging its edge", w1 > w0 + 100, (w0, w1))
     pg9.close()
+    # --- Nanoleaf layout editor: click panels together, ONE device with one entity
+    pg10 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "florian"})
+    pg10.goto(BASE + "?debug=1&mode=edit"); pg10.wait_for_timeout(1500)
+    pg10.evaluate("(() => { const f = window.__fp.layout.floors[0]; f.devices.push({id:'nano1', type:'nanoleaf', x:1, z:1, y:1.4, rot:0, scale:1, name:'Leaves', entity:'light.wohnzimmer', panels:[{s:'sq',x:-0.12,y:0,r:0},{s:'sq',x:0.12,y:0,r:0}]}); window.__fp.rebuild(); window.__fp.editNano('nano1'); })()")
+    pg10.wait_for_selector("#nanoCanvas", timeout=10000); pg10.wait_for_timeout(300)
+    box = pg10.locator("#nanoCanvas").bounding_box()
+    pg10.click("[data-shape=tri]")
+    for dx, dy in [(0.0, -0.3), (0.0, 0.3), (0.45, 0.0)]:
+        pg10.mouse.click(box["x"] + box["width"] / 2 + dx * box["width"] * 0.35, box["y"] + box["height"] / 2 + dy * box["height"] * 0.6); pg10.wait_for_timeout(100)
+    cnt = pg10.inner_text("#nanoCount")
+    pg10.click("#nanoOk"); pg10.wait_for_timeout(500)
+    np_ = pg10.evaluate("window.__fp.layout.floors[0].devices.find(d => d.id === 'nano1').panels.length")
+    check("nanoleaf editor adds snapped panels to one device", np_ >= 4 and pg10.locator("#nanoDialog").count() == 0, (np_, cnt))
+    pg10.close()
     b.close()
 
 bad = [e for e in errors if "favicon" not in e]

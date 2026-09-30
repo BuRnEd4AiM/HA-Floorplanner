@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
+import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
 import {
   OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
@@ -201,7 +202,7 @@ const isHolo = () => settings.theme === 'holo';
 const MAX_LIGHTS = 8;
 const LIGHT_PROFILE = {                       // r = reach relative to the setting, k = strength
   light: { r: 0.85, k: 0.8 }, lamp: { r: 0.6, k: 0.6 }, orb: { r: 0.3, k: 0.4 }, strip: { r: 0.4, k: 0.4 },
-  panel_tri: { r: 0.35, k: 0.4 }, panel_hex: { r: 0.35, k: 0.4 }, panel_sq: { r: 0.35, k: 0.4 }, panel_bar: { r: 0.4, k: 0.4 },
+  panel_tri: { r: 0.35, k: 0.4 }, panel_hex: { r: 0.35, k: 0.4 }, panel_sq: { r: 0.35, k: 0.4 }, panel_bar: { r: 0.4, k: 0.4 }, nanoleaf: { r: 0.45, k: 0.5 },
 };
 const hexVec = (h) => new THREE.Vector3(((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255);
 const cssHex = (s) => parseInt(s.slice(1), 16);
@@ -530,7 +531,7 @@ function build() {
 
     f.devices.forEach((d) => {
       if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
-      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); });
+      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d);
       if (d.type === 'picture') setPicture(model, d);
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
@@ -982,11 +983,12 @@ function newDevice(x, z) {
     id: uid(), type: deviceType, x, z, y: def.y || 0, rot: 0, scale: 1,
     name: ent?.name || (custom ? deviceType.slice(4) : t(`dev.${deviceType}`)), entity: entityChoice || '',
   };
+  if (deviceType === 'nanoleaf') d.panels = DEFAULT_PANELS.map((p) => ({ ...p }));
   if (WALL_TYPES.has(deviceType)) snapToWall(d, 0.8);          // wall-hung things click onto the nearest wall
   return d;
 }
 /* wall-hung devices: pictures, mirrors, panels, radiators ... */
-const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'camera', 'thermostat', 'switch']);
+const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'camera', 'thermostat', 'switch']);
 /** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces) */
 function snapToWall(d, maxDist = 2, keepFacing = false) {
   const rooms = floor().rooms;
@@ -1181,6 +1183,7 @@ canvas.addEventListener('pointerup', (e) => {
     floor().devices.push(d);
     selection = { kind: 'device', id: d.id };
     changed();
+    if (d.type === 'nanoleaf') editNano(d);
   }
 });
 
@@ -1198,10 +1201,13 @@ canvas.addEventListener('dblclick', (e) => {
   }
 });
 
+function editNano(d) {
+  openNanoEditor({ panels: d.panels, t, onSave: (panels) => { snapshot(); d.panels = panels; changed(); renderProps(); } });
+}
 /** size (m) of a built-in model at scale 1, measured from the model itself (null for custom GLB models) */
 const dimsCache = new Map();
 function baseDims(type) {
-  if (isCustom(type)) return null;
+  if (isCustom(type) || type === 'nanoleaf') return null;
   if (!dimsCache.has(type)) {
     const g = makeModel(type);
     g.updateMatrixWorld(true);
@@ -1713,7 +1719,7 @@ function groupCentre(ms) { return [ms.reduce((a, m) => a + m.x, 0) / ms.length, 
 /* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
    the wall instead of freezing, and door openings let it through. Wall-hung items, outdoor items and ceiling-free objects are exempt. */
 const STOP_EXEMPT = new Set([...WALL_TYPES_LIST(), ...OUTDOOR]);
-function WALL_TYPES_LIST() { return ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
+function WALL_TYPES_LIST() { return ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
 function penetration(m, x, z, w) {
   const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L = Math.hypot(sx, sz) || 1e-9, ux = sx / L, uz = sz / L;
   const along = (x - ax) * ux + (z - az) * uz;
@@ -2542,6 +2548,11 @@ function renderProps() {
     lk.addEventListener('change', () => { snapshot(); if (lk.checked) it.locked = true; else delete it.locked; changed(); renderProps(); renderObjList(); });
     const lkl = document.createElement('label'); lkl.className = 'chk'; lkl.append(lk, document.createTextNode(' ' + t('prop.lock')));
     body.append(lkl);
+    if (it.type === 'nanoleaf') {
+      const eb = document.createElement('button'); eb.type = 'button'; eb.id = 'nanoEdit'; eb.textContent = '✎ ' + t('nano.edit');
+      eb.addEventListener('click', () => { if (!it.locked) editNano(it); else setStatus(t('prop.lockedHint')); });
+      body.append(eb);
+    }
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
@@ -2886,6 +2897,7 @@ animate();
 /* Test hook: only active with ?debug=1, used by the browser tests to find objects on screen. */
 if (params.get('debug')) {
   window.__fp = {
+    editNano(id) { const d = floor().devices.find((v) => v.id === id); if (d) editNano(d); },
     screenOf(id) {
       const obj = registry.get(id);
       if (!obj) return null;
