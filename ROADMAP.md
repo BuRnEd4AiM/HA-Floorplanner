@@ -1,25 +1,34 @@
 # Roadmap
 
-## 0.1 – Foundation (done)
-- [x] Walls, rooms, floors, snapping grid
-- [x] 3D / 2D view, device placement and rotation
-- [x] Entity binding, toggle, auto-save, undo
+Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplanner/milestones) and [issues](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues). Dates are targets, not promises.
 
-## 0.2 – Professional basics (done)
-- [x] Settings menu (grid, units, defaults, theme, language DE/EN, shadows)
-- [x] Doors and windows that cut real openings into walls
-- [x] Custom GLB models with a model library
-- [x] Live view for wall tablets (tap to control, kiosk mode)
+## Done
 
-## 0.3 – Integration (next)
-- [ ] HACS custom card to show the floor plan on any dashboard
+- **0.1 Foundation** – walls, rooms, floors, snapping grid, 3D view, device placement, entity binding, auto-save, undo
+- **0.2 Professional basics** – settings, doors and windows, custom GLB models, live view for wall tablets
+- **0.3 – 0.7 Daily use** – Home Assistant areas, entity search, room panel, object list, selection lock, 2D blueprint editor with split view, light colours and effects, more furniture, light ball and LED strip, administrator-only editing, per-user room and view, whole-room control with scenes
+
+## v0.8 – Live sync
+
 - [ ] Live state updates via WebSocket instead of polling
 - [ ] Native Home Assistant more-info dialog for tapped devices
-- [ ] Orthographic camera for the 2D view
-- [ ] Better 2D symbols (plan-style icons instead of top-down 3D)
+- [ ] Auto-place all entities of an area
 
-## Later
-- [ ] Automatic room detection from closed wall loops
-- [ ] Import of a background image / blueprint for tracing
-- [ ] Heatmaps for temperature and power
+## v0.9 – Dashboards
+
+- [ ] HACS Lovelace card to show the floor plan on any dashboard
+- [ ] Furniture library with previews
+- [ ] Glowing floor cables with watt display
+
+## v1.0 – Stable release
+
+- [ ] Verified on real Home Assistant installs (test protocol issue)
 - [ ] Layout export / import
+- [ ] Complete documentation and screenshots
+
+## Backlog
+
+- [ ] Multi-segment LED strips and Nanoleaf panel shapes
+- [ ] Automatic room detection from closed wall loops
+- [ ] Background image / blueprint for tracing
+- [ ] More languages

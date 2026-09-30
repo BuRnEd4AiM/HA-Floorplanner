@@ -1,0 +1,21 @@
+name: Project setup
+
+# One click: Actions → "Project setup" → Run workflow.
+# Creates labels, milestones, roadmap issues and a release for every version in CHANGELOG.md. Safe to run again.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: .github/scripts/setup-project.sh
+        env:
+          GH_TOKEN: ${{ github.token }}

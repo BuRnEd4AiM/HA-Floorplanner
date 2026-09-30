@@ -1,0 +1,38 @@
+name: Release
+
+# Publishes a GitHub release with the notes from CHANGELOG.md.
+#  - push a tag such as v0.8.0, or
+#  - Actions → "Release" → Run workflow and enter the version (creates the tag on main).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without v, e.g. 0.8.0 (must match floorplan3d/config.yaml and CHANGELOG.md)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          v="${INPUT_VERSION:-${GITHUB_REF_NAME#v}}"
+          v="${v#v}"
+          cfg="$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d/config.yaml)"
+          [ "$cfg" = "$v" ] || { echo "config.yaml says $cfg, not $v"; exit 1; }
+          notes="$(awk -v v="$v" '$0 ~ "^## \\["v"\\]" {p=1; next} /^## \[/ {p=0} p' CHANGELOG.md)"
+          [ -n "$notes" ] || { echo "No CHANGELOG entry for $v"; exit 1; }
+          if gh release view "v$v" >/dev/null 2>&1; then echo "Release v$v already exists"; exit 0; fi
+          gh release create "v$v" --target "${GITHUB_SHA}" --title "3D Floorplan $v" --notes "$notes" --latest
