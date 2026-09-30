@@ -503,8 +503,10 @@ function build() {
       if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
       const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); });
       model.position.set(d.x, d.y ?? 0, d.z);
-      model.rotation.y = THREE.MathUtils.degToRad(d.rot || 0);
+      model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
+      model.rotation.set(THREE.MathUtils.degToRad(d.tiltX || 0), THREE.MathUtils.degToRad(d.rot || 0), THREE.MathUtils.degToRad(d.tiltZ || 0));
       model.scale.setScalar(d.scale || 1);
+      if (d.mirror) model.scale.x *= -1;                              // mirrored shape (left-right)
       if (!ghost) addPickProxy(model);
       if (holo && !OUTDOOR.has(d.type)) holoify(model, ghost);
       model.traverse((o) => {
@@ -2147,6 +2149,11 @@ function renderProps() {
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => (it.rot = ((+v % 360) + 360) % 360), { step: 15 })));
     body.append(field(t('prop.height'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
+    const angle = (key) => inp('number', it[key] || 0, (v) => { const a = ((+v % 360) + 360) % 360; if (a) it[key] = a; else delete it[key]; }, { step: 15 });
+    body.append(field(t('prop.tiltX'), angle('tiltX')), field(t('prop.tiltZ'), angle('tiltZ')));
+    const cm = document.createElement('input'); cm.type = 'checkbox'; cm.checked = !!it.mirror; cm.id = 'devMirror';
+    cm.addEventListener('change', () => { snapshot(); if (cm.checked) it.mirror = true; else delete it.mirror; changed(); });
+    body.append(field(t('prop.mirror'), cm));
     body.append(pickerField(t('prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
@@ -2448,6 +2455,7 @@ if (params.get('debug')) {
       return +a.toFixed(3);
     },
     stairHandle(id, k) { const st = floor().stairs.find((v) => v.id === id); const h = st && stairHandles(st, FLOOR_H)[k]; return h ? toWorld(st, h[0], h[1]) : null; },
+    objInfo(id) { const o = registry.get(id); return o && { rx: o.rotation.x, rz: o.rotation.z, sx: o.scale.x }; },
     LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
     holeCount: (i) => holesForFloor(layout.floors, i, FLOOR_H).length,
     plan: () => plan,
