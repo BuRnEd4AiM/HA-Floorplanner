@@ -414,15 +414,26 @@ function buildRoof(g, i, f, holo, ghost) {
   const m = new THREE.Mesh(geo, holo
     ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : 0.45, side: THREE.DoubleSide, depthWrite: false })
     : mat('#a4493b', ghost, { side: THREE.DoubleSide }));
-  if (holo) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 })));
+  const mats = [m.material];
+  if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), em)); mats.push(em); }
   g.add(m);
+  if (!ghost) roofs.push({ mesh: m, mats: mats.map((x) => ({ x, base: x.opacity, transparent: x.transparent, depthWrite: x.depthWrite })), box: null });
+}
+const roofs = [];                  // roofs that thin out when the camera comes close
+function updateRoofFade() {
+  for (const r of roofs) {
+    if (!r.box) { r.mesh.updateWorldMatrix(true, false); r.box = new THREE.Box3().setFromObject(r.mesh); }
+    const d = r.box.distanceToPoint(camera.position);
+    const k = Math.max(0.12, Math.min(1, (d - 2.5) / 4.5));          // fully there beyond ~7 m, mostly gone up close
+    r.mats.forEach((m) => { m.x.opacity = m.base * k; m.x.transparent = m.transparent || k < 0.999; m.x.depthWrite = m.depthWrite && k > 0.95; });
+  }
 }
 
 function build() {
   wake();
   plan?.render();
   world.clear();
-  registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roomMeshes.clear(); openingHandles.clear();
+  registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear();
   const holo = isHolo();
   const iso = isolatedRoom();
   if (houseMode) {                              // ground reference for the plot
@@ -670,8 +681,9 @@ function applyStates() {
         hg.fill.forEach((m) => { if (on && rgb) m.color.setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255); else m.color.setHex(on ? HOLO.on : HOLO.fill); m.opacity = on ? onOp : offOp; });
         hg.edge.forEach((m) => { if (on && rgb) m.color.setRGB(Math.min(1, rgb[0] / 255 + 0.35), Math.min(1, rgb[1] / 255 + 0.35), Math.min(1, rgb[2] / 255 + 0.35)); else m.color.setHex(on ? HOLO.onEdge : HOLO.edge); });
       }
+      obj.visible = !(d.hideModel && isLive());          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       const sp = labelSprites.get(d.id);
-      if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
+      if (sp) { sp.visible = settings.showLabels && obj.visible; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
     });
   }
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
@@ -683,6 +695,7 @@ function applyStates() {
       if (!U) return;
       const k = ghost ? 0.3 + 0.6 * bv : 1;
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
+      if (!holo) mesh.material.color.set(heat != null ? heat : (room.color || '#8a7f70'));      // solid themes: the floor itself takes the temperature / humidity colour
       const lights = heat ? [] : f.devices
         .filter((d) => d.entity && /^(light|switch)\./.test(d.entity) && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points))
         .flatMap((d) => {
@@ -745,6 +758,7 @@ function wallCutawayInfo(w, group) {
 }
 const CUT_LOW = 0.14;
 function updateCutaway() {
+  if (roofs.length) updateRoofFade();
   if (!cutawayWalls.length) return;
   const { cx, cz } = floorBounds();
   let dx = camera.position.x - cx, dz = camera.position.z - cz;
@@ -907,12 +921,14 @@ function groundPoint(e) {
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -elev());
   return ray.ray.intersectPlane(plane, hitVec) ? [hitVec.x, hitVec.z] : null;
 }
+const stealth = (id) => !!floor()?.devices.find((v) => v.id === id)?.hideModel;
 function pickHit(e) {
   setRay(e);
   const hits = [];
   for (const h of ray.intersectObjects(pickables, true)) {
     let o = h.object;
     while (o && !o.userData.kind) o = o.parent;
+    if (o && o.userData.kind === 'device' && isLive() && stealth(o.userData.id)) continue;      // an invisible light cannot be tapped either
     if (o) hits.push({ data: o.userData, point: h.point, distance: h.distance });
   }
   // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
@@ -1008,6 +1024,7 @@ function newDevice(x, z) {
   return d;
 }
 /* wall-hung devices: pictures, mirrors, panels, radiators ... */
+const LED_LIKE = { strip: 1, tv_led: 1, nanoleaf: 1, panel_tri: 1, panel_hex: 1, panel_sq: 1, panel_bar: 1, orb: 1 };
 const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch']);
 /** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces) */
 function snapToWall(d, maxDist = 2, keepFacing = false) {
@@ -1611,6 +1628,7 @@ function setMode(next) {
   } else setTool(tool);
   refreshSelection();
   applyViewPolicy();
+  applyStates();
   requestAnimationFrame(resize);
 }
 document.querySelectorAll('#modeSwitch button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
@@ -2601,6 +2619,12 @@ function renderProps() {
     lk.addEventListener('change', () => { snapshot(); if (lk.checked) it.locked = true; else delete it.locked; changed(); renderProps(); renderObjList(); });
     const lkl = document.createElement('label'); lkl.className = 'chk'; lkl.append(lk, document.createTextNode(' ' + t('prop.lock')));
     body.append(lkl);
+    if (it.type in LED_LIKE || catOf(it.type) === 'lighting' || /^light\./.test(it.entity || '')) {     // aesthetics: hide the model, keep the light
+      const hv = document.createElement('input'); hv.type = 'checkbox'; hv.checked = !!it.hideModel; hv.id = 'devHide';
+      hv.addEventListener('change', () => { snapshot(); if (hv.checked) it.hideModel = true; else delete it.hideModel; changed(); applyStates(); });
+      const hl = document.createElement('label'); hl.className = 'chk'; hl.title = t('prop.hideModelHint'); hl.append(hv, document.createTextNode(' ' + t('prop.hideModel')));
+      body.append(hl);
+    }
     if (it.type === 'nanoleaf') {
       const eb = document.createElement('button'); eb.type = 'button'; eb.id = 'nanoEdit'; eb.textContent = '✎ ' + t('nano.edit');
       eb.addEventListener('click', () => { if (!it.locked) editNano(it); else setStatus(t('prop.lockedHint')); });
@@ -2951,6 +2975,7 @@ animate();
 if (params.get('debug')) {
   window.__fp = {
     openRoomPanel(id) { openRoomPanel(id); },
+    isShown(id) { return !!registry.get(id)?.visible; },
     editNano(id) { const d = floor().devices.find((v) => v.id === id); if (d) editNano(d); },
     screenOf(id) {
       const obj = registry.get(id);
