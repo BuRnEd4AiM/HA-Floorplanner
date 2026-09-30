@@ -4,6 +4,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-09-30
+### Added
+- **TV backlight (LED)**: new device in the lighting category, a glowing frame for behind a wall TV (indirect light / ambilight). Put it on the TV, link it to the LED light entity (colour, brightness, effects work as for any light), and resize it with the width/height fields to match the TV
+
+## [2.1.1] - 2026-09-30
+### Added
+- Room panel: every light row has a 🎨 button that unfolds colour, warm/cold, effects (with the effect colour) and the light's scenes, so you no longer have to hit a small model in a crowded 3D view
+
 ## [2.1.0] - 2026-09-30
 ### Added
 - **Effect colours**: Home Assistant only reports the *name* of a light effect (Nanoleaf scene, WLED, Hue ...), not its colours, and the light's own colour is stale/white while an effect runs. A light with an active effect now shows the colour assigned to that effect (colour picker next to the effect list in the live popup, saved for everyone), or a colour recognised from a word in its name (*lila, purple, rot, blue, gaming* ...)

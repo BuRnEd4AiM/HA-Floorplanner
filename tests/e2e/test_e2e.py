@@ -110,6 +110,13 @@ with sync_playwright() as p:
     check("popup lists the scenes the light belongs to", pg.locator("#livePopup .sceneList button", has_text="Gaming").count() == 1, pg.inner_text("#livePopup"))
     pg.click("#livePopup .actions button:nth-child(3)"); pg.wait_for_timeout(900)
     check("service called", ["light", "toggle", "light.wohnzimmer"] in ha_calls(), ha_calls())
+    rid = pg.evaluate("""() => { const f = window.__fp.layout.floors.find(f => f.devices.some(d => d.entity === 'light.wohnzimmer')); const d = f.devices.find(d => d.entity === 'light.wohnzimmer');
+      const r = { id: 'rp_test', name: 'Testraum', color: '#8a7f70', points: [[d.x - 3, d.z - 3], [d.x + 3, d.z - 3], [d.x + 3, d.z + 3], [d.x - 3, d.z + 3]] }; f.rooms.push(r); return r.id; }""")
+    pg.evaluate(f"window.__fp.openRoomPanel({rid!r})"); pg.wait_for_timeout(300)
+    nmore = pg.locator("#roomPanel .rp-more").count()
+    if nmore:
+        pg.locator("#roomPanel .rp-more").first.click(); pg.wait_for_timeout(300)
+    check("room panel unfolds colours and scenes of a light", nmore > 0 and pg.locator("#roomPanel .rp-ctl .swatches").count() == 1, (rid, nmore))
     pg.screenshot(path=f"{S}/live.png")
 
     # --- persisted and reloadable

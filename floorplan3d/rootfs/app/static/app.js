@@ -214,7 +214,7 @@ const isHolo = () => settings.theme === 'holo';
 const MAX_LIGHTS = 8;
 const LIGHT_PROFILE = {                       // r = reach relative to the setting, k = strength
   light: { r: 0.85, k: 0.8 }, lamp: { r: 0.6, k: 0.6 }, orb: { r: 0.3, k: 0.4 }, strip: { r: 0.4, k: 0.4 },
-  panel_tri: { r: 0.35, k: 0.4 }, panel_hex: { r: 0.35, k: 0.4 }, panel_sq: { r: 0.35, k: 0.4 }, panel_bar: { r: 0.4, k: 0.4 }, nanoleaf: { r: 0.45, k: 0.5 },
+  panel_tri: { r: 0.35, k: 0.4 }, panel_hex: { r: 0.35, k: 0.4 }, panel_sq: { r: 0.35, k: 0.4 }, panel_bar: { r: 0.4, k: 0.4 }, nanoleaf: { r: 0.45, k: 0.5 }, tv_led: { r: 0.55, k: 0.55 },
 };
 const hexVec = (h) => new THREE.Vector3(((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255);
 const cssHex = (s) => parseInt(s.slice(1), 16);
@@ -709,7 +709,7 @@ function applyStates() {
     });
   }
   if (livePopupFor) renderLivePopup();
-  if (roomPanelFor && !document.activeElement?.matches?.('#roomPanel input')) renderRoomPanel();
+  if (roomPanelFor && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) renderRoomPanel();
 }
 
 function refreshSelHelper() {
@@ -1008,7 +1008,7 @@ function newDevice(x, z) {
   return d;
 }
 /* wall-hung devices: pictures, mirrors, panels, radiators ... */
-const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'camera', 'thermostat', 'switch']);
+const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch']);
 /** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces) */
 function snapToWall(d, maxDist = 2, keepFacing = false) {
   const rooms = floor().rooms;
@@ -1491,6 +1491,7 @@ function roomOpenings(room, f) {
   return out;
 }
 function closeRoomPanel() { roomPanelFor = null; $('#roomPanel').hidden = true; }
+const rpOpenCtl = new Set();               // lights whose colour / effect / scene controls are unfolded in the room panel
 function renderRoomPanel() {
   const box = $('#roomPanel');
   const room = floor()?.rooms.find((r) => r.id === roomPanelFor);
@@ -1535,7 +1536,19 @@ function renderRoomPanel() {
         r.addEventListener('change', () => onChange(+r.value));
         row.append(r);
       };
-      if (dom === 'light' && st?.brightness != null) slider(st.brightness, (p) => callService(d.entity, 'turn_on', { brightness_pct: p }));
+      if (dom === 'light') {                   // colours, effects and scenes right here: overlapping models are hard to tap in 3D
+        const open = rpOpenCtl.has(d.entity);
+        const tb = document.createElement('button'); tb.className = 'rp-more' + (open ? ' on' : ''); tb.textContent = '🎨'; tb.title = t('rp.lightMore');
+        tb.addEventListener('click', () => { open ? rpOpenCtl.delete(d.entity) : rpOpenCtl.add(d.entity); renderRoomPanel(); });
+        row.append(tb);
+        if (open) {
+          const ctl = document.createElement('div'); ctl.className = 'rp-ctl';
+          ctl.append(lightControls([d.entity]));
+          const sc = sceneButtons(scenesWith([d.entity]), 'live.sceneWith'); if (sc) ctl.append(sc);
+          row.append(ctl);
+        }
+      }
+      if (dom === 'light' && st?.brightness != null && !rpOpenCtl.has(d.entity)) slider(st.brightness, (p) => callService(d.entity, 'turn_on', { brightness_pct: p }));
       if (dom === 'cover') {
         ['open_cover', 'stop_cover', 'close_cover'].forEach((a) => {
           const b = document.createElement('button'); b.textContent = t(ACTION_LABEL[a]);
@@ -1758,7 +1771,7 @@ function groupCentre(ms) { return [ms.reduce((a, m) => a + m.x, 0) / ms.length, 
 /* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
    the wall instead of freezing, and door openings let it through. Wall-hung items, outdoor items and ceiling-free objects are exempt. */
 const STOP_EXEMPT = new Set([...WALL_TYPES_LIST(), ...OUTDOOR]);
-function WALL_TYPES_LIST() { return ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
+function WALL_TYPES_LIST() { return ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
 function penetration(m, x, z, w) {
   const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L = Math.hypot(sx, sz) || 1e-9, ux = sx / L, uz = sz / L;
   const along = (x - ax) * ux + (z - az) * uz;
@@ -1968,6 +1981,7 @@ function buildPalette() {
 }
 /* extra search words so the library also finds things under their everyday names */
 const SEARCH_ALIASES = {
+  tv_led: 'led licht ambilight hintergrundlicht fernseher tv indirekt backlight',
   tv: 'fernseher fernsehen television tele glotze', tv_wall: 'fernseher wandfernseher wand tv fernsehen flachbild', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
   fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
   light: 'leuchte lampe', lamp: 'leuchte stehlampe', bed: 'doppelbett', wardrobe: 'schrank kleiderschrank', shelf: 'regal', bookcase: 'bücherregal buecherregal',
@@ -2936,6 +2950,7 @@ animate();
 /* Test hook: only active with ?debug=1, used by the browser tests to find objects on screen. */
 if (params.get('debug')) {
   window.__fp = {
+    openRoomPanel(id) { openRoomPanel(id); },
     editNano(id) { const d = floor().devices.find((v) => v.id === id); if (d) editNano(d); },
     screenOf(id) {
       const obj = registry.get(id);
