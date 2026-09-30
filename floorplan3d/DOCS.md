@@ -155,3 +155,11 @@ For a double or triple window, the side panel lists **Individual panes**: pick o
 ## Resize and lock furniture
 
 Select a piece in the 2D plan: the two square handles on its edges stretch it in width and depth independently (Alt is not needed). Height and exact factors are in the side panel (*Breite / Höhe / Tiefe (Streckung)*). Tick **Sperren** to fix a piece in place.
+
+## Object list
+
+The object list in the side panel is grouped by room: the room itself, its doors and windows and its furniture. Walls, stairs and blocks are listed below, things outside any room under *No room*. The search field above the list finds objects by name. The box before each name locks the item against moving, resizing and deleting. You can widen the whole side panel by dragging its left edge.
+
+## About this project
+
+3D Floorplan is an AI-assisted project: developed together with Claude (Anthropic), directed, tested and used daily by its author. It is open source (MIT); bug reports and ideas are very welcome.

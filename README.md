@@ -30,6 +30,12 @@ Most floor plan cards make you place icons on a picture. **3D Floorplan** lets y
 
 It is made with a lot of love for my own smart home, and it is used every day. I hope it makes yours a little nicer, too. 💙
 
+## 🤖 About this project (honest note)
+
+This is an **AI-assisted project**: the code is written together with an AI (Claude by Anthropic). The idea, the design, every feature request, the decisions and the testing in my own smart home come from me, and a lot of time and care went into it: hundreds of iterations, screenshots, bug reports and fixes, tested on real wall tablets. The AI is my pair programmer, not an autopilot.
+
+What that means for you: the code is automatically tested (backend and browser tests run on every change), everything is open source under the MIT license, and you are welcome to read, question and improve it. If you find a bug, please open an issue, I take it seriously and will fix it.
+
 ## 🎯 Features
 
 ### 🏗️ Build your home
@@ -42,6 +48,7 @@ It is made with a lot of love for my own smart home, and it is used every day. I
 | **Doors and windows** | 12 presets: front door, glass door, double door, sliding door, single / double / triple window, balcony door, fixed glazing ... they cut real openings into the wall and open when the contact sensor reports *open* |
 | **Garden and surroundings** | Trees, bushes, lawn, terrace, pool, paths, fences and cars around the house, in natural colours |
 | **Whole-house view** | See all floors, basement and roof stacked as one building |
+| **Clear object list** | Everything grouped by room (the room, its doors / windows and furniture), with a search field; the side panel can be dragged wider |
 | **Several houses** | One floor plan per house (yours, your parents', a holiday home ...), a house selector and `?house=` links for kiosks |
 
 <table>
