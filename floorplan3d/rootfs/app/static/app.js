@@ -189,6 +189,7 @@ function addPickProxy(model) {
 }
 
 const HOLO = { fill: 0x1f6fe0, edge: 0x3df2ff, on: 0xff9d2e, onEdge: 0xffd08a, floor: 0x0a1830, floorLit: 0xff9d2e };
+const OUTDOOR = new Set(['tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
 const isHolo = () => settings.theme === 'holo';
 
 /* ---- Room lighting: each lit lamp shines from its own position, so a room is brightest near the lamp ---- */
@@ -387,11 +388,23 @@ function build() {
     grid.position.set(hb.cx, -0.03, hb.cz);
     grid.material.transparent = true; grid.material.opacity = 0.35;
     world.add(grid);
+    const nb = groundIdx();                      // basements: earth around them, so they read as below ground
+    if (nb > 0) {
+      const depth = nb * FLOOR_H, earthSize = Math.max(hb.size * 1.6, 14);
+      const eg = new THREE.BoxGeometry(earthSize, depth, earthSize);
+      const earth = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ color: 0x6b4a2f, transparent: true, opacity: 0.22, depthWrite: false }));
+      earth.position.set(hb.cx, -depth / 2 - 0.03, hb.cz);
+      earth.add(new THREE.LineSegments(new THREE.EdgesGeometry(eg), new THREE.LineBasicMaterial({ color: 0x9a7448, transparent: true, opacity: 0.6 })));
+      world.add(earth);
+      const lawn = new THREE.Mesh(new THREE.PlaneGeometry(earthSize, earthSize).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x5aa04a, transparent: true, opacity: 0.18, depthWrite: false }));
+      lawn.position.set(hb.cx, -0.02, hb.cz);
+      world.add(lawn);
+    }
   }
   layout.floors.forEach((f, i) => {
     if (i > floorIdx && !houseMode) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
-    const ghost = i < floorIdx && !houseMode;
+    const ghost = (i < floorIdx && !houseMode) || (houseMode && f.kind === 'basement');
     const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 }) : null;
     const g = new THREE.Group();
     g.position.y = elev(i);
@@ -482,12 +495,12 @@ function build() {
 
     f.devices.forEach((d) => {
       if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
-      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo) holoify(m, ghost); applyStates(); refreshSelHelper(); });
+      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); });
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.y = THREE.MathUtils.degToRad(d.rot || 0);
       model.scale.setScalar(d.scale || 1);
       if (!ghost) addPickProxy(model);
-      if (holo) holoify(model, ghost);
+      if (holo && !OUTDOOR.has(d.type)) holoify(model, ghost);
       model.traverse((o) => {
         if (!o.isMesh) return;
         o.castShadow = !holo;
