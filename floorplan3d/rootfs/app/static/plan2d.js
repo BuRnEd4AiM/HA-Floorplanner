@@ -51,6 +51,10 @@ export function createPlan(ctx) {
   const grid = () => ctx.settings().grid || 0.25;
   const isLive = () => ctx.isLive();
 
+  /* ---------- background image geometry (corners rotate around the image origin) ---------- */
+  const bgRot = (b, lx, lz) => { const th = ((b.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th); return [b.x + lx * c - lz * sn, b.z + lx * sn + lz * c]; };
+  const bgCorners = (b) => { const h = b.w * (b.ar || 1); return [[0, 0], [b.w, 0], [b.w, h], [0, h]].map(([lx, lz]) => bgRot(b, lx, lz)); };
+
   /* ---------- geometry helpers ---------- */
   const dirOf = (w) => { const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1; return [(w.b[0] - w.a[0]) / L, (w.b[1] - w.a[1]) / L, L]; };
   const distSeg = (px, pz, a, b) => {
@@ -385,6 +389,11 @@ export function createPlan(ctx) {
     }
     if (!live && cursor && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'device' || tool === 'stairs')) o += `<circle cx="${sx(cursor[0])}" cy="${sy(cursor[1])}" r="5" fill="none" stroke="${C.accent}" stroke-width="1.5"/>`;
 
+    if (!live && bgMode === 'move' && bg?.img && !bg.hidden) {   // frame and corner handles of the template
+      const cs = bgCorners(bg);
+      o += `<polygon points="${pts(cs)}" fill="none" stroke="#ff4fd8" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+      cs.forEach((p) => { o += `<rect x="${sx(p[0]) - 6}" y="${sy(p[1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="#ff4fd8" stroke-width="2"/>`; });
+    }
     if (!live && bgMode === 'calib' && calibPts.length) {
       const pl = calibCur && calibPts.length === 1 ? [...calibPts, calibCur] : calibPts;
       o += `<polyline points="${pts(pl)}" fill="none" stroke="#ff4fd8" stroke-width="2" stroke-dasharray="6 4"/>`;
@@ -455,7 +464,13 @@ export function createPlan(ctx) {
     const live = isLive();
     const tool = ctx.getTool();
     if (live) { drag = { type: 'tap', px, py, moved: false }; return; }
-    if (bgMode === 'move' && floor()?.bg) { const b = floor().bg; drag = { type: 'bgmove', px, py, ox: b.x, oz: b.z, sx0: x, sz0: z, moved: false }; return; }
+    if (bgMode === 'move' && floor()?.bg) {
+      const b = floor().bg, cs = bgCorners(b);
+      const ci = cs.findIndex((p) => Math.hypot(sx(p[0]) - px, sy(p[1]) - py) <= 12);
+      if (ci >= 0) { drag = { type: 'bgscale', ci, opp: cs[(ci + 2) % 4], w0: b.w, px, py, moved: false }; return; }
+      drag = { type: 'bgmove', px, py, ox: b.x, oz: b.z, sx0: x, sz0: z, moved: false };
+      return;
+    }
     if (bgMode === 'calib') { drag = { type: 'calib', px, py }; return; }
 
     if (tool === 'select') {
@@ -545,6 +560,22 @@ export function createPlan(ctx) {
     if (drag) {
       const moved = Math.hypot(px - drag.px, py - drag.py) > 4;
       if (drag.type === 'pan') { tx = drag.tx + (px - drag.px); ty = drag.ty + (py - drag.py); render(); return; }
+      if (drag.type === 'bgscale' && moved) {                    // corner handle: uniform scale around the opposite corner
+        snapshotOnce();
+        const b = floor().bg, ar = b.ar || 1, th = ((b.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
+        const dxw = x - drag.opp[0], dzw = z - drag.opp[1];
+        const dl = [dxw * c + dzw * sn, -dxw * sn + dzw * c];      // pointer relative to the fixed corner, in image axes
+        const sg = [[-1, -1], [1, -1], [1, 1], [-1, 1]][drag.ci];
+        const u = [sg[0] * drag.w0, sg[1] * drag.w0 * ar];
+        const k = Math.max(0.5 / drag.w0, (dl[0] * u[0] + dl[1] * u[1]) / (u[0] * u[0] + u[1] * u[1]));
+        const nw = drag.w0 * k, opp = [sg[0] > 0 ? 0 : nw, sg[1] > 0 ? 0 : nw * ar];
+        b.w = +nw.toFixed(4);
+        b.x = +(drag.opp[0] - (opp[0] * c - opp[1] * sn)).toFixed(4);
+        b.z = +(drag.opp[1] - (opp[0] * sn + opp[1] * c)).toFixed(4);
+        drag.moved = true; render();
+        ctx.setStatus(`${ctx.t('bg.width')}: ${ctx.fmtLen(b.w)}`);
+        return;
+      }
       if (drag.type === 'bgmove' && moved) {
         snapshotOnce();
         const b = floor().bg;
@@ -639,7 +670,7 @@ export function createPlan(ctx) {
     const moved = Math.hypot(px - (d.px ?? px), py - (d.py ?? py)) > 4;
     const tool = ctx.getTool();
 
-    if (d.type === 'bgmove') { if (d.moved) { ctx.commit(); } snapDone = false; return; }
+    if (d.type === 'bgmove' || d.type === 'bgscale') { if (d.moved) { ctx.commit(); ctx.bgChanged(); } snapDone = false; return; }
     if (d.type === 'calib') {
       if (!moved) {
         calibPts.push([x, z]);
