@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-09-30
+### Added
+- Lock checkbox in the object list for every item; library search finds things by everyday names (e.g. *Fernseher*)
+
 ## [1.5.0] - 2026-09-30
 ### Added
 - **Stretch furniture per axis**: width, height and depth can be set independently (side panel, *Streckung*), and in the 2D plan the selected piece has two square handles on its right and front edge to drag it longer or wider (5 cm steps), e.g. a longer sideboard
