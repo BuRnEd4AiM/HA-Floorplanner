@@ -107,7 +107,7 @@ def editors() -> set:
     return {str(x).strip().lower() for x in raw if str(x).strip()} if isinstance(raw, list) else set()
 
 
-_admin_cache = {"at": 0.0, "ids": None, "users": []}
+_admin_cache = {"at": float("-inf"), "ids": None, "users": []}
 
 
 async def load_admin_ids():
