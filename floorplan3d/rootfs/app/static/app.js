@@ -43,6 +43,7 @@ let is2d = false;                  // legacy top-down camera flag (the real 2D e
 let plan = null;                   // 2D blueprint editor
 let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null, view: 'all' };
+let lastStateSig = '';
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 let livePopupFor = null;           // device id
 const undoStack = [];
@@ -64,8 +65,12 @@ const fmtLen = (m) => (imperial() ? `${(m * M_TO_FT).toFixed(2)} ft` : `${m.toFi
 
 /* ================= Three.js setup ================= */
 const canvas = $('#view');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 3));
+/* Low-power mode for tablets / kiosk screens (Fire tablets ...): lower resolution, no antialiasing or shadows, 30 fps and only ~4 fps
+   while nothing happens. Automatic for ?kiosk, ?room and touch screens; ?perf=high / ?perf=low overrides. */
+const perfParam = params.get('perf');
+const LOW = perfParam ? perfParam === 'low' : !!(params.get('kiosk') || params.get('room') || matchMedia('(pointer: coarse)').matches);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !LOW, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(LOW ? Math.min(devicePixelRatio, 1.25) : Math.min(devicePixelRatio, 3));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
@@ -377,6 +382,7 @@ function buildRoof(g, i, f, holo, ghost) {
 }
 
 function build() {
+  wake();
   plan?.render();
   world.clear();
   registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roomMeshes.clear(); openingHandles.clear();
@@ -2285,8 +2291,8 @@ function applySettings(prev = {}) {
   rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow);
   applyI18n();
   scene.background = isHolo() ? null : new THREE.Color(themeColors().scene);
-  renderer.shadowMap.enabled = settings.shadows;
-  sun.castShadow = settings.shadows;
+  renderer.shadowMap.enabled = settings.shadows && !LOW;
+  sun.castShadow = settings.shadows && !LOW;
   world.traverse((o) => { if (o.material) o.material.needsUpdate = true; });
   if (prev.grid !== settings.grid || prev.theme !== settings.theme || !grid) rebuildGrid();
   buildPalette(); fillEntities($('#entitySearch').value); renderProps();
@@ -2332,6 +2338,8 @@ async function pollStates() {
     const list = await r.json();
     if (!Array.isArray(list)) return;
     const firstLoad = !entities.length;
+    const sig = JSON.stringify(list.map((e) => [e.entity_id, e.state, e.brightness, e.rgb, e.position]));
+    if (sig !== lastStateSig) { lastStateSig = sig; wake(); }
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
     states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members }]));
     if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
@@ -2399,8 +2407,18 @@ async function init() {
   setInterval(pollStates, 4000);
 }
 
-function animate() {
+var lastActive = performance.now(), lastFrame = 0;
+function wake() { lastActive = performance.now(); }
+['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart', 'touchmove'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
+controls.addEventListener('change', wake);
+function animate(now = performance.now()) {
   requestAnimationFrame(animate);
+  if (document.hidden) return;                                   // screen off / tab in background: draw nothing
+  if (LOW) {
+    const idle = now - lastActive > 4000;
+    if (now - lastFrame < (idle ? 250 : 33)) return;
+    lastFrame = now;
+  }
   controls.update();
   updateCutaway();
   animateOpenings();
@@ -2430,7 +2448,7 @@ if (params.get('debug')) {
       return +a.toFixed(3);
     },
     stairHandle(id, k) { const st = floor().stairs.find((v) => v.id === id); const h = st && stairHandles(st, FLOOR_H)[k]; return h ? toWorld(st, h[0], h[1]) : null; },
-    elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
+    LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
     holeCount: (i) => holesForFloor(layout.floors, i, FLOOR_H).length,
     plan: () => plan,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor

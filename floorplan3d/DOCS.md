@@ -121,3 +121,7 @@ Open the panel **Hintergrundbild** in the side bar (edit mode). Every floor has 
 4. Draw the walls and rooms over it. *Hide* switches the template off without deleting it.
 
 The template is only shown in the editor, never in live mode. Images are stored in the add-on's data folder and are included in add-on backups.
+
+## Tablets and kiosk screens (performance)
+
+On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-power mode**: lower resolution, no antialiasing or shadows, 30 fps while in use and about 4 fps when idle, no drawing while the screen is off. Add `&perf=high` to the address to force full quality, `&perf=low` to force the low-power mode on a computer. Tips for Fire tablets: use Fully Kiosk Browser, keep hardware acceleration/WebGL on, and use one tablet per room (`?room=Name`) instead of the whole-house view.
