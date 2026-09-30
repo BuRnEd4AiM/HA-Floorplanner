@@ -222,7 +222,26 @@ void main(){ vec3 acc = vec3(0.0);
   acc *= uStr; float m = max(max(acc.r, acc.g), max(acc.b, 0.001));
   float a = clamp(m * 0.6, 0.0, 0.6) * (1.0 - smoothstep(0.0, uH, vP.y));
   if (a < 0.01) discard; gl_FragColor = vec4(acc / m, a); }`;
+/* light pool on the floor of the solid themes: a tinted, alpha-blended layer above the normal floor (keeps its shading and shadows) */
+const GLOW_FS = `${LIGHT_HEAD}
+void main(){ vec3 acc = vec3(0.0);
+  for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
+    float d = distance(vP.xz, uPos[i].xz) / uPos[i].w; acc += uCol[i] * exp(-d * d * 2.2); }
+  acc *= uStr; float m = max(max(acc.r, acc.g), max(acc.b, 0.001));
+  float a = clamp(m * 0.75, 0.0, 0.7);
+  if (a < 0.01) discard; gl_FragColor = vec4(acc / m, a); }`;
 function roomLightMat(kind, alpha = 1, ghost = false) {
+  if (kind === 'glow') {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uCount: { value: 0 }, uStr: { value: 1 }, uH: { value: 1 },
+        uPos: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector4()) },
+        uCol: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector3()) },
+      },
+      vertexShader: VERT, fragmentShader: GLOW_FS, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+    });
+  }
   const wash = kind === 'wash';
   return new THREE.ShaderMaterial({
     uniforms: {
@@ -436,8 +455,13 @@ function build() {
       m.position.y = 0.01;
       m.receiveShadow = true;
       g.add(m);
-      let wash = null;
-      if (holo) {                                    // coloured "air" that tints the room's inner walls when a light is on
+      let wash = null, glow = null;
+      if (!holo) {                                   // solid themes: the light pool lies on the floor as a separate layer
+        glow = new THREE.Mesh(geo, roomLightMat('glow'));
+        glow.position.y = 0.014; glow.renderOrder = 1; glow.visible = false; glow.userData.ghost = ghost;
+        g.add(glow);
+      }
+      {                                              // coloured "air" that tints the room's inner walls when a light is on
         const eg = new THREE.ExtrudeGeometry(shape, { depth: settings.wallHeight, bevelEnabled: false });
         eg.rotateX(-Math.PI / 2);
         wash = new THREE.Mesh(eg, roomLightMat('wash'));
@@ -445,7 +469,7 @@ function build() {
         wash.renderOrder = 1;
         g.add(wash);
       }
-      roomMeshes.set(r.id, { mesh: m, room: r, wash, f, ghost });
+      roomMeshes.set(r.id, { mesh: m, room: r, wash, glow, f, ghost });
       if (!ghost) {
         m.userData = { kind: 'room', id: r.id };
         registry.set(r.id, m); pickables.push(m);
@@ -637,10 +661,12 @@ function applyStates() {
       if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
     });
   }
-  if (isHolo()) {                         // lit rooms: light spreads from each lamp, in the lamp's colour
+  {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
+    const holo = isHolo();
     const defCol = hexVec(cssHex(settings.defaultLightColor));
-    roomMeshes.forEach(({ mesh, room, wash, f, ghost }) => {
-      const U = mesh.material.uniforms;
+    roomMeshes.forEach(({ mesh, room, wash, glow, f, ghost }) => {
+      const target = holo ? mesh : glow;
+      const U = target?.material.uniforms;
       if (!U) return;
       const k = ghost ? 0.3 + 0.6 * bv : 1;
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
@@ -655,8 +681,9 @@ function applyStates() {
           const prof = LIGHT_PROFILE[d.type] || LIGHT_PROFILE.light;      // an LED strip or a panel does not light the whole room like a ceiling lamp
           return { x: d.x, y: d.y || 0, z: d.z, r: settings.glowRadius * (0.7 + 0.5 * br) * sw * prof.r, c: c.multiplyScalar(br * prof.k) };
         });
-      fillLights(mesh.material, lights, 1);
-      U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
+      fillLights(target.material, lights, holo ? 1 : (ghost ? k : 1));
+      if (holo) U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
+      else glow.visible = lights.length > 0;
       if (wash) { fillLights(wash.material, lights, k); wash.visible = lights.length > 0; }
     });
   }
@@ -962,22 +989,29 @@ function newDevice(x, z) {
 const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'camera', 'thermostat', 'switch']);
 /** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces) */
 function snapToWall(d, maxDist = 2, keepFacing = false) {
+  const rooms = floor().rooms;
+  const inRoom = (x, z) => rooms.some((r) => pointInPoly(x, z, r.points));
   let best = null;
   floor().walls.forEach((w) => {
     const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L2 = sx * sx + sz * sz || 1;
     const u = Math.max(0, Math.min(1, ((d.x - ax) * sx + (d.z - az) * sz) / L2));
     const px = ax + sx * u, pz = az + sz * u, dist = Math.hypot(d.x - px, d.z - pz);
-    if (dist <= maxDist + w.thickness / 2 && (!best || dist < best.dist)) best = { w, px, pz, dist, sx, sz };
+    if (dist > maxDist + w.thickness / 2) return;
+    const len = Math.hypot(sx, sz) || 1, n0x = -sz / len, n0z = sx / len, off = w.thickness / 2 + 0.02;
+    // which face of the wall: the interior (a room) wins, else the side the device is on, else the way it already faces
+    const okPlus = inRoom(px + n0x * off, pz + n0z * off), okMinus = inRoom(px - n0x * off, pz - n0z * off);
+    const rot = ((d.rot || 0) * Math.PI) / 180, face = n0x * Math.sin(rot) + n0z * Math.cos(rot), onSide = n0x * (d.x - px) + n0z * (d.z - pz);
+    let sign;
+    if (rooms.length && okPlus !== okMinus) sign = okPlus ? 1 : -1;
+    else if (Math.abs(onSide) > 0.03) sign = onSide > 0 ? 1 : -1;
+    else sign = (keepFacing || Math.abs(face) > 0.05) && Math.abs(face) > 0.05 ? (face > 0 ? 1 : -1) : 1;
+    const inside = rooms.length ? (sign > 0 ? okPlus : okMinus) : true;
+    const score = dist + (inside ? 0 : 0.6);                  // prefer a wall whose inner face is in a room
+    if (!best || score < best.score) best = { score, px, pz, nx: n0x * sign, nz: n0z * sign, off };
   });
   if (!best) return false;
-  const len = Math.hypot(best.sx, best.sz) || 1;
-  let nx = -best.sz / len, nz = best.sx / len;                     // a normal of the wall
-  const face = nx * Math.sin(((d.rot || 0) * Math.PI) / 180) + nz * Math.cos(((d.rot || 0) * Math.PI) / 180);
-  const side = keepFacing && Math.abs(face) > 0.05 ? face : nx * (d.x - best.px) + nz * (d.z - best.pz);   // facing wins when it is clear, else the side the device is on
-  if (side < 0) { nx = -nx; nz = -nz; }
-  const off = best.w.thickness / 2 + 0.02;
-  d.x = +(best.px + nx * off).toFixed(3); d.z = +(best.pz + nz * off).toFixed(3);
-  d.rot = ((Math.round((Math.atan2(nx, nz) * 180) / Math.PI * 10) / 10) % 360 + 360) % 360;
+  d.x = +(best.px + best.nx * best.off).toFixed(3); d.z = +(best.pz + best.nz * best.off).toFixed(3);
+  d.rot = ((Math.round((Math.atan2(best.nx, best.nz) * 180) / Math.PI * 10) / 10) % 360 + 360) % 360;
   return true;
 }
 /** a picture: frame + the uploaded image (api/backgrounds/<name>) on a plane; `w` metres wide, `ar` = height / width */
@@ -2709,7 +2743,19 @@ function applySettings(prev = {}) {
   updateNavToggles(); buildNav(true);
   applyStates();
 }
+let settingsLoaded = false, settingsEtag = null;   // never save settings that were not loaded from the server first (would wipe e.g. the tablet assignments)
+async function loadSettings() {
+  for (let i = 0; i < 6 && !settingsLoaded; i++) {
+    try {
+      const r = await fetch('api/settings');
+      if (r.ok) { settings = { ...settings, ...(await r.json()) }; settingsEtag = r.headers.get('ETag'); settingsLoaded = true; break; }
+    } catch { /* add-on is probably restarting, try again */ }
+    await new Promise((res) => setTimeout(res, 1000 * (i + 1)));
+  }
+  return settingsLoaded;
+}
 async function commitSettings() {
+  if (!settingsLoaded && !(await loadSettings())) { setStatus(t('set.notLoaded')); return; }
   const prev = settings;
   settings = readSettingsForm();
   if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
@@ -2722,12 +2768,14 @@ async function commitSettings() {
   build();
   fillSettingsForm();
   try {
-    const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) });
-    if (r.ok) settings = { ...settings, ...(await r.json()) };
+    const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(settingsEtag ? { 'If-Match': settingsEtag } : {}) }, body: JSON.stringify(settings) });
+    if (r.ok) { settings = { ...settings, ...(await r.json()) }; settingsEtag = r.headers.get('ETag'); }
+    else if (r.status === 409) { alert(t('set.changedElsewhere')); location.reload(); }
   } catch { /* offline: settings stay for this session */ }
 }
 $('#settingsBtn').addEventListener('click', () => { fillSettingsForm(); dlg.showModal(); loadHaUsers(); });
 dlg.addEventListener('change', commitSettings);
+dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });     // a click on the dark backdrop closes it too
 
 /* ================= Data loading ================= */
 async function loadAreas() {
@@ -2794,7 +2842,7 @@ async function init() {
   if (tabletRoom) document.body.classList.add('roomtablet');
   if (!me.canEdit) document.body.classList.add('readonly');
   if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
-  try { settings = { ...settings, ...(await (await fetch('api/settings')).json()) }; } catch { /* defaults */ }
+  if (!(await loadSettings())) setStatus(t('set.notLoaded'));
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
   await loadHouses();

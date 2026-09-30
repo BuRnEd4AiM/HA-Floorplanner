@@ -269,3 +269,7 @@ body.live #panelResizer { display: none; }
 @media (max-width: 700px) { #panelResizer { display: none; } }
 #houseGroup[hidden] { display: none; }
 #objList .objfilter { width: 100%; margin: 6px 0; }
+dialog .dlgHead { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; margin: 0 -20px 4px; padding: 16px 20px 8px; background: var(--bg); border-bottom: 1px solid var(--line); }
+dialog .dlgHead h2 { margin: 0; }
+dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: 16px; line-height: 1; flex: none; }
+#settingsDialog { padding-top: 0; }
