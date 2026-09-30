@@ -942,7 +942,7 @@ function newDevice(x, z) {
   return d;
 }
 /* wall-hung devices: pictures, mirrors, panels, radiators ... */
-const WALL_TYPES = new Set(['picture', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'camera', 'thermostat', 'switch']);
+const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'camera', 'thermostat', 'switch']);
 /** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces) */
 function snapToWall(d, maxDist = 2, keepFacing = false) {
   let best = null;
@@ -1650,7 +1650,7 @@ function groupCentre(ms) { return [ms.reduce((a, m) => a + m.x, 0) / ms.length, 
 /* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
    the wall instead of freezing, and door openings let it through. Wall-hung items, outdoor items and ceiling-free objects are exempt. */
 const STOP_EXEMPT = new Set([...WALL_TYPES_LIST(), ...OUTDOOR]);
-function WALL_TYPES_LIST() { return ['picture', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
+function WALL_TYPES_LIST() { return ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
 function penetration(m, x, z, w) {
   const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L = Math.hypot(sx, sz) || 1e-9, ux = sx / L, uz = sz / L;
   const along = (x - ax) * ux + (z - az) * uz;
@@ -1860,7 +1860,7 @@ function buildPalette() {
 }
 /* extra search words so the library also finds things under their everyday names */
 const SEARCH_ALIASES = {
-  tv: 'fernseher fernsehen television tele glotze', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
+  tv: 'fernseher fernsehen television tele glotze', tv_wall: 'fernseher wandfernseher wand tv fernsehen flachbild', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
   fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
   light: 'leuchte lampe', lamp: 'leuchte stehlampe', bed: 'doppelbett', wardrobe: 'schrank kleiderschrank', shelf: 'regal', bookcase: 'bücherregal buecherregal',
 };
