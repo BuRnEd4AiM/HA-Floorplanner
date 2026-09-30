@@ -163,12 +163,12 @@ def forbidden():
 
 async def get_me(request):
     user = current_user(request)
-    rooms = read_json(data_dir(request) / "settings.json", {}).get("userRooms", {})
+    rooms = read_settings(request).get("userRooms", {})
     room = None
     if isinstance(rooms, dict):
         room = next((v for k, v in rooms.items() if str(k).strip().lower() in user["ids"]), None)
     edit = await can_edit(request)
-    views = read_json(data_dir(request) / "settings.json", {}).get("userViews", {})
+    views = read_settings(request).get("userViews", {})
     view = next((v for k, v in views.items() if str(k).strip().lower() in user["ids"] and v in VIEWS), "3d") if isinstance(views, dict) else "3d"
     return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view,
                               "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
@@ -350,14 +350,57 @@ def validate_settings(data: dict) -> dict:
     return out
 
 
+def settings_path(request) -> Path:
+    return data_dir(request) / "settings.json"
+
+
+def settings_rev(request) -> str:
+    """A version tag of the stored settings: a browser that loaded an older state must not overwrite newer settings."""
+    p = settings_path(request)
+    return f'"{p.stat().st_mtime_ns:x}"' if p.is_file() else '"0"'
+
+
+def read_settings(request) -> dict:
+    """Stored settings; if the file is damaged, the newest safety copy is used instead of silently falling back to defaults."""
+    p = settings_path(request)
+    stored = read_json(p, None)
+    if not isinstance(stored, dict):
+        copies = sorted((data_dir(request) / "backups").glob("settings-*.json")) if (data_dir(request) / "backups").is_dir() else []
+        for c in reversed(copies):
+            stored = read_json(c, None)
+            if isinstance(stored, dict):
+                break
+        else:
+            stored = {}
+    return stored
+
+
+def backup_settings(request) -> None:
+    """Keep the last 10 distinct versions of the settings (tablet assignments included) in /data/backups."""
+    p = settings_path(request)
+    if not p.is_file():
+        return
+    d = data_dir(request) / "backups"
+    d.mkdir(parents=True, exist_ok=True)
+    cur = p.read_bytes()
+    copies = sorted(d.glob("settings-*.json"))
+    if copies and copies[-1].read_bytes() == cur:
+        return
+    (d / f"settings-{time.strftime('%Y%m%d-%H%M%S')}-{secrets.token_hex(2)}.json").write_bytes(cur)
+    for old in copies[:-9]:
+        old.unlink(missing_ok=True)
+
+
 async def get_settings(request):
-    stored = read_json(data_dir(request) / "settings.json", {})
-    return web.json_response(validate_settings(stored if isinstance(stored, dict) else {}))
+    return web.json_response(validate_settings(read_settings(request)), headers={"ETag": settings_rev(request)})
 
 
 async def put_settings(request):
     if not await can_edit(request):
         return forbidden()
+    have = request.headers.get("If-Match")
+    if have and have != settings_rev(request):
+        return web.json_response({"error": "settings were changed elsewhere, reload the page"}, status=409)
     try:
         data = await request.json()
     except ValueError:
@@ -365,8 +408,10 @@ async def put_settings(request):
     if not isinstance(data, dict):
         return web.json_response({"error": "object expected"}, status=400)
     clean = validate_settings(data)
-    write_json_atomic(data_dir(request) / "settings.json", clean)
-    return web.json_response(clean)
+    backup_settings(request)                       # the previous state stays recoverable
+    write_json_atomic(settings_path(request), clean)
+    backup_settings(request)
+    return web.json_response(clean, headers={"ETag": settings_rev(request)})
 
 
 # ---------- custom GLB models ----------
@@ -638,7 +683,7 @@ def build_backup(request, with_files: bool = True) -> dict:
     for h in houses_index(request):
         houses.append({"id": h["id"], "name": h["name"], "layout": read_json(house_file(request, h["id"]), EMPTY_LAYOUT)})
     out = {"format": BACKUP_FORMAT, "version": 1, "exported": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-           "houses": houses, "settings": read_json(data_dir(request) / "settings.json", {}), "backgrounds": {}, "models": {}}
+           "houses": houses, "settings": read_settings(request), "backgrounds": {}, "models": {}}
     if with_files:
         for d, key, pat in ((bg_dir(request), "backgrounds", "*.*"), (models_dir(request), "models", "*.glb")):
             if d.is_dir():

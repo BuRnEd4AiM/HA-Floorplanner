@@ -4,6 +4,18 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [1.9.4] - 2026-09-30
+### Fixed
+- *An Wand ausrichten* (and placing wall-hung items) now puts the item on the **inner** face of the wall, the side facing a room, instead of jumping to the outside
+## [1.9.3] - 2026-09-30
+### Added
+- Settings dialog: a fixed header with an ✕ button (also closes on a click outside) instead of only `Esc`
+### Fixed
+- **Tablet assignments (user → room / view) and other settings could get lost after an update**: a browser that failed to load the settings while the add-on was restarting, or an old open tab, could save defaults over the real settings. Now settings are only saved after they were loaded successfully, a stale browser can no longer overwrite newer settings (the page reloads instead), and the server keeps the last versions of the settings in `/data/backups` and restores from them if the file is damaged
+
+## [1.9.2] - 2026-09-30
+### Added
+- **Light glow in the dark and light themes**: lit lamps now colour the floor with a soft light pool and tint the room's walls, just like in the hologram theme
 ## [1.9.1] - 2026-09-30
 ### Changed
 - README, documentation and contributing guide: note that this is an AI-assisted project (with a lot of human work, testing and care), plus the newest features

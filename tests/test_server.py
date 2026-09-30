@@ -394,3 +394,28 @@ async def test_backup_rejects_bad_input(client):
     bad["backgrounds"] = {}
     bad["models"] = {"evil.glb": "AAAA"}
     assert (await client.post("/api/backup", json=bad)).status == 400
+
+
+async def test_settings_stale_write_rejected_and_backup(client):
+    r = await client.get("/api/settings")
+    etag = r.headers["ETag"]
+    body = await r.json()
+    body["userRooms"] = {"tablet": "WZFL"}
+    r = await client.put("/api/settings", json=body, headers={"If-Match": etag})
+    assert r.status == 200
+    new_etag = r.headers["ETag"]
+    # a browser that still has the old state must not overwrite the newer settings
+    stale = await client.put("/api/settings", json={"userRooms": {}}, headers={"If-Match": etag})
+    assert stale.status == 409
+    assert (await (await client.get("/api/settings")).json())["userRooms"] == {"tablet": "WZFL"}
+    ok = await client.put("/api/settings", json=body | {"userViews": {"tablet": "2d"}}, headers={"If-Match": new_etag})
+    assert ok.status == 200
+
+
+async def test_settings_restored_from_backup_when_file_damaged(client, tmp_path):
+    body = await (await client.get("/api/settings")).json()
+    body["userRooms"] = {"tablet": "WZFL"}
+    assert (await client.put("/api/settings", json=body)).status == 200
+    for p in tmp_path.rglob("settings.json"):
+        p.write_text("{ broken")
+    assert (await (await client.get("/api/settings")).json())["userRooms"] == {"tablet": "WZFL"}
