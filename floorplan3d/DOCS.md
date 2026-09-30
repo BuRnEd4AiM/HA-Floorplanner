@@ -137,3 +137,13 @@ On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-
 - **Library:** tool *Gerät* shows every piece with a preview. Filter with the category chips (living, kitchen, bath, bedroom, office, lighting, tech, outdoor, decor) or search by name.
 - **Doors and windows:** tool *Tür/Fenster* offers front door, glass door, double door, sliding door, passage, single/double/triple window, balcony door, small bath window and fixed glazing. In the side panel of a placed opening, *Ausführung* changes its style later.
 - **Pictures:** place *Bild* (category Decor), then *Bild laden …* in the side panel to upload a PNG, JPG or WebP; set the width, the height follows the image. Wall-hung items (pictures, mirrors, panels, radiators, wall lamps ...) snap flat onto the closest wall when placed; *An Wand ausrichten* does it for an existing one.
+
+## Several houses
+
+Open **Manage houses** in the side panel: create a new (empty) house, duplicate the current one, rename or delete it. A house selector appears in the header as soon as there is more than one house. Every house has its own floors, devices and backgrounds layout; all editors can manage all houses.
+
+For a wall tablet, open the add-on with `?house=Parents` (name or id, case-insensitive) so it always shows the right house; without it the last chosen house of that browser is used.
+
+## Windows with several sensors
+
+For a double or triple window, the side panel lists **Individual panes**: pick one contact sensor per pane. Each pane then opens on its own in 3D, and the room panel shows every pane. Panes without their own sensor follow the window's main sensor.

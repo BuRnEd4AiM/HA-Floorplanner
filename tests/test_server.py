@@ -320,3 +320,44 @@ async def test_background_upload_needs_editor(client, monkeypatch, tmp_path):
     assert r.status == 201
     name = (await r.json())["name"]
     assert (await client.delete(f"/api/backgrounds/{name}", headers={"X-Remote-User-Name": "tablet"})).status == 403
+
+
+async def test_houses_create_rename_delete(client):
+    hs = await (await client.get("/api/houses")).json()
+    assert len(hs) == 1 and hs[0]["id"] == "main"
+    # the original plan stays the first house
+    layout = {"version": 1, "floors": [{"id": "a", "name": "Mein Haus EG", "walls": [], "rooms": [], "devices": []}]}
+    assert (await client.put("/api/layout", json=layout)).status == 200
+    r = await client.post("/api/houses", json={"name": "Eltern"})
+    assert r.status == 200
+    hid = (await r.json())["id"]
+    other = await (await client.get(f"/api/layout?house={hid}")).json()
+    assert other["floors"][0]["name"] == "Erdgeschoss"                                  # new house starts empty
+    other["floors"][0]["name"] = "Eltern EG"
+    assert (await client.put(f"/api/layout?house={hid}", json=other)).status == 200
+    assert (await (await client.get("/api/layout")).json()) == layout                    # the other house is untouched
+    assert (await (await client.get(f"/api/layout?house={hid}")).json())["floors"][0]["name"] == "Eltern EG"
+    assert (await client.patch(f"/api/houses/{hid}", json={"name": "Bei den Eltern"})).status == 200
+    assert {h["name"] for h in await (await client.get("/api/houses")).json()} == {"Haus", "Bei den Eltern"}
+    cp = await (await client.post("/api/houses", json={"name": "Kopie", "copyFrom": hid})).json()
+    assert (await (await client.get(f"/api/layout?house={cp['id']}")).json())["floors"][0]["name"] == "Eltern EG"
+    assert (await client.get("/api/layout?house=nope")).status == 404
+    assert (await client.delete(f"/api/houses/{hid}")).status == 200
+    assert (await client.get(f"/api/layout?house={hid}")).status == 404
+    assert (await client.post("/api/houses", json={"name": " "})).status == 400
+
+
+async def test_houses_cannot_delete_last(client):
+    assert (await client.delete("/api/houses/main")).status == 400
+
+
+async def test_houses_need_editor(client, monkeypatch, tmp_path):
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["Florian"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    server._admin_cache.update(at=float("-inf"), ids=None)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    tablet = {"X-Remote-User-Name": "tablet_wz"}
+    assert (await client.post("/api/houses", json={"name": "X"}, headers=tablet)).status == 403
+    assert (await client.delete("/api/houses/main", headers=tablet)).status == 403

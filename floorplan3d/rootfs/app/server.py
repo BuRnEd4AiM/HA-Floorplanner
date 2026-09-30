@@ -181,21 +181,122 @@ async def get_users(request):
     return web.json_response(_admin_cache["users"] if SUPERVISOR_TOKEN else [])
 
 
+# ---------- houses (several floor plans) ----------
+HOUSE_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
+DEFAULT_HOUSE = "main"          # the original single layout.json, so existing installs keep their plan
+
+
+def houses_index(request) -> list:
+    data = read_json(data_dir(request) / "houses.json", None)
+    houses = [h for h in (data or {}).get("houses", []) if isinstance(h, dict) and HOUSE_ID.match(str(h.get("id", ""))) and str(h.get("name", "")).strip()]
+    if not houses:
+        houses = [{"id": DEFAULT_HOUSE, "name": "Haus"}]
+    return houses
+
+
+def save_houses(request, houses: list) -> None:
+    write_json_atomic(data_dir(request) / "houses.json", {"houses": houses})
+
+
+def house_file(request, hid: str) -> Path:
+    return data_dir(request) / ("layout.json" if hid == DEFAULT_HOUSE else f"layouts/{hid}.json")
+
+
+def pick_house(request):
+    """The house named by ?house= (id), else the first one; None if it does not exist."""
+    houses = houses_index(request)
+    wanted = request.query.get("house")
+    if not wanted:
+        return houses[0]["id"]
+    return wanted if any(h["id"] == wanted for h in houses) else None
+
+
+async def get_houses(request):
+    return web.json_response(houses_index(request))
+
+
+async def post_house(request):
+    """Create a house (empty, or a copy of another one with {"copyFrom": id})."""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    name = str((body or {}).get("name", "")).strip()[:60]
+    if not name:
+        return web.json_response({"error": "name missing"}, status=400)
+    houses = houses_index(request)
+    if len(houses) >= 20:
+        return web.json_response({"error": "too many houses"}, status=400)
+    hid = secrets.token_hex(4)
+    src = (body or {}).get("copyFrom")
+    if src and any(h["id"] == src for h in houses):
+        layout = read_json(house_file(request, src), EMPTY_LAYOUT)
+    else:
+        layout = EMPTY_LAYOUT
+    write_json_atomic(house_file(request, hid), layout)
+    houses.append({"id": hid, "name": name})
+    save_houses(request, houses)
+    return web.json_response({"id": hid, "name": name})
+
+
+async def patch_house(request):
+    if not await can_edit(request):
+        return forbidden()
+    hid = request.match_info["id"]
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    name = str((body or {}).get("name", "")).strip()[:60]
+    houses = houses_index(request)
+    h = next((x for x in houses if x["id"] == hid), None)
+    if not h or not name:
+        return web.json_response({"error": "unknown house or name missing"}, status=404 if not h else 400)
+    h["name"] = name
+    save_houses(request, houses)
+    return web.json_response({"ok": True})
+
+
+async def delete_house(request):
+    if not await can_edit(request):
+        return forbidden()
+    hid = request.match_info["id"]
+    houses = houses_index(request)
+    if len(houses) < 2 or not any(h["id"] == hid for h in houses):
+        return web.json_response({"error": "cannot delete"}, status=400)
+    save_houses(request, [h for h in houses if h["id"] != hid])
+    try:
+        house_file(request, hid).unlink()
+    except OSError:
+        pass
+    return web.json_response({"ok": True})
+
+
 # ---------- layout ----------
 async def get_layout(request):
-    return web.json_response(read_json(data_dir(request) / "layout.json", EMPTY_LAYOUT))
+    hid = pick_house(request)
+    if hid is None:
+        return web.json_response({"error": "unknown house"}, status=404)
+    return web.json_response(read_json(house_file(request, hid), EMPTY_LAYOUT))
 
 
 async def put_layout(request):
     if not await can_edit(request):
         return forbidden()
+    hid = pick_house(request)
+    if hid is None:
+        return web.json_response({"error": "unknown house"}, status=404)
     try:
         data = await request.json()
     except ValueError:
         return web.json_response({"error": "invalid JSON"}, status=400)
     if not isinstance(data, dict) or not isinstance(data.get("floors"), list):
         return web.json_response({"error": "floors missing"}, status=400)
-    write_json_atomic(data_dir(request) / "layout.json", data)
+    write_json_atomic(house_file(request, hid), data)
+    if hid == DEFAULT_HOUSE and not (data_dir(request) / "houses.json").exists():
+        save_houses(request, houses_index(request))
     return web.json_response({"ok": True})
 
 
@@ -531,6 +632,10 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.get("/", index),
         web.get("/api/layout", get_layout),
         web.put("/api/layout", put_layout),
+        web.get("/api/houses", get_houses),
+        web.post("/api/houses", post_house),
+        web.patch("/api/houses/{id}", patch_house),
+        web.delete("/api/houses/{id}", delete_house),
         web.get("/api/me", get_me),
         web.get("/api/users", get_users),
         web.get("/api/settings", get_settings),

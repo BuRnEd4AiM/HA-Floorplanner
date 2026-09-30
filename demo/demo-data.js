@@ -144,7 +144,7 @@ export function installDemoBackend() {
   const realFetch = window.fetch.bind(window);
   window.fetch = async (input, init = {}) => {
     const url = typeof input === 'string' ? input : input.url;
-    const path = url.replace(/^.*?(api\/)/, '$1');
+    const path = url.replace(/^.*?(api\/)/, '$1').split('?')[0];
     if (!path.startsWith('api/')) return realFetch(input, init);
     const method = (init.method || 'GET').toUpperCase();
 
@@ -152,6 +152,7 @@ export function installDemoBackend() {
       if (method === 'PUT') return json({ ok: true });        // edits live only in this tab
       return json(layout);
     }
+    if (path === 'api/houses') return method === 'GET' ? json([{ id: 'main', name: 'Demo-Haus' }]) : json({ error: 'not in the demo' }, 501);
     if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all' });
     if (path === 'api/users') return json([{ username: 'florian', name: 'Florian', admin: true }, { username: 'tablet_wohnzimmer', name: 'Tablet Wohnzimmer', admin: false }, { username: 'familie', name: 'Familie', admin: false }]);
     if (path === 'api/settings') {
