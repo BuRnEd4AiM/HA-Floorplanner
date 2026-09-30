@@ -61,7 +61,7 @@ issue "Automatic room detection from closed wall loops" "Backlog" "enhancement,a
 issue "Import a background image / blueprint for tracing" "Backlog" "enhancement,area: 2d" \
 "Load a floor plan image as underlay in the 2D editor with scale and opacity, to trace walls."
 issue "More languages (translations)" "Backlog" "enhancement,good first issue,help wanted,documentation" \
-"The UI strings live in \`floorplan3d/rootfs/app/static/i18n.js\` (German and English). Add your language by copying the English block."
+"The UI strings live in \`floorplan3d/rootfs/app/static/i18n.js\` (German, English and Polish). Add your language by copying the English block."
 
 echo "== Releases"
 LATEST=""

@@ -99,6 +99,10 @@ with sync_playwright() as p:
     pg.click("#settingsDialog menu button"); pg.wait_for_timeout(300)
     st = api("api/settings")
     check("settings persisted", st["language"] == "en" and st["theme"] == "light" and st["units"] == "imperial", st)
+    pg.select_option("#setLanguage", "pl"); pg.wait_for_timeout(300)
+    check("Polish UI labels", pg.inner_text("button[data-tool=wall]") == "Ściana"
+          and [pg.inner_text(f"#modeBar button[data-vm={mode}]") for mode in ("normal", "temp", "humid")] == ["Normalny", "Temperatura", "Wilgotność"]
+          and [pg.inner_text(f"#setLanguage option[value={language}]") for language in ("de", "en", "pl")] == ["Niemiecki", "Angielski", "Polski"])
 
     # --- live mode: tap light -> popup -> toggle
     pg.click("#modeSwitch button[data-mode=live]"); pg.wait_for_timeout(500)

@@ -19,7 +19,7 @@ def glb(size=32):
 async def test_layout_default_and_roundtrip(client):
     r = await client.get("/api/layout")
     assert r.status == 200
-    assert (await r.json())["floors"][0]["name"] == "Erdgeschoss"
+    assert (await r.json()) == {"version": 1, "floors": []}
 
     layout = {"version": 1, "floors": [{"id": "a", "name": "OG", "walls": [], "rooms": [], "devices": []}]}
     assert (await client.put("/api/layout", json=layout)).status == 200
@@ -35,6 +35,9 @@ async def test_layout_rejects_garbage(client):
 async def test_settings_defaults_and_validation(client):
     s = await (await client.get("/api/settings")).json()
     assert s["language"] == "de" and s["grid"] == 0.25
+
+    r = await client.put("/api/settings", json={"language": "pl"})
+    assert (await r.json())["language"] == "pl"
 
     r = await client.put("/api/settings", json={"language": "en", "grid": 0.5, "theme": "neon", "evil": 1, "shadows": "yes"})
     s = await r.json()

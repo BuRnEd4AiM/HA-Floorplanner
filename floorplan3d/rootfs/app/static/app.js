@@ -1886,13 +1886,24 @@ async function pollStates() {
 }
 
 function normalizeLayout() {
+  let migrated = false;
   if (!layout.floors?.length) {
     layout = { version: 1, floors: [{ id: uid(), name: t('floor.default'), walls: [], rooms: [], devices: [] }] };
+    migrated = true;
   }
   layout.floors.forEach((f) => {
     f.walls ||= []; f.rooms ||= []; f.devices ||= [];
     f.walls.forEach((w) => { w.openings ||= []; });
   });
+  // Earlier empty layouts used a language-specific default name. Migrate only that generated placeholder,
+  // never a floor that contains user data.
+  const f = layout.floors[0];
+  if (layout.floors.length === 1 && f?.id === 'f1' && ['Erdgeschoss', 'Ground floor', 'Parter'].includes(f.name)
+      && !f.walls.length && !f.rooms.length && !f.devices.length && f.name !== t('floor.default')) {
+    f.name = t('floor.default');
+    migrated = true;
+  }
+  return migrated;
 }
 
 plan = createPlan({
@@ -1929,10 +1940,11 @@ async function init() {
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
   try { layout = await (await fetch('api/layout')).json(); } catch { setStatus(t('loadFailed')); }
-  normalizeLayout();
+  const layoutMigrated = normalizeLayout();
   await loadModels();
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera();
+  if (layoutMigrated && me.canEdit) scheduleSave();
   if (params.get('mode') === 'live' || params.get('kiosk') || tabletRoom || !me.canEdit) setMode('live');
   if (tabletRoom) {
     const hit = findRoomByName(tabletRoom);
