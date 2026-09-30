@@ -2,8 +2,12 @@ name: Release
 
 # Publishes a GitHub release with the notes from CHANGELOG.md.
 #  - push a tag such as v0.8.0, or
-#  - Actions → "Release" → Run workflow and enter the version (creates the tag on main).
+#  - Actions → "Release" → Run workflow and enter the version (creates the tag on main), or
+#  - automatically when a push to main changes the version in floorplan3d/config.yaml.
 on:
+  push:
+    branches: [main]
+    paths: ["floorplan3d/config.yaml"]
   push:
     tags: ["v*"]
   workflow_dispatch:
@@ -28,9 +32,11 @@ jobs:
           INPUT_VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
-          v="${INPUT_VERSION:-${GITHUB_REF_NAME#v}}"
-          v="${v#v}"
           cfg="$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d/config.yaml)"
+          if [ -n "${INPUT_VERSION:-}" ]; then v="$INPUT_VERSION"
+          elif [ "$GITHUB_REF_TYPE" = "tag" ]; then v="${GITHUB_REF_NAME#v}"
+          else v="$cfg"; fi
+          v="${v#v}"
           [ "$cfg" = "$v" ] || { echo "config.yaml says $cfg, not $v"; exit 1; }
           notes="$(awk -v v="$v" '$0 ~ "^## \\["v"\\]" {p=1; next} /^## \[/ {p=0} p' CHANGELOG.md)"
           [ -n "$notes" ] || { echo "No CHANGELOG entry for $v"; exit 1; }
