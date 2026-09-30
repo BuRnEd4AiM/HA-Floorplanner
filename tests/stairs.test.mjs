@@ -56,3 +56,13 @@ test('hole starts where headroom is missing, not at the bottom', () => {
   assert.ok(Math.min(...xs) > 1.0, 'no opening over the first steps');
   near(Math.max(...xs), S.stairBounds(st, H).x1);
 });
+
+test('size handles sit at the end of the run and at its side', () => {
+  const st = { ...S.stairDefaults('straight') };
+  const h = S.stairHandles(st, H), L = S.stairLength(st, H);
+  near(h.len[0], L); near(h.len[1], 0); near(h.wid[1], st.w / 2);
+  const sp = S.stairHandles({ ...S.stairDefaults('spiral') }, H);
+  assert.equal(sp.len, null); near(sp.wid[0], 0.9);
+  const l = S.stairLength({ ...S.stairDefaults('L'), tread: 0.3 }, H), c = S.stairCounts({}, H);
+  near(l, c.n1 * 0.3);
+});

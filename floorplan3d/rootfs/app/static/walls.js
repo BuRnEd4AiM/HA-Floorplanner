@@ -58,10 +58,10 @@ function buildOpening(o, t, mats0, low) {
     leaf.position.x = o.flip ? -lw / 2 : lw / 2;
     pivot.add(leaf);
     const knob = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), mats.metal);
-    knob.position.set(o.flip ? -lw + 0.12 : lw - 0.12, s + 1.0, 0.045);
+    knob.position.set(o.flip ? -lw + 0.12 : lw - 0.12, s + 1.0, o.inv ? -0.045 : 0.045);
     pivot.add(knob);
     g.add(pivot);
-    pivot.userData.dir = o.flip ? 1 : -1;
+    pivot.userData.dir = (o.flip ? 1 : -1) * (o.inv ? -1 : 1);       // inv: the leaf swings to the other side of the wall
     pivot.userData.axis = 'y';
     pivot.userData.max = 1.15;
   } else {
