@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-09-30
+### Changed
+- **Object list grouped by room**: every room is a collapsible group with the room itself, its doors / windows and its furniture; leftovers are under *No room*, walls, stairs and blocks below. The group holding the selected item opens automatically
+### Added
+- Search field above the object list (opens all matching groups)
+
 ## [1.8.1] - 2026-09-30
 ### Changed
 - Completely revised README with feature overview and new screenshots (3D, 2D, split view, whole house, library, room panel, light popup)
