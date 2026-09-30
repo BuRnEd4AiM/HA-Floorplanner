@@ -738,6 +738,23 @@ function scheduleSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(save, (settings.autosaveSeconds || 1.5) * 1000);
 }
+/* ================= Resizable side panel (drag its left edge) ================= */
+(() => {
+  const bar = $('#panelResizer'), root = document.documentElement;
+  const apply = (w) => root.style.setProperty('--panel-w', `${Math.max(240, Math.min(Math.round(window.innerWidth * 0.7), w))}px`);
+  try { const w = +localStorage.getItem('fp.panelW'); if (w) apply(w); } catch { /* private mode */ }
+  bar.addEventListener('pointerdown', (e) => {
+    bar.setPointerCapture(e.pointerId); bar.classList.add('drag');
+    const move = (ev) => apply(window.innerWidth - ev.clientX);
+    const up = () => {
+      bar.classList.remove('drag'); bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up);
+      try { localStorage.setItem('fp.panelW', parseInt(getComputedStyle($('#panel')).width, 10)); } catch { /* ignore */ }
+      resize?.();
+    };
+    bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up);
+  });
+})();
+
 /* ================= Houses (several floor plans) ================= */
 let houses = [], houseId = null;
 const layoutUrl = () => `api/layout${houseId ? `?house=${encodeURIComponent(houseId)}` : ''}`;
@@ -1147,6 +1164,18 @@ canvas.addEventListener('dblclick', (e) => {
   }
 });
 
+/** size (m) of a built-in model at scale 1, measured from the model itself (null for custom GLB models) */
+const dimsCache = new Map();
+function baseDims(type) {
+  if (isCustom(type)) return null;
+  if (!dimsCache.has(type)) {
+    const g = makeModel(type);
+    g.updateMatrixWorld(true);
+    const sz = new THREE.Box3().setFromObject(g).getSize(new THREE.Vector3());
+    dimsCache.set(type, sz.x > 0.001 && sz.y > 0.001 && sz.z > 0.001 ? { x: sz.x, y: sz.y, z: sz.z } : null);
+  }
+  return dimsCache.get(type);
+}
 /** the layout object behind a selection handle (wall, room, opening, device, stair, block) */
 function itemOf(kind, id) {
   const f = floor();
@@ -2467,11 +2496,20 @@ function renderProps() {
     body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { const nv = ((+v % 360) + 360) % 360; if (it.group) rotateGroup(it, nv - (it.rot || 0)); else it.rot = nv; }, { step: 15 })));
-    body.append(field(t('prop.height'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
+    body.append(field(t('prop.elev'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
     if (it.type !== 'picture') {
-      const stretch = (key, label) => field(label, inp('number', it[key] || 1, (v) => { const n = Math.max(0.1, Math.min(10, +v || 1)); if (Math.abs(n - 1) < 0.005) delete it[key]; else it[key] = +n.toFixed(3); }, { step: 0.1, min: 0.1 }));
-      body.append(stretch('sx', t('prop.stretchX')), stretch('sy', t('prop.stretchY')), stretch('sz', t('prop.stretchZ')));
+      const base = baseDims(it.type);
+      if (base) {                                                     // real dimensions in metres, type them in directly
+        const dim = (key, axis, label) => field(label, lenInput(() => base[axis] * (it.scale || 1) * (it[key] || 1), (v) => {
+          const n = Math.max(0.1, Math.min(10, v / (base[axis] * (it.scale || 1))));
+          if (Math.abs(n - 1) < 0.005) delete it[key]; else it[key] = +n.toFixed(4);
+        }, { min: 0.02, step: 0.05 }));
+        body.append(dim('sx', 'x', t('prop.dimW')), dim('sy', 'y', t('prop.dimH')), dim('sz', 'z', t('prop.dimD')));
+      } else {
+        const stretch = (key, label) => field(label, inp('number', it[key] || 1, (v) => { const n = Math.max(0.1, Math.min(10, +v || 1)); if (Math.abs(n - 1) < 0.005) delete it[key]; else it[key] = +n.toFixed(3); }, { step: 0.1, min: 0.1 }));
+        body.append(stretch('sx', t('prop.stretchX')), stretch('sy', t('prop.stretchY')), stretch('sz', t('prop.stretchZ')));
+      }
     }
     const angle = (key) => inp('number', it[key] || 0, (v) => { const a = ((+v % 360) + 360) % 360; if (a) it[key] = a; else delete it[key]; }, { step: 15 });
     body.append(field(t('prop.tiltX'), angle('tiltX')), field(t('prop.tiltZ'), angle('tiltZ')));

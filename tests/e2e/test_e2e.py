@@ -435,6 +435,11 @@ with sync_playwright() as p:
     pg9.locator("#objList details[open] .objlock").first.check(); pg9.wait_for_timeout(300)
     locked = pg9.evaluate("window.__fp.layout.floors.flatMap(f => [...f.rooms, ...f.walls, ...f.devices]).filter(x => x.locked).length")
     check("ticking the box locks the item", locked == 1, locked)
+    w0 = pg9.evaluate("document.querySelector('#panel').getBoundingClientRect().width")
+    bx = pg9.evaluate("(() => { const r = document.querySelector('#panelResizer').getBoundingClientRect(); return [r.x + r.width / 2, r.y + 200]; })()")
+    pg9.mouse.move(bx[0], bx[1]); pg9.mouse.down(); pg9.mouse.move(bx[0] - 150, bx[1], steps=5); pg9.mouse.up(); pg9.wait_for_timeout(300)
+    w1 = pg9.evaluate("document.querySelector('#panel').getBoundingClientRect().width")
+    check("side panel can be widened by dragging its edge", w1 > w0 + 100, (w0, w1))
     pg9.close()
     b.close()
 

@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-09-30
+### Added
+- **Resizable side panel**: drag its left edge to make it wider (remembered per browser)
+- **Real dimensions**: width, height and depth of a piece are entered in metres (e.g. sideboard 0.90 m high) instead of factors; *Höhe über Boden* is the elevation field
+### Fixed
+- Lock checkboxes in the object list and device panel were stretched and misaligned
+
 ## [1.7.0] - 2026-09-30
 ### Added
 - **Wall TV** (flat screen that clicks onto the wall like pictures; lights up when its media player is on)
