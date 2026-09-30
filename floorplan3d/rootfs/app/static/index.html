@@ -17,8 +17,11 @@
       <button data-tool="select" class="active" data-i18n="tool.select" data-i18n-title="tip.select"></button>
       <button data-tool="wall" data-i18n="tool.wall" data-i18n-title="tip.wall"></button>
       <button data-tool="room" data-i18n="tool.room" data-i18n-title="tip.room"></button>
+      <button data-tool="block" data-i18n="tool.block" data-i18n-title="tip.block"></button>
+      <button data-tool="stairs" data-i18n="tool.stairs" data-i18n-title="tip.stairs"></button>
       <button data-tool="opening" data-i18n="tool.opening" data-i18n-title="tip.opening"></button>
       <button data-tool="device" data-i18n="tool.device" data-i18n-title="tip.device"></button>
+      <button data-tool="group" data-i18n="tool.group" data-i18n-title="tip.group"></button>
       <button data-tool="erase" data-i18n="tool.erase" data-i18n-title="tip.erase"></button>
     </div>
     <div class="group">
@@ -29,6 +32,9 @@
     </div>
     <div class="group">
       <button id="addFloor" class="edit-only" data-i18n="floor.add"></button>
+    </div>
+    <div class="group" id="houseGroup" hidden>
+      <select id="houseSelect" aria-label="House"></select>
     </div>
     <div class="group right">
       <span id="status"></span>
@@ -55,11 +61,29 @@
       <aside id="roomPanel" hidden></aside>
     </div>
 
+    <div id="panelResizer" role="separator" aria-orientation="vertical" data-i18n-title="panel.resize"></div>
     <aside id="panel">
       <section id="hint">
         <h3 data-i18n="panel.hint"></h3>
         <p id="hintText"></p>
       </section>
+
+      <details id="housePanel" class="edit-only">
+        <summary data-i18n="house.panel"></summary>
+        <div id="houseBody"></div>
+        <h4 data-i18n="backup.title"></h4>
+        <p class="sub" data-i18n="backup.hint"></p>
+        <div class="stopTools">
+          <a id="backupExport" class="btn" href="api/backup" download data-i18n="backup.export"></a>
+          <button type="button" id="backupImport" data-i18n="backup.import"></button>
+          <input type="file" id="backupFile" accept=".json,application/json" hidden>
+        </div>
+      </details>
+
+      <details id="floorPanel" class="edit-only">
+        <summary data-i18n="floor.panel"></summary>
+        <div id="floorBody"></div>
+      </details>
 
       <details id="bgPanel" class="edit-only">
         <summary data-i18n="bg.title"></summary>
@@ -68,7 +92,9 @@
 
       <section id="devicePalette" hidden>
         <h3 data-i18n="panel.deviceType"></h3>
-        <div id="paletteGrid" class="palette"></div>
+        <input id="paletteSearch" type="search" data-i18n-placeholder="pal.search">
+        <div id="paletteCats"></div>
+        <div id="paletteGrid" class="palette thumbs"></div>
         <h3 data-i18n="panel.models"></h3>
         <div id="modelGrid" class="palette"></div>
         <label class="uploadBtn"><span data-i18n="panel.upload"></span>
@@ -79,11 +105,50 @@
         <select id="entitySelect" size="6"></select>
       </section>
 
+      <section id="groupPalette" hidden>
+        <h3 data-i18n="tool.group"></h3>
+        <div id="groupBody"></div>
+      </section>
+
+      <section id="blockPalette" hidden>
+        <h3 data-i18n="block.title"></h3>
+        <div class="prop"><label for="blockFloor" data-i18n="block.belongsTo"></label>
+          <select id="blockFloor"><option value="below" data-i18n="block.below"></option><option value="this" data-i18n="block.this"></option></select></div>
+        <p class="sub" data-i18n="block.help"></p>
+      </section>
+
+      <section id="stairPalette" hidden>
+        <h3 data-i18n="stair.title"></h3>
+        <div class="palette" id="stairTypes">
+          <button data-stair="straight" class="active" data-i18n="stair.straight"></button>
+          <button data-stair="L" data-i18n="stair.L"></button>
+          <button data-stair="U" data-i18n="stair.U"></button>
+          <button data-stair="spiral" data-i18n="stair.spiral"></button>
+          <button data-stair="shaft" data-i18n="stair.shaft"></button>
+        </div>
+        <div class="prop"><label for="stairDir" data-i18n="stair.dir"></label>
+          <select id="stairDir"><option value="up" data-i18n="stair.up"></option><option value="down" data-i18n="stair.down"></option></select></div>
+        <div class="prop"><label for="stairTurn" data-i18n="stair.turn"></label>
+          <select id="stairTurn"><option value="right" data-i18n="stair.right"></option><option value="left" data-i18n="stair.left"></option></select></div>
+        <div class="prop"><label for="stairRot" data-i18n="prop.rotation"></label><input id="stairRot" type="number" step="15" value="0"></div>
+        <p class="sub" data-i18n="stair.help2"></p>
+      </section>
+
       <section id="openingPalette" hidden>
         <h3 data-i18n="panel.openingType"></h3>
-        <div class="palette two">
-          <button data-opening="door" class="active" data-i18n="prop.door"></button>
-          <button data-opening="window" data-i18n="prop.window"></button>
+        <div class="palette">
+          <button data-opening="door" class="active" data-i18n="op.door"></button>
+          <button data-opening="doorEntry" data-i18n="op.doorEntry"></button>
+          <button data-opening="doorGlass" data-i18n="op.doorGlass"></button>
+          <button data-opening="doorDouble" data-i18n="op.doorDouble"></button>
+          <button data-opening="doorSlide" data-i18n="op.doorSlide"></button>
+          <button data-opening="doorOpen" data-i18n="op.doorOpen"></button>
+          <button data-opening="window" data-i18n="op.window"></button>
+          <button data-opening="window2" data-i18n="op.window2"></button>
+          <button data-opening="window3" data-i18n="op.window3"></button>
+          <button data-opening="windowTall" data-i18n="op.windowTall"></button>
+          <button data-opening="windowBath" data-i18n="op.windowBath"></button>
+          <button data-opening="windowFixed" data-i18n="op.windowFixed"></button>
         </div>
       </section>
 
@@ -115,7 +180,7 @@
 
 <dialog id="settingsDialog">
   <form method="dialog" novalidate>
-    <h2 data-i18n="settings"></h2>
+    <div class="dlgHead"><h2 data-i18n="settings"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
 
     <h3 data-i18n="set.section.general"></h3>
     <div class="row"><label for="setLanguage" data-i18n="set.language"></label>
@@ -138,6 +203,7 @@
     <h3 data-i18n="set.section.view"></h3>
     <div class="row check"><input id="setShadows" type="checkbox"><label for="setShadows" data-i18n="set.shadows"></label></div>
     <div class="row check"><input id="setLabels" type="checkbox"><label for="setLabels" data-i18n="set.labels"></label></div>
+    <div class="row check"><input id="setWallStop" type="checkbox"><label for="setWallStop" data-i18n="set.wallStop"></label></div>
     <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
     <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
 

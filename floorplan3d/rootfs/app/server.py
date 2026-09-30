@@ -5,6 +5,8 @@
 - reads entities and calls services through the Supervisor proxy
 """
 import asyncio
+import base64
+import datetime
 import json
 import logging
 import time
@@ -41,6 +43,7 @@ DEFAULT_SETTINGS = {
     "lowWalls": False,
     "showLabels": True,
     "cutaway": True,           # walls facing the camera sink down
+    "wallStop": True,          # devices cannot be dragged through walls (doors let them pass)
     "belowVisibility": 0.5,    # how clearly floors below the current one shine through (0.05..1)
     "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
     "glowRadius": 3.5,         # metres a lamp lights up
@@ -160,12 +163,12 @@ def forbidden():
 
 async def get_me(request):
     user = current_user(request)
-    rooms = read_json(data_dir(request) / "settings.json", {}).get("userRooms", {})
+    rooms = read_settings(request).get("userRooms", {})
     room = None
     if isinstance(rooms, dict):
         room = next((v for k, v in rooms.items() if str(k).strip().lower() in user["ids"]), None)
     edit = await can_edit(request)
-    views = read_json(data_dir(request) / "settings.json", {}).get("userViews", {})
+    views = read_settings(request).get("userViews", {})
     view = next((v for k, v in views.items() if str(k).strip().lower() in user["ids"] and v in VIEWS), "3d") if isinstance(views, dict) else "3d"
     return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view,
                               "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
@@ -180,21 +183,122 @@ async def get_users(request):
     return web.json_response(_admin_cache["users"] if SUPERVISOR_TOKEN else [])
 
 
+# ---------- houses (several floor plans) ----------
+HOUSE_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,31}$")
+DEFAULT_HOUSE = "main"          # the original single layout.json, so existing installs keep their plan
+
+
+def houses_index(request) -> list:
+    data = read_json(data_dir(request) / "houses.json", None)
+    houses = [h for h in (data or {}).get("houses", []) if isinstance(h, dict) and HOUSE_ID.match(str(h.get("id", ""))) and str(h.get("name", "")).strip()]
+    if not houses:
+        houses = [{"id": DEFAULT_HOUSE, "name": "Haus"}]
+    return houses
+
+
+def save_houses(request, houses: list) -> None:
+    write_json_atomic(data_dir(request) / "houses.json", {"houses": houses})
+
+
+def house_file(request, hid: str) -> Path:
+    return data_dir(request) / ("layout.json" if hid == DEFAULT_HOUSE else f"layouts/{hid}.json")
+
+
+def pick_house(request):
+    """The house named by ?house= (id), else the first one; None if it does not exist."""
+    houses = houses_index(request)
+    wanted = request.query.get("house")
+    if not wanted:
+        return houses[0]["id"]
+    return wanted if any(h["id"] == wanted for h in houses) else None
+
+
+async def get_houses(request):
+    return web.json_response(houses_index(request))
+
+
+async def post_house(request):
+    """Create a house (empty, or a copy of another one with {"copyFrom": id})."""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    name = str((body or {}).get("name", "")).strip()[:60]
+    if not name:
+        return web.json_response({"error": "name missing"}, status=400)
+    houses = houses_index(request)
+    if len(houses) >= 20:
+        return web.json_response({"error": "too many houses"}, status=400)
+    hid = secrets.token_hex(4)
+    src = (body or {}).get("copyFrom")
+    if src and any(h["id"] == src for h in houses):
+        layout = read_json(house_file(request, src), EMPTY_LAYOUT)
+    else:
+        layout = EMPTY_LAYOUT
+    write_json_atomic(house_file(request, hid), layout)
+    houses.append({"id": hid, "name": name})
+    save_houses(request, houses)
+    return web.json_response({"id": hid, "name": name})
+
+
+async def patch_house(request):
+    if not await can_edit(request):
+        return forbidden()
+    hid = request.match_info["id"]
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    name = str((body or {}).get("name", "")).strip()[:60]
+    houses = houses_index(request)
+    h = next((x for x in houses if x["id"] == hid), None)
+    if not h or not name:
+        return web.json_response({"error": "unknown house or name missing"}, status=404 if not h else 400)
+    h["name"] = name
+    save_houses(request, houses)
+    return web.json_response({"ok": True})
+
+
+async def delete_house(request):
+    if not await can_edit(request):
+        return forbidden()
+    hid = request.match_info["id"]
+    houses = houses_index(request)
+    if len(houses) < 2 or not any(h["id"] == hid for h in houses):
+        return web.json_response({"error": "cannot delete"}, status=400)
+    save_houses(request, [h for h in houses if h["id"] != hid])
+    try:
+        house_file(request, hid).unlink()
+    except OSError:
+        pass
+    return web.json_response({"ok": True})
+
+
 # ---------- layout ----------
 async def get_layout(request):
-    return web.json_response(read_json(data_dir(request) / "layout.json", EMPTY_LAYOUT))
+    hid = pick_house(request)
+    if hid is None:
+        return web.json_response({"error": "unknown house"}, status=404)
+    return web.json_response(read_json(house_file(request, hid), EMPTY_LAYOUT))
 
 
 async def put_layout(request):
     if not await can_edit(request):
         return forbidden()
+    hid = pick_house(request)
+    if hid is None:
+        return web.json_response({"error": "unknown house"}, status=404)
     try:
         data = await request.json()
     except ValueError:
         return web.json_response({"error": "invalid JSON"}, status=400)
     if not isinstance(data, dict) or not isinstance(data.get("floors"), list):
         return web.json_response({"error": "floors missing"}, status=400)
-    write_json_atomic(data_dir(request) / "layout.json", data)
+    write_json_atomic(house_file(request, hid), data)
+    if hid == DEFAULT_HOUSE and not (data_dir(request) / "houses.json").exists():
+        save_houses(request, houses_index(request))
     return web.json_response({"ok": True})
 
 
@@ -246,14 +350,57 @@ def validate_settings(data: dict) -> dict:
     return out
 
 
+def settings_path(request) -> Path:
+    return data_dir(request) / "settings.json"
+
+
+def settings_rev(request) -> str:
+    """A version tag of the stored settings: a browser that loaded an older state must not overwrite newer settings."""
+    p = settings_path(request)
+    return f'"{p.stat().st_mtime_ns:x}"' if p.is_file() else '"0"'
+
+
+def read_settings(request) -> dict:
+    """Stored settings; if the file is damaged, the newest safety copy is used instead of silently falling back to defaults."""
+    p = settings_path(request)
+    stored = read_json(p, None)
+    if not isinstance(stored, dict):
+        copies = sorted((data_dir(request) / "backups").glob("settings-*.json")) if (data_dir(request) / "backups").is_dir() else []
+        for c in reversed(copies):
+            stored = read_json(c, None)
+            if isinstance(stored, dict):
+                break
+        else:
+            stored = {}
+    return stored
+
+
+def backup_settings(request) -> None:
+    """Keep the last 10 distinct versions of the settings (tablet assignments included) in /data/backups."""
+    p = settings_path(request)
+    if not p.is_file():
+        return
+    d = data_dir(request) / "backups"
+    d.mkdir(parents=True, exist_ok=True)
+    cur = p.read_bytes()
+    copies = sorted(d.glob("settings-*.json"))
+    if copies and copies[-1].read_bytes() == cur:
+        return
+    (d / f"settings-{time.strftime('%Y%m%d-%H%M%S')}-{secrets.token_hex(2)}.json").write_bytes(cur)
+    for old in copies[:-9]:
+        old.unlink(missing_ok=True)
+
+
 async def get_settings(request):
-    stored = read_json(data_dir(request) / "settings.json", {})
-    return web.json_response(validate_settings(stored if isinstance(stored, dict) else {}))
+    return web.json_response(validate_settings(read_settings(request)), headers={"ETag": settings_rev(request)})
 
 
 async def put_settings(request):
     if not await can_edit(request):
         return forbidden()
+    have = request.headers.get("If-Match")
+    if have and have != settings_rev(request):
+        return web.json_response({"error": "settings were changed elsewhere, reload the page"}, status=409)
     try:
         data = await request.json()
     except ValueError:
@@ -261,8 +408,10 @@ async def put_settings(request):
     if not isinstance(data, dict):
         return web.json_response({"error": "object expected"}, status=400)
     clean = validate_settings(data)
-    write_json_atomic(data_dir(request) / "settings.json", clean)
-    return web.json_response(clean)
+    backup_settings(request)                       # the previous state stays recoverable
+    write_json_atomic(settings_path(request), clean)
+    backup_settings(request)
+    return web.json_response(clean, headers={"ETag": settings_rev(request)})
 
 
 # ---------- custom GLB models ----------
@@ -407,6 +556,14 @@ def _effects(attrs):
     return [str(x)[:64] for x in lst[:60]] if isinstance(lst, list) else None
 
 
+def _members(st):
+    """Entities a scene sets (its `entity_id` attribute), so the UI can offer the scenes a light belongs to."""
+    if not st["entity_id"].startswith("scene."):
+        return None
+    ids = st.get("attributes", {}).get("entity_id")
+    return [str(x) for x in ids[:200]] if isinstance(ids, list) else None
+
+
 async def get_entities(request):
     """Slim list of all entities (id, name, domain, state)."""
     if not SUPERVISOR_TOKEN:
@@ -431,6 +588,7 @@ async def get_entities(request):
             "ch": st.get("attributes", {}).get("current_humidity"),
             "fx": _effects(st.get("attributes", {})),
             "fxc": st.get("attributes", {}).get("effect"),
+            "members": _members(st),
         }
         for st in states
     ])
@@ -514,6 +672,109 @@ async def index(request):
     return web.FileResponse(STATIC_DIR / "index.html")
 
 
+# ---------- backup: export / import everything (houses, settings, models, pictures) ----------
+BACKUP_FORMAT = "floorplan3d-backup"
+MAX_BACKUP_BYTES = 200 * 1024 * 1024
+MAX_HOUSES = 20
+
+
+def build_backup(request, with_files: bool = True) -> dict:
+    houses = []
+    for h in houses_index(request):
+        houses.append({"id": h["id"], "name": h["name"], "layout": read_json(house_file(request, h["id"]), EMPTY_LAYOUT)})
+    out = {"format": BACKUP_FORMAT, "version": 1, "exported": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+           "houses": houses, "settings": read_settings(request), "backgrounds": {}, "models": {}}
+    if with_files:
+        for d, key, pat in ((bg_dir(request), "backgrounds", "*.*"), (models_dir(request), "models", "*.glb")):
+            if d.is_dir():
+                for f in sorted(d.glob(pat)):
+                    if f.is_file() and (BG_NAME.match(f.name) if key == "backgrounds" else MODEL_NAME.match(f.stem)):
+                        out[key][f.name] = base64.b64encode(f.read_bytes()).decode("ascii")
+    return out
+
+
+async def get_backup(request):
+    if not await can_edit(request):
+        return forbidden()
+    data = build_backup(request, request.query.get("files", "1") != "0")
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
+    return web.Response(text=json.dumps(data), content_type="application/json",
+                        headers={"Content-Disposition": f'attachment; filename="floorplan3d-backup-{stamp}.json"'})
+
+
+def validate_backup(data):
+    """Return (houses, settings, backgrounds, models) as clean python values, or raise ValueError."""
+    if not isinstance(data, dict) or data.get("format") != BACKUP_FORMAT:
+        raise ValueError("not a 3D Floorplan backup file")
+    raw = data.get("houses")
+    if not isinstance(raw, list) or not 1 <= len(raw) <= MAX_HOUSES:
+        raise ValueError("no houses in backup")
+    houses, seen = [], set()
+    for h in raw:
+        if not isinstance(h, dict) or not HOUSE_ID.match(str(h.get("id", ""))) or h["id"] in seen:
+            raise ValueError("invalid house id")
+        lay = h.get("layout")
+        if not isinstance(lay, dict) or not isinstance(lay.get("floors"), list):
+            raise ValueError("invalid layout")
+        name = str(h.get("name", "")).strip()[:60] or "Haus"
+        seen.add(h["id"])
+        houses.append({"id": h["id"], "name": name, "layout": lay})
+    settings = data.get("settings")
+    settings = validate_settings(settings) if isinstance(settings, dict) and settings else {}
+    files = {}
+    for key, kind in (("backgrounds", "bg"), ("models", "model")):
+        items = {}
+        src = data.get(key) or {}
+        if not isinstance(src, dict):
+            raise ValueError(f"invalid {key}")
+        for name, b64 in src.items():
+            try:
+                raw_bytes = base64.b64decode(b64, validate=True)
+            except (ValueError, TypeError):
+                raise ValueError(f"invalid file {name}")
+            if kind == "bg":
+                ext = sniff_image(raw_bytes)
+                if not BG_NAME.match(name) or ext is None or not name.endswith("." + ext) or len(raw_bytes) > MAX_BG_BYTES:
+                    raise ValueError(f"invalid picture {name}")
+            else:
+                if not name.endswith(".glb") or not MODEL_NAME.match(name[:-4]) or raw_bytes[:4] != b"glTF" or len(raw_bytes) > MAX_MODEL_BYTES:
+                    raise ValueError(f"invalid model {name}")
+            items[name] = raw_bytes
+        files[key] = items
+    return houses, settings, files["backgrounds"], files["models"]
+
+
+async def post_backup(request):
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        data = await request.json()
+        houses, settings, bgs, models = validate_backup(data)
+    except ValueError as err:
+        return web.json_response({"error": str(err)}, status=400)
+    root = data_dir(request)
+    # safety copy of the current state (layouts and settings only), the last 5 are kept
+    bdir = root / "backups"
+    bdir.mkdir(parents=True, exist_ok=True)
+    write_json_atomic(bdir / f"before-restore-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}.json", build_backup(request, False))
+    for old in sorted(bdir.glob("before-restore-*.json"))[:-5]:
+        old.unlink()
+    old_ids = {h["id"] for h in houses_index(request)}
+    for h in houses:
+        write_json_atomic(house_file(request, h["id"]), h["layout"])
+    for gone in old_ids - {h["id"] for h in houses}:
+        house_file(request, gone).unlink(missing_ok=True)
+    save_houses(request, [{"id": h["id"], "name": h["name"]} for h in houses])
+    if settings:
+        write_json_atomic(root / "settings.json", settings)
+    for d, items in ((bg_dir(request), bgs), (models_dir(request), models)):
+        if items:
+            d.mkdir(parents=True, exist_ok=True)
+            for name, b in items.items():
+                (d / name).write_bytes(b)
+    return web.json_response({"ok": True, "houses": len(houses), "pictures": len(bgs), "models": len(models)})
+
+
 def make_app(data_path: Path | None = None) -> web.Application:
     app = web.Application(client_max_size=max(MAX_LAYOUT_BYTES, MAX_BG_BYTES + 1024 * 1024))
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
@@ -521,6 +782,11 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.get("/", index),
         web.get("/api/layout", get_layout),
         web.put("/api/layout", put_layout),
+        web.get("/api/houses", get_houses),
+        web.post("/api/houses", post_house),
+        web.patch("/api/houses/{id}", patch_house),
+        web.delete("/api/houses/{id}", delete_house),
+        web.get("/api/backup", get_backup),
         web.get("/api/me", get_me),
         web.get("/api/users", get_users),
         web.get("/api/settings", get_settings),
@@ -537,6 +803,10 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.post("/api/service", call_service),
         web.static("/", STATIC_DIR, show_index=False),
     ])
+    sub = web.Application(client_max_size=MAX_BACKUP_BYTES)   # the restore upload may be far larger than any other request
+    sub[KEY_DATA] = app[KEY_DATA]
+    sub.add_routes([web.post("", post_backup)])
+    app.add_subapp("/api/backup", sub)
     return app
 
 

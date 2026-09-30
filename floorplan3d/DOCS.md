@@ -70,6 +70,18 @@ Lights and scenes belong to a room when they are placed inside it or assigned to
 
 Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistant *Nanoleaf* integration: every panel set shows up as a light entity, place it like any other light (a *Lichtkugel* or *LED-Streifen* fits well). If a light offers effects (Nanoleaf scenes, WLED, Hue ...), the live popup shows an **Effects** drop-down; for a whole room the effects that all its lights share are offered.
 
+**Scenes:** the popup of a light also lists every Home Assistant scene that contains this light (**Szenen mit dieser Lampe**); one tap activates the whole scene, so several strips take their scene colours together. The room panel does the same for all lights of the room.
+
+**Turning and mirroring:** every device has *Drehung* (around the vertical axis), *Kippen vor/zurück* and *Drehen in der Fläche / seitlich* (roll) in the side panel, and **Spiegeln** flips the shape left-right. For a wall panel, *Drehen in der Fläche* turns it in the wall plane to build the pattern.
+
+**Groups:** tool *Gruppe* – click the devices that belong together, then *Gruppe bilden*. The group moves, turns around its centre and mirrors as one shape (side panel of any member: *Gruppe spiegeln*, *Aus Gruppe lösen*, *Gruppe auflösen*). Ideal for a Nanoleaf logo you built once.
+
+**Wall stop:** devices stop at walls when you drag them, so nothing ends up behind a wall by accident; doors let them pass. Settings → *Geräte stoppen an Wänden* switches it off.
+
+**Layout editor (many panels):** many panels are easier as *Nanoleaf Layout*: place it, then in the editor pick a shape and click panels together – edges snap to neighbours (rotation is found automatically, `R` turns the free first panel, right-click erases, *Zurück* undoes). *Übernehmen* saves the whole layout as ONE object with ONE entity; all panels glow in that light's colour. Change it later with *Layout bearbeiten* in the side panel.
+
+**Single panel shapes:** the device palette has *Nanoleaf Dreieck / Sechseck / Quadrat / Linie*. Place one per real panel, rotate it to match the wall and give all of them the same light entity: they glow in the light's colour together. Clicking one in live mode opens the popup with colour, brightness and the effect (scene) list. LED strips that run along several walls are built from several *LED-Streifen* with the same entity.
+
 ## Home Assistant areas
 
 Select a room and pick its **HA area** in the properties panel. Afterwards:
@@ -85,8 +97,27 @@ Use the buttons **2D**, **3D** and **2D + 3D** at the top. The 2D plan and the 3
 
 - **Draw:** pick *Wall* or *Room* and click the corners. Double click, Enter or Esc finishes; clicking the first corner closes a room. Corners snap to the grid and to existing corners. Hold **Shift** for 45° angles, **Alt** to switch snapping off.
 - **Move:** with *Select*, drag furniture, doors/windows (along their wall), whole walls or rooms. A selected wall or room shows corner handles; connected walls and room corners move along.
+- **Reshape rooms:** double click on the outline of a room or block adds a corner there (then drag it), double click on a corner removes it.
 - **Navigate:** mouse wheel to zoom, right or middle mouse button (or dragging empty space) to pan, two fingers to pinch on touch screens. *Fit* recentres.
 - The object list, the *Lock* selection and the room entity list work the same in 2D.
+
+### Floors you do not draw: placeholder blocks
+
+Live on the first floor of a building and do not want to draw the ground floor below you? Use the tool **Block** (B): click the corners of the building outline (double click or the first point closes it). The block stands under your floor as a solid mass in 3D and as a hatched area in 2D, so you see where your flat sits. *Belongs to* chooses the floor below (default, created automatically on the first floor) or the current floor. Blocks cannot be controlled and are only for orientation; select one in the object list to rename it, change its height or drag its corners.
+
+### Floors, basement, roof, garden, whole house
+
+Panel **Etage verwalten**: rename, change type, **▲/▼ move** the floor in the stack, **+ Keller** (inserted below; the ground floor stays at height 0), **+ Dach**, delete. A floor of type *Dachstuhl* draws a roof over everything below it: gable, hip or flat, with pitch, overhang and ridge direction (automatic = along the longer side).
+
+Outdoor items (*Baum, Busch, Pool, Rasen, Terrasse, Weg, Zaun*) are normal device types: place them anywhere, also outside the walls, on the ground floor. The pill **Ganzes Haus** next to the floors shows every floor solid together with the plot; it is a view only.
+
+### Stairs and stairwells
+
+Tool **Treppe** (T): pick *Gerade*, *L*, *U* (with landing) or *Wendel*, set the direction and click in the plan. The steps are calculated from the floor height (3 m). Q/E rotates, dragging moves, the side panel edits width or radius, length and the turning side. Select a stair to get two handles in 2D: drag the one at the end of the run to change step depth (length) and the one at its side to change the width.
+
+- **Leads up**: the stair belongs to this floor and climbs to the next one. The floor above gets an opening over the upper flight automatically (dashed orange in 2D, only where the opening lies completely inside a room).
+- **Comes from below**: the stair starts one floor lower (for example in a block) and ends on this floor; the opening is cut into this floor.
+- **Treppenhaus**: one click places a U stair with four walls, a room, a flat door and, for stairs leading up, the same shell on the next floor. Everything stays editable as normal walls, rooms and doors.
 
 ### Trace a floor plan (background image)
 
@@ -94,7 +125,43 @@ Open the panel **Hintergrundbild** in the side bar (edit mode). Every floor has 
 
 1. **Load image**: a scan or photo of your floor plan (PNG, JPG or WebP, max. 8 MB). It appears in the 2D view.
 2. **Set scale**: click *Maßstab setzen*, click the two ends of a distance you know (a wall, a door width, a dimension from the plan) and type its real length. The image is scaled around the first point.
-3. **Move** the image into place (drag it) or type X, Z and rotation; use *Opacity* to keep the lines readable.
+3. **Move / resize**: drag the image into place and drag its corner handles to make it bigger or smaller (the opposite corner stays), or type width, X, Z and rotation; use *Opacity* to keep the lines readable.
 4. Draw the walls and rooms over it. *Hide* switches the template off without deleting it.
 
 The template is only shown in the editor, never in live mode. Images are stored in the add-on's data folder and are included in add-on backups.
+
+## Tablets and kiosk screens (performance)
+
+On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-power mode**: lower resolution, no antialiasing or shadows, 30 fps while in use and about 4 fps when idle, no drawing while the screen is off. Add `&perf=high` to the address to force full quality, `&perf=low` to force the low-power mode on a computer. Tips for Fire tablets: use Fully Kiosk Browser, keep hardware acceleration/WebGL on, and use one tablet per room (`?room=Name`) instead of the whole-house view.
+
+## Library, doors, windows and pictures
+
+- **Library:** tool *Gerät* shows every piece with a preview. Filter with the category chips (living, kitchen, bath, bedroom, office, lighting, tech, outdoor, decor) or search by name.
+- **Doors and windows:** tool *Tür/Fenster* offers front door, glass door, double door, sliding door, passage, single/double/triple window, balcony door, small bath window and fixed glazing. In the side panel of a placed opening, *Ausführung* changes its style later.
+- **Pictures:** place *Bild* (category Decor), then *Bild laden …* in the side panel to upload a PNG, JPG or WebP; set the width, the height follows the image. Wall-hung items (pictures, mirrors, panels, radiators, wall lamps ...) snap flat onto the closest wall when placed; *An Wand ausrichten* does it for an existing one.
+
+## Several houses
+
+Open **Manage houses** in the side panel: create a new (empty) house, duplicate the current one, rename or delete it. A house selector appears in the header as soon as there is more than one house. Every house has its own floors, devices and backgrounds layout; all editors can manage all houses.
+
+For a wall tablet, open the add-on with `?house=Parents` (name or id, case-insensitive) so it always shows the right house; without it the last chosen house of that browser is used.
+
+## Windows with several sensors
+
+For a double or triple window, the side panel lists **Individual panes**: pick one contact sensor per pane. Each pane then opens on its own in 3D, and the room panel shows every pane. Panes without their own sensor follow the window's main sensor.
+
+## Backup and restore
+
+*Houses & backup* in the side panel: **Download backup** saves everything (all houses, settings, pictures, custom 3D models) as one JSON file, **Restore backup…** replaces the current data with such a file. Handy before big changes, for moving to another Home Assistant or for copying a plan to a second installation. Before a restore, the current layouts and settings are copied to `/data/backups` on the server (last 5 kept). Only editors can export and import.
+
+## Resize and lock furniture
+
+Select a piece in the 2D plan: the two square handles on its edges stretch it in width and depth independently (Alt is not needed). Height and exact factors are in the side panel (*Breite / Höhe / Tiefe (Streckung)*). Tick **Sperren** to fix a piece in place.
+
+## Object list
+
+The object list in the side panel is grouped by room: the room itself, its doors and windows and its furniture. Walls, stairs and blocks are listed below, things outside any room under *No room*. The search field above the list finds objects by name. The box before each name locks the item against moving, resizing and deleting. You can widen the whole side panel by dragging its left edge.
+
+## About this project
+
+3D Floorplan is an AI-assisted project: developed together with Claude (Anthropic), directed, tested and used daily by its author. It is open source (MIT); bug reports and ideas are very welcome.

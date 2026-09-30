@@ -6,6 +6,7 @@ async def states(r):
     return web.json_response([
       {"entity_id":"light.wohnzimmer","state":STATE["light.wohnzimmer"],"attributes":{"friendly_name":"Wohnzimmer Licht"}},
       {"entity_id":"sensor.temp","state":STATE["sensor.temp"],"attributes":{"friendly_name":"Temperatur","unit_of_measurement":"°C"}},
+      {"entity_id":"scene.gaming","state":"unknown","attributes":{"friendly_name":"Gaming","entity_id":["light.wohnzimmer","light.andere"]}},
       {"entity_id":"cover.rollo","state":STATE["cover.rollo"],"attributes":{"friendly_name":"Rollo"}}])
 async def service(r):
     body = await r.json(); dom, svc = r.match_info["d"], r.match_info["s"]

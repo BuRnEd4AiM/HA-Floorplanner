@@ -1,11 +1,14 @@
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
-import { DEVICE_TYPES, makeModel, forgetGlb, isCustom } from './models.js';
+import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
+import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
 import {
-  OPENING_DEFAULTS, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
+  OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
 } from './walls.js';
 import { t, setLanguage, applyI18n } from './i18n.js';
 import { createPlan } from './plan2d.js';
+import polygonClipping from './vendor/polygon-clipping.js';
+import { STAIR_TYPES, stairDefaults, stairBounds, stairLocal, polyToWorld, holesForFloor, toWorld, stairCounts, stairLength, stairHandles } from './stairs.js';
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -14,7 +17,7 @@ const params = new URLSearchParams(location.search);
 
 let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true, wallStop: true,
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
   userRooms: {}, userViews: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2',
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
@@ -41,6 +44,7 @@ let is2d = false;                  // legacy top-down camera flag (the real 2D e
 let plan = null;                   // 2D blueprint editor
 let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null, view: 'all' };
+let lastStateSig = '';
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 let livePopupFor = null;           // device id
 const undoStack = [];
@@ -49,7 +53,9 @@ let saveTimer = null;
 const $ = (s) => document.querySelector(s);
 const uid = () => Math.random().toString(36).slice(2, 9);
 const floor = () => layout.floors[floorIdx];
-const elev = (i = floorIdx) => i * FLOOR_H;
+const groundIdx = () => Math.max(0, layout.floors.findIndex((f) => f.kind !== 'basement'));   // first floor above ground
+const elev = (i = floorIdx) => (i - groundIdx()) * FLOOR_H;
+let houseMode = false;                 // "whole house" view: every floor solid, nothing ghosted
 const isLive = () => mode === 'live';
 
 /* unit helpers – data is always stored in meters */
@@ -60,8 +66,12 @@ const fmtLen = (m) => (imperial() ? `${(m * M_TO_FT).toFixed(2)} ft` : `${m.toFi
 
 /* ================= Three.js setup ================= */
 const canvas = $('#view');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 3));
+/* Low-power mode for tablets / kiosk screens (Fire tablets ...): lower resolution, no antialiasing or shadows, 30 fps and only ~4 fps
+   while nothing happens. Automatic for ?kiosk, ?room and touch screens; ?perf=high / ?perf=low overrides. */
+const perfParam = params.get('perf');
+const LOW = perfParam ? perfParam === 'low' : !!(params.get('kiosk') || params.get('room') || matchMedia('(pointer: coarse)').matches);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: !LOW, alpha: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(LOW ? Math.min(devicePixelRatio, 1.25) : Math.min(devicePixelRatio, 3));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
@@ -185,10 +195,15 @@ function addPickProxy(model) {
 }
 
 const HOLO = { fill: 0x1f6fe0, edge: 0x3df2ff, on: 0xff9d2e, onEdge: 0xffd08a, floor: 0x0a1830, floorLit: 0xff9d2e };
+const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
 const isHolo = () => settings.theme === 'holo';
 
 /* ---- Room lighting: each lit lamp shines from its own position, so a room is brightest near the lamp ---- */
 const MAX_LIGHTS = 8;
+const LIGHT_PROFILE = {                       // r = reach relative to the setting, k = strength
+  light: { r: 0.85, k: 0.8 }, lamp: { r: 0.6, k: 0.6 }, orb: { r: 0.3, k: 0.4 }, strip: { r: 0.4, k: 0.4 },
+  panel_tri: { r: 0.35, k: 0.4 }, panel_hex: { r: 0.35, k: 0.4 }, panel_sq: { r: 0.35, k: 0.4 }, panel_bar: { r: 0.4, k: 0.4 }, nanoleaf: { r: 0.45, k: 0.5 },
+};
 const hexVec = (h) => new THREE.Vector3(((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255);
 const cssHex = (s) => parseInt(s.slice(1), 16);
 const LIGHT_HEAD = `uniform int uCount; uniform vec4 uPos[${MAX_LIGHTS}]; uniform vec3 uCol[${MAX_LIGHTS}]; uniform float uStr; varying vec3 vP;`;
@@ -199,7 +214,8 @@ void main(){ vec3 acc = vec3(0.0);
     float d = distance(vP.xz, uPos[i].xz) / uPos[i].w; acc += uCol[i] * exp(-d * d * 2.2); }
   float lit = max(acc.r, max(acc.g, acc.b)) * uStr;
   float alpha = uAlpha < 1.0 ? min(1.0, uAlpha + lit * 0.9) : 1.0;     // lit spots stay visible through floors above
-  gl_FragColor = vec4(min(uBase + acc * uStr * (uAlpha < 1.0 ? 1.0 : 0.85), vec3(1.0)), alpha); }`;
+  vec3 lc = vec3(1.0) - exp(-acc * uStr * 0.9);                        // soft roll-off: no burnt-out white
+  gl_FragColor = vec4(min(uBase + lc * (uAlpha < 1.0 ? 1.0 : 0.85), vec3(1.0)), alpha); }`;
 const WASH_FS = `${LIGHT_HEAD} uniform float uH;
 void main(){ vec3 acc = vec3(0.0);
   for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
@@ -207,7 +223,26 @@ void main(){ vec3 acc = vec3(0.0);
   acc *= uStr; float m = max(max(acc.r, acc.g), max(acc.b, 0.001));
   float a = clamp(m * 0.6, 0.0, 0.6) * (1.0 - smoothstep(0.0, uH, vP.y));
   if (a < 0.01) discard; gl_FragColor = vec4(acc / m, a); }`;
+/* light pool on the floor of the solid themes: a tinted, alpha-blended layer above the normal floor (keeps its shading and shadows) */
+const GLOW_FS = `${LIGHT_HEAD}
+void main(){ vec3 acc = vec3(0.0);
+  for (int i = 0; i < ${MAX_LIGHTS}; i++) { if (i >= uCount) break;
+    float d = distance(vP.xz, uPos[i].xz) / uPos[i].w; acc += uCol[i] * exp(-d * d * 2.2); }
+  acc *= uStr; float m = max(max(acc.r, acc.g), max(acc.b, 0.001));
+  float a = clamp(m * 0.75, 0.0, 0.7);
+  if (a < 0.01) discard; gl_FragColor = vec4(acc / m, a); }`;
 function roomLightMat(kind, alpha = 1, ghost = false) {
+  if (kind === 'glow') {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uCount: { value: 0 }, uStr: { value: 1 }, uH: { value: 1 },
+        uPos: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector4()) },
+        uCol: { value: Array.from({ length: MAX_LIGHTS }, () => new THREE.Vector3()) },
+      },
+      vertexShader: VERT, fragmentShader: GLOW_FS, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+    });
+  }
   const wash = kind === 'wash';
   return new THREE.ShaderMaterial({
     uniforms: {
@@ -323,25 +358,95 @@ function makeOpeningHandle(w, o, group) {
   return h;
 }
 
+/** footprint (bounding box) of everything under a roof floor */
+function roofBox(i) {
+  const pts = [];
+  layout.floors.forEach((f, k) => {
+    if (k >= i || f.kind === 'basement' || f.kind === 'roof') return;
+    f.walls.forEach((w) => pts.push(w.a, w.b));
+    f.rooms.forEach((r) => pts.push(...r.points));
+  });
+  if (!pts.length) return null;
+  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
+  return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) };
+}
+/** roof surface as triangles; pitch in degrees, ridge along the longer side unless set */
+function roofGeometry(bb, r) {
+  const o = r.overhang ?? 0.4, x0 = bb.x0 - o, x1 = bb.x1 + o, z0 = bb.z0 - o, z1 = bb.z1 + o;
+  const alongX = r.ridge ? r.ridge === 'x' : (x1 - x0) >= (z1 - z0);
+  const [a0, a1, b0, b1] = alongX ? [x0, x1, z0, z1] : [z0, z1, x0, x1];   // a = ridge axis, b = across
+  const half = (b1 - b0) / 2, bc = (b0 + b1) / 2;
+  const h = r.type === 'flat' ? 0.15 : half * Math.tan(((r.pitch ?? 35) * Math.PI) / 180);
+  const ins = r.type === 'hip' ? Math.min(half, (a1 - a0) / 2) : 0;
+  const P = (a, b, y) => (alongX ? [a, y, b] : [b, y, a]);
+  const tris = [];
+  const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
+  if (r.type === 'flat') {
+    quad(P(a0, b0, 0.1), P(a1, b0, 0.1), P(a1, b1, 0.1), P(a0, b1, 0.1));
+    quad(P(a0, b0, 0), P(a0, b1, 0), P(a1, b1, 0), P(a1, b0, 0));
+  } else {
+    quad(P(a0, b0, 0), P(a1, b0, 0), P(a1 - ins, bc, h), P(a0 + ins, bc, h));
+    quad(P(a1, b1, 0), P(a0, b1, 0), P(a0 + ins, bc, h), P(a1 - ins, bc, h));
+    tris.push(P(a0, b1, 0), P(a0, b0, 0), P(a0 + ins, bc, h));
+    tris.push(P(a1, b0, 0), P(a1, b1, 0), P(a1 - ins, bc, h));
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
+  geo.computeVertexNormals();
+  return geo;
+}
+function buildRoof(g, i, f, holo, ghost) {
+  const bb = roofBox(i);
+  if (!bb) return;
+  const geo = roofGeometry(bb, f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }));
+  const m = new THREE.Mesh(geo, holo
+    ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : 0.45, side: THREE.DoubleSide, depthWrite: false })
+    : mat('#a4493b', ghost, { side: THREE.DoubleSide }));
+  if (holo) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 })));
+  g.add(m);
+}
+
 function build() {
+  wake();
   plan?.render();
   world.clear();
   registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roomMeshes.clear(); openingHandles.clear();
   const holo = isHolo();
   const iso = isolatedRoom();
+  if (houseMode) {                              // ground reference for the plot
+    const hb = houseBounds(), sz = Math.ceil(Math.max(hb.size * 2, 20) / 2) * 2;
+    const grid = new THREE.GridHelper(sz, sz, holo ? HOLO.edge : 0x6c8a5c, holo ? 0x1a4fb8 : 0x88a878);
+    grid.position.set(hb.cx, -0.03, hb.cz);
+    grid.material.transparent = true; grid.material.opacity = 0.35;
+    world.add(grid);
+    const nb = groundIdx();                      // basements: earth around them, so they read as below ground
+    if (nb > 0) {
+      const depth = nb * FLOOR_H, earthSize = Math.max(hb.size * 1.6, 14);
+      const eg = new THREE.BoxGeometry(earthSize, depth, earthSize);
+      const earth = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ color: 0x6b4a2f, transparent: true, opacity: 0.22, depthWrite: false }));
+      earth.position.set(hb.cx, -depth / 2 - 0.03, hb.cz);
+      earth.add(new THREE.LineSegments(new THREE.EdgesGeometry(eg), new THREE.LineBasicMaterial({ color: 0x9a7448, transparent: true, opacity: 0.6 })));
+      world.add(earth);
+      const lawn = new THREE.Mesh(new THREE.PlaneGeometry(earthSize, earthSize).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x5aa04a, transparent: true, opacity: 0.18, depthWrite: false }));
+      lawn.position.set(hb.cx, -0.02, hb.cz);
+      world.add(lawn);
+    }
+  }
   layout.floors.forEach((f, i) => {
-    if (i > floorIdx) return;
+    if (i > floorIdx && !houseMode) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
-    const ghost = i < floorIdx;
+    const ghost = (i < floorIdx && !houseMode) || (houseMode && f.kind === 'basement');
     const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 }) : null;
     const g = new THREE.Group();
     g.position.y = elev(i);
     world.add(g);
+    const holes = holesForFloor(layout.floors, i, FLOOR_H);
+    if (f.kind === 'roof' && !iso) buildRoof(g, i, f, holo, ghost);
 
     f.rooms.forEach((r) => {
       if (r.points.length < 3) return;
       if (iso && !ghost && r.id !== iso.id) return;
-      const shape = new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)));
+      const shape = floorShapes(r.points, holes);                 // the room minus stairwell openings (also where they only overlap it partly)
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(geo, holo
@@ -351,8 +456,13 @@ function build() {
       m.position.y = 0.01;
       m.receiveShadow = true;
       g.add(m);
-      let wash = null;
-      if (holo) {                                    // coloured "air" that tints the room's inner walls when a light is on
+      let wash = null, glow = null;
+      if (!holo) {                                   // solid themes: the light pool lies on the floor as a separate layer
+        glow = new THREE.Mesh(geo, roomLightMat('glow'));
+        glow.position.y = 0.014; glow.renderOrder = 1; glow.visible = false; glow.userData.ghost = ghost;
+        g.add(glow);
+      }
+      {                                              // coloured "air" that tints the room's inner walls when a light is on
         const eg = new THREE.ExtrudeGeometry(shape, { depth: settings.wallHeight, bevelEnabled: false });
         eg.rotateX(-Math.PI / 2);
         wash = new THREE.Mesh(eg, roomLightMat('wash'));
@@ -360,7 +470,7 @@ function build() {
         wash.renderOrder = 1;
         g.add(wash);
       }
-      roomMeshes.set(r.id, { mesh: m, room: r, wash, f, ghost });
+      roomMeshes.set(r.id, { mesh: m, room: r, wash, glow, f, ghost });
       if (!ghost) {
         m.userData = { kind: 'room', id: r.id };
         registry.set(r.id, m); pickables.push(m);
@@ -374,6 +484,31 @@ function build() {
           g.add(sp);
         }
       }
+    });
+
+    /* placeholder blocks: a solid mass for a floor that is not drawn */
+    if (!iso) (f.blocks || []).forEach((b) => {
+      if (b.points.length < 3) return;
+      const shape = new THREE.Shape(b.points.map(([x, z]) => new THREE.Vector2(x, -z)));
+      const eg = new THREE.ExtrudeGeometry(shape, { depth: b.h || FLOOR_H, bevelEnabled: false });
+      eg.rotateX(-Math.PI / 2);
+      const m = new THREE.Mesh(eg, holo
+        ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: 0.5, depthWrite: false })
+        : mat('#b9b3a8', false));
+      m.position.y = -0.02;
+      if (holo) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(eg), new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.7 })));
+      g.add(m);
+      registry.set(b.id, m);
+    });
+
+    /* stairs (a 'down' stair starts one floor lower and arrives at this floor) */
+    (f.stairs || []).forEach((st) => {
+      if (iso) return;
+      const sg = buildStair(st, holo, ghost, edgeMaterial);
+      sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H : 0, st.z);
+      sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
+      g.add(sg);
+      registry.set(st.id, sg);
     });
 
     f.walls.forEach((w0) => {
@@ -396,12 +531,15 @@ function build() {
 
     f.devices.forEach((d) => {
       if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
-      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo) holoify(m, ghost); applyStates(); refreshSelHelper(); });
+      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d);
+      if (d.type === 'picture') setPicture(model, d);
       model.position.set(d.x, d.y ?? 0, d.z);
-      model.rotation.y = THREE.MathUtils.degToRad(d.rot || 0);
-      model.scale.setScalar(d.scale || 1);
+      model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
+      model.rotation.set(THREE.MathUtils.degToRad(d.tiltX || 0), THREE.MathUtils.degToRad(d.rot || 0), THREE.MathUtils.degToRad(d.tiltZ || 0));
+      model.scale.set((d.scale || 1) * (d.sx || 1), (d.scale || 1) * (d.sy || 1), (d.scale || 1) * (d.sz || 1));   // uniform size x independent stretch per axis
+      if (d.mirror) model.scale.x *= -1;                              // mirrored shape (left-right)
       if (!ghost) addPickProxy(model);
-      if (holo) holoify(model, ghost);
+      if (holo && !OUTDOOR.has(d.type)) holoify(model, ghost);
       model.traverse((o) => {
         if (!o.isMesh) return;
         o.castShadow = !holo;
@@ -466,16 +604,21 @@ const OPEN_HEX = 0xff4a3d;
 const openingObjs = () => [...registry.values()].filter((o) => o.userData?.kind === 'opening' && o.userData.pivot);
 const isOpen = (entity) => !!entity && ON_STATES.has(states[entity]?.state);
 const openText = (entity) => (!entity ? '—' : isOpen(entity) ? t('state.open') : states[entity] ? t('state.closed') : '—');
+/* entity of pane i: multi-pane windows may have one contact sensor per pane (o.paneEntities), falling back to the main sensor */
+const paneEntity = (o, i) => (o.paneEntities && o.paneEntities[i]) || o.entity || '';
+const openingEntities = (o) => [...new Set([o.entity, ...(o.paneEntities || [])].filter(Boolean))];
 function applyOpenings() {
   let n = 0, any = false;
   layout.floors.forEach((f) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
-    if (o.entity) { any = true; if (isOpen(o.entity)) n++; }
+    openingEntities(o).forEach((e) => { any = true; if (isOpen(e)) n++; });
     const obj = registry.get(o.id);
     if (!obj?.userData.pivot) return;
-    const open = isOpen(o.entity);
+    const pps = obj.userData.panePivots;
+    const opens = pps ? pps.map((_, i) => isOpen(paneEntity(o, i))) : [isOpen(o.entity)];
+    const open = opens.some(Boolean);
     obj.userData.open = open;
-    obj.userData.tint.forEach(({ m, base }) => m.color.setHex(open && o.entity ? OPEN_HEX : base));
-    obj.userData.pivot.userData.target = open ? obj.userData.pivot.userData.dir * obj.userData.pivot.userData.max : 0;
+    obj.userData.tint.forEach(({ m, base }) => m.color.setHex(open && openingEntities(o).length ? OPEN_HEX : base));
+    (pps || [obj.userData.pivot]).forEach((pv, i) => { pv.userData.target = opens[i] ? pv.userData.dir * pv.userData.max : 0; });
   })));
   const pill = $('#openPill');
   pill.hidden = !any;
@@ -484,9 +627,12 @@ function applyOpenings() {
 }
 function animateOpenings() {
   openingObjs().forEach((obj) => {
-    const p = obj.userData.pivot, tg = p.userData.target ?? 0;
-    const prop = p.userData.axis, cur = p.rotation[prop];
-    if (Math.abs(tg - cur) > 0.002) p.rotation[prop] = cur + (tg - cur) * 0.15;
+   (obj.userData.panePivots || [obj.userData.pivot]).forEach((p) => {
+    const tg = p.userData.target ?? 0;
+    const prop = p.userData.axis, holder = p.userData.prop === 'position' ? p.position : p.rotation, cur = holder[prop];
+    if (Math.abs(tg - cur) > 0.002) holder[prop] = cur + (tg - cur) * 0.15;
+    (p.userData.followers || []).forEach((fp) => { fp.rotation[fp.userData.axis] = holder[prop] * (fp.userData.dir / (p.userData.dir || 1)); });   // second leaf of a double door
+   });
   });
 }
 
@@ -516,10 +662,12 @@ function applyStates() {
       if (sp) { sp.visible = settings.showLabels; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
     });
   }
-  if (isHolo()) {                         // lit rooms: light spreads from each lamp, in the lamp's colour
+  {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
+    const holo = isHolo();
     const defCol = hexVec(cssHex(settings.defaultLightColor));
-    roomMeshes.forEach(({ mesh, room, wash, f, ghost }) => {
-      const U = mesh.material.uniforms;
+    roomMeshes.forEach(({ mesh, room, wash, glow, f, ghost }) => {
+      const target = holo ? mesh : glow;
+      const U = target?.material.uniforms;
       if (!U) return;
       const k = ghost ? 0.3 + 0.6 * bv : 1;
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
@@ -528,13 +676,15 @@ function applyStates() {
         .slice(0, MAX_LIGHTS)
         .map((d) => {
           const st = states[d.entity];
-          const br = st.brightness != null ? 0.35 + 0.65 * st.brightness / 100 : 1;
+          const br = st.brightness != null ? 0.12 + 0.88 * st.brightness / 100 : 1;
           const c = Array.isArray(st.rgb) ? new THREE.Vector3(st.rgb[0] / 255, st.rgb[1] / 255, st.rgb[2] / 255) : defCol.clone();
           const sw = d.entity.startsWith('switch.') ? 0.6 : 1;
-          return { x: d.x, y: d.y || 0, z: d.z, r: settings.glowRadius * (0.7 + 0.5 * br) * sw, c: c.multiplyScalar(br) };
+          const prof = LIGHT_PROFILE[d.type] || LIGHT_PROFILE.light;      // an LED strip or a panel does not light the whole room like a ceiling lamp
+          return { x: d.x, y: d.y || 0, z: d.z, r: settings.glowRadius * (0.7 + 0.5 * br) * sw * prof.r, c: c.multiplyScalar(br * prof.k) };
         });
-      fillLights(mesh.material, lights, 1);
-      U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
+      fillLights(target.material, lights, holo ? 1 : (ghost ? k : 1));
+      if (holo) U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
+      else glow.visible = lights.length > 0;
       if (wash) { fillLights(wash.material, lights, k); wash.visible = lights.length > 0; }
     });
   }
@@ -551,7 +701,12 @@ function refreshSelHelper() {
 }
 function refreshSelection() {
   plan?.render();
-  if (selection && !registry.get(selection.id)) selection = null;
+  // keep the selection even when the object is not drawn (e.g. hidden by a focused room or off screen), so it can still be found, moved to view or deleted
+  if (selection && !registry.get(selection.id)) {
+    const f = floor();
+    const exists = f && [f.walls, f.rooms, f.devices, f.blocks, f.stairs].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
+    if (!exists) selection = null;
+  }
   if (!selection) lockedSel = false;
   document.body.classList.toggle('locksel', lockedSel);
   refreshSelHelper();
@@ -598,7 +753,7 @@ function undo() {
   layout = JSON.parse(s);
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
   selection = null; focusedRoom = null; clearFocusOutline();
-  fillFloorSelect(); build(); scheduleSave(); renderBgPanel();
+  fillFloorSelect(); build(); scheduleSave(); renderBgPanel(); renderFloorPanel();
 }
 function changed(rebuild = true) {
   if (rebuild) build();
@@ -611,10 +766,109 @@ function scheduleSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(save, (settings.autosaveSeconds || 1.5) * 1000);
 }
+/* ================= Resizable side panel (drag its left edge) ================= */
+(() => {
+  const bar = $('#panelResizer'), root = document.documentElement;
+  const apply = (w) => root.style.setProperty('--panel-w', `${Math.max(240, Math.min(Math.round(window.innerWidth * 0.7), w))}px`);
+  try { const w = +localStorage.getItem('fp.panelW'); if (w) apply(w); } catch { /* private mode */ }
+  bar.addEventListener('pointerdown', (e) => {
+    bar.setPointerCapture(e.pointerId); bar.classList.add('drag');
+    const move = (ev) => apply(window.innerWidth - ev.clientX);
+    const up = () => {
+      bar.classList.remove('drag'); bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up);
+      try { localStorage.setItem('fp.panelW', parseInt(getComputedStyle($('#panel')).width, 10)); } catch { /* ignore */ }
+      resize?.();
+    };
+    bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up);
+  });
+})();
+
+/* ================= Houses (several floor plans) ================= */
+let houses = [], houseId = null;
+const layoutUrl = () => `api/layout${houseId ? `?house=${encodeURIComponent(houseId)}` : ''}`;
+async function loadHouses() {
+  try { const l = await (await fetch('api/houses')).json(); if (Array.isArray(l) && l.length) houses = l; } catch { /* old backend: one house */ }
+  const want = (params.get('house') || '').trim().toLowerCase();
+  let saved = null; try { saved = localStorage.getItem('fp.house'); } catch { /* private mode */ }
+  const pickH = houses.find((h) => want && (h.id === want || h.name.trim().toLowerCase() === want)) || houses.find((h) => h.id === saved) || houses[0];
+  houseId = pickH?.id || null;
+}
+function renderHouseUi() {
+  const sel = $('#houseSelect');
+  if (!sel) return;
+  sel.replaceChildren(...houses.map((h) => new Option(h.name, h.id)));
+  sel.value = houseId || '';
+  $('#houseGroup').hidden = houses.length < 2;
+  const box = $('#houseBody');
+  if (!box) return;
+  box.innerHTML = '';
+  const cur = houses.find((h) => h.id === houseId);
+  const p = document.createElement('p'); p.className = 'sub'; p.textContent = `${t('house.current')}: ${cur?.name || ''}`; box.append(p);
+  const mk = (id, label, on, dis = false) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.disabled = dis; b.addEventListener('click', on); return b; };
+  const row = document.createElement('div'); row.className = 'stopTools';
+  row.append(mk('houseNew', t('house.new'), () => houseAction('new')), mk('houseCopy', t('house.copy'), () => houseAction('copy')),
+             mk('houseRename', t('house.rename'), () => houseAction('rename')), mk('houseDelete', t('house.delete'), () => houseAction('delete'), houses.length < 2));
+  box.append(row);
+}
+async function houseAction(kind) {
+  const cur = houses.find((h) => h.id === houseId);
+  try {
+    if (kind === 'delete') {
+      if (!confirm(t('house.deleteConfirm'))) return;
+      const r = await fetch(`api/houses/${houseId}`, { method: 'DELETE' });
+      if (!r.ok) throw new Error(r.status);
+      houses = houses.filter((h) => h.id !== houseId);
+      await switchHouse(houses[0].id);
+      return;
+    }
+    const name = prompt(t('house.namePrompt'), kind === 'rename' ? cur?.name : kind === 'copy' ? `${cur?.name} 2` : t('house.default'));
+    if (!name || !name.trim()) return;
+    if (kind === 'rename') {
+      const r = await fetch(`api/houses/${houseId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
+      if (!r.ok) throw new Error(r.status);
+      cur.name = name.trim(); renderHouseUi();
+      return;
+    }
+    await save();                                               // make sure the copy source is up to date
+    const r = await fetch('api/houses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, ...(kind === 'copy' ? { copyFrom: houseId } : {}) }) });
+    if (!r.ok) throw new Error(r.status);
+    const h = await r.json();
+    houses.push({ id: h.id, name: h.name });
+    await switchHouse(h.id);
+  } catch (err) { alert(`${t('saveFailed')}: ${err.message}`); }
+}
+async function switchHouse(id) {
+  if (id === houseId && layout) return;
+  if (saveTimer) await save();                                  // flush edits of the house we leave
+  houseId = id;
+  try { localStorage.setItem('fp.house', id); } catch { /* private mode */ }
+  try { layout = await (await fetch(layoutUrl())).json(); } catch { setStatus(t('loadFailed')); return; }
+  normalizeLayout();
+  undoStack.length = 0;
+  floorIdx = 0; selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');
+  clearFocusOutline(); renderHouseUi();
+  build(); fitCamera(); buildNav(true); renderBgPanel(); renderFloorPanel(); renderObjList(); refreshSelection();
+}
+$('#backupImport').addEventListener('click', () => $('#backupFile').click());
+$('#backupFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file || !confirm(t('backup.confirm'))) return;
+  try {
+    if (saveTimer) await save();
+    const r = await fetch('api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: await file.text() });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || r.status);
+    alert(t('backup.done', { h: j.houses }));
+    location.reload();
+  } catch (err) { alert(`${t('backup.failed')}: ${err.message}`); }
+});
+$('#houseSelect').addEventListener('change', (e) => switchHouse(e.target.value));
+
 async function save() {
   clearTimeout(saveTimer);
   try {
-    const r = await fetch('api/layout', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(layout) });
+    const r = await fetch(layoutUrl(), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(layout) });
     setStatus(r.ok ? t('saved') : t('saveFailed'));
   } catch { setStatus(t('saveFailed')); }
 }
@@ -725,10 +979,66 @@ function newDevice(x, z) {
   const custom = isCustom(deviceType);
   const def = custom ? { y: 0 } : DEVICE_TYPES[deviceType];
   const ent = entities.find((v) => v.entity_id === entityChoice);
-  return {
+  const d = {
     id: uid(), type: deviceType, x, z, y: def.y || 0, rot: 0, scale: 1,
     name: ent?.name || (custom ? deviceType.slice(4) : t(`dev.${deviceType}`)), entity: entityChoice || '',
   };
+  if (deviceType === 'nanoleaf') d.panels = DEFAULT_PANELS.map((p) => ({ ...p }));
+  if (WALL_TYPES.has(deviceType)) snapToWall(d, 0.8);          // wall-hung things click onto the nearest wall
+  return d;
+}
+/* wall-hung devices: pictures, mirrors, panels, radiators ... */
+const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'camera', 'thermostat', 'switch']);
+/** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces) */
+function snapToWall(d, maxDist = 2, keepFacing = false) {
+  const rooms = floor().rooms;
+  const inRoom = (x, z) => rooms.some((r) => pointInPoly(x, z, r.points));
+  let best = null;
+  floor().walls.forEach((w) => {
+    const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L2 = sx * sx + sz * sz || 1;
+    const u = Math.max(0, Math.min(1, ((d.x - ax) * sx + (d.z - az) * sz) / L2));
+    const px = ax + sx * u, pz = az + sz * u, dist = Math.hypot(d.x - px, d.z - pz);
+    if (dist > maxDist + w.thickness / 2) return;
+    const len = Math.hypot(sx, sz) || 1, n0x = -sz / len, n0z = sx / len, off = w.thickness / 2 + 0.02;
+    // which face of the wall: the interior (a room) wins, else the side the device is on, else the way it already faces
+    const okPlus = inRoom(px + n0x * off, pz + n0z * off), okMinus = inRoom(px - n0x * off, pz - n0z * off);
+    const rot = ((d.rot || 0) * Math.PI) / 180, face = n0x * Math.sin(rot) + n0z * Math.cos(rot), onSide = n0x * (d.x - px) + n0z * (d.z - pz);
+    let sign;
+    if (rooms.length && okPlus !== okMinus) sign = okPlus ? 1 : -1;
+    else if (Math.abs(onSide) > 0.03) sign = onSide > 0 ? 1 : -1;
+    else sign = (keepFacing || Math.abs(face) > 0.05) && Math.abs(face) > 0.05 ? (face > 0 ? 1 : -1) : 1;
+    const inside = rooms.length ? (sign > 0 ? okPlus : okMinus) : true;
+    const score = dist + (inside ? 0 : 0.6);                  // prefer a wall whose inner face is in a room
+    if (!best || score < best.score) best = { score, px, pz, nx: n0x * sign, nz: n0z * sign, off };
+  });
+  if (!best) return false;
+  d.x = +(best.px + best.nx * best.off).toFixed(3); d.z = +(best.pz + best.nz * best.off).toFixed(3);
+  d.rot = ((Math.round((Math.atan2(best.nx, best.nz) * 180) / Math.PI * 10) / 10) % 360 + 360) % 360;
+  return true;
+}
+/** a picture: frame + the uploaded image (api/backgrounds/<name>) on a plane; `w` metres wide, `ar` = height / width */
+const textureLoader = new THREE.TextureLoader();
+function setPicture(model, d) {
+  model.clear();
+  const w = d.w || 0.6, h = w * (d.ar || 0.75);
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.03), new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.6 }));
+  const art = new THREE.Mesh(new THREE.PlaneGeometry(Math.max(0.05, w - 0.06), Math.max(0.05, h - 0.06)), new THREE.MeshBasicMaterial({ color: 0xc9d6e2 }));
+  art.position.z = 0.0155;
+  model.add(frame, art);
+  if (d.img) textureLoader.load(`api/backgrounds/${encodeURIComponent(d.img)}`, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    art.material.map = tex; art.material.color.set(0xffffff); art.material.needsUpdate = true;
+  });
+}
+async function uploadPicture(file, d) {
+  if (!file) return;
+  const [nw, nh] = await imageSize(file);
+  const fd = new FormData(); fd.append('file', file);
+  const r = await fetch('api/backgrounds', { method: 'POST', body: fd });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
+  const { name } = await r.json();
+  snapshot(); d.img = name; d.ar = +(nh / nw).toFixed(5); d.w ||= 0.8;
+  changed(); renderProps();
 }
 function openingTarget(e, ignoreId = null, def = OPENING_DEFAULTS[openingType], forcedWall = null) {
   let wall = forcedWall;
@@ -752,7 +1062,7 @@ function openingTarget(e, ignoreId = null, def = OPENING_DEFAULTS[openingType], 
 canvas.addEventListener('pointerdown', (e) => {
   if (e.button !== 0) return;
   down = { x: e.clientX, y: e.clientY, hit: null, drag: false, dev: null, op: null };
-  if (isLive() || tool !== 'select') return;
+  if (isLive() || tool !== 'select' || houseMode) return;
   if (lockedSel && selection) {                     // locked: drag moves only the selected object, from anywhere
     down.hit = null;
     if (selection.kind === 'device') {
@@ -790,18 +1100,15 @@ canvas.addEventListener('pointermove', (e) => {
   const gp = groundPoint(e);
 
   if (down?.dev && gp) {
+    if (down.dev.d.locked) return;
     if (!down.dev.moved) { snapshot(); down.dev.moved = true; }
     const [x, z] = snap([gp[0] + down.dev.dx, gp[1] + down.dev.dz], true);
-    const d = down.dev.d;
-    d.x = x; d.z = z;
-    const obj = registry.get(d.id);
-    obj.position.x = x; obj.position.z = z;
-    const sp = labelSprites.get(d.id);
-    if (sp) sp.position.set(x, sp.position.y, z);
+    moveDeviceTo(down.dev.d, x, z);
     return;
   }
   if (down?.op && down.drag) {
     const { wall, opening } = down.op;
+    if (opening.locked) return;
     const tgt = openingTarget(e, opening.id, opening, wall);
     if (tgt?.valid && Math.abs(tgt.pos - opening.pos) > 1e-6) {
       if (!down.op.moved) { snapshot(); down.op.moved = true; }
@@ -836,6 +1143,9 @@ canvas.addEventListener('pointerup', (e) => {
   if (tool === 'select') {
     if (lockedSel) return;                     // locked selection stays until released
     selection = st.hit; refreshSelection();
+  } else if (tool === 'group') {
+    const h = pick(e);
+    if (h?.kind === 'device') groupToggle(h.id);
   } else if (tool === 'erase') {
     const h = pick(e);
     if (h) { snapshot(); deleteItem(h); }
@@ -873,6 +1183,7 @@ canvas.addEventListener('pointerup', (e) => {
     floor().devices.push(d);
     selection = { kind: 'device', id: d.id };
     changed();
+    if (d.type === 'nanoleaf') editNano(d);
   }
 });
 
@@ -890,11 +1201,37 @@ canvas.addEventListener('dblclick', (e) => {
   }
 });
 
+function editNano(d) {
+  openNanoEditor({ panels: d.panels, t, onSave: (panels) => { snapshot(); d.panels = panels; changed(); renderProps(); } });
+}
+/** size (m) of a built-in model at scale 1, measured from the model itself (null for custom GLB models) */
+const dimsCache = new Map();
+function baseDims(type) {
+  if (isCustom(type) || type === 'nanoleaf') return null;
+  if (!dimsCache.has(type)) {
+    const g = makeModel(type);
+    g.updateMatrixWorld(true);
+    const sz = new THREE.Box3().setFromObject(g).getSize(new THREE.Vector3());
+    dimsCache.set(type, sz.x > 0.001 && sz.y > 0.001 && sz.z > 0.001 ? { x: sz.x, y: sz.y, z: sz.z } : null);
+  }
+  return dimsCache.get(type);
+}
+/** the layout object behind a selection handle (wall, room, opening, device, stair, block) */
+function itemOf(kind, id) {
+  const f = floor();
+  if (!f) return null;
+  if (kind === 'opening') return findOpening(id)?.opening || null;
+  const list = { wall: f.walls, room: f.rooms, device: f.devices, stair: f.stairs, block: f.blocks }[kind] || [];
+  return list.find((q) => q.id === id) || null;
+}
 function deleteItem({ kind, id }) {
+  if (itemOf(kind, id)?.locked) { setStatus(t('prop.lockedHint')); return; }
   const f = floor();
   if (kind === 'wall') f.walls = f.walls.filter((x) => x.id !== id);
   if (kind === 'room') f.rooms = f.rooms.filter((x) => x.id !== id);
   if (kind === 'device') f.devices = f.devices.filter((x) => x.id !== id);
+  if (kind === 'block') f.blocks = (f.blocks || []).filter((x) => x.id !== id);
+  if (kind === 'stair') f.stairs = (f.stairs || []).filter((x) => x.id !== id);
   if (kind === 'opening') {
     const found = findOpening(id);
     if (found) found.wall.openings = found.wall.openings.filter((x) => x.id !== id);
@@ -906,16 +1243,21 @@ function deleteItem({ kind, id }) {
 window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
-  if (k === 'enter' && plan?.hasDraft() && tool === 'room') { plan.finishRoom(); return; }
+  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block')) { plan.finishRoom(); return; }
   if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (bgMode) setBgMode(null); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
   else if (k === 'delete' || k === 'backspace') { if (selection) { snapshot(); deleteItem(selection); } }
-  else if ((k === 'q' || k === 'e') && selection?.kind === 'device') {
+  else if ((k === 'q' || k === 'e') && selection?.kind === 'stair') {
+    const st = floor().stairs.find((v) => v.id === selection.id);
+    if (st) { snapshot(); st.rot = ((st.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
+  } else if ((k === 'q' || k === 'e') && selection?.kind === 'device') {
     const d = floor().devices.find((v) => v.id === selection.id);
-    if (d) { snapshot(); d.rot = ((d.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
+    if (d) { snapshot(); if (d.group) rotateGroup(d, k === 'q' ? -15 : 15); else d.rot = ((d.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
   } else if (k === 'v') setTool('select');
   else if (k === 'w') setTool('wall');
+  else if (k === 'b') setTool('block');
+  else if (k === 't') setTool('stairs');
   else if (k === 'r') setTool('room');
   else if (k === 'o') setTool('opening');
   else if (k === 'd') setTool('device');
@@ -981,7 +1323,11 @@ function renderLivePopup() {
     });
     box.append(row);
   }
-  if (d.entity && d.entity.startsWith('light.') && !d.isOpening) box.append(lightControls([d.entity]));
+  if (d.entity && d.entity.startsWith('light.') && !d.isOpening) {
+    box.append(lightControls([d.entity]));
+    const sc = sceneButtons(scenesWith([d.entity]), 'live.sceneWith');   // scenes this light is part of
+    if (sc) box.append(sc);
+  }
   if (d.entity && /^(light|scene)\./.test(d.entity) && !d.isOpening) {          // the whole room this device is in
     const rm = floor().rooms.find((r) => pointInPoly(d.x, d.z, r.points));
     const rc = rm && roomControls(rm);
@@ -1036,6 +1382,25 @@ function lightControls(ids) {              // one light, or all lights of a room
   return wrap;
 }
 
+/** scenes (scene.*) that set at least one of these entities */
+function scenesWith(ids) {
+  const set = new Set(ids);
+  return Object.entries(states).filter(([id, st]) => id.startsWith('scene.') && (st.members || []).some((m) => set.has(m))).map(([id]) => id);
+}
+function sceneButtons(ids, labelKey) {
+  if (!ids.length) return null;
+  const wrap = document.createElement('div'); wrap.className = 'sceneList';
+  const sh = document.createElement('div'); sh.className = 'sub'; sh.textContent = t(labelKey); wrap.append(sh);
+  const row = document.createElement('div'); row.className = 'scenes';
+  ids.forEach((id) => {
+    const b = document.createElement('button'); b.textContent = entities.find((e) => e.entity_id === id)?.name || id;
+    b.addEventListener('click', () => callService(id, 'turn_on'));
+    row.append(b);
+  });
+  wrap.append(row);
+  return wrap;
+}
+
 /* ---- whole room: all lights at once + the room's scenes ---- */
 function roomEntityIds(room, domain) {
   const f = floor();
@@ -1044,7 +1409,7 @@ function roomEntityIds(room, domain) {
   return [...ids].filter((id) => states[id]);
 }
 function roomControls(room) {
-  const lights = roomEntityIds(room, 'light'), scenes = roomEntityIds(room, 'scene');
+  const lights = roomEntityIds(room, 'light'), scenes = [...new Set([...roomEntityIds(room, 'scene'), ...scenesWith(roomEntityIds(room, 'light'))])];
   if (!lights.length && !scenes.length) return null;
   const wrap = document.createElement('div'); wrap.className = 'roomctl';
   const h = document.createElement('h4'); h.textContent = t('rc.title', { n: room.name || '' }); wrap.append(h);
@@ -1142,15 +1507,21 @@ function renderRoomPanel() {
       box.append(row);
     });
   });
-  const ops = roomOpenings(room, floor()).filter((o) => o.entity);
+  const ops = roomOpenings(room, floor()).filter((o) => openingEntities(o).length);
   if (ops.length) {
     const h = document.createElement('h4'); h.textContent = t('rp.openings'); box.append(h);
     ops.forEach((o) => {
-      const row = document.createElement('div');
-      row.className = 'row' + (isOpen(o.entity) ? ' alert' : '');
-      const n = document.createElement('span'); n.className = 'n'; n.textContent = o.name || t(`prop.${o.type}`);
-      const v = document.createElement('span'); v.className = 'v'; v.textContent = openText(o.entity);
-      row.append(n, v); box.append(row);
+      const multi = o.paneEntities?.some(Boolean);
+      const count = multi ? (o.style === 'triple' ? 3 : 2) : 1;
+      for (let i = 0; i < count; i++) {
+        const e = multi ? paneEntity(o, i) : o.entity;
+        if (!e) continue;
+        const row = document.createElement('div');
+        row.className = 'row' + (isOpen(e) ? ' alert' : '');
+        const n = document.createElement('span'); n.className = 'n'; n.textContent = (o.name || t(`prop.${o.type}`)) + (multi ? ` · ${t('pane.n', { n: i + 1 })}` : '');
+        const v = document.createElement('span'); v.className = 'v'; v.textContent = openText(e);
+        row.append(n, v); box.append(row);
+      }
     });
   }
   if (!devs.length && !ops.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('rp.empty'); box.append(e); }
@@ -1166,6 +1537,12 @@ function setTool(next) {
   $('#hintText').textContent = t(`hint.${next}`);
   $('#devicePalette').hidden = next !== 'device';
   $('#openingPalette').hidden = next !== 'opening';
+  $('#stairPalette').hidden = next !== 'stairs';
+  $('#blockPalette').hidden = next !== 'block';
+  $('#groupPalette').hidden = next !== 'group';
+  if (next !== 'group' && groupPick.size) { groupPick.clear(); plan?.render(); }
+  if (next === 'group') renderGroupPalette();
+  if ((next === 'block' || next === 'stairs') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
   canvas.style.cursor = next === 'select' ? 'default' : 'crosshair';
 }
 document.querySelectorAll('#tools button').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
@@ -1195,12 +1572,20 @@ function floorBounds() {
   const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
   return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, size: Math.max(x1 - x0, z1 - z0, 4) };
 }
+function houseBounds() {
+  const pts = layout.floors.flatMap((f) => [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])]);
+  if (!pts.length) return { cx: 0, cz: 0, size: 12 };
+  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
+  const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+  return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, size: Math.max(x1 - x0, z1 - z0, 4) };
+}
 function fitCamera() {
-  const { cx, cz, size } = floorBounds();
+  const { cx, cz, size } = houseMode ? houseBounds() : floorBounds();
+  const midY = houseMode ? (elev(layout.floors.length - 1) + elev(0)) / 2 + FLOOR_H / 2 : elev();
   const dist = (size * 1.25 + 2) * Math.max(1, 1.0 / (camera.aspect || 1));
-  controls.target.set(cx, elev(), cz);
-  if (is2d) camera.position.set(cx, elev() + dist * 1.2, cz + 0.001);
-  else camera.position.set(cx + dist * 0.4, elev() + dist * 0.95, cz + dist * 0.7);
+  controls.target.set(cx, midY, cz);
+  if (is2d) camera.position.set(cx, midY + dist * 1.2, cz + 0.001);
+  else camera.position.set(cx + dist * 0.4, midY + dist * 0.95 + (houseMode ? size * 0.3 : 0), cz + dist * 0.7);
   controls.update();
 }
 function applyViewPolicy() {          // live mode: only the 3D view unless the user was given more (settings → users)
@@ -1254,11 +1639,12 @@ function buildNav(force = false) {
   const f = floor();
   if (!f) return;
   const rooms = f.rooms.filter((r) => r.name);
-  const key = JSON.stringify([floorIdx, layout.floors.map((x) => x.name), rooms.map((r) => [r.id, r.name]), focusedRoom, settings.language]);
+  const key = JSON.stringify([houseMode, floorIdx, layout.floors.map((x) => x.kind), layout.floors.map((x) => x.name), rooms.map((r) => [r.id, r.name]), focusedRoom, settings.language]);
   if (!force && key === navKey) return;
   navKey = key;
   const fp = $('#floorPills'), rp = $('#roomPills');
-  fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx, () => switchFloor(i))));
+  fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx && !houseMode, () => switchFloor(i))),
+    ...(layout.floors.length > 1 || layout.floors.some((x) => x.devices.length) ? [pill(t('nav.house'), houseMode, () => setHouseMode(!houseMode), t('nav.houseTip'))] : []));
   rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => { const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id); })));
   $('#navSep').hidden = !rooms.length;
   updateHouseToggle();
@@ -1285,10 +1671,16 @@ function findRoomByName(name) {
 }
 function fillFloorSelect() { buildNav(true); }
 
+function setHouseMode(on) {
+  houseMode = on; selection = null; lockedSel = false; focusedRoom = null; document.body.classList.toggle('house', on);
+  clearFocusOutline(); build(); fitCamera(); refreshSelection(); buildNav(true);
+}
 function switchFloor(i) {
+  houseMode = false; document.body.classList.remove('house');
   floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
   clearFocusOutline(); build(); fitCamera(); refreshSelection();
   if (bgMode) setBgMode(null); else renderBgPanel();
+  renderFloorPanel();
 }
 
 function clearFocusOutline() { focusGroup.clear(); }
@@ -1313,14 +1705,193 @@ function focusRoom(id) {
   buildNav();
 }
 
-$('#addFloor').addEventListener('click', () => {
-  const name = prompt(t('floor.namePrompt'), `${t('floor.new')} ${layout.floors.length + 1}`);
+/* ================= Groups of devices (Nanoleaf logos ...): move, turn and mirror as one shape ================= */
+const groupPick = new Set();
+function liveMove(d) {
+  const obj = registry.get(d.id);
+  if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
+  const sp = labelSprites.get(d.id);
+  if (sp) sp.position.set(d.x, sp.position.y, d.z);
+  refreshSelHelper();
+}
+const groupMembers = (d) => (d.group ? floor().devices.filter((x) => x.group === d.group) : [d]);
+function groupCentre(ms) { return [ms.reduce((a, m) => a + m.x, 0) / ms.length, ms.reduce((a, m) => a + m.z, 0) / ms.length]; }
+/* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
+   the wall instead of freezing, and door openings let it through. Wall-hung items, outdoor items and ceiling-free objects are exempt. */
+const STOP_EXEMPT = new Set([...WALL_TYPES_LIST(), ...OUTDOOR]);
+function WALL_TYPES_LIST() { return ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
+function penetration(m, x, z, w) {
+  const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L = Math.hypot(sx, sz) || 1e-9, ux = sx / L, uz = sz / L;
+  const along = (x - ax) * ux + (z - az) * uz;
+  const dist = Math.hypot(x - (ax + ux * Math.max(0, Math.min(L, along))), z - (az + uz * Math.max(0, Math.min(L, along))));
+  if ((w.openings || []).some((o) => o.type === 'door' && Math.abs(o.pos - along) <= o.width / 2)) return -1;   // through the doorway
+  const f = plan.footOf(m), hw = f.r ?? f.w / 2, hd = f.r ?? f.d / 2, th = ((m.rot || 0) * Math.PI) / 180;
+  const nx = -uz, nz = ux;                                                            // wall normal
+  const cu = Math.cos(th), su = -Math.sin(th), cv = Math.sin(th), sv = Math.cos(th);  // device axes
+  const rad = hw * Math.abs(nx * cu + nz * su) + hd * Math.abs(nx * cv + nz * sv);      // half extent of the footprint across the wall
+  return (w.thickness || 0.2) / 2 + rad - dist;                                        // > 0: overlaps the wall body
+}
+/** clamp the displacement (dx,dz) of the given members so none of them moves deeper into a wall; slide along it when possible */
+function stopMove(members, dx, dz) {
+  if (!settings.wallStop) return [dx, dz];
+  const ms = members.filter((m) => !STOP_EXEMPT.has(m.type));
+  if (!ms.length) return [dx, dz];
+  const walls = floor().walls;
+  // the move is checked in small steps so a fast drag cannot tunnel through a wall
+  const bad = (ex, ez) => {
+    const n = Math.min(80, Math.max(1, Math.ceil(Math.hypot(ex, ez) / 0.04)));
+    return walls.find((w) => ms.some((m) => {
+      let prev = penetration(m, m.x, m.z, w);
+      for (let i = 1; i <= n; i++) {
+        const p1 = penetration(m, m.x + (ex * i) / n, m.z + (ez * i) / n, w);
+        if (p1 > 0.001 && p1 > prev + 1e-4) return true;
+        prev = p1;
+      }
+      return false;
+    }));
+  };
+  let w = bad(dx, dz);
+  if (!w) return [dx, dz];
+  for (let i = 0; i < 3 && w; i++) {                                                  // slide: keep only the part of the move along the blocking wall
+    const [ax, az] = w.a, L = Math.hypot(w.b[0] - ax, w.b[1] - az) || 1, ux = (w.b[0] - ax) / L, uz = (w.b[1] - az) / L, k = dx * ux + dz * uz;
+    dx = ux * k; dz = uz * k;
+    w = bad(dx, dz);
+  }
+  return w ? [0, 0] : [dx, dz];
+}
+function moveDeviceTo(d, x, z) {
+  const ms = groupMembers(d);
+  if (ms.some((m) => m.locked)) return;                          // locked things stay where they are
+  const [dx, dz] = stopMove(ms, x - d.x, z - d.z);
+  if (!dx && !dz) return;
+  ms.forEach((m) => { m.x = +(m.x + dx).toFixed(4); m.z = +(m.z + dz).toFixed(4); liveMove(m); });
+}
+function rotateGroup(d, delta) {
+  const ms = groupMembers(d), [cx, cz] = groupCentre(ms), th = (delta * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
+  ms.forEach((m) => {
+    const dx = m.x - cx, dz = m.z - cz;
+    m.x = +(cx + dx * c + dz * sn).toFixed(4); m.z = +(cz - dx * sn + dz * c).toFixed(4);
+    m.rot = (((m.rot || 0) + delta) % 360 + 360) % 360;
+  });
+}
+/** mirror the whole group across the plane through its centre that stands across the clicked piece's local x axis */
+function mirrorGroup(d) {
+  const ms = groupMembers(d), [cx, cz] = groupCentre(ms), r0 = d.rot || 0, th = (r0 * Math.PI) / 180;
+  const ux = Math.cos(th), uz = -Math.sin(th);
+  ms.forEach((m) => {
+    const dx = m.x - cx, dz = m.z - cz, k = dx * ux + dz * uz;
+    m.x = +(cx + dx - 2 * k * ux).toFixed(4); m.z = +(cz + dz - 2 * k * uz).toFixed(4);
+    m.rot = (((2 * r0 - (m.rot || 0)) % 360) + 360) % 360;
+    m.mirror = !m.mirror; if (!m.mirror) delete m.mirror;
+    const tz = (((-(m.tiltZ || 0)) % 360) + 360) % 360; if (tz) m.tiltZ = tz; else delete m.tiltZ;
+  });
+}
+function groupToggle(id) {
+  if (groupPick.has(id)) groupPick.delete(id); else groupPick.add(id);
+  renderGroupPalette(); plan?.render();
+  setStatus(t('group.picked', { n: groupPick.size }));
+}
+function renderGroupPalette() {
+  const box = $('#groupBody');
+  if (!box) return;
+  box.innerHTML = '';
+  const n = groupPick.size;
+  const p = document.createElement('p'); p.className = 'sub'; p.textContent = t('group.picked', { n }); box.append(p);
+  const row = document.createElement('div'); row.className = 'stopTools';
+  const mk = (id, label, on, dis = false) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.disabled = dis; b.addEventListener('click', on); return b; };
+  row.append(mk('grpMake', t('group.make'), makeGroup, n < 2), mk('grpCancel', t('group.cancel'), () => { groupPick.clear(); renderGroupPalette(); plan?.render(); }));
+  box.append(row);
+}
+function makeGroup() {
+  if (groupPick.size < 2) return;
+  snapshot();
+  const gid = uid();
+  floor().devices.forEach((d) => { if (groupPick.has(d.id)) d.group = gid; });
+  groupPick.clear();
+  setTool('select'); changed(); renderGroupPalette();
+}
+
+function newFloor(kind, name) {
+  return { id: uid(), name, kind, walls: [], rooms: [], devices: [], blocks: [], stairs: [], ...(kind === 'roof' ? { roof: { type: 'gable', pitch: 35, overhang: 0.4 } } : {}) };
+}
+/** kind 'floor' goes on top, 'basement' below everything, 'roof' on top */
+function addFloorOf(kind) {
+  const label = kind === 'basement' ? t('floor.basement') : kind === 'roof' ? t('floor.roof') : `${t('floor.new')} ${layout.floors.length + 1}`;
+  const name = prompt(t('floor.namePrompt'), label);
   if (!name) return;
   snapshot();
-  layout.floors.push({ id: uid(), name, walls: [], rooms: [], devices: [] });
-  switchFloor(layout.floors.length - 1);
+  if (kind === 'basement') {
+    layout.floors.unshift(newFloor(kind, name));
+    switchFloor(0);
+  } else {
+    layout.floors.push(newFloor(kind, name));
+    switchFloor(layout.floors.length - 1);
+  }
   scheduleSave();
-});
+}
+function moveFloor(dir) {
+  const j = floorIdx + dir;
+  if (j < 0 || j >= layout.floors.length) return;
+  snapshot();
+  [layout.floors[floorIdx], layout.floors[j]] = [layout.floors[j], layout.floors[floorIdx]];
+  floorIdx = j;
+  selection = null; build(); fitCamera(); buildNav(true); renderFloorPanel(); renderObjList(); scheduleSave();
+}
+function deleteFloor() {
+  if (layout.floors.length < 2 || !confirm(t('floor.deleteConfirm'))) return;
+  snapshot();
+  layout.floors.splice(floorIdx, 1);
+  switchFloor(Math.min(floorIdx, layout.floors.length - 1));
+  scheduleSave();
+}
+function renderFloorPanel() {
+  const box = $('#floorBody');
+  if (!box) return;
+  box.innerHTML = '';
+  const f = floor();
+  if (!f) return;
+  const rowBtn = (id, label, on, disabled = false) => {
+    const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.disabled = disabled;
+    b.addEventListener('click', on); return b;
+  };
+  box.append(field(t('prop.name'), inp('text', f.name, (v) => { f.name = v || f.name; buildNav(true); })));
+  const ksel = document.createElement('select'); ksel.id = 'floorKind';
+  [['floor', t('floor.kind.floor')], ['basement', t('floor.kind.basement')], ['roof', t('floor.kind.roof')]].forEach(([v, l]) => {
+    const o = document.createElement('option'); o.value = v; o.textContent = l; ksel.append(o);
+  });
+  ksel.value = f.kind || 'floor';
+  ksel.addEventListener('change', () => {
+    snapshot(); f.kind = ksel.value;
+    if (f.kind === 'roof') f.roof ||= { type: 'gable', pitch: 35, overhang: 0.4 };
+    build(); fitCamera(); buildNav(true); renderFloorPanel(); scheduleSave();
+  });
+  box.append(field(t('floor.kind'), ksel));
+  const mv = document.createElement('div'); mv.className = 'stopTools';
+  mv.append(rowBtn('floorUp', t('floor.up'), () => moveFloor(1), floorIdx >= layout.floors.length - 1),
+            rowBtn('floorDown', t('floor.down'), () => moveFloor(-1), floorIdx <= 0));
+  box.append(mv);
+  const add = document.createElement('div'); add.className = 'stopTools';
+  add.append(rowBtn('addBasement', t('floor.addBasement'), () => addFloorOf('basement')),
+             rowBtn('addRoof', t('floor.addRoof'), () => addFloorOf('roof')),
+             rowBtn('delFloor', t('floor.delete'), deleteFloor, layout.floors.length < 2));
+  box.append(add);
+  if (f.kind === 'roof') {
+    const r = (f.roof ||= { type: 'gable', pitch: 35, overhang: 0.4 });
+    const tsel = document.createElement('select'); tsel.id = 'roofType';
+    ['gable', 'hip', 'flat'].forEach((v) => { const o = document.createElement('option'); o.value = v; o.textContent = t(`roof.${v}`); tsel.append(o); });
+    tsel.value = r.type || 'gable';
+    tsel.addEventListener('change', () => { snapshot(); r.type = tsel.value; build(); scheduleSave(); });
+    box.append(field(t('roof.type'), tsel));
+    box.append(field(t('roof.pitch'), inp('number', r.pitch ?? 35, (v) => (r.pitch = Math.max(5, Math.min(70, +v || 35))), { step: 1 })));
+    box.append(field(t('roof.overhang'), lenInput(() => r.overhang ?? 0.4, (v) => (r.overhang = v), { min: 0 })));
+    const rsel = document.createElement('select'); rsel.id = 'roofRidge';
+    [['', t('roof.auto')], ['x', 'X'], ['z', 'Z']].forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; rsel.append(o); });
+    rsel.value = r.ridge || '';
+    rsel.addEventListener('change', () => { snapshot(); r.ridge = rsel.value || undefined; build(); scheduleSave(); });
+    box.append(field(t('roof.ridge'), rsel));
+  }
+}
+$('#addFloor').addEventListener('click', () => addFloorOf('floor'));
 document.querySelectorAll('#modeBar button').forEach((b) => b.addEventListener('click', () => {
   viewMode = b.dataset.vm;
   document.querySelectorAll('#modeBar button').forEach((x) => x.classList.toggle('active', x === b));
@@ -1332,18 +1903,37 @@ $('#autoToggle').addEventListener('click', () => {
 });
 
 /* ================= Palettes: devices, custom models, openings ================= */
+let paletteCat = 'all', paletteQuery = '';
 function buildPalette() {
-  const grid3 = $('#paletteGrid');
+  const grid3 = $('#paletteGrid'), cats = $('#paletteCats');
+  cats.innerHTML = '';
+  ['all', ...Object.keys(CATEGORIES)].forEach((k) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = t(`cat.${k}`);
+    b.classList.toggle('active', k === paletteCat);
+    b.addEventListener('click', () => { paletteCat = k; buildPalette(); });
+    cats.append(b);
+  });
   grid3.innerHTML = '';
-  Object.entries(DEVICE_TYPES).filter(([, def]) => !def.hidden).forEach(([key]) => {
-    const b = document.createElement('button');
-    b.textContent = t(`dev.${key}`);
+  const q = paletteQuery.trim().toLowerCase();
+  Object.entries(DEVICE_TYPES).filter(([key, def]) => !def.hidden && (paletteCat === 'all' || catOf(key) === paletteCat)
+    && (!q || t(`dev.${key}`).toLowerCase().includes(q) || key.includes(q) || (SEARCH_ALIASES[key] || '').includes(q))).forEach(([key]) => {
+    const b = document.createElement('button'); b.className = 'dev'; b.type = 'button';
+    const url = thumbnail(key);
+    if (url) { const im = document.createElement('img'); im.src = url; im.alt = ''; b.append(im); }
+    const sp = document.createElement('span'); sp.textContent = t(`dev.${key}`); sp.title = t(`dev.${key}`); b.append(sp);
     b.classList.toggle('active', key === deviceType);
     b.addEventListener('click', () => { deviceType = key; buildPalette(); renderModelPalette(); });
     grid3.append(b);
   });
   renderModelPalette();
 }
+/* extra search words so the library also finds things under their everyday names */
+const SEARCH_ALIASES = {
+  tv: 'fernseher fernsehen television tele glotze', tv_wall: 'fernseher wandfernseher wand tv fernsehen flachbild', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
+  fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
+  light: 'leuchte lampe', lamp: 'leuchte stehlampe', bed: 'doppelbett', wardrobe: 'schrank kleiderschrank', shelf: 'regal', bookcase: 'bücherregal buecherregal',
+};
+$('#paletteSearch').addEventListener('input', (e) => { paletteQuery = e.target.value; buildPalette(); });
 function renderModelPalette() {
   const box = $('#modelGrid');
   box.innerHTML = '';
@@ -1372,6 +1962,116 @@ function renderModelPalette() {
     box.append(b);
   });
 }
+/* ================= Placeholder blocks and stairs ================= */
+/** THREE shapes of a floor polygon with the stairwell openings cut out (polygon boolean, so partial overlaps work too) */
+function floorShapes(points, holes) {
+  const v = (p) => new THREE.Vector2(p[0], -p[1]);
+  const plain = () => [new THREE.Shape(points.map(v))];
+  if (!holes.length) return plain();
+  let mp;
+  try { mp = polygonClipping.difference([points.map((p) => [p[0], p[1]])], ...holes.map((h) => [h.map((p) => [p[0], p[1]])])); } catch { return plain(); }
+  const shapes = mp.map((poly) => {
+    const sh = new THREE.Shape(poly[0].slice(0, -1).map(v));
+    poly.slice(1).forEach((ring) => sh.holes.push(new THREE.Path(ring.slice(0, -1).map(v))));
+    return sh;
+  });
+  return shapes;
+}
+
+let stairType = 'straight', stairDir = 'up', stairTurn = 'right', stairRot = 0;
+const stairTpl = () => ({ ...stairDefaults(stairType === 'shaft' ? 'U' : stairType), type: stairType === 'shaft' ? 'U' : stairType, dir: stairDir, turn: stairTurn, rot: stairRot });
+
+/** stair mesh in the stair's local frame (origin = bottom start), steps as solid blocks */
+function buildStair(st, holo, ghost, edgeMaterial) {
+  const g = new THREE.Group();
+  const stepMat = holo
+    ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: ghost ? 0.12 : 0.38, depthWrite: false, side: THREE.DoubleSide })
+    : mat('#c9bba1', ghost, { side: THREE.DoubleSide });
+  stairLocal(st, FLOOR_H).treads.forEach((tr) => {
+    const shape = new THREE.Shape(tr.poly.map(([x, z]) => new THREE.Vector2(x, -z)));
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: tr.top, bevelEnabled: false });
+    geo.rotateX(-Math.PI / 2);
+    const m = new THREE.Mesh(geo, stepMat);
+    m.castShadow = !holo; m.receiveShadow = !holo;
+    g.add(m);
+    if (holo && edgeMaterial) g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMaterial));
+  });
+  return g;
+}
+
+function addBlock(points) {
+  const target = blockTargetFloor();
+  snapshot();
+  const f = layout.floors[target];
+  (f.blocks ||= []).push({ id: uid(), name: layout.floors[target].name, points });
+  changed();
+  if (target !== floorIdx) setStatus(t('block.addedTo').replace('{floor}', f.name));
+}
+/** where a new block goes: the floor below (created when missing) or the current one */
+function blockTargetFloor() {
+  const v = $('#blockFloor')?.value ?? 'below';
+  if (v === 'this') return floorIdx;
+  if (floorIdx > 0) return floorIdx - 1;
+  if (layout.floors[0].name === t('floor.default')) layout.floors[0].name = t('floor.firstUpper');   // the default name now belongs to the new floor below
+  layout.floors.unshift({ id: uid(), name: t('floor.blockName'), walls: [], rooms: [], devices: [], blocks: [], stairs: [] });
+  floorIdx += 1;                                                  // the current floor moved up one
+  fillFloorSelect();
+  return 0;
+}
+
+function placeStair(x, z) {
+  const f = floor();
+  snapshot();
+  if (stairType === 'shaft') { placeShaft(x, z); return; }
+  const st = { id: uid(), name: t(`stair.${stairType}`), x, z, ...stairTpl() };
+  (f.stairs ||= []).push(st);
+  selection = { kind: 'stair', id: st.id };
+  changed();
+  setTool('select');                                              // size handles are usable right away
+}
+
+/** Treppenhaus preset: U stair + four walls + room + door, and the same shell on the next floor for an 'up' stair */
+function placeShaft(cx, cz) {
+  const f = floor();
+  const base = { ...stairTpl(), type: 'U', x: 0, z: 0, rot: 0 };
+  const b = stairBounds(base, FLOOR_H);
+  const m = 0.2 + settings.wallThickness / 2;                     // clear space between stair and wall centre line
+  const x0 = -(b.x1 - b.x0) / 2 - m, x1 = (b.x1 - b.x0) / 2 + m, z0 = -(b.z1 - b.z0) / 2 - m, z1 = (b.z1 - b.z0) / 2 + m;
+  const snap = (v) => Math.round(v / 0.05) * 0.05;
+  const rot = ((stairRot % 360) + 360) % 360;
+  const rp = ([lx, lz]) => { const th = (rot * Math.PI) / 180; return [snap(cx + lx * Math.cos(th) + lz * Math.sin(th)), snap(cz - lx * Math.sin(th) + lz * Math.cos(th))]; };
+  const corners = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]].map(rp);
+  const shell = (fl, withStair) => {
+    const th = settings.wallThickness, wh = settings.wallHeight;
+    const ws = corners.map((c, i) => ({ id: uid(), a: [...c], b: [...corners[(i + 1) % 4]], thickness: th, height: wh, openings: [] }));
+    fl.walls.push(...ws);
+    fl.rooms.push({ id: uid(), name: t('stair.shaftName'), color: '#7d8a99', points: corners.map((c) => [...c]) });
+    return ws;
+  };
+  const ws = shell(f);
+  const door = ws[0];
+  if (wallLength(door) > OPENING_DEFAULTS.door.width + 0.4) door.openings.push({ id: uid(), type: 'door', pos: wallLength(door) / 2, ...OPENING_DEFAULTS.door });
+  const st = { ...base, id: uid(), name: t('stair.shaftName'), x: 0, z: 0 };
+  const [ox, oz] = [(b.x0 + b.x1) / 2, (b.z0 + b.z1) / 2];
+  const [wx, wz] = (() => { const th = (rot * Math.PI) / 180; return [cx - (ox * Math.cos(th) + oz * Math.sin(th)), cz - (-ox * Math.sin(th) + oz * Math.cos(th))]; })();
+  st.x = +wx.toFixed(3); st.z = +wz.toFixed(3); st.rot = rot;
+  (f.stairs ||= []).push(st);
+  const other = layout.floors[stairDir === 'up' ? floorIdx + 1 : -1];
+  if (other) shell(other);                                        // same walls above so the shaft continues
+  selection = { kind: 'stair', id: st.id };
+  changed();
+  setTool('select');
+}
+
+document.querySelectorAll('#stairTypes button').forEach((b) => b.addEventListener('click', () => {
+  stairType = b.dataset.stair;
+  document.querySelectorAll('#stairTypes button').forEach((x) => x.classList.toggle('active', x === b));
+  plan?.render();
+}));
+$('#stairDir').addEventListener('change', (e) => { stairDir = e.target.value; plan?.render(); });
+$('#stairTurn').addEventListener('change', (e) => { stairTurn = e.target.value; plan?.render(); });
+$('#stairRot').addEventListener('change', (e) => { stairRot = ((+e.target.value % 360) + 360) % 360 || 0; plan?.render(); });
+
 /* ================= Background image (template to trace) ================= */
 let bgMode = null;                                       // null | 'move' | 'calib'
 function setBgMode(m) {
@@ -1419,7 +2119,7 @@ async function uploadBackground(file) {
   f.bg = { img: name, x: keep?.x ?? 0, z: keep?.z ?? 0, w: keep?.w ?? 12, ar: +(nh / nw).toFixed(5), op: keep?.op ?? 0.5, rot: keep?.rot ?? 0 };
   changed();
   plan?.fit();
-  renderBgPanel();
+  setBgMode('move');                                      // handles are visible right away: drag to move, corners to resize
 }
 function renderBgPanel() {
   const box = $('#bgBody');
@@ -1687,24 +2387,45 @@ function renderObjList() {
     lockBar.append(rb);
   }
   body.append(lockBar);
-  const openings = [];
-  f.walls.forEach((w, i) => (w.openings || []).forEach((o) => openings.push({ o, w })));
-  const groups = [
-    ['obj.rooms', f.rooms.map((r) => ({ kind: 'room', id: r.id, label: r.name || t('prop.room') }))],
+  const fi = document.createElement('input'); fi.type = 'search'; fi.className = 'objfilter'; fi.placeholder = t('obj.filter'); fi.value = objFilter;
+  fi.addEventListener('input', () => { objFilter = fi.value; const pos = fi.selectionStart; renderObjList(); const n = $('#objListBody .objfilter'); n?.focus(); n?.setSelectionRange(pos, pos); });
+  body.append(fi);
+  /* grouped by room: the room itself, its doors / windows and its furniture; everything else below */
+  const q = (objFilter || '').trim().toLowerCase();
+  const used = new Set();
+  const take = (list) => list.filter((it) => { if (used.has(it.id)) return false; used.add(it.id); return true; });
+  const devItem = (d) => ({ kind: 'device', id: d.id, label: d.name || t(`dev.${d.type}`) });
+  const opItem = (o) => ({ kind: 'opening', id: o.id, label: o.name || t(`prop.${o.type}`) });
+  const groups = [];
+  f.rooms.forEach((r) => {
+    const items = [{ kind: 'room', id: r.id, label: `▣ ${r.name || t('prop.room')}` },
+      ...take(roomOpenings(r, f).map(opItem)), ...take(f.devices.filter((d) => pointInPoly(d.x, d.z, r.points)).map(devItem))];
+    groups.push([`room:${r.id}`, items, r.name || t('prop.room')]);
+  });
+  const restOps = take(f.walls.flatMap((w) => (w.openings || []).map(opItem)));
+  const restDevs = take(f.devices.map(devItem));
+  if (restOps.length || restDevs.length) groups.push(['obj.noRoom', [...restOps, ...restDevs], t('obj.noRoom')]);
+  groups.push(
     ['obj.walls', f.walls.map((w, i) => ({ kind: 'wall', id: w.id, label: `${t('prop.wall')} ${i + 1} · ${wallLength(w).toFixed(1)} m` }))],
-    ['obj.openings', openings.map(({ o }) => ({ kind: 'opening', id: o.id, label: o.name || t(`prop.${o.type}`) }))],
-    ['obj.devices', f.devices.map((d) => ({ kind: 'device', id: d.id, label: d.name || t(`dev.${d.type}`) }))],
-  ];
-  groups.forEach(([key, items]) => {
+    ['obj.stairs', (f.stairs || []).map((s) => ({ kind: 'stair', id: s.id, label: s.name || t(`stair.${s.type}`) }))],
+    ['obj.blocks', (f.blocks || []).map((b) => ({ kind: 'block', id: b.id, label: b.name || t('prop.block') }))],
+  );
+  groups.forEach(([key, allItems, title]) => {
+    const items = q ? allItems.filter((it) => it.label.toLowerCase().includes(q)) : allItems;
     if (!items.length) return;
     const det = document.createElement('details');
-    det.open = objGroupOpen[key] ?? (key !== 'obj.walls');
+    const holdsSel = items.some((it) => it.id === selection?.id);
+    det.open = q ? true : holdsSel || (objGroupOpen[key] ?? false);
     det.addEventListener('toggle', () => { objGroupOpen[key] = det.open; });
-    const sum = document.createElement('summary'); sum.textContent = `${t(key)} (${items.length})`;
+    const sum = document.createElement('summary'); sum.textContent = `${title ?? t(key)} (${items.length})`;
     det.append(sum);
     items.forEach((it) => {
+      const rowEl = document.createElement('div'); rowEl.className = 'objrow';
+      const lk = document.createElement('input'); lk.type = 'checkbox'; lk.className = 'objlock'; lk.title = t('prop.lock');
+      lk.checked = !!itemOf(it.kind, it.id)?.locked;
+      lk.addEventListener('change', () => { const o = itemOf(it.kind, it.id); if (!o) return; snapshot(); if (lk.checked) o.locked = true; else delete o.locked; changed(); renderProps(); plan?.render(); });
       const b = document.createElement('button');
-      b.className = 'obj' + (selection?.id === it.id ? ' active' : '');
+      b.className = 'obj' + (selection?.id === it.id ? ' active' : '') + (itemOf(it.kind, it.id)?.locked ? ' locked' : '');
       b.textContent = it.label;
       b.addEventListener('click', () => {
         if (!registry.get(it.id)) return;
@@ -1714,12 +2435,14 @@ function renderObjList() {
         lockedSel = true;
         refreshSelection();
       });
-      det.append(b);
+      rowEl.append(lk, b);
+      det.append(rowEl);
     });
     body.append(det);
   });
 }
 const objGroupOpen = {};
+let objFilter = '';
 
 function renderProps() {
   renderObjList();
@@ -1731,10 +2454,12 @@ function renderProps() {
   if (selection.kind === 'wall') it = f.walls.find((x) => x.id === selection.id);
   else if (selection.kind === 'room') it = f.rooms.find((x) => x.id === selection.id);
   else if (selection.kind === 'device') it = f.devices.find((x) => x.id === selection.id);
+  else if (selection.kind === 'stair') it = (f.stairs || []).find((x) => x.id === selection.id);
+  else if (selection.kind === 'block') it = (f.blocks || []).find((x) => x.id === selection.id);
   else if (selection.kind === 'opening') it = findOpening(selection.id)?.opening;
   if (!it) { box.hidden = true; return; }
   box.hidden = false;
-  $('#propsTitle').textContent = selection.kind === 'opening' ? t(`prop.${it.type}`) : t(`prop.${selection.kind}`);
+  $('#propsTitle').textContent = selection.kind === 'opening' ? t(`prop.${it.type}`) : selection.kind === 'stair' ? t(`stair.${it.type}`) : t(`prop.${selection.kind}`);
 
   if (selection.kind === 'wall') {
     body.append(field(t('prop.thickness'), lenInput(() => it.thickness, (v) => (it.thickness = Math.max(0.05, v)))));
@@ -1752,12 +2477,44 @@ function renderProps() {
     const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts';
     body.append(ents);
     renderRoomEntities();
+  } else if (selection.kind === 'block') {
+    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    body.append(field(t('prop.height'), lenInput(() => it.h || FLOOR_H, (v) => (it.h = Math.max(0.5, v)), { min: 0.5, step: 0.1 })));
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('block.help'); body.append(hp);
+  } else if (selection.kind === 'stair') {
+    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
+    const dsel = document.createElement('select');
+    [['up', t('stair.up')], ['down', t('stair.down')]].forEach(([v, l]) => dsel.add(new Option(l, v)));
+    dsel.value = it.dir || 'up';
+    dsel.addEventListener('change', () => { snapshot(); it.dir = dsel.value; changed(); });
+    body.append(field(t('stair.dir'), dsel));
+    if (it.type !== 'straight') {
+      const tsel = document.createElement('select');
+      [['right', t('stair.right')], ['left', t('stair.left')]].forEach(([v, l]) => tsel.add(new Option(l, v)));
+      tsel.value = it.turn || 'right';
+      tsel.addEventListener('change', () => { snapshot(); it.turn = tsel.value; changed(); });
+      body.append(field(t('stair.turn'), tsel));
+    }
+    body.append(field(it.type === 'spiral' ? t('stair.radius') : t('bg.width'), lenInput(() => it.w, (v) => (it.w = Math.max(0.5, v)), { min: 0.5 })));
+    if (it.type !== 'spiral') {
+      const cnt = stairCounts(it, FLOOR_H)[it.type === 'straight' ? 'T' : 'n1'];
+      body.append(field(t('stair.length'), lenInput(() => stairLength(it, FLOOR_H), (v) => (it.tread = Math.max(0.18, Math.min(0.45, v / cnt))), { min: 1 })));
+    }
+    body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => (it.rot = ((+v % 360) + 360) % 360), { step: 15 })));
+    body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
+    body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('stair.help'); body.append(hp);
   } else if (selection.kind === 'opening') {
     const { wall } = findOpening(it.id);
     const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
     body.append(field(t('prop.width'), lenInput(() => it.width, (v) => { it.width = Math.max(0.3, v); refit(); }, { min: 0.3 })));
     body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3 })));
     if (it.type === 'window') body.append(field(t('prop.sill'), lenInput(() => it.sill, (v) => (it.sill = v))));
+    const ssel = document.createElement('select'); ssel.id = 'openStyle';
+    (it.type === 'door' ? DOOR_STYLES : WINDOW_STYLES).forEach((v) => ssel.add(new Option(t(`st.${v}`), v)));
+    ssel.value = it.style || (it.type === 'door' ? 'single' : 'double');
+    ssel.addEventListener('change', () => { snapshot(); it.style = ssel.value; changed(); });
+    body.append(field(t('prop.style'), ssel));
     body.append(field(t('prop.position'), lenInput(() => it.pos, (v) => {
       const p = clampOpeningPos(wall, it.width, v);
       if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p;
@@ -1765,18 +2522,85 @@ function renderProps() {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
     body.append(pickerField(t('prop.contact'), entityPicker((contact.length ? contact : entities).slice(0, 1500), roomCtx ? f.rooms.find((r) => r.id === roomCtx) : null, it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
+    if (it.type === 'window' && (it.style === 'double' || it.style === 'triple' || (!it.style))) {
+      const count = it.style === 'triple' ? 3 : 2;
+      const h = document.createElement('h4'); h.textContent = t('pane.title'); body.append(h);
+      for (let i = 0; i < count; i++) {
+        body.append(pickerField(t('pane.n', { n: i + 1 }), entityPicker((contact.length ? contact : entities).slice(0, 1500), roomCtx ? f.rooms.find((r) => r.id === roomCtx) : null, (it.paneEntities || [])[i] || '', (v) => {
+          snapshot(); const arr = it.paneEntities || []; while (arr.length < count) arr.push(''); arr[i] = v;
+          it.paneEntities = arr.some(Boolean) ? arr : undefined; changed();
+        })));
+      }
+    }
     if (it.type === 'door') {
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.flip;
       cb.addEventListener('change', () => { snapshot(); it.flip = cb.checked; changed(); });
       body.append(field(t('prop.flip'), cb));
+      const ci = document.createElement('input'); ci.type = 'checkbox'; ci.checked = !!it.inv; ci.id = 'doorInv';
+      ci.addEventListener('change', () => { snapshot(); it.inv = ci.checked; changed(); });
+      body.append(field(t('prop.inv'), ci));
     }
   } else {
+    const bring = document.createElement('button'); bring.type = 'button'; bring.textContent = t('prop.bringHere');
+    bring.addEventListener('click', () => { snapshot(); it.x = +controls.target.x.toFixed(2); it.z = +controls.target.z.toFixed(2); if (WALL_TYPES.has(it.type)) snapToWall(it, 0.8); changed(); build(); refreshSelection(); });
+    body.append(bring);
+    const lk = document.createElement('input'); lk.type = 'checkbox'; lk.checked = !!it.locked; lk.id = 'devLock';
+    lk.addEventListener('change', () => { snapshot(); if (lk.checked) it.locked = true; else delete it.locked; changed(); renderProps(); renderObjList(); });
+    const lkl = document.createElement('label'); lkl.className = 'chk'; lkl.append(lk, document.createTextNode(' ' + t('prop.lock')));
+    body.append(lkl);
+    if (it.type === 'nanoleaf') {
+      const eb = document.createElement('button'); eb.type = 'button'; eb.id = 'nanoEdit'; eb.textContent = '✎ ' + t('nano.edit');
+      eb.addEventListener('click', () => { if (!it.locked) editNano(it); else setStatus(t('prop.lockedHint')); });
+      body.append(eb);
+    }
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
-    body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => (it.rot = ((+v % 360) + 360) % 360), { step: 15 })));
-    body.append(field(t('prop.height'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
+    body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { const nv = ((+v % 360) + 360) % 360; if (it.group) rotateGroup(it, nv - (it.rot || 0)); else it.rot = nv; }, { step: 15 })));
+    body.append(field(t('prop.elev'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
+    if (it.type !== 'picture') {
+      const base = baseDims(it.type);
+      if (base) {                                                     // real dimensions in metres, type them in directly
+        const dim = (key, axis, label) => field(label, lenInput(() => base[axis] * (it.scale || 1) * (it[key] || 1), (v) => {
+          const n = Math.max(0.1, Math.min(10, v / (base[axis] * (it.scale || 1))));
+          if (Math.abs(n - 1) < 0.005) delete it[key]; else it[key] = +n.toFixed(4);
+        }, { min: 0.02, step: 0.05 }));
+        body.append(dim('sx', 'x', t('prop.dimW')), dim('sy', 'y', t('prop.dimH')), dim('sz', 'z', t('prop.dimD')));
+      } else {
+        const stretch = (key, label) => field(label, inp('number', it[key] || 1, (v) => { const n = Math.max(0.1, Math.min(10, +v || 1)); if (Math.abs(n - 1) < 0.005) delete it[key]; else it[key] = +n.toFixed(3); }, { step: 0.1, min: 0.1 }));
+        body.append(stretch('sx', t('prop.stretchX')), stretch('sy', t('prop.stretchY')), stretch('sz', t('prop.stretchZ')));
+      }
+    }
+    const angle = (key) => inp('number', it[key] || 0, (v) => { const a = ((+v % 360) + 360) % 360; if (a) it[key] = a; else delete it[key]; }, { step: 15 });
+    body.append(field(t('prop.tiltX'), angle('tiltX')), field(t('prop.tiltZ'), angle('tiltZ')));
+    const cm = document.createElement('input'); cm.type = 'checkbox'; cm.checked = !!it.mirror; cm.id = 'devMirror';
+    cm.addEventListener('change', () => { snapshot(); if (cm.checked) it.mirror = true; else delete it.mirror; changed(); });
+    body.append(field(t('prop.mirror'), cm));
+    if (it.type === 'picture') {
+      const lab = document.createElement('label'); lab.className = 'uploadBtn';
+      const span = document.createElement('span'); span.textContent = t(it.img ? 'pic.replace' : 'pic.load');
+      const file = document.createElement('input'); file.type = 'file'; file.hidden = true; file.id = 'picFile'; file.accept = 'image/png,image/jpeg,image/webp';
+      file.addEventListener('change', async () => { const fl = file.files[0]; file.value = ''; try { await uploadPicture(fl, it); } catch (err) { alert(`${t('panel.uploadFailed')}: ${err.message}`); } });
+      lab.append(span, file); body.append(lab);
+      body.append(field(t('pic.width'), lenInput(() => it.w || 0.6, (v) => (it.w = Math.max(0.1, v)), { min: 0.1 })));
+      if (!it.img) { const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('pic.help'); body.append(hp); }
+    }
+    if (WALL_TYPES.has(it.type)) {
+      const sb = document.createElement('button'); sb.type = 'button'; sb.id = 'snapWall'; sb.textContent = t('pic.snap');
+      sb.addEventListener('click', () => { snapshot(); snapToWall(it, 3, true); changed(); renderProps(); });
+      body.append(sb);
+    }
+    if (it.group) {
+      const members = groupMembers(it);
+      const gp = document.createElement('div'); gp.className = 'sub'; gp.textContent = t('group.info', { n: members.length });
+      const gb = document.createElement('div'); gb.className = 'stopTools';
+      const mk = (id, label, on) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.addEventListener('click', () => { snapshot(); on(); changed(); renderProps(); }); return b; };
+      gb.append(mk('grpMirror', t('group.mirror'), () => mirrorGroup(it)),
+                mk('grpLeave', t('group.leave'), () => { delete it.group; }),
+                mk('grpDissolve', t('group.dissolve'), () => { members.forEach((m) => delete m.group); }));
+      body.append(gp, gb);
+    }
     body.append(pickerField(t('prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
@@ -1802,7 +2626,7 @@ const dlg = $('#settingsDialog');
 const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
-  shadows: '#setShadows', showLabels: '#setLabels', lowWalls: '#setLowWalls', cutaway: '#setCutaway',
+  shadows: '#setShadows', showLabels: '#setLabels', lowWalls: '#setLowWalls', cutaway: '#setCutaway', wallStop: '#setWallStop',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow',
 };
@@ -1921,8 +2745,8 @@ function applySettings(prev = {}) {
   rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow);
   applyI18n();
   scene.background = isHolo() ? null : new THREE.Color(themeColors().scene);
-  renderer.shadowMap.enabled = settings.shadows;
-  sun.castShadow = settings.shadows;
+  renderer.shadowMap.enabled = settings.shadows && !LOW;
+  sun.castShadow = settings.shadows && !LOW;
   world.traverse((o) => { if (o.material) o.material.needsUpdate = true; });
   if (prev.grid !== settings.grid || prev.theme !== settings.theme || !grid) rebuildGrid();
   buildPalette(); fillEntities($('#entitySearch').value); renderProps();
@@ -1930,7 +2754,19 @@ function applySettings(prev = {}) {
   updateNavToggles(); buildNav(true);
   applyStates();
 }
+let settingsLoaded = false, settingsEtag = null;   // never save settings that were not loaded from the server first (would wipe e.g. the tablet assignments)
+async function loadSettings() {
+  for (let i = 0; i < 6 && !settingsLoaded; i++) {
+    try {
+      const r = await fetch('api/settings');
+      if (r.ok) { settings = { ...settings, ...(await r.json()) }; settingsEtag = r.headers.get('ETag'); settingsLoaded = true; break; }
+    } catch { /* add-on is probably restarting, try again */ }
+    await new Promise((res) => setTimeout(res, 1000 * (i + 1)));
+  }
+  return settingsLoaded;
+}
 async function commitSettings() {
+  if (!settingsLoaded && !(await loadSettings())) { setStatus(t('set.notLoaded')); return; }
   const prev = settings;
   settings = readSettingsForm();
   if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
@@ -1943,12 +2779,14 @@ async function commitSettings() {
   build();
   fillSettingsForm();
   try {
-    const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(settings) });
-    if (r.ok) settings = { ...settings, ...(await r.json()) };
+    const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(settingsEtag ? { 'If-Match': settingsEtag } : {}) }, body: JSON.stringify(settings) });
+    if (r.ok) { settings = { ...settings, ...(await r.json()) }; settingsEtag = r.headers.get('ETag'); }
+    else if (r.status === 409) { alert(t('set.changedElsewhere')); location.reload(); }
   } catch { /* offline: settings stay for this session */ }
 }
 $('#settingsBtn').addEventListener('click', () => { fillSettingsForm(); dlg.showModal(); loadHaUsers(); });
 dlg.addEventListener('change', commitSettings);
+dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });     // a click on the dark backdrop closes it too
 
 /* ================= Data loading ================= */
 async function loadAreas() {
@@ -1968,8 +2806,10 @@ async function pollStates() {
     const list = await r.json();
     if (!Array.isArray(list)) return;
     const firstLoad = !entities.length;
+    const sig = JSON.stringify(list.map((e) => [e.entity_id, e.state, e.brightness, e.rgb, e.position]));
+    if (sig !== lastStateSig) { lastStateSig = sig; wake(); }
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc }]));
+    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members }]));
     if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
     applyStates();
     renderRoomEntities(); renderEntState();
@@ -1979,18 +2819,19 @@ async function pollStates() {
 function normalizeLayout() {
   let migrated = false;
   if (!layout.floors?.length) {
-    layout = { version: 1, floors: [{ id: uid(), name: t('floor.default'), walls: [], rooms: [], devices: [] }] };
+    layout = { version: 1, floors: [{ id: uid(), name: t('floor.default'), walls: [], rooms: [], devices: [], blocks: [], stairs: [] }] };
     migrated = true;
   }
   layout.floors.forEach((f) => {
-    f.walls ||= []; f.rooms ||= []; f.devices ||= [];
+    f.walls ||= []; f.rooms ||= []; f.devices ||= []; f.blocks ||= []; f.stairs ||= []; f.kind ||= 'floor';
     f.walls.forEach((w) => { w.openings ||= []; });
   });
   // Earlier empty layouts used a language-specific default name. Migrate only that generated placeholder,
   // never a floor that contains user data.
   const f = layout.floors[0];
   if (layout.floors.length === 1 && f?.id === 'f1' && ['Erdgeschoss', 'Ground floor', 'Parter'].includes(f.name)
-      && !f.walls.length && !f.rooms.length && !f.devices.length && f.name !== t('floor.default')) {
+      && !f.walls.length && !f.rooms.length && !f.devices.length && !f.blocks.length && !f.stairs.length
+      && f.name !== t('floor.default')) {
     f.name = t('floor.default');
     migrated = true;
   }
@@ -2004,13 +2845,10 @@ plan = createPlan({
   getSelection: () => selection,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
-  liveMoveDevice(d) {
-    const obj = registry.get(d.id);
-    if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
-    const sp = labelSprites.get(d.id);
-    if (sp) sp.position.set(d.x, sp.position.y, d.z);
-    refreshSelHelper();
-  },
+  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
+  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
+  groupToggle: (id) => groupToggle(id), groupPicked: () => groupPick,
+  liveMoveDevice: (d) => liveMove(d),
   liveTap: (h) => liveSelect(h),
   deviceDoubleClick: (id) => { const d = floor().devices.find((v) => v.id === id); if (d?.entity) quickAction(d.entity); },
   newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, OPENING_DEFAULTS, uid, pointInPoly,
@@ -2027,14 +2865,16 @@ async function init() {
   if (tabletRoom) document.body.classList.add('roomtablet');
   if (!me.canEdit) document.body.classList.add('readonly');
   if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
-  try { settings = { ...settings, ...(await (await fetch('api/settings')).json()) }; } catch { /* defaults */ }
+  if (!(await loadSettings())) setStatus(t('set.notLoaded'));
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
-  try { layout = await (await fetch('api/layout')).json(); } catch { setStatus(t('loadFailed')); }
+  await loadHouses();
+  try { layout = await (await fetch(layoutUrl())).json(); } catch { setStatus(t('loadFailed')); }
   const layoutMigrated = normalizeLayout();
+  renderHouseUi();
   await loadModels();
   applySettings();
-  fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); renderBgPanel();
+  fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); renderBgPanel(); renderFloorPanel();
   if (layoutMigrated && me.canEdit) scheduleSave();
   if (params.get('mode') === 'live' || params.get('kiosk') || tabletRoom || !me.canEdit) setMode('live');
   if (tabletRoom) {
@@ -2046,8 +2886,18 @@ async function init() {
   setInterval(pollStates, 4000);
 }
 
-function animate() {
+var lastActive = performance.now(), lastFrame = 0;
+function wake() { lastActive = performance.now(); }
+['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart', 'touchmove'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
+controls.addEventListener('change', wake);
+function animate(now = performance.now()) {
   requestAnimationFrame(animate);
+  if (document.hidden) return;                                   // screen off / tab in background: draw nothing
+  if (LOW) {
+    const idle = now - lastActive > 4000;
+    if (now - lastFrame < (idle ? 250 : 33)) return;
+    lastFrame = now;
+  }
   controls.update();
   updateCutaway();
   animateOpenings();
@@ -2060,6 +2910,7 @@ animate();
 /* Test hook: only active with ?debug=1, used by the browser tests to find objects on screen. */
 if (params.get('debug')) {
   window.__fp = {
+    editNano(id) { const d = floor().devices.find((v) => v.id === id); if (d) editNano(d); },
     screenOf(id) {
       const obj = registry.get(id);
       if (!obj) return null;
@@ -2068,6 +2919,26 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     get layout() { return layout; },
+    houseId: () => houseId,
+    rebuild: () => build(),
+    switchHouse,
+    paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
+    fakeState(e, st) { states[e] = { ...(states[e] || {}), state: st }; applyOpenings(); },
+    has: (id) => registry.has(id),
+    roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
+      const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');
+      if (!pos) return null;
+      let a = 0;
+      for (let i = 0; i + 2 < pos.count; i += 3) a += Math.abs((pos.getX(i + 1) - pos.getX(i)) * (pos.getZ(i + 2) - pos.getZ(i)) - (pos.getX(i + 2) - pos.getX(i)) * (pos.getZ(i + 1) - pos.getZ(i))) / 2;
+      return +a.toFixed(3);
+    },
+    stairHandle(id, k) { const st = floor().stairs.find((v) => v.id === id); const h = st && stairHandles(st, FLOOR_H)[k]; return h ? toWorld(st, h[0], h[1]) : null; },
+    objInfo(id) { const o = registry.get(id); return o && { rx: o.rotation.x, rz: o.rotation.z, sx: o.scale.x }; },
+    moveDevice: (id, x, z) => { const d = floor().devices.find((v) => v.id === id); moveDeviceTo(d, x, z); return [d.x, d.z]; },
+    setWallStop: (v) => { settings.wallStop = v; },
+    snapPicture: (id) => { const d = floor().devices.find((v) => v.id === id); snapToWall(d, 3, true); return [d.x, d.z, d.rot]; },
+    group: (ids) => { ids.forEach((id) => groupPick.add(id)); makeGroup(); }, LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
+    holeCount: (i) => holesForFloor(layout.floors, i, FLOOR_H).length,
     plan: () => plan,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
     pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },

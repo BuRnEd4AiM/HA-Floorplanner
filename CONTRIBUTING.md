@@ -16,3 +16,7 @@ Please include the add-on version, your browser, and the browser console output.
 
 - Python: PEP 8, type hints where they help
 - JavaScript: 2 spaces, single quotes, no unused code
+
+## AI-assisted development
+
+This project is developed together with an AI assistant (Claude). Contributions are judged on quality, not on who or what wrote them: please make sure anything you submit is tested and that you understand it.

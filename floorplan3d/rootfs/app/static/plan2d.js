@@ -1,20 +1,32 @@
 /* 2D blueprint editor. Works directly on the shared layout object, so everything drawn here is the same
    data the 3D view builds from (and vice versa). Rendering is plain SVG in screen coordinates. */
 
+import { nanoBounds } from './nanoleaf.js';
+import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts } from './stairs.js';
+
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
   wall: '#9fdcff', wallGhost: 'rgba(159,220,255,.25)', line: '#e8f6ff', sel: '#ffb04a', accent: '#23e0ff',
   grid1: 'rgba(160,215,255,.10)', grid2: 'rgba(160,215,255,.22)', text: '#eaf7ff', warn: '#ff4a3d',
 };
 
+const FLAT = new Set(['carpet', 'lawn', 'terrace', 'path', 'pool']);   // lie on the ground: drawn below, picked last
 /* footprint (m) of every device type: [w, d] or radius for round ones */
 const FOOT = {
-  light: { r: 0.2 }, lamp: { r: 0.2 }, orb: { r: 0.11 }, strip: { w: 1, d: 0.06 }, switch: { w: 0.14, d: 0.14 }, sensor: { r: 0.09 }, thermostat: { w: 0.9, d: 0.16 },
+  light: { r: 0.2 }, lamp: { r: 0.2 }, orb: { r: 0.11 }, strip: { w: 1, d: 0.06 }, panel_tri: { w: 0.24, d: 0.24 }, panel_hex: { w: 0.26, d: 0.26 }, panel_sq: { w: 0.24, d: 0.24 }, panel_bar: { w: 0.9, d: 0.06 }, nanoleaf: { w: 0.5, d: 0.06 }, switch: { w: 0.14, d: 0.14 }, sensor: { r: 0.09 }, thermostat: { w: 0.9, d: 0.16 },
   tv: { w: 1.2, d: 0.45 }, sofa: { w: 2.0, d: 0.9 }, bed: { w: 1.6, d: 2.0 }, table: { w: 1.4, d: 0.8 }, plant: { r: 0.3 },
   chair: { w: 0.42, d: 0.42 }, armchair: { w: 0.9, d: 0.85 }, desk: { w: 1.4, d: 0.7 }, diningtable: { w: 1.8, d: 0.95 },
   coffeetable: { w: 1.0, d: 0.55 }, wardrobe: { w: 1.5, d: 0.6 }, shelf: { w: 0.9, d: 0.34 }, sideboard: { w: 1.6, d: 0.42 },
   kitchen: { w: 2.4, d: 0.6 }, fridge: { w: 0.6, d: 0.65 }, washer: { w: 0.6, d: 0.6 }, bathtub: { w: 1.7, d: 0.75 },
   toilet: { w: 0.38, d: 0.5 }, basin: { w: 0.6, d: 0.45 }, shower: { w: 0.9, d: 0.9 }, carpet: { w: 2.0, d: 1.4 }, car: { w: 1.8, d: 4.2 },
+  tree: { w: 2, d: 2 }, bush: { w: 1, d: 1 }, pool: { w: 4, d: 2.5 }, lawn: { w: 6, d: 4 }, terrace: { w: 4, d: 3 }, path: { w: 1, d: 4 }, fence: { w: 3, d: 0.12 },
+  sofa2: { w: 2.66, d: 1.9 }, tvstand: { w: 1.6, d: 0.4 }, bookcase: { w: 0.9, d: 0.3 }, fireplace: { w: 1.2, d: 0.5 }, piano: { w: 1.5, d: 1.12 }, pouf: { r: 0.3 },
+  sidetable: { r: 0.25 }, curtain: { w: 1.9, d: 0.1 }, barstool: { r: 0.2 }, stove: { w: 0.6, d: 0.6 }, oven: { w: 0.6, d: 0.55 }, dishwasher: { w: 0.6, d: 0.6 },
+  sink: { w: 1.2, d: 0.6 }, island: { w: 1.9, d: 1.0 }, microwave: { w: 0.46, d: 0.35 }, mirror: { w: 0.62, d: 0.05 }, towelrad: { w: 0.5, d: 0.06 },
+  doublebasin: { w: 1.2, d: 0.5 }, bed_single: { w: 0.95, d: 2.0 }, nightstand: { w: 0.45, d: 0.4 }, dresser: { w: 1.2, d: 0.5 }, crib: { w: 0.7, d: 1.3 },
+  monitor: { w: 0.62, d: 0.37 }, officechair: { r: 0.3 }, printer: { w: 0.45, d: 0.35 }, pendant: { r: 0.2 }, walllamp: { r: 0.1 }, spot: { r: 0.06 },
+  radiator: { w: 0.95, d: 0.1 }, boiler: { r: 0.25 }, camera: { r: 0.06 }, speaker: { w: 0.2, d: 0.2 }, vacuum: { r: 0.17 }, smoke: { r: 0.06 }, router: { w: 0.2, d: 0.14 },
+  picture: { w: 0.6, d: 0.06 }, tv_wall: { w: 1.25, d: 0.06 },
   door: { w: 0.95, d: 0.1 }, window: { w: 1.2, d: 0.1 },
 };
 const GLYPH = { light: '✦', lamp: '✦', orb: '●', strip: '', switch: '◧', sensor: '◉', thermostat: '≋', tv: '▭', plant: '❀', bed: '', sofa: '' };
@@ -49,6 +61,10 @@ export function createPlan(ctx) {
   const grid = () => ctx.settings().grid || 0.25;
   const isLive = () => ctx.isLive();
 
+  /* ---------- background image geometry (corners rotate around the image origin) ---------- */
+  const bgRot = (b, lx, lz) => { const th = ((b.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th); return [b.x + lx * c - lz * sn, b.z + lx * sn + lz * c]; };
+  const bgCorners = (b) => { const h = b.w * (b.ar || 1); return [[0, 0], [b.w, 0], [b.w, h], [0, h]].map(([lx, lz]) => bgRot(b, lx, lz)); };
+
   /* ---------- geometry helpers ---------- */
   const dirOf = (w) => { const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1; return [(w.b[0] - w.a[0]) / L, (w.b[1] - w.a[1]) / L, L]; };
   const distSeg = (px, pz, a, b) => {
@@ -59,8 +75,20 @@ export function createPlan(ctx) {
   function footOf(d) {
     const base = FOOT[d.type] || DEFAULT_FOOT;
     const k = d.scale || 1;
-    return base.r ? { r: base.r * k } : { w: base.w * k, d: base.d * k };
+    if (d.type === 'picture') return { w: (d.w || 0.6) * k, d: 0.06 };
+    if (d.type === 'nanoleaf') return { w: nanoBounds(d.panels).w * k * (d.sx || 1), d: 0.06 };
+    const kx = k * (d.sx || 1), kz = k * (d.sz || 1);
+    if (base.r) return (d.sx || 1) === 1 && (d.sz || 1) === 1 ? { r: base.r * k } : { w: 2 * base.r * kx, d: 2 * base.r * kz };
+    return { w: base.w * kx, d: base.d * kz };
   }
+  /* size handles of a selected device: middle of its local +x and +z edge */
+  const baseFoot = (d) => { const b = FOOT[d.type] || DEFAULT_FOOT; return b.r ? { w: 2 * b.r, d: 2 * b.r } : b; };
+  function devHandles(d) {
+    const f = footOf(d), w = f.r ? 2 * f.r : f.w, dp = f.r ? 2 * f.r : f.d, th = (-(d.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
+    const W = (lx, lz) => [d.x + lx * c - lz * sn, d.z + lx * sn + lz * c];
+    return { x: W(w / 2, 0), z: W(0, dp / 2) };
+  }
+  const devLocal = (d, x, z) => { const th = (-(d.rot || 0) * Math.PI) / 180, dx = x - d.x, dz = z - d.z; return [dx * Math.cos(th) + dz * Math.sin(th), -dx * Math.sin(th) + dz * Math.cos(th)]; };
   function devHit(d, x, z) {
     const f = footOf(d), pad = Math.max(0.05, 8 / s);
     const th = (-(d.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
@@ -78,6 +106,7 @@ export function createPlan(ctx) {
       const test = (p) => { const d = Math.hypot(p[0] - x, p[1] - z); if (d < bd) { bd = d; best = p; } };
       f.walls.forEach((w) => { test(w.a); test(w.b); });
       f.rooms.forEach((r) => r.points.forEach(test));
+      (f.blocks || []).forEach((r) => r.points.forEach(test));
       if (best) return [best[0], best[1]];
     }
     if (free) return [x, z];
@@ -110,7 +139,7 @@ export function createPlan(ctx) {
   }
   function pickAt(x, z) {
     const f = floor();
-    const devs = f.devices.filter((d) => devHit(d, x, z) && d.type !== 'carpet').sort((a, b) => {
+    const devs = f.devices.filter((d) => devHit(d, x, z) && !FLAT.has(d.type)).sort((a, b) => {
       const fa = footOf(a), fb = footOf(b);
       return (fa.r ? fa.r * fa.r * 3 : fa.w * fa.d) - (fb.r ? fb.r * fb.r * 3 : fb.w * fb.d);   // smallest first
     });
@@ -121,23 +150,43 @@ export function createPlan(ctx) {
     let wb = null, wd = Infinity;
     f.walls.forEach((w) => { const d = distSeg(x, z, w.a, w.b); if (d <= Math.max(w.thickness / 2, tol) && d < wd) { wd = d; wb = w; } });
     if (wb) return { kind: 'wall', id: wb.id };
-    const rug = f.devices.find((d) => d.type === 'carpet' && devHit(d, x, z));
+    const stair = (f.stairs || []).find((q) => stairHit(q, x, z, ctx.floorH()));
+    if (stair) return { kind: 'stair', id: stair.id };
+    const rug = f.devices.find((d) => FLAT.has(d.type) && devHit(d, x, z));
     if (rug) return { kind: 'device', id: rug.id };
     const rooms = f.rooms.filter((r) => ctx.pointInPoly(x, z, r.points));
     if (rooms.length) return { kind: 'room', id: rooms[rooms.length - 1].id };
+    const blk = (f.blocks || []).filter((r) => ctx.pointInPoly(x, z, r.points));
+    if (blk.length) return { kind: 'block', id: blk[blk.length - 1].id };
     return null;
   }
   /* handles of the selected wall (end points) or room (corners) */
   function handleAt(px, py) {
     const sel = ctx.getSelection();
-    if (!sel) return null;
+    if (!sel || ctx.isItemLocked?.(sel.kind, sel.id)) return null;
     const f = floor();
     const near = (p) => Math.hypot(sx(p[0]) - px, sy(p[1]) - py) <= 11;
+    if (sel.kind === 'stair') {                                  // size handles: end of the run (length) and its side (width / radius)
+      const st = (f.stairs || []).find((q) => q.id === sel.id);
+      if (st) {
+        const hs = stairHandles(st, ctx.floorH());
+        for (const which of ['len', 'wid']) { if (hs[which] && near(toWorld(st, hs[which][0], hs[which][1]))) return { type: 'stair-size', which, st }; }
+      }
+      return null;
+    }
+    if (sel.kind === 'device') {
+      const d = f.devices.find((q) => q.id === sel.id);
+      if (d && d.type !== 'picture' && !d.group && !d.locked) {
+        const hs = devHandles(d);
+        for (const which of ['x', 'z']) if (near(hs[which])) return { type: 'dev-size', which, d };
+      }
+      return null;
+    }
     if (sel.kind === 'wall') {
       const w = f.walls.find((q) => q.id === sel.id);
       if (w) { if (near(w.a)) return { type: 'wall-end', wall: w, end: 'a' }; if (near(w.b)) return { type: 'wall-end', wall: w, end: 'b' }; }
-    } else if (sel.kind === 'room') {
-      const r = f.rooms.find((q) => q.id === sel.id);
+    } else if (sel.kind === 'room' || sel.kind === 'block') {
+      const r = (sel.kind === 'room' ? f.rooms : f.blocks || []).find((q) => q.id === sel.id);
       if (r) { const i = r.points.findIndex(near); if (i >= 0) return { type: 'room-pt', room: r, i }; }
     }
     return null;
@@ -189,6 +238,20 @@ export function createPlan(ctx) {
     g += lines(step >= 5 ? 10 : step >= 1 ? 5 : 1, C.grid2);
     o += g;
 
+    /* placeholder blocks: solid masses that stand in for floors you do not draw */
+    const idxB = ctx.getFloorIdx(), H3 = ctx.floorH();
+    ctx.layout().floors.forEach((fl, i) => {
+      if (i > idxB) return;
+      (fl.blocks || []).forEach((b) => {
+        const cur = i === idxB, isSel = cur && sel?.kind === 'block' && sel.id === b.id;
+        o += `<polygon points="${pts(b.points)}" fill="${cur ? 'rgba(110,150,230,.22)' : 'url(#hatch)'}" stroke="${isSel ? C.sel : 'rgba(150,190,255,.6)'}" stroke-width="${isSel ? 2 : 1.2}"${cur ? '' : ' stroke-dasharray="6 4"'}/>`;
+        if (b.name && s >= 20) {
+          const c = b.points.reduce((a, p) => [a[0] + p[0] / b.points.length, a[1] + p[1] / b.points.length], [0, 0]);
+          o += `<text x="${sx(c[0])}" y="${sy(c[1])}" text-anchor="middle" font-size="12" fill="rgba(190,215,255,.8)" stroke="rgba(3,21,71,.85)" stroke-width="3" paint-order="stroke">${esc(b.name)}</text>`;
+        }
+      });
+    });
+
     /* floors below, faint */
     const idx = ctx.getFloorIdx();
     if (idx > 0) {
@@ -202,6 +265,28 @@ export function createPlan(ctx) {
       const heat = ctx.roomHeat ? ctx.roomHeat(rm, f) : null;
       const fill = heat || rm.color || '#8a7f70';
       o += `<polygon points="${pts(rm.points)}" fill="${fill}" fill-opacity="${heat ? 0.45 : 0.26}" stroke="${isSel ? C.sel : 'rgba(255,255,255,.25)'}" stroke-width="${isSel ? 2 : 1}" stroke-dasharray="${isSel ? '' : '4 4'}"/>`;
+    });
+
+    /* stairs: own stairs, plus the stairs of the floor below that arrive here (dashed) */
+    const drawStair = (st, ghost, isSel) => {
+      const g = stairLocal(st, H3);
+      const col = isSel ? C.sel : ghost ? 'rgba(150,190,255,.6)' : C.accent;
+      let out = '';
+      g.treads.forEach((t) => { out += `<polygon points="${pts(polyToWorld(st, t.poly))}" fill="${ghost ? 'none' : 'rgba(35,224,255,.10)'}" stroke="${col}" stroke-width="1"${ghost ? ' stroke-dasharray="3 3"' : ''}/>`; });
+      const ar = g.arrow.map(([lx, lz]) => toWorld(st, lx, lz));
+      out += `<polyline points="${pts(ar)}" fill="none" stroke="${col}" stroke-width="1.6"/>`;
+      const a = ar[ar.length - 2], b = ar[ar.length - 1];
+      const ang = Math.atan2(sy(b[1]) - sy(a[1]), sx(b[0]) - sx(a[0])), hx = sx(b[0]), hy = sy(b[1]);
+      out += `<polygon points="${hx},${hy} ${hx - 9 * Math.cos(ang - 0.4)},${hy - 9 * Math.sin(ang - 0.4)} ${hx - 9 * Math.cos(ang + 0.4)},${hy - 9 * Math.sin(ang + 0.4)}" fill="${col}"/>`;
+      out += `<circle cx="${sx(st.x)}" cy="${sy(st.z)}" r="3.5" fill="${col}"/>`;
+      return out;
+    };
+    const holeOf = (st) => `<polygon points="${pts(polyToWorld(st, stairLocal(st, H3).hole))}" fill="rgba(255,138,42,.12)" stroke="#ff8a2a" stroke-width="1.2" stroke-dasharray="5 3"/>`;
+    if (idxB > 0) (ctx.layout().floors[idxB - 1].stairs || []).forEach((st) => { if ((st.dir || 'up') === 'up') o += holeOf(st) + drawStair(st, true, false); });
+    (f.stairs || []).forEach((st) => {
+      if (st.dir === 'down') o += holeOf(st);
+      o += drawStair(st, false, sel?.kind === 'stair' && sel.id === st.id);
+      if (st.name && s >= 30) o += `<text x="${sx(st.x)}" y="${sy(st.z) + 16}" text-anchor="middle" font-size="10" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(st.name)}</text>`;
     });
 
     /* walls (split around openings) */
@@ -234,9 +319,22 @@ export function createPlan(ctx) {
         const t = w.thickness / 2;
         const jamb = [P(-hw, -t), P(-hw, t), P(hw, -t), P(hw, t)];
         o += `<path d="M${jamb[0]}L${jamb[1]}M${jamb[2]}L${jamb[3]}" stroke="${col}" stroke-width="2" fill="none"/>`;
-        if (op.type === 'door') {
+        if (op.type === 'door' && (op.style === 'open' || op.style === 'sliding')) {
+          const q = op.style === 'sliding' ? t * .45 : 0;
+          if (op.style === 'sliding') o += `<path d="M${P(-hw, -q)}L${P(0.08, -q)}M${P(-0.08, q)}L${P(hw, q)}" stroke="${col}" stroke-width="2.4" fill="none"/>`;
+          else o += `<path d="M${P(-hw, 0)}L${P(hw, 0)}" stroke="${col}" stroke-width="1" stroke-dasharray="4 4" fill="none" opacity=".7"/>`;
+        } else if (op.type === 'door' && op.style === 'double') {
+          [-1, 1].forEach((sgn) => {                              // two leaves, hinged at both sides
+            const lw = op.width / 2, hingeU = sgn * hw, closedU = 0;
+            const hinge = P(hingeU, 0), closed = P(closedU, 0), leaf = P(hingeU, op.inv ? -lw : lw);
+            const v0 = [leaf[0] - hinge[0], leaf[1] - hinge[1]], v1 = [closed[0] - hinge[0], closed[1] - hinge[1]];
+            const sweep = v0[0] * v1[1] - v0[1] * v1[0] > 0 ? 1 : 0, R = lw * s;
+            o += `<path d="M${hinge}L${leaf}" stroke="${col}" stroke-width="2.5" fill="none"/>`;
+            o += `<path d="M${leaf}A${R} ${R} 0 0 ${sweep} ${closed}" stroke="${col}" stroke-width="1" stroke-dasharray="3 3" fill="none" opacity=".8"/>`;
+          });
+        } else if (op.type === 'door') {
           const hu = op.flip ? hw : -hw, closed = P(-hu, 0), hinge = P(hu, 0);
-          const leaf = P(hu, op.width);
+          const leaf = P(hu, op.inv ? -op.width : op.width);
           const v0 = [leaf[0] - hinge[0], leaf[1] - hinge[1]], v1 = [closed[0] - hinge[0], closed[1] - hinge[1]];
           const sweep = v0[0] * v1[1] - v0[1] * v1[0] > 0 ? 1 : 0;
           const R = op.width * s;
@@ -267,11 +365,20 @@ export function createPlan(ctx) {
       });
     }
 
+    /* groups: dashed outline around the pieces that move together */
+    const groups = {};
+    f.devices.forEach((d) => { if (d.group) (groups[d.group] ||= []).push(d); });
+    Object.values(groups).forEach((ms) => {
+      const xs = ms.map((m) => m.x), zs = ms.map((m) => m.z), pad = 0.22;
+      const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, z0 = Math.min(...zs) - pad, z1 = Math.max(...zs) + pad;
+      o += `<rect x="${sx(x0).toFixed(1)}" y="${sy(z0).toFixed(1)}" width="${((x1 - x0) * s).toFixed(1)}" height="${((z1 - z0) * s).toFixed(1)}" rx="6" fill="none" stroke="${C.accent}" stroke-width="1" stroke-dasharray="5 4" opacity=".55"/>`;
+    });
+
     /* devices */
-    const devs = [...f.devices].sort((a, b) => (a.type === 'carpet' ? -1 : 0) - (b.type === 'carpet' ? -1 : 0));
+    const devs = [...f.devices].sort((a, b) => (FLAT.has(a.type) ? -1 : 0) - (FLAT.has(b.type) ? -1 : 0));
     devs.forEach((d) => {
       const fo = footOf(d);
-      const isSel = sel?.kind === 'device' && sel.id === d.id;
+      const isSel = (sel?.kind === 'device' && sel.id === d.id) || !!ctx.groupPicked?.().has(d.id);
       const st = d.entity ? ctx.states()[d.entity] : null;
       const on = d.entity && isOn(d.entity);
       let fill = 'rgba(35,224,255,.14)', stroke = isSel ? C.sel : C.accent;
@@ -288,12 +395,12 @@ export function createPlan(ctx) {
       else {
         const w = fo.w * s, h = fo.d * s;
         o += `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="${Math.min(4, h / 4)}" fill="${fill}" stroke="${stroke}" stroke-width="${isSel ? 2.2 : 1.4}"/>`;
-        if (h > 8 && d.type !== 'carpet') o += `<line x1="${-w / 2 + 3}" y1="${h / 2 - 3}" x2="${w / 2 - 3}" y2="${h / 2 - 3}" stroke="${stroke}" stroke-width="1" opacity=".55"/>`;   // front edge
+        if (h > 8 && !FLAT.has(d.type)) o += `<line x1="${-w / 2 + 3}" y1="${h / 2 - 3}" x2="${w / 2 - 3}" y2="${h / 2 - 3}" stroke="${stroke}" stroke-width="1" opacity=".55"/>`;   // front edge
       }
       o += '</g>';
       const gl = GLYPH[d.type];
       if (gl && s >= 20) o += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${Math.max(9, Math.min(18, (fo.r ? fo.r * s * 1.4 : Math.min(fo.w, fo.d) * s * .6)))}" fill="${on ? '#fff' : C.accent}">${gl}</text>`;
-      if (d.type !== 'carpet' && (d.name || d.entity) && (s >= 48 || (live && s >= 34 && st && (st.unit || d.entity.startsWith('sensor.'))))) {
+      if (!FLAT.has(d.type) && (d.name || d.entity) && (s >= 48 || (live && s >= 34 && st && (st.unit || d.entity.startsWith('sensor.'))))) {
         const off = (fo.r || Math.max(fo.w, fo.d) / 2) * s + 10;
         const label = live && st ? `${d.name || ''}${st.unit || /^(sensor)\./.test(d.entity) ? ' · ' + ctx.stateText(d.entity) : ''}` : d.name || '';
         o += `<text x="${cx}" y="${cy + Math.min(off, 40)}" text-anchor="middle" font-size="10" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(label)}</text>`;
@@ -314,7 +421,15 @@ export function createPlan(ctx) {
     if (!live && sel) {
       const hnd = (p, fill = '#fff') => `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="6" fill="${fill}" stroke="${C.sel}" stroke-width="2"/>`;
       if (sel.kind === 'wall') { const w = f.walls.find((q) => q.id === sel.id); if (w) o += hnd(w.a) + hnd(w.b); }
-      if (sel.kind === 'room') { const rm = f.rooms.find((q) => q.id === sel.id); if (rm) rm.points.forEach((p) => { o += hnd(p); }); }
+      if (sel.kind === 'device') {
+        const d = f.devices.find((q) => q.id === sel.id);
+        if (d && d.type !== 'picture' && !d.group && !d.locked) { const hs = devHandles(d); ['x', 'z'].forEach((k) => { o += `<rect x="${sx(hs[k][0]) - 6}" y="${sy(hs[k][1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; }); }
+      }
+      if (sel.kind === 'stair') {
+        const st = (f.stairs || []).find((q) => q.id === sel.id), hs = st && stairHandles(st, H3);
+        if (st) ['len', 'wid'].forEach((k) => { if (hs[k]) { const p = toWorld(st, hs[k][0], hs[k][1]); o += `<rect x="${sx(p[0]) - 6}" y="${sy(p[1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; } });
+      }
+      if (sel.kind === 'room' || sel.kind === 'block') { const rm = (sel.kind === 'room' ? f.rooms : f.blocks || []).find((q) => q.id === sel.id); if (rm) rm.points.forEach((p) => { o += hnd(p); }); }
     }
 
     /* hover + drafts */
@@ -326,25 +441,34 @@ export function createPlan(ctx) {
       const P = (u, n) => `${sx(cx + ux * u - uz * n)},${sy(cz + uz * u + ux * n)}`;
       o += `<polygon points="${P(-hw, -t)} ${P(hw, -t)} ${P(hw, t)} ${P(-hw, t)}" fill="${valid ? 'rgba(35,224,255,.35)' : 'rgba(255,74,61,.4)'}" stroke="${valid ? C.accent : C.warn}"/>`;
     }
-    if (!live && (tool === 'wall' || tool === 'room') && drawPts.length) {
+    if (!live && tool === 'stairs' && cursor) {
+      const tpl = { ...ctx.getStairTemplate(), x: cursor[0], z: cursor[1] };
+      o += drawStair(tpl, false, true) + (tpl.dir === 'down' ? holeOf(tpl) : '');
+    }
+    if (!live && (tool === 'wall' || tool === 'room' || tool === 'block') && drawPts.length) {
       const pl = cursor ? [...drawPts, cursor] : drawPts;
       o += `<polyline points="${pts(pl)}" fill="none" stroke="${C.accent}" stroke-width="2.5" stroke-dasharray="6 4"/>`;
-      if (tool === 'room' && drawPts.length >= 2) o += `<polygon points="${pts(pl)}" fill="rgba(35,224,255,.12)" stroke="none"/>`;
+      if ((tool === 'room' || tool === 'block') && drawPts.length >= 2) o += `<polygon points="${pts(pl)}" fill="rgba(35,224,255,.12)" stroke="none"/>`;
       drawPts.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="4" fill="${C.accent}"/>`; });
       if (cursor) {
         const last = drawPts[drawPts.length - 1], L = Math.hypot(cursor[0] - last[0], cursor[1] - last[1]);
         o += `<text x="${sx((cursor[0] + last[0]) / 2)}" y="${sy((cursor[1] + last[1]) / 2) - 8}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.accent}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(ctx.fmtLen(L))}</text>`;
       }
     }
-    if (!live && cursor && (tool === 'wall' || tool === 'room' || tool === 'device')) o += `<circle cx="${sx(cursor[0])}" cy="${sy(cursor[1])}" r="5" fill="none" stroke="${C.accent}" stroke-width="1.5"/>`;
+    if (!live && cursor && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'device' || tool === 'stairs')) o += `<circle cx="${sx(cursor[0])}" cy="${sy(cursor[1])}" r="5" fill="none" stroke="${C.accent}" stroke-width="1.5"/>`;
 
+    if (!live && bgMode === 'move' && bg?.img && !bg.hidden) {   // frame and corner handles of the template
+      const cs = bgCorners(bg);
+      o += `<polygon points="${pts(cs)}" fill="none" stroke="#ff4fd8" stroke-width="1.5" stroke-dasharray="6 4"/>`;
+      cs.forEach((p) => { o += `<rect x="${sx(p[0]) - 6}" y="${sy(p[1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="#ff4fd8" stroke-width="2"/>`; });
+    }
     if (!live && bgMode === 'calib' && calibPts.length) {
       const pl = calibCur && calibPts.length === 1 ? [...calibPts, calibCur] : calibPts;
       o += `<polyline points="${pts(pl)}" fill="none" stroke="#ff4fd8" stroke-width="2" stroke-dasharray="6 4"/>`;
       pl.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="5" fill="#ff4fd8" stroke="#fff" stroke-width="1.5"/>`; });
     }
 
-    svg.innerHTML = `<defs><radialGradient id="glow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>${o}`;
+    svg.innerHTML = `<defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="9" height="9" fill="rgba(110,150,230,.10)"/><line x1="0" y1="0" x2="0" y2="9" stroke="rgba(150,190,255,.35)" stroke-width="2"/></pattern><radialGradient id="glow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>${o}`;
   }
 
   /* ---------- view ---------- */
@@ -353,7 +477,7 @@ export function createPlan(ctx) {
     W = r.width; H = r.height;
     const f = floor();
     if (!f || !W || !H) return;
-    const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z])];
+    const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...(f.blocks || []).flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z]), ...(f.stairs || []).map((d) => [d.x, d.z])];
     if (!p.length && f.bg?.img && !f.bg.hidden && !isLive()) p.push([f.bg.x, f.bg.z], [f.bg.x + f.bg.w, f.bg.z + f.bg.w * (f.bg.ar || 1)]);   // empty floor: frame the template
     if (!p.length) { s = 60; tx = W / 2 - 3 * s; ty = H / 2 - 2 * s; render(); return; }
     const xs = p.map((q) => q[0]), zs = p.map((q) => q[1]);
@@ -408,7 +532,13 @@ export function createPlan(ctx) {
     const live = isLive();
     const tool = ctx.getTool();
     if (live) { drag = { type: 'tap', px, py, moved: false }; return; }
-    if (bgMode === 'move' && floor()?.bg) { const b = floor().bg; drag = { type: 'bgmove', px, py, ox: b.x, oz: b.z, sx0: x, sz0: z, moved: false }; return; }
+    if (bgMode === 'move' && floor()?.bg) {
+      const b = floor().bg, cs = bgCorners(b);
+      const ci = cs.findIndex((p) => Math.hypot(sx(p[0]) - px, sy(p[1]) - py) <= 12);
+      if (ci >= 0) { drag = { type: 'bgscale', ci, opp: cs[(ci + 2) % 4], w0: b.w, px, py, moved: false }; return; }
+      drag = { type: 'bgmove', px, py, ox: b.x, oz: b.z, sx0: x, sz0: z, moved: false };
+      return;
+    }
     if (bgMode === 'calib') { drag = { type: 'calib', px, py }; return; }
 
     if (tool === 'select') {
@@ -440,9 +570,11 @@ export function createPlan(ctx) {
   function coincident(p, list) { return list.filter((q) => Math.abs(q[0] - p[0]) < 0.02 && Math.abs(q[1] - p[1]) < 0.02); }
   function allCornerRefs() {
     const f = floor();
-    return [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points)];
+    return [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...(f.blocks || []).flatMap((r) => r.points)];
   }
   function startHandleDrag(hd) {
+    if (hd.type === 'dev-size') return { type: 'devsize', which: hd.which, d: hd.d, moved: false };
+    if (hd.type === 'stair-size') return { type: 'stairsize', which: hd.which, st: hd.st, moved: false };
     if (hd.type === 'wall-end') {
       const p = hd.wall[hd.end];
       const refs = coincident(p, allCornerRefs());
@@ -452,6 +584,7 @@ export function createPlan(ctx) {
   }
   function startDrag(h, x, z, px, py) {
     const f = floor();
+    if (ctx.isItemLocked?.(h.kind, h.id)) return null;                  // locked: selectable, but not movable
     if (h.kind === 'device') {
       const d = f.devices.find((v) => v.id === h.id);
       return d ? { type: 'device', d, dx: d.x - x, dz: d.z - z, moved: false, px, py } : null;
@@ -467,8 +600,12 @@ export function createPlan(ctx) {
       const refs = [...new Set([...coincident(w.a, all), ...coincident(w.b, all)])];
       return { type: 'points', refs: refs.map((q) => ({ q, ox: q[0], oz: q[1] })), start: [x, z], moved: false, whole: true, px, py };
     }
-    if (h.kind === 'room') {
-      const r = f.rooms.find((q) => q.id === h.id);
+    if (h.kind === 'stair') {
+      const st = (f.stairs || []).find((q) => q.id === h.id);
+      return st ? { type: 'stair', st, dx: st.x - x, dz: st.z - z, moved: false, px, py } : null;
+    }
+    if (h.kind === 'room' || h.kind === 'block') {
+      const r = (h.kind === 'room' ? f.rooms : f.blocks || []).find((q) => q.id === h.id);
       return r ? { type: 'points', refs: r.points.map((q) => ({ q, ox: q[0], oz: q[1] })), start: [x, z], moved: false, whole: true, px, py } : null;
     }
     return null;
@@ -494,6 +631,40 @@ export function createPlan(ctx) {
     if (drag) {
       const moved = Math.hypot(px - drag.px, py - drag.py) > 4;
       if (drag.type === 'pan') { tx = drag.tx + (px - drag.px); ty = drag.ty + (py - drag.py); render(); return; }
+      if (drag.type === 'devsize' && moved) {
+        snapshotOnce();
+        const d = drag.d, [lx, lz] = devLocal(d, x, z), b = baseFoot(d), k = d.scale || 1;
+        const ext = Math.max(0.05, Math.round(2 * Math.abs(drag.which === 'x' ? lx : lz) * 20) / 20);   // 5 cm steps
+        const v = Math.max(0.1, Math.min(10, ext / ((drag.which === 'x' ? b.w : b.d) * k)));
+        const key = drag.which === 'x' ? 'sx' : 'sz';
+        if (Math.abs(v - 1) < 0.01) delete d[key]; else d[key] = +v.toFixed(3);
+        drag.moved = true; scheduleRebuild(); render();
+        return;
+      }
+      if (drag.type === 'stairsize' && moved) {
+        snapshotOnce();
+        const st = drag.st, [lx, lz] = toLocal(st, x, z), { T, n1 } = stairCounts(st, ctx.floorH());
+        if (drag.which === 'len') st.tread = Math.max(0.18, Math.min(0.45, Math.round((lx / (st.type === 'straight' ? T : n1)) * 100) / 100));
+        else st.w = st.type === 'spiral' ? Math.max(0.5, Math.min(2.5, Math.round(Math.hypot(lx, lz) * 20) / 20)) : Math.max(0.6, Math.min(3, Math.round(2 * Math.abs(lz) * 20) / 20));
+        drag.moved = true; scheduleRebuild(); render();
+        return;
+      }
+      if (drag.type === 'bgscale' && moved) {                    // corner handle: uniform scale around the opposite corner
+        snapshotOnce();
+        const b = floor().bg, ar = b.ar || 1, th = ((b.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
+        const dxw = x - drag.opp[0], dzw = z - drag.opp[1];
+        const dl = [dxw * c + dzw * sn, -dxw * sn + dzw * c];      // pointer relative to the fixed corner, in image axes
+        const sg = [[-1, -1], [1, -1], [1, 1], [-1, 1]][drag.ci];
+        const u = [sg[0] * drag.w0, sg[1] * drag.w0 * ar];
+        const k = Math.max(0.5 / drag.w0, (dl[0] * u[0] + dl[1] * u[1]) / (u[0] * u[0] + u[1] * u[1]));
+        const nw = drag.w0 * k, opp = [sg[0] > 0 ? 0 : nw, sg[1] > 0 ? 0 : nw * ar];
+        b.w = +nw.toFixed(4);
+        b.x = +(drag.opp[0] - (opp[0] * c - opp[1] * sn)).toFixed(4);
+        b.z = +(drag.opp[1] - (opp[0] * sn + opp[1] * c)).toFixed(4);
+        drag.moved = true; render();
+        ctx.setStatus(`${ctx.t('bg.width')}: ${ctx.fmtLen(b.w)}`);
+        return;
+      }
       if (drag.type === 'bgmove' && moved) {
         snapshotOnce();
         const b = floor().bg;
@@ -501,11 +672,18 @@ export function createPlan(ctx) {
         drag.moved = true; render();
         return;
       }
-      if (drag.type === 'device' && moved) {
+      if (drag.type === 'stair' && moved) {
         snapshotOnce();
         const [nx, nz] = snapPt(x + drag.dx, z + drag.dz, { fine: true, ends: false, free: e.altKey });
-        drag.d.x = nx; drag.d.z = nz; drag.moved = true;
-        ctx.liveMoveDevice(drag.d);
+        drag.st.x = nx; drag.st.z = nz; drag.moved = true;
+        scheduleRebuild(); render();
+        return;
+      }
+      if (drag.type === 'device' && moved) {
+        if (drag.d.locked) return;
+        snapshotOnce();
+        const [nx, nz] = snapPt(x + drag.dx, z + drag.dz, { fine: true, ends: false, free: e.altKey });
+        ctx.moveDeviceTo(drag.d, nx, nz); drag.moved = true;
         render();
         return;
       }
@@ -539,7 +717,10 @@ export function createPlan(ctx) {
     /* no button down: hover / previews */
     if (isLive()) return;
     if (bgMode === 'calib') { calibCur = [x, z]; if (calibPts.length) render(); return; }
-    if (tool === 'wall' || tool === 'room') {
+    if (tool === 'stairs') {
+      cursor = snapPt(x, z, { fine: true, ends: false });
+      render();
+    } else if (tool === 'wall' || tool === 'room' || tool === 'block') {
       let p = snapPt(x, z, { free: e.altKey });
       if (drawPts.length && tool === 'wall' && shift) p = angleSnap(drawPts[drawPts.length - 1], p);
       cursor = p;
@@ -578,7 +759,9 @@ export function createPlan(ctx) {
     const moved = Math.hypot(px - (d.px ?? px), py - (d.py ?? py)) > 4;
     const tool = ctx.getTool();
 
-    if (d.type === 'bgmove') { if (d.moved) { ctx.commit(); } snapDone = false; return; }
+    if (d.type === 'devsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
+    if (d.type === 'stairsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
+    if (d.type === 'bgmove' || d.type === 'bgscale') { if (d.moved) { ctx.commit(); ctx.bgChanged(); } snapDone = false; return; }
     if (d.type === 'calib') {
       if (!moved) {
         calibPts.push([x, z]);
@@ -593,7 +776,7 @@ export function createPlan(ctx) {
       return;
     }
     if (d.type === 'erase') { if (!moved) { const h = pickAt(x, z); if (h) { ctx.snapshot(); ctx.deleteItem(h); } } return; }
-    if (d.type === 'device' || d.type === 'opening' || d.type === 'points') {
+    if (d.type === 'device' || d.type === 'opening' || d.type === 'points' || d.type === 'stair') {
       if (d.moved) { ctx.commit(); } snapDone = false;
       return;
     }
@@ -601,7 +784,7 @@ export function createPlan(ctx) {
       const now = performance.now();
       const dbl = lastTap && now - lastTap.t < 400 && Math.hypot(px - lastTap.px, py - lastTap.py) < 8;
       lastTap = { t: now, px, py };
-      if (dbl && (tool === 'wall' || tool === 'room')) { if (tool === 'room') finishRoom(); else cancel(); return; }   // double tap ends the chain
+      if (dbl && (tool === 'wall' || tool === 'room' || tool === 'block')) { if (tool === 'wall') cancel(); else finishRoom(); return; }   // double tap ends the chain
       placeWith(tool, x, z, e);
     }
   });
@@ -621,7 +804,10 @@ export function createPlan(ctx) {
       }
       drawPts.push(p);
       render();
-    } else if (tool === 'room') {
+    } else if (tool === 'stairs') {
+      const [px2, pz2] = snapPt(x, z, { fine: true, ends: false });
+      ctx.placeStair(px2, pz2);
+    } else if (tool === 'room' || tool === 'block') {
       const p = snapPt(x, z, { free: e.altKey });
       if (drawPts.length >= 3 && Math.hypot(p[0] - drawPts[0][0], p[1] - drawPts[0][1]) < 0.01) { finishRoom(); return; }
       drawPts.push(p);
@@ -635,6 +821,9 @@ export function createPlan(ctx) {
         ctx.setSelection({ kind: 'opening', id: o.id });
         ctx.commit();
       }
+    } else if (tool === 'group') {
+      const h = pickAt(x, z);
+      if (h?.kind === 'device') ctx.groupToggle(h.id);
     } else if (tool === 'device') {
       const [px2, pz2] = snapPt(x, z, { fine: true, ends: false });
       ctx.snapshot();
@@ -646,7 +835,9 @@ export function createPlan(ctx) {
   }
 
   function finishRoom() {
-    if (drawPts.length >= 3) {
+    if (drawPts.length >= 3 && ctx.getTool() === 'block') {
+      ctx.addBlock(drawPts.map((p) => [...p]));
+    } else if (drawPts.length >= 3) {
       ctx.snapshot();
       floor().rooms.push({ id: ctx.uid(), name: `${ctx.t('prop.room')} ${floor().rooms.length + 1}`, color: '#8a7f70', points: drawPts.map((p) => [...p]) });
       ctx.commit();
@@ -659,18 +850,53 @@ export function createPlan(ctx) {
     if (isLive()) return;
     const tool = ctx.getTool();
     if (tool === 'wall') cancel();
-    else if (tool === 'room') finishRoom();
+    else if (tool === 'room' || tool === 'block') finishRoom();
     else if (tool === 'select') {
       const [px, py] = local(e);
-      const h = pickAt(wx(px), wz(py));
-      if (h?.kind === 'device') ctx.deviceDoubleClick(h.id);
+      const x = wx(px), z = wz(py);
+      const h = pickAt(x, z);
+      if (h?.kind === 'device') { ctx.deviceDoubleClick(h.id); return; }
+      const hd = handleAt(px, py);
+      if (hd?.type === 'room-pt') {                                  // double click on a corner removes it (a room keeps at least 3)
+        if (hd.room.points.length > 3) { ctx.snapshot(); hd.room.points.splice(hd.i, 1); ctx.commit(); }
+        return;
+      }
+      const edge = edgeAt(x, z);
+      if (edge) {                                                    // double click on an edge adds a corner there
+        ctx.snapshot();
+        edge.poly.points.splice(edge.i + 1, 0, [+edge.pt[0].toFixed(3), +edge.pt[1].toFixed(3)]);
+        ctx.setSelection({ kind: edge.kind, id: edge.poly.id });
+        ctx.commit();
+      }
     }
   });
+
+  /* nearest edge of a room / block (the selected one wins) under the pointer, with the point on that edge */
+  function edgeAt(x, z) {
+    const f = floor(), sel = ctx.getSelection(), tol = Math.max(0.08, 10 / s);
+    const polys = [...f.rooms.map((p) => ({ kind: 'room', poly: p })), ...(f.blocks || []).map((p) => ({ kind: 'block', poly: p }))];
+    let best = null;
+    polys.forEach(({ kind, poly }) => {
+      const pts2 = poly.points, n = pts2.length;
+      const bonus = sel && sel.kind === kind && sel.id === poly.id ? 0.5 : 1;             // prefer the selected shape
+      for (let i = 0; i < n; i++) {
+        const a = pts2[i], b = pts2[(i + 1) % n];
+        const dx = b[0] - a[0], dz = b[1] - a[1], L2 = dx * dx + dz * dz;
+        if (L2 < 1e-6) continue;
+        const t = ((x - a[0]) * dx + (z - a[1]) * dz) / L2;
+        if (t < 0.02 || t > 0.98) continue;                                               // not on top of an existing corner
+        const pt = [a[0] + dx * t, a[1] + dz * t], d = Math.hypot(x - pt[0], z - pt[1]) * bonus;
+        if (d <= tol && (!best || d < best.d)) best = { kind, poly, i, pt, d };
+      }
+    });
+    return best;
+  }
   root.addEventListener('pointerleave', () => { if (!drag) { opPreview = null; if (!drawPts.length) cursor = null; render(); } });
 
   new ResizeObserver(() => { if (visible) schedule(); }).observe(root);
 
   return {
+    footOf,
     el: root,
     show(v) {
       visible = v;

@@ -19,7 +19,7 @@ def glb(size=32):
 async def test_layout_default_and_roundtrip(client):
     r = await client.get("/api/layout")
     assert r.status == 200
-    assert (await r.json()) == {"version": 1, "floors": []}
+    assert (await r.json())["floors"][0]["name"] == "Erdgeschoss"
 
     layout = {"version": 1, "floors": [{"id": "a", "name": "OG", "walls": [], "rooms": [], "devices": []}]}
     assert (await client.put("/api/layout", json=layout)).status == 200
@@ -323,3 +323,102 @@ async def test_background_upload_needs_editor(client, monkeypatch, tmp_path):
     assert r.status == 201
     name = (await r.json())["name"]
     assert (await client.delete(f"/api/backgrounds/{name}", headers={"X-Remote-User-Name": "tablet"})).status == 403
+
+
+async def test_houses_create_rename_delete(client):
+    hs = await (await client.get("/api/houses")).json()
+    assert len(hs) == 1 and hs[0]["id"] == "main"
+    # the original plan stays the first house
+    layout = {"version": 1, "floors": [{"id": "a", "name": "Mein Haus EG", "walls": [], "rooms": [], "devices": []}]}
+    assert (await client.put("/api/layout", json=layout)).status == 200
+    r = await client.post("/api/houses", json={"name": "Eltern"})
+    assert r.status == 200
+    hid = (await r.json())["id"]
+    other = await (await client.get(f"/api/layout?house={hid}")).json()
+    assert other["floors"][0]["name"] == "Erdgeschoss"                                  # new house starts empty
+    other["floors"][0]["name"] = "Eltern EG"
+    assert (await client.put(f"/api/layout?house={hid}", json=other)).status == 200
+    assert (await (await client.get("/api/layout")).json()) == layout                    # the other house is untouched
+    assert (await (await client.get(f"/api/layout?house={hid}")).json())["floors"][0]["name"] == "Eltern EG"
+    assert (await client.patch(f"/api/houses/{hid}", json={"name": "Bei den Eltern"})).status == 200
+    assert {h["name"] for h in await (await client.get("/api/houses")).json()} == {"Haus", "Bei den Eltern"}
+    cp = await (await client.post("/api/houses", json={"name": "Kopie", "copyFrom": hid})).json()
+    assert (await (await client.get(f"/api/layout?house={cp['id']}")).json())["floors"][0]["name"] == "Eltern EG"
+    assert (await client.get("/api/layout?house=nope")).status == 404
+    assert (await client.delete(f"/api/houses/{hid}")).status == 200
+    assert (await client.get(f"/api/layout?house={hid}")).status == 404
+    assert (await client.post("/api/houses", json={"name": " "})).status == 400
+
+
+async def test_houses_cannot_delete_last(client):
+    assert (await client.delete("/api/houses/main")).status == 400
+
+
+async def test_houses_need_editor(client, monkeypatch, tmp_path):
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["Florian"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    server._admin_cache.update(at=float("-inf"), ids=None)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    tablet = {"X-Remote-User-Name": "tablet_wz"}
+    assert (await client.post("/api/houses", json={"name": "X"}, headers=tablet)).status == 403
+    assert (await client.delete("/api/houses/main", headers=tablet)).status == 403
+
+
+async def test_backup_roundtrip(client):
+    import base64
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * 32
+    layout = {"version": 1, "floors": [{"id": "a", "name": "Mein EG", "walls": [], "rooms": [], "devices": []}]}
+    assert (await client.put("/api/layout", json=layout)).status == 200
+    hid = (await (await client.post("/api/houses", json={"name": "Eltern"})).json())["id"]
+    import aiohttp
+    fd = aiohttp.FormData(); fd.add_field("file", png, filename="a.png")
+    bg = (await (await client.post("/api/backgrounds", data=fd)).json())["name"]
+    r = await client.get("/api/backup")
+    assert r.status == 200 and "attachment" in r.headers["Content-Disposition"]
+    backup = await r.json()
+    assert backup["format"] == "floorplan3d-backup" and len(backup["houses"]) == 2 and bg in backup["backgrounds"]
+    # wreck the data, then restore
+    assert (await client.delete(f"/api/houses/{hid}")).status == 200
+    assert (await client.delete(f"/api/backgrounds/{bg}")).status == 200
+    assert (await client.put("/api/layout", json={"version": 1, "floors": []})).status == 200
+    r = await client.post("/api/backup", json=backup)
+    assert r.status == 200 and (await r.json())["houses"] == 2
+    assert {h["name"] for h in await (await client.get("/api/houses")).json()} == {"Haus", "Eltern"}
+    assert (await (await client.get("/api/layout")).json()) == layout
+    assert (await client.get(f"/api/backgrounds/{bg}")).status == 200
+
+
+async def test_backup_rejects_bad_input(client):
+    assert (await client.post("/api/backup", json={"format": "x"})).status == 400
+    bad = {"format": "floorplan3d-backup", "houses": [{"id": "main", "name": "H", "layout": {"floors": []}}], "backgrounds": {"../../etc.png": "AAAA"}}
+    assert (await client.post("/api/backup", json=bad)).status == 400
+    bad["backgrounds"] = {}
+    bad["models"] = {"evil.glb": "AAAA"}
+    assert (await client.post("/api/backup", json=bad)).status == 400
+
+
+async def test_settings_stale_write_rejected_and_backup(client):
+    r = await client.get("/api/settings")
+    etag = r.headers["ETag"]
+    body = await r.json()
+    body["userRooms"] = {"tablet": "WZFL"}
+    r = await client.put("/api/settings", json=body, headers={"If-Match": etag})
+    assert r.status == 200
+    new_etag = r.headers["ETag"]
+    # a browser that still has the old state must not overwrite the newer settings
+    stale = await client.put("/api/settings", json={"userRooms": {}}, headers={"If-Match": etag})
+    assert stale.status == 409
+    assert (await (await client.get("/api/settings")).json())["userRooms"] == {"tablet": "WZFL"}
+    ok = await client.put("/api/settings", json=body | {"userViews": {"tablet": "2d"}}, headers={"If-Match": new_etag})
+    assert ok.status == 200
+
+
+async def test_settings_restored_from_backup_when_file_damaged(client, tmp_path):
+    body = await (await client.get("/api/settings")).json()
+    body["userRooms"] = {"tablet": "WZFL"}
+    assert (await client.put("/api/settings", json=body)).status == 200
+    for p in tmp_path.rglob("settings.json"):
+        p.write_text("{ broken")
+    assert (await (await client.get("/api/settings")).json())["userRooms"] == {"tablet": "WZFL"}
