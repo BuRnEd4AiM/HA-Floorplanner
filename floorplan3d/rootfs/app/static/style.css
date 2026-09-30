@@ -239,3 +239,13 @@ body.readonly #bgPanel { display: none; }
 #stairPalette .palette, #blockPalette .prop { margin-bottom: 8px; }
 #stairPalette .palette button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 #stairPalette .sub, #blockPalette .sub { margin: 8px 0 0; }
+
+/* furniture library */
+#paletteSearch { width: 100%; margin-bottom: 6px; }
+#paletteCats { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+#paletteCats button { padding: 3px 9px; font-size: 11px; border-radius: 999px; }
+#paletteCats button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.palette.thumbs button.dev { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; }
+.palette.thumbs button.dev img { width: 56px; height: 56px; object-fit: contain; pointer-events: none; }
+.palette.thumbs button.dev span { font-size: 11px; line-height: 1.15; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.palette.thumbs button.dev.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }

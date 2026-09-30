@@ -131,3 +131,9 @@ The template is only shown in the editor, never in live mode. Images are stored 
 ## Tablets and kiosk screens (performance)
 
 On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-power mode**: lower resolution, no antialiasing or shadows, 30 fps while in use and about 4 fps when idle, no drawing while the screen is off. Add `&perf=high` to the address to force full quality, `&perf=low` to force the low-power mode on a computer. Tips for Fire tablets: use Fully Kiosk Browser, keep hardware acceleration/WebGL on, and use one tablet per room (`?room=Name`) instead of the whole-house view.
+
+## Library, doors, windows and pictures
+
+- **Library:** tool *Gerät* shows every piece with a preview. Filter with the category chips (living, kitchen, bath, bedroom, office, lighting, tech, outdoor, decor) or search by name.
+- **Doors and windows:** tool *Tür/Fenster* offers front door, glass door, double door, sliding door, passage, single/double/triple window, balcony door, small bath window and fixed glazing. In the side panel of a placed opening, *Ausführung* changes its style later.
+- **Pictures:** place *Bild* (category Decor), then *Bild laden …* in the side panel to upload a PNG, JPG or WebP; set the width, the height follows the image. Wall-hung items (pictures, mirrors, panels, radiators, wall lamps ...) snap flat onto the closest wall when placed; *An Wand ausrichten* does it for an existing one.

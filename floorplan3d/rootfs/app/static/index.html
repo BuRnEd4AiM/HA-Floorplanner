@@ -76,7 +76,9 @@
 
       <section id="devicePalette" hidden>
         <h3 data-i18n="panel.deviceType"></h3>
-        <div id="paletteGrid" class="palette"></div>
+        <input id="paletteSearch" type="search" data-i18n-placeholder="pal.search">
+        <div id="paletteCats"></div>
+        <div id="paletteGrid" class="palette thumbs"></div>
         <h3 data-i18n="panel.models"></h3>
         <div id="modelGrid" class="palette"></div>
         <label class="uploadBtn"><span data-i18n="panel.upload"></span>
@@ -118,9 +120,19 @@
 
       <section id="openingPalette" hidden>
         <h3 data-i18n="panel.openingType"></h3>
-        <div class="palette two">
-          <button data-opening="door" class="active" data-i18n="prop.door"></button>
-          <button data-opening="window" data-i18n="prop.window"></button>
+        <div class="palette">
+          <button data-opening="door" class="active" data-i18n="op.door"></button>
+          <button data-opening="doorEntry" data-i18n="op.doorEntry"></button>
+          <button data-opening="doorGlass" data-i18n="op.doorGlass"></button>
+          <button data-opening="doorDouble" data-i18n="op.doorDouble"></button>
+          <button data-opening="doorSlide" data-i18n="op.doorSlide"></button>
+          <button data-opening="doorOpen" data-i18n="op.doorOpen"></button>
+          <button data-opening="window" data-i18n="op.window"></button>
+          <button data-opening="window2" data-i18n="op.window2"></button>
+          <button data-opening="window3" data-i18n="op.window3"></button>
+          <button data-opening="windowTall" data-i18n="op.windowTall"></button>
+          <button data-opening="windowBath" data-i18n="op.windowBath"></button>
+          <button data-opening="windowFixed" data-i18n="op.windowFixed"></button>
         </div>
       </section>
 

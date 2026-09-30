@@ -1,8 +1,8 @@
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
-import { DEVICE_TYPES, makeModel, forgetGlb, isCustom } from './models.js';
+import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
 import {
-  OPENING_DEFAULTS, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
+  OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
 } from './walls.js';
 import { t, setLanguage, applyI18n } from './i18n.js';
 import { createPlan } from './plan2d.js';
@@ -194,7 +194,7 @@ function addPickProxy(model) {
 }
 
 const HOLO = { fill: 0x1f6fe0, edge: 0x3df2ff, on: 0xff9d2e, onEdge: 0xffd08a, floor: 0x0a1830, floorLit: 0xff9d2e };
-const OUTDOOR = new Set(['tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
+const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
 const isHolo = () => settings.theme === 'holo';
 
 /* ---- Room lighting: each lit lamp shines from its own position, so a room is brightest near the lamp ---- */
@@ -507,6 +507,7 @@ function build() {
     f.devices.forEach((d) => {
       if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
       const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); });
+      if (d.type === 'picture') setPicture(model, d);
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
       model.rotation.set(THREE.MathUtils.degToRad(d.tiltX || 0), THREE.MathUtils.degToRad(d.rot || 0), THREE.MathUtils.degToRad(d.tiltZ || 0));
@@ -597,8 +598,9 @@ function applyOpenings() {
 function animateOpenings() {
   openingObjs().forEach((obj) => {
     const p = obj.userData.pivot, tg = p.userData.target ?? 0;
-    const prop = p.userData.axis, cur = p.rotation[prop];
-    if (Math.abs(tg - cur) > 0.002) p.rotation[prop] = cur + (tg - cur) * 0.15;
+    const prop = p.userData.axis, holder = p.userData.prop === 'position' ? p.position : p.rotation, cur = holder[prop];
+    if (Math.abs(tg - cur) > 0.002) holder[prop] = cur + (tg - cur) * 0.15;
+    (p.userData.followers || []).forEach((fp) => { fp.rotation[fp.userData.axis] = holder[prop] * (fp.userData.dir / (p.userData.dir || 1)); });   // second leaf of a double door
   });
 }
 
@@ -838,10 +840,58 @@ function newDevice(x, z) {
   const custom = isCustom(deviceType);
   const def = custom ? { y: 0 } : DEVICE_TYPES[deviceType];
   const ent = entities.find((v) => v.entity_id === entityChoice);
-  return {
+  const d = {
     id: uid(), type: deviceType, x, z, y: def.y || 0, rot: 0, scale: 1,
     name: ent?.name || (custom ? deviceType.slice(4) : t(`dev.${deviceType}`)), entity: entityChoice || '',
   };
+  if (WALL_TYPES.has(deviceType)) snapToWall(d, 0.8);          // wall-hung things click onto the nearest wall
+  return d;
+}
+/* wall-hung devices: pictures, mirrors, panels, radiators ... */
+const WALL_TYPES = new Set(['picture', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'camera', 'thermostat', 'switch']);
+/** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces) */
+function snapToWall(d, maxDist = 2, keepFacing = false) {
+  let best = null;
+  floor().walls.forEach((w) => {
+    const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L2 = sx * sx + sz * sz || 1;
+    const u = Math.max(0, Math.min(1, ((d.x - ax) * sx + (d.z - az) * sz) / L2));
+    const px = ax + sx * u, pz = az + sz * u, dist = Math.hypot(d.x - px, d.z - pz);
+    if (dist <= maxDist + w.thickness / 2 && (!best || dist < best.dist)) best = { w, px, pz, dist, sx, sz };
+  });
+  if (!best) return false;
+  const len = Math.hypot(best.sx, best.sz) || 1;
+  let nx = -best.sz / len, nz = best.sx / len;                     // a normal of the wall
+  const face = nx * Math.sin(((d.rot || 0) * Math.PI) / 180) + nz * Math.cos(((d.rot || 0) * Math.PI) / 180);
+  const side = keepFacing && Math.abs(face) > 0.05 ? face : nx * (d.x - best.px) + nz * (d.z - best.pz);   // facing wins when it is clear, else the side the device is on
+  if (side < 0) { nx = -nx; nz = -nz; }
+  const off = best.w.thickness / 2 + 0.02;
+  d.x = +(best.px + nx * off).toFixed(3); d.z = +(best.pz + nz * off).toFixed(3);
+  d.rot = ((Math.round((Math.atan2(nx, nz) * 180) / Math.PI * 10) / 10) % 360 + 360) % 360;
+  return true;
+}
+/** a picture: frame + the uploaded image (api/backgrounds/<name>) on a plane; `w` metres wide, `ar` = height / width */
+const textureLoader = new THREE.TextureLoader();
+function setPicture(model, d) {
+  model.clear();
+  const w = d.w || 0.6, h = w * (d.ar || 0.75);
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.03), new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.6 }));
+  const art = new THREE.Mesh(new THREE.PlaneGeometry(Math.max(0.05, w - 0.06), Math.max(0.05, h - 0.06)), new THREE.MeshBasicMaterial({ color: 0xc9d6e2 }));
+  art.position.z = 0.0155;
+  model.add(frame, art);
+  if (d.img) textureLoader.load(`api/backgrounds/${encodeURIComponent(d.img)}`, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    art.material.map = tex; art.material.color.set(0xffffff); art.material.needsUpdate = true;
+  });
+}
+async function uploadPicture(file, d) {
+  if (!file) return;
+  const [nw, nh] = await imageSize(file);
+  const fd = new FormData(); fd.append('file', file);
+  const r = await fetch('api/backgrounds', { method: 'POST', body: fd });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
+  const { name } = await r.json();
+  snapshot(); d.img = name; d.ar = +(nh / nw).toFixed(5); d.w ||= 0.8;
+  changed(); renderProps();
 }
 function openingTarget(e, ignoreId = null, def = OPENING_DEFAULTS[openingType], forcedWall = null) {
   let wall = forcedWall;
@@ -1642,18 +1692,31 @@ $('#autoToggle').addEventListener('click', () => {
 });
 
 /* ================= Palettes: devices, custom models, openings ================= */
+let paletteCat = 'all', paletteQuery = '';
 function buildPalette() {
-  const grid3 = $('#paletteGrid');
+  const grid3 = $('#paletteGrid'), cats = $('#paletteCats');
+  cats.innerHTML = '';
+  ['all', ...Object.keys(CATEGORIES)].forEach((k) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = t(`cat.${k}`);
+    b.classList.toggle('active', k === paletteCat);
+    b.addEventListener('click', () => { paletteCat = k; buildPalette(); });
+    cats.append(b);
+  });
   grid3.innerHTML = '';
-  Object.entries(DEVICE_TYPES).filter(([, def]) => !def.hidden).forEach(([key]) => {
-    const b = document.createElement('button');
-    b.textContent = t(`dev.${key}`);
+  const q = paletteQuery.trim().toLowerCase();
+  Object.entries(DEVICE_TYPES).filter(([key, def]) => !def.hidden && (paletteCat === 'all' || catOf(key) === paletteCat)
+    && (!q || t(`dev.${key}`).toLowerCase().includes(q) || key.includes(q))).forEach(([key]) => {
+    const b = document.createElement('button'); b.className = 'dev'; b.type = 'button';
+    const url = thumbnail(key);
+    if (url) { const im = document.createElement('img'); im.src = url; im.alt = ''; b.append(im); }
+    const sp = document.createElement('span'); sp.textContent = t(`dev.${key}`); sp.title = t(`dev.${key}`); b.append(sp);
     b.classList.toggle('active', key === deviceType);
     b.addEventListener('click', () => { deviceType = key; buildPalette(); renderModelPalette(); });
     grid3.append(b);
   });
   renderModelPalette();
 }
+$('#paletteSearch').addEventListener('input', (e) => { paletteQuery = e.target.value; buildPalette(); });
 function renderModelPalette() {
   const box = $('#modelGrid');
   box.innerHTML = '';
@@ -2209,6 +2272,11 @@ function renderProps() {
     body.append(field(t('prop.width'), lenInput(() => it.width, (v) => { it.width = Math.max(0.3, v); refit(); }, { min: 0.3 })));
     body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3 })));
     if (it.type === 'window') body.append(field(t('prop.sill'), lenInput(() => it.sill, (v) => (it.sill = v))));
+    const ssel = document.createElement('select'); ssel.id = 'openStyle';
+    (it.type === 'door' ? DOOR_STYLES : WINDOW_STYLES).forEach((v) => ssel.add(new Option(t(`st.${v}`), v)));
+    ssel.value = it.style || (it.type === 'door' ? 'single' : 'double');
+    ssel.addEventListener('change', () => { snapshot(); it.style = ssel.value; changed(); });
+    body.append(field(t('prop.style'), ssel));
     body.append(field(t('prop.position'), lenInput(() => it.pos, (v) => {
       const p = clampOpeningPos(wall, it.width, v);
       if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p;
@@ -2236,6 +2304,20 @@ function renderProps() {
     const cm = document.createElement('input'); cm.type = 'checkbox'; cm.checked = !!it.mirror; cm.id = 'devMirror';
     cm.addEventListener('change', () => { snapshot(); if (cm.checked) it.mirror = true; else delete it.mirror; changed(); });
     body.append(field(t('prop.mirror'), cm));
+    if (it.type === 'picture') {
+      const lab = document.createElement('label'); lab.className = 'uploadBtn';
+      const span = document.createElement('span'); span.textContent = t(it.img ? 'pic.replace' : 'pic.load');
+      const file = document.createElement('input'); file.type = 'file'; file.hidden = true; file.id = 'picFile'; file.accept = 'image/png,image/jpeg,image/webp';
+      file.addEventListener('change', async () => { const fl = file.files[0]; file.value = ''; try { await uploadPicture(fl, it); } catch (err) { alert(`${t('panel.uploadFailed')}: ${err.message}`); } });
+      lab.append(span, file); body.append(lab);
+      body.append(field(t('pic.width'), lenInput(() => it.w || 0.6, (v) => (it.w = Math.max(0.1, v)), { min: 0.1 })));
+      if (!it.img) { const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('pic.help'); body.append(hp); }
+    }
+    if (WALL_TYPES.has(it.type)) {
+      const sb = document.createElement('button'); sb.type = 'button'; sb.id = 'snapWall'; sb.textContent = t('pic.snap');
+      sb.addEventListener('click', () => { snapshot(); snapToWall(it, 3, true); changed(); renderProps(); });
+      body.append(sb);
+    }
     if (it.group) {
       const members = groupMembers(it);
       const gp = document.createElement('div'); gp.className = 'sub'; gp.textContent = t('group.info', { n: members.length });
@@ -2546,6 +2628,7 @@ if (params.get('debug')) {
     objInfo(id) { const o = registry.get(id); return o && { rx: o.rotation.x, rz: o.rotation.z, sx: o.scale.x }; },
     moveDevice: (id, x, z) => { const d = floor().devices.find((v) => v.id === id); moveDeviceTo(d, x, z); return [d.x, d.z]; },
     setWallStop: (v) => { settings.wallStop = v; },
+    snapPicture: (id) => { const d = floor().devices.find((v) => v.id === id); snapToWall(d, 3, true); return [d.x, d.z, d.rot]; },
     group: (ids) => { ids.forEach((id) => groupPick.add(id)); makeGroup(); }, LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
     holeCount: (i) => holesForFloor(layout.floors, i, FLOOR_H).length,
     plan: () => plan,

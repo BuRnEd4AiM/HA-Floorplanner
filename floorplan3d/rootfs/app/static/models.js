@@ -39,6 +39,42 @@ export const DEVICE_TYPES = {
   terrace:    { label: 'Terrasse',    y: 0 },
   path:       { label: 'Weg',         y: 0 },
   fence:      { label: 'Zaun',        y: 0 },
+  sofa2:      { label: 'Ecksofa',      y: 0 },
+  tvstand:    { label: 'TV-Board',     y: 0 },
+  bookcase:   { label: 'Bücherregal',  y: 0 },
+  fireplace:  { label: 'Kamin',        y: 0 },
+  piano:      { label: 'Klavier',      y: 0 },
+  pouf:       { label: 'Hocker',       y: 0 },
+  sidetable:  { label: 'Beistelltisch', y: 0 },
+  curtain:    { label: 'Vorhang',      y: 0 },
+  barstool:   { label: 'Barhocker',    y: 0 },
+  stove:      { label: 'Herd',         y: 0 },
+  oven:       { label: 'Backofen',     y: 0 },
+  dishwasher: { label: 'Geschirrspüler', y: 0 },
+  sink:       { label: 'Spüle',        y: 0 },
+  island:     { label: 'Kücheninsel',  y: 0 },
+  microwave:  { label: 'Mikrowelle',   y: 0.9 },
+  mirror:     { label: 'Spiegel',      y: 0.9 },
+  towelrad:   { label: 'Handtuchheizkörper', y: 0.3 },
+  doublebasin:{ label: 'Doppelwaschtisch', y: 0 },
+  bed_single: { label: 'Einzelbett',   y: 0 },
+  nightstand: { label: 'Nachttisch',   y: 0 },
+  dresser:    { label: 'Kommode',      y: 0 },
+  crib:       { label: 'Babybett',     y: 0 },
+  monitor:    { label: 'PC-Arbeitsplatz', y: 0.75 },
+  officechair:{ label: 'Bürostuhl',    y: 0 },
+  printer:    { label: 'Drucker',      y: 0.75 },
+  pendant:    { label: 'Hängelampe',   y: 1.9 },
+  walllamp:   { label: 'Wandlampe',    y: 1.7 },
+  spot:       { label: 'Deckenspot',   y: 2.55 },
+  radiator:   { label: 'Heizkörper',   y: 0.15 },
+  boiler:     { label: 'Warmwasserspeicher', y: 0 },
+  camera:     { label: 'Kamera',       y: 2.2 },
+  speaker:    { label: 'Lautsprecher', y: 0 },
+  vacuum:     { label: 'Saugroboter',  y: 0 },
+  smoke:      { label: 'Rauchmelder',  y: 2.55 },
+  router:     { label: 'Router',       y: 1.0 },
+  picture:    { label: 'Bild',         y: 1.5 },
   orb:        { label: 'Lichtkugel',  y: 0.4 },
   strip:      { label: 'LED-Streifen', y: 0.5 },
   panel_tri:  { label: 'Nanoleaf Dreieck',  y: 1.4 },
@@ -46,6 +82,21 @@ export const DEVICE_TYPES = {
   panel_sq:   { label: 'Nanoleaf Quadrat',  y: 1.4 },
   panel_bar:  { label: 'Nanoleaf Linie',    y: 1.4 },
 };
+
+
+/* Library categories (room types) for the palette */
+export const CATEGORIES = {
+  living:  ['sofa', 'sofa2', 'armchair', 'pouf', 'table', 'coffeetable', 'sidetable', 'diningtable', 'chair', 'barstool', 'tv', 'tvstand', 'sideboard', 'shelf', 'bookcase', 'fireplace', 'piano', 'carpet', 'curtain', 'plant'],
+  kitchen: ['kitchen', 'island', 'sink', 'stove', 'oven', 'microwave', 'dishwasher', 'fridge', 'washer'],
+  bath:    ['bathtub', 'shower', 'toilet', 'basin', 'doublebasin', 'mirror', 'towelrad'],
+  bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
+  office:  ['desk', 'monitor', 'officechair', 'printer'],
+  lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar'],
+  smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router'],
+  outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car'],
+  decor:   ['picture'],
+};
+export const catOf = (type) => Object.keys(CATEGORIES).find((k) => CATEGORIES[k].includes(type)) || 'living';
 
 const std = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.05, ...extra });
 
@@ -302,6 +353,89 @@ Object.assign(builders, {
     g.add(box(3.0, 0.08, 0.06, std('#8a6a44'), 0, 0.4));
     for (let i = 0; i <= 6; i++) g.add(box(0.07, 1.0, 0.07, std('#8a6a44'), -1.5 + i * 0.5, 0, 0));
   },
+  sofa2(g) {
+    const fab = std('#7d8ea3');
+    g.add(box(2.6, 0.42, 0.9, fab, 0, 0.1, 0));
+    g.add(box(0.9, 0.42, 1.0, fab, -0.85, 0.1, 0.95));
+    g.add(box(2.6, 0.45, 0.2, fab, 0, 0.5, -0.35));
+    g.add(box(0.2, 0.45, 1.2, fab, -1.25, 0.5, 0.5));
+    g.add(box(0.12, 0.2, 0.9, fab, 1.25, 0.5, 0)); },
+  tvstand(g) { g.add(box(1.6, 0.5, 0.4, std('#5b4636'))); g.add(box(1.5, 0.02, 0.01, std('#2a2a2a'), 0, 0.25, 0.2)); },
+  bookcase(g) {
+    const w = std('#6b5140');
+    g.add(box(0.9, 2.0, 0.3, w));
+    for (let i = 0; i < 5; i++) g.add(box(0.82, 0.03, 0.28, std('#3a2c22'), 0, 0.3 + i * 0.38, 0.02));
+    [0.35, 0.72, 1.1, 1.5].forEach((y, i) => g.add(box(0.5 - i * 0.05, 0.28, 0.2, std(['#a33', '#37a', '#3a5', '#c93'][i]), -0.1 + i * 0.06, y, 0.02))); },
+  fireplace(g) {
+    g.add(box(1.2, 1.1, 0.5, std('#a9a29a')));
+    g.add(box(0.7, 0.55, 0.05, std('#1a1614'), 0, 0.2, 0.26));
+    g.add(box(0.55, 1.4, 0.4, std('#8f8880'), 0, 1.1, -0.05)); },
+  piano(g) {
+    g.add(box(1.5, 1.15, 0.65, std('#1c1c20')));
+    g.add(box(1.4, 0.04, 0.3, std('#f2f2f2'), 0, 0.72, 0.45));
+    g.add(box(0.5, 0.45, 0.4, std('#1c1c20'), 0, 0, 0.6)); },
+  pouf(g) { g.add(cyl(0.28, 0.3, 0.4, std('#c79a6b'))); },
+  sidetable(g) { g.add(cyl(0.25, 0.25, 0.03, std('#d9cdb8'), 0, 0.5, 0, 24)); g.add(cyl(0.02, 0.02, 0.5, std('#555'), 0, 0, 0, 8)); g.add(cyl(0.16, 0.16, 0.02, std('#555'), 0, 0, 0, 16)); },
+  curtain(g) {
+    const c = std('#c8b8a4');
+    for (let i = 0; i < 8; i++) g.add(box(0.2, 2.3, 0.05 + (i % 2) * 0.03, c, -0.8 + i * 0.23, 0, 0));
+    g.add(box(1.9, 0.03, 0.03, std('#333'), 0, 2.3, 0)); },
+  barstool(g) { g.add(cyl(0.18, 0.18, 0.05, std('#4a4a4a'), 0, 0.65, 0, 20)); g.add(cyl(0.025, 0.025, 0.65, std('#999'), 0, 0, 0, 8)); g.add(cyl(0.2, 0.2, 0.02, std('#999'), 0, 0, 0, 16)); },
+  stove(g) {
+    g.add(box(0.6, 0.9, 0.6, std('#dfe3e6')));
+    g.add(box(0.58, 0.02, 0.58, std('#1a1a1a'), 0, 0.9, 0));
+    [[-0.15, -0.15], [0.15, -0.15], [-0.15, 0.15], [0.15, 0.15]].forEach(([x, z]) => g.add(cyl(0.09, 0.09, 0.012, std('#444'), x, 0.92, z, 16)));
+    g.add(box(0.5, 0.3, 0.02, std('#222'), 0, 0.3, 0.3)); },
+  oven(g) { g.add(box(0.6, 0.6, 0.55, std('#cfd4d8'))); g.add(box(0.5, 0.3, 0.02, std('#222'), 0, 0.18, 0.28)); g.add(box(0.4, 0.02, 0.03, std('#999'), 0, 0.5, 0.3)); },
+  dishwasher(g) { g.add(box(0.6, 0.85, 0.6, std('#dfe3e6'))); g.add(box(0.4, 0.02, 0.03, std('#999'), 0, 0.75, 0.31)); g.add(box(0.5, 0.06, 0.01, std('#3a3a3a'), 0, 0.8, 0.3)); },
+  sink(g) {
+    g.add(box(1.2, 0.86, 0.6, std('#e8e2d8')));
+    g.add(box(1.22, 0.04, 0.62, std('#7a7a7a'), 0, 0.86, 0));
+    g.add(box(0.5, 0.02, 0.4, std('#b8bec4'), -0.25, 0.9, 0));
+    g.add(cyl(0.02, 0.02, 0.25, std('#bbb'), 0.05, 0.9, -0.2, 8)); },
+  island(g) { g.add(box(1.8, 0.9, 0.9, std('#d9d2c6'))); g.add(box(1.9, 0.04, 1.0, std('#5b5b5b'), 0, 0.9, 0)); },
+  microwave(g) { g.add(box(0.46, 0.28, 0.35, std('#c9ced2'))); g.add(box(0.3, 0.2, 0.01, std('#1e1e1e'), -0.05, 0.04, 0.18)); },
+  mirror(g) { g.add(box(0.62, 1.22, 0.03, std('#8a8a8a'), 0, 0, -0.01)); g.add(box(0.56, 1.16, 0.02, new THREE.MeshStandardMaterial({ color: 0xcfe6f2, roughness: 0.05, metalness: 0.6 }), 0, 0.03, 0.01)); },
+  towelrad(g) { for (let i = 0; i < 6; i++) g.add(box(0.5, 0.025, 0.04, std('#e8e8e8'), 0, i * 0.18, 0)); g.add(box(0.03, 0.95, 0.04, std('#e8e8e8'), -0.235, 0, 0)); g.add(box(0.03, 0.95, 0.04, std('#e8e8e8'), 0.235, 0, 0)); },
+  doublebasin(g) {
+    g.add(box(1.2, 0.85, 0.5, std('#e6e6e6')));
+    [-0.3, 0.3].forEach((x) => { g.add(box(0.45, 0.02, 0.35, std('#f8f8f8'), x, 0.85, 0)); g.add(cyl(0.015, 0.015, 0.18, std('#aaa'), x, 0.87, -0.18, 8)); }); },
+  bed_single(g) { g.add(box(0.95, 0.3, 2.0, std('#8a6a48'))); g.add(box(0.85, 0.2, 1.8, std('#e8e0d0'), 0, 0.3, 0.05)); g.add(box(0.95, 0.7, 0.06, std('#8a6a48'), 0, 0.3, -1.0)); g.add(box(0.5, 0.1, 0.35, std('#fafafa'), 0, 0.5, -0.8)); },
+  nightstand(g) { g.add(box(0.45, 0.5, 0.4, std('#8a6a48'))); g.add(box(0.36, 0.02, 0.01, std('#3a2c22'), 0, 0.3, 0.2)); },
+  dresser(g) { g.add(box(1.2, 0.85, 0.5, std('#9a7a56'))); [0.2, 0.45, 0.68].forEach((y) => g.add(box(1.1, 0.02, 0.01, std('#3a2c22'), 0, y, 0.25))); },
+  crib(g) {
+    const w = std('#e8dcc8');
+    g.add(box(0.7, 0.05, 1.3, w, 0, 0.25, 0));
+    for (let i = 0; i < 9; i++) { g.add(box(0.02, 0.6, 0.02, w, -0.34, 0.3, -0.6 + i * 0.15)); g.add(box(0.02, 0.6, 0.02, w, 0.34, 0.3, -0.6 + i * 0.15)); }
+    g.add(box(0.7, 0.75, 0.04, w, 0, 0.2, -0.63)); g.add(box(0.7, 0.75, 0.04, w, 0, 0.2, 0.63)); },
+  monitor(g) {
+    g.add(box(0.62, 0.36, 0.03, std('#111'), 0, 0.14, 0)); g.add(box(0.05, 0.14, 0.05, std('#333'), 0, 0, 0)); g.add(box(0.25, 0.01, 0.16, std('#333')));
+    g.add(box(0.44, 0.02, 0.14, std('#2a2a2a'), 0, 0, 0.22)); },
+  officechair(g) {
+    const b = std('#2b2f36');
+    g.add(cyl(0.28, 0.28, 0.03, b, 0, 0.02, 0, 5)); g.add(cyl(0.03, 0.03, 0.4, std('#999'), 0, 0.05, 0, 8));
+    g.add(box(0.5, 0.08, 0.5, b, 0, 0.45, 0)); g.add(box(0.46, 0.55, 0.06, b, 0, 0.53, -0.24)); },
+  printer(g) { g.add(box(0.45, 0.2, 0.35, std('#d8dce0'))); g.add(box(0.36, 0.01, 0.15, std('#fff'), 0, 0.2, 0.05)); },
+  pendant(g) {
+    const glow = glowMat();
+    g.add(cyl(0.005, 0.005, 0.7, std('#222'), 0, 0.05, 0, 6));
+    const shade = new THREE.Mesh(new THREE.SphereGeometry(0.2, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), glow);
+    shade.rotation.x = Math.PI; shade.position.y = 0.05; g.add(shade);
+    g.userData.glow = [glow]; },
+  walllamp(g) {
+    const glow = glowMat();
+    g.add(box(0.08, 0.16, 0.04, std('#444'), 0, -0.08, -0.02));
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 10), glow).translateZ(0.06));
+    g.userData.glow = [glow]; },
+  spot(g) { const glow = glowMat(); g.add(cyl(0.05, 0.05, 0.05, std('#ccc'), 0, -0.03, 0, 14)); g.add(cyl(0.035, 0.035, 0.01, glow, 0, -0.045, 0, 12)); g.userData.glow = [glow]; },
+  radiator(g) { for (let i = 0; i < 10; i++) g.add(box(0.07, 0.55, 0.08, std('#f0f0f0'), -0.45 + i * 0.1, 0, 0)); },
+  boiler(g) { g.add(cyl(0.25, 0.25, 1.2, std('#e8eaec'), 0, 0, 0, 20)); g.add(box(0.12, 0.08, 0.03, std('#2a2a2a'), 0, 0.9, 0.25)); },
+  camera(g) { g.add(box(0.07, 0.07, 0.1, std('#e8e8e8'))); g.add(cyl(0.025, 0.025, 0.03, std('#111'), 0, 0.02, 0.06, 12).rotateX(Math.PI / 2)); },
+  speaker(g) { g.add(box(0.2, 0.35, 0.2, std('#2e2e32'))); g.add(cyl(0.07, 0.07, 0.02, std('#111'), 0, 0.08, 0.1, 16).rotateX(Math.PI / 2)); },
+  vacuum(g) { g.add(cyl(0.17, 0.17, 0.09, std('#3c3f45'), 0, 0, 0, 24)); g.add(cyl(0.05, 0.05, 0.01, std('#888'), 0, 0.09, 0, 12)); },
+  smoke(g) { g.add(cyl(0.06, 0.06, 0.03, std('#f4f4f4'), 0, -0.03, 0, 16)); },
+  router(g) { g.add(box(0.2, 0.04, 0.14, std('#f4f4f4'))); [-0.07, 0.07].forEach((x) => g.add(box(0.008, 0.18, 0.008, std('#333'), x, 0.04, -0.05))); },
+  picture(g) { g.add(box(0.6, 0.45, 0.03, std('#3a3a3a'), 0, 0, 0)); g.add(box(0.52, 0.37, 0.005, std('#c9d6e2'), 0, 0.04, 0.016)); },
   car(g) {
     const body = std('#c4ccd6', { metalness: 0.4 });
     g.add(box(1.8, 0.5, 4.2, body, 0, 0.25, 0));
@@ -310,6 +444,39 @@ Object.assign(builders, {
     [[-0.85, -1.3], [0.85, -1.3], [-0.85, 1.3], [0.85, 1.3]].forEach(([x, z]) => g.add(cyl(0.3, 0.3, 0.2, wh, x, 0, z, 16).rotateZ(Math.PI / 2)));
   },
 });
+
+
+/* ---------- preview images for the library palette ---------- */
+let thumbR = null, thumbScene = null, thumbCam = null;
+const thumbs = new Map();
+export function thumbnail(type) {
+  if (isCustom(type)) return null;
+  if (thumbs.has(type)) return thumbs.get(type);
+  let url = null;
+  try {
+    if (!thumbR) {
+      const c = document.createElement('canvas'); c.width = c.height = 96;
+      thumbR = new THREE.WebGLRenderer({ canvas: c, antialias: true, alpha: true, preserveDrawingBuffer: true });
+      thumbR.setSize(96, 96, false);
+      thumbScene = new THREE.Scene();
+      thumbScene.add(new THREE.HemisphereLight(0xffffff, 0x556677, 1.4));
+      const dl = new THREE.DirectionalLight(0xffffff, 1.6); dl.position.set(2, 4, 3); thumbScene.add(dl);
+      thumbCam = new THREE.PerspectiveCamera(30, 1, 0.05, 200);
+    }
+    const m = makeModel(type);
+    thumbScene.add(m);
+    const box3 = new THREE.Box3().setFromObject(m), size = box3.getSize(new THREE.Vector3()), ctr = box3.getCenter(new THREE.Vector3());
+    const dist = Math.max(size.x, size.y, size.z, 0.2) * 2.5;
+    thumbCam.position.copy(ctr).add(new THREE.Vector3(0.75, 0.7, 1).normalize().multiplyScalar(dist));
+    thumbCam.lookAt(ctr);
+    thumbR.render(thumbScene, thumbCam);
+    url = thumbR.domElement.toDataURL('image/png');
+    thumbScene.remove(m);
+    m.traverse((o) => { o.geometry?.dispose?.(); });
+  } catch { url = null; }
+  thumbs.set(type, url);
+  return url;
+}
 
 /* ---------- custom GLB models ---------- */
 const loader = new GLTFLoader();
