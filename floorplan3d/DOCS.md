@@ -78,7 +78,9 @@ Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistan
 
 **Wall stop:** devices stop at walls when you drag them, so nothing ends up behind a wall by accident; doors let them pass. Settings → *Geräte stoppen an Wänden* switches it off.
 
-**Panel shapes:** the device palette has *Nanoleaf Dreieck / Sechseck / Quadrat / Linie*. Place one per real panel, rotate it to match the wall and give all of them the same light entity: they glow in the light's colour together. Clicking one in live mode opens the popup with colour, brightness and the effect (scene) list. LED strips that run along several walls are built from several *LED-Streifen* with the same entity.
+**Layout editor (many panels):** many panels are easier as *Nanoleaf Layout*: place it, then in the editor pick a shape and click panels together – edges snap to neighbours (rotation is found automatically, `R` turns the free first panel, right-click erases, *Zurück* undoes). *Übernehmen* saves the whole layout as ONE object with ONE entity; all panels glow in that light's colour. Change it later with *Layout bearbeiten* in the side panel.
+
+**Single panel shapes:** the device palette has *Nanoleaf Dreieck / Sechseck / Quadrat / Linie*. Place one per real panel, rotate it to match the wall and give all of them the same light entity: they glow in the light's colour together. Clicking one in live mode opens the popup with colour, brightness and the effect (scene) list. LED strips that run along several walls are built from several *LED-Streifen* with the same entity.
 
 ## Home Assistant areas
 

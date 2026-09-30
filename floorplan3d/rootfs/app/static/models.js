@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
+import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -82,6 +83,7 @@ export const DEVICE_TYPES = {
   panel_hex:  { label: 'Nanoleaf Sechseck', y: 1.4 },
   panel_sq:   { label: 'Nanoleaf Quadrat',  y: 1.4 },
   panel_bar:  { label: 'Nanoleaf Linie',    y: 1.4 },
+  nanoleaf:   { label: 'Nanoleaf Layout',   y: 1.4 },
 };
 
 
@@ -92,7 +94,7 @@ export const CATEGORIES = {
   bath:    ['bathtub', 'shower', 'toilet', 'basin', 'doublebasin', 'mirror', 'towelrad'],
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
-  lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar'],
+  lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf'],
   smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router'],
   outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car'],
   decor:   ['picture'],
@@ -127,6 +129,20 @@ function panel(g, pts) {
   g.userData.glow = [glow];
 }
 const ngon = (n, r, cy, a0 = 0) => Array.from({ length: n }, (_, k) => [Math.cos(a0 + (k * 2 * Math.PI) / n) * r, cy + Math.sin(a0 + (k * 2 * Math.PI) / n) * r]);
+
+/** a whole Nanoleaf layout (many panels, ONE entity): every panel shares one material, so the lot shows the same colour */
+function nanoleaf(g, d) {
+  const glow = glowMat();
+  glow.side = THREE.DoubleSide;
+  (d?.panels?.length ? d.panels : DEFAULT_PANELS).forEach((p) => {
+    const poly = polyOf(p), cx = p.x, cy = p.y;
+    const shape = new THREE.Shape(poly.map(([x, y]) => new THREE.Vector2(cx + (x - cx) * 0.97, cy + (y - cy) * 0.97)));
+    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.025, bevelEnabled: false }), glow);
+    m.position.z = -0.0125;
+    g.add(m);
+  });
+  g.userData.glow = [glow];
+}
 
 const builders = {
   panel_tri(g) { panel(g, [[-0.12, -0.069], [0.12, -0.069], [0, 0.139]]); },
@@ -512,7 +528,7 @@ export function isCustom(type) { return typeof type === 'string' && type.startsW
 
 /** Build a device model. For custom models a placeholder is shown until the GLB has loaded;
  *  `onReady` is called afterwards so the caller can refresh shadows/selection helpers. */
-export function makeModel(type, onReady) {
+export function makeModel(type, onReady, dev) {
   const g = new THREE.Group();
   if (isCustom(type)) {
     const ph = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5),
@@ -528,6 +544,7 @@ export function makeModel(type, onReady) {
     }).catch(() => { ph.material.color.set(0xff5555); });
     return g;
   }
+  if (type === 'nanoleaf') { nanoleaf(g, dev); return g; }
   (builders[type] || builders.sensor)(g);
   centreOnFootprint(g);
   return g;

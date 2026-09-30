@@ -81,7 +81,7 @@ What that means for you: the code is automatically tested (backend and browser t
 - **Every device is a Home Assistant entity**: tap a lamp to switch it, dim it, pick a colour or warm / cool white
 - **Whole room at once**: all lights on / off, brightness and colour for the entire room, plus the room's scenes, in one panel
 - **Scenes where the light is**: the popup of a light lists every scene that contains it (e.g. *Gaming*)
-- **Effects**: effect lists of Nanoleaf, WLED, Hue and others; **Nanoleaf panel shapes** (triangle, hexagon, square, bar) for building your layout
+- **Effects**: effect lists of Nanoleaf, WLED, Hue and others; **Nanoleaf layout editor** (snap grid: click triangles, hexagons, squares and bars together, saved as one object with one entity) plus single panel shapes
 - **Realistic light**: lights glow in their real colour, with type-dependent light pools (a strip does not light the room like a ceiling lamp), dimmable
 - **Open windows and doors**: windows tilt open in 3D, **each pane of a double or triple window can have its own sensor**, an *n open* pill shows the overall state
 - **Heat and humidity views**: rooms are coloured by temperature or humidity

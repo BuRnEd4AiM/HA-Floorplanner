@@ -1,6 +1,7 @@
 /* 2D blueprint editor. Works directly on the shared layout object, so everything drawn here is the same
    data the 3D view builds from (and vice versa). Rendering is plain SVG in screen coordinates. */
 
+import { nanoBounds } from './nanoleaf.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts } from './stairs.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -12,7 +13,7 @@ const C = {
 const FLAT = new Set(['carpet', 'lawn', 'terrace', 'path', 'pool']);   // lie on the ground: drawn below, picked last
 /* footprint (m) of every device type: [w, d] or radius for round ones */
 const FOOT = {
-  light: { r: 0.2 }, lamp: { r: 0.2 }, orb: { r: 0.11 }, strip: { w: 1, d: 0.06 }, panel_tri: { w: 0.24, d: 0.24 }, panel_hex: { w: 0.26, d: 0.26 }, panel_sq: { w: 0.24, d: 0.24 }, panel_bar: { w: 0.9, d: 0.06 }, switch: { w: 0.14, d: 0.14 }, sensor: { r: 0.09 }, thermostat: { w: 0.9, d: 0.16 },
+  light: { r: 0.2 }, lamp: { r: 0.2 }, orb: { r: 0.11 }, strip: { w: 1, d: 0.06 }, panel_tri: { w: 0.24, d: 0.24 }, panel_hex: { w: 0.26, d: 0.26 }, panel_sq: { w: 0.24, d: 0.24 }, panel_bar: { w: 0.9, d: 0.06 }, nanoleaf: { w: 0.5, d: 0.06 }, switch: { w: 0.14, d: 0.14 }, sensor: { r: 0.09 }, thermostat: { w: 0.9, d: 0.16 },
   tv: { w: 1.2, d: 0.45 }, sofa: { w: 2.0, d: 0.9 }, bed: { w: 1.6, d: 2.0 }, table: { w: 1.4, d: 0.8 }, plant: { r: 0.3 },
   chair: { w: 0.42, d: 0.42 }, armchair: { w: 0.9, d: 0.85 }, desk: { w: 1.4, d: 0.7 }, diningtable: { w: 1.8, d: 0.95 },
   coffeetable: { w: 1.0, d: 0.55 }, wardrobe: { w: 1.5, d: 0.6 }, shelf: { w: 0.9, d: 0.34 }, sideboard: { w: 1.6, d: 0.42 },
@@ -75,6 +76,7 @@ export function createPlan(ctx) {
     const base = FOOT[d.type] || DEFAULT_FOOT;
     const k = d.scale || 1;
     if (d.type === 'picture') return { w: (d.w || 0.6) * k, d: 0.06 };
+    if (d.type === 'nanoleaf') return { w: nanoBounds(d.panels).w * k * (d.sx || 1), d: 0.06 };
     const kx = k * (d.sx || 1), kz = k * (d.sz || 1);
     if (base.r) return (d.sx || 1) === 1 && (d.sz || 1) === 1 ? { r: base.r * k } : { w: 2 * base.r * kx, d: 2 * base.r * kz };
     return { w: base.w * kx, d: base.d * kz };
