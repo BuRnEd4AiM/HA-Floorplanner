@@ -46,6 +46,7 @@ DEFAULT_SETTINGS = {
     "glowHeight": 1.6,         # metres the coloured glow climbs the walls
     "defaultLightColor": "#ffc861",
     "userRooms": {},           # Home Assistant user name -> room name (one tablet per room)
+    "userViews": {},           # Home Assistant user name -> 3d | 2d | split | all (what that user sees in live mode)
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
@@ -55,6 +56,7 @@ DEFAULT_SETTINGS = {
                    {"v": 80, "c": "#5a3aff"}],
 }
 RANGES = {"belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0)}
+VIEWS = ("3d", "2d", "split", "all")
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 EMPTY_LAYOUT = {
     "version": 1,
@@ -105,7 +107,7 @@ def editors() -> set:
     return {str(x).strip().lower() for x in raw if str(x).strip()} if isinstance(raw, list) else set()
 
 
-_admin_cache = {"at": 0.0, "ids": None}
+_admin_cache = {"at": 0.0, "ids": None, "users": []}
 
 
 async def load_admin_ids():
@@ -125,10 +127,14 @@ async def load_admin_ids():
                     await ws.send_json({"id": 1, "type": "config/auth/list"})
                     res = await asyncio.wait_for(ws.receive_json(), 5)
                     if res.get("success") and isinstance(res.get("result"), list):
-                        ids = set()
+                        ids, users = set(), []
                         for u in res["result"]:
-                            if u.get("is_owner") or "system-admin" in (u.get("group_ids") or []):
+                            admin = bool(u.get("is_owner") or "system-admin" in (u.get("group_ids") or []))
+                            if admin:
                                 ids |= {str(v).strip().lower() for v in (u.get("id"), u.get("username")) if v}
+                            if u.get("is_active", True) and not u.get("system_generated") and u.get("username"):
+                                users.append({"username": u["username"], "name": u.get("name") or u["username"], "admin": admin})
+                        _admin_cache["users"] = users
     except Exception as err:  # noqa: BLE001 - any failure means "unknown"
         log.warning("Could not read the Home Assistant administrators (%s); only users listed in `editors` may edit", err)
     _admin_cache.update(at=now, ids=ids)
@@ -157,8 +163,19 @@ async def get_me(request):
     if isinstance(rooms, dict):
         room = next((v for k, v in rooms.items() if str(k).strip().lower() in user["ids"]), None)
     edit = await can_edit(request)
-    return web.json_response({"user": user["name"], "canEdit": edit, "room": room,
+    views = read_json(data_dir(request) / "settings.json", {}).get("userViews", {})
+    view = next((v for k, v in views.items() if str(k).strip().lower() in user["ids"] and v in VIEWS), "3d") if isinstance(views, dict) else "3d"
+    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view,
                               "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
+
+
+async def get_users(request):
+    """Home Assistant users for the user pickers in the settings (editors only)."""
+    if not await can_edit(request):
+        return forbidden()
+    if SUPERVISOR_TOKEN:
+        await load_admin_ids()
+    return web.json_response(_admin_cache["users"] if SUPERVISOR_TOKEN else [])
 
 
 # ---------- layout ----------
@@ -215,6 +232,7 @@ def validate_settings(data: dict) -> dict:
                 out[key] = float(val)
         elif isinstance(val, str):
             out[key] = val
+    out["userViews"] = {k: v for k, v in out["userViews"].items() if v in VIEWS}
     for key, (lo, hi) in RANGES.items():
         out[key] = min(hi, max(lo, out[key]))
     if out["language"] not in ("de", "en"):
@@ -316,6 +334,12 @@ def _pct(v, scale):
     return round(v * 100 / scale) if isinstance(v, (int, float)) else None
 
 
+def _effects(attrs):
+    """Effect / scene names of a light (Nanoleaf, WLED, Hue ...), capped."""
+    lst = attrs.get("effect_list")
+    return [str(x)[:64] for x in lst[:60]] if isinstance(lst, list) else None
+
+
 async def get_entities(request):
     """Slim list of all entities (id, name, domain, state)."""
     if not SUPERVISOR_TOKEN:
@@ -338,6 +362,8 @@ async def get_entities(request):
             "dc": st.get("attributes", {}).get("device_class"),
             "ct": st.get("attributes", {}).get("current_temperature"),
             "ch": st.get("attributes", {}).get("current_humidity"),
+            "fx": _effects(st.get("attributes", {})),
+            "fxc": st.get("attributes", {}).get("effect"),
         }
         for st in states
     ])
@@ -399,6 +425,11 @@ async def call_service(request):
                     return web.json_response({"error": "data not allowed"}, status=400)
                 payload[key] = int(val)
                 continue
+            if domain == "light" and key == "effect":
+                if not isinstance(val, str) or not 0 < len(val) <= 64:
+                    return web.json_response({"error": "data not allowed"}, status=400)
+                payload[key] = val
+                continue
             ok_key = (key, domain) in (("brightness_pct", "light"), ("position", "cover"))
             if not ok_key or isinstance(val, bool) or not isinstance(val, (int, float)) or not 0 <= val <= 100:
                 return web.json_response({"error": "data not allowed"}, status=400)
@@ -424,6 +455,7 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.get("/api/layout", get_layout),
         web.put("/api/layout", put_layout),
         web.get("/api/me", get_me),
+        web.get("/api/users", get_users),
         web.get("/api/settings", get_settings),
         web.put("/api/settings", put_settings),
         web.get("/api/models", list_models),

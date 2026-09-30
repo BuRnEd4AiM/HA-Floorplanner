@@ -117,6 +117,12 @@ with sync_playwright() as p:
     lay = pg.evaluate("window.__fp.layout")["floors"][0]
     check("layout survives reload", len(lay["walls"]) == 4 and len(lay["devices"]) == 5)
     check("reload in live mode", pg.evaluate("document.body.classList.contains('live')"))
+    check("live mode shows only 3D (view toggles hidden)", pg.evaluate("document.body.classList.contains('viewlock')") and not pg.is_visible("#view2d") and not pg.is_visible("#viewSplit"))
+    api_set = pg.evaluate("fetch('api/settings').then(r=>r.json()).then(s=>fetch('api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({...s,userViews:{florian:'all'}})}).then(r=>r.status))")
+    pg.goto(BASE + "?debug=1&mode=live"); pg.wait_for_timeout(1500)
+    check("user with view 'all' can switch views in live mode", api_set == 200 and pg.is_visible("#view2d") and pg.is_visible("#viewSplit"), api_set)
+    users = pg.evaluate("fetch('api/users').then(r=>r.json())")
+    check("users endpoint answers for editors", isinstance(users, list), users)
     pg.click("#modeSwitch button[data-mode=edit]"); pg.wait_for_timeout(300)
     pg.click("#view3d"); pg.wait_for_timeout(600)
     pg.screenshot(path=f"{S}/edit3d.png")
