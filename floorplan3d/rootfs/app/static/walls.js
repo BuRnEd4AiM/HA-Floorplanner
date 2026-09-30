@@ -4,10 +4,23 @@ import * as THREE from './vendor/three.module.min.js';
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
  * `pos` is the opening centre in meters measured from point a along the wall. */
 
+/* Presets of the opening palette. `type` is door/window, `style` picks the look (stored on the opening and changeable later). */
 export const OPENING_DEFAULTS = {
-  door:   { width: 0.9, height: 2.05, sill: 0 },
-  window: { width: 1.2, height: 1.2,  sill: 0.9 },
+  door:       { type: 'door',   style: 'single',  width: 0.9, height: 2.05, sill: 0 },
+  doorEntry:  { type: 'door',   style: 'single',  width: 1.1, height: 2.15, sill: 0 },
+  doorGlass:  { type: 'door',   style: 'glass',   width: 0.9, height: 2.05, sill: 0 },
+  doorDouble: { type: 'door',   style: 'double',  width: 1.6, height: 2.05, sill: 0 },
+  doorSlide:  { type: 'door',   style: 'sliding', width: 1.8, height: 2.1,  sill: 0 },
+  doorOpen:   { type: 'door',   style: 'open',    width: 1.0, height: 2.05, sill: 0 },
+  window:     { type: 'window', style: 'single',  width: 1.0, height: 1.2,  sill: 0.9 },
+  window2:    { type: 'window', style: 'double',  width: 1.8, height: 1.2,  sill: 0.9 },
+  window3:    { type: 'window', style: 'triple',  width: 2.4, height: 1.2,  sill: 0.9 },
+  windowTall: { type: 'window', style: 'double',  width: 1.8, height: 2.1,  sill: 0 },
+  windowBath: { type: 'window', style: 'single',  width: 0.6, height: 0.6,  sill: 1.5 },
+  windowFixed:{ type: 'window', style: 'fixed',   width: 1.6, height: 1.4,  sill: 0.6 },
 };
+export const DOOR_STYLES = ['single', 'glass', 'double', 'sliding', 'open'];
+export const WINDOW_STYLES = ['single', 'double', 'triple', 'fixed'];
 const EDGE = 0.05;   // minimum solid wall left next to an opening
 
 export const wallLength = (w) => Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
@@ -48,15 +61,54 @@ function buildOpening(o, t, mats0, low) {
   g.add(boxMesh(x1 - ft, x1, s, s + h, fd, mats.frame));
   g.add(boxMesh(x0, x1, s + h - ft, s + h, fd, mats.frame));
   let pivot = null;
-  if (o.type === 'door') {
+  const st = o.style || (o.type === 'door' ? 'single' : 'double');   // windows saved before styles existed had one centre bar
+  if (o.type === 'door' && st === 'open') {
+    // passage without a leaf: only the frame
+  } else if (o.type === 'door' && st === 'sliding') {
+    // two glass panels, one in front of the other; the front one slides aside when the contact reports "open"
+    const pw = (w - 2 * ft) / 2 + 0.03;
+    const back = boxMesh(x0 + ft, x0 + ft + pw, s, s + h - ft, 0.02, mats.glass); back.position.z = -0.03;
+    g.add(back);
+    pivot = new THREE.Group();
+    const front = boxMesh(x1 - ft - pw, x1 - ft, s, s + h - ft, 0.02, mats.glass); front.position.z = 0.03;
+    const rim = boxMesh(x1 - ft - pw, x1 - ft - pw + 0.04, s, s + h - ft, 0.03, mats.frame); rim.position.z = 0.03;
+    pivot.add(front, rim);
+    g.add(pivot);
+    pivot.userData.dir = -1; pivot.userData.axis = 'x'; pivot.userData.slide = (w - 2 * ft) / 2; pivot.userData.max = pivot.userData.slide;
+    pivot.userData.prop = 'position';
+  } else if (o.type === 'door' && st === 'double') {
+    // two leaves hinged at both sides, each half the width
+    const lw = (w - 2 * ft) / 2;
+    const mk = (hingeX, dirX, sign) => {
+      const pv = new THREE.Group();
+      pv.position.set(hingeX, 0, 0);
+      const leaf = boxMesh(0, lw, s, s + h - ft, 0.04, mats.door);
+      leaf.position.x = dirX * lw / 2;
+      pv.add(leaf);
+      const knob = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), mats.metal);
+      knob.position.set(dirX * (lw - 0.08), s + 1.0, o.inv ? -0.045 : 0.045);
+      pv.add(knob);
+      pv.userData.dir = sign * (o.inv ? -1 : 1); pv.userData.axis = 'y'; pv.userData.max = 1.15;
+      g.add(pv);
+      return pv;
+    };
+    pivot = mk(x0 + ft, 1, -1);
+    const p2 = mk(x1 - ft, -1, 1);
+    pivot.userData.followers = [p2];
+  } else if (o.type === 'door') {
     // the leaf hangs on a pivot at the hinge so it can swing open when the contact reports "open"
+    const glassLeaf = st === 'glass';
     pivot = new THREE.Group();
     const hingeX = o.flip ? x1 - ft : x0 + ft;
     pivot.position.set(hingeX, 0, 0);
     const lw = w - 2 * ft;
-    const leaf = boxMesh(0, lw, s, s + h - ft, 0.04, mats.door);
+    const leaf = boxMesh(0, lw, s, s + h - ft, glassLeaf ? 0.03 : 0.04, glassLeaf ? mats.glass : mats.door);
     leaf.position.x = o.flip ? -lw / 2 : lw / 2;
     pivot.add(leaf);
+    if (glassLeaf) {                                     // thin frame around the glass leaf
+      const sg = o.flip ? -1 : 1;
+      [[0, 0.05], [lw - 0.05, lw]].forEach(([u, v]) => pivot.add(boxMesh(Math.min(sg * u, sg * v), Math.max(sg * u, sg * v), s, s + h - ft, 0.04, mats.frame)));
+    }
     const knob = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), mats.metal);
     knob.position.set(o.flip ? -lw + 0.12 : lw - 0.12, s + 1.0, o.inv ? -0.045 : 0.045);
     pivot.add(knob);
@@ -65,21 +117,24 @@ function buildOpening(o, t, mats0, low) {
     pivot.userData.axis = 'y';
     pivot.userData.max = 1.15;
   } else {
-    g.add(boxMesh(x0, x1, s, s + ft, fd, mats.frame));
-    // window pane tilts inwards around its lower edge when open
-    pivot = new THREE.Group();
-    pivot.position.set(0, s + ft, 0);
-    const pane = boxMesh(x0 + ft, x1 - ft, 0, h - 2 * ft, 0.015, mats.glass);
-    pane.position.y = (h - 2 * ft) / 2;
-    pivot.add(pane);
-    const bar = boxMesh(cx - 0.015, cx + 0.015, 0, h - 2 * ft, 0.04, mats.frame);
-    bar.position.y = (h - 2 * ft) / 2;
-    pivot.add(bar);
-    g.add(pivot);
-    pivot.userData.dir = -1;
-    pivot.userData.axis = 'x';
-    pivot.userData.max = 0.4;
-    g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
+    if (o.sill > 0) g.add(boxMesh(x0, x1, s, s + ft, fd, mats.frame));
+    const panes = st === 'triple' ? 3 : st === 'single' || st === 'fixed' ? 1 : 2;
+    const inner = h - 2 * ft;
+    // window pane(s) tilt inwards around the lower edge when open (fixed glazing does not open)
+    const pv = new THREE.Group();
+    pv.position.set(0, s + ft, 0);
+    const pane = boxMesh(x0 + ft, x1 - ft, 0, inner, 0.015, mats.glass);
+    pane.position.y = inner / 2;
+    pv.add(pane);
+    for (let i = 1; i < panes; i++) {
+      const bx = x0 + ft + ((w - 2 * ft) * i) / panes;
+      const bar = boxMesh(bx - 0.015, bx + 0.015, 0, inner, 0.04, mats.frame);
+      bar.position.y = inner / 2;
+      pv.add(bar);
+    }
+    g.add(pv);
+    if (st !== 'fixed') { pivot = pv; pivot.userData.dir = -1; pivot.userData.axis = 'x'; pivot.userData.max = 0.4; }
+    if (o.sill > 0.2) g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
   }
   // invisible, slightly padded hit box: doors and windows stay easy to select even with a lamp or sensor in front of them
   const proxy = new THREE.Mesh(new THREE.BoxGeometry(w, h, t + 0.1), new THREE.MeshBasicMaterial({ visible: false }));

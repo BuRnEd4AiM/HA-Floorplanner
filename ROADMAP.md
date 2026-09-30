@@ -29,6 +29,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 ## Backlog
 
 - [x] Placeholder blocks and stairs / stairwells (0.8.0)
+- [x] Furniture library with previews, search and categories, door/window variants, wall pictures (1.3.0)
 - [x] Move floors, basement, roof, garden objects, whole-house view (0.9.0)
 - [ ] Multi-segment LED strips and Nanoleaf panel shapes
 - [ ] Automatic room detection from closed wall loops

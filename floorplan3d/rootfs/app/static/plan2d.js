@@ -19,6 +19,13 @@ const FOOT = {
   kitchen: { w: 2.4, d: 0.6 }, fridge: { w: 0.6, d: 0.65 }, washer: { w: 0.6, d: 0.6 }, bathtub: { w: 1.7, d: 0.75 },
   toilet: { w: 0.38, d: 0.5 }, basin: { w: 0.6, d: 0.45 }, shower: { w: 0.9, d: 0.9 }, carpet: { w: 2.0, d: 1.4 }, car: { w: 1.8, d: 4.2 },
   tree: { w: 2, d: 2 }, bush: { w: 1, d: 1 }, pool: { w: 4, d: 2.5 }, lawn: { w: 6, d: 4 }, terrace: { w: 4, d: 3 }, path: { w: 1, d: 4 }, fence: { w: 3, d: 0.12 },
+  sofa2: { w: 2.6, d: 1.9 }, tvstand: { w: 1.6, d: 0.4 }, bookcase: { w: 0.9, d: 0.3 }, fireplace: { w: 1.2, d: 0.5 }, piano: { w: 1.5, d: 0.65 }, pouf: { r: 0.3 },
+  sidetable: { r: 0.25 }, curtain: { w: 1.9, d: 0.1 }, barstool: { r: 0.2 }, stove: { w: 0.6, d: 0.6 }, oven: { w: 0.6, d: 0.55 }, dishwasher: { w: 0.6, d: 0.6 },
+  sink: { w: 1.2, d: 0.6 }, island: { w: 1.9, d: 1.0 }, microwave: { w: 0.46, d: 0.35 }, mirror: { w: 0.62, d: 0.05 }, towelrad: { w: 0.5, d: 0.06 },
+  doublebasin: { w: 1.2, d: 0.5 }, bed_single: { w: 0.95, d: 2.0 }, nightstand: { w: 0.45, d: 0.4 }, dresser: { w: 1.2, d: 0.5 }, crib: { w: 0.7, d: 1.3 },
+  monitor: { w: 0.62, d: 0.25 }, officechair: { r: 0.3 }, printer: { w: 0.45, d: 0.35 }, pendant: { r: 0.2 }, walllamp: { r: 0.1 }, spot: { r: 0.06 },
+  radiator: { w: 0.95, d: 0.1 }, boiler: { r: 0.25 }, camera: { r: 0.06 }, speaker: { w: 0.2, d: 0.2 }, vacuum: { r: 0.17 }, smoke: { r: 0.06 }, router: { w: 0.2, d: 0.14 },
+  picture: { w: 0.6, d: 0.06 },
   door: { w: 0.95, d: 0.1 }, window: { w: 1.2, d: 0.1 },
 };
 const GLYPH = { light: '✦', lamp: '✦', orb: '●', strip: '', switch: '◧', sensor: '◉', thermostat: '≋', tv: '▭', plant: '❀', bed: '', sofa: '' };
@@ -67,6 +74,7 @@ export function createPlan(ctx) {
   function footOf(d) {
     const base = FOOT[d.type] || DEFAULT_FOOT;
     const k = d.scale || 1;
+    if (d.type === 'picture') return { w: (d.w || 0.6) * k, d: 0.06 };
     return base.r ? { r: base.r * k } : { w: base.w * k, d: base.d * k };
   }
   function devHit(d, x, z) {
@@ -291,7 +299,20 @@ export function createPlan(ctx) {
         const t = w.thickness / 2;
         const jamb = [P(-hw, -t), P(-hw, t), P(hw, -t), P(hw, t)];
         o += `<path d="M${jamb[0]}L${jamb[1]}M${jamb[2]}L${jamb[3]}" stroke="${col}" stroke-width="2" fill="none"/>`;
-        if (op.type === 'door') {
+        if (op.type === 'door' && (op.style === 'open' || op.style === 'sliding')) {
+          const q = op.style === 'sliding' ? t * .45 : 0;
+          if (op.style === 'sliding') o += `<path d="M${P(-hw, -q)}L${P(0.08, -q)}M${P(-0.08, q)}L${P(hw, q)}" stroke="${col}" stroke-width="2.4" fill="none"/>`;
+          else o += `<path d="M${P(-hw, 0)}L${P(hw, 0)}" stroke="${col}" stroke-width="1" stroke-dasharray="4 4" fill="none" opacity=".7"/>`;
+        } else if (op.type === 'door' && op.style === 'double') {
+          [-1, 1].forEach((sgn) => {                              // two leaves, hinged at both sides
+            const lw = op.width / 2, hingeU = sgn * hw, closedU = 0;
+            const hinge = P(hingeU, 0), closed = P(closedU, 0), leaf = P(hingeU, op.inv ? -lw : lw);
+            const v0 = [leaf[0] - hinge[0], leaf[1] - hinge[1]], v1 = [closed[0] - hinge[0], closed[1] - hinge[1]];
+            const sweep = v0[0] * v1[1] - v0[1] * v1[0] > 0 ? 1 : 0, R = lw * s;
+            o += `<path d="M${hinge}L${leaf}" stroke="${col}" stroke-width="2.5" fill="none"/>`;
+            o += `<path d="M${leaf}A${R} ${R} 0 0 ${sweep} ${closed}" stroke="${col}" stroke-width="1" stroke-dasharray="3 3" fill="none" opacity=".8"/>`;
+          });
+        } else if (op.type === 'door') {
           const hu = op.flip ? hw : -hw, closed = P(-hu, 0), hinge = P(hu, 0);
           const leaf = P(hu, op.inv ? -op.width : op.width);
           const v0 = [leaf[0] - hinge[0], leaf[1] - hinge[1]], v1 = [closed[0] - hinge[0], closed[1] - hinge[1]];
