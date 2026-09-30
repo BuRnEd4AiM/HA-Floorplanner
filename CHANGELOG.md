@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-09-30
+### Changed
+- Completely revised README with feature overview and new screenshots (3D, 2D, split view, whole house, library, room panel, light popup)
+### Fixed
+- The house selector in the header was visible even with a single house
+
 ## [1.8.0] - 2026-09-30
 ### Added
 - **Resizable side panel**: drag its left edge to make it wider (remembered per browser)

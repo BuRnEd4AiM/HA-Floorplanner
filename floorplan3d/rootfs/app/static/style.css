@@ -267,3 +267,4 @@ body.kiosk #houseGroup { display: none; }
 #panelResizer:hover, #panelResizer.drag { background: var(--accent); opacity: .5; }
 body.live #panelResizer { display: none; }
 @media (max-width: 700px) { #panelResizer { display: none; } }
+#houseGroup[hidden] { display: none; }
