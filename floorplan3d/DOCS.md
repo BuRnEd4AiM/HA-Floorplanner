@@ -70,6 +70,8 @@ Lights and scenes belong to a room when they are placed inside it or assigned to
 
 Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistant *Nanoleaf* integration: every panel set shows up as a light entity, place it like any other light (a *Lichtkugel* or *LED-Streifen* fits well). If a light offers effects (Nanoleaf scenes, WLED, Hue ...), the live popup shows an **Effects** drop-down; for a whole room the effects that all its lights share are offered.
 
+**Panel shapes:** the device palette has *Nanoleaf Dreieck / Sechseck / Quadrat / Linie*. Place one per real panel, rotate it to match the wall and give all of them the same light entity: they glow in the light's colour together. Clicking one in live mode opens the popup with colour, brightness and the effect (scene) list. LED strips that run along several walls are built from several *LED-Streifen* with the same entity.
+
 ## Home Assistant areas
 
 Select a room and pick its **HA area** in the properties panel. Afterwards:

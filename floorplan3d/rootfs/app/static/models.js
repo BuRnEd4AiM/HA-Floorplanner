@@ -41,6 +41,10 @@ export const DEVICE_TYPES = {
   fence:      { label: 'Zaun',        y: 0 },
   orb:        { label: 'Lichtkugel',  y: 0.4 },
   strip:      { label: 'LED-Streifen', y: 0.5 },
+  panel_tri:  { label: 'Nanoleaf Dreieck',  y: 1.4 },
+  panel_hex:  { label: 'Nanoleaf Sechseck', y: 1.4 },
+  panel_sq:   { label: 'Nanoleaf Quadrat',  y: 1.4 },
+  panel_bar:  { label: 'Nanoleaf Linie',    y: 1.4 },
 };
 
 const std = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.05, ...extra });
@@ -59,7 +63,24 @@ function glowMat(color = 0xfff2cc) {
   return new THREE.MeshStandardMaterial({ color, emissive: 0x000000, emissiveIntensity: 0, roughness: 0.4 });
 }
 
+/** flat light panel (Nanoleaf & co.) standing upright, facing +z; the whole shape glows with the light */
+function panel(g, pts) {
+  const glow = glowMat();
+  glow.side = THREE.DoubleSide;
+  const shape = new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x, y)));
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.025, bevelEnabled: false });
+  const m = new THREE.Mesh(geo, glow);
+  m.position.z = -0.0125;
+  g.add(m);
+  g.userData.glow = [glow];
+}
+const ngon = (n, r, cy, a0 = 0) => Array.from({ length: n }, (_, k) => [Math.cos(a0 + (k * 2 * Math.PI) / n) * r, cy + Math.sin(a0 + (k * 2 * Math.PI) / n) * r]);
+
 const builders = {
+  panel_tri(g) { panel(g, [[-0.12, 0], [0.12, 0], [0, 0.208]]); },
+  panel_hex(g) { panel(g, ngon(6, 0.13, 0.13)); },
+  panel_sq(g)  { panel(g, [[-0.12, 0], [0.12, 0], [0.12, 0.24], [-0.12, 0.24]]); },
+  panel_bar(g) { panel(g, [[-0.45, 0], [0.45, 0], [0.45, 0.04], [-0.45, 0.04]]); },
   orb(g) {                      // glowing ball: one spot of an LED strip / accent light
     const glow = glowMat();
     g.add(new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 14), glow));

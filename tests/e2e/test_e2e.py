@@ -273,8 +273,9 @@ with sync_playwright() as p:
     g = pg2.evaluate("window.__fp.layout.floors[1].devices.length")
     pg2.evaluate("""() => { const f = window.__fp.layout.floors[1];
       f.devices.push({id:'t1',type:'tree',x:-6,z:-6,y:0,rot:0,scale:1,name:'Baum',entity:''},{id:'p1',type:'pool',x:-9,z:2,y:0,rot:0,scale:1,name:'Pool',entity:''},{id:'l1',type:'lawn',x:-8,z:-2,y:0,rot:0,scale:1,name:'Rasen',entity:''}); }""")
+    pg2.evaluate("""() => { const f = window.__fp.layout.floors[1]; ['panel_tri','panel_hex','panel_sq','panel_bar'].forEach((t, i) => f.devices.push({id:'n'+i,type:t,x:-4+i*0.4,z:-4,y:1.4,rot:0,scale:1,name:'Nano',entity:'light.wohnzimmer'})); }""")
     pg2.click("#floorPills .pill >> nth=1"); pg2.wait_for_timeout(300)
-    check("garden objects are kept", pg2.evaluate("window.__fp.layout.floors[1].devices.length") == g + 3)
+    check("garden objects are kept", pg2.evaluate("window.__fp.layout.floors[1].devices.length") == g + 7)
     pg2.click("#floorPills .pill:last-child"); pg2.wait_for_timeout(400)
     check("whole-house view switches on", pg2.evaluate("window.__fp.houseMode()") is True)
     pg2.click("#floorPills .pill >> nth=1"); pg2.wait_for_timeout(300)
