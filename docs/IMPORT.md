@@ -6,6 +6,8 @@
 
 <img src="img/import-4-whole-house.png" alt="Importiertes Haus mit Grundstück in der 3D-Ansicht" width="820">
 
+**Deutsch** · [English](IMPORT.en.md)
+
 </div>
 
 

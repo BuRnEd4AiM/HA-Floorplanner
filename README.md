@@ -81,7 +81,7 @@ Tell the add-on what your property looks like and it builds the house: walls fro
 ```
 
 </td>
-<td width="54%" valign="top"><img src="docs/img/import-4-whole-house.png" alt="Example house with plot and garden, built from docs/examples/house.json"><br><sub>Result of <a href="docs/examples/house.json">docs/examples/house.json</a>: 4 floors, plot, garden</sub></td>
+<td width="54%" valign="top"><img src="docs/img/import-en-4-whole-house.png" alt="Example house with plot and garden, built from docs/examples/house.json"><br><sub>Result of <a href="docs/examples/house.json">docs/examples/house.json</a>: 4 floors, plot, garden</sub></td>
 </tr>
 </table>
 
@@ -93,7 +93,7 @@ curl -X POST "$BASE/api/import?name=Cabin" -H "Content-Type: application/json" -
 curl "$BASE/api/export/property?house=main" -o my-house.json                                    # export any house in the same format
 ```
 
-Format reference, screenshots, prompt tips and examples: **[docs/IMPORT.md](docs/IMPORT.md)**
+Format reference, screenshots, prompt tips and examples: **[docs/IMPORT.en.md](docs/IMPORT.en.md)**
 
 ## 🎯 Features
 
@@ -123,12 +123,12 @@ Describe plot, rooms, windows and devices as JSON (write it by hand, let an AI g
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/import-1-dialog.png" alt="Import dialog"><br><sub><b>Import dialog</b>: examples, check, AI prompt</sub></td>
-<td width="50%"><img src="docs/img/import-5-plan2d.png" alt="Plan with plot boundary"><br><sub><b>Result</b>: plot boundary in the plan</sub></td>
+<td width="50%"><img src="docs/img/import-en-1-dialog.png" alt="Import dialog"><br><sub><b>Import dialog</b>: examples, check, AI prompt</sub></td>
+<td width="50%"><img src="docs/img/import-en-5-plan2d.png" alt="Plan with plot boundary"><br><sub><b>Result</b>: plot boundary in the plan</sub></td>
 </tr>
 </table>
 
-API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema`. Full guide: **[docs/IMPORT.md](docs/IMPORT.md)**
+API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema`. Full guide: **[docs/IMPORT.en.md](docs/IMPORT.en.md)**
 
 ### 🪑 Furnish it
 
@@ -170,7 +170,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 - **Permissions**: only chosen users edit, everyone else gets a read-only live view, enforced in the backend
 - **Offline and private**: three.js is bundled, no CDN, no cloud, no account; it opens through Ingress in the Home Assistant sidebar
-- **Import by JSON / AI / GeoJSON**: describe plot, rooms, windows and devices and get a new house; includes examples, schema, API and an AI prompt ([guide](docs/IMPORT.md))
+- **Import by JSON / AI / GeoJSON**: describe plot, rooms, windows and devices and get a new house; includes examples, schema, API and an AI prompt ([guide](docs/IMPORT.en.md))
 - **7 languages**: Deutsch, English, Français, Español, Italiano, Nederlands, Polski (⚙ → Language, or *Auto*). Adding another one is a single file, see [CONTRIBUTING](CONTRIBUTING.md)
 - **Backup and restore**: one file with all houses, settings, pictures and models. A safety copy is made before every restore
 - **Undo**: `Ctrl+Z` for everything you draw
@@ -221,7 +221,7 @@ To build it yourself: `cd demo && npm install && npm run build`.
 ## 📚 Documentation
 
 - [User guide](floorplan3d/DOCS.md): permissions, tablets and views, areas, whole-room control, Nanoleaf, 2D editor, houses, backup
-- [Import a house by JSON / AI / GeoJSON](docs/IMPORT.md) (with screenshots, format reference, API, prompt tips; examples in [docs/examples](docs/examples))
+- [Import a house by JSON / AI / GeoJSON](docs/IMPORT.en.md) ([Deutsch](docs/IMPORT.md); with screenshots, format reference, API, prompt tips; examples in [docs/examples](docs/examples))
 - [Architecture](docs/ARCHITECTURE.md): how the add-on is built
 - [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md) · [Security policy](SECURITY.md)
 
