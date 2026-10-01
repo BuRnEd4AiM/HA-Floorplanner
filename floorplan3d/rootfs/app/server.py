@@ -46,6 +46,7 @@ DEFAULT_SETTINGS = {
     "lowWalls": False,
     "showLabels": True,
     "cutaway": True,           # walls facing the camera sink down
+    "earth": "solid",          # ground around the house: off | glass | solid (cut open on the camera's side)
     "wallStop": True,          # devices cannot be dragged through walls (doors let them pass)
     "belowVisibility": 0.5,    # how clearly floors below the current one shine through (0.05..1)
     "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
@@ -352,6 +353,8 @@ def validate_settings(data: dict) -> dict:
         out["theme"] = DEFAULT_SETTINGS["theme"]
     if out["units"] not in ("metric", "imperial"):
         out["units"] = DEFAULT_SETTINGS["units"]
+    if out["earth"] not in ("off", "glass", "solid"):
+        out["earth"] = DEFAULT_SETTINGS["earth"]
     return out
 
 

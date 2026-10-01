@@ -4,6 +4,17 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.7.0] - 2026-10-01
+### Added
+- **The house stands in the ground**: solid earth with a **lawn on top** around the house, in the shape of the plot (Grundstück) if one is drawn, otherwise a generous area around the house. The house itself is cut out, so the lawn reaches right up to the walls
+- **Basement in the earth, shown as a section**: with a basement, the earth in front of the facade that faces the camera is cut away like in a section drawing. You see the whole basement wall, and the cut face shows soil layers (topsoil, loam, clay, gravel). The cut turns with the camera
+- Also in the normal floor view (ground floor and above) the house stands on the lawn instead of floating
+- New setting **⚙ → Ground around the house**: *solid, cut open on the camera side* (default), *see-through* (the earlier faint look) or *off*
+
+### Changed
+- With solid earth the basement is drawn normally in the whole-house view (before it was always faint), and the grid under the lawn is hidden in live mode and the whole-house view (it stays while drawing)
+- Without a basement the ground is not cut, the lawn simply runs all around the house
+
 ## [3.6.0] - 2026-10-01
 ### Changed
 - **Live updates instantly**: the add-on keeps one websocket connection to Home Assistant and pushes every state change to all open views the moment it happens. A wall switch, an automation, the HA app or a sensor now show up **within a fraction of a second** instead of up to 4 seconds later

@@ -616,6 +616,27 @@ with sync_playwright() as p:
     check("live channel: an outside change arrives within a second (no 4 s polling)", live_up and seen is not None and seen < 1.0, (live_up, before, seen))
     urllib.request.urlopen(f"http://localhost:8123/_set?e=light.wohnzimmer&s={before}")
     pg15.close()
+    # --- ground: a house with a basement stands in solid earth, cut open along the facade that faces the camera
+    pg16 = b.new_page(viewport={"width": 1300, "height": 800}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pg16.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pg16.goto(BASE + "?debug=1&mode=live"); pg16.wait_for_timeout(1500)
+    pg16.once("dialog", lambda d: d.accept("Keller"))
+    pg16.evaluate("window.__fp.addFloorOf('basement')"); pg16.wait_for_timeout(300)
+    pg16.evaluate("""(() => { const f = window.__fp.layout.floors[0]; const P = [[0,0],[6,0],[6,5],[0,5]];
+      P.forEach((a, i) => f.walls.push({ id: 'kw' + i, a: [...a], b: [...P[(i + 1) % 4]], thickness: 0.3, height: 2.6, openings: [] }));
+      f.rooms.push({ id: 'kr', name: 'Kellerraum', color: '#777', points: P.map((p) => [...p]) }); })()""")
+    pg16.evaluate("window.__fp.setHouseMode(true)"); pg16.wait_for_timeout(800)
+    e1 = pg16.evaluate("window.__fp.earthDbg()")
+    check("ground: solid earth with a cut face in the whole-house view, grid hidden under the lawn",
+          e1["solid"] and e1["capVisible"] and e1["capVerts"] >= 6 and abs(e1["n"][1]) < 1e-6 and not e1["gridShown"], e1)
+    s16 = pg16.evaluate("fetch('api/settings').then(r => r.json())")
+    pg16.evaluate("(s) => fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...s, earth: 'off' }) })", s16)
+    pg16.reload(); pg16.wait_for_timeout(1500)
+    pg16.evaluate("window.__fp.setHouseMode(true)"); pg16.wait_for_timeout(500)
+    e2 = pg16.evaluate("window.__fp.earthDbg()")
+    check("ground: can be switched off in the settings", not e2["solid"], e2)
+    pg16.evaluate("(s) => fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...s, earth: 'solid' }) })", pg16.evaluate("fetch('api/settings').then(r => r.json())"))
+    pg16.close()
     pg11 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg11.goto(BASE + "?debug=1&mode=edit"); pg11.wait_for_timeout(1500)
     nh = pg11.evaluate("fetch('api/houses').then(r => r.json()).then(h => h.length)")

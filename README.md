@@ -161,6 +161,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Scenes where the light is**: the popup of a light lists every scene that contains it (e.g. *Gaming*)
 - **Effects**: effect lists of Nanoleaf, WLED, Hue and others; **Nanoleaf layout editor** (snap grid: click triangles, hexagons, squares and bars together, saved as one object with one entity) plus single panel shapes
 - **Realistic light**: lights glow in their real colour, with type-dependent light pools (a strip does not light the room like a ceiling lamp), dimmable
+- **House in its ground**: lawn around the house in the shape of your plot; a basement sits in the earth and is shown as a section with soil layers, cut open on the side you look from
 - **Instant live state**: a wall switch, an automation or a sensor shows up within a fraction of a second (the add-on listens to Home Assistant's event stream instead of polling)
 - **LED ring**: indirect light all around a room under the ceiling, split into as many sections as you like (several per wall, set by metres or by dragging in the 2D plan), each with its own light entity
 - **Home Assistant details**: ⓘ opens HA's own dialog with history, logbook and settings for any placed entity

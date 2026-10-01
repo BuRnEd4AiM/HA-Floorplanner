@@ -21,7 +21,7 @@ const params = new URLSearchParams(location.search);
 
 let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true, wallStop: true,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true, wallStop: true, earth: 'solid',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
   userRooms: {}, userViews: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
@@ -88,6 +88,7 @@ const canvas = $('#view');
 const perfParam = params.get('perf');
 const LOW = perfParam ? perfParam === 'low' : !!(params.get('kiosk') || params.get('room') || matchMedia('(pointer: coarse)').matches);
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: !LOW, alpha: true, powerPreference: 'high-performance' });
+renderer.localClippingEnabled = true;                      // the ground is cut open on the camera's side
 renderer.setPixelRatio(LOW ? Math.min(devicePixelRatio, 1.25) : Math.min(devicePixelRatio, 3));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -299,6 +300,113 @@ function colorFromStops(stops, v) {
 }
 const roomMeshes = new Map();     // room id -> { mesh, room }
 
+/* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing ---- */
+const earthCut = new THREE.Plane(new THREE.Vector3(0, -1, 0), -1000);   // nothing cut until the camera says where
+let earthInfo = null;                                                   // { cx, cz, corners ... } of the house footprint while the earth is cut
+let earthLawn = false;                                                  // solid ground is drawn: the lawn replaces the grid
+/** outline of the house at ground level: walls (with their thickness) and rooms of the basements and the ground floor */
+function houseFootprint() {
+  const polys = [];
+  layout.floors.slice(0, groundIdx() + 1).forEach((f) => {
+    f.walls.forEach((w) => {
+      const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], L = Math.hypot(dx, dz);
+      if (L < 1e-3) return;
+      const t = (w.thickness || 0.2) / 2 + 0.01, nx = (-dz / L) * t, nz = (dx / L) * t, ex = (dx / L) * t, ez = (dz / L) * t;
+      polys.push([[[w.a[0] - ex + nx, w.a[1] - ez + nz], [w.b[0] + ex + nx, w.b[1] + ez + nz], [w.b[0] + ex - nx, w.b[1] + ez - nz], [w.a[0] - ex - nx, w.a[1] - ez - nz], [w.a[0] - ex + nx, w.a[1] - ez + nz]]]);
+    });
+    f.rooms.forEach((r) => { if (r.points.length >= 3) polys.push([[...r.points.map((p) => [p[0], p[1]]), [r.points[0][0], r.points[0][1]]]]); });
+  });
+  if (!polys.length) return [];
+  try { return polygonClipping.union(...polys).map((poly) => poly[0].slice(0, -1)); } catch { return []; }   // outer rings only
+}
+let soilTex = null;
+function soilTexture() {                       // earth layers for the sides and the cut: topsoil, loam, clay, gravel
+  if (soilTex) return soilTex;
+  const c = document.createElement('canvas'); c.width = 64; c.height = 256;
+  const x = c.getContext('2d');
+  [[0, 22, '#4f6b2e'], [22, 70, '#5a3d24'], [70, 150, '#7a5634'], [150, 210, '#8d6a44'], [210, 256, '#6e6155']].forEach(([a, b, col]) => { x.fillStyle = col; x.fillRect(0, a, 64, b - a); });
+  for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(${i % 3 ? '30,20,10' : '200,180,150'},${0.15 + (i % 5) * 0.05})`; x.fillRect((i * 37) % 64, 22 + ((i * 53) % 234), 2, 2); }
+  soilTex = new THREE.CanvasTexture(c);
+  soilTex.wrapS = soilTex.wrapT = THREE.RepeatWrapping;
+  soilTex.colorSpace = THREE.SRGBColorSpace;
+  return soilTex;
+}
+function buildEarth(world, holo) {
+  const foot = houseFootprint();
+  if (!foot.length) return;
+  const xs = foot.flat().map((p) => p[0]), zs = foot.flat().map((p) => p[1]);
+  const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+  const margin = Math.max(4, Math.max(x1 - x0, z1 - z0) * 0.35);
+  const outline = layout.plot?.boundary?.length >= 3 ? layout.plot.boundary
+    : [[x0 - margin, z0 - margin], [x1 + margin, z0 - margin], [x1 + margin, z1 + margin], [x0 - margin, z1 + margin]];
+  const nb = groundIdx(), depth = nb > 0 ? nb * FLOOR_H + 0.4 : 0.4;   // without a basement: a slab of ground the house stands on
+  const shape = new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, -z)));
+  foot.forEach((ring) => shape.holes.push(new THREE.Path(ring.map(([x, z]) => new THREE.Vector2(x, -z)))));
+  const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: false, curveSegments: 1 });
+  geo.rotateX(-Math.PI / 2);
+  geo.translate(0, -depth - 0.02, 0);
+  const solid = settings.earth === 'solid', cut = solid && nb > 0, clip = cut ? [earthCut] : [];   // without a basement there is nothing to show in a cut
+  const tex = soilTexture().clone(); tex.needsUpdate = true; tex.repeat.set(0.5, 1 / depth);
+  const lawn = new THREE.MeshBasicMaterial({ color: holo ? 0x1d6b4a : 0x6fa858, transparent: !solid || holo, opacity: solid ? (holo ? 0.85 : 1) : 0.2, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip });
+  const soil = new THREE.MeshBasicMaterial({ map: solid ? tex : null, color: solid ? (holo ? 0x8a6a8a : 0xffffff) : 0x6b4a2f, transparent: !solid || holo, opacity: solid ? (holo ? 0.9 : 1) : 0.22, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip });
+  const none = new THREE.MeshBasicMaterial({ visible: false });
+  const earth = new THREE.Mesh(geo, [none, soil]);              // the block: only its sides (soil); its caps are not drawn ...
+  earth.renderOrder = -1;
+  const top = new THREE.Mesh(new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2), lawn);   // ... the lawn on top is a mesh of its own,
+  top.position.y = -0.02;                                       // so looking into the cut never shows a green bottom
+  top.renderOrder = -1;
+  world.add(top);
+  earth.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), new THREE.LineBasicMaterial({ color: holo ? 0x3dffb0 : 0x7a5a38, transparent: true, opacity: holo ? 0.5 : 0.6, clippingPlanes: clip })));
+  world.add(earth);
+  earthLawn = solid;
+  if (cut) {
+    const cap = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ map: tex, color: holo ? 0x8a6a8a : 0xffffff, transparent: holo, opacity: holo ? 0.9 : 1, side: THREE.DoubleSide }));
+    world.add(cap);
+    earthInfo = { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, corners: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]], rings: [outline, ...foot], depth, cap, key: '' };
+  }
+  updateEarthCut();
+}
+/** the face of the cut: where the cut line runs through earth (inside the ground outline, outside the house), a wall of
+ *  soil layers from the lawn down to the bottom of the basement, so the cut reads as a section and not as a hollow box */
+function earthCapGeometry(px, pz, ux, uz, rings, depth) {
+  const ts = [];
+  rings.forEach((ring) => ring.forEach((a, i) => {          // where the cut line crosses an edge (even-odd over outline and house)
+    const b = ring[(i + 1) % ring.length], ex = b[0] - a[0], ez = b[1] - a[1], den = ux * ez - uz * ex;
+    if (Math.abs(den) < 1e-9) return;
+    const t = ((a[0] - px) * ez - (a[1] - pz) * ex) / den, k = ((a[0] - px) * uz - (a[1] - pz) * ux) / den;
+    if (k >= 0 && k < 1) ts.push(t);
+  }));
+  ts.sort((x, y) => x - y);
+  const pos = [], uv = [], top = -0.02, bot = -depth - 0.02;
+  for (let i = 0; i + 1 < ts.length; i += 2) {
+    const [t0, t1] = [ts[i], ts[i + 1]], A = [px + ux * t0, pz + uz * t0], B = [px + ux * t1, pz + uz * t1];
+    pos.push(A[0], bot, A[1], B[0], bot, B[1], B[0], top, B[1], A[0], bot, A[1], B[0], top, B[1], A[0], top, A[1]);
+    uv.push(t0 / 2, 0, t1 / 2, 0, t1 / 2, 1, t0 / 2, 0, t1 / 2, 1, t0 / 2, 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  return g;
+}
+/** the cut follows the camera: the earth in front of the facade that faces the camera is taken away, like a section drawing */
+function updateEarthCut() {
+  if (grid) grid.visible = !(earthLawn && (isLive() || houseMode));   // the lawn is the ground; the grid only while drawing
+  if (!earthInfo) return;
+  let dx = camera.position.x - earthInfo.cx, dz = camera.position.z - earthInfo.cz;
+  const L = Math.hypot(dx, dz);
+  if (L < 1e-3) { earthCut.set(new THREE.Vector3(0, -1, 0), -1000); earthInfo.cap.visible = false; return; }   // straight from above: nothing to cut
+  if (Math.abs(dx) > Math.abs(dz)) { dx = Math.sign(dx); dz = 0; } else { dz = Math.sign(dz); dx = 0; }   // cut along the facade facing the camera
+  const ext = Math.max(...earthInfo.corners.map(([x, z]) => (x - earthInfo.cx) * dx + (z - earthInfo.cz) * dz)) - 0.08;   // just inside the outer wall: the basement wall is laid bare
+  const px = earthInfo.cx + dx * ext, pz = earthInfo.cz + dz * ext;
+  earthCut.setFromNormalAndCoplanarPoint(new THREE.Vector3(-dx, 0, -dz), new THREE.Vector3(px, 0, pz));
+  const key = `${Math.round(Math.atan2(dz, dx) * 200)}`;            // rebuild the cut face only when the view turned a little
+  if (key === earthInfo.key) return;
+  earthInfo.key = key;
+  earthInfo.cap.geometry.dispose();
+  earthInfo.cap.geometry = earthCapGeometry(px - dx * 0.01, pz - dz * 0.01, -dz, dx, earthInfo.rings, earthInfo.depth);
+  earthInfo.cap.visible = true;
+}
+
 /** Turn a model into a translucent blue wireframe hologram; lit parts are remembered for state changes. */
 function holoify(model, ghost) {
   const glow = new Set(model.userData.glow || []), led = new Set(model.userData.led || []);
@@ -454,36 +562,30 @@ function build() {
   registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear();
   const holo = isHolo();
   const iso = isolatedRoom();
-  if (houseMode) {                              // ground reference for the plot
+  if (houseMode && settings.earth !== 'solid') {  // ground reference for the plot (with solid earth the lawn is the ground)
     const hb = houseBounds(), sz = Math.ceil(Math.max(hb.size * 2, 20) / 2) * 2;
     const grid = new THREE.GridHelper(sz, sz, holo ? HOLO.edge : 0x6c8a5c, holo ? 0x1a4fb8 : 0x88a878);
     grid.position.set(hb.cx, -0.03, hb.cz);
     grid.material.transparent = true; grid.material.opacity = 0.35;
     world.add(grid);
-    const nb = groundIdx();                      // basements: earth around them, so they read as below ground
-    if (nb > 0) {
-      const depth = nb * FLOOR_H, earthSize = Math.max(hb.size * 1.6, 14);
-      const eg = new THREE.BoxGeometry(earthSize, depth, earthSize);
-      const earth = new THREE.Mesh(eg, new THREE.MeshBasicMaterial({ color: 0x6b4a2f, transparent: true, opacity: 0.22, depthWrite: false }));
-      earth.position.set(hb.cx, -depth / 2 - 0.03, hb.cz);
-      earth.add(new THREE.LineSegments(new THREE.EdgesGeometry(eg), new THREE.LineBasicMaterial({ color: 0x9a7448, transparent: true, opacity: 0.6 })));
-      world.add(earth);
-      const lawn = new THREE.Mesh(new THREE.PlaneGeometry(earthSize, earthSize).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x5aa04a, transparent: true, opacity: 0.18, depthWrite: false }));
-      lawn.position.set(hb.cx, -0.02, hb.cz);
-      world.add(lawn);
-    }
   }
+  earthInfo = null; earthLawn = false;
+  const withEarth = settings.earth !== 'off' && (houseMode || floorIdx >= groundIdx()) && !iso;
+  if (withEarth) buildEarth(world, holo);          // the house stands in the ground: lawn on top, the basement inside the earth
   if (layout.plot?.boundary?.length >= 3) {      // the plot (Grundstück): outline + a faint ground area
     const pb = layout.plot.boundary, shape = new THREE.Shape(pb.map(([x, z]) => new THREE.Vector2(x, -z)));
-    const ground = new THREE.Mesh(new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: holo ? 0x1a8f6a : 0x6aa05a, transparent: true, opacity: holo ? 0.1 : 0.35, depthWrite: false, side: THREE.DoubleSide }));
-    ground.position.y = -0.04;
-    const loop = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pb.map(([x, z]) => new THREE.Vector3(x, -0.035, z))), new THREE.LineBasicMaterial({ color: holo ? 0x3dffb0 : 0x3f7a35 }));
-    world.add(ground, loop);
+    const loop = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pb.map(([x, z]) => new THREE.Vector3(x, withEarth ? 0.005 : -0.035, z))), new THREE.LineBasicMaterial({ color: holo ? 0x3dffb0 : 0x3f7a35 }));
+    if (!withEarth) {
+      const ground = new THREE.Mesh(new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: holo ? 0x1a8f6a : 0x6aa05a, transparent: true, opacity: holo ? 0.1 : 0.35, depthWrite: false, side: THREE.DoubleSide }));
+      ground.position.y = -0.04;
+      world.add(ground);
+    }
+    world.add(loop);
   }
   layout.floors.forEach((f, i) => {
     if (i > floorIdx && !houseMode) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
-    const ghost = (i < floorIdx && !houseMode) || (houseMode && f.kind === 'basement');
+    const ghost = (i < floorIdx && !houseMode) || (houseMode && f.kind === 'basement' && settings.earth !== 'solid');   // with solid earth the cut shows the basement as it is
     const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 }) : null;
     const g = new THREE.Group();
     g.position.y = elev(i);
@@ -803,6 +905,7 @@ function wallCutawayInfo(w, group) {
 const CUT_LOW = 0.14;
 function updateCutaway() {
   if (roofs.length) updateRoofFade();
+  updateEarthCut();
   if (!cutawayWalls.length) return;
   const { cx, cz } = floorBounds();
   let dx = camera.position.x - cx, dz = camera.position.z - cz;
@@ -2924,7 +3027,7 @@ const dlg = $('#settingsDialog');
 const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
-  shadows: '#setShadows', showLabels: '#setLabels', lowWalls: '#setLowWalls', cutaway: '#setCutaway', wallStop: '#setWallStop',
+  shadows: '#setShadows', showLabels: '#setLabels', earth: '#setEarth', lowWalls: '#setLowWalls', cutaway: '#setCutaway', wallStop: '#setWallStop',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
@@ -3246,6 +3349,7 @@ if (params.get('debug')) {
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
     liveOk: () => liveOk,
+    earthDbg: () => ({ n: earthCut.normal.toArray(), c: earthCut.constant, solid: earthLawn, cut: !!earthInfo, capVisible: !!earthInfo?.cap.visible, capVerts: earthInfo?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible }),
     stateOf: (e) => states[e]?.state,
     fakeState(e, st) { states[e] = { ...(states[e] || {}), state: st }; applyOpenings(); },
     has: (id) => registry.has(id),
