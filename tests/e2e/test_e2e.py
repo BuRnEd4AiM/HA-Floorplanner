@@ -699,6 +699,8 @@ with sync_playwright() as p:
     check("offline: the list opens, a tap shows the device", n_items >= 2 and not pg17.locator("#offlineDialog[open]").count() and pg17.locator("#livePopup").is_visible(), n_items)
     urllib.request.urlopen("http://localhost:8123/_set?e=sensor.temp&s=21.5"); pg17.wait_for_timeout(1200)
     check("offline: back online, off the list", not [x for x in pg17.evaluate("window.__fp.offline()") if x["id"] == "offA"])
+    mem = [pg17.evaluate("(() => { window.__fp.rebuild(); window.__fp.frame(); return window.__fp.renderer.info.memory.geometries; })()") for _ in range(4)]
+    check("tablet: rebuilding the scene does not leak graphics memory", mem[0] == mem[-1], mem)
     check("tablet: low-power mode without blur", pg17.evaluate("window.__fp.LOW && document.body.classList.contains('low')"))
     check("live: no grid", not pg17.evaluate("window.__fp.earthDbg()")["gridShown"])
     pg17.evaluate("window.__fp.navBar().scrollLeft = 0"); pg17.wait_for_timeout(200)
