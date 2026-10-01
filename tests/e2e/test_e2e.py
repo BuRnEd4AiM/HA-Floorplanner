@@ -674,18 +674,21 @@ with sync_playwright() as p:
     pg17 = b.new_page(viewport={"width": 760, "height": 1000}, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg17.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
     pg17.goto(BASE + "?debug=1&mode=live"); pg17.wait_for_timeout(1500)
-    check("offline: the pill is there with nothing offline too", pg17.locator("#offlinePill").is_visible() and "0" in pg17.inner_text("#offlinePill"), pg17.inner_text("#offlinePill"))
+    pg17.evaluate("(() => { const L = window.__fp.layout; window.__keep = L.floors.map(f => f.devices); L.floors.forEach(f => f.devices = []); window.__fp.rebuild(); })()"); pg17.wait_for_timeout(400)
+    check("offline: the pill is there with nothing offline too", pg17.locator("#offlinePill.ok").is_visible() and "0" in pg17.inner_text("#offlinePill"), pg17.inner_text("#offlinePill"))
+    pg17.evaluate("(() => { const L = window.__fp.layout; L.floors.forEach((f, i) => f.devices = window.__keep[i]); window.__fp.rebuild(); })()"); pg17.wait_for_timeout(400)
     urllib.request.urlopen("http://localhost:8123/_set?e=switch.garage&s=unavailable"); pg17.wait_for_timeout(1200)
-    oth = pg17.evaluate("window.__fp.offlineOther().map(x => x.entity)")
-    check("offline: an unavailable entity that is not in the plan is listed too", "switch.garage" in oth and "0" in pg17.inner_text("#offlinePill"), oth)
+    check("offline: an entity that is not placed in the plan is not listed", not [x for x in pg17.evaluate("window.__fp.offline()") if x["entity"] == "switch.garage"])
     urllib.request.urlopen("http://localhost:8123/_set?e=switch.garage&s=off"); pg17.wait_for_timeout(800)
     pg17.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
       f.devices.push({ id: 'offA', type: 'sensor', x: 1, z: 1, y: 1.8, rot: 0, scale: 1, name: 'Temp-Sensor', entity: 'sensor.temp' },
-                     { id: 'offB', type: 'light', x: 2, z: 1, y: 2.5, rot: 0, scale: 1, name: 'Alte Lampe', entity: 'light.gibtesnicht' });
+                     { id: 'offB', type: 'light', x: 2, z: 1, y: 2.5, rot: 0, scale: 1, name: 'Alte Lampe', entity: 'light.gibtesnicht' },
+                     { id: 'offC', type: 'spot', x: 3, z: 1, y: 2.5, rot: 0, scale: 1, name: 'Spot ohne Entität', entity: '' },
+                     { id: 'offD', type: 'sofa', x: 3, z: 2, y: 0, rot: 0, scale: 1, name: 'Sofa', entity: '' });
       window.__fp.rebuild(); })()""")
     pg17.wait_for_timeout(500)
     off = pg17.evaluate("window.__fp.offline().filter(x => x.id.startsWith('off')).map(x => [x.id, x.reason])")
-    check("offline: a placed entity that Home Assistant does not know is listed as missing", off == [["offB", "missing"]], off)
+    check("offline: a missing entity and a lamp without entity are listed, furniture is not", off == [["offB", "missing"], ["offC", "unlinked"]], off)
     urllib.request.urlopen("http://localhost:8123/_set?e=sensor.temp&s=unavailable"); pg17.wait_for_timeout(1200)
     off = pg17.evaluate("window.__fp.offline().filter(x => x.id.startsWith('off')).map(x => [x.id, x.reason])")
     check("offline: an unavailable device shows up at once (live)", ["offA", "unavailable"] in off and pg17.locator("#offlinePill").is_visible(), off)

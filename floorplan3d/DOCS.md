@@ -150,7 +150,7 @@ On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-
 
 ## Devices offline
 
-The pill **✓ 0 offline** over the plan (live and edit mode) turns red (**⚠ n offline**) as soon as a placed device is **unavailable** in Home Assistant, reports an **unknown** state, or no longer exists there (renamed or deleted). Tap it to see the list with floor, room, entity and since when it is offline. Tap an entry to jump to the device. LED ring sections, TV backlights and door/window contacts are checked too. Below, the list also shows every other **unavailable** entity of Home Assistant that is not placed in the plan; when the plan runs inside Home Assistant, a tap opens its normal dialog.
+The pill **✓ 0 offline** over the plan (live and edit mode) turns red (**⚠ n offline**) as soon as a placed device is **unavailable** in Home Assistant, reports an **unknown** state, or no longer exists there (renamed or deleted). Tap it to see the list with floor, room, entity and since when it is offline. Tap an entry to jump to the device. LED ring sections, TV backlights and door/window contacts are checked too. Placed lamps and smart devices that are **not linked** to an entity are listed too (furniture, garden objects and pictures are not). Only what is placed in the plan is checked.
 
 ## Library, doors, windows and pictures
 
