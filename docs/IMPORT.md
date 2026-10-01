@@ -1,6 +1,18 @@
-# Grundstück / Grundriss importieren (JSON-Schnittstelle)
+<div align="center">
 
-Mit dem Import baust du aus einer kleinen JSON-Beschreibung (Grundstück, Raumpolygone, Fenster, Türen, Geräte) automatisch ein **neues Haus** im 3D Floorplan. Dein bestehendes Haus bleibt unberührt – der Import legt immer ein neues an (max. 20 Häuser).
+# 📥 Haus per JSON importieren
+
+**Grundstück, Räume, Fenster, Türen und Geräte beschreiben – das Haus entsteht automatisch.**
+
+<img src="img/import-4-whole-house.png" alt="Importiertes Haus mit Grundstück in der 3D-Ansicht" width="820">
+
+</div>
+
+
+> [!NOTE]
+> Der Import legt **immer ein neues Haus** an und überschreibt nie etwas (max. 20 Häuser).
+
+Mit dem Import baust du aus einer kleinen JSON-Beschreibung (Grundstück, Raumpolygone, Fenster, Türen, Geräte) automatisch ein **neues Haus** im 3D Floorplan.
 
 Du kannst die JSON von Hand schreiben, von einer **KI** erzeugen lassen, aus **GeoJSON** (z. B. Katasterdaten/OpenStreetMap) ableiten oder aus einem vorhandenen Haus **exportieren**.
 
@@ -79,7 +91,22 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 
 `{ "preset": "window2", "at": [x, z] }` – die Öffnung rastet an der **nächstgelegenen Wand** ein. Liegt keine Wand in der Nähe, wird sie mit Warnung übersprungen; Überlappungen und Positionen zu nah an Ecken werden korrigiert bzw. gemeldet.
 
-Presets: `door`, `doorEntry`, `doorGlass`, `doorDouble`, `doorSlide`, `doorOpen`, `window`, `window2`, `window3`, `windowTall`, `windowBath`, `windowFixed`.
+
+| Preset | Art | Stil | Breite × Höhe | Brüstung |
+|---|---|---|---|---|
+| `door` | Tür | single | 0.9 × 2.05 m | 0 m |
+| `doorEntry` | Tür | single | 1.1 × 2.15 m | 0 m |
+| `doorGlass` | Tür | glass | 0.9 × 2.05 m | 0 m |
+| `doorDouble` | Tür | double | 1.6 × 2.05 m | 0 m |
+| `doorSlide` | Tür | sliding | 1.8 × 2.1 m | 0 m |
+| `doorOpen` | Tür | open | 1.0 × 2.05 m | 0 m |
+| `window` | Fenster | single | 1.0 × 1.2 m | 0.9 m |
+| `window2` | Fenster | double | 1.8 × 1.2 m | 0.9 m |
+| `window3` | Fenster | triple | 2.4 × 1.2 m | 0.9 m |
+| `windowTall` | Fenster | double | 1.8 × 2.1 m | 0 m |
+| `windowBath` | Fenster | single | 0.6 × 0.6 m | 1.5 m |
+| `windowFixed` | Fenster | fixed | 1.6 × 1.4 m | 0.6 m |
+
 Überschreibbar: `width`, `height`, `sill`, `style`, `entity` (z. B. Fenstersensor), `name`. Statt `preset` geht auch `"type": "door"|"window"`.
 
 ### Geräte & Möbel
@@ -93,7 +120,8 @@ Reihenfolge ist egal: Keller zuerst, Dachgeschoss/Dach zuletzt. Die Dachform ste
 
 ## API
 
-Alle Aufrufe brauchen Schreibrechte (Home-Assistant-Admin bzw. Editor) und laufen über Ingress oder den direkten Port.
+> [!IMPORTANT]
+> Alle Aufrufe brauchen Schreibrechte (Home-Assistant-Admin bzw. Editor) und laufen über Ingress oder den direkten Port.
 
 ```bash
 # nur prüfen, nichts anlegen
@@ -140,6 +168,17 @@ Tipps:
 | Katasterumriss verwenden | GeoJSON einfügen (Gebäude + Grundstück), importieren, Räume im Editor einzeichnen |
 | Haus sichern/teilen | Exportieren, Datei weitergeben, beim Empfänger importieren |
 | Per Skript/CI | `POST /api/import` mit curl (siehe oben) |
+
+## Fehlermeldungen
+
+| Meldung | Bedeutung | Lösung |
+|---|---|---|
+| `crosses itself` | Raumkanten überschneiden sich (Bow-Tie) | Punkte im Umlaufsinn angeben |
+| `too small or degenerate` | Fläche unter 0,5 m² | Maße prüfen (Meter, nicht cm) |
+| `no wall near …` | Öffnung liegt weit von jeder Wand | `at` auf die Wandlinie setzen |
+| `overlaps` | Zwei Öffnungen an derselben Stelle | Position oder Breite ändern |
+| `unknown device type` | Typ nicht in der Bibliothek | Typ aus dem Schema wählen |
+| `schemaVersion` fehlt | Nur Warnung | `"schemaVersion": 1` ergänzen |
 
 ## Grenzen & Fehlersuche
 

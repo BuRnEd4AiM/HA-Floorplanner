@@ -113,11 +113,11 @@ def _polygon(rep: Report, path: str, value, name="polygon", min_area=0.5):
     poly = [[round(float(p[0]), 3), round(float(p[1]), 3)] for p in value]
     if len(poly) > 3 and poly[0] == poly[-1]:
         poly.pop()                                   # a repeated closing point is fine
+    if _self_intersects(poly):
+        rep.error(path, f"{name} crosses itself (edges intersect, check the order of the points)")
+        return None
     if abs(_area(poly)) < min_area:
         rep.error(path, f"{name} is too small or degenerate (area under {min_area} m²)")
-        return None
-    if _self_intersects(poly):
-        rep.error(path, f"{name} crosses itself")
         return None
     return poly
 

@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-10-01
+### Changed
+- Import guide redesigned: screenshots, preset table, error table, callouts; import section with pictures in the README
+- Import: a polygon whose edges cross is now reported as such (instead of "too small"); disabled buttons look disabled
+
 ## [3.0.0] - 2026-10-01
 ### Added
 - **Import a property by JSON**: *Häuser → Grundriss importieren (JSON)* builds a **new house** from a description of plot, rooms, windows/doors and devices. Walls are derived from the room polygons (shared edges become one inner wall, outer walls are thicker), openings snap to the nearest wall, floors/basement/roof are ordered automatically. Check first, import only after a clean check; errors name the exact JSON path
