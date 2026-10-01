@@ -127,6 +127,9 @@ Outdoor items (*Baum, Busch, Pool, Rasen, Terrasse, Weg, Zaun*) are normal devic
 
 ### Stairs and stairwells
 
+Tool **Bodenöffnung** (floor opening): click the corners of an opening in the 2D plan (double click to close). The floor of that level is open there, for a stairwell, a gallery or a void; a placeholder block on the floor below is cut too. Select it to drag its corners, *Del* removes it.
+
+
 Tool **Treppe** (T): pick *Gerade*, *L*, *U* (with landing) or *Wendel*, set the direction and click in the plan. The steps are calculated from the floor height (3 m). Q/E rotates, dragging moves, the side panel edits width or radius, length and the turning side. Select a stair to get two handles in 2D: drag the one at the end of the run to change step depth (length) and the one at its side to change the width.
 
 - **Leads up**: the stair belongs to this floor and climbs to the next one. The floor above gets an opening over the whole stair automatically (dashed orange in 2D, only where the opening lies completely inside a room).
@@ -147,6 +150,21 @@ The template is only shown in the editor, never in live mode. Images are stored 
 ## Tablets and kiosk screens (performance)
 
 On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-power mode**: lower resolution, no antialiasing, shadows, blur or glow, 30 fps while in use and about 2 fps when idle, no drawing while the screen is off. If a tablet is not recognised (or you want full quality on it), choose ⚙ → **Performance on this device**: *Automatic*, *Beautiful* or *Fast*. The choice is stored in that browser only, so each tablet can have its own. Add `&perf=high` or `&perf=low` to the address to override it. When the floor and room buttons over the plan do not fit, they scroll sideways: swipe them or use the ‹ › arrows at the ends. Tips for Fire tablets: use Fully Kiosk Browser, keep hardware acceleration/WebGL on, and use one tablet per room (`?room=Name`) instead of the whole-house view.
+
+## Warnings
+
+Without any setup the plan warns when a **smoke, gas, carbon monoxide or water sensor** (a `binary_sensor` with that device class) reports *on*, when an **alarm panel** is triggered, and when a **window is open while it rains** (the weather entity reports rain, hail or sleet). A red banner appears at the top and the room flashes red; a tap on the banner jumps into the room. The room is found from the device or window bound to the sensor, otherwise from the Home Assistant area of the room. ⚙ → *Wall tablet: warnings and kiosk* switches warnings off, can jump to a new warning by itself and sets the weather entity (empty = the first one).
+
+## Search
+
+The 🔍 button at the bottom left opens **"Where is …?"**: type part of a device, window or room name. A tap (or Enter for the first hit) switches to the right floor, moves the camera there and marks the device with a ring; in live mode its controls open.
+
+## Wall tablet kiosk
+
+In ⚙ → *Wall tablet: warnings and kiosk*, for the live view:
+- **Back to the start view** after a number of minutes without a touch (0 = off). A room tablet goes back to its room, otherwise the ground floor.
+- **Screen saver**: the house then turns slowly until the next touch.
+- **Dim at night**, by the sun (`sun.sun`) or between two times (e.g. 22:00 to 06:00). The first touch only wakes the screen, it does not switch anything.
 
 ## Devices offline
 
