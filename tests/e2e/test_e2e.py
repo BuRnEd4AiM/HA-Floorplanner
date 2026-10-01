@@ -533,7 +533,27 @@ with sync_playwright() as p:
     if sp: pg12.mouse.click(sp["x"], sp["y"]); pg12.wait_for_timeout(400)
     txt = pg12.inner_text("#livePopup") if pg12.is_visible("#livePopup") else ""
     check("live: tapping a section opens it with the section buttons", hit and hit.get("seg") == 2 and pg12.locator("#livePopup .ringSegs button.sel").inner_text() == "3" and pg12.locator("#livePopup .ringSegs button").count() == 4, (hit, txt[:120]))
+    pg12.evaluate("window.__fp.openRoomPanel('rr1')"); pg12.wait_for_timeout(300)
+    check("outside Home Assistant there is no details button", pg12.locator("#roomPanel .row").count() > 0 and pg12.locator(".mi").count() == 0)
     pg12.close()
+    # --- inside Home Assistant (Ingress iframe on HA's origin): details open HA's own more-info dialog
+    pg13 = b.new_page(viewport={"width": 1300, "height": 800}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pg13.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    host = ('<!doctype html><html><body style="margin:0"><home-assistant></home-assistant>'
+            '<iframe id="fr" src="/?debug=1&mode=live" style="position:absolute;left:0;top:0;width:1300px;height:800px;border:0"></iframe>'
+            '<script>window.__mi = []; document.querySelector("home-assistant").addEventListener("hass-more-info", (e) => window.__mi.push(e.detail.entityId));</script></body></html>')
+    pg13.route(BASE + "fake-ha.html", lambda r: r.fulfill(status=200, content_type="text/html", body=host))
+    pg13.goto(BASE + "fake-ha.html"); pg13.wait_for_timeout(2500)
+    fr = pg13.frame(url=lambda u: "debug=1" in u)
+    fr.evaluate("window.__fp.openRoomPanel('rr1')"); pg13.wait_for_timeout(300)
+    fr.locator("#roomPanel .row .mi").first.click(); pg13.wait_for_timeout(200)
+    check("room panel: details open Home Assistant's dialog for the entity", pg13.evaluate("window.__mi") == ["light.wohnzimmer"], pg13.evaluate("window.__mi"))
+    fr.evaluate("window.__fp.topDown()"); pg13.wait_for_timeout(300)
+    sp = fr.evaluate(f"window.__fp.ringSegScreen('{rid}', 0)")
+    pg13.mouse.click(sp["x"], sp["y"]); pg13.wait_for_timeout(400)
+    fr.locator("#livePopup .title .mi").click(); pg13.wait_for_timeout(200)
+    check("live popup: details button next to the name", pg13.evaluate("window.__mi").count("light.wohnzimmer") == 2, pg13.evaluate("window.__mi"))
+    pg13.close()
     pg11 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg11.goto(BASE + "?debug=1&mode=edit"); pg11.wait_for_timeout(1500)
     nh = pg11.evaluate("fetch('api/houses').then(r => r.json()).then(h => h.length)")

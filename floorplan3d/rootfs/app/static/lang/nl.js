@@ -270,6 +270,8 @@ export default {
   'ring.noRoom': 'Geen ruimte op deze plek',
   'ring.section': 'Sectie {n}',
   'ring.whole': 'Hele ring',
+  'live.details': 'Details',
+  'live.detailsHint': 'Home Assistant-venster met geschiedenis, logboek en instellingen openen',
   'ring.summary': '{on} van {n} secties aan',
   'dev.switch': 'Schakelaar',
   'dev.sensor': 'Sensor',

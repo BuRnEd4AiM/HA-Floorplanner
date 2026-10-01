@@ -2,6 +2,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
+import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { RING_DEFAULT_INSET, ringCount, segEntity, ringEntities, ringEdges, ringFromRoom, fitSegs } from './ledring.js';
 import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
 import {
@@ -1405,6 +1406,8 @@ function renderLivePopup() {
   const title = document.createElement('div'); title.className = 'title'; title.textContent = d.name || '';
   const sub = document.createElement('div'); sub.className = 'sub';
   sub.textContent = d.entity ? `${d.isOpening ? openText(d.entity) : stateText(d.entity)} · ${d.entity}` : t('live.noEntity');
+  const mi = detailsButton(d.entity);
+  if (mi) title.append(mi);
   box.append(title, sub);
   const acts = d.entity ? ACTIONS[d.entity.split('.')[0]] : null;
   if (acts) {
@@ -1429,12 +1432,22 @@ function renderLivePopup() {
   }
 }
 
+/** small button that opens Home Assistant's own dialog for the entity (history, logbook, settings); null outside the HA frontend */
+function detailsButton(entityId, compact = false) {
+  if (!entityId || !canMoreInfo()) return null;
+  const b = document.createElement('button'); b.type = 'button'; b.className = compact ? 'rp-more mi' : 'mi';
+  b.textContent = compact ? 'ⓘ' : `ⓘ ${t('live.details')}`; b.title = t('live.detailsHint');
+  b.addEventListener('click', (ev) => { ev.stopPropagation(); openMoreInfo(entityId); });
+  return b;
+}
 /** LED ring in live mode: one button per section, the tapped section's own controls, then the whole ring */
 function ringPopup(box, d) {
   const n = ringCount(d), all = ringEntities(d), isOnE = (e) => !!e && ON_STATES.has(states[e]?.state);
   const div = (cls, txt) => { const x = document.createElement('div'); x.className = cls; if (txt != null) x.textContent = txt; return x; };
   const on = Array.from({ length: n }, (_, i) => isOnE(segEntity(d, i))).filter(Boolean).length;
-  box.append(div('title', d.name || t('dev.ledring')), div('sub', all.length ? t('ring.summary', { on, n }) : t('live.noEntity')));
+  const title = div('title', d.name || t('dev.ledring')), mi = detailsButton(d.entity);
+  if (mi) title.append(mi);
+  box.append(title, div('sub', all.length ? t('ring.summary', { on, n }) : t('live.noEntity')));
   if (!all.length) return;
   const row = div('actions ringSegs');
   for (let i = 0; i < n; i++) {
@@ -1457,6 +1470,8 @@ function ringPopup(box, d) {
       b.addEventListener('click', () => callService(e, svc));
       r.append(b);
     });
+    const smi = detailsButton(e);
+    if (smi) h.append(smi);
     box.append(h, div('sub', `${stateText(e)} · ${e}`), r);
     if (e.startsWith('light.')) box.append(lightControls([e]));
   }
@@ -1656,6 +1671,8 @@ function renderRoomPanel() {
         r.addEventListener('change', () => onChange(+r.value));
         row.append(r);
       };
+      const rmi = detailsButton(d.entity, true);
+      if (rmi) row.append(rmi);
       if (dom === 'light') {                   // colours, effects and scenes right here: overlapping models are hard to tap in 3D
         const open = rpOpenCtl.has(d.entity);
         const tb = document.createElement('button'); tb.className = 'rp-more' + (open ? ' on' : ''); tb.textContent = '🎨'; tb.title = t('rp.lightMore');

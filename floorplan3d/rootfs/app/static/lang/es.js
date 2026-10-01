@@ -270,6 +270,8 @@ export default {
   'ring.noRoom': 'No hay habitación en este punto',
   'ring.section': 'Sección {n}',
   'ring.whole': 'Anillo completo',
+  'live.details': 'Detalles',
+  'live.detailsHint': 'Abrir la ventana de Home Assistant con historial, registro y ajustes',
   'ring.summary': '{on} de {n} secciones encendidas',
   'dev.switch': 'Interruptor',
   'dev.sensor': 'Sensor',

@@ -4,6 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.4.0] - 2026-10-01
+### Added
+- **Home Assistant details** (#9): in live mode the popup of a device (and of a door/window sensor) has a **ⓘ Details** button next to its name. It opens Home Assistant's own dialog for the entity with **history graph, logbook, all attributes and settings**, right on top of the floor plan
+- LED ring: every section has its own ⓘ Details button, the ring's main entity one next to the name
+- Room panel: an ⓘ button on every entity row
+- The buttons only appear when the floor plan runs inside Home Assistant (sidebar, HA app, wall tablet with the HA app); opened as a page of its own there is no HA dialog to open, so they stay hidden
+
+### Changed
+- Room panel: long entity names stay readable, the buttons move to a second line when space is short
+
 ## [3.3.0] - 2026-10-01
 ### Added
 - **LED ring (indirect light)**: new device *LED-Ring (indirekt)* in the lighting library. Placed in a room it runs **all around the room just under the ceiling** (cove / indirect lighting), 15 cm from the walls. It is one object made of several **sections** (one per wall), and **every section can have a light entity of its own**; sections without one use the ring's main entity

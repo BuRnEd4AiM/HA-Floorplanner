@@ -27,6 +27,7 @@ server.py  (aiohttp, port 8099)
 | `walls.js` | Wall geometry with door and window openings |
 | `models.js` | Built-in furniture and device models, GLB loading |
 | `ledring.js` | LED ring geometry: sections, room inset, entity per section (shared by 3D, 2D and tests) |
+| `moreinfo.js` | Opens Home Assistant's more-info dialog from the Ingress iframe (only inside the HA frontend) |
 | `i18n.js` | German and English strings |
 
 The layout is plain JSON: floors → walls (with openings), rooms, devices. Both editors change the same object and call `changed()`, which rebuilds the 3D scene and schedules a save.

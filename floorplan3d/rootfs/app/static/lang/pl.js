@@ -270,6 +270,8 @@ export default {
   'ring.noRoom': 'W tym miejscu nie ma pokoju',
   'ring.section': 'Odcinek {n}',
   'ring.whole': 'Cały pierścień',
+  'live.details': 'Szczegóły',
+  'live.detailsHint': 'Otwórz okno Home Assistant z historią, dziennikiem i ustawieniami',
   'ring.summary': 'Włączone odcinki: {on} z {n}',
   'dev.switch': 'Przełącznik',
   'dev.sensor': 'Czujnik',

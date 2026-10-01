@@ -70,6 +70,8 @@ Lights and scenes belong to a room when they are placed inside it or assigned to
 
 Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistant *Nanoleaf* integration: every panel set shows up as a light entity, place it like any other light (a *Lichtkugel* or *LED-Streifen* fits well). If a light offers effects (Nanoleaf scenes, WLED, Hue ...), the live popup shows an **Effects** drop-down; for a whole room the effects that all its lights share are offered.
 
+**Details (history, logbook, settings):** the live popup of a device has an **ⓘ Details** button next to its name, the room panel one on every row. It opens Home Assistant's own dialog for that entity, the same one a dashboard card opens: history graph, logbook, all attributes and the entity settings. It is shown when the floor plan runs inside Home Assistant (sidebar or HA app).
+
 **Scenes:** the popup of a light also lists every Home Assistant scene that contains this light (**Szenen mit dieser Lampe**); one tap activates the whole scene, so several strips take their scene colours together. The room panel does the same for all lights of the room.
 
 **Turning and mirroring:** every device has *Drehung* (around the vertical axis), *Kippen vor/zurück* and *Drehen in der Fläche / seitlich* (roll) in the side panel, and **Spiegeln** flips the shape left-right. For a wall panel, *Drehen in der Fläche* turns it in the wall plane to build the pattern.
