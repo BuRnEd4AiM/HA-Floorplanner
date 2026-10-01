@@ -4,6 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-10-01
+### Added
+- **LED ring (indirect light)**: new device *LED-Ring (indirekt)* in the lighting library. Placed in a room it runs **all around the room just under the ceiling** (cove / indirect lighting), 15 cm from the walls. It is one object made of several **sections** (one per wall), and **every section can have a light entity of its own**; sections without one use the ring's main entity
+- Each section glows in its own light's colour in 3D and in the 2D plan and lights the room from where it is
+- Properties: open or closed ring, distance to the wall, *Fit to room* (keeps the sections' lights), one entity picker per section with its length
+- Live mode: tapping a section opens it with its own on/off, brightness and colour, plus buttons for all sections and controls for the whole ring; a double click switches the whole ring
+- In the 2D plan only the line itself can be clicked, the room inside stays selectable
+- Property import / export (JSON) keeps the ring (`pts`, `closed`, `segs`, `inset`)
+- The demo has an LED ring with two lights in the bedroom
+
 ## [3.2.0] - 2026-10-01
 ### Added
 - **Presence**: new device *Anwesenheit / Person* for `person.*`, `device_tracker.*` and presence / motion sensors (`binary_sensor.*`). A glowing figure stands on a floor ring while somebody is there and disappears in live mode when they are away; the room pill gets a green dot while someone is in the room. Entities of these domains are placed as presence devices automatically

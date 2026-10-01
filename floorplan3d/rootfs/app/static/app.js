@@ -2,6 +2,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
+import { RING_DEFAULT_INSET, ringCount, segEntity, ringEntities, ringEdges, ringFromRoom, fitSegs } from './ledring.js';
 import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
 import {
   OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
@@ -60,6 +61,7 @@ let me = { user: '', canEdit: true, room: null, view: 'all' };
 let lastStateSig = '';
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 let livePopupFor = null;           // device id
+let livePopupSeg = null;           // LED ring: the section that was tapped
 const undoStack = [];
 let saveTimer = null;
 
@@ -188,6 +190,7 @@ function textSprite(text, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = f
 
 /** Invisible, slightly padded hit box so small devices (ceiling lamps, switches) are easy to tap. */
 function addPickProxy(model) {
+  if (model.userData.ownProxy) return;                        // LED ring: one hit box per section, made by the model
   model.children.filter((c) => c.userData.proxy).forEach((c) => { model.remove(c); c.geometry.dispose(); });
   const saved = { p: model.position.clone(), r: model.rotation.clone(), s: model.scale.clone() };
   model.position.set(0, 0, 0); model.rotation.set(0, 0, 0); model.scale.set(1, 1, 1);
@@ -216,7 +219,15 @@ const MAX_LIGHTS = 8;
 const LIGHT_PROFILE = {                       // r = reach relative to the setting, k = strength
   light: { r: 0.85, k: 0.8 }, lamp: { r: 0.6, k: 0.6 }, orb: { r: 0.3, k: 0.4 }, strip: { r: 0.4, k: 0.4 },
   panel_tri: { r: 0.35, k: 0.4 }, panel_hex: { r: 0.35, k: 0.4 }, panel_sq: { r: 0.35, k: 0.4 }, panel_bar: { r: 0.4, k: 0.4 }, nanoleaf: { r: 0.45, k: 0.5 }, tv_led: { r: 0.55, k: 0.55 },
+  ledseg: { r: 0.5, k: 0.45 },
 };
+/** every placed entity as its own entry: a TV's backlight and each section of an LED ring count as devices of their own (at the section's middle) */
+function entityDevices(f) {
+  return f.devices.flatMap((dv) => {
+    if (dv.type === 'ledring') return ringEdges(dv).map((e) => ({ ...dv, id: dv.id, seg: e.i, x: e.mid[0], z: e.mid[1], len: e.len, entity: segEntity(dv, e.i), type: 'ledseg', name: `${dv.name || t('dev.ledring')} · ${e.i + 1}` }));
+    return [{ ...dv }, ...(dv.ledEntity ? [{ ...dv, entity: dv.ledEntity, type: 'tv_led', panels: undefined }] : [])];
+  });
+}
 const hexVec = (h) => new THREE.Vector3(((h >> 16) & 255) / 255, ((h >> 8) & 255) / 255, (h & 255) / 255);
 const cssHex = (s) => parseInt(s.slice(1), 16);
 const LIGHT_HEAD = `uniform int uCount; uniform vec4 uPos[${MAX_LIGHTS}]; uniform vec3 uCol[${MAX_LIGHTS}]; uniform float uStr; varying vec3 vP;`;
@@ -292,14 +303,17 @@ function holoify(model, ghost) {
   const meshes = [];
   model.traverse((o) => { if (o.isMesh && !o.userData.proxy && !o.userData.holo) meshes.push(o); });
   const hg = model.userData.holoGlow ||= { fill: [], edge: [] }, hl = model.userData.holoLed ||= { fill: [], edge: [] };
+  const segOf = new Map();                                     // LED ring: material -> its section
+  (model.userData.segs || []).forEach((sg) => { sg.holo ||= { fill: [], edge: [] }; sg.glow.forEach((m) => segOf.set(m, sg)); });
   for (const o of meshes) {
-    const isGlow = glow.has(o.material), isLed = led.has(o.material);
+    const isGlow = glow.has(o.material), isLed = led.has(o.material), sg = segOf.get(o.material);
     o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.03 + 0.2 * settings.belowVisibility : (model.userData.solid ? 0.8 : 0.38), depthWrite: !!model.userData.solid && !ghost, side: model.userData.solid ? THREE.DoubleSide : THREE.FrontSide });
     o.userData.holo = true;
     const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 });
     o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 25), em));
     if (isGlow) { hg.fill.push(o.material); hg.edge.push(em); }
     if (isLed) { hl.fill.push(o.material); hl.edge.push(em); }
+    if (sg) { sg.holo.fill.push(o.material); sg.holo.edge.push(em); }
   }
 }
 
@@ -612,7 +626,7 @@ let viewMode = 'normal';           // normal | temp | humid (room colouring by s
 /* Temperature / humidity of a room: average of every matching sensor placed in it or assigned to its HA area
    (sensors with °C/°F or device_class temperature/humidity, and the current values of climate entities). */
 function roomHeat(room, f) {
-  const ids = new Set(f.devices.filter((d) => d.entity && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
+  const ids = new Set(entityDevices(f).filter((d) => d.entity && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
   if (room.area) (areas.find((x) => x.id === room.area)?.entities || []).forEach((id) => ids.add(id));
   const temp = viewMode === 'temp';
   const vals = [];
@@ -700,6 +714,14 @@ function applyStates() {
           hl.edge.forEach((m) => { if (lon && lrgb) m.color.setRGB(Math.min(1, lrgb[0] / 255 + 0.35), Math.min(1, lrgb[1] / 255 + 0.35), Math.min(1, lrgb[2] / 255 + 0.35)); else m.color.setHex(lon ? HOLO.onEdge : HOLO.edge); });
         }
       }
+      obj.userData.segs?.forEach((sg, i) => {                 // LED ring: every section shows its own light
+        const e = segEntity(d, i), son = !!e && ON_STATES.has(states[e]?.state), c = son && Array.isArray(states[e]?.rgb) ? states[e].rgb : null;
+        sg.glow.forEach((m) => { m.emissive.set(son ? (c ? new THREE.Color(c[0] / 255, c[1] / 255, c[2] / 255) : 0xffd27a) : 0x000000); m.emissiveIntensity = son ? 1.4 : 0; });
+        if (!sg.holo) return;
+        const op = ghost ? (son ? 0.12 + 0.5 * bv : 0.03 + 0.2 * bv) : (son ? 1 : 0.45);
+        sg.holo.fill.forEach((m) => { if (son && c) m.color.setRGB(c[0] / 255, c[1] / 255, c[2] / 255); else m.color.setHex(son ? HOLO.on : HOLO.fill); m.opacity = op; });
+        sg.holo.edge.forEach((m) => { if (son && c) m.color.setRGB(Math.min(1, c[0] / 255 + 0.35), Math.min(1, c[1] / 255 + 0.35), Math.min(1, c[2] / 255 + 0.35)); else m.color.setHex(son ? HOLO.onEdge : HOLO.edge); });
+      });
       obj.visible = !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on);      // a person who is not there is not drawn in live mode          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.showLabels && obj.visible; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
@@ -716,8 +738,7 @@ function applyStates() {
       const k = ghost ? 0.3 + 0.6 * bv : 1;
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
       if (!holo) mesh.material.color.set(heat != null ? heat : (room.color || '#8a7f70'));      // solid themes: the floor itself takes the temperature / humidity colour
-      const lights = heat ? [] : f.devices
-        .flatMap((dv) => [{ ...dv }, ...(dv.ledEntity ? [{ ...dv, entity: dv.ledEntity, type: 'tv_led', panels: undefined }] : [])])      // a TV's backlight is a light of its own
+      const lights = heat ? [] : entityDevices(f)            // a TV's backlight and each LED ring section are lights of their own
         .filter((d) => d.entity && /^(light|switch)\./.test(d.entity) && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points))
         .flatMap((d) => {
           const st = states[d.entity];
@@ -725,7 +746,7 @@ function applyStates() {
           const c = Array.isArray(st.rgb) ? new THREE.Vector3(st.rgb[0] / 255, st.rgb[1] / 255, st.rgb[2] / 255) : defCol.clone();
           const sw = d.entity.startsWith('switch.') ? 0.6 : 1;
           const prof = LIGHT_PROFILE[d.type] || LIGHT_PROFILE.light;      // an LED strip or a panel does not light the whole room like a ceiling lamp
-          const r = settings.glowRadius * (0.7 + 0.5 * br) * sw * prof.r;
+          const r = settings.glowRadius * (0.7 + 0.5 * br) * sw * prof.r * (d.type === 'ledseg' ? Math.min(1.6, Math.max(0.7, d.len / 2.5)) : 1);   // a long section lights more of the wall
           if (d.type === 'nanoleaf' && d.panels?.length) {                 // a layout shines from where its panels really are, a little off the wall
             const n = Math.min(4, d.panels.length), a = ((d.rot || 0) * Math.PI) / 180, cs = Math.cos(a), sn = Math.sin(a), k2 = d.scale || 1;
             return Array.from({ length: n }, (_, i) => d.panels[Math.floor((i * d.panels.length) / n)]).map((p) => ({
@@ -952,10 +973,10 @@ function pickHit(e) {
   setRay(e);
   const hits = [];
   for (const h of ray.intersectObjects(pickables, true)) {
-    let o = h.object;
-    while (o && !o.userData.kind) o = o.parent;
+    let o = h.object, seg = h.object.userData.seg;
+    while (o && !o.userData.kind) { o = o.parent; seg ??= o?.userData.seg; }
     if (o && o.userData.kind === 'device' && isLive() && stealth(o.userData.id)) continue;      // an invisible light cannot be tapped either
-    if (o) hits.push({ data: o.userData, point: h.point, distance: h.distance });
+    if (o) hits.push({ data: seg != null ? { ...o.userData, seg } : o.userData, point: h.point, distance: h.distance });   // seg: which LED ring section was tapped
   }
   // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
   // door/window the door/window wins unless the device is clearly in front of it (> 1.2 m nearer to the camera).
@@ -1046,9 +1067,18 @@ function newDevice(x, z) {
     name: ent?.name || (custom ? deviceType.slice(4) : t(`dev.${deviceType}`)), entity: entityChoice || '',
   };
   if (deviceType === 'nanoleaf') d.panels = DEFAULT_PANELS.map((p) => ({ ...p }));
+  if (deviceType === 'ledring') Object.assign(d, ringAt(x, z));     // all around the room it is placed in, just under the ceiling
   if (WALL_TYPES.has(deviceType)) snapToWall(d, 0.8);          // wall-hung things click onto the nearest wall
   return d;
 }
+/** LED ring along the walls of the room at (x, z), `inset` metres from the room outline; a 2 x 2 m square outside rooms */
+function ringAt(x, z, inset = RING_DEFAULT_INSET) {
+  const room = roomAt(x, z);
+  const r = room ? ringFromRoom(room.points, inset) : { x, z, pts: [[-1, -1], [1, -1], [1, 1], [-1, 1]], closed: true, segs: [{}, {}, {}, {}] };
+  return { ...r, y: +(settings.wallHeight - 0.1).toFixed(2), inset, rot: 0, ...(room ? { room: room.id } : {}) };
+}
+/** the entities a double click / quick action switches: an LED ring switches all of its sections */
+const deviceEntities = (d) => (d?.type === 'ledring' ? ringEntities(d) : d?.entity ? [d.entity] : []);
 /* wall-hung devices: pictures, mirrors, panels, radiators ... */
 const LED_LIKE = { strip: 1, tv_led: 1, nanoleaf: 1, panel_tri: 1, panel_hex: 1, panel_sq: 1, panel_bar: 1, orb: 1 };
 const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch']);
@@ -1260,7 +1290,7 @@ canvas.addEventListener('dblclick', (e) => {
     const h = pick(e);
     if (h?.kind !== 'device') return;
     const d = floor().devices.find((v) => v.id === h.id);
-    if (d?.entity) quickAction(d.entity);
+    deviceEntities(d).forEach(quickAction);
   }
 });
 
@@ -1270,7 +1300,7 @@ function editNano(d) {
 /** size (m) of a built-in model at scale 1, measured from the model itself (null for custom GLB models) */
 const dimsCache = new Map();
 function baseDims(type) {
-  if (isCustom(type) || type === 'nanoleaf') return null;
+  if (isCustom(type) || type === 'nanoleaf' || type === 'ledring') return null;
   if (!dimsCache.has(type)) {
     const g = makeModel(type);
     g.updateMatrixWorld(true);
@@ -1356,7 +1386,7 @@ function quickAction(entityId) {
 
 function handleLiveTap(e) { liveSelect(pick(e)); }
 function liveSelect(h) {
-  if (h?.kind === 'device' || h?.kind === 'opening') { livePopupFor = h.id; renderLivePopup(); }
+  if (h?.kind === 'device' || h?.kind === 'opening') { livePopupFor = h.id; livePopupSeg = h.seg ?? null; renderLivePopup(); }
   else if (h?.kind === 'room') { closeLivePopup(); if (focusedRoom !== h.id) focusRoom(h.id); openRoomPanel(h.id); }
   else closeLivePopup();
 }
@@ -1371,6 +1401,7 @@ function renderLivePopup() {
   if (!d) { closeLivePopup(); return; }
   box.hidden = false;
   box.innerHTML = '';
+  if (d.type === 'ledring') { ringPopup(box, d); return; }
   const title = document.createElement('div'); title.className = 'title'; title.textContent = d.name || '';
   const sub = document.createElement('div'); sub.className = 'sub';
   sub.textContent = d.entity ? `${d.isOpening ? openText(d.entity) : stateText(d.entity)} · ${d.entity}` : t('live.noEntity');
@@ -1395,6 +1426,51 @@ function renderLivePopup() {
     const rm = floor().rooms.find((r) => pointInPoly(d.x, d.z, r.points));
     const rc = rm && roomControls(rm);
     if (rc) box.append(rc);
+  }
+}
+
+/** LED ring in live mode: one button per section, the tapped section's own controls, then the whole ring */
+function ringPopup(box, d) {
+  const n = ringCount(d), all = ringEntities(d), isOnE = (e) => !!e && ON_STATES.has(states[e]?.state);
+  const div = (cls, txt) => { const x = document.createElement('div'); x.className = cls; if (txt != null) x.textContent = txt; return x; };
+  const on = Array.from({ length: n }, (_, i) => isOnE(segEntity(d, i))).filter(Boolean).length;
+  box.append(div('title', d.name || t('dev.ledring')), div('sub', all.length ? t('ring.summary', { on, n }) : t('live.noEntity')));
+  if (!all.length) return;
+  const row = div('actions ringSegs');
+  for (let i = 0; i < n; i++) {
+    const e = segEntity(d, i), b = document.createElement('button');
+    b.textContent = String(i + 1); b.title = e || t('live.noEntity');
+    b.classList.toggle('on', isOnE(e)); b.classList.toggle('sel', livePopupSeg === i);
+    const c = isOnE(e) ? (Array.isArray(states[e]?.rgb) ? states[e].rgb : [255, 210, 122]) : null;
+    if (c) b.style.setProperty('--seg', `rgb(${c[0]},${c[1]},${c[2]})`);      // a lit section shows its colour
+    b.disabled = !e;
+    b.addEventListener('click', () => { livePopupSeg = livePopupSeg === i ? null : i; renderLivePopup(); });
+    row.append(b);
+  }
+  box.append(row);
+  const e = livePopupSeg != null && livePopupSeg < n ? segEntity(d, livePopupSeg) : '';
+  if (e) {
+    const h = document.createElement('h4'); h.textContent = t('ring.section', { n: livePopupSeg + 1 });
+    const r = div('actions');
+    [['turn_on', 'live.on'], ['turn_off', 'live.off']].forEach(([svc, k]) => {
+      const b = document.createElement('button'); b.textContent = t(k);
+      b.addEventListener('click', () => callService(e, svc));
+      r.append(b);
+    });
+    box.append(h, div('sub', `${stateText(e)} · ${e}`), r);
+    if (e.startsWith('light.')) box.append(lightControls([e]));
+  }
+  if (all.length > 1 || !e) {
+    const h = document.createElement('h4'); h.textContent = t('ring.whole');
+    const r = div('actions');
+    [['turn_on', 'live.allOn'], ['turn_off', 'live.allOff']].forEach(([svc, k]) => {
+      const b = document.createElement('button'); b.textContent = t(k);
+      b.addEventListener('click', () => all.forEach((id) => callService(id, svc)));
+      r.append(b);
+    });
+    box.append(h, r);
+    const lights = all.filter((id) => id.startsWith('light.'));
+    if (lights.length) box.append(lightControls(lights));
   }
 }
 
@@ -1486,7 +1562,7 @@ function sceneButtons(ids, labelKey) {
 /* ---- whole room: all lights at once + the room's scenes ---- */
 function roomEntityIds(room, domain) {
   const f = floor();
-  const ids = new Set(f.devices.filter((d) => d.entity?.startsWith(`${domain}.`) && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
+  const ids = new Set(entityDevices(f).filter((d) => d.entity?.startsWith(`${domain}.`) && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
   (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []).filter((id) => id.startsWith(`${domain}.`)).forEach((id) => ids.add(id));
   return [...ids].filter((id) => states[id]);
 }
@@ -1550,8 +1626,9 @@ function renderRoomPanel() {
   box.append(head, area);
   const rc = roomControls(room);
   if (rc) box.append(rc);
-  const devs = floor().devices.filter((d) => d.entity && pointInPoly(d.x, d.z, room.points));
-  const placedIds = new Set(floor().devices.map((d) => d.entity));
+  const seen = new Set();                                    // one row per entity (an LED ring's sections may share one light)
+  const devs = entityDevices(floor()).filter((d) => d.entity && pointInPoly(d.x, d.z, room.points) && !seen.has(d.entity) && seen.add(d.entity));
+  const placedIds = new Set(entityDevices(floor()).map((d) => d.entity));
   const inRp = (id) => RP_GROUPS.some(([g]) => g === rpGroupOf(id.split('.')[0]));
   const extra = (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : [])
     .filter((id) => !placedIds.has(id) && states[id] && inRp(id))
@@ -1816,7 +1893,7 @@ const groupMembers = (d) => (d.group ? floor().devices.filter((x) => x.group ===
 function groupCentre(ms) { return [ms.reduce((a, m) => a + m.x, 0) / ms.length, ms.reduce((a, m) => a + m.z, 0) / ms.length]; }
 /* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
    the wall instead of freezing, and door openings let it through. Wall-hung items, outdoor items and ceiling-free objects are exempt. */
-const STOP_EXEMPT = new Set([...WALL_TYPES_LIST(), ...OUTDOOR]);
+const STOP_EXEMPT = new Set(['ledring', ...WALL_TYPES_LIST(), ...OUTDOOR]);
 function WALL_TYPES_LIST() { return ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
 function penetration(m, x, z, w) {
   const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L = Math.hypot(sx, sz) || 1e-9, ux = sx / L, uz = sz / L;
@@ -2028,6 +2105,7 @@ function buildPalette() {
 /* extra search words so the library also finds things under their everyday names */
 const SEARCH_ALIASES = {
   tv_led: 'led licht ambilight hintergrundlicht fernseher tv indirekt backlight',
+  ledring: 'led ring streifen strip indirekt indirect voute cove decke ceiling rundum ringsum abschnitte sections',
   tv: 'fernseher fernsehen television tele glotze', tv_wall: 'fernseher wandfernseher wand tv fernsehen flachbild', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
   fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
   presence: 'person anwesenheit anwesend bewegung bewegungsmelder präsenz praesenz presence motion occupancy mensch',
@@ -2421,7 +2499,7 @@ function renderRoomEntities() {
   rs.addEventListener('input', () => { roomEntFilter = rs.value; applyFilter(); });
   box.append(rs);
   const placed = floor().devices.filter((d) => pointInPoly(d.x, d.z, room.points));
-  const placedIds = new Set(floor().devices.map((d) => d.entity).filter(Boolean));
+  const placedIds = new Set(entityDevices(floor()).map((d) => d.entity).filter(Boolean));
   const row = (title, entity, btn) => {
     const r = document.createElement('div'); r.className = 're-row';
     const n = document.createElement('span'); n.className = 're-n'; n.textContent = title;
@@ -2707,7 +2785,8 @@ function renderProps() {
                 mk('grpDissolve', t('group.dissolve'), () => { members.forEach((m) => delete m.group); }));
       body.append(gp, gb);
     }
-    body.append(pickerField(t('prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
+    if (it.type === 'ledring') ringProps(body, it);
+    body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
     if (it.type === 'tv' || it.type === 'tv_wall') {          // built-in backlight: shown behind the TV, shines into the room
       body.append(pickerField(t('prop.ledEntity'), entityPicker(entities.filter((e) => /^(light|switch)\./.test(e.entity_id)).slice(0, 1500), roomAt(it.x, it.z), it.ledEntity || '', (v) => { snapshot(); if (v) it.ledEntity = v; else delete it.ledEntity; changed(); })));
     }
@@ -2728,6 +2807,36 @@ function renderProps() {
   del.textContent = t('panel.delete');
   del.addEventListener('click', () => { snapshot(); deleteItem(selection); });
   body.append(del);
+}
+
+/** LED ring properties: closed or open, distance to the walls, refit to the room, one light per section */
+function refitRing(d) {
+  const room = floor().rooms.find((r) => r.id === d.room) || roomAt(d.x, d.z);
+  if (!room) { setStatus(t('ring.noRoom')); return; }
+  const keep = d.segs || [], closed = d.closed;
+  Object.assign(d, ringFromRoom(room.points, d.inset ?? RING_DEFAULT_INSET), { rot: 0, scale: 1, room: room.id });
+  delete d.sx; delete d.sz; delete d.mirror;
+  if (closed === false) d.closed = false;
+  d.segs = d.segs.map((sg, i) => keep[i] || sg);               // sections keep their lights as far as they still exist
+  fitSegs(d);
+}
+function ringProps(body, it) {
+  const h = document.createElement('h4'); h.textContent = t('ring.sections'); body.append(h);
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.closed !== false; cb.id = 'ringClosed';
+  cb.addEventListener('change', () => { snapshot(); it.closed = cb.checked; fitSegs(it); changed(); renderProps(); });
+  const cl = document.createElement('label'); cl.className = 'chk'; cl.append(cb, document.createTextNode(' ' + t('ring.closed')));
+  body.append(cl);
+  body.append(field(t('ring.inset'), lenInput(() => it.inset ?? RING_DEFAULT_INSET, (v) => { it.inset = Math.min(2, v); if (!it.locked) refitRing(it); queueMicrotask(renderProps); }, { min: 0, step: 0.05 })));
+  const fb = document.createElement('button'); fb.type = 'button'; fb.id = 'ringFit'; fb.textContent = t('ring.fit');
+  fb.addEventListener('click', () => { if (it.locked) { setStatus(t('prop.lockedHint')); return; } snapshot(); refitRing(it); changed(); renderProps(); });
+  body.append(fb);
+  const lights = entities.filter((e) => /^(light|switch)\./.test(e.entity_id)).slice(0, 1500);
+  ringEdges(it).forEach((e) => {
+    body.append(pickerField(t('ring.seg', { n: e.i + 1, len: fmtLen(e.len) }), entityPicker(lights, roomAt(e.mid[0], e.mid[1]), it.segs?.[e.i]?.entity || '', (v) => {
+      snapshot(); fitSegs(it); it.segs[e.i] = v ? { entity: v } : {}; changed();
+    })));
+  });
+  const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('ring.help'); body.append(hp);
 }
 
 /* ================= Settings ================= */
@@ -2948,7 +3057,7 @@ plan = createPlan({
   groupToggle: (id) => groupToggle(id), groupPicked: () => groupPick,
   liveMoveDevice: (d) => liveMove(d),
   liveTap: (h) => liveSelect(h),
-  deviceDoubleClick: (id) => { const d = floor().devices.find((v) => v.id === id); if (d?.entity) quickAction(d.entity); },
+  deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach(quickAction),
   newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, OPENING_DEFAULTS, uid, pointInPoly,
   roomHeat: (room, f) => (viewMode === 'normal' ? null : roomHeat(room, f)),
   states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, fmtLen, t, setStatus,
@@ -3041,7 +3150,14 @@ if (params.get('debug')) {
     holeCount: (i) => holesForFloor(layout.floors, i, FLOOR_H).length,
     plan: () => plan,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
-    pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
+    pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, seg: h.data.seg } : null; },
+    ringGlow: (id) => (registry.get(id)?.userData.segs || []).map((sg) => sg.glow[0].emissiveIntensity > 0),
+    ringSegScreen(id, i) {                                        // screen position of the middle of an LED ring section
+      const v = registry.get(id)?.children[i]?.getWorldPosition(new THREE.Vector3());
+      if (!v) return null;
+      v.project(camera); const r = canvas.getBoundingClientRect();
+      return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
+    },
     rayHits(x, y) { setRay({ clientX: x, clientY: y }); return ray.intersectObjects(pickables, true).map((h) => { let o = h.object; while (o && !o.userData.kind) o = o.parent; return `${o?.userData.kind}:${o?.userData.id}@${h.distance.toFixed(2)}${h.object.userData.proxy ? 'P' : ''}`; }); },
     openingCenter(id) {                 // screen position of the middle of a door/window (not its base)
       const o = registry.get(id); if (!o) return null;

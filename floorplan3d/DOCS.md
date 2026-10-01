@@ -82,7 +82,9 @@ Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistan
 
 **TV with backlight:** select a *TV* or *Wand-TV* and pick the LED's light entity in *Hintergrundlicht (LED hinter dem TV)*: the frame behind the screen glows in its colour and lights the room. Alternatively, for an LED strip behind a wall TV use *TV-Hintergrundlicht (LED)*: place it where the TV hangs, give it the strip's light entity and adjust width/height to the TV. It glows in the light's colour and lights the room from behind the TV.
 
-**Single panel shapes:** the device palette has *Nanoleaf Dreieck / Sechseck / Quadrat / Linie*. Place one per real panel, rotate it to match the wall and give all of them the same light entity: they glow in the light's colour together. Clicking one in live mode opens the popup with colour, brightness and the effect (scene) list. LED strips that run along several walls are built from several *LED-Streifen* with the same entity.
+**Single panel shapes:** the device palette has *Nanoleaf Dreieck / Sechseck / Quadrat / Linie*. Place one per real panel, rotate it to match the wall and give all of them the same light entity: they glow in the light's colour together. Clicking one in live mode opens the popup with colour, brightness and the effect (scene) list.
+
+**LED ring (indirect light around the room):** pick *LED-Ring (indirekt)* in the lighting library and click into a room: the ring runs all around the room just under the ceiling, 15 cm from the walls, with one **section per wall**. Select it to give each section its own light entity (for example two WLED segments or two Hue strips), or leave them empty and use *Entität für alle Abschnitte* for a single strip. *Abstand zur Wand* and *↻ An Raum anpassen* re-fit it after the room changed, *Geschlossen* turns it into an open line, *Höhe über Boden* sets the height. In live mode, tapping a section controls that section; the popup also switches or colours the whole ring.
 
 ## Home Assistant areas
 

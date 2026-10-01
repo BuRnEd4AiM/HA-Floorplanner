@@ -337,6 +337,7 @@
       "kitchen",
       "lamp",
       "lawn",
+      "ledring",
       "light",
       "microwave",
       "mirror",
@@ -446,6 +447,38 @@
     "panels": {
      "type": "array",
      "description": "Only for type nanoleaf: [{s: tri|tri2|hex|sq|bar, x, y, r}] in metres / degrees."
+    },
+    "pts": {
+     "type": "array",
+     "items": {
+      "type": "array",
+      "items": {
+       "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+     },
+     "description": "Only for type ledring: corner points [x, z] in metres, relative to the device position."
+    },
+    "closed": {
+     "type": "boolean",
+     "description": "Only for type ledring: last point connects back to the first (default true)."
+    },
+    "segs": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "entity": {
+        "type": "string"
+       }
+      }
+     },
+     "description": "Only for type ledring: one entry per section, each with an optional own light entity; empty sections use \"entity\"."
+    },
+    "inset": {
+     "type": "number",
+     "description": "Only for type ledring: distance from the room outline in metres (used when it is fitted to the room)."
     }
    }
   }

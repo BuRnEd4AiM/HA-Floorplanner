@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
 import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
+import { ringLocalEdges } from './ledring.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -80,6 +81,7 @@ export const DEVICE_TYPES = {
   picture:    { label: 'Bild',         y: 1.5 },
   orb:        { label: 'Lichtkugel',  y: 0.4 },
   strip:      { label: 'LED-Streifen', y: 0.5 },
+  ledring:    { label: 'LED-Ring', y: 2.5 },
   panel_tri:  { label: 'Nanoleaf Dreieck',  y: 1.4 },
   panel_hex:  { label: 'Nanoleaf Sechseck', y: 1.4 },
   panel_sq:   { label: 'Nanoleaf Quadrat',  y: 1.4 },
@@ -96,7 +98,7 @@ export const CATEGORIES = {
   bath:    ['bathtub', 'shower', 'toilet', 'basin', 'doublebasin', 'mirror', 'towelrad'],
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
-  lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led'],
+  lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'ledring', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led'],
   smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence'],
   outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car'],
   decor:   ['picture'],
@@ -583,9 +585,32 @@ export function makeModel(type, onReady, dev) {
     return g;
   }
   if (type === 'nanoleaf') { nanoleaf(g, dev); return g; }
+  if (type === 'ledring') { ledRing(g, dev); return g; }
   (builders[type] || builders.sensor)(g);
   centreOnFootprint(g);
   return g;
+}
+const RING_DEMO = { pts: [[-1, -0.7], [1, -0.7], [1, 0.7], [-1, 0.7]], closed: true };
+/** LED ring: one glowing strip per section, each with its own material (so each section can show its own light)
+ *  and its own invisible hit box, so a tap knows the section and the empty middle of the room stays free */
+function ledRing(g, dev) {
+  const d = dev?.pts?.length >= 2 ? dev : RING_DEMO;
+  const pick = new THREE.MeshBasicMaterial({ visible: false });
+  g.userData.segs = ringLocalEdges(d).map(({ i, a, b }) => {
+    const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 0.01;
+    const glow = glowMat();
+    const seg = new THREE.Group();
+    seg.position.set((a[0] + b[0]) / 2, 0, (a[1] + b[1]) / 2);
+    seg.rotation.y = Math.atan2(-dz, dx);
+    seg.add(box(L + 0.03, 0.025, 0.04, glow, 0, -0.0125, 0));
+    const hit = new THREE.Mesh(new THREE.BoxGeometry(L, 0.3, 0.3), pick);
+    hit.userData.proxy = true; hit.userData.seg = i;
+    seg.add(hit);
+    g.add(seg);
+    return { glow: [glow] };
+  });
+  g.userData.ownProxy = true;
+  g.userData.glow = [];
 }
 /** The 2D plan draws every piece centred on its position, so the 3D model has to be centred the same way
  *  (some builders, e.g. the corner sofa, extend to one side of their origin). Thin wall-hung parts are left alone. */
