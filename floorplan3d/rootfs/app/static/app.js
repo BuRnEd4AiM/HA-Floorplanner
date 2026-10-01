@@ -287,17 +287,18 @@ const roomMeshes = new Map();     // room id -> { mesh, room }
 
 /** Turn a model into a translucent blue wireframe hologram; lit parts are remembered for state changes. */
 function holoify(model, ghost) {
-  const glow = new Set(model.userData.glow || []);
+  const glow = new Set(model.userData.glow || []), led = new Set(model.userData.led || []);
   const meshes = [];
   model.traverse((o) => { if (o.isMesh && !o.userData.proxy && !o.userData.holo) meshes.push(o); });
-  const hg = model.userData.holoGlow ||= { fill: [], edge: [] };
+  const hg = model.userData.holoGlow ||= { fill: [], edge: [] }, hl = model.userData.holoLed ||= { fill: [], edge: [] };
   for (const o of meshes) {
-    const isGlow = glow.has(o.material);
+    const isGlow = glow.has(o.material), isLed = led.has(o.material);
     o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.03 + 0.2 * settings.belowVisibility : (model.userData.solid ? 0.8 : 0.38), depthWrite: !!model.userData.solid && !ghost, side: model.userData.solid ? THREE.DoubleSide : THREE.FrontSide });
     o.userData.holo = true;
     const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 });
     o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 25), em));
     if (isGlow) { hg.fill.push(o.material); hg.edge.push(em); }
+    if (isLed) { hl.fill.push(o.material); hl.edge.push(em); }
   }
 }
 
@@ -681,6 +682,16 @@ function applyStates() {
         hg.fill.forEach((m) => { if (on && rgb) m.color.setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255); else m.color.setHex(on ? HOLO.on : HOLO.fill); m.opacity = on ? onOp : offOp; });
         hg.edge.forEach((m) => { if (on && rgb) m.color.setRGB(Math.min(1, rgb[0] / 255 + 0.35), Math.min(1, rgb[1] / 255 + 0.35), Math.min(1, rgb[2] / 255 + 0.35)); else m.color.setHex(on ? HOLO.onEdge : HOLO.edge); });
       }
+      if (obj.userData.led) {                                  // the TV's own backlight, driven by a second entity
+        const lon = !!d.ledEntity && ON_STATES.has(states[d.ledEntity]?.state), lrgb = lon && Array.isArray(states[d.ledEntity]?.rgb) ? states[d.ledEntity].rgb : null;
+        obj.userData.ledParts.forEach((m) => { m.visible = !!d.ledEntity; });
+        obj.userData.led.forEach((m) => { m.emissive.set(lon ? (lrgb ? new THREE.Color(lrgb[0] / 255, lrgb[1] / 255, lrgb[2] / 255) : 0xffd27a) : 0x000000); m.emissiveIntensity = lon ? 1.4 : 0; });
+        const hl = obj.userData.holoLed;
+        if (hl) {
+          hl.fill.forEach((m) => { if (lon && lrgb) m.color.setRGB(lrgb[0] / 255, lrgb[1] / 255, lrgb[2] / 255); else m.color.setHex(lon ? HOLO.on : HOLO.fill); m.opacity = lon ? 1 : 0.5; });
+          hl.edge.forEach((m) => { if (lon && lrgb) m.color.setRGB(Math.min(1, lrgb[0] / 255 + 0.35), Math.min(1, lrgb[1] / 255 + 0.35), Math.min(1, lrgb[2] / 255 + 0.35)); else m.color.setHex(lon ? HOLO.onEdge : HOLO.edge); });
+        }
+      }
       obj.visible = !(d.hideModel && isLive());          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.showLabels && obj.visible; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
@@ -697,6 +708,7 @@ function applyStates() {
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
       if (!holo) mesh.material.color.set(heat != null ? heat : (room.color || '#8a7f70'));      // solid themes: the floor itself takes the temperature / humidity colour
       const lights = heat ? [] : f.devices
+        .flatMap((dv) => [{ ...dv }, ...(dv.ledEntity ? [{ ...dv, entity: dv.ledEntity, type: 'tv_led', panels: undefined }] : [])])      // a TV's backlight is a light of its own
         .filter((d) => d.entity && /^(light|switch)\./.test(d.entity) && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points))
         .flatMap((d) => {
           const st = states[d.entity];
@@ -2679,6 +2691,9 @@ function renderProps() {
       body.append(gp, gb);
     }
     body.append(pickerField(t('prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
+    if (it.type === 'tv' || it.type === 'tv_wall') {          // built-in backlight: shown behind the TV, shines into the room
+      body.append(pickerField(t('prop.ledEntity'), entityPicker(entities.filter((e) => /^(light|switch)\./.test(e.entity_id)).slice(0, 1500), roomAt(it.x, it.z), it.ledEntity || '', (v) => { snapshot(); if (v) it.ledEntity = v; else delete it.ledEntity; changed(); })));
+    }
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();
@@ -2975,6 +2990,7 @@ animate();
 if (params.get('debug')) {
   window.__fp = {
     openRoomPanel(id) { openRoomPanel(id); },
+    ledShown(id) { return !!registry.get(id)?.userData.ledParts?.[0]?.visible; },
     isShown(id) { return !!registry.get(id)?.visible; },
     editNano(id) { const d = floor().devices.find((v) => v.id === id); if (d) editNano(d); },
     screenOf(id) {

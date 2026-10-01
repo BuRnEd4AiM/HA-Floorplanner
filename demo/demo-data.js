@@ -32,8 +32,7 @@ const layout = {
       W('i5', [7, 4.5], [7, 7], 0.12, [D('o14', 1.2)]),
     ],
     devices: [
-      { id: 'd1',  type: 'tv_wall',    x: 2.5, z: 0.16, y: 1.2,  rot: 0,   scale: 1,   name: 'Fernseher',       entity: 'media_player.tv' },
-      { id: 'd1b', type: 'tv_led',     x: 2.5, z: 0.16, y: 1.2,  rot: 0,   scale: 1,   name: 'TV-Hintergrundlicht', entity: 'light.tv_led' },
+      { id: 'd1',  type: 'tv_wall',    x: 2.5, z: 0.16, y: 1.2,  rot: 0,   scale: 1,   name: 'Fernseher',       entity: 'media_player.tv', ledEntity: 'light.tv_led' },
       { id: 'd2',  type: 'sofa',       x: 2.5, z: 3.5,  y: 0,    rot: 180, scale: 1.1, name: 'Sofa',            entity: '' },
       { id: 'd3',  type: 'table',      x: 2.5, z: 2.2,  y: 0,    rot: 0,   scale: 0.6, name: 'Couchtisch',      entity: '' },
       { id: 'd4',  type: 'light',      x: 3,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Deckenlicht',     entity: 'light.wohnzimmer' },

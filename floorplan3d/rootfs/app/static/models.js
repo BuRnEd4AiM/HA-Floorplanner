@@ -146,6 +146,19 @@ function nanoleaf(g, d) {
   g.userData.solid = true;          // in the hologram theme these stay solid (not see-through from the side)
 }
 
+/** the TV's own backlight (ambilight): a thin frame just behind the screen, shown only when the device has a backlight entity */
+function tvLed(g, W, H, cy, z) {
+  const led = glowMat(), t = 0.03, parts = [];
+  [[W, t, 0, cy + (H - t) / 2], [W, t, 0, cy - (H - t) / 2], [t, H, (W - t) / 2, cy], [t, H, -(W - t) / 2, cy]].forEach(([w, h, x, y]) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.02), led);
+    m.position.set(x, y, z);
+    m.userData.ledPart = true; m.visible = false;
+    g.add(m); parts.push(m);
+  });
+  g.userData.led = [led];
+  g.userData.ledParts = parts;
+}
+
 const builders = {
   tv_led(g) {                   // LED frame behind a wall TV: a thin glowing ring a little larger than the TV, so the light spills out around it
     const glow = glowMat();
@@ -209,6 +222,7 @@ const builders = {
     g.add(box(1.25, 0.73, 0.05, std('#111'), 0, 0, 0));
     g.add(box(1.19, 0.67, 0.01, glow, 0, 0.03, 0.03));
     g.userData.glow = [glow];
+    tvLed(g, 1.31, 0.79, 0.365, -0.03);
   },
   tv(g) {
     const glow = glowMat(0x9db8ff);
@@ -217,6 +231,7 @@ const builders = {
     g.add(box(1.04, 0.59, 0.01, glow, 0, 0.05, 0.025));
     g.add(box(0.2, 0.03, 0.15, std('#222'), 0, 0, 0));
     g.userData.glow = [glow];
+    tvLed(g, 1.17, 0.73, 0.345, -0.035);
   },
   sofa(g) {
     const c = std('#6b7a8f');

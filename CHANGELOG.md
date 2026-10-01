@@ -3,9 +3,11 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
-### Added
-- Download button for the demo at the top of the README (always the newest build); the new *Demo* workflow rebuilds it whenever the app changes and replaces it in the latest release
 
+## [2.5.0] - 2026-10-01
+### Added
+- **TVs with built-in backlight**: the standing *TV* and the *Wand-TV* have a new field *Hintergrundlicht (LED hinter dem TV)*. Pick a light entity and a glowing frame appears behind the screen; it shines in the entity's colour (effects and scenes work as for any light) and lights the room. No extra device needed
+- Download button for the demo at the top of the README (always the newest build); the new *Demo* workflow rebuilds it whenever the app changes and replaces it in the latest release
 
 ## [2.4.1] - 2026-10-01
 ### Added
