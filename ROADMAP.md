@@ -17,14 +17,14 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 ## v0.9 – Dashboards
 
 - [ ] HACS Lovelace card to show the floor plan on any dashboard
-- [ ] Furniture library with previews
+- [x] Furniture library with previews (1.3.0)
 - [ ] Glowing floor cables with watt display
 
 ## v1.0 – Stable release
 
 - [ ] Verified on real Home Assistant installs (test protocol issue)
-- [ ] Layout export / import
-- [ ] Complete documentation and screenshots
+- [x] Layout export / import (backup 1.5.0, JSON import 3.0.0)
+- [x] Documentation and screenshots (import guide, quick tour, demo)
 
 ## v3.0 – Property import (JSON API) – done in 3.0.0
 
@@ -46,7 +46,8 @@ Describe a plot and the building as JSON (or import GeoJSON footprints) and let 
 - [x] Several houses and per-pane window sensors (1.4.0)
 - [x] Furniture library with previews, search and categories, door/window variants, wall pictures (1.3.0)
 - [x] Move floors, basement, roof, garden objects, whole-house view (0.9.0)
-- [ ] Multi-segment LED strips and Nanoleaf panel shapes
+- [x] Nanoleaf panel shapes and layout editor (0.10.0)
+- [ ] Multi-segment LED strips (polyline along several walls)
 - [ ] Automatic room detection from closed wall loops
 - [x] Background image / blueprint for tracing (0.7.2)
-- [ ] More languages
+- [x] More languages: Français, Español, Italiano, Nederlands, Polski (3.1.0)
