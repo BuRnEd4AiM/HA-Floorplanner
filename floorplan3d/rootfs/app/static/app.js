@@ -3,6 +3,7 @@ import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
+import { planPlacement, classify } from './autoplace.js';
 import { RING_DEFAULT_INSET, ringCount, segEntity, ringEntities, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange } from './ledring.js';
 import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
 import {
@@ -1624,6 +1625,36 @@ function roomOpenings(room, f) {
   }));
   return out;
 }
+/** doors / windows on the room's walls with their span in floor coordinates (for automatic placement) */
+function roomOpeningSpans(room, f) {
+  return f.walls.flatMap((w) => {
+    const L = wallLength(w) || 1, ux = (w.b[0] - w.a[0]) / L, uz = (w.b[1] - w.a[1]) / L;
+    return (w.openings || []).filter((o) => roomOpenings(room, f).includes(o)).map((o) => ({
+      id: o.id, type: o.type, entity: o.entity || '',
+      a: [w.a[0] + ux * (o.pos - o.width / 2), w.a[1] + uz * (o.pos - o.width / 2)], b: [w.a[0] + ux * (o.pos + o.width / 2), w.a[1] + uz * (o.pos + o.width / 2)],
+    }));
+  });
+}
+const entityInfo = (id) => entities.find((e) => e.entity_id === id) || { entity_id: id, domain: id.split('.')[0] };
+/** put the given entities into the room where they belong (see autoplace.js); one undo step; returns the plan */
+function autoPlace(room, ids) {
+  const f = floor();
+  const existing = f.devices.filter((d) => pointInPoly(d.x, d.z, room.points)).map((d) => ({
+    x: d.x, z: d.z, layer: WALL_TYPES.has(d.type) || d.type === 'sensor' ? 'wall' : (d.y || 0) > 1.8 ? 'ceiling' : 'floor',
+  }));
+  const plan = planPlacement(room, ids.map(entityInfo), { openings: roomOpeningSpans(room, f), existing, wallHeight: settings.wallHeight });
+  if (!plan.devices.length && !plan.openings.length) return plan;
+  snapshot();
+  plan.devices.forEach((p) => {
+    const d = { id: uid(), type: p.type, x: p.x, z: p.z, y: p.y ?? DEVICE_TYPES[p.type]?.y ?? 0, rot: p.rot || 0, scale: 1, name: entityInfo(p.entity).name || p.entity, entity: p.entity };
+    if (p.wall && WALL_TYPES.has(d.type)) snapToWall(d, 0.6, true);       // flat onto the wall face
+    f.devices.push(d);
+    p.id = d.id;
+  });
+  plan.openings.forEach((o) => { const fo = findOpening(o.id); if (fo) fo.opening.entity = o.entity; });
+  changed();
+  return plan;
+}
 function closeRoomPanel() { roomPanelFor = null; $('#roomPanel').hidden = true; }
 const rpOpenCtl = new Set();               // lights whose colour / effect / scene controls are unfolded in the room panel
 function renderRoomPanel() {
@@ -2539,21 +2570,37 @@ function renderRoomEntities() {
     if (selection?.id === o.id) r.classList.add('active');
     r.addEventListener('click', () => { if (selection?.id === o.id && lockedSel) { releaseLock(); return; } selection = { kind: 'opening', id: o.id }; lockedSel = true; refreshSelection(); });
   });
+  floor().walls.forEach((w) => (w.openings || []).forEach((o) => openingEntities(o).forEach((e) => placedIds.add(e))));   // contacts already on a door / window
   const extra = (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []).filter((id) => !placedIds.has(id));
+  const placeable = extra.filter((id) => classify(entityInfo(id)));
+  if (placeable.length) {                                  // one click: every thing of the area where it belongs
+    const ab = document.createElement('button'); ab.type = 'button'; ab.id = 'reAutoPlace'; ab.className = 're-auto';
+    ab.textContent = t('auto.all', { n: placeable.length }); ab.title = t('auto.hint');
+    ab.addEventListener('click', () => {
+      const plan = autoPlace(room, placeable);
+      setStatus(t('auto.done', { n: plan.devices.length, o: plan.openings.length, s: plan.skipped.length }));
+    });
+    box.append(ab);
+  }
   extra.forEach((id) => {
     const b = document.createElement('button'); b.textContent = t('re.place');
     b.addEventListener('click', () => {
-      snapshot();
-      const dom = id.split('.')[0], type = DOMAIN_DEVICE[dom] || 'sensor';
-      const xs = room.points.map((p) => p[0]), zs = room.points.map((p) => p[1]);
-      const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2;
-      const d = { id: uid(), type, x: pointInPoly(cx, cz, room.points) ? cx : room.points[0][0] + 0.5, z: pointInPoly(cx, cz, room.points) ? cz : room.points[0][1] + 0.5,
-        y: DEVICE_TYPES[type]?.y || 0, rot: 0, scale: 1, name: entities.find((e) => e.entity_id === id)?.name || id, entity: id };
-      floor().devices.push(d);
-      selection = { kind: 'device', id: d.id };
-      changed();
+      const plan = autoPlace(room, [id]);
+      if (plan.devices[0]) selection = { kind: 'device', id: plan.devices[0].id };
+      else if (!plan.openings.length) {                    // nothing the room has a place for (energy sensor, scene ...): as before, in the middle
+        snapshot();
+        const dom = id.split('.')[0], type = DOMAIN_DEVICE[dom] || 'sensor';
+        const xs = room.points.map((p) => p[0]), zs = room.points.map((p) => p[1]);
+        const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2;
+        const d = { id: uid(), type, x: pointInPoly(cx, cz, room.points) ? cx : room.points[0][0] + 0.5, z: pointInPoly(cx, cz, room.points) ? cz : room.points[0][1] + 0.5,
+          y: DEVICE_TYPES[type]?.y || 0, rot: 0, scale: 1, name: entityInfo(id).name || id, entity: id };
+        floor().devices.push(d);
+        selection = { kind: 'device', id: d.id };
+        changed();
+      }
+      refreshSelection();
     });
-    row(entities.find((e) => e.entity_id === id)?.name || id, id, b).classList.add('unplaced');
+    row(entityInfo(id).name || id, id, b).classList.add('unplaced');
   });
   applyFilter();
   if (hadFocus) { rs.focus(); rs.setSelectionRange(rs.value.length, rs.value.length); }
