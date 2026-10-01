@@ -674,6 +674,11 @@ with sync_playwright() as p:
     pg17 = b.new_page(viewport={"width": 760, "height": 1000}, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg17.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
     pg17.goto(BASE + "?debug=1&mode=live"); pg17.wait_for_timeout(1500)
+    check("offline: the pill is there with nothing offline too", pg17.locator("#offlinePill").is_visible() and "0" in pg17.inner_text("#offlinePill"), pg17.inner_text("#offlinePill"))
+    urllib.request.urlopen("http://localhost:8123/_set?e=switch.garage&s=unavailable"); pg17.wait_for_timeout(1200)
+    oth = pg17.evaluate("window.__fp.offlineOther().map(x => x.entity)")
+    check("offline: an unavailable entity that is not in the plan is listed too", "switch.garage" in oth and "0" in pg17.inner_text("#offlinePill"), oth)
+    urllib.request.urlopen("http://localhost:8123/_set?e=switch.garage&s=off"); pg17.wait_for_timeout(800)
     pg17.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
       f.devices.push({ id: 'offA', type: 'sensor', x: 1, z: 1, y: 1.8, rot: 0, scale: 1, name: 'Temp-Sensor', entity: 'sensor.temp' },
                      { id: 'offB', type: 'light', x: 2, z: 1, y: 2.5, rot: 0, scale: 1, name: 'Alte Lampe', entity: 'light.gibtesnicht' });
