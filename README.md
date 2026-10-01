@@ -20,9 +20,9 @@
 
 <img src="docs/img/3d.png" alt="3D hologram view of an apartment with live lights, sensors and open windows" width="900">
 
-*Your own floor plan as a glowing 3D hologram, live with your real lights, sensors, windows and scenes.*
+*Your own floor plan as a glowing 3D hologram on its plot, live with your real lights, sensors, windows and scenes.*
 
-<img src="docs/img/overview.gif" alt="Quick tour: live 3D view, room control, heat and humidity, whole house, 2D plan, split view and the device library" width="900">
+<img src="docs/img/overview.gif" alt="Quick tour: live 3D view, room control, heat and humidity, whole house with the basement in the ground, LED ring, 2D plan, split view and the device library" width="900">
 
 <sub>Quick tour (sped up): room control, heat and humidity colours, whole house, 2D / split view, device library. All from the <a href="#-try-it-without-home-assistant">demo file</a>.</sub>
 
@@ -119,7 +119,11 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 <table>
 <tr>
 <td width="50%"><img src="docs/img/split.png" alt="2D and 3D split view"><br><sub><b>2D + 3D split view</b>: draw in the blueprint, see it in 3D instantly</sub></td>
-<td width="50%"><img src="docs/img/house.png" alt="Whole-house view"><br><sub><b>Whole-house view</b>: all floors stacked</sub></td>
+<td width="50%"><img src="docs/img/house.png" alt="Whole-house view with plot, garden and the basement in the ground"><br><sub><b>Whole-house view</b>: all floors stacked, the house in its plot and garden</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/img/ground.png" alt="Basement in the earth, shown as a section with soil layers"><br><sub><b>Basement in the ground</b>: cut open like a section drawing, turns with the camera</sub></td>
+<td width="50%"><img src="docs/img/ledring.png" alt="LED ring under the bedroom ceiling with its sections"><br><sub><b>LED ring</b>: indirect light around the room, one light per section</sub></td>
 </tr>
 </table>
 
@@ -228,7 +232,7 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 
 **[⬇ Download the demo](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)** (always the newest build; a GitHub workflow rebuilds it whenever the app changes) and open the file with a double-click: one HTML file, no server, no Home Assistant.
 
-It contains an example house with several floors and a roof, furniture, doors and windows with contact sensors, simulated lights (colour, brightness, effects, scenes), a **Nanoleaf layout**, a **TV backlight**, an **invisible LED strip** that still lights the room, an **LED ring** with two lights around the bedroom ceiling, temperature / humidity sensors and the live mode. Everything works as in the add-on, except that changes are not saved.
+It contains an example house with a basement in the ground, several floors, a roof, a plot with garden, furniture, doors and windows with contact sensors, simulated lights (colour, brightness, effects, scenes), a **Nanoleaf layout**, a **TV backlight**, an **invisible LED strip** that still lights the room, an **LED ring** with two lights around the bedroom ceiling, temperature / humidity sensors and the live mode. Everything works as in the add-on, except that changes are not saved.
 
 To build it yourself: `cd demo && npm install && npm run build`.
 

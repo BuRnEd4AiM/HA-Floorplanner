@@ -40,9 +40,9 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 
 **4. Importieren.** Das Haus wird als **neues Haus** angelegt und sofort geöffnet. Dein bisheriges Haus bleibt unverändert; über die Hausauswahl oben wechselst du jederzeit zurück.
 
-![Importiertes Haus (Keller)](img/import-3-result.png)
+![Importiertes Haus (Erdgeschoss)](img/import-3-result.png)
 
-**5. Ganzes Haus und Grundstück.** Im Live-Modus zeigt **Ganzes Haus** Gebäude, Dach, Grundstücksgrenze und Gartenobjekte (Rasen, Terrasse, Bäume, Zaun).
+**5. Ganzes Haus und Grundstück.** Im Live-Modus zeigt **Ganzes Haus** Gebäude, Dach, Grundstück und Gartenobjekte (Rasen, Terrasse, Bäume, Zaun). Das Haus steht im Rasen, der Keller steckt in der Erde und wird an der Kameraseite aufgeschnitten gezeigt.
 
 ![Ganzes Haus mit Grundstück](img/import-4-whole-house.png)
 
