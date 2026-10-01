@@ -161,7 +161,8 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Scenes where the light is**: the popup of a light lists every scene that contains it (e.g. *Gaming*)
 - **Effects**: effect lists of Nanoleaf, WLED, Hue and others; **Nanoleaf layout editor** (snap grid: click triangles, hexagons, squares and bars together, saved as one object with one entity) plus single panel shapes
 - **Realistic light**: lights glow in their real colour, with type-dependent light pools (a strip does not light the room like a ceiling lamp), dimmable
-- **LED ring**: indirect light all around a room under the ceiling, one object with a light entity per section
+- **Instant live state**: a wall switch, an automation or a sensor shows up within a fraction of a second (the add-on listens to Home Assistant's event stream instead of polling)
+- **LED ring**: indirect light all around a room under the ceiling, split into as many sections as you like (several per wall, set by metres or by dragging in the 2D plan), each with its own light entity
 - **Home Assistant details**: ⓘ opens HA's own dialog with history, logbook and settings for any placed entity
 - **Auto placement**: one click puts all entities of a room's HA area where they belong (lights under the ceiling, switch by the door, contacts on doors/windows)
 - **Open windows and doors**: windows tilt open in 3D, **each pane of a double or triple window can have its own sensor**, an *n open* pill shows the overall state
@@ -216,6 +217,8 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 | Move / rotate | Drag it, `Q` / `E` rotate in 15° steps |
 | Lock an item | Tick the box before its name in the object list |
 | Live mode | Tap a device to control it, tap a room for the whole room |
+| History of a device | ⓘ *Details* in its popup opens Home Assistant's own dialog |
+| Place a whole HA area | Select the room, then *✨ Place all* in its entity list |
 | Undo | `Ctrl+Z` |
 | Import a house | *Houses & backup → Import house from JSON*, or `POST /api/import` |
 | Backup | *Houses & backup* in the side panel |
@@ -224,7 +227,7 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 
 **[⬇ Download the demo](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)** (always the newest build; a GitHub workflow rebuilds it whenever the app changes) and open the file with a double-click: one HTML file, no server, no Home Assistant.
 
-It contains an example house with several floors and a roof, furniture, doors and windows with contact sensors, simulated lights (colour, brightness, effects, scenes), a **Nanoleaf layout**, a **TV backlight**, an **invisible LED strip** that still lights the room, temperature / humidity sensors and the live mode. Everything works as in the add-on, except that changes are not saved.
+It contains an example house with several floors and a roof, furniture, doors and windows with contact sensors, simulated lights (colour, brightness, effects, scenes), a **Nanoleaf layout**, a **TV backlight**, an **invisible LED strip** that still lights the room, an **LED ring** with two lights around the bedroom ceiling, temperature / humidity sensors and the live mode. Everything works as in the add-on, except that changes are not saved.
 
 To build it yourself: `cd demo && npm install && npm run build`.
 
