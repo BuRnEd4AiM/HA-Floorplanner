@@ -4,3 +4,7 @@ Home Assistant add-on "3D Floorplan": backend floorplan3d/rootfs/app/server.py, 
 A knowledge graph of the code is built at session start in graphify-out/.
 - For codebase questions first run `graphify query "<question>"`, `graphify explain "<name>"` or `graphify path "<A>" "<B>"` before reading whole files.
 - After changing code run `graphify update .` (no API cost).
+## Working with the owner
+- The owner is not a developer: explain everything simply in German.
+- Always say how to approve a pull request: open the link, "Merge pull request", "Confirm merge".
+- Document bugs as GitHub issues and close them when fixed (use "Fixes #n" in the PR).
