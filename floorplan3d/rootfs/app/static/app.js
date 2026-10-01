@@ -903,6 +903,7 @@ function applyStates() {
 
 /* ---- Offline devices: every placed entity that Home Assistant reports as unavailable (or unknown), or that does not
    exist any more (renamed / deleted), in one list that is always one tap away ---- */
+const SMART_CATS = new Set(['lighting', 'smart']);   // devices that belong to an entity (furniture, garden and pictures do not)
 const UNKNOWN_IS_FINE = new Set(['scene', 'script', 'automation', 'button', 'input_button', 'event', 'input_text', 'text', 'notify', 'tts', 'conversation']);
 /** why an entity counts as offline: 'unavailable' | 'unknown' | 'missing', or null when it is fine */
 function offlineReason(id) {
@@ -912,7 +913,7 @@ function offlineReason(id) {
   if (s.state === 'unknown' && !UNKNOWN_IS_FINE.has(id.split('.')[0])) return 'unknown';
   return null;
 }
-/** [{ entity, reason, since, floor, kind, id, name, room }] of every placed device, LED ring section, TV backlight and door / window contact */
+/** [{ entity, reason, since, floor, kind, id, name, room }] of every placed lamp or smart device without an entity (reason 'unlinked') and every placed device, LED ring section, TV backlight and door / window contact */
 function offlineDevices() {
   if (!entities.length) return [];                     // states not loaded yet: nothing is known to be offline
   const out = [], seen = new Set();
@@ -927,6 +928,11 @@ function offlineDevices() {
   layout.floors.forEach((f, fi) => {
     f.devices.forEach((d) => {
       const name = d.name || entities.find((e) => e.entity_id === d.entity)?.name || t(`dev.${d.type}`);
+      const smart = SMART_CATS.has(catOf(d.type)) && d.type !== 'tv_led';
+      if (smart && !d.entity && !(d.type === 'ledring' && ringEntities(d).length)) {   // a lamp or sensor without its Home Assistant entity
+        const room = f.rooms.find((r) => pointInPoly(d.x, d.z, r.points));
+        out.push({ entity: '', reason: 'unlinked', since: null, floor: fi, kind: 'device', id: d.id, name, room: room?.name || '' });
+      }
       add(d.entity, fi, 'device', d.id, name, d.x, d.z, f);
       add(d.ledEntity, fi, 'device', d.id, name, d.x, d.z, f);
       if (d.type === 'ledring') ringEntities(d).forEach((e) => add(e, fi, 'device', d.id, name, d.x, d.z, f));
@@ -937,26 +943,14 @@ function offlineDevices() {
   });
   return out.sort((a, b) => a.floor - b.floor || a.room.localeCompare(b.room) || a.name.localeCompare(b.name));
 }
-/** unavailable entities of Home Assistant that are not placed in the plan (not 'unknown': many of those are normal) */
-function offlineElsewhere() {
-  if (!entities.length) return [];
-  const placed = new Set(offlineDevices().map((x) => x.entity));
-  layout.floors.forEach((f) => {
-    f.devices.forEach((d) => { [d.entity, d.ledEntity, ...(d.type === 'ledring' ? ringEntities(d) : [])].forEach((e) => e && placed.add(e)); });
-    f.walls.forEach((w) => (w.openings || []).forEach((o) => o.entity && placed.add(o.entity)));
-  });
-  return entities.filter((e) => e.state === 'unavailable' && !placed.has(e.entity_id))
-    .map((e) => ({ entity: e.entity_id, name: e.name || e.entity_id, since: states[e.entity_id]?.since || null }))
-    .sort((a, b) => a.name.localeCompare(b.name));
-}
 let offlineSig = '';
 function updateOfflinePill() {
-  const list = offlineDevices(), other = entities.length ? offlineElsewhere() : [], pill = $('#offlinePill');
+  const list = offlineDevices(), pill = $('#offlinePill');
   pill.hidden = !entities.length;                     // always there once the states are known, also with nothing offline
   pill.classList.toggle('warn', list.length > 0);
   pill.classList.toggle('ok', !list.length);
   pill.textContent = list.length ? t('off.pill', { n: list.length }) : t('off.pillOk');
-  const sig = JSON.stringify([list.map((x) => [x.id, x.entity, x.reason]), other.map((x) => x.entity)]);
+  const sig = JSON.stringify(list.map((x) => [x.id, x.entity, x.reason]));
   if (sig !== offlineSig) { offlineSig = sig; if ($('#offlineDialog').open) renderOfflineList(); }
 }
 function sinceText(iso) {
@@ -967,25 +961,9 @@ function sinceText(iso) {
   return rtf.format(sec, 'second');
 }
 function renderOfflineList() {
-  const ul = $('#offlineList'), list = offlineDevices(), other = offlineElsewhere();
+  const ul = $('#offlineList'), list = offlineDevices();
   ul.replaceChildren();
   $('#offlineNone').hidden = !!list.length;
-  const ol = $('#offlineOther');
-  ol.replaceChildren();
-  $('#offlineOtherHead').hidden = !other.length;
-  $('#offlineOtherHead').textContent = t('off.other', { n: other.length });
-  other.forEach((x) => {                              // not in the plan: a tap opens Home Assistant's own dialog, if there is one
-    const li = document.createElement('li'), b = document.createElement('button');
-    b.type = 'button';
-    const name = document.createElement('strong'); name.textContent = x.name;
-    const why = document.createElement('span'); why.className = 'offWhy unavailable'; why.textContent = t('off.unavailable');
-    const meta = document.createElement('small');
-    meta.textContent = [x.entity, x.since ? t('off.since', { t: sinceText(x.since) }) : ''].filter(Boolean).join(' · ');
-    b.append(name, why, meta);
-    b.disabled = !canMoreInfo();
-    b.addEventListener('click', () => openMoreInfo(x.entity));
-    li.append(b); ol.append(li);
-  });
   list.forEach((x) => {
     const li = document.createElement('li'), b = document.createElement('button');
     b.type = 'button';
@@ -3519,7 +3497,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, offline: () => offlineDevices(), offlineOther: () => offlineElsewhere(), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
+    get layout() { return layout; }, offline: () => offlineDevices(), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
     rebuild: () => build(),

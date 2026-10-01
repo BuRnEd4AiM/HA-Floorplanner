@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.9.2] - 2026-10-01
+### Changed
+- The offline list checks **only what is placed in the plan** again: the list of unplaced unavailable entities from 3.9.1 is gone
+- Placed **lamps and smart devices that are not linked** to a Home Assistant entity are listed as *Not linked* (furniture, garden objects and pictures are left out)
+
 ## [3.9.1] - 2026-10-01
 ### Changed
 - The offline pill is **always shown**: green **✓ 0 offline** when everything in the plan can be reached, red **⚠ n offline** otherwise
