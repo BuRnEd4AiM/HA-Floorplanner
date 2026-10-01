@@ -167,3 +167,8 @@ The object list in the side panel is grouped by room: the room itself, its doors
 ## About this project
 
 3D Floorplan is an AI-assisted project: developed together with Claude (Anthropic), directed, tested and used daily by its author. It is open source (MIT); bug reports and ideas are very welcome.
+
+
+## Import (Grundstück / Grundriss per JSON)
+
+Unter **Häuser → Grundriss importieren (JSON)** legst du aus einer JSON-Beschreibung (Grundstück, Räume, Fenster/Türen, Geräte) ein neues Haus an – von Hand, per KI-Prompt oder aus GeoJSON. Es gibt Beispiele, eine Prüfung vor dem Import und einen Export vorhandener Häuser. API: `POST /api/import[?dryRun=1&name=]`, `GET /api/export/property`, `GET /api/import/schema`. Details und Prompt-Tipps: [docs/IMPORT.md](https://github.com/BuRnEd4AiM/HA-Floorplanner/blob/main/docs/IMPORT.md).

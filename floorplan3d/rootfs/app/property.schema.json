@@ -1,0 +1,453 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/BuRnEd4AiM/HA-Floorplanner/property.schema.json",
+ "title": "3D Floorplan property description (schema version 1)",
+ "description": "Describes a plot and a building. POST it to /api/import (or paste it into 'Houses & backup' > 'Import house from JSON') to build a new house. All lengths are metres.",
+ "type": "object",
+ "required": [
+  "building"
+ ],
+ "properties": {
+  "schemaVersion": {
+   "const": 1
+  },
+  "name": {
+   "type": "string",
+   "maxLength": 60,
+   "description": "Name of the new house."
+  },
+  "plot": {
+   "type": "object",
+   "description": "The plot (Grundstück). Same coordinate frame as the building after 'origin' is applied.",
+   "properties": {
+    "boundary": {
+     "$ref": "#/$defs/polygon"
+    },
+    "objects": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/device"
+     },
+     "description": "Garden objects: lawn, terrace, path, tree, bush, fence, pool, car ... Coordinates are plot coordinates."
+    }
+   }
+  },
+  "building": {
+   "type": "object",
+   "required": [
+    "floors"
+   ],
+   "properties": {
+    "origin": {
+     "$ref": "#/$defs/point",
+     "description": "Where the building's (0,0) lies on the plot. Default [0,0]."
+    },
+    "wallHeight": {
+     "type": "number",
+     "minimum": 1.8,
+     "maximum": 10,
+     "default": 2.6
+    },
+    "outerWall": {
+     "type": "number",
+     "minimum": 0.05,
+     "maximum": 1.5,
+     "default": 0.3,
+     "description": "Thickness of outer walls."
+    },
+    "innerWall": {
+     "type": "number",
+     "minimum": 0.03,
+     "maximum": 1,
+     "default": 0.12,
+     "description": "Thickness of inner walls."
+    },
+    "footprint": {
+     "$ref": "#/$defs/polygon",
+     "description": "Outline of the building (wall centre line). Used by every floor that has no footprint of its own."
+    },
+    "roof": {
+     "$ref": "#/$defs/roof",
+     "description": "Adds a roof on top of the building."
+    },
+    "floors": {
+     "type": "array",
+     "minItems": 1,
+     "maxItems": 20,
+     "items": {
+      "$ref": "#/$defs/floor"
+     }
+    }
+   }
+  }
+ },
+ "$defs": {
+  "point": {
+   "type": "array",
+   "items": {
+    "type": "number"
+   },
+   "minItems": 2,
+   "maxItems": 2,
+   "description": "[x, z] in metres. x runs east (right), z runs south (down)."
+  },
+  "polygon": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/point"
+   },
+   "minItems": 3,
+   "maxItems": 100,
+   "description": "Closed polygon, listed in order. The last point is NOT repeated."
+  },
+  "roof": {
+   "type": "object",
+   "properties": {
+    "type": {
+     "enum": [
+      "gable",
+      "hip",
+      "flat"
+     ]
+    },
+    "pitch": {
+     "type": "number",
+     "minimum": 5,
+     "maximum": 70,
+     "default": 35
+    },
+    "overhang": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 3,
+     "default": 0.4
+    },
+    "ridge": {
+     "enum": [
+      "x",
+      "z"
+     ]
+    }
+   }
+  },
+  "floor": {
+   "type": "object",
+   "properties": {
+    "name": {
+     "type": "string"
+    },
+    "kind": {
+     "enum": [
+      "floor",
+      "basement",
+      "roof"
+     ],
+     "default": "floor"
+    },
+    "footprint": {
+     "$ref": "#/$defs/polygon"
+    },
+    "rooms": {
+     "type": "array",
+     "maxItems": 200,
+     "items": {
+      "type": "object",
+      "required": [
+       "points"
+      ],
+      "properties": {
+       "name": {
+        "type": "string"
+       },
+       "points": {
+        "$ref": "#/$defs/polygon"
+       },
+       "color": {
+        "type": "string",
+        "pattern": "^#[0-9a-fA-F]{6}$"
+       },
+       "area": {
+        "type": "string",
+        "description": "Home Assistant area id the room belongs to."
+       }
+      }
+     }
+    },
+    "walls": {
+     "type": "array",
+     "description": "Optional. If present, EXACTLY these walls are used (nothing is derived from rooms). Without it, walls are derived from footprint and room outlines; edges shared by two rooms become one inner wall.",
+     "items": {
+      "type": "object",
+      "required": [
+       "a",
+       "b"
+      ],
+      "properties": {
+       "a": {
+        "$ref": "#/$defs/point"
+       },
+       "b": {
+        "$ref": "#/$defs/point"
+       },
+       "thickness": {
+        "type": "number"
+       },
+       "height": {
+        "type": "number"
+       },
+       "openings": {
+        "type": "array",
+        "items": {
+         "$ref": "#/$defs/opening"
+        }
+       }
+      }
+     }
+    },
+    "openings": {
+     "type": "array",
+     "description": "Doors and windows, each placed on the wall nearest to 'at'.",
+     "items": {
+      "$ref": "#/$defs/opening"
+     }
+    },
+    "devices": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/device"
+     },
+     "description": "Furniture, lights, sensors ..."
+    },
+    "roof": {
+     "$ref": "#/$defs/roof",
+     "description": "Only for kind 'roof'."
+    }
+   }
+  },
+  "opening": {
+   "type": "object",
+   "description": "A door or window. Give 'type' or a 'preset'. Placement: 'at' [x,z] (nearest wall) or, inside an explicit wall, 'pos' (metres from point a).",
+   "properties": {
+    "type": {
+     "enum": [
+      "door",
+      "window"
+     ]
+    },
+    "preset": {
+     "enum": [
+      "door",
+      "doorEntry",
+      "doorGlass",
+      "doorDouble",
+      "doorSlide",
+      "doorOpen",
+      "window",
+      "window2",
+      "window3",
+      "windowTall",
+      "windowBath",
+      "windowFixed"
+     ]
+    },
+    "at": {
+     "$ref": "#/$defs/point"
+    },
+    "pos": {
+     "type": "number",
+     "minimum": 0
+    },
+    "width": {
+     "type": "number",
+     "minimum": 0.2,
+     "maximum": 6
+    },
+    "height": {
+     "type": "number",
+     "minimum": 0.2,
+     "maximum": 4
+    },
+    "sill": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 3
+    },
+    "style": {
+     "enum": [
+      "single",
+      "glass",
+      "double",
+      "sliding",
+      "open",
+      "triple",
+      "fixed"
+     ]
+    },
+    "entity": {
+     "type": "string",
+     "description": "Contact sensor, e.g. binary_sensor.fenster_wohnzimmer"
+    },
+    "name": {
+     "type": "string"
+    },
+    "paneEntities": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "maxItems": 4
+    }
+   }
+  },
+  "device": {
+   "type": "object",
+   "required": [
+    "type",
+    "x",
+    "z"
+   ],
+   "properties": {
+    "type": {
+     "enum": [
+      "armchair",
+      "barstool",
+      "basin",
+      "bathtub",
+      "bed",
+      "bed_single",
+      "boiler",
+      "bookcase",
+      "bush",
+      "camera",
+      "car",
+      "carpet",
+      "chair",
+      "coffeetable",
+      "crib",
+      "curtain",
+      "desk",
+      "diningtable",
+      "dishwasher",
+      "doublebasin",
+      "dresser",
+      "fence",
+      "fireplace",
+      "fridge",
+      "island",
+      "kitchen",
+      "lamp",
+      "lawn",
+      "light",
+      "microwave",
+      "mirror",
+      "monitor",
+      "nanoleaf",
+      "nightstand",
+      "officechair",
+      "orb",
+      "oven",
+      "panel_bar",
+      "panel_hex",
+      "panel_sq",
+      "panel_tri",
+      "path",
+      "pendant",
+      "piano",
+      "picture",
+      "plant",
+      "pool",
+      "pouf",
+      "printer",
+      "radiator",
+      "router",
+      "sensor",
+      "shelf",
+      "shower",
+      "sideboard",
+      "sidetable",
+      "sink",
+      "smoke",
+      "sofa",
+      "sofa2",
+      "speaker",
+      "spot",
+      "stove",
+      "strip",
+      "switch",
+      "table",
+      "terrace",
+      "thermostat",
+      "toilet",
+      "towelrad",
+      "tree",
+      "tv",
+      "tv_led",
+      "tv_wall",
+      "tvstand",
+      "vacuum",
+      "walllamp",
+      "wardrobe",
+      "washer"
+     ]
+    },
+    "x": {
+     "type": "number"
+    },
+    "z": {
+     "type": "number"
+    },
+    "y": {
+     "type": "number",
+     "description": "Height above the floor in metres (default depends on the type)."
+    },
+    "rot": {
+     "type": "number",
+     "description": "Rotation in degrees."
+    },
+    "scale": {
+     "type": "number"
+    },
+    "sx": {
+     "type": "number"
+    },
+    "sy": {
+     "type": "number"
+    },
+    "sz": {
+     "type": "number"
+    },
+    "tiltX": {
+     "type": "number"
+    },
+    "tiltZ": {
+     "type": "number"
+    },
+    "name": {
+     "type": "string"
+    },
+    "entity": {
+     "type": "string",
+     "description": "Home Assistant entity id, e.g. light.wohnzimmer"
+    },
+    "ledEntity": {
+     "type": "string",
+     "description": "Backlight entity of a tv / tv_wall."
+    },
+    "mirror": {
+     "type": "boolean"
+    },
+    "locked": {
+     "type": "boolean"
+    },
+    "hideModel": {
+     "type": "boolean",
+     "description": "Invisible in live mode, the light keeps shining."
+    },
+    "panels": {
+     "type": "array",
+     "description": "Only for type nanoleaf: [{s: tri|tri2|hex|sq|bar, x, y, r}] in metres / degrees."
+    }
+   }
+  }
+ }
+}

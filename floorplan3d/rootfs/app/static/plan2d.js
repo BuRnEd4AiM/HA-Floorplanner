@@ -238,6 +238,9 @@ export function createPlan(ctx) {
     g += lines(step >= 5 ? 10 : step >= 1 ? 5 : 1, C.grid2);
     o += g;
 
+    const plotB = ctx.layout().plot?.boundary;                 // the plot (Grundstück), dashed
+    if (plotB?.length >= 3) o += `<polygon points="${pts(plotB)}" fill="rgba(60,255,176,.05)" stroke="rgba(60,255,176,.7)" stroke-width="1.5" stroke-dasharray="8 5"/>`;
+
     /* placeholder blocks: solid masses that stand in for floors you do not draw */
     const idxB = ctx.getFloorIdx(), H3 = ctx.floorH();
     ctx.layout().floors.forEach((fl, i) => {

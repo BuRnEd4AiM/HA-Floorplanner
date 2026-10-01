@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "name": "Beispiel-Haus mit Grundstück",
+  "plot": {
+    "boundary": [[0, 0], [22, 0], [22, 30], [0, 30]],
+    "objects": [
+      { "type": "lawn",    "x": 11,   "z": 21,  "scale": 3.5 },
+      { "type": "terrace", "x": 11,   "z": 15.4, "scale": 1.6 },
+      { "type": "path",    "x": 11,   "z": 5.5, "rot": 90, "scale": 1.4 },
+      { "type": "tree",    "x": 3,    "z": 25 },
+      { "type": "tree",    "x": 19,   "z": 24 },
+      { "type": "bush",    "x": 5,    "z": 7 },
+      { "type": "fence",   "x": 11,   "z": 29.5, "scale": 4 }
+    ]
+  },
+  "building": {
+    "origin": [5.5, 8],
+    "wallHeight": 2.6,
+    "outerWall": 0.36,
+    "innerWall": 0.12,
+    "footprint": [[0, 0], [11, 0], [11, 7.5], [0, 7.5]],
+    "roof": { "type": "gable", "pitch": 38, "overhang": 0.5 },
+    "floors": [
+      {
+        "name": "Keller",
+        "kind": "basement",
+        "rooms": [
+          { "name": "Technik", "points": [[0, 0], [5, 0], [5, 7.5], [0, 7.5]] },
+          { "name": "Hobbykeller", "points": [[5, 0], [11, 0], [11, 7.5], [5, 7.5]] }
+        ],
+        "openings": [
+          { "preset": "door", "at": [5, 3.5] },
+          { "preset": "windowBath", "at": [8, 0] }
+        ],
+        "devices": [
+          { "type": "boiler", "x": 1, "z": 1, "name": "Heizung" },
+          { "type": "washer", "x": 4.2, "z": 0.5 }
+        ]
+      },
+      {
+        "name": "Erdgeschoss",
+        "kind": "floor",
+        "rooms": [
+          { "name": "Flur",         "points": [[0, 0], [3, 0], [3, 7.5], [0, 7.5]] },
+          { "name": "Wohnzimmer",   "points": [[3, 0], [11, 0], [11, 4.5], [3, 4.5]], "area": "wohnzimmer" },
+          { "name": "Küche",        "points": [[3, 4.5], [11, 4.5], [11, 7.5], [3, 7.5]] }
+        ],
+        "openings": [
+          { "preset": "doorEntry",  "at": [1.5, 0] },
+          { "preset": "windowTall", "at": [7, 0] },
+          { "preset": "window3",    "at": [11, 2.2], "entity": "binary_sensor.fenster_wohnzimmer", "name": "Fenster Wohnzimmer" },
+          { "preset": "window",     "at": [11, 6] },
+          { "preset": "window",     "at": [7, 7.5] },
+          { "preset": "window",     "at": [0, 3.5] },
+          { "preset": "doorOpen",   "at": [3, 2.2], "width": 1.2 },
+          { "preset": "door",       "at": [3, 6] }
+        ],
+        "devices": [
+          { "type": "light",  "x": 7, "z": 2.2, "name": "Deckenlicht Wohnzimmer", "entity": "light.wohnzimmer" },
+          { "type": "sofa2",  "x": 7, "z": 3.2, "rot": 180 },
+          { "type": "tv_wall", "x": 5, "z": 0.2, "y": 1.2, "name": "Fernseher", "entity": "media_player.tv", "ledEntity": "light.tv_led" },
+          { "type": "kitchen", "x": 7, "z": 7.1, "rot": 180 },
+          { "type": "diningtable", "x": 7, "z": 5.5 }
+        ]
+      },
+      {
+        "name": "Obergeschoss",
+        "kind": "floor",
+        "rooms": [
+          { "name": "Gang",         "points": [[0, 0], [3, 0], [3, 7.5], [0, 7.5]] },
+          { "name": "Schlafzimmer", "points": [[3, 0], [8, 0], [8, 7.5], [3, 7.5]], "area": "schlafzimmer" },
+          { "name": "Bad",          "points": [[8, 0], [11, 0], [11, 7.5], [8, 7.5]] }
+        ],
+        "openings": [
+          { "preset": "door", "at": [3, 3.5] },
+          { "preset": "door", "at": [8, 3.5] },
+          { "preset": "window2", "at": [5.5, 0] },
+          { "preset": "windowBath", "at": [11, 3.8] },
+          { "preset": "window", "at": [5.5, 7.5] }
+        ],
+        "devices": [
+          { "type": "bed", "x": 5.5, "z": 5.2, "rot": 0 },
+          { "type": "light", "x": 5.5, "z": 3.5, "name": "Schlafzimmerlicht", "entity": "light.schlafzimmer" },
+          { "type": "bathtub", "x": 10.2, "z": 1.2, "rot": 90 },
+          { "type": "toilet", "x": 9.9, "z": 6.8, "rot": 180 }
+        ]
+      }
+    ]
+  }
+}

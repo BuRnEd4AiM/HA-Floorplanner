@@ -19,6 +19,8 @@ from urllib.parse import unquote
 import aiohttp
 from aiohttp import web
 
+import importer
+
 STATIC_DIR = Path(__file__).parent / "static"
 SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN")
 HA_API = os.environ.get("HA_API", "http://supervisor/core/api")
@@ -776,6 +778,72 @@ async def post_backup(request):
     return web.json_response({"ok": True, "houses": len(houses), "pictures": len(bgs), "models": len(models)})
 
 
+# ---------- property import (JSON / GeoJSON -> new house) and export ----------
+APP_DIR = Path(__file__).parent
+EXAMPLE_NAME = re.compile(r"^[a-z0-9_-]{1,40}$")
+GEOJSON_TYPES = {"FeatureCollection", "Feature", "Polygon", "MultiPolygon", "GeometryCollection"}
+
+
+def _import_response(report, summary, **extra):
+    return {"summary": summary, "warnings": report.warnings, "errors": report.errors, **extra}
+
+
+async def post_import(request):
+    """Build a NEW house from a property description. ?dryRun=1 only checks and reports. Existing houses are never touched."""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        data = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON", "errors": [{"path": "$", "message": "not valid JSON"}], "warnings": []}, status=400)
+    converted = False
+    if isinstance(data, dict) and data.get("type") in GEOJSON_TYPES:
+        try:
+            data = importer.geojson_to_property(data, str(request.query.get("name") or "Haus vom Grundstück")[:60])
+            converted = True
+        except ValueError as err:
+            return web.json_response({"error": str(err), "errors": [{"path": "$", "message": str(err)}], "warnings": []}, status=400)
+    layout, plot, report, summary = importer.build_layout(data)
+    if layout is None:
+        return web.json_response(_import_response(report, summary, error="the description has errors", ok=False), status=400)
+    name = str(request.query.get("name") or (data.get("name") if isinstance(data, dict) else "") or "Importiertes Haus").strip()[:60] or "Importiertes Haus"
+    if request.query.get("dryRun") in ("1", "true"):
+        return web.json_response(_import_response(report, summary, ok=True, dryRun=True, name=name, fromGeoJSON=converted))
+    houses = houses_index(request)
+    if len(houses) >= MAX_HOUSES:
+        return web.json_response({"error": "too many houses", "errors": [{"path": "$", "message": f"at most {MAX_HOUSES} houses"}], "warnings": []}, status=400)
+    hid = secrets.token_hex(4)
+    write_json_atomic(house_file(request, hid), layout)
+    houses.append({"id": hid, "name": name})
+    save_houses(request, houses)
+    return web.json_response(_import_response(report, summary, ok=True, id=hid, name=name, fromGeoJSON=converted))
+
+
+async def get_export_property(request):
+    """The house as property JSON (walls explicit), so it can be edited by hand or by a script and imported again."""
+    if not await can_edit(request):
+        return forbidden()
+    hid = pick_house(request)
+    if hid is None:
+        return web.json_response({"error": "unknown house"}, status=404)
+    name = next((h["name"] for h in houses_index(request) if h["id"] == hid), "Haus")
+    data = importer.layout_to_property(read_json(house_file(request, hid), EMPTY_LAYOUT), name)
+    return web.Response(text=json.dumps(data, ensure_ascii=False, indent=1), content_type="application/json",
+                        headers={"Content-Disposition": f'attachment; filename="floorplan3d-property-{hid}.json"'})
+
+
+async def get_import_schema(request):
+    return web.FileResponse(APP_DIR / "property.schema.json")
+
+
+async def get_import_example(request):
+    name = request.match_info["name"]
+    path = APP_DIR / "examples" / f"{name}.json"
+    if not EXAMPLE_NAME.match(name) or not path.is_file():
+        return web.json_response({"error": "unknown example"}, status=404)
+    return web.FileResponse(path)
+
+
 def make_app(data_path: Path | None = None) -> web.Application:
     app = web.Application(client_max_size=max(MAX_LAYOUT_BYTES, MAX_BG_BYTES + 1024 * 1024))
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
@@ -788,6 +856,10 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.patch("/api/houses/{id}", patch_house),
         web.delete("/api/houses/{id}", delete_house),
         web.get("/api/backup", get_backup),
+        web.post("/api/import", post_import),
+        web.get("/api/import/schema", get_import_schema),
+        web.get("/api/import/examples/{name}", get_import_example),
+        web.get("/api/export/property", get_export_property),
         web.get("/api/me", get_me),
         web.get("/api/users", get_users),
         web.get("/api/settings", get_settings),

@@ -284,3 +284,16 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 #roomPanel .row .rp-more { padding: 4px 8px; }
 #roomPanel .row .rp-more.on { border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
 #roomPanel .row .rp-ctl { flex: 1 1 100%; }
+
+/* Property import dialog */
+#importDialog { width: min(780px, 96vw); }
+.impBar, .impFoot { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; align-items: center; }
+.impBar .btn, .impBar button { cursor: pointer; }
+#importText { width: 100%; min-height: 240px; box-sizing: border-box; font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px; resize: vertical; }
+#importName { width: 100%; box-sizing: border-box; margin: 8px 0; }
+#importResult { max-height: 220px; overflow: auto; font-size: 13px; }
+#importResult code { opacity: .85; margin-right: 6px; }
+#importResult ul { margin: 4px 0 8px 18px; padding: 0; }
+.imp-ok { color: #4ade80; margin: 6px 0; }
+.imp-errors { color: #ff6a5e; }
+.imp-warnings { color: #ffb04a; }
