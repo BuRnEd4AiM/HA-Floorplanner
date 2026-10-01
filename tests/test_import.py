@@ -135,6 +135,17 @@ def test_ledring_sections_survive_import_and_export():
     assert {k: again[k] for k in ("pts", "closed", "segs", "inset", "entity")} == {k: d[k] for k in ("pts", "closed", "segs", "inset", "entity")}
 
 
+def test_ledring_sections_with_ranges_survive_and_bad_ones_are_skipped():
+    f = square_flat(devices=[{"type": "ledring", "x": 0, "z": 0, "pts": [[-2, -1], [2, -1], [2, 1], [-2, 1]],
+                              "segs": [{"from": 0, "to": 1.5, "entity": "light.a"}, {"from": 1.6, "to": 4}, {"from": 5, "to": 4}, {"entity": "light.x"}]}])
+    layout, _, rep, _ = importer.build_layout(f)
+    d = layout["floors"][0]["devices"][0]
+    assert d["segs"] == [{"entity": "light.a", "from": 0.0, "to": 1.5}, {"from": 1.6, "to": 4.0}]
+    assert any(w["path"].endswith(".segs") for w in rep.warnings)
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"][0]
+    assert again["segs"] == d["segs"]
+
+
 def test_ledring_without_points_gets_a_square_and_a_warning():
     layout, _, rep, _ = importer.build_layout(square_flat(devices=[{"type": "ledring", "x": 0, "z": 0, "closed": False}]))
     d = layout["floors"][0]["devices"][0]

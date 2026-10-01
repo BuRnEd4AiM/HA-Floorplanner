@@ -11,7 +11,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 ## v0.8 – Live sync
 
 - [ ] Live state updates via WebSocket instead of polling
-- [ ] Native Home Assistant more-info dialog for tapped devices
+- [x] Native Home Assistant more-info dialog for tapped devices (3.4.0)
 - [ ] Auto-place all entities of an area
 
 ## v0.9 – Dashboards

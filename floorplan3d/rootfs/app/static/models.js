@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
 import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
-import { ringLocalEdges } from './ledring.js';
+import { ringSections, piecesLocal, pointAt } from './ledring.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -596,17 +596,24 @@ const RING_DEMO = { pts: [[-1, -0.7], [1, -0.7], [1, 0.7], [-1, 0.7]], closed: t
 function ledRing(g, dev) {
   const d = dev?.pts?.length >= 2 ? dev : RING_DEMO;
   const pick = new THREE.MeshBasicMaterial({ visible: false });
-  g.userData.segs = ringLocalEdges(d).map(({ i, a, b }) => {
-    const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 0.01;
+  g.userData.segs = ringSections(d).map(({ i, from, to }) => {
     const glow = glowMat();
-    const seg = new THREE.Group();
-    seg.position.set((a[0] + b[0]) / 2, 0, (a[1] + b[1]) / 2);
-    seg.rotation.y = Math.atan2(-dz, dx);
-    seg.add(box(L + 0.03, 0.025, 0.04, glow, 0, -0.0125, 0));
-    const hit = new THREE.Mesh(new THREE.BoxGeometry(L, 0.3, 0.3), pick);
-    hit.userData.proxy = true; hit.userData.seg = i;
-    seg.add(hit);
-    g.add(seg);
+    const sec = new THREE.Group();
+    piecesLocal(d, from, to).forEach(([a, b]) => {
+      const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 0.01;
+      const piece = new THREE.Group();
+      piece.position.set((a[0] + b[0]) / 2, 0, (a[1] + b[1]) / 2);
+      piece.rotation.y = Math.atan2(-dz, dx);
+      piece.add(box(L + 0.02, 0.025, 0.04, glow, 0, -0.0125, 0));
+      const hit = new THREE.Mesh(new THREE.BoxGeometry(L, 0.3, 0.3), pick);
+      hit.userData.proxy = true; hit.userData.seg = i;
+      piece.add(hit);
+      sec.add(piece);
+    });
+    const mid = new THREE.Object3D(); mid.name = 'mid';      // middle of the section (tests, popups)
+    const m = pointAt(d, (from + to) / 2); mid.position.set(m[0], 0, m[1]);
+    sec.add(mid);
+    g.add(sec);
     return { glow: [glow] };
   });
   g.userData.ownProxy = true;

@@ -275,9 +275,23 @@ def _device(rep: Report, path: str, spec, ids):
         d["pts"] = pts
         d["closed"] = spec.get("closed") is not False
         n = len(pts) if d["closed"] else len(pts) - 1
-        segs = spec.get("segs") if isinstance(spec.get("segs"), list) else []
-        d["segs"] = [{"entity": sg["entity"][:120]} if isinstance(sg, dict) and isinstance(sg.get("entity"), str) and sg["entity"] else {} for sg in segs[:n]]
-        d["segs"] += [{} for _ in range(n - len(d["segs"]))]
+        segs = [sg if isinstance(sg, dict) else {} for sg in (spec.get("segs") if isinstance(spec.get("segs"), list) else [])][:200]
+        ranged = any(_num(sg.get("from"), 0, 100000) and _num(sg.get("to"), 0, 100000) for sg in segs)
+
+        def seg(sg):
+            o = {"entity": sg["entity"][:120]} if isinstance(sg.get("entity"), str) and sg["entity"] else {}
+            if ranged:                                   # own start / end in metres along the band
+                if not (_num(sg.get("from"), 0, 100000) and _num(sg.get("to"), 0, 100000)) or float(sg["to"]) <= float(sg["from"]):
+                    return None
+                o.update({"from": round(float(sg["from"]), 3), "to": round(float(sg["to"]), 3)})
+            return o
+        d["segs"] = [o for o in map(seg, segs if ranged else segs[:n]) if o is not None]
+        if ranged and len(d["segs"]) < len(segs):
+            rep.warn(f"{path}.segs", "sections need numeric \"from\" < \"to\" (metres along the band): broken ones skipped")
+        if not ranged:
+            d["segs"] += [{} for _ in range(n - len(d["segs"]))]
+        elif not d["segs"]:
+            d["segs"] = [{} for _ in range(n)]
         if _num(spec.get("inset"), 0, 2):
             d["inset"] = float(spec["inset"])
     return d

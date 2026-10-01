@@ -70,6 +70,8 @@ Lights and scenes belong to a room when they are placed inside it or assigned to
 
 Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistant *Nanoleaf* integration: every panel set shows up as a light entity, place it like any other light (a *Lichtkugel* or *LED-Streifen* fits well). If a light offers effects (Nanoleaf scenes, WLED, Hue ...), the live popup shows an **Effects** drop-down; for a whole room the effects that all its lights share are offered.
 
+**Details (history, logbook, settings):** the live popup of a device has an **ⓘ Details** button next to its name, the room panel one on every row. It opens Home Assistant's own dialog for that entity, the same one a dashboard card opens: history graph, logbook, all attributes and the entity settings. It is shown when the floor plan runs inside Home Assistant (sidebar or HA app).
+
 **Scenes:** the popup of a light also lists every Home Assistant scene that contains this light (**Szenen mit dieser Lampe**); one tap activates the whole scene, so several strips take their scene colours together. The room panel does the same for all lights of the room.
 
 **Turning and mirroring:** every device has *Drehung* (around the vertical axis), *Kippen vor/zurück* and *Drehen in der Fläche / seitlich* (roll) in the side panel, and **Spiegeln** flips the shape left-right. For a wall panel, *Drehen in der Fläche* turns it in the wall plane to build the pattern.
@@ -85,6 +87,8 @@ Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistan
 **Single panel shapes:** the device palette has *Nanoleaf Dreieck / Sechseck / Quadrat / Linie*. Place one per real panel, rotate it to match the wall and give all of them the same light entity: they glow in the light's colour together. Clicking one in live mode opens the popup with colour, brightness and the effect (scene) list.
 
 **LED ring (indirect light around the room):** pick *LED-Ring (indirekt)* in the lighting library and click into a room: the ring runs all around the room just under the ceiling, 15 cm from the walls, with one **section per wall**. Select it to give each section its own light entity (for example two WLED segments or two Hue strips), or leave them empty and use *Entität für alle Abschnitte* for a single strip. *Abstand zur Wand* and *↻ An Raum anpassen* re-fit it after the room changed, *Geschlossen* turns it into an open line, *Höhe über Boden* sets the height. In live mode, tapping a section controls that section; the popup also switches or colours the whole ring.
+
+**More than one LED section per wall:** set *Anzahl Abschnitte* and press *Gleichmäßig verteilen*, then adjust every section with *Von (m)* / *Bis (m)*, measured along the band from the **0 m** mark shown in the 2D plan (once around the room). Or drag the white ends of a section along the wall in the 2D plan. ✂ splits a section in the middle, 🗑 removes it, *Je Wand einer* goes back to one section per wall. Where no section lies there are no LEDs, and a section may run around a corner.
 
 ## Home Assistant areas
 

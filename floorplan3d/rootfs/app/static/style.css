@@ -58,7 +58,9 @@ main { flex: 1; display: flex; min-height: 0; }
 #livePopup { position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); min-width: 240px;
   max-width: calc(100% - 24px); padding: 12px 14px; background: var(--panel); border: 1px solid var(--line);
   border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
-#livePopup .title { font-weight: 600; }
+#livePopup .title { font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#livePopup .mi { flex: none; padding: 3px 10px; font-size: 12px; font-weight: 500; min-height: 0; }
+#livePopup h4 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 #livePopup .sub { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
 #livePopup .actions { display: flex; gap: 6px; flex-wrap: wrap; }
 #livePopup .actions button { flex: 1; min-height: 40px; }
@@ -124,7 +126,7 @@ html[data-theme="holo"], html[data-theme="holo"] body { background: #041a52; }
 #roomPanel .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; margin-bottom: 6px;
   border: 1px solid var(--line); border-radius: 12px; }
 #roomPanel .row.on { border-color: #ff9d2e; box-shadow: 0 0 12px rgba(255,157,46,.35); }
-#roomPanel .row .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#roomPanel .row .n { flex: 1 1 110px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #roomPanel .row .v { color: var(--muted); font-size: 12px; }
 #roomPanel .row input[type=range] { flex: 1 1 100%; accent-color: var(--accent); }
 #roomPanel .row button { min-height: 30px; border-radius: 999px; padding: 2px 12px; }
@@ -303,3 +305,9 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 
 /* room pills: a dot while somebody is in the room (person / presence devices) */
 #roomPills .pill.occupied::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #5dffb0; box-shadow: 0 0 8px #5dffb0; vertical-align: 1px; }
+
+/* LED ring sections in the side panel */
+.ringSec { border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; margin: 6px 0; }
+.ringSec .ringSecHead { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.ringSec .ringSecHead b { flex: 1; font-size: 13px; font-weight: 600; }
+.ringSec .ringSecHead button { padding: 2px 8px; min-height: 0; }
