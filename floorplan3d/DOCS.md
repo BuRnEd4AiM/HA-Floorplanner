@@ -172,3 +172,8 @@ The object list in the side panel is grouped by room: the room itself, its doors
 ## Import (Grundstück / Grundriss per JSON)
 
 Unter **Häuser → Grundriss importieren (JSON)** legst du aus einer JSON-Beschreibung (Grundstück, Räume, Fenster/Türen, Geräte) ein neues Haus an – von Hand, per KI-Prompt oder aus GeoJSON. Es gibt Beispiele, eine Prüfung vor dem Import und einen Export vorhandener Häuser. API: `POST /api/import[?dryRun=1&name=]`, `GET /api/export/property`, `GET /api/import/schema`. Details und Prompt-Tipps: [docs/IMPORT.md](https://github.com/wvssweber-max/HA-Floorplanner/blob/main/docs/IMPORT.md).
+
+
+## Language
+
+⚙ → *Language*: Deutsch, English, Français, Español, Italiano, Nederlands, Polski, or *Auto* (follows the browser language of the device, so a tablet and a phone can differ if you set it per device in the browser; the saved setting is shared by all). Names you typed yourself (floors, rooms, devices) are never translated.

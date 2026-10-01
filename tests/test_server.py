@@ -430,3 +430,10 @@ def test_addon_changelog_is_current():
 def test_effect_colors_setting_is_kept_and_cleaned():
     out = server.validate_settings({"effectColors": {"Gaming": "#aa50ff", "": "x", "Bad": 5}})
     assert out["effectColors"] == {"Gaming": "#aa50ff"}
+
+
+async def test_language_setting_accepts_known_codes_only(client):
+    for code, expected in (("fr", "fr"), ("auto", "auto"), ("klingon", "de")):
+        r = await client.put("/api/settings", json={"language": code})
+        assert r.status == 200
+        assert (await (await client.get("/api/settings")).json())["language"] == expected

@@ -116,6 +116,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Permissions**: only chosen users edit, everyone else gets a read-only live view, enforced in the backend
 - **Offline and private**: three.js is bundled, no CDN, no cloud, no account; it opens through Ingress in the Home Assistant sidebar
 - **Import by JSON / AI / GeoJSON**: describe plot, rooms, windows and devices and get a new house; includes examples, schema, API and an AI prompt ([guide](docs/IMPORT.md))
+- **7 languages**: Deutsch, English, Français, Español, Italiano, Nederlands, Polski (⚙ → Language, or *Auto*). Adding another one is a single file, see [CONTRIBUTING](CONTRIBUTING.md)
 - **Backup and restore**: one file with all houses, settings, pictures and models. A safety copy is made before every restore
 - **Undo**: `Ctrl+Z` for everything you draw
 - **Your data stays yours**: layouts live in the add-on's `/data` folder and survive updates

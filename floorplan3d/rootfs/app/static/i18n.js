@@ -1,6 +1,13 @@
 /* Minimal i18n: t('key') and applyI18n() for [data-i18n], [data-i18n-title], [data-i18n-placeholder]. */
+import fr from './lang/fr.js';
+import es from './lang/es.js';
+import it from './lang/it.js';
+import nl from './lang/nl.js';
+import pl from './lang/pl.js';
+
 const DICT = {
   de: {
+    'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Feuchte',
     'op.door': 'Tür', 'op.doorEntry': 'Haustür', 'op.doorGlass': 'Glastür', 'op.doorDouble': 'Doppeltür', 'op.doorSlide': 'Schiebetür', 'op.doorOpen': 'Durchgang', 'op.window': 'Fenster', 'op.window2': 'Doppelfenster', 'op.window3': 'Dreifachfenster', 'op.windowTall': 'Fenstertür / Balkon', 'op.windowBath': 'Badfenster klein', 'op.windowFixed': 'Festverglasung', 'prop.style': 'Ausführung', 'st.single': 'Einfach', 'st.glass': 'Glas', 'st.double': 'Doppelt', 'st.sliding': 'Schiebe', 'st.open': 'Durchgang', 'st.triple': 'Dreifach', 'st.fixed': 'Fest',
     'dev.sofa2': 'Ecksofa', 'dev.tvstand': 'TV-Board', 'dev.bookcase': 'Bücherregal', 'dev.fireplace': 'Kamin', 'dev.piano': 'Klavier', 'dev.pouf': 'Hocker', 'dev.sidetable': 'Beistelltisch', 'dev.curtain': 'Vorhang', 'dev.barstool': 'Barhocker', 'dev.stove': 'Herd', 'dev.oven': 'Backofen', 'dev.dishwasher': 'Geschirrspüler', 'dev.sink': 'Spüle', 'dev.island': 'Kücheninsel', 'dev.microwave': 'Mikrowelle', 'dev.mirror': 'Spiegel', 'dev.towelrad': 'Handtuchheizkörper', 'dev.doublebasin': 'Doppelwaschtisch', 'dev.bed_single': 'Einzelbett', 'dev.nightstand': 'Nachttisch', 'dev.dresser': 'Kommode', 'dev.crib': 'Babybett', 'dev.monitor': 'PC-Arbeitsplatz', 'dev.officechair': 'Bürostuhl', 'dev.printer': 'Drucker', 'dev.pendant': 'Hängelampe', 'dev.walllamp': 'Wandlampe', 'dev.spot': 'Deckenspot', 'dev.radiator': 'Heizkörper', 'dev.boiler': 'Warmwasserspeicher', 'dev.camera': 'Kamera', 'dev.speaker': 'Lautsprecher', 'dev.vacuum': 'Saugroboter', 'dev.smoke': 'Rauchmelder', 'dev.router': 'Router', 'dev.picture': 'Bild', 'cat.all': 'Alle', 'cat.living': 'Wohnen', 'cat.kitchen': 'Küche', 'cat.bath': 'Bad', 'cat.bedroom': 'Schlafen', 'cat.office': 'Büro', 'cat.lighting': 'Licht', 'cat.smart': 'Technik', 'cat.outdoor': 'Außen', 'cat.decor': 'Deko', 'pal.search': 'Suchen …', 'pic.load': 'Bild laden …', 'pic.replace': 'Bild ersetzen …', 'pic.width': 'Breite', 'pic.help': 'Lade ein PNG/JPG/WebP, das Bild hängt dann an der Wand.', 'pic.snap': 'An Wand ausrichten',
     'pane.title': 'Einzelne Flügel (optional)', 'pane.n': 'Flügel {n}', 'house.panel': 'Häuser & Backup', 'backup.title': 'Backup', 'backup.hint': 'Sichert alle Häuser, Einstellungen, Bilder und 3D-Modelle in einer Datei.', 'backup.export': 'Backup herunterladen', 'backup.import': 'Backup einspielen…', 'backup.confirm': 'Backup einspielen? Alle Häuser und Einstellungen werden durch den Inhalt der Datei ersetzt (eine Sicherheitskopie des aktuellen Stands wird vorher auf dem Server abgelegt).', 'backup.done': 'Backup eingespielt: {h} Haus/Häuser', 'backup.failed': 'Backup fehlgeschlagen', 'house.new': '+ Neues Haus', 'house.rename': 'Umbenennen', 'house.copy': 'Duplizieren', 'house.delete': 'Haus löschen', 'house.namePrompt': 'Name des Hauses:', 'house.deleteConfirm': 'Dieses Haus mit allen Etagen und Geräten löschen?', 'house.default': 'Haus', 'house.current': 'Aktuelles Haus',
@@ -87,6 +94,7 @@ const DICT = {
     'set.section.view': 'Ansicht',
   },
   en: {
+    'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Humidity',
     'op.door': 'Door', 'op.doorEntry': 'Front door', 'op.doorGlass': 'Glass door', 'op.doorDouble': 'Double door', 'op.doorSlide': 'Sliding door', 'op.doorOpen': 'Passage', 'op.window': 'Window', 'op.window2': 'Double window', 'op.window3': 'Triple window', 'op.windowTall': 'Balcony door', 'op.windowBath': 'Small bath window', 'op.windowFixed': 'Fixed glazing', 'prop.style': 'Style', 'st.single': 'Single', 'st.glass': 'Glass', 'st.double': 'Double', 'st.sliding': 'Sliding', 'st.open': 'Passage', 'st.triple': 'Triple', 'st.fixed': 'Fixed',
     'dev.sofa2': 'Corner sofa', 'dev.tvstand': 'TV stand', 'dev.bookcase': 'Bookcase', 'dev.fireplace': 'Fireplace', 'dev.piano': 'Piano', 'dev.pouf': 'Pouf', 'dev.sidetable': 'Side table', 'dev.curtain': 'Curtain', 'dev.barstool': 'Bar stool', 'dev.stove': 'Stove', 'dev.oven': 'Oven', 'dev.dishwasher': 'Dishwasher', 'dev.sink': 'Sink', 'dev.island': 'Kitchen island', 'dev.microwave': 'Microwave', 'dev.mirror': 'Mirror', 'dev.towelrad': 'Towel radiator', 'dev.doublebasin': 'Double basin', 'dev.bed_single': 'Single bed', 'dev.nightstand': 'Nightstand', 'dev.dresser': 'Dresser', 'dev.crib': 'Crib', 'dev.monitor': 'Computer desk', 'dev.officechair': 'Office chair', 'dev.printer': 'Printer', 'dev.pendant': 'Pendant lamp', 'dev.walllamp': 'Wall lamp', 'dev.spot': 'Ceiling spot', 'dev.radiator': 'Radiator', 'dev.boiler': 'Water heater', 'dev.camera': 'Camera', 'dev.speaker': 'Speaker', 'dev.vacuum': 'Robot vacuum', 'dev.smoke': 'Smoke detector', 'dev.router': 'Router', 'dev.picture': 'Picture', 'cat.all': 'All', 'cat.living': 'Living', 'cat.kitchen': 'Kitchen', 'cat.bath': 'Bath', 'cat.bedroom': 'Bedroom', 'cat.office': 'Office', 'cat.lighting': 'Lighting', 'cat.smart': 'Tech', 'cat.outdoor': 'Outdoor', 'cat.decor': 'Decor', 'pal.search': 'Search …', 'pic.load': 'Load picture …', 'pic.replace': 'Replace picture …', 'pic.width': 'Width', 'pic.help': 'Load a PNG/JPG/WebP and the picture hangs on the wall.', 'pic.snap': 'Snap to wall',
     'pane.title': 'Individual panes (optional)', 'pane.n': 'Pane {n}', 'house.panel': 'Houses & backup', 'backup.title': 'Backup', 'backup.hint': 'Saves all houses, settings, pictures and 3D models in one file.', 'backup.export': 'Download backup', 'backup.import': 'Restore backup…', 'backup.confirm': 'Restore backup? All houses and settings are replaced by the file (the current state is copied to a safety backup on the server first).', 'backup.done': 'Backup restored: {h} house(s)', 'backup.failed': 'Backup failed', 'house.new': '+ New house', 'house.rename': 'Rename', 'house.copy': 'Duplicate', 'house.delete': 'Delete house', 'house.namePrompt': 'Name of the house:', 'house.deleteConfirm': 'Delete this house with all its floors and devices?', 'house.default': 'House', 'house.current': 'Current house',
@@ -174,10 +182,22 @@ const DICT = {
   },
 };
 
+DICT.fr = fr; DICT.es = es; DICT.it = it; DICT.nl = nl; DICT.pl = pl;
+export const LANGUAGES = { de: 'Deutsch', en: 'English', fr: 'Français', es: 'Español', it: 'Italiano', nl: 'Nederlands', pl: 'Polski' };
+
 let lang = 'de';
-export function setLanguage(l) { lang = DICT[l] ? l : 'de'; document.documentElement.lang = lang; }
+/** 'auto' follows the browser / Home Assistant language, unknown codes fall back to German. */
+export function resolveLanguage(l) {
+  if (l === 'auto') {
+    for (const c of (navigator.languages || [navigator.language || 'en'])) { const b = String(c).slice(0, 2).toLowerCase(); if (DICT[b]) return b; }
+    return 'en';
+  }
+  return DICT[l] ? l : 'de';
+}
+export function setLanguage(l) { lang = resolveLanguage(l); document.documentElement.lang = lang; }
+export function currentLanguage() { return lang; }
 export function t(key, vars) {
-  let s = DICT[lang][key] ?? DICT.de[key] ?? key;
+  let s = DICT[lang][key] ?? DICT.en[key] ?? DICT.de[key] ?? key;
   if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);
   return s;
 }

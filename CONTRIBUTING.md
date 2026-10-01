@@ -22,3 +22,10 @@ Please include the add-on version, your browser, and the browser console output.
 This project is developed together with an AI assistant (Claude). Contributions are judged on quality, not on who or what wrote them: please make sure anything you submit is tested and that you understand it.
 
 The single-file demo is rebuilt automatically by the *Demo* workflow whenever the app or `demo/` changes on `main` (committed as `demo/floorplan3d-demo.html` and swapped into the latest release), so no manual step is needed; to try it locally run `cd demo && npm run build`.
+
+
+## Adding a language
+
+1. Copy `floorplan3d/rootfs/app/static/lang/fr.js` to `lang/<code>.js` and translate the values (keep the keys and every `{placeholder}`).
+2. Register it in `static/i18n.js` (`import`, `DICT.<code> = ...`, `LANGUAGES`), in the `<select id="setLanguage">` of `static/index.html` and in `LANGUAGES` in `server.py`.
+3. Add the code to `tests/test_i18n.py`. The tests fail if a key or placeholder is missing.
