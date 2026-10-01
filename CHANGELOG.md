@@ -4,6 +4,19 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.5.0] - 2026-10-01
+### Added
+- **Place a whole HA area automatically**: select a room that is linked to a Home Assistant area and press **✨ Alle … sinnvoll platzieren** in its entity list. Every entity of the area goes where it belongs, in one undo step:
+  - lights on an even grid under the ceiling, smoke detectors between them
+  - switches (and blinds, fans) next to the door
+  - heating / thermostat under a window
+  - temperature, humidity, CO₂ and light sensors and cameras on free stretches of wall
+  - TV in the middle of the longest free wall
+  - motion / presence sensors and robot vacuums on the floor, clear of the lamps and the room name
+  - **door and window contacts are linked to the room's doors and windows** that have no sensor yet
+  - things that are not objects in the room (battery, signal, energy sensors, scenes, scripts …) are skipped and stay in the list to place by hand
+- The single **+ platzieren** button of an entity uses the same rules instead of dropping it in the middle of the room
+
 ## [3.4.0] - 2026-10-01
 ### Added
 - **LED ring: free sections** — set **how many** sections the band has and **where each one starts and ends** (*Von / Bis* in metres along the band, counted from the "0 m" mark), so a wall can have several sections and gaps without LEDs. *Gleichmäßig verteilen* spreads any number of sections evenly, *Je Wand einer* goes back to one per wall, ✂ splits a section in the middle and 🗑 removes it. In the 2D plan the white ends of every section can be **dragged along the walls** (5 cm steps). A section can run around a corner. The lights of the sections are kept by their number

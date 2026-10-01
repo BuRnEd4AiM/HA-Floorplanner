@@ -572,6 +572,31 @@ with sync_playwright() as p:
     fr.locator("#livePopup .title .mi").click(); pg13.wait_for_timeout(200)
     check("live popup: details button next to the name", pg13.evaluate("window.__mi").count("light.wohnzimmer") == 2, pg13.evaluate("window.__mi"))
     pg13.close()
+    # --- automatic placement: every entity of the room's HA area where it belongs, one undo step
+    pg14 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pg14.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pg14.goto(BASE + "?debug=1&mode=edit"); pg14.wait_for_timeout(1500)
+    pg14.once("dialog", lambda d: d.accept("Auto"))
+    pg14.evaluate("window.__fp.addFloorOf('floor')"); pg14.wait_for_timeout(300)
+    pg14.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; const P = [[0,0],[5,0],[5,4],[0,4]];
+      P.forEach((a, i) => f.walls.push({ id: 'aw' + i, a: [...a], b: [...P[(i + 1) % 4]], thickness: 0.2, height: 2.6,
+        openings: i === 0 ? [{ id: 'ad', type: 'door', pos: 1, width: 0.9, height: 2.1, sill: 0 }] : [] }));
+      f.rooms.push({ id: 'ar', name: 'Autoraum', color: '#888', area: 'wz', points: P.map((p) => [...p]) }); window.__fp.rebuild(); })()""")
+    pg14.wait_for_timeout(300)
+    pg14.locator("#roomPills button, #roomPills .pill", has_text="Autoraum").first.click(); pg14.wait_for_timeout(500)
+    has_btn = pg14.is_visible("#reAutoPlace")
+    if has_btn: pg14.click("#reAutoPlace"); pg14.wait_for_timeout(400)
+    devs = pg14.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices")
+    wh = pg14.evaluate("fetch('api/settings').then(r => r.json()).then(s => s.wallHeight)")
+    lamp = next((d for d in devs if d["entity"] == "light.wohnzimmer"), None)
+    sw = next((d for d in devs if d["entity"] == "cover.rollo"), None)
+    check("auto placement: one click puts the area's light under the ceiling and the blind switch by the door, on the wall",
+          has_btn and lamp and lamp["type"] == "light" and abs(lamp["y"] - (wh - 0.05)) < 0.01 and 1.5 < lamp["x"] < 3.5 and 1 < lamp["z"] < 3
+          and sw and sw["type"] == "switch" and abs(sw["z"] - 0.12) < 0.03 and abs(sw["x"] - 1) < 1.2 and not (0.55 < sw["x"] < 1.45), devs)
+    check("auto placement: the room's list has nothing left to place", pg14.locator("#reAutoPlace").count() == 0 and pg14.locator(".re-row.unplaced").count() == 0)
+    pg14.keyboard.press("Control+z"); pg14.wait_for_timeout(300)
+    check("auto placement: one undo removes all of it", len(pg14.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices")) == 0)
+    pg14.close()
     pg11 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg11.goto(BASE + "?debug=1&mode=edit"); pg11.wait_for_timeout(1500)
     nh = pg11.evaluate("fetch('api/houses').then(r => r.json()).then(h => h.length)")
