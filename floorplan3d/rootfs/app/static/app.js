@@ -622,7 +622,7 @@ function build() {
     const g = new THREE.Group();
     g.position.y = elev(i);
     world.add(g);
-    const holes = holesForFloor(layout.floors, i, FLOOR_H);
+    const holes = floorOpenings(i);
     if (f.kind === 'roof' && !iso) buildRoof(g, i, f, holo, ghost);
 
     f.rooms.forEach((r) => {
@@ -668,8 +668,16 @@ function build() {
       }
     });
 
+    /* floor openings drawn by hand: a rim like a wall top, so the opening reads from above */
+    if (!ghost) (f.holes || []).forEach((h) => {
+      if (h.points.length < 3) return;
+      const rim = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(h.points.map(([x, z]) => new THREE.Vector3(x, 0.03, z))),
+        new THREE.LineBasicMaterial({ color: holo ? HOLO.edge : 0xff9f43 }));
+      g.add(rim);
+    });
+
     /* placeholder blocks: a solid mass for a floor that is not drawn */
-    const shaftHoles = (f.blocks || []).length ? holesForFloor(layout.floors, i + 1, FLOOR_H) : [];   // stairwells to the floor above run through the block
+    const shaftHoles = (f.blocks || []).length ? floorOpenings(i + 1) : [];   // stairwells and floor openings of the floor above run through the block
     if (!iso) (f.blocks || []).forEach((b) => {
       if (b.points.length < 3) return;
       const shape = floorShapes(b.points, shaftHoles);
@@ -1017,7 +1025,7 @@ function refreshSelection() {
   // keep the selection even when the object is not drawn (e.g. hidden by a focused room or off screen), so it can still be found, moved to view or deleted
   if (selection && !registry.get(selection.id)) {
     const f = floor();
-    const exists = f && [f.walls, f.rooms, f.devices, f.blocks, f.stairs].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
+    const exists = f && [f.walls, f.rooms, f.devices, f.blocks, f.stairs, f.holes].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
     if (!exists) selection = null;
   }
   if (!selection) lockedSel = false;
@@ -1553,7 +1561,7 @@ function itemOf(kind, id) {
   const f = floor();
   if (!f) return null;
   if (kind === 'opening') return findOpening(id)?.opening || null;
-  const list = { wall: f.walls, room: f.rooms, device: f.devices, stair: f.stairs, block: f.blocks }[kind] || [];
+  const list = { wall: f.walls, room: f.rooms, device: f.devices, stair: f.stairs, block: f.blocks, hole: f.holes }[kind] || [];
   return list.find((q) => q.id === id) || null;
 }
 function deleteItem({ kind, id }) {
@@ -1563,6 +1571,7 @@ function deleteItem({ kind, id }) {
   if (kind === 'room') f.rooms = f.rooms.filter((x) => x.id !== id);
   if (kind === 'device') f.devices = f.devices.filter((x) => x.id !== id);
   if (kind === 'block') f.blocks = (f.blocks || []).filter((x) => x.id !== id);
+  if (kind === 'hole') f.holes = (f.holes || []).filter((x) => x.id !== id);
   if (kind === 'stair') f.stairs = (f.stairs || []).filter((x) => x.id !== id);
   if (kind === 'opening') {
     const found = findOpening(id);
@@ -1575,7 +1584,7 @@ function deleteItem({ kind, id }) {
 window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
-  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot')) { plan.finishRoom(); return; }
+  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole')) { plan.finishRoom(); return; }
   if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (bgMode) setBgMode(null); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
@@ -2000,7 +2009,7 @@ function setTool(next) {
   $('#groupPalette').hidden = next !== 'group';
   if (next !== 'group' && groupPick.size) { groupPick.clear(); plan?.render(); }
   if (next === 'group') renderGroupPalette();
-  if ((next === 'block' || next === 'stairs' || next === 'plot') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
+  if ((next === 'block' || next === 'stairs' || next === 'plot' || next === 'hole') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
   canvas.style.cursor = next === 'select' ? 'default' : 'crosshair';
 }
 document.querySelectorAll('#tools button').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
@@ -2446,6 +2455,10 @@ function renderModelPalette() {
   });
 }
 /* ================= Placeholder blocks and stairs ================= */
+/** everything cut out of floor i: stairwell openings plus the floor openings drawn by hand (Bodenöffnung) */
+function floorOpenings(i) {
+  return [...holesForFloor(layout.floors, i, FLOOR_H), ...(layout.floors[i]?.holes || []).filter((h) => h.points.length >= 3).map((h) => h.points)];
+}
 /** THREE shapes of a floor polygon with the stairwell openings cut out (polygon boolean, so partial overlaps work too) */
 function floorShapes(points, holes) {
   const v = (p) => new THREE.Vector2(p[0], -p[1]);
@@ -2496,6 +2509,14 @@ $('#plotClear').addEventListener('click', () => {
   if (!Object.keys(layout.plot).length) delete layout.plot;
   changed(); plan?.render();
 });
+function addHole(points) {
+  snapshot();
+  const f = floor();
+  (f.holes ||= []).push({ id: uid(), points });
+  selection = { kind: 'hole', id: f.holes[f.holes.length - 1].id };
+  changed();
+  setStatus(t('hole.added'));
+}
 function addBlock(points) {
   const target = blockTargetFloor();
   snapshot();
@@ -2922,6 +2943,7 @@ function renderObjList() {
     ['obj.walls', f.walls.map((w, i) => ({ kind: 'wall', id: w.id, label: `${t('prop.wall')} ${i + 1} · ${wallLength(w).toFixed(1)} m` }))],
     ['obj.stairs', (f.stairs || []).map((s) => ({ kind: 'stair', id: s.id, label: s.name || t(`stair.${s.type}`) }))],
     ['obj.blocks', (f.blocks || []).map((b) => ({ kind: 'block', id: b.id, label: b.name || t('prop.block') }))],
+    ['obj.holes', (f.holes || []).map((h, i) => ({ kind: 'hole', id: h.id, label: `${t('prop.hole')} ${i + 1}` }))],
   );
   groups.forEach(([key, allItems, title]) => {
     const items = q ? allItems.filter((it) => it.label.toLowerCase().includes(q)) : allItems;
@@ -2969,6 +2991,7 @@ function renderProps() {
   else if (selection.kind === 'device') it = f.devices.find((x) => x.id === selection.id);
   else if (selection.kind === 'stair') it = (f.stairs || []).find((x) => x.id === selection.id);
   else if (selection.kind === 'block') it = (f.blocks || []).find((x) => x.id === selection.id);
+  else if (selection.kind === 'hole') it = (f.holes || []).find((x) => x.id === selection.id);
   else if (selection.kind === 'opening') it = findOpening(selection.id)?.opening;
   if (!it) { box.hidden = true; return; }
   box.hidden = false;
@@ -2994,6 +3017,8 @@ function renderProps() {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     body.append(field(t('prop.height'), lenInput(() => it.h || FLOOR_H, (v) => (it.h = Math.max(0.5, v)), { min: 0.5, step: 0.1 })));
     const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('block.help'); body.append(hp);
+  } else if (selection.kind === 'hole') {
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('hole.help'); body.append(hp);
   } else if (selection.kind === 'stair') {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     const dsel = document.createElement('select');
@@ -3429,7 +3454,7 @@ function normalizeLayout() {
     layout = { version: 1, floors: [{ id: uid(), name: t('floor.default'), walls: [], rooms: [], devices: [], blocks: [], stairs: [] }] };
   }
   layout.floors.forEach((f) => {
-    f.walls ||= []; f.rooms ||= []; f.devices ||= []; f.blocks ||= []; f.stairs ||= []; f.kind ||= 'floor';
+    f.walls ||= []; f.rooms ||= []; f.devices ||= []; f.blocks ||= []; f.stairs ||= []; f.holes ||= []; f.kind ||= 'floor';
     f.walls.forEach((w) => { w.openings ||= []; });
   });
 }
@@ -3441,7 +3466,7 @@ plan = createPlan({
   getSelection: () => selection,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
-  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
+  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, addHole, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
   groupToggle: (id) => groupToggle(id), groupPicked: () => groupPick,
   liveMoveDevice: (d) => liveMove(d),
@@ -3548,7 +3573,7 @@ if (params.get('debug')) {
     setWallStop: (v) => { settings.wallStop = v; },
     snapPicture: (id) => { const d = floor().devices.find((v) => v.id === id); snapToWall(d, 3, true); return [d.x, d.z, d.rot]; },
     group: (ids) => { ids.forEach((id) => groupPick.add(id)); makeGroup(); }, LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
-    holeCount: (i) => holesForFloor(layout.floors, i, FLOOR_H).length,
+    holeCount: (i) => floorOpenings(i).length,
     plan: () => plan,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
     pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, seg: h.data.seg } : null; },
