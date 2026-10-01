@@ -486,3 +486,12 @@ async def test_live_channel_pushes_state_changes(aiohttp_client, aiohttp_server,
     assert [(e["entity_id"], e["state"], e["brightness"], e["rgb"]) for e in msg["list"]] == [("light.a", "on", 100, None)]
     assert await asyncio.wait_for(ws.receive_json(), 5) == {"type": "upstream", "ok": False}   # HA went away: browsers poll again
     await ws.close()
+
+
+async def test_earth_setting_accepts_known_modes_only(client):
+    s = await (await client.get("/api/settings")).json()
+    assert s["earth"] == "solid"
+    for mode in ("off", "glass", "solid"):
+        assert (await (await client.put("/api/settings", json={**s, "earth": mode})).json())["earth"] == mode
+        s = await (await client.get("/api/settings")).json()
+    assert (await (await client.put("/api/settings", json={**s, "earth": "mud"})).json())["earth"] == "solid"

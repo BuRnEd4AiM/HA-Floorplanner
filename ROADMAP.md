@@ -26,6 +26,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - [x] Home Assistant details dialog (3.4.0, #9)
 - [x] Auto placement of an area's entities (3.5.0)
 - [x] Live updates over Home Assistant's websocket (3.6.0)
+- [x] House in solid ground, basement shown as a section (3.7.0)
 
 ## v1.0 – Stable release
 
