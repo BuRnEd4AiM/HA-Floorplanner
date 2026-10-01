@@ -25,7 +25,7 @@ const FOOT = {
   sink: { w: 1.2, d: 0.6 }, island: { w: 1.9, d: 1.0 }, microwave: { w: 0.46, d: 0.35 }, mirror: { w: 0.62, d: 0.05 }, towelrad: { w: 0.5, d: 0.06 },
   doublebasin: { w: 1.2, d: 0.5 }, bed_single: { w: 0.95, d: 2.0 }, nightstand: { w: 0.45, d: 0.4 }, dresser: { w: 1.2, d: 0.5 }, crib: { w: 0.7, d: 1.3 },
   monitor: { w: 0.62, d: 0.37 }, officechair: { r: 0.3 }, printer: { w: 0.45, d: 0.35 }, pendant: { r: 0.2 }, walllamp: { r: 0.1 }, spot: { r: 0.06 },
-  radiator: { w: 0.95, d: 0.1 }, boiler: { r: 0.25 }, camera: { r: 0.06 }, speaker: { w: 0.2, d: 0.2 }, vacuum: { r: 0.17 }, smoke: { r: 0.06 }, router: { w: 0.2, d: 0.14 },
+  radiator: { w: 0.95, d: 0.1 }, boiler: { r: 0.25 }, camera: { r: 0.06 }, speaker: { w: 0.2, d: 0.2 }, vacuum: { r: 0.17 }, smoke: { r: 0.06 }, router: { w: 0.2, d: 0.14 }, presence: { r: 0.25 },
   picture: { w: 0.6, d: 0.06 }, tv_wall: { w: 1.25, d: 0.06 },
   door: { w: 0.95, d: 0.1 }, window: { w: 1.2, d: 0.1 },
 };

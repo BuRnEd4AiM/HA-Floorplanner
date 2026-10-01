@@ -459,4 +459,5 @@ export default {
   'set.section.view': 'Vue',
   'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Humidité',
   'set.bgGlowStrength': 'Intensité de la lueur (0 = off)',
+  'dev.presence': 'Présence / personne', 'nav.occupied': 'Quelqu\'un est dans cette pièce',
 };

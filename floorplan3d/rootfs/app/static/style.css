@@ -298,3 +298,6 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 .imp-ok { color: #4ade80; margin: 6px 0; }
 .imp-errors { color: #ff6a5e; }
 .imp-warnings { color: #ffb04a; }
+
+/* room pills: a dot while somebody is in the room (person / presence devices) */
+#roomPills .pill.occupied::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #5dffb0; box-shadow: 0 0 8px #5dffb0; vertical-align: 1px; }

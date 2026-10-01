@@ -7,6 +7,7 @@ import pl from './lang/pl.js';
 
 const DICT = {
   de: {
+    'dev.presence': 'Anwesenheit / Person', 'nav.occupied': 'Jemand ist in diesem Raum',
     'set.bgGlowStrength': 'Leuchtfleck-Stärke (0 = aus)',
     'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Feuchte',
     'op.door': 'Tür', 'op.doorEntry': 'Haustür', 'op.doorGlass': 'Glastür', 'op.doorDouble': 'Doppeltür', 'op.doorSlide': 'Schiebetür', 'op.doorOpen': 'Durchgang', 'op.window': 'Fenster', 'op.window2': 'Doppelfenster', 'op.window3': 'Dreifachfenster', 'op.windowTall': 'Fenstertür / Balkon', 'op.windowBath': 'Badfenster klein', 'op.windowFixed': 'Festverglasung', 'prop.style': 'Ausführung', 'st.single': 'Einfach', 'st.glass': 'Glas', 'st.double': 'Doppelt', 'st.sliding': 'Schiebe', 'st.open': 'Durchgang', 'st.triple': 'Dreifach', 'st.fixed': 'Fest',
@@ -95,6 +96,7 @@ const DICT = {
     'set.section.view': 'Ansicht',
   },
   en: {
+    'dev.presence': 'Presence / person', 'nav.occupied': 'Somebody is in this room',
     'set.bgGlowStrength': 'Glow strength (0 = off)',
     'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Humidity',
     'op.door': 'Door', 'op.doorEntry': 'Front door', 'op.doorGlass': 'Glass door', 'op.doorDouble': 'Double door', 'op.doorSlide': 'Sliding door', 'op.doorOpen': 'Passage', 'op.window': 'Window', 'op.window2': 'Double window', 'op.window3': 'Triple window', 'op.windowTall': 'Balcony door', 'op.windowBath': 'Small bath window', 'op.windowFixed': 'Fixed glazing', 'prop.style': 'Style', 'st.single': 'Single', 'st.glass': 'Glass', 'st.double': 'Double', 'st.sliding': 'Sliding', 'st.open': 'Passage', 'st.triple': 'Triple', 'st.fixed': 'Fixed',

@@ -41,6 +41,8 @@ Describe a plot and the building as JSON (or import GeoJSON footprints) and let 
 
 ## Backlog
 
+- [x] Presence: people and presence sensors in the rooms (3.2.0)
+
 - [x] Placeholder blocks and stairs / stairwells (0.8.0)
 - [x] Backup export/import (1.5.0, #12)
 - [x] Several houses and per-pane window sensors (1.4.0)

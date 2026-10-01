@@ -459,4 +459,5 @@ export default {
   'set.section.view': 'Vista',
   'vm.normal': 'Normale', 'vm.temp': 'Temp.', 'vm.humid': 'Umidità',
   'set.bgGlowStrength': 'Intensità del bagliore (0 = off)',
+  'dev.presence': 'Presenza / persona', 'nav.occupied': 'Qualcuno è in questa stanza',
 };

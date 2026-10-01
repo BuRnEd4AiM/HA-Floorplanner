@@ -700,11 +700,12 @@ function applyStates() {
           hl.edge.forEach((m) => { if (lon && lrgb) m.color.setRGB(Math.min(1, lrgb[0] / 255 + 0.35), Math.min(1, lrgb[1] / 255 + 0.35), Math.min(1, lrgb[2] / 255 + 0.35)); else m.color.setHex(lon ? HOLO.onEdge : HOLO.edge); });
         }
       }
-      obj.visible = !(d.hideModel && isLive());          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
+      obj.visible = !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on);      // a person who is not there is not drawn in live mode          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.showLabels && obj.visible; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
     });
   }
+  buildNav();                             // room pills show a dot while somebody is in the room
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
     const holo = isHolo();
     const defCol = hexVec(cssHex(settings.defaultLightColor));
@@ -1718,12 +1719,14 @@ $('#saveBtn').addEventListener('click', save);
 /* ================= Floors, rooms, navigation pills ================= */
 let focusedRoom = null;
 let navKey = '';
+/** somebody is in this room: a person / presence device inside it reports home or on */
+const occupied = (room, f) => f.devices.some((d) => d.type === 'presence' && d.entity && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points));
 const focusGroup = new THREE.Group();
 scene.add(focusGroup);
 
-function pill(label, active, onClick, title = '') {
+function pill(label, active, onClick, title = '', extra = '') {
   const b = document.createElement('button');
-  b.className = 'pill' + (active ? ' active' : '');
+  b.className = 'pill' + (active ? ' active' : '') + extra;
   b.textContent = label;
   if (title) b.title = title;
   b.addEventListener('click', onClick);
@@ -1734,13 +1737,13 @@ function buildNav(force = false) {
   const f = floor();
   if (!f) return;
   const rooms = f.rooms.filter((r) => r.name);
-  const key = JSON.stringify([houseMode, floorIdx, layout.floors.map((x) => x.kind), layout.floors.map((x) => x.name), rooms.map((r) => [r.id, r.name]), focusedRoom, settings.language]);
+  const key = JSON.stringify([houseMode, floorIdx, layout.floors.map((x) => x.kind), layout.floors.map((x) => x.name), rooms.map((r) => [r.id, r.name, occupied(r, f)]), focusedRoom, settings.language]);
   if (!force && key === navKey) return;
   navKey = key;
   const fp = $('#floorPills'), rp = $('#roomPills');
   fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx && !houseMode, () => switchFloor(i))),
     ...(layout.floors.length > 1 || layout.floors.some((x) => x.devices.length) ? [pill(t('nav.house'), houseMode, () => setHouseMode(!houseMode), t('nav.houseTip'))] : []));
-  rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => { const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id); })));
+  rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => { const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id); }, occupied(r, f) ? t('nav.occupied') : '', occupied(r, f) ? ' occupied' : '')));
   $('#navSep').hidden = !rooms.length;
   updateHouseToggle();
 }
@@ -2027,6 +2030,7 @@ const SEARCH_ALIASES = {
   tv_led: 'led licht ambilight hintergrundlicht fernseher tv indirekt backlight',
   tv: 'fernseher fernsehen television tele glotze', tv_wall: 'fernseher wandfernseher wand tv fernsehen flachbild', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
   fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
+  presence: 'person anwesenheit anwesend bewegung bewegungsmelder präsenz praesenz presence motion occupancy mensch',
   light: 'leuchte lampe', lamp: 'leuchte stehlampe', bed: 'doppelbett', wardrobe: 'schrank kleiderschrank', shelf: 'regal', bookcase: 'bücherregal buecherregal',
 };
 $('#paletteSearch').addEventListener('input', (e) => { paletteQuery = e.target.value; buildPalette(); });
@@ -2393,7 +2397,7 @@ function inp(type, value, onInput, attrs = {}) {
 function lenInput(getM, setM, { min = 0, step = 0.05 } = {}) {
   return inp('number', toDisp(getM()), (v) => setM(Math.max(min, fromDisp(+v) || 0)), { step: imperial() ? step * 3 : step });
 }
-const DOMAIN_DEVICE = { light: 'light', cover: 'switch', switch: 'switch', climate: 'thermostat', media_player: 'tv', sensor: 'sensor', binary_sensor: 'sensor' };
+const DOMAIN_DEVICE = { light: 'light', cover: 'switch', switch: 'switch', climate: 'thermostat', media_player: 'tv', sensor: 'sensor', binary_sensor: 'sensor', person: 'presence', device_tracker: 'presence' };
 function renderEntState() {
   const el = $('#entState');
   if (!el) return;

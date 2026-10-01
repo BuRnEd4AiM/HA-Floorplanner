@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-10-01
+### Added
+- **Presence**: new device *Anwesenheit / Person* for `person.*`, `device_tracker.*` and presence / motion sensors (`binary_sensor.*`). A glowing figure stands on a floor ring while somebody is there and disappears in live mode when they are away; the room pill gets a green dot while someone is in the room. Entities of these domains are placed as presence devices automatically
+- The demo has two people and an office presence sensor
+
 ## [3.1.1] - 2026-10-01
 ### Changed
 - The light patch in the top right corner of the hologram background is **off by default**. It can still be turned on in ⚙ with the new *Glow strength* slider (next to *Background glow* for the colour)

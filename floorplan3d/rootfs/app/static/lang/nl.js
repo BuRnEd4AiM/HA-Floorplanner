@@ -459,4 +459,5 @@ export default {
   'set.section.view': 'Weergave',
   'vm.normal': 'Normaal', 'vm.temp': 'Temp.', 'vm.humid': 'Vocht',
   'set.bgGlowStrength': 'Gloedsterkte (0 = uit)',
+  'dev.presence': 'Aanwezigheid / persoon', 'nav.occupied': 'Er is iemand in deze kamer',
 };

@@ -76,6 +76,7 @@ export const DEVICE_TYPES = {
   vacuum:     { label: 'Saugroboter',  y: 0 },
   smoke:      { label: 'Rauchmelder',  y: 2.55 },
   router:     { label: 'Router',       y: 1.0 },
+  presence:   { label: 'Anwesenheit',  y: 0 },
   picture:    { label: 'Bild',         y: 1.5 },
   orb:        { label: 'Lichtkugel',  y: 0.4 },
   strip:      { label: 'LED-Streifen', y: 0.5 },
@@ -96,7 +97,7 @@ export const CATEGORIES = {
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
   lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led'],
-  smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router'],
+  smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence'],
   outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car'],
   decor:   ['picture'],
 };
@@ -483,6 +484,16 @@ Object.assign(builders, {
   camera(g) { g.add(box(0.07, 0.07, 0.1, std('#e8e8e8'))); g.add(cyl(0.025, 0.025, 0.03, std('#111'), 0, 0.02, 0.06, 12).rotateX(Math.PI / 2)); },
   speaker(g) { g.add(box(0.2, 0.35, 0.2, std('#2e2e32'))); g.add(cyl(0.07, 0.07, 0.02, std('#111'), 0, 0.08, 0.1, 16).rotateX(Math.PI / 2)); },
   vacuum(g) { g.add(cyl(0.17, 0.17, 0.09, std('#3c3f45'), 0, 0, 0, 24)); g.add(cyl(0.05, 0.05, 0.01, std('#888'), 0, 0.09, 0, 12)); },
+  presence(g) {                // a person (person.* / device_tracker.*) or a presence / motion sensor: a figure on a glowing floor ring, shown while somebody is there
+    const glow = glowMat(0xbfe9ff);
+    g.add(cyl(0.38, 0.38, 0.012, glow, 0, 0, 0, 36));                                        // ring on the floor
+    [-0.09, 0.09].forEach((x) => g.add(cyl(0.065, 0.075, 0.8, glow, x, 0.02, 0, 12)));       // legs
+    g.add(box(0.42, 0.55, 0.22, glow, 0, 0.8, 0));                                           // torso
+    [-0.27, 0.27].forEach((x) => g.add(cyl(0.05, 0.045, 0.55, glow, x, 0.8, 0, 10)));        // arms
+    g.add(cyl(0.05, 0.05, 0.08, glow, 0, 1.35, 0, 10));                                      // neck
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(0.115, 18, 12), glow).translateY(1.55));   // head
+    g.userData.glow = [glow];
+  },
   smoke(g) { g.add(cyl(0.06, 0.06, 0.03, std('#f4f4f4'), 0, -0.03, 0, 16)); },
   router(g) { g.add(box(0.2, 0.04, 0.14, std('#f4f4f4'))); [-0.07, 0.07].forEach((x) => g.add(box(0.008, 0.18, 0.008, std('#333'), x, 0.04, -0.05))); },
   picture(g) { g.add(box(0.6, 0.45, 0.03, std('#3a3a3a'), 0, 0, 0)); g.add(box(0.52, 0.37, 0.005, std('#c9d6e2'), 0, 0.04, 0.016)); },
