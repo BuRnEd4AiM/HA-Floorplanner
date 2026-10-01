@@ -112,6 +112,7 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 | **Stairs** | Straight, L-shaped, U-shaped and spiral stairs with real floor openings |
 | **Doors and windows** | 12 presets: front door, glass door, double door, sliding door, single / double / triple window, balcony door, fixed glazing ... they cut real openings into the wall and open when the contact sensor reports *open* |
 | **Garden and surroundings** | Trees, bushes, lawn, terrace, pool, paths, fences and cars around the house, in natural colours |
+| **Plot and ground** | Draw your **plot** (Grundstück) in the 2D plan, or set how far the lawn reaches around the house. The house stands in solid ground, a basement is shown as a section with soil layers |
 | **Whole-house view** | See all floors, basement and roof stacked as one building |
 | **Clear object list** | Everything grouped by room (the room, its doors / windows and furniture), with a search field; the side panel can be dragged wider |
 | **Several houses** | One floor plan per house (yours, your parents', a holiday home ...), a house selector and `?house=` links for kiosks |
@@ -195,7 +196,9 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 ### 📱 Wall tablets / kiosk
 
 - One Home Assistant user per tablet: it starts in **its own room** and sees only the views you allow
-- **Low-power mode** for Fire tablets and other weak devices (automatic in kiosk mode): lower resolution, throttled animation, no shadows
+- **Low-power mode** for Fire tablets and other weak devices (automatic in kiosk mode and on touch screens): lower resolution, throttled animation, no shadows, blur or glow. ⚙ **Performance on this device** switches it per tablet
+- **Devices offline** at a glance: a pill over the plan shows how many placed devices are unavailable, unknown, missing in Home Assistant or not linked, with a list that jumps to each one
+- Floor and room buttons **scroll sideways** with ‹ › arrows when they do not fit the screen
 - Open a specific house with `?house=Parents`
 
 ### 🎨 Look

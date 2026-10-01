@@ -20,13 +20,16 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - [x] Furniture library with previews (1.3.0)
 - [ ] Glowing floor cables with watt display
 
-## Done in 3.3 – 3.6
+## Done in 3.3 – 3.9
 
 - [x] LED ring for indirect light around a room, free sections with their own lights (3.3.0, 3.4.0)
 - [x] Home Assistant details dialog (3.4.0, #9)
 - [x] Auto placement of an area's entities (3.5.0)
 - [x] Live updates over Home Assistant's websocket (3.6.0)
 - [x] House in solid ground, basement shown as a section (3.7.0)
+- [x] Draw the plot, adjustable lawn around the house (3.8.0)
+- [x] Devices offline / not linked at a glance (3.9.0 – 3.9.2)
+- [x] Faster on tablets: per-device performance setting, scrolling buttons, no graphics memory leak (3.9.0, 3.9.3)
 
 ## v1.0 – Stable release
 
