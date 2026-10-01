@@ -6,6 +6,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [3.4.0] - 2026-10-01
 ### Added
+- **LED ring: free sections** — set **how many** sections the band has and **where each one starts and ends** (*Von / Bis* in metres along the band, counted from the "0 m" mark), so a wall can have several sections and gaps without LEDs. *Gleichmäßig verteilen* spreads any number of sections evenly, *Je Wand einer* goes back to one per wall, ✂ splits a section in the middle and 🗑 removes it. In the 2D plan the white ends of every section can be **dragged along the walls** (5 cm steps). A section can run around a corner. The lights of the sections are kept by their number
 - **Home Assistant details** (#9): in live mode the popup of a device (and of a door/window sensor) has a **ⓘ Details** button next to its name. It opens Home Assistant's own dialog for the entity with **history graph, logbook, all attributes and settings**, right on top of the floor plan
 - LED ring: every section has its own ⓘ Details button, the ring's main entity one next to the name
 - Room panel: an ⓘ button on every entity row

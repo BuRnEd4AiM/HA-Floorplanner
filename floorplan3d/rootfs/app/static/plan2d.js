@@ -2,7 +2,7 @@
    data the 3D view builds from (and vice versa). Rendering is plain SVG in screen coordinates. */
 
 import { nanoBounds } from './nanoleaf.js';
-import { ringEdges, segEntity } from './ledring.js';
+import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts } from './stairs.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -94,15 +94,16 @@ export function createPlan(ctx) {
     return { x: W(w / 2, 0), z: W(0, dp / 2) };
   }
   const devLocal = (d, x, z) => { const th = (-(d.rot || 0) * Math.PI) / 180, dx = x - d.x, dz = z - d.z; return [dx * Math.cos(th) + dz * Math.sin(th), -dx * Math.sin(th) + dz * Math.cos(th)]; };
-  /** LED ring: the section under (x, z), or -1 */
+  /** LED ring: is (x, z) on its line; which section is under it (-1: a gap without LEDs) */
+  const ringTol = () => Math.max(0.1, 8 / s);
+  const onRingPath = (d, x, z) => pathWorld(d).some((e) => distSeg(x, z, e.a, e.b) <= ringTol());
   function ringSegAt(d, x, z) {
-    const tol = Math.max(0.1, 8 / s);
-    let best = -1, bd = tol;
-    ringEdges(d).forEach((e) => { const dd = distSeg(x, z, e.a, e.b); if (dd <= bd) { bd = dd; best = e.i; } });
+    let best = -1, bd = ringTol();
+    ringSectionsWorld(d).forEach((sc) => sc.pieces.forEach(([a, b]) => { const dd = distSeg(x, z, a, b); if (dd <= bd) { bd = dd; best = sc.i; } }));
     return best;
   }
   function devHit(d, x, z) {
-    if (d.type === 'ledring') return ringSegAt(d, x, z) >= 0;     // only the line itself, the room inside stays free
+    if (d.type === 'ledring') return onRingPath(d, x, z);          // only the line itself, the room inside stays free
     const f = footOf(d), pad = Math.max(0.05, 8 / s);
     const th = (-(d.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
     const dx = x - d.x, dz = z - d.z;
@@ -156,7 +157,7 @@ export function createPlan(ctx) {
       const fa = footOf(a), fb = footOf(b);
       return (fa.r ? fa.r * fa.r * 3 : fa.w * fa.d) - (fb.r ? fb.r * fb.r * 3 : fb.w * fb.d);   // smallest first
     });
-    if (devs.length) return devs[0].type === 'ledring' ? { kind: 'device', id: devs[0].id, seg: ringSegAt(devs[0], x, z) } : { kind: 'device', id: devs[0].id };
+    if (devs.length) return devs[0].type === 'ledring' ? { kind: 'device', id: devs[0].id, ...(ringSegAt(devs[0], x, z) >= 0 ? { seg: ringSegAt(devs[0], x, z) } : {}) } : { kind: 'device', id: devs[0].id };
     const op = openingAt(x, z);
     if (op) return op;
     const tol = Math.max(0.06, 7 / s);
@@ -189,6 +190,10 @@ export function createPlan(ctx) {
     }
     if (sel.kind === 'device') {
       const d = f.devices.find((q) => q.id === sel.id);
+      if (d?.type === 'ledring' && !d.locked) {                  // LED ring: drag the start / end of a section along the band
+        for (const sc of ringSectionsWorld(d)) for (const end of [0, 1]) if (near(sc.ends[end])) return { type: 'ring-end', d, i: sc.i, end };
+        return null;
+      }
       if (d && d.type !== 'picture' && d.type !== 'ledring' && !d.group && !d.locked) {
         const hs = devHandles(d);
         for (const which of ['x', 'z']) if (near(hs[which])) return { type: 'dev-size', which, d };
@@ -491,17 +496,24 @@ export function createPlan(ctx) {
   /** LED ring: one line per section, lit sections in their light's colour, small dots at the corners */
   function drawRing(d, isSel, live) {
     let r = '';
-    const edges = ringEdges(d);
-    edges.forEach((e) => {
-      const ent = segEntity(d, e.i), on = ent && isOn(ent), st = ent ? ctx.states()[ent] : null;
+    const ln = (a, b) => `x1="${sx(a[0]).toFixed(1)}" y1="${sy(a[1]).toFixed(1)}" x2="${sx(b[0]).toFixed(1)}" y2="${sy(b[1]).toFixed(1)}"`;
+    const path = pathWorld(d);
+    path.forEach((e) => { r += `<line ${ln(e.a, e.b)} stroke="${isSel ? C.sel : C.accent}" stroke-width="1" stroke-dasharray="3 4" opacity=".55"/>`; });   // where the band runs (gaps have no LEDs)
+    const secs = ringSectionsWorld(d);
+    secs.forEach((sc) => {
+      const ent = segEntity(d, sc.i), on = ent && isOn(ent), st = ent ? ctx.states()[ent] : null;
       const c = on ? (Array.isArray(st?.rgb) ? st.rgb : [255, 214, 120]) : null;
       const col = c ? `rgb(${c[0]},${c[1]},${c[2]})` : isSel ? C.sel : C.accent;
-      const ln = `x1="${sx(e.a[0]).toFixed(1)}" y1="${sy(e.a[1]).toFixed(1)}" x2="${sx(e.b[0]).toFixed(1)}" y2="${sy(e.b[1]).toFixed(1)}"`;
-      if (c) r += `<line ${ln} stroke="${col}" stroke-width="10" stroke-linecap="round" opacity=".35"/>`;
-      r += `<line ${ln} stroke="${col}" stroke-width="${isSel ? 4 : 3}" stroke-linecap="round"${c || ent ? '' : ' stroke-dasharray="5 4"'}/>`;
-      if (!live && s >= 40) r += `<text x="${sx(e.mid[0])}" y="${sy(e.mid[1]) - 6}" text-anchor="middle" font-size="9" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${e.i + 1}</text>`;
+      sc.pieces.forEach(([a, b]) => {
+        if (c) r += `<line ${ln(a, b)} stroke="${col}" stroke-width="10" stroke-linecap="round" opacity=".35"/>`;
+        r += `<line ${ln(a, b)} stroke="${col}" stroke-width="${isSel ? 4 : 3}" stroke-linecap="butt"${c || ent ? '' : ' stroke-dasharray="5 4"'}/>`;
+      });
+      if (!live && s >= 40) r += `<text x="${sx(sc.mid[0])}" y="${sy(sc.mid[1]) - 6}" text-anchor="middle" font-size="9" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${sc.i + 1}</text>`;
     });
-    edges.forEach((e) => { r += `<circle cx="${sx(e.a[0])}" cy="${sy(e.a[1])}" r="${isSel ? 3.5 : 2.5}" fill="${isSel ? C.sel : C.accent}"/>`; });
+    if (isSel && !live) {
+      if (path[0]) r += `<text x="${sx(path[0].a[0]) + 6}" y="${sy(path[0].a[1]) + 12}" font-size="9" fill="${C.sel}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">0 m</text>`;
+      if (!d.locked) secs.forEach((sc) => sc.ends.forEach((p) => { r += `<rect x="${sx(p[0]) - 4}" y="${sy(p[1]) - 4}" width="8" height="8" rx="1.5" fill="#fff" stroke="${C.sel}" stroke-width="1.5"/>`; }));
+    }
     return r;
   }
 
@@ -608,6 +620,7 @@ export function createPlan(ctx) {
   }
   function startHandleDrag(hd) {
     if (hd.type === 'dev-size') return { type: 'devsize', which: hd.which, d: hd.d, moved: false };
+    if (hd.type === 'ring-end') return { type: 'ringend', d: hd.d, i: hd.i, end: hd.end, moved: false };
     if (hd.type === 'stair-size') return { type: 'stairsize', which: hd.which, st: hd.st, moved: false };
     if (hd.type === 'wall-end') {
       const p = hd.wall[hd.end];
@@ -672,6 +685,15 @@ export function createPlan(ctx) {
         const v = Math.max(0.1, Math.min(10, ext / ((drag.which === 'x' ? b.w : b.d) * k)));
         const key = drag.which === 'x' ? 'sx' : 'sz';
         if (Math.abs(v - 1) < 0.01) delete d[key]; else d[key] = +v.toFixed(3);
+        drag.moved = true; scheduleRebuild(); render();
+        return;
+      }
+      if (drag.type === 'ringend' && moved) {
+        snapshotOnce();
+        const pos = Math.round(projectOnPath(drag.d, x, z) * 20) / 20;           // 5 cm steps along the band
+        setRange(drag.d, drag.i, drag.end === 0 ? pos : null, drag.end === 1 ? pos : null);
+        const sg = drag.d.segs[drag.i];
+        ctx.setStatus(`${drag.i + 1}: ${ctx.fmtLen(sg.from)} – ${ctx.fmtLen(sg.to)} (${ctx.fmtLen(sg.to - sg.from)})`);
         drag.moved = true; scheduleRebuild(); render();
         return;
       }
@@ -794,6 +816,7 @@ export function createPlan(ctx) {
     const tool = ctx.getTool();
 
     if (d.type === 'devsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
+    if (d.type === 'ringend') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'stairsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'bgmove' || d.type === 'bgscale') { if (d.moved) { ctx.commit(); ctx.bgChanged(); } snapDone = false; return; }
     if (d.type === 'calib') {

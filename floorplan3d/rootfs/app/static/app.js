@@ -3,7 +3,7 @@ import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
-import { RING_DEFAULT_INSET, ringCount, segEntity, ringEntities, ringEdges, ringFromRoom, fitSegs } from './ledring.js';
+import { RING_DEFAULT_INSET, ringCount, segEntity, ringEntities, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange } from './ledring.js';
 import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
 import {
   OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
@@ -225,7 +225,7 @@ const LIGHT_PROFILE = {                       // r = reach relative to the setti
 /** every placed entity as its own entry: a TV's backlight and each section of an LED ring count as devices of their own (at the section's middle) */
 function entityDevices(f) {
   return f.devices.flatMap((dv) => {
-    if (dv.type === 'ledring') return ringEdges(dv).map((e) => ({ ...dv, id: dv.id, seg: e.i, x: e.mid[0], z: e.mid[1], len: e.len, entity: segEntity(dv, e.i), type: 'ledseg', name: `${dv.name || t('dev.ledring')} · ${e.i + 1}` }));
+    if (dv.type === 'ledring') return ringSectionsWorld(dv).map((e) => ({ ...dv, id: dv.id, seg: e.i, x: e.mid[0], z: e.mid[1], len: e.len, entity: segEntity(dv, e.i), type: 'ledseg', name: `${dv.name || t('dev.ledring')} · ${e.i + 1}` }));
     return [{ ...dv }, ...(dv.ledEntity ? [{ ...dv, entity: dv.ledEntity, type: 'tv_led', panels: undefined }] : [])];
   });
 }
@@ -2830,28 +2830,44 @@ function renderProps() {
 function refitRing(d) {
   const room = floor().rooms.find((r) => r.id === d.room) || roomAt(d.x, d.z);
   if (!room) { setStatus(t('ring.noRoom')); return; }
-  const keep = d.segs || [], closed = d.closed;
+  const keep = d.segs || [], ranged = hasRanges(d), closed = d.closed;
   Object.assign(d, ringFromRoom(room.points, d.inset ?? RING_DEFAULT_INSET), { rot: 0, scale: 1, room: room.id });
   delete d.sx; delete d.sz; delete d.mirror;
   if (closed === false) d.closed = false;
-  d.segs = d.segs.map((sg, i) => keep[i] || sg);               // sections keep their lights as far as they still exist
+  d.segs = ranged ? keep : d.segs.map((sg, i) => keep[i] || sg);   // sections keep their lights (and their start / end)
   fitSegs(d);
 }
 function ringProps(body, it) {
+  const redo = (fn) => () => { if (it.locked) { setStatus(t('prop.lockedHint')); return; } snapshot(); fn(); changed(); renderProps(); };
+  const btn = (id, label, fn, title = '') => { const b = document.createElement('button'); b.type = 'button'; if (id) b.id = id; b.textContent = label; b.title = title; b.addEventListener('click', redo(fn)); return b; };
   const h = document.createElement('h4'); h.textContent = t('ring.sections'); body.append(h);
   const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.closed !== false; cb.id = 'ringClosed';
   cb.addEventListener('change', () => { snapshot(); it.closed = cb.checked; fitSegs(it); changed(); renderProps(); });
   const cl = document.createElement('label'); cl.className = 'chk'; cl.append(cb, document.createTextNode(' ' + t('ring.closed')));
   body.append(cl);
   body.append(field(t('ring.inset'), lenInput(() => it.inset ?? RING_DEFAULT_INSET, (v) => { it.inset = Math.min(2, v); if (!it.locked) refitRing(it); queueMicrotask(renderProps); }, { min: 0, step: 0.05 })));
-  const fb = document.createElement('button'); fb.type = 'button'; fb.id = 'ringFit'; fb.textContent = t('ring.fit');
-  fb.addEventListener('click', () => { if (it.locked) { setStatus(t('prop.lockedHint')); return; } snapshot(); refitRing(it); changed(); renderProps(); });
-  body.append(fb);
+  body.append(btn('ringFit', t('ring.fit'), () => refitRing(it)));
+  const total = document.createElement('div'); total.className = 'sub'; total.textContent = t('ring.total', { len: fmtLen(pathLength(it)) }); body.append(total);
+  // how many sections: spread evenly over the whole band, or one per wall
+  const cnt = document.createElement('input'); cnt.type = 'number'; cnt.id = 'ringCount'; cnt.min = 1; cnt.max = 60; cnt.step = 1; cnt.value = ringCount(it);
+  body.append(field(t('ring.count'), cnt));
+  const row = document.createElement('div'); row.className = 'stopTools';
+  row.append(btn('ringEven', t('ring.even'), () => splitEven(it, +cnt.value || 1)), btn('ringPerWall', t('ring.perWall'), () => perWall(it)));
+  body.append(row);
   const lights = entities.filter((e) => /^(light|switch)\./.test(e.entity_id)).slice(0, 1500);
-  ringEdges(it).forEach((e) => {
-    body.append(pickerField(t('ring.seg', { n: e.i + 1, len: fmtLen(e.len) }), entityPicker(lights, roomAt(e.mid[0], e.mid[1]), it.segs?.[e.i]?.entity || '', (v) => {
-      snapshot(); fitSegs(it); it.segs[e.i] = v ? { entity: v } : {}; changed();
-    })));
+  ringSectionsWorld(it).forEach((e) => {
+    const box = document.createElement('div'); box.className = 'ringSec'; box.dataset.seg = e.i;
+    const head = document.createElement('div'); head.className = 'ringSecHead';
+    const lb = document.createElement('b'); lb.textContent = t('ring.seg', { n: e.i + 1, len: fmtLen(e.len) });
+    head.append(lb, btn('', '✂', () => splitSection(it, e.i), t('ring.split')));
+    if (ringCount(it) > 1) head.append(btn('', '🗑', () => removeSection(it, e.i), t('ring.remove')));
+    box.append(head);
+    box.append(field(t('ring.from'), lenInput(() => e.from, (v) => { setRange(it, e.i, v, null); queueMicrotask(renderProps); }, { min: 0, step: 0.05 })));
+    box.append(field(t('ring.to'), lenInput(() => e.to, (v) => { setRange(it, e.i, null, v); queueMicrotask(renderProps); }, { min: 0, step: 0.05 })));
+    box.append(entityPicker(lights, roomAt(e.mid[0], e.mid[1]), it.segs?.[e.i]?.entity || '', (v) => {
+      snapshot(); fitSegs(it); const sg = it.segs[e.i] || (it.segs[e.i] = {}); if (v) sg.entity = v; else delete sg.entity; changed();
+    }));
+    body.append(box);
   });
   const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('ring.help'); body.append(hp);
 }
@@ -3170,7 +3186,7 @@ if (params.get('debug')) {
     pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, seg: h.data.seg } : null; },
     ringGlow: (id) => (registry.get(id)?.userData.segs || []).map((sg) => sg.glow[0].emissiveIntensity > 0),
     ringSegScreen(id, i) {                                        // screen position of the middle of an LED ring section
-      const v = registry.get(id)?.children[i]?.getWorldPosition(new THREE.Vector3());
+      const v = registry.get(id)?.children[i]?.getObjectByName('mid')?.getWorldPosition(new THREE.Vector3());
       if (!v) return null;
       v.project(camera); const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };

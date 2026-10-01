@@ -305,3 +305,9 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 
 /* room pills: a dot while somebody is in the room (person / presence devices) */
 #roomPills .pill.occupied::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #5dffb0; box-shadow: 0 0 8px #5dffb0; vertical-align: 1px; }
+
+/* LED ring sections in the side panel */
+.ringSec { border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; margin: 6px 0; }
+.ringSec .ringSecHead { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.ringSec .ringSecHead b { flex: 1; font-size: 13px; font-weight: 600; }
+.ringSec .ringSecHead button { padding: 2px 8px; min-height: 0; }

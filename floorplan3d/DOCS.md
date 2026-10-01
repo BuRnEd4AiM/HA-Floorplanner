@@ -88,6 +88,8 @@ Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistan
 
 **LED ring (indirect light around the room):** pick *LED-Ring (indirekt)* in the lighting library and click into a room: the ring runs all around the room just under the ceiling, 15 cm from the walls, with one **section per wall**. Select it to give each section its own light entity (for example two WLED segments or two Hue strips), or leave them empty and use *Entität für alle Abschnitte* for a single strip. *Abstand zur Wand* and *↻ An Raum anpassen* re-fit it after the room changed, *Geschlossen* turns it into an open line, *Höhe über Boden* sets the height. In live mode, tapping a section controls that section; the popup also switches or colours the whole ring.
 
+**More than one LED section per wall:** set *Anzahl Abschnitte* and press *Gleichmäßig verteilen*, then adjust every section with *Von (m)* / *Bis (m)*, measured along the band from the **0 m** mark shown in the 2D plan (once around the room). Or drag the white ends of a section along the wall in the 2D plan. ✂ splits a section in the middle, 🗑 removes it, *Je Wand einer* goes back to one section per wall. Where no section lies there are no LEDs, and a section may run around a corner.
+
 ## Home Assistant areas
 
 Select a room and pick its **HA area** in the properties panel. Afterwards:

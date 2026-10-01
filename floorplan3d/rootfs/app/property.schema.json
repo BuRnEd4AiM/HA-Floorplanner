@@ -471,10 +471,16 @@
       "properties": {
        "entity": {
         "type": "string"
+       },
+       "from": {
+        "type": "number"
+       },
+       "to": {
+        "type": "number"
        }
       }
      },
-     "description": "Only for type ledring: one entry per section, each with an optional own light entity; empty sections use \"entity\"."
+     "description": "Only for type ledring: the LED sections, each with an optional own light entity (empty ones use \"entity\"). Without from/to there is one section per wall; with from/to (metres along the band from the first point) sections can sit anywhere, several per wall, gaps have no LEDs."
     },
     "inset": {
      "type": "number",
