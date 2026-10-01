@@ -84,12 +84,17 @@ const fmtLen = (m) => (imperial() ? `${(m * M_TO_FT).toFixed(2)} ft` : `${m.toFi
 /* ================= Three.js setup ================= */
 const canvas = $('#view');
 /* Low-power mode for tablets / kiosk screens (Fire tablets ...): lower resolution, no antialiasing or shadows, 30 fps and only ~4 fps
-   while nothing happens. Automatic for ?kiosk, ?room and touch screens; ?perf=high / ?perf=low overrides. */
-const perfParam = params.get('perf');
+   while nothing happens. Automatic for ?kiosk, ?room and touch screens; ⚙ "Performance on this device" (kept in this
+   browser) or ?perf=high / ?perf=low overrides. */
+const PERF_KEY = 'fp.perf';
+let perfStored = 'auto';
+try { perfStored = localStorage.getItem(PERF_KEY) || 'auto'; } catch { /* no storage */ }
+const perfParam = params.get('perf') || (perfStored !== 'auto' ? perfStored : null);
 const LOW = perfParam ? perfParam === 'low' : !!(params.get('kiosk') || params.get('room') || matchMedia('(pointer: coarse)').matches);
+document.body.classList.toggle('low', LOW);
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: !LOW, alpha: true, powerPreference: 'high-performance' });
 renderer.localClippingEnabled = true;                      // the ground is cut open on the camera's side
-renderer.setPixelRatio(LOW ? Math.min(devicePixelRatio, 1.25) : Math.min(devicePixelRatio, 3));
+renderer.setPixelRatio(perfParam === 'low' ? 1 : LOW ? Math.min(devicePixelRatio, 1.25) : Math.min(devicePixelRatio, 3));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
@@ -403,7 +408,10 @@ function earthCapGeometry(px, pz, ux, uz, rings, depth) {
 }
 /** the cut follows the camera: the earth in front of the facade that faces the camera is taken away, like a section drawing */
 function updateEarthCut() {
-  if (grid) grid.visible = !(earthGround && (isLive() || houseMode || tool === 'select'));   // the ground replaces the grid; the grid only while drawing
+  if (grid) {                                    // a drawing aid: never in live mode, under any ground only while drawing,
+    grid.visible = !isLive() && !(earthGround && (houseMode || tool === 'select'));
+    grid.position.y = houseMode ? 0 : elev() - 0.01;   // and on the level of the floor shown (a basement lies below ground)
+  }
   if (!earthInfo) return;
   let dx = camera.position.x - earthInfo.cx, dz = camera.position.z - earthInfo.cz;
   const L = Math.hypot(dx, dz);
@@ -743,6 +751,7 @@ const ON_STATES = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool',
 function stateText(entityId) {
   const s = states[entityId];
   if (!s) return '—';
+  if (s.state === 'unavailable') return t('off.unavailable');
   return s.unit ? `${s.state} ${s.unit}` : s.state;
 }
 
@@ -808,6 +817,7 @@ function animateOpenings() {
 
 function applyStates() {
   if (plan?.isVisible()) plan.render();
+  updateOfflinePill();
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
   const bv = settings.belowVisibility;
@@ -890,6 +900,81 @@ function applyStates() {
   if (livePopupFor) renderLivePopup();
   if (roomPanelFor && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) renderRoomPanel();
 }
+
+/* ---- Offline devices: every placed entity that Home Assistant reports as unavailable (or unknown), or that does not
+   exist any more (renamed / deleted), in one list that is always one tap away ---- */
+const UNKNOWN_IS_FINE = new Set(['scene', 'script', 'automation', 'button', 'input_button', 'event', 'input_text', 'text', 'notify', 'tts', 'conversation']);
+/** why an entity counts as offline: 'unavailable' | 'unknown' | 'missing', or null when it is fine */
+function offlineReason(id) {
+  const s = states[id];
+  if (!s) return 'missing';
+  if (s.state === 'unavailable') return 'unavailable';
+  if (s.state === 'unknown' && !UNKNOWN_IS_FINE.has(id.split('.')[0])) return 'unknown';
+  return null;
+}
+/** [{ entity, reason, since, floor, kind, id, name, room }] of every placed device, LED ring section, TV backlight and door / window contact */
+function offlineDevices() {
+  if (!entities.length) return [];                     // states not loaded yet: nothing is known to be offline
+  const out = [], seen = new Set();
+  const add = (entity, floor, kind, id, name, x, z, f) => {
+    if (!entity || seen.has(`${id}|${entity}`)) return;
+    seen.add(`${id}|${entity}`);
+    const reason = offlineReason(entity);
+    if (!reason) return;
+    const room = x == null ? null : f.rooms.find((r) => pointInPoly(x, z, r.points));
+    out.push({ entity, reason, since: states[entity]?.since || null, floor, kind, id, name, room: room?.name || '' });
+  };
+  layout.floors.forEach((f, fi) => {
+    f.devices.forEach((d) => {
+      const name = d.name || entities.find((e) => e.entity_id === d.entity)?.name || t(`dev.${d.type}`);
+      add(d.entity, fi, 'device', d.id, name, d.x, d.z, f);
+      add(d.ledEntity, fi, 'device', d.id, name, d.x, d.z, f);
+      if (d.type === 'ledring') ringEntities(d).forEach((e) => add(e, fi, 'device', d.id, name, d.x, d.z, f));
+    });
+    f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+      add(o.entity, fi, 'opening', o.id, o.name || t(`prop.${o.type}`), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);
+    }));
+  });
+  return out.sort((a, b) => a.floor - b.floor || a.room.localeCompare(b.room) || a.name.localeCompare(b.name));
+}
+let offlineSig = '';
+function updateOfflinePill() {
+  const list = offlineDevices(), pill = $('#offlinePill');
+  pill.hidden = !list.length;
+  pill.textContent = t('off.pill', { n: list.length });
+  const sig = JSON.stringify(list.map((x) => [x.id, x.entity, x.reason]));
+  if (sig !== offlineSig) { offlineSig = sig; if ($('#offlineDialog').open) renderOfflineList(); }
+}
+function sinceText(iso) {
+  const ms = Date.parse(iso || '');
+  if (!ms) return '';
+  const sec = Math.round((ms - Date.now()) / 1000), rtf = new Intl.RelativeTimeFormat(currentLanguage(), { numeric: 'auto' });
+  for (const [u, n] of [['day', 86400], ['hour', 3600], ['minute', 60]]) if (Math.abs(sec) >= n) return rtf.format(Math.round(sec / n), u);
+  return rtf.format(sec, 'second');
+}
+function renderOfflineList() {
+  const ul = $('#offlineList'), list = offlineDevices();
+  ul.replaceChildren();
+  $('#offlineNone').hidden = !!list.length;
+  list.forEach((x) => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button';
+    const name = document.createElement('strong'); name.textContent = x.name;
+    const why = document.createElement('span'); why.className = `offWhy ${x.reason}`; why.textContent = t(`off.${x.reason}`);
+    const meta = document.createElement('small');
+    meta.textContent = [layout.floors[x.floor]?.name, x.room, x.entity, x.since ? t('off.since', { t: sinceText(x.since) }) : ''].filter(Boolean).join(' · ');
+    b.append(name, why, meta);
+    b.addEventListener('click', () => { $('#offlineDialog').close(); showOffline(x); });
+    li.append(b); ul.append(li);
+  });
+}
+/** go to the floor of an offline device and point it out */
+function showOffline(x) {
+  if (houseMode || floorIdx !== x.floor) switchFloor(x.floor);
+  if (isLive()) liveSelect({ kind: x.kind, id: x.id });
+  else { selection = { kind: x.kind, id: x.id }; lockedSel = true; refreshSelection(); }
+}
+$('#offlinePill').addEventListener('click', () => { renderOfflineList(); $('#offlineDialog').showModal(); });
 
 function refreshSelHelper() {
   if (selHelper) { scene.remove(selHelper); selHelper = null; }
@@ -1998,6 +2083,23 @@ function buildNav(force = false) {
   $('#navSep').hidden = !rooms.length;
   updateHouseToggle();
 }
+
+/* the pills over the scene scroll sideways when they do not fit (tablets): arrows at the ends, the mouse wheel scrolls too */
+const navBar = $('#navBar');
+function updateNavArrows() {
+  const max = navBar.scrollWidth - navBar.clientWidth;
+  $('#navLeft').hidden = navBar.scrollLeft <= 2;
+  $('#navRight').hidden = navBar.scrollLeft >= max - 2;
+}
+navBar.addEventListener('scroll', updateNavArrows, { passive: true });
+new ResizeObserver(updateNavArrows).observe(navBar);
+new MutationObserver(updateNavArrows).observe(navBar, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['hidden'] });
+$('#navLeft').addEventListener('click', () => navBar.scrollBy({ left: -navBar.clientWidth * 0.7, behavior: 'smooth' }));
+$('#navRight').addEventListener('click', () => navBar.scrollBy({ left: navBar.clientWidth * 0.7, behavior: 'smooth' }));
+navBar.addEventListener('wheel', (e) => {
+  if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || navBar.scrollWidth <= navBar.clientWidth) return;
+  navBar.scrollLeft += e.deltaY; e.preventDefault();
+}, { passive: false });
 function updateHouseToggle() {
   const b = $('#houseToggle');
   b.hidden = !tabletRoom;
@@ -3078,6 +3180,7 @@ function fillSettingsForm() {
     else el.value = String(settings[key]);
   }
   $('#earthMarginNote').hidden = !(layout.plot?.boundary?.length >= 3);
+  $('#setPerf').value = perfStored;
   renderTablets();
   renderStops('#tempStops', 'tempStops', '°C');
   renderStops('#humidStops', 'humidStops', '%');
@@ -3224,6 +3327,10 @@ async function commitSettings() {
     else if (r.status === 409) { alert(t('set.changedElsewhere')); location.reload(); }
   } catch { /* offline: settings stay for this session */ }
 }
+$('#setPerf').addEventListener('change', (e) => {     // per device (this browser), not for the whole house: needs a fresh start
+  try { if (e.target.value === 'auto') localStorage.removeItem(PERF_KEY); else localStorage.setItem(PERF_KEY, e.target.value); } catch { /* no storage */ }
+  location.reload();
+});
 $('#settingsBtn').addEventListener('click', () => { fillSettingsForm(); dlg.showModal(); loadHaUsers(); });
 dlg.addEventListener('change', commitSettings);
 dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });     // a click on the dark backdrop closes it too
@@ -3239,7 +3346,7 @@ async function loadAreas() {
   areas.forEach((x) => x.entities.forEach((e) => { areaOf[e] = x.id; }));
 }
 
-const toState = (e) => ({ state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e), rgbRaw: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members });
+const toState = (e) => ({ since: e.since, state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e), rgbRaw: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members });
 
 /* ---- Live channel: the add-on pushes every state change the moment Home Assistant reports it (a wall switch, an
    automation, a sensor). While it is up, the full list is only fetched once a minute to stay in step; while it is
@@ -3354,9 +3461,9 @@ controls.addEventListener('change', wake);
 function animate(now = performance.now()) {
   requestAnimationFrame(animate);
   if (document.hidden) return;                                   // screen off / tab in background: draw nothing
-  if (LOW) {
-    const idle = now - lastActive > 4000;
-    if (now - lastFrame < (idle ? 250 : 33)) return;
+  const idle = now - lastActive > (LOW ? 4000 : 15000);           // nothing happens: a few frames a second are enough
+  if (LOW || idle) {
+    if (now - lastFrame < (idle ? (LOW ? 500 : 250) : 33)) return;
     lastFrame = now;
   }
   controls.update();
@@ -3382,7 +3489,8 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; },
+    get layout() { return layout; }, offline: () => offlineDevices(), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
+    renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
     rebuild: () => build(),
     switchHouse,

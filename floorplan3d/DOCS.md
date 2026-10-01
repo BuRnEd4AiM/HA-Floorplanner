@@ -146,7 +146,11 @@ The template is only shown in the editor, never in live mode. Images are stored 
 
 ## Tablets and kiosk screens (performance)
 
-On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-power mode**: lower resolution, no antialiasing or shadows, 30 fps while in use and about 4 fps when idle, no drawing while the screen is off. Add `&perf=high` to the address to force full quality, `&perf=low` to force the low-power mode on a computer. Tips for Fire tablets: use Fully Kiosk Browser, keep hardware acceleration/WebGL on, and use one tablet per room (`?room=Name`) instead of the whole-house view.
+On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-power mode**: lower resolution, no antialiasing, shadows, blur or glow, 30 fps while in use and about 2 fps when idle, no drawing while the screen is off. If a tablet is not recognised (or you want full quality on it), choose ⚙ → **Performance on this device**: *Automatic*, *Beautiful* or *Fast*. The choice is stored in that browser only, so each tablet can have its own. Add `&perf=high` or `&perf=low` to the address to override it. When the floor and room buttons over the plan do not fit, they scroll sideways: swipe them or use the ‹ › arrows at the ends. Tips for Fire tablets: use Fully Kiosk Browser, keep hardware acceleration/WebGL on, and use one tablet per room (`?room=Name`) instead of the whole-house view.
+
+## Devices offline
+
+As soon as a placed device is **unavailable** in Home Assistant, reports an **unknown** state, or no longer exists there (renamed or deleted), a red pill **⚠ n offline** appears over the plan, in live and in edit mode. Tap it to see the list with floor, room, entity and since when it is offline. Tap an entry to jump to the device. LED ring sections, TV backlights and door/window contacts are checked too.
 
 ## Library, doors, windows and pictures
 

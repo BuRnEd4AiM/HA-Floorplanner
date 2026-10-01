@@ -603,6 +603,7 @@ def slim_state(st):
         "fx": _effects(a),
         "fxc": a.get("effect"),
         "members": _members(st),
+        "since": st.get("last_changed") if st["state"] in ("unavailable", "unknown") else None,   # for the offline list
     }
 
 

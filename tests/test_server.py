@@ -503,3 +503,9 @@ async def test_earth_margin_is_a_clamped_length(client):
     assert (await (await client.put("/api/settings", json={**s, "earthMargin": 12})).json())["earthMargin"] == 12.0
     s = await (await client.get("/api/settings")).json()
     assert (await (await client.put("/api/settings", json={**s, "earthMargin": 5000})).json())["earthMargin"] == 100.0
+
+
+def test_slim_state_says_since_when_an_entity_is_offline():
+    st = {"entity_id": "light.a", "state": "unavailable", "last_changed": "2026-10-01T10:00:00+00:00", "attributes": {}}
+    assert server.slim_state(st)["since"] == "2026-10-01T10:00:00+00:00"
+    assert server.slim_state({**st, "state": "on"})["since"] is None

@@ -4,6 +4,18 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.9.0] - 2026-10-01
+### Added
+- **Devices offline**: a red pill **⚠ n offline** over the plan as soon as a placed device is unavailable, unknown or no longer in Home Assistant; it opens a list with floor, room, entity and since when, a tap jumps to the device
+- ⚙ **Performance on this device** (*Automatic*, *Beautiful*, *Fast*), stored per browser, so a tablet that is not recognised can be switched to the fast mode
+
+### Changed
+- The floor and room buttons over the plan **scroll sideways** when they do not fit (tablets): ‹ › arrows at the ends, swipe or mouse wheel; groups in the top bar wrap instead of running off the screen
+- Faster on tablets: the low-power mode drops the blur and glow behind buttons and panels and rests at about 2 fps while nothing happens; every view slows down after 15 s without activity
+
+### Fixed
+- The **grid** is never shown in live mode and lies on the level of the floor shown, so it no longer covers the basement or a house without earth
+
 ## [3.8.1] - 2026-10-01
 ### Fixed
 - The **grid** no longer gets in the way on the floors (live and edit) nor with see-through earth: any ground replaces it, it only shows while a drawing tool is active (#39)

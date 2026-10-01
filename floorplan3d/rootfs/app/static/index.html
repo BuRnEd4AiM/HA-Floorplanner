@@ -53,10 +53,13 @@
         <div id="roomPills" class="pills"></div>
         <span class="spacer"></span>
         <button id="houseToggle" class="pill" hidden></button>
+        <button id="offlinePill" class="pill warn" hidden data-i18n-title="off.tip"></button>
         <button id="openPill" class="pill" hidden></button>
         <button id="autoToggle" class="pill" data-i18n="nav.auto" data-i18n-title="nav.autoTip"></button>
         <button id="wallToggle" class="pill"></button>
       </nav>
+      <button id="navLeft" class="navArrow" type="button" hidden aria-label="‹">‹</button>
+      <button id="navRight" class="navArrow" type="button" hidden aria-label="›">›</button>
       <div id="modeBar"><button class="pill active" data-vm="normal" data-i18n="vm.normal"></button><button class="pill" data-vm="temp" data-i18n="vm.temp"></button><button class="pill" data-vm="humid" data-i18n="vm.humid"></button></div>
       <div id="livePopup" hidden></div>
       <aside id="roomPanel" hidden></aside>
@@ -211,6 +214,15 @@
   </form>
 </dialog>
 
+<dialog id="offlineDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="off.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="sub" data-i18n="off.hint"></p>
+    <p id="offlineNone" data-i18n="off.none" hidden></p>
+    <ul id="offlineList"></ul>
+  </form>
+</dialog>
+
 <dialog id="settingsDialog">
   <form method="dialog" novalidate>
     <div class="dlgHead"><h2 data-i18n="settings"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
@@ -235,6 +247,9 @@
 
     <h3 data-i18n="set.section.view"></h3>
     <div class="row check"><input id="setShadows" type="checkbox"><label for="setShadows" data-i18n="set.shadows"></label></div>
+    <div class="row"><label for="setPerf" data-i18n="set.perf"></label>
+      <select id="setPerf"><option value="auto" data-i18n="set.perf.auto"></option><option value="high" data-i18n="set.perf.high"></option><option value="low" data-i18n="set.perf.low"></option></select></div>
+    <p class="sub" data-i18n="set.perfHint"></p>
     <div class="row check"><input id="setLabels" type="checkbox"><label for="setLabels" data-i18n="set.labels"></label></div>
     <div class="row check"><input id="setWallStop" type="checkbox"><label for="setWallStop" data-i18n="set.wallStop"></label></div>
     <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
