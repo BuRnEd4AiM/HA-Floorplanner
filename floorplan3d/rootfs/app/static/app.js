@@ -669,9 +669,10 @@ function build() {
     });
 
     /* placeholder blocks: a solid mass for a floor that is not drawn */
+    const shaftHoles = (f.blocks || []).length ? holesForFloor(layout.floors, i + 1, FLOOR_H) : [];   // stairwells to the floor above run through the block
     if (!iso) (f.blocks || []).forEach((b) => {
       if (b.points.length < 3) return;
-      const shape = new THREE.Shape(b.points.map(([x, z]) => new THREE.Vector2(x, -z)));
+      const shape = floorShapes(b.points, shaftHoles);
       const eg = new THREE.ExtrudeGeometry(shape, { depth: b.h || FLOOR_H, bevelEnabled: false });
       eg.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(eg, holo
@@ -923,6 +924,7 @@ function applyStates() {
 /* ---- Offline devices: every placed entity that Home Assistant reports as unavailable (or unknown), or that does not
    exist any more (renamed / deleted), in one list that is always one tap away ---- */
 const SMART_CATS = new Set(['lighting', 'smart']);   // devices that belong to an entity (furniture, garden and pictures do not)
+const NOT_SMART = new Set(['tv_led', 'radiator', 'boiler']);   // a radiator or a hot-water tank is often just drawn, without an entity
 const UNKNOWN_IS_FINE = new Set(['scene', 'script', 'automation', 'button', 'input_button', 'event', 'input_text', 'text', 'notify', 'tts', 'conversation']);
 /** why an entity counts as offline: 'unavailable' | 'unknown' | 'missing', or null when it is fine */
 function offlineReason(id) {
@@ -947,7 +949,7 @@ function offlineDevices() {
   layout.floors.forEach((f, fi) => {
     f.devices.forEach((d) => {
       const name = d.name || entities.find((e) => e.entity_id === d.entity)?.name || t(`dev.${d.type}`);
-      const smart = SMART_CATS.has(catOf(d.type)) && d.type !== 'tv_led';
+      const smart = SMART_CATS.has(catOf(d.type)) && !NOT_SMART.has(d.type);
       if (smart && !d.entity && !(d.type === 'ledring' && ringEntities(d).length)) {   // a lamp or sensor without its Home Assistant entity
         const room = f.rooms.find((r) => pointInPoly(d.x, d.z, r.points));
         out.push({ entity: '', reason: 'unlinked', since: null, floor: fi, kind: 'device', id: d.id, name, room: room?.name || '' });
@@ -3526,6 +3528,7 @@ if (params.get('debug')) {
     underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },
     bounds: () => floorBounds(), roofBox: (i) => roofBox(i),
     switchFloor: (i) => switchFloor(i),
+    blockOpen: (id) => { const sh = [].concat(registry.get(id)?.geometry?.parameters?.shapes || []); return sh.length > 1 || sh.some((x) => x.holes.length > 0); },
     solidShape: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh && [].concat(o.material).some((m) => !m.transparent || m.opacity > 0.3)) ok = true; }); return ok; },
     clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earthCut))) n++; }); return n; },
     earthDbg: () => ({ n: earthCut.normal.toArray(), c: earthCut.constant, solid: earthLawn, cut: !!earthInfo, capVisible: !!earthInfo?.cap.visible, capVerts: earthInfo?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earthBox, ground: earthGround }),
