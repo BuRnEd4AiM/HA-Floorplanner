@@ -1026,7 +1026,7 @@ async function switchHouse(id) {
   try { layout = await (await fetch(layoutUrl())).json(); } catch { setStatus(t('loadFailed')); return; }
   normalizeLayout();
   undoStack.length = 0;
-  floorIdx = 0; selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');
+  floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
   clearFocusOutline(); renderHouseUi();
   build(); fitCamera(); buildNav(true); renderBgPanel(); renderFloorPanel(); renderObjList(); refreshSelection();
 }
@@ -3293,6 +3293,7 @@ async function init() {
   await loadHouses();
   try { layout = await (await fetch(layoutUrl())).json(); } catch { setStatus(t('loadFailed')); }
   normalizeLayout();
+  floorIdx = groundIdx();                                 // start on the ground floor, not in the basement
   renderHouseUi();
   await loadModels();
   applySettings();

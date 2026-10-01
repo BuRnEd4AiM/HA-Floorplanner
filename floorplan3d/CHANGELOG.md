@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.7.1] - 2026-10-01
+### Changed
+- The floor plan **opens on the ground floor** instead of the basement (also after switching or importing a house)
+- The demo house has a **basement** (hobby room, utility room, laundry), a **plot with garden** (trees, terrace, hedge, fence, car) and shows the house in its ground
+- **New screenshots and screen recordings** in the README and the import guide: the house on its plot, the basement as a section, the LED ring; the quick tour and the import recording show the new ground view
+
 ## [3.7.0] - 2026-10-01
 ### Added
 - **The house stands in the ground**: solid earth with a **lawn on top** around the house, in the shape of the plot (Grundstück) if one is drawn, otherwise a generous area around the house. The house itself is cut out, so the lawn reaches right up to the walls

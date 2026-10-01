@@ -6,7 +6,35 @@ const Win = (id, pos, extra = {}) => ({ id, type: 'window', pos, width: 1.2, hei
 
 const layout = {
   version: 1,
+  plot: { boundary: [[-7, -6], [17, -6], [17, 14], [-7, 14]] },   // the plot (Grundstück): the house stands in the lawn, the basement in the earth
   floors: [{
+    id: 'kg', name: 'Keller', kind: 'basement',
+    rooms: [
+      { id: 'k1', name: 'Hobbyraum',  color: '#8f8a7e', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
+      { id: 'k2', name: 'Technik',    color: '#7d8590', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
+      { id: 'k3', name: 'Waschküche', color: '#8a96a0', points: [[0, 4.5], [10, 4.5], [10, 7], [0, 7]] },
+    ],
+    walls: [
+      W('k_w1', [0, 0], [10, 0], 0.3, [Win('k_o1', 2.5, { height: 0.6, sill: 1.8 })]),
+      W('k_w2', [10, 0], [10, 7], 0.3, []),
+      W('k_w3', [10, 7], [0, 7], 0.3, []),
+      W('k_w4', [0, 7], [0, 0], 0.3, []),
+      W('k_i1', [6, 0], [6, 4.5], 0.12, [D('k_o2', 3.2)]),
+      W('k_i2', [0, 4.5], [10, 4.5], 0.12, [D('k_o3', 3), D('k_o4', 8)]),
+    ],
+    devices: [
+      { id: 'k_d1', type: 'light',   x: 3,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Licht Hobbyraum', entity: 'light.keller' },
+      { id: 'k_d2', type: 'sofa',    x: 3,   z: 3.6,  y: 0,    rot: 180, scale: 1,   name: 'Sofa', entity: '' },
+      { id: 'k_d3', type: 'table',   x: 3,   z: 2.3,  y: 0,    rot: 0,   scale: 0.7, name: 'Tisch', entity: '' },
+      { id: 'k_d4', type: 'shelf',   x: 0.35, z: 2,   y: 0,    rot: 90,  scale: 1,   name: 'Regal', entity: '' },
+      { id: 'k_d5', type: 'boiler',  x: 9.4, z: 0.6,  y: 0,    rot: 0,   scale: 1,   name: 'Warmwasserspeicher', entity: '' },
+      { id: 'k_d6', type: 'radiator', x: 7.5, z: 0.25, y: 0.3,  rot: 0,   scale: 1,   name: 'Heizung', entity: '' },
+      { id: 'k_d7', type: 'washer',  x: 1,   z: 6.4,  y: 0,    rot: 180, scale: 1,   name: 'Waschmaschine', entity: '' },
+      { id: 'k_d8', type: 'washer',  x: 1.8, z: 6.4,  y: 0,    rot: 180, scale: 1,   name: 'Trockner', entity: '' },
+      { id: 'k_d9', type: 'sensor',  x: 9.8, z: 5.8,  y: 1.6,  rot: 270, scale: 1,   name: 'Luftfeuchte Keller', entity: 'sensor.keller_feuchte' },
+      { id: 'k_d10', type: 'light',  x: 5,   z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Licht Waschküche', entity: 'light.waschkueche' },
+    ],
+  }, {
     id: 'eg', name: 'Erdgeschoss',
     rooms: [
       { id: 'r1', name: 'Wohnzimmer',    area: 'wohnzimmer', color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
@@ -70,6 +98,12 @@ const layout = {
         pts: [[-1.85, -1.1], [1.85, -1.1], [1.85, 1.1], [-1.85, 1.1]], segs: [{}, { entity: 'light.voute_fenster' }, {}, { entity: 'light.voute_fenster' }] },
       { id: 'd18', type: 'light',      x: 8.6, z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Bürolicht',       entity: 'light.buero' },
       { id: 'd19', type: 'switch',     x: 9.4, z: 6.88, y: 1.1,  rot: 0,   scale: 1,   name: 'Flurschalter',    entity: 'switch.flur' },
+      { id: 'gt1', type: 'tree',    x: -4,   z: -3.2, y: 0, rot: 0,  scale: 1.1, name: 'Apfelbaum', entity: '' },
+      { id: 'gt2', type: 'tree',    x: 14.5, z: -3.5, y: 0, rot: 0,  scale: 1.3, name: 'Linde', entity: '' },
+      { id: 'gt3', type: 'bush',    x: -5,   z: 5.5,  y: 0, rot: 0,  scale: 1,   name: 'Hecke', entity: '' },
+      { id: 'gt4', type: 'terrace', x: -2.6, z: 2.5,  y: 0, rot: 90, scale: 1.1, name: 'Terrasse', entity: '' },
+      { id: 'gt5', type: 'car',     x: 13.3, z: 3.5,  y: 0, rot: 90, scale: 1,   name: 'Auto', entity: '' },
+      { id: 'gt6', type: 'fence',   x: 5,    z: -5.6, y: 0, rot: 0,  scale: 1, sx: 7.8, name: 'Zaun', entity: '' },
     ],
   }, {
     id: 'og', name: 'Obergeschoss',
@@ -114,6 +148,9 @@ const entities = {
   'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70, rgb: [255, 140, 110] },
   'light.stehlampe':         { name: 'Stehlampe',              state: 'on' },
   'light.kueche':            { name: 'Küche Licht',            state: 'off' },
+  'light.keller':            { name: 'Hobbyraum Licht',        state: 'on', rgb: [255, 196, 120], brightness: 70 },
+  'light.waschkueche':       { name: 'Waschküche Licht',       state: 'off' },
+  'sensor.keller_feuchte':   { name: 'Keller Luftfeuchte',     state: '58', unit: '%' },
   'light.schlafzimmer':      { name: 'Schlafzimmer Licht',     state: 'on', rgb: [130, 170, 255] },
   'light.bad':               { name: 'Bad Licht',              state: 'off' },
   'person.anna':             { name: 'Anna', state: 'home' },

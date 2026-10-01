@@ -39,9 +39,9 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
 
 **4. Import.** The house is created as a **new house** and opened right away. Your existing house stays untouched; switch back any time with the house selector at the top.
 
-![Imported house (basement)](img/import-en-3-result.png)
+![Imported house (ground floor)](img/import-en-3-result.png)
 
-**5. Whole house and plot.** In live mode, **Whole house** shows building, roof, plot boundary and garden objects (lawn, terrace, trees, fence).
+**5. Whole house and plot.** In live mode, **Whole house** shows building, roof, plot and garden objects (lawn, terrace, trees, fence). The house stands in the lawn, the basement sits in the earth and is shown cut open on the camera side.
 
 ![Whole house with plot](img/import-en-4-whole-house.png)
 
