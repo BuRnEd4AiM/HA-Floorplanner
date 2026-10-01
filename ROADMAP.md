@@ -8,7 +8,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - **0.2 Professional basics** – settings, doors and windows, custom GLB models, live view for wall tablets
 - **0.3 – 0.7 Daily use** – Home Assistant areas, entity search, room panel, object list, selection lock, 2D blueprint editor with split view, light colours and effects, more furniture, light ball and LED strip, administrator-only editing, per-user room and view, whole-room control with scenes
 
-## v0.8 – Live sync
+## v0.8 – Live sync – done in 3.6.0
 
 - [x] Live state updates via WebSocket instead of polling (3.6.0)
 - [x] Native Home Assistant more-info dialog for tapped devices (3.4.0)
@@ -19,6 +19,13 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - [ ] HACS Lovelace card to show the floor plan on any dashboard
 - [x] Furniture library with previews (1.3.0)
 - [ ] Glowing floor cables with watt display
+
+## Done in 3.3 – 3.6
+
+- [x] LED ring for indirect light around a room, free sections with their own lights (3.3.0, 3.4.0)
+- [x] Home Assistant details dialog (3.4.0, #9)
+- [x] Auto placement of an area's entities (3.5.0)
+- [x] Live updates over Home Assistant's websocket (3.6.0)
 
 ## v1.0 – Stable release
 
