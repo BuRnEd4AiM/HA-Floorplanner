@@ -11,6 +11,8 @@ const C = {
   grid1: 'rgba(160,215,255,.10)', grid2: 'rgba(160,215,255,.22)', text: '#eaf7ff', warn: '#ff4a3d',
 };
 
+const POLY_KINDS = new Set(['room', 'block', 'hole']);                     // shapes edited by their corners
+const polyList = (f, kind) => (kind === 'room' ? f.rooms : kind === 'block' ? f.blocks || [] : f.holes || []);
 const FLAT = new Set(['carpet', 'lawn', 'terrace', 'path', 'pool']);   // lie on the ground: drawn below, picked last
 /* footprint (m) of every device type: [w, d] or radius for round ones */
 const FOOT = {
@@ -121,6 +123,7 @@ export function createPlan(ctx) {
       f.walls.forEach((w) => { test(w.a); test(w.b); });
       f.rooms.forEach((r) => r.points.forEach(test));
       (f.blocks || []).forEach((r) => r.points.forEach(test));
+      (f.holes || []).forEach((r) => r.points.forEach(test));
       if (best) return [best[0], best[1]];
     }
     if (free) return [x, z];
@@ -168,6 +171,8 @@ export function createPlan(ctx) {
     if (stair) return { kind: 'stair', id: stair.id };
     const rug = f.devices.find((d) => FLAT.has(d.type) && devHit(d, x, z));
     if (rug) return { kind: 'device', id: rug.id };
+    const hole = (f.holes || []).filter((r) => ctx.pointInPoly(x, z, r.points));   // a floor opening lies in a room: it wins
+    if (hole.length) return { kind: 'hole', id: hole[hole.length - 1].id };
     const rooms = f.rooms.filter((r) => ctx.pointInPoly(x, z, r.points));
     if (rooms.length) return { kind: 'room', id: rooms[rooms.length - 1].id };
     const blk = (f.blocks || []).filter((r) => ctx.pointInPoly(x, z, r.points));
@@ -203,8 +208,8 @@ export function createPlan(ctx) {
     if (sel.kind === 'wall') {
       const w = f.walls.find((q) => q.id === sel.id);
       if (w) { if (near(w.a)) return { type: 'wall-end', wall: w, end: 'a' }; if (near(w.b)) return { type: 'wall-end', wall: w, end: 'b' }; }
-    } else if (sel.kind === 'room' || sel.kind === 'block') {
-      const r = (sel.kind === 'room' ? f.rooms : f.blocks || []).find((q) => q.id === sel.id);
+    } else if (POLY_KINDS.has(sel.kind)) {
+      const r = polyList(f, sel.kind).find((q) => q.id === sel.id);
       if (r) { const i = r.points.findIndex(near); if (i >= 0) return { type: 'room-pt', room: r, i }; }
     }
     return null;
@@ -286,6 +291,12 @@ export function createPlan(ctx) {
       const heat = ctx.roomHeat ? ctx.roomHeat(rm, f) : null;
       const fill = heat || rm.color || '#8a7f70';
       o += `<polygon points="${pts(rm.points)}" fill="${fill}" fill-opacity="${heat ? 0.45 : 0.26}" stroke="${isSel ? C.sel : 'rgba(255,255,255,.25)'}" stroke-width="${isSel ? 2 : 1}" stroke-dasharray="${isSel ? '' : '4 4'}"/>`;
+    });
+
+    /* floor openings (Bodenöffnungen): cut out of this floor, hatched with an orange dashed rim */
+    (f.holes || []).forEach((h) => {
+      const isSel = sel?.kind === 'hole' && sel.id === h.id;
+      o += `<polygon points="${pts(h.points)}" fill="url(#hatch)" stroke="${isSel ? C.sel : '#ff9f43'}" stroke-width="${isSel ? 2.2 : 1.6}" stroke-dasharray="7 4"/>`;
     });
 
     /* stairs: own stairs, plus the stairs of the floor below that arrive here (dashed) */
@@ -451,7 +462,7 @@ export function createPlan(ctx) {
         const st = (f.stairs || []).find((q) => q.id === sel.id), hs = st && stairHandles(st, H3);
         if (st) ['len', 'wid'].forEach((k) => { if (hs[k]) { const p = toWorld(st, hs[k][0], hs[k][1]); o += `<rect x="${sx(p[0]) - 6}" y="${sy(p[1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; } });
       }
-      if (sel.kind === 'room' || sel.kind === 'block') { const rm = (sel.kind === 'room' ? f.rooms : f.blocks || []).find((q) => q.id === sel.id); if (rm) rm.points.forEach((p) => { o += hnd(p); }); }
+      if (POLY_KINDS.has(sel.kind)) { const rm = polyList(f, sel.kind).find((q) => q.id === sel.id); if (rm) rm.points.forEach((p) => { o += hnd(p); }); }
     }
 
     /* hover + drafts */
@@ -467,17 +478,17 @@ export function createPlan(ctx) {
       const tpl = { ...ctx.getStairTemplate(), x: cursor[0], z: cursor[1] };
       o += drawStair(tpl, false, true) + (tpl.dir === 'down' ? holeOf(tpl) : '');
     }
-    if (!live && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot') && drawPts.length) {
+    if (!live && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') && drawPts.length) {
       const pl = cursor ? [...drawPts, cursor] : drawPts;
       o += `<polyline points="${pts(pl)}" fill="none" stroke="${C.accent}" stroke-width="2.5" stroke-dasharray="6 4"/>`;
-      if ((tool === 'room' || tool === 'block' || tool === 'plot') && drawPts.length >= 2) o += `<polygon points="${pts(pl)}" fill="rgba(35,224,255,.12)" stroke="none"/>`;
+      if ((tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') && drawPts.length >= 2) o += `<polygon points="${pts(pl)}" fill="rgba(35,224,255,.12)" stroke="none"/>`;
       drawPts.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="4" fill="${C.accent}"/>`; });
       if (cursor) {
         const last = drawPts[drawPts.length - 1], L = Math.hypot(cursor[0] - last[0], cursor[1] - last[1]);
         o += `<text x="${sx((cursor[0] + last[0]) / 2)}" y="${sy((cursor[1] + last[1]) / 2) - 8}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.accent}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(ctx.fmtLen(L))}</text>`;
       }
     }
-    if (!live && cursor && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'device' || tool === 'stairs')) o += `<circle cx="${sx(cursor[0])}" cy="${sy(cursor[1])}" r="5" fill="none" stroke="${C.accent}" stroke-width="1.5"/>`;
+    if (!live && cursor && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole' || tool === 'device' || tool === 'stairs')) o += `<circle cx="${sx(cursor[0])}" cy="${sy(cursor[1])}" r="5" fill="none" stroke="${C.accent}" stroke-width="1.5"/>`;
 
     if (!live && bgMode === 'move' && bg?.img && !bg.hidden) {   // frame and corner handles of the template
       const cs = bgCorners(bg);
@@ -523,7 +534,7 @@ export function createPlan(ctx) {
     W = r.width; H = r.height;
     const f = floor();
     if (!f || !W || !H) return;
-    const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...(f.blocks || []).flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z]), ...(f.stairs || []).map((d) => [d.x, d.z])];
+    const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...(f.blocks || []).flatMap((q) => q.points), ...(f.holes || []).flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z]), ...(f.stairs || []).map((d) => [d.x, d.z])];
     if (!p.length && f.bg?.img && !f.bg.hidden && !isLive()) p.push([f.bg.x, f.bg.z], [f.bg.x + f.bg.w, f.bg.z + f.bg.w * (f.bg.ar || 1)]);   // empty floor: frame the template
     if (!p.length) { s = 60; tx = W / 2 - 3 * s; ty = H / 2 - 2 * s; render(); return; }
     const xs = p.map((q) => q[0]), zs = p.map((q) => q[1]);
@@ -651,8 +662,8 @@ export function createPlan(ctx) {
       const st = (f.stairs || []).find((q) => q.id === h.id);
       return st ? { type: 'stair', st, dx: st.x - x, dz: st.z - z, moved: false, px, py } : null;
     }
-    if (h.kind === 'room' || h.kind === 'block') {
-      const r = (h.kind === 'room' ? f.rooms : f.blocks || []).find((q) => q.id === h.id);
+    if (POLY_KINDS.has(h.kind)) {
+      const r = polyList(f, h.kind).find((q) => q.id === h.id);
       return r ? { type: 'points', refs: r.points.map((q) => ({ q, ox: q[0], oz: q[1] })), start: [x, z], moved: false, whole: true, px, py } : null;
     }
     return null;
@@ -776,7 +787,7 @@ export function createPlan(ctx) {
     if (tool === 'stairs') {
       cursor = snapPt(x, z, { fine: true, ends: false });
       render();
-    } else if (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot') {
+    } else if (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') {
       let p = snapPt(x, z, { free: e.altKey });
       if (drawPts.length && tool === 'wall' && shift) p = angleSnap(drawPts[drawPts.length - 1], p);
       cursor = p;
@@ -841,7 +852,7 @@ export function createPlan(ctx) {
       const now = performance.now();
       const dbl = lastTap && now - lastTap.t < 400 && Math.hypot(px - lastTap.px, py - lastTap.py) < 8;
       lastTap = { t: now, px, py };
-      if (dbl && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot')) { if (tool === 'wall') cancel(); else finishRoom(); return; }   // double tap ends the chain
+      if (dbl && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole')) { if (tool === 'wall') cancel(); else finishRoom(); return; }   // double tap ends the chain
       placeWith(tool, x, z, e);
     }
   });
@@ -864,7 +875,7 @@ export function createPlan(ctx) {
     } else if (tool === 'stairs') {
       const [px2, pz2] = snapPt(x, z, { fine: true, ends: false });
       ctx.placeStair(px2, pz2);
-    } else if (tool === 'room' || tool === 'block' || tool === 'plot') {
+    } else if (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') {
       const p = snapPt(x, z, { free: e.altKey });
       if (drawPts.length >= 3 && Math.hypot(p[0] - drawPts[0][0], p[1] - drawPts[0][1]) < 0.01) { finishRoom(); return; }
       drawPts.push(p);
@@ -894,6 +905,8 @@ export function createPlan(ctx) {
   function finishRoom() {
     if (drawPts.length >= 3 && ctx.getTool() === 'plot') {
       ctx.setPlot(drawPts.map((p) => [...p]));                  // the plot (Grundstück): the lawn takes its shape
+    } else if (drawPts.length >= 3 && ctx.getTool() === 'hole') {
+      ctx.addHole(drawPts.map((p) => [...p]));
     } else if (drawPts.length >= 3 && ctx.getTool() === 'block') {
       ctx.addBlock(drawPts.map((p) => [...p]));
     } else if (drawPts.length >= 3) {
@@ -909,7 +922,7 @@ export function createPlan(ctx) {
     if (isLive()) return;
     const tool = ctx.getTool();
     if (tool === 'wall') cancel();
-    else if (tool === 'room' || tool === 'block' || tool === 'plot') finishRoom();
+    else if (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') finishRoom();
     else if (tool === 'select') {
       const [px, py] = local(e);
       const x = wx(px), z = wz(py);
@@ -933,7 +946,7 @@ export function createPlan(ctx) {
   /* nearest edge of a room / block (the selected one wins) under the pointer, with the point on that edge */
   function edgeAt(x, z) {
     const f = floor(), sel = ctx.getSelection(), tol = Math.max(0.08, 10 / s);
-    const polys = [...f.rooms.map((p) => ({ kind: 'room', poly: p })), ...(f.blocks || []).map((p) => ({ kind: 'block', poly: p }))];
+    const polys = [...f.rooms.map((p) => ({ kind: 'room', poly: p })), ...(f.blocks || []).map((p) => ({ kind: 'block', poly: p })), ...(f.holes || []).map((p) => ({ kind: 'hole', poly: p }))];
     let best = null;
     polys.forEach(({ kind, poly }) => {
       const pts2 = poly.points, n = pts2.length;

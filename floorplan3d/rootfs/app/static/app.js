@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
+import { findAlerts, nightActive, matchScore } from './alerts.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { planPlacement, classify } from './autoplace.js';
@@ -22,6 +23,7 @@ const params = new URLSearchParams(location.search);
 let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true, wallStop: true, earth: 'solid', earthMargin: 5,
+  alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
   userRooms: {}, userViews: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
@@ -591,7 +593,7 @@ function build() {
   wake();
   plan?.render();
   clearGroup(world);
-  registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear();
+  registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear(); alertPulses.length = 0;
   const holo = isHolo();
   const iso = isolatedRoom();
   if (houseMode && settings.earth === 'off') {    // ground reference for the plot (with earth the lawn is the ground)
@@ -622,7 +624,7 @@ function build() {
     const g = new THREE.Group();
     g.position.y = elev(i);
     world.add(g);
-    const holes = holesForFloor(layout.floors, i, FLOOR_H);
+    const holes = floorOpenings(i);
     if (f.kind === 'roof' && !iso) buildRoof(g, i, f, holo, ghost);
 
     f.rooms.forEach((r) => {
@@ -653,6 +655,11 @@ function build() {
         g.add(wash);
       }
       roomMeshes.set(r.id, { mesh: m, room: r, wash, glow, f, ghost });
+      if (!ghost && alertRooms.has(r.id)) {        // a warning in this room: the floor pulses red
+        const pm = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide }));
+        pm.position.y = 0.03; pm.renderOrder = 2;
+        g.add(pm); alertPulses.push(pm.material);
+      }
       if (!ghost) {
         m.userData = { kind: 'room', id: r.id };
         registry.set(r.id, m); pickables.push(m);
@@ -668,8 +675,16 @@ function build() {
       }
     });
 
+    /* floor openings drawn by hand: a rim like a wall top, so the opening reads from above */
+    if (!ghost) (f.holes || []).forEach((h) => {
+      if (h.points.length < 3) return;
+      const rim = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(h.points.map(([x, z]) => new THREE.Vector3(x, 0.03, z))),
+        new THREE.LineBasicMaterial({ color: holo ? HOLO.edge : 0xff9f43 }));
+      g.add(rim);
+    });
+
     /* placeholder blocks: a solid mass for a floor that is not drawn */
-    const shaftHoles = (f.blocks || []).length ? holesForFloor(layout.floors, i + 1, FLOOR_H) : [];   // stairwells to the floor above run through the block
+    const shaftHoles = (f.blocks || []).length ? floorOpenings(i + 1) : [];   // stairwells and floor openings of the floor above run through the block
     if (!iso) (f.blocks || []).forEach((b) => {
       if (b.points.length < 3) return;
       const shape = floorShapes(b.points, shaftHoles);
@@ -838,6 +853,7 @@ function animateOpenings() {
 function applyStates() {
   if (plan?.isVisible()) plan.render();
   updateOfflinePill();
+  updateAlerts();
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
   const bv = settings.belowVisibility;
@@ -1005,6 +1021,157 @@ function showOffline(x) {
 }
 $('#offlinePill').addEventListener('click', () => { renderOfflineList(); $('#offlineDialog').showModal(); });
 
+/* ================= Warnings: smoke, gas, CO, water, alarm, window open in the rain (#58) ================= */
+const ALERT_ICON = { smoke: '🔥', gas: '⚠️', co: '☠️', water: '💧', alarm: '🚨', rain: '🌧️' };
+const alertPulses = [];                 // materials of the red room overlays, pulsed in animate()
+let alerts = [], alertSig = '', alertRooms = new Set();
+/** where an entity is in the plan: the floor and room of the device / window it is bound to, else the room of its HA area */
+function locateEntity(id) {
+  for (let fi = 0; fi < layout.floors.length; fi++) {
+    const f = layout.floors[fi], roomAt = (x, z) => f.rooms.find((r) => pointInPoly(x, z, r.points))?.id || null;
+    const d = f.devices.find((q) => q.entity === id || q.ledEntity === id || (q.type === 'ledring' && ringEntities(q).includes(id)));
+    if (d) return { floor: fi, roomId: roomAt(d.x, d.z) };
+    for (const w of f.walls) {
+      const o = (w.openings || []).find((q) => openingEntities(q).includes(id));
+      if (!o) continue;
+      const L = wallLength(w) || 1, ux = (w.b[0] - w.a[0]) / L, uz = (w.b[1] - w.a[1]) / L, x = w.a[0] + ux * o.pos, z = w.a[1] + uz * o.pos;
+      return { floor: fi, roomId: roomAt(x - uz * 0.3, z + ux * 0.3) || roomAt(x + uz * 0.3, z - ux * 0.3) };   // the room on either side
+    }
+  }
+  const ar = areaOf[id];
+  if (ar) for (let fi = 0; fi < layout.floors.length; fi++) { const r = layout.floors[fi].rooms.find((q) => q.area === ar); if (r) return { floor: fi, roomId: r.id }; }
+  return null;
+}
+function updateAlerts() {
+  if (!entities.length) return;
+  const windows = [];
+  layout.floors.forEach((f) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+    if (o.type === 'window') openingEntities(o).forEach((e) => windows.push({ entity: e, name: o.name || entities.find((x) => x.entity_id === e)?.name || t('prop.window') }));
+  })));
+  const list = settings.alerts === false ? [] : findAlerts(entities, windows, settings.weatherEntity).map((a) => ({ ...a, at: locateEntity(a.entity) }));
+  const sig = JSON.stringify(list.map((a) => [a.kind, a.entity, a.at]));
+  if (sig === alertSig) return;
+  const before = new Set(alerts.map((a) => a.kind + a.entity));
+  alerts = list; alertSig = sig;
+  renderAlertBar();
+  const rooms = new Set(list.map((a) => a.at?.roomId).filter(Boolean));
+  if ([...rooms].sort().join() !== [...alertRooms].sort().join()) { alertRooms = rooms; build(); }
+  const fresh = list.find((a) => !before.has(a.kind + a.entity));
+  if (fresh && settings.alertJump && isLive()) jumpToAlert(fresh);
+}
+function renderAlertBar() {
+  const bar = $('#alertBar');
+  bar.replaceChildren(...alerts.map((a) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'alertItem';
+    const room = a.at?.roomId && layout.floors[a.at.floor]?.rooms.find((r) => r.id === a.at.roomId)?.name;
+    b.textContent = `${ALERT_ICON[a.kind] || '⚠️'} ${t(`alert.${a.kind}`)}${room ? ` · ${room}` : ''} · ${a.name}`;
+    b.addEventListener('click', () => jumpToAlert(a));
+    return b;
+  }));
+  bar.hidden = !alerts.length;
+}
+function jumpToAlert(a) {
+  if (!a.at) return;
+  if (houseMode || floorIdx !== a.at.floor) switchFloor(a.at.floor);
+  if (a.at.roomId) { focusRoom(a.at.roomId); if (isLive()) openRoomPanel(a.at.roomId); }
+  kioskTouched();
+}
+
+/* ================= "Where is ...?" search (#62) ================= */
+let findMarker = null;                  // { mesh, until }: a ring that marks what was found
+function findItems(q) {
+  const out = [];
+  layout.floors.forEach((f, fi) => {
+    const roomOf = (x, z) => f.rooms.find((r) => pointInPoly(x, z, r.points))?.name || '';
+    f.rooms.forEach((r) => { const sc = matchScore(r.name, q); if (sc) out.push({ sc: sc + 5, kind: 'room', id: r.id, floor: fi, label: r.name, sub: f.name }); });
+    f.devices.forEach((d) => {
+      const ent = d.entity && entities.find((e) => e.entity_id === d.entity);
+      const name = d.name || ent?.name || t(`dev.${d.type}`);
+      const sc = Math.max(matchScore(name, q), matchScore(ent?.name, q), matchScore(d.entity, q) * 0.8, matchScore(t(`dev.${d.type}`), q) * 0.6);
+      if (sc) out.push({ sc, kind: 'device', id: d.id, floor: fi, label: name, sub: [f.name, roomOf(d.x, d.z)].filter(Boolean).join(' · '), x: d.x, y: d.y || 0, z: d.z });
+    });
+    f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+      const name = o.name || (o.entity && entities.find((e) => e.entity_id === o.entity)?.name) || '';
+      const sc = Math.max(matchScore(name, q), matchScore(o.entity, q) * 0.8);
+      if (!sc) return;
+      const L = wallLength(w) || 1, x = w.a[0] + ((w.b[0] - w.a[0]) / L) * o.pos, z = w.a[1] + ((w.b[1] - w.a[1]) / L) * o.pos;
+      out.push({ sc, kind: 'opening', id: o.id, floor: fi, label: name || t(`prop.${o.type}`), sub: f.name, x, y: (o.sill || 0) + (o.height || 1) / 2, z });
+    }));
+  });
+  return out.sort((a, b) => b.sc - a.sc || a.label.localeCompare(b.label)).slice(0, 8);
+}
+function renderFind() {
+  const q = $('#findInput').value, ul = $('#findList');
+  const items = q.trim() ? findItems(q) : [];
+  ul.replaceChildren(...items.map((it) => {
+    const li = document.createElement('li'), b = document.createElement('button'); b.type = 'button';
+    const s1 = document.createElement('strong'); s1.textContent = it.label;
+    const s2 = document.createElement('small'); s2.textContent = it.sub;
+    b.append(s1, s2);
+    b.addEventListener('click', () => goToFound(it));
+    li.append(b); return li;
+  }));
+  $('#findNone').hidden = !q.trim() || !!items.length;
+}
+function openFind(open = $('#findBox').hidden) {
+  $('#findBox').hidden = !open;
+  if (open) { $('#findInput').value = ''; renderFind(); $('#findInput').focus(); }
+}
+function goToFound(it) {
+  openFind(false);
+  if (houseMode || floorIdx !== it.floor) switchFloor(it.floor);
+  if (it.kind === 'room') { focusRoom(it.id); if (isLive()) openRoomPanel(it.id); return; }
+  if (focusedRoom) focusRoom(null);
+  const target = new THREE.Vector3(it.x, elev(it.floor) + Math.min(it.y, 2.4), it.z);
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  controls.target.copy(target);
+  camera.position.copy(target).addScaledVector(dir, 5.5);
+  controls.update();
+  if (findMarker) { scene.remove(findMarker.mesh); findMarker.mesh.geometry.dispose(); }
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.32, 0.46, 40), new THREE.MeshBasicMaterial({ color: 0x3df2ff, transparent: true, side: THREE.DoubleSide, depthTest: false }));
+  ring.rotation.x = -Math.PI / 2; ring.position.copy(target); ring.renderOrder = 10;
+  scene.add(ring);
+  findMarker = { mesh: ring, until: performance.now() + 3500 };
+  if (isLive()) liveSelect({ kind: it.kind, id: it.id });
+  else { selection = { kind: it.kind, id: it.id }; lockedSel = true; refreshSelection(); }
+  wake();
+}
+$('#findBtn').addEventListener('click', () => openFind());
+$('#findInput').addEventListener('input', renderFind);
+$('#findInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') openFind(false);
+  if (e.key === 'Enter') { const first = findItems($('#findInput').value)[0]; if (first) goToFound(first); }
+  e.stopPropagation();                                       // typing must not trigger the editor shortcuts
+});
+
+/* ================= Wall tablet: back to the start view, screen saver, night dimming (#61) ================= */
+let lastInput = Date.now(), kioskHome = true;
+function kioskTouched() {
+  lastInput = Date.now(); kioskHome = false;
+  if (controls.autoRotate) controls.autoRotate = false;
+  if (!$('#nightDim').hidden) $('#nightDim').hidden = true;
+}
+['pointerdown', 'keydown', 'wheel'].forEach((ev) => addEventListener(ev, kioskTouched, { passive: true, capture: true }));
+function goHome() {
+  closeLivePopup(); closeRoomPanel(); openFind(false);
+  const hit = tabletRoom && findRoomByName(tabletRoom);
+  if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); openRoomPanel(hit.room.id); }
+  else { if (focusedRoom) focusRoom(null); switchFloor(groundIdx()); }
+  fitCamera();
+}
+function kioskTick() {
+  const idleMs = Date.now() - lastInput;
+  if (isLive() && settings.idleReturn > 0 && idleMs > settings.idleReturn * 60000 && !kioskHome) {
+    kioskHome = true;
+    goHome();
+    if (settings.idleOrbit) { controls.autoRotate = true; controls.autoRotateSpeed = 0.6; }
+  }
+  const night = isLive() && nightActive(settings.nightDim, settings.nightFrom, settings.nightTo, new Date(), states['sun.sun']?.state);
+  $('#nightDim').hidden = !(night && idleMs > 60000);
+}
+setInterval(kioskTick, 5000);
+$('#nightDim').addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); kioskTouched(); });   // the first touch only wakes the screen
+
 function refreshSelHelper() {
   if (selHelper) { scene.remove(selHelper); selHelper = null; }
   const obj = selection && (selection.kind === 'opening' ? openingHandles.get(selection.id)?.mesh : registry.get(selection.id));
@@ -1017,7 +1184,7 @@ function refreshSelection() {
   // keep the selection even when the object is not drawn (e.g. hidden by a focused room or off screen), so it can still be found, moved to view or deleted
   if (selection && !registry.get(selection.id)) {
     const f = floor();
-    const exists = f && [f.walls, f.rooms, f.devices, f.blocks, f.stairs].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
+    const exists = f && [f.walls, f.rooms, f.devices, f.blocks, f.stairs, f.holes].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
     if (!exists) selection = null;
   }
   if (!selection) lockedSel = false;
@@ -1553,7 +1720,7 @@ function itemOf(kind, id) {
   const f = floor();
   if (!f) return null;
   if (kind === 'opening') return findOpening(id)?.opening || null;
-  const list = { wall: f.walls, room: f.rooms, device: f.devices, stair: f.stairs, block: f.blocks }[kind] || [];
+  const list = { wall: f.walls, room: f.rooms, device: f.devices, stair: f.stairs, block: f.blocks, hole: f.holes }[kind] || [];
   return list.find((q) => q.id === id) || null;
 }
 function deleteItem({ kind, id }) {
@@ -1563,6 +1730,7 @@ function deleteItem({ kind, id }) {
   if (kind === 'room') f.rooms = f.rooms.filter((x) => x.id !== id);
   if (kind === 'device') f.devices = f.devices.filter((x) => x.id !== id);
   if (kind === 'block') f.blocks = (f.blocks || []).filter((x) => x.id !== id);
+  if (kind === 'hole') f.holes = (f.holes || []).filter((x) => x.id !== id);
   if (kind === 'stair') f.stairs = (f.stairs || []).filter((x) => x.id !== id);
   if (kind === 'opening') {
     const found = findOpening(id);
@@ -1575,7 +1743,7 @@ function deleteItem({ kind, id }) {
 window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
-  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot')) { plan.finishRoom(); return; }
+  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole')) { plan.finishRoom(); return; }
   if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (bgMode) setBgMode(null); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
@@ -2000,7 +2168,7 @@ function setTool(next) {
   $('#groupPalette').hidden = next !== 'group';
   if (next !== 'group' && groupPick.size) { groupPick.clear(); plan?.render(); }
   if (next === 'group') renderGroupPalette();
-  if ((next === 'block' || next === 'stairs' || next === 'plot') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
+  if ((next === 'block' || next === 'stairs' || next === 'plot' || next === 'hole') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
   canvas.style.cursor = next === 'select' ? 'default' : 'crosshair';
 }
 document.querySelectorAll('#tools button').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
@@ -2446,6 +2614,10 @@ function renderModelPalette() {
   });
 }
 /* ================= Placeholder blocks and stairs ================= */
+/** everything cut out of floor i: stairwell openings plus the floor openings drawn by hand (Bodenöffnung) */
+function floorOpenings(i) {
+  return [...holesForFloor(layout.floors, i, FLOOR_H), ...(layout.floors[i]?.holes || []).filter((h) => h.points.length >= 3).map((h) => h.points)];
+}
 /** THREE shapes of a floor polygon with the stairwell openings cut out (polygon boolean, so partial overlaps work too) */
 function floorShapes(points, holes) {
   const v = (p) => new THREE.Vector2(p[0], -p[1]);
@@ -2496,6 +2668,14 @@ $('#plotClear').addEventListener('click', () => {
   if (!Object.keys(layout.plot).length) delete layout.plot;
   changed(); plan?.render();
 });
+function addHole(points) {
+  snapshot();
+  const f = floor();
+  (f.holes ||= []).push({ id: uid(), points });
+  selection = { kind: 'hole', id: f.holes[f.holes.length - 1].id };
+  changed();
+  setStatus(t('hole.added'));
+}
 function addBlock(points) {
   const target = blockTargetFloor();
   snapshot();
@@ -2922,6 +3102,7 @@ function renderObjList() {
     ['obj.walls', f.walls.map((w, i) => ({ kind: 'wall', id: w.id, label: `${t('prop.wall')} ${i + 1} · ${wallLength(w).toFixed(1)} m` }))],
     ['obj.stairs', (f.stairs || []).map((s) => ({ kind: 'stair', id: s.id, label: s.name || t(`stair.${s.type}`) }))],
     ['obj.blocks', (f.blocks || []).map((b) => ({ kind: 'block', id: b.id, label: b.name || t('prop.block') }))],
+    ['obj.holes', (f.holes || []).map((h, i) => ({ kind: 'hole', id: h.id, label: `${t('prop.hole')} ${i + 1}` }))],
   );
   groups.forEach(([key, allItems, title]) => {
     const items = q ? allItems.filter((it) => it.label.toLowerCase().includes(q)) : allItems;
@@ -2969,6 +3150,7 @@ function renderProps() {
   else if (selection.kind === 'device') it = f.devices.find((x) => x.id === selection.id);
   else if (selection.kind === 'stair') it = (f.stairs || []).find((x) => x.id === selection.id);
   else if (selection.kind === 'block') it = (f.blocks || []).find((x) => x.id === selection.id);
+  else if (selection.kind === 'hole') it = (f.holes || []).find((x) => x.id === selection.id);
   else if (selection.kind === 'opening') it = findOpening(selection.id)?.opening;
   if (!it) { box.hidden = true; return; }
   box.hidden = false;
@@ -2994,6 +3176,8 @@ function renderProps() {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     body.append(field(t('prop.height'), lenInput(() => it.h || FLOOR_H, (v) => (it.h = Math.max(0.5, v)), { min: 0.5, step: 0.1 })));
     const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('block.help'); body.append(hp);
+  } else if (selection.kind === 'hole') {
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('hole.help'); body.append(hp);
   } else if (selection.kind === 'stair') {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     const dsel = document.createElement('select');
@@ -3195,7 +3379,8 @@ const dlg = $('#settingsDialog');
 const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
-  shadows: '#setShadows', showLabels: '#setLabels', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls', cutaway: '#setCutaway', wallStop: '#setWallStop',
+  shadows: '#setShadows', showLabels: '#setLabels', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
+  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', wallStop: '#setWallStop',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
@@ -3209,6 +3394,7 @@ function fillSettingsForm() {
     else el.value = String(settings[key]);
   }
   $('#earthMarginNote').hidden = !(layout.plot?.boundary?.length >= 3);
+  $('#weatherList').replaceChildren(...entities.filter((e) => e.entity_id.startsWith('weather.')).map((e) => { const o = document.createElement('option'); o.value = e.entity_id; o.label = e.name; return o; }));
   $('#setPerf').value = perfStored;
   renderTablets();
   renderStops('#tempStops', 'tempStops', '°C');
@@ -3298,6 +3484,7 @@ function readSettingsForm() {
   for (const [key, sel] of Object.entries(bindings)) {
     const el = $(sel);
     if (el.type === 'checkbox') next[key] = el.checked;
+    else if (key === 'idleReturn') next[key] = Math.max(0, parseFloat(el.value) || 0);   // 0 = off
     else if (el.type === 'number') {
       const v = parseFloat(el.value);
       if (Number.isFinite(v) && v > 0) next[key] = dispKeys.has(key) ? fromDisp(v) : v;
@@ -3429,7 +3616,7 @@ function normalizeLayout() {
     layout = { version: 1, floors: [{ id: uid(), name: t('floor.default'), walls: [], rooms: [], devices: [], blocks: [], stairs: [] }] };
   }
   layout.floors.forEach((f) => {
-    f.walls ||= []; f.rooms ||= []; f.devices ||= []; f.blocks ||= []; f.stairs ||= []; f.kind ||= 'floor';
+    f.walls ||= []; f.rooms ||= []; f.devices ||= []; f.blocks ||= []; f.stairs ||= []; f.holes ||= []; f.kind ||= 'floor';
     f.walls.forEach((w) => { w.openings ||= []; });
   });
 }
@@ -3441,7 +3628,7 @@ plan = createPlan({
   getSelection: () => selection,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
-  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
+  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, addHole, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
   groupToggle: (id) => groupToggle(id), groupPicked: () => groupPick,
   liveMoveDevice: (d) => liveMove(d),
@@ -3495,6 +3682,13 @@ function animate(now = performance.now()) {
     if (now - lastFrame < (idle ? (LOW ? 500 : 250) : 33)) return;
     lastFrame = now;
   }
+  if (alertPulses.length || controls.autoRotate || findMarker) wake();   // pulsing warnings, screen saver and the search ring move
+  if (alertPulses.length) { const k = 0.22 + 0.2 * Math.sin(now / 260); alertPulses.forEach((m) => { m.opacity = k; }); }
+  if (findMarker) {
+    const left = findMarker.until - now;
+    if (left <= 0) { scene.remove(findMarker.mesh); findMarker.mesh.geometry.dispose(); findMarker = null; }
+    else { const k = 1 + 0.35 * Math.sin(now / 120); findMarker.mesh.scale.set(k, k, k); findMarker.mesh.material.opacity = Math.min(1, left / 800); }
+  }
   controls.update();
   updateCutaway();
   animateOpenings();
@@ -3518,7 +3712,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, offline: () => offlineDevices(), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
+    get layout() { return layout; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alerts.map((a) => ({ kind: a.kind, entity: a.entity, at: a.at })), alertPulsing: () => alertPulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems, navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
     rebuild: () => build(),
@@ -3548,7 +3742,7 @@ if (params.get('debug')) {
     setWallStop: (v) => { settings.wallStop = v; },
     snapPicture: (id) => { const d = floor().devices.find((v) => v.id === id); snapToWall(d, 3, true); return [d.x, d.z, d.rot]; },
     group: (ids) => { ids.forEach((id) => groupPick.add(id)); makeGroup(); }, LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
-    holeCount: (i) => holesForFloor(layout.floors, i, FLOOR_H).length,
+    holeCount: (i) => floorOpenings(i).length,
     plan: () => plan,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
     pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, seg: h.data.seg } : null; },

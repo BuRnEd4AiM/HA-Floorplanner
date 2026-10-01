@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.10.0] - 2026-10-01
+### Added
+- **Floor opening** (*Bodenöffnung*): new tool in edit mode. Draw an opening into the floor of a level in the 2D plan (stairwell, gallery, void); the floor is open there and a placeholder block below is cut too. Select it to drag its corners, Del removes it
+- **Warnings** (#58): smoke, gas, carbon monoxide and water sensors, a triggered alarm panel and a window open while it rains (from the weather entity) show a red banner at the top and the room flashes red; a tap jumps into the room. Needs no setup. ⚙ can switch them off, jump to a new warning by itself, and choose the weather entity
+- **"Where is …?" search** (#62): the 🔍 button at the bottom left finds devices, windows and rooms on every floor by name; the camera goes there and a ring marks the device
+- **Wall-tablet kiosk** (#61), in ⚙ → *Wall tablet: warnings and kiosk*: back to the start view after some minutes without a touch, the house then turns slowly as a screen saver, and the view is dimmed at night (by the sun or by the clock); the first touch only wakes the screen
+
+Ideas for warnings, search and kiosk from [NeonPlan 3D](https://github.com/Mastershort/neonplan3d) (MIT).
+
 ## [3.9.5] - 2026-10-01
 ### Fixed
 - **Stairwell closed by a placeholder block**: when the floor below is a block (a floor you did not draw), the block filled the stair opening and hid the stair. The stairwell is now cut out of the block, so you look down the stair (#55)

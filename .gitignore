@@ -9,3 +9,6 @@ node_modules/
 tests/e2e/bg.png
 tests/e2e/stairs.png
 tests/e2e/backup.json
+
+# knowledge graph of the code (rebuilt at the start of every Claude Code session)
+graphify-out/

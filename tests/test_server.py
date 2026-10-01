@@ -509,3 +509,14 @@ def test_slim_state_says_since_when_an_entity_is_offline():
     st = {"entity_id": "light.a", "state": "unavailable", "last_changed": "2026-10-01T10:00:00+00:00", "attributes": {}}
     assert server.slim_state(st)["since"] == "2026-10-01T10:00:00+00:00"
     assert server.slim_state({**st, "state": "on"})["since"] is None
+
+
+def test_kiosk_and_alert_settings_are_validated():
+    s = server.validate_settings({"idleReturn": 5, "nightDim": "time", "nightFrom": "23:30", "nightTo": "6:00",
+                                  "weatherEntity": "weather.home", "alerts": False, "alertJump": True})
+    assert s["idleReturn"] == 5.0 and s["nightDim"] == "time" and s["nightFrom"] == "23:30"
+    assert s["nightTo"] == "06:00"            # not HH:MM: back to the default
+    assert s["weatherEntity"] == "weather.home" and s["alerts"] is False and s["alertJump"] is True
+    s = server.validate_settings({"idleReturn": 0, "nightDim": "always", "weatherEntity": "sensor.x", "idleReturn2": 1})
+    assert s["idleReturn"] == 0.0 and s["nightDim"] == "off" and s["weatherEntity"] == ""
+    assert server.validate_settings({"idleReturn": 999})["idleReturn"] == 240.0

@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="nightDim" hidden></div>
 <div id="app">
   <header id="toolbar">
     <div class="group" id="modeSwitch">
@@ -20,6 +21,7 @@
       <button data-tool="block" data-i18n="tool.block" data-i18n-title="tip.block"></button>
       <button data-tool="plot" data-i18n="tool.plot" data-i18n-title="tip.plot"></button>
       <button data-tool="stairs" data-i18n="tool.stairs" data-i18n-title="tip.stairs"></button>
+      <button data-tool="hole" data-i18n="tool.hole" data-i18n-title="tip.hole"></button>
       <button data-tool="opening" data-i18n="tool.opening" data-i18n-title="tip.opening"></button>
       <button data-tool="device" data-i18n="tool.device" data-i18n-title="tip.device"></button>
       <button data-tool="group" data-i18n="tool.group" data-i18n-title="tip.group"></button>
@@ -61,6 +63,13 @@
       <button id="navLeft" class="navArrow" type="button" hidden aria-label="‹">‹</button>
       <button id="navRight" class="navArrow" type="button" hidden aria-label="›">›</button>
       <div id="modeBar"><button class="pill active" data-vm="normal" data-i18n="vm.normal"></button><button class="pill" data-vm="temp" data-i18n="vm.temp"></button><button class="pill" data-vm="humid" data-i18n="vm.humid"></button></div>
+      <div id="alertBar" hidden></div>
+      <button id="findBtn" type="button" class="pill" data-i18n-title="find.title" aria-label="Search">🔍</button>
+      <div id="findBox" hidden>
+        <input id="findInput" type="search" autocomplete="off" data-i18n-placeholder="find.placeholder">
+        <ul id="findList"></ul>
+        <p id="findNone" class="sub" data-i18n="find.none" hidden></p>
+      </div>
       <div id="livePopup" hidden></div>
       <aside id="roomPanel" hidden></aside>
     </div>
@@ -264,6 +273,19 @@
     <datalist id="haUsers"></datalist>
     <div id="tabletRows"></div>
     <div class="stopTools"><button type="button" id="addTablet" data-i18n="set.addTablet"></button></div>
+
+    <h3 data-i18n="set.section.kiosk"></h3>
+    <p class="hint" data-i18n="set.kioskHelp"></p>
+    <div class="row check"><input id="setAlerts" type="checkbox"><label for="setAlerts" data-i18n="set.alerts"></label></div>
+    <div class="row check"><input id="setAlertJump" type="checkbox"><label for="setAlertJump" data-i18n="set.alertJump"></label></div>
+    <div class="row"><label for="setWeather" data-i18n="set.weather"></label><input id="setWeather" type="text" placeholder="weather.home" list="weatherList"></div>
+    <datalist id="weatherList"></datalist>
+    <div class="row"><label for="setIdleReturn" data-i18n="set.idleReturn"></label><input id="setIdleReturn" type="number" min="0" step="1"></div>
+    <div class="row check"><input id="setIdleOrbit" type="checkbox"><label for="setIdleOrbit" data-i18n="set.idleOrbit"></label></div>
+    <div class="row"><label for="setNightDim" data-i18n="set.nightDim"></label>
+      <select id="setNightDim"><option value="off" data-i18n="set.nightDim.off"></option><option value="sun" data-i18n="set.nightDim.sun"></option><option value="time" data-i18n="set.nightDim.time"></option></select></div>
+    <div class="row"><label for="setNightFrom" data-i18n="set.nightFrom"></label><input id="setNightFrom" type="time"></div>
+    <div class="row"><label for="setNightTo" data-i18n="set.nightTo"></label><input id="setNightTo" type="time"></div>
 
     <h3 data-i18n="set.section.look"></h3>
     <div class="row"><label for="setWallOpacity" data-i18n="set.wallOpacity"></label><input id="setWallOpacity" type="number" step="any" min="0.2" max="1"></div>

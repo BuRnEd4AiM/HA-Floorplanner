@@ -1,17 +1,18 @@
 import json
 from aiohttp import web
-STATE = {"light.wohnzimmer": "on", "sensor.temp": "21.5", "cover.rollo": "closed", "switch.garage": "off"}
+STATE = {"light.wohnzimmer": "on", "sensor.temp": "21.5", "cover.rollo": "closed", "switch.garage": "off", "binary_sensor.rauch": "off"}
 CALLS = []
 SUBS = []          # websocket subscribers of state_changed (the add-on's live channel)
-NAMES = {"light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage"}
+NAMES = {"light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder"}
 def state_of(e):
     attrs = {"friendly_name": NAMES[e]}
     if e == "sensor.temp": attrs["unit_of_measurement"] = "°C"
+    if e == "binary_sensor.rauch": attrs["device_class"] = "smoke"
     return {"entity_id": e, "state": STATE[e], "attributes": attrs}
 async def states(r):
     return web.json_response([state_of("light.wohnzimmer"), state_of("sensor.temp"),
       {"entity_id":"scene.gaming","state":"unknown","attributes":{"friendly_name":"Gaming","entity_id":["light.wohnzimmer","light.andere"]}},
-      state_of("cover.rollo"), state_of("switch.garage")])
+      state_of("cover.rollo"), state_of("switch.garage"), state_of("binary_sensor.rauch")])
 async def push(e):
     for ws, sid in list(SUBS):
         try: await ws.send_json({"id": sid, "type": "event", "event": {"event_type": "state_changed", "data": {"entity_id": e, "new_state": state_of(e)}}})

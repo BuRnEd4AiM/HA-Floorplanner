@@ -197,6 +197,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 - One Home Assistant user per tablet: it starts in **its own room** and sees only the views you allow
 - **Low-power mode** for Fire tablets and other weak devices (automatic in kiosk mode and on touch screens): lower resolution, throttled animation, no shadows, blur or glow. ⚙ **Performance on this device** switches it per tablet
+- **Warnings** for smoke, gas, CO, water, alarm and windows open in the rain (red banner, the room flashes), a **"Where is …?" search**, and a **kiosk mode**: back to the start view when idle, screen-saver turn, night dimming
 - **Devices offline** at a glance: a pill over the plan shows how many placed devices are unavailable, unknown, missing in Home Assistant or not linked, with a list that jumps to each one
 - Floor and room buttons **scroll sideways** with ‹ › arrows when they do not fit the screen
 - Open a specific house with `?house=Parents`

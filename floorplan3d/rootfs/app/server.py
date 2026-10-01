@@ -49,6 +49,14 @@ DEFAULT_SETTINGS = {
     "earth": "solid",          # ground around the house: off | glass | solid (cut open on the camera's side)
     "earthMargin": 5.0,        # metres of lawn around the house when no plot (Grundstück) is drawn
     "wallStop": True,          # devices cannot be dragged through walls (doors let them pass)
+    "alerts": True,            # smoke, gas, CO, water, alarm and windows open in the rain: banner + red room
+    "alertJump": False,        # jump to the room of a new warning by itself (wall tablets)
+    "weatherEntity": "",       # weather.* for "window open in the rain"; empty = the first one
+    "idleReturn": 0.0,         # wall tablets: minutes without a touch until the start view returns (0 = off)
+    "idleOrbit": False,        # ... and the house then turns slowly (screen saver)
+    "nightDim": "off",         # off | sun | time: dim the live view at night
+    "nightFrom": "22:00",
+    "nightTo": "06:00",
     "belowVisibility": 0.5,    # how clearly floors below the current one shine through (0.05..1)
     "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
     "glowRadius": 3.5,         # metres a lamp lights up
@@ -67,7 +75,7 @@ DEFAULT_SETTINGS = {
     "humidStops": [{"v": 30, "c": "#e8d9a0"}, {"v": 50, "c": "#4fd0c8"}, {"v": 65, "c": "#2a7bff"},
                    {"v": 80, "c": "#5a3aff"}],
 }
-RANGES = {"belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0)}
+RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0)}
 VIEWS = ("3d", "2d", "split", "all")
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 EMPTY_LAYOUT = {
@@ -356,6 +364,13 @@ def validate_settings(data: dict) -> dict:
         out["units"] = DEFAULT_SETTINGS["units"]
     if out["earth"] not in ("off", "glass", "solid"):
         out["earth"] = DEFAULT_SETTINGS["earth"]
+    if out["nightDim"] not in ("off", "sun", "time"):
+        out["nightDim"] = DEFAULT_SETTINGS["nightDim"]
+    for key in ("nightFrom", "nightTo"):
+        if not re.match(r"^([01]\d|2[0-3]):[0-5]\d$", out[key]):
+            out[key] = DEFAULT_SETTINGS[key]
+    if out["weatherEntity"] and not re.match(r"^weather\.[a-z0-9_]+$", out["weatherEntity"]):
+        out["weatherEntity"] = ""
     return out
 
 
