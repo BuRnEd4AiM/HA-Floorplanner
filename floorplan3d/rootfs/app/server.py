@@ -33,8 +33,9 @@ MAX_BG_BYTES = 8 * 1024 * 1024
 ALLOWED_DOMAINS = {"light", "switch", "cover", "fan", "media_player", "climate", "lock", "scene", "script", "input_boolean"}
 SERVICES = {"toggle", "turn_on", "turn_off", "open_cover", "close_cover", "stop_cover", "lock", "unlock", "set_cover_position"}
 
+LANGUAGES = ("auto", "de", "en", "fr", "es", "it", "nl", "pl")
 DEFAULT_SETTINGS = {
-    "language": "de",          # de | en
+    "language": "de",          # auto | de | en | fr | es | it | nl | pl
     "theme": "holo",           # holo | dark | light
     "units": "metric",         # metric | imperial
     "grid": 0.25,              # meters
@@ -344,7 +345,7 @@ def validate_settings(data: dict) -> dict:
     out["userViews"] = {k: v for k, v in out["userViews"].items() if v in VIEWS}
     for key, (lo, hi) in RANGES.items():
         out[key] = min(hi, max(lo, out[key]))
-    if out["language"] not in ("de", "en"):
+    if out["language"] not in LANGUAGES:
         out["language"] = DEFAULT_SETTINGS["language"]
     if out["theme"] not in ("holo", "dark", "light"):
         out["theme"] = DEFAULT_SETTINGS["theme"]

@@ -6,7 +6,7 @@ import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCus
 import {
   OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
 } from './walls.js';
-import { t, setLanguage, applyI18n } from './i18n.js';
+import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { STAIR_TYPES, stairDefaults, stairBounds, stairLocal, polyToWorld, holesForFloor, toWorld, stairCounts, stairLength, stairHandles } from './stairs.js';
@@ -903,7 +903,7 @@ async function switchHouse(id) {
   clearFocusOutline(); renderHouseUi();
   build(); fitCamera(); buildNav(true); renderBgPanel(); renderFloorPanel(); renderObjList(); refreshSelection();
 }
-initImport({ t, lang: () => settings.language, houseId: () => houseId, onImported: async (j) => {
+initImport({ t, lang: () => currentLanguage(), houseId: () => houseId, onImported: async (j) => {
   houses.push({ id: j.id, name: j.name });
   await switchHouse(j.id);
   setStatus(t('imp.done').replace('{name}', j.name));

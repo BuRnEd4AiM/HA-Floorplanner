@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-10-01
+### Added
+- **Multilingual interface**: Deutsch, English, **Français, Español, Italiano, Nederlands and Polski**. Pick it in ⚙ → Language; *Auto* follows the browser / Home Assistant language. Missing texts fall back to English
+- The heat / humidity switch at the bottom is translated, too
+- Tests make sure every language has exactly the same texts and placeholders, so a new text can never be forgotten
+
 ## [3.0.1] - 2026-10-01
 ### Changed
 - Import guide redesigned: screenshots, preset table, error table, callouts; import section with pictures in the README

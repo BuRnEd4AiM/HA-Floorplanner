@@ -503,6 +503,17 @@ with sync_playwright() as p:
     fl = pg11.evaluate("window.__fp.layout.floors.length")
     check("import: creates a new house and switches to it", nh2 == nh + 1 and fl == 1 and pg11.locator("#importDialog[open]").count() == 0, (nh, nh2, fl))
     pg11.close()
+    pg12 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "florian"})
+    shots = os.path.join(os.path.dirname(__file__), "lang")
+    os.makedirs(shots, exist_ok=True)
+    for code, word in (("fr", "Mur"), ("es", "Pared"), ("it", "Parete"), ("nl", "Muur"), ("pl", "Ściana")):
+        pg12.request.put(BASE + "api/settings", data=json.dumps({"language": code}), headers={"Content-Type": "application/json"})
+        pg12.goto(BASE + "?debug=1&mode=edit"); pg12.wait_for_timeout(1200)
+        txt = pg12.inner_text("#toolbar")
+        pg12.screenshot(path=os.path.join(shots, code + ".png"))
+        check("UI switches to " + code, word in txt, txt[:200])
+    pg12.request.put(BASE + "api/settings", data=json.dumps({"language": "de"}), headers={"Content-Type": "application/json"})
+    pg12.close()
     b.close()
 
 bad = [e for e in errors if "favicon" not in e]
