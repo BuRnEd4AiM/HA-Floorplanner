@@ -8,6 +8,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Fixed
 - **Stairwell closed by a placeholder block**: when the floor below is a block (a floor you did not draw), the block filled the stair opening and hid the stair. The stairwell is now cut out of the block, so you look down the stair (#55)
 
+### Changed
+- **New screenshots and screen recordings** in the dark theme instead of the hologram look: README, quick tour, import guide (German and English) and the import recording; the downloadable demo opens in the dark theme too
+- Radiators and hot-water tanks without an entity are no longer listed as *Not linked* (they are often just drawn)
+
 ## [3.9.4] - 2026-10-01
 ### Fixed
 - **Stairs seen from the floor above**: the stair that comes up into the floor shown is drawn solid through its opening, instead of as faint as the rest of the floor below, so the stairwell reads as an opening with a stair in it

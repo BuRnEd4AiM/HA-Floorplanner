@@ -924,6 +924,7 @@ function applyStates() {
 /* ---- Offline devices: every placed entity that Home Assistant reports as unavailable (or unknown), or that does not
    exist any more (renamed / deleted), in one list that is always one tap away ---- */
 const SMART_CATS = new Set(['lighting', 'smart']);   // devices that belong to an entity (furniture, garden and pictures do not)
+const NOT_SMART = new Set(['tv_led', 'radiator', 'boiler']);   // a radiator or a hot-water tank is often just drawn, without an entity
 const UNKNOWN_IS_FINE = new Set(['scene', 'script', 'automation', 'button', 'input_button', 'event', 'input_text', 'text', 'notify', 'tts', 'conversation']);
 /** why an entity counts as offline: 'unavailable' | 'unknown' | 'missing', or null when it is fine */
 function offlineReason(id) {
@@ -948,7 +949,7 @@ function offlineDevices() {
   layout.floors.forEach((f, fi) => {
     f.devices.forEach((d) => {
       const name = d.name || entities.find((e) => e.entity_id === d.entity)?.name || t(`dev.${d.type}`);
-      const smart = SMART_CATS.has(catOf(d.type)) && d.type !== 'tv_led';
+      const smart = SMART_CATS.has(catOf(d.type)) && !NOT_SMART.has(d.type);
       if (smart && !d.entity && !(d.type === 'ledring' && ringEntities(d).length)) {   // a lamp or sensor without its Home Assistant entity
         const room = f.rooms.find((r) => pointInPoly(d.x, d.z, r.points));
         out.push({ entity: '', reason: 'unlinked', since: null, floor: fi, kind: 'device', id: d.id, name, room: room?.name || '' });

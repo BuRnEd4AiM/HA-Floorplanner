@@ -18,9 +18,9 @@
 
 <sub>One HTML file with an example house, lights and sensors: double-click it, no Home Assistant needed.</sub>
 
-<img src="docs/img/3d.png" alt="3D hologram view of an apartment with live lights, sensors and open windows" width="900">
+<img src="docs/img/3d.png" alt="3D view of a house on its plot with live lights, sensors and open windows" width="900">
 
-*Your own floor plan as a glowing 3D hologram on its plot, live with your real lights, sensors, windows and scenes.*
+*Your own floor plan in 3D on its plot, live with your real lights, sensors, windows and scenes.*
 
 <img src="docs/img/overview.gif" alt="Quick tour: live 3D view, room control, heat and humidity, whole house with the basement in the ground, LED ring, 2D plan, split view and the device library" width="900">
 
@@ -203,7 +203,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 ### 🎨 Look
 
-Hologram, dark and light theme, metric or imperial units, and 7 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski).
+Dark and light theme, a hologram look as a gimmick, metric or imperial units, and 7 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski).
 
 ## 📦 Installation
 
