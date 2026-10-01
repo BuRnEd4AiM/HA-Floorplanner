@@ -4,6 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.8.0] - 2026-10-01
+### Added
+- **Draw your plot (Grundstück)**: new tool *Plot* in edit mode. Click the corners in the 2D plan, close with a double click, Enter or a click on the first point; the lawn then has exactly that shape. *Delete plot* removes it again
+- New setting **⚙ → Lawn around the house without a plot (m)**: how far the lawn reaches beyond the house (default 5 m)
+
+### Fixed
+- The lawn now reaches around **placeholder blocks** too, not only around rooms (a house built from blocks had only a tiny lawn)
+- **Garden objects** (lawn, terrace, path, pool, trees …) are cut open together with the earth, so an imported garden lawn no longer covers the basement section
+- The **grid** no longer lies over the lawn in the floor views; it only shows while a drawing tool is active
+
 ## [3.7.1] - 2026-10-01
 ### Changed
 - The floor plan **opens on the ground floor** instead of the basement (also after switching or importing a house)

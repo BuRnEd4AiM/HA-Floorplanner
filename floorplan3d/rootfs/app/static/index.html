@@ -18,6 +18,7 @@
       <button data-tool="wall" data-i18n="tool.wall" data-i18n-title="tip.wall"></button>
       <button data-tool="room" data-i18n="tool.room" data-i18n-title="tip.room"></button>
       <button data-tool="block" data-i18n="tool.block" data-i18n-title="tip.block"></button>
+      <button data-tool="plot" data-i18n="tool.plot" data-i18n-title="tip.plot"></button>
       <button data-tool="stairs" data-i18n="tool.stairs" data-i18n-title="tip.stairs"></button>
       <button data-tool="opening" data-i18n="tool.opening" data-i18n-title="tip.opening"></button>
       <button data-tool="device" data-i18n="tool.device" data-i18n-title="tip.device"></button>
@@ -114,6 +115,12 @@
       <section id="groupPalette" hidden>
         <h3 data-i18n="tool.group"></h3>
         <div id="groupBody"></div>
+      </section>
+
+      <section id="plotPalette" hidden>
+        <h3 data-i18n="plot.title"></h3>
+        <p class="sub" data-i18n="plot.help"></p>
+        <div class="stopTools"><button type="button" id="plotClear" data-i18n="plot.clear"></button></div>
       </section>
 
       <section id="blockPalette" hidden>
@@ -233,6 +240,7 @@
     <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
     <div class="row"><label for="setEarth" data-i18n="set.earth"></label>
       <select id="setEarth"><option value="solid" data-i18n="set.earth.solid"></option><option value="glass" data-i18n="set.earth.glass"></option><option value="off" data-i18n="set.earth.off"></option></select></div>
+    <div class="row"><label for="setEarthMargin" data-i18n="set.earthMargin"></label><input id="setEarthMargin" type="number" step="any"></div>
     <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
 
     <h3 data-i18n="set.section.tablets"></h3>

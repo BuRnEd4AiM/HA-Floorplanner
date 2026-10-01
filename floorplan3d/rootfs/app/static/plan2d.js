@@ -467,17 +467,17 @@ export function createPlan(ctx) {
       const tpl = { ...ctx.getStairTemplate(), x: cursor[0], z: cursor[1] };
       o += drawStair(tpl, false, true) + (tpl.dir === 'down' ? holeOf(tpl) : '');
     }
-    if (!live && (tool === 'wall' || tool === 'room' || tool === 'block') && drawPts.length) {
+    if (!live && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot') && drawPts.length) {
       const pl = cursor ? [...drawPts, cursor] : drawPts;
       o += `<polyline points="${pts(pl)}" fill="none" stroke="${C.accent}" stroke-width="2.5" stroke-dasharray="6 4"/>`;
-      if ((tool === 'room' || tool === 'block') && drawPts.length >= 2) o += `<polygon points="${pts(pl)}" fill="rgba(35,224,255,.12)" stroke="none"/>`;
+      if ((tool === 'room' || tool === 'block' || tool === 'plot') && drawPts.length >= 2) o += `<polygon points="${pts(pl)}" fill="rgba(35,224,255,.12)" stroke="none"/>`;
       drawPts.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="4" fill="${C.accent}"/>`; });
       if (cursor) {
         const last = drawPts[drawPts.length - 1], L = Math.hypot(cursor[0] - last[0], cursor[1] - last[1]);
         o += `<text x="${sx((cursor[0] + last[0]) / 2)}" y="${sy((cursor[1] + last[1]) / 2) - 8}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.accent}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(ctx.fmtLen(L))}</text>`;
       }
     }
-    if (!live && cursor && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'device' || tool === 'stairs')) o += `<circle cx="${sx(cursor[0])}" cy="${sy(cursor[1])}" r="5" fill="none" stroke="${C.accent}" stroke-width="1.5"/>`;
+    if (!live && cursor && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'device' || tool === 'stairs')) o += `<circle cx="${sx(cursor[0])}" cy="${sy(cursor[1])}" r="5" fill="none" stroke="${C.accent}" stroke-width="1.5"/>`;
 
     if (!live && bgMode === 'move' && bg?.img && !bg.hidden) {   // frame and corner handles of the template
       const cs = bgCorners(bg);
@@ -776,7 +776,7 @@ export function createPlan(ctx) {
     if (tool === 'stairs') {
       cursor = snapPt(x, z, { fine: true, ends: false });
       render();
-    } else if (tool === 'wall' || tool === 'room' || tool === 'block') {
+    } else if (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot') {
       let p = snapPt(x, z, { free: e.altKey });
       if (drawPts.length && tool === 'wall' && shift) p = angleSnap(drawPts[drawPts.length - 1], p);
       cursor = p;
@@ -841,7 +841,7 @@ export function createPlan(ctx) {
       const now = performance.now();
       const dbl = lastTap && now - lastTap.t < 400 && Math.hypot(px - lastTap.px, py - lastTap.py) < 8;
       lastTap = { t: now, px, py };
-      if (dbl && (tool === 'wall' || tool === 'room' || tool === 'block')) { if (tool === 'wall') cancel(); else finishRoom(); return; }   // double tap ends the chain
+      if (dbl && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot')) { if (tool === 'wall') cancel(); else finishRoom(); return; }   // double tap ends the chain
       placeWith(tool, x, z, e);
     }
   });
@@ -864,7 +864,7 @@ export function createPlan(ctx) {
     } else if (tool === 'stairs') {
       const [px2, pz2] = snapPt(x, z, { fine: true, ends: false });
       ctx.placeStair(px2, pz2);
-    } else if (tool === 'room' || tool === 'block') {
+    } else if (tool === 'room' || tool === 'block' || tool === 'plot') {
       const p = snapPt(x, z, { free: e.altKey });
       if (drawPts.length >= 3 && Math.hypot(p[0] - drawPts[0][0], p[1] - drawPts[0][1]) < 0.01) { finishRoom(); return; }
       drawPts.push(p);
@@ -892,7 +892,9 @@ export function createPlan(ctx) {
   }
 
   function finishRoom() {
-    if (drawPts.length >= 3 && ctx.getTool() === 'block') {
+    if (drawPts.length >= 3 && ctx.getTool() === 'plot') {
+      ctx.setPlot(drawPts.map((p) => [...p]));                  // the plot (Grundstück): the lawn takes its shape
+    } else if (drawPts.length >= 3 && ctx.getTool() === 'block') {
       ctx.addBlock(drawPts.map((p) => [...p]));
     } else if (drawPts.length >= 3) {
       ctx.snapshot();
@@ -907,7 +909,7 @@ export function createPlan(ctx) {
     if (isLive()) return;
     const tool = ctx.getTool();
     if (tool === 'wall') cancel();
-    else if (tool === 'room' || tool === 'block') finishRoom();
+    else if (tool === 'room' || tool === 'block' || tool === 'plot') finishRoom();
     else if (tool === 'select') {
       const [px, py] = local(e);
       const x = wx(px), z = wz(py);

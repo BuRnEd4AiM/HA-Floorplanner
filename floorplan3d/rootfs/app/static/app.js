@@ -21,7 +21,7 @@ const params = new URLSearchParams(location.search);
 
 let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true, wallStop: true, earth: 'solid',
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true, wallStop: true, earth: 'solid', earthMargin: 5,
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
   userRooms: {}, userViews: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
@@ -303,7 +303,7 @@ const roomMeshes = new Map();     // room id -> { mesh, room }
 /* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing ---- */
 const earthCut = new THREE.Plane(new THREE.Vector3(0, -1, 0), -1000);   // nothing cut until the camera says where
 let earthInfo = null;                                                   // { cx, cz, corners ... } of the house footprint while the earth is cut
-let earthLawn = false;                                                  // solid ground is drawn: the lawn replaces the grid
+let earthLawn = false, earthBox = null;                                                  // solid ground is drawn: the lawn replaces the grid
 /** outline of the house at ground level: walls (with their thickness) and rooms of the basements and the ground floor */
 function houseFootprint() {
   const polys = [];
@@ -314,7 +314,7 @@ function houseFootprint() {
       const t = (w.thickness || 0.2) / 2 + 0.01, nx = (-dz / L) * t, nz = (dx / L) * t, ex = (dx / L) * t, ez = (dz / L) * t;
       polys.push([[[w.a[0] - ex + nx, w.a[1] - ez + nz], [w.b[0] + ex + nx, w.b[1] + ez + nz], [w.b[0] + ex - nx, w.b[1] + ez - nz], [w.a[0] - ex - nx, w.a[1] - ez - nz], [w.a[0] - ex + nx, w.a[1] - ez + nz]]]);
     });
-    f.rooms.forEach((r) => { if (r.points.length >= 3) polys.push([[...r.points.map((p) => [p[0], p[1]]), [r.points[0][0], r.points[0][1]]]]); });
+    [...f.rooms, ...(f.blocks || [])].forEach((r) => { if (r.points.length >= 3) polys.push([[...r.points.map((p) => [p[0], p[1]]), [r.points[0][0], r.points[0][1]]]]); });   // placeholder blocks are house too
   });
   if (!polys.length) return [];
   try { return polygonClipping.union(...polys).map((poly) => poly[0].slice(0, -1)); } catch { return []; }   // outer rings only
@@ -336,12 +336,21 @@ function buildEarth(world, holo) {
   if (!foot.length) return;
   const xs = foot.flat().map((p) => p[0]), zs = foot.flat().map((p) => p[1]);
   const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
-  const margin = Math.max(4, Math.max(x1 - x0, z1 - z0) * 0.35);
+  const all = layout.floors.flatMap((f) => [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...(f.blocks || []).flatMap((b) => b.points)]);
+  const ax = all.map((p) => p[0]), az = all.map((p) => p[1]);                  // the whole house, upper floors and blocks included
+  const [hx0, hx1, hz0, hz1] = [Math.min(x0, ...ax), Math.max(x1, ...ax), Math.min(z0, ...az), Math.max(z1, ...az)];
+  const margin = Math.max(0.5, +settings.earthMargin || 5);                      // ⚙ "lawn around the house"
+
   const outline = layout.plot?.boundary?.length >= 3 ? layout.plot.boundary
-    : [[x0 - margin, z0 - margin], [x1 + margin, z0 - margin], [x1 + margin, z1 + margin], [x0 - margin, z1 + margin]];
+    : [[hx0 - margin, hz0 - margin], [hx1 + margin, hz0 - margin], [hx1 + margin, hz1 + margin], [hx0 - margin, hz1 + margin]];
   const nb = groundIdx(), depth = nb > 0 ? nb * FLOOR_H + 0.4 : 0.4;   // without a basement: a slab of ground the house stands on
+  let holes = foot;
+  if (layout.plot?.boundary?.length >= 3) {                     // a plot smaller than the house: only cut out what lies on it
+    try { holes = polygonClipping.intersection(foot.map((r) => [[...r, r[0]]]), [[...outline, outline[0]]]).map((poly) => poly[0].slice(0, -1)); } catch { /* keep the house outline */ }
+  }
+  earthBox = [Math.min(...outline.map((p) => p[0])), Math.max(...outline.map((p) => p[0])), Math.min(...outline.map((p) => p[1])), Math.max(...outline.map((p) => p[1]))];
   const shape = new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, -z)));
-  foot.forEach((ring) => shape.holes.push(new THREE.Path(ring.map(([x, z]) => new THREE.Vector2(x, -z)))));
+  holes.forEach((ring) => shape.holes.push(new THREE.Path(ring.map(([x, z]) => new THREE.Vector2(x, -z)))));
   const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: false, curveSegments: 1 });
   geo.rotateX(-Math.PI / 2);
   geo.translate(0, -depth - 0.02, 0);
@@ -362,7 +371,7 @@ function buildEarth(world, holo) {
   if (cut) {
     const cap = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ map: tex, color: holo ? 0x8a6a8a : 0xffffff, transparent: holo, opacity: holo ? 0.9 : 1, side: THREE.DoubleSide }));
     world.add(cap);
-    earthInfo = { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, corners: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]], rings: [outline, ...foot], depth, cap, key: '' };
+    earthInfo = { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, corners: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]], rings: [outline, ...holes], depth, cap, key: '' };
   }
   updateEarthCut();
 }
@@ -390,7 +399,7 @@ function earthCapGeometry(px, pz, ux, uz, rings, depth) {
 }
 /** the cut follows the camera: the earth in front of the facade that faces the camera is taken away, like a section drawing */
 function updateEarthCut() {
-  if (grid) grid.visible = !(earthLawn && (isLive() || houseMode));   // the lawn is the ground; the grid only while drawing
+  if (grid) grid.visible = !(earthLawn && (isLive() || houseMode || tool === 'select'));   // the lawn is the ground; the grid only while drawing
   if (!earthInfo) return;
   let dx = camera.position.x - earthInfo.cx, dz = camera.position.z - earthInfo.cz;
   const L = Math.hypot(dx, dz);
@@ -713,6 +722,12 @@ function build() {
       }
     });
   });
+  if (earthInfo) {                              // garden things at ground level are cut open with the earth, so nothing lies over the basement
+    layout.floors.slice(0, groundIdx() + 1).forEach((f) => f.devices.forEach((d) => {
+      if (!OUTDOOR.has(d.type) || d.type === 'picture') return;
+      registry.get(d.id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { m.clippingPlanes = [earthCut]; m.needsUpdate = true; }); });
+    }));
+  }
   applyStates();
   refreshSelection();
   buildNav();
@@ -1441,7 +1456,7 @@ function deleteItem({ kind, id }) {
 window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
-  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block')) { plan.finishRoom(); return; }
+  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot')) { plan.finishRoom(); return; }
   if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (bgMode) setBgMode(null); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
@@ -1862,10 +1877,11 @@ function setTool(next) {
   $('#openingPalette').hidden = next !== 'opening';
   $('#stairPalette').hidden = next !== 'stairs';
   $('#blockPalette').hidden = next !== 'block';
+  $('#plotPalette').hidden = next !== 'plot';
   $('#groupPalette').hidden = next !== 'group';
   if (next !== 'group' && groupPick.size) { groupPick.clear(); plan?.render(); }
   if (next === 'group') renderGroupPalette();
-  if ((next === 'block' || next === 'stairs') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
+  if ((next === 'block' || next === 'stairs' || next === 'plot') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
   canvas.style.cursor = next === 'select' ? 'default' : 'crosshair';
 }
 document.querySelectorAll('#tools button').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
@@ -2328,6 +2344,20 @@ function buildStair(st, holo, ghost, edgeMaterial) {
   return g;
 }
 
+/** the plot (Grundstück) drawn in the 2D plan: the lawn and the earth take its shape; replaces an earlier one */
+function setPlot(points) {
+  snapshot();
+  layout.plot = { ...(layout.plot || {}), boundary: points };
+  changed();
+  setStatus(t('plot.set'));
+}
+$('#plotClear').addEventListener('click', () => {
+  if (!layout.plot?.boundary) return;
+  snapshot();
+  delete layout.plot.boundary;
+  if (!Object.keys(layout.plot).length) delete layout.plot;
+  changed(); plan?.render();
+});
 function addBlock(points) {
   const target = blockTargetFloor();
   snapshot();
@@ -3027,11 +3057,11 @@ const dlg = $('#settingsDialog');
 const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
-  shadows: '#setShadows', showLabels: '#setLabels', earth: '#setEarth', lowWalls: '#setLowWalls', cutaway: '#setCutaway', wallStop: '#setWallStop',
+  shadows: '#setShadows', showLabels: '#setLabels', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls', cutaway: '#setCutaway', wallStop: '#setWallStop',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
-const dispKeys = new Set(['wallHeight', 'wallThickness', 'glowRadius', 'glowHeight']);
+const dispKeys = new Set(['wallHeight', 'wallThickness', 'glowRadius', 'glowHeight', 'earthMargin']);
 
 function fillSettingsForm() {
   for (const [key, sel] of Object.entries(bindings)) {
@@ -3267,7 +3297,7 @@ plan = createPlan({
   getSelection: () => selection,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
-  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
+  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
   groupToggle: (id) => groupToggle(id), groupPicked: () => groupPick,
   liveMoveDevice: (d) => liveMove(d),
@@ -3350,7 +3380,8 @@ if (params.get('debug')) {
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
     liveOk: () => liveOk,
-    earthDbg: () => ({ n: earthCut.normal.toArray(), c: earthCut.constant, solid: earthLawn, cut: !!earthInfo, capVisible: !!earthInfo?.cap.visible, capVerts: earthInfo?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible }),
+    clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earthCut))) n++; }); return n; },
+    earthDbg: () => ({ n: earthCut.normal.toArray(), c: earthCut.constant, solid: earthLawn, cut: !!earthInfo, capVisible: !!earthInfo?.cap.visible, capVerts: earthInfo?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earthBox }),
     stateOf: (e) => states[e]?.state,
     fakeState(e, st) { states[e] = { ...(states[e] || {}), state: st }; applyOpenings(); },
     has: (id) => registry.has(id),

@@ -495,3 +495,11 @@ async def test_earth_setting_accepts_known_modes_only(client):
         assert (await (await client.put("/api/settings", json={**s, "earth": mode})).json())["earth"] == mode
         s = await (await client.get("/api/settings")).json()
     assert (await (await client.put("/api/settings", json={**s, "earth": "mud"})).json())["earth"] == "solid"
+
+
+async def test_earth_margin_is_a_clamped_length(client):
+    s = await (await client.get("/api/settings")).json()
+    assert s["earthMargin"] == 5.0
+    assert (await (await client.put("/api/settings", json={**s, "earthMargin": 12})).json())["earthMargin"] == 12.0
+    s = await (await client.get("/api/settings")).json()
+    assert (await (await client.put("/api/settings", json={**s, "earthMargin": 5000})).json())["earthMargin"] == 100.0

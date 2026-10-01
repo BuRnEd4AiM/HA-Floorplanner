@@ -635,7 +635,33 @@ with sync_playwright() as p:
     pg16.evaluate("window.__fp.setHouseMode(true)"); pg16.wait_for_timeout(500)
     e2 = pg16.evaluate("window.__fp.earthDbg()")
     check("ground: can be switched off in the settings", not e2["solid"], e2)
-    pg16.evaluate("(s) => fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...s, earth: 'solid' }) })", pg16.evaluate("fetch('api/settings').then(r => r.json())"))
+    pg16.evaluate("(s) => fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...s, earth: 'solid', earthMargin: 3 }) })", pg16.evaluate("fetch('api/settings').then(r => r.json())"))
+    pg16.reload(); pg16.wait_for_timeout(1500)
+    # placeholder blocks are part of the house: the lawn reaches around them (3 m, the setting above)
+    pg16.evaluate("""(() => { const L = window.__fp.layout; const f = L.floors[window.__fp.floorIdx()]; delete L.plot;
+      (f.blocks ||= []).push({ id: 'bigblock', name: 'Block', points: [[40, 0], [60, 0], [60, 10], [40, 10]] }); window.__fp.rebuild(); })()""")
+    pg16.wait_for_timeout(300)
+    bx = pg16.evaluate("window.__fp.earthDbg()")["box"]
+    pg16.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+      f.devices.push({ id: 'glawn', type: 'lawn', x: 3, z: 8, y: 0, rot: 0, scale: 2, name: 'Rasen', entity: '' }, { id: 'gtree', type: 'tree', x: -3, z: 2, y: 0, rot: 0, scale: 1, name: 'Baum', entity: '' }); window.__fp.rebuild(); })()""")
+    pg16.wait_for_timeout(300)
+    check("ground: garden objects at ground level are cut open with the earth", pg16.evaluate("window.__fp.clipped('glawn')") > 0 and pg16.evaluate("window.__fp.clipped('gtree')") > 0)
+    check("ground: the lawn reaches around placeholder blocks, as wide as the setting", bx and abs(bx[1] - 63) < 0.01 and bx[3] >= 12.99, bx)
+    # the plot drawn in the 2D plan gives the lawn its shape; it can be deleted again
+    pg16.locator("#modeSwitch button[data-mode=edit]").click(); pg16.wait_for_timeout(500)
+    check("ground: no grid over the lawn in edit mode while selecting", not pg16.evaluate("window.__fp.earthDbg()")["gridShown"])
+    pg16.click("button[data-tool=wall]"); pg16.wait_for_timeout(300)
+    check("ground: the grid comes back while drawing", pg16.evaluate("window.__fp.earthDbg()")["gridShown"])
+    pg16.click("button[data-tool=select]"); pg16.wait_for_timeout(200)
+    pg16.click("#view2d"); pg16.wait_for_timeout(1200); pg16.click("button[data-tool=plot]"); pg16.wait_for_timeout(500)
+    pg16.evaluate("window.__fp.plan().fit()"); pg16.wait_for_timeout(300)
+    for (x, z) in [(1, 1), (5, 1), (5, 4), (1, 4), (1, 1)]:
+        c = pg16.evaluate(f"window.__fp.plan().toClient({x},{z})"); pg16.mouse.click(*c); pg16.wait_for_timeout(450)
+    pl = pg16.evaluate("window.__fp.layout.plot")
+    bx2 = pg16.evaluate("window.__fp.earthDbg()")["box"]
+    check("ground: a plot drawn in the 2D plan shapes the lawn", pl and pl.get("boundary") == [[1, 1], [5, 1], [5, 4], [1, 4]] and bx2 == [1, 5, 1, 4], (pl, bx2))
+    pg16.click("#plotClear"); pg16.wait_for_timeout(300)
+    check("ground: the plot can be deleted again", not (pg16.evaluate("window.__fp.layout.plot") or {}).get("boundary"))
     pg16.close()
     pg11 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg11.goto(BASE + "?debug=1&mode=edit"); pg11.wait_for_timeout(1500)
