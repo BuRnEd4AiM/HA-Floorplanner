@@ -480,6 +480,9 @@ with sync_playwright() as p:
     pg10.click("#modeSwitch button[data-mode=edit]"); pg10.wait_for_timeout(500)
     shown = pg10.evaluate("window.__fp.isShown('nano1')")
     check("invisible light is hidden in live mode only", hid is False and shown is True, (hid, shown))
+    pg10.evaluate("(() => { const f = window.__fp.layout.floors[0]; f.devices.push({id:'tvx', type:'tv_wall', x:3, z:2, y:1.2, rot:0, scale:1, name:'TV', entity:'', ledEntity:'light.wohnzimmer'}, {id:'tvy', type:'tv', x:5, z:2, y:0.5, rot:0, scale:1, name:'TV2', entity:''}); window.__fp.rebuild(); })()")
+    pg10.wait_for_timeout(300)
+    check("TV with a backlight entity shows its built-in LED frame", pg10.evaluate("window.__fp.ledShown('tvx')") is True and pg10.evaluate("window.__fp.ledShown('tvy')") is False)
     pg10.close()
     b.close()
 
