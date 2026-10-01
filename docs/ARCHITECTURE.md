@@ -39,3 +39,8 @@ The layout is plain JSON: floors → walls (with openings), rooms, devices. Both
 ## Tests
 
 `pytest` covers the backend (validation, permissions, admin detection). `tests/e2e` drives the real UI in headless Chromium against the real server and a mock Home Assistant. The demo (`demo/`) runs the same frontend with a fake API for screenshots and quick trials.
+
+
+## Property import
+
+`rootfs/app/importer.py` (stdlib only) validates a property JSON (schema in `property.schema.json`, examples in `examples/`), derives walls from room polygons, snaps openings to walls and returns `(layout, plot, report, summary)`. `server.py` exposes it as `POST /api/import` (always a new house), `GET /api/export/property`, `GET /api/import/schema` and `/api/import/examples/{name}`. The UI is `static/import.js` (dialog and AI prompt, built from the live device list). The optional `layout.plot.boundary` is drawn in 3D (`app.js` build) and 2D (`plan2d.js`). Guide: [IMPORT.md](IMPORT.md).
