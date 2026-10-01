@@ -72,6 +72,8 @@ Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistan
 
 **Place a whole area at once:** link a room to its Home Assistant area (room properties → *HA-Bereich*), then press **✨ Alle … sinnvoll platzieren** in the room's entity list. Lights are spread evenly under the ceiling, switches go next to the door, heating under a window, sensors and cameras onto free stretches of wall, motion sensors onto the floor, and door / window contacts are linked to the room's doors and windows. Battery, signal or energy sensors, scenes and scripts are skipped. Everything can be moved afterwards, and one *Undo* removes it all again.
 
+**Live updates:** changes made anywhere (wall switch, automation, HA app, sensors) appear in the floor plan within a fraction of a second; the add-on receives them from Home Assistant as they happen. If that connection is interrupted, the view keeps working and checks every few seconds until it is back.
+
 **Details (history, logbook, settings):** the live popup of a device has an **ⓘ Details** button next to its name, the room panel one on every row. It opens Home Assistant's own dialog for that entity, the same one a dashboard card opens: history graph, logbook, all attributes and the entity settings. It is shown when the floor plan runs inside Home Assistant (sidebar or HA app).
 
 **Scenes:** the popup of a light also lists every Home Assistant scene that contains this light (**Szenen mit dieser Lampe**); one tap activates the whole scene, so several strips take their scene colours together. The room panel does the same for all lights of the room.

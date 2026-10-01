@@ -597,6 +597,25 @@ with sync_playwright() as p:
     pg14.keyboard.press("Control+z"); pg14.wait_for_timeout(300)
     check("auto placement: one undo removes all of it", len(pg14.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices")) == 0)
     pg14.close()
+    # --- live channel: a change outside the floor plan (wall switch, automation) shows up at once, not after the next poll
+    pg15 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pg15.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pg15.goto(BASE + "?debug=1&mode=live"); pg15.wait_for_timeout(1500)
+    for _ in range(50):                                              # the channel comes up right after the page has loaded
+        if pg15.evaluate("window.__fp.liveOk()"): break
+        pg15.wait_for_timeout(100)
+    live_up = pg15.evaluate("window.__fp.liveOk()")
+    before = pg15.evaluate("window.__fp.stateOf('light.wohnzimmer')")
+    target = "off" if before == "on" else "on"
+    t0 = time.time()
+    urllib.request.urlopen(f"http://localhost:8123/_set?e=light.wohnzimmer&s={target}")
+    seen = None
+    for _ in range(30):
+        if pg15.evaluate("window.__fp.stateOf('light.wohnzimmer')") == target: seen = time.time() - t0; break
+        pg15.wait_for_timeout(50)
+    check("live channel: an outside change arrives within a second (no 4 s polling)", live_up and seen is not None and seen < 1.0, (live_up, before, seen))
+    urllib.request.urlopen(f"http://localhost:8123/_set?e=light.wohnzimmer&s={before}")
+    pg15.close()
     pg11 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg11.goto(BASE + "?debug=1&mode=edit"); pg11.wait_for_timeout(1500)
     nh = pg11.evaluate("fetch('api/houses').then(r => r.json()).then(h => h.length)")
