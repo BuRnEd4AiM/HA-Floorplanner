@@ -685,8 +685,16 @@ function build() {
 
     /* stairs (a 'down' stair starts one floor lower and arrives at this floor) */
     (f.stairs || []).forEach((st) => {
-      if (iso) return;
-      const sg = buildStair(st, holo, ghost, edgeMaterial);
+      if (iso) {                                   // a focused room still shows the stair standing in it
+        const hp = polyToWorld(st, stairLocal(st, FLOOR_H).hole);
+        const c = hp.reduce((q, p) => [q[0] + p[0] / hp.length, q[1] + p[1] / hp.length], [0, 0]);
+        if (ghost || !inIso(iso, c[0], c[1])) return;
+      }
+      // the stair that comes up into the floor shown is seen through its opening: drawn solid, not faded like the rest below
+      const arriving = ghost && !houseMode && i === floorIdx - 1 && (st.dir || 'up') === 'up';
+      const sGhost = ghost && !arriving;
+      const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.95 }) : edgeMaterial;
+      const sg = buildStair(st, holo, sGhost, sEdge);
       sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H : 0, st.z);
       sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
       g.add(sg);
@@ -3517,6 +3525,8 @@ if (params.get('debug')) {
     liveOk: () => liveOk,
     underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },
     bounds: () => floorBounds(), roofBox: (i) => roofBox(i),
+    switchFloor: (i) => switchFloor(i),
+    solidShape: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh && [].concat(o.material).some((m) => !m.transparent || m.opacity > 0.3)) ok = true; }); return ok; },
     clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earthCut))) n++; }); return n; },
     earthDbg: () => ({ n: earthCut.normal.toArray(), c: earthCut.constant, solid: earthLawn, cut: !!earthInfo, capVisible: !!earthInfo?.cap.visible, capVerts: earthInfo?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earthBox, ground: earthGround }),
     stateOf: (e) => states[e]?.state,
