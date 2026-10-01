@@ -21,7 +21,7 @@ let html = readFileSync(join(staticDir, 'index.html'), 'utf8');
 html = html
   .replace('<link rel="stylesheet" href="style.css">', () => `<style>${css}</style>`)
   .replace('<script type="module" src="app.js"></script>',
-    () => `<div class="demo-badge">Demo · Änderungen werden nicht gespeichert</div>\n<script>${js}</script>`);
+    () => `<div class="demo-badge">Demo · changes are not saved</div>\n<script>${js}</script>`);
 
 const out = join(here, 'floorplan3d-demo.html');          // committed, so it can be downloaded straight from GitHub
 writeFileSync(out, html);

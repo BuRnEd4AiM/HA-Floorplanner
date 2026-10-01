@@ -22,6 +22,10 @@
 
 *Your own floor plan as a glowing 3D hologram, live with your real lights, sensors, windows and scenes.*
 
+<img src="docs/img/overview.gif" alt="Quick tour: live 3D view, room control, heat and humidity, whole house, 2D plan, split view and the device library" width="900">
+
+<sub>Quick tour (sped up): room control, heat and humidity colours, whole house, 2D / split view, device library. All from the <a href="#-try-it-without-home-assistant">demo file</a>.</sub>
+
 **[Features](#-features) · [Import by JSON / AI](#-describe-it-instead-of-drawing-it) · [Installation](#-installation) · [Quick start](#-quick-start) · [Tablets](#-wall-tablets--kiosk) · [Documentation](#-documentation) · [Roadmap](ROADMAP.md)**
 
 </div>
