@@ -49,12 +49,13 @@ test('holes: up-stair opens the floor above, down-stair its own floor', () => {
   assert.equal(S.holesForFloor(floors, 2, H).length, 0);       // a 'down' stair on floor 1 does not open floor 2
 });
 
-test('hole starts where headroom is missing, not at the bottom', () => {
-  const st = { ...S.stairDefaults('straight'), x: 0, z: 0, rot: 0 };
-  const hole = S.stairLocal(st, H).hole;
-  const xs = hole.map((p) => p[0]);
-  assert.ok(Math.min(...xs) > 1.0, 'no opening over the first steps');
-  near(Math.max(...xs), S.stairBounds(st, H).x1);
+test('the opening covers the whole stair, not only its upper part', () => {
+  for (const type of ['straight', 'L', 'U']) {
+    const st = { ...S.stairDefaults(type), x: 0, z: 0, rot: 0 };
+    const hole = S.stairLocal(st, H).hole, b = S.stairBounds(st, H);
+    const xs = hole.map((p) => p[0]), zs = hole.map((p) => p[1]);
+    near(Math.min(...xs), b.x0); near(Math.max(...xs), b.x1); near(Math.min(...zs), b.z0); near(Math.max(...zs), b.z1);
+  }
 });
 
 test('size handles sit at the end of the run and at its side', () => {

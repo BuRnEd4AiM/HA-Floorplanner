@@ -490,6 +490,7 @@ export default {
   'plot.clear': 'Usuń działkę',
   'plot.set': 'Działka zapisana – trawnik ma teraz jej kształt',
   'set.earthMargin': 'Trawnik wokół domu bez działki (m)',
+  'set.earthMarginPlot': 'Twój dom ma działkę: trawnik ma jej kształt, a ta szerokość nie obowiązuje. Aby go powiększyć, narysuj działkę ponownie lub ją usuń.',
   'set.autosave': 'Autozapis po (s)',
   'set.section.general': 'Ogólne',
   'set.section.drawing': 'Rysowanie',

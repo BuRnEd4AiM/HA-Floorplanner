@@ -490,6 +490,7 @@ export default {
   'plot.clear': 'Supprimer le terrain',
   'plot.set': 'Terrain enregistré – la pelouse a maintenant sa forme',
   'set.earthMargin': 'Pelouse autour de la maison sans terrain (m)',
+  'set.earthMarginPlot': 'Votre maison a un terrain : la pelouse suit sa forme et cette largeur ne s\'applique pas. Pour l\'agrandir, redessinez le terrain ou supprimez-le.',
   'set.autosave': 'Enregistrement auto après (s)',
   'set.section.general': 'Général',
   'set.section.drawing': 'Dessin',

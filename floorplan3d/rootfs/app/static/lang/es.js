@@ -490,6 +490,7 @@ export default {
   'plot.clear': 'Borrar parcela',
   'plot.set': 'Parcela guardada: el césped ya tiene su forma',
   'set.earthMargin': 'Césped alrededor de la casa sin parcela (m)',
+  'set.earthMarginPlot': 'Tu casa tiene una parcela: el césped sigue su forma y este ancho no se aplica. Para agrandarlo, vuelve a dibujar la parcela o bórrala.',
   'set.autosave': 'Autoguardado tras (s)',
   'set.section.general': 'General',
   'set.section.drawing': 'Dibujo',
