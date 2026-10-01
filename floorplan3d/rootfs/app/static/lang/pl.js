@@ -458,4 +458,5 @@ export default {
   'set.section.drawing': 'Rysowanie',
   'set.section.view': 'Widok',
   'vm.normal': 'Normalnie', 'vm.temp': 'Temp.', 'vm.humid': 'Wilgotność',
+  'set.bgGlowStrength': 'Siła poświaty (0 = wył.)',
 };

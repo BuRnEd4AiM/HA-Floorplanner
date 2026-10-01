@@ -458,4 +458,5 @@ export default {
   'set.section.drawing': 'Tekenen',
   'set.section.view': 'Weergave',
   'vm.normal': 'Normaal', 'vm.temp': 'Temp.', 'vm.humid': 'Vocht',
+  'set.bgGlowStrength': 'Gloedsterkte (0 = uit)',
 };

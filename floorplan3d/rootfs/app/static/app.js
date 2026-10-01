@@ -20,7 +20,7 @@ let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true, wallStop: true,
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
-  userRooms: {}, userViews: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2',
+  userRooms: {}, userViews: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
   humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
 };
@@ -2733,7 +2733,7 @@ const bindings = {
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
   shadows: '#setShadows', showLabels: '#setLabels', lowWalls: '#setLowWalls', cutaway: '#setCutaway', wallStop: '#setWallStop',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
-  defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow',
+  defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
 const dispKeys = new Set(['wallHeight', 'wallThickness', 'glowRadius', 'glowHeight']);
 
@@ -2835,7 +2835,8 @@ function readSettingsForm() {
     else if (el.type === 'number') {
       const v = parseFloat(el.value);
       if (Number.isFinite(v) && v > 0) next[key] = dispKeys.has(key) ? fromDisp(v) : v;
-    } else if (key === 'grid') next[key] = parseFloat(el.value);
+    } else if (el.type === 'range') next[key] = parseFloat(el.value) || 0;
+    else if (key === 'grid') next[key] = parseFloat(el.value);
     else next[key] = el.value;
   }
   const tb = readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views;
@@ -2847,7 +2848,7 @@ function applySettings(prev = {}) {
   setLanguage(settings.language);
   document.documentElement.dataset.theme = settings.theme;
   const rs = document.documentElement.style;
-  rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow);
+  rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow); rs.setProperty('--bg-glow-s', String(settings.bgGlowStrength ?? 0));
   applyI18n();
   scene.background = isHolo() ? null : new THREE.Color(themeColors().scene);
   renderer.shadowMap.enabled = settings.shadows && !LOW;

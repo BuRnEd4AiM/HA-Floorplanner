@@ -458,4 +458,5 @@ export default {
   'set.section.drawing': 'Disegno',
   'set.section.view': 'Vista',
   'vm.normal': 'Normale', 'vm.temp': 'Temp.', 'vm.humid': 'Umidità',
+  'set.bgGlowStrength': 'Intensità del bagliore (0 = off)',
 };

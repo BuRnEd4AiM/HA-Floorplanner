@@ -458,4 +458,5 @@ export default {
   'set.section.drawing': 'Dibujo',
   'set.section.view': 'Vista',
   'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Humedad',
+  'set.bgGlowStrength': 'Intensidad del brillo (0 = off)',
 };

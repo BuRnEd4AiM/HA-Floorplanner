@@ -437,3 +437,10 @@ async def test_language_setting_accepts_known_codes_only(client):
         r = await client.put("/api/settings", json={"language": code})
         assert r.status == 200
         assert (await (await client.get("/api/settings")).json())["language"] == expected
+
+
+async def test_background_glow_is_off_by_default_and_clamped(client):
+    s = await (await client.get("/api/settings")).json()
+    assert s["bgGlowStrength"] == 0
+    await client.put("/api/settings", json={"bgGlowStrength": 5})
+    assert (await (await client.get("/api/settings")).json())["bgGlowStrength"] == 1.0

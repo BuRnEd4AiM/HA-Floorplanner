@@ -59,12 +59,13 @@ DEFAULT_SETTINGS = {
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
+    "bgGlowStrength": 0.0,      # corner glow of the hologram backdrop, 0 = off (default), 1 = full
     "tempStops": [{"v": 16, "c": "#2a6bff"}, {"v": 20, "c": "#2ad0a0"}, {"v": 23, "c": "#ffd84a"},
                   {"v": 26, "c": "#ff8a2a"}, {"v": 30, "c": "#ff3a3a"}],
     "humidStops": [{"v": 30, "c": "#e8d9a0"}, {"v": 50, "c": "#4fd0c8"}, {"v": 65, "c": "#2a7bff"},
                    {"v": 80, "c": "#5a3aff"}],
 }
-RANGES = {"belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0)}
+RANGES = {"belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0)}
 VIEWS = ("3d", "2d", "split", "all")
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 EMPTY_LAYOUT = {

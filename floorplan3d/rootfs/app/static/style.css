@@ -127,10 +127,10 @@ html[data-theme="holo"], html[data-theme="holo"] body { background: #041a52; }
 #roomPanel .row input[type=range] { flex: 1 1 100%; accent-color: var(--accent); }
 #roomPanel .row button { min-height: 30px; border-radius: 999px; padding: 2px 12px; }
 
-/* Hologram backdrop: royal-blue gradient with a teal glow in the corner (reference video) */
+/* Hologram backdrop: royal-blue gradient with an optional glow in the corner (strength in the settings, off by default) */
 html[data-theme="holo"] #stage {
   background:
-    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--bg-glow, #28ebd2) 55%, transparent) 0, color-mix(in srgb, var(--bg-glow, #28ebd2) 12%, transparent) 9%, transparent 22%),
+    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--bg-glow, #28ebd2) calc(var(--bg-glow-s, 0) * 55%), transparent) 0, color-mix(in srgb, var(--bg-glow, #28ebd2) calc(var(--bg-glow-s, 0) * 12%), transparent) 9%, transparent 22%),
     linear-gradient(180deg, var(--bg-top, #0a3ba8) 0%, color-mix(in srgb, var(--bg-top, #0a3ba8) 55%, var(--bg-bottom, #031547)) 45%, var(--bg-bottom, #031547) 100%);
 }
 #modeBar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 4; }
