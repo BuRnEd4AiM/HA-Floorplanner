@@ -21,4 +21,4 @@ Please include the add-on version, your browser, and the browser console output.
 
 This project is developed together with an AI assistant (Claude). Contributions are judged on quality, not on who or what wrote them: please make sure anything you submit is tested and that you understand it.
 
-After UI changes rebuild the single-file demo (`cd demo && npm run build`) and commit `demo/floorplan3d-demo.html`; the release workflow also attaches a fresh build to every release.
+The single-file demo is rebuilt automatically by the *Demo* workflow whenever the app or `demo/` changes on `main` (committed as `demo/floorplan3d-demo.html` and swapped into the latest release), so no manual step is needed; to try it locally run `cd demo && npm run build`.

@@ -1,0 +1,42 @@
+name: Demo
+
+# Keeps the downloadable single-file demo current: whenever the app or the demo data changes on main it is rebuilt,
+# committed (demo/floorplan3d-demo.html) and replaced in the latest release, so the download button always gives the newest one.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "floorplan3d/rootfs/app/static/**"
+      - "demo/**"
+      - "!demo/floorplan3d-demo.html"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: demo
+  cancel-in-progress: true
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build
+        run: cd demo && npm ci && npm run build
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add demo/floorplan3d-demo.html
+          git diff --cached --quiet || { git commit -m "Rebuild demo [skip ci]"; git pull --rebase -q; git push; }
+      - name: Update the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
+          [ -z "$tag" ] || gh release upload "$tag" demo/floorplan3d-demo.html --clobber
