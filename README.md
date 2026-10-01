@@ -22,7 +22,7 @@
 
 *Your own floor plan as a glowing 3D hologram, live with your real lights, sensors, windows and scenes.*
 
-**[Features](#-features) · [Installation](#-installation) · [Quick start](#-quick-start) · [Tablets](#-wall-tablets--kiosk) · [Documentation](#-documentation) · [Roadmap](ROADMAP.md)**
+**[Features](#-features) · [Import by JSON / AI](#-describe-it-instead-of-drawing-it) · [Installation](#-installation) · [Quick start](#-quick-start) · [Tablets](#-wall-tablets--kiosk) · [Documentation](#-documentation) · [Roadmap](ROADMAP.md)**
 
 </div>
 
@@ -39,6 +39,61 @@ It is made with a lot of love for my own smart home, and it is used every day. I
 This is an **AI-assisted project**: the code is written together with an AI (Claude by Anthropic). The idea, the design, every feature request, the decisions and the testing in my own smart home come from me, and a lot of time and care went into it: hundreds of iterations, screenshots, bug reports and fixes, tested on real wall tablets. The AI is my pair programmer, not an autopilot.
 
 What that means for you: the code is automatically tested (backend and browser tests run on every change), everything is open source under the MIT license, and you are welcome to read, question and improve it. If you find a bug, please open an issue, I take it seriously and will fix it.
+
+## ⚡ Highlights
+
+| | |
+| --- | --- |
+| 🏗️ **Build it** | Draw walls, rooms, stairs, doors and windows in a 2D blueprint that is linked live with the 3D view |
+| 🤖 **Or describe it** | Paste a **JSON description** (written by hand, by an AI, or from GeoJSON) and get the whole house, plot and garden included. Also available as a **REST API** |
+| 💡 **Control it** | Every device is a Home Assistant entity: lights, scenes, effects, Nanoleaf layouts, TV backlight, windows, heat and humidity |
+| 📱 **Everywhere** | Phone, desktop and wall tablets (kiosk mode, per-user rooms), 7 languages, offline and private |
+
+## 🤖 Describe it instead of drawing it
+
+Tell the add-on what your property looks like and it builds the house: walls from your rooms, doors and windows snapped to the right wall, floors, roof, plot boundary and garden. It always creates a **new** house, so nothing is overwritten, and a check step shows errors with the exact JSON path before anything is created.
+
+<table>
+<tr>
+<td width="46%" valign="top">
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "building": {
+    "footprint": [[0,0],[9,0],[9,7],[0,7]],
+    "floors": [{
+      "name": "Flat", "kind": "floor",
+      "rooms": [
+        { "name": "Living", "points": [[0,0],[5,0],[5,7],[0,7]] },
+        { "name": "Bed",    "points": [[5,0],[9,0],[9,7],[5,7]] }
+      ],
+      "openings": [
+        { "preset": "doorEntry", "at": [2.5, 0] },
+        { "preset": "window2",   "at": [7, 0] }
+      ],
+      "devices": [
+        { "type": "light", "x": 2.5, "z": 3.5, "entity": "light.living" }
+      ]
+    }]
+  }
+}
+```
+
+</td>
+<td width="54%" valign="top"><img src="docs/img/import-4-whole-house.png" alt="Example house with plot and garden, built from docs/examples/house.json"><br><sub>Result of <a href="docs/examples/house.json">docs/examples/house.json</a>: 4 floors, plot, garden</sub></td>
+</tr>
+</table>
+
+**Three ways in:** the import dialog (examples, check, file upload, a *Copy AI prompt* button that gives ChatGPT / Claude / Gemini everything they need), the API, or GeoJSON outlines from a cadastre / OpenStreetMap.
+
+```bash
+curl -X POST "$BASE/api/import?dryRun=1" -H "Content-Type: application/json" -d @house.json   # check only
+curl -X POST "$BASE/api/import?name=Cabin" -H "Content-Type: application/json" -d @house.json  # create
+curl "$BASE/api/export/property?house=main" -o my-house.json                                    # export any house in the same format
+```
+
+Format reference, screenshots, prompt tips and examples: **[docs/IMPORT.md](docs/IMPORT.md)**
 
 ## 🎯 Features
 
@@ -129,7 +184,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 ### 🎨 Look
 
-Hologram, dark and light theme, metric or imperial units, German and English UI.
+Hologram, dark and light theme, metric or imperial units, and 7 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski).
 
 ## 📦 Installation
 
@@ -152,6 +207,7 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 | Lock an item | Tick the box before its name in the object list |
 | Live mode | Tap a device to control it, tap a room for the whole room |
 | Undo | `Ctrl+Z` |
+| Import a house | *Houses & backup → Import house from JSON*, or `POST /api/import` |
 | Backup | *Houses & backup* in the side panel |
 
 ## 🧪 Try it without Home Assistant
