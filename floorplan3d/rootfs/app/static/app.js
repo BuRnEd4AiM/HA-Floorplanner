@@ -115,6 +115,17 @@ scene.add(sun);
 
 let grid = null;
 const world = new THREE.Group();
+/** empty a group and free the graphics memory of what was in it (geometry and textures). Without this every rebuild of
+ *  the scene (a room or floor tapped, a state that needs a rebuild) kept the old copy on the graphics card, and tablets
+ *  got slower and slower. Materials are left to the garbage collector, so their compiled shaders stay cached. */
+function clearGroup(g) {
+  g.traverse((o) => {
+    if (o === g) return;
+    o.geometry?.dispose();
+    if (o.material) [].concat(o.material).forEach((m) => { for (const k of ['map', 'alphaMap', 'emissiveMap']) m[k]?.dispose?.(); });
+  });
+  g.clear();
+}
 const temp = new THREE.Group();
 scene.add(world, temp);
 let selHelper = null;
@@ -579,7 +590,7 @@ function updateRoofFade() {
 function build() {
   wake();
   plan?.render();
-  world.clear();
+  clearGroup(world);
   registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear();
   const holo = isHolo();
   const iso = isolatedRoom();
@@ -1231,7 +1242,7 @@ let down = null;           // pointer-down info
 let openingPreview = null; // { wall, pos, valid }
 
 function updateTemp() {
-  temp.clear();
+  clearGroup(temp);
   if (tool === 'opening' && openingPreview) {
     const { wall: w, pos, valid } = openingPreview;
     const def = OPENING_DEFAULTS[openingType];
@@ -1264,7 +1275,7 @@ function updateTemp() {
     setStatus(`${t('length')}: ${fmtLen(Math.hypot(cursor[0] - last[0], cursor[1] - last[1]))}`);
   }
 }
-function endDrawing() { drawPts = []; cursor = null; openingPreview = null; temp.clear(); }
+function endDrawing() { drawPts = []; cursor = null; openingPreview = null; clearGroup(temp); }
 
 function finishRoom() {
   if (drawPts.length >= 3) {
@@ -1484,7 +1495,7 @@ canvas.addEventListener('pointerup', (e) => {
       const o = { id: uid(), type: openingType, pos: tgt.pos, ...def };
       (tgt.wall.openings ||= []).push(o);
       selection = { kind: 'opening', id: o.id };
-      openingPreview = null; temp.clear();
+      openingPreview = null; clearGroup(temp);
       changed();
     }
   } else if (tool === 'device' && gp) {
@@ -1498,7 +1509,7 @@ canvas.addEventListener('pointerup', (e) => {
   }
 });
 
-canvas.addEventListener('pointerleave', () => { if (tool === 'opening') { openingPreview = null; temp.clear(); } });
+canvas.addEventListener('pointerleave', () => { if (tool === 'opening') { openingPreview = null; clearGroup(temp); } });
 
 canvas.addEventListener('dblclick', (e) => {
   if (isLive()) return;
@@ -2142,7 +2153,7 @@ function switchFloor(i) {
   renderFloorPanel();
 }
 
-function clearFocusOutline() { focusGroup.clear(); }
+function clearFocusOutline() { clearGroup(focusGroup); }
 function focusRoom(id) {
   focusedRoom = id;
   document.body.classList.toggle('iso', !!id);

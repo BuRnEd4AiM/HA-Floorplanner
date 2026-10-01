@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.9.3] - 2026-10-01
+### Fixed
+- **Room and floor buttons became slow over time**, especially on tablets: every rebuild of the scene (tapping a room or floor) kept the old copy on the graphics card (about 275 shapes per tap in the example house). Old shapes and textures are now freed, so the view stays as fast as right after loading
+
 ## [3.9.2] - 2026-10-01
 ### Changed
 - The offline list checks **only what is placed in the plan** again: the list of unplaced unavailable entities from 3.9.1 is gone
