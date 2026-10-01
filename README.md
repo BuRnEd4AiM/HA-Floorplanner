@@ -99,7 +99,7 @@ curl -X POST "$BASE/api/import?name=Cabin" -H "Content-Type: application/json" -
 curl "$BASE/api/export/property?house=main" -o my-house.json                                    # export any house in the same format
 ```
 
-Format reference, screenshots, prompt tips and examples: **[docs/IMPORT.en.md](docs/IMPORT.en.md)**
+Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT.en.md)** · **[Deutsch](docs/IMPORT.md)**
 
 ## 🎯 Features
 
@@ -134,7 +134,7 @@ Describe plot, rooms, windows and devices as JSON (write it by hand, let an AI g
 </tr>
 </table>
 
-API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema`. Full guide: **[docs/IMPORT.en.md](docs/IMPORT.en.md)**
+API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema`. Full guide: **[English](docs/IMPORT.en.md)** · **[Deutsch](docs/IMPORT.md)**
 
 ### 🪑 Furnish it
 
