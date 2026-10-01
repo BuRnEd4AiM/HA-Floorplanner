@@ -1,0 +1,8 @@
+# generated or third-party files: not worth a place in the code graph
+floorplan3d/rootfs/app/static/vendor/
+demo/floorplan3d-demo.html
+demo/node_modules/
+docs/img/
+tests/e2e/*.png
+tests/e2e/lang/
+graphify-out/
