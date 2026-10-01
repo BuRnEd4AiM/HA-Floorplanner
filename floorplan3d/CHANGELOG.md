@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.9.1] - 2026-10-01
+### Changed
+- The offline pill is **always shown**: green **✓ 0 offline** when everything in the plan can be reached, red **⚠ n offline** otherwise
+- The offline list also shows **unavailable entities that are not placed in the plan** (a tap opens Home Assistant's dialog), so a device you have not placed yet no longer goes unnoticed
+
 ## [3.9.0] - 2026-10-01
 ### Added
 - **Devices offline**: a red pill **⚠ n offline** over the plan as soon as a placed device is unavailable, unknown or no longer in Home Assistant; it opens a list with floor, room, entity and since when, a tap jumps to the device

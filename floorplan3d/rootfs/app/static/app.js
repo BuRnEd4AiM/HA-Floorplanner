@@ -937,12 +937,26 @@ function offlineDevices() {
   });
   return out.sort((a, b) => a.floor - b.floor || a.room.localeCompare(b.room) || a.name.localeCompare(b.name));
 }
+/** unavailable entities of Home Assistant that are not placed in the plan (not 'unknown': many of those are normal) */
+function offlineElsewhere() {
+  if (!entities.length) return [];
+  const placed = new Set(offlineDevices().map((x) => x.entity));
+  layout.floors.forEach((f) => {
+    f.devices.forEach((d) => { [d.entity, d.ledEntity, ...(d.type === 'ledring' ? ringEntities(d) : [])].forEach((e) => e && placed.add(e)); });
+    f.walls.forEach((w) => (w.openings || []).forEach((o) => o.entity && placed.add(o.entity)));
+  });
+  return entities.filter((e) => e.state === 'unavailable' && !placed.has(e.entity_id))
+    .map((e) => ({ entity: e.entity_id, name: e.name || e.entity_id, since: states[e.entity_id]?.since || null }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
 let offlineSig = '';
 function updateOfflinePill() {
-  const list = offlineDevices(), pill = $('#offlinePill');
-  pill.hidden = !list.length;
-  pill.textContent = t('off.pill', { n: list.length });
-  const sig = JSON.stringify(list.map((x) => [x.id, x.entity, x.reason]));
+  const list = offlineDevices(), other = entities.length ? offlineElsewhere() : [], pill = $('#offlinePill');
+  pill.hidden = !entities.length;                     // always there once the states are known, also with nothing offline
+  pill.classList.toggle('warn', list.length > 0);
+  pill.classList.toggle('ok', !list.length);
+  pill.textContent = list.length ? t('off.pill', { n: list.length }) : t('off.pillOk');
+  const sig = JSON.stringify([list.map((x) => [x.id, x.entity, x.reason]), other.map((x) => x.entity)]);
   if (sig !== offlineSig) { offlineSig = sig; if ($('#offlineDialog').open) renderOfflineList(); }
 }
 function sinceText(iso) {
@@ -953,9 +967,25 @@ function sinceText(iso) {
   return rtf.format(sec, 'second');
 }
 function renderOfflineList() {
-  const ul = $('#offlineList'), list = offlineDevices();
+  const ul = $('#offlineList'), list = offlineDevices(), other = offlineElsewhere();
   ul.replaceChildren();
   $('#offlineNone').hidden = !!list.length;
+  const ol = $('#offlineOther');
+  ol.replaceChildren();
+  $('#offlineOtherHead').hidden = !other.length;
+  $('#offlineOtherHead').textContent = t('off.other', { n: other.length });
+  other.forEach((x) => {                              // not in the plan: a tap opens Home Assistant's own dialog, if there is one
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button';
+    const name = document.createElement('strong'); name.textContent = x.name;
+    const why = document.createElement('span'); why.className = 'offWhy unavailable'; why.textContent = t('off.unavailable');
+    const meta = document.createElement('small');
+    meta.textContent = [x.entity, x.since ? t('off.since', { t: sinceText(x.since) }) : ''].filter(Boolean).join(' · ');
+    b.append(name, why, meta);
+    b.disabled = !canMoreInfo();
+    b.addEventListener('click', () => openMoreInfo(x.entity));
+    li.append(b); ol.append(li);
+  });
   list.forEach((x) => {
     const li = document.createElement('li'), b = document.createElement('button');
     b.type = 'button';
@@ -3489,7 +3519,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, offline: () => offlineDevices(), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
+    get layout() { return layout; }, offline: () => offlineDevices(), offlineOther: () => offlineElsewhere(), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
     rebuild: () => build(),
