@@ -14,6 +14,10 @@
 
 [![Add repository to my Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FBuRnEd4AiM%2FHA-Floorplanner)
 
+[![Download the demo](https://img.shields.io/badge/%E2%AC%87%20Download%20the%20demo-always%20the%20latest-23e0ff?style=for-the-badge&labelColor=0a3ba8)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)
+
+<sub>One HTML file with an example house, lights and sensors: double-click it, no Home Assistant needed.</sub>
+
 <img src="docs/img/3d.png" alt="3D hologram view of an apartment with live lights, sensors and open windows" width="900">
 
 *Your own floor plan as a glowing 3D hologram, live with your real lights, sensors, windows and scenes.*
@@ -137,7 +141,7 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 
 ## 🧪 Try it without Home Assistant
 
-**[⬇ Download the demo](https://github.com/BuRnEd4AiM/HA-Floorplanner/raw/main/demo/floorplan3d-demo.html)** (or from the *Assets* of every [release](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases)) and open the file with a double-click: one HTML file, no server, no Home Assistant.
+**[⬇ Download the demo](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)** (always the newest build; a GitHub workflow rebuilds it whenever the app changes) and open the file with a double-click: one HTML file, no server, no Home Assistant.
 
 It contains an example house with several floors and a roof, furniture, doors and windows with contact sensors, simulated lights (colour, brightness, effects, scenes), a **Nanoleaf layout**, a **TV backlight**, an **invisible LED strip** that still lights the room, temperature / humidity sensors and the live mode. Everything works as in the add-on, except that changes are not saved.
 
