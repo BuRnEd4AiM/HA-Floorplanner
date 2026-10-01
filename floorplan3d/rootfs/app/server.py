@@ -47,6 +47,7 @@ DEFAULT_SETTINGS = {
     "showLabels": True,
     "cutaway": True,           # walls facing the camera sink down
     "earth": "solid",          # ground around the house: off | glass | solid (cut open on the camera's side)
+    "earthMargin": 5.0,        # metres of lawn around the house when no plot (Grundstück) is drawn
     "wallStop": True,          # devices cannot be dragged through walls (doors let them pass)
     "belowVisibility": 0.5,    # how clearly floors below the current one shine through (0.05..1)
     "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
@@ -66,7 +67,7 @@ DEFAULT_SETTINGS = {
     "humidStops": [{"v": 30, "c": "#e8d9a0"}, {"v": 50, "c": "#4fd0c8"}, {"v": 65, "c": "#2a7bff"},
                    {"v": 80, "c": "#5a3aff"}],
 }
-RANGES = {"belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0)}
+RANGES = {"belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0)}
 VIEWS = ("3d", "2d", "split", "all")
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 EMPTY_LAYOUT = {
