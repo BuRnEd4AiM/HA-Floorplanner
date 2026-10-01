@@ -669,9 +669,10 @@ function build() {
     });
 
     /* placeholder blocks: a solid mass for a floor that is not drawn */
+    const shaftHoles = (f.blocks || []).length ? holesForFloor(layout.floors, i + 1, FLOOR_H) : [];   // stairwells to the floor above run through the block
     if (!iso) (f.blocks || []).forEach((b) => {
       if (b.points.length < 3) return;
-      const shape = new THREE.Shape(b.points.map(([x, z]) => new THREE.Vector2(x, -z)));
+      const shape = floorShapes(b.points, shaftHoles);
       const eg = new THREE.ExtrudeGeometry(shape, { depth: b.h || FLOOR_H, bevelEnabled: false });
       eg.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(eg, holo
@@ -3526,6 +3527,7 @@ if (params.get('debug')) {
     underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },
     bounds: () => floorBounds(), roofBox: (i) => roofBox(i),
     switchFloor: (i) => switchFloor(i),
+    blockOpen: (id) => { const sh = [].concat(registry.get(id)?.geometry?.parameters?.shapes || []); return sh.length > 1 || sh.some((x) => x.holes.length > 0); },
     solidShape: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh && [].concat(o.material).some((m) => !m.transparent || m.opacity > 0.3)) ok = true; }); return ok; },
     clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earthCut))) n++; }); return n; },
     earthDbg: () => ({ n: earthCut.normal.toArray(), c: earthCut.constant, solid: earthLawn, cut: !!earthInfo, capVisible: !!earthInfo?.cap.visible, capVerts: earthInfo?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earthBox, ground: earthGround }),

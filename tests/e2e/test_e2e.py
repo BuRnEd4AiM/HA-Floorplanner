@@ -725,6 +725,12 @@ with sync_playwright() as p:
     pg18.locator("#floorPills button", has_text="Unten").click(); pg18.wait_for_timeout(600)
     pg18.locator("#roomPills button", has_text="Diele").click(); pg18.wait_for_timeout(600)
     check("stairs: a focused room keeps the stair standing in it", pg18.evaluate("window.__fp.isShown('stA')"))
+    pg18.evaluate("""(() => { const L = window.__fp.layout;
+      L.floors[0].rooms = []; L.floors[0].stairs = []; L.floors[0].blocks = [{ id: 'blk0', points: [[0, 0], [6, 0], [6, 4], [0, 4]] }];
+      L.floors[1].stairs = [{ id: 'stB', type: 'straight', x: 0.5, z: 2, rot: 0, w: 1, tread: 0.27, turn: 'right', dir: 'down' }];
+      window.__fp.switchFloor(1); })()""")
+    pg18.wait_for_timeout(500)
+    check("stairs: a placeholder block below is opened where the stair runs through it", pg18.evaluate("window.__fp.blockOpen('blk0')"))
     pg18.close()
     pg11 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg11.goto(BASE + "?debug=1&mode=edit"); pg11.wait_for_timeout(1500)

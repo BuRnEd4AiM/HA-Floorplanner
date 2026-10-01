@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.9.5] - 2026-10-01
+### Fixed
+- **Stairwell closed by a placeholder block**: when the floor below is a block (a floor you did not draw), the block filled the stair opening and hid the stair. The stairwell is now cut out of the block, so you look down the stair (#55)
+
 ## [3.9.4] - 2026-10-01
 ### Fixed
 - **Stairs seen from the floor above**: the stair that comes up into the floor shown is drawn solid through its opening, instead of as faint as the rest of the floor below, so the stairwell reads as an opening with a stair in it
