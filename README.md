@@ -53,6 +53,8 @@ What that means for you: the code is automatically tested (backend and browser t
 
 Tell the add-on what your property looks like and it builds the house: walls from your rooms, doors and windows snapped to the right wall, floors, roof, plot boundary and garden. It always creates a **new** house, so nothing is overwritten, and a check step shows errors with the exact JSON path before anything is created.
 
+<div align="center"><img src="docs/img/import-demo.gif" alt="Screen recording: example house is checked, imported and rotated in 3D" width="760"><br><sub>From JSON to a 3D house with plot and garden (sped up)</sub></div>
+
 <table>
 <tr>
 <td width="46%" valign="top">
