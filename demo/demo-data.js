@@ -32,12 +32,14 @@ const layout = {
       W('i5', [7, 4.5], [7, 7], 0.12, [D('o14', 1.2)]),
     ],
     devices: [
-      { id: 'd1',  type: 'tv',         x: 2.5, z: 0.4,  y: 0.5,  rot: 0,   scale: 1,   name: 'Fernseher',       entity: 'media_player.tv' },
+      { id: 'd1',  type: 'tv_wall',    x: 2.5, z: 0.16, y: 1.2,  rot: 0,   scale: 1,   name: 'Fernseher',       entity: 'media_player.tv' },
+      { id: 'd1b', type: 'tv_led',     x: 2.5, z: 0.16, y: 1.2,  rot: 0,   scale: 1,   name: 'TV-Hintergrundlicht', entity: 'light.tv_led' },
       { id: 'd2',  type: 'sofa',       x: 2.5, z: 3.5,  y: 0,    rot: 180, scale: 1.1, name: 'Sofa',            entity: '' },
       { id: 'd3',  type: 'table',      x: 2.5, z: 2.2,  y: 0,    rot: 0,   scale: 0.6, name: 'Couchtisch',      entity: '' },
       { id: 'd4',  type: 'light',      x: 3,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Deckenlicht',     entity: 'light.wohnzimmer' },
-      { id: 'd20', type: 'strip',      x: 4.4, z: 1.2,  y: 0.45, rot: 0,   scale: 1.6, name: 'LED hinter TV',   entity: 'light.wohnzimmer' },
-      { id: 'd21', type: 'orb',        x: 2.6, z: 1.7,  y: 0.3,  rot: 0,   scale: 1,   name: 'Nanoleaf Shapes',  entity: 'light.shapes_wz' },
+      { id: 'd20', type: 'strip',      x: 2.5, z: 3.95, y: 0.12, rot: 0,   scale: 2.2, name: 'LED unter dem Sofa (unsichtbar)', entity: 'light.sofa_led', hideModel: true },
+      { id: 'd21', type: 'nanoleaf',   x: 0.14, z: 0.85, y: 1.5, rot: 90, scale: 1, name: 'Nanoleaf Shapes', entity: 'light.shapes_wz',
+        panels: [{"s":"hex","x":0.0114,"y":0.0599,"r":0},{"s":"tri","x":0.1964,"y":0.0163,"r":0},{"s":"tri","x":-0.1739,"y":0.103,"r":300},{"s":"tri","x":0.0114,"y":0.2415,"r":0},{"s":"tri","x":0.0117,"y":-0.1221,"r":60},{"s":"tri2","x":0.1014,"y":0.2938,"r":60},{"s":"tri","x":0.1315,"y":-0.1916,"r":0},{"s":"sq","x":-0.1525,"y":-0.2166,"r":30}] },
       { id: 'd5',  type: 'lamp',       x: 5.2, z: 3.9,  y: 0,    rot: 0,   scale: 1,   name: 'Stehlampe',       entity: 'light.stehlampe' },
       { id: 'd6',  type: 'thermostat', x: 0.2, z: 3.4,  y: 0.2,  rot: 90,  scale: 1,   name: 'Heizung',         entity: 'climate.wohnzimmer' },
       { id: 'd7c', type: 'switch', x: 1.2, z: 0.2, y: 1.0, rot: 0, scale: 1, name: 'Rollladen', entity: 'cover.wohnzimmer' },
@@ -112,6 +114,8 @@ const entities = {
   'light.bad':               { name: 'Bad Licht',              state: 'off' },
   'light.buero':             { name: 'Büro Licht',             state: 'on', rgb: [255, 226, 110] },
   'light.shapes_wz':         { name: 'Nanoleaf Shapes',        state: 'on', rgb: [120, 90, 255], brightness: 80, fx: ['Nordlicht', 'Sonnenuntergang', 'Wald', 'Pulsierend', 'Regenbogen'], fxc: 'Nordlicht' },
+  'light.tv_led':            { name: 'TV Hintergrundlicht',    state: 'on', rgb: [255, 60, 160], brightness: 60, fx: ['Kino', 'Gaming', 'Sonnenuntergang', 'Aus'], fxc: 'Gaming' },
+  'light.sofa_led':          { name: 'LED Sofa',               state: 'on', rgb: [255, 170, 80], brightness: 45 },
   'scene.wz_gemuetlich':     { name: 'Wohnzimmer Gemütlich',   state: 'scening' },
   'scene.wz_aus':            { name: 'Wohnzimmer Aus',         state: 'scening' },
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
@@ -161,7 +165,7 @@ export function installDemoBackend() {
     }
     if (path === 'api/areas') {
       return json([
-        { id: 'wohnzimmer', name: 'Wohnzimmer', entities: ['light.wohnzimmer', 'light.stehlampe', 'light.shapes_wz', 'scene.wz_gemuetlich', 'scene.wz_aus', 'media_player.tv', 'cover.wohnzimmer', 'climate.wohnzimmer', 'sensor.wohnzimmer_leistung'] },
+        { id: 'wohnzimmer', name: 'Wohnzimmer', entities: ['light.wohnzimmer', 'light.stehlampe', 'light.shapes_wz', 'light.tv_led', 'light.sofa_led', 'scene.wz_gemuetlich', 'scene.wz_aus', 'media_player.tv', 'cover.wohnzimmer', 'climate.wohnzimmer', 'sensor.wohnzimmer_leistung'] },
         { id: 'schlafzimmer', name: 'Schlafzimmer', entities: ['light.schlafzimmer'] },
         { id: 'buero', name: 'Büro', entities: ['light.buero', 'sensor.buero_temp'] },
       ]);
