@@ -154,6 +154,7 @@ let settings = {
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
 export function installDemoBackend() {
+  window.__fpNoLive = true;                                  // no add-on server behind the demo: no live channel, states change only here
   const realFetch = window.fetch.bind(window);
   window.fetch = async (input, init = {}) => {
     const url = typeof input === 'string' ? input : input.url;

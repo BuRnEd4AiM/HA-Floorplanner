@@ -1378,7 +1378,7 @@ async function callService(entityId, service, data) {
       body: JSON.stringify({ domain, service: svc, entity_id: entityId, ...(data ? { data } : {}) }) });
     if (!r.ok) throw new Error(String(r.status));
   } catch { setStatus(t('live.failed')); return; }
-  setTimeout(pollStates, 400);
+  if (!liveOk) setTimeout(pollStates, 400);             // with the live channel the new state arrives by itself
 }
 function quickAction(entityId) {
   const acts = ACTIONS[entityId.split('.')[0]];
@@ -3098,6 +3098,37 @@ async function loadAreas() {
   areas.forEach((x) => x.entities.forEach((e) => { areaOf[e] = x.id; }));
 }
 
+const toState = (e) => ({ state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e), rgbRaw: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members });
+
+/* ---- Live channel: the add-on pushes every state change the moment Home Assistant reports it (a wall switch, an
+   automation, a sensor). While it is up, the full list is only fetched once a minute to stay in step; while it is
+   down (Home Assistant restarting, no websocket through a proxy) the view polls every 4 seconds as before. ---- */
+let liveOk = false, liveRetry = 1000, lastFull = 0, liveRaf = 0;
+function connectLive() {
+  if (window.__fpNoLive) return;                         // the single-file demo has no server to talk to
+  let ws;
+  try { const u = new URL('api/live', location.href); u.protocol = u.protocol === 'https:' ? 'wss:' : 'ws:'; ws = new WebSocket(u); } catch { return; }
+  ws.onopen = () => { liveRetry = 1000; };
+  ws.onmessage = (m) => {
+    let d;
+    try { d = JSON.parse(m.data); } catch { return; }
+    if (d.type === 'upstream') { const was = liveOk; liveOk = !!d.ok; if (liveOk && !was) pollStates(); }   // catch up on what changed before the channel was up
+    else if (d.type === 'states') applyLive(d);
+  };
+  ws.onclose = () => { liveOk = false; setTimeout(connectLive, liveRetry); liveRetry = Math.min(30000, liveRetry * 2); };
+}
+function applyLive({ list = [], removed = [] }) {
+  if (!entities.length) return;                         // the first full list is still on its way and brings these too
+  list.forEach((e) => {
+    states[e.entity_id] = toState(e);
+    const i = entities.findIndex((x) => x.entity_id === e.entity_id);
+    if (i >= 0) entities[i] = e; else entities.push(e);
+  });
+  removed.forEach((id) => { delete states[id]; entities = entities.filter((x) => x.entity_id !== id); });
+  wake();
+  if (!liveRaf) liveRaf = requestAnimationFrame(() => { liveRaf = 0; applyStates(); renderRoomEntities(); renderEntState(); });
+}
+
 async function pollStates() {
   try {
     const r = await fetch('api/entities');
@@ -3108,7 +3139,8 @@ async function pollStates() {
     const sig = JSON.stringify(list.map((e) => [e.entity_id, e.state, e.brightness, e.rgb, e.fxc, e.position]));
     if (sig !== lastStateSig) { lastStateSig = sig; wake(); }
     entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, { state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e), rgbRaw: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members }]));
+    states = Object.fromEntries(list.map((e) => [e.entity_id, toState(e)]));
+    lastFull = Date.now();
     if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
     applyStates();
     renderRoomEntities(); renderEntState();
@@ -3169,7 +3201,8 @@ async function init() {
     updateHouseToggle();
   }
   pollStates();
-  setInterval(pollStates, 4000);
+  connectLive();
+  setInterval(() => { if (!liveOk || Date.now() - lastFull > 60000) pollStates(); }, 4000);
 }
 
 var lastActive = performance.now(), lastFrame = 0;
@@ -3212,6 +3245,8 @@ if (params.get('debug')) {
     rebuild: () => build(),
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
+    liveOk: () => liveOk,
+    stateOf: (e) => states[e]?.state,
     fakeState(e, st) { states[e] = { ...(states[e] || {}), state: st }; applyOpenings(); },
     has: (id) => registry.has(id),
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)

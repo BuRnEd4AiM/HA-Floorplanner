@@ -13,6 +13,7 @@ server.py  (aiohttp, port 8099)
  ├─ /api/settings     look, units, users/rooms/views     → /data/settings.json
  ├─ /api/models       uploaded GLB models                → /data/models/
  ├─ /api/entities     entity list with state             ← Home Assistant REST API
+ ├─ /api/live         websocket: state changes pushed live ← Home Assistant websocket (state_changed)
  ├─ /api/areas        HA areas with their entities       ← template API
  ├─ /api/users, /api/me   who is looking, may they edit   ← ingress headers + HA auth list
  └─ /api/service      whitelisted service calls          → Home Assistant REST API
@@ -47,3 +48,8 @@ The layout is plain JSON: floors → walls (with openings), rooms, devices. Both
 ## Property import
 
 `rootfs/app/importer.py` (stdlib only) validates a property JSON (schema in `property.schema.json`, examples in `examples/`), derives walls from room polygons, snaps openings to walls and returns `(layout, plot, report, summary)`. `server.py` exposes it as `POST /api/import` (always a new house), `GET /api/export/property`, `GET /api/import/schema` and `/api/import/examples/{name}`. The UI is `static/import.js` (dialog and AI prompt, built from the live device list). The optional `layout.plot.boundary` is drawn in 3D (`app.js` build) and 2D (`plan2d.js`). Guide: [IMPORT.en.md](IMPORT.en.md).
+
+
+## Live updates
+
+`server.py` (`LiveHub`) opens one websocket to Home Assistant while at least one view is open (and for a minute after), subscribes to `state_changed` and forwards each change, in the same slim shape as `/api/entities`, to every browser connected to `/api/live` (batched per 50 ms). It also tells the browsers whether Home Assistant is reachable (`{type: upstream, ok}`). The browser (`connectLive` in `app.js`) applies the changes at once; while the channel is down it polls `/api/entities` every 4 s, while it is up only once a minute.

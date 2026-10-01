@@ -578,25 +578,142 @@ async def get_entities(request):
             if r.status != 200:
                 return web.json_response({"error": f"HA answered {r.status}"}, status=502)
             states = await r.json()
-    return web.json_response([
-        {
-            "entity_id": st["entity_id"],
-            "name": st.get("attributes", {}).get("friendly_name", st["entity_id"]),
-            "domain": st["entity_id"].split(".")[0],
-            "state": st["state"],
-            "unit": st.get("attributes", {}).get("unit_of_measurement"),
-            "brightness": _pct(st.get("attributes", {}).get("brightness"), 255),
-            "position": st.get("attributes", {}).get("current_position"),
-            "rgb": st.get("attributes", {}).get("rgb_color"),
-            "dc": st.get("attributes", {}).get("device_class"),
-            "ct": st.get("attributes", {}).get("current_temperature"),
-            "ch": st.get("attributes", {}).get("current_humidity"),
-            "fx": _effects(st.get("attributes", {})),
-            "fxc": st.get("attributes", {}).get("effect"),
-            "members": _members(st),
-        }
-        for st in states
-    ])
+    return web.json_response([slim_state(st) for st in states])
+
+
+def slim_state(st):
+    """The few fields of a Home Assistant state the floor plan uses (same shape for /api/entities and the live channel)."""
+    a = st.get("attributes") or {}
+    return {
+        "entity_id": st["entity_id"],
+        "name": a.get("friendly_name", st["entity_id"]),
+        "domain": st["entity_id"].split(".")[0],
+        "state": st["state"],
+        "unit": a.get("unit_of_measurement"),
+        "brightness": _pct(a.get("brightness"), 255),
+        "position": a.get("current_position"),
+        "rgb": a.get("rgb_color"),
+        "dc": a.get("device_class"),
+        "ct": a.get("current_temperature"),
+        "ch": a.get("current_humidity"),
+        "fx": _effects(a),
+        "fxc": a.get("effect"),
+        "members": _members(st),
+    }
+
+
+class LiveHub:
+    """One websocket to Home Assistant for every open view: each state change is pushed to all browsers the moment it
+    happens, instead of every browser asking for all states every few seconds. Runs only while a browser is connected;
+    when Home Assistant cannot be reached the browsers are told so and fall back to polling."""
+
+    BATCH = 0.05                          # a scene switches many lights at once: they go out as one message
+    GRACE = 60                            # keep Home Assistant's websocket a minute after the last view closed (page reloads)
+
+    def __init__(self):
+        self.clients: set = set()
+        self.ok = False
+        self.task = None
+        self.flush_task = None
+        self.pending: dict = {}
+        self.empty_since = 0.0
+
+    async def add(self, ws):
+        self.clients.add(ws)
+        await ws.send_json({"type": "upstream", "ok": self.ok})
+        if SUPERVISOR_TOKEN and (self.task is None or self.task.done()):
+            self.task = asyncio.create_task(self.run())
+
+    def remove(self, ws):
+        self.clients.discard(ws)
+        if not self.clients:
+            self.empty_since = time.monotonic()
+
+    def idle(self):
+        return not self.clients and time.monotonic() - self.empty_since > self.GRACE
+
+    async def broadcast(self, msg):
+        for ws in list(self.clients):
+            try:
+                await ws.send_json(msg)
+            except Exception:  # noqa: BLE001 - a browser that went away
+                self.clients.discard(ws)
+
+    def queue(self, entity_id, st):
+        self.pending[entity_id] = st
+        if self.flush_task is None or self.flush_task.done():
+            self.flush_task = asyncio.create_task(self.flush())
+
+    async def flush(self):
+        await asyncio.sleep(self.BATCH)
+        batch, self.pending = self.pending, {}
+        await self.broadcast({"type": "states", "list": [v for v in batch.values() if v],
+                              "removed": [k for k, v in batch.items() if v is None]})
+
+    async def set_ok(self, ok):
+        if ok != self.ok:
+            self.ok = ok
+            await self.broadcast({"type": "upstream", "ok": ok})
+
+    async def run(self):
+        base = HA_API[:-4] if HA_API.endswith("/api") else HA_API
+        delay = 1
+        while not self.idle():
+            try:
+                async with aiohttp.ClientSession() as sess:
+                    async with sess.ws_connect(base.rstrip("/") + "/websocket", heartbeat=30) as ws:
+                        await asyncio.wait_for(ws.receive_json(), 10)                       # auth_required
+                        await ws.send_json({"type": "auth", "access_token": SUPERVISOR_TOKEN})
+                        if (await asyncio.wait_for(ws.receive_json(), 10)).get("type") != "auth_ok":
+                            raise RuntimeError("authentication failed")
+                        await ws.send_json({"id": 1, "type": "subscribe_events", "event_type": "state_changed"})
+                        if not (await asyncio.wait_for(ws.receive_json(), 10)).get("success"):
+                            raise RuntimeError("subscription refused")
+                        await self.set_ok(True)
+                        delay = 1
+                        async for msg in ws:
+                            if self.idle():
+                                break
+                            if msg.type != aiohttp.WSMsgType.TEXT:
+                                continue
+                            data = json.loads(msg.data)
+                            ev = data.get("event") if data.get("type") == "event" else None
+                            d = (ev or {}).get("data") or {}
+                            if d.get("entity_id"):
+                                self.queue(d["entity_id"], slim_state(d["new_state"]) if d.get("new_state") else None)
+            except asyncio.CancelledError:
+                raise
+            except Exception as err:  # noqa: BLE001 - try again later, the browsers poll meanwhile
+                log.info("Live updates from Home Assistant interrupted (%s), retrying in %ss", err, delay)
+            await self.set_ok(False)
+            if self.idle():
+                break
+            await asyncio.sleep(delay)
+            delay = min(30, delay * 2)
+
+
+KEY_LIVE = web.AppKey("live", LiveHub)
+
+
+async def live_ws(request):
+    """Websocket for the browser: pushes {type: states, list, removed} and {type: upstream, ok}. It only listens."""
+    ws = web.WebSocketResponse(heartbeat=30)
+    await ws.prepare(request)
+    hub = request.app[KEY_LIVE]
+    await hub.add(ws)
+    try:
+        async for _ in ws:
+            pass
+    finally:
+        hub.remove(ws)
+    return ws
+
+
+async def stop_live(app):
+    hub = app[KEY_LIVE]
+    for t in (hub.task, hub.flush_task):
+        if t and not t.done():
+            t.cancel()
 
 
 AREA_TEMPLATE = (
@@ -849,6 +966,8 @@ async def get_import_example(request):
 def make_app(data_path: Path | None = None) -> web.Application:
     app = web.Application(client_max_size=max(MAX_LAYOUT_BYTES, MAX_BG_BYTES + 1024 * 1024))
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
+    app[KEY_LIVE] = LiveHub()
+    app.on_cleanup.append(stop_live)
     app.add_routes([
         web.get("/", index),
         web.get("/api/layout", get_layout),
@@ -874,6 +993,7 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.get("/api/backgrounds/{name}", get_background),
         web.delete("/api/backgrounds/{name}", delete_background),
         web.get("/api/entities", get_entities),
+        web.get("/api/live", live_ws),
         web.get("/api/areas", get_areas),
         web.post("/api/service", call_service),
         web.static("/", STATIC_DIR, show_index=False),

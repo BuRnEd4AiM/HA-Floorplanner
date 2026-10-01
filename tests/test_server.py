@@ -444,3 +444,45 @@ async def test_background_glow_is_off_by_default_and_clamped(client):
     assert s["bgGlowStrength"] == 0
     await client.put("/api/settings", json={"bgGlowStrength": 5})
     assert (await (await client.get("/api/settings")).json())["bgGlowStrength"] == 1.0
+
+
+async def test_live_channel_without_home_assistant_says_so(client):
+    ws = await client.ws_connect("/api/live")
+    assert await ws.receive_json() == {"type": "upstream", "ok": False}
+    await ws.close()
+
+
+async def test_live_channel_pushes_state_changes(aiohttp_client, aiohttp_server, monkeypatch, tmp_path):
+    import asyncio
+    from aiohttp import web
+    go = asyncio.Event()
+
+    async def ha_ws(request):
+        ws = web.WebSocketResponse(); await ws.prepare(request)
+        await ws.send_json({"type": "auth_required"})
+        assert (await ws.receive_json())["access_token"] == "tok"
+        await ws.send_json({"type": "auth_ok"})
+        sub = await ws.receive_json()
+        assert sub["type"] == "subscribe_events" and sub["event_type"] == "state_changed"
+        await ws.send_json({"id": sub["id"], "type": "result", "success": True, "result": None})
+        await go.wait()
+        ev = lambda eid, new: {"id": sub["id"], "type": "event", "event": {"event_type": "state_changed", "data": {"entity_id": eid, "new_state": new}}}
+        await ws.send_json(ev("light.a", {"entity_id": "light.a", "state": "on", "attributes": {"friendly_name": "A", "brightness": 128, "rgb_color": [255, 0, 0]}}))
+        await ws.send_json(ev("light.a", {"entity_id": "light.a", "state": "on", "attributes": {"friendly_name": "A", "brightness": 255}}))   # same entity twice: last one wins
+        await ws.send_json(ev("sensor.gone", None))
+        await asyncio.sleep(1)
+        await ws.close(); return ws
+    ha = web.Application(); ha.add_routes([web.get("/websocket", ha_ws)])
+    srv = await aiohttp_server(ha)
+    monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "tok")
+    client = await aiohttp_client(server.make_app(tmp_path))
+    ws = await client.ws_connect("/api/live")
+    assert await ws.receive_json() == {"type": "upstream", "ok": False}
+    assert await asyncio.wait_for(ws.receive_json(), 5) == {"type": "upstream", "ok": True}
+    go.set()
+    msg = await asyncio.wait_for(ws.receive_json(), 5)
+    assert msg["type"] == "states" and msg["removed"] == ["sensor.gone"]
+    assert [(e["entity_id"], e["state"], e["brightness"], e["rgb"]) for e in msg["list"]] == [("light.a", "on", 100, None)]
+    assert await asyncio.wait_for(ws.receive_json(), 5) == {"type": "upstream", "ok": False}   # HA went away: browsers poll again
+    await ws.close()

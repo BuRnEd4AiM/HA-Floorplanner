@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.6.0] - 2026-10-01
+### Changed
+- **Live updates instantly**: the add-on keeps one websocket connection to Home Assistant and pushes every state change to all open views the moment it happens. A wall switch, an automation, the HA app or a sensor now show up **within a fraction of a second** instead of up to 4 seconds later
+- **Less load on Home Assistant**: open views no longer fetch the complete list of all entities every 4 seconds; while the live channel is up they only re-sync once a minute
+- If the live channel is not available (Home Assistant restarting, a proxy without websockets) the view falls back to polling every 4 seconds automatically and reconnects by itself
+- The connection to Home Assistant stays open for a minute after the last view closed, so reloading a wall tablet is live right away
+
 ## [3.5.0] - 2026-10-01
 ### Added
 - **Place a whole HA area automatically**: select a room that is linked to a Home Assistant area and press **✨ Alle … sinnvoll platzieren** in its entity list. Every entity of the area goes where it belongs, in one undo step:
