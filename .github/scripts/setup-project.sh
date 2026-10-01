@@ -18,6 +18,7 @@ milestone() {   # title, description
 milestone "v0.8 – Live sync"        "Live state updates via WebSocket, native more-info dialog, faster setup of rooms."
 milestone "v0.9 – Dashboards"       "HACS card to show the floor plan on any dashboard, furniture library, power visualisation."
 milestone "v1.0 – Stable release"   "Verified on real Home Assistant installs, backup/export, complete docs."
+milestone "v3.0 – Property import (JSON API)" "Describe a plot and building as JSON (or import GeoJSON) and let the add-on build the house or apartment from it."
 milestone "Backlog"                 "Ideas without a date."
 
 echo "== Issues"
@@ -62,6 +63,23 @@ issue "Import a background image / blueprint for tracing" "Backlog" "enhancement
 "Load a floor plan image as underlay in the 2D editor with scale and opacity, to trace walls."
 issue "More languages (translations)" "Backlog" "enhancement,good first issue,help wanted,documentation" \
 "The UI strings live in \`floorplan3d/rootfs/app/static/i18n.js\` (German and English). Add your language by copying the English block."
+
+issue "Define the property JSON format (schema v1)" "v3.0 – Property import (JSON API)" "enhancement,area: backend,documentation" \
+"A versioned, documented JSON format that describes a plot and what stands on it. Goal: one file that a human, a script or an AI can write.\n\n- units in metres, local coordinates (x east, z south), \`schemaVersion\`\n- \`plot\`: boundary polygon, optional north angle, garden objects (lawn, terrace, path, trees, fence, pool)\n- \`buildings[]\`: footprint polygon, position on the plot, floors (kind: floor/basement/roof, height), roof type and pitch\n- per floor: \`rooms[]\` (name, polygon, optional HA area), \`walls[]\` (optional, derived from rooms when missing, thickness), \`openings[]\` (door/window with wall reference or position, width, sill, optional sensor entity), optional \`devices[]\` and \`furniture[]\`\n- ship a JSON Schema file (\`docs/property.schema.json\`) plus two examples (flat, detached house with plot)\n\nDone when: schema + examples are in the repo and a test validates the examples."
+issue "Import endpoint: POST /api/import with validation and dry run" "v3.0 – Property import (JSON API)" "enhancement,area: backend" \
+"\`POST /api/import\` (editors only) accepts the property JSON.\n\n- \`?dryRun=1\` returns what would be created plus warnings/errors with JSON paths, nothing is written\n- creates a **new house** (so nothing existing is overwritten) or, optionally, adds floors to an existing one\n- size limits, schema validation, safety copy in \`/data/backups\` like the backup import\n- clear error messages for self-intersecting polygons, unknown types, missing units\n\nDone when: pytest covers valid input, broken input and dry run."
+issue "Interpreter: build walls, rooms, openings and roofs from the JSON" "v3.0 – Property import (JSON API)" "enhancement,area: backend,area: 2d" \
+"Turn the description into a real layout.\n\n- footprint -> outer walls with the right thickness; room polygons -> inner walls, shared walls are merged and not doubled\n- openings are placed on the matching wall and checked against its length\n- floors are stacked (basement / ground / upper / roof), stair openings optional\n- roof from type + pitch + overhang, rooms linked to HA areas by name\n- result is the normal layout format, so every editor feature keeps working\n\nDone when: the two examples import into a clean, editable house and a golden-file test compares the result."
+issue "Plot (Grundstück) in the 3D view: boundary, garden objects and house position" "v3.0 – Property import (JSON API)" "enhancement,area: 3d" \
+"Show the plot boundary as a line/area around the house in the whole-house view, place garden objects from the import, and keep the building on its position inside the plot. Optional: distance to the boundary, north arrow."
+issue "GeoJSON converter: lat/lon footprints to local metres" "v3.0 – Property import (JSON API)" "enhancement,area: backend" \
+"Accept GeoJSON polygons (for example building footprints from OpenStreetMap or a cadastre export) and project them to local metres. Output is the property JSON, so the same interpreter does the rest. Document how to get a footprint for your own plot."
+issue "Import dialog in the UI: paste or upload, preview, errors" "v3.0 – Property import (JSON API)" "enhancement,area: 2d,area: backend" \
+"Button in *Houses & backup*: paste or upload a JSON/GeoJSON file, run the dry run, show a preview and the warnings with their JSON paths, then import as a new house. Include a *download example* button."
+issue "Export the current house in the same format (round trip)" "v3.0 – Property import (JSON API)" "enhancement,area: backend" \
+"Export a house as property JSON so imports can be edited by hand or by a script and imported again. Keeps the format honest: export -> import must reproduce the layout."
+issue "Docs and AI-friendly prompt for generating the JSON" "v3.0 – Property import (JSON API)" "documentation" \
+"Page in the user guide: format overview, examples, common mistakes. Include a ready-to-copy prompt that lets an AI assistant turn a floor plan description or a photo of a plan into valid JSON for this schema."
 
 echo "== Releases"
 LATEST=""
