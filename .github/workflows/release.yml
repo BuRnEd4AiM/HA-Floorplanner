@@ -41,3 +41,16 @@ jobs:
           [ -n "$notes" ] || { echo "No CHANGELOG entry for $v"; exit 1; }
           if gh release view "v$v" >/dev/null 2>&1; then echo "Release v$v already exists"; exit 0; fi
           gh release create "v$v" --target "${GITHUB_SHA}" --title "3D Floorplan $v" --notes "$notes" --latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build and attach the single-file demo
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          cfg="$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d/config.yaml)"
+          v="${INPUT_VERSION:-}"; [ -n "$v" ] || v="$cfg"; v="${v#v}"
+          (cd demo && npm ci && npm run build)
+          gh release upload "v$v" demo/floorplan3d-demo.html --clobber || true

@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-10-01
+### Added
+- **Downloadable demo**: `demo/floorplan3d-demo.html` is in the repository (download from GitHub, double-click to open) and is attached to every release. It now shows the new features: Nanoleaf layout, TV backlight, an invisible LED strip, effects and scenes
+
 ## [2.4.0] - 2026-09-30
 ### Added
 - **Roofs make room for the camera**: a roof fades out smoothly when the camera gets close (from about 7 m, mostly transparent at about 2.5 m) and comes back when you zoom out

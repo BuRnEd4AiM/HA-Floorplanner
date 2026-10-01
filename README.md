@@ -137,13 +137,11 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 
 ## 🧪 Try it without Home Assistant
 
-The demo is a single HTML file with an example house and simulated lights and sensors:
+**[⬇ Download the demo](https://github.com/wvssweber-max/HA-Floorplanner/raw/main/demo/floorplan3d-demo.html)** (or from the *Assets* of every [release](https://github.com/wvssweber-max/HA-Floorplanner/releases)) and open the file with a double-click: one HTML file, no server, no Home Assistant.
 
-```bash
-cd demo && npm install && npm run build      # → demo/dist/floorplan3d-demo.html
-```
+It contains an example house with several floors and a roof, furniture, doors and windows with contact sensors, simulated lights (colour, brightness, effects, scenes), a **Nanoleaf layout**, a **TV backlight**, an **invisible LED strip** that still lights the room, temperature / humidity sensors and the live mode. Everything works as in the add-on, except that changes are not saved.
 
-Open the file by double-click. Changes are not saved in the demo.
+To build it yourself: `cd demo && npm install && npm run build`.
 
 ## 📚 Documentation
 

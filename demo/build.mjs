@@ -1,5 +1,5 @@
 // Bundles the editor + demo backend + three.js into ONE html file that runs by double-click (no server needed).
-//   npm install && npm run build   ->   dist/floorplan3d-demo.html
+//   npm install && npm run build   ->   floorplan3d-demo.html
 import { build } from 'esbuild';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -23,7 +23,6 @@ html = html
   .replace('<script type="module" src="app.js"></script>',
     () => `<div class="demo-badge">Demo · Änderungen werden nicht gespeichert</div>\n<script>${js}</script>`);
 
-mkdirSync(join(here, 'dist'), { recursive: true });
-const out = join(here, 'dist', 'floorplan3d-demo.html');
+const out = join(here, 'floorplan3d-demo.html');          // committed, so it can be downloaded straight from GitHub
 writeFileSync(out, html);
 console.log(`wrote ${out} (${(html.length / 1024).toFixed(0)} KB)`);
