@@ -4,14 +4,37 @@ Mit dem Import baust du aus einer kleinen JSON-Beschreibung (Grundstück, Raumpo
 
 Du kannst die JSON von Hand schreiben, von einer **KI** erzeugen lassen, aus **GeoJSON** (z. B. Katasterdaten/OpenStreetMap) ableiten oder aus einem vorhandenen Haus **exportieren**.
 
+## Inhalt
+
+[Schnellstart](#schnellstart-in-30-sekunden) · [Koordinaten](#koordinaten) · [Format](#format-schemaversion-1) · [API](#api) · [GeoJSON](#geojson) · [KI-Prompting](#ki-prompting) · [Export](#export-round-trip) · [Fehlersuche](#grenzen--fehlersuche)
+
+Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.json) (Wohnung, 1 Etage) und [`docs/examples/house.json`](examples/house.json) (Haus mit Grundstück, Keller, EG, OG, Dach).
+
 ## Schnellstart in 30 Sekunden
 
-1. Häuser-Bereich öffnen → **Grundriss importieren (JSON)**.
-2. **Beispiel: Wohnung** oder **Beispiel: Haus** klicken.
-3. **Prüfen** → es erscheint eine Zusammenfassung (Etagen, Räume, Wände, Öffnungen, Geräte) plus Warnungen.
-4. **Importieren** → das neue Haus wird angelegt und geöffnet. Danach ist alles ganz normal im Editor bearbeitbar.
+**1. Importdialog öffnen.** Im Bearbeiten-Modus in der Seitenleiste **Häuser & Backup** aufklappen und **Haus aus JSON importieren …** klicken.
 
-„Importieren“ ist erst aktiv, wenn die Prüfung für genau diesen Text fehlerfrei war.
+![Häuser-Bereich mit Import- und Export-Schaltfläche](img/import-0-panel.png)
+
+**2. Beispiel laden und prüfen.** **Beispiel: Wohnung** oder **Beispiel: Haus mit Grundstück** klicken, dann **Prüfen**. Du bekommst eine Zusammenfassung (Etagen, Räume, Wände, Türen/Fenster, Geräte) und eventuelle Warnungen. **Importieren** wird erst aktiv, wenn genau dieser Text fehlerfrei geprüft wurde.
+
+![Importdialog mit erfolgreicher Prüfung](img/import-1-dialog.png)
+
+**3. Fehler lesen.** Bei einem Fehler steht der genaue Pfad in der JSON dabei (hier: ein Raum, dessen Ecken sich überkreuzen). Nichts wird angelegt, solange es Fehler gibt.
+
+![Fehlermeldung mit JSON-Pfad](img/import-2-error.png)
+
+**4. Importieren.** Das Haus wird als **neues Haus** angelegt und sofort geöffnet. Dein bisheriges Haus bleibt unverändert; über die Hausauswahl oben wechselst du jederzeit zurück.
+
+![Importiertes Haus (Keller)](img/import-3-result.png)
+
+**5. Ganzes Haus und Grundstück.** Im Live-Modus zeigt **Ganzes Haus** Gebäude, Dach, Grundstücksgrenze und Gartenobjekte (Rasen, Terrasse, Bäume, Zaun).
+
+![Ganzes Haus mit Grundstück](img/import-4-whole-house.png)
+
+**6. Im 2D-Plan weiterarbeiten.** Die Grundstücksgrenze erscheint gestrichelt. Ab jetzt ist alles normal bearbeitbar: Wände verschieben, Geräte mit Entities verknüpfen, Räume ergänzen.
+
+![2D-Plan mit gestrichelter Grundstücksgrenze](img/import-5-plan2d.png)
 
 ## Koordinaten
 
@@ -103,6 +126,20 @@ Tipps:
 - Das Ergebnis immer erst **Prüfen**; Fehlermeldungen kannst du der KI direkt zurückgeben („Behebe: building.floors[0]… points: …“).
 - Entity-IDs nur angeben, wenn du sie kennst – sonst später im Editor zuordnen.
 - Grundriss-Foto? Lass die KI die Maße schätzen und frage nach der JSON.
+
+## Export (Round-Trip)
+
+**Dieses Haus als JSON exportieren** (gleiche Seitenleiste) lädt dein aktuelles Haus im Import-Format herunter – mit expliziten Wänden, damit nichts neu abgeleitet wird. Nützlich zum Weitergeben, als Vorlage für die KI („ändere dieses Haus so, dass …“) oder zum Versionieren in Git. Über `GET /api/export/property?house=<id>` auch per Skript.
+
+## Typische Abläufe
+
+| Ziel | Vorgehen |
+|---|---|
+| Wohnung schnell aufbauen | Beispiel laden, Maße/Räume anpassen, prüfen, importieren |
+| Haus von der KI planen lassen | Prompt kopieren, Beschreibung anhängen, Antwort einfügen, prüfen, Fehler an KI zurückgeben |
+| Katasterumriss verwenden | GeoJSON einfügen (Gebäude + Grundstück), importieren, Räume im Editor einzeichnen |
+| Haus sichern/teilen | Exportieren, Datei weitergeben, beim Empfänger importieren |
+| Per Skript/CI | `POST /api/import` mit curl (siehe oben) |
 
 ## Grenzen & Fehlersuche
 
