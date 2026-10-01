@@ -21,6 +21,9 @@ concurrency:
 jobs:
   demo:
     runs-on: ubuntu-latest
+    concurrency:                    # the Release workflow attaches the same file: never both at once (it raced into a 404)
+      group: release-assets
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v7
@@ -39,4 +42,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
-          [ -z "$tag" ] || gh release upload "$tag" demo/floorplan3d-demo.html --clobber
+          [ -n "$tag" ] || exit 0
+          for i in 1 2 3; do
+            gh release upload "$tag" demo/floorplan3d-demo.html --clobber && exit 0
+            echo "upload failed (attempt $i), retrying"; sleep $((i * 10))
+          done
+          exit 1

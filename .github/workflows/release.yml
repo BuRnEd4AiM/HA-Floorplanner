@@ -21,6 +21,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    concurrency:                    # shares the queue with the Demo workflow, which attaches the same demo file
+      group: release-assets
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
