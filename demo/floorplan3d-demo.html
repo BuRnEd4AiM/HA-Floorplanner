@@ -32,6 +32,7 @@ button, select, input { font: inherit; color: var(--text); background: var(--fie
 button { cursor: pointer; }
 button:hover { border-color: var(--accent); }
 button.active { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+button:disabled { opacity: .4; cursor: not-allowed; box-shadow: none !important; }
 button.primary { background: var(--ok); border-color: var(--ok); color: #fff; }
 button.icon { padding: 4px 10px; font-size: 18px; line-height: 1; }
 #status { position: fixed; left: 12px; bottom: 52px; z-index: 30; color: var(--text, #eaf7ff); font-size: 12px; padding: 4px 12px; border-radius: 999px; background: rgba(3, 21, 71, .72); border: 1px solid rgba(120,200,255,.35); pointer-events: none; }

@@ -62,6 +62,19 @@ What that means for you: the code is automatically tested (backend and browser t
 </tr>
 </table>
 
+### 📥 Import a house from JSON, AI or GeoJSON
+
+Describe plot, rooms, windows and devices as JSON (write it by hand, let an AI generate it, or convert GeoJSON outlines) and get a **new house**: walls are derived from the rooms, openings snap to walls, floors, roof, plot boundary and garden are built. Check first, import after a clean check, errors name the exact JSON path.
+
+<table>
+<tr>
+<td width="50%"><img src="docs/img/import-1-dialog.png" alt="Import dialog"><br><sub><b>Import dialog</b>: examples, check, AI prompt</sub></td>
+<td width="50%"><img src="docs/img/import-5-plan2d.png" alt="Plan with plot boundary"><br><sub><b>Result</b>: plot boundary in the plan</sub></td>
+</tr>
+</table>
+
+API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema`. Full guide: **[docs/IMPORT.md](docs/IMPORT.md)**
+
 ### 🪑 Furnish it
 
 - **Furniture library with previews**, search and categories (Living, Kitchen, Bath, Bedroom, Office, Lighting, Tech, Outdoor, Decor). The search understands everyday names ("Fernseher", "Couch" ...)
