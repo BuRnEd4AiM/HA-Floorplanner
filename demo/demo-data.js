@@ -66,6 +66,8 @@ const layout = {
       { id: 'p1',  type: 'presence',   x: 4.4, z: 3.6, y: 0,    rot: 0,   scale: 1,   name: 'Anna',            entity: 'person.anna' },
       { id: 'p2',  type: 'presence',   x: 8.9, z: 5.1, y: 0,    rot: 0,   scale: 1,   name: 'Büro Anwesenheit', entity: 'binary_sensor.buero_praesenz' },
       { id: 'p3',  type: 'presence',   x: 7.5, z: 3.2, y: 0,    rot: 0,   scale: 1,   name: 'Max',             entity: 'person.max' },
+      { id: 'd22', type: 'ledring',    x: 5, z: 5.75, y: 2.5, rot: 0, scale: 1, name: 'Voute Schlafzimmer', entity: 'light.voute_bett', room: 'r4', inset: 0.15, closed: true,
+        pts: [[-1.85, -1.1], [1.85, -1.1], [1.85, 1.1], [-1.85, 1.1]], segs: [{}, { entity: 'light.voute_fenster' }, {}, { entity: 'light.voute_fenster' }] },
       { id: 'd18', type: 'light',      x: 8.6, z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Bürolicht',       entity: 'light.buero' },
       { id: 'd19', type: 'switch',     x: 9.4, z: 6.88, y: 1.1,  rot: 0,   scale: 1,   name: 'Flurschalter',    entity: 'switch.flur' },
     ],
@@ -118,6 +120,8 @@ const entities = {
   'person.max':              { name: 'Max', state: 'not_home' },
   'binary_sensor.buero_praesenz': { name: 'Büro Anwesenheit', state: 'on' },
   'light.buero':             { name: 'Büro Licht',             state: 'on', rgb: [255, 226, 110] },
+  'light.voute_bett':        { name: 'Voute Bettseite',        state: 'on', rgb: [190, 80, 255], brightness: 60 },
+  'light.voute_fenster':     { name: 'Voute Fensterseite',     state: 'on', rgb: [60, 160, 255], brightness: 60 },
   'light.shapes_wz':         { name: 'Nanoleaf Shapes',        state: 'on', rgb: [120, 90, 255], brightness: 80, fx: ['Nordlicht', 'Sonnenuntergang', 'Wald', 'Pulsierend', 'Regenbogen'], fxc: 'Nordlicht' },
   'light.tv_led':            { name: 'TV Hintergrundlicht',    state: 'on', rgb: [255, 60, 160], brightness: 60, fx: ['Kino', 'Gaming', 'Sonnenuntergang', 'Aus'], fxc: 'Gaming' },
   'light.sofa_led':          { name: 'LED Sofa',               state: 'on', rgb: [255, 170, 80], brightness: 45 },
@@ -171,7 +175,7 @@ export function installDemoBackend() {
     if (path === 'api/areas') {
       return json([
         { id: 'wohnzimmer', name: 'Wohnzimmer', entities: ['light.wohnzimmer', 'light.stehlampe', 'light.shapes_wz', 'light.tv_led', 'light.sofa_led', 'scene.wz_gemuetlich', 'scene.wz_aus', 'media_player.tv', 'cover.wohnzimmer', 'climate.wohnzimmer', 'sensor.wohnzimmer_leistung'] },
-        { id: 'schlafzimmer', name: 'Schlafzimmer', entities: ['light.schlafzimmer'] },
+        { id: 'schlafzimmer', name: 'Schlafzimmer', entities: ['light.schlafzimmer', 'light.voute_bett', 'light.voute_fenster'] },
         { id: 'buero', name: 'Büro', entities: ['light.buero', 'sensor.buero_temp'] },
       ]);
     }

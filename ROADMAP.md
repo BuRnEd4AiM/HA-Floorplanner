@@ -49,7 +49,7 @@ Describe a plot and the building as JSON (or import GeoJSON footprints) and let 
 - [x] Furniture library with previews, search and categories, door/window variants, wall pictures (1.3.0)
 - [x] Move floors, basement, roof, garden objects, whole-house view (0.9.0)
 - [x] Nanoleaf panel shapes and layout editor (0.10.0)
-- [ ] Multi-segment LED strips (polyline along several walls)
+- [x] Multi-segment LED strips: LED ring around the room, one light per section (3.3.0)
 - [ ] Automatic room detection from closed wall loops
 - [x] Background image / blueprint for tracing (0.7.2)
 - [x] More languages: Français, Español, Italiano, Nederlands, Polski (3.1.0)

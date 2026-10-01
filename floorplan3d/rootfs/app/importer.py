@@ -266,6 +266,20 @@ def _device(rep: Report, path: str, spec, ids):
                 panels.append({"s": p["s"], "x": float(p["x"]), "y": float(p["y"]), "r": float(p.get("r", 0))})
         if panels:
             d["panels"] = panels
+    if typ == "ledring":
+        pts = [[float(q[0]), float(q[1])] for q in (spec.get("pts") or [])[:200]
+               if isinstance(q, (list, tuple)) and len(q) == 2 and _num(q[0], -COORD_LIMIT, COORD_LIMIT) and _num(q[1], -COORD_LIMIT, COORD_LIMIT)]
+        if len(pts) < 2:
+            rep.warn(f"{path}.pts", "ledring needs \"pts\" (at least two [x, z] points relative to the device): a 2 x 2 m square is used")
+            pts = [[-1.0, -1.0], [1.0, -1.0], [1.0, 1.0], [-1.0, 1.0]]
+        d["pts"] = pts
+        d["closed"] = spec.get("closed") is not False
+        n = len(pts) if d["closed"] else len(pts) - 1
+        segs = spec.get("segs") if isinstance(spec.get("segs"), list) else []
+        d["segs"] = [{"entity": sg["entity"][:120]} if isinstance(sg, dict) and isinstance(sg.get("entity"), str) and sg["entity"] else {} for sg in segs[:n]]
+        d["segs"] += [{} for _ in range(n - len(d["segs"]))]
+        if _num(spec.get("inset"), 0, 2):
+            d["inset"] = float(spec["inset"])
     return d
 
 
@@ -552,7 +566,7 @@ def layout_to_property(layout, name="Haus"):
             item["walls"].append(ow)
         item["devices"] = []
         for d in f.get("devices", []):
-            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("panels",) if k in d and d[k] not in (None, "")}
+            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("panels", "pts", "closed", "segs", "inset") if k in d and d[k] not in (None, "")}
             item["devices"].append(od)
         floors.append(item)
     out = {"schemaVersion": SCHEMA_VERSION, "name": name, "building": {"floors": floors}}

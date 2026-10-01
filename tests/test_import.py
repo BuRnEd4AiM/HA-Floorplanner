@@ -122,6 +122,25 @@ def test_nanoleaf_panels_and_flags_survive():
     assert d["hideModel"] is True and d["ledEntity"] == "light.x" and len(d["panels"]) == 1
 
 
+def test_ledring_sections_survive_import_and_export():
+    f = square_flat(rooms=[{"points": [[0, 0], [4, 0], [4, 3], [0, 3]]}],
+                    devices=[{"type": "ledring", "x": 2, "z": 1.5, "entity": "light.main", "closed": True, "inset": 0.15,
+                              "pts": [[-1.8, -1.3], [1.8, -1.3], [1.8, 1.3], [-1.8, 1.3]],
+                              "segs": [{"entity": "light.a"}, {"entity": 5}, {}, {}, {"entity": "light.extra"}]}])
+    layout = importer.build_layout(f)[0]
+    d = layout["floors"][0]["devices"][0]
+    assert d["y"] == 2.5 and d["closed"] is True and len(d["pts"]) == 4
+    assert d["segs"] == [{"entity": "light.a"}, {}, {}, {}]                 # one entry per section, bad ones emptied
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"][0]
+    assert {k: again[k] for k in ("pts", "closed", "segs", "inset", "entity")} == {k: d[k] for k in ("pts", "closed", "segs", "inset", "entity")}
+
+
+def test_ledring_without_points_gets_a_square_and_a_warning():
+    layout, _, rep, _ = importer.build_layout(square_flat(devices=[{"type": "ledring", "x": 0, "z": 0, "closed": False}]))
+    d = layout["floors"][0]["devices"][0]
+    assert len(d["pts"]) == 4 and len(d["segs"]) == 3 and any(w["path"].endswith(".pts") for w in rep.warnings)
+
+
 # ---------- GeoJSON
 def test_geojson_plot_and_building():
     plot = [[8.60, 49.40], [8.6005, 49.40], [8.6005, 49.4004], [8.60, 49.4004], [8.60, 49.40]]
