@@ -26,18 +26,18 @@ Progress is tracked with [milestones](https://github.com/wvssweber-max/HA-Floorp
 - [ ] Layout export / import
 - [ ] Complete documentation and screenshots
 
-## v3.0 – Property import (JSON API)
+## v3.0 – Property import (JSON API) – done in 3.0.0
 
 Describe a plot and the building as JSON (or import GeoJSON footprints) and let the add-on build the house or apartment from it. Feasible in stages, each one useful on its own:
 
-- [ ] Property JSON format (schema v1) with examples
-- [ ] `POST /api/import` with validation and dry run (creates a new house, never overwrites)
-- [ ] Interpreter: walls, rooms, openings, floors and roof from the description
-- [ ] Plot boundary and garden objects in the whole-house view
-- [ ] GeoJSON converter (lat/lon to local metres)
-- [ ] Import dialog in the UI with preview and errors
-- [ ] Export in the same format (round trip)
-- [ ] Docs and an AI prompt for generating the JSON
+- [x] Property JSON format (schema v1) with examples
+- [x] `POST /api/import` with validation and dry run (creates a new house, never overwrites)
+- [x] Interpreter: walls, rooms, openings, floors and roof from the description
+- [x] Plot boundary and garden objects in the whole-house view
+- [x] GeoJSON converter (lat/lon to local metres)
+- [x] Import dialog in the UI with preview and errors
+- [x] Export in the same format (round trip)
+- [x] Docs and an AI prompt for generating the JSON
 
 ## Backlog
 

@@ -1,3 +1,4 @@
+import os
 import json, sys, time, urllib.request
 from playwright.sync_api import sync_playwright
 
@@ -484,6 +485,24 @@ with sync_playwright() as p:
     pg10.wait_for_timeout(300)
     check("TV with a backlight entity shows its built-in LED frame", pg10.evaluate("window.__fp.ledShown('tvx')") is True and pg10.evaluate("window.__fp.ledShown('tvy')") is False)
     pg10.close()
+    pg11 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "florian"})
+    pg11.goto(BASE + "?debug=1&mode=edit"); pg11.wait_for_timeout(1500)
+    nh = pg11.evaluate("fetch('api/houses').then(r => r.json()).then(h => h.length)")
+    pg11.evaluate("document.querySelector('#housePanel').open = true")
+    pg11.click("#importOpen"); pg11.wait_for_selector("#importDialog[open]", timeout=5000)
+    check("import: run is disabled before a check", pg11.locator("#importRun").is_disabled())
+    pg11.click("#importExHouse"); pg11.wait_for_timeout(500)
+    pg11.click("#importCheck"); pg11.wait_for_selector("#importResult .imp-ok", timeout=5000)
+    pg11.screenshot(path=os.path.join(os.path.dirname(__file__), "import.png"))
+    check("import: check succeeds and enables the import", pg11.locator("#importRun").is_enabled())
+    pg11.fill("#importText", "{kaputt"); pg11.click("#importCheck"); pg11.wait_for_selector("#importResult .imp-errors", timeout=5000)
+    check("import: broken JSON shows an error and keeps run disabled", pg11.locator("#importRun").is_disabled())
+    pg11.click("#importExFlat"); pg11.wait_for_timeout(300); pg11.click("#importCheck"); pg11.wait_for_selector("#importResult .imp-ok", timeout=5000)
+    pg11.click("#importRun"); pg11.wait_for_timeout(2000)
+    nh2 = pg11.evaluate("fetch('api/houses').then(r => r.json()).then(h => h.length)")
+    fl = pg11.evaluate("window.__fp.layout.floors.length")
+    check("import: creates a new house and switches to it", nh2 == nh + 1 and fl == 1 and pg11.locator("#importDialog[open]").count() == 0, (nh, nh2, fl))
+    pg11.close()
     b.close()
 
 bad = [e for e in errors if "favicon" not in e]

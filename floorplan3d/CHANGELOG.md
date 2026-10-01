@@ -4,6 +4,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-10-01
+### Added
+- **Import a property by JSON**: *Häuser → Grundriss importieren (JSON)* builds a **new house** from a description of plot, rooms, windows/doors and devices. Walls are derived from the room polygons (shared edges become one inner wall, outer walls are thicker), openings snap to the nearest wall, floors/basement/roof are ordered automatically. Check first, import only after a clean check; errors name the exact JSON path
+- Example flat and example house in the dialog, a file loader and a **copy AI prompt** button (the prompt contains the full format, all device types and presets)
+- **Plot boundary and garden objects** (trees, lawn, terrace, pool, fence) are drawn in the 3D view and in the 2D plan
+- API: `POST /api/import[?dryRun=1&name=]`, `GET /api/export/property` (export a house in the same format), `GET /api/import/schema`, `GET /api/import/examples/{flat|house}`; GeoJSON polygons (lat/lon) are converted to metres automatically
+- Guide with format reference, curl examples and prompting tips: `docs/IMPORT.md`
+
 ## [2.5.0] - 2026-10-01
 ### Added
 - **TVs with built-in backlight**: the standing *TV* and the *Wand-TV* have a new field *Hintergrundlicht (LED hinter dem TV)*. Pick a light entity and a glowing frame appears behind the screen; it shines in the entity's colour (effects and scenes work as for any light) and lights the room. No extra device needed

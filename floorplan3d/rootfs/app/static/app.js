@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
+import { initImport } from './import.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
 import {
@@ -456,6 +457,13 @@ function build() {
       world.add(lawn);
     }
   }
+  if (layout.plot?.boundary?.length >= 3) {      // the plot (Grundstück): outline + a faint ground area
+    const pb = layout.plot.boundary, shape = new THREE.Shape(pb.map(([x, z]) => new THREE.Vector2(x, -z)));
+    const ground = new THREE.Mesh(new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: holo ? 0x1a8f6a : 0x6aa05a, transparent: true, opacity: holo ? 0.1 : 0.35, depthWrite: false, side: THREE.DoubleSide }));
+    ground.position.y = -0.04;
+    const loop = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pb.map(([x, z]) => new THREE.Vector3(x, -0.035, z))), new THREE.LineBasicMaterial({ color: holo ? 0x3dffb0 : 0x3f7a35 }));
+    world.add(ground, loop);
+  }
   layout.floors.forEach((f, i) => {
     if (i > floorIdx && !houseMode) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
@@ -895,6 +903,11 @@ async function switchHouse(id) {
   clearFocusOutline(); renderHouseUi();
   build(); fitCamera(); buildNav(true); renderBgPanel(); renderFloorPanel(); renderObjList(); refreshSelection();
 }
+initImport({ t, lang: () => settings.language, houseId: () => houseId, onImported: async (j) => {
+  houses.push({ id: j.id, name: j.name });
+  await switchHouse(j.id);
+  setStatus(t('imp.done').replace('{name}', j.name));
+} });
 $('#backupImport').addEventListener('click', () => $('#backupFile').click());
 $('#backupFile').addEventListener('change', async (e) => {
   const file = e.target.files[0];

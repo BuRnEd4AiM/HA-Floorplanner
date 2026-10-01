@@ -78,6 +78,12 @@
           <button type="button" id="backupImport" data-i18n="backup.import"></button>
           <input type="file" id="backupFile" accept=".json,application/json" hidden>
         </div>
+        <h4 data-i18n="imp.section"></h4>
+        <p class="sub" data-i18n="imp.sectionHint"></p>
+        <div class="stopTools">
+          <button type="button" id="importOpen" data-i18n="imp.open"></button>
+          <button type="button" id="propExport" data-i18n="imp.exportProp"></button>
+        </div>
       </details>
 
       <details id="floorPanel" class="edit-only">
@@ -177,6 +183,26 @@
     </aside>
   </main>
 </div>
+
+<dialog id="importDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="imp.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="sub" data-i18n="imp.hint"></p>
+    <div class="impBar">
+      <label class="btn"><span data-i18n="imp.file"></span><input type="file" id="importFile" accept=".json,.geojson,application/json" hidden></label>
+      <button type="button" id="importExFlat" data-i18n="imp.exFlat"></button>
+      <button type="button" id="importExHouse" data-i18n="imp.exHouse"></button>
+      <button type="button" id="importPrompt" data-i18n="imp.prompt"></button>
+    </div>
+    <textarea id="importText" spellcheck="false" data-i18n-placeholder="imp.placeholder"></textarea>
+    <input type="text" id="importName" data-i18n-placeholder="imp.name">
+    <div id="importResult"></div>
+    <div class="impFoot">
+      <button type="button" id="importCheck" data-i18n="imp.check"></button>
+      <button type="button" id="importRun" class="primary" disabled data-i18n="imp.run"></button>
+    </div>
+  </form>
+</dialog>
 
 <dialog id="settingsDialog">
   <form method="dialog" novalidate>
