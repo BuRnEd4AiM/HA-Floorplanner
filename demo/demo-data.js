@@ -157,7 +157,7 @@ export function installDemoBackend() {
     }
     if (path === 'api/houses') return method === 'GET' ? json([{ id: 'main', name: 'Demo-Haus' }]) : json({ error: 'not in the demo' }, 501);
     if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all' });
-    if (path === 'api/users') return json([{ username: 'florian', name: 'Florian', admin: true }, { username: 'tablet_wohnzimmer', name: 'Tablet Wohnzimmer', admin: false }, { username: 'familie', name: 'Familie', admin: false }]);
+    if (path === 'api/users') return json([{ username: 'admin', name: 'Admin', admin: true }, { username: 'tablet_wohnzimmer', name: 'Tablet Wohnzimmer', admin: false }, { username: 'familie', name: 'Familie', admin: false }]);
     if (path === 'api/settings') {
       if (method === 'PUT') { settings = { ...settings, ...JSON.parse(init.body) }; return json(settings); }
       return json(settings);

@@ -135,13 +135,13 @@ async def test_settings_look_and_stops(client):
 
 async def test_editors_permissions(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
-    opts.write_text('{"editors": ["Florian"]}')
+    opts.write_text('{"editors": ["Admin"]}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
     server._admin_cache.update(at=float("-inf"), ids=None)
     monkeypatch.setattr(server, "load_admin_ids", _no_admins)
     layout = {"version": 1, "floors": []}
-    tablet, admin = {"X-Remote-User-Name": "tablet_wz"}, {"X-Remote-User-Name": "florian"}
+    tablet, admin = {"X-Remote-User-Name": "tablet_wz"}, {"X-Remote-User-Name": "admin"}
     assert (await client.put("/api/layout", json=layout, headers=tablet)).status == 403
     assert (await client.put("/api/settings", json={"grid": 0.5}, headers=tablet)).status == 403
     assert (await client.put("/api/layout", json=layout)).status == 403                 # no user header at all
@@ -163,10 +163,10 @@ async def test_admins_may_edit_everyone_else_is_read_only(client, monkeypatch, t
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
 
     async def admins():
-        return {"abc123", "florian"}
+        return {"abc123", "admin"}
     monkeypatch.setattr(server, "load_admin_ids", admins)
     layout = {"version": 1, "floors": []}
-    by_id, by_name, tablet = {"X-Remote-User-Id": "ABC123"}, {"X-Remote-User-Name": "Florian"}, {"X-Remote-User-Name": "tablet_wz", "X-Remote-User-Id": "zzz"}
+    by_id, by_name, tablet = {"X-Remote-User-Id": "ABC123"}, {"X-Remote-User-Name": "Admin"}, {"X-Remote-User-Name": "tablet_wz", "X-Remote-User-Id": "zzz"}
     assert (await client.put("/api/layout", json=layout, headers=by_id)).status == 200
     assert (await client.put("/api/layout", json=layout, headers=by_name)).status == 200
     assert (await client.put("/api/layout", json=layout, headers=tablet)).status == 403
@@ -176,22 +176,22 @@ async def test_admins_may_edit_everyone_else_is_read_only(client, monkeypatch, t
 
 async def test_unknown_admins_fail_closed_but_editors_still_work(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
-    opts.write_text('{"editors": ["florian"]}')
+    opts.write_text('{"editors": ["admin"]}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
     monkeypatch.setattr(server, "load_admin_ids", _no_admins)
     layout = {"version": 1, "floors": []}
-    assert (await client.put("/api/layout", json=layout, headers={"X-Remote-User-Name": "florian"})).status == 200
+    assert (await client.put("/api/layout", json=layout, headers={"X-Remote-User-Name": "admin"})).status == 200
     assert (await client.put("/api/layout", json=layout, headers={"X-Remote-User-Name": "other"})).status == 403
 
 
 async def test_room_mapping(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
-    opts.write_text('{"editors": ["florian"]}')
+    opts.write_text('{"editors": ["admin"]}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
     monkeypatch.setattr(server, "load_admin_ids", _no_admins)
-    admin = {"X-Remote-User-Name": "florian"}
+    admin = {"X-Remote-User-Name": "admin"}
     r = await client.put("/api/settings", json={"userRooms": {"Tablet_WZ": "Wohnzimmer", "x": 5}}, headers=admin)
     assert (await r.json())["userRooms"] == {"Tablet_WZ": "Wohnzimmer"}
     me = await (await client.get("/api/me", headers={"X-Remote-User-Name": "tablet_wz"})).json()
@@ -211,7 +211,7 @@ async def test_load_admin_ids_via_websocket(aiohttp_server, monkeypatch):
         msg = await ws.receive_json()
         assert msg["type"] == "config/auth/list"
         await ws.send_json({"id": msg["id"], "type": "result", "success": True, "result": [
-            {"id": "AAA", "username": "Florian", "group_ids": ["system-admin"], "is_owner": False},
+            {"id": "AAA", "username": "Admin", "group_ids": ["system-admin"], "is_owner": False},
             {"id": "bbb", "username": "tablet", "group_ids": ["system-users"], "is_owner": False},
             {"id": "ccc", "username": "owner", "group_ids": [], "is_owner": True}]})
         await ws.close(); return ws
@@ -221,7 +221,7 @@ async def test_load_admin_ids_via_websocket(aiohttp_server, monkeypatch):
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "tok")
     server._admin_cache.update(at=float("-inf"), ids=None)
     ids = await server.load_admin_ids()
-    assert ids == {"aaa", "florian", "ccc", "owner"}
+    assert ids == {"aaa", "admin", "ccc", "owner"}
 
 
 async def test_load_admin_ids_unreachable_is_none(monkeypatch):
@@ -233,11 +233,11 @@ async def test_load_admin_ids_unreachable_is_none(monkeypatch):
 
 async def test_user_views_validation_and_me_view(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
-    opts.write_text('{"editors": ["florian"]}')
+    opts.write_text('{"editors": ["admin"]}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
     monkeypatch.setattr(server, "load_admin_ids", _no_admins)
-    admin = {"X-Remote-User-Name": "florian"}
+    admin = {"X-Remote-User-Name": "admin"}
     r = await client.put("/api/settings", json={"userViews": {"tablet_wz": "split", "kid": "hologram", "x": 5}}, headers=admin)
     assert (await r.json())["userViews"] == {"tablet_wz": "split"}
     assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "tablet_wz"})).json())["view"] == "split"
@@ -246,14 +246,14 @@ async def test_user_views_validation_and_me_view(client, monkeypatch, tmp_path):
 
 async def test_users_endpoint_editors_only(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
-    opts.write_text('{"editors": ["florian"]}')
+    opts.write_text('{"editors": ["admin"]}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
     monkeypatch.setattr(server, "load_admin_ids", _no_admins)
-    server._admin_cache["users"] = [{"username": "florian", "name": "Florian", "admin": True}]
+    server._admin_cache["users"] = [{"username": "admin", "name": "Admin", "admin": True}]
     assert (await client.get("/api/users", headers={"X-Remote-User-Name": "tablet"})).status == 403
-    us = await (await client.get("/api/users", headers={"X-Remote-User-Name": "florian"})).json()
-    assert us == [{"username": "florian", "name": "Florian", "admin": True}]
+    us = await (await client.get("/api/users", headers={"X-Remote-User-Name": "admin"})).json()
+    assert us == [{"username": "admin", "name": "Admin", "admin": True}]
     server._admin_cache["users"] = []
 
 
@@ -309,14 +309,14 @@ async def test_background_validation_and_traversal(client):
 async def test_background_upload_needs_editor(client, monkeypatch, tmp_path):
     from aiohttp import FormData
     opts = tmp_path / "options.json"
-    opts.write_text('{"editors": ["florian"]}')
+    opts.write_text('{"editors": ["admin"]}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
     monkeypatch.setattr(server, "load_admin_ids", _no_admins)
     fd = FormData(); fd.add_field("file", PNG, filename="a.png")
     assert (await client.post("/api/backgrounds", data=fd, headers={"X-Remote-User-Name": "tablet"})).status == 403
     fd = FormData(); fd.add_field("file", PNG, filename="a.png")
-    r = await client.post("/api/backgrounds", data=fd, headers={"X-Remote-User-Name": "florian"})
+    r = await client.post("/api/backgrounds", data=fd, headers={"X-Remote-User-Name": "admin"})
     assert r.status == 201
     name = (await r.json())["name"]
     assert (await client.delete(f"/api/backgrounds/{name}", headers={"X-Remote-User-Name": "tablet"})).status == 403
@@ -353,7 +353,7 @@ async def test_houses_cannot_delete_last(client):
 
 async def test_houses_need_editor(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
-    opts.write_text('{"editors": ["Florian"]}')
+    opts.write_text('{"editors": ["Admin"]}')
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
     server._admin_cache.update(at=float("-inf"), ids=None)

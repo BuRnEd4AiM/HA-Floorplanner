@@ -42,7 +42,7 @@ The add-on panel is open to every Home Assistant user (`panel_admin: false`), bu
 
   ```yaml
   editors:
-    - florian
+    - admin
   ```
 
   Use the login name (Settings → People → Users). Leave the list empty if only administrators may edit.
