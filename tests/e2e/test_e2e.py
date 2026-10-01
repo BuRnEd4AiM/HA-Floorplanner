@@ -709,6 +709,23 @@ with sync_playwright() as p:
     ar2 = pg17.evaluate("[window.__fp.navBar().scrollLeft, ...window.__fp.navArrows()]")
     check("tablet: pills that do not fit get arrows and scroll", ar == [False, True] and ar2[0] > 0 and ar2[1], (ar, ar2))
     pg17.close()
+    # --- stairs: the stair coming up is seen solid through its opening; a focused stairwell keeps its stair
+    pg18 = b.new_page(viewport={"width": 1200, "height": 800}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pg18.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pg18.goto(BASE + "?debug=1&mode=edit"); pg18.wait_for_timeout(1200)
+    pg18.evaluate("""(() => { const L = window.__fp.layout;
+      const R = (id, n, x0, z0, x1, z1) => ({ id, name: n, points: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]] });
+      L.floors = [
+        { id: 'sf0', name: 'Unten', kind: 'floor', walls: [], rooms: [R('sr0', 'Diele', 0, 0, 6, 4)], devices: [], blocks: [], stairs: [{ id: 'stA', type: 'straight', x: 0.5, z: 2, rot: 0, w: 1, tread: 0.27, turn: 'right', dir: 'up' }] },
+        { id: 'sf1', name: 'Oben', kind: 'floor', walls: [], rooms: [R('sr1', 'Galerie', 0, 0, 6, 4)], devices: [], blocks: [], stairs: [] }];
+      window.__fp.switchFloor(0); })()""")
+    pg18.locator("#floorPills button", has_text="Oben").click(); pg18.wait_for_timeout(600)
+    solid = pg18.evaluate("window.__fp.solidShape('stA')")
+    check("stairs: the stair coming up into the floor shown is drawn solid", solid)
+    pg18.locator("#floorPills button", has_text="Unten").click(); pg18.wait_for_timeout(600)
+    pg18.locator("#roomPills button", has_text="Diele").click(); pg18.wait_for_timeout(600)
+    check("stairs: a focused room keeps the stair standing in it", pg18.evaluate("window.__fp.isShown('stA')"))
+    pg18.close()
     pg11 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg11.goto(BASE + "?debug=1&mode=edit"); pg11.wait_for_timeout(1500)
     nh = pg11.evaluate("fetch('api/houses').then(r => r.json()).then(h => h.length)")
