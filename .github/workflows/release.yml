@@ -41,7 +41,7 @@ jobs:
           [ -n "$notes" ] || { echo "No CHANGELOG entry for $v"; exit 1; }
           if gh release view "v$v" >/dev/null 2>&1; then echo "Release v$v already exists"; exit 0; fi
           gh release create "v$v" --target "${GITHUB_SHA}" --title "3D Floorplan $v" --notes "$notes" --latest
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
       - name: Build and attach the single-file demo
