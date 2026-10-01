@@ -129,7 +129,7 @@ Outdoor items (*Baum, Busch, Pool, Rasen, Terrasse, Weg, Zaun*) are normal devic
 
 Tool **Treppe** (T): pick *Gerade*, *L*, *U* (with landing) or *Wendel*, set the direction and click in the plan. The steps are calculated from the floor height (3 m). Q/E rotates, dragging moves, the side panel edits width or radius, length and the turning side. Select a stair to get two handles in 2D: drag the one at the end of the run to change step depth (length) and the one at its side to change the width.
 
-- **Leads up**: the stair belongs to this floor and climbs to the next one. The floor above gets an opening over the upper flight automatically (dashed orange in 2D, only where the opening lies completely inside a room).
+- **Leads up**: the stair belongs to this floor and climbs to the next one. The floor above gets an opening over the whole stair automatically (dashed orange in 2D, only where the opening lies completely inside a room).
 - **Comes from below**: the stair starts one floor lower (for example in a block) and ends on this floor; the opening is cut into this floor.
 - **Treppenhaus**: one click places a U stair with four walls, a room, a flat door and, for stairs leading up, the same shell on the next floor. Everything stays editable as normal walls, rooms and doors.
 

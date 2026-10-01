@@ -9,7 +9,6 @@
  */
 
 export const STAIR_TYPES = ['straight', 'L', 'U', 'spiral'];
-export const HEADROOM = 2.0;         // height needed above the steps, decides where the floor opening starts
 const GAP = 0.1;                     // gap between the two flights of a U stair
 
 export function stairDefaults(type) {
@@ -28,7 +27,7 @@ const rect = (x0, x1, z0, z1) => [[x0, z0], [x1, z0], [x1, z1], [x0, z1]];
  * Local geometry of a stair.
  * Returns { treads: [{ poly, top }], hole: [[x,z],...], arrow: [[x,z],[x,z]] }
  *  - treads: solid step blocks, `top` = height of the walking surface above the stair's start level
- *  - hole  : outline of the opening needed in the floor above the steps that are closer than HEADROOM to it
+ *  - hole  : outline of the stairwell opening in the floor above: the whole stair, so you can look down it
  */
 export function stairLocal(st, H) {
   const { n, rise } = stairSteps(H);
@@ -37,10 +36,6 @@ export function stairLocal(st, H) {
   const treads = [];
   let hole, arrow;
   const flip = (poly) => poly.map(([x, z]) => [x, z * sg]);   // mirror to the chosen turning side (z only, x untouched)
-  const firstOver = (from, count) => {                 // first tread index that needs headroom
-    for (let k = from; k < from + count; k++) if ((k + 1) * rise > H - HEADROOM) return k;
-    return from + count - 1;
-  };
 
   if (st.type === 'spiral') {
     const R = w, a = (2 * Math.PI) / T, dirn = sg;
@@ -57,8 +52,7 @@ export function stairLocal(st, H) {
 
   if (st.type === 'straight') {
     for (let k = 0; k < T; k++) treads.push({ poly: rect(k * d, (k + 1) * d, -w / 2, w / 2), top: (k + 1) * rise });
-    const k0 = firstOver(0, T);
-    hole = rect(k0 * d, T * d, -w / 2, w / 2);
+    hole = rect(0, T * d, -w / 2, w / 2);
     arrow = [[0, 0], [T * d, 0]];
     return { treads, hole, arrow };
   }
@@ -70,7 +64,7 @@ export function stairLocal(st, H) {
   if (st.type === 'L') {
     treads.push({ poly: flip(rect(xa, xb, -w / 2, w / 2)), top: landTop });
     for (let j = 0; j < n2; j++) treads.push({ poly: flip(rect(xa, xb, w / 2 + j * d, w / 2 + (j + 1) * d)), top: (n1 + 2 + j) * rise });
-    hole = flip(rect(xa, xb, -w / 2, w / 2 + n2 * d));
+    hole = flip([[0, -w / 2], [xb, -w / 2], [xb, w / 2 + n2 * d], [xa, w / 2 + n2 * d], [xa, w / 2], [0, w / 2]]);
     arrow = [[0, 0], [xa + w / 2, 0], [xa + w / 2, (w / 2 + n2 * d) * sg]];
     return { treads, hole, arrow };
   }
@@ -80,7 +74,7 @@ export function stairLocal(st, H) {
   treads.push({ poly: flip(rect(xa, xb, -w / 2, z2)), top: landTop });
   for (let j = 0; j < n2; j++) treads.push({ poly: flip(rect(xa - (j + 1) * d, xa - j * d, z1, z2)), top: (n1 + 2 + j) * rise });
   const xl = xa - n2 * d;
-  hole = flip([[xl, z1], [xa, z1], [xa, -w / 2], [xb, -w / 2], [xb, z2], [xl, z2]]);
+  hole = flip(rect(Math.min(0, xl), xb, -w / 2, z2));
   arrow = [[0, 0], [xa + w / 2, 0], [xa + w / 2, (z1 + w / 2) * sg], [xl, (z1 + w / 2) * sg]];
   return { treads, hole, arrow };
 }

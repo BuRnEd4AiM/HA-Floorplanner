@@ -490,6 +490,7 @@ export default {
   'plot.clear': 'Perceel verwijderen',
   'plot.set': 'Perceel opgeslagen – het gazon heeft nu zijn vorm',
   'set.earthMargin': 'Gazon rond het huis zonder perceel (m)',
+  'set.earthMarginPlot': 'Je huis heeft een perceel: het gazon volgt de vorm ervan en deze breedte geldt niet. Groter maken: teken het perceel opnieuw of verwijder het.',
   'set.autosave': 'Automatisch opslaan na (s)',
   'set.section.general': 'Algemeen',
   'set.section.drawing': 'Tekenen',

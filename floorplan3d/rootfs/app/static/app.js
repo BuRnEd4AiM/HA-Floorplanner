@@ -214,6 +214,10 @@ function addPickProxy(model) {
 }
 
 const HOLO = { fill: 0x1f6fe0, edge: 0x3df2ff, on: 0xff9d2e, onEdge: 0xffd08a, floor: 0x0a1830, floorLit: 0xff9d2e };
+const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
+function underFloors(m) {
+  m.traverse((o) => { if (o.isMesh) { o.renderOrder = -0.5; [].concat(o.material).forEach((x) => { x.depthWrite = false; }); } });
+}
 const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
 const isHolo = () => settings.theme === 'holo';
 
@@ -303,7 +307,7 @@ const roomMeshes = new Map();     // room id -> { mesh, room }
 /* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing ---- */
 const earthCut = new THREE.Plane(new THREE.Vector3(0, -1, 0), -1000);   // nothing cut until the camera says where
 let earthInfo = null;                                                   // { cx, cz, corners ... } of the house footprint while the earth is cut
-let earthLawn = false, earthBox = null;                                                  // solid ground is drawn: the lawn replaces the grid
+let earthLawn = false, earthGround = false, earthBox = null;                             // solid lawn is drawn / any ground is drawn (it replaces the grid)
 /** outline of the house at ground level: walls (with their thickness) and rooms of the basements and the ground floor */
 function houseFootprint() {
   const polys = [];
@@ -354,7 +358,7 @@ function buildEarth(world, holo) {
   const geo = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: false, curveSegments: 1 });
   geo.rotateX(-Math.PI / 2);
   geo.translate(0, -depth - 0.02, 0);
-  const solid = settings.earth === 'solid', cut = solid && nb > 0, clip = cut ? [earthCut] : [];   // without a basement there is nothing to show in a cut
+  const solid = settings.earth === 'solid', cut = solid && nb > 0 && houseMode, clip = cut ? [earthCut] : [];   // without a basement there is nothing to show in a cut
   const tex = soilTexture().clone(); tex.needsUpdate = true; tex.repeat.set(0.5, 1 / depth);
   const lawn = new THREE.MeshBasicMaterial({ color: holo ? 0x1d6b4a : 0x6fa858, transparent: !solid || holo, opacity: solid ? (holo ? 0.85 : 1) : 0.2, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip });
   const soil = new THREE.MeshBasicMaterial({ map: solid ? tex : null, color: solid ? (holo ? 0x8a6a8a : 0xffffff) : 0x6b4a2f, transparent: !solid || holo, opacity: solid ? (holo ? 0.9 : 1) : 0.22, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip });
@@ -367,7 +371,7 @@ function buildEarth(world, holo) {
   world.add(top);
   earth.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), new THREE.LineBasicMaterial({ color: holo ? 0x3dffb0 : 0x7a5a38, transparent: true, opacity: holo ? 0.5 : 0.6, clippingPlanes: clip })));
   world.add(earth);
-  earthLawn = solid;
+  earthLawn = solid; earthGround = true;
   if (cut) {
     const cap = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ map: tex, color: holo ? 0x8a6a8a : 0xffffff, transparent: holo, opacity: holo ? 0.9 : 1, side: THREE.DoubleSide }));
     world.add(cap);
@@ -399,7 +403,7 @@ function earthCapGeometry(px, pz, ux, uz, rings, depth) {
 }
 /** the cut follows the camera: the earth in front of the facade that faces the camera is taken away, like a section drawing */
 function updateEarthCut() {
-  if (grid) grid.visible = !(earthLawn && (isLive() || houseMode || tool === 'select'));   // the lawn is the ground; the grid only while drawing
+  if (grid) grid.visible = !(earthGround && (isLive() || houseMode || tool === 'select'));   // the ground replaces the grid; the grid only while drawing
   if (!earthInfo) return;
   let dx = camera.position.x - earthInfo.cx, dz = camera.position.z - earthInfo.cz;
   const L = Math.hypot(dx, dz);
@@ -571,14 +575,14 @@ function build() {
   registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear();
   const holo = isHolo();
   const iso = isolatedRoom();
-  if (houseMode && settings.earth !== 'solid') {  // ground reference for the plot (with solid earth the lawn is the ground)
+  if (houseMode && settings.earth === 'off') {    // ground reference for the plot (with earth the lawn is the ground)
     const hb = houseBounds(), sz = Math.ceil(Math.max(hb.size * 2, 20) / 2) * 2;
     const grid = new THREE.GridHelper(sz, sz, holo ? HOLO.edge : 0x6c8a5c, holo ? 0x1a4fb8 : 0x88a878);
     grid.position.set(hb.cx, -0.03, hb.cz);
     grid.material.transparent = true; grid.material.opacity = 0.35;
     world.add(grid);
   }
-  earthInfo = null; earthLawn = false;
+  earthInfo = null; earthLawn = false; earthGround = false;
   const withEarth = settings.earth !== 'off' && (houseMode || floorIdx >= groundIdx()) && !iso;
   if (withEarth) buildEarth(world, holo);          // the house stands in the ground: lawn on top, the basement inside the earth
   if (layout.plot?.boundary?.length >= 3) {      // the plot (Grundstück): outline + a faint ground area
@@ -690,7 +694,7 @@ function build() {
 
     f.devices.forEach((d) => {
       if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
-      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d);
+      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (GROUND_COVER.has(d.type)) underFloors(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d);
       if (d.type === 'picture') setPicture(model, d);
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
@@ -704,6 +708,7 @@ function build() {
         o.castShadow = !holo;
         if (ghost && !holo) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.25; }
       });
+      if (GROUND_COVER.has(d.type)) underFloors(model);
       model.userData.kind = 'device';
       model.userData.id = d.id;
       model.userData.ghost = ghost;
@@ -1907,7 +1912,9 @@ function floorBounds() {
   const f = floor();
   const iso = isolatedRoom();
   const pts = iso ? iso.points : [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])];
-  if (!pts.length) return { cx: 0, cz: 0, size: 12 };
+  const rb = !iso && f.kind === 'roof' ? roofBox(floorIdx) : null;   // a roof has no walls of its own: frame the house below it
+  if (rb) pts.push([rb.x0, rb.z0], [rb.x1, rb.z1]);
+  if (!pts.length) return houseBounds();
   const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
   const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
   return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, size: Math.max(x1 - x0, z1 - z0, 4) };
@@ -3070,6 +3077,7 @@ function fillSettingsForm() {
     else if (dispKeys.has(key)) el.value = toDisp(settings[key]);
     else el.value = String(settings[key]);
   }
+  $('#earthMarginNote').hidden = !(layout.plot?.boundary?.length >= 3);
   renderTablets();
   renderStops('#tempStops', 'tempStops', '°C');
   renderStops('#humidStops', 'humidStops', '%');
@@ -3380,8 +3388,10 @@ if (params.get('debug')) {
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
     liveOk: () => liveOk,
+    underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },
+    bounds: () => floorBounds(), roofBox: (i) => roofBox(i),
     clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earthCut))) n++; }); return n; },
-    earthDbg: () => ({ n: earthCut.normal.toArray(), c: earthCut.constant, solid: earthLawn, cut: !!earthInfo, capVisible: !!earthInfo?.cap.visible, capVerts: earthInfo?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earthBox }),
+    earthDbg: () => ({ n: earthCut.normal.toArray(), c: earthCut.constant, solid: earthLawn, cut: !!earthInfo, capVisible: !!earthInfo?.cap.visible, capVerts: earthInfo?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earthBox, ground: earthGround }),
     stateOf: (e) => states[e]?.state,
     fakeState(e, st) { states[e] = { ...(states[e] || {}), state: st }; applyOpenings(); },
     has: (id) => registry.has(id),

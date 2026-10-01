@@ -490,6 +490,7 @@ export default {
   'plot.clear': 'Elimina terreno',
   'plot.set': 'Terreno salvato: il prato ora ha la sua forma',
   'set.earthMargin': 'Prato intorno alla casa senza terreno (m)',
+  'set.earthMarginPlot': 'La tua casa ha un terreno: il prato ne segue la forma e questa larghezza non vale. Per ingrandirlo, ridisegna il terreno o eliminalo.',
   'set.autosave': 'Salvataggio automatico dopo (s)',
   'set.section.general': 'Generale',
   'set.section.drawing': 'Disegno',

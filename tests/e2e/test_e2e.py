@@ -282,6 +282,8 @@ with sync_playwright() as p:
     check("roof is added as top floor", pg2.evaluate("window.__fp.layout.floors.at(-1).kind") == "roof" and pg2.locator("#roofType").is_visible())
     pg2.select_option("#roofType", "hip"); pg2.wait_for_timeout(200)
     check("roof shape can be chosen", pg2.evaluate("window.__fp.layout.floors.at(-1).roof.type") == "hip")
+    rb = pg2.evaluate("(() => { const n = window.__fp.layout.floors.length - 1; return [window.__fp.floorIdx() === n, window.__fp.bounds(), window.__fp.roofBox(n)]; })()")
+    check("the camera frames the roof, not a corner of the plan", rb[0] and rb[2] and abs(rb[1]["cx"] - (rb[2]["x0"] + rb[2]["x1"]) / 2) < 0.01 and abs(rb[1]["cz"] - (rb[2]["z0"] + rb[2]["z1"]) / 2) < 0.01, rb)
     g = pg2.evaluate("window.__fp.layout.floors[1].devices.length")
     pg2.evaluate("""() => { const f = window.__fp.layout.floors[1];
       f.devices.push({id:'t1',type:'tree',x:-6,z:-6,y:0,rot:0,scale:1,name:'Baum',entity:''},{id:'p1',type:'pool',x:-9,z:2,y:0,rot:0,scale:1,name:'Pool',entity:''},{id:'l1',type:'lawn',x:-8,z:-2,y:0,rot:0,scale:1,name:'Rasen',entity:''}); }""")
@@ -645,7 +647,12 @@ with sync_playwright() as p:
     pg16.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
       f.devices.push({ id: 'glawn', type: 'lawn', x: 3, z: 8, y: 0, rot: 0, scale: 2, name: 'Rasen', entity: '' }, { id: 'gtree', type: 'tree', x: -3, z: 2, y: 0, rot: 0, scale: 1, name: 'Baum', entity: '' }); window.__fp.rebuild(); })()""")
     pg16.wait_for_timeout(300)
+    e3 = pg16.evaluate("window.__fp.earthDbg()")
+    check("ground: on a floor the lawn stays whole (the cut is for the whole-house view)", e3["solid"] and not e3["cut"] and pg16.evaluate("window.__fp.clipped('glawn')") == 0, e3)
+    pg16.evaluate("window.__fp.setHouseMode(true)"); pg16.wait_for_timeout(500)
     check("ground: garden objects at ground level are cut open with the earth", pg16.evaluate("window.__fp.clipped('glawn')") > 0 and pg16.evaluate("window.__fp.clipped('gtree')") > 0)
+    check("ground: a garden lawn never covers the floors of the house", pg16.evaluate("window.__fp.underFloors('glawn')"))
+    pg16.evaluate("window.__fp.setHouseMode(false)"); pg16.wait_for_timeout(500)
     check("ground: the lawn reaches around placeholder blocks, as wide as the setting", bx and abs(bx[1] - 63) < 0.01 and bx[3] >= 12.99, bx)
     # the plot drawn in the 2D plan gives the lawn its shape; it can be deleted again
     pg16.locator("#modeSwitch button[data-mode=edit]").click(); pg16.wait_for_timeout(500)

@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.8.1] - 2026-10-01
+### Fixed
+- The **grid** no longer gets in the way on the floors (live and edit) nor with see-through earth: any ground replaces it, it only shows while a drawing tool is active (#39)
+- A garden **lawn, terrace or path** object no longer lies over the floors of the house like a carpet (#40)
+- On a floor (e.g. ground floor) the lawn in front of the house is **no longer cut away**; the earth is cut open only in the whole-house view, where the basement is shown (#41)
+- ⚙ *Lawn around the house without a plot* shows a note when the house has a plot (the lawn then follows the plot) (#42)
+- Choosing **Roof** frames the roof instead of a corner of the plan (#43)
+- **Stairs cut a full opening** into the floor above, over the whole stair (straight, L and U), not only over its upper part (#44)
+
 ## [3.8.0] - 2026-10-01
 ### Added
 - **Draw your plot (Grundstück)**: new tool *Plot* in edit mode. Click the corners in the 2D plan, close with a double click, Enter or a click on the first point; the lawn then has exactly that shape. *Delete plot* removes it again
