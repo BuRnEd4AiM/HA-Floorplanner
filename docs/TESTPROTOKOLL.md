@@ -8,9 +8,9 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 | Datum | Stand | Python-Tests | Browser-Test (E2E) | Bemerkung |
 |---|---|---|---|---|
-| 2026-10-02 | 3.20.0 | 72 bestanden | siehe unten | Benutzer-Reiter, `users.json`, Synchronisieren |
+| 2026-10-02 | 3.20.0 | 72 bestanden | 204 von 204 bestanden | Benutzer-Reiter, `users.json`, Synchronisieren |
 
-E2E-Ergebnis 3.20.0: wird nach dem letzten Lauf eingetragen (Zeile unten).
+E2E-Ergebnis 3.20.0: alle 204 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
 
 ## Handtest in der Demo (Besitzer)
 
