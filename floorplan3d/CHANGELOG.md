@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.17.0] - 2026-10-02
+### Changed
+- **Movement in the cameras drop-down**: the *📷* button now names the room where movement was detected (*Bewegung erkannt: Wohnzimmer*, or *Bewegung in 2 Räumen*) and turns red. Its drop-down groups everything by room, with the floor next to the room name so equal room names on two floors are not mixed up; rooms with movement come first with a red *Bewegung erkannt* mark. Besides the cameras the drop-down now also lists the motion and presence sensors placed in the plan (🔔), so a room with a motion sensor but no camera shows up too
+
 ## [3.16.0] - 2026-10-02
 ### Changed
 - **Rooms as a drop-down**: the row of room buttons at the top is one button *Zimmer ▾* now. It lists all rooms (in the whole-house view grouped by floor, top floor first), shows a green dot while somebody is in a room, and the button carries the name of the room you are in. No more scrolling a long row on a tablet
