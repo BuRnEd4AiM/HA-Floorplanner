@@ -455,12 +455,31 @@ def models_dir(request) -> Path:
     return data_dir(request) / "models"
 
 
+LIBRARY_DIR = Path(__file__).parent / "library"      # models shipped with the add-on (CC0, see CREDITS.md), read-only
+
+
+def find_model(request, name: str):
+    """The user's own upload wins over a shipped model of the same name."""
+    if not MODEL_NAME.match(name):
+        return None
+    for d in (models_dir(request), LIBRARY_DIR):
+        p = d / f"{name}.glb"
+        if p.is_file():
+            return p
+    return None
+
+
 async def list_models(request):
     d = models_dir(request)
     items = []
     if d.exists():
         for p in sorted(d.glob("*.glb")):
             items.append({"name": p.stem, "size": p.stat().st_size, "url": f"api/models/{p.stem}"})
+    own = {i["name"] for i in items}
+    if LIBRARY_DIR.is_dir():
+        for p in sorted(LIBRARY_DIR.glob("*.glb")):
+            if p.stem not in own:
+                items.append({"name": p.stem, "size": p.stat().st_size, "url": f"api/models/{p.stem}", "builtin": True})
     return web.json_response(items)
 
 
@@ -495,9 +514,8 @@ async def upload_model(request):
 
 
 async def get_model(request):
-    name = request.match_info["name"]
-    p = models_dir(request) / f"{name}.glb"
-    if not MODEL_NAME.match(name) or not p.is_file():
+    p = find_model(request, request.match_info["name"])
+    if p is None:
         raise web.HTTPNotFound()
     return web.FileResponse(p, headers={"Content-Type": "model/gltf-binary", "Cache-Control": "max-age=3600"})
 
