@@ -370,7 +370,21 @@ with sync_playwright() as p:
     pg4.close(); pg5.close()
     code = pg3.evaluate("fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({version:1,floors:[]})}).then(r => r.status)")
     check("non-editor cannot save (403)", code == 403, code)
+    check("users tab: hidden for a read-only user", not pg3.locator("#usersBtn").is_visible())
     pg3.close()
+    # --- users & tablets: an own tab in the top bar (not in the gear), saved into a file of the config folder, sync button
+    pgU = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgU.goto(BASE + "?debug=1&mode=edit"); pgU.wait_for_timeout(1500)
+    check("users tab: visible in the top bar for admins", pgU.locator("#usersBtn").is_visible())
+    pgU.click("#settingsBtn"); pgU.wait_for_timeout(200)
+    check("users & tablets are no longer inside the gear dialog", pgU.locator("#settingsDialog #tabletRows").count() == 0)
+    pgU.keyboard.press("Escape"); pgU.click("#usersBtn"); pgU.wait_for_timeout(300)
+    pgU.click("#addTablet"); pgU.fill("#tabletRows .tablet input", "tablet_flur"); pgU.press("#tabletRows .tablet input", "Tab"); pgU.wait_for_timeout(700)
+    uf = pgU.evaluate("fetch('api/users-file').then(r => r.json())"); uv = api("api/settings")["userViews"]
+    check("users tab: a tablet is saved and written to the file", "tablet_flur" in uv and uf.get("inSync") is True and uf.get("fileUsers", 0) >= 1, (uv, uf))
+    pgU.click("#usersSync"); pgU.wait_for_timeout(600)
+    check("users tab: sync loads the file back", "tablet_flur" in pgU.evaluate("window.__fp ? [...document.querySelectorAll('#tabletRows input[data-role=user]')].map(i => i.value) : []") and pgU.inner_text("#usersFileStatus") != "")
+    pgU.close()
     # --- several houses + per-pane window sensors
     pg6 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg6.on("dialog", lambda d: d.accept("Eltern") if d.type == "prompt" else d.accept())

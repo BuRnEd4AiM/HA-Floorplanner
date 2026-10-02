@@ -565,3 +565,36 @@ def test_kiosk_and_alert_settings_are_validated():
     s = server.validate_settings({"idleReturn": 0, "nightDim": "always", "weatherEntity": "sensor.x", "idleReturn2": 1})
     assert s["idleReturn"] == 0.0 and s["nightDim"] == "off" and s["weatherEntity"] == ""
     assert server.validate_settings({"idleReturn": 999})["idleReturn"] == 240.0
+
+
+async def test_users_and_tablets_are_mirrored_into_the_config_folder_and_synced_back(client, tmp_path):
+    cfg = tmp_path / "addon_config" / "users.json"
+    assert (await (await client.get("/api/users-file")).json())["exists"] is False
+    await client.put("/api/settings", json={"userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d", "tv": "bogus"}})
+    import json
+    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}}
+    st = await (await client.get("/api/users-file")).json()
+    assert st["exists"] and st["inSync"] and st["users"] == 1
+
+    # the file in the HA folder is edited / restored: the sync button loads it into the add-on
+    cfg.write_text(json.dumps({"userRooms": {"tablet_bad": "Bad"}, "userViews": {"tablet_bad": "3d", "x": "evil"}}), "utf-8")
+    assert (await (await client.get("/api/users-file")).json())["inSync"] is False
+    s = await (await client.post("/api/users-file/sync", json={})).json()
+    assert s["userRooms"] == {"tablet_bad": "Bad"} and s["userViews"] == {"tablet_bad": "3d"} and s["language"]       # other settings stay
+    assert (await (await client.get("/api/settings")).json())["userRooms"] == {"tablet_bad": "Bad"}
+
+    # the other way: the add-on state is written into the folder
+    await client.put("/api/settings", json={"userRooms": {"a": "Büro"}})
+    cfg.unlink()
+    assert (await client.post("/api/users-file/sync", json={"direction": "load"})).status == 404
+    assert (await client.post("/api/users-file/sync", json={"direction": "save"})).status == 200
+    assert json.loads(cfg.read_text("utf-8"))["userRooms"] == {"a": "Büro"}
+
+
+async def test_fresh_install_gets_users_and_tablets_back_from_the_config_folder(aiohttp_client, tmp_path):
+    import json
+    (tmp_path / "cfg").mkdir()
+    (tmp_path / "cfg" / "users.json").write_text(json.dumps({"userRooms": {"tab": "Flur"}, "userViews": {"tab": "split"}}), "utf-8")
+    c = await aiohttp_client(server.make_app(tmp_path / "data", tmp_path / "cfg"))
+    s = await (await c.get("/api/settings")).json()
+    assert s["userRooms"] == {"tab": "Flur"} and s["userViews"] == {"tab": "split"}

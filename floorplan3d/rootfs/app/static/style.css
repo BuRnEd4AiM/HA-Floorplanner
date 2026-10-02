@@ -466,3 +466,9 @@ body.v-split #planFloorsChip { right: calc(50% + 12px); }
 #planFloorsList:empty { display: none; }
 #planFloorsList li { display: flex; align-items: center; gap: 8px; padding: 2px 10px 2px 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; }
 #planFloorsList i { display: block; width: 12px; height: 10px; border-radius: 2px; opacity: .85; }
+
+/* users & tablets: its own tab in the top bar, for administrators only */
+body.readonly .admin-only, body.kiosk .admin-only { display: none; }
+#usersDialog { width: min(640px, 94vw); }
+#usersFileStatus { min-height: 1.2em; }
+#usersFileStatus.warn { color: var(--warn, #ff9d2e); }

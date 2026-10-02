@@ -2,6 +2,7 @@
 <html lang="de" data-theme="holo">
 <head>
 <meta charset="utf-8">
+  <link rel="icon" href="data:,">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>3D Floorplan</title>
 <link rel="stylesheet" href="style.css">
@@ -41,6 +42,7 @@
     </div>
     <div class="group right">
       <span id="status"></span>
+      <button id="usersBtn" class="admin-only" data-i18n="users.btn" data-i18n-title="users.tip"></button>
       <button id="saveBtn" class="primary edit-only" data-i18n="save"></button>
       <button id="settingsBtn" class="icon" data-i18n-title="settings" aria-label="Settings">⚙</button>
     </div>
@@ -259,6 +261,21 @@
   </form>
 </dialog>
 
+<dialog id="usersDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="set.section.tablets"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="hint" data-i18n="set.tabletHelp"></p>
+    <datalist id="haUsers"></datalist>
+    <div id="tabletRows"></div>
+    <div class="stopTools"><button type="button" id="addTablet" data-i18n="set.addTablet"></button></div>
+
+    <h3 data-i18n="users.fileTitle"></h3>
+    <p class="hint" data-i18n="users.fileHelp"></p>
+    <div class="stopTools"><button type="button" id="usersSync" data-i18n="users.syncBtn" data-i18n-title="users.syncTip"></button></div>
+    <p class="sub" id="usersFileStatus"></p>
+  </form>
+</dialog>
+
 <dialog id="settingsDialog">
   <form method="dialog" novalidate>
     <div class="dlgHead"><h2 data-i18n="settings"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
@@ -296,12 +313,6 @@
     <div class="row"><label for="setEarthMargin" data-i18n="set.earthMargin"></label><input id="setEarthMargin" type="number" step="any"></div>
     <p id="earthMarginNote" class="sub" data-i18n="set.earthMarginPlot" hidden></p>
     <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
-
-    <h3 data-i18n="set.section.tablets"></h3>
-    <p class="hint" data-i18n="set.tabletHelp"></p>
-    <datalist id="haUsers"></datalist>
-    <div id="tabletRows"></div>
-    <div class="stopTools"><button type="button" id="addTablet" data-i18n="set.addTablet"></button></div>
 
     <h3 data-i18n="set.section.kiosk"></h3>
     <p class="hint" data-i18n="set.kioskHelp"></p>

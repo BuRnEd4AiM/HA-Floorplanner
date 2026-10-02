@@ -4187,7 +4187,32 @@ $('#setPerf').addEventListener('change', (e) => {     // per device (this browse
   try { if (e.target.value === 'auto') localStorage.removeItem(PERF_KEY); else localStorage.setItem(PERF_KEY, e.target.value); } catch { /* no storage */ }
   location.reload();
 });
-$('#settingsBtn').addEventListener('click', () => { fillSettingsForm(); dlg.showModal(); loadHaUsers(); });
+$('#settingsBtn').addEventListener('click', () => { fillSettingsForm(); dlg.showModal(); });
+const usersDlg = $('#usersDialog');
+async function refreshUsersFile(note = '') {
+  const el = $('#usersFileStatus');
+  try {
+    const r = await fetch('api/users-file');
+    if (!r.ok) { el.textContent = note; return; }
+    const s = await r.json();
+    el.classList.toggle('warn', !s.inSync);
+    el.textContent = note || (!s.exists ? t('users.fileNone') : s.inSync ? t('users.fileOk', { n: s.users }) : t('users.fileDiff', { f: s.fileUsers, n: s.users }));
+  } catch { el.textContent = note; }
+}
+async function syncUsersFile() {
+  try {
+    const r = await fetch('api/users-file/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok) { await refreshUsersFile(t('users.syncFail', { msg: body.error || r.status })); return; }
+    settings = { ...settings, ...body }; settingsEtag = r.headers.get('ETag') || settingsEtag;
+    renderTablets();
+    await refreshUsersFile(t('users.syncDone', { n: new Set([...Object.keys(settings.userRooms || {}), ...Object.keys(settings.userViews || {})]).size }));
+  } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
+}
+$('#usersBtn').addEventListener('click', () => { renderTablets(); usersDlg.showModal(); loadHaUsers(); refreshUsersFile(); });
+$('#usersSync').addEventListener('click', syncUsersFile);
+usersDlg.addEventListener('change', async () => { await commitSettings(); refreshUsersFile(); });
+usersDlg.addEventListener('click', (e) => { if (e.target === usersDlg) usersDlg.close(); });
 dlg.addEventListener('change', commitSettings);
 dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });     // a click on the dark backdrop closes it too
 
