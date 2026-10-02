@@ -22,12 +22,13 @@ const params = new URLSearchParams(location.search);
 
 let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true, wallStop: true, earth: 'solid', earthMargin: 5,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cutaway: true, wallStop: true, earth: 'solid', earthMargin: 5,
   alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
-  userRooms: {}, userViews: {}, belowVisibility: 0.5, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
+  userRooms: {}, userViews: {}, belowVisibility: 0.5, belowMode: 'dim', bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
   humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
+  co2Stops: [{ v: 400, c: '#2ad0a0' }, { v: 800, c: '#ffd84a' }, { v: 1200, c: '#ff8a2a' }, { v: 2000, c: '#ff3a3a' }],
 };
 const DEFAULT_LOOK = structuredClone(settings);
 let layout = { version: 1, floors: [] };
@@ -74,7 +75,14 @@ const $ = (s) => document.querySelector(s);
 const uid = () => Math.random().toString(36).slice(2, 9);
 const floor = () => layout.floors[floorIdx];
 const groundIdx = () => Math.max(0, layout.floors.findIndex((f) => f.kind !== 'basement'));   // first floor above ground
-const elev = (i = floorIdx) => (i - groundIdx()) * FLOOR_H;
+let exploded = false;                  // whole-house view with the floors pulled apart
+const EXPLODE_GAP = 2.5;               // extra space between the floors above ground when pulled apart (m)
+const elev = (i = floorIdx) => {
+  const k = i - groundIdx();
+  return k * FLOOR_H + (houseMode && exploded && k > 0 ? k * EXPLODE_GAP : 0);
+};
+/** how clearly the floors below the open one show: dimmed (the setting), fully (stacked) */
+const belowVis = () => (settings.belowMode === 'stacked' ? 1 : settings.belowVisibility);
 let houseMode = false;                 // "whole house" view: every floor solid, nothing ghosted
 const isLive = () => mode === 'live';
 
@@ -170,7 +178,7 @@ function mat(color, ghost, extra = {}) {
   });
 }
 
-function textSprite(text, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = false } = {}) {
+function textSprite(text, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = false, pill = false } = {}) {
   const c = document.createElement('canvas');
   const S = 4;                                    // render text at 4x so it stays sharp when zooming in
   c.width = 256 * S; c.height = 64 * S;
@@ -200,6 +208,14 @@ function textSprite(text, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = f
     }
     g.font = `600 ${size}px system-ui, sans-serif`;
     g.textAlign = 'center'; g.textBaseline = 'middle';
+    if (pill) {                                    // a readable badge on the device: dark pill that fits the text
+      const w = Math.min(244, g.measureText(txt).width + 30);
+      g.fillStyle = 'rgba(16,22,30,.82)'; g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 2;
+      g.beginPath(); g.roundRect(128 - w / 2, 10, w, 44, 22); g.fill(); g.stroke();
+      g.fillStyle = '#fff'; g.fillText(txt, 128, 33);
+      tex.needsUpdate = true;
+      return;
+    }
     g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.75)';
     g.strokeText(txt, 128, 32);
     g.fillStyle = '#fff'; g.fillText(txt, 128, 32);
@@ -452,9 +468,9 @@ function holoify(model, ghost) {
   (model.userData.segs || []).forEach((sg) => { sg.holo ||= { fill: [], edge: [] }; sg.glow.forEach((m) => segOf.set(m, sg)); });
   for (const o of meshes) {
     const isGlow = glow.has(o.material), isLed = led.has(o.material), sg = segOf.get(o.material);
-    o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.03 + 0.2 * settings.belowVisibility : (model.userData.solid ? 0.8 : 0.38), depthWrite: !!model.userData.solid && !ghost, side: model.userData.solid ? THREE.DoubleSide : THREE.FrontSide });
+    o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.03 + 0.2 * belowVis() : (model.userData.solid ? 0.8 : 0.38), depthWrite: !!model.userData.solid && !ghost, side: model.userData.solid ? THREE.DoubleSide : THREE.FrontSide });
     o.userData.holo = true;
-    const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 });
+    const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * belowVis() : 0.95 });
     o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 25), em));
     if (isGlow) { hg.fill.push(o.material); hg.edge.push(em); }
     if (isLed) { hl.fill.push(o.material); hl.edge.push(em); }
@@ -509,7 +525,13 @@ function pointInPoly(x, z, pts) {
   return inside;
 }
 
-const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate']);
+const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate', 'cover']);   // "important": measured values
+/** Value labels on devices: none, only the important ones (sensors, climate, covers) or every device with an entity. */
+function wantsLabel(d) {
+  const mode = settings.labelMode;
+  if (mode === 'none' || !d.entity) return false;
+  return mode === 'all' || LABEL_DOMAINS.has(d.entity.split('.')[0]);
+}
 
 /** Doors/windows live inside their wall group, which is scaled down when the wall is lowered. This unscaled
  *  hit box (with an outline shown only while the wall is lowered) keeps them selectable, movable and tappable. */
@@ -620,8 +642,9 @@ function build() {
   layout.floors.forEach((f, i) => {
     if (i > floorIdx && !houseMode) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
+    if (!houseMode && settings.belowMode === 'hidden' && i < floorIdx) return;   // floors below hidden by choice
     const ghost = (i < floorIdx && !houseMode) || (houseMode && f.kind === 'basement' && settings.earth !== 'solid');   // with solid earth the cut shows the basement as it is
-    const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * settings.belowVisibility : 0.95 }) : null;
+    const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * belowVis() : 0.95 }) : null;
     const g = new THREE.Group();
     g.position.y = elev(i);
     world.add(g);
@@ -635,8 +658,8 @@ function build() {
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
       const m = new THREE.Mesh(geo, holo
-        ? (ghost ? roomLightMat('floor', 0.15 + 0.5 * settings.belowVisibility, true)
-                 : roomLightMat('floor', floorIdx > 0 ? 1 - 0.65 * settings.belowVisibility : 1))
+        ? (ghost ? roomLightMat('floor', 0.15 + 0.5 * belowVis(), true)
+                 : roomLightMat('floor', floorIdx > 0 ? 1 - 0.65 * belowVis() : 1))
         : mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
       m.position.y = 0.01;
       m.receiveShadow = true;
@@ -670,7 +693,7 @@ function build() {
           const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);
           const sp = textSprite(is2d ? `${r.name} · ${imperial() ? (polyArea(r.points) * 10.7639).toFixed(0) + ' ft²' : polyArea(r.points).toFixed(1) + ' m²'}` : r.name);
           sp.position.set(c[0], 0.45, c[1]);
-          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * settings.belowVisibility; }
+          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * belowVis(); }
           g.add(sp);
         }
       }
@@ -723,7 +746,7 @@ function build() {
       if (wallLength(w) < 0.01) return;
       if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
       const wallMat = holo
-        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * settings.belowVisibility : settings.wallOpacity, depthWrite: false, side: THREE.DoubleSide })
+        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * belowVis() : settings.wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : mat('#d9d4cc', ghost);
       const wg = buildWall(w, { material: wallMat, ghost, low: lowWalls, cut: halfCut && !lowWalls ? 0.5 : 0, makeMat: mat, holo, edgeMaterial });
       if (halfCut && !lowWalls) {                                // what sticks out above the cut (door leaves, window frames) is clipped off
@@ -764,11 +787,10 @@ function build() {
       registry.set(d.id, model);
       if (!ghost) pickables.push(model);
       {
-        const dom = d.entity?.split('.')[0];
-        if (LABEL_DOMAINS.has(dom)) {
-          const sp = textSprite('…', { size: 34, scaleX: 1.2, scaleY: 0.3 });
+        if (wantsLabel(d)) {
+          const sp = textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true });
           sp.position.set(d.x, (d.y || 0) + 0.3 + 0.2 * (d.scale || 1), d.z);
-          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * settings.belowVisibility; }
+          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * belowVis(); }
           g.add(sp);
           labelSprites.set(d.id, sp);
         }
@@ -789,6 +811,20 @@ function build() {
 
 const ON_STATES = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'unlocked', 'home']);
 
+/** Short text for the badge on a device: "21.4 °C", "95 W", "70 %" (cover), the app on a TV ... */
+function labelText(entityId) {
+  const s = states[entityId];
+  if (!s) return '—';
+  if (s.state === 'unavailable') return t('off.unavailable');
+  const dom = entityId.split('.')[0], num = parseFloat(s.state);
+  const icon = { temperature: '🌡 ', humidity: '💧 ', power: '⚡ ', carbon_dioxide: 'CO₂ ', illuminance: '☀ ', battery: '🔋 ' }[s.dc] || (s.unit === 'W' ? '⚡ ' : '');
+  if (dom === 'climate') return typeof s.ct === 'number' ? `🌡 ${Math.round(s.ct * 10) / 10} °C` : s.state;
+  if (dom === 'cover') return typeof s.position === 'number' ? `↕ ${s.position} %` : s.state;
+  if (dom === 'light') return s.state !== 'on' ? t('live.off') : s.brightness != null ? `💡 ${s.brightness} %` : t('live.on');
+  if (dom === 'media_player') return s.state === 'off' ? t('live.off') : `▶ ${s.app || s.state}`;
+  if (dom === 'sensor' && !isNaN(num) && /^-?[\d.]+$/.test(s.state)) return `${icon}${Math.round(num * 10) / 10}${s.unit ? ' ' + s.unit : ''}`;
+  return stateText(entityId);
+}
 function stateText(entityId) {
   const s = states[entityId];
   if (!s) return '—';
@@ -796,28 +832,29 @@ function stateText(entityId) {
   return s.unit ? `${s.state} ${s.unit}` : s.state;
 }
 
-let viewMode = 'normal';           // normal | temp | humid (room colouring by sensor values)
+let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
+const VIEW_STOPS = { temp: ['tempStops', '°C'], humid: ['humidStops', '%'], co2: ['co2Stops', 'ppm'] };
 /* Temperature / humidity of a room: average of every matching sensor placed in it or assigned to its HA area
    (sensors with °C/°F or device_class temperature/humidity, and the current values of climate entities). */
 function roomHeat(room, f) {
   const ids = new Set(entityDevices(f).filter((d) => d.entity && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
   if (room.area) (areas.find((x) => x.id === room.area)?.entities || []).forEach((id) => ids.add(id));
-  const temp = viewMode === 'temp';
-  const vals = [];
+  const mode = viewMode, vals = [];
   ids.forEach((id) => {
     const s = states[id];
     if (!s) return;
     const num = parseFloat(s.state);
     if (id.startsWith('climate.')) {
-      const v = temp ? s.ct : s.ch;
+      const v = mode === 'temp' ? s.ct : mode === 'humid' ? s.ch : null;
       if (typeof v === 'number') vals.push(v);
     } else if (!isNaN(num) && id.startsWith('sensor.')) {
-      if (temp && (s.unit === '°C' || s.dc === 'temperature')) vals.push(s.unit === '°F' ? (num - 32) * 5 / 9 : num);
-      else if (!temp && s.unit === '%' && (s.dc === 'humidity' || /feucht|humid/i.test(id))) vals.push(num);
+      if (mode === 'temp' && (s.unit === '°C' || s.unit === '°F' || s.dc === 'temperature')) vals.push(s.unit === '°F' ? (num - 32) * 5 / 9 : num);
+      else if (mode === 'humid' && s.unit === '%' && (s.dc === 'humidity' || /feucht|humid/i.test(id))) vals.push(num);
+      else if (mode === 'co2' && (s.dc === 'carbon_dioxide' || (s.unit === 'ppm' && /co2/i.test(id)))) vals.push(num);
     }
   });
   if (!vals.length) return null;
-  return colorFromStops(temp ? settings.tempStops : settings.humidStops, vals.reduce((x, y) => x + y) / vals.length);
+  return colorFromStops(settings[VIEW_STOPS[mode][0]], vals.reduce((x, y) => x + y) / vals.length);
 }
 
 const OPEN_HEX = 0xff4a3d;
@@ -871,11 +908,13 @@ function updateFloorCards() {
       const el = document.createElement('button'); el.type = 'button'; el.className = 'floorCard';
       el.addEventListener('click', () => switchFloor(+el.dataset.floor));
       box.append(el);
-      c = floorCards[n] = { el, key: '', pos: new THREE.Vector3() };
+      c = floorCards[n] = { el, key: '', pos: new THREE.Vector3(), corners: [] };
     }
     const pts = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points)];
     const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
-    c.pos.set(Math.max(...xs) + 0.6, elev(i) + FLOOR_H / 2, (Math.min(...zs) + Math.max(...zs)) / 2);
+    const [x0, x1, z0, z1, y] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs), elev(i) + FLOOR_H / 2];
+    c.pos.set((x0 + x1) / 2, y, (z0 + z1) / 2);                     // the card points at the middle of the floor ...
+    c.corners = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]].map(([x, z]) => new THREE.Vector3(x, y, z));   // ... and keeps clear of its outline
     const lights = f.devices.filter((d) => /^light\./.test(d.entity || '') && ON_STATES.has(states[d.entity]?.state)).length;
     const windows = f.walls.reduce((a, w) => a + (w.openings || []).filter((o) => o.type === 'window' && isOpen(o.entity)).length, 0);
     const key = JSON.stringify([i, f.name, f.rooms.length, lights, windows, settings.language]);
@@ -894,30 +933,54 @@ const _cardV = new THREE.Vector3();
 function placeFloorCards() {
   if (!houseMode || !floorCards.length) return;
   const w = canvas.clientWidth, h = canvas.clientHeight;
+  const toScreen = (v) => { _cardV.copy(v).project(camera); return { x: (_cardV.x + 1) / 2 * w, y: (1 - _cardV.y) / 2 * h, ok: _cardV.z < 1 }; };
+  // the cards stand beside the house, not over it: right of its outline, or left of it when there is no room
+  let minX = Infinity, maxX = -Infinity;
+  floorCards.forEach((c) => c.corners.forEach((p) => { const q = toScreen(p); if (q.ok) { minX = Math.min(minX, q.x); maxX = Math.max(maxX, q.x); } }));
   const vis = [];
   floorCards.forEach((c) => {
-    _cardV.copy(c.pos).project(camera);
-    const on = _cardV.z < 1 && Math.abs(_cardV.x) < 1.2 && Math.abs(_cardV.y) < 1.2;
+    const q = toScreen(c.pos);
+    const on = q.ok && q.y > -40 && q.y < h + 40 && isFinite(maxX);
     c.el.style.display = on ? '' : 'none';
-    if (on) vis.push({ c, x: (_cardV.x + 1) / 2 * w, y: (1 - _cardV.y) / 2 * h });
+    if (on) vis.push({ c, y: q.y });
   });
+  const wmax = Math.max(0, ...vis.map((v) => v.c.el.offsetWidth || 240));
+  const right = maxX + 16 + wmax <= w - 8;
+  const x = right ? maxX + 16 : Math.max(150, minX - 16 - wmax);       // 150: keep clear of the floor rail
   vis.sort((p, q) => p.y - q.y);
-  let floor = -Infinity;                                  // floors lie close above each other on screen: push the cards apart
-  vis.forEach((v) => {
-    v.y = Math.max(v.y, floor);
-    floor = v.y + (v.c.el.offsetHeight || 44) + 6;
-    v.c.el.style.transform = `translate(${v.x.toFixed(0)}px, ${v.y.toFixed(0)}px)`;
-  });
+  let free = -Infinity;                                  // floors lie close above each other on screen: push the cards apart
+  vis.forEach((v) => { v.y = Math.max(v.y, free); free = v.y + (v.c.el.offsetHeight || 44) + 6; });
+  const last = vis[vis.length - 1];
+  const over = last ? last.y + (last.c.el.offsetHeight || 44) / 2 - (h - 64) : 0;   // keep clear of the buttons at the bottom
+  const lift = over > 0 ? Math.min(over, Math.max(0, vis[0].y - (vis[0].c.el.offsetHeight || 44) / 2 - 56)) : 0;
+  vis.forEach((v) => { v.c.el.style.transform = `translate(${x.toFixed(0)}px, ${(v.y - lift - (v.c.el.offsetHeight || 44) / 2).toFixed(0)}px)`; });
 }
 
+/* colour scale at the edge while a room colouring is on */
+let legendKey = '';
+function updateViewLegend() {
+  const el = $('#viewLegend');
+  if (!el) return;
+  const vs = VIEW_STOPS[viewMode];
+  const stops = vs && settings[vs[0]];
+  const key = stops ? JSON.stringify([viewMode, stops]) : '';
+  if (key === legendKey) return;
+  legendKey = key;
+  el.hidden = !stops;
+  if (!stops) return;
+  const lo = stops[0].v, hi = stops[stops.length - 1].v;
+  const grad = stops.map((s) => `${s.c} ${(((s.v - lo) / (hi - lo || 1)) * 100).toFixed(1)}%`).join(', ');
+  el.innerHTML = `<span>${lo} ${vs[1]}</span><i style="background:linear-gradient(90deg, ${grad})"></i><span>${hi} ${vs[1]}</span>`;
+}
 function applyStates() {
   if (plan?.isVisible()) plan.render();
+  updateViewLegend();
   updateFloorCards();
   updateOfflinePill();
   updateAlerts();
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
-  const bv = settings.belowVisibility;
+  const bv = belowVis();
   for (let fi = 0; fi <= floorIdx; fi++) {
     const f = layout.floors[fi], ghost = fi < floorIdx;
     f.devices.forEach((d) => {
@@ -955,7 +1018,7 @@ function applyStates() {
       });
       obj.visible = !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on);      // a person who is not there is not drawn in live mode          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       const sp = labelSprites.get(d.id);
-      if (sp) { sp.visible = settings.showLabels && obj.visible; sp.userData.setText(stateText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
+      if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
     });
   }
   buildNav();                             // room pills show a dot while somebody is in the room
@@ -2316,7 +2379,8 @@ function houseBounds() {
 function fitCamera() {
   const { cx, cz, size } = houseMode ? houseBounds() : floorBounds();
   const midY = houseMode ? (elev(layout.floors.length - 1) + elev(0)) / 2 + FLOOR_H / 2 : elev();
-  const dist = (size * 1.25 + 2) * Math.max(1, 1.0 / (camera.aspect || 1));
+  const span = houseMode ? Math.max(size, elev(layout.floors.length - 1) - elev(0) + FLOOR_H) : size;   // pulled-apart floors are tall
+  const dist = (span * 1.25 + 2) * Math.max(1, 1.0 / (camera.aspect || 1));
   controls.target.set(cx, midY, cz);
   if (is2d) camera.position.set(cx, midY + dist * 1.2, cz + 0.001);
   else camera.position.set(cx + dist * 0.4, midY + dist * 0.95 + (houseMode ? size * 0.3 : 0), cz + dist * 0.7);
@@ -2425,46 +2489,64 @@ function scheduleFloorThumbs() {
 }
 function drawFloorThumbs() {
   if (!railThumbs.length) return;
+  const holo = isHolo();
   const ISO = (x, z, h) => [(x - z) * 0.866, (x + z) * 0.5 - h];
-  const wallH = (w) => w.height || settings.wallHeight || 2.6;
-  // one common scale for all floors, so a small floor looks small
-  const all = [];
-  layout.floors.forEach((f) => {
-    const pts = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points)];
-    pts.forEach(([x, z]) => { all.push(ISO(x, z, 0), ISO(x, z, settings.wallHeight || 2.6)); });
-  });
-  if (!all.length) { railThumbs.forEach(({ cv }) => cv.getContext('2d').clearRect(0, 0, cv.width, cv.height)); return; }
-  const us = all.map((p) => p[0]), vs = all.map((p) => p[1]);
-  const [u0, u1, v0, v1] = [Math.min(...us), Math.max(...us), Math.min(...vs), Math.max(...vs)];
-  const col = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#3df2ff';
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#3df2ff';
+  const shade = (hex, k) => {                                 // multiply a #rrggbb colour by k
+    const m = /^#([0-9a-f]{6})$/i.exec(hex || '');
+    if (!m) return hex || '#888';
+    const v = parseInt(m[1], 16);
+    const c = (sh) => Math.max(0, Math.min(255, Math.round(((v >> sh) & 255) * k)));
+    return `rgb(${c(16)},${c(8)},${c(0)})`;
+  };
   railThumbs.forEach(({ cv, i }) => {
     const f = layout.floors[i], ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
     ctx.clearRect(0, 0, W, H);
-    const k = Math.min((W * 0.84) / Math.max(u1 - u0, 1), (H * 0.6) / Math.max(v1 - v0, 1));
+    const rb = f.kind === 'roof' ? roofBox(i) : null;
+    const pts = rb ? [[rb.x0, rb.z0], [rb.x1, rb.z1], [rb.x0, rb.z1], [rb.x1, rb.z0]] : [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points)];
+    if (!pts.length) return;
+    const hMax = rb ? 1.8 : Math.max(settings.wallHeight || 2.6, ...f.walls.map((w) => w.height || 0));
+    const proj = pts.flatMap(([x, z]) => [ISO(x, z, 0), ISO(x, z, hMax)]);
+    const us = proj.map((p) => p[0]), vs = proj.map((p) => p[1]);
+    const [u0, u1, v0, v1] = [Math.min(...us), Math.max(...us), Math.min(...vs), Math.max(...vs)];
+    const k = Math.min((W * 0.86) / Math.max(u1 - u0, 1), (H * 0.62) / Math.max(v1 - v0, 1));   // every floor fills its picture
     const P = (x, z, h) => { const [u, v] = ISO(x, z, h); return [W / 2 + (u - (u0 + u1) / 2) * k, H * 0.4 + (v - (v0 + v1) / 2) * k]; };
-    const poly = (pts) => { ctx.beginPath(); pts.forEach(([x, y], n) => (n ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); };
-    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.4; ctx.lineJoin = 'round';
-    if (f.kind === 'roof') {                              // no walls of its own: a gable over the footprint of the house
-      const b = roofBox(i);
-      if (b) {
-        const m = (b.x0 + b.x1) / 2, e = [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]];
-        poly(e.map(([x, z]) => P(x, z, 0))); ctx.globalAlpha = 0.9; ctx.stroke();
-        const r0 = P(m, b.z0, 1.2), r1 = P(m, b.z1, 1.2);
-        ctx.beginPath(); ctx.moveTo(...r0); ctx.lineTo(...r1); ctx.stroke();
-        [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]].forEach(([x, z], n) => { ctx.beginPath(); ctx.moveTo(...P(x, z, 0)); ctx.lineTo(...(n === 0 || n === 3 ? r0 : r1)); ctx.stroke(); });
-        ctx.globalAlpha = 1;
-      }
+    const poly = (q, fill, stroke) => {
+      ctx.beginPath(); q.forEach(([x, y], n) => (n ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath();
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.lineJoin = 'round'; ctx.stroke(); }
+    };
+    if (rb) {                                               // roof: two slopes and the gable ends over the footprint of the house
+      const m = (rb.z0 + rb.z1) / 2, hr = Math.min(1.8, Math.max(0.8, (rb.z1 - rb.z0) * 0.25));
+      const r0 = P(rb.x0, m, hr), r1 = P(rb.x1, m, hr);
+      const c00 = P(rb.x0, rb.z0, 0), c10 = P(rb.x1, rb.z0, 0), c01 = P(rb.x0, rb.z1, 0), c11 = P(rb.x1, rb.z1, 0);
+      poly([c00, c10, r1, r0], holo ? null : '#8c4234', holo ? accent : null);
+      poly([c01, c11, r1, r0], holo ? null : '#a8503f', holo ? accent : null);
+      poly([c10, c11, r1], holo ? null : '#6f332a', holo ? accent : null);
       return;
     }
-    f.rooms.forEach((r) => { poly(r.points.map(([x, z]) => P(x, z, 0))); ctx.globalAlpha = 0.16; ctx.fill(); ctx.globalAlpha = 0.5; ctx.stroke(); });
+    f.rooms.forEach((r) => poly(r.points.map(([x, z]) => P(x, z, 0)), holo ? accent + '30' : r.color || '#8a7f70', holo ? accent : 'rgba(0,0,0,.25)'));
+    const base = '#d9d4cc';
     [...f.walls].sort((p, q) => (p.a[0] + p.a[1] + p.b[0] + p.b[1]) - (q.a[0] + q.a[1] + q.b[0] + q.b[1])).forEach((w) => {
-      const h = wallH(w);
-      poly([P(w.a[0], w.a[1], 0), P(w.b[0], w.b[1], 0), P(w.b[0], w.b[1], h), P(w.a[0], w.a[1], h)]);
-      ctx.globalAlpha = 0.1; ctx.fill(); ctx.globalAlpha = 0.95; ctx.stroke();
+      const len = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+      if (len < 0.01) return;
+      const h = w.height || 2.6, t = w.thickness || 0.2;
+      const d = [(w.b[0] - w.a[0]) / len, (w.b[1] - w.a[1]) / len];
+      let n = [-d[1], d[0]];
+      if (n[0] + n[1] < 0) n = [-n[0], -n[1]];             // the side that faces the viewer
+      const o = [n[0] * t / 2, n[1] * t / 2];
+      const A = [w.a[0] + o[0], w.a[1] + o[1]], B = [w.b[0] + o[0], w.b[1] + o[1]];
+      const k0 = Math.abs(n[0]) > Math.abs(n[1]) ? 0.74 : 0.92;       // the side facing +x is in the shade
+      if (holo) { poly([P(...A, 0), P(...B, 0), P(...B, h), P(...A, h)], accent + '22', accent); return; }
+      poly([P(...A, 0), P(...B, 0), P(...B, h), P(...A, h)], shade(base, k0));
+      (w.openings || []).forEach((op) => {
+        const u0o = op.pos - op.width / 2, u1o = op.pos + op.width / 2, y0 = op.sill || 0, y1 = Math.min(h, y0 + op.height);
+        const at = (u, y) => P(A[0] + d[0] * u, A[1] + d[1] * u, y);
+        const col = op.type === 'window' ? '#9cc9ee' : (op.style === 'open' || op.style === 'gap') ? '#3a3632' : '#8a6a48';
+        poly([at(u0o, y0), at(u1o, y0), at(u1o, y1), at(u0o, y1)], shade(col, k0 > 0.8 ? 1 : 0.85), 'rgba(255,255,255,.55)');
+      });
+      poly([P(w.a[0] - o[0], w.a[1] - o[1], h), P(w.b[0] - o[0], w.b[1] - o[1], h), P(...B, h), P(...A, h)], shade(base, 1.08));
     });
-    ctx.globalAlpha = 0.85;
-    f.devices.slice(0, 300).forEach((d) => { const [x, y] = P(d.x, d.z, 0.4); ctx.beginPath(); ctx.arc(x, y, 2.2, 0, 7); ctx.fill(); });
-    ctx.globalAlpha = 1;
   });
 }
 
@@ -2506,13 +2588,19 @@ function findRoomByName(name) {
 }
 function fillFloorSelect() { buildNav(true); }
 
+function updateExplodeToggle() {
+  const b = $('#explodeToggle');
+  b.hidden = !houseMode || layout.floors.length < 2;
+  b.classList.toggle('active', exploded);
+}
+$('#explodeToggle').addEventListener('click', () => { exploded = !exploded; updateExplodeToggle(); build(); fitCamera(); });
 function setHouseMode(on) {
   houseMode = on; selection = null; lockedSel = false; focusedRoom = null; document.body.classList.toggle('house', on);
   clearFocusOutline(); build(); fitCamera(); refreshSelection(); buildNav(true);
-  updateFloorCards();
+  updateFloorCards(); updateExplodeToggle();
 }
 function switchFloor(i) {
-  houseMode = false; document.body.classList.remove('house'); updateFloorCards();
+  houseMode = false; document.body.classList.remove('house'); updateFloorCards(); updateExplodeToggle();
   floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
   clearFocusOutline(); build(); fitCamera(); refreshSelection();
   if (bgMode) setBgMode(null); else renderBgPanel();
@@ -3567,9 +3655,9 @@ const dlg = $('#settingsDialog');
 const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
-  shadows: '#setShadows', showLabels: '#setLabels', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
+  shadows: '#setShadows', labelMode: '#setLabels', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
   alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', wallStop: '#setWallStop',
-  wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
+  wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', belowMode: '#setBelowMode', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
 const dispKeys = new Set(['wallHeight', 'wallThickness', 'glowRadius', 'glowHeight', 'earthMargin']);
@@ -3587,6 +3675,7 @@ function fillSettingsForm() {
   renderTablets();
   renderStops('#tempStops', 'tempStops', '°C');
   renderStops('#humidStops', 'humidStops', '%');
+  renderStops('#co2Stops', 'co2Stops', 'ppm');
 }
 function allRoomNames() {
   return [...new Set(layout.floors.flatMap((f) => f.rooms.map((r) => r.name).filter(Boolean)))];
@@ -3683,6 +3772,7 @@ function readSettingsForm() {
   const tb = readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views;
   next.tempStops = readStops('#tempStops', settings.tempStops);
   next.humidStops = readStops('#humidStops', settings.humidStops);
+  next.co2Stops = readStops('#co2Stops', settings.co2Stops);
   return next;
 }
 function applySettings(prev = {}) {
@@ -3904,6 +3994,7 @@ if (params.get('debug')) {
     get layout() { return layout; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alerts.map((a) => ({ kind: a.kind, entity: a.entity, at: a.at })), alertPulsing: () => alertPulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems, navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
+    elev: (i) => elev(i),
     select(kind, id) { selection = { kind, id }; refreshSelection(); },
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),
     rebuild: () => build(),

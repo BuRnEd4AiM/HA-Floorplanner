@@ -380,3 +380,9 @@ body.low .alertItem { animation: none; }
 
 /* ---------- night dimming on wall tablets ---------- */
 #nightDim { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .72); }
+
+/* colour scale for temperature / humidity / CO2 colouring */
+#viewLegend { position: absolute; right: 12px; bottom: 14px; z-index: 4; display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+  font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; pointer-events: none; }
+#viewLegend[hidden] { display: none; }
+#viewLegend i { display: block; width: 140px; height: 10px; border-radius: 5px; }

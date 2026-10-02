@@ -127,6 +127,10 @@ Outdoor items (*Baum, Busch, Pool, Rasen, Terrasse, Weg, Zaun*) are normal devic
 
 On wide screens the floors are a **column of thumbnails** at the left edge (top floor first); the **Ganzes Haus** button on top shows the whole house, where a small **card** beside every floor lists its rooms, lights on and windows open (tap = open that floor). Narrow screens and wall tablets show the floor pills instead.
 
+In the whole-house view the **Auseinander** button pulls the floors apart (tap again to stack them). ⚙ → *Etagen darunter* chooses how the floors below the open floor look: dimmed, stacked or hidden.
+
+**Value badges**: ⚙ → *Value badges on devices* shows measurements on the devices ("21.4 °C", "95 W", shutter position ...): only the important ones, all devices, or none. **Temp. / Feuchte / CO₂** at the bottom colour the rooms by their sensors; a scale at the bottom right shows the colours (adjustable in ⚙).
+
 **Halbschnitt** (button next to *Auto*): cuts every wall at half height so you see into all rooms from any side. **Arrow keys** move the selected item by one grid step (Shift 10 cm, Alt 1 cm; a door or window slides along its wall).
 
 ### Stairs and stairwells

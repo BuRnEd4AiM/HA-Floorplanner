@@ -58,12 +58,14 @@
         <button id="offlinePill" class="pill" hidden data-i18n-title="off.tip"></button>
         <button id="openPill" class="pill" hidden></button>
         <button id="autoToggle" class="pill" data-i18n="nav.auto" data-i18n-title="nav.autoTip"></button>
+        <button id="explodeToggle" class="pill" hidden data-i18n="nav.explode" data-i18n-title="nav.explodeTip"></button>
         <button id="halfToggle" class="pill" data-i18n="nav.half" data-i18n-title="nav.halfTip"></button>
         <button id="wallToggle" class="pill"></button>
       </nav>
       <button id="navLeft" class="navArrow" type="button" hidden aria-label="‹">‹</button>
       <button id="navRight" class="navArrow" type="button" hidden aria-label="›">›</button>
-      <div id="modeBar"><button class="pill active" data-vm="normal" data-i18n="vm.normal"></button><button class="pill" data-vm="temp" data-i18n="vm.temp"></button><button class="pill" data-vm="humid" data-i18n="vm.humid"></button></div>
+      <div id="modeBar"><button class="pill active" data-vm="normal" data-i18n="vm.normal"></button><button class="pill" data-vm="temp" data-i18n="vm.temp"></button><button class="pill" data-vm="humid" data-i18n="vm.humid"></button><button class="pill" data-vm="co2" data-i18n="vm.co2"></button></div>
+      <div id="viewLegend" hidden></div>
       <div id="alertBar" hidden></div>
       <button id="findBtn" type="button" class="pill" data-i18n-title="find.title" aria-label="Search">🔍</button>
       <div id="findBox" hidden>
@@ -263,7 +265,8 @@
     <div class="row"><label for="setPerf" data-i18n="set.perf"></label>
       <select id="setPerf"><option value="auto" data-i18n="set.perf.auto"></option><option value="high" data-i18n="set.perf.high"></option><option value="low" data-i18n="set.perf.low"></option></select></div>
     <p class="sub" data-i18n="set.perfHint"></p>
-    <div class="row check"><input id="setLabels" type="checkbox"><label for="setLabels" data-i18n="set.labels"></label></div>
+    <div class="row"><label for="setLabels" data-i18n="set.labels"></label>
+      <select id="setLabels"><option value="important" data-i18n="set.labels.important"></option><option value="all" data-i18n="set.labels.all"></option><option value="none" data-i18n="set.labels.none"></option></select></div>
     <div class="row check"><input id="setWallStop" type="checkbox"><label for="setWallStop" data-i18n="set.wallStop"></label></div>
     <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
     <div class="row"><label for="setEarth" data-i18n="set.earth"></label>
@@ -294,6 +297,8 @@
     <h3 data-i18n="set.section.look"></h3>
     <div class="row"><label for="setWallOpacity" data-i18n="set.wallOpacity"></label><input id="setWallOpacity" type="number" step="any" min="0.2" max="1"></div>
     <div class="row"><label for="setBelow" data-i18n="set.below"></label><input id="setBelow" type="number" step="any" min="0.05" max="1"></div>
+    <div class="row"><label for="setBelowMode" data-i18n="set.belowMode"></label>
+      <select id="setBelowMode"><option value="dim" data-i18n="set.belowMode.dim"></option><option value="stacked" data-i18n="set.belowMode.stacked"></option><option value="hidden" data-i18n="set.belowMode.hidden"></option></select></div>
     <div class="row"><label for="setGlowRadius" data-i18n="set.glowRadius"></label><input id="setGlowRadius" type="number" step="any"></div>
     <div class="row"><label for="setGlowStrength" data-i18n="set.glowStrength"></label><input id="setGlowStrength" type="number" step="any"></div>
     <div class="row"><label for="setGlowHeight" data-i18n="set.glowHeight"></label><input id="setGlowHeight" type="number" step="any"></div>
@@ -307,6 +312,8 @@
     <div id="tempStops" class="stops"></div>
     <h3 data-i18n="set.section.humidColors"></h3>
     <div id="humidStops" class="stops"></div>
+    <h3 data-i18n="set.section.co2Colors"></h3>
+    <div id="co2Stops" class="stops"></div>
 
     <menu><button value="close" class="primary" data-i18n="close"></button></menu>
   </form>

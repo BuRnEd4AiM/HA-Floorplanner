@@ -133,6 +133,25 @@ async def test_settings_look_and_stops(client):
     assert len(s["humidStops"]) == 4            # too few valid stops -> defaults
 
 
+async def test_settings_co2_labels_and_floors_below(client):
+    s = await (await client.get("/api/settings")).json()
+    assert [x["v"] for x in s["co2Stops"]] == [400.0, 800.0, 1200.0, 2000.0]
+    assert s["labelMode"] == "important" and s["belowMode"] == "dim"
+    r = await client.put("/api/settings", json={"labelMode": "all", "belowMode": "hidden",
+                                                 "co2Stops": [{"v": 500, "c": "#00ff00"}, {"v": 1500, "c": "#ff0000"}]})
+    s = await r.json()
+    assert s["labelMode"] == "all" and s["belowMode"] == "hidden"
+    assert [x["v"] for x in s["co2Stops"]] == [500.0, 1500.0]
+    s = await (await client.put("/api/settings", json={"labelMode": "bogus", "belowMode": "bogus"})).json()
+    assert s["labelMode"] == "important" and s["belowMode"] == "dim"       # unknown values fall back
+
+
+async def test_settings_old_show_labels_off_becomes_label_mode_none(client):
+    s = await (await client.put("/api/settings", json={"showLabels": False})).json()
+    assert s["labelMode"] == "none"
+    assert "showLabels" not in s
+
+
 async def test_editors_permissions(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
     opts.write_text('{"editors": ["Admin"]}')

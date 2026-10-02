@@ -44,7 +44,7 @@ DEFAULT_SETTINGS = {
     "shadows": True,
     "autosaveSeconds": 1.5,
     "lowWalls": False,
-    "showLabels": True,
+    "labelMode": "important",   # value labels on devices: none | important (sensors, climate, covers) | all
     "cutaway": True,           # walls facing the camera sink down
     "earth": "solid",          # ground around the house: off | glass | solid (cut open on the camera's side)
     "earthMargin": 5.0,        # metres of lawn around the house when no plot (Grundstück) is drawn
@@ -57,6 +57,7 @@ DEFAULT_SETTINGS = {
     "nightDim": "off",         # off | sun | time: dim the live view at night
     "nightFrom": "22:00",
     "nightTo": "06:00",
+    "belowMode": "dim",        # floors below the open one: dim (see-through, belowVisibility) | stacked (clearly visible) | hidden
     "belowVisibility": 0.5,    # how clearly floors below the current one shine through (0.05..1)
     "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
     "glowRadius": 3.5,         # metres a lamp lights up
@@ -74,6 +75,8 @@ DEFAULT_SETTINGS = {
                   {"v": 26, "c": "#ff8a2a"}, {"v": 30, "c": "#ff3a3a"}],
     "humidStops": [{"v": 30, "c": "#e8d9a0"}, {"v": 50, "c": "#4fd0c8"}, {"v": 65, "c": "#2a7bff"},
                    {"v": 80, "c": "#5a3aff"}],
+    "co2Stops": [{"v": 400, "c": "#2ad0a0"}, {"v": 800, "c": "#ffd84a"}, {"v": 1200, "c": "#ff8a2a"},
+                 {"v": 2000, "c": "#ff3a3a"}],
 }
 RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0)}
 VIEWS = ("3d", "2d", "split", "all")
@@ -333,6 +336,8 @@ def clean_stops(val, default):
 def validate_settings(data: dict) -> dict:
     """Keep only known keys with the right type; unknown keys are dropped."""
     out = dict(DEFAULT_SETTINGS)
+    if "labelMode" not in data and data.get("showLabels") is False:     # settings saved before the three label modes existed
+        data = {**data, "labelMode": "none"}
     for key, default in DEFAULT_SETTINGS.items():
         if key not in data:
             continue
@@ -362,6 +367,10 @@ def validate_settings(data: dict) -> dict:
         out["theme"] = DEFAULT_SETTINGS["theme"]
     if out["units"] not in ("metric", "imperial"):
         out["units"] = DEFAULT_SETTINGS["units"]
+    if out["labelMode"] not in ("none", "important", "all"):
+        out["labelMode"] = DEFAULT_SETTINGS["labelMode"]
+    if out["belowMode"] not in ("dim", "stacked", "hidden"):
+        out["belowMode"] = DEFAULT_SETTINGS["belowMode"]
     if out["earth"] not in ("off", "glass", "solid"):
         out["earth"] = DEFAULT_SETTINGS["earth"]
     if out["nightDim"] not in ("off", "sun", "time"):
@@ -615,6 +624,7 @@ def slim_state(st):
         "dc": a.get("device_class"),
         "ct": a.get("current_temperature"),
         "ch": a.get("current_humidity"),
+        "app": a.get("app_name") if st["entity_id"].startswith("media_player.") else None,
         "fx": _effects(a),
         "fxc": a.get("effect"),
         "members": _members(st),
