@@ -6,7 +6,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [3.11.0] - 2026-10-02
 ### Added
-- **Floor rail** (#63): on wide screens the floors are now a column of thumbnails at the left edge (top floor first, with a *Whole house* button on top) instead of the floor pills. A tap switches the floor; the thumbnails are drawn from the plan itself and follow your changes. Narrow screens and wall tablets keep the pills
+- **Floor rail** (#63): on wide screens the floors are now a column of thumbnails at the left edge (top floor first, with a *Whole house* button on top) instead of the floor pills. A tap switches the floor; the thumbnails are drawn from the plan itself in the colours of your theme (room colours, walls, doors, windows, roof; neon lines in the hologram theme) and follow your changes. Narrow screens and wall tablets keep the pills
 - **Floor cards** (#64): in the whole-house view a small card floats beside every floor with its rooms, lights on and windows open; a tap opens that floor
 - **Half section**: new *Halbschnitt* button next to *Auto*. Every wall is cut at half height and only the lower half stays, so you can look into all rooms from any side; doors and windows are cut off cleanly
 - **Arrow keys** (#71): move the selection by one grid step; Shift = 10 cm, Alt = 1 cm. A door or window slides along its wall

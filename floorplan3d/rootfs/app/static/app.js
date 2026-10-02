@@ -2425,46 +2425,64 @@ function scheduleFloorThumbs() {
 }
 function drawFloorThumbs() {
   if (!railThumbs.length) return;
+  const holo = isHolo();
   const ISO = (x, z, h) => [(x - z) * 0.866, (x + z) * 0.5 - h];
-  const wallH = (w) => w.height || settings.wallHeight || 2.6;
-  // one common scale for all floors, so a small floor looks small
-  const all = [];
-  layout.floors.forEach((f) => {
-    const pts = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points)];
-    pts.forEach(([x, z]) => { all.push(ISO(x, z, 0), ISO(x, z, settings.wallHeight || 2.6)); });
-  });
-  if (!all.length) { railThumbs.forEach(({ cv }) => cv.getContext('2d').clearRect(0, 0, cv.width, cv.height)); return; }
-  const us = all.map((p) => p[0]), vs = all.map((p) => p[1]);
-  const [u0, u1, v0, v1] = [Math.min(...us), Math.max(...us), Math.min(...vs), Math.max(...vs)];
-  const col = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#3df2ff';
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#3df2ff';
+  const shade = (hex, k) => {                                 // multiply a #rrggbb colour by k
+    const m = /^#([0-9a-f]{6})$/i.exec(hex || '');
+    if (!m) return hex || '#888';
+    const v = parseInt(m[1], 16);
+    const c = (sh) => Math.max(0, Math.min(255, Math.round(((v >> sh) & 255) * k)));
+    return `rgb(${c(16)},${c(8)},${c(0)})`;
+  };
   railThumbs.forEach(({ cv, i }) => {
     const f = layout.floors[i], ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
     ctx.clearRect(0, 0, W, H);
-    const k = Math.min((W * 0.84) / Math.max(u1 - u0, 1), (H * 0.6) / Math.max(v1 - v0, 1));
+    const rb = f.kind === 'roof' ? roofBox(i) : null;
+    const pts = rb ? [[rb.x0, rb.z0], [rb.x1, rb.z1], [rb.x0, rb.z1], [rb.x1, rb.z0]] : [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points)];
+    if (!pts.length) return;
+    const hMax = rb ? 1.8 : Math.max(settings.wallHeight || 2.6, ...f.walls.map((w) => w.height || 0));
+    const proj = pts.flatMap(([x, z]) => [ISO(x, z, 0), ISO(x, z, hMax)]);
+    const us = proj.map((p) => p[0]), vs = proj.map((p) => p[1]);
+    const [u0, u1, v0, v1] = [Math.min(...us), Math.max(...us), Math.min(...vs), Math.max(...vs)];
+    const k = Math.min((W * 0.86) / Math.max(u1 - u0, 1), (H * 0.62) / Math.max(v1 - v0, 1));   // every floor fills its picture
     const P = (x, z, h) => { const [u, v] = ISO(x, z, h); return [W / 2 + (u - (u0 + u1) / 2) * k, H * 0.4 + (v - (v0 + v1) / 2) * k]; };
-    const poly = (pts) => { ctx.beginPath(); pts.forEach(([x, y], n) => (n ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); };
-    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.4; ctx.lineJoin = 'round';
-    if (f.kind === 'roof') {                              // no walls of its own: a gable over the footprint of the house
-      const b = roofBox(i);
-      if (b) {
-        const m = (b.x0 + b.x1) / 2, e = [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]];
-        poly(e.map(([x, z]) => P(x, z, 0))); ctx.globalAlpha = 0.9; ctx.stroke();
-        const r0 = P(m, b.z0, 1.2), r1 = P(m, b.z1, 1.2);
-        ctx.beginPath(); ctx.moveTo(...r0); ctx.lineTo(...r1); ctx.stroke();
-        [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]].forEach(([x, z], n) => { ctx.beginPath(); ctx.moveTo(...P(x, z, 0)); ctx.lineTo(...(n === 0 || n === 3 ? r0 : r1)); ctx.stroke(); });
-        ctx.globalAlpha = 1;
-      }
+    const poly = (q, fill, stroke) => {
+      ctx.beginPath(); q.forEach(([x, y], n) => (n ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath();
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.lineJoin = 'round'; ctx.stroke(); }
+    };
+    if (rb) {                                               // roof: two slopes and the gable ends over the footprint of the house
+      const m = (rb.z0 + rb.z1) / 2, hr = Math.min(1.8, Math.max(0.8, (rb.z1 - rb.z0) * 0.25));
+      const r0 = P(rb.x0, m, hr), r1 = P(rb.x1, m, hr);
+      const c00 = P(rb.x0, rb.z0, 0), c10 = P(rb.x1, rb.z0, 0), c01 = P(rb.x0, rb.z1, 0), c11 = P(rb.x1, rb.z1, 0);
+      poly([c00, c10, r1, r0], holo ? null : '#8c4234', holo ? accent : null);
+      poly([c01, c11, r1, r0], holo ? null : '#a8503f', holo ? accent : null);
+      poly([c10, c11, r1], holo ? null : '#6f332a', holo ? accent : null);
       return;
     }
-    f.rooms.forEach((r) => { poly(r.points.map(([x, z]) => P(x, z, 0))); ctx.globalAlpha = 0.16; ctx.fill(); ctx.globalAlpha = 0.5; ctx.stroke(); });
+    f.rooms.forEach((r) => poly(r.points.map(([x, z]) => P(x, z, 0)), holo ? accent + '30' : r.color || '#8a7f70', holo ? accent : 'rgba(0,0,0,.25)'));
+    const base = '#d9d4cc';
     [...f.walls].sort((p, q) => (p.a[0] + p.a[1] + p.b[0] + p.b[1]) - (q.a[0] + q.a[1] + q.b[0] + q.b[1])).forEach((w) => {
-      const h = wallH(w);
-      poly([P(w.a[0], w.a[1], 0), P(w.b[0], w.b[1], 0), P(w.b[0], w.b[1], h), P(w.a[0], w.a[1], h)]);
-      ctx.globalAlpha = 0.1; ctx.fill(); ctx.globalAlpha = 0.95; ctx.stroke();
+      const len = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+      if (len < 0.01) return;
+      const h = w.height || 2.6, t = w.thickness || 0.2;
+      const d = [(w.b[0] - w.a[0]) / len, (w.b[1] - w.a[1]) / len];
+      let n = [-d[1], d[0]];
+      if (n[0] + n[1] < 0) n = [-n[0], -n[1]];             // the side that faces the viewer
+      const o = [n[0] * t / 2, n[1] * t / 2];
+      const A = [w.a[0] + o[0], w.a[1] + o[1]], B = [w.b[0] + o[0], w.b[1] + o[1]];
+      const k0 = Math.abs(n[0]) > Math.abs(n[1]) ? 0.74 : 0.92;       // the side facing +x is in the shade
+      if (holo) { poly([P(...A, 0), P(...B, 0), P(...B, h), P(...A, h)], accent + '22', accent); return; }
+      poly([P(...A, 0), P(...B, 0), P(...B, h), P(...A, h)], shade(base, k0));
+      (w.openings || []).forEach((op) => {
+        const u0o = op.pos - op.width / 2, u1o = op.pos + op.width / 2, y0 = op.sill || 0, y1 = Math.min(h, y0 + op.height);
+        const at = (u, y) => P(A[0] + d[0] * u, A[1] + d[1] * u, y);
+        const col = op.type === 'window' ? '#9cc9ee' : (op.style === 'open' || op.style === 'gap') ? '#3a3632' : '#8a6a48';
+        poly([at(u0o, y0), at(u1o, y0), at(u1o, y1), at(u0o, y1)], shade(col, k0 > 0.8 ? 1 : 0.85), 'rgba(255,255,255,.55)');
+      });
+      poly([P(w.a[0] - o[0], w.a[1] - o[1], h), P(w.b[0] - o[0], w.b[1] - o[1], h), P(...B, h), P(...A, h)], shade(base, 1.08));
     });
-    ctx.globalAlpha = 0.85;
-    f.devices.slice(0, 300).forEach((d) => { const [x, y] = P(d.x, d.z, 0.4); ctx.beginPath(); ctx.arc(x, y, 2.2, 0, 7); ctx.fill(); });
-    ctx.globalAlpha = 1;
   });
 }
 
