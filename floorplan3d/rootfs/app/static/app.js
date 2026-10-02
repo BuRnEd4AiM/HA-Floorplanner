@@ -557,15 +557,61 @@ function makeOpeningHandle(w, o, group) {
 
 /** footprint (bounding box) of everything under a roof floor */
 function roofBox(i) {
+  // a roof terrace (an open room) has no roof, and neither has what lies below it (the garage): their walls and rooms do not count
+  const zones = layout.floors.flatMap((f, fi) => f.rooms.filter((r) => r.terrace && r.points.length >= 3).map((r) => {
+    const xs = r.points.map((p) => p[0]), zs = r.points.map((p) => p[1]);
+    return { fi, x0: Math.min(...xs) - 0.2, x1: Math.max(...xs) + 0.2, z0: Math.min(...zs) - 0.2, z1: Math.max(...zs) + 0.2 };
+  }));
+  const open = (k, ps) => zones.some((z) => z.fi >= k && ps.every(([x, zz]) => x >= z.x0 && x <= z.x1 && zz >= z.z0 && zz <= z.z1));
   const pts = [];
   layout.floors.forEach((f, k) => {
     if (k >= i || f.kind === 'basement' || f.kind === 'roof') return;
-    f.walls.forEach((w) => pts.push(w.a, w.b));
-    f.rooms.forEach((r) => pts.push(...r.points));
+    f.walls.forEach((w) => { if (!open(k, [w.a, w.b])) pts.push(w.a, w.b); });
+    f.rooms.forEach((r) => { if (!r.terrace && !open(k, r.points)) pts.push(...r.points); });
   });
   if (!pts.length) return null;
   const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
   return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) };
+}
+/** Railing round a roof terrace: posts and two rails along every edge that is not a wall */
+function buildRailing(g, room, f, holo, ghost) {
+  const pts = room.points, H = 1.0, step = 0.2;
+  const mat = holo ? new THREE.MeshBasicMaterial({ color: 0x3df2ff, transparent: true, opacity: ghost ? 0.12 : 0.85 })
+    : new THREE.MeshStandardMaterial({ color: '#8d949b', roughness: 0.45, metalness: 0.6, transparent: ghost, opacity: ghost ? 0.25 : 1 });
+  const covered = (x, z) => f.walls.some((w) => {                          // a wall (also in a doorway) already closes this spot
+    const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], l2 = dx * dx + dz * dz || 1;
+    const k = Math.max(0, Math.min(1, ((x - w.a[0]) * dx + (z - w.a[1]) * dz) / l2));
+    return Math.hypot(x - (w.a[0] + k * dx), z - (w.a[1] + k * dz)) < (w.thickness || 0.2) / 2 + 0.12;
+  });
+  const bar = (x0, z0, x1, z1, y, th) => {
+    const len = Math.hypot(x1 - x0, z1 - z0);
+    const m = new THREE.Mesh(new THREE.BoxGeometry(len, th, th), mat);
+    m.position.set((x0 + x1) / 2, y, (z0 + z1) / 2);
+    m.rotation.y = -Math.atan2(z1 - z0, x1 - x0);
+    g.add(m);
+  };
+  const post = (x, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.05, H, 0.05), mat); m.position.set(x, H / 2, z); g.add(m); };
+  for (let i = 0; i < pts.length; i++) {
+    const [ax, az] = pts[i], [bx, bz] = pts[(i + 1) % pts.length], len = Math.hypot(bx - ax, bz - az);
+    if (len < 0.1) continue;
+    const n = Math.max(1, Math.ceil(len / step)), at = (u) => [ax + (bx - ax) * u, az + (bz - az) * u];
+    let run = null;
+    const flush = (end) => {
+      if (!run) return;
+      const [x0, z0] = at(run), [x1, z1] = at(end);
+      if (Math.hypot(x1 - x0, z1 - z0) > 0.15) {
+        bar(x0, z0, x1, z1, H, 0.05); bar(x0, z0, x1, z1, H * 0.5, 0.035);
+        const posts = Math.max(1, Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 1.2));
+        for (let p = 0; p <= posts; p++) post(x0 + ((x1 - x0) * p) / posts, z0 + ((z1 - z0) * p) / posts);
+      }
+      run = null;
+    };
+    for (let k = 0; k < n; k++) {
+      const [mx, mz] = at((k + 0.5) / n);
+      if (covered(mx, mz)) flush(k / n); else if (run === null) run = k / n;
+    }
+    flush(1);
+  }
 }
 /** roof surface as triangles; pitch in degrees, ridge along the longer side unless set */
 function roofGeometry(bb, r) {
@@ -668,6 +714,7 @@ function build() {
       m.position.y = 0.01;
       m.receiveShadow = true;
       g.add(m);
+      if (r.terrace && !lowWalls) buildRailing(g, r, f, holo, ghost);          // roof terrace: railing along the open edges
       let wash = null, glow = null;
       if (!holo) {                                   // solid themes: the light pool lies on the floor as a separate layer
         glow = new THREE.Mesh(geo, roomLightMat('glow'));
@@ -869,7 +916,10 @@ function roomHeat(room, f) {
 
 const OPEN_HEX = 0xff4a3d;
 const openingObjs = () => [...registry.values()].filter((o) => o.userData?.kind === 'opening' && o.userData.pivot);
-const isOpen = (entity) => !!entity && ON_STATES.has(states[entity]?.state);
+/** which group an opening belongs to in the lists */
+const openKind = (o) => (o.type === 'door' ? (o.style === 'garage' ? 'gates' : 'doors') : 'windows');
+const OPEN_KINDS = ['doors', 'gates', 'windows'];
+const isOpen = (entity) => !!entity && (ON_STATES.has(states[entity]?.state) || ['opening', 'closing'].includes(states[entity]?.state));   // a garage door on its way is not closed
 const openText = (entity) => (!entity ? '—' : isOpen(entity) ? t('state.open') : states[entity] ? t('state.closed') : '—');
 /* entity of pane i: multi-pane windows may have one contact sensor per pane (o.paneEntities), falling back to the main sensor */
 const paneEntity = (o, i) => (o.paneEntities && o.paneEntities[i]) || o.entity || '';
@@ -900,15 +950,18 @@ function openItems() {
     const open = openingEntities(o).filter(isOpen).length;
     if (!open) return;
     const L = wallLength(w) || 1, x = w.a[0] + ((w.b[0] - w.a[0]) * o.pos) / L, z = w.a[1] + ((w.b[1] - w.a[1]) * o.pos) / L;
-    out.push({ floor: fi, id: o.id, name: o.name || t(`prop.${o.type}`), room: f.rooms.find((r) => pointInPoly(x, z, r.points))?.name || '', n: open });
+    const near = f.rooms.map((r) => ({ r, d: pointInPoly(x, z, r.points) ? 0 : distToPoly(x, z, r.points) })).filter((e) => e.d < 0.4).sort((p, q) => p.d - q.d)[0];   // a door on the edge of a room belongs to it
+    out.push({ floor: fi, id: o.id, kind: openKind(o), name: o.name || t(`prop.${o.type}`), room: near?.r.name || '', n: open });
   })));
-  return out.sort((p, q) => q.floor - p.floor || p.room.localeCompare(q.room) || p.name.localeCompare(q.name));
+  return out.sort((p, q) => OPEN_KINDS.indexOf(p.kind) - OPEN_KINDS.indexOf(q.kind) || q.floor - p.floor || p.room.localeCompare(q.room) || p.name.localeCompare(q.name));
 }
 function renderOpenList() {
   const ul = $('#openList'), list = openItems();
   ul.replaceChildren();
   $('#openNone').hidden = !!list.length;
+  let lastKind = null;
   list.forEach((x) => {
+    if (x.kind !== lastKind) { const hd = document.createElement('li'); hd.className = 'offHead'; hd.textContent = t(`ok.${x.kind}`); ul.append(hd); lastKind = x.kind; }
     const li = document.createElement('li'), b = document.createElement('button');
     b.type = 'button';
     const name = document.createElement('strong'); name.textContent = x.name;
@@ -924,8 +977,8 @@ $('#openPill').addEventListener('click', () => { renderOpenList(); $('#openDialo
 function animateOpenings() {
   openingObjs().forEach((obj) => {
    (obj.userData.panePivots || [obj.userData.pivot]).forEach((p) => {
-    const tg = p.userData.target ?? 0;
-    const prop = p.userData.axis, holder = p.userData.prop === 'position' ? p.position : p.rotation, cur = holder[prop];
+    const tg = (p.userData.base ?? 0) + (p.userData.target ?? 0);          // base: the closed value (1 for a scaled garage door)
+    const prop = p.userData.axis, holder = p.userData.prop === 'position' ? p.position : p.userData.prop === 'scale' ? p.scale : p.rotation, cur = holder[prop];
     if (Math.abs(tg - cur) > 0.002) holder[prop] = cur + (tg - cur) * 0.15;
     (p.userData.followers || []).forEach((fp) => { fp.rotation[fp.userData.axis] = holder[prop] * (fp.userData.dir / (p.userData.dir || 1)); });   // second leaf of a double door
    });
@@ -940,16 +993,17 @@ const coneColor = () => (isHolo() ? 0x3df2ff : 0x4aa8ff);
 function buildCameraCone(d) {
   const fov = Math.max(10, Math.min(180, d.fov ?? 90)), range = Math.max(0.5, d.range ?? 4);
   const r = THREE.MathUtils.degToRad(d.rot || 0), half = THREE.MathUtils.degToRad(fov) / 2, n = Math.max(6, Math.round(fov / 6));
-  const pts = [[d.x, d.z]];
-  for (let i = 0; i <= n; i++) { const a = r - half + (2 * half * i) / n; pts.push([d.x + Math.sin(a) * range, d.z + Math.cos(a) * range]); }   // the lens looks along local +z
+  const pts = [[0, 0]];                                             // corners relative to the camera: the cone moves with it
+  for (let i = 0; i <= n; i++) { const a = r - half + (2 * half * i) / n; pts.push([Math.sin(a) * range, Math.cos(a) * range]); }   // the lens looks along local +z
   const pos = [], idx = [];
-  pts.forEach(([x, z]) => pos.push(x, 0.06, z));   // above flat things such as carpets
+  pts.forEach(([x, z]) => pos.push(x, 0.06, z));                    // above flat things such as carpets
   for (let i = 1; i <= n; i++) idx.push(0, i, i + 1);
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   geo.setIndex(idx);
   const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: coneColor(), transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide }));
   mesh.renderOrder = 2;
+  mesh.position.set(d.x, 0, d.z);
   const edge = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts.map(([x, z]) => new THREE.Vector3(x, 0.065, z))), new THREE.LineBasicMaterial({ color: coneColor(), transparent: true, opacity: 0.6 }));
   edge.userData.noPick = true;
   mesh.add(edge);
@@ -2571,9 +2625,11 @@ function renderRoomPanel() {
     });
   });
   const ops = roomOpenings(room, floor()).filter((o) => openingEntities(o).length);
-  if (ops.length) {
-    const h = document.createElement('h4'); h.textContent = t('rp.openings'); box.append(h);
-    ops.forEach((o) => {
+  OPEN_KINDS.forEach((kind) => {                             // doors, gates (garage door ...) and windows, each under its own heading
+    const list = ops.filter((o) => openKind(o) === kind);
+    if (!list.length) return;
+    const h = document.createElement('h4'); h.textContent = t(`rp.${kind}`); box.append(h);
+    list.forEach((o) => {
       const multi = o.paneEntities?.some(Boolean);
       const count = multi ? (o.style === 'triple' ? 3 : 2) : 1;
       for (let i = 0; i < count; i++) {
@@ -2583,10 +2639,17 @@ function renderRoomPanel() {
         row.className = 'row' + (isOpen(e) ? ' alert' : '');
         const n = document.createElement('span'); n.className = 'n'; n.textContent = (o.name || t(`prop.${o.type}`)) + (multi ? ` · ${t('pane.n', { n: i + 1 })}` : '');
         const v = document.createElement('span'); v.className = 'v'; v.textContent = openText(e);
-        row.append(n, v); box.append(row);
+        row.append(n, v);
+        if (e.startsWith('cover.')) {                          // a garage door or shutter-like opening can be driven from here
+          ['open_cover', 'stop_cover', 'close_cover'].forEach((act) => {
+            const b = document.createElement('button'); b.textContent = t(ACTION_LABEL[act]);
+            b.addEventListener('click', () => callService(e, act)); row.append(b);
+          });
+        }
+        box.append(row);
       }
     });
-  }
+  });
   if (!devs.length && !ops.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('rp.empty'); box.append(e); }
 }
 function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPanel(); }
@@ -2924,6 +2987,7 @@ function liveMove(d) {
   if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
   const sp = labelSprites.get(d.id);
   if (sp) sp.position.set(d.x, sp.position.y, d.z);
+  cameraCones.get(d.id)?.mesh.position.set(d.x, 0, d.z);          // the field of view of a camera moves with it
   refreshSelHelper();
 }
 /* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
@@ -3691,6 +3755,16 @@ function renderProps() {
   } else if (selection.kind === 'room') {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     body.append(field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v))));
+    {                                                          // roof terrace / open area: no roof above it, railing on the edges without a wall
+      const tc = document.createElement('input'); tc.type = 'checkbox'; tc.checked = !!it.terrace; tc.id = 'roomTerrace';
+      tc.addEventListener('change', () => {
+        snapshot();
+        if (tc.checked) { it.terrace = true; if (!it.color || it.color === '#8a7f70') it.color = '#a58a63'; } else { delete it.terrace; if (it.color === '#a58a63') it.color = '#8a7f70'; }
+        changed(); renderProps();
+      });
+      const tl = document.createElement('label'); tl.className = 'chk'; tl.title = t('prop.terraceHint'); tl.append(tc, document.createTextNode(' ' + t('prop.terrace')));
+      body.append(tl);
+    }
     const asel = document.createElement('select');
     asel.add(new Option(t('area.none'), ''));
     areas.forEach((x) => asel.add(new Option(x.name, x.id)));

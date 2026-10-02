@@ -13,6 +13,7 @@ export const OPENING_DEFAULTS = {
   doorSlide:  { type: 'door',   style: 'sliding', width: 1.8, height: 2.1,  sill: 0 },
   doorOpen:   { type: 'door',   style: 'open',    width: 1.0, height: 2.05, sill: 0 },
   doorGap:    { type: 'door',   style: 'gap',     width: 1.0, height: 2.1,  sill: 0 },
+  doorGarage: { type: 'door',   style: 'garage',  width: 2.5, height: 2.1,  sill: 0 },
   window:     { type: 'window', style: 'single',  width: 1.0, height: 1.2,  sill: 0.9 },
   window2:    { type: 'window', style: 'double',  width: 1.8, height: 1.2,  sill: 0.9 },
   window3:    { type: 'window', style: 'triple',  width: 2.4, height: 1.2,  sill: 0.9 },
@@ -20,7 +21,7 @@ export const OPENING_DEFAULTS = {
   windowBath: { type: 'window', style: 'single',  width: 0.6, height: 0.6,  sill: 1.5 },
   windowFixed:{ type: 'window', style: 'fixed',   width: 1.6, height: 1.4,  sill: 0.6 },
 };
-export const DOOR_STYLES = ['single', 'glass', 'double', 'sliding', 'open', 'gap'];
+export const DOOR_STYLES = ['single', 'glass', 'double', 'sliding', 'open', 'gap', 'garage'];
 export const WINDOW_STYLES = ['single', 'double', 'triple', 'fixed'];
 const EDGE = 0.05;   // minimum solid wall left next to an opening
 
@@ -66,6 +67,17 @@ function buildOpening(o, t, mats0, low) {
   g.add(boxMesh(x0, x1, s + h - ft, s + h, fd, mats.frame));
   if (o.type === 'door' && st === 'open') {
     // passage without a leaf: only the frame
+  } else if (o.type === 'door' && st === 'garage') {
+    // sectional garage door: slats under the lintel that roll up (the pivot shrinks towards the top) when the contact / cover reports "open"
+    pivot = new THREE.Group();
+    pivot.position.set(0, s + h - ft, 0);
+    const n = 5, ph = h - ft, sh = ph / n;
+    for (let k = 0; k < n; k++) {
+      const slat = boxMesh(x0 + ft, x1 - ft, -(k + 1) * sh + 0.008, -k * sh - 0.008, 0.05, k === 1 ? mats.glass : mats.metal);
+      pivot.add(slat);
+    }
+    g.add(pivot);
+    pivot.userData.axis = 'y'; pivot.userData.prop = 'scale'; pivot.userData.base = 1; pivot.userData.dir = -1; pivot.userData.max = 0.9;   // 1 = closed, 0.1 = rolled up
   } else if (o.type === 'door' && st === 'sliding') {
     // two glass panels, one in front of the other; the front one slides aside when the contact reports "open"
     const pw = (w - 2 * ft) / 2 + 0.03;

@@ -351,7 +351,7 @@ export function createPlan(ctx) {
         const t = w.thickness / 2;
         const jamb = [P(-hw, -t), P(-hw, t), P(hw, -t), P(hw, t)];
         o += `<path d="M${jamb[0]}L${jamb[1]}M${jamb[2]}L${jamb[3]}" stroke="${col}" stroke-width="2" fill="none"/>`;
-        if (op.type === 'door' && (op.style === 'open' || op.style === 'gap' || op.style === 'sliding')) {
+        if (op.type === 'door' && (op.style === 'open' || op.style === 'gap' || op.style === 'garage' || op.style === 'sliding')) {
           const q = op.style === 'sliding' ? t * .45 : 0;
           if (op.style === 'sliding') o += `<path d="M${P(-hw, -q)}L${P(0.08, -q)}M${P(-0.08, q)}L${P(hw, q)}" stroke="${col}" stroke-width="2.4" fill="none"/>`;
           else o += `<path d="M${P(-hw, 0)}L${P(hw, 0)}" stroke="${col}" stroke-width="1" stroke-dasharray="4 4" fill="none" opacity=".7"/>`;

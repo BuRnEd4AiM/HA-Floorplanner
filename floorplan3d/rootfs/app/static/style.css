@@ -456,3 +456,4 @@ body.low .alertItem { animation: none; }
 #roomMenu .rmHead { padding: 6px 6px 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .camBtns .haBtn { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
 .camCard.sensor { align-self: start; }
+#openList .offHead { margin-top: 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }

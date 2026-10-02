@@ -29,6 +29,7 @@ OPENING_PRESETS = {                 # same table as OPENING_DEFAULTS in static/w
     "doorSlide":   {"type": "door",   "style": "sliding", "width": 1.8, "height": 2.1,  "sill": 0},
     "doorOpen":    {"type": "door",   "style": "open",    "width": 1.0, "height": 2.05, "sill": 0},
     "doorGap":     {"type": "door",   "style": "gap",     "width": 1.0, "height": 2.1,  "sill": 0},
+    "doorGarage":  {"type": "door",   "style": "garage",  "width": 2.5, "height": 2.1,  "sill": 0},
     "window":      {"type": "window", "style": "single",  "width": 1.0, "height": 1.2,  "sill": 0.9},
     "window2":     {"type": "window", "style": "double",  "width": 1.8, "height": 1.2,  "sill": 0.9},
     "window3":     {"type": "window", "style": "triple",  "width": 2.4, "height": 1.2,  "sill": 0.9},
@@ -36,7 +37,7 @@ OPENING_PRESETS = {                 # same table as OPENING_DEFAULTS in static/w
     "windowBath":  {"type": "window", "style": "single",  "width": 0.6, "height": 0.6,  "sill": 1.5},
     "windowFixed": {"type": "window", "style": "fixed",   "width": 1.6, "height": 1.4,  "sill": 0.6},
 }
-DOOR_STYLES = {"single", "glass", "double", "sliding", "open", "gap"}
+DOOR_STYLES = {"single", "glass", "double", "sliding", "open", "gap", "garage"}
 WINDOW_STYLES = {"single", "double", "triple", "fixed"}
 ROOF_TYPES = {"gable", "hip", "flat"}
 FLOOR_KINDS = {"floor", "basement", "roof"}
@@ -378,6 +379,8 @@ def build_layout(data):
                     "points": poly}
             if isinstance(r.get("area"), str) and r["area"]:
                 room["area"] = r["area"][:80]
+            if r.get("terrace") is True:
+                room["terrace"] = True                          # roof terrace: open area with a railing
             out["rooms"].append(room)
             rooms.append(poly)
         # walls: explicit list wins, otherwise derived from outline + rooms
@@ -571,7 +574,7 @@ def layout_to_property(layout, name="Haus"):
             item["roof"] = f.get("roof") or {"type": "gable", "pitch": 35, "overhang": 0.4}
             floors.append(item)
             continue
-        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area") if k in r} for r in f.get("rooms", [])]
+        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace") if k in r} for r in f.get("rooms", [])]
         item["walls"] = []
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": []}
