@@ -44,6 +44,7 @@ DEFAULT_SETTINGS = {
     "shadows": True,
     "autosaveSeconds": 1.5,
     "lowWalls": False,
+    "cameraImages": True,       # still images of cameras in the room panel and the camera popup (a camera shows people: can be switched off)
     "labelMode": "important",   # value labels on devices: none | important (sensors, climate, covers) | all
     "cutaway": True,           # walls facing the camera sink down
     "earth": "solid",          # ground around the house: off | glass | solid (cut open on the camera's side)
@@ -820,6 +821,34 @@ async def call_service(request):
             return web.json_response({"ok": ok}, status=200 if ok else 502)
 
 
+CAMERA_ID = re.compile(r"^camera\.[a-z0-9_]{1,64}$")
+CAMERA_TYPES = ("image/jpeg", "image/png", "image/gif", "image/webp")
+MAX_CAMERA_BYTES = 8 * 1024 * 1024
+
+
+async def get_camera(request):
+    """Still image of one camera (Home Assistant's camera proxy). Only jpeg / png / gif / webp, never cached."""
+    entity = request.match_info["entity"]
+    if not CAMERA_ID.match(entity):
+        return web.json_response({"error": "not a camera"}, status=400)
+    if not validate_settings(read_settings(request))["cameraImages"]:
+        return web.json_response({"error": "camera images are switched off"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no supervisor token"}, status=503)
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+            async with s.get(f"{HA_API}/camera_proxy/{entity}", headers=ha_headers()) as r:
+                if r.status != 200:
+                    return web.json_response({"error": f"HA answered {r.status}"}, status=502)
+                ctype = (r.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+                body = await r.content.read(MAX_CAMERA_BYTES + 1)
+    except (aiohttp.ClientError, asyncio.TimeoutError):
+        return web.json_response({"error": "camera not reachable"}, status=502)
+    if ctype not in CAMERA_TYPES or len(body) > MAX_CAMERA_BYTES:
+        return web.json_response({"error": "unexpected answer from the camera"}, status=502)
+    return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+
+
 async def index(request):
     return web.FileResponse(STATIC_DIR / "index.html")
 
@@ -1026,6 +1055,7 @@ def make_app(data_path: Path | None = None) -> web.Application:
         web.get("/api/live", live_ws),
         web.get("/api/areas", get_areas),
         web.post("/api/service", call_service),
+        web.get("/api/camera/{entity}", get_camera),
         web.static("/", STATIC_DIR, show_index=False),
     ])
     sub = web.Application(client_max_size=MAX_BACKUP_BYTES)   # the restore upload may be far larger than any other request

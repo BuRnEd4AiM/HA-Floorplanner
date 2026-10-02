@@ -806,6 +806,37 @@ with sync_playwright() as p:
     check("Alt + arrow moves by 1 cm", abs(d3["z"] - d2["z"] - 0.01) < 1e-6, (d2["z"], d3["z"]))
     pg13.click("button[data-tool=opening]")
     check("group tool is gone", pg13.locator("button[data-tool=group]").count() == 0 and pg13.locator("#groupPalette").count() == 0)
+    # --- cameras (#69) and the room panel (#67)
+    camapi = pg13.evaluate("fetch('api/camera/camera.flur').then(r => [r.status, r.headers.get('content-type')])")
+    check("camera still image comes through the add-on", camapi == [200, "image/png"], camapi)
+    check("only cameras can be fetched", pg13.evaluate("fetch('api/camera/light.x').then(r => r.status)") == 400)
+    rid = pg13.evaluate("""() => {
+      const f = window.__fp.layout.floors[window.__fp.floorIdx()], r = f.rooms[0];
+      const xs = r.points.map(p => p[0]), zs = r.points.map(p => p[1]), cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2;
+      f.devices.push({id: 'tcam', type: 'camera', x: cx, z: cz, y: 2.2, rot: 0, scale: 1, name: 'Cam', entity: 'camera.flur', fov: 90, range: 3, motionEntity: 'binary_sensor.rauch'},
+                     {id: 'tlt', type: 'light', x: cx + 0.5, z: cz + 0.5, y: 2.5, rot: 0, scale: 1, name: 'L', entity: 'light.wohnzimmer'});
+      window.__fp.rebuild();
+      return r.id;
+    }""")
+    pg13.wait_for_timeout(500)
+    check("camera shows its field of view as a cone", pg13.evaluate("window.__fp.coneScreen('tcam')") is not None)
+    pg13.evaluate("() => { window.__fp.layout.floors[window.__fp.floorIdx()].devices.find(d => d.id === 'tcam').fov = 0; window.__fp.rebuild(); }"); pg13.wait_for_timeout(300)
+    check("field of view 0 means no cone", pg13.evaluate("window.__fp.coneScreen('tcam')") is None)
+    pg13.click('[data-mode="live"]'); pg13.wait_for_timeout(800)
+    pg13.evaluate(f"window.__fp.openRoomPanel('{rid}')"); pg13.wait_for_timeout(800)
+    heads = " ".join(pg13.locator("#roomPanel h4").all_inner_texts())
+    check("room panel: groups by kind (lights, cameras)", "LIGHTS" in heads and "CAMERAS" in heads, heads)
+    check("room panel: slide switch instead of a toggle button", pg13.locator("#roomPanel .sw input").count() >= 1)
+    check("room panel: camera picture", pg13.locator("#roomPanel img.rp-cam").count() == 1)
+    pg13.click('[data-mode="edit"]'); pg13.wait_for_timeout(300)
+    # --- automatic rooms (#17): delete the rooms of a floor, the closed wall loops bring them back
+    nr = pg13.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].rooms.length")
+    pg13.evaluate("() => { window.__fp.layout.floors[window.__fp.floorIdx()].rooms.length = 0; window.__fp.rebuild(); }"); pg13.wait_for_timeout(300)
+    pg13.click("#autoRooms"); pg13.wait_for_timeout(400)
+    nr2 = pg13.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].rooms.length")
+    check("automatic rooms: every closed wall loop becomes a room", nr > 0 and nr2 == nr, (nr, nr2))
+    pg13.click("#autoRooms"); pg13.wait_for_timeout(300)
+    check("automatic rooms: a second run adds nothing", pg13.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].rooms.length") == nr2)
     check("frameless opening is in the palette", pg13.locator('#openingPalette button[data-opening="doorGap"]').count() == 1)
     pg13.click('#modeBar [data-vm="co2"]'); pg13.wait_for_timeout(400)
     check("CO2 colouring: button and colour scale", pg13.locator("#viewLegend").is_visible() and "ppm" in pg13.inner_text("#viewLegend"))

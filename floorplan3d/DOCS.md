@@ -129,6 +129,12 @@ In the whole-house view the **Auseinander** button pulls the floors apart (tap a
 
 **Value badges**: ⚙ → *Value badges on devices* shows measurements on the devices ("21.4 °C", "95 W", shutter position ...): only the important ones, all devices, or none. **Temp. / Feuchte / CO₂** at the bottom colour the rooms by their sensors; a scale at the bottom right shows the colours (adjustable in ⚙).
 
+**Räume erkennen** (button next to the *Raum* tool): draw the walls first, then one tap creates a room for every closed loop of walls on the floor. Walls may meet, cross or end on another wall; walls that end nowhere close nothing. Existing rooms stay, so you can press it again after adding walls.
+
+**Cameras:** a camera device shows its field of view as a cone on the floor (device panel: *Sichtwinkel*, *Reichweite*, *Bewegungssensor*). With a motion sensor the cone turns red while there is movement. In live mode a tap on the camera or its cone shows a still image (renewed every 5 seconds); ⓘ or a tap on the picture opens Home Assistant's live view. ⚙ → *Show camera still images* switches the pictures off (they are visible to everybody who may open the panel).
+
+**Room panel (live mode):** the devices of a room by kind: lights (with *Alle aus*), covers, heating, media, switches (slide switches), cameras, sensors, scenes & scripts. On phones and tablets held upright it comes up from the bottom.
+
 **Halbschnitt** (button next to *Auto*): cuts every wall at half height so you see into all rooms from any side. **Arrow keys** move the selected item by one grid step (Shift 10 cm, Alt 1 cm; a door or window slides along its wall).
 
 ### Stairs and stairwells
