@@ -148,7 +148,6 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Your own 3D models**: upload any `.glb` file
 - **Pictures on walls**: upload a PNG / JPG / WebP and hang it, it clicks flat onto the nearest wall
 - **Exact sizes**: enter width, height and depth in metres, or drag the handles in the 2D plan. Tilt, roll and mirror pieces freely
-- **Groups**: combine pieces (e.g. a Nanoleaf logo) so they move, turn and mirror as one shape
 - **Wall stop**: furniture cannot be pushed through walls, it slides along them instead (can be switched off)
 - **Lock**: a checkbox before every item keeps it from being moved by accident
 

@@ -24,7 +24,6 @@
       <button data-tool="hole" data-i18n="tool.hole" data-i18n-title="tip.hole"></button>
       <button data-tool="opening" data-i18n="tool.opening" data-i18n-title="tip.opening"></button>
       <button data-tool="device" data-i18n="tool.device" data-i18n-title="tip.device"></button>
-      <button data-tool="group" data-i18n="tool.group" data-i18n-title="tip.group"></button>
       <button data-tool="erase" data-i18n="tool.erase" data-i18n-title="tip.erase"></button>
     </div>
     <div class="group">
@@ -129,10 +128,7 @@
         <select id="entitySelect" size="6"></select>
       </section>
 
-      <section id="groupPalette" hidden>
-        <h3 data-i18n="tool.group"></h3>
-        <div id="groupBody"></div>
-      </section>
+
 
       <section id="plotPalette" hidden>
         <h3 data-i18n="plot.title"></h3>
@@ -235,6 +231,15 @@
     <p class="sub" data-i18n="off.hint"></p>
     <p id="offlineNone" data-i18n="off.none" hidden></p>
     <ul id="offlineList"></ul>
+  </form>
+</dialog>
+
+<dialog id="openDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="open.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="sub" data-i18n="open.hint"></p>
+    <p id="openNone" data-i18n="open.allClosed" hidden></p>
+    <ul id="openList"></ul>
   </form>
 </dialog>
 

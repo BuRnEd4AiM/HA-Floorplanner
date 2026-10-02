@@ -82,8 +82,6 @@ Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistan
 
 **Turning and mirroring:** every device has *Drehung* (around the vertical axis), *Kippen vor/zurück* and *Drehen in der Fläche / seitlich* (roll) in the side panel, and **Spiegeln** flips the shape left-right. For a wall panel, *Drehen in der Fläche* turns it in the wall plane to build the pattern.
 
-**Groups:** tool *Gruppe* – click the devices that belong together, then *Gruppe bilden*. The group moves, turns around its centre and mirrors as one shape (side panel of any member: *Gruppe spiegeln*, *Aus Gruppe lösen*, *Gruppe auflösen*). Ideal for a Nanoleaf logo you built once.
-
 **Wall stop:** devices stop at walls when you drag them, so nothing ends up behind a wall by accident; doors let them pass. Settings → *Geräte stoppen an Wänden* switches it off.
 
 **Layout editor (many panels):** many panels are easier as *Nanoleaf Layout*: place it, then in the editor pick a shape and click panels together – edges snap to neighbours (rotation is found automatically, `R` turns the free first panel, right-click erases, *Zurück* undoes). *Übernehmen* saves the whole layout as ONE object with ONE entity; all panels glow in that light's colour. Change it later with *Layout bearbeiten* in the side panel.

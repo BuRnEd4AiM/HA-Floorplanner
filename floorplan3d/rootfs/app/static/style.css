@@ -76,7 +76,11 @@ main { flex: 1; display: flex; min-height: 0; }
   pointer-events: auto; cursor: pointer; background: var(--panel); color: inherit; border: 1px solid var(--line);
   border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
 .floorCard b { font-size: 13px; }
-.floorCard span { opacity: .85; }
+.floorCard .fcm { display: flex; flex-wrap: wrap; opacity: .85; }
+.floorCard .fcm em { font-style: normal; }
+.floorCard .fcm em + em::before { content: ' · '; white-space: pre; }
+.floorCard.narrow .fcm { flex-direction: column; }
+.floorCard.narrow .fcm em + em::before { content: none; }
 #livePopup { position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); min-width: 240px;
   max-width: calc(100% - 24px); padding: 12px 14px; background: var(--panel); border: 1px solid var(--line);
   border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
@@ -339,9 +343,9 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 .pill.ok { color: #2e9e5b; border-color: #2e9e5b; }
 .pill.warn { background: #b3261e; border-color: #b3261e; color: #fff; font-weight: 600; }
 #offlineDialog { width: min(560px, 94vw); }
-#offlineList { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-#offlineList button { width: 100%; text-align: left; display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 12px; }
-#offlineList small { grid-column: 1 / -1; color: var(--muted); overflow-wrap: anywhere; }
+#offlineList, #openList { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#offlineList button, #openList button { width: 100%; text-align: left; display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 12px; }
+#offlineList small, #openList small { grid-column: 1 / -1; color: var(--muted); overflow-wrap: anywhere; }
 .offWhy { font-size: 12px; padding: 1px 8px; border-radius: 999px; background: #b3261e; color: #fff; align-self: center; }
 .offWhy.unknown { background: #8a6d1a; }
 .offWhy.missing { background: #555f6b; }
