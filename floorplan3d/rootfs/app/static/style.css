@@ -428,7 +428,12 @@ body.low .alertItem { animation: none; }
 #viewMenu .pill[hidden] { display: none; }
 #viewMenuBtn::after { content: ' ▾'; }
 #viewMenuBtn.active::after { content: ' ▴'; }
-#camGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+#camGrid { display: flex; flex-direction: column; gap: 14px; }
+.camCards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.camGroupHead { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+.camGroupHead strong { font-size: 14px; }
+.camGroupHead small { color: var(--muted); flex: 1; }
+.camGroup.alert .camGroupHead { border-bottom-color: #ff4a3d; }
 .camCard { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--field); }
 .camCard.alert { border-color: #ff4a3d; box-shadow: 0 0 14px rgba(255,74,61,.45); }
 .camCard img.cam-big { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; background: #000; cursor: pointer; }
@@ -450,3 +455,4 @@ body.low .alertItem { animation: none; }
 #roomMenu .pill.all { border-style: dashed; }
 #roomMenu .rmHead { padding: 6px 6px 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .camBtns .haBtn { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+.camCard.sensor { align-self: start; }

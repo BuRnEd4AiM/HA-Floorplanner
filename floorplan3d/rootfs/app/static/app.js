@@ -1017,40 +1017,65 @@ camPillBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(ca
 document.addEventListener('click', (e) => { dropdowns.forEach(([m, b]) => { if (!m.hidden && !m.contains(e.target) && e.target !== b) toggleMenu(m, b, false); }); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.forEach(([m, b]) => { if (!m.hidden) toggleMenu(m, b, false); }); });
 
-/** every camera of the house (a device of type camera with a camera entity), with the room it hangs in; movement first */
+const MOTION_DC = new Set(['motion', 'occupancy', 'presence', 'moving']);
+/** everything that can see or feel movement, with the room it is in: cameras (a device of type camera with a camera entity) and
+ *  motion / presence sensors placed in the plan; rooms with movement first */
 function cameraList() {
   const out = [];
   layout.floors.forEach((f, fi) => f.devices.forEach((d) => {
-    if (d.type !== 'camera' || !d.entity?.startsWith('camera.')) return;
-    out.push({ d, fi, room: f.rooms.find((r) => pointInPoly(d.x, d.z, r.points))?.name || '', motion: cameraMotion(d) });
+    const room = f.rooms.find((r) => pointInPoly(d.x, d.z, r.points))?.name || '';
+    if (d.type === 'camera' && d.entity?.startsWith('camera.')) out.push({ kind: 'cam', d, fi, room, motion: cameraMotion(d) });
+    else if (d.entity?.startsWith('binary_sensor.') && (d.type === 'presence' || MOTION_DC.has(states[d.entity]?.dc))) out.push({ kind: 'sensor', d, fi, room, motion: ON_STATES.has(states[d.entity]?.state) });
   }));
   return out.sort((p, q) => Number(q.motion) - Number(p.motion) || p.fi - q.fi || (p.d.name || '').localeCompare(q.d.name || ''));
 }
+/** names of the rooms where a camera sees movement (floor name when the camera hangs in no room) */
+const motionPlaces = (list) => [...new Set(list.filter((x) => x.motion).map((x) => x.room || layout.floors[x.fi]?.name || ''))].filter(Boolean);
 function updateCamPill() {
-  const pill = $('#camPill'), list = cameraList(), n = list.filter((x) => x.motion).length;
+  const pill = $('#camPill'), list = cameraList(), places = motionPlaces(list), n = list.filter((x) => x.motion).length;
+  const cams = list.filter((x) => x.kind === 'cam').length;
   pill.hidden = !list.length;
-  pill.textContent = n ? t('cam.pillMotion', { n }) : t('cam.pill', { n: list.length });
+  pill.textContent = n ? (places.length === 1 ? t('cam.pillMotionIn', { room: places[0] }) : t('cam.pillMotionN', { n: places.length || n })) : cams ? t('cam.pill', { n: cams }) : t('cam.pillSensors', { n: list.length });
   pill.classList.toggle('alert', n > 0);
+  pill.title = n ? places.join(', ') : t('cam.pillTip');
   if (!camMenu.hidden) renderCamMenu();
 }
+/** cameras grouped by room (floor name next to it, so equal room names on two floors are not mixed up); rooms with movement come first */
 function renderCamMenu() {
   const grid = $('#camGrid');
   grid.replaceChildren();
-  cameraList().forEach(({ d, fi, room, motion }) => {
-    const card = document.createElement('div'); card.className = 'camCard' + (motion ? ' alert' : '');
-    if (settings.cameraImages) card.append(camImage(d.entity, 'cam-big'));
-    const head = document.createElement('div'); head.className = 'camHead';
-    const name = document.createElement('strong'); name.textContent = d.name || d.entity;
-    head.append(name);
-    if (d.motionEntity) { const b = document.createElement('span'); b.className = 'camBadge' + (motion ? ' alert' : ''); b.textContent = motion ? t('cam.motionOn') : t('cam.motionOff'); head.append(b); }
-    const meta = document.createElement('small'); meta.textContent = [layout.floors[fi]?.name, room].filter(Boolean).join(' · ');
-    const row = document.createElement('div'); row.className = 'camBtns';
-    const show = document.createElement('button'); show.type = 'button'; show.textContent = t('cam.show');
-    show.addEventListener('click', () => { toggleMenu(camMenu, camPillBtn, false); showOffline({ floor: fi, kind: 'device', id: d.id }); });
-    row.append(show);
-    row.append(haButton(d.entity));
-    card.append(head, meta, row);
-    grid.append(card);
+  const groups = new Map();
+  cameraList().forEach((c) => {
+    const key = `${c.fi}:${c.room}`;
+    if (!groups.has(key)) groups.set(key, { fi: c.fi, room: c.room, cams: [] });
+    groups.get(key).cams.push(c);
+  });
+  const ordered = [...groups.values()].sort((p, q) => Number(q.cams.some((c) => c.motion)) - Number(p.cams.some((c) => c.motion)) || q.fi - p.fi || p.room.localeCompare(q.room));
+  ordered.forEach((g) => {
+    const alarm = g.cams.some((c) => c.motion);
+    const sec = document.createElement('section'); sec.className = 'camGroup' + (alarm ? ' alert' : '');
+    const hd = document.createElement('div'); hd.className = 'camGroupHead';
+    const nm = document.createElement('strong'); nm.textContent = g.room || t('cam.noRoom');
+    const fl = document.createElement('small'); fl.textContent = layout.floors[g.fi]?.name || '';
+    hd.append(nm, fl);
+    if (alarm) { const b = document.createElement('span'); b.className = 'camBadge alert'; b.textContent = t('cam.motionOn'); hd.append(b); }
+    const cards = document.createElement('div'); cards.className = 'camCards';
+    g.cams.forEach(({ kind, d, fi, motion }) => {
+      const card = document.createElement('div'); card.className = 'camCard' + (motion ? ' alert' : '') + (kind === 'sensor' ? ' sensor' : '');
+      if (kind === 'cam' && settings.cameraImages) card.append(camImage(d.entity, 'cam-big'));
+      const head = document.createElement('div'); head.className = 'camHead';
+      const name = document.createElement('strong'); name.textContent = `${kind === 'sensor' ? '🔔 ' : ''}${d.name || d.entity}`;
+      head.append(name);
+      if ((kind === 'sensor' || d.motionEntity) && !motion) { const b = document.createElement('span'); b.className = 'camBadge'; b.textContent = t('cam.motionOff'); head.append(b); }
+      const row = document.createElement('div'); row.className = 'camBtns';
+      const show = document.createElement('button'); show.type = 'button'; show.textContent = t('cam.show');
+      show.addEventListener('click', () => { toggleMenu(camMenu, camPillBtn, false); showOffline({ floor: fi, kind: 'device', id: d.id }); });
+      row.append(show, haButton(d.entity));
+      card.append(head, row);
+      cards.append(card);
+    });
+    sec.append(hd, cards);
+    grid.append(sec);
   });
 }
 
