@@ -940,16 +940,17 @@ const coneColor = () => (isHolo() ? 0x3df2ff : 0x4aa8ff);
 function buildCameraCone(d) {
   const fov = Math.max(10, Math.min(180, d.fov ?? 90)), range = Math.max(0.5, d.range ?? 4);
   const r = THREE.MathUtils.degToRad(d.rot || 0), half = THREE.MathUtils.degToRad(fov) / 2, n = Math.max(6, Math.round(fov / 6));
-  const pts = [[d.x, d.z]];
-  for (let i = 0; i <= n; i++) { const a = r - half + (2 * half * i) / n; pts.push([d.x + Math.sin(a) * range, d.z + Math.cos(a) * range]); }   // the lens looks along local +z
+  const pts = [[0, 0]];                                             // corners relative to the camera: the cone moves with it
+  for (let i = 0; i <= n; i++) { const a = r - half + (2 * half * i) / n; pts.push([Math.sin(a) * range, Math.cos(a) * range]); }   // the lens looks along local +z
   const pos = [], idx = [];
-  pts.forEach(([x, z]) => pos.push(x, 0.06, z));   // above flat things such as carpets
+  pts.forEach(([x, z]) => pos.push(x, 0.06, z));                    // above flat things such as carpets
   for (let i = 1; i <= n; i++) idx.push(0, i, i + 1);
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   geo.setIndex(idx);
   const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: coneColor(), transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide }));
   mesh.renderOrder = 2;
+  mesh.position.set(d.x, 0, d.z);
   const edge = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts.map(([x, z]) => new THREE.Vector3(x, 0.065, z))), new THREE.LineBasicMaterial({ color: coneColor(), transparent: true, opacity: 0.6 }));
   edge.userData.noPick = true;
   mesh.add(edge);
@@ -2924,6 +2925,7 @@ function liveMove(d) {
   if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
   const sp = labelSprites.get(d.id);
   if (sp) sp.position.set(d.x, sp.position.y, d.z);
+  cameraCones.get(d.id)?.mesh.position.set(d.x, 0, d.z);          // the field of view of a camera moves with it
   refreshSelHelper();
 }
 /* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
