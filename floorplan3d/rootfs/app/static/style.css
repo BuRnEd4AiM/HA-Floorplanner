@@ -47,6 +47,7 @@ main { flex: 1; display: flex; min-height: 0; }
 .palette .none { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }
 .palette .model { position: relative; padding-right: 18px; }
 .palette .model .x { position: absolute; top: 1px; right: 4px; color: var(--muted); font-weight: 700; }
+#modelGrid { max-height: 260px; overflow-y: auto; }
 .uploadBtn { display: block; margin-top: 8px; padding: 6px; text-align: center; cursor: pointer;
   border: 1px dashed var(--line); border-radius: 6px; color: var(--muted); font-size: 13px; }
 .uploadBtn:hover { border-color: var(--accent); color: var(--text); }

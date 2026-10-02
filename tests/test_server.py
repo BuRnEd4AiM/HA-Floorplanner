@@ -59,11 +59,28 @@ async def test_model_upload_list_get_delete(client):
     fd.add_field("file", glb(), filename="My Sofa!.glb")
     assert (await (await client.post("/api/models", data=fd)).json())["name"] == "my-sofa-2"
 
-    assert len(await (await client.get("/api/models")).json()) == 2
+    assert len([m for m in await (await client.get("/api/models")).json() if not m.get("builtin")]) == 2
     r = await client.get(f"/api/models/{name}")
     assert r.status == 200 and (await r.read()).startswith(b"glTF")
     assert (await client.delete(f"/api/models/{name}")).status == 200
     assert (await client.get(f"/api/models/{name}")).status == 404
+
+
+async def test_shipped_models_listed_readable_not_deletable(client):
+    items = await (await client.get("/api/models")).json()
+    shipped = [m for m in items if m.get("builtin")]
+    assert len(shipped) > 50 and all(server.MODEL_NAME.match(m["name"]) for m in shipped)
+    name = shipped[0]["name"]
+    r = await client.get(f"/api/models/{name}")
+    assert r.status == 200 and (await r.read()).startswith(b"glTF")
+    assert (await client.delete(f"/api/models/{name}")).status == 404       # not in the user's folder
+
+    from aiohttp import FormData
+    fd = FormData()
+    fd.add_field("file", glb(), filename=f"{name}.glb")                      # own upload of the same name wins
+    assert (await (await client.post("/api/models", data=fd)).json())["name"] == name
+    items = await (await client.get("/api/models")).json()
+    assert [m for m in items if m["name"] == name] == [{"name": name, "size": 36, "url": f"api/models/{name}"}]
 
 
 async def test_model_upload_validation(client):

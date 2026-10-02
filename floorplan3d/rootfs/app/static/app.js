@@ -3015,17 +3015,20 @@ $('#paletteSearch').addEventListener('input', (e) => { paletteQuery = e.target.v
 function renderModelPalette() {
   const box = $('#modelGrid');
   box.innerHTML = '';
-  if (!customModels.length) {
+  const q = paletteQuery.trim().toLowerCase().replace(/[\s-]+/g, '');
+  const shown = customModels.filter((m) => !m.builtin || !q || m.name.replace(/-/g, '').includes(q));   // the search box also filters the shipped models
+  if (!shown.length) {
     const n = document.createElement('div'); n.className = 'none'; n.textContent = t('panel.modelsEmpty');
     box.append(n);
     return;
   }
-  customModels.forEach((m) => {
+  shown.forEach((m) => {
     const b = document.createElement('button');
     b.className = 'model';
     b.title = m.name;
     b.textContent = m.name;
     b.classList.toggle('active', deviceType === `glb:${m.name}`);
+    if (m.builtin) { b.addEventListener('click', () => { deviceType = `glb:${m.name}`; buildPalette(); }); box.append(b); return; }
     const x = document.createElement('span'); x.className = 'x'; x.textContent = '×'; x.title = t('panel.delete');
     x.addEventListener('click', async (ev) => {
       ev.stopPropagation();
