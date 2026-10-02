@@ -22,6 +22,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **Opening without a frame** (#71): new *Öffnung (ohne Rahmen)* in the door and window palette, a bare hole in the wall (also available as `doorGap` / style `gap` in the JSON import)
 
 ### Fixed
+- **Basement covered by a green layer**: with a plot drawn, the lawn area at ground level lay over the basement when you opened it. It is no longer drawn there
 - **Stairs can be made shorter**: a straight stair could not be shorter than 2.88 m because a tread had to be at least 18 cm deep. Treads may now be 10 cm deep, so a stair can be as short as 1.6 m (for a 3 m floor)
 
 Ideas for the floor rail, cards and arrow keys from [NeonPlan 3D](https://github.com/Mastershort/neonplan3d) (MIT). A height per wall already existed (select a wall, field *Höhe*).
