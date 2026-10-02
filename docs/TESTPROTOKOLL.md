@@ -8,7 +8,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 | Datum | Stand | Python-Tests | Browser-Test (E2E) | Bemerkung |
 |---|---|---|---|---|
-| 2026-10-02 | 3.21.0 | 74 bestanden + 8 Gauben-Tests | 208 von 208 bestanden | Dachgauben |
+| 2026-10-02 | 3.21.0 | 80 bestanden + 8 Gauben-Tests | 208 von 208 bestanden | Dachgauben |
 
 E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
 
@@ -67,6 +67,7 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 | 12.4 | Gaube mit Satteldach und mit Flachdach | ❓ |
 | 12.5 | Gaube entfernen (×) | ❓ |
 | 12.6 | Bei Flachdach erscheint ein Hinweis statt der Gauben | ❓ |
+| 12.6a | JSON-Import mit `roof.dormers` (docs/examples/house.json hat zwei Gauben) zeigt Gauben auf dem Dach | ❓ |
 | 12.7 | Nach dem Neuladen sind die Gauben noch da (nur im Add-on, Demo speichert nicht) | ➖ |
 
 ## Automatisch geprüft (zusätzlich)

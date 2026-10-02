@@ -12,6 +12,7 @@ server.py  (aiohttp, port 8099)
  ├─ /api/backgrounds  floor plan templates, wall pictures → /data/backgrounds/
  ├─ /api/settings     look, units, users/rooms/views     → /data/settings.json
  ├─ /api/models       uploaded GLB models                → /data/models/
+ ├─ /api/users-file   users & tablets file, sync button  → /config/users.json (addon_configs)
  ├─ /api/entities     entity list with state             ← Home Assistant REST API
  ├─ /api/live         websocket: state changes pushed live ← Home Assistant websocket (state_changed)
  ├─ /api/areas        HA areas with their entities       ← template API

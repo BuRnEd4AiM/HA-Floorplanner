@@ -71,6 +71,8 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
     "wallHeight": 2.6, "outerWall": 0.3, "innerWall": 0.12,
     "footprint": [[0,0],[11,0],[11,9],[0,9]],           // optional: Außenumriss → dicke Außenwände
     "roof": { "type": "gable", "pitch": 38 },           // gable | hip | flat
+    // Dachgauben (optional, nicht bei flat): side 0|1 oder "a"|"b", pos 0..1 am First, w/hw/eave in m, type gable|flat, win true|false
+    // "roof": { "type": "gable", "dormers": [ { "side": "a", "pos": 0.3, "w": 1.6, "hw": 1.2, "eave": 0.8, "type": "gable", "win": true } ] },
     "floors": [
       {
         "name": "Erdgeschoss", "kind": "floor",         // floor | basement | roof
