@@ -74,6 +74,8 @@ const layout = {
       { id: 'd7w', type: 'sensor', x: 4.5, z: 0.4, y: 1.4, rot: 0, scale: 1, name: 'Leistung', entity: 'sensor.wohnzimmer_leistung' },
       { id: 'd7',  type: 'plant',      x: 0.7, z: 0.7,  y: 0,    rot: 0,   scale: 1.2, name: 'Pflanze',         entity: '' },
       { id: 'd8',  type: 'sensor',     x: 5.75, z: 0.9, y: 1.6,  rot: 90,  scale: 1,   name: 'Temperatur Wohnzimmer', entity: 'sensor.wohnzimmer_temp' },
+      { id: 'cam1', type: 'camera', x: 3, z: 0.18, y: 2.3, rot: 0, scale: 1.4, name: 'Kamera Wohnzimmer', entity: 'camera.wohnzimmer', fov: 90, range: 4.2, motionEntity: 'binary_sensor.wohnzimmer_bewegung' },
+      { id: 'cam2', type: 'camera', x: 9.82, z: 6.82, y: 2.3, rot: 225, scale: 1.4, name: 'Kamera Büro', entity: 'camera.buero', fov: 80, range: 3.6 },
       { id: 'd8c', type: 'sensor',     x: 5.75, z: 2.4, y: 1.6,  rot: 90,  scale: 1,   name: 'CO₂ Wohnzimmer', entity: 'sensor.wohnzimmer_co2' },
       { id: 'd9',  type: 'diningtable', x: 8,   z: 2.2,  y: 0,    rot: 0,   scale: 1, name: 'Esstisch',        entity: '' },
       { id: 'd10', type: 'light',      x: 8,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Küchenlicht',     entity: 'light.kueche' },
@@ -188,6 +190,10 @@ const entities = {
   'sensor.gast_temp':       { name: 'Gästezimmer Temperatur',  state: '17.4', unit: '°C' },
   'sensor.studio_temp':     { name: 'Studio Temperatur',       state: '24.6', unit: '°C' },
   'sensor.buero_temp':      { name: 'Büro Temperatur',         state: '23.0', unit: '°C', dc: 'temperature' },
+  'camera.wohnzimmer':       { name: 'Kamera Wohnzimmer',      state: 'idle' },
+  'camera.buero':            { name: 'Kamera Büro',            state: 'idle' },
+  'binary_sensor.wohnzimmer_bewegung': { name: 'Bewegung Wohnzimmer', state: 'on' },
+  'script.filmabend':        { name: 'Filmabend',              state: 'off' },
   'sensor.bad_feuchte':      { name: 'Bad Luftfeuchte',        state: '64', unit: '%' },
   'sensor.wohnzimmer_co2':   { name: 'Wohnzimmer CO₂',         state: '920', unit: 'ppm', dc: 'carbon_dioxide' },
   'sensor.schlafzimmer_co2': { name: 'Schlafzimmer CO₂',       state: '1350', unit: 'ppm', dc: 'carbon_dioxide' },
@@ -196,7 +202,7 @@ const entities = {
 
 let settings = {
   language: 'en', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', belowMode: 'dim', cutaway: true,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', belowMode: 'dim', cameraImages: true, cutaway: true,
 };
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -210,6 +216,11 @@ export function installDemoBackend() {
     if (!path.startsWith('api/')) return realFetch(input, init);
     const method = (init.method || 'GET').toUpperCase();
 
+    if (path.startsWith('api/camera/')) {                       // a drawn "camera picture" that changes every time, so the refresh can be seen
+      const id = decodeURIComponent(path.slice('api/camera/'.length)), name = entities[id]?.name || id, now = new Date().toLocaleTimeString();
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4a5c"/><stop offset="1" stop-color="#151b22"/></linearGradient></defs><rect width="640" height="360" fill="url(#g)"/><rect x="0" y="250" width="640" height="110" fill="#2a2f36"/><rect x="60" y="90" width="150" height="150" fill="#1d252e" stroke="#556" stroke-width="3"/><rect x="420" y="170" width="170" height="80" rx="10" fill="#4a3a30"/><text x="16" y="30" fill="#fff" font-family="sans-serif" font-size="18">${name}</text><text x="624" y="344" fill="#9fe" font-family="monospace" font-size="16" text-anchor="end">DEMO ${now}</text></svg>`;
+      return new Response(svg, { status: 200, headers: { 'Content-Type': 'image/svg+xml' } });
+    }
     if (path === 'api/layout') {
       if (method === 'PUT') return json({ ok: true });        // edits live only in this tab
       return json(layout);

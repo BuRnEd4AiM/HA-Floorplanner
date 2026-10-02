@@ -13,6 +13,7 @@ import {
 import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
+import { detectRooms } from './rooms.js';
 import { STAIR_TYPES, stairDefaults, stairBounds, stairLocal, polyToWorld, holesForFloor, toWorld, stairCounts, stairLength, stairHandles, MIN_TREAD, MAX_TREAD } from './stairs.js';
 
 /* ================= State ================= */
@@ -22,7 +23,7 @@ const params = new URLSearchParams(location.search);
 
 let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cutaway: true, wallStop: true, earth: 'solid', earthMargin: 5,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, earth: 'solid', earthMargin: 5,
   alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
   userRooms: {}, userViews: {}, belowVisibility: 0.5, belowMode: 'dim', bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
@@ -342,6 +343,7 @@ const roomMeshes = new Map();     // room id -> { mesh, room }
 /* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing ---- */
 const earthCut = new THREE.Plane(new THREE.Vector3(0, -1, 0), -1000);   // nothing cut until the camera says where
 let earthInfo = null;                                                   // { cx, cz, corners ... } of the house footprint while the earth is cut
+let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
 let earthLawn = false, earthGround = false, earthBox = null;                             // solid lawn is drawn / any ground is drawn (it replaces the grid)
 /** outline of the house at ground level: walls (with their thickness) and rooms of the basements and the ground floor */
 function houseFootprint() {
@@ -616,7 +618,7 @@ function build() {
   wake();
   plan?.render();
   clearGroup(world);
-  registry.clear(); pickables.length = 0; labelSprites.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear(); alertPulses.length = 0;
+  registry.clear(); pickables.length = 0; labelSprites.clear(); cameraCones.clear(); coneMotion.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear(); alertPulses.length = 0;
   const holo = isHolo();
   const iso = isolatedRoom();
   if (houseMode && settings.earth === 'off') {    // ground reference for the plot (with earth the lawn is the ground)
@@ -626,7 +628,7 @@ function build() {
     grid.material.transparent = true; grid.material.opacity = 0.35;
     world.add(grid);
   }
-  earthInfo = null; earthLawn = false; earthGround = false;
+  earthInfo = null; earthLawn = false; earthGround = false; plotLoop = null;
   const withEarth = settings.earth !== 'off' && (houseMode || floorIdx >= groundIdx()) && !iso;
   if (withEarth) buildEarth(world, holo);          // the house stands in the ground: lawn on top, the basement inside the earth
   if (layout.plot?.boundary?.length >= 3) {      // the plot (Grundstück): outline + a faint ground area
@@ -637,6 +639,8 @@ function build() {
       ground.position.y = -0.04;
       world.add(ground);
     }
+    loop.visible = !isLive();
+    plotLoop = loop;
     world.add(loop);
   }
   layout.floors.forEach((f, i) => {
@@ -786,6 +790,12 @@ function build() {
       g.add(model);
       registry.set(d.id, model);
       if (!ghost) pickables.push(model);
+      if (d.type === 'camera' && !ghost && (d.fov ?? 90) > 0) {
+        const cone = buildCameraCone(d);
+        g.add(cone);
+        cameraCones.set(d.id, { mesh: cone, d });
+        pickables.push(cone);
+      }
       {
         if (wantsLabel(d)) {
           const sp = textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true });
@@ -919,6 +929,40 @@ function animateOpenings() {
     if (Math.abs(tg - cur) > 0.002) holder[prop] = cur + (tg - cur) * 0.15;
     (p.userData.followers || []).forEach((fp) => { fp.rotation[fp.userData.axis] = holder[prop] * (fp.userData.dir / (p.userData.dir || 1)); });   // second leaf of a double door
    });
+  });
+}
+
+/* ================= Cameras (#69): the field of view as a cone on the floor, red while there is motion ================= */
+const cameraCones = new Map();             // device id -> { mesh, d }
+const coneMotion = new Set();              // materials of the cones that are red (they pulse)
+const CONE_RED = 0xff3a3a;
+const coneColor = () => (isHolo() ? 0x3df2ff : 0x4aa8ff);
+function buildCameraCone(d) {
+  const fov = Math.max(10, Math.min(180, d.fov ?? 90)), range = Math.max(0.5, d.range ?? 4);
+  const r = THREE.MathUtils.degToRad(d.rot || 0), half = THREE.MathUtils.degToRad(fov) / 2, n = Math.max(6, Math.round(fov / 6));
+  const pts = [[d.x, d.z]];
+  for (let i = 0; i <= n; i++) { const a = r - half + (2 * half * i) / n; pts.push([d.x + Math.sin(a) * range, d.z + Math.cos(a) * range]); }   // the lens looks along local +z
+  const pos = [], idx = [];
+  pts.forEach(([x, z]) => pos.push(x, 0.06, z));   // above flat things such as carpets
+  for (let i = 1; i <= n; i++) idx.push(0, i, i + 1);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setIndex(idx);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: coneColor(), transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide }));
+  mesh.renderOrder = 2;
+  const edge = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts.map(([x, z]) => new THREE.Vector3(x, 0.065, z))), new THREE.LineBasicMaterial({ color: coneColor(), transparent: true, opacity: 0.6 }));
+  edge.userData.noPick = true;
+  mesh.add(edge);
+  mesh.userData = { kind: 'device', id: d.id, cone: true, edge };
+  return mesh;
+}
+const cameraMotion = (d) => !!d.motionEntity && ON_STATES.has(states[d.motionEntity]?.state);
+/** red and pulsing while the motion sensor of the camera reports movement */
+function updateCameraCones() {
+  cameraCones.forEach(({ mesh, d }) => {
+    const motion = cameraMotion(d), col = motion ? CONE_RED : coneColor();
+    mesh.material.color.setHex(col); mesh.userData.edge.material.color.setHex(col);
+    if (motion) coneMotion.add(mesh.material); else { coneMotion.delete(mesh.material); mesh.material.opacity = 0.2; }
   });
 }
 
@@ -1056,6 +1100,7 @@ function updateViewLegend() {
 function applyStates() {
   if (plan?.isVisible()) plan.render();
   updateViewLegend();
+  updateCameraCones();
   updateFloorCards();
   updateOfflinePill();
   updateAlerts();
@@ -1582,16 +1627,20 @@ function groundPoint(e) {
 const stealth = (id) => !!floor()?.devices.find((v) => v.id === id)?.hideModel;
 function pickHit(e) {
   setRay(e);
-  const hits = [];
+  let hits = [];
   for (const h of ray.intersectObjects(pickables, true)) {
     let o = h.object, seg = h.object.userData.seg;
     while (o && !o.userData.kind) { o = o.parent; seg ??= o?.userData.seg; }
+    if (o && o.userData.cone && !isLive()) continue;                                              // the cone is only for tapping in live mode
     if (o && o.userData.kind === 'device' && isLive() && stealth(o.userData.id)) continue;      // an invisible light cannot be tapped either
     if (o) hits.push({ data: seg != null ? { ...o.userData, seg } : o.userData, point: h.point, distance: h.distance });   // seg: which LED ring section was tapped
   }
   // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
   // door/window the door/window wins unless the device is clearly in front of it (> 1.2 m nearer to the camera).
   const live = isLive();
+  if (live && hits.some((h) => h.data.cone)) {                 // inside a camera cone, decoration without a device behind it (carpet ...) does not take the tap
+    hits = hits.filter((h) => h.data.cone || h.data.kind !== 'device' || floor().devices.find((x) => x.id === h.data.id)?.entity);
+  }
   const op = hits.find((h) => h.data.kind === 'opening' && (!live || findOpening(h.data.id)?.opening.entity));
   const dv = hits.find((h) => h.data.kind === 'device');
   if (op && dv) return dv.distance < op.distance - 1.2 ? dv : op;
@@ -2061,6 +2110,10 @@ function renderLivePopup() {
   const mi = detailsButton(d.entity);
   if (mi) title.append(mi);
   box.append(title, sub);
+  if (d.type === 'camera') {                                  // #69: still image (renewed every few seconds), a second tap opens Home Assistant's live view
+    if (d.motionEntity) { const mo = document.createElement('div'); mo.className = 'sub'; mo.textContent = cameraMotion(d) ? t('cam.motionOn') : t('cam.motionOff'); box.append(mo); }
+    if (d.entity?.startsWith('camera.') && settings.cameraImages) box.append(camImage(d.entity, 'pop-cam'));
+  }
   const acts = d.entity ? ACTIONS[d.entity.split('.')[0]] : null;
   if (acts) {
     const row = document.createElement('div'); row.className = 'actions';
@@ -2265,8 +2318,46 @@ function roomControls(room) {
 /* ---- Room panel: all entities of a room, grouped, with brightness / position sliders ---- */
 let roomPanelFor = null;
 const polyArea = (p) => Math.abs(p.reduce((s, [x, z], i) => { const [x2, z2] = p[(i + 1) % p.length]; return s + x * z2 - x2 * z; }, 0)) / 2;
-const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['sensor', 'rp.sensor']];
-const rpGroupOf = (dom) => (dom === 'binary_sensor' || dom === 'climate' ? 'sensor' : dom === 'fan' || dom === 'input_boolean' ? 'switch' : dom);
+const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['climate', 'rp.climate'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['camera', 'rp.camera'], ['sensor', 'rp.sensor'], ['scene', 'rp.scene']];
+const rpGroupOf = (dom) => (dom === 'binary_sensor' ? 'sensor' : dom === 'fan' || dom === 'input_boolean' ? 'switch' : dom === 'script' ? 'scene' : dom);
+
+/* ---- Camera still images (#67, #69): fetched through the add-on, renewed every few seconds while one is on the screen ---- */
+const camUrls = new Map();                 // entity -> object URL of the latest still image
+let camTimer = 0;
+function camImage(entityId, cls = 'rp-cam') {
+  const img = document.createElement('img'); img.className = cls; img.dataset.cam = entityId; img.alt = '';
+  if (camUrls.has(entityId)) img.src = camUrls.get(entityId);
+  ensureCamTimer(); refreshCamera(entityId, true);
+  if (canMoreInfo()) { img.classList.add('tap'); img.title = t('live.detailsHint'); img.addEventListener('click', () => openMoreInfo(entityId)); }   // a second tap: Home Assistant's live view
+  return img;
+}
+async function refreshCamera(id, onlyIfMissing = false) {
+  if (onlyIfMissing && camUrls.has(id)) return;
+  if (!settings.cameraImages) return;
+  const imgs = () => document.querySelectorAll(`img[data-cam="${CSS.escape(id)}"]`);
+  try {
+    const r = await fetch(`api/camera/${encodeURIComponent(id)}`, { cache: 'no-store' });
+    if (!r.ok) throw new Error(String(r.status));
+    const url = URL.createObjectURL(await r.blob()), old = camUrls.get(id);
+    camUrls.set(id, url);
+    imgs().forEach((im) => { im.src = url; im.classList.remove('bad'); });
+    if (old) setTimeout(() => URL.revokeObjectURL(old), 2000);
+  } catch { imgs().forEach((im) => im.classList.add('bad')); }
+}
+function ensureCamTimer() {
+  if (camTimer) return;
+  camTimer = setInterval(() => {
+    const ids = [...new Set([...document.querySelectorAll('img[data-cam]')].map((im) => im.dataset.cam))];
+    if (!ids.length) { clearInterval(camTimer); camTimer = 0; return; }
+    if (!document.hidden) ids.forEach((id) => refreshCamera(id));
+  }, 5000);
+}
+/** the text on a row of the room panel */
+function rpValue(id) {
+  const s = states[id], dom = id.split('.')[0];
+  if (dom === 'climate' && s && typeof s.ct === 'number') return `🌡 ${Math.round(s.ct * 10) / 10} °C · ${s.state}`;
+  return stateText(id);
+}
 
 function roomOpenings(room, f) {
   const out = [];
@@ -2335,19 +2426,36 @@ function renderRoomPanel() {
     const list = devs.filter((d) => rpGroupOf(d.entity.split('.')[0]) === group);
     if (!list.length) return;
     const h = document.createElement('h4'); h.textContent = t(key); box.append(h);
+    if (group === 'light') {                                   // all lights of the room off in one tap
+      const on = list.filter((d) => ON_STATES.has(states[d.entity]?.state));
+      if (on.length) {
+        const off = document.createElement('button'); off.type = 'button'; off.className = 'rp-alloff'; off.textContent = t('rp.allOff');
+        off.addEventListener('click', () => on.forEach((d) => callService(d.entity, 'turn_off')));
+        h.append(off);
+      }
+    }
     list.forEach((d) => {
       const dom = d.entity.split('.')[0], st = states[d.entity];
       const row = document.createElement('div');
       row.className = 'row' + (st && ON_STATES.has(st.state) ? ' on' : '');
       const n = document.createElement('span'); n.className = 'n'; n.textContent = d.name || d.entity;
-      const v = document.createElement('span'); v.className = 'v'; v.textContent = stateText(d.entity);
+      const v = document.createElement('span'); v.className = 'v'; v.textContent = rpValue(d.entity);
       row.append(n, v);
       if (ACTIONS[dom] && dom !== 'cover') {
-        const b = document.createElement('button');
-        b.textContent = dom === 'scene' || dom === 'script' ? t('live.activate') : t('live.toggle');
-        b.addEventListener('click', () => quickAction(d.entity));
-        row.append(b);
+        if (ACTIONS[dom].includes('toggle') && dom !== 'scene' && dom !== 'script') {          // a slide switch like on a phone
+          const sw = document.createElement('label'); sw.className = 'sw'; sw.title = t('live.toggle');
+          const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!st && ON_STATES.has(st.state);
+          cb.addEventListener('change', () => callService(d.entity, cb.checked ? 'turn_on' : 'turn_off'));
+          sw.append(cb, document.createElement('span'));
+          row.append(sw);
+        } else {
+          const b = document.createElement('button');
+          b.textContent = dom === 'scene' || dom === 'script' ? t('live.activate') : t('live.toggle');
+          b.addEventListener('click', () => quickAction(d.entity));
+          row.append(b);
+        }
       }
+      if (dom === 'camera' && settings.cameraImages) row.append(camImage(d.entity));
       const slider = (val, onChange) => {
         const r = document.createElement('input'); r.type = 'range'; r.min = 0; r.max = 100; r.value = val ?? 0;
         r.addEventListener('change', () => onChange(+r.value));
@@ -2427,6 +2535,7 @@ function setMode(next) {
     canvas.style.cursor = 'pointer';
   } else setTool(tool);
   refreshSelection();
+  if (plotLoop) plotLoop.visible = !isLive();
   applyViewPolicy();
   applyStates();
   requestAnimationFrame(resize);
@@ -2849,6 +2958,15 @@ function renderFloorPanel() {
   }
 }
 $('#addFloor').addEventListener('click', () => addFloorOf('floor'));
+/* Automatic rooms (#17): one room for every closed loop of walls that is not a room yet */
+$('#autoRooms').addEventListener('click', () => {
+  const f = floor(), found = detectRooms(f.walls, f.rooms);
+  if (!found.length) { setStatus(t('rooms.none')); return; }
+  snapshot();
+  found.forEach((r) => f.rooms.push({ id: uid(), name: `${t('prop.room')} ${f.rooms.length + 1}`, color: '#8a7f70', points: r.points }));
+  changed();
+  setStatus(t('rooms.found', { n: found.length }));
+});
 document.querySelectorAll('#modeBar button').forEach((b) => b.addEventListener('click', () => {
   viewMode = b.dataset.vm;
   document.querySelectorAll('#modeBar button').forEach((x) => x.classList.toggle('active', x === b));
@@ -3608,6 +3726,11 @@ function renderProps() {
     }
     if (it.type === 'ledring') ringProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
+    if (it.type === 'camera') {                                  // #69: field of view cone on the floor
+      body.append(field(t('cam.fov'), inp('number', it.fov ?? 90, (v) => { it.fov = Math.max(0, Math.min(180, +v || 0)); }, { step: 5, min: 0, max: 180 })));
+      body.append(field(t('cam.range'), lenInput(() => it.range ?? 4, (v) => (it.range = Math.max(0.5, v)), { min: 0.5, step: 0.5 })));
+      body.append(pickerField(t('cam.motionSensor'), entityPicker(entities.filter((e) => e.domain === 'binary_sensor').slice(0, 1500), roomAt(it.x, it.z), it.motionEntity || '', (v) => { snapshot(); if (v) it.motionEntity = v; else delete it.motionEntity; changed(); })));
+    }
     if (it.type === 'tv' || it.type === 'tv_wall') {          // built-in backlight: shown behind the TV, shines into the room
       body.append(pickerField(t('prop.ledEntity'), entityPicker(entities.filter((e) => /^(light|switch)\./.test(e.entity_id)).slice(0, 1500), roomAt(it.x, it.z), it.ledEntity || '', (v) => { snapshot(); if (v) it.ledEntity = v; else delete it.ledEntity; changed(); })));
     }
@@ -3681,7 +3804,7 @@ const dlg = $('#settingsDialog');
 const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
-  shadows: '#setShadows', labelMode: '#setLabels', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
+  shadows: '#setShadows', labelMode: '#setLabels', cameraImages: '#setCameraImages', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
   alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', wallStop: '#setWallStop',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', belowMode: '#setBelowMode', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
@@ -3986,6 +4109,7 @@ function animate(now = performance.now()) {
     if (now - lastFrame < (idle ? (LOW ? 500 : 250) : 33)) return;
     lastFrame = now;
   }
+  if (coneMotion.size) { wake(); const k = 0.26 + 0.14 * Math.sin(now / 220); coneMotion.forEach((m) => { m.opacity = k; }); }   // a camera sees movement
   if (alertPulses.length || controls.autoRotate || findMarker) wake();   // pulsing warnings, screen saver and the search ring move
   if (alertPulses.length) { const k = 0.22 + 0.2 * Math.sin(now / 260); alertPulses.forEach((m) => { m.opacity = k; }); }
   if (findMarker) {
@@ -4021,6 +4145,16 @@ if (params.get('debug')) {
     get layout() { return layout; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alerts.map((a) => ({ kind: a.kind, entity: a.entity, at: a.at })), alertPulsing: () => alertPulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems, navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
+    coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)
+      const c = cameraCones.get(id);
+      if (!c) return null;
+      const p = c.mesh.geometry.attributes.position, v = new THREE.Vector3();
+      for (let i = 1; i < p.count; i++) v.add(new THREE.Vector3().fromBufferAttribute(p, i));
+      v.multiplyScalar(0.55 / (p.count - 1)).add(new THREE.Vector3().fromBufferAttribute(p, 0).multiplyScalar(0.45));
+      c.mesh.localToWorld(v); v.project(camera);
+      const r = canvas.getBoundingClientRect();
+      return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
+    },
     elev: (i) => elev(i),
     select(kind, id) { selection = { kind, id }; refreshSelection(); },
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),

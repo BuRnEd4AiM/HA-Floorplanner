@@ -169,6 +169,15 @@ async def test_settings_old_show_labels_off_becomes_label_mode_none(client):
     assert "showLabels" not in s
 
 
+async def test_camera_image_is_checked_before_anything_is_asked(client, monkeypatch):
+    assert (await client.get("/api/camera/light.kueche")).status == 400          # only cameras
+    assert (await client.get("/api/camera/camera.../x")).status in (400, 404)
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "")
+    assert (await client.get("/api/camera/camera.flur")).status == 503           # no Home Assistant behind it
+    await client.put("/api/settings", json={"cameraImages": False})
+    assert (await client.get("/api/camera/camera.flur")).status == 403           # switched off in the settings
+
+
 async def test_editors_permissions(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
     opts.write_text('{"editors": ["Admin"]}')

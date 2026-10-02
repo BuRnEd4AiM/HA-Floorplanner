@@ -397,6 +397,16 @@ export function createPlan(ctx) {
       });
     }
 
+    /* cameras: the field of view as a wedge (red while the motion sensor reports movement) */
+    f.devices.forEach((d) => {
+      if (d.type !== 'camera' || (d.fov ?? 90) <= 0) return;
+      const fov = Math.max(10, Math.min(180, d.fov ?? 90)), range = Math.max(0.5, d.range ?? 4), r = (d.rot || 0) * Math.PI / 180, half = fov * Math.PI / 360, n = Math.max(6, Math.round(fov / 6));
+      let path = `M${sx(d.x).toFixed(1)},${sy(d.z).toFixed(1)}`;
+      for (let i = 0; i <= n; i++) { const a = r - half + (2 * half * i) / n; path += `L${sx(d.x + Math.sin(a) * range).toFixed(1)},${sy(d.z + Math.cos(a) * range).toFixed(1)}`; }
+      const motion = !!d.motionEntity && isOn(d.motionEntity), col = motion ? '#ff3a3a' : C.accent;
+      o += `<path d="${path}Z" fill="${col}" fill-opacity="${motion ? 0.3 : 0.13}" stroke="${col}" stroke-opacity=".6" stroke-width="1" style="pointer-events:none"/>`;
+    });
+
     /* devices */
     const devs = [...f.devices].sort((a, b) => (FLAT.has(a.type) ? -1 : 0) - (FLAT.has(b.type) ? -1 : 0));
     devs.forEach((d) => {

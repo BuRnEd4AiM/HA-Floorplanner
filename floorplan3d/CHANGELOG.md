@@ -3,8 +3,18 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [3.14.0] - 2026-10-02
 ### Added
 - **Shipped 3D model library**: 120 free models (Kenney Furniture Kit, CC0: furniture, kitchen, bathroom, plants, lamps, appliances) come with the add-on and show up in the model list of the device tool, the search box filters them too. They cannot be deleted; an own upload with the same name takes precedence. Sources and licence in `library/CREDITS.md` (#79)
+- **Detect rooms** (#17): the new button *Räume erkennen* next to the room tool creates a room for every closed loop of walls on the floor (walls that meet, cross or end on another wall count; dead ends do not). Rooms that already exist are left alone, so it can be used again after drawing more walls; one undo step takes it back
+- **Cameras with a field of view** (#69): a camera shows its field of view as a cone on the floor (device panel: *Sichtwinkel*, *Reichweite*; angle 0 = no cone). Choose a motion sensor and the cone turns red and pulses while it reports movement. In live mode a tap on the camera or on its cone shows a still image that is renewed every 5 seconds; the ⓘ button (or a tap on the picture) opens Home Assistant's live view. The cone is also drawn in the 2D plan
+- **Room panel by kind** (#67): lights (with *Alle aus*), covers, heating, media, switches, cameras (with the still image), sensors, scenes & scripts. Switches are slide switches like on a phone instead of *Toggle* buttons. On phones and tablets held upright the panel comes up from the bottom
+- Camera still images can be switched off in ⚙ (*Show camera still images*): everybody who may open the panel sees these pictures, so this is a privacy switch. The add-on only fetches jpeg / png / gif / webp from `camera.*` entities
+- **Demo**: two cameras (one with movement), a scene and a script, so these features can be tried without Home Assistant
+
+### Fixed
+- **Green plot outline in live mode**: the outline of the plot (a drawing aid) is only shown in edit mode now
 
 ## [3.13.0] - 2026-10-02
 ### Added

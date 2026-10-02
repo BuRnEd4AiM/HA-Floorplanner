@@ -436,6 +436,22 @@
      "type": "string",
      "description": "Backlight entity of a tv / tv_wall."
     },
+    "motionEntity": {
+     "type": "string",
+     "description": "Motion sensor of a camera: its field-of-view cone turns red while it is on."
+    },
+    "fov": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 180,
+     "description": "Field of view of a camera in degrees (0 = no cone)."
+    },
+    "range": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 30,
+     "description": "Reach of a camera's field of view in metres."
+    },
     "mirror": {
      "type": "boolean"
     },
