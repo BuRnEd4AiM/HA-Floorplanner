@@ -55,7 +55,7 @@ main { flex: 1; display: flex; min-height: 0; }
 .prop input[type=number], .prop input[type=text], .prop input[type=color], .prop select { flex: 1; min-width: 0; }
 .prop input[type=color] { padding: 0; height: 30px; }
 
-#floorRail { position: absolute; left: 12px; top: 58px; bottom: 64px; width: 150px; z-index: 4; display: none; flex-direction: column;
+#floorRail { position: absolute; left: 12px; top: 58px; bottom: 64px; width: 132px; z-index: 4; display: none; flex-direction: column;
   gap: 8px; overflow-y: auto; scrollbar-width: none; pointer-events: none; }
 #floorRail::-webkit-scrollbar { display: none; }
 #floorRail > * { pointer-events: auto; flex: 0 0 auto; }
@@ -380,3 +380,9 @@ body.low .alertItem { animation: none; }
 
 /* ---------- night dimming on wall tablets ---------- */
 #nightDim { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .72); }
+
+/* colour scale for temperature / humidity / CO2 colouring */
+#viewLegend { position: absolute; right: 12px; bottom: 14px; z-index: 4; display: flex; align-items: center; gap: 8px; padding: 6px 12px;
+  font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; pointer-events: none; }
+#viewLegend[hidden] { display: none; }
+#viewLegend i { display: block; width: 140px; height: 10px; border-radius: 5px; }
