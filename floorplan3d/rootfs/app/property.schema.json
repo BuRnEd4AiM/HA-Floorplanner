@@ -242,6 +242,7 @@
       "doorDouble",
       "doorSlide",
       "doorOpen",
+      "doorGap",
       "window",
       "window2",
       "window3",
@@ -279,6 +280,7 @@
       "double",
       "sliding",
       "open",
+      "gap",
       "triple",
       "fixed"
      ]

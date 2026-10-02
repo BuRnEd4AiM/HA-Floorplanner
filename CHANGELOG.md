@@ -4,6 +4,19 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.11.0] - 2026-10-02
+### Added
+- **Floor rail** (#63): on wide screens the floors are now a column of thumbnails at the left edge (top floor first, with a *Whole house* button on top) instead of the floor pills. A tap switches the floor; the thumbnails are drawn from the plan itself and follow your changes. Narrow screens and wall tablets keep the pills
+- **Floor cards** (#64): in the whole-house view a small card floats beside every floor with its rooms, lights on and windows open; a tap opens that floor
+- **Half section**: new *Halbschnitt* button next to *Auto*. Every wall is cut at half height and only the lower half stays, so you can look into all rooms from any side; doors and windows are cut off cleanly
+- **Arrow keys** (#71): move the selection by one grid step; Shift = 10 cm, Alt = 1 cm. A door or window slides along its wall
+- **Opening without a frame** (#71): new *Öffnung (ohne Rahmen)* in the door and window palette, a bare hole in the wall (also available as `doorGap` / style `gap` in the JSON import)
+
+### Fixed
+- **Stairs can be made shorter**: a straight stair could not be shorter than 2.88 m because a tread had to be at least 18 cm deep. Treads may now be 10 cm deep, so a stair can be as short as 1.6 m (for a 3 m floor)
+
+Ideas for the floor rail, cards and arrow keys from [NeonPlan 3D](https://github.com/Mastershort/neonplan3d) (MIT). A height per wall already existed (select a wall, field *Höhe*).
+
 ## [3.10.0] - 2026-10-01
 ### Added
 - **Floor opening** (*Bodenöffnung*): new tool in edit mode. Draw an opening into the floor of a level in the 2D plan (stairwell, gallery, void); the floor is open there and a placeholder block below is cut too. Select it to drag its corners, Del removes it

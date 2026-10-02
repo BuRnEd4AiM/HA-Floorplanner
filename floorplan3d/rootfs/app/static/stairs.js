@@ -9,6 +9,8 @@
  */
 
 export const STAIR_TYPES = ['straight', 'L', 'U', 'spiral'];
+/** shallowest / deepest tread (m): with the usual 16 treads this allows stairs from 1.6 m to 7.2 m long */
+export const MIN_TREAD = 0.1, MAX_TREAD = 0.45;
 const GAP = 0.1;                     // gap between the two flights of a U stair
 
 export function stairDefaults(type) {

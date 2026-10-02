@@ -125,6 +125,10 @@ Panel **Etage verwalten**: rename, change type, **▲/▼ move** the floor in th
 
 Outdoor items (*Baum, Busch, Pool, Rasen, Terrasse, Weg, Zaun*) are normal device types: place them anywhere, also outside the walls, on the ground floor. The pill **Ganzes Haus** next to the floors shows every floor solid together with the plot; it is a view only.
 
+On wide screens the floors are a **column of thumbnails** at the left edge (top floor first); the **Ganzes Haus** button on top shows the whole house, where a small **card** beside every floor lists its rooms, lights on and windows open (tap = open that floor). Narrow screens and wall tablets show the floor pills instead.
+
+**Halbschnitt** (button next to *Auto*): cuts every wall at half height so you see into all rooms from any side. **Arrow keys** move the selected item by one grid step (Shift 10 cm, Alt 1 cm; a door or window slides along its wall).
+
 ### Stairs and stairwells
 
 Tool **Bodenöffnung** (floor opening): click the corners of an opening in the 2D plan (double click to close). The floor of that level is open there, for a stairwell, a gallery or a void; a placeholder block on the floor below is cut too. Select it to drag its corners, *Del* removes it.

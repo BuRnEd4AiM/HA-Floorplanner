@@ -102,6 +102,7 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 | `doorDouble` | Tür | double | 1.6 × 2.05 m | 0 m |
 | `doorSlide` | Tür | sliding | 1.8 × 2.1 m | 0 m |
 | `doorOpen` | Tür | open | 1.0 × 2.05 m | 0 m |
+| `doorGap` | Tür | gap | 1.0 × 2.1 m | 0 m |
 | `window` | Fenster | single | 1.0 × 1.2 m | 0.9 m |
 | `window2` | Fenster | double | 1.8 × 1.2 m | 0.9 m |
 | `window3` | Fenster | triple | 2.4 × 1.2 m | 0.9 m |

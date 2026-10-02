@@ -3,7 +3,7 @@
 
 import { nanoBounds } from './nanoleaf.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
-import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts } from './stairs.js';
+import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, MIN_TREAD, MAX_TREAD } from './stairs.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -351,7 +351,7 @@ export function createPlan(ctx) {
         const t = w.thickness / 2;
         const jamb = [P(-hw, -t), P(-hw, t), P(hw, -t), P(hw, t)];
         o += `<path d="M${jamb[0]}L${jamb[1]}M${jamb[2]}L${jamb[3]}" stroke="${col}" stroke-width="2" fill="none"/>`;
-        if (op.type === 'door' && (op.style === 'open' || op.style === 'sliding')) {
+        if (op.type === 'door' && (op.style === 'open' || op.style === 'gap' || op.style === 'sliding')) {
           const q = op.style === 'sliding' ? t * .45 : 0;
           if (op.style === 'sliding') o += `<path d="M${P(-hw, -q)}L${P(0.08, -q)}M${P(-0.08, q)}L${P(hw, q)}" stroke="${col}" stroke-width="2.4" fill="none"/>`;
           else o += `<path d="M${P(-hw, 0)}L${P(hw, 0)}" stroke="${col}" stroke-width="1" stroke-dasharray="4 4" fill="none" opacity=".7"/>`;
@@ -711,7 +711,7 @@ export function createPlan(ctx) {
       if (drag.type === 'stairsize' && moved) {
         snapshotOnce();
         const st = drag.st, [lx, lz] = toLocal(st, x, z), { T, n1 } = stairCounts(st, ctx.floorH());
-        if (drag.which === 'len') st.tread = Math.max(0.18, Math.min(0.45, Math.round((lx / (st.type === 'straight' ? T : n1)) * 100) / 100));
+        if (drag.which === 'len') st.tread = Math.max(MIN_TREAD, Math.min(MAX_TREAD, Math.round((lx / (st.type === 'straight' ? T : n1)) * 100) / 100));
         else st.w = st.type === 'spiral' ? Math.max(0.5, Math.min(2.5, Math.round(Math.hypot(lx, lz) * 20) / 20)) : Math.max(0.6, Math.min(3, Math.round(2 * Math.abs(lz) * 20) / 20));
         drag.moved = true; scheduleRebuild(); render();
         return;

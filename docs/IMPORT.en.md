@@ -100,6 +100,7 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
 | `doorDouble` | Door | double | 1.6 × 2.05 m | 0 m |
 | `doorSlide` | Door | sliding | 1.8 × 2.1 m | 0 m |
 | `doorOpen` | Door | open | 1.0 × 2.05 m | 0 m |
+| `doorGap` | Door | gap | 1.0 × 2.1 m | 0 m |
 | `window` | Window | single | 1.0 × 1.2 m | 0.9 m |
 | `window2` | Window | double | 1.8 × 1.2 m | 0.9 m |
 | `window3` | Window | triple | 2.4 × 1.2 m | 0.9 m |
