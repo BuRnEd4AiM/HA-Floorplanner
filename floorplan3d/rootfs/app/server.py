@@ -89,6 +89,8 @@ EMPTY_LAYOUT = {
 
 log = logging.getLogger("floorplan3d")
 KEY_DATA = web.AppKey("data_dir", Path)
+KEY_CONFIG = web.AppKey("config_dir", Path)
+USERS_FILE = "users.json"       # in the add-on config folder of Home Assistant (addon_configs): survives updates and reinstalls
 
 
 def data_dir(request) -> Path:
@@ -406,6 +408,8 @@ def read_settings(request) -> dict:
                 break
         else:
             stored = {}
+    if not p.is_file() and not stored:                 # fresh install: the users and tablets come back from the config folder
+        stored = {**(read_users_file(request) or {})}
     return stored
 
 
@@ -423,6 +427,66 @@ def backup_settings(request) -> None:
     (d / f"settings-{time.strftime('%Y%m%d-%H%M%S')}-{secrets.token_hex(2)}.json").write_bytes(cur)
     for old in copies[:-9]:
         old.unlink(missing_ok=True)
+
+
+# ---------- users and tablets in a file of the add-on config folder ----------
+def users_file(request) -> Path:
+    return request.app[KEY_CONFIG] / USERS_FILE
+
+
+def read_users_file(request) -> dict | None:
+    """{"userRooms": ..., "userViews": ...} from the config folder, cleaned like the settings; None if there is no usable file."""
+    data = read_json(users_file(request), None)
+    if not isinstance(data, dict):
+        return None
+    clean = validate_settings({"userRooms": data.get("userRooms"), "userViews": data.get("userViews")})
+    return {"userRooms": clean["userRooms"], "userViews": clean["userViews"]}
+
+
+def write_users_file(request, settings: dict) -> bool:
+    """Mirror the users and tablets into the config folder (a readable file); never lets a settings save fail."""
+    payload = {"version": 1, "userRooms": settings.get("userRooms", {}), "userViews": settings.get("userViews", {})}
+    try:
+        write_json_atomic(users_file(request), payload)
+        return True
+    except OSError:
+        log.warning("could not write %s", users_file(request))
+        return False
+
+
+async def get_users_file(request):
+    if not await can_edit(request):
+        return forbidden()
+    file = read_users_file(request)
+    cur = validate_settings(read_settings(request))
+    mine = {"userRooms": cur["userRooms"], "userViews": cur["userViews"]}
+    names = lambda d: set(d["userRooms"]) | set(d["userViews"])
+    return web.json_response({"file": USERS_FILE, "exists": file is not None, "fileUsers": len(names(file)) if file else 0,
+                              "users": len(names(mine)), "inSync": file == mine})
+
+
+async def sync_users_file(request):
+    """Home Assistant folder -> add-on ("load", default) or add-on -> folder ("save")."""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json() if request.can_read_body else {}
+    except ValueError:
+        body = {}
+    direction = body.get("direction", "load") if isinstance(body, dict) else "load"
+    cur = validate_settings(read_settings(request))
+    if direction == "save":
+        if not write_users_file(request, cur):
+            return web.json_response({"error": "config folder is not writable"}, status=500)
+        return web.json_response(cur, headers={"ETag": settings_rev(request)})
+    file = read_users_file(request)
+    if file is None:
+        return web.json_response({"error": f"{USERS_FILE} not found in the add-on config folder"}, status=404)
+    backup_settings(request)
+    clean = validate_settings({**cur, **file})
+    write_json_atomic(settings_path(request), clean)
+    backup_settings(request)
+    return web.json_response(clean, headers={"ETag": settings_rev(request)})
 
 
 async def get_settings(request):
@@ -445,6 +509,7 @@ async def put_settings(request):
     backup_settings(request)                       # the previous state stays recoverable
     write_json_atomic(settings_path(request), clean)
     backup_settings(request)
+    write_users_file(request, clean)                # users and tablets also live in a file of the add-on config folder
     return web.json_response(clean, headers={"ETag": settings_rev(request)})
 
 
@@ -1040,13 +1105,16 @@ async def get_import_example(request):
     return web.FileResponse(path)
 
 
-def make_app(data_path: Path | None = None) -> web.Application:
+def make_app(data_path: Path | None = None, config_path: Path | None = None) -> web.Application:
     app = web.Application(client_max_size=max(MAX_LAYOUT_BYTES, MAX_BG_BYTES + 1024 * 1024))
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
+    app[KEY_CONFIG] = Path(config_path or os.environ.get("CONFIG_DIR") or ("/config" if Path("/config").is_dir() else app[KEY_DATA] / "addon_config"))
     app[KEY_LIVE] = LiveHub()
     app.on_cleanup.append(stop_live)
     app.add_routes([
         web.get("/", index),
+        web.get("/api/users-file", get_users_file),
+        web.post("/api/users-file/sync", sync_users_file),
         web.get("/api/layout", get_layout),
         web.put("/api/layout", put_layout),
         web.get("/api/houses", get_houses),
@@ -1078,6 +1146,7 @@ def make_app(data_path: Path | None = None) -> web.Application:
     ])
     sub = web.Application(client_max_size=MAX_BACKUP_BYTES)   # the restore upload may be far larger than any other request
     sub[KEY_DATA] = app[KEY_DATA]
+    sub[KEY_CONFIG] = app[KEY_CONFIG]
     sub.add_routes([web.post("", post_backup)])
     app.add_subapp("/api/backup", sub)
     return app

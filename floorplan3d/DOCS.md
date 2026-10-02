@@ -54,10 +54,12 @@ Home Assistant does not pass URL parameters into add-on panels, so what someone 
 
 1. Create a normal (non-admin) Home Assistant user for each tablet or family member, e.g. `tablet_wohnzimmer` (Settings → People → Users).
 2. Log the tablet into that user and open the add-on once.
-3. On your own account open the add-on → ⚙ → **Users & tablets**, press **+ User** and pick the user from the list of Home Assistant users (you can also type to search).
+3. On your own account open the add-on → the **Users** button in the top bar (administrators only), press **+ User** and pick the user from the list of Home Assistant users (you can also type to search).
 4. Choose what that user gets:
    - **Room:** the tablet then starts with only its room (with the room's entities). A button at the top toggles between the room and the whole floor. *Whole house* shows everything.
    - **View in live mode:** *3D only* (default for everybody without an entry), *2D only*, *2D + 3D* or *Switchable* (the user gets the 2D / 3D / split buttons).
+
+**Backup that survives updates:** every change is also saved as `users.json` in the add-on configuration folder of Home Assistant (folder `addon_configs` → the folder ending in `floorplan3d`; reachable with the *File editor* or *Samba* add-on). If the assignments are ever lost, press **↻ Synchronise** in the Users dialog: the file is read and the users and tablets are taken from it. After a fresh installation this happens by itself.
 
 If you open the add-on directly (for example through a mapped port), `?room=Wohnzimmer` does the same as the room assignment.
 

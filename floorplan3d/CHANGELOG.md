@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.20.0] - 2026-10-02
+### Added
+- **Users & tablets as their own tab in the top bar**: the management of users, rooms and views is no longer hidden in the gear (⚙); administrators now see a **Users** button at the top (hidden for everybody else and in the read-only view)
+- **Users & tablets survive updates and reinstalls**: every change is also written to the file `users.json` in the add-on configuration folder of Home Assistant (`addon_configs` → `…floorplan3d`), where it can also be edited by hand. The new button **↻ Synchronise** in the Users dialog reads that file back; a line below it says whether file and add-on match. After a fresh installation the users and tablets are taken from the file by themselves
+- New interface endpoints `GET /api/users-file` and `POST /api/users-file/sync` (editors only; `{"direction": "save"}` writes the file from the add-on)
+### Changed
+- The page has its own inline favicon, so the browser no longer asks for `/favicon.ico` (a harmless 404 in the console)
+- Test log `docs/TESTPROTOKOLL.md`: what was tested, when and by whom
+
 ## [3.19.1] - 2026-10-02
 ### Changed
 - **Floors in the plan: switch and legend in the corner of the plan**: the colour legend was at the bottom right of the plan and the buttons *Normal / Temp. / Feuchte* covered it, and the switch was only in the *View* menu. Both are one small box now at the top right of the plan (only while the plan is shown): a button *Floors in the plan: below* that switches *off / below / all*, and under it one line per floor outline with its colour. The switch stays in the *View* menu too
