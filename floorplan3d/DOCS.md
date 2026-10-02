@@ -131,7 +131,7 @@ In the whole-house view the **Auseinander** button pulls the floors apart (tap a
 
 **Räume erkennen** (button next to the *Raum* tool): draw the walls first, then one tap creates a room for every closed loop of walls on the floor. Walls may meet, cross or end on another wall; walls that end nowhere close nothing. Existing rooms stay, so you can press it again after adding walls.
 
-**Top bar:** *offline*, *open* (windows and doors) and *📷* (cameras) stay visible, because they need attention; tap one for the list. *View ▾* holds the display options: Auto (lower the walls facing the camera), Halbschnitt, Auseinander and the wall height. The *📷* overview shows the still image of every camera and turns red while a motion sensor reports movement.
+**Top bar:** the rooms are one drop-down *Zimmer ▾* (all rooms; in the whole-house view grouped by floor). *offline*, *open* (windows and doors) and *📷* (cameras) stay visible, because they need attention; tap one for the list. *View ▾* holds the display options: Auto (lower the walls facing the camera), Halbschnitt, Auseinander and the wall height. The *📷* overview shows the still image of every camera and turns red while a motion sensor reports movement.
 
 **Cameras:** a camera device shows its field of view as a cone on the floor (device panel: *Sichtwinkel*, *Reichweite*, *Bewegungssensor*). With a motion sensor the cone turns red while there is movement. In live mode a tap on the camera or its cone shows a still image (renewed every 5 seconds); ⓘ or a tap on the picture opens Home Assistant's live view. ⚙ → *Show camera still images* switches the pictures off (they are visible to everybody who may open the panel).
 

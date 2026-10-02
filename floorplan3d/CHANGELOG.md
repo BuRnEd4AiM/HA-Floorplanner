@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.16.0] - 2026-10-02
+### Changed
+- **Rooms as a drop-down**: the row of room buttons at the top is one button *Zimmer ▾* now. It lists all rooms (in the whole-house view grouped by floor, top floor first), shows a green dot while somebody is in a room, and the button carries the name of the room you are in. No more scrolling a long row on a tablet
+- **Cameras: straight to Home Assistant**: every camera in the overview has a clear button *In Home Assistant öffnen* (live view, history, settings of the camera entity); a tap on the picture does the same. Outside Home Assistant (demo file) it tells you why it cannot open
+
 ## [3.15.0] - 2026-10-02
 ### Added
 - **Cameras at a glance**: a new button *📷 n* in the top bar (only when the plan has cameras) opens a drop-down overview with the still image of every camera, its floor and room, and a red *Motion detected* badge; the button itself turns red and says *n motion* while a motion sensor reports movement. *Show in the plan* jumps to the camera, a tap on the picture opens Home Assistant's live view

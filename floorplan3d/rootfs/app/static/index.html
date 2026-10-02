@@ -52,7 +52,7 @@
       <nav id="navBar">
         <div id="floorPills" class="pills"></div>
         <span class="sep" id="navSep"></span>
-        <div id="roomPills" class="pills"></div>
+        <div id="roomPills" class="pills"><button id="roomMenuBtn" class="pill" type="button" hidden aria-haspopup="true" aria-expanded="false" data-i18n-title="nav.roomsTip"></button></div>
         <span class="spacer"></span>
         <button id="houseToggle" class="pill" hidden></button>
         <button id="offlinePill" class="pill" hidden data-i18n-title="off.tip"></button>
@@ -60,6 +60,7 @@
         <button id="camPill" class="pill" hidden data-i18n-title="cam.pillTip"></button>
         <button id="viewMenuBtn" class="pill" type="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.view" data-i18n-title="nav.viewTip"></button>
       </nav>
+      <div id="roomMenu" hidden></div>
       <div id="camMenu" hidden>
         <p class="sub" data-i18n="cam.hint"></p>
         <div id="camGrid"></div>
