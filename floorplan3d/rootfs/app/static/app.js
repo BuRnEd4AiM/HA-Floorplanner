@@ -347,9 +347,9 @@ let earthInfo = null;                                                   // { cx,
 let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
 let earthLawn = false, earthGround = false, earthBox = null;                             // solid lawn is drawn / any ground is drawn (it replaces the grid)
 /** outline of the house at ground level: walls (with their thickness) and rooms of the basements and the ground floor */
-function houseFootprint() {
+function houseFootprint(basementsOnly = false) {
   const polys = [];
-  layout.floors.slice(0, groundIdx() + 1).forEach((f) => {
+  layout.floors.slice(0, groundIdx() + 1).filter((f) => !basementsOnly || f.kind === 'basement').forEach((f) => {
     f.walls.forEach((w) => {
       const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], L = Math.hypot(dx, dz);
       if (L < 1e-3) return;
@@ -386,9 +386,9 @@ function buildEarth(world, holo) {
   const outline = layout.plot?.boundary?.length >= 3 ? layout.plot.boundary
     : [[hx0 - margin, hz0 - margin], [hx1 + margin, hz0 - margin], [hx1 + margin, hz1 + margin], [hx0 - margin, hz1 + margin]];
   const nb = groundIdx(), depth = nb > 0 ? nb * FLOOR_H + 0.4 : 0.4;   // without a basement: a slab of ground the house stands on
-  let holes = foot;
+  let holes = nb > 0 ? houseFootprint(true) : foot;           // only the basement is cut out of the earth: parts without one (garage ...) stand on the ground
   if (layout.plot?.boundary?.length >= 3) {                     // a plot smaller than the house: only cut out what lies on it
-    try { holes = polygonClipping.intersection(foot.map((r) => [[...r, r[0]]]), [[...outline, outline[0]]]).map((poly) => poly[0].slice(0, -1)); } catch { /* keep the house outline */ }
+    try { holes = polygonClipping.intersection(holes.map((r) => [[...r, r[0]]]), [[...outline, outline[0]]]).map((poly) => poly[0].slice(0, -1)); } catch { /* keep the house outline */ }
   }
   earthBox = [Math.min(...outline.map((p) => p[0])), Math.max(...outline.map((p) => p[0])), Math.min(...outline.map((p) => p[1])), Math.max(...outline.map((p) => p[1]))];
   const shape = new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, -z)));
