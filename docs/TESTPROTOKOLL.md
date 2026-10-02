@@ -25,24 +25,24 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 ### 2. Etagen (linke Leiste)
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 2.1 | Karten mit Vorschaubild je Etage | ❓ |
-| 2.2 | Klick auf Etage wechselt, Karte hervorgehoben | ❓ |
-| 2.3 | Pfeiltasten wechseln die Etage | ❓ |
-| 2.4 | „Haus auseinanderziehen" | ❓ |
-| 2.5 | Halbschnitt (Wände halb hoch) | ❓ |
-| 2.6 | Automatisches Wände-Ausblenden funktioniert weiter | ❓ |
-| 2.7 | In 2D+3D keine Etagen-Beschriftungen, wo sie nicht hingehören | ❓ |
+| 2.1 | Karten mit Vorschaubild je Etage | ✅ |
+| 2.2 | Klick auf Etage wechselt, Karte hervorgehoben | ✅ |
+| 2.3 | Pfeiltasten wechseln die Etage | ❌ passiert nichts (#98) |
+| 2.4 | „Haus auseinanderziehen" | ✅ |
+| 2.5 | Halbschnitt (Wände halb hoch) | ✅ |
+| 2.6 | Automatisches Wände-Ausblenden funktioniert weiter | ✅ |
+| 2.7 | In 2D+3D keine Etagen-Beschriftungen, wo sie nicht hingehören | ✅ |
 
 ### 3. Etagen im 2D-Plan (3.19.1)
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 3.1 | Feld „Etagen im Plan" oben rechts im Plan, von nichts verdeckt | ❓ (Screenshot vom Besitzer 2026-10-02: Feld und Legende sichtbar) |
-| 3.2 | Legende: eine Zeile je Etage mit Farbe | ❓ (siehe 3.1) |
-| 3.3 | Klick schaltet unten → alle → aus | ❓ |
-| 3.4 | Gleicher Schalter im Menü „Ansicht" | ❓ |
-| 3.5 | Nicht sichtbar in der reinen 3D-Ansicht | ❓ |
-| 3.6 | Einstellung bleibt nach dem Neuladen | ❓ |
-| 3.7 | Umrisse stören das Zeichnen nicht | ❓ |
+| 3.1 | Feld „Etagen im Plan" oben rechts im Plan, von nichts verdeckt | ✅ |
+| 3.2 | Legende: eine Zeile je Etage mit Farbe | ✅ |
+| 3.3 | Klick schaltet unten → alle → aus | ✅ |
+| 3.4 | Gleicher Schalter im Menü „Ansicht" | ✅ |
+| 3.5 | Nicht sichtbar in der reinen 3D-Ansicht | ❌ in der reinen 3D-Ansicht ist der Schalter im Menü „Ansicht" noch wählbar (#99) |
+| 3.6 | Einstellung bleibt nach dem Neuladen | ✅ |
+| 3.7 | Umrisse stören das Zeichnen nicht | ✅ |
 
 ### 4. Räume · 5. Farbansichten · 6. Kameras · 7. Türen/Fenster/Garage · 8. Live-Ansicht · 9. Bearbeiten · 10. Tablet/Bedienung
 Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgehakt und hier eingetragen).
@@ -50,12 +50,12 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 ### 11. Benutzer & Tablets (3.20.0)
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 11.1 | Oben in der Leiste gibt es den Knopf „Benutzer" (nur für Admins) | ❓ |
-| 11.2 | Im Zahnrad (⚙) ist der Abschnitt „Benutzer & Tablets" nicht mehr | ❓ |
-| 11.3 | Benutzer hinzufügen, Raum und Ansicht wählen, wird gespeichert | ❓ |
-| 11.4 | Unter dem Dialog steht, ob Datei und Add-on gleich sind | ❓ |
-| 11.4a | Knopf „💾 Datei erstellen / speichern“ legt `users.json` an, auch wenn es sie noch nicht gibt | ➖ (Add-on mit echtem Ordner) |
-| 11.5 | „↻ Synchronisieren" liest `users.json` und übernimmt die Benutzer | ➖ (nur im Add-on mit echtem Ordner) |
+| 11.1 | Oben in der Leiste gibt es den Knopf „Benutzer" (nur für Admins) | ✅ |
+| 11.2 | Im Zahnrad (⚙) ist der Abschnitt „Benutzer & Tablets" nicht mehr | ✅ |
+| 11.3 | Benutzer hinzufügen, Raum und Ansicht wählen, wird gespeichert | ✅ |
+| 11.4 | Unter dem Dialog steht, ob Datei und Add-on gleich sind | ✅ |
+| 11.4a | Knopf „💾 Datei erstellen / speichern“ legt `users.json` an, auch wenn es sie noch nicht gibt | ✅ im Add-on getestet, aber der Klick schaltet die Ansicht auf Neon um (#100) |
+| 11.5 | „↻ Synchronisieren" liest `users.json` und übernimmt die Benutzer | ✅ |
 | 11.6 | Nach einem Update/Neuinstallation sind Benutzer und Tablets wieder da | ➖ |
 
 ### 12. Dachgauben (3.21.0)
