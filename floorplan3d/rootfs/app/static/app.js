@@ -2238,6 +2238,9 @@ window.addEventListener('keydown', (e) => {
   } else if ((k === 'q' || k === 'e') && selection?.kind === 'device') {
     const d = floor().devices.find((v) => v.id === selection.id);
     if (d) { snapshot(); d.rot = ((d.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
+  } else if ((k === 'arrowup' || k === 'arrowdown') && !selection && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {   // nothing selected: up / down change the floor
+    const i = floorIdx + (k === 'arrowup' ? 1 : -1);
+    if (i >= 0 && i < layout.floors.length) { e.preventDefault(); switchFloor(i); }
   } else if (k.startsWith('arrow') && selection && !e.ctrlKey && !e.metaKey) {
     e.preventDefault();
     const step = e.altKey ? 0.01 : e.shiftKey ? 0.1 : settings.grid;       // Alt 1 cm, Shift 10 cm, otherwise one grid step
@@ -4290,7 +4293,11 @@ async function syncUsersFile() {
     await refreshUsersFile(t('users.syncDone', { n: new Set([...Object.keys(settings.userRooms || {}), ...Object.keys(settings.userViews || {})]).size }));
   } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
 }
-$('#usersBtn').addEventListener('click', () => { renderTablets(); usersDlg.showModal(); loadHaUsers(); refreshUsersFile(); });
+$('#usersBtn').addEventListener('click', async () => {
+  if (!settingsLoaded) await loadSettings();
+  fillSettingsForm();                                  // the form behind the dialogs must hold the real settings before the first save reads it back (else the defaults, e.g. the hologram theme, win)
+  usersDlg.showModal(); loadHaUsers(); refreshUsersFile();
+});
 async function saveUsersFile() {
   try {
     await commitSettings();                                                   // what is typed in the dialog goes along
@@ -4472,7 +4479,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alerts.map((a) => ({ kind: a.kind, entity: a.entity, at: a.at })), alertPulsing: () => alertPulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems, navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
+    get layout() { return layout; }, get floorIdx() { return floorIdx; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alerts.map((a) => ({ kind: a.kind, entity: a.entity, at: a.at })), alertPulsing: () => alertPulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems, navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)

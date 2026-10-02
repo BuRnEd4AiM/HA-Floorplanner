@@ -143,7 +143,7 @@ In the whole-house view the **Auseinander** button pulls the floors apart (tap a
 
 **Room panel (live mode):** the devices of a room by kind: lights (with *Alle aus*), covers, heating, media, switches (slide switches), cameras, sensors, scenes & scripts. On phones and tablets held upright it comes up from the bottom.
 
-**Halbschnitt** (button next to *Auto*): cuts every wall at half height so you see into all rooms from any side. **Arrow keys** move the selected item by one grid step (Shift 10 cm, Alt 1 cm; a door or window slides along its wall).
+**Halbschnitt** (button next to *Auto*): cuts every wall at half height so you see into all rooms from any side. **Arrow keys** move the selected item by one grid step (Shift 10 cm, Alt 1 cm; a door or window slides along its wall). With nothing selected, **arrow up / down** switch to the floor above / below.
 
 ### Stairs and stairwells
 
