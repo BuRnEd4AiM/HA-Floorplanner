@@ -908,11 +908,13 @@ function updateFloorCards() {
       const el = document.createElement('button'); el.type = 'button'; el.className = 'floorCard';
       el.addEventListener('click', () => switchFloor(+el.dataset.floor));
       box.append(el);
-      c = floorCards[n] = { el, key: '', pos: new THREE.Vector3() };
+      c = floorCards[n] = { el, key: '', pos: new THREE.Vector3(), corners: [] };
     }
     const pts = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points)];
     const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
-    c.pos.set(Math.max(...xs) + 0.6, elev(i) + FLOOR_H / 2, (Math.min(...zs) + Math.max(...zs)) / 2);
+    const [x0, x1, z0, z1, y] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs), elev(i) + FLOOR_H / 2];
+    c.pos.set((x0 + x1) / 2, y, (z0 + z1) / 2);                     // the card points at the middle of the floor ...
+    c.corners = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]].map(([x, z]) => new THREE.Vector3(x, y, z));   // ... and keeps clear of its outline
     const lights = f.devices.filter((d) => /^light\./.test(d.entity || '') && ON_STATES.has(states[d.entity]?.state)).length;
     const windows = f.walls.reduce((a, w) => a + (w.openings || []).filter((o) => o.type === 'window' && isOpen(o.entity)).length, 0);
     const key = JSON.stringify([i, f.name, f.rooms.length, lights, windows, settings.language]);
@@ -931,20 +933,27 @@ const _cardV = new THREE.Vector3();
 function placeFloorCards() {
   if (!houseMode || !floorCards.length) return;
   const w = canvas.clientWidth, h = canvas.clientHeight;
+  const toScreen = (v) => { _cardV.copy(v).project(camera); return { x: (_cardV.x + 1) / 2 * w, y: (1 - _cardV.y) / 2 * h, ok: _cardV.z < 1 }; };
+  // the cards stand beside the house, not over it: right of its outline, or left of it when there is no room
+  let minX = Infinity, maxX = -Infinity;
+  floorCards.forEach((c) => c.corners.forEach((p) => { const q = toScreen(p); if (q.ok) { minX = Math.min(minX, q.x); maxX = Math.max(maxX, q.x); } }));
   const vis = [];
   floorCards.forEach((c) => {
-    _cardV.copy(c.pos).project(camera);
-    const on = _cardV.z < 1 && Math.abs(_cardV.x) < 1.2 && Math.abs(_cardV.y) < 1.2;
+    const q = toScreen(c.pos);
+    const on = q.ok && q.y > -40 && q.y < h + 40 && isFinite(maxX);
     c.el.style.display = on ? '' : 'none';
-    if (on) vis.push({ c, x: (_cardV.x + 1) / 2 * w, y: (1 - _cardV.y) / 2 * h });
+    if (on) vis.push({ c, y: q.y });
   });
+  const wmax = Math.max(0, ...vis.map((v) => v.c.el.offsetWidth || 240));
+  const right = maxX + 16 + wmax <= w - 8;
+  const x = right ? maxX + 16 : Math.max(150, minX - 16 - wmax);       // 150: keep clear of the floor rail
   vis.sort((p, q) => p.y - q.y);
-  let floor = -Infinity;                                  // floors lie close above each other on screen: push the cards apart
-  vis.forEach((v) => {
-    v.y = Math.max(v.y, floor);
-    floor = v.y + (v.c.el.offsetHeight || 44) + 6;
-    v.c.el.style.transform = `translate(${v.x.toFixed(0)}px, ${v.y.toFixed(0)}px)`;
-  });
+  let free = -Infinity;                                  // floors lie close above each other on screen: push the cards apart
+  vis.forEach((v) => { v.y = Math.max(v.y, free); free = v.y + (v.c.el.offsetHeight || 44) + 6; });
+  const last = vis[vis.length - 1];
+  const over = last ? last.y + (last.c.el.offsetHeight || 44) / 2 - (h - 64) : 0;   // keep clear of the buttons at the bottom
+  const lift = over > 0 ? Math.min(over, Math.max(0, vis[0].y - (vis[0].c.el.offsetHeight || 44) / 2 - 56)) : 0;
+  vis.forEach((v) => { v.c.el.style.transform = `translate(${x.toFixed(0)}px, ${(v.y - lift - (v.c.el.offsetHeight || 44) / 2).toFixed(0)}px)`; });
 }
 
 /* colour scale at the edge while a room colouring is on */
