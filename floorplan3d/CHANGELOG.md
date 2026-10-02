@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.20.1] - 2026-10-02
+### Added
+- **Users & tablets: button "Create / save file"**: writes `users.json` into the Home Assistant folder at once (and creates it if it is not there yet). Before, the file only appeared after the next save, and *Synchronise* then said "not found"; that message now explains what to press
+- After an update from an older version the add-on creates `users.json` by itself at start when users or tablets are already stored (it never overwrites an existing file)
 ### Changed
 - README pictures (3D, 2D, 2D + 3D, whole house) taken anew from the current demo: they show the floor rail, the *View* menu and the floors box in the plan
 

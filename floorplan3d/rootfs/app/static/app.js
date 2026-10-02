@@ -4203,6 +4203,7 @@ async function syncUsersFile() {
   try {
     const r = await fetch('api/users-file/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
     const body = await r.json().catch(() => ({}));
+    if (r.status === 404) { await refreshUsersFile(t('users.syncMissing')); return; }
     if (!r.ok) { await refreshUsersFile(t('users.syncFail', { msg: body.error || r.status })); return; }
     settings = { ...settings, ...body }; settingsEtag = r.headers.get('ETag') || settingsEtag;
     renderTablets();
@@ -4210,6 +4211,17 @@ async function syncUsersFile() {
   } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
 }
 $('#usersBtn').addEventListener('click', () => { renderTablets(); usersDlg.showModal(); loadHaUsers(); refreshUsersFile(); });
+async function saveUsersFile() {
+  try {
+    await commitSettings();                                                   // what is typed in the dialog goes along
+    const r = await fetch('api/users-file/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ direction: 'save' }) });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok) { await refreshUsersFile(t('users.syncFail', { msg: body.error || r.status })); return; }
+    settingsEtag = r.headers.get('ETag') || settingsEtag;
+    await refreshUsersFile(t('users.saveDone', { n: new Set([...Object.keys(settings.userRooms || {}), ...Object.keys(settings.userViews || {})]).size }));
+  } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
+}
+$('#usersSave').addEventListener('click', saveUsersFile);
 $('#usersSync').addEventListener('click', syncUsersFile);
 usersDlg.addEventListener('change', async () => { await commitSettings(); refreshUsersFile(); });
 usersDlg.addEventListener('click', (e) => { if (e.target === usersDlg) usersDlg.close(); });

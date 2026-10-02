@@ -59,7 +59,7 @@ Home Assistant does not pass URL parameters into add-on panels, so what someone 
    - **Room:** the tablet then starts with only its room (with the room's entities). A button at the top toggles between the room and the whole floor. *Whole house* shows everything.
    - **View in live mode:** *3D only* (default for everybody without an entry), *2D only*, *2D + 3D* or *Switchable* (the user gets the 2D / 3D / split buttons).
 
-**Backup that survives updates:** every change is also saved as `users.json` in the add-on configuration folder of Home Assistant (folder `addon_configs` → the folder ending in `floorplan3d`; reachable with the *File editor* or *Samba* add-on). If the assignments are ever lost, press **↻ Synchronise** in the Users dialog: the file is read and the users and tablets are taken from it. After a fresh installation this happens by itself.
+**Backup that survives updates:** every change is also saved as `users.json` in the add-on configuration folder of Home Assistant (folder `addon_configs` → the folder ending in `floorplan3d`; reachable with the *File editor* or *Samba* add-on). The button **💾 Create / save file** writes it at once (use it once after the update if the folder has no file yet). If the assignments are ever lost, press **↻ Synchronise** in the Users dialog: the file is read and the users and tablets are taken from it. After a fresh installation this happens by itself.
 
 If you open the add-on directly (for example through a mapped port), `?room=Wohnzimmer` does the same as the room assignment.
 

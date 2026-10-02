@@ -8,9 +8,9 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 | Datum | Stand | Python-Tests | Browser-Test (E2E) | Bemerkung |
 |---|---|---|---|---|
-| 2026-10-02 | 3.20.0 | 72 bestanden | 204 von 204 bestanden | Benutzer-Reiter, `users.json`, Synchronisieren |
+| 2026-10-02 | 3.20.1 | 74 bestanden | 205 von 205 bestanden | Knopf „Datei erstellen“, Datei beim Start anlegen |
 
-E2E-Ergebnis 3.20.0: alle 204 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
+E2E-Ergebnis 3.20.1: alle 205 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
 
 ## Handtest in der Demo (Besitzer)
 
@@ -54,6 +54,7 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 | 11.2 | Im Zahnrad (⚙) ist der Abschnitt „Benutzer & Tablets" nicht mehr | ❓ |
 | 11.3 | Benutzer hinzufügen, Raum und Ansicht wählen, wird gespeichert | ❓ |
 | 11.4 | Unter dem Dialog steht, ob Datei und Add-on gleich sind | ❓ |
+| 11.4a | Knopf „💾 Datei erstellen / speichern“ legt `users.json` an, auch wenn es sie noch nicht gibt | ➖ (Add-on mit echtem Ordner) |
 | 11.5 | „↻ Synchronisieren" liest `users.json` und übernimmt die Benutzer | ➖ (nur im Add-on mit echtem Ordner) |
 | 11.6 | Nach einem Update/Neuinstallation sind Benutzer und Tablets wieder da | ➖ |
 

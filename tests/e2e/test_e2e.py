@@ -382,6 +382,8 @@ with sync_playwright() as p:
     pgU.click("#addTablet"); pgU.fill("#tabletRows .tablet input", "tablet_flur"); pgU.press("#tabletRows .tablet input", "Tab"); pgU.wait_for_timeout(700)
     uf = pgU.evaluate("fetch('api/users-file').then(r => r.json())"); uv = api("api/settings")["userViews"]
     check("users tab: a tablet is saved and written to the file", "tablet_flur" in uv and uf.get("inSync") is True and uf.get("fileUsers", 0) >= 1, (uv, uf))
+    pgU.click("#usersSave"); pgU.wait_for_timeout(600)
+    check("users tab: the save button creates the file", pgU.evaluate("fetch('api/users-file').then(r => r.json())")["exists"] is True)
     pgU.click("#usersSync"); pgU.wait_for_timeout(600)
     check("users tab: sync loads the file back", "tablet_flur" in pgU.evaluate("window.__fp ? [...document.querySelectorAll('#tabletRows input[data-role=user]')].map(i => i.value) : []") and pgU.inner_text("#usersFileStatus") != "")
     pgU.close()

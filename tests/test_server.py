@@ -598,3 +598,22 @@ async def test_fresh_install_gets_users_and_tablets_back_from_the_config_folder(
     c = await aiohttp_client(server.make_app(tmp_path / "data", tmp_path / "cfg"))
     s = await (await c.get("/api/settings")).json()
     assert s["userRooms"] == {"tab": "Flur"} and s["userViews"] == {"tab": "split"}
+
+
+async def test_update_from_an_older_version_creates_users_json_at_startup(aiohttp_client, tmp_path):
+    import json
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data" / "settings.json").write_text(json.dumps({"userRooms": {"tab": "WZ"}, "userViews": {"tab": "2d"}}), "utf-8")
+    c = await aiohttp_client(server.make_app(tmp_path / "data", tmp_path / "cfg"))
+    assert json.loads((tmp_path / "cfg" / "users.json").read_text("utf-8"))["userRooms"] == {"tab": "WZ"}
+    st = await (await c.get("/api/users-file")).json()
+    assert st["exists"] and st["inSync"]
+
+
+async def test_startup_never_overwrites_an_existing_users_json(aiohttp_client, tmp_path):
+    import json
+    (tmp_path / "data").mkdir(); (tmp_path / "cfg").mkdir()
+    (tmp_path / "data" / "settings.json").write_text(json.dumps({"userRooms": {"new": "A"}}), "utf-8")
+    (tmp_path / "cfg" / "users.json").write_text(json.dumps({"userRooms": {"kept": "B"}}), "utf-8")
+    await aiohttp_client(server.make_app(tmp_path / "data", tmp_path / "cfg"))
+    assert json.loads((tmp_path / "cfg" / "users.json").read_text("utf-8"))["userRooms"] == {"kept": "B"}
