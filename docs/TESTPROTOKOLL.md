@@ -70,6 +70,23 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 | 12.6a | JSON-Import mit `roof.dormers` (docs/examples/house.json hat zwei Gauben) zeigt Gauben auf dem Dach | ❓ |
 | 12.7 | Nach dem Neuladen sind die Gauben noch da (nur im Add-on, Demo speichert nicht) | ➖ |
 
+### 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 13.1 | JSON-Import (Prüfen, dann Importieren) läuft ohne Fehler und ohne Warnungen durch | ❓ |
+| 13.2 | Es entsteht ein neues Haus mit allen Etagen (Keller, Erdgeschoss, Obergeschoss, Dachgeschoss) | ❓ |
+| 13.3 | Räume, Türen und Fenster liegen an den richtigen Stellen | ❓ |
+| 13.4 | Das bestehende Haus bleibt unverändert, Umschalten über die Hausauswahl geht | ❓ |
+| 13.5 | Treppen fehlen beim Import und lassen sich im Editor zeichnen | ❓ |
+
+### 14. Erdreich unter Anbauten ohne Keller (Fehler #93)
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 14.1 | Gesamtansicht, Kamera so drehen, dass der Erdschnitt sichtbar ist | ❓ |
+| 14.2 | Unter einem Anbau ohne Keller (z. B. Garage) ist kein Hohlraum im Boden, darunter ist Erde | ❓ |
+| 14.3 | Der Keller wird im Schnitt weiterhin richtig angezeigt | ❓ |
+| 14.4 | Ein Haus ohne Keller zeigt weiterhin den Boden ohne Schnitt | ❓ |
+
 ## Automatisch geprüft (zusätzlich)
 - Python: Benutzer werden in `users.json` gespiegelt; Synchronisieren lädt/speichert; frische Installation holt sich Benutzer aus der Datei zurück.
 - Browser-Test: Benutzer-Reiter sichtbar für Admins, versteckt für Nur-Lese-Benutzer; nicht mehr im Zahnrad; Tablet speichern; Synchronisieren.
