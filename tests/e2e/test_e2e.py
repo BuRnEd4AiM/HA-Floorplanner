@@ -806,6 +806,8 @@ with sync_playwright() as p:
     pg13.click("#floorRail .railHouse"); pg13.wait_for_timeout(1200)
     cards = pg13.evaluate("window.__fp.houseCards()")
     check("cards: one info card per floor in the whole-house view", len(cards) >= 2 and all("·" in c for c in cards), cards)
+    nrooms = pg13.evaluate("window.__fp.layout.floors.reduce((a, f) => a + f.rooms.filter(r => r.name).length, 0)")
+    check("whole house: room buttons of every floor", pg13.locator("#roomPills .pill").count() == nrooms and nrooms > 3, (pg13.locator("#roomPills .pill").count(), nrooms))
     pg13.locator(".floorCard").first.click(); pg13.wait_for_timeout(500)
     check("cards: a tap opens that floor", pg13.evaluate("window.__fp.houseMode()") is False and pg13.locator(".floorCard").count() == 0)
     pg13.click("#halfToggle"); pg13.wait_for_timeout(800)

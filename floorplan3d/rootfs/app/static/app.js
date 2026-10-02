@@ -963,14 +963,16 @@ function updateViewLegend() {
   if (!el) return;
   const vs = VIEW_STOPS[viewMode];
   const stops = vs && settings[vs[0]];
-  const key = stops ? JSON.stringify([viewMode, stops]) : '';
+  const key = stops ? JSON.stringify([viewMode, stops, settings.language]) : '';
   if (key === legendKey) return;
   legendKey = key;
   el.hidden = !stops;
   if (!stops) return;
-  const lo = stops[0].v, hi = stops[stops.length - 1].v;
-  const grad = stops.map((s) => `${s.c} ${(((s.v - lo) / (hi - lo || 1)) * 100).toFixed(1)}%`).join(', ');
-  el.innerHTML = `<span>${lo} ${vs[1]}</span><i style="background:linear-gradient(90deg, ${grad})"></i><span>${hi} ${vs[1]}</span>`;
+  const lo = stops[0].v, hi = stops[stops.length - 1].v, pct = (v) => (((v - lo) / (hi - lo || 1)) * 100).toFixed(1);
+  const grad = stops.map((s) => `${s.c} ${pct(s.v)}%`).join(', ');
+  const title = { temp: t('vm.temp'), humid: t('vm.humid'), co2: t('vm.co2') }[viewMode];
+  // a vertical scale like a thermometer: high values on top, every colour stop labelled
+  el.innerHTML = `<b>${title}</b><div class="lg"><i style="background:linear-gradient(0deg, ${grad})"></i><div class="lgv">${stops.map((s) => `<span style="bottom:${pct(s.v)}%">${s.v} ${vs[1]}</span>`).join('')}</div></div>`;
 }
 function applyStates() {
   if (plan?.isVisible()) plan.render();
@@ -2440,14 +2442,21 @@ function pill(label, active, onClick, title = '', extra = '') {
 function buildNav(force = false) {
   const f = floor();
   if (!f) return;
-  const rooms = f.rooms.filter((r) => r.name);
-  const key = JSON.stringify([houseMode, floorIdx, layout.floors.map((x) => x.kind), layout.floors.map((x) => x.name), rooms.map((r) => [r.id, r.name, occupied(r, f)]), focusedRoom, settings.language]);
+  // whole-house view: the rooms of every floor (top floor first), a tap opens that floor and the room
+  const entries = houseMode
+    ? layout.floors.map((fl, fi) => ({ fl, fi })).reverse().flatMap(({ fl, fi }) => fl.rooms.filter((r) => r.name).map((r) => ({ r, fl, fi })))
+    : f.rooms.filter((r) => r.name).map((r) => ({ r, fl: f, fi: floorIdx }));
+  const rooms = entries.map((e) => e.r);
+  const key = JSON.stringify([houseMode, floorIdx, layout.floors.map((x) => x.kind), layout.floors.map((x) => x.name), entries.map(({ r, fl }) => [r.id, r.name, occupied(r, fl)]), focusedRoom, settings.language]);
   if (!force && key === navKey) return;
   navKey = key;
   const fp = $('#floorPills'), rp = $('#roomPills');
   fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx && !houseMode, () => switchFloor(i))),
     ...(layout.floors.length > 1 || layout.floors.some((x) => x.devices.length) ? [pill(t('nav.house'), houseMode, () => setHouseMode(!houseMode), t('nav.houseTip'))] : []));
-  rp.replaceChildren(...rooms.map((r) => pill(r.name, r.id === focusedRoom, () => { const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id); }, occupied(r, f) ? t('nav.occupied') : '', occupied(r, f) ? ' occupied' : '')));
+  rp.replaceChildren(...entries.map(({ r, fl, fi }) => pill(r.name, r.id === focusedRoom, () => {
+    if (houseMode) { switchFloor(fi); focusRoom(r.id); openRoomPanel(r.id); return; }
+    const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id);
+  }, occupied(r, fl) ? t('nav.occupied') : (houseMode ? fl.name : ''), occupied(r, fl) ? ' occupied' : '')));
   $('#navSep').hidden = !rooms.length;
   buildFloorRail();
   updateHouseToggle();
