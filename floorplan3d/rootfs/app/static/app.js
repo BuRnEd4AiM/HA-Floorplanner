@@ -1061,16 +1061,39 @@ function declutterLabels() {
 const PLAN_FLOORS = ['off', 'below', 'all'];
 let planFloors = 'below';
 try { const v = localStorage.getItem('fp3d.planFloors'); if (PLAN_FLOORS.includes(v)) planFloors = v; } catch { /* no storage: the default stays */ }
+const FLOOR_COLS = ['#ff9d2e', '#2ad0a0', '#b06aff', '#ff5e8a', '#4aa8ff', '#ffd84a', '#8fe36b'];   // one colour per floor outline
+/** the floors drawn as outlines in the plan (lowest first) */
+function ghostFloors() {
+  if (planFloors === 'off') return [];
+  return layout.floors.map((fl, i) => ({ fl, i, col: FLOOR_COLS[i % FLOOR_COLS.length], name: fl.name || `#${i + 1}` }))
+    .filter(({ fl, i }) => i !== floorIdx && (planFloors === 'all' || i < floorIdx) && fl.kind !== 'roof' && fl.walls.length);
+}
+/** the little box in the corner of the plan: the switch and the colour legend (always visible, unlike the View menu) */
+function renderPlanFloorsChip() {
+  const btn = $('#planFloorsBtn'), list = $('#planFloorsList');
+  if (!btn) return;
+  btn.textContent = `▦ ${t('nav.planFloors')}: ${t(`nav.planFloors.${planFloors}`)}`;
+  btn.classList.toggle('active', planFloors !== 'off');
+  list.replaceChildren(...ghostFloors().reverse().map((g) => {
+    const li = document.createElement('li');
+    const sw = document.createElement('i'); sw.style.background = g.col;
+    li.append(sw, document.createTextNode(g.name));
+    return li;
+  }));
+}
 function updatePlanFloorsToggle() {
   const b = $('#planFloorsToggle');
   b.textContent = `${t('nav.planFloors')}: ${t(`nav.planFloors.${planFloors}`)}`;
   b.classList.toggle('active', planFloors !== 'off');
+  renderPlanFloorsChip();
 }
-$('#planFloorsToggle').addEventListener('click', () => {
+function cyclePlanFloors() {
   planFloors = PLAN_FLOORS[(PLAN_FLOORS.indexOf(planFloors) + 1) % PLAN_FLOORS.length];
   try { localStorage.setItem('fp3d.planFloors', planFloors); } catch { /* not stored */ }
   updatePlanFloorsToggle(); plan?.render();
-});
+}
+$('#planFloorsToggle').addEventListener('click', cyclePlanFloors);
+$('#planFloorsBtn').addEventListener('click', cyclePlanFloors);
 
 /* ================= Top bar: view menu (Auto, half section, pull apart, walls) and the cameras overview ================= */
 const viewMenu = $('#viewMenu'), viewMenuBtn = $('#viewMenuBtn'), camMenu = $('#camMenu'), camPillBtn = $('#camPill');
@@ -2819,6 +2842,7 @@ function buildNav(force = false) {
   menu.replaceChildren(...items);
   $('#navSep').hidden = !rooms.length;
   buildFloorRail();
+  renderPlanFloorsChip();
   updateHouseToggle();
 }
 
@@ -4244,7 +4268,7 @@ plan = createPlan({
   getSelection: () => selection,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
-  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, planFloors: () => planFloors, addBlock, addHole, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
+  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, ghostFloors: () => ghostFloors(), addBlock, addHole, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
  
   liveMoveDevice: (d) => liveMove(d),

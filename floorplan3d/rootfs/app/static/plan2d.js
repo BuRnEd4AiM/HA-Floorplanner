@@ -278,22 +278,10 @@ export function createPlan(ctx) {
       });
     });
 
-    /* the other floors as outlines in their own colours (switch in the View menu: off / all below / all others) */
     const idx = ctx.getFloorIdx();
-    const ghostMode = ctx.planFloors ? ctx.planFloors() : 'below';
-    const FLOOR_COLS = ['#ff9d2e', '#2ad0a0', '#b06aff', '#ff5e8a', '#4aa8ff', '#ffd84a', '#8fe36b'];
-    const ghosts = ghostMode === 'off' ? [] : ctx.layout().floors.map((fl, i) => ({ fl, i })).filter(({ fl, i }) => i !== idx && (ghostMode === 'all' || i < idx) && fl.kind !== 'roof' && fl.walls.length);
-    ghosts.forEach(({ fl, i }) => {                            // lowest floor first, so the nearer ones lie on top
-      const col = FLOOR_COLS[i % FLOOR_COLS.length];
-      fl.walls.forEach((w) => { o += `<polygon points="${pts(wallPoly(w.a, w.b, w.thickness, w.thickness / 2, w.thickness / 2))}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-opacity=".75" stroke-width="1" style="pointer-events:none"/>`; });
+    (ctx.ghostFloors ? ctx.ghostFloors() : []).forEach(({ i, col }) => {          // lowest floor first, so the nearer ones lie on top
+      ctx.layout().floors[i].walls.forEach((w) => { o += `<polygon points="${pts(wallPoly(w.a, w.b, w.thickness, w.thickness / 2, w.thickness / 2))}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-opacity=".75" stroke-width="1" style="pointer-events:none"/>`; });
     });
-    if (ghosts.length) {                                       // legend: which colour is which floor
-      const rows = ghosts.map(({ fl, i }) => ({ name: fl.name || `#${i + 1}`, col: FLOOR_COLS[i % FLOOR_COLS.length] })).reverse();
-      const lw = Math.min(190, 40 + Math.max(...rows.map((q) => q.name.length)) * 7), lh = 10 + rows.length * 18, lx = W - lw - 12, ly = H - lh - 12;
-      o += `<g style="pointer-events:none"><rect x="${lx}" y="${ly}" width="${lw}" height="${lh}" rx="9" fill="rgba(8,18,40,.78)" stroke="rgba(150,190,255,.35)"/>`;
-      rows.forEach((q, k) => { o += `<rect x="${lx + 10}" y="${ly + 9 + k * 18}" width="12" height="10" rx="2" fill="${q.col}" fill-opacity=".8"/><text x="${lx + 30}" y="${ly + 18 + k * 18}" font-size="11" fill="rgba(220,235,255,.9)">${esc(q.name)}</text>`; });
-      o += '</g>';
-    }
 
     /* rooms */
     f.rooms.forEach((rm) => {
