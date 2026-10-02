@@ -231,6 +231,7 @@ export default {
   'roof.overhang': 'Alero',
   'roof.ridge': 'Dirección de la cumbrera',
   'roof.auto': 'Automática',
+  'roof.manual': 'Definir el tamaño manualmente', 'roof.left': 'Izquierda (x)', 'roof.top': 'Arriba (z)', 'roof.width': 'Ancho', 'roof.depth': 'Profundidad',
   'nav.house': 'Toda la casa',
   'nav.houseTip': 'Todas las plantas y la parcela juntas',
   'floor.add': '+ Planta',

@@ -231,6 +231,7 @@ export default {
   'roof.overhang': 'Overstek',
   'roof.ridge': 'Nokrichting',
   'roof.auto': 'Automatisch',
+  'roof.manual': 'Grootte zelf instellen', 'roof.left': 'Links (x)', 'roof.top': 'Boven (z)', 'roof.width': 'Breedte', 'roof.depth': 'Diepte',
   'nav.house': 'Heel huis',
   'nav.houseTip': 'Alle verdiepingen en de kavel samen',
   'floor.add': '+ Verdieping',
