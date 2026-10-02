@@ -10,6 +10,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **Floors below the open floor** (#65), in ⚙: *dimmed* (as before, see-through), *stacked* (clearly visible) or *hidden*
 - **Value badges** (#66): readable badges with a symbol right on the device, e.g. "🌡 21.4 °C", "⚡ 95 W", "↕ 70 %" (shutter), "💡 80 %" (light), the running app on a TV. ⚙ → *Value badges on devices*: *Important* (measurements, climate, shutters; as before), *All devices* or *None* (replaces the old on/off box)
 - **CO₂ colouring** (#70): a third button *CO₂* next to *Temp.* and *Feuchte* colours the rooms by the CO₂ sensor of the room (400 – 2000 ppm, colours adjustable in ⚙). A colour scale at the bottom right shows what the colours mean, for temperature and humidity too
+- **Demo** (`demo/floorplan3d-demo.html`) now also shows a stair with its stairwell, a floor opening in the attic, the roof as top floor, CO₂ sensors, a TV with its app and a shutter with its position, so all new features can be tried without Home Assistant
 
 ## [3.11.0] - 2026-10-02
 ### Added

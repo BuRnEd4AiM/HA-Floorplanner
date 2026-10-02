@@ -36,6 +36,7 @@ const layout = {
     ],
   }, {
     id: 'eg', name: 'Erdgeschoss',
+    stairs: [{ id: 'st1', name: 'Treppe', type: 'straight', x: 6.5, z: 3.9, rot: 0, w: 1.0, tread: 0.2, turn: 'right', dir: 'up' }],
     rooms: [
       { id: 'r1', name: 'Wohnzimmer',    area: 'wohnzimmer', color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
       { id: 'r2', name: 'Küche',         color: '#c9c2b4', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
@@ -73,6 +74,7 @@ const layout = {
       { id: 'd7w', type: 'sensor', x: 4.5, z: 0.4, y: 1.4, rot: 0, scale: 1, name: 'Leistung', entity: 'sensor.wohnzimmer_leistung' },
       { id: 'd7',  type: 'plant',      x: 0.7, z: 0.7,  y: 0,    rot: 0,   scale: 1.2, name: 'Pflanze',         entity: '' },
       { id: 'd8',  type: 'sensor',     x: 5.75, z: 0.9, y: 1.6,  rot: 90,  scale: 1,   name: 'Temperatur Wohnzimmer', entity: 'sensor.wohnzimmer_temp' },
+      { id: 'd8c', type: 'sensor',     x: 5.75, z: 2.4, y: 1.6,  rot: 90,  scale: 1,   name: 'CO₂ Wohnzimmer', entity: 'sensor.wohnzimmer_co2' },
       { id: 'd9',  type: 'diningtable', x: 8,   z: 2.2,  y: 0,    rot: 0,   scale: 1, name: 'Esstisch',        entity: '' },
       { id: 'd10', type: 'light',      x: 8,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Küchenlicht',     entity: 'light.kueche' },
       { id: 'd11', type: 'sensor',     x: 9.85, z: 0.8, y: 1.6,  rot: 270, scale: 1,   name: 'Temperatur Küche', entity: 'sensor.kueche_temp' },
@@ -88,6 +90,7 @@ const layout = {
       { id: 'd12', type: 'bed',        x: 5,   z: 5.95, y: 0,    rot: 180, scale: 1,   name: 'Bett',            entity: '' },
       { id: 'd13', type: 'light',      x: 5,   z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Schlafzimmerlicht', entity: 'light.schlafzimmer' },
       { id: 'd14', type: 'sensor',     x: 3.15, z: 5.3, y: 1.6,  rot: 90,  scale: 1,   name: 'Temperatur Schlafzimmer', entity: 'sensor.schlafzimmer_temp' },
+      { id: 'd14c', type: 'sensor',    x: 3.15, z: 6.3, y: 1.6,  rot: 90,  scale: 1,   name: 'CO₂ Schlafzimmer', entity: 'sensor.schlafzimmer_co2' },
       { id: 'd15', type: 'light',      x: 1.5, z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Badlicht',        entity: 'light.bad' },
       { id: 'd16', type: 'sensor',     x: 2.85, z: 5.0, y: 1.6,  rot: 270, scale: 1,   name: 'Luftfeuchte Bad', entity: 'sensor.bad_feuchte' },
       { id: 'd17', type: 'desk',       x: 8.6, z: 6.0,  y: 0,    rot: 90,  scale: 1,   name: 'Schreibtisch',    entity: '' },
@@ -123,10 +126,12 @@ const layout = {
       { id: 'e2', type: 'light', x: 2.5, z: 2, y: 2.55, rot: 0, scale: 1.2, name: 'Licht Kinderzimmer', entity: 'light.schlafzimmer' },
       { id: 'e4', type: 'sensor', x: 4.8, z: 1, y: 1.6, rot: 90, scale: 1, name: 'Temperatur Kinderzimmer', entity: 'sensor.kinder_temp' },
       { id: 'e5', type: 'sensor', x: 5.2, z: 1, y: 1.6, rot: 270, scale: 1, name: 'Temperatur Gästezimmer', entity: 'sensor.gast_temp' },
+      { id: 'e4c', type: 'sensor', x: 0.2, z: 3, y: 1.6, rot: 270, scale: 1, name: 'CO₂ Kinderzimmer', entity: 'sensor.kinder_co2' },
       { id: 'e3', type: 'table', x: 7.5, z: 1.5, y: 0, rot: 0, scale: 0.8, name: 'Schreibtisch', entity: '' },
     ],
   }, {
     id: 'dg', name: 'Dachgeschoss',
+    holes: [{ id: 'h1', points: [[3.6, 0.9], [5.4, 0.9], [5.4, 1.9], [3.6, 1.9]] }],
     rooms: [
       { id: 'p1', name: 'Studio', color: '#b0c8a0', points: [[1, 0.5], [6, 0.5], [6, 3.5], [1, 3.5]] },
     ],
@@ -141,6 +146,9 @@ const layout = {
       { id: 'g1', type: 'sofa', x: 3.5, z: 2.6, y: 0, rot: 180, scale: 1, name: 'Sofa', entity: '' },
       { id: 'g2', type: 'lamp', x: 1.8, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Stehlampe Studio', entity: 'light.stehlampe' },
     ],
+  }, {
+    id: 'dach', name: 'Dach', kind: 'roof', walls: [], rooms: [], devices: [], blocks: [], stairs: [],
+    roof: { type: 'gable', pitch: 35, overhang: 0.4 },
   }],
 };
 
@@ -166,8 +174,8 @@ const entities = {
   'scene.wz_aus':            { name: 'Wohnzimmer Aus',         state: 'scening' },
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
   'switch.flur':             { name: 'Flur Schalter',          state: 'off' },
-  'media_player.tv':         { name: 'Fernseher',              state: 'playing' },
-  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat' },
+  'media_player.tv':         { name: 'Fernseher',              state: 'playing', app: 'Netflix' },
+  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat', ct: 21.2, ch: 48 },
   'sensor.wohnzimmer_temp':  { name: 'Wohnzimmer Temperatur',  state: '21.4', unit: '°C' },
   'sensor.kueche_temp':      { name: 'Küche Temperatur',       state: '22.1', unit: '°C' },
   'sensor.schlafzimmer_temp':{ name: 'Schlafzimmer Temperatur', state: '18.6', unit: '°C' },
@@ -181,11 +189,14 @@ const entities = {
   'sensor.studio_temp':     { name: 'Studio Temperatur',       state: '24.6', unit: '°C' },
   'sensor.buero_temp':      { name: 'Büro Temperatur',         state: '23.0', unit: '°C', dc: 'temperature' },
   'sensor.bad_feuchte':      { name: 'Bad Luftfeuchte',        state: '64', unit: '%' },
+  'sensor.wohnzimmer_co2':   { name: 'Wohnzimmer CO₂',         state: '920', unit: 'ppm', dc: 'carbon_dioxide' },
+  'sensor.schlafzimmer_co2': { name: 'Schlafzimmer CO₂',       state: '1350', unit: 'ppm', dc: 'carbon_dioxide' },
+  'sensor.kinder_co2':       { name: 'Kinderzimmer CO₂',       state: '640', unit: 'ppm', dc: 'carbon_dioxide' },
 };
 
 let settings = {
   language: 'en', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, showLabels: true, cutaway: true,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', belowMode: 'dim', cutaway: true,
 };
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -220,7 +231,7 @@ export function installDemoBackend() {
     if (path === 'api/entities') {
       return json(Object.entries(entities).map(([entity_id, e]) => ({
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
-        dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null })));
+        dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null })));
     }
     if (path === 'api/service' && method === 'POST') {
       const { service, entity_id: id, data } = JSON.parse(init.body);
