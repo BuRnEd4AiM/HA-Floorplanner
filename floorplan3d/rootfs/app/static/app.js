@@ -1057,6 +1057,21 @@ function declutterLabels() {
   }
 }
 
+/* ---- other floors as coloured outlines in the 2D plan: off | below (all lower floors) | all (every other floor) ---- */
+const PLAN_FLOORS = ['off', 'below', 'all'];
+let planFloors = 'below';
+try { const v = localStorage.getItem('fp3d.planFloors'); if (PLAN_FLOORS.includes(v)) planFloors = v; } catch { /* no storage: the default stays */ }
+function updatePlanFloorsToggle() {
+  const b = $('#planFloorsToggle');
+  b.textContent = `${t('nav.planFloors')}: ${t(`nav.planFloors.${planFloors}`)}`;
+  b.classList.toggle('active', planFloors !== 'off');
+}
+$('#planFloorsToggle').addEventListener('click', () => {
+  planFloors = PLAN_FLOORS[(PLAN_FLOORS.indexOf(planFloors) + 1) % PLAN_FLOORS.length];
+  try { localStorage.setItem('fp3d.planFloors', planFloors); } catch { /* not stored */ }
+  updatePlanFloorsToggle(); plan?.render();
+});
+
 /* ================= Top bar: view menu (Auto, half section, pull apart, walls) and the cameras overview ================= */
 const viewMenu = $('#viewMenu'), viewMenuBtn = $('#viewMenuBtn'), camMenu = $('#camMenu'), camPillBtn = $('#camPill');
 $('#roomMenuBtn').addEventListener('click', (e) => { e.stopPropagation(); toggleMenu($('#roomMenu'), $('#roomMenuBtn')); });
@@ -2739,6 +2754,7 @@ $('#fitBtn').addEventListener('click', () => { if (layoutMode !== '3d') plan.fit
 $('#wallToggle').addEventListener('click', () => setLowWalls(!lowWalls));
 $('#halfToggle').addEventListener('click', () => { halfCut = !halfCut; updateNavToggles(); build(); });
 function updateNavToggles() {
+  updatePlanFloorsToggle();
   $('#halfToggle').classList.toggle('active', halfCut);
   $('#wallToggle').textContent = t(lowWalls ? 'view.wallsLow' : 'view.wallsHigh');
   $('#wallToggle').classList.toggle('active', !lowWalls);
@@ -4228,7 +4244,7 @@ plan = createPlan({
   getSelection: () => selection,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
-  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, addHole, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
+  bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, planFloors: () => planFloors, addBlock, addHole, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
  
   liveMoveDevice: (d) => liveMove(d),
