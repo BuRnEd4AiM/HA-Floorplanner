@@ -8,9 +8,9 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 | Datum | Stand | Python-Tests | Browser-Test (E2E) | Bemerkung |
 |---|---|---|---|---|
-| 2026-10-02 | 3.20.1 | 74 bestanden | 205 von 205 bestanden | Knopf „Datei erstellen“, Datei beim Start anlegen |
+| 2026-10-02 | 3.21.0 | 74 bestanden + 8 Gauben-Tests | 208 von 208 bestanden | Dachgauben |
 
-E2E-Ergebnis 3.20.1: alle 205 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
+E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
 
 ## Handtest in der Demo (Besitzer)
 
@@ -57,6 +57,17 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 | 11.4a | Knopf „💾 Datei erstellen / speichern“ legt `users.json` an, auch wenn es sie noch nicht gibt | ➖ (Add-on mit echtem Ordner) |
 | 11.5 | „↻ Synchronisieren" liest `users.json` und übernimmt die Benutzer | ➖ (nur im Add-on mit echtem Ordner) |
 | 11.6 | Nach einem Update/Neuinstallation sind Benutzer und Tablets wieder da | ➖ |
+
+### 12. Dachgauben (3.21.0)
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 12.1 | Dachstuhl wählen → Abschnitt „Dachgauben" mit „+ Gaube" | ❓ |
+| 12.2 | Eine Gaube erscheint in 3D auf dem Dach, mit Fenster | ❓ |
+| 12.3 | Seite A/B, Position, Breite, Höhe, Abstand zur Traufe lassen sich ändern | ❓ |
+| 12.4 | Gaube mit Satteldach und mit Flachdach | ❓ |
+| 12.5 | Gaube entfernen (×) | ❓ |
+| 12.6 | Bei Flachdach erscheint ein Hinweis statt der Gauben | ❓ |
+| 12.7 | Nach dem Neuladen sind die Gauben noch da (nur im Add-on, Demo speichert nicht) | ➖ |
 
 ## Automatisch geprüft (zusätzlich)
 - Python: Benutzer werden in `users.json` gespiegelt; Synchronisieren lädt/speichert; frische Installation holt sich Benutzer aus der Datei zurück.

@@ -14,6 +14,7 @@ import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms } from './rooms.js';
+import { dormerParts, DORMER_DEFAULT, DORMER_TYPES } from './dormer.js';
 import { STAIR_TYPES, stairDefaults, stairBounds, stairLocal, polyToWorld, holesForFloor, toWorld, stairCounts, stairLength, stairHandles, MIN_TREAD, MAX_TREAD } from './stairs.js';
 
 /* ================= State ================= */
@@ -648,7 +649,25 @@ function buildRoof(g, i, f, holo, ghost) {
   const mats = [m.material];
   if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), em)); mats.push(em); }
   g.add(m);
-  if (!ghost) roofs.push({ mesh: m, mats: mats.map((x) => ({ x, base: x.opacity, transparent: x.transparent, depthWrite: x.depthWrite })), box: null });
+  const fade = (mesh, ms) => { if (!ghost) roofs.push({ mesh, mats: ms.map((x) => ({ x, base: x.opacity, transparent: x.transparent, depthWrite: x.depthWrite })), box: null }); };
+  fade(m, mats);
+  (f.roof?.dormers || []).forEach((d) => {                                 // dormers (Gauben): wall, little roof and window out of one slope
+    const parts = dormerParts(bb, f.roof, d);
+    if (!parts) return;
+    const part = (tris, material, edgeAngle) => {
+      if (!tris.length) return;
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
+      geo.computeVertexNormals();
+      const pm = new THREE.Mesh(geo, material), ms = [material];
+      if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); pm.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), em)); ms.push(em); }
+      g.add(pm); fade(pm, ms);
+    };
+    const hm = (opacity) => new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : opacity, side: THREE.DoubleSide, depthWrite: false });
+    part(parts.wall, holo ? hm(0.5) : mat('#d9d3c6', ghost, { side: THREE.DoubleSide }), 20);
+    part(parts.roof, holo ? hm(0.45) : mat('#8f3b2f', ghost, { side: THREE.DoubleSide }), 20);
+    part(parts.glass, new THREE.MeshBasicMaterial({ color: holo ? 0x3df2ff : 0x9fd4ff, transparent: true, opacity: ghost ? 0.2 : 0.75, side: THREE.DoubleSide, depthWrite: false }), 90);
+  });
 }
 const roofs = [];                  // roofs that thin out when the camera comes close
 function updateRoofFade() {
@@ -3149,7 +3168,7 @@ function renderFloorPanel() {
     const tsel = document.createElement('select'); tsel.id = 'roofType';
     ['gable', 'hip', 'flat'].forEach((v) => { const o = document.createElement('option'); o.value = v; o.textContent = t(`roof.${v}`); tsel.append(o); });
     tsel.value = r.type || 'gable';
-    tsel.addEventListener('change', () => { snapshot(); r.type = tsel.value; build(); scheduleSave(); });
+    tsel.addEventListener('change', () => { snapshot(); r.type = tsel.value; build(); scheduleSave(); renderFloorPanel(); });
     box.append(field(t('roof.type'), tsel));
     box.append(field(t('roof.pitch'), inp('number', r.pitch ?? 35, (v) => (r.pitch = Math.max(5, Math.min(70, +v || 35))), { step: 1 })));
     box.append(field(t('roof.overhang'), lenInput(() => r.overhang ?? 0.4, (v) => (r.overhang = v), { min: 0 })));
@@ -3158,7 +3177,48 @@ function renderFloorPanel() {
     rsel.value = r.ridge || '';
     rsel.addEventListener('change', () => { snapshot(); r.ridge = rsel.value || undefined; build(); scheduleSave(); });
     box.append(field(t('roof.ridge'), rsel));
+    renderDormers(box, f, r);
   }
+}
+/** roof dormers: one card per dormer in the panel of the roof floor */
+function renderDormers(box, f, r) {
+  const head = document.createElement('h4'); head.textContent = t('dormer.title'); box.append(head);
+  if (r.type === 'flat') { const p = document.createElement('p'); p.className = 'sub'; p.textContent = t('dormer.noFlat'); box.append(p); return; }
+  (r.dormers ||= []).forEach((d, i) => {
+    const card = document.createElement('div'); card.className = 'dormerCard';
+    const bb = roofBox(layout.floors.indexOf(f)), fit = bb ? dormerParts(bb, r, d) : null;
+    const sel = (opts, val, set) => {
+      const s = document.createElement('select');
+      opts.forEach(([v, l]) => s.add(new Option(l, v)));
+      s.value = String(val);
+      s.addEventListener('change', () => { snapshot(); set(s.value); build(); scheduleSave(); renderFloorPanel(); });
+      return s;
+    };
+    const cap = document.createElement('b'); cap.className = 'dormerCap'; cap.textContent = `${t('dormer.one')} ${i + 1}`; card.append(cap);
+    card.append(field(t('dormer.side'), sel([[0, t('dormer.sideA')], [1, t('dormer.sideB')]], d.side === 1 ? 1 : 0, (v) => { d.side = +v; })));
+    const pos = inp('range', Math.round((d.pos ?? 0.5) * 100), (v) => { d.pos = Math.max(0, Math.min(1, +v / 100)); }, { min: 0, max: 100, step: 1 });
+    card.append(field(t('dormer.pos'), pos));
+    card.append(field(t('dormer.width'), lenInput(() => d.w ?? DORMER_DEFAULT.w, (v) => { d.w = v; }, { min: 0.6 })));
+    card.append(field(t('dormer.height'), lenInput(() => d.hw ?? DORMER_DEFAULT.hw, (v) => { d.hw = v; }, { min: 0.4 })));
+    card.append(field(t('dormer.eave'), lenInput(() => d.eave ?? DORMER_DEFAULT.eave, (v) => { d.eave = v; }, { min: 0.2 })));
+    card.append(field(t('dormer.type'), sel(DORMER_TYPES.map((v) => [v, t(`dormer.${v}`)]), d.type || 'gable', (v) => { d.type = v; })));
+    const win = document.createElement('input'); win.type = 'checkbox'; win.checked = d.win !== false;
+    win.addEventListener('change', () => { snapshot(); d.win = win.checked; build(); scheduleSave(); });
+    card.append(field(t('dormer.window'), win));
+    const del = document.createElement('button'); del.type = 'button'; del.textContent = '×'; del.title = t('dormer.remove');
+    del.addEventListener('click', () => { snapshot(); r.dormers.splice(i, 1); build(); scheduleSave(); renderFloorPanel(); });
+    card.append(del);
+    if (!fit) { const w = document.createElement('p'); w.className = 'sub warn'; w.textContent = t('dormer.noFit'); card.append(w); }
+    box.append(card);
+  });
+  const add = document.createElement('button'); add.type = 'button'; add.id = 'addDormer'; add.textContent = t('dormer.add');
+  add.addEventListener('click', () => {
+    snapshot();
+    const n = r.dormers.length;
+    r.dormers.push({ id: uid(), ...DORMER_DEFAULT, side: n % 2, pos: [0.5, 0.25, 0.75][Math.floor(n / 2) % 3] });
+    build(); scheduleSave(); renderFloorPanel();
+  });
+  box.append(add);
 }
 $('#addFloor').addEventListener('click', () => addFloorOf('floor'));
 /* Automatic rooms (#17): one room for every closed loop of walls that is not a room yet */

@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.21.0] - 2026-10-02
+### Added
+- **Roof dormers (Dachgauben)**: in the panel of the roof floor there is a new section *Dormers* with **+ Dormer**. Every dormer stands out of one roof slope in 3D with its own little roof, a front wall and a window. Per dormer: *roof side* (A / B), *position along the ridge* (slider), *width*, *wall height*, *distance from the eave*, *dormer roof* (gable or flat) and *window* on/off. Values are limited so that a dormer always fits under the ridge (a hint shows when it cannot fit). A flat main roof has no dormers
+- Unit tests for the dormer geometry (`tests/dormer.test.mjs`, also in CI) and browser checks
+
 ## [3.20.1] - 2026-10-02
 ### Added
 - **Users & tablets: button "Create / save file"**: writes `users.json` into the Home Assistant folder at once (and creates it if it is not there yet). Before, the file only appeared after the next save, and *Synchronise* then said "not found"; that message now explains what to press
