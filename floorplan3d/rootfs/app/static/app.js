@@ -1005,7 +1005,8 @@ function declutterLabels() {
 
 /* ================= Top bar: view menu (Auto, half section, pull apart, walls) and the cameras overview ================= */
 const viewMenu = $('#viewMenu'), viewMenuBtn = $('#viewMenuBtn'), camMenu = $('#camMenu'), camPillBtn = $('#camPill');
-const dropdowns = [[viewMenu, viewMenuBtn], [camMenu, camPillBtn]];       // only one of the drop-downs is open at a time
+$('#roomMenuBtn').addEventListener('click', (e) => { e.stopPropagation(); toggleMenu($('#roomMenu'), $('#roomMenuBtn')); });
+const dropdowns = [[viewMenu, viewMenuBtn], [camMenu, camPillBtn], [$('#roomMenu'), $('#roomMenuBtn')]];       // only one of the drop-downs is open at a time
 function toggleMenu(menu, btn, open = menu.hidden) {
   dropdowns.forEach(([m, b]) => { const on = m === menu && open; m.hidden = !on; b.classList.toggle('active', on); b.setAttribute('aria-expanded', String(on)); });
   if (menu === camMenu && open) renderCamMenu();
@@ -1047,7 +1048,7 @@ function renderCamMenu() {
     const show = document.createElement('button'); show.type = 'button'; show.textContent = t('cam.show');
     show.addEventListener('click', () => { toggleMenu(camMenu, camPillBtn, false); showOffline({ floor: fi, kind: 'device', id: d.id }); });
     row.append(show);
-    const mi = detailsButton(d.entity); if (mi) row.append(mi);
+    row.append(haButton(d.entity));
     card.append(head, meta, row);
     grid.append(card);
   });
@@ -2375,11 +2376,18 @@ const rpGroupOf = (dom) => (dom === 'binary_sensor' ? 'sensor' : dom === 'fan' |
 /* ---- Camera still images (#67, #69): fetched through the add-on, renewed every few seconds while one is on the screen ---- */
 const camUrls = new Map();                 // entity -> object URL of the latest still image
 let camTimer = 0;
+/** Home Assistant's own dialog for the entity (live view of a camera, history ...); only possible inside the Home Assistant frontend */
+function openInHa(entityId) { if (!openMoreInfo(entityId)) setStatus(t('cam.haOnly')); }
+function haButton(entityId) {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'haBtn'; b.textContent = `ⓘ ${t('cam.openHa')}`; b.title = entityId;
+  b.addEventListener('click', () => openInHa(entityId));
+  return b;
+}
 function camImage(entityId, cls = 'rp-cam') {
   const img = document.createElement('img'); img.className = cls; img.dataset.cam = entityId; img.alt = '';
   if (camUrls.has(entityId)) img.src = camUrls.get(entityId);
   ensureCamTimer(); refreshCamera(entityId, true);
-  if (canMoreInfo()) { img.classList.add('tap'); img.title = t('live.detailsHint'); img.addEventListener('click', () => openMoreInfo(entityId)); }   // a second tap: Home Assistant's live view
+  img.classList.add('tap'); img.title = t('cam.openHa'); img.addEventListener('click', () => openInHa(entityId));   // a second tap: Home Assistant's live view
   return img;
 }
 async function refreshCamera(id, onlyIfMissing = false) {
@@ -2686,10 +2694,25 @@ function buildNav(force = false) {
   const fp = $('#floorPills'), rp = $('#roomPills');
   fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx && !houseMode, () => switchFloor(i))),
     ...(layout.floors.length > 1 || layout.floors.some((x) => x.devices.length) ? [pill(t('nav.house'), houseMode, () => setHouseMode(!houseMode), t('nav.houseTip'))] : []));
-  rp.replaceChildren(...entries.map(({ r, fl, fi }) => pill(r.name, r.id === focusedRoom, () => {
-    if (houseMode) { switchFloor(fi); focusRoom(r.id); openRoomPanel(r.id); return; }
-    const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id);
-  }, occupied(r, fl) ? t('nav.occupied') : (houseMode ? fl.name : ''), occupied(r, fl) ? ' occupied' : '')));
+  // the rooms are one drop-down instead of a row of buttons (a long row has to be scrolled on a tablet)
+  const btn = $('#roomMenuBtn'), menu = $('#roomMenu');
+  const focusedName = entries.find((e) => e.r.id === focusedRoom)?.r.name;
+  btn.hidden = !entries.length;
+  btn.textContent = focusedName || t('nav.rooms');
+  btn.classList.toggle('active', !!focusedName);
+  btn.classList.toggle('occupied', entries.some(({ r, fl }) => occupied(r, fl)));
+  const items = [];
+  if (focusedRoom) items.push(pill(t('nav.allRooms'), false, () => { toggleMenu(menu, btn, false); focusRoom(null); closeRoomPanel(); }, '', ' all'));
+  let lastFloor = null;
+  entries.forEach(({ r, fl, fi }) => {
+    if (houseMode && fl !== lastFloor) { const hd = document.createElement('div'); hd.className = 'rmHead'; hd.textContent = fl.name; items.push(hd); lastFloor = fl; }
+    items.push(pill(r.name, r.id === focusedRoom, () => {
+      toggleMenu(menu, btn, false);
+      if (houseMode) { switchFloor(fi); focusRoom(r.id); openRoomPanel(r.id); return; }
+      const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id);
+    }, occupied(r, fl) ? t('nav.occupied') : '', occupied(r, fl) ? ' occupied' : ''));
+  });
+  menu.replaceChildren(...items);
   $('#navSep').hidden = !rooms.length;
   buildFloorRail();
   updateHouseToggle();

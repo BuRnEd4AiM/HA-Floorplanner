@@ -332,7 +332,7 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 .imp-warnings { color: #ffb04a; }
 
 /* room pills: a dot while somebody is in the room (person / presence devices) */
-#roomPills .pill.occupied::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #5dffb0; box-shadow: 0 0 8px #5dffb0; vertical-align: 1px; }
+#roomPills .pill.occupied::before, #roomMenu .pill.occupied::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #5dffb0; box-shadow: 0 0 8px #5dffb0; vertical-align: 1px; }
 
 /* LED ring sections in the side panel */
 .ringSec { border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; margin: 6px 0; }
@@ -439,3 +439,14 @@ body.low .alertItem { animation: none; }
 .camCard small { color: var(--muted); }
 .camBtns { display: flex; gap: 6px; flex-wrap: wrap; }
 .camBtns button { min-height: 30px; padding: 2px 12px; }
+
+/* rooms drop-down */
+#roomMenuBtn::after { content: ' ▾'; }
+#roomMenuBtn.active::after { content: ''; }
+#roomMenu { position: absolute; top: 54px; left: 12px; z-index: 6; display: flex; flex-direction: column; gap: 6px; padding: 8px; min-width: 210px; max-width: calc(100% - 24px);
+  max-height: calc(100% - 140px); overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+#roomMenu[hidden] { display: none; }
+#roomMenu .pill { width: 100%; text-align: left; }
+#roomMenu .pill.all { border-style: dashed; }
+#roomMenu .rmHead { padding: 6px 6px 0; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.camBtns .haBtn { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
