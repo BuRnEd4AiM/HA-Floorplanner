@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.15.0] - 2026-10-02
+### Added
+- **Cameras at a glance**: a new button *📷 n* in the top bar (only when the plan has cameras) opens a drop-down overview with the still image of every camera, its floor and room, and a red *Motion detected* badge; the button itself turns red and says *n motion* while a motion sensor reports movement. *Show in the plan* jumps to the camera, a tap on the picture opens Home Assistant's live view
+
+### Changed
+- **View menu**: *Auto*, *Halbschnitt*, *Auseinander* and the wall height moved into a drop-down *View ▾* at the top. The buttons that need attention stay outside: *offline*, *open* and the cameras
+
 ## [3.14.0] - 2026-10-02
 ### Added
 - **Shipped 3D model library**: 120 free models (Kenney Furniture Kit, CC0: furniture, kitchen, bathroom, plants, lamps, appliances) come with the add-on and show up in the model list of the device tool, the search box filters them too. They cannot be deleted; an own upload with the same name takes precedence. Sources and licence in `library/CREDITS.md` (#79)

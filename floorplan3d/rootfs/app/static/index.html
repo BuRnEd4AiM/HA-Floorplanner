@@ -57,11 +57,19 @@
         <button id="houseToggle" class="pill" hidden></button>
         <button id="offlinePill" class="pill" hidden data-i18n-title="off.tip"></button>
         <button id="openPill" class="pill" hidden></button>
+        <button id="camPill" class="pill" hidden data-i18n-title="cam.pillTip"></button>
+        <button id="viewMenuBtn" class="pill" type="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.view" data-i18n-title="nav.viewTip"></button>
+      </nav>
+      <div id="camMenu" hidden>
+        <p class="sub" data-i18n="cam.hint"></p>
+        <div id="camGrid"></div>
+      </div>
+      <div id="viewMenu" hidden>
         <button id="autoToggle" class="pill" data-i18n="nav.auto" data-i18n-title="nav.autoTip"></button>
         <button id="explodeToggle" class="pill" hidden data-i18n="nav.explode" data-i18n-title="nav.explodeTip"></button>
         <button id="halfToggle" class="pill" data-i18n="nav.half" data-i18n-title="nav.halfTip"></button>
         <button id="wallToggle" class="pill"></button>
-      </nav>
+      </div>
       <button id="navLeft" class="navArrow" type="button" hidden aria-label="‹">‹</button>
       <button id="navRight" class="navArrow" type="button" hidden aria-label="›">›</button>
       <div id="modeBar"><button class="pill active" data-vm="normal" data-i18n="vm.normal"></button><button class="pill" data-vm="temp" data-i18n="vm.temp"></button><button class="pill" data-vm="humid" data-i18n="vm.humid"></button><button class="pill" data-vm="co2" data-i18n="vm.co2"></button></div>

@@ -1003,6 +1003,56 @@ function declutterLabels() {
   }
 }
 
+/* ================= Top bar: view menu (Auto, half section, pull apart, walls) and the cameras overview ================= */
+const viewMenu = $('#viewMenu'), viewMenuBtn = $('#viewMenuBtn'), camMenu = $('#camMenu'), camPillBtn = $('#camPill');
+const dropdowns = [[viewMenu, viewMenuBtn], [camMenu, camPillBtn]];       // only one of the drop-downs is open at a time
+function toggleMenu(menu, btn, open = menu.hidden) {
+  dropdowns.forEach(([m, b]) => { const on = m === menu && open; m.hidden = !on; b.classList.toggle('active', on); b.setAttribute('aria-expanded', String(on)); });
+  if (menu === camMenu && open) renderCamMenu();
+}
+const toggleViewMenu = (open) => toggleMenu(viewMenu, viewMenuBtn, open);
+viewMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleViewMenu(); });
+camPillBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(camMenu, camPillBtn); });
+document.addEventListener('click', (e) => { dropdowns.forEach(([m, b]) => { if (!m.hidden && !m.contains(e.target) && e.target !== b) toggleMenu(m, b, false); }); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.forEach(([m, b]) => { if (!m.hidden) toggleMenu(m, b, false); }); });
+
+/** every camera of the house (a device of type camera with a camera entity), with the room it hangs in; movement first */
+function cameraList() {
+  const out = [];
+  layout.floors.forEach((f, fi) => f.devices.forEach((d) => {
+    if (d.type !== 'camera' || !d.entity?.startsWith('camera.')) return;
+    out.push({ d, fi, room: f.rooms.find((r) => pointInPoly(d.x, d.z, r.points))?.name || '', motion: cameraMotion(d) });
+  }));
+  return out.sort((p, q) => Number(q.motion) - Number(p.motion) || p.fi - q.fi || (p.d.name || '').localeCompare(q.d.name || ''));
+}
+function updateCamPill() {
+  const pill = $('#camPill'), list = cameraList(), n = list.filter((x) => x.motion).length;
+  pill.hidden = !list.length;
+  pill.textContent = n ? t('cam.pillMotion', { n }) : t('cam.pill', { n: list.length });
+  pill.classList.toggle('alert', n > 0);
+  if (!camMenu.hidden) renderCamMenu();
+}
+function renderCamMenu() {
+  const grid = $('#camGrid');
+  grid.replaceChildren();
+  cameraList().forEach(({ d, fi, room, motion }) => {
+    const card = document.createElement('div'); card.className = 'camCard' + (motion ? ' alert' : '');
+    if (settings.cameraImages) card.append(camImage(d.entity, 'cam-big'));
+    const head = document.createElement('div'); head.className = 'camHead';
+    const name = document.createElement('strong'); name.textContent = d.name || d.entity;
+    head.append(name);
+    if (d.motionEntity) { const b = document.createElement('span'); b.className = 'camBadge' + (motion ? ' alert' : ''); b.textContent = motion ? t('cam.motionOn') : t('cam.motionOff'); head.append(b); }
+    const meta = document.createElement('small'); meta.textContent = [layout.floors[fi]?.name, room].filter(Boolean).join(' · ');
+    const row = document.createElement('div'); row.className = 'camBtns';
+    const show = document.createElement('button'); show.type = 'button'; show.textContent = t('cam.show');
+    show.addEventListener('click', () => { toggleMenu(camMenu, camPillBtn, false); showOffline({ floor: fi, kind: 'device', id: d.id }); });
+    row.append(show);
+    const mi = detailsButton(d.entity); if (mi) row.append(mi);
+    card.append(head, meta, row);
+    grid.append(card);
+  });
+}
+
 /* ================= Floor cards (whole-house view) ================= */
 /* A small card floats beside every floor: rooms, lights on, windows open. A tap opens that floor. */
 const floorCards = [];                                  // { el, key, pos: Vector3 }
@@ -1101,6 +1151,7 @@ function applyStates() {
   if (plan?.isVisible()) plan.render();
   updateViewLegend();
   updateCameraCones();
+  updateCamPill();
   updateFloorCards();
   updateOfflinePill();
   updateAlerts();
