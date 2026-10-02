@@ -478,3 +478,6 @@ body.readonly .admin-only, body.kiosk .admin-only { display: none; }
 .dormerCard > button { position: absolute; top: 4px; right: 4px; }
 .dormerCard .warn { color: #ff9d2e; }
 .dormerCap { position: absolute; top: 8px; left: 10px; }
+
+/* "Floors in plan" only makes sense where the plan is shown */
+body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
