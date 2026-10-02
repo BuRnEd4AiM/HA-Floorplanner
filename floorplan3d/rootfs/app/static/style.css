@@ -176,7 +176,7 @@ dialog .stop button { min-width: 28px; }
 dialog .stopBar { height: 10px; border-radius: 5px; margin: 8px 0; }
 dialog .stopTools { display: flex; gap: 8px; }
 
-#openPill.alert { background: #ff4a3d; border-color: #ff4a3d; color: #fff; box-shadow: 0 0 14px rgba(255,74,61,.7); }
+#openPill.alert, #camPill.alert { background: #ff4a3d; border-color: #ff4a3d; color: #fff; box-shadow: 0 0 14px rgba(255,74,61,.7); }
 #roomPanel .row.alert { border-color: #ff4a3d; box-shadow: 0 0 12px rgba(255,74,61,.4); }
 
 /* Room tablet: locked to one room; the button in the nav bar switches between the room and the whole floor */
@@ -416,3 +416,26 @@ body.low .alertItem { animation: none; }
 #livePopup img.pop-cam { display: block; width: 100%; max-height: 220px; object-fit: cover; margin-top: 8px; border-radius: 10px; background: #000; }
 #livePopup img.pop-cam.tap { cursor: pointer; }
 #livePopup img.pop-cam.bad { opacity: .25; min-height: 80px; }
+
+/* view menu (top bar) and cameras overview */
+#viewMenu { position: absolute; top: 54px; right: 12px; z-index: 6; display: flex; flex-direction: column; gap: 6px; padding: 8px; min-width: 170px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+#viewMenu[hidden], #camMenu[hidden] { display: none; }
+#camMenu { position: absolute; top: 54px; right: 12px; z-index: 6; width: min(480px, calc(100% - 24px)); max-height: calc(100% - 140px); overflow-y: auto; padding: 12px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+#camMenu .sub { margin: 0 0 8px; }
+#viewMenu .pill { width: 100%; text-align: left; }
+#viewMenu .pill[hidden] { display: none; }
+#viewMenuBtn::after { content: ' ▾'; }
+#viewMenuBtn.active::after { content: ' ▴'; }
+#camGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.camCard { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--field); }
+.camCard.alert { border-color: #ff4a3d; box-shadow: 0 0 14px rgba(255,74,61,.45); }
+.camCard img.cam-big { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; background: #000; cursor: pointer; }
+.camCard img.cam-big.bad { opacity: .25; }
+.camHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.camBadge { font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.camBadge.alert { background: #ff4a3d; border-color: #ff4a3d; color: #fff; }
+.camCard small { color: var(--muted); }
+.camBtns { display: flex; gap: 6px; flex-wrap: wrap; }
+.camBtns button { min-height: 30px; padding: 2px 12px; }

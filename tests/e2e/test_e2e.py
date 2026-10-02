@@ -10,6 +10,11 @@ def api(path):
 def ha_calls():
     return json.load(urllib.request.urlopen("http://localhost:8123/_calls"))
 
+def view_menu(pg):
+    """the view buttons (Auto, half section, pull apart, walls) sit in a drop-down at the top"""
+    if not pg.locator("#viewMenu").is_visible():
+        pg.click("#viewMenuBtn")
+
 errors, results = [], []
 def check(name, cond, extra=""):
     results.append((name, bool(cond)))
@@ -57,7 +62,7 @@ with sync_playwright() as p:
     pg.click("button[data-tool=device]")
     pg.set_input_files("#modelFile", f"{S}/tri.glb"); pg.wait_for_timeout(800)
     models = api("api/models")
-    check("GLB uploaded", [m["name"] for m in models] == ["tri"], models)
+    check("GLB uploaded", [m["name"] for m in models if not m.get("builtin")] == ["tri"], [m["name"] for m in models if not m.get("builtin")])
     pg.mouse.click(cx-80, cy+20); pg.wait_for_timeout(500)
 
     # --- entity-linked devices
@@ -784,10 +789,10 @@ with sync_playwright() as p:
     check("whole house: room buttons of every floor", pg13.locator("#roomPills .pill").count() == nrooms and nrooms > 3, (pg13.locator("#roomPills .pill").count(), nrooms))
     pg13.locator(".floorCard").first.click(); pg13.wait_for_timeout(500)
     check("cards: a tap opens that floor", pg13.evaluate("window.__fp.houseMode()") is False and pg13.locator(".floorCard").count() == 0)
-    pg13.click("#halfToggle"); pg13.wait_for_timeout(800)
+    view_menu(pg13); pg13.click("#halfToggle"); pg13.wait_for_timeout(800)
     clipped = pg13.evaluate("(() => { let n = 0; window.__fp.scene.traverse(o => { if (o.material && [].concat(o.material).some(m => m.clippingPlanes && m.clippingPlanes.some(p => p.normal.y === -1))) n++; }); return n; })()")
     check("half section: the walls are cut", clipped > 0 and pg13.locator("#halfToggle.active").count() == 1, clipped)
-    pg13.click("#halfToggle"); pg13.wait_for_timeout(500)
+    view_menu(pg13); pg13.click("#halfToggle"); pg13.wait_for_timeout(500)
     check("half section: off again", pg13.locator("#halfToggle.active").count() == 0)
     lay13 = pg13.evaluate("window.__fp.layout")
     dev = next(d for f in lay13["floors"] for d in f["devices"])
@@ -828,6 +833,10 @@ with sync_playwright() as p:
     check("room panel: groups by kind (lights, cameras)", "LIGHTS" in heads and "CAMERAS" in heads, heads)
     check("room panel: slide switch instead of a toggle button", pg13.locator("#roomPanel .sw input").count() >= 1)
     check("room panel: camera picture", pg13.locator("#roomPanel img.rp-cam").count() == 1)
+    check("cameras button at the top shows the camera", pg13.locator("#camPill").is_visible() and "1" in pg13.inner_text("#camPill"))
+    pg13.click("#camPill"); pg13.wait_for_timeout(600)
+    check("cameras overview: a card with a picture per camera", pg13.locator("#camGrid .camCard").count() == 1 and pg13.locator("#camGrid img.cam-big").count() == 1)
+    pg13.keyboard.press("Escape"); pg13.wait_for_timeout(300)
     pg13.click('[data-mode="edit"]'); pg13.wait_for_timeout(300)
     # --- automatic rooms (#17): delete the rooms of a floor, the closed wall loops bring them back
     nr = pg13.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].rooms.length")
@@ -842,13 +851,14 @@ with sync_playwright() as p:
     check("CO2 colouring: button and colour scale", pg13.locator("#viewLegend").is_visible() and "ppm" in pg13.inner_text("#viewLegend"))
     pg13.click('#modeBar [data-vm="normal"]'); pg13.wait_for_timeout(300)
     check("CO2 colouring: scale gone in normal view", not pg13.locator("#viewLegend").is_visible())
+    view_menu(pg13)
     check("pull apart: no button in the floor view", not pg13.locator("#explodeToggle").is_visible())
     pg13.click("#floorRail .railHouse"); pg13.wait_for_timeout(800)
     gap0 = pg13.evaluate("window.__fp.elev(2) - window.__fp.elev(1)")
-    pg13.click("#explodeToggle"); pg13.wait_for_timeout(1200)
+    view_menu(pg13); pg13.click("#explodeToggle"); pg13.wait_for_timeout(1200)
     gap1 = pg13.evaluate("window.__fp.elev(2) - window.__fp.elev(1)")
     check("pull apart: floors get a gap in the whole-house view", pg13.locator("#explodeToggle").is_visible() and gap1 > gap0 + 1, (gap0, gap1))
-    pg13.click("#explodeToggle"); pg13.wait_for_timeout(600)
+    view_menu(pg13); pg13.click("#explodeToggle"); pg13.wait_for_timeout(600)
     check("pull apart: stacked again", abs(pg13.evaluate("window.__fp.elev(2) - window.__fp.elev(1)") - gap0) < 1e-6)
     pg13.close()
 
