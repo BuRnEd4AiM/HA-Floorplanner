@@ -28,6 +28,7 @@ OPENING_PRESETS = {                 # same table as OPENING_DEFAULTS in static/w
     "doorDouble":  {"type": "door",   "style": "double",  "width": 1.6, "height": 2.05, "sill": 0},
     "doorSlide":   {"type": "door",   "style": "sliding", "width": 1.8, "height": 2.1,  "sill": 0},
     "doorOpen":    {"type": "door",   "style": "open",    "width": 1.0, "height": 2.05, "sill": 0},
+    "doorGap":     {"type": "door",   "style": "gap",     "width": 1.0, "height": 2.1,  "sill": 0},
     "window":      {"type": "window", "style": "single",  "width": 1.0, "height": 1.2,  "sill": 0.9},
     "window2":     {"type": "window", "style": "double",  "width": 1.8, "height": 1.2,  "sill": 0.9},
     "window3":     {"type": "window", "style": "triple",  "width": 2.4, "height": 1.2,  "sill": 0.9},
@@ -35,7 +36,7 @@ OPENING_PRESETS = {                 # same table as OPENING_DEFAULTS in static/w
     "windowBath":  {"type": "window", "style": "single",  "width": 0.6, "height": 0.6,  "sill": 1.5},
     "windowFixed": {"type": "window", "style": "fixed",   "width": 1.6, "height": 1.4,  "sill": 0.6},
 }
-DOOR_STYLES = {"single", "glass", "double", "sliding", "open"}
+DOOR_STYLES = {"single", "glass", "double", "sliding", "open", "gap"}
 WINDOW_STYLES = {"single", "double", "triple", "fixed"}
 ROOF_TYPES = {"gable", "hip", "flat"}
 FLOOR_KINDS = {"floor", "basement", "roof"}

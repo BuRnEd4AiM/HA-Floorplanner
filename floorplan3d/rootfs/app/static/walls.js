@@ -12,6 +12,7 @@ export const OPENING_DEFAULTS = {
   doorDouble: { type: 'door',   style: 'double',  width: 1.6, height: 2.05, sill: 0 },
   doorSlide:  { type: 'door',   style: 'sliding', width: 1.8, height: 2.1,  sill: 0 },
   doorOpen:   { type: 'door',   style: 'open',    width: 1.0, height: 2.05, sill: 0 },
+  doorGap:    { type: 'door',   style: 'gap',     width: 1.0, height: 2.1,  sill: 0 },
   window:     { type: 'window', style: 'single',  width: 1.0, height: 1.2,  sill: 0.9 },
   window2:    { type: 'window', style: 'double',  width: 1.8, height: 1.2,  sill: 0.9 },
   window3:    { type: 'window', style: 'triple',  width: 2.4, height: 1.2,  sill: 0.9 },
@@ -19,7 +20,7 @@ export const OPENING_DEFAULTS = {
   windowBath: { type: 'window', style: 'single',  width: 0.6, height: 0.6,  sill: 1.5 },
   windowFixed:{ type: 'window', style: 'fixed',   width: 1.6, height: 1.4,  sill: 0.6 },
 };
-export const DOOR_STYLES = ['single', 'glass', 'double', 'sliding', 'open'];
+export const DOOR_STYLES = ['single', 'glass', 'double', 'sliding', 'open', 'gap'];
 export const WINDOW_STYLES = ['single', 'double', 'triple', 'fixed'];
 const EDGE = 0.05;   // minimum solid wall left next to an opening
 
@@ -57,11 +58,12 @@ function buildOpening(o, t, mats0, low) {
   const cx = 0, w = o.width, h = o.height, s = o.sill;
   const fd = t + 0.02, ft = 0.05;                        // frame depth / thickness
   const x0 = cx - w / 2, x1 = cx + w / 2;
+  let pivot = null;
+  const st = o.style || (o.type === 'door' ? 'single' : 'double');   // windows saved before styles existed had one centre bar
+  if (o.type === 'door' && st === 'gap') return g;       // bare opening in the wall: no frame, no leaf (still tappable via the group)
   g.add(boxMesh(x0, x0 + ft, s, s + h, fd, mats.frame));
   g.add(boxMesh(x1 - ft, x1, s, s + h, fd, mats.frame));
   g.add(boxMesh(x0, x1, s + h - ft, s + h, fd, mats.frame));
-  let pivot = null;
-  const st = o.style || (o.type === 'door' ? 'single' : 'double');   // windows saved before styles existed had one centre bar
   if (o.type === 'door' && st === 'open') {
     // passage without a leaf: only the frame
   } else if (o.type === 'door' && st === 'sliding') {
@@ -156,10 +158,10 @@ function buildOpening(o, t, mats0, low) {
 }
 
 /** Returns a Group positioned at the wall centre with local x along the wall. */
-export function buildWall(w, { material, ghost = false, low = false, makeMat, holo = false, edgeMaterial = null }) {
+export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null }) {
   const len = wallLength(w);
   const t = w.thickness;
-  const H = (w.height || 2.6) * (low ? 0.12 : 1);
+  const H = (w.height || 2.6) * (low ? 0.12 : cut || 1);   // `cut`: fraction of the height that stays (half section)
   const group = new THREE.Group();
   group.position.set((w.a[0] + w.b[0]) / 2, 0, (w.a[1] + w.b[1]) / 2);
   group.rotation.y = -Math.atan2(w.b[1] - w.a[1], w.b[0] - w.a[0]);
