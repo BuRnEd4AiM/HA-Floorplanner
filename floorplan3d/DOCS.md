@@ -131,6 +131,8 @@ In the whole-house view the **Auseinander** button pulls the floors apart (tap a
 
 **Räume erkennen** (button next to the *Raum* tool): draw the walls first, then one tap creates a room for every closed loop of walls on the floor. Walls may meet, cross or end on another wall; walls that end nowhere close nothing. Existing rooms stay, so you can press it again after adding walls.
 
+**Floors in the 2D plan:** *View ▾* → *Floors in the plan* shows the other floors as outlines in their own colours (legend at the bottom right) so you can draw exactly over them: *off*, *below* (all lower floors, default) or *all*.
+
 **Top bar:** the rooms are one drop-down *Zimmer ▾* (all rooms; in the whole-house view grouped by floor). *offline*, *open* (windows and doors) and *📷* (cameras) stay visible, because they need attention; tap one for the list. *View ▾* holds the display options: Auto (lower the walls facing the camera), Halbschnitt, Auseinander and the wall height. The *📷* button names the room with movement and turns red; its drop-down lists cameras (still image) and motion / presence sensors grouped by room, rooms with movement first.
 
 **Garage door and roof terrace:** *Tür/Fenster* → *Garagentor* puts a sectional door into a wall. Give it a cover entity (e.g. `cover.garagentor`) or a contact sensor: the slats roll up when it is open, and in live mode a tap offers *Open / Close / Stop*. Mark a room as *Dachterrasse (offen, mit Geländer)* (room properties) for an open area with a wooden floor and a railing on the edges without a wall, e.g. on top of the garage: draw the room on the floor above the garage; the roof of the house leaves it out. In the room panel and the *open* list the openings are grouped into doors, gates and windows.
