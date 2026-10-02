@@ -881,7 +881,36 @@ function applyOpenings() {
   pill.hidden = !any;
   pill.textContent = n ? t('open.count', { n }) : t('open.allClosed');
   pill.classList.toggle('alert', n > 0);
+  if ($('#openDialog').open) renderOpenList();
 }
+/** every door / window whose contact sensor reports open, with its floor and room */
+function openItems() {
+  const out = [];
+  layout.floors.forEach((f, fi) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+    const open = openingEntities(o).filter(isOpen).length;
+    if (!open) return;
+    const L = wallLength(w) || 1, x = w.a[0] + ((w.b[0] - w.a[0]) * o.pos) / L, z = w.a[1] + ((w.b[1] - w.a[1]) * o.pos) / L;
+    out.push({ floor: fi, id: o.id, name: o.name || t(`prop.${o.type}`), room: f.rooms.find((r) => pointInPoly(x, z, r.points))?.name || '', n: open });
+  })));
+  return out.sort((p, q) => q.floor - p.floor || p.room.localeCompare(q.room) || p.name.localeCompare(q.name));
+}
+function renderOpenList() {
+  const ul = $('#openList'), list = openItems();
+  ul.replaceChildren();
+  $('#openNone').hidden = !!list.length;
+  list.forEach((x) => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button';
+    const name = document.createElement('strong'); name.textContent = x.name;
+    const why = document.createElement('span'); why.className = 'offWhy warn'; why.textContent = t('state.open');
+    const meta = document.createElement('small');
+    meta.textContent = [layout.floors[x.floor]?.name, x.room].filter(Boolean).join(' · ');
+    b.append(name, why, meta);
+    b.addEventListener('click', () => { $('#openDialog').close(); showOffline({ floor: x.floor, kind: 'opening', id: x.id }); });
+    li.append(b); ul.append(li);
+  });
+}
+$('#openPill').addEventListener('click', () => { renderOpenList(); $('#openDialog').showModal(); });
 function animateOpenings() {
   openingObjs().forEach((obj) => {
    (obj.userData.panePivots || [obj.userData.pivot]).forEach((p) => {
@@ -891,6 +920,43 @@ function animateOpenings() {
     (p.userData.followers || []).forEach((fp) => { fp.rotation[fp.userData.axis] = holder[prop] * (fp.userData.dir / (p.userData.dir || 1)); });   // second leaf of a double door
    });
   });
+}
+
+/* ================= Value badges: keep them from covering each other ================= */
+const _lblV = new THREE.Vector3();
+/** Badges that land on top of each other on the screen (two lamps at one spot) are pushed apart, downwards one by one.
+ *  Done with the sprite's anchor point (`center`), so the badge stays tied to its device. */
+function declutterLabels() {
+  if (settings.labelMode === 'none' || labelSprites.size < 2 || !camera.isPerspectiveCamera) return;
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  if (W < 10) return;
+  const k = H / 2 / Math.tan((camera.fov * Math.PI) / 360);          // pixels per world unit at distance 1
+  const items = [];
+  labelSprites.forEach((sp) => {
+    if (!sp.visible || !sp.parent?.visible) return;
+    sp.getWorldPosition(_lblV);
+    const dist = _lblV.distanceTo(camera.position);
+    _lblV.project(camera);
+    if (_lblV.z >= 1 || Math.abs(_lblV.x) > 1.3 || Math.abs(_lblV.y) > 1.3) { sp.center.set(0.5, 0.5); return; }
+    const ppu = k / Math.max(dist, 0.1), len = String(sp.userData.text || '').length;
+    items.push({ sp, x: (_lblV.x + 1) / 2 * W, y: (1 - _lblV.y) / 2 * H, ppu,
+      w: Math.min(0.95, (len * 16 + 30) / 256) * sp.scale.x * ppu, h: 0.69 * sp.scale.y * ppu, shift: 0 });
+  });
+  items.sort((p, q) => p.y - q.y || p.x - q.x);
+  const placed = [];
+  for (const it of items) {
+    let moved = true, guard = 0;
+    while (moved && guard++ < 12) {                                  // move down until nothing is covered any more
+      moved = false;
+      for (const o of placed) {
+        if (Math.abs(it.x - o.x) < (it.w + o.w) / 2 && Math.abs(it.y + it.shift - (o.y + o.shift)) < (it.h + o.h) / 2) {
+          it.shift = o.y + o.shift + (it.h + o.h) / 2 + 2 - it.y; moved = true;
+        }
+      }
+    }
+    placed.push(it);
+    it.sp.center.set(0.5, 0.5 + it.shift / (it.sp.scale.y * it.ppu));   // anchor up = badge down
+  }
 }
 
 /* ================= Floor cards (whole-house view) ================= */
@@ -923,9 +989,14 @@ function updateFloorCards() {
     c.key = key;
     c.el.replaceChildren();
     const h = document.createElement('b'); h.textContent = f.name; c.el.append(h);
-    const sp = document.createElement('span');
-    sp.textContent = [t('fc.rooms', { n: f.rooms.length }), t('fc.lights', { n: lights }), t('fc.windows', { n: windows })].join(' · ');
+    const sp = document.createElement('span'); sp.className = 'fcm';
+    [t('fc.rooms', { n: f.rooms.length }), t('fc.lights', { n: lights }), t('fc.windows', { n: windows })].forEach((txt) => {
+      const m = document.createElement('em'); m.textContent = txt; sp.append(m);
+    });
     c.el.append(sp);
+    const parts = [t('fc.rooms', { n: f.rooms.length }), t('fc.lights', { n: lights }), t('fc.windows', { n: windows })];   // widths are estimated, so the layout never flickers between the two forms
+    c.natW = 26 + Math.max(f.name.length * 7.6, parts.join(' · ').length * 6.3);
+    c.narrowW = 26 + Math.max(f.name.length * 7.6, ...parts.map((x) => x.length * 6.3));
     c.el.title = t('fc.tip', { name: f.name });
   });
 }
@@ -933,6 +1004,9 @@ const _cardV = new THREE.Vector3();
 function placeFloorCards() {
   if (!houseMode || !floorCards.length) return;
   const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (w < 10 || layoutMode === '2d') { floorCards.forEach((c) => { c.el.style.display = 'none'; }); return; }             // 2D only: no 3D view, no cards
+  const cr = canvas.getBoundingClientRect(), br = $('#floorCards').getBoundingClientRect();
+  const ox = cr.left - br.left, oy = cr.top - br.top;                                             // 2D + 3D: the 3D view is only part of the stage
   const toScreen = (v) => { _cardV.copy(v).project(camera); return { x: (_cardV.x + 1) / 2 * w, y: (1 - _cardV.y) / 2 * h, ok: _cardV.z < 1 }; };
   // the cards stand beside the house, not over it: right of its outline, or left of it when there is no room
   let minX = Infinity, maxX = -Infinity;
@@ -944,16 +1018,21 @@ function placeFloorCards() {
     c.el.style.display = on ? '' : 'none';
     if (on) vis.push({ c, y: q.y });
   });
-  const wmax = Math.max(0, ...vis.map((v) => v.c.el.offsetWidth || 240));
+  const wide = Math.max(0, ...vis.map((v) => v.c.natW || 260)), slim = Math.max(0, ...vis.map((v) => v.c.narrowW || 150));
+  const leftEdge = ox > 0 ? 8 : 150;                       // 150: keep clear of the floor rail
+  const fitsRight = maxX + 16 + wide <= w - 8, fitsLeft = minX - 16 - wide >= leftEdge;
+  const narrow = !fitsRight && !fitsLeft;                  // no room beside the house: shorter cards, one value per line
+  floorCards.forEach((c) => c.el.classList.toggle('narrow', narrow));
+  const wmax = narrow ? slim : wide;
   const right = maxX + 16 + wmax <= w - 8;
-  const x = right ? maxX + 16 : Math.max(150, minX - 16 - wmax);       // 150: keep clear of the floor rail
+  const x = right ? maxX + 16 : Math.max(leftEdge, Math.min(minX - 16 - wmax, w - wmax - 8));
   vis.sort((p, q) => p.y - q.y);
   let free = -Infinity;                                  // floors lie close above each other on screen: push the cards apart
   vis.forEach((v) => { v.y = Math.max(v.y, free); free = v.y + (v.c.el.offsetHeight || 44) + 6; });
   const last = vis[vis.length - 1];
   const over = last ? last.y + (last.c.el.offsetHeight || 44) / 2 - (h - 64) : 0;   // keep clear of the buttons at the bottom
   const lift = over > 0 ? Math.min(over, Math.max(0, vis[0].y - (vis[0].c.el.offsetHeight || 44) / 2 - 56)) : 0;
-  vis.forEach((v) => { v.c.el.style.transform = `translate(${x.toFixed(0)}px, ${(v.y - lift - (v.c.el.offsetHeight || 44) / 2).toFixed(0)}px)`; });
+  vis.forEach((v) => { v.c.el.style.transform = `translate(${(x + ox).toFixed(0)}px, ${(v.y - lift - (v.c.el.offsetHeight || 44) / 2 + oy).toFixed(0)}px)`; });
 }
 
 /* colour scale at the edge while a room colouring is on */
@@ -1768,9 +1847,6 @@ canvas.addEventListener('pointerup', (e) => {
   if (tool === 'select') {
     if (lockedSel) return;                     // locked selection stays until released
     selection = st.hit; refreshSelection();
-  } else if (tool === 'group') {
-    const h = pick(e);
-    if (h?.kind === 'device') groupToggle(h.id);
   } else if (tool === 'erase') {
     const h = pick(e);
     if (h) { snapshot(); deleteItem(h); }
@@ -1919,7 +1995,7 @@ window.addEventListener('keydown', (e) => {
     if (st) { snapshot(); st.rot = ((st.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
   } else if ((k === 'q' || k === 'e') && selection?.kind === 'device') {
     const d = floor().devices.find((v) => v.id === selection.id);
-    if (d) { snapshot(); if (d.group) rotateGroup(d, k === 'q' ? -15 : 15); else d.rot = ((d.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
+    if (d) { snapshot(); d.rot = ((d.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
   } else if (k.startsWith('arrow') && selection && !e.ctrlKey && !e.metaKey) {
     e.preventDefault();
     const step = e.altKey ? 0.01 : e.shiftKey ? 0.1 : settings.grid;       // Alt 1 cm, Shift 10 cm, otherwise one grid step
@@ -2335,9 +2411,6 @@ function setTool(next) {
   $('#stairPalette').hidden = next !== 'stairs';
   $('#blockPalette').hidden = next !== 'block';
   $('#plotPalette').hidden = next !== 'plot';
-  $('#groupPalette').hidden = next !== 'group';
-  if (next !== 'group' && groupPick.size) { groupPick.clear(); plan?.render(); }
-  if (next === 'group') renderGroupPalette();
   if ((next === 'block' || next === 'stairs' || next === 'plot' || next === 'hole') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
   canvas.style.cursor = next === 'select' ? 'default' : 'crosshair';
 }
@@ -2638,8 +2711,6 @@ function focusRoom(id) {
   buildNav();
 }
 
-/* ================= Groups of devices (Nanoleaf logos ...): move, turn and mirror as one shape ================= */
-const groupPick = new Set();
 function liveMove(d) {
   const obj = registry.get(d.id);
   if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
@@ -2647,8 +2718,6 @@ function liveMove(d) {
   if (sp) sp.position.set(d.x, sp.position.y, d.z);
   refreshSelHelper();
 }
-const groupMembers = (d) => (d.group ? floor().devices.filter((x) => x.group === d.group) : [d]);
-function groupCentre(ms) { return [ms.reduce((a, m) => a + m.x, 0) / ms.length, ms.reduce((a, m) => a + m.z, 0) / ms.length]; }
 /* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
    the wall instead of freezing, and door openings let it through. Wall-hung items, outdoor items and ceiling-free objects are exempt. */
 const STOP_EXEMPT = new Set(['ledring', ...WALL_TYPES_LIST(), ...OUTDOOR]);
@@ -2693,57 +2762,12 @@ function stopMove(members, dx, dz) {
   return w ? [0, 0] : [dx, dz];
 }
 function moveDeviceTo(d, x, z) {
-  const ms = groupMembers(d);
+  const ms = [d];
   if (ms.some((m) => m.locked)) return;                          // locked things stay where they are
   const [dx, dz] = stopMove(ms, x - d.x, z - d.z);
   if (!dx && !dz) return;
   ms.forEach((m) => { m.x = +(m.x + dx).toFixed(4); m.z = +(m.z + dz).toFixed(4); liveMove(m); });
 }
-function rotateGroup(d, delta) {
-  const ms = groupMembers(d), [cx, cz] = groupCentre(ms), th = (delta * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
-  ms.forEach((m) => {
-    const dx = m.x - cx, dz = m.z - cz;
-    m.x = +(cx + dx * c + dz * sn).toFixed(4); m.z = +(cz - dx * sn + dz * c).toFixed(4);
-    m.rot = (((m.rot || 0) + delta) % 360 + 360) % 360;
-  });
-}
-/** mirror the whole group across the plane through its centre that stands across the clicked piece's local x axis */
-function mirrorGroup(d) {
-  const ms = groupMembers(d), [cx, cz] = groupCentre(ms), r0 = d.rot || 0, th = (r0 * Math.PI) / 180;
-  const ux = Math.cos(th), uz = -Math.sin(th);
-  ms.forEach((m) => {
-    const dx = m.x - cx, dz = m.z - cz, k = dx * ux + dz * uz;
-    m.x = +(cx + dx - 2 * k * ux).toFixed(4); m.z = +(cz + dz - 2 * k * uz).toFixed(4);
-    m.rot = (((2 * r0 - (m.rot || 0)) % 360) + 360) % 360;
-    m.mirror = !m.mirror; if (!m.mirror) delete m.mirror;
-    const tz = (((-(m.tiltZ || 0)) % 360) + 360) % 360; if (tz) m.tiltZ = tz; else delete m.tiltZ;
-  });
-}
-function groupToggle(id) {
-  if (groupPick.has(id)) groupPick.delete(id); else groupPick.add(id);
-  renderGroupPalette(); plan?.render();
-  setStatus(t('group.picked', { n: groupPick.size }));
-}
-function renderGroupPalette() {
-  const box = $('#groupBody');
-  if (!box) return;
-  box.innerHTML = '';
-  const n = groupPick.size;
-  const p = document.createElement('p'); p.className = 'sub'; p.textContent = t('group.picked', { n }); box.append(p);
-  const row = document.createElement('div'); row.className = 'stopTools';
-  const mk = (id, label, on, dis = false) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.disabled = dis; b.addEventListener('click', on); return b; };
-  row.append(mk('grpMake', t('group.make'), makeGroup, n < 2), mk('grpCancel', t('group.cancel'), () => { groupPick.clear(); renderGroupPalette(); plan?.render(); }));
-  box.append(row);
-}
-function makeGroup() {
-  if (groupPick.size < 2) return;
-  snapshot();
-  const gid = uid();
-  floor().devices.forEach((d) => { if (groupPick.has(d.id)) d.group = gid; });
-  groupPick.clear();
-  setTool('select'); changed(); renderGroupPalette();
-}
-
 function newFloor(kind, name) {
   return { id: uid(), name, kind, walls: [], rooms: [], devices: [], blocks: [], stairs: [], ...(kind === 'roof' ? { roof: { type: 'gable', pitch: 35, overhang: 0.4 } } : {}) };
 }
@@ -3530,10 +3554,10 @@ function renderProps() {
     lk.addEventListener('change', () => { snapshot(); if (lk.checked) it.locked = true; else delete it.locked; changed(); renderProps(); renderObjList(); });
     const lkl = document.createElement('label'); lkl.className = 'chk'; lkl.append(lk, document.createTextNode(' ' + t('prop.lock')));
     body.append(lkl);
-    if (it.type in LED_LIKE || catOf(it.type) === 'lighting' || /^light\./.test(it.entity || '')) {     // aesthetics: hide the model, keep the light
+    if (it.type in LED_LIKE || catOf(it.type) === 'lighting' || /^light\./.test(it.entity || '') || it.type === 'presence') {     // aesthetics: hide the model, keep the light / the presence dot at the top
       const hv = document.createElement('input'); hv.type = 'checkbox'; hv.checked = !!it.hideModel; hv.id = 'devHide';
       hv.addEventListener('change', () => { snapshot(); if (hv.checked) it.hideModel = true; else delete it.hideModel; changed(); applyStates(); });
-      const hl = document.createElement('label'); hl.className = 'chk'; hl.title = t('prop.hideModelHint'); hl.append(hv, document.createTextNode(' ' + t('prop.hideModel')));
+      const hl = document.createElement('label'); hl.className = 'chk'; hl.title = t(it.type === 'presence' ? 'prop.hideModelPresenceHint' : 'prop.hideModelHint'); hl.append(hv, document.createTextNode(' ' + t(it.type === 'presence' ? 'prop.hideModelPresence' : 'prop.hideModel')));
       body.append(hl);
     }
     if (it.type === 'nanoleaf') {
@@ -3544,7 +3568,7 @@ function renderProps() {
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
-    body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { const nv = ((+v % 360) + 360) % 360; if (it.group) rotateGroup(it, nv - (it.rot || 0)); else it.rot = nv; }, { step: 15 })));
+    body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { it.rot = ((+v % 360) + 360) % 360; }, { step: 15 })));
     body.append(field(t('prop.elev'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
     if (it.type !== 'picture') {
@@ -3578,16 +3602,6 @@ function renderProps() {
       const sb = document.createElement('button'); sb.type = 'button'; sb.id = 'snapWall'; sb.textContent = t('pic.snap');
       sb.addEventListener('click', () => { snapshot(); snapToWall(it, 3, true); changed(); renderProps(); });
       body.append(sb);
-    }
-    if (it.group) {
-      const members = groupMembers(it);
-      const gp = document.createElement('div'); gp.className = 'sub'; gp.textContent = t('group.info', { n: members.length });
-      const gb = document.createElement('div'); gb.className = 'stopTools';
-      const mk = (id, label, on) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.addEventListener('click', () => { snapshot(); on(); changed(); renderProps(); }); return b; };
-      gb.append(mk('grpMirror', t('group.mirror'), () => mirrorGroup(it)),
-                mk('grpLeave', t('group.leave'), () => { delete it.group; }),
-                mk('grpDissolve', t('group.dissolve'), () => { members.forEach((m) => delete m.group); }));
-      body.append(gp, gb);
     }
     if (it.type === 'ledring') ringProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
@@ -3917,7 +3931,7 @@ plan = createPlan({
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
   bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, addBlock, addHole, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
-  groupToggle: (id) => groupToggle(id), groupPicked: () => groupPick,
+ 
   liveMoveDevice: (d) => liveMove(d),
   liveTap: (h) => liveSelect(h),
   deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach(quickAction),
@@ -3980,6 +3994,7 @@ function animate(now = performance.now()) {
   updateCutaway();
   animateOpenings();
   selHelper?.update();
+  declutterLabels();
   placeFloorCards();
   renderer.render(scene, camera);
 }
@@ -4032,7 +4047,7 @@ if (params.get('debug')) {
     moveDevice: (id, x, z) => { const d = floor().devices.find((v) => v.id === id); moveDeviceTo(d, x, z); return [d.x, d.z]; },
     setWallStop: (v) => { settings.wallStop = v; },
     snapPicture: (id) => { const d = floor().devices.find((v) => v.id === id); snapToWall(d, 3, true); return [d.x, d.z, d.rot]; },
-    group: (ids) => { ids.forEach((id) => groupPick.add(id)); makeGroup(); }, LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
+    LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
     holeCount: (i) => floorOpenings(i).length,
     plan: () => plan,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor

@@ -199,7 +199,7 @@ export function createPlan(ctx) {
         for (const sc of ringSectionsWorld(d)) for (const end of [0, 1]) if (near(sc.ends[end])) return { type: 'ring-end', d, i: sc.i, end };
         return null;
       }
-      if (d && d.type !== 'picture' && d.type !== 'ledring' && !d.group && !d.locked) {
+      if (d && d.type !== 'picture' && d.type !== 'ledring' && !d.locked) {
         const hs = devHandles(d);
         for (const which of ['x', 'z']) if (near(hs[which])) return { type: 'dev-size', which, d };
       }
@@ -397,21 +397,12 @@ export function createPlan(ctx) {
       });
     }
 
-    /* groups: dashed outline around the pieces that move together */
-    const groups = {};
-    f.devices.forEach((d) => { if (d.group) (groups[d.group] ||= []).push(d); });
-    Object.values(groups).forEach((ms) => {
-      const xs = ms.map((m) => m.x), zs = ms.map((m) => m.z), pad = 0.22;
-      const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, z0 = Math.min(...zs) - pad, z1 = Math.max(...zs) + pad;
-      o += `<rect x="${sx(x0).toFixed(1)}" y="${sy(z0).toFixed(1)}" width="${((x1 - x0) * s).toFixed(1)}" height="${((z1 - z0) * s).toFixed(1)}" rx="6" fill="none" stroke="${C.accent}" stroke-width="1" stroke-dasharray="5 4" opacity=".55"/>`;
-    });
-
     /* devices */
     const devs = [...f.devices].sort((a, b) => (FLAT.has(a.type) ? -1 : 0) - (FLAT.has(b.type) ? -1 : 0));
     devs.forEach((d) => {
-      if (d.type === 'ledring') { o += drawRing(d, (sel?.kind === 'device' && sel.id === d.id) || !!ctx.groupPicked?.().has(d.id), live); return; }
+      if (d.type === 'ledring') { o += drawRing(d, (sel?.kind === 'device' && sel.id === d.id), live); return; }
       const fo = footOf(d);
-      const isSel = (sel?.kind === 'device' && sel.id === d.id) || !!ctx.groupPicked?.().has(d.id);
+      const isSel = (sel?.kind === 'device' && sel.id === d.id);
       const st = d.entity ? ctx.states()[d.entity] : null;
       const on = d.entity && isOn(d.entity);
       let fill = 'rgba(35,224,255,.14)', stroke = isSel ? C.sel : C.accent;
@@ -456,7 +447,7 @@ export function createPlan(ctx) {
       if (sel.kind === 'wall') { const w = f.walls.find((q) => q.id === sel.id); if (w) o += hnd(w.a) + hnd(w.b); }
       if (sel.kind === 'device') {
         const d = f.devices.find((q) => q.id === sel.id);
-        if (d && d.type !== 'picture' && d.type !== 'ledring' && !d.group && !d.locked) { const hs = devHandles(d); ['x', 'z'].forEach((k) => { o += `<rect x="${sx(hs[k][0]) - 6}" y="${sy(hs[k][1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; }); }
+        if (d && d.type !== 'picture' && d.type !== 'ledring' && !d.locked) { const hs = devHandles(d); ['x', 'z'].forEach((k) => { o += `<rect x="${sx(hs[k][0]) - 6}" y="${sy(hs[k][1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; }); }
       }
       if (sel.kind === 'stair') {
         const st = (f.stairs || []).find((q) => q.id === sel.id), hs = st && stairHandles(st, H3);
@@ -889,9 +880,6 @@ export function createPlan(ctx) {
         ctx.setSelection({ kind: 'opening', id: o.id });
         ctx.commit();
       }
-    } else if (tool === 'group') {
-      const h = pickAt(x, z);
-      if (h?.kind === 'device') ctx.groupToggle(h.id);
     } else if (tool === 'device') {
       const [px2, pz2] = snapPt(x, z, { fine: true, ends: false });
       ctx.snapshot();

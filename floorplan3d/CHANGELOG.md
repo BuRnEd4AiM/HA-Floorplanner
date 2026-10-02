@@ -4,6 +4,18 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.13.0] - 2026-10-02
+### Added
+- **Open windows and doors list**: tap the *n open* button at the top and a list shows which windows and doors are open, with floor and room; a tap on an entry jumps to it in the plan
+- **Hide the presence figure**: a presence / person device now has the box *Figure invisible in live mode*. The figure is not drawn in the room, but the dot at the room button at the top still shows where somebody is
+
+### Removed
+- **Groups** (tool *Gruppe*): it did not work reliably and was not used. The tool, its panel and the group buttons in the device panel are gone; devices that were grouped before simply behave as single devices now
+
+### Fixed
+- **Value badges covering each other** (e.g. two lamps at one spot): badges that would overlap on the screen are now stacked below each other
+- **Floor cards in the 2D + 3D view** appeared over the 2D plan. They now stay inside the 3D view (and are hidden in the 2D-only view); where there is no room beside the house they get narrower, one value per line
+
 ## [3.12.0] - 2026-10-02
 ### Added
 - **Pull the house apart** (#65): in the whole-house view the new *Auseinander* button lifts the floors above ground apart, so you can look into every one; a second tap stacks them again
