@@ -3,16 +3,17 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [3.22.0] - 2026-10-02
+### Added
+- **Roof size by hand**: in the panel of the roof floor, *Set size manually* lets you set left, top, width and depth of the roof (before the overhang), for example to leave an attached garage out. Also in the JSON import as `roof.box` (`x0`, `x1`, `z0`, `z1`)
+### Changed
+- The demo house now has two roof dormers, so they can be tried without the add-on
 ### Fixed
+- **Ground**: the earth is now cut out only where there is a basement. Parts of the ground floor without a basement (e.g. an attached garage) used to get a hollow space down to the basement depth (#93)
 - **Arrow keys switch the floor** (#98): with nothing selected, arrow up / down go to the floor above / below (with a selection they still move it)
 - **View menu**: the switch *Floors in plan* is hidden in the pure 3D view, where there is no plan (#99)
 - **Users & tablets**: *Create / save file* (and the first change in the dialog) no longer switch the design to *Hologram* (#100). The settings form was only filled when the ⚙ dialog had been opened before, so saving wrote its defaults back
-### Changed
-- The demo house now has two roof dormers, so they can be tried without the add-on
-### Added
-- **Roof size by hand**: in the panel of the roof floor, *Set size manually* lets you set left, top, width and depth of the roof (before the overhang), for example to leave an attached garage out. Also in the JSON import as `roof.box` (`x0`, `x1`, `z0`, `z1`)
-### Fixed
-- **Ground**: the earth is now cut out only where there is a basement. Parts of the ground floor without a basement (e.g. an attached garage) used to get a hollow space down to the basement depth
 
 ## [3.21.0] - 2026-10-02
 ### Added
