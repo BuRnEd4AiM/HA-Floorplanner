@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.19.1] - 2026-10-02
+### Changed
+- **Floors in the plan: switch and legend in the corner of the plan**: the colour legend was at the bottom right of the plan and the buttons *Normal / Temp. / Feuchte* covered it, and the switch was only in the *View* menu. Both are one small box now at the top right of the plan (only while the plan is shown): a button *Floors in the plan: below* that switches *off / below / all*, and under it one line per floor outline with its colour. The switch stays in the *View* menu too
+
 ## [3.19.0] - 2026-10-02
 ### Added
 - **Other floors in the 2D plan**: the plan (2D and 2D + 3D) shows the other floors as outlines, each in its own colour, with a small legend at the bottom right, so you can place walls and rooms exactly over the floors below (e.g. the ground floor while you draw the attic). *View ▾* → *Floors in the plan* switches between *off*, *below* (all lower floors, the default) and *all* (every other floor); the choice is remembered. Before, only the floor directly below showed, faintly
