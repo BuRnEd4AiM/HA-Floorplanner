@@ -159,7 +159,7 @@ const layout = {
     ],
   }, {
     id: 'dach', name: 'Dach', kind: 'roof', walls: [], rooms: [], devices: [], blocks: [], stairs: [],
-    roof: { type: 'gable', pitch: 35, overhang: 0.4 },
+    roof: { type: 'gable', pitch: 35, overhang: 0.4, dormers: [{ side: 'a', pos: 0.3 }, { side: 'b', pos: 0.7, w: 2.0, type: 'flat' }] },
   }],
 };
 
