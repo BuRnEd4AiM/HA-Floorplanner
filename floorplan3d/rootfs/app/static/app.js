@@ -558,6 +558,11 @@ function makeOpeningHandle(w, o, group) {
 
 /** footprint (bounding box) of everything under a roof floor */
 function roofBox(i) {
+  const b = layout.floors[i]?.roof?.box;                  // size set by hand in the roof panel
+  if (b && [b.x0, b.x1, b.z0, b.z1].every(Number.isFinite) && b.x1 > b.x0 && b.z1 > b.z0) return { x0: b.x0, x1: b.x1, z0: b.z0, z1: b.z1 };
+  return autoRoofBox(i);
+}
+function autoRoofBox(i) {
   // a roof terrace (an open room) has no roof, and neither has what lies below it (the garage): their walls and rooms do not count
   const zones = layout.floors.flatMap((f, fi) => f.rooms.filter((r) => r.terrace && r.points.length >= 3).map((r) => {
     const xs = r.points.map((p) => p[0]), zs = r.points.map((p) => p[1]);
@@ -3171,6 +3176,21 @@ function renderFloorPanel() {
     tsel.addEventListener('change', () => { snapshot(); r.type = tsel.value; build(); scheduleSave(); renderFloorPanel(); });
     box.append(field(t('roof.type'), tsel));
     box.append(field(t('roof.pitch'), inp('number', r.pitch ?? 35, (v) => (r.pitch = Math.max(5, Math.min(70, +v || 35))), { step: 1 })));
+    const manual = document.createElement('input'); manual.type = 'checkbox'; manual.id = 'roofManual'; manual.checked = !!r.box;
+    manual.addEventListener('change', () => {
+      snapshot();
+      if (manual.checked) { const a = autoRoofBox(layout.floors.indexOf(f)); if (a) r.box = { ...a }; } else delete r.box;
+      build(); scheduleSave(); renderFloorPanel();
+    });
+    const mrow = document.createElement('label'); mrow.className = 'chk'; mrow.append(manual, ' ' + t('roof.manual'));
+    box.append(mrow);
+    if (r.box) {
+      const b = r.box, edit = (get, set) => lenInput(get, (v) => { set(v); if (b.x1 - b.x0 < 1) b.x1 = b.x0 + 1; if (b.z1 - b.z0 < 1) b.z1 = b.z0 + 1; }, { min: -1000 });
+      box.append(field(t('roof.left'), edit(() => b.x0, (v) => { const w = b.x1 - b.x0; b.x0 = v; b.x1 = v + w; })));
+      box.append(field(t('roof.top'), edit(() => b.z0, (v) => { const d = b.z1 - b.z0; b.z0 = v; b.z1 = v + d; })));
+      box.append(field(t('roof.width'), edit(() => b.x1 - b.x0, (v) => { b.x1 = b.x0 + Math.max(1, v); })));
+      box.append(field(t('roof.depth'), edit(() => b.z1 - b.z0, (v) => { b.z1 = b.z0 + Math.max(1, v); })));
+    }
     box.append(field(t('roof.overhang'), lenInput(() => r.overhang ?? 0.4, (v) => (r.overhang = v), { min: 0 })));
     const rsel = document.createElement('select'); rsel.id = 'roofRidge';
     [['', t('roof.auto')], ['x', 'X'], ['z', 'Z']].forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; rsel.append(o); });

@@ -484,6 +484,14 @@ def _roof(rep, path, spec):
             "overhang": float(spec["overhang"]) if _num(spec.get("overhang"), 0, 3) else 0.4}
     if spec.get("ridge") in ("x", "z"):
         roof["ridge"] = spec["ridge"]
+    box = spec.get("box")
+    if isinstance(box, dict) and all(_num(box.get(k), -1000, 1000) for k in ("x0", "x1", "z0", "z1")):
+        if box["x1"] > box["x0"] and box["z1"] > box["z0"]:
+            roof["box"] = {k: float(box[k]) for k in ("x0", "x1", "z0", "z1")}
+        else:
+            rep.warn(f"{path}.box", "roof box must have x1 > x0 and z1 > z0, ignored")
+    elif box is not None:
+        rep.warn(f"{path}.box", "roof box needs numbers x0, x1, z0, z1 (metres), ignored")
     dormers = _dormers(rep, f"{path}.dormers", spec.get("dormers")) if typ != "flat" else []
     if spec.get("dormers") and typ == "flat":
         rep.warn(f"{path}.dormers", "a flat roof has no dormers, ignored")

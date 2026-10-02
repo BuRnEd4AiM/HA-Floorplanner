@@ -231,6 +231,7 @@ export default {
   'roof.overhang': 'Okap',
   'roof.ridge': 'Kierunek kalenicy',
   'roof.auto': 'Automatycznie',
+  'roof.manual': 'Ustaw rozmiar ręcznie', 'roof.left': 'Lewo (x)', 'roof.top': 'Góra (z)', 'roof.width': 'Szerokość', 'roof.depth': 'Głębokość',
   'nav.house': 'Cały dom',
   'nav.houseTip': 'Wszystkie piętra i działka razem',
   'floor.add': '+ Piętro',

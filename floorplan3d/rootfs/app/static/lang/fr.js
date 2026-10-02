@@ -231,6 +231,7 @@ export default {
   'roof.overhang': 'Débord',
   'roof.ridge': 'Direction du faîtage',
   'roof.auto': 'Automatique',
+  'roof.manual': 'Définir la taille manuellement', 'roof.left': 'Gauche (x)', 'roof.top': 'Haut (z)', 'roof.width': 'Largeur', 'roof.depth': 'Profondeur',
   'nav.house': 'Maison entière',
   'nav.houseTip': 'Tous les étages et le terrain ensemble',
   'floor.add': '+ Étage',

@@ -231,6 +231,7 @@ export default {
   'roof.overhang': 'Sporgenza',
   'roof.ridge': 'Direzione del colmo',
   'roof.auto': 'Automatica',
+  'roof.manual': 'Imposta la dimensione a mano', 'roof.left': 'Sinistra (x)', 'roof.top': 'Alto (z)', 'roof.width': 'Larghezza', 'roof.depth': 'Profondità',
   'nav.house': 'Tutta la casa',
   'nav.houseTip': 'Tutti i piani e il terreno insieme',
   'floor.add': '+ Piano',
