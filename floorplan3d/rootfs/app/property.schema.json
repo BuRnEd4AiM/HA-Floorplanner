@@ -169,6 +169,10 @@
        "area": {
         "type": "string",
         "description": "Home Assistant area id the room belongs to."
+       },
+       "terrace": {
+        "type": "boolean",
+        "description": "Roof terrace / open area: no roof above it, a railing along every edge without a wall."
        }
       }
      }
@@ -243,6 +247,7 @@
       "doorSlide",
       "doorOpen",
       "doorGap",
+      "doorGarage",
       "window",
       "window2",
       "window3",
@@ -281,6 +286,7 @@
       "sliding",
       "open",
       "gap",
+      "garage",
       "triple",
       "fixed"
      ]

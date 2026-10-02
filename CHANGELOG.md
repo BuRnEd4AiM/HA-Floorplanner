@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.18.0] - 2026-10-02
+### Added
+- **Garage door** (#86): new opening *Garagentor* (sectional door). With a cover entity (e.g. `cover.garagentor`) or a contact sensor it shows open and closed: the slats roll up under the lintel, and a tap in live mode offers *Open / Close / Stop*. A door on its way (`opening` / `closing`) counts as open
+- **Doors, gates and windows grouped** (#86): in the room panel and in the list behind the *open* button the openings are under their own headings *Doors*, *Gates* and *Windows*; a gate or shutter-like opening with a cover entity can be driven right from the room panel. A door on the edge of a room is now assigned to that room in the list
+- **Roof terrace** (#87): a room can be marked *Dachterrasse (offen, mit Geländer)*. It gets a wooden floor and a railing along every edge that has no wall; the roof of the house leaves it out, and what lies below it (a garage)
+- **Demo**: a garage with a garage door and the car under a roof terrace with a door from the guest room, table and plants (also importable: `doorGarage`, `"terrace": true`)
+
 ## [3.17.1] - 2026-10-02
 ### Fixed
 - **Camera field of view stayed behind**: when you moved a camera, its cone on the floor stayed where it was. The cone now moves along with the camera

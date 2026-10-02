@@ -332,7 +332,7 @@ with sync_playwright() as p:
     check("library category filters", 5 <= nb <= 10, nb)
     pg2.locator("#paletteCats button", has_text="All").click()
     pg2.click("button[data-tool=select]")
-    check("13 door and window presets", pg2.locator("#openingPalette button").count() == 13)
+    check("14 door and window presets", pg2.locator("#openingPalette button").count() == 14)
     pg2.evaluate("""() => { const f = window.__fp.layout.floors[1], w = f.walls.find(v => v.id === 'wstop');
       [['door','double',1.6,2.05,0,-3],['door','sliding',1.8,2.1,0,-1],['door','open',1.0,2.05,0,1],['window','triple',2.4,1.2,0.9,3.2]].forEach(([type,style,width,height,sill,pos], i) => w.openings.push({id:'op'+i,type,style,width,height,sill,pos:pos+5}));
       f.devices.push({id:'pic1',type:'picture',x:-19.5,z:0,y:1.5,rot:0,scale:1,name:'Bild',entity:'',w:0.8,ar:0.75}); }""")
@@ -862,6 +862,9 @@ with sync_playwright() as p:
     check("automatic rooms: every closed wall loop becomes a room", nr > 0 and nr2 == nr, (nr, nr2))
     pg13.click("#autoRooms"); pg13.wait_for_timeout(300)
     check("automatic rooms: a second run adds nothing", pg13.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].rooms.length") == nr2)
+    check("garage door is in the palette", pg13.locator('#openingPalette button[data-opening="doorGarage"]').count() == 1)
+    pg13.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.forEach(w => { if (w.openings.length === 0) w.openings.push({id: 'tgate', type: 'door', style: 'garage', pos: 1, width: 0.6, height: 2.1, sill: 0, entity: 'cover.rollo', name: 'Tor'}); }); window.__fp.rebuild(); }"); pg13.wait_for_timeout(400)
+    check("garage door is built (rolls up, 1 = closed)", pg13.evaluate("(() => { let r = null; window.__fp.scene.traverse(o => { if (o.userData && o.userData.id === 'tgate' && o.userData.pivot) r = o.userData.pivot.scale.y; }); return r; })()") == 1)
     check("frameless opening is in the palette", pg13.locator('#openingPalette button[data-opening="doorGap"]').count() == 1)
     pg13.click('#modeBar [data-vm="co2"]'); pg13.wait_for_timeout(400)
     check("CO2 colouring: button and colour scale", pg13.locator("#viewLegend").is_visible() and "ppm" in pg13.inner_text("#viewLegend"))
