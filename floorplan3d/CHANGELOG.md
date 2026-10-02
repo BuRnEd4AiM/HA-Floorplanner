@@ -4,6 +4,9 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+### Changed
+- README pictures (3D, 2D, 2D + 3D, whole house) taken anew from the current demo: they show the floor rail, the *View* menu and the floors box in the plan
+
 ## [3.20.0] - 2026-10-02
 ### Added
 - **Users & tablets as their own tab in the top bar**: the management of users, rooms and views is no longer hidden in the gear (⚙); administrators now see a **Users** button at the top (hidden for everybody else and in the read-only view)
