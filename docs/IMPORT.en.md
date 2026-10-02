@@ -70,6 +70,8 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
     "wallHeight": 2.6, "outerWall": 0.3, "innerWall": 0.12,
     "footprint": [[0,0],[11,0],[11,9],[0,9]],           // optional: outline, gives thick outer walls
     "roof": { "type": "gable", "pitch": 38 },           // gable | hip | flat
+    // roof dormers (optional, not on flat): side 0|1 or "a"|"b", pos 0..1 along the ridge, w/hw/eave in m, type gable|flat, win true|false
+    // "roof": { "type": "gable", "dormers": [ { "side": "a", "pos": 0.3, "w": 1.6, "hw": 1.2, "eave": 0.8, "type": "gable", "win": true } ] },
     "floors": [
       {
         "name": "Ground floor", "kind": "floor",        // floor | basement | roof

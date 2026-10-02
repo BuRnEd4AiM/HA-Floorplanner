@@ -19,7 +19,8 @@
     "outerWall": 0.36,
     "innerWall": 0.12,
     "footprint": [[0, 0], [11, 0], [11, 7.5], [0, 7.5]],
-    "roof": { "type": "gable", "pitch": 38, "overhang": 0.5 },
+    "roof": { "type": "gable", "pitch": 38, "overhang": 0.5,
+      "dormers": [ { "side": "a", "pos": 0.3 }, { "side": "b", "pos": 0.7, "w": 2.0, "type": "flat" } ] },
     "floors": [
       {
         "name": "Keller",

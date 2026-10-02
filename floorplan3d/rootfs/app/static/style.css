@@ -472,3 +472,9 @@ body.readonly .admin-only, body.kiosk .admin-only { display: none; }
 #usersDialog { width: min(640px, 94vw); }
 #usersFileStatus { min-height: 1.2em; }
 #usersFileStatus.warn { color: var(--warn, #ff9d2e); }
+
+/* roof dormers: a card per dormer in the roof panel */
+.dormerCard { position: relative; border: 1px solid var(--line, #2a3b55); border-radius: 8px; padding: 30px 8px 4px; margin: 6px 0; }
+.dormerCard > button { position: absolute; top: 4px; right: 4px; }
+.dormerCard .warn { color: #ff9d2e; }
+.dormerCap { position: absolute; top: 8px; left: 10px; }

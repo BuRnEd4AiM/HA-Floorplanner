@@ -8,9 +8,9 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 | Datum | Stand | Python-Tests | Browser-Test (E2E) | Bemerkung |
 |---|---|---|---|---|
-| 2026-10-02 | 3.20.0 | 72 bestanden | 204 von 204 bestanden | Benutzer-Reiter, `users.json`, Synchronisieren |
+| 2026-10-02 | 3.21.0 | 80 bestanden + 8 Gauben-Tests | 208 von 208 bestanden | Dachgauben |
 
-E2E-Ergebnis 3.20.0: alle 204 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
+E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
 
 ## Handtest in der Demo (Besitzer)
 
@@ -54,8 +54,21 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 | 11.2 | Im Zahnrad (⚙) ist der Abschnitt „Benutzer & Tablets" nicht mehr | ❓ |
 | 11.3 | Benutzer hinzufügen, Raum und Ansicht wählen, wird gespeichert | ❓ |
 | 11.4 | Unter dem Dialog steht, ob Datei und Add-on gleich sind | ❓ |
+| 11.4a | Knopf „💾 Datei erstellen / speichern“ legt `users.json` an, auch wenn es sie noch nicht gibt | ➖ (Add-on mit echtem Ordner) |
 | 11.5 | „↻ Synchronisieren" liest `users.json` und übernimmt die Benutzer | ➖ (nur im Add-on mit echtem Ordner) |
 | 11.6 | Nach einem Update/Neuinstallation sind Benutzer und Tablets wieder da | ➖ |
+
+### 12. Dachgauben (3.21.0)
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 12.1 | Dachstuhl wählen → Abschnitt „Dachgauben" mit „+ Gaube" | ❓ |
+| 12.2 | Eine Gaube erscheint in 3D auf dem Dach, mit Fenster | ❓ |
+| 12.3 | Seite A/B, Position, Breite, Höhe, Abstand zur Traufe lassen sich ändern | ❓ |
+| 12.4 | Gaube mit Satteldach und mit Flachdach | ❓ |
+| 12.5 | Gaube entfernen (×) | ❓ |
+| 12.6 | Bei Flachdach erscheint ein Hinweis statt der Gauben | ❓ |
+| 12.6a | JSON-Import mit `roof.dormers` (docs/examples/house.json hat zwei Gauben) zeigt Gauben auf dem Dach | ❓ |
+| 12.7 | Nach dem Neuladen sind die Gauben noch da (nur im Add-on, Demo speichert nicht) | ➖ |
 
 ## Automatisch geprüft (zusätzlich)
 - Python: Benutzer werden in `users.json` gespiegelt; Synchronisieren lädt/speichert; frische Installation holt sich Benutzer aus der Datei zurück.

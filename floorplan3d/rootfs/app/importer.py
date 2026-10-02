@@ -484,7 +484,49 @@ def _roof(rep, path, spec):
             "overhang": float(spec["overhang"]) if _num(spec.get("overhang"), 0, 3) else 0.4}
     if spec.get("ridge") in ("x", "z"):
         roof["ridge"] = spec["ridge"]
+    dormers = _dormers(rep, f"{path}.dormers", spec.get("dormers")) if typ != "flat" else []
+    if spec.get("dormers") and typ == "flat":
+        rep.warn(f"{path}.dormers", "a flat roof has no dormers, ignored")
+    if dormers:
+        roof["dormers"] = dormers
     return roof
+
+
+DORMER_TYPES = {"gable", "flat"}
+MAX_DORMERS = 20
+
+
+def _dormers(rep, path, raw):
+    """Roof dormers (Gauben): side 0|1 (or "a"|"b"), pos 0..1 along the ridge, w/hw/eave in metres, type gable|flat, win bool."""
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        rep.warn(path, "dormers must be a list, ignored")
+        return []
+    out = []
+    for i, d in enumerate(raw[:MAX_DORMERS]):
+        dp = f"{path}[{i}]"
+        if not isinstance(d, dict):
+            rep.warn(dp, "dormer must be an object, ignored")
+            continue
+        side = d.get("side", 0)
+        side = {"a": 0, "b": 1}.get(side.lower(), side) if isinstance(side, str) else side
+        if side not in (0, 1) or isinstance(side, bool):
+            rep.warn(f"{dp}.side", "side must be 0/1 (or \"a\"/\"b\"), using 0")
+            side = 0
+        typ = d.get("type", "gable")
+        if typ not in DORMER_TYPES:
+            rep.warn(f"{dp}.type", f"unknown dormer type '{typ}', using gable")
+            typ = "gable"
+        item = {"id": f"dm{i + 1}", "side": side, "type": typ, "win": d.get("win") is not False}
+        for key, lo, hi, default in (("pos", 0, 1, 0.5), ("w", 0.6, 5, 1.6), ("hw", 0.4, 3, 1.2), ("eave", 0.2, 10, 0.8)):
+            if key in d and not _num(d[key], lo, hi):
+                rep.warn(f"{dp}.{key}", f"{key} must be a number between {lo} and {hi}, using {default}")
+            item[key] = float(d[key]) if _num(d.get(key), lo, hi) else default
+        out.append(item)
+    if len(raw) > MAX_DORMERS:
+        rep.warn(path, f"only the first {MAX_DORMERS} dormers are used")
+    return out
 
 
 # ---------------------------------------------------------------- GeoJSON

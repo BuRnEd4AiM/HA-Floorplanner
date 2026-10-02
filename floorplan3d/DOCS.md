@@ -59,7 +59,7 @@ Home Assistant does not pass URL parameters into add-on panels, so what someone 
    - **Room:** the tablet then starts with only its room (with the room's entities). A button at the top toggles between the room and the whole floor. *Whole house* shows everything.
    - **View in live mode:** *3D only* (default for everybody without an entry), *2D only*, *2D + 3D* or *Switchable* (the user gets the 2D / 3D / split buttons).
 
-**Backup that survives updates:** every change is also saved as `users.json` in the add-on configuration folder of Home Assistant (folder `addon_configs` → the folder ending in `floorplan3d`; reachable with the *File editor* or *Samba* add-on). If the assignments are ever lost, press **↻ Synchronise** in the Users dialog: the file is read and the users and tablets are taken from it. After a fresh installation this happens by itself.
+**Backup that survives updates:** every change is also saved as `users.json` in the add-on configuration folder of Home Assistant (folder `addon_configs` → the folder ending in `floorplan3d`; reachable with the *File editor* or *Samba* add-on). The button **💾 Create / save file** writes it at once (use it once after the update if the folder has no file yet). If the assignments are ever lost, press **↻ Synchronise** in the Users dialog: the file is read and the users and tablets are taken from it. After a fresh installation this happens by itself.
 
 If you open the add-on directly (for example through a mapped port), `?room=Wohnzimmer` does the same as the room assignment.
 
@@ -121,7 +121,7 @@ Live on the first floor of a building and do not want to draw the ground floor b
 
 ### Floors, basement, roof, garden, whole house
 
-Panel **Etage verwalten**: rename, change type, **▲/▼ move** the floor in the stack, **+ Keller** (inserted below; the ground floor stays at height 0), **+ Dach**, delete. A floor of type *Dachstuhl* draws a roof over everything below it: gable, hip or flat, with pitch, overhang and ridge direction (automatic = along the longer side).
+Panel **Etage verwalten**: rename, change type, **▲/▼ move** the floor in the stack, **+ Keller** (inserted below; the ground floor stays at height 0), **+ Dach**, delete. A floor of type *Dachstuhl* draws a roof over everything below it: gable, hip or flat, with pitch, overhang and ridge direction (automatic = along the longer side). **Dormers (Gauben):** in the same panel, section *Dormers* → **+ Dormer**: a dormer with its own little roof and a window stands out of one slope. Set the roof side (A/B), the position along the ridge, width, wall height, distance from the eave, gable or flat dormer roof and the window. Values are limited so that it always fits under the ridge; a flat main roof has no dormers.
 
 Outdoor items (*Baum, Busch, Pool, Rasen, Terrasse, Weg, Zaun*) are normal device types: place them anywhere, also outside the walls, on the ground floor. The pill **Ganzes Haus** next to the floors shows every floor solid together with the plot; it is a view only.
 

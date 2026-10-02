@@ -229,3 +229,57 @@ async def test_api_house_limit(client):
         assert (await client.post("/api/import", json=example("flat"))).status == 200
     r = await client.post("/api/import", json=example("flat"))
     assert r.status == 400
+
+
+# ---------- roof dormers (Gauben) through the import / export API
+def roof_house(dormers, roof_type="gable"):
+    return {"schemaVersion": 1, "building": {"roof": {"type": roof_type, "pitch": 38, "dormers": dormers},
+                                             "floors": [{"name": "EG", "kind": "floor", "rooms": [{"name": "R", "points": [[0, 0], [8, 0], [8, 5], [0, 5]]}]}]}}
+
+
+def roof_of(layout):
+    return next(f for f in layout["floors"] if f["kind"] == "roof")["roof"]
+
+
+def test_dormers_are_imported_and_cleaned():
+    layout, _, rep, _ = importer.build_layout(roof_house([
+        {"side": "b", "pos": 0.25, "w": 2, "type": "flat", "win": False}, {"side": 0}, {"side": 7, "type": "round", "w": 99}, "junk"]))
+    d = roof_of(layout)["dormers"]
+    assert len(d) == 3 and [x["side"] for x in d] == [1, 0, 0]
+    assert d[0] == {"id": "dm1", "side": 1, "type": "flat", "win": False, "pos": 0.25, "w": 2.0, "hw": 1.2, "eave": 0.8}
+    assert d[1]["type"] == "gable" and d[1]["win"] is True and d[1]["pos"] == 0.5          # defaults
+    assert d[2]["type"] == "gable" and d[2]["w"] == 1.6 and d[2]["side"] == 0               # bad values fall back
+    paths = [w["path"] for w in rep.warnings]
+    assert any(p.endswith("[2].side") for p in paths) and any(p.endswith("[2].type") for p in paths) and any(p.endswith("[2].w") for p in paths)
+    assert any(p.endswith("dormers[3]") for p in paths) and not rep.errors
+
+
+def test_dormers_on_a_flat_roof_are_dropped_with_a_warning():
+    layout, _, rep, _ = importer.build_layout(roof_house([{"side": 0}], "flat"))
+    assert "dormers" not in roof_of(layout) and any(w["path"].endswith("roof.dormers") for w in rep.warnings)
+
+
+def test_at_most_twenty_dormers():
+    layout, _, rep, _ = importer.build_layout(roof_house([{"pos": i / 30} for i in range(25)]))
+    assert len(roof_of(layout)["dormers"]) == 20 and any("first 20" in w["message"] for w in rep.warnings)
+
+
+def test_the_house_example_has_dormers():
+    layout, _, rep, _ = importer.build_layout(example("house"))
+    assert len(roof_of(layout)["dormers"]) == 2 and not rep.warnings
+
+
+async def test_dormers_survive_import_and_export_over_the_api(client):
+    r = await client.post("/api/import?name=Gauben", json=roof_house([{"side": "a", "pos": 0.3, "w": 1.8}]))
+    assert r.status == 200, await r.text()
+    hid = (await r.json())["id"]
+    exp = await (await client.get(f"/api/export/property?house={hid}")).json()
+    d = next(f for f in exp["building"]["floors"] if f["kind"] == "roof")["roof"]["dormers"]
+    assert d[0]["pos"] == 0.3 and d[0]["w"] == 1.8
+    again, _, rep, _ = importer.build_layout(exp)
+    assert roof_of(again)["dormers"][0]["w"] == 1.8 and not rep.errors
+
+
+def test_schema_describes_dormers():
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    assert {"side", "pos", "w", "hw", "eave", "type", "win"} <= set(schema["$defs"]["roof"]["properties"]["dormers"]["items"]["properties"])

@@ -9,10 +9,11 @@ import base64
 import datetime
 import json
 import logging
-import time
 import os
 import re
 import secrets
+import time
+import types
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -452,6 +453,18 @@ def write_users_file(request, settings: dict) -> bool:
     except OSError:
         log.warning("could not write %s", users_file(request))
         return False
+
+
+async def seed_users_file(app: web.Application) -> None:
+    """After an update from a version without the file: create users.json from the stored settings (never overwrites)."""
+    shim = types.SimpleNamespace(app=app)
+    if users_file(shim).exists():
+        return
+    stored = read_json(app[KEY_DATA] / "settings.json", None)
+    if isinstance(stored, dict):
+        clean = validate_settings(stored)
+        if clean["userRooms"] or clean["userViews"]:
+            write_users_file(shim, clean)
 
 
 async def get_users_file(request):
@@ -1110,6 +1123,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
     app[KEY_CONFIG] = Path(config_path or os.environ.get("CONFIG_DIR") or ("/config" if Path("/config").is_dir() else app[KEY_DATA] / "addon_config"))
     app[KEY_LIVE] = LiveHub()
+    app.on_startup.append(seed_users_file)
     app.on_cleanup.append(stop_live)
     app.add_routes([
         web.get("/", index),

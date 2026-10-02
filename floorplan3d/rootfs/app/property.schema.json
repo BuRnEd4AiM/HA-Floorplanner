@@ -127,6 +127,69 @@
       "x",
       "z"
      ]
+    },
+    "dormers": {
+     "type": "array",
+     "maxItems": 20,
+     "description": "Roof dormers (Gauben). Ignored on a flat roof.",
+     "items": {
+      "type": "object",
+      "properties": {
+       "side": {
+        "description": "Which roof slope: 0 / 1 (or \"a\" / \"b\").",
+        "enum": [
+         0,
+         1,
+         "a",
+         "b",
+         "A",
+         "B"
+        ],
+        "default": 0
+       },
+       "pos": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "default": 0.5,
+        "description": "Position along the ridge, 0 = start, 1 = end."
+       },
+       "w": {
+        "type": "number",
+        "minimum": 0.6,
+        "maximum": 5,
+        "default": 1.6,
+        "description": "Width in metres."
+       },
+       "hw": {
+        "type": "number",
+        "minimum": 0.4,
+        "maximum": 3,
+        "default": 1.2,
+        "description": "Height of the front wall in metres (limited so that the dormer stays under the ridge)."
+       },
+       "eave": {
+        "type": "number",
+        "minimum": 0.2,
+        "maximum": 10,
+        "default": 0.8,
+        "description": "Distance of the front wall from the eave, measured along the slope's floor plan, in metres."
+       },
+       "type": {
+        "enum": [
+         "gable",
+         "flat"
+        ],
+        "default": "gable",
+        "description": "Roof of the dormer."
+       },
+       "win": {
+        "type": "boolean",
+        "default": true,
+        "description": "Window in the front wall."
+       }
+      }
+     }
     }
    }
   },
