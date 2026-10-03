@@ -1,0 +1,9 @@
+configuration:
+  log_level:
+    name: Protokoll-Stufe
+    description: Wie viel das Add-on in sein Protokoll schreibt (debug, info, warning, error).
+  editors:
+    name: Weitere Bearbeiter
+    description: >-
+      Home-Assistant-Benutzernamen (nicht die Anzeigenamen), die den Grundriss zusätzlich zu den Administratoren bearbeiten dürfen.
+      Alle anderen bekommen die reine Live-Ansicht.
