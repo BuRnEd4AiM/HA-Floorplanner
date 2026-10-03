@@ -36,6 +36,7 @@ let settings = {
 const DEFAULT_LOOK = structuredClone(settings);
 let layout = { version: 1, floors: [] };
 let floorIdx = 0;
+let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
 let roomCtx = null;                // room whose entity list stays visible while one of its objects is selected
@@ -2136,7 +2137,7 @@ canvas.addEventListener('pointerup', (e) => {
 /** a device was just placed: it stays selected and can be moved at once; the next click on empty space deselects it and placing goes on */
 function holdPlaced() {
   if (tool !== 'device') return;
-  setTool('select'); returnToTool = 'device';
+  returnToTool = 'device'; setTool('select');
 }
 canvas.addEventListener('pointerleave', () => { if (tool === 'opening') { openingPreview = null; clearGroup(temp); } });
 
@@ -2728,14 +2729,13 @@ function renderRoomPanel() {
 function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPanel(); }
 
 /* ================= Tools, views, mode ================= */
-let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
 function setTool(next) {
   if (next !== 'select') { lockedSel = false; returnToTool = null; }
   tool = next; endDrawing(); plan?.reset(); document.body.dataset.tool = next; setStatus('');
   if (bgMode) setBgMode(null);
   document.querySelectorAll('#tools button').forEach((b) => b.classList.toggle('active', b.dataset.tool === next));
   $('#hintText').textContent = t(`hint.${next}`);
-  $('#devicePalette').hidden = next !== 'device';
+  $('#devicePalette').hidden = !(next === 'device' || (next === 'select' && returnToTool === 'device'));   // the palette stays while a just placed device is selected
   $('#openingPalette').hidden = next !== 'opening';
   $('#stairPalette').hidden = next !== 'stairs';
   $('#blockPalette').hidden = next !== 'block';
