@@ -3,6 +3,8 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [3.26.0] - 2026-10-03
 ### Changed
 - **First start**: a new install follows the **language of the browser** (*Auto*, was German) and starts in the **dark design** (was *Hologram*). Existing settings are not touched. The default names "Erdgeschoss" and "Haus" of a brand-new house are shown in the language of the user
 ### Added

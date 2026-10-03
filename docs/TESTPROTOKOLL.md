@@ -14,6 +14,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 | 2026-10-03 | 3.24.0 | 91 bestanden + Tests für Werkzeugleiste und Sicherungsliste | 235 von 235 bestanden (vollständiger Lauf auf frischem Server, Headless-Chromium) | Wand teilen, Öffnungen gruppiert, Gerät bleibt ausgewählt, automatische Sicherung |
 | 2026-10-03 | 3.25.0 | 98 bestanden + Tests für Version und Sicherungsliste | 240 von 240 bestanden (vollständiger Lauf auf frischem Server, Headless-Chromium) | Versionsanzeige mit Prüfsumme, Doppelklick auf Wand großzügiger |
 | 2026-10-03 | 3.25.1 | 98 bestanden | 242 von 242 bestanden (vollständiger Lauf auf frischem Server, Headless-Chromium) | Doppelklick auf Wand neben Türen, Fenstern und Möbeln |
+| 2026-10-03 | 3.26.0 | 98 bestanden + Tests für Willkommenskarte | 249 von 249 bestanden (vollständiger Lauf auf frischem Server, Headless-Chromium) | Erster Start: Sprache Auto, dunkles Design, Willkommenskarte |
 
 E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
 
@@ -206,6 +207,18 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 19.3 | Ein Klick öffnet die Einzelheiten (Version, Prüfsumme, Add-on, Browser) | ❓ |
 | 19.4 | „Jetzt prüfen (auch mit GitHub)“ meldet: gleicher Stand / neuere Version / anderer Stand | ❓ |
 | 19.5 | Nach einem Update zeigt sie die neue Version; zeigt der Browser noch alte Dateien, ist sie orange und „Neu laden“ hilft | ❓ |
+
+### 20. Erster Start (3.26.0)
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 20.1 | Auf einer Neuinstallation folgt die Oberfläche der Browsersprache (Einstellung „Auto") | ❓ |
+| 20.2 | Das Design ist standardmäßig „Dunkel" | ❓ |
+| 20.3 | Ein leeres Haus zeigt die Willkommenskarte mit drei Knöpfen | ❓ |
+| 20.4 | „Wände zeichnen" schließt die Karte und wählt das Wand-Werkzeug (2D + 3D) | ❓ |
+| 20.5 | „Beispielhaus ausprobieren" legt ein neues Haus an und öffnet es | ❓ |
+| 20.6 | „Haus aus JSON importieren" öffnet den Importdialog | ❓ |
+| 20.7 | Die Etage heißt je nach Sprache „Ground floor", „Erdgeschoss" und so weiter | ❓ |
+| 20.8 | Bestehende Installationen behalten Sprache und Design | ❓ |
 
 ## Automatisch geprüft (zusätzlich)
 - Python: Benutzer werden in `users.json` gespiegelt; Synchronisieren lädt/speichert; frische Installation holt sich Benutzer aus der Datei zurück.
