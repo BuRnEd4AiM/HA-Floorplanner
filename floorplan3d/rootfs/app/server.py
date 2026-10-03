@@ -52,6 +52,10 @@ DEFAULT_SETTINGS = {
     "earthMargin": 5.0,        # metres of lawn around the house when no plot (Grundstück) is drawn
     "wallStop": True,          # devices cannot be dragged through walls (doors let them pass)
     "placeSelect": True,       # a device that was just placed stays selected (movable at once); the next click on empty space deselects it
+    "autoBackup": False,       # automatic backups into the backups folder of the add-on configuration (addon_configs/<...>_floorplan3d/backups)
+    "backupEveryHours": 24.0,  # ... one backup this many hours after the last one (24 = daily)
+    "backupKeepDays": 14.0,    # automatic backups older than this many days are deleted (the newest one always stays)
+    "backupKeepCount": 30.0,   # ... and never more than this many automatic backups are kept
     "alerts": True,            # smoke, gas, CO, water, alarm and windows open in the rain: banner + red room
     "alertJump": False,        # jump to the room of a new warning by itself (wall tablets)
     "weatherEntity": "",       # weather.* for "window open in the rain"; empty = the first one
@@ -81,7 +85,7 @@ DEFAULT_SETTINGS = {
     "co2Stops": [{"v": 400, "c": "#2ad0a0"}, {"v": 800, "c": "#ffd84a"}, {"v": 1200, "c": "#ff8a2a"},
                  {"v": 2000, "c": "#ff3a3a"}],
 }
-RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0)}
+RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0), "backupEveryHours": (1.0, 720.0), "backupKeepDays": (1.0, 3650.0), "backupKeepCount": (1.0, 500.0)}
 VIEWS = ("3d", "2d", "split", "all")
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 EMPTY_LAYOUT = {
@@ -1027,9 +1031,15 @@ async def post_backup(request):
         return forbidden()
     try:
         data = await request.json()
-        houses, settings, bgs, models = validate_backup(data)
+        result = apply_backup(request, data)
     except ValueError as err:
         return web.json_response({"error": str(err)}, status=400)
+    return web.json_response(result)
+
+
+def apply_backup(request, data) -> dict:
+    """Replace the current data with a backup (after a safety copy). Raises ValueError for an invalid backup."""
+    houses, settings, bgs, models = validate_backup(data)
     root = data_dir(request)
     # safety copy of the current state (layouts and settings only), the last 5 are kept
     bdir = root / "backups"
@@ -1050,7 +1060,186 @@ async def post_backup(request):
             d.mkdir(parents=True, exist_ok=True)
             for name, b in items.items():
                 (d / name).write_bytes(b)
-    return web.json_response({"ok": True, "houses": len(houses), "pictures": len(bgs), "models": len(models)})
+    return {"ok": True, "houses": len(houses), "pictures": len(bgs), "models": len(models)}
+
+
+# ---------- automatic backups: a folder in the add-on configuration, daily (or every n hours), cleaned up by age and number ----------
+BACKUP_NAME = re.compile(r"^floorplan3d-backup-\d{8}-\d{6}(-auto|-manual)?\.json$")
+BACKUP_CHECK_SECONDS = float(os.environ.get("BACKUP_CHECK_SECONDS", "300"))
+
+
+class _AppCtx:
+    """The backup helpers take a request; the background task has none, only the app."""
+    def __init__(self, app):
+        self.app = app
+
+
+def backups_dir(request) -> Path:
+    return request.app[KEY_CONFIG] / "backups"
+
+
+def backup_items(request) -> list:
+    """The backup files of the backups folder, newest first."""
+    d = backups_dir(request)
+    items = []
+    if d.is_dir():
+        for f in d.iterdir():
+            if f.is_file() and BACKUP_NAME.match(f.name):
+                st = f.stat()
+                kind = "auto" if f.name.endswith("-auto.json") else "manual" if f.name.endswith("-manual.json") else "other"
+                items.append({"name": f.name, "size": st.st_size, "mtime": st.st_mtime, "kind": kind,
+                              "created": datetime.datetime.fromtimestamp(st.st_mtime).isoformat(timespec="seconds")})
+    return sorted(items, key=lambda i: (i["mtime"], i["name"]), reverse=True)
+
+
+def create_backup(request, kind: str = "manual") -> str:
+    """Write a full backup (houses, settings, pictures, 3D models) into the backups folder and return its file name."""
+    d = backups_dir(request)
+    d.mkdir(parents=True, exist_ok=True)
+    name = f"floorplan3d-backup-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}-{'auto' if kind == 'auto' else 'manual'}.json"
+    tmp = d / (name + ".tmp")
+    tmp.write_text(json.dumps(build_backup(request, True)), "utf-8")
+    tmp.replace(d / name)
+    return name
+
+
+def prune_backups(request, keep_days: float, keep_count: float) -> list:
+    """Delete automatic backups older than keep_days and beyond the newest keep_count. The newest one always stays; manual ones are never touched."""
+    autos = [i for i in backup_items(request) if i["kind"] == "auto"]
+    cutoff = time.time() - keep_days * 86400
+    removed = []
+    for n, item in enumerate(autos):
+        if n == 0:
+            continue
+        if n >= int(keep_count) or item["mtime"] < cutoff:
+            (backups_dir(request) / item["name"]).unlink(missing_ok=True)
+            removed.append(item["name"])
+    return removed
+
+
+def backup_due(request, settings: dict, now: float | None = None) -> bool:
+    """An automatic backup is due when switched on and the newest backup (of any kind) is older than the interval."""
+    if not settings.get("autoBackup"):
+        return False
+    items = backup_items(request)
+    if not items:
+        return True
+    return (now or time.time()) - items[0]["mtime"] >= settings["backupEveryHours"] * 3600
+
+
+def run_backup_cycle(request, now: float | None = None):
+    """One look of the scheduler: back up when due, then clean up. Returns the new file name or None."""
+    settings = validate_settings(read_settings(request))
+    name = None
+    if backup_due(request, settings, now):
+        name = create_backup(request, "auto")
+        log.info("automatic backup written: %s", name)
+    if settings["autoBackup"]:
+        for gone in prune_backups(request, settings["backupKeepDays"], settings["backupKeepCount"]):
+            log.info("old backup deleted: %s", gone)
+    return name
+
+
+async def backup_scheduler(app):
+    ctx = _AppCtx(app)
+
+    async def loop():
+        await asyncio.sleep(min(60.0, BACKUP_CHECK_SECONDS))
+        while True:
+            try:
+                await asyncio.to_thread(run_backup_cycle, ctx)
+            except Exception:                      # a failing backup must never stop the add-on
+                log.exception("automatic backup failed")
+            await asyncio.sleep(BACKUP_CHECK_SECONDS)
+
+    task = asyncio.create_task(loop())
+    yield
+    task.cancel()
+
+
+def check_backup_file(request, name: str | None = None) -> dict:
+    """Check a backup like a restore would, without changing anything: readable, valid, what it contains."""
+    items = backup_items(request)
+    if name is None:
+        if not items:
+            raise ValueError("no backup yet")
+        name = items[0]["name"]
+    if not BACKUP_NAME.match(name):
+        raise ValueError("invalid backup name")
+    f = backups_dir(request) / name
+    if not f.is_file():
+        raise ValueError("backup not found")
+    try:
+        data = json.loads(f.read_text("utf-8"))
+    except (ValueError, OSError):
+        raise ValueError("the file is not readable or not valid JSON")
+    houses, settings, bgs, models = validate_backup(data)
+    return {"ok": True, "name": name, "size": f.stat().st_size, "exported": data.get("exported", ""),
+            "houses": [h["name"] for h in houses], "pictures": len(bgs), "models": len(models), "hasSettings": bool(settings)}
+
+
+async def get_backups(request):
+    if not await can_edit(request):
+        return forbidden()
+    s = validate_settings(read_settings(request))
+    return web.json_response({"items": backup_items(request), "folder": "addon_configs/…_floorplan3d/backups",
+                              "autoBackup": s["autoBackup"], "everyHours": s["backupEveryHours"]})
+
+
+async def post_backups(request):
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        name = await asyncio.to_thread(create_backup, request, "manual")
+    except OSError as err:
+        return web.json_response({"error": f"could not write the backup: {err}"}, status=500)
+    return web.json_response({"ok": True, "name": name})
+
+
+async def post_backups_test(request):
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json() if request.can_read_body else {}
+        result = await asyncio.to_thread(check_backup_file, request, (body or {}).get("name"))
+    except ValueError as err:
+        return web.json_response({"ok": False, "error": str(err)}, status=400)
+    return web.json_response(result)
+
+
+async def post_backups_restore(request):
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+        name = str((body or {}).get("name", ""))
+        check_backup_file(request, name)                      # only restore what passes the check
+        data = json.loads((backups_dir(request) / name).read_text("utf-8"))
+        result = apply_backup(request, data)
+    except ValueError as err:
+        return web.json_response({"ok": False, "error": str(err)}, status=400)
+    return web.json_response(result)
+
+
+async def get_backup_file(request):
+    if not await can_edit(request):
+        return forbidden()
+    name = request.match_info["name"]
+    f = backups_dir(request) / name
+    if not BACKUP_NAME.match(name) or not f.is_file():
+        return web.json_response({"error": "not found"}, status=404)
+    return web.FileResponse(f, headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+
+async def delete_backup_file(request):
+    if not await can_edit(request):
+        return forbidden()
+    name = request.match_info["name"]
+    f = backups_dir(request) / name
+    if not BACKUP_NAME.match(name) or not f.is_file():
+        return web.json_response({"error": "not found"}, status=404)
+    f.unlink()
+    return web.json_response({"ok": True})
 
 
 # ---------- property import (JSON / GeoJSON -> new house) and export ----------
@@ -1126,6 +1315,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app[KEY_LIVE] = LiveHub()
     app.on_startup.append(seed_users_file)
     app.on_cleanup.append(stop_live)
+    app.cleanup_ctx.append(backup_scheduler)
     app.add_routes([
         web.get("/", index),
         web.get("/api/users-file", get_users_file),
@@ -1137,6 +1327,12 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.patch("/api/houses/{id}", patch_house),
         web.delete("/api/houses/{id}", delete_house),
         web.get("/api/backup", get_backup),
+        web.get("/api/backups", get_backups),
+        web.post("/api/backups", post_backups),
+        web.post("/api/backups/test", post_backups_test),
+        web.post("/api/backups/restore", post_backups_restore),
+        web.get("/api/backups/{name}", get_backup_file),
+        web.delete("/api/backups/{name}", delete_backup_file),
         web.post("/api/import", post_import),
         web.get("/api/import/schema", get_import_schema),
         web.get("/api/import/examples/{name}", get_import_example),

@@ -498,3 +498,9 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 #toolsList { max-height: 55vh; overflow: auto; }
 
 .opGroup { margin: 10px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+
+/* automatic backups */
+#autoBackup .abRow { display: flex; align-items: center; gap: 4px; padding: 4px 0; border-top: 1px solid var(--line); font-size: 12px; flex-wrap: wrap; }
+#autoBackup .abName { flex: 1 1 100%; color: var(--muted); }
+#autoBackup .abRow button, #autoBackup .abRow a.btn { padding: 2px 8px; }
+#autoBackup .sub.warn { color: #ff6b5e; }
