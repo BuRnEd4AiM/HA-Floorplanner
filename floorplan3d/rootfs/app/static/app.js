@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
+import { initToolbar } from './toolbar.js';
 import { findAlerts, nightActive, matchScore } from './alerts.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -2734,7 +2735,19 @@ function setTool(next) {
   if ((next === 'block' || next === 'stairs' || next === 'plot' || next === 'hole') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
   canvas.style.cursor = next === 'select' ? 'default' : 'crosshair';
 }
-document.querySelectorAll('#tools button').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
+document.querySelectorAll('#tools button[data-tool]').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
+/** tool bar button "Dormers": jump to the roof floor and open its dormer section (creates the roof floor when there is none) */
+$('#dormerBtn').addEventListener('click', () => {
+  let i = layout.floors.findIndex((f) => f.kind === 'roof');
+  if (i < 0) { addFloorOf('roof'); i = layout.floors.findIndex((f) => f.kind === 'roof'); }
+  if (i < 0) return;                                        // the name prompt was cancelled
+  if (floorIdx !== i) switchFloor(i);
+  $('#floorPanel').open = true;
+  renderFloorPanel();
+  ($('#dormerHead') || $('#floorPanel')).scrollIntoView({ block: 'start', behavior: 'smooth' });
+});
+$('#importBtn').addEventListener('click', () => $('#importOpen').click());
+const toolbarUi = initToolbar({ t });
 
 function setMode(next) {
   mode = next;
@@ -3205,7 +3218,7 @@ function renderFloorPanel() {
 }
 /** roof dormers: one card per dormer in the panel of the roof floor */
 function renderDormers(box, f, r) {
-  const head = document.createElement('h4'); head.textContent = t('dormer.title'); box.append(head);
+  const head = document.createElement('h4'); head.id = 'dormerHead'; head.textContent = t('dormer.title'); box.append(head);
   if (r.type === 'flat') { const p = document.createElement('p'); p.className = 'sub'; p.textContent = t('dormer.noFlat'); box.append(p); return; }
   (r.dormers ||= []).forEach((d, i) => {
     const card = document.createElement('div'); card.className = 'dormerCard';
@@ -4122,8 +4135,22 @@ function fillSettingsForm() {
   renderStops('#humidStops', 'humidStops', '%');
   renderStops('#co2Stops', 'co2Stops', 'ppm');
 }
-function allRoomNames() {
-  return [...new Set(layout.floors.flatMap((f) => f.rooms.map((r) => r.name).filter(Boolean)))];
+/** rooms for the tablet dropdown, grouped by house: [{ house, rooms: [{ name, floor }] }], top floor first */
+function roomsByHouse(lay, houseName) {
+  const rooms = [...(lay.floors || [])].reverse().filter((f) => f.kind !== 'roof')
+    .flatMap((f) => (f.rooms || []).filter((r) => r.name).map((r) => ({ name: r.name, floor: f.name })));
+  return { house: houseName, rooms };
+}
+let roomGroups = null;                       // filled with all houses when the users dialog opens, until then only the open house
+const currentRoomGroups = () => [roomsByHouse(layout, houses.find((h) => h.id === houseId)?.name || '')];
+async function loadRoomGroups() {
+  if (houses.length < 2) { roomGroups = null; return; }
+  const out = [];
+  for (const h of houses) {
+    if (h.id === houseId) { out.push(roomsByHouse(layout, h.name)); continue; }
+    try { const r = await fetch(`api/layout?house=${encodeURIComponent(h.id)}`); if (r.ok) out.push(roomsByHouse(await r.json(), h.name)); } catch { /* skip a house that cannot be read */ }
+  }
+  roomGroups = out;
 }
 let haUsers = [];
 async function loadHaUsers() {
@@ -4137,8 +4164,14 @@ function tabletRow(user = '', room = '', view = '3d') {
   const u = document.createElement('input'); u.type = 'text'; u.value = user; u.dataset.role = 'user'; u.placeholder = t('set.tabletUser'); u.setAttribute('list', 'haUsers');
   const sel = document.createElement('select'); sel.dataset.role = 'room';
   sel.add(new Option(t('set.wholeHouse'), ''));
-  allRoomNames().forEach((n) => sel.add(new Option(n, n)));
-  if (room && !allRoomNames().includes(room)) sel.add(new Option(room, room));
+  const groups = roomGroups || currentRoomGroups();
+  groups.forEach((g) => {
+    if (!g.rooms.length) return;
+    const og = document.createElement('optgroup'); og.label = g.house || t('set.wholeHouse');
+    g.rooms.forEach((r) => og.append(new Option(`${r.name} · ${r.floor}`, r.name)));
+    sel.append(og);
+  });
+  if (room && !groups.some((g) => g.rooms.some((r) => r.name === room))) sel.add(new Option(room, room));
   sel.value = room;
   const vs = document.createElement('select'); vs.dataset.role = 'view';
   VIEW_OPTS.forEach((v) => vs.add(new Option(t(`set.view.${v}`), v)));
@@ -4297,6 +4330,7 @@ $('#usersBtn').addEventListener('click', async () => {
   if (!settingsLoaded) await loadSettings();
   fillSettingsForm();                                  // the form behind the dialogs must hold the real settings before the first save reads it back (else the defaults, e.g. the hologram theme, win)
   usersDlg.showModal(); loadHaUsers(); refreshUsersFile();
+  loadRoomGroups().then(() => { if (usersDlg.open && roomGroups) renderTablets(); });   // all houses, grouped; the first paint already shows the open house
 });
 async function saveUsersFile() {
   try {
@@ -4479,7 +4513,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, get floorIdx() { return floorIdx; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alerts.map((a) => ({ kind: a.kind, entity: a.entity, at: a.at })), alertPulsing: () => alertPulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems, navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
+    get layout() { return layout; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alerts.map((a) => ({ kind: a.kind, entity: a.entity, at: a.at })), alertPulsing: () => alertPulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems, navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)

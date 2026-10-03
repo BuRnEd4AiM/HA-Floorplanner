@@ -27,6 +27,11 @@
       <button data-tool="opening" data-i18n="tool.opening" data-i18n-title="tip.opening"></button>
       <button data-tool="device" data-i18n="tool.device" data-i18n-title="tip.device"></button>
       <button data-tool="erase" data-i18n="tool.erase" data-i18n-title="tip.erase"></button>
+      <button id="dormerBtn" type="button" data-i18n="tool.dormer" data-i18n-title="tip.dormer"></button>
+      <button id="importBtn" type="button" data-i18n="tool.import" data-i18n-title="tip.import"></button>
+      <button id="toolsMoreBtn" type="button" hidden aria-haspopup="true" aria-expanded="false" data-i18n="tool.more" data-i18n-title="tip.more"></button>
+      <div id="toolsMore" hidden></div>
+      <button id="toolsEditBtn" type="button" class="icon" data-i18n-title="tbar.edit" aria-label="Customise tools">✎</button>
     </div>
     <div class="group">
       <button id="view2d" data-i18n="view.2d"></button>
@@ -258,6 +263,16 @@
     <p class="sub" data-i18n="open.hint"></p>
     <p id="openNone" data-i18n="open.allClosed" hidden></p>
     <ul id="openList"></ul>
+  </form>
+</dialog>
+
+<dialog id="toolsDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="tbar.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="hint" data-i18n="tbar.hint"></p>
+    <div class="tbHead"><span data-i18n="tbar.show"></span><span data-i18n="tbar.tool"></span><span data-i18n="tbar.fold"></span></div>
+    <div id="toolsList"></div>
+    <div class="stopTools"><button type="button" id="toolsReset" data-i18n="tbar.reset"></button></div>
   </form>
 </dialog>
 
