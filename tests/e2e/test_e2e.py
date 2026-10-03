@@ -452,6 +452,7 @@ with sync_playwright() as p:
     groups = pgG.evaluate("[...document.querySelectorAll('#tabletRows .tablet [data-role=room] optgroup')].map(g => g.label)")
     check("users dialog: room list is grouped by house", "Gruppen Haus" in groups and len(groups) >= 1, groups)
     check("users dialog: a room shows its floor", pgG.evaluate("[...document.querySelectorAll('#tabletRows .tablet [data-role=room] option')].some(o => o.textContent.includes(' · '))"))
+    pgG.evaluate("fetch('api/houses').then(r => r.json()).then(l => Promise.all(l.filter(h => h.name === 'Gruppen Haus').map(h => fetch('api/houses/' + h.id, {method: 'DELETE'}))))"); pgG.wait_for_timeout(300)
     pgG.close()
     # --- several houses + per-pane window sensors
     pg6 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
