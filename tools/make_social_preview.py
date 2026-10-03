@@ -35,9 +35,9 @@ h1{position:absolute;left:68px;top:140px;margin:0;font-size:104px;line-height:.9
 <div class="s">Draw your home, see it in 3D and control it right where things are.</div>
 <div class="chips"><span class="chip">Live control</span><span class="chip">JSON &amp; AI import</span><span class="chip">7 languages</span></div>
 <img class="house" src="data:image/png;base64,@@SHOT@@">
-<div class="tag" style="left:775px;top:64px">Living room<b><span class="dot"></span>5 lights on</b></div>
-<div class="tag" style="left:1085px;top:300px">Kitchen<b>21.4 °C</b></div>
-<div class="tag" style="left:690px;top:490px">Windows<b>2 open</b></div>
+<div class="tag" style="left:700px;top:40px">Living room<b><span class="dot"></span>5 lights on</b></div>
+<div class="tag" style="left:1090px;top:300px">Kitchen<b>21.4 °C</b></div>
+<div class="tag" style="left:690px;top:520px">Windows<b>2 open</b></div>
 <div class="bar"></div>"""
 
 
@@ -46,10 +46,15 @@ def main():
     with sync_playwright() as p:
         b = p.chromium.launch(**({"executable_path": chrome} if chrome else {}),
                               args=["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"])
-        pg = b.new_page(viewport={"width": 1400, "height": 1000}, device_scale_factor=2)
+        pg = b.new_page(viewport={"width": 1000, "height": 700}, device_scale_factor=3)
         pg.goto(DEMO.as_uri() + "?mode=live&debug=1"); pg.wait_for_timeout(3500)
         assert pg.evaluate("document.documentElement.dataset.theme") == "dark", "the demo must start in the dark design"
         pg.evaluate("window.__fp.setHouseMode(true)"); pg.wait_for_timeout(2500)
+        # no value badges and no room names on the house (they make a small picture look crowded)
+        pg.evaluate("(() => { window.__fp.settings().labelMode = 'none'; window.__fp.layout.floors.forEach((f) => f.rooms.forEach((r) => { r.name = ''; })); window.__fp.rebuild(); })()")
+        pg.wait_for_timeout(800)
+        # turn the camera to look at the house from the front, a little from above
+        pg.mouse.move(500, 350); pg.mouse.down(); pg.mouse.move(700, 275, steps=6); pg.mouse.move(900, 200, steps=6); pg.mouse.up(); pg.wait_for_timeout(1000)
         pg.add_style_tag(content=HIDE); pg.wait_for_timeout(600)
         raw = Image.open(io.BytesIO(pg.locator("#view").screenshot())).convert("RGB")
         bg = raw.getpixel((4, 4))                                                         # the colour of the 3D scene: the card gets the same, so it blends
