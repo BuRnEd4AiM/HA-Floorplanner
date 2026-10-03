@@ -40,6 +40,7 @@ const DEFAULT_LOOK = structuredClone(settings);
 let layout = { version: 1, floors: [] };
 let floorIdx = 0;
 let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
+let welcomeUi = null;           // the welcome card of an empty house (set up further down)
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
 let roomCtx = null;                // room whose entity list stays visible while one of its objects is selected
@@ -4450,7 +4451,6 @@ function localizeDefaults() {
   const f = layout.floors?.[0];
   if (layout.floors.length === 1 && f && f.name === 'Erdgeschoss' && !f.walls?.length && !f.rooms?.length && !f.devices?.length && !f.blocks?.length) f.name = t('floor.default');
 }
-let welcomeUi = null;
 function normalizeLayout() {
   if (!layout.floors?.length) {
     layout = { version: 1, floors: [{ id: uid(), name: t('floor.default'), walls: [], rooms: [], devices: [], blocks: [], stairs: [] }] };
