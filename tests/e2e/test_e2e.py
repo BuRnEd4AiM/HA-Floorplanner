@@ -461,7 +461,7 @@ with sync_playwright() as p:
     pgW.click("#fitBtn"); pgW.wait_for_timeout(400)
     n0 = pgW.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.length")
     px, py = pgW.evaluate("window.__fp.plan().toClient(32, 30)")
-    pgW.mouse.dblclick(px, py); pgW.wait_for_timeout(300)
+    pgW.mouse.dblclick(px, py + 6); pgW.wait_for_timeout(300)           # a few pixels beside the line still counts as the wall
     two = pgW.evaluate("(() => { const w = window.__fp.layout.floors[window.__fp.floorIdx()].walls.filter((q) => q.a[1] === 30 && q.b[1] === 30); return [window.__fp.layout.floors[window.__fp.floorIdx()].walls.length, w.length, w.length === 2 && w[0].b[0] === w[1].a[0] && w[0].b[0] > 30.2 && w[0].b[0] < 33.8, w.length === 2 && w[0].a[0] === 30 && w[1].b[0] === 34]; })()")
     check("plan: double click on a wall splits it in two at that point", two[0] == n0 + 1 and two[1] == 2 and two[2] and two[3], (n0, two))
     pgW.keyboard.press("Control+z"); pgW.wait_for_timeout(300)
