@@ -9,6 +9,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 | Datum | Stand | Python-Tests | Browser-Test (E2E) | Bemerkung |
 |---|---|---|---|---|
 | 2026-10-02 | 3.21.0 | 80 bestanden + 8 Gauben-Tests | 208 von 208 bestanden | Dachgauben |
+| 2026-10-03 | 3.22.0 | 80 bestanden | die 3 neuen Prüfungen bestanden; ein Lauf mit 93 Prüfungen ohne Fehler wurde vorzeitig abgebrochen (Zeitlimit), kein vollständiger Lauf | Dachgröße, Erdreich, Pfeiltasten, Menü Ansicht, Benutzer-Dialog |
 
 E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Chromium, 2026-10-02).
 
@@ -27,7 +28,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 |---|---|---|
 | 2.1 | Karten mit Vorschaubild je Etage | ✅ |
 | 2.2 | Klick auf Etage wechselt, Karte hervorgehoben | ✅ |
-| 2.3 | Pfeiltasten wechseln die Etage | ❌ passiert nichts (#98) |
+| 2.3 | Pfeiltasten wechseln die Etage | ✅ ab 3.22.0 im Add-on (vorher ❌, #98) |
 | 2.4 | „Haus auseinanderziehen" | ✅ |
 | 2.5 | Halbschnitt (Wände halb hoch) | ✅ |
 | 2.6 | Automatisches Wände-Ausblenden funktioniert weiter | ✅ |
@@ -40,7 +41,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 3.2 | Legende: eine Zeile je Etage mit Farbe | ✅ |
 | 3.3 | Klick schaltet unten → alle → aus | ✅ |
 | 3.4 | Gleicher Schalter im Menü „Ansicht" | ✅ |
-| 3.5 | Nicht sichtbar in der reinen 3D-Ansicht | ❌ in der reinen 3D-Ansicht ist der Schalter im Menü „Ansicht" noch wählbar (#99) |
+| 3.5 | Nicht sichtbar in der reinen 3D-Ansicht | ✅ ab 3.22.0 im Add-on (vorher ❌, #99) |
 | 3.6 | Einstellung bleibt nach dem Neuladen | ✅ |
 | 3.7 | Umrisse stören das Zeichnen nicht | ✅ |
 
@@ -54,7 +55,7 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 | 11.2 | Im Zahnrad (⚙) ist der Abschnitt „Benutzer & Tablets" nicht mehr | ✅ |
 | 11.3 | Benutzer hinzufügen, Raum und Ansicht wählen, wird gespeichert | ✅ |
 | 11.4 | Unter dem Dialog steht, ob Datei und Add-on gleich sind | ✅ |
-| 11.4a | Knopf „💾 Datei erstellen / speichern“ legt `users.json` an, auch wenn es sie noch nicht gibt | ✅ im Add-on getestet, aber der Klick schaltet die Ansicht auf Neon um (#100) |
+| 11.4a | Knopf „💾 Datei erstellen / speichern“ legt `users.json` an, auch wenn es sie noch nicht gibt | ✅ ab 3.22.0 im Add-on: das Design bleibt unverändert (vorher schaltete der Klick auf Hologramm, #100) |
 | 11.5 | „↻ Synchronisieren" liest `users.json` und übernimmt die Benutzer | ✅ |
 | 11.6 | Nach einem Update/Neuinstallation sind Benutzer und Tablets wieder da | ➖ |
 
@@ -73,8 +74,8 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 ### 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 13.1 | JSON-Import (Prüfen, dann Importieren) läuft ohne Fehler und ohne Warnungen durch | ❓ |
-| 13.2 | Es entsteht ein neues Haus mit allen Etagen (Keller, Erdgeschoss, Obergeschoss, Dachgeschoss) | ❓ |
+| 13.1 | JSON-Import (Prüfen, dann Importieren) läuft ohne Fehler und ohne Warnungen durch | ✅ |
+| 13.2 | Es entsteht ein neues Haus mit allen Etagen (Keller, Erdgeschoss, Obergeschoss, Dachgeschoss) | ✅ |
 | 13.3 | Räume, Türen und Fenster liegen an den richtigen Stellen | ❓ |
 | 13.4 | Das bestehende Haus bleibt unverändert, Umschalten über die Hausauswahl geht | ❓ |
 | 13.5 | Treppen fehlen beim Import und lassen sich im Editor zeichnen | ❓ |
@@ -82,10 +83,28 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 ### 14. Erdreich unter Anbauten ohne Keller (Fehler #93)
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 14.1 | Gesamtansicht, Kamera so drehen, dass der Erdschnitt sichtbar ist | ❓ |
-| 14.2 | Unter einem Anbau ohne Keller (z. B. Garage) ist kein Hohlraum im Boden, darunter ist Erde | ❓ |
-| 14.3 | Der Keller wird im Schnitt weiterhin richtig angezeigt | ❓ |
+| 14.1 | Gesamtansicht, Kamera so drehen, dass der Erdschnitt sichtbar ist | ✅ (3.22.0, im Add-on) |
+| 14.2 | Unter einem Anbau ohne Keller (z. B. Garage) ist kein Hohlraum im Boden, darunter ist Erde | ✅ (3.22.0, im Add-on) |
+| 14.3 | Der Keller wird im Schnitt weiterhin richtig angezeigt | ✅ (3.22.0, im Add-on) |
 | 14.4 | Ein Haus ohne Keller zeigt weiterhin den Boden ohne Schnitt | ❓ |
+
+### 15. Dachgröße von Hand (3.22.0)
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 15.1 | Im Panel des Dach-Stockwerks gibt es den Haken „Größe selbst festlegen" | ✅ |
+| 15.2 | Mit dem Haken erscheinen Links, Oben, Breite und Tiefe, das Dach ändert sich sofort in 3D | ✅ |
+| 15.3 | Das Dach lässt sich so verkleinern, dass der Anbau (Garage) nicht mehr darunter liegt | ✅ |
+| 15.4 | Haken entfernen: die Größe ist wieder automatisch | ✅ |
+| 15.5 | Nach dem Neuladen bleibt die Größe erhalten (nur im Add-on) | ✅ |
+| 15.6 | JSON-Import mit `roof.box` | ❓ |
+
+### 16. Wiederholung der drei Fehler (3.22.0)
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 16.1 | Pfeiltasten ohne Auswahl wechseln die Etage, mit Auswahl verschieben sie das Objekt (#98) | ✅ |
+| 16.2 | Schalter „Etagen im Plan" im Menü „Ansicht": in reinem 3D nicht da, in 2D und 2D+3D da (#99) | ✅ |
+| 16.3 | „Datei erstellen / speichern" ändert das Design nicht (#100) | ✅ |
+| 16.4 | Demo mit zwei Dachgauben im Beispielhaus | ❓ |
 
 ## Automatisch geprüft (zusätzlich)
 - Python: Benutzer werden in `users.json` gespiegelt; Synchronisieren lädt/speichert; frische Installation holt sich Benutzer aus der Datei zurück.
