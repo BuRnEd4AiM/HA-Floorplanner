@@ -7,6 +7,13 @@ S = str(Path(__file__).parent)
 BASE = "http://localhost:8099/"
 def api(path):
     return json.load(urllib.request.urlopen(BASE + path))
+def set_setting(key, val):
+    """change one stored setting through the API (as the admin user)"""
+    h = {"X-Remote-User-Name": "admin"}
+    r = urllib.request.urlopen(urllib.request.Request(BASE + "api/settings", headers=h))
+    etag, cur = r.headers.get("ETag"), json.load(r)
+    cur[key] = val
+    urllib.request.urlopen(urllib.request.Request(BASE + "api/settings", data=json.dumps(cur).encode(), method="PUT", headers={**h, "Content-Type": "application/json", "If-Match": etag})).read()
 def ha_calls():
     return json.load(urllib.request.urlopen("http://localhost:8123/_calls"))
 
@@ -21,6 +28,7 @@ def check(name, cond, extra=""):
     print(("PASS " if cond else "FAIL ") + name + (f"  [{extra}]" if extra and not cond else ""))
 
 with sync_playwright() as p:
+    set_setting("placeSelect", False)           # the older checks place several devices with single clicks
     b = p.chromium.launch(args=["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"])
     pg = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
@@ -457,6 +465,7 @@ with sync_playwright() as p:
     check("plan: undo takes the new corner back", pgW.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.length") == n0)
     pgW.close()
     # --- a placed device stays selected (movable at once), the next click on empty space deselects it and placing goes on
+    set_setting("placeSelect", True)
     pgD = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgD.goto(BASE + "?debug=1&mode=edit"); pgD.wait_for_timeout(1500)
     pgD.click("#view2d"); pgD.wait_for_timeout(500)
@@ -473,6 +482,7 @@ with sync_playwright() as p:
     pgD.mouse.click(px2, py2); pgD.wait_for_timeout(300)
     check("place: the click after that places the next device", nd() == d0 + 2, (d0, nd()))
     pgD.close()
+    set_setting("placeSelect", False)
     # --- opening palette is grouped (doors, passages, windows)
     pgP = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgP.goto(BASE + "?mode=edit"); pgP.wait_for_timeout(1200)

@@ -583,6 +583,7 @@ export default {
   'set.labels.none': 'Ninguna',
   'set.lowWalls': 'Empezar con paredes bajas',
   'set.wallStop': 'Los dispositivos se detienen en las paredes (las puertas los dejan pasar)',
+  'set.placeSelect': 'Mantener seleccionado el dispositivo recién colocado (el siguiente clic en un espacio vacío lo deselecciona)',
   'set.cutaway': 'Bajar automáticamente las paredes que miran a la cámara',
   'set.earth': 'Tierra alrededor de la casa (sótano enterrado)',
   'set.earth.solid': 'Sólida, cortada del lado de la cámara',
