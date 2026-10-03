@@ -583,6 +583,7 @@ export default {
   'set.labels.none': 'Nessuna',
   'set.lowWalls': 'Inizia con pareti basse',
   'set.wallStop': 'I dispositivi si fermano alle pareti (le porte li lasciano passare)',
+  'set.placeSelect': 'Mantieni selezionato il dispositivo appena posizionato (il clic successivo nel vuoto lo deseleziona)',
   'set.cutaway': 'Abbassa automaticamente le pareti rivolte verso la camera',
   'set.earth': 'Terreno intorno alla casa (cantina interrata)',
   'set.earth.solid': 'Pieno, tagliato dal lato della telecamera',

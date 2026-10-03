@@ -7,6 +7,13 @@ S = str(Path(__file__).parent)
 BASE = "http://localhost:8099/"
 def api(path):
     return json.load(urllib.request.urlopen(BASE + path))
+def set_setting(key, val):
+    """change one stored setting through the API (as the admin user)"""
+    h = {"X-Remote-User-Name": "admin"}
+    r = urllib.request.urlopen(urllib.request.Request(BASE + "api/settings", headers=h))
+    etag, cur = r.headers.get("ETag"), json.load(r)
+    cur[key] = val
+    urllib.request.urlopen(urllib.request.Request(BASE + "api/settings", data=json.dumps(cur).encode(), method="PUT", headers={**h, "Content-Type": "application/json", "If-Match": etag})).read()
 def ha_calls():
     return json.load(urllib.request.urlopen("http://localhost:8123/_calls"))
 
@@ -21,6 +28,7 @@ def check(name, cond, extra=""):
     print(("PASS " if cond else "FAIL ") + name + (f"  [{extra}]" if extra and not cond else ""))
 
 with sync_playwright() as p:
+    set_setting("placeSelect", False)           # the older checks place several devices with single clicks
     b = p.chromium.launch(args=["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"])
     pg = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
@@ -451,28 +459,32 @@ with sync_playwright() as p:
     n0 = pgW.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.length")
     px, py = pgW.evaluate("window.__fp.plan().toClient(32, 30)")
     pgW.mouse.dblclick(px, py); pgW.wait_for_timeout(300)
-    two = pgW.evaluate("(() => { const w = window.__fp.layout.floors[window.__fp.floorIdx()].walls; return [w.length, w.filter((q) => q.b[0] === 32 || q.a[0] === 32).length]; })()")
-    check("plan: double click on a wall splits it in two at that point", two[0] == n0 + 1 and two[1] == 2, (n0, two))
+    two = pgW.evaluate("(() => { const w = window.__fp.layout.floors[window.__fp.floorIdx()].walls.filter((q) => q.a[1] === 30 && q.b[1] === 30); return [window.__fp.layout.floors[window.__fp.floorIdx()].walls.length, w.length, w.length === 2 && w[0].b[0] === w[1].a[0] && w[0].b[0] > 30.2 && w[0].b[0] < 33.8, w.length === 2 && w[0].a[0] === 30 && w[1].b[0] === 34]; })()")
+    check("plan: double click on a wall splits it in two at that point", two[0] == n0 + 1 and two[1] == 2 and two[2] and two[3], (n0, two))
     pgW.keyboard.press("Control+z"); pgW.wait_for_timeout(300)
     check("plan: undo takes the new corner back", pgW.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.length") == n0)
     pgW.close()
     # --- a placed device stays selected (movable at once), the next click on empty space deselects it and placing goes on
+    set_setting("placeSelect", True)
     pgD = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgD.goto(BASE + "?debug=1&mode=edit"); pgD.wait_for_timeout(1500)
     pgD.click("#view2d"); pgD.wait_for_timeout(500)
+    pgD.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.push({id: 'wfar', a: [30, 30], b: [34, 30], thickness: 0.2, height: 2.6, openings: []}); window.__fp.rebuild()")   # makes the plan reach an empty area
+    pgD.click("#fitBtn"); pgD.wait_for_timeout(400)
     pgD.click("[data-tool=device]"); pgD.wait_for_timeout(200)
     nd = lambda: pgD.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices.length")
     d0 = nd()
-    px, py = pgD.evaluate("window.__fp.plan().toClient(50, 50)")
+    px, py = pgD.evaluate("window.__fp.plan().toClient(31, 27)")
     pgD.mouse.click(px, py); pgD.wait_for_timeout(300)
     check("place: a device is placed", nd() == d0 + 1, (d0, nd()))
     check("place: the placed device is selected and the Select tool is active", pgD.evaluate("document.body.dataset.tool") == "select")
-    px2, py2 = pgD.evaluate("window.__fp.plan().toClient(55, 50)")
+    px2, py2 = pgD.evaluate("window.__fp.plan().toClient(33, 27)")
     pgD.mouse.click(px2, py2); pgD.wait_for_timeout(300)
     check("place: the next click on empty space only deselects (no second device)", nd() == d0 + 1 and pgD.evaluate("document.body.dataset.tool") == "device", (d0, nd()))
     pgD.mouse.click(px2, py2); pgD.wait_for_timeout(300)
     check("place: the click after that places the next device", nd() == d0 + 2, (d0, nd()))
     pgD.close()
+    set_setting("placeSelect", False)
     # --- opening palette is grouped (doors, passages, windows)
     pgP = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgP.goto(BASE + "?mode=edit"); pgP.wait_for_timeout(1200)

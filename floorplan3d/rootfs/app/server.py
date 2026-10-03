@@ -51,6 +51,7 @@ DEFAULT_SETTINGS = {
     "earth": "solid",          # ground around the house: off | glass | solid (cut open on the camera's side)
     "earthMargin": 5.0,        # metres of lawn around the house when no plot (Grundstück) is drawn
     "wallStop": True,          # devices cannot be dragged through walls (doors let them pass)
+    "placeSelect": True,       # a device that was just placed stays selected (movable at once); the next click on empty space deselects it
     "alerts": True,            # smoke, gas, CO, water, alarm and windows open in the rain: banner + red room
     "alertJump": False,        # jump to the room of a new warning by itself (wall tablets)
     "weatherEntity": "",       # weather.* for "window open in the rain"; empty = the first one

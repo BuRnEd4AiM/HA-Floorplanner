@@ -25,7 +25,7 @@ const params = new URLSearchParams(location.search);
 
 let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, earth: 'solid', earthMargin: 5,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, placeSelect: true, earth: 'solid', earthMargin: 5,
   alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
   userRooms: {}, userViews: {}, belowVisibility: 0.5, belowMode: 'dim', bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
@@ -36,6 +36,7 @@ let settings = {
 const DEFAULT_LOOK = structuredClone(settings);
 let layout = { version: 1, floors: [] };
 let floorIdx = 0;
+let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
 let roomCtx = null;                // room whose entity list stays visible while one of its objects is selected
@@ -2135,8 +2136,8 @@ canvas.addEventListener('pointerup', (e) => {
 
 /** a device was just placed: it stays selected and can be moved at once; the next click on empty space deselects it and placing goes on */
 function holdPlaced() {
-  if (tool !== 'device') return;
-  setTool('select'); returnToTool = 'device';
+  if (tool !== 'device' || !settings.placeSelect) return;
+  returnToTool = 'device'; setTool('select');
 }
 canvas.addEventListener('pointerleave', () => { if (tool === 'opening') { openingPreview = null; clearGroup(temp); } });
 
@@ -2728,14 +2729,13 @@ function renderRoomPanel() {
 function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPanel(); }
 
 /* ================= Tools, views, mode ================= */
-let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
 function setTool(next) {
   if (next !== 'select') { lockedSel = false; returnToTool = null; }
   tool = next; endDrawing(); plan?.reset(); document.body.dataset.tool = next; setStatus('');
   if (bgMode) setBgMode(null);
   document.querySelectorAll('#tools button').forEach((b) => b.classList.toggle('active', b.dataset.tool === next));
   $('#hintText').textContent = t(`hint.${next}`);
-  $('#devicePalette').hidden = next !== 'device';
+  $('#devicePalette').hidden = !(next === 'device' || (next === 'select' && returnToTool === 'device'));   // the palette stays while a just placed device is selected
   $('#openingPalette').hidden = next !== 'opening';
   $('#stairPalette').hidden = next !== 'stairs';
   $('#blockPalette').hidden = next !== 'block';
@@ -4122,7 +4122,7 @@ const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
   shadows: '#setShadows', labelMode: '#setLabels', cameraImages: '#setCameraImages', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
-  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', wallStop: '#setWallStop',
+  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', belowMode: '#setBelowMode', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
