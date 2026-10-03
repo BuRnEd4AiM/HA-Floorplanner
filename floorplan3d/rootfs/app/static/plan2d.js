@@ -930,8 +930,11 @@ export function createPlan(ctx) {
         if (hd.room.points.length > 3) { ctx.snapshot(); hd.room.points.splice(hd.i, 1); ctx.commit(); }
         return;
       }
-      const wallHit = h?.kind === 'wall' ? floor().walls.find((w) => w.id === h.id) : null;
-      if (wallHit && splitWallAt(wallHit, x, z)) return;             // double click on a wall adds a corner there: the wall becomes two
+      const wallHit = h?.kind === 'wall' ? floor().walls.find((w) => w.id === h.id) : (h?.kind === 'opening' ? null : wallNear(x, z));
+      if (wallHit) {                                                 // double click on (or close to) a wall adds a corner there: the wall becomes two
+        if (!splitWallAt(wallHit, x, z)) ctx.setStatus(ctx.t('wall.splitNo'));
+        return;
+      }
       const edge = edgeAt(x, z);
       if (edge) {                                                    // double click on an edge adds a corner there
         ctx.snapshot();
@@ -942,6 +945,13 @@ export function createPlan(ctx) {
     }
   });
 
+  /* the wall closest to (x, z) within a generous reach (about 12 px), also when a room lies under the pointer */
+  function wallNear(x, z) {
+    const tol = Math.max(0.1, 12 / s);
+    let best = null, bd = Infinity;
+    floor().walls.forEach((w) => { const d = distSeg(x, z, w.a, w.b); if (d <= Math.max(w.thickness / 2, tol) && d < bd) { bd = d; best = w; } });
+    return best;
+  }
   /* split a wall in two at the point of it closest to (x, z); doors / windows go with the piece they sit on, the corner is
    * also added to the rooms and blocks that run along this wall, so moving it later keeps them together.
    * Returns false when there is no room for it (too close to an end or inside a door / window). */
