@@ -3,6 +3,8 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Changed
+- **Add-on store listing**: icon and logo (`icon.png`, `logo.png`, drawn by `tools/make_addon_icons.py`), labels and descriptions for the options on the configuration page (English and German, `translations/`), English add-on description
 
 ## [3.25.1] - 2026-10-03
 ### Fixed

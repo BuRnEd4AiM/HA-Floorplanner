@@ -1,0 +1,9 @@
+configuration:
+  log_level:
+    name: Log level
+    description: How much the add-on writes to its log (debug, info, warning, error).
+  editors:
+    name: Additional editors
+    description: >-
+      Home Assistant user names (not display names) who may edit the floor plan in addition to the administrators.
+      Everybody else gets the read-only live view.
