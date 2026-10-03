@@ -63,14 +63,14 @@ Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgeha
 ### 12. Dachgauben (3.21.0)
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 12.1 | Dachstuhl wählen → Abschnitt „Dachgauben" mit „+ Gaube" | ❓ |
-| 12.2 | Eine Gaube erscheint in 3D auf dem Dach, mit Fenster | ❓ |
-| 12.3 | Seite A/B, Position, Breite, Höhe, Abstand zur Traufe lassen sich ändern | ❓ |
-| 12.4 | Gaube mit Satteldach und mit Flachdach | ❓ |
-| 12.5 | Gaube entfernen (×) | ❓ |
-| 12.6 | Bei Flachdach erscheint ein Hinweis statt der Gauben | ❓ |
+| 12.1 | Dachstuhl wählen → Abschnitt „Dachgauben" mit „+ Gaube" | ✅ (3.23.0, im Add-on) |
+| 12.2 | Eine Gaube erscheint in 3D auf dem Dach, mit Fenster | ✅ (3.23.0, im Add-on) |
+| 12.3 | Seite A/B, Position, Breite, Höhe, Abstand zur Traufe lassen sich ändern | ✅ (3.23.0, im Add-on) |
+| 12.4 | Gaube mit Satteldach und mit Flachdach | ✅ (3.23.0, im Add-on) |
+| 12.5 | Gaube entfernen (×) | ✅ (3.23.0, im Add-on) |
+| 12.6 | Bei Flachdach erscheint ein Hinweis statt der Gauben | ✅ (3.23.0, im Add-on) |
 | 12.6a | JSON-Import mit `roof.dormers` (docs/examples/house.json hat zwei Gauben) zeigt Gauben auf dem Dach | ❓ |
-| 12.7 | Nach dem Neuladen sind die Gauben noch da (nur im Add-on, Demo speichert nicht) | ➖ |
+| 12.7 | Nach dem Neuladen sind die Gauben noch da (nur im Add-on, Demo speichert nicht) | ✅ (3.23.0, im Add-on) |
 
 ### 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss
 | Nr. | Prüfpunkt | Ergebnis |
