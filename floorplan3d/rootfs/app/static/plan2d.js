@@ -957,9 +957,9 @@ export function createPlan(ctx) {
    * Returns false when there is no room for it (too close to an end or inside a door / window). */
   function splitWallAt(w, x, z) {
     const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], L = Math.hypot(dx, dz);
-    if (L < 0.4) return false;
+    if (L < 0.2) return false;
     const t = ((x - w.a[0]) * dx + (z - w.a[1]) * dz) / (L * L), d = t * L;
-    if (d < 0.2 || d > L - 0.2) return false;
+    if (d < 0.1 || d > L - 0.1) return false;
     if ((w.openings || []).some((o) => Math.abs(o.pos - d) < o.width / 2 + 0.02)) return false;
     const pt = [+(w.a[0] + dx * t).toFixed(3), +(w.a[1] + dz * t).toFixed(3)];
     ctx.snapshot();

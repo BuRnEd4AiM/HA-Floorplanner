@@ -21,6 +21,7 @@ import aiohttp
 from aiohttp import web
 
 import importer
+import manifest as mf
 
 STATIC_DIR = Path(__file__).parent / "static"
 SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN")
@@ -1242,6 +1243,41 @@ async def delete_backup_file(request):
     return web.json_response({"ok": True})
 
 
+# ---------- version and checksums: is this really the version I think it is? ----------
+MANIFEST_URL = os.environ.get("MANIFEST_URL", "https://raw.githubusercontent.com/BuRnEd4AiM/HA-Floorplanner/main/floorplan3d/rootfs/app/manifest.json")
+
+
+async def get_version(request):
+    """Version, build checksum, the check of the files that are really installed and the checksums of the files the browser loads."""
+    m = mf.load_manifest(Path(__file__).parent)
+    if not m:
+        return web.json_response({"known": False, "version": "?", "buildHash": "", "short": "?"})
+    server = await asyncio.to_thread(mf.compare, Path(__file__).parent, m)
+    static = {k[len("static/"):]: v for k, v in m["files"].items() if k.startswith("static/") and not k.startswith("static/vendor/")}
+    return web.json_response({"known": True, "version": m["version"], "buildHash": m["buildHash"], "short": m["buildHash"][:7],
+                              "server": server, "staticFiles": static})
+
+
+async def get_version_remote(request):
+    """Compare this add-on with the manifest on GitHub (main). Only for editors: it makes a request to the internet."""
+    if not await can_edit(request):
+        return forbidden()
+    local = mf.load_manifest(Path(__file__).parent)
+    if not local:
+        return web.json_response({"state": "unknown"})
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=8)) as sess:
+            async with sess.get(MANIFEST_URL, headers={"Cache-Control": "no-cache"}) as r:
+                if r.status != 200:
+                    return web.json_response({"state": "unreachable", "status": r.status})
+                remote = json.loads(await r.text())
+        if not isinstance(remote, dict) or not isinstance(remote.get("buildHash"), str):
+            return web.json_response({"state": "unreachable"})
+    except (aiohttp.ClientError, asyncio.TimeoutError, ValueError, OSError):
+        return web.json_response({"state": "unreachable"})
+    return web.json_response({"state": mf.relation(local, remote), "version": str(remote.get("version", "")), "short": remote["buildHash"][:7]})
+
+
 # ---------- property import (JSON / GeoJSON -> new house) and export ----------
 APP_DIR = Path(__file__).parent
 EXAMPLE_NAME = re.compile(r"^[a-z0-9_-]{1,40}$")
@@ -1327,6 +1363,8 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.patch("/api/houses/{id}", patch_house),
         web.delete("/api/houses/{id}", delete_house),
         web.get("/api/backup", get_backup),
+        web.get("/api/version", get_version),
+        web.get("/api/version/remote", get_version_remote),
         web.get("/api/backups", get_backups),
         web.post("/api/backups", post_backups),
         web.post("/api/backups/test", post_backups_test),

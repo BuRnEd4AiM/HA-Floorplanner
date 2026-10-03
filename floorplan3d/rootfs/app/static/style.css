@@ -504,3 +504,13 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 #autoBackup .abName { flex: 1 1 100%; color: var(--muted); }
 #autoBackup .abRow button, #autoBackup .abRow a.btn { padding: 2px 8px; }
 #autoBackup .sub.warn { color: #ff6b5e; }
+
+/* version pill: green when the files of the add-on and of the browser match the manifest */
+#versionPill { font-size: 12px; padding: 4px 10px; white-space: nowrap; }
+#versionPill.ver-ok { background: #1f8f4e; border-color: #1f8f4e; color: #fff; }
+#versionPill.ver-warn { background: #c77d0a; border-color: #c77d0a; color: #fff; }
+#versionPill.ver-bad { background: #b3261e; border-color: #b3261e; color: #fff; }
+#versionBody .verLine { margin: 6px 0; word-break: break-all; }
+#versionBody .verLine.ok { color: #2e9e5b; }
+#versionBody .verLine.warn { color: #d99016; }
+#versionBody .verLine.bad { color: #ff6b5e; }

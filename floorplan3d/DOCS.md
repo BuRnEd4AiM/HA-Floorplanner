@@ -208,6 +208,16 @@ For a wall tablet, open the add-on with `?house=Parents` (name or id, case-insen
 
 For a double or triple window, the side panel lists **Individual panes**: pick one contact sensor per pane. Each pane then opens on its own in 3D, and the room panel shows every pane. Panes without their own sensor follow the window's main sensor.
 
+## Version and checksum
+
+At the top right of the bar there is a pill with the **version** and a short **checksum**, for example `✓ v3.24.1 · a1b2c3d`. Every change of the add-on files changes the checksum: a *manifest* with the checksum of every file is committed with the code, and the tests fail when it does not match. The pill checks on every start:
+- **Add-on:** do the files the add-on really has match the manifest? (red when files differ or are missing)
+- **Browser:** do the files your browser really loaded match it? (orange when the browser still shows old files, for example after an update: *Reload (clear cache)* fixes that)
+
+The pill is **green** when both match. Click it for the details and **Check now (also with GitHub)**: the add-on then fetches the manifest of the `main` branch on GitHub and tells you whether it is the same state, whether GitHub has a newer version (update in the add-on store) or a different state. If GitHub cannot be reached, it says so; the other two checks still count.
+
+For developers: after every change in `floorplan3d/` run `python3 tools/make_manifest.py` and commit `manifest.json`.
+
 ## Backup and restore
 
 *Houses & backup* in the side panel: **Download backup** saves everything (all houses, settings, pictures, custom 3D models) as one JSON file, **Restore backup…** replaces the current data with such a file. Handy before big changes, for moving to another Home Assistant or for copying a plan to a second installation. Before a restore, the current layouts and settings are copied to `/data/backups` on the server (last 5 kept). Only editors can export and import.

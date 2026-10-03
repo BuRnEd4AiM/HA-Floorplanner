@@ -3,6 +3,7 @@ import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { initToolbar } from './toolbar.js';
 import { initBackups } from './backups.js';
+import { initVersion } from './version.js';
 import { findAlerts, nightActive, matchScore } from './alerts.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -4353,6 +4354,7 @@ async function saveUsersFile() {
 }
 $('#usersSave').addEventListener('click', saveUsersFile);
 const backupsUi = initBackups({ t, commitSettings });
+initVersion({ t });
 $('#housePanel').addEventListener('toggle', async () => {
   if (!$('#housePanel').open) return;
   if (!settingsLoaded) await loadSettings();

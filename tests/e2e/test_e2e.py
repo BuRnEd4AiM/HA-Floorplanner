@@ -512,6 +512,18 @@ with sync_playwright() as p:
     pgC.click("#viewMenuBtn") if pgC.locator("#viewMenu").is_visible() else None
     pgC.evaluate("fetch('api/settings').then(r => r.json().then(s => fetch('api/settings', {method: 'PUT', headers: {'Content-Type': 'application/json', 'If-Match': r.headers.get('ETag')}, body: JSON.stringify({...s, autoBackup: false})})))"); pgC.wait_for_timeout(400)
     pgC.close()
+    # --- version pill: version and checksum in the top bar, green when add-on files and browser files match the manifest
+    pgV2 = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgV2.goto(BASE + "?mode=edit"); pgV2.wait_for_timeout(2500)
+    ver = api("api/version")
+    check("version: the add-on knows its manifest and its files match", ver["known"] and ver["server"]["ok"], ver.get("server"))
+    check("version: the pill shows version and short checksum", ver["version"] in pgV2.inner_text("#versionPill") and ver["short"] in pgV2.inner_text("#versionPill"), pgV2.inner_text("#versionPill"))
+    check("version: the pill is green when everything matches", "ver-ok" in (pgV2.get_attribute("#versionPill", "class") or ""), pgV2.get_attribute("#versionPill", "class"))
+    pgV2.click("#versionPill"); pgV2.wait_for_timeout(300)
+    check("version: the dialog lists the add-on and browser check", pgV2.locator("#versionBody .verLine.ok").count() >= 2)
+    pgV2.click("#versionCheck"); pgV2.wait_for_timeout(2500)
+    check("version: the GitHub comparison answers (also when GitHub is not reachable)", "GitHub" in pgV2.inner_text("#versionBody"))
+    pgV2.close()
     # --- opening palette is grouped (doors, passages, windows)
     pgP = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgP.goto(BASE + "?mode=edit"); pgP.wait_for_timeout(1200)
