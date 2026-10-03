@@ -114,6 +114,7 @@ Use the buttons **2D**, **3D** and **2D + 3D** at the top. The 2D plan and the 3
 - **Reshape rooms:** double click on the outline of a room or block adds a corner there (then drag it), double click on a corner removes it.
 - **Navigate:** mouse wheel to zoom, right or middle mouse button (or dragging empty space) to pan, two fingers to pinch on touch screens. *Fit* recentres.
 - The object list, the *Lock* selection and the room entity list work the same in 2D.
+- **Customise the tool bar:** the **✎** button at the end of the tool bar opens *Customise tools*. For every tool you choose whether it is shown, in which order (▲ / ▼), and whether it is folded into the **More ▾** menu (rarely used tools stay out of the way but are one click away). *Select* can not be hidden. *Reset* restores the default. The choice is stored in this browser only, so a tablet and a desktop can look different. The bar also has **Dormers** (jumps to the roof floor and its dormer section, and creates a roof floor if there is none) and **Import house** (folded into *More* by default).
 
 ### Floors you do not draw: placeholder blocks
 

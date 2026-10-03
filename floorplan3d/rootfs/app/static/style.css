@@ -481,3 +481,18 @@ body.readonly .admin-only, body.kiosk .admin-only { display: none; }
 
 /* "Floors in plan" only makes sense where the plan is shown */
 body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
+
+/* customisable tool bar */
+#tools { position: relative; }
+#tools .tb-off { display: none !important; }
+#toolsMore { position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; display: flex; flex-direction: column; gap: 4px; padding: 6px; min-width: 160px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+#toolsMore[hidden] { display: none; }
+#toolsMore button { text-align: left; }
+.tbHead, .tbRow { display: grid; grid-template-columns: 52px 1fr 52px 34px 34px; align-items: center; gap: 6px; }
+.tbHead { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 0 0 4px; }
+.tbHead span:first-child, .tbHead span:nth-child(3) { text-align: center; }
+.tbHead span:nth-child(2) { grid-column: 2; }
+.tbRow { padding: 3px 0; border-top: 1px solid var(--line); }
+.tbRow input[type=checkbox] { justify-self: center; width: auto; }
+.tbRow button { padding: 2px 0; }
+#toolsList { max-height: 55vh; overflow: auto; }

@@ -3,6 +3,9 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- **Customisable tool bar**: the **✎** button opens *Customise tools*: show or hide every tool, change the order, and fold rarely used tools into a **More ▾** menu. Stored per browser. New buttons **Dormers** (opens the dormer section of the roof floor, creates a roof floor if needed) and **Import house** (folded into *More* by default)
+- **Users & tablets**: the room list is grouped by house, and every room shows its floor (*Living room · Ground floor*), so you can see where a room is, also across several houses
 
 ## [3.22.0] - 2026-10-02
 ### Added
