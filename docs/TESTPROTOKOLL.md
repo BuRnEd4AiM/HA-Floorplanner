@@ -196,6 +196,15 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 18.9 | Herunterladen (⬇) und Löschen (×) in der Liste | ❓ |
 | 18.10 | Der Schalter „Auto“ im Menü „Ansicht“ lässt die anderen Einstellungen unverändert (Design bleibt) | ❓ |
 
+### 19. Version und Prüfsumme in der Leiste (nächste Version)
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 19.1 | Oben rechts steht die Version mit kurzer Prüfsumme, zum Beispiel „✓ v3.25.0 · a1b2c3d“ | ❓ |
+| 19.2 | Die Anzeige ist grün, wenn Add-on und Browser zur Prüfsumme passen | ❓ |
+| 19.3 | Ein Klick öffnet die Einzelheiten (Version, Prüfsumme, Add-on, Browser) | ❓ |
+| 19.4 | „Jetzt prüfen (auch mit GitHub)“ meldet: gleicher Stand / neuere Version / anderer Stand | ❓ |
+| 19.5 | Nach einem Update zeigt sie die neue Version; zeigt der Browser noch alte Dateien, ist sie orange und „Neu laden“ hilft | ❓ |
+
 ## Automatisch geprüft (zusätzlich)
 - Python: Benutzer werden in `users.json` gespiegelt; Synchronisieren lädt/speichert; frische Installation holt sich Benutzer aus der Datei zurück.
 - Browser-Test: Benutzer-Reiter sichtbar für Admins, versteckt für Nur-Lese-Benutzer; nicht mehr im Zahnrad; Tablet speichern; Synchronisieren.

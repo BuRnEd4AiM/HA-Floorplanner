@@ -47,6 +47,7 @@
     </div>
     <div class="group right">
       <span id="status"></span>
+      <button id="versionPill" class="pill ver-wait" type="button" hidden></button>
       <button id="usersBtn" class="admin-only" data-i18n="users.btn" data-i18n-title="users.tip"></button>
       <button id="saveBtn" class="primary edit-only" data-i18n="save"></button>
       <button id="settingsBtn" class="icon" data-i18n-title="settings" aria-label="Settings">⚙</button>
@@ -284,6 +285,17 @@
     <p class="sub" data-i18n="open.hint"></p>
     <p id="openNone" data-i18n="open.allClosed" hidden></p>
     <ul id="openList"></ul>
+  </form>
+</dialog>
+
+<dialog id="versionDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="ver.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <div id="versionBody"></div>
+    <div class="stopTools">
+      <button type="button" id="versionCheck" data-i18n="ver.check"></button>
+      <button type="button" id="versionReload" data-i18n="ver.reload" hidden></button>
+    </div>
   </form>
 </dialog>
 
