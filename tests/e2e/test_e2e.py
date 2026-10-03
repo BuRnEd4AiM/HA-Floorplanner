@@ -447,6 +447,7 @@ with sync_playwright() as p:
     pgW.goto(BASE + "?debug=1&mode=edit"); pgW.wait_for_timeout(1500)
     pgW.click("#view2d"); pgW.wait_for_timeout(500)
     pgW.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.push({id: 'wsplit', a: [30, 30], b: [34, 30], thickness: 0.2, height: 2.6, openings: []}); window.__fp.rebuild()"); pgW.wait_for_timeout(300)
+    pgW.click("#fitBtn"); pgW.wait_for_timeout(400)
     n0 = pgW.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.length")
     px, py = pgW.evaluate("window.__fp.plan().toClient(32, 30)")
     pgW.mouse.dblclick(px, py); pgW.wait_for_timeout(300)
@@ -488,6 +489,7 @@ with sync_playwright() as p:
     groups = pgG.evaluate("[...document.querySelectorAll('#tabletRows .tablet [data-role=room] optgroup')].map(g => g.label)")
     check("users dialog: room list is grouped by house", "Gruppen Haus" in groups and len(groups) >= 1, groups)
     check("users dialog: a room shows its floor", pgG.evaluate("[...document.querySelectorAll('#tabletRows .tablet [data-role=room] option')].some(o => o.textContent.includes(' · '))"))
+    pgG.evaluate("fetch('api/houses').then(r => r.json()).then(l => Promise.all(l.filter(h => h.name === 'Gruppen Haus').map(h => fetch('api/houses/' + h.id, {method: 'DELETE'}))))"); pgG.wait_for_timeout(300)
     pgG.close()
     # --- several houses + per-pane window sensors
     pg6 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
