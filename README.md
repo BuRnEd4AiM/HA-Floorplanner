@@ -110,7 +110,7 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 | **Walls, rooms and floors** | Draw on a snapping grid in a 2D blueprint editor that is linked live with the 3D view (split view). Several floors, basement and roof, placeholder blocks for floors you do not draw |
 | **Trace your plan** | Load a scan or photo of your floor plan as a template, calibrate its scale and trace over it |
 | **Stairs** | Straight, L-shaped, U-shaped and spiral stairs with real floor openings |
-| **Doors and windows** | 12 presets: front door, glass door, double door, sliding door, single / double / triple window, balcony door, fixed glazing ... they cut real openings into the wall and open when the contact sensor reports *open* |
+| **Doors and windows** | 14 presets: front door, glass door, double door, sliding door, single / double / triple window, balcony door, fixed glazing ... they cut real openings into the wall and open when the contact sensor reports *open* |
 | **Garden and surroundings** | Trees, bushes, lawn, terrace, pool, paths, fences and cars around the house, in natural colours |
 | **Plot and ground** | Draw your **plot** (Grundstück) in the 2D plan, or set how far the lawn reaches around the house. The house stands in solid ground, a basement is shown as a section with soil layers |
 | **Whole-house view** | See all floors, basement and roof stacked as one building |
@@ -143,6 +143,25 @@ Describe plot, rooms, windows and devices as JSON (write it by hand, let an AI g
 </table>
 
 API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema`. Full guide: **[English](docs/IMPORT.en.md)** · **[Deutsch](docs/IMPORT.md)**
+
+### 🧰 Make it yours
+
+- **Customisable toolbar**: ✎ lets you show, hide and re-order the tools; rarely used ones fold into a *More ▾* menu
+- **Dormers and roof size**: add dormers (gabled or flat) from the toolbar, and set the roof size by hand if the automatic one does not fit
+- **Double-click a wall** to add a corner exactly there
+- **Placed devices stay selected** so you can fine-tune them right away (switchable in the settings)
+- **First start**: an empty house shows a welcome card: draw walls, try the example house or import your own
+
+<table>
+<tr>
+<td width="50%"><img src="docs/img/toolbar.png" alt="Dialog to customise the toolbar"><br><sub><b>Toolbar</b>: show, hide and order the tools</sub></td>
+<td width="50%"><img src="docs/img/welcome.png" alt="Welcome card on an empty house"><br><sub><b>First start</b>: three ways to begin</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/img/backup.png" alt="Automatic backup settings"><br><sub><b>Automatic backups</b> with check and restore</sub></td>
+<td width="50%"><img src="docs/img/version.png" alt="Version and checksum dialog"><br><sub><b>Version and checksum</b>: proves which files really run</sub></td>
+</tr>
+</table>
 
 ### 🪑 Furnish it
 
@@ -192,6 +211,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Import by JSON / AI / GeoJSON**: describe plot, rooms, windows and devices and get a new house; includes examples, schema, API and an AI prompt ([guide](docs/IMPORT.en.md))
 - **7 languages**: Deutsch, English, Français, Español, Italiano, Nederlands, Polski (⚙ → Language, or *Auto*). Adding another one is a single file, see [CONTRIBUTING](CONTRIBUTING.md)
 - **Backup and restore**: one file with all houses, settings, pictures and models. A safety copy is made before every restore
+- **Automatic backups**: optional, daily or at your own interval, stored in the add-on's config folder (`addon_configs`), with retention by days and count, a *Check the newest* test and one-click restore
 - **Undo**: `Ctrl+Z` for everything you draw
 - **Your data stays yours**: layouts live in the add-on's `/data` folder and survive updates
 
@@ -206,7 +226,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 ### 🎨 Look
 
-Dark and light theme, a hologram look as a gimmick, metric or imperial units, and 7 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski).
+Dark theme by default (light theme and a hologram look as a gimmick are one click away), metric or imperial units, and 7 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski).
 
 ## 📦 Installation
 
@@ -248,6 +268,22 @@ To build it yourself: `cd demo && npm install && npm run build`.
 - [Import a house by JSON / AI / GeoJSON](docs/IMPORT.en.md) ([Deutsch](docs/IMPORT.md); with screenshots, format reference, API, prompt tips; examples in [docs/examples](docs/examples))
 - [Architecture](docs/ARCHITECTURE.md): how the add-on is built
 - [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md) · [Security policy](SECURITY.md)
+
+## 🩺 Troubleshooting / FAQ
+
+**The panel is empty or shows old behaviour after an update.** Look at the pill in the top bar (version + short checksum):
+
+| Pill | Meaning | What to do |
+| --- | --- | --- |
+| 🟢 green | Add-on files and browser files match the manifest | All fine. If something is still wrong, it is a real bug: please open an issue and mention the checksum |
+| 🟠 orange | The browser shows older files than the add-on has | Open the pill, press *Reload (clear cache)* |
+| 🔴 red | Files of the add-on differ from the manifest | Reinstall / update the add-on |
+
+**Where is my data?** Layouts and settings are in the add-on's `/data` folder and survive updates. Backups (if enabled) are in the add-on config folder: *File editor → `addon_configs` → folder with `floorplan3d` → `backups`*, or via Samba / SSH at `/addon_configs/`.
+
+**How do I update?** *Settings → Apps → 3D Floorplan → Update*. The pill's dialog can also compare with the newest manifest on GitHub (only when you press the button).
+
+**Does it send data anywhere?** No. Three.js is bundled; the only outside request is that optional GitHub comparison.
 
 ## 🛠️ Development
 
