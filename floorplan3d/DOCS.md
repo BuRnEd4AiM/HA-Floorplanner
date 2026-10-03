@@ -109,9 +109,10 @@ Areas are read through Home Assistant's template API; if that is not available t
 
 Use the buttons **2D**, **3D** and **2D + 3D** at the top. The 2D plan and the 3D view show the same data: whatever you draw or move in one appears in the other immediately (best seen in the split view).
 
+- **Place devices:** pick *Gerät* and a type, click into the plan. The new device is selected right away, so you can move it (drag or arrow keys) or link its entity; the next click on empty space deselects it and the next device can be placed.
 - **Draw:** pick *Wall* or *Room* and click the corners. Double click, Enter or Esc finishes; clicking the first corner closes a room. Corners snap to the grid and to existing corners. Hold **Shift** for 45° angles, **Alt** to switch snapping off.
 - **Move:** with *Select*, drag furniture, doors/windows (along their wall), whole walls or rooms. A selected wall or room shows corner handles; connected walls and room corners move along.
-- **Reshape rooms:** double click on the outline of a room or block adds a corner there (then drag it), double click on a corner removes it.
+- **Reshape rooms:** double click on the outline of a room or block adds a corner there (then drag it), double click on a corner removes it. Double click on a **wall** adds a corner on it, the wall becomes two walls (Ctrl+Z takes it back); doors and windows stay with the piece they sit on, and a room that runs along the wall gets the corner too. Too close to a wall end or on a door / window nothing happens.
 - **Navigate:** mouse wheel to zoom, right or middle mouse button (or dragging empty space) to pan, two fingers to pinch on touch screens. *Fit* recentres.
 - The object list, the *Lock* selection and the room entity list work the same in 2D.
 - **Customise the tool bar:** the **✎** button at the end of the tool bar opens *Customise tools*. For every tool you choose whether it is shown, in which order (▲ / ▼), and whether it is folded into the **More ▾** menu (rarely used tools stay out of the way but are one click away). *Select* can not be hidden. *Reset* restores the default. The choice is stored in this browser only, so a tablet and a desktop can look different. The bar also has **Dormers** (jumps to the roof floor and its dormer section, and creates a roof floor if there is none) and **Import house** (folded into *More* by default).
@@ -194,7 +195,7 @@ The pill **✓ 0 offline** over the plan (live and edit mode) turns red (**⚠ n
 ## Library, doors, windows and pictures
 
 - **Library:** tool *Gerät* shows every piece with a preview. Filter with the category chips (living, kitchen, bath, bedroom, office, lighting, tech, outdoor, decor) or search by name.
-- **Doors and windows:** tool *Tür/Fenster* offers front door, glass door, double door, sliding door, passage, single/double/triple window, balcony door, small bath window and fixed glazing. In the side panel of a placed opening, *Ausführung* changes its style later.
+- **Doors and windows:** tool *Tür/Fenster* offers, in three groups, **Doors** (door, front door, glass door, double door, sliding door), **Passages and gates** (passage, opening without frame, garage door) and **Windows** (single/double/triple window, balcony door, small bath window, fixed glazing). In the side panel of a placed opening, *Ausführung* changes its style later.
 - **Pictures:** place *Bild* (category Decor), then *Bild laden …* in the side panel to upload a PNG, JPG or WebP; set the width, the height follows the image. Wall-hung items (pictures, mirrors, panels, radiators, wall lamps ...) snap flat onto the closest wall when placed; *An Wand ausrichten* does it for an existing one.
 
 ## Several houses

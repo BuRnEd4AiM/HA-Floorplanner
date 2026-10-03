@@ -895,6 +895,7 @@ export function createPlan(ctx) {
       f.devices.push(d);
       ctx.setSelection({ kind: 'device', id: d.id });
       ctx.commit();
+      ctx.holdPlaced();
     }
   }
 
@@ -929,6 +930,8 @@ export function createPlan(ctx) {
         if (hd.room.points.length > 3) { ctx.snapshot(); hd.room.points.splice(hd.i, 1); ctx.commit(); }
         return;
       }
+      const wallHit = h?.kind === 'wall' ? floor().walls.find((w) => w.id === h.id) : null;
+      if (wallHit && splitWallAt(wallHit, x, z)) return;             // double click on a wall adds a corner there: the wall becomes two
       const edge = edgeAt(x, z);
       if (edge) {                                                    // double click on an edge adds a corner there
         ctx.snapshot();
@@ -938,6 +941,34 @@ export function createPlan(ctx) {
       }
     }
   });
+
+  /* split a wall in two at the point of it closest to (x, z); doors / windows go with the piece they sit on, the corner is
+   * also added to the rooms and blocks that run along this wall, so moving it later keeps them together.
+   * Returns false when there is no room for it (too close to an end or inside a door / window). */
+  function splitWallAt(w, x, z) {
+    const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], L = Math.hypot(dx, dz);
+    if (L < 0.4) return false;
+    const t = ((x - w.a[0]) * dx + (z - w.a[1]) * dz) / (L * L), d = t * L;
+    if (d < 0.2 || d > L - 0.2) return false;
+    if ((w.openings || []).some((o) => Math.abs(o.pos - d) < o.width / 2 + 0.02)) return false;
+    const pt = [+(w.a[0] + dx * t).toFixed(3), +(w.a[1] + dz * t).toFixed(3)];
+    ctx.snapshot();
+    const f = floor();
+    const second = { ...w, id: ctx.uid(), a: [...pt], b: [...w.b], openings: (w.openings || []).filter((o) => o.pos > d).map((o) => ({ ...o, pos: o.pos - d })) };
+    w.openings = (w.openings || []).filter((o) => o.pos <= d);
+    w.b = [...pt];
+    f.walls.splice(f.walls.indexOf(w) + 1, 0, second);
+    [...f.rooms, ...(f.blocks || [])].forEach((poly) => {
+      const ps = poly.points;
+      for (let i = 0; i < ps.length; i++) {
+        const a = ps[i], b = ps[(i + 1) % ps.length];
+        if (distSeg(pt[0], pt[1], a, b) < 0.03 && Math.hypot(pt[0] - a[0], pt[1] - a[1]) > 0.05 && Math.hypot(pt[0] - b[0], pt[1] - b[1]) > 0.05) { ps.splice(i + 1, 0, [...pt]); break; }
+      }
+    });
+    ctx.setSelection({ kind: 'wall', id: w.id });
+    ctx.commit();
+    return true;
+  }
 
   /* nearest edge of a room / block (the selected one wins) under the pointer, with the point on that edge */
   function edgeAt(x, z) {

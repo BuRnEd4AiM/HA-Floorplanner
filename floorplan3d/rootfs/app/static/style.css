@@ -496,3 +496,5 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 .tbRow input[type=checkbox] { justify-self: center; width: auto; }
 .tbRow button { padding: 2px 0; }
 #toolsList { max-height: 55vh; overflow: auto; }
+
+.opGroup { margin: 10px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
