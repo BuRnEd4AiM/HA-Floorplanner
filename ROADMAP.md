@@ -8,6 +8,20 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - **0.2 Professional basics** – settings, doors and windows, custom GLB models, live view for wall tablets
 - **0.3 – 0.7 Daily use** – Home Assistant areas, entity search, room panel, object list, selection lock, 2D blueprint editor with split view, light colours and effects, more furniture, light ball and LED strip, administrator-only editing, per-user room and view, whole-room control with scenes
 
+## Done in 3.20 – 3.26
+
+- [x] Dormers and manual roof size, basement without a hole in the ground
+- [x] Customisable toolbar with a *More* menu, rooms grouped by house in the user list
+- [x] Double-click a wall to add a corner, grouped opening palette, placed devices stay selected
+- [x] Automatic backups with retention, check and restore
+- [x] Version and checksum pill (add-on files, browser, GitHub)
+- [x] Add-on store listing (icon, logo, translations), welcome card on first start
+
+## Ideas, not started
+
+- [ ] HACS Lovelace card ([#13](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/13))
+- [ ] Sun light and shadows by time of day ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68))
+
 ## v0.8 – Live sync – done in 3.6.0
 
 - [x] Live state updates via WebSocket instead of polling (3.6.0)
@@ -61,6 +75,6 @@ Describe a plot and the building as JSON (or import GeoJSON footprints) and let 
 - [x] Move floors, basement, roof, garden objects, whole-house view (0.9.0)
 - [x] Nanoleaf panel shapes and layout editor (0.10.0)
 - [x] Multi-segment LED strips: LED ring around the room, one light per section (3.3.0)
-- [ ] Automatic room detection from closed wall loops
+- [x] Automatic room detection from closed wall loops (*Detect rooms*)
 - [x] Background image / blueprint for tracing (0.7.2)
 - [x] More languages: Français, Español, Italiano, Nederlands, Polski (3.1.0)
