@@ -3,6 +3,8 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [3.25.0] - 2026-10-03
 ### Added
 - **Version and checksum in the top bar**: a pill with the version and a short checksum (`✓ v3.24.1 · a1b2c3d`), green when the files of the add-on and the files the browser loaded both match the committed manifest (`manifest.json`, written by `tools/make_manifest.py`, checked by the tests). The dialog behind it lists the checks and can compare with the manifest on GitHub (`main`): same state, newer version available, or different. *Reload (clear cache)* when the browser shows old files
 ### Changed

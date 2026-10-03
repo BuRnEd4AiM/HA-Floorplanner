@@ -1,6 +1,6 @@
 {
- "version": "3.24.1",
- "buildHash": "0af46e2bef3133830987980ef3eceea01b9f924ea2014d46479e26a2761043b2",
+ "version": "3.25.0",
+ "buildHash": "23dd4ea1c520e44b34ce5b8ec90d6f94b472eb542831d5f294c97ed310ffe665",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
