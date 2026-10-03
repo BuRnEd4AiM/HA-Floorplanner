@@ -46,8 +46,71 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 3.6 | Einstellung bleibt nach dem Neuladen | ✅ |
 | 3.7 | Umrisse stören das Zeichnen nicht | ✅ |
 
-### 4. Räume · 5. Farbansichten · 6. Kameras · 7. Türen/Fenster/Garage · 8. Live-Ansicht · 9. Bearbeiten · 10. Tablet/Bedienung
-Alle Punkte der Liste aus dem Chat: ❓ (werden vom Besitzer nacheinander abgehakt und hier eingetragen).
+### 4. Räume
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 4.1 | Raum zeichnen (Werkzeug „Raum“), die erste Ecke schließt den Raum | ✅ im Add-on (2026-10-03) |
+| 4.2 | „Räume erkennen“ legt Räume aus geschlossenen Wänden an | ✅ im Add-on (2026-10-03) |
+| 4.3 | Raum benennen, Farbe wählen, Ecken verschieben, Ecke an der Raumkante per Doppelklick hinzufügen oder entfernen | ✅ im Add-on (2026-10-03) |
+| 4.3a | Doppelklick auf eine Wand fügt eine Ecke hinzu, die Wand wird zu zwei Wänden (Wunsch aus dem Test, neu in der nächsten Version) | ❓ |
+| 4.4 | Dropdown „Zimmer ▾“ oben: Raum anwählen, die Kamera fährt hin | ✅ im Add-on (2026-10-03) |
+| 4.5 | Raum mit einem Home-Assistant-Bereich verknüpfen, „Alle … sinnvoll platzieren“ | ✅ im Add-on (2026-10-03) |
+| 4.6 | Objektliste im Seitenpanel nach Räumen gruppiert, Suchfeld findet Objekte | ✅ im Add-on (2026-10-03) |
+
+### 5. Farbansichten und Messwerte
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 5.1 | Normal / Temp. / Feuchte / CO₂ färbt die Räume nach Sensorwerten, die Legende erscheint | ✅ im Add-on (2026-10-03) |
+| 5.2 | Wertplaketten auf Geräten (wichtige / alle / keine) | ✅ im Add-on (2026-10-03) |
+| 5.3 | Funktioniert auf jeder Etage und in jedem Raum | ✅ im Add-on (2026-10-03) |
+
+### 6. Kameras
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 6.1 | Kamera-Gerät zeigt einen Sichtkegel am Boden (Sichtwinkel, Reichweite) | ❓ |
+| 6.2 | Mit Bewegungssensor färbt sich der Kegel rot | ❓ |
+| 6.3 | Knopf 📷 oben öffnet die Kameraübersicht | ❓ |
+
+### 7. Türen, Fenster, Garage
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 7.1 | Tür oder Fenster in eine Wand setzen, Ausführung später ändern | ✅ im Add-on (2026-10-03) |
+| 7.1a | Die Auswahl „Öffnung“ ist gruppiert (Türen / Durchgänge und Tore / Fenster) (Wunsch aus dem Test, neu in der nächsten Version) | ❓ |
+| 7.2 | Verschieben entlang der Wand, Überlappung wird verhindert | ✅ im Add-on (2026-10-03) |
+| 7.3 | Fenster mit mehreren Scheiben: je Scheibe ein eigener Kontaktsensor | ✅ im Add-on (2026-10-03) |
+| 7.4 | Garagentor in eine Wand setzen, bei „Auf“ rollen die Lamellen hoch | ✅ im Add-on (2026-10-03) |
+| 7.5 | Offene Fenster und Türen zeigt die Plakette „open“ | ✅ im Add-on (2026-10-03) |
+
+### 8. Live-Ansicht (echte Geräte)
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 8.1 | Gerät antippen: Zustand und Steuerung erscheinen | ✅ im Add-on (2026-10-03) |
+| 8.2 | Raumblock „Ganzer Raum“: alle Lichter schalten, Szenen starten | ✅ im Add-on (2026-10-03) |
+| 8.3 | Sensorwerte neben den Geräten | ✅ im Add-on (2026-10-03) |
+| 8.4 | Änderungen in Home Assistant erscheinen live ohne Neuladen | ✅ im Add-on (2026-10-03) |
+| 8.5 | Warnbanner (Rauch, Wasser, offenes Fenster bei Regen), Tippen springt in den Raum | ❓ |
+| 8.6 | Plakette „offline“ zeigt nicht erreichbare Geräte und springt zum Gerät | ✅ im Add-on (2026-10-03) |
+| 8.7 | Suche 🔍 „Wo ist …?“ springt zum Gerät | ✅ im Add-on (2026-10-03) |
+
+### 9. Bearbeiten
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 9.1 | Wände zeichnen und verschieben, Rückgängig (Strg+Z) | ✅ im Add-on (2026-10-03) |
+| 9.2 | Möbel aus der Bibliothek setzen, drehen, strecken, sperren | ✅ im Add-on (2026-10-03) |
+| 9.3 | Bild an die Wand hängen (PNG/JPG hochladen) | ✅ im Add-on (2026-10-03) |
+| 9.4 | Hintergrundbild als Vorlage zum Nachzeichnen | ✅ im Add-on (2026-10-03) |
+| 9.5 | Mehrere Häuser: anlegen, kopieren, umbenennen, löschen, Hausauswahl | ✅ im Add-on (2026-10-03) |
+| 9.6 | Backup herunterladen und wiederherstellen | ❓ |
+| 9.7 | Automatisches Speichern, nach dem Neuladen ist alles noch da | ❓ |
+
+### 10. Tablet und Bedienung
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 10.1 | Wandtablet mit ?kiosk=1 oder ?room=…: zeigt nur den Raum | ❓ |
+| 10.2 | Zurück zur Startansicht nach einigen Minuten ohne Berührung | ❓ |
+| 10.3 | Bildschirmschoner und Nachtabsenkung, die erste Berührung weckt nur | ❓ |
+| 10.4 | Leistungsmodus: Automatisch / Schön / Schnell | ❓ |
+| 10.5 | Benutzer sehen nur ihren Raum und ihre Ansicht | ❓ |
 
 ### 11. Benutzer & Tablets (3.20.0)
 | Nr. | Prüfpunkt | Ergebnis |

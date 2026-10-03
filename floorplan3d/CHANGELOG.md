@@ -3,6 +3,10 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- **Double click on a wall adds a corner** in the 2D plan: the wall becomes two walls (doors and windows stay with their piece, rooms along the wall get the corner too, Ctrl+Z takes it back)
+### Changed
+- The opening palette (*Tür/Fenster*) is grouped: **Doors**, **Passages and gates**, **Windows**
 
 ## [3.23.0] - 2026-10-03
 ### Added
