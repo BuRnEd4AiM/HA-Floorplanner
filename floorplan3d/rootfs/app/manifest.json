@@ -1,6 +1,6 @@
 {
- "version": "3.25.0",
- "buildHash": "23dd4ea1c520e44b34ce5b8ec90d6f94b472eb542831d5f294c97ed310ffe665",
+ "version": "3.25.1",
+ "buildHash": "b2fd791ec131cb1c17cdce38245e536e8ceb16f0f04ef8f1c9743932234f34ea",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -146,7 +146,7 @@
   "static/models.js": "084ac5a43d205cb8db0323e6f9d06edc063e311d1484b282181875f41aa5472c",
   "static/moreinfo.js": "3e6fbc369851fbba399a7edf0ac1868601fcb808bb18f7e43afaa4936197767a",
   "static/nanoleaf.js": "f36e7c670222282ea26a07b11845553c7174173d87a65e83e6455b1cc7fa5eeb",
-  "static/plan2d.js": "92fe4592a2a7d57f65f2a836bdfe0524f36c470622110e44d1937b2d21fec530",
+  "static/plan2d.js": "54a92227fa773ad7eff4ef6cec1741b84bb59b1d7ffff7be30405d8e11c5a660",
   "static/rooms.js": "f652a98623eb6e642228b91f3650405c3091679cdae1f54a2d08dac01ff7c1b7",
   "static/stairs.js": "a3ed6e0045aeaea69cd1ad0e5c5f5c0ddaf0f613ac9d8dd518114b7fe740fb9d",
   "static/style.css": "3b32e4d41aa9cba4f1578786626955b491c8be504ed00d47915b2236df81953f",
