@@ -109,6 +109,7 @@ Areas are read through Home Assistant's template API; if that is not available t
 
 Use the buttons **2D**, **3D** and **2D + 3D** at the top. The 2D plan and the 3D view show the same data: whatever you draw or move in one appears in the other immediately (best seen in the split view).
 
+- **Place devices:** pick *Gerät* and a type, click into the plan. The new device is selected right away, so you can move it (drag or arrow keys) or link its entity; the next click on empty space deselects it and the next device can be placed.
 - **Draw:** pick *Wall* or *Room* and click the corners. Double click, Enter or Esc finishes; clicking the first corner closes a room. Corners snap to the grid and to existing corners. Hold **Shift** for 45° angles, **Alt** to switch snapping off.
 - **Move:** with *Select*, drag furniture, doors/windows (along their wall), whole walls or rooms. A selected wall or room shows corner handles; connected walls and room corners move along.
 - **Reshape rooms:** double click on the outline of a room or block adds a corner there (then drag it), double click on a corner removes it. Double click on a **wall** adds a corner on it, the wall becomes two walls (Ctrl+Z takes it back); doors and windows stay with the piece they sit on, and a room that runs along the wall gets the corner too. Too close to a wall end or on a door / window nothing happens.

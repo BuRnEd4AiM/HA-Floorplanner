@@ -895,6 +895,7 @@ export function createPlan(ctx) {
       f.devices.push(d);
       ctx.setSelection({ kind: 'device', id: d.id });
       ctx.commit();
+      ctx.holdPlaced();
     }
   }
 

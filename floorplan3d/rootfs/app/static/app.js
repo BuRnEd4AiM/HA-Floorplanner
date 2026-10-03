@@ -1632,6 +1632,7 @@ function refreshSelection() {
     if (!exists) selection = null;
   }
   if (!selection) lockedSel = false;
+  if (returnToTool && !selection) { const back = returnToTool; setTool(back); }   // the placed device is deselected: carry on placing
   document.body.classList.toggle('locksel', lockedSel);
   refreshSelHelper();
   renderProps();
@@ -2127,10 +2128,16 @@ canvas.addEventListener('pointerup', (e) => {
     floor().devices.push(d);
     selection = { kind: 'device', id: d.id };
     changed();
+    holdPlaced();
     if (d.type === 'nanoleaf') editNano(d);
   }
 });
 
+/** a device was just placed: it stays selected and can be moved at once; the next click on empty space deselects it and placing goes on */
+function holdPlaced() {
+  if (tool !== 'device') return;
+  setTool('select'); returnToTool = 'device';
+}
 canvas.addEventListener('pointerleave', () => { if (tool === 'opening') { openingPreview = null; clearGroup(temp); } });
 
 canvas.addEventListener('dblclick', (e) => {
@@ -2721,8 +2728,9 @@ function renderRoomPanel() {
 function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPanel(); }
 
 /* ================= Tools, views, mode ================= */
+let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
 function setTool(next) {
-  if (next !== 'select') lockedSel = false;
+  if (next !== 'select') { lockedSel = false; returnToTool = null; }
   tool = next; endDrawing(); plan?.reset(); document.body.dataset.tool = next; setStatus('');
   if (bgMode) setBgMode(null);
   document.querySelectorAll('#tools button').forEach((b) => b.classList.toggle('active', b.dataset.tool === next));
@@ -4424,6 +4432,7 @@ plan = createPlan({
   floor: () => floor(), layout: () => layout, getFloorIdx: () => floorIdx, settings: () => settings,
   getTool: () => tool, getOpeningType: () => openingType, isLive: () => isLive(), isLocked: () => lockedSel,
   getSelection: () => selection,
+  holdPlaced,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate,
   bgChanged: () => renderBgPanel(), floorH: () => FLOOR_H, ghostFloors: () => ghostFloors(), addBlock, addHole, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
