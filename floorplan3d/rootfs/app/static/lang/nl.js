@@ -583,6 +583,7 @@ export default {
   'set.labels.none': 'Geen',
   'set.lowWalls': 'Starten met lage muren',
   'set.wallStop': 'Apparaten stoppen bij muren (deuren laten ze door)',
+  'set.placeSelect': 'Een net geplaatst apparaat geselecteerd houden (de volgende klik op een lege plek heft de selectie op)',
   'set.cutaway': 'Muren richting de camera automatisch verlagen',
   'set.earth': 'Grond rond het huis (kelder in de grond)',
   'set.earth.solid': 'Vol, aan de camerakant opengesneden',

@@ -583,6 +583,7 @@ export default {
   'set.labels.none': 'Brak',
   'set.lowWalls': 'Zaczynaj z niskimi ścianami',
   'set.wallStop': 'Urządzenia zatrzymują się na ścianach (drzwi je przepuszczają)',
+  'set.placeSelect': 'Zostaw nowo umieszczone urządzenie zaznaczone (następne kliknięcie w puste miejsce odznacza je)',
   'set.cutaway': 'Automatycznie obniżaj ściany zwrócone do kamery',
   'set.earth': 'Ziemia wokół domu (piwnica w gruncie)',
   'set.earth.solid': 'Pełna, przecięta od strony kamery',

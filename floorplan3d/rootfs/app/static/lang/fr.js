@@ -583,6 +583,7 @@ export default {
   'set.labels.none': 'Aucune',
   'set.lowWalls': 'Démarrer avec les murs bas',
   'set.wallStop': 'Les appareils s\'arrêtent aux murs (les portes les laissent passer)',
+  'set.placeSelect': 'Garder l’appareil qui vient d’être placé sélectionné (le clic suivant dans le vide le désélectionne)',
   'set.cutaway': 'Abaisser automatiquement les murs face à la caméra',
   'set.earth': 'Terre autour de la maison (sous-sol enterré)',
   'set.earth.solid': 'Pleine, coupée du côté de la caméra',
