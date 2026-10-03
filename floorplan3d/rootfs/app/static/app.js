@@ -2,6 +2,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { initToolbar } from './toolbar.js';
+import { initBackups } from './backups.js';
 import { findAlerts, nightActive, matchScore } from './alerts.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -25,7 +26,7 @@ const params = new URLSearchParams(location.search);
 
 let settings = {
   language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, placeSelect: true, earth: 'solid', earthMargin: 5,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, placeSelect: true, autoBackup: false, backupEveryHours: 24, backupKeepDays: 14, backupKeepCount: 30, earth: 'solid', earthMargin: 5,
   alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
   userRooms: {}, userViews: {}, belowVisibility: 0.5, belowMode: 'dim', bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
@@ -4122,7 +4123,7 @@ const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
   shadows: '#setShadows', labelMode: '#setLabels', cameraImages: '#setCameraImages', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
-  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect',
+  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', belowMode: '#setBelowMode', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
@@ -4282,7 +4283,7 @@ async function loadSettings() {
   for (let i = 0; i < 6 && !settingsLoaded; i++) {
     try {
       const r = await fetch('api/settings');
-      if (r.ok) { settings = { ...settings, ...(await r.json()) }; settingsEtag = r.headers.get('ETag'); settingsLoaded = true; break; }
+      if (r.ok) { settings = { ...settings, ...(await r.json()) }; settingsEtag = r.headers.get('ETag'); settingsLoaded = true; fillSettingsForm(); break; }   // the form always shows the real settings: every later save reads it back
     } catch { /* add-on is probably restarting, try again */ }
     await new Promise((res) => setTimeout(res, 1000 * (i + 1)));
   }
@@ -4351,6 +4352,13 @@ async function saveUsersFile() {
   } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
 }
 $('#usersSave').addEventListener('click', saveUsersFile);
+const backupsUi = initBackups({ t, commitSettings });
+$('#housePanel').addEventListener('toggle', async () => {
+  if (!$('#housePanel').open) return;
+  if (!settingsLoaded) await loadSettings();
+  fillSettingsForm();
+  backupsUi.refresh();
+});
 $('#usersSync').addEventListener('click', syncUsersFile);
 usersDlg.addEventListener('change', async () => { await commitSettings(); refreshUsersFile(); });
 usersDlg.addEventListener('click', (e) => { if (e.target === usersDlg) usersDlg.close(); });

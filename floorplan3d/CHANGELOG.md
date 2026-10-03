@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 ### Added
+- **Automatic backups**: *Houses & backup → Automatic backup*. Switch on, set the interval (hours, 24 = daily), how many days and how many automatic backups are kept; old ones are deleted by themselves (the newest automatic one stays, manual ones are never deleted). Stored in the configuration folder of the add-on (`addon_configs/…_floorplan3d/backups`), so they survive updates and reinstalls. **Back up now**, **Check** (reads a backup like a restore would, changes nothing), **Restore**, download and delete from the list. The schedule runs inside the add-on
+### Fixed
+- **Settings were overwritten with defaults** when something saved the settings before the ⚙ dialog had been opened (for example the *Auto* switch in the *View* menu): the settings form is now filled as soon as the settings are loaded
+### Added
 - **A placed device stays selected**: after placing a device you can move it at once (drag, arrow keys, side panel); the next click on empty space deselects it and placing goes on with the same device type
 - **Double click on a wall adds a corner** in the 2D plan: the wall becomes two walls (doors and windows stay with their piece, rooms along the wall get the corner too, Ctrl+Z takes it back)
 ### Changed

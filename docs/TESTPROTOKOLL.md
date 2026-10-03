@@ -181,6 +181,20 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 17.6 | Knopf „Haus importieren" liegt standardmäßig im Menü „Mehr" | ✅ |
 | 17.7 | Benutzer & Tablets: Raumliste nach Haus gruppiert, mit Etage dahinter | ✅ |
 
+### 18. Automatische Sicherung (nächste Version)
+| Nr. | Prüfpunkt | Ergebnis |
+|---|---|---|
+| 18.1 | „Häuser & Backup“ zeigt den Abschnitt „Automatische Sicherung“ | ❓ |
+| 18.2 | „Jetzt sichern“ legt eine Datei an, sie steht in der Liste (Art „von Hand“) | ❓ |
+| 18.3 | Die Datei liegt im Ordner `addon_configs/…_floorplan3d/backups` | ❓ |
+| 18.4 | „Neueste prüfen“ meldet, wie viele Häuser, Bilder und Modelle die Sicherung enthält | ❓ |
+| 18.5 | „Automatisch sichern“ einschalten, Abstand, Tage und Anzahl einstellen, nach dem Neuladen stehen die Werte noch | ❓ |
+| 18.6 | Mit kurzem Abstand (1 Stunde) entsteht nach der Zeit eine automatische Sicherung (Art „automatisch“) | ❓ |
+| 18.7 | Alte automatische Sicherungen werden nach den eingestellten Tagen / der Anzahl gelöscht, die neueste und die von Hand bleiben | ❓ |
+| 18.8 | „Zurückspielen“ ersetzt Häuser und Einstellungen durch die Sicherung, die Seite lädt neu | ❓ |
+| 18.9 | Herunterladen (⬇) und Löschen (×) in der Liste | ❓ |
+| 18.10 | Der Schalter „Auto“ im Menü „Ansicht“ lässt die anderen Einstellungen unverändert (Design bleibt) | ❓ |
+
 ## Automatisch geprüft (zusätzlich)
 - Python: Benutzer werden in `users.json` gespiegelt; Synchronisieren lädt/speichert; frische Installation holt sich Benutzer aus der Datei zurück.
 - Browser-Test: Benutzer-Reiter sichtbar für Admins, versteckt für Nur-Lese-Benutzer; nicht mehr im Zahnrad; Tablet speichern; Synchronisieren.
