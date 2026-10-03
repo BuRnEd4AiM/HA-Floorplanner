@@ -7,6 +7,9 @@ S = str(Path(__file__).parent)
 BASE = "http://localhost:8099/"
 def api(path):
     return json.load(urllib.request.urlopen(BASE + path))
+def api_admin(path):
+    """GET as the admin user (the editing endpoints refuse everybody else)"""
+    return json.load(urllib.request.urlopen(urllib.request.Request(BASE + path, headers={"X-Remote-User-Name": "admin"})))
 def set_setting(key, val):
     """change one stored setting through the API (as the admin user)"""
     h = {"X-Remote-User-Name": "admin"}
@@ -491,7 +494,7 @@ with sync_playwright() as p:
     pgB.click("#housePanel summary"); pgB.wait_for_timeout(800)
     check("backups: the automatic backup section is shown", pgB.locator("#autoBackup").is_visible())
     pgB.click("#abNow"); pgB.wait_for_timeout(1200)
-    items = api("api/backups")["items"]
+    items = api_admin("api/backups")["items"]
     check("backups: 'back up now' writes a file into the backups folder", len(items) == 1 and items[0]["kind"] == "manual", items)
     check("backups: the list shows it", pgB.locator("#abList .abRow").count() == 1)
     pgB.click("#abTest"); pgB.wait_for_timeout(1000)
