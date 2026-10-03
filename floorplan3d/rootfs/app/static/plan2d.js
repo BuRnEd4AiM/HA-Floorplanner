@@ -154,6 +154,27 @@ export function createPlan(ctx) {
     });
     return best;
   }
+  /* exact hits for a double click: the generous reach of pickAt (opening / device padding, a few pixels) must not take a
+   * double click away from a wall that is right there */
+  function onOpeningExact(id, x, z) {
+    for (const w of floor().walls) {
+      const o = (w.openings || []).find((q) => q.id === id);
+      if (!o) continue;
+      const [ux, uz] = dirOf(w);
+      const cx = w.a[0] + ux * o.pos, cz = w.a[1] + uz * o.pos;
+      return Math.abs((x - cx) * ux + (z - cz) * uz) <= o.width / 2 && Math.abs(-(x - cx) * uz + (z - cz) * ux) <= w.thickness / 2 + 0.03;
+    }
+    return false;
+  }
+  function onDeviceExact(id, x, z) {
+    const d = floor().devices.find((q) => q.id === id);
+    if (!d) return false;
+    if (d.type === 'ledring') return true;
+    const f = footOf(d), th = (-(d.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
+    const dx = x - d.x, dz = z - d.z;
+    if (f.r) return Math.hypot(dx, dz) <= f.r;
+    return Math.abs(dx * c + dz * sn) <= f.w / 2 && Math.abs(-dx * sn + dz * c) <= f.d / 2;
+  }
   function pickAt(x, z) {
     const f = floor();
     const devs = f.devices.filter((d) => devHit(d, x, z) && !FLAT.has(d.type)).sort((a, b) => {
@@ -923,7 +944,9 @@ export function createPlan(ctx) {
     else if (tool === 'select') {
       const [px, py] = local(e);
       const x = wx(px), z = wz(py);
-      const h = pickAt(x, z);
+      let h = pickAt(x, z);
+      if (h?.kind === 'opening' && !onOpeningExact(h.id, x, z)) h = null;   // only beside a door / window, not on it: the wall counts
+      if (h?.kind === 'device' && !onDeviceExact(h.id, x, z) && wallNear(x, z)) h = null;   // only in the padding around a device, and a wall is there
       if (h?.kind === 'device') { ctx.deviceDoubleClick(h.id); return; }
       const hd = handleAt(px, py);
       if (hd?.type === 'room-pt') {                                  // double click on a corner removes it (a room keeps at least 3)
@@ -1015,6 +1038,7 @@ export function createPlan(ctx) {
     isVisible: () => visible,
     toClient: (x, z) => { const r = root.getBoundingClientRect(); return [r.left + sx(x), r.top + sy(z)]; },
     render: schedule,
+    pickAt, splitWallAt, wallNear,           // for the browser tests
     fit,
     cancel,
     reset() { drawPts = []; cursor = null; opPreview = null; calibPts = []; calibCur = null; },

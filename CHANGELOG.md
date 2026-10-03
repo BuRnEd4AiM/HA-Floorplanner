@@ -3,6 +3,8 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- **Double click on a wall** did nothing where the generous reach of a door or window (also one on the neighbouring wall) or of a device lay over the wall. Now only the real door, window or device wins; beside it the wall is split
 
 ## [3.25.0] - 2026-10-03
 ### Added

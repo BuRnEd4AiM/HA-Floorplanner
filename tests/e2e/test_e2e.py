@@ -524,6 +524,24 @@ with sync_playwright() as p:
     pgV2.click("#versionCheck"); pgV2.wait_for_timeout(2500)
     check("version: the GitHub comparison answers (also when GitHub is not reachable)", "GitHub" in pgV2.inner_text("#versionBody"))
     pgV2.close()
+    # --- double click on a wall next to a door of a neighbouring wall: the door's generous hit area must not take it away
+    pgN = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgN.goto(BASE + "?debug=1&mode=edit"); pgN.wait_for_timeout(1500)
+    pgN.click("#view2d"); pgN.wait_for_timeout(500)
+    pgN.evaluate("(() => { const w = window.__fp.layout.floors[window.__fp.floorIdx()].walls; w.push({id: 'tA', a: [30, 30], b: [36, 30], thickness: 0.2, height: 2.6, openings: []}, {id: 'tB', a: [33, 30], b: [33, 34], thickness: 0.2, height: 2.6, openings: [{id: 'tDoor', type: 'door', width: 0.9, height: 2.05, sill: 0, pos: 0.7}]}); window.__fp.rebuild(); })()")
+    pgN.click("#fitBtn"); pgN.wait_for_timeout(400)
+    cnt = lambda: pgN.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.length")
+    n0 = cnt(); hit = None
+    for off in (0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.8):          # beside the door, on wall tA, until the old pick says "opening"
+        kind = pgN.evaluate("([x, z]) => window.__fp.plan().pickAt(x, z)?.kind", [33 + off, 30])
+        if kind == "opening":
+            hit = off; break
+    check("plan: a spot beside a neighbouring door exists where the plain pick says opening", hit is not None)
+    if hit is not None:
+        px, py = pgN.evaluate("([x, z]) => window.__fp.plan().toClient(x, z)", [33 + hit, 30])
+        pgN.mouse.dblclick(px, py); pgN.wait_for_timeout(400)
+        check("plan: double click there still splits the wall (a door beside it does not win)", cnt() == n0 + 1, (n0, cnt()))
+    pgN.close()
     # --- opening palette is grouped (doors, passages, windows)
     pgP = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgP.goto(BASE + "?mode=edit"); pgP.wait_for_timeout(1200)
