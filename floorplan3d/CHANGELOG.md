@@ -3,6 +3,8 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [3.24.1] - 2026-10-03
 ### Fixed
 - **Double click on a wall** is more forgiving: a few pixels beside the line count as the wall (also in the 2D + 3D view, where the plan is small), also when a room lies under the pointer. Where no corner fits (too close to the end of the wall, on a door or window) the status line says so instead of doing nothing. The select hint mentions it
 
