@@ -31,8 +31,36 @@ def check(name, cond, extra=""):
     print(("PASS " if cond else "FAIL ") + name + (f"  [{extra}]" if extra and not cond else ""))
 
 with sync_playwright() as p:
-    set_setting("placeSelect", False)           # the older checks place several devices with single clicks
+    fresh = api("api/settings")                 # a brand-new install, before anything below changes a setting
     b = p.chromium.launch(args=["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"])
+    _new_page = b.new_page
+    def new_page(*a, welcome=False, **k):
+        pg_ = _new_page(*a, **k)
+        if not welcome:                         # the welcome card of an empty house would cover the canvas of the older checks
+            pg_.add_init_script("try { localStorage.setItem('fp3d.welcome', '1'); } catch (e) {}")
+        return pg_
+    b.new_page = new_page
+    # --- first start: language follows the browser, dark design, welcome card on the empty house, default names
+    check("first start: the language follows the browser and the design is dark", fresh["language"] == "auto" and fresh["theme"] == "dark", (fresh["language"], fresh["theme"]))
+    pgF = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"}, welcome=True)
+    pgF.goto(BASE + "?debug=1&mode=edit"); pgF.wait_for_timeout(1800)
+    check("first start: the welcome card is shown on an empty house", pgF.locator("#welcome").is_visible())
+    check("first start: the interface is in the language of the browser (English)", "Draw walls" in pgF.inner_text("#welDraw") and pgF.get_attribute("html", "lang") == "en")
+    check("first start: the default floor name follows the language", pgF.evaluate("window.__fp.layout.floors[0].name") == "Ground floor", pgF.evaluate("window.__fp.layout.floors[0].name"))
+    check("first start: the design is dark", pgF.evaluate("document.documentElement.dataset.theme") == "dark")
+    pgF.click("#welDraw"); pgF.wait_for_timeout(500)
+    check("first start: 'Draw walls' closes the card and picks the wall tool", not pgF.locator("#welcome").is_visible() and pgF.evaluate("document.body.dataset.tool") == "wall")
+    pgF.close()
+    pgE = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"}, welcome=True)
+    pgE.goto(BASE + "?mode=edit"); pgE.wait_for_timeout(1500)
+    pgE.click("#welExample"); pgE.wait_for_timeout(2500)
+    hs = api_admin("api/houses")
+    check("first start: 'Try the example house' creates and opens it", any(h["name"] == "Example house" for h in hs) and not pgE.locator("#welcome").is_visible(), hs)
+    pgE.evaluate("fetch('api/houses').then(r => r.json()).then(l => Promise.all(l.filter(h => h.name === 'Example house').map(h => fetch('api/houses/' + h.id, {method: 'DELETE'}))))"); pgE.wait_for_timeout(500)
+    pgE.close()
+    set_setting("language", "de")               # the older checks were written for the German interface and the hologram design
+    set_setting("theme", "holo")
+    set_setting("placeSelect", False)           # ... and place several devices with single clicks
     pg = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
     pg.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))

@@ -34,13 +34,13 @@ async def test_layout_rejects_garbage(client):
 
 async def test_settings_defaults_and_validation(client):
     s = await (await client.get("/api/settings")).json()
-    assert s["language"] == "de" and s["grid"] == 0.25
+    assert s["language"] == "auto" and s["theme"] == "dark" and s["grid"] == 0.25      # a new install follows the browser language and starts dark
 
     r = await client.put("/api/settings", json={"language": "en", "grid": 0.5, "theme": "neon", "evil": 1, "shadows": "yes"})
     s = await r.json()
     assert s["language"] == "en"
     assert s["grid"] == 0.5
-    assert s["theme"] == "holo"       # invalid value falls back to the default
+    assert s["theme"] == "dark"       # invalid value falls back to the default
     assert s["shadows"] is True       # wrong type ignored
     assert "evil" not in s
     assert (await (await client.get("/api/settings")).json()) == s
@@ -478,7 +478,7 @@ def test_effect_colors_setting_is_kept_and_cleaned():
 
 
 async def test_language_setting_accepts_known_codes_only(client):
-    for code, expected in (("fr", "fr"), ("auto", "auto"), ("klingon", "de")):
+    for code, expected in (("fr", "fr"), ("auto", "auto"), ("klingon", "auto")):
         r = await client.put("/api/settings", json={"language": code})
         assert r.status == 200
         assert (await (await client.get("/api/settings")).json())["language"] == expected

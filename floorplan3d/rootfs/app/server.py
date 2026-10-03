@@ -37,8 +37,8 @@ SERVICES = {"toggle", "turn_on", "turn_off", "open_cover", "close_cover", "stop_
 
 LANGUAGES = ("auto", "de", "en", "fr", "es", "it", "nl", "pl")
 DEFAULT_SETTINGS = {
-    "language": "de",          # auto | de | en | fr | es | it | nl | pl
-    "theme": "holo",           # holo | dark | light
+    "language": "auto",        # auto (language of the browser) | de | en | fr | es | it | nl | pl
+    "theme": "dark",           # holo | dark | light
     "units": "metric",         # metric | imperial
     "grid": 0.25,              # meters
     "wallHeight": 2.6,

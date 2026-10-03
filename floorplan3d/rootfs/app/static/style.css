@@ -514,3 +514,12 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 #versionBody .verLine.ok { color: #2e9e5b; }
 #versionBody .verLine.warn { color: #d99016; }
 #versionBody .verLine.bad { color: #ff6b5e; }
+
+/* welcome card on an empty house */
+#welcome { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 6; width: min(460px, calc(100% - 32px)); padding: 22px 24px 20px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 12px 40px rgba(0,0,0,.45); text-align: center; }
+#welcome[hidden] { display: none; }
+#welcome h2 { margin: 0 0 6px; font-size: 20px; }
+#welcome p { margin: 0 0 16px; color: var(--muted); }
+#welcome .dlgClose { position: absolute; top: 10px; right: 10px; }
+#welcome .welBtns { display: flex; flex-direction: column; gap: 8px; }
+#welcome .welBtns button { padding: 10px 14px; font-size: 14px; }

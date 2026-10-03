@@ -4,6 +4,7 @@ import { initImport } from './import.js';
 import { initToolbar } from './toolbar.js';
 import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
+import { initWelcome } from './welcome.js';
 import { findAlerts, nightActive, matchScore } from './alerts.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -26,7 +27,7 @@ const M_TO_FT = 3.28084;
 const params = new URLSearchParams(location.search);
 
 let settings = {
-  language: 'de', theme: 'holo', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
+  language: 'auto', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, placeSelect: true, autoBackup: false, backupEveryHours: 24, backupKeepDays: 14, backupKeepCount: 30, earth: 'solid', earthMargin: 5,
   alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
@@ -39,6 +40,7 @@ const DEFAULT_LOOK = structuredClone(settings);
 let layout = { version: 1, floors: [] };
 let floorIdx = 0;
 let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
+let welcomeUi = null;           // the welcome card of an empty house (set up further down)
 let mode = 'edit';                 // 'edit' | 'live'
 let tool = 'select';
 let roomCtx = null;                // room whose entity list stays visible while one of its objects is selected
@@ -689,6 +691,7 @@ function updateRoofFade() {
 }
 
 function build() {
+  localizeDefaults(); welcomeUi?.update();
   wake();
   plan?.render();
   clearGroup(world);
@@ -1723,17 +1726,18 @@ async function loadHouses() {
   const pickH = houses.find((h) => want && (h.id === want || h.name.trim().toLowerCase() === want)) || houses.find((h) => h.id === saved) || houses[0];
   houseId = pickH?.id || null;
 }
+const houseLabel = (h) => (h.id === 'main' && h.name === 'Haus' ? t('house.default') : h.name);   // the default name of the first house in the user's language
 function renderHouseUi() {
   const sel = $('#houseSelect');
   if (!sel) return;
-  sel.replaceChildren(...houses.map((h) => new Option(h.name, h.id)));
+  sel.replaceChildren(...houses.map((h) => new Option(houseLabel(h), h.id)));
   sel.value = houseId || '';
   $('#houseGroup').hidden = houses.length < 2;
   const box = $('#houseBody');
   if (!box) return;
   box.innerHTML = '';
   const cur = houses.find((h) => h.id === houseId);
-  const p = document.createElement('p'); p.className = 'sub'; p.textContent = `${t('house.current')}: ${cur?.name || ''}`; box.append(p);
+  const p = document.createElement('p'); p.className = 'sub'; p.textContent = `${t('house.current')}: ${cur ? houseLabel(cur) : ''}`; box.append(p);
   const mk = (id, label, on, dis = false) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.disabled = dis; b.addEventListener('click', on); return b; };
   const row = document.createElement('div'); row.className = 'stopTools';
   row.append(mk('houseNew', t('house.new'), () => houseAction('new')), mk('houseCopy', t('house.copy'), () => houseAction('copy')),
@@ -1784,6 +1788,21 @@ initImport({ t, lang: () => currentLanguage(), houseId: () => houseId, onImporte
   await switchHouse(j.id);
   setStatus(t('imp.done').replace('{name}', j.name));
 } });
+welcomeUi = initWelcome({
+  t, getLayout: () => layout, isEdit: () => !isLive(),
+  draw: () => { $('#viewSplit').click(); setTool('wall'); },
+  example: async () => {
+    try {
+      const ex = await (await fetch('api/import/examples/house')).text();
+      const r = await fetch(`api/import?name=${encodeURIComponent(t('wel.exampleName'))}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: ex });
+      const j = await r.json();
+      if (!r.ok || !j.id) throw new Error(j.error || r.status);
+      houses.push({ id: j.id, name: j.name }); await switchHouse(j.id);
+    } catch (err) { setStatus(`${t('loadFailed')}: ${err.message}`); }
+  },
+  importJson: () => $('#importOpen').click(),
+});
+welcomeUi.update();
 $('#backupImport').addEventListener('click', () => $('#backupFile').click());
 $('#backupFile').addEventListener('change', async (e) => {
   const file = e.target.files[0];
@@ -4427,6 +4446,11 @@ async function pollStates() {
   } catch { /* offline: ignore */ }
 }
 
+/** the add-on creates "Erdgeschoss" for a brand-new house: show it in the language of the user as long as nothing is drawn */
+function localizeDefaults() {
+  const f = layout.floors?.[0];
+  if (layout.floors.length === 1 && f && f.name === 'Erdgeschoss' && !f.walls?.length && !f.rooms?.length && !f.devices?.length && !f.blocks?.length) f.name = t('floor.default');
+}
 function normalizeLayout() {
   if (!layout.floors?.length) {
     layout = { version: 1, floors: [{ id: uid(), name: t('floor.default'), walls: [], rooms: [], devices: [], blocks: [], stairs: [] }] };

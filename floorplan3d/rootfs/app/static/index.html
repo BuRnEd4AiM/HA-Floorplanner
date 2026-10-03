@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-theme="holo">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
   <link rel="icon" href="data:,">
@@ -57,6 +57,16 @@
   <main>
     <div id="stage">
       <canvas id="view"></canvas>
+      <div id="welcome" hidden>
+        <button id="welClose" type="button" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button>
+        <h2 data-i18n="wel.title"></h2>
+        <p data-i18n="wel.text"></p>
+        <div class="welBtns">
+          <button id="welDraw" type="button" class="primary" data-i18n="wel.draw"></button>
+          <button id="welExample" type="button" data-i18n="wel.example"></button>
+          <button id="welImport" type="button" data-i18n="wel.import"></button>
+        </div>
+      </div>
       <nav id="navBar">
         <div id="floorPills" class="pills"></div>
         <span class="sep" id="navSep"></span>
