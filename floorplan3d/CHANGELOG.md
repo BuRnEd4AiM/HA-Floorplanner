@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.28.1] - 2026-10-05
+### Changed
+- **See-through** is now a button in the *View* menu (next to *Auto* and *Halbschnitt*), not only a checkbox in ⚙.
+- **See-through and Auto exclude each other** (both in the View menu and in ⚙): switching one on switches the other off.
+- With *See-through* on, the **roof** is see-through from any distance too (30 %), so it hides nothing behind it. Before, it was fully solid beyond about 7 m.
+
 ## [3.28.0] - 2026-10-05
 ### Added
 - **See-through walls** (option in ⚙: *Make walls facing the camera see-through instead of lowering them*): the walls between the camera and the room fade to 30 % instead of sinking, so you see everything in the room (#129).
