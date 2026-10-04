@@ -585,6 +585,8 @@ export default {
   'set.lowWalls': 'Empezar con paredes bajas',
   'set.wallStop': 'Los dispositivos se detienen en las paredes (las puertas los dejan pasar)',
   'set.placeSelect': 'Mantener seleccionado el dispositivo recién colocado (el siguiente clic en un espacio vacío lo deselecciona)',
+  'ver.new': 'Nueva versión disponible',
+  'set.updateCheck': 'Comprobar en GitHub cada 5 minutos si hay una versión nueva (solo en modo edición; solo se descarga la lista pública de sumas de comprobación)',
   'wel.title': 'Bienvenido a 3D Floorplan',
   'wel.text': 'Tu casa aún está vacía. Así puedes empezar:',
   'wel.draw': '✏️ Dibujar paredes',

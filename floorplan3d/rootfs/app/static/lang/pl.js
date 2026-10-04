@@ -585,6 +585,8 @@ export default {
   'set.lowWalls': 'Zaczynaj z niskimi ścianami',
   'set.wallStop': 'Urządzenia zatrzymują się na ścianach (drzwi je przepuszczają)',
   'set.placeSelect': 'Zostaw nowo umieszczone urządzenie zaznaczone (następne kliknięcie w puste miejsce odznacza je)',
+  'ver.new': 'Dostępna nowa wersja',
+  'set.updateCheck': 'Co 5 minut sprawdzaj w GitHub, czy jest nowa wersja (tylko w trybie edycji; pobierana jest tylko publiczna lista sum kontrolnych)',
   'wel.title': 'Witaj w 3D Floorplan',
   'wel.text': 'Twój dom jest jeszcze pusty. Tak możesz zacząć:',
   'wel.draw': '✏️ Rysuj ściany',

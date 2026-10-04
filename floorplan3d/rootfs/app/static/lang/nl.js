@@ -585,6 +585,8 @@ export default {
   'set.lowWalls': 'Starten met lage muren',
   'set.wallStop': 'Apparaten stoppen bij muren (deuren laten ze door)',
   'set.placeSelect': 'Een net geplaatst apparaat geselecteerd houden (de volgende klik op een lege plek heft de selectie op)',
+  'ver.new': 'Nieuwe versie beschikbaar',
+  'set.updateCheck': 'Elke 5 minuten op GitHub kijken of er een nieuwe versie is (alleen in bewerkmodus; alleen de openbare checksumlijst wordt opgehaald)',
   'wel.title': 'Welkom bij 3D Floorplan',
   'wel.text': 'Je huis is nog leeg. Zo begin je:',
   'wel.draw': '✏️ Muren tekenen',

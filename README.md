@@ -281,9 +281,9 @@ To build it yourself: `cd demo && npm install && npm run build`.
 
 **Where is my data?** Layouts and settings are in the add-on's `/data` folder and survive updates. Backups (if enabled) are in the add-on config folder: *File editor → `addon_configs` → folder with `floorplan3d` → `backups`*, or via Samba / SSH at `/addon_configs/`.
 
-**How do I update?** *Settings → Apps → 3D Floorplan → Update*. The pill's dialog can also compare with the newest manifest on GitHub (only when you press the button).
+**How do I update?** *Settings → Apps → 3D Floorplan → Update*. In the edit mode the pill checks GitHub every 5 minutes and turns blue with **⬆ New version available** when there is a newer one (switch it off in ⚙ if you like).
 
-**Does it send data anywhere?** No. Three.js is bundled; the only outside request is that optional GitHub comparison.
+**Does it send data anywhere?** No. Three.js is bundled; the only outside request is the check for a new version: it downloads the public checksum list (`manifest.json`) from GitHub, nothing about you or your house is sent. You can switch it off in ⚙.
 
 ## 🛠️ Development
 

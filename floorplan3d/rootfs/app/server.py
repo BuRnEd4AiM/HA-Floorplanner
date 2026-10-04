@@ -53,6 +53,7 @@ DEFAULT_SETTINGS = {
     "earthMargin": 5.0,        # metres of lawn around the house when no plot (Grundstück) is drawn
     "wallStop": True,          # devices cannot be dragged through walls (doors let them pass)
     "placeSelect": True,       # a device that was just placed stays selected (movable at once); the next click on empty space deselects it
+    "updateCheck": True,       # edit mode asks GitHub every few minutes whether a newer version exists (only the public manifest is fetched)
     "autoBackup": False,       # automatic backups into the backups folder of the add-on configuration (addon_configs/<...>_floorplan3d/backups)
     "backupEveryHours": 24.0,  # ... one backup this many hours after the last one (24 = daily)
     "backupKeepDays": 14.0,    # automatic backups older than this many days are deleted (the newest one always stays)
