@@ -13,7 +13,7 @@ import { planPlacement, classify } from './autoplace.js';
 import { RING_DEFAULT_INSET, ringCount, segEntity, ringEntities, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange } from './ledring.js';
 import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
 import {
-  OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps,
+  OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, MIN_OPENING,
 } from './walls.js';
 import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
@@ -1969,7 +1969,7 @@ function updateTemp() {
     const def = OPENING_DEFAULTS[openingType];
     const len = wallLength(w);
     const m = new THREE.Mesh(
-      new THREE.BoxGeometry(def.width, def.height, w.thickness + 0.06),
+      new THREE.BoxGeometry(openingPreview.width ?? def.width, def.height, w.thickness + 0.06),
       new THREE.MeshBasicMaterial({ color: valid ? 0x3fa9f5 : 0xff5555, transparent: true, opacity: 0.45, depthTest: false }),
     );
     m.renderOrder = 5;
@@ -2139,9 +2139,11 @@ function openingTarget(e, ignoreId = null, def = OPENING_DEFAULTS[openingType], 
   }
   if (!wall || !point) return null;
   const raw = Math.round(projectOnWall(wall, point) / 0.05) * 0.05;
-  const pos = clampOpeningPos(wall, def.width, raw);
+  const width = fitOpeningWidth(wall, def.width);
+  if (width === null) return null;
+  const pos = clampOpeningPos(wall, width, raw);
   if (pos === null) return null;
-  return { wall, pos, valid: !openingOverlaps(wall, pos, def.width, ignoreId) };
+  return { wall, pos, width, valid: !openingOverlaps(wall, pos, width, ignoreId) };
 }
 
 /* ================= Pointer events ================= */
@@ -2253,7 +2255,7 @@ canvas.addEventListener('pointerup', (e) => {
     if (tgt?.valid) {
       snapshot();
       const def = OPENING_DEFAULTS[openingType];
-      const o = { id: uid(), type: openingType, pos: tgt.pos, ...def };
+      const o = { id: uid(), type: openingType, pos: tgt.pos, ...def, width: tgt.width ?? def.width };
       (tgt.wall.openings ||= []).push(o);
       selection = { kind: 'opening', id: o.id };
       openingPreview = null; clearGroup(temp);
@@ -4215,7 +4217,7 @@ function renderProps() {
   } else if (selection.kind === 'opening') {
     const { wall } = findOpening(it.id);
     const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
-    body.append(field(t('prop.width'), lenInput(() => it.width, (v) => { it.width = Math.max(0.3, v); refit(); }, { min: 0.3 })));
+    body.append(field(t('prop.width'), lenInput(() => it.width, (v) => { it.width = Math.max(MIN_OPENING, v); refit(); }, { min: MIN_OPENING })));
     body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3 })));
     if (it.type === 'window') body.append(field(t('prop.sill'), lenInput(() => it.sill, (v) => (it.sill = v))));
     const ssel = document.createElement('select'); ssel.id = 'openStyle';
@@ -4723,7 +4725,7 @@ plan = createPlan({
   liveMoveDevice: (d) => liveMove(d),
   liveTap: (h) => liveSelect(h),
   deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach(quickAction),
-  newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, OPENING_DEFAULTS, uid, pointInPoly,
+  newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, OPENING_DEFAULTS, uid, pointInPoly,
   roomHeat: (room, f) => (viewMode === 'normal' ? null : roomHeat(room, f)),
   states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, fmtLen, t, setStatus,
   area: (p) => (imperial() ? `${(polyArea(p) * 10.7639).toFixed(0)} ft²` : `${polyArea(p).toFixed(1)} m²`),

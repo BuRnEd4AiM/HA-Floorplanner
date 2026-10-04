@@ -1,6 +1,6 @@
 {
- "version": "3.32.0",
- "buildHash": "4174edbe1ca9c962017f6f00954fff21a6eeb0cdce3605522a66d71769460f39",
+ "version": "3.33.0",
+ "buildHash": "48ba4965674818cfd73ddf7bac53dab199c26503083e1e366930abe4184e7a22",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -130,7 +130,7 @@
   "property.schema.json": "ba518750cc49c61efb86f85dfa048cb1f7c566cfa0b36aa65fd94bb79ee837e9",
   "server.py": "481e175711473e13f0f88c881d1e2219261780cc6e8bf1044ecc031e9d520a64",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
-  "static/app.js": "50b5ae2557159eaa0012a0693a1c06db72d21e31edae381c9547e23e3d4ca4db",
+  "static/app.js": "ff0bc5000770ec815c69070fac783a4176c33d60a0934aed30e76dbc6760bf88",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
   "static/dormer.js": "1c1a1834cbd56d176758b5976100261b4c04f32d6ccfe6098e17a247f8811156",
@@ -147,7 +147,7 @@
   "static/models.js": "555dc9de31eab3530eeef5039e6450f7bff44877eea0d41e555c74300909f8f3",
   "static/moreinfo.js": "3e6fbc369851fbba399a7edf0ac1868601fcb808bb18f7e43afaa4936197767a",
   "static/nanoleaf.js": "f36e7c670222282ea26a07b11845553c7174173d87a65e83e6455b1cc7fa5eeb",
-  "static/plan2d.js": "350c8251a836ebce6d72d3cdd502a5850a46201ef0a06df96b1dbcb024f79575",
+  "static/plan2d.js": "11647ee1acd36eb64dd3e27855828e960666f8ddeb1e0f91df42f1df794c3718",
   "static/rooms.js": "f652a98623eb6e642228b91f3650405c3091679cdae1f54a2d08dac01ff7c1b7",
   "static/stairs.js": "a3ed6e0045aeaea69cd1ad0e5c5f5c0ddaf0f613ac9d8dd518114b7fe740fb9d",
   "static/style.css": "16befaff6e6fa3df33358593bc8742497b7b793268790cf0f13df86b0be9f995",
@@ -161,7 +161,7 @@
   "static/vendor/three.module.min.js": "08fd7545d13d2c7fb65ab691530a802dafefd638596501854f267d0fb13c39e7",
   "static/vendor/utils/BufferGeometryUtils.js": "b51ca35ecf919b99791cbf8a0f70804da90c400bd36b1b0ec975d50d0ba5567f",
   "static/version.js": "d5986892d6a83710325af9d73794255e71a03045bca0b5fe00041d1778c2cb14",
-  "static/walls.js": "f27f823757fa62092f51e48cbd1734c1a41ad6bb3b490c5b4fce0bd521359e8b",
+  "static/walls.js": "eedfddba00d9515097edc218651f30ce61b5fdb3580172802af2dee3c7f07a45",
   "static/welcome.js": "9fd669c923cd1dda8643f08de8b38f010288538a3423d0b28c82b1f3ebee5fee"
  }
 }

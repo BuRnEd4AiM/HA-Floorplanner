@@ -33,6 +33,14 @@ export function projectOnWall(w, [x, z]) {
   return ((x - w.a[0]) * (w.b[0] - w.a[0]) + (z - w.a[1]) * (w.b[1] - w.a[1])) / len;
 }
 
+export const MIN_OPENING = 0.1;   // narrowest opening (slit window, #142)
+/** the width an opening of `width` gets on wall `w`: unchanged when it fits, otherwise shrunk to the room that is left; null if even MIN_OPENING does not fit */
+export function fitOpeningWidth(w, width) {
+  const avail = Math.floor((wallLength(w) - 2 * EDGE) * 100) / 100;
+  if (avail >= width) return width;
+  return avail >= MIN_OPENING ? avail : null;
+}
+
 export function clampOpeningPos(w, width, pos) {
   const half = width / 2 + EDGE + w.thickness / 2;
   const len = wallLength(w);
