@@ -762,6 +762,29 @@ with sync_playwright() as p:
     urllib.request.urlopen("http://localhost:8123/_set?e=climate.wohnzimmer&s=heat")
     pgH.close()
 
+    # --- further roofs (#125): an annex with its own flat roof, on a lower floor
+    pgP = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgP.goto(BASE + "?debug=1&mode=edit"); pgP.wait_for_timeout(2000)
+    pgP.evaluate("""() => { const fl = window.__fp.layout.floors; fl.length = 0;
+      fl.push({id: 'pf0', name: 'EG', kind: 'floor', walls: [], rooms: [{id: 'pr0', name: 'R', points: [[0,0],[8,0],[8,5],[0,5]]}], devices: [], blocks: [], stairs: []},
+              {id: 'pf1', name: 'OG', kind: 'floor', walls: [], rooms: [{id: 'pr1', name: 'O', points: [[0,0],[8,0],[8,5],[0,5]]}], devices: [], blocks: [], stairs: []},
+              {id: 'pf2', name: 'Dach', kind: 'roof', walls: [], rooms: [], devices: [], blocks: [], stairs: [], roof: {type: 'gable', pitch: 35, overhang: 0.4, box: {x0: 0, x1: 8, z0: 0, z1: 5},
+                parts: [{id: 'rp1', name: 'Anbau', type: 'flat', pitch: 35, overhang: 0.3, box: {x0: 8, x1: 11, z0: 0, z1: 4}, level: 'pf0'}, {id: 'rp2', type: 'hip', pitch: 25, overhang: 0.3, box: {x0: -3, x1: 0, z0: 0, z1: 4}}]}});
+      window.__fp.switchFloor(0); window.__fp.rebuild(); }""")
+    pgP.click("#floorRail .railHouse"); pgP.wait_for_timeout(1000)
+    rm = pgP.evaluate("window.__fp.roofMeshes()")
+    tags = {m["tag"]: m["y"] for m in rm}
+    check("further roofs: the main roof and both further roofs are drawn", set(tags) >= {"main", "rp1", "rp2"}, tags)
+    check("further roofs: a roof on the ground floor sits lower than the main one on top", tags["rp1"] < tags["main"] - 1 and abs(tags["rp2"] - tags["main"]) < 0.01, tags)
+    pgP.evaluate("window.__fp.switchFloor(2)"); pgP.wait_for_timeout(600)
+    pgP.evaluate("document.querySelector('#floorPanel').open = true"); pgP.wait_for_timeout(300)
+    check("further roofs: the roof panel lists them and has a button for one more", pgP.locator("#roofPartsHead").is_visible() and pgP.locator(".roofPartCard").count() == 2 and pgP.locator("#addRoofPart").is_visible())
+    pgP.click("#addRoofPart"); pgP.wait_for_timeout(500)
+    check("further roofs: the button adds a roof (3 now)", pgP.locator(".roofPartCard").count() == 3 and len(pgP.evaluate("window.__fp.layout.floors[2].roof.parts")) == 3)
+    pgP.locator(".roofPartDel").first.click(); pgP.wait_for_timeout(500)
+    check("further roofs: the cross removes one (2 left)", pgP.locator(".roofPartCard").count() == 2 and "rp1" not in [m["tag"] for m in pgP.evaluate("window.__fp.roofMeshes()")])
+    pgP.close()
+
     pg12 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg12.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
     pg12.goto(BASE + "?debug=1&mode=edit"); pg12.wait_for_timeout(1500)
