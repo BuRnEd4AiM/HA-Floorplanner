@@ -84,10 +84,10 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const floor = () => layout.floors[floorIdx];
 const groundIdx = () => Math.max(0, layout.floors.findIndex((f) => f.kind !== 'basement'));   // first floor above ground
 let exploded = false;                  // whole-house view with the floors pulled apart
-const EXPLODE_GAP = 2.5;               // extra space between the floors above ground when pulled apart (m)
+const EXPLODE_GAP = 2.5;               // extra space between every two floors when pulled apart (m); the lowest floor stays, all above it lift
 const elev = (i = floorIdx) => {
   const k = i - groundIdx();
-  return k * FLOOR_H + (houseMode && exploded && k > 0 ? k * EXPLODE_GAP : 0);
+  return k * FLOOR_H + (houseMode && exploded ? i * EXPLODE_GAP : 0);
 };
 /** how clearly the floors below the open one show: dimmed (the setting), fully (stacked) */
 const belowVis = () => (settings.belowMode === 'stacked' ? 1 : settings.belowVisibility);

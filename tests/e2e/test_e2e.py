@@ -1101,12 +1101,16 @@ with sync_playwright() as p:
     view_menu(pg13)
     check("pull apart: no button in the floor view", not pg13.locator("#explodeToggle").is_visible())
     pg13.click("#floorRail .railHouse"); pg13.wait_for_timeout(800)
+    gaps_js = "(() => { const f = window.__fp, n = f.layout.floors.length, r = []; for (let i = 1; i < n; i++) r.push(f.elev(i) - f.elev(i - 1)); return r; })()"
     gap0 = pg13.evaluate("window.__fp.elev(2) - window.__fp.elev(1)")
+    gaps0 = pg13.evaluate(gaps_js)
     view_menu(pg13); pg13.click("#explodeToggle"); pg13.wait_for_timeout(1200)
     gap1 = pg13.evaluate("window.__fp.elev(2) - window.__fp.elev(1)")
+    gaps1 = pg13.evaluate(gaps_js)
     check("pull apart: floors get a gap in the whole-house view", pg13.locator("#explodeToggle").is_visible() and gap1 > gap0 + 1, (gap0, gap1))
+    check("pull apart: EVERY floor is lifted off the one below (also the ground floor off the basement)", len(gaps1) >= 2 and all(g1 > g0 + 1 for g0, g1 in zip(gaps0, gaps1)), (gaps0, gaps1))
     view_menu(pg13); pg13.click("#explodeToggle"); pg13.wait_for_timeout(600)
-    check("pull apart: stacked again", abs(pg13.evaluate("window.__fp.elev(2) - window.__fp.elev(1)") - gap0) < 1e-6)
+    check("pull apart: stacked again", abs(pg13.evaluate("window.__fp.elev(2) - window.__fp.elev(1)") - gap0) < 1e-6 and pg13.evaluate(gaps_js) == gaps0)
     pg13.close()
 
     pg12 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
