@@ -2,6 +2,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
 import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
 import { ringSections, piecesLocal, pointAt } from './ledring.js';
+import { kitchenLayout } from './kitchen.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -82,6 +83,7 @@ export const DEVICE_TYPES = {
   orb:        { label: 'Lichtkugel',  y: 0.4 },
   strip:      { label: 'LED-Streifen', y: 0.5 },
   ledring:    { label: 'LED-Ring', y: 2.5 },
+  kitchenrun: { label: 'Küchenzeile (selbst bauen)', y: 0 },
   panel_tri:  { label: 'Nanoleaf Dreieck',  y: 1.4 },
   panel_hex:  { label: 'Nanoleaf Sechseck', y: 1.4 },
   panel_sq:   { label: 'Nanoleaf Quadrat',  y: 1.4 },
@@ -94,7 +96,7 @@ export const DEVICE_TYPES = {
 /* Library categories (room types) for the palette */
 export const CATEGORIES = {
   living:  ['sofa', 'sofa2', 'armchair', 'pouf', 'table', 'coffeetable', 'sidetable', 'diningtable', 'chair', 'barstool', 'tv', 'tv_wall', 'tvstand', 'sideboard', 'shelf', 'bookcase', 'fireplace', 'piano', 'carpet', 'curtain', 'plant'],
-  kitchen: ['kitchen', 'island', 'sink', 'stove', 'oven', 'microwave', 'dishwasher', 'fridge', 'washer'],
+  kitchen: ['kitchenrun', 'kitchen', 'island', 'sink', 'stove', 'oven', 'microwave', 'dishwasher', 'fridge', 'washer'],
   bath:    ['bathtub', 'shower', 'toilet', 'basin', 'doublebasin', 'mirror', 'towelrad'],
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
@@ -586,9 +588,61 @@ export function makeModel(type, onReady, dev) {
   }
   if (type === 'nanoleaf') { nanoleaf(g, dev); return g; }
   if (type === 'ledring') { ledRing(g, dev); return g; }
+  if (type === 'kitchenrun') { kitchenRun(g, dev); return g; }
   (builders[type] || builders.sensor)(g);
   centreOnFootprint(g);
   return g;
+}
+/** Kitchen run (#124): modules in a line, an L or a U. Local frame of a module: x along the run, z towards the room (front), the back at -z. */
+function kitchenRun(g, dev) {
+  const L = kitchenLayout(dev || {}), upper = dev?.upper !== false;
+  const body = std('#e9e6df'), front = std('#f4f1ea'), top = std('#4b4d52', { roughness: 0.35 }), dark = std('#2b2d31'), steel = std('#c4c9ce', { metalness: 0.5, roughness: 0.35 });
+  const plates = [];
+  L.cells.forEach((c) => {
+    const m = new THREE.Group(); m.position.set(c.cx, 0, c.cz); m.rotation.y = c.ang;
+    const w = c.w - 0.01, D = c.d;
+    const add = (mesh) => { m.add(mesh); return mesh; };
+    const handle = (y, x = 0) => add(box(0.16, 0.02, 0.02, steel, x, y, D / 2 + 0.02));
+    const baseCab = (frontMat = front) => {
+      add(box(w - 0.04, 0.1, D - 0.06, dark, 0, 0, -0.01));                          // plinth
+      add(box(w, 0.76, D, body, 0, 0.1, 0));
+      add(box(w - 0.03, 0.7, 0.02, frontMat, 0, 0.13, D / 2 + 0.005));
+      add(box(c.w, 0.04, D + 0.02, top, 0, 0.86, 0.005));                                // worktop
+    };
+    if (c.type === 'base') { baseCab(); handle(0.78); }
+    else if (c.type === 'drawers') { baseCab(); [0.2, 0.42, 0.64].forEach((y) => handle(y)); }
+    else if (c.type === 'sink') {
+      baseCab(); handle(0.78);
+      add(box(c.w - 0.24, 0.015, D - 0.2, steel, 0, 0.9, 0));                            // basin
+      add(cyl(0.015, 0.015, 0.2, steel, 0, 0.9, -D / 2 + 0.08, 10));                     // tap
+      add(box(0.02, 0.02, 0.12, steel, 0, 1.08, -D / 2 + 0.14));
+    } else if (c.type === 'stove') {
+      baseCab(dark); add(box(w - 0.2, 0.012, 0.015, steel, 0, 0.72, D / 2 + 0.02));
+      [[-0.15, -0.12], [0.15, -0.12], [-0.15, 0.12], [0.15, 0.12]].forEach(([x, z]) => {
+        const pm = glowMat(0x3a3a3a); plates.push(pm); add(cyl(0.085, 0.085, 0.012, pm, x, 0.9, z, 20));
+      });
+    } else if (c.type === 'dish') {
+      baseCab(std('#cfd3d6', { metalness: 0.3 })); add(box(w - 0.1, 0.03, 0.02, dark, 0, 0.8, D / 2 + 0.02)); handle(0.7);
+    } else if (c.type === 'fridge') {
+      add(box(w, 1.85, D, std('#e8ecee', { metalness: 0.25, roughness: 0.4 }), 0, 0, 0));
+      add(box(w - 0.02, 0.01, 0.01, dark, 0, 1.25, D / 2 + 0.005));
+      add(box(0.02, 0.5, 0.025, steel, 0.2, 1.3, D / 2 + 0.02)); add(box(0.02, 0.4, 0.025, steel, 0.2, 0.75, D / 2 + 0.02));
+    } else if (c.type === 'tall') {
+      add(box(w, 2.1, D, body, 0, 0, 0)); add(box(w - 0.03, 2.0, 0.02, front, 0, 0.05, D / 2 + 0.005)); add(box(0.02, 0.3, 0.025, steel, 0.2, 1.0, D / 2 + 0.02));
+    }
+    if (upper && ['base', 'drawers', 'sink', 'dish', 'stove'].includes(c.type)) {                      // wall cabinets, a hood above the stove
+      if (c.type === 'stove') {
+        add(box(c.w - 0.1, 0.1, 0.42, steel, 0, 1.55, -D / 2 + 0.21));
+        add(box(0.2, 0.6, 0.2, steel, 0, 1.65, -D / 2 + 0.1));
+      } else {
+        add(box(w, 0.7, 0.34, body, 0, 1.4, -D / 2 + 0.17));
+        add(box(w - 0.03, 0.64, 0.02, front, 0, 1.43, -D / 2 + 0.35)); add(box(0.16, 0.02, 0.02, steel, 0, 1.45, -D / 2 + 0.37));
+      }
+    }
+    g.add(m);
+  });
+  if (plates.length) g.userData.glow = plates;                                              // the hob glows while the run's entity (e.g. the stove) is on
+  if (!L.cells.length) g.add(box(0.6, 0.02, 0.6, std('#999999', { transparent: true, opacity: 0.5 }), 0, 0, 0));
 }
 const RING_DEMO = { pts: [[-1, -0.7], [1, -0.7], [1, 0.7], [-1, 0.7]], closed: true };
 /** LED ring: one glowing strip per section, each with its own material (so each section can show its own light)

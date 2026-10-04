@@ -2,6 +2,7 @@
    data the 3D view builds from (and vice versa). Rendering is plain SVG in screen coordinates. */
 
 import { nanoBounds } from './nanoleaf.js';
+import { kitchenLayout } from './kitchen.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, MIN_TREAD, MAX_TREAD } from './stairs.js';
 
@@ -79,6 +80,7 @@ export function createPlan(ctx) {
     const base = FOOT[d.type] || DEFAULT_FOOT;
     const k = d.scale || 1;
     if (d.type === 'picture') return { w: (d.w || 0.6) * k, d: 0.06 };
+    if (d.type === 'kitchenrun') { const l = kitchenLayout(d); return { w: l.w * k, d: l.d * k }; }
     if (d.type === 'nanoleaf') return { w: nanoBounds(d.panels).w * k * (d.sx || 1), d: 0.06 };
     if (d.type === 'ledring') {                                   // not used for hits (those follow the line), only for sizes and labels
       const xs = (d.pts || [[0, 0]]).map((p) => p[0] * k * (d.sx || 1)), zs = (d.pts || [[0, 0]]).map((p) => p[1] * k * (d.sz || 1));
@@ -220,7 +222,7 @@ export function createPlan(ctx) {
         for (const sc of ringSectionsWorld(d)) for (const end of [0, 1]) if (near(sc.ends[end])) return { type: 'ring-end', d, i: sc.i, end };
         return null;
       }
-      if (d && d.type !== 'picture' && d.type !== 'ledring' && !d.locked) {
+      if (d && d.type !== 'picture' && d.type !== 'ledring' && d.type !== 'kitchenrun' && !d.locked) {
         const hs = devHandles(d);
         for (const which of ['x', 'z']) if (near(hs[which])) return { type: 'dev-size', which, d };
       }
@@ -430,6 +432,18 @@ export function createPlan(ctx) {
     const devs = [...f.devices].sort((a, b) => (FLAT.has(a.type) ? -1 : 0) - (FLAT.has(b.type) ? -1 : 0));
     devs.forEach((d) => {
       if (d.type === 'ledring') { o += drawRing(d, (sel?.kind === 'device' && sel.id === d.id), live); return; }
+      if (d.type === 'kitchenrun') {                                   // the modules of the run, each one as its own box
+        const ksel = (sel?.kind === 'device' && sel.id === d.id), kcol = ksel ? C.sel : C.accent, kon = d.entity && isOn(d.entity);
+        const kk = d.scale || 1, kl = kitchenLayout(d), kfill = { sink: 'rgba(90,170,255,.28)', stove: kon ? 'rgba(255,170,60,.5)' : 'rgba(255,110,80,.25)', fridge: 'rgba(210,235,255,.3)', dish: 'rgba(170,200,255,.22)', gap: 'rgba(255,255,255,.04)' };
+        o += `<g transform="translate(${sx(d.x).toFixed(1)},${sy(d.z).toFixed(1)}) rotate(${-(d.rot || 0)})">`;
+        kl.cells.forEach((c) => {
+          const ex = (Math.abs(Math.cos(c.ang)) * c.w + Math.abs(Math.sin(c.ang)) * c.d) * kk * s, ez = (Math.abs(Math.sin(c.ang)) * c.w + Math.abs(Math.cos(c.ang)) * c.d) * kk * s;
+          o += `<rect x="${(c.cx * kk * s - ex / 2).toFixed(1)}" y="${(c.cz * kk * s - ez / 2).toFixed(1)}" width="${ex.toFixed(1)}" height="${ez.toFixed(1)}" fill="${kfill[c.type] || 'rgba(35,224,255,.14)'}" stroke="${kcol}" stroke-width="${ksel ? 1.8 : 1.1}"/>`;
+        });
+        o += '</g>';
+        if ((d.name || d.entity) && s >= 36) o += `<text x="${sx(d.x)}" y="${sy(d.z) + 4}" text-anchor="middle" font-size="10" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(d.name || '')}</text>`;
+        return;
+      }
       const fo = footOf(d);
       const isSel = (sel?.kind === 'device' && sel.id === d.id);
       const st = d.entity ? ctx.states()[d.entity] : null;
@@ -476,7 +490,7 @@ export function createPlan(ctx) {
       if (sel.kind === 'wall') { const w = f.walls.find((q) => q.id === sel.id); if (w) o += hnd(w.a) + hnd(w.b); }
       if (sel.kind === 'device') {
         const d = f.devices.find((q) => q.id === sel.id);
-        if (d && d.type !== 'picture' && d.type !== 'ledring' && !d.locked) { const hs = devHandles(d); ['x', 'z'].forEach((k) => { o += `<rect x="${sx(hs[k][0]) - 6}" y="${sy(hs[k][1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; }); }
+        if (d && d.type !== 'picture' && d.type !== 'ledring' && d.type !== 'kitchenrun' && !d.locked) { const hs = devHandles(d); ['x', 'z'].forEach((k) => { o += `<rect x="${sx(hs[k][0]) - 6}" y="${sy(hs[k][1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; }); }
       }
       if (sel.kind === 'stair') {
         const st = (f.stairs || []).find((q) => q.id === sel.id), hs = st && stairHandles(st, H3);
