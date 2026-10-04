@@ -217,6 +217,8 @@ At the top right of the bar there is a pill with the **version** and a short **c
 
 The pill is **green** when both match. Click it for the details and **Check now (also with GitHub)**: the add-on then fetches the manifest of the `main` branch on GitHub and tells you whether it is the same state, whether GitHub has a newer version (update in the add-on store) or a different state. If GitHub cannot be reached, it says so; the other two checks still count.
 
+**New version available:** in the edit mode the add-on looks at GitHub once at the start and then every 5 minutes. When a newer version exists the pill turns **blue** (`⬆ New version available · v…`); update in *Settings → Apps → 3D Floorplan*. Only the public `manifest.json` is fetched, nothing about you or your house is sent. Switch it off in ⚙ (*Check GitHub every 5 minutes …*). The browser check also works when Home Assistant is opened over plain `http` (the checksums are then calculated without the browser's secure-context function).
+
 For developers: after every change in `floorplan3d/` run `python3 tools/make_manifest.py` and commit `manifest.json`.
 
 ## Backup and restore

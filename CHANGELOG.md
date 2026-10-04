@@ -4,6 +4,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.27.0] - 2026-10-05
+### Added
+- **New-version notice**: in the edit mode the version pill checks GitHub once at the start and then every 5 minutes. When `main` has a newer version it turns blue: **⬆ New version available · v…**. Only the public `manifest.json` is fetched. Can be switched off in ⚙ (`updateCheck`, on by default). Before, the comparison ran only when the button in the version dialog was pressed (#140).
+### Fixed
+- **Version dialog over plain `http`**: it said "Browser: check not possible here (no secure context)". The checksums are now calculated with a built-in SHA-256 when the browser's own function is not available, so the browser check works there too (#144).
+### Changed
+- `SECURITY.md` names the only outside request (the version check) and says that backups are not encrypted.
+
 ## [3.26.1] - 2026-10-05
 ### Fixed
 - **Pulled-apart view**: with a basement only the upper floor and the roof were lifted, the ground floor stayed on the basement. Now every floor gets its gap, the lowest one stays in place (#146).
