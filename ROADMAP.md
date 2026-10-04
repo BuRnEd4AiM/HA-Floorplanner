@@ -19,6 +19,10 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ✅ Version and checksum pill (add-on files, browser, GitHub)
 - ✅ Add-on store listing (icon, logo, translations), welcome card on first start
 
+## Known issues
+
+- ⬜ Version dialog says "Browser: check not possible here (no secure context)" when Home Assistant is opened over plain `http` ([#144](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/144))
+
 ## Ideas, not started
 
 - ⬜ HACS Lovelace card ([#13](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/13))
@@ -35,6 +39,10 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ⬜ Version pill shows "New version available" by itself (check every 5 minutes in the edit mode) ([#140](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/140))
 - ⬜ Doors and windows can be placed even in very short wall pieces where there is no room, so very narrow windows work ([#142](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/142))
 - ⬜ Power add-on: inverter, meters, solar panels and animated cables with consumption, switched on and off from the bottom bar ([#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136))
+  - Small steps: first meters, inverter and battery with value badges, then solar panels (on the roof, free-standing, on walls; rows and columns, kWp, sensor per field), then animated cables with the on/off button at the bottom
+  - Separate sensors (grid import / export, battery charging / discharging) and a button to flip the sign of a sensor that counts the wrong way
+  - Setup checklist ("what is missing?") and a one-click *Take over from the Home Assistant energy dashboard*
+  - Ideas collected in the comment of [#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136#issuecomment-5981634564)
 - ⬜ Split `app.js` into smaller modules, step by step ([#137](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/137))
 - ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138))
 
