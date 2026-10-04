@@ -137,6 +137,34 @@ async def test_service_data_validation(client, monkeypatch):
         assert (await client.post("/api/service", json=body)).status == 400
 
 
+async def test_climate_service_validation(client, monkeypatch):
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    bad = [
+        {"domain": "climate", "service": "set_temperature", "entity_id": "climate.x"},
+        {"domain": "climate", "service": "set_temperature", "entity_id": "climate.x", "data": {"temperature": 100}},
+        {"domain": "climate", "service": "set_temperature", "entity_id": "climate.x", "data": {"temperature": True}},
+        {"domain": "climate", "service": "set_temperature", "entity_id": "climate.x", "data": {"temperature": "21"}},
+        {"domain": "climate", "service": "set_hvac_mode", "entity_id": "climate.x"},
+        {"domain": "climate", "service": "set_hvac_mode", "entity_id": "climate.x", "data": {"hvac_mode": "explode"}},
+        {"domain": "light", "service": "set_temperature", "entity_id": "light.x", "data": {"temperature": 20}},
+        {"domain": "light", "service": "turn_on", "entity_id": "light.x", "data": {"temperature": 20}},
+        {"domain": "light", "service": "set_hvac_mode", "entity_id": "light.x", "data": {"hvac_mode": "heat"}},
+    ]
+    for body in bad:
+        assert (await client.post("/api/service", json=body)).status == 400, body
+
+
+def test_slim_state_climate_fields():
+    st = {"entity_id": "climate.wohnzimmer", "state": "heat", "attributes": {
+        "friendly_name": "Wohnzimmer", "current_temperature": 20.5, "temperature": 21, "hvac_action": "heating",
+        "min_temp": 7, "max_temp": 30, "target_temp_step": 0.5, "hvac_modes": ["off", "heat", {"x": 1}]}}
+    s = server.slim_state(st)
+    assert s["hvac"] == "heating" and s["tt"] == 21 and s["tmin"] == 7 and s["tmax"] == 30 and s["tstep"] == 0.5
+    assert s["modes"] == ["off", "heat"] and s["ct"] == 20.5
+    lamp = server.slim_state({"entity_id": "light.x", "state": "on", "attributes": {"temperature": 5}})
+    assert "hvac" not in lamp and "tt" not in lamp          # only thermostats carry the heating fields
+
+
 async def test_settings_look_and_stops(client):
     r = await client.put("/api/settings", json={
         "wallOpacity": 5, "glowRadius": 0.01, "bgTop": "#ABCDEF", "bgBottom": "red",

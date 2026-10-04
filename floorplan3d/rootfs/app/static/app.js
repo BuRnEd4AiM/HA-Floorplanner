@@ -906,6 +906,8 @@ function build() {
   scheduleFloorThumbs();
 }
 
+/** is this entity "on" for the glow of its device? A thermostat only while it really heats or cools (hvac_action), else by its state */
+const isOnNow = (e) => { const s = states[e]; if (!s) return false; if (e.startsWith('climate.') && s.hvac) return s.hvac === 'heating' || s.hvac === 'cooling'; return ON_STATES.has(s.state); };
 const ON_STATES = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'unlocked', 'home']);
 
 /** Short text for the badge on a device: "21.4 °C", "95 W", "70 %" (cover), the app on a TV ... */
@@ -1321,8 +1323,9 @@ function applyStates() {
     f.devices.forEach((d) => {
       const obj = registry.get(d.id);
       if (!obj) return;
-      const on = d.entity && ON_STATES.has(states[d.entity]?.state);
+      const on = d.entity && isOnNow(d.entity);
       const rgb = on && Array.isArray(states[d.entity]?.rgb) ? states[d.entity].rgb : null;   // lit parts take the light's colour
+      obj.userData.heat?.forEach((m) => { m.emissive.set(on ? 0xff5a1a : 0x000000); m.emissiveIntensity = on ? 0.9 : 0; });   // a radiator glows while its thermostat heats
       obj.userData.glow?.forEach((m) => {
         m.emissive.set(on ? (rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255) : 0xffd27a) : 0x000000);
         m.emissiveIntensity = on ? 1.4 : 0;
@@ -1393,7 +1396,7 @@ function applyStates() {
     });
   }
   if (livePopupFor) renderLivePopup();
-  if (roomPanelFor && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) renderRoomPanel();
+  if (roomPanelFor && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) renderRoomPanel();   // (renders the heating panel too)
 }
 
 /* ---- Offline devices: every placed entity that Home Assistant reports as unavailable (or unknown), or that does not
@@ -2351,7 +2354,7 @@ const ACTION_LABEL = {
 
 async function callService(entityId, service, data) {
   const domain = entityId.split('.')[0];
-  const svc = domain === 'scene' || domain === 'script' ? 'turn_on' : service;
+  const svc = domain === 'scene' || domain === 'script' ? 'turn_on' : service;   // (set_temperature / set_hvac_mode pass through)
   try {
     const r = await fetch('api/service', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ domain, service: svc, entity_id: entityId, ...(data ? { data } : {}) }) });
@@ -2696,7 +2699,7 @@ function autoPlace(room, ids) {
   changed();
   return plan;
 }
-function closeRoomPanel() { roomPanelFor = null; $('#roomPanel').hidden = true; }
+function closeRoomPanel() { roomPanelFor = null; $('#roomPanel').hidden = true; $('#heatPanel').hidden = true; }
 const rpOpenCtl = new Set();               // lights whose colour / effect / scene controls are unfolded in the room panel
 function renderRoomPanel() {
   const box = $('#roomPanel');
@@ -2721,7 +2724,9 @@ function renderRoomPanel() {
     .filter((id) => !placedIds.has(id) && states[id] && inRp(id))
     .map((id) => ({ entity: id, name: entities.find((e) => e.entity_id === id)?.name || id }));
   devs.push(...extra);
+  renderHeatPanel(devs.filter((d) => d.entity.startsWith('climate.')));
   RP_GROUPS.forEach(([group, key]) => {
+    if (group === 'climate') return;                          // thermostats have their own panel next to this one
     const list = devs.filter((d) => rpGroupOf(d.entity.split('.')[0]) === group);
     if (!list.length) return;
     const h = document.createElement('h4'); h.textContent = t(key); box.append(h);
@@ -2812,6 +2817,61 @@ function renderRoomPanel() {
     });
   });
   if (!devs.length && !ops.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('rp.empty'); box.append(e); }
+}
+/* ---- Heating panel: next to the room panel, for the thermostats of the room (live mode) ---- */
+const heatPending = new Map();             // entity -> { v, timer }: a target temperature that was clicked but not sent yet
+function heatTarget(e, s) { return heatPending.get(e)?.v ?? s?.tt; }
+function heatSend(e, v) {
+  const s = states[e] || {}, lo = s.tmin ?? 7, hi = s.tmax ?? 30, step = s.tstep || 0.5;
+  v = Math.min(hi, Math.max(lo, Math.round(v / step) * step));
+  const old = heatPending.get(e); if (old) clearTimeout(old.timer);
+  heatPending.set(e, { v, timer: setTimeout(() => { heatPending.delete(e); callService(e, 'set_temperature', { temperature: v }); }, 700) });   // clicks in a row become one call
+  renderHeatPanel();
+}
+let heatDevs = [];
+function renderHeatPanel(devs) {
+  if (devs) heatDevs = devs;
+  const box = $('#heatPanel');
+  if (!heatDevs.length || !roomPanelFor) { box.hidden = true; return; }
+  box.hidden = false; box.replaceChildren();
+  const h = document.createElement('h4'); h.textContent = t('heat.title'); box.append(h);
+  heatDevs.forEach((d) => {
+    const e = d.entity, s = states[e], card = document.createElement('div'); card.className = 'hp';
+    const head = document.createElement('div'); head.className = 'hp-head';
+    const nm = document.createElement('span'); nm.className = 'hp-name'; nm.textContent = d.name || s?.name || e;
+    const badge = document.createElement('span');
+    const act = !s ? 'off' : s.state === 'off' ? 'off' : (s.hvac || 'idle');
+    badge.className = 'hp-badge ' + act;
+    badge.textContent = act === 'heating' ? `🔥 ${t('heat.heating')}` : act === 'cooling' ? `❄ ${t('heat.cooling')}` : act === 'off' ? t('heat.off') : t('heat.idle');
+    head.append(nm, badge);
+    const temps = document.createElement('div'); temps.className = 'hp-temps';
+    const now = document.createElement('div'); now.className = 'hp-now';
+    now.innerHTML = ''; now.append(typeof s?.ct === 'number' ? `${Math.round(s.ct * 10) / 10} °C` : '– °C');
+    const lab = document.createElement('small'); lab.textContent = t('heat.now'); now.append(lab);
+    temps.append(now);
+    const target = heatTarget(e, s);
+    if (typeof target === 'number' && s?.state !== 'off') {
+      const set = document.createElement('div'); set.className = 'hp-set';
+      const step = s.tstep || 0.5;
+      const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−'; minus.title = t('heat.minus');
+      const plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+'; plus.title = t('heat.plus');
+      const val = document.createElement('b'); val.textContent = `${Math.round(target * 10) / 10} °C`; val.title = t('heat.target');
+      minus.addEventListener('click', () => heatSend(e, target - step));
+      plus.addEventListener('click', () => heatSend(e, target + step));
+      set.append(minus, val, plus); temps.append(set);
+    }
+    card.append(head, temps);
+    if (Array.isArray(s?.modes) && s.modes.length) {
+      const modes = document.createElement('div'); modes.className = 'hp-modes';
+      s.modes.forEach((m) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = m === s.state ? 'on' : ''; b.textContent = t(`heat.mode.${m}`) === `heat.mode.${m}` ? m : t(`heat.mode.${m}`);
+        b.addEventListener('click', () => callService(e, 'set_hvac_mode', { hvac_mode: m }));
+        modes.append(b);
+      });
+      card.append(modes);
+    }
+    box.append(card);
+  });
 }
 function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPanel(); }
 
@@ -4481,7 +4541,7 @@ async function loadAreas() {
   areas.forEach((x) => x.entities.forEach((e) => { areaOf[e] = x.id; }));
 }
 
-const toState = (e) => ({ since: e.since, state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e), rgbRaw: e.rgb, dc: e.dc, ct: e.ct, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members });
+const toState = (e) => ({ since: e.since, state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e), rgbRaw: e.rgb, dc: e.dc, ct: e.ct, hvac: e.hvac, tt: e.tt, tmin: e.tmin, tmax: e.tmax, tstep: e.tstep, modes: e.modes, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members });
 
 /* ---- Live channel: the add-on pushes every state change the moment Home Assistant reports it (a wall switch, an
    automation, a sensor). While it is up, the full list is only fetched once a minute to stay in step; while it is
@@ -4655,6 +4715,7 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     elev: (i) => elev(i),
+    heatGlow: (id) => registry.get(id)?.userData.heat?.[0]?.emissiveIntensity ?? -1,
     cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
     liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
     touchSize: (id) => { let m = 0; registry.get(id)?.children.forEach((c) => { if (c.userData.touchOnly) { c.geometry.computeBoundingBox(); const s = c.geometry.boundingBox.getSize(new THREE.Vector3()); m = Math.min(s.x, s.y, s.z); } }); return m; },

@@ -33,7 +33,9 @@ MAX_MODEL_BYTES = 20 * 1024 * 1024
 MAX_LAYOUT_BYTES = 10 * 1024 * 1024
 MAX_BG_BYTES = 8 * 1024 * 1024
 ALLOWED_DOMAINS = {"light", "switch", "cover", "fan", "media_player", "climate", "lock", "scene", "script", "input_boolean"}
-SERVICES = {"toggle", "turn_on", "turn_off", "open_cover", "close_cover", "stop_cover", "lock", "unlock", "set_cover_position"}
+SERVICES = {"toggle", "turn_on", "turn_off", "open_cover", "close_cover", "stop_cover", "lock", "unlock", "set_cover_position",
+            "set_temperature", "set_hvac_mode"}
+HVAC_MODES = {"off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"}
 
 LANGUAGES = ("auto", "de", "en", "fr", "es", "it", "nl", "pl")
 DEFAULT_SETTINGS = {
@@ -714,6 +716,19 @@ async def get_entities(request):
     return web.json_response([slim_state(st) for st in states])
 
 
+def _climate(st, a):
+    """What the heating panel needs of a thermostat: what it is doing now, the target temperature and what it may be set to."""
+    if not st["entity_id"].startswith("climate."):
+        return {}
+    modes = a.get("hvac_modes")
+    return {
+        "hvac": a.get("hvac_action"),                         # heating | cooling | idle | off ...
+        "tt": a.get("temperature"),                           # target temperature
+        "tmin": a.get("min_temp"), "tmax": a.get("max_temp"), "tstep": a.get("target_temp_step"),
+        "modes": [m for m in modes if isinstance(m, str)][:12] if isinstance(modes, list) else None,
+    }
+
+
 def slim_state(st):
     """The few fields of a Home Assistant state the floor plan uses (same shape for /api/entities and the live channel)."""
     a = st.get("attributes") or {}
@@ -728,6 +743,7 @@ def slim_state(st):
         "rgb": a.get("rgb_color"),
         "dc": a.get("device_class"),
         "ct": a.get("current_temperature"),
+        **_climate(st, a),
         "ch": a.get("current_humidity"),
         "app": a.get("app_name") if st["entity_id"].startswith("media_player.") else None,
         "fx": _effects(a),
@@ -896,6 +912,16 @@ async def call_service(request):
         if not isinstance(data, dict):
             return web.json_response({"error": "data must be an object"}, status=400)
         for key, val in data.items():
+            if domain == "climate" and key == "temperature":
+                if isinstance(val, bool) or not isinstance(val, (int, float)) or not 4 <= val <= 40:
+                    return web.json_response({"error": "data not allowed"}, status=400)
+                payload[key] = round(float(val), 1)
+                continue
+            if domain == "climate" and key == "hvac_mode":
+                if val not in HVAC_MODES:
+                    return web.json_response({"error": "data not allowed"}, status=400)
+                payload[key] = val
+                continue
             if domain == "light" and key == "rgb_color":
                 if (not isinstance(val, list) or len(val) != 3
                         or any(isinstance(v, bool) or not isinstance(v, (int, float)) or not 0 <= v <= 255 for v in val)):
@@ -918,6 +944,10 @@ async def call_service(request):
             payload[key] = int(val)
     if service == "set_cover_position" and "position" not in payload:
         return web.json_response({"error": "position missing"}, status=400)
+    if (service == "set_temperature" and "temperature" not in payload) or (service == "set_hvac_mode" and "hvac_mode" not in payload):
+        return web.json_response({"error": "value missing"}, status=400)
+    if (service in ("set_temperature", "set_hvac_mode")) != (domain == "climate" and service in ("set_temperature", "set_hvac_mode")):
+        return web.json_response({"error": "domain/service/entity not allowed"}, status=400)
     async with aiohttp.ClientSession() as s:
         async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(),
                           json=payload) as r:

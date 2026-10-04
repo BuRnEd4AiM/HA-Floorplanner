@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.30.0] - 2026-10-05
+### Added
+- **Heating panel (#134)**: in the live mode a click on a room opens a **second panel next to the room panel** with the thermostats (`climate.*`) of that room: the room temperature, the target temperature with **− / +** (clicks in a row become one call, the limits and the step come from the thermostat) and the **modes** it offers (off, heat, auto ...). Lights and heating are in view at once. On a phone the panel sits at the top.
+- **Sign that the heating runs**: a badge *🔥 heating* in the panel and the **radiator glows** in 3D while the thermostat's `hvac_action` is heating (cooling shows *❄*). Before, a thermostat in the state `heat` counted as "on" even when it was idle.
+- The thermostats are no longer in the room panel's list.
+- Backend: the services `climate.set_temperature` (4 to 40 °C) and `climate.set_hvac_mode` (only the known modes) are allowed; the live channel carries `hvac_action`, the target, its limits and the modes of a thermostat.
+
 ## [3.29.0] - 2026-10-05
 ### Added
 - **Compass** in the 3D view (bottom left): the rose turns with the camera (north is up in the 2D plan) and says from which side of the house you look, e.g. *View from S* (7 languages).
