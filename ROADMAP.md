@@ -32,6 +32,9 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ⬜ View menu moves to the bottom, next to Normal / Temperature / Humidity ([#132](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/132))
 - ⬜ Demo runs directly on GitHub (Pages), always updated automatically ([#133](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/133))
 - ⬜ Heating control: its own panel next to the room panel, with a sign that the heating is running ([#134](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/134))
+- ⬜ Power add-on: inverter, meters, solar panels and animated cables with consumption, switched on and off from the bottom bar ([#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136))
+- ⬜ Split `app.js` into smaller modules, step by step ([#137](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/137))
+- ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138))
 
 ## v0.8 – Live sync – done in 3.6.0
 
@@ -43,7 +46,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 
 - ⬜ HACS Lovelace card to show the floor plan on any dashboard
 - ✅ Furniture library with previews (1.3.0)
-- ⬜ Glowing floor cables with watt display
+- ⬜ Glowing floor cables with watt display, part of the power add-on ([#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136))
 
 ## Done in 3.3 – 3.9
 
