@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.26.1] - 2026-10-05
+### Fixed
+- **Pulled-apart view**: with a basement only the upper floor and the roof were lifted, the ground floor stayed on the basement. Now every floor gets its gap, the lowest one stays in place (#146).
+
 ## [3.26.0] - 2026-10-03
 ### Added
 - **Welcome card on an empty house** with three ways to start: *Draw walls*, *Try the example house*, *Import a house from JSON*. Shown in edit mode until the house has content or the card is closed

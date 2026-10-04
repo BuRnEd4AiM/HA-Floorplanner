@@ -1,6 +1,6 @@
 {
- "version": "3.26.0",
- "buildHash": "b7d811a88520e0261c2dfa599e5ea384e7b5738ca2b016f3efd0e08c3a25f848",
+ "version": "3.26.1",
+ "buildHash": "cdf197048e951672a4268b6e7c99f66b27f7cab9ae51033fae24739c4b1c3dac",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -130,7 +130,7 @@
   "property.schema.json": "a354b2a01331b775d0e1ee7ed012efb2e9854e0dccecb476517c42f4807c3cea",
   "server.py": "92c62e73514bdfc960228e8461d0ab371e7f36715ac176b18657726311e849fe",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
-  "static/app.js": "1f99d73a7ecea6c15e59bc9523f20d863335a3d4eae612c84e9bf574d56b8439",
+  "static/app.js": "c450e4689a60956af38ff91f148681d4b300c89e467e9aa99ebe3a9aa0f8f846",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
   "static/dormer.js": "1c1a1834cbd56d176758b5976100261b4c04f32d6ccfe6098e17a247f8811156",
