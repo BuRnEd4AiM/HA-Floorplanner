@@ -21,6 +21,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 
 ## Known issues
 
+- ⬜ Exploded view: the ground floor stays on the basement, only the upper floor and the roof are lifted ([#146](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/146))
 - ⬜ Version dialog says "Browser: check not possible here (no secure context)" when Home Assistant is opened over plain `http` ([#144](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/144))
 
 ## Ideas, not started
