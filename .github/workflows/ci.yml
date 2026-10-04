@@ -80,10 +80,15 @@ jobs:
             nohup python ../../floorplan3d/rootfs/app/server.py > /tmp/server.log 2>&1 &
           for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:8099/ && break; sleep 1; done
       - name: Browser end-to-end tests
-        run: cd tests/e2e && python test_e2e.py
-      - name: Server log
+        run: |
+          cd tests/e2e
+          set -o pipefail
+          python test_e2e.py 2>&1 | tee /tmp/e2e.out
+      - name: Failed checks and server log
         if: failure()
-        run: tail -n 60 /tmp/server.log /tmp/mock.log
+        run: |
+          grep -E "^(FAIL|Traceback|.*Error)" /tmp/e2e.out | head -40 || true
+          tail -n 30 /tmp/server.log /tmp/mock.log
 
   addon-lint:
     runs-on: ubuntu-latest

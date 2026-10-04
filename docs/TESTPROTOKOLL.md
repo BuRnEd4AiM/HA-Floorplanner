@@ -4,6 +4,18 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
+## Diese Woche noch prüfen (Stand 3.27.1)
+
+Das sind die Punkte, die nur der Besitzer im echten Betrieb prüfen kann. Nach Wichtigkeit geordnet, die Nummern verweisen auf die Tabellen unten. Ergebnis jeweils unten in der Tabelle eintragen (✅ / ❌).
+
+1. **Nach dem Update auf 3.27.1** (Abschnitt 21): Versionsanzeige, Etagen auseinander, Backup-Panel.
+2. **Erster Start** (Abschnitt 20): auf einer sauberen Installation oder in einem privaten Fenster.
+3. **Automatische Sicherung** (Abschnitt 18): vor allem 18.3 (Ordner `addon_configs`), 18.6 und 18.7 (zeitgesteuert, dauert eine Stunde) und 18.8 (Zurückspielen).
+4. **Wandtablet** (Abschnitt 10 und 8.5): Kiosk, Leistungsmodus, Warnbanner. Nur mit echtem Gerät möglich.
+5. **Backup und Speichern** (9.6, 9.7) und **Import des eigenen Hauses** (13.3 bis 13.5, 15.6, 12.6a).
+6. **Kameras** (Abschnitt 6) und **Öffnungen gruppiert** (7.1a), falls Kameras vorhanden sind.
+7. **Haus ohne Keller** (14.4) und **Demo mit Gauben** (16.4).
+
 ## Automatische Tests
 
 | Datum | Stand | Python-Tests | Browser-Test (E2E) | Bemerkung |
@@ -219,6 +231,17 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 20.6 | „Haus aus JSON importieren" öffnet den Importdialog | ❓ |
 | 20.7 | Die Etage heißt je nach Sprache „Ground floor", „Erdgeschoss" und so weiter | ❓ |
 | 20.8 | Bestehende Installationen behalten Sprache und Design | ❓ |
+
+### 21. Neu in 3.26.1 bis 3.27.1
+
+| Nr. | Prüfpunkt | Ergebnis |
+| --- | --- | --- |
+| 21.1 | Etagen auseinander (Ganzes Haus, „auseinander"): jede Etage hat ihre Lücke, auch das Erdgeschoss hebt sich vom Keller ab (#146) | ✅ (Besitzer, 3.26.1) |
+| 21.2 | Versionsanzeige: im Fenster steht „Browser: zeigt genau diese Dateien", auch bei `http://` (#144) | ❓ |
+| 21.3 | Einstellungen ⚙ zeigt das Kästchen „Alle 5 Minuten bei GitHub nachsehen …" (#140) | ❓ |
+| 21.4 | Sobald es eine neuere Version gibt, wird die Anzeige im Bearbeiten-Modus nach spätestens 5 Minuten blau: „⬆ Neue Version verfügbar" (#140) | ❓ (erst bei der nächsten Version prüfbar) |
+| 21.5 | Backup-Panel: die Beschriftungen der Zahlenfelder stehen über den Feldern, nicht in einer schmalen Spalte | ❓ |
+| 21.6 | Im Protokoll des Add-ons steht beim Start „Starting 3D Floorplan on port 8099 ..." | ❓ |
 
 ## Automatisch geprüft (zusätzlich)
 - Python: Benutzer werden in `users.json` gespiegelt; Synchronisieren lädt/speichert; frische Installation holt sich Benutzer aus der Datei zurück.
