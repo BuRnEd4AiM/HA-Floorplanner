@@ -21,6 +21,8 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 
 - [ ] HACS Lovelace card ([#13](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/13))
 - [ ] Sun light and shadows by time of day ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68))
+- [ ] Edit kitchen units individually: modules, position of stove and sink, L / U shape, island ([#124](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/124))
+- [ ] Several different roofs per house, e.g. gable plus flat roof on an annex ([#125](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/125))
 
 ## v0.8 – Live sync – done in 3.6.0
 
