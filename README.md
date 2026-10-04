@@ -256,7 +256,7 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 
 ## 🧪 Try it without Home Assistant
 
-**[⬇ Download the demo](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)** (always the newest build; a GitHub workflow rebuilds it whenever the app changes) and open the file with a double-click: one HTML file, no server, no Home Assistant.
+**[⬇ Download the demo](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)** (always the newest build; a GitHub workflow rebuilds it whenever the app changes) and open the file with a double-click: one HTML file, no server, no Home Assistant. Or **[open the demo directly in the browser](https://burned4aim.github.io/HA-Floorplanner/)** (GitHub Pages, same build, nothing to download).
 
 It contains an example house with a basement in the ground, several floors, a roof, a plot with garden, furniture, doors and windows with contact sensors, simulated lights (colour, brightness, effects, scenes), a **Nanoleaf layout**, a **TV backlight**, an **invisible LED strip** that still lights the room, an **LED ring** with two lights around the bedroom ceiling, temperature / humidity sensors and the live mode. Everything works as in the add-on, except that changes are not saved.
 
