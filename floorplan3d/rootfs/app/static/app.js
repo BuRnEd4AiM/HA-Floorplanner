@@ -4356,6 +4356,10 @@ async function commitSettings() {
   if (!settingsLoaded && !(await loadSettings())) { setStatus(t('set.notLoaded')); return; }
   const prev = settings;
   settings = readSettingsForm();
+  if (settings.seeThrough && settings.cutaway) {                       // Auto (walls sink) and See-through exclude each other: the one switched on last wins
+    if (!prev.seeThrough) settings.cutaway = false; else settings.seeThrough = false;
+    fillSettingsForm();
+  }
   if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
   if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones
     snapshot();
