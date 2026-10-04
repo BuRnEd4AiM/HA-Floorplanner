@@ -84,6 +84,7 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const floor = () => layout.floors[floorIdx];
 const groundIdx = () => Math.max(0, layout.floors.findIndex((f) => f.kind !== 'basement'));   // first floor above ground
 let exploded = false;                  // whole-house view with the floors pulled apart
+const WALL_SEE = 0.3;                  // opacity of a wall between the camera and the room when the walls are made see-through
 const EXPLODE_GAP = 2.5;               // extra space between every two floors when pulled apart (m); the lowest floor stays, all above it lift
 const elev = (i = floorIdx) => {
   const k = i - groundIdx();
@@ -685,7 +686,7 @@ function updateRoofFade() {
   for (const r of roofs) {
     if (!r.box) { r.mesh.updateWorldMatrix(true, false); r.box = new THREE.Box3().setFromObject(r.mesh); }
     const d = r.box.distanceToPoint(camera.position);
-    const k = Math.max(0.12, Math.min(1, (d - 2.5) / 4.5));          // fully there beyond ~7 m, mostly gone up close
+    const k = Math.max(0.12, Math.min(settings.seeThrough ? WALL_SEE : 1, (d - 2.5) / 4.5));          // fully there beyond ~7 m, mostly gone up close; with see-through walls the roof stays see-through from afar too
     r.mats.forEach((m) => { m.x.opacity = m.base * k; m.x.transparent = m.transparent || k < 0.999; m.x.depthWrite = m.depthWrite && k > 0.95; });
   }
 }
@@ -1656,7 +1657,6 @@ function wallCutawayInfo(w, group) {
   return { group, n, low: 1 };
 }
 const CUT_LOW = 0.14;
-const WALL_SEE = 0.3;                  // opacity of a wall between the camera and the room when the walls are made see-through
 /** fade all materials of a wall to `f` (1 = as built); the built opacity is remembered on the material */
 function setWallFade(c, f) {
   if (c.fadeNow === f) return;
@@ -2888,6 +2888,7 @@ function updateNavToggles() {
   $('#wallToggle').textContent = t(lowWalls ? 'view.wallsLow' : 'view.wallsHigh');
   $('#wallToggle').classList.toggle('active', !lowWalls);
   $('#autoToggle').classList.toggle('active', !!settings.cutaway);
+  $('#seeToggle').classList.toggle('active', !!settings.seeThrough);
 }
 function setLowWalls(v) {
   lowWalls = v;
@@ -3340,6 +3341,10 @@ document.querySelectorAll('#modeBar button[data-vm]').forEach((b) => b.addEventL
 }));
 $('#autoToggle').addEventListener('click', () => {
   $('#setCutaway').checked = !settings.cutaway;
+  commitSettings();
+});
+$('#seeToggle').addEventListener('click', () => {
+  $('#setSeeThrough').checked = !settings.seeThrough;
   commitSettings();
 });
 
@@ -4608,6 +4613,7 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     elev: (i) => elev(i),
+    addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach')); build(); }, camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofs.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
     liveTapRoom: (id) => liveSelect({ kind: 'room', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
     select(kind, id) { selection = { kind, id }; refreshSelection(); },
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),
