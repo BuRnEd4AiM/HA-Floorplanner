@@ -33,6 +33,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ⬜ Demo runs directly on GitHub (Pages), always updated automatically ([#133](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/133))
 - ⬜ Heating control: its own panel next to the room panel, with a sign that the heating is running ([#134](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/134))
 - ⬜ Version pill shows "New version available" by itself (check every 5 minutes in the edit mode) ([#140](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/140))
+- ⬜ Doors and windows can be placed even in very short wall pieces where there is no room, so very narrow windows work ([#142](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/142))
 - ⬜ Power add-on: inverter, meters, solar panels and animated cables with consumption, switched on and off from the bottom bar ([#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136))
 - ⬜ Split `app.js` into smaller modules, step by step ([#137](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/137))
 - ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138))
