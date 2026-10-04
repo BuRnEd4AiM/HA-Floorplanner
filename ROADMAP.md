@@ -1,5 +1,7 @@
 # Roadmap
 
+✅ = done · ⬜ = still open
+
 Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplanner/milestones) and [issues](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues). Dates are targets, not promises.
 
 ## Done
@@ -10,73 +12,73 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 
 ## Done in 3.20 – 3.26
 
-- [x] Dormers and manual roof size, basement without a hole in the ground
-- [x] Customisable toolbar with a *More* menu, rooms grouped by house in the user list
-- [x] Double-click a wall to add a corner, grouped opening palette, placed devices stay selected
-- [x] Automatic backups with retention, check and restore
-- [x] Version and checksum pill (add-on files, browser, GitHub)
-- [x] Add-on store listing (icon, logo, translations), welcome card on first start
+- ✅ Dormers and manual roof size, basement without a hole in the ground
+- ✅ Customisable toolbar with a *More* menu, rooms grouped by house in the user list
+- ✅ Double-click a wall to add a corner, grouped opening palette, placed devices stay selected
+- ✅ Automatic backups with retention, check and restore
+- ✅ Version and checksum pill (add-on files, browser, GitHub)
+- ✅ Add-on store listing (icon, logo, translations), welcome card on first start
 
 ## Ideas, not started
 
-- [ ] HACS Lovelace card ([#13](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/13))
-- [ ] Sun light and shadows by time of day ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68))
-- [ ] Edit kitchen units individually: modules, position of stove and sink, L / U shape, island ([#124](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/124))
-- [ ] Several different roofs per house, e.g. gable plus flat roof on an annex ([#125](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/125))
+- ⬜ HACS Lovelace card ([#13](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/13))
+- ⬜ Sun light and shadows by time of day ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68))
+- ⬜ Edit kitchen units individually: modules, position of stove and sink, L / U shape, island ([#124](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/124))
+- ⬜ Several different roofs per house, e.g. gable plus flat roof on an annex ([#125](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/125))
 
 ## v0.8 – Live sync – done in 3.6.0
 
-- [x] Live state updates via WebSocket instead of polling (3.6.0)
-- [x] Native Home Assistant more-info dialog for tapped devices (3.4.0)
-- [x] Auto-place all entities of an area (3.5.0)
+- ✅ Live state updates via WebSocket instead of polling (3.6.0)
+- ✅ Native Home Assistant more-info dialog for tapped devices (3.4.0)
+- ✅ Auto-place all entities of an area (3.5.0)
 
 ## v0.9 – Dashboards
 
-- [ ] HACS Lovelace card to show the floor plan on any dashboard
-- [x] Furniture library with previews (1.3.0)
-- [ ] Glowing floor cables with watt display
+- ⬜ HACS Lovelace card to show the floor plan on any dashboard
+- ✅ Furniture library with previews (1.3.0)
+- ⬜ Glowing floor cables with watt display
 
 ## Done in 3.3 – 3.9
 
-- [x] LED ring for indirect light around a room, free sections with their own lights (3.3.0, 3.4.0)
-- [x] Home Assistant details dialog (3.4.0, #9)
-- [x] Auto placement of an area's entities (3.5.0)
-- [x] Live updates over Home Assistant's websocket (3.6.0)
-- [x] House in solid ground, basement shown as a section (3.7.0)
-- [x] Draw the plot, adjustable lawn around the house (3.8.0)
-- [x] Devices offline / not linked at a glance (3.9.0 – 3.9.2)
-- [x] Faster on tablets: per-device performance setting, scrolling buttons, no graphics memory leak (3.9.0, 3.9.3)
+- ✅ LED ring for indirect light around a room, free sections with their own lights (3.3.0, 3.4.0)
+- ✅ Home Assistant details dialog (3.4.0, #9)
+- ✅ Auto placement of an area's entities (3.5.0)
+- ✅ Live updates over Home Assistant's websocket (3.6.0)
+- ✅ House in solid ground, basement shown as a section (3.7.0)
+- ✅ Draw the plot, adjustable lawn around the house (3.8.0)
+- ✅ Devices offline / not linked at a glance (3.9.0 – 3.9.2)
+- ✅ Faster on tablets: per-device performance setting, scrolling buttons, no graphics memory leak (3.9.0, 3.9.3)
 
 ## v1.0 – Stable release
 
-- [ ] Verified on real Home Assistant installs (test protocol issue)
-- [x] Layout export / import (backup 1.5.0, JSON import 3.0.0)
-- [x] Documentation and screenshots (import guide, quick tour, demo)
+- ⬜ Verified on real Home Assistant installs (test protocol issue)
+- ✅ Layout export / import (backup 1.5.0, JSON import 3.0.0)
+- ✅ Documentation and screenshots (import guide, quick tour, demo)
 
 ## v3.0 – Property import (JSON API) – done in 3.0.0
 
 Describe a plot and the building as JSON (or import GeoJSON footprints) and let the add-on build the house or apartment from it. Feasible in stages, each one useful on its own:
 
-- [x] Property JSON format (schema v1) with examples
-- [x] `POST /api/import` with validation and dry run (creates a new house, never overwrites)
-- [x] Interpreter: walls, rooms, openings, floors and roof from the description
-- [x] Plot boundary and garden objects in the whole-house view
-- [x] GeoJSON converter (lat/lon to local metres)
-- [x] Import dialog in the UI with preview and errors
-- [x] Export in the same format (round trip)
-- [x] Docs and an AI prompt for generating the JSON
+- ✅ Property JSON format (schema v1) with examples
+- ✅ `POST /api/import` with validation and dry run (creates a new house, never overwrites)
+- ✅ Interpreter: walls, rooms, openings, floors and roof from the description
+- ✅ Plot boundary and garden objects in the whole-house view
+- ✅ GeoJSON converter (lat/lon to local metres)
+- ✅ Import dialog in the UI with preview and errors
+- ✅ Export in the same format (round trip)
+- ✅ Docs and an AI prompt for generating the JSON
 
 ## Backlog
 
-- [x] Presence: people and presence sensors in the rooms (3.2.0)
+- ✅ Presence: people and presence sensors in the rooms (3.2.0)
 
-- [x] Placeholder blocks and stairs / stairwells (0.8.0)
-- [x] Backup export/import (1.5.0, #12)
-- [x] Several houses and per-pane window sensors (1.4.0)
-- [x] Furniture library with previews, search and categories, door/window variants, wall pictures (1.3.0)
-- [x] Move floors, basement, roof, garden objects, whole-house view (0.9.0)
-- [x] Nanoleaf panel shapes and layout editor (0.10.0)
-- [x] Multi-segment LED strips: LED ring around the room, one light per section (3.3.0)
-- [x] Automatic room detection from closed wall loops (*Detect rooms*)
-- [x] Background image / blueprint for tracing (0.7.2)
-- [x] More languages: Français, Español, Italiano, Nederlands, Polski (3.1.0)
+- ✅ Placeholder blocks and stairs / stairwells (0.8.0)
+- ✅ Backup export/import (1.5.0, #12)
+- ✅ Several houses and per-pane window sensors (1.4.0)
+- ✅ Furniture library with previews, search and categories, door/window variants, wall pictures (1.3.0)
+- ✅ Move floors, basement, roof, garden objects, whole-house view (0.9.0)
+- ✅ Nanoleaf panel shapes and layout editor (0.10.0)
+- ✅ Multi-segment LED strips: LED ring around the room, one light per section (3.3.0)
+- ✅ Automatic room detection from closed wall loops (*Detect rooms*)
+- ✅ Background image / blueprint for tracing (0.7.2)
+- ✅ More languages: Français, Español, Italiano, Nederlands, Polski (3.1.0)
