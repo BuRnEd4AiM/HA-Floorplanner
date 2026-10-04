@@ -11,6 +11,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Changed
 - **Live mode (#130)**: only things that are linked to something (an entity, a TV backlight, an LED ring with lights) can be tapped. Furniture without a link no longer takes the tap away from the lamp behind it. **Doors and windows have no hit box** in the live mode any more (in the edit mode everything can still be picked).
 ### Fixed
+- **Roof editing**: with *See-through* on, the roof (and its dormers) were nearly invisible while you edit the roof floor. While the roof floor is open the roof now stays clearly visible (at least 85 %), also close up.
 - **A wall that never became see-through (or never sank)** on the ground floor: the centre of the house, which decides which walls face the camera, was taken from everything of the floor, so a garden (trees, fence, lawn) far south pulled it away and the south wall counted as an inner wall. It is now the centre of the walls.
 
 ## [3.28.1] - 2026-10-05

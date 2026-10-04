@@ -692,7 +692,8 @@ function updateRoofFade() {
   for (const r of roofs) {
     if (!r.box) { r.mesh.updateWorldMatrix(true, false); r.box = new THREE.Box3().setFromObject(r.mesh); }
     const d = r.box.distanceToPoint(camera.position);
-    const k = Math.max(0.12, Math.min(settings.seeThrough ? WALL_SEE : 1, (d - 2.5) / 4.5));          // fully there beyond ~7 m, mostly gone up close; with see-through walls the roof stays see-through from afar too
+    const editing = !houseMode && floor()?.kind === 'roof';                                            // the roof floor is open: the roof (and its dormers) must stay clearly visible
+    const k = Math.max(editing ? 0.85 : 0.12, Math.min(settings.seeThrough && !editing ? WALL_SEE : 1, (d - 2.5) / 4.5));          // fully there beyond ~7 m, mostly gone up close; with see-through walls the roof stays see-through from afar too
     r.mats.forEach((m) => { m.x.opacity = m.base * k; m.x.transparent = m.transparent || k < 0.999; m.x.depthWrite = m.depthWrite && k > 0.95; });
   }
 }
