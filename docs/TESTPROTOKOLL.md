@@ -4,11 +4,11 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Diese Woche noch prüfen (Stand 3.27.1)
+## Diese Woche noch prüfen (Stand 3.28.0)
 
 Das sind die Punkte, die nur der Besitzer im echten Betrieb prüfen kann. Nach Wichtigkeit geordnet, die Nummern verweisen auf die Tabellen unten. Ergebnis jeweils unten in der Tabelle eintragen (✅ / ❌).
 
-1. **Nach dem Update auf 3.27.1** (Abschnitt 21): Versionsanzeige, Etagen auseinander, Backup-Panel.
+1. **Nach dem Update auf 3.28.0** (Abschnitte 21 und 22): Versionsanzeige, Etagen auseinander, Backup-Panel, Ansichtsmenü unten, Halbschnitt, durchsichtige Wände, zweites Tippen im Live-Modus.
 2. **Erster Start** (Abschnitt 20): auf einer sauberen Installation oder in einem privaten Fenster.
 3. **Automatische Sicherung** (Abschnitt 18): vor allem 18.3 (Ordner `addon_configs`), 18.6 und 18.7 (zeitgesteuert, dauert eine Stunde) und 18.8 (Zurückspielen).
 4. **Wandtablet** (Abschnitt 10 und 8.5): Kiosk, Leistungsmodus, Warnbanner. Nur mit echtem Gerät möglich.
@@ -242,6 +242,20 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 21.4 | Sobald es eine neuere Version gibt, wird die Anzeige im Bearbeiten-Modus nach spätestens 5 Minuten blau: „⬆ Neue Version verfügbar" (#140) | ❓ (erst bei der nächsten Version prüfbar) |
 | 21.5 | Backup-Panel: die Beschriftungen der Zahlenfelder stehen über den Feldern, nicht in einer schmalen Spalte | ❓ |
 | 21.6 | Im Protokoll des Add-ons steht beim Start „Starting 3D Floorplan on port 8099 ..." | ❓ |
+
+### 22. Ansicht und Live-Bedienung (3.28.0)
+
+| Nr. | Prüfpunkt | Ergebnis |
+| --- | --- | --- |
+| 22.1 | Der Knopf „Ansicht" steht unten bei Normal / Temp. / Feuchte / CO₂, sein Menü öffnet sich nach oben (#132) | ❓ |
+| 22.2 | Auf dem Handy und Tablet ist unten nichts verdeckt, alle Knöpfe sind erreichbar | ❓ |
+| 22.3 | „Halbschnitt": Deckenlampen, LED-Ringe und hoch hängende Bilder verschwinden mit, nichts schwebt über den Wänden (#131) | ❓ |
+| 22.4 | Halbschnitt wieder aus: alles ist wieder da | ❓ |
+| 22.5 | Einstellungen ⚙ „Wände zur Kamera durchsichtig machen statt absenken": die Wände zur Kamera werden leicht durchsichtig, man sieht den Raum (#129) | ❓ |
+| 22.6 | Beim Drehen der Kamera wechseln die durchsichtigen Wände mit (von hinten normal) | ❓ |
+| 22.7 | Option aus: die Wände senken sich wie bisher | ❓ |
+| 22.8 | Live-Modus: Tippen in einen Raum zoomt hinein, ein zweites Tippen in den Raum geht zurück zur Ansicht davor, zum Beispiel zur Etage (#128) | ❓ |
+| 22.9 | Das gilt auch aus der Ganzes-Haus-Ansicht: zurück zeigt wieder das ganze Haus | ❓ |
 
 ## Automatisch geprüft (zusätzlich)
 - Python: Benutzer werden in `users.json` gespiegelt; Synchronisieren lädt/speichert; frische Installation holt sich Benutzer aus der Datei zurück.
