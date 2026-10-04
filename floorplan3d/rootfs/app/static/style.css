@@ -376,6 +376,14 @@ body.low button, body.low .pill.active { box-shadow: none !important; }
 body.low .alertItem { animation: none; }
 
 /* ---------- search ---------- */
+#compass { position: absolute; left: 10px; bottom: 62px; z-index: 5; width: 62px; text-align: center; pointer-events: none; font-size: 11px; color: var(--muted); }
+#compass svg { width: 54px; height: 54px; display: block; margin: 0 auto; }
+#compass .cRing { fill: var(--panel); fill-opacity: .72; stroke: var(--line); stroke-width: 1.5; }
+#compass .cN { fill: #e0483e; } #compass .cS { fill: var(--muted); fill-opacity: .55; }
+#compass .cL { fill: var(--text, currentColor); font: 700 9px sans-serif; text-anchor: middle; }
+#compass .cLn { fill: #e0483e; }
+#compass #compassFrom { display: block; margin-top: 1px; white-space: nowrap; }
+body.v-2d #compass { display: none; }
 #findBtn { position: absolute; left: 12px; bottom: 14px; z-index: 5; width: 40px; height: 40px; padding: 0; font-size: 17px; }
 #findBox { position: absolute; left: 12px; bottom: 62px; z-index: 6; width: min(340px, calc(100% - 24px)); background: var(--panel);
   border: 1px solid var(--line); border-radius: 12px; padding: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }

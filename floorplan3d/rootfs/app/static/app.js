@@ -84,6 +84,7 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const floor = () => layout.floors[floorIdx];
 const groundIdx = () => Math.max(0, layout.floors.findIndex((f) => f.kind !== 'basement'));   // first floor above ground
 let exploded = false;                  // whole-house view with the floors pulled apart
+let compassKey = '';                   // what the compass shows right now (so it is only redrawn when something changed)
 const WALL_SEE = 0.3;                  // opacity of a wall between the camera and the room when the walls are made see-through
 const EXPLODE_GAP = 2.5;               // extra space between every two floors when pulled apart (m); the lowest floor stays, all above it lift
 const elev = (i = floorIdx) => {
@@ -255,6 +256,11 @@ function addPickProxy(model) {
   proxy.position.copy(box.getCenter(new THREE.Vector3()));
   proxy.userData.proxy = true;
   model.add(proxy);
+  const wide = (v) => Math.max(v + 0.25, 0.6);                // a bigger hit box that only the live mode uses: lamps are easy to hit with a finger
+  const touch = new THREE.Mesh(new THREE.BoxGeometry(wide(size.x), wide(size.y), wide(size.z)), new THREE.MeshBasicMaterial({ visible: false }));
+  touch.position.copy(proxy.position);
+  touch.userData.proxy = true; touch.userData.touchOnly = true;
+  model.add(touch);
 }
 
 const HOLO = { fill: 0x1f6fe0, edge: 0x3df2ff, on: 0xff9d2e, onEdge: 0xffd08a, floor: 0x0a1830, floorLit: 0xff9d2e };
@@ -686,7 +692,8 @@ function updateRoofFade() {
   for (const r of roofs) {
     if (!r.box) { r.mesh.updateWorldMatrix(true, false); r.box = new THREE.Box3().setFromObject(r.mesh); }
     const d = r.box.distanceToPoint(camera.position);
-    const k = Math.max(0.12, Math.min(settings.seeThrough ? WALL_SEE : 1, (d - 2.5) / 4.5));          // fully there beyond ~7 m, mostly gone up close; with see-through walls the roof stays see-through from afar too
+    const editing = !houseMode && floor()?.kind === 'roof';                                            // the roof floor is open: the roof (and its dormers) must stay clearly visible
+    const k = Math.max(editing ? 0.85 : 0.12, Math.min(settings.seeThrough && !editing ? WALL_SEE : 1, (d - 2.5) / 4.5));          // fully there beyond ~7 m, mostly gone up close; with see-through walls the roof stays see-through from afar too
     r.mats.forEach((m) => { m.x.opacity = m.base * k; m.x.transparent = m.transparent || k < 0.999; m.x.depthWrite = m.depthWrite && k > 0.95; });
   }
 }
@@ -1649,7 +1656,7 @@ function refreshSelection() {
 
 /* ---- Cutaway: walls between the camera and the interior sink down so you can look inside ---- */
 function wallCutawayInfo(w, group) {
-  const { cx, cz } = floorBounds();
+  const { cx, cz } = wallsCenter();
   const mid = [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
   const len = wallLength(w) || 1;
   let n = [-(w.b[1] - w.a[1]) / len, (w.b[0] - w.a[0]) / len];        // one of the two wall normals
@@ -1677,7 +1684,7 @@ function updateCutaway() {
   if (roofs.length) updateRoofFade();
   updateEarthCut();
   if (!cutawayWalls.length) return;
-  const { cx, cz } = floorBounds();
+  const { cx, cz } = wallsCenter();
   let dx = camera.position.x - cx, dz = camera.position.z - cz;
   const horiz = Math.hypot(dx, dz);
   const steep = Math.hypot(dx, dz) < (camera.position.y - elev()) * 0.25;   // almost straight down: keep walls
@@ -1697,6 +1704,23 @@ function updateCutaway() {
     const show = (c.low < 0.6 || c.fade < 0.6) && !isLive();
     c.handles?.forEach((h) => { h.outline.visible = show; });
   }
+}
+
+/* ---- Compass: the rose turns with the camera (north = up in the 2D plan), the text says from which side we look ---- */
+function updateCompass() {
+  const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
+  if (Math.hypot(dx, dz) < 1e-6) return;
+  const heading = Math.atan2(-dx, dz) * 180 / Math.PI;                 // direction we look to, degrees clockwise from north
+  const from = (Math.atan2(dx, -dz) * 180 / Math.PI + 360) % 360;      // the side of the house we look from
+  const dirs = t('compass.dirs').split(',');
+  const text = t('compass.from', { d: dirs[Math.round(from / 45) % 8] });
+  const key = `${Math.round(heading)}|${text}`;
+  if (key === compassKey) return;
+  compassKey = key;
+  $('#compassRose').setAttribute('transform', `rotate(${(-heading).toFixed(1)})`);
+  $('#compassFrom').textContent = text;
+  const letters = t('compass.letters').split(',');                      // N, E, S, W in this language
+  document.querySelectorAll('#compassRose .cL').forEach((el, i) => { el.textContent = letters[i] || el.textContent; });
 }
 
 /* ================= Changes, undo, save ================= */
@@ -1866,14 +1890,19 @@ function groundPoint(e) {
   return ray.ray.intersectPlane(plane, hitVec) ? [hitVec.x, hitVec.z] : null;
 }
 const stealth = (id) => !!floor()?.devices.find((v) => v.id === id)?.hideModel;
+const deviceOf = (id) => { for (const f of layout.floors) { const d = f.devices.find((v) => v.id === id); if (d) return d; } return null; };
+/** in the live mode only what is linked to something can be tapped (a light, a switch, a TV with a backlight, an LED ring with lights) */
+const tappable = (id) => { const d = deviceOf(id); return !!d && !!(d.entity || d.ledEntity || (d.segs || []).some((s) => s.entity)); };
 function pickHit(e) {
   setRay(e);
   let hits = [];
   for (const h of ray.intersectObjects(pickables, true)) {
+    if (h.object.userData.touchOnly && !isLive()) continue;                                      // the big finger box is for the live mode only
     let o = h.object, seg = h.object.userData.seg;
     while (o && !o.userData.kind) { o = o.parent; seg ??= o?.userData.seg; }
+    if (o && isLive() && o.userData.kind === 'opening') continue;                                // doors and windows have no hit box in the live mode: nobody needs to tap them
     if (o && o.userData.cone && !isLive()) continue;                                              // the cone is only for tapping in live mode
-    if (o && o.userData.kind === 'device' && isLive() && stealth(o.userData.id)) continue;      // an invisible light cannot be tapped either
+    if (o && o.userData.kind === 'device' && isLive() && (stealth(o.userData.id) || !tappable(o.userData.id))) continue;      // an invisible light, or a thing that is linked to nothing, cannot be tapped
     if (o) hits.push({ data: seg != null ? { ...o.userData, seg } : o.userData, point: h.point, distance: h.distance });   // seg: which LED ring section was tapped
   }
   // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
@@ -2843,6 +2872,14 @@ function floorBounds() {
   const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
   const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
   return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, size: Math.max(x1 - x0, z1 - z0, 4) };
+}
+/** centre of the walls of the floor shown. Garden things and lamps outside the house must not pull it away: it decides which walls face the camera (see-through / lowering) */
+function wallsCenter() {
+  const f = floor();
+  if (isolatedRoom() || !f.walls.length) return floorBounds();
+  const pts = f.walls.flatMap((w) => [w.a, w.b]);
+  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
+  return { cx: (Math.min(...xs) + Math.max(...xs)) / 2, cz: (Math.min(...zs) + Math.max(...zs)) / 2 };
 }
 function houseBounds() {
   const pts = layout.floors.flatMap((f) => [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])]);
@@ -4580,6 +4617,7 @@ function animate(now = performance.now()) {
   }
   controls.update();
   updateCutaway();
+  updateCompass();
   animateOpenings();
   selHelper?.update();
   declutterLabels();
@@ -4617,6 +4655,9 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     elev: (i) => elev(i),
+    cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
+    liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
+    touchSize: (id) => { let m = 0; registry.get(id)?.children.forEach((c) => { if (c.userData.touchOnly) { c.geometry.computeBoundingBox(); const s = c.geometry.boundingBox.getSize(new THREE.Vector3()); m = Math.min(s.x, s.y, s.z); } }); return m; },
     addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach')); build(); }, camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofs.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
     liveTapRoom: (id) => liveSelect({ kind: 'room', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
     select(kind, id) { selection = { kind, id }; refreshSelection(); },

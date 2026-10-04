@@ -461,6 +461,18 @@ with sync_playwright() as p:
         check("arrow keys change the floor", isinstance(a0, int) and isinstance(a1, int) and a0 != a1, (a0, a1))
     pgA.close()
     # --- customisable tool bar: dormer button, folded "More" menu, hide / order stored per browser
+    def place_far(pg):
+        """put the plant on the spot that is farthest (on the screen) from the lamp and from the window, so only the thing under test can be hit"""
+        best = None
+        for x, z in [(5, 1), (1, 4), (5, 4), (1, 1), (3, 1), (3, 3.5), (4.5, 2.5), (1.5, 2.5)]:
+            pg.evaluate(f"() => {{ const d = window.__fp.layout.floors[window.__fp.floorIdx()].devices.find(v => v.id === 'tPlant'); d.x = {x}; d.z = {z}; window.__fp.rebuild(); }}")
+            pg.wait_for_timeout(400)
+            pts = [pg.evaluate(f"window.__fp.screenOf('{i}')") for i in ("tLamp", "tPlant", "tWin")]
+            gap = min(((pts[1]["x"] - o["x"]) ** 2 + (pts[1]["y"] - o["y"]) ** 2) ** 0.5 for o in (pts[0], pts[2]))
+            if best is None or gap > best[0]:
+                best = (gap, x, z)
+        pg.evaluate(f"() => {{ const d = window.__fp.layout.floors[window.__fp.floorIdx()].devices.find(v => v.id === 'tPlant'); d.x = {best[1]}; d.z = {best[2]}; window.__fp.rebuild(); }}")
+        pg.wait_for_timeout(500)
     pgT = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgT.goto(BASE + "?debug=1&mode=edit"); pgT.wait_for_timeout(1500)
     check("tool bar: dormer button is in the bar", pgT.locator("#dormerBtn").is_visible())
@@ -705,6 +717,26 @@ with sync_playwright() as p:
     check("presence: person shows with a dot on the room while home, hides when away", here is True and dot == 1 and away is False and dot2 == 0, (here, dot, away, dot2))
     pg10.close()
     # --- LED ring: placed in a room it runs all around under the ceiling, every section has its own light
+    # --- the walls facing the camera are found by the centre of the WALLS, a garden far away must not turn the south wall around; the compass says where we look from
+    set_setting("lowWalls", False); set_setting("cutaway", True); set_setting("seeThrough", False)      # an earlier step may have left one of them different
+    pgK = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgK.goto(BASE + "?debug=1&mode=edit"); pgK.wait_for_timeout(2000)
+    pgK.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.length = 0; f.devices.length = 0;
+      [[[0,0],[6,0]],[[6,0],[6,5]],[[6,5],[0,5]],[[0,5],[0,0]]].forEach((w, i) => f.walls.push({id: 'kw' + i, a: w[0], b: w[1], thickness: 0.2, height: 2.6, openings: []}));
+      f.devices.push({id: 'kTree', type: 'tree', x: 3, z: 30, y: 0, rot: 0, scale: 1, name: 'Baum', entity: ''}, {id: 'kTree2', type: 'tree', x: 3, z: 26, y: 0, rot: 0, scale: 1, name: 'Baum', entity: ''}); window.__fp.rebuild(); }""")
+    pgK.wait_for_timeout(800)
+    pgK.evaluate("window.__fp.camAt(3, 14, 22, 3, 2.5)"); pgK.wait_for_timeout(500)
+    pgK.evaluate("() => { for (let i = 0; i < 60; i++) window.__fp.frame(); }"); pgK.wait_for_timeout(300)
+    ci = {c["id"]: c for c in pgK.evaluate("window.__fp.cutInfo()")}
+    check("walls facing the camera: the south wall points out of the house even with a garden far south of it", ci["kw2"]["n"][1] > 0.9, ci["kw2"])
+    check("walls facing the camera: the south wall sinks (Auto) when we look from the south", min(ci["kw2"]["low"], ci["kw2"]["fade"]) < 0.5, ci["kw2"])
+    check("compass: it is shown in the 3D view", pgK.locator("#compass").is_visible())
+    txt_s = pgK.inner_text("#compassFrom")
+    pgK.evaluate("window.__fp.camAt(43, 14, 2.5, 3, 2.5)"); pgK.wait_for_timeout(1200)
+    txt_e = pgK.inner_text("#compassFrom")
+    check("compass: it says from which side we look (south, then east)", txt_s.strip()[-1] == "S" and txt_e.strip()[-1] in "OE", (txt_s, txt_e))
+    pgK.close()
+
     pg12 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg12.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
     pg12.goto(BASE + "?debug=1&mode=edit"); pg12.wait_for_timeout(1500)
@@ -1169,6 +1201,11 @@ with sync_playwright() as p:
     view_menu(pgM); pgM.click("#seeToggle"); pgM.wait_for_timeout(1200)
     pgM.evaluate("window.__fp.camFar()"); pgM.wait_for_timeout(1500)
     f_on = pgM.evaluate("window.__fp.roofFactor()")
+    pgM.evaluate("window.__fp.switchFloor(window.__fp.layout.floors.length - 1)"); pgM.wait_for_timeout(600)
+    pgM.evaluate("window.__fp.camAt(window.__fp.cam()[0], window.__fp.cam()[1], window.__fp.cam()[2])")
+    pgM.evaluate("() => { for (let i = 0; i < 60; i++) window.__fp.frame(); }"); pgM.wait_for_timeout(300)
+    f_edit = pgM.evaluate("window.__fp.roofFactor()")
+    check("see-through: while the roof is edited (roof floor open) the roof stays clearly visible, also close up", f_edit >= 0.8, f_edit)
     check("see-through: the button turns the option on", pgM.evaluate("window.__fp.settings().seeThrough") is True and "active" in (pgM.get_attribute("#seeToggle", "class") or ""))
     check("see-through: the roof is see-through from afar too (it hides nothing behind it)", f_off > 0.9 and f_on < 0.4, (f_off, f_on))
     check("see-through: switching it on switches Auto off", pgM.evaluate("window.__fp.settings().cutaway") is False and "active" not in (pgM.get_attribute("#autoToggle", "class") or ""))
@@ -1188,6 +1225,30 @@ with sync_playwright() as p:
     cam2 = pgR.evaluate("window.__fp.cam()")
     check("second tap: a second tap into the same room goes back to the view before", pgR.evaluate("window.__fp.focusedRoom()") is None and pgR.locator("#roomPanel").is_hidden() and max(abs(a - b2) for a, b2 in zip(cam0, cam2)) < 1e-3, (cam0, cam2))
     pgR.close()
+    # --- live mode: only things linked to an entity can be tapped, doors and windows have no hit box, lamps get a bigger finger box (#130)
+    setup_js = """() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.length = 0; f.devices.length = 0;
+      [[[0,0],[6,0]],[[6,0],[6,5]],[[6,5],[0,5]],[[0,5],[0,0]]].forEach((w, i) => f.walls.push({id: 'tw' + i, a: w[0], b: w[1], thickness: 0.2, height: 2.6, openings: i === 2 ? [{id: 'tWin', type: 'window', pos: 0.5, width: 1.2, height: 1.2, sill: 0.9, entity: 'binary_sensor.fenster_wohnzimmer'}] : []}));
+      f.devices.push({id: 'tLamp', type: 'light', x: 2, z: 2, y: 0.9, rot: 0, scale: 1, name: 'Lampe', entity: 'light.wohnzimmer'}, {id: 'tPlant', type: 'plant', x: 1, z: 0.8, y: 0, rot: 0, scale: 1, name: 'Pflanze', entity: ''});
+      window.__fp.rebuild(); }"""
+    pgT = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgT.goto(BASE + "?debug=1&mode=live"); pgT.wait_for_timeout(2000)
+    pgT.evaluate(setup_js); pgT.wait_for_timeout(1500)
+    place_far(pgT)
+    sl, sp, sw = pgT.evaluate("window.__fp.screenOf('tLamp')"), pgT.evaluate("window.__fp.screenOf('tPlant')"), pgT.evaluate("window.__fp.screenOf('tWin')")
+    hl = pgT.evaluate(f"window.__fp.liveHitAt({sl['x']}, {sl['y']})"); hp = pgT.evaluate(f"window.__fp.liveHitAt({sp['x']}, {sp['y']})"); hw = pgT.evaluate(f"window.__fp.liveHitAt({sw['x']}, {sw['y']})")
+    check("live tap: a lamp linked to an entity is hit", hl and hl["kind"] == "device" and hl["id"] == "tLamp", hl)
+    check("live tap: a thing linked to nothing (plant) cannot be tapped", not (hp and hp["kind"] == "device"), hp)
+    check("live tap: a window has no hit box (even with a sensor)", not (hw and hw["kind"] == "opening"), hw)
+    check("live tap: the finger box of a lamp is at least 60 cm", pgT.evaluate("window.__fp.touchSize('tLamp')") >= 0.6 - 1e-6, pgT.evaluate("window.__fp.touchSize('tLamp')"))
+    pgT.close()
+    pgT2 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgT2.goto(BASE + "?debug=1&mode=edit"); pgT2.wait_for_timeout(2000)
+    pgT2.evaluate(setup_js); pgT2.wait_for_timeout(1500)
+    place_far(pgT2)
+    sp2, sw2 = pgT2.evaluate("window.__fp.screenOf('tPlant')"), pgT2.evaluate("window.__fp.screenOf('tWin')")
+    hp2 = pgT2.evaluate(f"window.__fp.liveHitAt({sp2['x']}, {sp2['y']})"); hw2 = pgT2.evaluate(f"window.__fp.liveHitAt({sw2['x']}, {sw2['y']})")
+    check("edit mode: everything can still be picked (plant and window)", hp2 and hp2["kind"] == "device" and hw2 and hw2["kind"] == "opening", (hp2, hw2))
+    pgT2.close()
 
     pg12 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     shots = os.path.join(os.path.dirname(__file__), "lang")
