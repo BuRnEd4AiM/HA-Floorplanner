@@ -25,6 +25,13 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ⬜ Sun light and shadows by time of day ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68))
 - ⬜ Edit kitchen units individually: modules, position of stove and sink, L / U shape, island ([#124](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/124))
 - ⬜ Several different roofs per house, e.g. gable plus flat roof on an annex ([#125](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/125))
+- ⬜ Live mode: a second click into the room goes back to the view before (e.g. back to the floor) ([#128](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/128))
+- ⬜ Option: walls seen from the front slightly transparent, in addition to lowering them ([#129](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/129))
+- ⬜ Live mode: bigger touch areas for lights; objects without an entity, windows and doors cannot be clicked ([#130](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/130))
+- ⬜ Cut-away view also cuts the ceilings ([#131](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/131))
+- ⬜ View menu moves to the bottom, next to Normal / Temperature / Humidity ([#132](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/132))
+- ⬜ Demo runs directly on GitHub (Pages), always updated automatically ([#133](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/133))
+- ⬜ Heating control: its own panel next to the room panel, with a sign that the heating is running ([#134](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/134))
 
 ## v0.8 – Live sync – done in 3.6.0
 
