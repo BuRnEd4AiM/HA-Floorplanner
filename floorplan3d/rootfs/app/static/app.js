@@ -28,7 +28,7 @@ const params = new URLSearchParams(location.search);
 
 let settings = {
   language: 'auto', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, placeSelect: true, updateCheck: true, autoBackup: false, backupEveryHours: 24, backupKeepDays: 14, backupKeepCount: 30, earth: 'solid', earthMargin: 5,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, seeThrough: false, placeSelect: true, updateCheck: true, autoBackup: false, backupEveryHours: 24, backupKeepDays: 14, backupKeepCount: 30, earth: 'solid', earthMargin: 5,
   alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
   userRooms: {}, userViews: {}, belowVisibility: 0.5, belowMode: 'dim', bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
@@ -867,7 +867,8 @@ function build() {
       model.userData.ghost = ghost;
       g.add(model);
       registry.set(d.id, model);
-      if (!ghost) pickables.push(model);
+      if (halfCut && !lowWalls && (d.y || 0) >= (f.walls[0]?.height || 2.6) * 0.5 - 0.05) { model.userData.cutHidden = true; model.visible = false; }   // half section: what hangs above the cut (ceiling lamps, LED ring, high pictures) would float in the air
+      if (!ghost && !model.userData.cutHidden) pickables.push(model);
       if (d.type === 'camera' && !ghost && (d.fov ?? 90) > 0) {
         const cone = buildCameraCone(d);
         g.add(cone);
@@ -1342,7 +1343,7 @@ function applyStates() {
         sg.holo.fill.forEach((m) => { if (son && c) m.color.setRGB(c[0] / 255, c[1] / 255, c[2] / 255); else m.color.setHex(son ? HOLO.on : HOLO.fill); m.opacity = op; });
         sg.holo.edge.forEach((m) => { if (son && c) m.color.setRGB(Math.min(1, c[0] / 255 + 0.35), Math.min(1, c[1] / 255 + 0.35), Math.min(1, c[2] / 255 + 0.35)); else m.color.setHex(son ? HOLO.onEdge : HOLO.edge); });
       });
-      obj.visible = !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on);      // a person who is not there is not drawn in live mode          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
+      obj.visible = !obj.userData.cutHidden && !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on);      // a person who is not there is not drawn in live mode          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
     });
@@ -1655,6 +1656,23 @@ function wallCutawayInfo(w, group) {
   return { group, n, low: 1 };
 }
 const CUT_LOW = 0.14;
+const WALL_SEE = 0.3;                  // opacity of a wall between the camera and the room when the walls are made see-through
+/** fade all materials of a wall to `f` (1 = as built); the built opacity is remembered on the material */
+function setWallFade(c, f) {
+  if (c.fadeNow === f) return;
+  c.fadeNow = f;
+  c.group.traverse((o) => {
+    if (!o.material || o.userData?.kind === 'handle') return;
+    [].concat(o.material).forEach((m) => {
+      const u = m.userData;
+      if (u.baseOp === undefined) { u.baseOp = m.opacity; u.baseTr = m.transparent; u.baseDW = m.depthWrite; }
+      const tr = f < 1 || u.baseTr;
+      m.opacity = u.baseOp * f;
+      m.depthWrite = f < 1 ? false : u.baseDW;
+      if (m.transparent !== tr) { m.transparent = tr; m.needsUpdate = true; }
+    });
+  });
+}
 function updateCutaway() {
   if (roofs.length) updateRoofFade();
   updateEarthCut();
@@ -1665,12 +1683,18 @@ function updateCutaway() {
   const steep = Math.hypot(dx, dz) < (camera.position.y - elev()) * 0.25;   // almost straight down: keep walls
   dx /= horiz || 1; dz /= horiz || 1;
   for (const c of cutawayWalls) {
-    const faces = settings.cutaway && !lowWalls && !halfCut && !steep && (c.n[0] * dx + c.n[1] * dz) > 0.2;
+    const toward = !lowWalls && !halfCut && !steep && (c.n[0] * dx + c.n[1] * dz) > 0.2;
+    const faces = settings.cutaway && toward && !settings.seeThrough;          // see-through walls fade instead of sinking
     const target = faces ? CUT_LOW : 1;
     c.low += (target - c.low) * 0.2;
     if (Math.abs(target - c.low) < 0.002) c.low = target;
     c.group.scale.y = c.low;
-    const show = c.low < 0.6 && !isLive();
+    const fadeTo = settings.seeThrough && toward ? WALL_SEE : 1;
+    c.fade = c.fade ?? 1;
+    c.fade += (fadeTo - c.fade) * 0.2;
+    if (Math.abs(fadeTo - c.fade) < 0.01) c.fade = fadeTo;
+    setWallFade(c, c.fade);
+    const show = (c.low < 0.6 || c.fade < 0.6) && !isLive();
     c.handles?.forEach((h) => { h.outline.visible = show; });
   }
 }
@@ -2315,8 +2339,21 @@ function quickAction(entityId) {
 function handleLiveTap(e) { liveSelect(pick(e)); }
 function liveSelect(h) {
   if (h?.kind === 'device' || h?.kind === 'opening') { livePopupFor = h.id; livePopupSeg = h.seg ?? null; renderLivePopup(); }
-  else if (h?.kind === 'room') { closeLivePopup(); if (focusedRoom !== h.id) focusRoom(h.id); openRoomPanel(h.id); }
+  else if (h?.kind === 'room') {
+    closeLivePopup();
+    if (focusedRoom === h.id) { leaveRoomView(); return; }                      // a second tap into the same room: back to the view before
+    if (focusedRoom === null) roomBackView = { room: h.id, house: houseMode, floor: floorIdx, pos: camera.position.clone(), target: controls.target.clone() };
+    focusRoom(h.id); openRoomPanel(h.id);
+  }
   else closeLivePopup();
+}
+function leaveRoomView() {
+  const back = roomBackView && roomBackView.room === focusedRoom ? roomBackView : null;
+  roomBackView = null;
+  closeRoomPanel();
+  if (!back) { focusRoom(null); return; }
+  if (back.house) setHouseMode(true); else if (floorIdx !== back.floor || houseMode) switchFloor(back.floor); else focusRoom(null);
+  camera.position.copy(back.pos); controls.target.copy(back.target); controls.update();
 }
 function closeLivePopup() { livePopupFor = null; $('#livePopup').hidden = true; }
 function renderLivePopup() {
@@ -2861,6 +2898,7 @@ $('#saveBtn').addEventListener('click', save);
 
 /* ================= Floors, rooms, navigation pills ================= */
 let focusedRoom = null;
+let roomBackView = null;               // the view before a tap zoomed into a room (floor / whole house, camera), so a second tap can go back
 let navKey = '';
 /** somebody is in this room: a person / presence device inside it reports home or on */
 const occupied = (room, f) => f.devices.some((d) => d.type === 'presence' && d.entity && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points));
@@ -3295,9 +3333,9 @@ $('#autoRooms').addEventListener('click', () => {
   changed();
   setStatus(t('rooms.found', { n: found.length }));
 });
-document.querySelectorAll('#modeBar button').forEach((b) => b.addEventListener('click', () => {
+document.querySelectorAll('#modeBar button[data-vm]').forEach((b) => b.addEventListener('click', () => {
   viewMode = b.dataset.vm;
-  document.querySelectorAll('#modeBar button').forEach((x) => x.classList.toggle('active', x === b));
+  document.querySelectorAll('#modeBar button[data-vm]').forEach((x) => x.classList.toggle('active', x === b));
   applyStates();
 }));
 $('#autoToggle').addEventListener('click', () => {
@@ -4143,7 +4181,7 @@ const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
   shadows: '#setShadows', labelMode: '#setLabels', cameraImages: '#setCameraImages', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
-  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', updateCheck: '#setUpdateCheck', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount',
+  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', seeThrough: '#setSeeThrough', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', updateCheck: '#setUpdateCheck', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', belowMode: '#setBelowMode', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
@@ -4570,6 +4608,7 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     elev: (i) => elev(i),
+    liveTapRoom: (id) => liveSelect({ kind: 'room', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
     select(kind, id) { selection = { kind, id }; refreshSelection(); },
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),
     rebuild: () => build(),

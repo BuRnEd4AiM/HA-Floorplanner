@@ -164,8 +164,10 @@ html[data-theme="holo"] #stage {
     radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--bg-glow, #28ebd2) calc(var(--bg-glow-s, 0) * 55%), transparent) 0, color-mix(in srgb, var(--bg-glow, #28ebd2) calc(var(--bg-glow-s, 0) * 12%), transparent) 9%, transparent 22%),
     linear-gradient(180deg, var(--bg-top, #0a3ba8) 0%, color-mix(in srgb, var(--bg-top, #0a3ba8) 55%, var(--bg-bottom, #031547)) 45%, var(--bg-bottom, #031547) 100%);
 }
-#modeBar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 4; }
+#modeBar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: calc(100% - 24px); z-index: 4; }
+#modeBar #viewMenuBtn { margin-left: 10px; }
 body.kiosk #modeBar { bottom: 10px; }
+body.kiosk #viewMenu { bottom: 58px; }
 
 dialog { max-height: 90vh; overflow-y: auto; }
 dialog .row input[type=color] { width: 150px; height: 30px; padding: 0; }
@@ -418,7 +420,7 @@ body.low .alertItem { animation: none; }
 #livePopup img.pop-cam.bad { opacity: .25; min-height: 80px; }
 
 /* view menu (top bar) and cameras overview */
-#viewMenu { position: absolute; top: 54px; right: 12px; z-index: 6; display: flex; flex-direction: column; gap: 6px; padding: 8px; min-width: 170px;
+#viewMenu { position: absolute; bottom: 62px; left: 50%; transform: translateX(-50%); z-index: 6; display: flex; flex-direction: column; gap: 6px; padding: 8px; min-width: 170px;
   background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
 #viewMenu[hidden], #camMenu[hidden] { display: none; }
 #camMenu { position: absolute; top: 54px; right: 12px; z-index: 6; width: min(480px, calc(100% - 24px)); max-height: calc(100% - 140px); overflow-y: auto; padding: 12px;
@@ -426,8 +428,8 @@ body.low .alertItem { animation: none; }
 #camMenu .sub { margin: 0 0 8px; }
 #viewMenu .pill { width: 100%; text-align: left; }
 #viewMenu .pill[hidden] { display: none; }
-#viewMenuBtn::after { content: ' ▾'; }
-#viewMenuBtn.active::after { content: ' ▴'; }
+#viewMenuBtn::after { content: ' ▴'; }
+#viewMenuBtn.active::after { content: ' ▾'; }
 #camGrid { display: flex; flex-direction: column; gap: 14px; }
 .camCards { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
 .camGroupHead { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }

@@ -146,7 +146,13 @@ In the whole-house view the **Auseinander** button pulls the floors apart (tap a
 
 **Room panel (live mode):** the devices of a room by kind: lights (with *Alle aus*), covers, heating, media, switches (slide switches), cameras, sensors, scenes & scripts. On phones and tablets held upright it comes up from the bottom.
 
-**Halbschnitt** (button next to *Auto*): cuts every wall at half height so you see into all rooms from any side. **Arrow keys** move the selected item by one grid step (Shift 10 cm, Alt 1 cm; a door or window slides along its wall). With nothing selected, **arrow up / down** switch to the floor above / below.
+**View menu:** the *View ▴* button sits in the bottom bar next to Normal / Temperature / Humidity / CO₂; its menu (Auto, Halbschnitt, pull apart, walls, floors in the plan) opens upwards.
+
+**See-through walls:** in ⚙ you can make the walls between the camera and the room fade instead of sinking (*Make walls facing the camera see-through …*).
+
+**Live mode:** a second tap into the room you are in goes back to the view before (floor or whole house, same camera).
+
+**Halbschnitt** (button in the view menu): cuts every wall at half height so you see into all rooms from any side; lamps, LED rings and pictures that hang above the cut are hidden with it. **Arrow keys** move the selected item by one grid step (Shift 10 cm, Alt 1 cm; a door or window slides along its wall). With nothing selected, **arrow up / down** switch to the floor above / below.
 
 ### Stairs and stairwells
 
