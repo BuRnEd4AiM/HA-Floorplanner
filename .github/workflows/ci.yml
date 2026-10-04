@@ -59,6 +59,37 @@ jobs:
         run: |
           for f in floorplan3d/rootfs/app/static/*.js; do cp "$f" /tmp/check.mjs && node --check /tmp/check.mjs; done
 
+  e2e:
+    # drives the real interface in Chromium against the real server and a mock Home Assistant (about 5 minutes)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install aiohttp playwright
+      - run: playwright install --with-deps chromium
+      - name: Start the mock Home Assistant and the add-on
+        run: |
+          cd tests/e2e
+          python make_glb.py
+          echo '{"editors": ["admin"]}' > /tmp/opts.json
+          nohup python mock_ha.py > /tmp/mock.log 2>&1 &
+          DATA_DIR=$(mktemp -d) SUPERVISOR_TOKEN=x HA_API=http://localhost:8123 OPTIONS_FILE=/tmp/opts.json \
+            nohup python ../../floorplan3d/rootfs/app/server.py > /tmp/server.log 2>&1 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:8099/ && break; sleep 1; done
+      - name: Browser end-to-end tests
+        run: |
+          cd tests/e2e
+          set -o pipefail
+          python test_e2e.py 2>&1 | tee /tmp/e2e.out
+      - name: Failed checks and server log
+        if: failure()
+        run: |
+          grep -E "^(FAIL|Traceback|.*Error)" /tmp/e2e.out | head -40 || true
+          tail -n 30 /tmp/server.log /tmp/mock.log
+
   addon-lint:
     runs-on: ubuntu-latest
     steps:

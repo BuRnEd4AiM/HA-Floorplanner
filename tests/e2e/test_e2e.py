@@ -661,9 +661,12 @@ with sync_playwright() as p:
     check("object list is grouped and filterable", ngrp >= 2 and nfilt == 0, (ngrp, nfilt))
     nl = pg9.locator("#objList .objlock").count()
     check("object list has a lock checkbox per item", nl >= 4, nl)
-    pg9.locator("#objList details[open] .objlock").first.check(); pg9.wait_for_timeout(300)
-    locked = pg9.evaluate("window.__fp.layout.floors.flatMap(f => [...f.rooms, ...f.walls, ...f.devices]).filter(x => x.locked).length")
-    check("ticking the box locks the item", locked == 1, locked)
+    count_locked = "window.__fp.layout.floors.flatMap(f => [...f.rooms, ...f.walls, ...f.devices]).filter(x => x.locked).length"
+    locked0 = pg9.evaluate(count_locked)                       # an earlier step may have left an item locked: compare the change, not an absolute number
+    idx = pg9.evaluate("[...document.querySelectorAll('#objList details[open] .objlock')].findIndex(c => !c.checked)")
+    pg9.locator("#objList details[open] .objlock").nth(idx).check(); pg9.wait_for_timeout(300)
+    locked = pg9.evaluate(count_locked)
+    check("ticking the box locks the item", locked == locked0 + 1, (locked0, locked))
     w0 = pg9.evaluate("document.querySelector('#panel').getBoundingClientRect().width")
     bx = pg9.evaluate("(() => { const r = document.querySelector('#panelResizer').getBoundingClientRect(); return [r.x + r.width / 2, r.y + 200]; })()")
     pg9.mouse.move(bx[0], bx[1]); pg9.mouse.down(); pg9.mouse.move(bx[0] - 150, bx[1], steps=5); pg9.mouse.up(); pg9.wait_for_timeout(300)

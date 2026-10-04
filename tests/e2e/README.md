@@ -12,5 +12,7 @@ DATA_DIR=$(mktemp -d) SUPERVISOR_TOKEN=x HA_API=http://localhost:8123 OPTIONS_FI
 python test_e2e.py
 ```
 
+Runs in CI as the job `e2e` of `.github/workflows/ci.yml` (about 5 minutes).
+
 Covers: drawing walls, doors/windows (incl. overlap rejection), GLB upload and placement,
 entity binding, settings (language/theme/units), live mode with service call, reload persistence.

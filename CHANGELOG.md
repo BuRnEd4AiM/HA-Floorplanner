@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.27.1] - 2026-10-05
+### Changed
+- **Backup panel in the side panel**: the labels of the three number fields now sit above the fields instead of wrapping in a narrow column over five lines.
+- The log line at the start of the add-on is in English (`Starting 3D Floorplan on port 8099 ...`).
+- **CI**: the browser end-to-end tests (253 checks) now run on every push and pull request as the job `e2e`.
+
 ## [3.27.0] - 2026-10-05
 ### Added
 - **New-version notice**: in the edit mode the version pill checks GitHub once at the start and then every 5 minutes. When `main` has a newer version it turns blue: **⬆ New version available · v…**. Only the public `manifest.json` is fetched. Can be switched off in ⚙ (`updateCheck`, on by default). Before, the comparison ran only when the button in the version dialog was pressed (#140).

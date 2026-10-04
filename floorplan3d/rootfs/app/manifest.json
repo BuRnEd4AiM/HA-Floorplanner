@@ -1,6 +1,6 @@
 {
- "version": "3.27.0",
- "buildHash": "06a785d69c6d3c5db1d13b65f1f0ca7e524cebabbfbc98b4cc054263b6d7dc57",
+ "version": "3.27.1",
+ "buildHash": "5ce456ae204cc8785640e10c28e6e1f9783c3206dea4983f1dc917bb58247756",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -136,7 +136,7 @@
   "static/dormer.js": "1c1a1834cbd56d176758b5976100261b4c04f32d6ccfe6098e17a247f8811156",
   "static/i18n.js": "628ce1e45885564dda514af06a99f83fd342f7587b0720829d9fe6651c06de1a",
   "static/import.js": "2e30e5876534c7d24adcc2185b7a100204a2e37ccfbc924a95632f6d9119cb16",
-  "static/index.html": "fe909cc6f299de6a54b9374a668d43663519e80973d78543a72e895060ad1e0e",
+  "static/index.html": "517b477ec554363220c2bc78e6719dee1627c8501c71a6f1beb015c5ee1f426d",
   "static/lang/es.js": "377dc666e357f464f6d2d87c9a09861b42a1c5cde65ac7535f3d6a41bbf0e75a",
   "static/lang/fr.js": "a37cb423b8f5fc1df1440965228ebe7ae9e6741bc1ceef1953faf6d7ba5f1e43",
   "static/lang/it.js": "ae380c57faf097c378f5a8a86590bbffcea454afc7672b6eeabe4906547f39a4",
