@@ -52,6 +52,7 @@ DEFAULT_SETTINGS = {
     "earth": "solid",          # ground around the house: off | glass | solid (cut open on the camera's side)
     "earthMargin": 5.0,        # metres of lawn around the house when no plot (Grundstück) is drawn
     "wallStop": True,          # devices cannot be dragged through walls (doors let them pass)
+    "seeThrough": False,       # walls between the camera and the room turn see-through instead of sinking down
     "placeSelect": True,       # a device that was just placed stays selected (movable at once); the next click on empty space deselects it
     "updateCheck": True,       # edit mode asks GitHub every few minutes whether a newer version exists (only the public manifest is fetched)
     "autoBackup": False,       # automatic backups into the backups folder of the add-on configuration (addon_configs/<...>_floorplan3d/backups)

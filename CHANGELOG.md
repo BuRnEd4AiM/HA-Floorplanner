@@ -4,6 +4,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.28.0] - 2026-10-05
+### Added
+- **See-through walls** (option in ⚙: *Make walls facing the camera see-through instead of lowering them*): the walls between the camera and the room fade to 30 % instead of sinking, so you see everything in the room (#129).
+- **Second tap leaves the room**: in the live mode a second tap into the room you are in goes back to the view before, e.g. the floor or the whole house with the same camera (#128).
+### Changed
+- **View menu at the bottom**: the *View* button now sits in the bottom bar next to Normal / Temperature / Humidity / CO₂, and its menu opens upwards (#132).
+- **Half section** also takes away what hangs above the cut (ceiling lamps, LED rings, pictures high on a wall), so nothing floats in the air above the cut walls (#131).
+
 ## [3.27.1] - 2026-10-05
 ### Changed
 - **Backup panel in the side panel**: the labels of the three number fields now sit above the fields instead of wrapping in a narrow column over five lines.

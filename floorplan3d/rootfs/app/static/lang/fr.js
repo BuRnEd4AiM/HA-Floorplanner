@@ -585,6 +585,7 @@ export default {
   'set.lowWalls': 'Démarrer avec les murs bas',
   'set.wallStop': 'Les appareils s\'arrêtent aux murs (les portes les laissent passer)',
   'set.placeSelect': 'Garder l’appareil qui vient d’être placé sélectionné (le clic suivant dans le vide le désélectionne)',
+  'set.seeThrough': 'Rendre transparents les murs face à la caméra au lieu de les abaisser',
   'ver.new': 'Nouvelle version disponible',
   'set.updateCheck': 'Vérifier toutes les 5 minutes sur GitHub s’il existe une nouvelle version (mode édition uniquement ; seule la liste publique des sommes de contrôle est récupérée)',
   'wel.title': 'Bienvenue dans 3D Floorplan',
