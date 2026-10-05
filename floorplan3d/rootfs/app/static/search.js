@@ -4,6 +4,22 @@ import * as THREE from './vendor/three.module.min.js';
 import { matchScore } from './alerts.js';
 import { wallLength } from './walls.js';
 
+/** where a device or a door / window is, for the jump (#215): { x, y (height over its floor), z }, null when it is not found */
+export function targetPoint(floors, tg) {
+  const f = floors?.[tg?.floor];
+  if (!f) return null;
+  if (tg.kind === 'device') { const d = f.devices.find((v) => v.id === tg.id); return d ? { x: d.x, y: d.y || 0, z: d.z } : null; }
+  if (tg.kind === 'opening') {
+    for (const w of f.walls) {
+      const o = (w.openings || []).find((v) => v.id === tg.id);
+      if (!o) continue;
+      const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, k = (o.pos || 0) / L;
+      return { x: w.a[0] + (w.b[0] - w.a[0]) * k, y: (o.sill || 0) + (o.height || 1) / 2, z: w.a[1] + (w.b[1] - w.a[1]) * k };
+    }
+  }
+  return null;
+}
+
 /** ctx: $, t, layout(), entities(), pointInPoly, houseMode(), floorIdx(), switchFloor(i), focusRoom(id), focusedRoom(), openRoomPanel(id), isLive(), liveSelect(h),
  *  elev(i), scene, camera, controls, selectLocked(sel) (select it and lock the selection), wake() */
 export function initSearch(ctx) {
@@ -75,6 +91,8 @@ export function initSearch(ctx) {
   });
   return {
     close: () => openFind(false),
+    /** jump to { floor, kind, id } like a search hit (the open and offline lists, #215); false when it has no place to fly to */
+    goTo(tg) { const p = targetPoint(ctx.layout().floors, tg); if (!p) return false; goToFound({ ...tg, ...p }); return true; },
     findItems,
     /** every frame: the ring grows and fades; true while it is there (keeps the screen awake) */
     animate(now) {

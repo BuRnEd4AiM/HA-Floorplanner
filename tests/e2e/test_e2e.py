@@ -1180,6 +1180,19 @@ with sync_playwright() as p:
     pg17.screenshot(path=os.path.join(os.path.dirname(__file__), "offline.png"))
     pg17.locator("#offlineList li button", has_text="Temp-Sensor").click(); pg17.wait_for_timeout(500)
     check("offline: the list opens, a tap shows the device", n_items >= 2 and not pg17.locator("#offlineDialog[open]").count() and pg17.locator("#livePopup").is_visible(), n_items)
+    near_cam = lambda p, d: abs(sum((a - b) ** 2 for a, b in zip(pg17.evaluate("window.__fp.cam()"), p)) ** 0.5 - d) < 0.15
+    e17 = pg17.evaluate("window.__fp.elev(window.__fp.floorIdx())")
+    check("offline (#215): the tap flies the camera to the device like the search", near_cam([1, e17 + 1.8, 1], 5.5), pg17.evaluate("window.__fp.cam()"))
+    pg17.keyboard.press("Escape"); pg17.wait_for_timeout(200)
+    pg17.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+      f.walls.push({ id: 'jw', a: [20, 0], b: [24, 0], thickness: 0.2, height: 2.6, openings: [{ id: 'jwin', type: 'window', pos: 2, width: 1.2, height: 1.2, sill: 0.9, entity: 'binary_sensor.rauch', name: 'Sprungfenster' }] });
+      window.__fp.rebuild(); })()""")
+    urllib.request.urlopen("http://localhost:8123/_set?e=binary_sensor.rauch&s=on"); pg17.wait_for_timeout(1200)
+    pg17.click("#openPill"); pg17.wait_for_timeout(300)
+    pg17.locator("#openList li button", has_text="Sprungfenster").click(); pg17.wait_for_timeout(500)
+    check("open list (#215): a tap on an open window flies the camera there like the search", not pg17.locator("#openDialog[open]").count() and near_cam([22, e17 + 1.5, 0], 5.5), pg17.evaluate("window.__fp.cam()"))
+    urllib.request.urlopen("http://localhost:8123/_set?e=binary_sensor.rauch&s=off"); pg17.wait_for_timeout(800)
+    pg17.keyboard.press("Escape"); pg17.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.splice(f.walls.findIndex(w => w.id === 'jw'), 1); window.__fp.rebuild(); })()"); pg17.wait_for_timeout(300)
     urllib.request.urlopen("http://localhost:8123/_set?e=sensor.temp&s=21.5"); pg17.wait_for_timeout(1200)
     check("offline: back online, off the list", not [x for x in pg17.evaluate("window.__fp.offline()") if x["id"] == "offA"])
     mem = [pg17.evaluate("(() => { window.__fp.rebuild(); window.__fp.frame(); return window.__fp.renderer.info.memory.geometries; })()") for _ in range(4)]

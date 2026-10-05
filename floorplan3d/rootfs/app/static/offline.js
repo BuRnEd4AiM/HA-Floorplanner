@@ -50,7 +50,8 @@ export function offlineDevices(env) {
   return out.sort((a, b) => a.floor - b.floor || a.room.localeCompare(b.room) || a.name.localeCompare(b.name));
 }
 
-/** ctx: $, t, layout(), entities(), states(), catOf, pointInPoly, currentLanguage(), houseMode(), floorIdx(), switchFloor(i), isLive(), liveSelect(h), selectLocked(sel) */
+/** ctx: $, t, layout(), entities(), states(), catOf, pointInPoly, currentLanguage(), houseMode(), floorIdx(), switchFloor(i), isLive(), liveSelect(h), selectLocked(sel),
+ *  jump(target) (optional: fly there like the search, true when done) */
 export function initOffline(ctx) {
   const { $, t } = ctx;
   const env = () => ({ layout: ctx.layout(), entities: ctx.entities(), states: ctx.states(), t, catOf: ctx.catOf, pointInPoly: ctx.pointInPoly });
@@ -90,6 +91,7 @@ export function initOffline(ctx) {
   }
   /** go to the floor of an offline device and point it out */
   function show(x) {
+    if (ctx.jump?.(x)) return;                                   // like the search: the camera flies there, a ring marks it (#215)
     if (ctx.houseMode() || ctx.floorIdx() !== x.floor) ctx.switchFloor(x.floor);
     if (ctx.isLive()) ctx.liveSelect({ kind: x.kind, id: x.id });
     else ctx.selectLocked({ kind: x.kind, id: x.id });
