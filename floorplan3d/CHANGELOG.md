@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.39.7] - 2026-10-05
+### Changed
+- **Code split, step 7 (#137)**: the floor rail (side bar with a picture of every floor) moved out of `app.js` into `floorrail.js`, with unit tests for the drawing. No change in behaviour.
+
 ## [3.39.6] - 2026-10-05
 ### Changed
 - **Code split, step 6 (#137)**: the floor cards of the whole-house view moved out of `app.js` into `floorcards.js`, with unit tests for the numbers and the placement. No change in behaviour.
