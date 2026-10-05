@@ -131,9 +131,25 @@
     "box": {
      "type": "object",
      "description": "optional: roof base in metres instead of the automatic size (before the overhang)",
-     "required": ["x0", "x1", "z0", "z1"],
+     "required": [
+      "x0",
+      "x1",
+      "z0",
+      "z1"
+     ],
      "properties": {
-      "x0": {"type": "number"}, "x1": {"type": "number"}, "z0": {"type": "number"}, "z1": {"type": "number"}
+      "x0": {
+       "type": "number"
+      },
+      "x1": {
+       "type": "number"
+      },
+      "z0": {
+       "type": "number"
+      },
+      "z1": {
+       "type": "number"
+      }
      }
     },
     "dormers": {
@@ -197,6 +213,14 @@
         "description": "Window in the front wall."
        }
       }
+     }
+    },
+    "parts": {
+     "type": "array",
+     "maxItems": 8,
+     "description": "Further roofs on the same building, e.g. a flat roof over an annex. Each one needs a box (its base in metres) and may sit on top of a lower floor (level).",
+     "items": {
+      "$ref": "#/$defs/roofPart"
      }
     }
    }
@@ -580,6 +604,27 @@
     "inset": {
      "type": "number",
      "description": "Only for type ledring: distance from the room outline in metres (used when it is fitted to the room)."
+    }
+   }
+  },
+  "roofPart": {
+   "allOf": [
+    {
+     "$ref": "#/$defs/roof"
+    }
+   ],
+   "required": [
+    "box"
+   ],
+   "properties": {
+    "name": {
+     "type": "string",
+     "maxLength": 40
+    },
+    "level": {
+     "type": "integer",
+     "minimum": 0,
+     "description": "index of a floor in building.floors the roof sits on (default: on top of the building)"
     }
    }
   }

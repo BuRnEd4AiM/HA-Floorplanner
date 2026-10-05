@@ -345,6 +345,7 @@ def build_layout(data):
         rep.error("building.floors", f"\"floors\" must be a list of 1 to {MAX_FLOORS} floors")
         floors_in = []
     floors = []
+    input_ids = {}                                       # index in building.floors -> floor id (for the "level" of further roofs)
     for fi, f in enumerate(floors_in):
         fp = f"building.floors[{fi}]"
         if not isinstance(f, dict):
@@ -356,6 +357,7 @@ def build_layout(data):
             continue
         name = str(f.get("name") or {"floor": f"Etage {fi + 1}", "basement": "Keller", "roof": "Dach"}[kind])[:60]
         out = {"id": ids("f"), "name": name, "kind": kind, "walls": [], "rooms": [], "devices": [], "blocks": [], "stairs": []}
+        input_ids[fi] = out["id"]
         if kind == "roof":
             out["roof"] = _roof(rep, f"{fp}.roof", f.get("roof", {}))
             floors.append(out)
@@ -432,6 +434,14 @@ def build_layout(data):
     if "roof" in b and not any(x["kind"] == "roof" for x in floors):
         floors.append({"id": ids("f"), "name": "Dach", "kind": "roof", "walls": [], "rooms": [], "devices": [], "blocks": [], "stairs": [],
                        "roof": _roof(rep, "building.roof", b["roof"])})
+    for x in floors:                                      # "level" of a further roof: the index becomes the id of that floor
+        for p in (x.get("roof") or {}).get("parts", []):
+            idx = p.pop("levelIndex", None)
+            if idx is not None:
+                if idx in input_ids and next((y for y in floors if y["id"] == input_ids[idx]), {}).get("kind") != "roof":
+                    p["level"] = input_ids[idx]
+                else:
+                    rep.warn("building.roof.parts", f"level {idx} is not a floor of the building, the roof sits on top")
     # basements first, the roof last, the rest keeps its order
     floors = [x for x in floors if x["kind"] == "basement"] + [x for x in floors if x["kind"] == "floor"] + [x for x in floors if x["kind"] == "roof"]
     if not any(x["kind"] != "roof" for x in floors) and not rep.errors:
@@ -474,7 +484,10 @@ def build_layout(data):
     return layout, plot, rep, summary
 
 
-def _roof(rep, path, spec):
+MAX_ROOF_PARTS = 8
+
+
+def _roof(rep, path, spec, part=False):
     spec = spec if isinstance(spec, dict) else {}
     typ = spec.get("type", "gable")
     if typ not in ROOF_TYPES:
@@ -497,6 +510,34 @@ def _roof(rep, path, spec):
         rep.warn(f"{path}.dormers", "a flat roof has no dormers, ignored")
     if dormers:
         roof["dormers"] = dormers
+    if part:
+        name = spec.get("name")
+        if isinstance(name, str) and name.strip():
+            roof["name"] = name.strip()[:40]
+        lvl = spec.get("level")
+        if lvl is not None:
+            if isinstance(lvl, int) and not isinstance(lvl, bool) and 0 <= lvl < MAX_FLOORS:
+                roof["levelIndex"] = lvl                          # an index into building.floors, turned into a floor id at the end
+            else:
+                rep.warn(f"{path}.level", "level must be the index of a floor in building.floors, ignored (the roof sits on top)")
+        return roof
+    parts = spec.get("parts")
+    if parts is not None:
+        if not isinstance(parts, list):
+            rep.warn(f"{path}.parts", "parts must be a list of roofs, ignored")
+        else:
+            if len(parts) > MAX_ROOF_PARTS:
+                rep.warn(f"{path}.parts", f"only the first {MAX_ROOF_PARTS} further roofs are used")
+            out = []
+            for pi, ps in enumerate(parts[:MAX_ROOF_PARTS]):
+                p = _roof(rep, f"{path}.parts[{pi}]", ps, part=True)
+                if "box" not in p:
+                    rep.warn(f"{path}.parts[{pi}]", "a further roof needs a box (x0, x1, z0, z1 in metres), ignored")
+                    continue
+                p["id"] = f"rp{len(out) + 1}"
+                out.append(p)
+            if out:
+                roof["parts"] = out
     return roof
 
 
@@ -617,11 +658,15 @@ def layout_to_property(layout, name="Haus"):
     """Existing layout -> property JSON (walls explicit, so importing it again reproduces the plan). Stairs, blocks and
     background pictures are not part of the format."""
     floors = []
+    index_of = {f.get("id"): i for i, f in enumerate(layout.get("floors", []))}      # a further roof names its floor by id, the format by index
     for f in layout.get("floors", []):
         kind = f.get("kind") if f.get("kind") in FLOOR_KINDS else "floor"
         item = {"name": f.get("name", ""), "kind": kind}
         if kind == "roof":
-            item["roof"] = f.get("roof") or {"type": "gable", "pitch": 35, "overhang": 0.4}
+            item["roof"] = dict(f.get("roof") or {"type": "gable", "pitch": 35, "overhang": 0.4})
+            if item["roof"].get("parts"):
+                item["roof"]["parts"] = [{**{k: v for k, v in p.items() if k not in ("id", "level")},
+                                          **({"level": index_of[p["level"]]} if p.get("level") in index_of else {})} for p in item["roof"]["parts"]]
             floors.append(item)
             continue
         item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace") if k in r} for r in f.get("rooms", [])]

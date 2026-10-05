@@ -657,20 +657,20 @@ function roofGeometry(bb, r) {
   geo.computeVertexNormals();
   return geo;
 }
-function buildRoof(g, i, f, holo, ghost) {
-  const bb = roofBox(i);
-  if (!bb) return;
-  const geo = roofGeometry(bb, f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }));
+/** one roof (the main one, or a further one of the house): `spec` has type / pitch / overhang / dormers, `bb` is its base, `y0` lifts it onto the floor it sits on */
+function drawRoof(g, bb, spec, y0, tag, holo, ghost) {
+  const geo = roofGeometry(bb, spec);
   const m = new THREE.Mesh(geo, holo
     ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : 0.45, side: THREE.DoubleSide, depthWrite: false })
     : mat('#a4493b', ghost, { side: THREE.DoubleSide }));
   const mats = [m.material];
   if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), em)); mats.push(em); }
+  m.position.y = y0; m.userData.roofPart = tag;
   g.add(m);
   const fade = (mesh, ms) => { if (!ghost) roofs.push({ mesh, mats: ms.map((x) => ({ x, base: x.opacity, transparent: x.transparent, depthWrite: x.depthWrite })), box: null }); };
   fade(m, mats);
-  (f.roof?.dormers || []).forEach((d) => {                                 // dormers (Gauben): wall, little roof and window out of one slope
-    const parts = dormerParts(bb, f.roof, d);
+  (spec.dormers || []).forEach((d) => {                                 // dormers (Gauben): wall, little roof and window out of one slope
+    const parts = dormerParts(bb, spec, d);
     if (!parts) return;
     const part = (tris, material, edgeAngle) => {
       if (!tris.length) return;
@@ -679,12 +679,28 @@ function buildRoof(g, i, f, holo, ghost) {
       geo.computeVertexNormals();
       const pm = new THREE.Mesh(geo, material), ms = [material];
       if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); pm.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), em)); ms.push(em); }
+      pm.position.y = y0; pm.userData.roofPart = tag;
       g.add(pm); fade(pm, ms);
     };
     const hm = (opacity) => new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : opacity, side: THREE.DoubleSide, depthWrite: false });
     part(parts.wall, holo ? hm(0.5) : mat('#d9d3c6', ghost, { side: THREE.DoubleSide }), 20);
     part(parts.roof, holo ? hm(0.45) : mat('#8f3b2f', ghost, { side: THREE.DoubleSide }), 20);
     part(parts.glass, new THREE.MeshBasicMaterial({ color: holo ? 0x3df2ff : 0x9fd4ff, transparent: true, opacity: ghost ? 0.2 : 0.75, side: THREE.DoubleSide, depthWrite: false }), 90);
+  });
+}
+function partBox(p) {
+  const b = p?.box;
+  return b && [b.x0, b.x1, b.z0, b.z1].every(Number.isFinite) && b.x1 > b.x0 && b.z1 > b.z0 ? { x0: b.x0, x1: b.x1, z0: b.z0, z1: b.z1 } : null;
+}
+function buildRoof(g, i, f, holo, ghost) {
+  const bb = roofBox(i);
+  if (bb) drawRoof(g, bb, f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }), 0, 'main', holo, ghost);
+  (f.roof?.parts || []).forEach((p) => {                                  // further roofs: an annex with its own roof, on the floor it stands on
+    const pb = partBox(p);
+    if (!pb) return;
+    const lv = layout.floors.findIndex((x) => x.id === p.level);
+    const y0 = lv >= 0 && layout.floors[lv].kind !== 'roof' ? elev(lv + 1) - elev(i) : 0;
+    drawRoof(g, pb, p, y0, p.id || 'part', holo, ghost);
   });
 }
 const roofs = [];                  // roofs that thin out when the camera comes close
@@ -3379,7 +3395,49 @@ function renderFloorPanel() {
     rsel.addEventListener('change', () => { snapshot(); r.ridge = rsel.value || undefined; build(); scheduleSave(); });
     box.append(field(t('roof.ridge'), rsel));
     renderDormers(box, f, r);
+    renderRoofParts(box, f, r);
   }
+}
+/** further roofs of the house (#125): one card per roof, with its own shape, base and the floor it sits on */
+function renderRoofParts(box, f, r) {
+  const head = document.createElement('h4'); head.id = 'roofPartsHead'; head.textContent = t('roof.parts'); box.append(head);
+  const levels = layout.floors.filter((x) => x.kind !== 'roof');
+  (r.parts ||= []).forEach((p, i) => {
+    const card = document.createElement('div'); card.className = 'dormerCard roofPartCard';
+    const cap = document.createElement('b'); cap.className = 'dormerCap'; cap.textContent = p.name || `${t('roof.partOne')} ${i + 1}`; card.append(cap);
+    const sel = (opts, val, set) => {
+      const s = document.createElement('select');
+      opts.forEach(([v, l]) => s.add(new Option(l, v)));
+      s.value = String(val);
+      s.addEventListener('change', () => { snapshot(); set(s.value); build(); scheduleSave(); renderFloorPanel(); });
+      return s;
+    };
+    card.append(field(t('roof.partName'), inp('text', p.name || '', (v) => { p.name = String(v).slice(0, 40); }, {})));
+    card.append(field(t('roof.type'), sel(['gable', 'hip', 'flat'].map((v) => [v, t(`roof.${v}`)]), p.type || 'gable', (v) => { p.type = v; if (v === 'flat') delete p.dormers; })));
+    card.append(field(t('roof.pitch'), inp('number', p.pitch ?? 35, (v) => (p.pitch = Math.max(5, Math.min(70, +v || 35))), { step: 1 })));
+    card.append(field(t('roof.partLevel'), sel([['', t('roof.partTop')], ...levels.map((x) => [x.id, x.name])], p.level || '', (v) => { if (v) p.level = v; else delete p.level; })));
+    const b = (p.box ||= { x0: 0, x1: 4, z0: 0, z1: 4 });
+    const edit = (get, set) => lenInput(get, (v) => { set(v); if (b.x1 - b.x0 < 1) b.x1 = b.x0 + 1; if (b.z1 - b.z0 < 1) b.z1 = b.z0 + 1; }, { min: -1000 });
+    card.append(field(t('roof.left'), edit(() => b.x0, (v) => { const w = b.x1 - b.x0; b.x0 = v; b.x1 = v + w; })));
+    card.append(field(t('roof.top'), edit(() => b.z0, (v) => { const d = b.z1 - b.z0; b.z0 = v; b.z1 = v + d; })));
+    card.append(field(t('roof.width'), edit(() => b.x1 - b.x0, (v) => { b.x1 = b.x0 + Math.max(1, v); })));
+    card.append(field(t('roof.depth'), edit(() => b.z1 - b.z0, (v) => { b.z1 = b.z0 + Math.max(1, v); })));
+    card.append(field(t('roof.overhang'), lenInput(() => p.overhang ?? 0.4, (v) => (p.overhang = v), { min: 0 })));
+    const del = document.createElement('button'); del.type = 'button'; del.className = 'roofPartDel'; del.textContent = '×'; del.title = t('roof.partRemove');
+    del.addEventListener('click', () => { snapshot(); r.parts.splice(i, 1); build(); scheduleSave(); renderFloorPanel(); });
+    card.append(del);
+    box.append(card);
+  });
+  const add = document.createElement('button'); add.type = 'button'; add.id = 'addRoofPart'; add.textContent = t('roof.partAdd');
+  add.addEventListener('click', () => {
+    snapshot();
+    const lv = layout.floors[groundIdx()], pts = lv ? [...lv.walls.flatMap((w) => [w.a, w.b]), ...lv.rooms.flatMap((x) => x.points)] : [];
+    const xs = pts.map((q) => q[0]), zs = pts.map((q) => q[1]);
+    const bx = pts.length ? { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) } : { x0: 0, x1: 4, z0: 0, z1: 4 };
+    r.parts.push({ id: `rp${uid()}`, type: 'flat', pitch: 35, overhang: 0.4, box: bx, ...(lv ? { level: lv.id } : {}) });
+    build(); scheduleSave(); renderFloorPanel();
+  });
+  box.append(add);
 }
 /** roof dormers: one card per dormer in the panel of the roof floor */
 function renderDormers(box, f, r) {
@@ -4715,6 +4773,7 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     elev: (i) => elev(i),
+    roofMeshes: () => { const out = []; scene.traverse((o) => { if (o.userData?.roofPart) { const w = new THREE.Vector3(); o.getWorldPosition(w); out.push({ tag: o.userData.roofPart, y: +w.y.toFixed(3) }); } }); return out; },
     heatGlow: (id) => registry.get(id)?.userData.heat?.[0]?.emissiveIntensity ?? -1,
     cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
     liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },

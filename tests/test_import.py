@@ -283,3 +283,40 @@ async def test_dormers_survive_import_and_export_over_the_api(client):
 def test_schema_describes_dormers():
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     assert {"side", "pos", "w", "hw", "eave", "type", "win"} <= set(schema["$defs"]["roof"]["properties"]["dormers"]["items"]["properties"])
+
+
+# ---------- further roofs on one house (#125)
+def two_roofs(parts):
+    return {"schemaVersion": 1, "building": {"roof": {"type": "gable", "pitch": 35, "box": {"x0": 0, "x1": 8, "z0": 0, "z1": 5}, "parts": parts},
+            "floors": [{"name": "EG", "kind": "floor", "rooms": [{"name": "R", "points": [[0, 0], [8, 0], [8, 5], [0, 5]]}]},
+                       {"name": "Anbau", "kind": "floor", "rooms": [{"name": "A", "points": [[8, 0], [11, 0], [11, 4], [8, 4]]}]}]}}
+
+
+def test_further_roofs_are_imported_with_their_floor():
+    layout, _, rep, _ = importer.build_layout(two_roofs([
+        {"name": "Anbau", "type": "flat", "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "level": 1},
+        {"type": "hip", "pitch": 20, "box": {"x0": 0, "x1": 3, "z0": 5, "z1": 7}}, {"type": "flat"}, "junk"]))
+    parts = roof_of(layout)["parts"]
+    assert len(parts) == 2 and not rep.errors
+    assert parts[0]["name"] == "Anbau" and parts[0]["type"] == "flat" and parts[0]["id"] == "rp1"
+    assert parts[0]["level"] == next(f["id"] for f in layout["floors"] if f["name"] == "Anbau")        # the index became the floor id
+    assert "level" not in parts[1] and parts[1]["type"] == "hip" and parts[1]["pitch"] == 20.0
+    assert sum("needs a box" in w["message"] for w in rep.warnings) == 2        # the two without a usable box are dropped
+
+
+def test_further_roofs_bad_level_and_limit():
+    layout, _, rep, _ = importer.build_layout(two_roofs([{"box": {"x0": 0, "x1": 2, "z0": 0, "z1": 2}, "level": 9}] +
+                                                        [{"box": {"x0": i, "x1": i + 1, "z0": 0, "z1": 1}} for i in range(10)]))
+    parts = roof_of(layout)["parts"]
+    assert len(parts) == 8 and "level" not in parts[0] and any("not a floor" in w["message"] for w in rep.warnings)
+
+
+async def test_further_roofs_survive_import_and_export(client):
+    r = await client.post("/api/import?name=Dach2", json=two_roofs([{"name": "Anbau", "type": "flat", "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "level": 1}]))
+    assert r.status == 200, await r.text()
+    hid = (await r.json())["id"]
+    exp = await (await client.get(f"/api/export/property?house={hid}")).json()
+    roof = next(f for f in exp["building"]["floors"] if f["kind"] == "roof")["roof"]
+    assert roof["parts"][0]["level"] == 1 and roof["parts"][0]["name"] == "Anbau" and "id" not in roof["parts"][0]
+    r2 = await client.post("/api/import?name=Dach3", json=exp)
+    assert r2.status == 200, await r2.text()

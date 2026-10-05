@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.31.0] - 2026-10-05
+### Added
+- **Several different roofs per house (#125)**: besides the main roof, the roof floor can have **further roofs** (up to 8), each with its own shape (gable / hip / flat), pitch, overhang, base (left, top, width, depth) and the **floor it sits on**, e.g. a flat roof over an annex that has only one storey. New section *Further roofs* in the panel of the roof floor with a card per roof, a *+ Further roof* button and a cross to remove one.
+- **Import / export**: `building.roof.parts` (list of roofs with a `box`, optional `name`, `type`, `pitch`, `overhang`, `dormers` and `level` = index of a floor in `building.floors`); the export writes it again, so a house survives the round trip. Documented in the schema.
+
 ## [3.30.0] - 2026-10-05
 ### Added
 - **Heating panel (#134)**: in the live mode a click on a room opens a **second panel next to the room panel** with the thermostats (`climate.*`) of that room: the room temperature, the target temperature with **− / +** (clicks in a row become one call, the limits and the step come from the thermostat) and the **modes** it offers (off, heat, auto ...). Lights and heating are in view at once. On a phone the panel sits at the top.
