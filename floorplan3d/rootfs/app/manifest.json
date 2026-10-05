@@ -1,6 +1,6 @@
 {
- "version": "3.39.4",
- "buildHash": "33b9fdd76edb79e93492fb13346b7958ca4379ed2ba1c68030f82e815dbe1c31",
+ "version": "3.39.5",
+ "buildHash": "591476276e829a78714c512ed372639176aca3982e9d56cd4e5a8e01d97f35ea",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,10 +131,11 @@
   "server.py": "530a1c59c99b70317fcf17c081221bb894b615ef4d7b20c6992aa2c2cac51309",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "d1c1de562153175bc4e73b78eda8d56ffd0ae776165c2feadf64005d53614171",
-  "static/app.js": "c7b661ce9123031b24999175b90f03c68a54a41828cff4ba6ec44a6884ef98cf",
+  "static/app.js": "913663787af7c9b2d3a0edb17d670645d1720ee0088df8b94f7ffc8e6eea2e48",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
   "static/badges.js": "26d8a4d9b03cb0f3b97ca240e9156121680d519ecf13d513b5581ac3547bcdab",
+  "static/cameras.js": "f4a7d280af038166043b84361b42ec6ac3451da7bbed03e24f5a3f7a6202b6e2",
   "static/compass.js": "a47770fbc2511ddc67ec3e2bbd52c4052ba95cde66ef539aeba0e1f1ed3d1408",
   "static/dormer.js": "1c1a1834cbd56d176758b5976100261b4c04f32d6ccfe6098e17a247f8811156",
   "static/heatpanel.js": "7adb3aaab3ee007d8dcaf58a415e4cb893b38fe49114f98c9d6652bff1e39848",

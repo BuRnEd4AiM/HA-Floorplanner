@@ -14,6 +14,7 @@ import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
+import { initCameras } from './cameras.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -727,7 +728,7 @@ function build() {
   wake();
   plan?.render();
   clearGroup(world);
-  registry.clear(); pickables.length = 0; labelSprites.clear(); cameraCones.clear(); coneMotion.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
+  registry.clear(); pickables.length = 0; labelSprites.clear(); cams.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
   const holo = isHolo();
   const iso = isolatedRoom();
   if (houseMode && settings.earth === 'off') {    // ground reference for the plot (with earth the lawn is the ground)
@@ -902,9 +903,8 @@ function build() {
       if (halfCut && !lowWalls && (d.y || 0) >= (f.walls[0]?.height || 2.6) * 0.5 - 0.05) { model.userData.cutHidden = true; model.visible = false; }   // half section: what hangs above the cut (ceiling lamps, LED ring, high pictures) would float in the air
       if (!ghost && !model.userData.cutHidden) pickables.push(model);
       if (d.type === 'camera' && !ghost && (d.fov ?? 90) > 0) {
-        const cone = buildCameraCone(d);
+        const cone = cams.addCone(d);
         g.add(cone);
-        cameraCones.set(d.id, { mesh: cone, d });
         pickables.push(cone);
       }
       {
@@ -1064,40 +1064,11 @@ function animateOpenings() {
   });
 }
 
-/* ================= Cameras (#69): the field of view as a cone on the floor, red while there is motion ================= */
-const cameraCones = new Map();             // device id -> { mesh, d }
-const coneMotion = new Set();              // materials of the cones that are red (they pulse)
-const CONE_RED = 0xff3a3a;
-const coneColor = () => (isHolo() ? 0x3df2ff : 0x4aa8ff);
-function buildCameraCone(d) {
-  const fov = Math.max(10, Math.min(180, d.fov ?? 90)), range = Math.max(0.5, d.range ?? 4);
-  const r = THREE.MathUtils.degToRad(d.rot || 0), half = THREE.MathUtils.degToRad(fov) / 2, n = Math.max(6, Math.round(fov / 6));
-  const pts = [[0, 0]];                                             // corners relative to the camera: the cone moves with it
-  for (let i = 0; i <= n; i++) { const a = r - half + (2 * half * i) / n; pts.push([Math.sin(a) * range, Math.cos(a) * range]); }   // the lens looks along local +z
-  const pos = [], idx = [];
-  pts.forEach(([x, z]) => pos.push(x, 0.06, z));                    // above flat things such as carpets
-  for (let i = 1; i <= n; i++) idx.push(0, i, i + 1);
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  geo.setIndex(idx);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: coneColor(), transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide }));
-  mesh.renderOrder = 2;
-  mesh.position.set(d.x, 0, d.z);
-  const edge = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts.map(([x, z]) => new THREE.Vector3(x, 0.065, z))), new THREE.LineBasicMaterial({ color: coneColor(), transparent: true, opacity: 0.6 }));
-  edge.userData.noPick = true;
-  mesh.add(edge);
-  mesh.userData = { kind: 'device', id: d.id, cone: true, edge };
-  return mesh;
-}
-const cameraMotion = (d) => !!d.motionEntity && ON_STATES.has(states[d.motionEntity]?.state);
-/** red and pulsing while the motion sensor of the camera reports movement */
-function updateCameraCones() {
-  cameraCones.forEach(({ mesh, d }) => {
-    const motion = cameraMotion(d), col = motion ? CONE_RED : coneColor();
-    mesh.material.color.setHex(col); mesh.userData.edge.material.color.setHex(col);
-    if (motion) coneMotion.add(mesh.material); else { coneMotion.delete(mesh.material); mesh.material.opacity = 0.2; }
-  });
-}
+/* ================= Cameras (#69): cones, overview, still images; the code lives in cameras.js ================= */
+const cams = initCameras({
+  $, t, settings: () => settings, layout: () => layout, states: () => states, onStates: ON_STATES, pointInPoly: (...a) => pointInPoly(...a), isHolo: () => isHolo(),
+  openMoreInfo: (id) => openMoreInfo(id), setStatus: (x) => setStatus(x), showDevice: (fi, id) => offline.show({ floor: fi, kind: 'device', id }), closeMenu: () => toggleMenu(camMenu, camPillBtn, false),
+});
 
 /* ================= Value badges: keep them from covering each other; the code lives in badges.js ================= */
 const declutterLabels = initBadges({ settings: () => settings, labelSprites, camera, canvas });
@@ -1146,75 +1117,13 @@ $('#roomMenuBtn').addEventListener('click', (e) => { e.stopPropagation(); toggle
 const dropdowns = [[viewMenu, viewMenuBtn], [camMenu, camPillBtn], [$('#roomMenu'), $('#roomMenuBtn')]];       // only one of the drop-downs is open at a time
 function toggleMenu(menu, btn, open = menu.hidden) {
   dropdowns.forEach(([m, b]) => { const on = m === menu && open; m.hidden = !on; b.classList.toggle('active', on); b.setAttribute('aria-expanded', String(on)); });
-  if (menu === camMenu && open) renderCamMenu();
+  if (menu === camMenu && open) cams.renderMenu();
 }
 const toggleViewMenu = (open) => toggleMenu(viewMenu, viewMenuBtn, open);
 viewMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleViewMenu(); });
 camPillBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(camMenu, camPillBtn); });
 document.addEventListener('click', (e) => { dropdowns.forEach(([m, b]) => { if (!m.hidden && !m.contains(e.target) && e.target !== b) toggleMenu(m, b, false); }); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.forEach(([m, b]) => { if (!m.hidden) toggleMenu(m, b, false); }); });
-
-const MOTION_DC = new Set(['motion', 'occupancy', 'presence', 'moving']);
-/** everything that can see or feel movement, with the room it is in: cameras (a device of type camera with a camera entity) and
- *  motion / presence sensors placed in the plan; rooms with movement first */
-function cameraList() {
-  const out = [];
-  layout.floors.forEach((f, fi) => f.devices.forEach((d) => {
-    const room = f.rooms.find((r) => pointInPoly(d.x, d.z, r.points))?.name || '';
-    if (d.type === 'camera' && d.entity?.startsWith('camera.')) out.push({ kind: 'cam', d, fi, room, motion: cameraMotion(d) });
-    else if (d.entity?.startsWith('binary_sensor.') && (d.type === 'presence' || MOTION_DC.has(states[d.entity]?.dc))) out.push({ kind: 'sensor', d, fi, room, motion: ON_STATES.has(states[d.entity]?.state) });
-  }));
-  return out.sort((p, q) => Number(q.motion) - Number(p.motion) || p.fi - q.fi || (p.d.name || '').localeCompare(q.d.name || ''));
-}
-/** names of the rooms where a camera sees movement (floor name when the camera hangs in no room) */
-const motionPlaces = (list) => [...new Set(list.filter((x) => x.motion).map((x) => x.room || layout.floors[x.fi]?.name || ''))].filter(Boolean);
-function updateCamPill() {
-  const pill = $('#camPill'), list = cameraList(), places = motionPlaces(list), n = list.filter((x) => x.motion).length;
-  const cams = list.filter((x) => x.kind === 'cam').length;
-  pill.hidden = !list.length;
-  pill.textContent = n ? (places.length === 1 ? t('cam.pillMotionIn', { room: places[0] }) : t('cam.pillMotionN', { n: places.length || n })) : cams ? t('cam.pill', { n: cams }) : t('cam.pillSensors', { n: list.length });
-  pill.classList.toggle('alert', n > 0);
-  pill.title = n ? places.join(', ') : t('cam.pillTip');
-  if (!camMenu.hidden) renderCamMenu();
-}
-/** cameras grouped by room (floor name next to it, so equal room names on two floors are not mixed up); rooms with movement come first */
-function renderCamMenu() {
-  const grid = $('#camGrid');
-  grid.replaceChildren();
-  const groups = new Map();
-  cameraList().forEach((c) => {
-    const key = `${c.fi}:${c.room}`;
-    if (!groups.has(key)) groups.set(key, { fi: c.fi, room: c.room, cams: [] });
-    groups.get(key).cams.push(c);
-  });
-  const ordered = [...groups.values()].sort((p, q) => Number(q.cams.some((c) => c.motion)) - Number(p.cams.some((c) => c.motion)) || q.fi - p.fi || p.room.localeCompare(q.room));
-  ordered.forEach((g) => {
-    const alarm = g.cams.some((c) => c.motion);
-    const sec = document.createElement('section'); sec.className = 'camGroup' + (alarm ? ' alert' : '');
-    const hd = document.createElement('div'); hd.className = 'camGroupHead';
-    const nm = document.createElement('strong'); nm.textContent = g.room || t('cam.noRoom');
-    const fl = document.createElement('small'); fl.textContent = layout.floors[g.fi]?.name || '';
-    hd.append(nm, fl);
-    if (alarm) { const b = document.createElement('span'); b.className = 'camBadge alert'; b.textContent = t('cam.motionOn'); hd.append(b); }
-    const cards = document.createElement('div'); cards.className = 'camCards';
-    g.cams.forEach(({ kind, d, fi, motion }) => {
-      const card = document.createElement('div'); card.className = 'camCard' + (motion ? ' alert' : '') + (kind === 'sensor' ? ' sensor' : '');
-      if (kind === 'cam' && settings.cameraImages) card.append(camImage(d.entity, 'cam-big'));
-      const head = document.createElement('div'); head.className = 'camHead';
-      const name = document.createElement('strong'); name.textContent = `${kind === 'sensor' ? '🔔 ' : ''}${d.name || d.entity}`;
-      head.append(name);
-      if ((kind === 'sensor' || d.motionEntity) && !motion) { const b = document.createElement('span'); b.className = 'camBadge'; b.textContent = t('cam.motionOff'); head.append(b); }
-      const row = document.createElement('div'); row.className = 'camBtns';
-      const show = document.createElement('button'); show.type = 'button'; show.textContent = t('cam.show');
-      show.addEventListener('click', () => { toggleMenu(camMenu, camPillBtn, false); offline.show({ floor: fi, kind: 'device', id: d.id }); });
-      row.append(show, haButton(d.entity));
-      card.append(head, row);
-      cards.append(card);
-    });
-    sec.append(hd, cards);
-    grid.append(sec);
-  });
-}
 
 /* ================= Floor cards (whole-house view) ================= */
 /* A small card floats beside every floor: rooms, lights on, windows open. A tap opens that floor. */
@@ -1314,8 +1223,8 @@ function applyStates() {
   if (plan?.isVisible()) plan.render();
   updateViewLegend();
   power.update();
-  updateCameraCones();
-  updateCamPill();
+  cams.updateCones();
+  cams.updatePill();
   updateFloorCards();
   offline.update();
   alertsUi.update();
@@ -2201,8 +2110,8 @@ function renderLivePopup() {
   if (mi) title.append(mi);
   box.append(title, sub);
   if (d.type === 'camera') {                                  // #69: still image (renewed every few seconds), a second tap opens Home Assistant's live view
-    if (d.motionEntity) { const mo = document.createElement('div'); mo.className = 'sub'; mo.textContent = cameraMotion(d) ? t('cam.motionOn') : t('cam.motionOff'); box.append(mo); }
-    if (d.entity?.startsWith('camera.') && settings.cameraImages) box.append(camImage(d.entity, 'pop-cam'));
+    if (d.motionEntity) { const mo = document.createElement('div'); mo.className = 'sub'; mo.textContent = cams.motion(d) ? t('cam.motionOn') : t('cam.motionOff'); box.append(mo); }
+    if (d.entity?.startsWith('camera.') && settings.cameraImages) box.append(cams.camImage(d.entity, 'pop-cam'));
   }
   const acts = d.entity ? ACTIONS[d.entity.split('.')[0]] : null;
   if (acts) {
@@ -2411,44 +2320,6 @@ const polyArea = (p) => Math.abs(p.reduce((s, [x, z], i) => { const [x2, z2] = p
 const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['climate', 'rp.climate'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['camera', 'rp.camera'], ['sensor', 'rp.sensor'], ['scene', 'rp.scene']];
 const rpGroupOf = (dom) => (dom === 'binary_sensor' ? 'sensor' : dom === 'fan' || dom === 'input_boolean' ? 'switch' : dom === 'script' ? 'scene' : dom);
 
-/* ---- Camera still images (#67, #69): fetched through the add-on, renewed every few seconds while one is on the screen ---- */
-const camUrls = new Map();                 // entity -> object URL of the latest still image
-let camTimer = 0;
-/** Home Assistant's own dialog for the entity (live view of a camera, history ...); only possible inside the Home Assistant frontend */
-function openInHa(entityId) { if (!openMoreInfo(entityId)) setStatus(t('cam.haOnly')); }
-function haButton(entityId) {
-  const b = document.createElement('button'); b.type = 'button'; b.className = 'haBtn'; b.textContent = `ⓘ ${t('cam.openHa')}`; b.title = entityId;
-  b.addEventListener('click', () => openInHa(entityId));
-  return b;
-}
-function camImage(entityId, cls = 'rp-cam') {
-  const img = document.createElement('img'); img.className = cls; img.dataset.cam = entityId; img.alt = '';
-  if (camUrls.has(entityId)) img.src = camUrls.get(entityId);
-  ensureCamTimer(); refreshCamera(entityId, true);
-  img.classList.add('tap'); img.title = t('cam.openHa'); img.addEventListener('click', () => openInHa(entityId));   // a second tap: Home Assistant's live view
-  return img;
-}
-async function refreshCamera(id, onlyIfMissing = false) {
-  if (onlyIfMissing && camUrls.has(id)) return;
-  if (!settings.cameraImages) return;
-  const imgs = () => document.querySelectorAll(`img[data-cam="${CSS.escape(id)}"]`);
-  try {
-    const r = await fetch(`api/camera/${encodeURIComponent(id)}`, { cache: 'no-store' });
-    if (!r.ok) throw new Error(String(r.status));
-    const url = URL.createObjectURL(await r.blob()), old = camUrls.get(id);
-    camUrls.set(id, url);
-    imgs().forEach((im) => { im.src = url; im.classList.remove('bad'); });
-    if (old) setTimeout(() => URL.revokeObjectURL(old), 2000);
-  } catch { imgs().forEach((im) => im.classList.add('bad')); }
-}
-function ensureCamTimer() {
-  if (camTimer) return;
-  camTimer = setInterval(() => {
-    const ids = [...new Set([...document.querySelectorAll('img[data-cam]')].map((im) => im.dataset.cam))];
-    if (!ids.length) { clearInterval(camTimer); camTimer = 0; return; }
-    if (!document.hidden) ids.forEach((id) => refreshCamera(id));
-  }, 5000);
-}
 /** the text on a row of the room panel */
 function rpValue(id) {
   const s = states[id], dom = id.split('.')[0];
@@ -2554,7 +2425,7 @@ function renderRoomPanel() {
           row.append(b);
         }
       }
-      if (dom === 'camera' && settings.cameraImages) row.append(camImage(d.entity));
+      if (dom === 'camera' && settings.cameraImages) row.append(cams.camImage(d.entity));
       const slider = (val, onChange) => {
         const r = document.createElement('input'); r.type = 'range'; r.min = 0; r.max = 100; r.value = val ?? 0;
         r.addEventListener('change', () => onChange(+r.value));
@@ -2976,7 +2847,7 @@ function liveMove(d) {
   if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
   const sp = labelSprites.get(d.id);
   if (sp) sp.position.set(d.x, sp.position.y, d.z);
-  cameraCones.get(d.id)?.mesh.position.set(d.x, 0, d.z);          // the field of view of a camera moves with it
+  cams.cones.get(d.id)?.mesh.position.set(d.x, 0, d.z);          // the field of view of a camera moves with it
   refreshSelHelper();
 }
 /* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
@@ -4465,7 +4336,7 @@ function animate(now = performance.now()) {
     if (now - lastFrame < (idle ? (LOW ? 500 : 250) : 33)) return;
     lastFrame = now;
   }
-  if (coneMotion.size) { wake(); const k = 0.26 + 0.14 * Math.sin(now / 220); coneMotion.forEach((m) => { m.opacity = k; }); }   // a camera sees movement
+  if (cams.pulse(now)) wake();   // a camera sees movement
   const pulsing = alertsUi.animate(now), finding = search.animate(now);       // pulsing warnings and the search ring move
   if (pulsing || finding || controls.autoRotate) wake();
   controls.update();
@@ -4501,12 +4372,9 @@ if (params.get('debug')) {
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)
-      const c = cameraCones.get(id);
-      if (!c) return null;
-      const p = c.mesh.geometry.attributes.position, v = new THREE.Vector3();
-      for (let i = 1; i < p.count; i++) v.add(new THREE.Vector3().fromBufferAttribute(p, i));
-      v.multiplyScalar(0.55 / (p.count - 1)).add(new THREE.Vector3().fromBufferAttribute(p, 0).multiplyScalar(0.45));
-      c.mesh.localToWorld(v); v.project(camera);
+      const v = cams.coneCenter(id);
+      if (!v) return null;
+      v.project(camera);
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
