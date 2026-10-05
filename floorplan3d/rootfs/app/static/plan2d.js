@@ -34,6 +34,8 @@ const FOOT = {
   door: { w: 0.95, d: 0.1 }, window: { w: 1.2, d: 0.1 },
 };
 const GLYPH = { light: '✦', lamp: '✦', orb: '●', strip: '', switch: '◧', sensor: '◉', thermostat: '≋', tv: '▭', plant: '❀', bed: '', sofa: '' };
+FOOT.inverter = { w: 0.45, d: 0.16 }; FOOT.powermeter = { w: 0.22, d: 0.11 }; FOOT.fusebox = { w: 0.5, d: 0.18 }; FOOT.houseentry = { w: 0.3, d: 0.2 };
+FOOT.battery = { w: 0.6, d: 0.22 }; FOOT.wallbox = { w: 0.25, d: 0.12 }; FOOT.solarpanel = { w: 1.0, d: 1.55 };      // power things: the real size, not the 0.8 m default box
 const DEFAULT_FOOT = { w: 0.8, d: 0.8 };
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -177,12 +179,25 @@ export function createPlan(ctx) {
     if (f.r) return Math.hypot(dx, dz) <= f.r;
     return Math.abs(dx * c + dz * sn) <= f.w / 2 && Math.abs(-dx * sn + dz * c) <= f.d / 2;
   }
+  /** the line of a cable in the plan: straight when it hangs in the air, otherwise first along x, then along z like the real cable on the floor */
+  const cableLine = (a, b, route) => (route === 'air' ? [a, b] : [a, [b[0], a[1]], b]);
+  function cableAt(x, z) {
+    const f = floor(), tol = Math.max(0.2, 9 / s);
+    let best = null;
+    f.devices.forEach((d) => ctx.cablesOf(d).forEach((c) => {
+      const tg = f.devices.find((q) => q.id === c.to);
+      if (!tg) return;
+      const pts = cableLine([d.x, d.z], [tg.d?.x ?? tg.x, tg.d?.z ?? tg.z], c.route);
+      for (let i = 1; i < pts.length; i++) { const k = distSeg(x, z, pts[i - 1], pts[i]); if (k <= tol && (!best || k < best.k)) best = { k, id: c.id }; }
+    }));
+    return best ? { kind: 'cable', id: best.id } : null;
+  }
   function pickAt(x, z) {
     const f = floor();
     if (ctx.powerMode?.()) {                                                   // the power editor: only power devices, with a little room around them
       const pw = f.devices.filter((d) => ctx.isPowerType(d.type)), tol = Math.max(0.35, 14 / s);
       const near = pw.map((d) => ({ d, k: Math.hypot(d.x - x, d.z - z) })).filter((q) => q.k <= tol || devHit(q.d, x, z)).sort((a, b) => a.k - b.k)[0];
-      return near ? { kind: 'device', id: near.d.id } : null;
+      return near ? { kind: 'device', id: near.d.id } : (ctx.showCables?.() ? cableAt(x, z) : null);
     }
     const pm = (d) => !ctx.powerMode?.() || ctx.isPowerType(d.type);          // the power editor: only power things are picked
     const devs = f.devices.filter((d) => pm(d) && devHit(d, x, z) && !FLAT.has(d.type)).sort((a, b) => {
@@ -513,15 +528,15 @@ export function createPlan(ctx) {
       f.devices.forEach((d) => ctx.cablesOf(d).forEach((c) => {
         const tg = byId.get(c.to);
         if (!tg) return;
-        const sel2 = sel?.kind === 'device' && (sel.id === d.id || sel.id === c.to);
-        const col = sel2 ? C.sel : '#ffb347';
+        const sel2 = (sel?.kind === 'device' && (sel.id === d.id || sel.id === c.to)) || (sel?.kind === 'cable' && sel.id === c.id);
+        const col = sel2 ? C.sel : ctx.cableColor(d, c);
         if (tg.fi !== here) {
           const up = tg.fi > here, p = [sx(d.x), sy(d.z)];
           o += `<path d="M${p[0]} ${p[1]}l0 ${up ? -18 : 18}" stroke="${col}" stroke-width="2" fill="none" stroke-dasharray="3 3"/><text x="${p[0] + 4}" y="${p[1] + (up ? -20 : 28)}" font-size="10" fill="${col}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${up ? '↑' : '↓'} ${esc(ctx.floorName?.(tg.fi) || '')}</text>`;
           return;
         }
         const a = [sx(d.x), sy(d.z)], b = [sx(tg.d.x), sy(tg.d.z)];
-        const pts = c.route === 'air' ? [a, b] : [a, [b[0], a[1]], b];
+        const pts = cableLine(a, b, c.route);
         o += `<polyline points="${pts.map((q) => q.join(',')).join(' ')}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" ${c.route === 'air' ? 'stroke-dasharray="6 4"' : ''} opacity=".9"/>`;
       }));
     }

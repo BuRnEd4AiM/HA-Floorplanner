@@ -111,6 +111,7 @@ const layout = {
       { id: 'pw_zm', type: 'powermeter', x: 9.82, z: 6.2, y: 1.4, rot: 270, scale: 1, name: 'Stromzähler', entity: 'sensor.netz_leistung', cables: [{ id: 'c2', to: 'pw_zk', route: 'floor' }] },
       { id: 'pw_zk', type: 'fusebox', x: 9.82, z: 5.4, y: 1.4, rot: 270, scale: 1, name: 'Zählerkasten', entity: '' },
       { id: 'pw_wr', type: 'inverter', x: 10.14, z: 5.2, y: 1.2, rot: 90, scale: 1, name: 'Wechselrichter', entity: 'sensor.pv_leistung', cables: [{ id: 'c3', to: 'pw_zk', route: 'floor' }] },
+      { id: 'pw_bt', type: 'battery', x: 10.3, z: 4.1, y: 0, rot: 90, scale: 1, name: 'Hausbatterie', entity: 'sensor.batterie_ladung', cables: [{ id: 'c7', to: 'pw_zk', route: 'floor', kind: 'battery', entity: 'sensor.batterie_leistung' }] },
       { id: 'pw_s1', type: 'solarpanel', x: 16.2, z: 1.2, y: 0, rot: 90, scale: 1, name: 'PV Modul 1', entity: 'sensor.pv_string1', cables: [{ id: 'c4', to: 'pw_wr', route: 'floor' }] },
       { id: 'pw_s2', type: 'solarpanel', x: 16.2, z: 2.6, y: 0, rot: 90, scale: 1, name: 'PV Modul 2', entity: 'sensor.pv_string2', cables: [{ id: 'c5', to: 'pw_wr', route: 'floor' }] },
       { id: 'pw_s3', type: 'solarpanel', x: 16.2, z: 4.0, y: 0, rot: 90, scale: 1, name: 'PV Modul 3', entity: 'sensor.pv_string3', cables: [{ id: 'c6', to: 'pw_wr', route: 'floor' }] },
@@ -199,6 +200,8 @@ const entities = {
   'sensor.pv_string1':       { name: 'PV Modul 1',             state: '1100', unit: 'W' },
   'sensor.pv_string2':       { name: 'PV Modul 2',             state: '1050', unit: 'W' },
   'sensor.pv_string3':       { name: 'PV Modul 3',             state: '1050', unit: 'W' },
+  'sensor.batterie_ladung':  { name: 'Hausbatterie',           state: '82',   unit: '%' },
+  'sensor.batterie_leistung': { name: 'Batterie Leistung',     state: '-600', unit: 'W' },
   'sensor.wohnzimmer_temp':  { name: 'Wohnzimmer Temperatur',  state: '21.4', unit: '°C' },
   'sensor.kueche_temp':      { name: 'Küche Temperatur',       state: '22.1', unit: '°C' },
   'sensor.schlafzimmer_temp':{ name: 'Schlafzimmer Temperatur', state: '18.6', unit: '°C' },
@@ -269,6 +272,10 @@ export function installDemoBackend() {
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
         hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null })));
+    }
+    if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
+      const v = typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __DEMO_VERSION__;
+      return json({ known: true, version: v, buildHash: 'demo', short: 'demo', server: { ok: true, files: 0, changed: [], missing: [], extra: [] }, staticFiles: {} });
     }
     if (path === 'api/service' && method === 'POST') {
       const { service, entity_id: id, data } = JSON.parse(init.body);

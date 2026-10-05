@@ -618,6 +618,8 @@
       "required": ["to"],
       "properties": {
        "to": {"type": "string", "maxLength": 60, "description": "The \"id\" of another device in the file this one is wired to."},
+       "kind": {"enum": ["grid", "solar", "battery", "load"], "description": "What the cable carries (decides its colour): grid (connection to the public grid, feed-in), own solar, battery, load (consumption). Default: from the type of the device it starts at."},
+       "entity": {"type": "string", "maxLength": 120, "description": "Optional sensor (watts) of this cable; without it the sensor of the device it starts at is used."},
        "route": {"enum": ["floor", "through", "air"], "description": "floor: along the floor, then up; through: through the floors first, then along the floor of the target; air: free in the air."}
       }
      },

@@ -374,3 +374,13 @@ def test_kitchen_module_with_own_width_survives_import_and_export():
     assert layout["floors"][0]["devices"][0]["legs"] == [["base", {"m": "dish", "w": 0.45}]]
     back = importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]
     assert back["legs"] == [["base", {"m": "dish", "w": 0.45}]]
+
+
+def test_cable_kind_and_own_sensor_survive_import_and_export():
+    spec = _prop([{"type": "battery", "x": 1, "z": 1, "id": "b", "cables": [{"to": "f", "kind": "battery", "entity": "sensor.bat_w"}, {"to": "f", "kind": "bogus"}]},
+                  {"type": "fusebox", "x": 2, "z": 1, "id": "f"}])
+    layout, _, _, _ = importer.build_layout(spec)
+    bat = layout["floors"][0]["devices"][0]
+    assert bat["cables"][0]["kind"] == "battery" and bat["cables"][0]["entity"] == "sensor.bat_w" and "kind" not in bat["cables"][1]
+    out = importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]["cables"]
+    assert out[0] == {"to": out[0]["to"], "route": "floor", "kind": "battery", "entity": "sensor.bat_w"} and "kind" not in out[1]
