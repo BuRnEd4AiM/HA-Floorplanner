@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.39.8. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.39.9. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -41,6 +41,7 @@ Stand: Version 3.39.8. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `offline.js` | ~100 | Offline-Liste |
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
+| `settingsui.js` | ~115 | Einstellungen: Tablet-Zuordnung und Farbskalen |
 | `houses.js` | ~95 | Häuser (Liste, Auswahl, Neu/Kopieren/Umbenennen/Löschen) |
 | `floorrail.js` | ~115 | Etagen-Leiste (Vorschaubilder) |
 | `floorcards.js` | ~110 | Etagenkarten (Ganzes Haus) |
@@ -52,7 +53,7 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
-| 13 | **Einstellungen** (Dialog, Speichern) | ~253 | `settings.js` | mittel |
+| 13 | **Einstellungen**, Rest (einfache Felder, Anwenden, Speichern) | ~150 | `settings.js` | mittel bis hoch (`settings` wird überall gelesen und ersetzt) |
 | 14 | **Hintergrundbild** (Vorlage zum Nachzeichnen) | ~207 | `background.js` | mittel |
 | 15 | **Paletten** (Geräte, eigene Modelle, Öffnungen) | ~67 | `palettes.js` | mittel |
 | 16 | **Platzhalter-Blöcke und Treppen** | ~136 | `blocks.js` | mittel |

@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.39.9] - 2026-10-05
+### Changed
+- **Code split, step 9 (#137)**: the two table-like parts of the settings (tablet assignments and colour scales) moved out of `app.js` into `settingsui.js`, with unit tests. The simple fields, applying and saving the settings stay in `app.js` for now. No change in behaviour.
+
 ## [3.39.8] - 2026-10-05
 ### Changed
 - **Code split, step 8 (#137)**: the houses (list, drop-down, new / copy / rename / delete) moved out of `app.js` into `houses.js`, with unit tests for the choice of the house to open. Loading a plan stays in `app.js`. No change in behaviour.
