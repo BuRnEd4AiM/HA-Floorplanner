@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.43.6] - 2026-10-05
+### Changed
+- **Spiral stair (#209)**: no longer a solid cylinder. The steps are thin plates fixed to a pole in the middle with nothing below them, and a hand rail with one baluster per step runs along the outside, also over several floors.
+
 ## [3.43.5] - 2026-10-05
 ### Fixed
 - **Meters and bridge invisible after placing (#207)**: the power editor (it stays on since #174) hid everything that is not a power device, also what was just placed. The water, gas and heat meters now stay visible in the power editor; placing anything else there switches the editor off, with a note in the status line.

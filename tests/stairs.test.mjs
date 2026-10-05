@@ -216,3 +216,16 @@ test('wall stair: the arrow runs through the middle of the steps and turns exact
   assert.equal(g.arrow.length, 3);
   near(g.arrow[0][1], 0.45); near(g.arrow[1][0], 2.55); near(g.arrow[1][1], 0.45); near(g.arrow[2][0], 2.55); near(g.arrow[2][1], 3);
 });
+test('spiral (#209): thin steps on a middle pole, nothing below them, a hand rail along the outside', () => {
+  const st = { ...S.stairDefaults('spiral'), floors: 2 }, L = S.stairLocal(st, H);
+  assert.ok(L.treads.every((t) => t.thin === S.THIN));
+  for (const t of L.treads) {
+    near(Math.hypot(...t.poly[0]), S.POLE_R); near(Math.hypot(...t.poly[t.poly.length - 1]), S.POLE_R);   // the step starts at the pole
+    near(Math.hypot(...t.poly[1]), st.w);                                                                  // and reaches the outer radius
+  }
+  const top = L.treads[L.treads.length - 1].top;
+  near(L.pole.r, S.POLE_R); near(L.pole.h, top + S.RAIL_H);
+  assert.equal(L.rail.length, L.treads.length);
+  L.rail.forEach(([x, y, z], k) => { near(y, L.treads[k].top + S.RAIL_H); near(Math.hypot(x, z), st.w - S.RAIL_IN); });
+  assert.equal(S.stairLocal({ ...S.stairDefaults('straight') }, H).pole, undefined);
+});

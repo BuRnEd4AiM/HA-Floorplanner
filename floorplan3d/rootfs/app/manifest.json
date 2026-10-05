@@ -1,6 +1,6 @@
 {
- "version": "3.43.5",
- "buildHash": "9a8d658eb6b6917137115ae5dc4ee103b5815e72d8e75efb21dac7771e8f1a9a",
+ "version": "3.43.6",
+ "buildHash": "b1a7eac504e70e9d250965be0b89e5d7de0edf24542ec6dba2d4e4c946f387f0",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -188,8 +188,8 @@
   "static/settings.js": "a0862a7f7aa0aab789c4cb1672c533c3a6e66de2632aa9e6bdc2f3865f78bc16",
   "static/settingsui.js": "15ad2524d177307acc9ef4f0316bb23fae3a35becbf6db36679a185c22030495",
   "static/solarroof.js": "5fdc6e3c6f1203f08ad842abf1781641aa493c6abf2cd341de020b735fcd75db",
-  "static/stairs.js": "eafa470d270effba3509b2e9ae188bc8739703d8d13d588f14db0aecb2f44f92",
-  "static/stairtool.js": "49c7a3eb1f6d7163813752c76e49a8acb976a06e4dac4ff54689045465f4fc67",
+  "static/stairs.js": "d11f06af92f56a4036b8a6fa90366ddb4a250e0498a69ed04e619de14682f4f7",
+  "static/stairtool.js": "6c1a440ca8a0cd2b41c6e535828fc8adad75e4e831e31217570ed7db8f303231",
   "static/style.css": "7f46c15979871b062f235a41b6b3f99c3e3fa8e183e347ee07f79f6b995013b2",
   "static/toolbar.js": "5a23ab6ad9fe51afb2b365c87b4c24850d16b9090349687d247270f152569d3b",
   "static/vendor/LICENSE-polygon-clipping.txt": "28c223fd4e8d5c39518aa4c5e603d501ac9e9c5025d136b2e45fae5072ef0695",
