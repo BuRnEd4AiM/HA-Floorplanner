@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.39.4] - 2026-10-05
+### Changed
+- **Code split, step 4 (#137)**: offline list, wall tablet (screensaver/night) and value badges moved out of `app.js` into `offline.js`, `kiosk.js` and `badges.js`, with unit tests. No change in behaviour.
+
 ## [3.39.3] - 2026-10-05
 ### Fixed
 - **Compass (#175)**: after a full turn around the house the needle no longer spins all the way back. The angle now keeps counting beyond 360 degrees. The compass moved into its own module `compass.js` with unit tests.

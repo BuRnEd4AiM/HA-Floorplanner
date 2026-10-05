@@ -11,8 +11,10 @@ import { initVersion } from './version.js';
 import { initHeatPanel } from './heatpanel.js';
 import { initPower } from './power.js';
 import { initCompass } from './compass.js';
+import { initOffline } from './offline.js';
+import { initBadges } from './badges.js';
+import { initKiosk } from './kiosk.js';
 import { initWelcome } from './welcome.js';
-import { nightActive } from './alerts.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { planPlacement, classify } from './autoplace.js';
@@ -1046,7 +1048,7 @@ function renderOpenList() {
     const meta = document.createElement('small');
     meta.textContent = [layout.floors[x.floor]?.name, x.room].filter(Boolean).join(' · ');
     b.append(name, why, meta);
-    b.addEventListener('click', () => { $('#openDialog').close(); showOffline({ floor: x.floor, kind: 'opening', id: x.id }); });
+    b.addEventListener('click', () => { $('#openDialog').close(); offline.show({ floor: x.floor, kind: 'opening', id: x.id }); });
     li.append(b); ul.append(li);
   });
 }
@@ -1097,42 +1099,8 @@ function updateCameraCones() {
   });
 }
 
-/* ================= Value badges: keep them from covering each other ================= */
-const _lblV = new THREE.Vector3();
-/** Badges that land on top of each other on the screen (two lamps at one spot) are pushed apart, downwards one by one.
- *  Done with the sprite's anchor point (`center`), so the badge stays tied to its device. */
-function declutterLabels() {
-  if (settings.labelMode === 'none' || labelSprites.size < 2 || !camera.isPerspectiveCamera) return;
-  const W = canvas.clientWidth, H = canvas.clientHeight;
-  if (W < 10) return;
-  const k = H / 2 / Math.tan((camera.fov * Math.PI) / 360);          // pixels per world unit at distance 1
-  const items = [];
-  labelSprites.forEach((sp) => {
-    if (!sp.visible || !sp.parent?.visible) return;
-    sp.getWorldPosition(_lblV);
-    const dist = _lblV.distanceTo(camera.position);
-    _lblV.project(camera);
-    if (_lblV.z >= 1 || Math.abs(_lblV.x) > 1.3 || Math.abs(_lblV.y) > 1.3) { sp.center.set(0.5, 0.5); return; }
-    const ppu = k / Math.max(dist, 0.1), len = String(sp.userData.text || '').length;
-    items.push({ sp, x: (_lblV.x + 1) / 2 * W, y: (1 - _lblV.y) / 2 * H, ppu,
-      w: Math.min(0.95, (len * 16 + 30) / 256) * sp.scale.x * ppu, h: 0.69 * sp.scale.y * ppu, shift: 0 });
-  });
-  items.sort((p, q) => p.y - q.y || p.x - q.x);
-  const placed = [];
-  for (const it of items) {
-    let moved = true, guard = 0;
-    while (moved && guard++ < 12) {                                  // move down until nothing is covered any more
-      moved = false;
-      for (const o of placed) {
-        if (Math.abs(it.x - o.x) < (it.w + o.w) / 2 && Math.abs(it.y + it.shift - (o.y + o.shift)) < (it.h + o.h) / 2) {
-          it.shift = o.y + o.shift + (it.h + o.h) / 2 + 2 - it.y; moved = true;
-        }
-      }
-    }
-    placed.push(it);
-    it.sp.center.set(0.5, 0.5 + it.shift / (it.sp.scale.y * it.ppu));   // anchor up = badge down
-  }
-}
+/* ================= Value badges: keep them from covering each other; the code lives in badges.js ================= */
+const declutterLabels = initBadges({ settings: () => settings, labelSprites, camera, canvas });
 
 /* ---- other floors as coloured outlines in the 2D plan: off | below (all lower floors) | all (every other floor) ---- */
 const PLAN_FLOORS = ['off', 'below', 'all'];
@@ -1238,7 +1206,7 @@ function renderCamMenu() {
       if ((kind === 'sensor' || d.motionEntity) && !motion) { const b = document.createElement('span'); b.className = 'camBadge'; b.textContent = t('cam.motionOff'); head.append(b); }
       const row = document.createElement('div'); row.className = 'camBtns';
       const show = document.createElement('button'); show.type = 'button'; show.textContent = t('cam.show');
-      show.addEventListener('click', () => { toggleMenu(camMenu, camPillBtn, false); showOffline({ floor: fi, kind: 'device', id: d.id }); });
+      show.addEventListener('click', () => { toggleMenu(camMenu, camPillBtn, false); offline.show({ floor: fi, kind: 'device', id: d.id }); });
       row.append(show, haButton(d.entity));
       card.append(head, row);
       cards.append(card);
@@ -1349,7 +1317,7 @@ function applyStates() {
   updateCameraCones();
   updateCamPill();
   updateFloorCards();
-  updateOfflinePill();
+  offline.update();
   alertsUi.update();
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
@@ -1435,95 +1403,18 @@ function applyStates() {
   if (roomPanelFor && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) renderRoomPanel();   // (renders the heating panel too)
 }
 
-/* ---- Offline devices: every placed entity that Home Assistant reports as unavailable (or unknown), or that does not
-   exist any more (renamed / deleted), in one list that is always one tap away ---- */
-const SMART_CATS = new Set(['lighting', 'smart']);   // devices that belong to an entity (furniture, garden and pictures do not)
-const NOT_SMART = new Set(['tv_led', 'radiator', 'boiler']);   // a radiator or a hot-water tank is often just drawn, without an entity
-const UNKNOWN_IS_FINE = new Set(['scene', 'script', 'automation', 'button', 'input_button', 'event', 'input_text', 'text', 'notify', 'tts', 'conversation']);
-/** why an entity counts as offline: 'unavailable' | 'unknown' | 'missing', or null when it is fine */
-function offlineReason(id) {
-  const s = states[id];
-  if (!s) return 'missing';
-  if (s.state === 'unavailable') return 'unavailable';
-  if (s.state === 'unknown' && !UNKNOWN_IS_FINE.has(id.split('.')[0])) return 'unknown';
-  return null;
-}
-/** [{ entity, reason, since, floor, kind, id, name, room }] of every placed lamp or smart device without an entity (reason 'unlinked') and every placed device, LED ring section, TV backlight and door / window contact */
-function offlineDevices() {
-  if (!entities.length) return [];                     // states not loaded yet: nothing is known to be offline
-  const out = [], seen = new Set();
-  const add = (entity, floor, kind, id, name, x, z, f) => {
-    if (!entity || seen.has(`${id}|${entity}`)) return;
-    seen.add(`${id}|${entity}`);
-    const reason = offlineReason(entity);
-    if (!reason) return;
-    const room = x == null ? null : f.rooms.find((r) => pointInPoly(x, z, r.points));
-    out.push({ entity, reason, since: states[entity]?.since || null, floor, kind, id, name, room: room?.name || '' });
-  };
-  layout.floors.forEach((f, fi) => {
-    f.devices.forEach((d) => {
-      const name = d.name || entities.find((e) => e.entity_id === d.entity)?.name || t(`dev.${d.type}`);
-      const smart = SMART_CATS.has(catOf(d.type)) && !NOT_SMART.has(d.type);
-      if (smart && !d.entity && !(d.type === 'ledring' && ringEntities(d).length)) {   // a lamp or sensor without its Home Assistant entity
-        const room = f.rooms.find((r) => pointInPoly(d.x, d.z, r.points));
-        out.push({ entity: '', reason: 'unlinked', since: null, floor: fi, kind: 'device', id: d.id, name, room: room?.name || '' });
-      }
-      add(d.entity, fi, 'device', d.id, name, d.x, d.z, f);
-      add(d.ledEntity, fi, 'device', d.id, name, d.x, d.z, f);
-      if (d.type === 'ledring') ringEntities(d).forEach((e) => add(e, fi, 'device', d.id, name, d.x, d.z, f));
-    });
-    f.walls.forEach((w) => (w.openings || []).forEach((o) => {
-      add(o.entity, fi, 'opening', o.id, o.name || t(`prop.${o.type}`), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);
-    }));
-  });
-  return out.sort((a, b) => a.floor - b.floor || a.room.localeCompare(b.room) || a.name.localeCompare(b.name));
-}
-let offlineSig = '';
-function updateOfflinePill() {
-  const list = offlineDevices(), pill = $('#offlinePill');
-  pill.hidden = !entities.length;                     // always there once the states are known, also with nothing offline
-  pill.classList.toggle('warn', list.length > 0);
-  pill.classList.toggle('ok', !list.length);
-  pill.textContent = list.length ? t('off.pill', { n: list.length }) : t('off.pillOk');
-  const sig = JSON.stringify(list.map((x) => [x.id, x.entity, x.reason]));
-  if (sig !== offlineSig) { offlineSig = sig; if ($('#offlineDialog').open) renderOfflineList(); }
-}
-function sinceText(iso) {
-  const ms = Date.parse(iso || '');
-  if (!ms) return '';
-  const sec = Math.round((ms - Date.now()) / 1000), rtf = new Intl.RelativeTimeFormat(currentLanguage(), { numeric: 'auto' });
-  for (const [u, n] of [['day', 86400], ['hour', 3600], ['minute', 60]]) if (Math.abs(sec) >= n) return rtf.format(Math.round(sec / n), u);
-  return rtf.format(sec, 'second');
-}
-function renderOfflineList() {
-  const ul = $('#offlineList'), list = offlineDevices();
-  ul.replaceChildren();
-  $('#offlineNone').hidden = !!list.length;
-  list.forEach((x) => {
-    const li = document.createElement('li'), b = document.createElement('button');
-    b.type = 'button';
-    const name = document.createElement('strong'); name.textContent = x.name;
-    const why = document.createElement('span'); why.className = `offWhy ${x.reason}`; why.textContent = t(`off.${x.reason}`);
-    const meta = document.createElement('small');
-    meta.textContent = [layout.floors[x.floor]?.name, x.room, x.entity, x.since ? t('off.since', { t: sinceText(x.since) }) : ''].filter(Boolean).join(' · ');
-    b.append(name, why, meta);
-    b.addEventListener('click', () => { $('#offlineDialog').close(); showOffline(x); });
-    li.append(b); ul.append(li);
-  });
-}
-/** go to the floor of an offline device and point it out */
-function showOffline(x) {
-  if (houseMode || floorIdx !== x.floor) switchFloor(x.floor);
-  if (isLive()) liveSelect({ kind: x.kind, id: x.id });
-  else { selection = { kind: x.kind, id: x.id }; lockedSel = true; refreshSelection(); }
-}
-$('#offlinePill').addEventListener('click', () => { renderOfflineList(); $('#offlineDialog').showModal(); });
+/* ---- Offline devices: the code lives in offline.js ---- */
+const offline = initOffline({
+  $, t, layout: () => layout, entities: () => entities, states: () => states, catOf, pointInPoly: (...a) => pointInPoly(...a), currentLanguage: () => currentLanguage(),
+  houseMode: () => houseMode, floorIdx: () => floorIdx, switchFloor: (i) => switchFloor(i), isLive: () => isLive(), liveSelect: (h) => liveSelect(h),
+  selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); },
+});
 
 /* ================= Warnings (#58) and the "Where is ...?" search (#62): the code lives in alertsui.js and search.js ================= */
 const alertsUi = initAlertsUi({
   $, t, layout: () => layout, entities: () => entities, settings: () => settings, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
   openingEntities: (o) => openingEntities(o), build: () => build(), isLive: () => isLive(), houseMode: () => houseMode, floorIdx: () => floorIdx,
-  switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => openRoomPanel(id), kioskTouched: () => kioskTouched(),
+  switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => openRoomPanel(id), kioskTouched: () => kiosk.touched(),
 });
 const search = initSearch({
   $, t, layout: () => layout, entities: () => entities, pointInPoly: (...a) => pointInPoly(...a), houseMode: () => houseMode, floorIdx: () => floorIdx,
@@ -1532,33 +1423,13 @@ const search = initSearch({
   selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); }, wake: () => wake(),
 });
 
-/* ================= Wall tablet: back to the start view, screen saver, night dimming (#61) ================= */
-let lastInput = Date.now(), kioskHome = true;
-function kioskTouched() {
-  lastInput = Date.now(); kioskHome = false;
-  if (controls.autoRotate) controls.autoRotate = false;
-  if (!$('#nightDim').hidden) $('#nightDim').hidden = true;
-}
-['pointerdown', 'keydown', 'wheel'].forEach((ev) => addEventListener(ev, kioskTouched, { passive: true, capture: true }));
-function goHome() {
-  closeLivePopup(); closeRoomPanel(); search.close();
-  const hit = tabletRoom && findRoomByName(tabletRoom);
-  if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); openRoomPanel(hit.room.id); }
-  else { if (focusedRoom) focusRoom(null); switchFloor(groundIdx()); }
-  fitCamera();
-}
-function kioskTick() {
-  const idleMs = Date.now() - lastInput;
-  if (isLive() && settings.idleReturn > 0 && idleMs > settings.idleReturn * 60000 && !kioskHome) {
-    kioskHome = true;
-    goHome();
-    if (settings.idleOrbit) { controls.autoRotate = true; controls.autoRotateSpeed = 0.6; }
-  }
-  const night = isLive() && nightActive(settings.nightDim, settings.nightFrom, settings.nightTo, new Date(), states['sun.sun']?.state);
-  $('#nightDim').hidden = !(night && idleMs > 60000);
-}
-setInterval(kioskTick, 5000);
-$('#nightDim').addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); kioskTouched(); });   // the first touch only wakes the screen
+/* ================= Wall tablet (#61): the code lives in kiosk.js ================= */
+const kiosk = initKiosk({
+  $, controls, settings: () => settings, states: () => states, isLive: () => isLive(),
+  closeLivePopup: () => closeLivePopup(), closeRoomPanel: () => closeRoomPanel(), closeSearch: () => search.close(),
+  tabletRoom: () => tabletRoom, findRoomByName: (n) => findRoomByName(n), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom,
+  openRoomPanel: (id) => openRoomPanel(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
+});
 
 function refreshSelHelper() {
   if (selHelper) { scene.remove(selHelper); selHelper = null; }
@@ -4626,7 +4497,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
+    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)
