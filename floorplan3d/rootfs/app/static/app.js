@@ -48,8 +48,8 @@ import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
-import { dormerParts } from './dormer.js';
-import { roofFrame, solarPose } from './solarroof.js';
+import { initRoofs } from './roofs.js';
+import { solarPose } from './solarroof.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
 
@@ -411,164 +411,20 @@ function makeOpeningHandle(w, o, group) {
   return h;
 }
 
-/** footprint (bounding box) of everything under a roof floor */
-function roofBox(i) {
-  const b = layout.floors[i]?.roof?.box;                  // size set by hand in the roof panel
-  if (b && [b.x0, b.x1, b.z0, b.z1].every(Number.isFinite) && b.x1 > b.x0 && b.z1 > b.z0) return { x0: b.x0, x1: b.x1, z0: b.z0, z1: b.z1 };
-  return autoRoofBox(i);
-}
-function autoRoofBox(i) {
-  // a roof terrace (an open room) has no roof, and neither has what lies below it (the garage): their walls and rooms do not count
-  const zones = layout.floors.flatMap((f, fi) => f.rooms.filter((r) => r.terrace && r.points.length >= 3).map((r) => {
-    const xs = r.points.map((p) => p[0]), zs = r.points.map((p) => p[1]);
-    return { fi, x0: Math.min(...xs) - 0.2, x1: Math.max(...xs) + 0.2, z0: Math.min(...zs) - 0.2, z1: Math.max(...zs) + 0.2 };
-  }));
-  const open = (k, ps) => zones.some((z) => z.fi >= k && ps.every(([x, zz]) => x >= z.x0 && x <= z.x1 && zz >= z.z0 && zz <= z.z1));
-  const pts = [];
-  layout.floors.forEach((f, k) => {
-    if (k >= i || f.kind === 'basement' || f.kind === 'roof') return;
-    f.walls.forEach((w) => { if (!open(k, [w.a, w.b])) pts.push(w.a, w.b); });
-    f.rooms.forEach((r) => { if (!r.terrace && !open(k, r.points)) pts.push(...r.points); });
-  });
-  if (!pts.length) return null;
-  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
-  return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) };
-}
-/** Railing round a roof terrace: posts and two rails along every edge that is not a wall */
-function buildRailing(g, room, f, holo, ghost) {
-  const pts = room.points, H = 1.0, step = 0.2;
-  const mat = holo ? new THREE.MeshBasicMaterial({ color: 0x3df2ff, transparent: true, opacity: ghost ? 0.12 : 0.85 })
-    : new THREE.MeshStandardMaterial({ color: '#8d949b', roughness: 0.45, metalness: 0.6, transparent: ghost, opacity: ghost ? 0.25 : 1 });
-  const covered = (x, z) => f.walls.some((w) => {                          // a wall (also in a doorway) already closes this spot
-    const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], l2 = dx * dx + dz * dz || 1;
-    const k = Math.max(0, Math.min(1, ((x - w.a[0]) * dx + (z - w.a[1]) * dz) / l2));
-    return Math.hypot(x - (w.a[0] + k * dx), z - (w.a[1] + k * dz)) < (w.thickness || 0.2) / 2 + 0.12;
-  });
-  const bar = (x0, z0, x1, z1, y, th) => {
-    const len = Math.hypot(x1 - x0, z1 - z0);
-    const m = new THREE.Mesh(new THREE.BoxGeometry(len, th, th), mat);
-    m.position.set((x0 + x1) / 2, y, (z0 + z1) / 2);
-    m.rotation.y = -Math.atan2(z1 - z0, x1 - x0);
-    g.add(m);
-  };
-  const post = (x, z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.05, H, 0.05), mat); m.position.set(x, H / 2, z); g.add(m); };
-  for (let i = 0; i < pts.length; i++) {
-    const [ax, az] = pts[i], [bx, bz] = pts[(i + 1) % pts.length], len = Math.hypot(bx - ax, bz - az);
-    if (len < 0.1) continue;
-    const n = Math.max(1, Math.ceil(len / step)), at = (u) => [ax + (bx - ax) * u, az + (bz - az) * u];
-    let run = null;
-    const flush = (end) => {
-      if (!run) return;
-      const [x0, z0] = at(run), [x1, z1] = at(end);
-      if (Math.hypot(x1 - x0, z1 - z0) > 0.15) {
-        bar(x0, z0, x1, z1, H, 0.05); bar(x0, z0, x1, z1, H * 0.5, 0.035);
-        const posts = Math.max(1, Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 1.2));
-        for (let p = 0; p <= posts; p++) post(x0 + ((x1 - x0) * p) / posts, z0 + ((z1 - z0) * p) / posts);
-      }
-      run = null;
-    };
-    for (let k = 0; k < n; k++) {
-      const [mx, mz] = at((k + 0.5) / n);
-      if (covered(mx, mz)) flush(k / n); else if (run === null) run = k / n;
-    }
-    flush(1);
-  }
-}
-/** roof surface as triangles; pitch in degrees, ridge along the longer side unless set */
-function roofGeometry(bb, r) {
-  const { alongX, a0, a1, b0, b1, bc, h, ins } = roofFrame(bb, r);       // a = ridge axis, b = across (shared with the solar panels on the roof)
-  const P = (a, b, y) => (alongX ? [a, y, b] : [b, y, a]);
-  const tris = [];
-  const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
-  if (r.type === 'flat') {
-    quad(P(a0, b0, 0.1), P(a1, b0, 0.1), P(a1, b1, 0.1), P(a0, b1, 0.1));
-    quad(P(a0, b0, 0), P(a0, b1, 0), P(a1, b1, 0), P(a1, b0, 0));
-  } else {
-    quad(P(a0, b0, 0), P(a1, b0, 0), P(a1 - ins, bc, h), P(a0 + ins, bc, h));
-    quad(P(a1, b1, 0), P(a0, b1, 0), P(a0 + ins, bc, h), P(a1 - ins, bc, h));
-    tris.push(P(a0, b1, 0), P(a0, b0, 0), P(a0 + ins, bc, h));
-    tris.push(P(a1, b0, 0), P(a1, b1, 0), P(a1 - ins, bc, h));
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
-  geo.computeVertexNormals();
-  return geo;
-}
-/** one roof (the main one, or a further one of the house): `spec` has type / pitch / overhang / dormers, `bb` is its base, `y0` lifts it onto the floor it sits on */
-function drawRoof(g, bb, spec, y0, tag, holo, ghost) {
-  const geo = roofGeometry(bb, spec);
-  const m = new THREE.Mesh(geo, holo
-    ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : 0.45, side: THREE.DoubleSide, depthWrite: false })
-    : mat('#a4493b', ghost, { side: THREE.DoubleSide }));
-  const mats = [m.material];
-  if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 20), em)); mats.push(em); }
-  m.position.y = y0; m.userData.roofPart = tag;
-  g.add(m);
-  const fade = (mesh, ms) => { if (!ghost) roofs.push({ mesh, mats: ms.map((x) => ({ x, base: x.opacity, transparent: x.transparent, depthWrite: x.depthWrite })), box: null }); };
-  fade(m, mats);
-  (spec.dormers || []).forEach((d) => {                                 // dormers (Gauben): wall, little roof and window out of one slope
-    const parts = dormerParts(bb, spec, d);
-    if (!parts) return;
-    const part = (tris, material, edgeAngle) => {
-      if (!tris.length) return;
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
-      geo.computeVertexNormals();
-      const pm = new THREE.Mesh(geo, material), ms = [material];
-      if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); pm.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), em)); ms.push(em); }
-      pm.position.y = y0; pm.userData.roofPart = tag;
-      g.add(pm); fade(pm, ms);
-    };
-    const hm = (opacity) => new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : opacity, side: THREE.DoubleSide, depthWrite: false });
-    part(parts.wall, holo ? hm(0.5) : mat('#d9d3c6', ghost, { side: THREE.DoubleSide }), 20);
-    part(parts.roof, holo ? hm(0.45) : mat('#8f3b2f', ghost, { side: THREE.DoubleSide }), 20);
-    part(parts.glass, new THREE.MeshBasicMaterial({ color: holo ? 0x3df2ff : 0x9fd4ff, transparent: true, opacity: ghost ? 0.2 : 0.75, side: THREE.DoubleSide, depthWrite: false }), 90);
-  });
-}
-function partBox(p) {
-  const b = p?.box;
-  return b && [b.x0, b.x1, b.z0, b.z1].every(Number.isFinite) && b.x1 > b.x0 && b.z1 > b.z0 ? { x0: b.x0, x1: b.x1, z0: b.z0, z1: b.z1 } : null;
-}
-/** the roofs of roof floor i: the main one and further roofs, each with its base box and lift (also where solar panels lie, #176) */
-function roofList(i) {
-  const f = layout.floors[i], out = [];
-  if (f?.kind !== 'roof') return out;
-  const bb = roofBox(i);
-  if (bb) out.push({ bb, spec: f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }), y0: 0, tag: 'main' });
-  (f.roof?.parts || []).forEach((p) => {                                  // further roofs: an annex with its own roof, on the floor it stands on
-    const pb = partBox(p);
-    if (!pb) return;
-    const lv = layout.floors.findIndex((x) => x.id === p.level);
-    out.push({ bb: pb, spec: p, y0: lv >= 0 && layout.floors[lv].kind !== 'roof' ? elev(lv + 1) - elev(i) : 0, tag: p.id || 'part' });
-  });
-  return out;
-}
-function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost)); }
-/** a solar panel on the roof floor lies on the roof surface (#176): height and tilt follow the roof under it */
-function placeSolar(model, d, roofs) {
-  const sol = solarPose(d, roofs);
-  model.position.y = (d.y ?? 0) + sol.y;
-  const deg = THREE.MathUtils.degToRad;
-  model.rotation.x = sol.tilt ? sol.tilt.tiltX : deg(d.tiltX || 0); model.rotation.z = sol.tilt ? sol.tilt.tiltZ : deg(d.tiltZ || 0);
-  return sol;
-}
-const roofs = [];                  // roofs that thin out when the camera comes close
-function updateRoofFade() {
-  for (const r of roofs) {
-    if (!r.box) { r.mesh.updateWorldMatrix(true, false); r.box = new THREE.Box3().setFromObject(r.mesh); }
-    const d = r.box.distanceToPoint(camera.position);
-    const editing = !houseMode && floor()?.kind === 'roof';                                            // the roof floor is open: the roof (and its dormers) must stay clearly visible
-    const k = Math.max(editing ? 0.85 : 0.12, Math.min(settings.seeThrough && !editing ? WALL_SEE : 1, (d - 2.5) / 4.5));          // fully there beyond ~7 m, mostly gone up close; with see-through walls the roof stays see-through from afar too
-    r.mats.forEach((m) => { m.x.opacity = m.base * k; m.x.transparent = m.transparent || k < 0.999; m.x.depthWrite = m.depthWrite && k > 0.95; });
-  }
-}
+/* ---- Roofs: roof box, roof surfaces with dormers and further roofs, terrace railing, solar panels on the roof, fading; the code lives in roofs.js ---- */
+const roofsUi = initRoofs({
+  layout: () => layout, elev: (i) => elev(i), mat: (...a) => mat(...a), HOLO, camera: () => camera, settings: () => settings, wallSee: WALL_SEE,
+  editingRoof: () => !houseMode && floor()?.kind === 'roof',     // the roof floor is open: the roof (and its dormers) must stay clearly visible
+});
+const roofBox = (i) => roofsUi.box(i), autoRoofBox = (i) => roofsUi.autoBox(i), roofList = (i) => roofsUi.list(i);
+function updateRoofFade() { roofsUi.updateFade(); }
 
 function build() {
   localizeDefaults(); welcomeUi?.update();
   wake();
   plan?.render();
   clearGroup(world);
-  registry.clear(); pickables.length = 0; labelSprites.clear(); cams.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
+  registry.clear(); pickables.length = 0; labelSprites.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
   const holo = isHolo();
   const iso = isolatedRoom();
   if (houseMode && settings.earth === 'off') {    // ground reference for the plot (with earth the lawn is the ground)
@@ -603,7 +459,7 @@ function build() {
     g.position.y = elev(i);
     world.add(g);
     const holes = floorOpenings(i);
-    if (f.kind === 'roof' && !iso) buildRoof(g, i, f, holo, ghost);
+    if (f.kind === 'roof' && !iso) roofsUi.build(g, i, f, holo, ghost);
     const roofsHere = f.kind === 'roof' ? roofList(i) : null;
 
     f.rooms.forEach((r) => {
@@ -619,7 +475,7 @@ function build() {
       m.position.y = 0.01;
       m.receiveShadow = true;
       g.add(m);
-      if (r.terrace && !lowWalls) buildRailing(g, r, f, holo, ghost);          // roof terrace: railing along the open edges
+      if (r.terrace && !lowWalls) roofsUi.railing(g, r, f, holo, ghost);          // roof terrace: railing along the open edges
       let wash = null, glow = null;
       if (!holo) {                                   // solid themes: the light pool lies on the floor as a separate layer
         glow = new THREE.Mesh(geo, roomLightMat('glow'));
@@ -727,7 +583,7 @@ function build() {
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
       model.rotation.set(THREE.MathUtils.degToRad(d.tiltX || 0), THREE.MathUtils.degToRad(d.rot || 0), THREE.MathUtils.degToRad(d.tiltZ || 0));
-      if (onRoof) { placeSolar(model, d, roofsHere); model.userData.onRoof = onRoof.mount; }
+      if (onRoof) { roofsUi.placeSolar(model, d, roofsHere); model.userData.onRoof = onRoof.mount; }
       model.scale.set((d.scale || 1) * (d.sx || 1), (d.scale || 1) * (d.sy || 1), (d.scale || 1) * (d.sz || 1));   // uniform size x independent stretch per axis
       if (d.mirror) model.scale.x *= -1;                              // mirrored shape (left-right)
       if (!ghost) addPickProxy(model);
@@ -1061,7 +917,7 @@ function refreshSelection() {
 /* ---- Cutaway: walls between the camera and the interior sink down (or turn see-through) so you can look inside; the code lives in cutaway.js ---- */
 const cutaway = initCutaway({
   camera, elev: () => elev(), settings: () => settings, lowWalls: () => lowWalls, halfCut: () => halfCut, isLive: () => isLive(), walls: () => cutawayWalls,
-  center: () => wallsCenter(), roofsCount: () => roofs.length, updateRoofFade: () => updateRoofFade(), updateEarthCut: () => updateEarthCut(), wallSee: WALL_SEE,
+  center: () => wallsCenter(), roofsCount: () => roofsUi.faded.length, updateRoofFade: () => updateRoofFade(), updateEarthCut: () => updateEarthCut(), wallSee: WALL_SEE,
 });
 const wallCutawayInfo = (w, group) => cutaway.info(w, group);
 function updateCutaway() { cutaway.update(); }
@@ -1968,7 +1824,7 @@ function focusRoom(id) {
 function liveMove(d) {
   const obj = registry.get(d.id);
   if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
-  if (obj?.userData.onRoof) placeSolar(obj, d, roofList(floorIdx));   // follows the roof while it is moved (the mount itself changes on the next build)
+  if (obj?.userData.onRoof) roofsUi.placeSolar(obj, d, roofList(floorIdx));   // follows the roof while it is moved (the mount itself changes on the next build)
   const sp = labelSprites.get(d.id);
   if (sp) sp.position.set(d.x, sp.position.y, d.z);
   cams.cones.get(d.id)?.mesh.position.set(d.x, 0, d.z);          // the field of view of a camera moves with it
@@ -2362,7 +2218,7 @@ if (params.get('debug')) {
     cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
     liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
     touchSize: (id) => { let m = 0; registry.get(id)?.children.forEach((c) => { if (c.userData.touchOnly) { c.geometry.computeBoundingBox(); const s = c.geometry.boundingBox.getSize(new THREE.Vector3()); m = Math.min(s.x, s.y, s.z); } }); return m; },
-    addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach', uid())); build(); }, camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofs.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
+    addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach', uid())); build(); }, camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofsUi.faded.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
     liveTapRoom: (id) => liveSelect({ kind: 'room', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
     select(kind, id) { selection = { kind, id }; refreshSelection(); },
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),

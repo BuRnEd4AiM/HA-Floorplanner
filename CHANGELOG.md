@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.43.1] - 2026-10-05
+### Changed
+- **Code split, step 19 (#137)**: the roofs (roof size, roof surfaces with dormers and further roofs, the railing of a roof terrace, solar panels on the roof, fading when the camera comes close) moved out of `app.js` into `roofs.js`, with unit tests for the roof sizes. No change in behaviour.
+
 ## [3.43.0] - 2026-10-05
 ### Added
 - **Metal bridge / walkway (#189)**: new part „Brücke / Übergang“ in the library (Outdoor): a grating deck on two steel beams with a railing on both sides, 3 m long and 1.2 m wide by default. Length, width and railing are set in the properties; the walking surface is at the level of the floor it is placed on, so placed on the upper floor it joins two building parts. Import and export keep `len`, `w` and `noRail`. The geometry is in the new module `bridge.js` with unit tests.
