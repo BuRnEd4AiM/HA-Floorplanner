@@ -891,6 +891,10 @@ with sync_playwright() as p:
     pgE.click("#powerEditBtn"); pgE.wait_for_timeout(500)
     check("power editor: on, the cable tool shows and the library shows the power things", pgE.is_visible("#cableBtn") and pgE.evaluate("document.body.dataset.power") == "1")
     check("power editor: other devices (the lamp) are hidden in 3D", pgE.evaluate("window.__fp.powerInfo().hidden") >= 1, pgE.evaluate("window.__fp.powerInfo()"))
+    pgE.evaluate("window.__fp.applyStates()"); pgE.wait_for_timeout(300)
+    check("power editor (#174): a state update does not bring the other devices back", pgE.evaluate("window.__fp.powerInfo().hidden") >= 1 and pgE.evaluate("document.body.dataset.power") == "1", pgE.evaluate("window.__fp.powerInfo()"))
+    pgE.evaluate("window.__fp.rebuild(); window.__fp.applyStates()"); pgE.wait_for_timeout(300)
+    check("power editor (#174): neither does a rebuilt scene", pgE.evaluate("window.__fp.powerInfo().hidden") >= 1, pgE.evaluate("window.__fp.powerInfo()"))
     check("power editor: the library opens at once with the power things", pgE.is_visible("#devicePalette") and pgE.locator("#paletteGrid button.dev").count() == 7 and pgE.locator("#paletteCats button.active").inner_text() == "Power", pgE.locator("#paletteGrid button.dev").count())
     pgE.click("#cableBtn"); pgE.wait_for_timeout(200)
     clk = lambda x, z: (lambda c: (pgE.mouse.move(*c), pgE.wait_for_timeout(120), pgE.mouse.click(*c), pgE.wait_for_timeout(250)))(pgE.evaluate("window.__fp.plan().toClient(%s,%s)" % (x, z)))
@@ -928,6 +932,12 @@ with sync_playwright() as p:
     check("power cables: the delete button removes the picked cable", cab() == [], cab())
     pgE.click("#powerEditBtn"); pgE.wait_for_timeout(400)
     check("power editor: off again, the lamp is back and the cable tool is gone", pgE.evaluate("window.__fp.powerInfo().hidden") == 0 and not pgE.is_visible("#cableBtn"), pgE.evaluate("window.__fp.powerInfo()"))
+    was = pgE.evaluate("window.__fp.powerInfo().shown")
+    pgE.click("#powerBtn"); pgE.wait_for_timeout(300)
+    pgE.evaluate("window.__fp.applyStates(); window.__fp.rebuild(); window.__fp.applyStates()"); pgE.wait_for_timeout(600)
+    check("power button (#174): a real switch: after a press it stays as it is, also after state updates", pgE.evaluate("window.__fp.powerInfo().shown") == (not was) and pgE.locator("#powerBtn.active").count() == (0 if was else 1), (was, pgE.evaluate("window.__fp.powerInfo()")))
+    pgE.click("#powerBtn"); pgE.wait_for_timeout(300)
+    check("power button (#174): the next press switches it back", pgE.evaluate("window.__fp.powerInfo().shown") == was)
     pgE.close()
 
     # --- narrow wall pieces (#142): the opening shrinks to what is left instead of being refused

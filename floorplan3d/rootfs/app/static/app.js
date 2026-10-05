@@ -966,7 +966,8 @@ function applyStates() {
         sg.holo.fill.forEach((m) => { if (son && c) m.color.setRGB(c[0] / 255, c[1] / 255, c[2] / 255); else m.color.setHex(son ? HOLO.on : HOLO.fill); m.opacity = op; });
         sg.holo.edge.forEach((m) => { if (son && c) m.color.setRGB(Math.min(1, c[0] / 255 + 0.35), Math.min(1, c[1] / 255 + 0.35), Math.min(1, c[2] / 255 + 0.35)); else m.color.setHex(son ? HOLO.onEdge : HOLO.edge); });
       });
-      obj.visible = !obj.userData.cutHidden && !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on);      // a person who is not there is not drawn in live mode          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
+      obj.visible = !obj.userData.cutHidden && !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on)      // a person who is not there is not drawn in live mode
+        && !power.hides(d.id);                                  // the power editor shows nothing but the power things (#174: the next state update brought them all back)          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
     });
@@ -2369,7 +2370,7 @@ if (params.get('debug')) {
     liveTapRoom: (id) => liveSelect({ kind: 'room', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
     select(kind, id) { selection = { kind, id }; refreshSelection(); },
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),
-    rebuild: () => build(),
+    rebuild: () => build(), applyStates: () => applyStates(),
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
     liveOk: () => liveOk,
