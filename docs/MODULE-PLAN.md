@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.43.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **2.420**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.43.1. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **2.270**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -67,6 +67,7 @@ Stand: Version 3.43.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `floorrail.js` | ~115 | Etagen-Leiste (Vorschaubilder) |
 | `floorcards.js` | ~110 | Etagenkarten (Ganzes Haus) |
 | `cameras.js` | ~190 | Kameras (Sichtkegel, Übersicht, Standbilder) |
+| `roofs.js` | ~170 | Dächer (Schritt 19): Dachgröße, Dachflächen mit Gauben und weiteren Dächern, Geländer der Dachterrasse, Solarpanels auf dem Dach, Ausblenden aus der Nähe; Dachgrößen mit Unit-Tests |
 
 ## Noch in `app.js` (Reihenfolge = Empfehlung)
 
@@ -75,7 +76,7 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
 | 20 | **Zeichnen, Auswählen, Zeigerereignisse** (Fangen, Ziehen, Werkzeuge) | ~475 | `pointer.js`, `tools.js` | hoch |
-| 21 | **3D-Aufbau**: Dächer und Geländer (~140), Hologramm-Darstellung (~60), `build` selbst (~210) | ~410 | `roofs.js`, `scene.js` | hoch |
+| 21 | **3D-Aufbau**: Hologramm-Darstellung (~60), `build` selbst (~210) | ~270 | `scene.js` | hoch |
 | 22 | **Zustand, Rückgängig, Speichern, Datenladen, Live-Kanal** | ~80 + ~25 + ~150 | `state.js`, `data.js` | hoch |
 | 23 | **Etagen und Räume wechseln, Navigation, Bewegen mit Wandstopp** | ~200 | `nav.js`, `collide.js` | mittel |
 
