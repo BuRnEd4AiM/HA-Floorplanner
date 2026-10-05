@@ -5,6 +5,7 @@ import { initToolbar } from './toolbar.js';
 import { MOD_TYPES, MOD_W, MAX_LEGS, MAX_MODS, DEFAULT_LEGS, cleanLegs, legLength } from './kitchen.js';
 import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
+import { initHeatPanel } from './heatpanel.js';
 import { initWelcome } from './welcome.js';
 import { findAlerts, nightActive, matchScore } from './alerts.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
@@ -2921,7 +2922,7 @@ function renderRoomPanel() {
     .filter((id) => !placedIds.has(id) && states[id] && inRp(id))
     .map((id) => ({ entity: id, name: entities.find((e) => e.entity_id === id)?.name || id }));
   devs.push(...extra);
-  renderHeatPanel(devs.filter((d) => d.entity.startsWith('climate.')));
+  heat.render(devs.filter((d) => d.entity.startsWith('climate.')));
   RP_GROUPS.forEach(([group, key]) => {
     if (group === 'climate') return;                          // thermostats have their own panel next to this one
     const list = devs.filter((d) => rpGroupOf(d.entity.split('.')[0]) === group);
@@ -3015,61 +3016,8 @@ function renderRoomPanel() {
   });
   if (!devs.length && !ops.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('rp.empty'); box.append(e); }
 }
-/* ---- Heating panel: next to the room panel, for the thermostats of the room (live mode) ---- */
-const heatPending = new Map();             // entity -> { v, timer }: a target temperature that was clicked but not sent yet
-function heatTarget(e, s) { return heatPending.get(e)?.v ?? s?.tt; }
-function heatSend(e, v) {
-  const s = states[e] || {}, lo = s.tmin ?? 7, hi = s.tmax ?? 30, step = s.tstep || 0.5;
-  v = Math.min(hi, Math.max(lo, Math.round(v / step) * step));
-  const old = heatPending.get(e); if (old) clearTimeout(old.timer);
-  heatPending.set(e, { v, timer: setTimeout(() => { heatPending.delete(e); callService(e, 'set_temperature', { temperature: v }); }, 700) });   // clicks in a row become one call
-  renderHeatPanel();
-}
-let heatDevs = [];
-function renderHeatPanel(devs) {
-  if (devs) heatDevs = devs;
-  const box = $('#heatPanel');
-  if (!heatDevs.length || !roomPanelFor) { box.hidden = true; return; }
-  box.hidden = false; box.replaceChildren();
-  const h = document.createElement('h4'); h.textContent = t('heat.title'); box.append(h);
-  heatDevs.forEach((d) => {
-    const e = d.entity, s = states[e], card = document.createElement('div'); card.className = 'hp';
-    const head = document.createElement('div'); head.className = 'hp-head';
-    const nm = document.createElement('span'); nm.className = 'hp-name'; nm.textContent = d.name || s?.name || e;
-    const badge = document.createElement('span');
-    const act = !s ? 'off' : s.state === 'off' ? 'off' : (s.hvac || 'idle');
-    badge.className = 'hp-badge ' + act;
-    badge.textContent = act === 'heating' ? `🔥 ${t('heat.heating')}` : act === 'cooling' ? `❄ ${t('heat.cooling')}` : act === 'off' ? t('heat.off') : t('heat.idle');
-    head.append(nm, badge);
-    const temps = document.createElement('div'); temps.className = 'hp-temps';
-    const now = document.createElement('div'); now.className = 'hp-now';
-    now.innerHTML = ''; now.append(typeof s?.ct === 'number' ? `${Math.round(s.ct * 10) / 10} °C` : '– °C');
-    const lab = document.createElement('small'); lab.textContent = t('heat.now'); now.append(lab);
-    temps.append(now);
-    const target = heatTarget(e, s);
-    if (typeof target === 'number' && s?.state !== 'off') {
-      const set = document.createElement('div'); set.className = 'hp-set';
-      const step = s.tstep || 0.5;
-      const minus = document.createElement('button'); minus.type = 'button'; minus.textContent = '−'; minus.title = t('heat.minus');
-      const plus = document.createElement('button'); plus.type = 'button'; plus.textContent = '+'; plus.title = t('heat.plus');
-      const val = document.createElement('b'); val.textContent = `${Math.round(target * 10) / 10} °C`; val.title = t('heat.target');
-      minus.addEventListener('click', () => heatSend(e, target - step));
-      plus.addEventListener('click', () => heatSend(e, target + step));
-      set.append(minus, val, plus); temps.append(set);
-    }
-    card.append(head, temps);
-    if (Array.isArray(s?.modes) && s.modes.length) {
-      const modes = document.createElement('div'); modes.className = 'hp-modes';
-      s.modes.forEach((m) => {
-        const b = document.createElement('button'); b.type = 'button'; b.className = m === s.state ? 'on' : ''; b.textContent = t(`heat.mode.${m}`) === `heat.mode.${m}` ? m : t(`heat.mode.${m}`);
-        b.addEventListener('click', () => callService(e, 'set_hvac_mode', { hvac_mode: m }));
-        modes.append(b);
-      });
-      card.append(modes);
-    }
-    box.append(card);
-  });
-}
+/* ---- Heating panel: next to the room panel, for the thermostats of the room (live mode); the code lives in heatpanel.js ---- */
+const heat = initHeatPanel({ box: $('#heatPanel'), t, states: () => states, callService, open: () => !!roomPanelFor });
 function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPanel(); }
 
 /* ================= Tools, views, mode ================= */
