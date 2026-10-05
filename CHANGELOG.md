@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.38.1] - 2026-10-05
+### Changed
+- **The language starts on Auto**: the demo (it was fixed to English) and the add-on follow the language of the browser. Settings stored by older versions with a German default that nobody picked are treated as Auto too; once a language is chosen in the settings it stays chosen. New hidden setting `langChosen`.
+
 ## [3.38.0] - 2026-10-05
 ### Added
 - **Power: cables can be picked and deleted**: in the power editor a click on a cable (2D: the line, 3D: the cable or its thick invisible hit tube) selects it; the properties show where it goes, its kind, its route, an optional own sensor and a **Delete cable** button (also the Delete key). The list in the device properties keeps its cross.

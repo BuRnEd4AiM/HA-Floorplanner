@@ -40,6 +40,7 @@ HVAC_MODES = {"off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"}
 LANGUAGES = ("auto", "de", "en", "fr", "es", "it", "nl", "pl")
 DEFAULT_SETTINGS = {
     "language": "auto",        # auto (language of the browser) | de | en | fr | es | it | nl | pl
+    "langChosen": False,       # true once somebody picked a language; until then every start follows the browser (older installs had "de" stored by default)
     "theme": "dark",           # holo | dark | light
     "units": "metric",         # metric | imperial
     "grid": 0.25,              # meters
@@ -513,7 +514,10 @@ async def sync_users_file(request):
 
 
 async def get_settings(request):
-    return web.json_response(validate_settings(read_settings(request)), headers={"ETag": settings_rev(request)})
+    s = validate_settings(read_settings(request))
+    if not s["langChosen"]:
+        s["language"] = "auto"                         # nobody picked a language: follow the browser (also for settings stored before "auto" was the default)
+    return web.json_response(s, headers={"ETag": settings_rev(request)})
 
 
 async def put_settings(request):
@@ -529,6 +533,9 @@ async def put_settings(request):
     if not isinstance(data, dict):
         return web.json_response({"error": "object expected"}, status=400)
     clean = validate_settings(data)
+    clean["langChosen"] = bool(data.get("langChosen")) or "language" in data and data["language"] != "auto" or bool(read_settings(request).get("langChosen"))
+    if not clean["langChosen"]:
+        clean["language"] = "auto"
     backup_settings(request)                       # the previous state stays recoverable
     write_json_atomic(settings_path(request), clean)
     backup_settings(request)
