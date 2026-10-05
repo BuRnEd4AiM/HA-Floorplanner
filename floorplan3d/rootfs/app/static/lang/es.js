@@ -207,6 +207,8 @@ export default {
   'nav.halfTip': 'Cortar los muros a media altura: solo queda la mitad inferior',
   'nav.auto': 'Auto',
   'nav.autoTip': 'Bajar automáticamente las paredes que miran a la cámara',
+  'power.editorOn': 'Editor de energía: coloca un aparato de la biblioteca y con «Cable» haz clic en un aparato eléctrico y luego en el siguiente. Todo lo demás está oculto.',
+  'power.pickPower': 'Eso no es un aparato eléctrico, haz clic en un aparato eléctrico.',
   'dev.houseentry': 'Acometida',
   'dev.fusebox': 'Cuadro eléctrico',
   'dev.battery': 'Batería',

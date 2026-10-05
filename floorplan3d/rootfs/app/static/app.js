@@ -1025,7 +1025,7 @@ function findDevice(id) { for (const f of layout.floors) { const d = f.devices.f
 /** the cable tool: first click a power device, second click another one; the cable runs along the floor, or through the floors when they differ */
 function cableClick(id) {
   const d = findDevice(id);
-  if (!d || !POWER_TYPES.has(d.type)) return;
+  if (!d || !POWER_TYPES.has(d.type)) { setStatus(t('power.pickPower')); return; }
   if (!cableFrom) { cableFrom = id; setStatus(t('power.picked', { a: d.name || t(`dev.${d.type}`) })); selection = { kind: 'device', id }; refreshSelection(); plan?.render(); return; }
   if (cableFrom === id) { cableFrom = null; setStatus(''); plan?.render(); return; }
   const from = findDevice(cableFrom);
@@ -1044,7 +1044,8 @@ function setPowerMode(on) {
   document.body.dataset.power = on ? '1' : '';
   $('#powerEditBtn')?.classList.toggle('active', on);
   $('#cableBtn').hidden = !on;
-  if (on) { paletteCat = 'power'; if (!showPower) { showPower = true; } } else if (tool === 'cable') setTool('select');
+  if (on) { paletteCat = 'power'; showPower = true; if (!POWER_TYPES.has(deviceType)) deviceType = 'fusebox'; setTool('device'); setStatus(t('power.editorOn')); }
+  else if (tool === 'cable' || tool === 'device') setTool('select');
   if (typeof buildPalette === 'function') buildPalette();
   powerSig = ''; updatePower(); plan?.render(); wake();
 }
@@ -2015,6 +2016,19 @@ const stealth = (id) => !!floor()?.devices.find((v) => v.id === id)?.hideModel;
 const deviceOf = (id) => { for (const f of layout.floors) { const d = f.devices.find((v) => v.id === id); if (d) return d; } return null; };
 /** in the live mode only what is linked to something can be tapped (a light, a switch, a TV with a backlight, an LED ring with lights) */
 const tappable = (id) => { const d = deviceOf(id); return !!d && !!(d.entity || d.ledEntity || (d.segs || []).some((s) => s.entity)); };
+/** the power device whose centre is closest to the pointer on screen (within 30 px), for the power editor where the devices are small and close together */
+function nearestPowerDevice(e) {
+  const r = canvas.getBoundingClientRect(), v = new THREE.Vector3();
+  let best = null;
+  registry.forEach((o, id) => {
+    const d = o.userData?.kind === 'device' ? findDevice(id) : null;
+    if (!d || !POWER_TYPES.has(d.type) || !o.visible) return;
+    new THREE.Box3().setFromObject(o).getCenter(v).project(camera);
+    const dist = Math.hypot(r.left + ((v.x + 1) / 2) * r.width - e.clientX, r.top + ((1 - v.y) / 2) * r.height - e.clientY);
+    if (dist < 30 && (!best || dist < best.dist)) best = { dist, data: o.userData, point: o.getWorldPosition(new THREE.Vector3()), distance: dist };
+  });
+  return best;
+}
 function pickHit(e) {
   setRay(e);
   let hits = [];
@@ -2027,6 +2041,10 @@ function pickHit(e) {
     if (o && o.userData.cone && !isLive()) continue;                                              // the cone is only for tapping in live mode
     if (o && o.userData.kind === 'device' && isLive() && (stealth(o.userData.id) || !tappable(o.userData.id))) continue;      // an invisible light, or a thing that is linked to nothing, cannot be tapped
     if (o) hits.push({ data: seg != null ? { ...o.userData, seg } : o.userData, point: h.point, distance: h.distance });   // seg: which LED ring section was tapped
+  }
+  if (powerMode) {                                                    // the power editor: nothing but power devices can be hit; tiny devices are found within a finger's width
+    hits = hits.filter((h) => h.data.kind === 'device');
+    return hits[0] ?? nearestPowerDevice(e);
   }
   // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
   // door/window the door/window wins unless the device is clearly in front of it (> 1.2 m nearer to the camera).

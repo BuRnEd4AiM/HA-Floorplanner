@@ -207,6 +207,8 @@ export default {
   'nav.halfTip': 'Couper les murs à mi-hauteur : seule la moitié basse reste',
   'nav.auto': 'Auto',
   'nav.autoTip': 'Abaisser automatiquement les murs face à la caméra',
+  'power.editorOn': 'Éditeur courant : place un appareil de la bibliothèque, puis avec « Câble » clique un appareil électrique, puis le suivant. Tout le reste est masqué.',
+  'power.pickPower': 'Ce n’est pas un appareil électrique, clique un appareil électrique.',
   'dev.houseentry': 'Raccordement',
   'dev.fusebox': 'Tableau électrique',
   'dev.battery': 'Batterie',

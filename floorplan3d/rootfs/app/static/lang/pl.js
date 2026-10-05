@@ -207,6 +207,8 @@ export default {
   'nav.halfTip': 'Przetnij ściany w połowie wysokości: zostaje tylko dolna część',
   'nav.auto': 'Auto',
   'nav.autoTip': 'Automatycznie obniżaj ściany zwrócone do kamery',
+  'power.editorOn': 'Edytor prądu: wstaw urządzenie z biblioteki, potem „Kablem” kliknij jedno urządzenie prądowe, a potem następne. Reszta jest ukryta.',
+  'power.pickPower': 'To nie jest urządzenie prądowe, kliknij urządzenie prądowe.',
   'dev.houseentry': 'Przyłącze',
   'dev.fusebox': 'Rozdzielnica',
   'dev.battery': 'Magazyn energii',

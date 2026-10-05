@@ -207,6 +207,8 @@ export default {
   'nav.halfTip': 'Muren op halve hoogte doorsnijden: alleen de onderste helft blijft',
   'nav.auto': 'Auto',
   'nav.autoTip': 'Muren richting de camera automatisch verlagen',
+  'power.editorOn': 'Stroomeditor: plaats een apparaat uit de bibliotheek, klik dan met “Kabel” eerst een stroomapparaat en dan het volgende aan. Al het andere is verborgen.',
+  'power.pickPower': 'Dat is geen stroomapparaat, klik een stroomapparaat aan.',
   'dev.houseentry': 'Huisaansluiting',
   'dev.fusebox': 'Meterkast',
   'dev.battery': 'Thuisbatterij',
