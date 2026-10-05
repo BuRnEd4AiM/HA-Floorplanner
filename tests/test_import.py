@@ -320,3 +320,33 @@ async def test_further_roofs_survive_import_and_export(client):
     assert roof["parts"][0]["level"] == 1 and roof["parts"][0]["name"] == "Anbau" and "id" not in roof["parts"][0]
     r2 = await client.post("/api/import?name=Dach3", json=exp)
     assert r2.status == 200, await r2.text()
+
+
+def _prop(devs):
+    return square_flat(rooms=[{"name": "R", "points": [[0, 0], [5, 0], [5, 4], [0, 4]]}], devices=devs)
+
+
+def test_cables_and_kitchen_run_import_and_round_trip():
+    spec = _prop([{"type": "solarpanel", "x": 1, "z": 1, "id": "p", "feeds": "w", "entity": "sensor.pv"},
+                  {"type": "inverter", "x": 2, "z": 1, "id": "w"},
+                  {"type": "kitchenrun", "x": 3, "z": 3, "legs": [["base", "nonsense", "sink"], ["stove"]], "upper": False, "depth": 0.7}])
+    layout, _, rep, _ = importer.build_layout(spec)
+    pv, inv, kit = layout["floors"][0]["devices"]
+    assert pv["feeds"] == inv["id"] and "_key" not in pv and "_feeds" not in pv and "_key" not in inv
+    assert kit["legs"] == [["base", "sink"], ["stove"]] and kit["upper"] is False and kit["depth"] == 0.7
+    back = importer.layout_to_property(layout)
+    bd = back["building"]["floors"][0]["devices"]
+    assert bd[0]["feeds"] == bd[1]["id"] and bd[1]["id"] and bd[2]["legs"] == [["base", "sink"], ["stove"]]
+    assert importer.build_layout(back)[0]["floors"][0]["devices"][0]["feeds"]
+
+
+def test_cable_to_unknown_device_is_dropped_with_a_warning():
+    layout, _, rep, _ = importer.build_layout(_prop([{"type": "inverter", "x": 1, "z": 1, "feeds": "nope"}]))
+    assert "feeds" not in layout["floors"][0]["devices"][0]
+    assert any("cable" in str(w) for w in rep.warnings)
+
+
+def test_kitchen_modules_match_kitchen_js():
+    js = (APP / "static" / "kitchen.js").read_text(encoding="utf-8")
+    mods = re.search(r"MOD_W = \{(.*?)\}", js).group(1)
+    assert tuple(re.findall(r"(\w+):", mods)) == importer.KITCHEN_MODULES

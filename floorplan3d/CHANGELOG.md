@@ -6,6 +6,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.35.0] - 2026-10-05
+### Added
+- **Power add-on, cables (#136)**: a solar panel, inverter or power meter can be wired to another one (*Cable to* in the properties). The cable is drawn in 3D with flowing dots: direction and speed follow the watts of the device's entity (negative flows backwards, kW is converted) and the value is shown on the cable. A **Power** button next to Normal / Temperature / Humidity / CO₂ switches the cables on and off (it only appears when the house has such a device).
+- **Import / export**: devices can carry an `id` and `feeds` (the `id` of another device) so cables survive the round trip; kitchen runs (`legs`, `upper`, `depth`) are part of the format now. Documented in the schema.
+
 ## [3.34.0] - 2026-10-05
 ### Added
 - **Power add-on, first step (#136)**: new devices *Inverter*, *Power meter* and *Solar panel* (category Smart), with a 3D model each, linkable to Home Assistant entities and usable in 2D and 3D like all other devices. Animated cables, watt values and the on/off switch at the bottom follow in a later step.

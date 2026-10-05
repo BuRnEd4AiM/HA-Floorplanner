@@ -818,6 +818,26 @@ with sync_playwright() as p:
     check("power: the library finds the inverter", pgK2.locator("#paletteGrid button.dev").count() == 1)
     pgK2.close()
 
+    # --- power add-on (#136): cable between solar panel and inverter
+    pgW = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgW.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pgW.goto(BASE + "?debug=1&mode=edit"); pgW.wait_for_timeout(1500)
+    pgW.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+      f.devices.push({id: 'pw1', type: 'solarpanel', x: 70, z: 70, y: 0, rot: 0, scale: 1, name: 'PV', entity: 'sensor.pv_test', feeds: 'pw2'},
+                     {id: 'pw2', type: 'inverter', x: 73, z: 70, y: 1.2, rot: 0, scale: 1, name: 'WR', entity: ''});
+      window.__fp.fakeState('sensor.pv_test', '1500'); window.__fp.rebuild(); }""")
+    pgW.wait_for_timeout(600)
+    check("power: the Power button appears once the house has a power device", pgW.is_visible("#powerBtn"))
+    check("power: cables are off until the button is pressed", pgW.evaluate("window.__fp.powerInfo()")["flows"] == [] or not pgW.evaluate("window.__fp.powerInfo()")["shown"])
+    pgW.click("#powerBtn"); pgW.wait_for_timeout(600)
+    pi = pgW.evaluate("window.__fp.powerInfo()")
+    check("power: the button shows one cable with flowing dots and a watt label", pi["shown"] and len(pi["flows"]) == 1 and pi["flows"][0]["active"] and pi["flows"][0]["dir"] == 1 and pi["flows"][0]["dots"] == 8 and pi["labels"] == 1, pi)
+    pgW.evaluate("window.__fp.fakeState('sensor.pv_test', '-300'); window.__fp.rebuild()"); pgW.wait_for_timeout(600)
+    check("power: a negative value runs the dots backwards", pgW.evaluate("window.__fp.powerInfo()")["flows"][0]["dir"] == -1, pgW.evaluate("window.__fp.powerInfo()"))
+    pgW.click("#powerBtn"); pgW.wait_for_timeout(300)
+    check("power: pressing again hides the cables", pgW.evaluate("window.__fp.powerInfo()")["flows"] == [])
+    pgW.close()
+
     # --- narrow wall pieces (#142): the opening shrinks to what is left instead of being refused
     pgN = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgN.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))

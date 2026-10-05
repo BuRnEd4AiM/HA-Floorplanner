@@ -604,6 +604,32 @@
     "inset": {
      "type": "number",
      "description": "Only for type ledring: distance from the room outline in metres (used when it is fitted to the room)."
+    },
+    "id": {
+     "type": "string",
+     "maxLength": 60,
+     "description": "Optional name of this device inside the file, only needed as the target of another device's \"feeds\"."
+    },
+    "feeds": {
+     "type": "string",
+     "maxLength": 60,
+     "description": "Power add-on: the \"id\" of another device in the file this one is wired to with an animated cable (solar panel -> inverter -> meter). The direction follows the sign of the value of \"entity\"."
+    },
+    "legs": {
+     "type": "array",
+     "maxItems": 3,
+     "items": {"type": "array", "maxItems": 16, "items": {"enum": ["base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap"]}},
+     "description": "Only for type kitchenrun: the legs (straight, L, U) of the run, each a list of modules."
+    },
+    "upper": {
+     "type": "boolean",
+     "description": "Only for type kitchenrun: wall cabinets (default true)."
+    },
+    "depth": {
+     "type": "number",
+     "minimum": 0.4,
+     "maximum": 1.2,
+     "description": "Only for type kitchenrun: depth of the cabinets in metres (default 0.6)."
     }
    }
   },
