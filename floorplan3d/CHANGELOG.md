@@ -6,6 +6,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.39.11] - 2026-10-05
+### Changed
+- **Code split, step 11 (#137)**: the library palettes (device types by category and search, your own 3D models) moved out of `app.js` into `palettes.js`, with unit tests.
+### Fixed
+- The search in the library now also finds shipped 3D models whose name has capital letters (the typed text was made lower case, the name was not).
+
 ## [3.39.10] - 2026-10-05
 ### Changed
 - **Code split, step 10 (#137)**: the background image (template to trace) moved out of `app.js` into `background.js`, with unit tests for the calibration and for replacing a picture. No change in behaviour.

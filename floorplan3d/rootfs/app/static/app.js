@@ -20,12 +20,13 @@ import { initFloorRail } from './floorrail.js';
 import { initHouses } from './houses.js';
 import { initSettingsUi } from './settingsui.js';
 import { initBackground, imageSize } from './background.js';
+import { initPalettes } from './palettes.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { planPlacement, classify } from './autoplace.js';
 import { RING_DEFAULT_INSET, ringCount, segEntity, ringEntities, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange } from './ledring.js';
-import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, makeModel, forgetGlb, isCustom } from './models.js';
+import { DEVICE_TYPES, catOf, makeModel, isCustom } from './models.js';
 import {
   OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, MIN_OPENING,
 } from './walls.js';
@@ -80,7 +81,6 @@ function fxRgb(name) {
 }
 const effRgb = (e) => fxRgb(e.fxc) || e.rgb;
 let states = {};                   // entity_id -> { state, unit }
-let customModels = [];
 let lowWalls = false;
 let halfCut = false;                   // half section: every wall is cut at half height, only the lower half stays
 let is2d = false;                  // legacy top-down camera flag (the real 2D editor is plan2d.js)
@@ -968,7 +968,7 @@ const power = initPower({
   plan: () => plan, setStatus: (x) => setStatus(x), uid: () => uid(), snapshot: () => snapshot(), changed: () => changed(), wake: () => wake(),
   clearGroup: (g) => clearGroup(g), textSprite: (...a) => textSprite(...a),
   getTool: () => tool, setTool: (x) => setTool(x), getDeviceType: () => deviceType, setDeviceType: (v) => { deviceType = v; },
-  setPaletteCat: (v) => { paletteCat = v; }, rebuildPalette: () => { if (typeof buildPalette === 'function') buildPalette(); },
+  setPaletteCat: (v) => palettes.setCat(v), rebuildPalette: () => palettes.build(),
   deleteItem: (sel) => deleteItem(sel),
   field: (...a) => field(...a), pickerField: (...a) => pickerField(...a), entityPicker: (...a) => entityPicker(...a), roomAt: (x, z) => roomAt(x, z),
 });
@@ -2893,73 +2893,8 @@ $('#seeToggle').addEventListener('click', () => {
   commitSettings();
 });
 
-/* ================= Palettes: devices, custom models, openings ================= */
-let paletteCat = 'all', paletteQuery = '';
-function buildPalette() {
-  const grid3 = $('#paletteGrid'), cats = $('#paletteCats');
-  cats.innerHTML = '';
-  ['all', ...Object.keys(CATEGORIES)].forEach((k) => {
-    const b = document.createElement('button'); b.type = 'button'; b.textContent = t(`cat.${k}`);
-    b.classList.toggle('active', k === paletteCat);
-    b.addEventListener('click', () => { paletteCat = k; buildPalette(); });
-    cats.append(b);
-  });
-  grid3.innerHTML = '';
-  const q = paletteQuery.trim().toLowerCase();
-  Object.entries(DEVICE_TYPES).filter(([key, def]) => !def.hidden && (paletteCat === 'all' || catOf(key) === paletteCat)
-    && (!q || t(`dev.${key}`).toLowerCase().includes(q) || key.includes(q) || (SEARCH_ALIASES[key] || '').includes(q))).forEach(([key]) => {
-    const b = document.createElement('button'); b.className = 'dev'; b.type = 'button';
-    const url = thumbnail(key);
-    if (url) { const im = document.createElement('img'); im.src = url; im.alt = ''; b.append(im); }
-    const sp = document.createElement('span'); sp.textContent = t(`dev.${key}`); sp.title = t(`dev.${key}`); b.append(sp);
-    b.classList.toggle('active', key === deviceType);
-    b.addEventListener('click', () => { deviceType = key; buildPalette(); renderModelPalette(); });
-    grid3.append(b);
-  });
-  renderModelPalette();
-}
-/* extra search words so the library also finds things under their everyday names */
-const SEARCH_ALIASES = {
-  tv_led: 'led licht ambilight hintergrundlicht fernseher tv indirekt backlight',
-  kitchenrun: 'küchenzeile küche kitchen spüle sink schrank cabinet unterschrank oberschrank',
-  ledring: 'led ring streifen strip indirekt indirect voute cove decke ceiling rundum ringsum abschnitte sections',
-  tv: 'fernseher fernsehen television tele glotze', tv_wall: 'fernseher wandfernseher wand tv fernsehen flachbild', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
-  fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
-  presence: 'person anwesenheit anwesend bewegung bewegungsmelder präsenz praesenz presence motion occupancy mensch',
-  light: 'leuchte lampe', lamp: 'leuchte stehlampe', bed: 'doppelbett', wardrobe: 'schrank kleiderschrank', shelf: 'regal', bookcase: 'bücherregal buecherregal',
-};
-$('#paletteSearch').addEventListener('input', (e) => { paletteQuery = e.target.value; buildPalette(); });
-function renderModelPalette() {
-  const box = $('#modelGrid');
-  box.innerHTML = '';
-  const q = paletteQuery.trim().toLowerCase().replace(/[\s-]+/g, '');
-  const shown = customModels.filter((m) => !m.builtin || !q || m.name.replace(/-/g, '').includes(q));   // the search box also filters the shipped models
-  if (!shown.length) {
-    const n = document.createElement('div'); n.className = 'none'; n.textContent = t('panel.modelsEmpty');
-    box.append(n);
-    return;
-  }
-  shown.forEach((m) => {
-    const b = document.createElement('button');
-    b.className = 'model';
-    b.title = m.name;
-    b.textContent = m.name;
-    b.classList.toggle('active', deviceType === `glb:${m.name}`);
-    if (m.builtin) { b.addEventListener('click', () => { deviceType = `glb:${m.name}`; buildPalette(); }); box.append(b); return; }
-    const x = document.createElement('span'); x.className = 'x'; x.textContent = '×'; x.title = t('panel.delete');
-    x.addEventListener('click', async (ev) => {
-      ev.stopPropagation();
-      if (!confirm(`${t('panel.deleteModel')} (${m.name})`)) return;
-      await fetch(`api/models/${encodeURIComponent(m.name)}`, { method: 'DELETE' });
-      forgetGlb(m.name);
-      if (deviceType === `glb:${m.name}`) deviceType = 'light';
-      await loadModels(); buildPalette();
-    });
-    b.append(x);
-    b.addEventListener('click', () => { deviceType = `glb:${m.name}`; buildPalette(); });
-    box.append(b);
-  });
-}
+/* ================= Palettes: devices, custom models; the code lives in palettes.js ================= */
+const palettes = initPalettes({ $, t, getType: () => deviceType, setType: (k) => { deviceType = k; }, alert: (x) => alert(x) });
 /* ================= Placeholder blocks and stairs ================= */
 /** everything cut out of floor i: stairwell openings plus the floor openings drawn by hand (Bodenöffnung) */
 function floorOpenings(i) {
@@ -3102,23 +3037,6 @@ const bgUi = initBackground({
   imperial: () => imperial(), fromDisp: (v) => fromDisp(v), fmtLen: (m) => fmtLen(m), field: (...a) => field(...a), inp: (...a) => inp(...a), lenInput: (...a) => lenInput(...a), alert: (x) => alert(x),
 });
 
-async function loadModels() {
-  try { customModels = await (await fetch('api/models')).json(); } catch { customModels = []; }
-}
-$('#modelFile').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  e.target.value = '';
-  if (!file) return;
-  const fd = new FormData();
-  fd.append('file', file);
-  try {
-    const r = await fetch('api/models', { method: 'POST', body: fd });
-    if (!r.ok) throw new Error((await r.json()).error || r.status);
-    const m = await r.json();
-    deviceType = `glb:${m.name}`;
-    await loadModels(); buildPalette();
-  } catch (err) { alert(`${t('panel.uploadFailed')}: ${err.message}`); }
-});
 document.querySelectorAll('#openingPalette button').forEach((b) => b.addEventListener('click', () => {
   openingType = b.dataset.opening;
   document.querySelectorAll('#openingPalette button').forEach((x) => x.classList.toggle('active', x === b));
@@ -3711,7 +3629,7 @@ function applySettings(prev = {}) {
   sun.castShadow = settings.shadows && !LOW;
   world.traverse((o) => { if (o.material) o.material.needsUpdate = true; });
   if (prev.grid !== settings.grid || prev.theme !== settings.theme || !grid) rebuildGrid();
-  buildPalette(); fillEntities($('#entitySearch').value); renderProps();
+  palettes.build(); fillEntities($('#entitySearch').value); renderProps();
   $('#hintText').textContent = isLive() ? t('hint.live') : t(`hint.${tool}`);
   updateNavToggles(); buildNav(true);
   applyStates();
@@ -3921,7 +3839,7 @@ async function init() {
   normalizeLayout();
   floorIdx = groundIdx();                                 // start on the ground floor, not in the basement
   hs.renderUi();
-  await loadModels();
+  await palettes.loadModels();
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); bgUi.render(); renderFloorPanel();
   if (params.get('mode') === 'live' || params.get('kiosk') || tabletRoom || !me.canEdit) setMode('live');
