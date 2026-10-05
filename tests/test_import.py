@@ -395,6 +395,28 @@ def test_battery_charge_sensor_survives_import_and_export():
     assert back["batPower"] == "sensor.bat_w" and back["batInvert"] is True
 
 
+# ---------- solar panel field on the roof (#176)
+def test_solar_field_and_mount_survive_import_and_export():
+    spec = _prop([{"type": "solarpanel", "x": 1, "z": 1, "cols": 4, "rows": 2, "mount": "flat"},
+                  {"type": "solarpanel", "x": 5, "z": 1, "cols": 99, "rows": 1, "mount": "sideways"}])
+    layout, _, rep, _ = importer.build_layout(spec)
+    a, b = layout["floors"][0]["devices"]
+    assert a["cols"] == 4 and a["rows"] == 2 and a["mount"] == "flat"
+    assert "cols" not in b and "rows" not in b and "mount" not in b              # 1 is the default, a bad mount means auto
+    assert any("cols" in str(w) for w in rep.warnings)
+    back = importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]
+    assert back["cols"] == 4 and back["rows"] == 2 and back["mount"] == "flat"
+
+
+def test_solar_limits_match_solarroof_js_and_schema():
+    js = (Path(__file__).parent.parent / "floorplan3d" / "rootfs" / "app" / "static" / "solarroof.js").read_text(encoding="utf-8")
+    assert int(re.search(r"MAX_FIELD = (\d+)", js).group(1)) == importer.SOLAR_MAX_FIELD
+    assert re.search(r"MOUNTS = \[([^\]]*)\]", js).group(1).replace("'", "").replace(" ", "").split(",") == list(importer.SOLAR_MOUNTS)
+    schema = json.loads((Path(importer.__file__).parent / "property.schema.json").read_text(encoding="utf-8"))
+    dev = schema["$defs"]["device"]["properties"]
+    assert dev["cols"]["maximum"] == importer.SOLAR_MAX_FIELD and dev["mount"]["enum"] == list(importer.SOLAR_MOUNTS)
+
+
 # ---------- stairs, blocks and floor openings (#191)
 def _stairs_spec(stairs, **floor):
     return {"schemaVersion": 1, "building": {"floors": [{"rooms": [{"name": "A", "points": [[0, 0], [8, 0], [8, 6], [0, 6]]}], "stairs": stairs, **floor}]}}

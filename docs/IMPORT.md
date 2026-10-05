@@ -123,6 +123,9 @@ Unbekannte Typen werden mit Warnung übersprungen. Alle Typen stehen im Schema (
 **Küchenzeile** (`"type": "kitchenrun"`): `legs` = bis zu 3 Schenkel (gerade, L, U), jeder eine Liste von Modulen (`base`, `drawers`, `sink`, `stove`, `dish`, `fridge`, `tall`, `gap`), dazu `upper` (Oberschränke, Standard `true`) und `depth` (0,4 bis 1,2 m).
 `{ "type": "kitchenrun", "x": 3, "z": 2, "legs": [["base","sink","dish","stove","fridge"],["base","base"]], "upper": true }`
 
+**Solarpanel** (`"type": "solarpanel"`): `cols` = Panels nebeneinander, `rows` = Reihen (je 1 bis 12, Standard 1), `mount` = `auto` (Standard: flach auf schrägen Dächern, aufgeständert auf Flachdach und Boden), `flat` oder `stand`. Liegt das Gerät in der Etage vom Typ `roof`, folgt es der Dachfläche darunter.
+`{ "type": "solarpanel", "x": 4, "z": 2, "cols": 4, "rows": 2 }`
+
 **Strom** (`houseentry`, `fusebox`, `powermeter`, `inverter`, `solarpanel`, `battery`, `wallbox`): Kabel verbinden zwei Geräte. Jedes Gerät, das ein Ziel ist oder Kabel hat, bekommt eine `id` (frei wählbar, nur in der Datei gültig), die Kabel stehen als `cables` beim Startgerät: `route` ist `floor` (am Boden entlang, Standard), `through` (durch den Boden in die andere Etage) oder `air`. Die Richtung der fließenden Punkte folgt dem Wert der `entity` (negativ = rückwärts, kW wird umgerechnet). Ziele in einer anderen Etage sind erlaubt.
 `{ "type": "houseentry", "id": "hak", "x": 1, "z": 1, "cables": [{ "to": "zk", "route": "floor" }] }`, `{ "type": "fusebox", "id": "zk", "x": 3, "z": 1, "entity": "sensor.haus_leistung" }`
 

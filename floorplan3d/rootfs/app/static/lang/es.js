@@ -802,4 +802,5 @@ export default {
   'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Humedad', 'vm.co2': 'CO₂',
   'set.bgGlowStrength': 'Intensidad del brillo (0 = off)',
   'dev.presence': 'Presencia / persona', 'nav.occupied': 'Hay alguien en esta habitación',
+  'solar.cols': 'Paneles uno al lado del otro', 'solar.rows': 'Filas', 'solar.mount': 'Montaje', 'solar.mount.auto': 'Automático', 'solar.mount.flat': 'Plano sobre el tejado', 'solar.mount.stand': 'Sobre soporte', 'solar.onRoof': 'Sobre el tejado: la altura y la inclinación siguen la superficie del tejado de debajo. Automático = plano en tejados inclinados, sobre soporte en un tejado plano.', 'solar.roofHint': 'Para ponerlo en el tejado: abrir la planta «Tejado» y colocar allí el panel solar, entonces sigue la pendiente del tejado.',
 };

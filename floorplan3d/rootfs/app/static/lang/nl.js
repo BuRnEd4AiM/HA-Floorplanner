@@ -802,4 +802,5 @@ export default {
   'vm.normal': 'Normaal', 'vm.temp': 'Temp.', 'vm.humid': 'Vocht', 'vm.co2': 'CO₂',
   'set.bgGlowStrength': 'Gloedsterkte (0 = uit)',
   'dev.presence': 'Aanwezigheid / persoon', 'nav.occupied': 'Er is iemand in deze kamer',
+  'solar.cols': 'Panelen naast elkaar', 'solar.rows': 'Rijen', 'solar.mount': 'Montage', 'solar.mount.auto': 'Automatisch', 'solar.mount.flat': 'Plat op het dak', 'solar.mount.stand': 'Op een frame', 'solar.onRoof': 'Ligt op het dak: hoogte en helling volgen het dakvlak eronder. Automatisch = plat op schuine daken, op een frame op een plat dak.', 'solar.roofHint': 'Op het dak leggen: open de verdieping „Dak” en plaats het zonnepaneel daar, het volgt dan de dakhelling.',
 };
