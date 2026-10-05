@@ -1192,7 +1192,7 @@ with sync_playwright() as p:
     pg17.locator("#openList li button", has_text="Sprungfenster").click(); pg17.wait_for_timeout(500)
     check("open list (#215): a tap on an open window flies the camera there like the search", not pg17.locator("#openDialog[open]").count() and near_cam([22, e17 + 1.5, 0], 5.5), pg17.evaluate("window.__fp.cam()"))
     urllib.request.urlopen("http://localhost:8123/_set?e=binary_sensor.rauch&s=off"); pg17.wait_for_timeout(800)
-    pg17.keyboard.press("Escape"); pg17.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.splice(f.walls.findIndex(w => w.id === 'jw'), 1); window.__fp.rebuild(); })()"); pg17.wait_for_timeout(300)
+    pg17.keyboard.press("Escape"); pg17.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.splice(f.walls.findIndex(w => w.id === 'jw'), 1); window.__fp.rebuild(); })()"); pg17.wait_for_timeout(3800)   # the marker ring of the jump is gone again
     urllib.request.urlopen("http://localhost:8123/_set?e=sensor.temp&s=21.5"); pg17.wait_for_timeout(1200)
     check("offline: back online, off the list", not [x for x in pg17.evaluate("window.__fp.offline()") if x["id"] == "offA"])
     mem = [pg17.evaluate("(() => { window.__fp.rebuild(); window.__fp.frame(); return window.__fp.renderer.info.memory.geometries; })()") for _ in range(4)]
