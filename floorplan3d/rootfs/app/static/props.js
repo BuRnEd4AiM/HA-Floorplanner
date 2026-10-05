@@ -5,6 +5,7 @@ import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs
 import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
 import { roomOpenings } from './roompanel.js';
 import { initKitchenUi } from './kitchenui.js';
+import { MOUNTS, MAX_FIELD } from './solarroof.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -212,6 +213,7 @@ export function initProps(ctx) {
     }
     if (it.type === 'ledring') ringProps(body, it);
     if (it.type === 'kitchenrun') kitchenProps(body, it);
+    if (it.type === 'solarpanel') solarProps(body, it);
     if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), ctx.entityPicker(pickFrom(entities), ctx.roomAt(it.x, it.z), it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
     if (it.type === 'camera') {                                  // #69: field of view cone on the floor
@@ -225,6 +227,19 @@ export function initProps(ctx) {
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();
+  }
+
+  /** Solar panels (#176): a field of columns x rows; on the roof floor it lies on the roof surface, or stands on a rack */
+  function solarProps(body, it) {
+    const count = (k) => inp('number', it[k] || 1, (v) => { const n = Math.max(1, Math.min(MAX_FIELD, Math.round(+v) || 1)); if (n > 1) it[k] = n; else delete it[k]; }, { min: 1, max: MAX_FIELD, step: 1, id: `solar_${k}` });
+    body.append(field(t('solar.cols'), count('cols')), field(t('solar.rows'), count('rows')));
+    const ms = document.createElement('select'); ms.id = 'solarMount';
+    MOUNTS.forEach((m) => ms.add(new Option(t(`solar.mount.${m}`), m)));
+    ms.value = it.mount || 'auto';
+    ms.addEventListener('change', () => { ctx.snapshot(); if (ms.value === 'auto') delete it.mount; else it.mount = ms.value; ctx.changed(); });
+    body.append(field(t('solar.mount'), ms));
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t(ctx.floor()?.kind === 'roof' ? 'solar.onRoof' : 'solar.roofHint');
+    body.append(hp);
   }
 
   /** LED ring properties: closed or open, distance to the walls, refit to the room, one light per section */

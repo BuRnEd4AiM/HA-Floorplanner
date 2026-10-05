@@ -52,6 +52,8 @@ STAIR_TYPES = ("straight", "L", "U", "spiral", "wall")           # same as STAIR
 STAIR_MAX_FLOORS = 6                                              # MAX_FLOORS in static/stairs.js
 STAIR_TREAD = (0.1, 0.45)                                         # MIN_TREAD / MAX_TREAD in static/stairs.js
 MAX_STAIR_POINTS = 30
+SOLAR_MAX_FIELD = 12                                              # MAX_FIELD in static/solarroof.js
+SOLAR_MOUNTS = ("auto", "flat", "stand")                          # MOUNTS in static/solarroof.js
 MAX_PER_FLOOR = 100                                               # stairs, blocks and floor openings per floor
 KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap")   # same as MOD_W in static/kitchen.js (checked by a test)
 
@@ -298,6 +300,16 @@ def _device(rep: Report, path: str, spec, ids):
         d["upper"] = spec.get("upper") is not False
         if _num(spec.get("depth"), 0.4, 1.2):
             d["depth"] = float(spec["depth"])
+    if typ == "solarpanel":                              # a field of panels (#176), same limits as static/solarroof.js
+        for k in ("cols", "rows"):
+            if k in spec:
+                if isinstance(spec[k], (int, float)) and not isinstance(spec[k], bool) and 1 <= spec[k] <= SOLAR_MAX_FIELD:
+                    if int(round(spec[k])) > 1:
+                        d[k] = int(round(spec[k]))
+                else:
+                    rep.warn(f"{path}.{k}", f"{k} must be a whole number from 1 to {SOLAR_MAX_FIELD}: ignored")
+        if spec.get("mount") in SOLAR_MOUNTS and spec["mount"] != "auto":
+            d["mount"] = spec["mount"]
     if typ == "ledring":
         pts = [[float(q[0]), float(q[1])] for q in (spec.get("pts") or [])[:200]
                if isinstance(q, (list, tuple)) and len(q) == 2 and _num(q[0], -COORD_LIMIT, COORD_LIMIT) and _num(q[1], -COORD_LIMIT, COORD_LIMIT)]
@@ -826,7 +838,7 @@ def layout_to_property(layout, name="Haus"):
             item["walls"].append(ow)
         item["devices"] = []
         for d in f.get("devices", []):
-            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth") if k in d and d[k] not in (None, "")}
+            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
             cs = cables_of(d)
             if cs or d["id"] in feeding:
                 od["id"] = d["id"]

@@ -3,6 +3,7 @@ import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
 import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
 import { ringSections, piecesLocal, pointAt } from './ledring.js';
 import { kitchenLayout } from './kitchen.js';
+import { solarField, PANEL } from './solarroof.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -513,11 +514,7 @@ Object.assign(builders, {
   powermeter(g) {              // electricity meter: grey housing, glass window with a display
     const led = glowMat(0x7fd8ff); g.userData.glow = [led];
     g.add(box(0.22, 0.3, 0.11, std('#d7dbe0'), 0, 0, 0)); g.add(box(0.16, 0.07, 0.01, led, 0, 0.06, 0.058)); g.add(box(0.16, 0.1, 0.012, std('#3b4048'), 0, -0.07, 0.058)); },
-  solarpanel(g) {              // a framed dark panel on a stand, tilted to the sun
-    const p = new THREE.Group(); p.rotation.x = -0.5; p.position.set(0, 0.55, 0);
-    p.add(box(1.0, 0.04, 1.65, std('#cfd3d8'), 0, 0, 0)); p.add(box(0.94, 0.045, 1.59, std('#1d2d54', { roughness: 0.25, metalness: 0.4 }), 0, 0, 0));
-    for (let i = 1; i < 3; i++) p.add(box(0.94, 0.05, 0.012, std('#9fb0d0'), 0, 0, -0.795 + i * 0.53));
-    g.add(p); g.add(box(0.06, 0.55, 0.06, std('#9aa0a6'), 0, 0.275, 0.2)); },
+  solarpanel(g) { solarPanels(g, null, 'stand'); },
   houseentry(g) {              // house connection: a post with a cable head and a lead going into the ground
     g.add(box(0.3, 0.7, 0.2, std('#8d949c'), 0, 0.35, 0)); g.add(box(0.34, 0.06, 0.24, std('#5d646c'), 0, 0.73, 0));
     g.add(cyl(0.03, 0.03, 0.3, std('#222'), 0, 0.15, 0.13, 8)); },
@@ -602,7 +599,7 @@ export function isCustom(type) { return typeof type === 'string' && type.startsW
 
 /** Build a device model. For custom models a placeholder is shown until the GLB has loaded;
  *  `onReady` is called afterwards so the caller can refresh shadows/selection helpers. */
-export function makeModel(type, onReady, dev) {
+export function makeModel(type, onReady, dev, opts) {
   const g = new THREE.Group();
   if (isCustom(type)) {
     const ph = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5),
@@ -621,9 +618,28 @@ export function makeModel(type, onReady, dev) {
   if (type === 'nanoleaf') { nanoleaf(g, dev); return g; }
   if (type === 'ledring') { ledRing(g, dev); return g; }
   if (type === 'kitchenrun') { kitchenRun(g, dev); return g; }
+  if (type === 'solarpanel') { const m = opts?.mount || 'stand'; solarPanels(g, dev, m); if (m === 'stand') centreOnFootprint(g); return g; }
   (builders[type] || builders.sensor)(g);
   centreOnFootprint(g);
   return g;
+}
+/** Solar panels (#176): one panel or a field (rows x columns, see solarField), on stands tilted to the sun
+ *  or lying flat on rails (on a sloped roof the whole model is tilted onto the roof surface by the caller). */
+function solarPanels(g, dev, mount) {
+  const F = solarField(dev), frame = std('#cfd3d8'), cell = std('#1d2d54', { roughness: 0.25, metalness: 0.4 }), line = std('#9fb0d0'), steel = std('#9aa0a6');
+  const panel = (p) => {
+    p.add(box(PANEL.w, 0.04, PANEL.d, frame, 0, 0, 0)); p.add(box(PANEL.w - 0.06, 0.045, PANEL.d - 0.06, cell, 0, 0, 0));
+    for (let i = 1; i < 3; i++) p.add(box(PANEL.w - 0.06, 0.05, 0.012, line, 0, 0, -0.795 + i * 0.53));
+  };
+  F.cells.forEach((c) => {
+    const p = new THREE.Group();
+    if (mount === 'flat') { p.position.set(c.x, 0.04, c.z); panel(p); g.add(p); return; }
+    p.rotation.x = -0.5; p.position.set(c.x, 0.55, c.z); panel(p);
+    g.add(p); g.add(box(0.06, 0.55, 0.06, steel, c.x, 0.275, c.z + 0.2));
+  });
+  if (mount === 'flat') for (let r = 0; r < F.rows; r++) [-0.5, 0.5].forEach((k) => {                       // two mounting rails under every row
+    g.add(box(F.w, 0.04, 0.04, steel, 0, 0, -F.d / 2 + PANEL.d / 2 + r * (PANEL.d + PANEL.gap) + k * PANEL.d * 0.6));
+  });
 }
 /** Kitchen run (#124): modules in a line, an L or a U. Local frame of a module: x along the run, z towards the room (front), the back at -z. */
 function kitchenRun(g, dev) {

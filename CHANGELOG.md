@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.41.0] - 2026-10-05
+### Added
+- **Solar panels on the roof (#176)**: a solar panel placed on the roof floor now lies on the roof itself: its height and slope follow the roof surface below it (gable, hip, flat roof and further roofs), also while it is moved. On a flat roof it stands on racks. New fields in the properties: panels side by side and rows (a field of up to 12 x 12 panels) and the mounting (automatic, flat on the roof, on a rack). The roof maths is in the new module `solarroof.js` with unit tests; import and export keep `cols`, `rows` and `mount`.
+
 ## [3.40.8] - 2026-10-05
 ### Fixed
 - **Power editor stays on (#174)**: in the power editor the other devices (lamps, furniture ...) came back after a few seconds, because the next state update made every device visible again. They now stay hidden until the editor is switched off, also after the scene is rebuilt. The power button below keeps its state the same way. Browser tests guard both.

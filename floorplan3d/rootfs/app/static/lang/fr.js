@@ -802,4 +802,5 @@ export default {
   'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Humidité', 'vm.co2': 'CO₂',
   'set.bgGlowStrength': 'Intensité de la lueur (0 = off)',
   'dev.presence': 'Présence / personne', 'nav.occupied': 'Quelqu\'un est dans cette pièce',
+  'solar.cols': 'Panneaux côte à côte', 'solar.rows': 'Rangées', 'solar.mount': 'Montage', 'solar.mount.auto': 'Automatique', 'solar.mount.flat': 'À plat sur le toit', 'solar.mount.stand': 'Sur support', 'solar.onRoof': 'Posé sur le toit : la hauteur et l’inclinaison suivent la surface du toit en dessous. Automatique = à plat sur les toits en pente, sur support sur un toit plat.', 'solar.roofHint': 'Pour le poser sur le toit : ouvrir l’étage « Toit » et y placer le panneau solaire, il suit alors la pente du toit.',
 };

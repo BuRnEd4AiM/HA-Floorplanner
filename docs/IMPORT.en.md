@@ -121,6 +121,9 @@ Unknown types are skipped with a warning. All types are listed in the schema (`/
 **Kitchen run** (`"type": "kitchenrun"`): `legs` = up to 3 legs (straight, L, U), each a list of modules (`base`, `drawers`, `sink`, `stove`, `dish`, `fridge`, `tall`, `gap`), plus `upper` (wall cabinets, default `true`) and `depth` (0.4 to 1.2 m).
 `{ "type": "kitchenrun", "x": 3, "z": 2, "legs": [["base","sink","dish","stove","fridge"],["base","base"]], "upper": true }`
 
+**Solar panel** (`"type": "solarpanel"`): `cols` = panels side by side, `rows` = rows (each 1 to 12, default 1), `mount` = `auto` (default: flat on sloped roofs, on a rack on a flat roof and the ground), `flat` or `stand`. When the device is on the floor of kind `roof`, it follows the roof surface below it.
+`{ "type": "solarpanel", "x": 4, "z": 2, "cols": 4, "rows": 2 }`
+
 **Power** (`houseentry`, `fusebox`, `powermeter`, `inverter`, `solarpanel`, `battery`, `wallbox`): cables join two devices. Every device that is a target or has cables gets an `id` (free choice, only valid inside the file); the cables are listed at the starting device as `cables`: `route` is `floor` (along the floor, default), `through` (through the floor to another storey) or `air`. The flow direction of the dots follows the value of the `entity` (negative = backwards, kW is converted). Targets on another floor are allowed.
 `{ "type": "houseentry", "id": "hak", "x": 1, "z": 1, "cables": [{ "to": "zk", "route": "floor" }] }`, `{ "type": "fusebox", "id": "zk", "x": 3, "z": 1, "entity": "sensor.house_power" }`
 

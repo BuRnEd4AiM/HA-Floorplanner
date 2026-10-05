@@ -1482,6 +1482,38 @@ with sync_playwright() as p:
     view_menu(pgM); pgM.click("#autoToggle"); pgM.wait_for_timeout(900)
     check("see-through: switching Auto on switches see-through off", pgM.evaluate("window.__fp.settings().cutaway") is True and pgM.evaluate("window.__fp.settings().seeThrough") is False and "active" not in (pgM.get_attribute("#seeToggle", "class") or ""))
     pgM.close()
+    # --- solar panels on the roof (#176): on the roof floor a panel lies on the roof surface, follows its slope, a field of rows x columns
+    pgSol = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgSol.goto(BASE + "?debug=1&mode=edit"); pgSol.wait_for_timeout(2500)
+    sol_saved = api_admin("api/layout")
+    sol = pgSol.evaluate("""() => { const fp = window.__fp; fp.addRoofForTest(); const ri = fp.layout.floors.length - 1, f = fp.layout.floors[ri], rb = fp.roofBox(ri);
+      f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }; const alongX = rb.x1 - rb.x0 >= rb.z1 - rb.z0;
+      const x = alongX ? (rb.x0 + rb.x1) / 2 : rb.x0 + (rb.x1 - rb.x0) * 0.25, z = alongX ? rb.z0 + (rb.z1 - rb.z0) * 0.25 : (rb.z0 + rb.z1) / 2;
+      f.devices.push({ id: 'solTest', type: 'solarpanel', x, z, y: 0, rot: 0, scale: 1, name: '', entity: '' }); fp.switchFloor(ri); return { ri, x, z, alongX, rb }; }""")
+    pgSol.wait_for_timeout(800)
+    base = pgSol.evaluate(f"window.__fp.elev({sol['ri']})")
+    p1 = pgSol.evaluate("window.__fp.devPose('solTest')")
+    check("solar on roof: the panel lies on the sloped roof (lifted onto it, tilted with the slope, no stand)", p1 and p1["mount"] == "flat" and p1["y"] - base > 0.3 and p1["n"][1] < 0.9 and abs(p1["n"][1] - 0.819) < 0.02, (p1, base))
+    pgSol.evaluate("window.__fp.moveDevice('solTest', %s, %s)" % ((sol["x"], sol["rb"]["z0"] + 0.1) if sol["alongX"] else (sol["rb"]["x0"] + 0.1, sol["z"])))
+    pgSol.wait_for_timeout(300)
+    p2 = pgSol.evaluate("window.__fp.devPose('solTest')")
+    check("solar on roof: moved towards the eaves it follows the roof down", p2 and p2["y"] < p1["y"] - 0.3, (p1, p2))
+    pgSol.evaluate("() => { const f = window.__fp.layout.floors.at(-1); const d = f.devices.find(v => v.id === 'solTest'); d.cols = 3; d.rows = 2; window.__fp.rebuild(); }"); pgSol.wait_for_timeout(500)
+    p3 = pgSol.evaluate("window.__fp.devPose('solTest')")
+    check("solar on roof: a field of 3 x 2 panels is about 3 m wide", p3 and max(p3["size"]) > 2.9, p3)
+    pgSol.evaluate("() => { window.__fp.layout.floors.at(-1).roof.type = 'flat'; window.__fp.rebuild(); }"); pgSol.wait_for_timeout(500)
+    p4 = pgSol.evaluate("window.__fp.devPose('solTest')")
+    check("solar on roof: on a flat roof the panels stand on racks on top of it", p4 and p4["mount"] == "stand" and abs(p4["y"] - base - 0.1) < 0.02 and p4["n"][1] > 0.99, (p4, base))
+    pgSol.click("#view2d"); pgSol.wait_for_timeout(600)
+    d = pgSol.evaluate("(() => { const d = window.__fp.layout.floors.at(-1).devices.find(v => v.id === 'solTest'); return [d.x, d.z]; })()")
+    c = pgSol.evaluate(f"window.__fp.plan().toClient({d[0]},{d[1]})"); pgSol.mouse.click(*c); pgSol.wait_for_timeout(400)
+    check("solar on roof: the panel shows fields for columns, rows and mounting", pgSol.locator("#solar_cols").count() == 1 and pgSol.locator("#solarMount").count() == 1)
+    if pgSol.locator("#solarMount").count():
+        pgSol.select_option("#solarMount", "flat"); pgSol.wait_for_timeout(500)
+        check("solar on roof: choosing 'flat' keeps it flat on the roof", pgSol.evaluate("window.__fp.layout.floors.at(-1).devices.find(v => v.id === 'solTest').mount") == "flat" and pgSol.evaluate("window.__fp.devPose('solTest')")["mount"] == "flat")
+    pgSol.wait_for_timeout(2500)                                  # the autosave has run: put the layout back as it was for the next tests
+    pgSol.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", sol_saved); pgSol.wait_for_timeout(400)
+    pgSol.close()
     set_setting("seeThrough", False); set_setting("cutaway", True)
     pgR = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgR.goto(BASE + "?debug=1&mode=live"); pgR.wait_for_timeout(2500)

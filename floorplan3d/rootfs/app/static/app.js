@@ -49,6 +49,7 @@ import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { dormerParts } from './dormer.js';
+import { roofFrame, solarPose } from './solarroof.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
 
 /* ================= State ================= */
@@ -474,12 +475,7 @@ function buildRailing(g, room, f, holo, ghost) {
 }
 /** roof surface as triangles; pitch in degrees, ridge along the longer side unless set */
 function roofGeometry(bb, r) {
-  const o = r.overhang ?? 0.4, x0 = bb.x0 - o, x1 = bb.x1 + o, z0 = bb.z0 - o, z1 = bb.z1 + o;
-  const alongX = r.ridge ? r.ridge === 'x' : (x1 - x0) >= (z1 - z0);
-  const [a0, a1, b0, b1] = alongX ? [x0, x1, z0, z1] : [z0, z1, x0, x1];   // a = ridge axis, b = across
-  const half = (b1 - b0) / 2, bc = (b0 + b1) / 2;
-  const h = r.type === 'flat' ? 0.15 : half * Math.tan(((r.pitch ?? 35) * Math.PI) / 180);
-  const ins = r.type === 'hip' ? Math.min(half, (a1 - a0) / 2) : 0;
+  const { alongX, a0, a1, b0, b1, bc, h, ins } = roofFrame(bb, r);       // a = ridge axis, b = across (shared with the solar panels on the roof)
   const P = (a, b, y) => (alongX ? [a, y, b] : [b, y, a]);
   const tris = [];
   const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
@@ -532,16 +528,28 @@ function partBox(p) {
   const b = p?.box;
   return b && [b.x0, b.x1, b.z0, b.z1].every(Number.isFinite) && b.x1 > b.x0 && b.z1 > b.z0 ? { x0: b.x0, x1: b.x1, z0: b.z0, z1: b.z1 } : null;
 }
-function buildRoof(g, i, f, holo, ghost) {
+/** the roofs of roof floor i: the main one and further roofs, each with its base box and lift (also where solar panels lie, #176) */
+function roofList(i) {
+  const f = layout.floors[i], out = [];
+  if (f?.kind !== 'roof') return out;
   const bb = roofBox(i);
-  if (bb) drawRoof(g, bb, f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }), 0, 'main', holo, ghost);
+  if (bb) out.push({ bb, spec: f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }), y0: 0, tag: 'main' });
   (f.roof?.parts || []).forEach((p) => {                                  // further roofs: an annex with its own roof, on the floor it stands on
     const pb = partBox(p);
     if (!pb) return;
     const lv = layout.floors.findIndex((x) => x.id === p.level);
-    const y0 = lv >= 0 && layout.floors[lv].kind !== 'roof' ? elev(lv + 1) - elev(i) : 0;
-    drawRoof(g, pb, p, y0, p.id || 'part', holo, ghost);
+    out.push({ bb: pb, spec: p, y0: lv >= 0 && layout.floors[lv].kind !== 'roof' ? elev(lv + 1) - elev(i) : 0, tag: p.id || 'part' });
   });
+  return out;
+}
+function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost)); }
+/** a solar panel on the roof floor lies on the roof surface (#176): height and tilt follow the roof under it */
+function placeSolar(model, d, roofs) {
+  const sol = solarPose(d, roofs);
+  model.position.y = (d.y ?? 0) + sol.y;
+  const deg = THREE.MathUtils.degToRad;
+  model.rotation.x = sol.tilt ? sol.tilt.tiltX : deg(d.tiltX || 0); model.rotation.z = sol.tilt ? sol.tilt.tiltZ : deg(d.tiltZ || 0);
+  return sol;
 }
 const roofs = [];                  // roofs that thin out when the camera comes close
 function updateRoofFade() {
@@ -595,6 +603,7 @@ function build() {
     world.add(g);
     const holes = floorOpenings(i);
     if (f.kind === 'roof' && !iso) buildRoof(g, i, f, holo, ghost);
+    const roofsHere = f.kind === 'roof' ? roofList(i) : null;
 
     f.rooms.forEach((r) => {
       if (r.points.length < 3) return;
@@ -711,11 +720,13 @@ function build() {
 
     f.devices.forEach((d) => {
       if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
-      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (GROUND_COVER.has(d.type)) underFloors(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d);
+      const onRoof = roofsHere && d.type === 'solarpanel' ? solarPose(d, roofsHere) : null;
+      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (GROUND_COVER.has(d.type)) underFloors(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d, onRoof || undefined);
       if (d.type === 'picture') setPicture(model, d);
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
       model.rotation.set(THREE.MathUtils.degToRad(d.tiltX || 0), THREE.MathUtils.degToRad(d.rot || 0), THREE.MathUtils.degToRad(d.tiltZ || 0));
+      if (onRoof) { placeSolar(model, d, roofsHere); model.userData.onRoof = onRoof.mount; }
       model.scale.set((d.scale || 1) * (d.sx || 1), (d.scale || 1) * (d.sy || 1), (d.scale || 1) * (d.sz || 1));   // uniform size x independent stretch per axis
       if (d.mirror) model.scale.x *= -1;                              // mirrored shape (left-right)
       if (!ghost) addPickProxy(model);
@@ -1973,6 +1984,7 @@ function focusRoom(id) {
 function liveMove(d) {
   const obj = registry.get(d.id);
   if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
+  if (obj?.userData.onRoof) placeSolar(obj, d, roofList(floorIdx));   // follows the roof while it is moved (the mount itself changes on the next build)
   const sp = labelSprites.get(d.id);
   if (sp) sp.position.set(d.x, sp.position.y, d.z);
   cams.cones.get(d.id)?.mesh.position.set(d.x, 0, d.z);          // the field of view of a camera moves with it
@@ -2384,6 +2396,7 @@ if (params.get('debug')) {
     stateOf: (e) => states[e]?.state,
     fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),
+    devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), sz = new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)] }; },
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
       const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');
       if (!pos) return null;
