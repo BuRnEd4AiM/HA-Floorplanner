@@ -6,6 +6,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.42.0] - 2026-10-05
+### Added
+- **Water, gas and heat meters (#136)**: three new devices in the library (category Smart home next to the sensors, the search also finds them under „Zähler“ / „meter“): water meter on its pipe, gas meter and heat meter with a red and a blue pipe. Linked to a sensor they show the reading as a badge with their own sign: 🚰 1234.6 m³, 🔥 845.2 m³, ♨ 5321 kWh.
+### Changed
+- The texts of the value badges moved out of `app.js` into `badgetext.js` (with unit tests); sensors with the device class water, gas or energy get a sign too.
+
 ## [3.41.0] - 2026-10-05
 ### Added
 - **Solar panels on the roof (#176)**: a solar panel placed on the roof floor now lies on the roof itself: its height and slope follow the roof surface below it (gable, hip, flat roof and further roofs), also while it is moved. On a flat roof it stands on racks. New fields in the properties: panels side by side and rows (a field of up to 12 x 12 panels) and the mounting (automatic, flat on the roof, on a rack). The roof maths is in the new module `solarroof.js` with unit tests; import and export keep `cols`, `rows` and `mount`.

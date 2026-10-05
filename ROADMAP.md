@@ -40,6 +40,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ⬜ Version pill shows "New version available" by itself (check every 5 minutes in the edit mode) ([#140](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/140))
 - ⬜ Doors and windows can be placed even in very short wall pieces where there is no room, so very narrow windows work ([#142](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/142))
 - ⬜ Power add-on: inverter, meters, solar panels and animated cables with consumption, switched on and off from the bottom bar ([#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136))
+  - ✅ Water, gas and heat meters with their reading as a badge (3.42.0)
   - Small steps: first meters, inverter and battery with value badges, then solar panels (on the roof, free-standing, on walls; rows and columns, kWp, sensor per field), then animated cables with the on/off button at the bottom
   - Separate sensors (grid import / export, battery charging / discharging) and a button to flip the sign of a sensor that counts the wrong way
   - Setup checklist ("what is missing?") and a one-click *Take over from the Home Assistant energy dashboard*

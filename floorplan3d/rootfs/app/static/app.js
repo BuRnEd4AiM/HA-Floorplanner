@@ -50,6 +50,7 @@ import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { dormerParts } from './dormer.js';
 import { roofFrame, solarPose } from './solarroof.js';
+import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
 
 /* ================= State ================= */
@@ -776,26 +777,9 @@ function build() {
 const isOnNow = (e) => { const s = states[e]; if (!s) return false; if (e.startsWith('climate.') && s.hvac) return s.hvac === 'heating' || s.hvac === 'cooling'; return ON_STATES.has(s.state); };
 const ON_STATES = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'unlocked', 'home']);
 
-/** Short text for the badge on a device: "21.4 °C", "95 W", "70 %" (cover), the app on a TV ... */
-function labelText(entityId) {
-  const s = states[entityId];
-  if (!s) return '—';
-  if (s.state === 'unavailable') return t('off.unavailable');
-  const dom = entityId.split('.')[0], num = parseFloat(s.state);
-  const icon = { temperature: '🌡 ', humidity: '💧 ', power: '⚡ ', carbon_dioxide: 'CO₂ ', illuminance: '☀ ', battery: '🔋 ' }[s.dc] || (s.unit === 'W' ? '⚡ ' : '');
-  if (dom === 'climate') return typeof s.ct === 'number' ? `🌡 ${Math.round(s.ct * 10) / 10} °C` : s.state;
-  if (dom === 'cover') return typeof s.position === 'number' ? `↕ ${s.position} %` : s.state;
-  if (dom === 'light') return s.state !== 'on' ? t('live.off') : s.brightness != null ? `💡 ${s.brightness} %` : t('live.on');
-  if (dom === 'media_player') return s.state === 'off' ? t('live.off') : `▶ ${s.app || s.state}`;
-  if (dom === 'sensor' && !isNaN(num) && /^-?[\d.]+$/.test(s.state)) return `${icon}${Math.round(num * 10) / 10}${s.unit ? ' ' + s.unit : ''}`;
-  return stateText(entityId);
-}
-function stateText(entityId) {
-  const s = states[entityId];
-  if (!s) return '—';
-  if (s.state === 'unavailable') return t('off.unavailable');
-  return s.unit ? `${s.state} ${s.unit}` : s.state;
-}
+/** texts for the value badges and state lines (badgetext.js) */
+function labelText(entityId, type) { return badgeText(states[entityId], entityId, t, type); }
+function stateText(entityId) { return plainStateText(states[entityId], t); }
 
 /* ---- power add-on (#136): cables, power editor, energy overview; the code lives in power.js and powerlogic.js ---- */
 const power = initPower({
@@ -980,7 +964,7 @@ function applyStates() {
       obj.visible = !obj.userData.cutHidden && !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on)      // a person who is not there is not drawn in live mode
         && !power.hides(d.id);                                  // the power editor shows nothing but the power things (#174: the next state update brought them all back)          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       const sp = labelSprites.get(d.id);
-      if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity), isHolo() && states[d.entity]?.unit === 'W'); }
+      if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W'); }
     });
   }
   buildNav();                             // room pills show a dot while somebody is in the room
@@ -1322,7 +1306,7 @@ function ringAt(x, z, inset = RING_DEFAULT_INSET) {
 const deviceEntities = (d) => (d?.type === 'ledring' ? ringEntities(d) : d?.entity ? [d.entity] : []);
 /* wall-hung devices: pictures, mirrors, panels, radiators ... */
 const LED_LIKE = { strip: 1, tv_led: 1, nanoleaf: 1, panel_tri: 1, panel_hex: 1, panel_sq: 1, panel_bar: 1, orb: 1 };
-const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'inverter', 'powermeter', 'fusebox', 'wallbox']);
+const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'inverter', 'powermeter', 'fusebox', 'wallbox', 'gasmeter', 'heatmeter']);
 /** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces) */
 function snapToWall(d, maxDist = 2, keepFacing = false) {
   const rooms = floor().rooms;
@@ -2396,6 +2380,7 @@ if (params.get('debug')) {
     stateOf: (e) => states[e]?.state,
     fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),
+    badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), sz = new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)] }; },
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
       const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');

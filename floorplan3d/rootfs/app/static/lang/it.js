@@ -803,4 +803,5 @@ export default {
   'set.bgGlowStrength': 'Intensità del bagliore (0 = off)',
   'dev.presence': 'Presenza / persona', 'nav.occupied': 'Qualcuno è in questa stanza',
   'solar.cols': 'Pannelli affiancati', 'solar.rows': 'File', 'solar.mount': 'Montaggio', 'solar.mount.auto': 'Automatico', 'solar.mount.flat': 'Piatto sul tetto', 'solar.mount.stand': 'Su supporto', 'solar.onRoof': 'Sul tetto: altezza e inclinazione seguono la superficie del tetto sottostante. Automatico = piatto sui tetti inclinati, su supporto su un tetto piano.', 'solar.roofHint': 'Per metterlo sul tetto: aprire il piano «Tetto» e posizionarvi il pannello solare, che seguirà la pendenza del tetto.',
+  'dev.watermeter': 'Contatore dell’acqua', 'dev.gasmeter': 'Contatore del gas', 'dev.heatmeter': 'Contatore di calore',
 };

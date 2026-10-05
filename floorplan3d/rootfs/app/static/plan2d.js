@@ -36,7 +36,7 @@ const FOOT = {
 };
 const GLYPH = { light: '✦', lamp: '✦', orb: '●', strip: '', switch: '◧', sensor: '◉', thermostat: '≋', tv: '▭', plant: '❀', bed: '', sofa: '' };
 FOOT.inverter = { w: 0.45, d: 0.16 }; FOOT.powermeter = { w: 0.22, d: 0.11 }; FOOT.fusebox = { w: 0.5, d: 0.18 }; FOOT.houseentry = { w: 0.3, d: 0.2 };
-FOOT.battery = { w: 0.6, d: 0.22 }; FOOT.wallbox = { w: 0.25, d: 0.12 }; FOOT.solarpanel = { w: 1.0, d: 1.55 };      // power things: the real size, not the 0.8 m default box
+FOOT.battery = { w: 0.6, d: 0.22 }; FOOT.wallbox = { w: 0.25, d: 0.12 }; FOOT.solarpanel = { w: 1.0, d: 1.55 }; FOOT.watermeter = { w: 0.34, d: 0.11 }; FOOT.gasmeter = { w: 0.33, d: 0.2 }; FOOT.heatmeter = { w: 0.12, d: 0.08 };      // power things: the real size, not the 0.8 m default box
 const DEFAULT_FOOT = { w: 0.8, d: 0.8 };
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
