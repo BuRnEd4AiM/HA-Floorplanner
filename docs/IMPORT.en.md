@@ -116,11 +116,17 @@ Can be overridden: `width`, `height`, `sill`, `style`, `entity` (e.g. a window s
 ### Devices and furniture
 
 `{ "type": "sofa", "x": 2, "z": 3, "y": 0, "rot": 180, "scale": 1, "name": "...", "entity": "light.xyz" }`
-Unknown types are skipped with a warning. All types are listed in the schema (`/api/import/schema`), among them lights (`light`, `spot`, `strip`, `pendant`, `nanoleaf`, `tv_led`), furniture (`sofa`, `bed`, `kitchen`, ...), sensors and garden objects (`tree`, `lawn`, `pool`, `fence`, `terrace`). More fields: `ledEntity`, `hideModel`, `panels` (Nanoleaf).
+Unknown types are skipped with a warning. All types are listed in the schema (`/api/import/schema`), among them lights (`light`, `spot`, `strip`, `pendant`, `nanoleaf`, `tv_led`), furniture (`sofa`, `bed`, `kitchen`, ...), sensors and garden objects (`tree`, `lawn`, `pool`, `fence`, `terrace`). More fields: `ledEntity`, `hideModel`, `panels` (Nanoleaf), `pts` / `closed` / `segs` / `inset` (LED ring).
+
+**Kitchen run** (`"type": "kitchenrun"`): `legs` = up to 3 legs (straight, L, U), each a list of modules (`base`, `drawers`, `sink`, `stove`, `dish`, `fridge`, `tall`, `gap`), plus `upper` (wall cabinets, default `true`) and `depth` (0.4 to 1.2 m).
+`{ "type": "kitchenrun", "x": 3, "z": 2, "legs": [["base","sink","dish","stove","fridge"],["base","base"]], "upper": true }`
+
+**Power** (`houseentry`, `fusebox`, `powermeter`, `inverter`, `solarpanel`, `battery`, `wallbox`): cables join two devices. Every device that is a target or has cables gets an `id` (free choice, only valid inside the file); the cables are listed at the starting device as `cables`: `route` is `floor` (along the floor, default), `through` (through the floor to another storey) or `air`. The flow direction of the dots follows the value of the `entity` (negative = backwards, kW is converted). Targets on another floor are allowed.
+`{ "type": "houseentry", "id": "hak", "x": 1, "z": 1, "cables": [{ "to": "zk", "route": "floor" }] }`, `{ "type": "fusebox", "id": "zk", "x": 3, "z": 1, "entity": "sensor.house_power" }`
 
 ### Floors
 
-The order does not matter: basements come first, attic / roof last. The roof shape is set in `building.roof` (or in a floor with `"kind": "roof"`). Garden objects from `plot.objects` are placed on the first floor that is not a basement.
+The order does not matter: basements come first, attic / roof last. The roof shape is set in `building.roof` (or in a floor with `"kind": "roof"`). **Further roofs** (e.g. an annex with a flat roof): `"roof": { "type": "gable", "parts": [{ "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "type": "flat", "level": 0, "name": "Annex" }] }`, up to 8; `level` is the index of the floor in `building.floors` the roof sits on (without it: on top of the house), plus `pitch`, `overhang`, `dormers`. Garden objects from `plot.objects` are placed on the first floor that is not a basement.
 
 ## API
 
