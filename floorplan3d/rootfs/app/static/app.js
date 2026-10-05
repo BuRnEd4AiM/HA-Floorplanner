@@ -8,7 +8,6 @@ import { initAlertsUi } from './alertsui.js';
 import { initSearch } from './search.js';
 import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
-import { initHeatPanel } from './heatpanel.js';
 import { initPower } from './power.js';
 import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
@@ -23,6 +22,9 @@ import { initBackground, imageSize } from './background.js';
 import { initPalettes } from './palettes.js';
 import { floorOpenings as floorOpeningsOf, floorShapes, initBlocks } from './blocks.js';
 import { initStairTool } from './stairtool.js';
+import { initLiveControls } from './livecontrols.js';
+import { initLivePopup } from './livepopup.js';
+import { initRoomPanel, roomOpenings, roomOpeningSpans } from './roompanel.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -35,7 +37,7 @@ import {
 import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
-import { detectRooms } from './rooms.js';
+import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { dormerParts, DORMER_DEFAULT, DORMER_TYPES } from './dormer.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
 
@@ -91,8 +93,6 @@ let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null, view: 'all' };
 let lastStateSig = '';
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
-let livePopupFor = null;           // device id
-let livePopupSeg = null;           // LED ring: the section that was tapped
 const undoStack = [];
 let saveTimer = null;
 
@@ -510,16 +510,6 @@ function holoify(model, ghost) {
   }
 }
 
-function distToPoly(x, z, pts) {
-  let best = Infinity;
-  for (let i = 0; i < pts.length; i++) {
-    const [ax, az] = pts[i], [bx, bz] = pts[(i + 1) % pts.length];
-    const dx = bx - ax, dz = bz - az, l2 = dx * dx + dz * dz || 1;
-    const k = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / l2));
-    best = Math.min(best, Math.hypot(x - (ax + k * dx), z - (az + k * dz)));
-  }
-  return best;
-}
 /** Isolation: while a room is focused only that room, its walls and its devices are drawn. */
 const ISO_TOL = 0.3;
 function isolatedRoom() { return focusedRoom ? floor()?.rooms.find((r) => r.id === focusedRoom) ?? null : null; }
@@ -1245,8 +1235,8 @@ function applyStates() {
       if (wash) { fillLights(wash.material, lights, k); wash.visible = lights.length > 0; }
     });
   }
-  if (livePopupFor) renderLivePopup();
-  if (roomPanelFor && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) renderRoomPanel();   // (renders the heating panel too)
+  if (popup.current()) popup.render();
+  if (roomPanel.current() && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) roomPanel.render();   // (renders the heating panel too)
 }
 
 /* ---- Offline devices: the code lives in offline.js ---- */
@@ -1260,11 +1250,11 @@ const offline = initOffline({
 const alertsUi = initAlertsUi({
   $, t, layout: () => layout, entities: () => entities, settings: () => settings, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
   openingEntities: (o) => openingEntities(o), build: () => build(), isLive: () => isLive(), houseMode: () => houseMode, floorIdx: () => floorIdx,
-  switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => openRoomPanel(id), kioskTouched: () => kiosk.touched(),
+  switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => roomPanel.open(id), kioskTouched: () => kiosk.touched(),
 });
 const search = initSearch({
   $, t, layout: () => layout, entities: () => entities, pointInPoly: (...a) => pointInPoly(...a), houseMode: () => houseMode, floorIdx: () => floorIdx,
-  switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom, openRoomPanel: (id) => openRoomPanel(id),
+  switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom, openRoomPanel: (id) => roomPanel.open(id),
   isLive: () => isLive(), liveSelect: (h) => liveSelect(h), elev: (i) => elev(i), scene, camera, controls,
   selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); }, wake: () => wake(),
 });
@@ -1272,9 +1262,9 @@ const search = initSearch({
 /* ================= Wall tablet (#61): the code lives in kiosk.js ================= */
 const kiosk = initKiosk({
   $, controls, settings: () => settings, states: () => states, isLive: () => isLive(),
-  closeLivePopup: () => closeLivePopup(), closeRoomPanel: () => closeRoomPanel(), closeSearch: () => search.close(),
+  closeLivePopup: () => popup.close(), closeRoomPanel: () => roomPanel.close(), closeSearch: () => search.close(),
   tabletRoom: () => tabletRoom, findRoomByName: (n) => findRoomByName(n), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom,
-  openRoomPanel: (id) => openRoomPanel(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
+  openRoomPanel: (id) => roomPanel.open(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
 });
 
 function refreshSelHelper() {
@@ -1901,7 +1891,7 @@ window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
   if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole' || tool === 'stairs')) { plan.finishRoom(); return; }
-  if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); return; }
+  if (k === 'escape') { plan?.cancel(); endDrawing(); popup.close(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
   else if (k === 'delete' || k === 'backspace') { if (selection) { snapshot(); deleteItem(selection); } }
@@ -1927,212 +1917,41 @@ window.addEventListener('keydown', (e) => {
   else if (k === 'd') setTool('device');
 });
 
-/* ================= Live control ================= */
-const ACTIONS = {
-  light: ['turn_on', 'turn_off', 'toggle'], switch: ['turn_on', 'turn_off', 'toggle'],
-  fan: ['turn_on', 'turn_off', 'toggle'], input_boolean: ['turn_on', 'turn_off', 'toggle'],
-  cover: ['open_cover', 'close_cover', 'stop_cover'], lock: ['lock', 'unlock'],
-  scene: ['turn_on'], script: ['turn_on'],
-};
-const ACTION_LABEL = {
-  turn_on: 'live.on', turn_off: 'live.off', toggle: 'live.toggle', open_cover: 'live.open',
-  close_cover: 'live.close', stop_cover: 'live.stop', lock: 'live.lock', unlock: 'live.unlock',
-};
-
-async function callService(entityId, service, data) {
-  const domain = entityId.split('.')[0];
-  const svc = domain === 'scene' || domain === 'script' ? 'turn_on' : service;   // (set_temperature / set_hvac_mode pass through)
-  try {
-    const r = await fetch('api/service', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ domain, service: svc, entity_id: entityId, ...(data ? { data } : {}) }) });
-    if (!r.ok) throw new Error(String(r.status));
-  } catch { setStatus(t('live.failed')); return; }
-  if (!liveOk) setTimeout(pollStates, 400);             // with the live channel the new state arrives by itself
-}
-function quickAction(entityId) {
-  const acts = ACTIONS[entityId.split('.')[0]];
-  if (!acts) return;
-  callService(entityId, acts.includes('toggle') ? 'toggle' : acts[0]);
-}
-
+/* ================= Live control: the code lives in livecontrols.js (switching, light controls, scenes), livepopup.js and roompanel.js ================= */
+const live = initLiveControls({
+  t, states: () => states, entities: () => entities, areas: () => areas, floor: () => floor(), entityDevices: (f) => entityDevices(f), pointInPoly,
+  onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveOk) setTimeout(pollStates, 400); },   // with the live channel the new state arrives by itself
+  canEdit: () => me.canEdit, settings: () => settings, saveEffectColors: () => saveEffectColors(), canMoreInfo, openMoreInfo,
+});
+const popup = initLivePopup({
+  $, t, live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), cams,
+  settings: () => settings, pointInPoly, states: () => states, onStates: ON_STATES,
+});
+const roomPanel = initRoomPanel({
+  $, t, live, floor: () => floor(), states: () => states, entities: () => entities, areas: () => areas, entityDevices: (f) => entityDevices(f), pointInPoly,
+  onStates: ON_STATES, imperial: () => imperial(), stateText: (id) => stateText(id), cams, settings: () => settings,
+  openings: { entities: (o) => openingEntities(o), kind: (o) => openKind(o), KINDS: OPEN_KINDS, pane: (o, i) => paneEntity(o, i), isOpen: (e) => isOpen(e), text: (e) => openText(e) },
+  closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
+});
 function handleLiveTap(e) { liveSelect(pick(e)); }
 function liveSelect(h) {
-  if (h?.kind === 'device' || h?.kind === 'opening') { livePopupFor = h.id; livePopupSeg = h.seg ?? null; renderLivePopup(); }
+  if (h?.kind === 'device' || h?.kind === 'opening') popup.show(h.id, h.seg ?? null);
   else if (h?.kind === 'room') {
-    closeLivePopup();
+    popup.close();
     if (focusedRoom === h.id) { leaveRoomView(); return; }                      // a second tap into the same room: back to the view before
     if (focusedRoom === null) roomBackView = { room: h.id, house: houseMode, floor: floorIdx, pos: camera.position.clone(), target: controls.target.clone() };
-    focusRoom(h.id); openRoomPanel(h.id);
+    focusRoom(h.id); roomPanel.open(h.id);
   }
-  else closeLivePopup();
+  else popup.close();
 }
 function leaveRoomView() {
   const back = roomBackView && roomBackView.room === focusedRoom ? roomBackView : null;
   roomBackView = null;
-  closeRoomPanel();
+  roomPanel.close();
   if (!back) { focusRoom(null); return; }
   if (back.house) setHouseMode(true); else if (floorIdx !== back.floor || houseMode) switchFloor(back.floor); else focusRoom(null);
   camera.position.copy(back.pos); controls.target.copy(back.target); controls.update();
 }
-function closeLivePopup() { livePopupFor = null; $('#livePopup').hidden = true; }
-function renderLivePopup() {
-  const box = $('#livePopup');
-  let d = floor()?.devices.find((v) => v.id === livePopupFor);
-  if (!d) {                                          // a door/window with a contact sensor
-    const fo = findOpening(livePopupFor);
-    if (fo) d = { name: fo.opening.name || t(`prop.${fo.opening.type}`), entity: fo.opening.entity, isOpening: true };
-  }
-  if (!d) { closeLivePopup(); return; }
-  box.hidden = false;
-  box.innerHTML = '';
-  if (d.type === 'ledring') { ringPopup(box, d); return; }
-  const title = document.createElement('div'); title.className = 'title'; title.textContent = d.name || '';
-  const sub = document.createElement('div'); sub.className = 'sub';
-  sub.textContent = d.entity ? `${d.isOpening ? openText(d.entity) : stateText(d.entity)} · ${d.entity}` : t('live.noEntity');
-  const mi = detailsButton(d.entity);
-  if (mi) title.append(mi);
-  box.append(title, sub);
-  if (d.type === 'camera') {                                  // #69: still image (renewed every few seconds), a second tap opens Home Assistant's live view
-    if (d.motionEntity) { const mo = document.createElement('div'); mo.className = 'sub'; mo.textContent = cams.motion(d) ? t('cam.motionOn') : t('cam.motionOff'); box.append(mo); }
-    if (d.entity?.startsWith('camera.') && settings.cameraImages) box.append(cams.camImage(d.entity, 'pop-cam'));
-  }
-  const acts = d.entity ? ACTIONS[d.entity.split('.')[0]] : null;
-  if (acts) {
-    const row = document.createElement('div'); row.className = 'actions';
-    (d.entity.startsWith('scene.') || d.entity.startsWith('script.') ? ['turn_on'] : acts).forEach((a) => {
-      const b = document.createElement('button');
-      b.textContent = d.entity.match(/^(scene|script)\./) ? t('live.activate') : t(ACTION_LABEL[a]);
-      b.addEventListener('click', () => callService(d.entity, a));
-      row.append(b);
-    });
-    box.append(row);
-  }
-  if (d.entity && d.entity.startsWith('light.') && !d.isOpening) {
-    box.append(lightControls([d.entity]));
-    const sc = sceneButtons(scenesWith([d.entity]), 'live.sceneWith');   // scenes this light is part of
-    if (sc) box.append(sc);
-  }
-  if (d.entity && /^(light|scene)\./.test(d.entity) && !d.isOpening) {          // the whole room this device is in
-    const rm = floor().rooms.find((r) => pointInPoly(d.x, d.z, r.points));
-    const rc = rm && roomControls(rm);
-    if (rc) box.append(rc);
-  }
-}
-
-/** small button that opens Home Assistant's own dialog for the entity (history, logbook, settings); null outside the HA frontend */
-function detailsButton(entityId, compact = false) {
-  if (!entityId || !canMoreInfo()) return null;
-  const b = document.createElement('button'); b.type = 'button'; b.className = compact ? 'rp-more mi' : 'mi';
-  b.textContent = compact ? 'ⓘ' : `ⓘ ${t('live.details')}`; b.title = t('live.detailsHint');
-  b.addEventListener('click', (ev) => { ev.stopPropagation(); openMoreInfo(entityId); });
-  return b;
-}
-/** LED ring in live mode: one button per section, the tapped section's own controls, then the whole ring */
-function ringPopup(box, d) {
-  const n = ringCount(d), all = ringEntities(d), isOnE = (e) => !!e && ON_STATES.has(states[e]?.state);
-  const div = (cls, txt) => { const x = document.createElement('div'); x.className = cls; if (txt != null) x.textContent = txt; return x; };
-  const on = Array.from({ length: n }, (_, i) => isOnE(segEntity(d, i))).filter(Boolean).length;
-  const title = div('title', d.name || t('dev.ledring')), mi = detailsButton(d.entity);
-  if (mi) title.append(mi);
-  box.append(title, div('sub', all.length ? t('ring.summary', { on, n }) : t('live.noEntity')));
-  if (!all.length) return;
-  const row = div('actions ringSegs');
-  for (let i = 0; i < n; i++) {
-    const e = segEntity(d, i), b = document.createElement('button');
-    b.textContent = String(i + 1); b.title = e || t('live.noEntity');
-    b.classList.toggle('on', isOnE(e)); b.classList.toggle('sel', livePopupSeg === i);
-    const c = isOnE(e) ? (Array.isArray(states[e]?.rgb) ? states[e].rgb : [255, 210, 122]) : null;
-    if (c) b.style.setProperty('--seg', `rgb(${c[0]},${c[1]},${c[2]})`);      // a lit section shows its colour
-    b.disabled = !e;
-    b.addEventListener('click', () => { livePopupSeg = livePopupSeg === i ? null : i; renderLivePopup(); });
-    row.append(b);
-  }
-  box.append(row);
-  const e = livePopupSeg != null && livePopupSeg < n ? segEntity(d, livePopupSeg) : '';
-  if (e) {
-    const h = document.createElement('h4'); h.textContent = t('ring.section', { n: livePopupSeg + 1 });
-    const r = div('actions');
-    [['turn_on', 'live.on'], ['turn_off', 'live.off']].forEach(([svc, k]) => {
-      const b = document.createElement('button'); b.textContent = t(k);
-      b.addEventListener('click', () => callService(e, svc));
-      r.append(b);
-    });
-    const smi = detailsButton(e);
-    if (smi) h.append(smi);
-    box.append(h, div('sub', `${stateText(e)} · ${e}`), r);
-    if (e.startsWith('light.')) box.append(lightControls([e]));
-  }
-  if (all.length > 1 || !e) {
-    const h = document.createElement('h4'); h.textContent = t('ring.whole');
-    const r = div('actions');
-    [['turn_on', 'live.allOn'], ['turn_off', 'live.allOff']].forEach(([svc, k]) => {
-      const b = document.createElement('button'); b.textContent = t(k);
-      b.addEventListener('click', () => all.forEach((id) => callService(id, svc)));
-      r.append(b);
-    });
-    box.append(h, r);
-    const lights = all.filter((id) => id.startsWith('light.'));
-    if (lights.length) box.append(lightControls(lights));
-  }
-}
-
-const COLOR_PRESETS = ['#ff3b30', '#ff9500', '#ffd60a', '#34c759', '#23e0ff', '#0a84ff', '#bf5af2', '#ff2d92'];
-const hexToRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-const rgbToHex = (c) => '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
-function lightControls(ids) {              // one light, or all lights of a room
-  const list = [].concat(ids);
-  const sts = list.map((id) => states[id] || {});
-  const st = sts.find((x) => ON_STATES.has(x.state)) || sts[0] || {};
-  const all = (svc, data) => list.forEach((id) => callService(id, svc, data));
-  const wrap = document.createElement('div'); wrap.className = 'lightctl';
-  const lbl = (k) => { const s = document.createElement('div'); s.className = 'sub'; s.textContent = t(k); return s; };
-  if (sts.some((x) => x.brightness != null)) {
-    const r = document.createElement('input'); r.type = 'range'; r.min = 1; r.max = 100; r.value = st.brightness ?? 100;
-    r.addEventListener('change', () => all('turn_on', { brightness_pct: +r.value }));
-    wrap.append(lbl('live.brightness'), r);
-  }
-  wrap.append(lbl('live.color'));
-  const sw = document.createElement('div'); sw.className = 'swatches';
-  const setRgb = (c) => all('turn_on', { rgb_color: c });
-  COLOR_PRESETS.forEach((h) => {
-    const b = document.createElement('button'); b.className = 'sw'; b.style.background = h; b.title = h;
-    b.addEventListener('click', () => setRgb(hexToRgb(h)));
-    sw.append(b);
-  });
-  const pick = document.createElement('input'); pick.type = 'color'; pick.className = 'sw-pick';
-  pick.value = Array.isArray(st.rgb) ? rgbToHex(st.rgb) : '#ffd9a0';
-  pick.addEventListener('change', () => setRgb(hexToRgb(pick.value)));
-  sw.append(pick);
-  wrap.append(sw);
-  const wr = document.createElement('div'); wr.className = 'actions';
-  [['live.warm', 2700], ['live.cold', 6500]].forEach(([k, kel]) => {
-    const b = document.createElement('button'); b.textContent = t(k);
-    b.addEventListener('click', () => all('turn_on', { color_temp_kelvin: kel }));
-    wr.append(b);
-  });
-  wrap.append(wr);
-  const fx = sts.map((x) => x.fx || []).reduce((acc, cur) => acc.filter((e) => cur.includes(e)));   // effects (Nanoleaf, WLED, Hue ...) all lights have
-  if (fx.length) {
-    const sel = document.createElement('select'); sel.className = 'fxsel';
-    sel.add(new Option(t('live.effect'), ''));
-    fx.forEach((e) => sel.add(new Option(e, e)));
-    if (list.length === 1 && st.fxc && fx.includes(st.fxc)) sel.value = st.fxc;
-    sel.addEventListener('change', () => { if (sel.value) all('turn_on', { effect: sel.value }); });
-    wrap.append(lbl('live.effects'), sel);
-    if (list.length === 1 && st.fxc && fx.includes(st.fxc) && me.canEdit) {          // what the effect looks like is not known to HA: let the editor say
-      const row = document.createElement('div'); row.className = 'actions';
-      const cp = document.createElement('input'); cp.type = 'color'; cp.className = 'sw-pick'; cp.title = t('live.fxColorHint');
-      cp.value = Array.isArray(st.rgb) ? rgbToHex(st.rgb) : '#aa50ff';
-      cp.addEventListener('change', () => { settings.effectColors = { ...(settings.effectColors || {}), [st.fxc]: cp.value }; saveEffectColors(); });
-      const rs = document.createElement('button'); rs.textContent = '↺'; rs.title = t('live.fxColorReset');
-      rs.addEventListener('click', () => { const c = { ...(settings.effectColors || {}) }; delete c[st.fxc]; settings.effectColors = c; saveEffectColors(); });
-      const tx = document.createElement('span'); tx.className = 'sub'; tx.textContent = t('live.fxColor').replace('{fx}', st.fxc);
-      row.append(cp, rs, tx); wrap.append(row);
-    }
-  }
-  return wrap;
-}
-
 async function saveEffectColors() {
   Object.values(states).forEach((v) => { v.rgb = fxRgb(v.fxc) || v.rgbRaw; });
   applyStates();
@@ -2141,92 +1960,6 @@ async function saveEffectColors() {
     if (r.ok) { settingsEtag = r.headers.get('ETag'); }
     else if (r.status === 409) { alert(t('set.changedElsewhere')); location.reload(); }
   } catch { /* offline */ }
-}
-/** scenes (scene.*) that set at least one of these entities */
-function scenesWith(ids) {
-  const set = new Set(ids);
-  return Object.entries(states).filter(([id, st]) => id.startsWith('scene.') && (st.members || []).some((m) => set.has(m))).map(([id]) => id);
-}
-function sceneButtons(ids, labelKey) {
-  if (!ids.length) return null;
-  const wrap = document.createElement('div'); wrap.className = 'sceneList';
-  const sh = document.createElement('div'); sh.className = 'sub'; sh.textContent = t(labelKey); wrap.append(sh);
-  const row = document.createElement('div'); row.className = 'scenes';
-  ids.forEach((id) => {
-    const b = document.createElement('button'); b.textContent = entities.find((e) => e.entity_id === id)?.name || id;
-    b.addEventListener('click', () => callService(id, 'turn_on'));
-    row.append(b);
-  });
-  wrap.append(row);
-  return wrap;
-}
-
-/* ---- whole room: all lights at once + the room's scenes ---- */
-function roomEntityIds(room, domain) {
-  const f = floor();
-  const ids = new Set(entityDevices(f).filter((d) => d.entity?.startsWith(`${domain}.`) && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
-  (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []).filter((id) => id.startsWith(`${domain}.`)).forEach((id) => ids.add(id));
-  return [...ids].filter((id) => states[id]);
-}
-function roomControls(room) {
-  const lights = roomEntityIds(room, 'light'), scenes = [...new Set([...roomEntityIds(room, 'scene'), ...scenesWith(roomEntityIds(room, 'light'))])];
-  if (!lights.length && !scenes.length) return null;
-  const wrap = document.createElement('div'); wrap.className = 'roomctl';
-  const h = document.createElement('h4'); h.textContent = t('rc.title', { n: room.name || '' }); wrap.append(h);
-  if (lights.length) {
-    const on = lights.filter((id) => ON_STATES.has(states[id]?.state)).length;
-    const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = t('rc.lights', { on, n: lights.length }); wrap.append(sub);
-    const row = document.createElement('div'); row.className = 'actions';
-    [['turn_on', 'live.allOn'], ['turn_off', 'live.allOff']].forEach(([svc, k]) => {
-      const b = document.createElement('button'); b.textContent = t(k);
-      b.addEventListener('click', () => lights.forEach((id) => callService(id, svc)));
-      row.append(b);
-    });
-    wrap.append(row, lightControls(lights));
-  }
-  if (scenes.length) {
-    const sh = document.createElement('div'); sh.className = 'sub'; sh.textContent = t('rc.scenes'); wrap.append(sh);
-    const row = document.createElement('div'); row.className = 'scenes';
-    scenes.forEach((id) => {
-      const b = document.createElement('button'); b.textContent = entities.find((e) => e.entity_id === id)?.name || id;
-      b.addEventListener('click', () => callService(id, 'turn_on'));
-      row.append(b);
-    });
-    wrap.append(row);
-  }
-  return wrap;
-}
-
-/* ---- Room panel: all entities of a room, grouped, with brightness / position sliders ---- */
-let roomPanelFor = null;
-const polyArea = (p) => Math.abs(p.reduce((s, [x, z], i) => { const [x2, z2] = p[(i + 1) % p.length]; return s + x * z2 - x2 * z; }, 0)) / 2;
-const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['climate', 'rp.climate'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['camera', 'rp.camera'], ['sensor', 'rp.sensor'], ['scene', 'rp.scene']];
-const rpGroupOf = (dom) => (dom === 'binary_sensor' ? 'sensor' : dom === 'fan' || dom === 'input_boolean' ? 'switch' : dom === 'script' ? 'scene' : dom);
-
-/** the text on a row of the room panel */
-function rpValue(id) {
-  const s = states[id], dom = id.split('.')[0];
-  if (dom === 'climate' && s && typeof s.ct === 'number') return `🌡 ${Math.round(s.ct * 10) / 10} °C · ${s.state}`;
-  return stateText(id);
-}
-
-function roomOpenings(room, f) {
-  const out = [];
-  f.walls.forEach((w) => (w.openings || []).forEach((o) => {
-    const L = wallLength(w) || 1, k = o.pos / L;
-    if (distToPoly(w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k, room.points) < 0.35) out.push(o);
-  }));
-  return out;
-}
-/** doors / windows on the room's walls with their span in floor coordinates (for automatic placement) */
-function roomOpeningSpans(room, f) {
-  return f.walls.flatMap((w) => {
-    const L = wallLength(w) || 1, ux = (w.b[0] - w.a[0]) / L, uz = (w.b[1] - w.a[1]) / L;
-    return (w.openings || []).filter((o) => roomOpenings(room, f).includes(o)).map((o) => ({
-      id: o.id, type: o.type, entity: o.entity || '',
-      a: [w.a[0] + ux * (o.pos - o.width / 2), w.a[1] + uz * (o.pos - o.width / 2)], b: [w.a[0] + ux * (o.pos + o.width / 2), w.a[1] + uz * (o.pos + o.width / 2)],
-    }));
-  });
 }
 const entityInfo = (id) => entities.find((e) => e.entity_id === id) || { entity_id: id, domain: id.split('.')[0] };
 /** put the given entities into the room where they belong (see autoplace.js); one undo step; returns the plan */
@@ -2248,128 +1981,6 @@ function autoPlace(room, ids) {
   changed();
   return plan;
 }
-function closeRoomPanel() { roomPanelFor = null; $('#roomPanel').hidden = true; $('#heatPanel').hidden = true; }
-const rpOpenCtl = new Set();               // lights whose colour / effect / scene controls are unfolded in the room panel
-function renderRoomPanel() {
-  const box = $('#roomPanel');
-  const room = floor()?.rooms.find((r) => r.id === roomPanelFor);
-  if (!room) { closeRoomPanel(); return; }
-  box.hidden = false;
-  box.replaceChildren();
-  const head = document.createElement('div'); head.className = 'rp-head';
-  const title = document.createElement('b'); title.textContent = room.name || '';
-  const x = document.createElement('button'); x.className = 'rp-x'; x.textContent = '×'; x.addEventListener('click', () => { closeRoomPanel(); if (focusedRoom) focusRoom(null); });
-  head.append(title, x);
-  const area = document.createElement('div'); area.className = 'sub';
-  area.textContent = imperial() ? `${(polyArea(room.points) * 10.7639).toFixed(0)} ft²` : `${polyArea(room.points).toFixed(1)} m²`;
-  box.append(head, area);
-  const rc = roomControls(room);
-  if (rc) box.append(rc);
-  const seen = new Set();                                    // one row per entity (an LED ring's sections may share one light)
-  const devs = entityDevices(floor()).filter((d) => d.entity && pointInPoly(d.x, d.z, room.points) && !seen.has(d.entity) && seen.add(d.entity));
-  const placedIds = new Set(entityDevices(floor()).map((d) => d.entity));
-  const inRp = (id) => RP_GROUPS.some(([g]) => g === rpGroupOf(id.split('.')[0]));
-  const extra = (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : [])
-    .filter((id) => !placedIds.has(id) && states[id] && inRp(id))
-    .map((id) => ({ entity: id, name: entities.find((e) => e.entity_id === id)?.name || id }));
-  devs.push(...extra);
-  heat.render(devs.filter((d) => d.entity.startsWith('climate.')));
-  RP_GROUPS.forEach(([group, key]) => {
-    if (group === 'climate') return;                          // thermostats have their own panel next to this one
-    const list = devs.filter((d) => rpGroupOf(d.entity.split('.')[0]) === group);
-    if (!list.length) return;
-    const h = document.createElement('h4'); h.textContent = t(key); box.append(h);
-    if (group === 'light') {                                   // all lights of the room off in one tap
-      const on = list.filter((d) => ON_STATES.has(states[d.entity]?.state));
-      if (on.length) {
-        const off = document.createElement('button'); off.type = 'button'; off.className = 'rp-alloff'; off.textContent = t('rp.allOff');
-        off.addEventListener('click', () => on.forEach((d) => callService(d.entity, 'turn_off')));
-        h.append(off);
-      }
-    }
-    list.forEach((d) => {
-      const dom = d.entity.split('.')[0], st = states[d.entity];
-      const row = document.createElement('div');
-      row.className = 'row' + (st && ON_STATES.has(st.state) ? ' on' : '');
-      const n = document.createElement('span'); n.className = 'n'; n.textContent = d.name || d.entity;
-      const v = document.createElement('span'); v.className = 'v'; v.textContent = rpValue(d.entity);
-      row.append(n, v);
-      if (ACTIONS[dom] && dom !== 'cover') {
-        if (ACTIONS[dom].includes('toggle') && dom !== 'scene' && dom !== 'script') {          // a slide switch like on a phone
-          const sw = document.createElement('label'); sw.className = 'sw'; sw.title = t('live.toggle');
-          const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!st && ON_STATES.has(st.state);
-          cb.addEventListener('change', () => callService(d.entity, cb.checked ? 'turn_on' : 'turn_off'));
-          sw.append(cb, document.createElement('span'));
-          row.append(sw);
-        } else {
-          const b = document.createElement('button');
-          b.textContent = dom === 'scene' || dom === 'script' ? t('live.activate') : t('live.toggle');
-          b.addEventListener('click', () => quickAction(d.entity));
-          row.append(b);
-        }
-      }
-      if (dom === 'camera' && settings.cameraImages) row.append(cams.camImage(d.entity));
-      const slider = (val, onChange) => {
-        const r = document.createElement('input'); r.type = 'range'; r.min = 0; r.max = 100; r.value = val ?? 0;
-        r.addEventListener('change', () => onChange(+r.value));
-        row.append(r);
-      };
-      const rmi = detailsButton(d.entity, true);
-      if (rmi) row.append(rmi);
-      if (dom === 'light') {                   // colours, effects and scenes right here: overlapping models are hard to tap in 3D
-        const open = rpOpenCtl.has(d.entity);
-        const tb = document.createElement('button'); tb.className = 'rp-more' + (open ? ' on' : ''); tb.textContent = '🎨'; tb.title = t('rp.lightMore');
-        tb.addEventListener('click', () => { open ? rpOpenCtl.delete(d.entity) : rpOpenCtl.add(d.entity); renderRoomPanel(); });
-        row.append(tb);
-        if (open) {
-          const ctl = document.createElement('div'); ctl.className = 'rp-ctl';
-          ctl.append(lightControls([d.entity]));
-          const sc = sceneButtons(scenesWith([d.entity]), 'live.sceneWith'); if (sc) ctl.append(sc);
-          row.append(ctl);
-        }
-      }
-      if (dom === 'light' && st?.brightness != null && !rpOpenCtl.has(d.entity)) slider(st.brightness, (p) => callService(d.entity, 'turn_on', { brightness_pct: p }));
-      if (dom === 'cover') {
-        ['open_cover', 'stop_cover', 'close_cover'].forEach((a) => {
-          const b = document.createElement('button'); b.textContent = t(ACTION_LABEL[a]);
-          b.addEventListener('click', () => callService(d.entity, a)); row.append(b);
-        });
-        if (st?.position != null) slider(st.position, (p) => callService(d.entity, 'set_cover_position', { position: p }));
-      }
-      box.append(row);
-    });
-  });
-  const ops = roomOpenings(room, floor()).filter((o) => openingEntities(o).length);
-  OPEN_KINDS.forEach((kind) => {                             // doors, gates (garage door ...) and windows, each under its own heading
-    const list = ops.filter((o) => openKind(o) === kind);
-    if (!list.length) return;
-    const h = document.createElement('h4'); h.textContent = t(`rp.${kind}`); box.append(h);
-    list.forEach((o) => {
-      const multi = o.paneEntities?.some(Boolean);
-      const count = multi ? (o.style === 'triple' ? 3 : 2) : 1;
-      for (let i = 0; i < count; i++) {
-        const e = multi ? paneEntity(o, i) : o.entity;
-        if (!e) continue;
-        const row = document.createElement('div');
-        row.className = 'row' + (isOpen(e) ? ' alert' : '');
-        const n = document.createElement('span'); n.className = 'n'; n.textContent = (o.name || t(`prop.${o.type}`)) + (multi ? ` · ${t('pane.n', { n: i + 1 })}` : '');
-        const v = document.createElement('span'); v.className = 'v'; v.textContent = openText(e);
-        row.append(n, v);
-        if (e.startsWith('cover.')) {                          // a garage door or shutter-like opening can be driven from here
-          ['open_cover', 'stop_cover', 'close_cover'].forEach((act) => {
-            const b = document.createElement('button'); b.textContent = t(ACTION_LABEL[act]);
-            b.addEventListener('click', () => callService(e, act)); row.append(b);
-          });
-        }
-        box.append(row);
-      }
-    });
-  });
-  if (!devs.length && !ops.length) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('rp.empty'); box.append(e); }
-}
-/* ---- Heating panel: next to the room panel, for the thermostats of the room (live mode); the code lives in heatpanel.js ---- */
-const heat = initHeatPanel({ box: $('#heatPanel'), t, states: () => states, callService, open: () => !!roomPanelFor });
-function openRoomPanel(id) { roomPanelFor = id; closeLivePopup(); renderRoomPanel(); }
 
 /* ================= Tools, views, mode ================= */
 function setTool(next) {
@@ -2406,7 +2017,7 @@ function setMode(next) {
   if (power.isMode() && next === 'live') power.setMode(false);
   document.body.classList.toggle('live', isLive());
   document.querySelectorAll('#modeSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.mode === next));
-  closeLivePopup(); closeRoomPanel(); selection = null; lockedSel = false; plan?.reset();
+  popup.close(); roomPanel.close(); selection = null; lockedSel = false; plan?.reset();
   if (isLive()) {
     setTool('select');
     $('#hintText').textContent = t('hint.live');
@@ -2532,14 +2143,14 @@ function buildNav(force = false) {
   btn.classList.toggle('active', !!focusedName);
   btn.classList.toggle('occupied', entries.some(({ r, fl }) => occupied(r, fl)));
   const items = [];
-  if (focusedRoom) items.push(pill(t('nav.allRooms'), false, () => { toggleMenu(menu, btn, false); focusRoom(null); closeRoomPanel(); }, '', ' all'));
+  if (focusedRoom) items.push(pill(t('nav.allRooms'), false, () => { toggleMenu(menu, btn, false); focusRoom(null); roomPanel.close(); }, '', ' all'));
   let lastFloor = null;
   entries.forEach(({ r, fl, fi }) => {
     if (houseMode && fl !== lastFloor) { const hd = document.createElement('div'); hd.className = 'rmHead'; hd.textContent = fl.name; items.push(hd); lastFloor = fl; }
     items.push(pill(r.name, r.id === focusedRoom, () => {
       toggleMenu(menu, btn, false);
-      if (houseMode) { switchFloor(fi); focusRoom(r.id); openRoomPanel(r.id); return; }
-      const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) closeRoomPanel(); else openRoomPanel(r.id);
+      if (houseMode) { switchFloor(fi); focusRoom(r.id); roomPanel.open(r.id); return; }
+      const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) roomPanel.close(); else roomPanel.open(r.id);
     }, occupied(r, fl) ? t('nav.occupied') : '', occupied(r, fl) ? ' occupied' : ''));
   });
   menu.replaceChildren(...items);
@@ -2580,8 +2191,8 @@ function updateHouseToggle() {
 $('#houseToggle').addEventListener('click', () => {
   const room = findRoomByName(tabletRoom);
   if (!room) return;
-  if (focusedRoom) { focusRoom(null); closeRoomPanel(); }
-  else { switchFloor(room.floor); focusRoom(room.room.id); openRoomPanel(room.room.id); }
+  if (focusedRoom) { focusRoom(null); roomPanel.close(); }
+  else { switchFloor(room.floor); focusRoom(room.room.id); roomPanel.open(room.room.id); }
 });
 function findRoomByName(name) {
   const n = String(name || '').trim().toLowerCase();
@@ -2606,7 +2217,7 @@ function setHouseMode(on) {
 }
 function switchFloor(i) {
   houseMode = false; document.body.classList.remove('house'); floorCards.update(); updateExplodeToggle();
-  floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
+  floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; endDrawing(); popup.close(); roomPanel.close();
   clearFocusOutline(); build(); fitCamera(); refreshSelection();
   if (bgUi.mode()) bgUi.setMode(null); else bgUi.render();
   renderFloorPanel();
@@ -3702,7 +3313,7 @@ async function init() {
   if (params.get('mode') === 'live' || params.get('kiosk') || tabletRoom || !me.canEdit) setMode('live');
   if (tabletRoom) {
     const hit = findRoomByName(tabletRoom);
-    if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); openRoomPanel(hit.room.id); }
+    if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); roomPanel.open(hit.room.id); }
     updateHouseToggle();
   }
   pollStates();
@@ -3741,7 +3352,7 @@ animate();
 /* Test hook: only active with ?debug=1, used by the browser tests to find objects on screen. */
 if (params.get('debug')) {
   window.__fp = {
-    openRoomPanel(id) { openRoomPanel(id); },
+    openRoomPanel(id) { roomPanel.open(id); },
     powerLinks: () => power.links(),
     powerInfo: () => power.info(),
     ledShown(id) { return !!registry.get(id)?.userData.ledParts?.[0]?.visible; },

@@ -7,6 +7,21 @@
 const EPS = 0.02;                                   // points closer than 2 cm are the same corner
 const dist = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
 
+/** area of a polygon in m² (either direction) */
+export const polyArea = (pts) => Math.abs(signedArea(pts));
+
+/** shortest distance from a point to the outline of a polygon */
+export function distToPoly(x, z, pts) {
+  let best = Infinity;
+  for (let i = 0; i < pts.length; i++) {
+    const [ax, az] = pts[i], [bx, bz] = pts[(i + 1) % pts.length];
+    const dx = bx - ax, dz = bz - az, l2 = dx * dx + dz * dz || 1;
+    const k = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / l2));
+    best = Math.min(best, Math.hypot(x - (ax + k * dx), z - (az + k * dz)));
+  }
+  return best;
+}
+
 /** signed area (shoelace): > 0 for the faces that are rooms (see `faces`) */
 export function signedArea(pts) {
   let s = 0;
