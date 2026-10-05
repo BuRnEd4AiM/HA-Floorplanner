@@ -43,6 +43,10 @@ jobs:
         run: |
           cp floorplan3d/rootfs/app/static/kitchen.js /tmp/kitchen.mjs
           KITCHEN_MJS=/tmp/kitchen.mjs node --test tests/kitchen.test.mjs
+      - name: Compass unit tests
+        run: |
+          cp floorplan3d/rootfs/app/static/compass.js /tmp/compass.mjs
+          COMPASS_MJS=/tmp/compass.mjs node --test tests/compass.test.mjs
       - name: Power add-on unit tests
         run: |
           cp floorplan3d/rootfs/app/static/powerlogic.js /tmp/powerlogic.mjs

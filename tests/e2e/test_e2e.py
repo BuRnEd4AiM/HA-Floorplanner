@@ -739,6 +739,15 @@ with sync_playwright() as p:
     ne_s = pgK.get_attribute("#compassNeedle", "transform")
     pgK.evaluate("window.__fp.camAt(3, 14, 22, 3, 2.5)"); pgK.wait_for_timeout(1200)
     check("compass: the needle turns with the camera", pgK.get_attribute("#compassNeedle", "transform") != ne_s, (ne_s, pgK.get_attribute("#compassNeedle", "transform")))
+    import math as _m
+    angs = []
+    for k in range(0, 40):                                          # one and a bit full turns around the house in steps of 10 degrees
+        a = _m.radians(k * 10)
+        pgK.evaluate("window.__fp.camAt(%f, 14, %f, 3, 2.5)" % (3 + 20 * _m.sin(a), 2.5 + 20 * _m.cos(a))); pgK.wait_for_timeout(90)
+        pgK.evaluate("() => { for (let i = 0; i < 3; i++) window.__fp.frame(); }")
+        angs.append(float(pgK.get_attribute("#compassNeedle", "transform").split("(")[1].rstrip(")")))
+    jumps = [abs(b2 - a2) for a2, b2 in zip(angs, angs[1:])]
+    check("compass: after a full turn the needle keeps counting on, it never spins back (#175)", max(jumps) < 60 and abs(angs[-1] - angs[0]) > 300, (round(max(jumps)), round(angs[0]), round(angs[-1])))
     pgK.close()
 
     # --- heating panel (#134): thermostats of the room get their own panel next to the room panel, with the target temperature, the modes and a sign that it heats

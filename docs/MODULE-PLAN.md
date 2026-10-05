@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.39.2. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.39.3. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -26,6 +26,7 @@ Stand: Version 3.39.2. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `alerts.js` | 62 | Warnungen und Nachtabdunklung (Rechenteil) |
 | `kitchen.js` | 63 | Küchenzeile: Geometrie aus Modulen (mit Breiten) |
 | `heatpanel.js` | 74 | Heizungs-Panel (Schritt 1 von #137) |
+| `compass.js` | ~40 | Kompass (Nadel zählt über 360° weiter), mit Unit-Tests |
 | `alertsui.js` | ~75 | Warnungen: Banner, roter Raum, Sprung in den Raum (Schritt 3 von #137) |
 | `search.js` | ~70 | „Wo ist …?“-Suche mit Ring (Schritt 3) |
 | `kitchenui.js` | ~60 | Küchenzeile: Eigenschaften im Panel (Schritt 3) |
@@ -46,7 +47,6 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 | ---: | --- | ---: | --- | --- |
 | 5 | **Offline-Liste** | ~84 | `offline.js` | niedrig |
 | 6 | **Wandtablet** (Bildschirmschoner, Nacht) | ~51 | in `alerts.js` oder `kiosk.js` | niedrig |
-| 7 | **Kompass** | ~17 | `compass.js` | niedrig |
 | 8 | **Kameras** (Sichtkegel, Übersicht, Standbilder) | ~35 + ~200 | `cameras.js` | mittel |
 | 9 | **Wertplaketten** (Beschriftungen entzerren) | ~37 | `badges.js` | niedrig |
 | 10 | **Etagenkarten** (Ganzes Haus) | ~188 | `floorcards.js` | mittel |
