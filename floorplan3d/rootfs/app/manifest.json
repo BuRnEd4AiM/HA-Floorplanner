@@ -1,6 +1,6 @@
 {
- "version": "3.39.10",
- "buildHash": "3f38558e8c8a8729126c6b31124fc34841d7f7f41887c61d54aa253e842a863b",
+ "version": "3.39.11",
+ "buildHash": "76b3f0ccfe900a1b0263e5b2f6eb0ed2d2b9f9dfdfe4d113755c4719a20bf547",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "530a1c59c99b70317fcf17c081221bb894b615ef4d7b20c6992aa2c2cac51309",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "d1c1de562153175bc4e73b78eda8d56ffd0ae776165c2feadf64005d53614171",
-  "static/app.js": "88c76d7217bd810e65560775c8d3e840e11a99affcf97717edd1facde1f1a58c",
+  "static/app.js": "92029187271516de658231fc9b12d1041896ead24b674c4c9650a78f5a69f430",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/background.js": "6ccd7fd8e2e076b02317a864f0957ebe16af4faac9c9dacda16ae11b6e86b172",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
@@ -159,6 +159,7 @@
   "static/moreinfo.js": "3e6fbc369851fbba399a7edf0ac1868601fcb808bb18f7e43afaa4936197767a",
   "static/nanoleaf.js": "f36e7c670222282ea26a07b11845553c7174173d87a65e83e6455b1cc7fa5eeb",
   "static/offline.js": "d711b7e1ef740a95f1c64ed5ff2576fda353e676470ee7379773c9f04ab2fbfb",
+  "static/palettes.js": "06a77fc25666b69d2174080e1b0ab80297f6dc1af00a9e7758c2505cfb679b04",
   "static/plan2d.js": "9c16777c9f4a162f55eae7c8f8ea1e331d80ecef92d47af60d04af33942683a6",
   "static/power.js": "8f6d4045b1af3e653d36c815f23ac5b0d79dfa070eebe3f194a1b6cae738bf90",
   "static/powerlogic.js": "a4e7a1cbbe33d1455acc99047ad6b0fdd2e15c09087b66e4a2e1012be1873d3b",
