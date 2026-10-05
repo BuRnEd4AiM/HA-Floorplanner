@@ -2,6 +2,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { initToolbar } from './toolbar.js';
+import { MOD_TYPES, MOD_W, MAX_LEGS, MAX_MODS, DEFAULT_LEGS, cleanLegs, legLength } from './kitchen.js';
 import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
 import { initWelcome } from './welcome.js';
@@ -2016,6 +2017,7 @@ function newDevice(x, z) {
     name: ent?.name || (custom ? deviceType.slice(4) : t(`dev.${deviceType}`)), entity: entityChoice || '',
   };
   if (deviceType === 'nanoleaf') d.panels = DEFAULT_PANELS.map((p) => ({ ...p }));
+  if (deviceType === 'kitchenrun') Object.assign(d, { legs: DEFAULT_LEGS(), upper: true, depth: 0.6 });
   if (deviceType === 'ledring') Object.assign(d, ringAt(x, z));     // all around the room it is placed in, just under the ceiling
   if (WALL_TYPES.has(deviceType)) snapToWall(d, 0.8);          // wall-hung things click onto the nearest wall
   return d;
@@ -2025,6 +2027,48 @@ function ringAt(x, z, inset = RING_DEFAULT_INSET) {
   const room = roomAt(x, z);
   const r = room ? ringFromRoom(room.points, inset) : { x, z, pts: [[-1, -1], [1, -1], [1, 1], [-1, 1]], closed: true, segs: [{}, {}, {}, {}] };
   return { ...r, y: +(settings.wallHeight - 0.1).toFixed(2), inset, rot: 0, ...(room ? { room: room.id } : {}) };
+}
+/** Kitchen run (#124): shape, depth, wall cabinets and the modules of every leg, in the properties of the selected run */
+function kitchenProps(body, it) {
+  const head = document.createElement('h4'); head.id = 'kitchenHead'; head.textContent = t('kitchen.title'); body.append(head);
+  const legs = it.legs = cleanLegs(it.legs);
+  const apply = () => { changed(); renderProps(); };
+  const shape = document.createElement('select'); shape.id = 'kitchenShape';
+  [1, 2, 3].forEach((n) => shape.add(new Option(t(`kitchen.shape${n}`), n)));
+  shape.value = String(legs.length);
+  shape.addEventListener('change', () => {
+    snapshot();
+    const n = +shape.value;
+    while (legs.length > n) legs.pop();
+    while (legs.length < n) legs.push(['base', 'base', 'base', 'base']);
+    apply();
+  });
+  body.append(field(t('kitchen.shape'), shape));
+  const upper = document.createElement('input'); upper.type = 'checkbox'; upper.id = 'kitchenUpper'; upper.checked = it.upper !== false;
+  upper.addEventListener('change', () => { snapshot(); it.upper = upper.checked; apply(); });
+  body.append(field(t('kitchen.upper'), upper));
+  body.append(field(t('kitchen.depth'), lenInput(() => it.depth ?? 0.6, (v) => { it.depth = Math.max(0.4, Math.min(1.2, v)); }, { min: 0.4 })));
+  legs.forEach((leg, li) => {
+    const box = document.createElement('div'); box.className = 'kitchenLeg';
+    const cap = document.createElement('b'); cap.textContent = `${t('kitchen.leg')} ${li + 1} · ${toDisp(legLength(leg)).toFixed(2)} ${imperial() ? 'ft' : 'm'}`; box.append(cap);
+    leg.forEach((m, mi) => {
+      const row = document.createElement('div'); row.className = 'kitchenMod';
+      const sel = document.createElement('select');
+      MOD_TYPES.forEach((v) => sel.add(new Option(t(`kitchen.m.${v}`), v)));
+      sel.value = m;
+      sel.addEventListener('change', () => { snapshot(); leg[mi] = sel.value; apply(); });
+      const btn = (txt, title, fn, off) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; b.title = title; b.disabled = !!off; b.addEventListener('click', () => { snapshot(); fn(); apply(); }); return b; };
+      row.append(sel,
+        btn('↑', t('kitchen.left'), () => { [leg[mi - 1], leg[mi]] = [leg[mi], leg[mi - 1]]; }, mi === 0),
+        btn('↓', t('kitchen.right'), () => { [leg[mi + 1], leg[mi]] = [leg[mi], leg[mi + 1]]; }, mi === leg.length - 1),
+        btn('×', t('kitchen.del'), () => { leg.splice(mi, 1); }));
+      box.append(row);
+    });
+    const add = document.createElement('button'); add.type = 'button'; add.className = 'kitchenAdd'; add.textContent = t('kitchen.add'); add.disabled = leg.length >= MAX_MODS;
+    add.addEventListener('click', () => { snapshot(); leg.push('base'); apply(); });
+    box.append(add);
+    body.append(box);
+  });
 }
 /** the entities a double click / quick action switches: an LED ring switches all of its sections */
 const deviceEntities = (d) => (d?.type === 'ledring' ? ringEntities(d) : d?.entity ? [d.entity] : []);
@@ -3531,6 +3575,7 @@ function buildPalette() {
 /* extra search words so the library also finds things under their everyday names */
 const SEARCH_ALIASES = {
   tv_led: 'led licht ambilight hintergrundlicht fernseher tv indirekt backlight',
+  kitchenrun: 'küchenzeile küche kitchen spüle sink schrank cabinet unterschrank oberschrank',
   ledring: 'led ring streifen strip indirekt indirect voute cove decke ceiling rundum ringsum abschnitte sections',
   tv: 'fernseher fernsehen television tele glotze', tv_wall: 'fernseher wandfernseher wand tv fernsehen flachbild', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
   fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
@@ -4261,6 +4306,7 @@ function renderProps() {
       body.append(sb);
     }
     if (it.type === 'ledring') ringProps(body, it);
+    if (it.type === 'kitchenrun') kitchenProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
     if (it.type === 'camera') {                                  // #69: field of view cone on the floor
       body.append(field(t('cam.fov'), inp('number', it.fov ?? 90, (v) => { it.fov = Math.max(0, Math.min(180, +v || 0)); }, { step: 5, min: 0, max: 180 })));

@@ -559,3 +559,10 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 #heatPanel .hp-modes button { padding: 3px 10px; font-size: 12px; }
 #heatPanel .hp-modes button.on { background: var(--accent); color: #04121c; border-color: var(--accent); }
 @media (max-width: 760px) { #heatPanel { right: 12px; left: 12px; width: auto; max-width: none; top: 52px; max-height: 38%; } }
+
+/* ---- kitchen run: the modules of a leg in the properties ---- */
+.kitchenLeg { margin: 8px 0; padding: 8px; border: 1px solid var(--line); border-radius: 10px; }
+.kitchenLeg > b { display: block; margin-bottom: 6px; font-size: 12px; color: var(--muted); }
+.kitchenMod { display: flex; gap: 4px; margin-bottom: 4px; }
+.kitchenMod select { flex: 1; min-width: 0; }
+.kitchenMod button, .kitchenAdd { padding: 2px 8px; }

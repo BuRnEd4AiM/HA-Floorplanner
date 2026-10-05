@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.32.0] - 2026-10-05
+### Added
+- **Kitchen run (#124)**: new device *Kitchen run* built from modules (base cabinet, drawers, sink, stove, dishwasher, fridge, tall cabinet, gap). Shape straight, L or U (up to 3 legs, 16 modules each), depth and optional wall cabinets; modules can be added, moved and removed in the properties. Drawn as cabinets in 3D and as module boxes in the 2D editor.
+
 ## [3.31.0] - 2026-10-05
 ### Added
 - **Several different roofs per house (#125)**: besides the main roof, the roof floor can have **further roofs** (up to 8), each with its own shape (gable / hip / flat), pitch, overhang, base (left, top, width, depth) and the **floor it sits on**, e.g. a flat roof over an annex that has only one storey. New section *Further roofs* in the panel of the roof floor with a card per roof, a *+ Further roof* button and a cross to remove one.
