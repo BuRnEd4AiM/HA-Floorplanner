@@ -952,6 +952,11 @@ function stateText(entityId) {
 /* ---- power add-on (#136): cables between power devices, with flowing dots and the watt value; "power editor" shows only these ---- */
 const POWER_TYPES = new Set(['solarpanel', 'inverter', 'powermeter', 'houseentry', 'fusebox', 'battery', 'wallbox']);
 const CABLE_ROUTES = ['floor', 'through', 'air'];
+/** what a cable carries decides its colour: grid (the connection to the public grid, also what is fed in), own solar, battery, consumption */
+const CABLE_KINDS = { grid: '#ff6b6b', solar: '#7dff9a', battery: '#5aa9ff', load: '#ffb347' };
+const KIND_OF_TYPE = { houseentry: 'grid', powermeter: 'grid', solarpanel: 'solar', inverter: 'solar', battery: 'battery', fusebox: 'load', wallbox: 'load' };
+const cableKind = (d, c) => (c.kind in CABLE_KINDS ? c.kind : KIND_OF_TYPE[d.type] || 'load');
+const cableColor = (d, c) => CABLE_KINDS[cableKind(d, c)];
 let showPower = false, powerMode = false, cableFrom = null;
 try { showPower = localStorage.getItem('fp.power') === '1'; } catch { /* storage may be blocked */ }
 const powerGroup = new THREE.Group(); scene.add(powerGroup);
@@ -959,8 +964,9 @@ let powerFlows = [], powerSig = '';
 const POWER_DOTS = 8;
 const dotGeo = new THREE.SphereGeometry(0.035, 8, 6);
 /** watts of a device's entity (kW and MW are converted), null if it has no number */
-function powerWatts(d) {
-  const s = d.entity ? states[d.entity] : null;
+function powerWatts(d, c) {
+  const s = (c?.entity || d.entity) ? states[c?.entity || d.entity] : null;       // a cable can carry its own sensor, else the one of the device it starts at
+  if (s && s.unit === '%') return null;                                           // a charge level is not a power
   const n = s ? parseFloat(s.state) : NaN;
   if (!Number.isFinite(n)) return null;
   return n * (/^k/i.test(s.unit || '') ? 1000 : /^m/i.test(s.unit || '') ? 1e6 : 1);
@@ -985,7 +991,7 @@ function updatePower() {
   const on = showPower || powerMode;
   const links = [];
   layout.floors.forEach((f, fi) => f.devices.forEach((d) => cablesOf(d).forEach((c) => links.push({ d, c, fi }))));
-  const sig = `${powerMode}|` + (on ? links.map(({ d, c }) => `${c.id}:${d.id}>${c.to}:${c.route}:${registry.get(d.id)?.uuid}:${registry.get(c.to)?.uuid}:${powerWatts(d)}`).join('|') : '');
+  const sig = `${powerMode}|${selection?.kind === 'cable' ? selection.id : ''}|` + (on ? links.map(({ d, c }) => `${c.id}:${d.id}>${c.to}:${c.route}:${cableKind(d, c)}:${registry.get(d.id)?.uuid}:${registry.get(c.to)?.uuid}:${powerWatts(d, c)}`).join('|') : '');
   if (sig === powerSig) return;
   powerSig = sig;
   registry.forEach((o, id) => { if (o.userData?.kind === 'device') { const dev = findDevice(id); o.visible = !(dev && hiddenByPower(dev)) && !o.userData.cutHidden; } });
@@ -1001,12 +1007,17 @@ function updatePower() {
     const pts = cablePath(c.route === 'air' || c.route === 'through' ? c.route : 'floor', pa, pb, fyA, fyB);
     const curve = c.route === 'air' ? new THREE.CatmullRomCurve3(pts) : (() => { const cp = new THREE.CurvePath(); for (let i = 1; i < pts.length; i++) if (pts[i].distanceTo(pts[i - 1]) > 1e-4) cp.add(new THREE.LineCurve3(pts[i - 1], pts[i])); return cp; })();
     if (!curve.getLength() || curve.getLength() < 1e-3) return;
-    const w = powerWatts(d), active = w !== null && Math.abs(w) >= 1;
-    const col = !active ? 0x8a949e : w > 0 ? 0x7dff9a : 0xffb347;
-    const tube = new THREE.Mesh(curve.isCurvePath ? new THREE.BufferGeometry() : new THREE.TubeGeometry(curve, 24, 0.016, 6), new THREE.MeshStandardMaterial({ color: 0x2b3038, roughness: 0.6 }));
-    if (curve.isCurvePath) {                                                  // straight pieces: one thin tube per piece, corners stay sharp
-      curve.curves.forEach((seg) => { const m = new THREE.Mesh(new THREE.TubeGeometry(seg, 1, 0.016, 6), tube.material); powerGroup.add(m); });
-    } else powerGroup.add(tube);
+    const w = powerWatts(d, c), active = w !== null && Math.abs(w) >= 1;
+    const picked = selection?.kind === 'cable' && selection.id === c.id;
+    const col = !active ? 0x8a949e : new THREE.Color(cableColor(d, c)).getHex();
+    const tint = new THREE.Color(cableColor(d, c)).multiplyScalar(picked ? 1 : 0.35);
+    const tubeMat = new THREE.MeshStandardMaterial({ color: tint, emissive: picked ? new THREE.Color(cableColor(d, c)) : 0x000000, emissiveIntensity: picked ? 0.6 : 0, roughness: 0.6 });
+    const pickMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });          // a fat invisible tube: the thin cable is hard to hit
+    const pieces = curve.isCurvePath ? curve.curves : [curve];
+    pieces.forEach((seg) => {
+      const m = new THREE.Mesh(new THREE.TubeGeometry(seg, curve.isCurvePath ? 1 : 24, picked ? 0.026 : 0.018, 6), tubeMat); powerGroup.add(m);
+      const px = new THREE.Mesh(new THREE.TubeGeometry(seg, curve.isCurvePath ? 1 : 24, 0.1, 5), pickMat); px.userData = { kind: 'cable', id: c.id }; powerGroup.add(px);
+    });
     const mat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: active ? 1 : 0.35, depthTest: false });
     const dots = [];
     for (let i = 0; i < POWER_DOTS; i++) { const m = new THREE.Mesh(dotGeo, mat); m.renderOrder = 6; powerGroup.add(m); dots.push(m); }
@@ -1015,11 +1026,36 @@ function updatePower() {
   });
   animatePower(performance.now());
 }
+/** the overview next to the room menu: what the house produces, takes from / gives to the grid, what it uses, how full the battery is */
+function energySummary() {
+  const sum = (types) => { const v = powerList().filter(({ d }) => types.includes(d.type)).map(({ d }) => powerWatts(d)).filter((x) => x !== null); return v.length ? v.reduce((a, b) => a + b, 0) : null; };
+  const raw = sum(['inverter']) ?? sum(['solarpanel']), prod = raw === null ? null : Math.max(0, raw), grid = sum(['powermeter']) ?? sum(['houseentry']);
+  const bat = powerList().filter(({ d }) => d.type === 'battery').map(({ d }) => ({ d, s: states[d.entity] })).find((x) => x.s && Number.isFinite(parseFloat(x.s.state)));
+  const load = prod !== null || grid !== null ? Math.max(0, (prod ?? 0) + (grid ?? 0)) : null;       // production + what comes from the grid (negative = fed in)
+  return { prod, grid, load, battery: bat ? { v: parseFloat(bat.s.state), unit: bat.s.unit || '' } : null };
+}
+function updateEnergyPill() {
+  const pill = $('#energyPill'); if (!pill) return;
+  const e = energySummary(), parts = [], tips = [];
+  if (e.prod !== null) { parts.push(`☀ ${fmtWatts(e.prod)}`); tips.push(`${t('power.sum.prod')}: ${fmtWatts(e.prod)}`); }
+  if (e.grid !== null) { const lab = t(e.grid < 0 ? 'power.sum.feedIn' : 'power.sum.draw'); parts.push(`⚡ ${fmtWatts(e.grid)}`); tips.push(`${lab}: ${fmtWatts(e.grid)}`); }
+  if (e.load !== null) { parts.push(`⌂ ${fmtWatts(e.load)}`); tips.push(`${t('power.sum.load')}: ${fmtWatts(e.load)}`); }
+  if (e.battery) { const txt = e.battery.unit === '%' ? `${Math.round(e.battery.v)} %` : fmtWatts(e.battery.v); parts.push(`🔋 ${txt}`); tips.push(`${t('power.sum.battery')}: ${txt}`); }
+  pill.hidden = !parts.length;
+  pill.textContent = parts.join(' · ');
+  pill.title = tips.join('\n');
+  pill.classList.toggle('active', showPower || powerMode);
+}
 function animatePower(now) {
   powerFlows.forEach((f) => {
     const base = f.active ? (now / 1000) * f.speed * f.dir : 0;
     f.dots.forEach((m, i) => { const t = (((base + i / f.dots.length) % 1) + 1) % 1; m.position.copy(f.curve.getPointAt(t)); });
   });
+}
+/** a cable by its id, with the device it starts at */
+function findCable(id) {
+  for (const f of layout.floors) for (const d of f.devices) { const c = cablesOf(d).find((x) => x.id === id); if (c) return { d, c }; }
+  return null;
 }
 function findDevice(id) { for (const f of layout.floors) { const d = f.devices.find((v) => v.id === id); if (d) return d; } return null; }
 /** the cable tool: first click a power device, second click another one; the cable runs along the floor, or through the floors when they differ */
@@ -1430,6 +1466,7 @@ function applyStates() {
   if (plan?.isVisible()) plan.render();
   updateViewLegend();
   updatePower();
+  updateEnergyPill();
   updateCameraCones();
   updateCamPill();
   updateFloorCards();
@@ -1766,7 +1803,7 @@ function refreshSelection() {
   // keep the selection even when the object is not drawn (e.g. hidden by a focused room or off screen), so it can still be found, moved to view or deleted
   if (selection && !registry.get(selection.id)) {
     const f = floor();
-    const exists = f && [f.walls, f.rooms, f.devices, f.blocks, f.stairs, f.holes].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
+    const exists = (selection.kind === 'cable' && findCable(selection.id)) || f && [f.walls, f.rooms, f.devices, f.blocks, f.stairs, f.holes].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
     if (!exists) selection = null;
   }
   if (!selection) lockedSel = false;
@@ -2044,7 +2081,11 @@ function pickHit(e) {
   }
   if (powerMode) {                                                    // the power editor: nothing but power devices can be hit; tiny devices are found within a finger's width
     hits = hits.filter((h) => h.data.kind === 'device');
-    return hits[0] ?? nearestPowerDevice(e);
+    if (hits[0]) return hits[0];
+    const near = nearestPowerDevice(e);
+    if (near) return near;
+    const cab = ray.intersectObjects(powerGroup.children, false).find((h) => h.object.userData?.kind === 'cable');   // setRay(e) was called above
+    return cab ? { data: cab.object.userData, point: cab.point, distance: cab.distance } : null;
   }
   // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
   // door/window the door/window wins unless the device is clearly in front of it (> 1.2 m nearer to the camera).
@@ -2149,6 +2190,30 @@ function ringAt(x, z, inset = RING_DEFAULT_INSET) {
   const r = room ? ringFromRoom(room.points, inset) : { x, z, pts: [[-1, -1], [1, -1], [1, 1], [-1, 1]], closed: true, segs: [{}, {}, {}, {}] };
   return { ...r, y: +(settings.wallHeight - 0.1).toFixed(2), inset, rot: 0, ...(room ? { room: room.id } : {}) };
 }
+/** a cable that was picked (3D or 2D): where it goes, what it carries, how it runs, remove */
+function cableProps(body, box) {
+  const hit = findCable(selection.id);
+  if (!hit) { box.hidden = true; return; }
+  const { d, c } = hit, to = findDevice(c.to);
+  box.hidden = false; $('#propsTitle').textContent = t('power.cable');
+  const own = () => { if (!Array.isArray(d.cables)) { d.cables = cablesOf(d).map((x) => ({ ...x })); delete d.feeds; } return d.cables.find((x) => x.id === c.id); };
+  const p = document.createElement('p'); p.className = 'sub'; p.id = 'cableWho';
+  p.textContent = `${d.name || t(`dev.${d.type}`)} → ${to ? (to.name || t(`dev.${to.type}`)) : '?'}`; body.append(p);
+  const kind = document.createElement('select'); kind.id = 'cableKind';
+  Object.keys(CABLE_KINDS).forEach((k) => kind.add(new Option(t(`power.kind.${k}`), k)));
+  kind.value = cableKind(d, c);
+  kind.addEventListener('change', () => { snapshot(); own().kind = kind.value; changed(); });
+  body.append(field(t('power.kind'), kind));
+  const rt = document.createElement('select'); rt.id = 'cableRoute1';
+  CABLE_ROUTES.forEach((v) => rt.add(new Option(t(`power.route.${v}`), v)));
+  rt.value = c.route || 'floor';
+  rt.addEventListener('change', () => { snapshot(); own().route = rt.value; changed(); });
+  body.append(field(t('power.route'), rt));
+  body.append(pickerField(t('power.cableEntity'), entityPicker(entities.filter((e) => e.domain === 'sensor').slice(0, 1500), d ? roomAt(d.x, d.z) : null, c.entity || '', (v) => { snapshot(); const o = own(); if (v) o.entity = v; else delete o.entity; changed(); })));
+  const del = document.createElement('button'); del.type = 'button'; del.id = 'cableDel'; del.className = 'danger'; del.textContent = t('power.delCable');
+  del.addEventListener('click', () => { snapshot(); deleteItem(selection); });
+  body.append(del);
+}
 /** Power add-on: the cables of this device (target, how it runs, remove) and the ones that arrive here */
 function powerProps(body, it) {
   const head = document.createElement('h4'); head.id = 'powerHead'; head.textContent = t('power.cables'); body.append(head);
@@ -2161,13 +2226,17 @@ function powerProps(body, it) {
     powerList().forEach(({ d }) => { if (d.id !== it.id) tgt.add(new Option(label(d), d.id)); });
     tgt.value = c.to;
     tgt.addEventListener('change', () => { snapshot(); own().find((x) => x.id === c.id).to = tgt.value; changed(); });
+    const kd = document.createElement('select'); kd.className = 'cableKind'; kd.title = t('power.kind');
+    Object.keys(CABLE_KINDS).forEach((k) => kd.add(new Option(t(`power.kind.${k}`), k)));
+    kd.value = cableKind(it, c);
+    kd.addEventListener('change', () => { snapshot(); own().find((x) => x.id === c.id).kind = kd.value; changed(); });
     const rt = document.createElement('select'); rt.className = 'cableRoute'; rt.title = t('power.route');
     CABLE_ROUTES.forEach((v) => rt.add(new Option(t(`power.route.${v}`), v)));
     rt.value = c.route || 'floor';
     rt.addEventListener('change', () => { snapshot(); own().find((x) => x.id === c.id).route = rt.value; changed(); });
     const del = document.createElement('button'); del.type = 'button'; del.textContent = '×'; del.title = t('kitchen.del');
     del.addEventListener('click', () => { snapshot(); it.cables = own().filter((x) => x.id !== c.id); changed(); renderProps(); });
-    row.append(tgt, rt, del); body.append(row);
+    row.append(tgt, kd, rt, del); body.append(row);
   });
   const add = document.createElement('button'); add.type = 'button'; add.id = 'cableAdd'; add.textContent = t('power.addCable');
   const free = powerList().filter(({ d }) => d.id !== it.id && !cablesOf(it).some((c) => c.to === d.id));
@@ -2474,6 +2543,13 @@ function itemOf(kind, id) {
   return list.find((q) => q.id === id) || null;
 }
 function deleteItem({ kind, id }) {
+  if (kind === 'cable') {
+    const hit = findCable(id);
+    if (hit) { if (!Array.isArray(hit.d.cables)) { hit.d.cables = cablesOf(hit.d).map((x) => ({ ...x })); delete hit.d.feeds; } hit.d.cables = hit.d.cables.filter((x) => x.id !== id); }
+    if (selection?.id === id) selection = null;
+    changed();
+    return;
+  }
   if (itemOf(kind, id)?.locked) { setStatus(t('prop.lockedHint')); return; }
   const f = floor();
   if (kind === 'wall') f.walls = f.walls.filter((x) => x.id !== id);
@@ -3654,6 +3730,7 @@ $('#powerBtn').addEventListener('click', () => {
   try { localStorage.setItem('fp.power', showPower ? '1' : '0'); } catch { /* ignore */ }
   powerSig = ''; updatePower(); wake();
 });
+$('#energyPill').addEventListener('click', () => $('#powerBtn').click());
 $('#powerEditBtn').addEventListener('click', () => setPowerMode(!powerMode));
 $('#cableBtn').addEventListener('click', () => setTool('cable'));
 $('#autoToggle').addEventListener('click', () => {
@@ -4263,6 +4340,7 @@ function renderProps() {
   body.innerHTML = '';
   if (!selection || isLive()) { roomCtx = null; box.hidden = true; return; }
   const f = floor();
+  if (selection.kind === 'cable') { cableProps(body, box); return; }
   let it = null;
   if (selection.kind === 'wall') it = f.walls.find((x) => x.id === selection.id);
   else if (selection.kind === 'room') it = f.rooms.find((x) => x.id === selection.id);
@@ -4843,7 +4921,7 @@ plan = createPlan({
   liveTap: (h) => liveSelect(h),
   deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach(quickAction),
   allDevices: () => layout.floors.flatMap((f, fi) => f.devices.map((d) => ({ d, fi }))), floorIndex: () => floorIdx, floorName: (i) => layout.floors[i]?.name || '',
-  powerMode: () => powerMode, showCables: () => showPower || powerMode, isPowerType: (type) => POWER_TYPES.has(type), cablesOf, cableClick: (id) => cableClick(id),
+  powerMode: () => powerMode, showCables: () => showPower || powerMode, isPowerType: (type) => POWER_TYPES.has(type), cablesOf, cableColor, cableClick: (id) => cableClick(id),
   newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, OPENING_DEFAULTS, uid, pointInPoly,
   roomHeat: (room, f) => (viewMode === 'normal' ? null : roomHeat(room, f)),
   states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, fmtLen, t, setStatus,

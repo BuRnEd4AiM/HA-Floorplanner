@@ -11,6 +11,7 @@ const staticDir = join(here, '..', 'floorplan3d', 'rootfs', 'app', 'static');
 const result = await build({
   entryPoints: [join(here, 'entry.js')],
   bundle: true, minify: true, format: 'iife', write: false, target: 'es2020',
+  define: { __DEMO_VERSION__: JSON.stringify((readFileSync(join(here, '..', 'floorplan3d', 'config.yaml'), 'utf8').match(/^version:\s*"?([\d.]+)/m) || [])[1] || 'demo') },
 });
 const js = result.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
 const css = readFileSync(join(staticDir, 'style.css'), 'utf8') + `

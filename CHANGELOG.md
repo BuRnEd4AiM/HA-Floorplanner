@@ -6,6 +6,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.38.0] - 2026-10-05
+### Added
+- **Power: cables can be picked and deleted**: in the power editor a click on a cable (2D: the line, 3D: the cable or its thick invisible hit tube) selects it; the properties show where it goes, its kind, its route, an optional own sensor and a **Delete cable** button (also the Delete key). The list in the device properties keeps its cross.
+- **Cable colours**: every cable has a kind that sets its colour: *grid / feed-in* (red), *own solar* (green), *battery* (blue), *consumption* (amber). The default follows the device the cable starts at; it can be changed per cable (also in the import: `kind`).
+- **Energy overview** next to the room menu: what the house produces (inverters, else solar panels), what it draws from or feeds into the grid (meters), the calculated consumption and the battery charge. A click shows or hides the cables. A cable can have its own sensor (`entity`), a charge level in % is never shown as watts.
+- The **demo** now shows its version in the top bar (`vX.Y.Z · demo`) and has a house battery with its own cable.
+### Fixed
+- **Power things in the 2D plan** had a huge 0.8 m box; they now have their real size (meter 22 x 11 cm, inverter 45 x 16 cm, solar panel 1.0 x 1.55 m ...).
+
 ## [3.37.0] - 2026-10-05
 ### Added
 - **Kitchen run: every module can have its own width** (a number field per module, 30 cm to 2.4 m); drawer, sink, dishwasher and the rest follow in 2D and 3D, the leg length updates. The dishwasher is called *Dishwasher* / *Spülmaschine* in the module list. Import / export: a module is its name or `{ "m": name, "w": metres }`.

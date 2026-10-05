@@ -47,6 +47,7 @@ DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", 
 DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img")
 DEVICE_FLAGS = ("mirror", "locked", "hideModel")
 CABLE_ROUTES = ("floor", "through", "air")
+CABLE_KINDS = ("grid", "solar", "battery", "load")
 KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap")   # same as MOD_W in static/kitchen.js (checked by a test)
 
 
@@ -277,7 +278,9 @@ def _device(rep: Report, path: str, spec, ids):
         raw.append({"to": spec["feeds"]})                # first version of the format: one cable, hanging in the air
         raw[-1]["route"] = "air"
     if raw:
-        d["_cables"] = [{"to": c["to"][:60], "route": c["route"] if c.get("route") in CABLE_ROUTES else "floor"} for c in raw]
+        d["_cables"] = [{"to": c["to"][:60], "route": c["route"] if c.get("route") in CABLE_ROUTES else "floor",
+                         **({"kind": c["kind"]} if c.get("kind") in CABLE_KINDS else {}),
+                         **({"entity": c["entity"][:120]} if isinstance(c.get("entity"), str) and c["entity"] else {})} for c in raw]
     if typ == "kitchenrun":
         def module(m):                                   # a name, or {"m": name, "w": width in metres} for a resized module
             if isinstance(m, str):
@@ -492,7 +495,7 @@ def build_layout(data):
             d.pop("_key", None)
             for c in wanted:
                 if c["to"] in keyed and keyed[c["to"]] != d["id"]:
-                    d.setdefault("cables", []).append({"id": ids("c"), "to": keyed[c["to"]], "route": c["route"]})
+                    d.setdefault("cables", []).append({"id": ids("c"), "to": keyed[c["to"]], **{k: v for k, v in c.items() if k != "to"}})
                 else:
                     rep.warn("devices.cables", f"cable to '{c['to']}': no other device with that \"id\" in the file, skipped")
 
@@ -724,7 +727,9 @@ def layout_to_property(layout, name="Haus"):
             if cs or d["id"] in feeding:
                 od["id"] = d["id"]
             if cs:
-                od["cables"] = [{"to": c["to"], "route": c.get("route") if c.get("route") in CABLE_ROUTES else "floor"} for c in cs]
+                od["cables"] = [{"to": c["to"], "route": c.get("route") if c.get("route") in CABLE_ROUTES else "floor",
+                                 **({"kind": c["kind"]} if c.get("kind") in CABLE_KINDS else {}),
+                                 **({"entity": c["entity"]} if c.get("entity") else {})} for c in cs]
             item["devices"].append(od)
         floors.append(item)
     out = {"schemaVersion": SCHEMA_VERSION, "name": name, "building": {"floors": floors}}
