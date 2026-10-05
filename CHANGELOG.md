@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.36.1] - 2026-10-05
+### Changed
+- **Code split, step 1 (#137)**: the heating panel moved out of `app.js` into its own module `heatpanel.js` with unit tests (rounding of the target temperature, the badge, one call for several clicks, the mode buttons). Nothing changes for the user.
+
 ## [3.36.0] - 2026-10-05
 ### Added
 - **Power editor (#136)**: new tool bar button *Power editor*. While it is on, only the power things are shown and can be picked or moved (house connection, meter cabinet, meter, inverter, solar panel, battery, wallbox) and the cables are shown; everything else is hidden. The library switches to the new category *Power*.

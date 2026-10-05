@@ -43,6 +43,10 @@ jobs:
         run: |
           cp floorplan3d/rootfs/app/static/kitchen.js /tmp/kitchen.mjs
           KITCHEN_MJS=/tmp/kitchen.mjs node --test tests/kitchen.test.mjs
+      - name: Heating panel unit tests
+        run: |
+          cp floorplan3d/rootfs/app/static/heatpanel.js /tmp/heatpanel.mjs
+          HEAT_MJS=/tmp/heatpanel.mjs node --test tests/heatpanel.test.mjs
       - name: Tool bar unit tests
         run: |
           cp floorplan3d/rootfs/app/static/toolbar.js /tmp/toolbar.mjs
