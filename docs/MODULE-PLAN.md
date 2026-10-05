@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.40.6. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **2.600**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.40.7. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **2.420**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -41,6 +41,8 @@ Stand: Version 3.40.6. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `offline.js` | ~100 | Offline-Liste |
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
+| `roomlight.js` | ~95 | Raumlicht-Shader (Lichtflecken, Wandschein), Farbskalen |
+| `earth.js` | ~150 | Erde, Rasen, Grundstücksform, Schnitt durch den Boden |
 | `floorpanel.js` | ~185 | Etagen-Verwaltung: Name, Art, Reihenfolge, Keller/Dach, Dach mit Gauben und weiteren Dächern |
 | `settings.js` | ~165 | Einstellungen: Formular, Laden (mit Wiederholung), Speichern (ETag), Benutzer-Dialog |
 | `openings.js` | ~110 | Türen, Tore, Fenster mit Kontakt: offen/zu, Liste „n offen", Bewegung der Flügel |
@@ -70,7 +72,7 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
 | 20 | **Zeichnen, Auswählen, Zeigerereignisse** (Fangen, Ziehen, Werkzeuge) | ~475 | `pointer.js`, `tools.js` | hoch |
-| 21 | **3D-Aufbau**: Raumlicht-Shader (~80), Erde und Rasen (~120), Dächer und Geländer (~140), `build` selbst (~210) | ~550 | `roomlight.js`, `earth.js`, `roofs.js`, `scene.js` | hoch |
+| 21 | **3D-Aufbau**: Dächer und Geländer (~140), Hologramm-Darstellung (~60), `build` selbst (~210) | ~410 | `roofs.js`, `scene.js` | hoch |
 | 22 | **Zustand, Rückgängig, Speichern, Datenladen, Live-Kanal** | ~80 + ~25 + ~150 | `state.js`, `data.js` | hoch |
 | 23 | **Etagen und Räume wechseln, Navigation, Bewegen mit Wandstopp** | ~200 | `nav.js`, `collide.js` | mittel |
 

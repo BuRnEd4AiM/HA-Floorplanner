@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.40.7] - 2026-10-05
+### Changed
+- **Code split, step 18 (#137)**: the room lighting shaders and colour scales moved out of `app.js` into `roomlight.js`, the ground (earth, lawn, plot shape, the cut through the earth) into `earth.js`, with unit tests. No change in behaviour.
+
 ## [3.40.6] - 2026-10-05
 ### Changed
 - **Code split, step 17 (#137)**: the floor panel (name, kind and order of a floor, adding a basement or a roof, deleting; the roof with its dormers and further roofs) moved out of `app.js` into `floorpanel.js`, with unit tests. No change in behaviour.
