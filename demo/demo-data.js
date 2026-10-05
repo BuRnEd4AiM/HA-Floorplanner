@@ -84,8 +84,8 @@ const layout = {
       { id: 'd9',  type: 'diningtable', x: 8,   z: 2.2,  y: 0,    rot: 0,   scale: 1, name: 'Esstisch',        entity: '' },
       { id: 'd10', type: 'light',      x: 8,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Küchenlicht',     entity: 'light.kueche' },
       { id: 'd11', type: 'sensor',     x: 9.85, z: 0.8, y: 1.6,  rot: 270, scale: 1,   name: 'Temperatur Küche', entity: 'sensor.kueche_temp' },
-      { id: 'n1', type: 'kitchen', x: 8, z: 0.35, y: 0, rot: 0, scale: 1, name: 'Küchenzeile', entity: '' },
-      { id: 'n2', type: 'fridge', x: 9.6, z: 0.4, y: 0, rot: 0, scale: 1, name: 'Kühlschrank', entity: '' },
+      { id: 'n1', type: 'kitchenrun', x: 8, z: 0.42, y: 0, rot: 0, scale: 1, name: 'Küchenzeile', entity: '', legs: [['base', 'sink', 'dish', 'stove', 'fridge']], upper: true, depth: 0.6 },
+      { id: 'rd1', type: 'radiator', x: 0.22, z: 2.2, y: 0.3, rot: 90, scale: 1, name: 'Heizkörper Wohnzimmer', entity: 'climate.wohnzimmer' },
       { id: 'n3', type: 'bathtub', x: 0.5, z: 5.5, y: 0, rot: 90, scale: 0.9, name: 'Badewanne', entity: '' },
       { id: 'n4', type: 'toilet', x: 2.6, z: 6.5, y: 0, rot: 180, scale: 1, name: 'WC', entity: '' },
       { id: 'n5', type: 'basin', x: 2.6, z: 5.0, y: 0, rot: 0, scale: 1, name: 'Waschtisch', entity: '' },
@@ -107,6 +107,13 @@ const layout = {
         pts: [[-1.85, -1.1], [1.85, -1.1], [1.85, 1.1], [-1.85, 1.1]], segs: [{}, { entity: 'light.voute_fenster' }, {}, { entity: 'light.voute_fenster' }] },
       { id: 'd18', type: 'light',      x: 8.6, z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Bürolicht',       entity: 'light.buero' },
       { id: 'd19', type: 'switch',     x: 9.4, z: 6.88, y: 1.1,  rot: 0,   scale: 1,   name: 'Flurschalter',    entity: 'switch.flur' },
+      { id: 'pw_he', type: 'houseentry', x: 9, z: 7.7, y: 0, rot: 0, scale: 1, name: 'Hausanschluss', entity: 'sensor.netz_leistung', cables: [{ id: 'c1', to: 'pw_zm', route: 'floor' }] },
+      { id: 'pw_zm', type: 'powermeter', x: 9.82, z: 6.2, y: 1.4, rot: 270, scale: 1, name: 'Stromzähler', entity: 'sensor.netz_leistung', cables: [{ id: 'c2', to: 'pw_zk', route: 'floor' }] },
+      { id: 'pw_zk', type: 'fusebox', x: 9.82, z: 5.4, y: 1.4, rot: 270, scale: 1, name: 'Zählerkasten', entity: '' },
+      { id: 'pw_wr', type: 'inverter', x: 10.14, z: 5.2, y: 1.2, rot: 90, scale: 1, name: 'Wechselrichter', entity: 'sensor.pv_leistung', cables: [{ id: 'c3', to: 'pw_zk', route: 'floor' }] },
+      { id: 'pw_s1', type: 'solarpanel', x: 16.2, z: 1.2, y: 0, rot: 90, scale: 1, name: 'PV Modul 1', entity: 'sensor.pv_string1', cables: [{ id: 'c4', to: 'pw_wr', route: 'floor' }] },
+      { id: 'pw_s2', type: 'solarpanel', x: 16.2, z: 2.6, y: 0, rot: 90, scale: 1, name: 'PV Modul 2', entity: 'sensor.pv_string2', cables: [{ id: 'c5', to: 'pw_wr', route: 'floor' }] },
+      { id: 'pw_s3', type: 'solarpanel', x: 16.2, z: 4.0, y: 0, rot: 90, scale: 1, name: 'PV Modul 3', entity: 'sensor.pv_string3', cables: [{ id: 'c6', to: 'pw_wr', route: 'floor' }] },
       { id: 'gt1', type: 'tree',    x: -4,   z: -3.2, y: 0, rot: 0,  scale: 1.1, name: 'Apfelbaum', entity: '' },
       { id: 'gt2', type: 'tree',    x: 14.5, z: -3.5, y: 0, rot: 0,  scale: 1.3, name: 'Linde', entity: '' },
       { id: 'gt3', type: 'bush',    x: -5,   z: 5.5,  y: 0, rot: 0,  scale: 1,   name: 'Hecke', entity: '' },
@@ -186,7 +193,12 @@ const entities = {
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
   'switch.flur':             { name: 'Flur Schalter',          state: 'off' },
   'media_player.tv':         { name: 'Fernseher',              state: 'playing', app: 'Netflix' },
-  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat', ct: 21.2, ch: 48 },
+  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat', hvac: 'heating', ct: 21.2, ch: 48, tt: 22, tmin: 16, tmax: 26, tstep: 0.5, modes: ['off', 'heat', 'auto'] },
+  'sensor.netz_leistung':    { name: 'Netzbezug',              state: '450',  unit: 'W' },
+  'sensor.pv_leistung':      { name: 'PV Wechselrichter',      state: '3.2',  unit: 'kW' },
+  'sensor.pv_string1':       { name: 'PV Modul 1',             state: '1100', unit: 'W' },
+  'sensor.pv_string2':       { name: 'PV Modul 2',             state: '1050', unit: 'W' },
+  'sensor.pv_string3':       { name: 'PV Modul 3',             state: '1050', unit: 'W' },
   'sensor.wohnzimmer_temp':  { name: 'Wohnzimmer Temperatur',  state: '21.4', unit: '°C' },
   'sensor.kueche_temp':      { name: 'Küche Temperatur',       state: '22.1', unit: '°C' },
   'sensor.schlafzimmer_temp':{ name: 'Schlafzimmer Temperatur', state: '18.6', unit: '°C' },
@@ -255,7 +267,8 @@ export function installDemoBackend() {
     if (path === 'api/entities') {
       return json(Object.entries(entities).map(([entity_id, e]) => ({
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
-        dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null })));
+        dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
+        hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null })));
     }
     if (path === 'api/service' && method === 'POST') {
       const { service, entity_id: id, data } = JSON.parse(init.body);
@@ -273,6 +286,8 @@ export function installDemoBackend() {
       if (service === 'open_cover') { e.state = 'open'; e.position = 100; }
       if (service === 'close_cover') { e.state = 'closed'; e.position = 0; }
       if (service === 'turn_off') e.state = 'off';
+      if (service === 'set_temperature') { e.tt = data.temperature; if (e.state !== 'off') e.hvac = e.ct < e.tt ? 'heating' : 'idle'; }
+      if (service === 'set_hvac_mode') { e.state = data.hvac_mode; e.hvac = data.hvac_mode === 'off' ? 'off' : (e.ct < e.tt ? 'heating' : 'idle'); }
       return json({ ok: true });
     }
     if (path === 'api/backgrounds' && method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);

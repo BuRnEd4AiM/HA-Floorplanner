@@ -968,6 +968,7 @@ function powerWatts(d) {
 const fmtWatts = (w) => (Math.abs(w) >= 1000 ? `${(Math.abs(w) / 1000).toFixed(2)} kW` : `${Math.round(Math.abs(w))} W`);
 /** the cables of a device; the single `feeds` of the first version counts as an air cable */
 const cablesOf = (d) => (Array.isArray(d.cables) ? d.cables : d.feeds ? [{ id: `${d.id}-f`, to: d.feeds, route: 'air' }] : []);
+const powerCables0 = () => layout.floors.flatMap((f) => f.devices.flatMap((d) => cablesOf(d).map((c) => ({ d, c }))));
 const powerList = () => layout.floors.flatMap((f, fi) => f.devices.filter((d) => POWER_TYPES.has(d.type)).map((d) => ({ d, f, fi })));
 const hiddenByPower = (d) => powerMode && !POWER_TYPES.has(d.type);          // the power editor shows nothing but the power things
 /** the points of a cable: `air` hangs between the two, `floor` runs along the floor of the first and then up, `through` goes through the floors first, then along the floor of the second */
@@ -4894,6 +4895,7 @@ animate();
 if (params.get('debug')) {
   window.__fp = {
     openRoomPanel(id) { openRoomPanel(id); },
+    powerLinks: () => powerCables0().map(({ d, c }) => ({ from: d.id, to: c.to, a: !!registry.get(d.id), b: !!registry.get(c.to), route: c.route })),
     powerInfo: () => ({ shown: showPower, flows: powerFlows.map((f) => ({ active: f.active, dir: f.dir, dots: f.dots.length })), labels: powerGroup.children.filter((c) => c.isSprite).length, hidden: [...registry.values()].filter((o) => o.userData?.kind === 'device' && !o.visible).length }),
     ledShown(id) { return !!registry.get(id)?.userData.ledParts?.[0]?.visible; },
     isShown(id) { return !!registry.get(id)?.visible; },
