@@ -393,3 +393,135 @@ def test_battery_charge_sensor_survives_import_and_export():
     assert bat["batPower"] == "sensor.bat_w" and bat["batInvert"] is True
     back = importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]
     assert back["batPower"] == "sensor.bat_w" and back["batInvert"] is True
+
+
+# ---------- stairs, blocks and floor openings (#191)
+def _stairs_spec(stairs, **floor):
+    return {"schemaVersion": 1, "building": {"floors": [{"rooms": [{"name": "A", "points": [[0, 0], [8, 0], [8, 6], [0, 6]]}], "stairs": stairs, **floor}]}}
+
+
+def test_stair_types_match_stairs_js():
+    js = (Path(__file__).parent.parent / "floorplan3d" / "rootfs" / "app" / "static" / "stairs.js").read_text(encoding="utf-8")
+    assert re.search(r"STAIR_TYPES = \[([^\]]*)\]", js).group(1).replace("'", "").replace(" ", "").split(",") == list(importer.STAIR_TYPES)
+    assert int(re.search(r"MAX_FLOORS = (\d+)", js).group(1)) == importer.STAIR_MAX_FLOORS
+    assert [float(x) for x in re.search(r"MIN_TREAD = ([\d.]+), MAX_TREAD = ([\d.]+)", js).groups()] == list(importer.STAIR_TREAD)
+
+
+def test_stairs_are_imported_with_defaults_and_counted():
+    layout, _, rep, summary = importer.build_layout(_stairs_spec([{"type": "U", "x": 1, "z": 2}, {"type": "spiral", "x": 7, "z": 1, "floors": 2, "turn": "left", "dir": "down", "name": "Garten"}]))
+    assert layout is not None and not rep.errors and summary["stairs"] == 2
+    u, sp = layout["floors"][0]["stairs"]
+    assert u["type"] == "U" and u["floors"] == 1 and u["w"] == 1.0 and u["tread"] == 0.27 and u["turn"] == "right" and u["dir"] == "up" and u["id"]
+    assert sp["w"] == 0.9 and sp["floors"] == 2 and sp["turn"] == "left" and sp["dir"] == "down" and sp["name"] == "Garten" and sp["id"] != u["id"]
+
+
+def test_stair_bad_values_are_ignored_with_warnings_and_unknown_types_skipped():
+    layout, _, rep, summary = importer.build_layout(_stairs_spec([
+        {"type": "straight", "x": 1, "z": 1, "floors": 9, "w": 99, "tread": 1, "turn": "up", "dir": "sideways", "rot": "x"},
+        {"type": "ladder", "x": 1, "z": 1}]))
+    s = layout["floors"][0]["stairs"]
+    assert len(s) == 1 and summary["stairs"] == 1 and not rep.errors
+    assert (s[0]["floors"], s[0]["w"], s[0]["tread"], s[0]["turn"], s[0]["dir"], s[0]["rot"]) == (1, 1.0, 0.27, "right", "up", 0.0)
+    paths = " ".join(w["path"] for w in rep.warnings)
+    for key in ("floors", "w", "tread", "turn", "dir", "rot", "stairs[1]"):
+        assert key in paths, key
+
+
+def test_stair_needs_a_position_and_floors_is_a_whole_number():
+    _, _, rep, _ = importer.build_layout(_stairs_spec([{"type": "straight", "x": "a", "z": 1}]))
+    assert rep.errors and "stairs[0]" in rep.errors[0]["path"]
+    layout, _, rep, _ = importer.build_layout(_stairs_spec([{"type": "straight", "x": 1, "z": 1, "floors": 2.5}, {"type": "straight", "x": 1, "z": 1, "floors": True}]))
+    assert [s["floors"] for s in layout["floors"][0]["stairs"]] == [1, 1] and len(rep.warnings) == 2
+
+
+def test_wall_stair_path_is_relative_and_a_path_not_starting_at_zero_is_moved():
+    layout, _, rep, _ = importer.build_layout(_stairs_spec([{"type": "wall", "x": 1.6, "z": 0.1, "path": [[0, 0], [2.3, 0], [2.3, 4.9]], "floors": 2},
+                                                           {"type": "wall", "x": 0, "z": 0, "path": [[1, 1], [3, 1], [3, 4]]}]))
+    a, b = layout["floors"][0]["stairs"]
+    assert not rep.errors and a["path"] == [[0, 0], [2.3, 0], [2.3, 4.9]] and a["floors"] == 2 and (a["x"], a["z"]) == (1.6, 0.1)
+    assert b["path"] == [[0, 0], [2, 0], [2, 3]] and (b["x"], b["z"]) == (1, 1)
+
+
+def test_wall_stair_without_a_usable_path_is_an_error():
+    for bad in (None, [], [[0, 0]], [[0, 0], [0, 0]], [[0, 0], ["a", 1]], [[0, 0]] + [[i, 0] for i in range(1, 40)]):
+        spec = {"type": "wall", "x": 1, "z": 1}
+        if bad is not None:
+            spec["path"] = bad
+        layout, _, rep, _ = importer.build_layout(_stairs_spec([spec]))
+        assert layout is None and any("path" in e["path"] for e in rep.errors), bad
+
+
+def test_stairs_shift_with_the_building_origin_but_the_path_does_not():
+    spec = _stairs_spec([{"type": "wall", "x": 1, "z": 1, "path": [[0, 0], [2, 0]]}])
+    spec["building"]["origin"] = [10, 20]
+    layout, _, _, _ = importer.build_layout(spec)
+    st = layout["floors"][0]["stairs"][0]
+    assert (st["x"], st["z"], st["path"]) == (11, 21, [[0, 0], [2, 0]])
+
+
+def test_blocks_and_holes_are_imported_and_shifted_by_the_origin():
+    spec = _stairs_spec([], blocks=[{"name": "Anbau", "points": [[8, 0], [11, 0], [11, 4], [8, 4]], "h": 3}, {"points": [[0, 0], [2, 0], [2, 2]]}],
+                        holes=[{"points": [[2, 1], [4, 1], [4, 3], [2, 3]]}])
+    spec["building"]["origin"] = [1, 2]
+    layout, _, rep, _ = importer.build_layout(spec)
+    f = layout["floors"][0]
+    assert f["blocks"][0]["name"] == "Anbau" and f["blocks"][0]["h"] == 3.0 and f["blocks"][0]["points"][0] == [9, 2]
+    assert not rep.errors and f["blocks"][1]["name"] == "Block 2" and f["blocks"][1]["points"][0] == [1, 2]      # a block without a name is numbered
+    assert f["holes"][0]["points"][0] == [3, 3]
+
+
+def test_stairs_blocks_and_holes_survive_export_and_import():
+    spec = _stairs_spec([{"type": "L", "x": 1, "z": 1, "rot": 90, "w": 1.1, "turn": "left", "floors": 2},
+                         {"type": "wall", "x": 1.6, "z": 0.1, "turn": "right", "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]], "name": "Haupttreppe"}],
+                        blocks=[{"name": "Anbau", "points": [[8, 0], [11, 0], [11, 4], [8, 4]], "h": 3}], holes=[{"points": [[2, 1], [4, 1], [4, 3], [2, 3]]}])
+    layout, _, _, summary = importer.build_layout(spec)
+    out = importer.layout_to_property(layout)
+    fl = out["building"]["floors"][0]
+    assert len(fl["stairs"]) == 2 and fl["stairs"][1]["path"] == [[0, 0], [2.3, 0], [2.3, 4.9]] and "id" not in fl["stairs"][0]
+    assert fl["blocks"][0]["h"] == 3.0 and fl["holes"][0]["points"][0] == [2, 1]
+    layout2, _, rep, summary2 = importer.build_layout(out)
+    assert layout2 is not None and not rep.errors and summary2["stairs"] == summary["stairs"] == 2
+    strip = lambda s: {k: v for k, v in s.items() if k != "id"}
+    assert [strip(s) for s in layout2["floors"][0]["stairs"]] == [strip(s) for s in layout["floors"][0]["stairs"]]
+    assert [{k: v for k, v in b.items() if k != "id"} for b in layout2["floors"][0]["blocks"]] == [{k: v for k, v in b.items() if k != "id"} for b in layout["floors"][0]["blocks"]]
+    assert layout2["floors"][0]["holes"][0]["points"] == layout["floors"][0]["holes"][0]["points"]
+
+
+def test_export_of_a_layout_made_in_the_editor_keeps_its_stairs():
+    editor = {"version": 1, "floors": [{"id": "f1", "name": "EG", "kind": "floor", "walls": [], "devices": [], "blocks": [], "holes": [],
+              "rooms": [{"id": "r", "name": "A", "color": "#b89b74", "points": [[0, 0], [4, 0], [4, 4], [0, 4]]}],
+              "stairs": [{"id": "s1", "name": "Wall stair", "type": "wall", "w": 0.9, "tread": 0.27, "turn": "right", "dir": "up", "floors": 2, "rot": 0, "x": 1.6, "z": 0.1, "path": [[0, 0], [2.3, 0], [2.3, 3.9]]}]}]}
+    st = importer.layout_to_property(editor)["building"]["floors"][0]["stairs"][0]
+    assert st["type"] == "wall" and st["floors"] == 2 and st["path"][-1] == [2.3, 3.9] and st["name"] == "Wall stair"
+    assert "holes" not in importer.layout_to_property(editor)["building"]["floors"][0]
+
+
+def test_schema_describes_stairs_blocks_and_holes():
+    schema = json.loads((Path(importer.__file__).parent / "property.schema.json").read_text(encoding="utf-8"))
+    d = schema["$defs"]
+    assert d["stair"]["properties"]["type"]["enum"] == list(importer.STAIR_TYPES)
+    assert d["stair"]["properties"]["floors"]["maximum"] == importer.STAIR_MAX_FLOORS
+    assert {"stairs", "blocks", "holes"} <= set(d["floor"]["properties"])
+    assert "path" in d["stair"]["properties"] and "block" in d and "hole" in d
+
+
+def test_a_block_or_hole_that_is_too_small_is_an_error_with_its_path():
+    layout, _, rep, _ = importer.build_layout(_stairs_spec([], holes=[{"points": [[0, 0], [0.3, 0], [0.3, 0.3]]}]))
+    assert layout is None and any("holes[0]" in e["path"] for e in rep.errors)
+
+
+async def test_stairs_survive_import_and_export_over_the_api(client):
+    spec = _stairs_spec([{"type": "wall", "x": 1.6, "z": 0.1, "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]]}, {"type": "spiral", "x": 7, "z": 1, "floors": 2}],
+                        holes=[{"points": [[2, 1], [4, 1], [4, 3], [2, 3]]}])
+    r = await client.post("/api/import?dryRun=1", json=spec)
+    j = await r.json()
+    assert r.status == 200 and j["ok"] and j["summary"]["stairs"] == 2
+    r = await client.post("/api/import?name=Treppen", json=spec)
+    assert r.status == 200, await r.text()
+    hid = (await r.json())["id"]
+    lay = await (await client.get(f"/api/layout?house={hid}")).json()
+    assert [s["type"] for s in lay["floors"][0]["stairs"]] == ["wall", "spiral"] and lay["floors"][0]["holes"]
+    exp = await (await client.get(f"/api/export/property?house={hid}")).json()
+    assert [s["type"] for s in exp["building"]["floors"][0]["stairs"]] == ["wall", "spiral"] and exp["building"]["floors"][0]["stairs"][0]["path"][1] == [2.3, 0]
+    bad = await client.post("/api/import?dryRun=1", json=_stairs_spec([{"type": "wall", "x": 1, "z": 1}]))
+    assert bad.status == 400 and any("path" in e["path"] for e in (await bad.json())["errors"])

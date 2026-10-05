@@ -82,6 +82,119 @@
   }
  },
  "$defs": {
+  "stair": {
+   "type": "object",
+   "description": "A stair. It belongs to the floor it starts on; with dir 'up' it climbs `floors` floors (a hole is cut into each of them), with dir 'down' it comes up from below and ends on this floor.",
+   "required": [
+    "type",
+    "x",
+    "z"
+   ],
+   "properties": {
+    "type": {
+     "enum": [
+      "straight",
+      "L",
+      "U",
+      "spiral",
+      "wall"
+     ],
+     "description": "'wall' is a light stair hanging on a wall (thin step plates, a landing at every bend of its path); it needs `path`."
+    },
+    "x": {
+     "type": "number",
+     "description": "Start of the stair in metres (bottom, middle of the first step; for a spiral its centre)."
+    },
+    "z": {
+     "type": "number"
+    },
+    "rot": {
+     "type": "number",
+     "description": "Rotation around (x, z) in degrees.",
+     "default": 0
+    },
+    "w": {
+     "type": "number",
+     "minimum": 0.4,
+     "maximum": 4,
+     "description": "Width of the steps in metres (radius of a spiral)."
+    },
+    "tread": {
+     "type": "number",
+     "minimum": 0.1,
+     "maximum": 0.45,
+     "default": 0.27,
+     "description": "Depth of one step in metres (not used by spiral and wall stairs)."
+    },
+    "turn": {
+     "enum": [
+      "left",
+      "right"
+     ],
+     "default": "right",
+     "description": "Side the stair turns to (L, U, spiral). For a wall stair: the side the steps stick out to, seen in walking direction."
+    },
+    "dir": {
+     "enum": [
+      "up",
+      "down"
+     ],
+     "default": "up"
+    },
+    "floors": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 6,
+     "default": 1,
+     "description": "How many floors the stair climbs. A spiral makes one turn per floor."
+    },
+    "name": {
+     "type": "string"
+    },
+    "path": {
+     "type": "array",
+     "minItems": 2,
+     "maxItems": 30,
+     "items": {
+      "$ref": "#/$defs/point"
+     },
+     "description": "Only for type 'wall': the line along the wall in metres, relative to (x, z); the first point is [0, 0] (another start is moved there). Every bend between two stretches becomes a landing."
+    }
+   }
+  },
+  "block": {
+   "type": "object",
+   "required": [
+    "points"
+   ],
+   "description": "Placeholder block: a part of the house without detail (e.g. an annex), drawn as a solid body on this floor.",
+   "properties": {
+    "name": {
+     "type": "string"
+    },
+    "points": {
+     "$ref": "#/$defs/polygon"
+    },
+    "h": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 30,
+     "description": "Height in metres (default: one floor)."
+    }
+   }
+  },
+  "hole": {
+   "type": "object",
+   "required": [
+    "points"
+   ],
+   "description": "Floor opening: a hole cut into this floor (and into a placeholder block below it), e.g. for a void.",
+   "properties": {
+    "points": {
+     "$ref": "#/$defs/polygon"
+    }
+   }
+  },
   "point": {
    "type": "array",
    "items": {
@@ -316,6 +429,28 @@
       "$ref": "#/$defs/device"
      },
      "description": "Furniture, lights, sensors ..."
+    },
+    "stairs": {
+     "type": "array",
+     "maxItems": 100,
+     "items": {
+      "$ref": "#/$defs/stair"
+     },
+     "description": "Stairs that start on this floor."
+    },
+    "blocks": {
+     "type": "array",
+     "maxItems": 100,
+     "items": {
+      "$ref": "#/$defs/block"
+     }
+    },
+    "holes": {
+     "type": "array",
+     "maxItems": 100,
+     "items": {
+      "$ref": "#/$defs/hole"
+     }
     },
     "roof": {
      "$ref": "#/$defs/roof",

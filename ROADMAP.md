@@ -47,6 +47,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ⬜ Power button is only a short flicker: it must be a real switch that stays on until pressed again ([#174](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/174))
 - ✅ Compass needle turns all the way back after one full turn (fixed in 3.39.3) ([#175](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/175))
 - ✅ Stairs over several floors, light wall stair with landings (drawn along the wall) and an outdoor spiral over several floors (3.40.0) ([#188](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/188))
+- ✅ Import, export and API know stairs, placeholder blocks and floor openings (3.40.1) ([#191](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/191))
 - ⬜ Metal bridge (walkway, about 3 m) between two buildings ([#189](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/189))
 - ⬜ Place solar panels on the roof ([#176](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/176))
 - ⬜ Split `app.js` into smaller modules, step by step ([#137](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/137))
