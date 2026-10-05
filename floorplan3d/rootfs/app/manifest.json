@@ -1,6 +1,6 @@
 {
- "version": "3.40.3",
- "buildHash": "600be18638a04a9a0687c1944e2a11efb7bdf2cccb6f0c3bb5ea7267d1b32dcd",
+ "version": "3.40.4",
+ "buildHash": "b9760a6bf56f24e7645e6ab40e083f4d8d9dde03bab42b82f7044c21f91b1a31",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "530a1c59c99b70317fcf17c081221bb894b615ef4d7b20c6992aa2c2cac51309",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "d1c1de562153175bc4e73b78eda8d56ffd0ae776165c2feadf64005d53614171",
-  "static/app.js": "fea4c21872f9b2ec2518bff85d06a3a5d7c2a1ec2c2a5e81f1b7aa9278e058ee",
+  "static/app.js": "ff87b66dfff232ea2e1c6146ed83e1220e9c75bace5a9e267162c487f35e6ea8",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/background.js": "6ccd7fd8e2e076b02317a864f0957ebe16af4faac9c9dacda16ae11b6e86b172",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
@@ -139,6 +139,7 @@
   "static/blocks.js": "0cd5039f4ddd5d955e250e9ba29eb8d526040b1f3fb719b36db543942f00c22d",
   "static/cameras.js": "f4a7d280af038166043b84361b42ec6ac3451da7bbed03e24f5a3f7a6202b6e2",
   "static/compass.js": "a47770fbc2511ddc67ec3e2bbd52c4052ba95cde66ef539aeba0e1f1ed3d1408",
+  "static/cutaway.js": "d6060174271071da1ce11f2780954abd69133be77a5024464b8bbfeee347432a",
   "static/dormer.js": "1c1a1834cbd56d176758b5976100261b4c04f32d6ccfe6098e17a247f8811156",
   "static/entitypicker.js": "b04001c54b2501a937cced5b74b091ee30f10dc9a96487ed4de6ecd26f189915",
   "static/floorcards.js": "e8176a7f4d31d4ab037929814f3c17a6b964e4cb3c1272c098c3c041b239fe72",
@@ -164,6 +165,7 @@
   "static/nanoleaf.js": "f36e7c670222282ea26a07b11845553c7174173d87a65e83e6455b1cc7fa5eeb",
   "static/objlist.js": "db4995d77efabd90688d5458e94fd7e4dad70e78579526ec94e61a5a1e72170f",
   "static/offline.js": "d711b7e1ef740a95f1c64ed5ff2576fda353e676470ee7379773c9f04ab2fbfb",
+  "static/openings.js": "a74938ea18d817bc41dc114c410a035b09faa70e02caeb3ecd108eff6cbc2de8",
   "static/palettes.js": "06a77fc25666b69d2174080e1b0ab80297f6dc1af00a9e7758c2505cfb679b04",
   "static/plan2d.js": "b61a4e02bfd7fe4b473945b53624ff39158b40f8a7d12cedb2c1ceb55fc3d742",
   "static/power.js": "8f6d4045b1af3e653d36c815f23ac5b0d79dfa070eebe3f194a1b6cae738bf90",

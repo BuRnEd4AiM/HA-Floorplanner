@@ -29,6 +29,8 @@ import { initEntityPicker } from './entitypicker.js';
 import { initObjList } from './objlist.js';
 import { initRoomEntities } from './roomentities.js';
 import { initProps } from './props.js';
+import { initOpenings, openKind, OPEN_KINDS, paneEntity, openingEntities } from './openings.js';
+import { initCutaway } from './cutaway.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -997,76 +999,14 @@ function roomHeat(room, f) {
   return colorFromStops(settings[VIEW_STOPS[mode][0]], vals.reduce((x, y) => x + y) / vals.length);
 }
 
-const OPEN_HEX = 0xff4a3d;
-const openingObjs = () => [...registry.values()].filter((o) => o.userData?.kind === 'opening' && o.userData.pivot);
-/** which group an opening belongs to in the lists */
-const openKind = (o) => (o.type === 'door' ? (o.style === 'garage' ? 'gates' : 'doors') : 'windows');
-const OPEN_KINDS = ['doors', 'gates', 'windows'];
-const isOpen = (entity) => !!entity && (ON_STATES.has(states[entity]?.state) || ['opening', 'closing'].includes(states[entity]?.state));   // a garage door on its way is not closed
-const openText = (entity) => (!entity ? '—' : isOpen(entity) ? t('state.open') : states[entity] ? t('state.closed') : '—');
-/* entity of pane i: multi-pane windows may have one contact sensor per pane (o.paneEntities), falling back to the main sensor */
-const paneEntity = (o, i) => (o.paneEntities && o.paneEntities[i]) || o.entity || '';
-const openingEntities = (o) => [...new Set([o.entity, ...(o.paneEntities || [])].filter(Boolean))];
-function applyOpenings() {
-  let n = 0, any = false;
-  layout.floors.forEach((f) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
-    openingEntities(o).forEach((e) => { any = true; if (isOpen(e)) n++; });
-    const obj = registry.get(o.id);
-    if (!obj?.userData.pivot) return;
-    const pps = obj.userData.panePivots;
-    const opens = pps ? pps.map((_, i) => isOpen(paneEntity(o, i))) : [isOpen(o.entity)];
-    const open = opens.some(Boolean);
-    obj.userData.open = open;
-    obj.userData.tint.forEach(({ m, base }) => m.color.setHex(open && openingEntities(o).length ? OPEN_HEX : base));
-    (pps || [obj.userData.pivot]).forEach((pv, i) => { pv.userData.target = opens[i] ? pv.userData.dir * pv.userData.max : 0; });
-  })));
-  const pill = $('#openPill');
-  pill.hidden = !any;
-  pill.textContent = n ? t('open.count', { n }) : t('open.allClosed');
-  pill.classList.toggle('alert', n > 0);
-  if ($('#openDialog').open) renderOpenList();
-}
-/** every door / window whose contact sensor reports open, with its floor and room */
-function openItems() {
-  const out = [];
-  layout.floors.forEach((f, fi) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
-    const open = openingEntities(o).filter(isOpen).length;
-    if (!open) return;
-    const L = wallLength(w) || 1, x = w.a[0] + ((w.b[0] - w.a[0]) * o.pos) / L, z = w.a[1] + ((w.b[1] - w.a[1]) * o.pos) / L;
-    const near = f.rooms.map((r) => ({ r, d: pointInPoly(x, z, r.points) ? 0 : distToPoly(x, z, r.points) })).filter((e) => e.d < 0.4).sort((p, q) => p.d - q.d)[0];   // a door on the edge of a room belongs to it
-    out.push({ floor: fi, id: o.id, kind: openKind(o), name: o.name || t(`prop.${o.type}`), room: near?.r.name || '', n: open });
-  })));
-  return out.sort((p, q) => OPEN_KINDS.indexOf(p.kind) - OPEN_KINDS.indexOf(q.kind) || q.floor - p.floor || p.room.localeCompare(q.room) || p.name.localeCompare(q.name));
-}
-function renderOpenList() {
-  const ul = $('#openList'), list = openItems();
-  ul.replaceChildren();
-  $('#openNone').hidden = !!list.length;
-  let lastKind = null;
-  list.forEach((x) => {
-    if (x.kind !== lastKind) { const hd = document.createElement('li'); hd.className = 'offHead'; hd.textContent = t(`ok.${x.kind}`); ul.append(hd); lastKind = x.kind; }
-    const li = document.createElement('li'), b = document.createElement('button');
-    b.type = 'button';
-    const name = document.createElement('strong'); name.textContent = x.name;
-    const why = document.createElement('span'); why.className = 'offWhy warn'; why.textContent = t('state.open');
-    const meta = document.createElement('small');
-    meta.textContent = [layout.floors[x.floor]?.name, x.room].filter(Boolean).join(' · ');
-    b.append(name, why, meta);
-    b.addEventListener('click', () => { $('#openDialog').close(); offline.show({ floor: x.floor, kind: 'opening', id: x.id }); });
-    li.append(b); ul.append(li);
-  });
-}
-$('#openPill').addEventListener('click', () => { renderOpenList(); $('#openDialog').showModal(); });
-function animateOpenings() {
-  openingObjs().forEach((obj) => {
-   (obj.userData.panePivots || [obj.userData.pivot]).forEach((p) => {
-    const tg = (p.userData.base ?? 0) + (p.userData.target ?? 0);          // base: the closed value (1 for a scaled garage door)
-    const prop = p.userData.axis, holder = p.userData.prop === 'position' ? p.position : p.userData.prop === 'scale' ? p.scale : p.rotation, cur = holder[prop];
-    if (Math.abs(tg - cur) > 0.002) holder[prop] = cur + (tg - cur) * 0.15;
-    (p.userData.followers || []).forEach((fp) => { fp.rotation[fp.userData.axis] = holder[prop] * (fp.userData.dir / (p.userData.dir || 1)); });   // second leaf of a double door
-   });
-  });
-}
+/* ---- Doors, gates and windows with a contact sensor: the code lives in openings.js ---- */
+const openings = initOpenings({
+  $, t, layout: () => layout, states: () => states, onStates: ON_STATES, registry, pointInPoly, distToPoly, show: (target) => offline.show(target),
+});
+const isOpen = (entity) => openings.isOpen(entity);
+const openText = (entity) => openings.openText(entity);
+function applyOpenings() { openings.apply(); }
+function animateOpenings() { openings.animate(); }
 
 /* ================= Cameras (#69): cones, overview, still images; the code lives in cameras.js ================= */
 const cams = initCameras({
@@ -1297,57 +1237,13 @@ function refreshSelection() {
 }
 
 
-/* ---- Cutaway: walls between the camera and the interior sink down so you can look inside ---- */
-function wallCutawayInfo(w, group) {
-  const { cx, cz } = wallsCenter();
-  const mid = [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
-  const len = wallLength(w) || 1;
-  let n = [-(w.b[1] - w.a[1]) / len, (w.b[0] - w.a[0]) / len];        // one of the two wall normals
-  if (n[0] * (mid[0] - cx) + n[1] * (mid[1] - cz) < 0) n = [-n[0], -n[1]];   // point it away from the centre
-  return { group, n, low: 1 };
-}
-const CUT_LOW = 0.14;
-/** fade all materials of a wall to `f` (1 = as built); the built opacity is remembered on the material */
-function setWallFade(c, f) {
-  if (c.fadeNow === f) return;
-  c.fadeNow = f;
-  c.group.traverse((o) => {
-    if (!o.material || o.userData?.kind === 'handle') return;
-    [].concat(o.material).forEach((m) => {
-      const u = m.userData;
-      if (u.baseOp === undefined) { u.baseOp = m.opacity; u.baseTr = m.transparent; u.baseDW = m.depthWrite; }
-      const tr = f < 1 || u.baseTr;
-      m.opacity = u.baseOp * f;
-      m.depthWrite = f < 1 ? false : u.baseDW;
-      if (m.transparent !== tr) { m.transparent = tr; m.needsUpdate = true; }
-    });
-  });
-}
-function updateCutaway() {
-  if (roofs.length) updateRoofFade();
-  updateEarthCut();
-  if (!cutawayWalls.length) return;
-  const { cx, cz } = wallsCenter();
-  let dx = camera.position.x - cx, dz = camera.position.z - cz;
-  const horiz = Math.hypot(dx, dz);
-  const steep = Math.hypot(dx, dz) < (camera.position.y - elev()) * 0.25;   // almost straight down: keep walls
-  dx /= horiz || 1; dz /= horiz || 1;
-  for (const c of cutawayWalls) {
-    const toward = !lowWalls && !halfCut && !steep && (c.n[0] * dx + c.n[1] * dz) > 0.2;
-    const faces = settings.cutaway && toward && !settings.seeThrough;          // see-through walls fade instead of sinking
-    const target = faces ? CUT_LOW : 1;
-    c.low += (target - c.low) * 0.2;
-    if (Math.abs(target - c.low) < 0.002) c.low = target;
-    c.group.scale.y = c.low;
-    const fadeTo = settings.seeThrough && toward ? WALL_SEE : 1;
-    c.fade = c.fade ?? 1;
-    c.fade += (fadeTo - c.fade) * 0.2;
-    if (Math.abs(fadeTo - c.fade) < 0.01) c.fade = fadeTo;
-    setWallFade(c, c.fade);
-    const show = (c.low < 0.6 || c.fade < 0.6) && !isLive();
-    c.handles?.forEach((h) => { h.outline.visible = show; });
-  }
-}
+/* ---- Cutaway: walls between the camera and the interior sink down (or turn see-through) so you can look inside; the code lives in cutaway.js ---- */
+const cutaway = initCutaway({
+  camera, elev: () => elev(), settings: () => settings, lowWalls: () => lowWalls, halfCut: () => halfCut, isLive: () => isLive(), walls: () => cutawayWalls,
+  center: () => wallsCenter(), roofsCount: () => roofs.length, updateRoofFade: () => updateRoofFade(), updateEarthCut: () => updateEarthCut(), wallSee: WALL_SEE,
+});
+const wallCutawayInfo = (w, group) => cutaway.info(w, group);
+function updateCutaway() { cutaway.update(); }
 
 /* ---- Compass: the ring stands still, the needle turns with the camera; the code lives in compass.js ---- */
 const compass = initCompass({ $, t, camera, controls });
