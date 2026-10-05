@@ -332,17 +332,17 @@ def test_cables_and_kitchen_run_import_and_round_trip():
                   {"type": "kitchenrun", "x": 3, "z": 3, "legs": [["base", "nonsense", "sink"], ["stove"]], "upper": False, "depth": 0.7}])
     layout, _, rep, _ = importer.build_layout(spec)
     pv, inv, kit = layout["floors"][0]["devices"]
-    assert pv["feeds"] == inv["id"] and "_key" not in pv and "_feeds" not in pv and "_key" not in inv
+    assert pv["cables"] == [{"id": pv["cables"][0]["id"], "to": inv["id"], "route": "air"}] and "_key" not in pv and "_cables" not in pv and "_key" not in inv
     assert kit["legs"] == [["base", "sink"], ["stove"]] and kit["upper"] is False and kit["depth"] == 0.7
     back = importer.layout_to_property(layout)
     bd = back["building"]["floors"][0]["devices"]
-    assert bd[0]["feeds"] == bd[1]["id"] and bd[1]["id"] and bd[2]["legs"] == [["base", "sink"], ["stove"]]
-    assert importer.build_layout(back)[0]["floors"][0]["devices"][0]["feeds"]
+    assert bd[0]["cables"] == [{"to": bd[1]["id"], "route": "air"}] and bd[1]["id"] and bd[2]["legs"] == [["base", "sink"], ["stove"]]
+    assert importer.build_layout(back)[0]["floors"][0]["devices"][0]["cables"]
 
 
 def test_cable_to_unknown_device_is_dropped_with_a_warning():
     layout, _, rep, _ = importer.build_layout(_prop([{"type": "inverter", "x": 1, "z": 1, "feeds": "nope"}]))
-    assert "feeds" not in layout["floors"][0]["devices"][0]
+    assert "cables" not in layout["floors"][0]["devices"][0]
     assert any("cable" in str(w) for w in rep.warnings)
 
 
@@ -350,3 +350,19 @@ def test_kitchen_modules_match_kitchen_js():
     js = (APP / "static" / "kitchen.js").read_text(encoding="utf-8")
     mods = re.search(r"MOD_W = \{(.*?)\}", js).group(1)
     assert tuple(re.findall(r"(\w+):", mods)) == importer.KITCHEN_MODULES
+
+
+def test_several_cables_with_routes_and_a_cable_to_another_floor():
+    spec = {"schemaVersion": 1, "building": {"floors": [
+        {"name": "EG", "kind": "floor", "rooms": [{"name": "R", "points": [[0, 0], [5, 0], [5, 4], [0, 4]]}], "devices": [
+            {"type": "houseentry", "x": 1, "z": 1, "id": "in", "cables": [{"to": "box", "route": "floor"}]},
+            {"type": "fusebox", "x": 2, "z": 1, "id": "box", "cables": [{"to": "wr", "route": "through"}, {"to": "in", "route": "bogus"}, {"to": "nope"}]}]},
+        {"name": "OG", "kind": "floor", "rooms": [{"name": "O", "points": [[0, 0], [5, 0], [5, 4], [0, 4]]}], "devices": [
+            {"type": "inverter", "x": 2, "z": 1, "id": "wr"}]}]}}
+    layout, _, rep, _ = importer.build_layout(spec)
+    entry, box = layout["floors"][0]["devices"]
+    wr = layout["floors"][1]["devices"][0]
+    assert [c["route"] for c in box["cables"]] == ["through", "floor"] and box["cables"][0]["to"] == wr["id"] and box["cables"][1]["to"] == entry["id"]
+    assert any("nope" in str(w) for w in rep.warnings)
+    back = importer.layout_to_property(layout)["building"]["floors"]
+    assert back[0]["devices"][1]["cables"][0] == {"to": back[1]["devices"][0]["id"], "route": "through"}

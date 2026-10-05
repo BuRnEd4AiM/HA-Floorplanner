@@ -6,7 +6,7 @@ export const TOOLS = [
   ['select', '[data-tool=select]'], ['wall', '[data-tool=wall]'], ['room', '[data-tool=room]'], ['autoRooms', '#autoRooms'],
   ['block', '[data-tool=block]'], ['plot', '[data-tool=plot]'], ['stairs', '[data-tool=stairs]'], ['hole', '[data-tool=hole]'],
   ['opening', '[data-tool=opening]'], ['device', '[data-tool=device]'], ['erase', '[data-tool=erase]'],
-  ['dormer', '#dormerBtn'], ['import', '#importBtn'],
+  ['power', '#powerEditBtn'], ['cable', '#cableBtn'], ['dormer', '#dormerBtn'], ['import', '#importBtn'],
 ];
 const ALWAYS = new Set(['select']);                       // the selection tool can not be hidden, so the bar never gets empty
 const DEFAULT = { order: TOOLS.map(([id]) => id), hidden: [], folded: ['import'] };

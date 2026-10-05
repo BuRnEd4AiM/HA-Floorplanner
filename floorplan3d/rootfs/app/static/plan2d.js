@@ -179,7 +179,8 @@ export function createPlan(ctx) {
   }
   function pickAt(x, z) {
     const f = floor();
-    const devs = f.devices.filter((d) => devHit(d, x, z) && !FLAT.has(d.type)).sort((a, b) => {
+    const pm = (d) => !ctx.powerMode?.() || ctx.isPowerType(d.type);          // the power editor: only power things are picked
+    const devs = f.devices.filter((d) => pm(d) && devHit(d, x, z) && !FLAT.has(d.type)).sort((a, b) => {
       const fa = footOf(a), fb = footOf(b);
       return (fa.r ? fa.r * fa.r * 3 : fa.w * fa.d) - (fb.r ? fb.r * fb.r * 3 : fb.w * fb.d);   // smallest first
     });
@@ -192,7 +193,7 @@ export function createPlan(ctx) {
     if (wb) return { kind: 'wall', id: wb.id };
     const stair = (f.stairs || []).find((q) => stairHit(q, x, z, ctx.floorH()));
     if (stair) return { kind: 'stair', id: stair.id };
-    const rug = f.devices.find((d) => FLAT.has(d.type) && devHit(d, x, z));
+    const rug = f.devices.find((d) => pm(d) && FLAT.has(d.type) && devHit(d, x, z));
     if (rug) return { kind: 'device', id: rug.id };
     const hole = (f.holes || []).filter((r) => ctx.pointInPoly(x, z, r.points));   // a floor opening lies in a room: it wins
     if (hole.length) return { kind: 'hole', id: hole[hole.length - 1].id };
@@ -431,6 +432,7 @@ export function createPlan(ctx) {
     /* devices */
     const devs = [...f.devices].sort((a, b) => (FLAT.has(a.type) ? -1 : 0) - (FLAT.has(b.type) ? -1 : 0));
     devs.forEach((d) => {
+      if (ctx.powerMode?.() && !ctx.isPowerType(d.type)) return;      // the power editor shows only the power things
       if (d.type === 'ledring') { o += drawRing(d, (sel?.kind === 'device' && sel.id === d.id), live); return; }
       if (d.type === 'kitchenrun') {                                   // the modules of the run, each one as its own box
         const ksel = (sel?.kind === 'device' && sel.id === d.id), kcol = ksel ? C.sel : C.accent, kon = d.entity && isOn(d.entity);
@@ -497,6 +499,26 @@ export function createPlan(ctx) {
         if (st) ['len', 'wid'].forEach((k) => { if (hs[k]) { const p = toWorld(st, hs[k][0], hs[k][1]); o += `<rect x="${sx(p[0]) - 6}" y="${sy(p[1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; } });
       }
       if (POLY_KINDS.has(sel.kind)) { const rm = polyList(f, sel.kind).find((q) => q.id === sel.id); if (rm) rm.points.forEach((p) => { o += hnd(p); }); }
+    }
+
+    /* power cables (#136): amber lines between power devices, along the floor like the real cable; a cable to another floor ends in an arrow */
+    if (!live && ctx.showCables?.()) {
+      const byId = new Map(); ctx.allDevices?.().forEach(({ d, fi }) => byId.set(d.id, { d, fi }));
+      const here = ctx.floorIndex?.();
+      f.devices.forEach((d) => ctx.cablesOf(d).forEach((c) => {
+        const tg = byId.get(c.to);
+        if (!tg) return;
+        const sel2 = sel?.kind === 'device' && (sel.id === d.id || sel.id === c.to);
+        const col = sel2 ? C.sel : '#ffb347';
+        if (tg.fi !== here) {
+          const up = tg.fi > here, p = [sx(d.x), sy(d.z)];
+          o += `<path d="M${p[0]} ${p[1]}l0 ${up ? -18 : 18}" stroke="${col}" stroke-width="2" fill="none" stroke-dasharray="3 3"/><text x="${p[0] + 4}" y="${p[1] + (up ? -20 : 28)}" font-size="10" fill="${col}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${up ? '↑' : '↓'} ${esc(ctx.floorName?.(tg.fi) || '')}</text>`;
+          return;
+        }
+        const a = [sx(d.x), sy(d.z)], b = [sx(tg.d.x), sy(tg.d.z)];
+        const pts = c.route === 'air' ? [a, b] : [a, [b[0], a[1]], b];
+        o += `<polyline points="${pts.map((q) => q.join(',')).join(' ')}" fill="none" stroke="${col}" stroke-width="2.4" stroke-linejoin="round" ${c.route === 'air' ? 'stroke-dasharray="6 4"' : ''} opacity=".9"/>`;
+      }));
     }
 
     /* hover + drafts */
@@ -926,6 +948,9 @@ export function createPlan(ctx) {
         ctx.setSelection({ kind: 'opening', id: o.id });
         ctx.commit();
       }
+    } else if (tool === 'cable') {
+      const h = pickAt(x, z);
+      if (h?.kind === 'device') ctx.cableClick(h.id);
     } else if (tool === 'device') {
       const [px2, pz2] = snapPt(x, z, { fine: true, ends: false });
       ctx.snapshot();

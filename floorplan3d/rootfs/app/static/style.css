@@ -566,3 +566,9 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 .kitchenMod { display: flex; gap: 4px; margin-bottom: 4px; }
 .kitchenMod select { flex: 1; min-width: 0; }
 .kitchenMod button, .kitchenAdd { padding: 2px 8px; }
+
+#cableBtn[hidden] { display: none; }
+body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset; }
+.cableRow { display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
+.cableRow select { flex: 1 1 120px; min-width: 0; }
+.cableRow button { padding: 2px 8px; }

@@ -838,6 +838,43 @@ with sync_playwright() as p:
     check("power: pressing again hides the cables", pgW.evaluate("window.__fp.powerInfo()")["flows"] == [])
     pgW.close()
 
+    # --- power editor (#136): only power things, several cables from one device, routes
+    pgE = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgE.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pgE.goto(BASE + "?debug=1&mode=edit"); pgE.wait_for_timeout(1500)
+    pgE.evaluate("""() => { const L = window.__fp.layout; const dv = (id, type, x, z, y) => ({id, type, x, z, y, rot: 0, scale: 1, name: id, entity: ''});
+      L.floors.push({id: 'ef', name: 'Strom', kind: 'floor', walls: [], rooms: [{id: 'er', name: 'R', points: [[0,0],[6,0],[6,5],[0,5]]}],
+        devices: [dv('he', 'houseentry', 1, 1, 0), dv('fb', 'fusebox', 3, 1, 1.4), dv('bt', 'battery', 5, 1, 0), dv('lp', 'light', 3, 4, 2)], blocks: [], stairs: []});
+      window.__fp.switchFloor(L.floors.length - 1); window.__fp.rebuild(); }""")
+    pgE.wait_for_timeout(500)
+    pgE.click("#view2d"); pgE.wait_for_timeout(400)
+    pgE.evaluate("window.__fp.plan().fit()"); pgE.wait_for_timeout(300)
+    check("power editor: the cable tool is hidden until the editor is on", not pgE.is_visible("#cableBtn"))
+    pgE.click("#powerEditBtn"); pgE.wait_for_timeout(500)
+    check("power editor: on, the cable tool shows and the library shows the power things", pgE.is_visible("#cableBtn") and pgE.evaluate("document.body.dataset.power") == "1")
+    check("power editor: other devices (the lamp) are hidden in 3D", pgE.evaluate("window.__fp.powerInfo().hidden") >= 1, pgE.evaluate("window.__fp.powerInfo()"))
+    pgE.click("#cableBtn"); pgE.wait_for_timeout(200)
+    clk = lambda x, z: (lambda c: (pgE.mouse.move(*c), pgE.wait_for_timeout(120), pgE.mouse.click(*c), pgE.wait_for_timeout(250)))(pgE.evaluate("window.__fp.plan().toClient(%s,%s)" % (x, z)))
+    clk(3, 4); clk(1, 1)
+    cab = lambda: pgE.evaluate("(window.__fp.layout.floors.at(-1).devices.find(d => d.id === 'he').cables || [])")
+    check("power editor: the lamp cannot be wired (not a power thing)", cab() == [], cab())
+    clk(3, 1); clk(1, 1); clk(5, 1)
+    check("power editor: two clicks make a cable, a device can have several", len(cab()) == 2 and cab()[0]["route"] == "floor" and {c["to"] for c in cab()} == {"fb", "bt"}, cab())
+    pgE.wait_for_timeout(400)
+    pgE.click("#view3d"); pgE.wait_for_timeout(700)
+    check("power editor: both cables are drawn in 3D", len(pgE.evaluate("window.__fp.powerInfo().flows")) == 2, pgE.evaluate("window.__fp.powerInfo()"))
+    pgE.click("#view2d"); pgE.wait_for_timeout(400)
+    pgE.click("button[data-tool=select]"); pgE.wait_for_timeout(200)
+    c = pgE.evaluate("window.__fp.plan().toClient(1,1)"); pgE.mouse.click(*c); pgE.wait_for_timeout(400)
+    check("power editor: the properties list both cables with a route each", pgE.locator(".cableRow").count() == 2 and pgE.locator(".cableRoute").count() == 2, pgE.locator(".cableRow").count())
+    pgE.locator(".cableRoute").first.select_option("through"); pgE.wait_for_timeout(300)
+    check("power editor: the route can be changed", cab()[0]["route"] == "through", cab())
+    pgE.locator(".cableRow button").first.click(); pgE.wait_for_timeout(300)
+    check("power editor: the cross removes one cable", len(cab()) == 1, cab())
+    pgE.click("#powerEditBtn"); pgE.wait_for_timeout(400)
+    check("power editor: off again, the lamp is back and the cable tool is gone", pgE.evaluate("window.__fp.powerInfo().hidden") == 0 and not pgE.is_visible("#cableBtn"), pgE.evaluate("window.__fp.powerInfo()"))
+    pgE.close()
+
     # --- narrow wall pieces (#142): the opening shrinks to what is left instead of being refused
     pgN = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgN.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
