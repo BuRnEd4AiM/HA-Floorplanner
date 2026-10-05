@@ -849,8 +849,14 @@ with sync_playwright() as p:
     check("power: the Power button appears once the house has a power device", pgW.is_visible("#powerBtn"))
     check("power: cables are off until the button is pressed", pgW.evaluate("window.__fp.powerInfo()")["flows"] == [] or not pgW.evaluate("window.__fp.powerInfo()")["shown"])
     pgW.click("#powerBtn"); pgW.wait_for_timeout(600)
+    for _ in range(5):                                       # a periodic refresh of all states can wipe the fake value: set it again until the cable shows it
+        pi = pgW.evaluate("window.__fp.powerInfo()")
+        if pi["flows"] and pi["flows"][0]["active"] and pi["labels"] == 1: break
+        pgW.evaluate("window.__fp.fakeState('sensor.pv_test', '1500'); window.__fp.rebuild()"); pgW.wait_for_timeout(400)
     pi = pgW.evaluate("window.__fp.powerInfo()")
     check("power: the button shows one cable with flowing dots and a watt label", pi["shown"] and len(pi["flows"]) == 1 and pi["flows"][0]["active"] and pi["flows"][0]["dir"] == 1 and pi["flows"][0]["dots"] == 8 and pi["labels"] == 1, pi)
+    if "1.50 kW" not in (pgW.inner_text("#energyPill") if pgW.is_visible("#energyPill") else ""):
+        pgW.evaluate("window.__fp.fakeState('sensor.pv_test', '1500'); window.__fp.rebuild()"); pgW.wait_for_timeout(500)
     check("power: the overview next to the room menu shows the production", pgW.is_visible("#energyPill") and "1.50 kW" in pgW.inner_text("#energyPill"), pgW.inner_text("#energyPill") if pgW.is_visible("#energyPill") else "hidden")
     pgW.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
       f.devices.push({id: 'pwb', type: 'battery', x: 76, z: 70, y: 0, rot: 0, scale: 1, name: 'Bat', entity: 'sensor.bat_pct', batPower: 'sensor.bat_w'});

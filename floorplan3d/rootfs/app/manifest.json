@@ -1,6 +1,6 @@
 {
- "version": "3.39.8",
- "buildHash": "5843f4f2ee96c652f08530f4dd36ea8ef5f7b5ba89d057bced62daa4c7694e8f",
+ "version": "3.39.9",
+ "buildHash": "7d07d9d91129851510836fe5d9077a217c113afd16156194cd59bafc6885e404",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "530a1c59c99b70317fcf17c081221bb894b615ef4d7b20c6992aa2c2cac51309",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "d1c1de562153175bc4e73b78eda8d56ffd0ae776165c2feadf64005d53614171",
-  "static/app.js": "561045154586eb3a8037415e1152eb10704dcf6d56bef6d29299bb4d5af4163b",
+  "static/app.js": "7e8900b52c8011098290fdf3e127e85bfe2116aaa36fc44ae0b4a09250b99514",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
   "static/badges.js": "26d8a4d9b03cb0f3b97ca240e9156121680d519ecf13d513b5581ac3547bcdab",
@@ -163,6 +163,7 @@
   "static/powerlogic.js": "a4e7a1cbbe33d1455acc99047ad6b0fdd2e15c09087b66e4a2e1012be1873d3b",
   "static/rooms.js": "f652a98623eb6e642228b91f3650405c3091679cdae1f54a2d08dac01ff7c1b7",
   "static/search.js": "ed732a7946d1e4782d210455129085698fb738bd49b84b73480c76455d1f4375",
+  "static/settingsui.js": "15ad2524d177307acc9ef4f0316bb23fae3a35becbf6db36679a185c22030495",
   "static/stairs.js": "a3ed6e0045aeaea69cd1ad0e5c5f5c0ddaf0f613ac9d8dd518114b7fe740fb9d",
   "static/style.css": "7f46c15979871b062f235a41b6b3f99c3e3fa8e183e347ee07f79f6b995013b2",
   "static/toolbar.js": "5a23ab6ad9fe51afb2b365c87b4c24850d16b9090349687d247270f152569d3b",

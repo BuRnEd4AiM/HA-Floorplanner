@@ -18,6 +18,7 @@ import { initCameras } from './cameras.js';
 import { initFloorCards } from './floorcards.js';
 import { initFloorRail } from './floorrail.js';
 import { initHouses } from './houses.js';
+import { initSettingsUi } from './settingsui.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -3734,6 +3735,9 @@ function ringProps(body, it) {
 
 /* ================= Settings ================= */
 const dlg = $('#settingsDialog');
+const settingsUi = initSettingsUi({
+  $, t, settings: () => settings, defaults: DEFAULT_LOOK, layout: () => layout, houses: () => hs.list(), houseId: () => hs.id(), houseName: () => hs.current()?.name || '', commit: () => commitSettings(),
+});
 const bindings = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
@@ -3754,109 +3758,10 @@ function fillSettingsForm() {
   $('#earthMarginNote').hidden = !(layout.plot?.boundary?.length >= 3);
   $('#weatherList').replaceChildren(...entities.filter((e) => e.entity_id.startsWith('weather.')).map((e) => { const o = document.createElement('option'); o.value = e.entity_id; o.label = e.name; return o; }));
   $('#setPerf').value = perfStored;
-  renderTablets();
-  renderStops('#tempStops', 'tempStops', '°C');
-  renderStops('#humidStops', 'humidStops', '%');
-  renderStops('#co2Stops', 'co2Stops', 'ppm');
-}
-/** rooms for the tablet dropdown, grouped by house: [{ house, rooms: [{ name, floor }] }], top floor first */
-function roomsByHouse(lay, houseName) {
-  const rooms = [...(lay.floors || [])].reverse().filter((f) => f.kind !== 'roof')
-    .flatMap((f) => (f.rooms || []).filter((r) => r.name).map((r) => ({ name: r.name, floor: f.name })));
-  return { house: houseName, rooms };
-}
-let roomGroups = null;                       // filled with all houses when the users dialog opens, until then only the open house
-const currentRoomGroups = () => [roomsByHouse(layout, hs.current()?.name || '')];
-async function loadRoomGroups() {
-  if (hs.list().length < 2) { roomGroups = null; return; }
-  const out = [];
-  for (const h of hs.list()) {
-    if (h.id === hs.id()) { out.push(roomsByHouse(layout, h.name)); continue; }
-    try { const r = await fetch(`api/layout?house=${encodeURIComponent(h.id)}`); if (r.ok) out.push(roomsByHouse(await r.json(), h.name)); } catch { /* skip a house that cannot be read */ }
-  }
-  roomGroups = out;
-}
-let haUsers = [];
-async function loadHaUsers() {
-  try { const r = await fetch('api/users'); haUsers = r.ok ? await r.json() : []; } catch { haUsers = []; }
-  const dl = $('#haUsers'); dl.replaceChildren();
-  haUsers.forEach((u) => { const o = document.createElement('option'); o.value = u.username; o.label = u.name; dl.append(o); });
-}
-const VIEW_OPTS = ['3d', '2d', 'split', 'all'];
-function tabletRow(user = '', room = '', view = '3d') {
-  const row = document.createElement('div'); row.className = 'stop tablet';
-  const u = document.createElement('input'); u.type = 'text'; u.value = user; u.dataset.role = 'user'; u.placeholder = t('set.tabletUser'); u.setAttribute('list', 'haUsers');
-  const sel = document.createElement('select'); sel.dataset.role = 'room';
-  sel.add(new Option(t('set.wholeHouse'), ''));
-  const groups = roomGroups || currentRoomGroups();
-  groups.forEach((g) => {
-    if (!g.rooms.length) return;
-    const og = document.createElement('optgroup'); og.label = g.house || t('set.wholeHouse');
-    g.rooms.forEach((r) => og.append(new Option(`${r.name} · ${r.floor}`, r.name)));
-    sel.append(og);
-  });
-  if (room && !groups.some((g) => g.rooms.some((r) => r.name === room))) sel.add(new Option(room, room));
-  sel.value = room;
-  const vs = document.createElement('select'); vs.dataset.role = 'view';
-  VIEW_OPTS.forEach((v) => vs.add(new Option(t(`set.view.${v}`), v)));
-  vs.value = VIEW_OPTS.includes(view) ? view : '3d';
-  const del = document.createElement('button'); del.type = 'button'; del.textContent = '×';
-  del.addEventListener('click', () => { row.remove(); commitSettings(); });
-  row.append(u, sel, vs, del);
-  return row;
-}
-function renderTablets() {
-  const box = $('#tabletRows');
-  box.replaceChildren();
-  const names = [...new Set([...Object.keys(settings.userRooms || {}), ...Object.keys(settings.userViews || {})])];
-  names.forEach((user) => box.append(tabletRow(user, (settings.userRooms || {})[user] || '', (settings.userViews || {})[user] || '3d')));
-}
-function readTablets() {
-  const rooms = {}, views = {};
-  document.querySelectorAll('#tabletRows .tablet').forEach((r) => {
-    const u = r.querySelector('[data-role=user]').value.trim();
-    if (!u) return;
-    const room = r.querySelector('[data-role=room]').value;
-    if (room) rooms[u] = room;
-    views[u] = r.querySelector('[data-role=view]').value;
-  });
-  return { rooms, views };
-}
-$('#addTablet').addEventListener('click', () => {
-  const row = tabletRow(); $('#tabletRows').append(row); row.querySelector('input').focus();
-});
-function renderStops(sel, key, unit) {
-  const box = $(sel);
-  box.replaceChildren();
-  settings[key].forEach((s, i) => {
-    const row = document.createElement('div'); row.className = 'stop';
-    const num = document.createElement('input'); num.type = 'number'; num.step = 'any'; num.value = s.v; num.dataset.role = 'v';
-    const u = document.createElement('span'); u.textContent = unit;
-    const col = document.createElement('input'); col.type = 'color'; col.value = s.c; col.dataset.role = 'c';
-    const del = document.createElement('button'); del.type = 'button'; del.textContent = '×'; del.title = t('set.removeStop');
-    del.disabled = settings[key].length <= 2;
-    del.addEventListener('click', () => { settings[key].splice(i, 1); renderStops(sel, key, unit); commitSettings(); });
-    row.append(num, u, col, del);
-    box.append(row);
-  });
-  const bar = document.createElement('div'); bar.className = 'stopBar';
-  bar.style.background = `linear-gradient(90deg, ${settings[key].map((s) => s.c).join(',')})`;
-  const add = document.createElement('button'); add.type = 'button'; add.textContent = t('set.addStop');
-  add.disabled = settings[key].length >= 10;
-  add.addEventListener('click', () => {
-    const last = settings[key][settings[key].length - 1];
-    settings[key].push({ v: last.v + 5, c: last.c }); renderStops(sel, key, unit); commitSettings();
-  });
-  const reset = document.createElement('button'); reset.type = 'button'; reset.textContent = t('set.resetStops');
-  reset.addEventListener('click', () => { settings[key] = structuredClone(DEFAULT_LOOK[key]); renderStops(sel, key, unit); commitSettings(); });
-  const tools = document.createElement('div'); tools.className = 'stopTools'; tools.append(add, reset);
-  box.append(bar, tools);
-}
-function readStops(sel, fallback) {
-  const rows = [...$(sel).querySelectorAll('.stop')].map((r) => ({
-    v: parseFloat(r.querySelector('[data-role=v]').value), c: r.querySelector('[data-role=c]').value }))
-    .filter((s) => Number.isFinite(s.v));
-  return rows.length >= 2 ? rows.sort((x, y) => x.v - y.v) : fallback;
+  settingsUi.renderTablets();
+  settingsUi.renderStops('#tempStops', 'tempStops', '°C');
+  settingsUi.renderStops('#humidStops', 'humidStops', '%');
+  settingsUi.renderStops('#co2Stops', 'co2Stops', 'ppm');
 }
 function readSettingsForm() {
   const next = { ...settings };
@@ -3871,10 +3776,10 @@ function readSettingsForm() {
     else if (key === 'grid') next[key] = parseFloat(el.value);
     else next[key] = el.value;
   }
-  const tb = readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views;
-  next.tempStops = readStops('#tempStops', settings.tempStops);
-  next.humidStops = readStops('#humidStops', settings.humidStops);
-  next.co2Stops = readStops('#co2Stops', settings.co2Stops);
+  const tb = settingsUi.readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views;
+  next.tempStops = settingsUi.readStops('#tempStops', settings.tempStops);
+  next.humidStops = settingsUi.readStops('#humidStops', settings.humidStops);
+  next.co2Stops = settingsUi.readStops('#co2Stops', settings.co2Stops);
   return next;
 }
 function applySettings(prev = {}) {
@@ -3950,15 +3855,15 @@ async function syncUsersFile() {
     if (r.status === 404) { await refreshUsersFile(t('users.syncMissing')); return; }
     if (!r.ok) { await refreshUsersFile(t('users.syncFail', { msg: body.error || r.status })); return; }
     settings = { ...settings, ...body }; settingsEtag = r.headers.get('ETag') || settingsEtag;
-    renderTablets();
+    settingsUi.renderTablets();
     await refreshUsersFile(t('users.syncDone', { n: new Set([...Object.keys(settings.userRooms || {}), ...Object.keys(settings.userViews || {})]).size }));
   } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
 }
 $('#usersBtn').addEventListener('click', async () => {
   if (!settingsLoaded) await loadSettings();
   fillSettingsForm();                                  // the form behind the dialogs must hold the real settings before the first save reads it back (else the defaults, e.g. the hologram theme, win)
-  usersDlg.showModal(); loadHaUsers(); refreshUsersFile();
-  loadRoomGroups().then(() => { if (usersDlg.open && roomGroups) renderTablets(); });   // all houses, grouped; the first paint already shows the open house
+  usersDlg.showModal(); settingsUi.loadHaUsers(); refreshUsersFile();
+  settingsUi.loadRoomGroups().then((ok) => { if (usersDlg.open && ok) settingsUi.renderTablets(); });   // all houses, grouped; the first paint already shows the open house
 });
 async function saveUsersFile() {
   try {
