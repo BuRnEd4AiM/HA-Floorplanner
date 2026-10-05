@@ -806,4 +806,5 @@ export default {
   'dev.watermeter': 'Contador de agua', 'dev.gasmeter': 'Contador de gas', 'dev.heatmeter': 'Contador de calor',
   'dev.bridge': 'Puente / pasarela', 'bridge.len': 'Longitud', 'bridge.width': 'Anchura', 'bridge.rail': 'Barandilla', 'bridge.help': 'La superficie de paso está a la altura de la planta donde se coloca el puente. Para unir dos partes del edificio, colocarlo en la planta superior y girarlo para alinearlo.',
   'power.editorOff': 'Editor de energía desactivado: solo muestra aparatos eléctricos y contadores, de lo contrario el objeto colocado sería invisible.',
+  'plan.rotate': '↻ El plano gira', 'plan.rotateTip': 'Girar el plano 2D con la vista 3D: arriba es siempre la dirección de la cámara',
 };

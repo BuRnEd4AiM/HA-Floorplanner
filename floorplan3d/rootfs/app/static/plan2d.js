@@ -4,6 +4,7 @@
 import { nanoBounds } from './nanoleaf.js';
 import { kitchenLayout } from './kitchen.js';
 import { solarField } from './solarroof.js';
+import { rotPoint, readableAngle } from './planview.js';
 import { bridgeSize } from './bridge.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
@@ -54,6 +55,7 @@ export function createPlan(ctx) {
 
   let visible = false;
   let s = 60, tx = 0, ty = 0;                 // px per metre + offset
+  let rot = 0;                                // degrees the plan is turned on the screen (with the 3D view, #212)
   let W = 800, H = 600;
   let drawPts = [], cursor = null, shift = false;
   let hover = null, opPreview = null;
@@ -296,12 +298,13 @@ export function createPlan(ctx) {
 
     /* grid */
     const step = s >= 40 ? 0.5 : s >= 18 ? 1 : 5, minor = s >= 90 ? 0.1 : null;
-    const x0 = wx(0), x1 = wx(W), z0 = wz(0), z1 = wz(H);
+    const D = rot ? (Math.hypot(W, H) - Math.min(W, H)) / 2 + 10 : 0;      // a turned plan shows more than the screen rectangle
+    const x0 = wx(-D), x1 = wx(W + D), z0 = wz(-D), z1 = wz(H + D);
     let g = '';
     const lines = (stp, col) => {
       let d = '';
-      for (let x = Math.floor(x0 / stp) * stp; x <= x1; x += stp) d += `M${sx(x).toFixed(1)} 0V${H}`;
-      for (let z = Math.floor(z0 / stp) * stp; z <= z1; z += stp) d += `M0 ${sy(z).toFixed(1)}H${W}`;
+      for (let x = Math.floor(x0 / stp) * stp; x <= x1; x += stp) d += `M${sx(x).toFixed(1)} ${-D}V${H + D}`;
+      for (let z = Math.floor(z0 / stp) * stp; z <= z1; z += stp) d += `M${-D} ${sy(z).toFixed(1)}H${W + D}`;
       return `<path d="${d}" stroke="${col}" stroke-width="1" fill="none"/>`;
     };
     if (minor) g += lines(minor, 'rgba(160,215,255,.05)');
@@ -436,8 +439,7 @@ export function createPlan(ctx) {
         const nx = -uz, nz = ux;
         const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2, off = w.thickness / 2 + 11 / s;
         const px = sx(mx + nx * off), py = sy(mz + nz * off);
-        let ang = Math.atan2(w.b[1] - w.a[1], w.b[0] - w.a[0]) * 180 / Math.PI;
-        if (ang > 90 || ang < -90) ang += 180;
+        const ang = readableAngle(Math.atan2(w.b[1] - w.a[1], w.b[0] - w.a[0]) * 180 / Math.PI, rot);
         const isSel = sel?.kind === 'wall' && sel.id === w.id;
         o += `<text transform="translate(${px.toFixed(1)},${py.toFixed(1)}) rotate(${ang.toFixed(1)})" text-anchor="middle" dominant-baseline="middle" font-size="${isSel ? 12 : 10}" fill="${isSel ? C.sel : 'rgba(210,235,255,.75)'}">${esc(ctx.fmtLen(L))}</text>`;
       });
@@ -585,7 +587,10 @@ export function createPlan(ctx) {
       pl.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="5" fill="#ff4fd8" stroke="#fff" stroke-width="1.5"/>`; });
     }
 
-    svg.innerHTML = `<defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="9" height="9" fill="rgba(110,150,230,.10)"/><line x1="0" y1="0" x2="0" y2="9" stroke="rgba(150,190,255,.35)" stroke-width="2"/></pattern><radialGradient id="glow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>${o}`;
+    svg.innerHTML = `<defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="9" height="9" fill="rgba(110,150,230,.10)"/><line x1="0" y1="0" x2="0" y2="9" stroke="rgba(150,190,255,.35)" stroke-width="2"/></pattern><radialGradient id="glow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>${rot ? `<g transform="rotate(${rot.toFixed(2)} ${W / 2} ${H / 2})">${o}</g>` : o}`;
+    if (rot) svg.querySelectorAll('text:not([transform])').forEach((el) => {     // labels stay upright in a turned plan
+      el.setAttribute('transform', `rotate(${(-rot).toFixed(2)} ${el.getAttribute('x') || 0} ${el.getAttribute('y') || 0})`);
+    });
   }
 
   /** LED ring: one line per section, lit sections in their light's colour, small dots at the corners */
@@ -623,6 +628,13 @@ export function createPlan(ctx) {
     if (!p.length) { s = 60; tx = W / 2 - 3 * s; ty = H / 2 - 2 * s; render(); return; }
     const xs = p.map((q) => q[0]), zs = p.map((q) => q[1]);
     const [a0, a1, b0, b1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+    if (rot) {                                                    // a turned plan (#212): fit what it looks like turned, centred (it turns round the middle)
+      const tp = p.map((q) => rotPoint(q, [0, 0], rot)), us = tp.map((q) => q[0]), vs = tp.map((q) => q[1]);
+      const pw = Math.max(Math.max(...us) - Math.min(...us), 2), ph = Math.max(Math.max(...vs) - Math.min(...vs), 2);
+      s = Math.max(12, Math.min(160, Math.min((W - 120) / pw, (H - 200) / ph)));
+      tx = W / 2 - ((a0 + a1) / 2) * s; ty = H / 2 - ((b0 + b1) / 2) * s;
+      render(); return;
+    }
     const padX = 60, padTop = 130, padBottom = 70;
     s = Math.max(12, Math.min(160, Math.min((W - 2 * padX) / Math.max(a1 - a0, 2), (H - padTop - padBottom) / Math.max(b1 - b0, 2))));
     tx = (W - (a1 - a0) * s) / 2 - a0 * s;
@@ -637,7 +649,7 @@ export function createPlan(ctx) {
   }
 
   /* ---------- pointer interaction ---------- */
-  const local = (e) => { const r = root.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  const local = (e) => { const r = root.getBoundingClientRect(), p = [e.clientX - r.left, e.clientY - r.top]; return rot ? rotPoint(p, [W / 2, H / 2], -rot) : p; };   // into the unturned plan
   const pointers = new Map();
   let pinch = null;
 
@@ -1114,7 +1126,10 @@ export function createPlan(ctx) {
       if (v) { requestAnimationFrame(() => { fit(); }); }
     },
     isVisible: () => visible,
-    toClient: (x, z) => { const r = root.getBoundingClientRect(); return [r.left + sx(x), r.top + sy(z)]; },
+    toClient: (x, z) => { const r = root.getBoundingClientRect(), [px, py] = rot ? rotPoint([sx(x), sy(z)], [W / 2, H / 2], rot) : [sx(x), sy(z)]; return [r.left + px, r.top + py]; },
+    /** turn the plan on the screen (degrees, #212); small changes are ignored so a camera at rest does not redraw */
+    setRotation(deg) { if (Math.abs(deg - rot) < 0.5 && (deg === 0) === (rot === 0)) return; rot = deg; render(); },
+    rotation: () => rot,
     render: schedule,
     pickAt, splitWallAt, wallNear,           // for the browser tests
     fit,

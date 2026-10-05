@@ -346,3 +346,5 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 **Nachtest 3.43.6 (24.9, #209):** Die Wendeltreppe hat eine Stange in der Mitte, dünne Stufen ohne etwas darunter und einen Handlauf außen.
 
 **Neu in 3.43.7 (#215):** Pille „n offen“ antippen und einen Eintrag wählen: Die Kamera fliegt zum Fenster bzw. zur Tür, und ein Ring zeigt die Stelle (wie bei der Suche). Genauso bei der Liste „offline“ und bei „Im Plan zeigen“ in der Kamera-Übersicht.
+
+**Neu in 3.43.8 (#212):** In der Ansicht „2D + 3D“ ist oben rechts im Plan der Knopf „↻ Plan dreht mit“. Ist er an und du drehst die 3D-Ansicht, dreht sich der Plan mit: oben ist immer die Blickrichtung. Die Schrift bleibt lesbar, Klicken und Zeichnen funktionieren weiter. Ein zweiter Druck stellt den Plan wieder gerade.

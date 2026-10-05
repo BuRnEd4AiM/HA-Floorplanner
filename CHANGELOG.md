@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.43.8] - 2026-10-05
+### Added
+- **The 2D plan turns with the 3D view (#212)**: in "2D + 3D" a new switch "↻ Plan turns along" in the corner of the plan turns the plan so that up is always the direction the camera looks. Labels stay upright, clicking and drawing in the turned plan work as before. Off (the default) the plan stays straight. The angle maths is in the new module `planview.js` with unit tests.
+
 ## [3.43.7] - 2026-10-05
 ### Changed
 - **Jump from the lists (#215)**: a tap on an entry of the open doors and windows list, of the offline list or on "Show in the plan" of a camera now works like the search: the camera flies there, a ring marks the spot and the thing is selected (before, only the floor changed).
