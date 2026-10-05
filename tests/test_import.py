@@ -384,3 +384,12 @@ def test_cable_kind_and_own_sensor_survive_import_and_export():
     assert bat["cables"][0]["kind"] == "battery" and bat["cables"][0]["entity"] == "sensor.bat_w" and "kind" not in bat["cables"][1]
     out = importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]["cables"]
     assert out[0] == {"to": out[0]["to"], "route": "floor", "kind": "battery", "entity": "sensor.bat_w"} and "kind" not in out[1]
+
+
+def test_battery_charge_sensor_survives_import_and_export():
+    spec = _prop([{"type": "battery", "x": 1, "z": 1, "entity": "sensor.bat_pct", "batPower": "sensor.bat_w", "batInvert": True}])
+    layout, _, _, _ = importer.build_layout(spec)
+    bat = layout["floors"][0]["devices"][0]
+    assert bat["batPower"] == "sensor.bat_w" and bat["batInvert"] is True
+    back = importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]
+    assert back["batPower"] == "sensor.bat_w" and back["batInvert"] is True

@@ -1030,9 +1030,22 @@ function updatePower() {
 function energySummary() {
   const sum = (types) => { const v = powerList().filter(({ d }) => types.includes(d.type)).map(({ d }) => powerWatts(d)).filter((x) => x !== null); return v.length ? v.reduce((a, b) => a + b, 0) : null; };
   const raw = sum(['inverter']) ?? sum(['solarpanel']), prod = raw === null ? null : Math.max(0, raw), grid = sum(['powermeter']) ?? sum(['houseentry']);
-  const bat = powerList().filter(({ d }) => d.type === 'battery').map(({ d }) => ({ d, s: states[d.entity] })).find((x) => x.s && Number.isFinite(parseFloat(x.s.state)));
+  const bats = powerList().filter(({ d }) => d.type === 'battery');
+  const level = bats.map(({ d }) => ({ d, s: states[d.entity] })).find((x) => x.s && Number.isFinite(parseFloat(x.s.state)) && (x.s.unit || '') === '%');
+  const flow = (() => {                                                // plus = charging, minus = discharging (the sign can be turned round per battery)
+    for (const { d } of bats) {
+      const e = d.batPower || (!level || level.d !== d ? d.entity : ''), s = e ? states[e] : null;
+      if (!s) continue;
+      const txt = String(s.state).toLowerCase();
+      if (/^(charging|laden|lädt)/.test(txt)) return 1;
+      if (/^(discharging|entladen|entlädt)/.test(txt)) return -1;
+      const n = parseFloat(s.state);
+      if (Number.isFinite(n) && (s.unit || '') !== '%') return (n * (/^k/i.test(s.unit || '') ? 1000 : 1)) * (d.batInvert ? -1 : 1);
+    }
+    return null;
+  })();
   const load = prod !== null || grid !== null ? Math.max(0, (prod ?? 0) + (grid ?? 0)) : null;       // production + what comes from the grid (negative = fed in)
-  return { prod, grid, load, battery: bat ? { v: parseFloat(bat.s.state), unit: bat.s.unit || '' } : null };
+  return { prod, grid, load, battery: level || flow !== null ? { v: level ? parseFloat(level.s.state) : null, flow } : null };
 }
 function updateEnergyPill() {
   const pill = $('#energyPill'); if (!pill) return;
@@ -1040,7 +1053,12 @@ function updateEnergyPill() {
   if (e.prod !== null) { parts.push(`☀ ${fmtWatts(e.prod)}`); tips.push(`${t('power.sum.prod')}: ${fmtWatts(e.prod)}`); }
   if (e.grid !== null) { const lab = t(e.grid < 0 ? 'power.sum.feedIn' : 'power.sum.draw'); parts.push(`⚡ ${fmtWatts(e.grid)}`); tips.push(`${lab}: ${fmtWatts(e.grid)}`); }
   if (e.load !== null) { parts.push(`⌂ ${fmtWatts(e.load)}`); tips.push(`${t('power.sum.load')}: ${fmtWatts(e.load)}`); }
-  if (e.battery) { const txt = e.battery.unit === '%' ? `${Math.round(e.battery.v)} %` : fmtWatts(e.battery.v); parts.push(`🔋 ${txt}`); tips.push(`${t('power.sum.battery')}: ${txt}`); }
+  if (e.battery) {
+    const f = e.battery.flow, lvl = e.battery.v === null ? '' : `${Math.round(e.battery.v)} %`;
+    const dir = f === null || Math.abs(f) < 20 ? '' : f > 0 ? ` ↑ ${fmtWatts(f)}` : ` ↓ ${fmtWatts(f)}`;                 // up = charging, down = discharging
+    const word = f === null ? '' : Math.abs(f) < 20 ? t('power.sum.idle') : f > 0 ? t('power.sum.charging') : t('power.sum.discharging');
+    parts.push(`🔋 ${lvl}${dir}`.trim()); tips.push(`${t('power.sum.battery')}: ${[lvl, word].filter(Boolean).join(' · ')}`);
+  }
   pill.hidden = !parts.length;
   pill.textContent = parts.join(' · ');
   pill.title = tips.join('\n');
@@ -2216,6 +2234,12 @@ function cableProps(body, box) {
 }
 /** Power add-on: the cables of this device (target, how it runs, remove) and the ones that arrive here */
 function powerProps(body, it) {
+  if (it.type === 'battery') {                                       // does it charge? an own sensor for the power (plus = charging) or a text sensor ("charging")
+    body.append(pickerField(t('power.batPower'), entityPicker(entities.filter((e) => e.domain === 'sensor').slice(0, 1500), roomAt(it.x, it.z), it.batPower || '', (v) => { snapshot(); if (v) it.batPower = v; else delete it.batPower; changed(); })));
+    const inv = document.createElement('input'); inv.type = 'checkbox'; inv.id = 'batInvert'; inv.checked = !!it.batInvert;
+    inv.addEventListener('change', () => { snapshot(); if (inv.checked) it.batInvert = true; else delete it.batInvert; changed(); });
+    body.append(field(t('power.batInvert'), inv));
+  }
   const head = document.createElement('h4'); head.id = 'powerHead'; head.textContent = t('power.cables'); body.append(head);
   const fiOf = (x) => layout.floors.findIndex((f) => f.devices.includes(x));
   const label = (d) => `${d.name || t(`dev.${d.type}`)} · ${layout.floors[fiOf(d)]?.name || ''}`;
@@ -5042,7 +5066,7 @@ if (params.get('debug')) {
     clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earthCut))) n++; }); return n; },
     earthDbg: () => ({ n: earthCut.normal.toArray(), c: earthCut.constant, solid: earthLawn, cut: !!earthInfo, capVisible: !!earthInfo?.cap.visible, capVerts: earthInfo?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earthBox, ground: earthGround }),
     stateOf: (e) => states[e]?.state,
-    fakeState(e, st) { states[e] = { ...(states[e] || {}), state: st }; applyOpenings(); },
+    fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
       const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');

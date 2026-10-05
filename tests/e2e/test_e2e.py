@@ -843,6 +843,18 @@ with sync_playwright() as p:
     pi = pgW.evaluate("window.__fp.powerInfo()")
     check("power: the button shows one cable with flowing dots and a watt label", pi["shown"] and len(pi["flows"]) == 1 and pi["flows"][0]["active"] and pi["flows"][0]["dir"] == 1 and pi["flows"][0]["dots"] == 8 and pi["labels"] == 1, pi)
     check("power: the overview next to the room menu shows the production", pgW.is_visible("#energyPill") and "1.50 kW" in pgW.inner_text("#energyPill"), pgW.inner_text("#energyPill") if pgW.is_visible("#energyPill") else "hidden")
+    pgW.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+      f.devices.push({id: 'pwb', type: 'battery', x: 76, z: 70, y: 0, rot: 0, scale: 1, name: 'Bat', entity: 'sensor.bat_pct', batPower: 'sensor.bat_w'});
+      window.__fp.fakeState('sensor.bat_pct', '82', '%'); window.__fp.fakeState('sensor.bat_w', '600', 'W'); window.__fp.rebuild(); }""")
+    pgW.wait_for_timeout(600)
+    bt = pgW.inner_text("#energyPill")
+    check("power: the overview shows the battery level and that it charges (arrow up and watts)", "82 %" in bt and "↑" in bt and "600 W" in bt, bt)
+    pgW.evaluate("window.__fp.fakeState('sensor.bat_w', '-450', 'W'); window.__fp.rebuild()"); pgW.wait_for_timeout(600)
+    bt = pgW.inner_text("#energyPill")
+    check("power: a negative value shows that it discharges (arrow down)", "↓" in bt and "450 W" in bt, bt)
+    pgW.evaluate("window.__fp.fakeState('sensor.bat_w', '0', 'W'); window.__fp.rebuild()"); pgW.wait_for_timeout(600)
+    check("power: no flow, no arrow", "82 %" in pgW.inner_text("#energyPill") and "↑" not in pgW.inner_text("#energyPill") and "↓" not in pgW.inner_text("#energyPill"), pgW.inner_text("#energyPill"))
+    pgW.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices = window.__fp.layout.floors[window.__fp.floorIdx()].devices.filter(d => d.id !== 'pwb'); window.__fp.rebuild()"); pgW.wait_for_timeout(300)
     pgW.evaluate("window.__fp.fakeState('sensor.pv_test', '-300'); window.__fp.rebuild()"); pgW.wait_for_timeout(600)
     check("power: a negative value runs the dots backwards", pgW.evaluate("window.__fp.powerInfo()")["flows"][0]["dir"] == -1, pgW.evaluate("window.__fp.powerInfo()"))
     pgW.click("#powerBtn"); pgW.wait_for_timeout(300)

@@ -44,8 +44,8 @@ FLOOR_KINDS = {"floor", "basement", "roof"}
 ROOM_COLORS = ["#b89b74", "#c9c2b4", "#8fb1c2", "#a99bb8", "#9db39a", "#c2a58f", "#9fb0c9", "#b7b08f"]
 # optional device fields that are copied when they have the right type
 DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range")
-DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img")
-DEVICE_FLAGS = ("mirror", "locked", "hideModel")
+DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img", "batPower")
+DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert")
 CABLE_ROUTES = ("floor", "through", "air")
 CABLE_KINDS = ("grid", "solar", "battery", "load")
 KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap")   # same as MOD_W in static/kitchen.js (checked by a test)

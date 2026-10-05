@@ -625,6 +625,15 @@
      },
      "description": "Power add-on: cables from this device to others (house connection -> meter cabinet -> inverter -> solar ...). The direction follows the sign of the value of \"entity\" (negative runs backwards). `feeds` (a single id) is the first version of this and still read."
     },
+    "batPower": {
+     "type": "string",
+     "maxLength": 120,
+     "description": "Only for type battery: sensor for the charge / discharge power (plus = charging; or a text sensor with charging / discharging). \"entity\" is then the charge level in %."
+    },
+    "batInvert": {
+     "type": "boolean",
+     "description": "Only for type battery: turn the sign of the power sensor round (plus = discharging)."
+    },
     "feeds": {
      "type": "string",
      "maxLength": 60,
