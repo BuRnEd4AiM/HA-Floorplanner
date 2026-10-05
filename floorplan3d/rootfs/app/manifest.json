@@ -1,6 +1,6 @@
 {
- "version": "3.39.0",
- "buildHash": "53e5c9994b068622b881bc8e3b0bc41737ba9edc071cc5874ac3c4ef06c1958e",
+ "version": "3.39.1",
+ "buildHash": "bcb1a463d19296a6b4c3d4109113703153162169f5f8fde72f74f9079b8515ce",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -130,7 +130,7 @@
   "property.schema.json": "d1df937d7a12cf5e329dc9619f1c6bc1b9864e5ef878c3ae62bfbe57acc27d7b",
   "server.py": "530a1c59c99b70317fcf17c081221bb894b615ef4d7b20c6992aa2c2cac51309",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
-  "static/app.js": "80f87c7df6aa00d3cca6d385508773d9d64e6235c0b6e6743d15c472a42ca89b",
+  "static/app.js": "67a13515b3ec7cbd5fcc6781499d5d2c995b79cd22039af95f0ad564a7265045",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
   "static/dormer.js": "1c1a1834cbd56d176758b5976100261b4c04f32d6ccfe6098e17a247f8811156",
@@ -149,6 +149,8 @@
   "static/moreinfo.js": "3e6fbc369851fbba399a7edf0ac1868601fcb808bb18f7e43afaa4936197767a",
   "static/nanoleaf.js": "f36e7c670222282ea26a07b11845553c7174173d87a65e83e6455b1cc7fa5eeb",
   "static/plan2d.js": "9c16777c9f4a162f55eae7c8f8ea1e331d80ecef92d47af60d04af33942683a6",
+  "static/power.js": "8f6d4045b1af3e653d36c815f23ac5b0d79dfa070eebe3f194a1b6cae738bf90",
+  "static/powerlogic.js": "a4e7a1cbbe33d1455acc99047ad6b0fdd2e15c09087b66e4a2e1012be1873d3b",
   "static/rooms.js": "f652a98623eb6e642228b91f3650405c3091679cdae1f54a2d08dac01ff7c1b7",
   "static/stairs.js": "a3ed6e0045aeaea69cd1ad0e5c5f5c0ddaf0f613ac9d8dd518114b7fe740fb9d",
   "static/style.css": "7f46c15979871b062f235a41b6b3f99c3e3fa8e183e347ee07f79f6b995013b2",
