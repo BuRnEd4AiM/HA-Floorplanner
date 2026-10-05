@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.39.5. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.39.6. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -41,6 +41,7 @@ Stand: Version 3.39.5. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `offline.js` | ~100 | Offline-Liste |
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
+| `floorcards.js` | ~110 | Etagenkarten (Ganzes Haus) |
 | `cameras.js` | ~190 | Kameras (Sichtkegel, Übersicht, Standbilder) |
 
 ## Noch in `app.js` (Reihenfolge = Empfehlung)
@@ -49,7 +50,6 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
-| 10 | **Etagenkarten** (Ganzes Haus) | ~188 | `floorcards.js` | mittel |
 | 11 | **Etagen-Leiste** (Vorschaubilder) | ~446 | `floorrail.js` | mittel |
 | 12 | **Häuser** (mehrere Grundrisse) | ~111 | `houses.js` | mittel |
 | 13 | **Einstellungen** (Dialog, Speichern) | ~253 | `settings.js` | mittel |

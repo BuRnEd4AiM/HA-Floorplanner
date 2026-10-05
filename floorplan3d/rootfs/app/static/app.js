@@ -15,6 +15,7 @@ import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
 import { initCameras } from './cameras.js';
+import { initFloorCards } from './floorcards.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -1125,81 +1126,11 @@ camPillBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(ca
 document.addEventListener('click', (e) => { dropdowns.forEach(([m, b]) => { if (!m.hidden && !m.contains(e.target) && e.target !== b) toggleMenu(m, b, false); }); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.forEach(([m, b]) => { if (!m.hidden) toggleMenu(m, b, false); }); });
 
-/* ================= Floor cards (whole-house view) ================= */
-/* A small card floats beside every floor: rooms, lights on, windows open. A tap opens that floor. */
-const floorCards = [];                                  // { el, key, pos: Vector3 }
-function updateFloorCards() {
-  const box = $('#floorCards');
-  if (!box) return;
-  if (!houseMode) { if (floorCards.length) { floorCards.length = 0; box.replaceChildren(); } return; }
-  const shown = layout.floors.map((f, i) => ({ f, i })).filter(({ f }) => f.kind !== 'roof' && (f.walls.length || f.rooms.length));
-  if (floorCards.length !== shown.length) { floorCards.length = 0; box.replaceChildren(); }
-  shown.forEach(({ f, i }, n) => {
-    let c = floorCards[n];
-    if (!c) {
-      const el = document.createElement('button'); el.type = 'button'; el.className = 'floorCard';
-      el.addEventListener('click', () => switchFloor(+el.dataset.floor));
-      box.append(el);
-      c = floorCards[n] = { el, key: '', pos: new THREE.Vector3(), corners: [] };
-    }
-    const pts = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points)];
-    const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
-    const [x0, x1, z0, z1, y] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs), elev(i) + FLOOR_H / 2];
-    c.pos.set((x0 + x1) / 2, y, (z0 + z1) / 2);                     // the card points at the middle of the floor ...
-    c.corners = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]].map(([x, z]) => new THREE.Vector3(x, y, z));   // ... and keeps clear of its outline
-    const lights = f.devices.filter((d) => /^light\./.test(d.entity || '') && ON_STATES.has(states[d.entity]?.state)).length;
-    const windows = f.walls.reduce((a, w) => a + (w.openings || []).filter((o) => o.type === 'window' && isOpen(o.entity)).length, 0);
-    const key = JSON.stringify([i, f.name, f.rooms.length, lights, windows, settings.language]);
-    c.el.dataset.floor = i;
-    if (key === c.key) return;
-    c.key = key;
-    c.el.replaceChildren();
-    const h = document.createElement('b'); h.textContent = f.name; c.el.append(h);
-    const sp = document.createElement('span'); sp.className = 'fcm';
-    [t('fc.rooms', { n: f.rooms.length }), t('fc.lights', { n: lights }), t('fc.windows', { n: windows })].forEach((txt) => {
-      const m = document.createElement('em'); m.textContent = txt; sp.append(m);
-    });
-    c.el.append(sp);
-    const parts = [t('fc.rooms', { n: f.rooms.length }), t('fc.lights', { n: lights }), t('fc.windows', { n: windows })];   // widths are estimated, so the layout never flickers between the two forms
-    c.natW = 26 + Math.max(f.name.length * 7.6, parts.join(' · ').length * 6.3);
-    c.narrowW = 26 + Math.max(f.name.length * 7.6, ...parts.map((x) => x.length * 6.3));
-    c.el.title = t('fc.tip', { name: f.name });
-  });
-}
-const _cardV = new THREE.Vector3();
-function placeFloorCards() {
-  if (!houseMode || !floorCards.length) return;
-  const w = canvas.clientWidth, h = canvas.clientHeight;
-  if (w < 10 || layoutMode === '2d') { floorCards.forEach((c) => { c.el.style.display = 'none'; }); return; }             // 2D only: no 3D view, no cards
-  const cr = canvas.getBoundingClientRect(), br = $('#floorCards').getBoundingClientRect();
-  const ox = cr.left - br.left, oy = cr.top - br.top;                                             // 2D + 3D: the 3D view is only part of the stage
-  const toScreen = (v) => { _cardV.copy(v).project(camera); return { x: (_cardV.x + 1) / 2 * w, y: (1 - _cardV.y) / 2 * h, ok: _cardV.z < 1 }; };
-  // the cards stand beside the house, not over it: right of its outline, or left of it when there is no room
-  let minX = Infinity, maxX = -Infinity;
-  floorCards.forEach((c) => c.corners.forEach((p) => { const q = toScreen(p); if (q.ok) { minX = Math.min(minX, q.x); maxX = Math.max(maxX, q.x); } }));
-  const vis = [];
-  floorCards.forEach((c) => {
-    const q = toScreen(c.pos);
-    const on = q.ok && q.y > -40 && q.y < h + 40 && isFinite(maxX);
-    c.el.style.display = on ? '' : 'none';
-    if (on) vis.push({ c, y: q.y });
-  });
-  const wide = Math.max(0, ...vis.map((v) => v.c.natW || 260)), slim = Math.max(0, ...vis.map((v) => v.c.narrowW || 150));
-  const leftEdge = ox > 0 ? 8 : 150;                       // 150: keep clear of the floor rail
-  const fitsRight = maxX + 16 + wide <= w - 8, fitsLeft = minX - 16 - wide >= leftEdge;
-  const narrow = !fitsRight && !fitsLeft;                  // no room beside the house: shorter cards, one value per line
-  floorCards.forEach((c) => c.el.classList.toggle('narrow', narrow));
-  const wmax = narrow ? slim : wide;
-  const right = maxX + 16 + wmax <= w - 8;
-  const x = right ? maxX + 16 : Math.max(leftEdge, Math.min(minX - 16 - wmax, w - wmax - 8));
-  vis.sort((p, q) => p.y - q.y);
-  let free = -Infinity;                                  // floors lie close above each other on screen: push the cards apart
-  vis.forEach((v) => { v.y = Math.max(v.y, free); free = v.y + (v.c.el.offsetHeight || 44) + 6; });
-  const last = vis[vis.length - 1];
-  const over = last ? last.y + (last.c.el.offsetHeight || 44) / 2 - (h - 64) : 0;   // keep clear of the buttons at the bottom
-  const lift = over > 0 ? Math.min(over, Math.max(0, vis[0].y - (vis[0].c.el.offsetHeight || 44) / 2 - 56)) : 0;
-  vis.forEach((v) => { v.c.el.style.transform = `translate(${(x + ox).toFixed(0)}px, ${(v.y - lift - (v.c.el.offsetHeight || 44) / 2 + oy).toFixed(0)}px)`; });
-}
+/* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
+const floorCards = initFloorCards({
+  $, t, camera, canvas, layout: () => layout, states: () => states, onStates: ON_STATES, settings: () => settings, isOpen: (e) => isOpen(e), houseMode: () => houseMode,
+  layoutMode: () => layoutMode, elev: (i) => elev(i), floorH: FLOOR_H, switchFloor: (i) => switchFloor(i),
+});
 
 /* colour scale at the edge while a room colouring is on */
 let legendKey = '';
@@ -1225,7 +1156,7 @@ function applyStates() {
   power.update();
   cams.updateCones();
   cams.updatePill();
-  updateFloorCards();
+  floorCards.update();
   offline.update();
   alertsUi.update();
   if (!layout.floors[floorIdx]) return;
@@ -2810,10 +2741,10 @@ $('#explodeToggle').addEventListener('click', () => { exploded = !exploded; upda
 function setHouseMode(on) {
   houseMode = on; selection = null; lockedSel = false; focusedRoom = null; document.body.classList.toggle('house', on);
   clearFocusOutline(); build(); fitCamera(); refreshSelection(); buildNav(true);
-  updateFloorCards(); updateExplodeToggle();
+  floorCards.update(); updateExplodeToggle();
 }
 function switchFloor(i) {
-  houseMode = false; document.body.classList.remove('house'); updateFloorCards(); updateExplodeToggle();
+  houseMode = false; document.body.classList.remove('house'); floorCards.update(); updateExplodeToggle();
   floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; endDrawing(); closeLivePopup(); closeRoomPanel();
   clearFocusOutline(); build(); fitCamera(); refreshSelection();
   if (bgMode) setBgMode(null); else renderBgPanel();
@@ -4346,7 +4277,7 @@ function animate(now = performance.now()) {
   power.animate(now);
   selHelper?.update();
   declutterLabels();
-  placeFloorCards();
+  floorCards.place();
   renderer.render(scene, camera);
 }
 init();
