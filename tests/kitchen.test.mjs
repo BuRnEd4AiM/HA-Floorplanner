@@ -51,3 +51,23 @@ test('an empty run still has a size, so it can be seen and picked', () => {
   assert.equal(l.cells.length, 0);
   assert.ok(l.w > 0 && l.d > 0);
 });
+
+test('a module can have its own width: the leg gets longer and the cells follow', () => {
+  const plain = K.kitchenLayout({ legs: [['base', 'dish', 'stove']] });
+  const wide = K.kitchenLayout({ legs: [['base', { m: 'dish', w: 0.9 }, 'stove']] });
+  assert.ok(Math.abs(wide.w - plain.w - 0.3) < 1e-9);
+  assert.equal(wide.cells[1].type, 'dish');
+  assert.ok(Math.abs(wide.cells[1].w - 0.9) < 1e-9);
+});
+test('withWidth goes back to the plain name at the standard width, and keeps limits', () => {
+  assert.equal(K.withWidth('dish', 0.6), 'dish');
+  assert.deepEqual(K.withWidth('dish', 0.45), { m: 'dish', w: 0.45 });
+  assert.equal(K.withWidth({ m: 'sink', w: 0.8 }, 1.0), 'sink');
+  assert.equal(K.modW({ m: 'base', w: 9 }), K.MAX_MOD_W);
+  assert.equal(K.modW({ m: 'base', w: 0.01 }), K.MIN_MOD_W);
+});
+test('withType keeps a custom width, cleanLegs drops unknown modules but keeps resized ones', () => {
+  assert.deepEqual(K.withType({ m: 'base', w: 0.8 }, 'drawers'), { m: 'drawers', w: 0.8 });
+  assert.equal(K.withType('base', 'drawers'), 'drawers');
+  assert.deepEqual(K.cleanLegs([['base', { m: 'x', w: 1 }, { m: 'fridge', w: 0.7 }]]), [['base', { m: 'fridge', w: 0.7 }]]);
+});

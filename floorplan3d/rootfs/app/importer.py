@@ -279,7 +279,13 @@ def _device(rep: Report, path: str, spec, ids):
     if raw:
         d["_cables"] = [{"to": c["to"][:60], "route": c["route"] if c.get("route") in CABLE_ROUTES else "floor"} for c in raw]
     if typ == "kitchenrun":
-        legs = [[m for m in leg if m in KITCHEN_MODULES][:16] for leg in (spec.get("legs") or [])[:3] if isinstance(leg, list)]
+        def module(m):                                   # a name, or {"m": name, "w": width in metres} for a resized module
+            if isinstance(m, str):
+                return m if m in KITCHEN_MODULES else None
+            if isinstance(m, dict) and m.get("m") in KITCHEN_MODULES and _num(m.get("w"), 0.3, 2.4):
+                return {"m": m["m"], "w": round(float(m["w"]), 2)}
+            return None
+        legs = [[x for x in map(module, leg) if x is not None][:16] for leg in (spec.get("legs") or [])[:3] if isinstance(leg, list)]
         d["legs"] = [lg for lg in legs if lg] or [["base", "sink", "dish", "base", "stove", "base", "fridge"]]
         d["upper"] = spec.get("upper") is not False
         if _num(spec.get("depth"), 0.4, 1.2):

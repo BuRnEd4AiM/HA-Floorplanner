@@ -735,6 +735,10 @@ with sync_playwright() as p:
     pgK.evaluate("window.__fp.camAt(43, 14, 2.5, 3, 2.5)"); pgK.wait_for_timeout(1200)
     txt_e = pgK.inner_text("#compassFrom")
     check("compass: it says from which side we look (south, then east)", txt_s.strip()[-1] == "S" and txt_e.strip()[-1] in "OE", (txt_s, txt_e))
+    check("compass: the ring with the letters stands still, only the needle turns", pgK.get_attribute("#compassRose", "transform") is None and "rotate(" in (pgK.get_attribute("#compassNeedle", "transform") or ""), pgK.get_attribute("#compassNeedle", "transform"))
+    ne_s = pgK.get_attribute("#compassNeedle", "transform")
+    pgK.evaluate("window.__fp.camAt(3, 14, 22, 3, 2.5)"); pgK.wait_for_timeout(1200)
+    check("compass: the needle turns with the camera", pgK.get_attribute("#compassNeedle", "transform") != ne_s, (ne_s, pgK.get_attribute("#compassNeedle", "transform")))
     pgK.close()
 
     # --- heating panel (#134): thermostats of the room get their own panel next to the room panel, with the target temperature, the modes and a sign that it heats
@@ -809,6 +813,12 @@ with sync_playwright() as p:
     check("kitchen run: + Module adds a module", len(kr()["legs"][0]) == 8)
     pgK2.locator(".kitchenMod button >> nth=2").first.click(); pgK2.wait_for_timeout(300)
     check("kitchen run: x removes a module", len(kr()["legs"][0]) == 7)
+    di = kr()["legs"][0].index("dish")
+    wdn = pgK2.locator(".kitchenMod .kitchenW").nth(di)
+    wdn.fill(str(round(float(wdn.input_value()) * 0.75, 4))); wdn.dispatch_event("change"); pgK2.wait_for_timeout(400)      # 0.6 m -> 0.45 m, in whatever unit the page shows
+    nw = kr()["legs"][0][di]
+    check("kitchen run: one module can be made narrower (own width)", isinstance(nw, dict) and nw["m"] == "dish" and abs(nw["w"] - 0.45) < 0.02, kr()["legs"][0])
+    check("kitchen run: the dishwasher is in the module list under its name", "Dishwasher" in pgK2.locator(".kitchenMod select").first.inner_text() or "Spülmaschine" in pgK2.locator(".kitchenMod select").first.inner_text(), pgK2.locator(".kitchenMod select").first.inner_text())
     pgK2.click("#view3d"); pgK2.wait_for_timeout(800)
     check("kitchen run: built in 3D without errors", True)
     pgK2.click("button[data-tool=device]"); pgK2.fill("#paletteSearch", ""); pgK2.wait_for_timeout(200)

@@ -11,13 +11,23 @@ export const MAX_LEGS = 3;
 export const MAX_MODS = 16;
 export const DEFAULT_LEGS = () => [['base', 'sink', 'dish', 'base', 'stove', 'base', 'fridge']];
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+export const MIN_MOD_W = 0.3, MAX_MOD_W = 2.4;
+/* A module is the name of its type (standard width) or { m: type, w: width in metres } when it was resized. */
+export const modType = (m) => (typeof m === 'string' ? m : m?.m);
+export const modW = (m) => (typeof m === 'object' && Number.isFinite(m?.w) ? clamp(m.w, MIN_MOD_W, MAX_MOD_W) : MOD_W[modType(m)]);
+/** the same module with another type (keeps a custom width) or another width (back to the plain name when it equals the standard) */
+export const withType = (m, type) => (typeof m === 'object' && Number.isFinite(m?.w) ? { m: type, w: m.w } : type);
+export const withWidth = (m, w) => {
+  const type = modType(m), v = Math.round(clamp(w, MIN_MOD_W, MAX_MOD_W) * 100) / 100;
+  return v === MOD_W[type] ? type : { m: type, w: v };
+};
 
 /** the legs of a run, cleaned: unknown modules dropped, at most MAX_LEGS legs of MAX_MODS modules each */
 export function cleanLegs(legs) {
   const src = Array.isArray(legs) && legs.length ? legs : DEFAULT_LEGS();
-  return src.slice(0, MAX_LEGS).map((l) => (Array.isArray(l) ? l.filter((m) => m in MOD_W).slice(0, MAX_MODS) : []));
+  return src.slice(0, MAX_LEGS).map((l) => (Array.isArray(l) ? l.filter((m) => modType(m) in MOD_W).map((m) => (typeof m === 'string' ? m : withWidth(m, m.w ?? MOD_W[m.m]))).slice(0, MAX_MODS) : []));
 }
-export const legLength = (leg) => leg.reduce((s, m) => s + MOD_W[m], 0);
+export const legLength = (leg) => leg.reduce((s, m) => s + modW(m), 0);
 
 export function kitchenLayout(d = {}) {
   const D = clamp(Number.isFinite(d.depth) ? d.depth : 0.6, 0.4, 1.2);
@@ -31,9 +41,9 @@ export function kitchenLayout(d = {}) {
     const right = [-h[1], h[0]];
     let s = 0;
     mods.forEach((m, mi) => {
-      const w = MOD_W[m];
+      const w = modW(m);
       cells.push({
-        type: m, leg: li, idx: mi, w, d: D, ang: Math.atan2(-h[1], h[0]),
+        type: modType(m), leg: li, idx: mi, w, d: D, ang: Math.atan2(-h[1], h[0]),
         cx: P[0] + h[0] * (s + w / 2) + right[0] * D / 2,
         cz: P[1] + h[1] * (s + w / 2) + right[1] * D / 2,
       });

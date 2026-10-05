@@ -366,3 +366,11 @@ def test_several_cables_with_routes_and_a_cable_to_another_floor():
     assert any("nope" in str(w) for w in rep.warnings)
     back = importer.layout_to_property(layout)["building"]["floors"]
     assert back[0]["devices"][1]["cables"][0] == {"to": back[1]["devices"][0]["id"], "route": "through"}
+
+
+def test_kitchen_module_with_own_width_survives_import_and_export():
+    spec = _prop([{"type": "kitchenrun", "x": 3, "z": 3, "legs": [["base", {"m": "dish", "w": 0.45}, {"m": "sink", "w": 9}, {"m": "nonsense", "w": 1}]]}])
+    layout, _, _, _ = importer.build_layout(spec)
+    assert layout["floors"][0]["devices"][0]["legs"] == [["base", {"m": "dish", "w": 0.45}]]
+    back = importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]
+    assert back["legs"] == [["base", {"m": "dish", "w": 0.45}]]
