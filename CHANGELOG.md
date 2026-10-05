@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.43.9] - 2026-10-05
+### Added
+- **Several things at once (#211)**: Shift + click (in the 2D plan and in 3D) adds a thing to the selection or takes it out again. Everything selected gets a green frame; the properties panel shows how many and a button "Delete all". The Delete key removes them all, one undo (Ctrl+Z) brings them all back, Esc clears the selection. The list logic is in the new module `multisel.js` with unit tests.
+
 ## [3.43.8] - 2026-10-05
 ### Added
 - **The 2D plan turns with the 3D view (#212)**: in "2D + 3D" a new switch "↻ Plan turns along" in the corner of the plan turns the plan so that up is always the direction the camera looks. Labels stay upright, clicking and drawing in the turned plan work as before. Off (the default) the plan stays straight. The angle maths is in the new module `planview.js` with unit tests.

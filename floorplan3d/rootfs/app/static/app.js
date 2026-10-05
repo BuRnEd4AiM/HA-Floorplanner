@@ -51,6 +51,7 @@ import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
 import { solarPose, groundFn } from './solarroof.js';
 import { initPlanRotate } from './planview.js';
+import { initMultiSelect } from './multisel.js';
 import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround } from './placement.js';
 import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
@@ -82,6 +83,7 @@ let tool = 'select';
 let roomCtx = null;                // room whose entity list stays visible while one of its objects is selected
 let lockedSel = false;            // selected from the side list: only that object reacts to the mouse
 let selection = null;              // { kind: 'wall'|'room'|'device'|'opening', id }
+let multiSel = null;               // Shift + click: several things at once (#211), see multisel.js
 let deviceType = 'light';
 let openingType = 'door';
 let entityChoice = '';
@@ -899,6 +901,7 @@ const kiosk = initKiosk({
 
 function refreshSelHelper() {
   if (selHelper) { scene.remove(selHelper); selHelper = null; }
+  multiSel?.outline();
   const obj = selection && (selection.kind === 'opening' ? openingHandles.get(selection.id)?.mesh : registry.get(selection.id));
   if (!obj) return;
   selHelper = new THREE.BoxHelper(obj, 0x3fa9f5);
@@ -920,6 +923,12 @@ function refreshSelection() {
 }
 
 
+/* ---- Several things at once (Shift + click, Delete removes them all, #211); the code lives in multisel.js ---- */
+multiSel = initMultiSelect({
+  $, t, scene, registry, openingMesh: (id) => openingHandles.get(id)?.mesh, selection: () => selection,
+  setSelection: (sel) => { selection = sel; refreshSelection(); }, deleteItem: (sel, batch) => deleteItem(sel, batch),
+  snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x),
+});
 /* ---- Cutaway: walls between the camera and the interior sink down (or turn see-through) so you can look inside; the code lives in cutaway.js ---- */
 const cutaway = initCutaway({
   camera, elev: () => elev(), settings: () => settings, lowWalls: () => lowWalls, halfCut: () => halfCut, isLive: () => isLive(), walls: () => cutawayWalls,
@@ -941,7 +950,7 @@ function undo() {
   if (!s) return;
   layout = JSON.parse(s);
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
-  selection = null; focusedRoom = null; clearFocusOutline();
+  selection = null; focusedRoom = null; multiSel.clear(); clearFocusOutline();
   fillFloorSelect(); build(); scheduleSave(); bgUi.render(); renderFloorPanel();
 }
 function changed(rebuild = true) {
@@ -1221,6 +1230,7 @@ canvas.addEventListener('pointerdown', (e) => {
   }
   const h = pick(e);
   down.hit = h;
+  if (e.shiftKey) { down.multi = true; return; }                 // Shift + click: add to / take out of the selection, never drag (#211)
   if (h?.kind === 'device') {
     const d = floor().devices.find((v) => v.id === h.id);
     const gp = groundPoint(e);
@@ -1287,7 +1297,8 @@ canvas.addEventListener('pointerup', (e) => {
   const gp = groundPoint(e);
   if (tool === 'select') {
     if (lockedSel) return;                     // locked selection stays until released
-    selection = st.hit; refreshSelection();
+    if (st.multi) { multiSel.toggle(st.hit); return; }
+    multiSel.clear(); selection = st.hit; refreshSelection();
   } else if (tool === 'cable') {
     const h = pickHit(e);
     if (h?.data.kind === 'device') power.cableClick(h.data.id);
@@ -1375,7 +1386,7 @@ function itemOf(kind, id) {
   const list = { wall: f.walls, room: f.rooms, device: f.devices, stair: f.stairs, block: f.blocks, hole: f.holes }[kind] || [];
   return list.find((q) => q.id === id) || null;
 }
-function deleteItem({ kind, id }) {
+function deleteItem({ kind, id }, batch = false) {      // batch: several in a row (#211), the caller rebuilds once
   if (kind === 'cable') {
     if (power.deleteCable(id)) { if (selection?.id === id) selection = null; changed(); }
     return;
@@ -1393,7 +1404,7 @@ function deleteItem({ kind, id }) {
     if (found) found.wall.openings = found.wall.openings.filter((x) => x.id !== id);
   }
   if (selection?.id === id) selection = null;
-  changed();
+  if (!batch) changed();
 }
 
 /** Arrow keys: move the selected item by (dx, dz) metres. Openings slide along their wall (left/up = towards a, right/down = towards b). */
@@ -1440,10 +1451,10 @@ window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
   if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole' || tool === 'stairs')) { plan.finishRoom(); return; }
-  if (k === 'escape') { plan?.cancel(); endDrawing(); popup.close(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); return; }
+  if (k === 'escape') { plan?.cancel(); endDrawing(); popup.close(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); if (multiSel.items().length) { multiSel.clear(); selection = null; refreshSelection(); } return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
-  else if (k === 'delete' || k === 'backspace') { if (selection) { snapshot(); deleteItem(selection); } }
+  else if (k === 'delete' || k === 'backspace') { if (multiSel.items().length) multiSel.deleteAll(); else if (selection) { snapshot(); deleteItem(selection); } }
   else if ((k === 'q' || k === 'e') && selection?.kind === 'stair') {
     const st = floor().stairs.find((v) => v.id === selection.id);
     if (st) { snapshot(); st.rot = ((st.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
@@ -1660,13 +1671,13 @@ function updateExplodeToggle() {
 }
 $('#explodeToggle').addEventListener('click', () => { exploded = !exploded; updateExplodeToggle(); build(); fitCamera(); });
 function setHouseMode(on) {
-  houseMode = on; selection = null; lockedSel = false; focusedRoom = null; document.body.classList.toggle('house', on);
+  houseMode = on; selection = null; lockedSel = false; focusedRoom = null; multiSel.clear(); document.body.classList.toggle('house', on);
   clearFocusOutline(); build(); fitCamera(); refreshSelection(); buildNav(true);
   floorCards.update(); updateExplodeToggle();
 }
 function switchFloor(i) {
   houseMode = false; document.body.classList.remove('house'); floorCards.update(); updateExplodeToggle();
-  floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; endDrawing(); popup.close(); roomPanel.close();
+  floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; multiSel.clear(); endDrawing(); popup.close(); roomPanel.close();
   clearFocusOutline(); build(); fitCamera(); refreshSelection();
   if (bgUi.mode()) bgUi.setMode(null); else bgUi.render();
   renderFloorPanel();
@@ -1805,6 +1816,7 @@ const roomEnts = initRoomEntities({
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0,
 });
 const props = initProps({
+  multiBox: () => multiSel.box(),
   $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, roomCtx: () => roomCtx, setRoomCtx: (id) => { roomCtx = id; },
   fields: { field, inp, lenInput, pickerField }, entityPicker: (...a) => entityPicker(...a), entities: () => entities, areas: () => areas,
   findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(),
@@ -1945,7 +1957,7 @@ plan = createPlan({
   getTool: () => tool, getOpeningType: () => openingType, isLive: () => isLive(), isLocked: () => lockedSel,
   getSelection: () => selection,
   holdPlaced,
-  setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
+  setSelection: (h) => { multiSel.clear(); selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); }, toggleMulti: (h) => multiSel.toggle(h), multiItems: () => multiSel.items(),
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate: (a, b) => bgUi.calibrate(a, b),
   bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: blocks.setPlot, placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
@@ -2071,6 +2083,7 @@ if (params.get('debug')) {
     has: (id) => registry.has(id),
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     selection: () => selection,
+    multi: () => multiSel.items(),
     devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), bx = new THREE.Box3(); o.children.forEach((c) => { if (!c.userData.proxy) bx.expandByObject(c); }); const sz = bx.getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)], h: +sz.y.toFixed(2), minY: +bx.min.y.toFixed(3), visible: o.visible }; },
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
       const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');

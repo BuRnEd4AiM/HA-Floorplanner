@@ -62,6 +62,8 @@ export function initProps(ctx) {
     if (!it) { box.hidden = true; return; }
     box.hidden = false;
     $('#propsTitle').textContent = t(propsTitleKey(selection.kind, it));
+    const multi = ctx.multiBox?.();                            // several things selected (#211): their count and "delete all" on top
+    if (multi) body.append(multi);
 
     if (selection.kind === 'wall') wallProps(body, it);
     else if (selection.kind === 'room') roomProps(body, it);

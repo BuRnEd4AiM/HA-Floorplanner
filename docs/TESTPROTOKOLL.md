@@ -348,3 +348,5 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 **Neu in 3.43.7 (#215):** Pille „n offen“ antippen und einen Eintrag wählen: Die Kamera fliegt zum Fenster bzw. zur Tür, und ein Ring zeigt die Stelle (wie bei der Suche). Genauso bei der Liste „offline“ und bei „Im Plan zeigen“ in der Kamera-Übersicht.
 
 **Neu in 3.43.8 (#212):** In der Ansicht „2D + 3D“ ist oben rechts im Plan der Knopf „↻ Plan dreht mit“. Ist er an und du drehst die 3D-Ansicht, dreht sich der Plan mit: oben ist immer die Blickrichtung. Die Schrift bleibt lesbar, Klicken und Zeichnen funktionieren weiter. Ein zweiter Druck stellt den Plan wieder gerade.
+
+**Neu in 3.43.9 (#211):** Ein Ding anklicken, dann mit gedrückter **Shift-Taste** weitere anklicken (im 2D-Plan und in 3D). Alle Ausgewählten haben einen grünen Rahmen, rechts steht „n ausgewählt“ mit dem Knopf „Alle n löschen“. **Entf** löscht alle, **Strg+Z** holt sie mit einem Schritt zurück, **Esc** hebt die Auswahl auf. Shift + Klick auf ein schon ausgewähltes Ding nimmt es wieder heraus.
