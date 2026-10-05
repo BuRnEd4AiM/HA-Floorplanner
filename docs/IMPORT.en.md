@@ -121,6 +121,9 @@ Unknown types are skipped with a warning. All types are listed in the schema (`/
 **Kitchen run** (`"type": "kitchenrun"`): `legs` = up to 3 legs (straight, L, U), each a list of modules (`base`, `drawers`, `sink`, `stove`, `dish`, `fridge`, `tall`, `gap`), plus `upper` (wall cabinets, default `true`) and `depth` (0.4 to 1.2 m).
 `{ "type": "kitchenrun", "x": 3, "z": 2, "legs": [["base","sink","dish","stove","fridge"],["base","base"]], "upper": true }`
 
+**Bridge / walkway** (`"type": "bridge"`): `len` = length (0.5 to 30 m, default 3), `w` = width (0.5 to 5 m, default 1.2), `noRail: true` = no railing. The walking surface is at the level of the floor, `rot` turns it.
+`{ "type": "bridge", "x": 12, "z": 4, "len": 3, "rot": 90 }`
+
 **Solar panel** (`"type": "solarpanel"`): `cols` = panels side by side, `rows` = rows (each 1 to 12, default 1), `mount` = `auto` (default: flat on sloped roofs, on a rack on a flat roof and the ground), `flat` or `stand`. When the device is on the floor of kind `roof`, it follows the roof surface below it.
 `{ "type": "solarpanel", "x": 4, "z": 2, "cols": 4, "rows": 2 }`
 

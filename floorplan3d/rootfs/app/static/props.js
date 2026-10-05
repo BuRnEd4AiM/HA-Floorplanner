@@ -6,6 +6,7 @@ import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverla
 import { roomOpenings } from './roompanel.js';
 import { initKitchenUi } from './kitchenui.js';
 import { MOUNTS, MAX_FIELD } from './solarroof.js';
+import { BRIDGE, bridgeSize } from './bridge.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -214,6 +215,7 @@ export function initProps(ctx) {
     if (it.type === 'ledring') ringProps(body, it);
     if (it.type === 'kitchenrun') kitchenProps(body, it);
     if (it.type === 'solarpanel') solarProps(body, it);
+    if (it.type === 'bridge') bridgeProps(body, it);
     if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), ctx.entityPicker(pickFrom(entities), ctx.roomAt(it.x, it.z), it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
     if (it.type === 'camera') {                                  // #69: field of view cone on the floor
@@ -227,6 +229,17 @@ export function initProps(ctx) {
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();
+  }
+
+  /** Metal bridge (#189): length, width, railing */
+  function bridgeProps(body, it) {
+    const b = bridgeSize(it);
+    body.append(field(t('bridge.len'), lenInput(() => b.len, (v) => { it.len = bridgeSize({ len: v }).len; }, { min: BRIDGE.minLen, step: 0.1 })));
+    body.append(field(t('bridge.width'), lenInput(() => b.width, (v) => { it.w = bridgeSize({ w: v }).width; }, { min: BRIDGE.minWidth, step: 0.1 })));
+    const rc = document.createElement('input'); rc.type = 'checkbox'; rc.checked = !it.noRail; rc.id = 'bridgeRail';
+    rc.addEventListener('change', () => { ctx.snapshot(); if (rc.checked) delete it.noRail; else it.noRail = true; ctx.changed(); });
+    body.append(field(t('bridge.rail'), rc));
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('bridge.help'); body.append(hp);
   }
 
   /** Solar panels (#176): a field of columns x rows; on the roof floor it lies on the roof surface, or stands on a rack */

@@ -1976,7 +1976,7 @@ function liveMove(d) {
 }
 /* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
    the wall instead of freezing, and door openings let it through. Wall-hung items, outdoor items and ceiling-free objects are exempt. */
-const STOP_EXEMPT = new Set(['ledring', ...WALL_TYPES_LIST(), ...OUTDOOR]);
+const STOP_EXEMPT = new Set(['ledring', 'bridge', ...WALL_TYPES_LIST(), ...OUTDOOR]);
 function WALL_TYPES_LIST() { return ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
 function penetration(m, x, z, w) {
   const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L = Math.hypot(sx, sz) || 1e-9, ux = sx / L, uz = sz / L;
@@ -2381,7 +2381,7 @@ if (params.get('debug')) {
     fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
-    devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), sz = new THREE.Box3().setFromObject(o).getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)] }; },
+    devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), bx = new THREE.Box3(); o.children.forEach((c) => { if (!c.userData.proxy) bx.expandByObject(c); }); const sz = bx.getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)], h: +sz.y.toFixed(2) }; },
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
       const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');
       if (!pos) return null;

@@ -4,6 +4,7 @@
 import { nanoBounds } from './nanoleaf.js';
 import { kitchenLayout } from './kitchen.js';
 import { solarField } from './solarroof.js';
+import { bridgeSize } from './bridge.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 
@@ -84,6 +85,7 @@ export function createPlan(ctx) {
     const k = d.scale || 1;
     if (d.type === 'picture') return { w: (d.w || 0.6) * k, d: 0.06 };
     if (d.type === 'kitchenrun') { const l = kitchenLayout(d); return { w: l.w * k, d: l.d * k }; }
+    if (d.type === 'bridge') { const b = bridgeSize(d); return { w: b.len * k * (d.sx || 1), d: b.width * k * (d.sz || 1) }; }   // metal bridge (#189)
     if (d.type === 'solarpanel' && ((d.cols || 1) > 1 || (d.rows || 1) > 1)) { const l = solarField(d); return { w: l.w * k * (d.sx || 1), d: l.d * k * (d.sz || 1) }; }   // a field of panels (#176)
     if (d.type === 'nanoleaf') return { w: nanoBounds(d.panels).w * k * (d.sx || 1), d: 0.06 };
     if (d.type === 'ledring') {                                   // not used for hits (those follow the line), only for sizes and labels

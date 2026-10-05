@@ -417,6 +417,18 @@ def test_solar_limits_match_solarroof_js_and_schema():
     assert dev["cols"]["maximum"] == importer.SOLAR_MAX_FIELD and dev["mount"]["enum"] == list(importer.SOLAR_MOUNTS)
 
 
+# ---------- metal bridge (#189)
+def test_bridge_length_width_and_railing_survive_import_and_export():
+    spec = _prop([{"type": "bridge", "x": 4, "z": 2, "y": 2.8, "len": 3.5, "w": 1.4, "noRail": True}])
+    layout, _, rep, _ = importer.build_layout(spec)
+    d = layout["floors"][0]["devices"][0]
+    assert not rep.errors and d["type"] == "bridge" and d["len"] == 3.5 and d["w"] == 1.4 and d["noRail"] is True and d["y"] == 2.8
+    back = importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]
+    assert back["len"] == 3.5 and back["w"] == 1.4 and back["noRail"] is True
+    schema = json.loads((Path(importer.__file__).parent / "property.schema.json").read_text(encoding="utf-8"))
+    assert {"len", "noRail"} <= set(schema["$defs"]["device"]["properties"])
+
+
 # ---------- stairs, blocks and floor openings (#191)
 def _stairs_spec(stairs, **floor):
     return {"schemaVersion": 1, "building": {"floors": [{"rooms": [{"name": "A", "points": [[0, 0], [8, 0], [8, 6], [0, 6]]}], "stairs": stairs, **floor}]}}

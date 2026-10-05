@@ -1526,6 +1526,33 @@ with sync_playwright() as p:
     pgSol.wait_for_timeout(2500)                                  # the autosave has run: put the layout back as it was for the next tests
     pgSol.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", sol_saved); pgSol.wait_for_timeout(400)
     pgSol.close()
+    # --- metal bridge between two building parts (#189)
+    pgBr = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgBr.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pgBr.goto(BASE + "?debug=1&mode=edit"); pgBr.wait_for_timeout(2500)
+    br_saved = api_admin("api/layout")
+    pgBr.evaluate("""() => { const fp = window.__fp; fp.switchFloor(0); fp.layout.floors[0].devices.push({ id: 'brTest', type: 'bridge', x: 40, z: 40, y: 0, rot: 0, scale: 1, name: '', entity: '' }); fp.rebuild(); }""")
+    pgBr.wait_for_timeout(500)
+    q1 = pgBr.evaluate("window.__fp.devPose('brTest')")
+    check("bridge (#189): built in 3D, 3 m long and 1.2 m wide with a railing about 1 m high", q1 and abs(q1["size"][0] - 3) < 0.06 and abs(q1["size"][1] - 1.2) < 0.06 and abs(q1["h"] - 1.26) < 0.05, q1)
+    pgBr.click("#view2d"); pgBr.wait_for_timeout(600)
+    c = pgBr.evaluate("window.__fp.plan().toClient(40, 40)"); pgBr.mouse.click(*c); pgBr.wait_for_timeout(400)
+    check("bridge (#189): the panel shows length, width and railing", pgBr.locator("#bridgeRail").count() == 1)
+    if pgBr.locator("#bridgeRail").count():
+        ln = pgBr.locator("#propsBody input[type=number]").nth(0)
+        for i in range(pgBr.locator("#propsBody .prop").count()):
+            lab = pgBr.locator("#propsBody .prop").nth(i).locator("label").inner_text()
+            if lab in ("Length", "Länge"):
+                ln = pgBr.locator("#propsBody .prop").nth(i).locator("input"); break
+        ft = pgBr.evaluate("window.__fp.settings().units") == "imperial"           # the field shows the current unit
+        ln.fill(f"{4.5 / 0.3048:.4f}" if ft else "4.5"); ln.dispatch_event("change"); pgBr.wait_for_timeout(400)
+        pgBr.uncheck("#bridgeRail"); pgBr.wait_for_timeout(400)
+        dv = pgBr.evaluate("window.__fp.layout.floors[0].devices.find(v => v.id === 'brTest')")
+        q2 = pgBr.evaluate("window.__fp.devPose('brTest')")
+        check("bridge (#189): length 4.5 m and no railing are kept and shown", abs(dv["len"] - 4.5) < 0.01 and dv.get("noRail") is True and abs(q2["size"][0] - 4.5) < 0.06 and q2["h"] < 0.4, (dv, q2))
+    pgBr.wait_for_timeout(2500)
+    pgBr.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", br_saved); pgBr.wait_for_timeout(400)
+    pgBr.close()
     set_setting("seeThrough", False); set_setting("cutaway", True)
     pgR = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgR.goto(BASE + "?debug=1&mode=live"); pgR.wait_for_timeout(2500)

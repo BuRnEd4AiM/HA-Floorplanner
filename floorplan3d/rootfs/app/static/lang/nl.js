@@ -804,4 +804,5 @@ export default {
   'dev.presence': 'Aanwezigheid / persoon', 'nav.occupied': 'Er is iemand in deze kamer',
   'solar.cols': 'Panelen naast elkaar', 'solar.rows': 'Rijen', 'solar.mount': 'Montage', 'solar.mount.auto': 'Automatisch', 'solar.mount.flat': 'Plat op het dak', 'solar.mount.stand': 'Op een frame', 'solar.onRoof': 'Ligt op het dak: hoogte en helling volgen het dakvlak eronder. Automatisch = plat op schuine daken, op een frame op een plat dak.', 'solar.roofHint': 'Op het dak leggen: open de verdieping „Dak” en plaats het zonnepaneel daar, het volgt dan de dakhelling.',
   'dev.watermeter': 'Watermeter', 'dev.gasmeter': 'Gasmeter', 'dev.heatmeter': 'Warmtemeter',
+  'dev.bridge': 'Brug / loopbrug', 'bridge.len': 'Lengte', 'bridge.width': 'Breedte', 'bridge.rail': 'Leuning', 'bridge.help': 'Het loopvlak ligt op de hoogte van de verdieping waarop de brug staat. Om twee gebouwdelen te verbinden: op de bovenste verdieping plaatsen en door draaien uitlijnen.',
 };
