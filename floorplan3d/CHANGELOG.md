@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.40.3] - 2026-10-05
+### Changed
+- **Code split, step 14 (#137)**: the properties panel moved out of `app.js` into `props.js` (fields per object type, LED ring sections), `objlist.js` (object list of the floor), `roomentities.js` (entities of the selected room, automatic placement), `propfields.js` (input fields of the side panel) and `entitypicker.js` (entity picker with search, grouped by area), with unit tests. No change in behaviour.
+
 ## [3.40.2] - 2026-10-05
 ### Changed
 - **Code split, step 13 (#137)**: live control (switching, light controls, scenes, the "whole room" block), the live popup and the room panel moved out of `app.js` into `livecontrols.js`, `livepopup.js` and `roompanel.js`, with unit tests. Two small geometry helpers (area, distance to an outline) now live once in `rooms.js`. No change in behaviour.

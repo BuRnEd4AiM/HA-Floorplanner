@@ -3,7 +3,6 @@ import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { initToolbar } from './toolbar.js';
 import { DEFAULT_LEGS } from './kitchen.js';
-import { initKitchenUi } from './kitchenui.js';
 import { initAlertsUi } from './alertsui.js';
 import { initSearch } from './search.js';
 import { initBackups } from './backups.js';
@@ -25,14 +24,19 @@ import { initStairTool } from './stairtool.js';
 import { initLiveControls } from './livecontrols.js';
 import { initLivePopup } from './livepopup.js';
 import { initRoomPanel, roomOpenings, roomOpeningSpans } from './roompanel.js';
+import { initPropFields } from './propfields.js';
+import { initEntityPicker } from './entitypicker.js';
+import { initObjList } from './objlist.js';
+import { initRoomEntities } from './roomentities.js';
+import { initProps } from './props.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { planPlacement, classify } from './autoplace.js';
-import { RING_DEFAULT_INSET, ringCount, segEntity, ringEntities, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange } from './ledring.js';
+import { RING_DEFAULT_INSET, segEntity, ringEntities, ringSectionsWorld, ringFromRoom } from './ledring.js';
 import { DEVICE_TYPES, catOf, makeModel, isCustom } from './models.js';
 import {
-  OPENING_DEFAULTS, DOOR_STYLES, WINDOW_STYLES, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, MIN_OPENING,
+  OPENING_DEFAULTS, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
 } from './walls.js';
 import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
@@ -117,6 +121,9 @@ const imperial = () => settings.units === 'imperial';
 const toDisp = (m) => +(imperial() ? m * M_TO_FT : m).toFixed(3);
 const fromDisp = (v) => (imperial() ? v / M_TO_FT : v);
 const fmtLen = (m) => (imperial() ? `${(m * M_TO_FT).toFixed(2)} ft` : `${m.toFixed(2)} m`);
+/* input fields of the side panel and the entity picker: the code lives in propfields.js and entitypicker.js */
+const { field, inp, lenInput, pickerField } = initPropFields({ snapshot: () => snapshot(), changed: () => changed(), toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), imperial: () => imperial() });
+const { entityPicker, addEntityOptions } = initEntityPicker({ t, areas: () => areas, areaOf: () => areaOf });
 
 /* ================= Three.js setup ================= */
 const canvas = $('#view');
@@ -2531,88 +2538,6 @@ document.querySelectorAll('#openingPalette button').forEach((b) => b.addEventLis
   document.querySelectorAll('#openingPalette button').forEach((x) => x.classList.toggle('active', x === b));
 }));
 
-/* Fill a <select> with entities grouped by HA area; the area of `room` comes first. */
-function addEntityOptions(sel, list, room, current) {
-  const byArea = new Map();
-  list.forEach((e) => { const k = areaOf[e.entity_id] || ''; if (!byArea.has(k)) byArea.set(k, []); byArea.get(k).push(e); });
-  const keys = [...byArea.keys()].sort((x, y) => {
-    if (room?.area && x === room.area) return -1;
-    if (room?.area && y === room.area) return 1;
-    if (!x) return 1; if (!y) return -1;
-    return (areas.find((q) => q.id === x)?.name || x).localeCompare(areas.find((q) => q.id === y)?.name || y);
-  });
-  const useGroups = areas.length > 0;
-  keys.forEach((k) => {
-    const parent = useGroups ? Object.assign(document.createElement('optgroup'), {
-      label: k ? (room?.area === k ? t('area.here', { n: areas.find((q) => q.id === k)?.name || k }) : areas.find((q) => q.id === k)?.name || k) : t('area.unassigned') }) : sel;
-    byArea.get(k).forEach((e) => parent.append(new Option(`${e.name} (${e.entity_id})`, e.entity_id)));
-    if (useGroups) sel.append(parent);
-  });
-  if (current && !list.some((e) => e.entity_id === current)) sel.add(new Option(current, current));
-}
-
-/* Entities grouped by HA area (room's area first) -> [{label, items}] */
-function groupEntities(list, room) {
-  const byArea = new Map();
-  list.forEach((e) => { const k = areaOf[e.entity_id] || ''; if (!byArea.has(k)) byArea.set(k, []); byArea.get(k).push(e); });
-  const nameOf = (k) => areas.find((q) => q.id === k)?.name || k;
-  const keys = [...byArea.keys()].sort((x, y) => {
-    if (room?.area && x === room.area) return -1;
-    if (room?.area && y === room.area) return 1;
-    if (!x) return 1; if (!y) return -1;
-    return nameOf(x).localeCompare(nameOf(y));
-  });
-  return keys.map((k) => ({ label: areas.length ? (k ? (room?.area === k ? t('area.here', { n: nameOf(k) }) : nameOf(k)) : t('area.unassigned')) : '', items: byArea.get(k) }));
-}
-
-/* Searchable entity picker: search box + roomy result list (full names wrap, grouped by area).
-   Search matches name, entity id and area; several words = AND; Enter picks the first match. */
-function entityPicker(list, room, current, onChange) {
-  const wrap = document.createElement('div'); wrap.className = 'entPicker';
-  const cur = document.createElement('div'); cur.className = 'entCur';
-  const search = document.createElement('input'); search.type = 'search'; search.placeholder = t('panel.entitySearch');
-  const box = document.createElement('div'); box.className = 'entList'; box.hidden = true;
-  const areaName = (e) => (areas.find((x) => x.id === areaOf[e.entity_id])?.name || '').toLowerCase();
-  let matches = [];
-  const showCur = () => {
-    const e = list.find((x) => x.entity_id === current);
-    cur.textContent = ''; cur.classList.toggle('none', !current);
-    if (!current) { cur.textContent = t('panel.noEntity'); return; }
-    const n = document.createElement('b'); n.textContent = e?.name || current;
-    const id = document.createElement('small'); id.textContent = current;
-    cur.append(n, id);
-  };
-  const choose = (id) => { current = id; search.value = ''; box.hidden = true; showCur(); onChange(id); };
-  const item = (id, name, sub) => {
-    const it = document.createElement('div'); it.className = 'entItem' + (id === current ? ' sel' : ''); it.dataset.id = id;
-    const n = document.createElement('span'); n.textContent = name; it.append(n);
-    if (sub) { const s = document.createElement('small'); s.textContent = sub; it.append(s); }
-    it.addEventListener('pointerdown', (ev) => { ev.preventDefault(); choose(id); });
-    return it;
-  };
-  const fill = () => {
-    const words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
-    matches = list.filter((e) => words.every((w) => `${e.entity_id} ${e.name} ${areaName(e)}`.toLowerCase().includes(w))).slice(0, 300);
-    box.innerHTML = '';
-    box.append(item('', t('panel.noEntity'), ''));
-    groupEntities(matches, room).forEach((g) => {
-      if (g.label) { const h = document.createElement('div'); h.className = 'entGroup'; h.textContent = g.label; box.append(h); }
-      g.items.forEach((e) => box.append(item(e.entity_id, e.name, e.entity_id)));
-    });
-    if (!matches.length) { const n = document.createElement('div'); n.className = 'entEmpty'; n.textContent = '–'; box.append(n); }
-  };
-  search.addEventListener('focus', () => { fill(); box.hidden = false; });
-  search.addEventListener('input', () => { fill(); box.hidden = false; });
-  search.addEventListener('blur', () => { box.hidden = true; });
-  search.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape') { search.blur(); return; }
-    if (ev.key !== 'Enter' || !matches.length) return;
-    ev.preventDefault(); choose(matches[0].entity_id);
-  });
-  wrap.append(cur, search, box); showCur();
-  return wrap;
-}
-const pickerField = (label, picker) => { const w = field(label, picker); w.classList.add('stack'); return w; };
 const roomAt = (x, z) => floor()?.rooms.find((r) => pointInPoly(x, z, r.points));
 
 function fillEntities(filter = '') {
@@ -2627,415 +2552,38 @@ function fillEntities(filter = '') {
 $('#entitySearch').addEventListener('input', (e) => fillEntities(e.target.value));
 $('#entitySelect').addEventListener('change', (e) => { entityChoice = e.target.value; });
 
-/* ================= Properties panel ================= */
-function field(label, input) {
-  const w = document.createElement('div');
-  w.className = 'prop';
-  const l = document.createElement('label'); l.textContent = label;
-  w.append(l, input);
-  return w;
-}
-function inp(type, value, onInput, attrs = {}) {
-  const i = document.createElement('input');
-  i.type = type; i.value = value; Object.assign(i, attrs);
-  i.addEventListener('change', () => { snapshot(); onInput(i.value); changed(); });
-  return i;
-}
-/** number field for a length stored in meters, shown in the current unit system */
-function lenInput(getM, setM, { min = 0, step = 0.05 } = {}) {
-  return inp('number', toDisp(getM()), (v) => setM(Math.max(min, fromDisp(+v) || 0)), { step: imperial() ? step * 3 : step });
-}
-const DOMAIN_DEVICE = { light: 'light', cover: 'switch', switch: 'switch', climate: 'thermostat', media_player: 'tv', sensor: 'sensor', binary_sensor: 'sensor', person: 'presence', device_tracker: 'presence' };
-function renderEntState() {
-  const el = $('#entState');
-  if (!el) return;
-  const d = selection?.kind === 'device' ? floor()?.devices.find((v) => v.id === selection.id) : null;
-  el.textContent = d?.entity ? `${d.entity} · ${stateText(d.entity)}` : '';
-}
-/* Edit mode: list of the selected room's entities (placed devices + unplaced entities of its HA area) with live state */
-let roomEntFilter = '';
-function renderRoomEntities() {
-  const box = $('#roomEnts');
-  const room = roomCtx ? floor()?.rooms.find((r) => r.id === roomCtx) : null;
-  if (!box || !room) return;
-  const hadFocus = document.activeElement?.id === 'roomEntSearch';
-  box.replaceChildren();
-  const h = document.createElement('h4'); h.textContent = t('prop.roomEntities'); box.append(h);
-  const rs = document.createElement('input'); rs.type = 'search'; rs.id = 'roomEntSearch'; rs.placeholder = t('panel.entitySearch'); rs.value = roomEntFilter;
-  const applyFilter = () => {              // filter in place, so typing is never interrupted by a re-render
-    const words = roomEntFilter.toLowerCase().split(/\s+/).filter(Boolean);
-    box.querySelectorAll('.re-row').forEach((r) => { r.hidden = !words.every((w) => r.dataset.q.includes(w)); });
-  };
-  rs.addEventListener('input', () => { roomEntFilter = rs.value; applyFilter(); });
-  box.append(rs);
-  const placed = floor().devices.filter((d) => pointInPoly(d.x, d.z, room.points));
-  const placedIds = new Set(entityDevices(floor()).map((d) => d.entity).filter(Boolean));
-  const row = (title, entity, btn) => {
-    const r = document.createElement('div'); r.className = 're-row';
-    const n = document.createElement('span'); n.className = 're-n'; n.textContent = title;
-    const s = document.createElement('span'); s.className = 're-s'; s.textContent = entity ? `${entity} · ${stateText(entity)}` : t('re.noEntity');
-    r.append(n, s);
-    r.dataset.q = `${title} ${entity || ''} ${areas.find((x) => x.id === areaOf[entity])?.name || ''}`.toLowerCase();
-    if (btn) r.append(btn);
-    box.append(r);
-    return r;
-  };
-  placed.forEach((d) => {
-    const r = row(d.name || t(`dev.${d.type}`), d.entity, null);
-    r.classList.add('placed');
-    if (selection?.id === d.id) r.classList.add('active');
-    r.addEventListener('click', () => { if (selection?.id === d.id && lockedSel) { releaseLock(); return; } selection = { kind: 'device', id: d.id }; lockedSel = true; refreshSelection(); });
-  });
-  roomOpenings(room, floor()).forEach((o) => {
-    const r = row(o.name || t(`prop.${o.type}`), o.entity, null);
-    r.classList.add('placed');
-    if (selection?.id === o.id) r.classList.add('active');
-    r.addEventListener('click', () => { if (selection?.id === o.id && lockedSel) { releaseLock(); return; } selection = { kind: 'opening', id: o.id }; lockedSel = true; refreshSelection(); });
-  });
-  floor().walls.forEach((w) => (w.openings || []).forEach((o) => openingEntities(o).forEach((e) => placedIds.add(e))));   // contacts already on a door / window
-  const extra = (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []).filter((id) => !placedIds.has(id));
-  const placeable = extra.filter((id) => classify(entityInfo(id)));
-  if (placeable.length) {                                  // one click: every thing of the area where it belongs
-    const ab = document.createElement('button'); ab.type = 'button'; ab.id = 'reAutoPlace'; ab.className = 're-auto';
-    ab.textContent = t('auto.all', { n: placeable.length }); ab.title = t('auto.hint');
-    ab.addEventListener('click', () => {
-      const plan = autoPlace(room, placeable);
-      setStatus(t('auto.done', { n: plan.devices.length, o: plan.openings.length, s: plan.skipped.length }));
-    });
-    box.append(ab);
-  }
-  extra.forEach((id) => {
-    const b = document.createElement('button'); b.textContent = t('re.place');
-    b.addEventListener('click', () => {
-      const plan = autoPlace(room, [id]);
-      if (plan.devices[0]) selection = { kind: 'device', id: plan.devices[0].id };
-      else if (!plan.openings.length) {                    // nothing the room has a place for (energy sensor, scene ...): as before, in the middle
-        snapshot();
-        const dom = id.split('.')[0], type = DOMAIN_DEVICE[dom] || 'sensor';
-        const xs = room.points.map((p) => p[0]), zs = room.points.map((p) => p[1]);
-        const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2;
-        const d = { id: uid(), type, x: pointInPoly(cx, cz, room.points) ? cx : room.points[0][0] + 0.5, z: pointInPoly(cx, cz, room.points) ? cz : room.points[0][1] + 0.5,
-          y: DEVICE_TYPES[type]?.y || 0, rot: 0, scale: 1, name: entityInfo(id).name || id, entity: id };
-        floor().devices.push(d);
-        selection = { kind: 'device', id: d.id };
-        changed();
-      }
-      refreshSelection();
-    });
-    row(entityInfo(id).name || id, id, b).classList.add('unplaced');
-  });
-  applyFilter();
-  if (hadFocus) { rs.focus(); rs.setSelectionRange(rs.value.length, rs.value.length); }
-  if (!placed.length && !extra.length && !box.querySelector('.re-row')) { const e = document.createElement('div'); e.className = 'sub'; e.textContent = t('re.empty'); box.append(e); }
-}
-
-/* Edit mode: every object of the floor as a list, so things that are hard to hit in 3D can be selected from the side */
+/* ================= Properties panel: the code lives in props.js (fields per object type), objlist.js (object list),
+   roomentities.js (entities of the selected room), propfields.js (input fields) and entitypicker.js ================= */
 function releaseLock() {                 // back to the room (if the object came from its list) or to no selection
   lockedSel = false;
   selection = roomCtx && floor()?.rooms.some((r) => r.id === roomCtx) ? { kind: 'room', id: roomCtx } : null;
   refreshSelection();
 }
-function renderObjList() {
-  const box = $('#objList'), body = $('#objListBody');
-  if (!box || !body) return;
-  const f = floor();
-  if (isLive() || !f) { box.hidden = true; return; }
-  box.hidden = false;
-  body.replaceChildren();
-  const lockBar = document.createElement('div'); lockBar.className = 'lockbar' + (lockedSel ? ' on' : '');
-  const lockTxt = document.createElement('span'); lockTxt.textContent = lockedSel ? t('obj.locked') : t('obj.hint');
-  lockBar.append(lockTxt);
-  if (lockedSel) {
-    const rb = document.createElement('button'); rb.textContent = t('obj.release');
-    rb.addEventListener('click', releaseLock);
-    lockBar.append(rb);
-  }
-  body.append(lockBar);
-  const fi = document.createElement('input'); fi.type = 'search'; fi.className = 'objfilter'; fi.placeholder = t('obj.filter'); fi.value = objFilter;
-  fi.addEventListener('input', () => { objFilter = fi.value; const pos = fi.selectionStart; renderObjList(); const n = $('#objListBody .objfilter'); n?.focus(); n?.setSelectionRange(pos, pos); });
-  body.append(fi);
-  /* grouped by room: the room itself, its doors / windows and its furniture; everything else below */
-  const q = (objFilter || '').trim().toLowerCase();
-  const used = new Set();
-  const take = (list) => list.filter((it) => { if (used.has(it.id)) return false; used.add(it.id); return true; });
-  const devItem = (d) => ({ kind: 'device', id: d.id, label: d.name || t(`dev.${d.type}`) });
-  const opItem = (o) => ({ kind: 'opening', id: o.id, label: o.name || t(`prop.${o.type}`) });
-  const groups = [];
-  f.rooms.forEach((r) => {
-    const items = [{ kind: 'room', id: r.id, label: `▣ ${r.name || t('prop.room')}` },
-      ...take(roomOpenings(r, f).map(opItem)), ...take(f.devices.filter((d) => pointInPoly(d.x, d.z, r.points)).map(devItem))];
-    groups.push([`room:${r.id}`, items, r.name || t('prop.room')]);
-  });
-  const restOps = take(f.walls.flatMap((w) => (w.openings || []).map(opItem)));
-  const restDevs = take(f.devices.map(devItem));
-  if (restOps.length || restDevs.length) groups.push(['obj.noRoom', [...restOps, ...restDevs], t('obj.noRoom')]);
-  groups.push(
-    ['obj.walls', f.walls.map((w, i) => ({ kind: 'wall', id: w.id, label: `${t('prop.wall')} ${i + 1} · ${wallLength(w).toFixed(1)} m` }))],
-    ['obj.stairs', (f.stairs || []).map((s) => ({ kind: 'stair', id: s.id, label: s.name || t(`stair.${s.type}`) }))],
-    ['obj.blocks', (f.blocks || []).map((b) => ({ kind: 'block', id: b.id, label: b.name || t('prop.block') }))],
-    ['obj.holes', (f.holes || []).map((h, i) => ({ kind: 'hole', id: h.id, label: `${t('prop.hole')} ${i + 1}` }))],
-  );
-  groups.forEach(([key, allItems, title]) => {
-    const items = q ? allItems.filter((it) => it.label.toLowerCase().includes(q)) : allItems;
-    if (!items.length) return;
-    const det = document.createElement('details');
-    const holdsSel = items.some((it) => it.id === selection?.id);
-    det.open = q ? true : holdsSel || (objGroupOpen[key] ?? false);
-    det.addEventListener('toggle', () => { objGroupOpen[key] = det.open; });
-    const sum = document.createElement('summary'); sum.textContent = `${title ?? t(key)} (${items.length})`;
-    det.append(sum);
-    items.forEach((it) => {
-      const rowEl = document.createElement('div'); rowEl.className = 'objrow';
-      const lk = document.createElement('input'); lk.type = 'checkbox'; lk.className = 'objlock'; lk.title = t('prop.lock');
-      lk.checked = !!itemOf(it.kind, it.id)?.locked;
-      lk.addEventListener('change', () => { const o = itemOf(it.kind, it.id); if (!o) return; snapshot(); if (lk.checked) o.locked = true; else delete o.locked; changed(); renderProps(); plan?.render(); });
-      const b = document.createElement('button');
-      b.className = 'obj' + (selection?.id === it.id ? ' active' : '') + (itemOf(it.kind, it.id)?.locked ? ' locked' : '');
-      b.textContent = it.label;
-      b.addEventListener('click', () => {
-        if (!registry.get(it.id)) return;
-        if (selection?.id === it.id && lockedSel) { releaseLock(); return; }   // click again: release
-        if (tool !== 'select') setTool('select');
-        selection = { kind: it.kind, id: it.id };
-        lockedSel = true;
-        refreshSelection();
-      });
-      rowEl.append(lk, b);
-      det.append(rowEl);
-    });
-    body.append(det);
-  });
-}
-const objGroupOpen = {};
-let objFilter = '';
-
-/** Kitchen run (#124): the properties of a run; the code lives in kitchenui.js */
-const kitchenProps = initKitchenUi({
-  t, changed: () => changed(), snapshot: () => snapshot(), renderProps: () => renderProps(),
-  field: (...a) => field(...a), lenInput: (...a) => lenInput(...a), toDisp: (m) => toDisp(m), imperial: () => imperial(),
+const objList = initObjList({
+  $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, locked: () => lockedSel, lockTo: (sel) => { selection = sel; lockedSel = true; refreshSelection(); },
+  releaseLock: () => releaseLock(), registry, tool: () => tool, setTool: (x) => setTool(x), itemOf: (k, id) => itemOf(k, id), snapshot: () => snapshot(), changed: () => changed(),
+  renderProps: () => renderProps(), plan: () => plan, pointInPoly,
 });
-function renderProps() {
-  renderObjList();
-  const box = $('#props'), body = $('#propsBody');
-  body.innerHTML = '';
-  if (!selection || isLive()) { roomCtx = null; box.hidden = true; return; }
-  const f = floor();
-  if (selection.kind === 'cable') { power.cableProps(body, box); return; }
-  let it = null;
-  if (selection.kind === 'wall') it = f.walls.find((x) => x.id === selection.id);
-  else if (selection.kind === 'room') it = f.rooms.find((x) => x.id === selection.id);
-  else if (selection.kind === 'device') it = f.devices.find((x) => x.id === selection.id);
-  else if (selection.kind === 'stair') it = (f.stairs || []).find((x) => x.id === selection.id);
-  else if (selection.kind === 'block') it = (f.blocks || []).find((x) => x.id === selection.id);
-  else if (selection.kind === 'hole') it = (f.holes || []).find((x) => x.id === selection.id);
-  else if (selection.kind === 'opening') it = findOpening(selection.id)?.opening;
-  if (!it) { box.hidden = true; return; }
-  box.hidden = false;
-  $('#propsTitle').textContent = selection.kind === 'opening' ? t(`prop.${it.type}`) : selection.kind === 'stair' ? t(`stair.${it.type}`) : t(`prop.${selection.kind}`);
-
-  if (selection.kind === 'wall') {
-    body.append(field(t('prop.thickness'), lenInput(() => it.thickness, (v) => (it.thickness = Math.max(0.05, v)))));
-    body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3, step: 0.1 })));
-  } else if (selection.kind === 'room') {
-    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
-    body.append(field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v))));
-    {                                                          // roof terrace / open area: no roof above it, railing on the edges without a wall
-      const tc = document.createElement('input'); tc.type = 'checkbox'; tc.checked = !!it.terrace; tc.id = 'roomTerrace';
-      tc.addEventListener('change', () => {
-        snapshot();
-        if (tc.checked) { it.terrace = true; if (!it.color || it.color === '#8a7f70') it.color = '#a58a63'; } else { delete it.terrace; if (it.color === '#a58a63') it.color = '#8a7f70'; }
-        changed(); renderProps();
-      });
-      const tl = document.createElement('label'); tl.className = 'chk'; tl.title = t('prop.terraceHint'); tl.append(tc, document.createTextNode(' ' + t('prop.terrace')));
-      body.append(tl);
-    }
-    const asel = document.createElement('select');
-    asel.add(new Option(t('area.none'), ''));
-    areas.forEach((x) => asel.add(new Option(x.name, x.id)));
-    asel.value = it.area || '';
-    asel.addEventListener('change', () => { snapshot(); it.area = asel.value || undefined; if (!it.name || areas.some((x) => x.name === it.name)) { const ar = areas.find((x) => x.id === asel.value); if (ar) it.name = ar.name; } changed(); renderProps(); });
-    body.append(field(t('prop.area'), asel));
-    roomCtx = it.id;
-    const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts';
-    body.append(ents);
-    renderRoomEntities();
-  } else if (selection.kind === 'block') {
-    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
-    body.append(field(t('prop.height'), lenInput(() => it.h || FLOOR_H, (v) => (it.h = Math.max(0.5, v)), { min: 0.5, step: 0.1 })));
-    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('block.help'); body.append(hp);
-  } else if (selection.kind === 'hole') {
-    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('hole.help'); body.append(hp);
-  } else if (selection.kind === 'stair') {
-    stairTool.renderProps(body, it);
-  } else if (selection.kind === 'opening') {
-    const { wall } = findOpening(it.id);
-    const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
-    body.append(field(t('prop.width'), lenInput(() => it.width, (v) => { it.width = Math.max(MIN_OPENING, v); refit(); }, { min: MIN_OPENING })));
-    body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3 })));
-    if (it.type === 'window') body.append(field(t('prop.sill'), lenInput(() => it.sill, (v) => (it.sill = v))));
-    const ssel = document.createElement('select'); ssel.id = 'openStyle';
-    (it.type === 'door' ? DOOR_STYLES : WINDOW_STYLES).forEach((v) => ssel.add(new Option(t(`st.${v}`), v)));
-    ssel.value = it.style || (it.type === 'door' ? 'single' : 'double');
-    ssel.addEventListener('change', () => { snapshot(); it.style = ssel.value; changed(); });
-    body.append(field(t('prop.style'), ssel));
-    body.append(field(t('prop.position'), lenInput(() => it.pos, (v) => {
-      const p = clampOpeningPos(wall, it.width, v);
-      if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p;
-    })));
-    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
-    const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
-    body.append(pickerField(t('prop.contact'), entityPicker((contact.length ? contact : entities).slice(0, 1500), roomCtx ? f.rooms.find((r) => r.id === roomCtx) : null, it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
-    if (it.type === 'window' && (it.style === 'double' || it.style === 'triple' || (!it.style))) {
-      const count = it.style === 'triple' ? 3 : 2;
-      const h = document.createElement('h4'); h.textContent = t('pane.title'); body.append(h);
-      for (let i = 0; i < count; i++) {
-        body.append(pickerField(t('pane.n', { n: i + 1 }), entityPicker((contact.length ? contact : entities).slice(0, 1500), roomCtx ? f.rooms.find((r) => r.id === roomCtx) : null, (it.paneEntities || [])[i] || '', (v) => {
-          snapshot(); const arr = it.paneEntities || []; while (arr.length < count) arr.push(''); arr[i] = v;
-          it.paneEntities = arr.some(Boolean) ? arr : undefined; changed();
-        })));
-      }
-    }
-    if (it.type === 'door') {
-      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!it.flip;
-      cb.addEventListener('change', () => { snapshot(); it.flip = cb.checked; changed(); });
-      body.append(field(t('prop.flip'), cb));
-      const ci = document.createElement('input'); ci.type = 'checkbox'; ci.checked = !!it.inv; ci.id = 'doorInv';
-      ci.addEventListener('change', () => { snapshot(); it.inv = ci.checked; changed(); });
-      body.append(field(t('prop.inv'), ci));
-    }
-  } else {
-    const bring = document.createElement('button'); bring.type = 'button'; bring.textContent = t('prop.bringHere');
-    bring.addEventListener('click', () => { snapshot(); it.x = +controls.target.x.toFixed(2); it.z = +controls.target.z.toFixed(2); if (WALL_TYPES.has(it.type)) snapToWall(it, 0.8); changed(); build(); refreshSelection(); });
-    body.append(bring);
-    const lk = document.createElement('input'); lk.type = 'checkbox'; lk.checked = !!it.locked; lk.id = 'devLock';
-    lk.addEventListener('change', () => { snapshot(); if (lk.checked) it.locked = true; else delete it.locked; changed(); renderProps(); renderObjList(); });
-    const lkl = document.createElement('label'); lkl.className = 'chk'; lkl.append(lk, document.createTextNode(' ' + t('prop.lock')));
-    body.append(lkl);
-    if (it.type in LED_LIKE || catOf(it.type) === 'lighting' || /^light\./.test(it.entity || '') || it.type === 'presence') {     // aesthetics: hide the model, keep the light / the presence dot at the top
-      const hv = document.createElement('input'); hv.type = 'checkbox'; hv.checked = !!it.hideModel; hv.id = 'devHide';
-      hv.addEventListener('change', () => { snapshot(); if (hv.checked) it.hideModel = true; else delete it.hideModel; changed(); applyStates(); });
-      const hl = document.createElement('label'); hl.className = 'chk'; hl.title = t(it.type === 'presence' ? 'prop.hideModelPresenceHint' : 'prop.hideModelHint'); hl.append(hv, document.createTextNode(' ' + t(it.type === 'presence' ? 'prop.hideModelPresence' : 'prop.hideModel')));
-      body.append(hl);
-    }
-    if (it.type === 'nanoleaf') {
-      const eb = document.createElement('button'); eb.type = 'button'; eb.id = 'nanoEdit'; eb.textContent = '✎ ' + t('nano.edit');
-      eb.addEventListener('click', () => { if (!it.locked) editNano(it); else setStatus(t('prop.lockedHint')); });
-      body.append(eb);
-    }
-    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
-    body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
-    body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
-    body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { it.rot = ((+v % 360) + 360) % 360; }, { step: 15 })));
-    body.append(field(t('prop.elev'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
-    body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
-    if (it.type !== 'picture') {
-      const base = baseDims(it.type);
-      if (base) {                                                     // real dimensions in metres, type them in directly
-        const dim = (key, axis, label) => field(label, lenInput(() => base[axis] * (it.scale || 1) * (it[key] || 1), (v) => {
-          const n = Math.max(0.1, Math.min(10, v / (base[axis] * (it.scale || 1))));
-          if (Math.abs(n - 1) < 0.005) delete it[key]; else it[key] = +n.toFixed(4);
-        }, { min: 0.02, step: 0.05 }));
-        body.append(dim('sx', 'x', t('prop.dimW')), dim('sy', 'y', t('prop.dimH')), dim('sz', 'z', t('prop.dimD')));
-      } else {
-        const stretch = (key, label) => field(label, inp('number', it[key] || 1, (v) => { const n = Math.max(0.1, Math.min(10, +v || 1)); if (Math.abs(n - 1) < 0.005) delete it[key]; else it[key] = +n.toFixed(3); }, { step: 0.1, min: 0.1 }));
-        body.append(stretch('sx', t('prop.stretchX')), stretch('sy', t('prop.stretchY')), stretch('sz', t('prop.stretchZ')));
-      }
-    }
-    const angle = (key) => inp('number', it[key] || 0, (v) => { const a = ((+v % 360) + 360) % 360; if (a) it[key] = a; else delete it[key]; }, { step: 15 });
-    body.append(field(t('prop.tiltX'), angle('tiltX')), field(t('prop.tiltZ'), angle('tiltZ')));
-    const cm = document.createElement('input'); cm.type = 'checkbox'; cm.checked = !!it.mirror; cm.id = 'devMirror';
-    cm.addEventListener('change', () => { snapshot(); if (cm.checked) it.mirror = true; else delete it.mirror; changed(); });
-    body.append(field(t('prop.mirror'), cm));
-    if (it.type === 'picture') {
-      const lab = document.createElement('label'); lab.className = 'uploadBtn';
-      const span = document.createElement('span'); span.textContent = t(it.img ? 'pic.replace' : 'pic.load');
-      const file = document.createElement('input'); file.type = 'file'; file.hidden = true; file.id = 'picFile'; file.accept = 'image/png,image/jpeg,image/webp';
-      file.addEventListener('change', async () => { const fl = file.files[0]; file.value = ''; try { await uploadPicture(fl, it); } catch (err) { alert(`${t('panel.uploadFailed')}: ${err.message}`); } });
-      lab.append(span, file); body.append(lab);
-      body.append(field(t('pic.width'), lenInput(() => it.w || 0.6, (v) => (it.w = Math.max(0.1, v)), { min: 0.1 })));
-      if (!it.img) { const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('pic.help'); body.append(hp); }
-    }
-    if (WALL_TYPES.has(it.type)) {
-      const sb = document.createElement('button'); sb.type = 'button'; sb.id = 'snapWall'; sb.textContent = t('pic.snap');
-      sb.addEventListener('click', () => { snapshot(); snapToWall(it, 3, true); changed(); renderProps(); });
-      body.append(sb);
-    }
-    if (it.type === 'ledring') ringProps(body, it);
-    if (it.type === 'kitchenrun') kitchenProps(body, it);
-    if (power.isType(it.type)) power.deviceProps(body, it);
-    body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
-    if (it.type === 'camera') {                                  // #69: field of view cone on the floor
-      body.append(field(t('cam.fov'), inp('number', it.fov ?? 90, (v) => { it.fov = Math.max(0, Math.min(180, +v || 0)); }, { step: 5, min: 0, max: 180 })));
-      body.append(field(t('cam.range'), lenInput(() => it.range ?? 4, (v) => (it.range = Math.max(0.5, v)), { min: 0.5, step: 0.5 })));
-      body.append(pickerField(t('cam.motionSensor'), entityPicker(entities.filter((e) => e.domain === 'binary_sensor').slice(0, 1500), roomAt(it.x, it.z), it.motionEntity || '', (v) => { snapshot(); if (v) it.motionEntity = v; else delete it.motionEntity; changed(); })));
-    }
-    if (it.type === 'tv' || it.type === 'tv_wall') {          // built-in backlight: shown behind the TV, shines into the room
-      body.append(pickerField(t('prop.ledEntity'), entityPicker(entities.filter((e) => /^(light|switch)\./.test(e.entity_id)).slice(0, 1500), roomAt(it.x, it.z), it.ledEntity || '', (v) => { snapshot(); if (v) it.ledEntity = v; else delete it.ledEntity; changed(); })));
-    }
-    const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
-    body.append(es);
-    renderEntState();
-  }
-  if (selection.kind !== 'room') {
-    const rm = roomCtx && f.rooms.find((r) => r.id === roomCtx);
-    const inRoom = rm && (selection.kind === 'device' ? pointInPoly(it.x, it.z, rm.points) : selection.kind === 'opening' && roomOpenings(rm, f).some((o) => o.id === it.id));
-    if (inRoom) {
-      const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts';
-      body.append(ents);
-      renderRoomEntities();
-    } else roomCtx = null;
-  }
-  const del = document.createElement('button');
-  del.textContent = t('panel.delete');
-  del.addEventListener('click', () => { snapshot(); deleteItem(selection); });
-  body.append(del);
-}
-
-/** LED ring properties: closed or open, distance to the walls, refit to the room, one light per section */
-function refitRing(d) {
-  const room = floor().rooms.find((r) => r.id === d.room) || roomAt(d.x, d.z);
-  if (!room) { setStatus(t('ring.noRoom')); return; }
-  const keep = d.segs || [], ranged = hasRanges(d), closed = d.closed;
-  Object.assign(d, ringFromRoom(room.points, d.inset ?? RING_DEFAULT_INSET), { rot: 0, scale: 1, room: room.id });
-  delete d.sx; delete d.sz; delete d.mirror;
-  if (closed === false) d.closed = false;
-  d.segs = ranged ? keep : d.segs.map((sg, i) => keep[i] || sg);   // sections keep their lights (and their start / end)
-  fitSegs(d);
-}
-function ringProps(body, it) {
-  const redo = (fn) => () => { if (it.locked) { setStatus(t('prop.lockedHint')); return; } snapshot(); fn(); changed(); renderProps(); };
-  const btn = (id, label, fn, title = '') => { const b = document.createElement('button'); b.type = 'button'; if (id) b.id = id; b.textContent = label; b.title = title; b.addEventListener('click', redo(fn)); return b; };
-  const h = document.createElement('h4'); h.textContent = t('ring.sections'); body.append(h);
-  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.closed !== false; cb.id = 'ringClosed';
-  cb.addEventListener('change', () => { snapshot(); it.closed = cb.checked; fitSegs(it); changed(); renderProps(); });
-  const cl = document.createElement('label'); cl.className = 'chk'; cl.append(cb, document.createTextNode(' ' + t('ring.closed')));
-  body.append(cl);
-  body.append(field(t('ring.inset'), lenInput(() => it.inset ?? RING_DEFAULT_INSET, (v) => { it.inset = Math.min(2, v); if (!it.locked) refitRing(it); queueMicrotask(renderProps); }, { min: 0, step: 0.05 })));
-  body.append(btn('ringFit', t('ring.fit'), () => refitRing(it)));
-  const total = document.createElement('div'); total.className = 'sub'; total.textContent = t('ring.total', { len: fmtLen(pathLength(it)) }); body.append(total);
-  // how many sections: spread evenly over the whole band, or one per wall
-  const cnt = document.createElement('input'); cnt.type = 'number'; cnt.id = 'ringCount'; cnt.min = 1; cnt.max = 60; cnt.step = 1; cnt.value = ringCount(it);
-  body.append(field(t('ring.count'), cnt));
-  const row = document.createElement('div'); row.className = 'stopTools';
-  row.append(btn('ringEven', t('ring.even'), () => splitEven(it, +cnt.value || 1)), btn('ringPerWall', t('ring.perWall'), () => perWall(it)));
-  body.append(row);
-  const lights = entities.filter((e) => /^(light|switch)\./.test(e.entity_id)).slice(0, 1500);
-  ringSectionsWorld(it).forEach((e) => {
-    const box = document.createElement('div'); box.className = 'ringSec'; box.dataset.seg = e.i;
-    const head = document.createElement('div'); head.className = 'ringSecHead';
-    const lb = document.createElement('b'); lb.textContent = t('ring.seg', { n: e.i + 1, len: fmtLen(e.len) });
-    head.append(lb, btn('', '✂', () => splitSection(it, e.i), t('ring.split')));
-    if (ringCount(it) > 1) head.append(btn('', '🗑', () => removeSection(it, e.i), t('ring.remove')));
-    box.append(head);
-    box.append(field(t('ring.from'), lenInput(() => e.from, (v) => { setRange(it, e.i, v, null); queueMicrotask(renderProps); }, { min: 0, step: 0.05 })));
-    box.append(field(t('ring.to'), lenInput(() => e.to, (v) => { setRange(it, e.i, null, v); queueMicrotask(renderProps); }, { min: 0, step: 0.05 })));
-    box.append(entityPicker(lights, roomAt(e.mid[0], e.mid[1]), it.segs?.[e.i]?.entity || '', (v) => {
-      snapshot(); fitSegs(it); const sg = it.segs[e.i] || (it.segs[e.i] = {}); if (v) sg.entity = v; else delete sg.entity; changed();
-    }));
-    body.append(box);
-  });
-  const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('ring.help'); body.append(hp);
-}
+const roomEnts = initRoomEntities({
+  $, t, floor: () => floor(), roomCtx: () => roomCtx, selection: () => selection, locked: () => lockedSel, lockTo: (sel) => { selection = sel; lockedSel = true; refreshSelection(); },
+  select: (sel) => { selection = sel; }, releaseLock: () => releaseLock(), refreshSelection: () => refreshSelection(), entityDevices: (f) => entityDevices(f), pointInPoly,
+  stateText: (id) => stateText(id), areas: () => areas, areaOf: () => areaOf, openingEntities: (o) => openingEntities(o), classify, entityInfo: (id) => entityInfo(id),
+  autoPlace: (room, ids) => autoPlace(room, ids), setStatus: (x) => setStatus(x), snapshot: () => snapshot(), changed: () => changed(), uid: () => uid(),
+  deviceY: (type) => DEVICE_TYPES[type]?.y || 0,
+});
+const props = initProps({
+  $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, roomCtx: () => roomCtx, setRoomCtx: (id) => { roomCtx = id; },
+  fields: { field, inp, lenInput, pickerField }, entityPicker: (...a) => entityPicker(...a), entities: () => entities, areas: () => areas,
+  findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(),
+  deleteItem: (sel) => deleteItem(sel), applyStates: () => applyStates(), setStatus: (x) => setStatus(x), renderObjList: () => renderObjList(),
+  renderRoomEntities: () => renderRoomEntities(), stateText: (id) => stateText(id), roomAt: (x, z) => roomAt(x, z), pointInPoly, controlsTarget: () => controls.target,
+  wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type) => baseDims(type), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
+  uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
+});
+function renderObjList() { objList.render(); }
+function renderRoomEntities() { roomEnts.render(); }
+function renderEntState() { props.renderEntState(); }
+function renderProps() { props.render(); }
 
 /* ================= Settings ================= */
 const dlg = $('#settingsDialog');

@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.40.2. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **3.430**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.40.3. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **2.980**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -41,6 +41,11 @@ Stand: Version 3.40.2. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `offline.js` | ~100 | Offline-Liste |
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
+| `props.js` | ~260 | Eigenschaften-Panel (Wand, Raum, Block, Bodenöffnung, Tür/Fenster, Gerät, LED-Ring) |
+| `objlist.js` | ~100 | Objektliste der Etage (nach Raum gruppiert) |
+| `roomentities.js` | ~110 | Entitäten des gewählten Raums (Bearbeiten), automatisch platzieren |
+| `propfields.js` | ~30 | Eingabefelder der Seitenleiste (Länge in m/ft) |
+| `entitypicker.js` | ~95 | Entitäten-Auswahl mit Suche, nach Bereich gruppiert |
 | `livecontrols.js` | ~190 | Live-Steuerung: Schalten, Licht (Helligkeit, Farbe, Effekte), Szenen, ganzer Raum |
 | `livepopup.js` | ~110 | Live-Karte beim Antippen (Gerät, Tür/Fenster, LED-Ring) |
 | `roompanel.js` | ~190 | Raum-Panel mit Heizungs-Panel |
@@ -61,7 +66,6 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
 | 13 | **Einstellungen**, Rest (einfache Felder, Anwenden, Speichern) | ~150 | `settings.js` | mittel bis hoch (`settings` wird überall gelesen und ersetzt) |
-| 18 | **Eigenschaften-Panel** (alle Typen) | ~426 | `props.js`, nach Typ aufgeteilt | hoch |
 | 19 | **Aufschneiden der Wände** (Cutaway, Durchsichtig) | ~52 + Teile | `cutaway.js` | hoch |
 | 20 | **Zeichnen, Auswählen, Zeigerereignisse** | ~260 + ~266 + ~80 | `tools.js`, `pointer.js` | hoch |
 | 21 | **3D-Aufbau** (`build`, Boden und Erde, Beleuchtung) | ~600 | `scene.js` | hoch |
