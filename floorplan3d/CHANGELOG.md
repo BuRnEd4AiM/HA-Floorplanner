@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.39.2] - 2026-10-05
+### Changed
+- **Code split, step 3 (#137)**: the warnings (banner, red room, jump to the room), the "Where is ...?" search and the kitchen run properties moved out of `app.js` into `alertsui.js`, `search.js` and `kitchenui.js`. `app.js` is about 190 lines shorter. Nothing changes for the user.
+
 ## [3.39.1] - 2026-10-05
 ### Changed
 - **Code split, step 2 (#137)**: the power add-on (cables, power editor, energy overview, battery, properties) moved out of `app.js` into `power.js` (3D and screen part) and `powerlogic.js` (the calculations, with 9 unit tests). `app.js` is about 240 lines shorter. Nothing changes for the user.
