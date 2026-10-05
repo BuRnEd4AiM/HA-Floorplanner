@@ -10,6 +10,7 @@ import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
 import { initHeatPanel } from './heatpanel.js';
 import { initPower } from './power.js';
+import { initCompass } from './compass.js';
 import { initWelcome } from './welcome.js';
 import { nightActive } from './alerts.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
@@ -90,7 +91,6 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const floor = () => layout.floors[floorIdx];
 const groundIdx = () => Math.max(0, layout.floors.findIndex((f) => f.kind !== 'basement'));   // first floor above ground
 let exploded = false;                  // whole-house view with the floors pulled apart
-let compassKey = '';                   // what the compass shows right now (so it is only redrawn when something changed)
 const WALL_SEE = 0.3;                  // opacity of a wall between the camera and the room when the walls are made see-through
 const EXPLODE_GAP = 2.5;               // extra space between every two floors when pulled apart (m); the lowest floor stays, all above it lift
 const elev = (i = floorIdx) => {
@@ -1635,22 +1635,8 @@ function updateCutaway() {
   }
 }
 
-/* ---- Compass: the rose turns with the camera (north = up in the 2D plan), the text says from which side we look ---- */
-function updateCompass() {
-  const dx = camera.position.x - controls.target.x, dz = camera.position.z - controls.target.z;
-  if (Math.hypot(dx, dz) < 1e-6) return;
-  const heading = Math.atan2(-dx, dz) * 180 / Math.PI;                 // direction we look to, degrees clockwise from north
-  const from = (Math.atan2(dx, -dz) * 180 / Math.PI + 360) % 360;      // the side of the house we look from
-  const dirs = t('compass.dirs').split(',');
-  const text = t('compass.from', { d: dirs[Math.round(from / 45) % 8] });
-  const key = `${Math.round(heading)}|${text}`;
-  if (key === compassKey) return;
-  compassKey = key;
-  $('#compassNeedle').setAttribute('transform', `rotate(${heading.toFixed(1)})`);                // the ring with N / E / S / W stands still (north is up), only the needle turns to where we look
-  $('#compassFrom').textContent = text;
-  const letters = t('compass.letters').split(',');                      // N, E, S, W in this language
-  document.querySelectorAll('#compassRose .cL').forEach((el, i) => { el.textContent = letters[i] || el.textContent; });
-}
+/* ---- Compass: the ring stands still, the needle turns with the camera; the code lives in compass.js ---- */
+const compass = initCompass({ $, t, camera, controls });
 
 /* ================= Changes, undo, save ================= */
 function snapshot() {
@@ -4613,7 +4599,7 @@ function animate(now = performance.now()) {
   if (pulsing || finding || controls.autoRotate) wake();
   controls.update();
   updateCutaway();
-  updateCompass();
+  compass.update();
   animateOpenings();
   power.animate(now);
   selHelper?.update();

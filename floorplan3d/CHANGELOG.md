@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.39.3] - 2026-10-05
+### Fixed
+- **Compass (#175)**: after a full turn around the house the needle no longer spins all the way back. The angle now keeps counting beyond 360 degrees. The compass moved into its own module `compass.js` with unit tests.
+
 ## [3.39.2] - 2026-10-05
 ### Changed
 - **Code split, step 3 (#137)**: the warnings (banner, red room, jump to the room), the "Where is ...?" search and the kitchen run properties moved out of `app.js` into `alertsui.js`, `search.js` and `kitchenui.js`. `app.js` is about 190 lines shorter. Nothing changes for the user.
