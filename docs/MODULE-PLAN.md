@@ -1,0 +1,76 @@
+# Aufteilung des Codes: Stand und Plan
+
+Stand: Version 3.39.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+
+## Regel für alles Neue
+
+1. **Neue Funktionen kommen in ein neues Modul** (eigene Datei in `static/`) **oder in ein passendes bestehendes Modul**. In `app.js` steht nur der „Klebstoff": ein Import, ein `init…({...})`-Aufruf und die Verdrahtung mit dem Rest.
+2. Reine Rechen- und Geometrie-Teile (ohne three.js und ohne DOM) werden separat gehalten und mit einem **Node-Unit-Test** (`tests/<name>.test.mjs`) geprüft, so wie `kitchen.js` und `heatpanel.js`.
+3. Pro neuem Modul: Schritt in `.github/workflows/ci.yml` ergänzen, `python3 tools/make_manifest.py` ausführen, Eintrag in `CHANGELOG.md` (beide Dateien gleich).
+4. Wird `app.js` angefasst, um etwas Bestehendes zu ändern, wandert der berührte Abschnitt nach Möglichkeit gleich in ein Modul (Pfadfinder-Regel: den Platz sauberer verlassen, als man ihn vorgefunden hat).
+
+## Schon getrennt
+
+| Datei | Zeilen | Aufgabe |
+| --- | ---: | --- |
+| `walls.js` | 226 | Wandgeometrie mit Türen und Fenstern |
+| `models.js` | 715 | Eingebaute 3D-Modelle (Möbel, Geräte, Küchenzeile, Strom), GLB laden |
+| `plan2d.js` | 1.111 | 2D-Editor (SVG) |
+| `i18n.js` und `lang/*.js` | 213 + je Sprache | Übersetzungen (7 Sprachen) |
+| `stairs.js` | 152 | Treppengeometrie |
+| `rooms.js` | 146 | Automatische Raumerkennung |
+| `dormer.js` | 70 | Dachgauben |
+| `ledring.js` | 195 | LED-Ring |
+| `nanoleaf.js` | 179 | Nanoleaf-Formen und kleiner Editor |
+| `autoplace.js` | 179 | Automatisches Platzieren der Entitäten eines Bereichs |
+| `alerts.js` | 62 | Warnungen und Nachtabdunklung (Rechenteil) |
+| `kitchen.js` | 63 | Küchenzeile: Geometrie aus Modulen (mit Breiten) |
+| `heatpanel.js` | 74 | Heizungs-Panel (Schritt 1 von #137) |
+| `toolbar.js` | 88 | Anpassbare Werkzeugleiste |
+| `backups.js` | 70 | Automatische Sicherung (Oberfläche) |
+| `version.js` | 122 | Versionsanzeige und Datei-Prüfung |
+| `welcome.js` | 21 | Willkommenskarte |
+| `import.js` | 112 | Import-Dialog |
+| `moreinfo.js` | 27 | Home-Assistant-Dialog |
+
+## Noch in `app.js` (Reihenfolge = Empfehlung)
+
+Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mit dem Rest verwoben ist.
+
+| Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
+| ---: | --- | ---: | --- | --- |
+| 1 | **Strom** (Kabel, Strom-Editor, Energie-Übersicht, Batterie) | ~250 + Eigenschaften | `power.js` (Rechenteil `powerlogic.js` mit Unit-Tests) | niedrig |
+| 2 | **Küchenzeile-Eigenschaften** (`kitchenProps`) | ~60 | in `kitchen.js` oder `kitchenui.js` | niedrig |
+| 3 | **Warnungen** | ~56 | in `alerts.js` ergänzen | niedrig |
+| 4 | **„Wo ist …?“-Suche** | ~67 | `search.js` | niedrig |
+| 5 | **Offline-Liste** | ~84 | `offline.js` | niedrig |
+| 6 | **Wandtablet** (Bildschirmschoner, Nacht) | ~51 | in `alerts.js` oder `kiosk.js` | niedrig |
+| 7 | **Kompass** | ~17 | `compass.js` | niedrig |
+| 8 | **Kameras** (Sichtkegel, Übersicht, Standbilder) | ~35 + ~200 | `cameras.js` | mittel |
+| 9 | **Wertplaketten** (Beschriftungen entzerren) | ~37 | `badges.js` | niedrig |
+| 10 | **Etagenkarten** (Ganzes Haus) | ~188 | `floorcards.js` | mittel |
+| 11 | **Etagen-Leiste** (Vorschaubilder) | ~446 | `floorrail.js` | mittel |
+| 12 | **Häuser** (mehrere Grundrisse) | ~111 | `houses.js` | mittel |
+| 13 | **Einstellungen** (Dialog, Speichern) | ~253 | `settings.js` | mittel |
+| 14 | **Hintergrundbild** (Vorlage zum Nachzeichnen) | ~207 | `background.js` | mittel |
+| 15 | **Paletten** (Geräte, eigene Modelle, Öffnungen) | ~67 | `palettes.js` | mittel |
+| 16 | **Platzhalter-Blöcke und Treppen** | ~136 | `blocks.js` | mittel |
+| 17 | **Raum-Panel und Live-Steuerung** | ~230 + ~240 | `livecontrol.js`, `roompanel.js` | hoch |
+| 18 | **Eigenschaften-Panel** (alle Typen) | ~426 | `props.js`, nach Typ aufgeteilt | hoch |
+| 19 | **Aufschneiden der Wände** (Cutaway, Durchsichtig) | ~52 + Teile | `cutaway.js` | hoch |
+| 20 | **Zeichnen, Auswählen, Zeigerereignisse** | ~260 + ~266 + ~80 | `tools.js`, `pointer.js` | hoch |
+| 21 | **3D-Aufbau** (`build`, Boden und Erde, Beleuchtung) | ~600 | `scene.js` | hoch |
+| 22 | **Zustand, Rückgängig, Speichern, Datenladen, Live-Kanal** | ~80 + ~25 + ~245 | `state.js`, `data.js` | hoch |
+
+## Vorgehen je Schritt
+
+1. Abschnitt auswählen, nach Möglichkeit den Rechenteil von der Oberfläche trennen.
+2. Neues Modul mit `init…({ t, states, … })`-Schnittstelle, ohne globale Zustände, die nur `app.js` kennt.
+3. Unit-Test für den reinen Teil schreiben, Browser-Tests (`tests/e2e`) bleiben unverändert und müssen grün bleiben.
+4. Ein Schritt = ein Pull Request, Verhalten darf sich nicht ändern.
+
+## Stolperfallen (aus Erfahrung)
+
+- `let`/`const` weiter unten in `app.js` sind beim Aufruf noch nicht gesetzt („Cannot access … before initialization“): `init…` dort aufrufen, wo alles Nötige schon steht, oder Funktionen übergeben statt Werte.
+- Während eines Browser-Testlaufs keine ausgelieferten Dateien ändern.
+- Nach jeder Änderung in `floorplan3d/` `python3 tools/make_manifest.py` ausführen.
