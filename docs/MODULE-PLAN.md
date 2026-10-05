@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.39.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.39.1. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -26,6 +26,8 @@ Stand: Version 3.39.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `alerts.js` | 62 | Warnungen und Nachtabdunklung (Rechenteil) |
 | `kitchen.js` | 63 | Küchenzeile: Geometrie aus Modulen (mit Breiten) |
 | `heatpanel.js` | 74 | Heizungs-Panel (Schritt 1 von #137) |
+| `power.js` | ~250 | Strom: Kabel in 3D, Strom-Editor, Energie-Übersicht, Eigenschaften (Schritt 2 von #137) |
+| `powerlogic.js` | ~100 | Strom: Rechenteil (Watt, Kabelarten, Übersicht, Batterie), mit Unit-Tests |
 | `toolbar.js` | 88 | Anpassbare Werkzeugleiste |
 | `backups.js` | 70 | Automatische Sicherung (Oberfläche) |
 | `version.js` | 122 | Versionsanzeige und Datei-Prüfung |
@@ -39,7 +41,6 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
-| 1 | **Strom** (Kabel, Strom-Editor, Energie-Übersicht, Batterie) | ~250 + Eigenschaften | `power.js` (Rechenteil `powerlogic.js` mit Unit-Tests) | niedrig |
 | 2 | **Küchenzeile-Eigenschaften** (`kitchenProps`) | ~60 | in `kitchen.js` oder `kitchenui.js` | niedrig |
 | 3 | **Warnungen** | ~56 | in `alerts.js` ergänzen | niedrig |
 | 4 | **„Wo ist …?“-Suche** | ~67 | `search.js` | niedrig |
