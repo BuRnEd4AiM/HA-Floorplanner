@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.33.0] - 2026-10-05
+### Changed
+- **Doors and windows in very short wall pieces (#142)**: an opening that is wider than the wall piece is no longer refused but shrinks to the width that is left (at least 10 cm; was 30 cm). The width can be set down to 10 cm for slit windows and narrow doors.
+
 ## [3.32.0] - 2026-10-05
 ### Added
 - **Kitchen run (#124)**: new device *Kitchen run* built from modules (base cabinet, drawers, sink, stove, dishwasher, fridge, tall cabinet, gap). Shape straight, L or U (up to 3 legs, 16 modules each), depth and optional wall cabinets; modules can be added, moved and removed in the properties. Drawn as cabinets in 3D and as module boxes in the 2D editor.

@@ -813,6 +813,22 @@ with sync_playwright() as p:
     check("kitchen run: built in 3D without errors", True)
     pgK2.close()
 
+    # --- narrow wall pieces (#142): the opening shrinks to what is left instead of being refused
+    pgN = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgN.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pgN.goto(BASE + "?debug=1&mode=edit"); pgN.wait_for_timeout(1500)
+    pgN.evaluate("(() => { const L = window.__fp.layout; L.floors.push({id:'nf', name:'N', kind:'floor', walls:[{id:'nw1', a:[0,0], b:[0.5,0], thickness:0.2, height:2.6, openings:[]}, {id:'nw2', a:[0,2], b:[0.06,2], thickness:0.2, height:2.6, openings:[]}, {id:'nw3', a:[2,0], b:[2,2], thickness:0.2, height:2.6, openings:[]}], rooms:[], devices:[], blocks:[], stairs:[]}); window.__fp.switchFloor(L.floors.length - 1); window.__fp.rebuild(); })()")
+    pgN.click("#view2d"); pgN.wait_for_timeout(500)
+    pgN.click("button[data-tool=opening]"); pgN.wait_for_timeout(200)
+    pgN.evaluate("window.__fp.plan().fit()"); pgN.wait_for_timeout(300)
+    nwo = lambda wid: pgN.evaluate("(window.__fp.layout.floors[window.__fp.floorIdx()].walls.find(w => w.id === '%s').openings || []).map(o => o.width)" % wid)
+    c = pgN.evaluate("window.__fp.plan().toClient(0.25,0)"); pgN.mouse.move(*c); pgN.wait_for_timeout(200); pgN.mouse.click(*c); pgN.wait_for_timeout(400)
+    ow = nwo("nw1")
+    check("narrow wall: an opening is placed anyway, shrunk to fit (0.4 m at most)", len(ow) == 1 and 0.1 <= ow[0] <= 0.4, ow)
+    c = pgN.evaluate("window.__fp.plan().toClient(0.03,2)"); pgN.mouse.move(*c); pgN.wait_for_timeout(200); pgN.mouse.click(*c); pgN.wait_for_timeout(400)
+    check("narrow wall: a piece too short for any opening still refuses", nwo("nw2") == [], nwo("nw2"))
+    pgN.close()
+
     pg12 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg12.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
     pg12.goto(BASE + "?debug=1&mode=edit"); pg12.wait_for_timeout(1500)

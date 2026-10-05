@@ -844,9 +844,12 @@ export function createPlan(ctx) {
     floor().walls.forEach((w) => { const d = distSeg(x, z, w.a, w.b); if (d < bd) { bd = d; best = w; } });
     if (!best) return null;
     const raw = Math.round(ctx.projectOnWall(best, [x, z]) / 0.05) * 0.05;
-    const pos = ctx.clampOpeningPos(best, def.width, raw);
+    const width = ctx.fitOpeningWidth(best, def.width);
+    if (width === null) return null;
+    const fit = width === def.width ? def : { ...def, width };
+    const pos = ctx.clampOpeningPos(best, width, raw);
     if (pos === null) return null;
-    return { wall: best, pos, valid: !ctx.openingOverlaps(best, pos, def.width, null), def };
+    return { wall: best, pos, valid: !ctx.openingOverlaps(best, pos, width, null), def: fit };
   }
 
   root.addEventListener('pointerup', (e) => {
