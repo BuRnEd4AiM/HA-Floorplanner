@@ -124,6 +124,33 @@ Unknown types are skipped with a warning. All types are listed in the schema (`/
 **Power** (`houseentry`, `fusebox`, `powermeter`, `inverter`, `solarpanel`, `battery`, `wallbox`): cables join two devices. Every device that is a target or has cables gets an `id` (free choice, only valid inside the file); the cables are listed at the starting device as `cables`: `route` is `floor` (along the floor, default), `through` (through the floor to another storey) or `air`. The flow direction of the dots follows the value of the `entity` (negative = backwards, kW is converted). Targets on another floor are allowed.
 `{ "type": "houseentry", "id": "hak", "x": 1, "z": 1, "cables": [{ "to": "zk", "route": "floor" }] }`, `{ "type": "fusebox", "id": "zk", "x": 3, "z": 1, "entity": "sensor.house_power" }`
 
+### Stairs, blocks and floor openings
+
+Per floor (not for the roof), all sizes in metres. A stair belongs to the floor it **starts** on.
+
+`"stairs": [{ "type": "straight", "x": 1, "z": 0.5, "rot": 0, "w": 1, "floors": 1, "dir": "up" }]`
+
+| Field | Meaning |
+|---|---|
+| `type` | `straight`, `L`, `U`, `spiral` or `wall` (a light stair on a wall) |
+| `x`, `z` | Start of the stair (bottom, middle of the first step; the centre of a spiral) |
+| `rot` | Rotation around that point in degrees |
+| `w` | Width of the steps, the radius of a spiral (0.4 to 4 m) |
+| `tread` | Depth of one step (0.1 to 0.45 m, not for spiral and wall stairs) |
+| `turn` | `left`/`right`: for L, U and spiral the side it turns to; for a wall stair the side the steps stick out to (seen in walking direction) |
+| `dir` | `up` (climbs, opening in the floor above) or `down` (comes up from below, opening in this floor) |
+| `floors` | how many floors the stair climbs (1 to 6, default 1); an opening is cut into every floor it goes through. A spiral makes one turn per floor |
+| `path` | **only for `wall`:** the line along the wall as points `[x, z]` relative to `x`/`z`; the first point is `[0, 0]` (another start is moved there). Every bend is a landing. 2 to 30 points |
+
+A wall stair with a landing in the corner (along the top wall, then down the right wall; the steps stick out to the right, into the room):
+`{ "type": "wall", "x": 1.6, "z": 0.1, "turn": "right", "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]] }`
+The points should lie on the wall face (wall centre plus half the wall thickness). The landing is built for bends of about 90°.
+
+**Placeholder blocks** (a part of the house without detail, e.g. an annex): `"blocks": [{ "name": "Annex", "points": [[8,0],[11,0],[11,4],[8,4]], "h": 3 }]` (`h` = height, default one floor).
+**Floor openings** (a hole in the floor of this floor, e.g. a void): `"holes": [{ "points": [[2,1],[4,1],[4,3],[2,3]] }]`.
+
+Unknown stair types are skipped with a warning, invalid numbers (e.g. `floors` 9) are ignored, a wall stair without a usable `path` is an error. Stairs, blocks and floor openings are part of the **export** too (round trip).
+
 ### Floors
 
 The order does not matter: basements come first, attic / roof last. The roof shape is set in `building.roof` (or in a floor with `"kind": "roof"`). **Further roofs** (e.g. an annex with a flat roof): `"roof": { "type": "gable", "parts": [{ "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "type": "flat", "level": 0, "name": "Annex" }] }`, up to 8; `level` is the index of the floor in `building.floors` the roof sits on (without it: on top of the house), plus `pitch`, `overhang`, `dormers`. Garden objects from `plot.objects` are placed on the first floor that is not a basement.
@@ -167,7 +194,7 @@ Tips:
 
 ## Export (round trip)
 
-**Export this house as JSON** (same side panel) downloads your current house in the import format, with explicit walls so nothing is derived again. Useful for sharing, as a template for the AI ("change this house so that ...") or for versioning in Git. Also available to scripts via `GET /api/export/property?house=<id>`.
+**Export this house as JSON** (same side panel) downloads your current house in the import format, with explicit walls so nothing is derived again. Useful for sharing, as a template for the AI ("change this house so that ...") or for versioning in Git. Also available to scripts via `GET /api/export/property?house=<id>`. Stairs, placeholder blocks and floor openings are included; background pictures (templates to trace) are not.
 
 ## Typical workflows
 

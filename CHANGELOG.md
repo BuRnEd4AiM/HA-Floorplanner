@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.40.1] - 2026-10-05
+### Added
+- **Import, export and API know stairs (#191)**: the house JSON now has `stairs` per floor (types straight, L, U, spiral and wall, with `floors`, `dir`, `turn`, `w`, `tread`, `rot`, and `path` for a wall stair), plus `blocks` (placeholder blocks) and `holes` (floor openings). Invalid values are reported with their JSON path, the export writes them back (round trip), the JSON schema describes them, and the import summary of the API counts `stairs`. The AI prompt of the import dialog mentions stairs. Documentation (German and English) extended.
+
 ## [3.40.0] - 2026-10-05
 ### Added
 - **Stairs over several floors (#188)**: every stair now has a "Floors" setting (1 to 6). A straight, L or U stair simply gets long enough, a spiral makes one turn per floor. The opening in the floor is cut into every floor the stair goes through.

@@ -126,6 +126,33 @@ Unbekannte Typen werden mit Warnung übersprungen. Alle Typen stehen im Schema (
 **Strom** (`houseentry`, `fusebox`, `powermeter`, `inverter`, `solarpanel`, `battery`, `wallbox`): Kabel verbinden zwei Geräte. Jedes Gerät, das ein Ziel ist oder Kabel hat, bekommt eine `id` (frei wählbar, nur in der Datei gültig), die Kabel stehen als `cables` beim Startgerät: `route` ist `floor` (am Boden entlang, Standard), `through` (durch den Boden in die andere Etage) oder `air`. Die Richtung der fließenden Punkte folgt dem Wert der `entity` (negativ = rückwärts, kW wird umgerechnet). Ziele in einer anderen Etage sind erlaubt.
 `{ "type": "houseentry", "id": "hak", "x": 1, "z": 1, "cables": [{ "to": "zk", "route": "floor" }] }`, `{ "type": "fusebox", "id": "zk", "x": 3, "z": 1, "entity": "sensor.haus_leistung" }`
 
+### Treppen, Blöcke und Bodenöffnungen
+
+Pro Etage (nicht beim Dach), alle Maße in Metern. Die Treppe gehört zu der Etage, auf der sie **anfängt**.
+
+`"stairs": [{ "type": "straight", "x": 1, "z": 0.5, "rot": 0, "w": 1, "floors": 1, "dir": "up" }]`
+
+| Feld | Bedeutung |
+|---|---|
+| `type` | `straight` (gerade), `L`, `U`, `spiral` (Wendel) oder `wall` (Wandtreppe) |
+| `x`, `z` | Anfang der Treppe (unten, Mitte der ersten Stufe; bei der Wendel die Mitte) |
+| `rot` | Drehung um diesen Punkt in Grad |
+| `w` | Breite der Stufen, bei der Wendel der Radius (0,4 bis 4 m) |
+| `tread` | Tiefe einer Stufe (0,1 bis 0,45 m, nicht bei Wendel und Wandtreppe) |
+| `turn` | `left`/`right`: bei L, U und Wendel die Seite, zu der sie dreht; bei der Wandtreppe die Seite, zu der die Stufen abstehen (in Gehrichtung gesehen) |
+| `dir` | `up` (führt nach oben, Aussparung in der Etage darüber) oder `down` (kommt von unten, Aussparung in dieser Etage) |
+| `floors` | über wie viele Etagen die Treppe geht (1 bis 6, Standard 1); in jeder Etage, durch die sie geht, entsteht eine Aussparung. Eine Wendel macht eine Umdrehung pro Etage |
+| `path` | **nur bei `wall`:** der Weg entlang der Wand als Punkte `[x, z]` relativ zu `x`/`z`, der erste Punkt ist `[0, 0]` (ein anderer Start wird dorthin verschoben). Jeder Knick ist ein Podest. 2 bis 30 Punkte |
+
+Wandtreppe mit Podest in der Ecke (läuft an der oberen Wand entlang, dann an der rechten Wand hinunter; die Stufen stehen nach rechts in den Raum):
+`{ "type": "wall", "x": 1.6, "z": 0.1, "turn": "right", "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]] }`
+Die Punkte sollten auf der Wandfläche liegen (Wandmitte plus halbe Wanddicke). Für Knicke von etwa 90° ist das Podest gebaut.
+
+**Platzhalter-Blöcke** (ein Gebäudeteil ohne Details, z. B. ein Anbau): `"blocks": [{ "name": "Anbau", "points": [[8,0],[11,0],[11,4],[8,4]], "h": 3 }]` (`h` = Höhe, Standard eine Etage).
+**Bodenöffnungen** (ein Loch im Boden dieser Etage, z. B. ein Luftraum): `"holes": [{ "points": [[2,1],[4,1],[4,3],[2,3]] }]`.
+
+Unbekannte Treppentypen werden mit Warnung übersprungen, ungültige Zahlen (z. B. `floors` 9) ignoriert, eine Wandtreppe ohne brauchbaren `path` ist ein Fehler. Treppen, Blöcke und Bodenöffnungen sind auch im **Export** enthalten (Round-Trip).
+
 ### Etagen
 
 Reihenfolge ist egal: Keller zuerst, Dachgeschoss/Dach zuletzt. Die Dachform steht in `building.roof` (oder in einer Etage mit `"kind": "roof"`). **Weitere Dächer** (z. B. Anbau mit Flachdach): `"roof": { "type": "gable", "parts": [{ "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "type": "flat", "level": 0, "name": "Anbau" }] }`, bis zu 8; `level` ist der Index der Etage in `building.floors`, auf der das Dach sitzt (ohne `level`: oben auf dem Haus), außerdem `pitch`, `overhang`, `dormers`. Gartenobjekte aus `plot.objects` landen auf der ersten Nicht-Keller-Etage.
@@ -169,7 +196,7 @@ Tipps:
 
 ## Export (Round-Trip)
 
-**Dieses Haus als JSON exportieren** (gleiche Seitenleiste) lädt dein aktuelles Haus im Import-Format herunter – mit expliziten Wänden, damit nichts neu abgeleitet wird. Nützlich zum Weitergeben, als Vorlage für die KI („ändere dieses Haus so, dass …“) oder zum Versionieren in Git. Über `GET /api/export/property?house=<id>` auch per Skript.
+**Dieses Haus als JSON exportieren** (gleiche Seitenleiste) lädt dein aktuelles Haus im Import-Format herunter – mit expliziten Wänden, damit nichts neu abgeleitet wird. Nützlich zum Weitergeben, als Vorlage für die KI („ändere dieses Haus so, dass …“) oder zum Versionieren in Git. Über `GET /api/export/property?house=<id>` auch per Skript. Treppen, Platzhalter-Blöcke und Bodenöffnungen sind dabei; Hintergrundbilder (Vorlagen zum Nachzeichnen) nicht.
 
 ## Typische Abläufe
 

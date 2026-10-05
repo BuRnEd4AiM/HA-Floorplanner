@@ -304,6 +304,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 24.9 | Typ „Wendel", „Etagen" auf 2, im Garten neben dem Haus platzieren | Wendeltreppe mit zwei Umdrehungen (eine pro Etage), kein Treppenhaus drumherum | |
 | 24.10 | „Gerade", „L" oder „U" mit „Etagen" 2 | Eine lange Treppe über zwei Etagen | |
 | 24.11 | Alte Treppen im bestehenden Haus ansehen | Unverändert (Etagen = 1) | |
+| 24.12 | Haus → „Dieses Haus als JSON exportieren“, Datei ansehen | Treppen stehen mit `"type": "wall"`, `"floors"` und `"path"` in der Datei, ebenso Blöcke und Bodenöffnungen (3.40.1) | |
+| 24.13 | Diese Datei wieder importieren (neues Haus) | Die Treppen sind genauso wieder da | |
 
-Hinweis: Die Wandtreppe ist **nicht** Teil des Grundriss-Imports (JSON) und wird dort nicht ein- oder ausgelesen.
 

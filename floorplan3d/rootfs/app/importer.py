@@ -48,6 +48,11 @@ DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img", "batPowe
 DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert")
 CABLE_ROUTES = ("floor", "through", "air")
 CABLE_KINDS = ("grid", "solar", "battery", "load")
+STAIR_TYPES = ("straight", "L", "U", "spiral", "wall")           # same as STAIR_TYPES in static/stairs.js
+STAIR_MAX_FLOORS = 6                                              # MAX_FLOORS in static/stairs.js
+STAIR_TREAD = (0.1, 0.45)                                         # MIN_TREAD / MAX_TREAD in static/stairs.js
+MAX_STAIR_POINTS = 30
+MAX_PER_FLOOR = 100                                               # stairs, blocks and floor openings per floor
 KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap")   # same as MOD_W in static/kitchen.js (checked by a test)
 
 
@@ -325,6 +330,103 @@ def _device(rep: Report, path: str, spec, ids):
 
 
 # ---------------------------------------------------------------- main entry
+def _stair(rep: Report, path: str, spec, ids, ox, oz):
+    """One stair of a floor. Returns the stair for the layout or None. (x, z) and a wall stair's path are in metres; x and z shift by the building origin,
+    the path is relative to (x, z) and starts at [0, 0] (a path that starts elsewhere is moved there)."""
+    if not isinstance(spec, dict):
+        rep.error(path, "stair must be an object")
+        return None
+    typ = spec.get("type")
+    if typ not in STAIR_TYPES:
+        rep.warn(path, f"unknown stair type '{typ}': skipped (known: {', '.join(STAIR_TYPES)})")
+        return None
+    if not _num(spec.get("x"), -COORD_LIMIT, COORD_LIMIT) or not _num(spec.get("z"), -COORD_LIMIT, COORD_LIMIT):
+        rep.error(path, "stair needs numeric \"x\" and \"z\" (metres)")
+        return None
+    st = {"id": ids("s"), "type": typ, "x": float(spec["x"]), "z": float(spec["z"]), "rot": 0.0, "w": 0.9 if typ in ("spiral", "wall") else 1.0,
+          "tread": 0.27, "turn": "right", "dir": "up", "floors": 1, "name": ""}
+    if "rot" in spec:
+        if _num(spec["rot"], -3600, 3600):
+            st["rot"] = float(spec["rot"]) % 360
+        else:
+            rep.warn(f"{path}.rot", "rot must be a number (degrees): ignored")
+    if "w" in spec:
+        if _num(spec["w"], 0.4, 4):
+            st["w"] = float(spec["w"])
+        else:
+            rep.warn(f"{path}.w", "w (width, or radius of a spiral) must be between 0.4 and 4 m: ignored")
+    if "tread" in spec:
+        if _num(spec["tread"], STAIR_TREAD[0], STAIR_TREAD[1]):
+            st["tread"] = float(spec["tread"])
+        else:
+            rep.warn(f"{path}.tread", f"tread (depth of a step) must be between {STAIR_TREAD[0]} and {STAIR_TREAD[1]} m: ignored")
+    for key, allowed in (("turn", ("left", "right")), ("dir", ("up", "down"))):
+        if key in spec:
+            if spec[key] in allowed:
+                st[key] = spec[key]
+            else:
+                rep.warn(f"{path}.{key}", f"{key} must be {' or '.join(allowed)}: ignored")
+    if "floors" in spec:
+        v = spec["floors"]
+        if isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= STAIR_MAX_FLOORS:
+            st["floors"] = v
+        else:
+            rep.warn(f"{path}.floors", f"floors must be a whole number from 1 to {STAIR_MAX_FLOORS}: ignored")
+    if isinstance(spec.get("name"), str):
+        st["name"] = spec["name"][:60]
+    if typ == "wall":
+        raw = spec.get("path")
+        if not isinstance(raw, list) or not 2 <= len(raw) <= MAX_STAIR_POINTS or not all(_pt(p) and _num(p[0], -COORD_LIMIT, COORD_LIMIT) and _num(p[1], -COORD_LIMIT, COORD_LIMIT) for p in raw):
+            rep.error(f"{path}.path", f"a wall stair needs a \"path\": 2 to {MAX_STAIR_POINTS} points [x, z] along the wall")
+            return None
+        p0 = raw[0]
+        pts = [[round(float(p[0]) - float(p0[0]), 3), round(float(p[1]) - float(p0[1]), 3)] for p in raw]
+        if any(math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]) < 0.01 for i in range(len(pts) - 1)):
+            rep.error(f"{path}.path", "two neighbouring points of the path are the same")
+            return None
+        st["x"], st["z"] = st["x"] + float(p0[0]), st["z"] + float(p0[1])
+        st["path"] = pts
+    st["x"], st["z"] = round(st["x"] + ox, 3), round(st["z"] + oz, 3)
+    return st
+
+
+def _stairs_of_floor(rep: Report, fp: str, raw, ids, ox, oz):
+    if raw is None:
+        return []
+    if not isinstance(raw, list) or len(raw) > MAX_PER_FLOOR:
+        rep.error(f"{fp}.stairs", f"\"stairs\" must be a list (max {MAX_PER_FLOOR})")
+        return []
+    return [st for st in (_stair(rep, f"{fp}.stairs[{i}]", spec, ids, ox, oz) for i, spec in enumerate(raw)) if st is not None]
+
+
+def _blocks_and_holes(rep: Report, fp: str, f: dict, out: dict, ids):
+    """Placeholder blocks ("a house part without detail") and floor openings of a floor; the points are shifted by the origin later, like rooms."""
+    for key, label, prefix in (("blocks", "block", "b"), ("holes", "floor opening", "h")):
+        raw = f.get(key)
+        if raw is None:
+            continue
+        if not isinstance(raw, list) or len(raw) > MAX_PER_FLOOR:
+            rep.error(f"{fp}.{key}", f"\"{key}\" must be a list (max {MAX_PER_FLOOR})")
+            continue
+        for i, spec in enumerate(raw):
+            sp = f"{fp}.{key}[{i}]"
+            if not isinstance(spec, dict):
+                rep.error(sp, f"{label} must be an object")
+                continue
+            poly = _polygon(rep, f"{sp}.points", spec.get("points"), f"{label} polygon")
+            if poly is None:
+                continue
+            item = {"id": ids(prefix), "points": poly}
+            if key == "blocks":
+                item["name"] = str(spec.get("name") or f"Block {i + 1}")[:60]
+                if "h" in spec:
+                    if _num(spec["h"], 0.5, 30):
+                        item["h"] = float(spec["h"])
+                    else:
+                        rep.warn(f"{sp}.h", "h (height) must be between 0.5 and 30 m: ignored")
+            out[key].append(item)
+
+
 def build_layout(data):
     """Return (layout, plot, report, summary). `layout` is None when there are errors."""
     rep = Report()
@@ -334,7 +436,7 @@ def build_layout(data):
         seq[prefix] = seq.get(prefix, 0) + 1
         return f"{prefix}{seq[prefix]}"
 
-    summary = {"floors": 0, "rooms": 0, "walls": 0, "openings": 0, "devices": 0}
+    summary = {"floors": 0, "rooms": 0, "walls": 0, "openings": 0, "devices": 0, "stairs": 0}
     if not isinstance(data, dict):
         rep.error("$", "the file must contain one JSON object")
         return None, None, rep, summary
@@ -381,7 +483,7 @@ def build_layout(data):
             rep.error(f"{fp}.kind", "kind must be floor, basement or roof")
             continue
         name = str(f.get("name") or {"floor": f"Etage {fi + 1}", "basement": "Keller", "roof": "Dach"}[kind])[:60]
-        out = {"id": ids("f"), "name": name, "kind": kind, "walls": [], "rooms": [], "devices": [], "blocks": [], "stairs": []}
+        out = {"id": ids("f"), "name": name, "kind": kind, "walls": [], "rooms": [], "devices": [], "blocks": [], "stairs": [], "holes": []}
         input_ids[fi] = out["id"]
         if kind == "roof":
             out["roof"] = _roof(rep, f"{fp}.roof", f.get("roof", {}))
@@ -454,6 +556,8 @@ def build_layout(data):
             if d is not None:
                 d["x"], d["z"] = round(d["x"] + ox, 3), round(d["z"] + oz, 3)
                 out["devices"].append(d)
+        out["stairs"] = _stairs_of_floor(rep, fp, f.get("stairs"), ids, ox, oz)
+        _blocks_and_holes(rep, fp, f, out, ids)
         floors.append(out)
 
     if "roof" in b and not any(x["kind"] == "roof" for x in floors):
@@ -505,13 +609,14 @@ def build_layout(data):
             for w in fl["walls"]:
                 w["a"] = [round(w["a"][0] + ox, 3), round(w["a"][1] + oz, 3)]
                 w["b"] = [round(w["b"][0] + ox, 3), round(w["b"][1] + oz, 3)]
-            for r in fl["rooms"]:
+            for r in fl["rooms"] + fl.get("blocks", []) + fl.get("holes", []):
                 r["points"] = [[round(p[0] + ox, 3), round(p[1] + oz, 3)] for p in r["points"]]
     for fl in floors:
         summary["rooms"] += len(fl["rooms"])
         summary["walls"] += len(fl["walls"])
         summary["openings"] += sum(len(w["openings"]) for w in fl["walls"])
         summary["devices"] += len(fl["devices"])
+        summary["stairs"] += len(fl["stairs"])
     summary["floors"] = len(floors)
     if rep.errors:
         return None, None, rep, summary
@@ -692,8 +797,7 @@ def geojson_to_property(data, name="Haus vom Grundstück"):
 
 # ---------------------------------------------------------------- export
 def layout_to_property(layout, name="Haus"):
-    """Existing layout -> property JSON (walls explicit, so importing it again reproduces the plan). Stairs, blocks and
-    background pictures are not part of the format."""
+    """Existing layout -> property JSON (walls explicit, so importing it again reproduces the plan). Background pictures are not part of the format."""
     all_ids = {d.get("id") for f in layout.get("floors", []) for d in f.get("devices", [])}
 
     def cables_of(d):                                   # `feeds` (first version) counts as one air cable
@@ -731,6 +835,19 @@ def layout_to_property(layout, name="Haus"):
                                  **({"kind": c["kind"]} if c.get("kind") in CABLE_KINDS else {}),
                                  **({"entity": c["entity"]} if c.get("entity") else {})} for c in cs]
             item["devices"].append(od)
+        stairs = []
+        for st in f.get("stairs", []):
+            if st.get("type") not in STAIR_TYPES or not (_num(st.get("x")) and _num(st.get("z"))):
+                continue
+            os_ = {k: st[k] for k in ("type", "x", "z", "rot", "w", "tread", "turn", "dir", "floors", "name") if k in st and st[k] not in (None, "")}
+            if st["type"] == "wall" and isinstance(st.get("path"), list):
+                os_["path"] = st["path"]
+            stairs.append(os_)
+        if stairs:
+            item["stairs"] = stairs
+        for key, keys in (("blocks", ("name", "points", "h")), ("holes", ("points",))):
+            if f.get(key):
+                item[key] = [{k: b[k] for k in keys if k in b} for b in f[key] if isinstance(b.get("points"), list)]
         floors.append(item)
     out = {"schemaVersion": SCHEMA_VERSION, "name": name, "building": {"floors": floors}}
     if layout.get("plot", {}).get("boundary"):
