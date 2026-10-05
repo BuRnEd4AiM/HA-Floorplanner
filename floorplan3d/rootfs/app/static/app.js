@@ -21,6 +21,8 @@ import { initHouses } from './houses.js';
 import { initSettingsUi } from './settingsui.js';
 import { initBackground, imageSize } from './background.js';
 import { initPalettes } from './palettes.js';
+import { floorOpenings as floorOpeningsOf, floorShapes, initBlocks } from './blocks.js';
+import { initStairTool } from './stairtool.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -35,7 +37,7 @@ import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms } from './rooms.js';
 import { dormerParts, DORMER_DEFAULT, DORMER_TYPES } from './dormer.js';
-import { STAIR_TYPES, stairDefaults, stairBounds, stairLocal, polyToWorld, holesForFloor, toWorld, stairCounts, stairLength, stairHandles, MIN_TREAD, MAX_TREAD } from './stairs.js';
+import { stairLocal, polyToWorld, toWorld, stairCounts, stairLength, stairHandles, MIN_TREAD, MAX_TREAD } from './stairs.js';
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -854,7 +856,7 @@ function build() {
       const arriving = ghost && !houseMode && i === floorIdx - 1 && (st.dir || 'up') === 'up';
       const sGhost = ghost && !arriving;
       const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.95 }) : edgeMaterial;
-      const sg = buildStair(st, holo, sGhost, sEdge);
+      const sg = stairTool.build(st, holo, sGhost, sEdge);
       sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H : 0, st.z);
       sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
       g.add(sg);
@@ -2895,141 +2897,16 @@ $('#seeToggle').addEventListener('click', () => {
 
 /* ================= Palettes: devices, custom models; the code lives in palettes.js ================= */
 const palettes = initPalettes({ $, t, getType: () => deviceType, setType: (k) => { deviceType = k; }, alert: (x) => alert(x) });
-/* ================= Placeholder blocks and stairs ================= */
-/** everything cut out of floor i: stairwell openings plus the floor openings drawn by hand (Bodenöffnung) */
-function floorOpenings(i) {
-  return [...holesForFloor(layout.floors, i, FLOOR_H), ...(layout.floors[i]?.holes || []).filter((h) => h.points.length >= 3).map((h) => h.points)];
-}
-/** THREE shapes of a floor polygon with the stairwell openings cut out (polygon boolean, so partial overlaps work too) */
-function floorShapes(points, holes) {
-  const v = (p) => new THREE.Vector2(p[0], -p[1]);
-  const plain = () => [new THREE.Shape(points.map(v))];
-  if (!holes.length) return plain();
-  let mp;
-  try { mp = polygonClipping.difference([points.map((p) => [p[0], p[1]])], ...holes.map((h) => [h.map((p) => [p[0], p[1]])])); } catch { return plain(); }
-  const shapes = mp.map((poly) => {
-    const sh = new THREE.Shape(poly[0].slice(0, -1).map(v));
-    poly.slice(1).forEach((ring) => sh.holes.push(new THREE.Path(ring.slice(0, -1).map(v))));
-    return sh;
-  });
-  return shapes;
-}
-
-let stairType = 'straight', stairDir = 'up', stairTurn = 'right', stairRot = 0;
-const stairTpl = () => ({ ...stairDefaults(stairType === 'shaft' ? 'U' : stairType), type: stairType === 'shaft' ? 'U' : stairType, dir: stairDir, turn: stairTurn, rot: stairRot });
-
-/** stair mesh in the stair's local frame (origin = bottom start), steps as solid blocks */
-function buildStair(st, holo, ghost, edgeMaterial) {
-  const g = new THREE.Group();
-  const stepMat = holo
-    ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: ghost ? 0.12 : 0.38, depthWrite: false, side: THREE.DoubleSide })
-    : mat('#c9bba1', ghost, { side: THREE.DoubleSide });
-  stairLocal(st, FLOOR_H).treads.forEach((tr) => {
-    const shape = new THREE.Shape(tr.poly.map(([x, z]) => new THREE.Vector2(x, -z)));
-    const geo = new THREE.ExtrudeGeometry(shape, { depth: tr.top, bevelEnabled: false });
-    geo.rotateX(-Math.PI / 2);
-    const m = new THREE.Mesh(geo, stepMat);
-    m.castShadow = !holo; m.receiveShadow = !holo;
-    g.add(m);
-    if (holo && edgeMaterial) g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMaterial));
-  });
-  return g;
-}
-
-/** the plot (Grundstück) drawn in the 2D plan: the lawn and the earth take its shape; replaces an earlier one */
-function setPlot(points) {
-  snapshot();
-  layout.plot = { ...(layout.plot || {}), boundary: points };
-  changed();
-  setStatus(t('plot.set'));
-}
-$('#plotClear').addEventListener('click', () => {
-  if (!layout.plot?.boundary) return;
-  snapshot();
-  delete layout.plot.boundary;
-  if (!Object.keys(layout.plot).length) delete layout.plot;
-  changed(); plan?.render();
+/* ================= Placeholder blocks and stairs: the code lives in blocks.js and stairtool.js ================= */
+const floorOpenings = (i) => floorOpeningsOf(layout.floors, i, FLOOR_H);
+const blocks = initBlocks({
+  $, t, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, setFloorIdx: (i) => { floorIdx = i; }, snapshot: () => snapshot(), changed: (...a) => changed(...a),
+  setStatus: (x) => setStatus(x), select: (sel) => { selection = sel; }, uid: () => uid(), plan: () => plan, fillFloorSelect: () => fillFloorSelect(),
 });
-function addHole(points) {
-  snapshot();
-  const f = floor();
-  (f.holes ||= []).push({ id: uid(), points });
-  selection = { kind: 'hole', id: f.holes[f.holes.length - 1].id };
-  changed();
-  setStatus(t('hole.added'));
-}
-function addBlock(points) {
-  const target = blockTargetFloor();
-  snapshot();
-  const f = layout.floors[target];
-  (f.blocks ||= []).push({ id: uid(), name: layout.floors[target].name, points });
-  changed();
-  if (target !== floorIdx) setStatus(t('block.addedTo').replace('{floor}', f.name));
-}
-/** where a new block goes: the floor below (created when missing) or the current one */
-function blockTargetFloor() {
-  const v = $('#blockFloor')?.value ?? 'below';
-  if (v === 'this') return floorIdx;
-  if (floorIdx > 0) return floorIdx - 1;
-  if (layout.floors[0].name === t('floor.default')) layout.floors[0].name = t('floor.firstUpper');   // the default name now belongs to the new floor below
-  layout.floors.unshift({ id: uid(), name: t('floor.blockName'), walls: [], rooms: [], devices: [], blocks: [], stairs: [] });
-  floorIdx += 1;                                                  // the current floor moved up one
-  fillFloorSelect();
-  return 0;
-}
-
-function placeStair(x, z) {
-  const f = floor();
-  snapshot();
-  if (stairType === 'shaft') { placeShaft(x, z); return; }
-  const st = { id: uid(), name: t(`stair.${stairType}`), x, z, ...stairTpl() };
-  (f.stairs ||= []).push(st);
-  selection = { kind: 'stair', id: st.id };
-  changed();
-  setTool('select');                                              // size handles are usable right away
-}
-
-/** Treppenhaus preset: U stair + four walls + room + door, and the same shell on the next floor for an 'up' stair */
-function placeShaft(cx, cz) {
-  const f = floor();
-  const base = { ...stairTpl(), type: 'U', x: 0, z: 0, rot: 0 };
-  const b = stairBounds(base, FLOOR_H);
-  const m = 0.2 + settings.wallThickness / 2;                     // clear space between stair and wall centre line
-  const x0 = -(b.x1 - b.x0) / 2 - m, x1 = (b.x1 - b.x0) / 2 + m, z0 = -(b.z1 - b.z0) / 2 - m, z1 = (b.z1 - b.z0) / 2 + m;
-  const snap = (v) => Math.round(v / 0.05) * 0.05;
-  const rot = ((stairRot % 360) + 360) % 360;
-  const rp = ([lx, lz]) => { const th = (rot * Math.PI) / 180; return [snap(cx + lx * Math.cos(th) + lz * Math.sin(th)), snap(cz - lx * Math.sin(th) + lz * Math.cos(th))]; };
-  const corners = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]].map(rp);
-  const shell = (fl, withStair) => {
-    const th = settings.wallThickness, wh = settings.wallHeight;
-    const ws = corners.map((c, i) => ({ id: uid(), a: [...c], b: [...corners[(i + 1) % 4]], thickness: th, height: wh, openings: [] }));
-    fl.walls.push(...ws);
-    fl.rooms.push({ id: uid(), name: t('stair.shaftName'), color: '#7d8a99', points: corners.map((c) => [...c]) });
-    return ws;
-  };
-  const ws = shell(f);
-  const door = ws[0];
-  if (wallLength(door) > OPENING_DEFAULTS.door.width + 0.4) door.openings.push({ id: uid(), type: 'door', pos: wallLength(door) / 2, ...OPENING_DEFAULTS.door });
-  const st = { ...base, id: uid(), name: t('stair.shaftName'), x: 0, z: 0 };
-  const [ox, oz] = [(b.x0 + b.x1) / 2, (b.z0 + b.z1) / 2];
-  const [wx, wz] = (() => { const th = (rot * Math.PI) / 180; return [cx - (ox * Math.cos(th) + oz * Math.sin(th)), cz - (-ox * Math.sin(th) + oz * Math.cos(th))]; })();
-  st.x = +wx.toFixed(3); st.z = +wz.toFixed(3); st.rot = rot;
-  (f.stairs ||= []).push(st);
-  const other = layout.floors[stairDir === 'up' ? floorIdx + 1 : -1];
-  if (other) shell(other);                                        // same walls above so the shaft continues
-  selection = { kind: 'stair', id: st.id };
-  changed();
-  setTool('select');
-}
-
-document.querySelectorAll('#stairTypes button').forEach((b) => b.addEventListener('click', () => {
-  stairType = b.dataset.stair;
-  document.querySelectorAll('#stairTypes button').forEach((x) => x.classList.toggle('active', x === b));
-  plan?.render();
-}));
-$('#stairDir').addEventListener('change', (e) => { stairDir = e.target.value; plan?.render(); });
-$('#stairTurn').addEventListener('change', (e) => { stairTurn = e.target.value; plan?.render(); });
-$('#stairRot').addEventListener('change', (e) => { stairRot = ((+e.target.value % 360) + 360) % 360 || 0; plan?.render(); });
+const stairTool = initStairTool({
+  $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH: FLOOR_H, snapshot: () => snapshot(), changed: (...a) => changed(...a),
+  select: (sel) => { selection = sel; }, setTool: (x) => setTool(x), plan: () => plan, uid: () => uid(), mat: (...a) => mat(...a),
+});
 
 /* ================= Background image (template to trace): the code lives in background.js ================= */
 const bgUi = initBackground({
@@ -3809,7 +3686,7 @@ plan = createPlan({
   holdPlaced,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate: (a, b) => bgUi.calibrate(a, b),
-  bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, ghostFloors: () => ghostFloors(), addBlock, addHole, setPlot, placeStair, getStairTemplate: () => ({ id: 'tpl', ...stairTpl() }),
+  bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: blocks.setPlot, placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
  
   liveMoveDevice: (d) => liveMove(d),

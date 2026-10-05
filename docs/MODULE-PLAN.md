@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.39.11. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.39.12. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -41,6 +41,8 @@ Stand: Version 3.39.11. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/roo
 | `offline.js` | ~100 | Offline-Liste |
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
+| `stairtool.js` | ~110 | Treppen-Werkzeug (Platzieren, Treppenhaus, 3D-Treppe) |
+| `blocks.js` | ~80 | Platzhalter-Blöcke, Bodenöffnungen, Grundstück, Boden mit Aussparungen |
 | `palettes.js` | ~105 | Paletten (Geräte, eigene Modelle, Suche) |
 | `background.js` | ~120 | Hintergrundbild (Vorlage zum Nachzeichnen, Eichen) |
 | `settingsui.js` | ~115 | Einstellungen: Tablet-Zuordnung und Farbskalen |
@@ -56,7 +58,6 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
 | 13 | **Einstellungen**, Rest (einfache Felder, Anwenden, Speichern) | ~150 | `settings.js` | mittel bis hoch (`settings` wird überall gelesen und ersetzt) |
-| 16 | **Platzhalter-Blöcke und Treppen** | ~136 | `blocks.js` | mittel |
 | 17 | **Raum-Panel und Live-Steuerung** | ~230 + ~240 | `livecontrol.js`, `roompanel.js` | hoch |
 | 18 | **Eigenschaften-Panel** (alle Typen) | ~426 | `props.js`, nach Typ aufgeteilt | hoch |
 | 19 | **Aufschneiden der Wände** (Cutaway, Durchsichtig) | ~52 + Teile | `cutaway.js` | hoch |

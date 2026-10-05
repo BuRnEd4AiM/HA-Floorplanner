@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.39.12] - 2026-10-05
+### Changed
+- **Code split, step 12 (#137)**: placeholder blocks, floor openings, the plot and the stair tool moved out of `app.js` into `blocks.js` and `stairtool.js`, with unit tests (shape of a stairwell, which floor a block goes to, floor shapes with openings). No change in behaviour.
+
 ## [3.39.11] - 2026-10-05
 ### Changed
 - **Code split, step 11 (#137)**: the library palettes (device types by category and search, your own 3D models) moved out of `app.js` into `palettes.js`, with unit tests.
