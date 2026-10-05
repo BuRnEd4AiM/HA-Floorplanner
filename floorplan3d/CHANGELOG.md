@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.43.3] - 2026-10-05
+### Changed
+- **Code split, step 21 (#137)**: the navigation (floor pills, room menu, scroll arrows of the bar, the tablet's room button, the area the camera frames) moved out of `app.js` into `nav.js`, with unit tests. No change in behaviour.
+
 ## [3.43.2] - 2026-10-05
 ### Changed
 - **Code split, step 20 (#137)**: the wall stop (things cannot be pushed into a wall, they slide along it, doorways let them through) moved out of `app.js` into `collide.js`, with unit tests. No change in behaviour.
