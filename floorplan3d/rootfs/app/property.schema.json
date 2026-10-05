@@ -805,6 +805,16 @@
      "maximum": 12,
      "description": "Only for type solarpanel: rows of panels in the field (default 1)."
     },
+    "len": {
+     "type": "number",
+     "minimum": 0.5,
+     "maximum": 30,
+     "description": "Only for type bridge: length in metres (default 3)."
+    },
+    "noRail": {
+     "type": "boolean",
+     "description": "Only for type bridge: no railing."
+    },
     "mount": {
      "enum": ["auto", "flat", "stand"],
      "description": "Only for type solarpanel: on the roof floor the panels follow the roof; auto = flat on a sloped roof, on a rack on a flat roof (default auto)."

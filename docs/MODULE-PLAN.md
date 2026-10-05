@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.42.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **2.420**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.43.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **2.420**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -44,6 +44,7 @@ Stand: Version 3.42.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `roomlight.js` | ~95 | Raumlicht-Shader (Lichtflecken, Wandschein), Farbskalen |
 | `earth.js` | ~150 | Erde, Rasen, Grundstücksform, Schnitt durch den Boden |
 | `badgetext.js` | ~35 | Texte der Wert-Anzeigen über den Geräten (Sensoren, Zähler, Licht, Rollo …), mit Unit-Tests |
+| `bridge.js` | ~35 | Metallbrücke / Übergang (#189): Lauffläche, Träger, Geländer (reine Geometrie, Unit-Tests) |
 | `solarroof.js` | ~80 | Solarpanels auf dem Dach (#176): Dachfläche an einer Stelle (Höhe, Neigung), Kippung des Panels, Panel-Feld (reine Rechnung, Unit-Tests) |
 | `floorpanel.js` | ~185 | Etagen-Verwaltung: Name, Art, Reihenfolge, Keller/Dach, Dach mit Gauben und weiteren Dächern |
 | `settings.js` | ~165 | Einstellungen: Formular, Laden (mit Wiederholung), Speichern (ETag), Benutzer-Dialog |

@@ -43,9 +43,9 @@ ROOF_TYPES = {"gable", "hip", "flat"}
 FLOOR_KINDS = {"floor", "basement", "roof"}
 ROOM_COLORS = ["#b89b74", "#c9c2b4", "#8fb1c2", "#a99bb8", "#9db39a", "#c2a58f", "#9fb0c9", "#b7b08f"]
 # optional device fields that are copied when they have the right type
-DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range")
+DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len")
 DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img", "batPower")
-DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert")
+DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert", "noRail")
 CABLE_ROUTES = ("floor", "through", "air")
 CABLE_KINDS = ("grid", "solar", "battery", "load")
 STAIR_TYPES = ("straight", "L", "U", "spiral", "wall")           # same as STAIR_TYPES in static/stairs.js

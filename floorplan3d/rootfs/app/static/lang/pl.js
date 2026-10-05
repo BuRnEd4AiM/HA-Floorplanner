@@ -804,4 +804,5 @@ export default {
   'dev.presence': 'Obecność / osoba', 'nav.occupied': 'Ktoś jest w tym pokoju',
   'solar.cols': 'Paneli obok siebie', 'solar.rows': 'Rzędy', 'solar.mount': 'Montaż', 'solar.mount.auto': 'Automatycznie', 'solar.mount.flat': 'Płasko na dachu', 'solar.mount.stand': 'Na stelażu', 'solar.onRoof': 'Leży na dachu: wysokość i nachylenie podążają za powierzchnią dachu pod spodem. Automatycznie = płasko na dachach skośnych, na stelażu na dachu płaskim.', 'solar.roofHint': 'Aby położyć na dachu: otwórz kondygnację „Dach” i umieść tam panel słoneczny, wtedy dopasuje się do nachylenia dachu.',
   'dev.watermeter': 'Wodomierz', 'dev.gasmeter': 'Gazomierz', 'dev.heatmeter': 'Ciepłomierz',
+  'dev.bridge': 'Most / przejście', 'bridge.len': 'Długość', 'bridge.width': 'Szerokość', 'bridge.rail': 'Balustrada', 'bridge.help': 'Powierzchnia przejścia jest na wysokości kondygnacji, na której stoi most. Aby połączyć dwie części budynku, umieść go na wyższej kondygnacji i obróć, aby go wyrównać.',
 };

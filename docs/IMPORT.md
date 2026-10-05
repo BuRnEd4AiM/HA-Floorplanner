@@ -123,6 +123,9 @@ Unbekannte Typen werden mit Warnung übersprungen. Alle Typen stehen im Schema (
 **Küchenzeile** (`"type": "kitchenrun"`): `legs` = bis zu 3 Schenkel (gerade, L, U), jeder eine Liste von Modulen (`base`, `drawers`, `sink`, `stove`, `dish`, `fridge`, `tall`, `gap`), dazu `upper` (Oberschränke, Standard `true`) und `depth` (0,4 bis 1,2 m).
 `{ "type": "kitchenrun", "x": 3, "z": 2, "legs": [["base","sink","dish","stove","fridge"],["base","base"]], "upper": true }`
 
+**Brücke / Übergang** (`"type": "bridge"`): `len` = Länge (0,5 bis 30 m, Standard 3), `w` = Breite (0,5 bis 5 m, Standard 1,2), `noRail: true` = ohne Geländer. Die Lauffläche liegt auf Höhe der Etage, `rot` richtet sie aus.
+`{ "type": "bridge", "x": 12, "z": 4, "len": 3, "rot": 90 }`
+
 **Solarpanel** (`"type": "solarpanel"`): `cols` = Panels nebeneinander, `rows` = Reihen (je 1 bis 12, Standard 1), `mount` = `auto` (Standard: flach auf schrägen Dächern, aufgeständert auf Flachdach und Boden), `flat` oder `stand`. Liegt das Gerät in der Etage vom Typ `roof`, folgt es der Dachfläche darunter.
 `{ "type": "solarpanel", "x": 4, "z": 2, "cols": 4, "rows": 2 }`
 

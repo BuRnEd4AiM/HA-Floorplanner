@@ -804,4 +804,5 @@ export default {
   'dev.presence': 'Presencia / persona', 'nav.occupied': 'Hay alguien en esta habitación',
   'solar.cols': 'Paneles uno al lado del otro', 'solar.rows': 'Filas', 'solar.mount': 'Montaje', 'solar.mount.auto': 'Automático', 'solar.mount.flat': 'Plano sobre el tejado', 'solar.mount.stand': 'Sobre soporte', 'solar.onRoof': 'Sobre el tejado: la altura y la inclinación siguen la superficie del tejado de debajo. Automático = plano en tejados inclinados, sobre soporte en un tejado plano.', 'solar.roofHint': 'Para ponerlo en el tejado: abrir la planta «Tejado» y colocar allí el panel solar, entonces sigue la pendiente del tejado.',
   'dev.watermeter': 'Contador de agua', 'dev.gasmeter': 'Contador de gas', 'dev.heatmeter': 'Contador de calor',
+  'dev.bridge': 'Puente / pasarela', 'bridge.len': 'Longitud', 'bridge.width': 'Anchura', 'bridge.rail': 'Barandilla', 'bridge.help': 'La superficie de paso está a la altura de la planta donde se coloca el puente. Para unir dos partes del edificio, colocarlo en la planta superior y girarlo para alinearlo.',
 };

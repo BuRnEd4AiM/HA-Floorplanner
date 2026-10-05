@@ -4,6 +4,7 @@ import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
 import { ringSections, piecesLocal, pointAt } from './ledring.js';
 import { kitchenLayout } from './kitchen.js';
 import { solarField, PANEL } from './solarroof.js';
+import { bridgeParts } from './bridge.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -44,6 +45,7 @@ export const DEVICE_TYPES = {
   terrace:    { label: 'Terrasse',    y: 0 },
   path:       { label: 'Weg',         y: 0 },
   fence:      { label: 'Zaun',        y: 0 },
+  bridge:     { label: 'Brücke / Übergang', y: 0 },
   sofa2:      { label: 'Ecksofa',      y: 0 },
   tvstand:    { label: 'TV-Board',     y: 0 },
   bookcase:   { label: 'Bücherregal',  y: 0 },
@@ -114,7 +116,7 @@ export const CATEGORIES = {
   lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'ledring', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led'],
   smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence', 'watermeter', 'gasmeter', 'heatmeter'],
   power:   ['houseentry', 'fusebox', 'powermeter', 'inverter', 'solarpanel', 'battery', 'wallbox'],
-  outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car'],
+  outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car', 'bridge'],
   decor:   ['picture'],
 };
 export const catOf = (type) => Object.keys(CATEGORIES).find((k) => CATEGORIES[k].includes(type)) || 'living';
@@ -634,10 +636,16 @@ export function makeModel(type, onReady, dev, opts) {
   if (type === 'nanoleaf') { nanoleaf(g, dev); return g; }
   if (type === 'ledring') { ledRing(g, dev); return g; }
   if (type === 'kitchenrun') { kitchenRun(g, dev); return g; }
+  if (type === 'bridge') { bridgeModel(g, dev); return g; }
   if (type === 'solarpanel') { const m = opts?.mount || 'stand'; solarPanels(g, dev, m); if (m === 'stand') centreOnFootprint(g); return g; }
   (builders[type] || builders.sensor)(g);
   centreOnFootprint(g);
   return g;
+}
+/** Metal bridge / walkway (#189): grating deck on two steel beams, railing on both sides (see bridgeParts) */
+function bridgeModel(g, dev) {
+  const mats = { deck: std('#6f767d', { metalness: 0.6, roughness: 0.5 }), beam: std('#4a5057', { metalness: 0.6, roughness: 0.45 }), post: std('#8d949b', { metalness: 0.6, roughness: 0.45 }), rail: std('#8d949b', { metalness: 0.6, roughness: 0.45 }) };
+  bridgeParts(dev).forEach((p) => g.add(box(p.w, p.h, p.d, mats[p.kind], p.x, p.y, p.z)));
 }
 /** Solar panels (#176): one panel or a field (rows x columns, see solarField), on stands tilted to the sun
  *  or lying flat on rails (on a sloped roof the whole model is tilted onto the roof surface by the caller). */
