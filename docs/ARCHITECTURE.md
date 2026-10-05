@@ -33,6 +33,8 @@ server.py  (aiohttp, port 8099)
 | `autoplace.js` | Automatic placement of an area's entities in a room (pure, unit-tested) |
 | `i18n.js` | German and English strings |
 
+More modules (heating panel, kitchen run, tool bar, backups, ...) and the plan for splitting the rest of `app.js`: see [MODULE-PLAN.md](MODULE-PLAN.md).
+
 The layout is plain JSON: floors → walls (with openings), rooms, devices. Both editors change the same object and call `changed()`, which rebuilds the 3D scene and schedules a save.
 
 ## Backend rules
