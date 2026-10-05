@@ -645,3 +645,20 @@ async def test_startup_never_overwrites_an_existing_users_json(aiohttp_client, t
     (tmp_path / "cfg" / "users.json").write_text(json.dumps({"userRooms": {"kept": "B"}}), "utf-8")
     await aiohttp_client(server.make_app(tmp_path / "data", tmp_path / "cfg"))
     assert json.loads((tmp_path / "cfg" / "users.json").read_text("utf-8"))["userRooms"] == {"kept": "B"}
+
+
+async def test_language_follows_the_browser_until_somebody_picks_one(aiohttp_client, tmp_path):
+    """Settings stored before "auto" was the default (language "de" nobody chose) start with auto; a picked language stays."""
+    import json
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data" / "settings.json").write_text(json.dumps({"language": "de", "theme": "dark"}), "utf-8")
+    client = await aiohttp_client(server.make_app(tmp_path / "data", tmp_path / "cfg"))
+    get = lambda: client.get("/api/settings")
+    assert (await (await get()).json())["language"] == "auto"
+    r = await client.put("/api/settings", json={"grid": 0.5})                  # saving something else does not count as a choice
+    assert r.status == 200 and (await (await get()).json())["language"] == "auto"
+    r = await client.put("/api/settings", json={"language": "fr"})
+    s = await (await get()).json()
+    assert s["language"] == "fr" and s["langChosen"] is True
+    r = await client.put("/api/settings", json={"language": "fr", "grid": 0.25})      # the page sends everything it knows: the choice stays
+    assert (await (await get()).json())["language"] == "fr"
