@@ -160,7 +160,7 @@ export default {
   'stair.wall': 'Escalera de pared',
   'stair.floors': 'Plantas',
   'stair.side': 'Peldaños hacia',
-  'stair.wallHelp': 'Los peldaños cuelgan de la pared como placas finas, sin nada debajo. Cada giro del recorrido es un descansillo. El ancho se ajusta con el tirador; el lado, arriba.',
+  'stair.wallHelp': 'Los peldaños cuelgan de la pared como placas finas, sin nada debajo. Cada giro del recorrido es un descansillo. El ancho se ajusta con el tirador; el lado, arriba. Un clic en medio de un tramo recto pone un descansillo propio. «Descansillo tras el giro» mantiene la escalera plana ese largo tras cada giro.', 'stair.landing': 'Descansillo tras el giro',
   'stair.wallNext': "Sigue haciendo clic a lo largo de la pared. Doble clic o Intro termina el recorrido, Esc cancela.",
   'stair.shaftName': 'Hueco de escalera',
   'stair.help': 'La abertura del suelo aparece automáticamente sobre el tramo superior (naranja discontinuo). Q/E gira la escalera.',

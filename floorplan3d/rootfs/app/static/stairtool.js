@@ -3,7 +3,7 @@
  * wall along a path drawn in the plan), the stair fields of the properties panel, and the 3D mesh of a stair.
  * The geometry of the shaft is a pure function (tested). */
 import * as THREE from './vendor/three.module.min.js';
-import { stairDefaults, stairBounds, stairLocal, stairCounts, stairLength, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H } from './stairs.js';
+import { stairDefaults, stairBounds, stairLocal, stairCounts, stairLength, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H, MAX_LANDING, landingLength } from './stairs.js';
 import { OPENING_DEFAULTS, wallLength } from './walls.js';
 
 const snap = (v) => Math.round(v / 0.05) * 0.05;
@@ -119,6 +119,9 @@ export function initStairTool(ctx) {
       body.append(field(it.type === 'wall' ? t('stair.side') : t('stair.turn'), sel([['right', t('stair.right')], ['left', t('stair.left')]], it.turn || 'right', (v) => { ctx.snapshot(); it.turn = v; ctx.changed(); })));
     }
     body.append(field(it.type === 'spiral' ? t('stair.radius') : t('bg.width'), lenInput(() => it.w, (v) => (it.w = Math.max(0.5, v)), { min: 0.5 })));
+    if (it.type === 'wall') {                                     // flat round every bend for this long (0 = only the corner, #210)
+      body.append(field(t('stair.landing'), lenInput(() => landingLength(it), (v) => { const l = Math.min(MAX_LANDING, Math.max(0, v)); if (l > 0) it.landing = +l.toFixed(2); else delete it.landing; }, { min: 0, step: 0.1 })));
+    }
     if (it.type !== 'spiral' && it.type !== 'wall') {
       const cnt = stairCounts(it, ctx.floorH)[it.type === 'straight' ? 'T' : 'n1'];
       body.append(field(t('stair.length'), lenInput(() => stairLength(it, ctx.floorH), (v) => (it.tread = Math.max(MIN_TREAD, Math.min(MAX_TREAD, v / cnt))), { min: 0.5 })));

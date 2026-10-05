@@ -18,6 +18,9 @@ export const STAIR_TYPES = ['straight', 'L', 'U', 'spiral', 'wall'];
 /** shallowest / deepest tread (m): with the usual 16 treads this allows stairs from 1.6 m to 7.2 m long */
 export const MIN_TREAD = 0.1, MAX_TREAD = 0.45;
 const GAP = 0.1;                     // gap between the two flights of a U stair
+export const MAX_LANDING = 3;        // longest flat stretch after a bend of a wall stair (m, #210)
+/** the flat stretch a wall stair keeps after every bend (m, 0 = only the corner) */
+export const landingLength = (st) => Math.max(0, Math.min(MAX_LANDING, Number(st?.landing) || 0));
 export const THIN = 0.06;            // thickness of a step plate of a wall stair (m)
 export const POLE_R = 0.06, RAIL_H = 0.9, RAIL_IN = 0.04;   // spiral stair: radius of the middle pole, height of the hand rail over the steps, its distance from the outer edge
 export const MAX_FLOORS = 6;
@@ -136,7 +139,8 @@ export function wallSide(st, d) {
 
 /**
  * Plan of a wall stair: the flights and landings along `path`.
- * Returns { flights: [{ from, dir, len, k }], landings: [{ at, kind: 'in'|'away', a, b }], treadsLeft, ok }
+ * Returns { flights: [{ from, dir, len, k }], landings: [{ at, kind: 'in'|'away'|'straight', a, b, flat: { from, len } | null }], treadsLeft, ok }
+ *  (a point in the middle of a straight run is a landing of its own; st.landing keeps the stair flat for that long after a bend, #210)
  *  - at an inner bend ('in': the path turns towards the side the steps are on) the landing sits in the corner: the flight before it stops
  *    one width short, the next one starts one width after the corner
  *  - at an outer bend ('away') the landing lies beyond the corner on the step side and the next flight starts at the corner
@@ -151,12 +155,20 @@ export function wallStairPlan(st, nTreads) {
     if (len < 0.01) continue;
     segs.push({ a: p[i], b: p[i + 1], len, dir: [dx / len, dz / len], s0: 0, s1: 0 });
   }
-  const landings = [];
+  const landings = [], extra = landingLength(st);
   for (let i = 0; i + 1 < segs.length; i++) {
-    const A = segs[i], B = segs[i + 1], cross = A.dir[0] * B.dir[1] - A.dir[1] * B.dir[0];
+    const A = segs[i], B = segs[i + 1], cross = A.dir[0] * B.dir[1] - A.dir[1] * B.dir[0], dot = A.dir[0] * B.dir[0] + A.dir[1] * B.dir[1];
+    if (Math.abs(cross) < 0.05 && dot > 0) {                 // a point in the middle of a straight run: a landing of its own (#210)
+      const len = Math.min(extra || w, Math.max(0, B.len - 0.05));
+      landings.push({ at: B.a, kind: 'straight', a: A.dir, b: B.dir, flat: { from: [...B.a], len } });
+      B.s0 += len;
+      continue;
+    }
     const kind = cross * sg > 0 ? 'in' : 'away';
     if (kind === 'in') { A.s1 += w; B.s0 += w; }
-    landings.push({ at: B.a, kind, a: A.dir, b: B.dir });
+    const len = Math.min(extra, Math.max(0, B.len - B.s0 - 0.05));                       // stays flat round the corner for this long (#210)
+    landings.push({ at: B.a, kind, a: A.dir, b: B.dir, flat: len > 0 ? { from: [B.a[0] + B.dir[0] * B.s0, B.a[1] + B.dir[1] * B.s0], len } : null });
+    B.s0 += len;
   }
   const avail = segs.map((q) => Math.max(0, q.len - q.s0 - q.s1));
   const total = avail.reduce((x, y) => x + y, 0);
@@ -192,10 +204,16 @@ function wallStairLocal(st, Htot) {
     if (L) {
       c++;
       const P = L.at, a = L.a, b = L.b, nA = [-a[1] * sg, a[0] * sg];
-      const q = L.kind === 'in'
-        ? [[P[0] - a[0] * w, P[1] - a[1] * w], P, [P[0] + b[0] * w, P[1] + b[1] * w], [P[0] + b[0] * w - a[0] * w, P[1] + b[1] * w - a[1] * w]]
-        : [P, [P[0] + a[0] * w, P[1] + a[1] * w], [P[0] + a[0] * w + nA[0] * w, P[1] + a[1] * w + nA[1] * w], [P[0] + nA[0] * w, P[1] + nA[1] * w]];
-      add(q, c);
+      if (L.kind !== 'straight') {
+        const q = L.kind === 'in'
+          ? [[P[0] - a[0] * w, P[1] - a[1] * w], P, [P[0] + b[0] * w, P[1] + b[1] * w], [P[0] + b[0] * w - a[0] * w, P[1] + b[1] * w - a[1] * w]]
+          : [P, [P[0] + a[0] * w, P[1] + a[1] * w], [P[0] + a[0] * w + nA[0] * w, P[1] + a[1] * w + nA[1] * w], [P[0] + nA[0] * w, P[1] + nA[1] * w]];
+        add(q, c);
+      }
+      if (L.flat && L.flat.len > 0) {                          // the flat stretch after the corner, or a landing of its own: same height (#210)
+        const f0 = L.flat.from, f1 = [f0[0] + b[0] * L.flat.len, f0[1] + b[1] * L.flat.len], nB = [-b[1] * sg, b[0] * sg];
+        add([f0, f1, [f1[0] + nB[0] * w, f1[1] + nB[1] * w], [f0[0] + nB[0] * w, f0[1] + nB[1] * w]], c);
+      }
     }
   });
   // the opening in the floors above: the outline of everything the stair covers

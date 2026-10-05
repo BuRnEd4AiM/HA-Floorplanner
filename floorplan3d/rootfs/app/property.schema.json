@@ -158,7 +158,13 @@
      "items": {
       "$ref": "#/$defs/point"
      },
-     "description": "Only for type 'wall': the line along the wall in metres, relative to (x, z); the first point is [0, 0] (another start is moved there). Every bend between two stretches becomes a landing."
+     "description": "Only for type 'wall': the line along the wall in metres, relative to (x, z); the first point is [0, 0] (another start is moved there). Every bend between two stretches becomes a landing, and so does a point in the middle of a straight stretch."
+    },
+    "landing": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 3,
+     "description": "Only for type 'wall': after every bend the stair stays flat for this many metres (default 0: only the corner)."
     }
    }
   },

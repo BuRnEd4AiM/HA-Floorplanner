@@ -160,7 +160,7 @@ export default {
   'stair.wall': 'Scala a parete',
   'stair.floors': 'Piani',
   'stair.side': 'Gradini verso',
-  'stair.wallHelp': 'I gradini sono fissati al muro come lastre sottili, senza nulla sotto. Ogni curva del percorso è un pianerottolo. La larghezza si trascina con la maniglia, il lato si imposta sopra.',
+  'stair.wallHelp': 'I gradini sono fissati al muro come lastre sottili, senza nulla sotto. Ogni curva del percorso è un pianerottolo. La larghezza si trascina con la maniglia, il lato si imposta sopra. Un clic a metà di un tratto dritto mette un pianerottolo a sé. «Pianerottolo dopo la curva» tiene la scala piana per quella lunghezza dopo ogni curva.', 'stair.landing': 'Pianerottolo dopo la curva',
   'stair.wallNext': "Continua a cliccare lungo il muro. Doppio clic o Invio termina il percorso, Esc annulla.",
   'stair.shaftName': 'Vano scale',
   'stair.help': 'L\'apertura nel solaio compare automaticamente sopra la rampa superiore (arancione tratteggiato). Q/E ruota la scala.',

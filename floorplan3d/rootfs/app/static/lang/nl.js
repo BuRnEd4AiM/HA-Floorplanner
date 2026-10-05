@@ -160,7 +160,7 @@ export default {
   'stair.wall': 'Wandtrap',
   'stair.floors': 'Verdiepingen',
   'stair.side': 'Treden naar',
-  'stair.wallHelp': 'De treden hangen als dunne platen aan de muur, daaronder is niets. Elke knik in het pad is een bordes. De breedte versleep je aan het handvat, de kant stel je hierboven in.',
+  'stair.wallHelp': 'De treden hangen als dunne platen aan de muur, daaronder is niets. Elke knik in het pad is een bordes. De breedte versleep je aan het handvat, de kant stel je hierboven in. Een klik midden op een recht stuk zet een eigen bordes. „Bordes na de knik” houdt de trap na elke knik zo lang vlak.', 'stair.landing': 'Bordes na de knik',
   'stair.wallNext': "Blijf langs de muur klikken. Dubbelklik of Enter beëindigt het pad, Esc annuleert.",
   'stair.shaftName': 'Trapgat',
   'stair.help': 'De vloeropening verschijnt automatisch boven de bovenste trap (oranje gestippeld). Q/E draait de trap.',
