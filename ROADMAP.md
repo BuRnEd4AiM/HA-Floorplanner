@@ -44,6 +44,9 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
   - Separate sensors (grid import / export, battery charging / discharging) and a button to flip the sign of a sensor that counts the wrong way
   - Setup checklist ("what is missing?") and a one-click *Take over from the Home Assistant energy dashboard*
   - Ideas collected in the comment of [#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136#issuecomment-5981634564)
+- ⬜ Power button is only a short flicker: it must be a real switch that stays on until pressed again ([#174](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/174))
+- ⬜ Compass needle turns all the way back after one full turn ([#175](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/175))
+- ⬜ Place solar panels on the roof ([#176](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/176))
 - ⬜ Split `app.js` into smaller modules, step by step ([#137](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/137))
 - ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138))
 

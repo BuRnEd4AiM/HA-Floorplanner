@@ -2,13 +2,16 @@ import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { initToolbar } from './toolbar.js';
-import { MOD_TYPES, MOD_W, MAX_LEGS, MAX_MODS, DEFAULT_LEGS, cleanLegs, legLength, modType, modW, withType, withWidth, MIN_MOD_W, MAX_MOD_W } from './kitchen.js';
+import { DEFAULT_LEGS } from './kitchen.js';
+import { initKitchenUi } from './kitchenui.js';
+import { initAlertsUi } from './alertsui.js';
+import { initSearch } from './search.js';
 import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
 import { initHeatPanel } from './heatpanel.js';
 import { initPower } from './power.js';
 import { initWelcome } from './welcome.js';
-import { findAlerts, nightActive, matchScore } from './alerts.js';
+import { nightActive } from './alerts.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { planPlacement, classify } from './autoplace.js';
@@ -722,7 +725,7 @@ function build() {
   wake();
   plan?.render();
   clearGroup(world);
-  registry.clear(); pickables.length = 0; labelSprites.clear(); cameraCones.clear(); coneMotion.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear(); alertPulses.length = 0;
+  registry.clear(); pickables.length = 0; labelSprites.clear(); cameraCones.clear(); coneMotion.clear(); cutawayWalls = []; roofs.length = 0; roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
   const holo = isHolo();
   const iso = isolatedRoom();
   if (houseMode && settings.earth === 'off') {    // ground reference for the plot (with earth the lawn is the ground)
@@ -788,10 +791,10 @@ function build() {
         g.add(wash);
       }
       roomMeshes.set(r.id, { mesh: m, room: r, wash, glow, f, ghost });
-      if (!ghost && alertRooms.has(r.id)) {        // a warning in this room: the floor pulses red
+      if (!ghost && alertsUi.hasRoom(r.id)) {        // a warning in this room: the floor pulses red
         const pm = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide }));
         pm.position.y = 0.03; pm.renderOrder = 2;
-        g.add(pm); alertPulses.push(pm.material);
+        g.add(pm); alertsUi.pulses.push(pm.material);
       }
       if (!ghost) {
         m.userData = { kind: 'room', id: r.id };
@@ -1347,7 +1350,7 @@ function applyStates() {
   updateCamPill();
   updateFloorCards();
   updateOfflinePill();
-  updateAlerts();
+  alertsUi.update();
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
   const bv = belowVis();
@@ -1516,127 +1519,17 @@ function showOffline(x) {
 }
 $('#offlinePill').addEventListener('click', () => { renderOfflineList(); $('#offlineDialog').showModal(); });
 
-/* ================= Warnings: smoke, gas, CO, water, alarm, window open in the rain (#58) ================= */
-const ALERT_ICON = { smoke: '🔥', gas: '⚠️', co: '☠️', water: '💧', alarm: '🚨', rain: '🌧️' };
-const alertPulses = [];                 // materials of the red room overlays, pulsed in animate()
-let alerts = [], alertSig = '', alertRooms = new Set();
-/** where an entity is in the plan: the floor and room of the device / window it is bound to, else the room of its HA area */
-function locateEntity(id) {
-  for (let fi = 0; fi < layout.floors.length; fi++) {
-    const f = layout.floors[fi], roomAt = (x, z) => f.rooms.find((r) => pointInPoly(x, z, r.points))?.id || null;
-    const d = f.devices.find((q) => q.entity === id || q.ledEntity === id || (q.type === 'ledring' && ringEntities(q).includes(id)));
-    if (d) return { floor: fi, roomId: roomAt(d.x, d.z) };
-    for (const w of f.walls) {
-      const o = (w.openings || []).find((q) => openingEntities(q).includes(id));
-      if (!o) continue;
-      const L = wallLength(w) || 1, ux = (w.b[0] - w.a[0]) / L, uz = (w.b[1] - w.a[1]) / L, x = w.a[0] + ux * o.pos, z = w.a[1] + uz * o.pos;
-      return { floor: fi, roomId: roomAt(x - uz * 0.3, z + ux * 0.3) || roomAt(x + uz * 0.3, z - ux * 0.3) };   // the room on either side
-    }
-  }
-  const ar = areaOf[id];
-  if (ar) for (let fi = 0; fi < layout.floors.length; fi++) { const r = layout.floors[fi].rooms.find((q) => q.area === ar); if (r) return { floor: fi, roomId: r.id }; }
-  return null;
-}
-function updateAlerts() {
-  if (!entities.length) return;
-  const windows = [];
-  layout.floors.forEach((f) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
-    if (o.type === 'window') openingEntities(o).forEach((e) => windows.push({ entity: e, name: o.name || entities.find((x) => x.entity_id === e)?.name || t('prop.window') }));
-  })));
-  const list = settings.alerts === false ? [] : findAlerts(entities, windows, settings.weatherEntity).map((a) => ({ ...a, at: locateEntity(a.entity) }));
-  const sig = JSON.stringify(list.map((a) => [a.kind, a.entity, a.at]));
-  if (sig === alertSig) return;
-  const before = new Set(alerts.map((a) => a.kind + a.entity));
-  alerts = list; alertSig = sig;
-  renderAlertBar();
-  const rooms = new Set(list.map((a) => a.at?.roomId).filter(Boolean));
-  if ([...rooms].sort().join() !== [...alertRooms].sort().join()) { alertRooms = rooms; build(); }
-  const fresh = list.find((a) => !before.has(a.kind + a.entity));
-  if (fresh && settings.alertJump && isLive()) jumpToAlert(fresh);
-}
-function renderAlertBar() {
-  const bar = $('#alertBar');
-  bar.replaceChildren(...alerts.map((a) => {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'alertItem';
-    const room = a.at?.roomId && layout.floors[a.at.floor]?.rooms.find((r) => r.id === a.at.roomId)?.name;
-    b.textContent = `${ALERT_ICON[a.kind] || '⚠️'} ${t(`alert.${a.kind}`)}${room ? ` · ${room}` : ''} · ${a.name}`;
-    b.addEventListener('click', () => jumpToAlert(a));
-    return b;
-  }));
-  bar.hidden = !alerts.length;
-}
-function jumpToAlert(a) {
-  if (!a.at) return;
-  if (houseMode || floorIdx !== a.at.floor) switchFloor(a.at.floor);
-  if (a.at.roomId) { focusRoom(a.at.roomId); if (isLive()) openRoomPanel(a.at.roomId); }
-  kioskTouched();
-}
-
-/* ================= "Where is ...?" search (#62) ================= */
-let findMarker = null;                  // { mesh, until }: a ring that marks what was found
-function findItems(q) {
-  const out = [];
-  layout.floors.forEach((f, fi) => {
-    const roomOf = (x, z) => f.rooms.find((r) => pointInPoly(x, z, r.points))?.name || '';
-    f.rooms.forEach((r) => { const sc = matchScore(r.name, q); if (sc) out.push({ sc: sc + 5, kind: 'room', id: r.id, floor: fi, label: r.name, sub: f.name }); });
-    f.devices.forEach((d) => {
-      const ent = d.entity && entities.find((e) => e.entity_id === d.entity);
-      const name = d.name || ent?.name || t(`dev.${d.type}`);
-      const sc = Math.max(matchScore(name, q), matchScore(ent?.name, q), matchScore(d.entity, q) * 0.8, matchScore(t(`dev.${d.type}`), q) * 0.6);
-      if (sc) out.push({ sc, kind: 'device', id: d.id, floor: fi, label: name, sub: [f.name, roomOf(d.x, d.z)].filter(Boolean).join(' · '), x: d.x, y: d.y || 0, z: d.z });
-    });
-    f.walls.forEach((w) => (w.openings || []).forEach((o) => {
-      const name = o.name || (o.entity && entities.find((e) => e.entity_id === o.entity)?.name) || '';
-      const sc = Math.max(matchScore(name, q), matchScore(o.entity, q) * 0.8);
-      if (!sc) return;
-      const L = wallLength(w) || 1, x = w.a[0] + ((w.b[0] - w.a[0]) / L) * o.pos, z = w.a[1] + ((w.b[1] - w.a[1]) / L) * o.pos;
-      out.push({ sc, kind: 'opening', id: o.id, floor: fi, label: name || t(`prop.${o.type}`), sub: f.name, x, y: (o.sill || 0) + (o.height || 1) / 2, z });
-    }));
-  });
-  return out.sort((a, b) => b.sc - a.sc || a.label.localeCompare(b.label)).slice(0, 8);
-}
-function renderFind() {
-  const q = $('#findInput').value, ul = $('#findList');
-  const items = q.trim() ? findItems(q) : [];
-  ul.replaceChildren(...items.map((it) => {
-    const li = document.createElement('li'), b = document.createElement('button'); b.type = 'button';
-    const s1 = document.createElement('strong'); s1.textContent = it.label;
-    const s2 = document.createElement('small'); s2.textContent = it.sub;
-    b.append(s1, s2);
-    b.addEventListener('click', () => goToFound(it));
-    li.append(b); return li;
-  }));
-  $('#findNone').hidden = !q.trim() || !!items.length;
-}
-function openFind(open = $('#findBox').hidden) {
-  $('#findBox').hidden = !open;
-  if (open) { $('#findInput').value = ''; renderFind(); $('#findInput').focus(); }
-}
-function goToFound(it) {
-  openFind(false);
-  if (houseMode || floorIdx !== it.floor) switchFloor(it.floor);
-  if (it.kind === 'room') { focusRoom(it.id); if (isLive()) openRoomPanel(it.id); return; }
-  if (focusedRoom) focusRoom(null);
-  const target = new THREE.Vector3(it.x, elev(it.floor) + Math.min(it.y, 2.4), it.z);
-  const dir = camera.position.clone().sub(controls.target).normalize();
-  controls.target.copy(target);
-  camera.position.copy(target).addScaledVector(dir, 5.5);
-  controls.update();
-  if (findMarker) { scene.remove(findMarker.mesh); findMarker.mesh.geometry.dispose(); }
-  const ring = new THREE.Mesh(new THREE.RingGeometry(0.32, 0.46, 40), new THREE.MeshBasicMaterial({ color: 0x3df2ff, transparent: true, side: THREE.DoubleSide, depthTest: false }));
-  ring.rotation.x = -Math.PI / 2; ring.position.copy(target); ring.renderOrder = 10;
-  scene.add(ring);
-  findMarker = { mesh: ring, until: performance.now() + 3500 };
-  if (isLive()) liveSelect({ kind: it.kind, id: it.id });
-  else { selection = { kind: it.kind, id: it.id }; lockedSel = true; refreshSelection(); }
-  wake();
-}
-$('#findBtn').addEventListener('click', () => openFind());
-$('#findInput').addEventListener('input', renderFind);
-$('#findInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') openFind(false);
-  if (e.key === 'Enter') { const first = findItems($('#findInput').value)[0]; if (first) goToFound(first); }
-  e.stopPropagation();                                       // typing must not trigger the editor shortcuts
+/* ================= Warnings (#58) and the "Where is ...?" search (#62): the code lives in alertsui.js and search.js ================= */
+const alertsUi = initAlertsUi({
+  $, t, layout: () => layout, entities: () => entities, settings: () => settings, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
+  openingEntities: (o) => openingEntities(o), build: () => build(), isLive: () => isLive(), houseMode: () => houseMode, floorIdx: () => floorIdx,
+  switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => openRoomPanel(id), kioskTouched: () => kioskTouched(),
+});
+const search = initSearch({
+  $, t, layout: () => layout, entities: () => entities, pointInPoly: (...a) => pointInPoly(...a), houseMode: () => houseMode, floorIdx: () => floorIdx,
+  switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom, openRoomPanel: (id) => openRoomPanel(id),
+  isLive: () => isLive(), liveSelect: (h) => liveSelect(h), elev: (i) => elev(i), scene, camera, controls,
+  selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); }, wake: () => wake(),
 });
 
 /* ================= Wall tablet: back to the start view, screen saver, night dimming (#61) ================= */
@@ -1648,7 +1541,7 @@ function kioskTouched() {
 }
 ['pointerdown', 'keydown', 'wheel'].forEach((ev) => addEventListener(ev, kioskTouched, { passive: true, capture: true }));
 function goHome() {
-  closeLivePopup(); closeRoomPanel(); openFind(false);
+  closeLivePopup(); closeRoomPanel(); search.close();
   const hit = tabletRoom && findRoomByName(tabletRoom);
   if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); openRoomPanel(hit.room.id); }
   else { if (focusedRoom) focusRoom(null); switchFloor(groundIdx()); }
@@ -2045,51 +1938,6 @@ function ringAt(x, z, inset = RING_DEFAULT_INSET) {
   const room = roomAt(x, z);
   const r = room ? ringFromRoom(room.points, inset) : { x, z, pts: [[-1, -1], [1, -1], [1, 1], [-1, 1]], closed: true, segs: [{}, {}, {}, {}] };
   return { ...r, y: +(settings.wallHeight - 0.1).toFixed(2), inset, rot: 0, ...(room ? { room: room.id } : {}) };
-}
-/** Kitchen run (#124): shape, depth, wall cabinets and the modules of every leg, in the properties of the selected run */
-function kitchenProps(body, it) {
-  const head = document.createElement('h4'); head.id = 'kitchenHead'; head.textContent = t('kitchen.title'); body.append(head);
-  const legs = it.legs = cleanLegs(it.legs);
-  const apply = () => { changed(); renderProps(); };
-  const shape = document.createElement('select'); shape.id = 'kitchenShape';
-  [1, 2, 3].forEach((n) => shape.add(new Option(t(`kitchen.shape${n}`), n)));
-  shape.value = String(legs.length);
-  shape.addEventListener('change', () => {
-    snapshot();
-    const n = +shape.value;
-    while (legs.length > n) legs.pop();
-    while (legs.length < n) legs.push(['base', 'base', 'base', 'base']);
-    apply();
-  });
-  body.append(field(t('kitchen.shape'), shape));
-  const upper = document.createElement('input'); upper.type = 'checkbox'; upper.id = 'kitchenUpper'; upper.checked = it.upper !== false;
-  upper.addEventListener('change', () => { snapshot(); it.upper = upper.checked; apply(); });
-  body.append(field(t('kitchen.upper'), upper));
-  body.append(field(t('kitchen.depth'), lenInput(() => it.depth ?? 0.6, (v) => { it.depth = Math.max(0.4, Math.min(1.2, v)); }, { min: 0.4 })));
-  legs.forEach((leg, li) => {
-    const box = document.createElement('div'); box.className = 'kitchenLeg';
-    const cap = document.createElement('b'); cap.textContent = `${t('kitchen.leg')} ${li + 1} · ${toDisp(legLength(leg)).toFixed(2)} ${imperial() ? 'ft' : 'm'}`; box.append(cap);
-    leg.forEach((m, mi) => {
-      const row = document.createElement('div'); row.className = 'kitchenMod';
-      const sel = document.createElement('select');
-      MOD_TYPES.forEach((v) => sel.add(new Option(t(`kitchen.m.${v}`), v)));
-      sel.value = modType(m);
-      sel.addEventListener('change', () => { snapshot(); leg[mi] = withType(m, sel.value); apply(); });
-      const wd = lenInput(() => modW(m), (v) => { leg[mi] = withWidth(m, v); }, { min: MIN_MOD_W });          // each module can be made wider or narrower
-      wd.classList.add('kitchenW'); wd.title = t('kitchen.width');
-      const btn = (txt, title, fn, off) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; b.title = title; b.disabled = !!off; b.addEventListener('click', () => { snapshot(); fn(); apply(); }); return b; };
-      wd.addEventListener('change', () => renderProps());
-      row.append(sel, wd,
-        btn('↑', t('kitchen.left'), () => { [leg[mi - 1], leg[mi]] = [leg[mi], leg[mi - 1]]; }, mi === 0),
-        btn('↓', t('kitchen.right'), () => { [leg[mi + 1], leg[mi]] = [leg[mi], leg[mi + 1]]; }, mi === leg.length - 1),
-        btn('×', t('kitchen.del'), () => { leg.splice(mi, 1); }));
-      box.append(row);
-    });
-    const add = document.createElement('button'); add.type = 'button'; add.className = 'kitchenAdd'; add.textContent = t('kitchen.add'); add.disabled = leg.length >= MAX_MODS;
-    add.addEventListener('click', () => { snapshot(); leg.push('base'); apply(); });
-    box.append(add);
-    body.append(box);
-  });
 }
 /** the entities a double click / quick action switches: an LED ring switches all of its sections */
 const deviceEntities = (d) => (d?.type === 'ledring' ? ringEntities(d) : d?.entity ? [d.entity] : []);
@@ -4119,6 +3967,11 @@ function renderObjList() {
 const objGroupOpen = {};
 let objFilter = '';
 
+/** Kitchen run (#124): the properties of a run; the code lives in kitchenui.js */
+const kitchenProps = initKitchenUi({
+  t, changed: () => changed(), snapshot: () => snapshot(), renderProps: () => renderProps(),
+  field: (...a) => field(...a), lenInput: (...a) => lenInput(...a), toDisp: (m) => toDisp(m), imperial: () => imperial(),
+});
 function renderProps() {
   renderObjList();
   const box = $('#props'), body = $('#propsBody');
@@ -4756,13 +4609,8 @@ function animate(now = performance.now()) {
     lastFrame = now;
   }
   if (coneMotion.size) { wake(); const k = 0.26 + 0.14 * Math.sin(now / 220); coneMotion.forEach((m) => { m.opacity = k; }); }   // a camera sees movement
-  if (alertPulses.length || controls.autoRotate || findMarker) wake();   // pulsing warnings, screen saver and the search ring move
-  if (alertPulses.length) { const k = 0.22 + 0.2 * Math.sin(now / 260); alertPulses.forEach((m) => { m.opacity = k; }); }
-  if (findMarker) {
-    const left = findMarker.until - now;
-    if (left <= 0) { scene.remove(findMarker.mesh); findMarker.mesh.geometry.dispose(); findMarker = null; }
-    else { const k = 1 + 0.35 * Math.sin(now / 120); findMarker.mesh.scale.set(k, k, k); findMarker.mesh.material.opacity = Math.min(1, left / 800); }
-  }
+  const pulsing = alertsUi.animate(now), finding = search.animate(now);       // pulsing warnings and the search ring move
+  if (pulsing || finding || controls.autoRotate) wake();
   controls.update();
   updateCutaway();
   updateCompass();
@@ -4792,7 +4640,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alerts.map((a) => ({ kind: a.kind, entity: a.entity, at: a.at })), alertPulsing: () => alertPulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems, navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
+    get layout() { return layout; }, settings: () => settings, offline: () => offlineDevices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick, kioskIdle: (ms) => { lastInput = Date.now() - ms; kioskHome = false; }, autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => houseId,
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)

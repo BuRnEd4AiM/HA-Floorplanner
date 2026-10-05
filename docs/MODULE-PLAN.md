@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.39.1. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.39.2. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -26,6 +26,9 @@ Stand: Version 3.39.1. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `alerts.js` | 62 | Warnungen und Nachtabdunklung (Rechenteil) |
 | `kitchen.js` | 63 | Küchenzeile: Geometrie aus Modulen (mit Breiten) |
 | `heatpanel.js` | 74 | Heizungs-Panel (Schritt 1 von #137) |
+| `alertsui.js` | ~75 | Warnungen: Banner, roter Raum, Sprung in den Raum (Schritt 3 von #137) |
+| `search.js` | ~70 | „Wo ist …?“-Suche mit Ring (Schritt 3) |
+| `kitchenui.js` | ~60 | Küchenzeile: Eigenschaften im Panel (Schritt 3) |
 | `power.js` | ~250 | Strom: Kabel in 3D, Strom-Editor, Energie-Übersicht, Eigenschaften (Schritt 2 von #137) |
 | `powerlogic.js` | ~100 | Strom: Rechenteil (Watt, Kabelarten, Übersicht, Batterie), mit Unit-Tests |
 | `toolbar.js` | 88 | Anpassbare Werkzeugleiste |
@@ -41,9 +44,6 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
-| 2 | **Küchenzeile-Eigenschaften** (`kitchenProps`) | ~60 | in `kitchen.js` oder `kitchenui.js` | niedrig |
-| 3 | **Warnungen** | ~56 | in `alerts.js` ergänzen | niedrig |
-| 4 | **„Wo ist …?“-Suche** | ~67 | `search.js` | niedrig |
 | 5 | **Offline-Liste** | ~84 | `offline.js` | niedrig |
 | 6 | **Wandtablet** (Bildschirmschoner, Nacht) | ~51 | in `alerts.js` oder `kiosk.js` | niedrig |
 | 7 | **Kompass** | ~17 | `compass.js` | niedrig |
