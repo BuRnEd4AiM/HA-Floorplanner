@@ -44,7 +44,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
   - Separate sensors (grid import / export, battery charging / discharging) and a button to flip the sign of a sensor that counts the wrong way
   - Setup checklist ("what is missing?") and a one-click *Take over from the Home Assistant energy dashboard*
   - Ideas collected in the comment of [#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136#issuecomment-5981634564)
-- ⬜ Power button is only a short flicker: it must be a real switch that stays on until pressed again ([#174](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/174))
+- ✅ Power button / power editor is a real switch that stays on until pressed again (fixed in 3.40.8) ([#174](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/174))
 - ✅ Compass needle turns all the way back after one full turn (fixed in 3.39.3) ([#175](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/175))
 - ✅ Stairs over several floors, light wall stair with landings (drawn along the wall) and an outdoor spiral over several floors (3.40.0) ([#188](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/188))
 - ✅ Import, export and API know stairs, placeholder blocks and floor openings (3.40.1) ([#191](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/191))

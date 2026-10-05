@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.40.8] - 2026-10-05
+### Fixed
+- **Power editor stays on (#174)**: in the power editor the other devices (lamps, furniture ...) came back after a few seconds, because the next state update made every device visible again. They now stay hidden until the editor is switched off, also after the scene is rebuilt. The power button below keeps its state the same way. Browser tests guard both.
+
 ## [3.40.7] - 2026-10-05
 ### Changed
 - **Code split, step 18 (#137)**: the room lighting shaders and colour scales moved out of `app.js` into `roomlight.js`, the ground (earth, lawn, plot shape, the cut through the earth) into `earth.js`, with unit tests. No change in behaviour.

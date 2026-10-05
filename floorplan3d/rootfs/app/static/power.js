@@ -41,6 +41,7 @@ export function initPower(ctx) {
     const links = [];
     layout.floors.forEach((f) => f.devices.forEach((d) => cablesOf(d).forEach((c) => links.push({ d, c }))));
     const key = `${powerMode}|${selection?.kind === 'cable' ? selection.id : ''}|` + (on ? links.map(({ d, c }) => `${c.id}:${d.id}>${c.to}:${c.route}:${cableKind(d, c)}:${registry.get(d.id)?.uuid}:${registry.get(c.to)?.uuid}:${powerWatts(states, d, c)}`).join('|') : '');
+    registry.forEach((o, id) => { if (o.userData?.kind === 'device' && hides(id)) o.visible = false; });   // every time: a rebuilt scene starts with everything visible (#174)
     if (key === sig) return;
     sig = key;
     registry.forEach((o, id) => { if (o.userData?.kind === 'device') o.visible = !hides(id) && !o.userData.cutHidden; });
