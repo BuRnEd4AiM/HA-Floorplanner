@@ -2,7 +2,7 @@
  * (only power things are shown and can be picked), the cable tool, the energy overview next to the room menu and the properties of
  * power devices and cables. The calculations are in powerlogic.js (tested); the app gives this module what it needs through `ctx`. */
 import * as THREE from './vendor/three.module.min.js';
-import { POWER_TYPES, CABLE_ROUTES, CABLE_KINDS, cableKind, cableColor, cablesOf, ownCables, powerWatts, fmtWatts, cablePoints, energySummary, energyText } from './powerlogic.js';
+import { POWER_TYPES, showsInPowerEditor, CABLE_ROUTES, CABLE_KINDS, cableKind, cableColor, cablesOf, ownCables, powerWatts, fmtWatts, cablePoints, energySummary, energyText } from './powerlogic.js';
 
 const POWER_DOTS = 8;
 const dotGeo = new THREE.SphereGeometry(0.035, 8, 6);
@@ -28,7 +28,7 @@ export function initPower(ctx) {
     for (const d of devices()) { const c = cablesOf(d).find((x) => x.id === id); if (c) return { d, c }; }
     return null;
   }
-  const hides = (id) => { const d = powerMode ? findDevice(id) : null; return !!d && !POWER_TYPES.has(d.type); };   // the power editor shows nothing but the power things
+  const hides = (id) => { const d = powerMode ? findDevice(id) : null; return !!d && !showsInPowerEditor(d.type); };   // the power editor shows nothing but the power things and the meters
   const cablesShown = () => showPower || powerMode;
 
   /* ---------- the 3D cables ---------- */
@@ -246,7 +246,7 @@ export function initPower(ctx) {
 
   return {
     update, animate, setMode, toggle, pick, cableClick, deleteCable, dropCablesTo, findCable, cableProps, deviceProps,
-    isMode: () => powerMode, cablesShown, hides, isType: (type) => POWER_TYPES.has(type), cablesOf, cableColor,
+    isMode: () => powerMode, cablesShown, hides, isType: (type) => POWER_TYPES.has(type), shows: showsInPowerEditor, cablesOf, cableColor,
     cancelCable: () => { cableFrom = null; },
     /* for the browser tests (only used with ?debug=1) */
     links: () => devices().flatMap((d) => cablesOf(d).map((c) => ({ from: d.id, to: c.to, a: !!ctx.registry.get(d.id), b: !!ctx.registry.get(c.to), route: c.route }))),

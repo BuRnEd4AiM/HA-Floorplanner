@@ -1,6 +1,10 @@
 /* Power add-on, the pure part (no three.js, no DOM, so it can be tested): power device types, cables (route, kind, colour),
  * watts of a sensor, the overview numbers (production, grid, consumption, battery) and the text of the overview pill. */
 export const POWER_TYPES = new Set(['solarpanel', 'inverter', 'powermeter', 'houseentry', 'fusebox', 'battery', 'wallbox']);
+/** meters of water, gas and heat: energy too, so the power editor keeps showing them (#207), but they have no cables */
+export const METER_TYPES = new Set(['watermeter', 'gasmeter', 'heatmeter']);
+/** what the power editor shows */
+export const showsInPowerEditor = (type) => POWER_TYPES.has(type) || METER_TYPES.has(type);
 export const CABLE_ROUTES = ['floor', 'through', 'air'];
 /** what a cable carries decides its colour: grid (the connection to the public grid, also what is fed in), own solar, battery, consumption */
 export const CABLE_KINDS = { grid: '#ff6b6b', solar: '#7dff9a', battery: '#5aa9ff', load: '#ffb347' };

@@ -89,3 +89,25 @@ test('field: columns along x, rows along z, centred; counts are clamped', () => 
   assert.equal(S.solarField({ cols: 99, rows: -3 }).cols, S.MAX_FIELD);
   assert.equal(S.solarField({ cols: 99, rows: -3 }).rows, 1);
 });
+test('rack (#208): posts end just under the panel, on flat ground the pivot stays at 0.55 m', () => {
+  const st = S.standParts({ x: 0, z: 0 });
+  near(st.lift, S.STAND.pivot);
+  assert.equal(st.posts.length, 4);
+  const s = Math.sin(S.STAND.tilt);
+  for (const q of st.posts) { near(q.y0, 0); near(q.y1, st.lift + s * Math.sign(q.z) * S.STAND.postZ); assert.ok(q.y1 > q.y0); }
+  assert.ok(st.lift - s * S.PANEL.d / 2 >= S.STAND.clear - 1e-9);               // the low edge is clear of the ground
+});
+test('rack on a slope (#208): every post reaches the ground under it, the panel is lifted clear of the highest point', () => {
+  const ground = (x, z) => -0.5 * z;                                           // falls towards +z
+  const st = S.standParts({ x: 0, z: 0 }, ground);
+  for (const q of st.posts) near(q.y0, ground(q.x, q.z));
+  const high = Math.max(...[-1, 1].map((k) => ground(0, k * Math.cos(S.STAND.tilt) * S.PANEL.d / 2)));
+  assert.ok(st.lift - Math.sin(S.STAND.tilt) * S.PANEL.d / 2 >= high + S.STAND.clear - 1e-9);
+});
+test('ground under a turned device: the roof height relative to the model origin, 0 off the roof', () => {
+  const roofs = [{ bb, spec: gable, y0: 0 }];
+  const g = S.groundFn({ x: 2, z: 4.5, rot: 90 }, roofs, 1.5);                  // origin on the slope at height 1.5
+  near(g(0, 0), 0);
+  near(g(1, 0), 1);                                                              // turned 90 degrees local +x is world -z: 1 m towards the ridge, 1 m higher
+  assert.equal(g(0, 40), 0);
+});

@@ -805,4 +805,5 @@ export default {
   'solar.cols': 'Panneaux côte à côte', 'solar.rows': 'Rangées', 'solar.mount': 'Montage', 'solar.mount.auto': 'Automatique', 'solar.mount.flat': 'À plat sur le toit', 'solar.mount.stand': 'Sur support', 'solar.onRoof': 'Posé sur le toit : la hauteur et l’inclinaison suivent la surface du toit en dessous. Automatique = à plat sur les toits en pente, sur support sur un toit plat.', 'solar.roofHint': 'Pour le poser sur le toit : ouvrir l’étage « Toit » et y placer le panneau solaire, il suit alors la pente du toit.',
   'dev.watermeter': 'Compteur d’eau', 'dev.gasmeter': 'Compteur de gaz', 'dev.heatmeter': 'Compteur de chaleur',
   'dev.bridge': 'Pont / passerelle', 'bridge.len': 'Longueur', 'bridge.width': 'Largeur', 'bridge.rail': 'Garde-corps', 'bridge.help': 'Le plancher est au niveau de l’étage où se trouve le pont. Pour relier deux parties du bâtiment, le placer à l’étage supérieur et l’orienter en le tournant.',
+  'power.editorOff': 'Éditeur électrique désactivé : il n’affiche que les appareils électriques et les compteurs, sinon l’objet placé serait invisible.',
 };
