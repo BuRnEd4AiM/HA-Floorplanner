@@ -811,6 +811,11 @@ with sync_playwright() as p:
     check("kitchen run: x removes a module", len(kr()["legs"][0]) == 7)
     pgK2.click("#view3d"); pgK2.wait_for_timeout(800)
     check("kitchen run: built in 3D without errors", True)
+    pgK2.click("button[data-tool=device]"); pgK2.fill("#paletteSearch", ""); pgK2.wait_for_timeout(200)
+    pgK2.fill("#paletteSearch", "solar"); pgK2.wait_for_timeout(200)
+    check("power: the library finds the solar panel", pgK2.locator("#paletteGrid button.dev").count() == 1, pgK2.locator("#paletteGrid button.dev").count())
+    pgK2.fill("#paletteSearch", "inverter"); pgK2.wait_for_timeout(200)
+    check("power: the library finds the inverter", pgK2.locator("#paletteGrid button.dev").count() == 1)
     pgK2.close()
 
     # --- narrow wall pieces (#142): the opening shrinks to what is left instead of being refused

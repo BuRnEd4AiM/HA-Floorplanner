@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.34.0] - 2026-10-05
+### Added
+- **Power add-on, first step (#136)**: new devices *Inverter*, *Power meter* and *Solar panel* (category Smart), with a 3D model each, linkable to Home Assistant entities and usable in 2D and 3D like all other devices. Animated cables, watt values and the on/off switch at the bottom follow in a later step.
+
 ## [3.33.0] - 2026-10-05
 ### Changed
 - **Doors and windows in very short wall pieces (#142)**: an opening that is wider than the wall piece is no longer refused but shrinks to the width that is left (at least 10 cm; was 30 cm). The width can be set down to 10 cm for slit windows and narrow doors.

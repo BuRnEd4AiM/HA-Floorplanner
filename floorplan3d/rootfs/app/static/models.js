@@ -79,6 +79,9 @@ export const DEVICE_TYPES = {
   smoke:      { label: 'Rauchmelder',  y: 2.55 },
   router:     { label: 'Router',       y: 1.0 },
   presence:   { label: 'Anwesenheit',  y: 0 },
+  inverter:   { label: 'Wechselrichter', y: 1.2 },
+  powermeter: { label: 'Stromzähler',  y: 1.4 },
+  solarpanel: { label: 'Solarpanel',   y: 0 },
   picture:    { label: 'Bild',         y: 1.5 },
   orb:        { label: 'Lichtkugel',  y: 0.4 },
   strip:      { label: 'LED-Streifen', y: 0.5 },
@@ -101,7 +104,7 @@ export const CATEGORIES = {
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
   lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'ledring', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led'],
-  smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence'],
+  smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence', 'inverter', 'powermeter', 'solarpanel'],
   outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car'],
   decor:   ['picture'],
 };
@@ -498,6 +501,18 @@ Object.assign(builders, {
     g.add(new THREE.Mesh(new THREE.SphereGeometry(0.115, 18, 12), glow).translateY(1.55));   // head
     g.userData.glow = [glow];
   },
+  inverter(g) {                // wall box with a status light (on = producing / has a state)
+    const led = glowMat(0x7dff9a); g.userData.glow = [led];
+    g.add(box(0.45, 0.35, 0.16, std('#e9ecef'), 0, 0, 0)); g.add(box(0.3, 0.05, 0.01, std('#2a2f36'), 0, 0.08, 0.085));
+    g.add(cyl(0.025, 0.025, 0.01, led, 0.15, -0.1, 0.085, 12).rotateX(Math.PI / 2)); },
+  powermeter(g) {              // electricity meter: grey housing, glass window with a display
+    const led = glowMat(0x7fd8ff); g.userData.glow = [led];
+    g.add(box(0.22, 0.3, 0.11, std('#d7dbe0'), 0, 0, 0)); g.add(box(0.16, 0.07, 0.01, led, 0, 0.06, 0.058)); g.add(box(0.16, 0.1, 0.012, std('#3b4048'), 0, -0.07, 0.058)); },
+  solarpanel(g) {              // a framed dark panel on a stand, tilted to the sun
+    const p = new THREE.Group(); p.rotation.x = -0.5; p.position.set(0, 0.55, 0);
+    p.add(box(1.0, 0.04, 1.65, std('#cfd3d8'), 0, 0, 0)); p.add(box(0.94, 0.045, 1.59, std('#1d2d54', { roughness: 0.25, metalness: 0.4 }), 0, 0, 0));
+    for (let i = 1; i < 3; i++) p.add(box(0.94, 0.05, 0.012, std('#9fb0d0'), 0, 0, -0.795 + i * 0.53));
+    g.add(p); g.add(box(0.06, 0.55, 0.06, std('#9aa0a6'), 0, 0.275, 0.2)); },
   smoke(g) { g.add(cyl(0.06, 0.06, 0.03, std('#f4f4f4'), 0, -0.03, 0, 16)); },
   router(g) { g.add(box(0.2, 0.04, 0.14, std('#f4f4f4'))); [-0.07, 0.07].forEach((x) => g.add(box(0.008, 0.18, 0.008, std('#333'), x, 0.04, -0.05))); },
   picture(g) { g.add(box(0.6, 0.45, 0.03, std('#3a3a3a'), 0, 0, 0)); g.add(box(0.52, 0.37, 0.005, std('#c9d6e2'), 0, 0.04, 0.016)); },
