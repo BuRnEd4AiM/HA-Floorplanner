@@ -50,6 +50,7 @@ import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
 import { solarPose } from './solarroof.js';
+import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
@@ -1608,32 +1609,14 @@ function setMode(next) {
 }
 document.querySelectorAll('#modeSwitch button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
 
+/** what the camera frames: the floor shown (or the isolated room), the centre of its walls, the whole house (nav.js) */
 function floorBounds() {
-  const f = floor();
-  const iso = isolatedRoom();
-  const pts = iso ? iso.points : [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])];
-  const rb = !iso && f.kind === 'roof' ? roofBox(floorIdx) : null;   // a roof has no walls of its own: frame the house below it
-  if (rb) pts.push([rb.x0, rb.z0], [rb.x1, rb.z1]);
-  if (!pts.length) return houseBounds();
-  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
-  const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
-  return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, size: Math.max(x1 - x0, z1 - z0, 4) };
+  const f = floor(), iso = isolatedRoom();
+  return floorBoundsOf(f, layout.floors, { iso, rb: !iso && f.kind === 'roof' ? roofBox(floorIdx) : null });   // a roof has no walls of its own: frame the house below it
 }
 /** centre of the walls of the floor shown. Garden things and lamps outside the house must not pull it away: it decides which walls face the camera (see-through / lowering) */
-function wallsCenter() {
-  const f = floor();
-  if (isolatedRoom() || !f.walls.length) return floorBounds();
-  const pts = f.walls.flatMap((w) => [w.a, w.b]);
-  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
-  return { cx: (Math.min(...xs) + Math.max(...xs)) / 2, cz: (Math.min(...zs) + Math.max(...zs)) / 2 };
-}
-function houseBounds() {
-  const pts = layout.floors.flatMap((f) => [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])]);
-  if (!pts.length) return { cx: 0, cz: 0, size: 12 };
-  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
-  const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
-  return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, size: Math.max(x1 - x0, z1 - z0, 4) };
-}
+function wallsCenter() { return (!isolatedRoom() && wallsCenterOf(floor())) || floorBounds(); }
+function houseBounds() { return houseBoundsOf(layout.floors); }
 function fitCamera() {
   const { cx, cz, size } = houseMode ? houseBounds() : floorBounds();
   const midY = houseMode ? (elev(layout.floors.length - 1) + elev(0)) / 2 + FLOOR_H / 2 : elev();
@@ -1683,59 +1666,17 @@ $('#saveBtn').addEventListener('click', save);
 /* ================= Floors, rooms, navigation pills ================= */
 let focusedRoom = null;
 let roomBackView = null;               // the view before a tap zoomed into a room (floor / whole house, camera), so a second tap can go back
-let navKey = '';
-/** somebody is in this room: a person / presence device inside it reports home or on */
-const occupied = (room, f) => f.devices.some((d) => d.type === 'presence' && d.entity && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points));
 const focusGroup = new THREE.Group();
 scene.add(focusGroup);
-
-function pill(label, active, onClick, title = '', extra = '') {
-  const b = document.createElement('button');
-  b.className = 'pill' + (active ? ' active' : '') + extra;
-  b.textContent = label;
-  if (title) b.title = title;
-  b.addEventListener('click', onClick);
-  return b;
-}
-
-function buildNav(force = false) {
-  const f = floor();
-  if (!f) return;
-  // whole-house view: the rooms of every floor (top floor first), a tap opens that floor and the room
-  const entries = houseMode
-    ? layout.floors.map((fl, fi) => ({ fl, fi })).reverse().flatMap(({ fl, fi }) => fl.rooms.filter((r) => r.name).map((r) => ({ r, fl, fi })))
-    : f.rooms.filter((r) => r.name).map((r) => ({ r, fl: f, fi: floorIdx }));
-  const rooms = entries.map((e) => e.r);
-  const key = JSON.stringify([houseMode, floorIdx, layout.floors.map((x) => x.kind), layout.floors.map((x) => x.name), entries.map(({ r, fl }) => [r.id, r.name, occupied(r, fl)]), focusedRoom, settings.language]);
-  if (!force && key === navKey) return;
-  navKey = key;
-  const fp = $('#floorPills'), rp = $('#roomPills');
-  fp.replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx && !houseMode, () => switchFloor(i))),
-    ...(layout.floors.length > 1 || layout.floors.some((x) => x.devices.length) ? [pill(t('nav.house'), houseMode, () => setHouseMode(!houseMode), t('nav.houseTip'))] : []));
-  // the rooms are one drop-down instead of a row of buttons (a long row has to be scrolled on a tablet)
-  const btn = $('#roomMenuBtn'), menu = $('#roomMenu');
-  const focusedName = entries.find((e) => e.r.id === focusedRoom)?.r.name;
-  btn.hidden = !entries.length;
-  btn.textContent = focusedName || t('nav.rooms');
-  btn.classList.toggle('active', !!focusedName);
-  btn.classList.toggle('occupied', entries.some(({ r, fl }) => occupied(r, fl)));
-  const items = [];
-  if (focusedRoom) items.push(pill(t('nav.allRooms'), false, () => { toggleMenu(menu, btn, false); focusRoom(null); roomPanel.close(); }, '', ' all'));
-  let lastFloor = null;
-  entries.forEach(({ r, fl, fi }) => {
-    if (houseMode && fl !== lastFloor) { const hd = document.createElement('div'); hd.className = 'rmHead'; hd.textContent = fl.name; items.push(hd); lastFloor = fl; }
-    items.push(pill(r.name, r.id === focusedRoom, () => {
-      toggleMenu(menu, btn, false);
-      if (houseMode) { switchFloor(fi); focusRoom(r.id); roomPanel.open(r.id); return; }
-      const off = r.id === focusedRoom; focusRoom(off ? null : r.id); if (off) roomPanel.close(); else roomPanel.open(r.id);
-    }, occupied(r, fl) ? t('nav.occupied') : '', occupied(r, fl) ? ' occupied' : ''));
-  });
-  menu.replaceChildren(...items);
-  $('#navSep').hidden = !rooms.length;
-  floorRail.build();
-  renderPlanFloorsChip();
-  updateHouseToggle();
-}
+/* ---- Floor pills, room menu, scroll arrows, the tablet's room button; the code lives in nav.js ---- */
+const nav = initNav({
+  $, t, layout: () => layout, floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom, settings: () => settings, tabletRoom: () => tabletRoom,
+  isOn: (e) => ON_STATES.has(states[e]?.state), pointInPoly, switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on), focusRoom: (id) => focusRoom(id),
+  get roomPanel() { return roomPanel; }, toggleMenu: (m, b, o) => toggleMenu(m, b, o), floorRail: () => floorRail, renderPlanFloorsChip: () => renderPlanFloorsChip(),
+});
+function buildNav(force = false) { nav.build(force); }
+function updateHouseToggle() { nav.updateHouseToggle(); }
+const findRoomByName = (name) => findRoomIn(layout.floors, name);
 
 /* ================= Floor rail: side bar with a thumbnail per floor; the code lives in floorrail.js ================= */
 const floorRail = initFloorRail({
@@ -1743,42 +1684,6 @@ const floorRail = initFloorRail({
   roofBox: (i) => roofBox(i), switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on),
 });
 
-/* the pills over the scene scroll sideways when they do not fit (tablets): arrows at the ends, the mouse wheel scrolls too */
-const navBar = $('#navBar');
-function updateNavArrows() {
-  const max = navBar.scrollWidth - navBar.clientWidth;
-  $('#navLeft').hidden = navBar.scrollLeft <= 2;
-  $('#navRight').hidden = navBar.scrollLeft >= max - 2;
-}
-navBar.addEventListener('scroll', updateNavArrows, { passive: true });
-new ResizeObserver(updateNavArrows).observe(navBar);
-new MutationObserver(updateNavArrows).observe(navBar, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['hidden'] });
-$('#navLeft').addEventListener('click', () => navBar.scrollBy({ left: -navBar.clientWidth * 0.7, behavior: 'smooth' }));
-$('#navRight').addEventListener('click', () => navBar.scrollBy({ left: navBar.clientWidth * 0.7, behavior: 'smooth' }));
-navBar.addEventListener('wheel', (e) => {
-  if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || navBar.scrollWidth <= navBar.clientWidth) return;
-  navBar.scrollLeft += e.deltaY; e.preventDefault();
-}, { passive: false });
-function updateHouseToggle() {
-  const b = $('#houseToggle');
-  b.hidden = !tabletRoom;
-  if (!tabletRoom) return;
-  b.textContent = focusedRoom ? t('nav.wholeFloor') : `‹ ${tabletRoom}`;
-}
-$('#houseToggle').addEventListener('click', () => {
-  const room = findRoomByName(tabletRoom);
-  if (!room) return;
-  if (focusedRoom) { focusRoom(null); roomPanel.close(); }
-  else { switchFloor(room.floor); focusRoom(room.room.id); roomPanel.open(room.room.id); }
-});
-function findRoomByName(name) {
-  const n = String(name || '').trim().toLowerCase();
-  for (let i = 0; i < layout.floors.length; i++) {
-    const r = layout.floors[i].rooms.find((x) => x.name?.trim().toLowerCase() === n || x.id === name);
-    if (r) return { floor: i, room: r };
-  }
-  return null;
-}
 function fillFloorSelect() { buildNav(true); }
 
 function updateExplodeToggle() {
@@ -2163,7 +2068,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
+    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => hs.id(),
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)
