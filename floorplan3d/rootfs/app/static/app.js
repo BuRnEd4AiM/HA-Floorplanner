@@ -39,7 +39,7 @@ import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { planPlacement, classify } from './autoplace.js';
-import { RING_DEFAULT_INSET, segEntity, ringEntities, ringSectionsWorld, ringFromRoom } from './ledring.js';
+import { RING_DEFAULT_INSET, segEntity, ringEntities, ringSectionsWorld } from './ledring.js';
 import { DEVICE_TYPES, catOf, makeModel, isCustom } from './models.js';
 import {
   OPENING_DEFAULTS, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
@@ -50,6 +50,7 @@ import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
 import { solarPose } from './solarroof.js';
+import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround } from './placement.js';
 import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
@@ -1072,13 +1073,7 @@ function pickHit(e) {
 }
 const pick = (e) => pickHit(e)?.data ?? null;
 
-function snap([x, z], fine = false) {
-  const s = fine ? 0.05 : settings.grid;
-  for (const w of floor().walls) for (const q of [w.a, w.b]) {
-    if (Math.hypot(q[0] - x, q[1] - z) < 0.3) return [q[0], q[1]];
-  }
-  return [Math.round(x / s) * s, Math.round(z / s) * s];
-}
+function snap(p, fine = false) { return snapPoint(p, floor().walls, fine ? 0.05 : settings.grid); }
 const findWall = (id) => floor().walls.find((w) => w.id === id);
 const findOpening = (id) => {
   for (const w of floor().walls) {
@@ -1155,43 +1150,11 @@ function newDevice(x, z) {
   return d;
 }
 /** LED ring along the walls of the room at (x, z), `inset` metres from the room outline; a 2 x 2 m square outside rooms */
-function ringAt(x, z, inset = RING_DEFAULT_INSET) {
-  const room = roomAt(x, z);
-  const r = room ? ringFromRoom(room.points, inset) : { x, z, pts: [[-1, -1], [1, -1], [1, 1], [-1, 1]], closed: true, segs: [{}, {}, {}, {}] };
-  return { ...r, y: +(settings.wallHeight - 0.1).toFixed(2), inset, rot: 0, ...(room ? { room: room.id } : {}) };
-}
+function ringAt(x, z, inset = RING_DEFAULT_INSET) { return ringAround(roomAt(x, z), x, z, inset, settings.wallHeight); }
 /** the entities a double click / quick action switches: an LED ring switches all of its sections */
 const deviceEntities = (d) => (d?.type === 'ledring' ? ringEntities(d) : d?.entity ? [d.entity] : []);
-/* wall-hung devices: pictures, mirrors, panels, radiators ... */
-const LED_LIKE = { strip: 1, tv_led: 1, nanoleaf: 1, panel_tri: 1, panel_hex: 1, panel_sq: 1, panel_bar: 1, orb: 1 };
-const WALL_TYPES = new Set(['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'inverter', 'powermeter', 'fusebox', 'wallbox', 'gasmeter', 'heatmeter']);
-/** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces) */
-function snapToWall(d, maxDist = 2, keepFacing = false) {
-  const rooms = floor().rooms;
-  const inRoom = (x, z) => rooms.some((r) => pointInPoly(x, z, r.points));
-  let best = null;
-  floor().walls.forEach((w) => {
-    const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L2 = sx * sx + sz * sz || 1;
-    const u = Math.max(0, Math.min(1, ((d.x - ax) * sx + (d.z - az) * sz) / L2));
-    const px = ax + sx * u, pz = az + sz * u, dist = Math.hypot(d.x - px, d.z - pz);
-    if (dist > maxDist + w.thickness / 2) return;
-    const len = Math.hypot(sx, sz) || 1, n0x = -sz / len, n0z = sx / len, off = w.thickness / 2 + 0.02;
-    // which face of the wall: the interior (a room) wins, else the side the device is on, else the way it already faces
-    const okPlus = inRoom(px + n0x * off, pz + n0z * off), okMinus = inRoom(px - n0x * off, pz - n0z * off);
-    const rot = ((d.rot || 0) * Math.PI) / 180, face = n0x * Math.sin(rot) + n0z * Math.cos(rot), onSide = n0x * (d.x - px) + n0z * (d.z - pz);
-    let sign;
-    if (rooms.length && okPlus !== okMinus) sign = okPlus ? 1 : -1;
-    else if (Math.abs(onSide) > 0.03) sign = onSide > 0 ? 1 : -1;
-    else sign = (keepFacing || Math.abs(face) > 0.05) && Math.abs(face) > 0.05 ? (face > 0 ? 1 : -1) : 1;
-    const inside = rooms.length ? (sign > 0 ? okPlus : okMinus) : true;
-    const score = dist + (inside ? 0 : 0.6);                  // prefer a wall whose inner face is in a room
-    if (!best || score < best.score) best = { score, px, pz, nx: n0x * sign, nz: n0z * sign, off };
-  });
-  if (!best) return false;
-  d.x = +(best.px + best.nx * best.off).toFixed(3); d.z = +(best.pz + best.nz * best.off).toFixed(3);
-  d.rot = ((Math.round((Math.atan2(best.nx, best.nz) * 180) / Math.PI * 10) / 10) % 360 + 360) % 360;
-  return true;
-}
+/** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces); placement.js */
+function snapToWall(d, maxDist = 2, keepFacing = false) { return snapOnWall(d, floor().walls, floor().rooms, pointInPoly, maxDist, keepFacing); }
 /** a picture: frame + the uploaded image (api/backgrounds/<name>) on a plane; `w` metres wide, `ar` = height / width */
 const textureLoader = new THREE.TextureLoader();
 function setPicture(model, d) {
