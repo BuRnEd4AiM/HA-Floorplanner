@@ -32,6 +32,7 @@ import { initProps } from './props.js';
 import { initOpenings, openKind, OPEN_KINDS, paneEntity, openingEntities } from './openings.js';
 import { initCutaway } from './cutaway.js';
 import { initSettings } from './settings.js';
+import { initFloorPanel, newFloor } from './floorpanel.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -45,7 +46,7 @@ import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
-import { dormerParts, DORMER_DEFAULT, DORMER_TYPES } from './dormer.js';
+import { dormerParts } from './dormer.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
 
 /* ================= State ================= */
@@ -2203,186 +2204,16 @@ function moveDeviceTo(d, x, z) {
   if (!dx && !dz) return;
   ms.forEach((m) => { m.x = +(m.x + dx).toFixed(4); m.z = +(m.z + dz).toFixed(4); liveMove(m); });
 }
-function newFloor(kind, name) {
-  return { id: uid(), name, kind, walls: [], rooms: [], devices: [], blocks: [], stairs: [], ...(kind === 'roof' ? { roof: { type: 'gable', pitch: 35, overhang: 0.4 } } : {}) };
-}
-/** kind 'floor' goes on top, 'basement' below everything, 'roof' on top */
-function addFloorOf(kind) {
-  const label = kind === 'basement' ? t('floor.basement') : kind === 'roof' ? t('floor.roof') : `${t('floor.new')} ${layout.floors.length + 1}`;
-  const name = prompt(t('floor.namePrompt'), label);
-  if (!name) return;
-  snapshot();
-  if (kind === 'basement') {
-    layout.floors.unshift(newFloor(kind, name));
-    switchFloor(0);
-  } else {
-    layout.floors.push(newFloor(kind, name));
-    switchFloor(layout.floors.length - 1);
-  }
-  scheduleSave();
-}
-function moveFloor(dir) {
-  const j = floorIdx + dir;
-  if (j < 0 || j >= layout.floors.length) return;
-  snapshot();
-  [layout.floors[floorIdx], layout.floors[j]] = [layout.floors[j], layout.floors[floorIdx]];
-  floorIdx = j;
-  selection = null; build(); fitCamera(); buildNav(true); renderFloorPanel(); renderObjList(); scheduleSave();
-}
-function deleteFloor() {
-  if (layout.floors.length < 2 || !confirm(t('floor.deleteConfirm'))) return;
-  snapshot();
-  layout.floors.splice(floorIdx, 1);
-  switchFloor(Math.min(floorIdx, layout.floors.length - 1));
-  scheduleSave();
-}
-function renderFloorPanel() {
-  const box = $('#floorBody');
-  if (!box) return;
-  box.innerHTML = '';
-  const f = floor();
-  if (!f) return;
-  const rowBtn = (id, label, on, disabled = false) => {
-    const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.disabled = disabled;
-    b.addEventListener('click', on); return b;
-  };
-  box.append(field(t('prop.name'), inp('text', f.name, (v) => { f.name = v || f.name; buildNav(true); })));
-  const ksel = document.createElement('select'); ksel.id = 'floorKind';
-  [['floor', t('floor.kind.floor')], ['basement', t('floor.kind.basement')], ['roof', t('floor.kind.roof')]].forEach(([v, l]) => {
-    const o = document.createElement('option'); o.value = v; o.textContent = l; ksel.append(o);
-  });
-  ksel.value = f.kind || 'floor';
-  ksel.addEventListener('change', () => {
-    snapshot(); f.kind = ksel.value;
-    if (f.kind === 'roof') f.roof ||= { type: 'gable', pitch: 35, overhang: 0.4 };
-    build(); fitCamera(); buildNav(true); renderFloorPanel(); scheduleSave();
-  });
-  box.append(field(t('floor.kind'), ksel));
-  const mv = document.createElement('div'); mv.className = 'stopTools';
-  mv.append(rowBtn('floorUp', t('floor.up'), () => moveFloor(1), floorIdx >= layout.floors.length - 1),
-            rowBtn('floorDown', t('floor.down'), () => moveFloor(-1), floorIdx <= 0));
-  box.append(mv);
-  const add = document.createElement('div'); add.className = 'stopTools';
-  add.append(rowBtn('addBasement', t('floor.addBasement'), () => addFloorOf('basement')),
-             rowBtn('addRoof', t('floor.addRoof'), () => addFloorOf('roof')),
-             rowBtn('delFloor', t('floor.delete'), deleteFloor, layout.floors.length < 2));
-  box.append(add);
-  if (f.kind === 'roof') {
-    const r = (f.roof ||= { type: 'gable', pitch: 35, overhang: 0.4 });
-    const tsel = document.createElement('select'); tsel.id = 'roofType';
-    ['gable', 'hip', 'flat'].forEach((v) => { const o = document.createElement('option'); o.value = v; o.textContent = t(`roof.${v}`); tsel.append(o); });
-    tsel.value = r.type || 'gable';
-    tsel.addEventListener('change', () => { snapshot(); r.type = tsel.value; build(); scheduleSave(); renderFloorPanel(); });
-    box.append(field(t('roof.type'), tsel));
-    box.append(field(t('roof.pitch'), inp('number', r.pitch ?? 35, (v) => (r.pitch = Math.max(5, Math.min(70, +v || 35))), { step: 1 })));
-    const manual = document.createElement('input'); manual.type = 'checkbox'; manual.id = 'roofManual'; manual.checked = !!r.box;
-    manual.addEventListener('change', () => {
-      snapshot();
-      if (manual.checked) { const a = autoRoofBox(layout.floors.indexOf(f)); if (a) r.box = { ...a }; } else delete r.box;
-      build(); scheduleSave(); renderFloorPanel();
-    });
-    const mrow = document.createElement('label'); mrow.className = 'chk'; mrow.append(manual, ' ' + t('roof.manual'));
-    box.append(mrow);
-    if (r.box) {
-      const b = r.box, edit = (get, set) => lenInput(get, (v) => { set(v); if (b.x1 - b.x0 < 1) b.x1 = b.x0 + 1; if (b.z1 - b.z0 < 1) b.z1 = b.z0 + 1; }, { min: -1000 });
-      box.append(field(t('roof.left'), edit(() => b.x0, (v) => { const w = b.x1 - b.x0; b.x0 = v; b.x1 = v + w; })));
-      box.append(field(t('roof.top'), edit(() => b.z0, (v) => { const d = b.z1 - b.z0; b.z0 = v; b.z1 = v + d; })));
-      box.append(field(t('roof.width'), edit(() => b.x1 - b.x0, (v) => { b.x1 = b.x0 + Math.max(1, v); })));
-      box.append(field(t('roof.depth'), edit(() => b.z1 - b.z0, (v) => { b.z1 = b.z0 + Math.max(1, v); })));
-    }
-    box.append(field(t('roof.overhang'), lenInput(() => r.overhang ?? 0.4, (v) => (r.overhang = v), { min: 0 })));
-    const rsel = document.createElement('select'); rsel.id = 'roofRidge';
-    [['', t('roof.auto')], ['x', 'X'], ['z', 'Z']].forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; rsel.append(o); });
-    rsel.value = r.ridge || '';
-    rsel.addEventListener('change', () => { snapshot(); r.ridge = rsel.value || undefined; build(); scheduleSave(); });
-    box.append(field(t('roof.ridge'), rsel));
-    renderDormers(box, f, r);
-    renderRoofParts(box, f, r);
-  }
-}
-/** further roofs of the house (#125): one card per roof, with its own shape, base and the floor it sits on */
-function renderRoofParts(box, f, r) {
-  const head = document.createElement('h4'); head.id = 'roofPartsHead'; head.textContent = t('roof.parts'); box.append(head);
-  const help = document.createElement('p'); help.className = 'sub'; help.id = 'roofPartsHelp'; help.textContent = t('roof.partsHelp'); box.append(help);
-  const levels = layout.floors.filter((x) => x.kind !== 'roof');
-  (r.parts ||= []).forEach((p, i) => {
-    const card = document.createElement('div'); card.className = 'dormerCard roofPartCard';
-    const cap = document.createElement('b'); cap.className = 'dormerCap'; cap.textContent = p.name || `${t('roof.partOne')} ${i + 1}`; card.append(cap);
-    const sel = (opts, val, set) => {
-      const s = document.createElement('select');
-      opts.forEach(([v, l]) => s.add(new Option(l, v)));
-      s.value = String(val);
-      s.addEventListener('change', () => { snapshot(); set(s.value); build(); scheduleSave(); renderFloorPanel(); });
-      return s;
-    };
-    card.append(field(t('roof.partName'), inp('text', p.name || '', (v) => { p.name = String(v).slice(0, 40); }, {})));
-    card.append(field(t('roof.type'), sel(['gable', 'hip', 'flat'].map((v) => [v, t(`roof.${v}`)]), p.type || 'gable', (v) => { p.type = v; if (v === 'flat') delete p.dormers; })));
-    card.append(field(t('roof.pitch'), inp('number', p.pitch ?? 35, (v) => (p.pitch = Math.max(5, Math.min(70, +v || 35))), { step: 1 })));
-    card.append(field(t('roof.partLevel'), sel([['', t('roof.partTop')], ...levels.map((x) => [x.id, x.name])], p.level || '', (v) => { if (v) p.level = v; else delete p.level; })));
-    const b = (p.box ||= { x0: 0, x1: 4, z0: 0, z1: 4 });
-    const edit = (get, set) => lenInput(get, (v) => { set(v); if (b.x1 - b.x0 < 1) b.x1 = b.x0 + 1; if (b.z1 - b.z0 < 1) b.z1 = b.z0 + 1; }, { min: -1000 });
-    card.append(field(t('roof.left'), edit(() => b.x0, (v) => { const w = b.x1 - b.x0; b.x0 = v; b.x1 = v + w; })));
-    card.append(field(t('roof.top'), edit(() => b.z0, (v) => { const d = b.z1 - b.z0; b.z0 = v; b.z1 = v + d; })));
-    card.append(field(t('roof.width'), edit(() => b.x1 - b.x0, (v) => { b.x1 = b.x0 + Math.max(1, v); })));
-    card.append(field(t('roof.depth'), edit(() => b.z1 - b.z0, (v) => { b.z1 = b.z0 + Math.max(1, v); })));
-    card.append(field(t('roof.overhang'), lenInput(() => p.overhang ?? 0.4, (v) => (p.overhang = v), { min: 0 })));
-    const del = document.createElement('button'); del.type = 'button'; del.className = 'roofPartDel'; del.textContent = '×'; del.title = t('roof.partRemove');
-    del.addEventListener('click', () => { snapshot(); r.parts.splice(i, 1); build(); scheduleSave(); renderFloorPanel(); });
-    card.append(del);
-    box.append(card);
-  });
-  const add = document.createElement('button'); add.type = 'button'; add.id = 'addRoofPart'; add.textContent = t('roof.partAdd');
-  add.addEventListener('click', () => {
-    snapshot();
-    const lv = layout.floors[groundIdx()], pts = lv ? [...lv.walls.flatMap((w) => [w.a, w.b]), ...lv.rooms.flatMap((x) => x.points)] : [];
-    const xs = pts.map((q) => q[0]), zs = pts.map((q) => q[1]);
-    const bx = pts.length ? { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) } : { x0: 0, x1: 4, z0: 0, z1: 4 };
-    r.parts.push({ id: `rp${uid()}`, type: 'flat', pitch: 35, overhang: 0.4, box: bx, ...(lv ? { level: lv.id } : {}) });
-    build(); scheduleSave(); renderFloorPanel();
-  });
-  box.append(add);
-}
-/** roof dormers: one card per dormer in the panel of the roof floor */
-function renderDormers(box, f, r) {
-  const head = document.createElement('h4'); head.id = 'dormerHead'; head.textContent = t('dormer.title'); box.append(head);
-  if (r.type === 'flat') { const p = document.createElement('p'); p.className = 'sub'; p.textContent = t('dormer.noFlat'); box.append(p); return; }
-  (r.dormers ||= []).forEach((d, i) => {
-    const card = document.createElement('div'); card.className = 'dormerCard';
-    const bb = roofBox(layout.floors.indexOf(f)), fit = bb ? dormerParts(bb, r, d) : null;
-    const sel = (opts, val, set) => {
-      const s = document.createElement('select');
-      opts.forEach(([v, l]) => s.add(new Option(l, v)));
-      s.value = String(val);
-      s.addEventListener('change', () => { snapshot(); set(s.value); build(); scheduleSave(); renderFloorPanel(); });
-      return s;
-    };
-    const cap = document.createElement('b'); cap.className = 'dormerCap'; cap.textContent = `${t('dormer.one')} ${i + 1}`; card.append(cap);
-    card.append(field(t('dormer.side'), sel([[0, t('dormer.sideA')], [1, t('dormer.sideB')]], d.side === 1 ? 1 : 0, (v) => { d.side = +v; })));
-    const pos = inp('range', Math.round((d.pos ?? 0.5) * 100), (v) => { d.pos = Math.max(0, Math.min(1, +v / 100)); }, { min: 0, max: 100, step: 1 });
-    card.append(field(t('dormer.pos'), pos));
-    card.append(field(t('dormer.width'), lenInput(() => d.w ?? DORMER_DEFAULT.w, (v) => { d.w = v; }, { min: 0.6 })));
-    card.append(field(t('dormer.height'), lenInput(() => d.hw ?? DORMER_DEFAULT.hw, (v) => { d.hw = v; }, { min: 0.4 })));
-    card.append(field(t('dormer.eave'), lenInput(() => d.eave ?? DORMER_DEFAULT.eave, (v) => { d.eave = v; }, { min: 0.2 })));
-    card.append(field(t('dormer.type'), sel(DORMER_TYPES.map((v) => [v, t(`dormer.${v}`)]), d.type || 'gable', (v) => { d.type = v; })));
-    const win = document.createElement('input'); win.type = 'checkbox'; win.checked = d.win !== false;
-    win.addEventListener('change', () => { snapshot(); d.win = win.checked; build(); scheduleSave(); });
-    card.append(field(t('dormer.window'), win));
-    const del = document.createElement('button'); del.type = 'button'; del.textContent = '×'; del.title = t('dormer.remove');
-    del.addEventListener('click', () => { snapshot(); r.dormers.splice(i, 1); build(); scheduleSave(); renderFloorPanel(); });
-    card.append(del);
-    if (!fit) { const w = document.createElement('p'); w.className = 'sub warn'; w.textContent = t('dormer.noFit'); card.append(w); }
-    box.append(card);
-  });
-  const add = document.createElement('button'); add.type = 'button'; add.id = 'addDormer'; add.textContent = t('dormer.add');
-  add.addEventListener('click', () => {
-    snapshot();
-    const n = r.dormers.length;
-    r.dormers.push({ id: uid(), ...DORMER_DEFAULT, side: n % 2, pos: [0.5, 0.25, 0.75][Math.floor(n / 2) % 3] });
-    build(); scheduleSave(); renderFloorPanel();
-  });
-  box.append(add);
-}
-$('#addFloor').addEventListener('click', () => addFloorOf('floor'));
+/* ---- Floor panel: name, kind, order, basement / roof, the roof with its dormers and further roofs; the code lives in floorpanel.js ---- */
+const floorPanel = initFloorPanel({
+  $, t, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, setFloorIdx: (i) => { floorIdx = i; }, fields: { field, inp, lenInput },
+  snapshot: () => snapshot(), build: () => build(), fitCamera: () => fitCamera(), buildNav: (force) => buildNav(force), renderObjList: () => renderObjList(),
+  scheduleSave: () => scheduleSave(), switchFloor: (i) => switchFloor(i), clearSelection: () => { selection = null; }, roofBox: (i) => roofBox(i),
+  autoRoofBox: (i) => autoRoofBox(i), groundIdx: () => groundIdx(), uid: () => uid(),
+});
+function renderFloorPanel() { floorPanel.render(); }
+const addFloorOf = (kind) => floorPanel.addFloorOf(kind);
+const moveFloor = (dir) => floorPanel.moveFloor(dir);
 /* Automatic rooms (#17): one room for every closed loop of walls that is not a room yet */
 $('#autoRooms').addEventListener('click', () => {
   const f = floor(), found = detectRooms(f.walls, f.rooms);
@@ -2711,7 +2542,7 @@ if (params.get('debug')) {
     cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
     liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
     touchSize: (id) => { let m = 0; registry.get(id)?.children.forEach((c) => { if (c.userData.touchOnly) { c.geometry.computeBoundingBox(); const s = c.geometry.boundingBox.getSize(new THREE.Vector3()); m = Math.min(s.x, s.y, s.z); } }); return m; },
-    addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach')); build(); }, camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofs.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
+    addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach', uid())); build(); }, camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofs.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
     liveTapRoom: (id) => liveSelect({ kind: 'room', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
     select(kind, id) { selection = { kind, id }; refreshSelection(); },
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),

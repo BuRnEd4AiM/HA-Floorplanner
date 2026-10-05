@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.40.6] - 2026-10-05
+### Changed
+- **Code split, step 17 (#137)**: the floor panel (name, kind and order of a floor, adding a basement or a roof, deleting; the roof with its dormers and further roofs) moved out of `app.js` into `floorpanel.js`, with unit tests. No change in behaviour.
+
 ## [3.40.5] - 2026-10-05
 ### Changed
 - **Code split, step 16 (#137)**: the settings (form, loading with retries, saving with the ETag guard, the users dialog) moved out of `app.js` into `settings.js`, with unit tests. Applying the settings to the house and the view stays in `app.js`. No change in behaviour.
