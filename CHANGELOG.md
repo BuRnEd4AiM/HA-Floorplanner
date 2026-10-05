@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.40.2] - 2026-10-05
+### Changed
+- **Code split, step 13 (#137)**: live control (switching, light controls, scenes, the "whole room" block), the live popup and the room panel moved out of `app.js` into `livecontrols.js`, `livepopup.js` and `roompanel.js`, with unit tests. Two small geometry helpers (area, distance to an outline) now live once in `rooms.js`. No change in behaviour.
+
 ## [3.40.1] - 2026-10-05
 ### Added
 - **Import, export and API know stairs (#191)**: the house JSON now has `stairs` per floor (types straight, L, U, spiral and wall, with `floors`, `dir`, `turn`, `w`, `tread`, `rot`, and `path` for a wall stair), plus `blocks` (placeholder blocks) and `holes` (floor openings). Invalid values are reported with their JSON path, the export writes them back (round trip), the JSON schema describes them, and the import summary of the API counts `stairs`. The AI prompt of the import dialog mentions stairs. Documentation (German and English) extended.

@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.40.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.40.2. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **3.430**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -41,6 +41,9 @@ Stand: Version 3.40.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `offline.js` | ~100 | Offline-Liste |
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
+| `livecontrols.js` | ~190 | Live-Steuerung: Schalten, Licht (Helligkeit, Farbe, Effekte), Szenen, ganzer Raum |
+| `livepopup.js` | ~110 | Live-Karte beim Antippen (Gerät, Tür/Fenster, LED-Ring) |
+| `roompanel.js` | ~190 | Raum-Panel mit Heizungs-Panel |
 | `stairtool.js` | ~175 | Treppen-Werkzeug (Platzieren, Treppenhaus, Wandtreppe zeichnen, Eigenschaften, 3D-Treppe) |
 | `blocks.js` | ~80 | Platzhalter-Blöcke, Bodenöffnungen, Grundstück, Boden mit Aussparungen |
 | `palettes.js` | ~105 | Paletten (Geräte, eigene Modelle, Suche) |
@@ -58,7 +61,6 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
 | 13 | **Einstellungen**, Rest (einfache Felder, Anwenden, Speichern) | ~150 | `settings.js` | mittel bis hoch (`settings` wird überall gelesen und ersetzt) |
-| 17 | **Raum-Panel und Live-Steuerung** | ~230 + ~240 | `livecontrol.js`, `roompanel.js` | hoch |
 | 18 | **Eigenschaften-Panel** (alle Typen) | ~426 | `props.js`, nach Typ aufgeteilt | hoch |
 | 19 | **Aufschneiden der Wände** (Cutaway, Durchsichtig) | ~52 + Teile | `cutaway.js` | hoch |
 | 20 | **Zeichnen, Auswählen, Zeigerereignisse** | ~260 + ~266 + ~80 | `tools.js`, `pointer.js` | hoch |
