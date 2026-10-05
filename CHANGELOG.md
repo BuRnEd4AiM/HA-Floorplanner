@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.36.3] - 2026-10-05
+### Fixed
+- **Power editor**: turning it on now opens the library with the power things at once (before, the *Device* tool had to be chosen first and nothing showed). In the editor **only power devices** can be hit, selected or moved; walls, doors, windows, rooms and all other devices are no longer picked. The cable tool also works with clicks in the 3D view (the small devices are found within a finger's width of the pointer; before, the click often hit a door or wall behind them), and a click on something that is not a power device says so in the status line.
+
 ## [3.36.2] - 2026-10-05
 ### Changed
 - **Demo shows the new features**: the thermostat has a target temperature and modes (the heating panel works, `+`/`-` and the mode buttons answer), a radiator glows with the heating, the kitchen is a *kitchen run*, and a small power grid is wired up (house connection, meter, meter cabinet, inverter, three solar modules with watt values and cables). Test hook `powerLinks()` for the browser tests.

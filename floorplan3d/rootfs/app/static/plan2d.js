@@ -179,6 +179,11 @@ export function createPlan(ctx) {
   }
   function pickAt(x, z) {
     const f = floor();
+    if (ctx.powerMode?.()) {                                                   // the power editor: only power devices, with a little room around them
+      const pw = f.devices.filter((d) => ctx.isPowerType(d.type)), tol = Math.max(0.35, 14 / s);
+      const near = pw.map((d) => ({ d, k: Math.hypot(d.x - x, d.z - z) })).filter((q) => q.k <= tol || devHit(q.d, x, z)).sort((a, b) => a.k - b.k)[0];
+      return near ? { kind: 'device', id: near.d.id } : null;
+    }
     const pm = (d) => !ctx.powerMode?.() || ctx.isPowerType(d.type);          // the power editor: only power things are picked
     const devs = f.devices.filter((d) => pm(d) && devHit(d, x, z) && !FLAT.has(d.type)).sort((a, b) => {
       const fa = footOf(a), fb = footOf(b);

@@ -207,6 +207,8 @@ export default {
   'nav.halfTip': 'Taglia i muri a metà altezza: resta solo la metà inferiore',
   'nav.auto': 'Auto',
   'nav.autoTip': 'Abbassa automaticamente le pareti rivolte verso la camera',
+  'power.editorOn': 'Editor corrente: metti un dispositivo dalla libreria, poi con «Cavo» clicca un dispositivo elettrico e poi il successivo. Tutto il resto è nascosto.',
+  'power.pickPower': 'Non è un dispositivo elettrico, clicca un dispositivo elettrico.',
   'dev.houseentry': 'Allacciamento',
   'dev.fusebox': 'Quadro elettrico',
   'dev.battery': 'Batteria',
