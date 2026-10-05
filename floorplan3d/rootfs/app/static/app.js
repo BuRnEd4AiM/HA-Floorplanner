@@ -948,6 +948,57 @@ function stateText(entityId) {
   return s.unit ? `${s.state} ${s.unit}` : s.state;
 }
 
+/* ---- power add-on (#136): cables between solar panel / inverter / meter with flowing dots and the watt value ---- */
+const POWER_TYPES = new Set(['solarpanel', 'inverter', 'powermeter']);
+let showPower = false;
+try { showPower = localStorage.getItem('fp.power') === '1'; } catch { /* storage may be blocked */ }
+const powerGroup = new THREE.Group(); scene.add(powerGroup);
+let powerFlows = [], powerSig = '';
+const POWER_DOTS = 8;
+const dotGeo = new THREE.SphereGeometry(0.035, 8, 6);
+/** watts of a device's entity (kW and MW are converted), null if it has no number */
+function powerWatts(d) {
+  const s = d.entity ? states[d.entity] : null;
+  const n = s ? parseFloat(s.state) : NaN;
+  if (!Number.isFinite(n)) return null;
+  return n * (/^k/i.test(s.unit || '') ? 1000 : /^m/i.test(s.unit || '') ? 1e6 : 1);
+}
+const fmtWatts = (w) => (Math.abs(w) >= 1000 ? `${(Math.abs(w) / 1000).toFixed(2)} kW` : `${Math.round(Math.abs(w))} W`);
+const powerCables = () => layout.floors.flatMap((f) => f.devices.filter((d) => d.feeds).map((d) => ({ d, to: d.feeds })));
+function updatePower() {
+  const cables = powerCables();
+  const btn = $('#powerBtn');
+  if (btn) { btn.hidden = !layout.floors.some((f) => f.devices.some((d) => POWER_TYPES.has(d.type))); btn.classList.toggle('active', showPower); }
+  const sig = showPower ? cables.map(({ d, to }) => `${d.id}>${to}:${registry.get(d.id)?.uuid}:${registry.get(to)?.uuid}:${powerWatts(d)}`).join('|') : '';
+  if (sig === powerSig) return;
+  powerSig = sig;
+  clearGroup(powerGroup); powerFlows = [];
+  if (!showPower) return;
+  scene.updateMatrixWorld(true);
+  cables.forEach(({ d, to }) => {
+    const a = registry.get(d.id), b = registry.get(to);
+    if (!a || !b) return;
+    const pa = new THREE.Box3().setFromObject(a).getCenter(new THREE.Vector3()), pb = new THREE.Box3().setFromObject(b).getCenter(new THREE.Vector3());
+    const mid = pa.clone().add(pb).multiplyScalar(0.5); mid.y += 0.2 + pa.distanceTo(pb) * 0.05;
+    const curve = new THREE.CatmullRomCurve3([pa, mid, pb]);
+    const w = powerWatts(d), active = w !== null && Math.abs(w) >= 1;
+    const col = !active ? 0x8a949e : w > 0 ? 0x7dff9a : 0xffb347;
+    powerGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.016, 6), new THREE.MeshStandardMaterial({ color: 0x2b3038, roughness: 0.6 })));
+    const mat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: active ? 1 : 0.35, depthTest: false });
+    const dots = [];
+    for (let i = 0; i < POWER_DOTS; i++) { const m = new THREE.Mesh(dotGeo, mat); m.renderOrder = 6; powerGroup.add(m); dots.push(m); }
+    if (w !== null) { const sp = textSprite(fmtWatts(w), { size: 30, scaleX: 1.2, scaleY: 0.3, pill: true }); sp.position.copy(mid).add(new THREE.Vector3(0, 0.22, 0)); powerGroup.add(sp); }
+    powerFlows.push({ curve, dots, active, dir: w < 0 ? -1 : 1, speed: 0.12 + Math.min(1, Math.abs(w || 0) / 5000) * 0.5, phase: 0 });
+  });
+  animatePower(performance.now());
+}
+function animatePower(now) {
+  powerFlows.forEach((f) => {
+    const base = f.active ? (now / 1000) * f.speed * f.dir : 0;
+    f.dots.forEach((m, i) => { const t = (((base + i / f.dots.length) % 1) + 1) % 1; m.position.copy(f.curve.getPointAt(t)); });
+  });
+}
+
 let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
 const VIEW_STOPS = { temp: ['tempStops', '°C'], humid: ['humidStops', '%'], co2: ['co2Stops', 'ppm'] };
 /* Temperature / humidity of a room: average of every matching sensor placed in it or assigned to its HA area
@@ -1327,6 +1378,7 @@ function updateViewLegend() {
 function applyStates() {
   if (plan?.isVisible()) plan.render();
   updateViewLegend();
+  updatePower();
   updateCameraCones();
   updateCamPill();
   updateFloorCards();
@@ -2027,6 +2079,15 @@ function ringAt(x, z, inset = RING_DEFAULT_INSET) {
   const room = roomAt(x, z);
   const r = room ? ringFromRoom(room.points, inset) : { x, z, pts: [[-1, -1], [1, -1], [1, 1], [-1, 1]], closed: true, segs: [{}, {}, {}, {}] };
   return { ...r, y: +(settings.wallHeight - 0.1).toFixed(2), inset, rot: 0, ...(room ? { room: room.id } : {}) };
+}
+/** Power add-on: pick the device this one is wired to; the cable shows the value of this device's entity (negative = flows backwards) */
+function powerProps(body, it) {
+  const sel = document.createElement('select'); sel.id = 'powerFeeds';
+  sel.add(new Option(t('power.none'), ''));
+  layout.floors.forEach((f) => f.devices.forEach((d) => { if (d.id !== it.id && POWER_TYPES.has(d.type)) sel.add(new Option(`${d.name || t(`dev.${d.type}`)} · ${f.name}`, d.id)); }));
+  sel.value = it.feeds || '';
+  sel.addEventListener('change', () => { snapshot(); if (sel.value) it.feeds = sel.value; else delete it.feeds; changed(); });
+  body.append(field(t('power.feeds'), sel));
 }
 /** Kitchen run (#124): shape, depth, wall cabinets and the modules of every leg, in the properties of the selected run */
 function kitchenProps(body, it) {
@@ -3540,6 +3601,11 @@ document.querySelectorAll('#modeBar button[data-vm]').forEach((b) => b.addEventL
   document.querySelectorAll('#modeBar button[data-vm]').forEach((x) => x.classList.toggle('active', x === b));
   applyStates();
 }));
+$('#powerBtn').addEventListener('click', () => {
+  showPower = !showPower;
+  try { localStorage.setItem('fp.power', showPower ? '1' : '0'); } catch { /* ignore */ }
+  updatePower(); wake();
+});
 $('#autoToggle').addEventListener('click', () => {
   $('#setCutaway').checked = !settings.cutaway;
   commitSettings();
@@ -4309,6 +4375,7 @@ function renderProps() {
     }
     if (it.type === 'ledring') ringProps(body, it);
     if (it.type === 'kitchenrun') kitchenProps(body, it);
+    if (POWER_TYPES.has(it.type)) powerProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), entityPicker(entities.slice(0, 1500), roomAt(it.x, it.z), it.entity || '', (v) => { snapshot(); it.entity = v; changed(); })));
     if (it.type === 'camera') {                                  // #69: field of view cone on the floor
       body.append(field(t('cam.fov'), inp('number', it.fov ?? 90, (v) => { it.fov = Math.max(0, Math.min(180, +v || 0)); }, { step: 5, min: 0, max: 180 })));
@@ -4785,6 +4852,7 @@ function animate(now = performance.now()) {
   updateCutaway();
   updateCompass();
   animateOpenings();
+  if (powerFlows.length) { if (powerFlows.some((f) => f.active)) wake(); animatePower(now); }
   selHelper?.update();
   declutterLabels();
   placeFloorCards();
@@ -4797,6 +4865,7 @@ animate();
 if (params.get('debug')) {
   window.__fp = {
     openRoomPanel(id) { openRoomPanel(id); },
+    powerInfo: () => ({ shown: showPower, flows: powerFlows.map((f) => ({ active: f.active, dir: f.dir, dots: f.dots.length })), labels: powerGroup.children.filter((c) => c.isSprite).length }),
     ledShown(id) { return !!registry.get(id)?.userData.ledParts?.[0]?.visible; },
     isShown(id) { return !!registry.get(id)?.visible; },
     editNano(id) { const d = floor().devices.find((v) => v.id === id); if (d) editNano(d); },
