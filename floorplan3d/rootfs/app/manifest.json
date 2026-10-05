@@ -1,6 +1,6 @@
 {
- "version": "3.39.7",
- "buildHash": "65b6763cf852f53bdbd5d903e73d819734b82f0279567d5564dd9a735c9d7196",
+ "version": "3.39.8",
+ "buildHash": "5843f4f2ee96c652f08530f4dd36ea8ef5f7b5ba89d057bced62daa4c7694e8f",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "530a1c59c99b70317fcf17c081221bb894b615ef4d7b20c6992aa2c2cac51309",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "d1c1de562153175bc4e73b78eda8d56ffd0ae776165c2feadf64005d53614171",
-  "static/app.js": "900aa27d20da5ac6703aab788ac897f3d6b5dee6f95f2cab8528b7d920b515ad",
+  "static/app.js": "561045154586eb3a8037415e1152eb10704dcf6d56bef6d29299bb4d5af4163b",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
   "static/badges.js": "26d8a4d9b03cb0f3b97ca240e9156121680d519ecf13d513b5581ac3547bcdab",
@@ -141,6 +141,7 @@
   "static/floorcards.js": "e8176a7f4d31d4ab037929814f3c17a6b964e4cb3c1272c098c3c041b239fe72",
   "static/floorrail.js": "10ecd93393ed14db8841dd58b7359d98615f1b29a5b0aca67c3b43b6341d0b1a",
   "static/heatpanel.js": "7adb3aaab3ee007d8dcaf58a415e4cb893b38fe49114f98c9d6652bff1e39848",
+  "static/houses.js": "9ced2aa19e974df9027e9d62206d0c3589d9ac97a4cea9b665afe10a625eb361",
   "static/i18n.js": "9ab366b75c481a1d5b29fa1819a0575138c5a5f07c326fbbeb1223ac78278e13",
   "static/import.js": "2e30e5876534c7d24adcc2185b7a100204a2e37ccfbc924a95632f6d9119cb16",
   "static/index.html": "235c1dabbfaf09bbcaa9d70665ab44a93ad1bd6a6d6d01b69e14fa567fc7c884",

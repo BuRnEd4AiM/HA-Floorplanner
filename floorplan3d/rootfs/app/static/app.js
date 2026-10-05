@@ -17,6 +17,7 @@ import { initKiosk } from './kiosk.js';
 import { initCameras } from './cameras.js';
 import { initFloorCards } from './floorcards.js';
 import { initFloorRail } from './floorrail.js';
+import { initHouses } from './houses.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -1391,75 +1392,21 @@ function scheduleSave() {
   });
 })();
 
-/* ================= Houses (several floor plans) ================= */
-let houses = [], houseId = null;
-const layoutUrl = () => `api/layout${houseId ? `?house=${encodeURIComponent(houseId)}` : ''}`;
-async function loadHouses() {
-  try { const l = await (await fetch('api/houses')).json(); if (Array.isArray(l) && l.length) houses = l; } catch { /* old backend: one house */ }
-  const want = (params.get('house') || '').trim().toLowerCase();
-  let saved = null; try { saved = localStorage.getItem('fp.house'); } catch { /* private mode */ }
-  const pickH = houses.find((h) => want && (h.id === want || h.name.trim().toLowerCase() === want)) || houses.find((h) => h.id === saved) || houses[0];
-  houseId = pickH?.id || null;
-}
-const houseLabel = (h) => (h.id === 'main' && h.name === 'Haus' ? t('house.default') : h.name);   // the default name of the first house in the user's language
-function renderHouseUi() {
-  const sel = $('#houseSelect');
-  if (!sel) return;
-  sel.replaceChildren(...houses.map((h) => new Option(houseLabel(h), h.id)));
-  sel.value = houseId || '';
-  $('#houseGroup').hidden = houses.length < 2;
-  const box = $('#houseBody');
-  if (!box) return;
-  box.innerHTML = '';
-  const cur = houses.find((h) => h.id === houseId);
-  const p = document.createElement('p'); p.className = 'sub'; p.textContent = `${t('house.current')}: ${cur ? houseLabel(cur) : ''}`; box.append(p);
-  const mk = (id, label, on, dis = false) => { const b = document.createElement('button'); b.type = 'button'; b.id = id; b.textContent = label; b.disabled = dis; b.addEventListener('click', on); return b; };
-  const row = document.createElement('div'); row.className = 'stopTools';
-  row.append(mk('houseNew', t('house.new'), () => houseAction('new')), mk('houseCopy', t('house.copy'), () => houseAction('copy')),
-             mk('houseRename', t('house.rename'), () => houseAction('rename')), mk('houseDelete', t('house.delete'), () => houseAction('delete'), houses.length < 2));
-  box.append(row);
-}
-async function houseAction(kind) {
-  const cur = houses.find((h) => h.id === houseId);
-  try {
-    if (kind === 'delete') {
-      if (!confirm(t('house.deleteConfirm'))) return;
-      const r = await fetch(`api/houses/${houseId}`, { method: 'DELETE' });
-      if (!r.ok) throw new Error(r.status);
-      houses = houses.filter((h) => h.id !== houseId);
-      await switchHouse(houses[0].id);
-      return;
-    }
-    const name = prompt(t('house.namePrompt'), kind === 'rename' ? cur?.name : kind === 'copy' ? `${cur?.name} 2` : t('house.default'));
-    if (!name || !name.trim()) return;
-    if (kind === 'rename') {
-      const r = await fetch(`api/houses/${houseId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
-      if (!r.ok) throw new Error(r.status);
-      cur.name = name.trim(); renderHouseUi();
-      return;
-    }
-    await save();                                               // make sure the copy source is up to date
-    const r = await fetch('api/houses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, ...(kind === 'copy' ? { copyFrom: houseId } : {}) }) });
-    if (!r.ok) throw new Error(r.status);
-    const h = await r.json();
-    houses.push({ id: h.id, name: h.name });
-    await switchHouse(h.id);
-  } catch (err) { alert(`${t('saveFailed')}: ${err.message}`); }
-}
+/* ================= Houses (several floor plans): list, drop-down and buttons live in houses.js; loading a plan stays here ================= */
+const hs = initHouses({ $, t, params, save: () => save(), switchHouse: (id) => switchHouse(id), alert: (x) => alert(x) });
 async function switchHouse(id) {
-  if (id === houseId && layout) return;
+  if (id === hs.id() && layout) return;
   if (saveTimer) await save();                                  // flush edits of the house we leave
-  houseId = id;
-  try { localStorage.setItem('fp.house', id); } catch { /* private mode */ }
-  try { layout = await (await fetch(layoutUrl())).json(); } catch { setStatus(t('loadFailed')); return; }
+  hs.setCurrent(id);
+  try { layout = await (await fetch(hs.url())).json(); } catch { setStatus(t('loadFailed')); return; }
   normalizeLayout();
   undoStack.length = 0;
   floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
-  clearFocusOutline(); renderHouseUi();
+  clearFocusOutline(); hs.renderUi();
   build(); fitCamera(); buildNav(true); renderBgPanel(); renderFloorPanel(); renderObjList(); refreshSelection();
 }
-initImport({ t, lang: () => currentLanguage(), houseId: () => houseId, onImported: async (j) => {
-  houses.push({ id: j.id, name: j.name });
+initImport({ t, lang: () => currentLanguage(), houseId: () => hs.id(), onImported: async (j) => {
+  hs.add(j);
   await switchHouse(j.id);
   setStatus(t('imp.done').replace('{name}', j.name));
 } });
@@ -1472,7 +1419,7 @@ welcomeUi = initWelcome({
       const r = await fetch(`api/import?name=${encodeURIComponent(t('wel.exampleName'))}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: ex });
       const j = await r.json();
       if (!r.ok || !j.id) throw new Error(j.error || r.status);
-      houses.push({ id: j.id, name: j.name }); await switchHouse(j.id);
+      hs.add(j); await switchHouse(j.id);
     } catch (err) { setStatus(`${t('loadFailed')}: ${err.message}`); }
   },
   importJson: () => $('#importOpen').click(),
@@ -1497,7 +1444,7 @@ $('#houseSelect').addEventListener('change', (e) => switchHouse(e.target.value))
 async function save() {
   clearTimeout(saveTimer);
   try {
-    const r = await fetch(layoutUrl(), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(layout) });
+    const r = await fetch(hs.url(), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(layout) });
     setStatus(r.ok ? t('saved') : t('saveFailed'));
   } catch { setStatus(t('saveFailed')); }
 }
@@ -3819,12 +3766,12 @@ function roomsByHouse(lay, houseName) {
   return { house: houseName, rooms };
 }
 let roomGroups = null;                       // filled with all houses when the users dialog opens, until then only the open house
-const currentRoomGroups = () => [roomsByHouse(layout, houses.find((h) => h.id === houseId)?.name || '')];
+const currentRoomGroups = () => [roomsByHouse(layout, hs.current()?.name || '')];
 async function loadRoomGroups() {
-  if (houses.length < 2) { roomGroups = null; return; }
+  if (hs.list().length < 2) { roomGroups = null; return; }
   const out = [];
-  for (const h of houses) {
-    if (h.id === houseId) { out.push(roomsByHouse(layout, h.name)); continue; }
+  for (const h of hs.list()) {
+    if (h.id === hs.id()) { out.push(roomsByHouse(layout, h.name)); continue; }
     try { const r = await fetch(`api/layout?house=${encodeURIComponent(h.id)}`); if (r.ok) out.push(roomsByHouse(await r.json(), h.name)); } catch { /* skip a house that cannot be read */ }
   }
   roomGroups = out;
@@ -4146,11 +4093,11 @@ async function init() {
   if (!(await loadSettings())) setStatus(t('set.notLoaded'));
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
-  await loadHouses();
-  try { layout = await (await fetch(layoutUrl())).json(); } catch { setStatus(t('loadFailed')); }
+  await hs.load();
+  try { layout = await (await fetch(hs.url())).json(); } catch { setStatus(t('loadFailed')); }
   normalizeLayout();
   floorIdx = groundIdx();                                 // start on the ground floor, not in the basement
-  renderHouseUi();
+  hs.renderUi();
   await loadModels();
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); renderBgPanel(); renderFloorPanel();
@@ -4211,7 +4158,7 @@ if (params.get('debug')) {
     },
     get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => navBar,
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
-    houseId: () => houseId,
+    houseId: () => hs.id(),
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)
       const v = cams.coneCenter(id);
       if (!v) return null;
