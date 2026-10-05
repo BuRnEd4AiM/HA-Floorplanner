@@ -14,9 +14,9 @@
 
 [![Add repository to my Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FBuRnEd4AiM%2FHA-Floorplanner)
 
-[![Download the demo](https://img.shields.io/badge/%E2%AC%87%20Download%20the%20demo-always%20the%20latest-23e0ff?style=for-the-badge&labelColor=0a3ba8)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)
+[![Open the demo in the browser](https://img.shields.io/badge/%E2%96%B6%20Try%20the%20demo-open%20in%20the%20browser-7dff9a?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/) [![Download the demo](https://img.shields.io/badge/%E2%AC%87%20Download%20the%20demo-always%20the%20latest-23e0ff?style=for-the-badge&labelColor=0a3ba8)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases/latest/download/floorplan3d-demo.html)
 
-<sub>One HTML file with an example house, lights and sensors: double-click it, no Home Assistant needed.</sub>
+<sub>**Try the demo:** one click and it runs right in your browser, always the newest version, no install and no Home Assistant needed. Or download it as one HTML file with an example house, lights and sensors and double-click it.</sub>
 
 <img src="docs/img/3d.png" alt="3D view of a house on its plot with live lights, sensors and open windows" width="900">
 
