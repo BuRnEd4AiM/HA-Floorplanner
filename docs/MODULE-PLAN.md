@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.39.12. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.40.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hat gut **5.100 Zeilen**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -17,7 +17,7 @@ Stand: Version 3.39.12. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/roo
 | `models.js` | 715 | Eingebaute 3D-Modelle (Möbel, Geräte, Küchenzeile, Strom), GLB laden |
 | `plan2d.js` | 1.111 | 2D-Editor (SVG) |
 | `i18n.js` und `lang/*.js` | 213 + je Sprache | Übersetzungen (7 Sprachen) |
-| `stairs.js` | 152 | Treppengeometrie |
+| `stairs.js` | ~330 | Treppengeometrie (gerade, L, U, Wendel, Wandtreppe mit Podesten, mehrere Etagen) |
 | `rooms.js` | 146 | Automatische Raumerkennung |
 | `dormer.js` | 70 | Dachgauben |
 | `ledring.js` | 195 | LED-Ring |
@@ -41,7 +41,7 @@ Stand: Version 3.39.12. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/roo
 | `offline.js` | ~100 | Offline-Liste |
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
-| `stairtool.js` | ~110 | Treppen-Werkzeug (Platzieren, Treppenhaus, 3D-Treppe) |
+| `stairtool.js` | ~175 | Treppen-Werkzeug (Platzieren, Treppenhaus, Wandtreppe zeichnen, Eigenschaften, 3D-Treppe) |
 | `blocks.js` | ~80 | Platzhalter-Blöcke, Bodenöffnungen, Grundstück, Boden mit Aussparungen |
 | `palettes.js` | ~105 | Paletten (Geräte, eigene Modelle, Suche) |
 | `background.js` | ~120 | Hintergrundbild (Vorlage zum Nachzeichnen, Eichen) |

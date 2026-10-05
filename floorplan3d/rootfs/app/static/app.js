@@ -37,7 +37,7 @@ import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms } from './rooms.js';
 import { dormerParts, DORMER_DEFAULT, DORMER_TYPES } from './dormer.js';
-import { stairLocal, polyToWorld, toWorld, stairCounts, stairLength, stairHandles, MIN_TREAD, MAX_TREAD } from './stairs.js';
+import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -853,11 +853,11 @@ function build() {
         if (ghost || !inIso(iso, c[0], c[1])) return;
       }
       // the stair that comes up into the floor shown is seen through its opening: drawn solid, not faded like the rest below
-      const arriving = ghost && !houseMode && i === floorIdx - 1 && (st.dir || 'up') === 'up';
+      const arriving = ghost && !houseMode && (st.dir || 'up') === 'up' && i < floorIdx && floorIdx <= i + stairFloors(st);   // a stair over several floors counts for every floor it reaches
       const sGhost = ghost && !arriving;
       const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.95 }) : edgeMaterial;
       const sg = stairTool.build(st, holo, sGhost, sEdge);
-      sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H : 0, st.z);
+      sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H * stairFloors(st) : 0, st.z);
       sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
       g.add(sg);
       registry.set(st.id, sg);
@@ -1900,7 +1900,7 @@ function nudgeSelection(dx, dz) {
 window.addEventListener('keydown', (e) => {
   if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
   const k = e.key.toLowerCase();
-  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole')) { plan.finishRoom(); return; }
+  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole' || tool === 'stairs')) { plan.finishRoom(); return; }
   if (k === 'escape') { plan?.cancel(); endDrawing(); closeLivePopup(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); return; }
   if (isLive()) return;
   if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
@@ -2906,6 +2906,7 @@ const blocks = initBlocks({
 const stairTool = initStairTool({
   $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH: FLOOR_H, snapshot: () => snapshot(), changed: (...a) => changed(...a),
   select: (sel) => { selection = sel; }, setTool: (x) => setTool(x), plan: () => plan, uid: () => uid(), mat: (...a) => mat(...a),
+  ui: { field: (...a) => field(...a), inp: (...a) => inp(...a), lenInput: (...a) => lenInput(...a) },
 });
 
 /* ================= Background image (template to trace): the code lives in background.js ================= */
@@ -3254,28 +3255,7 @@ function renderProps() {
   } else if (selection.kind === 'hole') {
     const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('hole.help'); body.append(hp);
   } else if (selection.kind === 'stair') {
-    body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
-    const dsel = document.createElement('select');
-    [['up', t('stair.up')], ['down', t('stair.down')]].forEach(([v, l]) => dsel.add(new Option(l, v)));
-    dsel.value = it.dir || 'up';
-    dsel.addEventListener('change', () => { snapshot(); it.dir = dsel.value; changed(); });
-    body.append(field(t('stair.dir'), dsel));
-    if (it.type !== 'straight') {
-      const tsel = document.createElement('select');
-      [['right', t('stair.right')], ['left', t('stair.left')]].forEach(([v, l]) => tsel.add(new Option(l, v)));
-      tsel.value = it.turn || 'right';
-      tsel.addEventListener('change', () => { snapshot(); it.turn = tsel.value; changed(); });
-      body.append(field(t('stair.turn'), tsel));
-    }
-    body.append(field(it.type === 'spiral' ? t('stair.radius') : t('bg.width'), lenInput(() => it.w, (v) => (it.w = Math.max(0.5, v)), { min: 0.5 })));
-    if (it.type !== 'spiral') {
-      const cnt = stairCounts(it, FLOOR_H)[it.type === 'straight' ? 'T' : 'n1'];
-      body.append(field(t('stair.length'), lenInput(() => stairLength(it, FLOOR_H), (v) => (it.tread = Math.max(MIN_TREAD, Math.min(MAX_TREAD, v / cnt))), { min: 0.5 })));
-    }
-    body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => (it.rot = ((+v % 360) + 360) % 360), { step: 15 })));
-    body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
-    body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
-    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('stair.help'); body.append(hp);
+    stairTool.renderProps(body, it);
   } else if (selection.kind === 'opening') {
     const { wall } = findOpening(it.id);
     const refit = () => { const p = clampOpeningPos(wall, it.width, it.pos); if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p; };
@@ -3686,7 +3666,7 @@ plan = createPlan({
   holdPlaced,
   setSelection: (h) => { selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); },
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate: (a, b) => bgUi.calibrate(a, b),
-  bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: blocks.setPlot, placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }),
+  bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: blocks.setPlot, placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
  
   liveMoveDevice: (d) => liveMove(d),

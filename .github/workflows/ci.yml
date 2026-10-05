@@ -17,8 +17,9 @@ jobs:
       - run: pytest -q
       - name: Stair geometry unit tests
         run: |
-          cp floorplan3d/rootfs/app/static/stairs.js /tmp/stairs.mjs
-          STAIRS_MJS=/tmp/stairs.mjs node --test tests/stairs.test.mjs
+          mkdir -p /tmp/static && cp -r floorplan3d/rootfs/app/static/. /tmp/static/
+          echo '{"type":"module"}' > /tmp/static/package.json
+          STATIC_DIR=/tmp/static node --test tests/stairs.test.mjs
       - name: LED ring geometry unit tests
         run: |
           cp floorplan3d/rootfs/app/static/ledring.js /tmp/ledring.mjs
@@ -57,7 +58,7 @@ jobs:
           HEAT_MJS=/tmp/heatpanel.mjs node --test tests/heatpanel.test.mjs
       - name: Offline, badges, kiosk, cameras, floor cards, floor rail, houses, settings, background, palettes and stair tool unit tests
         run: |
-          cp -r floorplan3d/rootfs/app/static /tmp/static
+          mkdir -p /tmp/static && cp -r floorplan3d/rootfs/app/static/. /tmp/static/
           echo '{"type":"module"}' > /tmp/static/package.json
           for t in offline badges kiosk cameras floorcards floorrail houses settingsui background palettes stairtool; do STATIC_DIR=/tmp/static node --test tests/$t.test.mjs; done
       - name: Tool bar unit tests
