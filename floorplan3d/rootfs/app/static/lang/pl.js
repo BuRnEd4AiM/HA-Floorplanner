@@ -803,4 +803,5 @@ export default {
   'set.bgGlowStrength': 'Siła poświaty (0 = wył.)',
   'dev.presence': 'Obecność / osoba', 'nav.occupied': 'Ktoś jest w tym pokoju',
   'solar.cols': 'Paneli obok siebie', 'solar.rows': 'Rzędy', 'solar.mount': 'Montaż', 'solar.mount.auto': 'Automatycznie', 'solar.mount.flat': 'Płasko na dachu', 'solar.mount.stand': 'Na stelażu', 'solar.onRoof': 'Leży na dachu: wysokość i nachylenie podążają za powierzchnią dachu pod spodem. Automatycznie = płasko na dachach skośnych, na stelażu na dachu płaskim.', 'solar.roofHint': 'Aby położyć na dachu: otwórz kondygnację „Dach” i umieść tam panel słoneczny, wtedy dopasuje się do nachylenia dachu.',
+  'dev.watermeter': 'Wodomierz', 'dev.gasmeter': 'Gazomierz', 'dev.heatmeter': 'Ciepłomierz',
 };

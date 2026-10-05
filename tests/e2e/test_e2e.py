@@ -835,6 +835,18 @@ with sync_playwright() as p:
     check("power: the library finds the solar panel", pgK2.locator("#paletteGrid button.dev").count() == 1, pgK2.locator("#paletteGrid button.dev").count())
     pgK2.fill("#paletteSearch", "inverter"); pgK2.wait_for_timeout(200)
     check("power: the library finds the inverter", pgK2.locator("#paletteGrid button.dev").count() == 1)
+    pgK2.fill("#paletteSearch", "zähler"); pgK2.wait_for_timeout(200)
+    check("meters (#136): the library finds power, water, gas and heat meter", pgK2.locator("#paletteGrid button.dev").count() == 4, pgK2.locator("#paletteGrid button.dev").count())
+    pgK2.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+      f.devices.push({id: 'mW', type: 'watermeter', x: 60, z: 60, y: 0.5, rot: 0, scale: 1, name: '', entity: 'sensor.water_test'},
+                     {id: 'mG', type: 'gasmeter', x: 61, z: 60, y: 1.2, rot: 0, scale: 1, name: '', entity: 'sensor.gas_test'},
+                     {id: 'mH', type: 'heatmeter', x: 62, z: 60, y: 1.0, rot: 0, scale: 1, name: '', entity: 'sensor.heat_test'});
+      window.__fp.fakeState('sensor.water_test', '1234.567', 'm³'); window.__fp.fakeState('sensor.gas_test', '845.21', 'm³'); window.__fp.fakeState('sensor.heat_test', '5321', 'kWh');
+      window.__fp.rebuild(); window.__fp.applyStates(); }""")
+    pgK2.wait_for_timeout(500)
+    check("meters (#136): water, gas and heat meter are built in 3D", all(pgK2.evaluate(f"window.__fp.has('{i}')") for i in ("mW", "mG", "mH")))
+    bw, bg, bh = (pgK2.evaluate(f"window.__fp.badge('{i}')") for i in ("mW", "mG", "mH"))
+    check("meters (#136): the badges show the reading with its own sign", (bw or "").startswith("🚰 1234.6 m³") and (bg or "").startswith("🔥 845.2 m³") and (bh or "").startswith("♨ 5321 kWh"), (bw, bg, bh))
     pgK2.close()
 
     # --- power add-on (#136): cable between solar panel and inverter

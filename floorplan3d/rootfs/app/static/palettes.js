@@ -10,6 +10,7 @@ export const SEARCH_ALIASES = {
   tv: 'fernseher fernsehen television tele glotze', tv_wall: 'fernseher wandfernseher wand tv fernsehen flachbild', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
   fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
   presence: 'person anwesenheit anwesend bewegung bewegungsmelder präsenz praesenz presence motion occupancy mensch',
+  watermeter: 'wasser wasseruhr zähler zaehler meter water', gasmeter: 'gas gasuhr zähler zaehler meter', heatmeter: 'wärme waerme wärmezähler heizung fernwärme zähler zaehler meter heat', powermeter: 'strom stromzähler zähler zaehler meter',
   light: 'leuchte lampe', lamp: 'leuchte stehlampe', bed: 'doppelbett', wardrobe: 'schrank kleiderschrank', shelf: 'regal', bookcase: 'bücherregal buecherregal',
 };
 

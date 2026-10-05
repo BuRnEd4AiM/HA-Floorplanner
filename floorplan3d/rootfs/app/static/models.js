@@ -87,6 +87,9 @@ export const DEVICE_TYPES = {
   fusebox:    { label: 'Zählerkasten', y: 1.4 },
   battery:    { label: 'Batteriespeicher', y: 0 },
   wallbox:    { label: 'Wallbox',      y: 1.2 },
+  watermeter: { label: 'Wasserzähler', y: 0.5 },
+  gasmeter:   { label: 'Gaszähler',    y: 1.2 },
+  heatmeter:  { label: 'Wärmemengenzähler', y: 1.0 },
   picture:    { label: 'Bild',         y: 1.5 },
   orb:        { label: 'Lichtkugel',  y: 0.4 },
   strip:      { label: 'LED-Streifen', y: 0.5 },
@@ -109,7 +112,7 @@ export const CATEGORIES = {
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
   lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'ledring', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led'],
-  smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence'],
+  smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence', 'watermeter', 'gasmeter', 'heatmeter'],
   power:   ['houseentry', 'fusebox', 'powermeter', 'inverter', 'solarpanel', 'battery', 'wallbox'],
   outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car'],
   decor:   ['picture'],
@@ -527,6 +530,19 @@ Object.assign(builders, {
   wallbox(g) {                 // EV charger: small wall box with a cable holster
     const led = glowMat(0x7fd8ff); g.userData.glow = [led];
     g.add(box(0.25, 0.35, 0.12, std('#2e3338'), 0, 0, 0)); g.add(box(0.2, 0.03, 0.01, led, 0, 0.1, 0.065)); g.add(cyl(0.035, 0.035, 0.08, std('#111'), 0, -0.12, 0.08, 10)); },
+  watermeter(g) {              // water meter on its pipe (#136): brass pipe along the wall, blue body, round dial on top
+    const brass = std('#b8913a', { metalness: 0.6, roughness: 0.35 }), dial = glowMat(0xbfe6ff); g.userData.glow = [dial];
+    g.add(cyl(0.022, 0.022, 0.34, brass, 0, -0.17, 0, 12).rotateZ(Math.PI / 2));
+    g.add(cyl(0.05, 0.05, 0.09, std('#2f6fb3'), 0, 0, 0, 18)); g.add(cyl(0.056, 0.056, 0.015, brass, 0, 0.09, 0, 18));
+    g.add(cyl(0.045, 0.045, 0.006, dial, 0, 0.105, 0, 18)); },
+  gasmeter(g) {                // gas meter (#136): beige housing, counter window, two pipe stubs on top
+    const disp = glowMat(0xffe7a8); g.userData.glow = [disp];
+    g.add(box(0.33, 0.27, 0.2, std('#d9cfa8'), 0, 0, 0)); g.add(box(0.2, 0.06, 0.01, disp, 0, 0.15, 0.104)); g.add(box(0.26, 0.05, 0.012, std('#6b6450'), 0, 0.05, 0.104));
+    [-0.1, 0.1].forEach((x) => g.add(cyl(0.025, 0.025, 0.12, std('#c9b26a', { metalness: 0.5 }), x, 0.27, 0, 12))); },
+  heatmeter(g) {               // heat meter (#136): small white box with a display between a red (flow) and a blue (return) pipe
+    const disp = glowMat(0xb8ffcf); g.userData.glow = [disp];
+    g.add(box(0.12, 0.15, 0.07, std('#f1f2f2'), 0, 0, 0)); g.add(box(0.08, 0.035, 0.008, disp, 0, 0.09, 0.038));
+    g.add(cyl(0.018, 0.018, 0.3, std('#c0392b', { metalness: 0.3 }), -0.04, -0.3, -0.02, 10)); g.add(cyl(0.018, 0.018, 0.3, std('#2e6fbf', { metalness: 0.3 }), 0.04, -0.3, -0.02, 10)); },
   smoke(g) { g.add(cyl(0.06, 0.06, 0.03, std('#f4f4f4'), 0, -0.03, 0, 16)); },
   router(g) { g.add(box(0.2, 0.04, 0.14, std('#f4f4f4'))); [-0.07, 0.07].forEach((x) => g.add(box(0.008, 0.18, 0.008, std('#333'), x, 0.04, -0.05))); },
   picture(g) { g.add(box(0.6, 0.45, 0.03, std('#3a3a3a'), 0, 0, 0)); g.add(box(0.52, 0.37, 0.005, std('#c9d6e2'), 0, 0.04, 0.016)); },
