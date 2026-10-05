@@ -31,6 +31,7 @@ import { initRoomEntities } from './roomentities.js';
 import { initProps } from './props.js';
 import { initOpenings, openKind, OPEN_KINDS, paneEntity, openingEntities } from './openings.js';
 import { initCutaway } from './cutaway.js';
+import { initSettings } from './settings.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -1858,11 +1859,7 @@ function leaveRoomView() {
 async function saveEffectColors() {
   Object.values(states).forEach((v) => { v.rgb = fxRgb(v.fxc) || v.rgbRaw; });
   applyStates();
-  try {
-    const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(settingsEtag ? { 'If-Match': settingsEtag } : {}) }, body: JSON.stringify(settings) });
-    if (r.ok) { settingsEtag = r.headers.get('ETag'); }
-    else if (r.status === 409) { alert(t('set.changedElsewhere')); location.reload(); }
-  } catch { /* offline */ }
+  await settingsStore.save();
 }
 const entityInfo = (id) => entities.find((e) => e.entity_id === id) || { entity_id: id, domain: id.split('.')[0] };
 /** put the given entities into the room where they belong (see autoplace.js); one undo step; returns the plan */
@@ -2481,55 +2478,27 @@ function renderRoomEntities() { roomEnts.render(); }
 function renderEntState() { props.renderEntState(); }
 function renderProps() { props.render(); }
 
-/* ================= Settings ================= */
-const dlg = $('#settingsDialog');
+/* ================= Settings: form, loading, saving and the users dialog live in settings.js (tablet rows and colour scales in settingsui.js);
+   applying them to the house and the view stays here ================= */
 const settingsUi = initSettingsUi({
   $, t, settings: () => settings, defaults: DEFAULT_LOOK, layout: () => layout, houses: () => hs.list(), houseId: () => hs.id(), houseName: () => hs.current()?.name || '', commit: () => commitSettings(),
 });
-const bindings = {
-  language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
-  wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
-  shadows: '#setShadows', labelMode: '#setLabels', cameraImages: '#setCameraImages', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
-  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', seeThrough: '#setSeeThrough', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', updateCheck: '#setUpdateCheck', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount',
-  wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', belowMode: '#setBelowMode', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
-  defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
-};
-const dispKeys = new Set(['wallHeight', 'wallThickness', 'glowRadius', 'glowHeight', 'earthMargin']);
-
-function fillSettingsForm() {
-  for (const [key, sel] of Object.entries(bindings)) {
-    const el = $(sel);
-    if (el.type === 'checkbox') el.checked = !!settings[key];
-    else if (dispKeys.has(key)) el.value = toDisp(settings[key]);
-    else el.value = String(settings[key]);
-  }
-  $('#earthMarginNote').hidden = !(layout.plot?.boundary?.length >= 3);
-  $('#weatherList').replaceChildren(...entities.filter((e) => e.entity_id.startsWith('weather.')).map((e) => { const o = document.createElement('option'); o.value = e.entity_id; o.label = e.name; return o; }));
-  $('#setPerf').value = perfStored;
-  settingsUi.renderTablets();
-  settingsUi.renderStops('#tempStops', 'tempStops', '°C');
-  settingsUi.renderStops('#humidStops', 'humidStops', '%');
-  settingsUi.renderStops('#co2Stops', 'co2Stops', 'ppm');
-}
-function readSettingsForm() {
-  const next = { ...settings };
-  for (const [key, sel] of Object.entries(bindings)) {
-    const el = $(sel);
-    if (el.type === 'checkbox') next[key] = el.checked;
-    else if (key === 'idleReturn') next[key] = Math.max(0, parseFloat(el.value) || 0);   // 0 = off
-    else if (el.type === 'number') {
-      const v = parseFloat(el.value);
-      if (Number.isFinite(v) && v > 0) next[key] = dispKeys.has(key) ? fromDisp(v) : v;
-    } else if (el.type === 'range') next[key] = parseFloat(el.value) || 0;
-    else if (key === 'grid') next[key] = parseFloat(el.value);
-    else next[key] = el.value;
-  }
-  const tb = settingsUi.readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views;
-  next.tempStops = settingsUi.readStops('#tempStops', settings.tempStops);
-  next.humidStops = settingsUi.readStops('#humidStops', settings.humidStops);
-  next.co2Stops = settingsUi.readStops('#co2Stops', settings.co2Stops);
-  return next;
-}
+const settingsStore = initSettings({
+  $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
+  entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
+  committed: (prev) => {
+    if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
+    if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones
+      snapshot();
+      layout.floors.forEach((f) => f.walls.forEach((w) => { w.height = settings.wallHeight; }));
+      changed();
+    }
+    applySettings(prev);
+    build();
+  },
+});
+const loadSettings = () => settingsStore.load();
+const commitSettings = () => settingsStore.commit();
 function applySettings(prev = {}) {
   setLanguage(settings.language);
   document.documentElement.dataset.theme = settings.theme;
@@ -2546,97 +2515,14 @@ function applySettings(prev = {}) {
   updateNavToggles(); buildNav(true);
   applyStates();
 }
-let settingsLoaded = false, settingsEtag = null;   // never save settings that were not loaded from the server first (would wipe e.g. the tablet assignments)
-async function loadSettings() {
-  for (let i = 0; i < 6 && !settingsLoaded; i++) {
-    try {
-      const r = await fetch('api/settings');
-      if (r.ok) { settings = { ...settings, ...(await r.json()) }; settingsEtag = r.headers.get('ETag'); settingsLoaded = true; fillSettingsForm(); break; }   // the form always shows the real settings: every later save reads it back
-    } catch { /* add-on is probably restarting, try again */ }
-    await new Promise((res) => setTimeout(res, 1000 * (i + 1)));
-  }
-  return settingsLoaded;
-}
-async function commitSettings() {
-  if (!settingsLoaded && !(await loadSettings())) { setStatus(t('set.notLoaded')); return; }
-  const prev = settings;
-  settings = readSettingsForm();
-  if (settings.seeThrough && settings.cutaway) {                       // Auto (walls sink) and See-through exclude each other: the one switched on last wins
-    if (!prev.seeThrough) settings.cutaway = false; else settings.seeThrough = false;
-    fillSettingsForm();
-  }
-  if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
-  if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones
-    snapshot();
-    layout.floors.forEach((f) => f.walls.forEach((w) => { w.height = settings.wallHeight; }));
-    changed();
-  }
-  applySettings(prev);
-  build();
-  fillSettingsForm();
-  try {
-    const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(settingsEtag ? { 'If-Match': settingsEtag } : {}) }, body: JSON.stringify(settings) });
-    if (r.ok) { settings = { ...settings, ...(await r.json()) }; settingsEtag = r.headers.get('ETag'); }
-    else if (r.status === 409) { alert(t('set.changedElsewhere')); location.reload(); }
-  } catch { /* offline: settings stay for this session */ }
-}
-$('#setPerf').addEventListener('change', (e) => {     // per device (this browser), not for the whole house: needs a fresh start
-  try { if (e.target.value === 'auto') localStorage.removeItem(PERF_KEY); else localStorage.setItem(PERF_KEY, e.target.value); } catch { /* no storage */ }
-  location.reload();
-});
-$('#settingsBtn').addEventListener('click', () => { fillSettingsForm(); dlg.showModal(); });
-const usersDlg = $('#usersDialog');
-async function refreshUsersFile(note = '') {
-  const el = $('#usersFileStatus');
-  try {
-    const r = await fetch('api/users-file');
-    if (!r.ok) { el.textContent = note; return; }
-    const s = await r.json();
-    el.classList.toggle('warn', !s.inSync);
-    el.textContent = note || (!s.exists ? t('users.fileNone') : s.inSync ? t('users.fileOk', { n: s.users }) : t('users.fileDiff', { f: s.fileUsers, n: s.users }));
-  } catch { el.textContent = note; }
-}
-async function syncUsersFile() {
-  try {
-    const r = await fetch('api/users-file/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-    const body = await r.json().catch(() => ({}));
-    if (r.status === 404) { await refreshUsersFile(t('users.syncMissing')); return; }
-    if (!r.ok) { await refreshUsersFile(t('users.syncFail', { msg: body.error || r.status })); return; }
-    settings = { ...settings, ...body }; settingsEtag = r.headers.get('ETag') || settingsEtag;
-    settingsUi.renderTablets();
-    await refreshUsersFile(t('users.syncDone', { n: new Set([...Object.keys(settings.userRooms || {}), ...Object.keys(settings.userViews || {})]).size }));
-  } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
-}
-$('#usersBtn').addEventListener('click', async () => {
-  if (!settingsLoaded) await loadSettings();
-  fillSettingsForm();                                  // the form behind the dialogs must hold the real settings before the first save reads it back (else the defaults, e.g. the hologram theme, win)
-  usersDlg.showModal(); settingsUi.loadHaUsers(); refreshUsersFile();
-  settingsUi.loadRoomGroups().then((ok) => { if (usersDlg.open && ok) settingsUi.renderTablets(); });   // all houses, grouped; the first paint already shows the open house
-});
-async function saveUsersFile() {
-  try {
-    await commitSettings();                                                   // what is typed in the dialog goes along
-    const r = await fetch('api/users-file/sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ direction: 'save' }) });
-    const body = await r.json().catch(() => ({}));
-    if (!r.ok) { await refreshUsersFile(t('users.syncFail', { msg: body.error || r.status })); return; }
-    settingsEtag = r.headers.get('ETag') || settingsEtag;
-    await refreshUsersFile(t('users.saveDone', { n: new Set([...Object.keys(settings.userRooms || {}), ...Object.keys(settings.userViews || {})]).size }));
-  } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
-}
-$('#usersSave').addEventListener('click', saveUsersFile);
 const backupsUi = initBackups({ t, commitSettings });
 initVersion({ t, active: () => !isLive() && !!settings.updateCheck });
 $('#housePanel').addEventListener('toggle', async () => {
   if (!$('#housePanel').open) return;
-  if (!settingsLoaded) await loadSettings();
-  fillSettingsForm();
+  if (!settingsStore.loaded()) await loadSettings();
+  settingsStore.fill();
   backupsUi.refresh();
 });
-$('#usersSync').addEventListener('click', syncUsersFile);
-usersDlg.addEventListener('change', async () => { await commitSettings(); refreshUsersFile(); });
-usersDlg.addEventListener('click', (e) => { if (e.target === usersDlg) usersDlg.close(); });
-dlg.addEventListener('change', commitSettings);
-dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });     // a click on the dark backdrop closes it too
 
 /* ================= Data loading ================= */
 async function loadAreas() {
