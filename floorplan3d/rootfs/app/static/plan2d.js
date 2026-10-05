@@ -4,7 +4,7 @@
 import { nanoBounds } from './nanoleaf.js';
 import { kitchenLayout } from './kitchen.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
-import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, MIN_TREAD, MAX_TREAD } from './stairs.js';
+import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -356,7 +356,7 @@ export function createPlan(ctx) {
       return out;
     };
     const holeOf = (st) => `<polygon points="${pts(polyToWorld(st, stairLocal(st, H3).hole))}" fill="rgba(255,138,42,.12)" stroke="#ff8a2a" stroke-width="1.2" stroke-dasharray="5 3"/>`;
-    if (idxB > 0) (ctx.layout().floors[idxB - 1].stairs || []).forEach((st) => { if ((st.dir || 'up') === 'up') o += holeOf(st) + drawStair(st, true, false); });
+    arrivingStairs(ctx.layout().floors, idxB).forEach(({ st }) => { o += holeOf(st) + drawStair(st, true, false); });   // from lower floors, also over several floors
     (f.stairs || []).forEach((st) => {
       if (st.dir === 'down') o += holeOf(st);
       o += drawStair(st, false, sel?.kind === 'stair' && sel.id === st.id);
@@ -550,7 +550,11 @@ export function createPlan(ctx) {
       const P = (u, n) => `${sx(cx + ux * u - uz * n)},${sy(cz + uz * u + ux * n)}`;
       o += `<polygon points="${P(-hw, -t)} ${P(hw, -t)} ${P(hw, t)} ${P(-hw, t)}" fill="${valid ? 'rgba(35,224,255,.35)' : 'rgba(255,74,61,.4)'}" stroke="${valid ? C.accent : C.warn}"/>`;
     }
-    if (!live && tool === 'stairs' && cursor) {
+    if (!live && tool === 'stairs' && ctx.getStairTemplate().type === 'wall') {          // a wall stair: the path is clicked along the wall
+      const clicks = cursor ? [...drawPts, cursor] : drawPts, draft = ctx.wallStairDraft(clicks);
+      if (draft) o += holeOf(draft) + drawStair(draft, false, true);
+      drawPts.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="4" fill="${C.accent}"/>`; });
+    } else if (!live && tool === 'stairs' && cursor) {
       const tpl = { ...ctx.getStairTemplate(), x: cursor[0], z: cursor[1] };
       o += drawStair(tpl, false, true) + (tpl.dir === 'down' ? holeOf(tpl) : '');
     }
@@ -788,6 +792,7 @@ export function createPlan(ctx) {
         snapshotOnce();
         const st = drag.st, [lx, lz] = toLocal(st, x, z), { T, n1 } = stairCounts(st, ctx.floorH());
         if (drag.which === 'len') st.tread = Math.max(MIN_TREAD, Math.min(MAX_TREAD, Math.round((lx / (st.type === 'straight' ? T : n1)) * 100) / 100));
+        else if (st.type === 'wall') st.w = Math.max(0.6, Math.min(3, Math.round(wallStairWidthAt(st, lx, lz) * 20) / 20));
         else st.w = st.type === 'spiral' ? Math.max(0.5, Math.min(2.5, Math.round(Math.hypot(lx, lz) * 20) / 20)) : Math.max(0.6, Math.min(3, Math.round(2 * Math.abs(lz) * 20) / 20));
         drag.moved = true; scheduleRebuild(); render();
         return;
@@ -953,7 +958,13 @@ export function createPlan(ctx) {
       render();
     } else if (tool === 'stairs') {
       const [px2, pz2] = snapPt(x, z, { fine: true, ends: false });
-      ctx.placeStair(px2, pz2);
+      if (ctx.getStairTemplate().type === 'wall') {             // wall stair: every click adds a point of the path, the same point twice (double click) ends it
+        const last = drawPts[drawPts.length - 1];
+        if (last && Math.hypot(px2 - last[0], pz2 - last[1]) < 0.01) { finishRoom(); return; }
+        drawPts.push([px2, pz2]);
+        ctx.setStatus(ctx.t('stair.wallNext'));
+        render();
+      } else ctx.placeStair(px2, pz2);
     } else if (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') {
       const p = snapPt(x, z, { free: e.altKey });
       if (drawPts.length >= 3 && Math.hypot(p[0] - drawPts[0][0], p[1] - drawPts[0][1]) < 0.01) { finishRoom(); return; }
@@ -983,6 +994,7 @@ export function createPlan(ctx) {
   }
 
   function finishRoom() {
+    if (ctx.getTool() === 'stairs') { if (drawPts.length >= 2) ctx.placeWallStair(drawPts.map((p) => [...p])); cancel(); return; }   // the path of a wall stair
     if (drawPts.length >= 3 && ctx.getTool() === 'plot') {
       ctx.setPlot(drawPts.map((p) => [...p]));                  // the plot (Grundstück): the lawn takes its shape
     } else if (drawPts.length >= 3 && ctx.getTool() === 'hole') {

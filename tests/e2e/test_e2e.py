@@ -1225,6 +1225,57 @@ with sync_playwright() as p:
     pg18.keyboard.press("Delete"); pg18.wait_for_timeout(300)
     check("hole: selected after drawing and can be deleted", pg18.evaluate("window.__fp.layout.floors[1].holes.length") == 0)
     pg18.close()
+    # --- wall stair (#188): drawn along a wall, landings at the bends, steps hang on the wall, over several floors
+    pgWS = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgWS.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pgWS.goto(BASE + "?debug=1&mode=edit"); pgWS.wait_for_timeout(1200)
+    pgWS.evaluate("""() => { const L = window.__fp.layout;
+      const wl = (id, a, b) => ({ id, a, b, thickness: 0.2, height: 2.6, openings: [] });
+      const box = (p) => [wl(p+'1',[0,0],[4,0]), wl(p+'2',[4,0],[4,6]), wl(p+'3',[4,6],[0,6]), wl(p+'4',[0,6],[0,0])];
+      const fl = (id, n, p, r) => ({ id, name: n, kind: 'floor', walls: box(p), rooms: [{id: r, name: n, points: [[0,0],[4,0],[4,6],[0,6]]}], devices: [], blocks: [], stairs: [] });
+      L.floors = [fl('w0', 'EG', 'a', 'wr0'), fl('w1', 'OG', 'b', 'wr1'), fl('w2', 'DG', 'c', 'wr2'), fl('w3', 'SG', 'd', 'wr3')];
+      window.__fp.rebuild(); window.__fp.switchFloor(0); }""")
+    pgWS.click("#viewSplit"); pgWS.wait_for_timeout(600)
+    pgWS.click("button[data-tool=stairs]"); pgWS.click("#stairTypes button[data-stair=wall]")
+    pgWS.fill("#stairFloors", "2"); pgWS.dispatch_event("#stairFloors", "change")
+    pgWS.evaluate("window.__fp.switchFloor(0)"); pgWS.wait_for_timeout(400)
+    for (x, z) in [(1.6, 0.3), (3.7, 0.3), (3.7, 5.0)]:                      # along the top wall, then down the right wall (the left part is under the floor rail)
+        c = pgWS.evaluate(f"window.__fp.plan().toClient({x},{z})"); pgWS.mouse.click(*c); pgWS.wait_for_timeout(180)
+    check("wall stair: nothing is placed while the path is drawn", len(pgWS.evaluate("window.__fp.layout.floors[0].stairs")) == 0 and pgWS.locator("#plan2d polygon").count() > 5)
+    pgWS.keyboard.press("Escape"); pgWS.wait_for_timeout(200)
+    check("wall stair: Esc drops the path", len(pgWS.evaluate("window.__fp.layout.floors[0].stairs")) == 0)
+    for (x, z) in [(1.6, 0.3), (3.7, 0.3), (3.7, 5.0)]:
+        c = pgWS.evaluate(f"window.__fp.plan().toClient({x},{z})"); pgWS.mouse.click(*c); pgWS.wait_for_timeout(180)
+    pgWS.keyboard.press("Enter"); pgWS.wait_for_timeout(500)
+    sts = pgWS.evaluate("window.__fp.layout.floors[0].stairs")
+    check("wall stair: Enter places one wall stair over 2 floors", len(sts) == 1 and sts[0]["type"] == "wall" and sts[0]["floors"] == 2, sts)
+    st = sts[0] if sts else {"path": [[0, 0]], "x": 0, "z": 0}
+    wp = [[round(st["x"] + p[0], 2), round(st["z"] + p[1], 2)] for p in st["path"]]
+    check("wall stair: the path hangs on the wall faces and turns exactly in the corner", wp == [[1.6, 0.1], [3.9, 0.1], [3.9, 5.0]], wp)
+    check("wall stair: it is selected and the panel shows Floors and Steps to the", pgWS.locator("#propsBody").inner_text().count("Floors") + pgWS.locator("#propsBody").inner_text().count("Etagen") >= 1)
+    holes = [pgWS.evaluate(f"window.__fp.holeCount({i})") for i in range(4)]
+    check("wall stair: the stairwell is cut into both floors it climbs through, not into the others", holes == [0, 1, 1, 0], holes)
+    pgWS.fill("#propsBody input[type=number] >> nth=0", "1"); pgWS.dispatch_event("#propsBody input[type=number] >> nth=0", "change"); pgWS.wait_for_timeout(500)
+    check("wall stair: Floors = 1 in the panel cuts only the floor above", pgWS.evaluate("window.__fp.layout.floors[0].stairs[0].floors") == 1 and [pgWS.evaluate(f"window.__fp.holeCount({i})") for i in range(4)] == [0, 1, 0, 0])
+    stid = st.get("id", "")
+    hw = pgWS.evaluate(f"window.__fp.stairHandle('{stid}','wid')")
+    w0 = pgWS.evaluate("window.__fp.layout.floors[0].stairs[0].w")
+    if hw:
+        c0 = pgWS.evaluate(f"window.__fp.plan().toClient({hw[0]},{hw[1]})"); c1 = pgWS.evaluate(f"window.__fp.plan().toClient({hw[0]},{hw[1] + 0.5})")
+        pgWS.mouse.move(*c0); pgWS.mouse.down(); pgWS.mouse.move(c0[0], (c0[1] + c1[1]) / 2, steps=3); pgWS.mouse.move(*c1, steps=3); pgWS.mouse.up(); pgWS.wait_for_timeout(400)
+    w1 = pgWS.evaluate("window.__fp.layout.floors[0].stairs[0].w")
+    check("wall stair: the width can be dragged at its handle", w1 > w0 + 0.2, (w0, w1))
+    pgWS.click("#view3d"); pgWS.wait_for_timeout(900)
+    check("wall stair: built in 3D", pgWS.evaluate(f"window.__fp.has('{stid}')"))
+    # a spiral from the garden up to a roof terrace: over 2 floors, no walls of its own
+    pgWS.click("#view2d"); pgWS.wait_for_timeout(500)
+    pgWS.click("button[data-tool=stairs]"); pgWS.click("#stairTypes button[data-stair=spiral]")
+    pgWS.fill("#stairFloors", "2"); pgWS.dispatch_event("#stairFloors", "change")
+    c = pgWS.evaluate("window.__fp.plan().toClient(2,3)"); pgWS.mouse.click(*c); pgWS.wait_for_timeout(400)
+    sp = pgWS.evaluate("window.__fp.layout.floors[0].stairs")
+    check("spiral: the stair tool's Floors field makes a spiral over 2 floors", len(sp) == 2 and sp[1]["type"] == "spiral" and sp[1]["floors"] == 2, [(q["type"], q.get("floors")) for q in sp])
+    pgWS.screenshot(path=f"{S}/wallstair.png")
+    pgWS.close()
     pg11 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg11.goto(BASE + "?debug=1&mode=edit"); pg11.wait_for_timeout(1500)
     nh = pg11.evaluate("fetch('api/houses').then(r => r.json()).then(h => h.length)")

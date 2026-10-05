@@ -6,6 +6,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.40.0] - 2026-10-05
+### Added
+- **Stairs over several floors (#188)**: every stair now has a "Floors" setting (1 to 6). A straight, L or U stair simply gets long enough, a spiral makes one turn per floor. The opening in the floor is cut into every floor the stair goes through.
+- **Wall stair (#188)**: a light stair that hangs on a wall. You click its path along the wall in the 2D plan (double click or Enter ends it, Esc cancels). The path snaps onto the wall face, and every bend is a **landing** (also at corners between two walls). The steps are thin plates with nothing below them. You choose the side the steps stick out to; the width is dragged at a handle. It can climb several floors.
+- **Outdoor spiral (#188)**: the spiral also works over several floors, so it can go from the garden up to a roof terrace.
+### Changed
+- The stair fields of the properties panel moved from `app.js` into `stairtool.js`. The stair unit tests now run on the whole static folder (CI step changed).
+
 ## [3.39.12] - 2026-10-05
 ### Changed
 - **Code split, step 12 (#137)**: placeholder blocks, floor openings, the plot and the stair tool moved out of `app.js` into `blocks.js` and `stairtool.js`, with unit tests (shape of a stairwell, which floor a block goes to, floor shapes with openings). No change in behaviour.
