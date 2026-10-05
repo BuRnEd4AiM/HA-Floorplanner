@@ -631,8 +631,11 @@
     "legs": {
      "type": "array",
      "maxItems": 3,
-     "items": {"type": "array", "maxItems": 16, "items": {"enum": ["base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap"]}},
-     "description": "Only for type kitchenrun: the legs (straight, L, U) of the run, each a list of modules."
+     "items": {"type": "array", "maxItems": 16, "items": {"oneOf": [
+      {"enum": ["base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap"]},
+      {"type": "object", "required": ["m", "w"], "properties": {"m": {"enum": ["base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap"]}, "w": {"type": "number", "minimum": 0.3, "maximum": 2.4}}}
+     ]}},
+     "description": "Only for type kitchenrun: the legs (straight, L, U) of the run, each a list of modules. A module is its name (standard width) or {\"m\": name, \"w\": width in metres}."
     },
     "upper": {
      "type": "boolean",

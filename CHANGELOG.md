@@ -6,6 +6,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.37.0] - 2026-10-05
+### Added
+- **Kitchen run: every module can have its own width** (a number field per module, 30 cm to 2.4 m); drawer, sink, dishwasher and the rest follow in 2D and 3D, the leg length updates. The dishwasher is called *Dishwasher* / *Spülmaschine* in the module list. Import / export: a module is its name or `{ "m": name, "w": metres }`.
+### Changed
+- **Compass**: the ring with N / E / S / W now stands still (north is up) and only the needle turns to where you look, instead of the whole dial spinning.
+- **Roof**: the tool bar button *Gauben* is now *Roof* (shape, dormers, further roofs) and the section *Further roofs* explains how to add a second roof (*+ Further roof*, then shape, size and the floor it sits on).
+
 ## [3.36.3] - 2026-10-05
 ### Fixed
 - **Power editor**: turning it on now opens the library with the power things at once (before, the *Device* tool had to be chosen first and nothing showed). In the editor **only power devices** can be hit, selected or moved; walls, doors, windows, rooms and all other devices are no longer picked. The cable tool also works with clicks in the 3D view (the small devices are found within a finger's width of the pointer; before, the click often hit a door or wall behind them), and a click on something that is not a power device says so in the status line.

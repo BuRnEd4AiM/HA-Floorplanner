@@ -2,7 +2,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
 import { initToolbar } from './toolbar.js';
-import { MOD_TYPES, MOD_W, MAX_LEGS, MAX_MODS, DEFAULT_LEGS, cleanLegs, legLength } from './kitchen.js';
+import { MOD_TYPES, MOD_W, MAX_LEGS, MAX_MODS, DEFAULT_LEGS, cleanLegs, legLength, modType, modW, withType, withWidth, MIN_MOD_W, MAX_MOD_W } from './kitchen.js';
 import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
 import { initHeatPanel } from './heatpanel.js';
@@ -1840,7 +1840,7 @@ function updateCompass() {
   const key = `${Math.round(heading)}|${text}`;
   if (key === compassKey) return;
   compassKey = key;
-  $('#compassRose').setAttribute('transform', `rotate(${(-heading).toFixed(1)})`);
+  $('#compassNeedle').setAttribute('transform', `rotate(${heading.toFixed(1)})`);                // the ring with N / E / S / W stands still (north is up), only the needle turns to where we look
   $('#compassFrom').textContent = text;
   const letters = t('compass.letters').split(',');                      // N, E, S, W in this language
   document.querySelectorAll('#compassRose .cL').forEach((el, i) => { el.textContent = letters[i] || el.textContent; });
@@ -2207,10 +2207,13 @@ function kitchenProps(body, it) {
       const row = document.createElement('div'); row.className = 'kitchenMod';
       const sel = document.createElement('select');
       MOD_TYPES.forEach((v) => sel.add(new Option(t(`kitchen.m.${v}`), v)));
-      sel.value = m;
-      sel.addEventListener('change', () => { snapshot(); leg[mi] = sel.value; apply(); });
+      sel.value = modType(m);
+      sel.addEventListener('change', () => { snapshot(); leg[mi] = withType(m, sel.value); apply(); });
+      const wd = lenInput(() => modW(m), (v) => { leg[mi] = withWidth(m, v); }, { min: MIN_MOD_W });          // each module can be made wider or narrower
+      wd.classList.add('kitchenW'); wd.title = t('kitchen.width');
       const btn = (txt, title, fn, off) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; b.title = title; b.disabled = !!off; b.addEventListener('click', () => { snapshot(); fn(); apply(); }); return b; };
-      row.append(sel,
+      wd.addEventListener('change', () => renderProps());
+      row.append(sel, wd,
         btn('↑', t('kitchen.left'), () => { [leg[mi - 1], leg[mi]] = [leg[mi], leg[mi - 1]]; }, mi === 0),
         btn('↓', t('kitchen.right'), () => { [leg[mi + 1], leg[mi]] = [leg[mi], leg[mi + 1]]; }, mi === leg.length - 1),
         btn('×', t('kitchen.del'), () => { leg.splice(mi, 1); }));
@@ -3064,7 +3067,7 @@ $('#dormerBtn').addEventListener('click', () => {
   if (floorIdx !== i) switchFloor(i);
   $('#floorPanel').open = true;
   renderFloorPanel();
-  ($('#dormerHead') || $('#floorPanel')).scrollIntoView({ block: 'start', behavior: 'smooth' });
+  $('#floorPanel').scrollIntoView({ block: 'start', behavior: 'smooth' });
 });
 $('#importBtn').addEventListener('click', () => $('#importOpen').click());
 const toolbarUi = initToolbar({ t });
@@ -3551,6 +3554,7 @@ function renderFloorPanel() {
 /** further roofs of the house (#125): one card per roof, with its own shape, base and the floor it sits on */
 function renderRoofParts(box, f, r) {
   const head = document.createElement('h4'); head.id = 'roofPartsHead'; head.textContent = t('roof.parts'); box.append(head);
+  const help = document.createElement('p'); help.className = 'sub'; help.id = 'roofPartsHelp'; help.textContent = t('roof.partsHelp'); box.append(help);
   const levels = layout.floors.filter((x) => x.kind !== 'roof');
   (r.parts ||= []).forEach((p, i) => {
     const card = document.createElement('div'); card.className = 'dormerCard roofPartCard';
