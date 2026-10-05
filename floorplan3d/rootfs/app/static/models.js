@@ -82,6 +82,10 @@ export const DEVICE_TYPES = {
   inverter:   { label: 'Wechselrichter', y: 1.2 },
   powermeter: { label: 'Stromzähler',  y: 1.4 },
   solarpanel: { label: 'Solarpanel',   y: 0 },
+  houseentry: { label: 'Hausanschluss', y: 0 },
+  fusebox:    { label: 'Zählerkasten', y: 1.4 },
+  battery:    { label: 'Batteriespeicher', y: 0 },
+  wallbox:    { label: 'Wallbox',      y: 1.2 },
   picture:    { label: 'Bild',         y: 1.5 },
   orb:        { label: 'Lichtkugel',  y: 0.4 },
   strip:      { label: 'LED-Streifen', y: 0.5 },
@@ -104,7 +108,8 @@ export const CATEGORIES = {
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
   lighting:['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'ledring', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led'],
-  smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence', 'inverter', 'powermeter', 'solarpanel'],
+  smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence'],
+  power:   ['houseentry', 'fusebox', 'powermeter', 'inverter', 'solarpanel', 'battery', 'wallbox'],
   outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car'],
   decor:   ['picture'],
 };
@@ -513,6 +518,18 @@ Object.assign(builders, {
     p.add(box(1.0, 0.04, 1.65, std('#cfd3d8'), 0, 0, 0)); p.add(box(0.94, 0.045, 1.59, std('#1d2d54', { roughness: 0.25, metalness: 0.4 }), 0, 0, 0));
     for (let i = 1; i < 3; i++) p.add(box(0.94, 0.05, 0.012, std('#9fb0d0'), 0, 0, -0.795 + i * 0.53));
     g.add(p); g.add(box(0.06, 0.55, 0.06, std('#9aa0a6'), 0, 0.275, 0.2)); },
+  houseentry(g) {              // house connection: a post with a cable head and a lead going into the ground
+    g.add(box(0.3, 0.7, 0.2, std('#8d949c'), 0, 0.35, 0)); g.add(box(0.34, 0.06, 0.24, std('#5d646c'), 0, 0.73, 0));
+    g.add(cyl(0.03, 0.03, 0.3, std('#222'), 0, 0.15, 0.13, 8)); },
+  fusebox(g) {                 // meter / distribution cabinet with a door and a few breakers
+    g.add(box(0.5, 0.65, 0.18, std('#d8dde2'), 0, 0, 0)); g.add(box(0.44, 0.58, 0.012, std('#bfc6cd'), 0, 0, 0.096));
+    for (let i = 0; i < 4; i++) g.add(box(0.05, 0.1, 0.012, std('#2d3b4a'), -0.12 + i * 0.08, 0.15, 0.104)); },
+  battery(g) {                 // home battery: tall box with a charge light
+    const led = glowMat(0x7dff9a); g.userData.glow = [led];
+    g.add(box(0.6, 1.0, 0.22, std('#e4e7ea'), 0, 0.5, 0)); g.add(box(0.5, 0.04, 0.01, led, 0, 0.9, 0.116)); },
+  wallbox(g) {                 // EV charger: small wall box with a cable holster
+    const led = glowMat(0x7fd8ff); g.userData.glow = [led];
+    g.add(box(0.25, 0.35, 0.12, std('#2e3338'), 0, 0, 0)); g.add(box(0.2, 0.03, 0.01, led, 0, 0.1, 0.065)); g.add(cyl(0.035, 0.035, 0.08, std('#111'), 0, -0.12, 0.08, 10)); },
   smoke(g) { g.add(cyl(0.06, 0.06, 0.03, std('#f4f4f4'), 0, -0.03, 0, 16)); },
   router(g) { g.add(box(0.2, 0.04, 0.14, std('#f4f4f4'))); [-0.07, 0.07].forEach((x) => g.add(box(0.008, 0.18, 0.008, std('#333'), x, 0.04, -0.05))); },
   picture(g) { g.add(box(0.6, 0.45, 0.03, std('#3a3a3a'), 0, 0, 0)); g.add(box(0.52, 0.37, 0.005, std('#c9d6e2'), 0, 0.04, 0.016)); },

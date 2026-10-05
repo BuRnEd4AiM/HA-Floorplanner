@@ -610,10 +610,23 @@
      "maxLength": 60,
      "description": "Optional name of this device inside the file, only needed as the target of another device's \"feeds\"."
     },
+    "cables": {
+     "type": "array",
+     "maxItems": 20,
+     "items": {
+      "type": "object",
+      "required": ["to"],
+      "properties": {
+       "to": {"type": "string", "maxLength": 60, "description": "The \"id\" of another device in the file this one is wired to."},
+       "route": {"enum": ["floor", "through", "air"], "description": "floor: along the floor, then up; through: through the floors first, then along the floor of the target; air: free in the air."}
+      }
+     },
+     "description": "Power add-on: cables from this device to others (house connection -> meter cabinet -> inverter -> solar ...). The direction follows the sign of the value of \"entity\" (negative runs backwards). `feeds` (a single id) is the first version of this and still read."
+    },
     "feeds": {
      "type": "string",
      "maxLength": 60,
-     "description": "Power add-on: the \"id\" of another device in the file this one is wired to with an animated cable (solar panel -> inverter -> meter). The direction follows the sign of the value of \"entity\"."
+     "description": "Old form of one cable in the air; use \"cables\"."
     },
     "legs": {
      "type": "array",

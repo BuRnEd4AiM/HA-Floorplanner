@@ -6,6 +6,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.36.0] - 2026-10-05
+### Added
+- **Power editor (#136)**: new tool bar button *Power editor*. While it is on, only the power things are shown and can be picked or moved (house connection, meter cabinet, meter, inverter, solar panel, battery, wallbox) and the cables are shown; everything else is hidden. The library switches to the new category *Power*.
+- **Cable tool**: click one power device, then another, and a cable is drawn. A device can have **several cables**; in its properties each cable has its target, its **route** (*along the floor*, *through the floor* for another storey, or *free in the air*) and a cross to remove it, and the cables that arrive are listed.
+- **Cables in 2D and 3D** on every floor: amber lines in the plan (a cable to another floor ends in an arrow with the floor's name), flowing dots and the watt value in 3D. New devices *House connection*, *Meter cabinet*, *Home battery* and *Wallbox*.
+### Changed
+- Import / export: `cables` (list of `{to, route}`) replaces the single `feeds` of 3.35.0 (still read).
+
 ## [3.35.0] - 2026-10-05
 ### Added
 - **Power add-on, cables (#136)**: a solar panel, inverter or power meter can be wired to another one (*Cable to* in the properties). The cable is drawn in 3D with flowing dots: direction and speed follow the watts of the device's entity (negative flows backwards, kW is converted) and the value is shown on the cable. A **Power** button next to Normal / Temperature / Humidity / CO₂ switches the cables on and off (it only appears when the house has such a device).

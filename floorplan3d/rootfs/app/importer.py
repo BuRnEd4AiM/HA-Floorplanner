@@ -46,6 +46,7 @@ ROOM_COLORS = ["#b89b74", "#c9c2b4", "#8fb1c2", "#a99bb8", "#9db39a", "#c2a58f",
 DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range")
 DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img")
 DEVICE_FLAGS = ("mirror", "locked", "hideModel")
+CABLE_ROUTES = ("floor", "through", "air")
 KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap")   # same as MOD_W in static/kitchen.js (checked by a test)
 
 
@@ -271,8 +272,12 @@ def _device(rep: Report, path: str, spec, ids):
             d["panels"] = panels
     if isinstance(spec.get("id"), str) and spec["id"]:
         d["_key"] = spec["id"][:60]                      # only to resolve "feeds" below, never kept
+    raw = [c for c in (spec.get("cables") or [])[:20] if isinstance(c, dict) and isinstance(c.get("to"), str) and c["to"]]
     if isinstance(spec.get("feeds"), str) and spec["feeds"]:
-        d["_feeds"] = spec["feeds"][:60]
+        raw.append({"to": spec["feeds"]})                # first version of the format: one cable, hanging in the air
+        raw[-1]["route"] = "air"
+    if raw:
+        d["_cables"] = [{"to": c["to"][:60], "route": c["route"] if c.get("route") in CABLE_ROUTES else "floor"} for c in raw]
     if typ == "kitchenrun":
         legs = [[m for m in leg if m in KITCHEN_MODULES][:16] for leg in (spec.get("legs") or [])[:3] if isinstance(leg, list)]
         d["legs"] = [lg for lg in legs if lg] or [["base", "sink", "dish", "base", "stove", "base", "fridge"]]
@@ -477,13 +482,13 @@ def build_layout(data):
     keyed = {d["_key"]: d["id"] for fl in floors for d in fl["devices"] if "_key" in d}
     for fl in floors:
         for d in fl["devices"]:
-            want = d.pop("_feeds", None)
+            wanted = d.pop("_cables", [])
             d.pop("_key", None)
-            if want is not None:
-                if want in keyed and keyed[want] != d["id"]:
-                    d["feeds"] = keyed[want]
+            for c in wanted:
+                if c["to"] in keyed and keyed[c["to"]] != d["id"]:
+                    d.setdefault("cables", []).append({"id": ids("c"), "to": keyed[c["to"]], "route": c["route"]})
                 else:
-                    rep.warn("devices.feeds", f"cable to '{want}': no other device with that \"id\" in the file, skipped")
+                    rep.warn("devices.cables", f"cable to '{c['to']}': no other device with that \"id\" in the file, skipped")
 
     # shift walls and rooms by the building origin (devices were shifted above, the plot keeps the plot frame)
     if ox or oz:
@@ -681,7 +686,11 @@ def layout_to_property(layout, name="Haus"):
     """Existing layout -> property JSON (walls explicit, so importing it again reproduces the plan). Stairs, blocks and
     background pictures are not part of the format."""
     all_ids = {d.get("id") for f in layout.get("floors", []) for d in f.get("devices", [])}
-    feeding = {d["feeds"] for f in layout.get("floors", []) for d in f.get("devices", []) if d.get("feeds") in all_ids}    # devices a cable ends at keep their id
+
+    def cables_of(d):                                   # `feeds` (first version) counts as one air cable
+        cs = d.get("cables") if isinstance(d.get("cables"), list) else ([{"to": d["feeds"], "route": "air"}] if d.get("feeds") else [])
+        return [c for c in cs if isinstance(c, dict) and c.get("to") in all_ids]
+    feeding = {c["to"] for f in layout.get("floors", []) for d in f.get("devices", []) for c in cables_of(d)}    # devices a cable ends at keep their id
     floors = []
     index_of = {f.get("id"): i for i, f in enumerate(layout.get("floors", []))}      # a further roof names its floor by id, the format by index
     for f in layout.get("floors", []):
@@ -705,10 +714,11 @@ def layout_to_property(layout, name="Haus"):
         item["devices"] = []
         for d in f.get("devices", []):
             od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth") if k in d and d[k] not in (None, "")}
-            if d.get("feeds") in all_ids or d["id"] in feeding:
+            cs = cables_of(d)
+            if cs or d["id"] in feeding:
                 od["id"] = d["id"]
-            if d.get("feeds") in all_ids:
-                od["feeds"] = d["feeds"]
+            if cs:
+                od["cables"] = [{"to": c["to"], "route": c.get("route") if c.get("route") in CABLE_ROUTES else "floor"} for c in cs]
             item["devices"].append(od)
         floors.append(item)
     out = {"schemaVersion": SCHEMA_VERSION, "name": name, "building": {"floors": floors}}
