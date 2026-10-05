@@ -1,6 +1,6 @@
 {
- "version": "3.43.1",
- "buildHash": "9da2ac5dbf238f715c17a7c2dbf41177ca0868488c4885dd458eacc4b41a9a84",
+ "version": "3.43.2",
+ "buildHash": "18860d395df78a356cf18b1e2495291c92f17e566f4b9eebdc2806921157bcc8",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "530a1c59c99b70317fcf17c081221bb894b615ef4d7b20c6992aa2c2cac51309",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "d1c1de562153175bc4e73b78eda8d56ffd0ae776165c2feadf64005d53614171",
-  "static/app.js": "f22d0eed422dd8d4bef3f623af24651ef28933ad49d6cba31ff6e3a82c2daa73",
+  "static/app.js": "cad2e7433efef3b90619aebca34c71d48fccdfba84445e55aa9981d5a8dfce41",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/background.js": "6ccd7fd8e2e076b02317a864f0957ebe16af4faac9c9dacda16ae11b6e86b172",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
@@ -140,6 +140,7 @@
   "static/blocks.js": "0cd5039f4ddd5d955e250e9ba29eb8d526040b1f3fb719b36db543942f00c22d",
   "static/bridge.js": "8418827ff60d13397d38026e7884930c24f7e81a4551020d56958c55ea231167",
   "static/cameras.js": "f4a7d280af038166043b84361b42ec6ac3451da7bbed03e24f5a3f7a6202b6e2",
+  "static/collide.js": "5aed943367370103d314a2e5d76aef9b046dc7461b69f1335255553439a6b187",
   "static/compass.js": "a47770fbc2511ddc67ec3e2bbd52c4052ba95cde66ef539aeba0e1f1ed3d1408",
   "static/cutaway.js": "d6060174271071da1ce11f2780954abd69133be77a5024464b8bbfeee347432a",
   "static/dormer.js": "1c1a1834cbd56d176758b5976100261b4c04f32d6ccfe6098e17a247f8811156",

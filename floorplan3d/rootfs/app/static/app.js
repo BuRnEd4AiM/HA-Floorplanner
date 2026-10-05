@@ -50,6 +50,7 @@ import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
 import { solarPose } from './solarroof.js';
+import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
 
@@ -1830,49 +1831,9 @@ function liveMove(d) {
   cams.cones.get(d.id)?.mesh.position.set(d.x, 0, d.z);          // the field of view of a camera moves with it
   refreshSelHelper();
 }
-/* Wall stop: things cannot be pushed into the wall body. The device footprint and the wall thickness count, the move slides along
-   the wall instead of freezing, and door openings let it through. Wall-hung items, outdoor items and ceiling-free objects are exempt. */
-const STOP_EXEMPT = new Set(['ledring', 'bridge', ...WALL_TYPES_LIST(), ...OUTDOOR]);
-function WALL_TYPES_LIST() { return ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke']; }
-function penetration(m, x, z, w) {
-  const [ax, az] = w.a, [bx, bz] = w.b, sx = bx - ax, sz = bz - az, L = Math.hypot(sx, sz) || 1e-9, ux = sx / L, uz = sz / L;
-  const along = (x - ax) * ux + (z - az) * uz;
-  const dist = Math.hypot(x - (ax + ux * Math.max(0, Math.min(L, along))), z - (az + uz * Math.max(0, Math.min(L, along))));
-  if ((w.openings || []).some((o) => o.type === 'door' && Math.abs(o.pos - along) <= o.width / 2)) return -1;   // through the doorway
-  const f = plan.footOf(m), hw = f.r ?? f.w / 2, hd = f.r ?? f.d / 2, th = ((m.rot || 0) * Math.PI) / 180;
-  const nx = -uz, nz = ux;                                                            // wall normal
-  const cu = Math.cos(th), su = -Math.sin(th), cv = Math.sin(th), sv = Math.cos(th);  // device axes
-  const rad = hw * Math.abs(nx * cu + nz * su) + hd * Math.abs(nx * cv + nz * sv);      // half extent of the footprint across the wall
-  return (w.thickness || 0.2) / 2 + rad - dist;                                        // > 0: overlaps the wall body
-}
-/** clamp the displacement (dx,dz) of the given members so none of them moves deeper into a wall; slide along it when possible */
-function stopMove(members, dx, dz) {
-  if (!settings.wallStop) return [dx, dz];
-  const ms = members.filter((m) => !STOP_EXEMPT.has(m.type));
-  if (!ms.length) return [dx, dz];
-  const walls = floor().walls;
-  // the move is checked in small steps so a fast drag cannot tunnel through a wall
-  const bad = (ex, ez) => {
-    const n = Math.min(80, Math.max(1, Math.ceil(Math.hypot(ex, ez) / 0.04)));
-    return walls.find((w) => ms.some((m) => {
-      let prev = penetration(m, m.x, m.z, w);
-      for (let i = 1; i <= n; i++) {
-        const p1 = penetration(m, m.x + (ex * i) / n, m.z + (ez * i) / n, w);
-        if (p1 > 0.001 && p1 > prev + 1e-4) return true;
-        prev = p1;
-      }
-      return false;
-    }));
-  };
-  let w = bad(dx, dz);
-  if (!w) return [dx, dz];
-  for (let i = 0; i < 3 && w; i++) {                                                  // slide: keep only the part of the move along the blocking wall
-    const [ax, az] = w.a, L = Math.hypot(w.b[0] - ax, w.b[1] - az) || 1, ux = (w.b[0] - ax) / L, uz = (w.b[1] - az) / L, k = dx * ux + dz * uz;
-    dx = ux * k; dz = uz * k;
-    w = bad(dx, dz);
-  }
-  return w ? [0, 0] : [dx, dz];
-}
+/* ---- Wall stop: the code lives in collide.js ---- */
+const STOP_EXEMPT = new Set([...STOP_EXEMPT_BASE, ...OUTDOOR]);
+function stopMove(members, dx, dz) { return settings.wallStop ? stopAtWalls(members, dx, dz, floor().walls, (m) => plan.footOf(m), STOP_EXEMPT) : [dx, dz]; }
 function moveDeviceTo(d, x, z) {
   const ms = [d];
   if (ms.some((m) => m.locked)) return;                          // locked things stay where they are
