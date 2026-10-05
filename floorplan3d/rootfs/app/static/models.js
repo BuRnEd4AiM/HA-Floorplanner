@@ -449,7 +449,7 @@ Object.assign(builders, {
   island(g) { g.add(box(1.8, 0.9, 0.9, std('#d9d2c6'))); g.add(box(1.9, 0.04, 1.0, std('#5b5b5b'), 0, 0.9, 0)); },
   microwave(g) { g.add(box(0.46, 0.28, 0.35, std('#c9ced2'))); g.add(box(0.3, 0.2, 0.01, std('#1e1e1e'), -0.05, 0.04, 0.18)); },
   mirror(g) { g.add(box(0.62, 1.22, 0.03, std('#8a8a8a'), 0, 0, -0.01)); g.add(box(0.56, 1.16, 0.02, new THREE.MeshStandardMaterial({ color: 0xcfe6f2, roughness: 0.05, metalness: 0.6 }), 0, 0.03, 0.01)); },
-  towelrad(g) { for (let i = 0; i < 6; i++) g.add(box(0.5, 0.025, 0.04, std('#e8e8e8'), 0, i * 0.18, 0)); g.add(box(0.03, 0.95, 0.04, std('#e8e8e8'), -0.235, 0, 0)); g.add(box(0.03, 0.95, 0.04, std('#e8e8e8'), 0.235, 0, 0)); },
+  towelrad(g) { const hot = glowMat(0xe8e8e8); g.userData.heat = [hot]; for (let i = 0; i < 6; i++) g.add(box(0.5, 0.025, 0.04, hot, 0, i * 0.18, 0)); g.add(box(0.03, 0.95, 0.04, hot, -0.235, 0, 0)); g.add(box(0.03, 0.95, 0.04, hot, 0.235, 0, 0)); },
   doublebasin(g) {
     g.add(box(1.2, 0.85, 0.5, std('#e6e6e6')));
     [-0.3, 0.3].forEach((x) => { g.add(box(0.45, 0.02, 0.35, std('#f8f8f8'), x, 0.85, 0)); g.add(cyl(0.015, 0.015, 0.18, std('#aaa'), x, 0.87, -0.18, 8)); }); },
@@ -481,7 +481,7 @@ Object.assign(builders, {
     g.add(new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 10), glow).translateZ(0.06));
     g.userData.glow = [glow]; },
   spot(g) { const glow = glowMat(); g.add(cyl(0.05, 0.05, 0.05, std('#ccc'), 0, -0.03, 0, 14)); g.add(cyl(0.035, 0.035, 0.01, glow, 0, -0.045, 0, 12)); g.userData.glow = [glow]; },
-  radiator(g) { for (let i = 0; i < 10; i++) g.add(box(0.07, 0.55, 0.08, std('#f0f0f0'), -0.45 + i * 0.1, 0, 0)); },
+  radiator(g) { const hot = glowMat(0xf0f0f0); g.userData.heat = [hot]; for (let i = 0; i < 10; i++) g.add(box(0.07, 0.55, 0.08, hot, -0.45 + i * 0.1, 0, 0)); },
   boiler(g) { g.add(cyl(0.25, 0.25, 1.2, std('#e8eaec'), 0, 0, 0, 20)); g.add(box(0.12, 0.08, 0.03, std('#2a2a2a'), 0, 0.9, 0.25)); },
   camera(g) { g.add(box(0.07, 0.07, 0.1, std('#e8e8e8'))); g.add(cyl(0.025, 0.025, 0.03, std('#111'), 0, 0.02, 0.06, 12).rotateX(Math.PI / 2)); },
   speaker(g) { g.add(box(0.2, 0.35, 0.2, std('#2e2e32'))); g.add(cyl(0.07, 0.07, 0.02, std('#111'), 0, 0.08, 0.1, 16).rotateX(Math.PI / 2)); },

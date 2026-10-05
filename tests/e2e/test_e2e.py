@@ -737,6 +737,31 @@ with sync_playwright() as p:
     check("compass: it says from which side we look (south, then east)", txt_s.strip()[-1] == "S" and txt_e.strip()[-1] in "OE", (txt_s, txt_e))
     pgK.close()
 
+    # --- heating panel (#134): thermostats of the room get their own panel next to the room panel, with the target temperature, the modes and a sign that it heats
+    pgH = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgH.goto(BASE + "?debug=1&mode=live"); pgH.wait_for_timeout(2000)
+    pgH.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.length = 0; f.devices.length = 0; f.rooms.length = 0;
+      f.rooms.push({id: 'hRoom', name: 'Heizraum', points: [[0,0],[6,0],[6,5],[0,5]]});
+      f.devices.push({id: 'hRad', type: 'radiator', x: 3, z: 0.3, y: 0.15, rot: 0, scale: 1, name: 'Heizkörper', entity: 'climate.wohnzimmer'}, {id: 'hLamp', type: 'light', x: 2, z: 2, y: 2.3, rot: 0, scale: 1, name: 'Lampe', entity: 'light.wohnzimmer'});
+      window.__fp.rebuild(); window.__fp.openRoomPanel('hRoom'); }""")
+    pgH.wait_for_timeout(1500)
+    check("heating: the heating panel is shown next to the room panel", pgH.locator("#heatPanel").is_visible() and pgH.locator("#roomPanel").is_visible())
+    txt = pgH.inner_text("#heatPanel")
+    check("heating: it shows the room temperature, the target and that it heats", "20.5" in txt and "21" in txt and ("heizt" in txt or "heating" in txt), txt)
+    rp = pgH.inner_text("#roomPanel")
+    check("heating: the thermostat is no longer in the room panel's list (the lamp still is)", "Heizkörper" not in rp and "Lampe" in rp, rp)
+    check("heating: the radiator glows while it heats", pgH.evaluate("window.__fp.heatGlow('hRad')") > 0.5, pgH.evaluate("window.__fp.heatGlow('hRad')"))
+    pgH.click("#heatPanel .hp-set button >> nth=1"); pgH.click("#heatPanel .hp-set button >> nth=1"); pgH.wait_for_timeout(1500)
+    cd = json.load(urllib.request.urlopen("http://localhost:8123/_calldata"))
+    check("heating: two clicks on + become one call, 21 -> 22 degrees", [c for c in cd if c[0] == "set_temperature"][-1:] == [["set_temperature", "climate.wohnzimmer", 22.0]], cd)
+    check("heating: the panel shows the new target", "22" in pgH.inner_text("#heatPanel .hp-set"), pgH.inner_text("#heatPanel .hp-set"))
+    pgH.click("#heatPanel .hp-modes button >> nth=0"); pgH.wait_for_timeout(1200)
+    cd = json.load(urllib.request.urlopen("http://localhost:8123/_calldata"))
+    check("heating: the mode buttons call set_hvac_mode (off)", ["set_hvac_mode", "climate.wohnzimmer", "off"] in cd, cd)
+    check("heating: off, the radiator stops glowing and the badge says so", pgH.evaluate("window.__fp.heatGlow('hRad')") == 0 and pgH.locator("#heatPanel .hp-badge.off").count() == 1, pgH.evaluate("window.__fp.heatGlow('hRad')"))
+    urllib.request.urlopen("http://localhost:8123/_set?e=climate.wohnzimmer&s=heat")
+    pgH.close()
+
     pg12 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg12.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
     pg12.goto(BASE + "?debug=1&mode=edit"); pg12.wait_for_timeout(1500)
