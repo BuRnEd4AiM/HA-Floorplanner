@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.36.2] - 2026-10-05
+### Changed
+- **Demo shows the new features**: the thermostat has a target temperature and modes (the heating panel works, `+`/`-` and the mode buttons answer), a radiator glows with the heating, the kitchen is a *kitchen run*, and a small power grid is wired up (house connection, meter, meter cabinet, inverter, three solar modules with watt values and cables). Test hook `powerLinks()` for the browser tests.
+
 ## [3.36.1] - 2026-10-05
 ### Changed
 - **Code split, step 1 (#137)**: the heating panel moved out of `app.js` into its own module `heatpanel.js` with unit tests (rounding of the target temperature, the badge, one call for several clicks, the mode buttons). Nothing changes for the user.
