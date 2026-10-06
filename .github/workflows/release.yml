@@ -1,9 +1,12 @@
 name: Release
 
-# Publishes a GitHub release with the notes from CHANGELOG.md.
+# Publishes GitHub releases with the notes from CHANGELOG.md.
+#  - automatically when a push to main changes the version in floorplan3d/config.yaml,
 #  - push a tag such as v0.8.0, or
-#  - Actions → "Release" → Run workflow and enter the version (creates the tag on main), or
-#  - automatically when a push to main changes the version in floorplan3d/config.yaml.
+#  - Actions → "Release" → Run workflow (optionally with "backfill" to also fill old gaps).
+# Several merges in a row used to skip versions: GitHub keeps only one waiting run per queue and cancels the others. Every run therefore
+# creates ALL missing releases (tools/release_versions.py, tested): the versions in the changelog newer than the newest release, each tagged
+# at the commit that brought that version into config.yaml, oldest first; only the version in config.yaml becomes "latest".
 on:
   push:
     branches: [main]
@@ -12,8 +15,12 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version without v, e.g. 0.8.0 (must match floorplan3d/config.yaml and CHANGELOG.md)"
-        required: true
+        description: "Version without v, e.g. 0.8.0 (empty = the one in floorplan3d/config.yaml)"
+        required: false
+      backfill:
+        description: "Also create releases for older versions that were skipped"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -21,39 +28,59 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    concurrency:                    # shares the queue with the Demo workflow, which attaches the same demo file
-      group: release-assets
+    concurrency:                    # its own queue: a cancelled waiting run loses nothing, the next one catches up
+      group: release
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Create release
+      - name: Create the missing releases
         env:
           GH_TOKEN: ${{ github.token }}
           INPUT_VERSION: ${{ inputs.version }}
+          BACKFILL: ${{ inputs.backfill }}
         run: |
           set -euo pipefail
           cfg="$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d/config.yaml)"
-          if [ -n "${INPUT_VERSION:-}" ]; then v="$INPUT_VERSION"
-          elif [ "$GITHUB_REF_TYPE" = "tag" ]; then v="${GITHUB_REF_NAME#v}"
-          else v="$cfg"; fi
-          v="${v#v}"
-          [ "$cfg" = "$v" ] || { echo "config.yaml says $cfg, not $v"; exit 1; }
-          notes="$(awk -v v="$v" '$0 ~ "^## \\["v"\\]" {p=1; next} /^## \[/ {p=0} p' CHANGELOG.md)"
-          [ -n "$notes" ] || { echo "No CHANGELOG entry for $v"; exit 1; }
-          if gh release view "v$v" >/dev/null 2>&1; then echo "Release v$v already exists"; exit 0; fi
-          gh release create "v$v" --target "${GITHUB_SHA}" --title "3D Floorplan $v" --notes "$notes" --latest
+          v="${INPUT_VERSION:-}"; v="${v#v}"
+          if [ -n "$v" ] && [ "$v" != "$cfg" ]; then echo "config.yaml says $cfg, not $v"; exit 1; fi
+          tags="$(gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --paginate -q '.[].tag_name')"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            todo="${GITHUB_REF_NAME#v}"
+            echo "$tags" | grep -qx "v$todo" && todo=""
+          else
+            bf=""; if [ "${BACKFILL:-false}" = "true" ]; then bf="--backfill"; fi
+            todo="$(python3 tools/release_versions.py "$cfg" $bf $tags)"
+          fi
+          [ -n "$todo" ] || { echo "Nothing to release"; exit 0; }
+          for ver in $todo; do
+            notes="$(awk -v v="$ver" '$0 ~ "^## \\["v"\\]" {p=1; next} /^## \[/ {p=0} p' CHANGELOG.md)"
+            [ -n "$notes" ] || { echo "No CHANGELOG entry for $ver, skipped"; continue; }
+            target="$(git log --reverse --format=%H -S"version: \"$ver\"" -- floorplan3d/config.yaml | head -1)"
+            [ -n "$target" ] || target="$GITHUB_SHA"
+            latest=false; [ "$ver" = "$cfg" ] && latest=true
+            echo "Release v$ver at $target (latest: $latest)"
+            gh release create "v$ver" --target "$target" --title "3D Floorplan $ver" --notes "$notes" --latest="$latest" || echo "v$ver could not be created"
+          done
+
+  demo:
+    needs: release
+    runs-on: ubuntu-latest
+    concurrency:                    # shares the queue with the Demo workflow, which attaches the same demo file (never both at once)
+      group: release-assets
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v7
         with:
           node-version: 20
-      - name: Build and attach the single-file demo
+      - name: Build and attach the single-file demo to the latest release
         env:
           GH_TOKEN: ${{ github.token }}
-          INPUT_VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
-          cfg="$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d/config.yaml)"
-          v="${INPUT_VERSION:-}"; [ -n "$v" ] || v="$cfg"; v="${v#v}"
+          tag="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" -q .tag_name 2>/dev/null || true)"
+          [ -n "$tag" ] || exit 0
           (cd demo && npm ci && npm run build)
-          gh release upload "v$v" demo/floorplan3d-demo.html --clobber || true
+          gh release upload "$tag" demo/floorplan3d-demo.html --clobber || true
