@@ -123,6 +123,14 @@ export function stairLocal(st, H) {
   return { treads, hole, arrow, gap };
 }
 
+/** How many storeys of a stair over several floors to draw (#229): looking at one floor, the storeys above it would hang in the air (the floors
+ *  they arrive on are not shown), so a stair on floor i shows up to the storey that starts on the open floor. All of it in the whole-house view
+ *  and for a stair that comes down from above. */
+export function storeysShown(st, i, openFloor, wholeHouse) {
+  if (wholeHouse || (st.dir || 'up') !== 'up') return Infinity;
+  return Math.max(0, openFloor - i);
+}
+
 /** tread counts: T treads in total (per storey for straight, L and U stairs, #229); L/U stairs split into flight 1 (n1), landing and flight 2 (n2) */
 export function stairCounts(st, H) {
   const T = stairSteps(H * (perStorey(st) ? 1 : stairFloors(st))).n - 1, n1 = Math.floor((T - 1) / 2);

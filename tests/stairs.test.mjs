@@ -292,3 +292,10 @@ test('wall stair (#210): the landing length is limited to 0..3 m, 0 is only the 
   const plan = S.wallStairPlan(wallSt([[0, 0], [3, 0], [3, 3]]), 15);
   assert.equal(plan.landings[0].flat, null);
 });
+test('storeys shown (#229): on its own floor only the first storey, one floor up two, all in the whole-house view or coming down', () => {
+  const st = { ...S.stairDefaults('U'), floors: 3 };
+  assert.equal(S.storeysShown(st, 1, 1, false), 0);
+  assert.equal(S.storeysShown(st, 1, 2, false), 1);
+  assert.equal(S.storeysShown(st, 1, 1, true), Infinity);
+  assert.equal(S.storeysShown({ ...st, dir: 'down' }, 1, 1, false), Infinity);
+});

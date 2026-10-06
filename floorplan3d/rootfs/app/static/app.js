@@ -57,7 +57,7 @@ import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround }
 import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
-import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
+import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors, storeysShown } from './stairs.js';
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -559,7 +559,7 @@ function build() {
       const arriving = ghost && !houseMode && (st.dir || 'up') === 'up' && i < floorIdx && floorIdx <= i + stairFloors(st);   // a stair over several floors counts for every floor it reaches
       const sGhost = ghost && !arriving;
       const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.95 }) : edgeMaterial;
-      const sg = stairTool.build(st, holo, sGhost, sEdge);
+      const sg = stairTool.build(st, holo, sGhost, sEdge, storeysShown(st, i, floorIdx, houseMode));   // no storeys hanging over the open floor (#229)
       sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H * stairFloors(st) : 0, st.z);
       sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
       g.add(sg);

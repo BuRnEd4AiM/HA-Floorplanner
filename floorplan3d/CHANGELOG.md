@@ -7,6 +7,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.45.1] - 2026-10-06
+### Fixed
+- **Stair over several floors hanging in the air (#231)**: looking at one floor, the upper storeys of a stairwell or of a straight / L / U stair over several floors were drawn above it although the floors they arrive on were hidden, so they floated. On one floor only the storey that starts there is drawn now (`storeysShown` in `stairs.js`, tested); one floor up the stair arrives and goes on, and the whole-house view shows all of it.
+
 ## [3.45.0] - 2026-10-06
 ### Added
 - **Stairs over several floors arrive on every floor (#229)**: a straight, L or U stair with "Floors" 2 or more used to be one long flight past the floors in between, with no way off. It is now built storey by storey: the same stair again on every floor, so you arrive on each floor and can step off there; the upper storeys rest on a slab under their steps instead of being solid down to the floor below. Where a U stair ends a little behind its start, a plate at floor level closes that gap.
