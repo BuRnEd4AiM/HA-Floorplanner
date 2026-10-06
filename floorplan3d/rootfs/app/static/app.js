@@ -62,6 +62,7 @@ import { skipInLive } from './pickrules.js';
 import { floorLabels } from './viewprefs.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel } from './livechannel.js';
+import { initPersist } from './persist.js';
 import { pointInPoly, inIso, clipWallToRoom } from './roomclip.js';
 import { HOLO, addPickProxy, underFloors, holoify as holoifyModel } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
@@ -109,8 +110,6 @@ let plan = null;                   // 2D blueprint editor
 let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null, view: 'all' };
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
-const undoStack = [];
-let saveTimer = null;
 
 const $ = (s) => document.querySelector(s);
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -827,15 +826,13 @@ function updateCutaway() { cutaway.update(); }
 /* ---- Compass: the ring stands still, the needle turns with the camera; the code lives in compass.js ---- */
 const compass = initCompass({ $, t, camera, controls });
 
-/* ================= Changes, undo, save ================= */
-function snapshot() {
-  undoStack.push(JSON.stringify(layout));
-  if (undoStack.length > 60) undoStack.shift();
-}
+/* ================= Changes, undo, save: the undo list and the autosave live in persist.js ================= */
+const persist = initPersist({ t, layout: () => layout, url: () => hs.url(), autosaveSeconds: () => settings.autosaveSeconds, setStatus: (x) => setStatus(x) });
+function snapshot() { persist.snapshot(); }
 function undo() {
-  const s = undoStack.pop();
-  if (!s) return;
-  layout = JSON.parse(s);
+  const prev = persist.popUndo();
+  if (!prev) return;
+  layout = prev;
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
   selection = null; focusedRoom = null; multiSel.clear(); clearFocusOutline();
   fillFloorSelect(); build(); scheduleSave(); bgUi.render(); renderFloorPanel(); neighbors.renderUi();
@@ -846,11 +843,7 @@ function changed(rebuild = true) {
   scheduleSave();
 }
 function setStatus(txt) { $('#status').textContent = txt; }
-function scheduleSave() {
-  setStatus(t('unsaved'));
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(save, (settings.autosaveSeconds || 1.5) * 1000);
-}
+function scheduleSave() { persist.schedule(); }
 /* ================= Resizable side panel (drag its left edge) ================= */
 (() => {
   const bar = $('#panelResizer'), root = document.documentElement;
@@ -872,11 +865,11 @@ function scheduleSave() {
 const hs = initHouses({ $, t, params, save: () => save(), switchHouse: (id) => switchHouse(id), alert: (x) => alert(x) });
 async function switchHouse(id) {
   if (id === hs.id() && layout) return;
-  if (saveTimer) await save();                                  // flush edits of the house we leave
+  if (persist.touched()) await save();                          // flush edits of the house we leave
   hs.setCurrent(id);
   try { layout = await (await fetch(hs.url())).json(); } catch { setStatus(t('loadFailed')); return; }
   normalizeLayout();
-  undoStack.length = 0;
+  persist.clearUndo();
   floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
   clearFocusOutline(); hs.renderUi(); neighbors.renderUi();
   build(); fitCamera(); buildNav(true); bgUi.render(); renderFloorPanel(); renderObjList(); refreshSelection();
@@ -907,7 +900,7 @@ $('#backupFile').addEventListener('change', async (e) => {
   e.target.value = '';
   if (!file || !confirm(t('backup.confirm'))) return;
   try {
-    if (saveTimer) await save();
+    if (persist.touched()) await save();
     const r = await fetch('api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: await file.text() });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || r.status);
@@ -917,13 +910,7 @@ $('#backupFile').addEventListener('change', async (e) => {
 });
 $('#houseSelect').addEventListener('change', (e) => switchHouse(e.target.value));
 
-async function save() {
-  clearTimeout(saveTimer);
-  try {
-    const r = await fetch(hs.url(), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(layout) });
-    setStatus(r.ok ? t('saved') : t('saveFailed'));
-  } catch { setStatus(t('saveFailed')); }
-}
+function save() { return persist.save(); }
 
 /* ================= Picking / snapping ================= */
 const ray = new THREE.Raycaster();
