@@ -22,7 +22,21 @@ test('the ball floats above the device, under a ceiling lamp it hangs below it',
   assert.ok(T.ballY(0, 0.05, 0.2) >= T.BALL.r);                                // never below the floor
 });
 test('colour: the light colour while on, warm white without a colour, grey-blue while off', () => {
-  assert.deepEqual(T.ballLook(true, [255, 0, 128]), { color: 0xff0080, opacity: 0.95 });
+  assert.deepEqual(T.ballLook(true, [255, 0, 128]), { color: 0xff0080, opacity: 1 });
   assert.equal(T.ballLook(true, null).color, T.BALL.on);
   assert.equal(T.ballLook(false, [255, 0, 0]).color, T.BALL.off);
+});
+test('icon (#240): what the ball controls, by the kind of its entity; some device types have their own', () => {
+  assert.equal(T.ballIcon({ type: 'light', entity: 'light.a' }), '💡');
+  assert.equal(T.ballIcon({ type: 'strip', entity: 'light.led' }), '💡');                   // an LED strip: a lamp too
+  assert.equal(T.ballIcon({ type: 'switch', entity: 'cover.rollladen' }), '🪟');            // shutters
+  assert.equal(T.ballIcon({ type: 'switch', entity: 'switch.steckdose' }), '🔌');
+  assert.equal(T.ballIcon({ type: 'camera', entity: 'camera.flur' }), '📷');
+  assert.equal(T.ballIcon({ type: 'tv_wall', entity: 'media_player.tv' }), '📺');
+  assert.equal(T.ballIcon({ type: 'tv_wall', entity: '', ledEntity: 'light.tv_led' }), '💡');
+  assert.equal(T.ballIcon({ type: 'thermostat', entity: 'climate.wz' }), '🌡');
+  assert.equal(T.ballIcon({ type: 'thing', entity: 'weird.x' }), '●');
+  assert.equal(T.ballIcon({ type: 'solarpanel', entity: 'sensor.pv' }), '☀');
+  assert.equal(T.ballIcon({ type: 'gasmeter', entity: 'sensor.gas' }), '🔥');
+  assert.equal(T.ballIcon({ type: 'thing', entity: 'sensor.x' }), 'ℹ');
 });

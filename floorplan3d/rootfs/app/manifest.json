@@ -1,6 +1,6 @@
 {
  "version": "3.46.0",
- "buildHash": "99405692951cda1004b8ffd98b29dd638d786a921c67e1ff7a17ecb24c8ba611",
+ "buildHash": "ee118312e3e0be50e9480ddc2830b87ce3b597da8ecf7714785d38c31ab71b33",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -195,7 +195,7 @@
   "static/stairs.js": "6c76210e302cd3fd502b5ac59a731a240335035382cae0136ae070322c087bdd",
   "static/stairtool.js": "2656a0ba183ebfe883a18ba5bad1a449b84f9643f12e0c336a86e93108b861df",
   "static/style.css": "78cedd10a356b9b9968b8c0637a8a8df3c4d543f875851e4ed907bbfe2c1ecd1",
-  "static/tapballs.js": "119fc746445b412c88230296d2131b3472959c575a61f1e1a805877c61b2e8f8",
+  "static/tapballs.js": "ab1433580b66e7f6c410afb3719e31bae15ac2d77481b89de42258c1c738eae4",
   "static/toolbar.js": "5a23ab6ad9fe51afb2b365c87b4c24850d16b9090349687d247270f152569d3b",
   "static/vendor/LICENSE-polygon-clipping.txt": "28c223fd4e8d5c39518aa4c5e603d501ac9e9c5025d136b2e45fae5072ef0695",
   "static/vendor/LICENSE-three.txt": "4c40a1ef62450b857c3b2aaf294936304cd552d965fbcd9d32d4c5bcf4ba4454",
