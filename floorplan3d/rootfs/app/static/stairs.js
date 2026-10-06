@@ -85,6 +85,12 @@ export function stairLocal(st, H) {
       const [rx, rz] = at((a0 + a1) / 2, R - RAIL_IN);
       rail.push([rx, (k + 1) * rise + RAIL_H, rz]);
     }
+    // the way out at the top (#233): a quarter landing at floor level after the last step, reaching to the edge of the opening, so the stair
+    // does not end one step down in the middle of the round hole
+    const e0 = T * a * dirn, out = [];
+    for (let s = 0; s <= 6; s++) out.push(at(e0 + (dirn * (Math.PI / 2) * s) / 6, R + 0.05));
+    for (let s = 6; s >= 0; s--) out.push(at(e0 + (dirn * (Math.PI / 2) * s) / 6, POLE_R));
+    treads.push({ poly: out, top: (T + 1) * rise, thin: THIN, exit: true });
     const pole = { r: POLE_R, h: T * rise + RAIL_H };
     hole = Array.from({ length: 20 }, (_, i) => [Math.cos((i / 20) * 2 * Math.PI) * (R + 0.05), Math.sin((i / 20) * 2 * Math.PI) * (R + 0.05)]);
     arrow = [[0, 0], [Math.cos(Math.min(T * a, 2 * Math.PI * 0.95) * dirn) * R * 0.85, Math.sin(Math.min(T * a, 2 * Math.PI * 0.95) * dirn) * R * 0.85]];
@@ -123,6 +129,14 @@ export function stairLocal(st, H) {
   return { treads, hole, arrow, gap };
 }
 
+/** How many storeys of a stair over several floors to draw (#229): looking at one floor, the storeys above it would hang in the air (the floors
+ *  they arrive on are not shown), so a stair on floor i shows up to the storey that starts on the open floor. All of it in the whole-house view
+ *  and for a stair that comes down from above. */
+export function storeysShown(st, i, openFloor, wholeHouse) {
+  if (wholeHouse || (st.dir || 'up') !== 'up') return Infinity;
+  return Math.max(0, openFloor - i);
+}
+
 /** tread counts: T treads in total (per storey for straight, L and U stairs, #229); L/U stairs split into flight 1 (n1), landing and flight 2 (n2) */
 export function stairCounts(st, H) {
   const T = stairSteps(H * (perStorey(st) ? 1 : stairFloors(st))).n - 1, n1 = Math.floor((T - 1) / 2);
@@ -158,7 +172,8 @@ export function wallSide(st, d) {
 
 /**
  * Plan of a wall stair: the flights and landings along `path`.
- * Returns { flights: [{ from, dir, len, k }], landings: [{ at, kind: 'in'|'away'|'straight', a, b, flat: { from, len } | null }], treadsLeft, ok }
+ * Returns { flights: [{ from, dir, len, k }], landings: [{ at, kind: 'in'|'away'|'straight', a, b, flat: { from, len } | null, merged }], treadsLeft, ok }
+ *  (merged: the landing follows another one with no step between them and lies at the same height, #232)
  *  (a point in the middle of a straight run is a landing of its own; st.landing keeps the stair flat for that long after a bend, #210)
  *  - at an inner bend ('in': the path turns towards the side the steps are on) the landing sits in the corner: the flight before it stops
  *    one width short, the next one starts one width after the corner
@@ -191,7 +206,10 @@ export function wallStairPlan(st, nTreads) {
   }
   const avail = segs.map((q) => Math.max(0, q.len - q.s0 - q.s1));
   const total = avail.reduce((x, y) => x + y, 0);
-  const left = Math.max(0, nTreads - landings.length);
+  // two landings with no step between them (e.g. two clicks close together at a corner) are one landing at one height: the stair only
+  // goes on after it, there is no step up in the middle of it (#232)
+  landings.forEach((L, i) => { L.merged = i > 0 && avail[i] < MIN_TREAD; });
+  const left = Math.max(0, nTreads - landings.filter((L) => !L.merged).length);
   // share the steps out by length (largest remainder), at least one for every flight that has room for a step
   const ks = avail.map((l) => (total > 0 ? (left * l) / total : 0));
   const k = ks.map((v, i) => (avail[i] >= MIN_TREAD ? Math.max(1, Math.floor(v)) : 0));
@@ -221,7 +239,7 @@ function wallStairLocal(st, Htot) {
     }
     const L = plan.landings[i];
     if (L) {
-      c++;
+      if (!L.merged) c++;                                       // a landing right after another one stays at its height (#232)
       const P = L.at, a = L.a, b = L.b, nA = [-a[1] * sg, a[0] * sg];
       if (L.kind !== 'straight') {
         const q = L.kind === 'in'

@@ -34,8 +34,9 @@ export function initStairTool(ctx) {
   let type = 'straight', dir = 'up', turn = 'right', rot = 0, floors = 1, landing = 0;
   const tpl = () => ({ ...stairDefaults(type === 'shaft' ? 'U' : type), type: type === 'shaft' ? 'U' : type, dir, turn, rot, floors, ...(landing > 0 && type !== 'straight' && type !== 'spiral' ? { landing } : {}) });
 
-  /** stair mesh in the stair's local frame (origin = bottom start), steps as solid blocks */
-  function build(st, holo, ghost, edgeMaterial) {
+  /** stair mesh in the stair's local frame (origin = bottom start), steps as solid blocks; of a stair over several floors only the storeys
+   *  up to `upTo` (0 = the first one; storeysShown in stairs.js) */
+  function build(st, holo, ghost, edgeMaterial, upTo = Infinity) {
     const g = new THREE.Group();
     const stepMat = holo
       ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: ghost ? 0.12 : 0.38, depthWrite: false, side: THREE.DoubleSide })
@@ -48,7 +49,7 @@ export function initStairTool(ctx) {
       part(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(L.rail.map((p) => new THREE.Vector3(...p))), L.rail.length * 4, 0.022, 6));   // hand rail
       L.rail.forEach(([x, y, z]) => part(new THREE.CylinderGeometry(0.012, 0.012, RAIL_H, 6).translate(x, y - RAIL_H / 2, z)));            // one baluster per step
     }
-    L.treads.forEach((tr) => {
+    L.treads.filter((tr) => (tr.storey || 0) <= upTo).forEach((tr) => {
       const shape = new THREE.Shape(tr.poly.map(([x, z]) => new THREE.Vector2(x, -z)));
       const geo = new THREE.ExtrudeGeometry(shape, { depth: tr.thin || tr.top, bevelEnabled: false });   // a thin step is a plate with nothing below it
       geo.rotateX(-Math.PI / 2);

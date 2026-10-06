@@ -57,7 +57,8 @@ import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround }
 import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
-import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors } from './stairs.js';
+import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors, storeysShown } from './stairs.js';
+import { skipInLive } from './pickrules.js';
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -559,7 +560,7 @@ function build() {
       const arriving = ghost && !houseMode && (st.dir || 'up') === 'up' && i < floorIdx && floorIdx <= i + stairFloors(st);   // a stair over several floors counts for every floor it reaches
       const sGhost = ghost && !arriving;
       const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.95 }) : edgeMaterial;
-      const sg = stairTool.build(st, holo, sGhost, sEdge);
+      const sg = stairTool.build(st, holo, sGhost, sEdge, storeysShown(st, i, floorIdx, houseMode));   // no storeys hanging over the open floor (#229)
       sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H * stairFloors(st) : 0, st.z);
       sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
       g.add(sg);
@@ -1066,14 +1067,14 @@ const deviceOf = (id) => { for (const f of layout.floors) { const d = f.devices.
 const tappable = (id) => { const d = deviceOf(id); return !!d && !!(d.entity || d.ledEntity || (d.segs || []).some((s) => s.entity)); };
 function pickHit(e) {
   setRay(e);
-  let hits = [];
+  const hits = [];
   for (const h of ray.intersectObjects(pickables, true)) {
     if (h.object.userData.touchOnly && !isLive()) continue;                                      // the big finger box is for the live mode only
     let o = h.object, seg = h.object.userData.seg;
     while (o && !o.userData.kind) { o = o.parent; seg ??= o?.userData.seg; }
-    if (o && isLive() && o.userData.kind === 'opening') continue;                                // doors and windows have no hit box in the live mode: nobody needs to tap them
+    if (o && isLive() && skipInLive(o.userData, devType(o.userData))) continue;                  // live mode: doors, windows, camera cones and presence figures take no tap (#234)
     if (o && o.userData.kind === 'device' && power.hides(o.userData.id)) continue;                  // the power editor: only power things are picked
-    if (o && o.userData.cone && !isLive()) continue;                                              // the cone is only for tapping in live mode
+    if (o && o.userData.cone) continue;                                                           // the cone of a camera is never hit, only the camera itself
     if (o && o.userData.kind === 'device' && isLive() && (stealth(o.userData.id) || !tappable(o.userData.id))) continue;      // an invisible light, or a thing that is linked to nothing, cannot be tapped
     if (o) hits.push({ data: seg != null ? { ...o.userData, seg } : o.userData, point: h.point, distance: h.distance });   // seg: which LED ring section was tapped
   }
@@ -1081,9 +1082,6 @@ function pickHit(e) {
   // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
   // door/window the door/window wins unless the device is clearly in front of it (> 1.2 m nearer to the camera).
   const live = isLive();
-  if (live && hits.some((h) => h.data.cone)) {                 // inside a camera cone, decoration without a device behind it (carpet ...) does not take the tap
-    hits = hits.filter((h) => h.data.cone || h.data.kind !== 'device' || floor().devices.find((x) => x.id === h.data.id)?.entity);
-  }
   const op = hits.find((h) => h.data.kind === 'opening' && (!live || findOpening(h.data.id)?.opening.entity));
   const dv = hits.find((h) => h.data.kind === 'device');
   if (op && dv) return dv.distance < op.distance - 1.2 ? dv : op;
@@ -1092,6 +1090,8 @@ function pickHit(e) {
   return hits[0] ?? null;
 }
 const pick = (e) => pickHit(e)?.data ?? null;
+/** the type of the device a hit belongs to (null for anything else) */
+const devType = (data) => (data.kind === 'device' ? floor().devices.find((x) => x.id === data.id)?.type ?? null : null);
 
 function snap(p, fine = false) { return snapPoint(p, floor().walls, fine ? 0.05 : settings.grid); }
 const findWall = (id) => floor().walls.find((w) => w.id === id);
