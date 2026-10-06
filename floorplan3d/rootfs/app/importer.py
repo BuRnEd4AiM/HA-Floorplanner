@@ -399,12 +399,12 @@ def _stair(rep: Report, path: str, spec, ids, ox, oz):
             return None
         st["x"], st["z"] = st["x"] + float(p0[0]), st["z"] + float(p0[1])
         st["path"] = pts
-        if "landing" in spec:                            # flat after every bend for this long (#210)
-            if _num(spec["landing"], 0, STAIR_MAX_LANDING):
-                if float(spec["landing"]) > 0:
-                    st["landing"] = round(float(spec["landing"]), 2)
-            else:
-                rep.warn(f"{path}.landing", f"landing must be between 0 and {STAIR_MAX_LANDING} m: ignored")
+    if "landing" in spec and typ in ("wall", "L", "U"):     # wall: flat after every bend for this long (#210); L / U: a deeper landing at the turn (#229)
+        if _num(spec["landing"], 0, STAIR_MAX_LANDING):
+            if float(spec["landing"]) > 0:
+                st["landing"] = round(float(spec["landing"]), 2)
+        else:
+            rep.warn(f"{path}.landing", f"landing must be between 0 and {STAIR_MAX_LANDING} m: ignored")
     st["x"], st["z"] = round(st["x"] + ox, 3), round(st["z"] + oz, 3)
     return st
 
@@ -861,8 +861,8 @@ def layout_to_property(layout, name="Haus"):
             os_ = {k: st[k] for k in ("type", "x", "z", "rot", "w", "tread", "turn", "dir", "floors", "name") if k in st and st[k] not in (None, "")}
             if st["type"] == "wall" and isinstance(st.get("path"), list):
                 os_["path"] = st["path"]
-                if _num(st.get("landing")) and st["landing"] > 0:
-                    os_["landing"] = st["landing"]
+            if st["type"] in ("wall", "L", "U") and _num(st.get("landing")) and st["landing"] > 0:
+                os_["landing"] = st["landing"]
             stairs.append(os_)
         if stairs:
             item["stairs"] = stairs

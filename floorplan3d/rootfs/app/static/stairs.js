@@ -1,7 +1,9 @@
 /* Stair geometry (no THREE dependency, shared by the 3D view, the 2D plan and the tests).
  *
  * Stair data: { id, type: 'straight'|'L'|'U'|'spiral'|'wall', x, z, rot, w, tread, turn: 'left'|'right', dir: 'up'|'down', floors, path, name }
- *  - floors (default 1): how many floors the stair climbs (one flight over several floors; a spiral makes one turn per floor).
+ *  - floors (default 1): how many floors the stair climbs. Straight, L and U stairs are built storey by storey (the same stair again on every
+ *    floor, so it arrives on each floor and you can step off there, #229); a spiral makes one turn per floor; a wall stair runs on along its path.
+ *  - landing: L and U stairs: the landing at the turn is this much deeper (m); wall stairs: flat for this long after every bend (#210).
  *  - type 'wall': a light stair hanging on a wall: `path` = the line along the wall as local points [[0,0], ...] (the first is the start), `turn` = the
  *    side the steps stick out to (looking along the path). Every bend of the path is a landing (Podest); the steps are thin plates (`thin`) with
  *    nothing below them.
@@ -24,6 +26,10 @@ export const landingLength = (st) => Math.max(0, Math.min(MAX_LANDING, Number(st
 export const THIN = 0.06;            // thickness of a step plate of a wall stair (m)
 export const POLE_R = 0.06, RAIL_H = 0.9, RAIL_IN = 0.04;   // spiral stair: radius of the middle pole, height of the hand rail over the steps, its distance from the outer edge
 export const MAX_FLOORS = 6;
+export const SLAB = 0.2;             // thickness under the steps of the upper storeys of a stair over several floors (m, #229)
+export const FLOOR_LANDING = 1.2;    // depth of the landing in front of the stair on every floor of a stairwell (m, #229)
+/** straight, L and U stairs over several floors are built storey by storey (#229) */
+export const perStorey = (st) => st.type === 'straight' || st.type === 'L' || st.type === 'U';
 /** how many floors the stair climbs (1..MAX_FLOORS) */
 export const stairFloors = (st) => Math.max(1, Math.min(MAX_FLOORS, Math.round(st.floors || 1)));
 
@@ -48,7 +54,17 @@ const rect = (x0, x1, z0, z1) => [[x0, z0], [x1, z0], [x1, z1], [x0, z1]];
 export function stairLocal(st, H) {
   const nf = stairFloors(st);
   if (st.type === 'wall') return wallStairLocal(st, H * nf);
-  const { n, rise } = stairSteps(H * nf);
+  if (nf > 1 && perStorey(st)) {
+    // several floors (#229): the same stair again on every storey, so it arrives on each floor and you step off there; the upper storeys are
+    // a slab under their steps (nothing solid down to the floor below); where a U stair ends behind its start a plate closes the gap on the floor
+    const one = stairLocal({ ...st, floors: 1 }, H), { rise } = stairSteps(H), treads = [...one.treads];
+    for (let k = 1; k < nf; k++) {
+      if (one.gap) treads.push({ poly: one.gap, top: k * H, thin: SLAB, storey: k });
+      one.treads.forEach((tr) => treads.push({ ...tr, top: tr.top + k * H, thin: rise + SLAB, storey: k }));
+    }
+    return { ...one, treads };
+  }
+  const { n, rise } = stairSteps(H * (perStorey(st) ? 1 : nf));
   const T = n - 1;                                     // treads; the last riser arrives at the upper floor
   const w = st.w || 1, d = st.tread || 0.27, sg = st.turn === 'left' ? -1 : 1;
   const treads = [];
@@ -84,29 +100,32 @@ export function stairLocal(st, H) {
 
   const n1 = Math.floor((T - 1) / 2), n2 = T - 1 - n1;   // flight 1, landing (one step), flight 2
   for (let k = 0; k < n1; k++) treads.push({ poly: rect(k * d, (k + 1) * d, -w / 2, w / 2), top: (k + 1) * rise });
-  const xa = n1 * d, xb = xa + w, landTop = (n1 + 1) * rise;
+  const xa = n1 * d, xb = xa + w, landTop = (n1 + 1) * rise, ex = landingLength(st);   // ex: the landing at the turn is this much deeper (#229)
 
   if (st.type === 'L') {
-    treads.push({ poly: flip(rect(xa, xb, -w / 2, w / 2)), top: landTop });
-    for (let j = 0; j < n2; j++) treads.push({ poly: flip(rect(xa, xb, w / 2 + j * d, w / 2 + (j + 1) * d)), top: (n1 + 2 + j) * rise });
-    hole = flip([[0, -w / 2], [xb, -w / 2], [xb, w / 2 + n2 * d], [xa, w / 2 + n2 * d], [xa, w / 2], [0, w / 2]]);
-    arrow = [[0, 0], [xa + w / 2, 0], [xa + w / 2, (w / 2 + n2 * d) * sg]];
+    const z0 = w / 2 + ex;                                            // flight 2 starts after the (deeper) landing
+    treads.push({ poly: flip(rect(xa, xb, -w / 2, z0)), top: landTop });
+    for (let j = 0; j < n2; j++) treads.push({ poly: flip(rect(xa, xb, z0 + j * d, z0 + (j + 1) * d)), top: (n1 + 2 + j) * rise });
+    hole = flip([[0, -w / 2], [xb, -w / 2], [xb, z0 + n2 * d], [xa, z0 + n2 * d], [xa, w / 2], [0, w / 2]]);
+    arrow = [[0, 0], [xa + w / 2, 0], [xa + w / 2, (z0 + n2 * d) * sg]];
     return { treads, hole, arrow };
   }
 
   // U: flight 2 returns next to flight 1
   const z1 = w / 2 + GAP, z2 = z1 + w;
-  treads.push({ poly: flip(rect(xa, xb, -w / 2, z2)), top: landTop });
+  treads.push({ poly: flip(rect(xa, xb + ex, -w / 2, z2)), top: landTop });
   for (let j = 0; j < n2; j++) treads.push({ poly: flip(rect(xa - (j + 1) * d, xa - j * d, z1, z2)), top: (n1 + 2 + j) * rise });
-  const xl = xa - n2 * d;
-  hole = flip(rect(Math.min(0, xl), xb, -w / 2, z2));
-  arrow = [[0, 0], [xa + w / 2, 0], [xa + w / 2, (z1 + w / 2) * sg], [xl, (z1 + w / 2) * sg]];
-  return { treads, hole, arrow };
+  const xl = xa - n2 * d, xm = (w + ex) / 2;
+  hole = flip(rect(Math.min(0, xl), xb + ex, -w / 2, z2));
+  arrow = [[0, 0], [xa + xm, 0], [xa + xm, (z1 + w / 2) * sg], [xl, (z1 + w / 2) * sg]];
+  // flight 2 ends this far behind the start of flight 1: on the floors in between a plate closes that bit of the opening (#229)
+  const gap = xl < -1e-9 ? flip(rect(xl, 0, -w / 2, w / 2)) : null;
+  return { treads, hole, arrow, gap };
 }
 
-/** tread counts: T treads in total; L/U stairs split into flight 1 (n1), landing and flight 2 (n2) */
+/** tread counts: T treads in total (per storey for straight, L and U stairs, #229); L/U stairs split into flight 1 (n1), landing and flight 2 (n2) */
 export function stairCounts(st, H) {
-  const T = stairSteps(H * stairFloors(st)).n - 1, n1 = Math.floor((T - 1) / 2);
+  const T = stairSteps(H * (perStorey(st) ? 1 : stairFloors(st))).n - 1, n1 = Math.floor((T - 1) / 2);
   return { T, n1, n2: T - 1 - n1 };
 }
 /** length of the (first) run in metres, null for spiral stairs */

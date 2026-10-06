@@ -380,7 +380,7 @@ export function createPlan(ctx) {
       const g = stairLocal(st, H3);
       const col = isSel ? C.sel : ghost ? 'rgba(150,190,255,.6)' : C.accent;
       let out = '';
-      g.treads.forEach((t) => { out += `<polygon points="${pts(polyToWorld(st, t.poly))}" fill="${ghost ? 'none' : 'rgba(35,224,255,.10)'}" stroke="${col}" stroke-width="1"${ghost ? ' stroke-dasharray="3 3"' : ''}/>`; });
+      g.treads.filter((t) => !t.storey).forEach((t) => { out += `<polygon points="${pts(polyToWorld(st, t.poly))}" fill="${ghost ? 'none' : 'rgba(35,224,255,.10)'}" stroke="${col}" stroke-width="1"${ghost ? ' stroke-dasharray="3 3"' : ''}/>`; });
       const ar = g.arrow.map(([lx, lz]) => toWorld(st, lx, lz));
       out += `<polyline points="${pts(ar)}" fill="none" stroke="${col}" stroke-width="1.6"/>`;
       const a = ar[ar.length - 2], b = ar[ar.length - 1];

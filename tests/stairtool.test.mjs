@@ -8,21 +8,26 @@ const St = await import(`${process.env.STATIC_DIR || '/tmp/static'}/stairs.js`);
 const H = 3.0;
 const base = { ...St.stairDefaults('U'), type: 'U', x: 0, z: 0, rot: 0, dir: 'up', turn: 'right' };
 
-test('shaft: four corners around the stair, the stair sits in the middle', () => {
+test('shaft: four corners around the stair, stair and landing sit in the middle', () => {
   const p = S.shaftPlan(base, H, 0.2, 0, 10, 5);
   assert.equal(p.corners.length, 4);
   const xs = p.corners.map((c) => c[0]), zs = p.corners.map((c) => c[1]);
   assert.ok(Math.abs((Math.min(...xs) + Math.max(...xs)) / 2 - 10) < 0.06 && Math.abs((Math.min(...zs) + Math.max(...zs)) / 2 - 5) < 0.06);
   const placed = { ...base, ...p.stair }, lb = St.stairBounds(placed, H);         // local bounds, turned into the world
+  lb.x0 -= Math.max(St.FLOOR_LANDING, base.w);                                    // with the landing in front of the stair (#229)
   const w = [[lb.x0, lb.z0], [lb.x1, lb.z0], [lb.x1, lb.z1], [lb.x0, lb.z1]].map(([x, z]) => St.toWorld(placed, x, z));
   const mx = (Math.min(...w.map((q) => q[0])) + Math.max(...w.map((q) => q[0]))) / 2, mz = (Math.min(...w.map((q) => q[1])) + Math.max(...w.map((q) => q[1]))) / 2;
   assert.ok(Math.abs(mx - 10) < 0.01 && Math.abs(mz - 5) < 0.01, `${mx},${mz}`);
 });
-test('shaft: walls keep clear space around the stair (0.2 m + half a wall thickness)', () => {
+test('shaft: walls keep clear space around the stair (0.2 m + half a wall thickness) and a landing in front of it (#229)', () => {
   const p = S.shaftPlan(base, H, 0.3, 0, 0, 0);
   const b = St.stairBounds({ ...base, ...p.stair }, H);
   const w = Math.max(...p.corners.map((c) => c[0])) - Math.min(...p.corners.map((c) => c[0]));
-  assert.ok(Math.abs(w - ((b.x1 - b.x0) + 2 * (0.2 + 0.15))) < 0.12, `${w} vs ${(b.x1 - b.x0)}`);
+  const land = Math.max(St.FLOOR_LANDING, base.w);
+  assert.ok(Math.abs(w - ((b.x1 - b.x0) + land + 2 * (0.2 + 0.15))) < 0.12, `${w} vs ${(b.x1 - b.x0)}`);
+  const [c3, c0] = [p.corners[3], p.corners[0]];                                // the wall with the door: at the landing, before the start of the stair
+  assert.equal(c3[0], c0[0]);
+  assert.ok(c0[0] < p.stair.x - land + 0.01 && c0[0] > p.stair.x - land - 0.9, `${c0[0]} vs ${p.stair.x}`);
 });
 test('shaft: corners are on the 5 cm grid', () => {
   const p = S.shaftPlan(base, H, 0.2, 37, 3.141, 2.718);

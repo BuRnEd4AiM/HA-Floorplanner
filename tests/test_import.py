@@ -572,6 +572,15 @@ def test_wall_stair_landing_length_survives_import_and_export_and_matches_stairs
     assert back["landing"] == 1.2
 
 
+def test_l_and_u_stair_landing_survives_import_and_export_straight_has_none():
+    layout, _, rep, _ = importer.build_layout(_stairs_spec([{"type": "U", "x": 0, "z": 0, "landing": 0.8}, {"type": "L", "x": 4, "z": 0, "landing": 0.5},
+                                                           {"type": "straight", "x": 8, "z": 0, "landing": 1}]))
+    u, l, s = layout["floors"][0]["stairs"]
+    assert u["landing"] == 0.8 and l["landing"] == 0.5 and "landing" not in s and not rep.errors
+    back = importer.layout_to_property(layout)["building"]["floors"][0]["stairs"]
+    assert [b.get("landing") for b in back] == [0.8, 0.5, None]
+
+
 def test_bridge_height_difference_survives_import_and_export():
     layout, _, rep, _ = importer.build_layout(_prop([{"type": "bridge", "x": 4, "z": 2, "y": 0, "len": 3, "rise": -0.35}]))
     assert not rep.errors and layout["floors"][0]["devices"][0]["rise"] == -0.35
