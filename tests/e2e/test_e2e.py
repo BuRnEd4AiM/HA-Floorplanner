@@ -712,6 +712,9 @@ with sync_playwright() as p:
     pg10.click("#modeSwitch button[data-mode=live]"); pg10.wait_for_timeout(600)
     pg10.evaluate("window.__fp.fakeState('person.anna', 'home'); window.__fp.rebuild()"); pg10.wait_for_timeout(300)
     here = pg10.evaluate("window.__fp.isShown('pr1')"); dot = pg10.locator("#roomMenu .pill.occupied").count()
+    sp = pg10.evaluate("window.__fp.screenOf('pr1')")
+    ph = pg10.evaluate(f"window.__fp.liveHitAt({sp['x']}, {sp['y']})") if sp else None
+    check("presence (#234): the figure takes no tap in live mode", sp is not None and (ph or {}).get("id") != "pr1", (sp, ph))
     pg10.evaluate("window.__fp.fakeState('person.anna', 'not_home'); window.__fp.rebuild()"); pg10.wait_for_timeout(300)
     away = pg10.evaluate("window.__fp.isShown('pr1')"); dot2 = pg10.locator("#roomMenu .pill.occupied").count()
     check("presence: person shows with a dot on the room while home, hides when away", here is True and dot == 1 and away is False and dot2 == 0, (here, dot, away, dot2))
@@ -1420,6 +1423,11 @@ with sync_playwright() as p:
     c1 = pg13.evaluate("window.__fp.coneScreen('tcam')")
     check("the cone moves along when the camera is moved", c1 and abs(c1["x"] - c0["x"]) + abs(c1["y"] - c0["y"]) > 8, (c0, c1))
     pg13.evaluate(f"window.__fp.moveDevice('tcam', {cam0['x']}, {cam0['z']})"); pg13.wait_for_timeout(300)
+    cc = pg13.evaluate("window.__fp.coneScreen('tcam')")
+    pg13.click('[data-mode="live"]'); pg13.wait_for_timeout(600)
+    hc = pg13.evaluate(f"window.__fp.liveHitAt({cc['x']}, {cc['y']})") if cc else None
+    check("camera cone (#234): no hit box in live mode, only the camera itself", cc is not None and (hc or {}).get("id") != "tcam", (cc, hc))
+    pg13.click('[data-mode="edit"]'); pg13.wait_for_timeout(600)
     pg13.evaluate("() => { window.__fp.layout.floors[window.__fp.floorIdx()].devices.find(d => d.id === 'tcam').fov = 0; window.__fp.rebuild(); }"); pg13.wait_for_timeout(300)
     check("field of view 0 means no cone", pg13.evaluate("window.__fp.coneScreen('tcam')") is None)
     pg13.click('[data-mode="live"]'); pg13.wait_for_timeout(800)
