@@ -1,6 +1,6 @@
 {
- "version": "3.48.0",
- "buildHash": "f726dbf1246e9978a747917ea871ed0dd0345ce033e26cfb34f16168a15af931",
+ "version": "3.48.1",
+ "buildHash": "d004ec44d6fdd3ab2989a350522742b878d5c6fe644e563160693804faef0c0a",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "4af8c83f0ba5e116f928f7a1b5f6ee791fec76cfa3745165139211ef66bbc000",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "d1c1de562153175bc4e73b78eda8d56ffd0ae776165c2feadf64005d53614171",
-  "static/app.js": "ff096d58f03eb9f0ddad7713d04d2e1d966d49eb6adaf0aa2595713c6945d0ae",
+  "static/app.js": "d237ce29c7ca7f0f23e01eefe637ed882534fbe980a0086874a92779ba0c5fcf",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/background.js": "6ccd7fd8e2e076b02317a864f0957ebe16af4faac9c9dacda16ae11b6e86b172",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
@@ -166,6 +166,7 @@
   "static/lang/pl.js": "46251f71f47ab70a33c7e7f3f45747aca34f9643ba909d70853367acb08199b6",
   "static/layoutnorm.js": "4d97bc7ab7697ae6d9bedaa492f3752aad91b70f1d82f94f835b607b47c21729",
   "static/ledring.js": "a0aa23175923ee6203daca80c6f1d4e5fca141cdf255f5ff9f438ae2f10f4fc5",
+  "static/livechannel.js": "43266b3eab86bee640f35b86513a9e43203deb43365ebc0fe901751f9052ccce",
   "static/livecontrols.js": "87c466e29043c16d02cf62128d332318a1c928a483a54cdcb5aa8d183ae39e5b",
   "static/livepopup.js": "7bad5c847b7a5f2bc61436c5b8013ec1d533126ff0b600973eae87c20090508c",
   "static/modelfx.js": "5b66124084f2d7231afeb3c14d7aaffc7ebfdd85cade256c72dbab348fc9838f",

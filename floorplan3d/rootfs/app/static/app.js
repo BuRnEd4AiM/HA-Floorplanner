@@ -61,6 +61,7 @@ import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors, storeysSho
 import { skipInLive } from './pickrules.js';
 import { floorLabels } from './viewprefs.js';
 import { initTapBalls } from './tapballs.js';
+import { initLiveChannel } from './livechannel.js';
 import { pointInPoly, inIso, clipWallToRoom } from './roomclip.js';
 import { HOLO, addPickProxy, underFloors, holoify as holoifyModel } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
@@ -107,7 +108,6 @@ let is2d = false;                  // legacy top-down camera flag (the real 2D e
 let plan = null;                   // 2D blueprint editor
 let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null, view: 'all' };
-let lastStateSig = '';
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 const undoStack = [];
 let saveTimer = null;
@@ -1366,7 +1366,7 @@ window.addEventListener('keydown', (e) => {
 /* ================= Live control: the code lives in livecontrols.js (switching, light controls, scenes), livepopup.js and roompanel.js ================= */
 const live = initLiveControls({
   t, states: () => states, entities: () => entities, areas: () => areas, floor: () => floor(), entityDevices: (f) => entityDevices(f), pointInPoly,
-  onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveOk) setTimeout(pollStates, 400); },   // with the live channel the new state arrives by itself
+  onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveChan.ok()) setTimeout(liveChan.poll, 400); },   // with the live channel the new state arrives by itself
   canEdit: () => me.canEdit, settings: () => settings, saveEffectColors: () => saveEffectColors(), canMoreInfo, openMoreInfo,
 });
 const popup = initLivePopup({
@@ -1782,52 +1782,12 @@ async function loadAreas() {
 
 function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 
-/* ---- Live channel: the add-on pushes every state change the moment Home Assistant reports it (a wall switch, an
-   automation, a sensor). While it is up, the full list is only fetched once a minute to stay in step; while it is
-   down (Home Assistant restarting, no websocket through a proxy) the view polls every 4 seconds as before. ---- */
-let liveOk = false, liveRetry = 1000, lastFull = 0, liveRaf = 0;
-function connectLive() {
-  if (window.__fpNoLive) return;                         // the single-file demo has no server to talk to
-  let ws;
-  try { const u = new URL('api/live', location.href); u.protocol = u.protocol === 'https:' ? 'wss:' : 'ws:'; ws = new WebSocket(u); } catch { return; }
-  ws.onopen = () => { liveRetry = 1000; };
-  ws.onmessage = (m) => {
-    let d;
-    try { d = JSON.parse(m.data); } catch { return; }
-    if (d.type === 'upstream') { const was = liveOk; liveOk = !!d.ok; if (liveOk && !was) pollStates(); }   // catch up on what changed before the channel was up
-    else if (d.type === 'states') applyLive(d);
-  };
-  ws.onclose = () => { liveOk = false; setTimeout(connectLive, liveRetry); liveRetry = Math.min(30000, liveRetry * 2); };
-}
-function applyLive({ list = [], removed = [] }) {
-  if (!entities.length) return;                         // the first full list is still on its way and brings these too
-  list.forEach((e) => {
-    states[e.entity_id] = toState(e);
-    const i = entities.findIndex((x) => x.entity_id === e.entity_id);
-    if (i >= 0) entities[i] = e; else entities.push(e);
-  });
-  removed.forEach((id) => { delete states[id]; entities = entities.filter((x) => x.entity_id !== id); });
-  wake();
-  if (!liveRaf) liveRaf = requestAnimationFrame(() => { liveRaf = 0; applyStates(); renderRoomEntities(); renderEntState(); });
-}
-
-async function pollStates() {
-  try {
-    const r = await fetch('api/entities');
-    if (!r.ok) return;
-    const list = await r.json();
-    if (!Array.isArray(list)) return;
-    const firstLoad = !entities.length;
-    const sig = JSON.stringify(list.map((e) => [e.entity_id, e.state, e.brightness, e.rgb, e.fxc, e.position]));
-    if (sig !== lastStateSig) { lastStateSig = sig; wake(); }
-    entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, toState(e)]));
-    lastFull = Date.now();
-    if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
-    applyStates();
-    renderRoomEntities(); renderEntState();
-  } catch { /* offline: ignore */ }
-}
+/* ---- Live channel: pushed state changes, polling while it is down; the code lives in livechannel.js ---- */
+const liveChan = initLiveChannel({
+  entities: () => entities, setEntities: (x) => { entities = x; }, states: () => states, setStates: (x) => { states = x; }, toState: (e) => toState(e),
+  wake: () => wake(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); },
+  firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
+});
 
 /** the add-on's "Erdgeschoss" of a new house in the user's language; every list of the plan in place (layoutnorm.js) */
 function localizeDefaults() { localizeDefaultsOf(layout, t('floor.default')); }
@@ -1881,9 +1841,7 @@ async function init() {
     if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); roomPanel.open(hit.room.id); }
     updateHouseToggle();
   }
-  pollStates();
-  connectLive();
-  setInterval(() => { if (!liveOk || Date.now() - lastFull > 60000) pollStates(); }, 4000);
+  liveChan.start();                                         // first full list, the live channel, polling while it is down
 }
 
 var lastActive = performance.now(), lastFrame = 0;
@@ -1953,7 +1911,7 @@ if (params.get('debug')) {
     rebuild: () => build(), applyStates: () => applyStates(),
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
-    liveOk: () => liveOk,
+    liveOk: () => liveChan.ok(),
     underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },
     bounds: () => floorBounds(), roofBox: (i) => roofBox(i),
     switchFloor: (i) => switchFloor(i),

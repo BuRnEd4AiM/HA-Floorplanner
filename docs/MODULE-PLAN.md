@@ -77,6 +77,7 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `labels.js` | ~50 | Text im 3D-Bild: Raumname, Wert-Pille am Gerät, leuchtendes Strom-Schild (Schritt 24) |
 | `pickrules.js` | ~15 | Was ein Tipp im Live-Modus treffen darf (#234): keine Türen/Fenster, kein Kamera-Kegel, keine Anwesenheit; reine Logik mit Unit-Tests |
 | `viewprefs.js` | ~75 | Voreinstellungen pro Benutzer/Tablet (#250: starten, nie als allgemeine Einstellung speichern) und Schilder der Etagen darunter (#249); reine Logik mit Unit-Tests |
+| `livechannel.js` | ~75 | Live-Kanal (Schritt 22, Teil 1): vom Add-on geschobene Zustände, Abfrage alle 4 s solange er fehlt, sonst einmal pro Minute; Zusammenführen und Fingerabdruck mit Unit-Tests |
 | `planview.js` | ~50 | 2D-Plan dreht mit der 3D-Ansicht (#212): Winkel aus der Kamera, Punkte drehen, lesbare Schrift; Schalter |
 | `placement.js` | ~60 | Platzieren (Schritt 22): Einrasten an Raster und Wandecken, Wandgeräte flach an die Wand, LED-Ring um den Raum; Wandgeräte-Liste; reine Rechnung mit Unit-Tests |
 | `nav.js` | ~150 | Navigation (Schritt 21): Etagen-Knöpfe, Zimmer-Menü, Scroll-Pfeile, Raum-Knopf am Tablet, Bildausschnitt für Etage / Haus / Wandmitte; reine Teile mit Unit-Tests |
@@ -91,7 +92,7 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 | ---: | --- | ---: | --- | --- |
 | 20 | **Zeichnen, Auswählen, Zeigerereignisse** (Fangen, Ziehen, Werkzeuge) | ~475 | `pointer.js`, `tools.js` | hoch |
 | 21 | **3D-Aufbau**: `build` selbst (~210; Hologramm, Trefferboxen und Schilder sind schon in `modelfx.js` / `labels.js`) | ~210 | `scene.js` | hoch |
-| 22 | **Zustand, Rückgängig, Speichern, Datenladen, Live-Kanal** | ~80 + ~25 + ~150 | `state.js`, `data.js` | hoch |
+| 22 | **Zustand, Rückgängig, Speichern, Datenladen** (der Live-Kanal ist schon in `livechannel.js`) | ~80 + ~25 + ~100 | `state.js`, `data.js` | hoch |
 
 ## Vorgehen je Schritt
 
