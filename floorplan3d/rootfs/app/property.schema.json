@@ -146,7 +146,7 @@
      "minimum": 1,
      "maximum": 6,
      "default": 1,
-     "description": "How many floors the stair climbs. A spiral makes one turn per floor."
+     "description": "How many floors the stair climbs. Straight, L and U stairs repeat on every storey, so they arrive on each floor; a spiral makes one turn per floor."
     },
     "name": {
      "type": "string"
@@ -164,7 +164,7 @@
      "type": "number",
      "minimum": 0,
      "maximum": 3,
-     "description": "Only for type 'wall': after every bend the stair stays flat for this many metres (default 0: only the corner)."
+     "description": "Type 'wall': after every bend the stair stays flat for this many metres (default 0: only the corner). Types 'L' and 'U': the landing at the turn is this many metres deeper (default 0: as wide as the stair)."
     }
    }
   },

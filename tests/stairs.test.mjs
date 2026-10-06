@@ -69,17 +69,51 @@ test('size handles sit at the end of the run and at its side', () => {
 });
 
 /* ---- several floors ---- */
-for (const type of ['straight', 'L', 'U', 'spiral']) {
-  test(`${type}: a stair over 2 floors climbs exactly 2 floors in rising steps`, () => {
-    const st = { ...S.stairDefaults(type), floors: 2 };
-    const { treads } = S.stairLocal(st, H);
-    const { n, rise } = S.stairSteps(2 * H);
-    assert.equal(treads.length, n - 1);
-    near(treads[treads.length - 1].top, (n - 1) * rise);
-    near(n * rise, 2 * H);
-    for (let i = 1; i < treads.length; i++) assert.ok(treads[i].top > treads[i - 1].top);
+test('spiral: a stair over 2 floors climbs exactly 2 floors in rising steps', () => {
+  const st = { ...S.stairDefaults('spiral'), floors: 2 };
+  const { treads } = S.stairLocal(st, H);
+  const { n, rise } = S.stairSteps(2 * H);
+  assert.equal(treads.length, n - 1);
+  near(treads[treads.length - 1].top, (n - 1) * rise);
+  near(n * rise, 2 * H);
+  for (let i = 1; i < treads.length; i++) assert.ok(treads[i].top > treads[i - 1].top);
+});
+for (const type of ['straight', 'L', 'U']) {
+  test(`${type} over 2 floors (#229): the same stair again one floor higher, so it arrives on the floor in between`, () => {
+    const one = S.stairLocal({ ...S.stairDefaults(type) }, H).treads, two = S.stairLocal({ ...S.stairDefaults(type), floors: 2 }, H).treads;
+    const steps = two.filter((t) => t.storey !== 1 || t.thin > S.SLAB);         // without the plate that closes a gap on the floor in between
+    assert.equal(steps.length, 2 * one.length);
+    const { rise } = S.stairSteps(H);
+    near(one[one.length - 1].top, H - rise);                                   // the first storey ends one step below the floor in between ...
+    near(steps[one.length].top, H + rise);                                     // ... and the second starts one step above it, at the same spot
+    assert.deepEqual(steps[one.length].poly, one[0].poly);
+    near(steps[steps.length - 1].top, 2 * H - rise);
+    for (let i = 1; i < two.length; i++) assert.ok(two[i].top > two[i - 1].top);
+    assert.ok(two.filter((t) => t.storey === 1).every((t) => t.thin > 0 && t.thin <= rise + S.SLAB + 1e-9));   // upper storey: a slab, not solid down to the floor
+    assert.deepEqual(S.stairLocal({ ...S.stairDefaults(type), floors: 2 }, H).hole, S.stairLocal({ ...S.stairDefaults(type) }, H).hole);
+    const c1 = S.stairCounts({ type }, H), c2 = S.stairCounts({ type, floors: 2 }, H);
+    assert.deepEqual(c1, c2);                                                   // counts and length are those of one storey
   });
 }
+test('U over 2 floors (#229): where flight 2 ends behind the start, a plate at floor level closes the gap', () => {
+  const st = { ...S.stairDefaults('U'), floors: 2 };
+  const { n1, n2 } = S.stairCounts(st, H);
+  const plates = S.stairLocal(st, H).treads.filter((t) => t.thin === S.SLAB);
+  if (n2 > n1) { assert.equal(plates.length, 1); near(plates[0].top, H); } else assert.equal(plates.length, 0);
+});
+test('landing at the turn (#229): L and U get a deeper landing, flight 2 moves on by as much', () => {
+  for (const type of ['L', 'U']) {
+    const a = S.stairLocal({ ...S.stairDefaults(type) }, H), b = S.stairLocal({ ...S.stairDefaults(type), landing: 0.8 }, H);
+    const { n1 } = S.stairCounts({ type }, H);
+    const size = (t) => { const xs = t.poly.map((p) => p[0]), zs = t.poly.map((p) => p[1]); return [Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs)]; };
+    const la = size(a.treads[n1]), lb = size(b.treads[n1]);
+    near(lb[0] * lb[1] - la[0] * la[1], 0.8 * (type === 'L' ? la[0] : la[1]));
+    assert.equal(a.treads.length, b.treads.length);
+  }
+  const l0 = S.stairLocal({ ...S.stairDefaults('L') }, H).treads.at(-1).poly, l1 = S.stairLocal({ ...S.stairDefaults('L'), landing: 0.8 }, H).treads.at(-1).poly;
+  near(l1[0][1] - l0[0][1], 0.8);
+  near(S.stairLocal({ ...S.stairDefaults('straight'), landing: 2 }, H).hole[1][0], S.stairLocal({ ...S.stairDefaults('straight') }, H).hole[1][0]);   // a straight stair has no turn
+});
 test('floors is limited to 1..6 and defaults to 1', () => {
   assert.equal(S.stairFloors({}), 1);
   assert.equal(S.stairFloors({ floors: 0 }), 1);
