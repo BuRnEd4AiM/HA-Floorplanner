@@ -4,9 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Heute zu Hause prüfen (Stand 3.47.0)
+## Heute zu Hause prüfen (Stand 3.48.0)
 
-Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.47.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
+Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.48.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
 
 **A. Live-Modus** (oben „Live“ drücken)
 1. Über jeder Lampe, Kamera, dem Fernseher, Rollladen-Schalter usw. schwebt eine **größere Kugel mit kleinem Symbol** (💡 🪟 📷 📺 🌡 …). Unter Deckenlampen hängt sie **darunter**. Kugeln, die dicht beieinander liegen, rücken etwas auseinander und **verdecken sich nicht** (auch nicht die Wert-Schilder).
@@ -31,6 +31,8 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 13. **Strom-Editor** einschalten, dann ein anderes Werkzeug wählen: der Knopf „Strom-Editor“ **bleibt blau**.
 14. Im Kamera-/Offline-Menü oder bei „n offen“ einen Eintrag wählen: die Kamera **fliegt hin** (wie bei der Suche).
 15. **Mehrere löschen** (Bearbeiten, Werkzeug „Auswählen“, 2D oder 2D + 3D): **Strg** (oder Shift) gedrückt halten und mehrere Dinge anklicken, sie bekommen einen grünen Rahmen. Oder **Strg/Shift gedrückt halten und ziehen**: ein grüner Rahmen, alles darin wird ausgewählt. Dann **Entf** drücken (oder rechts „Alle n löschen“): alles weg. **Strg+Z** holt alles zurück.
+16. **Schilder der Etagen darunter** (#249): eine obere Etage öffnen, unten „Ansicht“ → **„Schilder darunter“** ausschalten: die Raumnamen und Werte-Schilder der Etagen darunter verschwinden. „Ganzes Haus“ zeigt trotzdem alles. Wieder einschalten: sie sind zurück. (Auch im Zahnrad unter „Aussehen“.)
+17. **Voreinstellungen pro Benutzer/Tablet** (#250): oben „Benutzer“ → bei einem Benutzer **„⚙ Voreinstellungen“** → z. B. „Wände zur Kamera: Durchsichtig“ wählen. Der Knopf zeigt dann „⚙ 1 gesetzt“. Mit diesem Benutzer (Tablet) angemeldet startet die Ansicht so. Bei dir selbst ändert sich nichts. (In der Demo-Datei gibt es nur einen Benutzer: hier nur prüfen, dass das Kästchen aufgeht und sich merkt, was du wählst.)
 
 Ausführlicher stehen die Punkte in den Abschnitten **28 bis 31** weiter unten.
 

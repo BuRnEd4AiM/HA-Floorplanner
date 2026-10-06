@@ -71,6 +71,7 @@ DEFAULT_SETTINGS = {
     "nightFrom": "22:00",
     "nightTo": "06:00",
     "belowMode": "dim",        # floors below the open one: dim (see-through, belowVisibility) | stacked (clearly visible) | hidden
+    "belowLabels": True,       # room names and value labels of the floors below the open one (#249)
     "belowVisibility": 0.5,    # how clearly floors below the current one shine through (0.05..1)
     "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
     "glowRadius": 3.5,         # metres a lamp lights up
@@ -80,6 +81,7 @@ DEFAULT_SETTINGS = {
     "userRooms": {},           # Home Assistant user name -> room name (one tablet per room)
     "effectColors": {},        # light effect / scene name -> display colour (HA does not report what an effect looks like)
     "userViews": {},           # Home Assistant user name -> 3d | 2d | split | all (what that user sees in live mode)
+    "userPresets": {},         # Home Assistant user name -> its own start values for the look (PRESET_FIELDS, #250)
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
@@ -93,6 +95,25 @@ DEFAULT_SETTINGS = {
 }
 RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0), "backupEveryHours": (1.0, 720.0), "backupKeepDays": (1.0, 3650.0), "backupKeepCount": (1.0, 500.0)}
 VIEWS = ("3d", "2d", "split", "all")
+# what a user preset may set and the values allowed (the same list as PRESET_FIELDS in static/viewprefs.js, #250)
+PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWalls": (True, False),
+                 "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False)}
+
+
+def clean_presets(val) -> dict:
+    """{user: {field: value}}: at most 50 users, only known fields with allowed values, users without any field dropped."""
+    if not isinstance(val, dict):
+        return {}
+    out = {}
+    for user, preset in list(val.items())[:50]:
+        if not str(user) or not isinstance(preset, dict):
+            continue
+        clean = {k: v for k, v in preset.items() if k in PRESET_FIELDS and any(type(v) is type(a) and v == a for a in PRESET_FIELDS[k])}   # 1 never counts as True
+        if clean:
+            out[str(user)[:80]] = clean
+    return out
+
+
 HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 EMPTY_LAYOUT = {
     "version": 1,
@@ -203,7 +224,9 @@ async def get_me(request):
     edit = await can_edit(request)
     views = read_settings(request).get("userViews", {})
     view = next((v for k, v in views.items() if str(k).strip().lower() in user["ids"] and v in VIEWS), "3d") if isinstance(views, dict) else "3d"
-    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view,
+    presets = clean_presets(read_settings(request).get("userPresets", {}))
+    preset = next((v for k, v in presets.items() if k.strip().lower() in user["ids"]), {})
+    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset,
                               "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
 
 
@@ -357,7 +380,9 @@ def validate_settings(data: dict) -> dict:
         if key not in data:
             continue
         val = data[key]
-        if isinstance(default, dict):
+        if key == "userPresets":
+            out[key] = clean_presets(val)
+        elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
         elif isinstance(default, list):
@@ -451,13 +476,14 @@ def read_users_file(request) -> dict | None:
     data = read_json(users_file(request), None)
     if not isinstance(data, dict):
         return None
-    clean = validate_settings({"userRooms": data.get("userRooms"), "userViews": data.get("userViews")})
-    return {"userRooms": clean["userRooms"], "userViews": clean["userViews"]}
+    clean = validate_settings({"userRooms": data.get("userRooms"), "userViews": data.get("userViews"), "userPresets": data.get("userPresets")})
+    return {"userRooms": clean["userRooms"], "userViews": clean["userViews"], "userPresets": clean["userPresets"]}
 
 
 def write_users_file(request, settings: dict) -> bool:
     """Mirror the users and tablets into the config folder (a readable file); never lets a settings save fail."""
-    payload = {"version": 1, "userRooms": settings.get("userRooms", {}), "userViews": settings.get("userViews", {})}
+    payload = {"version": 1, "userRooms": settings.get("userRooms", {}), "userViews": settings.get("userViews", {}),
+               "userPresets": settings.get("userPresets", {})}
     try:
         write_json_atomic(users_file(request), payload)
         return True
@@ -474,7 +500,7 @@ async def seed_users_file(app: web.Application) -> None:
     stored = read_json(app[KEY_DATA] / "settings.json", None)
     if isinstance(stored, dict):
         clean = validate_settings(stored)
-        if clean["userRooms"] or clean["userViews"]:
+        if clean["userRooms"] or clean["userViews"] or clean["userPresets"]:
             write_users_file(shim, clean)
 
 
@@ -483,8 +509,8 @@ async def get_users_file(request):
         return forbidden()
     file = read_users_file(request)
     cur = validate_settings(read_settings(request))
-    mine = {"userRooms": cur["userRooms"], "userViews": cur["userViews"]}
-    names = lambda d: set(d["userRooms"]) | set(d["userViews"])
+    mine = {"userRooms": cur["userRooms"], "userViews": cur["userViews"], "userPresets": cur["userPresets"]}
+    names = lambda d: set(d["userRooms"]) | set(d["userViews"]) | set(d["userPresets"])
     return web.json_response({"file": USERS_FILE, "exists": file is not None, "fileUsers": len(names(file)) if file else 0,
                               "users": len(names(mine)), "inSync": file == mine})
 

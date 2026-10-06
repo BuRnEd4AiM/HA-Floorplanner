@@ -7,6 +7,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.48.0] - 2026-10-07
+### Added
+- **Hide the labels of the floors below (#249)**: looking at one floor, the room names and value labels of the floors below can be left out so they no longer overlap the open floor: in the settings ("Show names and labels of the floors below") or quickly in the "View" menu ("Labels below"). The whole-house view always shows everything.
+- **View presets per user / tablet (#250)**: in the users dialog every user row has a "⚙ Presets" button with its own start values for the look: walls facing the camera (see-through or lower), Auto, all walls low or high, value badges, floors below and their labels. "Default" keeps the general setting. A preset applies only in that user's browser and is never saved as the settings of everybody (unless that user changes the field on purpose); it is mirrored to `users.json` with the tablets. `viewprefs.js` with tests, checked on the server too.
+
 ## [3.47.0] - 2026-10-06
 ### Added
 - **Several things at once, easier (#247)**: Ctrl + click (Cmd on a Mac) now adds things to the selection just like Shift + click, in 2D and 3D. In the 2D plan, Shift or Ctrl + drag from any spot draws a frame: everything that lies wholly inside it joins the selection; Delete (or "Delete all") then removes them all in one undo step. `boxItems` and `addMulti` in `multisel.js` with tests.

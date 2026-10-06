@@ -59,6 +59,7 @@ import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors, storeysShown } from './stairs.js';
 import { skipInLive } from './pickrules.js';
+import { floorLabels } from './viewprefs.js';
 import { initTapBalls } from './tapballs.js';
 import { pointInPoly, inIso, clipWallToRoom } from './roomclip.js';
 import { HOLO, addPickProxy, underFloors, holoify as holoifyModel } from './modelfx.js';
@@ -76,7 +77,7 @@ let settings = {
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, seeThrough: false, placeSelect: true, updateCheck: true, autoBackup: false, backupEveryHours: 24, backupKeepDays: 14, backupKeepCount: 30, earth: 'solid', earthMargin: 5,
   alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
-  userRooms: {}, userViews: {}, belowVisibility: 0.5, belowMode: 'dim', bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
+  userRooms: {}, userViews: {}, userPresets: {}, belowVisibility: 0.5, belowMode: 'dim', belowLabels: true, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
   humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
   co2Stops: [{ v: 400, c: '#2ad0a0' }, { v: 800, c: '#ffd84a' }, { v: 1200, c: '#ff8a2a' }, { v: 2000, c: '#ff3a3a' }],
@@ -342,6 +343,7 @@ function build() {
     if (iso && i < floorIdx) return;            // no floors below while isolated
     if (!houseMode && settings.belowMode === 'hidden' && i < floorIdx) return;   // floors below hidden by choice
     const ghost = (i < floorIdx && !houseMode) || (houseMode && f.kind === 'basement' && settings.earth !== 'solid');   // with solid earth the cut shows the basement as it is
+    const labelsHere = floorLabels(settings, i, floorIdx, houseMode);   // the floors below can do without their names and labels (#249)
     const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * belowVis() : 0.95 }) : null;
     const g = new THREE.Group();
     g.position.y = elev(i);
@@ -389,7 +391,7 @@ function build() {
         registry.set(r.id, m); pickables.push(m);
       }
       {
-        if (r.name) {
+        if (r.name && labelsHere) {
           const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);
           const sp = textSprite(is2d ? `${r.name} · ${imperial() ? (polyArea(r.points) * 10.7639).toFixed(0) + ' ft²' : polyArea(r.points).toFixed(1) + ' m²'}` : r.name);
           sp.position.set(c[0], 0.45, c[1]);
@@ -495,7 +497,7 @@ function build() {
         pickables.push(cone);
       }
       {
-        if (wantsLabel(d)) {
+        if (wantsLabel(d) && labelsHere) {
           const sp = textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true });
           sp.position.set(d.x, (d.y || 0) + 0.3 + 0.2 * (d.scale || 1), d.z);
           if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * belowVis(); }
@@ -1519,6 +1521,7 @@ function updateNavToggles() {
   $('#wallToggle').classList.toggle('active', !lowWalls);
   $('#autoToggle').classList.toggle('active', !!settings.cutaway);
   $('#seeToggle').classList.toggle('active', !!settings.seeThrough);
+  $('#belowLabelsToggle').classList.toggle('active', settings.belowLabels !== false);
 }
 function setLowWalls(v) {
   lowWalls = v;
@@ -1640,6 +1643,10 @@ $('#autoToggle').addEventListener('click', () => {
 });
 $('#seeToggle').addEventListener('click', () => {
   $('#setSeeThrough').checked = !settings.seeThrough;
+  commitSettings();
+});
+$('#belowLabelsToggle').addEventListener('click', () => {                 // names and labels of the floors below (#249)
+  $('#setBelowLabels').checked = settings.belowLabels === false;
   commitSettings();
 });
 
@@ -1857,6 +1864,7 @@ async function init() {
   if (!me.canEdit) document.body.classList.add('readonly');
   if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
   if (!(await loadSettings())) setStatus(t('set.notLoaded'));
+  settingsStore.usePreset(me.preset);                     // this user's / tablet's own start values for the look (#250)
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
   await hs.load();

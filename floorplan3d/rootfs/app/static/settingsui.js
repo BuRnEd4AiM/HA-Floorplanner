@@ -1,8 +1,22 @@
 /* Settings dialog, the two table-like parts: the tablet assignments (user -> room and view) and the colour scales (temperature, humidity, CO2).
  * What a row list means is decided by pure functions (tested); initSettingsUi draws the rows and reads them back. The rest of the settings
  * (the simple fields, apply and save) stays in app.js. */
+import { cleanPreset, collectPresets } from './viewprefs.js';
 
 export const VIEW_OPTS = ['3d', '2d', 'split', 'all'];
+/** the preset fields of a user row (#250): field, its options [value, text key]; "Default" (no value) comes first */
+export const PRESET_UI = [
+  ['seeThrough', [[true, 'set.preset.see.yes'], [false, 'set.preset.see.no']]],
+  ['cutaway', [[true, 'set.preset.on'], [false, 'set.preset.off']]],
+  ['lowWalls', [[true, 'set.preset.low.yes'], [false, 'set.preset.low.no']]],
+  ['labelMode', [['important', 'set.labels.important'], ['all', 'set.labels.all'], ['none', 'set.labels.none']]],
+  ['belowMode', [['dim', 'set.belowMode.dim'], ['stacked', 'set.belowMode.stacked'], ['hidden', 'set.belowMode.hidden']]],
+  ['belowLabels', [[true, 'set.preset.show'], [false, 'set.preset.hide']]],
+];
+/** a preset read from the dropdowns [{ key, value }] (values are strings: '' = default, 'true' / 'false' for yes / no) */
+export function readPreset(fields) {
+  return cleanPreset(Object.fromEntries(fields.filter((f) => f.value !== '').map((f) => [f.key, f.value === 'true' ? true : f.value === 'false' ? false : f.value])));
+}
 
 /** rooms for the tablet dropdown of one house: { house, rooms: [{ name, floor }] }, top floor first, roofs and unnamed rooms left out */
 export function roomsByHouse(lay, houseName) {
@@ -11,13 +25,15 @@ export function roomsByHouse(lay, houseName) {
   return { house: houseName, rooms };
 }
 
-/** the users that have a room or a view, as [{ user, room, view }] (view defaults to 3d) */
+/** the users that have a room, a view or a preset, as [{ user, room, view, preset }] (view defaults to 3d, preset to {}) */
 export function tabletEntries(settings) {
-  const rooms = settings.userRooms || {}, views = settings.userViews || {};
-  return [...new Set([...Object.keys(rooms), ...Object.keys(views)])].map((user) => ({ user, room: rooms[user] || '', view: views[user] || '3d' }));
+  const rooms = settings.userRooms || {}, views = settings.userViews || {}, presets = settings.userPresets || {};
+  return [...new Set([...Object.keys(rooms), ...Object.keys(views), ...Object.keys(presets)])]
+    .map((user) => ({ user, room: rooms[user] || '', view: views[user] || '3d', preset: cleanPreset(presets[user]) }));
 }
 
-/** rows typed in the dialog [{ user, room, view }] -> { rooms, views }; rows without a user are dropped, "whole house" has no room entry */
+/** rows typed in the dialog [{ user, room, view, preset }] -> { rooms, views, presets }; rows without a user are dropped, "whole house" has
+ *  no room entry, an empty preset no preset entry */
 export function collectTablets(rows) {
   const rooms = {}, views = {};
   rows.forEach((r) => {
@@ -26,7 +42,7 @@ export function collectTablets(rows) {
     if (r.room) rooms[u] = r.room;
     views[u] = r.view;
   });
-  return { rooms, views };
+  return { rooms, views, presets: collectPresets(rows) };
 }
 
 /** colour stops typed in the dialog [{ v, c }] (v is a number or a string): sorted by value, rows without a number dropped; fewer than two -> fallback */
@@ -58,7 +74,22 @@ export function initSettingsUi(ctx) {
     const dl = $('#haUsers'); dl.replaceChildren();
     users.forEach((u) => { const o = document.createElement('option'); o.value = u.username; o.label = u.name; dl.append(o); });
   }
-  function tabletRow(user = '', room = '', view = '3d') {
+  /** the preset box of a user row (#250): one dropdown per field, "Default" leaves the general setting */
+  function presetBox(preset) {
+    const box = document.createElement('div'); box.className = 'presetBox'; box.hidden = true;
+    PRESET_UI.forEach(([key, opts]) => {
+      const lab = document.createElement('label'); lab.textContent = t(`set.preset.${key}`);
+      const sel = document.createElement('select'); sel.dataset.preset = key;
+      sel.add(new Option(t('set.preset.default'), ''));
+      opts.forEach(([v, k]) => sel.add(new Option(t(k), String(v))));
+      sel.value = key in preset ? String(preset[key]) : '';
+      lab.append(sel); box.append(lab);
+    });
+    return box;
+  }
+  const openBoxes = new Set();                 // users whose preset box is open (the rows are drawn again after every change)
+  const presetCount = (box) => [...box.querySelectorAll('select')].filter((x) => x.value !== '').length;
+  function tabletRow(user = '', room = '', view = '3d', preset = {}) {
     const row = document.createElement('div'); row.className = 'stop tablet';
     const u = document.createElement('input'); u.type = 'text'; u.value = user; u.dataset.role = 'user'; u.placeholder = t('set.tabletUser'); u.setAttribute('list', 'haUsers');
     const sel = document.createElement('select'); sel.dataset.role = 'room';
@@ -77,17 +108,27 @@ export function initSettingsUi(ctx) {
     vs.value = VIEW_OPTS.includes(view) ? view : '3d';
     const del = document.createElement('button'); del.type = 'button'; del.textContent = '×';
     del.addEventListener('click', () => { row.remove(); ctx.commit(); });
-    row.append(u, sel, vs, del);
+    const box = presetBox(preset);
+    const gear = document.createElement('button'); gear.type = 'button'; gear.className = 'presetBtn';
+    const label = () => { const n = presetCount(box); gear.textContent = n ? `⚙ ${n}` : '⚙'; gear.title = `${t('set.presetTip')}${n ? ` (${t('set.preset.count', { n })})` : ''}`; gear.classList.toggle('active', n > 0); };
+    gear.addEventListener('click', () => { box.hidden = !box.hidden; if (box.hidden) openBoxes.delete(u.value.trim()); else openBoxes.add(u.value.trim()); });
+    if (openBoxes.has(user)) box.hidden = false;                     // stays open while the dialog saves and draws the rows again
+    box.addEventListener('change', label);
+    label();
+    const main = document.createElement('div'); main.className = 'tabletMain';
+    main.append(u, sel, vs, gear, del);
+    row.append(main, box);
     return row;
   }
   function renderTablets() {
     const box = $('#tabletRows');
     box.replaceChildren();
-    tabletEntries(ctx.settings()).forEach((e) => box.append(tabletRow(e.user, e.room, e.view)));
+    tabletEntries(ctx.settings()).forEach((e) => box.append(tabletRow(e.user, e.room, e.view, e.preset)));
   }
   function readTablets() {
     return collectTablets([...document.querySelectorAll('#tabletRows .tablet')].map((r) => ({
-      user: r.querySelector('[data-role=user]').value, room: r.querySelector('[data-role=room]').value, view: r.querySelector('[data-role=view]').value })));
+      user: r.querySelector('[data-role=user]').value, room: r.querySelector('[data-role=room]').value, view: r.querySelector('[data-role=view]').value,
+      preset: readPreset([...r.querySelectorAll('[data-preset]')].map((x) => ({ key: x.dataset.preset, value: x.value }))) })));
   }
   $('#addTablet').addEventListener('click', () => {
     const row = tabletRow(); $('#tabletRows').append(row); row.querySelector('input').focus();

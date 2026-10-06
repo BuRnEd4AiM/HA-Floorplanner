@@ -2,13 +2,14 @@
  * retries while it restarts), saving every change (the ETag guards against overwriting a change made on another screen), and the users dialog
  * (tablet assignments, mirrored to a file). Applying the settings to the 3D view stays in app.js. Form reading and the rules between settings
  * are pure functions (tested). */
+import { startPreset, forSaving, keepSession } from './viewprefs.js';
 
 /** setting -> form field */
 export const BINDINGS = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
   shadows: '#setShadows', labelMode: '#setLabels', cameraImages: '#setCameraImages', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls',
-  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', seeThrough: '#setSeeThrough', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', updateCheck: '#setUpdateCheck', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount',
+  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', seeThrough: '#setSeeThrough', belowLabels: '#setBelowLabels', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', updateCheck: '#setUpdateCheck', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', belowMode: '#setBelowMode', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
@@ -37,7 +38,7 @@ export function resolveWallView(prev, next) {
   return !prev.seeThrough ? { ...next, cutaway: false } : { ...next, seeThrough: false };
 }
 /** how many users have a tablet assignment (room or view) */
-export const tabletUsers = (s) => new Set([...Object.keys(s.userRooms || {}), ...Object.keys(s.userViews || {})]).size;
+export const tabletUsers = (s) => new Set([...Object.keys(s.userRooms || {}), ...Object.keys(s.userViews || {}), ...Object.keys(s.userPresets || {})]).size;
 
 /** ctx: $, t, get() (the settings), set(next), ui (settingsui.js), toDisp(m), fromDisp(v), layout(), entities(), perfStored, perfKey, setStatus(txt),
  *  committed(prev) (apply the new settings to the house and the view), alert(txt), reload() */
@@ -45,6 +46,15 @@ export function initSettings(ctx) {
   const { $, t, ui } = ctx;
   const dlg = $('#settingsDialog'), usersDlg = $('#usersDialog');
   let loaded = false, etag = null;   // never save settings that were not loaded from the server first (would wipe e.g. the tablet assignments)
+  let preset = null;                 // this user's own start values for the look (#250, viewprefs.js): never saved as everybody's settings
+  /** settings from the server laid over the current ones; the preset fields stay as this browser has them */
+  const fromServer = (srv) => ctx.set({ ...ctx.get(), ...srv, ...keepSession(ctx.get(), preset) });
+  /** start this user's preset (from api/me) on top of the loaded settings; false when it sets nothing */
+  function usePreset(p) {
+    preset = startPreset(ctx.get(), p);
+    if (preset) { ctx.set(preset.settings); fill(); }                // the form shows what this user sees
+    return !!preset;
+  }
 
   function fill() {
     const settings = ctx.get();
@@ -67,7 +77,7 @@ export function initSettings(ctx) {
       const v = formValue(key, $(sel), ctx.fromDisp);
       if (v !== undefined) next[key] = v;
     }
-    const tb = ui.readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views;
+    const tb = ui.readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views; next.userPresets = tb.presets;
     next.tempStops = ui.readStops('#tempStops', settings.tempStops);
     next.humidStops = ui.readStops('#humidStops', settings.humidStops);
     next.co2Stops = ui.readStops('#co2Stops', settings.co2Stops);
@@ -77,7 +87,7 @@ export function initSettings(ctx) {
     for (let i = 0; i < 6 && !loaded; i++) {
       try {
         const r = await fetch('api/settings');
-        if (r.ok) { ctx.set({ ...ctx.get(), ...(await r.json()) }); etag = r.headers.get('ETag'); loaded = true; fill(); break; }   // the form always shows the real settings: every later save reads it back
+        if (r.ok) { fromServer(await r.json()); etag = r.headers.get('ETag'); loaded = true; fill(); break; }   // the form always shows the real settings: every later save reads it back
       } catch { /* add-on is probably restarting, try again */ }
       await new Promise((res) => setTimeout(res, 1000 * (i + 1)));
     }
@@ -86,8 +96,9 @@ export function initSettings(ctx) {
   /** save the current settings as they are (without reading the form) */
   async function save() {
     try {
-      const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(etag ? { 'If-Match': etag } : {}) }, body: JSON.stringify(ctx.get()) });
-      if (r.ok) { ctx.set({ ...ctx.get(), ...(await r.json()) }); etag = r.headers.get('ETag'); }
+      const out = forSaving(ctx.get(), preset);                         // the preset fields go as everybody's values, unless changed on purpose
+      const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(etag ? { 'If-Match': etag } : {}) }, body: JSON.stringify(out.body) });
+      if (r.ok) { preset = out.state; fromServer(await r.json()); etag = r.headers.get('ETag'); }
       else if (r.status === 409) { ctx.alert(t('set.changedElsewhere')); ctx.reload(); }
     } catch { /* offline: settings stay for this session */ }
   }
@@ -124,7 +135,7 @@ export function initSettings(ctx) {
       const body = await r.json().catch(() => ({}));
       if (r.status === 404) { await refreshUsersFile(t('users.syncMissing')); return; }
       if (!r.ok) { await refreshUsersFile(t('users.syncFail', { msg: body.error || r.status })); return; }
-      ctx.set({ ...ctx.get(), ...body }); etag = r.headers.get('ETag') || etag;
+      fromServer(body); etag = r.headers.get('ETag') || etag;
       ui.renderTablets();
       await refreshUsersFile(t('users.syncDone', { n: tabletUsers(ctx.get()) }));
     } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
@@ -151,5 +162,5 @@ export function initSettings(ctx) {
   usersDlg.addEventListener('click', (e) => { if (e.target === usersDlg) usersDlg.close(); });
   dlg.addEventListener('change', commit);
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });     // a click on the dark backdrop closes it too
-  return { fill, read, load, save, commit, loaded: () => loaded };
+  return { fill, read, load, save, commit, usePreset, loaded: () => loaded };
 }
