@@ -809,4 +809,5 @@ export default {
   'plan.rotate': '↻ La pianta ruota', 'plan.rotateTip': 'Ruotare la pianta 2D con la vista 3D: in alto è sempre la direzione della telecamera',
   'multi.count': '{n} selezionati: Canc li elimina tutti, Esc annulla la selezione, Maiusc + clic aggiunge o toglie', 'multi.delete': 'Elimina tutti i {n}', 'multi.clear': 'Annulla selezione', 'multi.deleted': '{n} elementi eliminati (Ctrl+Z li ripristina)',
   'keys.multi': 'Maiusc + clic: selezionarne più',
+  'nb.title': 'Casa vicina', 'nb.help': 'Mostra un’altra casa dell’elenco accanto a questa, ad es. quella a cui porta il ponte. Posizione: di quanto è spostata (X a destra, Z in basso nella pianta), ruotata e più alta o più bassa. Per modificarla, passa ad essa qui sopra.', 'nb.none': 'Crea prima una seconda casa, poi potrai metterla qui accanto a questa.', 'nb.house': 'Casa', 'nb.x': 'Posizione X', 'nb.z': 'Posizione Z', 'nb.rot': 'Rotazione', 'nb.y': 'Altezza', 'nb.remove': 'Rimuovi casa vicina', 'nb.add': '+ Casa vicina',
 };

@@ -61,7 +61,7 @@ export function initRoofs(ctx) {
       const n = Math.max(1, Math.ceil(len / step)), at = (u) => [ax + (bx - ax) * u, az + (bz - az) * u];
       let run = null;
       const flush = (end) => {
-        if (!run) return;
+        if (run === null) return;                                       // a stretch that starts at the corner starts at 0 (was skipped before)
         const [x0, z0] = at(run), [x1, z1] = at(end);
         if (Math.hypot(x1 - x0, z1 - z0) > 0.15) {
           bar(x0, z0, x1, z1, H, 0.05); bar(x0, z0, x1, z1, H * 0.5, 0.035);

@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.43.9. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **2.100**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **2.100**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -67,6 +67,7 @@ Stand: Version 3.43.9. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `floorrail.js` | ~115 | Etagen-Leiste (Vorschaubilder) |
 | `floorcards.js` | ~110 | Etagenkarten (Ganzes Haus) |
 | `cameras.js` | ~190 | Kameras (Sichtkegel, Übersicht, Standbilder) |
+| `neighbor.js` | ~120 | Nachbarhaus (#220): anderes Haus daneben zeigen (3D und Umriss im Plan), Einstellungen; Geometrie mit Unit-Tests |
 | `multisel.js` | ~70 | Mehrfachauswahl (#211): Shift + Klick, alle löschen in einem Schritt, Rahmen in 3D, Kasten im Panel |
 | `planview.js` | ~50 | 2D-Plan dreht mit der 3D-Ansicht (#212): Winkel aus der Kamera, Punkte drehen, lesbare Schrift; Schalter |
 | `placement.js` | ~60 | Platzieren (Schritt 22): Einrasten an Raster und Wandecken, Wandgeräte flach an die Wand, LED-Ring um den Raum; Wandgeräte-Liste; reine Rechnung mit Unit-Tests |

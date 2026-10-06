@@ -581,3 +581,6 @@ body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset;
 .multiBox { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 10px; padding: 8px 10px; border: 1px solid #7dff9a; border-radius: 10px; background: rgba(125, 255, 154, .08); }
 .multiBox p { flex: 1 1 100%; margin: 0; font-size: 13px; }
 .multiBox .danger { background: #c0392b; border-color: #c0392b; color: #fff; }
+
+/* neighbour house (#220): one card per neighbour in "Houses & backup" */
+.nbCard { margin: 6px 0 8px; padding: 8px 10px; border: 1px solid #c38cff; border-radius: 10px; background: rgba(195, 140, 255, .07); }

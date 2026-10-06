@@ -6,6 +6,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.44.0] - 2026-10-06
+### Added
+- **Neighbour house (#220, completes #189)**: under "Houses & backup" another house of the list can be placed next to this one (position X / Z, rotation, height). It is drawn in 3D next to this house (walls, floors, roofs, the railing of a roof terrace), in the whole-house view completely and on a floor up to that floor's height; in the 2D plan its outline on the same level shows dashed in purple. It stays a plan of its own and is edited by switching to it. So the metal bridge on the 1st floor can lead over to the roof terrace of the other house. The geometry is in the new module `neighbor.js` with unit tests.
+### Fixed
+- **Terrace railing**: an edge of a roof terrace that is open from corner to corner (no wall at its start) got no railing at all. It now gets one.
+
 ## [3.43.10] - 2026-10-05
 ### Added
 - **Landings of the wall stair (#210)**: a new field "Landing after a bend" keeps the wall stair flat for that long after every bend (0 to 3 m, 0 = only the corner as before), so it stays on one level round the corner and only then climbs on. A click in the middle of a straight stretch while drawing the path sets a landing of its own there. Import and export know `landing`.

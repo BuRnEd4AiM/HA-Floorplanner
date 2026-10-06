@@ -1619,6 +1619,36 @@ with sync_playwright() as p:
     check("plan turning (#212): off again, the plan is straight", pgPR.evaluate("window.__fp.plan().rotation()") == 0)
     pgPR.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices.splice(f.devices.findIndex(d => d.id === 'prd'), 1); window.__fp.rebuild(); }")
     pgPR.close()
+    # --- neighbour house next to this one, the bridge leads over to its roof terrace (#220)
+    def api_send(method, path, body):
+        r = urllib.request.Request(BASE + path, data=json.dumps(body).encode(), method=method, headers={"X-Remote-User-Name": "admin", "Content-Type": "application/json"})
+        return json.load(urllib.request.urlopen(r))
+    nb_house = api_send("POST", "api/houses", {"name": "Nachbar-Test"})["id"]
+    sqp = lambda x0, z0, x1, z1: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]
+    api_send("PUT", f"api/layout?house={nb_house}", {"version": 1, "floors": [
+        {"id": "n0", "name": "EG", "kind": "floor", "walls": [{"id": f"nw{i}", "a": sqp(0, 0, 6, 5)[i], "b": sqp(0, 0, 6, 5)[(i + 1) % 4], "thickness": 0.2, "height": 2.6, "openings": []} for i in range(4)], "rooms": [{"id": "nr", "name": "Garage", "points": sqp(0, 0, 6, 5)}], "devices": []},
+        {"id": "n1", "name": "Terrasse", "kind": "floor", "walls": [], "rooms": [{"id": "nt", "name": "Dachterrasse", "points": sqp(0, 0, 6, 5), "terrace": True}], "devices": []}]})
+    pgNB = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgNB.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pgNB.goto(BASE + "?debug=1&mode=edit"); pgNB.wait_for_timeout(2500)
+    nb_saved = api_admin("api/layout")
+    pgNB.evaluate("document.querySelector('#housePanel').open = true"); pgNB.wait_for_timeout(200)
+    check("neighbour (#220): with a second house the panel offers '+ Neighbour house'", pgNB.locator("#nbAdd").count() == 1)
+    pgNB.click("#nbAdd"); pgNB.wait_for_timeout(500)
+    pgNB.select_option("#neighborBody .nbHouse", nb_house); pgNB.wait_for_timeout(1500)     # earlier tests may have left more houses
+    check("neighbour (#220): added, its house is drawn next to this one", pgNB.evaluate("window.__fp.layout.neighbors?.[0]?.house") == nb_house and pgNB.evaluate("window.__fp.neighborCount()") == 1, pgNB.evaluate("window.__fp.layout.neighbors"))
+    pgNB.click("#floorRail .railHouse"); pgNB.wait_for_timeout(1000)                         # whole house: every floor of the neighbour too
+    nb_rail = pgNB.evaluate("""(() => { let n = 0; window.__fp.scene.traverse(o => { if (o.userData.neighbor) n = o.children.map(g => g.children.length); }); return n; })()""")
+    check("neighbour (#220): its roof terrace has a railing all round (open edges too)", isinstance(nb_rail, list) and len(nb_rail) == 2 and nb_rail[1] > 10, nb_rail)
+    gi = pgNB.evaluate("window.__fp.layout.floors.findIndex(f => f.kind !== 'basement')")
+    pgNB.evaluate(f"window.__fp.switchFloor({gi})"); pgNB.wait_for_timeout(400)
+    check("neighbour (#220): the 2D plan gets its outline on the same level", pgNB.evaluate("window.__fp.neighborOutlines()") >= 4, pgNB.evaluate("window.__fp.neighborOutlines()"))
+    pgNB.locator("#neighborBody .nbCard button").click(); pgNB.wait_for_timeout(500)
+    check("neighbour (#220): removed again, nothing is drawn", not pgNB.evaluate("window.__fp.layout.neighbors") and pgNB.evaluate("window.__fp.neighborCount()") == 0)
+    pgNB.wait_for_timeout(2500)
+    pgNB.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", nb_saved); pgNB.wait_for_timeout(400)
+    pgNB.close()
+    urllib.request.urlopen(urllib.request.Request(BASE + f"api/houses/{nb_house}", method="DELETE", headers={"X-Remote-User-Name": "admin"})).read()
     # --- metal bridge between two building parts (#189)
     pgBr = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgBr.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))

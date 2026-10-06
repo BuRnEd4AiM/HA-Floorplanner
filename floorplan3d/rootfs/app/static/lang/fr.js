@@ -809,4 +809,5 @@ export default {
   'plan.rotate': '↻ Le plan tourne', 'plan.rotateTip': 'Faire tourner le plan 2D avec la vue 3D : le haut est toujours la direction de la caméra',
   'multi.count': '{n} sélectionnés : Suppr les supprime tous, Échap annule la sélection, Maj + clic ajoute ou retire', 'multi.delete': 'Supprimer les {n}', 'multi.clear': 'Annuler la sélection', 'multi.deleted': '{n} éléments supprimés (Ctrl+Z les restaure)',
   'keys.multi': 'Maj + clic : en sélectionner plusieurs',
+  'nb.title': 'Maison voisine', 'nb.help': 'Afficher une autre maison de la liste à côté de celle-ci, p. ex. celle où mène la passerelle. Position : décalage (X vers la droite, Z vers le bas du plan), rotation, plus haut ou plus bas. Pour la modifier, passez à elle ci-dessus.', 'nb.none': 'Créez d’abord une deuxième maison, vous pourrez ensuite la placer ici à côté de celle-ci.', 'nb.house': 'Maison', 'nb.x': 'Position X', 'nb.z': 'Position Z', 'nb.rot': 'Rotation', 'nb.y': 'Hauteur', 'nb.remove': 'Retirer la maison voisine', 'nb.add': '+ Maison voisine',
 };

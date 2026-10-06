@@ -32,3 +32,13 @@ test('further roof: only a complete, non-empty box', () => {
   assert.equal(R.partBox({ box: { x0: 0, x1: 2, z0: 0 } }), null);
   assert.equal(R.partBox(null), null);
 });
+test('terrace railing: also along edges that are open from corner to corner (no wall at all)', async () => {
+  const T = await import(`${dir}/vendor/three.module.min.js`);
+  const ui = R.initRoofs({ layout: () => ({ floors: [] }), elev: () => 0, mat: () => new T.MeshBasicMaterial(), HOLO: {}, camera: () => null, settings: () => ({}), wallSee: 0.3, editingRoof: () => false });
+  const g = new T.Group();
+  ui.railing(g, { points: sq(0, 0, 6, 5), terrace: true }, { walls: [] }, false, false);
+  assert.ok(g.children.length >= 4 * 3, String(g.children.length));            // every edge: two rails and posts
+  const g2 = new T.Group();
+  ui.railing(g2, { points: sq(0, 0, 6, 5), terrace: true }, { walls: [[0, 0, 6, 0], [6, 0, 6, 5], [6, 5, 0, 5], [0, 5, 0, 0]].map(([a, b, c, d]) => ({ a: [a, b], b: [c, d], thickness: 0.2 })) }, false, false);
+  assert.equal(g2.children.length, 0);                                         // walls all round: nothing to fence
+});
