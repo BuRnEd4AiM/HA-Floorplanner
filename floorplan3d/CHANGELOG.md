@@ -7,6 +7,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.48.3] - 2026-10-07
+### Changed
+- **Code split step 21, part 1 (#137)**: the flat parts of a floor in 3D (room floors with their light layers, warning pulse and name, the rims of floor openings, placeholder blocks) left `build` in `app.js` for `floorbuild.js`; the room label is tested. Nothing changes for the user.
+
 ## [3.48.2] - 2026-10-07
 ### Changed
 - **Code split step 22, part 2 (#137)**: undo (the last 60 states of the plan) and the autosave of the open house left `app.js` for `persist.js`; the undo list rule is tested. Nothing changes for the user.

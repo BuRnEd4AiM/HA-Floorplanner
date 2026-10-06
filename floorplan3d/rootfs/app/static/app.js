@@ -19,7 +19,7 @@ import { initHouses } from './houses.js';
 import { initSettingsUi } from './settingsui.js';
 import { initBackground, imageSize } from './background.js';
 import { initPalettes } from './palettes.js';
-import { floorOpenings as floorOpeningsOf, floorShapes, initBlocks } from './blocks.js';
+import { floorOpenings as floorOpeningsOf, initBlocks } from './blocks.js';
 import { initStairTool } from './stairtool.js';
 import { initLiveControls } from './livecontrols.js';
 import { initLivePopup } from './livepopup.js';
@@ -63,6 +63,7 @@ import { floorLabels } from './viewprefs.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel } from './livechannel.js';
 import { initPersist } from './persist.js';
+import { initFloorBuild } from './floorbuild.js';
 import { pointInPoly, inIso, clipWallToRoom } from './roomclip.js';
 import { HOLO, addPickProxy, underFloors, holoify as holoifyModel } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
@@ -307,6 +308,13 @@ const neighbors = initNeighbors({
   camera: () => camera, settings: () => settings, wallSee: WALL_SEE, snapshot: () => snapshot(), changed: () => changed(), build: () => build(), fields: { field, lenInput, inp },
 });
 
+/* the flat parts of a floor in 3D (room floors, floor opening rims, blocks); the code lives in floorbuild.js */
+const floorBuild = initFloorBuild({
+  settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(),
+  mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (x) => textSprite(x), railing: (...a) => roofsUi.railing(...a),
+  lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
+  registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH: FLOOR_H, holoEdge: HOLO.edge,
+});
 function build() {
   localizeDefaults(); welcomeUi?.update();
   wake();
@@ -351,78 +359,10 @@ function build() {
     if (f.kind === 'roof' && !iso) roofsUi.build(g, i, f, holo, ghost);
     const roofsHere = f.kind === 'roof' ? roofList(i) : null;
 
-    f.rooms.forEach((r) => {
-      if (r.points.length < 3) return;
-      if (iso && !ghost && r.id !== iso.id) return;
-      const shape = floorShapes(r.points, holes);                 // the room minus stairwell openings (also where they only overlap it partly)
-      const geo = new THREE.ShapeGeometry(shape);
-      geo.rotateX(-Math.PI / 2);
-      const m = new THREE.Mesh(geo, holo
-        ? (ghost ? roomLightMat('floor', 0.15 + 0.5 * belowVis(), true)
-                 : roomLightMat('floor', floorIdx > 0 ? 1 - 0.65 * belowVis() : 1))
-        : mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
-      m.position.y = 0.01;
-      m.receiveShadow = true;
-      g.add(m);
-      if (r.terrace && !lowWalls) roofsUi.railing(g, r, f, holo, ghost);          // roof terrace: railing along the open edges
-      let wash = null, glow = null;
-      if (!holo) {                                   // solid themes: the light pool lies on the floor as a separate layer
-        glow = new THREE.Mesh(geo, roomLightMat('glow'));
-        glow.position.y = 0.014; glow.renderOrder = 1; glow.visible = false; glow.userData.ghost = ghost;
-        g.add(glow);
-      }
-      {                                              // coloured "air" that tints the room's inner walls when a light is on
-        const eg = new THREE.ExtrudeGeometry(shape, { depth: settings.wallHeight, bevelEnabled: false });
-        eg.rotateX(-Math.PI / 2);
-        wash = new THREE.Mesh(eg, roomLightMat('wash'));
-        wash.userData.ghost = ghost;
-        wash.renderOrder = 1;
-        g.add(wash);
-      }
-      roomMeshes.set(r.id, { mesh: m, room: r, wash, glow, f, ghost });
-      if (!ghost && alertsUi.hasRoom(r.id)) {        // a warning in this room: the floor pulses red
-        const pm = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide }));
-        pm.position.y = 0.03; pm.renderOrder = 2;
-        g.add(pm); alertsUi.pulses.push(pm.material);
-      }
-      if (!ghost) {
-        m.userData = { kind: 'room', id: r.id };
-        registry.set(r.id, m); pickables.push(m);
-      }
-      {
-        if (r.name && labelsHere) {
-          const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);
-          const sp = textSprite(is2d ? `${r.name} · ${imperial() ? (polyArea(r.points) * 10.7639).toFixed(0) + ' ft²' : polyArea(r.points).toFixed(1) + ' m²'}` : r.name);
-          sp.position.set(c[0], 0.45, c[1]);
-          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * belowVis(); }
-          g.add(sp);
-        }
-      }
-    });
-
-    /* floor openings drawn by hand: a rim like a wall top, so the opening reads from above */
-    if (!ghost) (f.holes || []).forEach((h) => {
-      if (h.points.length < 3) return;
-      const rim = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(h.points.map(([x, z]) => new THREE.Vector3(x, 0.03, z))),
-        new THREE.LineBasicMaterial({ color: holo ? HOLO.edge : 0xff9f43 }));
-      g.add(rim);
-    });
-
-    /* placeholder blocks: a solid mass for a floor that is not drawn */
-    const shaftHoles = (f.blocks || []).length ? floorOpenings(i + 1) : [];   // stairwells and floor openings of the floor above run through the block
-    if (!iso) (f.blocks || []).forEach((b) => {
-      if (b.points.length < 3) return;
-      const shape = floorShapes(b.points, shaftHoles);
-      const eg = new THREE.ExtrudeGeometry(shape, { depth: b.h || FLOOR_H, bevelEnabled: false });
-      eg.rotateX(-Math.PI / 2);
-      const m = new THREE.Mesh(eg, holo
-        ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: 0.5, depthWrite: false })
-        : mat('#b9b3a8', false));
-      m.position.y = -0.02;
-      if (holo) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(eg), new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.7 })));
-      g.add(m);
-      registry.set(b.id, m);
-    });
+    const part = { holo, ghost, iso, labels: labelsHere, holes };   // rooms, floor opening rims and blocks: floorbuild.js
+    floorBuild.rooms(g, f, part);
+    floorBuild.holeRims(g, f, part);
+    floorBuild.blocks(g, f, i, part);
 
     /* stairs (a 'down' stair starts one floor lower and arrives at this floor) */
     (f.stairs || []).forEach((st) => {
