@@ -6,6 +6,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.43.10] - 2026-10-05
+### Added
+- **Landings of the wall stair (#210)**: a new field "Landing after a bend" keeps the wall stair flat for that long after every bend (0 to 3 m, 0 = only the corner as before), so it stays on one level round the corner and only then climbs on. A click in the middle of a straight stretch while drawing the path sets a landing of its own there. Import and export know `landing`.
+
 ## [3.43.9] - 2026-10-05
 ### Added
 - **Several things at once (#211)**: Shift + click (in the 2D plan and in 3D) adds a thing to the selection or takes it out again. Everything selected gets a green frame; the properties panel shows how many and a button "Delete all". The Delete key removes them all, one undo (Ctrl+Z) brings them all back, Esc clears the selection. The list logic is in the new module `multisel.js` with unit tests.

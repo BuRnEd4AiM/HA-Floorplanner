@@ -229,3 +229,32 @@ test('spiral (#209): thin steps on a middle pole, nothing below them, a hand rai
   L.rail.forEach(([x, y, z], k) => { near(y, L.treads[k].top + S.RAIL_H); near(Math.hypot(x, z), st.w - S.RAIL_IN); });
   assert.equal(S.stairLocal({ ...S.stairDefaults('straight') }, H).pole, undefined);
 });
+/* ---- landings of a wall stair (#210) ---- */
+test('wall stair (#210): "landing after a bend" keeps the stair flat that long after the corner, at the corner height', () => {
+  const st = wallSt([[0, 0], [3, 0], [3, 4]], { landing: 1 }), T = S.stairSteps(H).n - 1;
+  const plan = S.wallStairPlan(st, T);
+  near(plan.landings[0].flat.len, 1);
+  near(plan.flights[1].from[1], st.w + 1);                                 // the next flight starts one width plus 1 m after the corner
+  const { treads } = S.stairLocal(st, H);
+  assert.equal(new Set(treads.map((t) => t.top)).size, T);                // the corner and the flat stretch share one height
+  const corner = treads.filter((t) => Math.abs(t.top - treads[plan.flights[0].k].top) < 1e-9);
+  assert.equal(corner.length, 2);
+  for (let i = 1; i < treads.length; i++) assert.ok(treads[i].top >= treads[i - 1].top);
+});
+test('wall stair (#210): a point in the middle of a straight stretch is a landing of its own', () => {
+  const st = wallSt([[0, 0], [2.5, 0], [5, 0]]), T = S.stairSteps(H).n - 1;
+  const plan = S.wallStairPlan(st, T);
+  assert.equal(plan.landings[0].kind, 'straight');
+  near(plan.landings[0].flat.len, st.w);                                 // one width long without a setting
+  near(plan.flights[1].from[0], 2.5 + st.w);
+  const { treads } = S.stairLocal(st, H);
+  assert.equal(treads.length, T);
+  const flat = treads[plan.flights[0].k];
+  assert.ok(flat.poly.every(([x]) => x >= 2.5 - 1e-9 && x <= 2.5 + st.w + 1e-9));
+  near(S.wallStairPlan(wallSt([[0, 0], [2.5, 0], [5, 0]], { landing: 1.5 }), T).landings[0].flat.len, 1.5);
+});
+test('wall stair (#210): the landing length is limited to 0..3 m, 0 is only the corner as before', () => {
+  assert.equal(S.landingLength({}), 0); assert.equal(S.landingLength({ landing: 9 }), S.MAX_LANDING); assert.equal(S.landingLength({ landing: -1 }), 0);
+  const plan = S.wallStairPlan(wallSt([[0, 0], [3, 0], [3, 3]]), 15);
+  assert.equal(plan.landings[0].flat, null);
+});

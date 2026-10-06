@@ -148,7 +148,8 @@ Pro Etage (nicht beim Dach), alle Maße in Metern. Die Treppe gehört zu der Eta
 | `turn` | `left`/`right`: bei L, U und Wendel die Seite, zu der sie dreht; bei der Wandtreppe die Seite, zu der die Stufen abstehen (in Gehrichtung gesehen) |
 | `dir` | `up` (führt nach oben, Aussparung in der Etage darüber) oder `down` (kommt von unten, Aussparung in dieser Etage) |
 | `floors` | über wie viele Etagen die Treppe geht (1 bis 6, Standard 1); in jeder Etage, durch die sie geht, entsteht eine Aussparung. Eine Wendel macht eine Umdrehung pro Etage |
-| `path` | **nur bei `wall`:** der Weg entlang der Wand als Punkte `[x, z]` relativ zu `x`/`z`, der erste Punkt ist `[0, 0]` (ein anderer Start wird dorthin verschoben). Jeder Knick ist ein Podest. 2 bis 30 Punkte |
+| `path` | **nur bei `wall`:** der Weg entlang der Wand als Punkte `[x, z]` relativ zu `x`/`z`, der erste Punkt ist `[0, 0]` (ein anderer Start wird dorthin verschoben). Jeder Knick ist ein Podest, ein Punkt mitten auf einer geraden Strecke ebenso. 2 bis 30 Punkte |
+| `landing` | **nur bei `wall`:** nach jedem Knick bleibt die Treppe so viele Meter flach (0 bis 3, Standard 0 = nur die Ecke) |
 
 Wandtreppe mit Podest in der Ecke (läuft an der oberen Wand entlang, dann an der rechten Wand hinunter; die Stufen stehen nach rechts in den Raum):
 `{ "type": "wall", "x": 1.6, "z": 0.1, "turn": "right", "floors": 2, "path": [[0, 0], [2.3, 0], [2.3, 4.9]] }`

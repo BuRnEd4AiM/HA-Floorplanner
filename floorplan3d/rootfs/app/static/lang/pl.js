@@ -160,7 +160,7 @@ export default {
   'stair.wall': 'Schody ścienne',
   'stair.floors': 'Kondygnacje',
   'stair.side': 'Stopnie w stronę',
-  'stair.wallHelp': 'Stopnie wiszą na ścianie jako cienkie płyty, pod nimi jest pusto. Każde załamanie trasy to spoczynek. Szerokość zmieniasz uchwytem, stronę ustawiasz powyżej.',
+  'stair.wallHelp': 'Stopnie wiszą na ścianie jako cienkie płyty, pod nimi jest pusto. Każde załamanie trasy to spoczynek. Szerokość zmieniasz uchwytem, stronę ustawiasz powyżej. Kliknięcie w środku prostego odcinka stawia osobny spoczynek. „Spoczynek po załamaniu” utrzymuje schody płasko na tej długości po każdym załamaniu.', 'stair.landing': 'Spoczynek po załamaniu',
   'stair.wallNext': "Klikaj dalej wzdłuż ściany. Podwójne kliknięcie lub Enter kończy trasę, Esc anuluje.",
   'stair.shaftName': 'Klatka schodowa',
   'stair.help': 'Otwór w stropie pojawia się automatycznie nad górnym biegiem (pomarańczowa linia przerywana). Q/E obraca schody.',

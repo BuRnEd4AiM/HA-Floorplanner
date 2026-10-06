@@ -1302,6 +1302,12 @@ with sync_playwright() as p:
     check("wall stair: the stairwell is cut into both floors it climbs through, not into the others", holes == [0, 1, 1, 0], holes)
     pgWS.fill("#propsBody input[type=number] >> nth=0", "1"); pgWS.dispatch_event("#propsBody input[type=number] >> nth=0", "change"); pgWS.wait_for_timeout(500)
     check("wall stair: Floors = 1 in the panel cuts only the floor above", pgWS.evaluate("window.__fp.layout.floors[0].stairs[0].floors") == 1 and [pgWS.evaluate(f"window.__fp.holeCount({i})") for i in range(4)] == [0, 1, 0, 0])
+    lf = pgWS.locator('#propsBody .prop:has(label:text-is("Landing after a bend")) input, #propsBody .prop:has(label:text-is("Podest nach dem Knick")) input')
+    check("wall stair (#210): the panel has the field for the flat stretch after a bend", lf.count() == 1)
+    if lf.count():
+        lf.fill("1"); lf.dispatch_event("change"); pgWS.wait_for_timeout(400)
+        ld = pgWS.evaluate("window.__fp.layout.floors[0].stairs[0].landing")
+        check("wall stair (#210): the landing length is stored (in metres)", ld is not None and (abs(ld - 1) < 0.01 or abs(ld - 0.3048) < 0.01), ld)
     stid = st.get("id", "")
     hw = pgWS.evaluate(f"window.__fp.stairHandle('{stid}','wid')")
     w0 = pgWS.evaluate("window.__fp.layout.floors[0].stairs[0].w")

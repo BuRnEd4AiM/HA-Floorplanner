@@ -559,3 +559,14 @@ async def test_stairs_survive_import_and_export_over_the_api(client):
     assert [s["type"] for s in exp["building"]["floors"][0]["stairs"]] == ["wall", "spiral"] and exp["building"]["floors"][0]["stairs"][0]["path"][1] == [2.3, 0]
     bad = await client.post("/api/import?dryRun=1", json=_stairs_spec([{"type": "wall", "x": 1, "z": 1}]))
     assert bad.status == 400 and any("path" in e["path"] for e in (await bad.json())["errors"])
+
+
+def test_wall_stair_landing_length_survives_import_and_export_and_matches_stairs_js():
+    js = (Path(__file__).parent.parent / "floorplan3d" / "rootfs" / "app" / "static" / "stairs.js").read_text(encoding="utf-8")
+    assert int(re.search(r"MAX_LANDING = (\d+)", js).group(1)) == importer.STAIR_MAX_LANDING
+    layout, _, rep, _ = importer.build_layout(_stairs_spec([{"type": "wall", "x": 0, "z": 0, "path": [[0, 0], [3, 0], [3, 3]], "landing": 1.2},
+                                                           {"type": "wall", "x": 4, "z": 0, "path": [[0, 0], [2, 0]], "landing": 7}]))
+    a, b = layout["floors"][0]["stairs"]
+    assert a["landing"] == 1.2 and "landing" not in b and any("landing" in str(w) for w in rep.warnings)
+    back = importer.layout_to_property(layout)["building"]["floors"][0]["stairs"][0]
+    assert back["landing"] == 1.2

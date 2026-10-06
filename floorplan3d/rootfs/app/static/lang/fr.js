@@ -160,7 +160,7 @@ export default {
   'stair.wall': 'Escalier mural',
   'stair.floors': 'Étages',
   'stair.side': 'Marches vers',
-  'stair.wallHelp': 'Les marches sont fixées au mur comme de fines plaques, sans rien dessous. Chaque coude du tracé est un palier. La largeur se règle à la poignée, le côté ci-dessus.',
+  'stair.wallHelp': 'Les marches sont fixées au mur comme de fines plaques, sans rien dessous. Chaque coude du tracé est un palier. La largeur se règle à la poignée, le côté ci-dessus. Un clic au milieu d’une portion droite pose un palier à part. « Palier après le coude » garde l’escalier plat sur cette longueur après chaque coude.', 'stair.landing': 'Palier après le coude',
   'stair.wallNext': "Continuez à cliquer le long du mur. Double-clic ou Entrée termine le tracé, Échap annule.",
   'stair.shaftName': 'Cage d\'escalier',
   'stair.help': 'La trémie apparaît automatiquement au-dessus de la volée supérieure (orange, en pointillés). Q/E fait pivoter l\'escalier.',
