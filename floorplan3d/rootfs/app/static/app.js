@@ -870,7 +870,7 @@ function applyStates() {
 const offline = initOffline({
   $, t, layout: () => layout, entities: () => entities, states: () => states, catOf, pointInPoly: (...a) => pointInPoly(...a), currentLanguage: () => currentLanguage(),
   houseMode: () => houseMode, floorIdx: () => floorIdx, switchFloor: (i) => switchFloor(i), isLive: () => isLive(), liveSelect: (h) => liveSelect(h),
-  selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); },
+  selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); }, jump: (x) => search.goTo(x),
 });
 
 /* ================= Warnings (#58) and the "Where is ...?" search (#62): the code lives in alertsui.js and search.js ================= */
