@@ -57,8 +57,13 @@ jobs:
           for ver in $todo; do
             notes="$(awk -v v="$ver" '$0 ~ "^## \\["v"\\]" {p=1; next} /^## \[/ {p=0} p' CHANGELOG.md)"
             [ -n "$notes" ] || { echo "No CHANGELOG entry for $ver, skipped"; continue; }
-            target="$(git log --reverse --format=%H -S"version: \"$ver\"" -- floorplan3d/config.yaml | head -1)"
-            [ -n "$target" ] || target="$GITHUB_SHA"
+            # the commit that set this version in config.yaml (the oldest match; tail reads all, head would break the pipe)
+            target="$(git log --format=%H -S"version: \"$ver\"" -- floorplan3d/config.yaml | tail -1)"
+            if [ -z "$target" ]; then
+              # a version that only has a CHANGELOG entry (bundled into a later version) was never shipped: no release
+              [ "$ver" = "$cfg" ] || { echo "v$ver was never in config.yaml, skipped"; continue; }
+              target="$GITHUB_SHA"
+            fi
             latest=false; [ "$ver" = "$cfg" ] && latest=true
             echo "Release v$ver at $target (latest: $latest)"
             gh release create "v$ver" --target "$target" --title "3D Floorplan $ver" --notes "$notes" --latest="$latest" || echo "v$ver could not be created"
