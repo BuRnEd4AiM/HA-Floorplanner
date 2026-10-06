@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 const dir = process.env.STATIC_DIR || '/tmp/static';
 const B = await import(`${dir}/bridge.js`);
+const near = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 
 test('size: 3 x 1.2 m by default, limits kept', () => {
   assert.deepEqual(B.bridgeSize({}), { len: 3, width: 1.2, rise: 0 });
@@ -30,10 +31,10 @@ test('without railing only deck and beams', () => {
   assert.deepEqual(B.bridgeParts({ noRail: true }).map((x) => x.kind), ['deck', 'beam', 'beam']);
 });
 test('height difference (#222): the far end that much higher, everything slopes evenly', () => {
-  const p = B.bridgeParts({ len: 3, rise: 0.6 });
+  const p = B.bridgeParts({ len: 6, rise: 0.6 });                              // 10 %: a ramp (steeper gets steps, #239)
   const deck = p.find((x) => x.kind === 'deck');
-  assert.ok(Math.abs(deck.tilt - Math.atan2(0.6, 3)) < 1e-9);
-  assert.ok(Math.abs(deck.w - Math.hypot(3, 0.6)) < 1e-9);                  // the sloping deck is longer than the plan length
+  assert.ok(Math.abs(deck.tilt - Math.atan2(0.6, 6)) < 1e-9);
+  assert.ok(Math.abs(deck.w - Math.hypot(6, 0.6)) < 1e-9);                  // the sloping deck is longer than the plan length
   const posts = p.filter((x) => x.kind === 'post').sort((a, b) => a.x - b.x);
   assert.ok(Math.abs(posts[0].y) < 1e-9 && Math.abs(posts[posts.length - 1].y - 0.6) < 1e-9);   // start at 0, far end 0.6 m up
   assert.ok(p.filter((x) => x.kind === 'rail').every((r) => Math.abs(r.tilt - deck.tilt) < 1e-9));
@@ -52,4 +53,18 @@ test('where the bridge lands (#189): on the deck and a little beyond its ends, n
   assert.ok(!B.onBridge(d, 15, 4));                                   // beside it
   const turned = { x: 0, z: 0, len: 4, w: 1, rot: 90 };                // turned like a device: its length now runs along z
   assert.ok(B.onBridge(turned, 0, 2.2) && B.onBridge(turned, 0, -2.2) && !B.onBridge(turned, 2.2, 0));
+});
+test('steps (#239): a gentle slope stays a ramp, a steep one gets flat treads with risers of at most 18 cm', () => {
+  assert.equal(B.bridgeSteps({ len: 4, rise: 0.4 }), 0);                        // 10 %: a ramp
+  const d = { len: 3, rise: 0.9 }, n = B.bridgeSteps(d);
+  assert.equal(n, 5);                                                           // 0.9 m in steps of 0.18 m
+  const decks = B.bridgeParts(d).filter((p) => p.kind === 'deck');
+  assert.equal(decks.length, n + 1);
+  assert.ok(decks.every((p) => p.tilt === 0));
+  decks.forEach((p, i) => near(p.y + p.h, (i * 0.9) / n));                      // from the start (0) up to the far end (rise)
+  near(decks.reduce((a, p) => a + p.w, 0), 3);
+  const down = B.bridgeParts({ len: 3, rise: -0.9 }).filter((p) => p.kind === 'deck');
+  near(down.at(-1).y + down.at(-1).h, -0.9);
+  const beams = B.bridgeParts(d).filter((p) => p.kind === 'beam');
+  assert.ok(beams.every((b) => b.y + b.h <= d.rise / 2 - 0.09 + 1e-9));         // below the treads
 });

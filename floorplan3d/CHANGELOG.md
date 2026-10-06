@@ -10,10 +10,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ## [3.46.0] - 2026-10-06
 ### Added
 - **Water and gas meters in the energy overview (#237)**: the overview pill at the top shows the readings of the water, gas and heat meters on a second line below the power numbers ("🚰 1234.6 m³ · 🔥 845.2 m³"), if there are meters with a value; the tooltip names each meter. `meterReadings` in `powerlogic.js` with tests.
+- **Tap balls in the live mode (#238)**: everything that can be tapped in the live mode has a small ball floating over it (under a ceiling lamp: below it), lit in the light's colour while it is on, grey-blue while off; a tap on the ball works like a tap on the device. New module `tapballs.js` with unit tests.
+- **Bridge with steps (#239)**: steeper than 1 : 8 the deck of a bridge becomes flat treads with risers of at most 18 cm, so a big height difference can be walked.
 ### Changed
 - **Wall and spiral stairs over several floors (#236)**: a wall stair over several floors is now built storey by storey like the stairwell (the same stair again on every floor, arriving on each), instead of one ever longer run. A spiral makes one turn per floor and gets a landing at floor level on every floor it reaches; the next turn starts where that landing ends.
 - **Full height of a stair over several floors visible again (#236)**: looking at one floor, the storeys above it are drawn see-through instead of being left out, so the whole stair shows without hanging in the air as a solid one.
 - **Live mode: sensors take no tap (#236)**: temperature, humidity and CO₂ sensors have no hit box in the live mode any more (their values show in the room and in the overviews); thermostats can still be tapped.
+### Fixed
+- **Power editor button (#239)**: while the power editor is on its button stays blue like every active button (picking another tool took the highlight away).
 
 ## [3.45.1] - 2026-10-06
 ### Changed

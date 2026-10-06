@@ -59,6 +59,7 @@ import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors, storeysShown } from './stairs.js';
 import { skipInLive } from './pickrules.js';
+import { initTapBalls } from './tapballs.js';
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -217,6 +218,7 @@ function rebuildGrid() {
 const registry = new Map();       // id -> Object3D
 const pickables = [];
 const labelSprites = new Map();   // device id -> sprite
+const tapBalls = initTapBalls({ ceiling: () => settings.wallHeight || 2.6 });   // live mode: a ball over everything that can be tapped (#238)
 const openingHandles = new Map();   // opening id -> { mesh, outline }: unscaled hit boxes that stay usable when the wall is lowered
 let cutawayWalls = [];            // { group, mid:[x,z], n:[nx,nz] } for the active floor
 
@@ -438,7 +440,7 @@ function build() {
   wake();
   plan?.render();
   clearGroup(world);
-  registry.clear(); pickables.length = 0; labelSprites.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
+  registry.clear(); pickables.length = 0; labelSprites.clear(); tapBalls.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
   const holo = isHolo();
   const iso = isolatedRoom();
   if (houseMode && settings.earth === 'off') {    // ground reference for the plot (with earth the lawn is the ground)
@@ -592,7 +594,7 @@ function build() {
     f.devices.forEach((d) => {
       if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
       const onRoof = roofsHere && d.type === 'solarpanel' ? solarPose(d, roofsHere) : null;
-      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); if (GROUND_COVER.has(d.type)) underFloors(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d, onRoof ? { ...onRoof, groundAt: onRoof.mount === 'stand' ? groundFn(d, roofsHere, onRoof.y + (d.y ?? 0)) : undefined } : undefined);   // on a rack the posts reach the roof (#208)
+      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); tapBalls.moved(d.id); if (GROUND_COVER.has(d.type)) underFloors(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d, onRoof ? { ...onRoof, groundAt: onRoof.mount === 'stand' ? groundFn(d, roofsHere, onRoof.y + (d.y ?? 0)) : undefined } : undefined);   // on a rack the posts reach the roof (#208)
       if (d.type === 'picture') setPicture(model, d);
       model.position.set(d.x, d.y ?? 0, d.z);
       model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
@@ -614,7 +616,7 @@ function build() {
       g.add(model);
       registry.set(d.id, model);
       if (halfCut && !lowWalls && (d.y || 0) >= (f.walls[0]?.height || 2.6) * 0.5 - 0.05) { model.userData.cutHidden = true; model.visible = false; }   // half section: what hangs above the cut (ceiling lamps, LED ring, high pictures) would float in the air
-      if (!ghost && !model.userData.cutHidden) pickables.push(model);
+      if (!ghost && !model.userData.cutHidden) { pickables.push(model); const tb = tapBalls.add(g, model, d); if (tb) pickables.push(tb); }
       if (d.type === 'camera' && !ghost && (d.fov ?? 90) > 0) {
         const cone = cams.addCone(d);
         g.add(cone);
@@ -836,6 +838,7 @@ function applyStates() {
       });
       obj.visible = !obj.userData.cutHidden && !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on)      // a person who is not there is not drawn in live mode
         && !power.hides(d.id);                                  // the power editor shows nothing but the power things (#174: the next state update brought them all back)          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
+      tapBalls.update(d.id, on, rgb, isLive() && !ghost, obj.visible);   // the ball to tap in the live mode, lit while on (#238)
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W'); }
     });
@@ -1552,7 +1555,7 @@ function setTool(next) {
   power.cancelCable();
   tool = next; endDrawing(); plan?.reset(); document.body.dataset.tool = next; setStatus('');
   if (bgUi.mode()) bgUi.setMode(null);
-  document.querySelectorAll('#tools button').forEach((b) => b.classList.toggle('active', b.dataset.tool === next));
+  document.querySelectorAll('#tools button[data-tool]').forEach((b) => b.classList.toggle('active', b.dataset.tool === next));   // only the tools: the power editor keeps its own highlight
   $('#hintText').textContent = t(`hint.${next}`);
   $('#devicePalette').hidden = !(next === 'device' || (next === 'select' && returnToTool === 'device'));   // the palette stays while a just placed device is selected
   $('#openingPalette').hidden = next !== 'opening';
@@ -1588,6 +1591,7 @@ function setMode(next) {
     canvas.style.cursor = 'pointer';
   } else setTool(tool);
   refreshSelection();
+  if (isLive()) tapBalls.remeasure();                                 // devices may have been moved while editing
   if (plotLoop) plotLoop.visible = !isLive();
   applyViewPolicy();
   applyStates();
@@ -2092,6 +2096,12 @@ if (params.get('debug')) {
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     selection: () => selection,
     multi: () => multiSel.items(),
+    ballScreen: (id) => {                                            // the tap ball of a device on the screen, null while it does not show (#238)
+      const b = tapBalls.ball(id);
+      if (!b?.visible) return null;
+      const v = b.getWorldPosition(new THREE.Vector3()).project(camera), r = canvas.getBoundingClientRect();
+      return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
+    },
     neighborCount: () => world.children.filter((c) => c.userData.neighbor).length, neighborOutlines: () => neighbors.outlines(elev(floorIdx)).length,
     devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), bx = new THREE.Box3(); o.children.forEach((c) => { if (!c.userData.proxy) bx.expandByObject(c); }); const sz = bx.getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)], h: +sz.y.toFixed(2), minY: +bx.min.y.toFixed(3), visible: o.visible }; },
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)

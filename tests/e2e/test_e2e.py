@@ -1719,6 +1719,12 @@ with sync_playwright() as p:
     check("live tap: a thing linked to nothing (plant) cannot be tapped", not (hp and hp["kind"] == "device"), hp)
     check("live tap: a window has no hit box (even with a sensor)", not (hw and hw["kind"] == "opening"), hw)
     check("live tap: the finger box of a lamp is at least 60 cm", pgT.evaluate("window.__fp.touchSize('tLamp')") >= 0.6 - 1e-6, pgT.evaluate("window.__fp.touchSize('tLamp')"))
+    bl = pgT.evaluate("window.__fp.ballScreen('tLamp')")
+    hb = pgT.evaluate(f"window.__fp.liveHitAt({bl['x']}, {bl['y']})") if bl else None
+    check("tap ball (#238): a ball floats over the lamp in live mode and a tap on it hits the lamp", bl is not None and bl["y"] < sl["y"] and (hb or {}).get("id") == "tLamp", (bl, sl, hb))
+    check("tap ball (#238): a plant linked to nothing has no ball", pgT.evaluate("window.__fp.ballScreen('tPlant')") is None)
+    pgT.click("#modeSwitch button[data-mode=edit]"); pgT.wait_for_timeout(500)
+    check("tap ball (#238): no ball in edit mode", pgT.evaluate("window.__fp.ballScreen('tLamp')") is None)
     pgT.close()
     pgT2 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgT2.goto(BASE + "?debug=1&mode=edit"); pgT2.wait_for_timeout(2000)
