@@ -79,7 +79,7 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `viewprefs.js` | ~75 | Voreinstellungen pro Benutzer/Tablet (#250: starten, nie als allgemeine Einstellung speichern) und Schilder der Etagen darunter (#249); reine Logik mit Unit-Tests |
 | `livechannel.js` | ~75 | Live-Kanal (Schritt 22, Teil 1): vom Add-on geschobene Zustände, Abfrage alle 4 s solange er fehlt, sonst einmal pro Minute; Zusammenführen und Fingerabdruck mit Unit-Tests |
 | `persist.js` | ~40 | Rückgängig (letzte 60 Stände) und automatisches Speichern des offenen Hauses (Schritt 22, Teil 2); Rückgängig-Liste mit Unit-Tests |
-| `floorbuild.js` | ~100 | 3D-Aufbau einer Etage, flache Teile (Schritt 21, Teil 1): Raumböden mit Lichtschichten, Warn-Puls und Namen, Ränder der Bodenöffnungen, Platzhalter-Blöcke; Raumname mit Unit-Tests |
+| `floorbuild.js` | ~150 | 3D-Aufbau einer Etage (Schritt 21, Teil 1 und 2): Raumböden mit Lichtschichten, Warn-Puls und Namen, Ränder der Bodenöffnungen, Platzhalter-Blöcke, Treppen, Wände mit Türen/Fenstern; Raumname mit Unit-Tests |
 | `planview.js` | ~50 | 2D-Plan dreht mit der 3D-Ansicht (#212): Winkel aus der Kamera, Punkte drehen, lesbare Schrift; Schalter |
 | `placement.js` | ~60 | Platzieren (Schritt 22): Einrasten an Raster und Wandecken, Wandgeräte flach an die Wand, LED-Ring um den Raum; Wandgeräte-Liste; reine Rechnung mit Unit-Tests |
 | `nav.js` | ~150 | Navigation (Schritt 21): Etagen-Knöpfe, Zimmer-Menü, Scroll-Pfeile, Raum-Knopf am Tablet, Bildausschnitt für Etage / Haus / Wandmitte; reine Teile mit Unit-Tests |
@@ -93,7 +93,7 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
 | 20 | **Zeichnen, Auswählen, Zeigerereignisse** (Fangen, Ziehen, Werkzeuge) | ~475 | `pointer.js`, `tools.js` | hoch |
-| 21 | **3D-Aufbau**: der Rest von `build` (Wände, Treppen, Geräte; Böden und Blöcke sind schon in `floorbuild.js`) | ~140 | `floorbuild.js` | hoch |
+| 21 | **3D-Aufbau**: der Rest von `build` (Geräte; Böden, Blöcke, Treppen und Wände sind schon in `floorbuild.js`) | ~90 | `floorbuild.js` | hoch |
 | 22 | **Zustand und Datenladen** (Live-Kanal schon in `livechannel.js`, Rückgängig und Speichern in `persist.js`) | ~80 + ~40 | `state.js` | hoch |
 
 ## Vorgehen je Schritt

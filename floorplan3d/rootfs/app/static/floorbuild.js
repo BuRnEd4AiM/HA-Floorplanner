@@ -1,9 +1,12 @@
-/* 3D build of one floor, the flat parts (step 21 of the split, part 1, #137): room floors with their light layers, warning pulse and name,
- * the rims of floor openings and the placeholder blocks. build() in app.js walks the floors and calls these; the walls, stairs and
+/* 3D build of one floor (step 21 of the split, #137): room floors with their light layers, warning pulse and name, the rims of floor
+ * openings, the placeholder blocks (part 1), the stairs and the walls (part 2). build() in app.js walks the floors and calls these; the
  * devices follow there. */
 import * as THREE from './vendor/three.module.min.js';
 import { floorShapes } from './blocks.js';
 import { polyArea } from './rooms.js';
+import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js';
+import { inIso, clipWallToRoom } from './roomclip.js';
+import { buildWall, wallLength } from './walls.js';
 
 /** the label of a room: its name, in the (legacy) top view with the area */
 export function roomLabel(r, topView, imperial) {
@@ -15,7 +18,9 @@ export function roomLabel(r, topView, imperial) {
 export const roomCenter = (points) => points.reduce((a, p) => [a[0] + p[0] / points.length, a[1] + p[1] / points.length], [0, 0]);
 
 /** ctx: settings(), floorIdx(), topView(), imperial(), belowVis(), mat(color, ghost, extra), roomLightMat(kind, alpha, ghost), textSprite(text),
- *  railing(g, room, f, holo, ghost) (roof terrace), lowWalls(), roomMeshes (Map), alerts ({ hasRoom(id), pulses }), registry (Map), pickables (Array), floorOpenings(i), floorH, holoEdge */
+ *  railing(g, room, f, holo, ghost) (roof terrace), lowWalls(), roomMeshes (Map), alerts ({ hasRoom(id), pulses }), registry (Map), pickables (Array), floorOpenings(i), floorH, holoEdge,
+ *  houseMode(), halfCut(), elev(i), stairMesh(st, holo, ghost, edge, upTo) (stairtool.js), cutawayInfo(w, group), openingHandle(w, o, g),
+ *  cutawayWalls() (the list of the open floor's walls for the cutaway) */
 export function initFloorBuild(ctx) {
   /** the rooms of floor f in its group g. o: { holo, ghost, iso (the focused room), labels (names shown), holes (stairwell openings) } */
   function rooms(g, f, o) {
@@ -95,5 +100,50 @@ export function initFloorBuild(ctx) {
       ctx.registry.set(b.id, m);
     });
   }
-  return { rooms, holeRims, blocks };
+  /** stairs (a 'down' stair starts one floor lower and arrives at this floor). o: as rooms, plus edge (the hologram edge material) */
+  function stairs(g, f, i, o) {
+    const { holo, ghost, iso } = o, H = ctx.floorH, open = ctx.floorIdx(), house = ctx.houseMode();
+    (f.stairs || []).forEach((st) => {
+      if (iso) {                                   // a focused room still shows the stair standing in it
+        const hp = polyToWorld(st, stairLocal(st, H).hole);
+        const c = hp.reduce((q, p) => [q[0] + p[0] / hp.length, q[1] + p[1] / hp.length], [0, 0]);
+        if (ghost || !inIso(iso, c[0], c[1])) return;
+      }
+      // the stair that comes up into the floor shown is seen through its opening: drawn solid, not faded like the rest below
+      const arriving = ghost && !house && (st.dir || 'up') === 'up' && i < open && open <= i + stairFloors(st);   // a stair over several floors counts for every floor it reaches
+      const sGhost = ghost && !arriving;
+      const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: ctx.holoEdge, transparent: true, opacity: 0.95 }) : o.edge;
+      const sg = ctx.stairMesh(st, holo, sGhost, sEdge, storeysShown(st, i, open, house));   // no storeys hanging over the open floor (#229, #246)
+      sg.position.set(st.x, st.dir === 'down' ? -H * stairFloors(st) : 0, st.z);
+      sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
+      g.add(sg);
+      ctx.registry.set(st.id, sg);
+    });
+  }
+  /** the walls with their doors and windows; on the open floor they take part in the cutaway and can be picked */
+  function walls(g, f, i, o) {
+    const { holo, ghost, iso } = o, low = ctx.lowWalls(), half = ctx.halfCut() && !low;
+    f.walls.forEach((w0) => {
+      let w = w0;
+      if (wallLength(w) < 0.01) return;
+      if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
+      const wallMat = holo
+        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
+        : ctx.mat('#d9d4cc', ghost);
+      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge });
+      if (half) {                                                // what sticks out above the cut (door leaves, window frames) is clipped off
+        const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (w.height || 2.6) * 0.5 + 0.001);
+        wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
+      }
+      g.add(wg);
+      if (!ghost) {
+        const info = ctx.cutawayInfo(w, wg);
+        info.handles = (w.openings || []).map((op) => ctx.openingHandle(w, op, g));
+        ctx.cutawayWalls().push(info);
+        ctx.registry.set(w.id, wg); ctx.pickables.push(wg);
+      }
+      wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
+    });
+  }
+  return { rooms, holeRims, blocks, stairs, walls };
 }

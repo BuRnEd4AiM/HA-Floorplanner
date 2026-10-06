@@ -1,6 +1,6 @@
 {
- "version": "3.48.3",
- "buildHash": "1244ec9279253f2d2aca04df37f3cae3aa8f122f1f0b342249f63ecf7ea3c9f6",
+ "version": "3.48.4",
+ "buildHash": "4a09baedf19b001e219fb44b6fe595b59f735243c0cdc76630b21706176c1bed",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "4af8c83f0ba5e116f928f7a1b5f6ee791fec76cfa3745165139211ef66bbc000",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "d1c1de562153175bc4e73b78eda8d56ffd0ae776165c2feadf64005d53614171",
-  "static/app.js": "be851e76f0af9d57453a93b8979db30ab1b3003006e81f1daaa82b5ff691b350",
+  "static/app.js": "7754df8c168b41f25b8502d0232af93cb9865ca32672deea0655e578c10cd88d",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/background.js": "6ccd7fd8e2e076b02317a864f0957ebe16af4faac9c9dacda16ae11b6e86b172",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
@@ -147,7 +147,7 @@
   "static/earth.js": "357c12023d40a1c228a12429df5fe563739d409e88738c3bd31c692656994d33",
   "static/entitypicker.js": "b04001c54b2501a937cced5b74b091ee30f10dc9a96487ed4de6ecd26f189915",
   "static/entitystate.js": "5f088c54e147f0745fe295232e3335dd4f31e748d427a3349cc5211cf98dfac0",
-  "static/floorbuild.js": "a92fda2c0dd2d86f2eae20330b38425ca68bc287107479089d4f812150bad850",
+  "static/floorbuild.js": "3d6351ac23dc5da9329f3533d002aa9bc6949ea84a642f418c67fa059241d38d",
   "static/floorcards.js": "e8176a7f4d31d4ab037929814f3c17a6b964e4cb3c1272c098c3c041b239fe72",
   "static/floorpanel.js": "25f468e2fb9fee969cd4687024a0853f7fbea7c4a5799d29ba504f041e2dbdf4",
   "static/floorrail.js": "10ecd93393ed14db8841dd58b7359d98615f1b29a5b0aca67c3b43b6341d0b1a",

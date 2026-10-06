@@ -42,7 +42,7 @@ import { planPlacement, classify } from './autoplace.js';
 import { RING_DEFAULT_INSET, segEntity, ringEntities, ringSectionsWorld } from './ledring.js';
 import { DEVICE_TYPES, catOf, makeModel, isCustom } from './models.js';
 import {
-  OPENING_DEFAULTS, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
+  OPENING_DEFAULTS, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
 } from './walls.js';
 import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
@@ -57,14 +57,14 @@ import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround }
 import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
-import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors, storeysShown } from './stairs.js';
+import { toWorld, stairHandles } from './stairs.js';
 import { skipInLive } from './pickrules.js';
 import { floorLabels } from './viewprefs.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel } from './livechannel.js';
 import { initPersist } from './persist.js';
 import { initFloorBuild } from './floorbuild.js';
-import { pointInPoly, inIso, clipWallToRoom } from './roomclip.js';
+import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO, addPickProxy, underFloors, holoify as holoifyModel } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
@@ -308,12 +308,14 @@ const neighbors = initNeighbors({
   camera: () => camera, settings: () => settings, wallSee: WALL_SEE, snapshot: () => snapshot(), changed: () => changed(), build: () => build(), fields: { field, lenInput, inp },
 });
 
-/* the flat parts of a floor in 3D (room floors, floor opening rims, blocks); the code lives in floorbuild.js */
+/* a floor in 3D: room floors, floor opening rims, blocks, stairs and walls; the code lives in floorbuild.js */
 const floorBuild = initFloorBuild({
   settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(),
   mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (x) => textSprite(x), railing: (...a) => roofsUi.railing(...a),
   lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
   registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH: FLOOR_H, holoEdge: HOLO.edge,
+  houseMode: () => houseMode, halfCut: () => halfCut, elev: (i) => elev(i), stairMesh: (...a) => stairTool.build(...a),
+  cutawayInfo: (w, wg) => wallCutawayInfo(w, wg), openingHandle: (w, o, g) => makeOpeningHandle(w, o, g), cutawayWalls: () => cutawayWalls,
 });
 function build() {
   localizeDefaults(); welcomeUi?.update();
@@ -364,45 +366,8 @@ function build() {
     floorBuild.holeRims(g, f, part);
     floorBuild.blocks(g, f, i, part);
 
-    /* stairs (a 'down' stair starts one floor lower and arrives at this floor) */
-    (f.stairs || []).forEach((st) => {
-      if (iso) {                                   // a focused room still shows the stair standing in it
-        const hp = polyToWorld(st, stairLocal(st, FLOOR_H).hole);
-        const c = hp.reduce((q, p) => [q[0] + p[0] / hp.length, q[1] + p[1] / hp.length], [0, 0]);
-        if (ghost || !inIso(iso, c[0], c[1])) return;
-      }
-      // the stair that comes up into the floor shown is seen through its opening: drawn solid, not faded like the rest below
-      const arriving = ghost && !houseMode && (st.dir || 'up') === 'up' && i < floorIdx && floorIdx <= i + stairFloors(st);   // a stair over several floors counts for every floor it reaches
-      const sGhost = ghost && !arriving;
-      const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.95 }) : edgeMaterial;
-      const sg = stairTool.build(st, holo, sGhost, sEdge, storeysShown(st, i, floorIdx, houseMode));   // no storeys hanging over the open floor (#229, #246)
-      sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H * stairFloors(st) : 0, st.z);
-      sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
-      g.add(sg);
-      registry.set(st.id, sg);
-    });
-
-    f.walls.forEach((w0) => {
-      let w = w0;
-      if (wallLength(w) < 0.01) return;
-      if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
-      const wallMat = holo
-        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * belowVis() : settings.wallOpacity, depthWrite: false, side: THREE.DoubleSide })
-        : mat('#d9d4cc', ghost);
-      const wg = buildWall(w, { material: wallMat, ghost, low: lowWalls, cut: halfCut && !lowWalls ? 0.5 : 0, makeMat: mat, holo, edgeMaterial });
-      if (halfCut && !lowWalls) {                                // what sticks out above the cut (door leaves, window frames) is clipped off
-        const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), elev(i) + (w.height || 2.6) * 0.5 + 0.001);
-        wg.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
-      }
-      g.add(wg);
-      if (!ghost) {
-        const info = wallCutawayInfo(w, wg);
-        info.handles = (w.openings || []).map((o) => makeOpeningHandle(w, o, g));
-        cutawayWalls.push(info);
-        registry.set(w.id, wg); pickables.push(wg);
-      }
-      wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { registry.set(c.userData.id, c); if (!ghost) pickables.push(c); } });
-    });
+    floorBuild.stairs(g, f, i, { ...part, edge: edgeMaterial });   // stairs and walls: floorbuild.js
+    floorBuild.walls(g, f, i, { ...part, edge: edgeMaterial });
 
     f.devices.forEach((d) => {
       if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
