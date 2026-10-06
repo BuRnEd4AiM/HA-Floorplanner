@@ -10,6 +10,8 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ## [3.45.1] - 2026-10-06
 ### Fixed
 - **Stair over several floors hanging in the air (#231)**: looking at one floor, the upper storeys of a stairwell or of a straight / L / U stair over several floors were drawn above it although the floors they arrive on were hidden, so they floated. On one floor only the storey that starts there is drawn now (`storeysShown` in `stairs.js`, tested); one floor up the stair arrives and goes on, and the whole-house view shows all of it.
+- **Wall stair: a step between two landings at the turn (#232)**: two clicks close together at a corner (or one just after it) made two landings with no step between them, and the second one lay one step higher. Landings with no step between them now lie at one height, so the stair stays flat at the turn and only goes on after the landing; it still arrives at the floor above.
+- **Spiral stair has no end (#233)**: the spiral stopped one step below the floor in the middle of its round opening. After the last step it now has a quarter landing at floor level out to the edge of the opening, so you step off onto the floor. In the demo the spiral to the roof terrace is turned so that its exit faces the terrace.
 
 ## [3.45.0] - 2026-10-06
 ### Added

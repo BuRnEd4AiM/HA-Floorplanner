@@ -41,7 +41,7 @@ const layout = {
   }, {
     id: 'eg', name: 'Erdgeschoss',
     stairs: [{ id: 'st1', name: 'Treppe', type: 'straight', x: 6.5, z: 3.9, rot: 0, w: 1.0, tread: 0.2, turn: 'right', dir: 'up' },
-      { id: 'st2', name: 'Wendeltreppe zur Dachterrasse', type: 'spiral', x: 14.1, z: 5.05, rot: 0, w: 0.9, turn: 'right', dir: 'up', floors: 1 }],
+      { id: 'st2', name: 'Wendeltreppe zur Dachterrasse', type: 'spiral', x: 14.1, z: 5.05, rot: 180, w: 0.9, turn: 'right', dir: 'up', floors: 1 }],
     rooms: [
       { id: 'r1', name: 'Wohnzimmer',    area: 'wohnzimmer', color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
       { id: 'r2', name: 'Küche',         color: '#c9c2b4', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
