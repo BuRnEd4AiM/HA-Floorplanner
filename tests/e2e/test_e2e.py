@@ -1673,6 +1673,13 @@ with sync_playwright() as p:
         dv = pgBr.evaluate("window.__fp.layout.floors[0].devices.find(v => v.id === 'brTest')")
         q2 = pgBr.evaluate("window.__fp.devPose('brTest')")
         check("bridge (#189): length 4.5 m and no railing are kept and shown", abs(dv["len"] - 4.5) < 0.01 and dv.get("noRail") is True and abs(q2["size"][0] - 4.5) < 0.06 and q2["h"] < 0.4, (dv, q2))
+        rf = pgBr.locator('#propsBody .prop:has(label:text-is("Height difference at the end")) input, #propsBody .prop:has(label:text-is("Höhenunterschied am Ende")) input')
+        check("bridge (#222): the panel has the height difference at the end", rf.count() == 1)
+        if rf.count():
+            rf.fill(f"{0.6 / 0.3048:.4f}" if ft else "0.6"); rf.dispatch_event("change"); pgBr.wait_for_timeout(400)
+            q3 = pgBr.evaluate("window.__fp.devPose('brTest')")
+            rv = pgBr.evaluate("window.__fp.layout.floors[0].devices.find(v => v.id === 'brTest').rise")
+            check("bridge (#222): 0.6 m higher at the end, the bridge slopes up", rv is not None and abs(rv - 0.6) < 0.01 and q3["h"] > q2["h"] + 0.5, (rv, q2, q3))
     pgBr.wait_for_timeout(2500)
     pgBr.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", br_saved); pgBr.wait_for_timeout(400)
     pgBr.close()

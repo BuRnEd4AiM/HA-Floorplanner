@@ -817,6 +817,12 @@
      "maximum": 30,
      "description": "Only for type bridge: length in metres (default 3)."
     },
+    "rise": {
+     "type": "number",
+     "minimum": -3,
+     "maximum": 3,
+     "description": "Only for type bridge: the far end (towards rot 0, +x) is this much higher (+) or lower (-) than the start; the bridge slopes evenly (default 0)."
+    },
     "noRail": {
      "type": "boolean",
      "description": "Only for type bridge: no railing."

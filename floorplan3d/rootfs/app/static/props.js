@@ -238,6 +238,7 @@ export function initProps(ctx) {
     const b = bridgeSize(it);
     body.append(field(t('bridge.len'), lenInput(() => b.len, (v) => { it.len = bridgeSize({ len: v }).len; }, { min: BRIDGE.minLen, step: 0.1 })));
     body.append(field(t('bridge.width'), lenInput(() => b.width, (v) => { it.w = bridgeSize({ w: v }).width; }, { min: BRIDGE.minWidth, step: 0.1 })));
+    body.append(field(t('bridge.rise'), lenInput(() => b.rise, (v) => { const r = bridgeSize({ rise: v }).rise; if (Math.abs(r) >= 0.005) it.rise = +r.toFixed(3); else delete it.rise; }, { min: -BRIDGE.maxRise, step: 0.05 })));   // the far end higher or lower (#222)
     const rc = document.createElement('input'); rc.type = 'checkbox'; rc.checked = !it.noRail; rc.id = 'bridgeRail';
     rc.addEventListener('change', () => { ctx.snapshot(); if (rc.checked) delete it.noRail; else it.noRail = true; ctx.changed(); });
     body.append(field(t('bridge.rail'), rc));
