@@ -7,6 +7,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.46.2] - 2026-10-06
+### Changed
+- **Tap balls bigger and never covering each other (#244)**: the balls in the live mode are bigger (44 cm across), and balls that would cover each other, or cover a value label, move a little apart (at most 90 cm from their device); `spreadBalls` in `tapballs.js` with tests.
+- **Water and gas in a pill of their own (#245)**: the water, gas and heat meters are no longer a second line in the power overview (it overlapped the fields beside it and lit up with the power cables); they now have their own one-line pill next to it. `meterText` in `powerlogic.js` with tests.
+
 ## [3.46.1] - 2026-10-06
 ### Changed
 - **Code split steps 23 and 24 (#137)**: five more parts left `app.js` (now just under 2,000 lines, from 5,100 at the start): the state of an entity and the colour of a light effect (`entitystate.js`), making a loaded plan complete (`layoutnorm.js`), isolating a focused room (`roomclip.js`), the hit boxes and hologram look of a model (`modelfx.js`) and text in the scene (`labels.js`). The pure parts have unit tests; nothing changes for the user.

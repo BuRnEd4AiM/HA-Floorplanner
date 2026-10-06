@@ -212,7 +212,8 @@ function rebuildGrid() {
 const registry = new Map();       // id -> Object3D
 const pickables = [];
 const labelSprites = new Map();   // device id -> sprite
-const tapBalls = initTapBalls({ ceiling: () => settings.wallHeight || 2.6 });   // live mode: a ball over everything that can be tapped (#238)
+const tapBalls = initTapBalls({ ceiling: () => settings.wallHeight || 2.6,
+  labelsIn: (g) => [...labelSprites.values()].filter((sp) => sp.parent === g && sp.visible).map((sp) => sp.position) });   // live mode: a ball over everything that can be tapped (#238)
 const openingHandles = new Map();   // opening id -> { mesh, outline }: unscaled hit boxes that stay usable when the wall is lowered
 let cutawayWalls = [];            // { group, mid:[x,z], n:[nx,nz] } for the active floor
 
@@ -714,6 +715,7 @@ function applyStates() {
       if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W'); }
     });
   }
+  tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
   buildNav();                             // room pills show a dot while somebody is in the room
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
     const holo = isHolo();
