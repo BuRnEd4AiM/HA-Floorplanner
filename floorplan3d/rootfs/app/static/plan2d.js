@@ -614,6 +614,8 @@ export function createPlan(ctx) {
       pl.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="5" fill="#ff4fd8" stroke="#fff" stroke-width="1.5"/>`; });
     }
 
+    const nbSegs = ctx.neighborOutlines?.() || [];                // the neighbour house on this level (#220), dashed
+    if (nbSegs.length) o += `<path d="${nbSegs.map(([a, b]) => `M${sx(a[0]).toFixed(1)} ${sy(a[1]).toFixed(1)}L${sx(b[0]).toFixed(1)} ${sy(b[1]).toFixed(1)}`).join('')}" stroke="#c38cff" stroke-width="2" stroke-dasharray="7 5" fill="none" pointer-events="none"/>`;
     o += multiOutlines(f, H3);
     svg.innerHTML = `<defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="9" height="9" fill="rgba(110,150,230,.10)"/><line x1="0" y1="0" x2="0" y2="9" stroke="rgba(150,190,255,.35)" stroke-width="2"/></pattern><radialGradient id="glow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>${rot ? `<g transform="rotate(${rot.toFixed(2)} ${W / 2} ${H / 2})">${o}</g>` : o}`;
     if (rot) svg.querySelectorAll('text:not([transform])').forEach((el) => {     // labels stay upright in a turned plan

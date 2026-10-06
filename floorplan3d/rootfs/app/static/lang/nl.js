@@ -809,4 +809,5 @@ export default {
   'plan.rotate': '↻ Plattegrond draait mee', 'plan.rotateTip': 'De 2D-plattegrond met de 3D-weergave mee laten draaien: boven is altijd de kijkrichting van de camera',
   'multi.count': '{n} geselecteerd: Delete verwijdert ze allemaal, Esc heft de selectie op, Shift + klik voegt toe of haalt weg', 'multi.delete': 'Alle {n} verwijderen', 'multi.clear': 'Selectie opheffen', 'multi.deleted': '{n} dingen verwijderd (Ctrl+Z haalt ze terug)',
   'keys.multi': 'Shift + klik: meerdere selecteren',
+  'nb.title': 'Buurhuis', 'nb.help': 'Een ander huis uit de lijst naast dit huis tonen, bijv. het huis waar de brug naartoe leidt. Ligging: hoe ver het verschoven is (X naar rechts, Z omlaag in de plattegrond), gedraaid en hoger of lager. Bewerken doe je door er hierboven naar te wisselen.', 'nb.none': 'Maak eerst een tweede huis aan, dan kun je het hier naast dit huis zetten.', 'nb.house': 'Huis', 'nb.x': 'Ligging X', 'nb.z': 'Ligging Z', 'nb.rot': 'Draaiing', 'nb.y': 'Hoogte', 'nb.remove': 'Buurhuis verwijderen', 'nb.add': '+ Buurhuis',
 };

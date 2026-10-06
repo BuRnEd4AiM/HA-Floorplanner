@@ -352,3 +352,15 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 **Neu in 3.43.9 (#211):** Ein Ding anklicken, dann mit gedrückter **Shift-Taste** weitere anklicken (im 2D-Plan und in 3D). Alle Ausgewählten haben einen grünen Rahmen, rechts steht „n ausgewählt“ mit dem Knopf „Alle n löschen“. **Entf** löscht alle, **Strg+Z** holt sie mit einem Schritt zurück, **Esc** hebt die Auswahl auf. Shift + Klick auf ein schon ausgewähltes Ding nimmt es wieder heraus.
 
 **Neu in 3.43.10 (#210, zu 24.1, 24.2, 24.8):** Wandtreppe anklicken, dann im Feld **„Podest nach dem Knick“** z. B. 1 m eintragen: Nach jeder Ecke bleibt die Treppe 1 m auf einer Ebene, erst danach kommen wieder Stufen. **Podest einzeln:** Beim Zeichnen des Wegs mitten auf einer geraden Strecke einmal zusätzlich klicken: Dort entsteht ein flaches Podest, danach geht die Treppe weiter.
+
+## 28. Nachbarhaus und Brücke zur Dachterrasse (3.44.0)
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 28.1 | Im ersten Haus: Bearbeiten → „Häuser & Backup“ aufklappen → „+ Nachbarhaus“ | Eine Karte mit Haus, Lage X, Lage Z, Drehung, Höhe erscheint; das andere Haus steht in 3D da | |
+| 28.2 | Lage X / Z (und falls nötig Drehung) so einstellen, dass das Nachbarhaus wie in echt steht | Es rückt an die richtige Stelle | |
+| 28.3 | „Ganzes Haus“ | Beide Häuser sind ganz zu sehen; die Dachterrasse des Nachbarhauses hat ein Geländer | |
+| 28.4 | Ins 1. OG wechseln, Ansicht „2D + 3D“ | Im Plan ist der Umriss des Nachbarhauses auf dieser Höhe lila gestrichelt | |
+| 28.5 | Die Brücke (Bibliothek „Außen“) im 1. OG zwischen beide Häuser setzen, drehen und Länge einstellen | Sie führt vom eigenen 1. OG auf die Dachterrasse | |
+| 28.6 | Zum Nachbarhaus wechseln (Häuser-Liste) | Es lässt sich dort ganz normal bearbeiten; zurück im ersten Haus ist die Änderung nach dem Neuladen zu sehen | |
+| 28.7 | „Nachbarhaus entfernen“ | Es verschwindet wieder | |

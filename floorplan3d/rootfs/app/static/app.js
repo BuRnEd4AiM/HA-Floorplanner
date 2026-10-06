@@ -52,6 +52,7 @@ import { initRoofs } from './roofs.js';
 import { solarPose, groundFn } from './solarroof.js';
 import { initPlanRotate } from './planview.js';
 import { initMultiSelect } from './multisel.js';
+import { initNeighbors } from './neighbor.js';
 import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround } from './placement.js';
 import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
@@ -424,6 +425,11 @@ const roofsUi = initRoofs({
 });
 const roofBox = (i) => roofsUi.box(i), autoRoofBox = (i) => roofsUi.autoBox(i), roofList = (i) => roofsUi.list(i);
 function updateRoofFade() { roofsUi.updateFade(); }
+/* ---- Neighbour house (#220): another house of the list drawn next to this one; the code lives in neighbor.js ---- */
+const neighbors = initNeighbors({
+  $, t, houses: () => hs.list(), houseId: () => hs.id(), label: (h) => hs.label(h), layout: () => layout, floorH: FLOOR_H, mat: (...a) => mat(...a), HOLO,
+  camera: () => camera, settings: () => settings, wallSee: WALL_SEE, snapshot: () => snapshot(), changed: () => changed(), build: () => build(), fields: { field, lenInput, inp },
+});
 
 function build() {
   localizeDefaults(); welcomeUi?.update();
@@ -623,6 +629,7 @@ function build() {
       }
     });
   });
+  if (!iso) neighbors.build(world, { upTo: houseMode ? Infinity : elev(floorIdx), holo });   // the neighbour house next to this one (#220)
   if (earth.cut()) {                              // garden things at ground level are cut open with the earth, so nothing lies over the basement
     layout.floors.slice(0, groundIdx() + 1).forEach((f) => f.devices.forEach((d) => {
       if (!OUTDOOR.has(d.type) || d.type === 'picture') return;
@@ -951,7 +958,7 @@ function undo() {
   layout = JSON.parse(s);
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
   selection = null; focusedRoom = null; multiSel.clear(); clearFocusOutline();
-  fillFloorSelect(); build(); scheduleSave(); bgUi.render(); renderFloorPanel();
+  fillFloorSelect(); build(); scheduleSave(); bgUi.render(); renderFloorPanel(); neighbors.renderUi();
 }
 function changed(rebuild = true) {
   if (rebuild) build();
@@ -991,7 +998,7 @@ async function switchHouse(id) {
   normalizeLayout();
   undoStack.length = 0;
   floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
-  clearFocusOutline(); hs.renderUi();
+  clearFocusOutline(); hs.renderUi(); neighbors.renderUi();
   build(); fitCamera(); buildNav(true); bgUi.render(); renderFloorPanel(); renderObjList(); refreshSelection();
 }
 initImport({ t, lang: () => currentLanguage(), houseId: () => hs.id(), onImported: async (j) => {
@@ -1959,7 +1966,7 @@ plan = createPlan({
   holdPlaced,
   setSelection: (h) => { multiSel.clear(); selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); }, toggleMulti: (h) => multiSel.toggle(h), multiItems: () => multiSel.items(),
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate: (a, b) => bgUi.calibrate(a, b),
-  bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: blocks.setPlot, placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
+  bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, neighborOutlines: () => neighbors.outlines(elev(floorIdx)), ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: blocks.setPlot, placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
  
   liveMoveDevice: (d) => liveMove(d),
@@ -1988,7 +1995,7 @@ async function init() {
   try { layout = await (await fetch(hs.url())).json(); } catch { setStatus(t('loadFailed')); }
   normalizeLayout();
   floorIdx = groundIdx();                                 // start on the ground floor, not in the basement
-  hs.renderUi();
+  hs.renderUi(); neighbors.renderUi();
   await palettes.loadModels();
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); bgUi.render(); renderFloorPanel();
@@ -2084,6 +2091,7 @@ if (params.get('debug')) {
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     selection: () => selection,
     multi: () => multiSel.items(),
+    neighborCount: () => world.children.filter((c) => c.userData.neighbor).length, neighborOutlines: () => neighbors.outlines(elev(floorIdx)).length,
     devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), bx = new THREE.Box3(); o.children.forEach((c) => { if (!c.userData.proxy) bx.expandByObject(c); }); const sz = bx.getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)], h: +sz.y.toFixed(2), minY: +bx.min.y.toFixed(3), visible: o.visible }; },
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
       const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');

@@ -809,4 +809,5 @@ export default {
   'plan.rotate': '↻ El plano gira', 'plan.rotateTip': 'Girar el plano 2D con la vista 3D: arriba es siempre la dirección de la cámara',
   'multi.count': '{n} seleccionados: Supr los elimina todos, Esc anula la selección, Mayús + clic añade o quita', 'multi.delete': 'Eliminar los {n}', 'multi.clear': 'Anular selección', 'multi.deleted': '{n} elementos eliminados (Ctrl+Z los recupera)',
   'keys.multi': 'Mayús + clic: seleccionar varios',
+  'nb.title': 'Casa vecina', 'nb.help': 'Mostrar otra casa de la lista junto a esta, p. ej. la casa a la que lleva el puente. Posición: cuánto se desplaza (X a la derecha, Z hacia abajo en el plano), girada y más alta o más baja. Para editarla, cambia a ella arriba.', 'nb.none': 'Crea primero una segunda casa; luego podrás colocarla aquí junto a esta.', 'nb.house': 'Casa', 'nb.x': 'Posición X', 'nb.z': 'Posición Z', 'nb.rot': 'Giro', 'nb.y': 'Altura', 'nb.remove': 'Quitar casa vecina', 'nb.add': '+ Casa vecina',
 };

@@ -809,4 +809,5 @@ export default {
   'plan.rotate': '↻ Plan obraca się', 'plan.rotateTip': 'Obracaj plan 2D razem z widokiem 3D: u góry jest zawsze kierunek patrzenia kamery',
   'multi.count': 'Zaznaczono {n}: Delete usuwa wszystkie, Esc anuluje zaznaczenie, Shift + klik dodaje lub usuwa', 'multi.delete': 'Usuń wszystkie ({n})', 'multi.clear': 'Anuluj zaznaczenie', 'multi.deleted': 'Usunięto {n} (Ctrl+Z przywraca)',
   'keys.multi': 'Shift + klik: zaznacz kilka',
+  'nb.title': 'Dom sąsiedni', 'nb.help': 'Pokaż inny dom z listy obok tego, np. dom, do którego prowadzi most. Położenie: przesunięcie (X w prawo, Z w dół planu), obrót oraz wyżej lub niżej. Aby go edytować, przełącz się na niego powyżej.', 'nb.none': 'Najpierw utwórz drugi dom, potem możesz go tu ustawić obok tego.', 'nb.house': 'Dom', 'nb.x': 'Położenie X', 'nb.z': 'Położenie Z', 'nb.rot': 'Obrót', 'nb.y': 'Wysokość', 'nb.remove': 'Usuń dom sąsiedni', 'nb.add': '+ Dom sąsiedni',
 };
