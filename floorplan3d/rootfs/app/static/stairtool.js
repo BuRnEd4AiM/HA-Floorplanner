@@ -3,7 +3,7 @@
  * wall along a path drawn in the plan), the stair fields of the properties panel, and the 3D mesh of a stair.
  * The geometry of the shaft is a pure function (tested). */
 import * as THREE from './vendor/three.module.min.js';
-import { stairDefaults, stairBounds, stairLocal, stairCounts, stairLength, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD } from './stairs.js';
+import { stairDefaults, stairBounds, stairLocal, stairCounts, stairLength, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H } from './stairs.js';
 import { OPENING_DEFAULTS, wallLength } from './walls.js';
 
 const snap = (v) => Math.round(v / 0.05) * 0.05;
@@ -36,7 +36,15 @@ export function initStairTool(ctx) {
     const stepMat = holo
       ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: ghost ? 0.12 : 0.38, depthWrite: false, side: THREE.DoubleSide })
       : ctx.mat('#c9bba1', ghost, { side: THREE.DoubleSide });
-    stairLocal(st, ctx.floorH).treads.forEach((tr) => {
+    const L = stairLocal(st, ctx.floorH);
+    const railMat = holo ? stepMat : ctx.mat('#7c838b', ghost, { metalness: 0.5, roughness: 0.4 });
+    const part = (geo) => { const m = new THREE.Mesh(geo, railMat); m.castShadow = !holo; g.add(m); if (holo && edgeMaterial) g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), edgeMaterial)); };
+    if (L.pole) part(new THREE.CylinderGeometry(L.pole.r, L.pole.r, L.pole.h, 16).translate(0, L.pole.h / 2, 0));   // spiral (#209): the middle pole carries the steps
+    if (L.rail?.length > 1) {
+      part(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(L.rail.map((p) => new THREE.Vector3(...p))), L.rail.length * 4, 0.022, 6));   // hand rail
+      L.rail.forEach(([x, y, z]) => part(new THREE.CylinderGeometry(0.012, 0.012, RAIL_H, 6).translate(x, y - RAIL_H / 2, z)));            // one baluster per step
+    }
+    L.treads.forEach((tr) => {
       const shape = new THREE.Shape(tr.poly.map(([x, z]) => new THREE.Vector2(x, -z)));
       const geo = new THREE.ExtrudeGeometry(shape, { depth: tr.thin || tr.top, bevelEnabled: false });   // a thin step is a plate with nothing below it
       geo.rotateX(-Math.PI / 2);

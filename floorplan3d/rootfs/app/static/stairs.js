@@ -19,6 +19,7 @@ export const STAIR_TYPES = ['straight', 'L', 'U', 'spiral', 'wall'];
 export const MIN_TREAD = 0.1, MAX_TREAD = 0.45;
 const GAP = 0.1;                     // gap between the two flights of a U stair
 export const THIN = 0.06;            // thickness of a step plate of a wall stair (m)
+export const POLE_R = 0.06, RAIL_H = 0.9, RAIL_IN = 0.04;   // spiral stair: radius of the middle pole, height of the hand rail over the steps, its distance from the outer edge
 export const MAX_FLOORS = 6;
 /** how many floors the stair climbs (1..MAX_FLOORS) */
 export const stairFloors = (st) => Math.max(1, Math.min(MAX_FLOORS, Math.round(st.floors || 1)));
@@ -52,16 +53,23 @@ export function stairLocal(st, H) {
   const flip = (poly) => poly.map(([x, z]) => [x, z * sg]);   // mirror to the chosen turning side (z only, x untouched)
 
   if (st.type === 'spiral') {
+    // a real spiral stair (#209): a pole in the middle, thin step plates fixed to it, nothing below them, a hand rail along the outside
     const R = w, a = (2 * Math.PI * nf) / T, dirn = sg;                  // one turn per floor
+    const at = (q, r) => [Math.cos(q) * r, Math.sin(q) * r];
+    const rail = [];
     for (let k = 0; k < T; k++) {
       const a0 = k * a * dirn, a1 = (k + 1) * a * dirn, seg = 3;
-      const poly = [[0, 0]];
-      for (let s = 0; s <= seg; s++) { const q = a0 + ((a1 - a0) * s) / seg; poly.push([Math.cos(q) * R, Math.sin(q) * R]); }
-      treads.push({ poly, top: (k + 1) * rise });
+      const poly = [at(a0, POLE_R)];
+      for (let s = 0; s <= seg; s++) poly.push(at(a0 + ((a1 - a0) * s) / seg, R));
+      poly.push(at(a1, POLE_R));
+      treads.push({ poly, top: (k + 1) * rise, thin: THIN });
+      const [rx, rz] = at((a0 + a1) / 2, R - RAIL_IN);
+      rail.push([rx, (k + 1) * rise + RAIL_H, rz]);
     }
+    const pole = { r: POLE_R, h: T * rise + RAIL_H };
     hole = Array.from({ length: 20 }, (_, i) => [Math.cos((i / 20) * 2 * Math.PI) * (R + 0.05), Math.sin((i / 20) * 2 * Math.PI) * (R + 0.05)]);
     arrow = [[0, 0], [Math.cos(Math.min(T * a, 2 * Math.PI * 0.95) * dirn) * R * 0.85, Math.sin(Math.min(T * a, 2 * Math.PI * 0.95) * dirn) * R * 0.85]];
-    return { treads, hole, arrow };
+    return { treads, hole, arrow, pole, rail };
   }
 
   if (st.type === 'straight') {
