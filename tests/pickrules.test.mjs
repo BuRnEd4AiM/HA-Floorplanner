@@ -15,3 +15,7 @@ test('live mode: the camera itself, lamps and rooms can still be tapped', () => 
   assert.ok(!P.skipInLive({ kind: 'room', id: 'r' }));
   assert.ok(!P.skipInLive(null));
 });
+test('live mode (#236): temperature, humidity and CO2 sensors take no tap either', () => {
+  assert.ok(P.skipInLive({ kind: 'device', id: 's' }, 'sensor'));
+  assert.ok(!P.skipInLive({ kind: 'device', id: 't' }, 'thermostat'));        // a thermostat is still set by a tap
+});

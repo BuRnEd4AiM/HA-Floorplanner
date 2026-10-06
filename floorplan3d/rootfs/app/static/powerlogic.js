@@ -63,7 +63,17 @@ export function energySummary(states, devices) {
   const load = prod !== null || grid !== null ? Math.max(0, (prod ?? 0) + (grid ?? 0)) : null;
   return { prod, grid, load, battery: lv || flow !== null ? { v: lv ? parseFloat(lv.s.state) : null, flow } : null };
 }
-/** the text of the overview pill and its tooltip, null when there is nothing to show */
+const METER_ICON = { watermeter: '🚰', gasmeter: '🔥', heatmeter: '♨' };
+/** the readings of the water, gas and heat meters for the overview pill (#237): [{ type, name, text }], in that order, only meters whose
+ *  sensor has a value */
+export function meterReadings(states, devices) {
+  return (devices || []).filter((d) => METER_TYPES.has(d.type) && d.entity)
+    .map((d) => ({ d, s: states[d.entity] })).filter(({ s }) => s && s.state !== '' && s.state != null && Number.isFinite(parseFloat(s.state)))
+    .sort((a, b) => Object.keys(METER_ICON).indexOf(a.d.type) - Object.keys(METER_ICON).indexOf(b.d.type))
+    .map(({ d, s }) => ({ type: d.type, name: d.name || '', text: `${METER_ICON[d.type]} ${s.state}${s.unit ? ` ${s.unit}` : ''}` }));
+}
+/** the text of the overview pill and its tooltip, null when there is nothing to show; the meters (e.meters, from meterReadings) go on a
+ *  second line below the power numbers (#237) */
 export function energyText(e, t) {
   const parts = [], tips = [];
   if (e.prod !== null) { parts.push(`☀ ${fmtWatts(e.prod)}`); tips.push(`${t('power.sum.prod')}: ${fmtWatts(e.prod)}`); }
@@ -75,5 +85,8 @@ export function energyText(e, t) {
     const word = f === null ? '' : Math.abs(f) < 20 ? t('power.sum.idle') : f > 0 ? t('power.sum.charging') : t('power.sum.discharging');
     parts.push(`🔋 ${lvl}${dir}`.trim()); tips.push(`${t('power.sum.battery')}: ${[lvl, word].filter(Boolean).join(' · ')}`);
   }
-  return parts.length ? { text: parts.join(' · '), title: tips.join('\n') } : null;
+  const meters = e.meters || [];
+  meters.forEach((m) => tips.push(`${t(`dev.${m.type}`)}${m.name ? ` (${m.name})` : ''}: ${m.text.slice(m.text.indexOf(' ') + 1)}`));
+  const lines = [parts.join(' · '), meters.map((m) => m.text).join(' · ')].filter(Boolean);
+  return lines.length ? { text: lines.join('\n'), title: tips.join('\n') } : null;
 }

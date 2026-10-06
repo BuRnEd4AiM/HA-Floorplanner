@@ -69,14 +69,15 @@ test('size handles sit at the end of the run and at its side', () => {
 });
 
 /* ---- several floors ---- */
-test('spiral: a stair over 2 floors climbs exactly 2 floors in rising steps', () => {
+test('spiral over 2 floors (#236): a turn per floor, a landing at floor level on each, rising steps in between', () => {
   const st = { ...S.stairDefaults('spiral'), floors: 2 };
-  const treads = S.stairLocal(st, H).treads.filter((t) => !t.exit);
-  const { n, rise } = S.stairSteps(2 * H);
-  assert.equal(treads.length, n - 1);
-  near(treads[treads.length - 1].top, (n - 1) * rise);
-  near(n * rise, 2 * H);
-  for (let i = 1; i < treads.length; i++) assert.ok(treads[i].top > treads[i - 1].top);
+  const all = S.stairLocal(st, H).treads, treads = all.filter((t) => !t.exit), exits = all.filter((t) => t.exit);
+  const { n, rise } = S.stairSteps(H);
+  assert.equal(treads.length, 2 * (n - 1));
+  assert.deepEqual(exits.map((t) => +t.top.toFixed(6)), [H, 2 * H]);       // you step off on the floor in between and at the top
+  near(treads[n - 2].top, H - rise); near(treads[n - 1].top, H + rise); near(treads.at(-1).top, 2 * H - rise);
+  for (let i = 1; i < all.length; i++) assert.ok(all[i].top > all[i - 1].top);
+  assert.ok(all.filter((t) => t.storey === 1).length === n);                // the second turn and its landing are storey 1
 });
 for (const type of ['straight', 'L', 'U']) {
   test(`${type} over 2 floors (#229): the same stair again one floor higher, so it arrives on the floor in between`, () => {
@@ -120,15 +121,16 @@ test('floors is limited to 1..6 and defaults to 1', () => {
   assert.equal(S.stairFloors({ floors: 3 }), 3);
   assert.equal(S.stairFloors({ floors: 99 }), S.MAX_FLOORS);
 });
-test('a spiral over 2 floors makes two turns (one per floor), a spiral over 1 floor makes one', () => {
+test('a spiral over 2 floors makes two turns (one per floor, each its own storey), a spiral over 1 floor makes one', () => {
   const ang = (st) => { const t = S.stairLocal(st, H).treads; const p = t[t.length - 1].poly[2]; return Math.atan2(p[1], p[0]); };
-  const steps = (st) => S.stairLocal(st, H).treads.filter((t) => !t.exit);
-  const one = steps({ ...S.stairDefaults('spiral') }), two = steps({ ...S.stairDefaults('spiral'), floors: 2 });
-  assert.ok(two.length > one.length);
+  const steps = (st, k = 0) => S.stairLocal(st, H).treads.filter((t) => !t.exit && (t.storey || 0) === k);
+  const one = steps({ ...S.stairDefaults('spiral') }), two = steps({ ...S.stairDefaults('spiral'), floors: 2 }), two2 = steps({ ...S.stairDefaults('spiral'), floors: 2 }, 1);
+  assert.equal(two2.length, one.length);                                        // each storey turns once on its own
   const turn = (t, k) => Math.atan2(t[k].poly[1][1], t[k].poly[1][0]);
   const per = (t) => { let tot = 0; for (let k = 1; k < t.length; k++) { let d = turn(t, k) - turn(t, k - 1); while (d < -Math.PI) d += 2 * Math.PI; while (d > Math.PI) d -= 2 * Math.PI; tot += Math.abs(d); } return tot; };
   assert.ok(Math.abs(per(one) / (2 * Math.PI) - 1) < 0.1, String(per(one) / (2 * Math.PI)));
-  assert.ok(Math.abs(per(two) / (2 * Math.PI) - 2) < 0.1, String(per(two) / (2 * Math.PI)));
+  assert.ok(Math.abs(per(two) / (2 * Math.PI) - 1) < 0.1, String(per(two) / (2 * Math.PI)));
+  assert.ok(Math.abs(per(two2) / (2 * Math.PI) - 1) < 0.1, String(per(two2) / (2 * Math.PI)));
 });
 test('holes: an up stair cuts every floor it climbs through, a down stair every floor it descends through', () => {
   const up = { id: 'u', ...S.stairDefaults('straight'), floors: 2, x: 0, z: 0 };
@@ -196,10 +198,14 @@ test('wall stair with two landings (a stair with a landing in between that conti
   assert.equal(plan.landings.length, 2); assert.equal(plan.flights.length, 3);
   assert.equal(plan.flights.reduce((a, f) => a + f.k, 0) + 2, S.stairSteps(H).n - 1);
 });
-test('wall stair over 2 floors: twice the steps and a hole that is one polygon around everything', () => {
+test('wall stair over 2 floors (#236): the same stair again one floor higher, arriving on the floor in between; one hole around it', () => {
   const st = wallSt([[0, 0], [5, 0], [5, 4], [0, 4]], { floors: 2 });
-  const g = S.stairLocal(st, H);
-  assert.equal(g.treads.length, S.stairSteps(2 * H).n - 1);
+  const g = S.stairLocal(st, H), one = S.stairLocal({ ...st, floors: 1 }, H);
+  assert.equal(g.treads.length, 2 * one.treads.length);
+  const up = g.treads.filter((t) => t.storey === 1);
+  assert.deepEqual(up[0].poly, one.treads[0].poly); near(up[0].top, H + one.treads[0].top);
+  assert.ok(up.every((t) => t.thin === S.THIN));                              // still light plates
+  near(Math.max(...one.treads.map((t) => t.top)), H - S.stairSteps(H).rise);  // the first storey arrives one step below the floor in between
   assert.ok(g.hole.length >= 4);
   const xs = g.hole.map((p) => p[0]); assert.ok(Math.min(...xs) <= 0.01 && Math.max(...xs) >= 4.99);
 });
@@ -317,7 +323,7 @@ test('wall stair (#232): two landings with no step between them lie at one heigh
 test('spiral (#233): a quarter landing at floor level after the last step, out to the edge of the opening', () => {
   for (const floors of [1, 2]) {
     const st = { ...S.stairDefaults('spiral'), floors }, tr = S.stairLocal(st, H).treads, ex = tr.filter((t) => t.exit);
-    assert.equal(ex.length, 1); assert.equal(tr.at(-1), ex[0]);
+    assert.equal(ex.length, floors); assert.equal(tr.at(-1), ex.at(-1)); ex.reverse();
     near(ex[0].top, floors * H);                                                // at the height of the floor above
     const r = ex[0].poly.map((p) => Math.hypot(...p));
     near(Math.max(...r), st.w + 0.05); near(Math.min(...r), S.POLE_R);          // from the pole to the edge of the round opening

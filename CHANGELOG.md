@@ -7,6 +7,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.46.0] - 2026-10-06
+### Added
+- **Water and gas meters in the energy overview (#237)**: the overview pill at the top shows the readings of the water, gas and heat meters on a second line below the power numbers ("🚰 1234.6 m³ · 🔥 845.2 m³"), if there are meters with a value; the tooltip names each meter. `meterReadings` in `powerlogic.js` with tests.
+### Changed
+- **Wall and spiral stairs over several floors (#236)**: a wall stair over several floors is now built storey by storey like the stairwell (the same stair again on every floor, arriving on each), instead of one ever longer run. A spiral makes one turn per floor and gets a landing at floor level on every floor it reaches; the next turn starts where that landing ends.
+- **Full height of a stair over several floors visible again (#236)**: looking at one floor, the storeys above it are drawn see-through instead of being left out, so the whole stair shows without hanging in the air as a solid one.
+- **Live mode: sensors take no tap (#236)**: temperature, humidity and CO₂ sensors have no hit box in the live mode any more (their values show in the room and in the overviews); thermostats can still be tapped.
+
 ## [3.45.1] - 2026-10-06
 ### Changed
 - **Live mode: fewer things to hit by accident (#234)**: the presence figure has no hit box in the live mode any more, and neither has the field-of-view cone of a camera (only the camera itself can be tapped). The rules are in the new module `pickrules.js` with unit tests.
