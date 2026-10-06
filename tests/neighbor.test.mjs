@@ -33,3 +33,9 @@ test('a neighbour entry keeps its numbers in range', () => {
   assert.deepEqual(N.cleanNeighbor({ house: 'b', x: '2.5', z: null, rot: -90, y: 99 }), { house: 'b', x: 2.5, z: 0, rot: 270, y: 50 });
   assert.deepEqual(N.cleanNeighbor(null), { house: '', x: 0, z: 0, rot: 0, y: 0 });
 });
+test('a storey of the neighbour a bit higher or lower still counts as the same level (#222)', () => {
+  const floors = [fl('floor'), fl('floor', { rooms: [{ points: [[0, 0], [2, 0], [2, 2]] }] })];
+  assert.equal(N.outlineAt(floors, { y: 0.6 }, 3, 3).length, 3);                 // 60 cm higher: still the 1st floor
+  assert.equal(N.outlineAt(floors, { y: -0.4 }, 3, 3).length, 3);
+  assert.equal(N.outlineAt([fl('floor', { rooms: [{ points: [[0, 0], [2, 0], [2, 2]] }] })], {}, 3, 3).length, 0);   // a whole storey lower: not this level
+});

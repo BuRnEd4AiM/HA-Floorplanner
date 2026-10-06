@@ -22,7 +22,7 @@ export function shownFloors(floors, nb, floorH, upTo = Infinity) {
 }
 /** the outline of the neighbour's floor at height y (walls and room edges) as segments [[x, z], [x, z]] in this plan; none when no floor is there */
 export function outlineAt(floors, nb, floorH, y) {
-  const i = floors.findIndex((f, k) => Math.abs(floorElev(floors, k, floorH) + (nb.y || 0) - y) < 0.5);
+  const i = floors.findIndex((f, k) => Math.abs(floorElev(floors, k, floorH) + (nb.y || 0) - y) < floorH / 2);   // the same storey, even when it lies a bit higher or lower (#222)
   if (i < 0) return [];
   const f = floors[i], segs = [];
   f.walls.forEach((w) => segs.push([placePoint(w.a, nb), placePoint(w.b, nb)]));
@@ -65,7 +65,7 @@ export function initNeighbors(ctx) {
       root.position.set(nb.x, nb.y, nb.z); root.rotation.y = (nb.rot * Math.PI) / 180;
       root.userData.neighbor = nb.house;
       const R = roofs(nb.house, L);
-      shownFloors(L.floors, nb, ctx.floorH, upTo).forEach((i) => {
+      shownFloors(L.floors, nb, ctx.floorH, upTo === Infinity ? upTo : upTo + ctx.floorH * 0.8).forEach((i) => {   // its storey at this level shows even when it lies a bit higher (#222)
         const f = L.floors[i], g = new THREE.Group();
         g.position.y = floorElev(L.floors, i, ctx.floorH);
         (f.walls || []).forEach((w) => g.add(buildWall({ ...w, openings: w.openings || [] }, { material: ctx.mat('#cfc9bf', false), makeMat: ctx.mat, holo })));

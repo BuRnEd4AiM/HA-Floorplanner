@@ -520,6 +520,17 @@ export function createPlan(ctx) {
         if (h > 8 && !FLAT.has(d.type)) o += `<line x1="${-w / 2 + 3}" y1="${h / 2 - 3}" x2="${w / 2 - 3}" y2="${h / 2 - 3}" stroke="${stroke}" stroke-width="1" opacity=".55"/>`;   // front edge
       }
       o += '</g>';
+      if (d.type === 'bridge') {                                       // which end is the far one (#222): an arrow towards it, the height difference next to it
+        const bs = bridgeSize(d);
+        if (bs.rise || isSel) {
+          const hl = (bs.len * (d.scale || 1) * (d.sx || 1) * s) / 2;
+          o += `<g transform="translate(${cx.toFixed(1)},${cy.toFixed(1)}) rotate(${rot})" pointer-events="none"><line x1="${(-hl + 6).toFixed(1)}" y1="0" x2="${(hl - 12).toFixed(1)}" y2="0" stroke="#c38cff" stroke-width="2"/><polygon points="${(hl - 3).toFixed(1)},0 ${(hl - 13).toFixed(1)},-5 ${(hl - 13).toFixed(1)},5" fill="#c38cff"/></g>`;
+          if (bs.rise) {
+            const th = (-(d.rot || 0) * Math.PI) / 180, ex = d.x + (hl / s) * Math.cos(th), ez = d.z + (hl / s) * Math.sin(th);
+            o += `<text x="${sx(ex).toFixed(1)}" y="${(sy(ez) - 10).toFixed(1)}" text-anchor="middle" font-size="11" fill="#e2c8ff" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${bs.rise > 0 ? '+' : '−'}${esc(ctx.fmtLen(Math.abs(bs.rise)))}</text>`;
+          }
+        }
+      }
       const gl = GLYPH[d.type];
       if (gl && s >= 20) o += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central" font-size="${Math.max(9, Math.min(18, (fo.r ? fo.r * s * 1.4 : Math.min(fo.w, fo.d) * s * .6)))}" fill="${on ? '#fff' : C.accent}">${gl}</text>`;
       if (!FLAT.has(d.type) && (d.name || d.entity) && (s >= 48 || (live && s >= 34 && st && (st.unit || d.entity.startsWith('sensor.'))))) {

@@ -6,10 +6,10 @@ const dir = process.env.STATIC_DIR || '/tmp/static';
 const B = await import(`${dir}/bridge.js`);
 
 test('size: 3 x 1.2 m by default, limits kept', () => {
-  assert.deepEqual(B.bridgeSize({}), { len: 3, width: 1.2 });
-  assert.deepEqual(B.bridgeSize({ len: 4.5, w: 2 }), { len: 4.5, width: 2 });
-  assert.deepEqual(B.bridgeSize({ len: 100, w: 0.1 }), { len: B.BRIDGE.maxLen, width: B.BRIDGE.minWidth });
-  assert.deepEqual(B.bridgeSize({ len: 'x', w: null }), { len: 3, width: 1.2 });
+  assert.deepEqual(B.bridgeSize({}), { len: 3, width: 1.2, rise: 0 });
+  assert.deepEqual(B.bridgeSize({ len: 4.5, w: 2 }), { len: 4.5, width: 2, rise: 0 });
+  assert.deepEqual(B.bridgeSize({ len: 100, w: 0.1 }), { len: B.BRIDGE.maxLen, width: B.BRIDGE.minWidth, rise: 0 });
+  assert.deepEqual(B.bridgeSize({ len: 'x', w: null }), { len: 3, width: 1.2, rise: 0 });
 });
 test('the deck is as long and wide as the bridge, its top at floor level, beams below', () => {
   const p = B.bridgeParts({ len: 4, w: 1.5 });
@@ -28,4 +28,19 @@ test('railing on both sides: posts about every metre, from end to end, a hand ra
 });
 test('without railing only deck and beams', () => {
   assert.deepEqual(B.bridgeParts({ noRail: true }).map((x) => x.kind), ['deck', 'beam', 'beam']);
+});
+test('height difference (#222): the far end that much higher, everything slopes evenly', () => {
+  const p = B.bridgeParts({ len: 3, rise: 0.6 });
+  const deck = p.find((x) => x.kind === 'deck');
+  assert.ok(Math.abs(deck.tilt - Math.atan2(0.6, 3)) < 1e-9);
+  assert.ok(Math.abs(deck.w - Math.hypot(3, 0.6)) < 1e-9);                  // the sloping deck is longer than the plan length
+  const posts = p.filter((x) => x.kind === 'post').sort((a, b) => a.x - b.x);
+  assert.ok(Math.abs(posts[0].y) < 1e-9 && Math.abs(posts[posts.length - 1].y - 0.6) < 1e-9);   // start at 0, far end 0.6 m up
+  assert.ok(p.filter((x) => x.kind === 'rail').every((r) => Math.abs(r.tilt - deck.tilt) < 1e-9));
+});
+test('height difference (#222): lower is negative, limited to 3 m, none = flat as before', () => {
+  assert.equal(B.bridgeSize({ rise: -0.4 }).rise, -0.4);
+  assert.equal(B.bridgeSize({ rise: 9 }).rise, B.BRIDGE.maxRise);
+  assert.equal(B.bridgeSize({}).rise, 0);
+  assert.ok(B.bridgeParts({}).every((x) => !x.tilt));
 });

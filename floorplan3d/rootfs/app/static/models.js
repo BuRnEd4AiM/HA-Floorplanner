@@ -645,7 +645,7 @@ export function makeModel(type, onReady, dev, opts) {
 /** Metal bridge / walkway (#189): grating deck on two steel beams, railing on both sides (see bridgeParts) */
 function bridgeModel(g, dev) {
   const mats = { deck: std('#6f767d', { metalness: 0.6, roughness: 0.5 }), beam: std('#4a5057', { metalness: 0.6, roughness: 0.45 }), post: std('#8d949b', { metalness: 0.6, roughness: 0.45 }), rail: std('#8d949b', { metalness: 0.6, roughness: 0.45 }) };
-  bridgeParts(dev).forEach((p) => g.add(box(p.w, p.h, p.d, mats[p.kind], p.x, p.y, p.z)));
+  bridgeParts(dev).forEach((p) => { const m = box(p.w, p.h, p.d, mats[p.kind], p.x, p.y, p.z); m.rotation.z = p.tilt || 0; g.add(m); });   // sloping parts turn round their middle (#222)
 }
 /** Solar panels (#176): one panel or a field (rows x columns, see solarField), on stands tilted to the sun
  *  or lying flat on rails (on a sloped roof the whole model is tilted onto the roof surface by the caller). On a rack `groundAt` gives the
