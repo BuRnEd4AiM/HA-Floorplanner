@@ -17,7 +17,7 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `models.js` | 715 | Eingebaute 3D-Modelle (Möbel, Geräte, Küchenzeile, Strom), GLB laden |
 | `plan2d.js` | 1.111 | 2D-Editor (SVG) |
 | `i18n.js` und `lang/*.js` | 213 + je Sprache | Übersetzungen (7 Sprachen) |
-| `stairs.js` | ~330 | Treppengeometrie (gerade, L, U, Wendel, Wandtreppe mit Podesten, mehrere Etagen) |
+| `stairs.js` | ~410 | Treppengeometrie (gerade, L, U, Wendel, Wandtreppe mit Podesten, mehrere Etagen; `splitStoreys`: Teil über der offenen Etage, #246) |
 | `rooms.js` | 146 | Automatische Raumerkennung |
 | `dormer.js` | 70 | Dachgauben |
 | `ledring.js` | 195 | LED-Ring |
@@ -68,7 +68,7 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `floorcards.js` | ~110 | Etagenkarten (Ganzes Haus) |
 | `cameras.js` | ~190 | Kameras (Sichtkegel, Übersicht, Standbilder) |
 | `neighbor.js` | ~120 | Nachbarhaus (#220): anderes Haus daneben zeigen (3D und Umriss im Plan), Einstellungen; Geometrie mit Unit-Tests |
-| `multisel.js` | ~70 | Mehrfachauswahl (#211): Shift + Klick, alle löschen in einem Schritt, Rahmen in 3D, Kasten im Panel |
+| `multisel.js` | ~90 | Mehrfachauswahl (#211, #247): Shift / Strg + Klick, Rahmen aufziehen im 2D-Plan (`boxItems`), alle löschen in einem Schritt, Rahmen in 3D, Kasten im Panel |
 | `tapballs.js` | ~85 | Kugeln zum Antippen im Live-Modus (#238): Lage über/unter dem Gerät, Farbe nach Zustand; reine Regeln mit Unit-Tests |
 | `entitystate.js` | ~25 | Was von einer Entität gemerkt wird, Farbe eines Lichteffekts (Schritt 23); reine Logik mit Unit-Tests |
 | `layoutnorm.js` | ~25 | Geladenen Plan vervollständigen, „Erdgeschoss“ in der Sprache des Nutzers (Schritt 23); reine Logik mit Unit-Tests |

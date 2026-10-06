@@ -141,6 +141,21 @@ export function storeysShown(st, i, openFloor, wholeHouse) {
   return Math.max(0, openFloor - i);
 }
 
+/** a stair over several floors split after storey `upTo` (#246): the live mode leaves out the part above the open floor (the floors it
+ *  arrives on are not shown, #229), the editor draws it see-through (#236). L: from stairLocal. below / above: the treads, the hand rail
+ *  points and the pole height of each part (above.poleFrom: where its pole starts); the upper rail starts at the last point of the lower
+ *  one, so it runs on without a gap. above is null when nothing lies above (the whole-house view, a stair over one floor) */
+export function splitStoreys(L, upTo, H) {
+  const rail = L.rail || [], poleH = L.pole?.h || 0;
+  const upper = Number.isFinite(upTo) ? L.treads.filter((tr) => (tr.storey || 0) > upTo) : [];
+  if (!upper.length) return { below: { treads: L.treads, rail, poleH }, above: null };
+  const top = (upTo + 1) * H + RAIL_H, k = rail.findIndex(([, y]) => y > top + 1e-6), n = k < 0 ? rail.length : k, cut = Math.min(poleH, top);
+  return {
+    below: { treads: L.treads.filter((tr) => (tr.storey || 0) <= upTo), rail: rail.slice(0, n), poleH: L.pole ? cut : 0 },
+    above: { treads: upper, rail: rail.slice(Math.max(0, n - 1)), poleFrom: L.pole ? cut : 0, poleH: L.pole ? poleH - cut : 0 },
+  };
+}
+
 /** tread counts: T treads per storey (#229, #236); L/U stairs split into flight 1 (n1), landing and flight 2 (n2) */
 export function stairCounts(st, H) {
   const T = stairSteps(H).n - 1, n1 = Math.floor((T - 1) / 2);

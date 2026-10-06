@@ -331,3 +331,20 @@ test('spiral (#233): a quarter landing at floor level after the last step, out t
     near(Math.cos(a1 - e0), 1, 1e-6);                                           // it starts where the last step ends
   }
 });
+test('split at a storey (#246): the live mode leaves out the storeys above the open floor, the editor draws them see-through', () => {
+  const sp = { ...S.stairDefaults('spiral'), floors: 3 }, L = S.stairLocal(sp, H);
+  const p = S.splitStoreys(L, 0, H);
+  assert.ok(p.below.treads.length && p.below.treads.every((t) => (t.storey || 0) === 0));
+  assert.equal(p.below.treads.length + p.above.treads.length, L.treads.length);
+  assert.ok(p.below.treads.some((t) => t.exit && Math.abs(t.top - H) < 1e-6));             // the landing on the floor in between stays
+  assert.ok(p.below.rail.length > 1 && p.below.rail.every(([, y]) => y <= H + S.RAIL_H + 1e-6));   // the hand rail ends there ...
+  assert.deepEqual(p.above.rail[0], p.below.rail.at(-1));                                    // ... and the rest runs on from that point
+  assert.equal(p.below.rail.length + p.above.rail.length - 1, L.rail.length);
+  near(p.below.poleH + p.above.poleH, L.pole.h); near(p.below.poleH, H + S.RAIL_H);
+  const whole = S.splitStoreys(L, Infinity, H);                                               // the whole-house view: nothing above
+  assert.equal(whole.above, null); assert.equal(whole.below.treads.length, L.treads.length); near(whole.below.poleH, L.pole.h);
+  const u = S.stairLocal({ ...S.stairDefaults('U'), floors: 2 }, H), pu = S.splitStoreys(u, 0, H);   // no rail, no pole
+  assert.ok(pu.above.treads.length && pu.above.treads.every((t) => t.storey === 1));
+  assert.deepEqual(pu.below.rail, []); assert.equal(pu.below.poleH, 0);
+  assert.equal(S.splitStoreys(S.stairLocal(S.stairDefaults('straight'), H), 0, H).above, null);   // one floor: nothing to split
+});

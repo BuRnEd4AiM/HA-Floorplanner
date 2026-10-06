@@ -3,7 +3,7 @@
  * wall along a path drawn in the plan), the stair fields of the properties panel, and the 3D mesh of a stair.
  * The geometry of the shaft is a pure function (tested). */
 import * as THREE from './vendor/three.module.min.js';
-import { stairDefaults, stairBounds, stairLocal, stairCounts, stairLength, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H, MAX_LANDING, landingLength, FLOOR_LANDING } from './stairs.js';
+import { stairDefaults, stairBounds, stairLocal, splitStoreys, POLE_R, stairCounts, stairLength, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H, MAX_LANDING, landingLength, FLOOR_LANDING } from './stairs.js';
 import { OPENING_DEFAULTS, wallLength } from './walls.js';
 
 const snap = (v) => Math.round(v / 0.05) * 0.05;
@@ -34,36 +34,48 @@ export function initStairTool(ctx) {
   let type = 'straight', dir = 'up', turn = 'right', rot = 0, floors = 1, landing = 0;
   const tpl = () => ({ ...stairDefaults(type === 'shaft' ? 'U' : type), type: type === 'shaft' ? 'U' : type, dir, turn, rot, floors, ...(landing > 0 && type !== 'straight' && type !== 'spiral' ? { landing } : {}) });
 
-  /** stair mesh in the stair's local frame (origin = bottom start), steps as solid blocks; of a stair over several floors the storeys after
-   *  `upTo` (0 = the first one; storeysShown in stairs.js) are see-through, so the whole height shows without hanging in the air (#236) */
+  /** stair mesh in the stair's local frame (origin = bottom start), steps as solid blocks. Of a stair over several floors the storeys after
+   *  `upTo` (0 = the first one; storeysShown in stairs.js) go into a group of their own (g.userData.upper): see-through in the editor, so
+   *  the whole height shows without hanging in the air (#236), left out in the live mode (#246, showUpper) */
   function build(st, holo, ghost, edgeMaterial, upTo = Infinity) {
     const g = new THREE.Group();
     const stepMat = holo
       ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: ghost ? 0.12 : 0.38, depthWrite: false, side: THREE.DoubleSide })
       : ctx.mat('#c9bba1', ghost, { side: THREE.DoubleSide });
-    const L = stairLocal(st, ctx.floorH);
+    const parts = splitStoreys(stairLocal(st, ctx.floorH), upTo, ctx.floorH);
     const railMat = holo ? stepMat : ctx.mat('#7c838b', ghost, { metalness: 0.5, roughness: 0.4 });
-    const part = (geo) => { const m = new THREE.Mesh(geo, railMat); m.castShadow = !holo; g.add(m); if (holo && edgeMaterial) g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), edgeMaterial)); };
-    if (L.pole) part(new THREE.CylinderGeometry(L.pole.r, L.pole.r, L.pole.h, 16).translate(0, L.pole.h / 2, 0));   // spiral (#209): the middle pole carries the steps
-    if (L.rail?.length > 1) {
-      part(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(L.rail.map((p) => new THREE.Vector3(...p))), L.rail.length * 4, 0.022, 6));   // hand rail
-      L.rail.forEach(([x, y, z]) => part(new THREE.CylinderGeometry(0.012, 0.012, RAIL_H, 6).translate(x, y - RAIL_H / 2, z)));            // one baluster per step
+    const add = (into, geo, m, edges) => { const o = new THREE.Mesh(geo, m); into.add(o); if (holo && edgeMaterial && edges) into.add(new THREE.LineSegments(edges(geo), edgeMaterial)); return o; };
+    /** one part: the pole from `from` up `poleH` (spiral, #209), the hand rail with a baluster per step (`skip` = the first one is in the
+     *  part below already), the steps */
+    function drawPart(into, part, sMat, rMat, solid, from = 0, skip = 0) {
+      const rail = (geo) => { add(into, geo, rMat, (x) => new THREE.EdgesGeometry(x, 30)).castShadow = solid && !holo; };
+      if (part.poleH > 0) rail(new THREE.CylinderGeometry(POLE_R, POLE_R, part.poleH, 16).translate(0, from + part.poleH / 2, 0));
+      if (part.rail.length > 1) {
+        rail(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(part.rail.map((q) => new THREE.Vector3(...q))), part.rail.length * 4, 0.022, 6));   // hand rail
+        part.rail.slice(skip).forEach(([x, y, z]) => rail(new THREE.CylinderGeometry(0.012, 0.012, RAIL_H, 6).translate(x, y - RAIL_H / 2, z)));   // one baluster per step
+      }
+      part.treads.forEach((tr) => {
+        const shape = new THREE.Shape(tr.poly.map(([x, z]) => new THREE.Vector2(x, -z)));
+        const geo = new THREE.ExtrudeGeometry(shape, { depth: tr.thin || tr.top, bevelEnabled: false });   // a thin step is a plate with nothing below it
+        geo.rotateX(-Math.PI / 2);
+        if (tr.thin) geo.translate(0, tr.top - tr.thin, 0);
+        const m = add(into, geo, sMat, (x) => new THREE.EdgesGeometry(x));
+        m.castShadow = solid && !holo; m.receiveShadow = !holo;
+      });
     }
-    const above = (tr) => (tr.storey || 0) > upTo;
-    const aboveMat = above({ storey: Infinity }) ? (holo ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide })
-      : ctx.mat('#c9bba1', true, { side: THREE.DoubleSide })) : null;
-    L.treads.forEach((tr) => {
-      const shape = new THREE.Shape(tr.poly.map(([x, z]) => new THREE.Vector2(x, -z)));
-      const geo = new THREE.ExtrudeGeometry(shape, { depth: tr.thin || tr.top, bevelEnabled: false });   // a thin step is a plate with nothing below it
-      geo.rotateX(-Math.PI / 2);
-      if (tr.thin) geo.translate(0, tr.top - tr.thin, 0);
-      const m = new THREE.Mesh(geo, above(tr) ? aboveMat : stepMat);
-      m.castShadow = !holo && !above(tr); m.receiveShadow = !holo;
-      g.add(m);
-      if (holo && edgeMaterial) g.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMaterial));
-    });
+    drawPart(g, parts.below, stepMat, railMat, true);
+    if (parts.above) {
+      const up = new THREE.Group();
+      const upMat = holo ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide })
+        : ctx.mat('#c9bba1', true, { side: THREE.DoubleSide });
+      drawPart(up, parts.above, upMat, holo ? upMat : ctx.mat('#7c838b', true, { metalness: 0.5, roughness: 0.4 }), false, parts.above.poleFrom, parts.below.rail.length ? 1 : 0);
+      up.visible = !ctx.isLive?.();
+      g.add(up); g.userData.upper = up;
+    }
     return g;
   }
+  /** the storeys above the open floor: see-through in the editor, hidden in the live mode (#246); root: the scene (or a floor group) */
+  function showUpper(root, show) { root.traverse((o) => { if (o.userData.upper) o.userData.upper.visible = show; }); }
   function place(x, z) {
     if (type === 'wall') return;                                    // a wall stair is drawn as a path (placeWall)
     const f = ctx.floor();
@@ -150,5 +162,5 @@ export function initStairTool(ctx) {
   $('#stairRot').addEventListener('change', (e) => { rot = ((+e.target.value % 360) + 360) % 360 || 0; ctx.plan()?.render(); });
   $('#stairFloors').addEventListener('change', (e) => { floors = Math.max(1, Math.min(MAX_FLOORS, Math.round(+e.target.value) || 1)); e.target.value = floors; ctx.plan()?.render(); });
   $('#stairLanding').addEventListener('change', (e) => { landing = +Math.max(0, Math.min(MAX_LANDING, +e.target.value || 0)).toFixed(2); e.target.value = landing; ctx.plan()?.render(); });
-  return { build, place, template: tpl, placeWall, wallDraft, wallPath, renderProps };
+  return { build, showUpper, place, template: tpl, placeWall, wallDraft, wallPath, renderProps };
 }

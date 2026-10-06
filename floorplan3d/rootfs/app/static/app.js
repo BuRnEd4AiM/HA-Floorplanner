@@ -434,7 +434,7 @@ function build() {
       const arriving = ghost && !houseMode && (st.dir || 'up') === 'up' && i < floorIdx && floorIdx <= i + stairFloors(st);   // a stair over several floors counts for every floor it reaches
       const sGhost = ghost && !arriving;
       const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.95 }) : edgeMaterial;
-      const sg = stairTool.build(st, holo, sGhost, sEdge, storeysShown(st, i, floorIdx, houseMode));   // no storeys hanging over the open floor (#229)
+      const sg = stairTool.build(st, holo, sGhost, sEdge, storeysShown(st, i, floorIdx, houseMode));   // no storeys hanging over the open floor (#229, #246)
       sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H * stairFloors(st) : 0, st.z);
       sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
       g.add(sg);
@@ -1114,7 +1114,7 @@ canvas.addEventListener('pointerdown', (e) => {
   }
   const h = pick(e);
   down.hit = h;
-  if (e.shiftKey) { down.multi = true; return; }                 // Shift + click: add to / take out of the selection, never drag (#211)
+  if (e.shiftKey || e.ctrlKey || e.metaKey) { down.multi = true; return; }   // Shift / Ctrl + click: add to / take out of the selection, never drag (#211, #247)
   if (h?.kind === 'device') {
     const d = floor().devices.find((v) => v.id === h.id);
     const gp = groundPoint(e);
@@ -1465,6 +1465,7 @@ function setMode(next) {
   } else setTool(tool);
   refreshSelection();
   if (isLive()) tapBalls.remeasure();                                 // devices may have been moved while editing
+  stairTool.showUpper(scene, !isLive());                              // stairs over several floors: whole height only in the editor (#246)
   if (plotLoop) plotLoop.visible = !isLive();
   applyViewPolicy();
   applyStates();
@@ -1652,7 +1653,7 @@ const blocks = initBlocks({
 });
 const stairTool = initStairTool({
   $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH: FLOOR_H, snapshot: () => snapshot(), changed: (...a) => changed(...a),
-  select: (sel) => { selection = sel; }, setTool: (x) => setTool(x), plan: () => plan, uid: () => uid(), mat: (...a) => mat(...a),
+  select: (sel) => { selection = sel; }, setTool: (x) => setTool(x), plan: () => plan, uid: () => uid(), mat: (...a) => mat(...a), isLive: () => isLive(),
   ui: { field: (...a) => field(...a), inp: (...a) => inp(...a), lenInput: (...a) => lenInput(...a) },
 });
 
@@ -1831,7 +1832,7 @@ plan = createPlan({
   getTool: () => tool, getOpeningType: () => openingType, isLive: () => isLive(), isLocked: () => lockedSel,
   getSelection: () => selection,
   holdPlaced,
-  setSelection: (h) => { multiSel.clear(); selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); }, toggleMulti: (h) => multiSel.toggle(h), multiItems: () => multiSel.items(),
+  setSelection: (h) => { multiSel.clear(); selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); }, toggleMulti: (h) => multiSel.toggle(h), addMulti: (items) => multiSel.addAll(items), multiItems: () => multiSel.items(),
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate: (a, b) => bgUi.calibrate(a, b),
   bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, neighborOutlines: () => neighbors.outlines(elev(floorIdx)), ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: blocks.setPlot, placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
@@ -1955,6 +1956,7 @@ if (params.get('debug')) {
     stateOf: (e) => states[e]?.state,
     fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),
+    upper: (id) => { const u = registry.get(id)?.userData.upper; return u ? u.visible : null; },   // the storeys of a stair above the open floor (#246)
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     selection: () => selection,
     multi: () => multiSel.items(),

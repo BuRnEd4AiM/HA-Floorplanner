@@ -28,3 +28,22 @@ test('delete order: doors and windows first, cables left out, else the single se
   assert.deepEqual(M.deleteOrder([], A), [A]);
   assert.deepEqual(M.deleteOrder([], null), []);
 });
+test('frame in the plan (#247): what lies wholly inside is picked, by kind', () => {
+  const sq = (x, z, s) => [[x, z], [x + s, z], [x + s, z + s], [x, z + s]];
+  const f = {
+    devices: [{ id: 'd1', x: 1, z: 1, type: 'sofa' }, { id: 'd2', x: 9, z: 9, type: 'lamp' }, { id: 'p1', x: 2, z: 2, type: 'inverter' }],
+    walls: [{ id: 'w1', a: [0.5, 0.5], b: [3, 0.5] }, { id: 'w2', a: [0.5, 0.5], b: [8, 0.5] }],
+    rooms: [{ id: 'r1', points: sq(0.5, 0.5, 2) }, { id: 'r2', points: sq(0.5, 0.5, 6) }],
+    blocks: [], holes: [{ id: 'h1', points: sq(1, 1, 1) }], stairs: [{ id: 's1', x: 3, z: 3 }],
+  };
+  const ids = (items) => items.map((x) => `${x.kind}:${x.id}`).sort();
+  assert.deepEqual(ids(M.boxItems(f, [4, 4], [0, 0])), ['device:d1', 'device:p1', 'hole:h1', 'room:r1', 'stair:s1', 'wall:w1']);   // corners in any order
+  assert.deepEqual(ids(M.boxItems(f, [0, 0], [4, 4], (kind, v) => kind !== 'device' || v.type === 'inverter')).filter((x) => x.startsWith('device')), ['device:p1']);
+  assert.deepEqual(M.boxItems({ devices: [], walls: [], rooms: [] }, [0, 0], [1, 1]), []);   // a floor without stairs, blocks or holes
+});
+test('frame adds to the selection, never takes out, no doubles; the last one is shown', () => {
+  assert.deepEqual(M.addMulti([], A, [B, A, B]), { list: [A, B], selection: B });
+  assert.deepEqual(M.addMulti([A, B], B, [C]), { list: [A, B, C], selection: C });
+  assert.deepEqual(M.addMulti([], null, [A]), { list: [], selection: A });
+  assert.deepEqual(M.addMulti([], null, []), { list: [], selection: null });
+});
