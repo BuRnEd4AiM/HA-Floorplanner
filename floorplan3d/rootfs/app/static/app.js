@@ -49,7 +49,6 @@ import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
-import { solarPose, groundFn } from './solarroof.js';
 import { initPlanRotate } from './planview.js';
 import { initMultiSelect } from './multisel.js';
 import { initNeighbors } from './neighbor.js';
@@ -63,9 +62,9 @@ import { floorLabels } from './viewprefs.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel } from './livechannel.js';
 import { initPersist } from './persist.js';
-import { initFloorBuild } from './floorbuild.js';
+import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { pointInPoly, inIso } from './roomclip.js';
-import { HOLO, addPickProxy, underFloors, holoify as holoifyModel } from './modelfx.js';
+import { HOLO } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
@@ -227,14 +226,6 @@ function mat(color, ghost, extra = {}) {
 
 /** a text label in the scene: plain, as a dark pill on a device or as a glowing badge (labels.js) */
 function textSprite(text, opts) { return makeTextSprite(text, renderer.capabilities.getMaxAnisotropy(), opts); }
-
-
-/** Invisible, slightly padded hit box so small devices (ceiling lamps, switches) are easy to tap. */
-
-/** hologram look for a model; how see-through it is under the open floor follows the setting (modelfx.js) */
-function holoify(model, ghost) { holoifyModel(model, ghost, belowVis()); }
-const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
-const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
 const isHolo = () => settings.theme === 'holo';
 
 /* ---- Room lighting: each lit lamp shines from its own position (shaders and colour scales live in roomlight.js) ---- */
@@ -266,13 +257,6 @@ function updateEarthCut() {
 /** Isolation: while a room is focused only that room, its walls and its devices are drawn (clipping in roomclip.js). */
 function isolatedRoom() { return focusedRoom ? floor()?.rooms.find((r) => r.id === focusedRoom) ?? null : null; }
 
-const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate', 'cover']);   // "important": measured values
-/** Value labels on devices: none, only the important ones (sensors, climate, covers) or every device with an entity. */
-function wantsLabel(d) {
-  const mode = settings.labelMode;
-  if (mode === 'none' || !d.entity) return false;
-  return mode === 'all' || LABEL_DOMAINS.has(d.entity.split('.')[0]);
-}
 
 /** Doors/windows live inside their wall group, which is scaled down when the wall is lowered. This unscaled
  *  hit box (with an outline shown only while the wall is lowered) keeps them selectable, movable and tappable. */
@@ -308,14 +292,16 @@ const neighbors = initNeighbors({
   camera: () => camera, settings: () => settings, wallSee: WALL_SEE, snapshot: () => snapshot(), changed: () => changed(), build: () => build(), fields: { field, lenInput, inp },
 });
 
-/* a floor in 3D: room floors, floor opening rims, blocks, stairs and walls; the code lives in floorbuild.js */
+/* a floor in 3D: room floors, floor opening rims, blocks, stairs, walls and devices; the code lives in floorbuild.js */
 const floorBuild = initFloorBuild({
   settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(),
-  mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (x) => textSprite(x), railing: (...a) => roofsUi.railing(...a),
+  mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
   lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
   registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH: FLOOR_H, holoEdge: HOLO.edge,
   houseMode: () => houseMode, halfCut: () => halfCut, elev: (i) => elev(i), stairMesh: (...a) => stairTool.build(...a),
   cutawayInfo: (w, wg) => wallCutawayInfo(w, wg), openingHandle: (w, o, g) => makeOpeningHandle(w, o, g), cutawayWalls: () => cutawayWalls,
+  makeModel: (...a) => makeModel(...a), setPicture: (m, d) => setPicture(m, d), placeSolar: (...a) => roofsUi.placeSolar(...a),
+  tapBalls, cams: { addCone: (d) => cams.addCone(d) }, labelSprites, modelLoaded: () => { applyStates(); refreshSelHelper(); },
 });
 function build() {
   localizeDefaults(); welcomeUi?.update();
@@ -369,47 +355,7 @@ function build() {
     floorBuild.stairs(g, f, i, { ...part, edge: edgeMaterial });   // stairs and walls: floorbuild.js
     floorBuild.walls(g, f, i, { ...part, edge: edgeMaterial });
 
-    f.devices.forEach((d) => {
-      if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
-      const onRoof = roofsHere && d.type === 'solarpanel' ? solarPose(d, roofsHere) : null;
-      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); tapBalls.moved(d.id); if (GROUND_COVER.has(d.type)) underFloors(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d, onRoof ? { ...onRoof, groundAt: onRoof.mount === 'stand' ? groundFn(d, roofsHere, onRoof.y + (d.y ?? 0)) : undefined } : undefined);   // on a rack the posts reach the roof (#208)
-      if (d.type === 'picture') setPicture(model, d);
-      model.position.set(d.x, d.y ?? 0, d.z);
-      model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
-      model.rotation.set(THREE.MathUtils.degToRad(d.tiltX || 0), THREE.MathUtils.degToRad(d.rot || 0), THREE.MathUtils.degToRad(d.tiltZ || 0));
-      if (onRoof) { roofsUi.placeSolar(model, d, roofsHere); model.userData.onRoof = onRoof.mount; }
-      model.scale.set((d.scale || 1) * (d.sx || 1), (d.scale || 1) * (d.sy || 1), (d.scale || 1) * (d.sz || 1));   // uniform size x independent stretch per axis
-      if (d.mirror) model.scale.x *= -1;                              // mirrored shape (left-right)
-      if (!ghost) addPickProxy(model);
-      if (holo && !OUTDOOR.has(d.type)) holoify(model, ghost);
-      model.traverse((o) => {
-        if (!o.isMesh) return;
-        o.castShadow = !holo;
-        if (ghost && !holo) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.25; }
-      });
-      if (GROUND_COVER.has(d.type)) underFloors(model);
-      model.userData.kind = 'device';
-      model.userData.id = d.id;
-      model.userData.ghost = ghost;
-      g.add(model);
-      registry.set(d.id, model);
-      if (halfCut && !lowWalls && (d.y || 0) >= (f.walls[0]?.height || 2.6) * 0.5 - 0.05) { model.userData.cutHidden = true; model.visible = false; }   // half section: what hangs above the cut (ceiling lamps, LED ring, high pictures) would float in the air
-      if (!ghost && !model.userData.cutHidden) { pickables.push(model); const tb = tapBalls.add(g, model, d); if (tb) pickables.push(tb); }
-      if (d.type === 'camera' && !ghost && (d.fov ?? 90) > 0) {
-        const cone = cams.addCone(d);
-        g.add(cone);
-        pickables.push(cone);
-      }
-      {
-        if (wantsLabel(d) && labelsHere) {
-          const sp = textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true });
-          sp.position.set(d.x, (d.y || 0) + 0.3 + 0.2 * (d.scale || 1), d.z);
-          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * belowVis(); }
-          g.add(sp);
-          labelSprites.set(d.id, sp);
-        }
-      }
-    });
+    floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
   });
   if (!iso) neighbors.build(world, { upTo: houseMode ? Infinity : elev(floorIdx), holo });   // the neighbour house next to this one (#220)
   if (earth.cut()) {                              // garden things at ground level are cut open with the earth, so nothing lies over the basement
@@ -1816,6 +1762,7 @@ if (params.get('debug')) {
     has: (id) => registry.has(id),
     upper: (id) => { const u = registry.get(id)?.userData.upper; return u ? u.visible : null; },   // the storeys of a stair above the open floor (#246)
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
+    badgePill: (id) => !!labelSprites.get(id)?.userData.pill,
     selection: () => selection,
     multi: () => multiSel.items(),
     ballScreen: (id) => {                                            // the tap ball of a device on the screen, null while it does not show (#238)

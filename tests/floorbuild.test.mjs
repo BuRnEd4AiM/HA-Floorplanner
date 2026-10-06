@@ -13,3 +13,16 @@ test('room label: the name, in the top view with the area in m² or ft²', () =>
   assert.equal(F.roomLabel(room, true, false), 'Küche · 12.0 m²');
   assert.equal(F.roomLabel(room, true, true), 'Küche · 129 ft²');
 });
+test('value labels: none, the important ones (sensors, climate, covers) or every device with an entity', () => {
+  const sensor = { entity: 'sensor.t' }, lamp = { entity: 'light.a' }, plant = { entity: '' };
+  assert.equal(F.wantsLabel(sensor, 'important'), true);
+  assert.equal(F.wantsLabel({ entity: 'cover.r' }, 'important'), true);
+  assert.equal(F.wantsLabel(lamp, 'important'), false);
+  assert.equal(F.wantsLabel(lamp, 'all'), true);
+  assert.equal(F.wantsLabel(sensor, 'none'), false);
+  assert.equal(F.wantsLabel(plant, 'all'), false);
+});
+test('garden things lie under the floors and keep their colours in the hologram look', () => {
+  assert.ok(F.GROUND_COVER.has('lawn') && !F.GROUND_COVER.has('tree'));
+  assert.ok(F.OUTDOOR.has('tree') && F.OUTDOOR.has('lawn') && !F.OUTDOOR.has('sofa'));
+});

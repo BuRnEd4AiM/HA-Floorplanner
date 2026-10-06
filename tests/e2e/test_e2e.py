@@ -477,6 +477,7 @@ with sync_playwright() as p:
       window.__fp.fakeState('sensor.bl_test', '21.5', '°C'); fp.switchFloor(L.floors.length - 1); fp.rebuild(); fp.applyStates(); }""")
     pgL.wait_for_timeout(500)
     shown = pgL.evaluate("window.__fp.badge('blS')")
+    check("value labels are dark pills (they were plain text once after a code split)", pgL.evaluate("window.__fp.badgePill('blS')") is True)
     view_menu(pgL); pgL.click("#belowLabelsToggle"); pgL.wait_for_timeout(800)
     hidden = pgL.evaluate("window.__fp.badge('blS')")
     check("labels below (#249): the switch leaves out the labels of the floors below", shown is not None and hidden is None and api_admin("api/settings")["belowLabels"] is False and not pgL.locator("#belowLabelsToggle.active").count(), (shown, hidden))

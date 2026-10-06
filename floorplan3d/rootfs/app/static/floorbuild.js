@@ -1,12 +1,23 @@
 /* 3D build of one floor (step 21 of the split, #137): room floors with their light layers, warning pulse and name, the rims of floor
- * openings, the placeholder blocks (part 1), the stairs and the walls (part 2). build() in app.js walks the floors and calls these; the
- * devices follow there. */
+ * openings, the placeholder blocks (part 1), the stairs and the walls (part 2), the devices with their tap balls, camera cones and value
+ * labels (part 3). build() in app.js walks the floors and calls these. Which device gets a label is pure (unit test). */
 import * as THREE from './vendor/three.module.min.js';
 import { floorShapes } from './blocks.js';
 import { polyArea } from './rooms.js';
 import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js';
 import { inIso, clipWallToRoom } from './roomclip.js';
 import { buildWall, wallLength } from './walls.js';
+import { solarPose, groundFn } from './solarroof.js';
+import { addPickProxy, underFloors, holoify } from './modelfx.js';
+
+export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
+export const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
+const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate', 'cover']);   // "important": measured values
+/** value labels on devices: none, only the important ones (sensors, climate, covers) or every device with an entity */
+export function wantsLabel(d, mode) {
+  if (mode === 'none' || !d.entity) return false;
+  return mode === 'all' || LABEL_DOMAINS.has(d.entity.split('.')[0]);
+}
 
 /** the label of a room: its name, in the (legacy) top view with the area */
 export function roomLabel(r, topView, imperial) {
@@ -20,7 +31,8 @@ export const roomCenter = (points) => points.reduce((a, p) => [a[0] + p[0] / poi
 /** ctx: settings(), floorIdx(), topView(), imperial(), belowVis(), mat(color, ghost, extra), roomLightMat(kind, alpha, ghost), textSprite(text),
  *  railing(g, room, f, holo, ghost) (roof terrace), lowWalls(), roomMeshes (Map), alerts ({ hasRoom(id), pulses }), registry (Map), pickables (Array), floorOpenings(i), floorH, holoEdge,
  *  houseMode(), halfCut(), elev(i), stairMesh(st, holo, ghost, edge, upTo) (stairtool.js), cutawayInfo(w, group), openingHandle(w, o, g),
- *  cutawayWalls() (the list of the open floor's walls for the cutaway) */
+ *  cutawayWalls() (the list of the open floor's walls for the cutaway), makeModel(type, onLoad, d, pose) (models.js), setPicture(model, d),
+ *  placeSolar(model, d, roofs), tapBalls, cams, labelSprites (Map), modelLoaded(); textSprite takes (text, opts) */
 export function initFloorBuild(ctx) {
   /** the rooms of floor f in its group g. o: { holo, ghost, iso (the focused room), labels (names shown), holes (stairwell openings) } */
   function rooms(g, f, o) {
@@ -145,5 +157,50 @@ export function initFloorBuild(ctx) {
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
   }
-  return { rooms, holeRims, blocks, stairs, walls };
+  /** the devices of floor f. o: as rooms, plus roofs (the roofs of a roof floor, for solar panels on them) */
+  function devices(g, f, o) {
+    const { holo, ghost, iso } = o, roofs = o.roofs;
+    const half = ctx.halfCut() && !ctx.lowWalls(), halfAt = (f.walls[0]?.height || 2.6) * 0.5 - 0.05, mode = ctx.settings().labelMode;
+    const holo1 = (m) => holoify(m, ghost, ctx.belowVis());
+    f.devices.forEach((d) => {
+      if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
+      const onRoof = roofs && d.type === 'solarpanel' ? solarPose(d, roofs) : null;
+      const model = ctx.makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); ctx.tapBalls.moved(d.id); if (GROUND_COVER.has(d.type)) underFloors(m); if (holo && !OUTDOOR.has(d.type)) holo1(m); ctx.modelLoaded(); }, d, onRoof ? { ...onRoof, groundAt: onRoof.mount === 'stand' ? groundFn(d, roofs, onRoof.y + (d.y ?? 0)) : undefined } : undefined);   // on a rack the posts reach the roof (#208)
+      if (d.type === 'picture') ctx.setPicture(model, d);
+      model.position.set(d.x, d.y ?? 0, d.z);
+      model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
+      model.rotation.set(THREE.MathUtils.degToRad(d.tiltX || 0), THREE.MathUtils.degToRad(d.rot || 0), THREE.MathUtils.degToRad(d.tiltZ || 0));
+      if (onRoof) { ctx.placeSolar(model, d, roofs); model.userData.onRoof = onRoof.mount; }
+      model.scale.set((d.scale || 1) * (d.sx || 1), (d.scale || 1) * (d.sy || 1), (d.scale || 1) * (d.sz || 1));   // uniform size x independent stretch per axis
+      if (d.mirror) model.scale.x *= -1;                              // mirrored shape (left-right)
+      if (!ghost) addPickProxy(model);
+      if (holo && !OUTDOOR.has(d.type)) holo1(model);
+      model.traverse((x) => {
+        if (!x.isMesh) return;
+        x.castShadow = !holo;
+        if (ghost && !holo) { x.material = x.material.clone(); x.material.transparent = true; x.material.opacity = 0.25; }
+      });
+      if (GROUND_COVER.has(d.type)) underFloors(model);
+      model.userData.kind = 'device';
+      model.userData.id = d.id;
+      model.userData.ghost = ghost;
+      g.add(model);
+      ctx.registry.set(d.id, model);
+      if (half && (d.y || 0) >= halfAt) { model.userData.cutHidden = true; model.visible = false; }   // half section: what hangs above the cut (ceiling lamps, LED ring, high pictures) would float in the air
+      if (!ghost && !model.userData.cutHidden) { ctx.pickables.push(model); const tb = ctx.tapBalls.add(g, model, d); if (tb) ctx.pickables.push(tb); }
+      if (d.type === 'camera' && !ghost && (d.fov ?? 90) > 0) {
+        const cone = ctx.cams.addCone(d);
+        g.add(cone);
+        ctx.pickables.push(cone);
+      }
+      if (wantsLabel(d, mode) && o.labels) {
+        const sp = ctx.textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true });
+        sp.position.set(d.x, (d.y || 0) + 0.3 + 0.2 * (d.scale || 1), d.z);
+        if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * ctx.belowVis(); }
+        g.add(sp);
+        ctx.labelSprites.set(d.id, sp);
+      }
+    });
+  }
+  return { rooms, holeRims, blocks, stairs, walls, devices };
 }
