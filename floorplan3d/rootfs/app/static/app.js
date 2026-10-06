@@ -63,6 +63,7 @@ import { initTapBalls } from './tapballs.js';
 import { initLiveChannel } from './livechannel.js';
 import { initPersist } from './persist.js';
 import { initFloorBuild, OUTDOOR } from './floorbuild.js';
+import { initEditItems } from './edititems.js';
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
@@ -1102,104 +1103,19 @@ function baseDims(type) {
   }
   return dimsCache.get(type);
 }
-/** the layout object behind a selection handle (wall, room, opening, device, stair, block) */
-function itemOf(kind, id) {
-  const f = floor();
-  if (!f) return null;
-  if (kind === 'opening') return findOpening(id)?.opening || null;
-  const list = { wall: f.walls, room: f.rooms, device: f.devices, stair: f.stairs, block: f.blocks, hole: f.holes }[kind] || [];
-  return list.find((q) => q.id === id) || null;
-}
-function deleteItem({ kind, id }, batch = false) {      // batch: several in a row (#211), the caller rebuilds once
-  if (kind === 'cable') {
-    if (power.deleteCable(id)) { if (selection?.id === id) selection = null; changed(); }
-    return;
-  }
-  if (itemOf(kind, id)?.locked) { setStatus(t('prop.lockedHint')); return; }
-  const f = floor();
-  if (kind === 'wall') f.walls = f.walls.filter((x) => x.id !== id);
-  if (kind === 'room') f.rooms = f.rooms.filter((x) => x.id !== id);
-  if (kind === 'device') { f.devices = f.devices.filter((x) => x.id !== id); power.dropCablesTo(id); }
-  if (kind === 'block') f.blocks = (f.blocks || []).filter((x) => x.id !== id);
-  if (kind === 'hole') f.holes = (f.holes || []).filter((x) => x.id !== id);
-  if (kind === 'stair') f.stairs = (f.stairs || []).filter((x) => x.id !== id);
-  if (kind === 'opening') {
-    const found = findOpening(id);
-    if (found) found.wall.openings = found.wall.openings.filter((x) => x.id !== id);
-  }
-  if (selection?.id === id) selection = null;
-  if (!batch) changed();
-}
-
-/** Arrow keys: move the selected item by (dx, dz) metres. Openings slide along their wall (left/up = towards a, right/down = towards b). */
-function nudgeSelection(dx, dz) {
-  if (!dx && !dz) return;
-  const f = floor(), sel = selection;
-  if (sel.kind === 'opening') {
-    const found = findOpening(sel.id);
-    if (!found || found.opening.locked) return;
-    const o = found.opening;
-    const p = clampOpeningPos(found.wall, o.width, o.pos + (dx || dz));
-    if (p === null || p === o.pos || openingOverlaps(found.wall, p, o.width, o.id)) return;
-    snapshot(); o.pos = +p.toFixed(4); changed(); return;
-  }
-  if (itemOf(sel.kind, sel.id)?.locked) return;
-  if (sel.kind === 'device') {
-    const d = f.devices.find((v) => v.id === sel.id);
-    if (d) { snapshot(); moveDeviceTo(d, d.x + dx, d.z + dz); changed(); }
-    return;
-  }
-  const shift = (q) => { q[0] = +(q[0] + dx).toFixed(4); q[1] = +(q[1] + dz).toFixed(4); };
-  if (sel.kind === 'stair') {
-    const st = (f.stairs || []).find((v) => v.id === sel.id);
-    if (st) { snapshot(); st.x = +(st.x + dx).toFixed(4); st.z = +(st.z + dz).toFixed(4); changed(); }
-    return;
-  }
-  let pts = null;
-  if (sel.kind === 'wall') {
-    const w = f.walls.find((v) => v.id === sel.id);
-    if (w) {
-      // like dragging in the 2D editor: walls joined at the corners stretch along
-      const all = [...f.walls.flatMap((v) => [v.a, v.b]), ...f.rooms.flatMap((r) => r.points), ...(f.blocks || []).flatMap((r) => r.points)];
-      const near = (p) => all.filter((q) => Math.abs(q[0] - p[0]) < 0.02 && Math.abs(q[1] - p[1]) < 0.02);
-      pts = [...new Set([...near(w.a), ...near(w.b)])];
-    }
-  } else {
-    const list = sel.kind === 'room' ? f.rooms : sel.kind === 'block' ? f.blocks : sel.kind === 'hole' ? f.holes : null;
-    pts = list?.find((v) => v.id === sel.id)?.points || null;
-  }
-  if (pts?.length) { snapshot(); pts.forEach(shift); changed(); }
-}
-
-window.addEventListener('keydown', (e) => {
-  if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
-  const k = e.key.toLowerCase();
-  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole' || tool === 'stairs')) { plan.finishRoom(); return; }
-  if (k === 'escape') { plan?.cancel(); endDrawing(); popup.close(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); if (multiSel.items().length) { multiSel.clear(); selection = null; refreshSelection(); } return; }
-  if (isLive()) return;
-  if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
-  else if (k === 'delete' || k === 'backspace') { if (multiSel.items().length) multiSel.deleteAll(); else if (selection) { snapshot(); deleteItem(selection); } }
-  else if ((k === 'q' || k === 'e') && selection?.kind === 'stair') {
-    const st = floor().stairs.find((v) => v.id === selection.id);
-    if (st) { snapshot(); st.rot = ((st.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
-  } else if ((k === 'q' || k === 'e') && selection?.kind === 'device') {
-    const d = floor().devices.find((v) => v.id === selection.id);
-    if (d) { snapshot(); d.rot = ((d.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
-  } else if ((k === 'arrowup' || k === 'arrowdown') && !selection && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {   // nothing selected: up / down change the floor
-    const i = floorIdx + (k === 'arrowup' ? 1 : -1);
-    if (i >= 0 && i < layout.floors.length) { e.preventDefault(); switchFloor(i); }
-  } else if (k.startsWith('arrow') && selection && !e.ctrlKey && !e.metaKey) {
-    e.preventDefault();
-    const step = e.altKey ? 0.01 : e.shiftKey ? 0.1 : settings.grid;       // Alt 1 cm, Shift 10 cm, otherwise one grid step
-    nudgeSelection(k === 'arrowleft' ? -step : k === 'arrowright' ? step : 0, k === 'arrowup' ? -step : k === 'arrowdown' ? step : 0);
-  } else if (k === 'v') setTool('select');
-  else if (k === 'w') setTool('wall');
-  else if (k === 'b') setTool('block');
-  else if (k === 't') setTool('stairs');
-  else if (k === 'r') setTool('room');
-  else if (k === 'o') setTool('opening');
-  else if (k === 'd') setTool('device');
+/* ---- Delete, arrow keys, Q / E and the shortcut keys; the code lives in edititems.js ---- */
+const editItems = initEditItems({
+  t, floor: () => floor(), floorIdx: () => floorIdx, floors: () => layout.floors.length, settings: () => settings,
+  selection: () => selection, setSelection: (s) => { selection = s; }, isLive: () => isLive(), tool: () => tool,
+  snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), undo: () => undo(), moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z),
+  power: { deleteCable: (id) => power.deleteCable(id), dropCablesTo: (id) => power.dropCablesTo(id) }, multi: { items: () => multiSel.items(), deleteAll: () => multiSel.deleteAll() },
+  switchFloor: (i) => switchFloor(i), setTool: (x) => setTool(x),
+  finishDraft: () => { if (!plan?.hasDraft()) return false; plan.finishRoom(); return true; },
+  escape: () => { plan?.cancel(); endDrawing(); popup.close(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); if (multiSel.items().length) { multiSel.clear(); selection = null; refreshSelection(); } },
 });
+/** the plan object behind a selection handle (wall, room, opening, device, stair, block) */
+function itemOf(kind, id) { return editItems.itemOf(kind, id); }
+function deleteItem(sel, batch = false) { editItems.deleteItem(sel, batch); }      // batch: several in a row (#211), the caller rebuilds once
 
 /* ================= Live control: the code lives in livecontrols.js (switching, light controls, scenes), livepopup.js and roompanel.js ================= */
 const live = initLiveControls({

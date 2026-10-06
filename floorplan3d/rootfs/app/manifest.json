@@ -1,6 +1,6 @@
 {
- "version": "3.48.5",
- "buildHash": "0c4dba4c04258cb4313b994975c8041ea13137f750a57b07a2de854ff0d5dbc5",
+ "version": "3.48.6",
+ "buildHash": "1f262cca78a5e00cd804305dd021723855704b0a25fa0ecb4d9bead6f7e5950c",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "4af8c83f0ba5e116f928f7a1b5f6ee791fec76cfa3745165139211ef66bbc000",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "d1c1de562153175bc4e73b78eda8d56ffd0ae776165c2feadf64005d53614171",
-  "static/app.js": "01aedb01bb4562f4765c7c21711d81ba120470f73a0a9ae564b502f9a73c8c79",
+  "static/app.js": "fbe31a99b57da3c5422fd8038f3de07d85b698995c00d0fe11329cd1bbf43fb2",
   "static/autoplace.js": "0fcb6f7947f8b878a19c79ee4e90165394ae1702627795d60989f8961cd5a93e",
   "static/background.js": "6ccd7fd8e2e076b02317a864f0957ebe16af4faac9c9dacda16ae11b6e86b172",
   "static/backups.js": "f4052e34c0dd571acc6b1dc78f9ab631cf29e9ce22c522b87934274ec97a67f5",
@@ -145,6 +145,7 @@
   "static/cutaway.js": "d6060174271071da1ce11f2780954abd69133be77a5024464b8bbfeee347432a",
   "static/dormer.js": "1c1a1834cbd56d176758b5976100261b4c04f32d6ccfe6098e17a247f8811156",
   "static/earth.js": "357c12023d40a1c228a12429df5fe563739d409e88738c3bd31c692656994d33",
+  "static/edititems.js": "5102014c6b4b9937a2842a9eae355c8dd043711d2112c138598b246bef03b65a",
   "static/entitypicker.js": "b04001c54b2501a937cced5b74b091ee30f10dc9a96487ed4de6ecd26f189915",
   "static/entitystate.js": "5f088c54e147f0745fe295232e3335dd4f31e748d427a3349cc5211cf98dfac0",
   "static/floorbuild.js": "b799e2183411bfe7f6715f25aa9ff0af27c8842c854613b1b9d5a1ae0e58d592",
