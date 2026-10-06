@@ -29,3 +29,11 @@ export function bridgeParts(d) {
   });
   return parts;
 }
+
+/** true when the point (x, z) of the bridge's floor lies on the bridge or up to `reach` m beyond one of its ends: a terrace railing
+ *  leaves that stretch open, so the bridge can be walked onto (#189). d is the bridge device (x, z, rot like any device). */
+export function onBridge(d, x, z, reach = 0.4) {
+  const { len, width } = bridgeSize(d), k = d.scale || 1, t = ((d.rot || 0) * Math.PI) / 180, c = Math.cos(t), s = Math.sin(t);
+  const dx = x - (d.x || 0), dz = z - (d.z || 0), lx = dx * c - dz * s, lz = dx * s + dz * c;   // into the bridge's own frame (length along x)
+  return Math.abs(lx) <= (len * k) / 2 + reach && Math.abs(lz) <= (width * k) / 2;
+}

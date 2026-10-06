@@ -428,6 +428,7 @@ function updateRoofFade() { roofsUi.updateFade(); }
 /* ---- Neighbour house (#220): another house of the list drawn next to this one; the code lives in neighbor.js ---- */
 const neighbors = initNeighbors({
   $, t, houses: () => hs.list(), houseId: () => hs.id(), label: (h) => hs.label(h), layout: () => layout, floorH: FLOOR_H, mat: (...a) => mat(...a), HOLO,
+  bridges: () => layout.floors.flatMap((f, i) => (f.devices || []).filter((d) => d.type === 'bridge').map((d) => ({ d, y: elev(i) }))),
   camera: () => camera, settings: () => settings, wallSee: WALL_SEE, snapshot: () => snapshot(), changed: () => changed(), build: () => build(), fields: { field, lenInput, inp },
 });
 

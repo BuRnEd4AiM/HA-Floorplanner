@@ -6,7 +6,8 @@ const Win = (id, pos, extra = {}) => ({ id, type: 'window', pos, width: 1.2, hei
 
 const layout = {
   version: 1,
-  plot: { boundary: [[-7, -6], [17, -6], [17, 14], [-7, 14]] },   // the plot (Grundstück): the house stands in the lawn, the basement in the earth
+  plot: { boundary: [[-7, -6], [29, -6], [29, 14], [-7, 14]] },   // the plot (Grundstück): the house stands in the lawn, the basement in the earth; the neighbour house too
+  neighbors: [{ house: 'nachbar', x: 19, z: 0, rot: 0, y: 0.4 }],   // #220/#222: the second demo house stands next to this one, its upper floor 0.4 m higher
   floors: [{
     id: 'kg', name: 'Keller', kind: 'basement',
     rooms: [
@@ -33,10 +34,14 @@ const layout = {
       { id: 'k_d8', type: 'washer',  x: 1.8, z: 6.4,  y: 0,    rot: 180, scale: 1,   name: 'Trockner', entity: '' },
       { id: 'k_d9', type: 'sensor',  x: 9.8, z: 5.8,  y: 1.6,  rot: 270, scale: 1,   name: 'Luftfeuchte Keller', entity: 'sensor.keller_feuchte' },
       { id: 'k_d10', type: 'light',  x: 5,   z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Licht Waschküche', entity: 'light.waschkueche' },
+      { id: 'k_m1', type: 'watermeter', x: 6.7, z: 0.4, y: 0.5, rot: 0,  scale: 1, name: 'Wasserzähler', entity: 'sensor.wasserzaehler' },
+      { id: 'k_m2', type: 'gasmeter',   x: 9.8, z: 2.4, y: 1.2, rot: 270, scale: 1, name: 'Gaszähler', entity: 'sensor.gaszaehler' },
+      { id: 'k_m3', type: 'heatmeter',  x: 9.8, z: 3.5, y: 1.4, rot: 270, scale: 1, name: 'Wärmemengenzähler', entity: 'sensor.waermemenge' },
     ],
   }, {
     id: 'eg', name: 'Erdgeschoss',
-    stairs: [{ id: 'st1', name: 'Treppe', type: 'straight', x: 6.5, z: 3.9, rot: 0, w: 1.0, tread: 0.2, turn: 'right', dir: 'up' }],
+    stairs: [{ id: 'st1', name: 'Treppe', type: 'straight', x: 6.5, z: 3.9, rot: 0, w: 1.0, tread: 0.2, turn: 'right', dir: 'up' },
+      { id: 'st2', name: 'Wendeltreppe zur Dachterrasse', type: 'spiral', x: 14.1, z: 5.05, rot: 0, w: 0.9, turn: 'right', dir: 'up', floors: 1 }],
     rooms: [
       { id: 'r1', name: 'Wohnzimmer',    area: 'wohnzimmer', color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
       { id: 'r2', name: 'Küche',         color: '#c9c2b4', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
@@ -119,7 +124,7 @@ const layout = {
       { id: 'gt2', type: 'tree',    x: 14.5, z: -3.5, y: 0, rot: 0,  scale: 1.3, name: 'Linde', entity: '' },
       { id: 'gt3', type: 'bush',    x: -5,   z: 5.5,  y: 0, rot: 0,  scale: 1,   name: 'Hecke', entity: '' },
       { id: 'gt4', type: 'terrace', x: -2.6, z: 2.5,  y: 0, rot: 90, scale: 1.1, name: 'Terrasse', entity: '' },
-      { id: 'gt5', type: 'car',     x: 12.6, z: 3.0,  y: 0, rot: 90, scale: 1,   name: 'Auto', entity: '' },
+      { id: 'gt5', type: 'car',     x: 12.2, z: 3.0,  y: 0, rot: 90, scale: 1,   name: 'Auto', entity: '' },
       { id: 'gg1', type: 'light',   x: 12.5, z: 3.0,  y: 2.55, rot: 0, scale: 1.2, name: 'Garagenlicht', entity: 'light.garage' },
       { id: 'gt6', type: 'fence',   x: 5,    z: -5.6, y: 0, rot: 0,  scale: 1, sx: 7.8, name: 'Zaun', entity: '' },
     ],
@@ -146,7 +151,8 @@ const layout = {
       { id: 'e3', type: 'table', x: 7.5, z: 1.5, y: 0, rot: 0, scale: 0.8, name: 'Schreibtisch', entity: '' },
       { id: 'te1', type: 'diningtable', x: 12.8, z: 2.6, y: 0, rot: 0, scale: 0.8, name: 'Terrassentisch', entity: '' },
       { id: 'te2', type: 'plant', x: 14.5, z: 0.6, y: 0, rot: 0, scale: 1.3, name: 'Pflanze', entity: '' },
-      { id: 'te3', type: 'plant', x: 14.5, z: 5.4, y: 0, rot: 0, scale: 1.3, name: 'Pflanze', entity: '' },
+      { id: 'te3', type: 'plant', x: 10.6, z: 5.4, y: 0, rot: 0, scale: 1.3, name: 'Pflanze', entity: '' },
+      { id: 'br1', type: 'bridge', x: 17, z: 3, y: 0, rot: 0, scale: 1, len: 4, w: 1.4, rise: 0.4, name: 'Brücke zum Nachbarhaus', entity: '' },
     ],
   }, {
     id: 'dg', name: 'Dachgeschoss',
@@ -166,10 +172,62 @@ const layout = {
       { id: 'g2', type: 'lamp', x: 1.8, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Stehlampe Studio', entity: 'light.stehlampe' },
     ],
   }, {
-    id: 'dach', name: 'Dach', kind: 'roof', walls: [], rooms: [], devices: [], blocks: [], stairs: [],
+    id: 'dach', name: 'Dach', kind: 'roof', walls: [], rooms: [], blocks: [], stairs: [],
+    devices: [{ id: 'pv_dach', type: 'solarpanel', x: 5, z: 5.45, y: 0, rot: 0, scale: 1, cols: 5, rows: 2, name: 'PV Dach', entity: 'sensor.pv_dach' }],
     roof: { type: 'gable', pitch: 35, overhang: 0.4, dormers: [{ side: 'a', pos: 0.3 }, { side: 'b', pos: 0.7, w: 2.0, type: 'flat' }] },
   }],
 };
+
+// The second demo house (#220): a small house next door with a roof terrace on its upper floor, reached over the bridge from the
+// terrace of the demo house; inside a wall stair with a landing after its bend (#210).
+const neighbor = {
+  version: 1,
+  floors: [{
+    id: 'n_eg', name: 'Erdgeschoss',
+    stairs: [{ id: 'n_st1', name: 'Wandtreppe', type: 'wall', x: 7.76, z: 0.9, rot: 0, w: 0.9, turn: 'right', dir: 'up', floors: 1, landing: 1, path: [[0, 0], [0, 5.85], [-2.4, 5.85]] }],
+    rooms: [
+      { id: 'n_r1', name: 'Wohnen', color: '#b8a58a', points: [[0, 0], [5, 0], [5, 7], [0, 7]] },
+      { id: 'n_r2', name: 'Diele', color: '#a9a39a', points: [[5, 0], [8, 0], [8, 7], [5, 7]] },
+    ],
+    walls: [
+      W('n_w1', [0, 0], [8, 0], 0.24, [Win('n_o1', 1.5), Win('n_o2', 3.6), D('n_o3', 5.8, { name: 'Haustür Nachbar' })]),
+      W('n_w2', [8, 0], [8, 7], 0.24, []),
+      W('n_w3', [8, 7], [0, 7], 0.24, [Win('n_o4', 5.5)]),
+      W('n_w4', [0, 7], [0, 0], 0.24, [Win('n_o5', 3.5, { width: 1.6 })]),
+      W('n_i1', [5, 0], [5, 7], 0.12, [D('n_o6', 1.2)]),
+    ],
+    devices: [
+      { id: 'n_d1', type: 'sofa', x: 2.5, z: 5.6, y: 0, rot: 180, scale: 1, name: 'Sofa', entity: '' },
+      { id: 'n_d2', type: 'table', x: 2.5, z: 4.3, y: 0, rot: 0, scale: 0.6, name: 'Tisch', entity: '' },
+      { id: 'n_d3', type: 'light', x: 2.5, z: 3.5, y: 2.55, rot: 0, scale: 1.2, name: 'Licht Wohnen', entity: 'light.nachbar_wohnen' },
+      { id: 'n_d4', type: 'plant', x: 0.6, z: 0.6, y: 0, rot: 0, scale: 1.2, name: 'Pflanze', entity: '' },
+    ],
+  }, {
+    id: 'n_og', name: 'Obergeschoss',
+    rooms: [
+      { id: 'n_q1', name: 'Dachterrasse', color: '#a58a63', terrace: true, points: [[0, 0], [3, 0], [3, 7], [0, 7]] },
+      { id: 'n_q2', name: 'Schlafen', color: '#a99bb8', points: [[3, 0], [8, 0], [8, 4], [3, 4]] },
+      { id: 'n_q3', name: 'Flur', color: '#b3aca0', points: [[3, 4], [8, 4], [8, 7], [3, 7]] },
+    ],
+    walls: [
+      W('n_u1', [3, 0], [8, 0], 0.24, [Win('n_u5', 2.5)]),
+      W('n_u2', [8, 0], [8, 7], 0.24, []),
+      W('n_u3', [8, 7], [3, 7], 0.24, [Win('n_u6', 1.5)]),
+      W('n_u4', [3, 7], [3, 0], 0.24, [D('n_u7', 5, { width: 1.8, height: 2.1, style: 'sliding', name: 'Terrassentür' })]),
+      W('n_u8', [3, 4], [8, 4], 0.12, [D('n_u9', 1.2)]),
+    ],
+    devices: [
+      { id: 'n_e1', type: 'bed', x: 5.5, z: 1.6, y: 0, rot: 0, scale: 1, name: 'Bett', entity: '' },
+      { id: 'n_e2', type: 'diningtable', x: 1.5, z: 4.5, y: 0, rot: 90, scale: 0.7, name: 'Terrassentisch', entity: '' },
+      { id: 'n_e3', type: 'plant', x: 2.5, z: 0.6, y: 0, rot: 0, scale: 1.3, name: 'Pflanze', entity: '' },
+    ],
+  }, {
+    id: 'n_dach', name: 'Dach', kind: 'roof', walls: [], rooms: [], devices: [], blocks: [], stairs: [],
+    roof: { type: 'hip', pitch: 30, overhang: 0.4 },
+  }],
+};
+const layouts = { main: layout, nachbar: neighbor };
+const houses = [{ id: 'main', name: 'Demo-Haus' }, { id: 'nachbar', name: 'Nachbarhaus' }];
 
 const entities = {
   'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70, rgb: [255, 140, 110] },
@@ -224,6 +282,11 @@ const entities = {
   'sensor.wohnzimmer_co2':   { name: 'Wohnzimmer CO₂',         state: '920', unit: 'ppm', dc: 'carbon_dioxide' },
   'sensor.schlafzimmer_co2': { name: 'Schlafzimmer CO₂',       state: '1350', unit: 'ppm', dc: 'carbon_dioxide' },
   'sensor.kinder_co2':       { name: 'Kinderzimmer CO₂',       state: '640', unit: 'ppm', dc: 'carbon_dioxide' },
+  'sensor.wasserzaehler':    { name: 'Wasserzähler',           state: '1234.6', unit: 'm³', dc: 'water' },
+  'sensor.gaszaehler':       { name: 'Gaszähler',              state: '845.2', unit: 'm³', dc: 'gas' },
+  'sensor.waermemenge':      { name: 'Wärmemengenzähler',      state: '5321', unit: 'kWh', dc: 'energy' },
+  'sensor.pv_dach':          { name: 'PV Dach',                state: '4100', unit: 'W', dc: 'power' },
+  'light.nachbar_wohnen':    { name: 'Nachbar Wohnen Licht',   state: 'on', rgb: [255, 200, 140] },
 };
 
 let settings = {
@@ -247,11 +310,28 @@ export function installDemoBackend() {
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a4a5c"/><stop offset="1" stop-color="#151b22"/></linearGradient></defs><rect width="640" height="360" fill="url(#g)"/><rect x="0" y="250" width="640" height="110" fill="#2a2f36"/><rect x="60" y="90" width="150" height="150" fill="#1d252e" stroke="#556" stroke-width="3"/><rect x="420" y="170" width="170" height="80" rx="10" fill="#4a3a30"/><text x="16" y="30" fill="#fff" font-family="sans-serif" font-size="18">${name}</text><text x="624" y="344" fill="#9fe" font-family="monospace" font-size="16" text-anchor="end">DEMO ${now}</text></svg>`;
       return new Response(svg, { status: 200, headers: { 'Content-Type': 'image/svg+xml' } });
     }
-    if (path === 'api/layout') {
-      if (method === 'PUT') return json({ ok: true });        // edits live only in this tab
-      return json(layout);
+    if (path === 'api/layout') {                              // several houses (#220): ?house=id; edits live only in this tab
+      const hid = new URL(url, location.href).searchParams.get('house') || houses[0].id;
+      if (!layouts[hid]) return json({ error: 'unknown house' }, 404);
+      if (method === 'PUT') { layouts[hid] = JSON.parse(init.body); return json({ ok: true }); }
+      return json(layouts[hid]);
     }
-    if (path === 'api/houses') return method === 'GET' ? json([{ id: 'main', name: 'Demo-Haus' }]) : json({ error: 'not in the demo' }, 501);
+    if (path === 'api/houses') {
+      if (method === 'POST') {                                  // a new (empty) house or a copy, kept until the tab is closed
+        const body = JSON.parse(init.body || '{}'), id = `h${Date.now().toString(36)}`;
+        layouts[id] = body.copyFrom && layouts[body.copyFrom] ? structuredClone(layouts[body.copyFrom]) : { version: 1, floors: [{ id: 'f1', name: 'Erdgeschoss', walls: [], rooms: [], devices: [] }] };
+        houses.push({ id, name: String(body.name || '').trim() });
+        return json({ id, name: houses.at(-1).name });
+      }
+      return json(houses);
+    }
+    if (path.startsWith('api/houses/')) {
+      const id = decodeURIComponent(path.slice('api/houses/'.length)), h = houses.find((x) => x.id === id);
+      if (!h) return json({ error: 'unknown house' }, 404);
+      if (method === 'PATCH') { h.name = String(JSON.parse(init.body || '{}').name || h.name).trim(); return json({ ok: true }); }
+      if (method === 'DELETE' && houses.length > 1) { houses.splice(houses.indexOf(h), 1); delete layouts[id]; return json({ ok: true }); }
+      return json({ error: 'cannot delete' }, 400);
+    }
     if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all' });
     if (path === 'api/users') return json([{ username: 'admin', name: 'Admin', admin: true }, { username: 'tablet_wohnzimmer', name: 'Tablet Wohnzimmer', admin: false }, { username: 'familie', name: 'Familie', admin: false }]);
     if (path === 'api/users-file') return json({ file: 'users.json', exists: true, fileUsers: 2, users: 2, inSync: true });

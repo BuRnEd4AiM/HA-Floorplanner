@@ -3,6 +3,7 @@
  * tests/roofs.test.mjs), the rest draws with three.js. */
 import * as THREE from './vendor/three.module.min.js';
 import { dormerParts } from './dormer.js';
+import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
 
 /** footprint (bounding box) of everything under a roof floor */
@@ -37,12 +38,14 @@ export function partBox(p) {
 export function initRoofs(ctx) {
   const roofs = [];                  // roofs that thin out when the camera comes close
   const mat = (...a) => ctx.mat(...a), HOLO = ctx.HOLO;
-  /** Railing round a roof terrace: posts and two rails along every edge that is not a wall */
-  function buildRailing(g, room, f, holo, ghost) {
+  /** Railing round a roof terrace: posts and two rails along every edge that is not a wall and where no bridge arrives (the bridges of
+   *  this floor, and `bridges`: more bridge devices in this floor's frame, e.g. the one coming over from the next house) */
+  function buildRailing(g, room, f, holo, ghost, bridges = []) {
     const pts = room.points, H = 1.0, step = 0.2;
     const mat = holo ? new THREE.MeshBasicMaterial({ color: 0x3df2ff, transparent: true, opacity: ghost ? 0.12 : 0.85 })
       : new THREE.MeshStandardMaterial({ color: '#8d949b', roughness: 0.45, metalness: 0.6, transparent: ghost, opacity: ghost ? 0.25 : 1 });
-    const covered = (x, z) => f.walls.some((w) => {                          // a wall (also in a doorway) already closes this spot
+    const landing = [...(f.devices || []).filter((d) => d.type === 'bridge'), ...bridges];
+    const covered = (x, z) => landing.some((d) => onBridge(d, x, z)) || f.walls.some((w) => {                          // a wall (also in a doorway) already closes this spot
       const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], l2 = dx * dx + dz * dz || 1;
       const k = Math.max(0, Math.min(1, ((x - w.a[0]) * dx + (z - w.a[1]) * dz) / l2));
       return Math.hypot(x - (w.a[0] + k * dx), z - (w.a[1] + k * dz)) < (w.thickness || 0.2) / 2 + 0.12;

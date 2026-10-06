@@ -7,6 +7,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.44.2] - 2026-10-06
+### Added
+- **Demo with two houses**: the demo now has a second house, *Nachbarhaus*, standing next to the demo house (its upper floor 0.4 m higher). A metal bridge leads from the roof terrace of the demo house over to its roof terrace, rising by 0.4 m, so the neighbour house (#220) and the bridge with a height difference (#222) can be tried in the browser. Switching houses, creating, copying, renaming and deleting houses also work in the demo (kept until the tab is closed).
+- **More of the new features in the demo house**: water, gas and heat meter with readings in the basement, a field of 10 solar panels on the roof, a spiral stair from the garage up through the roof terrace; the neighbour house has a wall stair with a landing after its bend.
+### Fixed
+- **Terrace railing and bridge**: the railing of a roof terrace ran straight across the end of a bridge, so it could not be walked onto. Where a bridge arrives, on this house's terrace and on the neighbour's, the railing now leaves a gap (`onBridge` in `bridge.js`, with tests).
+
 ## [3.44.1] - 2026-10-06
 ### Added
 - **Bridge with a height difference (#222)**: when the upper floors of the two houses are not at the same height, the new field "Height difference at the end" of the bridge makes its far end that much higher (+) or lower (−); deck, beams and railing slope evenly, the posts follow. In the 2D plan a purple arrow points to the far end with the value next to it. The neighbour house shows its storey on the level of the open floor even when it lies a bit higher or lower (set with its "Height"). Import and export know `rise`.

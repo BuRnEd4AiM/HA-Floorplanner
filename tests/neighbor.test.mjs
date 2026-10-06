@@ -39,3 +39,17 @@ test('a storey of the neighbour a bit higher or lower still counts as the same l
   assert.equal(N.outlineAt(floors, { y: -0.4 }, 3, 3).length, 3);
   assert.equal(N.outlineAt([fl('floor', { rooms: [{ points: [[0, 0], [2, 0], [2, 2]] }] })], {}, 3, 3).length, 0);   // a whole storey lower: not this level
 });
+test('our device in the neighbour\'s frame: the reverse of placePoint, the turn taken off', () => {
+  const nb = { x: 19, z: 2, rot: 90 };
+  const local = N.intoNeighbor({ x: 0, z: 0, rot: 30, len: 4 }, nb);
+  const back = N.placePoint([local.x, local.z], nb);
+  near(back[0], 0); near(back[1], 0);
+  assert.equal(local.rot, -60); assert.equal(local.len, 4);
+});
+test('bridges that reach a floor of the neighbour: start or far end at its height (#222)', () => {
+  const nb = { x: 19, z: 0, y: 0.4 };
+  const bridges = [{ d: { id: 'a', x: 17, z: 3, rise: 0.4 }, y: 3 }, { d: { id: 'b', x: 17, z: 3 }, y: 0 }];
+  assert.deepEqual(N.bridgesAt(bridges, nb, 3.4, 3).map((d) => [d.id, d.x, d.z]), [['a', -2, 3]]);   // only the one on the upper floor, in its frame
+  assert.deepEqual(N.bridgesAt(bridges, nb, 6.4, 3), []);
+  assert.deepEqual(N.bridgesAt(undefined, nb, 3.4, 3), []);
+});
