@@ -37,3 +37,11 @@ def test_the_real_changelog_has_the_version_of_config_yaml():
     root = Path(__file__).parent.parent
     cfg = next(l.split('"')[1] for l in (root / "floorplan3d" / "config.yaml").read_text().splitlines() if l.startswith("version:"))
     assert cfg in rv.changelog_versions((root / "CHANGELOG.md").read_text(encoding="utf-8"))
+
+
+def test_the_workflow_skips_versions_without_a_commit_and_never_breaks_its_pipe():
+    wf = (Path(__file__).parent.parent / ".github" / "workflows" / "release.yml").read_text()
+    loop = wf[wf.index("for ver in $todo"):wf.index("  demo:")]
+    assert "| head" not in loop                      # head closes the pipe early: git gets SIGPIPE and set -o pipefail stops the run
+    assert "never in config.yaml, skipped" in loop   # an old version that was never shipped is skipped
+    assert loop.index('[ "$ver" = "$cfg" ]') < loop.index('target="$GITHUB_SHA"')   # only the current version may fall back to the run's commit
