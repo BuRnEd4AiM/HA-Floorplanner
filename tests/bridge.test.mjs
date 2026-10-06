@@ -44,3 +44,12 @@ test('height difference (#222): lower is negative, limited to 3 m, none = flat a
   assert.equal(B.bridgeSize({}).rise, 0);
   assert.ok(B.bridgeParts({}).every((x) => !x.tilt));
 });
+test('where the bridge lands (#189): on the deck and a little beyond its ends, not beside it', () => {
+  const d = { x: 17, z: 3, len: 4, w: 1.4 };
+  assert.ok(B.onBridge(d, 15, 3));                                     // the start, where the terrace railing stands
+  assert.ok(B.onBridge(d, 19.3, 3.6));                                // just beyond the far end
+  assert.ok(!B.onBridge(d, 19.6, 3));                                 // too far
+  assert.ok(!B.onBridge(d, 15, 4));                                   // beside it
+  const turned = { x: 0, z: 0, len: 4, w: 1, rot: 90 };                // turned like a device: its length now runs along z
+  assert.ok(B.onBridge(turned, 0, 2.2) && B.onBridge(turned, 0, -2.2) && !B.onBridge(turned, 2.2, 0));
+});

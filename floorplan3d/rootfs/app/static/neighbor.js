@@ -11,6 +11,15 @@ export function placePoint([x, z], nb) {
   const t = ((nb.rot || 0) * Math.PI) / 180, c = Math.cos(t), s = Math.sin(t);
   return [(nb.x || 0) + x * c + z * s, (nb.z || 0) - x * s + z * c];
 }
+/** a device of this plan seen in the neighbour's own frame (the reverse of placePoint): position and turn */
+export function intoNeighbor(d, nb) {
+  const t = ((nb.rot || 0) * Math.PI) / 180, c = Math.cos(t), s = Math.sin(t), dx = (d.x || 0) - (nb.x || 0), dz = (d.z || 0) - (nb.z || 0);
+  return { ...d, x: dx * c - dz * s, z: dx * s + dz * c, rot: (d.rot || 0) - (nb.rot || 0) };
+}
+/** the bridges of this plan ([{ d, y }], y = height of their floor) that reach the neighbour's floor at height fy, in its frame */
+export function bridgesAt(bridges, nb, fy, floorH) {
+  return (bridges || []).filter(({ d, y }) => Math.min(Math.abs(y - fy), Math.abs(y + (+d.rise || 0) - fy)) < floorH / 3).map(({ d }) => intoNeighbor(d, nb));
+}
 /** height of floor i of a plan above its ground floor (basements below 0), like the app's own floors */
 export function floorElev(floors, i, floorH) {
   const g = Math.max(0, floors.findIndex((f) => f.kind !== 'basement'));
@@ -35,7 +44,7 @@ export function cleanNeighbor(nb) {
   return { house: String(nb?.house || ''), x: n(nb?.x, -1000, 1000), z: n(nb?.z, -1000, 1000), rot: ((n(nb?.rot, -3600, 3600) % 360) + 360) % 360, y: n(nb?.y, -50, 50) };
 }
 
-/** ctx: $, t, houses() ([{ id, name }]), houseId(), label(house), layout(), floorH, mat(color, ghost, extra), HOLO, camera(), settings(), wallSee,
+/** ctx: $, t, houses() ([{ id, name }]), houseId(), label(house), layout(), floorH, mat(color, ghost, extra), HOLO, camera(), settings(), wallSee, bridges() ([{ d, y }]),
  *  snapshot(), changed(), build(), fields: { field, lenInput, inp } */
 export function initNeighbors(ctx) {
   const { $, t } = ctx;
@@ -74,7 +83,7 @@ export function initNeighbors(ctx) {
           const geo = new THREE.ShapeGeometry(new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)))).rotateX(-Math.PI / 2);
           const m = new THREE.Mesh(geo, ctx.mat(r.color || '#8a7f70', false, { side: THREE.DoubleSide }));
           m.position.y = 0.01; m.receiveShadow = true; g.add(m);
-          if (r.terrace) R.railing(g, r, f, holo, false);               // the roof terrace the bridge leads to keeps its railing
+          if (r.terrace) R.railing(g, r, f, holo, false, bridgesAt(ctx.bridges?.(), nb, floorElev(L.floors, i, ctx.floorH) + nb.y, ctx.floorH));   // its terrace keeps its railing, open where our bridge arrives
         });
         if (f.kind === 'roof') R.build(g, i, f, holo, false);
         root.add(g);
