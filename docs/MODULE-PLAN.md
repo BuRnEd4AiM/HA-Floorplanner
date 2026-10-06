@@ -70,6 +70,11 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `neighbor.js` | ~120 | Nachbarhaus (#220): anderes Haus daneben zeigen (3D und Umriss im Plan), Einstellungen; Geometrie mit Unit-Tests |
 | `multisel.js` | ~70 | Mehrfachauswahl (#211): Shift + Klick, alle löschen in einem Schritt, Rahmen in 3D, Kasten im Panel |
 | `tapballs.js` | ~85 | Kugeln zum Antippen im Live-Modus (#238): Lage über/unter dem Gerät, Farbe nach Zustand; reine Regeln mit Unit-Tests |
+| `entitystate.js` | ~25 | Was von einer Entität gemerkt wird, Farbe eines Lichteffekts (Schritt 23); reine Logik mit Unit-Tests |
+| `layoutnorm.js` | ~25 | Geladenen Plan vervollständigen, „Erdgeschoss“ in der Sprache des Nutzers (Schritt 23); reine Logik mit Unit-Tests |
+| `roomclip.js` | ~45 | Raum freistellen: Punkt im Raum, Wand auf den Raum zuschneiden, Punkt-im-Polygon (Schritt 24); reine Geometrie mit Unit-Tests |
+| `modelfx.js` | ~70 | Trefferboxen eines Modells, Hologramm-Darstellung, Flaches unter den Böden (Schritt 24) |
+| `labels.js` | ~50 | Text im 3D-Bild: Raumname, Wert-Pille am Gerät, leuchtendes Strom-Schild (Schritt 24) |
 | `pickrules.js` | ~15 | Was ein Tipp im Live-Modus treffen darf (#234): keine Türen/Fenster, kein Kamera-Kegel, keine Anwesenheit; reine Logik mit Unit-Tests |
 | `planview.js` | ~50 | 2D-Plan dreht mit der 3D-Ansicht (#212): Winkel aus der Kamera, Punkte drehen, lesbare Schrift; Schalter |
 | `placement.js` | ~60 | Platzieren (Schritt 22): Einrasten an Raster und Wandecken, Wandgeräte flach an die Wand, LED-Ring um den Raum; Wandgeräte-Liste; reine Rechnung mit Unit-Tests |
@@ -84,7 +89,7 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
 | 20 | **Zeichnen, Auswählen, Zeigerereignisse** (Fangen, Ziehen, Werkzeuge) | ~475 | `pointer.js`, `tools.js` | hoch |
-| 21 | **3D-Aufbau**: Hologramm-Darstellung (~60), `build` selbst (~210) | ~270 | `scene.js` | hoch |
+| 21 | **3D-Aufbau**: `build` selbst (~210; Hologramm, Trefferboxen und Schilder sind schon in `modelfx.js` / `labels.js`) | ~210 | `scene.js` | hoch |
 | 22 | **Zustand, Rückgängig, Speichern, Datenladen, Live-Kanal** | ~80 + ~25 + ~150 | `state.js`, `data.js` | hoch |
 
 ## Vorgehen je Schritt

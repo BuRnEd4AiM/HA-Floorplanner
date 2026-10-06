@@ -7,6 +7,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.46.1] - 2026-10-06
+### Changed
+- **Code split steps 23 and 24 (#137)**: five more parts left `app.js` (now just under 2,000 lines, from 5,100 at the start): the state of an entity and the colour of a light effect (`entitystate.js`), making a loaded plan complete (`layoutnorm.js`), isolating a focused room (`roomclip.js`), the hit boxes and hologram look of a model (`modelfx.js`) and text in the scene (`labels.js`). The pure parts have unit tests; nothing changes for the user.
+
 ## [3.46.0] - 2026-10-06
 ### Added
 - **Water and gas meters in the energy overview (#237)**: the overview pill at the top shows the readings of the water, gas and heat meters on a second line below the power numbers ("🚰 1234.6 m³ · 🔥 845.2 m³"), if there are meters with a value; the tooltip names each meter. `meterReadings` in `powerlogic.js` with tests.

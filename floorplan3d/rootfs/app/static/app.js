@@ -60,6 +60,11 @@ import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors, storeysShown } from './stairs.js';
 import { skipInLive } from './pickrules.js';
 import { initTapBalls } from './tapballs.js';
+import { pointInPoly, inIso, clipWallToRoom } from './roomclip.js';
+import { HOLO, addPickProxy, underFloors, holoify as holoifyModel } from './modelfx.js';
+import { textSprite as makeTextSprite } from './labels.js';
+import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
+import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -93,18 +98,7 @@ let entityChoice = '';
 let entities = [];
 let areas = [];                      // Home Assistant areas: [{id, name, entities[]}]
 let areaOf = {};                     // entity_id -> area id
-/* Home Assistant reports only the NAME of a light effect (Nanoleaf scene, WLED ...), never its colours, and the light's own colour
-   is stale/white while an effect runs. So the display colour comes from the colour the user assigned to that effect, else from a colour word in its name. */
-const FX_WORDS = [[/(rot|red|feuer|fire|lava)/i, [255, 40, 30]], [/(orange|sunset|sonnenunter|amber)/i, [255, 130, 20]], [/(gelb|yellow|gold|sun)/i, [255, 214, 40]],
-  [/(gr[üu]n|green|forest|wald|matrix|nature)/i, [40, 220, 90]], [/(cyan|t[üu]rkis|turquoise|aqua|ocean|meer|ice|eis)/i, [35, 224, 255]], [/(blau|blue|sky|himmel|water|wasser)/i, [30, 110, 255]],
-  [/(lila|violett|purple|violet|gaming)/i, [170, 80, 255]], [/(pink|rosa|magenta|love|romantic)/i, [255, 60, 160]], [/(warm|kerze|candle|cozy|gem[üu]tlich)/i, [255, 170, 80]]];
-function fxRgb(name) {
-  if (!name || /^(none|off|aus|keine?r?)$/i.test(name)) return null;
-  const c = settings.effectColors?.[name];
-  if (c && /^#[0-9a-f]{6}$/i.test(c)) return [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
-  return FX_WORDS.find(([re]) => re.test(name))?.[1] || null;
-}
-const effRgb = (e) => fxRgb(e.fxc) || e.rgb;
+const fxRgb = (name) => fxRgbOf(name, settings.effectColors);            // the colour of a light effect (entitystate.js)
 let states = {};                   // entity_id -> { state, unit }
 let lowWalls = false;
 let halfCut = false;                   // half section: every wall is cut at half height, only the lower half stays
@@ -229,86 +223,15 @@ function mat(color, ghost, extra = {}) {
   });
 }
 
-function textSprite(text, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = false, pill = false } = {}) {
-  const c = document.createElement('canvas');
-  const S = 4;                                    // render text at 4x so it stays sharp when zooming in
-  c.width = 256 * S; c.height = 64 * S;
-  const tex = new THREE.CanvasTexture(c);
-  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  tex.colorSpace = THREE.SRGBColorSpace;
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest }));
-  s.scale.set(scaleX, scaleY, 1);
-  s.renderOrder = 10;
-  s.userData.setText = (txt, badge = false) => {
-    const key = txt + (badge ? '|b' : '');
-    if (s.userData.text === key) return;
-    s.userData.text = key;
-    const g = c.getContext('2d');
-    g.setTransform(S, 0, 0, S, 0, 0);
-    g.clearRect(0, 0, 256, 64);
-    if (badge) {                                   // glowing orange pill, like the power badges in the reference
-      const grad = g.createLinearGradient(0, 8, 0, 56);
-      grad.addColorStop(0, '#ffd45e'); grad.addColorStop(1, '#ff9d2e');
-      g.shadowColor = 'rgba(255,170,40,.9)'; g.shadowBlur = 14;
-      g.fillStyle = grad; g.beginPath(); g.roundRect(14, 10, 228, 44, 22); g.fill();
-      g.shadowBlur = 0;
-      g.font = `700 ${size}px system-ui, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillStyle = '#3b2400'; g.fillText(txt, 128, 33);
-      tex.needsUpdate = true;
-      return;
-    }
-    g.font = `600 ${size}px system-ui, sans-serif`;
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    if (pill) {                                    // a readable badge on the device: dark pill that fits the text
-      const w = Math.min(244, g.measureText(txt).width + 30);
-      g.fillStyle = 'rgba(16,22,30,.82)'; g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 2;
-      g.beginPath(); g.roundRect(128 - w / 2, 10, w, 44, 22); g.fill(); g.stroke();
-      g.fillStyle = '#fff'; g.fillText(txt, 128, 33);
-      tex.needsUpdate = true;
-      return;
-    }
-    g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.75)';
-    g.strokeText(txt, 128, 32);
-    g.fillStyle = '#fff'; g.fillText(txt, 128, 32);
-    tex.needsUpdate = true;
-  };
-  s.userData.setText(text);
-  return s;
-}
+/** a text label in the scene: plain, as a dark pill on a device or as a glowing badge (labels.js) */
+function textSprite(text, opts) { return makeTextSprite(text, renderer.capabilities.getMaxAnisotropy(), opts); }
 
 
 /** Invisible, slightly padded hit box so small devices (ceiling lamps, switches) are easy to tap. */
-function addPickProxy(model) {
-  if (model.userData.ownProxy) return;                        // LED ring: one hit box per section, made by the model
-  model.children.filter((c) => c.userData.proxy).forEach((c) => { model.remove(c); c.geometry.dispose(); });
-  const saved = { p: model.position.clone(), r: model.rotation.clone(), s: model.scale.clone() };
-  model.position.set(0, 0, 0); model.rotation.set(0, 0, 0); model.scale.set(1, 1, 1);
-  model.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(model);
-  box.applyMatrix4(model.matrixWorld.clone().invert());
-  model.position.copy(saved.p); model.rotation.copy(saved.r); model.scale.copy(saved.s);
-  model.updateMatrixWorld(true);
-  if (box.isEmpty()) return;
-  const size = box.getSize(new THREE.Vector3());
-  const proxy = new THREE.Mesh(
-    new THREE.BoxGeometry(Math.max(size.x + 0.1, 0.35), Math.max(size.y + 0.1, 0.35), Math.max(size.z + 0.1, 0.35)),
-    new THREE.MeshBasicMaterial({ visible: false }),
-  );
-  proxy.position.copy(box.getCenter(new THREE.Vector3()));
-  proxy.userData.proxy = true;
-  model.add(proxy);
-  const wide = (v) => Math.max(v + 0.25, 0.6);                // a bigger hit box that only the live mode uses: lamps are easy to hit with a finger
-  const touch = new THREE.Mesh(new THREE.BoxGeometry(wide(size.x), wide(size.y), wide(size.z)), new THREE.MeshBasicMaterial({ visible: false }));
-  touch.position.copy(proxy.position);
-  touch.userData.proxy = true; touch.userData.touchOnly = true;
-  model.add(touch);
-}
 
-const HOLO = { fill: 0x1f6fe0, edge: 0x3df2ff, on: 0xff9d2e, onEdge: 0xffd08a, floor: 0x0a1830, floorLit: 0xff9d2e };
+/** hologram look for a model; how see-through it is under the open floor follows the setting (modelfx.js) */
+function holoify(model, ghost) { holoifyModel(model, ghost, belowVis()); }
 const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
-function underFloors(m) {
-  m.traverse((o) => { if (o.isMesh) { o.renderOrder = -0.5; [].concat(o.material).forEach((x) => { x.depthWrite = false; }); } });
-}
 const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
 const isHolo = () => settings.theme === 'holo';
 
@@ -336,62 +259,10 @@ function updateEarthCut() {
   earth.updateCut(camera.position);
 }
 
-/** Turn a model into a translucent blue wireframe hologram; lit parts are remembered for state changes. */
-function holoify(model, ghost) {
-  const glow = new Set(model.userData.glow || []), led = new Set(model.userData.led || []);
-  const meshes = [];
-  model.traverse((o) => { if (o.isMesh && !o.userData.proxy && !o.userData.holo) meshes.push(o); });
-  const hg = model.userData.holoGlow ||= { fill: [], edge: [] }, hl = model.userData.holoLed ||= { fill: [], edge: [] };
-  const segOf = new Map();                                     // LED ring: material -> its section
-  (model.userData.segs || []).forEach((sg) => { sg.holo ||= { fill: [], edge: [] }; sg.glow.forEach((m) => segOf.set(m, sg)); });
-  for (const o of meshes) {
-    const isGlow = glow.has(o.material), isLed = led.has(o.material), sg = segOf.get(o.material);
-    o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.03 + 0.2 * belowVis() : (model.userData.solid ? 0.8 : 0.38), depthWrite: !!model.userData.solid && !ghost, side: model.userData.solid ? THREE.DoubleSide : THREE.FrontSide });
-    o.userData.holo = true;
-    const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * belowVis() : 0.95 });
-    o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 25), em));
-    if (isGlow) { hg.fill.push(o.material); hg.edge.push(em); }
-    if (isLed) { hl.fill.push(o.material); hl.edge.push(em); }
-    if (sg) { sg.holo.fill.push(o.material); sg.holo.edge.push(em); }
-  }
-}
 
-/** Isolation: while a room is focused only that room, its walls and its devices are drawn. */
-const ISO_TOL = 0.3;
+
+/** Isolation: while a room is focused only that room, its walls and its devices are drawn (clipping in roomclip.js). */
 function isolatedRoom() { return focusedRoom ? floor()?.rooms.find((r) => r.id === focusedRoom) ?? null : null; }
-const inIso = (room, x, z) => pointInPoly(x, z, room.points) || distToPoly(x, z, room.points) < ISO_TOL;
-/** The part of wall w that runs along the room's outline (a long outer wall is cut down to this room), or null. */
-function clipWallToRoom(room, w) {
-  const L = wallLength(w), N = Math.max(8, Math.ceil(L / 0.1));
-  const near = [];
-  for (let i = 0; i <= N; i++) {
-    const k = i / N;
-    near.push(distToPoly(w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k, room.points) < ISO_TOL);
-  }
-  let best = null, start = -1;
-  for (let i = 0; i <= N + 1; i++) {
-    if (i <= N && near[i]) { if (start < 0) start = i; continue; }
-    if (start >= 0 && (!best || i - start > best[1] - best[0])) best = [start, i - 1];
-    start = -1;
-  }
-  if (!best || (best[1] - best[0]) / N * L < 0.3) return null;
-  if (best[0] === 0 && best[1] === N) return w;
-  const t0 = best[0] / N, t1 = best[1] / N;
-  const at = (k) => [w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k];
-  return {
-    ...w, a: at(t0), b: at(t1),
-    openings: (w.openings || []).filter((o) => o.pos >= t0 * L && o.pos <= t1 * L).map((o) => ({ ...o, pos: o.pos - t0 * L })),
-  };
-}
-
-function pointInPoly(x, z, pts) {
-  let inside = false;
-  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
-    const [xi, zi] = pts[i], [xj, zj] = pts[j];
-    if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) inside = !inside;
-  }
-  return inside;
-}
 
 const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate', 'cover']);   // "important": measured values
 /** Value labels on devices: none, only the important ones (sensors, climate, covers) or every device with an entity. */
@@ -1899,7 +1770,7 @@ async function loadAreas() {
   areas.forEach((x) => x.entities.forEach((e) => { areaOf[e] = x.id; }));
 }
 
-const toState = (e) => ({ since: e.since, state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e), rgbRaw: e.rgb, dc: e.dc, ct: e.ct, hvac: e.hvac, tt: e.tt, tmin: e.tmin, tmax: e.tmax, tstep: e.tstep, modes: e.modes, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members });
+function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 
 /* ---- Live channel: the add-on pushes every state change the moment Home Assistant reports it (a wall switch, an
    automation, a sensor). While it is up, the full list is only fetched once a minute to stay in step; while it is
@@ -1948,20 +1819,9 @@ async function pollStates() {
   } catch { /* offline: ignore */ }
 }
 
-/** the add-on creates "Erdgeschoss" for a brand-new house: show it in the language of the user as long as nothing is drawn */
-function localizeDefaults() {
-  const f = layout.floors?.[0];
-  if (layout.floors.length === 1 && f && f.name === 'Erdgeschoss' && !f.walls?.length && !f.rooms?.length && !f.devices?.length && !f.blocks?.length) f.name = t('floor.default');
-}
-function normalizeLayout() {
-  if (!layout.floors?.length) {
-    layout = { version: 1, floors: [{ id: uid(), name: t('floor.default'), walls: [], rooms: [], devices: [], blocks: [], stairs: [] }] };
-  }
-  layout.floors.forEach((f) => {
-    f.walls ||= []; f.rooms ||= []; f.devices ||= []; f.blocks ||= []; f.stairs ||= []; f.holes ||= []; f.kind ||= 'floor';
-    f.walls.forEach((w) => { w.openings ||= []; });
-  });
-}
+/** the add-on's "Erdgeschoss" of a new house in the user's language; every list of the plan in place (layoutnorm.js) */
+function localizeDefaults() { localizeDefaultsOf(layout, t('floor.default')); }
+function normalizeLayout() { layout = normalizeLayoutOf(layout, t('floor.default'), uid); }
 
 plan = createPlan({
   stage: $('#stage'),
