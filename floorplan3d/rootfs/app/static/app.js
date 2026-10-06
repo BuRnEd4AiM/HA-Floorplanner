@@ -65,6 +65,7 @@ import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { initEditItems } from './edititems.js';
 import { initPicking } from './picking.js';
 import { initPictures } from './picture.js';
+import { initDraw3d } from './draw3d.js';
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
@@ -785,58 +786,12 @@ const findOpening = (id) => {
   return null;
 };
 
-/* ================= Drawing state ================= */
-let drawPts = [];
-let cursor = null;
-let down = null;           // pointer-down info
-let openingPreview = null; // { wall, pos, valid }
+/* ================= Drawing and dragging in 3D: the code (and the drawing state) lives in draw3d.js, set up at "Pointer events" ================= */
+let draw3d = null;
+function endDrawing() { draw3d.endDrawing(); }
+function finishRoom() { draw3d.finishRoom(); }
 
-function updateTemp() {
-  clearGroup(temp);
-  if (tool === 'opening' && openingPreview) {
-    const { wall: w, pos, valid } = openingPreview;
-    const def = OPENING_DEFAULTS[openingType];
-    const len = wallLength(w);
-    const m = new THREE.Mesh(
-      new THREE.BoxGeometry(openingPreview.width ?? def.width, def.height, w.thickness + 0.06),
-      new THREE.MeshBasicMaterial({ color: valid ? 0x3fa9f5 : 0xff5555, transparent: true, opacity: 0.45, depthTest: false }),
-    );
-    m.renderOrder = 5;
-    m.position.set(0, def.sill + def.height / 2, 0);
-    const g = new THREE.Group();
-    g.add(m);
-    g.position.set((w.a[0] + w.b[0]) / 2, elev(), (w.a[1] + w.b[1]) / 2);
-    g.rotation.y = -Math.atan2(w.b[1] - w.a[1], w.b[0] - w.a[0]);
-    m.position.x = pos - len / 2;
-    temp.add(g);
-    return;
-  }
-  if (!drawPts.length) return;
-  const pts = [...drawPts, ...(cursor ? [cursor] : [])].map(([x, z]) => new THREE.Vector3(x, elev() + 0.05, z));
-  if (tool === 'room' && pts.length > 2) pts.push(pts[0]);
-  temp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x3fa9f5 })));
-  drawPts.forEach(([x, z]) => {
-    const d = new THREE.Mesh(new THREE.SphereGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0x3fa9f5 }));
-    d.position.set(x, elev() + 0.05, z);
-    temp.add(d);
-  });
-  if (cursor) {
-    const last = drawPts[drawPts.length - 1];
-    setStatus(`${t('length')}: ${fmtLen(Math.hypot(cursor[0] - last[0], cursor[1] - last[1]))}`);
-  }
-}
-function endDrawing() { drawPts = []; cursor = null; openingPreview = null; clearGroup(temp); }
-
-function finishRoom() {
-  if (drawPts.length >= 3) {
-    snapshot();
-    floor().rooms.push({ id: uid(), name: `${t('prop.room')} ${floor().rooms.length + 1}`, color: '#8a7f70', points: drawPts.map((p) => [...p]) });
-    changed();
-  }
-  endDrawing();
-}
-
-/** Compute where an opening would go for the wall under the pointer. */
+/** a new device of the chosen type at (x, z), with the chosen entity; wall things click onto the nearest wall */
 function newDevice(x, z) {
   const custom = isCustom(deviceType);
   const def = custom ? { y: 0 } : DEVICE_TYPES[deviceType];
@@ -862,156 +817,16 @@ function snapToWall(d, maxDist = 2, keepFacing = false) { return snapOnWall(d, f
 const pictures = initPictures({ snapshot: () => snapshot(), changed: () => changed(), renderProps: () => renderProps() });
 function setPicture(model, d) { pictures.setPicture(model, d); }
 function uploadPicture(file, d) { return pictures.uploadPicture(file, d); }
-function openingTarget(e, ignoreId = null, def = OPENING_DEFAULTS[openingType], forcedWall = null) {
-  let wall = forcedWall;
-  let point = null;
-  if (!wall) {
-    const h = pickHit(e);
-    if (h?.data.kind !== 'wall') return null;
-    wall = findWall(h.data.id);
-    point = [h.point.x, h.point.z];
-  } else {
-    point = groundPoint(e);
-  }
-  if (!wall || !point) return null;
-  const raw = Math.round(projectOnWall(wall, point) / 0.05) * 0.05;
-  const width = fitOpeningWidth(wall, def.width);
-  if (width === null) return null;
-  const pos = clampOpeningPos(wall, width, raw);
-  if (pos === null) return null;
-  return { wall, pos, width, valid: !openingOverlaps(wall, pos, width, ignoreId) };
-}
-
-/* ================= Pointer events ================= */
-canvas.addEventListener('pointerdown', (e) => {
-  if (e.button !== 0) return;
-  down = { x: e.clientX, y: e.clientY, hit: null, drag: false, dev: null, op: null };
-  if (isLive() || tool !== 'select' || houseMode) return;
-  if (lockedSel && selection) {                     // locked: drag moves only the selected object, from anywhere
-    down.hit = null;
-    if (selection.kind === 'device') {
-      const d = floor().devices.find((v) => v.id === selection.id), gp = groundPoint(e);
-      if (d && gp) { down.dev = { d, dx: d.x - gp[0], dz: d.z - gp[1], moved: false }; controls.enabled = false; }
-    } else if (selection.kind === 'opening') {
-      const f = findOpening(selection.id);
-      if (f) { down.op = { ...f, moved: false }; controls.enabled = false; }
-    }
-    return;
-  }
-  const h = pick(e);
-  down.hit = h;
-  if (e.shiftKey || e.ctrlKey || e.metaKey) { down.multi = true; return; }   // Shift / Ctrl + click: add to / take out of the selection, never drag (#211, #247)
-  if (h?.kind === 'device') {
-    const d = floor().devices.find((v) => v.id === h.id);
-    const gp = groundPoint(e);
-    if (d && gp) {
-      selection = h; refreshSelection();
-      down.dev = { d, dx: d.x - gp[0], dz: d.z - gp[1], moved: false };
-      controls.enabled = false;
-    }
-  } else if (h?.kind === 'opening') {
-    const f = findOpening(h.id);
-    if (f) {
-      const wasSelected = selection?.kind === 'opening' && selection.id === h.id;
-      selection = h; refreshSelection();
-      if (wasSelected) { down.op = { ...f, moved: false }; controls.enabled = false; }   // first click only selects, so a stray click never drags it
-    }
-  }
-});
-
-canvas.addEventListener('pointermove', (e) => {
-  if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) down.drag = true;
-  if (isLive()) return;
-  const gp = groundPoint(e);
-
-  if (down?.dev && gp) {
-    if (down.dev.d.locked) return;
-    if (!down.dev.moved) { snapshot(); down.dev.moved = true; }
-    const [x, z] = snap([gp[0] + down.dev.dx, gp[1] + down.dev.dz], true);
-    moveDeviceTo(down.dev.d, x, z);
-    return;
-  }
-  if (down?.op && down.drag) {
-    const { wall, opening } = down.op;
-    if (opening.locked) return;
-    const tgt = openingTarget(e, opening.id, opening, wall);
-    if (tgt?.valid && Math.abs(tgt.pos - opening.pos) > 1e-6) {
-      if (!down.op.moved) { snapshot(); down.op.moved = true; }
-      opening.pos = tgt.pos;
-      build();
-    }
-    return;
-  }
-  if (tool === 'opening') {
-    const tgt = openingTarget(e);
-    openingPreview = tgt;
-    updateTemp();
-  } else if ((tool === 'wall' || tool === 'room') && gp) {
-    cursor = snap(gp);
-    updateTemp();
-  }
-});
-
-canvas.addEventListener('pointerup', (e) => {
-  if (e.button !== 0 || !down) return;
-  const st = down;
-  down = null;
-  controls.enabled = true;
-
-  if (st.dev?.moved) { changed(false); refreshSelection(); return; }
-  if (st.op?.moved) { changed(false); refreshSelection(); return; }
-  if (st.drag) return;                         // camera drag, not a click
-
-  if (isLive()) { handleLiveTap(e); return; }
-
-  const gp = groundPoint(e);
-  if (tool === 'select') {
-    if (lockedSel) return;                     // locked selection stays until released
-    if (st.multi) { multiSel.toggle(st.hit); return; }
-    multiSel.clear(); selection = st.hit; refreshSelection();
-  } else if (tool === 'cable') {
-    const h = pickHit(e);
-    if (h?.data.kind === 'device') power.cableClick(h.data.id);
-  } else if (tool === 'erase') {
-    const h = pick(e);
-    if (h) { snapshot(); deleteItem(h); }
-  } else if (tool === 'wall' && gp) {
-    const p = snap(gp);
-    const last = drawPts[drawPts.length - 1];
-    if (last && Math.hypot(p[0] - last[0], p[1] - last[1]) < 0.01) { endDrawing(); return; }
-    if (last) {
-      snapshot();
-      floor().walls.push({ id: uid(), a: [...last], b: [...p], thickness: settings.wallThickness, height: settings.wallHeight, openings: [] });
-      changed();
-    }
-    drawPts.push(p);
-    updateTemp();
-  } else if (tool === 'room' && gp) {
-    const p = snap(gp);
-    if (drawPts.length >= 3 && Math.hypot(p[0] - drawPts[0][0], p[1] - drawPts[0][1]) < 0.01) { finishRoom(); return; }
-    drawPts.push(p);
-    updateTemp();
-  } else if (tool === 'opening') {
-    const tgt = openingTarget(e);
-    if (tgt?.valid) {
-      snapshot();
-      const def = OPENING_DEFAULTS[openingType];
-      const o = { id: uid(), type: openingType, pos: tgt.pos, ...def, width: tgt.width ?? def.width };
-      (tgt.wall.openings ||= []).push(o);
-      selection = { kind: 'opening', id: o.id };
-      openingPreview = null; clearGroup(temp);
-      changed();
-    }
-  } else if (tool === 'device' && gp) {
-    snapshot();
-    const [x, z] = snap(gp, true);
-    const d = newDevice(x, z);
-    floor().devices.push(d);
-    selection = { kind: 'device', id: d.id };
-    changed();
-    holdPlaced();
-    if (d.type === 'nanoleaf') editNano(d);
-  }
+/* ================= Pointer events: select, drag, draw, place, double click; the code lives in draw3d.js ================= */
+draw3d = initDraw3d({
+  canvas, controls, temp, t, setStatus: (x) => setStatus(x), fmtLen: (m) => fmtLen(m), clearGroup: (g) => clearGroup(g), elev: () => elev(),
+  tool: () => tool, openingType: () => openingType, isLive: () => isLive(), houseMode: () => houseMode, lockedSel: () => lockedSel,
+  selection: () => selection, setSelection: (s) => { selection = s; }, refreshSelection: () => refreshSelection(), floor: () => floor(), settings: () => settings,
+  uid: () => uid(), findOpening: (id) => findOpening(id), findWall: (id) => findWall(id), pick: (e) => pick(e), pickHit: (e) => pickHit(e),
+  groundPoint: (e) => groundPoint(e), snap: (p, fine) => snap(p, fine), snapshot: () => snapshot(), changed: (r) => changed(r), build: () => build(),
+  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), multi: { toggle: (h) => multiSel.toggle(h), clear: () => multiSel.clear() }, liveTap: (e) => handleLiveTap(e),
+  cableClick: (id) => power.cableClick(id), deleteItem: (sel) => deleteItem(sel), newDevice: (x, z) => newDevice(x, z), holdPlaced: () => holdPlaced(),
+  editNano: (d) => editNano(d), switchDevice: (d) => deviceEntities(d).forEach((e) => live.quickAction(e)),   // #251
 });
 
 /** a device was just placed: it stays selected and can be moved at once; the next click on empty space deselects it and placing goes on */
@@ -1019,20 +834,6 @@ function holdPlaced() {
   if (tool !== 'device' || !settings.placeSelect) return;
   returnToTool = 'device'; setTool('select');
 }
-canvas.addEventListener('pointerleave', () => { if (tool === 'opening') { openingPreview = null; clearGroup(temp); } });
-
-canvas.addEventListener('dblclick', (e) => {
-  if (isLive()) return;
-  if (tool === 'wall') { endDrawing(); return; }
-  if (tool === 'room') { finishRoom(); return; }
-  if (tool === 'select') {
-    const h = pick(e);
-    if (h?.kind !== 'device') return;
-    const d = floor().devices.find((v) => v.id === h.id);
-    deviceEntities(d).forEach(quickAction);
-  }
-});
-
 function editNano(d) {
   openNanoEditor({ panels: d.panels, t, onSave: (panels) => { snapshot(); d.panels = panels; changed(); renderProps(); } });
 }
@@ -1505,7 +1306,7 @@ plan = createPlan({
  
   liveMoveDevice: (d) => liveMove(d),
   liveTap: (h) => liveSelect(h),
-  deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach(quickAction),
+  deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach((e) => live.quickAction(e)),   // #251: lives in livecontrols.js
   allDevices: () => layout.floors.flatMap((f, fi) => f.devices.map((d) => ({ d, fi }))), floorIndex: () => floorIdx, floorName: (i) => layout.floors[i]?.name || '',
   powerMode: () => power.isMode(), showCables: () => power.cablesShown(), isPowerType: (type) => power.isType(type), cablesOf: (d) => power.cablesOf(d), cableColor: (d, c) => power.cableColor(d, c), cableClick: (id) => power.cableClick(id),
   newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, OPENING_DEFAULTS, uid, pointInPoly,

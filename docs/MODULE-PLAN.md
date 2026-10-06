@@ -83,6 +83,7 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `edititems.js` | ~130 | Löschen, Pfeiltasten (Wände nehmen die Ecken mit), Q / E drehen, Tastenkürzel (Schritt 20, Teil 1); Tastenregeln und Listenänderungen mit Unit-Tests |
 | `picking.js` | ~55 | Treffer im 3D-Bild (Schritt 20, Teil 2): Strahl vom Zeiger, Punkt auf dem Boden, was ein Klick trifft; die Regeln (wer gewinnt, was im Live antippbar ist) in `pickrules.js` mit Unit-Tests |
 | `picture.js` | ~40 | Bild an der Wand (Schritt 20, Teil 3): Rahmen, Bild, Hochladen; Bildgröße mit Unit-Test |
+| `draw3d.js` | ~210 | Zeichnen und Ziehen im 3D-Bild (Schritt 20, Teil 4): Auswählen, Geräte und Türen/Fenster ziehen, Wände und Räume zeichnen, Öffnungen und Geräte setzen, Kabel/Löschen, Doppelklick; Lage einer Öffnung mit Unit-Tests |
 | `planview.js` | ~50 | 2D-Plan dreht mit der 3D-Ansicht (#212): Winkel aus der Kamera, Punkte drehen, lesbare Schrift; Schalter |
 | `placement.js` | ~60 | Platzieren (Schritt 22): Einrasten an Raster und Wandecken, Wandgeräte flach an die Wand, LED-Ring um den Raum; Wandgeräte-Liste; reine Rechnung mit Unit-Tests |
 | `nav.js` | ~150 | Navigation (Schritt 21): Etagen-Knöpfe, Zimmer-Menü, Scroll-Pfeile, Raum-Knopf am Tablet, Bildausschnitt für Etage / Haus / Wandmitte; reine Teile mit Unit-Tests |
@@ -95,7 +96,6 @@ Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mi
 
 | Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
 | ---: | --- | ---: | --- | --- |
-| 20 | **Zeichnen, Ziehen, Zeigerereignisse** (Fangen, Ziehen, Werkzeuge; Löschen/Tasten in `edititems.js`, Treffer in `picking.js`) | ~300 | `pointer.js`, `tools.js` | hoch |
 | 22 | **Zustand und Datenladen** (Live-Kanal schon in `livechannel.js`, Rückgängig und Speichern in `persist.js`) | ~80 + ~40 | `state.js` | hoch |
 
 ## Vorgehen je Schritt
