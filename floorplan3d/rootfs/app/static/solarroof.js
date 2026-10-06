@@ -80,3 +80,33 @@ export function solarPose(d, roofs) {
   if (!spot) return { mount, y: 0, tilt: null };
   return { mount, y: spot.y, tilt: mount === 'flat' && spot.slope > 0 ? panelTilt(spot.n, d.rot) : null };
 }
+
+/** a panel on a rack: tilted by `tilt` (radians, its +z end up) round a pivot `pivot` m above the ground, at least `clear` m above it everywhere */
+export const STAND = { tilt: 0.5, pivot: 0.55, clear: 0.15, postX: 0.35, postZ: 0.55 };
+
+/** The rack of one panel of a field (cell = { x, z } in model-local metres): how high its pivot sits and its posts
+ *  { x, z, y0 (ground), y1 (under the panel) }. groundAt(lx, lz) is the height of the ground (the roof) under a model-local point,
+ *  relative to the model origin; on a sloped roof the posts reach down to the roof and the panel is lifted clear of it (#208). */
+export function standParts(cell, groundAt = () => 0) {
+  const s = Math.sin(STAND.tilt), c = Math.cos(STAND.tilt), half = PANEL.d / 2;
+  const corners = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => [cell.x + (sx * PANEL.w) / 2, cell.z + sz * c * half]));
+  const top = Math.max(0, groundAt(cell.x, cell.z), ...corners.map(([x, z]) => groundAt(x, z)));
+  const lift = Math.max(STAND.pivot, top + STAND.clear + s * half);                 // the low edge (lift - s * half) stays clear of the ground
+  const posts = [];
+  for (const zp of [-STAND.postZ, STAND.postZ]) for (const sx of [-1, 1]) {
+    const x = cell.x + sx * STAND.postX, z = cell.z + c * zp;
+    posts.push({ x, z, y0: groundAt(x, z), y1: lift + s * zp });
+  }
+  return { lift, posts };
+}
+
+/** groundAt for standParts: the roof under a model-local point of device d (turned by d.rot, scaled), relative to the model origin at
+ *  height baseY over the roof floor; 0 where no roof is under it */
+export function groundFn(d, roofs, baseY) {
+  const t = ((d.rot || 0) * Math.PI) / 180, c = Math.cos(t), s = Math.sin(t), k = d.scale || 1;
+  const kx = k * (d.sx || 1), ky = k * (d.sy || 1), kz = k * (d.sz || 1);
+  return (lx, lz) => {
+    const x = lx * kx, z = lz * kz, sp = roofSpot(roofs, d.x + x * c + z * s, d.z - x * s + z * c);
+    return sp ? (sp.y - baseY) / ky : 0;
+  };
+}

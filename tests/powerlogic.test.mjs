@@ -84,3 +84,8 @@ test('overview text: arrows up / down for charging / discharging, none at rest',
   assert.equal(full.text, '☀ 3.20 kW · ⚡ 1.00 kW · ⌂ 2.20 kW');
   assert.ok(full.title.includes('power.sum.feedIn'));
 });
+test('the power editor shows power devices and the meters of water, gas and heat (#207), nothing else', () => {
+  for (const t of ['solarpanel', 'fusebox', 'watermeter', 'gasmeter', 'heatmeter']) assert.ok(P.showsInPowerEditor(t), t);
+  for (const t of ['bridge', 'light', 'sofa']) assert.ok(!P.showsInPowerEditor(t), t);
+  assert.ok(!P.POWER_TYPES.has('gasmeter'));                                   // meters have no cables
+});

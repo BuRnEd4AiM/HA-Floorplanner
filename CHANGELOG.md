@@ -6,6 +6,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Added
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.43.5] - 2026-10-05
+### Fixed
+- **Meters and bridge invisible after placing (#207)**: the power editor (it stays on since #174) hid everything that is not a power device, also what was just placed. The water, gas and heat meters now stay visible in the power editor; placing anything else there switches the editor off, with a note in the status line.
+- **Solar panel rack (#208)**: the post stuck out through the panel (it was too long from the start). Every panel now stands on four posts that end just under it. On a sloped roof each post reaches down to the roof under it and the panel is lifted clear of the roof, so nothing floats or sticks into the roof.
+
 ## [3.43.4] - 2026-10-05
 ### Changed
 - **Code split, step 22 (#137)**: placing things (catching the grid and wall corners, clicking wall-hung devices flat onto a wall, the LED ring around a room, the list of wall-hung types) moved out of `app.js` into `placement.js`, with unit tests. No change in behaviour.

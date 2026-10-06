@@ -3,7 +3,7 @@ import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
 import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
 import { ringSections, piecesLocal, pointAt } from './ledring.js';
 import { kitchenLayout } from './kitchen.js';
-import { solarField, PANEL } from './solarroof.js';
+import { solarField, standParts, PANEL, STAND } from './solarroof.js';
 import { bridgeParts } from './bridge.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
@@ -637,7 +637,7 @@ export function makeModel(type, onReady, dev, opts) {
   if (type === 'ledring') { ledRing(g, dev); return g; }
   if (type === 'kitchenrun') { kitchenRun(g, dev); return g; }
   if (type === 'bridge') { bridgeModel(g, dev); return g; }
-  if (type === 'solarpanel') { const m = opts?.mount || 'stand'; solarPanels(g, dev, m); if (m === 'stand') centreOnFootprint(g); return g; }
+  if (type === 'solarpanel') { solarPanels(g, dev, opts?.mount || 'stand', opts?.groundAt); return g; }
   (builders[type] || builders.sensor)(g);
   centreOnFootprint(g);
   return g;
@@ -648,8 +648,9 @@ function bridgeModel(g, dev) {
   bridgeParts(dev).forEach((p) => g.add(box(p.w, p.h, p.d, mats[p.kind], p.x, p.y, p.z)));
 }
 /** Solar panels (#176): one panel or a field (rows x columns, see solarField), on stands tilted to the sun
- *  or lying flat on rails (on a sloped roof the whole model is tilted onto the roof surface by the caller). */
-function solarPanels(g, dev, mount) {
+ *  or lying flat on rails (on a sloped roof the whole model is tilted onto the roof surface by the caller). On a rack `groundAt` gives the
+ *  height of the roof under a point, so the posts reach down to it (see standParts). */
+function solarPanels(g, dev, mount, groundAt) {
   const F = solarField(dev), frame = std('#cfd3d8'), cell = std('#1d2d54', { roughness: 0.25, metalness: 0.4 }), line = std('#9fb0d0'), steel = std('#9aa0a6');
   const panel = (p) => {
     p.add(box(PANEL.w, 0.04, PANEL.d, frame, 0, 0, 0)); p.add(box(PANEL.w - 0.06, 0.045, PANEL.d - 0.06, cell, 0, 0, 0));
@@ -658,8 +659,9 @@ function solarPanels(g, dev, mount) {
   F.cells.forEach((c) => {
     const p = new THREE.Group();
     if (mount === 'flat') { p.position.set(c.x, 0.04, c.z); panel(p); g.add(p); return; }
-    p.rotation.x = -0.5; p.position.set(c.x, 0.55, c.z); panel(p);
-    g.add(p); g.add(box(0.06, 0.55, 0.06, steel, c.x, 0.275, c.z + 0.2));
+    const st = standParts(c, groundAt);                                          // a rack: posts from the ground (roof) to just under the panel (#208)
+    p.rotation.x = -STAND.tilt; p.position.set(c.x, st.lift, c.z); panel(p); g.add(p);
+    st.posts.forEach((q) => g.add(box(0.05, Math.max(0.02, q.y1 - q.y0), 0.05, steel, q.x, q.y0, q.z)));
   });
   if (mount === 'flat') for (let r = 0; r < F.rows; r++) [-0.5, 0.5].forEach((k) => {                       // two mounting rails under every row
     g.add(box(F.w, 0.04, 0.04, steel, 0, 0, -F.d / 2 + PANEL.d / 2 + r * (PANEL.d + PANEL.gap) + k * PANEL.d * 0.6));
