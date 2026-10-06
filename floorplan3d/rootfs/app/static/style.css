@@ -584,3 +584,5 @@ body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset;
 
 /* neighbour house (#220): one card per neighbour in "Houses & backup" */
 .nbCard { margin: 6px 0 8px; padding: 8px 10px; border: 1px solid #c38cff; border-radius: 10px; background: rgba(195, 140, 255, .07); }
+/* the overview pill: water, gas and heat meters on a second line below the power numbers (#237) */
+#energyPill { white-space: pre-line; text-align: left; line-height: 1.35; }

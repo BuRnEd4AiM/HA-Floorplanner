@@ -1,9 +1,11 @@
 // Metal bridge / walkway between two building parts (#189): a grating deck on two steel beams with a railing on both sides.
 // Pure geometry, no three.js (unit test: tests/bridge.test.mjs). Local frame: length along x, centred on the device, the walking
 // surface at y = 0 (the floor level of the storey it is placed on) at its start (-x end); with `rise` the far (+x) end is that much higher
-// (or lower), the bridge slopes evenly in between (#222: two houses whose upper floors are not at the same height).
+// (or lower), the bridge slopes evenly in between (#222: two houses whose upper floors are not at the same height); steeper than 1 : 8 the deck
+// becomes steps (#239).
 
-export const BRIDGE = { len: 3, width: 1.2, minLen: 0.5, maxLen: 30, minWidth: 0.5, maxWidth: 5, railH: 1.0, postStep: 1.0, maxRise: 3 };
+export const BRIDGE = { len: 3, width: 1.2, minLen: 0.5, maxLen: 30, minWidth: 0.5, maxWidth: 5, railH: 1.0, postStep: 1.0, maxRise: 3,
+  maxSlope: 0.125, stepRise: 0.18 };   // steeper than 1 : 8 the deck gets steps of at most 18 cm (#239)
 
 const clamp = (v, lo, hi, def) => (Number.isFinite(+v) && v !== null && v !== '' ? Math.max(lo, Math.min(hi, +v)) : def);
 /** length, width and height difference (far end against the start) of a bridge device, with defaults and limits */
@@ -12,13 +14,24 @@ export function bridgeSize(d) {
     rise: clamp(d?.rise, -BRIDGE.maxRise, BRIDGE.maxRise, 0) };
 }
 
+/** how many steps the deck has: 0 while the slope is gentle (a ramp), else as many as keep each step at most BRIDGE.stepRise high (#239) */
+export function bridgeSteps(d) {
+  const { len, rise } = bridgeSize(d);
+  return Math.abs(rise) / len > BRIDGE.maxSlope ? Math.ceil(Math.abs(rise) / BRIDGE.stepRise - 1e-9) : 0;
+}
+
 /** the boxes of the bridge: { kind: deck | beam | post | rail, w (x), h (y), d (z), x, y (bottom at the middle), z, tilt (radians round z, the +x end up) } */
 export function bridgeParts(d) {
   const { len, width, rise } = bridgeSize(d), parts = [];
   const tilt = Math.atan2(rise, len), L = Math.hypot(len, rise), mid = rise / 2;       // sloping parts run along the walking line through the middle
   const at = (x) => (rise * (x + len / 2)) / len;                                         // height of the walking surface over the start at x
-  parts.push({ kind: 'deck', w: L, h: 0.06, d: width, x: 0, y: mid - 0.06, z: 0, tilt });
-  [-1, 1].forEach((s) => parts.push({ kind: 'beam', w: L, h: 0.2, d: 0.08, x: 0, y: mid - 0.26, z: s * (width / 2 - 0.04), tilt }));
+  const steps = bridgeSteps(d);
+  if (steps) {                                                                             // too steep for a ramp: steps + 1 flat treads, `steps` risers (#239)
+    const seg = len / (steps + 1), r = rise / steps;
+    for (let i = 0; i <= steps; i++) parts.push({ kind: 'deck', w: seg, h: 0.06, d: width, x: -len / 2 + seg * (i + 0.5), y: i * r - 0.06, z: 0, tilt: 0 });
+  } else parts.push({ kind: 'deck', w: L, h: 0.06, d: width, x: 0, y: mid - 0.06, z: 0, tilt });
+  const drop = steps ? Math.abs(rise / steps) / 2 : 0;                                             // the stringers stay below the lowest edge of the treads
+  [-1, 1].forEach((s) => parts.push({ kind: 'beam', w: L, h: 0.2, d: 0.08, x: 0, y: mid - 0.26 - drop, z: s * (width / 2 - 0.04), tilt }));
   if (d?.noRail) return parts;
   const n = Math.max(1, Math.ceil(len / BRIDGE.postStep)), H = BRIDGE.railH;
   [-1, 1].forEach((s) => {

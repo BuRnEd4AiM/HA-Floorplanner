@@ -89,3 +89,15 @@ test('the power editor shows power devices and the meters of water, gas and heat
   for (const t of ['bridge', 'light', 'sofa']) assert.ok(!P.showsInPowerEditor(t), t);
   assert.ok(!P.POWER_TYPES.has('gasmeter'));                                   // meters have no cables
 });
+test('meters in the overview (#237): water, gas and heat on a second line, only those with a value, in that order', () => {
+  const t = (k) => k;
+  const states = { w: { state: '1234.6', unit: 'm³' }, g: { state: '845.2', unit: 'm³' }, h: { state: 'unavailable' } };
+  const devs = [{ type: 'gasmeter', entity: 'g', name: 'Gas' }, { type: 'watermeter', entity: 'w' }, { type: 'heatmeter', entity: 'h' }, { type: 'watermeter', entity: '' }, { type: 'light', entity: 'w' }];
+  const m = P.meterReadings(states, devs);
+  assert.deepEqual(m.map((x) => x.text), ['🚰 1234.6 m³', '🔥 845.2 m³']);
+  const txt = P.energyText({ prod: 3200, grid: null, load: null, battery: null, meters: m }, t);
+  assert.equal(txt.text, '☀ 3.20 kW\n🚰 1234.6 m³ · 🔥 845.2 m³');
+  assert.ok(txt.title.includes('dev.gasmeter (Gas): 845.2 m³'));
+  assert.equal(P.energyText({ prod: null, grid: null, load: null, battery: null, meters: m }, t).text, '🚰 1234.6 m³ · 🔥 845.2 m³');   // meters alone
+  assert.deepEqual(P.meterReadings(states, undefined), []);
+});
