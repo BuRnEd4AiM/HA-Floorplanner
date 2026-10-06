@@ -807,4 +807,6 @@ export default {
   'dev.bridge': 'Most / przejście', 'bridge.len': 'Długość', 'bridge.width': 'Szerokość', 'bridge.rail': 'Balustrada', 'bridge.help': 'Powierzchnia przejścia jest na wysokości kondygnacji, na której stoi most. Aby połączyć dwie części budynku, umieść go na wyższej kondygnacji i obróć, aby go wyrównać.',
   'power.editorOff': 'Edytor prądu wyłączony: pokazuje tylko urządzenia elektryczne i liczniki, inaczej postawiony obiekt byłby niewidoczny.',
   'plan.rotate': '↻ Plan obraca się', 'plan.rotateTip': 'Obracaj plan 2D razem z widokiem 3D: u góry jest zawsze kierunek patrzenia kamery',
+  'multi.count': 'Zaznaczono {n}: Delete usuwa wszystkie, Esc anuluje zaznaczenie, Shift + klik dodaje lub usuwa', 'multi.delete': 'Usuń wszystkie ({n})', 'multi.clear': 'Anuluj zaznaczenie', 'multi.deleted': 'Usunięto {n} (Ctrl+Z przywraca)',
+  'keys.multi': 'Shift + klik: zaznacz kilka',
 };

@@ -277,6 +277,33 @@ export function createPlan(ctx) {
   const pts = (arr) => arr.map((p) => `${sx(p[0]).toFixed(1)},${sy(p[1]).toFixed(1)}`).join(' ');
   const isOn = (e) => !!e && ctx.isOn(e);
 
+  /** a green dashed frame round everything that is selected with Shift + click (#211) */
+  function multiOutlines(f, H3) {
+    const items = ctx.multiItems?.() || [];
+    if (!items.length) return '';
+    const frame = (poly) => `<polygon points="${pts(poly)}" fill="rgba(125,255,154,.08)" stroke="#7dff9a" stroke-width="2.4" stroke-dasharray="6 3" pointer-events="none"/>`;
+    return items.map((x) => {
+      if (x.kind === 'device') {
+        const d = f.devices.find((v) => v.id === x.id);
+        if (!d) return '';
+        const fo = footOf(d), w = fo.r ? 2 * fo.r : fo.w, dp = fo.r ? 2 * fo.r : fo.d, th = (-(d.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
+        return frame([[-w / 2, -dp / 2], [w / 2, -dp / 2], [w / 2, dp / 2], [-w / 2, dp / 2]].map(([lx, lz]) => [d.x + lx * c - lz * sn, d.z + lx * sn + lz * c]));
+      }
+      if (x.kind === 'wall') { const w = f.walls.find((v) => v.id === x.id); return w ? frame(wallPoly(w.a, w.b, (w.thickness || 0.2) + 0.08)) : ''; }
+      if (x.kind === 'room' || x.kind === 'block' || x.kind === 'hole') { const q = polyList(f, x.kind).find((v) => v.id === x.id); return q ? frame(q.points) : ''; }
+      if (x.kind === 'stair') { const st = (f.stairs || []).find((v) => v.id === x.id); return st ? frame(polyToWorld(st, stairLocal(st, H3).hole)) : ''; }
+      if (x.kind === 'opening') {
+        for (const w of f.walls) {
+          const op = (w.openings || []).find((v) => v.id === x.id);
+          if (!op) continue;
+          const [ux, uz, L] = dirOf(w), k = op.pos / L, cx = w.a[0] + (w.b[0] - w.a[0]) * k, cz = w.a[1] + (w.b[1] - w.a[1]) * k, hw = op.width / 2, t2 = (w.thickness || 0.2) / 2 + 0.06;
+          return frame([[cx - ux * hw - uz * t2, cz - uz * hw + ux * t2], [cx + ux * hw - uz * t2, cz + uz * hw + ux * t2], [cx + ux * hw + uz * t2, cz + uz * hw - ux * t2], [cx - ux * hw + uz * t2, cz - uz * hw - ux * t2]]);
+        }
+      }
+      return '';
+    }).join('');
+  }
+
   function render() {
     if (!visible) return;
     const r = root.getBoundingClientRect();
@@ -587,6 +614,7 @@ export function createPlan(ctx) {
       pl.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="5" fill="#ff4fd8" stroke="#fff" stroke-width="1.5"/>`; });
     }
 
+    o += multiOutlines(f, H3);
     svg.innerHTML = `<defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="9" height="9" fill="rgba(110,150,230,.10)"/><line x1="0" y1="0" x2="0" y2="9" stroke="rgba(150,190,255,.35)" stroke-width="2"/></pattern><radialGradient id="glow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>${rot ? `<g transform="rotate(${rot.toFixed(2)} ${W / 2} ${H / 2})">${o}</g>` : o}`;
     if (rot) svg.querySelectorAll('text:not([transform])').forEach((el) => {     // labels stay upright in a turned plan
       el.setAttribute('transform', `rotate(${(-rot).toFixed(2)} ${el.getAttribute('x') || 0} ${el.getAttribute('y') || 0})`);
@@ -704,6 +732,7 @@ export function createPlan(ctx) {
         return;
       }
       const h = pickAt(x, z);
+      if (h && e.shiftKey && ctx.toggleMulti) { ctx.toggleMulti(h); drag = { type: 'pan', px, py, tx, ty }; render(); return; }   // Shift + click: several things at once (#211)
       if (h) {
         ctx.setSelection(h);
         drag = startDrag(h, x, z, px, py, e) || { type: 'pan', px, py, tx, ty };

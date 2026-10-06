@@ -807,4 +807,6 @@ export default {
   'dev.bridge': 'Pont / passerelle', 'bridge.len': 'Longueur', 'bridge.width': 'Largeur', 'bridge.rail': 'Garde-corps', 'bridge.help': 'Le plancher est au niveau de l’étage où se trouve le pont. Pour relier deux parties du bâtiment, le placer à l’étage supérieur et l’orienter en le tournant.',
   'power.editorOff': 'Éditeur électrique désactivé : il n’affiche que les appareils électriques et les compteurs, sinon l’objet placé serait invisible.',
   'plan.rotate': '↻ Le plan tourne', 'plan.rotateTip': 'Faire tourner le plan 2D avec la vue 3D : le haut est toujours la direction de la caméra',
+  'multi.count': '{n} sélectionnés : Suppr les supprime tous, Échap annule la sélection, Maj + clic ajoute ou retire', 'multi.delete': 'Supprimer les {n}', 'multi.clear': 'Annuler la sélection', 'multi.deleted': '{n} éléments supprimés (Ctrl+Z les restaure)',
+  'keys.multi': 'Maj + clic : en sélectionner plusieurs',
 };
