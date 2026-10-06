@@ -50,6 +50,7 @@ import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
 import { solarPose, groundFn } from './solarroof.js';
+import { initPlanRotate } from './planview.js';
 import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround } from './placement.js';
 import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
@@ -731,6 +732,8 @@ function cyclePlanFloors() {
   try { localStorage.setItem('fp3d.planFloors', planFloors); } catch { /* not stored */ }
   updatePlanFloorsToggle(); plan?.render();
 }
+/* ---- the 2D plan turns with the 3D view (in 2D + 3D, switchable, #212); the code lives in planview.js ---- */
+const planRotate = initPlanRotate({ $, plan: () => plan, camera, controls, layoutMode: () => layoutMode });
 $('#planFloorsToggle').addEventListener('click', cyclePlanFloors);
 $('#planFloorsBtn').addEventListener('click', cyclePlanFloors);
 
@@ -1604,7 +1607,7 @@ function setLayoutMode(m) {
   $('#view3d').classList.toggle('active', m === '3d');
   $('#viewSplit').classList.toggle('active', m === 'split');
   plan.show(m !== '3d');
-  requestAnimationFrame(() => { resize(); if (m !== '2d') fitCamera(); });
+  requestAnimationFrame(() => { resize(); if (m !== '2d') fitCamera(); planRotate.sync(); });
 }
 $('#view2d').addEventListener('click', () => setLayoutMode('2d'));
 $('#view3d').addEventListener('click', () => setLayoutMode('3d'));
@@ -2067,6 +2070,7 @@ if (params.get('debug')) {
     fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
+    selection: () => selection,
     devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), bx = new THREE.Box3(); o.children.forEach((c) => { if (!c.userData.proxy) bx.expandByObject(c); }); const sz = bx.getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)], h: +sz.y.toFixed(2), minY: +bx.min.y.toFixed(3), visible: o.visible }; },
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)
       const pos = roomMeshes.get(id)?.mesh.geometry.getAttribute('position');

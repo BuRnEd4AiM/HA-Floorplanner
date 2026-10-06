@@ -806,4 +806,5 @@ export default {
   'dev.watermeter': 'Contatore dell’acqua', 'dev.gasmeter': 'Contatore del gas', 'dev.heatmeter': 'Contatore di calore',
   'dev.bridge': 'Ponte / passerella', 'bridge.len': 'Lunghezza', 'bridge.width': 'Larghezza', 'bridge.rail': 'Ringhiera', 'bridge.help': 'Il piano di calpestio è all’altezza del piano in cui si trova il ponte. Per collegare due parti dell’edificio, posizionarlo al piano superiore e ruotarlo per allinearlo.',
   'power.editorOff': 'Editor elettrico disattivato: mostra solo dispositivi elettrici e contatori, altrimenti l’oggetto posizionato sarebbe invisibile.',
+  'plan.rotate': '↻ La pianta ruota', 'plan.rotateTip': 'Ruotare la pianta 2D con la vista 3D: in alto è sempre la direzione della telecamera',
 };
