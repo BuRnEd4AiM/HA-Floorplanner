@@ -57,13 +57,13 @@ import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { toWorld, stairHandles } from './stairs.js';
-import { skipInLive } from './pickrules.js';
 import { floorLabels } from './viewprefs.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel } from './livechannel.js';
 import { initPersist } from './persist.js';
 import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { initEditItems } from './edititems.js';
+import { initPicking } from './picking.js';
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
@@ -381,7 +381,7 @@ function stateText(entityId) { return plainStateText(states[entityId], t); }
 
 /* ---- power add-on (#136): cables, power editor, energy overview; the code lives in power.js and powerlogic.js ---- */
 const power = initPower({
-  $, t, scene, camera, canvas, ray: () => ray, registry,
+  $, t, scene, camera, canvas, ray: () => picking.ray, registry,
   layout: () => layout, states: () => states, entities: () => entities,
   getSelection: () => selection, setSelection: (s) => { selection = s; }, refreshSelection: () => refreshSelection(), renderProps: () => renderProps(),
   plan: () => plan, setStatus: (x) => setStatus(x), uid: () => uid(), snapshot: () => snapshot(), changed: () => changed(), wake: () => wake(),
@@ -764,51 +764,15 @@ $('#houseSelect').addEventListener('change', (e) => switchHouse(e.target.value))
 
 function save() { return persist.save(); }
 
-/* ================= Picking / snapping ================= */
-const ray = new THREE.Raycaster();
-const ndc = new THREE.Vector2();
-const hitVec = new THREE.Vector3();
-function setRay(e) {
-  const r = canvas.getBoundingClientRect();
-  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  ray.setFromCamera(ndc, camera);
-}
-function groundPoint(e) {
-  setRay(e);
-  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -elev());
-  return ray.ray.intersectPlane(plane, hitVec) ? [hitVec.x, hitVec.z] : null;
-}
-const stealth = (id) => !!floor()?.devices.find((v) => v.id === id)?.hideModel;
-const deviceOf = (id) => { for (const f of layout.floors) { const d = f.devices.find((v) => v.id === id); if (d) return d; } return null; };
-/** in the live mode only what is linked to something can be tapped (a light, a switch, a TV with a backlight, an LED ring with lights) */
-const tappable = (id) => { const d = deviceOf(id); return !!d && !!(d.entity || d.ledEntity || (d.segs || []).some((s) => s.entity)); };
-function pickHit(e) {
-  setRay(e);
-  const hits = [];
-  for (const h of ray.intersectObjects(pickables, true)) {
-    if (h.object.userData.touchOnly && !isLive()) continue;                                      // the big finger box is for the live mode only
-    let o = h.object, seg = h.object.userData.seg;
-    while (o && !o.userData.kind) { o = o.parent; seg ??= o?.userData.seg; }
-    if (o && isLive() && skipInLive(o.userData, devType(o.userData))) continue;                  // live mode: doors, windows, camera cones and presence figures take no tap (#234)
-    if (o && o.userData.kind === 'device' && power.hides(o.userData.id)) continue;                  // the power editor: only power things are picked
-    if (o && o.userData.cone) continue;                                                           // the cone of a camera is never hit, only the camera itself
-    if (o && o.userData.kind === 'device' && isLive() && (stealth(o.userData.id) || !tappable(o.userData.id))) continue;      // an invisible light, or a thing that is linked to nothing, cannot be tapped
-    if (o) hits.push({ data: seg != null ? { ...o.userData, seg } : o.userData, point: h.point, distance: h.distance });   // seg: which LED ring section was tapped
-  }
-  if (power.isMode()) return power.pick(e, hits);                    // the power editor: nothing but power devices and cables can be hit
-  // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
-  // door/window the door/window wins unless the device is clearly in front of it (> 1.2 m nearer to the camera).
-  const live = isLive();
-  const op = hits.find((h) => h.data.kind === 'opening' && (!live || findOpening(h.data.id)?.opening.entity));
-  const dv = hits.find((h) => h.data.kind === 'device');
-  if (op && dv) return dv.distance < op.distance - 1.2 ? dv : op;
-  if (op || dv) return op || dv;
-  if (live) return hits.find((h) => h.data.kind === 'room') ?? null;
-  return hits[0] ?? null;
-}
-const pick = (e) => pickHit(e)?.data ?? null;
-/** the type of the device a hit belongs to (null for anything else) */
-const devType = (data) => (data.kind === 'device' ? floor().devices.find((x) => x.id === data.id)?.type ?? null : null);
+/* ================= Picking / snapping: the ray into the scene and what it hits live in picking.js ================= */
+const picking = initPicking({
+  canvas, camera, pickables, isLive: () => isLive(), elev: () => elev(), floor: () => floor(), layout: () => layout,
+  power: { hides: (id) => power.hides(id), isMode: () => power.isMode(), pick: (e, hits) => power.pick(e, hits) }, findOpening: (id) => findOpening(id),
+});
+function setRay(e) { picking.setRay(e); }
+function groundPoint(e) { return picking.groundPoint(e); }
+function pickHit(e) { return picking.pickHit(e); }
+function pick(e) { return picking.pick(e); }
 
 function snap(p, fine = false) { return snapPoint(p, floor().walls, fine ? 0.05 : settings.grid); }
 const findWall = (id) => floor().walls.find((w) => w.id === id);
@@ -1713,7 +1677,7 @@ if (params.get('debug')) {
       v.project(camera); const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    rayHits(x, y) { setRay({ clientX: x, clientY: y }); return ray.intersectObjects(pickables, true).map((h) => { let o = h.object; while (o && !o.userData.kind) o = o.parent; return `${o?.userData.kind}:${o?.userData.id}@${h.distance.toFixed(2)}${h.object.userData.proxy ? 'P' : ''}`; }); },
+    rayHits(x, y) { setRay({ clientX: x, clientY: y }); return picking.ray.intersectObjects(pickables, true).map((h) => { let o = h.object; while (o && !o.userData.kind) o = o.parent; return `${o?.userData.kind}:${o?.userData.id}@${h.distance.toFixed(2)}${h.object.userData.proxy ? 'P' : ''}`; }); },
     openingCenter(id) {                 // screen position of the middle of a door/window (not its base)
       const o = registry.get(id); if (!o) return null;
       const fo = findOpening(id); const v = o.getWorldPosition(new THREE.Vector3()); v.y += fo.opening.sill + fo.opening.height / 2;
