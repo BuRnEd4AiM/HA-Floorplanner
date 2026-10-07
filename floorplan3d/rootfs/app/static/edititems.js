@@ -2,14 +2,15 @@
  * corners joined to them along), turn with Q / E, and the shortcut keys. Which key does what and the list changes are pure (unit test:
  * tests/edititems.test.mjs); initEditItems applies them to the open floor and listens to the keyboard. */
 import { clampOpeningPos, openingOverlaps } from './walls.js';
+import { openingWalls, isDormerWall } from './dormerwin.js';
 
 const LISTS = { wall: 'walls', room: 'rooms', device: 'devices', stair: 'stairs', block: 'blocks', hole: 'holes' };
 const TOOL_KEYS = { v: 'select', w: 'wall', b: 'block', t: 'stairs', r: 'room', o: 'opening', d: 'device' };
 const DRAFT_TOOLS = new Set(['room', 'block', 'plot', 'hole', 'stairs']);   // tools whose outline Enter closes
 
-/** the door / window `id` on floor f: { wall, opening } or null */
+/** the door / window `id` on floor f (also a dormer window, dormerwin.js): { wall, opening } or null */
 export function openingIn(f, id) {
-  for (const wall of f?.walls || []) { const opening = (wall.openings || []).find((o) => o.id === id); if (opening) return { wall, opening }; }
+  for (const wall of f ? openingWalls(f) : []) { const opening = (wall.openings || []).find((o) => o.id === id); if (opening) return { wall, opening }; }
   return null;
 }
 /** the plan object behind a selection (wall, room, opening, device, stair, block, floor opening) on floor f, null if there is none */
@@ -22,6 +23,7 @@ export function itemIn(f, kind, id) {
 export function removeFrom(f, kind, id) {
   if (kind === 'opening') {
     const found = openingIn(f, id);
+    if (isDormerWall(found?.wall)) { found.wall.dormer.win = false; return; }   // a dormer window: the dormer keeps its wall, without a window
     if (found) found.wall.openings = found.wall.openings.filter((x) => x.id !== id);
     return;
   }
@@ -79,7 +81,7 @@ export function initEditItems(ctx) {
     const f = ctx.floor(), sel = ctx.selection();
     if (sel.kind === 'opening') {
       const found = openingIn(f, sel.id);
-      if (!found || found.opening.locked) return;
+      if (!found || found.opening.locked || isDormerWall(found.wall)) return;   // a dormer window is moved with its dormer (roof panel)
       const o = found.opening;
       const p = clampOpeningPos(found.wall, o.width, o.pos + (dx || dz));
       if (p === null || p === o.pos || openingOverlaps(found.wall, p, o.width, o.id)) return;

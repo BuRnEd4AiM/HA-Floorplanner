@@ -58,3 +58,12 @@ test('works with the ridge along z too', () => {
   const p = D.dormerParts({ x0: 0, x1: 6, z0: 0, z1: 10 }, roof, { side: 0 });
   assert.ok(p && Math.max(...p.wall.map((q) => q[0])) < 3 && flat(p.wall).every(Number.isFinite));
 });
+
+test('dormerWindow: the window in the front wall, the same size as the glass pane', () => {
+  const n = D.fitDormer(bb, roof, { side: 0, pos: 0.5, w: 2, hw: 1.2 });
+  const win = D.dormerWindow(n);
+  assert.ok(Math.abs(win.width - 1.28) < 1e-9 && Math.abs(win.height - 0.8) < 1e-9 && win.sill === 0.22);
+  assert.ok(Math.abs(Math.hypot(win.b[0] - win.a[0], win.b[1] - win.a[1]) - 2) < 1e-9, 'the front wall is as wide as the dormer');
+  assert.equal(D.dormerWindow(D.fitDormer(bb, roof, { win: false })), null);
+  assert.equal(D.dormerWindow(null), null);
+});

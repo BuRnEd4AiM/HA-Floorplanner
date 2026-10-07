@@ -177,8 +177,8 @@ function buildOpening(o, t, mats0, low) {
   return g;
 }
 
-/** Returns a Group positioned at the wall centre with local x along the wall. */
-export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null }) {
+/** Returns a Group positioned at the wall centre with local x along the wall. bare: only the doors / windows, no wall (a dormer window). */
+export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null, bare = false }) {
   const len = wallLength(w);
   const t = w.thickness;
   const H = (w.height || 2.6) * (low ? 0.12 : cut || 1);   // `cut`: fraction of the height that stays (half section)
@@ -198,6 +198,7 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
     glass: makeMat('#9cc9ee', ghost, { opacity: ghost ? 0.15 : 0.45, roughness: 0.1 }),
   };
   const solid = (x0, x1, y0, y1) => {
+    if (bare) return;
     y1 = Math.min(y1, H);
     if (x1 - x0 < 0.001 || y1 - y0 < 0.001) return;
     const m = boxMesh(x0, x1, y0, y1, t, material);

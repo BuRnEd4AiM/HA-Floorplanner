@@ -369,6 +369,7 @@ export default {
   'dormer.gable': 'À deux pans',
   'dormer.flat': 'Plat',
   'dormer.window': 'Fenêtre',
+  'dormer.winHint': 'Fenêtre d’une lucarne : sa taille et sa place se règlent sur la lucarne (étage du toit).',
   'dormer.remove': 'Supprimer la lucarne',
   'dormer.add': '+ Lucarne',
   'dormer.noFit': 'Ne tient pas sur le toit (trop grande ou trop près du faîte).',

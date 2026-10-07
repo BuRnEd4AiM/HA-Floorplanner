@@ -1,5 +1,6 @@
 /* Doors, gates and windows with a contact sensor: open or closed (also per pane of a window with one sensor per pane), the red tint and the
  * opening leaf in 3D, the pill "n open" with its list, and the animation of the leaves. The decisions are pure functions (tested). */
+import { openingWalls } from './dormerwin.js';
 
 export const OPEN_HEX = 0xff4a3d;
 /** which group an opening belongs to in the lists */
@@ -20,7 +21,7 @@ export function openingPoint(w, o) {
  *  top floor first, then room and name. env: { isOpen(e), t, pointInPoly, distToPoly } */
 export function openItems(floors, env) {
   const out = [];
-  floors.forEach((f, fi) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+  floors.forEach((f, fi) => openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
     const open = openingEntities(o).filter(env.isOpen).length;
     if (!open) return;
     const [x, z] = openingPoint(w, o);
@@ -39,7 +40,7 @@ export function initOpenings(ctx) {
   /** tint and leaf targets of every opening, and the pill */
   function apply() {
     let n = 0, any = false;
-    ctx.layout().floors.forEach((f) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+    ctx.layout().floors.forEach((f) => openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
       openingEntities(o).forEach((e) => { any = true; if (isOpen(e)) n++; });
       const obj = ctx.registry.get(o.id);
       if (!obj?.userData.pivot) return;
