@@ -312,6 +312,8 @@ export default {
   'nav.allRooms': 'Wszystkie',
   'prop.roof': 'Dach',
   'roof.where': 'Lewy górny róg: {x} / {z} · rozmiar {w} × {d}',
+  'roof.ridgeH': 'Wysokość kalenicy (nad ścianami lub ścianką kolankową)',
+  'roof.base': 'Dach zaczyna się na piętrze',
   'roof.attic': 'Poddasze użytkowe (dach zaczyna się na piętrze poniżej)',
   'roof.knee': 'Ścianka kolankowa (wysokość ściany do dachu)',
   'roof.atticHelp': 'Dach nie stoi wtedy na piętrze poniżej, tylko zaczyna się na nim, na ściance kolankowej, niskiej ścianie przy okapie. Ściany tego piętra (np. poddasza) są przycinane na skosie dachu, lukarny zostają. To piętro „Dach” jest wtedy strychem nad nim: możesz tu postawić pomieszczenia i rzeczy.',

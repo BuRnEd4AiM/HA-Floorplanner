@@ -4,9 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Heute zu Hause prüfen (Stand 3.52.0)
+## Heute zu Hause prüfen (Stand 3.53.0)
 
-Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.52.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
+Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.53.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
 
 **A. Live-Modus** (oben „Live“ drücken)
 1. Über jeder Lampe, Kamera, dem Fernseher, Rollladen-Schalter usw. schwebt eine **größere Kugel mit kleinem Symbol** (💡 🪟 📷 📺 🌡 …). Unter Deckenlampen hängt sie **darunter**. Kugeln, die dicht beieinander liegen, rücken etwas auseinander und **verdecken sich nicht** (auch nicht die Wert-Schilder).
@@ -53,6 +53,10 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
    - Gauben und Solarpanels wandern mit dem Dach mit.
    - Die Etage „Dach“ ist jetzt der **Spitzboden**: dort einen kleinen Raum zeichnen und etwas hinstellen (z. B. Kisten).
    - Haken wieder weg: alles wie vorher.
+20d. **Neu: Gauben, mehrere Etagen, Firsthöhe** (3.53.0, #265): wie bei 20c den ausgebauten Dachstuhl einschalten.
+   - **Gauben**: wo eine Gaube ist, geht die Wand darunter **bis unter die Gaube** hoch (bei einer Giebelgaube bis in die Spitze); daneben bleibt sie an der Schräge abgeschnitten. Gut zu sehen, wenn unten „Ansicht“ → „Auto“ aus ist.
+   - **„Dach beginnt auf Etage“**: z. B. „Obergeschoss“ wählen: das Dach rutscht eine Etage tiefer, jetzt liegen Obergeschoss **und** Dachgeschoss unter der Schräge, beide werden abgeschnitten.
+   - **„Firsthöhe“**: z. B. 4 eintippen: das Dach wird so hoch (über der Wand bzw. dem Kniestock), die Neigung passt sich an.
 21. **Flüssiger** (#253): die Demo beim Drehen der Kamera: sollte spürbar weniger ruckeln.
 
 Ausführlicher stehen die Punkte in den Abschnitten **28 bis 32** weiter unten.
@@ -490,3 +494,14 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 34.6 | Etage „Dach“ (Spitzboden): einen Raum zeichnen, ein Gerät hinstellen | Liegt über dem Dachgeschoss, unter dem First | |
 | 34.7 | Haken wieder entfernen | Das Dach sitzt wieder oben drauf, die Wände sind wieder ganz | |
 | 34.8 | Im echten Haus: Kniestock wie bei euch einstellen, Wohnzimmer mit Gauben ansehen | Sieht aus wie in echt (Rückmeldung gern mit Bild) | |
+
+## 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0)
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 35.1 | Ausgebauter Dachstuhl an, eine Gaube über einer Wand des Dachgeschosses, „Auto“ aus | Die Wand geht unter der Gaube hoch bis unter das Gaubendach, daneben ist sie schräg abgeschnitten | |
+| 35.2 | Gaube als „Giebel“ | Unter der Gaube reicht die Wand in der Mitte höher (Spitze) | |
+| 35.3 | „Dach beginnt auf Etage“ = Obergeschoss | Das Dach sitzt eine Etage tiefer; Obergeschoss und Dachgeschoss sind an der Schräge abgeschnitten | |
+| 35.4 | Wieder das Geschoss direkt darunter wählen | Wie vorher (nur das Dachgeschoss liegt unter der Schräge) | |
+| 35.5 | „Firsthöhe“ auf 4 m | Das Dach ist 4 m hoch über der Wand/dem Kniestock, die Neigung wurde angepasst | |
+| 35.6 | Haken „Ausgebauter Dachstuhl“ weg | Alles wie vorher: Dach oben drauf, keine abgeschnittenen Wände | |

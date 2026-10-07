@@ -312,6 +312,8 @@ export default {
   'nav.allRooms': 'Alle',
   'prop.roof': 'Dak',
   'roof.where': 'Hoek linksboven: {x} / {z} · grootte {w} × {d}',
+  'roof.ridgeH': 'Nokhoogte (boven de muren of het knieschot)',
+  'roof.base': 'Dak begint op verdieping',
   'roof.attic': 'Bewoonde zolder (het dak begint in de verdieping eronder)',
   'roof.knee': 'Knieschot (hoogte van de muur tot het dak)',
   'roof.atticHelp': 'Het dak staat dan niet meer bovenop de verdieping eronder, maar begint erin, op het knieschot, de lage muur bij de goot. De muren van die verdieping (bijv. de zolderverdieping) worden bij de dakhelling afgesneden, dakkapellen blijven. Deze verdieping „Dak” is dan de vliering erboven: hier kun je ruimtes en spullen neerzetten.',

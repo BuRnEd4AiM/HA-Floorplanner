@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { dormerParts } from './dormer.js';
 import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
-import { kneeDrop, clipRoofFloor, roofPlanes } from './attic.js';
+import { roofY0, clipRoofFloor, roofPlanes, dormerRooms } from './attic.js';
 
 /** footprint (bounding box) of everything under a roof floor */
 export function roofBoxOf(floors, i) {
@@ -138,7 +138,7 @@ export function initRoofs(ctx) {
     if (f?.kind !== 'roof') return out;
     const bb = roofBoxOf(ctx.layout().floors, i);
     const spec = f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 });
-    if (bb) out.push({ bb, spec, y0: i > 0 ? kneeDrop(spec, ctx.elev(i) - ctx.elev(i - 1)) : 0, tag: 'main' });   // on a knee wall it starts in the storey below (#260)
+    if (bb) out.push({ bb, spec, y0: roofY0(ctx.layout().floors, i, ctx.elev), tag: 'main' });   // on a knee wall it starts lower down (#260, #265)
     (f.roof?.parts || []).forEach((p, pi) => {                              // further roofs: an annex with its own roof, on the floor it stands on
       const pb = partBox(p);
       if (!pb) return;
@@ -147,15 +147,16 @@ export function initRoofs(ctx) {
     });
     return out;
   }
-  /** clipping planes (world frame) that cut the walls of floor i where they meet the roof over them (#260): the walls of the roof floor
-   *  itself, and of the storey below when the roof starts on a knee wall; null when nothing cuts them */
+  /** where the walls of floor i are cut at the roof over them (#260, #265), in the world frame: { planes (the slopes), rooms (inside the
+   *  dormers, kept) }; for the walls of the roof floor itself, and of the storeys under the slopes when the roof starts on a knee wall
+   *  lower down; null when nothing cuts them */
   function wallClip(i) {
-    const ri = clipRoofFloor(ctx.layout().floors, i, Infinity);
+    const ri = clipRoofFloor(ctx.layout().floors, i);
     const R = ri < 0 ? null : roofList(ri).find((r) => r.tag === 'main');
     if (!R) return null;
     const E = ctx.elev(ri);
-    const ps = roofPlanes(R.bb, R.spec, R.y0).map(([x, y, z, d]) => new THREE.Plane(new THREE.Vector3(x, y, z), d - y * E));
-    return ps.length ? ps : null;
+    const planes = roofPlanes(R.bb, R.spec, R.y0).map(([x, y, z, d]) => [x, y, z, d - y * E]);
+    return planes.length ? { planes, rooms: dormerRooms(R.bb, R.spec, R.y0).map((q) => ({ ...q, top: q.top + E })) } : null;
   }
   function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost)); }
   /** a solar panel on the roof floor lies on the roof surface (#176): height and tilt follow the roof under it */
