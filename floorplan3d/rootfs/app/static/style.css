@@ -167,12 +167,21 @@ html[data-theme="holo"] #stage {
 #modeBar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: calc(100% - 24px); z-index: 4; }
 #modeBar #viewMenuBtn { margin-left: 10px; }
 body.kiosk #modeBar { bottom: 10px; }
-/* phones (live view): the tool bar is one row that scrolls sideways instead of four rows, and the view buttons (Normal, Temp. ...)
-   are one row beside the compass, so more of the house is visible. Only narrow or very low screens (phones); desktop and tablets are unchanged */
+/* phones (live view): the tool bar folds into a ☰ button at the top left and opens as a drop-down list (phonemenu.js), and the view
+   buttons (Normal, Temp. ...) are one row beside the compass, so more of the house is visible. Only narrow or very low screens (phones);
+   desktop and tablets are unchanged */
+#tbMenuBtn { display: none; }
 @media (max-width: 760px), (max-height: 520px) {
-  body.live #toolbar { flex-wrap: nowrap; overflow-x: auto; gap: 8px; padding: 6px 10px; scrollbar-width: none; }
-  body.live #toolbar::-webkit-scrollbar { display: none; }
-  body.live #toolbar > * { flex: 0 0 auto; }
+  body.live:not(.kiosk) #tbMenuBtn { display: block; position: absolute; top: 14px; left: 12px; z-index: 6; width: 42px; height: 36px; padding: 0; font-size: 18px; }
+  body.live:not(.kiosk) #navBar { left: 60px; }
+  body.live:not(.kiosk) #navLeft { left: 58px; }
+  body.live #toolbar { display: none; }
+  body.live.tbopen:not(.kiosk) #toolbar { display: flex; position: fixed; top: 56px; left: 8px; z-index: 30; flex-direction: column; align-items: stretch; flex-wrap: nowrap;
+    gap: 10px; width: min(340px, calc(100% - 16px)); max-height: calc(100% - 72px); overflow-y: auto; padding: 12px;
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
+  body.live.tbopen #toolbar .group { flex-wrap: wrap; }
+  body.live.tbopen #toolbar .group.right { margin-left: 0; }
+  input, select, textarea { font-size: 16px; }   /* smaller text makes the iPhone zoom the whole page in when a field is tapped (search) */
   #modeBar { left: 80px; right: 8px; transform: none; max-width: none; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto;
     scrollbar-width: none; gap: 6px; padding: 2px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
   #modeBar::-webkit-scrollbar { display: none; }

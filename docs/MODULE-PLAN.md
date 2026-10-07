@@ -60,6 +60,7 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `livepopup.js` | ~110 | Live-Karte beim Antippen (Gerät, Tür/Fenster, LED-Ring) |
 | `roompanel.js` | ~190 | Raum-Panel mit Heizungs-Panel |
 | `sheetview.js` | ~45 | Handy: Raum über der Raum-Karte zeigen statt dahinter, Kamera-Abstand bei schmalem Bild (Unit-Tests) |
+| `phonemenu.js` | ~25 | Handy: obere Leiste als ☰-Menü (Live-Ansicht) |
 | `stairtool.js` | ~175 | Treppen-Werkzeug (Platzieren, Treppenhaus, Wandtreppe zeichnen, Eigenschaften, 3D-Treppe) |
 | `blocks.js` | ~80 | Platzhalter-Blöcke, Bodenöffnungen, Grundstück, Boden mit Aussparungen |
 | `palettes.js` | ~105 | Paletten (Geräte, eigene Modelle, Suche) |

@@ -12,6 +12,7 @@ import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
+import { initPhoneMenu } from './phonemenu.js';
 import { initCameras } from './cameras.js';
 import { initFloorCards } from './floorcards.js';
 import { initFloorRail } from './floorrail.js';
@@ -655,6 +656,7 @@ const search = initSearch({
 });
 
 /* ================= Wall tablet (#61): the code lives in kiosk.js ================= */
+initPhoneMenu({ $ });                  // phones: the tool bar folds into a ☰ menu (phonemenu.js)
 const kiosk = initKiosk({
   $, controls, settings: () => settings, states: () => states, isLive: () => isLive(),
   closeLivePopup: () => popup.close(), closeRoomPanel: () => roomPanel.close(), closeSearch: () => search.close(),
