@@ -68,7 +68,7 @@ import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
 import { frameDue, shadowDue } from './frameloop.js';
 import { initHouseLoad } from './houseload.js';
-import { roofRects, moveRoof, tagRoofMeshes, panelsOn } from './roofmove.js';
+import { roofRects, moveRoof, tagRoofMeshes, panelsOn, setRoofBox } from './roofmove.js';
 import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO } from './modelfx.js';
@@ -1291,6 +1291,7 @@ plan = createPlan({
  
   liveMoveDevice: (d) => liveMove(d),
   roofRects: () => roofRectsHere(), dragRoof: (id, dx, dz) => dragRoofBy(id, dx, dz),   // roofs on the roof floor (#255, #257)
+  resizeRoof: (id, b) => setRoofBox(floor(), id, b, autoRoofBox(floorIdx)),                // its size, at the corners and sides (#259)
   liveTap: (h) => liveSelect(h),
   deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach((e) => live.quickAction(e)),   // #251: lives in livecontrols.js
   allDevices: () => layout.floors.flatMap((f, fi) => f.devices.map((d) => ({ d, fi }))), floorIndex: () => floorIdx, floorName: (i) => layout.floors[i]?.name || '',

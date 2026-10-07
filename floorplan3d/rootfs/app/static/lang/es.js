@@ -312,7 +312,7 @@ export default {
   'nav.allRooms': 'Todas',
   'prop.roof': 'Tejado',
   'roof.where': 'Esquina superior izquierda: {x} / {z} · tamaño {w} × {d}',
-  'roof.moveHint': 'Mover: hacer clic en el tejado, luego pulsar de nuevo y arrastrar (también en el plano 2D), o las flechas. Los paneles solares van con él. Forma, inclinación y tamaño: «Gestionar planta».',
+  'roof.moveHint': 'Mover: hacer clic en el tejado, luego pulsar de nuevo y arrastrar (también en el plano 2D), o las flechas. Los paneles solares van con él. Tamaño: arrastrar las esquinas y los lados blancos en el plano 2D. Forma e inclinación: «Gestionar planta».',
   'set.belowLabels': 'Mostrar nombres y etiquetas de las plantas inferiores',
   'set.belowLabelsHint': 'Desactivado: cuando se muestra una sola planta, los nombres de estancias y etiquetas de valores de las plantas inferiores se omiten para no tapar nada. «Casa entera» siempre muestra todo.',
   'nav.belowLabels': 'Etiquetas abajo',

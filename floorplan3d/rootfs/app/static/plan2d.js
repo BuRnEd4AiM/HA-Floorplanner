@@ -9,7 +9,7 @@ import { bridgeSize } from './bridge.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 import { boxItems } from './multisel.js';
-import { roofAt, dragStep } from './roofmove.js';
+import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -251,6 +251,11 @@ export function createPlan(ctx) {
     if (!sel || ctx.isItemLocked?.(sel.kind, sel.id)) return null;
     const f = floor();
     const near = (p) => Math.hypot(sx(p[0]) - px, sy(p[1]) - py) <= 11;
+    if (sel.kind === 'roof') {                                   // a roof (#259): its corners and the middle of its sides change its size
+      const r = (ctx.roofRects?.() || []).find((q) => q.id === sel.id);
+      const hd = r && roofHandles(r.box).find((q) => near([q.x, q.z]));
+      return hd ? { type: 'roof-size', id: r.id, which: hd.which, start: { ...r.box } } : null;
+    }
     if (sel.kind === 'stair') {                                  // size handles: end of the run (length) and its side (width / radius)
       const st = (f.stairs || []).find((q) => q.id === sel.id);
       if (st) {
@@ -579,6 +584,10 @@ export function createPlan(ctx) {
         if (st) ['len', 'wid'].forEach((k) => { if (hs[k]) { const p = toWorld(st, hs[k][0], hs[k][1]); o += `<rect x="${sx(p[0]) - 6}" y="${sy(p[1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; } });
       }
       if (POLY_KINDS.has(sel.kind)) { const rm = polyList(f, sel.kind).find((q) => q.id === sel.id); if (rm) rm.points.forEach((p) => { o += hnd(p); }); }
+      if (sel.kind === 'roof') {                                 // the size handles of a roof (#259)
+        const r = (ctx.roofRects?.() || []).find((q) => q.id === sel.id);
+        if (r) roofHandles(r.box).forEach((q) => { o += `<rect x="${sx(q.x) - 6}" y="${sy(q.z) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.accent}" stroke-width="2" data-roofh="${q.which}"/>`; });
+      }
     }
 
     /* power cables (#136): amber lines between power devices, along the floor like the real cable; a cable to another floor ends in an arrow */
@@ -799,6 +808,7 @@ export function createPlan(ctx) {
   function startHandleDrag(hd) {
     if (hd.type === 'dev-size') return { type: 'devsize', which: hd.which, d: hd.d, moved: false };
     if (hd.type === 'ring-end') return { type: 'ringend', d: hd.d, i: hd.i, end: hd.end, moved: false };
+    if (hd.type === 'roof-size') return { type: 'roofsize', id: hd.id, which: hd.which, start: hd.start, moved: false };
     if (hd.type === 'stair-size') return { type: 'stairsize', which: hd.which, st: hd.st, moved: false };
     if (hd.type === 'wall-end') {
       const p = hd.wall[hd.end];
@@ -906,6 +916,12 @@ export function createPlan(ctx) {
         const b = floor().bg;
         b.x = +(drag.ox + (x - drag.sx0)).toFixed(3); b.z = +(drag.oz + (z - drag.sz0)).toFixed(3);
         drag.moved = true; render();
+        return;
+      }
+      if (drag.type === 'roofsize' && moved) {                    // a corner or side of a roof (#259): only the plan follows, the house is built on release
+        const nb = resizeBox(drag.start, drag.which, x, z, e.altKey ? 0 : 0.05);   // 5 cm steps, Alt: free
+        const now = (ctx.roofRects?.() || []).find((q) => q.id === drag.id)?.box;
+        if (now && ['x0', 'x1', 'z0', 'z1'].some((k) => now[k] !== nb[k])) { snapshotOnce(); if (ctx.resizeRoof(drag.id, nb)) { drag.moved = true; render(); } }
         return;
       }
       if (drag.type === 'roof' && moved) {
@@ -1029,7 +1045,7 @@ export function createPlan(ctx) {
       return;
     }
     if (d.type === 'erase') { if (!moved) { const h = pickAt(x, z); if (h) { ctx.snapshot(); ctx.deleteItem(h); } } return; }
-    if (d.type === 'device' || d.type === 'opening' || d.type === 'points' || d.type === 'stair' || d.type === 'roof') {
+    if (d.type === 'device' || d.type === 'opening' || d.type === 'points' || d.type === 'stair' || d.type === 'roof' || d.type === 'roofsize') {
       if (d.moved) { ctx.commit(); } snapDone = false;
       return;
     }

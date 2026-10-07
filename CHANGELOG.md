@@ -7,6 +7,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.50.0] - 2026-10-07
+### Added
+- **Roof size by dragging (#259)**: in the 2D plan a selected roof (on the roof floor) shows 8 white handles, at its corners and in the middle of its sides. Dragging a corner changes width and depth, a side only that side; the opposite side stays. 5 cm steps (Alt: free), never smaller than 1 m, Ctrl+Z undoes it. The plan follows while dragging, the house is built again once when the handle is let go. The main roof then keeps its own size ("size set by hand"). `roofHandles`, `resizeBox` and `setRoofBox` in `roofmove.js` with tests.
+
 ## [3.49.1] - 2026-10-07
 ### Fixed
 - **Moving a roof no longer stutters (#257)**: while a roof was dragged, the whole house was built again in 3D at every 5 cm step. Now only the drawn roof and the solar panels on it move along while dragging (in 3D and in the 2D plan), and the house is built once when the roof is let go. The work per pointer move went from about 80 ms to under 1 ms in the demo. `panelsOn` in `roofmove.js` with a test.

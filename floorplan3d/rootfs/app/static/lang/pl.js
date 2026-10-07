@@ -312,7 +312,7 @@ export default {
   'nav.allRooms': 'Wszystkie',
   'prop.roof': 'Dach',
   'roof.where': 'Lewy górny róg: {x} / {z} · rozmiar {w} × {d}',
-  'roof.moveHint': 'Przesuwanie: kliknij dach, potem naciśnij ponownie i przeciągnij (także w planie 2D) albo strzałki. Panele słoneczne przesuwają się razem. Kształt, nachylenie i rozmiar: „Zarządzaj piętrem”.',
+  'roof.moveHint': 'Przesuwanie: kliknij dach, potem naciśnij ponownie i przeciągnij (także w planie 2D) albo strzałki. Panele słoneczne przesuwają się razem. Rozmiar: przeciągnij białe narożniki i boki w planie 2D. Kształt i nachylenie: „Zarządzaj piętrem”.',
   'set.belowLabels': 'Pokaż nazwy i etykiety pięter poniżej',
   'set.belowLabelsHint': 'Wyłączone: gdy pokazane jest jedno piętro, nazwy pomieszczeń i etykiety wartości pięter poniżej są pomijane, by niczego nie zasłaniały. „Cały dom” zawsze pokazuje wszystko.',
   'nav.belowLabels': 'Etykiety poniżej',

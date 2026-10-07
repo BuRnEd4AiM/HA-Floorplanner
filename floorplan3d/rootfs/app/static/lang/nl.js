@@ -312,7 +312,7 @@ export default {
   'nav.allRooms': 'Alle',
   'prop.roof': 'Dak',
   'roof.where': 'Hoek linksboven: {x} / {z} · grootte {w} × {d}',
-  'roof.moveHint': 'Verschuiven: op het dak klikken, dan nog eens drukken en slepen (ook in het 2D-plan), of de pijltjestoetsen. Zonnepanelen erop gaan mee. Vorm, helling en grootte: „Verdieping beheren”.',
+  'roof.moveHint': 'Verschuiven: op het dak klikken, dan nog eens drukken en slepen (ook in het 2D-plan), of de pijltjestoetsen. Zonnepanelen erop gaan mee. Grootte: in het 2D-plan aan de witte hoeken en zijden slepen. Vorm en helling: „Verdieping beheren”.',
   'set.belowLabels': 'Namen en labels van de verdiepingen eronder tonen',
   'set.belowLabelsHint': 'Uit: als één verdieping getoond wordt, vallen de ruimtenamen en waardelabels van de verdiepingen eronder weg, zodat ze niets bedekken. „Hele huis” toont altijd alles.',
   'nav.belowLabels': 'Labels eronder',
