@@ -57,25 +57,29 @@ export function initCutaway(ctx) {
       });
     });
   }
-  /** every frame */
+  /** every frame; true when a wall sank, rose or faded (its shadow changes) */
   function update() {
     if (ctx.roofsCount()) ctx.updateRoofFade();
     ctx.updateEarthCut();
     const walls = ctx.walls();
-    if (!walls.length) return;
+    if (!walls.length) return false;
+    let moved = false;
     const { cx, cz } = ctx.center(), settings = ctx.settings();
     const { dx, dz, steep } = viewDirection(ctx.camera.position, cx, cz, ctx.elev());
     const s = { lowWalls: ctx.lowWalls(), halfCut: ctx.halfCut(), steep, cutaway: settings.cutaway, seeThrough: settings.seeThrough, wallSee: ctx.wallSee };
     const live = ctx.isLive();
     for (const c of walls) {
       const tg = wallTargets(c.n, dx, dz, s);
-      c.low = approach(c.low, tg.low, 0.002);
+      const low = approach(c.low, tg.low, 0.002), fade = approach(c.fade ?? 1, tg.fade, 0.01);
+      if (low !== c.low || fade !== c.fade) moved = true;
+      c.low = low;
       c.group.scale.y = c.low;
-      c.fade = approach(c.fade ?? 1, tg.fade, 0.01);
+      c.fade = fade;
       setWallFade(c, c.fade);
       const show = (c.low < 0.6 || c.fade < 0.6) && !live;
       c.handles?.forEach((h) => { h.outline.visible = show; });
     }
+    return moved;
   }
   return { info, update };
 }

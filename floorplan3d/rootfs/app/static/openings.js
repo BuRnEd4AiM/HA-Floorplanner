@@ -76,16 +76,18 @@ export function initOpenings(ctx) {
     });
   }
   $('#openPill').addEventListener('click', () => { renderList(); $('#openDialog').showModal(); });
-  /** move the leaves a little towards their target (every frame) */
+  /** move the leaves a little towards their target (every frame); true while one moves */
   function animate() {
+    let moved = false;
     objects().forEach((obj) => {
       (obj.userData.panePivots || [obj.userData.pivot]).forEach((p) => {
         const tg = (p.userData.base ?? 0) + (p.userData.target ?? 0);          // base: the closed value (1 for a scaled garage door)
         const prop = p.userData.axis, holder = p.userData.prop === 'position' ? p.position : p.userData.prop === 'scale' ? p.scale : p.rotation, cur = holder[prop];
-        if (Math.abs(tg - cur) > 0.002) holder[prop] = cur + (tg - cur) * 0.15;
+        if (Math.abs(tg - cur) > 0.002) { holder[prop] = cur + (tg - cur) * 0.15; moved = true; }
         (p.userData.followers || []).forEach((fp) => { fp.rotation[fp.userData.axis] = holder[prop] * (fp.userData.dir / (p.userData.dir || 1)); });   // second leaf of a double door
       });
     });
+    return moved;
   }
   return { isOpen, openText, apply, renderList, animate };
 }
