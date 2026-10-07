@@ -5,7 +5,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { LIVE_NO_TAP } from './pickrules.js';
 
-export const BALL = { r: 0.22, finger: 0.28, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
+export const BALL = { r: 0.3, finger: 0.4, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
 
 /** does device d get a ball: it is linked to something that can be switched or opened, and it can be tapped in the live mode */
 export function wantsBall(d) {
@@ -92,7 +92,7 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
   /** a ball for device d next to its model in the floor group; returns it (for the pick list), or null when d does not want one */
   function add(group, model, d) {
     if (!wantsBall(d) || typeof document === 'undefined') return null;
-    const canvas = document.createElement('canvas'); canvas.width = canvas.height = 96;
+    const canvas = document.createElement('canvas'); canvas.width = canvas.height = 128;
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, depthTest: false }));
     sprite.scale.set(BALL.r * 2, BALL.r * 2, 1);
     sprite.renderOrder = 10;
@@ -146,5 +146,5 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
   /** everything may have moved (back in the live mode after editing): measure all again */
   const remeasure = () => balls.forEach((b) => { b.placed = false; });
   function clear() { balls.forEach((b) => { b.sprite.material.map.dispose(); b.sprite.material.dispose(); }); balls.clear(); }
-  return { add, update, settle, moved, remeasure, clear, has: (id) => balls.has(id), ball: (id) => balls.get(id)?.ball || null };
+  return { add, update, settle, moved, remeasure, clear, has: (id) => balls.has(id), shown: (id) => !!balls.get(id)?.ball.visible, ball: (id) => balls.get(id)?.ball || null };
 }
