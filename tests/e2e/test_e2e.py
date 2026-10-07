@@ -1270,11 +1270,13 @@ with sync_playwright() as p:
     check("tablet: rebuilding the scene does not leak graphics memory", mem[0] == mem[-1], mem)
     check("tablet: low-power mode without blur", pg17.evaluate("window.__fp.LOW && document.body.classList.contains('low')"))
     check("live: no grid", not pg17.evaluate("window.__fp.earthDbg()")["gridShown"])
-    pg17.evaluate("window.__fp.navBar().scrollLeft = 0"); pg17.wait_for_timeout(200)
+    # on a phone the floors and rooms are one button now, so the row fits; a wide stand-in makes it too long, as on a tablet with many floors
+    pg17.evaluate("(() => { const s = document.createElement('span'); s.id = 'navFill'; s.className = 'pill'; s.style.width = '2000px'; window.__fp.navBar().append(s); window.__fp.navBar().scrollLeft = 0; })()"); pg17.wait_for_timeout(300)
     ar = pg17.evaluate("window.__fp.navArrows()")
     pg17.click("#navRight"); pg17.wait_for_timeout(700)
     ar2 = pg17.evaluate("[window.__fp.navBar().scrollLeft, ...window.__fp.navArrows()]")
     check("tablet: pills that do not fit get arrows and scroll", ar == [False, True] and ar2[0] > 0 and ar2[1], (ar, ar2))
+    pg17.evaluate("(() => { document.getElementById('navFill').remove(); window.__fp.navBar().scrollLeft = 0; })()"); pg17.wait_for_timeout(300)
     # --- warnings (#58), search (#62), wall-tablet kiosk (#61)
     pg17.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
       if (!f.rooms.some(r => r.id === 'alRoom')) f.rooms.push({ id: 'alRoom', name: 'Rauchküche', points: [[20, 20], [24, 20], [24, 23], [20, 23]] });
