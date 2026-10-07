@@ -34,20 +34,24 @@ export function roomOpeningSpans(room, f) {
 /** the area of a room as text: m² with one decimal, or whole ft² */
 export const areaText = (points, imperial) => (imperial ? `${(polyArea(points) * 10.7639).toFixed(0)} ft²` : `${polyArea(points).toFixed(1)} m²`);
 
+/** phones: the room panel is a bottom sheet over the narrow screen and the heating goes inside it (style.css uses the same width) */
+export const SHEET_MEDIA = '(max-width: 760px)';
+
 /** ctx: $, t, live (initLiveControls), floor(), states(), entities(), areas(), entityDevices(f), pointInPoly, onStates, imperial(), stateText(id), cams,
  *  settings(), openings: { entities(o), kind(o), KINDS, pane(o, i), isOpen(e), text(e) }, closeLivePopup(), leaveFocus() */
 export function initRoomPanel(ctx) {
   const { $, t, live } = ctx;
   let forId = null;
   const openCtl = new Set();               // lights whose colour / effect / scene controls are unfolded in the room panel
-  const heat = initHeatPanel({ box: $('#heatPanel'), t, states: () => ctx.states(), callService: (...a) => live.callService(...a), open: () => !!forId });
+  const heatBox = $('#heatPanel'), heatHome = heatBox.parentNode;
+  const heat = initHeatPanel({ box: heatBox, t, states: () => ctx.states(), callService: (...a) => live.callService(...a), open: () => !!forId });
   /** the text on a row of the room panel */
   function rowValue(id) {
     const s = ctx.states()[id], dom = id.split('.')[0];
     if (dom === 'climate' && s && typeof s.ct === 'number') return `🌡 ${Math.round(s.ct * 10) / 10} °C · ${s.state}`;
     return ctx.stateText(id);
   }
-  function close() { forId = null; $('#roomPanel').hidden = true; $('#heatPanel').hidden = true; }
+  function close() { forId = null; $('#roomPanel').hidden = true; heatBox.hidden = true; }
   function open(id) { forId = id; ctx.closeLivePopup(); render(); }
   function render() {
     const box = $('#roomPanel'), states = ctx.states(), f = ctx.floor(), op = ctx.openings;
@@ -62,6 +66,8 @@ export function initRoomPanel(ctx) {
     const area = document.createElement('div'); area.className = 'sub';
     area.textContent = areaText(room.points, ctx.imperial());
     box.append(head, area);
+    if (matchMedia(SHEET_MEDIA).matches) box.append(heatBox);            // phones: the heating sits inside the room sheet, a second panel at the top left no room for the house
+    else if (heatBox.parentNode !== heatHome) heatHome.append(heatBox);
     const rc = live.roomControls(room);
     if (rc) box.append(rc);
     const seen = new Set();                                    // one row per entity (an LED ring's sections may share one light)
