@@ -4,6 +4,7 @@
  * tests/draw3d.test.mjs); the drawing state (points, cursor, preview, the pointer press) lives here. */
 import * as THREE from './vendor/three.module.min.js';
 import { OPENING_DEFAULTS, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth } from './walls.js';
+import { dragStep } from './roofmove.js';
 
 /** two clicks on (nearly) the same point (1 cm): the drawing ends there */
 export const samePoint = (p, q) => !!p && !!q && Math.hypot(p[0] - q[0], p[1] - q[1]) < 0.01;
@@ -22,7 +23,8 @@ export function openingSpot(wall, point, defWidth, ignoreId = null) {
 /** ctx: canvas, controls, temp (the group for the drawing preview), t, setStatus(txt), fmtLen(m), clearGroup(g), elev(), tool(), openingType(),
  *  isLive(), houseMode(), lockedSel(), selection(), setSelection(s), refreshSelection(), floor(), settings(), uid(), findOpening(id),
  *  findWall(id), pick(e), pickHit(e), groundPoint(e), snap(p, fine), snapshot(), changed(rebuild), build(), moveDeviceTo(d, x, z),
- *  multi ({ toggle(h), clear() }), liveTap(e), cableClick(id), deleteItem(sel), newDevice(x, z), holdPlaced(), editNano(d), switchDevice(d) */
+ *  multi ({ toggle(h), clear() }), liveTap(e), cableClick(id), deleteItem(sel), newDevice(x, z), holdPlaced(), editNano(d), switchDevice(d),
+ *  roofBox(id) (the base box of a roof on the open floor), moveRoof(id, dx, dz) (#255) */
 export function initDraw3d(ctx) {
   let drawPts = [], cursor = null, down = null, preview = null;   // preview: { wall, pos, width, valid } of a door / window to place
 
@@ -119,6 +121,10 @@ export function initDraw3d(ctx) {
         select(h);
         if (wasSelected) { down.op = { ...f, moved: false }; controls.enabled = false; }   // first click only selects, so a stray click never drags it
       }
+    } else if (h?.kind === 'roof') {                // a roof (#255): the first click selects it, a press on the selected roof drags it
+      const box = ctx.roofBox(h.id), gp = ctx.groundPoint(e), wasSelected = sel?.kind === 'roof' && sel.id === h.id;
+      select(h);
+      if (wasSelected && box && gp) { down.roof = { id: h.id, gp, start: { ...box }, moved: false }; controls.enabled = false; }
     }
   });
 
@@ -131,6 +137,17 @@ export function initDraw3d(ctx) {
       if (!down.dev.moved) { ctx.snapshot(); down.dev.moved = true; }
       const [x, z] = ctx.snap([gp[0] + down.dev.dx, gp[1] + down.dev.dz], true);
       ctx.moveDeviceTo(down.dev.d, x, z);
+      return;
+    }
+    if (down?.roof && down.drag && gp) {
+      const r = down.roof, now = ctx.roofBox(r.id);
+      if (!now) return;
+      const { dx, dz } = dragStep(r.start, now, gp[0] - r.gp[0], gp[1] - r.gp[1], 0.05);   // 5 cm steps
+      if (dx || dz) {
+        if (!r.moved) { ctx.snapshot(); r.moved = true; }
+        ctx.moveRoof(r.id, dx, dz);
+        ctx.build();
+      }
       return;
     }
     if (down?.op && down.drag) {
@@ -160,6 +177,7 @@ export function initDraw3d(ctx) {
     controls.enabled = true;
     if (st.dev?.moved) { ctx.changed(false); ctx.refreshSelection(); return; }
     if (st.op?.moved) { ctx.changed(false); ctx.refreshSelection(); return; }
+    if (st.roof?.moved) { ctx.changed(false); ctx.refreshSelection(); return; }
     if (st.drag) return;                         // camera drag, not a click
     if (ctx.isLive()) { ctx.liveTap(e); return; }
 

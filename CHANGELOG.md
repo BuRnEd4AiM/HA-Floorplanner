@@ -7,6 +7,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.49.0] - 2026-10-07
+### Added
+- **Move roofs (#255)**: with the roof floor open in the editor, a click on a roof (the main one or a further one) selects it, and the panel shows where it is. Press the selected roof again and drag it to move it, in 3D or in the 2D plan, which now shows the outlines of all roofs (5 cm steps, Alt: free). The arrow keys nudge it too. Solar panels lying on the roof go along. The main roof follows the house until it is moved for the first time; after that it keeps its own size and place ("size set by hand"). "Fit" on the roof floor frames the roofs. `roofmove.js` with tests.
+
 ## [3.48.11] - 2026-10-07
 ### Changed
 - **Smoother picture (#253)**: the shadows were drawn again in every frame, almost half of the work, although the sun never moves. They are now drawn again only when something that casts one changed (a build or a state update, a dragged device, walls sinking or rising, a door moving, the shadow setting) and at least once a second. Turning the camera in the demo: 715 instead of 1,274 draw calls per frame (−44 %), and less work per frame; the picture looks the same. `shadowDue` in `frameloop.js` with tests.

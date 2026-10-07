@@ -9,6 +9,7 @@ import { bridgeSize } from './bridge.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 import { boxItems } from './multisel.js';
+import { roofAt, dragStep } from './roofmove.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -228,7 +229,21 @@ export function createPlan(ctx) {
     if (rooms.length) return { kind: 'room', id: rooms[rooms.length - 1].id };
     const blk = (f.blocks || []).filter((r) => ctx.pointInPoly(x, z, r.points));
     if (blk.length) return { kind: 'block', id: blk[blk.length - 1].id };
+    if (f.kind === 'roof' && !isLive()) {                             // a roof of the open roof floor (#255): anything else on it comes first
+      const rr = roofAt(ctx.roofRects?.() || [], x, z);
+      if (rr) return { kind: 'roof', id: rr.id };
+    }
     return null;
+  }
+  /** the roofs of the open roof floor as dashed outlines with their name (#255); the selected one stands out */
+  function roofOutlines(f, sel) {
+    if (f.kind !== 'roof') return '';
+    return (ctx.roofRects?.() || []).map((r) => {
+      const b = r.box, on = sel?.kind === 'roof' && sel.id === r.id;
+      const poly = [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]];
+      return `<polygon points="${pts(poly)}" fill="${on ? 'rgba(232,120,90,.18)' : 'rgba(200,90,60,.06)'}" stroke="${on ? C.accent : '#e0785a'}" stroke-width="${on ? 3 : 2}" stroke-dasharray="9 5" pointer-events="none" data-roof="${r.id}"/>`
+        + `<text x="${sx((b.x0 + b.x1) / 2)}" y="${sy(b.z0) + 16}" text-anchor="middle" font-size="12" fill="#e0785a" pointer-events="none">${esc(r.name || ctx.t('prop.roof'))}</text>`;
+    }).join('');
   }
   /* handles of the selected wall (end points) or room (corners) */
   function handleAt(px, py) {
@@ -628,6 +643,7 @@ export function createPlan(ctx) {
 
     const nbSegs = ctx.neighborOutlines?.() || [];                // the neighbour house on this level (#220), dashed
     if (nbSegs.length) o += `<path d="${nbSegs.map(([a, b]) => `M${sx(a[0]).toFixed(1)} ${sy(a[1]).toFixed(1)}L${sx(b[0]).toFixed(1)} ${sy(b[1]).toFixed(1)}`).join('')}" stroke="#c38cff" stroke-width="2" stroke-dasharray="7 5" fill="none" pointer-events="none"/>`;
+    if (!live) o += roofOutlines(f, sel);
     o += multiOutlines(f, H3);
     if (drag?.type === 'multi' && drag.b) {                           // the frame being drawn (#247)
       const [a, b] = [drag.a, drag.b];
@@ -669,7 +685,8 @@ export function createPlan(ctx) {
     W = r.width; H = r.height;
     const f = floor();
     if (!f || !W || !H) return;
-    const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...(f.blocks || []).flatMap((q) => q.points), ...(f.holes || []).flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z]), ...(f.stairs || []).map((d) => [d.x, d.z])];
+    const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...(f.blocks || []).flatMap((q) => q.points), ...(f.holes || []).flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z]), ...(f.stairs || []).map((d) => [d.x, d.z]),
+      ...(f.kind === 'roof' ? (ctx.roofRects?.() || []).flatMap(({ box: b }) => [[b.x0, b.z0], [b.x1, b.z1]]) : [])];   // a roof floor: its roofs (#255)
     if (!p.length && f.bg?.img && !f.bg.hidden && !isLive()) p.push([f.bg.x, f.bg.z], [f.bg.x + f.bg.w, f.bg.z + f.bg.w * (f.bg.ar || 1)]);   // empty floor: frame the template
     if (!p.length) { s = 60; tx = W / 2 - 3 * s; ty = H / 2 - 2 * s; render(); return; }
     const xs = p.map((q) => q[0]), zs = p.map((q) => q[1]);
@@ -754,7 +771,11 @@ export function createPlan(ctx) {
         return;
       }
       const h = pickAt(x, z);
-      if (h) {
+      if (h?.kind === 'roof') {                                       // a roof (#255): the first click selects it, a press on the selected roof drags it
+        const was = sel?.kind === 'roof' && sel.id === h.id, r = was ? (ctx.roofRects?.() || []).find((q) => q.id === h.id) : null;
+        if (!was) ctx.setSelection(h);
+        drag = r ? { type: 'roof', id: h.id, start: { ...r.box }, sx: x, sz: z, moved: false, px, py } : { type: 'pan', px, py, tx, ty };
+      } else if (h) {
         ctx.setSelection(h);
         drag = startDrag(h, x, z, px, py, e) || { type: 'pan', px, py, tx, ty };
       } else {
@@ -887,6 +908,13 @@ export function createPlan(ctx) {
         drag.moved = true; render();
         return;
       }
+      if (drag.type === 'roof' && moved) {
+        const now = (ctx.roofRects?.() || []).find((q) => q.id === drag.id)?.box;
+        if (!now) return;
+        const { dx, dz } = dragStep(drag.start, now, x - drag.sx, z - drag.sz, e.altKey ? 0 : 0.05);   // 5 cm steps, Alt: free
+        if (dx || dz) { snapshotOnce(); ctx.moveRoof(drag.id, dx, dz); drag.moved = true; scheduleRebuild(); render(); }
+        return;
+      }
       if (drag.type === 'stair' && moved) {
         snapshotOnce();
         const [nx, nz] = snapPt(x + drag.dx, z + drag.dz, { fine: true, ends: false, free: e.altKey });
@@ -1001,7 +1029,7 @@ export function createPlan(ctx) {
       return;
     }
     if (d.type === 'erase') { if (!moved) { const h = pickAt(x, z); if (h) { ctx.snapshot(); ctx.deleteItem(h); } } return; }
-    if (d.type === 'device' || d.type === 'opening' || d.type === 'points' || d.type === 'stair') {
+    if (d.type === 'device' || d.type === 'opening' || d.type === 'points' || d.type === 'stair' || d.type === 'roof') {
       if (d.moved) { ctx.commit(); } snapDone = false;
       return;
     }

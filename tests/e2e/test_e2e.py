@@ -1613,6 +1613,35 @@ with sync_playwright() as p:
     if pgSol.locator("#solarMount").count():
         pgSol.select_option("#solarMount", "flat"); pgSol.wait_for_timeout(500)
         check("solar on roof: choosing 'flat' keeps it flat on the roof", pgSol.evaluate("window.__fp.layout.floors.at(-1).devices.find(v => v.id === 'solTest').mount") == "flat" and pgSol.evaluate("window.__fp.devPose('solTest')")["mount"] == "flat")
+    # --- moving roofs (#255): on the roof floor a roof is picked and dragged, in the 2D plan and in 3D; the solar panel on it goes along
+    rb0 = pgSol.evaluate("window.__fp.roofBox(window.__fp.layout.floors.length - 1)")
+    pgSol.keyboard.press("Escape"); pgSol.evaluate("window.__fp.plan().fit()"); pgSol.wait_for_timeout(400)
+    rsel = lambda: pgSol.evaluate("(() => { const s = window.__fp.selection(); return s ? s.kind + ':' + s.id : null; })()")
+    rbox = lambda: pgSol.evaluate("window.__fp.roofBox(window.__fp.layout.floors.length - 1)")
+    panel = lambda: pgSol.evaluate("(() => { const d = window.__fp.layout.floors.at(-1).devices.find(v => v.id === 'solTest'); return [d.x, d.z]; })()")
+    p0 = pgSol.evaluate(f"window.__fp.plan().toClient({rb0['x0'] + 0.3}, {rb0['z0'] + 0.3})")
+    pgSol.mouse.click(*p0); pgSol.wait_for_timeout(300)
+    check("roofs (#255): a click on the roof in the 2D plan selects it and shows where it is", (rsel() or "").startswith("roof:") and pgSol.locator("#roofWhere").count() == 1, rsel())
+    pv0 = panel()
+    p1 = pgSol.evaluate(f"window.__fp.plan().toClient({rb0['x0'] + 1.3}, {rb0['z0'] + 0.8})")
+    pgSol.mouse.move(*p0); pgSol.mouse.down(); pgSol.mouse.move((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, steps=5); pgSol.mouse.move(*p1, steps=5); pgSol.mouse.up(); pgSol.wait_for_timeout(500)
+    rb1, pv1 = rbox(), panel()
+    check("roofs (#255): dragging the selected roof moves it in 5 cm steps, the panel on it goes along",
+          abs(rb1["x0"] - rb0["x0"] - 1.0) < 0.06 and abs(rb1["z0"] - rb0["z0"] - 0.5) < 0.06 and abs((pv1[0] - pv0[0]) - (rb1["x0"] - rb0["x0"])) < 1e-6, (rb0, rb1, pv0, pv1))
+    pgSol.keyboard.press("ArrowLeft"); pgSol.wait_for_timeout(300)
+    check("roofs (#255): the arrow keys nudge the selected roof", rbox()["x0"] < rb1["x0"] - 0.01, (rb1, rbox()))
+    pgSol.keyboard.press("Control+z"); pgSol.keyboard.press("Control+z"); pgSol.wait_for_timeout(400)
+    check("roofs (#255): undo puts the roof back", abs(rbox()["x0"] - rb0["x0"]) < 1e-6, (rb0, rbox()))
+    pgSol.evaluate("() => { const f = window.__fp.layout.floors.at(-1); f.devices = f.devices.filter((d) => d.id !== 'solTest'); window.__fp.rebuild(); }")   # nothing else on the roof
+    pgSol.click("#view3d"); pgSol.wait_for_timeout(600)
+    cx, cz = (rb0["x0"] + rb0["x1"]) / 2, (rb0["z0"] + rb0["z1"]) / 2
+    pgSol.evaluate(f"window.__fp.camAt({cx}, window.__fp.elev(window.__fp.layout.floors.length - 1) + 14, {cz + 0.5}, {cx}, {cz})"); pgSol.wait_for_timeout(600)
+    mid = pgSol.evaluate("(() => { const r = document.querySelector('#view').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()")
+    hit = pgSol.evaluate(f"window.__fp.pickAt({mid[0]}, {mid[1]})")
+    pgSol.keyboard.press("Escape"); pgSol.mouse.click(*mid); pgSol.wait_for_timeout(300)
+    b3 = rbox()
+    pgSol.mouse.move(*mid); pgSol.mouse.down(); pgSol.mouse.move(mid[0] + 40, mid[1], steps=5); pgSol.mouse.move(mid[0] + 80, mid[1], steps=5); pgSol.mouse.up(); pgSol.wait_for_timeout(600)
+    check("roofs (#255): in 3D the roof is picked, and pressed again it is dragged", (hit or {}).get("kind") == "roof" and (rsel() or "").startswith("roof:") and abs(rbox()["x0"] - b3["x0"]) > 0.2, (hit, rsel(), b3, rbox()))
     pgSol.wait_for_timeout(2500)                                  # the autosave has run: put the layout back as it was for the next tests
     pgSol.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", sol_saved); pgSol.wait_for_timeout(400)
     pgSol.close()

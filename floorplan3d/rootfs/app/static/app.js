@@ -68,6 +68,7 @@ import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
 import { frameDue, shadowDue } from './frameloop.js';
 import { initHouseLoad } from './houseload.js';
+import { roofRects, moveRoof, tagRoofMeshes } from './roofmove.js';
 import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO } from './modelfx.js';
@@ -281,6 +282,10 @@ const roofsUi = initRoofs({
   editingRoof: () => !houseMode && floor()?.kind === 'roof',     // the roof floor is open: the roof (and its dormers) must stay clearly visible
 });
 const roofBox = (i) => roofsUi.box(i), autoRoofBox = (i) => roofsUi.autoBox(i), roofList = (i) => roofsUi.list(i);
+/* moving roofs on the open roof floor (#255); the code lives in roofmove.js */
+const roofRectsHere = () => roofRects(floor(), autoRoofBox(floorIdx));
+const roofRectOf = (id) => roofRectsHere().find((r) => r.id === id) || null;
+function moveRoofBy(id, dx, dz) { return moveRoof(floor(), id, dx, dz, autoRoofBox(floorIdx)); }
 function updateRoofFade() { roofsUi.updateFade(); }
 /* ---- Neighbour house (#220): another house of the list drawn next to this one; the code lives in neighbor.js ---- */
 const neighbors = initNeighbors({
@@ -341,7 +346,10 @@ function build() {
     g.position.y = elev(i);
     world.add(g);
     const holes = floorOpenings(i);
-    if (f.kind === 'roof' && !iso) roofsUi.build(g, i, f, holo, ghost);
+    if (f.kind === 'roof' && !iso) {
+      roofsUi.build(g, i, f, holo, ghost);
+      if (!ghost && !houseMode && i === floorIdx) tagRoofMeshes(g, f, (m, id) => { pickables.push(m); if (!registry.has(id)) registry.set(id, m); });   // the roofs of the open roof floor can be picked and moved (#255)
+    }
     const roofsHere = f.kind === 'roof' ? roofList(i) : null;
 
     const part = { holo, ghost, iso, labels: labelsHere, holes };   // rooms, floor opening rims and blocks: floorbuild.js
@@ -797,6 +805,7 @@ draw3d = initDraw3d({
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), multi: { toggle: (h) => multiSel.toggle(h), clear: () => multiSel.clear() }, liveTap: (e) => handleLiveTap(e),
   cableClick: (id) => power.cableClick(id), deleteItem: (sel) => deleteItem(sel), newDevice: (x, z) => newDevice(x, z), holdPlaced: () => holdPlaced(),
   editNano: (d) => editNano(d), switchDevice: (d) => deviceEntities(d).forEach((e) => live.quickAction(e)),   // #251
+  roofBox: (id) => roofRectOf(id)?.box || null, moveRoof: (id, dx, dz) => moveRoofBy(id, dx, dz),
 });
 
 /** a device was just placed: it stays selected and can be moved at once; the next click on empty space deselects it and placing goes on */
@@ -826,7 +835,7 @@ const editItems = initEditItems({
   snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), undo: () => undo(), moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z),
   power: { deleteCable: (id) => power.deleteCable(id), dropCablesTo: (id) => power.dropCablesTo(id) }, multi: { items: () => multiSel.items(), deleteAll: () => multiSel.deleteAll() },
   switchFloor: (i) => switchFloor(i), setTool: (x) => setTool(x),
-  finishDraft: () => { if (!plan?.hasDraft()) return false; plan.finishRoom(); return true; },
+  finishDraft: () => { if (!plan?.hasDraft()) return false; plan.finishRoom(); return true; }, moveRoof: (id, dx, dz) => moveRoofBy(id, dx, dz),
   escape: () => { plan?.cancel(); endDrawing(); popup.close(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); if (multiSel.items().length) { multiSel.clear(); selection = null; refreshSelection(); } },
 });
 /** the plan object behind a selection handle (wall, room, opening, device, stair, block) */
@@ -1180,7 +1189,7 @@ const roomEnts = initRoomEntities({
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0,
 });
 const props = initProps({
-  multiBox: () => multiSel.box(),
+  multiBox: () => multiSel.box(), roofInfo: (id) => roofRectOf(id),
   $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, roomCtx: () => roomCtx, setRoomCtx: (id) => { roomCtx = id; },
   fields: { field, inp, lenInput, pickerField }, entityPicker: (...a) => entityPicker(...a), entities: () => entities, areas: () => areas,
   findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(),
@@ -1269,6 +1278,7 @@ plan = createPlan({
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
  
   liveMoveDevice: (d) => liveMove(d),
+  roofRects: () => roofRectsHere(), moveRoof: (id, dx, dz) => moveRoofBy(id, dx, dz),   // roofs on the roof floor (#255)
   liveTap: (h) => liveSelect(h),
   deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach((e) => live.quickAction(e)),   // #251: lives in livecontrols.js
   allDevices: () => layout.floors.flatMap((f, fi) => f.devices.map((d) => ({ d, fi }))), floorIndex: () => floorIdx, floorName: (i) => layout.floors[i]?.name || '',
