@@ -1,5 +1,6 @@
 /* What a tap in the live mode may hit (#234): the live mode is for switching things, so what nobody switches has no hit box there, and a tap
- * meant for a lamp does not land on it by accident. Pure rules (unit test: tests/pickrules.test.mjs), the picking itself is in app.js. */
+ * meant for a lamp does not land on it by accident. Also which of several things under the pointer wins. Pure rules (unit test:
+ * tests/pickrules.test.mjs), the picking itself (the ray into the scene) is in picking.js. */
 
 /** device types without a hit box in the live mode: a presence figure only shows who is home; a sensor (temperature, humidity, CO₂ ...) only
  *  shows a value, which the room and the overviews show too (#236) */
@@ -11,4 +12,22 @@ export function skipInLive(data, type) {
   if (!data) return false;
   if (data.kind === 'opening' || data.cone) return true;
   return data.kind === 'device' && LIVE_NO_TAP.has(type);
+}
+
+/** in the live mode only what is linked to something can be tapped (a light, a switch, a TV with a backlight, an LED ring with lights) */
+export function linkedDevice(d) {
+  return !!d && !!(d.entity || d.ledEntity || (d.segs || []).some((s) => s.entity));
+}
+
+/** which of the hits under the pointer wins ([{ data: { kind, id }, distance }], nearest first). Walls never block a tap: a lamp behind a
+ *  lowered or see-through wall is still hit. Between a device and a door / window the door / window wins unless the device is clearly in
+ *  front of it (more than 1.2 m nearer to the camera); in the live mode only doors / windows linked to something count (openingLinked(id)),
+ *  and without a device or an opening a tap lands on the room. In the editor anything else is taken as it comes. */
+export function chooseHit(hits, live, openingLinked) {
+  const op = hits.find((h) => h.data.kind === 'opening' && (!live || openingLinked(h.data.id)));
+  const dv = hits.find((h) => h.data.kind === 'device');
+  if (op && dv) return dv.distance < op.distance - 1.2 ? dv : op;
+  if (op || dv) return op || dv;
+  if (live) return hits.find((h) => h.data.kind === 'room') ?? null;
+  return hits[0] ?? null;
 }

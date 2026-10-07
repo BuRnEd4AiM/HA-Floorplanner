@@ -8,6 +8,7 @@ import { rotPoint, readableAngle } from './planview.js';
 import { bridgeSize } from './bridge.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
+import { boxItems } from './multisel.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -628,6 +629,10 @@ export function createPlan(ctx) {
     const nbSegs = ctx.neighborOutlines?.() || [];                // the neighbour house on this level (#220), dashed
     if (nbSegs.length) o += `<path d="${nbSegs.map(([a, b]) => `M${sx(a[0]).toFixed(1)} ${sy(a[1]).toFixed(1)}L${sx(b[0]).toFixed(1)} ${sy(b[1]).toFixed(1)}`).join('')}" stroke="#c38cff" stroke-width="2" stroke-dasharray="7 5" fill="none" pointer-events="none"/>`;
     o += multiOutlines(f, H3);
+    if (drag?.type === 'multi' && drag.b) {                           // the frame being drawn (#247)
+      const [a, b] = [drag.a, drag.b];
+      o += `<rect x="${sx(Math.min(a[0], b[0]))}" y="${sy(Math.min(a[1], b[1]))}" width="${Math.abs(b[0] - a[0]) * s}" height="${Math.abs(b[1] - a[1]) * s}" fill="rgba(125,255,154,.10)" stroke="#7dff9a" stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
+    }
     svg.innerHTML = `<defs><pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="9" height="9" fill="rgba(110,150,230,.10)"/><line x1="0" y1="0" x2="0" y2="9" stroke="rgba(150,190,255,.35)" stroke-width="2"/></pattern><radialGradient id="glow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".8"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>${rot ? `<g transform="rotate(${rot.toFixed(2)} ${W / 2} ${H / 2})">${o}</g>` : o}`;
     if (rot) svg.querySelectorAll('text:not([transform])').forEach((el) => {     // labels stay upright in a turned plan
       el.setAttribute('transform', `rotate(${(-rot).toFixed(2)} ${el.getAttribute('x') || 0} ${el.getAttribute('y') || 0})`);
@@ -737,6 +742,10 @@ export function createPlan(ctx) {
 
     if (tool === 'select') {
       const sel = ctx.getSelection();
+      if ((e.shiftKey || e.ctrlKey || e.metaKey) && ctx.toggleMulti && !ctx.isLocked()) {   // Shift / Ctrl + click: several things at once (#211, #247)
+        drag = { type: 'multi', px, py, a: [x, z], b: null, hit: pickAt(x, z) };             // ... or + drag: a frame round them
+        return;
+      }
       const hd = handleAt(px, py);
       if (hd) { drag = { ...startHandleDrag(hd), px, py }; return; }
       if (ctx.isLocked() && sel) {                               // locked: only the selection reacts
@@ -745,7 +754,6 @@ export function createPlan(ctx) {
         return;
       }
       const h = pickAt(x, z);
-      if (h && e.shiftKey && ctx.toggleMulti) { ctx.toggleMulti(h); drag = { type: 'pan', px, py, tx, ty }; render(); return; }   // Shift + click: several things at once (#211)
       if (h) {
         ctx.setSelection(h);
         drag = startDrag(h, x, z, px, py, e) || { type: 'pan', px, py, tx, ty };
@@ -827,6 +835,7 @@ export function createPlan(ctx) {
     if (drag) {
       const moved = Math.hypot(px - drag.px, py - drag.py) > 4;
       if (drag.type === 'pan') { tx = drag.tx + (px - drag.px); ty = drag.ty + (py - drag.py); render(); return; }
+      if (drag.type === 'multi') { if (moved) { drag.b = [x, z]; render(); } return; }
       if (drag.type === 'devsize' && moved) {
         snapshotOnce();
         const d = drag.d, [lx, lz] = devLocal(d, x, z), b = baseFoot(d), k = d.scale || 1;
@@ -983,6 +992,12 @@ export function createPlan(ctx) {
     if (d.type === 'tap') { if (!moved) { const h = pickIfAllowed(x, z); ctx.liveTap(h); } return; }
     if (d.type === 'pan') {
       if (!moved && d.clear && !d.locked) { ctx.setSelection(null); }
+      return;
+    }
+    if (d.type === 'multi') {                                         // a click toggles the thing under it, a frame adds what lies inside (#247)
+      if (d.b) ctx.addMulti(boxItems(floor(), d.a, d.b, (kind, v) => kind !== 'device' || !ctx.powerMode?.() || ctx.isPowerType(v.type)));
+      else if (d.hit) ctx.toggleMulti(d.hit);
+      render();
       return;
     }
     if (d.type === 'erase') { if (!moved) { const h = pickAt(x, z); if (h) { ctx.snapshot(); ctx.deleteItem(h); } } return; }

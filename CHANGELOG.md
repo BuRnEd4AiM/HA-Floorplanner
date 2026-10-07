@@ -7,6 +7,57 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.48.9] - 2026-10-07
+### Fixed
+- **Double click on a device in the editor switches it again (#251)**: in 3D and in the 2D plan a double click on a lamp did nothing (the browser reported "quickAction is not defined", a leftover of an earlier code split); it switches the device again, and an e2e check guards it.
+### Changed
+- **Code split step 20, part 4 (#137)**: drawing and dragging in the 3D view (select, drag devices and doors / windows, draw walls and rooms, place openings and devices, cable and erase tools, double click) left `app.js` for `draw3d.js`, with the drawing state; where a door / window goes on a wall and when two clicks are the same point are tested. Nothing else changes for the user.
+
+## [3.48.8] - 2026-10-07
+### Changed
+- **Code split step 20, part 3 (#137)**: pictures on the wall (frame, image, upload) left `app.js` for `picture.js`; the picture size is tested. Nothing changes for the user.
+
+## [3.48.7] - 2026-10-07
+### Changed
+- **Code split step 20, part 2 (#137)**: picking in the 3D view (the ray from the pointer, the point on the floor under it, what a click or tap hits) left `app.js` for `picking.js`; which of several hits wins and what can be tapped in the live mode are now pure rules in `pickrules.js` with tests. Nothing changes for the user.
+
+## [3.48.6] - 2026-10-07
+### Changed
+- **Code split step 20, part 1 (#137)**: deleting, moving with the arrow keys (walls take the corners joined to them along), turning with Q / E and the shortcut keys left `app.js` for `edititems.js`; which key does what and the list changes are tested. Nothing changes for the user.
+
+## [3.48.5] - 2026-10-07
+### Changed
+- **Code split step 21, part 3 (#137)**: the devices of a floor in 3D (models, solar panels on the roof, half section, tap balls, camera cones, value labels) left `build` in `app.js` for `floorbuild.js`; which device gets a value label is tested. `build` is now only the frame (ground, plot, neighbour house, earth cut) around the floors. `app.js` is down to about 1,800 lines (5,100 at the start). Nothing changes for the user.
+
+## [3.48.4] - 2026-10-07
+### Changed
+- **Code split step 21, part 2 (#137)**: the stairs and the walls of a floor in 3D (with doors, windows, half section and cutaway) left `build` in `app.js` for `floorbuild.js`. Nothing changes for the user.
+
+## [3.48.3] - 2026-10-07
+### Changed
+- **Code split step 21, part 1 (#137)**: the flat parts of a floor in 3D (room floors with their light layers, warning pulse and name, the rims of floor openings, placeholder blocks) left `build` in `app.js` for `floorbuild.js`; the room label is tested. Nothing changes for the user.
+
+## [3.48.2] - 2026-10-07
+### Changed
+- **Code split step 22, part 2 (#137)**: undo (the last 60 states of the plan) and the autosave of the open house left `app.js` for `persist.js`; the undo list rule is tested. Nothing changes for the user.
+
+## [3.48.1] - 2026-10-07
+### Changed
+- **Code split step 22, part 1 (#137)**: the live channel (states pushed by the add-on the moment Home Assistant reports them, polling while it is down) left `app.js` for `livechannel.js`; merging a pushed change, the fingerprint of a full list and when to poll are pure and tested. Nothing changes for the user.
+
+## [3.48.0] - 2026-10-07
+### Added
+- **Hide the labels of the floors below (#249)**: looking at one floor, the room names and value labels of the floors below can be left out so they no longer overlap the open floor: in the settings ("Show names and labels of the floors below") or quickly in the "View" menu ("Labels below"). The whole-house view always shows everything.
+- **View presets per user / tablet (#250)**: in the users dialog every user row has a "⚙ Presets" button with its own start values for the look: walls facing the camera (see-through or lower), Auto, all walls low or high, value badges, floors below and their labels. "Default" keeps the general setting. A preset applies only in that user's browser and is never saved as the settings of everybody (unless that user changes the field on purpose); it is mirrored to `users.json` with the tablets. `viewprefs.js` with tests, checked on the server too.
+
+## [3.47.0] - 2026-10-06
+### Added
+- **Several things at once, easier (#247)**: Ctrl + click (Cmd on a Mac) now adds things to the selection just like Shift + click, in 2D and 3D. In the 2D plan, Shift or Ctrl + drag from any spot draws a frame: everything that lies wholly inside it joins the selection; Delete (or "Delete all") then removes them all in one undo step. `boxItems` and `addMulti` in `multisel.js` with tests.
+### Changed
+- **Stairs over several floors: whole height only in the editor (#246)**: in the live mode a stair again shows only up to the open floor, nothing hangs in the air above it (the hand rail and pole of a spiral stair end there too); the editor still draws the storeys above see-through. `splitStoreys` in `stairs.js` with tests.
+- **Tap balls bigger and never covering each other (#244)**: the balls in the live mode are bigger (44 cm across), and balls that would cover each other, or cover a value label, move a little apart (at most 90 cm from their device); `spreadBalls` in `tapballs.js` with tests.
+- **Water and gas in a pill of their own (#245)**: the water, gas and heat meters are no longer a second line in the power overview (it overlapped the fields beside it and lit up with the power cables); they now have their own one-line pill next to it. `meterText` in `powerlogic.js` with tests.
+
 ## [3.46.1] - 2026-10-06
 ### Changed
 - **Code split steps 23 and 24 (#137)**: five more parts left `app.js` (now just under 2,000 lines, from 5,100 at the start): the state of an entity and the colour of a light effect (`entitystate.js`), making a loaded plan complete (`layoutnorm.js`), isolating a focused room (`roomclip.js`), the hit boxes and hologram look of a model (`modelfx.js`) and text in the scene (`labels.js`). The pure parts have unit tests; nothing changes for the user.

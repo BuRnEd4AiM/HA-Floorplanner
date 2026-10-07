@@ -64,16 +64,15 @@ export function energySummary(states, devices) {
   return { prod, grid, load, battery: lv || flow !== null ? { v: lv ? parseFloat(lv.s.state) : null, flow } : null };
 }
 const METER_ICON = { watermeter: '🚰', gasmeter: '🔥', heatmeter: '♨' };
-/** the readings of the water, gas and heat meters for the overview pill (#237): [{ type, name, text }], in that order, only meters whose
- *  sensor has a value */
+/** the readings of the water, gas and heat meters for their pill (#237, #245): [{ type, name, text }], in that order, only meters whose
+ *  sensor has a value, rounded to 0.1 like the badges */
 export function meterReadings(states, devices) {
   return (devices || []).filter((d) => METER_TYPES.has(d.type) && d.entity)
     .map((d) => ({ d, s: states[d.entity] })).filter(({ s }) => s && s.state !== '' && s.state != null && Number.isFinite(parseFloat(s.state)))
     .sort((a, b) => Object.keys(METER_ICON).indexOf(a.d.type) - Object.keys(METER_ICON).indexOf(b.d.type))
-    .map(({ d, s }) => ({ type: d.type, name: d.name || '', text: `${METER_ICON[d.type]} ${s.state}${s.unit ? ` ${s.unit}` : ''}` }));
+    .map(({ d, s }) => ({ type: d.type, name: d.name || '', text: `${METER_ICON[d.type]} ${Math.round(parseFloat(s.state) * 10) / 10}${s.unit ? ` ${s.unit}` : ''}` }));   // rounded like the badges
 }
-/** the text of the overview pill and its tooltip, null when there is nothing to show; the meters (e.meters, from meterReadings) go on a
- *  second line below the power numbers (#237) */
+/** the text of the power overview pill and its tooltip, null when there is nothing to show (the meters have their own pill, meterText) */
 export function energyText(e, t) {
   const parts = [], tips = [];
   if (e.prod !== null) { parts.push(`☀ ${fmtWatts(e.prod)}`); tips.push(`${t('power.sum.prod')}: ${fmtWatts(e.prod)}`); }
@@ -85,8 +84,12 @@ export function energyText(e, t) {
     const word = f === null ? '' : Math.abs(f) < 20 ? t('power.sum.idle') : f > 0 ? t('power.sum.charging') : t('power.sum.discharging');
     parts.push(`🔋 ${lvl}${dir}`.trim()); tips.push(`${t('power.sum.battery')}: ${[lvl, word].filter(Boolean).join(' · ')}`);
   }
-  const meters = e.meters || [];
-  meters.forEach((m) => tips.push(`${t(`dev.${m.type}`)}${m.name ? ` (${m.name})` : ''}: ${m.text.slice(m.text.indexOf(' ') + 1)}`));
-  const lines = [parts.join(' · '), meters.map((m) => m.text).join(' · ')].filter(Boolean);
-  return lines.length ? { text: lines.join('\n'), title: tips.join('\n') } : null;
+  return parts.length ? { text: parts.join(' · '), title: tips.join('\n') } : null;
+}
+/** the text of the meter pill beside the power overview (#245; water, gas and heat apart from the power, which lights up with the cables)
+ *  and its tooltip naming each meter, null without meters. meters: from meterReadings */
+export function meterText(meters, t) {
+  if (!meters?.length) return null;
+  return { text: meters.map((m) => m.text).join(' · '),
+    title: meters.map((m) => `${t(`dev.${m.type}`)}${m.name ? ` (${m.name})` : ''}: ${m.text.slice(m.text.indexOf(' ') + 1)}`).join('\n') };
 }

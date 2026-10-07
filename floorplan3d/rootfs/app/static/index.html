@@ -74,6 +74,7 @@
         <span class="sep" id="navSep"></span>
         <div id="roomPills" class="pills"><button id="roomMenuBtn" class="pill" type="button" hidden aria-haspopup="true" aria-expanded="false" data-i18n-title="nav.roomsTip"></button></div>
         <button id="energyPill" class="pill" hidden type="button"></button>
+        <span id="meterPill" class="pill" hidden></span>
         <span class="spacer"></span>
         <button id="houseToggle" class="pill" hidden></button>
         <button id="offlinePill" class="pill" hidden data-i18n-title="off.tip"></button>
@@ -90,6 +91,7 @@
         <button id="seeToggle" class="pill" data-i18n="nav.see" data-i18n-title="nav.seeTip"></button>
         <button id="explodeToggle" class="pill" hidden data-i18n="nav.explode" data-i18n-title="nav.explodeTip"></button>
         <button id="halfToggle" class="pill" data-i18n="nav.half" data-i18n-title="nav.halfTip"></button>
+        <button id="belowLabelsToggle" class="pill" data-i18n="nav.belowLabels" data-i18n-title="nav.belowLabelsTip"></button>
         <button id="wallToggle" class="pill"></button>
         <button id="planFloorsToggle" class="pill" data-i18n-title="nav.planFloorsTip"></button>
       </div>
@@ -405,6 +407,7 @@
     <div class="row"><label for="setBelow" data-i18n="set.below"></label><input id="setBelow" type="number" step="any" min="0.05" max="1"></div>
     <div class="row"><label for="setBelowMode" data-i18n="set.belowMode"></label>
       <select id="setBelowMode"><option value="dim" data-i18n="set.belowMode.dim"></option><option value="stacked" data-i18n="set.belowMode.stacked"></option><option value="hidden" data-i18n="set.belowMode.hidden"></option></select></div>
+    <div class="row check"><input id="setBelowLabels" type="checkbox"><label for="setBelowLabels" data-i18n="set.belowLabels" data-i18n-title="set.belowLabelsHint"></label></div>
     <div class="row"><label for="setGlowRadius" data-i18n="set.glowRadius"></label><input id="setGlowRadius" type="number" step="any"></div>
     <div class="row"><label for="setGlowStrength" data-i18n="set.glowStrength"></label><input id="setGlowStrength" type="number" step="any"></div>
     <div class="row"><label for="setGlowHeight" data-i18n="set.glowHeight"></label><input id="setGlowHeight" type="number" step="any"></div>

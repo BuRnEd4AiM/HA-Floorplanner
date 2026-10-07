@@ -5,7 +5,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { LIVE_NO_TAP } from './pickrules.js';
 
-export const BALL = { r: 0.16, finger: 0.26, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
+export const BALL = { r: 0.22, finger: 0.28, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
 
 /** does device d get a ball: it is linked to something that can be switched or opened, and it can be tapped in the live mode */
 export function wantsBall(d) {
@@ -32,16 +32,48 @@ export function ballY(minY, maxY, ceiling) {
   return Math.max(BALL.r, minY - BALL.lift);
 }
 
+/** Push balls apart that would cover each other (#244): points [{ x, y, z }] (their places over the devices), returned moved so that no two
+ *  are closer than minDist seen from above (the view looks down at an angle, so a ball over another one hides it too); each one moves at most
+ *  maxShift from its own place, sideways only. fixed: things that stay where they are (the value labels), kept fixedDist away. Balls far apart
+ *  stay where they are. A few rounds of pushing each overlapping pair apart along the line between them. */
+export function spreadBalls(points, minDist = 2 * BALL.r + BALL.gap, maxShift = BALL.maxShift, fixed = [], fixedDist = BALL.r + 0.45) {
+  const p = points.map((q) => ({ ...q })), n = p.length;
+  for (let round = 0; round < 40; round++) {
+    let moved = false;
+    for (let i = 0; i < n; i++) for (const f of fixed) {                 // a value label stays, the ball moves away from it
+      let dx = p[i].x - f.x, dz = p[i].z - f.z, d = Math.hypot(dx, dz);
+      if (d >= fixedDist - 1e-6) continue;
+      if (d < 1e-6) { dx = 0; dz = 1; d = 1; } else { dx /= d; dz /= d; }
+      const push = fixedDist - Math.min(d, fixedDist) + 1e-4;
+      p[i].x += dx * push; p[i].z += dz * push; moved = true;
+    }
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      let dx = p[j].x - p[i].x, dz = p[j].z - p[i].z, d = Math.hypot(dx, dz);
+      if (d >= minDist - 1e-6) continue;
+      if (d < 1e-6) { const a = (i * 2.399963 + j) % (2 * Math.PI); dx = Math.cos(a); dz = Math.sin(a); d = 1; } else { dx /= d; dz /= d; }   // on top of each other: any direction
+      const push = (minDist - Math.min(d, minDist)) / 2 + 1e-4;
+      p[i].x -= dx * push; p[i].z -= dz * push; p[j].x += dx * push; p[j].z += dz * push;
+      moved = true;
+    }
+    for (let i = 0; i < n; i++) {                                  // never too far from the device it belongs to
+      const ox = p[i].x - points[i].x, oz = p[i].z - points[i].z, o = Math.hypot(ox, oz);
+      if (o > maxShift) { p[i].x = points[i].x + (ox / o) * maxShift; p[i].z = points[i].z + (oz / o) * maxShift; }
+    }
+    if (!moved) break;
+  }
+  return p;
+}
+
 /** colour and opacity of the ball: the light's colour (or warm white) while on, a quiet grey-blue while off */
 export function ballLook(on, rgb) {
   if (!on) return { color: BALL.off, opacity: 0.85 };
   return { color: Array.isArray(rgb) ? ((rgb[0] & 255) << 16) | ((rgb[1] & 255) << 8) | (rgb[2] & 255) : BALL.on, opacity: 1 };
 }
 
-/** ctx: ceiling() (the room height) */
-export function initTapBalls(ctx) {
+export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x, y, z }] (value labels the balls keep clear of)
   const fingerGeo = new THREE.SphereGeometry(BALL.finger, 10, 8), fingerMat = new THREE.MeshBasicMaterial({ visible: false });
-  const balls = new Map();                 // device id -> { ball (the finger ball, parent), sprite, canvas, key, model, group, placed, icon }
+  const balls = new Map();                 // device id -> { ball (the finger ball, parent), sprite, canvas, key, model, group, placed, base, icon }
+  let unsettled = false;                   // a ball was placed anew: push the balls apart again (settle)
   /** draw the round badge: the state colour with a light rim and the icon in the middle */
   function paint(b, color) {
     const key = `${color}`;
@@ -86,7 +118,9 @@ export function initTapBalls(ctx) {
     });
     if (box.isEmpty()) return false;
     const c = box.getCenter(new THREE.Vector3());
-    b.ball.position.set(c.x, ballY(box.min.y, box.max.y, ctx.ceiling()), c.z);
+    b.base = { x: c.x, y: ballY(box.min.y, box.max.y, ctx.ceiling()), z: c.z };
+    b.ball.position.set(b.base.x, b.base.y, b.base.z);
+    unsettled = true;
     return true;
   }
   /** show the ball of device `id` in the live mode only (placed over the model the first time it shows), in the colour of its state */
@@ -98,10 +132,19 @@ export function initTapBalls(ctx) {
     const look = ballLook(on, rgb);
     paint(b, look.color); b.sprite.material.opacity = look.opacity;
   }
+  /** after the balls were placed: the ones that show are pushed apart where they would cover each other, per floor (#244) */
+  function settle() {
+    if (!unsettled) return;
+    unsettled = false;
+    const byGroup = new Map();
+    balls.forEach((b) => { if (b.ball.visible && b.placed && b.base) (byGroup.get(b.group) || byGroup.set(b.group, []).get(b.group)).push(b); });
+    byGroup.forEach((list, group) => spreadBalls(list.map((b) => b.base), undefined, undefined, ctx.labelsIn?.(group) || [])
+      .forEach((q, i) => list[i].ball.position.set(q.x, q.y, q.z)));
+  }
   /** the model changed (loaded later, moved): measure again the next time the ball shows */
   const moved = (id) => { const b = balls.get(id); if (b) b.placed = false; };
   /** everything may have moved (back in the live mode after editing): measure all again */
   const remeasure = () => balls.forEach((b) => { b.placed = false; });
   function clear() { balls.forEach((b) => { b.sprite.material.map.dispose(); b.sprite.material.dispose(); }); balls.clear(); }
-  return { add, update, moved, remeasure, clear, has: (id) => balls.has(id), ball: (id) => balls.get(id)?.ball || null };
+  return { add, update, settle, moved, remeasure, clear, has: (id) => balls.has(id), ball: (id) => balls.get(id)?.ball || null };
 }

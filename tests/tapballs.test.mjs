@@ -40,3 +40,17 @@ test('icon (#240): what the ball controls, by the kind of its entity; some devic
   assert.equal(T.ballIcon({ type: 'gasmeter', entity: 'sensor.gas' }), '🔥');
   assert.equal(T.ballIcon({ type: 'thing', entity: 'sensor.x' }), 'ℹ');
 });
+test('spread (#244): balls that would cover each other move apart, far ones stay, none drifts far from its device', () => {
+  const D = 2 * T.BALL.r + T.BALL.gap;
+  const pts = [{ x: 0, y: 1, z: 0 }, { x: 0.05, y: 1, z: 0 }, { x: 0, y: 2.2, z: 0.02 }, { x: 5, y: 1, z: 5 }];
+  const out = T.spreadBalls(pts);
+  for (let i = 0; i < 3; i++) for (let j = i + 1; j < 3; j++) assert.ok(Math.hypot(out[i].x - out[j].x, out[i].z - out[j].z) >= D - 1e-3, `${i}-${j}`);   // also one above another
+  assert.deepEqual(out[3], pts[3]);                                             // far away: untouched
+  out.forEach((q, i) => { assert.ok(Math.hypot(q.x - pts[i].x, q.z - pts[i].z) <= T.BALL.maxShift + 1e-9); assert.equal(q.y, pts[i].y); });
+  const same = T.spreadBalls([{ x: 1, y: 1, z: 1 }, { x: 1, y: 1, z: 1 }]);    // exactly on top of each other
+  assert.ok(Math.hypot(same[0].x - same[1].x, same[0].z - same[1].z) >= D - 1e-3);
+});
+test('spread (#244): a ball keeps clear of a value label, the label stays', () => {
+  const out = T.spreadBalls([{ x: 0, y: 1, z: 0 }], undefined, undefined, [{ x: 0.1, y: 1.2, z: 0 }], 0.5);
+  assert.ok(Math.hypot(out[0].x - 0.1, out[0].z) >= 0.5 - 1e-3);
+});

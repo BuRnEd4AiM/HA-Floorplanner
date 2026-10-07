@@ -188,6 +188,13 @@ body.roomtablet #roomPanel { top: 58px; }
 dialog .hint { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
 dialog .stop.tablet input[type=text] { flex: 1; min-width: 0; width: auto; }
 dialog .stop.tablet select { width: 130px; }
+dialog .stop.tablet { flex-direction: column; align-items: stretch; gap: 4px; }
+dialog .stop.tablet .presetBtn { white-space: nowrap; }
+dialog .presetBox { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px 12px; padding: 8px 10px; margin: 2px 0 6px;
+  border: 1px solid var(--line); border-radius: 8px; }
+dialog .presetBox[hidden] { display: none; }
+dialog .presetBox label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; opacity: .9; }
+dialog .stop.tablet .presetBox select { width: 100%; }
 
 #livePopup .lightctl { margin-top: 10px; }
 #livePopup .lightctl input[type=range] { width: 100%; }
@@ -250,7 +257,7 @@ body:not(.live) #roomPanel { display: none !important; }   /* edit mode: the sid
 #roomEntSearch { width: 100%; box-sizing: border-box; margin: 2px 0 8px; }
 .re-row[hidden] { display: none; }
 body.viewlock #view2d, body.viewlock #view3d, body.viewlock #viewSplit { display: none; }
-#tabletRows .tablet { display: grid; grid-template-columns: 1.2fr 1fr 1fr auto; gap: 6px; }
+#tabletRows .tablet .tabletMain { display: grid; grid-template-columns: 1.2fr 1fr 1fr auto auto; gap: 6px; }
 #tabletRows .tablet input, #tabletRows .tablet select { min-width: 0; width: 100%; box-sizing: border-box; }
 .roomctl { margin-top: 12px; padding-top: 8px; border-top: 1px solid rgba(120,200,255,.25); }
 .roomctl h4 { margin: 0 0 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent, #23e0ff); }
@@ -585,4 +592,4 @@ body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset;
 /* neighbour house (#220): one card per neighbour in "Houses & backup" */
 .nbCard { margin: 6px 0 8px; padding: 8px 10px; border: 1px solid #c38cff; border-radius: 10px; background: rgba(195, 140, 255, .07); }
 /* the overview pill: water, gas and heat meters on a second line below the power numbers (#237) */
-#energyPill { white-space: pre-line; text-align: left; line-height: 1.35; }
+#meterPill { cursor: default; white-space: nowrap; }

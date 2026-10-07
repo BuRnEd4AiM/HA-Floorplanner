@@ -13,6 +13,7 @@ export function textSprite(text, anisotropy, { size = 30, scaleX = 2.4, scaleY =
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest }));
   s.scale.set(scaleX, scaleY, 1);
   s.renderOrder = 10;
+  s.userData.pill = pill;                          // a value pill on a device (the tests check it is one)
   s.userData.setText = (txt, badge = false) => {
     const key = txt + (badge ? '|b' : '');
     if (s.userData.text === key) return;

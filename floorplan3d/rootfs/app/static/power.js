@@ -2,7 +2,7 @@
  * (only power things are shown and can be picked), the cable tool, the energy overview next to the room menu and the properties of
  * power devices and cables. The calculations are in powerlogic.js (tested); the app gives this module what it needs through `ctx`. */
 import * as THREE from './vendor/three.module.min.js';
-import { POWER_TYPES, showsInPowerEditor, CABLE_ROUTES, CABLE_KINDS, cableKind, cableColor, cablesOf, ownCables, powerWatts, fmtWatts, cablePoints, energySummary, energyText, meterReadings } from './powerlogic.js';
+import { POWER_TYPES, showsInPowerEditor, CABLE_ROUTES, CABLE_KINDS, cableKind, cableColor, cablesOf, ownCables, powerWatts, fmtWatts, cablePoints, energySummary, energyText, meterReadings, meterText } from './powerlogic.js';
 
 const POWER_DOTS = 8;
 const dotGeo = new THREE.SphereGeometry(0.035, 8, 6);
@@ -91,12 +91,16 @@ export function initPower(ctx) {
   /* ---------- the overview next to the room menu ---------- */
   function updateEnergy() {
     const pill = $('#energyPill'); if (!pill) return;
-    const all = ctx.layout().floors.flatMap((f) => f.devices);                // water, gas and heat meters too, on a second line (#237)
-    const txt = energyText({ ...energySummary(ctx.states(), powerList().map(({ d }) => d)), meters: meterReadings(ctx.states(), all) }, t);
+    const txt = energyText(energySummary(ctx.states(), powerList().map(({ d }) => d)), t);
     pill.hidden = !txt;
     pill.textContent = txt?.text || '';
     pill.title = txt?.title || '';
     pill.classList.toggle('active', cablesShown());
+    const mp = $('#meterPill'); if (!mp) return;                             // water, gas and heat in a pill of their own beside it (#237, #245)
+    const mt = meterText(meterReadings(ctx.states(), ctx.layout().floors.flatMap((f) => f.devices)), t);
+    mp.hidden = !mt;
+    mp.textContent = mt?.text || '';
+    mp.title = mt?.title || '';
   }
 
   /* ---------- picking in 3D (the power editor) ---------- */

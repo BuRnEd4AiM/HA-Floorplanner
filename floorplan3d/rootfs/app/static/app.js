@@ -17,9 +17,9 @@ import { initFloorCards } from './floorcards.js';
 import { initFloorRail } from './floorrail.js';
 import { initHouses } from './houses.js';
 import { initSettingsUi } from './settingsui.js';
-import { initBackground, imageSize } from './background.js';
+import { initBackground } from './background.js';
 import { initPalettes } from './palettes.js';
-import { floorOpenings as floorOpeningsOf, floorShapes, initBlocks } from './blocks.js';
+import { floorOpenings as floorOpeningsOf, initBlocks } from './blocks.js';
 import { initStairTool } from './stairtool.js';
 import { initLiveControls } from './livecontrols.js';
 import { initLivePopup } from './livepopup.js';
@@ -42,14 +42,13 @@ import { planPlacement, classify } from './autoplace.js';
 import { RING_DEFAULT_INSET, segEntity, ringEntities, ringSectionsWorld } from './ledring.js';
 import { DEVICE_TYPES, catOf, makeModel, isCustom } from './models.js';
 import {
-  OPENING_DEFAULTS, buildWall, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
+  OPENING_DEFAULTS, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
 } from './walls.js';
 import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
 import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
-import { solarPose, groundFn } from './solarroof.js';
 import { initPlanRotate } from './planview.js';
 import { initMultiSelect } from './multisel.js';
 import { initNeighbors } from './neighbor.js';
@@ -57,11 +56,18 @@ import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround }
 import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
-import { stairLocal, polyToWorld, toWorld, stairHandles, stairFloors, storeysShown } from './stairs.js';
-import { skipInLive } from './pickrules.js';
+import { toWorld, stairHandles } from './stairs.js';
+import { floorLabels } from './viewprefs.js';
 import { initTapBalls } from './tapballs.js';
-import { pointInPoly, inIso, clipWallToRoom } from './roomclip.js';
-import { HOLO, addPickProxy, underFloors, holoify as holoifyModel } from './modelfx.js';
+import { initLiveChannel } from './livechannel.js';
+import { initPersist } from './persist.js';
+import { initFloorBuild, OUTDOOR } from './floorbuild.js';
+import { initEditItems } from './edititems.js';
+import { initPicking } from './picking.js';
+import { initPictures } from './picture.js';
+import { initDraw3d } from './draw3d.js';
+import { pointInPoly, inIso } from './roomclip.js';
+import { HOLO } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
@@ -76,7 +82,7 @@ let settings = {
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, seeThrough: false, placeSelect: true, updateCheck: true, autoBackup: false, backupEveryHours: 24, backupKeepDays: 14, backupKeepCount: 30, earth: 'solid', earthMargin: 5,
   alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
-  userRooms: {}, userViews: {}, belowVisibility: 0.5, belowMode: 'dim', bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
+  userRooms: {}, userViews: {}, userPresets: {}, belowVisibility: 0.5, belowMode: 'dim', belowLabels: true, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
   humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
   co2Stops: [{ v: 400, c: '#2ad0a0' }, { v: 800, c: '#ffd84a' }, { v: 1200, c: '#ff8a2a' }, { v: 2000, c: '#ff3a3a' }],
@@ -106,10 +112,7 @@ let is2d = false;                  // legacy top-down camera flag (the real 2D e
 let plan = null;                   // 2D blueprint editor
 let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null, view: 'all' };
-let lastStateSig = '';
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
-const undoStack = [];
-let saveTimer = null;
 
 const $ = (s) => document.querySelector(s);
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -212,7 +215,8 @@ function rebuildGrid() {
 const registry = new Map();       // id -> Object3D
 const pickables = [];
 const labelSprites = new Map();   // device id -> sprite
-const tapBalls = initTapBalls({ ceiling: () => settings.wallHeight || 2.6 });   // live mode: a ball over everything that can be tapped (#238)
+const tapBalls = initTapBalls({ ceiling: () => settings.wallHeight || 2.6,
+  labelsIn: (g) => [...labelSprites.values()].filter((sp) => sp.parent === g && sp.visible).map((sp) => sp.position) });   // live mode: a ball over everything that can be tapped (#238)
 const openingHandles = new Map();   // opening id -> { mesh, outline }: unscaled hit boxes that stay usable when the wall is lowered
 let cutawayWalls = [];            // { group, mid:[x,z], n:[nx,nz] } for the active floor
 
@@ -225,14 +229,6 @@ function mat(color, ghost, extra = {}) {
 
 /** a text label in the scene: plain, as a dark pill on a device or as a glowing badge (labels.js) */
 function textSprite(text, opts) { return makeTextSprite(text, renderer.capabilities.getMaxAnisotropy(), opts); }
-
-
-/** Invisible, slightly padded hit box so small devices (ceiling lamps, switches) are easy to tap. */
-
-/** hologram look for a model; how see-through it is under the open floor follows the setting (modelfx.js) */
-function holoify(model, ghost) { holoifyModel(model, ghost, belowVis()); }
-const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
-const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
 const isHolo = () => settings.theme === 'holo';
 
 /* ---- Room lighting: each lit lamp shines from its own position (shaders and colour scales live in roomlight.js) ---- */
@@ -264,13 +260,6 @@ function updateEarthCut() {
 /** Isolation: while a room is focused only that room, its walls and its devices are drawn (clipping in roomclip.js). */
 function isolatedRoom() { return focusedRoom ? floor()?.rooms.find((r) => r.id === focusedRoom) ?? null : null; }
 
-const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate', 'cover']);   // "important": measured values
-/** Value labels on devices: none, only the important ones (sensors, climate, covers) or every device with an entity. */
-function wantsLabel(d) {
-  const mode = settings.labelMode;
-  if (mode === 'none' || !d.entity) return false;
-  return mode === 'all' || LABEL_DOMAINS.has(d.entity.split('.')[0]);
-}
 
 /** Doors/windows live inside their wall group, which is scaled down when the wall is lowered. This unscaled
  *  hit box (with an outline shown only while the wall is lowered) keeps them selectable, movable and tappable. */
@@ -306,6 +295,17 @@ const neighbors = initNeighbors({
   camera: () => camera, settings: () => settings, wallSee: WALL_SEE, snapshot: () => snapshot(), changed: () => changed(), build: () => build(), fields: { field, lenInput, inp },
 });
 
+/* a floor in 3D: room floors, floor opening rims, blocks, stairs, walls and devices; the code lives in floorbuild.js */
+const floorBuild = initFloorBuild({
+  settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(),
+  mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
+  lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
+  registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH: FLOOR_H, holoEdge: HOLO.edge,
+  houseMode: () => houseMode, halfCut: () => halfCut, elev: (i) => elev(i), stairMesh: (...a) => stairTool.build(...a),
+  cutawayInfo: (w, wg) => wallCutawayInfo(w, wg), openingHandle: (w, o, g) => makeOpeningHandle(w, o, g), cutawayWalls: () => cutawayWalls,
+  makeModel: (...a) => makeModel(...a), setPicture: (m, d) => setPicture(m, d), placeSolar: (...a) => roofsUi.placeSolar(...a),
+  tapBalls, cams: { addCone: (d) => cams.addCone(d) }, labelSprites, modelLoaded: () => { applyStates(); refreshSelHelper(); },
+});
 function build() {
   localizeDefaults(); welcomeUi?.update();
   wake();
@@ -341,6 +341,7 @@ function build() {
     if (iso && i < floorIdx) return;            // no floors below while isolated
     if (!houseMode && settings.belowMode === 'hidden' && i < floorIdx) return;   // floors below hidden by choice
     const ghost = (i < floorIdx && !houseMode) || (houseMode && f.kind === 'basement' && settings.earth !== 'solid');   // with solid earth the cut shows the basement as it is
+    const labelsHere = floorLabels(settings, i, floorIdx, houseMode);   // the floors below can do without their names and labels (#249)
     const edgeMaterial = holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * belowVis() : 0.95 }) : null;
     const g = new THREE.Group();
     g.position.y = elev(i);
@@ -349,160 +350,15 @@ function build() {
     if (f.kind === 'roof' && !iso) roofsUi.build(g, i, f, holo, ghost);
     const roofsHere = f.kind === 'roof' ? roofList(i) : null;
 
-    f.rooms.forEach((r) => {
-      if (r.points.length < 3) return;
-      if (iso && !ghost && r.id !== iso.id) return;
-      const shape = floorShapes(r.points, holes);                 // the room minus stairwell openings (also where they only overlap it partly)
-      const geo = new THREE.ShapeGeometry(shape);
-      geo.rotateX(-Math.PI / 2);
-      const m = new THREE.Mesh(geo, holo
-        ? (ghost ? roomLightMat('floor', 0.15 + 0.5 * belowVis(), true)
-                 : roomLightMat('floor', floorIdx > 0 ? 1 - 0.65 * belowVis() : 1))
-        : mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
-      m.position.y = 0.01;
-      m.receiveShadow = true;
-      g.add(m);
-      if (r.terrace && !lowWalls) roofsUi.railing(g, r, f, holo, ghost);          // roof terrace: railing along the open edges
-      let wash = null, glow = null;
-      if (!holo) {                                   // solid themes: the light pool lies on the floor as a separate layer
-        glow = new THREE.Mesh(geo, roomLightMat('glow'));
-        glow.position.y = 0.014; glow.renderOrder = 1; glow.visible = false; glow.userData.ghost = ghost;
-        g.add(glow);
-      }
-      {                                              // coloured "air" that tints the room's inner walls when a light is on
-        const eg = new THREE.ExtrudeGeometry(shape, { depth: settings.wallHeight, bevelEnabled: false });
-        eg.rotateX(-Math.PI / 2);
-        wash = new THREE.Mesh(eg, roomLightMat('wash'));
-        wash.userData.ghost = ghost;
-        wash.renderOrder = 1;
-        g.add(wash);
-      }
-      roomMeshes.set(r.id, { mesh: m, room: r, wash, glow, f, ghost });
-      if (!ghost && alertsUi.hasRoom(r.id)) {        // a warning in this room: the floor pulses red
-        const pm = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide }));
-        pm.position.y = 0.03; pm.renderOrder = 2;
-        g.add(pm); alertsUi.pulses.push(pm.material);
-      }
-      if (!ghost) {
-        m.userData = { kind: 'room', id: r.id };
-        registry.set(r.id, m); pickables.push(m);
-      }
-      {
-        if (r.name) {
-          const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);
-          const sp = textSprite(is2d ? `${r.name} · ${imperial() ? (polyArea(r.points) * 10.7639).toFixed(0) + ' ft²' : polyArea(r.points).toFixed(1) + ' m²'}` : r.name);
-          sp.position.set(c[0], 0.45, c[1]);
-          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * belowVis(); }
-          g.add(sp);
-        }
-      }
-    });
+    const part = { holo, ghost, iso, labels: labelsHere, holes };   // rooms, floor opening rims and blocks: floorbuild.js
+    floorBuild.rooms(g, f, part);
+    floorBuild.holeRims(g, f, part);
+    floorBuild.blocks(g, f, i, part);
 
-    /* floor openings drawn by hand: a rim like a wall top, so the opening reads from above */
-    if (!ghost) (f.holes || []).forEach((h) => {
-      if (h.points.length < 3) return;
-      const rim = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(h.points.map(([x, z]) => new THREE.Vector3(x, 0.03, z))),
-        new THREE.LineBasicMaterial({ color: holo ? HOLO.edge : 0xff9f43 }));
-      g.add(rim);
-    });
+    floorBuild.stairs(g, f, i, { ...part, edge: edgeMaterial });   // stairs and walls: floorbuild.js
+    floorBuild.walls(g, f, i, { ...part, edge: edgeMaterial });
 
-    /* placeholder blocks: a solid mass for a floor that is not drawn */
-    const shaftHoles = (f.blocks || []).length ? floorOpenings(i + 1) : [];   // stairwells and floor openings of the floor above run through the block
-    if (!iso) (f.blocks || []).forEach((b) => {
-      if (b.points.length < 3) return;
-      const shape = floorShapes(b.points, shaftHoles);
-      const eg = new THREE.ExtrudeGeometry(shape, { depth: b.h || FLOOR_H, bevelEnabled: false });
-      eg.rotateX(-Math.PI / 2);
-      const m = new THREE.Mesh(eg, holo
-        ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: 0.5, depthWrite: false })
-        : mat('#b9b3a8', false));
-      m.position.y = -0.02;
-      if (holo) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(eg), new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.7 })));
-      g.add(m);
-      registry.set(b.id, m);
-    });
-
-    /* stairs (a 'down' stair starts one floor lower and arrives at this floor) */
-    (f.stairs || []).forEach((st) => {
-      if (iso) {                                   // a focused room still shows the stair standing in it
-        const hp = polyToWorld(st, stairLocal(st, FLOOR_H).hole);
-        const c = hp.reduce((q, p) => [q[0] + p[0] / hp.length, q[1] + p[1] / hp.length], [0, 0]);
-        if (ghost || !inIso(iso, c[0], c[1])) return;
-      }
-      // the stair that comes up into the floor shown is seen through its opening: drawn solid, not faded like the rest below
-      const arriving = ghost && !houseMode && (st.dir || 'up') === 'up' && i < floorIdx && floorIdx <= i + stairFloors(st);   // a stair over several floors counts for every floor it reaches
-      const sGhost = ghost && !arriving;
-      const sEdge = arriving && holo ? new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.95 }) : edgeMaterial;
-      const sg = stairTool.build(st, holo, sGhost, sEdge, storeysShown(st, i, floorIdx, houseMode));   // no storeys hanging over the open floor (#229)
-      sg.position.set(st.x, st.dir === 'down' ? -FLOOR_H * stairFloors(st) : 0, st.z);
-      sg.rotation.y = THREE.MathUtils.degToRad(st.rot || 0);
-      g.add(sg);
-      registry.set(st.id, sg);
-    });
-
-    f.walls.forEach((w0) => {
-      let w = w0;
-      if (wallLength(w) < 0.01) return;
-      if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
-      const wallMat = holo
-        ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * belowVis() : settings.wallOpacity, depthWrite: false, side: THREE.DoubleSide })
-        : mat('#d9d4cc', ghost);
-      const wg = buildWall(w, { material: wallMat, ghost, low: lowWalls, cut: halfCut && !lowWalls ? 0.5 : 0, makeMat: mat, holo, edgeMaterial });
-      if (halfCut && !lowWalls) {                                // what sticks out above the cut (door leaves, window frames) is clipped off
-        const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), elev(i) + (w.height || 2.6) * 0.5 + 0.001);
-        wg.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
-      }
-      g.add(wg);
-      if (!ghost) {
-        const info = wallCutawayInfo(w, wg);
-        info.handles = (w.openings || []).map((o) => makeOpeningHandle(w, o, g));
-        cutawayWalls.push(info);
-        registry.set(w.id, wg); pickables.push(wg);
-      }
-      wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { registry.set(c.userData.id, c); if (!ghost) pickables.push(c); } });
-    });
-
-    f.devices.forEach((d) => {
-      if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
-      const onRoof = roofsHere && d.type === 'solarpanel' ? solarPose(d, roofsHere) : null;
-      const model = makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); tapBalls.moved(d.id); if (GROUND_COVER.has(d.type)) underFloors(m); if (holo && !OUTDOOR.has(d.type)) holoify(m, ghost); applyStates(); refreshSelHelper(); }, d, onRoof ? { ...onRoof, groundAt: onRoof.mount === 'stand' ? groundFn(d, roofsHere, onRoof.y + (d.y ?? 0)) : undefined } : undefined);   // on a rack the posts reach the roof (#208)
-      if (d.type === 'picture') setPicture(model, d);
-      model.position.set(d.x, d.y ?? 0, d.z);
-      model.rotation.order = 'YXZ';                                   // turn around the vertical axis first, then tilt / roll the object itself
-      model.rotation.set(THREE.MathUtils.degToRad(d.tiltX || 0), THREE.MathUtils.degToRad(d.rot || 0), THREE.MathUtils.degToRad(d.tiltZ || 0));
-      if (onRoof) { roofsUi.placeSolar(model, d, roofsHere); model.userData.onRoof = onRoof.mount; }
-      model.scale.set((d.scale || 1) * (d.sx || 1), (d.scale || 1) * (d.sy || 1), (d.scale || 1) * (d.sz || 1));   // uniform size x independent stretch per axis
-      if (d.mirror) model.scale.x *= -1;                              // mirrored shape (left-right)
-      if (!ghost) addPickProxy(model);
-      if (holo && !OUTDOOR.has(d.type)) holoify(model, ghost);
-      model.traverse((o) => {
-        if (!o.isMesh) return;
-        o.castShadow = !holo;
-        if (ghost && !holo) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.25; }
-      });
-      if (GROUND_COVER.has(d.type)) underFloors(model);
-      model.userData.kind = 'device';
-      model.userData.id = d.id;
-      model.userData.ghost = ghost;
-      g.add(model);
-      registry.set(d.id, model);
-      if (halfCut && !lowWalls && (d.y || 0) >= (f.walls[0]?.height || 2.6) * 0.5 - 0.05) { model.userData.cutHidden = true; model.visible = false; }   // half section: what hangs above the cut (ceiling lamps, LED ring, high pictures) would float in the air
-      if (!ghost && !model.userData.cutHidden) { pickables.push(model); const tb = tapBalls.add(g, model, d); if (tb) pickables.push(tb); }
-      if (d.type === 'camera' && !ghost && (d.fov ?? 90) > 0) {
-        const cone = cams.addCone(d);
-        g.add(cone);
-        pickables.push(cone);
-      }
-      {
-        if (wantsLabel(d)) {
-          const sp = textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true });
-          sp.position.set(d.x, (d.y || 0) + 0.3 + 0.2 * (d.scale || 1), d.z);
-          if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * belowVis(); }
-          g.add(sp);
-          labelSprites.set(d.id, sp);
-        }
-      }
-    });
+    floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
   });
   if (!iso) neighbors.build(world, { upTo: houseMode ? Infinity : elev(floorIdx), holo });   // the neighbour house next to this one (#220)
   if (earth.cut()) {                              // garden things at ground level are cut open with the earth, so nothing lies over the basement
@@ -527,7 +383,7 @@ function stateText(entityId) { return plainStateText(states[entityId], t); }
 
 /* ---- power add-on (#136): cables, power editor, energy overview; the code lives in power.js and powerlogic.js ---- */
 const power = initPower({
-  $, t, scene, camera, canvas, ray: () => ray, registry,
+  $, t, scene, camera, canvas, ray: () => picking.ray, registry,
   layout: () => layout, states: () => states, entities: () => entities,
   getSelection: () => selection, setSelection: (s) => { selection = s; }, refreshSelection: () => refreshSelection(), renderProps: () => renderProps(),
   plan: () => plan, setStatus: (x) => setStatus(x), uid: () => uid(), snapshot: () => snapshot(), changed: () => changed(), wake: () => wake(),
@@ -714,6 +570,7 @@ function applyStates() {
       if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W'); }
     });
   }
+  tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
   buildNav();                             // room pills show a dot while somebody is in the room
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
     const holo = isHolo();
@@ -823,15 +680,13 @@ function updateCutaway() { cutaway.update(); }
 /* ---- Compass: the ring stands still, the needle turns with the camera; the code lives in compass.js ---- */
 const compass = initCompass({ $, t, camera, controls });
 
-/* ================= Changes, undo, save ================= */
-function snapshot() {
-  undoStack.push(JSON.stringify(layout));
-  if (undoStack.length > 60) undoStack.shift();
-}
+/* ================= Changes, undo, save: the undo list and the autosave live in persist.js ================= */
+const persist = initPersist({ t, layout: () => layout, url: () => hs.url(), autosaveSeconds: () => settings.autosaveSeconds, setStatus: (x) => setStatus(x) });
+function snapshot() { persist.snapshot(); }
 function undo() {
-  const s = undoStack.pop();
-  if (!s) return;
-  layout = JSON.parse(s);
+  const prev = persist.popUndo();
+  if (!prev) return;
+  layout = prev;
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
   selection = null; focusedRoom = null; multiSel.clear(); clearFocusOutline();
   fillFloorSelect(); build(); scheduleSave(); bgUi.render(); renderFloorPanel(); neighbors.renderUi();
@@ -842,11 +697,7 @@ function changed(rebuild = true) {
   scheduleSave();
 }
 function setStatus(txt) { $('#status').textContent = txt; }
-function scheduleSave() {
-  setStatus(t('unsaved'));
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(save, (settings.autosaveSeconds || 1.5) * 1000);
-}
+function scheduleSave() { persist.schedule(); }
 /* ================= Resizable side panel (drag its left edge) ================= */
 (() => {
   const bar = $('#panelResizer'), root = document.documentElement;
@@ -868,11 +719,11 @@ function scheduleSave() {
 const hs = initHouses({ $, t, params, save: () => save(), switchHouse: (id) => switchHouse(id), alert: (x) => alert(x) });
 async function switchHouse(id) {
   if (id === hs.id() && layout) return;
-  if (saveTimer) await save();                                  // flush edits of the house we leave
+  if (persist.touched()) await save();                          // flush edits of the house we leave
   hs.setCurrent(id);
   try { layout = await (await fetch(hs.url())).json(); } catch { setStatus(t('loadFailed')); return; }
   normalizeLayout();
-  undoStack.length = 0;
+  persist.clearUndo();
   floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
   clearFocusOutline(); hs.renderUi(); neighbors.renderUi();
   build(); fitCamera(); buildNav(true); bgUi.render(); renderFloorPanel(); renderObjList(); refreshSelection();
@@ -903,7 +754,7 @@ $('#backupFile').addEventListener('change', async (e) => {
   e.target.value = '';
   if (!file || !confirm(t('backup.confirm'))) return;
   try {
-    if (saveTimer) await save();
+    if (persist.touched()) await save();
     const r = await fetch('api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: await file.text() });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || r.status);
@@ -913,59 +764,17 @@ $('#backupFile').addEventListener('change', async (e) => {
 });
 $('#houseSelect').addEventListener('change', (e) => switchHouse(e.target.value));
 
-async function save() {
-  clearTimeout(saveTimer);
-  try {
-    const r = await fetch(hs.url(), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(layout) });
-    setStatus(r.ok ? t('saved') : t('saveFailed'));
-  } catch { setStatus(t('saveFailed')); }
-}
+function save() { return persist.save(); }
 
-/* ================= Picking / snapping ================= */
-const ray = new THREE.Raycaster();
-const ndc = new THREE.Vector2();
-const hitVec = new THREE.Vector3();
-function setRay(e) {
-  const r = canvas.getBoundingClientRect();
-  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  ray.setFromCamera(ndc, camera);
-}
-function groundPoint(e) {
-  setRay(e);
-  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -elev());
-  return ray.ray.intersectPlane(plane, hitVec) ? [hitVec.x, hitVec.z] : null;
-}
-const stealth = (id) => !!floor()?.devices.find((v) => v.id === id)?.hideModel;
-const deviceOf = (id) => { for (const f of layout.floors) { const d = f.devices.find((v) => v.id === id); if (d) return d; } return null; };
-/** in the live mode only what is linked to something can be tapped (a light, a switch, a TV with a backlight, an LED ring with lights) */
-const tappable = (id) => { const d = deviceOf(id); return !!d && !!(d.entity || d.ledEntity || (d.segs || []).some((s) => s.entity)); };
-function pickHit(e) {
-  setRay(e);
-  const hits = [];
-  for (const h of ray.intersectObjects(pickables, true)) {
-    if (h.object.userData.touchOnly && !isLive()) continue;                                      // the big finger box is for the live mode only
-    let o = h.object, seg = h.object.userData.seg;
-    while (o && !o.userData.kind) { o = o.parent; seg ??= o?.userData.seg; }
-    if (o && isLive() && skipInLive(o.userData, devType(o.userData))) continue;                  // live mode: doors, windows, camera cones and presence figures take no tap (#234)
-    if (o && o.userData.kind === 'device' && power.hides(o.userData.id)) continue;                  // the power editor: only power things are picked
-    if (o && o.userData.cone) continue;                                                           // the cone of a camera is never hit, only the camera itself
-    if (o && o.userData.kind === 'device' && isLive() && (stealth(o.userData.id) || !tappable(o.userData.id))) continue;      // an invisible light, or a thing that is linked to nothing, cannot be tapped
-    if (o) hits.push({ data: seg != null ? { ...o.userData, seg } : o.userData, point: h.point, distance: h.distance });   // seg: which LED ring section was tapped
-  }
-  if (power.isMode()) return power.pick(e, hits);                    // the power editor: nothing but power devices and cables can be hit
-  // Walls never block a tap: a lamp behind a lowered or see-through wall is still hit. Between a device and a
-  // door/window the door/window wins unless the device is clearly in front of it (> 1.2 m nearer to the camera).
-  const live = isLive();
-  const op = hits.find((h) => h.data.kind === 'opening' && (!live || findOpening(h.data.id)?.opening.entity));
-  const dv = hits.find((h) => h.data.kind === 'device');
-  if (op && dv) return dv.distance < op.distance - 1.2 ? dv : op;
-  if (op || dv) return op || dv;
-  if (live) return hits.find((h) => h.data.kind === 'room') ?? null;
-  return hits[0] ?? null;
-}
-const pick = (e) => pickHit(e)?.data ?? null;
-/** the type of the device a hit belongs to (null for anything else) */
-const devType = (data) => (data.kind === 'device' ? floor().devices.find((x) => x.id === data.id)?.type ?? null : null);
+/* ================= Picking / snapping: the ray into the scene and what it hits live in picking.js ================= */
+const picking = initPicking({
+  canvas, camera, pickables, isLive: () => isLive(), elev: () => elev(), floor: () => floor(), layout: () => layout,
+  power: { hides: (id) => power.hides(id), isMode: () => power.isMode(), pick: (e, hits) => power.pick(e, hits) }, findOpening: (id) => findOpening(id),
+});
+function setRay(e) { picking.setRay(e); }
+function groundPoint(e) { return picking.groundPoint(e); }
+function pickHit(e) { return picking.pickHit(e); }
+function pick(e) { return picking.pick(e); }
 
 function snap(p, fine = false) { return snapPoint(p, floor().walls, fine ? 0.05 : settings.grid); }
 const findWall = (id) => floor().walls.find((w) => w.id === id);
@@ -977,58 +786,12 @@ const findOpening = (id) => {
   return null;
 };
 
-/* ================= Drawing state ================= */
-let drawPts = [];
-let cursor = null;
-let down = null;           // pointer-down info
-let openingPreview = null; // { wall, pos, valid }
+/* ================= Drawing and dragging in 3D: the code (and the drawing state) lives in draw3d.js, set up at "Pointer events" ================= */
+let draw3d = null;
+function endDrawing() { draw3d.endDrawing(); }
+function finishRoom() { draw3d.finishRoom(); }
 
-function updateTemp() {
-  clearGroup(temp);
-  if (tool === 'opening' && openingPreview) {
-    const { wall: w, pos, valid } = openingPreview;
-    const def = OPENING_DEFAULTS[openingType];
-    const len = wallLength(w);
-    const m = new THREE.Mesh(
-      new THREE.BoxGeometry(openingPreview.width ?? def.width, def.height, w.thickness + 0.06),
-      new THREE.MeshBasicMaterial({ color: valid ? 0x3fa9f5 : 0xff5555, transparent: true, opacity: 0.45, depthTest: false }),
-    );
-    m.renderOrder = 5;
-    m.position.set(0, def.sill + def.height / 2, 0);
-    const g = new THREE.Group();
-    g.add(m);
-    g.position.set((w.a[0] + w.b[0]) / 2, elev(), (w.a[1] + w.b[1]) / 2);
-    g.rotation.y = -Math.atan2(w.b[1] - w.a[1], w.b[0] - w.a[0]);
-    m.position.x = pos - len / 2;
-    temp.add(g);
-    return;
-  }
-  if (!drawPts.length) return;
-  const pts = [...drawPts, ...(cursor ? [cursor] : [])].map(([x, z]) => new THREE.Vector3(x, elev() + 0.05, z));
-  if (tool === 'room' && pts.length > 2) pts.push(pts[0]);
-  temp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x3fa9f5 })));
-  drawPts.forEach(([x, z]) => {
-    const d = new THREE.Mesh(new THREE.SphereGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0x3fa9f5 }));
-    d.position.set(x, elev() + 0.05, z);
-    temp.add(d);
-  });
-  if (cursor) {
-    const last = drawPts[drawPts.length - 1];
-    setStatus(`${t('length')}: ${fmtLen(Math.hypot(cursor[0] - last[0], cursor[1] - last[1]))}`);
-  }
-}
-function endDrawing() { drawPts = []; cursor = null; openingPreview = null; clearGroup(temp); }
-
-function finishRoom() {
-  if (drawPts.length >= 3) {
-    snapshot();
-    floor().rooms.push({ id: uid(), name: `${t('prop.room')} ${floor().rooms.length + 1}`, color: '#8a7f70', points: drawPts.map((p) => [...p]) });
-    changed();
-  }
-  endDrawing();
-}
-
-/** Compute where an opening would go for the wall under the pointer. */
+/** a new device of the chosen type at (x, z), with the chosen entity; wall things click onto the nearest wall */
 function newDevice(x, z) {
   const custom = isCustom(deviceType);
   const def = custom ? { y: 0 } : DEVICE_TYPES[deviceType];
@@ -1050,180 +813,20 @@ function ringAt(x, z, inset = RING_DEFAULT_INSET) { return ringAround(roomAt(x, 
 const deviceEntities = (d) => (d?.type === 'ledring' ? ringEntities(d) : d?.entity ? [d.entity] : []);
 /** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces); placement.js */
 function snapToWall(d, maxDist = 2, keepFacing = false) { return snapOnWall(d, floor().walls, floor().rooms, pointInPoly, maxDist, keepFacing); }
-/** a picture: frame + the uploaded image (api/backgrounds/<name>) on a plane; `w` metres wide, `ar` = height / width */
-const textureLoader = new THREE.TextureLoader();
-function setPicture(model, d) {
-  model.clear();
-  const w = d.w || 0.6, h = w * (d.ar || 0.75);
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.03), new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.6 }));
-  const art = new THREE.Mesh(new THREE.PlaneGeometry(Math.max(0.05, w - 0.06), Math.max(0.05, h - 0.06)), new THREE.MeshBasicMaterial({ color: 0xc9d6e2 }));
-  art.position.z = 0.0155;
-  model.add(frame, art);
-  if (d.img) textureLoader.load(`api/backgrounds/${encodeURIComponent(d.img)}`, (tex) => {
-    tex.colorSpace = THREE.SRGBColorSpace;
-    art.material.map = tex; art.material.color.set(0xffffff); art.material.needsUpdate = true;
-  });
-}
-async function uploadPicture(file, d) {
-  if (!file) return;
-  const [nw, nh] = await imageSize(file);
-  const fd = new FormData(); fd.append('file', file);
-  const r = await fetch('api/backgrounds', { method: 'POST', body: fd });
-  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || r.status);
-  const { name } = await r.json();
-  snapshot(); d.img = name; d.ar = +(nh / nw).toFixed(5); d.w ||= 0.8;
-  changed(); renderProps();
-}
-function openingTarget(e, ignoreId = null, def = OPENING_DEFAULTS[openingType], forcedWall = null) {
-  let wall = forcedWall;
-  let point = null;
-  if (!wall) {
-    const h = pickHit(e);
-    if (h?.data.kind !== 'wall') return null;
-    wall = findWall(h.data.id);
-    point = [h.point.x, h.point.z];
-  } else {
-    point = groundPoint(e);
-  }
-  if (!wall || !point) return null;
-  const raw = Math.round(projectOnWall(wall, point) / 0.05) * 0.05;
-  const width = fitOpeningWidth(wall, def.width);
-  if (width === null) return null;
-  const pos = clampOpeningPos(wall, width, raw);
-  if (pos === null) return null;
-  return { wall, pos, width, valid: !openingOverlaps(wall, pos, width, ignoreId) };
-}
-
-/* ================= Pointer events ================= */
-canvas.addEventListener('pointerdown', (e) => {
-  if (e.button !== 0) return;
-  down = { x: e.clientX, y: e.clientY, hit: null, drag: false, dev: null, op: null };
-  if (isLive() || tool !== 'select' || houseMode) return;
-  if (lockedSel && selection) {                     // locked: drag moves only the selected object, from anywhere
-    down.hit = null;
-    if (selection.kind === 'device') {
-      const d = floor().devices.find((v) => v.id === selection.id), gp = groundPoint(e);
-      if (d && gp) { down.dev = { d, dx: d.x - gp[0], dz: d.z - gp[1], moved: false }; controls.enabled = false; }
-    } else if (selection.kind === 'opening') {
-      const f = findOpening(selection.id);
-      if (f) { down.op = { ...f, moved: false }; controls.enabled = false; }
-    }
-    return;
-  }
-  const h = pick(e);
-  down.hit = h;
-  if (e.shiftKey) { down.multi = true; return; }                 // Shift + click: add to / take out of the selection, never drag (#211)
-  if (h?.kind === 'device') {
-    const d = floor().devices.find((v) => v.id === h.id);
-    const gp = groundPoint(e);
-    if (d && gp) {
-      selection = h; refreshSelection();
-      down.dev = { d, dx: d.x - gp[0], dz: d.z - gp[1], moved: false };
-      controls.enabled = false;
-    }
-  } else if (h?.kind === 'opening') {
-    const f = findOpening(h.id);
-    if (f) {
-      const wasSelected = selection?.kind === 'opening' && selection.id === h.id;
-      selection = h; refreshSelection();
-      if (wasSelected) { down.op = { ...f, moved: false }; controls.enabled = false; }   // first click only selects, so a stray click never drags it
-    }
-  }
-});
-
-canvas.addEventListener('pointermove', (e) => {
-  if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) down.drag = true;
-  if (isLive()) return;
-  const gp = groundPoint(e);
-
-  if (down?.dev && gp) {
-    if (down.dev.d.locked) return;
-    if (!down.dev.moved) { snapshot(); down.dev.moved = true; }
-    const [x, z] = snap([gp[0] + down.dev.dx, gp[1] + down.dev.dz], true);
-    moveDeviceTo(down.dev.d, x, z);
-    return;
-  }
-  if (down?.op && down.drag) {
-    const { wall, opening } = down.op;
-    if (opening.locked) return;
-    const tgt = openingTarget(e, opening.id, opening, wall);
-    if (tgt?.valid && Math.abs(tgt.pos - opening.pos) > 1e-6) {
-      if (!down.op.moved) { snapshot(); down.op.moved = true; }
-      opening.pos = tgt.pos;
-      build();
-    }
-    return;
-  }
-  if (tool === 'opening') {
-    const tgt = openingTarget(e);
-    openingPreview = tgt;
-    updateTemp();
-  } else if ((tool === 'wall' || tool === 'room') && gp) {
-    cursor = snap(gp);
-    updateTemp();
-  }
-});
-
-canvas.addEventListener('pointerup', (e) => {
-  if (e.button !== 0 || !down) return;
-  const st = down;
-  down = null;
-  controls.enabled = true;
-
-  if (st.dev?.moved) { changed(false); refreshSelection(); return; }
-  if (st.op?.moved) { changed(false); refreshSelection(); return; }
-  if (st.drag) return;                         // camera drag, not a click
-
-  if (isLive()) { handleLiveTap(e); return; }
-
-  const gp = groundPoint(e);
-  if (tool === 'select') {
-    if (lockedSel) return;                     // locked selection stays until released
-    if (st.multi) { multiSel.toggle(st.hit); return; }
-    multiSel.clear(); selection = st.hit; refreshSelection();
-  } else if (tool === 'cable') {
-    const h = pickHit(e);
-    if (h?.data.kind === 'device') power.cableClick(h.data.id);
-  } else if (tool === 'erase') {
-    const h = pick(e);
-    if (h) { snapshot(); deleteItem(h); }
-  } else if (tool === 'wall' && gp) {
-    const p = snap(gp);
-    const last = drawPts[drawPts.length - 1];
-    if (last && Math.hypot(p[0] - last[0], p[1] - last[1]) < 0.01) { endDrawing(); return; }
-    if (last) {
-      snapshot();
-      floor().walls.push({ id: uid(), a: [...last], b: [...p], thickness: settings.wallThickness, height: settings.wallHeight, openings: [] });
-      changed();
-    }
-    drawPts.push(p);
-    updateTemp();
-  } else if (tool === 'room' && gp) {
-    const p = snap(gp);
-    if (drawPts.length >= 3 && Math.hypot(p[0] - drawPts[0][0], p[1] - drawPts[0][1]) < 0.01) { finishRoom(); return; }
-    drawPts.push(p);
-    updateTemp();
-  } else if (tool === 'opening') {
-    const tgt = openingTarget(e);
-    if (tgt?.valid) {
-      snapshot();
-      const def = OPENING_DEFAULTS[openingType];
-      const o = { id: uid(), type: openingType, pos: tgt.pos, ...def, width: tgt.width ?? def.width };
-      (tgt.wall.openings ||= []).push(o);
-      selection = { kind: 'opening', id: o.id };
-      openingPreview = null; clearGroup(temp);
-      changed();
-    }
-  } else if (tool === 'device' && gp) {
-    snapshot();
-    const [x, z] = snap(gp, true);
-    const d = newDevice(x, z);
-    floor().devices.push(d);
-    selection = { kind: 'device', id: d.id };
-    changed();
-    holdPlaced();
-    if (d.type === 'nanoleaf') editNano(d);
-  }
+/* ---- a picture on the wall: frame, image, upload; the code lives in picture.js ---- */
+const pictures = initPictures({ snapshot: () => snapshot(), changed: () => changed(), renderProps: () => renderProps() });
+function setPicture(model, d) { pictures.setPicture(model, d); }
+function uploadPicture(file, d) { return pictures.uploadPicture(file, d); }
+/* ================= Pointer events: select, drag, draw, place, double click; the code lives in draw3d.js ================= */
+draw3d = initDraw3d({
+  canvas, controls, temp, t, setStatus: (x) => setStatus(x), fmtLen: (m) => fmtLen(m), clearGroup: (g) => clearGroup(g), elev: () => elev(),
+  tool: () => tool, openingType: () => openingType, isLive: () => isLive(), houseMode: () => houseMode, lockedSel: () => lockedSel,
+  selection: () => selection, setSelection: (s) => { selection = s; }, refreshSelection: () => refreshSelection(), floor: () => floor(), settings: () => settings,
+  uid: () => uid(), findOpening: (id) => findOpening(id), findWall: (id) => findWall(id), pick: (e) => pick(e), pickHit: (e) => pickHit(e),
+  groundPoint: (e) => groundPoint(e), snap: (p, fine) => snap(p, fine), snapshot: () => snapshot(), changed: (r) => changed(r), build: () => build(),
+  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), multi: { toggle: (h) => multiSel.toggle(h), clear: () => multiSel.clear() }, liveTap: (e) => handleLiveTap(e),
+  cableClick: (id) => power.cableClick(id), deleteItem: (sel) => deleteItem(sel), newDevice: (x, z) => newDevice(x, z), holdPlaced: () => holdPlaced(),
+  editNano: (d) => editNano(d), switchDevice: (d) => deviceEntities(d).forEach((e) => live.quickAction(e)),   // #251
 });
 
 /** a device was just placed: it stays selected and can be moved at once; the next click on empty space deselects it and placing goes on */
@@ -1231,20 +834,6 @@ function holdPlaced() {
   if (tool !== 'device' || !settings.placeSelect) return;
   returnToTool = 'device'; setTool('select');
 }
-canvas.addEventListener('pointerleave', () => { if (tool === 'opening') { openingPreview = null; clearGroup(temp); } });
-
-canvas.addEventListener('dblclick', (e) => {
-  if (isLive()) return;
-  if (tool === 'wall') { endDrawing(); return; }
-  if (tool === 'room') { finishRoom(); return; }
-  if (tool === 'select') {
-    const h = pick(e);
-    if (h?.kind !== 'device') return;
-    const d = floor().devices.find((v) => v.id === h.id);
-    deviceEntities(d).forEach(quickAction);
-  }
-});
-
 function editNano(d) {
   openNanoEditor({ panels: d.panels, t, onSave: (panels) => { snapshot(); d.panels = panels; changed(); renderProps(); } });
 }
@@ -1260,109 +849,24 @@ function baseDims(type) {
   }
   return dimsCache.get(type);
 }
-/** the layout object behind a selection handle (wall, room, opening, device, stair, block) */
-function itemOf(kind, id) {
-  const f = floor();
-  if (!f) return null;
-  if (kind === 'opening') return findOpening(id)?.opening || null;
-  const list = { wall: f.walls, room: f.rooms, device: f.devices, stair: f.stairs, block: f.blocks, hole: f.holes }[kind] || [];
-  return list.find((q) => q.id === id) || null;
-}
-function deleteItem({ kind, id }, batch = false) {      // batch: several in a row (#211), the caller rebuilds once
-  if (kind === 'cable') {
-    if (power.deleteCable(id)) { if (selection?.id === id) selection = null; changed(); }
-    return;
-  }
-  if (itemOf(kind, id)?.locked) { setStatus(t('prop.lockedHint')); return; }
-  const f = floor();
-  if (kind === 'wall') f.walls = f.walls.filter((x) => x.id !== id);
-  if (kind === 'room') f.rooms = f.rooms.filter((x) => x.id !== id);
-  if (kind === 'device') { f.devices = f.devices.filter((x) => x.id !== id); power.dropCablesTo(id); }
-  if (kind === 'block') f.blocks = (f.blocks || []).filter((x) => x.id !== id);
-  if (kind === 'hole') f.holes = (f.holes || []).filter((x) => x.id !== id);
-  if (kind === 'stair') f.stairs = (f.stairs || []).filter((x) => x.id !== id);
-  if (kind === 'opening') {
-    const found = findOpening(id);
-    if (found) found.wall.openings = found.wall.openings.filter((x) => x.id !== id);
-  }
-  if (selection?.id === id) selection = null;
-  if (!batch) changed();
-}
-
-/** Arrow keys: move the selected item by (dx, dz) metres. Openings slide along their wall (left/up = towards a, right/down = towards b). */
-function nudgeSelection(dx, dz) {
-  if (!dx && !dz) return;
-  const f = floor(), sel = selection;
-  if (sel.kind === 'opening') {
-    const found = findOpening(sel.id);
-    if (!found || found.opening.locked) return;
-    const o = found.opening;
-    const p = clampOpeningPos(found.wall, o.width, o.pos + (dx || dz));
-    if (p === null || p === o.pos || openingOverlaps(found.wall, p, o.width, o.id)) return;
-    snapshot(); o.pos = +p.toFixed(4); changed(); return;
-  }
-  if (itemOf(sel.kind, sel.id)?.locked) return;
-  if (sel.kind === 'device') {
-    const d = f.devices.find((v) => v.id === sel.id);
-    if (d) { snapshot(); moveDeviceTo(d, d.x + dx, d.z + dz); changed(); }
-    return;
-  }
-  const shift = (q) => { q[0] = +(q[0] + dx).toFixed(4); q[1] = +(q[1] + dz).toFixed(4); };
-  if (sel.kind === 'stair') {
-    const st = (f.stairs || []).find((v) => v.id === sel.id);
-    if (st) { snapshot(); st.x = +(st.x + dx).toFixed(4); st.z = +(st.z + dz).toFixed(4); changed(); }
-    return;
-  }
-  let pts = null;
-  if (sel.kind === 'wall') {
-    const w = f.walls.find((v) => v.id === sel.id);
-    if (w) {
-      // like dragging in the 2D editor: walls joined at the corners stretch along
-      const all = [...f.walls.flatMap((v) => [v.a, v.b]), ...f.rooms.flatMap((r) => r.points), ...(f.blocks || []).flatMap((r) => r.points)];
-      const near = (p) => all.filter((q) => Math.abs(q[0] - p[0]) < 0.02 && Math.abs(q[1] - p[1]) < 0.02);
-      pts = [...new Set([...near(w.a), ...near(w.b)])];
-    }
-  } else {
-    const list = sel.kind === 'room' ? f.rooms : sel.kind === 'block' ? f.blocks : sel.kind === 'hole' ? f.holes : null;
-    pts = list?.find((v) => v.id === sel.id)?.points || null;
-  }
-  if (pts?.length) { snapshot(); pts.forEach(shift); changed(); }
-}
-
-window.addEventListener('keydown', (e) => {
-  if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && e.key !== 'Escape') return;
-  const k = e.key.toLowerCase();
-  if (k === 'enter' && plan?.hasDraft() && (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole' || tool === 'stairs')) { plan.finishRoom(); return; }
-  if (k === 'escape') { plan?.cancel(); endDrawing(); popup.close(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); if (multiSel.items().length) { multiSel.clear(); selection = null; refreshSelection(); } return; }
-  if (isLive()) return;
-  if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); undo(); }
-  else if (k === 'delete' || k === 'backspace') { if (multiSel.items().length) multiSel.deleteAll(); else if (selection) { snapshot(); deleteItem(selection); } }
-  else if ((k === 'q' || k === 'e') && selection?.kind === 'stair') {
-    const st = floor().stairs.find((v) => v.id === selection.id);
-    if (st) { snapshot(); st.rot = ((st.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
-  } else if ((k === 'q' || k === 'e') && selection?.kind === 'device') {
-    const d = floor().devices.find((v) => v.id === selection.id);
-    if (d) { snapshot(); d.rot = ((d.rot || 0) + (k === 'q' ? -15 : 15) + 360) % 360; changed(); }
-  } else if ((k === 'arrowup' || k === 'arrowdown') && !selection && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {   // nothing selected: up / down change the floor
-    const i = floorIdx + (k === 'arrowup' ? 1 : -1);
-    if (i >= 0 && i < layout.floors.length) { e.preventDefault(); switchFloor(i); }
-  } else if (k.startsWith('arrow') && selection && !e.ctrlKey && !e.metaKey) {
-    e.preventDefault();
-    const step = e.altKey ? 0.01 : e.shiftKey ? 0.1 : settings.grid;       // Alt 1 cm, Shift 10 cm, otherwise one grid step
-    nudgeSelection(k === 'arrowleft' ? -step : k === 'arrowright' ? step : 0, k === 'arrowup' ? -step : k === 'arrowdown' ? step : 0);
-  } else if (k === 'v') setTool('select');
-  else if (k === 'w') setTool('wall');
-  else if (k === 'b') setTool('block');
-  else if (k === 't') setTool('stairs');
-  else if (k === 'r') setTool('room');
-  else if (k === 'o') setTool('opening');
-  else if (k === 'd') setTool('device');
+/* ---- Delete, arrow keys, Q / E and the shortcut keys; the code lives in edititems.js ---- */
+const editItems = initEditItems({
+  t, floor: () => floor(), floorIdx: () => floorIdx, floors: () => layout.floors.length, settings: () => settings,
+  selection: () => selection, setSelection: (s) => { selection = s; }, isLive: () => isLive(), tool: () => tool,
+  snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), undo: () => undo(), moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z),
+  power: { deleteCable: (id) => power.deleteCable(id), dropCablesTo: (id) => power.dropCablesTo(id) }, multi: { items: () => multiSel.items(), deleteAll: () => multiSel.deleteAll() },
+  switchFloor: (i) => switchFloor(i), setTool: (x) => setTool(x),
+  finishDraft: () => { if (!plan?.hasDraft()) return false; plan.finishRoom(); return true; },
+  escape: () => { plan?.cancel(); endDrawing(); popup.close(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); if (multiSel.items().length) { multiSel.clear(); selection = null; refreshSelection(); } },
 });
+/** the plan object behind a selection handle (wall, room, opening, device, stair, block) */
+function itemOf(kind, id) { return editItems.itemOf(kind, id); }
+function deleteItem(sel, batch = false) { editItems.deleteItem(sel, batch); }      // batch: several in a row (#211), the caller rebuilds once
 
 /* ================= Live control: the code lives in livecontrols.js (switching, light controls, scenes), livepopup.js and roompanel.js ================= */
 const live = initLiveControls({
   t, states: () => states, entities: () => entities, areas: () => areas, floor: () => floor(), entityDevices: (f) => entityDevices(f), pointInPoly,
-  onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveOk) setTimeout(pollStates, 400); },   // with the live channel the new state arrives by itself
+  onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveChan.ok()) setTimeout(liveChan.poll, 400); },   // with the live channel the new state arrives by itself
   canEdit: () => me.canEdit, settings: () => settings, saveEffectColors: () => saveEffectColors(), canMoreInfo, openMoreInfo,
 });
 const popup = initLivePopup({
@@ -1463,6 +967,7 @@ function setMode(next) {
   } else setTool(tool);
   refreshSelection();
   if (isLive()) tapBalls.remeasure();                                 // devices may have been moved while editing
+  stairTool.showUpper(scene, !isLive());                              // stairs over several floors: whole height only in the editor (#246)
   if (plotLoop) plotLoop.visible = !isLive();
   applyViewPolicy();
   applyStates();
@@ -1516,6 +1021,7 @@ function updateNavToggles() {
   $('#wallToggle').classList.toggle('active', !lowWalls);
   $('#autoToggle').classList.toggle('active', !!settings.cutaway);
   $('#seeToggle').classList.toggle('active', !!settings.seeThrough);
+  $('#belowLabelsToggle').classList.toggle('active', settings.belowLabels !== false);
 }
 function setLowWalls(v) {
   lowWalls = v;
@@ -1639,6 +1145,10 @@ $('#seeToggle').addEventListener('click', () => {
   $('#setSeeThrough').checked = !settings.seeThrough;
   commitSettings();
 });
+$('#belowLabelsToggle').addEventListener('click', () => {                 // names and labels of the floors below (#249)
+  $('#setBelowLabels').checked = settings.belowLabels === false;
+  commitSettings();
+});
 
 /* ================= Palettes: devices, custom models; the code lives in palettes.js ================= */
 const palettes = initPalettes({ $, t, getType: () => deviceType, setType: (k) => { deviceType = k; }, alert: (x) => alert(x) });
@@ -1650,7 +1160,7 @@ const blocks = initBlocks({
 });
 const stairTool = initStairTool({
   $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH: FLOOR_H, snapshot: () => snapshot(), changed: (...a) => changed(...a),
-  select: (sel) => { selection = sel; }, setTool: (x) => setTool(x), plan: () => plan, uid: () => uid(), mat: (...a) => mat(...a),
+  select: (sel) => { selection = sel; }, setTool: (x) => setTool(x), plan: () => plan, uid: () => uid(), mat: (...a) => mat(...a), isLive: () => isLive(),
   ui: { field: (...a) => field(...a), inp: (...a) => inp(...a), lenInput: (...a) => lenInput(...a) },
 });
 
@@ -1772,52 +1282,12 @@ async function loadAreas() {
 
 function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 
-/* ---- Live channel: the add-on pushes every state change the moment Home Assistant reports it (a wall switch, an
-   automation, a sensor). While it is up, the full list is only fetched once a minute to stay in step; while it is
-   down (Home Assistant restarting, no websocket through a proxy) the view polls every 4 seconds as before. ---- */
-let liveOk = false, liveRetry = 1000, lastFull = 0, liveRaf = 0;
-function connectLive() {
-  if (window.__fpNoLive) return;                         // the single-file demo has no server to talk to
-  let ws;
-  try { const u = new URL('api/live', location.href); u.protocol = u.protocol === 'https:' ? 'wss:' : 'ws:'; ws = new WebSocket(u); } catch { return; }
-  ws.onopen = () => { liveRetry = 1000; };
-  ws.onmessage = (m) => {
-    let d;
-    try { d = JSON.parse(m.data); } catch { return; }
-    if (d.type === 'upstream') { const was = liveOk; liveOk = !!d.ok; if (liveOk && !was) pollStates(); }   // catch up on what changed before the channel was up
-    else if (d.type === 'states') applyLive(d);
-  };
-  ws.onclose = () => { liveOk = false; setTimeout(connectLive, liveRetry); liveRetry = Math.min(30000, liveRetry * 2); };
-}
-function applyLive({ list = [], removed = [] }) {
-  if (!entities.length) return;                         // the first full list is still on its way and brings these too
-  list.forEach((e) => {
-    states[e.entity_id] = toState(e);
-    const i = entities.findIndex((x) => x.entity_id === e.entity_id);
-    if (i >= 0) entities[i] = e; else entities.push(e);
-  });
-  removed.forEach((id) => { delete states[id]; entities = entities.filter((x) => x.entity_id !== id); });
-  wake();
-  if (!liveRaf) liveRaf = requestAnimationFrame(() => { liveRaf = 0; applyStates(); renderRoomEntities(); renderEntState(); });
-}
-
-async function pollStates() {
-  try {
-    const r = await fetch('api/entities');
-    if (!r.ok) return;
-    const list = await r.json();
-    if (!Array.isArray(list)) return;
-    const firstLoad = !entities.length;
-    const sig = JSON.stringify(list.map((e) => [e.entity_id, e.state, e.brightness, e.rgb, e.fxc, e.position]));
-    if (sig !== lastStateSig) { lastStateSig = sig; wake(); }
-    entities = list.sort((a, b) => a.name.localeCompare(b.name));
-    states = Object.fromEntries(list.map((e) => [e.entity_id, toState(e)]));
-    lastFull = Date.now();
-    if (firstLoad) { await loadAreas(); fillEntities(); renderProps(); }
-    applyStates();
-    renderRoomEntities(); renderEntState();
-  } catch { /* offline: ignore */ }
-}
+/* ---- Live channel: pushed state changes, polling while it is down; the code lives in livechannel.js ---- */
+const liveChan = initLiveChannel({
+  entities: () => entities, setEntities: (x) => { entities = x; }, states: () => states, setStates: (x) => { states = x; }, toState: (e) => toState(e),
+  wake: () => wake(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); },
+  firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
+});
 
 /** the add-on's "Erdgeschoss" of a new house in the user's language; every list of the plan in place (layoutnorm.js) */
 function localizeDefaults() { localizeDefaultsOf(layout, t('floor.default')); }
@@ -1829,14 +1299,14 @@ plan = createPlan({
   getTool: () => tool, getOpeningType: () => openingType, isLive: () => isLive(), isLocked: () => lockedSel,
   getSelection: () => selection,
   holdPlaced,
-  setSelection: (h) => { multiSel.clear(); selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); }, toggleMulti: (h) => multiSel.toggle(h), multiItems: () => multiSel.items(),
+  setSelection: (h) => { multiSel.clear(); selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); }, toggleMulti: (h) => multiSel.toggle(h), addMulti: (items) => multiSel.addAll(items), multiItems: () => multiSel.items(),
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate: (a, b) => bgUi.calibrate(a, b),
   bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, neighborOutlines: () => neighbors.outlines(elev(floorIdx)), ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: blocks.setPlot, placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
  
   liveMoveDevice: (d) => liveMove(d),
   liveTap: (h) => liveSelect(h),
-  deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach(quickAction),
+  deviceDoubleClick: (id) => deviceEntities(floor().devices.find((v) => v.id === id)).forEach((e) => live.quickAction(e)),   // #251: lives in livecontrols.js
   allDevices: () => layout.floors.flatMap((f, fi) => f.devices.map((d) => ({ d, fi }))), floorIndex: () => floorIdx, floorName: (i) => layout.floors[i]?.name || '',
   powerMode: () => power.isMode(), showCables: () => power.cablesShown(), isPowerType: (type) => power.isType(type), cablesOf: (d) => power.cablesOf(d), cableColor: (d, c) => power.cableColor(d, c), cableClick: (id) => power.cableClick(id),
   newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, OPENING_DEFAULTS, uid, pointInPoly,
@@ -1854,6 +1324,7 @@ async function init() {
   if (!me.canEdit) document.body.classList.add('readonly');
   if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
   if (!(await loadSettings())) setStatus(t('set.notLoaded'));
+  settingsStore.usePreset(me.preset);                     // this user's / tablet's own start values for the look (#250)
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
   await hs.load();
@@ -1870,9 +1341,7 @@ async function init() {
     if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); roomPanel.open(hit.room.id); }
     updateHouseToggle();
   }
-  pollStates();
-  connectLive();
-  setInterval(() => { if (!liveOk || Date.now() - lastFull > 60000) pollStates(); }, 4000);
+  liveChan.start();                                         // first full list, the live channel, polling while it is down
 }
 
 var lastActive = performance.now(), lastFrame = 0;
@@ -1942,7 +1411,7 @@ if (params.get('debug')) {
     rebuild: () => build(), applyStates: () => applyStates(),
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
-    liveOk: () => liveOk,
+    liveOk: () => liveChan.ok(),
     underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },
     bounds: () => floorBounds(), roofBox: (i) => roofBox(i),
     switchFloor: (i) => switchFloor(i),
@@ -1953,7 +1422,9 @@ if (params.get('debug')) {
     stateOf: (e) => states[e]?.state,
     fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),
+    upper: (id) => { const u = registry.get(id)?.userData.upper; return u ? u.visible : null; },   // the storeys of a stair above the open floor (#246)
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
+    badgePill: (id) => !!labelSprites.get(id)?.userData.pill,
     selection: () => selection,
     multi: () => multiSel.items(),
     ballScreen: (id) => {                                            // the tap ball of a device on the screen, null while it does not show (#238)
@@ -1988,7 +1459,7 @@ if (params.get('debug')) {
       v.project(camera); const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    rayHits(x, y) { setRay({ clientX: x, clientY: y }); return ray.intersectObjects(pickables, true).map((h) => { let o = h.object; while (o && !o.userData.kind) o = o.parent; return `${o?.userData.kind}:${o?.userData.id}@${h.distance.toFixed(2)}${h.object.userData.proxy ? 'P' : ''}`; }); },
+    rayHits(x, y) { setRay({ clientX: x, clientY: y }); return picking.ray.intersectObjects(pickables, true).map((h) => { let o = h.object; while (o && !o.userData.kind) o = o.parent; return `${o?.userData.kind}:${o?.userData.id}@${h.distance.toFixed(2)}${h.object.userData.proxy ? 'P' : ''}`; }); },
     openingCenter(id) {                 // screen position of the middle of a door/window (not its base)
       const o = registry.get(id); if (!o) return null;
       const fo = findOpening(id); const v = o.getWorldPosition(new THREE.Vector3()); v.y += fo.opening.sill + fo.opening.height / 2;
