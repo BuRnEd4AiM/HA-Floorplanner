@@ -24,6 +24,7 @@ import { initStairTool } from './stairtool.js';
 import { initLiveControls } from './livecontrols.js';
 import { initLivePopup } from './livepopup.js';
 import { initRoomPanel, roomOpenings, roomOpeningSpans } from './roompanel.js';
+import { initSheetView, roomViewDist } from './sheetview.js';
 import { initPropFields } from './propfields.js';
 import { initEntityPicker } from './entitypicker.js';
 import { initObjList } from './objlist.js';
@@ -182,6 +183,7 @@ function clearGroup(g) {
 const temp = new THREE.Group();
 scene.add(world, temp);
 let selHelper = null;
+let sheetView = null;               // phones: shifts the picture above the room sheet (set up with the room panel)
 
 function resize() {
   const r = canvas.getBoundingClientRect();
@@ -189,6 +191,7 @@ function resize() {
   renderer.setSize(r.width, r.height, false);
   camera.aspect = r.width / r.height;
   camera.updateProjectionMatrix();
+  sheetView?.apply();                  // the phone's room sheet: keep the picture shifted to the new size
 }
 new ResizeObserver(resize).observe(canvas);
 
@@ -871,6 +874,8 @@ const roomPanel = initRoomPanel({
   openings: { entities: (o) => openingEntities(o), kind: (o) => openKind(o), KINDS: OPEN_KINDS, pane: (o, i) => paneEntity(o, i), isOpen: (e) => isOpen(e), text: (e) => openText(e) },
   closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
 });
+/* ---- Phones: the room shows above the room sheet, not behind it; the code lives in sheetview.js ---- */
+sheetView = initSheetView({ camera, canvas, panel: $('#roomPanel') });
 function handleLiveTap(e) { liveSelect(pick(e)); }
 function liveSelect(h) {
   if (h?.kind === 'device' || h?.kind === 'opening') popup.show(h.id, h.seg ?? null);
@@ -1080,7 +1085,7 @@ function focusRoom(id) {
     const size = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs), 2.5);
     const dir = camera.position.clone().sub(controls.target).normalize();
     controls.target.set(cx, elev(), cz);
-    camera.position.copy(controls.target).addScaledVector(dir, size * 2.4 + 3);
+    camera.position.copy(controls.target).addScaledVector(dir, roomViewDist(size, camera.aspect));   // phones: further back (sheetview.js)
     controls.update();
   } else fitCamera();
   buildNav();

@@ -67,7 +67,7 @@ main { flex: 1; display: flex; min-height: 0; }
 #floorRail .floorThumb span { position: absolute; left: 4px; right: 4px; bottom: 5px; font-size: 12px; font-weight: 600; line-height: 1.2;
   text-shadow: 0 1px 3px #000, 0 0 6px #000; }
 #floorRail button.active { border-color: var(--accent); box-shadow: 0 0 14px var(--accent); }
-@media (min-width: 761px) {                     /* wide screens: thumbnails at the side instead of the floor pills */
+@media (min-width: 761px) and (min-height: 521px) {   /* wide screens: thumbnails at the side instead of the floor pills (phones held sideways keep the pills, the rail would not fit) */
   body:not(.roomtablet) #floorRail { display: flex; }
   body:not(.roomtablet) #floorPills { display: none; }
 }
@@ -413,7 +413,7 @@ body.v-2d #compass { display: none; }
 #viewLegend i { display: block; width: 14px; height: 100%; border-radius: 7px; }
 #viewLegend .lgv { position: relative; width: 70px; }
 #viewLegend .lgv span { position: absolute; left: 0; transform: translateY(50%); white-space: nowrap; }
-@media (min-width: 761px) { body:not(.roomtablet) #viewLegend { left: 156px; } }   /* beside the floor rail */
+@media (min-width: 761px) and (min-height: 521px) { body:not(.roomtablet) #viewLegend { left: 156px; } }   /* beside the floor rail */
 
 /* room panel: slide switches, camera pictures, bottom sheet on phones and portrait tablets (#67) */
 .sw { position: relative; display: inline-block; width: 44px; height: 26px; flex: none; }
