@@ -44,7 +44,7 @@ export function occupied(room, f, isOn, pointInPoly) {
 }
 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), focusedRoom(), settings(), tabletRoom(), isOn(entity), pointInPoly, switchFloor(i),
- *  setHouseMode(on), focusRoom(id), roomPanel, toggleMenu(menu, btn, open), floorRail(), renderPlanFloorsChip() */
+ *  setHouseMode(on), focusRoom(id), roomPanel, toggleMenu(menu, btn, open), floorRail(), renderPlanFloorsChip(), phoneNav() (phones, phonenav.js) */
 export function initNav(ctx) {
   const { $, t } = ctx;
   let navKey = '';
@@ -90,6 +90,7 @@ export function initNav(ctx) {
     menu.replaceChildren(...items);
     $('#navSep').hidden = !entries.length;
     ctx.floorRail().build();
+    ctx.phoneNav?.()?.build();
     ctx.renderPlanFloorsChip();
     updateHouseToggle();
   }

@@ -188,7 +188,7 @@ export default {
   'set.belowMode.dim': 'Gedimd',
   'set.belowMode.stacked': 'Gestapeld (goed zichtbaar)',
   'set.belowMode.hidden': 'Verborgen',
-  'nav.rooms': 'Kamers',
+  'nav.rooms': 'Kamers', 'nav.floors': 'Verdiepingen',
   'nav.roomsTip': 'Kies een kamer',
   'cam.openHa': 'Openen in Home Assistant',
   'cam.haOnly': 'Dit werkt alleen als het paneel in Home Assistant draait (niet in het demobestand).',

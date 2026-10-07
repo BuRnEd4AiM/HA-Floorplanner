@@ -188,7 +188,7 @@ export default {
   'set.belowMode.dim': 'Przyciemnione',
   'set.belowMode.stacked': 'Ułożone (dobrze widoczne)',
   'set.belowMode.hidden': 'Ukryte',
-  'nav.rooms': 'Pokoje',
+  'nav.rooms': 'Pokoje', 'nav.floors': 'Piętra',
   'nav.roomsTip': 'Wybierz pokój',
   'cam.openHa': 'Otwórz w Home Assistant',
   'cam.haOnly': 'To działa tylko wtedy, gdy panel działa wewnątrz Home Assistant (nie w pliku demo).',

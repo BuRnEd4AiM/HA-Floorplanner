@@ -188,7 +188,7 @@ export default {
   'set.belowMode.dim': 'Atténués',
   'set.belowMode.stacked': 'Empilés (bien visibles)',
   'set.belowMode.hidden': 'Masqués',
-  'nav.rooms': 'Pièces',
+  'nav.rooms': 'Pièces', 'nav.floors': 'Étages',
   'nav.roomsTip': 'Choisir une pièce',
   'cam.openHa': 'Ouvrir dans Home Assistant',
   'cam.haOnly': 'Cela ne fonctionne que lorsque le panneau tourne dans Home Assistant (pas dans le fichier de démo).',

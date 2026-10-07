@@ -4,9 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
-## [3.56.2] - 2026-10-07
+## [3.57.0] - 2026-10-08
+### Added
+- **Phones: floors and rooms in one drop-down (#281)**: instead of the row of floor pills that had to be scrolled sideways, phones show one button at the top with the floor (and the chosen room), e.g. "Obergeschoss · Kinderzimmer ▾". It opens a list with the floors and the whole house, below them the rooms of the floor shown (in the whole-house view the rooms of every floor). A floor keeps the list open so a room can be picked next; a room closes it and opens the room. Desktop, tablets and room tablets are unchanged. New module `phonenav.js` with unit tests; texts in 7 languages.
+
 ### Fixed
-- **Browser tests (CI)**: the tests sometimes acted before the page had loaded its house (fixed waits that were too short on a slow GitHub runner), so the check stayed red now and then although nothing was broken. The page now reports when it is ready (`ready()` in the test hook, only with `?debug=1`) and every test page waits for it after loading.
+- **Browser tests (CI)**: the tests sometimes acted before the page had loaded its house (fixed waits that were too short on a slow GitHub runner), so the check stayed red now and then although nothing was broken (#280). The page now reports when it is ready (`ready()` in the test hook, only with `?debug=1`) and every test page waits for it after loading.
 
 ## [3.56.1] - 2026-10-07
 ### Fixed

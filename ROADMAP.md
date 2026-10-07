@@ -25,7 +25,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ⬜ Sun light and shadows through the windows by the position of the sun ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68))
 - ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138))
 
-## Done in 3.26 – 3.56
+## Done in 3.26 – 3.57
 
 - ✅ Exploded view lifts every floor, also the ground floor over the basement (3.26.1) ([#146](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/146))
 - ✅ Version dialog over plain `http`: no more "check not possible here" (3.27.0) ([#144](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/144))
@@ -53,7 +53,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ✅ Attic with knee wall, walls cut under the slopes, dormers, roof starting on any floor, ridge height (3.52.0 – 3.53.0) ([#260](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/260), [#265](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/265))
 - ✅ Dormer windows are real windows, also in the wall of the room under the dormer (3.54.0 – 3.56.0) ([#269](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/269), [#275](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/275))
 - ✅ See-through roof over a chosen room or floor (3.55.0 – 3.56.0) ([#273](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/273))
-- ✅ Phones: room sheet, tool bar as a ☰ menu, no iPhone zoom on the search (3.54.0 – 3.56.1) ([#267](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/267), [#271](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/271), [#277](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/277))
+- ✅ Phones: room sheet, tool bar as a ☰ menu, floors and rooms in one drop-down, no iPhone zoom on the search (3.54.0 – 3.57.0) ([#281](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/281)) ([#267](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/267), [#271](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/271), [#277](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/277))
 - ✅ Demo runs directly on GitHub Pages, always updated automatically (3.54.0) ([#133](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/133))
 - ✅ `app.js` split into smaller modules (about 5,100 → 1,500 lines, see [docs/MODULE-PLAN.md](docs/MODULE-PLAN.md)); new features go into their own module ([#137](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/137))
 
