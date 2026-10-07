@@ -43,6 +43,16 @@ export function initProps(ctx) {
   const roomEntsBox = (body) => { const ents = document.createElement('div'); ents.id = 'roomEnts'; ents.className = 'roomEnts'; body.append(ents); ctx.renderRoomEntities(); };
   const pickFrom = (list) => list.slice(0, 1500);
 
+  /** a roof on the open roof floor (#255): where it is, and how to move it; its shape stays in the floor panel */
+  function roofCard(body, box, r) {
+    if (!r) { box.hidden = true; return; }
+    box.hidden = false;
+    $('#propsTitle').textContent = r.name || t('prop.roof');
+    const b = r.box, p = document.createElement('p'); p.id = 'roofWhere';
+    p.textContent = t('roof.where', { x: ctx.fmtLen(b.x0), z: ctx.fmtLen(b.z0), w: ctx.fmtLen(b.x1 - b.x0), d: ctx.fmtLen(b.z1 - b.z0) });
+    const hint = document.createElement('p'); hint.className = 'sub'; hint.textContent = t('roof.moveHint');
+    body.append(p, hint);
+  }
   function render() {
     ctx.renderObjList();
     const box = $('#props'), body = $('#propsBody');
@@ -51,6 +61,7 @@ export function initProps(ctx) {
     if (!selection || ctx.isLive()) { ctx.setRoomCtx(null); box.hidden = true; return; }
     const f = ctx.floor();
     if (selection.kind === 'cable') { ctx.power().cableProps(body, box); return; }
+    if (selection.kind === 'roof') { roofCard(body, box, ctx.roofInfo?.(selection.id)); return; }
     let it = null;
     if (selection.kind === 'wall') it = f.walls.find((x) => x.id === selection.id);
     else if (selection.kind === 'room') it = f.rooms.find((x) => x.id === selection.id);

@@ -137,11 +137,11 @@ export function initRoofs(ctx) {
     if (f?.kind !== 'roof') return out;
     const bb = roofBoxOf(ctx.layout().floors, i);
     if (bb) out.push({ bb, spec: f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }), y0: 0, tag: 'main' });
-    (f.roof?.parts || []).forEach((p) => {                                  // further roofs: an annex with its own roof, on the floor it stands on
+    (f.roof?.parts || []).forEach((p, pi) => {                              // further roofs: an annex with its own roof, on the floor it stands on
       const pb = partBox(p);
       if (!pb) return;
       const lv = ctx.layout().floors.findIndex((x) => x.id === p.level);
-      out.push({ bb: pb, spec: p, y0: lv >= 0 && ctx.layout().floors[lv].kind !== 'roof' ? ctx.elev(lv + 1) - ctx.elev(i) : 0, tag: p.id || 'part' });
+      out.push({ bb: pb, spec: p, y0: lv >= 0 && ctx.layout().floors[lv].kind !== 'roof' ? ctx.elev(lv + 1) - ctx.elev(i) : 0, tag: p.id || `part${pi}` });   // the same id as roofmove.js uses
     });
     return out;
   }

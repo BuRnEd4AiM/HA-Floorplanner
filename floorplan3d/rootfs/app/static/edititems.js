@@ -58,7 +58,7 @@ export function keyCommand(k, mods, s) {
 
 /** ctx: t, floor(), floorIdx(), floors() (how many), settings(), selection(), setSelection(sel), isLive(), tool(), snapshot(), changed(),
  *  setStatus(txt), undo(), moveDeviceTo(d, x, z), power ({ deleteCable(id), dropCablesTo(id) }), multi ({ items(), deleteAll() }),
- *  switchFloor(i), setTool(name), escape() (stop drawing, close popups ...), finishDraft() (true when Enter closed an outline) */
+ *  switchFloor(i), setTool(name), moveRoof(id, dx, dz) (#255), escape() (stop drawing, close popups ...), finishDraft() (true when Enter closed an outline) */
 export function initEditItems(ctx) {
   /** delete one thing; batch: several in a row (#211), the caller rebuilds once */
   function deleteItem({ kind, id }, batch = false) {
@@ -84,6 +84,11 @@ export function initEditItems(ctx) {
       const p = clampOpeningPos(found.wall, o.width, o.pos + (dx || dz));
       if (p === null || p === o.pos || openingOverlaps(found.wall, p, o.width, o.id)) return;
       ctx.snapshot(); o.pos = +p.toFixed(4); ctx.changed(); return;
+    }
+    if (sel.kind === 'roof') {                      // a roof (#255) moves as a whole
+      ctx.snapshot();
+      if (ctx.moveRoof(sel.id, dx, dz)) ctx.changed();
+      return;
     }
     const item = itemIn(f, sel.kind, sel.id);
     if (item?.locked) return;
