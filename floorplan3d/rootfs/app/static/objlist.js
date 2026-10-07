@@ -2,6 +2,7 @@
  * what is in no room, walls, stairs, blocks and floor openings. Things that are hard to hit in 3D can be selected (and locked) from here.
  * The grouping is a pure function (tested); initObjList draws the list. */
 import { wallLength } from './walls.js';
+import { openingWalls } from './dormerwin.js';
 import { roomOpenings } from './roompanel.js';
 
 /** [[key, items, title?]] with items { kind, id, label }; every object appears once (in the first room that claims it).
@@ -18,7 +19,7 @@ export function objectGroups(f, env) {
       ...take(roomOpenings(r, f).map(opItem)), ...take(f.devices.filter((d) => env.pointInPoly(d.x, d.z, r.points)).map(devItem))];
     groups.push([`room:${r.id}`, items, r.name || t('prop.room')]);
   });
-  const restOps = take(f.walls.flatMap((w) => (w.openings || []).map(opItem)));
+  const restOps = take(openingWalls(f).flatMap((w) => (w.openings || []).map(opItem)));
   const restDevs = take(f.devices.map(devItem));
   if (restOps.length || restDevs.length) groups.push(['obj.noRoom', [...restOps, ...restDevs], t('obj.noRoom')]);
   groups.push(

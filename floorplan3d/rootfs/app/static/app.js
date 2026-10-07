@@ -50,6 +50,7 @@ import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
+import { syncDormerWindows, openingWalls } from './dormerwin.js';
 import { initPlanRotate } from './planview.js';
 import { initMultiSelect } from './multisel.js';
 import { initNeighbors } from './neighbor.js';
@@ -326,6 +327,7 @@ function build() {
   plan?.render();
   clearGroup(world);
   registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
+  syncDormerWindows(layout.floors, roofList, elev, uid);   // dormer windows are real windows on the floor they belong to (dormerwin.js)
   const holo = isHolo();
   const iso = isolatedRoom();
   if (houseMode && settings.earth === 'off') {    // ground reference for the plot (with earth the lawn is the ground)
@@ -670,7 +672,7 @@ function refreshSelection() {
   // keep the selection even when the object is not drawn (e.g. hidden by a focused room or off screen), so it can still be found, moved to view or deleted
   if (selection && !registry.get(selection.id)) {
     const f = floor();
-    const exists = (selection.kind === 'cable' && power.findCable(selection.id)) || f && [f.walls, f.rooms, f.devices, f.blocks, f.stairs, f.holes].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
+    const exists = (selection.kind === 'cable' && power.findCable(selection.id)) || f && [openingWalls(f), f.rooms, f.devices, f.blocks, f.stairs, f.holes].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
     if (!exists) selection = null;
   }
   if (!selection) lockedSel = false;
@@ -773,7 +775,7 @@ function pick(e) { return picking.pick(e); }
 function snap(p, fine = false) { return snapPoint(p, floor().walls, fine ? 0.05 : settings.grid); }
 const findWall = (id) => floor().walls.find((w) => w.id === id);
 const findOpening = (id) => {
-  for (const w of floor().walls) {
+  for (const w of openingWalls(floor())) {
     const o = (w.openings || []).find((x) => x.id === id);
     if (o) return { wall: w, opening: o };
   }

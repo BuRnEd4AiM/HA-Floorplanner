@@ -369,6 +369,7 @@ export default {
   'dormer.gable': 'A due falde',
   'dormer.flat': 'Piano',
   'dormer.window': 'Finestra',
+  'dormer.winHint': 'Finestra di un abbaino: dimensioni e posizione si impostano sull’abbaino (piano del tetto).',
   'dormer.remove': 'Rimuovi abbaino',
   'dormer.add': '+ Abbaino',
   'dormer.noFit': 'Non entra sul tetto (troppo grande o troppo vicino al colmo).',

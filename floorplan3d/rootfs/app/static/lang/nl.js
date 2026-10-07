@@ -369,6 +369,7 @@ export default {
   'dormer.gable': 'Zadeldak',
   'dormer.flat': 'Plat',
   'dormer.window': 'Raam',
+  'dormer.winHint': 'Raam van een dakkapel: grootte en plaats stel je in bij de dakkapel (dakverdieping).',
   'dormer.remove': 'Dakkapel verwijderen',
   'dormer.add': '+ Dakkapel',
   'dormer.noFit': 'Past niet op het dak (te groot of te dicht bij de nok).',

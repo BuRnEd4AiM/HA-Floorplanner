@@ -1,6 +1,7 @@
 /* Offline devices: every placed entity that Home Assistant reports as unavailable (or unknown), or that does not exist any more (renamed / deleted),
  * in one list that is always one tap away. The decisions are pure functions (tested); the pill and the dialog are drawn by initOffline. */
 import { ringEntities } from './ledring.js';
+import { openingWalls } from './dormerwin.js';
 
 const SMART_CATS = new Set(['lighting', 'smart']);   // devices that belong to an entity (furniture, garden and pictures do not)
 const NOT_SMART = new Set(['tv_led', 'radiator', 'boiler']);   // a radiator or a hot-water tank is often just drawn, without an entity
@@ -43,7 +44,7 @@ export function offlineDevices(env) {
       add(d.ledEntity, fi, 'device', d.id, name, d.x, d.z, f);
       if (d.type === 'ledring') ringEntities(d).forEach((e) => add(e, fi, 'device', d.id, name, d.x, d.z, f));
     });
-    f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+    openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
       add(o.entity, fi, 'opening', o.id, o.name || t(`prop.${o.type}`), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);
     }));
   });

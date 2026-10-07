@@ -3,6 +3,11 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [3.54.0] - 2026-10-07
+### Added
+- **Dormer windows are real windows**: the window in a dormer (Dachgaube) was only a blue pane. Now it is a window like the ones in the walls: tap it to give it a contact sensor (also one per pane) and a name, choose its style; it turns red and tilts open when the sensor reports open, and it shows in the list "n open", in the room panel of the room under the dormer, in the search and in the object list. So the old window of the room can be deleted and the dormer window used instead. Its size and place still come from the dormer (roof panel); deleting it switches the dormer's window off. With the roof on a knee wall it belongs to the storey under the slopes (e.g. the Studio), otherwise to the roof floor. New module `dormerwin.js` with tests; texts in 7 languages.
+
 ### Fixed
 - **Phones**: held sideways, the floor buttons now sit at the top as small pills (the floor pictures at the side did not fit and covered the compass). A tapped room is no longer hidden behind the room sheet at the bottom: the picture moves up into the free part and the camera stands further back on narrow screens (`sheetview.js`, with unit tests). In the live view on phones the tool bar is one row that scrolls sideways (it took four rows), the view buttons (Normal, Temp. …) are one row beside the compass with *View* first, and held sideways the buttons at the bottom no longer slip off the screen. Desktop and tablets are unchanged.
 

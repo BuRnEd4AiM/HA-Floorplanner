@@ -1,6 +1,7 @@
 /* Floor cards (whole-house view): a small card floats beside every floor (rooms, lights on, windows open); a tap opens that floor.
  * The numbers and the placement on the screen are pure functions (tested); initFloorCards creates the cards and moves them. */
 import * as THREE from './vendor/three.module.min.js';
+import { openingWalls } from './dormerwin.js';
 
 /** the floors that get a card: no roofs, nothing empty. Returns [{ f, i }] */
 export const cardFloors = (layout) => layout.floors.map((f, i) => ({ f, i })).filter(({ f }) => f.kind !== 'roof' && (f.walls.length || f.rooms.length));
@@ -15,7 +16,7 @@ export function floorBounds(f) {
 /** lights on and windows open on a floor. env: { states, onStates, isOpen(entity) } */
 export function floorCounts(f, env) {
   const lights = f.devices.filter((d) => /^light\./.test(d.entity || '') && env.onStates.has(env.states[d.entity]?.state)).length;
-  const windows = f.walls.reduce((a, w) => a + (w.openings || []).filter((o) => o.type === 'window' && env.isOpen(o.entity)).length, 0);
+  const windows = openingWalls(f).reduce((a, w) => a + (w.openings || []).filter((o) => o.type === 'window' && env.isOpen(o.entity)).length, 0);
   return { lights, windows };
 }
 

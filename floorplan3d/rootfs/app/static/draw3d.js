@@ -99,7 +99,7 @@ export function initDraw3d(ctx) {
         if (d && gp) { down.dev = { d, dx: d.x - gp[0], dz: d.z - gp[1], moved: false }; controls.enabled = false; }
       } else if (sel.kind === 'opening') {
         const f = ctx.findOpening(sel.id);
-        if (f) { down.op = { ...f, moved: false }; controls.enabled = false; }
+        if (f && !f.wall.dormer) { down.op = { ...f, moved: false }; controls.enabled = false; }
       }
       return;
     }
@@ -119,7 +119,7 @@ export function initDraw3d(ctx) {
       if (f) {
         const wasSelected = sel?.kind === 'opening' && sel.id === h.id;
         select(h);
-        if (wasSelected) { down.op = { ...f, moved: false }; controls.enabled = false; }   // first click only selects, so a stray click never drags it
+        if (wasSelected && !f.wall.dormer) { down.op = { ...f, moved: false }; controls.enabled = false; }   // first click only selects, so a stray click never drags it
       }
     } else if (h?.kind === 'roof') {                // a roof (#255): the first click selects it, a press on the selected roof drags it
       const box = ctx.roofBox(h.id), gp = ctx.groundPoint(e), wasSelected = sel?.kind === 'roof' && sel.id === h.id;

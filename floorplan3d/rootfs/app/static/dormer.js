@@ -42,6 +42,15 @@ export function fitDormer(bb, r, d) {
   return n;
 }
 
+/** the window in the front wall of a fitted dormer (n from fitDormer): width, height, sill over the dormer's base yF, and the two ends of the
+ *  front wall ([x, z] in the roof's frame); null without a window. The same size the glass pane has, so the real window fits the dormer. */
+export function dormerWindow(n) {
+  if (!n?.win) return null;
+  const { F, at, w, eave } = n, hw2 = w / 2, m = 0.18 * w, sill = 0.22, head = 0.18;
+  const XZ = (u) => { const a = at + u, b = n.side === 0 ? F.b0 + eave : F.b1 - eave; return F.alongX ? [a, b] : [b, a]; };
+  return { width: w - 2 * m, height: n.hw - sill - head, sill, a: XZ(-hw2), b: XZ(hw2) };
+}
+
 /** triangles ([x, y, z] points, 3 per triangle) of a dormer: front wall + cheeks, roof, window glass; null if it does not fit */
 export function dormerParts(bb, r, d) {
   const n = fitDormer(bb, r, d);
@@ -62,9 +71,10 @@ export function dormerParts(bb, r, d) {
     for (const s of [-1, 1]) quad(roof, P(s * (hw2 + OVER), eave - OVER, yT - OVER * GABLE_PITCH), P(s * (hw2 + OVER), eT, yT - OVER * GABLE_PITCH),
       P(0, eR, yT + gh), P(0, eave - OVER, yT + gh));                                                            // the two roof planes meet in the ridge
   }
-  if (n.win) {                                                     // window pane in front of the wall
-    const m = 0.18 * w, sill = 0.22, head = 0.18, e = eave - 0.012;
-    quad(glass, P(-hw2 + m, e, yF + sill), P(hw2 - m, e, yF + sill), P(hw2 - m, e, yT - head), P(-hw2 + m, e, yT - head));
+  const win = dormerWindow(n);
+  if (win) {                                                       // window pane in front of the wall
+    const u = win.width / 2, e = eave - 0.012;
+    quad(glass, P(-u, e, yF + win.sill), P(u, e, yF + win.sill), P(u, e, yF + win.sill + win.height), P(-u, e, yF + win.sill + win.height));
   }
   return { wall, roof, glass, fit: n };
 }
