@@ -20,5 +20,5 @@ test('a very tall sheet keeps at least 30% of the view for the room', () => {
 test('the camera stays as far as before on wide screens and goes further back on narrow ones', () => {
   assert.equal(V.roomViewDist(6, 1.6), 6 * 2.4 + 3);
   assert.equal(V.roomViewDist(6, 0), 6 * 2.4 + 3);
-  assert.ok(V.roomViewDist(6, 0.56) > 2 * (6 * 2.4 + 3));
+  assert.equal(V.roomViewDist(6, 0.5), 2 * (6 * 2.4 + 3));
 });

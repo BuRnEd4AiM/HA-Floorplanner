@@ -18,11 +18,11 @@ export function sheetShift(view, sheet) {
 }
 
 /** how far the camera stands from a room it zooms into (size = the longer side in m). A narrow screen (phone held upright)
- *  shows less from side to side, and on phones the room sheet then covers the lower half: the camera goes further back */
+ *  shows less from side to side: the camera goes further back, so the room still fits across */
 export function roomViewDist(size, aspect) {
   const base = size * 2.4 + 3;
   if (!(aspect > 0) || aspect >= 1) return base;
-  return base / aspect * (aspect < 0.8 ? 1.3 : 1);
+  return base / aspect;
 }
 
 /** ctx: camera, canvas, panel (the room panel element) */
