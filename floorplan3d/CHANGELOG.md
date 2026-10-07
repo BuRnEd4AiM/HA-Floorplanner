@@ -3,8 +3,13 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [3.56.1] - 2026-10-07
 ### Fixed
-- **Phones, ☰ menu**: in the live view the tool bar (Edit/Live, 2D/3D, house, version, users, settings) is folded into a ☰ button at the top left and opens as a drop-down list, instead of a row that had to be scrolled sideways; this also frees the top row for the house (`phonemenu.js`). Text fields on phones use 16 px text, so the iPhone no longer zooms the whole page in when the search is tapped. Desktop and tablets are unchanged.
+- **Phones, ☰ menu (#277)**: in the live view the tool bar (Edit/Live, 2D/3D, house, version, users, settings) is folded into a ☰ button at the top left and opens as a drop-down list, instead of a row that had to be scrolled sideways; this also frees the top row for the house (`phonemenu.js`). Text fields on phones use 16 px text, so the iPhone no longer zooms the whole page in when the search is tapped. Desktop and tablets are unchanged.
+
+### Changed
+- **Documentation**: the roadmap lists only what is really still open (15 points that were long done are ticked off with their version); the test list for the owner covers 3.54.0 to 3.56.1 (section 36); the module plan shows the current size of `app.js`.
 
 ## [3.56.0] - 2026-10-07
 ### Added
