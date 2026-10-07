@@ -1,6 +1,6 @@
 {
  "version": "3.54.0",
- "buildHash": "d7490c1037aa1178aaafe4af693805305d008f722944b7af45a11ac5a2a6ba10",
+ "buildHash": "c626797d4428bf1d3f2c0160a2136b3285a59c274f44290b44ea57bffe5a0e0e",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "4af8c83f0ba5e116f928f7a1b5f6ee791fec76cfa3745165139211ef66bbc000",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "3a541620793f7a69607719e4b2b337440d6e3d9f6876a765573fd3d02207262a",
-  "static/app.js": "dbeff4230ec094b9e89d118cd2bde764883ce80f9ceaf7a38e8a0338ca08970d",
+  "static/app.js": "2e94ca16bea7226a58b9acd3f74bd8a56f27319d6c2edfa98a386f0d4cc836ee",
   "static/appstate.js": "1a015779e96afda76f43dafd576a7a5b805e2a13d7684195986a064ee8826f91",
   "static/attic.js": "175661598eed4d71adfb3233fb4a1bb120428d939697060c583ae7d62236149e",
   "static/atticclip.js": "cfa27d36f566c564c0125aeed78e4beece80d4558d635ca1db4f347228c1856f",
@@ -190,6 +190,7 @@
   "static/openings.js": "54ff5cbbb38ed21c72774fd58a84094ad894747ad8d1280f9ce5606f1e4abd97",
   "static/palettes.js": "2ddb340a70a38cc1ccf1676eb6bb75a23f2b1b323cc6ef50f17e8cffe02f0aa2",
   "static/persist.js": "4b6ddb3ea7cf8afa2745c4b95e7e60546edd4649136b18280feb1480a6ed7f5f",
+  "static/phonemenu.js": "ca4104ac33530ac0c047015f95a8e942a343ed635b40a6654edb0b0da7bcf773",
   "static/picking.js": "330aeb48f65911a11ca52a35bbf73b472293e9f452d618c216a2da91c16d55f0",
   "static/pickrules.js": "7e5f661abe1fe896e0dd8bd76b9694a499110a4c6b6f12d143677c3a5afc6716",
   "static/picture.js": "683aabb3b95ce03e47edc60048e2ea25dbfd514728366437f0479408f5f60abe",
@@ -214,7 +215,7 @@
   "static/solarroof.js": "5fdc6e3c6f1203f08ad842abf1781641aa493c6abf2cd341de020b735fcd75db",
   "static/stairs.js": "739440443b5b346a356d0572ad8764ad1d51d2b918b617c4963d79dabc4e415e",
   "static/stairtool.js": "422659db0370707e2f2c9eb0a1dae7459f8c93d0fdf06f8a731447fd266607a5",
-  "static/style.css": "c82bf4b94d8152f2062b7d26658c5c6edb27eca4af6b65c986cc2833a5d3a4ba",
+  "static/style.css": "1721b1209bcff445ab7a2785ab66287f55407240a08c0ec1c27fbb987565d412",
   "static/tapballs.js": "588e718fadb7e5c76575762f06fae0bcd1b7a2dbf2a4f08171c146d445626490",
   "static/toolbar.js": "5a23ab6ad9fe51afb2b365c87b4c24850d16b9090349687d247270f152569d3b",
   "static/vendor/LICENSE-polygon-clipping.txt": "28c223fd4e8d5c39518aa4c5e603d501ac9e9c5025d136b2e45fae5072ef0695",

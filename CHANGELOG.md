@@ -4,6 +4,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 ### Fixed
+- **Phones, ☰ menu**: in the live view the tool bar (Edit/Live, 2D/3D, house, version, users, settings) is folded into a ☰ button at the top left and opens as a drop-down list, instead of a row that had to be scrolled sideways; this also frees the top row for the house (`phonemenu.js`). Text fields on phones use 16 px text, so the iPhone no longer zooms the whole page in when the search is tapped. Desktop and tablets are unchanged.
 - **Phones, tapped room**: the heating is now part of the room sheet instead of a second panel at the top, so the room stays in view between them; the sheet keeps clear of the iPhone's home bar; a dark box that Chrome painted over the 3D picture above the scrolling sheet (it hid the tapped room) is gone (`clip-path` on the sheet); the camera comes a bit closer to the room. The demo's "changes are not saved" note fades out after a few seconds, it covered the buttons at the bottom. Desktop and tablets are unchanged.
 
 ## [3.54.0] - 2026-10-07
