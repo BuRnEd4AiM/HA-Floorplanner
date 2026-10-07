@@ -1289,8 +1289,8 @@ with sync_playwright() as p:
     # phones: the tool bar is folded into the ☰ menu at the top left and opens as a drop-down list
     check("phone menu: tool bar folded, ☰ shown", pg17.locator("#tbMenuBtn").is_visible() and pg17.locator("#toolbar").is_hidden())
     pg17.click("#tbMenuBtn"); pg17.wait_for_timeout(300)
-    check("phone menu: ☰ opens the tool bar as a list", pg17.locator("#toolbar").is_visible() and pg17.locator("#view3d").is_visible())
-    pg17.click("#view3d"); pg17.wait_for_timeout(300)
+    check("phone menu: ☰ opens the tool bar as a list", pg17.locator("#toolbar").is_visible() and pg17.locator("#modeSwitch button[data-mode=live]").is_visible())
+    pg17.click("#modeSwitch button[data-mode=live]"); pg17.wait_for_timeout(300)
     check("phone menu: a choice closes it again", pg17.locator("#toolbar").is_hidden() and pg17.locator("#tbMenuBtn").inner_text() == "☰")
     pg17.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices = window.__fp.layout.floors[window.__fp.floorIdx()].devices.filter(d => d.id !== 'alSmoke')")
     pg17.evaluate("Object.assign(window.__fp.settings(), { idleReturn: 1, idleOrbit: true, nightDim: 'time', nightFrom: '00:00', nightTo: '23:59' })")
