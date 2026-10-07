@@ -46,3 +46,9 @@ test('dragging: the corner snaps to the grid, the step is what is still missing'
   assert.deepEqual(R.dragStep(start, { x0: 1.5, z0: 1.75 }, 0.62, -0.31, 0.25), { dx: 0, dz: 0 });
   assert.deepEqual(R.dragStep(start, start, 0.62, -0.31, 0), { dx: 0.62, dz: -0.31 });
 });
+test('the solar panels on a roof: only panels inside its box (they go along while it is dragged, #257)', () => {
+  const f = roofFloor();
+  assert.deepEqual(R.panelsOn(f, auto).map((d) => d.id), ['s1']);
+  assert.deepEqual(R.panelsOn(f, { x0: 12, x1: 30, z0: 0, z1: 5 }).map((d) => d.id), ['s2']);
+  assert.deepEqual(R.panelsOn({}, auto), []);
+});

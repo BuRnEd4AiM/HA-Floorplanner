@@ -87,7 +87,7 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `appstate.js` | ~45 | Startzustand (Schritt 22): Standard-Einstellungen, wie ein Bildschirm startet (Wand-Tablet, Raum-Tablet, nur lesen, Live), Längen in m / ft; alles mit Unit-Tests (auch: jede Einstellung kennt das Add-on) |
 | `frameloop.js` | ~20 | Wie oft das Bild gezeichnet wird (Schritt 22): flüssig bei Bewegung, sparsam im Leerlauf und auf schwachen Tablets; mit Unit-Tests |
 | `houseload.js` | ~55 | Haus öffnen (Schritt 22): wechseln (vorher speichern), Import und Beispielhaus öffnen, Sicherung einspielen |
-| `roofmove.js` | ~65 | Dächer verschieben (#255): Dächer der Dach-Etage als Rechtecke, welches unter dem Zeiger liegt, verschieben (Solarpanels wandern mit), Ziehen in 5-cm-Schritten; mit Unit-Tests |
+| `roofmove.js` | ~65 | Dächer verschieben (#255): Dächer der Dach-Etage als Rechtecke, welches unter dem Zeiger liegt, verschieben (Solarpanels wandern mit, `panelsOn`; beim Ziehen wandert nur das gezeichnete Dach, #257), Ziehen in 5-cm-Schritten; mit Unit-Tests |
 | `planview.js` | ~50 | 2D-Plan dreht mit der 3D-Ansicht (#212): Winkel aus der Kamera, Punkte drehen, lesbare Schrift; Schalter |
 | `placement.js` | ~60 | Platzieren (Schritt 22): Einrasten an Raster und Wandecken, Wandgeräte flach an die Wand, LED-Ring um den Raum; Wandgeräte-Liste; reine Rechnung mit Unit-Tests |
 | `nav.js` | ~150 | Navigation (Schritt 21): Etagen-Knöpfe, Zimmer-Menü, Scroll-Pfeile, Raum-Knopf am Tablet, Bildausschnitt für Etage / Haus / Wandmitte; reine Teile mit Unit-Tests |

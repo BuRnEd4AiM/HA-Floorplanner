@@ -7,6 +7,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.49.1] - 2026-10-07
+### Fixed
+- **Moving a roof no longer stutters (#257)**: while a roof was dragged, the whole house was built again in 3D at every 5 cm step. Now only the drawn roof and the solar panels on it move along while dragging (in 3D and in the 2D plan), and the house is built once when the roof is let go. The work per pointer move went from about 80 ms to under 1 ms in the demo. `panelsOn` in `roofmove.js` with a test.
+
 ## [3.49.0] - 2026-10-07
 ### Added
 - **Move roofs (#255)**: with the roof floor open in the editor, a click on a roof (the main one or a further one) selects it, and the panel shows where it is. Press the selected roof again and drag it to move it, in 3D or in the 2D plan, which now shows the outlines of all roofs (5 cm steps, Alt: free). The arrow keys nudge it too. Solar panels lying on the roof go along. The main roof follows the house until it is moved for the first time; after that it keeps its own size and place ("size set by hand"). "Fit" on the roof floor frames the roofs. `roofmove.js` with tests.
