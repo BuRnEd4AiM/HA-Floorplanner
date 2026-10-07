@@ -84,19 +84,20 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `picking.js` | ~55 | Treffer im 3D-Bild (Schritt 20, Teil 2): Strahl vom Zeiger, Punkt auf dem Boden, was ein Klick trifft; die Regeln (wer gewinnt, was im Live antippbar ist) in `pickrules.js` mit Unit-Tests |
 | `picture.js` | ~40 | Bild an der Wand (Schritt 20, Teil 3): Rahmen, Bild, Hochladen; Bildgröße mit Unit-Test |
 | `draw3d.js` | ~210 | Zeichnen und Ziehen im 3D-Bild (Schritt 20, Teil 4): Auswählen, Geräte und Türen/Fenster ziehen, Wände und Räume zeichnen, Öffnungen und Geräte setzen, Kabel/Löschen, Doppelklick; Lage einer Öffnung mit Unit-Tests |
+| `appstate.js` | ~45 | Startzustand (Schritt 22): Standard-Einstellungen, wie ein Bildschirm startet (Wand-Tablet, Raum-Tablet, nur lesen, Live), Längen in m / ft; alles mit Unit-Tests (auch: jede Einstellung kennt das Add-on) |
+| `frameloop.js` | ~20 | Wie oft das Bild gezeichnet wird (Schritt 22): flüssig bei Bewegung, sparsam im Leerlauf und auf schwachen Tablets; mit Unit-Tests |
+| `houseload.js` | ~55 | Haus öffnen (Schritt 22): wechseln (vorher speichern), Import und Beispielhaus öffnen, Sicherung einspielen |
 | `planview.js` | ~50 | 2D-Plan dreht mit der 3D-Ansicht (#212): Winkel aus der Kamera, Punkte drehen, lesbare Schrift; Schalter |
 | `placement.js` | ~60 | Platzieren (Schritt 22): Einrasten an Raster und Wandecken, Wandgeräte flach an die Wand, LED-Ring um den Raum; Wandgeräte-Liste; reine Rechnung mit Unit-Tests |
 | `nav.js` | ~150 | Navigation (Schritt 21): Etagen-Knöpfe, Zimmer-Menü, Scroll-Pfeile, Raum-Knopf am Tablet, Bildausschnitt für Etage / Haus / Wandmitte; reine Teile mit Unit-Tests |
 | `collide.js` | ~60 | Wandstopp (Schritt 20): Dinge lassen sich nicht in die Wand schieben, gleiten an ihr entlang, Türen lassen durch; reine Rechnung mit Unit-Tests |
 | `roofs.js` | ~170 | Dächer (Schritt 19): Dachgröße, Dachflächen mit Gauben und weiteren Dächern, Geländer der Dachterrasse, Solarpanels auf dem Dach, Ausblenden aus der Nähe; Dachgrößen mit Unit-Tests |
 
-## Noch in `app.js` (Reihenfolge = Empfehlung)
+## Noch in `app.js`
 
-Die Zeilen sind ungefähre Größen. „Risiko“ sagt, wie eng der Abschnitt mit dem Rest verwoben ist.
-
-| Nr. | Abschnitt | Zeilen | Vorschlag für das Modul | Risiko |
-| ---: | --- | ---: | --- | --- |
-| 22 | **Zustand und Datenladen** (Live-Kanal schon in `livechannel.js`, Rückgängig und Speichern in `persist.js`) | ~80 + ~40 | `state.js` | hoch |
+Alle geplanten Schritte (1 bis 24) sind erledigt. `app.js` hält nur noch den Zustand des offenen Plans (Etage, Werkzeug, Auswahl, Modus …),
+die three.js-Grundlage (Szene, Kamera, Licht) und verbindet die Module (`init…({ … })`). Neues kommt weiterhin in ein neues oder passendes
+Modul, nie als großer Block nach `app.js` (siehe „Regel für alles Neue“).
 
 ## Vorgehen je Schritt
 
