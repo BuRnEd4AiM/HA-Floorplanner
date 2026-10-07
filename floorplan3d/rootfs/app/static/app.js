@@ -51,6 +51,7 @@ import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
 import { syncDormerWindows, openingWalls } from './dormerwin.js';
+import { coverRoofFloor } from './attic.js';
 import { initPlanRotate } from './planview.js';
 import { initMultiSelect } from './multisel.js';
 import { initNeighbors } from './neighbor.js';
@@ -379,6 +380,8 @@ function build() {
 
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
   });
+  const overRi = iso ? coverRoofFloor(layout.floors, floorIdx) : -1;
+  if (overRi >= 0) { const g = new THREE.Group(); g.position.y = elev(overRi); world.add(g); roofsUi.over(g, overRi, iso.points, holo); }   // a focused room: the roof over it see-through (dormers too)
   if (!iso) neighbors.build(world, { upTo: houseMode ? Infinity : elev(floorIdx), holo });   // the neighbour house next to this one (#220)
   if (earth.cut()) {                              // garden things at ground level are cut open with the earth, so nothing lies over the basement
     layout.floors.slice(0, groundIdx() + 1).forEach((f) => f.devices.forEach((d) => {

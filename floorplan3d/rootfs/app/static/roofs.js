@@ -6,6 +6,7 @@ import { dormerParts } from './dormer.js';
 import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
 import { roofY0, clipRoofFloor, roofPlanes, dormerRooms } from './attic.js';
+import { polyUniforms, clipToPoly } from './atticclip.js';
 
 /** footprint (bounding box) of everything under a roof floor */
 export function roofBoxOf(floors, i) {
@@ -159,6 +160,16 @@ export function initRoofs(ctx) {
     return planes.length ? { planes, rooms: dormerRooms(R.bb, R.spec, R.y0).map((q) => ({ ...q, top: q.top + E })) } : null;
   }
   function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost)); }
+  /** a focused room: the roofs of roof floor i (slopes and dormers) see-through, only the part over the room's outline pts */
+  function buildOver(g, i, pts, holo) {
+    const n0 = g.children.length, u = polyUniforms(pts);
+    roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, true));
+    g.children.slice(n0).forEach((m) => m.traverse((x) => {
+      if (!x.material) return;
+      [].concat(x.material).forEach((mm) => { mm.transparent = true; mm.opacity = Math.min(mm.opacity, holo ? 0.2 : 0.3); mm.depthWrite = false; clipToPoly(mm, u); });
+      x.userData.roofOver = true;
+    }));
+  }
   /** a solar panel on the roof floor lies on the roof surface (#176): height and tilt follow the roof under it */
   function placeSolar(model, d, list) {
     const sol = solarPose(d, list);
@@ -178,6 +189,6 @@ export function initRoofs(ctx) {
   }
   return {
     box: (i) => roofBoxOf(ctx.layout().floors, i), autoBox: (i) => autoRoofBox(ctx.layout().floors, i), list: roofList,
-    build: buildRoof, railing: buildRailing, wallClip, placeSolar, updateFade: updateRoofFade, reset: () => { roofs.length = 0; }, faded: roofs,
+    build: buildRoof, over: buildOver, railing: buildRailing, wallClip, placeSolar, updateFade: updateRoofFade, reset: () => { roofs.length = 0; }, faded: roofs,
   };
 }

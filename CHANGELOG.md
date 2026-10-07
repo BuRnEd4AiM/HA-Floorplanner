@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.55.0] - 2026-10-07
+### Added
+- **See-through roof over a focused room**: when a room is chosen (room view), the roof over it is drawn see-through, with the roof slope and the dormers, but only the part over this room (cut to the room's outline), not the whole roof. So a dormer window in the room shows where it really sits. Works for the storeys under the slopes (knee wall) and for the storey right under the roof floor. `coverRoofFloor` in `attic.js` (with tests), the cut to the room's outline in `atticclip.js`, the drawing in `roofs.js`.
+
 ## [3.54.0] - 2026-10-07
 ### Added
 - **Dormer windows are real windows**: the window in a dormer (Dachgaube) was only a blue pane. Now it is a window like the ones in the walls: tap it to give it a contact sensor (also one per pane) and a name, choose its style; it turns red and tilts open when the sensor reports open, and it shows in the list "n open", in the room panel of the room under the dormer, in the search and in the object list. So the old window of the room can be deleted and the dormer window used instead. Its size and place still come from the dormer (roof panel); deleting it switches the dormer's window off. With the roof on a knee wall it belongs to the storey under the slopes (e.g. the Studio), otherwise to the roof floor. New module `dormerwin.js` with tests; texts in 7 languages.
