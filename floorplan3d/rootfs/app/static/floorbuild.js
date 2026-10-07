@@ -137,7 +137,10 @@ export function initFloorBuild(ctx) {
   function walls(g, f, i, o) {
     const { holo, ghost, iso } = o, low = ctx.lowWalls(), half = ctx.halfCut() && !low;
     const attic = o.roofClip ? atticUniforms(o.roofClip) : null;   // under the roof (#260): the walls end at the slopes, not inside a dormer (#265)
-    f.walls.forEach((w0) => {
+    const hosted = new Map();                                     // dormer windows cut into a wall of this floor (#275), by wall id
+    (f.dormerWalls || []).forEach((d) => { if (d.host) hosted.set(d.host, [...(hosted.get(d.host) || []), ...d.openings]); });
+    f.walls.forEach((w1) => {
+      const w0 = hosted.has(w1.id) ? { ...w1, openings: [...(w1.openings || []), ...hosted.get(w1.id)] } : w1;
       let w = w0;
       if (wallLength(w) < 0.01) return;
       if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
@@ -160,6 +163,7 @@ export function initFloorBuild(ctx) {
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
     (f.dormerWalls || []).forEach((w) => {                       // the windows of the dormers over this floor: only the window, the dormer is the wall
+      if (w.host) return;                                        // cut into a wall of the room, drawn with it (above)
       const [ox, oz] = [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
       if (iso && !ghost && !inIso(iso, ox, oz)) return;
       const wg = buildWall(w, { material: null, ghost, low, makeMat: ctx.mat, holo, bare: true });

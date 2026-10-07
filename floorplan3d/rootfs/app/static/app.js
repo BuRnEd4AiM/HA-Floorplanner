@@ -50,7 +50,7 @@ import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
 import { initRoofs } from './roofs.js';
-import { syncDormerWindows, openingWalls } from './dormerwin.js';
+import { syncDormerWindows, openingWalls, dormerWindows, eaveOntoWall } from './dormerwin.js';
 import { coverRoofFloor } from './attic.js';
 import { initPlanRotate } from './planview.js';
 import { initMultiSelect } from './multisel.js';
@@ -380,8 +380,8 @@ function build() {
 
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
   });
-  const overRi = iso ? coverRoofFloor(layout.floors, floorIdx) : -1;
-  if (overRi >= 0) { const g = new THREE.Group(); g.position.y = elev(overRi); world.add(g); roofsUi.over(g, overRi, iso.points, holo); }   // a focused room: the roof over it see-through (dormers too)
+  const overRi = houseMode ? -1 : coverRoofFloor(layout.floors, floorIdx);   // the roof over the floor shown (not drawn yet: it is a floor above), see-through
+  if (overRi > floorIdx || (iso && overRi >= 0)) { const g = new THREE.Group(); g.position.y = elev(overRi); world.add(g); roofsUi.over(g, overRi, iso ? iso.points : null, holo); }   // a focused room: only the part over it (dormers too)
   if (!iso) neighbors.build(world, { upTo: houseMode ? Infinity : elev(floorIdx), holo });   // the neighbour house next to this one (#220)
   if (earth.cut()) {                              // garden things at ground level are cut open with the earth, so nothing lies over the basement
     layout.floors.slice(0, groundIdx() + 1).forEach((f) => f.devices.forEach((d) => {
@@ -1122,6 +1122,7 @@ const floorPanel = initFloorPanel({
   snapshot: () => snapshot(), build: () => build(), fitCamera: () => fitCamera(), buildNav: (force) => buildNav(force), renderObjList: () => renderObjList(),
   scheduleSave: () => scheduleSave(), switchFloor: (i) => switchFloor(i), clearSelection: () => { selection = null; }, roofBox: (i) => roofBox(i),
   autoRoofBox: (i) => autoRoofBox(i), groundIdx: () => groundIdx(), uid: () => uid(),
+  dormerOntoWall: (d) => { const x = dormerWindows(layout.floors, roofList, elev).find((q) => q.d === d); return x ? eaveOntoWall(layout.floors[x.fi].walls, x.n, x.win) : null; },
 });
 function renderFloorPanel() { floorPanel.render(); }
 const addFloorOf = (kind) => floorPanel.addFloorOf(kind);

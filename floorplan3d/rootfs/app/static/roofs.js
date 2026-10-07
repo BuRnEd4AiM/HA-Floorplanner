@@ -130,7 +130,7 @@ export function initRoofs(ctx) {
       const hm = (opacity) => new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : opacity, side: THREE.DoubleSide, depthWrite: false });
       part(parts.wall, holo ? hm(0.5) : mat('#d9d3c6', ghost, { side: THREE.DoubleSide }), 20);
       part(parts.roof, holo ? hm(0.45) : mat('#8f3b2f', ghost, { side: THREE.DoubleSide }), 20);
-      if (!d.window) part(parts.glass, new THREE.MeshBasicMaterial({ color: holo ? 0x3df2ff : 0x9fd4ff, transparent: true, opacity: ghost ? 0.2 : 0.75, side: THREE.DoubleSide, depthWrite: false }), 90);
+      if (!d.window || d.hostWall) part(parts.glass, new THREE.MeshBasicMaterial({ color: holo ? 0x3df2ff : 0x9fd4ff, transparent: true, opacity: ghost ? 0.2 : 0.75, side: THREE.DoubleSide, depthWrite: false }), 90);
     });
   }
   /** the roofs of roof floor i: the main one and further roofs, each with its base box and lift (also where solar panels lie, #176) */
@@ -160,13 +160,14 @@ export function initRoofs(ctx) {
     return planes.length ? { planes, rooms: dormerRooms(R.bb, R.spec, R.y0).map((q) => ({ ...q, top: q.top + E })) } : null;
   }
   function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost)); }
-  /** a focused room: the roofs of roof floor i (slopes and dormers) see-through, only the part over the room's outline pts */
+  /** the roofs of roof floor i (slopes and dormers) see-through over the floor shown: only the part over the room's outline pts (a
+   *  focused room), or all of it (pts null: a whole floor under the roof, #275) */
   function buildOver(g, i, pts, holo) {
-    const n0 = g.children.length, u = polyUniforms(pts);
+    const n0 = g.children.length, u = pts ? polyUniforms(pts) : null;
     roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, true));
     g.children.slice(n0).forEach((m) => m.traverse((x) => {
       if (!x.material) return;
-      [].concat(x.material).forEach((mm) => { mm.transparent = true; mm.opacity = Math.min(mm.opacity, holo ? 0.2 : 0.3); mm.depthWrite = false; clipToPoly(mm, u); });
+      [].concat(x.material).forEach((mm) => { mm.transparent = true; mm.opacity = Math.min(mm.opacity, holo ? 0.2 : 0.3); mm.depthWrite = false; if (u) clipToPoly(mm, u); });
       x.userData.roofOver = true;
     }));
   }
