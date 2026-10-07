@@ -912,7 +912,7 @@ export function createPlan(ctx) {
         const now = (ctx.roofRects?.() || []).find((q) => q.id === drag.id)?.box;
         if (!now) return;
         const { dx, dz } = dragStep(drag.start, now, x - drag.sx, z - drag.sz, e.altKey ? 0 : 0.05);   // 5 cm steps, Alt: free
-        if (dx || dz) { snapshotOnce(); ctx.moveRoof(drag.id, dx, dz); drag.moved = true; scheduleRebuild(); render(); }
+        if (dx || dz) { snapshotOnce(); ctx.dragRoof(drag.id, dx, dz); drag.moved = true; render(); }   // the 3D roof moves along, the house is built once on release (#257)
         return;
       }
       if (drag.type === 'stair' && moved) {

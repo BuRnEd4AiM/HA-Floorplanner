@@ -24,7 +24,7 @@ export function openingSpot(wall, point, defWidth, ignoreId = null) {
  *  isLive(), houseMode(), lockedSel(), selection(), setSelection(s), refreshSelection(), floor(), settings(), uid(), findOpening(id),
  *  findWall(id), pick(e), pickHit(e), groundPoint(e), snap(p, fine), snapshot(), changed(rebuild), build(), moveDeviceTo(d, x, z),
  *  multi ({ toggle(h), clear() }), liveTap(e), cableClick(id), deleteItem(sel), newDevice(x, z), holdPlaced(), editNano(d), switchDevice(d),
- *  roofBox(id) (the base box of a roof on the open floor), moveRoof(id, dx, dz) (#255) */
+ *  roofBox(id) (the base box of a roof on the open floor), dragRoof(id, dx, dz) (moves the drawn roof, #255 #257) */
 export function initDraw3d(ctx) {
   let drawPts = [], cursor = null, down = null, preview = null;   // preview: { wall, pos, width, valid } of a door / window to place
 
@@ -145,8 +145,7 @@ export function initDraw3d(ctx) {
       const { dx, dz } = dragStep(r.start, now, gp[0] - r.gp[0], gp[1] - r.gp[1], 0.05);   // 5 cm steps
       if (dx || dz) {
         if (!r.moved) { ctx.snapshot(); r.moved = true; }
-        ctx.moveRoof(r.id, dx, dz);
-        ctx.build();
+        ctx.dragRoof(r.id, dx, dz);                   // the drawn roof moves along; the house is built again when it is let go (#257)
       }
       return;
     }
@@ -177,7 +176,7 @@ export function initDraw3d(ctx) {
     controls.enabled = true;
     if (st.dev?.moved) { ctx.changed(false); ctx.refreshSelection(); return; }
     if (st.op?.moved) { ctx.changed(false); ctx.refreshSelection(); return; }
-    if (st.roof?.moved) { ctx.changed(false); ctx.refreshSelection(); return; }
+    if (st.roof?.moved) { ctx.changed(); ctx.refreshSelection(); return; }
     if (st.drag) return;                         // camera drag, not a click
     if (ctx.isLive()) { ctx.liveTap(e); return; }
 

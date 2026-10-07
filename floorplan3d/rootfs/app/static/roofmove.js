@@ -37,13 +37,14 @@ export function roofBoxFor(f, id, autoBox) {
 }
 
 const r3 = (v) => +v.toFixed(3);
+/** the solar panels of floor f lying on a roof with base box b: they go along when it moves */
+export const panelsOn = (f, b) => (f.devices || []).filter((d) => d.type === 'solarpanel' && d.x >= b.x0 && d.x <= b.x1 && d.z >= b.z0 && d.z <= b.z1);
 /** move roof `id` of floor f by (dx, dz) metres; the solar panels lying on it (on this floor, inside its box) go along. true when moved */
 export function moveRoof(f, id, dx, dz, autoBox) {
   if (!dx && !dz) return false;
   const b = roofBoxFor(f, id, autoBox);
   if (!b) return false;
-  const inside = (d) => d.type === 'solarpanel' && d.x >= b.x0 && d.x <= b.x1 && d.z >= b.z0 && d.z <= b.z1;
-  (f.devices || []).filter(inside).forEach((d) => { d.x = r3(d.x + dx); d.z = r3(d.z + dz); });
+  panelsOn(f, b).forEach((d) => { d.x = r3(d.x + dx); d.z = r3(d.z + dz); });
   b.x0 = r3(b.x0 + dx); b.x1 = r3(b.x1 + dx); b.z0 = r3(b.z0 + dz); b.z1 = r3(b.z1 + dz);
   return true;
 }
