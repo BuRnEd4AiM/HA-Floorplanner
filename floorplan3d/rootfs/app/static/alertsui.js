@@ -3,6 +3,7 @@
 import { findAlerts } from './alerts.js';
 import { ringEntities } from './ledring.js';
 import { wallLength } from './walls.js';
+import { openingWalls } from './dormerwin.js';
 
 const ALERT_ICON = { smoke: '🔥', gas: '⚠️', co: '☠️', water: '💧', alarm: '🚨', rain: '🌧️' };
 
@@ -17,7 +18,7 @@ export function initAlertsUi(ctx) {
       const f = ctx.layout().floors[fi], roomAt = (x, z) => f.rooms.find((r) => ctx.pointInPoly(x, z, r.points))?.id || null;
       const d = f.devices.find((q) => q.entity === id || q.ledEntity === id || (q.type === 'ledring' && ringEntities(q).includes(id)));
       if (d) return { floor: fi, roomId: roomAt(d.x, d.z) };
-      for (const w of f.walls) {
+      for (const w of openingWalls(f)) {
         const o = (w.openings || []).find((q) => ctx.openingEntities(q).includes(id));
         if (!o) continue;
         const L = wallLength(w) || 1, ux = (w.b[0] - w.a[0]) / L, uz = (w.b[1] - w.a[1]) / L, x = w.a[0] + ux * o.pos, z = w.a[1] + uz * o.pos;
@@ -31,7 +32,7 @@ export function initAlertsUi(ctx) {
   function updateAlerts() {
     if (!ctx.entities().length) return;
     const windows = [];
-    ctx.layout().floors.forEach((f) => f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+    ctx.layout().floors.forEach((f) => openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
       if (o.type === 'window') ctx.openingEntities(o).forEach((e) => windows.push({ entity: e, name: o.name || ctx.entities().find((x) => x.entity_id === e)?.name || t('prop.window') }));
     })));
     const list = ctx.settings().alerts === false ? [] : findAlerts(ctx.entities(), windows, ctx.settings().weatherEntity).map((a) => ({ ...a, at: locateEntity(a.entity) }));

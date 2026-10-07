@@ -159,6 +159,18 @@ export function initFloorBuild(ctx) {
       }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
+    (f.dormerWalls || []).forEach((w) => {                       // the windows of the dormers over this floor: only the window, the dormer is the wall
+      const [ox, oz] = [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
+      if (iso && !ghost && !inIso(iso, ox, oz)) return;
+      const wg = buildWall(w, { material: null, ghost, low, makeMat: ctx.mat, holo, bare: true });
+      if (half) {
+        const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (f.walls[0]?.height || 2.6) * 0.5 + 0.001);
+        wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
+      }
+      g.add(wg);
+      if (!ghost) w.openings.forEach((op) => ctx.openingHandle(w, op, g));
+      wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
+    });
   }
   /** the devices of floor f. o: as rooms, plus roofs (the roofs of a roof floor, for solar panels on them) */
   function devices(g, f, o) {

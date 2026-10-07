@@ -369,6 +369,7 @@ export default {
   'dormer.gable': 'Dwuspadowy',
   'dormer.flat': 'Płaski',
   'dormer.window': 'Okno',
+  'dormer.winHint': 'Okno lukarny: rozmiar i położenie ustawia się na lukarnie (piętro dachu).',
   'dormer.remove': 'Usuń lukarnę',
   'dormer.add': '+ Lukarna',
   'dormer.noFit': 'Nie mieści się na dachu (za duża lub za blisko kalenicy).',

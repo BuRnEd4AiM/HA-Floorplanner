@@ -369,6 +369,7 @@ export default {
   'dormer.gable': 'A dos aguas',
   'dormer.flat': 'Plano',
   'dormer.window': 'Ventana',
+  'dormer.winHint': 'Ventana de una buhardilla: el tamaño y la posición se ajustan en la buhardilla (planta del tejado).',
   'dormer.remove': 'Quitar buhardilla',
   'dormer.add': '+ Buhardilla',
   'dormer.noFit': 'No cabe en el tejado (demasiado grande o muy cerca de la cumbrera).',

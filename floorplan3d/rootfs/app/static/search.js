@@ -3,6 +3,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { matchScore } from './alerts.js';
 import { wallLength } from './walls.js';
+import { openingWalls } from './dormerwin.js';
 
 /** where a device or a door / window is, for the jump (#215): { x, y (height over its floor), z }, null when it is not found */
 export function targetPoint(floors, tg) {
@@ -10,7 +11,7 @@ export function targetPoint(floors, tg) {
   if (!f) return null;
   if (tg.kind === 'device') { const d = f.devices.find((v) => v.id === tg.id); return d ? { x: d.x, y: d.y || 0, z: d.z } : null; }
   if (tg.kind === 'opening') {
-    for (const w of f.walls) {
+    for (const w of openingWalls(f)) {
       const o = (w.openings || []).find((v) => v.id === tg.id);
       if (!o) continue;
       const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, k = (o.pos || 0) / L;
@@ -36,7 +37,7 @@ export function initSearch(ctx) {
         const sc = Math.max(matchScore(name, q), matchScore(ent?.name, q), matchScore(d.entity, q) * 0.8, matchScore(t(`dev.${d.type}`), q) * 0.6);
         if (sc) out.push({ sc, kind: 'device', id: d.id, floor: fi, label: name, sub: [f.name, roomOf(d.x, d.z)].filter(Boolean).join(' · '), x: d.x, y: d.y || 0, z: d.z });
       });
-      f.walls.forEach((w) => (w.openings || []).forEach((o) => {
+      openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
         const name = o.name || (o.entity && ctx.entities().find((e) => e.entity_id === o.entity)?.name) || '';
         const sc = Math.max(matchScore(name, q), matchScore(o.entity, q) * 0.8);
         if (!sc) return;
