@@ -143,10 +143,9 @@ export function initFloorBuild(ctx) {
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : ctx.mat('#d9d4cc', ghost);
       const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge });
-      if (half) {                                                // what sticks out above the cut (door leaves, window frames) is clipped off
-        const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (w.height || 2.6) * 0.5 + 0.001);
-        wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
-      }
+      const clip = [...(half ? [new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (w.height || 2.6) * 0.5 + 0.001)] : []),   // half section: what sticks out above the cut (door leaves, window frames) is clipped off
+        ...(o.roofClip || [])];                                  // under the roof (#260): the wall ends at the slope
+      if (clip.length) wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = clip; }); });
       g.add(wg);
       if (!ghost) {
         const info = ctx.cutawayInfo(w, wg);

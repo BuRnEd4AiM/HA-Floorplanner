@@ -135,6 +135,12 @@ export function initFloorPanel(ctx) {
     box.append(mrow);
     if (r.box) boxFields(box, r.box);
     box.append(field(t('roof.overhang'), lenInput(() => r.overhang ?? 0.4, (v) => (r.overhang = v), { min: 0 })));
+    const attic = document.createElement('input'); attic.type = 'checkbox'; attic.id = 'roofAttic'; attic.checked = r.knee != null;   // a lived-in attic (#260)
+    attic.addEventListener('change', () => { ctx.snapshot(); if (attic.checked) r.knee = 1; else delete r.knee; redo(); });
+    const arow = document.createElement('label'); arow.className = 'chk'; arow.append(attic, ' ' + t('roof.attic'));
+    box.append(arow);
+    if (r.knee != null) box.append(field(t('roof.knee'), lenInput(() => r.knee, (v) => (r.knee = Math.max(0, v)), { min: 0, step: 0.1 })));
+    const ahelp = document.createElement('p'); ahelp.className = 'sub'; ahelp.id = 'roofAtticHelp'; ahelp.textContent = t('roof.atticHelp'); box.append(ahelp);
     const rsel = document.createElement('select'); rsel.id = 'roofRidge';
     [['', t('roof.auto')], ['x', 'X'], ['z', 'Z']].forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; rsel.append(o); });
     rsel.value = r.ridge || '';
