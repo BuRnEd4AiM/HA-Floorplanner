@@ -16,7 +16,8 @@ const result = await build({
 const js = result.outputFiles[0].text.replace(/<\/script/gi, '<\\/script');
 const css = readFileSync(join(staticDir, 'style.css'), 'utf8') + `
 .demo-badge{position:fixed;left:12px;bottom:12px;z-index:5;padding:5px 10px;border-radius:999px;font-size:12px;
-background:var(--panel);border:1px solid var(--line);color:var(--muted);pointer-events:none}`;
+background:var(--panel);border:1px solid var(--line);color:var(--muted);pointer-events:none;animation:demoBadge 6s forwards}
+@keyframes demoBadge{80%{opacity:1}100%{opacity:0;visibility:hidden}}`;   /* fades out after a few seconds: on phones it covered the buttons at the bottom */
 
 let html = readFileSync(join(staticDir, 'index.html'), 'utf8');
 html = html
