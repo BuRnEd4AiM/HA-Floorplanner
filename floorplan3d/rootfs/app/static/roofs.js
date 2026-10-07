@@ -5,6 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { dormerParts } from './dormer.js';
 import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
+import { kneeDrop, clipRoofFloor, roofPlanes } from './attic.js';
 
 /** footprint (bounding box) of everything under a roof floor */
 export function roofBoxOf(floors, i) {
@@ -136,7 +137,8 @@ export function initRoofs(ctx) {
     const f = ctx.layout().floors[i], out = [];
     if (f?.kind !== 'roof') return out;
     const bb = roofBoxOf(ctx.layout().floors, i);
-    if (bb) out.push({ bb, spec: f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }), y0: 0, tag: 'main' });
+    const spec = f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 });
+    if (bb) out.push({ bb, spec, y0: i > 0 ? kneeDrop(spec, ctx.elev(i) - ctx.elev(i - 1)) : 0, tag: 'main' });   // on a knee wall it starts in the storey below (#260)
     (f.roof?.parts || []).forEach((p, pi) => {                              // further roofs: an annex with its own roof, on the floor it stands on
       const pb = partBox(p);
       if (!pb) return;
@@ -144,6 +146,16 @@ export function initRoofs(ctx) {
       out.push({ bb: pb, spec: p, y0: lv >= 0 && ctx.layout().floors[lv].kind !== 'roof' ? ctx.elev(lv + 1) - ctx.elev(i) : 0, tag: p.id || `part${pi}` });   // the same id as roofmove.js uses
     });
     return out;
+  }
+  /** clipping planes (world frame) that cut the walls of floor i where they meet the roof over them (#260): the walls of the roof floor
+   *  itself, and of the storey below when the roof starts on a knee wall; null when nothing cuts them */
+  function wallClip(i) {
+    const ri = clipRoofFloor(ctx.layout().floors, i, Infinity);
+    const R = ri < 0 ? null : roofList(ri).find((r) => r.tag === 'main');
+    if (!R) return null;
+    const E = ctx.elev(ri);
+    const ps = roofPlanes(R.bb, R.spec, R.y0).map(([x, y, z, d]) => new THREE.Plane(new THREE.Vector3(x, y, z), d - y * E));
+    return ps.length ? ps : null;
   }
   function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost)); }
   /** a solar panel on the roof floor lies on the roof surface (#176): height and tilt follow the roof under it */
@@ -165,6 +177,6 @@ export function initRoofs(ctx) {
   }
   return {
     box: (i) => roofBoxOf(ctx.layout().floors, i), autoBox: (i) => autoRoofBox(ctx.layout().floors, i), list: roofList,
-    build: buildRoof, railing: buildRailing, placeSolar, updateFade: updateRoofFade, reset: () => { roofs.length = 0; }, faded: roofs,
+    build: buildRoof, railing: buildRailing, wallClip, placeSolar, updateFade: updateRoofFade, reset: () => { roofs.length = 0; }, faded: roofs,
   };
 }

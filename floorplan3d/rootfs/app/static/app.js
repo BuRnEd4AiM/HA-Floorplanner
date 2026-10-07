@@ -370,7 +370,7 @@ function build() {
     floorBuild.blocks(g, f, i, part);
 
     floorBuild.stairs(g, f, i, { ...part, edge: edgeMaterial });   // stairs and walls: floorbuild.js
-    floorBuild.walls(g, f, i, { ...part, edge: edgeMaterial });
+    floorBuild.walls(g, f, i, { ...part, edge: edgeMaterial, roofClip: roofsUi.wallClip(i) });   // under the roof the walls follow the slope (#260)
 
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
   });
@@ -1407,6 +1407,7 @@ if (params.get('debug')) {
     switchFloor: (i) => switchFloor(i),
     blockOpen: (id) => { const sh = [].concat(registry.get(id)?.geometry?.parameters?.shapes || []); return sh.length > 1 || sh.some((x) => x.holes.length > 0); },
     solidShape: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh && [].concat(o.material).some((m) => !m.transparent || m.opacity > 0.3)) ok = true; }); return ok; },
+    roofCut: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { n = Math.max(n, (m.clippingPlanes || []).filter((q) => q.normal.y < 0 && q.normal.y > -0.999).length); }); }); return n; },   // sloped roof planes cutting wall id (#260)
     clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earth.plane))) n++; }); return n; },
     earthDbg: () => ({ n: earth.plane.normal.toArray(), c: earth.plane.constant, solid: earth.lawn(), cut: earth.cut(), capVisible: !!earth.info()?.cap.visible, capVerts: earth.info()?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earth.box(), ground: earth.ground() }),
     stateOf: (e) => states[e]?.state,
