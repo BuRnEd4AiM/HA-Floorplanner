@@ -39,6 +39,13 @@ export function clipRoofFloor(floors, i) {
   return roofBaseIdx(floors, r) <= i ? r : -1;
 }
 
+/** the roof floor whose roof lies over the rooms of floor i (shown see-through over a focused room): the one that cuts its walls, else
+ *  the roof floor right above it; -1 for none */
+export function coverRoofFloor(floors, i) {
+  const c = clipRoofFloor(floors, i);
+  return c >= 0 ? c : floors[i + 1]?.kind === 'roof' ? i + 1 : -1;
+}
+
 const GAP = 0.03;   // walls end this far under the roof surface, so the roof is never hidden by a wall top
 /** the planes of a roof's slopes (base box bb, spec with type / pitch / overhang / ridge, lifted by y0) as [nx, ny, nz, d] with a unit normal:
  *  a point p lies under the roof when nx*px + ny*py + nz*pz + d >= 0 for every plane (the roof is the lowest of its planes). A flat roof
