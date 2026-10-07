@@ -66,7 +66,7 @@ import { initEditItems } from './edititems.js';
 import { initPicking } from './picking.js';
 import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
-import { frameDue } from './frameloop.js';
+import { frameDue, shadowDue } from './frameloop.js';
 import { initHouseLoad } from './houseload.js';
 import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
 import { pointInPoly, inIso } from './roomclip.js';
@@ -148,6 +148,7 @@ renderer.localClippingEnabled = true;                      // the ground is cut 
 renderer.setPixelRatio(perfParam === 'low' ? 1 : LOW ? Math.min(devicePixelRatio, 1.25) : Math.min(devicePixelRatio, 3));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;                           // the sun stands still: shadows are drawn again only after a change (markShadows, #253)
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
 camera.position.set(9, 10, 12);
@@ -419,7 +420,7 @@ const openings = initOpenings({
 const isOpen = (entity) => openings.isOpen(entity);
 const openText = (entity) => openings.openText(entity);
 function applyOpenings() { openings.apply(); }
-function animateOpenings() { openings.animate(); }
+function animateOpenings() { return openings.animate(); }
 
 /* ================= Cameras (#69): cones, overview, still images; the code lives in cameras.js ================= */
 const cams = initCameras({
@@ -602,6 +603,7 @@ function applyStates() {
   }
   if (popup.current()) popup.render();
   if (roomPanel.current() && !document.activeElement?.matches?.('#roomPanel input, #roomPanel select')) roomPanel.render();   // (renders the heating panel too)
+  markShadows();                                                   // things may have shown, hidden or moved (also after every build)
 }
 
 /* ---- Offline devices: the code lives in offline.js ---- */
@@ -668,7 +670,7 @@ const cutaway = initCutaway({
   center: () => wallsCenter(), roofsCount: () => roofsUi.faded.length, updateRoofFade: () => updateRoofFade(), updateEarthCut: () => updateEarthCut(), wallSee: WALL_SEE,
 });
 const wallCutawayInfo = (w, group) => cutaway.info(w, group);
-function updateCutaway() { cutaway.update(); }
+function updateCutaway() { return cutaway.update(); }
 
 /* ---- Compass: the ring stands still, the needle turns with the camera; the code lives in compass.js ---- */
 const compass = initCompass({ $, t, camera, controls });
@@ -1063,6 +1065,7 @@ function focusRoom(id) {
 }
 
 function liveMove(d) {
+  markShadows();                                                   // a device is dragged: its shadow goes along
   const obj = registry.get(d.id);
   if (obj) { obj.position.x = d.x; obj.position.z = d.z; }
   if (obj?.userData.onRoof) roofsUi.placeSolar(obj, d, roofList(floorIdx));   // follows the roof while it is moved (the mount itself changes on the next build)
@@ -1221,6 +1224,7 @@ function applySettings(prev = {}) {
   scene.background = isHolo() ? null : new THREE.Color(themeColors().scene);
   renderer.shadowMap.enabled = settings.shadows && !LOW;
   sun.castShadow = settings.shadows && !LOW;
+  markShadows();
   world.traverse((o) => { if (o.material) o.material.needsUpdate = true; });
   if (prev.grid !== settings.grid || prev.theme !== settings.theme || !grid) rebuildGrid();
   palettes.build(); fillEntities($('#entitySearch').value); renderProps();
@@ -1306,6 +1310,8 @@ async function init() {
 }
 
 var lastActive = performance.now(), lastFrame = 0;
+var shadowDirty = true, lastShadow = 0;                           // the shadow map is drawn again only when something changed (frameloop.js, #253)
+function markShadows() { shadowDirty = true; }
 function wake() { lastActive = performance.now(); }
 ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart', 'touchmove'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
 controls.addEventListener('change', wake);
@@ -1319,13 +1325,14 @@ function animate(now = performance.now()) {
   const pulsing = alertsUi.animate(now), finding = search.animate(now);       // pulsing warnings and the search ring move
   if (pulsing || finding || controls.autoRotate) wake();
   controls.update();
-  updateCutaway();
+  if (updateCutaway()) markShadows();                            // walls sinking or rising: their shadows change
   compass.update();
-  animateOpenings();
+  if (animateOpenings()) markShadows();                          // a door or window leaf moving
   power.animate(now);
   selHelper?.update();
   declutterLabels();
   floorCards.place();
+  if (shadowDue(shadowDirty, now, lastShadow)) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; lastShadow = now; }   // shadows only when something changed (#253)
   renderer.render(scene, camera);
 }
 init();
