@@ -39,7 +39,8 @@ export function boxOf(floor) {
 export const nextDormerSpot = (n) => ({ side: n % 2, pos: [0.5, 0.25, 0.75][Math.floor(n / 2) % 3] });
 
 /** ctx: $, t, layout(), floor(), floorIdx(), setFloorIdx(i), fields: { field, inp, lenInput }, snapshot(), build(), fitCamera(), buildNav(force),
- *  renderObjList(), scheduleSave(), switchFloor(i), clearSelection(), roofBox(i), autoRoofBox(i), groundIdx(), uid() */
+ *  renderObjList(), scheduleSave(), switchFloor(i), clearSelection(), roofBox(i), autoRoofBox(i), groundIdx(), uid(),
+ *  dormerOntoWall(d) (the distance from the eave that puts the dormer's front onto the wall of the room under it, or null; dormerwin.js) */
 export function initFloorPanel(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput } = ctx.fields;
@@ -210,6 +211,18 @@ export function initFloorPanel(ctx) {
       const win = document.createElement('input'); win.type = 'checkbox'; win.checked = d.win !== false;
       win.addEventListener('change', () => { ctx.snapshot(); d.win = win.checked; ctx.build(); ctx.scheduleSave(); });
       card.append(field(t('dormer.window'), win));
+      if (d.win !== false && d.window) {                           // where the window sits: in the wall of the room under it (#275) or in the dormer's front
+        const where = document.createElement('p'); where.className = 'sub dormerWhere'; where.textContent = t(d.hostWall ? 'dormer.inWall' : 'dormer.inFront'); card.append(where);
+        if (!d.hostWall) {
+          const onto = document.createElement('button'); onto.type = 'button'; onto.className = 'dormerOnWall'; onto.textContent = t('dormer.onWall'); onto.title = t('dormer.onWallTip');
+          onto.addEventListener('click', () => {
+            const e = ctx.dormerOntoWall(d);
+            if (e == null) { where.textContent = t('dormer.noWall'); return; }
+            ctx.snapshot(); d.eave = e; redo();
+          });
+          card.append(onto);
+        }
+      }
       const del = document.createElement('button'); del.type = 'button'; del.textContent = '×'; del.title = t('dormer.remove');
       del.addEventListener('click', () => { ctx.snapshot(); r.dormers.splice(i, 1); redo(); });
       card.append(del);

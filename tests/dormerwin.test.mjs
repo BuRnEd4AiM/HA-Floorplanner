@@ -86,3 +86,34 @@ test('the floor of a window: the highest storey under that roof at or below its 
   assert.equal(W.windowFloor(floors, 2, 6.0, elev), 2);
   assert.equal(W.windowFloor(house(), 2, 4.9, elev), 2, 'no knee wall: the storeys below are not under the slopes');
 });
+
+test('a wall of the room right behind the dormer front takes the window (#275); one too far in front does not', () => {
+  const floors = house(1.0);
+  floors[1].walls.push({ id: 'w2', a: [0, 0.5], b: [10, 0.5], thickness: 0.15, height: 2.6, openings: [] });   // 10 cm behind the front (z = 0.4)
+  W.syncDormerWindows(floors, roofs(floors), elev, uid);
+  const dw = floors[1].dormerWalls[0], d = floors[2].roof.dormers[0], o = d.window;
+  assert.equal(dw.host, 'w2');
+  assert.equal(d.hostWall, 'w2', 'the roof keeps the glass pane in the dormer front');
+  assert.deepEqual([dw.a, dw.b], [[0, 0.5], [10, 0.5]], 'the window hangs on the room wall');
+  assert.ok(Math.abs(o.pos - 5) < 1e-3, 'in the middle of the dormer, along the wall');
+  assert.ok(o.sill + o.height <= 2.55 + 1e-9, 'the window stays inside the wall height');
+  assert.ok(!('hostWall' in JSON.parse(JSON.stringify(d))), 'never saved');
+  const f = floors[1];
+  assert.ok(roomOpenings(f.rooms[0], f).includes(o));
+  floors[1].walls[1].openings.push({ id: 'x', type: 'door', pos: 5, width: 0.9 });   // a door in the way: back to the dormer front
+  W.syncDormerWindows(floors, roofs(floors), elev, uid);
+  assert.equal(floors[1].dormerWalls[0].host, undefined);
+  assert.equal(d.hostWall, null);
+});
+
+test('put the front on the wall: the distance from the eave that brings the dormer front onto the nearest wall behind the window', () => {
+  const floors = house(1.0);
+  const [x] = W.dormerWindows(floors, roofs(floors), elev);
+  assert.equal(x.fi, 1);
+  assert.equal(W.eaveOntoWall(floors[1].walls, x.n, x.win), 0.4, 'the outer wall at z = 0: 0.4 m from the eave (0.4 m overhang)');
+  assert.equal(W.eaveOntoWall([{ id: 'q', a: [0, 0], b: [0, 6], openings: [] }], x.n, x.win), null, 'a wall across the front does not count');
+  assert.equal(W.eaveOntoWall([{ id: 'q', a: [0, 0.4], b: [1, 0.4], openings: [] }], x.n, x.win), null, 'a wall beside the window does not count');
+  floors[2].roof.dormers[0].eave = 0.4;
+  W.syncDormerWindows(floors, roofs(floors), elev, uid);
+  assert.equal(floors[1].dormerWalls[0].host, 'w1', 'after that the window sits in the outer wall');
+});
