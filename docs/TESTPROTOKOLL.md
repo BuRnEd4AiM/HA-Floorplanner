@@ -4,9 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Heute zu Hause prüfen (Stand 3.49.0)
+## Heute zu Hause prüfen (Stand 3.50.0)
 
-Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.49.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
+Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.50.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
 
 **A. Live-Modus** (oben „Live“ drücken)
 1. Über jeder Lampe, Kamera, dem Fernseher, Rollladen-Schalter usw. schwebt eine **größere Kugel mit kleinem Symbol** (💡 🪟 📷 📺 🌡 …). Unter Deckenlampen hängt sie **darunter**. Kugeln, die dicht beieinander liegen, rücken etwas auseinander und **verdecken sich nicht** (auch nicht die Wert-Schilder).
@@ -35,10 +35,19 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 17. **Voreinstellungen pro Benutzer/Tablet** (#250): oben „Benutzer“ → bei einem Benutzer **„⚙ Voreinstellungen“** → z. B. „Wände zur Kamera: Durchsichtig“ wählen. Der Knopf zeigt dann „⚙ 1 gesetzt“. Mit diesem Benutzer (Tablet) angemeldet startet die Ansicht so. Bei dir selbst ändert sich nichts. (In der Demo-Datei gibt es nur einen Benutzer: hier nur prüfen, dass das Kästchen aufgeht und sich merkt, was du wählst.)
 18. **Doppelklick schaltet** (#251): im Bearbeiten (3D oder 2D) doppelt auf eine Lampe klicken: sie geht an bzw. aus (das ging zuletzt nicht).
 19. **Alles wie immer**: Wände/Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf/Pfeiltasten/Q/E, Strg+Z, Live-Antippen. Hinter den Kulissen wurde viel umgebaut (die Hauptdatei ist von gut 2.000 auf knapp 1.500 Zeilen geschrumpft); es soll sich **nichts** anders anfühlen. Wenn doch: bitte melden.
-20. **Dach verschieben** (#255): Bearbeiten, links die Etage **„Dach“** wählen. Aufs Dach klicken: rechts steht „Dach“ mit der Lage. **Noch einmal drücken und ziehen**: das Dach wandert mit, die Solarpanels darauf auch. Im **2D-Plan** (und 2D + 3D) sind die Dächer gestrichelt zu sehen und lassen sich genauso ziehen. Pfeiltasten schieben in kleinen Schritten, Strg+Z holt es zurück. **Seit 3.49.1 (#257):** Das Ziehen läuft flüssig, ohne Ruckeln; beim Loslassen sitzt das Dach genau dort, wo es beim Ziehen zu sehen war.
+20. **Dach verschieben** (#255): Bearbeiten, links die Etage **„Dach“** wählen. Aufs Dach klicken: rechts steht „Dach“ mit der Lage. **Noch einmal drücken und ziehen**: das Dach wandert mit, die Solarpanels darauf auch. Im **2D-Plan** (und 2D + 3D) sind die Dächer gestrichelt zu sehen und lassen sich genauso ziehen. Pfeiltasten schieben in kleinen Schritten, Strg+Z holt es zurück.
+20a. **Neu: Dach ziehen ruckelt nicht mehr** (3.49.1, #257): wie bei 20 das Dach ziehen, einmal in **3D** und einmal im **2D-Plan**. Es soll **flüssig** mitwandern, ohne Hänger. Beim **Loslassen** sitzt das Dach genau dort, wo es beim Ziehen zu sehen war, die Solarpanels liegen weiter darauf.
+20b. **Neu: Dachgröße ziehen** (3.50.0, #259): Etage „Dach“, **2D-Plan**, aufs Dach klicken. An den **4 Ecken und 4 Seitenmitten** erscheinen **weiße Kästchen**.
+   - An einer **Ecke** ziehen: das Dach wird breiter/schmaler und tiefer/flacher, die **gegenüberliegende Ecke bleibt** stehen.
+   - An einer **Seitenmitte** ziehen: nur diese Seite wandert.
+   - Sehr weit nach innen ziehen: das Dach wird **nicht kleiner als 1 m**.
+   - Mit gedrückter **Alt**-Taste ziehen: frei statt in 5-cm-Schritten.
+   - **Loslassen**: das 3D-Dach hat die neue Größe, rechts stehen die neuen Maße.
+   - **Strg+Z**: die alte Größe ist zurück.
+   - Unter „Etage verwalten“ ist danach „Größe selbst festlegen“ angehakt und die Zahlen passen zum Plan.
 21. **Flüssiger** (#253): die Demo beim Drehen der Kamera: sollte spürbar weniger ruckeln.
 
-Ausführlicher stehen die Punkte in den Abschnitten **28 bis 31** weiter unten.
+Ausführlicher stehen die Punkte in den Abschnitten **28 bis 32** weiter unten.
 
 ## Ältere offene Punkte (Stand 3.36.2, nur im echten Betrieb prüfbar)
 
@@ -435,3 +444,17 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 31.5 | Live-Modus ansehen | Über jeder Lampe, Kamera, jedem Schalter usw. schwebt eine kleine Kugel (unter Deckenlampen hängt sie darunter); sie leuchtet in der Lichtfarbe, wenn an. Antippen der Kugel schaltet bzw. öffnet das Gerät | |
 | 31.6 | Brücke: „Höhenunterschied am Ende“ groß machen, z. B. 1,2 m bei 4 m Länge | Statt einer steilen Rampe hat die Brücke Stufen | |
 | 31.7 | Strom-Editor einschalten, dann ein anderes Werkzeug wählen | Der Knopf „Strom-Editor“ bleibt blau, solange er an ist | |
+
+## 32. Dächer verschieben und ihre Größe ziehen (3.49.0 bis 3.50.0)
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 32.1 | Etage „Dach“, in 3D aufs Dach klicken | Rechts steht „Dach“ mit Ecke und Größe | |
+| 32.2 | Das ausgewählte Dach noch einmal drücken und ziehen (3D) | Es wandert flüssig mit, ohne Ruckeln; die Solarpanels darauf auch (3.49.1) | |
+| 32.3 | Dasselbe im 2D-Plan | Flüssig; das gestrichelte Dach und in 2D + 3D auch das 3D-Dach wandern mit | |
+| 32.4 | Loslassen | Das Dach sitzt genau dort, wo es beim Ziehen war | |
+| 32.5 | Im 2D-Plan an einer Ecke des ausgewählten Dachs ziehen (3.50.0) | Es wird größer/kleiner, die gegenüberliegende Ecke bleibt | |
+| 32.6 | An einer Seitenmitte ziehen | Nur diese Seite wandert | |
+| 32.7 | Eine Seite weit über die andere hinaus ziehen | Das Dach bleibt mindestens 1 m breit/tief | |
+| 32.8 | Strg+Z | Die alte Größe ist zurück | |
+| 32.9 | Ein weiteres Dach (unter „Etage verwalten“ → „+ Weiteres Dach“) auswählen und an den Ecken ziehen | Geht genauso; das Hauptdach bleibt unverändert | |

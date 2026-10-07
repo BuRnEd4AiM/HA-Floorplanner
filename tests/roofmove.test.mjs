@@ -52,3 +52,24 @@ test('the solar panels on a roof: only panels inside its box (they go along whil
   assert.deepEqual(R.panelsOn(f, { x0: 12, x1: 30, z0: 0, z1: 5 }).map((d) => d.id), ['s2']);
   assert.deepEqual(R.panelsOn({}, auto), []);
 });
+test('size handles: the corners and the middle of each side', () => {
+  const h = R.roofHandles(auto);
+  assert.deepEqual(h.map((q) => q.which), ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']);
+  assert.deepEqual([h[0].x, h[0].z, h[3].x, h[3].z, h[5].x, h[5].z], [0, 0, 10, 4, 5, 8]);
+});
+test('resizing at a handle: its sides follow on the grid, the others stay, never smaller than 1 m (#259)', () => {
+  assert.deepEqual(R.resizeBox(auto, 'se', 12.03, 9.98, 0.05), { x0: 0, x1: 12.05, z0: 0, z1: 10 });
+  assert.deepEqual(R.resizeBox(auto, 'n', 99, -1.52, 0.05), { x0: 0, x1: 10, z0: -1.5, z1: 8 });     // a side moves only its own edge
+  assert.deepEqual(R.resizeBox(auto, 'w', 9.8, 0, 0.05), { x0: 9, x1: 10, z0: 0, z1: 8 });           // at least 1 m wide
+  assert.deepEqual(R.resizeBox(auto, 'nw', 1.234, 2.345, 0), { x0: 1.234, x1: 10, z0: 2.345, z1: 8 });   // Alt: free
+});
+test('setting a roof box: the main roof keeps it, panels stay; no change gives false', () => {
+  const f = roofFloor();
+  assert.equal(R.setRoofBox(f, 'dach:roof', { x0: 0, x1: 12, z0: 0, z1: 8 }, auto), true);
+  assert.deepEqual(f.roof.box, { x0: 0, x1: 12, z0: 0, z1: 8 });
+  assert.deepEqual([f.devices[0].x, f.devices[0].z], [2, 2]);
+  assert.equal(R.setRoofBox(f, 'dach:roof', { x0: 0, x1: 12, z0: 0, z1: 8 }, auto), false);
+  assert.equal(R.setRoofBox(f, 'rp1', { x0: 5, x1: 4, z0: 0, z1: 1 }, auto), false);                 // not a box
+  assert.equal(R.setRoofBox(f, 'rp1', { x0: 12, x1: 18, z0: 0, z1: 5 }, auto), true);
+  assert.equal(f.roof.parts[0].box.x1, 18);
+});

@@ -312,7 +312,7 @@ export default {
   'nav.allRooms': 'Tutte',
   'prop.roof': 'Tetto',
   'roof.where': 'Angolo in alto a sinistra: {x} / {z} · dimensione {w} × {d}',
-  'roof.moveHint': 'Spostare: cliccare il tetto, poi premere di nuovo e trascinare (anche nella pianta 2D), o le frecce. I pannelli solari seguono. Forma, pendenza e dimensione: «Gestisci piano».',
+  'roof.moveHint': 'Spostare: cliccare il tetto, poi premere di nuovo e trascinare (anche nella pianta 2D), o le frecce. I pannelli solari seguono. Dimensione: trascinare gli angoli e i lati bianchi nella pianta 2D. Forma e pendenza: «Gestisci piano».',
   'set.belowLabels': 'Mostra nomi ed etichette dei piani inferiori',
   'set.belowLabelsHint': 'Disattivato: quando è mostrato un solo piano, i nomi delle stanze e le etichette dei valori dei piani inferiori vengono omessi per non coprire nulla. «Casa intera» mostra sempre tutto.',
   'nav.belowLabels': 'Etichette sotto',
