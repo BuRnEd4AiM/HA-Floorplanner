@@ -4,9 +4,25 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Heute zu Hause prüfen (Stand 3.53.0)
+## Heute zu Hause prüfen (Stand 3.56.1)
 
-Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.53.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
+Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.56.1** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
+
+**Neu seit 3.54.0** (ausführlich in Abschnitt **36** unten)
+
+**E. Gaubenfenster und Dach über dem Raum**
+22. **Gaubenfenster sind echte Fenster** (3.54.0, #269): Bearbeiten, Etage „Dachgeschoss“ (oder „Dach“). Auf das Fenster einer Gaube klicken: rechts kann man einen **Namen** und einen **Fensterkontakt** wählen. Im Live-Modus steht es in der Liste „n offen“, im Raum-Fenster und in der Suche.
+23. **Fenster in der Wand des Raums darunter** (3.56.0, #275): Steht eine Wand des Raums direkt hinter der Gaube, sitzt das Fenster **in dieser Wand** (mit Loch) und ist **im Raum zu sehen**. Sonst in der Gaube auf der Etage „Dach“ die Gaube anklicken und **„Vorderseite auf die Wand setzen“** drücken: die Gaube rutscht an die Wand, das Fenster sitzt jetzt darin.
+24. **Dach über dem Raum durchsichtig** (3.55.0, #273): Live, einen Raum unter dem Dach antippen (Raum-Ansicht): darüber ist die **Dachschräge mit Gaube durchsichtig** zu sehen, nur über diesem Raum. Dasselbe für eine ganze Etage unter dem Dach (3.56.0).
+
+**F. Handy** (am besten auf dem echten Handy, hochkant und quer)
+25. **☰-Menü** (3.56.1, #277): Live-Ansicht: oben links ist ein **☰-Knopf**. Antippen: die Knöpfe (Bearbeiten/Live, 2D/3D, Haus, Version, Benutzer, Zahnrad) klappen als **Liste nach unten** auf. Etwas wählen, daneben tippen oder ✕: die Liste geht zu.
+26. **Kein Hineinzoomen** (3.56.1, iPhone): in die **Suche** tippen: die Seite wird **nicht** größer gezoomt.
+27. **Raum antippen** (3.54.0 – 3.55.0, #267, #271): der Raum ist **über** der Raum-Karte unten zu sehen, nicht dahinter. Die Heizung steht **in** der Raum-Karte (kein zweites Feld oben). Kein dunkler Kasten über dem Bild.
+28. **Quer gehalten** (3.54.0): die Etagen-Knöpfe stehen oben als kleine Pillen und **verdecken den Kompass nicht**; die Knöpfe unten rutschen nicht aus dem Bild.
+29. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht mehr.
+
+**Noch von 3.53.0 offen** (falls schon geprüft: bitte kurz Bescheid geben, dann trage ich es ein)
 
 **A. Live-Modus** (oben „Live“ drücken)
 1. Über jeder Lampe, Kamera, dem Fernseher, Rollladen-Schalter usw. schwebt eine **größere Kugel mit kleinem Symbol** (💡 🪟 📷 📺 🌡 …). Unter Deckenlampen hängt sie **darunter**. Kugeln, die dicht beieinander liegen, rücken etwas auseinander und **verdecken sich nicht** (auch nicht die Wert-Schilder).
@@ -59,7 +75,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
    - **„Firsthöhe“**: z. B. 4 eintippen: das Dach wird so hoch (über der Wand bzw. dem Kniestock), die Neigung passt sich an.
 21. **Flüssiger** (#253): die Demo beim Drehen der Kamera: sollte spürbar weniger ruckeln.
 
-Ausführlicher stehen die Punkte in den Abschnitten **28 bis 32** weiter unten.
+Ausführlicher stehen die Punkte in den Abschnitten **28 bis 36** weiter unten.
 
 ## Ältere offene Punkte (Stand 3.36.2, nur im echten Betrieb prüfbar)
 
@@ -505,3 +521,20 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 35.4 | Wieder das Geschoss direkt darunter wählen | Wie vorher (nur das Dachgeschoss liegt unter der Schräge) | |
 | 35.5 | „Firsthöhe“ auf 4 m | Das Dach ist 4 m hoch über der Wand/dem Kniestock, die Neigung wurde angepasst | |
 | 35.6 | Haken „Ausgebauter Dachstuhl“ weg | Alles wie vorher: Dach oben drauf, keine abgeschnittenen Wände | |
+
+## 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.56.1)
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 36.1 | Bearbeiten, Etage „Dachgeschoss“: auf das Fenster einer Gaube klicken | Rechts: Name, Fensterkontakt (auch je Flügel), Fensterart | |
+| 36.2 | Kontakt verknüpfen, im echten Haus das Fenster öffnen | Das Gaubenfenster wird rot und kippt auf; es steht in „n offen“, im Raum-Fenster und in der Suche | |
+| 36.3 | Gaubenfenster löschen | Die Gaube hat kein Fenster mehr (die Gaube selbst bleibt) | |
+| 36.4 | Wand des Raums direkt hinter der Gaube | Das Fenster sitzt in dieser Wand, mit Loch, im Raum sichtbar; die Gaube zeigt von außen ihr Glas | |
+| 36.5 | Wand weiter weg: Gaube anklicken, „Vorderseite auf die Wand setzen“ | Die Gaube rutscht an die Wand, das Fenster sitzt darin; die Karte sagt, wo das Fenster sitzt | |
+| 36.6 | Live: Raum unter dem Dach antippen | Dachschräge und Gaube über diesem Raum durchsichtig, nur über dem Raum | |
+| 36.7 | Live: Etage direkt unter dem Dach öffnen | Das Dach darüber ist durchsichtig zu sehen, mit Gauben | |
+| 36.8 | Handy, Live: ☰ oben links antippen, etwas wählen | Liste klappt auf und nach der Wahl wieder zu | |
+| 36.9 | iPhone: in die Suche tippen | Kein Hineinzoomen | |
+| 36.10 | Handy: Raum antippen | Raum über der Raum-Karte sichtbar, Heizung in der Karte, kein dunkler Kasten | |
+| 36.11 | Handy quer | Etagen-Pillen oben, Kompass frei, Knöpfe unten vollständig | |
+| 36.12 | Tablet und PC | Alles wie vorher (die Handy-Änderungen gelten nur für schmale Bildschirme) | |
