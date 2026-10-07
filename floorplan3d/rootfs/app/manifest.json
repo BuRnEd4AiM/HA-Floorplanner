@@ -1,6 +1,6 @@
 {
  "version": "3.53.0",
- "buildHash": "9a28d6e13e9e30d94b491eac4a397a159f279588354816c5041a98e7d0fa7d42",
+ "buildHash": "86fe4ee682de4d7044306f3281f9c5febbf8d3094ebb7029e493b16c59aed07a",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -213,7 +213,7 @@
   "static/solarroof.js": "5fdc6e3c6f1203f08ad842abf1781641aa493c6abf2cd341de020b735fcd75db",
   "static/stairs.js": "739440443b5b346a356d0572ad8764ad1d51d2b918b617c4963d79dabc4e415e",
   "static/stairtool.js": "422659db0370707e2f2c9eb0a1dae7459f8c93d0fdf06f8a731447fd266607a5",
-  "static/style.css": "75e581152bf70e340b3f9003a324888583bdb85bc78129e183f94dd2de5c998b",
+  "static/style.css": "c82bf4b94d8152f2062b7d26658c5c6edb27eca4af6b65c986cc2833a5d3a4ba",
   "static/tapballs.js": "588e718fadb7e5c76575762f06fae0bcd1b7a2dbf2a4f08171c146d445626490",
   "static/toolbar.js": "5a23ab6ad9fe51afb2b365c87b4c24850d16b9090349687d247270f152569d3b",
   "static/vendor/LICENSE-polygon-clipping.txt": "28c223fd4e8d5c39518aa4c5e603d501ac9e9c5025d136b2e45fae5072ef0695",

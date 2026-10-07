@@ -443,8 +443,8 @@ body.v-2d #compass { display: none; }
 @media (max-width: 760px), (orientation: portrait) and (max-width: 1100px) {
   body #roomPanel, body.roomtablet #roomPanel { top: auto; left: 60px; right: 12px; bottom: 12px; width: auto; max-width: none; max-height: 52%; }
 }
-@media (max-width: 760px) {   /* phones: the sheet uses the full width (it covered half of the compass anyway) and keeps clear of the iPhone's home bar */
-  body #roomPanel, body.roomtablet #roomPanel { left: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 760px) {   /* phones: the sheet keeps clear of the iPhone's home bar (and, as before, leaves the search button free on the left) */
+  body #roomPanel, body.roomtablet #roomPanel { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
   #roomPanel { clip-path: inset(0 round 18px); }   /* without it Chrome painted a dark box over the 3D picture above the scrolling sheet, hiding the tapped room */
 }
 
