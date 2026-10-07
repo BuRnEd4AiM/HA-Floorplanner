@@ -29,3 +29,9 @@ test('polling: always while the channel is down, else once a minute', () => {
   assert.equal(L.pollDue(true, 1000, 1000 + L.FULL_MS - 1), false);
   assert.equal(L.pollDue(true, 1000, 1000 + L.FULL_MS + 1), true);
 });
+test('areas: which entity lies in which Home Assistant area; junk gives none', () => {
+  const r = L.areaIndex([{ id: 'kueche', name: 'Küche', entities: ['light.a', 'sensor.t'] }, { id: 'bad', name: 'Bad', entities: ['light.b'] }, { id: 'leer' }]);
+  assert.deepEqual(r.areaOf, { 'light.a': 'kueche', 'sensor.t': 'kueche', 'light.b': 'bad' });
+  assert.equal(r.areas.length, 3);
+  assert.deepEqual(L.areaIndex({ error: 'x' }), { areas: [], areaOf: {} });
+});

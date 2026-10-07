@@ -59,13 +59,16 @@ import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { toWorld, stairHandles } from './stairs.js';
 import { floorLabels } from './viewprefs.js';
 import { initTapBalls } from './tapballs.js';
-import { initLiveChannel } from './livechannel.js';
+import { initLiveChannel, fetchAreas } from './livechannel.js';
 import { initPersist } from './persist.js';
 import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { initEditItems } from './edititems.js';
 import { initPicking } from './picking.js';
 import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
+import { frameDue } from './frameloop.js';
+import { initHouseLoad } from './houseload.js';
+import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
@@ -74,20 +77,10 @@ import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefau
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
-const M_TO_FT = 3.28084;
 const params = new URLSearchParams(location.search);
 
-let settings = {
-  language: 'auto', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, seeThrough: false, placeSelect: true, updateCheck: true, autoBackup: false, backupEveryHours: 24, backupKeepDays: 14, backupKeepCount: 30, earth: 'solid', earthMargin: 5,
-  alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
-  wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
-  userRooms: {}, userViews: {}, userPresets: {}, belowVisibility: 0.5, belowMode: 'dim', belowLabels: true, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
-  tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
-  humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
-  co2Stops: [{ v: 400, c: '#2ad0a0' }, { v: 800, c: '#ffd84a' }, { v: 1200, c: '#ff8a2a' }, { v: 2000, c: '#ff3a3a' }],
-};
-const DEFAULT_LOOK = structuredClone(settings);
+let settings = defaultSettings();      // the stored settings come over these (appstate.js)
+const DEFAULT_LOOK = defaultSettings();
 let layout = { version: 1, floors: [] };
 let floorIdx = 0;
 let returnToTool = null;          // after placing a device the Select tool is active for one click, then this tool comes back
@@ -132,9 +125,9 @@ const isLive = () => mode === 'live';
 
 /* unit helpers – data is always stored in meters */
 const imperial = () => settings.units === 'imperial';
-const toDisp = (m) => +(imperial() ? m * M_TO_FT : m).toFixed(3);
-const fromDisp = (v) => (imperial() ? v / M_TO_FT : v);
-const fmtLen = (m) => (imperial() ? `${(m * M_TO_FT).toFixed(2)} ft` : `${m.toFixed(2)} m`);
+const toDisp = (m) => toDispOf(m, imperial());       // metres <-> what is shown (appstate.js)
+const fromDisp = (v) => fromDispOf(v, imperial());
+const fmtLen = (m) => fmtLenOf(m, imperial());
 /* input fields of the side panel and the entity picker: the code lives in propfields.js and entitypicker.js */
 const { field, inp, lenInput, pickerField } = initPropFields({ snapshot: () => snapshot(), changed: () => changed(), toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), imperial: () => imperial() });
 const { entityPicker, addEntityOptions } = initEntityPicker({ t, areas: () => areas, areaOf: () => areaOf });
@@ -717,52 +710,27 @@ function scheduleSave() { persist.schedule(); }
 
 /* ================= Houses (several floor plans): list, drop-down and buttons live in houses.js; loading a plan stays here ================= */
 const hs = initHouses({ $, t, params, save: () => save(), switchHouse: (id) => switchHouse(id), alert: (x) => alert(x) });
-async function switchHouse(id) {
-  if (id === hs.id() && layout) return;
-  if (persist.touched()) await save();                          // flush edits of the house we leave
-  hs.setCurrent(id);
-  try { layout = await (await fetch(hs.url())).json(); } catch { setStatus(t('loadFailed')); return; }
-  normalizeLayout();
-  persist.clearUndo();
-  floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
-  clearFocusOutline(); hs.renderUi(); neighbors.renderUi();
-  build(); fitCamera(); buildNav(true); bgUi.render(); renderFloorPanel(); renderObjList(); refreshSelection();
-}
-initImport({ t, lang: () => currentLanguage(), houseId: () => hs.id(), onImported: async (j) => {
-  hs.add(j);
-  await switchHouse(j.id);
-  setStatus(t('imp.done').replace('{name}', j.name));
-} });
+const houseLoad = initHouseLoad({
+  $, t, hs, hasLayout: () => !!layout, flush: async () => { if (persist.touched()) await save(); }, setStatus: (x) => setStatus(x),
+  alert: (x) => alert(x), confirm: (x) => confirm(x), reload: () => location.reload(),
+  opened: (l) => {                                                 // a plan was opened: the ground floor, nothing selected, a fresh undo list
+    layout = l;
+    normalizeLayout();
+    persist.clearUndo();
+    floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
+    clearFocusOutline(); hs.renderUi(); neighbors.renderUi();
+    build(); fitCamera(); buildNav(true); bgUi.render(); renderFloorPanel(); renderObjList(); refreshSelection();
+  },
+});
+function switchHouse(id) { return houseLoad.switchHouse(id); }
+initImport({ t, lang: () => currentLanguage(), houseId: () => hs.id(), onImported: (j) => houseLoad.openImported(j) });
 welcomeUi = initWelcome({
   t, getLayout: () => layout, isEdit: () => !isLive(),
   draw: () => { $('#viewSplit').click(); setTool('wall'); },
-  example: async () => {
-    try {
-      const ex = await (await fetch('api/import/examples/house')).text();
-      const r = await fetch(`api/import?name=${encodeURIComponent(t('wel.exampleName'))}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: ex });
-      const j = await r.json();
-      if (!r.ok || !j.id) throw new Error(j.error || r.status);
-      hs.add(j); await switchHouse(j.id);
-    } catch (err) { setStatus(`${t('loadFailed')}: ${err.message}`); }
-  },
+  example: () => houseLoad.openExample(),
   importJson: () => $('#importOpen').click(),
 });
 welcomeUi.update();
-$('#backupImport').addEventListener('click', () => $('#backupFile').click());
-$('#backupFile').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  e.target.value = '';
-  if (!file || !confirm(t('backup.confirm'))) return;
-  try {
-    if (persist.touched()) await save();
-    const r = await fetch('api/backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: await file.text() });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || r.status);
-    alert(t('backup.done', { h: j.houses }));
-    location.reload();
-  } catch (err) { alert(`${t('backup.failed')}: ${err.message}`); }
-});
-$('#houseSelect').addEventListener('change', (e) => switchHouse(e.target.value));
 
 function save() { return persist.save(); }
 
@@ -1270,15 +1238,7 @@ $('#housePanel').addEventListener('toggle', async () => {
 });
 
 /* ================= Data loading ================= */
-async function loadAreas() {
-  try {
-    const r = await fetch('api/areas');
-    const list = r.ok ? await r.json() : [];
-    areas = Array.isArray(list) ? list : [];
-  } catch { areas = []; }
-  areaOf = {};
-  areas.forEach((x) => x.entities.forEach((e) => { areaOf[e] = x.id; }));
-}
+async function loadAreas() { ({ areas, areaOf } = await fetchAreas()); }   // Home Assistant's areas and which entity is in which (livechannel.js)
 
 function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 
@@ -1318,10 +1278,11 @@ plan = createPlan({
 async function init() {
   if (params.get('kiosk')) document.body.classList.add('kiosk');
   try { me = await (await fetch('api/me')).json(); } catch { /* standalone */ }
-  tabletRoom = params.get('room') || me.room || null;
-  if (!me.canEdit || tabletRoom) document.body.classList.add('kiosk');
+  const start = startup(me, params);                      // wall tablet, room tablet, read-only, live (appstate.js)
+  tabletRoom = start.tabletRoom;
+  document.body.classList.toggle('kiosk', start.kiosk);
   if (tabletRoom) document.body.classList.add('roomtablet');
-  if (!me.canEdit) document.body.classList.add('readonly');
+  if (start.readonly) document.body.classList.add('readonly');
   if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
   if (!(await loadSettings())) setStatus(t('set.notLoaded'));
   settingsStore.usePreset(me.preset);                     // this user's / tablet's own start values for the look (#250)
@@ -1335,7 +1296,7 @@ async function init() {
   await palettes.loadModels();
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); bgUi.render(); renderFloorPanel();
-  if (params.get('mode') === 'live' || params.get('kiosk') || tabletRoom || !me.canEdit) setMode('live');
+  if (start.live) setMode('live');
   if (tabletRoom) {
     const hit = findRoomByName(tabletRoom);
     if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); roomPanel.open(hit.room.id); }
@@ -1351,11 +1312,9 @@ controls.addEventListener('change', wake);
 function animate(now = performance.now()) {
   requestAnimationFrame(animate);
   if (document.hidden) return;                                   // screen off / tab in background: draw nothing
-  const idle = now - lastActive > (LOW ? 4000 : 15000);           // nothing happens: a few frames a second are enough
-  if (LOW || idle) {
-    if (now - lastFrame < (idle ? (LOW ? 500 : 250) : 33)) return;
-    lastFrame = now;
-  }
+  const due = frameDue(now, lastActive, lastFrame, LOW);          // nothing happens or a weak tablet: a few frames a second are enough (frameloop.js)
+  if (!due.draw) return;
+  if (due.throttled) lastFrame = now;
   if (cams.pulse(now)) wake();   // a camera sees movement
   const pulsing = alertsUi.animate(now), finding = search.animate(now);       // pulsing warnings and the search ring move
   if (pulsing || finding || controls.autoRotate) wake();
