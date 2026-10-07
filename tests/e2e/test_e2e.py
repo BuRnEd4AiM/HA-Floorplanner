@@ -1661,13 +1661,15 @@ with sync_playwright() as p:
     pgSol.mouse.move(*mid); pgSol.mouse.down(); pgSol.mouse.move(mid[0] + 40, mid[1], steps=5); pgSol.mouse.move(mid[0] + 80, mid[1], steps=5); pgSol.mouse.up(); pgSol.wait_for_timeout(600)
     check("roofs (#255): in 3D the roof is picked, and pressed again it is dragged", (hit or {}).get("kind") == "roof" and (rsel() or "").startswith("roof:") and abs(rbox()["x0"] - b3["x0"]) > 0.2, (hit, rsel(), b3, rbox()))
     # --- a lived-in attic (#260): with a knee wall the roof starts in the storey below, whose walls are cut at the slopes
-    att = pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1, below = L[ri - 1];
-      const wid = below.walls[0]?.id, y0 = Math.min(...fp.roofMeshes().filter((m) => m.tag === 'main').map((m) => m.y));
-      const cut0 = wid ? fp.roofCut(wid) : -1;
-      L[ri].roof.knee = 1; L[ri].roof.type = 'gable'; fp.rebuild();
-      const y1 = Math.min(...fp.roofMeshes().filter((m) => m.tag === 'main').map((m) => m.y));
-      const r = { wid, cut0, cut1: wid ? fp.roofCut(wid) : -1, drop: +(y0 - y1).toFixed(3), base: +(y1 - fp.elev(ri - 1)).toFixed(3) };
-      delete L[ri].roof.knee; fp.rebuild(); r.cut2 = wid ? fp.roofCut(wid) : -1; return r; }""")
+    att = pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1, below = L[ri - 1], wid = below.walls[0]?.id;
+      const roofY = () => Math.min(...fp.roofMeshes().filter((m) => m.tag === 'main').map((m) => m.y));
+      const cutBelow = () => { fp.switchFloor(ri - 1); const n = wid ? fp.roofCut(wid) : -1; fp.switchFloor(ri); return n; };   // walls of the open floor only (the others are faded copies)
+      L[ri].roof.type = 'gable'; fp.rebuild();
+      const y0 = roofY(), cut0 = cutBelow();
+      L[ri].roof.knee = 1; fp.rebuild();
+      const y1 = roofY(), cut1 = cutBelow();
+      const r = { wid, cut0, cut1, drop: +(y0 - y1).toFixed(3), base: +(y1 - fp.elev(ri - 1)).toFixed(3) };
+      delete L[ri].roof.knee; fp.rebuild(); r.cut2 = cutBelow(); return r; }""")
     check("attic (#260): with a knee wall of 1 m the roof starts 1 m above the storey below and cuts its walls at both slopes; without, as before",
           att["wid"] and att["cut0"] == 0 and att["cut1"] == 2 and abs(att["base"] - 1) < 0.01 and att["drop"] > 0.5 and att["cut2"] == 0, att)
     pgSol.wait_for_timeout(2500)                                  # the autosave has run: put the layout back as it was for the next tests
