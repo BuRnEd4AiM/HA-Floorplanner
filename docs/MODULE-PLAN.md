@@ -20,7 +20,7 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `stairs.js` | ~410 | Treppengeometrie (gerade, L, U, Wendel, Wandtreppe mit Podesten, mehrere Etagen; `splitStoreys`: Teil über der offenen Etage, #246) |
 | `rooms.js` | 146 | Automatische Raumerkennung |
 | `dormer.js` | ~80 | Dachgauben (Geometrie, Größe des Fensters) |
-| `dormerwin.js` | ~50 | Fenster der Dachgauben als echte Fenster (Kontakt, offen/zu, Raum, Liste): eigene, nie gespeicherte Wand pro Gaubenfenster an der richtigen Etage, `openingWalls(f)` für alles, was Türen/Fenster sucht; reine Logik mit Unit-Tests |
+| `dormerwin.js` | ~110 | Fenster der Dachgauben als echte Fenster (Kontakt, offen/zu, Raum, Liste): nie gespeicherte Wand pro Gaubenfenster an der richtigen Etage, in der Wand des Raums darunter, wenn eine direkt hinter der Gaube steht (#275), „Vorderseite auf die Wand“; `openingWalls(f)` für alles, was Türen/Fenster sucht; reine Logik mit Unit-Tests |
 | `ledring.js` | 195 | LED-Ring |
 | `nanoleaf.js` | 179 | Nanoleaf-Formen und kleiner Editor |
 | `autoplace.js` | 179 | Automatisches Platzieren der Entitäten eines Bereichs |

@@ -6,6 +6,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Fixed
 - **Phones, ☰ menu**: in the live view the tool bar (Edit/Live, 2D/3D, house, version, users, settings) is folded into a ☰ button at the top left and opens as a drop-down list, instead of a row that had to be scrolled sideways; this also frees the top row for the house (`phonemenu.js`). Text fields on phones use 16 px text, so the iPhone no longer zooms the whole page in when the search is tapped. Desktop and tablets are unchanged.
 
+## [3.56.0] - 2026-10-07
+### Added
+- **Dormer window in the room's wall (#275)**: when a wall of the room under a dormer runs right behind the dormer's front (from 25 cm in front of it back to where the dormer meets the roof), the dormer window is now cut into that wall: it shows in the room (also in the room view), has a real hole in the wall and belongs to the room. The dormer's front keeps its glass pane from outside. If the wall lies further away, the new button **"Put the front on the wall"** in the dormer card moves the dormer so its front lies on the wall of the room below; the card also says where the window sits. `hostWall`, `eaveOntoWall`, `dormerWindows` in `dormerwin.js` with tests; texts in 7 languages.
+- **See-through roof over a floor**: like in the room view, a floor under the roof (the storey right under the roof floor, or under the slopes on a knee wall) now shows the roof over it see-through, with its dormers, when that floor is open.
+
 ## [3.55.0] - 2026-10-07
 ### Added
 - **See-through roof over a focused room**: when a room is chosen (room view), the roof over it is drawn see-through, with the roof slope and the dormers, but only the part over this room (cut to the room's outline), not the whole roof. So a dormer window in the room shows where it really sits. Works for the storeys under the slopes (knee wall) and for the storey right under the roof floor. `coverRoofFloor` in `attic.js` (with tests), the cut to the room's outline in `atticclip.js`, the drawing in `roofs.js`.
