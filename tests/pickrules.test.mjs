@@ -37,3 +37,13 @@ test('which hit wins: a door beats a device unless the device is clearly nearer;
   assert.equal(P.chooseHit([door(2), room], true, () => false), room);                   // live: a door linked to nothing does not count
   assert.equal(P.chooseHit([], true, yes), null);
 });
+test('live mode: a device with a ball is tapped on its ball only, the sections of an LED ring stay tappable (#262)', () => {
+  const has = (id) => id === 'lamp' || id === 'ring';
+  assert.equal(P.ballOnly({ kind: 'device', id: 'lamp' }, true, has), true);                 // the lamp itself: skipped
+  assert.equal(P.ballOnly({ kind: 'device', id: 'lamp', tapBall: true }, true, has), false);  // its ball: hit
+  assert.equal(P.ballOnly({ kind: 'device', id: 'plug' }, true, has), false);                 // no ball: as before
+  assert.equal(P.ballOnly({ kind: 'device', id: 'ring', seg: 2 }, true, has), false);         // an LED ring section
+  assert.equal(P.ballOnly({ kind: 'device', id: 'lamp' }, false, has), false);                // the editor: everything as before
+  assert.equal(P.ballOnly({ kind: 'room', id: 'lamp' }, true, has), false);
+  assert.equal(P.ballOnly(null, true, has), false);
+});

@@ -4,13 +4,14 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Heute zu Hause prüfen (Stand 3.50.0)
+## Heute zu Hause prüfen (Stand 3.51.0)
 
-Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.50.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
+Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.51.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
 
 **A. Live-Modus** (oben „Live“ drücken)
 1. Über jeder Lampe, Kamera, dem Fernseher, Rollladen-Schalter usw. schwebt eine **größere Kugel mit kleinem Symbol** (💡 🪟 📷 📺 🌡 …). Unter Deckenlampen hängt sie **darunter**. Kugeln, die dicht beieinander liegen, rücken etwas auseinander und **verdecken sich nicht** (auch nicht die Wert-Schilder).
 2. Lampe an: die Kugel leuchtet in der **Lichtfarbe**, aus: grau-blau. Ein **Tipp auf die Kugel** öffnet bzw. schaltet das Gerät.
+2a. **Neu: nur die Kugel zählt** (3.51.0, #262): die Kugeln sind **größer**. Auf eine **Lampe selbst** (nicht auf ihre Kugel) tippen: es passiert **nichts** am Gerät, der Tipp geht in den Raum (wie ein Tipp ins Leere). Auf die **Kugel** tippen: das Gerät öffnet bzw. schaltet sich. Ein LED-Ring lässt sich weiter **Abschnitt für Abschnitt** antippen. Geräte **ohne** Kugel verhalten sich wie bisher.
 3. Auf die **Anwesenheits-Figur**, einen **Temperatur-/CO₂-Sensor** und den **Sichtkegel der Kamera** tippen: es passiert **nichts**. Auf die **Kamera selbst** tippen: das Kamerabild öffnet sich.
 4. Oben die **Energie-Anzeige** zeigt nur Strom. **Daneben ein eigenes Feld** „🚰 1234.6 m³ · 🔥 845.2 m³ · ♨ 5321 kWh“. Unten „Strom“ drücken: nur das Strom-Feld leuchtet blau.
 4a. Treppe über 2 Etagen (z. B. Wendeltreppe mit „Etagen“ 2): im **Live** endet sie auf der gewählten Etage, **nichts darüber**. Im **Bearbeiten** ist der obere Teil durchsichtig zu sehen.
@@ -458,3 +459,14 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 32.7 | Eine Seite weit über die andere hinaus ziehen | Das Dach bleibt mindestens 1 m breit/tief | |
 | 32.8 | Strg+Z | Die alte Größe ist zurück | |
 | 32.9 | Ein weiteres Dach (unter „Etage verwalten“ → „+ Weiteres Dach“) auswählen und an den Ecken ziehen | Geht genauso; das Hauptdach bleibt unverändert | |
+
+## 33. Live-Modus: nur über die Kugel antippen (3.51.0)
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 33.1 | Live-Modus ansehen | Die Kugeln über den Geräten sind deutlich größer als vorher | |
+| 33.2 | Auf eine Lampe selbst tippen (nicht auf die Kugel) | Die Lampe schaltet nicht, es öffnet sich nichts für sie; der Tipp wirkt wie ein Tipp in den Raum | |
+| 33.3 | Auf die Kugel der Lampe tippen | Die Lampe öffnet bzw. schaltet sich wie bisher | |
+| 33.4 | Dasselbe mit Fernseher, Rollladen, Kamera | Nur die Kugel reagiert | |
+| 33.5 | LED-Ring mit mehreren Abschnitten: auf einen Abschnitt tippen | Dieser Abschnitt öffnet sich wie bisher | |
+| 33.6 | Ins Bearbeiten wechseln, auf eine Lampe klicken | Sie wird wie immer ausgewählt (die Regel gilt nur im Live-Modus) | |

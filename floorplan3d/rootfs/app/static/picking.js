@@ -1,10 +1,10 @@
 /* Picking in the 3D view (step 20 of the split, part 2, #137): the ray from the pointer into the scene, the point on the floor under it,
  * and what a click or tap hits. Which hits count and which one wins are the pure rules in pickrules.js. */
 import * as THREE from './vendor/three.module.min.js';
-import { skipInLive, linkedDevice, chooseHit } from './pickrules.js';
+import { skipInLive, linkedDevice, chooseHit, ballOnly } from './pickrules.js';
 
 /** ctx: canvas, camera, pickables (the list of hit targets), isLive(), elev() (height of the open floor), floor(), layout(),
- *  power ({ hides(id), isMode(), pick(e, hits) }), findOpening(id) */
+ *  power ({ hides(id), isMode(), pick(e, hits) }), findOpening(id), hasBall(id) (the device's tap ball is shown, #262) */
 export function initPicking(ctx) {
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), hitVec = new THREE.Vector3();
   function setRay(e) {
@@ -34,6 +34,7 @@ export function initPicking(ctx) {
       if (o && o.userData.kind === 'device' && ctx.power.hides(o.userData.id)) continue;        // the power editor: only power things are picked
       if (o && o.userData.cone) continue;                                                       // the cone of a camera is never hit, only the camera itself
       if (o && o.userData.kind === 'device' && live && (stealth(o.userData.id) || !linkedDevice(deviceOf(o.userData.id)))) continue;   // an invisible light, or a thing that is linked to nothing, cannot be tapped
+      if (o && ballOnly(seg != null ? { ...o.userData, seg } : o.userData, live, ctx.hasBall || (() => false))) continue;   // live mode: a device with a ball only on its ball (#262)
       if (o) hits.push({ data: seg != null ? { ...o.userData, seg } : o.userData, point: h.point, distance: h.distance });   // seg: which LED ring section was tapped
     }
     if (ctx.power.isMode()) return ctx.power.pick(e, hits);           // the power editor: nothing but power devices and cables can be hit

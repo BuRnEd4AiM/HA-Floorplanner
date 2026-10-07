@@ -75,7 +75,7 @@ Stand: Version 3.44.0. Hintergrund: Issue #137. Die Hauptdatei `floorplan3d/root
 | `roomclip.js` | ~45 | Raum freistellen: Punkt im Raum, Wand auf den Raum zuschneiden, Punkt-im-Polygon (Schritt 24); reine Geometrie mit Unit-Tests |
 | `modelfx.js` | ~70 | Trefferboxen eines Modells, Hologramm-Darstellung, Flaches unter den Böden (Schritt 24) |
 | `labels.js` | ~50 | Text im 3D-Bild: Raumname, Wert-Pille am Gerät, leuchtendes Strom-Schild (Schritt 24) |
-| `pickrules.js` | ~40 | Was ein Tipp im Live-Modus treffen darf (#234): keine Türen/Fenster, kein Kamera-Kegel, keine Anwesenheit; welcher von mehreren Treffern gewinnt; reine Logik mit Unit-Tests |
+| `pickrules.js` | ~50 | Was ein Tipp im Live-Modus treffen darf (#234): keine Türen/Fenster, kein Kamera-Kegel, keine Anwesenheit; Geräte mit Kugel nur über die Kugel (#262); welcher von mehreren Treffern gewinnt; reine Logik mit Unit-Tests |
 | `viewprefs.js` | ~75 | Voreinstellungen pro Benutzer/Tablet (#250: starten, nie als allgemeine Einstellung speichern) und Schilder der Etagen darunter (#249); reine Logik mit Unit-Tests |
 | `livechannel.js` | ~75 | Live-Kanal (Schritt 22, Teil 1): vom Add-on geschobene Zustände, Abfrage alle 4 s solange er fehlt, sonst einmal pro Minute; Zusammenführen und Fingerabdruck mit Unit-Tests |
 | `persist.js` | ~40 | Rückgängig (letzte 60 Stände) und automatisches Speichern des offenen Hauses (Schritt 22, Teil 2); Rückgängig-Liste mit Unit-Tests |

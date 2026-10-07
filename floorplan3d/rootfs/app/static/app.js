@@ -760,6 +760,7 @@ function save() { return persist.save(); }
 const picking = initPicking({
   canvas, camera, pickables, isLive: () => isLive(), elev: () => elev(), floor: () => floor(), layout: () => layout,
   power: { hides: (id) => power.hides(id), isMode: () => power.isMode(), pick: (e, hits) => power.pick(e, hits) }, findOpening: (id) => findOpening(id),
+  hasBall: (id) => tapBalls.shown(id),                                 // live mode: a device with a ball is tapped on its ball only (#262)
 });
 function setRay(e) { picking.setRay(e); }
 function groundPoint(e) { return picking.groundPoint(e); }
@@ -1422,6 +1423,7 @@ if (params.get('debug')) {
       const v = b.getWorldPosition(new THREE.Vector3()).project(camera), r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
+    ballSize: (id) => { const s = tapBalls.ball(id)?.children[0]; return s ? +s.scale.x.toFixed(3) : null; },   // the shown size of a tap ball (m, #262)
     neighborCount: () => world.children.filter((c) => c.userData.neighbor).length, neighborOutlines: () => neighbors.outlines(elev(floorIdx)).length,
     devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), bx = new THREE.Box3(); o.children.forEach((c) => { if (!c.userData.proxy) bx.expandByObject(c); }); const sz = bx.getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)], h: +sz.y.toFixed(2), minY: +bx.min.y.toFixed(3), visible: o.visible }; },
     roomArea(id) {                                                  // floor area actually built (test helper: shows cut-outs)

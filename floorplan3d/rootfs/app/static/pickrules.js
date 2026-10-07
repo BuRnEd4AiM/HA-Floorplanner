@@ -19,6 +19,13 @@ export function linkedDevice(d) {
   return !!d && !!(d.entity || d.ledEntity || (d.segs || []).some((s) => s.entity));
 }
 
+/** in the live mode a device with a tap ball is tapped on its ball only (#262): a hit on its model (data without tapBall) does not count, so
+ *  a tap into the room does not switch something by accident. The sections of an LED ring (data.seg) stay tappable, each is a light of its
+ *  own. hasBall(id): the device's ball is shown */
+export function ballOnly(data, live, hasBall) {
+  return !!live && data?.kind === 'device' && !data.tapBall && data.seg == null && !!hasBall(data.id);
+}
+
 /** which of the hits under the pointer wins ([{ data: { kind, id }, distance }], nearest first). Walls never block a tap: a lamp behind a
  *  lowered or see-through wall is still hit. Between a device and a door / window the door / window wins unless the device is clearly in
  *  front of it (more than 1.2 m nearer to the camera); in the live mode only doors / windows linked to something count (openingLinked(id)),
