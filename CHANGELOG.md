@@ -3,6 +3,11 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [3.55.0] - 2026-10-07
+### Added
+- **See-through roof over a focused room**: when a room is chosen (room view), the roof over it is drawn see-through, with the roof slope and the dormers, but only the part over this room (cut to the room's outline), not the whole roof. So a dormer window in the room shows where it really sits. Works for the storeys under the slopes (knee wall) and for the storey right under the roof floor. `coverRoofFloor` in `attic.js` (with tests), the cut to the room's outline in `atticclip.js`, the drawing in `roofs.js`.
+
 ### Fixed
 - **Phones, tapped room**: the heating is now part of the room sheet instead of a second panel at the top, so the room stays in view between them; the sheet keeps clear of the iPhone's home bar; a dark box that Chrome painted over the 3D picture above the scrolling sheet (it hid the tapped room) is gone (`clip-path` on the sheet); the camera comes a bit closer to the room. The demo's "changes are not saved" note fades out after a few seconds, it covered the buttons at the bottom. Desktop and tablets are unchanged.
 

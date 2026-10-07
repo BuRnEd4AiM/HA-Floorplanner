@@ -90,3 +90,11 @@ test('ridge height: set by the pitch, and the pitch for a typed height', () => {
   assert.equal(A.pitchFor(bb, spec, 0), 5);
   assert.equal(A.ridgeHeight(bb, { type: 'flat' }), 0);
 });
+
+test('the roof over a floor: the one that cuts its walls, else a roof floor right above; none under another storey', () => {
+  const fl = [{ id: 'eg', kind: 'floor' }, { id: 'og', kind: 'floor' }, { id: 'dg', kind: 'floor' }, { id: 'd', kind: 'roof', roof: { knee: 1, base: 'og' } }];
+  assert.deepEqual([0, 1, 2, 3].map((i) => A.coverRoofFloor(fl, i)), [-1, 3, 3, 3]);
+  fl[3].roof = {};
+  assert.deepEqual([0, 1, 2, 3].map((i) => A.coverRoofFloor(fl, i)), [-1, -1, 3, 3]);
+  assert.equal(A.coverRoofFloor([{ kind: 'floor' }], 0), -1);
+});

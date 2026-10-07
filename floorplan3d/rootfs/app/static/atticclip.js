@@ -59,3 +59,36 @@ export function cutAtRoof(m, uniforms) {
   m.customProgramCacheKey = () => 'attic';
   m.needsUpdate = true;
 }
+
+/* Only over one room: the roof over a focused room is drawn see-through, cut to the room's outline (a point-in-polygon test per pixel,
+ * the same as pointInPoly in roomclip.js). */
+export const MAX_POLY = 32;
+/** the uniforms for the outline pts [[x, z], ...] of a room (world frame), at most MAX_POLY corners */
+export function polyUniforms(pts) {
+  const p = pts.slice(0, MAX_POLY);
+  return { polyPts: { value: Array.from({ length: MAX_POLY }, (_, i) => new THREE.Vector2(...(p[i] || [0, 0]))) }, polyN: { value: p.length } };
+}
+const POLY = `
+  {
+    bool inPoly = false;
+    for (int i = 0; i < ${MAX_POLY}; i++) {
+      if (i >= polyN) break;
+      vec2 a = polyPts[i], b = polyPts[i == 0 ? polyN - 1 : i - 1];
+      if ((a.y > vPolyPos.z) != (b.y > vPolyPos.z) && vPolyPos.x < (b.x - a.x) * (vPolyPos.z - a.y) / (b.y - a.y) + a.x) inPoly = !inPoly;
+    }
+    if (!inPoly) discard;
+  }`;
+/** drop every pixel of material m that is not over the room (uniforms from polyUniforms) */
+export function clipToPoly(m, uniforms) {
+  m.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, uniforms);
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', `#include <common>\nvarying vec3 vPolyPos;`)
+      .replace('#include <project_vertex>', `#include <project_vertex>\n  vPolyPos = (modelMatrix * vec4(transformed, 1.0)).xyz;`);
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>\nuniform vec2 polyPts[${MAX_POLY}];\nuniform int polyN;\nvarying vec3 vPolyPos;`)
+      .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>${POLY}`);
+  };
+  m.customProgramCacheKey = () => 'roompoly';
+  m.needsUpdate = true;
+}
