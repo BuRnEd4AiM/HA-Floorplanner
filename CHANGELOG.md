@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.56.2] - 2026-10-07
+### Fixed
+- **Browser tests (CI)**: the tests sometimes acted before the page had loaded its house (fixed waits that were too short on a slow GitHub runner), so the check stayed red now and then although nothing was broken. The page now reports when it is ready (`ready()` in the test hook, only with `?debug=1`) and every test page waits for it after loading.
+
 ## [3.56.1] - 2026-10-07
 ### Fixed
 - **Phones, ☰ menu (#277)**: in the live view the tool bar (Edit/Live, 2D/3D, house, version, users, settings) is folded into a ☰ button at the top left and opens as a drop-down list, instead of a row that had to be scrolled sideways; this also frees the top row for the house (`phonemenu.js`). Text fields on phones use 16 px text, so the iPhone no longer zooms the whole page in when the search is tapped. Desktop and tablets are unchanged.

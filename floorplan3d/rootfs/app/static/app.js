@@ -1316,6 +1316,7 @@ plan = createPlan({
   area: (p) => (imperial() ? `${(polyArea(p) * 10.7639).toFixed(0)} ft²` : `${polyArea(p).toFixed(1)} m²`),
 });
 
+var booted = false;                                       // init() is through: layout, models and first scene are there (test hook ready())
 async function init() {
   if (params.get('kiosk')) document.body.classList.add('kiosk');
   try { me = await (await fetch('api/me')).json(); } catch { /* standalone */ }
@@ -1344,6 +1345,7 @@ async function init() {
     updateHouseToggle();
   }
   liveChan.start();                                         // first full list, the live channel, polling while it is down
+  booted = true;
 }
 
 var lastActive = performance.now(), lastFrame = 0;
@@ -1378,6 +1380,7 @@ animate();
 /* Test hook: only active with ?debug=1, used by the browser tests to find objects on screen. */
 if (params.get('debug')) {
   window.__fp = {
+    ready: () => booted,
     openRoomPanel(id) { roomPanel.open(id); },
     powerLinks: () => power.links(),
     powerInfo: () => power.info(),

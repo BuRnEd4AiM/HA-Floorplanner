@@ -1,6 +1,6 @@
 {
- "version": "3.56.1",
- "buildHash": "e32d3c59e72235be5eb153d04690038fff74f5bcc938014610816132c80fa124",
+ "version": "3.56.2",
+ "buildHash": "49a3a0bfc2dacf6ebb1ac2a00e864f347a2a4201ef8387f30c66ea10677dc8f8",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "4af8c83f0ba5e116f928f7a1b5f6ee791fec76cfa3745165139211ef66bbc000",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "3a541620793f7a69607719e4b2b337440d6e3d9f6876a765573fd3d02207262a",
-  "static/app.js": "3bb1d772159f16e09ff15b99d32f9ae25125734491fc8c1a22c8666d03064566",
+  "static/app.js": "3515d0d146e3c1d78232287fe89875ebac35addee10b0f64b2e934f5e2aaf028",
   "static/appstate.js": "1a015779e96afda76f43dafd576a7a5b805e2a13d7684195986a064ee8826f91",
   "static/attic.js": "f6143dd47f9c137dd8fc805e0d499ca964e8c11a415e5e81b8db6fe491819829",
   "static/atticclip.js": "02f3cc106db23fc3008c5230d1f9bf888a17e06a48ea0b926904bda56bdd9e10",

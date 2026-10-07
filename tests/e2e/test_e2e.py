@@ -38,6 +38,15 @@ with sync_playwright() as p:
         pg_ = _new_page(*a, **k)
         if not welcome:                         # the welcome card of an empty house would cover the canvas of the older checks
             pg_.add_init_script("try { localStorage.setItem('fp3d.welcome', '1'); } catch (e) {}")
+        def ready(go):                          # wait until the page has loaded its layout and built the scene; a fixed wait alone was too short on a slow CI runner
+            def run(*a, **k):
+                r = go(*a, **k)
+                if "debug=1" in pg_.url:
+                    try: pg_.wait_for_function("window.__fp && window.__fp.ready && window.__fp.ready()", timeout=30000)
+                    except Exception: pass      # pages that never finish starting keep the old behaviour (the checks after it say what is wrong)
+                return r
+            return run
+        pg_.goto, pg_.reload = ready(pg_.goto), ready(pg_.reload)
         return pg_
     b.new_page = new_page
     # --- first start: language follows the browser, dark design, welcome card on the empty house, default names
