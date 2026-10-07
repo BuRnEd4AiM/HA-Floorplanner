@@ -7,6 +7,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **No more skipped releases**: when several pull requests were merged in a row, GitHub cancelled waiting release runs and some versions got no release. Every release run now creates all missing releases (the versions in the changelog newer than the newest release, each at its own commit, oldest first; only the newest becomes "latest"), in a queue of its own. A manual run can also fill older gaps ("backfill"). The choice of versions is in `tools/release_versions.py` with tests. A version that only has a changelog entry but was never set in `config.yaml` (bundled into a later version) gets no release, instead of one pointing at the newest code.
 - **Demo directly on GitHub Pages (#133)**: the demo workflow now also publishes the freshly built demo as a web page, so it can be tried in the browser without a download. Needs Pages switched on once (Settings → Pages → Source: GitHub Actions).
 
+## [3.53.0] - 2026-10-07
+### Added
+- **Lived-in attic: dormers, several storeys, ridge height (#265)**:
+  - Where a dormer stands out of the roof, the walls under it are no longer cut at the slope; they reach up under the dormer (up to the ridge of a gable dormer), so the dormer shows in the cut.
+  - New choice "Roof starts on floor": the roof can start on a storey further down, e.g. two storeys under the slopes (Obergeschoss and Dachgeschoss); all of them are cut at the roof.
+  - New field "Ridge height": type the height of the ridge over the walls (or knee wall) and the pitch is worked out.
+  - The walls are now cut by a few lines of shader (`atticclip.js`) instead of three.js clipping planes, which cannot keep a dormer. `attic.js` has `roofBaseIdx`, `roofY0`, `dormerRooms`, `keptAt`, `ridgeHeight`, `pitchFor` with tests; texts in 7 languages.
+
 ## [3.52.0] - 2026-10-07
 ### Added
 - **Lived-in attic (#260)**: in "Manage floor" on the roof floor, the new box "Lived-in attic (the roof starts in the storey below)" lets the roof start inside the storey below the roof floor (e.g. the Dachgeschoss), on a knee wall of a set height (default 1 m). The walls of that storey are then cut off where they meet the roof slopes (gable and hip roofs; dormers and solar panels move down with the roof), so a living room under the slopes looks like one. The roof floor above becomes the loft (Spitzboden) for rooms and things stored up there. Walls drawn on the roof floor itself are cut at the roof too, also without a knee wall. New module `attic.js` (knee wall, which roof cuts which floor, the planes of the slopes) with tests; texts in all 7 languages.

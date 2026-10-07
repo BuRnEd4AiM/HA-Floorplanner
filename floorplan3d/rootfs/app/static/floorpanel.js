@@ -2,6 +2,7 @@
  * roof (shape, pitch, its own base, overhang, ridge), its dormers and further roofs (e.g. a flat roof over an annex). The rules for the base
  * boxes, new floors, moving floors and placing new dormers are pure functions (tested); initFloorPanel draws the panel. */
 import { dormerParts, DORMER_DEFAULT, DORMER_TYPES } from './dormer.js';
+import { ridgeHeight, pitchFor } from './attic.js';
 
 export const ROOF_DEFAULT = { type: 'gable', pitch: 35, overhang: 0.4 };
 /** an empty floor of a kind (a roof floor gets the default roof) */
@@ -125,6 +126,12 @@ export function initFloorPanel(ctx) {
     tsel.addEventListener('change', () => { ctx.snapshot(); r.type = tsel.value; redo(); });
     box.append(field(t('roof.type'), tsel));
     box.append(field(t('roof.pitch'), inp('number', r.pitch ?? 35, (v) => (r.pitch = clampPitch(v)), { step: 1 })));
+    const rbb = ctx.roofBox(layout.floors.indexOf(f));
+    if (rbb && r.type !== 'flat') {                                // the height of the ridge over the walls (or the knee wall) instead of the pitch (#265)
+      const rh = lenInput(() => +ridgeHeight(rbb, r).toFixed(2), (v) => { r.pitch = pitchFor(rbb, r, v); queueMicrotask(render); }, { min: 0.3, step: 0.1 });
+      rh.id = 'roofRidgeH';
+      box.append(field(t('roof.ridgeH'), rh));
+    }
     const manual = document.createElement('input'); manual.type = 'checkbox'; manual.id = 'roofManual'; manual.checked = !!r.box;
     manual.addEventListener('change', () => {
       ctx.snapshot();
@@ -139,7 +146,14 @@ export function initFloorPanel(ctx) {
     attic.addEventListener('change', () => { ctx.snapshot(); if (attic.checked) r.knee = 1; else delete r.knee; redo(); });
     const arow = document.createElement('label'); arow.className = 'chk'; arow.append(attic, ' ' + t('roof.attic'));
     box.append(arow);
-    if (r.knee != null) box.append(field(t('roof.knee'), lenInput(() => r.knee, (v) => (r.knee = Math.max(0, v)), { min: 0, step: 0.1 })));
+    if (r.knee != null) {
+      box.append(field(t('roof.knee'), lenInput(() => r.knee, (v) => (r.knee = Math.max(0, v)), { min: 0, step: 0.1 })));
+      const fi = layout.floors.indexOf(f), below = layout.floors.map((x, i) => [x, i]).filter(([x, i]) => i < fi && x.kind !== 'roof');
+      const bsel = select(below.map(([x]) => [x.id, x.name]).reverse(), r.base && below.some(([x]) => x.id === r.base) ? r.base : below.at(-1)?.[0].id ?? '',
+        (v) => { if (v === below.at(-1)?.[0].id) delete r.base; else r.base = v; });   // several storeys under the slopes (#265)
+      bsel.id = 'roofBase';
+      box.append(field(t('roof.base'), bsel));
+    }
     const ahelp = document.createElement('p'); ahelp.className = 'sub'; ahelp.id = 'roofAtticHelp'; ahelp.textContent = t('roof.atticHelp'); box.append(ahelp);
     const rsel = document.createElement('select'); rsel.id = 'roofRidge';
     [['', t('roof.auto')], ['x', 'X'], ['z', 'Z']].forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; rsel.append(o); });

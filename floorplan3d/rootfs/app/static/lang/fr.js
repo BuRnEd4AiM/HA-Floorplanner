@@ -312,6 +312,8 @@ export default {
   'nav.allRooms': 'Tout',
   'prop.roof': 'Toit',
   'roof.where': 'Coin en haut à gauche : {x} / {z} · taille {w} × {d}',
+  'roof.ridgeH': 'Hauteur du faîtage (au-dessus des murs ou de la jambette)',
+  'roof.base': 'Le toit commence à l’étage',
   'roof.attic': 'Combles aménagés (le toit commence à l’étage en dessous)',
   'roof.knee': 'Jambette (hauteur du mur jusqu’au toit)',
   'roof.atticHelp': 'Le toit ne repose alors plus sur l’étage en dessous mais commence dans celui-ci, sur la jambette, le mur bas à l’égout. Les murs de cet étage (p. ex. les combles) sont coupés à la pente du toit, les lucarnes restent. Cet étage « Toit » est alors le grenier au-dessus : vous pouvez y placer des pièces et des objets.',

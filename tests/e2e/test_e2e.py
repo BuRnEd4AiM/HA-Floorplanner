@@ -330,6 +330,12 @@ with sync_playwright() as p:
     k1 = pg2.evaluate("window.__fp.layout.floors.at(-1).roof.knee"); kf = pg2.locator("#roofAtticHelp").count()
     pg2.click("#roofAttic"); pg2.wait_for_timeout(300)
     check("roof (#260): 'lived-in attic' sets a knee wall of 1 m, unticked it is gone", k1 == 1 and kf == 1 and pg2.evaluate("'knee' in window.__fp.layout.floors.at(-1).roof") is False, (k1, kf))
+    pg2.click("#roofAttic"); pg2.wait_for_timeout(300)
+    nb = pg2.locator("#roofBase option").count(); rh0 = pg2.locator("#roofRidgeH").count()
+    if rh0: pg2.fill("#roofRidgeH", "3"); pg2.press("#roofRidgeH", "Enter"); pg2.wait_for_timeout(400)
+    p3 = pg2.evaluate("window.__fp.layout.floors.at(-1).roof.pitch")
+    pg2.click("#roofAttic"); pg2.wait_for_timeout(300)
+    check("roof (#265): with a lived-in attic the floor it starts on can be chosen; the ridge height sets the pitch", nb >= 1 and rh0 == 1 and p3 != 35 and 5 <= p3 <= 70, (nb, rh0, p3))
     pg2.click("#addDormer"); pg2.click("#addDormer"); pg2.wait_for_timeout(300)
     dm = pg2.evaluate("window.__fp.layout.floors.at(-1).roof.dormers")
     check("roof: dormers can be added (one per slope)", len(dm) == 2 and dm[0]["side"] != dm[1]["side"] and pg2.locator(".dormerCard").count() == 2, dm)
@@ -1664,14 +1670,19 @@ with sync_playwright() as p:
     att = pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1, below = L[ri - 1], wid = below.walls[0]?.id;
       const roofY = () => Math.min(...fp.roofMeshes().filter((m) => m.tag === 'main').map((m) => m.y));
       const cutBelow = () => { fp.switchFloor(ri - 1); const n = wid ? fp.roofCut(wid) : -1; fp.switchFloor(ri); return n; };   // walls of the open floor only (the others are faded copies)
-      L[ri].roof.type = 'gable'; fp.rebuild();
+      L[ri].roof.type = 'gable'; L[ri].roof.dormers = [{ side: 0, pos: 0.5 }]; fp.rebuild();
       const y0 = roofY(), cut0 = cutBelow();
       L[ri].roof.knee = 1; fp.rebuild();
       const y1 = roofY(), cut1 = cutBelow();
-      const r = { wid, cut0, cut1, drop: +(y0 - y1).toFixed(3), base: +(y1 - fp.elev(ri - 1)).toFixed(3) };
-      delete L[ri].roof.knee; fp.rebuild(); r.cut2 = cutBelow(); return r; }""")
+      fp.switchFloor(ri - 1); const keep = wid ? fp.roofKeep(wid) : -1; fp.switchFloor(ri);
+      const r = { wid, cut0, cut1, keep, drop: +(y0 - y1).toFixed(3), base: +(y1 - fp.elev(ri - 1)).toFixed(3) };
+      const lower = L.findIndex((f, i) => i < ri - 1 && f.kind !== 'roof' && f.walls.length && f.kind !== 'basement');
+      if (lower >= 0) { L[ri].roof.base = L[lower].id; fp.rebuild(); const yb = roofY(); fp.switchFloor(lower); r.lowerCut = fp.roofCut(L[lower].walls[0].id); r.lowerBase = +(yb - fp.elev(lower)).toFixed(3); fp.switchFloor(ri); delete L[ri].roof.base; }
+      delete L[ri].roof.knee; delete L[ri].roof.dormers; fp.rebuild(); r.cut2 = cutBelow(); return r; }""")
     check("attic (#260): with a knee wall of 1 m the roof starts 1 m above the storey below and cuts its walls at both slopes; without, as before",
           att["wid"] and att["cut0"] == 0 and att["cut1"] == 2 and abs(att["base"] - 1) < 0.01 and att["drop"] > 0.5 and att["cut2"] == 0, att)
+    check("attic (#265): a dormer keeps the wall up under it; the roof can start further down, then that storey is cut too",
+          att["keep"] == 1 and att.get("lowerCut", 2) == 2 and abs(att.get("lowerBase", 1) - 1) < 0.01, att)
     pgSol.wait_for_timeout(2500)                                  # the autosave has run: put the layout back as it was for the next tests
     pgSol.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", sol_saved); pgSol.wait_for_timeout(400)
     pgSol.close()

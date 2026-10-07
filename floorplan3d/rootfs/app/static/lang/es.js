@@ -312,6 +312,8 @@ export default {
   'nav.allRooms': 'Todas',
   'prop.roof': 'Tejado',
   'roof.where': 'Esquina superior izquierda: {x} / {z} · tamaño {w} × {d}',
+  'roof.ridgeH': 'Altura de la cumbrera (sobre los muros o el murete)',
+  'roof.base': 'El tejado empieza en la planta',
   'roof.attic': 'Ático habitable (el tejado empieza en la planta de abajo)',
   'roof.knee': 'Murete (altura del muro hasta el tejado)',
   'roof.atticHelp': 'El tejado ya no se apoya sobre la planta de abajo, sino que empieza en ella, sobre el murete, el muro bajo del alero. Los muros de esa planta (p. ej. el ático) se cortan en la pendiente del tejado, las buhardillas se mantienen. Esta planta «Tejado» es entonces el desván de encima: aquí puedes poner habitaciones y cosas.',

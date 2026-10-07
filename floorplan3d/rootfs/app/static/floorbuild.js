@@ -7,6 +7,7 @@ import { polyArea } from './rooms.js';
 import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js';
 import { inIso, clipWallToRoom } from './roomclip.js';
 import { buildWall, wallLength } from './walls.js';
+import { atticUniforms, cutAtRoof } from './atticclip.js';
 import { solarPose, groundFn } from './solarroof.js';
 import { addPickProxy, underFloors, holoify } from './modelfx.js';
 
@@ -135,6 +136,7 @@ export function initFloorBuild(ctx) {
   /** the walls with their doors and windows; on the open floor they take part in the cutaway and can be picked */
   function walls(g, f, i, o) {
     const { holo, ghost, iso } = o, low = ctx.lowWalls(), half = ctx.halfCut() && !low;
+    const attic = o.roofClip ? atticUniforms(o.roofClip) : null;   // under the roof (#260): the walls end at the slopes, not inside a dormer (#265)
     f.walls.forEach((w0) => {
       let w = w0;
       if (wallLength(w) < 0.01) return;
@@ -143,9 +145,11 @@ export function initFloorBuild(ctx) {
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : ctx.mat('#d9d4cc', ghost);
       const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge });
-      const clip = [...(half ? [new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (w.height || 2.6) * 0.5 + 0.001)] : []),   // half section: what sticks out above the cut (door leaves, window frames) is clipped off
-        ...(o.roofClip || [])];                                  // under the roof (#260): the wall ends at the slope
-      if (clip.length) wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = clip; }); });
+      if (half) {                                                // what sticks out above the cut (door leaves, window frames) is clipped off
+        const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (w.height || 2.6) * 0.5 + 0.001);
+        wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
+      }
+      if (attic) wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => cutAtRoof(m, attic)); });
       g.add(wg);
       if (!ghost) {
         const info = ctx.cutawayInfo(w, wg);

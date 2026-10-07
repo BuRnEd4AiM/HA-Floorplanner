@@ -312,6 +312,8 @@ export default {
   'nav.allRooms': 'Tutte',
   'prop.roof': 'Tetto',
   'roof.where': 'Angolo in alto a sinistra: {x} / {z} · dimensione {w} × {d}',
+  'roof.ridgeH': 'Altezza del colmo (sopra i muri o il muretto)',
+  'roof.base': 'Il tetto inizia al piano',
   'roof.attic': 'Sottotetto abitabile (il tetto inizia nel piano sotto)',
   'roof.knee': 'Muretto (altezza del muro fino al tetto)',
   'roof.atticHelp': 'Il tetto non poggia più sopra il piano sotto, ma inizia in esso, sul muretto, il muro basso alla gronda. I muri di quel piano (p. es. il sottotetto) vengono tagliati alla pendenza del tetto, gli abbaini restano. Questo piano «Tetto» è allora la soffitta sopra: qui puoi mettere stanze e oggetti.',
