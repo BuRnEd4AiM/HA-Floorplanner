@@ -1632,9 +1632,10 @@ with sync_playwright() as p:
     check("roofs (#255): the arrow keys nudge the selected roof", rbox()["x0"] < rb1["x0"] - 0.01, (rb1, rbox()))
     pgSol.keyboard.press("Control+z"); pgSol.keyboard.press("Control+z"); pgSol.wait_for_timeout(400)
     check("roofs (#255): undo puts the roof back", abs(rbox()["x0"] - rb0["x0"]) < 1e-6, (rb0, rbox()))
-    pgSol.evaluate("() => { const f = window.__fp.layout.floors.at(-1); f.devices = f.devices.filter((d) => d.id !== 'solTest'); window.__fp.rebuild(); }")   # nothing else on the roof
     # --- the size of a roof (#259): the selected roof has handles at its corners and sides in the 2D plan
-    pgSol.wait_for_timeout(400); pgSol.mouse.click(*p0); pgSol.wait_for_timeout(300)   # undo leaves nothing selected: pick the roof again
+    pgSol.mouse.click(*p0)                                      # undo leaves nothing selected: pick the roof again
+    try: pgSol.wait_for_selector("[data-roofh]", state="attached", timeout=4000)
+    except Exception: pass
     nh = pgSol.locator("[data-roofh]").count()
     hp = pgSol.evaluate("(() => { const e = document.querySelector('[data-roofh=\"se\"]'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; })()")
     if hp:
@@ -1645,6 +1646,7 @@ with sync_playwright() as p:
           nh == 8 and abs(rs["x1"] - rb0["x1"] - 1) < 0.06 and abs(rs["z1"] - rb0["z1"] - 0.5) < 0.06 and abs(rs["x0"] - rb0["x0"]) < 1e-6 and abs(rs["z0"] - rb0["z0"]) < 1e-6, (nh, rsel(), rb0, rs))
     pgSol.keyboard.press("Control+z"); pgSol.wait_for_timeout(400)
     check("roofs (#259): undo gives the roof its size back", abs(rbox()["x1"] - rb0["x1"]) < 1e-6, (rb0, rbox()))
+    pgSol.evaluate("() => { const f = window.__fp.layout.floors.at(-1); f.devices = f.devices.filter((d) => d.id !== 'solTest'); window.__fp.rebuild(); }")   # nothing else on the roof
     pgSol.click("#view3d"); pgSol.wait_for_timeout(600)
     cx, cz = (rb0["x0"] + rb0["x1"]) / 2, (rb0["z0"] + rb0["z1"]) / 2
     pgSol.evaluate(f"window.__fp.camAt({cx}, window.__fp.elev(window.__fp.layout.floors.length - 1) + 14, {cz + 0.5}, {cx}, {cz})"); pgSol.wait_for_timeout(600)
