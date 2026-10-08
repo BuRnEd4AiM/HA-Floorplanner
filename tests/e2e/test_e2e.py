@@ -1701,7 +1701,10 @@ with sync_playwright() as p:
     pgSol.keyboard.press("Control+z"); pgSol.keyboard.press("Control+z"); pgSol.wait_for_timeout(400)
     check("roofs (#255): undo puts the roof back", abs(rbox()["x0"] - rb0["x0"]) < 1e-6, (rb0, rbox()))
     # --- the size of a roof (#259): the selected roof has handles at its corners and sides in the 2D plan
-    pgSol.mouse.click(*p0)                                      # undo leaves nothing selected: pick the roof again
+    for _ in range(4):                                          # undo leaves nothing selected: pick the roof again (the plan may still be redrawing, so try again)
+        pgSol.mouse.click(*p0); pgSol.wait_for_timeout(300)
+        if (rsel() or "").startswith("roof:"): break
+        pgSol.keyboard.press("Escape"); pgSol.wait_for_timeout(300)
     try: pgSol.wait_for_selector("[data-roofh]", state="attached", timeout=4000)
     except Exception: pass
     nh = pgSol.locator("[data-roofh]").count()
