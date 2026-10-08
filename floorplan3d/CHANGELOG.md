@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.63.0] - 2026-10-08
+### Changed
+- **Phones only show the house** (#299): on a phone (touch screen, narrow or held sideways) the app always runs in the live mode and in 3D. The ☰ menu no longer offers Edit / Live, 2D and 2D + 3D or the users; switching house, „Fit“, the version and ⚙ stay. Tablets and computers are unchanged. Logic in `phonemenu.js` (`isPhoneScreen`, `phoneView`) with unit tests.
+
 ## [3.62.0] - 2026-10-08
 ### Added
 - **Several selected things move together**: after selecting several things with Shift / Ctrl + click or a frame, dragging one of them in the 2D plan (also in the 2D + 3D view) now moves all of them by the same amount, in one undo step; they stay selected. Walls joined to a moved wall stretch along, like when one wall is dragged; doors and windows go with their wall; locked things stay. A plain click on one of them still selects just that one. Logic in `multisel.js` (`groupTargets`, `moveGroup`) with unit tests.

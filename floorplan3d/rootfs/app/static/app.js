@@ -12,7 +12,7 @@ import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
-import { initPhoneMenu } from './phonemenu.js';
+import { initPhoneMenu, phoneView } from './phonemenu.js';
 import { initPhoneNav } from './phonenav.js';
 import { initPhoneStatus } from './phonestatus.js';
 import { initCameras } from './cameras.js';
@@ -661,7 +661,7 @@ const search = initSearch({
 });
 
 /* ================= Wall tablet (#61): the code lives in kiosk.js ================= */
-initPhoneMenu({ $ });                  // phones: the tool bar folds into a ☰ menu (phonemenu.js)
+const phoneMenu = initPhoneMenu({ $, onPhone: () => setMode('live') });   // phones: the tool bar folds into a ☰ menu, only live and 3D (phonemenu.js, #299)
 const kiosk = initKiosk({
   $, controls, settings: () => settings, states: () => states, isLive: () => isLive(),
   closeLivePopup: () => popup.close(), closeRoomPanel: () => roomPanel.close(), closeSearch: () => search.close(),
@@ -965,7 +965,7 @@ $('#importBtn').addEventListener('click', () => $('#importOpen').click());
 const toolbarUi = initToolbar({ t });
 
 function setMode(next) {
-  mode = next;
+  mode = next = phoneView(phoneMenu.isPhone(), { mode: next }).mode;   // phones only show the house (#299)
   if (power.isMode() && next === 'live') power.setMode(false);
   document.body.classList.toggle('live', isLive());
   document.querySelectorAll('#modeSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.mode === next));
@@ -981,6 +981,7 @@ function setMode(next) {
   if (plotLoop) plotLoop.visible = !isLive();
   applyViewPolicy();
   applyStates();
+  welcomeUi?.update();                                              // the welcome card is for the editor only
   requestAnimationFrame(resize);
 }
 document.querySelectorAll('#modeSwitch button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
@@ -1005,9 +1006,9 @@ function fitCamera() {
   controls.update();
 }
 function applyViewPolicy() {          // live mode: only the 3D view unless the user was given more (settings → users)
-  const lock = isLive() && me.view !== 'all';
+  const phone = phoneMenu.isPhone(), lock = (isLive() && me.view !== 'all') || phone;
   document.body.classList.toggle('viewlock', lock);
-  if (lock) setLayoutMode(['2d', 'split'].includes(me.view) ? me.view : '3d');
+  if (lock) setLayoutMode(phoneView(phone, { layoutMode: ['2d', 'split'].includes(me.view) ? me.view : '3d' }).layoutMode);
 }
 function setLayoutMode(m) {
   layoutMode = m;
@@ -1355,7 +1356,7 @@ async function init() {
   await palettes.loadModels();
   applySettings();
   fillFloorSelect(); fillEntities(); setTool('select'); resize(); build(); fitCamera(); bgUi.render(); renderFloorPanel();
-  if (start.live) setMode('live');
+  if (start.live || phoneMenu.isPhone()) setMode('live');
   if (tabletRoom) {
     const hit = findRoomByName(tabletRoom);
     if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); roomPanel.open(hit.room.id); }
