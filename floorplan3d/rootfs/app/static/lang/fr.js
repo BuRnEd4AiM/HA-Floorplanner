@@ -1,4 +1,5 @@
 export default {
+  'tl.zoom': 'Zoom de la frise (part de la journée affichée) ; aussi avec la molette',
   'tl.btn': 'Sécurité',
   'tl.tip': 'Sécurité : rejouer une journée et voir ce qui s’est allumé et éteint, et quand',
   'tl.title': 'Sécurité',

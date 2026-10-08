@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.65.0] - 2026-10-08
+### Added
+- **Sicherheit: zoom and icons on the time line**: a new 🔍 choice in the bar sets how much of the day the time line shows (24 h, 12 h, 6 h, 3 h, 1 h, 30 min, 10 min; on a computer also with the mouse wheel over the line). The line follows the playback and the times under it match the part shown. Every change is now an icon on the line (💡 light, 🚪 door, 🪟 window, 🏃 motion, 🔥 smoke, 🔒 lock, 👤 person, 🌡️ climate …), lit for "on"; events too close together share one icon with a count, so zooming in separates them. A tap on an icon jumps there; its tooltip lists what happened. The zoom chosen is remembered in the browser. Logic in `timeline.js` (`follow`, `markers`, `eventIcon`, unit tests).
+
 ## [3.64.2] - 2026-10-08
 ### Fixed
 - **Room view: no roof floating over the room** (#306): the see-through roof over a focused room (3.55.0) is now only drawn when the roof really belongs to the room: its slope cuts the room's floor (knee wall) or a dormer sits over the room. A roof that simply sits on top of the storey below is above the ceiling and no longer floats over every room. `roofOverRoom` in `attic.js` (unit test).

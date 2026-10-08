@@ -1,10 +1,12 @@
 /* Security (Sicherheit), the screen: the 🛡️ button in the tool bar, the list of recorded days, and the bar at the bottom with play,
- * pause, event to event, speed, a slider over the day with the events as little bars, and the list of what switched. While it is open
+ * pause, event to event, speed, a zoom (the slider shows 24 h … 10 min of the day) with every event as an icon on it, and the list of what switched. While it is open
  * the house shows the recorded states instead of the live ones and nothing can be switched (the app pauses the live channel and locks
  * "control"). The rules (states at a moment, events ...) are in timeline.js. */
-import { SPEEDS, parseDay, makePlayer, eventList, nextEvent, prevEvent, eventsAround, buckets, advance, eventKind, clock, dayChoices, todayIso } from './timeline.js';
+import { SPEEDS, ZOOMS, parseDay, makePlayer, eventList, nextEvent, prevEvent, eventsAround, advance, eventKind, clock, dayChoices, todayIso,
+  follow, zoomLabel, markers, tickTimes } from './timeline.js';
 
-const BARS = 96;                                          // the day in quarter hours
+const ICON_PX = 26;                                       // the width one icon needs on the time line: closer events share one icon
+const ZOOM_KEY = 'fp.tlZoom';                             // the zoom chosen last (this browser only)
 
 /** ctx: $, t, lang() (for the date), name(entity_id), enter() (live mode, live channel paused), exit(), show(recorded states) */
 export function initTimeline(ctx) {
@@ -63,20 +65,23 @@ export function initTimeline(ctx) {
   const speedSel = el('select', 'tlSpeed'); speedSel.dataset.i18nTitle = 'tl.speed'; speedSel.title = t('tl.speed');
   SPEEDS.forEach((s) => { const o = el('option', null, `×${s}`); o.value = String(s); speedSel.append(o); });
   speedSel.value = '60';
+  const zoomSel = el('select', 'tlZoom'); zoomSel.dataset.i18nTitle = 'tl.zoom'; zoomSel.title = t('tl.zoom');
+  ZOOMS.forEach((s) => { const o = el('option', null, `🔍 ${zoomLabel(s)}`); o.value = String(s); zoomSel.append(o); });
+  zoomSel.value = (() => { try { const v = localStorage.getItem(ZOOM_KEY); return ZOOMS.includes(Number(v)) ? v : '86400'; } catch { return '86400'; } })();
   const listBtn = b('📋', 'tl.events', 'tlListBtn');
   const last = el('span', 'tlLast');
-  const track = el('div', 'tlTrack'), bars = el('div', 'tlBars'), slider = el('input');
+  const track = el('div', 'tlTrack'), bars = el('div', 'tlMarks'), slider = el('input');
   slider.type = 'range'; slider.min = '0'; slider.max = '1000'; slider.step = '1'; slider.value = '0'; slider.dataset.i18nTitle = 'tl.title';
   track.append(bars, slider);
   const ticks = el('div', 'tlTicks');
-  [0, 6, 12, 18, 24].forEach((h) => ticks.append(el('span', null, `${String(h).padStart(2, '0')}:00`)));
   const evBox = el('div', 'tlEvents'); evBox.hidden = true;
   const row1 = el('div', 'tlRow');
-  row1.append(exitBtn, dayBtn, time, prevBtn, playBtn, nextBtn, speedSel, listBtn);
+  row1.append(exitBtn, dayBtn, time, prevBtn, playBtn, nextBtn, speedSel, zoomSel, listBtn);
   bar.append(row1, last, track, ticks, evBox);
   $('#stage').append(bar);
 
   let day = null, player = null, events = [], cur = 0, playing = false, raf = 0, lastTs = 0, shownIdx = -1, active = false;
+  let win = null, drawnWin = null;                        // the part of the day the slider shows, and the one the icons were drawn for
 
   async function start(name) {
     stop();
@@ -90,21 +95,36 @@ export function initTimeline(ctx) {
     document.body.classList.add('replay');
     bar.hidden = false;
     dayBtn.textContent = `📅 ${dateText(name)}`;
-    drawBars();
+    win = null; drawnWin = null;
     seek(day.frames[0]?.t ?? day.start, true);                   // from the moment the recording of that day began
   }
-  function drawBars() {
-    const n = buckets(events, day.start, day.start + 86400 > day.end ? day.start + 86400 : day.end, BARS), max = Math.max(1, ...n);
-    bars.replaceChildren(...n.map((v) => { const x = el('i'); x.style.height = v ? `${Math.max(12, (v / max) * 100)}%` : '0'; return x; }));
-    const done = el('i', 'tlFuture'); done.style.left = `${Math.min(100, ((day.end - day.start) / 86400) * 100)}%`;   // today: the rest of the day is still to come
-    bars.append(done);
+  const dayEnd = () => day.start + Math.max(day.end - day.start, 86400);   // the slider covers the whole day, also today's future
+  /** the icons of the events in the window, the times under it, today's part still to come */
+  function drawMarks() {
+    const { from, to } = win, span = to - from;
+    const list = markers(events, from, to, (track.clientWidth || 600) / ICON_PX);
+    bars.replaceChildren(...list.map((m) => {
+      const x = b('', null, `tlMark ${m.kind}`);
+      x.style.left = `${m.pct}%`;
+      x.textContent = m.icon;
+      if (m.count > 1) x.append(el('sup', null, String(m.count)));
+      x.title = m.events.slice(0, 6).map((e) => `${clock(e.t, span < 7200)} ${eventText(e)}`).join('\n') + (m.count > 6 ? `\n… +${m.count - 6}` : '');
+      x.addEventListener('click', (ev) => { ev.stopPropagation(); pause(); seek(m.t); });
+      return x;
+    }));
+    if (day.end < to) {                                    // today: the rest of the day is still to come
+      const done = el('i', 'tlFuture'); done.style.left = `${Math.max(0, ((day.end - from) / span) * 100)}%`; bars.append(done);
+    }
+    ticks.replaceChildren(...tickTimes(from, to, day.start).map((x) => { const l = el('span', null, clock(x, span < 600)); l.style.left = `${((x - from) / span) * 100}%`; return l; }));
+    drawnWin = win;
   }
-  const span = () => Math.max(day.end - day.start, 86400);
   function seek(tt, force = false) {
     if (!day) return;
     cur = Math.min(day.end, Math.max(day.start, tt));
     const r = player.seek(cur);
-    slider.value = String(Math.round(((cur - day.start) / span()) * 1000));
+    win = follow(win, cur, Number(zoomSel.value) || 86400, day.start, dayEnd());
+    if (win !== drawnWin) drawMarks();
+    slider.value = String(Math.round(((cur - win.from) / (win.to - win.from)) * 1000));
     time.textContent = clock(cur);
     if (force || r.idx !== shownIdx) {
       shownIdx = r.idx;
@@ -159,7 +179,18 @@ export function initTimeline(ctx) {
   playBtn.addEventListener('click', () => (playing ? pause() : play()));
   prevBtn.addEventListener('click', () => { const e = prevEvent(events, cur); pause(); seek(e ? e.t : day.start); });
   nextBtn.addEventListener('click', () => { const e = nextEvent(events, cur); pause(); seek(e ? e.t : day.end); });
-  slider.addEventListener('input', () => { if (day) seek(day.start + (Number(slider.value) / 1000) * span()); });
+  slider.addEventListener('input', () => { if (day) seek(win.from + (Number(slider.value) / 1000) * (win.to - win.from)); });
+  zoomSel.addEventListener('change', () => {
+    try { localStorage.setItem(ZOOM_KEY, zoomSel.value); } catch { /* private window: not remembered */ }
+    if (day) seek(cur, true);
+  });
+  track.addEventListener('wheel', (e) => {                // mouse wheel over the time line: zoom in / out
+    if (!day) return;
+    e.preventDefault();
+    const i = ZOOMS.indexOf(Number(zoomSel.value)), j = Math.min(ZOOMS.length - 1, Math.max(0, i + (e.deltaY > 0 ? -1 : 1)));
+    if (j !== i) { zoomSel.value = String(ZOOMS[j]); zoomSel.dispatchEvent(new Event('change')); }
+  }, { passive: false });
+  addEventListener('resize', () => { if (day) drawMarks(); });
   listBtn.addEventListener('click', () => { evBox.hidden = !evBox.hidden; listBtn.classList.toggle('active', !evBox.hidden); if (!evBox.hidden) renderEvents(); });
   exitBtn.addEventListener('click', exit);
   dayBtn.addEventListener('click', () => { pause(); openDays(); });

@@ -95,3 +95,43 @@ test('the entity list as it was: recorded fields replace the live ones, the rest
   assert.equal(out[2].brightness, 10);
   assert.equal(live[0].state, 'on');                       // the live list itself is untouched
 });
+
+test('zoom: the window keeps still while t is inside, moves along at the edges, stays in the day', () => {
+  const lo = 0, hi = 86400, span = 3 * 3600;
+  assert.deepEqual(T.follow(null, 10, 86400, lo, hi), { from: 0, to: 86400 });
+  const w = T.follow(null, 36000, span, lo, hi);
+  assert.equal(w.to - w.from, span);
+  assert.ok(36000 > w.from && 36000 < w.to);
+  assert.equal(T.follow(w, 36000 + 600, span, lo, hi), w);             // still inside: the same window
+  const n = T.follow(w, w.to + 10, span, lo, hi);                      // played past the right edge: t now near the left
+  assert.ok(n.from > w.from && w.to + 10 - n.from < span / 2);
+  const b = T.follow(w, w.from - 10, span, lo, hi);                    // back past the left edge: t near the right
+  assert.ok(b.to - (w.from - 10) < span / 2);
+  assert.deepEqual(T.follow(null, 100, span, lo, hi), { from: 0, to: span });      // never before the day …
+  assert.deepEqual(T.follow(null, 86390, span, lo, hi), { from: hi - span, to: hi }); // … nor after it
+  const z = T.follow(w, 36000, 3600, lo, hi);                          // other zoom: centred on t
+  assert.equal(z.from, 36000 - 1800);
+  assert.equal(T.zoomLabel(10800), '3 h');
+  assert.equal(T.zoomLabel(600), '10 min');
+});
+
+test('icons of events and the markers on the time line', () => {
+  assert.equal(T.eventIcon({ id: 'light.a' }), '💡');
+  assert.equal(T.eventIcon({ id: 'binary_sensor.d', s: { dc: 'door' } }), '🚪');
+  assert.equal(T.eventIcon({ id: 'binary_sensor.w', s: { dc: 'window' } }), '🪟');
+  assert.equal(T.eventIcon({ id: 'binary_sensor.m', s: { dc: 'motion' } }), '🏃');
+  assert.equal(T.eventIcon({ id: 'lock.f', to: 'unlocked' }), '🔓');
+  assert.equal(T.eventIcon({ id: 'person.x' }), '👤');
+  assert.equal(T.eventIcon({ id: 'weird.x' }), '•');
+  const ev = [{ t: 10, id: 'light.a', to: 'on' }, { t: 12, id: 'light.b', to: 'on' }, { t: 14, id: 'binary_sensor.d', to: 'on', s: { dc: 'door' } },
+    { t: 60, id: 'binary_sensor.d', to: 'off', s: { dc: 'door' } }, { t: 500, id: 'light.a', to: 'off' }];
+  const m = T.markers(ev, 0, 100, 10);                                 // icons 10 s wide; the event at 500 is outside
+  assert.equal(m.length, 2);
+  assert.ok(T.markers([{ t: 9, id: 'light.a' }, { t: 11, id: 'light.b' }], 0, 100, 10).length === 1);   // close, though either side of a 10 s mark
+  assert.deepEqual([m[0].count, m[0].icon, m[0].pct, m[0].kind], [3, '💡', 10, 'on']);
+  assert.deepEqual([m[1].count, m[1].icon, m[1].pct, m[1].kind], [1, '🚪', 60, 'off']);
+  assert.equal(T.markers(ev, 0, 100, 1000).length, 4);                 // zoomed in far enough: every event its own icon
+  assert.deepEqual(T.tickTimes(0, 86400), [0, 21600, 43200, 64800, 86400]);                 // a day: every 6 h
+  assert.deepEqual(T.tickTimes(41040, 51840), [41400, 43200, 45000, 46800, 48600, 50400]); // 11:24 … 14:24: every 30 min from 11:30
+  assert.deepEqual(T.tickTimes(1100, 1700, 1000), [1120, 1240, 1360, 1480, 1600]);         // every 2 min, counted from midnight (origin)
+});
