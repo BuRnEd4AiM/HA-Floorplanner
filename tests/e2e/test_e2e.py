@@ -749,7 +749,7 @@ with sync_playwright() as p:
     check("object list is grouped and filterable", ngrp >= 2 and nfilt == 0, (ngrp, nfilt))
     nl = pg9.locator("#objList .objlock").count()
     check("object list has a lock checkbox per item", nl >= 4, nl)
-    count_locked = "window.__fp.layout.floors.flatMap(f => [...f.rooms, ...f.walls, ...f.devices]).filter(x => x.locked).length"
+    count_locked = "window.__fp.layout.floors.flatMap(f => [...f.rooms, ...f.walls, ...f.walls.flatMap(w => w.openings || []), ...f.devices, ...(f.blocks || [])]).filter(x => x.locked).length"   # doors and windows have a lock box too
     locked0 = pg9.evaluate(count_locked)                       # an earlier step may have left an item locked: compare the change, not an absolute number
     idx = pg9.evaluate("[...document.querySelectorAll('#objList details[open] .objlock')].findIndex(c => !c.checked)")
     pg9.locator("#objList details[open] .objlock").nth(idx).check(); pg9.wait_for_timeout(300)
