@@ -1,4 +1,5 @@
 export default {
+  'tl.zoom': 'Powiększenie osi czasu (jaka część dnia); także kółkiem myszy',
   'tl.btn': 'Bezpieczeństwo',
   'tl.tip': 'Bezpieczeństwo: odtwórz dzień i zobacz, co i kiedy się włączało i wyłączało w domu',
   'tl.title': 'Bezpieczeństwo',

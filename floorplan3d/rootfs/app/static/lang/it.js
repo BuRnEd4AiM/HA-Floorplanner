@@ -1,4 +1,5 @@
 export default {
+  'tl.zoom': 'Zoom della linea del tempo (parte del giorno mostrata); anche con la rotella del mouse',
   'tl.btn': 'Sicurezza',
   'tl.tip': 'Sicurezza: riprodurre un giorno e vedere cosa si è acceso e spento in casa, e quando',
   'tl.title': 'Sicurezza',

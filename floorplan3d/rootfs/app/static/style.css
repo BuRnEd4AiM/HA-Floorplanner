@@ -700,12 +700,20 @@ body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset;
 #tlBar .tlPlay { min-width: 46px; }
 #tlBar .tlDayBtn { max-width: 46%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #tlBar .tlLast { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#tlBar .tlTrack { position: relative; height: 34px; }
-#tlBar .tlBars { position: absolute; inset: 0 0 12px; display: flex; align-items: flex-end; gap: 1px; pointer-events: none; }
-#tlBar .tlBars i { flex: 1; background: var(--accent); opacity: .55; border-radius: 2px 2px 0 0; }
-#tlBar .tlBars i.tlFuture { position: absolute; top: 0; bottom: 0; right: 0; flex: none; background: repeating-linear-gradient(135deg, transparent 0 5px, var(--line) 5px 7px); opacity: .6; border-radius: 0; }
+#tlBar .tlTrack { position: relative; height: 56px; }
+#tlBar .tlMarks { position: absolute; left: 0; right: 0; top: 0; height: 34px; }
+#tlBar .tlMark { position: absolute; bottom: 2px; transform: translateX(-50%); z-index: 1; width: 24px; height: 24px; min-height: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1; border-radius: 50%;
+  background: var(--field); border: 1px solid var(--line); }
+#tlBar .tlMark::after { content: ''; position: absolute; left: 50%; bottom: -8px; width: 1px; height: 7px; background: var(--muted); }
+#tlBar .tlMark.on { border-color: #ffc861; box-shadow: 0 0 6px rgba(255, 200, 97, .55); }
+#tlBar .tlMark.off { opacity: .7; }
+#tlBar .tlMark sup { position: absolute; top: -6px; right: -7px; min-width: 14px; padding: 0 3px; border-radius: 7px; font-size: 9px; line-height: 14px;
+  background: var(--accent); color: var(--accent-text); font-weight: 700; }
+#tlBar .tlFuture { position: absolute; top: 0; bottom: -20px; right: 0; background: repeating-linear-gradient(135deg, transparent 0 5px, var(--line) 5px 7px); opacity: .6; pointer-events: none; }
 #tlBar input[type=range] { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; margin: 0; accent-color: var(--accent); }
-#tlBar .tlTicks { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: -2px; }
+#tlBar .tlTicks { position: relative; height: 13px; font-size: 10px; color: var(--muted); margin: -2px 6px 0; }
+#tlBar .tlTicks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
 #tlBar .tlEvents { display: flex; flex-direction: column; gap: 2px; max-height: 30vh; overflow-y: auto; border-top: 1px solid var(--line); padding-top: 6px; }
 #tlBar .tlEvents[hidden] { display: none; }
 #tlBar .tlEv { display: flex; gap: 10px; align-items: center; text-align: left; min-height: 30px; border-color: transparent; background: transparent; }

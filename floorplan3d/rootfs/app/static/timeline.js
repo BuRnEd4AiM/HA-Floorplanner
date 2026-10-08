@@ -133,3 +133,68 @@ export function todayIso(now = new Date()) {
   const p = (n) => String(n).padStart(2, '0');
   return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
 }
+
+/* ---- Zoom of the time line: the slider shows a window of the day (24 h … 10 min), the events in it as icons ---- */
+
+/** the window sizes offered (seconds) */
+export const ZOOMS = [86400, 43200, 21600, 10800, 3600, 1800, 600];
+
+/** "24 h", "3 h", "30 min" */
+export const zoomLabel = (s) => (s >= 3600 ? `${s / 3600} h` : `${s / 60} min`);
+
+/** the window that shows the moment t: the one before when t is still well inside it (so the slider does not jump while it is dragged),
+ *  else a new one with t near the side it came from; always inside lo..hi (the day). win: { from, to } or null */
+export function follow(win, t, span, lo, hi) {
+  const range = Math.max(1, hi - lo);
+  if (span >= range) return { from: lo, to: hi };
+  const edge = span * 0.03;
+  if (win && Math.abs(win.to - win.from - span) < 1e-6 && t >= win.from + edge && t <= win.to - edge) return win;
+  let from = !win || t > win.to - edge ? t - span * 0.2 : t - span * 0.8;     // moving on: t near the left edge; going back: near the right
+  if (win && t > win.from && t < win.to && Math.abs(win.to - win.from - span) >= 1e-6) from = t - span / 2;   // a new zoom: centred
+  from = Math.min(Math.max(from, lo), hi - span);
+  return { from, to: from + span };
+}
+
+/** the icon of an event: what kind of thing switched (a light, a door, a person …) */
+export function eventIcon(e) {
+  const dom = (e.id || '').split('.')[0], dc = e.s?.dc;
+  if (dom === 'binary_sensor') {
+    if (/door|garage/.test(dc || '')) return '🚪';
+    if (dc === 'window' || dc === 'opening') return '🪟';
+    if (/motion|occupancy|presence/.test(dc || '')) return '🏃';
+    if (dc === 'smoke' || dc === 'heat') return '🔥';
+    if (dc === 'gas' || dc === 'carbon_monoxide') return '⚠️';
+    if (dc === 'moisture') return '💧';
+    return '🔔';
+  }
+  if (dom === 'lock') return e.to === 'unlocked' ? '🔓' : '🔒';
+  return { light: '💡', switch: '🔌', cover: '↕️', person: '👤', device_tracker: '👤', climate: '🌡️', fan: '🌀', media_player: '📺', input_boolean: '🔘',
+    alarm_control_panel: '🚨', siren: '🚨', vacuum: '🧹', humidifier: '💦', water_heater: '♨️', valve: '🚰' }[dom] || '•';
+}
+
+/** the icons on the time line: events in the window; an event closer than one icon width (span / n) to the icon before joins it (with a count),
+ *  so icons never overlap. Returns [{ t (first event), pct (0..100 from the left), icon (the most common), count, kind ('on' | 'off' | 'other'
+ *  of the first), events }] */
+export function markers(events, from, to, n) {
+  const span = Math.max(1e-6, to - from), gap = span / Math.max(1, n), out = [];
+  events.forEach((e) => {
+    if (e.t < from || e.t > to) return;
+    const g = out.at(-1);
+    if (g && e.t - g.t < gap) g.events.push(e); else out.push({ t: e.t, events: [e] });
+  });
+  return out.map(({ t, events: list }) => {
+    const n2 = {}; list.forEach((e) => { const i = eventIcon(e); n2[i] = (n2[i] || 0) + 1; });
+    const icon = Object.keys(n2).sort((a, b) => n2[b] - n2[a])[0];
+    return { t, pct: ((t - from) / span) * 100, icon, count: list.length, kind: eventKind(list[0]), events: list };
+  });
+}
+
+/** the steps the labels under the time line may use (seconds): round clock times */
+const TICK_STEPS = [60, 120, 300, 600, 900, 1800, 3600, 7200, 10800, 21600];
+
+/** the labels under the time line: round clock times (every 1, 2, 5 … minutes or hours, counted from midnight `origin`), about `n` of them */
+export function tickTimes(from, to, origin = 0, n = 6) {
+  const step = TICK_STEPS.find((x) => x >= (to - from) / n) || TICK_STEPS.at(-1), out = [];
+  for (let x = origin + Math.ceil((from - origin) / step) * step; x <= to + 1e-6; x += step) out.push(x);
+  return out;
+}

@@ -1,4 +1,5 @@
 export default {
+  'tl.zoom': 'Zoom van de tijdlijn (welk deel van de dag); ook met het muiswiel',
   'tl.btn': 'Beveiliging',
   'tl.tip': 'Beveiliging: een dag afspelen en zien wat er in huis aan en uit ging, en wanneer',
   'tl.title': 'Beveiliging',
