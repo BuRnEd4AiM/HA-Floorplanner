@@ -53,3 +53,15 @@ test('phones (#290): the short card is much narrower than the narrow card', () =
   const parts = ['Räume: 6', 'Lichter an: 7', 'Fenster offen: 1'];
   assert.ok(F.compactWidth('Erdgeschoss', F.compactParts({ rooms: 6, lights: 7, windows: 1 })) < F.cardWidths('Erdgeschoss', parts).narrowW);
 });
+test('phones (#292): a free column on the right for the cards, only on phones with cards', () => {
+  assert.equal(F.cardColumn({ w: 390, phone: true, cards: 4 }), 125);
+  assert.equal(F.cardColumn({ w: 320, phone: true, cards: 2 }), 118);
+  assert.equal(F.cardColumn({ w: 760, phone: true, cards: 2 }), 150);
+  assert.equal(F.cardColumn({ w: 1200, phone: false, cards: 4 }), 0);
+  assert.equal(F.cardColumn({ w: 390, phone: true, cards: 0 }), 0);
+});
+test('phones (#292): the camera goes back so the house fits left of the column', () => {
+  assert.equal(F.columnZoom(400, 100), 400 / 300);
+  assert.equal(F.columnZoom(400, 0), 1);
+  assert.equal(F.columnZoom(0, 100), 1);
+});

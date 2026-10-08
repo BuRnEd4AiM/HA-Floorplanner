@@ -16,7 +16,7 @@ import { initPhoneMenu } from './phonemenu.js';
 import { initPhoneNav } from './phonenav.js';
 import { initPhoneStatus } from './phonestatus.js';
 import { initCameras } from './cameras.js';
-import { initFloorCards } from './floorcards.js';
+import { initFloorCards, columnZoom } from './floorcards.js';
 import { initFloorRail } from './floorrail.js';
 import { initHouses } from './houses.js';
 import { initSettingsUi } from './settingsui.js';
@@ -884,7 +884,7 @@ const roomPanel = initRoomPanel({
   closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
 });
 /* ---- Phones: the room shows above the room sheet, not behind it; the code lives in sheetview.js ---- */
-sheetView = initSheetView({ camera, canvas, panel: $('#roomPanel') });
+sheetView = initSheetView({ camera, canvas, panel: $('#roomPanel'), side: () => floorCards.column() });   // side: the floor cards' column (phones)
 function handleLiveTap(e) { liveSelect(pick(e)); }
 function liveSelect(h) {
   if (h?.kind === 'device' || h?.kind === 'opening') popup.show(h.id, h.seg ?? null);
@@ -993,7 +993,8 @@ function fitCamera() {
   const { cx, cz, size } = houseMode ? houseBounds() : floorBounds();
   const midY = houseMode ? (elev(layout.floors.length - 1) + elev(0)) / 2 + FLOOR_H / 2 : elev();
   const span = houseMode ? Math.max(size, elev(layout.floors.length - 1) - elev(0) + FLOOR_H) : size;   // pulled-apart floors are tall
-  const dist = (span * 1.25 + 2) * Math.max(1, 1.0 / (camera.aspect || 1));
+  sheetView?.apply();                  // phones, whole house: the picture moves left, the cards get a column on the right (floorcards.js)
+  const dist = (span * 1.25 + 2) * Math.max(1, 1.0 / (camera.aspect || 1)) * columnZoom(canvas.clientWidth, floorCards.column());
   controls.target.set(cx, midY, cz);
   if (is2d) camera.position.set(cx, midY + dist * 1.2, cz + 0.001);
   else camera.position.set(cx + dist * 0.4, midY + dist * 0.95 + (houseMode ? size * 0.3 : 0), cz + dist * 0.7);
