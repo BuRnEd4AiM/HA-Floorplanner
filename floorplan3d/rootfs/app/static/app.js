@@ -390,7 +390,7 @@ function build() {
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
   });
   const overRi = houseMode ? -1 : coverRoofFloor(layout.floors, floorIdx);   // the roof over the floor shown (not drawn yet: it is a floor above), see-through
-  if (overRi > floorIdx || (iso && overRi >= 0)) { const g = new THREE.Group(); g.position.y = elev(overRi); world.add(g); roofsUi.over(g, overRi, iso ? iso.points : null, holo); }   // a focused room: only the part over it (dormers too)
+  if (iso ? overRi >= 0 && roofsUi.overRoom(overRi, floorIdx, iso.points) : overRi > floorIdx) { const g = new THREE.Group(); g.position.y = elev(overRi); world.add(g); roofsUi.over(g, overRi, iso ? iso.points : null, holo); }   // a focused room: only the part over it, and only under a slope or a dormer (#306)
   if (!iso) neighbors.build(world, { upTo: houseMode ? Infinity : elev(floorIdx), holo });   // the neighbour house next to this one (#220)
   if (earth.cut()) {                              // garden things at ground level are cut open with the earth, so nothing lies over the basement
     layout.floors.slice(0, groundIdx() + 1).forEach((f) => f.devices.forEach((d) => {
@@ -525,7 +525,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
 const floorCards = initFloorCards({
   $, t, camera, canvas, layout: () => layout, states: () => states, onStates: ON_STATES, settings: () => settings, isOpen: (e) => isOpen(e), houseMode: () => houseMode,
-  layoutMode: () => layoutMode, elev: (i) => elev(i), floorH: FLOOR_H, switchFloor: (i) => switchFloor(i),
+  layoutMode: () => layoutMode, roomFocused: () => !!focusedRoom, elev: (i) => elev(i), floorH: FLOOR_H, switchFloor: (i) => switchFloor(i),
 });
 
 /* colour scale at the edge while a room colouring is on */

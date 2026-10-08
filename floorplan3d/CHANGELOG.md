@@ -4,6 +4,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.64.2] - 2026-10-08
+### Fixed
+- **Room view: no roof floating over the room** (#306): the see-through roof over a focused room (3.55.0) is now only drawn when the roof really belongs to the room: its slope cuts the room's floor (knee wall) or a dormer sits over the room. A roof that simply sits on top of the storey below is above the ceiling and no longer floats over every room. `roofOverRoom` in `attic.js` (unit test).
+
+## [3.64.1] - 2026-10-08
+### Fixed
+- **Whole house: the floor cards hide while a room is opened** (#304): tapping a room in the whole-house view zooms into it; the floor cards (rooms, lights on, windows open) no longer float in the empty space beside it. Going back to the whole house shows them again. `cardsShown` in `floorcards.js` (unit test).
+
 ## [3.64.0] - 2026-10-08
 ### Added
 - **Security (Sicherheit)**: the add-on now records what switches in the house (lights, switches, doors and windows, covers, people, locks, climate …; sensors at most every 5 minutes) for every entity placed in a floor plan, one file per day in `addon_configs/…_floorplan3d/timeline/YYYY-MM-DD.jsonl`. The new 🛡️ *Sicherheit* button (tool bar; on phones in the ☰ menu) lists the recorded days (each file can also be downloaded) and plays a day back in the same 3D view: a bar at the bottom with play / pause, previous / next event, speed (×1 … ×3600), a slider over the day with the events as little bars, and the list of what switched when. The house shows the recorded states (lights, colours, open windows, warnings …); nothing can be switched while it is open and live changes wait until it is closed. Works on phone, tablet and computer. The recorder has its own connection to Home Assistant and only listens, so the live view and Home Assistant are not affected; writes are collected every few seconds, a day file is capped at 30 MB. *Houses & backup → Sicherheit*: switch recording off, days to keep (default 7 plus today). The users dialog can lock it for a user (also refused by the server). Recorder in `timeline.py`, playback logic in `timeline.js` (unit tests), screen in `timelineui.js`.

@@ -71,3 +71,10 @@ test('phones (#292): the camera goes back so the house fits left of the column',
   assert.equal(F.columnZoom(400, 0), 1);
   assert.equal(F.columnZoom(0, 100), 1);
 });
+
+test('the cards hide while a room is opened in the whole-house view, and in 2D only', () => {
+  assert.equal(F.cardsShown({ house: true, mode: '3d', focused: false }), true);
+  assert.equal(F.cardsShown({ house: true, mode: '3d', focused: true }), false);
+  assert.equal(F.cardsShown({ house: true, mode: '2d', focused: false }), false);
+  assert.equal(F.cardsShown({ house: false, mode: '3d', focused: false }), false);
+});

@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { dormerParts } from './dormer.js';
 import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
-import { roofY0, clipRoofFloor, roofPlanes, dormerRooms } from './attic.js';
+import { roofY0, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom } from './attic.js';
 import { polyUniforms, clipToPoly } from './atticclip.js';
 
 /** footprint (bounding box) of everything under a roof floor */
@@ -159,6 +159,11 @@ export function initRoofs(ctx) {
     const planes = roofPlanes(R.bb, R.spec, R.y0).map(([x, y, z, d]) => [x, y, z, d - y * E]);
     return planes.length ? { planes, rooms: dormerRooms(R.bb, R.spec, R.y0).map((q) => ({ ...q, top: q.top + E })) } : null;
   }
+  /** is the roof of roof floor ri drawn over a focused room of floor i (outline pts): only when it cuts that floor or has a dormer over the room */
+  function overRoom(ri, i, pts) {
+    const dormers = roofList(ri).flatMap((R) => dormerRooms(R.bb, R.spec, R.y0));
+    return roofOverRoom({ cuts: clipRoofFloor(ctx.layout().floors, i) === ri, dormers, pts });
+  }
   function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost)); }
   /** the roofs of roof floor i (slopes and dormers) see-through over the floor shown: only the part over the room's outline pts (a
    *  focused room), or all of it (pts null: a whole floor under the roof, #275) */
@@ -190,6 +195,6 @@ export function initRoofs(ctx) {
   }
   return {
     box: (i) => roofBoxOf(ctx.layout().floors, i), autoBox: (i) => autoRoofBox(ctx.layout().floors, i), list: roofList,
-    build: buildRoof, over: buildOver, railing: buildRailing, wallClip, placeSolar, updateFade: updateRoofFade, reset: () => { roofs.length = 0; }, faded: roofs,
+    build: buildRoof, over: buildOver, overRoom, railing: buildRailing, wallClip, placeSolar, updateFade: updateRoofFade, reset: () => { roofs.length = 0; }, faded: roofs,
   };
 }

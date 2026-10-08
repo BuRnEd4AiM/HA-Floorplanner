@@ -98,3 +98,11 @@ test('the roof over a floor: the one that cuts its walls, else a roof floor righ
   assert.deepEqual([0, 1, 2, 3].map((i) => A.coverRoofFloor(fl, i)), [-1, -1, 3, 3]);
   assert.equal(A.coverRoofFloor([{ kind: 'floor' }], 0), -1);
 });
+
+test('room view (#306): the roof is drawn over a room only when it cuts the floor or a dormer lies over the room', () => {
+  const room = [[1, 1], [4, 1], [4, 3], [1, 3]];
+  assert.equal(A.roofOverRoom({ cuts: false, dormers: [], pts: room }), false);              // the roof just sits on top: not over the room
+  assert.equal(A.roofOverRoom({ cuts: true, dormers: [], pts: room }), true);                // a knee wall: the slope cuts the room
+  assert.equal(A.roofOverRoom({ cuts: false, dormers: [{ x0: 3, x1: 5, z0: 0, z1: 2 }], pts: room }), true);   // a dormer over the room
+  assert.equal(A.roofOverRoom({ cuts: false, dormers: [{ x0: 6, x1: 8, z0: 0, z1: 2 }], pts: room }), false);  // a dormer elsewhere
+});
