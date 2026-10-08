@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.62.0] - 2026-10-08
+### Added
+- **Several selected things move together**: after selecting several things with Shift / Ctrl + click or a frame, dragging one of them in the 2D plan (also in the 2D + 3D view) now moves all of them by the same amount, in one undo step; they stay selected. Walls joined to a moved wall stretch along, like when one wall is dragged; doors and windows go with their wall; locked things stay. A plain click on one of them still selects just that one. Logic in `multisel.js` (`groupTargets`, `moveGroup`) with unit tests.
+
 ## [3.61.0] - 2026-10-08
 ### Added
 - **Users: lock things for a user / tablet**: in the users dialog the ⚙ box of each user now also has „🔒 Gesperrt“ with ticks: switching devices, Home Assistant details (ⓘ), cameras, power and meter overview, colour views (temperature, humidity, CO₂, power), the „View“ menu, switching 2D / 3D, switching house, search and the settings (⚙). Ticked things are hidden for that user; switching and camera images are also refused by the server. The locks are saved with the users (also in users.json). New module `userlocks.js` with unit tests.

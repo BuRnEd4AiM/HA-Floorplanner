@@ -8,7 +8,7 @@ import { rotPoint, readableAngle } from './planview.js';
 import { bridgeSize } from './bridge.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
-import { boxItems } from './multisel.js';
+import { boxItems, groupTargets, moveGroup } from './multisel.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
 import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
 
@@ -781,6 +781,11 @@ export function createPlan(ctx) {
         return;
       }
       const h = pickAt(x, z);
+      const many = ctx.multiItems?.() || [];
+      if (h && many.length > 1 && many.some((m) => m.kind === h.kind && m.id === h.id)) {   // a press on one of several selected things drags them all
+        drag = startGroupDrag(h, many, x, z, px, py);
+        return;
+      }
       if (h?.kind === 'roof') {                                       // a roof (#255): the first click selects it, a press on the selected roof drags it
         const was = sel?.kind === 'roof' && sel.id === h.id, r = was ? (ctx.roofRects?.() || []).find((q) => q.id === h.id) : null;
         if (!was) ctx.setSelection(h);
@@ -845,6 +850,15 @@ export function createPlan(ctx) {
       return r ? { type: 'points', refs: r.points.map((q) => ({ q, ox: q[0], oz: q[1] })), start: [x, z], moved: false, whole: true, px, py } : null;
     }
     return null;
+  }
+
+  /** drag of several selected things together: the one under the pointer snaps, all others move by the same amount */
+  function startGroupDrag(h, many, x, z, px, py) {
+    const f = floor(), g = groupTargets(f, many, (k, id) => !!ctx.isItemLocked?.(k, id));
+    const own = h.kind === 'device' ? g.devices.find((v) => v.d.id === h.id) : h.kind === 'stair' ? g.stairs.find((v) => v.st.id === h.id) : null;
+    const w = h.kind === 'wall' ? f.walls.find((q) => q.id === h.id) : null, r = POLY_KINDS.has(h.kind) ? polyList(f, h.kind).find((q) => q.id === h.id) : null;
+    const first = own ? [own.ox, own.oz] : w ? [...w.a] : r?.points?.length ? [...r.points[0]] : g.points[0] ? [g.points[0].ox, g.points[0].oz] : g.devices[0] ? [g.devices[0].ox, g.devices[0].oz] : [x, z];
+    return { type: 'group', g, hit: h, anchor: first, fine: !!own || (!w && !r), start: [x, z], moved: false, px, py };
   }
 
   root.addEventListener('pointermove', (e) => {
@@ -930,6 +944,15 @@ export function createPlan(ctx) {
         if (!now) return;
         const { dx, dz } = dragStep(drag.start, now, x - drag.sx, z - drag.sz, e.altKey ? 0 : 0.05);   // 5 cm steps, Alt: free
         if (dx || dz) { snapshotOnce(); ctx.dragRoof(drag.id, dx, dz); drag.moved = true; render(); }   // the 3D roof moves along, the house is built once on release (#257)
+        return;
+      }
+      if (drag.type === 'group' && (moved || drag.moved)) {
+        snapshotOnce();
+        const [ax, az] = drag.anchor;
+        const p = snapPt(ax + x - drag.start[0], az + z - drag.start[1], { fine: drag.fine, ends: false, free: e.altKey });
+        moveGroup(drag.g, p[0] - ax, p[1] - az).forEach((d) => ctx.liveMoveDevice?.(d));
+        drag.moved = true;
+        scheduleRebuild(); render();
         return;
       }
       if (drag.type === 'stair' && moved) {
@@ -1043,6 +1066,11 @@ export function createPlan(ctx) {
       if (d.b) ctx.addMulti(boxItems(floor(), d.a, d.b, (kind, v) => kind !== 'device' || !ctx.powerMode?.() || ctx.isPowerType(v.type)));
       else if (d.hit) ctx.toggleMulti(d.hit);
       render();
+      return;
+    }
+    if (d.type === 'group') {                                          // moved: all stay selected; a plain click selects just that one thing
+      if (d.moved) ctx.commit(); else ctx.setSelection(d.hit);
+      snapDone = false;
       return;
     }
     if (d.type === 'erase') { if (!moved) { const h = pickAt(x, z); if (h) { ctx.snapshot(); ctx.deleteItem(h); } } return; }
