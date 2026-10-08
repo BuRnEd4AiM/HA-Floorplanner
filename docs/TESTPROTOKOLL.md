@@ -8,7 +8,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.62.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). In den Tabellen unten steht bei jedem Punkt ✅ (geht), ❌ (geht nicht), ❓ (noch nicht getestet) oder ➖ (nur im Add-on prüfbar).
 
-**Zuletzt geprüft (2026-10-08): ✅** 36.1 bis 36.10 und 36.12 bis 36.14: Gaubenfenster (Name, Kontakt, löschen, in der Wand, „Vorderseite auf die Wand“), Dach über dem Raum durchsichtig, Handy-Menü ☰, kein Hineinzoomen bei der Suche, Raum-Karte, Tablet/PC unverändert, Etagen- und Zimmer-Listen, alles auf einen Blick. Ebenso ✅ das Löschen mehrerer Dinge (Punkt 15 unten). Daraus kam der Wunsch „mehrere zusammen verschieben“, eingebaut in 3.62.0 (37.7, 37.8).
+**Zuletzt geprüft (2026-10-08): ✅** 36.1 bis 36.10 und 36.12 bis 36.14: Gaubenfenster (Name, Kontakt, löschen, in der Wand, „Vorderseite auf die Wand“), Dach über dem Raum durchsichtig, Handy-Menü ☰, kein Hineinzoomen bei der Suche, Raum-Karte, Tablet/PC unverändert, Etagen- und Zimmer-Listen, alles auf einen Blick. Ebenso ✅ das Löschen mehrerer Dinge (Punkt 15 unten). Daraus kam der Wunsch „mehrere zusammen verschieben“, eingebaut in 3.62.0 (37.7, 37.8). Später am selben Tag ebenso ✅: 36.15 (Wand teilen), der ganze Abschnitt 35 (Gauben im ausgebauten Dachstuhl, „Dach beginnt auf Etage“, Firsthöhe, Haken weg) und 34.1 bis 34.3 (Kniestock).
 
 **Jetzt prüfen** (ausführlich in Abschnitt **37** unten)
 1. **Neu: mehrere zusammen verschieben** (3.62.0, 37.7 und 37.8): Bearbeiten, Werkzeug „Auswählen“, Ansicht **2D** oder **2D + 3D**. Mit **Strg/Shift + Klick** (oder Strg/Shift + Rahmen ziehen) mehrere Dinge auswählen, z. B. Raum, Wände, Lampe und Sofa. Dann **ohne** Strg/Shift auf eins davon drücken und **ziehen**: **alle** wandern zusammen und bleiben ausgewählt (grüner Rahmen). Wände, die an einer mitgezogenen Wand hängen, werden länger/kürzer und bleiben verbunden; Türen und Fenster wandern mit ihrer Wand. **Strg+Z** holt alles in einem Schritt zurück. Nur **klicken** (nicht ziehen) auf eins davon: nur dieses ist dann ausgewählt.
@@ -18,8 +18,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 
 **Noch offen aus Abschnitt 36**
 5. **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
-6. **Wand teilen** (36.15, 3.58.0, #286): Bearbeiten, 2D-Plan, eine Wand anklicken. Rechts unter „Wand“ **„Wand teilen“**: bei „Ecke bei (vom Anfang)“ z. B. **0,30** eintippen und „Teilen“: die Wand ist genau dort geteilt. Oder „3 Teile“ und „Teilen“: drei gleich lange Stücke. **Doppelklick** auf die ausgewählte Wand teilt sie an der Klickstelle, auch über Rasen oder Zaun. Strg+Z holt alles zurück.
-7. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
+6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
 
 **Noch von 3.53.0 offen** (falls schon geprüft: bitte kurz Bescheid geben, dann trage ich es ein)
 
@@ -68,7 +67,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
    - Gauben und Solarpanels wandern mit dem Dach mit.
    - Die Etage „Dach“ ist jetzt der **Spitzboden**: dort einen kleinen Raum zeichnen und etwas hinstellen (z. B. Kisten).
    - Haken wieder weg: alles wie vorher.
-20d. **Neu: Gauben, mehrere Etagen, Firsthöhe** (3.53.0, #265): wie bei 20c den ausgebauten Dachstuhl einschalten.
+20d. ✅ (2026-10-08) **Neu: Gauben, mehrere Etagen, Firsthöhe** (3.53.0, #265): wie bei 20c den ausgebauten Dachstuhl einschalten.
    - **Gauben**: wo eine Gaube ist, geht die Wand darunter **bis unter die Gaube** hoch (bei einer Giebelgaube bis in die Spitze); daneben bleibt sie an der Schräge abgeschnitten. Gut zu sehen, wenn unten „Ansicht“ → „Auto“ aus ist.
    - **„Dach beginnt auf Etage“**: z. B. „Obergeschoss“ wählen: das Dach rutscht eine Etage tiefer, jetzt liegen Obergeschoss **und** Dachgeschoss unter der Schräge, beide werden abgeschnitten.
    - **„Firsthöhe“**: z. B. 4 eintippen: das Dach wird so hoch (über der Wand bzw. dem Kniestock), die Neigung passt sich an.
@@ -115,11 +114,11 @@ Zählt die Ergebnisse in den Tabellen unten. ❓ heißt: noch nicht getestet (od
 | 31. Treppen über mehrere Etagen, Zähler in der Übersicht (3.46.0) | 0 | 0 | 7 | 0 |
 | 32. Dächer verschieben und ihre Größe ziehen (3.49.0 bis 3.50.0) | 0 | 0 | 9 | 0 |
 | 33. Live-Modus: nur über die Kugel antippen (3.51.0) | 0 | 0 | 6 | 0 |
-| 34. Ausgebauter Dachstuhl (3.52.0) | 0 | 0 | 8 | 0 |
-| 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0) | 0 | 0 | 6 | 0 |
-| 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 13 | 0 | 2 | 0 |
+| 34. Ausgebauter Dachstuhl (3.52.0) | 3 | 0 | 5 | 0 |
+| 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0) | 6 | 0 | 0 | 0 |
+| 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 14 | 0 | 1 | 0 |
 | 37. Neu in 3.59 bis 3.62 | 0 | 0 | 8 | 0 |
-| **Zusammen** | **90** | **0** | **170** | **1** |
+| **Zusammen** | **100** | **0** | **160** | **1** |
 
 ## Ältere offene Punkte (Stand 3.36.2, nur im echten Betrieb prüfbar)
 
@@ -546,9 +545,9 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 34.1 | Etage „Dach“, „Etage verwalten“, Haken „Ausgebauter Dachstuhl“ | Feld „Kniestock“ mit 1 m erscheint, das Dach sitzt tiefer (im Dachgeschoss) | ❓ |
-| 34.2 | Etage „Dachgeschoss“ ansehen, von der Giebelseite | Die Wände enden schräg unter dem Dach, nichts sticht oben heraus | ❓ |
-| 34.3 | Kniestock auf 1,5 m, dann auf 0,5 m | Das Dach geht hoch bzw. runter, die Schrägen schneiden weniger bzw. mehr ab | ❓ |
+| 34.1 | Etage „Dach“, „Etage verwalten“, Haken „Ausgebauter Dachstuhl“ | Feld „Kniestock“ mit 1 m erscheint, das Dach sitzt tiefer (im Dachgeschoss) | ✅ 2026-10-08 |
+| 34.2 | Etage „Dachgeschoss“ ansehen, von der Giebelseite | Die Wände enden schräg unter dem Dach, nichts sticht oben heraus | ✅ 2026-10-08 |
+| 34.3 | Kniestock auf 1,5 m, dann auf 0,5 m | Das Dach geht hoch bzw. runter, die Schrägen schneiden weniger bzw. mehr ab | ✅ 2026-10-08 |
 | 34.4 | Dachform „Walmdach“ | Auch an den Stirnseiten werden die Wände schräg abgeschnitten | ❓ |
 | 34.5 | „Ganzes Haus“ | Das Dach sitzt sauber auf dem Dachgeschoss, Gauben und Solarpanels mit | ❓ |
 | 34.6 | Etage „Dach“ (Spitzboden): einen Raum zeichnen, ein Gerät hinstellen | Liegt über dem Dachgeschoss, unter dem First | ❓ |
@@ -559,12 +558,12 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 35.1 | Ausgebauter Dachstuhl an, eine Gaube über einer Wand des Dachgeschosses, „Auto“ aus | Die Wand geht unter der Gaube hoch bis unter das Gaubendach, daneben ist sie schräg abgeschnitten | ❓ |
-| 35.2 | Gaube als „Giebel“ | Unter der Gaube reicht die Wand in der Mitte höher (Spitze) | ❓ |
-| 35.3 | „Dach beginnt auf Etage“ = Obergeschoss | Das Dach sitzt eine Etage tiefer; Obergeschoss und Dachgeschoss sind an der Schräge abgeschnitten | ❓ |
-| 35.4 | Wieder das Geschoss direkt darunter wählen | Wie vorher (nur das Dachgeschoss liegt unter der Schräge) | ❓ |
-| 35.5 | „Firsthöhe“ auf 4 m | Das Dach ist 4 m hoch über der Wand/dem Kniestock, die Neigung wurde angepasst | ❓ |
-| 35.6 | Haken „Ausgebauter Dachstuhl“ weg | Alles wie vorher: Dach oben drauf, keine abgeschnittenen Wände | ❓ |
+| 35.1 | Ausgebauter Dachstuhl an, eine Gaube über einer Wand des Dachgeschosses, „Auto“ aus | Die Wand geht unter der Gaube hoch bis unter das Gaubendach, daneben ist sie schräg abgeschnitten | ✅ 2026-10-08 |
+| 35.2 | Gaube als „Giebel“ | Unter der Gaube reicht die Wand in der Mitte höher (Spitze) | ✅ 2026-10-08 |
+| 35.3 | „Dach beginnt auf Etage“ = Obergeschoss | Das Dach sitzt eine Etage tiefer; Obergeschoss und Dachgeschoss sind an der Schräge abgeschnitten | ✅ 2026-10-08 |
+| 35.4 | Wieder das Geschoss direkt darunter wählen | Wie vorher (nur das Dachgeschoss liegt unter der Schräge) | ✅ 2026-10-08 |
+| 35.5 | „Firsthöhe“ auf 4 m | Das Dach ist 4 m hoch über der Wand/dem Kniestock, die Neigung wurde angepasst | ✅ 2026-10-08 |
+| 35.6 | Haken „Ausgebauter Dachstuhl“ weg | Alles wie vorher: Dach oben drauf, keine abgeschnittenen Wände | ✅ 2026-10-08 |
 
 ## 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0)
 
@@ -584,7 +583,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 36.12 | Tablet und PC | Alles wie vorher (die Handy-Änderungen gelten nur für schmale Bildschirme) | ✅ 2026-10-08 |
 | 36.13 | Handy: oben ☰, Etagen-Knopf und Zimmer-Knopf; Etage wählen, dann Zimmer wählen | Zwei eigene Listen; die Wahl schließt die Liste, das Zimmer öffnet sich (3.57.1, #281) | ✅ 2026-10-08 |
 | 36.14 | Handy hochkant: oben und unten alles ansehen | Alle Anzeigen und Ansichts-Knöpfe sichtbar, in mehreren Reihen, nichts zum Seitwärtsschieben (3.57.2, #284) | ✅ 2026-10-08 |
-| 36.15 | Wand anklicken, rechts „Wand teilen“: 0,30 m, dann „3 Teile“; Doppelklick auf die ausgewählte Wand | Ecke genau dort; drei gleiche Stücke; Doppelklick teilt an der Klickstelle, auch über Rasen/Zaun (3.58.0, #286) | ❓ |
+| 36.15 | Wand anklicken, rechts „Wand teilen“: 0,30 m, dann „3 Teile“; Doppelklick auf die ausgewählte Wand | Ecke genau dort; drei gleiche Stücke; Doppelklick teilt an der Klickstelle, auch über Rasen/Zaun (3.58.0, #286) | ✅ 2026-10-08 |
 
 ## 37. Neu in 3.59 bis 3.62
 
