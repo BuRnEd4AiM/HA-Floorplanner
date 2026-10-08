@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.57.1] - 2026-10-08
+### Changed
+- **Phones, top row (#281)**: as the owner wanted it, three buttons side by side: ☰ (tool bar), the floor ("Obergeschoss ▾", opens the list of floors and the whole house) and the rooms ("Zimmer ▾", the room list of the floor shown). In 3.57.0 floors and rooms were one shared list. A floor or a room closes its list. Desktop and tablets are unchanged.
+
 ## [3.57.0] - 2026-10-08
 ### Added
 - **Phones: floors and rooms in one drop-down (#281)**: instead of the row of floor pills that had to be scrolled sideways, phones show one button at the top with the floor (and the chosen room), e.g. "Obergeschoss · Kinderzimmer ▾". It opens a list with the floors and the whole house, below them the rooms of the floor shown (in the whole-house view the rooms of every floor). A floor keeps the list open so a room can be picked next; a room closes it and opens the room. Desktop, tablets and room tablets are unchanged. New module `phonenav.js` with unit tests; texts in 7 languages.

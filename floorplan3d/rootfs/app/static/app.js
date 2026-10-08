@@ -58,7 +58,7 @@ import { initPlanRotate } from './planview.js';
 import { initMultiSelect } from './multisel.js';
 import { initNeighbors } from './neighbor.js';
 import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround } from './placement.js';
-import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn, occupied } from './nav.js';
+import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { toWorld, stairHandles } from './stairs.js';
@@ -1047,11 +1047,10 @@ const nav = initNav({
   get roomPanel() { return roomPanel; }, toggleMenu: (m, b, o) => toggleMenu(m, b, o), floorRail: () => floorRail, renderPlanFloorsChip: () => renderPlanFloorsChip(),
   phoneNav: () => phoneNav,
 });
-/* ---- Phones: floors and rooms as one drop-down; the code lives in phonenav.js ---- */
+/* ---- Phones: the floors as a drop-down next to ☰ and the room button; the code lives in phonenav.js ---- */
 const phoneNav = initPhoneNav({
-  $, t, layout: () => layout, floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,
-  switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on), focusRoom: (id) => focusRoom(id), get roomPanel() { return roomPanel; },
-  occupied: (r, fl) => occupied(r, fl, (e) => ON_STATES.has(states[e]?.state), pointInPoly),
+  $, t, layout: () => layout, floorIdx: () => floorIdx, houseMode: () => houseMode,
+  switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on), closeOthers: () => dropdowns.forEach(([m, b]) => toggleMenu(m, b, false)),
 });
 function buildNav(force = false) { nav.build(force); }
 function updateHouseToggle() { nav.updateHouseToggle(); }
