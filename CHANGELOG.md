@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.64.2] - 2026-10-08
+### Fixed
+- **Room view: no roof floating over the room** (#306): the see-through roof over a focused room (3.55.0) is now only drawn when the roof really belongs to the room: its slope cuts the room's floor (knee wall) or a dormer sits over the room. A roof that simply sits on top of the storey below is above the ceiling and no longer floats over every room. `roofOverRoom` in `attic.js` (unit test).
+
 ## [3.64.1] - 2026-10-08
 ### Fixed
 - **Whole house: the floor cards hide while a room is opened** (#304): tapping a room in the whole-house view zooms into it; the floor cards (rooms, lights on, windows open) no longer float in the empty space beside it. Going back to the whole house shows them again. `cardsShown` in `floorcards.js` (unit test).

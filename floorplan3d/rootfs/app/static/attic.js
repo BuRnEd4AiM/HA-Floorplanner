@@ -46,6 +46,17 @@ export function coverRoofFloor(floors, i) {
   return c >= 0 ? c : floors[i + 1]?.kind === 'roof' ? i + 1 : -1;
 }
 
+/** does the roof over a room matter for it (room view): only when the roof cuts the walls of the room's floor (knee wall) or a dormer
+ *  room (see dormerRooms) lies over the room's outline pts. A roof that simply sits on top of the storey is above the ceiling, it is
+ *  not drawn over the room (it floated high above it, #306) */
+export function roofOverRoom({ cuts, dormers, pts }) {
+  if (cuts) return true;
+  if (!pts?.length) return false;
+  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
+  return (dormers || []).some((q) => q.x0 < x1 && q.x1 > x0 && q.z0 < z1 && q.z1 > z0);
+}
+
 const GAP = 0.03;   // walls end this far under the roof surface, so the roof is never hidden by a wall top
 /** the planes of a roof's slopes (base box bb, spec with type / pitch / overhang / ridge, lifted by y0) as [nx, ny, nz, d] with a unit normal:
  *  a point p lies under the roof when nx*px + ny*py + nz*pz + d >= 0 for every plane (the roof is the lowest of its planes). A flat roof

@@ -390,7 +390,7 @@ function build() {
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
   });
   const overRi = houseMode ? -1 : coverRoofFloor(layout.floors, floorIdx);   // the roof over the floor shown (not drawn yet: it is a floor above), see-through
-  if (overRi > floorIdx || (iso && overRi >= 0)) { const g = new THREE.Group(); g.position.y = elev(overRi); world.add(g); roofsUi.over(g, overRi, iso ? iso.points : null, holo); }   // a focused room: only the part over it (dormers too)
+  if (iso ? overRi >= 0 && roofsUi.overRoom(overRi, floorIdx, iso.points) : overRi > floorIdx) { const g = new THREE.Group(); g.position.y = elev(overRi); world.add(g); roofsUi.over(g, overRi, iso ? iso.points : null, holo); }   // a focused room: only the part over it, and only under a slope or a dormer (#306)
   if (!iso) neighbors.build(world, { upTo: houseMode ? Infinity : elev(floorIdx), holo });   // the neighbour house next to this one (#220)
   if (earth.cut()) {                              // garden things at ground level are cut open with the earth, so nothing lies over the basement
     layout.floors.slice(0, groundIdx() + 1).forEach((f) => f.devices.forEach((d) => {
