@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.57.2] - 2026-10-08
+### Changed
+- **Phones held upright: everything on one screen (#284)**: the values at the top (power overview, water / gas, offline, open, cameras) wrap into more rows and are a little smaller, and the view buttons at the bottom (Normal, Temp., Humidity, CO₂, Power) wrap too, so nothing has to be scrolled sideways any more. Phones held sideways, tablets and desktops keep the single row.
+
 ## [3.57.1] - 2026-10-08
 ### Changed
 - **Phones, top row (#281)**: as the owner wanted it, three buttons side by side: ☰ (tool bar), the floor ("Obergeschoss ▾", opens the list of floors and the whole house) and the rooms ("Zimmer ▾", the room list of the floor shown). In 3.57.0 floors and rooms were one shared list. A floor or a room closes its list. Desktop and tablets are unchanged.

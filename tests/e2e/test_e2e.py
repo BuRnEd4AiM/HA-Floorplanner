@@ -1270,13 +1270,17 @@ with sync_playwright() as p:
     check("tablet: rebuilding the scene does not leak graphics memory", mem[0] == mem[-1], mem)
     check("tablet: low-power mode without blur", pg17.evaluate("window.__fp.LOW && document.body.classList.contains('low')"))
     check("live: no grid", not pg17.evaluate("window.__fp.earthDbg()")["gridShown"])
-    # on a phone the floors and rooms are one button now, so the row fits; a wide stand-in makes it too long, as on a tablet with many floors
+    # tablets: a row too long for the screen scrolls with arrows (upright phones wrap it into more rows instead); a wide stand-in makes it too long
+    pg17.set_viewport_size({"width": 1000, "height": 1000}); pg17.wait_for_timeout(400)
     pg17.evaluate("(() => { const s = document.createElement('span'); s.id = 'navFill'; s.className = 'pill'; s.style.width = '2000px'; window.__fp.navBar().append(s); window.__fp.navBar().scrollLeft = 0; })()"); pg17.wait_for_timeout(300)
     ar = pg17.evaluate("window.__fp.navArrows()")
     pg17.click("#navRight"); pg17.wait_for_timeout(700)
     ar2 = pg17.evaluate("[window.__fp.navBar().scrollLeft, ...window.__fp.navArrows()]")
     check("tablet: pills that do not fit get arrows and scroll", ar == [False, True] and ar2[0] > 0 and ar2[1], (ar, ar2))
     pg17.evaluate("(() => { document.getElementById('navFill').remove(); window.__fp.navBar().scrollLeft = 0; })()"); pg17.wait_for_timeout(300)
+    pg17.set_viewport_size({"width": 760, "height": 1000}); pg17.wait_for_timeout(400)
+    nbw = pg17.evaluate("(() => { const n = window.__fp.navBar(); return [n.scrollWidth, n.clientWidth, ...window.__fp.navArrows()]; })()")
+    check("phone upright: the row at the top fits on the screen (wraps, no arrows)", nbw[0] <= nbw[1] + 1 and pg17.locator("#navRight").is_hidden(), nbw)
     # --- warnings (#58), search (#62), wall-tablet kiosk (#61)
     pg17.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
       if (!f.rooms.some(r => r.id === 'alRoom')) f.rooms.push({ id: 'alRoom', name: 'Rauchküche', points: [[20, 20], [24, 20], [24, 23], [20, 23]] });

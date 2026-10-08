@@ -511,6 +511,16 @@ body.v-2d #compass { display: none; }
   body.live:not(.kiosk):not(.roomtablet) #phoneNav:not([hidden]), body.live:not(.kiosk):not(.roomtablet) #roomMenu { left: 60px; max-width: calc(100% - 72px); }
 }
 #phoneNav .pill { width: 100%; text-align: left; }
+/* phones held upright: everything at the top fits on the screen, no scrolling sideways. The values (energy, water / gas, offline,
+   open, cameras) wrap into a second row and are a little smaller; held sideways the row stays one line as before */
+@media (max-width: 760px) {
+  body:not(.roomtablet) #navBar { flex-wrap: wrap; overflow: visible; row-gap: 6px; }
+  body:not(.roomtablet) #navBar .spacer { display: none; }
+  body:not(.roomtablet) #navLeft, body:not(.roomtablet) #navRight { display: none; }
+  body:not(.roomtablet) #navBar :is(#energyPill, #meterPill, #offlinePill, #openPill, #camPill) { padding: 4px 10px; font-size: 12.5px; max-width: 100%; white-space: normal; text-align: left; }
+  #modeBar { flex-wrap: wrap; overflow-x: visible; }   /* the view buttons (Normal, Temp. ...) wrap too instead of scrolling sideways */
+  body:not(.roomtablet) #alertBar { top: 104px; }
+}
 .camBtns .haBtn { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
 .camCard.sensor { align-self: start; }
 #openList .offHead { margin-top: 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
