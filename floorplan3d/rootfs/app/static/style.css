@@ -519,7 +519,28 @@ body.v-2d #compass { display: none; }
   body:not(.roomtablet) #navLeft, body:not(.roomtablet) #navRight { display: none; }
   body:not(.roomtablet) #navBar :is(#energyPill, #meterPill, #offlinePill, #openPill, #camPill) { padding: 4px 10px; font-size: 12.5px; max-width: 100%; white-space: normal; text-align: left; }
   #modeBar { flex-wrap: wrap; overflow-x: visible; }   /* the view buttons (Normal, Temp. ...) wrap too instead of scrolling sideways */
-  body:not(.roomtablet) #alertBar { top: 104px; }
+  body:not(.roomtablet) #alertBar { top: 58px; }   /* the values are folded into the 📊 list (below), so the top bar is one row again */
+}
+/* phones held upright: the values at the top (power, water / gas, offline, open, cameras) are in their own drop-down "📊 ▾"
+   (phonestatus.js), and the search button moves to the top right, so the room sheet at the bottom can use the full width */
+#phoneStatusBtn, #phoneStatus { display: none; }
+#phoneStatusBtn.alert { background: #ff4a3d; border-color: #ff4a3d; color: #fff; box-shadow: 0 0 14px rgba(255,74,61,.7); }
+@media (max-width: 760px) {
+  body:not(.roomtablet) #phoneStatusBtn:not([hidden]) { display: block; }
+  body:not(.roomtablet) #phoneStatus:not([hidden]) { position: absolute; top: 54px; left: 12px; right: 12px; z-index: 31; display: flex; flex-direction: column;
+    align-items: stretch; gap: 8px; padding: 10px; max-height: calc(100% - 140px); overflow-y: auto; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
+  #phoneStatus > .pill:not([hidden]) { display: block; width: 100%; padding: 8px 14px; font-size: 14px; white-space: normal; text-align: left; }
+  #phoneStatus > .pill[hidden] { display: none; }
+  body:not(.roomtablet) #navBar { right: 60px; flex-wrap: nowrap; }
+  body:not(.roomtablet) #phoneStatusBtn { padding: 7px 10px; flex: 0 0 auto; }
+  /* floor and room button give way (… at the end) so ☰, floor, room, 📊 and 🔍 fit in one row */
+  body:not(.roomtablet) #navBar > #phoneNavBtn, body:not(.roomtablet) #navBar > #roomPills { flex: 0 1 auto; min-width: 0; }
+  body:not(.roomtablet) #phoneNavBtn, body:not(.roomtablet) #roomMenuBtn { padding: 7px 12px; }
+  body:not(.roomtablet) #roomMenuBtn { max-width: 100%; }
+  body:not(.roomtablet):not(.kiosk) #findBtn { left: auto; right: 12px; top: 14px; bottom: auto; width: 40px; height: 36px; }
+  body:not(.roomtablet):not(.kiosk) #findBox { left: 12px; right: 12px; width: auto; top: 58px; bottom: auto; z-index: 31; }
+  body:not(.roomtablet) #roomPanel { left: 12px; }
 }
 .camBtns .haBtn { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
 .camCard.sensor { align-self: start; }
