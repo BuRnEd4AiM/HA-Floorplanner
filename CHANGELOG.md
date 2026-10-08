@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.64.0] - 2026-10-08
+### Added
+- **Security (Sicherheit)**: the add-on now records what switches in the house (lights, switches, doors and windows, covers, people, locks, climate …; sensors at most every 5 minutes) for every entity placed in a floor plan, one file per day in `addon_configs/…_floorplan3d/timeline/YYYY-MM-DD.jsonl`. The new 🛡️ *Sicherheit* button (tool bar; on phones in the ☰ menu) lists the recorded days (each file can also be downloaded) and plays a day back in the same 3D view: a bar at the bottom with play / pause, previous / next event, speed (×1 … ×3600), a slider over the day with the events as little bars, and the list of what switched when. The house shows the recorded states (lights, colours, open windows, warnings …); nothing can be switched while it is open and live changes wait until it is closed. Works on phone, tablet and computer. The recorder has its own connection to Home Assistant and only listens, so the live view and Home Assistant are not affected; writes are collected every few seconds, a day file is capped at 30 MB. *Houses & backup → Sicherheit*: switch recording off, days to keep (default 7 plus today). The users dialog can lock it for a user (also refused by the server). Recorder in `timeline.py`, playback logic in `timeline.js` (unit tests), screen in `timelineui.js`.
+
 ## [3.63.0] - 2026-10-08
 ### Changed
 - **Phones only show the house** (#299): on a phone (touch screen, narrow or held sideways) the app always runs in the live mode and in 3D. The ☰ menu no longer offers Edit / Live, 2D and 2D + 3D or the users; switching house, „Fit“, the version and ⚙ stay. Tablets and computers are unchanged. Logic in `phonemenu.js` (`isPhoneScreen`, `phoneView`) with unit tests.

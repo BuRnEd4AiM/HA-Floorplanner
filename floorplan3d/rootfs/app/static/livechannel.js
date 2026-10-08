@@ -38,7 +38,7 @@ export async function fetchAreas() {
 }
 
 /** ctx: entities(), setEntities(list), states(), setStates(obj), toState(e), wake(), redraw() (states, room entities, entity panel),
- *  firstLoad() (async: areas, entity list, properties) */
+ *  firstLoad() (async: areas, entity list, properties), paused() (security view: the recorded states are shown, live ones wait) */
 export function initLiveChannel(ctx) {
   let liveOk = false, retry = 1000, lastFull = 0, raf = 0, sig = '';
   function connect() {
@@ -55,13 +55,14 @@ export function initLiveChannel(ctx) {
     ws.onclose = () => { liveOk = false; setTimeout(connect, retry); retry = Math.min(30000, retry * 2); };
   }
   function apply(d) {
-    if (!ctx.entities().length) return;                   // the first full list is still on its way and brings these too
+    if (!ctx.entities().length || ctx.paused?.()) return;   // the first full list is still on its way and brings these too; security view shows the past
     const m = mergeLive(ctx.entities(), ctx.states(), d, ctx.toState);
     ctx.setEntities(m.entities); ctx.setStates(m.states);
     ctx.wake();
     if (!raf) raf = requestAnimationFrame(() => { raf = 0; ctx.redraw(); });
   }
   async function poll() {
+    if (ctx.paused?.() && ctx.entities().length) return;
     try {
       const r = await fetch('api/entities');
       if (!r.ok) return;

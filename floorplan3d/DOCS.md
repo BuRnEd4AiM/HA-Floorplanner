@@ -227,6 +227,13 @@ The pill is **green** when both match. Click it for the details and **Check now 
 
 For developers: after every change in `floorplan3d/` run `python3 tools/make_manifest.py` and commit `manifest.json`.
 
+## Security (Sicherheit)
+The add-on records what switches in the house: lights, switches, doors and windows with a contact, covers, people, locks, climate and the like (sensors such as temperature at most every 5 minutes). Only entities placed in one of your floor plans are recorded. Every day gets one file in the add-on configuration folder: `addon_configs/…_floorplan3d/timeline/YYYY-MM-DD.jsonl`.
+
+Press **🛡️ Sicherheit** in the tool bar (on a phone: in the ☰ menu) and pick a day. The house looks like the live view, but shows the recorded states, with a bar at the bottom: ▶ play / ⏸ pause, ⏮ ⏭ previous / next event, the speed (×1 … ×3600), a slider over the whole day (the little bars show when something happened) and 📋 the list of events (tap one to jump to it). Nothing can be switched while security view is open; ✕ goes back to live. Each day file can be downloaded from the list (⬇).
+
+The recorder uses its own connection to Home Assistant and only listens, so Home Assistant and the live view are not slowed down. *Houses & backup → Security* switches recording off and sets how many days are kept (default: 7 days plus today; older files are deleted). In the users dialog security view can be locked for a user.
+
 ## Backup and restore
 
 *Houses & backup* in the side panel: **Download backup** saves everything (all houses, settings, pictures, custom 3D models) as one JSON file, **Restore backup…** replaces the current data with such a file. Handy before big changes, for moving to another Home Assistant or for copying a plan to a second installation. Before a restore, the current layouts and settings are copied to `/data/backups` on the server (last 5 kept). Only editors can export and import.

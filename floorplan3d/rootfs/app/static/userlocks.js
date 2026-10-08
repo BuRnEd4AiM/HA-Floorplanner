@@ -14,6 +14,7 @@ export const LOCKS = [
   ['houses', '#houseGroup'],                                           // switching to another house
   ['search', '#findBtn, #findBox'],                                    // the "Where is ...?" search
   ['settings', '#settingsBtn'],                                        // the settings dialog (⚙)
+  ['timeline', '#timelineBtn'],                                        // security view: what switched when (the server refuses it too)
 ];
 export const LOCK_KEYS = LOCKS.map(([k]) => k);
 
