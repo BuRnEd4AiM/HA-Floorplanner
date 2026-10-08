@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.59.2. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.60.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -101,6 +101,7 @@ Stand: Version 3.59.2. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `nav.js` | ~150 | Navigation (Schritt 21): Etagen-Knöpfe, Zimmer-Menü, Scroll-Pfeile, Raum-Knopf am Tablet, Bildausschnitt für Etage / Haus / Wandmitte; reine Teile mit Unit-Tests |
 | `collide.js` | ~60 | Wandstopp (Schritt 20): Dinge lassen sich nicht in die Wand schieben, gleiten an ihr entlang, Türen lassen durch; reine Rechnung mit Unit-Tests |
 | `roofs.js` | ~170 | Dächer (Schritt 19): Dachgröße, Dachflächen mit Gauben und weiteren Dächern, Geländer der Dachterrasse, Solarpanels auf dem Dach, Ausblenden aus der Nähe; Dachgrößen mit Unit-Tests |
+| `perfhud.js` | ~140 | Leistungsanzeige: Bilder pro Sekunde und weitere Werte (Zeit pro Bild, Zeichenaufrufe, Dreiecke, Auflösung, Sparmodus, Grafikchip, Speicher) oben rechts im 3D-Bild, Auswahl im Menü „Ansicht“, pro Gerät gemerkt, `?fps=1` / `?fps=all`; Zählen und Textzeilen mit Unit-Tests |
 
 ## Noch in `app.js`
 

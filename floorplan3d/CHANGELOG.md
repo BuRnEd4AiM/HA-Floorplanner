@@ -4,9 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
-## [3.59.3] - 2026-10-08
+## [3.60.1] - 2026-10-08
 ### Fixed
 - **Phones: floor cards stay beside the house when zoomed in (#294)**: zooming in close in the whole-house view moved the floor cards onto the middle of the picture, on top of the house. Now they stay beside the house on the side with more room, even when that pushes them partly or fully off the screen; zooming out brings them back.
+
+## [3.60.0] - 2026-10-08
+### Added
+- **Performance display (FPS and more)**: the *View* drop-down has *⏱ Performance: off / FPS / all values*. *FPS* shows the frames per second at the top right of the 3D picture (💤 when the picture rests on purpose to save power); *all values* adds the time per frame (average and longest), the work per frame, draw calls, triangles, geometries, textures, shaders, the resolution of the picture, the screen, low-power mode, the graphics chip and the memory (Chrome). Kept per device, works on phone, tablet and desktop, the box lets every touch through; on a wall tablet without the menu `?fps=1` or `?fps=all` in the address does the same. New module `perfhud.js` with unit tests.
 
 ## [3.59.2] - 2026-10-08
 ### Fixed
