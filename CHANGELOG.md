@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.59.3] - 2026-10-08
+### Fixed
+- **Phones: floor cards stay beside the house when zoomed in (#294)**: zooming in close in the whole-house view moved the floor cards onto the middle of the picture, on top of the house. Now they stay beside the house on the side with more room, even when that pushes them partly or fully off the screen; zooming out brings them back.
+
 ## [3.59.2] - 2026-10-08
 ### Fixed
 - **Phones: floor cards beside the house, not in front of it (#292)**: in the whole-house view on phones held upright the house is drawn a little to the left and slightly smaller, so a free column on the right holds the floor cards and they no longer cover the house. Leaving the whole-house view (a floor, a room) shows the picture as before; tablets and desktops are unchanged.
