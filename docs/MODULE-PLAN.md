@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.62.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.63.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -60,7 +60,7 @@ Stand: Version 3.62.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `livepopup.js` | ~110 | Live-Karte beim Antippen (Gerät, Tür/Fenster, LED-Ring) |
 | `roompanel.js` | ~190 | Raum-Panel mit Heizungs-Panel |
 | `sheetview.js` | ~45 | Handy: Raum über der Raum-Karte zeigen statt dahinter, Kamera-Abstand bei schmalem Bild; Bild nach links schieben für die Spalte der Etagen-Karten (#292) (Unit-Tests) |
-| `phonemenu.js` | ~25 | Handy: obere Leiste als ☰-Menü (Live-Ansicht) |
+| `phonemenu.js` | ~50 | Handy: obere Leiste als ☰-Menü (Live-Ansicht); am Handy nur Live + 3D, kein Bearbeiten, keine Benutzer (#299); `isPhoneScreen`/`phoneView` sind reine Logik mit Unit-Tests |
 | `phonenav.js` | ~45 | Handy: die Etagen als Klappliste neben ☰ und dem Zimmer-Knopf statt der Etagen-Knöpfe (#281); `phoneFloorModel` ist reine Logik mit Unit-Tests |
 | `phonestatus.js` | ~60 | Handy hochkant (#288): Strom, Wasser/Gas, offline, offen, Kameras als Klappliste „📊“ (rot mit „⚠️ n“ bei Warnungen); Suche oben rechts, Raum-Fenster über die volle Breite; `phoneStatusModel` ist reine Logik mit Unit-Tests |
 | `wallsplit.js` | ~60 | Wand teilen: an einer Stelle (Doppelklick im 2D-Plan, genaue Eingabe in den Eigenschaften) oder in gleiche Teile, Türen/Fenster und Räume ziehen mit (#286); reine Logik mit Unit-Tests |
