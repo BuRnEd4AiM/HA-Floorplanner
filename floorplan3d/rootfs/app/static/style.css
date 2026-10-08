@@ -82,6 +82,13 @@ main { flex: 1; display: flex; min-height: 0; }
 .floorCard .fcm em + em::before { content: ' · '; white-space: pre; }
 .floorCard.narrow .fcm { flex-direction: column; }
 .floorCard.narrow .fcm em + em::before { content: none; }
+.floorCard .fcs { display: none; }
+@media (max-width: 760px) {   /* phones held upright (#290): small cards, the name and a short line with icons (▦ rooms, 💡 lights on, 🪟 windows open) */
+  .floorCard { margin-left: 6px; padding: 3px 7px; font-size: 11px; line-height: 1.25; border-radius: 7px; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+  .floorCard b { font-size: 11.5px; }
+  .floorCard .fcm { display: none; }
+  .floorCard .fcs { display: block; white-space: pre; opacity: .85; }
+}
 #livePopup { position: absolute; left: 50%; bottom: 72px; transform: translateX(-50%); min-width: 240px;
   max-width: calc(100% - 24px); padding: 12px 14px; background: var(--panel); border: 1px solid var(--line);
   border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,.35); }

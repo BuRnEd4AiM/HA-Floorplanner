@@ -20,6 +20,14 @@ export function floorCounts(f, env) {
   return { lights, windows };
 }
 
+/** the short line of a card on phones held upright (#290): icons instead of words, lights and windows only when there are any */
+export function compactParts({ rooms, lights, windows }) {
+  return [`▦ ${rooms}`, lights ? `💡 ${lights}` : '', windows ? `🪟 ${windows}` : ''].filter(Boolean);
+}
+
+/** estimated width (px) of the short card on phones (name above, the icons below; smaller text) */
+export const compactWidth = (name, parts) => 18 + Math.max(name.length * 6.6, parts.join('  ').length * 6.4);
+
 /** estimated widths (px) of a card, so the layout never flickers between the wide and the narrow form */
 export function cardWidths(name, parts) {
   return { natW: 26 + Math.max(name.length * 7.6, parts.join(' · ').length * 6.3), narrowW: 26 + Math.max(name.length * 7.6, ...parts.map((x) => x.length * 6.3)) };
@@ -81,7 +89,9 @@ export function initFloorCards(ctx) {
       const sp = document.createElement('span'); sp.className = 'fcm';
       parts.forEach((txt) => { const m = document.createElement('em'); m.textContent = txt; sp.append(m); });
       c.el.append(sp);
-      Object.assign(c, cardWidths(f.name, parts));
+      const short = compactParts({ rooms: f.rooms.length, lights, windows });   // phones: shown instead of the words (style.css)
+      const ss = document.createElement('span'); ss.className = 'fcs'; ss.textContent = short.join('  '); c.el.append(ss);
+      Object.assign(c, cardWidths(f.name, parts), { compactW: compactWidth(f.name, short) });
       c.el.title = t('fc.tip', { name: f.name });
     });
   }
@@ -94,12 +104,12 @@ export function initFloorCards(ctx) {
     const toScreen = (v) => { v3.copy(v).project(camera); return { x: (v3.x + 1) / 2 * w, y: (1 - v3.y) / 2 * h, ok: v3.z < 1 }; };
     let minX = Infinity, maxX = -Infinity;
     cards.forEach((c) => c.corners.forEach((p) => { const q = toScreen(p); if (q.ok) { minX = Math.min(minX, q.x); maxX = Math.max(maxX, q.x); } }));
-    const vis = [];
+    const vis = [], phone = window.matchMedia?.('(max-width: 760px)').matches;   // phones show the short card (style.css)
     cards.forEach((c) => {
       const q = toScreen(c.pos);
       const on = q.ok && q.y > -40 && q.y < h + 40 && isFinite(maxX);
       c.el.style.display = on ? '' : 'none';
-      if (on) vis.push({ c, y: q.y, height: c.el.offsetHeight, natW: c.natW, narrowW: c.narrowW });
+      if (on) vis.push({ c, y: q.y, height: c.el.offsetHeight, natW: phone ? c.compactW : c.natW, narrowW: phone ? c.compactW : c.narrowW });
     });
     const r = arrangeCards(vis, { w, h, ox, minX, maxX });
     cards.forEach((c) => c.el.classList.toggle('narrow', r.narrow));

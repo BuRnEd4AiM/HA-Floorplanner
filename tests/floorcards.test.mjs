@@ -45,3 +45,11 @@ test('the lowest card stays above the bottom buttons', () => {
   const r = F.arrangeCards([{ y: 690, height: 44, natW: 100 }], { w: 1000, h: 700, ox: 0, minX: 0, maxX: 100 });
   assert.ok(r.ys[0] + 44 <= 700 - 64 + 22 + 1e-9, String(r.ys[0]));
 });
+test('phones (#290): the short line has icons, lights and windows only when there are any', () => {
+  assert.deepEqual(F.compactParts({ rooms: 6, lights: 7, windows: 1 }), ['▦ 6', '💡 7', '🪟 1']);
+  assert.deepEqual(F.compactParts({ rooms: 3, lights: 0, windows: 0 }), ['▦ 3']);
+});
+test('phones (#290): the short card is much narrower than the narrow card', () => {
+  const parts = ['Räume: 6', 'Lichter an: 7', 'Fenster offen: 1'];
+  assert.ok(F.compactWidth('Erdgeschoss', F.compactParts({ rooms: 6, lights: 7, windows: 1 })) < F.cardWidths('Erdgeschoss', parts).narrowW);
+});
