@@ -1,4 +1,4 @@
-"""Time travel recorder (timeline.py) and its endpoints in server.py."""
+"""Security view recorder (timeline.py) and its endpoints in server.py."""
 import datetime
 import json
 import sys

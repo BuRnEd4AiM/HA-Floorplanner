@@ -63,7 +63,7 @@ DEFAULT_SETTINGS = {
     "backupEveryHours": 24.0,  # ... one backup this many hours after the last one (24 = daily)
     "backupKeepDays": 14.0,    # automatic backups older than this many days are deleted (the newest one always stays)
     "backupKeepCount": 30.0,   # ... and never more than this many automatic backups are kept
-    "timelineOn": True,        # time travel: record what switched in the house (timeline.py), one file per day in addon_configs/<...>/timeline
+    "timelineOn": True,        # security view: record what switched in the house (timeline.py), one file per day in addon_configs/<...>/timeline
     "timelineKeepDays": 7.0,   # ... days kept before today (older ones are deleted)
     "alerts": True,            # smoke, gas, CO, water, alarm and windows open in the rain: banner + red room
     "alertJump": False,        # jump to the room of a new warning by itself (wall tablets)
@@ -1347,7 +1347,7 @@ async def delete_backup_file(request):
     return web.json_response({"ok": True})
 
 
-# ---------- time travel (timeline.py): a recorder of every switch, one file per day ----------
+# ---------- security view (timeline.py): a recorder of every switch, one file per day ----------
 def timeline_dir(request) -> Path:
     return request.app[KEY_CONFIG] / "timeline"
 

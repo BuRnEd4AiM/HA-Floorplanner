@@ -689,7 +689,7 @@ body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset;
 #perfHud[hidden] { display: none; }
 @media (max-width: 760px) { #perfHud.all { font-size: 10px; } }
 
-/* ---- Time travel (timelineui.js): the bar at the bottom while a recorded day plays; nothing can be switched ---- */
+/* ---- Security view (timelineui.js): the bar at the bottom while a recorded day plays; nothing can be switched ---- */
 #tlBar { position: absolute; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 12;
   width: min(760px, calc(100% - 24px)); box-sizing: border-box; padding: 10px 12px 8px; background: var(--panel); border: 1px solid var(--line);
   border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.4); backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 6px; }

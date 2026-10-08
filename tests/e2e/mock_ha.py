@@ -50,7 +50,7 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
         if m.get("type") == "subscribe_events":
             SUBS.append((ws, m["id"]))
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": None})
-        elif m.get("type") == "get_states":         # the time travel recorder starts with all states
+        elif m.get("type") == "get_states":         # the security view recorder starts with all states
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": [state_of(e) for e in STATE]})
         elif "id" in m:
             await ws.send_json({"id": m["id"], "type": "result", "success": False, "error": {"code": "unknown_command"}})

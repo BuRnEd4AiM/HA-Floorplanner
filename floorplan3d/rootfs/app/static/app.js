@@ -110,7 +110,7 @@ let areas = [];                      // Home Assistant areas: [{id, name, entiti
 let areaOf = {};                     // entity_id -> area id
 const fxRgb = (name) => fxRgbOf(name, settings.effectColors);            // the colour of a light effect (entitystate.js)
 let states = {};                   // entity_id -> { state, unit }
-let replayBack = null;             // time travel: the mode and live states from before (timelineui.js), null while live
+let replayBack = null;             // security view: the mode and live states from before (timelineui.js), null while live
 let lowWalls = false;
 let halfCut = false;                   // half section: every wall is cut at half height, only the lower half stays
 let is2d = false;                  // legacy top-down camera flag (the real 2D editor is plan2d.js)
@@ -878,7 +878,7 @@ const live = initLiveControls({
   t, states: () => states, entities: () => entities, areas: () => areas, floor: () => floor(), entityDevices: (f) => entityDevices(f), pointInPoly,
   onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveChan.ok()) setTimeout(liveChan.poll, 400); },   // with the live channel the new state arrives by itself
   canEdit: () => me.canEdit, settings: () => settings, saveEffectColors: () => saveEffectColors(), canMoreInfo, openMoreInfo,
-  locked: (k) => locks.has(k) || (k === 'control' && !!replayBack),   // time travel only shows the past
+  locked: (k) => locks.has(k) || (k === 'control' && !!replayBack),   // security view only shows the past
 });
 const popup = initLivePopup({
   $, t, live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), cams,
@@ -1308,7 +1308,7 @@ const liveChan = initLiveChannel({
   wake: () => wake(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); },
   firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
 });
-/* ---- Time travel: a recorded day played back in the same view, nothing can be switched (timelineui.js, timeline.js) ---- */
+/* ---- Security view: a recorded day played back in the same view, nothing can be switched (timelineui.js, timeline.js) ---- */
 const timeline = initTimeline({
   $, t, lang: () => currentLanguage(), name: (id) => entities.find((e) => e.entity_id === id)?.name || id, status: (x) => setStatus(x),
   enter: () => { replayBack = { mode, states, entities }; setMode('live'); },

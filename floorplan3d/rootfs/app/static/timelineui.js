@@ -1,4 +1,4 @@
-/* Time travel (Zeitreise), the screen: the 🕒 button in the tool bar, the list of recorded days, and the bar at the bottom with play,
+/* Security (Sicherheit), the screen: the 🛡️ button in the tool bar, the list of recorded days, and the bar at the bottom with play,
  * pause, event to event, speed, a slider over the day with the events as little bars, and the list of what switched. While it is open
  * the house shows the recorded states instead of the live ones and nothing can be switched (the app pauses the live channel and locks
  * "control"). The rules (states at a moment, events ...) are in timeline.js. */
@@ -12,7 +12,7 @@ export function initTimeline(ctx) {
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 
   /* ---- the button ---- */
-  const btn = el('button', null, '🕒 '), word = el('span');
+  const btn = el('button', null, '🛡️ '), word = el('span');
   word.dataset.i18n = 'tl.btn'; word.textContent = t('tl.btn'); btn.append(word);
   btn.id = 'timelineBtn'; btn.type = 'button'; btn.dataset.i18nTitle = 'tl.tip'; btn.title = t('tl.tip');
   $('#settingsBtn')?.before(btn);
@@ -37,7 +37,7 @@ export function initTimeline(ctx) {
       const dl = el('a', 'btn tlDl', '⬇'); dl.href = `api/timeline/${d.day}?download=1`; dl.download = ''; dl.title = t('tl.download');
       row.append(pick, dl); list.append(row);
     });
-    const parts = [close, el('h3', null, `🕒 ${t('tl.title')}`), el('p', 'sub', t('tl.hint'))];
+    const parts = [close, el('h3', null, `🛡️ ${t('tl.title')}`), el('p', 'sub', t('tl.hint'))];
     if (!info) parts.push(el('p', 'tlWarn', t('tl.failed')));
     else {
       if (!info.on) parts.push(el('p', 'tlWarn', t('tl.off')));

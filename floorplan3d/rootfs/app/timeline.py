@@ -1,4 +1,4 @@
-"""Time travel (Zeitreise): a recorder of what happened in the house, one file per day.
+"""Security (Sicherheit): a recorder of what happened in the house, one file per day.
 
 The add-on keeps its own websocket to Home Assistant (separate from the live view, so neither disturbs the other) and writes
 every change of the entities placed in the floor plans into <addon config>/timeline/YYYY-MM-DD.jsonl, one JSON object per line:
@@ -205,7 +205,7 @@ class Recorder:
             if size > MAX_DAY_BYTES:
                 if day not in self.full:
                     self.full.add(day)
-                    log.warning("time travel: %s is full (%d MB), further changes of that day are not recorded", p.name, MAX_DAY_BYTES >> 20)
+                    log.warning("security view: %s is full (%d MB), further changes of that day are not recorded", p.name, MAX_DAY_BYTES >> 20)
                 continue
             with p.open("a", encoding="utf-8") as fh:
                 fh.write("\n".join(rows) + "\n")
@@ -270,7 +270,7 @@ async def run_recorder(rec: Recorder, *, connect, slim_state, tracked, settings,
                 pass
             raise
         except Exception as err:  # noqa: BLE001 - the recorder must never stop the add-on
-            log.info("time travel recorder interrupted (%s), retrying in %ss", err, delay)
+            log.info("security view recorder interrupted (%s), retrying in %ss", err, delay)
         try:
             await asyncio.to_thread(rec.flush)
         except OSError:

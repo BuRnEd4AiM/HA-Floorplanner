@@ -1,4 +1,4 @@
-/* Time travel (Zeitreise): playing back a recorded day. The add-on writes one file per day (timeline.py): a snapshot of all states,
+/* Security (Sicherheit): playing back a recorded day. The add-on writes one file per day (timeline.py): a snapshot of all states,
  * then one line per change. This part is pure (no DOM, no three.js; unit test: tests/timeline.test.mjs): the states at any moment,
  * the list of events (what switched), jumping from event to event, the bars of the time line. timelineui.js shows it. */
 
