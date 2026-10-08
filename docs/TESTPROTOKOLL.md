@@ -4,9 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Heute zu Hause prüfen (Stand 3.57.2)
+## Heute zu Hause prüfen (Stand 3.58.0)
 
-Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.57.2** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
+Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.58.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
 
 **Neu seit 3.54.0** (ausführlich in Abschnitt **36** unten)
 
@@ -23,6 +23,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 29. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht mehr.
 30. **Neu: Etagen und Zimmer als Klapplisten** (3.57.1, #281): auf dem Handy stehen oben **drei Knöpfe** nebeneinander: **☰**, die **Etage** (z. B. „Erdgeschoss ▾“) und **„Zimmer ▾“**. Etagen-Knopf antippen: Liste mit allen Etagen und „Ganzes Haus“, eine wählen, die Liste geht zu. Zimmer-Knopf antippen: Liste der Zimmer dieser Etage, eins wählen, es öffnet sich und der Knopf zeigt seinen Namen. Am PC und Tablet ist alles wie vorher.
 31. **Neu: alles auf einen Blick** (3.57.2, #284): Handy **hochkant** halten. Oben stehen Strom, Wasser/Gas, „offline“, „offen“ und Kameras **untereinander in mehreren Reihen**, nichts muss seitlich geschoben werden, es gibt keine Pfeile mehr. Unten die Knöpfe Normal, Temp., Feuchte, CO₂, Strom stehen in **zwei Reihen**. Quer gehalten bleibt es eine Reihe.
+32. **Neu: Wand teilen** (3.58.0, #286): Bearbeiten, 2D-Plan, Werkzeug „Auswählen“, eine Wand anklicken. Rechts unter „Wand“ steht **„Wand teilen“**: bei „Ecke bei (vom Anfang)“ z. B. **0,30** eintippen und „Teilen“ drücken: die Wand ist an genau dieser Stelle geteilt. Oder bei „In gleiche Teile“ z. B. „3 Teile“ wählen und „Teilen“: drei gleich lange Stücke. **Doppelklick** auf die ausgewählte Wand teilt sie dort, wo du klickst, auch wenn Rasen oder ein Zaun darunter liegt. Strg+Z holt alles zurück.
 
 **Noch von 3.53.0 offen** (falls schon geprüft: bitte kurz Bescheid geben, dann trage ich es ein)
 
@@ -542,3 +543,4 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 36.12 | Tablet und PC | Alles wie vorher (die Handy-Änderungen gelten nur für schmale Bildschirme) | |
 | 36.13 | Handy: oben ☰, Etagen-Knopf und Zimmer-Knopf; Etage wählen, dann Zimmer wählen | Zwei eigene Listen; die Wahl schließt die Liste, das Zimmer öffnet sich (3.57.1, #281) | |
 | 36.14 | Handy hochkant: oben und unten alles ansehen | Alle Anzeigen und Ansichts-Knöpfe sichtbar, in mehreren Reihen, nichts zum Seitwärtsschieben (3.57.2, #284) | |
+| 36.15 | Wand anklicken, rechts „Wand teilen“: 0,30 m, dann „3 Teile“; Doppelklick auf die ausgewählte Wand | Ecke genau dort; drei gleiche Stücke; Doppelklick teilt an der Klickstelle, auch über Rasen/Zaun (3.58.0, #286) | |

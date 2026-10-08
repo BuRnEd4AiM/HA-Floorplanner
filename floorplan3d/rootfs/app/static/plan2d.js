@@ -10,6 +10,7 @@ import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 import { boxItems } from './multisel.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
+import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -1137,6 +1138,11 @@ export function createPlan(ctx) {
       const x = wx(px), z = wz(py);
       let h = pickAt(x, z);
       if (h?.kind === 'opening' && !onOpeningExact(h.id, x, z)) h = null;   // only beside a door / window, not on it: the wall counts
+      const sel = ctx.getSelection(), selWall = sel?.kind === 'wall' ? floor().walls.find((w) => w.id === sel.id) : null;
+      if (selWall && h?.kind !== 'opening' && distSeg(x, z, selWall.a, selWall.b) <= Math.max(selWall.thickness / 2, 12 / s)) {
+        if (!splitWallAt(selWall, x, z)) ctx.setStatus(ctx.t('wall.splitNo'));   // the selected wall wins over a device, garden thing or room under it
+        return;
+      }
       if (h?.kind === 'device' && !onDeviceExact(h.id, x, z) && wallNear(x, z)) h = null;   // only in the padding around a device, and a wall is there
       if (h?.kind === 'device') { ctx.deviceDoubleClick(h.id); return; }
       const hd = handleAt(px, py);
@@ -1166,29 +1172,13 @@ export function createPlan(ctx) {
     floor().walls.forEach((w) => { const d = distSeg(x, z, w.a, w.b); if (d <= Math.max(w.thickness / 2, tol) && d < bd) { bd = d; best = w; } });
     return best;
   }
-  /* split a wall in two at the point of it closest to (x, z); doors / windows go with the piece they sit on, the corner is
-   * also added to the rooms and blocks that run along this wall, so moving it later keeps them together.
-   * Returns false when there is no room for it (too close to an end or inside a door / window). */
+  /* split a wall in two at the point of it closest to (x, z) (wallsplit.js). Returns false when there is no room for it
+   * (too close to an end or inside a door / window). */
   function splitWallAt(w, x, z) {
-    const dx = w.b[0] - w.a[0], dz = w.b[1] - w.a[1], L = Math.hypot(dx, dz);
-    if (L < 0.2) return false;
-    const t = ((x - w.a[0]) * dx + (z - w.a[1]) * dz) / (L * L), d = t * L;
-    if (d < 0.1 || d > L - 0.1) return false;
-    if ((w.openings || []).some((o) => Math.abs(o.pos - d) < o.width / 2 + 0.02)) return false;
-    const pt = [+(w.a[0] + dx * t).toFixed(3), +(w.a[1] + dz * t).toFixed(3)];
+    const d = distAlong(w, x, z);
+    if (!canSplitAt(w, d)) return false;
     ctx.snapshot();
-    const f = floor();
-    const second = { ...w, id: ctx.uid(), a: [...pt], b: [...w.b], openings: (w.openings || []).filter((o) => o.pos > d).map((o) => ({ ...o, pos: o.pos - d })) };
-    w.openings = (w.openings || []).filter((o) => o.pos <= d);
-    w.b = [...pt];
-    f.walls.splice(f.walls.indexOf(w) + 1, 0, second);
-    [...f.rooms, ...(f.blocks || [])].forEach((poly) => {
-      const ps = poly.points;
-      for (let i = 0; i < ps.length; i++) {
-        const a = ps[i], b = ps[(i + 1) % ps.length];
-        if (distSeg(pt[0], pt[1], a, b) < 0.03 && Math.hypot(pt[0] - a[0], pt[1] - a[1]) > 0.05 && Math.hypot(pt[0] - b[0], pt[1] - b[1]) > 0.05) { ps.splice(i + 1, 0, [...pt]); break; }
-      }
-    });
+    splitWall(floor(), w, d, ctx.uid);
     ctx.setSelection({ kind: 'wall', id: w.id });
     ctx.commit();
     return true;

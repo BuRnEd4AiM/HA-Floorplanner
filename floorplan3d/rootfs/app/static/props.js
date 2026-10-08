@@ -7,6 +7,7 @@ import { roomOpenings } from './roompanel.js';
 import { initKitchenUi } from './kitchenui.js';
 import { MOUNTS, MAX_FIELD } from './solarroof.js';
 import { BRIDGE, bridgeSize } from './bridge.js';
+import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -101,6 +102,31 @@ export function initProps(ctx) {
   function wallProps(body, it) {
     body.append(field(t('prop.thickness'), lenInput(() => it.thickness, (v) => (it.thickness = Math.max(0.05, v)))));
     body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3, step: 0.1 })));
+    wallSplitBox(body, it);
+  }
+
+  /* split the wall at an exact distance from its start, or into equal parts (wallsplit.js); the first piece stays selected */
+  function wallSplitBox(body, it) {
+    const f = ctx.floor(), L = wallLength(it);
+    const head = document.createElement('p'); head.className = 'sub'; head.textContent = `${t('wall.split')} (${ctx.fmtLen(L)})`;
+    const at = document.createElement('input'); at.type = 'number'; at.id = 'wallSplitAt'; at.step = ctx.imperial() ? 0.1 : 0.05; at.min = 0;
+    at.value = (+ctx.toDisp(L / 2)).toFixed(2);
+    const go = document.createElement('button'); go.type = 'button'; go.id = 'wallSplitBtn'; go.textContent = t('wall.splitBtn');
+    go.addEventListener('click', () => {
+      const d = ctx.fromDisp(+at.value);
+      if (!canSplitAt(it, d)) { ctx.setStatus(t('wall.splitNo')); return; }
+      ctx.snapshot(); splitWall(f, it, d, ctx.uid); ctx.changed(); render();
+    });
+    const parts = document.createElement('select'); parts.id = 'wallParts';
+    for (let n = 2; n <= 10; n++) parts.add(new Option(t('wall.parts', { n }), String(n)));
+    const goN = document.createElement('button'); goN.type = 'button'; goN.id = 'wallPartsBtn'; goN.textContent = t('wall.splitBtn');
+    goN.addEventListener('click', () => {
+      ctx.snapshot();
+      if (!splitEqual(f, it, +parts.value, ctx.uid)) { ctx.setStatus(t('wall.splitNo')); return; }
+      ctx.changed(); render();
+    });
+    const row = (...els) => { const r = document.createElement('div'); r.className = 'splitRow'; r.append(...els); return r; };
+    body.append(head, field(t('wall.splitAt'), row(at, go)), field(t('wall.splitEqual'), row(parts, goN)));
   }
 
   function roomProps(body, it) {
