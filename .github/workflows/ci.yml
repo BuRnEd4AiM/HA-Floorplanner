@@ -91,7 +91,17 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install aiohttp playwright
-      - run: playwright install --with-deps chromium
+      - name: Install Chromium (with a time limit and retries)
+        # the Ubuntu package servers sometimes hang: one attempt hung 25 minutes and the whole job was cancelled before a test ran
+        timeout-minutes: 15
+        run: |
+          # apt gives up on a mirror that does not answer instead of waiting forever, and tries again
+          printf 'Acquire::http::Timeout "30";\nAcquire::https::Timeout "30";\nAcquire::Retries "3";\n' | sudo tee /etc/apt/apt.conf.d/99timeouts
+          for i in 1 2 3; do
+            timeout --kill-after=15 240 playwright install --with-deps chromium && exit 0
+            echo "Chromium install attempt $i failed or hung, trying again"; sleep 10
+          done
+          exit 1
       - name: Start the mock Home Assistant and the add-on
         run: |
           cd tests/e2e
