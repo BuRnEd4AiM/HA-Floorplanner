@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.60.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.61.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -78,6 +78,7 @@ Stand: Version 3.60.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `tapballs.js` | ~85 | Kugeln zum Antippen im Live-Modus (#238): Lage über/unter dem Gerät, Farbe nach Zustand; reine Regeln mit Unit-Tests |
 | `entitystate.js` | ~25 | Was von einer Entität gemerkt wird, Farbe eines Lichteffekts (Schritt 23); reine Logik mit Unit-Tests |
 | `layoutnorm.js` | ~25 | Geladenen Plan vervollständigen, „Erdgeschoss“ in der Sprache des Nutzers (Schritt 23); reine Logik mit Unit-Tests |
+| `userlocks.js` | ~55 | Sperren pro Benutzer / Tablet: was ein Benutzer nicht benutzen darf (Schalten, Kameras, Einstellungen, Ansicht wechseln …), ausblenden per CSS; Schalten und Kameras verweigert auch der Server; reine Logik mit Unit-Tests |
 | `roomclip.js` | ~45 | Raum freistellen: Punkt im Raum, Wand auf den Raum zuschneiden, Punkt-im-Polygon (Schritt 24); reine Geometrie mit Unit-Tests |
 | `modelfx.js` | ~70 | Trefferboxen eines Modells, Hologramm-Darstellung, Flaches unter den Böden (Schritt 24) |
 | `labels.js` | ~50 | Text im 3D-Bild: Raumname, Wert-Pille am Gerät, leuchtendes Strom-Schild (Schritt 24) |

@@ -64,6 +64,7 @@ import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { toWorld, stairHandles } from './stairs.js';
 import { floorLabels } from './viewprefs.js';
+import { applyLocks, lockedSettings } from './userlocks.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel, fetchAreas } from './livechannel.js';
 import { initPersist } from './persist.js';
@@ -113,6 +114,7 @@ let is2d = false;                  // legacy top-down camera flag (the real 2D e
 let plan = null;                   // 2D blueprint editor
 let layoutMode = '3d';             // '3d' | '2d' | 'split'
 let me = { user: '', canEdit: true, room: null, view: 'all' };
+let locks = new Set();                                    // what this user may not use (userlocks.js, from api/me)
 let tabletRoom = null;             // room name this screen is locked to (one tablet per room)
 
 const $ = (s) => document.querySelector(s);
@@ -456,7 +458,7 @@ function animateOpenings() { return openings.animate(); }
 
 /* ================= Cameras (#69): cones, overview, still images; the code lives in cameras.js ================= */
 const cams = initCameras({
-  $, t, settings: () => settings, layout: () => layout, states: () => states, onStates: ON_STATES, pointInPoly: (...a) => pointInPoly(...a), isHolo: () => isHolo(),
+  $, t, settings: () => lockedSettings(settings, [...locks]), layout: () => layout, states: () => states, onStates: ON_STATES, pointInPoly: (...a) => pointInPoly(...a), isHolo: () => isHolo(),
   openMoreInfo: (id) => openMoreInfo(id), setStatus: (x) => setStatus(x), showDevice: (fi, id) => offline.show({ floor: fi, kind: 'device', id }), closeMenu: () => toggleMenu(camMenu, camPillBtn, false),
 });
 
@@ -873,6 +875,7 @@ const live = initLiveControls({
   t, states: () => states, entities: () => entities, areas: () => areas, floor: () => floor(), entityDevices: (f) => entityDevices(f), pointInPoly,
   onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveChan.ok()) setTimeout(liveChan.poll, 400); },   // with the live channel the new state arrives by itself
   canEdit: () => me.canEdit, settings: () => settings, saveEffectColors: () => saveEffectColors(), canMoreInfo, openMoreInfo,
+  locked: (k) => locks.has(k),
 });
 const popup = initLivePopup({
   $, t, live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), cams,
@@ -1341,6 +1344,7 @@ async function init() {
   if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
   if (!(await loadSettings())) setStatus(t('set.notLoaded'));
   settingsStore.usePreset(me.preset);                     // this user's / tablet's own start values for the look (#250)
+  locks = applyLocks(document, me.locks);                 // and what this user may not use: hidden here, control / cameras refused by the server
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
   await hs.load();

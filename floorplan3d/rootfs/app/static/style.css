@@ -224,6 +224,9 @@ dialog .presetBox { display: grid; grid-template-columns: repeat(auto-fill, minm
 dialog .presetBox[hidden] { display: none; }
 dialog .presetBox label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; opacity: .9; }
 dialog .stop.tablet .presetBox select { width: 100%; }
+dialog .presetBox .lockHead { grid-column: 1 / -1; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); font-size: 12px; font-weight: 600; }
+dialog .presetBox label.lockItem { flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; text-align: left; }
+#tabletRows .tablet .presetBox label.lockItem input { width: auto; flex: none; margin: 0; }
 
 #livePopup .lightctl { margin-top: 10px; }
 #livePopup .lightctl input[type=range] { width: 100%; }

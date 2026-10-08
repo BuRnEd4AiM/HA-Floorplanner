@@ -82,6 +82,7 @@ DEFAULT_SETTINGS = {
     "effectColors": {},        # light effect / scene name -> display colour (HA does not report what an effect looks like)
     "userViews": {},           # Home Assistant user name -> 3d | 2d | split | all (what that user sees in live mode)
     "userPresets": {},         # Home Assistant user name -> its own start values for the look (PRESET_FIELDS, #250)
+    "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
@@ -98,6 +99,32 @@ VIEWS = ("3d", "2d", "split", "all")
 # what a user preset may set and the values allowed (the same list as PRESET_FIELDS in static/viewprefs.js, #250)
 PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWalls": (True, False),
                  "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False)}
+
+# what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control" and "cameras" are refused here too
+LOCKS = ("control", "details", "cameras", "energy", "colorModes", "viewMenu", "views", "houses", "search", "settings")
+
+
+def clean_locks(val) -> dict:
+    """{user: [lock]}: at most 50 users, only known locks (each once, in the order of LOCKS), users without a lock dropped."""
+    if not isinstance(val, dict):
+        return {}
+    out = {}
+    for user, locks in list(val.items())[:50]:
+        if not str(user) or not isinstance(locks, list):
+            continue
+        clean = [k for k in LOCKS if k in locks]
+        if clean:
+            out[str(user)[:80]] = clean
+    return out
+
+
+def user_locks(request) -> set:
+    """The locks of the user looking (by Home Assistant user name or id); none in standalone mode."""
+    ids = current_user(request)["ids"]
+    if not ids:
+        return set()
+    locks = clean_locks(read_settings(request).get("userLocks", {}))
+    return set(next((v for k, v in locks.items() if k.strip().lower() in ids), []))
 
 
 def clean_presets(val) -> dict:
@@ -227,6 +254,7 @@ async def get_me(request):
     presets = clean_presets(read_settings(request).get("userPresets", {}))
     preset = next((v for k, v in presets.items() if k.strip().lower() in user["ids"]), {})
     return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset,
+                              "locks": [k for k in LOCKS if k in user_locks(request)],
                               "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
 
 
@@ -382,6 +410,8 @@ def validate_settings(data: dict) -> dict:
         val = data[key]
         if key == "userPresets":
             out[key] = clean_presets(val)
+        elif key == "userLocks":
+            out[key] = clean_locks(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
@@ -467,6 +497,9 @@ def backup_settings(request) -> None:
 
 
 # ---------- users and tablets in a file of the add-on config folder ----------
+USER_KEYS = ("userRooms", "userViews", "userPresets", "userLocks")   # what users.json in the config folder holds
+
+
 def users_file(request) -> Path:
     return request.app[KEY_CONFIG] / USERS_FILE
 
@@ -476,14 +509,13 @@ def read_users_file(request) -> dict | None:
     data = read_json(users_file(request), None)
     if not isinstance(data, dict):
         return None
-    clean = validate_settings({"userRooms": data.get("userRooms"), "userViews": data.get("userViews"), "userPresets": data.get("userPresets")})
-    return {"userRooms": clean["userRooms"], "userViews": clean["userViews"], "userPresets": clean["userPresets"]}
+    clean = validate_settings({k: data.get(k) for k in USER_KEYS})
+    return {k: clean[k] for k in USER_KEYS}
 
 
 def write_users_file(request, settings: dict) -> bool:
     """Mirror the users and tablets into the config folder (a readable file); never lets a settings save fail."""
-    payload = {"version": 1, "userRooms": settings.get("userRooms", {}), "userViews": settings.get("userViews", {}),
-               "userPresets": settings.get("userPresets", {})}
+    payload = {"version": 1, **{k: settings.get(k, {}) for k in USER_KEYS}}
     try:
         write_json_atomic(users_file(request), payload)
         return True
@@ -500,7 +532,7 @@ async def seed_users_file(app: web.Application) -> None:
     stored = read_json(app[KEY_DATA] / "settings.json", None)
     if isinstance(stored, dict):
         clean = validate_settings(stored)
-        if clean["userRooms"] or clean["userViews"] or clean["userPresets"]:
+        if any(clean[k] for k in USER_KEYS):
             write_users_file(shim, clean)
 
 
@@ -509,8 +541,8 @@ async def get_users_file(request):
         return forbidden()
     file = read_users_file(request)
     cur = validate_settings(read_settings(request))
-    mine = {"userRooms": cur["userRooms"], "userViews": cur["userViews"], "userPresets": cur["userPresets"]}
-    names = lambda d: set(d["userRooms"]) | set(d["userViews"]) | set(d["userPresets"])
+    mine = {k: cur[k] for k in USER_KEYS}
+    names = lambda d: set().union(*(d[k] for k in USER_KEYS))
     return web.json_response({"file": USERS_FILE, "exists": file is not None, "fileUsers": len(names(file)) if file else 0,
                               "users": len(names(mine)), "inSync": file == mine})
 
@@ -931,6 +963,8 @@ async def get_areas(request):
 async def call_service(request):
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "no supervisor token"}, status=503)
+    if "control" in user_locks(request):
+        return web.json_response({"error": "switching is locked for this user"}, status=403)
     try:
         body = await request.json()
     except ValueError:
@@ -1000,6 +1034,8 @@ async def get_camera(request):
         return web.json_response({"error": "not a camera"}, status=400)
     if not validate_settings(read_settings(request))["cameraImages"]:
         return web.json_response({"error": "camera images are switched off"}, status=403)
+    if "cameras" in user_locks(request):
+        return web.json_response({"error": "cameras are locked for this user"}, status=403)
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "no supervisor token"}, status=503)
     try:
