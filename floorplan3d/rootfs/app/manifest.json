@@ -1,6 +1,6 @@
 {
- "version": "3.64.0",
- "buildHash": "12dcbcbbc416e33ee9c7e2973b83979dcb1ff8960dd9984c32479c7e76f59e36",
+ "version": "3.64.1",
+ "buildHash": "e6177ead1110d2220a9d4ccbd81f4ca622cf999b6f0a737cebe9ec445a4ddd9b",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -131,7 +131,7 @@
   "server.py": "d17d242c535f0afae7f1b40e7d4449aefec524360206a8bef456b681173f3f46",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "3a541620793f7a69607719e4b2b337440d6e3d9f6876a765573fd3d02207262a",
-  "static/app.js": "e75055344b8c5e446ca5a82b90b3b1c0155ce71ad6461ec83a0454de1207aa1d",
+  "static/app.js": "ec09c02da110d39df6cd8511a2ff72f839c20aa765c789a36cc9b1cabc09648d",
   "static/appstate.js": "eb18ab17dfd8321babaf2ce95552bc36b68455b85aced34bac89bf75750e0cb5",
   "static/attic.js": "f6143dd47f9c137dd8fc805e0d499ca964e8c11a415e5e81b8db6fe491819829",
   "static/atticclip.js": "02f3cc106db23fc3008c5230d1f9bf888a17e06a48ea0b926904bda56bdd9e10",
@@ -154,7 +154,7 @@
   "static/entitypicker.js": "b04001c54b2501a937cced5b74b091ee30f10dc9a96487ed4de6ecd26f189915",
   "static/entitystate.js": "5f088c54e147f0745fe295232e3335dd4f31e748d427a3349cc5211cf98dfac0",
   "static/floorbuild.js": "3089b6be66b4a0d01338edc6775c95c9ab5d47afb95d1fa6a1b02f842bec8aef",
-  "static/floorcards.js": "5b0972dc3cac7ca49baf11afa918d9dc22d447083ebe70809ec470d89c154548",
+  "static/floorcards.js": "da47f82a563d55aeaa10bbb8ca0c3f7b540e6138663d2a2fe2818492e5ca23c1",
   "static/floorpanel.js": "41d1e4a196e2cdf846e24712b18d61ef4907193cd98072da36f5991ef3400f9d",
   "static/floorrail.js": "10ecd93393ed14db8841dd58b7359d98615f1b29a5b0aca67c3b43b6341d0b1a",
   "static/frameloop.js": "5140bb54d886debdaf66cbd576bcc5ec2e7b2373acdc6984d5e40f150f8fd196",

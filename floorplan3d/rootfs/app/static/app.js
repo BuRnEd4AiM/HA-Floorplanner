@@ -525,7 +525,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
 const floorCards = initFloorCards({
   $, t, camera, canvas, layout: () => layout, states: () => states, onStates: ON_STATES, settings: () => settings, isOpen: (e) => isOpen(e), houseMode: () => houseMode,
-  layoutMode: () => layoutMode, elev: (i) => elev(i), floorH: FLOOR_H, switchFloor: (i) => switchFloor(i),
+  layoutMode: () => layoutMode, roomFocused: () => !!focusedRoom, elev: (i) => elev(i), floorH: FLOOR_H, switchFloor: (i) => switchFloor(i),
 });
 
 /* colour scale at the edge while a room colouring is on */

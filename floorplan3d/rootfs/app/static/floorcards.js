@@ -69,7 +69,11 @@ export function arrangeCards(cards, view) {
   return { narrow, x, ys };
 }
 
-/** ctx: $, t, camera, canvas, layout(), states(), onStates, settings(), isOpen(entity), houseMode(), layoutMode(), elev(i), floorH, switchFloor(i) */
+/** whether the cards show at all: only in the whole-house view with a 3D view, and not while one room is opened (a tap on a room
+ *  zooms into it, the cards of the floors would then float in the empty space beside it) */
+export const cardsShown = ({ house, mode, focused }) => !!house && mode !== '2d' && !focused;
+
+/** ctx: $, t, camera, canvas, layout(), states(), onStates, settings(), isOpen(entity), houseMode(), layoutMode(), roomFocused(), elev(i), floorH, switchFloor(i) */
 export function initFloorCards(ctx) {
   const { $, t } = ctx;
   const cards = [];                                  // { el, key, pos: Vector3, corners, natW, narrowW }
@@ -111,7 +115,7 @@ export function initFloorCards(ctx) {
   function place() {
     if (!ctx.houseMode() || !cards.length) return;
     const { canvas, camera } = ctx, w = canvas.clientWidth, h = canvas.clientHeight;
-    if (w < 10 || ctx.layoutMode() === '2d') { cards.forEach((c) => { c.el.style.display = 'none'; }); return; }             // 2D only: no 3D view, no cards
+    if (w < 10 || !cardsShown({ house: true, mode: ctx.layoutMode(), focused: ctx.roomFocused?.() })) { cards.forEach((c) => { c.el.style.display = 'none'; }); return; }   // 2D only or a room opened: no cards
     const cr = canvas.getBoundingClientRect(), br = $('#floorCards').getBoundingClientRect();
     const ox = cr.left - br.left, oy = cr.top - br.top;                                             // 2D + 3D: the 3D view is only part of the stage
     const toScreen = (v) => { v3.copy(v).project(camera); return { x: (v3.x + 1) / 2 * w, y: (1 - v3.y) / 2 * h, ok: v3.z < 1 }; };
@@ -130,7 +134,7 @@ export function initFloorCards(ctx) {
   }
   /** the free column on the right for the cards on phones (0 elsewhere); the picture is shifted by half of it (sheetview.js) */
   function column() {
-    if (!ctx.houseMode() || ctx.layoutMode() === '2d') return 0;
+    if (!cardsShown({ house: ctx.houseMode(), mode: ctx.layoutMode(), focused: ctx.roomFocused?.() })) return 0;
     return cardColumn({ w: ctx.canvas.clientWidth, phone: window.matchMedia?.('(max-width: 760px)').matches, cards: cardFloors(ctx.layout()).length });
   }
   return { update, place, column, cards };
