@@ -25,16 +25,18 @@ export function roomViewDist(size, aspect) {
   return base / aspect;
 }
 
-/** ctx: camera, canvas, panel (the room panel element) */
+/** ctx: camera, canvas, panel (the room panel element), side() (px of a free column on the right, e.g. for the floor cards on
+ *  phones (#292, floorcards.js); the picture moves left by half of it) */
 export function initSheetView(ctx) {
   const { camera, canvas, panel } = ctx;
-  let shift = 0;
+  let shift = 0, sx = 0;
   function apply() {
     const v = canvas.getBoundingClientRect();
     const s = sheetShift(v, panel.hidden ? null : panel.getBoundingClientRect());
-    if (s === shift && (s === 0 || (camera.view?.fullWidth === v.width && camera.view?.fullHeight === v.height))) return;
-    shift = s;
-    if (s) camera.setViewOffset(v.width, v.height, 0, s, v.width, v.height);
+    const x = Math.round((ctx.side?.() || 0) / 2);
+    if (s === shift && x === sx && ((!s && !x) || (camera.view?.fullWidth === v.width && camera.view?.fullHeight === v.height))) return;
+    shift = s; sx = x;
+    if (s || x) camera.setViewOffset(v.width, v.height, x, s, v.width, v.height);
     else camera.clearViewOffset();
   }
   new MutationObserver(apply).observe(panel, { attributes: true, attributeFilter: ['hidden'] });

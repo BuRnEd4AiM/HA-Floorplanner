@@ -28,6 +28,16 @@ export function compactParts({ rooms, lights, windows }) {
 /** estimated width (px) of the short card on phones (name above, the icons below; smaller text) */
 export const compactWidth = (name, parts) => 18 + Math.max(name.length * 6.6, parts.join('  ').length * 6.4);
 
+/** phones held upright (#292): the house is drawn a little to the left and smaller, so a free column on the right holds the cards
+ *  and they never cover the house. Width of that column in px (0 = no column: not a phone, no cards) */
+export function cardColumn({ w, phone, cards }) {
+  if (!phone || !cards || !(w > 0)) return 0;
+  return Math.round(Math.min(150, Math.max(118, w * 0.32)));
+}
+
+/** how much further back the camera stands so the house fits into the part left of the column */
+export const columnZoom = (w, col) => (col > 0 && w > col ? w / (w - col) : 1);
+
 /** estimated widths (px) of a card, so the layout never flickers between the wide and the narrow form */
 export function cardWidths(name, parts) {
   return { natW: 26 + Math.max(name.length * 7.6, parts.join(' · ').length * 6.3), narrowW: 26 + Math.max(name.length * 7.6, ...parts.map((x) => x.length * 6.3)) };
@@ -115,5 +125,10 @@ export function initFloorCards(ctx) {
     cards.forEach((c) => c.el.classList.toggle('narrow', r.narrow));
     vis.forEach((v, k) => { v.c.el.style.transform = `translate(${(r.x + ox).toFixed(0)}px, ${(r.ys[k] + oy).toFixed(0)}px)`; });
   }
-  return { update, place, cards };
+  /** the free column on the right for the cards on phones (0 elsewhere); the picture is shifted by half of it (sheetview.js) */
+  function column() {
+    if (!ctx.houseMode() || ctx.layoutMode() === '2d') return 0;
+    return cardColumn({ w: ctx.canvas.clientWidth, phone: window.matchMedia?.('(max-width: 760px)').matches, cards: cardFloors(ctx.layout()).length });
+  }
+  return { update, place, column, cards };
 }

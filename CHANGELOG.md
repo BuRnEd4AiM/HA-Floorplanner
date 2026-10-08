@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.59.2] - 2026-10-08
+### Fixed
+- **Phones: floor cards beside the house, not in front of it (#292)**: in the whole-house view on phones held upright the house is drawn a little to the left and slightly smaller, so a free column on the right holds the floor cards and they no longer cover the house. Leaving the whole-house view (a floor, a room) shows the picture as before; tablets and desktops are unchanged.
+
 ## [3.59.1] - 2026-10-08
 ### Fixed
 - **Phones: floor cards in the whole-house view were far too big (#290)**: on phones held upright each card took four lines and together they covered half of the house. Now a card is the floor name with one short line of icons below it (▦ rooms, 💡 lights on, 🪟 windows open; lights and windows only when there are any), in smaller text. Tablets and desktops keep the full cards.
