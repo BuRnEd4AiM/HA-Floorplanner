@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.60.0] - 2026-10-08
+### Added
+- **Performance display (FPS and more)**: the *View* drop-down has *⏱ Performance: off / FPS / all values*. *FPS* shows the frames per second at the top right of the 3D picture (💤 when the picture rests on purpose to save power); *all values* adds the time per frame (average and longest), the work per frame, draw calls, triangles, geometries, textures, shaders, the resolution of the picture, the screen, low-power mode, the graphics chip and the memory (Chrome). Kept per device, works on phone, tablet and desktop, the box lets every touch through; on a wall tablet without the menu `?fps=1` or `?fps=all` in the address does the same. New module `perfhud.js` with unit tests.
+
 ## [3.59.2] - 2026-10-08
 ### Fixed
 - **Phones: floor cards beside the house, not in front of it (#292)**: in the whole-house view on phones held upright the house is drawn a little to the left and slightly smaller, so a free column on the right holds the floor cards and they no longer cover the house. Leaving the whole-house view (a floor, a room) shows the picture as before; tablets and desktops are unchanged.
