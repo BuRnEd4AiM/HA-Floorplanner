@@ -73,6 +73,7 @@ import { initPicking } from './picking.js';
 import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
 import { frameDue, shadowDue } from './frameloop.js';
+import { initPerfHud } from './perfhud.js';
 import { initHouseLoad } from './houseload.js';
 import { roofRects, moveRoof, tagRoofMeshes, panelsOn, setRoofBox } from './roofmove.js';
 import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
@@ -1366,12 +1367,14 @@ function markShadows() { shadowDirty = true; }
 function wake() { lastActive = performance.now(); }
 ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart', 'touchmove'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
 controls.addEventListener('change', wake);
+const perfHud = initPerfHud({ $, renderer, low: LOW, param: params.get('fps'), lang: currentLanguage, onChange: wake });   // FPS and more, chosen in the View menu (perfhud.js)
 function animate(now = performance.now()) {
   requestAnimationFrame(animate);
   if (document.hidden) return;                                   // screen off / tab in background: draw nothing
   const due = frameDue(now, lastActive, lastFrame, LOW);          // nothing happens or a weak tablet: a few frames a second are enough (frameloop.js)
   if (!due.draw) return;
   if (due.throttled) lastFrame = now;
+  const frameStart = performance.now();
   if (cams.pulse(now)) wake();   // a camera sees movement
   const pulsing = alertsUi.animate(now), finding = search.animate(now);       // pulsing warnings and the search ring move
   if (pulsing || finding || controls.autoRotate) wake();
@@ -1385,6 +1388,7 @@ function animate(now = performance.now()) {
   floorCards.place();
   if (shadowDue(shadowDirty, now, lastShadow)) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; lastShadow = now; }   // shadows only when something changed (#253)
   renderer.render(scene, camera);
+  perfHud.frame(now, due, frameStart);
 }
 init();
 animate();
