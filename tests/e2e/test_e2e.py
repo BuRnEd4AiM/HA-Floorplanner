@@ -20,6 +20,11 @@ def set_setting(key, val):
 def ha_calls():
     return json.load(urllib.request.urlopen("http://localhost:8123/_calls"))
 
+def status_open(pg):
+    """upright phones fold the values at the top (offline, open, cameras ...) into the 📊 drop-down (phonestatus.js): open it"""
+    if pg.locator("#phoneStatusBtn").is_visible() and pg.locator("#phoneStatus").is_hidden():
+        pg.click("#phoneStatusBtn"); pg.wait_for_timeout(200)
+
 def view_menu(pg):
     """the view buttons (Auto, half section, pull apart, walls) sit in a drop-down at the top"""
     if not pg.locator("#viewMenu").is_visible():
@@ -1240,6 +1245,7 @@ with sync_playwright() as p:
     pg17.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
     pg17.goto(BASE + "?debug=1&mode=live"); pg17.wait_for_timeout(1500)
     pg17.evaluate("(() => { const L = window.__fp.layout; window.__keep = L.floors.map(f => f.devices); L.floors.forEach(f => f.devices = []); window.__fp.rebuild(); })()"); pg17.wait_for_timeout(400)
+    status_open(pg17)
     check("offline: the pill is there with nothing offline too", pg17.locator("#offlinePill.ok").is_visible() and "0" in pg17.inner_text("#offlinePill"), pg17.inner_text("#offlinePill"))
     pg17.evaluate("(() => { const L = window.__fp.layout; L.floors.forEach((f, i) => f.devices = window.__keep[i]); window.__fp.rebuild(); })()"); pg17.wait_for_timeout(400)
     urllib.request.urlopen("http://localhost:8123/_set?e=switch.garage&s=unavailable"); pg17.wait_for_timeout(1200)
@@ -1256,7 +1262,9 @@ with sync_playwright() as p:
     check("offline: a missing entity and a lamp without entity are listed, furniture is not", off == [["offB", "missing"], ["offC", "unlinked"]], off)
     urllib.request.urlopen("http://localhost:8123/_set?e=sensor.temp&s=unavailable"); pg17.wait_for_timeout(1200)
     off = pg17.evaluate("window.__fp.offline().filter(x => x.id.startsWith('off')).map(x => [x.id, x.reason])")
+    status_open(pg17)
     check("offline: an unavailable device shows up at once (live)", ["offA", "unavailable"] in off and pg17.locator("#offlinePill").is_visible(), off)
+    status_open(pg17)
     pg17.click("#offlinePill"); pg17.wait_for_timeout(300)
     n_items = pg17.locator("#offlineList li").count()
     pg17.screenshot(path=os.path.join(os.path.dirname(__file__), "offline.png"))
@@ -1270,6 +1278,7 @@ with sync_playwright() as p:
       f.walls.push({ id: 'jw', a: [20, 0], b: [24, 0], thickness: 0.2, height: 2.6, openings: [{ id: 'jwin', type: 'window', pos: 2, width: 1.2, height: 1.2, sill: 0.9, entity: 'binary_sensor.rauch', name: 'Sprungfenster' }] });
       window.__fp.rebuild(); })()""")
     urllib.request.urlopen("http://localhost:8123/_set?e=binary_sensor.rauch&s=on"); pg17.wait_for_timeout(1200)
+    status_open(pg17)
     pg17.click("#openPill"); pg17.wait_for_timeout(300)
     pg17.locator("#openList li button", has_text="Sprungfenster").click(); pg17.wait_for_timeout(500)
     check("open list (#215): a tap on an open window flies the camera there like the search", not pg17.locator("#openDialog[open]").count() and near_cam([22, e17 + 1.5, 0], 5.5), pg17.evaluate("window.__fp.cam()"))
@@ -1327,6 +1336,13 @@ with sync_playwright() as p:
     check("phone nav: the floor list shows every floor", pg17.locator("#phoneNav").is_visible() and pg17.locator("#phoneNav .pill").count() >= nfl, pg17.inner_text("#phoneNav"))
     pg17.locator("#phoneNav .pill.active").click(); pg17.wait_for_timeout(300)
     check("phone nav: picking a floor closes the list", pg17.locator("#phoneNav").is_hidden())
+    # phones upright: power, offline, open, cameras fold into the 📊 drop-down; the search is at the top right (phonestatus.js)
+    check("phone status: the values are folded behind one button", pg17.locator("#phoneStatusBtn").is_visible() and pg17.locator("#offlinePill").is_hidden(), pg17.inner_text("#phoneStatusBtn"))
+    pg17.click("#phoneStatusBtn"); pg17.wait_for_timeout(300)
+    check("phone status: the button opens the values as a list", pg17.locator("#phoneStatus").is_visible() and pg17.locator("#phoneStatus #offlinePill").is_visible())
+    pg17.click("#phoneStatusBtn"); pg17.wait_for_timeout(300)
+    fb = pg17.evaluate("(() => { const r = document.getElementById('findBtn').getBoundingClientRect(); return [r.top, r.right, innerWidth]; })()")
+    check("phone status: the search button is at the top right", pg17.locator("#phoneStatus").is_hidden() and fb[0] < 60 and fb[1] > fb[2] - 30, fb)
     pg17.click("#roomMenuBtn"); pg17.locator("#roomMenu .pill", has_text="Rauchküche").click(); pg17.wait_for_timeout(600)
     check("phone nav: the room button opens the room and names it", pg17.locator("#roomPanel").is_visible() and "Rauchküche" in pg17.inner_text("#roomMenuBtn"), pg17.inner_text("#roomMenuBtn"))
     pg17.evaluate("window.__fp.kioskIdle(2 * 60000); window.__fp.kioskTick()"); pg17.wait_for_timeout(800)

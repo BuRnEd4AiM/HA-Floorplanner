@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.59.0] - 2026-10-08
+### Changed
+- **Phones held upright: more room for the house and the room sheet (#288)**: the values at the top (power overview, water / gas, offline, open, cameras / movement) are folded into one button "📊" next to the floor and the room button; a tap opens them as a list, a tap on one of them does what it always did. When something needs attention (open doors / windows, movement, devices offline) the button is red and shows "⚠️ n". The search button 🔍 moved from the bottom left to the top right, so the room sheet at the bottom now uses the full width. Phones held sideways, tablets, desktops and room tablets are unchanged. New module `phonestatus.js` with unit tests.
+
 ## [3.58.0] - 2026-10-08
 ### Added
 - **Split a wall exactly (#286)**: the properties of a wall have *Split wall*: a corner at an exact distance from the start (e.g. 0.30 m, in the length unit chosen), or the wall in 2 to 10 equal parts. Doors and windows stay with their piece, rooms along the wall get the corner too, Ctrl+Z takes it back. New module `wallsplit.js` with unit tests; texts in 7 languages.
