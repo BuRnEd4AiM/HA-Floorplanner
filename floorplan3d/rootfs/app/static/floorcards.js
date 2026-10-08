@@ -43,7 +43,7 @@ export function cardWidths(name, parts) {
   return { natW: 26 + Math.max(name.length * 7.6, parts.join(' · ').length * 6.3), narrowW: 26 + Math.max(name.length * 7.6, ...parts.map((x) => x.length * 6.3)) };
 }
 
-/** Where the cards stand: beside the house (right of its outline, or left when there is no room), pushed apart vertically and kept clear of
+/** Where the cards stand: beside the house (right of its outline, or left when there is no room; never on top of it, even if that is off screen), pushed apart vertically and kept clear of
  *  the bottom buttons. view: { w, h, ox, minX, maxX }, cards: [{ y, height, natW, narrowW }]; returns { narrow, x, ys } (ys: top-middle y per card, same order) */
 export function arrangeCards(cards, view) {
   const { w, h, ox, minX, maxX } = view;
@@ -53,8 +53,11 @@ export function arrangeCards(cards, view) {
   const fitsRight = maxX + 16 + wide <= w - 8, fitsLeft = minX - 16 - wide >= leftEdge;
   const narrow = !fitsRight && !fitsLeft;                  // no room beside the house: shorter cards, one value per line
   const wmax = narrow ? slim : wide;
-  const right = maxX + 16 + wmax <= w - 8;
-  const x = right ? maxX + 16 : Math.max(leftEdge, Math.min(minX - 16 - wmax, w - wmax - 8));
+  const roomR = w - 8 - (maxX + 16), roomL = minX - 16 - leftEdge;
+  // zoomed in, no room on either side (#294): the cards stay beside the house on the side with more room, even when they leave the screen,
+  // and never lie on top of the house
+  const right = wmax <= roomR || (wmax > roomL && roomR >= roomL);
+  const x = right ? maxX + 16 : minX - 16 - wmax;
   const sorted = [...vis].sort((p, q) => p.y - q.y);
   let free = -Infinity;                                  // floors lie close above each other on screen: push the cards apart
   sorted.forEach((v) => { v.y = Math.max(v.y, free); free = v.y + v.h + 6; });

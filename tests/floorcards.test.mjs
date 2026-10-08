@@ -37,6 +37,12 @@ test('cards go left when the right side is full, and narrow when both sides are'
   const both = F.arrangeCards([{ y: 200, natW: 200, narrowW: 120 }], { w: 500, h: 700, ox: 0, minX: 100, maxX: 450 });
   assert.equal(both.narrow, true);
 });
+test('zoomed in (#294): the cards stay beside the house, never on top of it, even off screen', () => {
+  const r = F.arrangeCards([{ y: 200, natW: 120, narrowW: 120 }], { w: 400, h: 700, ox: 0, minX: -100, maxX: 380 });
+  assert.equal(r.x, 396);                       // right of the house (more room there), partly off screen
+  const l = F.arrangeCards([{ y: 200, natW: 120, narrowW: 120 }], { w: 400, h: 700, ox: 0, minX: 20, maxX: 600 });
+  assert.equal(l.x, 20 - 16 - 120);             // left of the house
+});
 test('cards that lie on top of each other are pushed apart, in the original order', () => {
   const r = F.arrangeCards([{ y: 300, height: 40, natW: 100 }, { y: 300, height: 40, natW: 100 }, { y: 100, height: 40, natW: 100 }], { w: 1000, h: 700, ox: 0, minX: 0, maxX: 100 });
   assert.ok(r.ys[2] < r.ys[0] && r.ys[0] + 40 + 6 <= r.ys[1] + 1e-9, r.ys.join());
