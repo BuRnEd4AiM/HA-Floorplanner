@@ -67,6 +67,8 @@ import { floorLabels } from './viewprefs.js';
 import { applyLocks, lockedSettings } from './userlocks.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel, fetchAreas } from './livechannel.js';
+import { initTimeline } from './timelineui.js';
+import { replayEntities } from './timeline.js';
 import { initPersist } from './persist.js';
 import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { initEditItems } from './edititems.js';
@@ -108,6 +110,7 @@ let areas = [];                      // Home Assistant areas: [{id, name, entiti
 let areaOf = {};                     // entity_id -> area id
 const fxRgb = (name) => fxRgbOf(name, settings.effectColors);            // the colour of a light effect (entitystate.js)
 let states = {};                   // entity_id -> { state, unit }
+let replayBack = null;             // time travel: the mode and live states from before (timelineui.js), null while live
 let lowWalls = false;
 let halfCut = false;                   // half section: every wall is cut at half height, only the lower half stays
 let is2d = false;                  // legacy top-down camera flag (the real 2D editor is plan2d.js)
@@ -875,7 +878,7 @@ const live = initLiveControls({
   t, states: () => states, entities: () => entities, areas: () => areas, floor: () => floor(), entityDevices: (f) => entityDevices(f), pointInPoly,
   onStates: ON_STATES, setStatus: (x) => setStatus(x), afterService: () => { if (!liveChan.ok()) setTimeout(liveChan.poll, 400); },   // with the live channel the new state arrives by itself
   canEdit: () => me.canEdit, settings: () => settings, saveEffectColors: () => saveEffectColors(), canMoreInfo, openMoreInfo,
-  locked: (k) => locks.has(k),
+  locked: (k) => locks.has(k) || (k === 'control' && !!replayBack),   // time travel only shows the past
 });
 const popup = initLivePopup({
   $, t, live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), cams,
@@ -1300,9 +1303,24 @@ function toState(e) { return toStateOf(e, settings.effectColors); }       // wha
 
 /* ---- Live channel: pushed state changes, polling while it is down; the code lives in livechannel.js ---- */
 const liveChan = initLiveChannel({
+  paused: () => !!replayBack,
   entities: () => entities, setEntities: (x) => { entities = x; }, states: () => states, setStates: (x) => { states = x; }, toState: (e) => toState(e),
   wake: () => wake(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); },
   firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
+});
+/* ---- Time travel: a recorded day played back in the same view, nothing can be switched (timelineui.js, timeline.js) ---- */
+const timeline = initTimeline({
+  $, t, lang: () => currentLanguage(), name: (id) => entities.find((e) => e.entity_id === id)?.name || id, status: (x) => setStatus(x),
+  enter: () => { replayBack = { mode, states, entities }; setMode('live'); },
+  exit: () => {
+    const back = replayBack; replayBack = null; ({ states, entities } = back);
+    liveChan.poll(); if (back.mode !== mode) setMode(back.mode); else applyStates();
+  },
+  show: (rec) => {                                                     // the house as it was: the entity list and states of that moment
+    entities = replayEntities(replayBack.entities, rec);
+    states = Object.fromEntries(entities.map((e) => [e.entity_id, toState(e)]));
+    wake(); applyStates(); renderRoomEntities(); renderEntState();
+  },
 });
 
 /** the add-on's "Erdgeschoss" of a new house in the user's language; every list of the plan in place (layoutnorm.js) */
@@ -1417,7 +1435,7 @@ if (params.get('debug')) {
     },
     get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
-    houseId: () => hs.id(),
+    houseId: () => hs.id(), states: () => states,
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)
       const v = cams.coneCenter(id);
       if (!v) return null;

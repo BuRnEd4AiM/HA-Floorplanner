@@ -210,6 +210,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Offline and private**: three.js is bundled, no CDN, no cloud, no account; it opens through Ingress in the Home Assistant sidebar
 - **Import by JSON / AI / GeoJSON**: describe plot, rooms, windows and devices and get a new house; includes examples, schema, API and an AI prompt ([guide](docs/IMPORT.en.md))
 - **7 languages**: Deutsch, English, Français, Español, Italiano, Nederlands, Polski (⚙ → Language, or *Auto*). Adding another one is a single file, see [CONTRIBUTING](CONTRIBUTING.md)
+- **Time travel (Zeitreise)**: every switch in the house is recorded (one file per day, the last 7 days kept). Pick a day and play it back in the 3D view with a time line: play, pause, jump from event to event, see when which light went on, which door opened. Read-only, on phone, tablet and PC
 - **Backup and restore**: one file with all houses, settings, pictures and models. A safety copy is made before every restore
 - **Automatic backups**: optional, daily or at your own interval, stored in the add-on's config folder (`addon_configs`), with retention by days and count, a *Check the newest* test and one-click restore
 - **Undo**: `Ctrl+Z` for everything you draw

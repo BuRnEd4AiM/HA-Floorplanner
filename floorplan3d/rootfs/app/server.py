@@ -22,6 +22,7 @@ from aiohttp import web
 
 import importer
 import manifest as mf
+import timeline as tl
 
 STATIC_DIR = Path(__file__).parent / "static"
 SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN")
@@ -62,6 +63,8 @@ DEFAULT_SETTINGS = {
     "backupEveryHours": 24.0,  # ... one backup this many hours after the last one (24 = daily)
     "backupKeepDays": 14.0,    # automatic backups older than this many days are deleted (the newest one always stays)
     "backupKeepCount": 30.0,   # ... and never more than this many automatic backups are kept
+    "timelineOn": True,        # time travel: record what switched in the house (timeline.py), one file per day in addon_configs/<...>/timeline
+    "timelineKeepDays": 7.0,   # ... days kept before today (older ones are deleted)
     "alerts": True,            # smoke, gas, CO, water, alarm and windows open in the rain: banner + red room
     "alertJump": False,        # jump to the room of a new warning by itself (wall tablets)
     "weatherEntity": "",       # weather.* for "window open in the rain"; empty = the first one
@@ -94,14 +97,14 @@ DEFAULT_SETTINGS = {
     "co2Stops": [{"v": 400, "c": "#2ad0a0"}, {"v": 800, "c": "#ffd84a"}, {"v": 1200, "c": "#ff8a2a"},
                  {"v": 2000, "c": "#ff3a3a"}],
 }
-RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0), "backupEveryHours": (1.0, 720.0), "backupKeepDays": (1.0, 3650.0), "backupKeepCount": (1.0, 500.0)}
+RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpacity": (0.2, 1.0), "glowRadius": (0.5, 12.0), "glowStrength": (0.2, 3.0), "glowHeight": (0.2, 4.0), "bgGlowStrength": (0.0, 1.0), "earthMargin": (0.5, 100.0), "backupEveryHours": (1.0, 720.0), "backupKeepDays": (1.0, 3650.0), "backupKeepCount": (1.0, 500.0), "timelineKeepDays": (1.0, 31.0)}
 VIEWS = ("3d", "2d", "split", "all")
 # what a user preset may set and the values allowed (the same list as PRESET_FIELDS in static/viewprefs.js, #250)
 PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWalls": (True, False),
                  "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False)}
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control" and "cameras" are refused here too
-LOCKS = ("control", "details", "cameras", "energy", "colorModes", "viewMenu", "views", "houses", "search", "settings")
+LOCKS = ("control", "details", "cameras", "energy", "colorModes", "viewMenu", "views", "houses", "search", "settings", "timeline")
 
 
 def clean_locks(val) -> dict:
@@ -1344,6 +1347,123 @@ async def delete_backup_file(request):
     return web.json_response({"ok": True})
 
 
+# ---------- time travel (timeline.py): a recorder of every switch, one file per day ----------
+def timeline_dir(request) -> Path:
+    return request.app[KEY_CONFIG] / "timeline"
+
+
+async def ha_time_zone():
+    """The time zone of Home Assistant (its days are the days of the files); the add-on's own when it cannot be asked."""
+    try:
+        from zoneinfo import ZoneInfo
+        async with aiohttp.ClientSession() as s:
+            async with s.get(f"{HA_API}/config", headers=ha_headers(), timeout=aiohttp.ClientTimeout(total=10)) as r:
+                name = (await r.json()).get("time_zone") if r.status == 200 else None
+        return ZoneInfo(name) if name else None
+    except Exception:  # noqa: BLE001 - no tzdata, no answer: local time of the add-on
+        return None
+
+
+class _HaSocket:
+    """async with: an authenticated websocket to Home Assistant (for the recorder)."""
+    async def __aenter__(self):
+        base = HA_API[:-4] if HA_API.endswith("/api") else HA_API
+        self.sess = aiohttp.ClientSession()
+        try:
+            self.ws = await self.sess.ws_connect(base.rstrip("/") + "/websocket", heartbeat=30, max_msg_size=64 * 1024 * 1024)
+            await asyncio.wait_for(self.ws.receive_json(), 10)                       # auth_required
+            await self.ws.send_json({"type": "auth", "access_token": SUPERVISOR_TOKEN})
+            if (await asyncio.wait_for(self.ws.receive_json(), 10)).get("type") != "auth_ok":
+                raise RuntimeError("authentication failed")
+        except BaseException:
+            await self.sess.close()
+            raise
+        return self.ws
+
+    async def __aexit__(self, *exc):
+        await self.ws.close()
+        await self.sess.close()
+
+
+def timeline_tracked(request, cache: dict) -> set:
+    """Entity ids of every house; a layout file is only read again when it changed."""
+    ids = set()
+    for h in houses_index(request):
+        p = house_file(request, h["id"])
+        try:
+            key = p.stat().st_mtime_ns
+        except OSError:
+            continue
+        if cache.get(p, (None,))[0] != key:
+            cache[p] = (key, tl.layout_entities(read_json(p, {})))
+        ids |= cache[p][1]
+    return ids
+
+
+async def timeline_recorder(app):
+    """Background task: records while the add-on runs (also with no browser open). Only with Home Assistant (a token)."""
+    task = None
+    if SUPERVISOR_TOKEN:
+        ctx, cache = _AppCtx(app), {}
+
+        def settings():
+            s = validate_settings(read_settings(ctx))
+            return s["timelineOn"], s["timelineKeepDays"]
+
+        async def start():
+            await asyncio.sleep(5)
+            rec = tl.Recorder(timeline_dir(ctx), await ha_time_zone())
+            app[KEY_TIMELINE]["rec"] = rec
+            await tl.run_recorder(rec, connect=_HaSocket, slim_state=slim_state, tracked=lambda: timeline_tracked(ctx, cache), settings=settings)
+
+        task = asyncio.create_task(start())
+    yield
+    if task:
+        task.cancel()
+
+
+KEY_TIMELINE = web.AppKey("timeline", dict)     # {"rec": the running Recorder}
+
+
+async def timeline_allowed(request) -> bool:
+    return "timeline" not in user_locks(request)
+
+
+async def get_timeline(request):
+    """The recorded days (newest first), whether recording is on and where the files are."""
+    if not await timeline_allowed(request):
+        return forbidden()
+    s = validate_settings(read_settings(request))
+    rec = request.app[KEY_TIMELINE].get("rec")
+    return web.json_response({"days": await asyncio.to_thread(tl.list_days, timeline_dir(request)), "on": s["timelineOn"],
+                              "keepDays": s["timelineKeepDays"], "recording": bool(rec and rec.day), "ha": bool(SUPERVISOR_TOKEN),
+                              "folder": "addon_configs/…_floorplan3d/timeline"})
+
+
+async def get_timeline_day(request):
+    """One day: {day, start, end, lines} (start/end: epoch seconds of its midnights). ?download=1: the file itself."""
+    if not await timeline_allowed(request):
+        return forbidden()
+    day = request.match_info["day"]
+    if not tl.DAY.match(day):
+        return web.json_response({"error": "bad day"}, status=400)
+    folder = timeline_dir(request)
+    p = folder / f"{day}.jsonl"
+    if not p.is_file():
+        return web.json_response({"error": "not recorded"}, status=404)
+    if request.query.get("download"):
+        return web.FileResponse(p, headers={"Content-Disposition": f'attachment; filename="floorplan3d-timeline-{day}.jsonl"',
+                                            "Content-Type": "application/x-ndjson"})
+    rec = request.app[KEY_TIMELINE].get("rec")
+    tz = rec.tz if rec else None
+    if rec:
+        await asyncio.to_thread(rec.flush)              # what happened in the last seconds is in the file too
+    lines = await asyncio.to_thread(tl.read_day, folder, day)
+    resp = web.json_response({"day": day, "start": tl.day_start(day, tz), "end": tl.day_start(tl.next_day(day), tz), "now": time.time(), "lines": lines})
+    resp.enable_compression()
+    return resp
+
+
 # ---------- version and checksums: is this really the version I think it is? ----------
 MANIFEST_URL = os.environ.get("MANIFEST_URL", "https://raw.githubusercontent.com/BuRnEd4AiM/HA-Floorplanner/main/floorplan3d/rootfs/app/manifest.json")
 
@@ -1450,9 +1570,11 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
     app[KEY_CONFIG] = Path(config_path or os.environ.get("CONFIG_DIR") or ("/config" if Path("/config").is_dir() else app[KEY_DATA] / "addon_config"))
     app[KEY_LIVE] = LiveHub()
+    app[KEY_TIMELINE] = {}
     app.on_startup.append(seed_users_file)
     app.on_cleanup.append(stop_live)
     app.cleanup_ctx.append(backup_scheduler)
+    app.cleanup_ctx.append(timeline_recorder)
     app.add_routes([
         web.get("/", index),
         web.get("/api/users-file", get_users_file),
@@ -1470,6 +1592,8 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.post("/api/backups", post_backups),
         web.post("/api/backups/test", post_backups_test),
         web.post("/api/backups/restore", post_backups_restore),
+        web.get("/api/timeline", get_timeline),
+        web.get("/api/timeline/{day}", get_timeline_day),
         web.get("/api/backups/{name}", get_backup_file),
         web.delete("/api/backups/{name}", delete_backup_file),
         web.post("/api/import", post_import),

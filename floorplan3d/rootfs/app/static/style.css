@@ -688,3 +688,45 @@ body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset;
 #perfHud.all { font-size: 11px; font-weight: 500; }
 #perfHud[hidden] { display: none; }
 @media (max-width: 760px) { #perfHud.all { font-size: 10px; } }
+
+/* ---- Time travel (timelineui.js): the bar at the bottom while a recorded day plays; nothing can be switched ---- */
+#tlBar { position: absolute; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 12;
+  width: min(760px, calc(100% - 24px)); box-sizing: border-box; padding: 10px 12px 8px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.4); backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 6px; }
+#tlBar[hidden] { display: none; }
+#tlBar .tlRow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+#tlBar .tlRow button, #tlBar .tlRow select { min-height: 34px; }
+#tlBar .tlTime { font: 600 20px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .02em; margin: 0 auto 0 4px; min-width: 6.5ch; }
+#tlBar .tlPlay { min-width: 46px; }
+#tlBar .tlDayBtn { max-width: 46%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#tlBar .tlLast { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#tlBar .tlTrack { position: relative; height: 34px; }
+#tlBar .tlBars { position: absolute; inset: 0 0 12px; display: flex; align-items: flex-end; gap: 1px; pointer-events: none; }
+#tlBar .tlBars i { flex: 1; background: var(--accent); opacity: .55; border-radius: 2px 2px 0 0; }
+#tlBar .tlBars i.tlFuture { position: absolute; top: 0; bottom: 0; right: 0; flex: none; background: repeating-linear-gradient(135deg, transparent 0 5px, var(--line) 5px 7px); opacity: .6; border-radius: 0; }
+#tlBar input[type=range] { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; margin: 0; accent-color: var(--accent); }
+#tlBar .tlTicks { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: -2px; }
+#tlBar .tlEvents { display: flex; flex-direction: column; gap: 2px; max-height: 30vh; overflow-y: auto; border-top: 1px solid var(--line); padding-top: 6px; }
+#tlBar .tlEvents[hidden] { display: none; }
+#tlBar .tlEv { display: flex; gap: 10px; align-items: center; text-align: left; min-height: 30px; border-color: transparent; background: transparent; }
+#tlBar .tlEv.now { border-color: var(--accent); }
+#tlBar .tlEvT { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); }
+#tlBar .tlEvN { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#tlBar .tlEv.on .tlEvS { color: #ffc861; font-weight: 600; }
+#tlBar .tlEv.off .tlEvS { color: var(--muted); }
+body.replay #modeBar, body.replay #modeSwitch { display: none !important; }
+body.replay #livePopup { bottom: 190px; }
+body.replay #roomPanel { bottom: 190px !important; }
+body.replay #timelineBtn { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+#tlDays { width: min(440px, calc(100% - 24px)); box-sizing: border-box; }
+#tlDays .tlDayList { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+#tlDays .tlDayRow { display: flex; gap: 6px; }
+#tlDays .tlDay { flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 44px; text-align: left; }
+#tlDays .tlDl { display: flex; align-items: center; justify-content: center; min-width: 44px; text-decoration: none; color: var(--text); background: var(--field); border: 1px solid var(--line); border-radius: 8px; }
+#tlDays .tlWarn { color: #ff8a2a; }
+@media (max-width: 760px) {
+  #tlBar { width: calc(100% - 16px); padding: 8px; }
+  #tlBar .tlTime { font-size: 17px; }
+  #tlBar .tlDayBtn { order: 9; flex: 1 1 100%; max-width: none; }
+  body.replay #roomPanel { max-height: 40%; }
+}
