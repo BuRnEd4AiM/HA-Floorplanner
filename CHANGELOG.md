@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.58.0] - 2026-10-08
+### Added
+- **Split a wall exactly (#286)**: the properties of a wall have *Split wall*: a corner at an exact distance from the start (e.g. 0.30 m, in the length unit chosen), or the wall in 2 to 10 equal parts. Doors and windows stay with their piece, rooms along the wall get the corner too, Ctrl+Z takes it back. New module `wallsplit.js` with unit tests; texts in 7 languages.
+
+### Fixed
+- **Double click on a wall (#286)**: when the wall is selected (the first click of the double click does that), the double click always splits this wall, also when a device, a garden object (lawn, fence …) or a room lies under it. A corner may now be 5 cm from the end of the wall (was 10 cm).
+
 ## [3.57.2] - 2026-10-08
 ### Changed
 - **Phones held upright: everything on one screen (#284)**: the values at the top (power overview, water / gas, offline, open, cameras) wrap into more rows and are a little smaller, and the view buttons at the bottom (Normal, Temp., Humidity, CO₂, Power) wrap too, so nothing has to be scrolled sideways any more. Phones held sideways, tablets and desktops keep the single row.

@@ -1230,6 +1230,7 @@ const props = initProps({
   renderRoomEntities: () => renderRoomEntities(), stateText: (id) => stateText(id), roomAt: (x, z) => roomAt(x, z), pointInPoly, controlsTarget: () => controls.target,
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type) => baseDims(type), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
   uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
+  fromDisp: (v) => fromDisp(v), uid: () => uid(),
 });
 function renderObjList() { objList.render(); }
 function renderRoomEntities() { roomEnts.render(); }
