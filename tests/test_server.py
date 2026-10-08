@@ -613,12 +613,29 @@ async def test_view_presets_per_user_are_cleaned_and_reach_that_user_only(client
     assert st["inSync"] and st["users"] == 1
 
 
+async def test_locks_per_user_are_cleaned_reach_that_user_and_are_enforced(client, monkeypatch, tmp_path):
+    """A user can be locked out of things; switching and camera images are refused by the server too."""
+    body = {"userLocks": {"Kid": ["control", "cameras", "bogus", "control"], "empty": ["nope"], "x": "control"}}
+    s = await (await client.put("/api/settings", json=body)).json()
+    assert s["userLocks"] == {"Kid": ["control", "cameras"]}
+    kid, other = {"X-Remote-User-Name": "kid"}, {"X-Remote-User-Name": "someone"}
+    assert (await (await client.get("/api/me", headers=kid)).json())["locks"] == ["control", "cameras"]
+    assert (await (await client.get("/api/me", headers=other)).json())["locks"] == []
+    assert (await client.get("/api/camera/camera.flur", headers=kid)).status == 403
+    assert (await client.get("/api/camera/camera.flur", headers=other)).status == 503         # not locked: only no Home Assistant behind it
+    import json
+    assert json.loads((tmp_path / "addon_config" / "users.json").read_text("utf-8"))["userLocks"] == s["userLocks"]   # mirrored too
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    r = await client.post("/api/service", json={"domain": "light", "service": "toggle", "entity_id": "light.x"}, headers=kid)
+    assert r.status == 403
+
+
 async def test_users_and_tablets_are_mirrored_into_the_config_folder_and_synced_back(client, tmp_path):
     cfg = tmp_path / "addon_config" / "users.json"
     assert (await (await client.get("/api/users-file")).json())["exists"] is False
     await client.put("/api/settings", json={"userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d", "tv": "bogus"}})
     import json
-    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}}
+    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}, "userLocks": {}}
     st = await (await client.get("/api/users-file")).json()
     assert st["exists"] and st["inSync"] and st["users"] == 1
 

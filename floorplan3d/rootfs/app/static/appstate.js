@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', cameraImages: true, cutaway: true, wallStop: true, seeThrough: false, placeSelect: true, updateCheck: true, autoBackup: false, backupEveryHours: 24, backupKeepDays: 14, backupKeepCount: 30, earth: 'solid', earthMargin: 5,
   alerts: true, alertJump: false, weatherEntity: '', idleReturn: 0, idleOrbit: false, nightDim: 'off', nightFrom: '22:00', nightTo: '06:00',
   wallOpacity: 0.72, glowRadius: 3.5, glowStrength: 1, glowHeight: 1.6, defaultLightColor: '#ffc861',
-  userRooms: {}, userViews: {}, userPresets: {}, belowVisibility: 0.5, belowMode: 'dim', belowLabels: true, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
+  userRooms: {}, userViews: {}, userPresets: {}, userLocks: {}, belowVisibility: 0.5, belowMode: 'dim', belowLabels: true, bgTop: '#0a3ba8', bgBottom: '#031547', bgGlow: '#28ebd2', bgGlowStrength: 0,
   tempStops: [{ v: 16, c: '#2a6bff' }, { v: 20, c: '#2ad0a0' }, { v: 23, c: '#ffd84a' }, { v: 26, c: '#ff8a2a' }, { v: 30, c: '#ff3a3a' }],
   humidStops: [{ v: 30, c: '#e8d9a0' }, { v: 50, c: '#4fd0c8' }, { v: 65, c: '#2a7bff' }, { v: 80, c: '#5a3aff' }],
   co2Stops: [{ v: 400, c: '#2ad0a0' }, { v: 800, c: '#ffd84a' }, { v: 1200, c: '#ff8a2a' }, { v: 2000, c: '#ff3a3a' }],

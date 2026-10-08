@@ -48,10 +48,11 @@ export function roomEntityIds(env, room, domain) {
 }
 
 /** ctx: t, states(), entities(), areas(), floor(), entityDevices(f), pointInPoly, onStates, setStatus(txt), afterService() (fetch states when there is no
- *  live channel), canEdit(), settings(), saveEffectColors(), canMoreInfo(), openMoreInfo(id) */
+ *  live channel), canEdit(), settings(), saveEffectColors(), canMoreInfo(), openMoreInfo(id), locked(key) (userlocks.js: 'control' = no switching) */
 export function initLiveControls(ctx) {
   const { t } = ctx;
   async function callService(entityId, service, data) {
+    if (ctx.locked?.('control')) { ctx.setStatus(t('lock.controlMsg')); return; }
     try {
       const r = await fetch('api/service', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serviceBody(entityId, service, data)) });
       if (!r.ok) throw new Error(String(r.status));
@@ -67,7 +68,7 @@ export function initLiveControls(ctx) {
 
   /** small button that opens Home Assistant's own dialog for the entity (history, logbook, settings); null outside the HA frontend */
   function detailsButton(entityId, compact = false) {
-    if (!entityId || !ctx.canMoreInfo()) return null;
+    if (!entityId || !ctx.canMoreInfo() || ctx.locked?.('details')) return null;
     const b = document.createElement('button'); b.type = 'button'; b.className = compact ? 'rp-more mi' : 'mi';
     b.textContent = compact ? 'ⓘ' : `ⓘ ${t('live.details')}`; b.title = t('live.detailsHint');
     b.addEventListener('click', (ev) => { ev.stopPropagation(); ctx.openMoreInfo(entityId); });

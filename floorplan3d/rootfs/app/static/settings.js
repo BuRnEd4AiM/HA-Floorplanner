@@ -38,7 +38,7 @@ export function resolveWallView(prev, next) {
   return !prev.seeThrough ? { ...next, cutaway: false } : { ...next, seeThrough: false };
 }
 /** how many users have a tablet assignment (room or view) */
-export const tabletUsers = (s) => new Set([...Object.keys(s.userRooms || {}), ...Object.keys(s.userViews || {}), ...Object.keys(s.userPresets || {})]).size;
+export const tabletUsers = (s) => new Set([...Object.keys(s.userRooms || {}), ...Object.keys(s.userViews || {}), ...Object.keys(s.userPresets || {}), ...Object.keys(s.userLocks || {})]).size;
 
 /** ctx: $, t, get() (the settings), set(next), ui (settingsui.js), toDisp(m), fromDisp(v), layout(), entities(), perfStored, perfKey, setStatus(txt),
  *  committed(prev) (apply the new settings to the house and the view), alert(txt), reload() */
@@ -77,7 +77,7 @@ export function initSettings(ctx) {
       const v = formValue(key, $(sel), ctx.fromDisp);
       if (v !== undefined) next[key] = v;
     }
-    const tb = ui.readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views; next.userPresets = tb.presets;
+    const tb = ui.readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views; next.userPresets = tb.presets; next.userLocks = tb.locks;
     next.tempStops = ui.readStops('#tempStops', settings.tempStops);
     next.humidStops = ui.readStops('#humidStops', settings.humidStops);
     next.co2Stops = ui.readStops('#co2Stops', settings.co2Stops);

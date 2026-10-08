@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.61.0] - 2026-10-08
+### Added
+- **Users: lock things for a user / tablet**: in the users dialog the ⚙ box of each user now also has „🔒 Gesperrt“ with ticks: switching devices, Home Assistant details (ⓘ), cameras, power and meter overview, colour views (temperature, humidity, CO₂, power), the „View“ menu, switching 2D / 3D, switching house, search and the settings (⚙). Ticked things are hidden for that user; switching and camera images are also refused by the server. The locks are saved with the users (also in users.json). New module `userlocks.js` with unit tests.
+
 ## [3.60.1] - 2026-10-08
 ### Fixed
 - **Phones: floor cards stay beside the house when zoomed in (#294)**: zooming in close in the whole-house view moved the floor cards onto the middle of the picture, on top of the house. Now they stay beside the house on the side with more room, even when that pushes them partly or fully off the screen; zooming out brings them back.
