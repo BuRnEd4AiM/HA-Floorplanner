@@ -188,7 +188,7 @@ export default {
   'set.belowMode.dim': 'Atenuadas',
   'set.belowMode.stacked': 'Apiladas (bien visibles)',
   'set.belowMode.hidden': 'Ocultas',
-  'nav.rooms': 'Habitaciones', 'nav.floors': 'Plantas',
+  'nav.rooms': 'Habitaciones',
   'nav.roomsTip': 'Elegir una habitación',
   'cam.openHa': 'Abrir en Home Assistant',
   'cam.haOnly': 'Esto solo funciona cuando el panel se ejecuta dentro de Home Assistant (no en el archivo de demostración).',

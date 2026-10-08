@@ -188,7 +188,7 @@ export default {
   'set.belowMode.dim': 'Attenuati',
   'set.belowMode.stacked': 'Impilati (ben visibili)',
   'set.belowMode.hidden': 'Nascosti',
-  'nav.rooms': 'Stanze', 'nav.floors': 'Piani',
+  'nav.rooms': 'Stanze',
   'nav.roomsTip': 'Scegli una stanza',
   'cam.openHa': 'Apri in Home Assistant',
   'cam.haOnly': 'Funziona solo quando il pannello gira dentro Home Assistant (non nel file demo).',

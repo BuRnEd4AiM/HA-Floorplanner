@@ -4,9 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Heute zu Hause prüfen (Stand 3.57.0)
+## Heute zu Hause prüfen (Stand 3.57.1)
 
-Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.57.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
+Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.57.1** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft).
 
 **Neu seit 3.54.0** (ausführlich in Abschnitt **36** unten)
 
@@ -21,7 +21,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 27. **Raum antippen** (3.54.0 – 3.55.0, #267, #271): der Raum ist **über** der Raum-Karte unten zu sehen, nicht dahinter. Die Heizung steht **in** der Raum-Karte (kein zweites Feld oben). Kein dunkler Kasten über dem Bild.
 28. **Quer gehalten** (3.54.0): die Etagen-Knöpfe stehen oben als kleine Pillen und **verdecken den Kompass nicht**; die Knöpfe unten rutschen nicht aus dem Bild.
 29. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht mehr.
-30. **Neu: Etagen und Zimmer als Klappliste** (3.57.0, #281): auf dem Handy steht oben statt der Etagen-Reihe **ein Knopf** mit der Etage (z. B. „Obergeschoss ▾“). Antippen: eine Liste mit **allen Etagen** und „Ganzes Haus“, darunter die **Zimmer** dieser Etage. Eine Etage antippen: die Liste bleibt offen und zeigt deren Zimmer. Ein Zimmer antippen: die Liste geht zu, das Zimmer öffnet sich, der Knopf zeigt „Obergeschoss · Kinderzimmer“. Am PC und Tablet ist alles wie vorher.
+30. **Neu: Etagen und Zimmer als Klapplisten** (3.57.1, #281): auf dem Handy stehen oben **drei Knöpfe** nebeneinander: **☰**, die **Etage** (z. B. „Erdgeschoss ▾“) und **„Zimmer ▾“**. Etagen-Knopf antippen: Liste mit allen Etagen und „Ganzes Haus“, eine wählen, die Liste geht zu. Zimmer-Knopf antippen: Liste der Zimmer dieser Etage, eins wählen, es öffnet sich und der Knopf zeigt seinen Namen. Am PC und Tablet ist alles wie vorher.
 
 **Noch von 3.53.0 offen** (falls schon geprüft: bitte kurz Bescheid geben, dann trage ich es ein)
 
@@ -539,4 +539,4 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 36.10 | Handy: Raum antippen | Raum über der Raum-Karte sichtbar, Heizung in der Karte, kein dunkler Kasten | |
 | 36.11 | Handy quer | Etagen-Pillen oben, Kompass frei, Knöpfe unten vollständig | |
 | 36.12 | Tablet und PC | Alles wie vorher (die Handy-Änderungen gelten nur für schmale Bildschirme) | |
-| 36.13 | Handy: oben auf den Etagen-Knopf tippen, eine Etage, dann ein Zimmer wählen | Liste mit Etagen und Zimmern; Etage lässt sie offen, Zimmer schließt sie und öffnet das Zimmer (3.57.0, #281) | |
+| 36.13 | Handy: oben ☰, Etagen-Knopf und Zimmer-Knopf; Etage wählen, dann Zimmer wählen | Zwei eigene Listen; die Wahl schließt die Liste, das Zimmer öffnet sich (3.57.1, #281) | |

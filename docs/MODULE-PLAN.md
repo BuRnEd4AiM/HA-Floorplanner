@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.57.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.57.1. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -61,7 +61,7 @@ Stand: Version 3.57.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `roompanel.js` | ~190 | Raum-Panel mit Heizungs-Panel |
 | `sheetview.js` | ~45 | Handy: Raum über der Raum-Karte zeigen statt dahinter, Kamera-Abstand bei schmalem Bild (Unit-Tests) |
 | `phonemenu.js` | ~25 | Handy: obere Leiste als ☰-Menü (Live-Ansicht) |
-| `phonenav.js` | ~70 | Handy: Etagen und Zimmer als eine Klappliste statt der Etagen-Knöpfe (#281); `phoneNavModel` ist reine Logik mit Unit-Tests |
+| `phonenav.js` | ~45 | Handy: die Etagen als Klappliste neben ☰ und dem Zimmer-Knopf statt der Etagen-Knöpfe (#281); `phoneFloorModel` ist reine Logik mit Unit-Tests |
 | `stairtool.js` | ~175 | Treppen-Werkzeug (Platzieren, Treppenhaus, Wandtreppe zeichnen, Eigenschaften, 3D-Treppe) |
 | `blocks.js` | ~80 | Platzhalter-Blöcke, Bodenöffnungen, Grundstück, Boden mit Aussparungen |
 | `palettes.js` | ~105 | Paletten (Geräte, eigene Modelle, Suche) |
