@@ -662,10 +662,12 @@ with sync_playwright() as p:
     pgN.click("#fitBtn"); pgN.wait_for_timeout(400)
     pgN.mouse.click(*pgN.evaluate("([x, z]) => window.__fp.plan().toClient(x, z)", [45, 40])); pgN.wait_for_timeout(400)
     tS = lambda: pgN.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.filter(w => w.a[1] === 40 && w.b[1] === 40 && w.a[0] >= 40).map(w => [w.a[0], w.b[0]]).sort((p, q) => p[0] - q[0])")
-    pgN.fill("#wallSplitAt", "0.3"); pgN.click("#wallSplitBtn"); pgN.wait_for_timeout(300)
+    ft = pgN.evaluate("window.__fp.settings().units") == "imperial"           # the field shows the current unit (feet here)
+    pgN.fill("#wallSplitAt", f"{0.3 * 3.28084:.5f}" if ft else "0.3"); pgN.click("#wallSplitBtn"); pgN.wait_for_timeout(300)
     check("wall split: a corner at an exact distance (30 cm from the start)", tS() == [[40, 40.3], [40.3, 50]], tS())
     pgN.select_option("#wallParts", "3"); pgN.click("#wallPartsBtn"); pgN.wait_for_timeout(300)
     check("wall split: the selected piece in 3 equal parts", tS() == [[40, 40.1], [40.1, 40.2], [40.2, 40.3], [40.3, 50]], tS())
+    pgN.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls = f.walls.filter(w => !(w.a[1] === 40 && w.b[1] === 40 && w.a[0] >= 40)); window.__fp.rebuild(); })()")   # leave the house as it was for the later checks
     pgN.close()
     # --- opening palette is grouped (doors, passages, windows)
     pgP = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
