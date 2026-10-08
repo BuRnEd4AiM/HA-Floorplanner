@@ -47,3 +47,30 @@ test('frame adds to the selection, never takes out, no doubles; the last one is 
   assert.deepEqual(M.addMulti([], null, [A]), { list: [], selection: A });
   assert.deepEqual(M.addMulti([], null, []), { list: [], selection: null });
 });
+test('group move: devices, stairs, room corners and walls with the corners joined to them move by the same amount; locked ones stay', () => {
+  const f = {
+    devices: [{ id: 'd1', x: 1, z: 1 }, { id: 'd2', x: 5, z: 5, locked: true }, { id: 'd3', x: 9, z: 9 }],
+    stairs: [{ id: 's1', x: 2, z: 0 }],
+    walls: [{ id: 'w1', a: [0, 0], b: [4, 0] }, { id: 'w2', a: [4, 0], b: [4, 3] }],
+    rooms: [{ id: 'r1', points: [[0, 0], [4, 0], [4, 3], [0, 3]] }], blocks: [], holes: [{ id: 'h1', points: [[1, 1], [2, 1], [2, 2]] }],
+  };
+  const items = [{ kind: 'device', id: 'd1' }, { kind: 'device', id: 'd2' }, { kind: 'stair', id: 's1' }, { kind: 'wall', id: 'w1' }, { kind: 'hole', id: 'h1' }, { kind: 'opening', id: 'o' }];
+  const g = M.groupTargets(f, items);
+  assert.equal(g.devices.length, 1);
+  const moved = M.moveGroup(g, 0.5, -1);
+  assert.deepEqual(moved.map((d) => d.id), ['d1']);
+  assert.deepEqual([f.devices[0].x, f.devices[0].z], [1.5, 0]);
+  assert.deepEqual([f.devices[1].x, f.devices[2].x], [5, 9]);
+  assert.deepEqual([f.stairs[0].x, f.stairs[0].z], [2.5, -1]);
+  assert.deepEqual(f.walls[0], { id: 'w1', a: [0.5, -1], b: [4.5, -1] });
+  assert.deepEqual(f.walls[1].a, [4.5, -1]); assert.deepEqual(f.walls[1].b, [4, 3]);       // the joined wall stretches along
+  assert.deepEqual(f.rooms[0].points[0], [0.5, -1]); assert.deepEqual(f.rooms[0].points[2], [4, 3]);
+  assert.deepEqual(f.holes[0].points, [[1.5, 0], [2.5, 0], [2.5, 1]]);
+  M.moveGroup(g, 0, 0);                                                              // always from the start values
+  assert.deepEqual(f.walls[0].a, [0, 0]); assert.deepEqual([f.devices[0].x, f.devices[0].z], [1, 1]);
+});
+test('group move: locked(kind, id) leaves things out, every corner only once', () => {
+  const f = { devices: [{ id: 'd1', x: 0, z: 0 }], walls: [{ id: 'w1', a: [0, 0], b: [1, 0] }, { id: 'w2', a: [1, 0], b: [2, 0] }], rooms: [], blocks: [], holes: [] };
+  const g = M.groupTargets(f, [{ kind: 'device', id: 'd1' }, { kind: 'wall', id: 'w1' }, { kind: 'wall', id: 'w2' }], (k) => k === 'device');
+  assert.equal(g.devices.length, 0); assert.equal(g.points.length, 4);
+});

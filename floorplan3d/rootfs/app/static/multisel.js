@@ -37,6 +37,36 @@ export function addMulti(list, current, items) {
   return { list: next.length > 1 ? next : [], selection: next[next.length - 1] || null };
 }
 
+/** Several things moved together (drag one of the selection without Shift / Ctrl): what moves with which start values. Devices and stairs
+ *  by their position, rooms, blocks and floor openings with all corners, walls with both ends and every corner that lies on them (other
+ *  walls, rooms) so joined walls stay joined, like when one wall is dragged. Doors and windows go with their wall; locked(kind, id) things stay.
+ *  Each point array is taken only once. */
+export function groupTargets(f, items, locked = () => false) {
+  const pts = new Set(), devices = [], stairs = [];
+  const near = (p, q) => Math.abs(q[0] - p[0]) < 0.02 && Math.abs(q[1] - p[1]) < 0.02;
+  const corners = [...(f.walls || []).flatMap((w) => [w.a, w.b]), ...(f.rooms || []).flatMap((r) => r.points || []), ...(f.blocks || []).flatMap((r) => r.points || [])];
+  for (const it of items) {
+    if (locked(it.kind, it.id)) continue;
+    if (it.kind === 'device') { const d = (f.devices || []).find((v) => v.id === it.id); if (d && !d.locked) devices.push(d); }
+    else if (it.kind === 'stair') { const st = (f.stairs || []).find((v) => v.id === it.id); if (st) stairs.push(st); }
+    else if (it.kind === 'wall') { const w = (f.walls || []).find((v) => v.id === it.id); if (w) [w.a, w.b].forEach((p) => corners.filter((q) => near(p, q)).forEach((q) => pts.add(q))); }
+    else if (['room', 'block', 'hole'].includes(it.kind)) { const r = (f[it.kind === 'room' ? 'rooms' : it.kind === 'block' ? 'blocks' : 'holes'] || []).find((v) => v.id === it.id); (r?.points || []).forEach((q) => pts.add(q)); }
+  }
+  return {
+    points: [...pts].map((q) => ({ q, ox: q[0], oz: q[1] })),
+    devices: [...new Set(devices)].map((d) => ({ d, ox: d.x, oz: d.z })),
+    stairs: [...new Set(stairs)].map((st) => ({ st, ox: st.x, oz: st.z })),
+  };
+}
+/** put everything of groupTargets(...) at its start value + (dx, dz); returns the moved devices (their 3D model follows) */
+export function moveGroup(g, dx, dz) {
+  const r = (v) => +v.toFixed(4);
+  g.points.forEach((p) => { p.q[0] = r(p.ox + dx); p.q[1] = r(p.oz + dz); });
+  g.stairs.forEach((p) => { p.st.x = r(p.ox + dx); p.st.z = r(p.oz + dz); });
+  g.devices.forEach((p) => { p.d.x = r(p.ox + dx); p.d.z = r(p.oz + dz); });
+  return g.devices.map((p) => p.d);
+}
+
 /** ctx: $, t, scene, registry, openingMesh(id), selection(), setSelection(sel), deleteItem(sel, batch), snapshot(), changed(), setStatus(txt) */
 export function initMultiSelect(ctx) {
   const { $, t } = ctx;

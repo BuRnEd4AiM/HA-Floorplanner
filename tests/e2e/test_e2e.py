@@ -1793,6 +1793,17 @@ with sync_playwright() as p:
     check("several (#247): Shift + drag in the plan draws a frame and selects what lies inside", ids() == ["msA", "msB"] and framed == 1, (ids(), framed))
     pgMS.keyboard.down("Control"); pgMS.mouse.click(*at(3, 0)); pgMS.keyboard.up("Control"); pgMS.wait_for_timeout(250)
     check("several (#247): Ctrl + click adds like Shift + click", ids() == ["msA", "msB", "msC"], ids())
+    pos = lambda: pgMS.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; return ['msA', 'msB', 'msC'].map((i) => { const d = f.devices.find((v) => v.id === i); return [d.x, d.z]; }); })()")
+    p0 = pos(); (gx0, gy0), (gx1, gy1) = at(0, 0), at(1, -1)
+    pgMS.mouse.move(gx0, gy0); pgMS.mouse.down(); pgMS.mouse.move((gx0 + gx1) / 2, (gy0 + gy1) / 2, steps=4); pgMS.mouse.move(gx1, gy1, steps=4); pgMS.mouse.up(); pgMS.wait_for_timeout(400)
+    p1 = pos(); dl = [[round(b[0] - a[0], 3), round(b[1] - a[1], 3)] for a, b in zip(p0, p1)]
+    check("several: dragging one of the selected things in the plan moves them all by the same amount, they stay selected",
+          all(d == dl[0] for d in dl) and abs(dl[0][0] - 1) < 0.3 and abs(dl[0][1] + 1) < 0.3 and ids() == ["msA", "msB", "msC"], (dl, ids()))
+    pgMS.keyboard.press("Control+z"); pgMS.wait_for_timeout(400)
+    check("several: one undo puts the whole group back", pos() == p0, (pos(), p0))
+    pgMS.mouse.click(*at(-3, 0)); pgMS.wait_for_timeout(250)                       # undo clears the selection: select the three again
+    for c in (at(0, 0), at(3, 0)):
+        pgMS.keyboard.down("Control"); pgMS.mouse.click(*c); pgMS.keyboard.up("Control"); pgMS.wait_for_timeout(250)
     pgMS.keyboard.press("Delete"); pgMS.wait_for_timeout(400)
     check("several (#247): Delete removes the framed and clicked things", left() == ["msW"], left())
     pgMS.keyboard.press("Control+z"); pgMS.wait_for_timeout(400)
