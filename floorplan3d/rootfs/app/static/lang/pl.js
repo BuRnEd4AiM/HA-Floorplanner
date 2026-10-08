@@ -416,7 +416,7 @@ export default {
   'panel.delete': 'Usuń',
   'panel.deleteModel': 'Usunąć model?',
   'hint.select': 'Kliknij obiekt, aby go zaznaczyć, przeciągnij urządzenia i otwory, aby je przesunąć. Kliknij dwukrotnie urządzenie, aby przełączyć jego encję. Kliknij dwukrotnie ścianę, aby dodać narożnik.',
-  'wall.splitNo': 'Tu nie da się dodać narożnika: zbyt blisko końca ściany lub na drzwiach / oknie.',
+  'wall.split': 'Podziel ścianę', 'wall.splitBtn': 'Podziel', 'wall.splitAt': 'Narożnik w (od początku)', 'wall.splitEqual': 'Na równe części', 'wall.parts': '{n} części', 'wall.splitNo': 'Tu nie da się dodać narożnika: zbyt blisko końca ściany lub na drzwiach / oknie.',
   'hint.wall': 'Klikaj punkt po punkcie, aby rysować ściany. Dwukrotne kliknięcie lub Esc kończy ciąg.',
   'hint.room': 'Kliknij narożniki pokoju. Kliknij pierwszy punkt lub dwukrotnie, aby zamknąć.',
   'hint.device': 'Wybierz typ i encję, a potem kliknij podłogę, aby umieścić urządzenie.',

@@ -416,7 +416,7 @@ export default {
   'panel.delete': 'Elimina',
   'panel.deleteModel': 'Eliminare il modello?',
   'hint.select': 'Clicca un oggetto per selezionarlo, trascina dispositivi e aperture per spostarli. Doppio clic su un dispositivo per commutare la sua entità. Doppio clic su un muro per aggiungere un angolo.',
-  'wall.splitNo': 'Qui non si può mettere un angolo: troppo vicino alla fine del muro o su una porta / finestra.',
+  'wall.split': 'Dividi muro', 'wall.splitBtn': 'Dividi', 'wall.splitAt': "Angolo a (dall'inizio)", 'wall.splitEqual': 'In parti uguali', 'wall.parts': '{n} parti', 'wall.splitNo': 'Qui non si può mettere un angolo: troppo vicino alla fine del muro o su una porta / finestra.',
   'hint.wall': 'Clicca punto per punto per disegnare le pareti. Doppio clic o Esc termina la catena.',
   'hint.room': 'Clicca gli angoli della stanza. Clicca il primo punto o fai doppio clic per chiuderla.',
   'hint.device': 'Scegli tipo ed entità, poi clicca sul pavimento per posizionarlo.',

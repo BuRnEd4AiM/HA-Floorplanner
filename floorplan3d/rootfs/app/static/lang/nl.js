@@ -416,7 +416,7 @@ export default {
   'panel.delete': 'Verwijderen',
   'panel.deleteModel': 'Model verwijderen?',
   'hint.select': 'Klik op een object om het te selecteren, sleep apparaten en openingen om ze te verplaatsen. Dubbelklik op een apparaat om de entiteit te schakelen. Dubbelklik op een muur om een hoek toe te voegen.',
-  'wall.splitNo': 'Hier kan geen hoek: te dicht bij het einde van de muur of op een deur / raam.',
+  'wall.split': 'Muur splitsen', 'wall.splitBtn': 'Splitsen', 'wall.splitAt': 'Hoek op (vanaf begin)', 'wall.splitEqual': 'In gelijke delen', 'wall.parts': '{n} delen', 'wall.splitNo': 'Hier kan geen hoek: te dicht bij het einde van de muur of op een deur / raam.',
   'hint.wall': 'Klik punt voor punt om muren te tekenen. Dubbelklik of Esc beëindigt de reeks.',
   'hint.room': 'Klik op de hoeken van de kamer. Klik op het eerste punt of dubbelklik om af te sluiten.',
   'hint.device': 'Kies een type en entiteit en klik dan op de vloer om te plaatsen.',

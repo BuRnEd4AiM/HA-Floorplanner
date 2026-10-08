@@ -416,7 +416,7 @@ export default {
   'panel.delete': 'Eliminar',
   'panel.deleteModel': '¿Eliminar el modelo?',
   'hint.select': 'Haz clic en un objeto para seleccionarlo; arrastra dispositivos y aberturas para moverlos. Doble clic en un dispositivo para alternar su entidad. Doble clic en una pared para añadir una esquina.',
-  'wall.splitNo': 'Aquí no cabe una esquina: demasiado cerca del extremo de la pared o sobre una puerta / ventana.',
+  'wall.split': 'Dividir muro', 'wall.splitBtn': 'Dividir', 'wall.splitAt': 'Esquina a (desde el inicio)', 'wall.splitEqual': 'En partes iguales', 'wall.parts': '{n} partes', 'wall.splitNo': 'Aquí no cabe una esquina: demasiado cerca del extremo de la pared o sobre una puerta / ventana.',
   'hint.wall': 'Haz clic punto a punto para dibujar paredes. Doble clic o Esc termina la cadena.',
   'hint.room': 'Haz clic en las esquinas de la habitación. Clic en el primer punto o doble clic para cerrarla.',
   'hint.device': 'Elige un tipo y una entidad, y haz clic en el suelo para colocarlo.',

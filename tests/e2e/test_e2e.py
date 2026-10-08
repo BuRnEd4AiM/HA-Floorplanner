@@ -662,6 +662,17 @@ with sync_playwright() as p:
         px, py = pgN.evaluate("([x, z]) => window.__fp.plan().toClient(x, z)", [33 + hit, 30])
         pgN.mouse.dblclick(px, py); pgN.wait_for_timeout(400)
         check("plan: double click there still splits the wall (a door beside it does not win)", cnt() == n0 + 1, (n0, cnt()))
+    # the wall's properties split it at an exact distance or into equal parts (wallsplit.js)
+    pgN.evaluate("(() => { window.__fp.layout.floors[window.__fp.floorIdx()].walls.push({id: 'tS', a: [40, 40], b: [50, 40], thickness: 0.2, height: 2.6, openings: []}); window.__fp.rebuild(); })()")
+    pgN.click("#fitBtn"); pgN.wait_for_timeout(400)
+    pgN.mouse.click(*pgN.evaluate("([x, z]) => window.__fp.plan().toClient(x, z)", [45, 40])); pgN.wait_for_timeout(400)
+    tS = lambda: pgN.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].walls.filter(w => w.a[1] === 40 && w.b[1] === 40 && w.a[0] >= 40).map(w => [w.a[0], w.b[0]]).sort((p, q) => p[0] - q[0])")
+    ft = pgN.evaluate("window.__fp.settings().units") == "imperial"           # the field shows the current unit (feet here)
+    pgN.fill("#wallSplitAt", f"{0.3 * 3.28084:.5f}" if ft else "0.3"); pgN.click("#wallSplitBtn"); pgN.wait_for_timeout(300)
+    check("wall split: a corner at an exact distance (30 cm from the start)", tS() == [[40, 40.3], [40.3, 50]], tS())
+    pgN.select_option("#wallParts", "3"); pgN.click("#wallPartsBtn"); pgN.wait_for_timeout(300)
+    check("wall split: the selected piece in 3 equal parts", tS() == [[40, 40.1], [40.1, 40.2], [40.2, 40.3], [40.3, 50]], tS())
+    pgN.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls = f.walls.filter(w => !(w.a[1] === 40 && w.b[1] === 40 && w.a[0] >= 40)); window.__fp.rebuild(); })()")   # leave the house as it was for the later checks
     pgN.close()
     # --- opening palette is grouped (doors, passages, windows)
     pgP = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
@@ -743,7 +754,7 @@ with sync_playwright() as p:
     check("object list is grouped and filterable", ngrp >= 2 and nfilt == 0, (ngrp, nfilt))
     nl = pg9.locator("#objList .objlock").count()
     check("object list has a lock checkbox per item", nl >= 4, nl)
-    count_locked = "window.__fp.layout.floors.flatMap(f => [...f.rooms, ...f.walls, ...f.devices]).filter(x => x.locked).length"
+    count_locked = "window.__fp.layout.floors.flatMap(f => [...f.rooms, ...f.walls, ...f.walls.flatMap(w => w.openings || []), ...f.devices, ...(f.blocks || [])]).filter(x => x.locked).length"   # doors and windows have a lock box too
     locked0 = pg9.evaluate(count_locked)                       # an earlier step may have left an item locked: compare the change, not an absolute number
     idx = pg9.evaluate("[...document.querySelectorAll('#objList details[open] .objlock')].findIndex(c => !c.checked)")
     pg9.locator("#objList details[open] .objlock").nth(idx).check(); pg9.wait_for_timeout(300)
