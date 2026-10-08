@@ -38,6 +38,15 @@ with sync_playwright() as p:
         pg_ = _new_page(*a, **k)
         if not welcome:                         # the welcome card of an empty house would cover the canvas of the older checks
             pg_.add_init_script("try { localStorage.setItem('fp3d.welcome', '1'); } catch (e) {}")
+        def ready(go):                          # wait until the page has loaded its layout and built the scene; a fixed wait alone was too short on a slow CI runner
+            def run(*a, **k):
+                r = go(*a, **k)
+                if "debug=1" in pg_.url:
+                    try: pg_.wait_for_function("window.__fp && window.__fp.ready && window.__fp.ready()", timeout=30000)
+                    except Exception: pass      # pages that never finish starting keep the old behaviour (the checks after it say what is wrong)
+                return r
+            return run
+        pg_.goto, pg_.reload = ready(pg_.goto), ready(pg_.reload)
         return pg_
     b.new_page = new_page
     # --- first start: language follows the browser, dark design, welcome card on the empty house, default names
@@ -1261,11 +1270,13 @@ with sync_playwright() as p:
     check("tablet: rebuilding the scene does not leak graphics memory", mem[0] == mem[-1], mem)
     check("tablet: low-power mode without blur", pg17.evaluate("window.__fp.LOW && document.body.classList.contains('low')"))
     check("live: no grid", not pg17.evaluate("window.__fp.earthDbg()")["gridShown"])
-    pg17.evaluate("window.__fp.navBar().scrollLeft = 0"); pg17.wait_for_timeout(200)
+    # on a phone the floors and rooms are one button now, so the row fits; a wide stand-in makes it too long, as on a tablet with many floors
+    pg17.evaluate("(() => { const s = document.createElement('span'); s.id = 'navFill'; s.className = 'pill'; s.style.width = '2000px'; window.__fp.navBar().append(s); window.__fp.navBar().scrollLeft = 0; })()"); pg17.wait_for_timeout(300)
     ar = pg17.evaluate("window.__fp.navArrows()")
     pg17.click("#navRight"); pg17.wait_for_timeout(700)
     ar2 = pg17.evaluate("[window.__fp.navBar().scrollLeft, ...window.__fp.navArrows()]")
     check("tablet: pills that do not fit get arrows and scroll", ar == [False, True] and ar2[0] > 0 and ar2[1], (ar, ar2))
+    pg17.evaluate("(() => { document.getElementById('navFill').remove(); window.__fp.navBar().scrollLeft = 0; })()"); pg17.wait_for_timeout(300)
     # --- warnings (#58), search (#62), wall-tablet kiosk (#61)
     pg17.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
       if (!f.rooms.some(r => r.id === 'alRoom')) f.rooms.push({ id: 'alRoom', name: 'Rauchküche', points: [[20, 20], [24, 20], [24, 23], [20, 23]] });
@@ -1294,7 +1305,13 @@ with sync_playwright() as p:
     check("phone menu: a choice closes it again", pg17.locator("#toolbar").is_hidden() and pg17.locator("#tbMenuBtn").inner_text() == "☰")
     pg17.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices = window.__fp.layout.floors[window.__fp.floorIdx()].devices.filter(d => d.id !== 'alSmoke')")
     pg17.evaluate("Object.assign(window.__fp.settings(), { idleReturn: 1, idleOrbit: true, nightDim: 'time', nightFrom: '00:00', nightTo: '23:59' })")
-    pg17.click("#roomMenuBtn"); pg17.locator("#roomMenu .pill", has_text="Rauchküche").click(); pg17.wait_for_timeout(600)
+    # phones: floors and rooms are one drop-down instead of the floor pills and the room button (phonenav.js)
+    check("phone nav: one button with the floor instead of the floor pills", pg17.locator("#phoneNavBtn").is_visible() and pg17.locator("#floorPills").is_hidden() and pg17.locator("#roomMenuBtn").is_hidden(), pg17.inner_text("#phoneNavBtn"))
+    pg17.click("#phoneNavBtn"); pg17.wait_for_timeout(300)
+    nfl = pg17.evaluate("window.__fp.layout.floors.length")
+    check("phone nav: the list shows every floor and the rooms of the floor shown", pg17.locator("#phoneNav").is_visible() and pg17.locator("#phoneNav .pill:not(.room):not(.all)").count() >= nfl and pg17.locator("#phoneNav .pill.room", has_text="Rauchküche").is_visible(), pg17.inner_text("#phoneNav"))
+    pg17.locator("#phoneNav .pill.room", has_text="Rauchküche").click(); pg17.wait_for_timeout(600)
+    check("phone nav: a room closes the list, opens the room and the button names it", pg17.locator("#phoneNav").is_hidden() and pg17.locator("#roomPanel").is_visible() and "Rauchküche" in pg17.inner_text("#phoneNavBtn"), pg17.inner_text("#phoneNavBtn"))
     pg17.evaluate("window.__fp.kioskIdle(2 * 60000); window.__fp.kioskTick()"); pg17.wait_for_timeout(800)
     check("kiosk: after the idle time the start view returns and the house turns", pg17.locator("#roomPanel").is_hidden() and pg17.evaluate("window.__fp.autoRotate()"))
     check("kiosk: dimmed at night", pg17.locator("#nightDim").is_visible())
