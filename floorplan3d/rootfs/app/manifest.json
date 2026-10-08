@@ -1,6 +1,6 @@
 {
- "version": "3.59.2",
- "buildHash": "cf32bbe59d6aafd55355dff726b5e9eccba6e652992493e0ed96f633dff0323b",
+ "version": "3.59.3",
+ "buildHash": "c2c6529a27eeca3b31f82d184adac3b7a68f8049ba69d1ccbd626cf8741c9a44",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -154,7 +154,7 @@
   "static/entitypicker.js": "b04001c54b2501a937cced5b74b091ee30f10dc9a96487ed4de6ecd26f189915",
   "static/entitystate.js": "5f088c54e147f0745fe295232e3335dd4f31e748d427a3349cc5211cf98dfac0",
   "static/floorbuild.js": "3089b6be66b4a0d01338edc6775c95c9ab5d47afb95d1fa6a1b02f842bec8aef",
-  "static/floorcards.js": "e068f0aac5fe84fee3f64f737d988e321f10f5853c1c240bb29f5a5ad9ff5b43",
+  "static/floorcards.js": "5b0972dc3cac7ca49baf11afa918d9dc22d447083ebe70809ec470d89c154548",
   "static/floorpanel.js": "41d1e4a196e2cdf846e24712b18d61ef4907193cd98072da36f5991ef3400f9d",
   "static/floorrail.js": "10ecd93393ed14db8841dd58b7359d98615f1b29a5b0aca67c3b43b6341d0b1a",
   "static/frameloop.js": "5140bb54d886debdaf66cbd576bcc5ec2e7b2373acdc6984d5e40f150f8fd196",
