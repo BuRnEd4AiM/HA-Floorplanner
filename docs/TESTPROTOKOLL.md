@@ -77,62 +77,63 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 
 Ausführlicher stehen die Punkte in den Abschnitten **28 bis 37** weiter unten.
 
-## Übersicht: was ist geprüft? (Stand 3.62.0)
+## Übersicht: was ist geprüft?
 
-Zählt die Ergebnisse in den Tabellen unten. ❓ heißt: noch nicht getestet (oder kein Ergebnis eingetragen).
+Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools/testprotokoll.py`). Sie wird bei jeder Änderung automatisch geprüft. Ergebnisse also nur unten eintragen, die Übersicht folgt. ❓ heißt: noch nicht getestet (oder kein Ergebnis eingetragen).
 
-| Abschnitt | ✅ geht | ❌ geht nicht | ❓ offen | ➖ nur Add-on |
-|---|---:|---:|---:|---:|
-| 1. Start und Grundansicht | 4 | 0 | 0 | 0 |
-| 2. Etagen (linke Leiste) | 7 | 0 | 0 | 0 |
-| 3. Etagen im 2D-Plan (3.19.1) | 7 | 0 | 0 | 0 |
-| 4. Räume | 7 | 0 | 0 | 0 |
-| 5. Farbansichten und Messwerte | 3 | 0 | 0 | 0 |
-| 6. Kameras | 0 | 0 | 3 | 0 |
-| 7. Türen, Fenster, Garage | 5 | 0 | 1 | 0 |
-| 8. Live-Ansicht (echte Geräte) | 6 | 0 | 1 | 0 |
-| 9. Bearbeiten | 5 | 0 | 2 | 0 |
-| 10. Tablet und Bedienung | 0 | 0 | 5 | 0 |
-| 11. Benutzer & Tablets (3.20.0) | 6 | 0 | 0 | 1 |
-| 12. Dachgauben (3.21.0) | 7 | 0 | 1 | 0 |
-| 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss | 2 | 0 | 3 | 0 |
-| 14. Erdreich unter Anbauten ohne Keller (Fehler #93) | 3 | 0 | 1 | 0 |
-| 15. Dachgröße von Hand (3.22.0) | 5 | 0 | 1 | 0 |
-| 16. Wiederholung der drei Fehler (3.22.0) | 3 | 0 | 1 | 0 |
-| 17. Werkzeugleiste anpassen und Raumliste nach Haus (3.23.0) | 6 | 0 | 1 | 0 |
-| 18. Automatische Sicherung (3.24.0) | 0 | 0 | 10 | 0 |
-| 19. Version und Prüfsumme in der Leiste (3.25.0) | 0 | 0 | 5 | 0 |
-| 20. Erster Start (3.26.0) | 0 | 0 | 8 | 0 |
-| 21. Neu in 3.26.1 bis 3.27.1 | 1 | 0 | 5 | 0 |
-| 22. Ansicht und Live-Bedienung (3.28.0) | 0 | 0 | 9 | 0 |
-| 23. Demo-Rundgang für 3.29 bis 3.36 (Besitzer) | 0 | 0 | 17 | 0 |
-| 24. Treppen: mehrere Etagen, Wandtreppe, Außen-Wendeltreppe (3.40.x) | 0 | 0 | 13 | 0 |
-| 25. Solarpanels auf dem Dach (3.41.0) | 0 | 0 | 9 | 0 |
-| 26. Wasser-, Gas- und Wärmezähler (3.42.0) | 0 | 0 | 4 | 0 |
-| 27. Metallbrücke / Übergang (3.43.0) | 0 | 0 | 4 | 0 |
-| 28. Nachbarhaus und Brücke zur Dachterrasse (3.44.0) | 0 | 0 | 8 | 0 |
-| 29. Treppenhaus, Podest an der Wende, Ausgang auf jeder Etage (3.45.0) | 0 | 0 | 8 | 0 |
-| 30. Live-Modus: weniger aus Versehen antippen (3.45.1) | 0 | 0 | 4 | 0 |
-| 31. Treppen über mehrere Etagen, Zähler in der Übersicht (3.46.0) | 0 | 0 | 7 | 0 |
-| 32. Dächer verschieben und ihre Größe ziehen (3.49.0 bis 3.50.0) | 0 | 0 | 9 | 0 |
-| 33. Live-Modus: nur über die Kugel antippen (3.51.0) | 0 | 0 | 6 | 0 |
-| 34. Ausgebauter Dachstuhl (3.52.0) | 3 | 0 | 5 | 0 |
-| 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0) | 6 | 0 | 0 | 0 |
-| 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 14 | 0 | 1 | 0 |
-| 37. Neu in 3.59 bis 3.62 | 0 | 0 | 8 | 0 |
-| **Zusammen** | **100** | **0** | **160** | **1** |
+<!-- AUTO-UEBERSICHT-START: wird von tools/testprotokoll.py erzeugt, nicht von Hand ändern -->
+| Abschnitt | ✅ geht | ❌ geht nicht | ❓ offen | ➖ nur Add-on | noch offen (❌ zuerst) |
+|---|---:|---:|---:|---:|---|
+| 1. Start und Grundansicht | 4 | 0 | 0 | 0 | – |
+| 2. Etagen (linke Leiste) | 7 | 0 | 0 | 0 | – |
+| 3. Etagen im 2D-Plan (3.19.1) | 7 | 0 | 0 | 0 | – |
+| 4. Räume | 7 | 0 | 0 | 0 | – |
+| 5. Farbansichten und Messwerte | 3 | 0 | 0 | 0 | – |
+| 6. Kameras | 0 | 0 | 3 | 0 | 6.1 bis 6.3 |
+| 7. Türen, Fenster, Garage | 6 | 0 | 0 | 0 | – |
+| 8. Live-Ansicht (echte Geräte) | 6 | 0 | 1 | 0 | 8.5 |
+| 9. Bearbeiten | 5 | 0 | 2 | 0 | 9.6, 9.7 |
+| 10. Tablet und Bedienung | 0 | 0 | 5 | 0 | 10.1 bis 10.5 |
+| 11. Benutzer & Tablets (3.20.0) | 7 | 0 | 0 | 0 | – |
+| 12. Dachgauben (3.21.0) | 7 | 0 | 1 | 0 | 12.6a |
+| 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss | 2 | 0 | 3 | 0 | 13.3 bis 13.5 |
+| 14. Erdreich unter Anbauten ohne Keller (Fehler #93) | 4 | 0 | 0 | 0 | – |
+| 15. Dachgröße von Hand (3.22.0) | 5 | 0 | 1 | 0 | 15.6 |
+| 16. Wiederholung der drei Fehler (3.22.0) | 4 | 0 | 0 | 0 | – |
+| 17. Werkzeugleiste anpassen und Raumliste nach Haus (3.23.0) | 7 | 0 | 0 | 0 | – |
+| 18. Automatische Sicherung (3.24.0) | 7 | 0 | 3 | 0 | 18.3, 18.7, 18.8 |
+| 19. Version und Prüfsumme in der Leiste (3.25.0) | 5 | 0 | 0 | 0 | – |
+| 20. Erster Start (3.26.0) | 0 | 0 | 8 | 0 | 20.1 bis 20.8 |
+| 21. Neu in 3.26.1 bis 3.27.1 | 3 | 0 | 3 | 0 | 21.4 bis 21.6 |
+| 22. Ansicht und Live-Bedienung (3.28.0) | 9 | 0 | 0 | 0 | – |
+| 23. Demo-Rundgang für 3.29 bis 3.36 (Besitzer) | 16 | 0 | 1 | 0 | 23.17 |
+| 24. Treppen: mehrere Etagen, Wandtreppe, Außen-Wendeltreppe (3.40.x) | 0 | 0 | 13 | 0 | 24.1 bis 24.13 |
+| 25. Solarpanels auf dem Dach (3.41.0) | 0 | 0 | 9 | 0 | 25.1 bis 25.9 |
+| 26. Wasser-, Gas- und Wärmezähler (3.42.0) | 0 | 0 | 4 | 0 | 26.1 bis 26.4 |
+| 27. Metallbrücke / Übergang (3.43.0) | 0 | 0 | 4 | 0 | 27.1 bis 27.4 |
+| 28. Nachbarhaus und Brücke zur Dachterrasse (3.44.0) | 0 | 0 | 8 | 0 | 28.1 bis 28.8 |
+| 29. Treppenhaus, Podest an der Wende, Ausgang auf jeder Etage (3.45.0) | 0 | 0 | 8 | 0 | 29.1 bis 29.8 |
+| 30. Live-Modus: weniger aus Versehen antippen (3.45.1) | 0 | 0 | 4 | 0 | 30.1 bis 30.4 |
+| 31. Treppen über mehrere Etagen, Zähler in der Übersicht (3.46.0) | 0 | 0 | 7 | 0 | 31.1 bis 31.7 |
+| 32. Dächer verschieben und ihre Größe ziehen (3.49.0 bis 3.50.0) | 0 | 0 | 9 | 0 | 32.1 bis 32.9 |
+| 33. Live-Modus: nur über die Kugel antippen (3.51.0) | 0 | 0 | 6 | 0 | 33.1 bis 33.6 |
+| 34. Ausgebauter Dachstuhl (3.52.0) | 3 | 0 | 5 | 0 | 34.4 bis 34.8 |
+| 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0) | 6 | 0 | 0 | 0 | – |
+| 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 14 | 0 | 1 | 0 | 36.11 |
+| 37. Neu in 3.59 bis 3.62 | 0 | 0 | 8 | 0 | 37.1 bis 37.8 |
+| **Zusammen** | **144** | **0** | **117** | **0** | |
+<!-- AUTO-UEBERSICHT-END -->
 
-## Ältere offene Punkte (Stand 3.36.2, nur im echten Betrieb prüfbar)
+## Ältere offene Punkte (nur im echten Betrieb prüfbar)
 
 Das sind die Punkte, die nur der Besitzer im echten Betrieb prüfen kann. Nach Wichtigkeit geordnet, die Nummern verweisen auf die Tabellen unten. Ergebnis jeweils unten in der Tabelle eintragen (✅ / ❌).
 
-1. **Nach dem Update auf 3.28.0** (Abschnitte 21 und 22): Versionsanzeige, Etagen auseinander, Backup-Panel, Ansichtsmenü unten, Halbschnitt, durchsichtige Wände, zweites Tippen im Live-Modus.
+1. **Nach dem Update auf 3.28.0** (Abschnitt 21): 21.4 bis 21.6 (Abschnitt 22 ist fertig ✅).
 2. **Erster Start** (Abschnitt 20): auf einer sauberen Installation oder in einem privaten Fenster.
-3. **Automatische Sicherung** (Abschnitt 18): vor allem 18.3 (Ordner `addon_configs`), 18.6 und 18.7 (zeitgesteuert, dauert eine Stunde) und 18.8 (Zurückspielen).
+3. **Automatische Sicherung** (Abschnitt 18): noch 18.3 (Ordner `addon_configs`), 18.7 (zeitgesteuert) und 18.8 (Zurückspielen).
 4. **Wandtablet** (Abschnitt 10 und 8.5): Kiosk, Leistungsmodus, Warnbanner. Nur mit echtem Gerät möglich.
 5. **Backup und Speichern** (9.6, 9.7) und **Import des eigenen Hauses** (13.3 bis 13.5, 15.6, 12.6a).
-6. **Kameras** (Abschnitt 6) und **Öffnungen gruppiert** (7.1a), falls Kameras vorhanden sind.
-7. **Haus ohne Keller** (14.4) und **Demo mit Gauben** (16.4).
+6. **Kameras** (Abschnitt 6), falls Kameras vorhanden sind.
 
 ## Automatische Tests
 
