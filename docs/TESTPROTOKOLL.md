@@ -8,7 +8,9 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.62.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). In den Tabellen unten steht bei jedem Punkt ✅ (geht), ❌ (geht nicht), ❓ (noch nicht getestet) oder ➖ (nur im Add-on prüfbar).
 
-**Zuletzt geprüft (2026-10-08): ✅** 36.1 bis 36.10 und 36.12 bis 36.14: Gaubenfenster (Name, Kontakt, löschen, in der Wand, „Vorderseite auf die Wand“), Dach über dem Raum durchsichtig, Handy-Menü ☰, kein Hineinzoomen bei der Suche, Raum-Karte, Tablet/PC unverändert, Etagen- und Zimmer-Listen, alles auf einen Blick. Ebenso ✅ das Löschen mehrerer Dinge (Punkt 15 unten). Daraus kam der Wunsch „mehrere zusammen verschieben“, eingebaut in 3.62.0 (37.7, 37.8). Später am selben Tag ebenso ✅: 36.15 (Wand teilen), der ganze Abschnitt 35 (Gauben im ausgebauten Dachstuhl, „Dach beginnt auf Etage“, Firsthöhe, Haken weg) und 34.1 bis 34.3 (Kniestock).
+**Zuletzt geprüft (2026-10-09): ✅** 7.1a, 11.6, 14.4, 16.4, 17.4, 18.1, 18.2, 18.4 bis 18.6, 18.9, 18.10, 19.1 bis 19.5, 21.2, 21.3, der ganze Abschnitt 22 (22.1 bis 22.9) und 23.1 bis 23.16: Öffnungs-Auswahl gruppiert, Benutzer nach Update wieder da, Haus ohne Keller, Gauben in der Demo, Werkzeugleiste, automatische Sicherung, Versionsanzeige mit Prüfsumme, Ansicht-Knopf, Halbschnitt, durchsichtige Wände, Zurück-Zoomen im Live, Heizungs-Panel, weitere Dächer, Küchenzeile, Strom-Editor mit Kabeln und Kamera-Sichtkegel.
+
+**Davor geprüft (2026-10-08): ✅** 36.1 bis 36.10 und 36.12 bis 36.14: Gaubenfenster (Name, Kontakt, löschen, in der Wand, „Vorderseite auf die Wand“), Dach über dem Raum durchsichtig, Handy-Menü ☰, kein Hineinzoomen bei der Suche, Raum-Karte, Tablet/PC unverändert, Etagen- und Zimmer-Listen, alles auf einen Blick. Ebenso ✅ das Löschen mehrerer Dinge (Punkt 15 unten). Daraus kam der Wunsch „mehrere zusammen verschieben“, eingebaut in 3.62.0 (37.7, 37.8). Später am selben Tag ebenso ✅: 36.15 (Wand teilen), der ganze Abschnitt 35 (Gauben im ausgebauten Dachstuhl, „Dach beginnt auf Etage“, Firsthöhe, Haken weg) und 34.1 bis 34.3 (Kniestock).
 
 **Jetzt prüfen** (ausführlich in Abschnitt **37** unten)
 1. **Neu: mehrere zusammen verschieben** (3.62.0, 37.7 und 37.8): Bearbeiten, Werkzeug „Auswählen“, Ansicht **2D** oder **2D + 3D**. Mit **Strg/Shift + Klick** (oder Strg/Shift + Rahmen ziehen) mehrere Dinge auswählen, z. B. Raum, Wände, Lampe und Sofa. Dann **ohne** Strg/Shift auf eins davon drücken und **ziehen**: **alle** wandern zusammen und bleiben ausgewählt (grüner Rahmen). Wände, die an einer mitgezogenen Wand hängen, werden länger/kürzer und bleiben verbunden; Türen und Fenster wandern mit ihrer Wand. **Strg+Z** holt alles in einem Schritt zurück. Nur **klicken** (nicht ziehen) auf eins davon: nur dieses ist dann ausgewählt.
@@ -207,7 +209,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
 | 7.1 | Tür oder Fenster in eine Wand setzen, Ausführung später ändern | ✅ im Add-on (2026-10-03) |
-| 7.1a | Die Auswahl „Öffnung“ ist gruppiert (Türen / Durchgänge und Tore / Fenster) (Wunsch aus dem Test) | ❓ |
+| 7.1a | Die Auswahl „Öffnung“ ist gruppiert (Türen / Durchgänge und Tore / Fenster) (Wunsch aus dem Test) | ✅ |
 | 7.2 | Verschieben entlang der Wand, Überlappung wird verhindert | ✅ im Add-on (2026-10-03) |
 | 7.3 | Fenster mit mehreren Scheiben: je Scheibe ein eigener Kontaktsensor | ✅ im Add-on (2026-10-03) |
 | 7.4 | Garagentor in eine Wand setzen, bei „Auf“ rollen die Lamellen hoch | ✅ im Add-on (2026-10-03) |
@@ -253,7 +255,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 11.4 | Unter dem Dialog steht, ob Datei und Add-on gleich sind | ✅ |
 | 11.4a | Knopf „💾 Datei erstellen / speichern“ legt `users.json` an, auch wenn es sie noch nicht gibt | ✅ ab 3.22.0 im Add-on: das Design bleibt unverändert (vorher schaltete der Klick auf Hologramm, #100) |
 | 11.5 | „↻ Synchronisieren" liest `users.json` und übernimmt die Benutzer | ✅ |
-| 11.6 | Nach einem Update/Neuinstallation sind Benutzer und Tablets wieder da | ➖ |
+| 11.6 | Nach einem Update/Neuinstallation sind Benutzer und Tablets wieder da | ✅ |
 
 ### 12. Dachgauben (3.21.0)
 | Nr. | Prüfpunkt | Ergebnis |
@@ -282,7 +284,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 14.1 | Gesamtansicht, Kamera so drehen, dass der Erdschnitt sichtbar ist | ✅ (3.22.0, im Add-on) |
 | 14.2 | Unter einem Anbau ohne Keller (z. B. Garage) ist kein Hohlraum im Boden, darunter ist Erde | ✅ (3.22.0, im Add-on) |
 | 14.3 | Der Keller wird im Schnitt weiterhin richtig angezeigt | ✅ (3.22.0, im Add-on) |
-| 14.4 | Ein Haus ohne Keller zeigt weiterhin den Boden ohne Schnitt | ❓ |
+| 14.4 | Ein Haus ohne Keller zeigt weiterhin den Boden ohne Schnitt | ✅ |
 
 ### 15. Dachgröße von Hand (3.22.0)
 | Nr. | Prüfpunkt | Ergebnis |
@@ -300,7 +302,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 16.1 | Pfeiltasten ohne Auswahl wechseln die Etage, mit Auswahl verschieben sie das Objekt (#98) | ✅ |
 | 16.2 | Schalter „Etagen im Plan" im Menü „Ansicht": in reinem 3D nicht da, in 2D und 2D+3D da (#99) | ✅ |
 | 16.3 | „Datei erstellen / speichern" ändert das Design nicht (#100) | ✅ |
-| 16.4 | Demo mit zwei Dachgauben im Beispielhaus | ❓ |
+| 16.4 | Demo mit zwei Dachgauben im Beispielhaus | ✅ |
 
 ### 17. Werkzeugleiste anpassen und Raumliste nach Haus (3.23.0)
 | Nr. | Prüfpunkt | Ergebnis |
@@ -308,7 +310,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 17.1 | Knopf ✎ am Ende der Werkzeugleiste öffnet „Werkzeuge anpassen" | ✅ |
 | 17.2 | Werkzeuge ausblenden, umsortieren (▲ / ▼) und ins Menü „Mehr ▾" einklappen | ✅ |
 | 17.3 | Die Auswahl bleibt nach dem Neuladen erhalten | ✅ |
-| 17.4 | „Auswählen" lässt sich nicht ausblenden, „Zurücksetzen" stellt den Standard wieder her | ❓ (automatisch geprüft, nicht von Hand) |
+| 17.4 | „Auswählen" lässt sich nicht ausblenden, „Zurücksetzen" stellt den Standard wieder her | ✅ |
 | 17.5 | Knopf „Gauben" springt zum Dach-Stockwerk und zum Abschnitt Dachgauben | ✅ |
 | 17.6 | Knopf „Haus importieren" liegt standardmäßig im Menü „Mehr" | ✅ |
 | 17.7 | Benutzer & Tablets: Raumliste nach Haus gruppiert, mit Etage dahinter | ✅ |
@@ -316,25 +318,25 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 ### 18. Automatische Sicherung (3.24.0)
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 18.1 | „Häuser & Backup“ zeigt den Abschnitt „Automatische Sicherung“ | ❓ |
-| 18.2 | „Jetzt sichern“ legt eine Datei an, sie steht in der Liste (Art „von Hand“) | ❓ |
+| 18.1 | „Häuser & Backup“ zeigt den Abschnitt „Automatische Sicherung“ | ✅ |
+| 18.2 | „Jetzt sichern“ legt eine Datei an, sie steht in der Liste (Art „von Hand“) | ✅ |
 | 18.3 | Die Datei liegt im Ordner `addon_configs/…_floorplan3d/backups` | ❓ |
-| 18.4 | „Neueste prüfen“ meldet, wie viele Häuser, Bilder und Modelle die Sicherung enthält | ❓ |
-| 18.5 | „Automatisch sichern“ einschalten, Abstand, Tage und Anzahl einstellen, nach dem Neuladen stehen die Werte noch | ❓ |
-| 18.6 | Mit kurzem Abstand (1 Stunde) entsteht nach der Zeit eine automatische Sicherung (Art „automatisch“) | ❓ |
+| 18.4 | „Neueste prüfen“ meldet, wie viele Häuser, Bilder und Modelle die Sicherung enthält | ✅ |
+| 18.5 | „Automatisch sichern“ einschalten, Abstand, Tage und Anzahl einstellen, nach dem Neuladen stehen die Werte noch | ✅ |
+| 18.6 | Mit kurzem Abstand (1 Stunde) entsteht nach der Zeit eine automatische Sicherung (Art „automatisch“) | ✅ |
 | 18.7 | Alte automatische Sicherungen werden nach den eingestellten Tagen / der Anzahl gelöscht, die neueste und die von Hand bleiben | ❓ |
 | 18.8 | „Zurückspielen“ ersetzt Häuser und Einstellungen durch die Sicherung, die Seite lädt neu | ❓ |
-| 18.9 | Herunterladen (⬇) und Löschen (×) in der Liste | ❓ |
-| 18.10 | Der Schalter „Auto“ im Menü „Ansicht“ lässt die anderen Einstellungen unverändert (Design bleibt) | ❓ |
+| 18.9 | Herunterladen (⬇) und Löschen (×) in der Liste | ✅ |
+| 18.10 | Der Schalter „Auto“ im Menü „Ansicht“ lässt die anderen Einstellungen unverändert (Design bleibt) | ✅ |
 
 ### 19. Version und Prüfsumme in der Leiste (3.25.0)
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 19.1 | Oben rechts steht die Version mit kurzer Prüfsumme, zum Beispiel „✓ v3.25.0 · a1b2c3d“ | ❓ |
-| 19.2 | Die Anzeige ist grün, wenn Add-on und Browser zur Prüfsumme passen | ❓ |
-| 19.3 | Ein Klick öffnet die Einzelheiten (Version, Prüfsumme, Add-on, Browser) | ❓ |
-| 19.4 | „Jetzt prüfen (auch mit GitHub)“ meldet: gleicher Stand / neuere Version / anderer Stand | ❓ |
-| 19.5 | Nach einem Update zeigt sie die neue Version; zeigt der Browser noch alte Dateien, ist sie orange und „Neu laden“ hilft | ❓ |
+| 19.1 | Oben rechts steht die Version mit kurzer Prüfsumme, zum Beispiel „✓ v3.25.0 · a1b2c3d“ | ✅ |
+| 19.2 | Die Anzeige ist grün, wenn Add-on und Browser zur Prüfsumme passen | ✅ |
+| 19.3 | Ein Klick öffnet die Einzelheiten (Version, Prüfsumme, Add-on, Browser) | ✅ |
+| 19.4 | „Jetzt prüfen (auch mit GitHub)“ meldet: gleicher Stand / neuere Version / anderer Stand | ✅ |
+| 19.5 | Nach einem Update zeigt sie die neue Version; zeigt der Browser noch alte Dateien, ist sie orange und „Neu laden“ hilft | ✅ |
 
 ### 20. Erster Start (3.26.0)
 | Nr. | Prüfpunkt | Ergebnis |
@@ -353,8 +355,8 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | Nr. | Prüfpunkt | Ergebnis |
 | --- | --- | --- |
 | 21.1 | Etagen auseinander (Ganzes Haus, „auseinander"): jede Etage hat ihre Lücke, auch das Erdgeschoss hebt sich vom Keller ab (#146) | ✅ (Besitzer, 3.26.1) |
-| 21.2 | Versionsanzeige: im Fenster steht „Browser: zeigt genau diese Dateien", auch bei `http://` (#144) | ❓ |
-| 21.3 | Einstellungen ⚙ zeigt das Kästchen „Alle 5 Minuten bei GitHub nachsehen …" (#140) | ❓ |
+| 21.2 | Versionsanzeige: im Fenster steht „Browser: zeigt genau diese Dateien", auch bei `http://` (#144) | ✅ |
+| 21.3 | Einstellungen ⚙ zeigt das Kästchen „Alle 5 Minuten bei GitHub nachsehen …" (#140) | ✅ |
 | 21.4 | Sobald es eine neuere Version gibt, wird die Anzeige im Bearbeiten-Modus nach spätestens 5 Minuten blau: „⬆ Neue Version verfügbar" (#140) | ❓ (erst bei der nächsten Version prüfbar) |
 | 21.5 | Backup-Panel: die Beschriftungen der Zahlenfelder stehen über den Feldern, nicht in einer schmalen Spalte | ❓ |
 | 21.6 | Im Protokoll des Add-ons steht beim Start „Starting 3D Floorplan on port 8099 ..." | ❓ |
@@ -363,15 +365,15 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 
 | Nr. | Prüfpunkt | Ergebnis |
 | --- | --- | --- |
-| 22.1 | Der Knopf „Ansicht" steht unten bei Normal / Temp. / Feuchte / CO₂, sein Menü öffnet sich nach oben (#132) | ❓ |
-| 22.2 | Auf dem Handy und Tablet ist unten nichts verdeckt, alle Knöpfe sind erreichbar | ❓ |
-| 22.3 | „Halbschnitt": Deckenlampen, LED-Ringe und hoch hängende Bilder verschwinden mit, nichts schwebt über den Wänden (#131) | ❓ |
-| 22.4 | Halbschnitt wieder aus: alles ist wieder da | ❓ |
-| 22.5 | Einstellungen ⚙ „Wände zur Kamera durchsichtig machen statt absenken": die Wände zur Kamera werden leicht durchsichtig, man sieht den Raum (#129) | ❓ |
-| 22.6 | Beim Drehen der Kamera wechseln die durchsichtigen Wände mit (von hinten normal) | ❓ |
-| 22.7 | Option aus: die Wände senken sich wie bisher | ❓ |
-| 22.8 | Live-Modus: Tippen in einen Raum zoomt hinein, ein zweites Tippen in den Raum geht zurück zur Ansicht davor, zum Beispiel zur Etage (#128) | ❓ |
-| 22.9 | Das gilt auch aus der Ganzes-Haus-Ansicht: zurück zeigt wieder das ganze Haus | ❓ |
+| 22.1 | Der Knopf „Ansicht" steht unten bei Normal / Temp. / Feuchte / CO₂, sein Menü öffnet sich nach oben (#132) | ✅ |
+| 22.2 | Auf dem Handy und Tablet ist unten nichts verdeckt, alle Knöpfe sind erreichbar | ✅ |
+| 22.3 | „Halbschnitt": Deckenlampen, LED-Ringe und hoch hängende Bilder verschwinden mit, nichts schwebt über den Wänden (#131) | ✅ |
+| 22.4 | Halbschnitt wieder aus: alles ist wieder da | ✅ |
+| 22.5 | Einstellungen ⚙ „Wände zur Kamera durchsichtig machen statt absenken": die Wände zur Kamera werden leicht durchsichtig, man sieht den Raum (#129) | ✅ |
+| 22.6 | Beim Drehen der Kamera wechseln die durchsichtigen Wände mit (von hinten normal) | ✅ |
+| 22.7 | Option aus: die Wände senken sich wie bisher | ✅ |
+| 22.8 | Live-Modus: Tippen in einen Raum zoomt hinein, ein zweites Tippen in den Raum geht zurück zur Ansicht davor, zum Beispiel zur Etage (#128) | ✅ |
+| 22.9 | Das gilt auch aus der Ganzes-Haus-Ansicht: zurück zeigt wieder das ganze Haus | ✅ |
 
 ## 23. Demo-Rundgang für 3.29 bis 3.36 (Besitzer)
 
@@ -379,22 +381,22 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 23.1 | Version oben anschauen | zeigt 3.36.x mit grünem Haken | ❓ |
-| 23.2 | Live: Wohnzimmer antippen | Raum-Panel und daneben das **Heizungs-Panel** (21,2 °C, Ziel 22 °C, „heating") | ❓ |
-| 23.3 | Im Heizungs-Panel zweimal „+" | Ziel springt auf 23, nach einer kurzen Pause wird gesetzt; „Off" macht die Anzeige grau, Heizkörper links glüht nur bei „heating" | ❓ |
-| 23.4 | Ansicht ▴ → „Durchsichtig", dann „Auto" | die beiden schließen sich gegenseitig aus; Wände werden durchsichtig, Dach auch von weitem | ❓ |
-| 23.5 | Haus von allen Seiten drehen, unten Kompass ansehen | Kompass dreht mit, jede Außenwand der Erdgeschoss-Seite zur Kamera senkt sich ab | ❓ |
-| 23.6 | Bearbeiten: Dachgeschoss öffnen, Gaube setzen | Dach bleibt gut sichtbar, nicht fast unsichtbar | ❓ |
-| 23.7 | Bearbeiten: Dachgeschoss → „Weitere Dächer" → „+ Weiteres Dach", Form „Flach", Etage „Erdgeschoss" | ein eigenes Dach über dem Anbau, tiefer als das Hauptdach | ❓ |
-| 23.8 | Küche ansehen (3D und 2D) | Küchenzeile aus Modulen (Unterschrank, Spüle, Geschirrspüler, Herd, Kühlschrank) mit Oberschränken | ❓ |
-| 23.9 | Küchenzeile anklicken → Form „L-Form", „+ Modul", ein Modul mit ↑/↓ verschieben, „×" | zweiter Schenkel erscheint, Module ändern sich in 2D und 3D | ❓ |
-| 23.10 | Werkzeug „Tür/Fenster", in ein sehr kurzes Wandstück klicken | Öffnung wird kleiner gemacht statt abgelehnt (mind. 10 cm) | ❓ |
-| 23.11 | Unten „Strom" antippen (Knopf neben CO₂) | orange/grüne Kabel mit fließenden Punkten und Watt-Zahlen (z. B. 1100 W an den Solarmodulen, 3,20 kW am Wechselrichter) | ❓ |
-| 23.12 | Werkzeugleiste „Strom-Editor" | nur Strom-Sachen sichtbar und anklickbar, alles andere ausgeblendet; Bibliothek zeigt Kategorie „Strom" | ❓ |
-| 23.13 | Strom-Editor: Werkzeug „Kabel", ein Stromgerät, dann ein anderes anklicken | neues Kabel; an einem Gerät lassen sich mehrere Kabel haben | ❓ |
-| 23.14 | Stromgerät anklicken → Eigenschaften: Verlauf „Am Boden entlang" / „Durch den Boden" / „Frei in der Luft", „×" | Kabel ändert den Weg, „×" löscht es; unten steht „Kommt von: …" | ❓ |
-| 23.15 | 2D-Ansicht im Strom-Editor | orange Linien zwischen den Geräten | ❓ |
-| 23.16 | Kamera im Wohnzimmer ansehen | Sichtkegel; rot mit „Bewegung", wenn der Bewegungsmelder an ist (in der Demo ist er an) | ❓ |
+| 23.1 | Version oben anschauen | zeigt 3.36.x mit grünem Haken | ✅ |
+| 23.2 | Live: Wohnzimmer antippen | Raum-Panel und daneben das **Heizungs-Panel** (21,2 °C, Ziel 22 °C, „heating") | ✅ |
+| 23.3 | Im Heizungs-Panel zweimal „+" | Ziel springt auf 23, nach einer kurzen Pause wird gesetzt; „Off" macht die Anzeige grau, Heizkörper links glüht nur bei „heating" | ✅ |
+| 23.4 | Ansicht ▴ → „Durchsichtig", dann „Auto" | die beiden schließen sich gegenseitig aus; Wände werden durchsichtig, Dach auch von weitem | ✅ |
+| 23.5 | Haus von allen Seiten drehen, unten Kompass ansehen | Kompass dreht mit, jede Außenwand der Erdgeschoss-Seite zur Kamera senkt sich ab | ✅ |
+| 23.6 | Bearbeiten: Dachgeschoss öffnen, Gaube setzen | Dach bleibt gut sichtbar, nicht fast unsichtbar | ✅ |
+| 23.7 | Bearbeiten: Dachgeschoss → „Weitere Dächer" → „+ Weiteres Dach", Form „Flach", Etage „Erdgeschoss" | ein eigenes Dach über dem Anbau, tiefer als das Hauptdach | ✅ |
+| 23.8 | Küche ansehen (3D und 2D) | Küchenzeile aus Modulen (Unterschrank, Spüle, Geschirrspüler, Herd, Kühlschrank) mit Oberschränken | ✅ |
+| 23.9 | Küchenzeile anklicken → Form „L-Form", „+ Modul", ein Modul mit ↑/↓ verschieben, „×" | zweiter Schenkel erscheint, Module ändern sich in 2D und 3D | ✅ |
+| 23.10 | Werkzeug „Tür/Fenster", in ein sehr kurzes Wandstück klicken | Öffnung wird kleiner gemacht statt abgelehnt (mind. 10 cm) | ✅ |
+| 23.11 | Unten „Strom" antippen (Knopf neben CO₂) | orange/grüne Kabel mit fließenden Punkten und Watt-Zahlen (z. B. 1100 W an den Solarmodulen, 3,20 kW am Wechselrichter) | ✅ |
+| 23.12 | Werkzeugleiste „Strom-Editor" | nur Strom-Sachen sichtbar und anklickbar, alles andere ausgeblendet; Bibliothek zeigt Kategorie „Strom" | ✅ |
+| 23.13 | Strom-Editor: Werkzeug „Kabel", ein Stromgerät, dann ein anderes anklicken | neues Kabel; an einem Gerät lassen sich mehrere Kabel haben | ✅ |
+| 23.14 | Stromgerät anklicken → Eigenschaften: Verlauf „Am Boden entlang" / „Durch den Boden" / „Frei in der Luft", „×" | Kabel ändert den Weg, „×" löscht es; unten steht „Kommt von: …" | ✅ |
+| 23.15 | 2D-Ansicht im Strom-Editor | orange Linien zwischen den Geräten | ✅ |
+| 23.16 | Kamera im Wohnzimmer ansehen | Sichtkegel; rot mit „Bewegung", wenn der Bewegungsmelder an ist (in der Demo ist er an) | ✅ |
 | 23.17 | Haus → Grundriss importieren → Export | Strom-Kabel, Küchenzeile und weitere Dächer überleben Export und erneuten Import | ❓ |
 
 **Hinweis zur Kamera und Bewegung:** Der Sichtkegel mit Bewegungsanzeige ist im echten Add-on genauso vorhanden wie in der Demo. Die Demo liefert nur Beispielwerte. Im echten Haus wählst du bei der Kamera in den Eigenschaften „Bewegungsmelder" aus (ein `binary_sensor`), dann färbt sich der Kegel rot.
