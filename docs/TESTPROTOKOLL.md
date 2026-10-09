@@ -8,14 +8,14 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.62.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). In den Tabellen unten steht bei jedem Punkt ✅ (geht), ❌ (geht nicht), ❓ (noch nicht getestet) oder ➖ (nur im Add-on prüfbar).
 
-**Zuletzt geprüft (2026-10-09): ✅** der ganze Abschnitt 33 (nur die Kugel zählt im Live-Modus) und der ganze Abschnitt 34 (ausgebauter Dachstuhl). Am selben Tag davor ebenso ✅: 7.1a, 11.6, 14.4, 16.4, 17.4, 18.1, 18.2, 18.4 bis 18.6, 18.9, 18.10, 19.1 bis 19.5, 21.2, 21.3, der ganze Abschnitt 22 (22.1 bis 22.9) und 23.1 bis 23.16: Öffnungs-Auswahl gruppiert, Benutzer nach Update wieder da, Haus ohne Keller, Gauben in der Demo, Werkzeugleiste, automatische Sicherung, Versionsanzeige mit Prüfsumme, Ansicht-Knopf, Halbschnitt, durchsichtige Wände, Zurück-Zoomen im Live, Heizungs-Panel, weitere Dächer, Küchenzeile, Strom-Editor mit Kabeln und Kamera-Sichtkegel.
+**Zuletzt geprüft (2026-10-09): ✅** 10.4 und 10.5 (Leistungsmodus, Benutzer sehen nur ihren Raum), 37.1 bis 37.5 (Handy hochkant, Leistungsanzeige), 37.7 und 37.8 (mehrere zusammen verschieben). Ebenso am selben Tag: der ganze Abschnitt 33 (nur die Kugel zählt im Live-Modus) und der ganze Abschnitt 34 (ausgebauter Dachstuhl). Am selben Tag davor ebenso ✅: 7.1a, 11.6, 14.4, 16.4, 17.4, 18.1, 18.2, 18.4 bis 18.6, 18.9, 18.10, 19.1 bis 19.5, 21.2, 21.3, der ganze Abschnitt 22 (22.1 bis 22.9) und 23.1 bis 23.16: Öffnungs-Auswahl gruppiert, Benutzer nach Update wieder da, Haus ohne Keller, Gauben in der Demo, Werkzeugleiste, automatische Sicherung, Versionsanzeige mit Prüfsumme, Ansicht-Knopf, Halbschnitt, durchsichtige Wände, Zurück-Zoomen im Live, Heizungs-Panel, weitere Dächer, Küchenzeile, Strom-Editor mit Kabeln und Kamera-Sichtkegel.
 
 **Davor geprüft (2026-10-08): ✅** 36.1 bis 36.10 und 36.12 bis 36.14: Gaubenfenster (Name, Kontakt, löschen, in der Wand, „Vorderseite auf die Wand“), Dach über dem Raum durchsichtig, Handy-Menü ☰, kein Hineinzoomen bei der Suche, Raum-Karte, Tablet/PC unverändert, Etagen- und Zimmer-Listen, alles auf einen Blick. Ebenso ✅ das Löschen mehrerer Dinge (Punkt 15 unten). Daraus kam der Wunsch „mehrere zusammen verschieben“, eingebaut in 3.62.0 (37.7, 37.8). Später am selben Tag ebenso ✅: 36.15 (Wand teilen), der ganze Abschnitt 35 (Gauben im ausgebauten Dachstuhl, „Dach beginnt auf Etage“, Firsthöhe, Haken weg) und 34.1 bis 34.3 (Kniestock).
 
 **Jetzt prüfen** (ausführlich in Abschnitt **37** unten)
-1. **Neu: mehrere zusammen verschieben** (3.62.0, 37.7 und 37.8): Bearbeiten, Werkzeug „Auswählen“, Ansicht **2D** oder **2D + 3D**. Mit **Strg/Shift + Klick** (oder Strg/Shift + Rahmen ziehen) mehrere Dinge auswählen, z. B. Raum, Wände, Lampe und Sofa. Dann **ohne** Strg/Shift auf eins davon drücken und **ziehen**: **alle** wandern zusammen und bleiben ausgewählt (grüner Rahmen). Wände, die an einer mitgezogenen Wand hängen, werden länger/kürzer und bleiben verbunden; Türen und Fenster wandern mit ihrer Wand. **Strg+Z** holt alles in einem Schritt zurück. Nur **klicken** (nicht ziehen) auf eins davon: nur dieses ist dann ausgewählt.
-2. **Leistungsanzeige** (3.60.0, 37.5): unten „Ansicht“ → „⏱ Leistung“ auf „FPS“, dann „alle Werte“, dann „aus“.
-3. **Handy hochkant** (3.59.0 bis 3.60.1, 37.1 bis 37.4): Knopf 📊 oben; in „Ganzes Haus“ kleine Etagen-Karten rechts neben dem Haus, auch beim Hineinzoomen.
+1. ✅ (2026-10-09) **Neu: mehrere zusammen verschieben** (3.62.0, 37.7 und 37.8): Bearbeiten, Werkzeug „Auswählen“, Ansicht **2D** oder **2D + 3D**. Mit **Strg/Shift + Klick** (oder Strg/Shift + Rahmen ziehen) mehrere Dinge auswählen, z. B. Raum, Wände, Lampe und Sofa. Dann **ohne** Strg/Shift auf eins davon drücken und **ziehen**: **alle** wandern zusammen und bleiben ausgewählt (grüner Rahmen). Wände, die an einer mitgezogenen Wand hängen, werden länger/kürzer und bleiben verbunden; Türen und Fenster wandern mit ihrer Wand. **Strg+Z** holt alles in einem Schritt zurück. Nur **klicken** (nicht ziehen) auf eins davon: nur dieses ist dann ausgewählt.
+2. ✅ (2026-10-09) **Leistungsanzeige** (3.60.0, 37.5): unten „Ansicht“ → „⏱ Leistung“ auf „FPS“, dann „alle Werte“, dann „aus“.
+3. ✅ (2026-10-09) **Handy hochkant** (3.59.0 bis 3.60.1, 37.1 bis 37.4): Knopf 📊 oben; in „Ganzes Haus“ kleine Etagen-Karten rechts neben dem Haus, auch beim Hineinzoomen.
 4. **Benutzer sperren** (3.61.0, 37.6): „Benutzer“ → „⚙“ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen, die Haken sind noch da.
 
 **Noch offen aus Abschnitt 36**
@@ -93,7 +93,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 7. Türen, Fenster, Garage | 6 | 0 | 0 | 0 | – |
 | 8. Live-Ansicht (echte Geräte) | 6 | 0 | 1 | 0 | 8.5 |
 | 9. Bearbeiten | 5 | 0 | 2 | 0 | 9.6, 9.7 |
-| 10. Tablet und Bedienung | 0 | 0 | 5 | 0 | 10.1 bis 10.5 |
+| 10. Tablet und Bedienung | 2 | 0 | 3 | 0 | 10.1 bis 10.3 |
 | 11. Benutzer & Tablets (3.20.0) | 7 | 0 | 0 | 0 | – |
 | 12. Dachgauben (3.21.0) | 7 | 0 | 1 | 0 | 12.6a |
 | 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss | 2 | 0 | 3 | 0 | 13.3 bis 13.5 |
@@ -110,7 +110,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 24. Treppen: mehrere Etagen, Wandtreppe, Außen-Wendeltreppe (3.40.x) | 0 | 0 | 13 | 0 | 24.1 bis 24.13 |
 | 25. Solarpanels auf dem Dach (3.41.0) | 0 | 0 | 9 | 0 | 25.1 bis 25.9 |
 | 26. Wasser-, Gas- und Wärmezähler (3.42.0) | 0 | 0 | 4 | 0 | 26.1 bis 26.4 |
-| 27. Metallbrücke / Übergang (3.43.0) | 0 | 0 | 4 | 0 | 27.1 bis 27.4 |
+| 27. Metallbrücke / Übergang (3.43.0) | 0 | 0 | 8 | 0 | 27.1 bis 27.8 |
 | 28. Nachbarhaus und Brücke zur Dachterrasse (3.44.0) | 0 | 0 | 8 | 0 | 28.1 bis 28.8 |
 | 29. Treppenhaus, Podest an der Wende, Ausgang auf jeder Etage (3.45.0) | 0 | 0 | 8 | 0 | 29.1 bis 29.8 |
 | 30. Live-Modus: weniger aus Versehen antippen (3.45.1) | 0 | 0 | 4 | 0 | 30.1 bis 30.4 |
@@ -120,8 +120,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 34. Ausgebauter Dachstuhl (3.52.0) | 8 | 0 | 0 | 0 | – |
 | 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0) | 6 | 0 | 0 | 0 | – |
 | 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 14 | 0 | 1 | 0 | 36.11 |
-| 37. Neu in 3.59 bis 3.62 | 0 | 0 | 8 | 0 | 37.1 bis 37.8 |
-| **Zusammen** | **155** | **0** | **106** | **0** | |
+| 37. Neu in 3.59 bis 3.62 | 7 | 0 | 1 | 0 | 37.6 |
+| **Zusammen** | **164** | **0** | **101** | **0** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -244,8 +244,8 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 10.1 | Wandtablet mit ?kiosk=1 oder ?room=…: zeigt nur den Raum | ❓ |
 | 10.2 | Zurück zur Startansicht nach einigen Minuten ohne Berührung | ❓ |
 | 10.3 | Bildschirmschoner und Nachtabsenkung, die erste Berührung weckt nur | ❓ |
-| 10.4 | Leistungsmodus: Automatisch / Schön / Schnell | ❓ |
-| 10.5 | Benutzer sehen nur ihren Raum und ihre Ansicht | ❓ |
+| 10.4 | Leistungsmodus: Automatisch / Schön / Schnell | ✅ |
+| 10.5 | Benutzer sehen nur ihren Raum und ihre Ansicht | ✅ |
 
 ### 11. Benutzer & Tablets (3.20.0)
 | Nr. | Prüfpunkt | Ergebnis |
@@ -462,13 +462,14 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 **Nachtest 3.43.6 (24.9, #209):** Die Wendeltreppe hat eine Stange in der Mitte, dünne Stufen ohne etwas darunter und einen Handlauf außen.
 
-**Neu in 3.43.7 (#215):** Pille „n offen“ antippen und einen Eintrag wählen: Die Kamera fliegt zum Fenster bzw. zur Tür, und ein Ring zeigt die Stelle (wie bei der Suche). Genauso bei der Liste „offline“ und bei „Im Plan zeigen“ in der Kamera-Übersicht.
+**Nachträge 3.43.7 bis 3.43.10** (gehören nicht zur Brücke, stehen aber hier, weil sie in diesen Versionen kamen):
 
-**Neu in 3.43.8 (#212):** In der Ansicht „2D + 3D“ ist oben rechts im Plan der Knopf „↻ Plan dreht mit“. Ist er an und du drehst die 3D-Ansicht, dreht sich der Plan mit: oben ist immer die Blickrichtung. Die Schrift bleibt lesbar, Klicken und Zeichnen funktionieren weiter. Ein zweiter Druck stellt den Plan wieder gerade.
-
-**Neu in 3.43.9 (#211):** Ein Ding anklicken, dann mit gedrückter **Shift-Taste** weitere anklicken (im 2D-Plan und in 3D). Alle Ausgewählten haben einen grünen Rahmen, rechts steht „n ausgewählt“ mit dem Knopf „Alle n löschen“. **Entf** löscht alle, **Strg+Z** holt sie mit einem Schritt zurück, **Esc** hebt die Auswahl auf. Shift + Klick auf ein schon ausgewähltes Ding nimmt es wieder heraus.
-
-**Neu in 3.43.10 (#210, zu 24.1, 24.2, 24.8):** Wandtreppe anklicken, dann im Feld **„Podest nach dem Knick“** z. B. 1 m eintragen: Nach jeder Ecke bleibt die Treppe 1 m auf einer Ebene, erst danach kommen wieder Stufen. **Podest einzeln:** Beim Zeichnen des Wegs mitten auf einer geraden Strecke einmal zusätzlich klicken: Dort entsteht ein flaches Podest, danach geht die Treppe weiter.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 27.5 | Pille „n offen“ antippen und einen Eintrag wählen; ebenso in der Liste „offline“ und bei „Im Plan zeigen“ in der Kamera-Übersicht (3.43.7, #215) | Die Kamera fliegt zum Fenster bzw. zur Tür, ein Ring zeigt die Stelle (wie bei der Suche) | ❓ |
+| 27.6 | Ansicht „2D + 3D“, oben rechts im Plan „↻ Plan dreht mit“ einschalten, dann die 3D-Ansicht drehen; noch einmal drücken (3.43.8, #212) | Der Plan dreht mit, oben ist immer die Blickrichtung; Schrift lesbar, Klicken und Zeichnen gehen weiter; der zweite Druck stellt den Plan wieder gerade | ❓ |
+| 27.7 | Ein Ding anklicken, mit **Shift** weitere anklicken (2D und 3D); **Esc**; Shift + Klick auf ein schon ausgewähltes Ding (3.43.9, #211) | Grüner Rahmen um alle, rechts „n ausgewählt“; Esc hebt die Auswahl auf; Shift + Klick nimmt ein Ding wieder heraus (Löschen mit Entf und Strg+Z ist schon mit Punkt 15 oben ✅) | ❓ |
+| 27.8 | Wandtreppe anklicken, „Podest nach dem Knick“ z. B. 1 m; beim Zeichnen einer Wandtreppe mitten auf einer Geraden einmal zusätzlich klicken (3.43.10, #210) | Nach jeder Ecke bleibt die Treppe 1 m eben; an der zusätzlichen Stelle entsteht ein flaches Podest, danach geht die Treppe weiter | ❓ |
 
 ## 28. Nachbarhaus und Brücke zur Dachterrasse (3.44.0)
 
@@ -592,11 +593,11 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 37.1 | Handy hochkant, Live | Oben neben Etage und Zimmer ein Knopf **📊**; Antippen zeigt Strom, Wasser/Gas, offline, offen, Kameras als Liste; ist etwas offen oder offline, fällt der Knopf auf (3.59.0, #288) | ❓ |
-| 37.2 | Handy hochkant, „Ganzes Haus“ | Die Etagen-Karten sind klein: Name und eine Zeile mit ▦ 💡 🪟 (3.59.1, #290) | ❓ |
-| 37.3 | Handy hochkant, „Ganzes Haus“ | Die Karten stehen rechts neben dem Haus, nicht davor (3.59.2, #292) | ❓ |
-| 37.4 | Handy, „Ganzes Haus“, weit hineinzoomen und wieder heraus | Die Karten bleiben neben dem Haus (dürfen aus dem Bild rutschen), beim Herauszoomen kommen sie zurück (3.60.1, #294) | ❓ |
-| 37.5 | Unten „Ansicht“ → „⏱ Leistung“: aus / FPS / alle Werte | FPS oben rechts im 3D-Bild (💤 in Ruhe); „alle Werte“ zeigt mehr Zahlen; die Anzeige stört kein Antippen; bleibt nach Neuladen so (3.60.0) | ❓ |
+| 37.1 | Handy hochkant, Live | Oben neben Etage und Zimmer ein Knopf **📊**; Antippen zeigt Strom, Wasser/Gas, offline, offen, Kameras als Liste; ist etwas offen oder offline, fällt der Knopf auf (3.59.0, #288) | ✅ |
+| 37.2 | Handy hochkant, „Ganzes Haus“ | Die Etagen-Karten sind klein: Name und eine Zeile mit ▦ 💡 🪟 (3.59.1, #290) | ✅ |
+| 37.3 | Handy hochkant, „Ganzes Haus“ | Die Karten stehen rechts neben dem Haus, nicht davor (3.59.2, #292) | ✅ |
+| 37.4 | Handy, „Ganzes Haus“, weit hineinzoomen und wieder heraus | Die Karten bleiben neben dem Haus (dürfen aus dem Bild rutschen), beim Herauszoomen kommen sie zurück (3.60.1, #294) | ✅ |
+| 37.5 | Unten „Ansicht“ → „⏱ Leistung“: aus / FPS / alle Werte | FPS oben rechts im 3D-Bild (💤 in Ruhe); „alle Werte“ zeigt mehr Zahlen; die Anzeige stört kein Antippen; bleibt nach Neuladen so (3.60.0) | ✅ |
 | 37.6 | Oben „Benutzer“ → bei einem Benutzer „⚙“ → „🔒 Gesperrt“, Haken setzen | Die Haken bleiben gespeichert; mit diesem Benutzer angemeldet sind die Dinge weg (Wirkung nur im Add-on prüfbar, in der Demo gibt es nur einen Benutzer) (3.61.0) | ❓ |
-| 37.7 | Bearbeiten, „Auswählen“, Ansicht **2D** oder **2D + 3D**: mehrere Dinge mit Strg/Shift + Klick (oder Strg/Shift + Rahmen) wählen, dann eins davon **ohne** Strg/Shift ziehen | Alle wandern zusammen und bleiben ausgewählt; angehängte Wände dehnen sich mit, Türen/Fenster wandern mit ihrer Wand; in 2D + 3D zieht das 3D-Bild mit (3.62.0) | ❓ |
-| 37.8 | Danach Strg+Z; dann nur auf eins der Ausgewählten **klicken** (nicht ziehen) | Strg+Z holt alles in einem Schritt zurück; der Klick wählt nur dieses eine | ❓ |
+| 37.7 | Bearbeiten, „Auswählen“, Ansicht **2D** oder **2D + 3D**: mehrere Dinge mit Strg/Shift + Klick (oder Strg/Shift + Rahmen) wählen, dann eins davon **ohne** Strg/Shift ziehen | Alle wandern zusammen und bleiben ausgewählt; angehängte Wände dehnen sich mit, Türen/Fenster wandern mit ihrer Wand; in 2D + 3D zieht das 3D-Bild mit (3.62.0) | ✅ |
+| 37.8 | Danach Strg+Z; dann nur auf eins der Ausgewählten **klicken** (nicht ziehen) | Strg+Z holt alles in einem Schritt zurück; der Klick wählt nur dieses eine | ✅ |
