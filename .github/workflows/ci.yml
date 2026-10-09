@@ -81,8 +81,28 @@ jobs:
         run: |
           for f in floorplan3d/rootfs/app/static/*.js; do cp "$f" /tmp/check.mjs && node --check /tmp/check.mjs; done
 
+  changes:
+    # true when only text in docs/ changed (e.g. a test result entered in docs/TESTPROTOKOLL.md): the long browser test is skipped then
+    runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.check.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: check
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          files=$(git diff --name-only "$BASE" HEAD 2>/dev/null) || files="unknown"
+          echo "$files"
+          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^docs/[^ ]*\.md$'; then docs_only=true; else docs_only=false; fi
+          echo "docs_only=$docs_only" | tee -a "$GITHUB_OUTPUT"
+
   e2e:
     # drives the real interface in Chromium against the real server and a mock Home Assistant (about 5 minutes)
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
