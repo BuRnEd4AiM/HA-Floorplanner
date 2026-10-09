@@ -8,7 +8,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.62.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). In den Tabellen unten steht bei jedem Punkt ✅ (geht), ❌ (geht nicht), ❓ (noch nicht getestet) oder ➖ (nur im Add-on prüfbar).
 
-**Zuletzt geprüft (2026-10-09): ✅** 7.1a, 11.6, 14.4, 16.4, 17.4, 18.1, 18.2, 18.4 bis 18.6, 18.9, 18.10, 19.1 bis 19.5, 21.2, 21.3, der ganze Abschnitt 22 (22.1 bis 22.9) und 23.1 bis 23.16: Öffnungs-Auswahl gruppiert, Benutzer nach Update wieder da, Haus ohne Keller, Gauben in der Demo, Werkzeugleiste, automatische Sicherung, Versionsanzeige mit Prüfsumme, Ansicht-Knopf, Halbschnitt, durchsichtige Wände, Zurück-Zoomen im Live, Heizungs-Panel, weitere Dächer, Küchenzeile, Strom-Editor mit Kabeln und Kamera-Sichtkegel.
+**Zuletzt geprüft (2026-10-09): ✅** der ganze Abschnitt 33 (nur die Kugel zählt im Live-Modus) und der ganze Abschnitt 34 (ausgebauter Dachstuhl). Am selben Tag davor ebenso ✅: 7.1a, 11.6, 14.4, 16.4, 17.4, 18.1, 18.2, 18.4 bis 18.6, 18.9, 18.10, 19.1 bis 19.5, 21.2, 21.3, der ganze Abschnitt 22 (22.1 bis 22.9) und 23.1 bis 23.16: Öffnungs-Auswahl gruppiert, Benutzer nach Update wieder da, Haus ohne Keller, Gauben in der Demo, Werkzeugleiste, automatische Sicherung, Versionsanzeige mit Prüfsumme, Ansicht-Knopf, Halbschnitt, durchsichtige Wände, Zurück-Zoomen im Live, Heizungs-Panel, weitere Dächer, Küchenzeile, Strom-Editor mit Kabeln und Kamera-Sichtkegel.
 
 **Davor geprüft (2026-10-08): ✅** 36.1 bis 36.10 und 36.12 bis 36.14: Gaubenfenster (Name, Kontakt, löschen, in der Wand, „Vorderseite auf die Wand“), Dach über dem Raum durchsichtig, Handy-Menü ☰, kein Hineinzoomen bei der Suche, Raum-Karte, Tablet/PC unverändert, Etagen- und Zimmer-Listen, alles auf einen Blick. Ebenso ✅ das Löschen mehrerer Dinge (Punkt 15 unten). Daraus kam der Wunsch „mehrere zusammen verschieben“, eingebaut in 3.62.0 (37.7, 37.8). Später am selben Tag ebenso ✅: 36.15 (Wand teilen), der ganze Abschnitt 35 (Gauben im ausgebauten Dachstuhl, „Dach beginnt auf Etage“, Firsthöhe, Haken weg) und 34.1 bis 34.3 (Kniestock).
 
@@ -27,7 +27,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 **A. Live-Modus** (oben „Live“ drücken)
 1. Über jeder Lampe, Kamera, dem Fernseher, Rollladen-Schalter usw. schwebt eine **größere Kugel mit kleinem Symbol** (💡 🪟 📷 📺 🌡 …). Unter Deckenlampen hängt sie **darunter**. Kugeln, die dicht beieinander liegen, rücken etwas auseinander und **verdecken sich nicht** (auch nicht die Wert-Schilder).
 2. Lampe an: die Kugel leuchtet in der **Lichtfarbe**, aus: grau-blau. Ein **Tipp auf die Kugel** öffnet bzw. schaltet das Gerät.
-2a. **Neu: nur die Kugel zählt** (3.51.0, #262): die Kugeln sind **größer**. Auf eine **Lampe selbst** (nicht auf ihre Kugel) tippen: es passiert **nichts** am Gerät, der Tipp geht in den Raum (wie ein Tipp ins Leere). Auf die **Kugel** tippen: das Gerät öffnet bzw. schaltet sich. Ein LED-Ring lässt sich weiter **Abschnitt für Abschnitt** antippen. Geräte **ohne** Kugel verhalten sich wie bisher.
+2a. ✅ (2026-10-09) **Neu: nur die Kugel zählt** (3.51.0, #262): die Kugeln sind **größer**. Auf eine **Lampe selbst** (nicht auf ihre Kugel) tippen: es passiert **nichts** am Gerät, der Tipp geht in den Raum (wie ein Tipp ins Leere). Auf die **Kugel** tippen: das Gerät öffnet bzw. schaltet sich. Ein LED-Ring lässt sich weiter **Abschnitt für Abschnitt** antippen. Geräte **ohne** Kugel verhalten sich wie bisher.
 3. Auf die **Anwesenheits-Figur**, einen **Temperatur-/CO₂-Sensor** und den **Sichtkegel der Kamera** tippen: es passiert **nichts**. Auf die **Kamera selbst** tippen: das Kamerabild öffnet sich.
 4. Oben die **Energie-Anzeige** zeigt nur Strom. **Daneben ein eigenes Feld** „🚰 1234.6 m³ · 🔥 845.2 m³ · ♨ 5321 kWh“. Unten „Strom“ drücken: nur das Strom-Feld leuchtet blau.
 4a. Treppe über 2 Etagen (z. B. Wendeltreppe mit „Etagen“ 2): im **Live** endet sie auf der gewählten Etage, **nichts darüber**. Im **Bearbeiten** ist der obere Teil durchsichtig zu sehen.
@@ -62,7 +62,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
    - **Loslassen**: das 3D-Dach hat die neue Größe, rechts stehen die neuen Maße.
    - **Strg+Z**: die alte Größe ist zurück.
    - Unter „Etage verwalten“ ist danach „Größe selbst festlegen“ angehakt und die Zahlen passen zum Plan.
-20c. **Neu: ausgebauter Dachstuhl** (3.52.0, #260): Etage **„Dach“** wählen, rechts **„Etage verwalten“** öffnen, Haken bei **„Ausgebauter Dachstuhl“** setzen.
+20c. ✅ (2026-10-09) **Neu: ausgebauter Dachstuhl** (3.52.0, #260): Etage **„Dach“** wählen, rechts **„Etage verwalten“** öffnen, Haken bei **„Ausgebauter Dachstuhl“** setzen.
    - Das Dach rutscht nach unten und sitzt jetzt **im Dachgeschoss** auf einer 1 m hohen Wand (Kniestock).
    - Etage **„Dachgeschoss“** ansehen: die Wände sind **schräg abgeschnitten**, wo das Dach sie trifft (von der Giebelseite sieht man die Dachform).
    - Feld **„Kniestock“** auf z. B. 1,5 ändern: das Dach geht höher, die Schrägen schneiden weniger ab.
@@ -116,12 +116,12 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 30. Live-Modus: weniger aus Versehen antippen (3.45.1) | 0 | 0 | 4 | 0 | 30.1 bis 30.4 |
 | 31. Treppen über mehrere Etagen, Zähler in der Übersicht (3.46.0) | 0 | 0 | 7 | 0 | 31.1 bis 31.7 |
 | 32. Dächer verschieben und ihre Größe ziehen (3.49.0 bis 3.50.0) | 0 | 0 | 9 | 0 | 32.1 bis 32.9 |
-| 33. Live-Modus: nur über die Kugel antippen (3.51.0) | 0 | 0 | 6 | 0 | 33.1 bis 33.6 |
-| 34. Ausgebauter Dachstuhl (3.52.0) | 3 | 0 | 5 | 0 | 34.4 bis 34.8 |
+| 33. Live-Modus: nur über die Kugel antippen (3.51.0) | 6 | 0 | 0 | 0 | – |
+| 34. Ausgebauter Dachstuhl (3.52.0) | 8 | 0 | 0 | 0 | – |
 | 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0) | 6 | 0 | 0 | 0 | – |
 | 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 14 | 0 | 1 | 0 | 36.11 |
 | 37. Neu in 3.59 bis 3.62 | 0 | 0 | 8 | 0 | 37.1 bis 37.8 |
-| **Zusammen** | **144** | **0** | **117** | **0** | |
+| **Zusammen** | **155** | **0** | **106** | **0** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -537,12 +537,12 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 33.1 | Live-Modus ansehen | Die Kugeln über den Geräten sind deutlich größer als vorher | ❓ |
-| 33.2 | Auf eine Lampe selbst tippen (nicht auf die Kugel) | Die Lampe schaltet nicht, es öffnet sich nichts für sie; der Tipp wirkt wie ein Tipp in den Raum | ❓ |
-| 33.3 | Auf die Kugel der Lampe tippen | Die Lampe öffnet bzw. schaltet sich wie bisher | ❓ |
-| 33.4 | Dasselbe mit Fernseher, Rollladen, Kamera | Nur die Kugel reagiert | ❓ |
-| 33.5 | LED-Ring mit mehreren Abschnitten: auf einen Abschnitt tippen | Dieser Abschnitt öffnet sich wie bisher | ❓ |
-| 33.6 | Ins Bearbeiten wechseln, auf eine Lampe klicken | Sie wird wie immer ausgewählt (die Regel gilt nur im Live-Modus) | ❓ |
+| 33.1 | Live-Modus ansehen | Die Kugeln über den Geräten sind deutlich größer als vorher | ✅ |
+| 33.2 | Auf eine Lampe selbst tippen (nicht auf die Kugel) | Die Lampe schaltet nicht, es öffnet sich nichts für sie; der Tipp wirkt wie ein Tipp in den Raum | ✅ |
+| 33.3 | Auf die Kugel der Lampe tippen | Die Lampe öffnet bzw. schaltet sich wie bisher | ✅ |
+| 33.4 | Dasselbe mit Fernseher, Rollladen, Kamera | Nur die Kugel reagiert | ✅ |
+| 33.5 | LED-Ring mit mehreren Abschnitten: auf einen Abschnitt tippen | Dieser Abschnitt öffnet sich wie bisher | ✅ |
+| 33.6 | Ins Bearbeiten wechseln, auf eine Lampe klicken | Sie wird wie immer ausgewählt (die Regel gilt nur im Live-Modus) | ✅ |
 
 ## 34. Ausgebauter Dachstuhl (3.52.0)
 
@@ -551,11 +551,11 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 34.1 | Etage „Dach“, „Etage verwalten“, Haken „Ausgebauter Dachstuhl“ | Feld „Kniestock“ mit 1 m erscheint, das Dach sitzt tiefer (im Dachgeschoss) | ✅ 2026-10-08 |
 | 34.2 | Etage „Dachgeschoss“ ansehen, von der Giebelseite | Die Wände enden schräg unter dem Dach, nichts sticht oben heraus | ✅ 2026-10-08 |
 | 34.3 | Kniestock auf 1,5 m, dann auf 0,5 m | Das Dach geht hoch bzw. runter, die Schrägen schneiden weniger bzw. mehr ab | ✅ 2026-10-08 |
-| 34.4 | Dachform „Walmdach“ | Auch an den Stirnseiten werden die Wände schräg abgeschnitten | ❓ |
-| 34.5 | „Ganzes Haus“ | Das Dach sitzt sauber auf dem Dachgeschoss, Gauben und Solarpanels mit | ❓ |
-| 34.6 | Etage „Dach“ (Spitzboden): einen Raum zeichnen, ein Gerät hinstellen | Liegt über dem Dachgeschoss, unter dem First | ❓ |
-| 34.7 | Haken wieder entfernen | Das Dach sitzt wieder oben drauf, die Wände sind wieder ganz | ❓ |
-| 34.8 | Im echten Haus: Kniestock wie bei euch einstellen, Wohnzimmer mit Gauben ansehen | Sieht aus wie in echt (Rückmeldung gern mit Bild) | ❓ |
+| 34.4 | Dachform „Walmdach“ | Auch an den Stirnseiten werden die Wände schräg abgeschnitten | ✅ |
+| 34.5 | „Ganzes Haus“ | Das Dach sitzt sauber auf dem Dachgeschoss, Gauben und Solarpanels mit | ✅ |
+| 34.6 | Etage „Dach“ (Spitzboden): einen Raum zeichnen, ein Gerät hinstellen | Liegt über dem Dachgeschoss, unter dem First | ✅ |
+| 34.7 | Haken wieder entfernen | Das Dach sitzt wieder oben drauf, die Wände sind wieder ganz | ✅ |
+| 34.8 | Im echten Haus: Kniestock wie bei euch einstellen, Wohnzimmer mit Gauben ansehen | Sieht aus wie in echt (Rückmeldung gern mit Bild) | ✅ |
 
 ## 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0)
 
