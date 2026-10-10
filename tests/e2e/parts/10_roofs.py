@@ -68,7 +68,11 @@ for _ in range(4):                                          # undo leaves nothin
 try: pgSol.wait_for_selector("[data-roofh]", state="attached", timeout=4000)
 except Exception: pass
 nh = pgSol.locator("[data-roofh]").count()
-hp = pgSol.evaluate("(() => { const e = document.querySelector('[data-roofh=\"se\"]'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; })()")
+se_handle = lambda: pgSol.evaluate("(() => { const e = document.querySelector('[data-roofh=\"se\"]'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; })()")
+for _ in range(20):                                         # right after the undo the plan can still show the handles where the roof was a moment ago: wait until the corner handle sits on the roof's corner
+    hp, corner = se_handle(), pgSol.evaluate(f"window.__fp.plan().toClient({rbox()['x1']}, {rbox()['z1']})")
+    if hp and abs(hp[0] - corner[0]) < 2 and abs(hp[1] - corner[1]) < 2: break
+    pgSol.wait_for_timeout(200)
 if hp:
     ht = pgSol.evaluate(f"window.__fp.plan().toClient({rb0['x1'] + 1}, {rb0['z1'] + 0.5})")
     pgSol.mouse.move(*hp); pgSol.mouse.down(); pgSol.mouse.move((hp[0] + ht[0]) / 2, (hp[1] + ht[1]) / 2, steps=4); pgSol.mouse.move(*ht, steps=4); pgSol.mouse.up(); pgSol.wait_for_timeout(500)
