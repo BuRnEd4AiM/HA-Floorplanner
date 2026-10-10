@@ -3,6 +3,8 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Changed
+- **Browser test in parts, all at the same time**: the browser test (over 450 checks, about 13 minutes one after the other) is split into parts (`tests/e2e/parts/`). Every part builds the same test house first and then runs on its own, so CI runs all parts at the same time as separate jobs (a few minutes); the job `e2e` collects their results. `tests/e2e/run.sh power roofs` runs only the parts that cover a change (`--list` shows them). A change that cannot alter what the browser sees (only text, unit tests or tools) skips the browser test.
 
 ## [3.69.0] - 2026-10-10
 ### Added

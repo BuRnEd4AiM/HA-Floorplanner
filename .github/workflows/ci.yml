@@ -82,10 +82,13 @@ jobs:
           for f in floorplan3d/rootfs/app/static/*.js; do cp "$f" /tmp/check.mjs && node --check /tmp/check.mjs; done
 
   changes:
-    # true when only text in docs/ changed (e.g. a test result entered in docs/TESTPROTOKOLL.md): the long browser test is skipped then
+    # no_browser: true when the change cannot alter what the browser sees: only text (*.md in docs/ or in the top folder, e.g. a test result in
+    #   docs/TESTPROTOKOLL.md), unit tests (tests/*.mjs, tests/test_*.py) or tools/. The browser test is skipped then.
+    # parts: the parts of the browser test (tests/e2e/parts/), each one runs as its own job below, all at the same time
     runs-on: ubuntu-latest
     outputs:
-      docs_only: ${{ steps.check.outputs.docs_only }}
+      no_browser: ${{ steps.check.outputs.no_browser }}
+      parts: ${{ steps.parts.outputs.parts }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -96,15 +99,23 @@ jobs:
         run: |
           files=$(git diff --name-only "$BASE" HEAD 2>/dev/null) || files="unknown"
           echo "$files"
-          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^docs/[^ ]*\.md$'; then docs_only=true; else docs_only=false; fi
-          echo "docs_only=$docs_only" | tee -a "$GITHUB_OUTPUT"
+          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(docs/[^ ]*\.md|[^/ ]*\.md|tests/[^/ ]*\.(mjs|py)|tools/[^ ]*)$'; then no_browser=true; else no_browser=false; fi
+          echo "no_browser=$no_browser" | tee -a "$GITHUB_OUTPUT"
+      - id: parts
+        run: echo "parts=$(python3 tests/e2e/test_e2e.py --json)" | tee -a "$GITHUB_OUTPUT"
 
-  e2e:
-    # drives the real interface in Chromium against the real server and a mock Home Assistant (about 5 minutes)
+  e2e-part:
+    # drives the real interface in Chromium against the real server and a mock Home Assistant: every job builds the test house
+    # (tests/e2e/parts/base.py) and runs ONE part of the checks, all parts at the same time (a few minutes instead of 13 one after the other)
+    name: e2e ${{ matrix.part }}
     needs: changes
-    if: needs.changes.outputs.docs_only != 'true'
+    if: needs.changes.outputs.no_browser != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        part: ${{ fromJSON(needs.changes.outputs.parts) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -131,16 +142,29 @@ jobs:
           DATA_DIR=$(mktemp -d) SUPERVISOR_TOKEN=x HA_API=http://localhost:8123 OPTIONS_FILE=/tmp/opts.json \
             nohup python ../../floorplan3d/rootfs/app/server.py > /tmp/server.log 2>&1 &
           for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:8099/ && break; sleep 1; done
-      - name: Browser end-to-end tests
+      - name: Browser end-to-end tests (the test house and the part ${{ matrix.part }})
         run: |
           cd tests/e2e
           set -o pipefail
-          python test_e2e.py 2>&1 | tee /tmp/e2e.out
+          python -u test_e2e.py ${{ matrix.part }} 2>&1 | tee /tmp/e2e.out
       - name: Failed checks and server log
         if: failure()
         run: |
           grep -E "^(FAIL|Traceback|.*Error)" /tmp/e2e.out | head -40 || true
           tail -n 30 /tmp/server.log /tmp/mock.log
+
+  e2e:
+    # one result for all parts of the browser test, under the old name "e2e" (a rule of the protected main branch may ask for it)
+    needs: [changes, e2e-part]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          PARTS: ${{ needs.e2e-part.result }}
+          NO_BROWSER: ${{ needs.changes.outputs.no_browser }}
+        run: |
+          echo "browser test parts: $PARTS (nothing for the browser changed: $NO_BROWSER)"
+          [ "$PARTS" = success ] || { [ "$PARTS" = skipped ] && [ "$NO_BROWSER" = true ]; }
 
   addon-lint:
     runs-on: ubuntu-latest
