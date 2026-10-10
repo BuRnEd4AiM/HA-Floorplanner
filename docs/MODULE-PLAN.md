@@ -77,6 +77,7 @@ Stand: Version 3.66.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `multisel.js` | ~120 | Mehrfachauswahl (#211, #247): Shift / Strg + Klick, Rahmen aufziehen im 2D-Plan (`boxItems`), alle löschen in einem Schritt, Rahmen in 3D, Kasten im Panel, alle zusammen verschieben (`groupTargets`, `moveGroup`) |
 | `tapballs.js` | ~140 | Kugeln zum Antippen im Live-Modus (#238): Lage über/unter dem Gerät, Farbe nach Zustand, auf dem Bildschirm auseinanderschieben (#314, `spreadScreen`); reine Regeln mit Unit-Tests |
 | `startview.js` | ~95 | Startansicht (#315): aktuelle Ansicht speichern (für alle und pro Benutzer), beim Start und am Wandtablet dorthin zurück; reine Regeln mit Unit-Tests |
+| `bootguard.js` | ~60 | Startschutz (#328): klassisches Skript vor `app.js`; startet `app.js` nicht (alte Dateien im Browser-Cache), holt es alle Dateien neu und lädt einmal neu, sonst eine Meldung statt leerer Seite; Unit-Tests mit nachgebautem Fenster |
 | `entitystate.js` | ~25 | Was von einer Entität gemerkt wird, Farbe eines Lichteffekts (Schritt 23); reine Logik mit Unit-Tests |
 | `timeline.js` | ~140 | Sicherheit (Wiedergabe): Zustände zu jedem Zeitpunkt, Ereignisliste, von Ereignis zu Ereignis, Zoom der Zeitleiste (`follow`), Symbole der Ereignisse (`markers`, `eventIcon`); reine Logik mit Unit-Tests |
 | `timelineui.js` | ~190 | Sicherheit (Oberfläche): 🛡️-Knopf, Liste der Tage (mit Download), Leiste unten mit Abspielen, Geschwindigkeit, Schieber und Ereignissen |
