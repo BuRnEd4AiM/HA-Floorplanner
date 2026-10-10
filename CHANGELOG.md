@@ -4,6 +4,17 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.66.0] - 2026-10-09
+### Added
+- **Start view can be chosen** (#315): in the settings (wall tablet section) "📌 Use current view" saves the view shown now (house, floor or whole house, room, camera) as the start view for everybody; "Automatic" goes back to the old start (the user's room or the ground floor). In the users dialog every user can get their own ("Start: use current view"). The page opens with it and a wall tablet comes back to it after the idle time. Stored in `startViews` (also in users.json), `api/me` hands out the user's own or everybody's. Logic in the new `startview.js` (unit tests).
+- **Security: the recorded days as a list** (#317): the backup dialog lists the recorded days, each to play (▶) or download (⬇).
+### Changed
+- **Backup in the top bar** (#321): the whole backup, the automatic backups and the security recording moved from the side panel into a dialog behind the new "🗄️ Backup" button; the side panel section is now just "Houses". The two security fields are now also saved when changed.
+- **Security bar over the whole width** (#316): the bar with the time line now uses the whole width of the screen.
+### Fixed
+- **No dark floor in 3D while placing** (#320): with a drawing tool (device, stairs …) the 3D grid melted into a dark area that hid the lawn (600 fine lines over 60 m). In 3D its lines are now at least 50 cm apart and see-through; snapping still uses the grid setting.
+- **Tap balls no longer cover each other** (#314): balls that land on each other on the screen (a floor lamp in front of a ceiling lamp, things behind each other seen at an angle) now move apart on the screen, every time the camera moves (`spreadScreen` in `tapballs.js`, unit tests).
+
 ## [3.65.0] - 2026-10-08
 ### Added
 - **Sicherheit: zoom and icons on the time line**: a new 🔍 choice in the bar sets how much of the day the time line shows (24 h, 12 h, 6 h, 3 h, 1 h, 30 min, 10 min; on a computer also with the mouse wheel over the line). The line follows the playback and the times under it match the part shown. Every change is now an icon on the line (💡 light, 🚪 door, 🪟 window, 🏃 motion, 🔥 smoke, 🔒 lock, 👤 person, 🌡️ climate …), lit for "on"; events too close together share one icon with a count, so zooming in separates them. A tap on an icon jumps there; its tooltip lists what happened. The zoom chosen is remembered in the browser. Logic in `timeline.js` (`follow`, `markers`, `eventIcon`, unit tests).

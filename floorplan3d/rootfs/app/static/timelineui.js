@@ -50,6 +50,25 @@ export function initTimeline(ctx) {
     dlg.replaceChildren(...parts);
   }
   btn.addEventListener('click', openDays);
+  /* ---- the recorded days in the backup dialog (#317): each to play (▶) or to download (⬇) ---- */
+  const setDays = document.getElementById('tlSetDays');
+  async function renderSetDays() {
+    if (!setDays) return;
+    let info = null;
+    try { const r = await fetch('api/timeline'); if (r.ok) info = await r.json(); } catch { /* no backend (demo) */ }
+    const days = dayChoices(info?.days, todayIso());
+    if (!days.length) { setDays.replaceChildren(el('p', 'sub', t(info ? 'tl.none' : 'tl.failed'))); return; }
+    setDays.replaceChildren(...days.map((d) => {
+      const row = el('div', 'abRow');
+      const kb = d.size >= 1048576 ? `${(d.size / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(d.size / 1024))} kB`;
+      const label = el('span', 'abName', `${dateText(d.day)}${d.today ? ` (${t('tl.today')})` : ''} · ${kb}`);
+      const play = el('button', null, '▶'); play.type = 'button'; play.title = t('tl.play');
+      play.addEventListener('click', () => start(d.day));
+      const dl = el('a', 'btn', '⬇'); dl.href = `api/timeline/${d.day}?download=1`; dl.download = `floorplan3d-timeline-${d.day}.jsonl`; dl.title = t('tl.download');
+      row.append(label, play, dl);
+      return row;
+    }));
+  }
   const dateText = (day) => {
     const [y, m, d] = day.split('-').map(Number);
     try { return new Date(y, m - 1, d).toLocaleDateString(ctx.lang(), { weekday: 'long', day: 'numeric', month: 'long' }); } catch { return day; }
@@ -202,5 +221,5 @@ export function initTimeline(ctx) {
     else if (e.key === 'Escape' && !dlg.open) exit();
   });
 
-  return { active: () => active, exit, open: openDays };
+  return { active: () => active, exit, open: openDays, renderSetDays };
 }

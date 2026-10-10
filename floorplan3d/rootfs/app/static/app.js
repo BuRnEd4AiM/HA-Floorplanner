@@ -20,6 +20,7 @@ import { initFloorCards, columnZoom } from './floorcards.js';
 import { initFloorRail } from './floorrail.js';
 import { initHouses } from './houses.js';
 import { initSettingsUi } from './settingsui.js';
+import { initStartView } from './startview.js';
 import { initBackground } from './background.js';
 import { initPalettes } from './palettes.js';
 import { floorOpenings as floorOpeningsOf, initBlocks } from './blocks.js';
@@ -214,9 +215,11 @@ function themeColors() {
 function rebuildGrid() {
   if (grid) { scene.remove(grid); grid.geometry.dispose(); }
   const c = themeColors();
-  const size = 60, div = Math.max(2, Math.round(size / Math.max(settings.grid, 0.1)));
-  grid = new THREE.GridHelper(size, isHolo() ? 60 : Math.min(div, 600), c.gridA, c.gridB);
-  if (isHolo()) { [].concat(grid.material).forEach((m) => { m.transparent = true; m.opacity = 0.28; m.depthWrite = false; }); }
+  // a drawing aid in 3D only (the snapping uses settings.grid): lines at least 50 cm apart and see-through, else the many fine lines melt
+  // into a dark floor that hides the lawn when seen from further away (#320)
+  const size = 60, div = Math.round(size / Math.max(settings.grid, 0.5));
+  grid = new THREE.GridHelper(size, isHolo() ? 60 : div, c.gridA, c.gridB);
+  [].concat(grid.material).forEach((m) => { m.transparent = true; m.opacity = isHolo() ? 0.28 : 0.45; m.depthWrite = false; });
   scene.add(grid);
 }
 
@@ -670,6 +673,7 @@ const kiosk = initKiosk({
   closeLivePopup: () => popup.close(), closeRoomPanel: () => roomPanel.close(), closeSearch: () => search.close(),
   tabletRoom: () => tabletRoom, findRoomByName: (n) => findRoomByName(n), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom,
   openRoomPanel: (id) => roomPanel.open(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
+  applyStart: () => (me.start ? startView.apply(me.start) : null),                                   // a saved start view wins (#315)
 });
 
 function refreshSelHelper() {
@@ -1253,6 +1257,13 @@ function renderProps() { props.render(); }
    applying them to the house and the view stays here ================= */
 const settingsUi = initSettingsUi({
   $, t, settings: () => settings, defaults: DEFAULT_LOOK, layout: () => layout, houses: () => hs.list(), houseId: () => hs.id(), houseName: () => hs.current()?.name || '', commit: () => commitSettings(),
+  captureView: () => startView.capture(),
+});
+/* the start view (#315): saved for everybody in the settings, per user in the users dialog; the code lives in startview.js */
+const startView = initStartView({
+  $, t, settings: () => settings, commit: () => settingsStore.save(), houseId: () => hs.id(), houses: () => hs.list(), layout: () => layout,
+  houseMode: () => houseMode, floorIdx: () => floorIdx, focusedRoom: () => focusedRoom, camera, controls,
+  setHouseMode: (on) => setHouseMode(on), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), switchHouse: (id) => switchHouse(id),
 });
 const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
@@ -1287,14 +1298,9 @@ function applySettings(prev = {}) {
   updateNavToggles(); buildNav(true);
   applyStates();
 }
-const backupsUi = initBackups({ t, commitSettings });
+initBackups({ t, commitSettings, prepare: async () => { if (!settingsStore.loaded()) await loadSettings(); settingsStore.fill(); },
+  onOpen: () => timeline.renderSetDays() });                       // 🗄️ backup dialog in the top bar (backups.js, #321)
 initVersion({ t, active: () => !isLive() && !!settings.updateCheck });
-$('#housePanel').addEventListener('toggle', async () => {
-  if (!$('#housePanel').open) return;
-  if (!settingsStore.loaded()) await loadSettings();
-  settingsStore.fill();
-  backupsUi.refresh();
-});
 
 /* ================= Data loading ================= */
 async function loadAreas() { ({ areas, areaOf } = await fetchAreas()); }   // Home Assistant's areas and which entity is in which (livechannel.js)
@@ -1380,6 +1386,11 @@ async function init() {
     if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); roomPanel.open(hit.room.id); }
     updateHouseToggle();
   }
+  if (await startView.apply(me.start)) {                  // a saved start view (#315): the user's own or everybody's
+    const hit = tabletRoom && findRoomByName(tabletRoom);
+    if (hit && focusedRoom === hit.room.id) roomPanel.open(hit.room.id);
+    updateHouseToggle();
+  }
   liveChan.start();                                         // first full list, the live channel, polling while it is down
   booted = true;
 }
@@ -1408,6 +1419,7 @@ function animate(now = performance.now()) {
   power.animate(now);
   selHelper?.update();
   declutterLabels();
+  tapBalls.declutter(camera, canvas.clientWidth, canvas.clientHeight);   // tap balls that land on each other on the screen move apart (#314)
   floorCards.place();
   if (shadowDue(shadowDirty, now, lastShadow)) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; lastShadow = now; }   // shadows only when something changed (#253)
   renderer.render(scene, camera);
@@ -1478,7 +1490,8 @@ if (params.get('debug')) {
       const b = tapBalls.ball(id);
       if (!b?.visible) return null;
       const v = b.getWorldPosition(new THREE.Vector3()).project(camera), r = canvas.getBoundingClientRect();
-      return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
+      const w = b.getWorldPosition(new THREE.Vector3()), px = (r.height / 2 / Math.tan((camera.fov * Math.PI) / 360)) / w.distanceTo(camera.position);
+      return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height, r: ((b.children[0]?.scale.x || 0) / 2) * px };   // r: radius in pixels (#314)
     },
     ballSize: (id) => { const s = tapBalls.ball(id)?.children[0]; return s ? +s.scale.x.toFixed(3) : null; },   // the shown size of a tap ball (m, #262)
     neighborCount: () => world.children.filter((c) => c.userData.neighbor).length, neighborOutlines: () => neighbors.outlines(elev(floorIdx)).length,

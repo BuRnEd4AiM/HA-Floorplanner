@@ -26,7 +26,7 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 
 ## Schnellstart in 30 Sekunden
 
-**1. Importdialog öffnen.** Im Bearbeiten-Modus in der Seitenleiste **Häuser & Backup** aufklappen und **Haus aus JSON importieren …** klicken.
+**1. Importdialog öffnen.** Im Bearbeiten-Modus in der Seitenleiste **Häuser** aufklappen und **Haus aus JSON importieren …** klicken.
 
 ![Häuser-Bereich mit Import- und Export-Schaltfläche](img/import-0-panel.png)
 

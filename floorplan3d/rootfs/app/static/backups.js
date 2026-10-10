@@ -1,5 +1,6 @@
-/* Automatic backups panel (inside "Houses & backup"): settings, "back up now", check, restore, download, delete.
- * The schedule itself runs in the add-on (server.py); this file only talks to /api/backups. */
+/* Backup dialog (🗄️ in the top bar, #321): the whole backup (export / import), the automatic backups (settings, "back up now", check,
+ * restore, download, delete) and the security recording (settings, the recorded days). The schedule itself runs in the add-on (server.py);
+ * this file only talks to /api/backups. */
 const units = ['B', 'KB', 'MB', 'GB'];
 export function fmtSize(n) {
   let i = 0, v = Number(n) || 0;
@@ -13,7 +14,15 @@ const j = async (url, opts) => {
 };
 const post = (url, data) => j(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data || {}) });
 
-export function initBackups({ t, commitSettings, reload = () => location.reload() }) {
+/** prepare(): load and show the current settings in the fields; onOpen(): more to fill when the dialog opens (the recorded days) */
+export function initBackups({ t, commitSettings, prepare = async () => {}, onOpen = () => {}, reload = () => location.reload() }) {
+  const dlg = document.getElementById('backupDialog');
+  document.getElementById('backupBtn')?.addEventListener('click', async () => {
+    await prepare();
+    dlg?.showModal(); refresh(); onOpen();
+  });
+  dlg?.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });                   // a click on the dark backdrop closes it
+  ['setTimelineOn', 'setTimelineKeep'].forEach((id) => document.getElementById(id)?.addEventListener('change', () => commitSettings()));
   const root = document.getElementById('autoBackup');
   if (!root) return { refresh() {} };
   const list = document.getElementById('abList'), status = document.getElementById('abStatus');

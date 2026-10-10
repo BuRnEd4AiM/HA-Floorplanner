@@ -25,7 +25,7 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
 
 ## Quick start in 30 seconds
 
-**1. Open the import dialog.** In edit mode, expand **Houses & backup** in the side panel and click **Import house from JSON …**.
+**1. Open the import dialog.** In edit mode, expand **Houses** in the side panel and click **Import house from JSON …**.
 
 ![Houses panel with import and export buttons](img/import-en-0-panel.png)
 

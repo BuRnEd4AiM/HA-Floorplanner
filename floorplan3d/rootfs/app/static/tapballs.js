@@ -64,6 +64,31 @@ export function spreadBalls(points, minDist = 2 * BALL.r + BALL.gap, maxShift = 
   return p;
 }
 
+/** Push balls apart on the screen (#314): seen at an angle, balls at different heights or depths can land on each other although they are
+ *  apart seen from above. items [{ x, y, r }] (screen pixels: centre and radius); returns [{ dx, dy }] (pixels) so that no two overlap
+ *  (gap pixels between them), each at most maxShift radii from its own place. Pure and the same for the same input (no jitter while still). */
+export function spreadScreen(items, gap = 3, maxShift = 2.5) {
+  const p = items.map((q) => ({ x: q.x, y: q.y })), n = p.length;
+  for (let round = 0; round < 60; round++) {
+    let moved = false;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      const need = items[i].r + items[j].r + gap;
+      let dx = p[j].x - p[i].x, dy = p[j].y - p[i].y, d = Math.hypot(dx, dy);
+      if (d >= need - 1e-6) continue;
+      if (d < 1e-6) { const a = (i * 2.399963 + j) % (2 * Math.PI); dx = Math.cos(a); dy = Math.sin(a); } else { dx /= d; dy /= d; }   // on top of each other: any direction
+      const push = (need - d) / 2 + 1e-3;
+      p[i].x -= dx * push; p[i].y -= dy * push; p[j].x += dx * push; p[j].y += dy * push;
+      moved = true;
+    }
+    for (let i = 0; i < n; i++) {                                  // never too far from the device it belongs to
+      const ox = p[i].x - items[i].x, oy = p[i].y - items[i].y, o = Math.hypot(ox, oy), m = maxShift * items[i].r;
+      if (o > m) { p[i].x = items[i].x + (ox / o) * m; p[i].y = items[i].y + (oy / o) * m; }
+    }
+    if (!moved) break;
+  }
+  return p.map((q, i) => ({ dx: q.x - items[i].x, dy: q.y - items[i].y }));
+}
+
 /** colour and opacity of the ball: the light's colour (or warm white) while on, a quiet grey-blue while off */
 export function ballLook(on, rgb) {
   if (!on) return { color: BALL.off, opacity: 0.85 };
@@ -72,8 +97,9 @@ export function ballLook(on, rgb) {
 
 export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x, y, z }] (value labels the balls keep clear of)
   const fingerGeo = new THREE.SphereGeometry(BALL.finger, 10, 8), fingerMat = new THREE.MeshBasicMaterial({ visible: false });
-  const balls = new Map();                 // device id -> { ball (the finger ball, parent), sprite, canvas, key, model, group, placed, base, icon }
+  const balls = new Map();                 // device id -> { ball (the finger ball, parent), sprite, canvas, key, model, group, placed, base, home (after settle), icon }
   let unsettled = false;                   // a ball was placed anew: push the balls apart again (settle)
+  let lastView = '';                       // camera and screen the balls were last pushed apart for on the screen (declutter)
   /** draw the round badge: the state colour with a light rim and the icon in the middle */
   function paint(b, color) {
     const key = `${color}`;
@@ -127,6 +153,7 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
   function update(id, on, rgb, live, shown = true) {
     const b = balls.get(id);
     if (!b) return;
+    if (b.ball.visible !== (live && shown)) lastView = '';
     b.ball.visible = live && shown;
     if (b.ball.visible && !b.placed) b.placed = place(b);
     const look = ballLook(on, rgb);
@@ -139,12 +166,43 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
     const byGroup = new Map();
     balls.forEach((b) => { if (b.ball.visible && b.placed && b.base) (byGroup.get(b.group) || byGroup.set(b.group, []).get(b.group)).push(b); });
     byGroup.forEach((list, group) => spreadBalls(list.map((b) => b.base), undefined, undefined, ctx.labelsIn?.(group) || [])
-      .forEach((q, i) => list[i].ball.position.set(q.x, q.y, q.z)));
+      .forEach((q, i) => { list[i].home = q; list[i].ball.position.set(q.x, q.y, q.z); }));
+    lastView = '';
+  }
+  /** every frame: balls that land on each other on the screen move apart there (#314), sideways to the view; only worked out again when
+   *  the camera, the screen size or the balls changed */
+  const v = new THREE.Vector3(), right = new THREE.Vector3(), up = new THREE.Vector3();
+  function declutter(camera, W, H) {
+    if (!camera?.isPerspectiveCamera || W < 10) return;
+    camera.updateMatrixWorld();                                      // where the camera stands this frame (the renderer updates it only later)
+    const list = [];
+    balls.forEach((b) => { if (b.ball.visible && b.placed && b.home) list.push(b); });
+    const key = `${W}x${H}|${list.length}|${camera.matrixWorld.elements.map((x) => x.toFixed(3)).join(',')}|${camera.fov}|${camera.aspect.toFixed(3)}`;
+    if (key === lastView) return;
+    lastView = key;
+    if (list.length < 2) { list.forEach((b) => b.ball.position.set(b.home.x, b.home.y, b.home.z)); return; }
+    const k = H / 2 / Math.tan((camera.fov * Math.PI) / 360);          // pixels per metre at distance 1
+    const items = [], shown = [];
+    list.forEach((b) => {
+      b.group.updateWorldMatrix(true, false);
+      const w = b.group.localToWorld(v.set(b.home.x, b.home.y, b.home.z)).clone(), dist = w.distanceTo(camera.position);
+      v.copy(w).project(camera);
+      if (v.z >= 1 || Math.abs(v.x) > 1.3 || Math.abs(v.y) > 1.3) { b.ball.position.set(b.home.x, b.home.y, b.home.z); return; }   // off screen: stays
+      const ppu = k / Math.max(dist, 0.1);
+      items.push({ x: (v.x + 1) / 2 * W, y: (1 - v.y) / 2 * H, r: BALL.r * ppu });
+      shown.push({ b, w, ppu });
+    });
+    right.set(1, 0, 0).applyQuaternion(camera.quaternion); up.set(0, 1, 0).applyQuaternion(camera.quaternion);
+    spreadScreen(items).forEach((o, i) => {
+      const { b, w, ppu } = shown[i];
+      w.addScaledVector(right, o.dx / ppu).addScaledVector(up, -o.dy / ppu);
+      b.ball.position.copy(b.group.worldToLocal(w));
+    });
   }
   /** the model changed (loaded later, moved): measure again the next time the ball shows */
   const moved = (id) => { const b = balls.get(id); if (b) b.placed = false; };
   /** everything may have moved (back in the live mode after editing): measure all again */
   const remeasure = () => balls.forEach((b) => { b.placed = false; });
   function clear() { balls.forEach((b) => { b.sprite.material.map.dispose(); b.sprite.material.dispose(); }); balls.clear(); }
-  return { add, update, settle, moved, remeasure, clear, has: (id) => balls.has(id), shown: (id) => !!balls.get(id)?.ball.visible, ball: (id) => balls.get(id)?.ball || null };
+  return { add, update, settle, declutter, moved, remeasure, clear, has: (id) => balls.has(id), shown: (id) => !!balls.get(id)?.ball.visible, ball: (id) => balls.get(id)?.ball || null };
 }

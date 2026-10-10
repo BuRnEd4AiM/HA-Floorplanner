@@ -11,7 +11,8 @@ export function kioskDecision({ live, idleReturn, idleMs, home, night }) {
 }
 
 /** ctx: $, controls, settings(), states(), isLive(), closeLivePopup(), closeRoomPanel(), closeSearch(), tabletRoom(), findRoomByName(name), switchFloor(i), focusRoom(id), focusedRoom(),
- *  openRoomPanel(id), groundIdx(), fitCamera() */
+ *  openRoomPanel(id), groundIdx(), fitCamera(),
+ *  applyStart() (go to the saved start view: a promise of true / false, null when there is none, #315) */
 export function initKiosk(ctx) {
   const { $ } = ctx;
   let lastInput = Date.now(), kioskHome = true;
@@ -24,6 +25,19 @@ export function initKiosk(ctx) {
   ['pointerdown', 'keydown', 'wheel'].forEach((ev) => addEventListener(ev, touched, { passive: true, capture: true }));
   function goHome() {
     ctx.closeLivePopup(); ctx.closeRoomPanel(); ctx.closeSearch();
+    const saved = ctx.applyStart?.();                              // a saved start view (#315): a promise, null without one
+    if (saved) {
+      saved.then((ok) => {
+        if (!ok) { autoHome(); return; }                         // it belongs to another house or its floor is gone
+        const room = ctx.tabletRoom(), hit = room && ctx.findRoomByName(room);
+        if (hit && ctx.focusedRoom() === hit.room.id) ctx.openRoomPanel(hit.room.id);
+      });
+      return;
+    }
+    autoHome();
+  }
+  /** the automatic start: the room of this tablet, else the ground floor */
+  function autoHome() {
     const room = ctx.tabletRoom(), hit = room && ctx.findRoomByName(room);
     if (hit) { ctx.switchFloor(hit.floor); ctx.focusRoom(hit.room.id); ctx.openRoomPanel(hit.room.id); }
     else { if (ctx.focusedRoom()) ctx.focusRoom(null); ctx.switchFloor(ctx.groundIdx()); }

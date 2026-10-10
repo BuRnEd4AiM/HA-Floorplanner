@@ -3,6 +3,7 @@
  * (the simple fields, apply and save) stays in app.js. */
 import { cleanPreset, collectPresets } from './viewprefs.js';
 import { LOCK_KEYS, cleanLocks, collectLocks } from './userlocks.js';
+import { ALL, cleanStartView } from './startview.js';
 
 export const VIEW_OPTS = ['3d', '2d', 'split', 'all'];
 /** the preset fields of a user row (#250): field, its options [value, text key]; "Default" (no value) comes first */
@@ -29,21 +30,25 @@ export function roomsByHouse(lay, houseName) {
 /** the users that have a room, a view, a preset or locks, as [{ user, room, view, preset, locks }] (view defaults to 3d, preset to {}, locks to []) */
 export function tabletEntries(settings) {
   const rooms = settings.userRooms || {}, views = settings.userViews || {}, presets = settings.userPresets || {}, locks = settings.userLocks || {};
-  return [...new Set([...Object.keys(rooms), ...Object.keys(views), ...Object.keys(presets), ...Object.keys(locks)])]
-    .map((user) => ({ user, room: rooms[user] || '', view: views[user] || '3d', preset: cleanPreset(presets[user]), locks: cleanLocks(locks[user]) }));
+  const starts = settings.startViews || {};
+  return [...new Set([...Object.keys(rooms), ...Object.keys(views), ...Object.keys(presets), ...Object.keys(locks), ...Object.keys(starts).filter((u) => u !== ALL)])]
+    .map((user) => ({ user, room: rooms[user] || '', view: views[user] || '3d', preset: cleanPreset(presets[user]), locks: cleanLocks(locks[user]),
+      start: cleanStartView(starts[user]) }));
 }
 
-/** rows typed in the dialog [{ user, room, view, preset, locks }] -> { rooms, views, presets, locks }; rows without a user are dropped,
- *  "whole house" has no room entry, an empty preset no preset entry, a user without locks no lock entry */
+/** rows typed in the dialog [{ user, room, view, preset, locks, start }] -> { rooms, views, presets, locks, starts }; rows without a user are dropped,
+ *  "whole house" has no room entry, an empty preset no preset entry, a user without locks no lock entry, an automatic start no start entry (#315) */
 export function collectTablets(rows) {
-  const rooms = {}, views = {};
+  const rooms = {}, views = {}, starts = {};
   rows.forEach((r) => {
     const u = (r.user || '').trim();
     if (!u) return;
     if (r.room) rooms[u] = r.room;
     views[u] = r.view;
+    const st = cleanStartView(r.start);
+    if (st && u !== ALL) starts[u] = st;
   });
-  return { rooms, views, presets: collectPresets(rows), locks: collectLocks(rows) };
+  return { rooms, views, presets: collectPresets(rows), locks: collectLocks(rows), starts };
 }
 
 /** colour stops typed in the dialog [{ v, c }] (v is a number or a string): sorted by value, rows without a number dropped; fewer than two -> fallback */
@@ -53,7 +58,7 @@ export function normalizeStops(rows, fallback) {
 }
 
 /** ctx: $, t, settings() (the current object, changed in place by the colour scales), defaults (the default settings), layout(), houses() ([{ id, name }]),
- *  houseId(), houseName(), commit() (save the settings) */
+ *  houseId(), houseName(), commit() (save the settings), captureView() (the view shown now, as a start view, #315) */
 export function initSettingsUi(ctx) {
   const { $, t } = ctx;
   let roomGroups = null;                       // filled with all houses when the users dialog opens, until then only the open house
@@ -99,7 +104,25 @@ export function initSettingsUi(ctx) {
   const openBoxes = new Set();                 // users whose preset box is open (the rows are drawn again after every change)
   const presetCount = (box) => [...box.querySelectorAll('select')].filter((x) => x.value !== '').length;
   const lockCount = (box) => box.querySelectorAll('[data-lock]:checked').length;
-  function tabletRow(user = '', room = '', view = '3d', preset = {}, locks = []) {
+  /** the start view of a user row (#315): automatic, the saved one, or take the view shown now (behind the dialog) */
+  function startSelect(row, start) {
+    const st = document.createElement('select'); st.dataset.role = 'start'; st.title = t('sv.rowTip');
+    const fill = () => {
+      st.replaceChildren(new Option(t('sv.row.auto'), ''));
+      if (row.dataset.start) st.add(new Option(t('sv.row.keep'), 'keep'));
+      st.add(new Option(t('sv.row.take'), 'take'));
+      st.value = row.dataset.start ? 'keep' : '';
+    };
+    if (start) row.dataset.start = JSON.stringify(start);
+    fill();
+    st.addEventListener('change', () => {                            // before the dialog saves (it listens further up)
+      if (st.value === 'take') { const v = ctx.captureView?.(); if (v) row.dataset.start = JSON.stringify(v); }
+      else if (st.value === '') delete row.dataset.start;
+      fill();
+    });
+    return st;
+  }
+  function tabletRow(user = '', room = '', view = '3d', preset = {}, locks = [], start = null) {
     const row = document.createElement('div'); row.className = 'stop tablet';
     const u = document.createElement('input'); u.type = 'text'; u.value = user; u.dataset.role = 'user'; u.placeholder = t('set.tabletUser'); u.setAttribute('list', 'haUsers');
     const sel = document.createElement('select'); sel.dataset.role = 'room';
@@ -131,20 +154,21 @@ export function initSettingsUi(ctx) {
     box.addEventListener('change', label);
     label();
     const main = document.createElement('div'); main.className = 'tabletMain';
-    main.append(u, sel, vs, gear, del);
+    main.append(u, sel, vs, startSelect(row, start), gear, del);
     row.append(main, box);
     return row;
   }
   function renderTablets() {
     const box = $('#tabletRows');
     box.replaceChildren();
-    tabletEntries(ctx.settings()).forEach((e) => box.append(tabletRow(e.user, e.room, e.view, e.preset, e.locks)));
+    tabletEntries(ctx.settings()).forEach((e) => box.append(tabletRow(e.user, e.room, e.view, e.preset, e.locks, e.start)));
   }
   function readTablets() {
     return collectTablets([...document.querySelectorAll('#tabletRows .tablet')].map((r) => ({
       user: r.querySelector('[data-role=user]').value, room: r.querySelector('[data-role=room]').value, view: r.querySelector('[data-role=view]').value,
       preset: readPreset([...r.querySelectorAll('[data-preset]')].map((x) => ({ key: x.dataset.preset, value: x.value }))),
-      locks: [...r.querySelectorAll('[data-lock]:checked')].map((x) => x.dataset.lock) })));
+      locks: [...r.querySelectorAll('[data-lock]:checked')].map((x) => x.dataset.lock),
+      start: (() => { try { return r.dataset.start ? JSON.parse(r.dataset.start) : null; } catch { return null; } })() })));
   }
   $('#addTablet').addEventListener('click', () => {
     const row = tabletRow(); $('#tabletRows').append(row); row.querySelector('input').focus();
