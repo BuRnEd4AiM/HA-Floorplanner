@@ -86,6 +86,7 @@ import { HOLO, ringLook } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
+window.fp3dBooted = true;           // every module is loaded: the boot guard (bootguard.js) stands down (#328)
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;

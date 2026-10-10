@@ -22,6 +22,7 @@ background:var(--panel);border:1px solid var(--line);color:var(--muted);pointer-
 let html = readFileSync(join(staticDir, 'index.html'), 'utf8');
 html = html
   .replace('<link rel="stylesheet" href="style.css">', () => `<style>${css}</style>`)
+  .replace('<script src="bootguard.js"></script>\n', '')            // the demo is one file: nothing can be stale
   .replace('<script type="module" src="app.js"></script>',
     () => `<div class="demo-badge">Demo · changes are not saved</div>\n<script>${js}</script>`);
 

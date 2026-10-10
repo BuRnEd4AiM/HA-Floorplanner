@@ -1123,6 +1123,14 @@ async def index(request):
     return web.FileResponse(STATIC_DIR / "index.html")
 
 
+async def no_stale_files(request, response):
+    """The interface files (index.html, *.js, style.css) are always checked with the server before use (a cheap 304 when nothing
+    changed). Without this header the browser may keep some old files after an update and load them together with new ones: app.js
+    then fails as a whole and the page stays empty (#328)."""
+    if not request.path.startswith("/api/") and "Cache-Control" not in response.headers:
+        response.headers["Cache-Control"] = "no-cache"
+
+
 # ---------- backup: export / import everything (houses, settings, models, pictures) ----------
 BACKUP_FORMAT = "floorplan3d-backup"
 MAX_BACKUP_BYTES = 200 * 1024 * 1024
@@ -1636,6 +1644,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app[KEY_LIVE] = LiveHub()
     app[KEY_TIMELINE] = {}
     app.on_startup.append(seed_users_file)
+    app.on_response_prepare.append(no_stale_files)
     app.on_cleanup.append(stop_live)
     app.cleanup_ctx.append(backup_scheduler)
     app.cleanup_ctx.append(timeline_recorder)

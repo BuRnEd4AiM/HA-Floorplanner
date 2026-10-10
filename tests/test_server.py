@@ -743,3 +743,12 @@ async def test_live_channel_a_stuck_browser_does_not_hold_up_the_others(monkeypa
     assert asleep not in hub.clients and asleep.closed                                       # dropped: it reconnects and catches up
     assert awake in hub.clients
     hub.remove(awake)
+
+
+async def test_interface_files_are_always_revalidated(client):
+    """#328: without Cache-Control the browser kept an old modelfx.js next to a new app.js after an update and the page stayed empty."""
+    for path in ("/", "/app.js", "/bootguard.js", "/style.css"):
+        r = await client.get(path)
+        assert r.status == 200 and r.headers.get("Cache-Control") == "no-cache", path
+    assert "bootguard.js" in await (await client.get("/")).text()
+    assert (await client.get("/api/settings")).headers.get("Cache-Control") is None     # the API keeps its own headers

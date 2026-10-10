@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.67.1] - 2026-10-10
+### Fixed
+- **Empty page after an update** (#328): after the update to 3.67.0 the page could stay empty (buttons without text, no house). The browser had kept an old `modelfx.js` next to the new `app.js`, so `app.js` could not start at all. The add-on now sends `Cache-Control: no-cache` for the interface files, so the browser always checks them with the add-on (a quick "unchanged" answer when nothing changed). As a safety net, the new `bootguard.js` notices when `app.js` cannot start, fetches every file past the cache once and reloads. If that does not help, it shows a message with what to do instead of an empty page.
+
 ## [3.67.0] - 2026-10-10
 ### Added
 - **LED ring: every section in its own colour while editing** (#325): in the edit mode each section of an LED ring is drawn in a soft colour of its own, in the 2D plan (line and number), in 3D and as a coloured edge of its box in the properties, so you can see where each section runs before giving it a light. Sections that are on keep their real light colour; the live mode looks as before. Colours in `ledring.js` (`sectionHex`, unit test); the 3D look of the ring moved from `app.js` into `modelfx.js` (`ringLook`).
