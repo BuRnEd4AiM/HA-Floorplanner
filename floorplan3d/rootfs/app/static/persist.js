@@ -21,6 +21,8 @@ export function initPersist(ctx) {
   const popUndo = () => { const s = stack.pop(); return s ? JSON.parse(s) : null; };
   /** another house was opened: its changes are not ours to undo */
   const clearUndo = () => { stack.length = 0; };
+  /** every remembered state changed by fn(json) -> json (entities renamed in Home Assistant: an undo must not bring the old ids back) */
+  const mapUndo = (fn) => { stack.forEach((s, i) => { stack[i] = fn(s); }); };
   /** save a moment after the last change */
   function schedule() {
     ctx.setStatus(ctx.t('unsaved'));
@@ -36,5 +38,5 @@ export function initPersist(ctx) {
   }
   /** something was changed in this session (a save before leaving the house is due) */
   const touched = () => timer !== null;
-  return { snapshot, popUndo, clearUndo, schedule, save, touched };
+  return { snapshot, popUndo, clearUndo, mapUndo, schedule, save, touched };
 }

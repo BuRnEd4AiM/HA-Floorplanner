@@ -23,6 +23,7 @@ from aiohttp import web
 
 import importer
 import manifest as mf
+import renames as rn
 import timeline as tl
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -416,6 +417,9 @@ async def put_layout(request):
         return web.json_response({"error": "invalid JSON"}, status=400)
     if not isinstance(data, dict) or not isinstance(data.get("floors"), list):
         return web.json_response({"error": "floors missing"}, status=400)
+    watch = request.app[KEY_RENAMES]
+    if watch.get("history") and rn.fix_stale(data, watch["history"], watch["current"], time.time()):
+        log.info("A browser saved the plan with entity ids renamed in Home Assistant meanwhile: the new ids were put in")
     write_json_atomic(house_file(request, hid), data)
     if hid == DEFAULT_HOUSE and not (data_dir(request) / "houses.json").exists():
         save_houses(request, houses_index(request))
@@ -1497,6 +1501,71 @@ async def timeline_recorder(app):
 KEY_TIMELINE = web.AppKey("timeline", dict)     # {"rec": the running Recorder}
 
 
+# ---------- entities renamed in Home Assistant: the plans follow (renames.py) ----------
+KEY_RENAMES = web.AppKey("renames", dict)       # {"history": {old: [new, when]}, "current": set of entity ids} for put_layout
+
+
+def apply_renames(app, ids: dict, names: dict) -> dict:
+    """New entity ids (and Home Assistant's new names of devices not named by hand) into every house, the settings and users.json."""
+    ctx = _AppCtx(app)
+    houses = []
+    for h in houses_index(ctx):
+        p = house_file(ctx, h["id"])
+        data = read_json(p, None)
+        if isinstance(data, dict) and rn.rewrite(data, ids, names):
+            write_json_atomic(p, data)
+            houses.append(h["id"])
+    stored = read_json(settings_path(ctx), None)
+    settings = isinstance(stored, dict) and bool(ids) and rn.rewrite(stored, ids) > 0
+    if settings:
+        backup_settings(ctx)                       # the previous state stays recoverable
+        write_json_atomic(settings_path(ctx), stored)
+    users = read_json(users_file(ctx), None)
+    if isinstance(users, dict) and ids and rn.rewrite(users, ids):
+        try:
+            write_json_atomic(users_file(ctx), users)
+        except OSError:
+            log.warning("could not write %s", users_file(ctx))
+    return {"houses": houses, "settings": bool(settings)}
+
+
+async def rename_watcher(app):
+    """Background task: follows entities renamed in Home Assistant (also with no browser open). Only with Home Assistant (a token)."""
+    app[KEY_RENAMES] = {}
+    task = None
+    if SUPERVISOR_TOKEN:
+        path = app[KEY_DATA] / "renames.json"
+
+        def keep(state):
+            app[KEY_RENAMES].update(history=state.get("history") or {}, current=set(state.get("current") or ()))
+
+        def load():
+            state = read_json(path, {})
+            state = state if isinstance(state, dict) else {}
+            keep(state)
+            return state
+
+        def save(state):
+            keep(state)
+            write_json_atomic(path, state)
+
+        async def apply(ids, names):
+            done = apply_renames(app, ids, names)      # in the loop like put_layout, so a save of a browser cannot slip in between
+            log.info("Renamed in Home Assistant: %s; new names: %s; houses updated: %s%s",
+                     ", ".join(f"{a} -> {b}" for a, b in ids.items()) or "-", ", ".join(f"{e}: {n[1]}" for e, n in names.items()) or "-",
+                     ", ".join(done["houses"]) or "-", " (and the settings)" if done["settings"] else "")
+            await app[KEY_LIVE].broadcast({"type": "renamed", "ids": ids, "names": names, "settings": done["settings"]})
+
+        async def start():
+            await asyncio.sleep(5)
+            await rn.run_watch(connect=_HaSocket, load=load, save=save, apply=apply)
+
+        task = asyncio.create_task(start())
+    yield
+    if task:
+        task.cancel()
+
+
 async def timeline_allowed(request) -> bool:
     return "timeline" not in user_locks(request)
 
@@ -1648,6 +1717,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.on_cleanup.append(stop_live)
     app.cleanup_ctx.append(backup_scheduler)
     app.cleanup_ctx.append(timeline_recorder)
+    app.cleanup_ctx.append(rename_watcher)
     app.add_routes([
         web.get("/", index),
         web.get("/api/users-file", get_users_file),

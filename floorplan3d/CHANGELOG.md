@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.68.0] - 2026-10-10
+### Added
+- **Renamed in Home Assistant, renamed in the plan**: when an entity id changes in Home Assistant (renamed there, by Zigbee2MQTT with "update Home Assistant entity ID", or by another add-on such as the Zigbee Devices Manager), every placed device, LED ring section, TV backlight, door/window contact and cable linked to it gets the new id, in every house, as do the settings (weather entity) and `users.json`. A device whose name is still Home Assistant's name gets the new name; a name typed by hand stays. The add-on keeps its own connection to Home Assistant (also with no browser open), recognises an entity by its registry entry (integration + unique id, so deleting and creating again counts too) and catches up on renames made while it was stopped (`renames.json` in the add-on data). An open view updates its plan and its undo list at once, and a plan saved by a browser that missed the rename gets the new ids too. Logic in the new `renames.py` and `renames.js` (unit tests); the mock Home Assistant of the browser test knows the entity registry and renames.
+
 ## [3.67.1] - 2026-10-10
 ### Fixed
 - **Empty page after an update** (#328): after the update to 3.67.0 the page could stay empty (buttons without text, no house). The browser had kept an old `modelfx.js` next to the new `app.js`, so `app.js` could not start at all. The add-on now sends `Cache-Control: no-cache` for the interface files, so the browser always checks them with the add-on (a quick "unchanged" answer when nothing changed). As a safety net, the new `bootguard.js` notices when `app.js` cannot start, fetches every file past the cache once and reloads. If that does not help, it shows a message with what to do instead of an empty page.
