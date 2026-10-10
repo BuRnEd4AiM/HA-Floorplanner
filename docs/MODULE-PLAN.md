@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.66.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.69.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -20,6 +20,7 @@ Stand: Version 3.66.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `stairs.js` | ~410 | Treppengeometrie (gerade, L, U, Wendel, Wandtreppe mit Podesten, mehrere Etagen; `splitStoreys`: Teil über der offenen Etage, #246) |
 | `rooms.js` | 146 | Automatische Raumerkennung |
 | `dormer.js` | ~80 | Dachgauben (Geometrie, Größe des Fensters) |
+| `shutters.js` | ~80 | Rollläden an Fenstern, auch an Gaubenfenstern (#331): Haken und eigene Entität (`shutter`, `shutterEntity`), wie weit der Panzer unten ist, Text („60 % offen“), außen an der Wand (`shutterSide`), alle Entitäten eines Fensters (`linkedEntities`); den Panzer baut `walls.js`, bewegt `openings.js`, die Kugel setzt `floorbuild.js`; reine Logik mit Unit-Tests |
 | `dormerwin.js` | ~110 | Fenster der Dachgauben als echte Fenster (Kontakt, offen/zu, Raum, Liste): nie gespeicherte Wand pro Gaubenfenster an der richtigen Etage, in der Wand des Raums darunter, wenn eine direkt hinter der Gaube steht (#275), „Vorderseite auf die Wand“; `openingWalls(f)` für alles, was Türen/Fenster sucht; reine Logik mit Unit-Tests |
 | `ledring.js` | 195 | LED-Ring |
 | `nanoleaf.js` | 179 | Nanoleaf-Formen und kleiner Editor |

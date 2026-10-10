@@ -32,6 +32,13 @@ export function ballY(minY, maxY, ceiling) {
   return Math.max(BALL.r, minY - BALL.lift);
 }
 
+/** where the ball of a window's roller shutter floats (#331), in floor coordinates: at the middle of window o along its wall w, over the
+ *  window where there is room under the ceiling (the top of the wall), else under it (ballY) */
+export function openingBallAt(w, o, ceiling) {
+  const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, k = (o.pos || 0) / L, sill = o.sill || 0;
+  return { x: w.a[0] + (w.b[0] - w.a[0]) * k, y: ballY(sill, sill + (o.height || 1), ceiling), z: w.a[1] + (w.b[1] - w.a[1]) * k };
+}
+
 /** Push balls apart that would cover each other (#244): points [{ x, y, z }] (their places over the devices), returned moved so that no two
  *  are closer than minDist seen from above (the view looks down at an angle, so a ball over another one hides it too); each one moves at most
  *  maxShift from its own place, sideways only. fixed: things that stay where they are (the value labels), kept fixedDist away. Balls far apart
@@ -115,8 +122,10 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
     g.fillText(b.icon, s / 2, s / 2 + s * 0.03);
     b.sprite.material.map.needsUpdate = true;
   }
-  /** a ball for device d next to its model in the floor group; returns it (for the pick list), or null when d does not want one */
-  function add(group, model, d) {
+  /** a ball for device d next to its model in the floor group; returns it (for the pick list), or null when d does not want one.
+   *  at: { x, y, z } in the floor group, a fixed place instead of over a model, and kind: what a tap on it hits (the roller shutter of a
+   *  window, #331: 'opening'; its model is the window, which sits in a wall that sinks with the cutaway, so it is not measured) */
+  function add(group, model, d, at = null, kind = 'device') {
     if (!wantsBall(d) || typeof document === 'undefined') return null;
     const canvas = document.createElement('canvas'); canvas.width = canvas.height = 128;
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, depthTest: false }));
@@ -124,17 +133,24 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
     sprite.renderOrder = 10;
     sprite.userData = { touchOnly: true };
     const ball = new THREE.Mesh(fingerGeo, fingerMat);              // the (invisible) finger ball is the tap target, the badge hangs in it
-    ball.userData = { kind: 'device', id: d.id, tapBall: true, touchOnly: true };   // touchOnly: only the live mode can hit it (see pickHit)
+    ball.userData = { kind, id: d.id, tapBall: true, touchOnly: true };   // touchOnly: only the live mode can hit it (see pickHit)
     ball.add(sprite);
     ball.visible = false;
     group.add(ball);
-    const b = { ball, sprite, canvas, key: '', model, group, placed: false, icon: ballIcon(d) };
+    const b = { ball, sprite, canvas, key: '', model, group, placed: false, icon: ballIcon(d), at };
     balls.set(d.id, b);
     paint(b, BALL.off);
     return ball;
   }
-  /** put a ball over its model: the model's size is measured (without its hit boxes) in the floor group's frame */
+  /** put a ball over its model: the model's size is measured (without its hit boxes) in the floor group's frame; a ball with a fixed
+   *  place goes there */
   function place(b) {
+    if (b.at) {
+      b.base = { ...b.at };
+      b.ball.position.set(b.base.x, b.base.y, b.base.z);
+      unsettled = true;
+      return true;
+    }
     b.group.updateWorldMatrix(true, true);
     const box = new THREE.Box3(), inv = b.group.matrixWorld.clone().invert();
     b.model.traverse((o) => {

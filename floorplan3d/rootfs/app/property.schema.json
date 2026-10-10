@@ -540,6 +540,14 @@
       "type": "string"
      },
      "maxItems": 4
+    },
+    "shutter": {
+     "type": "boolean",
+     "description": "The window has a roller shutter (windows only)"
+    },
+    "shutterEntity": {
+     "type": "string",
+     "description": "Cover entity of the roller shutter, e.g. cover.rollladen_wohnzimmer (implies shutter: true)"
     }
    }
   },

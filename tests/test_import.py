@@ -173,6 +173,30 @@ def test_geojson_without_polygons_is_rejected():
 
 
 # ---------- export round trip
+def test_window_roller_shutter_is_imported_and_exported():
+    room = [{"points": [[0, 0], [6, 0], [6, 3], [0, 3]]}]
+    f = square_flat(rooms=room, openings=[
+        {"preset": "window", "at": [1.5, 0], "shutter": True, "shutterEntity": "cover.rollladen_kueche"},
+        {"preset": "window", "at": [4.5, 0], "shutterEntity": "cover.nur_entitaet"},
+        {"preset": "door", "at": [3, 3], "shutter": True}])
+    layout, _, rep, summary = importer.build_layout(f)
+    assert not rep.errors and summary["openings"] == 3
+    ops = [o for w in layout["floors"][0]["walls"] for o in w["openings"]]
+    wins = sorted((o for o in ops if o["type"] == "window"), key=lambda o: o["shutterEntity"])
+    assert [(o["shutter"], o["shutterEntity"]) for o in wins] == [(True, "cover.nur_entitaet"), (True, "cover.rollladen_kueche")]
+    door = next(o for o in ops if o["type"] == "door")
+    assert "shutter" not in door and any("only windows" in w["message"] for w in rep.warnings)
+    again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout, "x"))
+    ops2 = [o for w in again["floors"][0]["walls"] for o in w["openings"] if o["type"] == "window"]
+    assert sorted(o["shutterEntity"] for o in ops2) == ["cover.nur_entitaet", "cover.rollladen_kueche"] and not rep2.errors
+
+
+def test_schema_describes_the_roller_shutter():
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    props = next(d["properties"] for d in schema["$defs"].values() if "paneEntities" in d.get("properties", {}))
+    assert {"shutter", "shutterEntity"} <= set(props)
+
+
 def test_export_then_import_reproduces_the_plan():
     layout, plot, _, summary = importer.build_layout(example("house"))
     again = importer.layout_to_property(layout, "x")

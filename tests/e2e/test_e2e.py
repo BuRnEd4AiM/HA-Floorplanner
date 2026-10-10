@@ -747,6 +747,39 @@ with sync_playwright() as p:
     tg = pg7.evaluate("window.__fp.paneTargets('wnd3')")
     check("each pane follows its own sensor", len(tg) == 3 and tg[0] == 0 and tg[1] == 0 and tg[2] < 0, tg)
     pg7.close()
+    # --- roller shutter on a window (#331): a tick in the properties, its own cover entity, the curtain follows the cover, a ball in the live mode
+    pgR = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgR.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    pgR.goto(BASE + "?debug=1&mode=edit"); pgR.wait_for_timeout(1500)
+    fiR = pgR.evaluate("""() => { const fs = window.__fp.layout.floors; const len = (w) => Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+      const f = fs.find(x => x.walls.some(w => len(w) > 2 && !(w.openings || []).length)); const w = f.walls.find(w => len(w) > 2 && !(w.openings || []).length);
+      w.openings = [{id: 'wsh', type: 'window', style: 'double', pos: len(w) / 2, width: 1.0, height: 1.2, sill: 0.9, entity: 'binary_sensor.rauch'}]; return fs.indexOf(f); }""")
+    pgR.click(f"#floorRail [data-floor=\"{fiR}\"]"); pgR.evaluate("window.__fp.rebuild()"); pgR.wait_for_timeout(500)
+    pgR.evaluate("window.__fp.select('opening', 'wsh')"); pgR.wait_for_timeout(300)
+    check("shutter (#331): every window has the tick, off at first", pgR.locator("#openShutter").count() == 1 and not pgR.locator("#openShutter").is_checked())
+    pickers = pgR.locator("#propsBody .stack").count()
+    pgR.locator("#openShutter").check(); pgR.wait_for_timeout(400)
+    op = pgR.evaluate("JSON.stringify(window.__fp.layout.floors[window.__fp.floorIdx()].walls.flatMap(w => w.openings || []).find(o => o.id === 'wsh'))")
+    check("shutter (#331): the tick gives the window a shutter and a field for its own entity", '"shutter":true' in op and pgR.locator("#propsBody .stack").count() == pickers + 1, (op, pickers))
+    pgR.evaluate("() => { const o = window.__fp.layout.floors[window.__fp.floorIdx()].walls.flatMap(w => w.openings || []).find(o => o.id === 'wsh'); o.shutterEntity = 'cover.rollo'; window.__fp.rebuild(); }"); pgR.wait_for_timeout(400)
+    pgR.evaluate("window.__fp.fakeState('cover.rollo', 'closed')"); sc_closed = pgR.evaluate("window.__fp.shutterScale('wsh')")
+    pgR.evaluate("window.__fp.fakeState('cover.rollo', 'open')"); sc_open = pgR.evaluate("window.__fp.shutterScale('wsh')")
+    check("shutter (#331): the curtain is down while the cover is closed and rolled up while it is open", sc_closed == 1 and sc_open is not None and sc_open < 0.1, (sc_closed, sc_open))
+    check("shutter (#331): an open shutter is no open window (the contact decides)", pgR.evaluate("window.__fp.paneTargets('wsh').every(v => v === 0)"), pgR.evaluate("window.__fp.paneTargets('wsh')"))
+    pgR.click("#modeSwitch button[data-mode=live]"); pgR.wait_for_timeout(1200)
+    pgR.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()], w = f.walls.find(w => (w.openings || []).some(o => o.id === 'wsh'));
+      const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]), mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2, nx = -(w.b[1] - w.a[1]) / L, nz = (w.b[0] - w.a[0]) / L;
+      window.__fp.camAt(mx + nx * 6, window.__fp.elev(window.__fp.floorIdx()) + 4, mz + nz * 6, mx, mz); }"""); pgR.wait_for_timeout(800)
+    bs = pgR.evaluate("window.__fp.ballScreen('wsh')")
+    hit = bs and pgR.evaluate(f"window.__fp.liveHitAt({bs['x']}, {bs['y']})")
+    check("shutter (#331): the live mode shows a ball at the window that can be tapped", bool(bs) and hit and hit["id"] == "wsh", (bs, hit))
+    if bs:
+        pgR.mouse.click(bs["x"], bs["y"]); pgR.wait_for_timeout(500)
+    check("shutter (#331): a tap opens up / stop / down", pgR.is_visible("#livePopup") and pgR.locator("#livePopup .shutterActs button").count() == 3, pgR.inner_text("#livePopup") if pgR.is_visible("#livePopup") else "no popup")
+    if pgR.locator("#livePopup .shutterActs button").count() == 3:
+        pgR.locator("#livePopup .shutterActs button").nth(2).click(); pgR.wait_for_timeout(900)
+    check("shutter (#331): down closes the cover in Home Assistant", ["cover", "close_cover", "cover.rollo"] in ha_calls(), ha_calls()[-3:])
+    pgR.close()
     # --- backup export / import
     pg8 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pg8.on("dialog", lambda d: d.accept())

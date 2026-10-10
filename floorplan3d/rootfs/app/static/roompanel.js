@@ -1,11 +1,12 @@
-/* Room panel (live mode): all entities of a tapped room, grouped (lights, covers, switches, cameras, sensors, scenes), with switches, sliders and
- * the light controls; doors, gates and windows with their state; the heating panel next to it. Which doors and windows belong to a room and how
- * the rows are grouped are pure functions (tested); initRoomPanel draws. */
+/* Room panel (live mode): all entities of a tapped room, grouped (lights, covers with the roller shutters of its windows, switches, cameras,
+ * sensors, scenes), with switches, sliders and the light controls; doors, gates and windows with their state; the heating panel next to
+ * it. Which doors and windows belong to a room and how the rows are grouped are pure functions (tested); initRoomPanel draws. */
 import { wallLength } from './walls.js';
 import { distToPoly, polyArea, pointInPoly } from './rooms.js';
 import { openingWalls, isDormerWall } from './dormerwin.js';
 import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
 import { initHeatPanel } from './heatpanel.js';
+import { shutterEntity, floorShutters, shutterText } from './shutters.js';
 
 export const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['climate', 'rp.climate'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['camera', 'rp.camera'], ['sensor', 'rp.sensor'], ['scene', 'rp.scene']];
 /** the group of the room panel a domain is listed under */
@@ -32,6 +33,12 @@ export function roomOpeningSpans(room, f) {
     }));
   });
 }
+/** the roller shutters of the windows of a room (#331) as rows of the room panel ({ entity, name }), each entity once (seen: the entities
+ *  listed already); name: the window's name, else Home Assistant's name of the cover, else `fallback` */
+export function roomShutters(room, f, seen, nameOf, fallback) {
+  return roomOpenings(room, f).map((o) => ({ entity: shutterEntity(o), name: o.name || nameOf(shutterEntity(o)) || fallback }))
+    .filter((d) => d.entity && !seen.has(d.entity) && seen.add(d.entity));
+}
 /** the area of a room as text: m² with one decimal, or whole ft² */
 export const areaText = (points, imperial) => (imperial ? `${(polyArea(points) * 10.7639).toFixed(0)} ft²` : `${polyArea(points).toFixed(1)} m²`);
 
@@ -50,6 +57,7 @@ export function initRoomPanel(ctx) {
   function rowValue(id) {
     const s = ctx.states()[id], dom = id.split('.')[0];
     if (dom === 'climate' && s && typeof s.ct === 'number') return `🌡 ${Math.round(s.ct * 10) / 10} °C · ${s.state}`;
+    if (dom === 'cover') return shutterText(s, t);                     // "60 % open" instead of Home Assistant's raw state
     return ctx.stateText(id);
   }
   function close() { forId = null; $('#roomPanel').hidden = true; heatBox.hidden = true; }
@@ -73,10 +81,12 @@ export function initRoomPanel(ctx) {
     if (rc) box.append(rc);
     const seen = new Set();                                    // one row per entity (an LED ring's sections may share one light)
     const devs = ctx.entityDevices(f).filter((d) => d.entity && ctx.pointInPoly(d.x, d.z, room.points) && !seen.has(d.entity) && seen.add(d.entity));
-    const placedIds = new Set(ctx.entityDevices(f).map((d) => d.entity));
+    const nameOf = (id) => ctx.entities().find((e) => e.entity_id === id)?.name;
+    devs.push(...roomShutters(room, f, seen, nameOf, t('shutter.title')));                    // the roller shutters of its windows (#331)
+    const placedIds = new Set([...ctx.entityDevices(f).map((d) => d.entity), ...floorShutters(f)]);
     const extra = (room.area ? ctx.areas().find((a) => a.id === room.area)?.entities || [] : [])
       .filter((id) => !placedIds.has(id) && states[id] && inRoomPanel(id))
-      .map((id) => ({ entity: id, name: ctx.entities().find((e) => e.entity_id === id)?.name || id }));
+      .map((id) => ({ entity: id, name: nameOf(id) || id }));
     devs.push(...extra);
     heat.render(devs.filter((d) => d.entity.startsWith('climate.')));
     RP_GROUPS.forEach(([group, key]) => {

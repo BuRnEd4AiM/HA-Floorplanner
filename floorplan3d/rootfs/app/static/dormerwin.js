@@ -3,7 +3,7 @@
  * search. Its size and place come from the dormer (set in the roof panel); style, name and sensors are stored on the dormer (d.window).
  * When a wall of the room under the dormer runs right behind the dormer's front, the window is cut into that wall (#275), so it shows
  * in the room; otherwise it sits in a short wall of its own in the dormer's front. Either way it hangs on a wall object that is never
- * saved (f.dormerWalls): openingWalls(f) gives the walls of a floor together with them, for everything that looks for doors and windows. Pure, no three.js, no DOM
+ * saved (f.dormerWalls, each knowing its outside for a roller shutter, #331): openingWalls(f) gives the walls of a floor together with them, for everything that looks for doors and windows. Pure, no three.js, no DOM
  * (unit test: tests/dormerwin.test.mjs). */
 import { fitDormer, dormerWindow } from './dormer.js';
 import { clipRoofFloor } from './attic.js';
@@ -40,12 +40,21 @@ export function dormerWindows(floors, roofs, elev) {
   return out;
 }
 
+/** the direction on the floor from the front of dormer n towards the ridge: into the dormer */
+const inward = (n) => { const sg = n.side === 0 ? 1 : -1; return n.F.alongX ? [0, sg] : [sg, 0]; };
+/** the outside of a wall a→b in front of dormer n, in the wall's local z (+1: the side of the normal (-dz, dx)), for the roller shutter
+ *  of its window (#331, shutters.js) */
+export function outsideOf(a, b, n) {
+  const [ix, iz] = inward(n);
+  return (-(b[1] - a[1])) * ix + (b[0] - a[0]) * iz > 0 ? -1 : 1;
+}
+
 const PARALLEL = 0.05;                                               // sin of the angle up to which a wall counts as parallel to the dormer's front
 /** the walls (of one floor) parallel to the front of a dormer window that run behind the whole window: [{ wall, s, pos }], s = how far
  *  the wall lies behind the front (towards the ridge; negative: in front of it, towards the eave), pos = the window's middle along the wall */
 export function wallsBehind(walls, n, win) {
   const dx = win.b[0] - win.a[0], dz = win.b[1] - win.a[1], L0 = Math.hypot(dx, dz) || 1, ux = dx / L0, uz = dz / L0;
-  const sg = n.side === 0 ? 1 : -1, inw = n.F.alongX ? [0, sg] : [sg, 0];  // from the front towards the ridge
+  const inw = inward(n);                                              // from the front towards the ridge
   const cx = (win.a[0] + win.b[0]) / 2, cz = (win.a[1] + win.b[1]) / 2;
   const out = [];
   for (const w of walls) {
@@ -94,9 +103,9 @@ export function syncDormerWindows(floors, roofs, elev, uid) {
       if (o.sill + o.height > H - 0.05) o.sill = r3(Math.max(0.1, H - 0.05 - o.height));
       if (o.sill + o.height > H - 0.05) o.height = r3(Math.max(0.3, H - 0.05 - o.sill));
       o.pos = r3(h.pos);
-      out[fi].push({ id: `dormer-${o.id}`, a: h.wall.a, b: h.wall.b, thickness: h.wall.thickness, height: H, openings: [o], dormer: d, host: h.wall.id });
+      out[fi].push({ id: `dormer-${o.id}`, a: h.wall.a, b: h.wall.b, thickness: h.wall.thickness, height: H, openings: [o], dormer: d, host: h.wall.id, outside: outsideOf(h.wall.a, h.wall.b, n) });
     } else {
-      out[fi].push({ id: `dormer-${o.id}`, a: win.a, b: win.b, thickness: THICK, height: o.sill + o.height, openings: [o], dormer: d });
+      out[fi].push({ id: `dormer-${o.id}`, a: win.a, b: win.b, thickness: THICK, height: o.sill + o.height, openings: [o], dormer: d, outside: outsideOf(win.a, win.b, n) });
     }
   }
   floors.forEach((f, i) => Object.defineProperty(f, 'dormerWalls', { value: out[i], configurable: true, writable: true, enumerable: false }));

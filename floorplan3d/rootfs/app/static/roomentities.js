@@ -55,7 +55,7 @@ export function initRoomEntities(ctx) {
     };
     placed.forEach((d) => pickRow(row(d.name || t(`dev.${d.type}`), d.entity, null), 'device', d.id));
     roomOpenings(room, f).forEach((o) => pickRow(row(o.name || t(`prop.${o.type}`), o.entity, null), 'opening', o.id));
-    openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => ctx.openingEntities(o).forEach((e) => placedIds.add(e))));   // contacts already on a door / window
+    openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => ctx.openingEntities(o).forEach((e) => placedIds.add(e))));   // contacts and roller shutters (#331) already on a door / window
     const extra = (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []).filter((id) => !placedIds.has(id));
     const placeable = extra.filter((id) => ctx.classify(ctx.entityInfo(id)));
     if (placeable.length) {                                  // one click: every thing of the area where it belongs

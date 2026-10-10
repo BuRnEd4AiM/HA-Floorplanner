@@ -1,4 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
+import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
+import { hasShutter, shutterSlats, curtainDepth, SHUTTER_UP } from './shutters.js';
 
 /* Wall geometry with real openings (doors/windows).
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
@@ -58,7 +60,30 @@ function boxMesh(x0, x1, y0, y1, depth, material) {
   return m;
 }
 
-function buildOpening(o, t, mats0, low) {
+/** the roller shutter of a window (#331): a curtain of slats that hangs under the lintel between the glass and the face of the wall on
+ *  side `side` (local z, the outside), in a rail on either side. Its pivot is scaled in height by openings.js as far as the cover is
+ *  closed (shutters.js: curtainScale); it starts rolled up. Returns the pivot. */
+function addShutter(g, x0, x1, yB, yT, t, ft, mat, side) {
+  const z = side * curtainDepth(t), ch = yT - yB, { n, sh } = shutterSlats(ch);
+  const slats = [];
+  for (let k = 0; k < n; k++) {
+    const b = new THREE.BoxGeometry(x1 - x0 - 2 * ft, sh - 0.008, 0.012);
+    b.translate(0, -(k + 0.5) * sh, 0);
+    slats.push(b);
+  }
+  const pivot = new THREE.Group();
+  pivot.position.set(0, yT, z);
+  const curtain = new THREE.Mesh(mergeGeometries(slats), mat);
+  curtain.userData.shutter = true;
+  pivot.add(curtain);
+  pivot.scale.y = SHUTTER_UP;
+  pivot.userData = { axis: 'y', prop: 'scale', base: 0, target: SHUTTER_UP, fresh: true };
+  g.add(pivot);
+  [x0 + ft, x1 - ft].forEach((x) => { const r = boxMesh(x - 0.012, x + 0.012, yB, yT, 0.03, mat); r.position.z = z; g.add(r); });   // the rails
+  return pivot;
+}
+
+function buildOpening(o, t, mats0, low, shutterMat, side = 1) {
   const g = new THREE.Group();
   g.userData = { kind: 'opening', id: o.id };
   // every opening gets its own materials so a contact sensor can tint just this door/window
@@ -140,6 +165,7 @@ function buildOpening(o, t, mats0, low) {
     pivot.userData.max = 1.15;
   } else {
     if (o.sill > 0) g.add(boxMesh(x0, x1, s, s + ft, fd, mats.frame));
+    const shutter = hasShutter(o) && !!shutterMat;
     const panes = st === 'triple' ? 3 : st === 'single' || st === 'fixed' ? 1 : 2;
     const inner = h - 2 * ft;
     // window pane(s) tilt inwards around the lower edge when open (fixed glazing does not open);
@@ -151,7 +177,7 @@ function buildOpening(o, t, mats0, low) {
       pane.position.y = inner / 2;
       pv.add(pane);
       g.add(pv);
-      if (st !== 'fixed') { pv.userData.dir = -1; pv.userData.axis = 'x'; pv.userData.max = 0.4; }
+      if (st !== 'fixed') { pv.userData.dir = shutter ? -side : -1; pv.userData.axis = 'x'; pv.userData.max = 0.4; }   // with a roller shutter: away from it, inwards
       return pv;
     };
     const pvs = [];
@@ -164,6 +190,7 @@ function buildOpening(o, t, mats0, low) {
     }
     if (st !== 'fixed') { pivot = pvs[0]; g.userData.panePivots = pvs; }
     if (o.sill > 0.2) g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
+    if (shutter) g.userData.shutter = addShutter(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, shutterMat, side);
   }
   // invisible, slightly padded hit box: doors and windows stay easy to select even with a lamp or sensor in front of them
   const proxy = new THREE.Mesh(new THREE.BoxGeometry(w, h, t + 0.1), new THREE.MeshBasicMaterial({ visible: false }));
@@ -177,8 +204,9 @@ function buildOpening(o, t, mats0, low) {
   return g;
 }
 
-/** Returns a Group positioned at the wall centre with local x along the wall. bare: only the doors / windows, no wall (a dormer window). */
-export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null, bare = false }) {
+/** Returns a Group positioned at the wall centre with local x along the wall. bare: only the doors / windows, no wall (a dormer window).
+ *  shutterSide(o): the side (local z, +1 / -1) the roller shutter of window o hangs on, outside (shutters.js), +1 without it. */
+export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null, bare = false, shutterSide = null }) {
   const len = wallLength(w);
   const t = w.thickness;
   const H = (w.height || 2.6) * (low ? 0.12 : cut || 1);   // `cut`: fraction of the height that stays (half section)
@@ -197,6 +225,8 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
     frame: makeMat('#f4f4f4', ghost), door: makeMat('#8a6a48', ghost), metal: makeMat('#c9c9c9', ghost),
     glass: makeMat('#9cc9ee', ghost, { opacity: ghost ? 0.15 : 0.45, roughness: 0.1 }),
   };
+  // the roller shutters of the windows (#331): one material of their own, not tinted red with an open window
+  const shutterMat = (w.openings || []).some(hasShutter) ? (holo ? basic(0x8fb4ff, 0.8) : makeMat('#a7adb4', ghost)) : null;
   const solid = (x0, x1, y0, y1) => {
     if (bare) return;
     y1 = Math.min(y1, H);
@@ -217,7 +247,7 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
     if (o.sill > 0) solid(x0, x1, 0, o.sill);             // below (windows)
     cursor = x1;
     if (!low) {
-      const og = buildOpening({ ...o }, t, mats, low);
+      const og = buildOpening({ ...o }, t, mats, low, shutterMat, shutterSide && hasShutter(o) ? shutterSide(o) : 1);
       og.position.x = c;
       group.add(og);
     }

@@ -208,6 +208,14 @@ def _opening_from(rep: Report, path: str, spec: dict):
             o[k] = spec[k][:120]
     if isinstance(spec.get("paneEntities"), list):
         o["paneEntities"] = [str(x)[:120] if isinstance(x, str) else "" for x in spec["paneEntities"][:4]]
+    shutter_entity = spec.get("shutterEntity") if isinstance(spec.get("shutterEntity"), str) else ""
+    if spec.get("shutter") is True or shutter_entity:            # roller shutter of a window (#331), with its own cover entity
+        if o["type"] != "window":
+            rep.warn(f"{path}.shutter", "only windows have a roller shutter, ignored")
+        else:
+            o["shutter"] = True
+            if shutter_entity:
+                o["shutterEntity"] = shutter_entity[:120]
     return o
 
 
@@ -840,7 +848,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": []}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "width", "height", "sill", "pos", "entity", "name", "paneEntities") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []
