@@ -8,6 +8,7 @@ import asyncio
 import base64
 import datetime
 import json
+import math
 import logging
 import os
 import re
@@ -86,6 +87,7 @@ DEFAULT_SETTINGS = {
     "userViews": {},           # Home Assistant user name -> 3d | 2d | split | all (what that user sees in live mode)
     "userPresets": {},         # Home Assistant user name -> its own start values for the look (PRESET_FIELDS, #250)
     "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
+    "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
@@ -128,6 +130,35 @@ def user_locks(request) -> set:
         return set()
     locks = clean_locks(read_settings(request).get("userLocks", {}))
     return set(next((v for k, v in locks.items() if k.strip().lower() in ids), []))
+
+
+def clean_start_view(v):
+    """One saved start view (the same rules as cleanStartView in static/startview.js); None for junk."""
+    def vec(x):
+        ok = isinstance(x, list) and len(x) == 3 and all(isinstance(n, (int, float)) and not isinstance(n, bool) and math.isfinite(n) and abs(n) < 1e5 for n in x)
+        return [round(float(n), 3) for n in x] if ok else None
+    if not isinstance(v, dict):
+        return None
+    cam, target = vec(v.get("cam")), vec(v.get("target"))
+    if not cam or not target:
+        return None
+    s = lambda k, n: v[k] if isinstance(v.get(k), str) and len(v[k]) <= n else ""
+    idx = v.get("idx")
+    return {"house": s("house", 32), "floor": s("floor", 40),
+            "idx": idx if isinstance(idx, int) and not isinstance(idx, bool) and 0 <= idx < 100 else -1,
+            "whole": v.get("whole") is True, "room": s("room", 40) or None, "cam": cam, "target": target}
+
+
+def clean_start_views(val) -> dict:
+    """{user or "*": start view}: at most 50, junk dropped."""
+    if not isinstance(val, dict):
+        return {}
+    out = {}
+    for user, v in list(val.items())[:50]:
+        c = clean_start_view(v)
+        if str(user) and c:
+            out[str(user)[:80]] = c
+    return out
 
 
 def clean_presets(val) -> dict:
@@ -256,7 +287,9 @@ async def get_me(request):
     view = next((v for k, v in views.items() if str(k).strip().lower() in user["ids"] and v in VIEWS), "3d") if isinstance(views, dict) else "3d"
     presets = clean_presets(read_settings(request).get("userPresets", {}))
     preset = next((v for k, v in presets.items() if k.strip().lower() in user["ids"]), {})
-    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset,
+    starts = clean_start_views(read_settings(request).get("startViews", {}))
+    start = next((v for k, v in starts.items() if k != "*" and k.strip().lower() in user["ids"]), starts.get("*"))   # own start view, else everybody's
+    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset, "start": start,
                               "locks": [k for k in LOCKS if k in user_locks(request)],
                               "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
 
@@ -415,6 +448,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = clean_presets(val)
         elif key == "userLocks":
             out[key] = clean_locks(val)
+        elif key == "startViews":
+            out[key] = clean_start_views(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
@@ -500,7 +535,7 @@ def backup_settings(request) -> None:
 
 
 # ---------- users and tablets in a file of the add-on config folder ----------
-USER_KEYS = ("userRooms", "userViews", "userPresets", "userLocks")   # what users.json in the config folder holds
+USER_KEYS = ("userRooms", "userViews", "userPresets", "userLocks", "startViews")   # what users.json in the config folder holds
 
 
 def users_file(request) -> Path:
@@ -513,7 +548,7 @@ def read_users_file(request) -> dict | None:
     if not isinstance(data, dict):
         return None
     clean = validate_settings({k: data.get(k) for k in USER_KEYS})
-    return {k: clean[k] for k in USER_KEYS}
+    return {k: clean[k] for k in USER_KEYS if k in data or k != "startViews"}   # a file from before the start views (#315) keeps them
 
 
 def write_users_file(request, settings: dict) -> bool:
@@ -545,9 +580,9 @@ async def get_users_file(request):
     file = read_users_file(request)
     cur = validate_settings(read_settings(request))
     mine = {k: cur[k] for k in USER_KEYS}
-    names = lambda d: set().union(*(d[k] for k in USER_KEYS))
+    names = lambda d: set().union(*(d.get(k, {}) for k in USER_KEYS)) - {"*"}   # "*": the start view of everybody, not a user
     return web.json_response({"file": USERS_FILE, "exists": file is not None, "fileUsers": len(names(file)) if file else 0,
-                              "users": len(names(mine)), "inSync": file == mine})
+                              "users": len(names(mine)), "inSync": file is not None and {k: file.get(k, {}) for k in USER_KEYS} == mine})
 
 
 async def sync_users_file(request):

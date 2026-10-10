@@ -54,3 +54,11 @@ test('spread (#244): a ball keeps clear of a value label, the label stays', () =
   const out = T.spreadBalls([{ x: 0, y: 1, z: 0 }], undefined, undefined, [{ x: 0.1, y: 1.2, z: 0 }], 0.5);
   assert.ok(Math.hypot(out[0].x - 0.1, out[0].z) >= 0.5 - 1e-3);
 });
+test('on the screen (#314): balls that land on each other move apart, far ones stay, none moves too far', () => {
+  const items = [{ x: 100, y: 100, r: 20 }, { x: 105, y: 100, r: 20 }, { x: 100, y: 100, r: 20 }, { x: 400, y: 400, r: 20 }];
+  const o = T.spreadScreen(items, 3, 2.5), p = items.map((q, i) => ({ x: q.x + o[i].dx, y: q.y + o[i].dy, r: q.r }));
+  for (let i = 0; i < 3; i++) for (let j = i + 1; j < 3; j++) assert.ok(Math.hypot(p[i].x - p[j].x, p[i].y - p[j].y) >= 43 - 0.01, `${i} ${j} still overlap`);
+  near(o[3].dx, 0); near(o[3].dy, 0);                                        // far away: stays
+  o.forEach((q, i) => assert.ok(Math.hypot(q.dx, q.dy) <= 2.5 * items[i].r + 1e-6));
+  assert.deepEqual(T.spreadScreen(items, 3, 2.5), o);                       // the same every frame: no jitter
+});

@@ -18,6 +18,12 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 3. ✅ (2026-10-09) **Handy hochkant** (3.59.0 bis 3.60.1, 37.1 bis 37.4): Knopf 📊 oben; in „Ganzes Haus“ kleine Etagen-Karten rechts neben dem Haus, auch beim Hineinzoomen.
 4. **Benutzer sperren** (3.61.0, 37.6): „Benutzer“ → „⚙“ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen, die Haken sind noch da.
 
+**Neu in 3.66** (ausführlich in Abschnitt **38** unten)
+7. **Kugeln verdecken sich nicht mehr** (38.1): Live, schräg von oben auf Lampen schauen, drehen.
+8. **Startansicht wählen** (38.2, 38.3): Ansicht einstellen, ⚙ → „📌 Aktuelle Ansicht übernehmen“, neu laden.
+9. **Sicherheit über die ganze Breite** (38.5) und **„🗄️ Backup“ oben** (38.6).
+10. **Keine dunkle Fläche beim Platzieren** (38.8): „2D + 3D“, Werkzeug „Treppe“.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -121,7 +127,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0) | 6 | 0 | 0 | 0 | – |
 | 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 15 | 0 | 0 | 0 | – |
 | 37. Neu in 3.59 bis 3.62 | 7 | 0 | 1 | 0 | 37.6 |
-| **Zusammen** | **179** | **1** | **85** | **0** | |
+| 38. Neu in 3.66 | 0 | 0 | 6 | 2 | 38.1 bis 38.3, 38.5, 38.6, 38.8 |
+| **Zusammen** | **179** | **1** | **91** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -601,3 +608,16 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 37.6 | Oben „Benutzer“ → bei einem Benutzer „⚙“ → „🔒 Gesperrt“, Haken setzen | Die Haken bleiben gespeichert; mit diesem Benutzer angemeldet sind die Dinge weg (Wirkung nur im Add-on prüfbar, in der Demo gibt es nur einen Benutzer) (3.61.0) | ❓ |
 | 37.7 | Bearbeiten, „Auswählen“, Ansicht **2D** oder **2D + 3D**: mehrere Dinge mit Strg/Shift + Klick (oder Strg/Shift + Rahmen) wählen, dann eins davon **ohne** Strg/Shift ziehen | Alle wandern zusammen und bleiben ausgewählt; angehängte Wände dehnen sich mit, Türen/Fenster wandern mit ihrer Wand; in 2D + 3D zieht das 3D-Bild mit (3.62.0) | ✅ |
 | 37.8 | Danach Strg+Z; dann nur auf eins der Ausgewählten **klicken** (nicht ziehen) | Strg+Z holt alles in einem Schritt zurück; der Klick wählt nur dieses eine | ✅ |
+
+## 38. Neu in 3.66
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 38.1 | Live, schräg von oben auf einen Raum mit vielen Lampen schauen (Stehlampe vor einer Deckenlampe), dann drehen und zoomen | Die runden Kugeln liegen nicht mehr aufeinander, sie rücken auf dem Bildschirm auseinander und bleiben nahe bei ihrem Gerät (#314) | ❓ |
+| 38.2 | Ansicht einstellen (z. B. „Ganzes Haus“ oder ein Raum, Blickwinkel), dann ⚙ → „Wandtablet“ → „📌 Aktuelle Ansicht übernehmen“; Seite neu laden | Daneben steht „Gespeichert: …“; nach dem Neuladen öffnet sich genau diese Ansicht (#315) | ❓ |
+| 38.3 | ⚙ → „Automatisch“, neu laden | Wieder der alte Start (Erdgeschoss bzw. Raum des Benutzers) | ❓ |
+| 38.4 | „Benutzer“ → bei einem Benutzer „Start: aktuelle Ansicht übernehmen“ | Steht danach auf „Start: gespeicherte Ansicht“; dieser Benutzer startet dort und das Wandtablet kehrt dorthin zurück (Wirkung nur im Add-on) | ➖ |
+| 38.5 | Oben 🛡️ Sicherheit, einen Tag abspielen | Die Leiste unten geht über die ganze Breite (#316) | ❓ |
+| 38.6 | Oben „🗄️ Backup“ | Ein Fenster mit Backup, automatischer Sicherung und Sicherheit; in der Seitenleiste heißt der Abschnitt nur noch „Häuser“ (#321) | ❓ |
+| 38.7 | Im Backup-Fenster unter „Sicherheit“ | Liste der aufgezeichneten Tage, je Tag ▶ (abspielen) und ⬇ (Datei herunterladen); „Tage behalten“ ändern bleibt gespeichert (#317, nur im Add-on mit Aufzeichnung) | ➖ |
+| 38.8 | Bearbeiten, „2D + 3D“, Werkzeug „Treppe“ oder „Gerät“ | Rechts in 3D keine große dunkle Fläche mehr; Rasen sichtbar mit leichtem Raster darüber (#320) | ❓ |

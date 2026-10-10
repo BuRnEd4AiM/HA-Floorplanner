@@ -252,8 +252,8 @@ Requires Home Assistant OS or Supervised (anything with the Add-on / App store).
 | History of a device | ⓘ *Details* in its popup opens Home Assistant's own dialog |
 | Place a whole HA area | Select the room, then *✨ Place all* in its entity list |
 | Undo | `Ctrl+Z` |
-| Import a house | *Houses & backup → Import house from JSON*, or `POST /api/import` |
-| Backup | *Houses & backup* in the side panel |
+| Import a house | *Houses → Import house from JSON*, or `POST /api/import` |
+| Backup | *🗄️ Backup* in the top bar (also automatic backups and the security recording) |
 
 ## 🧪 Try it without Home Assistant
 

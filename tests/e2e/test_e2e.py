@@ -598,11 +598,15 @@ with sync_playwright() as p:
     check("place: the click after that places the next device", nd() == d0 + 2, (d0, nd()))
     pgD.close()
     set_setting("placeSelect", False)
-    # --- automatic backups: panel in "Houses & backup", back up now, check, settings are kept; toggling Auto without the gear keeps the design
+    # --- automatic backups: 🗄️ backup dialog in the top bar (#321), back up now, check, settings are kept; toggling Auto without the gear keeps the design
     pgB = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgB.goto(BASE + "?debug=1&mode=edit"); pgB.wait_for_timeout(1500)
-    pgB.click("#housePanel summary"); pgB.wait_for_timeout(800)
+    check("backups (#321): the side panel no longer holds the backup", pgB.locator("#housePanel #autoBackup").count() == 0)
+    pgB.click("#backupBtn"); pgB.wait_for_selector("#backupDialog[open]", timeout=5000); pgB.wait_for_timeout(800)
     check("backups: the automatic backup section is shown", pgB.locator("#autoBackup").is_visible())
+    check("security (#317): the recorded days are listed in the backup dialog", pgB.locator("#tlSetDays .abRow, #tlSetDays p").count() >= 1, pgB.inner_text("#tlSetDays"))
+    pgB.fill("#setTimelineKeep", "9"); pgB.press("#setTimelineKeep", "Tab"); pgB.wait_for_timeout(800)
+    check("security: 'days to keep' is stored", api("api/settings")["timelineKeepDays"] == 9.0, api("api/settings")["timelineKeepDays"])
     pgB.click("#abNow"); pgB.wait_for_timeout(1200)
     items = api_admin("api/backups")["items"]
     check("backups: 'back up now' writes a file into the backups folder", len(items) == 1 and items[0]["kind"] == "manual", items)
@@ -622,6 +626,24 @@ with sync_playwright() as p:
     pgC.click("#viewMenuBtn") if pgC.locator("#viewMenu").is_visible() else None
     pgC.evaluate("fetch('api/settings').then(r => r.json().then(s => fetch('api/settings', {method: 'PUT', headers: {'Content-Type': 'application/json', 'If-Match': r.headers.get('ETag')}, body: JSON.stringify({...s, autoBackup: false})})))"); pgC.wait_for_timeout(400)
     pgC.close()
+    # --- start view (#315): take the view shown now in the settings, a new page opens with it, "Automatic" takes it back
+    pgS = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgS.goto(BASE + "?debug=1&mode=edit"); pgS.wait_for_timeout(1500)
+    pgS.evaluate("window.__fp.setHouseMode(true)"); pgS.wait_for_timeout(300)
+    pgS.evaluate("window.__fp.camAt(30, 25, 20, 1, 2)"); pgS.wait_for_timeout(300)
+    camS = pgS.evaluate("window.__fp.cam()")
+    pgS.click("#settingsBtn"); pgS.click("#svTake"); pgS.wait_for_timeout(800)
+    sv = api("api/settings")["startViews"].get("*")
+    check("start view (#315): 'use current view' stores the whole house and the camera", bool(sv) and sv["whole"] is True and abs(sv["cam"][0] - 30) < 0.01, sv)
+    check("start view: the settings show it as saved", "Ganzes Haus" in pgS.inner_text("#svState") or "Whole house" in pgS.inner_text("#svState"), pgS.inner_text("#svState"))
+    pgS.close()
+    pgS = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgS.goto(BASE + "?debug=1&mode=edit"); pgS.wait_for_timeout(2000)
+    camN = pgS.evaluate("window.__fp.cam()")
+    check("start view: a new page opens with it (whole house, same camera)", pgS.evaluate("window.__fp.houseMode()") is True and max(abs(a - c) for a, c in zip(camS, camN)) < 0.05, (camS, camN))
+    pgS.click("#settingsBtn"); pgS.click("#svAuto"); pgS.wait_for_timeout(800)
+    check("start view: 'Automatic' removes it", "*" not in api("api/settings")["startViews"], api("api/settings")["startViews"])
+    pgS.close()
     # --- version pill: version and checksum in the top bar, green when add-on files and browser files match the manifest
     pgV2 = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     pgV2.goto(BASE + "?mode=edit"); pgV2.wait_for_timeout(2500)
@@ -1941,6 +1963,12 @@ with sync_playwright() as p:
     check("tap ball (#238): a ball floats over the lamp in live mode and a tap on it hits the lamp", bl is not None and bl["y"] < sl["y"] and (hb or {}).get("id") == "tLamp", (bl, sl, hb))
     check("tap ball (#262): the ball is bigger (60 cm)", abs(pgT.evaluate("window.__fp.ballSize('tLamp')") - 0.6) < 0.01, pgT.evaluate("window.__fp.ballSize('tLamp')"))
     check("tap ball (#238): a plant linked to nothing has no ball", pgT.evaluate("window.__fp.ballScreen('tPlant')") is None)
+    pgT.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+      f.devices.push({id: 'tLamp2', type: 'light', x: 2, z: 2.9, y: 2.3, rot: 0, scale: 1, name: 'Decke', entity: 'light.wohnzimmer'}); window.__fp.rebuild(); }""")
+    pgT.wait_for_timeout(1500)
+    b1, b2 = pgT.evaluate("window.__fp.ballScreen('tLamp')"), pgT.evaluate("window.__fp.ballScreen('tLamp2')")
+    gapB = ((b1["x"] - b2["x"]) ** 2 + (b1["y"] - b2["y"]) ** 2) ** 0.5 - b1["r"] - b2["r"] if b1 and b2 else None
+    check("tap balls (#314): a floor lamp and a ceiling lamp behind it do not cover each other on the screen", gapB is not None and gapB >= 0, (b1, b2, gapB))
     pgT.click("#modeSwitch button[data-mode=edit]"); pgT.wait_for_timeout(500)
     check("tap ball (#238): no ball in edit mode", pgT.evaluate("window.__fp.ballScreen('tLamp')") is None)
     pgT.close()

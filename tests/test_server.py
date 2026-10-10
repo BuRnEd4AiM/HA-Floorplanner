@@ -595,6 +595,22 @@ def test_kiosk_and_alert_settings_are_validated():
     assert server.validate_settings({"idleReturn": 999})["idleReturn"] == 240.0
 
 
+async def test_start_views_are_cleaned_and_reach_the_right_user(client, tmp_path):
+    """#315: a saved start view for everybody ("*") and per user; junk is dropped, a user without one gets everybody's."""
+    admin = {"X-Remote-User-Name": "admin"}
+    all_v = {"house": "main", "floor": "f1", "idx": 1, "whole": False, "room": "r1", "cam": [1.23456, 2, 3], "target": [0, 0, 0], "x": 1}
+    own = {"whole": True, "cam": [5, 6, 7], "target": [1, 1, 1]}
+    r = await client.put("/api/settings", json={"startViews": {"*": all_v, "Tablet_WZ": own, "bad": {"cam": [1, 2]}, "worse": 3}}, headers=admin)
+    s = await r.json()
+    assert set(s["startViews"]) == {"*", "Tablet_WZ"}
+    assert s["startViews"]["*"] == {"house": "main", "floor": "f1", "idx": 1, "whole": False, "room": "r1", "cam": [1.235, 2.0, 3.0], "target": [0.0, 0.0, 0.0]}
+    assert s["startViews"]["Tablet_WZ"]["whole"] is True and s["startViews"]["Tablet_WZ"]["idx"] == -1
+    assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "tablet_wz"})).json())["start"]["cam"] == [5.0, 6.0, 7.0]
+    assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "someone"})).json())["start"]["room"] == "r1"
+    st = await (await client.get("/api/users-file")).json()
+    assert st["inSync"] and st["users"] == 1                          # "*" is not a user
+
+
 async def test_view_presets_per_user_are_cleaned_and_reach_that_user_only(client, tmp_path):
     """#250: a user / tablet gets its own start values for the look; junk fields, values and empty presets are dropped."""
     admin = {"X-Remote-User-Name": "admin"}
@@ -635,7 +651,7 @@ async def test_users_and_tablets_are_mirrored_into_the_config_folder_and_synced_
     assert (await (await client.get("/api/users-file")).json())["exists"] is False
     await client.put("/api/settings", json={"userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d", "tv": "bogus"}})
     import json
-    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}, "userLocks": {}}
+    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}, "userLocks": {}, "startViews": {}}
     st = await (await client.get("/api/users-file")).json()
     assert st["exists"] and st["inSync"] and st["users"] == 1
 

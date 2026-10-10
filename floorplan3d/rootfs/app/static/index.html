@@ -50,6 +50,7 @@
     <div class="group right">
       <span id="status"></span>
       <button id="versionPill" class="pill ver-wait" type="button" hidden></button>
+      <button id="backupBtn" class="admin-only" data-i18n="bk.btn" data-i18n-title="bk.tip"></button>
       <button id="usersBtn" class="admin-only" data-i18n="users.btn" data-i18n-title="users.tip"></button>
       <button id="saveBtn" class="primary edit-only" data-i18n="save"></button>
       <button id="settingsBtn" class="icon" data-i18n-title="settings" aria-label="Settings">⚙</button>
@@ -131,31 +132,6 @@
         <div id="houseBody"></div>
         <h4 data-i18n="nb.title"></h4>
         <div id="neighborBody"></div>
-        <h4 data-i18n="backup.title"></h4>
-        <p class="sub" data-i18n="backup.hint"></p>
-        <div class="stopTools">
-          <a id="backupExport" class="btn" href="api/backup" download data-i18n="backup.export"></a>
-          <button type="button" id="backupImport" data-i18n="backup.import"></button>
-          <input type="file" id="backupFile" accept=".json,application/json" hidden>
-        </div>
-        <div id="autoBackup" hidden>
-          <h4 data-i18n="ab.title"></h4>
-          <p class="sub" data-i18n="ab.hint"></p>
-          <div class="row check"><input id="setAutoBackup" type="checkbox"><label for="setAutoBackup" data-i18n="ab.enable"></label></div>
-          <div class="prop stack"><label for="setBackupEvery" data-i18n="ab.every"></label><input id="setBackupEvery" type="number" min="1" max="720" step="1"></div>
-          <div class="prop stack"><label for="setBackupKeepDays" data-i18n="ab.keepDays"></label><input id="setBackupKeepDays" type="number" min="1" max="3650" step="1"></div>
-          <div class="prop stack"><label for="setBackupKeepCount" data-i18n="ab.keepCount"></label><input id="setBackupKeepCount" type="number" min="1" max="500" step="1"></div>
-          <div class="stopTools">
-            <button type="button" id="abNow" data-i18n="ab.now"></button>
-            <button type="button" id="abTest" data-i18n="ab.test"></button>
-          </div>
-          <p class="sub" id="abStatus"></p>
-          <div id="abList"></div>
-        </div>
-        <h4 data-i18n="tl.setTitle"></h4>
-        <p class="sub" data-i18n="tl.setHint"></p>
-        <div class="row check"><input id="setTimelineOn" type="checkbox"><label for="setTimelineOn" data-i18n="tl.setOn"></label></div>
-        <div class="prop stack"><label for="setTimelineKeep" data-i18n="tl.setKeep"></label><input id="setTimelineKeep" type="number" min="1" max="31" step="1"></div>
         <h4 data-i18n="imp.section"></h4>
         <p class="sub" data-i18n="imp.sectionHint"></p>
         <div class="stopTools">
@@ -337,6 +313,38 @@
   </form>
 </dialog>
 
+<dialog id="backupDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="bk.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <h4 data-i18n="backup.title"></h4>
+    <p class="sub" data-i18n="backup.hint"></p>
+    <div class="stopTools">
+      <a id="backupExport" class="btn" href="api/backup" download data-i18n="backup.export"></a>
+      <button type="button" id="backupImport" data-i18n="backup.import"></button>
+      <input type="file" id="backupFile" accept=".json,application/json" hidden>
+    </div>
+    <div id="autoBackup" hidden>
+      <h4 data-i18n="ab.title"></h4>
+      <p class="sub" data-i18n="ab.hint"></p>
+      <div class="row check"><input id="setAutoBackup" type="checkbox"><label for="setAutoBackup" data-i18n="ab.enable"></label></div>
+      <div class="prop stack"><label for="setBackupEvery" data-i18n="ab.every"></label><input id="setBackupEvery" type="number" min="1" max="720" step="1"></div>
+      <div class="prop stack"><label for="setBackupKeepDays" data-i18n="ab.keepDays"></label><input id="setBackupKeepDays" type="number" min="1" max="3650" step="1"></div>
+      <div class="prop stack"><label for="setBackupKeepCount" data-i18n="ab.keepCount"></label><input id="setBackupKeepCount" type="number" min="1" max="500" step="1"></div>
+      <div class="stopTools">
+        <button type="button" id="abNow" data-i18n="ab.now"></button>
+        <button type="button" id="abTest" data-i18n="ab.test"></button>
+      </div>
+      <p class="sub" id="abStatus"></p>
+      <div id="abList"></div>
+    </div>
+    <h4 data-i18n="tl.setTitle"></h4>
+    <p class="sub" data-i18n="tl.setHint"></p>
+    <div class="row check"><input id="setTimelineOn" type="checkbox"><label for="setTimelineOn" data-i18n="tl.setOn"></label></div>
+    <div class="prop stack"><label for="setTimelineKeep" data-i18n="tl.setKeep"></label><input id="setTimelineKeep" type="number" min="1" max="31" step="1"></div>
+    <div id="tlSetDays"></div>
+  </form>
+</dialog>
+
 <dialog id="usersDialog">
   <form method="dialog" novalidate>
     <div class="dlgHead"><h2 data-i18n="set.section.tablets"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
@@ -399,6 +407,9 @@
     <div class="row check"><input id="setAlertJump" type="checkbox"><label for="setAlertJump" data-i18n="set.alertJump"></label></div>
     <div class="row"><label for="setWeather" data-i18n="set.weather"></label><input id="setWeather" type="text" placeholder="weather.home" list="weatherList"></div>
     <datalist id="weatherList"></datalist>
+    <div class="row"><label data-i18n="sv.title"></label><span id="svState" class="sub"></span></div>
+    <p class="sub" data-i18n="sv.help"></p>
+    <div class="stopTools"><button type="button" id="svTake" data-i18n="sv.take"></button> <button type="button" id="svAuto" data-i18n="sv.auto"></button></div>
     <div class="row"><label for="setIdleReturn" data-i18n="set.idleReturn"></label><input id="setIdleReturn" type="number" min="0" step="1"></div>
     <div class="row check"><input id="setIdleOrbit" type="checkbox"><label for="setIdleOrbit" data-i18n="set.idleOrbit"></label></div>
     <div class="row"><label for="setNightDim" data-i18n="set.nightDim"></label>

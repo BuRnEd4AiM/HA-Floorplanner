@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.64.2. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.66.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -34,7 +34,7 @@ Stand: Version 3.64.2. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `power.js` | ~250 | Strom: Kabel in 3D, Strom-Editor, Energie-Übersicht, Eigenschaften (Schritt 2 von #137) |
 | `powerlogic.js` | ~100 | Strom: Rechenteil (Watt, Kabelarten, Übersicht, Batterie), mit Unit-Tests |
 | `toolbar.js` | 88 | Anpassbare Werkzeugleiste |
-| `backups.js` | 70 | Automatische Sicherung (Oberfläche) |
+| `backups.js` | ~80 | Backup-Fenster oben (🗄️, #321): ganzes Backup, automatische Sicherung, Einstellungen der Sicherheit |
 | `version.js` | 122 | Versionsanzeige und Datei-Prüfung |
 | `welcome.js` | 21 | Willkommenskarte |
 | `import.js` | 112 | Import-Dialog |
@@ -75,7 +75,8 @@ Stand: Version 3.64.2. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `cameras.js` | ~190 | Kameras (Sichtkegel, Übersicht, Standbilder) |
 | `neighbor.js` | ~120 | Nachbarhaus (#220): anderes Haus daneben zeigen (3D und Umriss im Plan), Einstellungen; Geometrie mit Unit-Tests |
 | `multisel.js` | ~120 | Mehrfachauswahl (#211, #247): Shift / Strg + Klick, Rahmen aufziehen im 2D-Plan (`boxItems`), alle löschen in einem Schritt, Rahmen in 3D, Kasten im Panel, alle zusammen verschieben (`groupTargets`, `moveGroup`) |
-| `tapballs.js` | ~85 | Kugeln zum Antippen im Live-Modus (#238): Lage über/unter dem Gerät, Farbe nach Zustand; reine Regeln mit Unit-Tests |
+| `tapballs.js` | ~140 | Kugeln zum Antippen im Live-Modus (#238): Lage über/unter dem Gerät, Farbe nach Zustand, auf dem Bildschirm auseinanderschieben (#314, `spreadScreen`); reine Regeln mit Unit-Tests |
+| `startview.js` | ~95 | Startansicht (#315): aktuelle Ansicht speichern (für alle und pro Benutzer), beim Start und am Wandtablet dorthin zurück; reine Regeln mit Unit-Tests |
 | `entitystate.js` | ~25 | Was von einer Entität gemerkt wird, Farbe eines Lichteffekts (Schritt 23); reine Logik mit Unit-Tests |
 | `timeline.js` | ~140 | Sicherheit (Wiedergabe): Zustände zu jedem Zeitpunkt, Ereignisliste, von Ereignis zu Ereignis, Zoom der Zeitleiste (`follow`), Symbole der Ereignisse (`markers`, `eventIcon`); reine Logik mit Unit-Tests |
 | `timelineui.js` | ~190 | Sicherheit (Oberfläche): 🛡️-Knopf, Liste der Tage (mit Download), Leiste unten mit Abspielen, Geschwindigkeit, Schieber und Ereignissen |
