@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.66.1] - 2026-10-10
+### Fixed
+- **States show up at once again** (#323): a change in Home Assistant sometimes took about 30 seconds to appear. One browser that took no messages (a tablet asleep, a phone without network) held up the live channel for every other view until the heartbeat noticed it. Every browser now has its own queue and sender in `LiveHub`; one that is stuck for 5 s is dropped and reconnects with the full list. A tablet or phone waking up also fetches the states at once.
+
 ## [3.66.0] - 2026-10-09
 ### Added
 - **Start view can be chosen** (#315): in the settings (wall tablet section) "📌 Use current view" saves the view shown now (house, floor or whole house, room, camera) as the start view for everybody; "Automatic" goes back to the old start (the user's room or the ground floor). In the users dialog every user can get their own ("Start: use current view"). The page opens with it and a wall tablet comes back to it after the idle time. Stored in `startViews` (also in users.json), `api/me` hands out the user's own or everybody's. Logic in the new `startview.js` (unit tests).

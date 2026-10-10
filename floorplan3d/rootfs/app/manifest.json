@@ -1,6 +1,6 @@
 {
- "version": "3.66.0",
- "buildHash": "ffb18fcd8384d3833cef7da2db66750d8e1278fa7c3fde1ea7b0e3ecb0ca0ae3",
+ "version": "3.66.1",
+ "buildHash": "1400346f39aab58f8e0c7855c0e472812f36aa4a55116a1ddf4ad5d48e2cc6cb",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -128,7 +128,7 @@
   "library/washer.glb": "0c9704df1817d2699b72305b96cde097c9558bacabaef2fd5ab1ff4c03b81abf",
   "manifest.py": "a1ffaefe4047ba87036bdc63183149f9cedebddfd31bda1746f89631580291da",
   "property.schema.json": "8bfcc83abedf203d091862ab9a2503713b5811327f26f226fa43477084bb07c3",
-  "server.py": "babd11315ee17560e016555631ac1f7961b4e29620d09ce1afecf151623c0507",
+  "server.py": "f8da09baac5e0a2aa7338432292a68e68d5d5a36f410cbe032789b0210512f4b",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "3a541620793f7a69607719e4b2b337440d6e3d9f6876a765573fd3d02207262a",
   "static/app.js": "f28ad499ed596ccc1e96b4369d660030641c24c6a20041db710f4df0587e8545",
@@ -175,7 +175,7 @@
   "static/lang/pl.js": "52e19ce7c97b776c49ac4cde94f5aab2b71f8a121a402e552ae8abc06e8261aa",
   "static/layoutnorm.js": "4d97bc7ab7697ae6d9bedaa492f3752aad91b70f1d82f94f835b607b47c21729",
   "static/ledring.js": "a0aa23175923ee6203daca80c6f1d4e5fca141cdf255f5ff9f438ae2f10f4fc5",
-  "static/livechannel.js": "8207ba4c3ae545fe2aded6680f1c1fb4b0f3b684c6a5415aee8c0ce421d707b3",
+  "static/livechannel.js": "675cf80ab2d19ce8f0720a2dbbe171bf73805d17879bc70f9a61a8fddf008b3d",
   "static/livecontrols.js": "452726dcb560413f54909b7d8a4c0d6ef4926303888aa5bad73016b11c978133",
   "static/livepopup.js": "7bad5c847b7a5f2bc61436c5b8013ec1d533126ff0b600973eae87c20090508c",
   "static/modelfx.js": "5b66124084f2d7231afeb3c14d7aaffc7ebfdd85cade256c72dbab348fc9838f",
