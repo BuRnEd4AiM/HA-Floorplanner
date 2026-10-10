@@ -1,4 +1,4 @@
-"""Live mode and the rest: neighbour house (#220), bridge (#189), second tap, tap balls (#238), renamed entities, the other languages.
+"""Live mode and the rest: neighbour house (#220), bridge (#189), second tap, tap balls (#238), renamed entities, the other languages, the live card left alone (#336).
 """
 # --- neighbour house next to this one, the bridge leads over to its roof terrace (#220)
 def api_send(method, path, body):
@@ -167,3 +167,54 @@ for code, word in (("fr", "Mur"), ("es", "Pared"), ("it", "Parete"), ("nl", "Muu
     check("UI switches to " + code, word in txt, txt[:200])
 pg12.request.put(BASE + "api/settings", data=json.dumps({"language": "de"}), headers={"Content-Type": "application/json"})
 pg12.close()
+
+# --- the live card is drawn anew only when something it shows changes (#336): a state update of another entity (power meters, temperatures every
+# few seconds) left the lamp's buttons and sliders being replaced under the finger, so a tap or a drag got lost
+pgC = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+pgC.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+pgC.goto(BASE + "?debug=1&mode=live"); pgC.wait_for_timeout(1500)
+for _ in range(50):                                              # the live channel brings the outside changes
+    if pgC.evaluate("window.__fp.liveOk()"): break
+    pgC.wait_for_timeout(100)
+lc = pgC.evaluate("(() => { const f = window.__fp.layout.floors, i = f.findIndex(x => x.devices.some(d => d.entity === 'light.wohnzimmer')); return i < 0 ? null : {i, id: f[i].devices.find(d => d.entity === 'light.wohnzimmer').id}; })()")
+pgC.evaluate(f"window.__fp.switchFloor({lc['i']})"); pgC.wait_for_timeout(500)
+def outside(e, s):
+    """a change in Home Assistant (wall switch, sensor): wait until the page has it and has drawn it"""
+    urllib.request.urlopen(HA + f"/_set?e={e}&s={s}").read()
+    for _ in range(40):
+        if pgC.evaluate(f"window.__fp.stateOf('{e}')") == s: break
+        pgC.wait_for_timeout(50)
+    pgC.wait_for_timeout(300)
+    return pgC.evaluate(f"window.__fp.stateOf('{e}')") == s
+mark = lambda: pgC.evaluate("(() => { const b = document.querySelector('#livePopup .actions button'); if (b) b.__keep = 1; return !!b; })()")
+kept = lambda: pgC.evaluate("!!document.querySelector('#livePopup .actions button')?.__keep")
+sub = lambda: pgC.evaluate("document.querySelector('#livePopup .sub')?.textContent || ''")
+outside("light.wohnzimmer", "on")
+pgC.evaluate(f"window.__fp.liveTap('{lc['id']}')"); pgC.wait_for_timeout(400)
+check("live card (#336): the lamp's card is open with its buttons", pgC.is_visible("#livePopup") and mark(), pgC.inner_text("#livePopup") if pgC.is_visible("#livePopup") else "no card")
+got = outside("sensor.temp", "22")
+check("live card (#336): a change of another entity (temperature) leaves the open card as it is, the same buttons", got and kept(), (got, sub()))
+got = outside("light.wohnzimmer", "off")
+check("live card (#336): a change of the lamp itself draws the card anew with the new state", got and not kept() and sub().startswith("off"), (got, sub()))
+mark()
+pgC.evaluate("document.querySelector('#livePopup input[type=color]').focus()")
+got = outside("light.wohnzimmer", "on")
+check("live card (#336): while the colour picker has the focus the card is not drawn anew", got and kept() and sub().startswith("off"), (got, sub()))
+pgC.evaluate("document.activeElement.blur()"); pgC.wait_for_timeout(300)
+check("live card (#336): the focus gone, what changed meanwhile is drawn", not kept() and sub().startswith("on"), sub())
+pgC.evaluate("(() => { window.__fp.states()['light.wohnzimmer'].brightness = 50; window.__fp.applyStates(); })()"); pgC.wait_for_timeout(300)   # the mock lamp has no brightness
+rng = pgC.locator("#livePopup .lightctl input[type=range]")
+check("live card (#336): a brightness given, the card gets its slider", rng.count() == 1)
+if rng.count() == 1:
+    mark()
+    n_on = len([c for c in ha_calls() if c[:2] == ["light", "turn_on"]])
+    bb = rng.bounding_box()
+    pgC.mouse.move(bb["x"] + bb["width"] * 0.3, bb["y"] + bb["height"] / 2); pgC.mouse.down()
+    got = outside("light.wohnzimmer", "off")
+    check("live card (#336): while the slider is held a change of the lamp does not take it from under the finger", got and kept() and rng.count() == 1, (got, sub()))
+    pgC.mouse.move(bb["x"] + bb["width"] * 0.6, bb["y"] + bb["height"] / 2); pgC.mouse.up(); pgC.wait_for_timeout(600)
+    calls = [c for c in ha_calls() if c[:2] == ["light", "turn_on"]]
+    pgC.evaluate("document.activeElement.blur()"); pgC.wait_for_timeout(400)
+    check("live card (#336): let go, the brightness is set and the card is drawn anew", len(calls) > n_on and not kept(), (n_on, calls[-1:], sub()))
+pgC.close()
+urllib.request.urlopen(HA + "/_set?e=sensor.temp&s=21.5").read(); urllib.request.urlopen(HA + "/_set?e=light.wohnzimmer&s=on").read()

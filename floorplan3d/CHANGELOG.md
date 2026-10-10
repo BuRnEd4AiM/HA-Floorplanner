@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.69.2] - 2026-10-10
+### Fixed
+- **Live card: buttons and sliders no longer vanish under the finger** (#336): while the card of a lamp was open in the live mode, every state update of any entity of the house (power meters, temperatures ... every few seconds) drew the whole card anew. A tap on On / Off, a colour or a scene could get lost (the button was replaced between finger down and finger up), a brightness drag was cut off and an open colour picker or effect list closed. The LED ring card and the camera card did the same. The card is now drawn anew only when something it shows changes: the device, its entity's state, brightness, colour and effects, the scenes, the lights of the room, the LED ring's sections, the camera's motion, the roller shutter, the language. While a slider is held or a slider, colour picker or effect list has the focus it is not drawn at all; what changed meanwhile shows when the focus leaves the card. The key is `popupKey` in `livepopup.js` (unit tests); the browser test opens a lamp's card, changes a temperature and checks that the buttons are the same elements.
+
 ## [3.69.1] - 2026-10-10
 ### Fixed
 - **Settings: two quick changes in a row** (#333): changing two settings quickly one after the other (e.g. the language and right after it the design) could end with the message that the settings were changed on another screen, a reload of the page and the second change lost. The second change was saved before the first save had come back, still with its old version number (ETag), and the add-on refused it. Saves now go one at a time: a change made while a save is on its way is saved right after it, and the answer of the older save no longer overwrites the newer change. `oneAtATime` in `settings.js` (unit tests).

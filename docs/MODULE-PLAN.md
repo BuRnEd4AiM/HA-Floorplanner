@@ -57,8 +57,8 @@ Stand: Version 3.69.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `roomentities.js` | ~110 | Entitäten des gewählten Raums (Bearbeiten), automatisch platzieren |
 | `propfields.js` | ~30 | Eingabefelder der Seitenleiste (Länge in m/ft) |
 | `entitypicker.js` | ~95 | Entitäten-Auswahl mit Suche, nach Bereich gruppiert |
-| `livecontrols.js` | ~190 | Live-Steuerung: Schalten, Licht (Helligkeit, Farbe, Effekte), Szenen, ganzer Raum |
-| `livepopup.js` | ~110 | Live-Karte beim Antippen (Gerät, Tür/Fenster, LED-Ring) |
+| `livecontrols.js` | ~180 | Live-Steuerung: Schalten, Licht (Helligkeit, Farbe, Effekte), Szenen, ganzer Raum (`roomIds`: Lampen und Szenen eines Raums) |
+| `livepopup.js` | ~180 | Live-Karte beim Antippen (Gerät, Tür/Fenster, LED-Ring); wird nur neu gebaut, wenn sich etwas ändert, das sie zeigt, und nicht, solange ein Schieber, Farbwähler oder eine Liste darin bedient wird (#336, `popupKey` ist reine Logik mit Unit-Tests) |
 | `roompanel.js` | ~190 | Raum-Panel mit Heizungs-Panel |
 | `sheetview.js` | ~45 | Handy: Raum über der Raum-Karte zeigen statt dahinter, Kamera-Abstand bei schmalem Bild; Bild nach links schieben für die Spalte der Etagen-Karten (#292) (Unit-Tests) |
 | `phonemenu.js` | ~50 | Handy: obere Leiste als ☰-Menü (Live-Ansicht); am Handy nur Live + 3D, kein Bearbeiten, keine Benutzer (#299); `isPhoneScreen`/`phoneView` sind reine Logik mit Unit-Tests |

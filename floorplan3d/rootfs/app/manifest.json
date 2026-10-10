@@ -1,6 +1,6 @@
 {
- "version": "3.69.1",
- "buildHash": "099b8d5ad0706834a31682edaab20fb7e0810aecc5b9ae5c3196579410f4eaa4",
+ "version": "3.69.2",
+ "buildHash": "e0192c95f9d9671b63b0983f2f8afbc64db201cc60ce4f69b7ea1d64c96f3570",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -132,7 +132,7 @@
   "server.py": "8a11b256da3bdd3a815532ee4cea4759fcfbe6d9690cb5ba0f2d3b26bbf6523e",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "3a541620793f7a69607719e4b2b337440d6e3d9f6876a765573fd3d02207262a",
-  "static/app.js": "2d0327442c33c916fd443ecc300743eb38ab6afaa23ee7b7a085678ca21f1591",
+  "static/app.js": "a9800bde8fb7eeab8facf8bb91c5de0abd8e56ca406dd0bc41c789926ff2796e",
   "static/appstate.js": "eb18ab17dfd8321babaf2ce95552bc36b68455b85aced34bac89bf75750e0cb5",
   "static/attic.js": "f61d6656acd9a1c8868d5263a0dbd4cdadc55c2c85835e002e3a84da65cf53aa",
   "static/atticclip.js": "02f3cc106db23fc3008c5230d1f9bf888a17e06a48ea0b926904bda56bdd9e10",
@@ -178,8 +178,8 @@
   "static/layoutnorm.js": "4d97bc7ab7697ae6d9bedaa492f3752aad91b70f1d82f94f835b607b47c21729",
   "static/ledring.js": "a1b6854d31b2f45fc7ae99f90b2fe409410de93217f3e1c90d7db2add98c8135",
   "static/livechannel.js": "f882408cc666453d58dccb2cdc6bedca4914ab283a58dbc15a8e5d0a207a6f85",
-  "static/livecontrols.js": "452726dcb560413f54909b7d8a4c0d6ef4926303888aa5bad73016b11c978133",
-  "static/livepopup.js": "2791608fdd68adf7fb52ec5022cf26a361cb82d4ca5bf5be6b9c833581bfa4ea",
+  "static/livecontrols.js": "3e4f7329bff3590f72d8c8a1779a30dbe68172b921402edd2aa026f2c1e88d60",
+  "static/livepopup.js": "bf18b82dd6225662c3877c904e4bbaad2de8c631b8116bf0e7c5f07dee35e94b",
   "static/modelfx.js": "a2169e2731058e5bee3663b64ec7f1d6aef3dbcbfd429c7f1518bb20d67f3e33",
   "static/models.js": "399853632def9318772af7ec3832a10545d603bf8f6e497fb8f5bf12176ba69c",
   "static/moreinfo.js": "3e6fbc369851fbba399a7edf0ac1868601fcb808bb18f7e43afaa4936197767a",
