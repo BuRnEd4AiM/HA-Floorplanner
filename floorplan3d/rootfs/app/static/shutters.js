@@ -1,8 +1,9 @@
 /* Roller shutters (Rollläden, #331): every window, also the window of a dormer, can have a roller shutter (a tick in its properties) with a
  * cover entity of its own (o.shutter, o.shutterEntity), independent of the window's contact sensor: an open shutter is no open window. In 3D
  * the curtain comes down in front of the glass as far as the cover is closed (walls.js builds it, openings.js moves it) and a label over
- * the window says how far it is open; in the live mode a tap ball at the window opens its controls (up, stop, down, position) and the room
- * panel lists it under "Covers". The rules are pure functions here (no three.js, no DOM; unit test: tests/shutters.test.mjs). */
+ * the window says how far it is open; in the live mode a tap ball on top of the window opens its card (shuttercard.js: a tall slider, up,
+ * stop, down, quick positions; only the shutter, not the window's contact, #335) and the room panel lists it under "Covers". The rules are
+ * pure functions here (no three.js, no DOM; unit test: tests/shutters.test.mjs). */
 import { openingWalls } from './dormerwin.js';
 import { pointInPoly } from './rooms.js';
 
@@ -56,8 +57,43 @@ export function shutterText(st, t) {
 }
 /** the label over a window with a roller shutter in 3D, like the value label of a device: "↕ 60 % open" */
 export const shutterLabel = (st, t) => `↕ ${shutterText(st, t)}`;
-/** the height of that label over the floor: just over the window's lintel */
-export const shutterLabelY = (o) => (o.sill || 0) + (o.height || 1) + 0.22;
+/** the ball of a shutter sits on top of its window, where the shutter rolls up (#335), never under it: its middle this far over the
+ *  window's top (the ball's radius, BALL.r = 0.3 in tapballs.js, and a small gap) */
+export const SHUTTER_BALL_LIFT = 0.34;
+/** the height of the shutter's ball over the floor */
+export const shutterBallY = (o) => (o.sill || 0) + (o.height || 1) + SHUTTER_BALL_LIFT;
+/** the height of the label over the floor: over the ball (its radius, a gap and half the label's height) */
+export const shutterLabelY = (o) => shutterBallY(o) + 0.55;
+
+/* The card of a shutter (#335, shuttercard.js): a tall slider that shows the curtain, quick positions under it */
+/** the quick positions of the card, 0 = closed, 100 = open */
+export const SHUTTER_PRESETS = [0, 25, 50, 75, 100];
+/** the position (100 = open) for a finger at y on the slider (top, h: its top and height in pixels): the curtain reaches down to the finger,
+ *  at the top it is open, at the bottom closed; rest: the part at the top that always shows (the rolled-up curtain); whole percent, the
+ *  last SLIDER_SNAP percent at both ends snap to closed / open (a finger at the bottom means closed, not 1 % open) */
+export const SLIDER_SNAP = 2;
+export function sliderPosition(y, top, h, rest = 0) {
+  const span = h - rest, down = span > 0 ? (y - top - rest) / span : 0;
+  const p = Math.round(100 * (1 - Math.min(1, Math.max(0, down))));
+  return p <= SLIDER_SNAP ? 0 : p >= 100 - SLIDER_SNAP ? 100 : p;
+}
+/** how long a position just chosen on the card shows before the cover answers (ms), and at most while the cover is on its way there */
+export const PENDING_MS = 3000, PENDING_MOVING_MS = 120000;
+/** the position the card shows: the one just chosen (pending: { pos, at }, at: Date.now() then) for a moment and while the cover is on its
+ *  way, else the cover's own; null when it has none (a cover that only opens and closes) */
+export function shownPosition(st, pending, now) {
+  const own = typeof st?.position === 'number' && Number.isFinite(st.position) ? Math.round(st.position) : null;
+  if (!pending || own === null || own === pending.pos) return own;
+  const age = now - pending.at, moving = st?.state === 'opening' || st?.state === 'closing';
+  return age < PENDING_MS || (moving && age < PENDING_MOVING_MS) ? pending.pos : own;
+}
+/** the big line of the card: how far it is open at pos (the position shown), on its way up / down while it moves */
+export function shutterCardText(st, pos, t) {
+  const moving = st?.state === 'opening' || st?.state === 'closing';
+  if (pos == null || st?.state === 'unavailable' || st?.state === 'unknown') return shutterText(st, t);
+  if (moving) return `${shutterText(st, t)} · ${pos} %`;
+  return shutterText({ state: pos > 0 ? 'open' : 'closed', position: pos }, t);
+}
 /** the height of the curtain as a share of the window (the scale of its pivot): the rolled-up rest at least, all of it when closed;
  *  not known: rolled up, the window stays visible */
 export const curtainScale = (closed) => SHUTTER_UP + (1 - SHUTTER_UP) * Math.min(1, Math.max(0, closed ?? 0));

@@ -4,6 +4,7 @@
  * (not inside them, so they never change a model's size). */
 import * as THREE from './vendor/three.module.min.js';
 import { LIVE_NO_TAP } from './pickrules.js';
+import { shutterBallY } from './shutters.js';
 
 export const BALL = { r: 0.3, finger: 0.4, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
 
@@ -32,11 +33,11 @@ export function ballY(minY, maxY, ceiling) {
   return Math.max(BALL.r, minY - BALL.lift);
 }
 
-/** where the ball of a window's roller shutter floats (#331), in floor coordinates: at the middle of window o along its wall w, over the
- *  window where there is room under the ceiling (the top of the wall), else under it (ballY) */
-export function openingBallAt(w, o, ceiling) {
-  const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, k = (o.pos || 0) / L, sill = o.sill || 0;
-  return { x: w.a[0] + (w.b[0] - w.a[0]) * k, y: ballY(sill, sill + (o.height || 1), ceiling), z: w.a[1] + (w.b[1] - w.a[1]) * k };
+/** where the ball of a window's roller shutter floats (#331), in floor coordinates: at the middle of window o along its wall w, on top of
+ *  the window where the shutter rolls up (#335: also where that reaches the ceiling, the ball shows through everything) */
+export function openingBallAt(w, o) {
+  const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, k = (o.pos || 0) / L;
+  return { x: w.a[0] + (w.b[0] - w.a[0]) * k, y: shutterBallY(o), z: w.a[1] + (w.b[1] - w.a[1]) * k };
 }
 
 /** Push balls apart that would cover each other (#244): points [{ x, y, z }] (their places over the devices), returned moved so that no two

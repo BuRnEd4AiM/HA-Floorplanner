@@ -2,12 +2,13 @@ import json, os
 from aiohttp import web
 STATE = {"climate.wohnzimmer": "heat", "light.wohnzimmer": "on", "sensor.temp": "21.5", "cover.rollo": "closed", "switch.garage": "off", "binary_sensor.rauch": "off", "sensor.co2": "850", "sensor.leistung": "95.4", "camera.flur": "idle"}
 CALLS = []
-CALL_DATA = []      # the data of the climate calls (set_temperature / set_hvac_mode)
+CALL_DATA = []      # the data of the climate calls (set_temperature / set_hvac_mode) and of set_cover_position
 CLIMATE = {"temperature": 21.0, "hvac_action": "heating"}
 SUBS = []          # websocket subscribers of state_changed (the add-on's live channel)
 REG_SUBS = []      # websocket subscribers of the registry events (the add-on's watch for renamed entities)
 REGISTRY = {e: "u_" + e for e in STATE}     # entity id -> unique id of its registry entry
 ALIAS = {}         # entity id the tests know -> its id after a rename (/_rename)
+COVER_POS = {}     # covers with a position (current_position), from set_cover_position on; /_set takes it away again
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur"}
 def state_of(e):
@@ -16,6 +17,7 @@ def state_of(e):
         attrs.update({"current_temperature": 20.5, "temperature": CLIMATE["temperature"], "hvac_action": CLIMATE["hvac_action"] if STATE[e] != "off" else "off",
                       "hvac_modes": ["off", "heat", "auto"], "min_temp": 7, "max_temp": 30, "target_temp_step": 0.5})
     if e == "sensor.temp": attrs["unit_of_measurement"] = "°C"
+    if e in COVER_POS: attrs["current_position"] = COVER_POS[e]
     if e == "binary_sensor.rauch": attrs["device_class"] = "smoke"
     if e == "sensor.co2": attrs.update({"unit_of_measurement": "ppm", "device_class": "carbon_dioxide"})
     if e == "sensor.leistung": attrs.update({"unit_of_measurement": "W", "device_class": "power"})
@@ -37,11 +39,13 @@ async def service(r):
     if svc == "turn_on": STATE[e] = "on"
     if svc == "set_temperature": CLIMATE["temperature"] = body["temperature"]; CALL_DATA.append([svc, e, body["temperature"]])
     if svc == "set_hvac_mode": STATE[e] = body["hvac_mode"]; CALL_DATA.append([svc, e, body["hvac_mode"]])
+    if svc == "set_cover_position": COVER_POS[e] = body.get("position"); STATE[e] = "open" if body.get("position", 0) > 0 else "closed"; CALL_DATA.append([svc, e, body.get("position")])
     if e in STATE: await push(e)
     return web.json_response([])
 async def set_state(r):          # test helper: a change that happens outside the floor plan (wall switch, automation)
     e, s = r.query["e"], r.query["s"]
     STATE[e] = s
+    COVER_POS.pop(e, None)
     await push(e)
     return web.json_response({"ok": True, "subscribers": len(SUBS)})
 async def rename(r):            # test helper: an entity renamed in Home Assistant (or by Zigbee2MQTT), with a new name

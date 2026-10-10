@@ -4,6 +4,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.70.0] - 2026-10-10
+### Changed
+- **Roller shutter card like in Home Assistant** (#335): a tap on the 🪟 ball of a roller shutter in the live mode opens a card for the shutter alone, with everything at once: how far it is open in big letters, a tall slider that shows the curtain (drag it, or tap where it should go: the cover goes there when you let go), *Up* / *Stop* / *Down* beside it and the quick positions 0 / 25 / 50 / 75 / 100 % under it. A position just chosen shows at once and stays while the cover is on its way there. The card is drawn anew only when the shutter changes (not at every state update of the house, which could swallow a tap), and on phones it stays above the view buttons at the bottom (*Normal*, *Temp.* ...), which covered its lower part. New module `shuttercard.js`; the rules (position under the finger, what shows while the cover moves) are in `shutters.js` (unit tests); the browser test drags the slider and taps a quick position.
+
+### Fixed
+- **The shutter card showed the window's contact** (#335): tapping a shutter's ball also showed the window's contact sensor ("Window · Open · binary_sensor…") at the top of the card. It now shows only the shutter; the contact stays in the room panel and the "n open" list.
+- **The shutter's ball hung under the window** (#335): where there was little room between the window and the ceiling, the ball sat under the window at the sill. It now always sits on top of the window, where the shutter rolls up, with the label ("↕ 40 % open") over it.
+
 ## [3.69.1] - 2026-10-10
 ### Fixed
 - **Settings: two quick changes in a row** (#333): changing two settings quickly one after the other (e.g. the language and right after it the design) could end with the message that the settings were changed on another screen, a reload of the page and the second change lost. The second change was saved before the first save had come back, still with its old version number (ETag), and the add-on refused it. Saves now go one at a time: a change made while a save is on its way is saved right after it, and the answer of the older save no longer overwrites the newer change. `oneAtATime` in `settings.js` (unit tests).
