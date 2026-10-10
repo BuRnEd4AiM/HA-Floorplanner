@@ -713,3 +713,33 @@ async def test_language_follows_the_browser_until_somebody_picks_one(aiohttp_cli
     assert s["language"] == "fr" and s["langChosen"] is True
     r = await client.put("/api/settings", json={"language": "fr", "grid": 0.25})      # the page sends everything it knows: the choice stays
     assert (await (await get()).json())["language"] == "fr"
+
+
+async def test_live_channel_a_stuck_browser_does_not_hold_up_the_others(monkeypatch):
+    """#323: a tablet asleep that takes no messages used to delay every other browser until the heartbeat noticed it (up to 30 s)."""
+    import asyncio
+    monkeypatch.setattr(server.LiveHub, "SEND_TIMEOUT", 0.2)
+
+    class Browser:
+        def __init__(self, stuck=False):
+            self.stuck, self.got, self.closed = stuck, [], False
+
+        async def send_json(self, msg):
+            if self.stuck:
+                await asyncio.sleep(3600)
+            self.got.append(msg)
+
+        async def close(self):
+            self.closed = True
+
+    hub = server.LiveHub()
+    asleep, awake = Browser(stuck=True), Browser()
+    await hub.add(asleep)
+    await hub.add(awake)
+    hub.queue("light.a", {"entity_id": "light.a", "state": "on"})
+    await asyncio.sleep(server.LiveHub.BATCH + 0.05)
+    assert awake.got[-1]["type"] == "states" and awake.got[-1]["list"][0]["state"] == "on"   # at once, not after the stuck one
+    await asyncio.sleep(0.4)
+    assert asleep not in hub.clients and asleep.closed                                       # dropped: it reconnects and catches up
+    assert awake in hub.clients
+    hub.remove(awake)

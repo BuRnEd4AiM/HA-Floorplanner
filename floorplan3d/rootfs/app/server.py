@@ -863,9 +863,11 @@ class LiveHub:
 
     BATCH = 0.05                          # a scene switches many lights at once: they go out as one message
     GRACE = 60                            # keep Home Assistant's websocket a minute after the last view closed (page reloads)
+    SEND_TIMEOUT = 5                      # a browser that takes longer to take a message is stuck (tablet asleep, network gone)
+    BACKLOG = 20                          # messages waiting for one browser before it counts as stuck
 
     def __init__(self):
-        self.clients: set = set()
+        self.clients: dict = {}           # browser websocket -> (its queue, the task that sends it)
         self.ok = False
         self.task = None
         self.flush_task = None
@@ -873,25 +875,52 @@ class LiveHub:
         self.empty_since = 0.0
 
     async def add(self, ws):
-        self.clients.add(ws)
-        await ws.send_json({"type": "upstream", "ok": self.ok})
+        q = asyncio.Queue(self.BACKLOG)
+        q.put_nowait({"type": "upstream", "ok": self.ok})
+        self.clients[ws] = (q, asyncio.create_task(self.send_loop(ws, q)))
         if SUPERVISOR_TOKEN and (self.task is None or self.task.done()):
             self.task = asyncio.create_task(self.run())
 
     def remove(self, ws):
-        self.clients.discard(ws)
+        entry = self.clients.pop(ws, None)
+        if entry and entry[1] is not asyncio.current_task():
+            entry[1].cancel()
         if not self.clients:
             self.empty_since = time.monotonic()
 
     def idle(self):
         return not self.clients and time.monotonic() - self.empty_since > self.GRACE
 
+    async def send_loop(self, ws, q):
+        """Every browser gets its messages from its own task: one that does not take them (a tablet asleep, a phone that lost the network)
+        used to hold up all the others until the heartbeat noticed it, up to half a minute (#323). A stuck one is dropped; it reconnects
+        and fetches the full list again."""
+        try:
+            while True:
+                msg = await q.get()
+                await asyncio.wait_for(ws.send_json(msg), self.SEND_TIMEOUT)
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001 - a browser that went away or got stuck
+            self.drop(ws)
+
+    def drop(self, ws):
+        self.remove(ws)
+        asyncio.create_task(self.close_quietly(ws))
+
+    @staticmethod
+    async def close_quietly(ws):
+        try:
+            await asyncio.wait_for(ws.close(), 2)
+        except Exception:  # noqa: BLE001 - it is gone anyway
+            pass
+
     async def broadcast(self, msg):
-        for ws in list(self.clients):
+        for ws, (q, _) in list(self.clients.items()):
             try:
-                await ws.send_json(msg)
-            except Exception:  # noqa: BLE001 - a browser that went away
-                self.clients.discard(ws)
+                q.put_nowait(msg)
+            except asyncio.QueueFull:
+                self.drop(ws)
 
     def queue(self, entity_id, st):
         self.pending[entity_id] = st
@@ -965,7 +994,7 @@ async def live_ws(request):
 
 async def stop_live(app):
     hub = app[KEY_LIVE]
-    for t in (hub.task, hub.flush_task):
+    for t in (hub.task, hub.flush_task, *(task for _, task in hub.clients.values())):
         if t and not t.done():
             t.cancel()
 

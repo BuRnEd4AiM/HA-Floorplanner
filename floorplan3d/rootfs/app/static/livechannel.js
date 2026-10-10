@@ -82,6 +82,7 @@ export function initLiveChannel(ctx) {
     poll();
     connect();
     setInterval(() => { if (pollDue(liveOk, lastFull, Date.now())) poll(); }, POLL_MS);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });   // a tablet or phone waking up: at once, not after the next timer (#323)
   }
   return { start, poll, ok: () => liveOk };
 }
