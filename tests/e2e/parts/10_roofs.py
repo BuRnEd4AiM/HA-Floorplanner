@@ -1,5 +1,13 @@
 """Roofs and selecting: solar panels on the roof (#176), moving and sizing roofs (#255, #259), lived-in attic (#260), several things at once (#211, #247), the turning 2D plan (#212).
 """
+# a house of its own: four storeys with walls and no roof yet (the checks below add the roof). The test house of base.py has a roof already,
+# so the roof would come on top of it and the attic checks would find no walls below. The test house comes back at the end.
+roofs_saved = api_admin("api/layout")
+def put_layout(lay):
+    urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(lay).encode(), method="PUT", headers={"X-Remote-User-Name": "admin", "Content-Type": "application/json"})).read()
+box = lambda p: [{"id": f"{p}{i}", "a": a, "b": b, "thickness": 0.2, "height": 2.6, "openings": []} for i, (a, b) in enumerate((([0, 0], [4, 0]), ([4, 0], [4, 6]), ([4, 6], [0, 6]), ([0, 6], [0, 0])))]
+put_layout({"version": 1, "floors": [{"id": f"rf{i}", "name": n, "kind": "floor", "walls": box(f"r{i}w"), "rooms": [{"id": f"rr{i}", "name": n, "points": [[0, 0], [4, 0], [4, 6], [0, 6]]}],
+                                      "devices": [], "blocks": [], "stairs": []} for i, n in enumerate(("EG", "OG", "DG", "SG"))]})
 # --- solar panels on the roof (#176): on the roof floor a panel lies on the roof surface, follows its slope, a field of rows x columns
 pgSol = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
 pgSol.goto(BASE + "?debug=1&mode=edit"); pgSol.wait_for_timeout(2500)
@@ -196,3 +204,4 @@ pgPR.click("#planRotateBtn"); pgPR.wait_for_timeout(300)
 check("plan turning (#212): off again, the plan is straight", pgPR.evaluate("window.__fp.plan().rotation()") == 0)
 pgPR.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices.splice(f.devices.findIndex(d => d.id === 'prd'), 1); window.__fp.rebuild(); }")
 pgPR.close()
+put_layout(roofs_saved)

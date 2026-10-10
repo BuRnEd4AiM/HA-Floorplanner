@@ -93,7 +93,7 @@ def place_far(pg):
 setup_js = """() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.length = 0; f.devices.length = 0;
   [[[0,0],[6,0]],[[6,0],[6,5]],[[6,5],[0,5]],[[0,5],[0,0]]].forEach((w, i) => f.walls.push({id: 'tw' + i, a: w[0], b: w[1], thickness: 0.2, height: 2.6, openings: i === 2 ? [{id: 'tWin', type: 'window', pos: 0.5, width: 1.2, height: 1.2, sill: 0.9, entity: 'binary_sensor.fenster_wohnzimmer'}] : []}));
   f.devices.push({id: 'tLamp', type: 'light', x: 2, z: 2, y: 0.9, rot: 0, scale: 1, name: 'Lampe', entity: 'light.wohnzimmer'}, {id: 'tPlant', type: 'plant', x: 1, z: 0.8, y: 0, rot: 0, scale: 1, name: 'Pflanze', entity: ''});
-  window.__fp.rebuild(); }"""
+  window.__fp.rebuild(); const e = window.__fp.elev(window.__fp.floorIdx()); window.__fp.camAt(3, e + 3, -7, 3, 2.5); }"""   # seen low from the north: lamp, its ball and the window on the far wall lie apart on the screen
 pgT = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
 pgT.goto(BASE + "?debug=1&mode=live"); pgT.wait_for_timeout(2000)
 pgT.evaluate(setup_js); pgT.wait_for_timeout(1500)

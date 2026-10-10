@@ -132,8 +132,15 @@ check("power editor: a lamp (not a power thing) cannot be hit in 3D", pgE.evalua
 fbp = pgE.evaluate("window.__fp.screenOf('fb')")
 check("power editor: a power device is found a few pixels beside its centre", (pgE.evaluate("window.__fp.liveHitAt(%s, %s)" % (fbp["x"] + 12, fbp["y"] + 12)) or {}).get("id") == "fb", fbp)
 pgE.click("#cableBtn"); pgE.wait_for_timeout(200)
+def on_device(did):
+    """a spot on the screen where the device itself is hit: from some angles a cable on the floor lies over its centre and would take the click"""
+    sp = pgE.evaluate("window.__fp.screenOf('%s')" % did)
+    for dx, dy in ((0, 0), (0, -8), (-8, 0), (8, 0), (0, -16), (-12, -12), (12, -12), (0, 8)):
+        if (pgE.evaluate("window.__fp.liveHitAt(%s, %s)" % (sp["x"] + dx, sp["y"] + dy)) or {}).get("id") == did:
+            return sp["x"] + dx, sp["y"] + dy
+    return sp["x"], sp["y"]
 for did in ("fb", "bt"):
-    sp = pgE.evaluate("window.__fp.screenOf('%s')" % did); pgE.mouse.move(sp["x"], sp["y"]); pgE.wait_for_timeout(120); pgE.mouse.click(sp["x"], sp["y"]); pgE.wait_for_timeout(300)
+    x, y = on_device(did); pgE.mouse.move(x, y); pgE.wait_for_timeout(120); pgE.mouse.click(x, y); pgE.wait_for_timeout(300)
 fbc = pgE.evaluate("(window.__fp.layout.floors.at(-1).devices.find(d => d.id === 'fb').cables || []).map(c => c.to)")
 check("power editor: the cable tool also works with clicks in 3D", fbc == ["bt"], fbc)
 pgE.click("#view2d"); pgE.wait_for_timeout(400)
