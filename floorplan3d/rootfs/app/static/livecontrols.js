@@ -141,10 +141,15 @@ export function initLiveControls(ctx) {
     wrap.append(row);
     return wrap;
   }
+  /** the lights of a room and its scenes (placed in it, in its area, or setting one of its lights) */
+  function roomIds(room) {
+    const env = { devices: ctx.entityDevices(ctx.floor()), areas: ctx.areas(), states: ctx.states(), pointInPoly: ctx.pointInPoly };
+    const lights = roomEntityIds(env, room, 'light');
+    return { lights, scenes: [...new Set([...roomEntityIds(env, room, 'scene'), ...scenesOf(lights)])] };
+  }
   /** the whole room: all lights at once + the room's scenes; null when the room has neither */
   function roomControls(room) {
-    const env = { devices: ctx.entityDevices(ctx.floor()), areas: ctx.areas(), states: ctx.states(), pointInPoly: ctx.pointInPoly };
-    const lights = roomEntityIds(env, room, 'light'), scenes = [...new Set([...roomEntityIds(env, room, 'scene'), ...scenesOf(lights)])];
+    const { lights, scenes } = roomIds(room);
     if (!lights.length && !scenes.length) return null;
     const states = ctx.states();
     const wrap = document.createElement('div'); wrap.className = 'roomctl';
@@ -172,5 +177,5 @@ export function initLiveControls(ctx) {
     }
     return wrap;
   }
-  return { callService, quickAction, detailsButton, lightControls, sceneButtons, roomControls, scenesWith: scenesOf };
+  return { callService, quickAction, detailsButton, lightControls, sceneButtons, roomControls, roomIds, nameOf, scenesWith: scenesOf };
 }
