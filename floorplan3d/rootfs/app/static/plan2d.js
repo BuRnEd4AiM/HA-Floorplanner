@@ -6,7 +6,7 @@ import { kitchenLayout } from './kitchen.js';
 import { solarField } from './solarroof.js';
 import { rotPoint, readableAngle } from './planview.js';
 import { bridgeSize } from './bridge.js';
-import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange } from './ledring.js';
+import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange, sectionHex } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 import { boxItems, groupTargets, moveGroup } from './multisel.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
@@ -675,12 +675,12 @@ export function createPlan(ctx) {
     secs.forEach((sc) => {
       const ent = segEntity(d, sc.i), on = ent && isOn(ent), st = ent ? ctx.states()[ent] : null;
       const c = on ? (Array.isArray(st?.rgb) ? st.rgb : [255, 214, 120]) : null;
-      const col = c ? `rgb(${c[0]},${c[1]},${c[2]})` : isSel ? C.sel : C.accent;
+      const col = c ? `rgb(${c[0]},${c[1]},${c[2]})` : !live ? sectionHex(sc.i) : isSel ? C.sel : C.accent;   // editing: every section its own colour (#325)
       sc.pieces.forEach(([a, b]) => {
         if (c) r += `<line ${ln(a, b)} stroke="${col}" stroke-width="10" stroke-linecap="round" opacity=".35"/>`;
         r += `<line ${ln(a, b)} stroke="${col}" stroke-width="${isSel ? 4 : 3}" stroke-linecap="butt"${c || ent ? '' : ' stroke-dasharray="5 4"'}/>`;
       });
-      if (!live && s >= 40) r += `<text x="${sx(sc.mid[0])}" y="${sy(sc.mid[1]) - 6}" text-anchor="middle" font-size="9" fill="${C.text}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${sc.i + 1}</text>`;
+      if (!live && s >= 40) r += `<text x="${sx(sc.mid[0])}" y="${sy(sc.mid[1]) - 6}" text-anchor="middle" font-size="9" fill="${sectionHex(sc.i)}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${sc.i + 1}</text>`;
     });
     if (isSel && !live) {
       if (path[0]) r += `<text x="${sx(path[0].a[0]) + 6}" y="${sy(path[0].a[1]) + 12}" font-size="9" fill="${C.sel}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">0 m</text>`;

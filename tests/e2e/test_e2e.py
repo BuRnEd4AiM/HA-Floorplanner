@@ -1112,6 +1112,8 @@ with sync_playwright() as p:
     # state set and read in one step: the regular poll would otherwise bring back the mock's real state
     g1 = pg12.evaluate(f"(() => {{ const d = window.__fp.layout.floors[window.__fp.floorIdx()].devices.find(v => v.id === '{rid}'); d.segs[0] = {{entity: 'light.wohnzimmer'}}; window.__fp.fakeState('light.wohnzimmer', 'on'); window.__fp.rebuild(); return window.__fp.ringGlow('{rid}'); }})()")
     check("only the section with a lit light glows", g1 == [True, False, False, False], g1)
+    marks = pg12.evaluate("[...new Set([...document.querySelectorAll('#plan2d line')].map(l => l.getAttribute('stroke')).filter(c => ['#ff8a80', '#80d8ff', '#b9f6ca', '#ffd180'].includes(c)))]")
+    check("editing: the sections that are off are marked in their own colours in 2D (#325)", sorted(marks) == ['#80d8ff', '#b9f6ca', '#ffd180'], marks)
     g2 = pg12.evaluate(f"(() => {{ window.__fp.layout.floors[window.__fp.floorIdx()].devices.find(v => v.id === '{rid}').entity = 'light.wohnzimmer'; window.__fp.fakeState('light.wohnzimmer', 'on'); window.__fp.rebuild(); return window.__fp.ringGlow('{rid}'); }})()")
     check("sections without own light follow the ring's main entity", g2 == [True, True, True, True], g2)
     pg12.click("#ringClosed"); pg12.wait_for_timeout(300)

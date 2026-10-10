@@ -82,7 +82,7 @@ import { initHouseLoad } from './houseload.js';
 import { roofRects, moveRoof, tagRoofMeshes, panelsOn, setRoofBox } from './roofmove.js';
 import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
 import { pointInPoly, inIso } from './roomclip.js';
-import { HOLO } from './modelfx.js';
+import { HOLO, ringLook } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
@@ -589,14 +589,10 @@ function applyStates() {
           hl.edge.forEach((m) => { if (lon && lrgb) m.color.setRGB(Math.min(1, lrgb[0] / 255 + 0.35), Math.min(1, lrgb[1] / 255 + 0.35), Math.min(1, lrgb[2] / 255 + 0.35)); else m.color.setHex(lon ? HOLO.onEdge : HOLO.edge); });
         }
       }
-      obj.userData.segs?.forEach((sg, i) => {                 // LED ring: every section shows its own light
-        const e = segEntity(d, i), son = !!e && ON_STATES.has(states[e]?.state), c = son && Array.isArray(states[e]?.rgb) ? states[e].rgb : null;
-        sg.glow.forEach((m) => { m.emissive.set(son ? (c ? new THREE.Color(c[0] / 255, c[1] / 255, c[2] / 255) : 0xffd27a) : 0x000000); m.emissiveIntensity = son ? 1.4 : 0; });
-        if (!sg.holo) return;
-        const op = ghost ? (son ? 0.12 + 0.5 * bv : 0.03 + 0.2 * bv) : (son ? 1 : 0.45);
-        sg.holo.fill.forEach((m) => { if (son && c) m.color.setRGB(c[0] / 255, c[1] / 255, c[2] / 255); else m.color.setHex(son ? HOLO.on : HOLO.fill); m.opacity = op; });
-        sg.holo.edge.forEach((m) => { if (son && c) m.color.setRGB(Math.min(1, c[0] / 255 + 0.35), Math.min(1, c[1] / 255 + 0.35), Math.min(1, c[2] / 255 + 0.35)); else m.color.setHex(son ? HOLO.onEdge : HOLO.edge); });
-      });
+      if (obj.userData.segs) ringLook(obj, obj.userData.segs.map((_, i) => {   // LED ring: every section shows its own light, editing: its colour (modelfx.js)
+        const e = segEntity(d, i), son = !!e && ON_STATES.has(states[e]?.state);
+        return { on: son, rgb: son && Array.isArray(states[e]?.rgb) ? states[e].rgb : null };
+      }), { ghost, bv, edit: !isLive() });
       obj.visible = !obj.userData.cutHidden && !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on)      // a person who is not there is not drawn in live mode
         && !power.hides(d.id);                                  // the power editor shows nothing but the power things (#174: the next state update brought them all back)          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       tapBalls.update(d.id, on, rgb, isLive() && !ghost, obj.visible);   // the ball to tap in the live mode, lit while on (#238)

@@ -63,6 +63,10 @@ export const ringCount = (d) => ringSections(d).length;
 /** entity that drives section i (its own one, otherwise the main entity of the ring) */
 export const segEntity = (d, i) => d.segs?.[i]?.entity || d.entity || '';
 
+/** soft marker colours of the sections in the edit mode, so you can see where each one runs (#325); neighbours always differ */
+export const SECTION_COLORS = ['#ff8a80', '#80d8ff', '#b9f6ca', '#ffd180', '#ea80fc', '#a7ffeb', '#ffff8d', '#8c9eff'];
+export const sectionHex = (i) => SECTION_COLORS[((Math.trunc(+i) || 0) % SECTION_COLORS.length + SECTION_COLORS.length) % SECTION_COLORS.length];
+
 /** every entity the ring uses, without duplicates */
 export const ringEntities = (d) => [...new Set(Array.from({ length: ringCount(d) }, (_, i) => segEntity(d, i)).filter(Boolean))];
 

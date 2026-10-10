@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.67.0] - 2026-10-10
+### Added
+- **LED ring: every section in its own colour while editing** (#325): in the edit mode each section of an LED ring is drawn in a soft colour of its own, in the 2D plan (line and number), in 3D and as a coloured edge of its box in the properties, so you can see where each section runs before giving it a light. Sections that are on keep their real light colour; the live mode looks as before. Colours in `ledring.js` (`sectionHex`, unit test); the 3D look of the ring moved from `app.js` into `modelfx.js` (`ringLook`).
+
 ## [3.66.1] - 2026-10-10
 ### Fixed
 - **States show up at once again** (#323): a change in Home Assistant sometimes took about 30 seconds to appear. One browser that took no messages (a tablet asleep, a phone without network) held up the live channel for every other view until the heartbeat noticed it. Every browser now has its own queue and sender in `LiveHub`; one that is stuck for 5 s is dropped and reconnects with the full list. A tablet or phone waking up also fetches the states at once.

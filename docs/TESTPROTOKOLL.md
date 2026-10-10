@@ -24,6 +24,9 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 9. **Sicherheit über die ganze Breite** (38.5) und **„🗄️ Backup“ oben** (38.6).
 10. **Keine dunkle Fläche beim Platzieren** (38.8): „2D + 3D“, Werkzeug „Treppe“.
 
+**Neu in 3.67** (ausführlich in Abschnitt **39** unten)
+11. **LED-Ring-Abschnitte farbig** (39.1, 39.2): Bearbeiten, LED-Ring in mehrere Abschnitte teilen, in 2D und 3D schauen.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -128,7 +131,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 15 | 0 | 0 | 0 | – |
 | 37. Neu in 3.59 bis 3.62 | 7 | 0 | 1 | 0 | 37.6 |
 | 38. Neu in 3.66 | 0 | 0 | 6 | 2 | 38.1 bis 38.3, 38.5, 38.6, 38.8 |
-| **Zusammen** | **179** | **1** | **91** | **2** | |
+| 39. Neu in 3.67 | 0 | 0 | 2 | 0 | 39.1, 39.2 |
+| **Zusammen** | **179** | **1** | **93** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -621,3 +625,9 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 38.6 | Oben „🗄️ Backup“ | Ein Fenster mit Backup, automatischer Sicherung und Sicherheit; in der Seitenleiste heißt der Abschnitt nur noch „Häuser“ (#321) | ❓ |
 | 38.7 | Im Backup-Fenster unter „Sicherheit“ | Liste der aufgezeichneten Tage, je Tag ▶ (abspielen) und ⬇ (Datei herunterladen); „Tage behalten“ ändern bleibt gespeichert (#317, nur im Add-on mit Aufzeichnung) | ➖ |
 | 38.8 | Bearbeiten, „2D + 3D“, Werkzeug „Treppe“ oder „Gerät“ | Rechts in 3D keine große dunkle Fläche mehr; Rasen sichtbar mit leichtem Raster darüber (#320) | ❓ |
+
+## 39. Neu in 3.67
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 39.1 | Bearbeiten, einen LED-Ring (indirekt) auswählen, „Anzahl Abschnitte“ z. B. 4, „Gleichmäßig verteilen“ | Im 2D-Plan hat jeder Abschnitt eine eigene, helle Farbe (Linie und Nummer); in den Eigenschaften hat jeder Abschnitt links einen Rand in derselben Farbe (#325) | ❓ |
+| 39.2 | Dasselbe in 3D anschauen, dann einen Abschnitt einschalten und in den Live-Modus wechseln | In 3D sind die ausgeschalteten Abschnitte leicht in ihrer Farbe getönt; der eingeschaltete leuchtet in seiner Lichtfarbe; im Live-Modus sind keine Markierungsfarben zu sehen | ❓ |
