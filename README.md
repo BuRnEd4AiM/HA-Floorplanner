@@ -110,7 +110,7 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 | **Walls, rooms and floors** | Draw on a snapping grid in a 2D blueprint editor that is linked live with the 3D view (split view). Several floors, basement and roof, placeholder blocks for floors you do not draw |
 | **Trace your plan** | Load a scan or photo of your floor plan as a template, calibrate its scale and trace over it |
 | **Stairs** | Straight, L-shaped, U-shaped and spiral stairs with real floor openings |
-| **Doors and windows** | 14 presets: front door, glass door, double door, sliding door, single / double / triple window, balcony door, fixed glazing ... they cut real openings into the wall and open when the contact sensor reports *open* |
+| **Doors and windows** | 14 presets: front door, glass door, double door, sliding door, single / double / triple window, balcony door, fixed glazing ... they cut real openings into the wall and open when the contact sensor reports *open*; every window (also in a dormer) can get a **roller shutter** with its own cover entity, shown in 3D and controllable in live mode |
 | **Garden and surroundings** | Trees, bushes, lawn, terrace, pool, paths, fences and cars around the house, in natural colours |
 | **Plot and ground** | Draw your **plot** (Grundstück) in the 2D plan, or set how far the lawn reaches around the house. The house stands in solid ground, a basement is shown as a section with soil layers |
 | **Whole-house view** | See all floors, basement and roof stacked as one building |

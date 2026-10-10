@@ -7,10 +7,11 @@
 export const LIVE_NO_TAP = new Set(['presence', 'sensor']);
 
 /** true when a hit object (its userData: kind, cone ...) of a device of `type` is ignored by a tap in the live mode:
- *  doors and windows, the field-of-view cone of a camera (only the camera itself can be tapped) and the types above */
+ *  doors and windows (but the ball of a window's roller shutter, #331), the field-of-view cone of a camera (only the camera itself can be
+ *  tapped) and the types above */
 export function skipInLive(data, type) {
   if (!data) return false;
-  if (data.kind === 'opening' || data.cone) return true;
+  if ((data.kind === 'opening' && !data.tapBall) || data.cone) return true;
   return data.kind === 'device' && LIVE_NO_TAP.has(type);
 }
 

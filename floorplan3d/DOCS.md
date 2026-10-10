@@ -219,6 +219,10 @@ For a wall tablet, open the add-on with `?house=Parents` (name or id, case-insen
 
 For a double or triple window, the side panel lists **Individual panes**: pick one contact sensor per pane. Each pane then opens on its own in 3D, and the room panel shows every pane. Panes without their own sensor follow the window's main sensor.
 
+## Roller shutters
+
+Every window (also a dormer window) has the tick **Rollladen** in the side panel. Tick it and pick the shutter's own entity under **Rollladen-Entität** (a cover, e.g. `cover.rollladen_kueche`); the window's contact stays its sensor. In 3D the shutter comes down outside the glass as far as the cover is closed (its position, 100 % = open) and moves up and down with it; a label over the window says how far it is open (e.g. "↕ 60 % offen"; it follows the setting for value labels). In live mode a 🪟 ball at the window opens *Up / Stop / Down* and a slider for the position; the room panel lists the shutter under *Rollläden*, and the 2D plan shows it outside the window (in live mode with its position). An open shutter does not count as an open window. Untick it to remove the shutter and its entity.
+
 ## Version and checksum
 
 At the top right of the bar there is a pill with the **version** and a short **checksum**, for example `✓ v3.24.1 · a1b2c3d`. Every change of the add-on files changes the checksum: a *manifest* with the checksum of every file is committed with the code, and the tests fail when it does not match. The pill checks on every start:

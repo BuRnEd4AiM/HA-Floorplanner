@@ -52,14 +52,14 @@ const layout = {
     ],
     walls: [
       W('w1', [0, 0], [6, 0], 0.24, [Win('o1', 1.6, { entity: 'binary_sensor.fenster_wohnzimmer', name: 'Fenster Wohnzimmer' }), Win('o2', 4.4)]),
-      W('w2', [6, 0], [10, 0], 0.24, [Win('o3', 2, { entity: 'binary_sensor.fenster_kueche', name: 'Fenster Küche' })]),
+      W('w2', [6, 0], [10, 0], 0.24, [Win('o3', 2, { entity: 'binary_sensor.fenster_kueche', name: 'Fenster Küche', shutter: true, shutterEntity: 'cover.rollladen_kueche' })]),   // #331: window with a contact and a roller shutter
       W('w3', [10, 0], [10, 4.5], 0.24, [D('o4', 2.25, { name: 'Tür zur Garage' })]),
       W('w4', [10, 4.5], [10, 7], 0.24, []),
       W('g_w1', [10, 0], [15, 0], 0.24, []),
       W('g_w2', [15, 0], [15, 6], 0.24, [D('g_o1', 3, { width: 2.6, height: 2.1, style: 'garage', entity: 'cover.garagentor', name: 'Garagentor' })]),
       W('g_w3', [15, 6], [10, 6], 0.24, []),
       W('w5', [10, 7], [7, 7], 0.24, [D('o6', 1.5, { entity: 'binary_sensor.tuer_buero', name: 'Bürotür' })]),
-      W('w6', [7, 7], [3, 7], 0.24, [Win('o7', 2)]),
+      W('w6', [7, 7], [3, 7], 0.24, [Win('o7', 2, { shutter: true, shutterEntity: 'cover.rollladen_schlafzimmer' })]),
       W('w7', [3, 7], [0, 7], 0.24, [Win('o8', 1.5, { width: 0.7, height: 0.8, sill: 1.3 })]),
       W('w8', [0, 7], [0, 4.5], 0.24),
       W('w9', [0, 4.5], [0, 0], 0.24, [Win('o9', 2.25, { width: 1.6 })]),
@@ -174,7 +174,7 @@ const layout = {
   }, {
     id: 'dach', name: 'Dach', kind: 'roof', walls: [], rooms: [], blocks: [], stairs: [],
     devices: [{ id: 'pv_dach', type: 'solarpanel', x: 5, z: 5.45, y: 0, rot: 0, scale: 1, cols: 5, rows: 2, name: 'PV Dach', entity: 'sensor.pv_dach' }],
-    roof: { type: 'gable', pitch: 35, overhang: 0.4, dormers: [{ side: 'a', pos: 0.3 }, { side: 'b', pos: 0.7, w: 2.0, type: 'flat' }] },
+    roof: { type: 'gable', pitch: 35, overhang: 0.4, dormers: [{ side: 'a', pos: 0.3, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } }, { side: 'b', pos: 0.7, w: 2.0, type: 'flat' }] },   // #331: a dormer window with a roller shutter
   }],
 };
 
@@ -276,6 +276,9 @@ const entities = {
   'camera.buero':            { name: 'Kamera Büro',            state: 'idle' },
   'binary_sensor.wohnzimmer_bewegung': { name: 'Bewegung Wohnzimmer', state: 'on' },
   'cover.garagentor':        { name: 'Garagentor',             state: 'closed', position: 0 },
+  'cover.rollladen_kueche':  { name: 'Rollladen Küche',        state: 'closed', position: 0 },
+  'cover.rollladen_schlafzimmer': { name: 'Rollladen Schlafzimmer', state: 'open', position: 40 },
+  'cover.rollladen_gaube':   { name: 'Rollladen Gaube',        state: 'open', position: 100 },
   'light.garage':            { name: 'Garage Licht',           state: 'off' },
   'script.filmabend':        { name: 'Filmabend',              state: 'off' },
   'sensor.bad_feuchte':      { name: 'Bad Luftfeuchte',        state: '64', unit: '%' },

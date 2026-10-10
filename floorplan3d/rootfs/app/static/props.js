@@ -1,6 +1,7 @@
 /* Properties panel (edit mode): the fields of the selected object: wall, room (with its entity list), placeholder block, floor opening, stair
- * (stairtool.js), door / window, device (position, size, tilt, picture, LED ring sections, kitchen run, power cables, entity, camera, TV
- * backlight), and a power cable (power.js). Which fields a device gets is decided by pure functions (tested); initProps draws the panel. */
+ * (stairtool.js), door / window (with a window's roller shutter, #331), device (position, size, tilt, picture, LED ring sections, kitchen
+ * run, power cables, entity, camera, TV backlight), and a power cable (power.js). Which fields a device gets is decided by pure functions
+ * (tested); initProps draws the panel. */
 import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange, sectionHex } from './ledring.js';
 import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
 import { roomOpenings } from './roompanel.js';
@@ -8,6 +9,7 @@ import { initKitchenUi } from './kitchenui.js';
 import { MOUNTS, MAX_FIELD } from './solarroof.js';
 import { BRIDGE, bridgeSize } from './bridge.js';
 import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
+import { hasShutter, setShutter, setShutterEntity, shutterChoices } from './shutters.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -174,6 +176,7 @@ export function initProps(ctx) {
     const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
     const room = rc ? f.rooms.find((r) => r.id === rc) : null;
     body.append(pickerField(t('prop.contact'), ctx.entityPicker(pickFrom(contact.length ? contact : entities), room, it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
+    if (it.type === 'window') shutterProps(body, it, entities, room);    // right under the contact: the roller shutter (#331)
     const count = paneCount(it);
     if (count) {
       const h = document.createElement('h4'); h.textContent = t('pane.title'); body.append(h);
@@ -192,6 +195,17 @@ export function initProps(ctx) {
       ci.addEventListener('change', () => { ctx.snapshot(); it.inv = ci.checked; ctx.changed(); });
       body.append(field(t('prop.inv'), ci));
     }
+  }
+
+  /** the roller shutter of a window, also of a dormer window (#331): the tick, then its own cover entity (the contact above stays the
+   *  window's sensor) */
+  function shutterProps(body, it, entities, room) {
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = hasShutter(it); cb.id = 'openShutter';
+    cb.addEventListener('change', () => { ctx.snapshot(); setShutter(it, cb.checked); ctx.changed(); render(); });
+    const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t('prop.shutterHint'); lb.append(cb, document.createTextNode(' ' + t('prop.shutter')));
+    body.append(lb);
+    if (!hasShutter(it)) return;
+    body.append(pickerField(t('prop.shutterEntity'), ctx.entityPicker(pickFrom(shutterChoices(entities)), room, it.shutterEntity || '', (v) => { ctx.snapshot(); setShutterEntity(it, v); ctx.changed(); })));
   }
 
   function deviceProps(body, it) {

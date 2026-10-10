@@ -2,6 +2,7 @@
  * in one list that is always one tap away. The decisions are pure functions (tested); the pill and the dialog are drawn by initOffline. */
 import { ringEntities } from './ledring.js';
 import { openingWalls } from './dormerwin.js';
+import { shutterEntity } from './shutters.js';
 
 const SMART_CATS = new Set(['lighting', 'smart']);   // devices that belong to an entity (furniture, garden and pictures do not)
 const NOT_SMART = new Set(['tv_led', 'radiator', 'boiler']);   // a radiator or a hot-water tank is often just drawn, without an entity
@@ -17,7 +18,7 @@ export function offlineReason(states, id) {
 }
 /**
  * [{ entity, reason, since, floor, kind, id, name, room }] of every placed lamp or smart device without an entity (reason 'unlinked') and every placed device,
- * LED ring section, TV backlight and door / window contact that is offline.
+ * LED ring section, TV backlight, door / window contact and window roller shutter that is offline.
  * `env`: { layout, entities, states, t, catOf(type), pointInPoly(x, z, pts) }
  */
 export function offlineDevices(env) {
@@ -46,6 +47,7 @@ export function offlineDevices(env) {
     });
     openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
       add(o.entity, fi, 'opening', o.id, o.name || t(`prop.${o.type}`), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);
+      add(shutterEntity(o), fi, 'opening', o.id, o.name || t('shutter.title'), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);   // its roller shutter (#331)
     }));
   });
   return out.sort((a, b) => a.floor - b.floor || a.room.localeCompare(b.room) || a.name.localeCompare(b.name));

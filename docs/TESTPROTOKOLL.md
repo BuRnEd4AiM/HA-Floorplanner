@@ -29,6 +29,9 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 **Neu in 3.67** (ausführlich in Abschnitt **39** unten)
 11. **LED-Ring-Abschnitte farbig** (39.1, 39.2): Bearbeiten, LED-Ring in mehrere Abschnitte teilen, in 2D und 3D schauen.
 
+**Neu in 3.69** (ausführlich in Abschnitt **40** unten)
+12. **Rollladen an jedem Fenster, auch an der Gaube** (40.1 bis 40.6): Bearbeiten, ein Fenster anklicken, Haken „Rollladen“. Live: die Kugel 🪟 unter dem Küchenfenster antippen, „Hoch“ / „Runter“ und Schieber ausprobieren.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -134,7 +137,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 37. Neu in 3.59 bis 3.62 | 7 | 0 | 1 | 0 | 37.6 |
 | 38. Neu in 3.66 | 0 | 0 | 6 | 2 | 38.1 bis 38.3, 38.5, 38.6, 38.8 |
 | 39. Neu in 3.67 | 0 | 0 | 2 | 0 | 39.1, 39.2 |
-| **Zusammen** | **198** | **1** | **74** | **2** | |
+| 40. Neu in 3.69: Rollläden an den Fenstern | 0 | 0 | 6 | 0 | 40.1 bis 40.6 |
+| **Zusammen** | **198** | **1** | **80** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -631,3 +635,13 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 |---|---|---|---|
 | 39.1 | Bearbeiten, einen LED-Ring (indirekt) auswählen, „Anzahl Abschnitte“ z. B. 4, „Gleichmäßig verteilen“ | Im 2D-Plan hat jeder Abschnitt eine eigene, helle Farbe (Linie und Nummer); in den Eigenschaften hat jeder Abschnitt links einen Rand in derselben Farbe (#325) | ❓ |
 | 39.2 | Dasselbe in 3D anschauen, dann einen Abschnitt einschalten und in den Live-Modus wechseln | In 3D sind die ausgeschalteten Abschnitte leicht in ihrer Farbe getönt; der eingeschaltete leuchtet in seiner Lichtfarbe; im Live-Modus sind keine Markierungsfarben zu sehen | ❓ |
+
+## 40. Neu in 3.69: Rollläden an den Fenstern
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 40.1 | Bearbeiten, Erdgeschoss, ein Fenster ohne Rollladen anklicken (z. B. im Bad); in den Eigenschaften den Haken „Rollladen“ setzen, dann wieder entfernen | Mit Haken erscheint darunter das Feld „Rollladen-Entität“ (zeigt die Rollläden aus Home Assistant), im 2D-Plan eine gestrichelte Linie außen am Fenster; ohne Haken ist beides wieder weg (#331) | ❓ |
+| 40.2 | Erdgeschoss in 3D: Küchenfenster und Schlafzimmerfenster anschauen (von innen und von außen) | Küche: der Rollladen ist ganz unten (zu); Schlafzimmer: gut zur Hälfte unten (40 % offen); der Rollladen hängt außen vor dem Glas. Über jedem dieser Fenster steht ein Schild „↕ Geschlossen“ bzw. „↕ 40 % offen“ | ❓ |
+| 40.3 | Live, Erdgeschoss: die Kugel 🪟 unter dem Küchenfenster antippen, „Hoch“ drücken, danach den Schieber in die Mitte ziehen | Eine Karte „Fenster Küche“ mit „🪟 Rollladen“, Hoch / Stopp / Runter und Schieber; nach „Hoch“ fährt der Rollladen in 3D sichtbar hoch, die Karte und das Schild über dem Fenster zeigen „Offen“; mit dem Schieber in der Mitte fährt er bis zur Hälfte runter und das Schild zeigt „↕ 50 % offen“ | ❓ |
+| 40.4 | Live, in die Küche tippen (Raum-Karte) | Unter „ROLLLÄDEN“ steht „Fenster Küche“ mit Öffnen / Stopp / Schließen; unter „FENSTER“ steht weiter der Fensterkontakt. Oben bei „n offen“ zählt ein offener Rollladen nicht als offenes Fenster | ❓ |
+| 40.5 | Etage „Dach“: das Gaubenfenster anklicken (Bearbeiten), dann im Live-Modus seine Kugel 🪟 antippen und „Runter“ drücken | Bearbeiten: Haken „Rollladen“ ist gesetzt, Entität „Rollladen Gaube“. Live: die Karte „Gaubenfenster“ öffnet sich, der Rollladen der Gaube fährt herunter | ❓ |
+| 40.6 | Live, Ansicht 2D, Erdgeschoss | Außen an Küche und Schlafzimmer steht „↕ Geschlossen“ bzw. „↕ 40 % offen“; beim Küchenfenster steht der Text des Fensterkontakts darunter, nichts liegt übereinander; ein Tipp aufs Fenster öffnet die Karte mit dem Rollladen | ❓ |

@@ -35,6 +35,7 @@ import { initObjList } from './objlist.js';
 import { initRoomEntities } from './roomentities.js';
 import { initProps } from './props.js';
 import { initOpenings, openKind, OPEN_KINDS, paneEntity, openingEntities } from './openings.js';
+import { linkedEntities } from './shutters.js';
 import { initCutaway } from './cutaway.js';
 import { initSettings } from './settings.js';
 import { initFloorPanel, newFloor } from './floorpanel.js';
@@ -230,7 +231,7 @@ const registry = new Map();       // id -> Object3D
 const pickables = [];
 const labelSprites = new Map();   // device id -> sprite
 const tapBalls = initTapBalls({ ceiling: () => settings.wallHeight || 2.6,
-  labelsIn: (g) => [...labelSprites.values()].filter((sp) => sp.parent === g && sp.visible).map((sp) => sp.position) });   // live mode: a ball over everything that can be tapped (#238)
+  labelsIn: (g) => [...labelSprites.values()].filter((sp) => sp.parent === g && sp.visible && !sp.userData.atWindow).map((sp) => sp.position) });   // live mode: a ball over everything that can be tapped (#238); a shutter's label is over its window, its ball under it
 const openingHandles = new Map();   // opening id -> { mesh, outline }: unscaled hit boxes that stay usable when the wall is lowered
 let cutawayWalls = [];            // { group, mid:[x,z], n:[nx,nz] } for the active floor
 
@@ -458,6 +459,7 @@ function roomHeat(room, f) {
 /* ---- Doors, gates and windows with a contact sensor: the code lives in openings.js ---- */
 const openings = initOpenings({
   $, t, layout: () => layout, states: () => states, onStates: ON_STATES, registry, pointInPoly, distToPoly, show: (target) => offline.show(target),
+  tapBalls, isLive: () => isLive(), floorIdx: () => floorIdx, labelSprites, labelsOn: () => settings.labelMode !== 'none',   // the balls and labels of the windows' roller shutters (#331)
 });
 const isOpen = (entity) => openings.isOpen(entity);
 const openText = (entity) => openings.openText(entity);
@@ -1231,7 +1233,7 @@ const objList = initObjList({
 const roomEnts = initRoomEntities({
   $, t, floor: () => floor(), roomCtx: () => roomCtx, selection: () => selection, locked: () => lockedSel, lockTo: (sel) => { selection = sel; lockedSel = true; refreshSelection(); },
   select: (sel) => { selection = sel; }, releaseLock: () => releaseLock(), refreshSelection: () => refreshSelection(), entityDevices: (f) => entityDevices(f), pointInPoly,
-  stateText: (id) => stateText(id), areas: () => areas, areaOf: () => areaOf, openingEntities: (o) => openingEntities(o), classify, entityInfo: (id) => entityInfo(id),
+  stateText: (id) => stateText(id), areas: () => areas, areaOf: () => areaOf, openingEntities: (o) => linkedEntities(o), classify, entityInfo: (id) => entityInfo(id),   // contacts and roller shutters count as placed
   autoPlace: (room, ids) => autoPlace(room, ids), setStatus: (x) => setStatus(x), snapshot: () => snapshot(), changed: () => changed(), uid: () => uid(),
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0,
 });
@@ -1472,6 +1474,7 @@ if (params.get('debug')) {
     rebuild: () => build(), applyStates: () => applyStates(),
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
+    shutterScale: (id) => registry.get(id)?.userData.shutter?.userData.target ?? null,   // how far a window's roller shutter goes down (#331)
     liveOk: () => liveChan.ok(),
     underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },
     bounds: () => floorBounds(), roofBox: (i) => roofBox(i),

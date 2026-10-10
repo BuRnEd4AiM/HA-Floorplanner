@@ -10,6 +10,9 @@ import { buildWall, wallLength } from './walls.js';
 import { atticUniforms, cutAtRoof } from './atticclip.js';
 import { solarPose, groundFn } from './solarroof.js';
 import { addPickProxy, underFloors, holoify } from './modelfx.js';
+import { shutterEntity, shutterSide, shutterLabelY } from './shutters.js';
+import { openingPoint } from './openings.js';
+import { openingBallAt } from './tapballs.js';
 
 export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
 export const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
@@ -133,12 +136,32 @@ export function initFloorBuild(ctx) {
       ctx.registry.set(st.id, sg);
     });
   }
+  /** the roller shutters in the windows of wall w (#331): a ball (a tap in the live mode opens the shutter's controls) and, like the value
+   *  label of a device, a label over the window with how far it is open (openings.js writes it; labels: the floor shows its labels) */
+  function shutterParts(g, w, labels) {
+    const mode = ctx.settings().labelMode;
+    (w.openings || []).forEach((op) => {
+      const e = shutterEntity(op);
+      if (!e) return;
+      const tb = ctx.tapBalls.add(g, null, { id: op.id, entity: e }, openingBallAt(w, op, w.height || ctx.settings().wallHeight || 2.6), 'opening');
+      if (tb) ctx.pickables.push(tb);
+      if (!labels || !wantsLabel({ entity: e }, mode)) return;
+      const sp = ctx.textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true }), [x, z] = openingPoint(w, op);
+      sp.position.set(x, shutterLabelY(op), z);
+      sp.userData.atWindow = true;                             // the balls need not keep clear of it: it is over the window, the ball under it
+      g.add(sp);
+      ctx.labelSprites.set(op.id, sp);
+    });
+  }
   /** the walls with their doors and windows; on the open floor they take part in the cutaway and can be picked */
   function walls(g, f, i, o) {
     const { holo, ghost, iso } = o, low = ctx.lowWalls(), half = ctx.halfCut() && !low;
     const attic = o.roofClip ? atticUniforms(o.roofClip) : null;   // under the roof (#260): the walls end at the slopes, not inside a dormer (#265)
     const hosted = new Map();                                     // dormer windows cut into a wall of this floor (#275), by wall id
     (f.dormerWalls || []).forEach((d) => { if (d.host) hosted.set(d.host, [...(hosted.get(d.host) || []), ...d.openings]); });
+    const dormerOut = new Map();                                  // roller shutters (#331) hang outside: a dormer window's dormer knows where that is
+    (f.dormerWalls || []).forEach((d) => d.openings.forEach((op) => dormerOut.set(op.id, d.outside)));
+    const sideOf = (w) => (op) => dormerOut.get(op.id) ?? shutterSide(w, op, f.rooms);
     f.walls.forEach((w1) => {
       const w0 = hosted.has(w1.id) ? { ...w1, openings: [...(w1.openings || []), ...hosted.get(w1.id)] } : w1;
       let w = w0;
@@ -147,7 +170,7 @@ export function initFloorBuild(ctx) {
       const wallMat = holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : ctx.mat('#d9d4cc', ghost);
-      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge });
+      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge, shutterSide: sideOf(w) });
       if (half) {                                                // what sticks out above the cut (door leaves, window frames) is clipped off
         const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (w.height || 2.6) * 0.5 + 0.001);
         wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
@@ -159,6 +182,7 @@ export function initFloorBuild(ctx) {
         info.handles = (w.openings || []).map((op) => ctx.openingHandle(w, op, g));
         ctx.cutawayWalls().push(info);
         ctx.registry.set(w.id, wg); ctx.pickables.push(wg);
+        shutterParts(g, w, o.labels);
       }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
@@ -166,13 +190,13 @@ export function initFloorBuild(ctx) {
       if (w.host) return;                                        // cut into a wall of the room, drawn with it (above)
       const [ox, oz] = [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
       if (iso && !ghost && !inIso(iso, ox, oz)) return;
-      const wg = buildWall(w, { material: null, ghost, low, makeMat: ctx.mat, holo, bare: true });
+      const wg = buildWall(w, { material: null, ghost, low, makeMat: ctx.mat, holo, bare: true, shutterSide: sideOf(w) });
       if (half) {
         const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (f.walls[0]?.height || 2.6) * 0.5 + 0.001);
         wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
       }
       g.add(wg);
-      if (!ghost) w.openings.forEach((op) => ctx.openingHandle(w, op, g));
+      if (!ghost) { w.openings.forEach((op) => ctx.openingHandle(w, op, g)); shutterParts(g, w, o.labels); }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
   }

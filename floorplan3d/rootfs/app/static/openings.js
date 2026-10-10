@@ -1,6 +1,7 @@
 /* Doors, gates and windows with a contact sensor: open or closed (also per pane of a window with one sensor per pane), the red tint and the
  * opening leaf in 3D, the pill "n open" with its list, and the animation of the leaves. The decisions are pure functions (tested). */
 import { openingWalls } from './dormerwin.js';
+import { shutterEntity, shutterClosed, curtainScale, shutterLabel, curtainStep } from './shutters.js';
 
 export const OPEN_HEX = 0xff4a3d;
 /** which group an opening belongs to in the lists */
@@ -31,18 +32,38 @@ export function openItems(floors, env) {
   return out.sort((p, q) => OPEN_KINDS.indexOf(p.kind) - OPEN_KINDS.indexOf(q.kind) || q.floor - p.floor || p.room.localeCompare(q.room) || p.name.localeCompare(q.name));
 }
 
-/** ctx: $, t, layout(), states(), onStates, registry, pointInPoly, distToPoly, show(target) (jump to an object: { floor, kind, id }) */
+/** the moving parts of an opening's 3D object: its leaf or panes, and the curtain of its roller shutter (#331) */
+const movers = (obj) => [...(obj.userData.panePivots || (obj.userData.pivot ? [obj.userData.pivot] : [])), ...(obj.userData.shutter ? [obj.userData.shutter] : [])];
+
+/** ctx: $, t, layout(), states(), onStates, registry, pointInPoly, distToPoly, show(target) (jump to an object: { floor, kind, id }),
+ *  tapBalls (the shutters' balls, #331), isLive(), floorIdx() (balls show up to the floor shown, like the devices' balls), labelSprites
+ *  (Map: the shutters' labels by window id), labelsOn() (value labels are switched on) */
 export function initOpenings(ctx) {
   const { $, t } = ctx;
   const isOpen = (entity) => !!entity && isOpenState(ctx.states()[entity], ctx.onStates);
   const openText = (entity) => (!entity ? '—' : isOpen(entity) ? t('state.open') : ctx.states()[entity] ? t('state.closed') : '—');
-  const objects = () => [...ctx.registry.values()].filter((o) => o.userData?.kind === 'opening' && o.userData.pivot);
+  const objects = () => [...ctx.registry.values()].filter((o) => o.userData?.kind === 'opening' && (o.userData.pivot || o.userData.shutter));
+  /** the curtain of window o's roller shutter goes as far down as its cover is closed (the first time at once, without moving), its label
+   *  says how far it is open, its ball is lit while the cover is open; fi: the floor of the window */
+  function applyShutter(o, obj, fi) {
+    const e = shutterEntity(o), st = e ? ctx.states()[e] : null;
+    const sh = obj?.userData.shutter;
+    if (sh) {
+      sh.userData.target = curtainScale(shutterClosed(st));
+      if (sh.userData.fresh) { sh.scale.y = sh.userData.target; sh.userData.fresh = false; }
+    }
+    if (!e) return;
+    const sp = ctx.labelSprites?.get(o.id);
+    if (sp) { sp.visible = ctx.labelsOn?.() ?? true; sp.userData.setText(shutterLabel(st, t)); }
+    ctx.tapBalls?.update(o.id, ctx.onStates.has(st?.state), null, !!ctx.isLive?.(), fi <= (ctx.floorIdx?.() ?? Infinity));
+  }
   /** tint and leaf targets of every opening, and the pill */
   function apply() {
     let n = 0, any = false;
-    ctx.layout().floors.forEach((f) => openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
+    ctx.layout().floors.forEach((f, fi) => openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
       openingEntities(o).forEach((e) => { any = true; if (isOpen(e)) n++; });
       const obj = ctx.registry.get(o.id);
+      applyShutter(o, obj, fi);
       if (!obj?.userData.pivot) return;
       const pps = obj.userData.panePivots;
       const opens = pps ? pps.map((_, i) => isOpen(paneEntity(o, i))) : [isOpen(o.entity)];
@@ -81,10 +102,14 @@ export function initOpenings(ctx) {
   function animate() {
     let moved = false;
     objects().forEach((obj) => {
-      (obj.userData.panePivots || [obj.userData.pivot]).forEach((p) => {
+      movers(obj).forEach((p) => {
         const tg = (p.userData.base ?? 0) + (p.userData.target ?? 0);          // base: the closed value (1 for a scaled garage door)
         const prop = p.userData.axis, holder = p.userData.prop === 'position' ? p.position : p.userData.prop === 'scale' ? p.scale : p.rotation, cur = holder[prop];
-        if (Math.abs(tg - cur) > 0.002) { holder[prop] = cur + (tg - cur) * 0.15; moved = true; }
+        if (p.userData.speed) {                                              // a roller shutter: at an even speed (#331), the time since the last frame
+          const now = performance.now(), dt = Math.min(0.25, (now - (p.userData.last ?? now)) / 1000);   // also a slow tablet keeps the speed
+          p.userData.last = now;
+          if (cur !== tg) { holder[prop] = curtainStep(cur, tg, dt, p.userData.speed); moved = true; } else p.userData.last = undefined;
+        } else if (Math.abs(tg - cur) > 0.002) { holder[prop] = cur + (tg - cur) * 0.15; moved = true; }
         (p.userData.followers || []).forEach((fp) => { fp.rotation[fp.userData.axis] = holder[prop] * (fp.userData.dir / (p.userData.dir || 1)); });   // second leaf of a double door
       });
     });
