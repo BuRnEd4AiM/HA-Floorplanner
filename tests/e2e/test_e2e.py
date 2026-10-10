@@ -765,6 +765,8 @@ with sync_playwright() as p:
     pgR.evaluate("window.__fp.fakeState('cover.rollo', 'closed')"); sc_closed = pgR.evaluate("window.__fp.shutterScale('wsh')")
     pgR.evaluate("window.__fp.fakeState('cover.rollo', 'open')"); sc_open = pgR.evaluate("window.__fp.shutterScale('wsh')")
     check("shutter (#331): the curtain is down while the cover is closed and rolled up while it is open", sc_closed == 1 and sc_open is not None and sc_open < 0.1, (sc_closed, sc_open))
+    sc_part, lab = pgR.evaluate("() => { window.__fp.states()['cover.rollo'] = { ...window.__fp.states()['cover.rollo'], state: 'open', position: 40 }; window.__fp.applyStates(); return [window.__fp.shutterScale('wsh'), window.__fp.badge('wsh')]; }")
+    check("shutter (#331): at 40 % open the curtain is 60 % down and the label over the window says 40 %", sc_part is not None and abs(sc_part - (0.05 + 0.95 * 0.6)) < 0.01 and lab and lab.startswith("↕") and "40" in lab, (sc_part, lab))
     check("shutter (#331): an open shutter is no open window (the contact decides)", pgR.evaluate("window.__fp.paneTargets('wsh').every(v => v === 0)"), pgR.evaluate("window.__fp.paneTargets('wsh')"))
     pgR.click("#modeSwitch button[data-mode=live]"); pgR.wait_for_timeout(1200)
     pgR.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()], w = f.walls.find(w => (w.openings || []).some(o => o.id === 'wsh'));

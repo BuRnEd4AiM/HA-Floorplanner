@@ -83,6 +83,25 @@ test('the state in words: open, closed, how far open, on its way, unavailable', 
   assert.equal(S.shutterText(undefined, t), '—');
 });
 
+test('the curtain moves at an even speed, all the way in about 3 s, and stops at its target', () => {
+  near(S.curtainStep(1, 0.05, 0.5), 1 - 0.5 * S.SHUTTER_SPEED);
+  near(S.curtainStep(0.05, 1, 0.5), 0.05 + 0.5 * S.SHUTTER_SPEED);
+  assert.equal(S.curtainStep(0.1, 0.05, 1), 0.05, 'never past the target');
+  assert.equal(S.curtainStep(0.5, 0.5, 0.1), 0.5);
+  assert.equal(S.curtainStep(0.5, 1, -1), 0.5, 'no step back in time');
+  let h = S.SHUTTER_UP, t = 0;
+  while (h < 1 && t < 10) { h = S.curtainStep(h, 1, 1 / 60); t += 1 / 60; }
+  assert.ok(t > 2.5 && t < 3.5, `all the way down in ${t.toFixed(2)} s`);
+});
+
+test('the label over the window: how far it is open, just over the lintel', () => {
+  const t = (k, p) => (p ? `${k}:${p.n}` : k);
+  assert.equal(S.shutterLabel({ state: 'open', position: 60 }, t), '↕ shutter.partly:60');
+  assert.equal(S.shutterLabel({ state: 'closed' }, t), '↕ state.closed');
+  near(S.shutterLabelY({ sill: 0.9, height: 1.2 }), 2.32);
+  near(S.shutterLabelY({ sill: 2.2, height: 0.8 }), 3.22, 1e-9);   // a dormer window high over its floor
+});
+
 test('the curtain: rolled up a small rest, all of it when closed; unknown rolled up; slats of about 7 cm', () => {
   near(S.curtainScale(0), S.SHUTTER_UP);
   near(S.curtainScale(1), 1);

@@ -10,7 +10,8 @@ import { buildWall, wallLength } from './walls.js';
 import { atticUniforms, cutAtRoof } from './atticclip.js';
 import { solarPose, groundFn } from './solarroof.js';
 import { addPickProxy, underFloors, holoify } from './modelfx.js';
-import { shutterEntity, shutterSide } from './shutters.js';
+import { shutterEntity, shutterSide, shutterLabelY } from './shutters.js';
+import { openingPoint } from './openings.js';
 import { openingBallAt } from './tapballs.js';
 
 export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
@@ -135,12 +136,21 @@ export function initFloorBuild(ctx) {
       ctx.registry.set(st.id, sg);
     });
   }
-  /** the balls of the roller shutters in the windows of wall w (#331): a tap in the live mode opens the shutter's controls */
-  function shutterBalls(g, w) {
+  /** the roller shutters in the windows of wall w (#331): a ball (a tap in the live mode opens the shutter's controls) and, like the value
+   *  label of a device, a label over the window with how far it is open (openings.js writes it; labels: the floor shows its labels) */
+  function shutterParts(g, w, labels) {
+    const mode = ctx.settings().labelMode;
     (w.openings || []).forEach((op) => {
       const e = shutterEntity(op);
-      const tb = e && ctx.tapBalls.add(g, null, { id: op.id, entity: e }, openingBallAt(w, op, w.height || ctx.settings().wallHeight || 2.6), 'opening');
+      if (!e) return;
+      const tb = ctx.tapBalls.add(g, null, { id: op.id, entity: e }, openingBallAt(w, op, w.height || ctx.settings().wallHeight || 2.6), 'opening');
       if (tb) ctx.pickables.push(tb);
+      if (!labels || !wantsLabel({ entity: e }, mode)) return;
+      const sp = ctx.textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true }), [x, z] = openingPoint(w, op);
+      sp.position.set(x, shutterLabelY(op), z);
+      sp.userData.atWindow = true;                             // the balls need not keep clear of it: it is over the window, the ball under it
+      g.add(sp);
+      ctx.labelSprites.set(op.id, sp);
     });
   }
   /** the walls with their doors and windows; on the open floor they take part in the cutaway and can be picked */
@@ -172,7 +182,7 @@ export function initFloorBuild(ctx) {
         info.handles = (w.openings || []).map((op) => ctx.openingHandle(w, op, g));
         ctx.cutawayWalls().push(info);
         ctx.registry.set(w.id, wg); ctx.pickables.push(wg);
-        shutterBalls(g, w);
+        shutterParts(g, w, o.labels);
       }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
@@ -186,7 +196,7 @@ export function initFloorBuild(ctx) {
         wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
       }
       g.add(wg);
-      if (!ghost) { w.openings.forEach((op) => ctx.openingHandle(w, op, g)); shutterBalls(g, w); }
+      if (!ghost) { w.openings.forEach((op) => ctx.openingHandle(w, op, g)); shutterParts(g, w, o.labels); }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
   }

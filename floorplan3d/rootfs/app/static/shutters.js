@@ -1,8 +1,8 @@
 /* Roller shutters (Rollläden, #331): every window, also the window of a dormer, can have a roller shutter (a tick in its properties) with a
  * cover entity of its own (o.shutter, o.shutterEntity), independent of the window's contact sensor: an open shutter is no open window. In 3D
- * the curtain comes down in front of the glass as far as the cover is closed (walls.js builds it, openings.js moves it); in the live mode a
- * tap ball at the window opens its controls (up, stop, down, position) and the room panel lists it under "Covers". The rules are pure
- * functions here (no three.js, no DOM; unit test: tests/shutters.test.mjs). */
+ * the curtain comes down in front of the glass as far as the cover is closed (walls.js builds it, openings.js moves it) and a label over
+ * the window says how far it is open; in the live mode a tap ball at the window opens its controls (up, stop, down, position) and the room
+ * panel lists it under "Covers". The rules are pure functions here (no three.js, no DOM; unit test: tests/shutters.test.mjs). */
 import { openingWalls } from './dormerwin.js';
 import { pointInPoly } from './rooms.js';
 
@@ -54,9 +54,20 @@ export function shutterText(st, t) {
   if (p === null) return st.state === 'open' ? t('state.open') : st.state === 'closed' ? t('state.closed') : st.state;
   return p >= 100 ? t('state.open') : p <= 0 ? t('state.closed') : t('shutter.partly', { n: p });
 }
+/** the label over a window with a roller shutter in 3D, like the value label of a device: "↕ 60 % open" */
+export const shutterLabel = (st, t) => `↕ ${shutterText(st, t)}`;
+/** the height of that label over the floor: just over the window's lintel */
+export const shutterLabelY = (o) => (o.sill || 0) + (o.height || 1) + 0.22;
 /** the height of the curtain as a share of the window (the scale of its pivot): the rolled-up rest at least, all of it when closed;
  *  not known: rolled up, the window stays visible */
 export const curtainScale = (closed) => SHUTTER_UP + (1 - SHUTTER_UP) * Math.min(1, Math.max(0, closed ?? 0));
+/** how fast the curtain moves in 3D: share of the window's height per second (all the way in about 3 s), at an even speed like a motor */
+export const SHUTTER_SPEED = 0.32;
+/** the curtain's height after dt seconds on its way from cur to target (never past it) */
+export function curtainStep(cur, target, dt, speed = SHUTTER_SPEED) {
+  const d = target - cur, step = speed * Math.max(0, dt);
+  return Math.abs(d) <= step ? target : cur + Math.sign(d) * step;
+}
 /** the slats of a curtain of height h: how many (about `pitch` m each, at least 3) and the height of one */
 export function shutterSlats(h, pitch = 0.07) {
   const n = Math.max(3, Math.round(h / pitch));

@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
-import { hasShutter, shutterSlats, curtainDepth, SHUTTER_UP } from './shutters.js';
+import { hasShutter, shutterSlats, curtainDepth, SHUTTER_UP, SHUTTER_SPEED } from './shutters.js';
 
 /* Wall geometry with real openings (doors/windows).
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
@@ -77,7 +77,7 @@ function addShutter(g, x0, x1, yB, yT, t, ft, mat, side) {
   curtain.userData.shutter = true;
   pivot.add(curtain);
   pivot.scale.y = SHUTTER_UP;
-  pivot.userData = { axis: 'y', prop: 'scale', base: 0, target: SHUTTER_UP, fresh: true };
+  pivot.userData = { axis: 'y', prop: 'scale', base: 0, target: SHUTTER_UP, fresh: true, speed: SHUTTER_SPEED };   // speed: it moves evenly, like a motor
   g.add(pivot);
   [x0 + ft, x1 - ft].forEach((x) => { const r = boxMesh(x - 0.012, x + 0.012, yB, yT, 0.03, mat); r.position.z = z; g.add(r); });   // the rails
   return pivot;
