@@ -8,7 +8,7 @@ const W = await import(`${dir}/dormerwin.js`);
 const { roofY0 } = await import(`${dir}/attic.js`);
 const { roomOpenings, roomShutters } = await import(`${dir}/roompanel.js`);
 const { openItems, isOpenState } = await import(`${dir}/openings.js`);
-const { openingBallAt, ballY, wantsBall, ballIcon } = await import(`${dir}/tapballs.js`);
+const { openingBallAt, wantsBall, ballIcon, BALL } = await import(`${dir}/tapballs.js`);
 const { skipInLive, chooseHit } = await import(`${dir}/pickrules.js`);
 const G = await import(`${dir}/rooms.js`);
 const near = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
@@ -94,12 +94,55 @@ test('the curtain moves at an even speed, all the way in about 3 s, and stops at
   assert.ok(t > 2.5 && t < 3.5, `all the way down in ${t.toFixed(2)} s`);
 });
 
-test('the label over the window: how far it is open, just over the lintel', () => {
+test('the label: how far it is open, over the ball on top of the window (#335)', () => {
   const t = (k, p) => (p ? `${k}:${p.n}` : k);
   assert.equal(S.shutterLabel({ state: 'open', position: 60 }, t), '↕ shutter.partly:60');
   assert.equal(S.shutterLabel({ state: 'closed' }, t), '↕ state.closed');
-  near(S.shutterLabelY({ sill: 0.9, height: 1.2 }), 2.32);
-  near(S.shutterLabelY({ sill: 2.2, height: 0.8 }), 3.22, 1e-9);   // a dormer window high over its floor
+  near(S.shutterBallY({ sill: 0.9, height: 1.2 }), 2.1 + S.SHUTTER_BALL_LIFT);
+  near(S.shutterLabelY({ sill: 0.9, height: 1.2 }), 2.1 + S.SHUTTER_BALL_LIFT + 0.55);
+  near(S.shutterLabelY({ sill: 2.2, height: 0.8 }), 3 + S.SHUTTER_BALL_LIFT + 0.55, 1e-9);   // a dormer window high over its floor
+  const o = { sill: 0.9, height: 1.2 }, labelHalf = 0.375 / 2;   // the label is 0.375 m high (floorbuild.js)
+  assert.ok(S.shutterBallY(o) - BALL.r > 2.1, 'the ball is over the window, not in front of the curtain');
+  assert.ok(S.shutterLabelY(o) - labelHalf > S.shutterBallY(o) + BALL.r, 'the label is over the ball, not behind it');
+});
+
+test('the card (#335): the slider shows the curtain from the top, the finger sets the position', () => {
+  assert.equal(S.sliderPosition(100, 100, 200), 100, 'at the top: open');
+  assert.equal(S.sliderPosition(300, 100, 200), 0, 'at the bottom: closed');
+  assert.equal(S.sliderPosition(220, 100, 200), 40, '60 % down: 40 % open');
+  assert.equal(S.sliderPosition(50, 100, 200), 100, 'above it: open');
+  assert.equal(S.sliderPosition(400, 100, 200), 0, 'below it: closed');
+  assert.equal(S.sliderPosition(120, 100, 200, 20), 100, 'the rolled-up rest at the top counts as open');
+  assert.equal(S.sliderPosition(210, 100, 200, 20), 50);
+  assert.equal(S.sliderPosition(10, 0, 0), 100, 'no height: no division by zero');
+  assert.equal(S.sliderPosition(297, 100, 200), 0, 'just above the bottom: closed, not 1 % open');
+  assert.equal(S.sliderPosition(103, 100, 200), 100, 'just under the top: open');
+  assert.equal(S.sliderPosition(294, 100, 200), 3, 'a little higher: a small gap');
+  assert.deepEqual(S.SHUTTER_PRESETS, [0, 25, 50, 75, 100]);
+});
+
+test('the card (#335): a chosen position shows at once, until the cover is there or does not answer', () => {
+  const p = { pos: 25, at: 1000 };
+  assert.equal(S.shownPosition({ state: 'open', position: 40 }, null, 1000), 40, 'nothing chosen: the cover\'s own');
+  assert.equal(S.shownPosition({ state: 'open', position: 40.4 }, null, 1000), 40, 'whole percent');
+  assert.equal(S.shownPosition({ state: 'open', position: 40 }, p, 1500), 25, 'just chosen: there at once');
+  assert.equal(S.shownPosition({ state: 'open', position: 40 }, p, 1000 + S.PENDING_MS + 1), 40, 'no answer: back to its own');
+  assert.equal(S.shownPosition({ state: 'closing', position: 35 }, p, 1000 + 20000), 25, 'on its way there');
+  assert.equal(S.shownPosition({ state: 'closing', position: 35 }, p, 1000 + S.PENDING_MOVING_MS + 1), 35, 'not forever');
+  assert.equal(S.shownPosition({ state: 'open', position: 25 }, p, 1500), 25, 'there');
+  assert.equal(S.shownPosition({ state: 'open' }, p, 1500), null, 'a cover without a position has no slider');
+  assert.equal(S.shownPosition(undefined, null, 0), null);
+});
+
+test('the card (#335): the big line says how far it is open, and that it moves', () => {
+  const t = (k, p) => (p ? `${k}:${p.n}` : k);
+  assert.equal(S.shutterCardText({ state: 'open', position: 40 }, 40, t), 'shutter.partly:40');
+  assert.equal(S.shutterCardText({ state: 'open', position: 40 }, 25, t), 'shutter.partly:25', 'the position shown, also one just chosen');
+  assert.equal(S.shutterCardText(null, 0, t), 'state.closed', 'dragged to the bottom');
+  assert.equal(S.shutterCardText(null, 100, t), 'state.open');
+  assert.equal(S.shutterCardText({ state: 'closing', position: 35 }, 25, t), 'shutter.closing · 25 %');
+  assert.equal(S.shutterCardText({ state: 'open' }, null, t), 'state.open', 'no position: open / closed');
+  assert.equal(S.shutterCardText({ state: 'unavailable', position: 40 }, 40, t), 'off.unavailable');
 });
 
 test('the curtain: rolled up a small rest, all of it when closed; unknown rolled up; slats of about 7 cm', () => {
@@ -168,14 +211,14 @@ test('the shutters of a floor, also of a window in a dormer; a dormer window kee
   assert.equal(roomShutters(room, floors[1], new Set(), () => 'HA', 'Rollladen')[0].name, 'Gaube Süd', 'the window\'s own name first');
 });
 
-test('the ball of a shutter: at the middle of the window, under it when there is no room above, over it when there is', () => {
+test('the ball of a shutter: at the middle of the window, always on top of it, where the shutter rolls up (#335)', () => {
   const w = { a: [0, 0], b: [4, 0] };
-  const p = openingBallAt(w, { pos: 1, sill: 0.9, height: 1.2 }, 2.6);
+  const p = openingBallAt(w, { pos: 1, sill: 0.9, height: 1.2 });
   near(p.x, 1); near(p.z, 0);
-  near(p.y, ballY(0.9, 2.1, 2.6));
-  assert.ok(p.y < 0.9, 'under the window');
-  assert.ok(openingBallAt(w, { pos: 1, sill: 0.4, height: 0.8 }, 2.6).y > 1.2, 'a low window: over it');
-  const q = openingBallAt({ a: [2, 2], b: [2, 6] }, { pos: 3, sill: 1, height: 1 }, 2.6);
+  near(p.y, S.shutterBallY({ sill: 0.9, height: 1.2 }));
+  assert.ok(p.y > 2.1, 'over the window, also where that is close to the ceiling');
+  assert.ok(openingBallAt(w, { pos: 1, sill: 0.4, height: 0.8 }).y > 1.2, 'a low window: over it too');
+  const q = openingBallAt({ a: [2, 2], b: [2, 6] }, { pos: 3, sill: 1, height: 1 });
   near(q.x, 2); near(q.z, 5);
   assert.ok(wantsBall({ id: 'w', entity: 'cover.r' }));
   assert.equal(ballIcon({ entity: 'cover.r' }), '🪟');

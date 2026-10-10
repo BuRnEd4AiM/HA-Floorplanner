@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.69.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.70.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -20,7 +20,8 @@ Stand: Version 3.69.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `stairs.js` | ~410 | Treppengeometrie (gerade, L, U, Wendel, Wandtreppe mit Podesten, mehrere Etagen; `splitStoreys`: Teil über der offenen Etage, #246) |
 | `rooms.js` | 146 | Automatische Raumerkennung |
 | `dormer.js` | ~80 | Dachgauben (Geometrie, Größe des Fensters) |
-| `shutters.js` | ~80 | Rollläden an Fenstern, auch an Gaubenfenstern (#331): Haken und eigene Entität (`shutter`, `shutterEntity`), wie weit der Panzer unten ist, Text („60 % offen“), außen an der Wand (`shutterSide`), alle Entitäten eines Fensters (`linkedEntities`); den Panzer baut `walls.js`, bewegt `openings.js`, die Kugel setzt `floorbuild.js`; reine Logik mit Unit-Tests |
+| `shutters.js` | ~120 | Rollläden an Fenstern, auch an Gaubenfenstern (#331): Haken und eigene Entität (`shutter`, `shutterEntity`), wie weit der Panzer unten ist, Text („60 % offen“), außen an der Wand (`shutterSide`), alle Entitäten eines Fensters (`linkedEntities`), Kugel und Schild über dem Fenster (`shutterBallY`, `shutterLabelY`, #335), Regeln der Rollladen-Karte (`sliderPosition`, `shownPosition`, `shutterCardText`); den Panzer baut `walls.js`, bewegt `openings.js`, die Kugel setzt `floorbuild.js`; reine Logik mit Unit-Tests |
+| `shuttercard.js` | ~100 | Rollladen-Karte im Live-Modus (#335): nur der Rollladen, großer senkrechter Schieber mit dem Panzer, Hoch / Stopp / Runter, feste Stufen 0–100 %; neu gezeichnet nur, wenn sich am Rollladen etwas ändert |
 | `dormerwin.js` | ~110 | Fenster der Dachgauben als echte Fenster (Kontakt, offen/zu, Raum, Liste): nie gespeicherte Wand pro Gaubenfenster an der richtigen Etage, in der Wand des Raums darunter, wenn eine direkt hinter der Gaube steht (#275), „Vorderseite auf die Wand“; `openingWalls(f)` für alles, was Türen/Fenster sucht; reine Logik mit Unit-Tests |
 | `ledring.js` | 195 | LED-Ring |
 | `nanoleaf.js` | 179 | Nanoleaf-Formen und kleiner Editor |
@@ -58,7 +59,7 @@ Stand: Version 3.69.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `propfields.js` | ~30 | Eingabefelder der Seitenleiste (Länge in m/ft) |
 | `entitypicker.js` | ~95 | Entitäten-Auswahl mit Suche, nach Bereich gruppiert |
 | `livecontrols.js` | ~190 | Live-Steuerung: Schalten, Licht (Helligkeit, Farbe, Effekte), Szenen, ganzer Raum |
-| `livepopup.js` | ~110 | Live-Karte beim Antippen (Gerät, Tür/Fenster, LED-Ring) |
+| `livepopup.js` | ~120 | Live-Karte beim Antippen (Gerät, Tür/Fenster, LED-Ring; Rollladen über `shuttercard.js`), bleibt über der Leiste unten |
 | `roompanel.js` | ~190 | Raum-Panel mit Heizungs-Panel |
 | `sheetview.js` | ~45 | Handy: Raum über der Raum-Karte zeigen statt dahinter, Kamera-Abstand bei schmalem Bild; Bild nach links schieben für die Spalte der Etagen-Karten (#292) (Unit-Tests) |
 | `phonemenu.js` | ~50 | Handy: obere Leiste als ☰-Menü (Live-Ansicht); am Handy nur Live + 3D, kein Bearbeiten, keine Benutzer (#299); `isPhoneScreen`/`phoneView` sind reine Logik mit Unit-Tests |
