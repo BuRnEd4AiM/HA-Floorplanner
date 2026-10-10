@@ -1,7 +1,7 @@
 /* Properties panel (edit mode): the fields of the selected object: wall, room (with its entity list), placeholder block, floor opening, stair
  * (stairtool.js), door / window, device (position, size, tilt, picture, LED ring sections, kitchen run, power cables, entity, camera, TV
  * backlight), and a power cable (power.js). Which fields a device gets is decided by pure functions (tested); initProps draws the panel. */
-import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange } from './ledring.js';
+import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange, sectionHex } from './ledring.js';
 import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
 import { roomOpenings } from './roompanel.js';
 import { initKitchenUi } from './kitchenui.js';
@@ -326,7 +326,7 @@ export function initProps(ctx) {
     body.append(row);
     const lights = pickFrom(ctx.entities().filter((e) => /^(light|switch)\./.test(e.entity_id)));
     ringSectionsWorld(it).forEach((e) => {
-      const box = document.createElement('div'); box.className = 'ringSec'; box.dataset.seg = e.i;
+      const box = document.createElement('div'); box.className = 'ringSec'; box.dataset.seg = e.i; box.style.borderLeftColor = sectionHex(e.i);   // the colour of the section in the plan (#325)
       const head = document.createElement('div'); head.className = 'ringSecHead';
       const lb = document.createElement('b'); lb.textContent = t('ring.seg', { n: e.i + 1, len: ctx.fmtLen(e.len) });
       head.append(lb, btn('', '✂', () => splitSection(it, e.i), t('ring.split')));

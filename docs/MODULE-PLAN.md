@@ -83,7 +83,7 @@ Stand: Version 3.66.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `layoutnorm.js` | ~25 | Geladenen Plan vervollständigen, „Erdgeschoss“ in der Sprache des Nutzers (Schritt 23); reine Logik mit Unit-Tests |
 | `userlocks.js` | ~55 | Sperren pro Benutzer / Tablet: was ein Benutzer nicht benutzen darf (Schalten, Kameras, Einstellungen, Ansicht wechseln …), ausblenden per CSS; Schalten und Kameras verweigert auch der Server; reine Logik mit Unit-Tests |
 | `roomclip.js` | ~45 | Raum freistellen: Punkt im Raum, Wand auf den Raum zuschneiden, Punkt-im-Polygon (Schritt 24); reine Geometrie mit Unit-Tests |
-| `modelfx.js` | ~70 | Trefferboxen eines Modells, Hologramm-Darstellung, Flaches unter den Böden (Schritt 24) |
+| `modelfx.js` | ~90 | Trefferboxen eines Modells, Hologramm-Darstellung, Flaches unter den Böden (Schritt 24), Aussehen der LED-Ring-Abschnitte (`ringLook`, #325) |
 | `labels.js` | ~50 | Text im 3D-Bild: Raumname, Wert-Pille am Gerät, leuchtendes Strom-Schild (Schritt 24) |
 | `pickrules.js` | ~50 | Was ein Tipp im Live-Modus treffen darf (#234): keine Türen/Fenster, kein Kamera-Kegel, keine Anwesenheit; Geräte mit Kugel nur über die Kugel (#262); welcher von mehreren Treffern gewinnt; reine Logik mit Unit-Tests |
 | `viewprefs.js` | ~75 | Voreinstellungen pro Benutzer/Tablet (#250: starten, nie als allgemeine Einstellung speichern) und Schilder der Etagen darunter (#249); reine Logik mit Unit-Tests |

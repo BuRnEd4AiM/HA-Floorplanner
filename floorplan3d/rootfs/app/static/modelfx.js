@@ -2,6 +2,7 @@
  * the hologram look (translucent blue with glowing edges, lit parts remembered for state changes) and drawing flat things under the floors.
  * three.js only, no app state. */
 import * as THREE from './vendor/three.module.min.js';
+import { sectionHex } from './ledring.js';
 
 /** the colours of the hologram theme */
 export const HOLO = { fill: 0x1f6fe0, edge: 0x3df2ff, on: 0xff9d2e, onEdge: 0xffd08a, floor: 0x0a1830, floorLit: 0xff9d2e };
@@ -56,4 +57,21 @@ export function holoify(model, ghost, belowVis) {
     if (isLed) { hl.fill.push(o.material); hl.edge.push(em); }
     if (sg) { sg.holo.fill.push(o.material); sg.holo.edge.push(em); }
   }
+}
+
+/** LED ring: every section lit in its light's colour (lit: [{ on, rgb }] per section); while editing, a section that is off is tinted in its
+ *  own soft colour (the same as in the 2D plan) so you can see where each one runs (#325) */
+export function ringLook(model, lit, { ghost = false, bv = 1, edit = false } = {}) {
+  const OFF = 0xfff2cc;
+  model.userData.segs.forEach((sg, i) => {
+    const { on, rgb: c } = lit[i] || {}, mark = edit && !on && !ghost ? new THREE.Color(sectionHex(i)) : null;
+    sg.glow.forEach((m) => {
+      m.emissive.set(on ? (c ? new THREE.Color(c[0] / 255, c[1] / 255, c[2] / 255) : 0xffd27a) : 0x000000); m.emissiveIntensity = on ? 1.4 : 0;
+      if (mark) m.color.copy(mark); else m.color.setHex(OFF);
+    });
+    if (!sg.holo) return;
+    const op = ghost ? (on ? 0.12 + 0.5 * bv : 0.03 + 0.2 * bv) : (on ? 1 : mark ? 0.6 : 0.45);
+    sg.holo.fill.forEach((m) => { if (on && c) m.color.setRGB(c[0] / 255, c[1] / 255, c[2] / 255); else if (mark) m.color.copy(mark); else m.color.setHex(on ? HOLO.on : HOLO.fill); m.opacity = op; });
+    sg.holo.edge.forEach((m) => { if (on && c) m.color.setRGB(Math.min(1, c[0] / 255 + 0.35), Math.min(1, c[1] / 255 + 0.35), Math.min(1, c[2] / 255 + 0.35)); else if (mark) m.color.copy(mark); else m.color.setHex(on ? HOLO.onEdge : HOLO.edge); });
+  });
 }

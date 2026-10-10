@@ -107,3 +107,16 @@ test('gaps: only the sections carry LEDs, the room shape change trims them', () 
   assert.equal(R.ringCount(d), 2);
   near(d.segs[1].to, 8);
 });
+
+test('every section has its own soft marker colour, neighbours differ, the list repeats (#325)', () => {
+  const n = R.SECTION_COLORS.length;
+  for (let i = 0; i < 2 * n; i++) {
+    assert.match(R.sectionHex(i), /^#[0-9a-f]{6}$/);
+    assert.notEqual(R.sectionHex(i), R.sectionHex(i + 1));
+  }
+  assert.equal(R.sectionHex(n), R.sectionHex(0));
+  assert.equal(new Set(R.SECTION_COLORS).size, n);
+  assert.equal(R.sectionHex(0), '#ff8a80');
+  assert.equal(R.sectionHex(-1), R.SECTION_COLORS[n - 1]);              // junk index: still a colour
+  assert.equal(R.sectionHex('x'), R.SECTION_COLORS[0]);
+});
