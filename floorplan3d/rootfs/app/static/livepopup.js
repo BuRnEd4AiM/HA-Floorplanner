@@ -1,12 +1,13 @@
 /* Live popup: the small card that opens when a device or a door / window is tapped in live mode (state, actions, light controls, the scenes the
- * light is part of, the whole room; a window's roller shutter: up, stop, down and its position, #331), and the LED ring card with one button
- * per section. The card is drawn anew only when something it shows changes (#336): a state update of any other entity of the house (power
- * meters, temperatures every few seconds) no longer replaces its buttons and sliders under the finger. popupKey is pure (unit test). */
+ * light is part of, the whole room; a window's roller shutter: its own card, shuttercard.js, #331, #335), and the LED ring card with one
+ * button per section. The card is drawn anew only when something it shows changes (#336): a state update of any other entity of the house
+ * (power meters, temperatures every few seconds) no longer replaces its buttons and sliders under the finger. popupKey is pure (unit test). */
 import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
 import { ringCount, segEntity, ringEntities } from './ledring.js';
-import { shutterEntity, shutterText } from './shutters.js';
+import { shutterEntity } from './shutters.js';
+import { initShutterCard } from './shuttercard.js';
 
-/** what the card shows of an entity's state: the state and its unit, brightness, colour, effects, the shutter's position (not: since, other attributes) */
+/** what the card shows of an entity's state: the state and its unit, brightness, colour, effects, a cover's position (not: since, other attributes) */
 export const shownState = (s) => (s ? [s.state, s.unit, s.brightness, s.rgb, s.fx, s.fxc, s.position] : null);
 /** the key of the card: the device (or window) as stored, the tapped LED ring section, the language, what else the card depends on (extra), and
  *  for each entity it shows (ids, any order) its name and the shown part of its state. The same key: the card would look the same. */
@@ -22,34 +23,36 @@ export function initLivePopup(ctx) {
   let forId = null, seg = null;                 // the device (or opening) shown, and the tapped section of an LED ring
   let key = '';                                 // what the card shows (popupKey); '' = draw it anew
   let sliding = false;                          // a slider of the card is held (phones do not always give it the focus)
+  const shutter = initShutterCard({ t, live, states: () => ctx.states(), rerender: () => render() });
   const letGo = () => { if (sliding) { sliding = false; if (forId) setTimeout(render); } };      // let go: what changed meanwhile is drawn
   box.addEventListener('pointerdown', (ev) => {
     if (!ev.target.matches?.('input[type=range]')) return;
     sliding = true;
     ['pointerup', 'pointercancel'].forEach((n) => window.addEventListener(n, letGo, { once: true }));   // also let go beside it
   });
-  // a slider, colour picker or effect list in use is not replaced; what changed meanwhile is drawn when the focus leaves the card
-  const busy = () => sliding || !!document.activeElement?.matches?.('#livePopup input, #livePopup select');
+  // a slider (also the shutter's), colour picker or effect list in use is not replaced; what changed meanwhile is drawn when the focus leaves the card
+  const busy = () => sliding || shutter.busy() || !!document.activeElement?.matches?.('#livePopup input, #livePopup select');
   box.addEventListener('focusout', (ev) => { if (forId && !box.contains(ev.relatedTarget)) setTimeout(render); });
-  function close() { forId = null; key = ''; sliding = false; box.hidden = true; }
+  function close() { forId = null; key = ''; sliding = false; shutter.reset(); box.hidden = true; }
   function show(id, section = null) {
-    forId = id; seg = section; key = ''; sliding = false;
+    forId = id; seg = section; key = ''; sliding = false; shutter.reset();
     if (box.contains(document.activeElement)) document.activeElement.blur();      // another device: always drawn
     render();
   }
-  /** the device shown, or a door / window with a contact sensor or a roller shutter */
+  /** the device shown, or a door / window with a contact sensor, or the ball of a window's roller shutter (shutterOf: that window) */
   function shown() {
     const d = ctx.floor()?.devices.find((v) => v.id === forId);
-    if (d) return d;
+    if (d) return { d, shutterOf: null };
     const fo = ctx.findOpening(forId);
-    return fo ? { name: fo.opening.name || t(`prop.${fo.opening.type}`), entity: fo.opening.entity, isOpening: true, shutter: shutterEntity(fo.opening) } : null;
+    if (!fo) return null;
+    return { d: { name: fo.opening.name || t(`prop.${fo.opening.type}`), entity: fo.opening.entity, isOpening: true }, shutterOf: shutterEntity(fo.opening) ? fo.opening : null };
   }
   const roomOf = (d) => ctx.floor().rooms.find((r) => ctx.pointInPoly(d.x, d.z, r.points));
   const withRoom = (d) => !!d.entity && /^(light|scene)\./.test(d.entity) && !d.isOpening;     // a lamp or a scene: the whole room is on the card
-  /** what the card shows: the entities whose state it reads (the device's, the camera's motion, the shutter, the ring's sections, the room's lights),
+  /** what the card shows: the entities whose state it reads (the device's, the camera's motion, the ring's sections, the room's lights),
    *  the room, and the scene buttons (only their names: a scene's state is the time it was last used) */
   function keyOf(d) {
-    const ids = [d.entity, d.motionEntity, d.shutter], scenes = [];
+    const ids = [d.entity, d.motionEntity], scenes = [];
     let room = null;
     if (d.type === 'ledring') ids.push(...ringEntities(d));
     else if (withRoom(d)) {
@@ -61,13 +64,17 @@ export function initLivePopup(ctx) {
     return popupKey({ dev: d, seg, lang: ctx.lang?.(), extra, ids, states: ctx.states(), name: live.nameOf });
   }
   function render() {
-    if (busy()) return;
-    const d = shown();
-    if (!d) { close(); return; }
-    const k = keyOf(d);
-    if (k === key && !box.hidden && box.firstElementChild) return;      // nothing on the card has changed: its buttons stay under the finger
-    key = k;
+    if (busy()) return;                                // a slider is held, a field has the focus: not drawn anew under the finger
+    const found = shown();
+    if (!found) { close(); return; }
+    const { d, shutterOf } = found, wasHidden = box.hidden;
     box.hidden = false;
+    box.classList.toggle('shutterCard', !!shutterOf);
+    keepAboveBar(box);
+    if (shutterOf) { key = ''; shutter.render(box, shutterEntity(shutterOf), shutterOf.name || ''); return; }   // only the shutter, not the window's contact (#335); it has its own key
+    const k = keyOf(d);
+    if (k === key && !wasHidden && box.firstElementChild) return;      // nothing on the card has changed: its buttons stay under the finger
+    key = k;
     box.innerHTML = '';
     if (d.type === 'ledring') { ringPopup(box, d); return; }
     const title = document.createElement('div'); title.className = 'title'; title.textContent = d.name || '';
@@ -75,8 +82,7 @@ export function initLivePopup(ctx) {
     sub.textContent = d.entity ? `${d.isOpening ? ctx.openText(d.entity) : ctx.stateText(d.entity)} · ${d.entity}` : t('live.noEntity');
     const mi = live.detailsButton(d.entity);
     if (mi) title.append(mi);
-    box.append(title);
-    if (d.entity || !d.shutter) box.append(sub);                // a window with only a shutter: no "nothing linked" line
+    box.append(title, sub);
     if (d.type === 'camera') {                                  // #69: still image (renewed every few seconds), a second tap opens Home Assistant's live view
       if (d.motionEntity) { const mo = document.createElement('div'); mo.className = 'sub'; mo.textContent = ctx.cams.motion(d) ? t('cam.motionOn') : t('cam.motionOff'); box.append(mo); }
       if (d.entity?.startsWith('camera.') && ctx.settings().cameraImages) box.append(ctx.cams.camImage(d.entity, 'pop-cam'));
@@ -92,7 +98,6 @@ export function initLivePopup(ctx) {
       });
       box.append(row);
     }
-    if (d.shutter) shutterCard(box, d.shutter);
     if (d.entity && d.entity.startsWith('light.') && !d.isOpening) {
       box.append(live.lightControls([d.entity]));
       const sc = live.sceneButtons(live.scenesWith([d.entity]), 'live.sceneWith');   // scenes this light is part of
@@ -104,29 +109,12 @@ export function initLivePopup(ctx) {
       if (rc) box.append(rc);
     }
   }
-  /** the roller shutter of a window (#331): its state, up / stop / down and the position (100 % = open) */
-  function shutterCard(box, e) {
-    const h = document.createElement('h4'); h.textContent = `🪟 ${t('shutter.title')}`;
-    const smi = live.detailsButton(e);
-    if (smi) h.append(smi);
-    const sub = document.createElement('div'); sub.className = 'sub'; sub.textContent = `${shutterText(ctx.states()[e], t)} · ${e}`;
-    box.append(h, sub);
-    const dom = e.split('.')[0], row = document.createElement('div'); row.className = 'actions shutterActs';
-    const acts = dom === 'cover' ? [['open_cover', 'shutter.up'], ['stop_cover', 'live.stop'], ['close_cover', 'shutter.down']] : (ACTIONS[dom] || []).map((a) => [a, ACTION_LABEL[a]]);
-    acts.forEach(([a, k]) => {
-      const b = document.createElement('button'); b.textContent = t(k);
-      b.addEventListener('click', () => live.callService(e, a));
-      row.append(b);
-    });
-    if (acts.length) box.append(row);
-    const pos = ctx.states()[e]?.position;
-    if (dom === 'cover' && typeof pos === 'number') {
-      const pr = document.createElement('div'); pr.className = 'actions shutterPos';
-      const r = document.createElement('input'); r.type = 'range'; r.min = 0; r.max = 100; r.step = 1; r.value = pos; r.id = 'shutterPos'; r.title = t('shutter.pos');
-      r.addEventListener('change', () => live.callService(e, 'set_cover_position', { position: +r.value }));      // held: not drawn anew (see busy)
-      pr.append(r);
-      box.append(pr);
-    }
+  /** the card stays clear of the view buttons at the bottom (Normal, Temp. ...), which wrap into two rows on a phone (#335) */
+  function keepAboveBar(box) {
+    const bar = document.getElementById('modeBar'), host = box.offsetParent;
+    if (!bar || !host || !bar.offsetParent) { box.style.bottom = ''; return; }      // no bar (the security view): as the style sheet says
+    const free = host.getBoundingClientRect().bottom - bar.getBoundingClientRect().top + 10;
+    box.style.bottom = free > 72 ? `${Math.round(free)}px` : '';
   }
   /** LED ring in live mode: one button per section, the tapped section's own controls, then the whole ring */
   function ringPopup(box, d) {

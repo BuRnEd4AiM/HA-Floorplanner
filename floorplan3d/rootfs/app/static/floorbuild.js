@@ -136,19 +136,20 @@ export function initFloorBuild(ctx) {
       ctx.registry.set(st.id, sg);
     });
   }
-  /** the roller shutters in the windows of wall w (#331): a ball (a tap in the live mode opens the shutter's controls) and, like the value
-   *  label of a device, a label over the window with how far it is open (openings.js writes it; labels: the floor shows its labels) */
+  /** the roller shutters in the windows of wall w (#331): a ball on top of the window (a tap in the live mode opens the shutter's card,
+   *  #335) and, like the value label of a device, a label over it with how far it is open (openings.js writes it; labels: the floor shows
+   *  its labels) */
   function shutterParts(g, w, labels) {
     const mode = ctx.settings().labelMode;
     (w.openings || []).forEach((op) => {
       const e = shutterEntity(op);
       if (!e) return;
-      const tb = ctx.tapBalls.add(g, null, { id: op.id, entity: e }, openingBallAt(w, op, w.height || ctx.settings().wallHeight || 2.6), 'opening');
+      const tb = ctx.tapBalls.add(g, null, { id: op.id, entity: e }, openingBallAt(w, op), 'opening');
       if (tb) ctx.pickables.push(tb);
       if (!labels || !wantsLabel({ entity: e }, mode)) return;
       const sp = ctx.textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true }), [x, z] = openingPoint(w, op);
       sp.position.set(x, shutterLabelY(op), z);
-      sp.userData.atWindow = true;                             // the balls need not keep clear of it: it is over the window, the ball under it
+      sp.userData.atWindow = true;                             // the balls need not keep clear of it: it is over the window's own ball (#335)
       g.add(sp);
       ctx.labelSprites.set(op.id, sp);
     });

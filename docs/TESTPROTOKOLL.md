@@ -30,7 +30,10 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 11. **LED-Ring-Abschnitte farbig** (39.1, 39.2): Bearbeiten, LED-Ring in mehrere Abschnitte teilen, in 2D und 3D schauen.
 
 **Neu in 3.69** (ausführlich in Abschnitt **40** unten)
-12. **Rollladen an jedem Fenster, auch an der Gaube** (40.1 bis 40.6): Bearbeiten, ein Fenster anklicken, Haken „Rollladen“. Live: die Kugel 🪟 unter dem Küchenfenster antippen, „Hoch“ / „Runter“ und Schieber ausprobieren.
+12. **Rollladen an jedem Fenster, auch an der Gaube** (40.1 bis 40.6): Bearbeiten, ein Fenster anklicken, Haken „Rollladen“. Live: die Kugel 🪟 über dem Küchenfenster antippen, „Hoch“ / „Runter“ und Schieber ausprobieren.
+
+**Neu in 3.70** (ausführlich in Abschnitt **41** unten)
+13. **Rollladen-Karte wie in Home Assistant** (41.1 bis 41.5): Live, am Handy die Kugel 🪟 **über** einem Fenster mit Rollladen antippen. Die Karte zeigt **nur den Rollladen** (nicht den Fensterkontakt), einen großen Schieber, Hoch / Stopp / Runter und 0 / 25 / 50 / 75 / 100 %; den Schieber ziehen oder eine Stufe antippen.
 
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
@@ -138,7 +141,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 38. Neu in 3.66 | 0 | 0 | 6 | 2 | 38.1 bis 38.3, 38.5, 38.6, 38.8 |
 | 39. Neu in 3.67 | 0 | 0 | 2 | 0 | 39.1, 39.2 |
 | 40. Neu in 3.69: Rollläden an den Fenstern | 0 | 0 | 6 | 0 | 40.1 bis 40.6 |
-| **Zusammen** | **198** | **1** | **80** | **2** | |
+| 41. Neu in 3.70: Rollladen-Karte | 0 | 0 | 5 | 0 | 41.1 bis 41.5 |
+| **Zusammen** | **198** | **1** | **85** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -645,3 +649,12 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 40.4 | Live, in die Küche tippen (Raum-Karte) | Unter „ROLLLÄDEN“ steht „Fenster Küche“ mit Öffnen / Stopp / Schließen; unter „FENSTER“ steht weiter der Fensterkontakt. Oben bei „n offen“ zählt ein offener Rollladen nicht als offenes Fenster | ❓ |
 | 40.5 | Etage „Dach“: das Gaubenfenster anklicken (Bearbeiten), dann im Live-Modus seine Kugel 🪟 antippen und „Runter“ drücken | Bearbeiten: Haken „Rollladen“ ist gesetzt, Entität „Rollladen Gaube“. Live: die Karte „Gaubenfenster“ öffnet sich, der Rollladen der Gaube fährt herunter | ❓ |
 | 40.6 | Live, Ansicht 2D, Erdgeschoss | Außen an Küche und Schlafzimmer steht „↕ Geschlossen“ bzw. „↕ 40 % offen“; beim Küchenfenster steht der Text des Fensterkontakts darunter, nichts liegt übereinander; ein Tipp aufs Fenster öffnet die Karte mit dem Rollladen | ❓ |
+
+## 41. Neu in 3.70: Rollladen-Karte
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 41.1 | Live, Erdgeschoss, schräg von oben auf das Küchenfenster schauen | Die Kugel 🪟 sitzt **über** dem Fenster (dort, wo der Rollladen sitzt), nicht darunter; das Schild „↕ Geschlossen“ steht über der Kugel (#335) | ❓ |
+| 41.2 | Die Kugel 🪟 über dem Küchenfenster antippen | Eine Karte „🪟 Rollladen · Fenster Küche“ öffnet sich: groß „Geschlossen“, daneben ein hoher Schieber mit dem Panzer, Hoch / Stopp / Runter und darunter 0 % / 25 % / 50 % / 75 % / 100 %. **Kein** Fensterkontakt („Fenster · Offen · binary_sensor…“) in der Karte | ❓ |
+| 41.3 | Am Schieber mit dem Finger den Panzer nach oben bis etwa zur Mitte ziehen und loslassen | Beim Ziehen zeigt die Karte groß die Prozent („50 % offen“); nach dem Loslassen fährt der Rollladen in 3D bis dorthin, das Schild über dem Fenster zeigt dasselbe | ❓ |
+| 41.4 | „75 %“ antippen, dann „100 %“, dann „▼ Runter“ | Der Rollladen fährt jeweils dorthin; die gewählte Stufe ist blau markiert; nach „Runter“ ist er ganz zu | ❓ |
+| 41.5 | Am Handy hochkant: die Karte offen lassen und unten auf „Ansicht ▴“ schauen | Die Karte steht **über** den Knöpfen unten (Normal, Temp., Feuchte, CO₂), nichts davon verdeckt die Karte | ❓ |

@@ -108,9 +108,30 @@ pgR.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx
 bs = pgR.evaluate("window.__fp.ballScreen('wsh')")
 hit = bs and pgR.evaluate(f"window.__fp.liveHitAt({bs['x']}, {bs['y']})")
 check("shutter (#331): the live mode shows a ball at the window that can be tapped", bool(bs) and hit and hit["id"] == "wsh", (bs, hit))
+by = pgR.evaluate("window.__fp.ballY('wsh')")
+check("shutter (#335): the ball is on top of the window (sill 0.9 + 1.2 high), not under it", by is not None and by > 2.1 + 0.3, by)
+pgR.evaluate("() => { window.__fp.states()['cover.rollo'] = { ...window.__fp.states()['cover.rollo'], state: 'open', position: 40 }; window.__fp.applyStates(); }")
 if bs:
     pgR.mouse.click(bs["x"], bs["y"]); pgR.wait_for_timeout(500)
-check("shutter (#331): a tap opens up / stop / down", pgR.is_visible("#livePopup") and pgR.locator("#livePopup .shutterActs button").count() == 3, pgR.inner_text("#livePopup") if pgR.is_visible("#livePopup") else "no popup")
+pop = pgR.inner_text("#livePopup") if pgR.is_visible("#livePopup") else "no popup"
+check("shutter (#331): a tap opens up / stop / down", pgR.is_visible("#livePopup") and pgR.locator("#livePopup .shutterActs button").count() == 3, pop)
+check("shutter (#335): the card shows only the shutter, not the window's contact", "cover.rollo" in pop and "binary_sensor.rauch" not in pop, pop)
+check("shutter (#335): the card has the tall slider at 40 % and the quick positions at once", pgR.locator("#livePopup #shutterPos").is_visible()
+      and pgR.get_attribute("#livePopup #shutterPos", "aria-valuenow") == "40" and pgR.locator("#livePopup .shutterPresets button").count() == 5, pop)
+if pgR.locator("#livePopup .shutterPresets button").count() == 5:
+    pgR.locator("#livePopup .shutterPresets button").nth(1).click(); pgR.wait_for_timeout(900)
+cd = json.load(urllib.request.urlopen(HA + "/_calldata"))
+check("shutter (#335): the quick position 25 % sets the cover there", ["set_cover_position", "cover.rollo", 25] in cd, cd[-3:])
+check("shutter (#335): the slider shows the chosen position at once", pgR.get_attribute("#livePopup #shutterPos", "aria-valuenow") == "25" and "25" in pgR.inner_text("#livePopup .shutterBig"),
+      pgR.inner_text("#livePopup") if pgR.is_visible("#livePopup") else "no popup")
+sb = pgR.locator("#livePopup #shutterPos").bounding_box()
+if sb:
+    pgR.mouse.move(sb["x"] + sb["width"] / 2, sb["y"] + sb["height"] * 0.3); pgR.mouse.down()
+    pgR.mouse.move(sb["x"] + sb["width"] / 2, sb["y"] + sb["height"] - 2, steps=5); pgR.mouse.up(); pgR.wait_for_timeout(900)
+cd = json.load(urllib.request.urlopen(HA + "/_calldata"))
+check("shutter (#335): dragging the slider down to the bottom closes it (position 0)", ["set_cover_position", "cover.rollo", 0] in cd, (sb, cd[-3:]))
+mb = pgR.locator("#modeBar").bounding_box(); lp = pgR.locator("#livePopup").bounding_box()
+check("shutter (#335): the card stays over the view buttons at the bottom", bool(mb and lp) and lp["y"] + lp["height"] <= mb["y"] + 1, (lp, mb))
 if pgR.locator("#livePopup .shutterActs button").count() == 3:
     pgR.locator("#livePopup .shutterActs button").nth(2).click(); pgR.wait_for_timeout(900)
 check("shutter (#331): down closes the cover in Home Assistant", ["cover", "close_cover", "cover.rollo"] in ha_calls(), ha_calls()[-3:])
