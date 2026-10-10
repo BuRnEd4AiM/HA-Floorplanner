@@ -195,9 +195,13 @@ In ⚙ → *Wall tablet: warnings and kiosk*, for the live view:
 - **Screen saver**: the house then turns slowly until the next touch.
 - **Dim at night**, by the sun (`sun.sun`) or between two times (e.g. 22:00 to 06:00). The first touch only wakes the screen, it does not switch anything.
 
+## Renamed in Home Assistant
+
+Rename an entity or a device in Home Assistant, in Zigbee2MQTT ("update Home Assistant entity ID") or with another add-on such as the Zigbee Devices Manager, and the floor plan follows by itself: every placed device, LED ring section, TV backlight, door/window contact and cable linked to the old entity id gets the new one, in every house, and so do the settings (e.g. the weather entity) and `users.json`. A device whose name is still the name Home Assistant showed gets the new name; a name you typed yourself stays. An open floor plan updates at once, without a reload, and an undo does not bring the old id back. The add-on recognises an entity by its entry in Home Assistant's entity registry (integration and unique id), so this also works when the entity was deleted and created again with the same unique id, and renames made while the add-on was stopped are caught up at its next start. Entities without a unique id (defined in YAML) cannot be renamed in Home Assistant and are not affected. The add-on log lists what was renamed.
+
 ## Devices offline
 
-The pill **✓ 0 offline** over the plan (live and edit mode) turns red (**⚠ n offline**) as soon as a placed device is **unavailable** in Home Assistant, reports an **unknown** state, or no longer exists there (renamed or deleted). Tap it to see the list with floor, room, entity and since when it is offline. Tap an entry to jump to the device. LED ring sections, TV backlights and door/window contacts are checked too. Placed lamps and smart devices that are **not linked** to an entity are listed too (furniture, garden objects and pictures are not). Only what is placed in the plan is checked.
+The pill **✓ 0 offline** over the plan (live and edit mode) turns red (**⚠ n offline**) as soon as a placed device is **unavailable** in Home Assistant, reports an **unknown** state, or no longer exists there (e.g. deleted). Tap it to see the list with floor, room, entity and since when it is offline. Tap an entry to jump to the device. LED ring sections, TV backlights and door/window contacts are checked too. Placed lamps and smart devices that are **not linked** to an entity are listed too (furniture, garden objects and pictures are not). Only what is placed in the plan is checked.
 
 ## Library, doors, windows and pictures
 

@@ -21,3 +21,11 @@ test('snapshot / undo give back the plan as it was, then nothing', () => {
   assert.equal(p.popUndo(), null);
   assert.equal(p.touched(), false);
 });
+test('the undo list can be rewritten (entities renamed in Home Assistant)', () => {
+  let layout = { n: 1 };
+  const p = P.initPersist({ t: (k) => k, layout: () => layout, url: () => 'x', autosaveSeconds: () => 1, setStatus: () => {} });
+  p.snapshot(); layout = { n: 2 }; p.snapshot();
+  p.mapUndo((s) => s.replace('"n":', '"m":'));
+  assert.deepEqual(p.popUndo(), { m: 2 });
+  assert.deepEqual(p.popUndo(), { m: 1 });
+});

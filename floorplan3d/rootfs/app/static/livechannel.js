@@ -38,7 +38,8 @@ export async function fetchAreas() {
 }
 
 /** ctx: entities(), setEntities(list), states(), setStates(obj), toState(e), wake(), redraw() (states, room entities, entity panel),
- *  firstLoad() (async: areas, entity list, properties), paused() (security view: the recorded states are shown, live ones wait) */
+ *  firstLoad() (async: areas, entity list, properties), paused() (security view: the recorded states are shown, live ones wait),
+ *  renamed({ ids, names, settings }) (entities renamed in Home Assistant, renames.js) */
 export function initLiveChannel(ctx) {
   let liveOk = false, retry = 1000, lastFull = 0, raf = 0, sig = '';
   function connect() {
@@ -51,6 +52,7 @@ export function initLiveChannel(ctx) {
       try { d = JSON.parse(m.data); } catch { return; }
       if (d.type === 'upstream') { const was = liveOk; liveOk = !!d.ok; if (liveOk && !was) poll(); }   // catch up on what changed before the channel was up
       else if (d.type === 'states') apply(d);
+      else if (d.type === 'renamed') ctx.renamed?.(d);
     };
     ws.onclose = () => { liveOk = false; setTimeout(connect, retry); retry = Math.min(30000, retry * 2); };
   }

@@ -86,6 +86,7 @@ import { HOLO, ringLook } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
+import { initRenames } from './renames.js';
 window.fp3dBooted = true;           // every module is loaded: the boot guard (bootguard.js) stands down (#328)
 
 /* ================= State ================= */
@@ -1304,12 +1305,18 @@ async function loadAreas() { ({ areas, areaOf } = await fetchAreas()); }   // Ho
 
 function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 
+/* ---- Entities renamed in Home Assistant: the plan of this view follows (renames.js) ---- */
+const renamed = initRenames({
+  layout: () => layout, mapUndo: (fn) => persist.mapUndo(fn), refresh: () => { build(); renderObjList(); renderProps(); },
+  refetchSettings: () => settingsStore.refetch(), poll: () => liveChan.poll(),
+});
 /* ---- Live channel: pushed state changes, polling while it is down; the code lives in livechannel.js ---- */
 const liveChan = initLiveChannel({
   paused: () => !!replayBack,
   entities: () => entities, setEntities: (x) => { entities = x; }, states: () => states, setStates: (x) => { states = x; }, toState: (e) => toState(e),
   wake: () => wake(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); },
   firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
+  renamed: (d) => renamed(d),
 });
 /* ---- Security view: a recorded day played back in the same view, nothing can be switched (timelineui.js, timeline.js) ---- */
 const timeline = initTimeline({

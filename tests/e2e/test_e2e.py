@@ -1983,6 +1983,35 @@ with sync_playwright() as p:
     check("edit mode: everything can still be picked (plant and window)", hp2 and hp2["kind"] == "device" and hw2 and hw2["kind"] == "opening", (hp2, hw2))
     pgT2.close()
 
+    # --- entities renamed in Home Assistant: the stored plan and an open view follow (renames.py, renames.js)
+    pgR = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+    pgR.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+    hid = pgR.request.post(BASE + "api/houses", data=json.dumps({"name": "Umbenennen"}), headers={"Content-Type": "application/json"}).json()["id"]
+    planR = {"version": 1, "floors": [{"id": "fR", "name": "EG", "walls": [], "rooms": [], "devices": [
+        {"id": "rG", "type": "light", "x": 1, "z": 1, "y": 1.2, "rot": 0, "scale": 1, "name": "Garage", "entity": "switch.garage"},
+        {"id": "rM", "type": "light", "x": 2, "z": 1, "y": 2.3, "rot": 0, "scale": 1, "name": "Mein Licht", "entity": "switch.garage"}]}]}
+    pgR.request.put(BASE + f"api/layout?house={hid}", data=json.dumps(planR), headers={"Content-Type": "application/json"})
+    pgR.goto(BASE + f"?debug=1&mode=edit&house={hid}"); pgR.wait_for_timeout(1500)
+    got = json.load(urllib.request.urlopen("http://localhost:8123/_rename?from=switch.garage&to=switch.garagentor&name=Garagentor"))
+    def stored_devs():
+        return api_admin(f"api/layout?house={hid}")["floors"][0]["devices"]
+    for _ in range(40):
+        if stored_devs()[0]["entity"] == "switch.garagentor": break
+        pgR.wait_for_timeout(250)
+    devs = stored_devs()
+    check("renamed in Home Assistant: the stored plan gets the new entity id", got["watchers"] > 0 and [d["entity"] for d in devs] == ["switch.garagentor"] * 2, (got, devs))
+    check("renamed in Home Assistant: Home Assistant's new name is taken, a name typed by hand stays", [d["name"] for d in devs] == ["Garagentor", "Mein Licht"], devs)
+    pgR.wait_for_timeout(1000)
+    mem = pgR.evaluate("window.__fp.layout.floors[0].devices.map(d => [d.entity, d.name])")
+    check("renamed in Home Assistant: an open view follows at once (no reload)", mem == [["switch.garagentor", "Garagentor"], ["switch.garagentor", "Mein Licht"]], mem)
+    check("renamed in Home Assistant: the device is not listed as offline", not [x for x in pgR.evaluate("window.__fp.offline()") if x.get("entity", "").startswith("switch.garage")], pgR.evaluate("window.__fp.offline()"))
+    pgR.close()
+    urllib.request.urlopen("http://localhost:8123/_rename?from=switch.garagentor&to=switch.garage&name=Garage").read()   # as before for the checks below
+    for _ in range(40):
+        if stored_devs()[0]["entity"] == "switch.garage": break
+        time.sleep(0.25)
+    urllib.request.urlopen(urllib.request.Request(BASE + f"api/houses/{hid}", method="DELETE", headers={"X-Remote-User-Name": "admin"})).read()
+
     pg12 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
     shots = os.path.join(os.path.dirname(__file__), "lang")
     os.makedirs(shots, exist_ok=True)

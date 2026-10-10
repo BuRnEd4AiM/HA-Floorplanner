@@ -165,5 +165,7 @@ export function initSettings(ctx) {
   usersDlg.addEventListener('click', (e) => { if (e.target === usersDlg) usersDlg.close(); });
   dlg.addEventListener('change', commit);
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });     // a click on the dark backdrop closes it too
-  return { fill, read, load, save, commit, usePreset, loaded: () => loaded };
+  /** read the stored settings again (the add-on changed them itself, e.g. a renamed weather entity): no stale copy, no false conflict */
+  async function refetch() { loaded = false; return load(); }
+  return { fill, read, load, refetch, save, commit, usePreset, loaded: () => loaded };
 }
