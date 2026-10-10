@@ -1,2 +1,5 @@
 __pycache__/
 tri.glb
+# pictures the browser test takes (every run writes them again)
+*.png
+lang/

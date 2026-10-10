@@ -16,4 +16,8 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - When an existing part of app.js is changed anyway, move that part into a module in the same PR if it is small and safe. Keep docs/MODULE-PLAN.md up to date (move rows from "still in app.js" to "already split").
 ## Test protocol
 - When entering test results in docs/TESTPROTOKOLL.md, only change the result tables, then run `python3 tools/testprotokoll.py`: it rewrites the overview table (counts and open numbers). tests/test_testprotokoll.py fails if it is out of date. Also update the hand-written "Jetzt prüfen" / "Ältere offene Punkte" lists if items in them are done.
-- A PR that only changes docs/*.md skips the long e2e job in CI.
+- A PR that only changes text (*.md in docs/ or the top folder), unit tests (tests/*.mjs, tests/test_*.py) or tools/ skips the browser test in CI.
+## Browser test (tests/e2e)
+- It is split into parts (tests/e2e/parts/, `tests/e2e/run.sh --list`). CI runs every part as its own job at the same time (a few minutes).
+- In a session never run the whole browser test (15-20 minutes here). Run only the parts that cover the change: `tests/e2e/run.sh <part> [<part> ...]` (the test house + those parts, a few minutes each), then push: CI runs all parts.
+- A new browser check goes into the part that fits, or into a new numbered file in tests/e2e/parts/ (CI picks it up on its own). A part must pass alone right after parts/base.py: it may use what base.py built, never what another part made. Keep a part under about 3 minutes in CI, split it when it grows.

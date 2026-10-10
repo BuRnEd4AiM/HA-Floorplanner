@@ -1,6 +1,6 @@
 {
- "version": "3.69.0",
- "buildHash": "04299fd7ab3ec47782c23cfc4faa90d8d71766eb6c43b1926bad401f020d888a",
+ "version": "3.69.1",
+ "buildHash": "099b8d5ad0706834a31682edaab20fb7e0810aecc5b9ae5c3196579410f4eaa4",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -215,7 +215,7 @@
   "static/roompanel.js": "7dae24d2c956cf99879f01c492f7941e5f797d8fc5d403bee67b6797750717f1",
   "static/rooms.js": "b3c65f81043bce516d51f6e0d975e3f0a424bdde953c29212e49f898c89eab17",
   "static/search.js": "e9c80b4c472b45a19932e6482373680364d8acee8c38f1ef1a1c1a9a27bee91d",
-  "static/settings.js": "e29acd35e1a57491cbbc569c2735290124a97b8740c7d65eaf4711c8ec3e652c",
+  "static/settings.js": "527b6f4454982eea941be30844638fae843494c30dcab930fbd7c1a2094ab8a1",
   "static/settingsui.js": "4f85f9725317481f0fc7fef9e0af761f59bae9220d0b1adc1ca8b7a2c46b0981",
   "static/sheetview.js": "e190e2af95d27eda3f0566f087de73e77ed92ab6d1779e7da2a6c8bd1aa94d30",
   "static/shutters.js": "f43e3c1848a41f0935fca2a90a7e3545157a4d60ae23d5864a32f8e365d5b248",

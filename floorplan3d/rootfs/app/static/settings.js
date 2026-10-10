@@ -41,6 +41,20 @@ export function resolveWallView(prev, next) {
 export const tabletUsers = (s) => new Set([...Object.keys(s.userRooms || {}), ...Object.keys(s.userViews || {}), ...Object.keys(s.userPresets || {}), ...Object.keys(s.userLocks || {}),
   ...Object.keys(s.startViews || {}).filter((u) => u !== '*')]).size;
 
+/** fn wrapped so that only one call runs at a time; calls that come in meanwhile are folded into ONE more run right after it. fn gets
+ *  newer(): true when another call came in after it started (what it has is out of date then). Two quick changes in the settings were
+ *  both sent with the same ETag and the second was refused as "changed on another screen" (#333). */
+export function oneAtATime(fn) {
+  let running = null, again = false;
+  const loop = async () => {
+    try { do { again = false; await fn(() => again); } while (again); } finally { running = null; }
+  };
+  return () => {
+    if (running) { again = true; return running; }
+    running = loop();
+    return running;
+  };
+}
 /** ctx: $, t, get() (the settings), set(next), ui (settingsui.js), toDisp(m), fromDisp(v), layout(), entities(), perfStored, perfKey, setStatus(txt),
  *  committed(prev) (apply the new settings to the house and the view), alert(txt), reload() */
 export function initSettings(ctx) {
@@ -96,15 +110,16 @@ export function initSettings(ctx) {
     }
     return loaded;
   }
-  /** save the current settings as they are (without reading the form) */
-  async function save() {
+  /** save the current settings as they are (without reading the form). One save at a time: a change made while one is on its way is
+   *  saved right after it, with its new ETag; the answer of the older save does not overwrite that newer change. */
+  const save = oneAtATime(async (newer) => {
     try {
       const out = forSaving(ctx.get(), preset);                         // the preset fields go as everybody's values, unless changed on purpose
       const r = await fetch('api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(etag ? { 'If-Match': etag } : {}) }, body: JSON.stringify(out.body) });
-      if (r.ok) { preset = out.state; fromServer(await r.json()); etag = r.headers.get('ETag'); }
+      if (r.ok) { preset = out.state; const srv = await r.json(); etag = r.headers.get('ETag'); if (!newer()) fromServer(srv); }
       else if (r.status === 409) { ctx.alert(t('set.changedElsewhere')); ctx.reload(); }
     } catch { /* offline: settings stay for this session */ }
-  }
+  });
   /** the form changed: read it, apply it, save it */
   async function commit() {
     if (!loaded && !(await load())) { ctx.setStatus(t('set.notLoaded')); return; }

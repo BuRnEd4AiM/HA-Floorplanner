@@ -1,4 +1,4 @@
-import json
+import json, os
 from aiohttp import web
 STATE = {"climate.wohnzimmer": "heat", "light.wohnzimmer": "on", "sensor.temp": "21.5", "cover.rollo": "closed", "switch.garage": "off", "binary_sensor.rauch": "off", "sensor.co2": "850", "sensor.leistung": "95.4", "camera.flur": "idle"}
 CALLS = []
@@ -87,4 +87,4 @@ async def template(r):
 app = web.Application()
 app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy)])
-web.run_app(app, port=8123, print=None)
+web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

@@ -40,3 +40,29 @@ test('tablet users: every user with a room or a view counts once', () => {
   assert.equal(S.tabletUsers({ userRooms: { a: 'K', b: 'B' }, userViews: { b: '2d', c: '3d' } }), 3);
   assert.equal(S.tabletUsers({}), 0);
 });
+test('saving (#333): one save at a time, changes made meanwhile go in ONE more save right after it', async () => {
+  const runs = [];
+  let open = 0, most = 0, release = [];
+  const save = S.oneAtATime(async (newer) => {
+    open++; most = Math.max(most, open);
+    await new Promise((r) => release.push(r));
+    runs.push(newer()); open--;
+  });
+  const a = save(), b = save(), c = save();             // two quick changes while the first save is on its way
+  assert.equal(b, a); assert.equal(c, a);
+  release.shift()(); await new Promise((r) => setTimeout(r, 0));
+  assert.deepEqual(runs, [true]);                        // the first save knew it was out of date (its answer is not applied)
+  release.shift()(); await a;
+  assert.deepEqual(runs, [true, false]);                 // exactly one more save, with the newest settings
+  assert.equal(most, 1);
+  const d = save(); assert.notEqual(d, a);              // later changes start a new save
+  release.shift()(); await d;
+  assert.deepEqual(runs, [true, false, false]);
+});
+test('saving (#333): a save that fails does not block the next one', async () => {
+  let n = 0;
+  const save = S.oneAtATime(async () => { n++; if (n === 1) throw new Error('offline'); });
+  await assert.rejects(save());
+  await save();
+  assert.equal(n, 2);
+});
