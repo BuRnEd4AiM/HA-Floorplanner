@@ -8,7 +8,9 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.62.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). In den Tabellen unten steht bei jedem Punkt ✅ (geht), ❌ (geht nicht), ❓ (noch nicht getestet) oder ➖ (nur im Add-on prüfbar).
 
-**Zuletzt geprüft (2026-10-09): ✅** 36.11 (Handy quer), der ganze Abschnitt 32 (Dächer verschieben und Größe ziehen), 31.2 und 31.4 bis 31.7. **❌ 31.1**: bei der Wandtreppe mit „Etagen“ 2 ist noch ein langer Lauf vorhanden (#318, vorerst nur notiert). Ebenso am selben Tag ✅: 10.4 und 10.5 (Leistungsmodus, Benutzer sehen nur ihren Raum), 37.1 bis 37.5 (Handy hochkant, Leistungsanzeige), 37.7 und 37.8 (mehrere zusammen verschieben). Ebenso am selben Tag: der ganze Abschnitt 33 (nur die Kugel zählt im Live-Modus) und der ganze Abschnitt 34 (ausgebauter Dachstuhl). Am selben Tag davor ebenso ✅: 7.1a, 11.6, 14.4, 16.4, 17.4, 18.1, 18.2, 18.4 bis 18.6, 18.9, 18.10, 19.1 bis 19.5, 21.2, 21.3, der ganze Abschnitt 22 (22.1 bis 22.9) und 23.1 bis 23.16: Öffnungs-Auswahl gruppiert, Benutzer nach Update wieder da, Haus ohne Keller, Gauben in der Demo, Werkzeugleiste, automatische Sicherung, Versionsanzeige mit Prüfsumme, Ansicht-Knopf, Halbschnitt, durchsichtige Wände, Zurück-Zoomen im Live, Heizungs-Panel, weitere Dächer, Küchenzeile, Strom-Editor mit Kabeln und Kamera-Sichtkegel.
+**Zuletzt geprüft (2026-10-10): ✅** der ganze Abschnitt 28 (Nachbarhaus und Brücke), 21.5, 21.6, 18.3, 18.7, 18.8 (Abschnitt 18 damit fertig), 9.6, 9.7 (Backup, automatisches Speichern) und 6.1 bis 6.3 (Kameras). 10.1 entfällt: die Raum-Zuordnung fürs Wandtablet läuft jetzt über „Benutzer & Tablets“.
+
+**Am Vortag geprüft (2026-10-09): ✅** 36.11 (Handy quer), der ganze Abschnitt 32 (Dächer verschieben und Größe ziehen), 31.2 und 31.4 bis 31.7. **❌ 31.1**: bei der Wandtreppe mit „Etagen“ 2 ist noch ein langer Lauf vorhanden (#318, vorerst nur notiert). Ebenso am selben Tag ✅: 10.4 und 10.5 (Leistungsmodus, Benutzer sehen nur ihren Raum), 37.1 bis 37.5 (Handy hochkant, Leistungsanzeige), 37.7 und 37.8 (mehrere zusammen verschieben). Ebenso am selben Tag: der ganze Abschnitt 33 (nur die Kugel zählt im Live-Modus) und der ganze Abschnitt 34 (ausgebauter Dachstuhl). Am selben Tag davor ebenso ✅: 7.1a, 11.6, 14.4, 16.4, 17.4, 18.1, 18.2, 18.4 bis 18.6, 18.9, 18.10, 19.1 bis 19.5, 21.2, 21.3, der ganze Abschnitt 22 (22.1 bis 22.9) und 23.1 bis 23.16: Öffnungs-Auswahl gruppiert, Benutzer nach Update wieder da, Haus ohne Keller, Gauben in der Demo, Werkzeugleiste, automatische Sicherung, Versionsanzeige mit Prüfsumme, Ansicht-Knopf, Halbschnitt, durchsichtige Wände, Zurück-Zoomen im Live, Heizungs-Panel, weitere Dächer, Küchenzeile, Strom-Editor mit Kabeln und Kamera-Sichtkegel.
 
 **Davor geprüft (2026-10-08): ✅** 36.1 bis 36.10 und 36.12 bis 36.14: Gaubenfenster (Name, Kontakt, löschen, in der Wand, „Vorderseite auf die Wand“), Dach über dem Raum durchsichtig, Handy-Menü ☰, kein Hineinzoomen bei der Suche, Raum-Karte, Tablet/PC unverändert, Etagen- und Zimmer-Listen, alles auf einen Blick. Ebenso ✅ das Löschen mehrerer Dinge (Punkt 15 unten). Daraus kam der Wunsch „mehrere zusammen verschieben“, eingebaut in 3.62.0 (37.7, 37.8). Später am selben Tag ebenso ✅: 36.15 (Wand teilen), der ganze Abschnitt 35 (Gauben im ausgebauten Dachstuhl, „Dach beginnt auf Etage“, Firsthöhe, Haken weg) und 34.1 bis 34.3 (Kniestock).
 
@@ -49,9 +51,9 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 9. **Wendeltreppe** (in der Demo von der Garage auf die Dachterrasse): oben ein **Viertelkreis-Podest** zum Aussteigen; mit „Etagen“ 2 auf **jeder Etage** eines.
 
 **C. Zwei Häuser und Brücke**
-10. Oben in der Auswahl gibt es **„Demo-Haus“ und „Nachbarhaus“**. „Ganzes Haus“: beide stehen nebeneinander, die **Brücke** führt von Dachterrasse zu Dachterrasse, das **Geländer ist an beiden Enden offen**.
-11. Brücke anklicken (Etage Obergeschoss), „Höhenunterschied am Ende“ auf **1,2** stellen: die Brücke bekommt **Stufen**.
-12. „Häuser & Backup“ → Nachbarhaus: „Höhe“ oder „Lage X“ ändern → es rückt mit (Abschnitt 28).
+10. ✅ (2026-10-10, 28) Oben in der Auswahl gibt es **„Demo-Haus“ und „Nachbarhaus“**. „Ganzes Haus“: beide stehen nebeneinander, die **Brücke** führt von Dachterrasse zu Dachterrasse, das **Geländer ist an beiden Enden offen**.
+11. ✅ (2026-10-10, 28.8) Brücke anklicken (Etage Obergeschoss), „Höhenunterschied am Ende“ auf **1,2** stellen: die Brücke bekommt **Stufen**.
+12. ✅ (2026-10-10, 28.2) „Häuser & Backup“ → Nachbarhaus: „Höhe“ oder „Lage X“ ändern → es rückt mit (Abschnitt 28).
 
 **D. Sonstiges**
 13. **Strom-Editor** einschalten, dann ein anderes Werkzeug wählen: der Knopf „Strom-Editor“ **bleibt blau**.
@@ -98,11 +100,11 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 3. Etagen im 2D-Plan (3.19.1) | 7 | 0 | 0 | 0 | – |
 | 4. Räume | 7 | 0 | 0 | 0 | – |
 | 5. Farbansichten und Messwerte | 3 | 0 | 0 | 0 | – |
-| 6. Kameras | 0 | 0 | 3 | 0 | 6.1 bis 6.3 |
+| 6. Kameras | 3 | 0 | 0 | 0 | – |
 | 7. Türen, Fenster, Garage | 6 | 0 | 0 | 0 | – |
 | 8. Live-Ansicht (echte Geräte) | 6 | 0 | 1 | 0 | 8.5 |
-| 9. Bearbeiten | 5 | 0 | 2 | 0 | 9.6, 9.7 |
-| 10. Tablet und Bedienung | 2 | 0 | 3 | 0 | 10.1 bis 10.3 |
+| 9. Bearbeiten | 7 | 0 | 0 | 0 | – |
+| 10. Tablet und Bedienung | 3 | 0 | 2 | 0 | 10.2, 10.3 |
 | 11. Benutzer & Tablets (3.20.0) | 7 | 0 | 0 | 0 | – |
 | 12. Dachgauben (3.21.0) | 7 | 0 | 1 | 0 | 12.6a |
 | 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss | 2 | 0 | 3 | 0 | 13.3 bis 13.5 |
@@ -110,17 +112,17 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 15. Dachgröße von Hand (3.22.0) | 5 | 0 | 1 | 0 | 15.6 |
 | 16. Wiederholung der drei Fehler (3.22.0) | 4 | 0 | 0 | 0 | – |
 | 17. Werkzeugleiste anpassen und Raumliste nach Haus (3.23.0) | 7 | 0 | 0 | 0 | – |
-| 18. Automatische Sicherung (3.24.0) | 7 | 0 | 3 | 0 | 18.3, 18.7, 18.8 |
+| 18. Automatische Sicherung (3.24.0) | 10 | 0 | 0 | 0 | – |
 | 19. Version und Prüfsumme in der Leiste (3.25.0) | 5 | 0 | 0 | 0 | – |
 | 20. Erster Start (3.26.0) | 0 | 0 | 8 | 0 | 20.1 bis 20.8 |
-| 21. Neu in 3.26.1 bis 3.27.1 | 3 | 0 | 3 | 0 | 21.4 bis 21.6 |
+| 21. Neu in 3.26.1 bis 3.27.1 | 5 | 0 | 1 | 0 | 21.4 |
 | 22. Ansicht und Live-Bedienung (3.28.0) | 9 | 0 | 0 | 0 | – |
 | 23. Demo-Rundgang für 3.29 bis 3.36 (Besitzer) | 16 | 0 | 1 | 0 | 23.17 |
 | 24. Treppen: mehrere Etagen, Wandtreppe, Außen-Wendeltreppe (3.40.x) | 0 | 0 | 13 | 0 | 24.1 bis 24.13 |
 | 25. Solarpanels auf dem Dach (3.41.0) | 0 | 0 | 9 | 0 | 25.1 bis 25.9 |
 | 26. Wasser-, Gas- und Wärmezähler (3.42.0) | 0 | 0 | 4 | 0 | 26.1 bis 26.4 |
 | 27. Metallbrücke / Übergang (3.43.0) | 0 | 0 | 8 | 0 | 27.1 bis 27.8 |
-| 28. Nachbarhaus und Brücke zur Dachterrasse (3.44.0) | 0 | 0 | 8 | 0 | 28.1 bis 28.8 |
+| 28. Nachbarhaus und Brücke zur Dachterrasse (3.44.0) | 8 | 0 | 0 | 0 | – |
 | 29. Treppenhaus, Podest an der Wende, Ausgang auf jeder Etage (3.45.0) | 0 | 0 | 8 | 0 | 29.1 bis 29.8 |
 | 30. Live-Modus: weniger aus Versehen antippen (3.45.1) | 0 | 0 | 4 | 0 | 30.1 bis 30.4 |
 | 31. Treppen über mehrere Etagen, Zähler in der Übersicht (3.46.0) | 5 | 1 | 1 | 0 | ❌ 31.1, 31.3 |
@@ -132,19 +134,17 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 37. Neu in 3.59 bis 3.62 | 7 | 0 | 1 | 0 | 37.6 |
 | 38. Neu in 3.66 | 0 | 0 | 6 | 2 | 38.1 bis 38.3, 38.5, 38.6, 38.8 |
 | 39. Neu in 3.67 | 0 | 0 | 2 | 0 | 39.1, 39.2 |
-| **Zusammen** | **179** | **1** | **93** | **2** | |
+| **Zusammen** | **198** | **1** | **74** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
 
 Das sind die Punkte, die nur der Besitzer im echten Betrieb prüfen kann. Nach Wichtigkeit geordnet, die Nummern verweisen auf die Tabellen unten. Ergebnis jeweils unten in der Tabelle eintragen (✅ / ❌).
 
-1. **Nach dem Update auf 3.28.0** (Abschnitt 21): 21.4 bis 21.6 (Abschnitt 22 ist fertig ✅).
+1. **Nach dem Update auf 3.28.0** (Abschnitt 21): nur noch 21.4 (erst bei der nächsten Version prüfbar).
 2. **Erster Start** (Abschnitt 20): auf einer sauberen Installation oder in einem privaten Fenster.
-3. **Automatische Sicherung** (Abschnitt 18): noch 18.3 (Ordner `addon_configs`), 18.7 (zeitgesteuert) und 18.8 (Zurückspielen).
-4. **Wandtablet** (Abschnitt 10 und 8.5): Kiosk, Leistungsmodus, Warnbanner. Nur mit echtem Gerät möglich.
-5. **Backup und Speichern** (9.6, 9.7) und **Import des eigenen Hauses** (13.3 bis 13.5, 15.6, 12.6a).
-6. **Kameras** (Abschnitt 6), falls Kameras vorhanden sind.
+3. **Wandtablet** (10.2, 10.3 und 8.5): zurück zur Startansicht, Bildschirmschoner, Warnbanner. Nur mit echtem Gerät möglich.
+4. **Import des eigenen Hauses** (13.3 bis 13.5, 15.6, 12.6a).
 
 ## Automatische Tests
 
@@ -213,9 +213,9 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 ### 6. Kameras
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 6.1 | Kamera-Gerät zeigt einen Sichtkegel am Boden (Sichtwinkel, Reichweite) | ❓ |
-| 6.2 | Mit Bewegungssensor färbt sich der Kegel rot | ❓ |
-| 6.3 | Knopf 📷 oben öffnet die Kameraübersicht | ❓ |
+| 6.1 | Kamera-Gerät zeigt einen Sichtkegel am Boden (Sichtwinkel, Reichweite) | ✅ |
+| 6.2 | Mit Bewegungssensor färbt sich der Kegel rot | ✅ |
+| 6.3 | Knopf 📷 oben öffnet die Kameraübersicht | ✅ |
 
 ### 7. Türen, Fenster, Garage
 | Nr. | Prüfpunkt | Ergebnis |
@@ -246,13 +246,13 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 9.3 | Bild an die Wand hängen (PNG/JPG hochladen) | ✅ im Add-on (2026-10-03) |
 | 9.4 | Hintergrundbild als Vorlage zum Nachzeichnen | ✅ im Add-on (2026-10-03) |
 | 9.5 | Mehrere Häuser: anlegen, kopieren, umbenennen, löschen, Hausauswahl | ✅ im Add-on (2026-10-03) |
-| 9.6 | Backup herunterladen und wiederherstellen | ❓ |
-| 9.7 | Automatisches Speichern, nach dem Neuladen ist alles noch da | ❓ |
+| 9.6 | Backup herunterladen und wiederherstellen | ✅ |
+| 9.7 | Automatisches Speichern, nach dem Neuladen ist alles noch da | ✅ |
 
 ### 10. Tablet und Bedienung
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 10.1 | Wandtablet mit ?kiosk=1 oder ?room=…: zeigt nur den Raum | ❓ |
+| 10.1 | Wandtablet mit ?kiosk=1 oder ?room=…: zeigt nur den Raum | ✅ entfällt (2026-10-10): die Raum-Zuordnung fürs Wandtablet läuft jetzt über „Benutzer & Tablets“ (Abschnitt 11, geprüft); `?kiosk=1` / `?room=…` gibt es weiter als Notlösung |
 | 10.2 | Zurück zur Startansicht nach einigen Minuten ohne Berührung | ❓ |
 | 10.3 | Bildschirmschoner und Nachtabsenkung, die erste Berührung weckt nur | ❓ |
 | 10.4 | Leistungsmodus: Automatisch / Schön / Schnell | ✅ |
@@ -332,12 +332,12 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 |---|---|---|
 | 18.1 | „Häuser & Backup“ zeigt den Abschnitt „Automatische Sicherung“ | ✅ |
 | 18.2 | „Jetzt sichern“ legt eine Datei an, sie steht in der Liste (Art „von Hand“) | ✅ |
-| 18.3 | Die Datei liegt im Ordner `addon_configs/…_floorplan3d/backups` | ❓ |
+| 18.3 | Die Datei liegt im Ordner `addon_configs/…_floorplan3d/backups` | ✅ |
 | 18.4 | „Neueste prüfen“ meldet, wie viele Häuser, Bilder und Modelle die Sicherung enthält | ✅ |
 | 18.5 | „Automatisch sichern“ einschalten, Abstand, Tage und Anzahl einstellen, nach dem Neuladen stehen die Werte noch | ✅ |
 | 18.6 | Mit kurzem Abstand (1 Stunde) entsteht nach der Zeit eine automatische Sicherung (Art „automatisch“) | ✅ |
-| 18.7 | Alte automatische Sicherungen werden nach den eingestellten Tagen / der Anzahl gelöscht, die neueste und die von Hand bleiben | ❓ |
-| 18.8 | „Zurückspielen“ ersetzt Häuser und Einstellungen durch die Sicherung, die Seite lädt neu | ❓ |
+| 18.7 | Alte automatische Sicherungen werden nach den eingestellten Tagen / der Anzahl gelöscht, die neueste und die von Hand bleiben | ✅ |
+| 18.8 | „Zurückspielen“ ersetzt Häuser und Einstellungen durch die Sicherung, die Seite lädt neu | ✅ |
 | 18.9 | Herunterladen (⬇) und Löschen (×) in der Liste | ✅ |
 | 18.10 | Der Schalter „Auto“ im Menü „Ansicht“ lässt die anderen Einstellungen unverändert (Design bleibt) | ✅ |
 
@@ -370,8 +370,8 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 21.2 | Versionsanzeige: im Fenster steht „Browser: zeigt genau diese Dateien", auch bei `http://` (#144) | ✅ |
 | 21.3 | Einstellungen ⚙ zeigt das Kästchen „Alle 5 Minuten bei GitHub nachsehen …" (#140) | ✅ |
 | 21.4 | Sobald es eine neuere Version gibt, wird die Anzeige im Bearbeiten-Modus nach spätestens 5 Minuten blau: „⬆ Neue Version verfügbar" (#140) | ❓ (erst bei der nächsten Version prüfbar) |
-| 21.5 | Backup-Panel: die Beschriftungen der Zahlenfelder stehen über den Feldern, nicht in einer schmalen Spalte | ❓ |
-| 21.6 | Im Protokoll des Add-ons steht beim Start „Starting 3D Floorplan on port 8099 ..." | ❓ |
+| 21.5 | Backup-Panel: die Beschriftungen der Zahlenfelder stehen über den Feldern, nicht in einer schmalen Spalte | ✅ |
+| 21.6 | Im Protokoll des Add-ons steht beim Start „Starting 3D Floorplan on port 8099 ..." | ✅ |
 
 ### 22. Ansicht und Live-Bedienung (3.28.0)
 
@@ -486,14 +486,14 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 28.1 | Im ersten Haus: Bearbeiten → „Häuser & Backup“ aufklappen → „+ Nachbarhaus“ | Eine Karte mit Haus, Lage X, Lage Z, Drehung, Höhe erscheint; das andere Haus steht in 3D da | ❓ |
-| 28.2 | Lage X / Z (und falls nötig Drehung) so einstellen, dass das Nachbarhaus wie in echt steht | Es rückt an die richtige Stelle | ❓ |
-| 28.3 | „Ganzes Haus“ | Beide Häuser sind ganz zu sehen; die Dachterrasse des Nachbarhauses hat ein Geländer | ❓ |
-| 28.4 | Ins 1. OG wechseln, Ansicht „2D + 3D“ | Im Plan ist der Umriss des Nachbarhauses auf dieser Höhe lila gestrichelt | ❓ |
-| 28.5 | Die Brücke (Bibliothek „Außen“) im 1. OG zwischen beide Häuser setzen, drehen und Länge einstellen | Sie führt vom eigenen 1. OG auf die Dachterrasse | ❓ |
-| 28.6 | Zum Nachbarhaus wechseln (Häuser-Liste) | Es lässt sich dort ganz normal bearbeiten; zurück im ersten Haus ist die Änderung nach dem Neuladen zu sehen | ❓ |
-| 28.7 | „Nachbarhaus entfernen“ | Es verschwindet wieder | ❓ |
-| 28.8 | Das 1. OG des Nachbarhauses liegt höher/tiefer: beim Nachbarhaus „Höhe“ z. B. 0,40 eintragen, bei der Brücke „Höhenunterschied am Ende“ ebenfalls 0,40 | Die Terrasse rückt hoch, die Brücke steigt gleichmäßig zu ihr an; im Plan zeigt der lila Pfeil auf das Ende mit „+0,40 m“ (3.44.1) | ❓ |
+| 28.1 | Im ersten Haus: Bearbeiten → „Häuser & Backup“ aufklappen → „+ Nachbarhaus“ | Eine Karte mit Haus, Lage X, Lage Z, Drehung, Höhe erscheint; das andere Haus steht in 3D da | ✅ |
+| 28.2 | Lage X / Z (und falls nötig Drehung) so einstellen, dass das Nachbarhaus wie in echt steht | Es rückt an die richtige Stelle | ✅ |
+| 28.3 | „Ganzes Haus“ | Beide Häuser sind ganz zu sehen; die Dachterrasse des Nachbarhauses hat ein Geländer | ✅ |
+| 28.4 | Ins 1. OG wechseln, Ansicht „2D + 3D“ | Im Plan ist der Umriss des Nachbarhauses auf dieser Höhe lila gestrichelt | ✅ |
+| 28.5 | Die Brücke (Bibliothek „Außen“) im 1. OG zwischen beide Häuser setzen, drehen und Länge einstellen | Sie führt vom eigenen 1. OG auf die Dachterrasse | ✅ |
+| 28.6 | Zum Nachbarhaus wechseln (Häuser-Liste) | Es lässt sich dort ganz normal bearbeiten; zurück im ersten Haus ist die Änderung nach dem Neuladen zu sehen | ✅ |
+| 28.7 | „Nachbarhaus entfernen“ | Es verschwindet wieder | ✅ |
+| 28.8 | Das 1. OG des Nachbarhauses liegt höher/tiefer: beim Nachbarhaus „Höhe“ z. B. 0,40 eintragen, bei der Brücke „Höhenunterschied am Ende“ ebenfalls 0,40 | Die Terrasse rückt hoch, die Brücke steigt gleichmäßig zu ihr an; im Plan zeigt der lila Pfeil auf das Ende mit „+0,40 m“ (3.44.1) | ✅ |
 
 **Jetzt auch in der Demo (3.44.2):** Die Demo hat zwei Häuser. Neben dem Demo-Haus steht das „Nachbarhaus“ (oben in der Häuser-Auswahl), sein 1. OG liegt 0,40 m höher. Von der Dachterrasse des Demo-Hauses führt schon eine Brücke mit „+0,40 m“ hinüber, das Geländer ist an beiden Enden offen. So lassen sich 28.3 bis 28.8 direkt im Browser ausprobieren. Bei 28.6 gilt: Die Demo speichert nichts, nach dem Neuladen ist alles wieder wie am Anfang. Außerdem neu im Demo-Haus: Wasser-, Gas- und Wärmezähler im Keller (26), 10 Solarpanels auf dem Dach (25), eine Wendeltreppe von der Garage hoch auf die Dachterrasse (24.9). Im Nachbarhaus gibt es eine Wandtreppe mit Podest nach dem Knick (24.1, 24.8).
 
