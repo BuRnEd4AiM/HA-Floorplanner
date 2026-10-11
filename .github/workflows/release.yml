@@ -65,9 +65,24 @@ jobs:
               target="$GITHUB_SHA"
             fi
             latest=false; [ "$ver" = "$cfg" ] && latest=true
-            echo "Release v$ver at $target (latest: $latest)"
-            gh release create "v$ver" --target "$target" --title "3D Floorplan $ver" --notes "$notes" --latest="$latest" || echo "v$ver could not be created"
+            # the dashboard card of that commit goes into the release itself: once a release has files attached (the demo), HACS
+            # downloads only those (#348). gh uploads them before it publishes the release, so HACS never sees it without the card.
+            card=()
+            if git show "$target:dist/floorplan3d-card.js" > "$RUNNER_TEMP/floorplan3d-card.js" 2>/dev/null; then card=("$RUNNER_TEMP/floorplan3d-card.js"); fi
+            echo "Release v$ver at $target (latest: $latest, card: ${#card[@]})"
+            gh release create "v$ver" ${card[@]+"${card[@]}"} --target "$target" --title "3D Floorplan $ver" --notes "$notes" --latest="$latest" || echo "v$ver could not be created"
           done
+      - name: The release of this version carries the dashboard card
+        # also for a release made before the card was attached (Actions -> Release -> Run workflow repairs it); HACS needs it (#348)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="v$(sed -n 's/^version: "\(.*\)"/\1/p' floorplan3d/config.yaml)"
+          [ -f dist/floorplan3d-card.js ] || exit 0
+          names="$(gh release view "$tag" --json assets -q '.assets[].name' 2>/dev/null)" || { echo "no release $tag yet"; exit 0; }
+          echo "$names" | grep -qx floorplan3d-card.js && { echo "$tag has the card"; exit 0; }
+          gh release upload "$tag" dist/floorplan3d-card.js --clobber
 
   demo:
     needs: release

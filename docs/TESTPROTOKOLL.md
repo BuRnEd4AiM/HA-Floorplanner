@@ -47,7 +47,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 
 **Neu in 3.75** (ausführlich in Abschnitt **46** unten)
 18. **So sieht die Karte aus, schon in der Demo** (46.1, #13): `https://burned4aim.github.io/HA-Floorplanner/?card=1&floor=house&heatmap=temp&theme=light` öffnen: das ganze Haus, hell, mit Temperaturfarben, ohne Werkzeugleiste.
-19. **Das Haus auf dem Dashboard, nur in Home Assistant** (46.2 bis 46.9, #13): Add-on auf 3.75.0 aktualisieren. In HACS → ⋮ → **Benutzerdefinierte Repositories** `https://github.com/BuRnEd4AiM/HA-Floorplanner` mit Typ **Dashboard** hinzufügen, **3D Floorplan Card** herunterladen, Browser neu laden. Dann ein Dashboard bearbeiten → **Karte hinzufügen** → **3D Floorplan**. Im Editor eine Etage wählen und speichern: das Haus erscheint in der Karte, ein Tipp auf eine Lampen-Kugel schaltet sie.
+19. **Das Haus auf dem Dashboard, nur in Home Assistant** (46.2 bis 46.9, #13): Add-on auf 3.75.1 aktualisieren. **Wichtig:** 3.75.0 hatte einen Fehler, HACS hat die Karte nicht mitgeladen (#348). In HACS bei „3D Floorplan Card“ auf **3.75.1** aktualisieren (oder ⋮ → „Erneut herunterladen“) und den Browser mit Strg+F5 neu laden. In HACS → ⋮ → **Benutzerdefinierte Repositories** `https://github.com/BuRnEd4AiM/HA-Floorplanner` mit Typ **Dashboard** hinzufügen, **3D Floorplan Card** herunterladen, Browser neu laden. Dann ein Dashboard bearbeiten → **Karte hinzufügen** → **3D Floorplan**. Im Editor eine Etage wählen und speichern: das Haus erscheint in der Karte, ein Tipp auf eine Lampen-Kugel schaltet sie.
 
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
@@ -160,8 +160,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube | 0 | 0 | 4 | 0 | 43.1 bis 43.4 |
 | 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter) | 0 | 0 | 6 | 0 | 44.1 bis 44.6 |
 | 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen | 0 | 0 | 3 | 0 | 45.1 bis 45.3 |
-| 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 0 | 0 | 9 | 0 | 46.1 bis 46.9 |
-| **Zusammen** | **198** | **1** | **113** | **2** | |
+| 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 0 | 1 | 8 | 0 | ❌ 46.2, 46.1, 46.3 bis 46.9 |
+| **Zusammen** | **198** | **2** | **112** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -717,7 +717,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 46.1 | Demo mit der Adresse `https://burned4aim.github.io/HA-Floorplanner/?card=1&floor=house&heatmap=temp&theme=light` öffnen, Fenster schmal und niedrig ziehen; danach `…/?card=1&floor=1&show_bar=0&show_nav=0` | So sieht das Haus später in der Karte aus: ganzes Haus, hell, Temperaturfarben, keine Werkzeugleiste, die Farbskala verdeckt den Kompass nicht; die zweite Adresse zeigt das Obergeschoss ohne Knöpfe oben und unten | ❓ |
-| 46.2 | HACS → ⋮ → Benutzerdefinierte Repositories: `https://github.com/BuRnEd4AiM/HA-Floorplanner`, Typ „Dashboard“; „3D Floorplan Card“ herunterladen, Browser neu laden | HACS lädt die Karte und trägt sie selbst als Ressource ein (#13) | ❓ |
+| 46.2 | HACS → ⋮ → Benutzerdefinierte Repositories: `https://github.com/BuRnEd4AiM/HA-Floorplanner`, Typ „Dashboard“; „3D Floorplan Card“ herunterladen, Browser neu laden | HACS lädt die Karte und trägt sie selbst als Ressource ein (#13) | ❌ (2026-10-11) mit 3.75.0: HACS lud nur die Demo-Datei, die Karte fehlte („Custom element doesn't exist“, 404). Behoben in 3.75.1 (#348): in HACS auf 3.75.1 aktualisieren und noch einmal prüfen |
 | 46.3 | Dashboard bearbeiten → „Karte hinzufügen“, nach „3D Floorplan“ suchen | Die Karte steht in der Liste; nach dem Hinzufügen zeigt sie das Haus live, ohne Werkzeugleiste | ❓ |
 | 46.4 | Im Editor der Karte „Etage“ aufklappen | Die Etagen und Räume des eigenen Plans stehen zur Auswahl, dazu „Ganzes Haus“; die Vorschau wechselt auf die gewählte Etage | ❓ |
 | 46.5 | In der Karte eine Lampen-Kugel antippen, schalten; in einen Raum tippen | Die Live-Karte öffnet sich und schaltet die Lampe; der Raum öffnet sein Raum-Fenster (mit „Raum-Fenster“ aus: nur hineinzoomen) | ❓ |
