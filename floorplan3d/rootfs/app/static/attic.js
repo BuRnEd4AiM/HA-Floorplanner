@@ -107,7 +107,7 @@ export function dormerRooms(bb, spec, y0 = 0) {
     const F = n.F, bc = F.bc ?? (F.b0 + F.b1) / 2, hw2 = n.w / 2;
     const front = Math.max(0, n.eave - FRONT);                              // a wall right under the dormer's front wall still counts
     const [b0, b1] = n.side === 0 ? [F.b0 + front, bc] : [bc, F.b1 - front];
-    const [a0, a1] = [n.at - hw2, n.at + hw2];
+    const [a0, a1] = [n.at + (n.u0 ?? -hw2), n.at + (n.u1 ?? hw2)];
     const box = F.alongX ? { x0: a0, x1: a1, z0: b0, z1: b1 } : { x0: b0, x1: b1, z0: a0, z1: a1 };
     out.push({ ...box, top: y0 + n.yT - GAP, gh: n.gh, at: n.at, alongX: F.alongX, rise: n.ts, fb: n.side === 0 ? F.b0 + n.eave : F.b1 - n.eave, dir: n.side === 0 ? 1 : -1 });
   }

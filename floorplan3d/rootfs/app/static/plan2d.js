@@ -10,7 +10,7 @@ import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange, secti
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 import { boxItems, groupTargets, moveGroup } from './multisel.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
-import { addStepAt, moveSection, removeStep } from './roofsteps.js';
+import { addStepAt, moveSection, moveCorner, removeStep } from './roofsteps.js';
 import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
 import { hasShutter, shutterEntity, linkedEntities, shutterSide, shutterText } from './shutters.js';
 
@@ -256,6 +256,8 @@ export function createPlan(ctx) {
     const near = (p) => Math.hypot(sx(p[0]) - px, sy(p[1]) - py) <= 11;
     if (sel.kind === 'roof') {                                   // a roof (#259): its corners and the middle of its sides change its size
       const r = (ctx.roofRects?.() || []).find((q) => q.id === sel.id);
+      const cn = r && (r.corners || []).find((q) => near([q.x, q.z]));   // a corner of a step (#345): along and across
+      if (cn) return { type: 'roof-corner', id: r.id, side: cn.side, k: cn.k, piece: cn.piece };
       const st = r && (r.steps || []).find((q) => near([q.x, q.z]));   // a piece of an eave between steps (#342): moves out or in
       if (st) return { type: 'roof-step', id: r.id, side: st.side, i: st.i };
       const hd = r && roofHandles(r.box).find((q) => near([q.x, q.z]));
@@ -602,6 +604,9 @@ export function createPlan(ctx) {
         if (r) (r.steps || []).forEach((q) => {                  // the pieces of the eaves between steps (#342): diamonds
           o += `<rect x="${sx(q.x) - 6}" y="${sy(q.z) - 6}" width="12" height="12" fill="${C.accent}" stroke="#fff" stroke-width="2" transform="rotate(45 ${sx(q.x)} ${sy(q.z)})" data-roofstep="${q.side}-${q.i}"/>`;
         });
+        if (r) (r.corners || []).forEach((q) => {                 // the corners of the steps (#345): circles
+          o += `<circle cx="${sx(q.x)}" cy="${sy(q.z)}" r="6" fill="#fff" stroke="${C.accent}" stroke-width="2" data-roofcorner="${q.side}-${q.k}-${q.piece}"/>`;
+        });
       }
     }
 
@@ -830,6 +835,7 @@ export function createPlan(ctx) {
     if (hd.type === 'ring-end') return { type: 'ringend', d: hd.d, i: hd.i, end: hd.end, moved: false };
     if (hd.type === 'roof-size') return { type: 'roofsize', id: hd.id, which: hd.which, start: hd.start, moved: false };
     if (hd.type === 'roof-step') return { type: 'roofstep', id: hd.id, side: hd.side, i: hd.i, moved: false };
+    if (hd.type === 'roof-corner') return { type: 'roofcorner', id: hd.id, side: hd.side, k: hd.k, piece: hd.piece, moved: false };
     if (hd.type === 'stair-size') return { type: 'stairsize', which: hd.which, st: hd.st, moved: false };
     if (hd.type === 'wall-end') {
       const p = hd.wall[hd.end];
@@ -952,6 +958,11 @@ export function createPlan(ctx) {
         const nb = resizeBox(drag.start, drag.which, x, z, e.altKey ? 0 : 0.05);   // 5 cm steps, Alt: free
         const now = (ctx.roofRects?.() || []).find((q) => q.id === drag.id)?.box;
         if (now && ['x0', 'x1', 'z0', 'z1'].some((k) => now[k] !== nb[k])) { snapshotOnce(); if (ctx.resizeRoof(drag.id, nb)) { drag.moved = true; render(); } }
+        return;
+      }
+      if (drag.type === 'roofcorner' && moved) {                  // a corner of a step (#345): the step along, its piece across; built on release
+        const tg = ctx.roofStepTarget?.(drag.id);
+        if (tg) { snapshotOnce(); if (moveCorner(tg.bb, tg.r, drag.side, drag.k, drag.piece, x, z, e.altKey ? 0 : 0.05)) { drag.moved = true; render(); } }
         return;
       }
       if (drag.type === 'roofstep' && moved) {                    // a piece of an eave (#342): out or in, 5 cm steps (Alt: free); the house is built on release
@@ -1094,7 +1105,7 @@ export function createPlan(ctx) {
       return;
     }
     if (d.type === 'erase') { if (!moved) { const h = pickAt(x, z); if (h) { ctx.snapshot(); ctx.deleteItem(h); } } return; }
-    if (d.type === 'device' || d.type === 'opening' || d.type === 'points' || d.type === 'stair' || d.type === 'roof' || d.type === 'roofsize' || d.type === 'roofstep') {
+    if (d.type === 'device' || d.type === 'opening' || d.type === 'points' || d.type === 'stair' || d.type === 'roof' || d.type === 'roofsize' || d.type === 'roofstep' || d.type === 'roofcorner') {
       if (d.moved) { ctx.commit(); } snapDone = false;
       return;
     }
@@ -1192,7 +1203,7 @@ export function createPlan(ctx) {
         const hs = handleAt(px, py), probe = { ...tg.r, steps: (tg.r.steps || []).map((q) => ({ ...q })) };   // one on the handle of a piece removes
         const done = hs?.type === 'roof-step' ? removeStep(tg.bb, probe, hs.side, hs.i) : addStepAt(tg.bb, probe, x, z, Math.max(0.15, 12 / s)) != null;   // the step it starts with
         if (done) { ctx.snapshot(); if (probe.steps?.length) tg.r.steps = probe.steps; else delete tg.r.steps; ctx.commit(); return; }
-        if (hs?.type === 'roof-step') return;
+        if (hs?.type === 'roof-step' || hs?.type === 'roof-corner') return;
       }
       if (selWall && h?.kind !== 'opening' && distSeg(x, z, selWall.a, selWall.b) <= Math.max(selWall.thickness / 2, 12 / s)) {
         if (!splitWallAt(selWall, x, z)) ctx.setStatus(ctx.t('wall.splitNo'));   // the selected wall wins over a device, garden thing or room under it

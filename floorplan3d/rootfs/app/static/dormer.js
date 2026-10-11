@@ -1,6 +1,7 @@
 /* Roof dormers (Dachgauben): a box with its own roof that stands out of one slope of the roof: a gable or flat dormer, or a shed dormer
  * (Schleppgaube, #339) whose roof runs up at its own, flatter pitch into the main roof below the ridge; a shed or flat dormer can be as long
- * as the roof. The slopes of the main roof get a hole where a dormer stands (roofSurface). On a roof with steps (#342, roofsteps.js) a
+ * as the roof, and with "distance from the gable" 0 it goes flush up to the edge of the roof (#345). The slopes of the main roof get a hole
+ * where a dormer stands (roofSurface). On a roof with steps (#342, roofsteps.js) a
  * dormer stands on the slope piece under its middle.
  * Pure geometry, no DOM or three.js: the roof floor's footprint and a dormer go in, triangles come out.
  *
@@ -28,8 +29,16 @@ export function roofFrame(bb, r) {
   return { alongX, a0, a1, b0, b1, half, tan, ins, bc: (b0 + b1) / 2 };
 }
 
-/** where the middle of a dormer of width w can go along the ridge: [lo, hi] (hi < lo: it is longer than the roof) */
-const span = (F, w) => [F.a0 + F.ins + w / 2 + OVER, F.a1 - F.ins - w / 2 - OVER];
+/** can a dormer of this type go right up to the edge of the roof at a gable (#345): a shed or flat dormer on a gable roof */
+const flushable = (type, F) => (type === 'shed' || type === 'flat') && !F.ins;
+/** the house along the ridge: the base box from its start to its end (without the overhang) */
+const houseSpan = (F, bb) => (F.alongX ? [bb.x0, bb.x1] : [bb.z0, bb.z1]);
+/** where the middle of a dormer of width w can go along the ridge: [lo, hi] (hi < lo: it is longer than the roof). A shed or flat dormer
+ *  on a gable roof stays between the gable walls; at a gable wall it reaches out to the edge of the roof (see fitDormer) */
+const span = (F, w, bb, type) => {
+  if (bb && flushable(type, F)) { const [h0, h1] = houseSpan(F, bb); return [h0 + w / 2, h1 - w / 2]; }
+  return [F.a0 + F.ins + w / 2 + OVER, F.a1 - F.ins - w / 2 - OVER];
+};
 
 /** the dormer with every value clamped so it really fits on the slope; null when there is no room for it (flat roof, tiny roof) */
 export function fitDormer(bb, r, d) {
@@ -39,10 +48,13 @@ export function fitDormer(bb, r, d) {
   n.side = n.side === 1 ? 1 : 0;
   n.type = DORMER_TYPES.includes(n.type) ? n.type : 'gable';
   n.w = Math.max(0.6, Math.min(MAX_W[n.type], +n.w || DORMER_DEFAULT.w));
-  const [lo, hi] = span(F, n.w);
+  const [lo, hi] = span(F, n.w, bb, n.type);
   if (hi < lo) return null;                                        // longer than the roof
   n.pos = Math.max(0, Math.min(1, Number.isFinite(+n.pos) ? +n.pos : 0.5));
   n.at = lo + (hi - lo) * n.pos;                                   // centre along the ridge (m)
+  const [h0, h1] = houseSpan(F, bb), fl = flushable(n.type, F);    // at a gable wall it goes on to the edge of the roof, flush with it (#345)
+  n.flush0 = fl && n.at - n.w / 2 <= h0 + 1e-6; n.flush1 = fl && n.at + n.w / 2 >= h1 - 1e-6;
+  n.u0 = n.flush0 ? F.a0 - n.at : -n.w / 2; n.u1 = n.flush1 ? F.a1 - n.at : n.w / 2;   // its sides, from its middle
   F = sectionFrame(F, n.side, outAt(bb, r, n.side, n.at));         // on a roof with steps (#342): the slope piece the dormer stands on
   n.eave = Math.max(0.2, Math.min(F.half * 0.8, +n.eave || DORMER_DEFAULT.eave));
   const yF = n.eave * F.tan;
@@ -77,7 +89,7 @@ export function dormerStart(bb, r, d) {
 export function posForStart(bb, r, d, s) {
   const n = fitDormer(bb, r, d);
   if (!n) return d?.pos ?? 0.5;
-  const [lo, hi] = span(n.F, n.w), at = (n.F.alongX ? bb.x0 : bb.z0) + (+s || 0) + n.w / 2;
+  const [lo, hi] = span(n.F, n.w, bb, n.type), at = (n.F.alongX ? bb.x0 : bb.z0) + (+s || 0) + n.w / 2;
   return hi > lo ? Math.max(0, Math.min(1, (at - lo) / (hi - lo))) : 0.5;
 }
 
@@ -104,18 +116,19 @@ export function dormerParts(bb, r, d, holes = []) {
   const wall = [], roof = [], glass = [];
   const quad = (out, p, q, u, v) => out.push(p, q, u, p, u, v);
   const cuts = (vals, lo, hi) => [...new Set([lo, ...vals.filter((v) => v > lo + 1e-6 && v < hi - 1e-6), hi])].sort((p, q) => p - q);
-  const us = cuts(holes.flatMap((h) => [h.u0, h.u1]), -hw2, hw2), ys = cuts(holes.flatMap((h) => [h.y0, h.y1]), yF - 0.05, yT);
+  const { u0, u1 } = n, o0 = n.flush0 ? 0 : OVER, o1 = n.flush1 ? 0 : OVER;   // its sides; flush with the roof's edge: no overhang there (#345)
+  const us = cuts(holes.flatMap((h) => [h.u0, h.u1]), u0, u1), ys = cuts(holes.flatMap((h) => [h.y0, h.y1]), yF - 0.05, yT);
   for (let i = 0; i + 1 < us.length; i++) for (let j = 0; j + 1 < ys.length; j++) {        // front wall, cut into a grid around the holes
     const um = (us[i] + us[i + 1]) / 2, ym = (ys[j] + ys[j + 1]) / 2;
     if (holes.some((h) => um > h.u0 && um < h.u1 && ym > h.y0 && ym < h.y1)) continue;
     quad(wall, P(us[i], eave, ys[j]), P(us[i + 1], eave, ys[j]), P(us[i + 1], eave, ys[j + 1]), P(us[i], eave, ys[j + 1]));
   }
-  for (const s of [-1, 1]) wall.push(P(s * hw2, eave, yF - 0.05), P(s * hw2, eave, yT), P(s * hw2, eT, yB));      // cheeks (triangles up to the slope)
+  for (const u of [u0, u1]) wall.push(P(u, eave, yF - 0.05), P(u, eave, yT), P(u, eT, yB));                     // cheeks (triangles up to the slope)
   if (n.type === 'flat') {
-    quad(roof, P(-hw2 - OVER, eave - OVER, yT), P(hw2 + OVER, eave - OVER, yT), P(hw2 + OVER, eT, yT), P(-hw2 - OVER, eT, yT));
+    quad(roof, P(u0 - o0, eave - OVER, yT), P(u1 + o1, eave - OVER, yT), P(u1 + o1, eT, yT), P(u0 - o0, eT, yT));
   } else if (n.type === 'shed') {                                  // one plane from the front up into the main roof
     const y0 = yT - OVER * n.ts;
-    quad(roof, P(-hw2 - OVER, eave - OVER, y0), P(hw2 + OVER, eave - OVER, y0), P(hw2 + OVER, eR, yB), P(-hw2 - OVER, eR, yB));
+    quad(roof, P(u0 - o0, eave - OVER, y0), P(u1 + o1, eave - OVER, y0), P(u1 + o1, eR, yB), P(u0 - o0, eR, yB));
   } else {
     wall.push(P(-hw2, eave, yT), P(hw2, eave, yT), P(0, eave, yT + gh));                                         // gable above the front wall
     for (const s of [-1, 1]) quad(roof, P(s * (hw2 + OVER), eave - OVER, yT - OVER * GABLE_PITCH), P(s * (hw2 + OVER), eT, yT - OVER * GABLE_PITCH),
@@ -147,7 +160,7 @@ export function roofSurface(bb, r) {
       const G = sectionFrame(F, side, sec.out), P = (a, e) => XYZ(a, side === 0 ? G.b0 + e : G.b1 - e, e * G.tan);
       const last = si === secs.length - 1;
       const hs = ns.filter((n) => n.side === side && n.at >= sec.a0 && (n.at < sec.a1 || last))
-        .map((n) => ({ a0: n.at - n.w / 2, a1: n.at + n.w / 2, e0: n.eave, e1: n.eT }));
+        .map((n) => ({ a0: n.at + n.u0, a1: n.at + n.u1, e0: n.eave, e1: n.eT }));
       const as = cuts(hs.flatMap((q) => [q.a0, q.a1]), sec.a0, sec.a1), es = cuts(hs.flatMap((q) => [q.e0, q.e1]), 0, G.half);
       for (let i = 0; i + 1 < as.length; i++) {
         const lo = (e) => (i === 0 ? sec.a0 + (si === 0 ? e * k : 0) : as[i]);                          // a hip slope leans in at its ends
