@@ -26,7 +26,7 @@ async def client(aiohttp_client, tmp_path):
 
 
 # ---------- interpreter
-@pytest.mark.parametrize("name", ["flat", "house"])
+@pytest.mark.parametrize("name", ["flat", "house", "showcase"])
 def test_examples_import_cleanly(name):
     layout, plot, rep, summary = importer.build_layout(example(name))
     assert layout is not None and not rep.errors and not rep.warnings, (rep.errors, rep.warnings)
@@ -631,3 +631,81 @@ def test_bridge_height_difference_survives_import_and_export():
     layout, _, rep, _ = importer.build_layout(_prop([{"type": "bridge", "x": 4, "z": 2, "y": 0, "len": 3, "rise": -0.35}]))
     assert not rep.errors and layout["floors"][0]["devices"][0]["rise"] == -0.35
     assert importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]["rise"] == -0.35
+
+
+# ---------- the show house "everything in it" (examples/showcase.json): one house that uses every part of the format
+def test_showcase_uses_everything_the_format_knows():
+    data = example("showcase")
+    text = json.dumps(data)
+    layout, plot, rep, summary = importer.build_layout(data)
+    assert layout is not None and not rep.errors and not rep.warnings, (rep.errors, rep.warnings)
+    devices = [d for f in layout["floors"] for d in f["devices"]]
+    missing = set(importer.DEVICE_TYPES) - {d["type"] for d in devices}
+    assert not missing, f"add these device types to examples/showcase.json (and docs/examples): {sorted(missing)}"
+    assert all(f'"preset": "{p}"' in text for p in importer.OPENING_PRESETS), [p for p in importer.OPENING_PRESETS if f'"preset": "{p}"' not in text]
+    assert {s["type"] for f in layout["floors"] for s in f["stairs"]} == set(importer.STAIR_TYPES)
+    assert [f["kind"] for f in layout["floors"]] == ["basement", "floor", "floor", "roof"] and plot["boundary"]
+    roof = layout["floors"][-1]["roof"]
+    assert {d["type"] for d in roof["dormers"]} == importer.DORMER_TYPES and roof["steps"] and roof["parts"][0]["level"]
+    assert any(f["blocks"] for f in layout["floors"]) and any(f["holes"] for f in layout["floors"])
+    assert any(r.get("terrace") for f in layout["floors"] for r in f["rooms"])
+    cables = [c for d in devices for c in d.get("cables", [])]
+    assert {c["route"] for c in cables} == set(importer.CABLE_ROUTES) and {c["kind"] for c in cables} == set(importer.CABLE_KINDS)
+    ops = [o for f in layout["floors"] for w in f["walls"] for o in w["openings"]]
+    assert any(o.get("shutterEntity") for o in ops) and any(o.get("paneEntities") for o in ops) and {o["style"] for o in ops} >= importer.WINDOW_STYLES
+    assert summary["devices"] >= len(importer.DEVICE_TYPES) and summary["stairs"] == 5
+
+
+def test_examples_in_docs_are_the_ones_the_add_on_serves():
+    docs = Path(__file__).parent.parent / "docs" / "examples"
+    for f in (APP / "examples").glob("*.json"):
+        assert (docs / f.name).read_text(encoding="utf-8") == f.read_text(encoding="utf-8"), f.name
+
+
+def test_examples_follow_the_schema_and_the_schema_knows_every_device_type():
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    assert schema["$defs"]["device"]["properties"]["type"]["enum"] == sorted(importer.DEVICE_TYPES)
+    dormer = schema["$defs"]["roof"]["properties"]["dormers"]["items"]["properties"]
+    assert set(dormer["type"]["enum"]) == importer.DORMER_TYPES and "sp" in dormer and "steps" in schema["$defs"]["roof"]["properties"]
+    for name in ("flat", "house", "showcase"):
+        jsonschema.validate(example(name), schema)
+
+
+def test_a_roof_terrace_gets_a_railing_not_walls():
+    rooms = [{"name": "Zimmer", "points": [[0, 0], [4, 0], [4, 3], [0, 3]]}, {"name": "Terrasse", "points": [[4, 0], [7, 0], [7, 3], [4, 3]], "terrace": True}]
+    for extra in ({}, {"footprint": [[0, 0], [4, 0], [4, 3], [0, 3]]}):
+        layout, _, rep, _ = importer.build_layout(square_flat(rooms=rooms, **extra))
+        walls = layout["floors"][0]["walls"]
+        assert not rep.warnings and len(walls) == 4 and all(max(w["a"][0], w["b"][0]) <= 4 for w in walls)      # the house wall stays, the open sides do not
+        shared = next(w for w in walls if w["a"][0] == w["b"][0] == 4)
+        assert shared["thickness"] == 0.3                                                                     # the wall to the terrace is an outer wall
+
+
+def test_roof_boxes_move_with_the_building_origin():
+    spec = {"schemaVersion": 1, "building": {"origin": [10, 20], "floors": [
+        {"name": "EG", "kind": "floor", "rooms": [{"points": [[0, 0], [8, 0], [8, 5], [0, 5]]}]},
+        {"name": "Dach", "kind": "roof", "roof": {"type": "gable", "box": {"x0": 0, "x1": 8, "z0": 0, "z1": 5},
+                                                  "parts": [{"type": "flat", "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "level": 0}]}}]}}
+    layout, _, rep, _ = importer.build_layout(spec)
+    roof = roof_of(layout)
+    assert not rep.errors and roof["box"] == {"x0": 10, "x1": 18, "z0": 20, "z1": 25} and roof["parts"][0]["box"] == {"x0": 18, "x1": 21, "z0": 20, "z1": 24}
+
+
+def test_things_on_the_roof_floor_survive_import_and_export():
+    spec = {"schemaVersion": 1, "building": {"origin": [2, 3], "footprint": [[0, 0], [8, 0], [8, 5], [0, 5]], "floors": [
+        {"name": "EG", "kind": "floor", "rooms": [{"points": [[0, 0], [8, 0], [8, 5], [0, 5]]}], "devices": [{"type": "inverter", "id": "wr", "x": 1, "z": 1}]},
+        {"name": "Dach", "kind": "roof", "roof": {"type": "gable"}, "stairs": [{"type": "straight", "x": 1, "z": 1}],
+         "devices": [{"type": "solarpanel", "id": "pv", "x": 4, "z": 3.5, "cols": 4, "rows": 2, "cables": [{"to": "wr", "route": "through"}]}]}]}}
+    layout, _, rep, summary = importer.build_layout(spec)
+    top = layout["floors"][-1]
+    assert top["kind"] == "roof" and not top["walls"] and not top["stairs"] and any("no stairs" in w["message"] for w in rep.warnings)
+    pv = top["devices"][0]
+    assert (pv["type"], pv["x"], pv["z"], pv["cols"]) == ("solarpanel", 6, 6.5, 4) and pv["cables"][0]["to"] == layout["floors"][0]["devices"][0]["id"]
+    back = importer.layout_to_property(layout)["building"]["floors"][-1]
+    assert back["kind"] == "roof" and back["devices"][0]["type"] == "solarpanel" and back["devices"][0]["cables"][0]["route"] == "through"
+    again, _, rep2, summary2 = importer.build_layout(importer.layout_to_property(layout))
+    assert not rep2.errors and summary2["devices"] == summary["devices"] == 2
+    plain = importer.layout_to_property(importer.build_layout(roof_house([]))[0])["building"]["floors"][-1]
+    assert set(plain) == {"name", "kind", "roof"}                                   # a plain roof is exported as before
+

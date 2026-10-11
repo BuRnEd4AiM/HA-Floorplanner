@@ -249,7 +249,7 @@
     },
     "box": {
      "type": "object",
-     "description": "optional: roof base in metres instead of the automatic size (before the overhang)",
+     "description": "optional: roof base in metres (building frame, moved with building.origin like the rooms) instead of the automatic size (before the overhang)",
      "required": [
       "x0",
       "x1",
@@ -300,9 +300,9 @@
        "w": {
         "type": "number",
         "minimum": 0.6,
-        "maximum": 5,
+        "maximum": 30,
         "default": 1.6,
-        "description": "Width in metres."
+        "description": "Width in metres (a gable dormer is kept at most 5 m wide, a shed or flat dormer can run along the roof up to 30 m)."
        },
        "hw": {
         "type": "number",
@@ -321,15 +321,61 @@
        "type": {
         "enum": [
          "gable",
-         "flat"
+         "flat",
+         "shed"
         ],
         "default": "gable",
-        "description": "Roof of the dormer."
+        "description": "Roof of the dormer: gable, flat or shed (Schleppgaube, its roof slopes down to the front wall)."
+       },
+       "sp": {
+        "type": "number",
+        "minimum": 2,
+        "maximum": 60,
+        "default": 15,
+        "description": "Only for a shed dormer: pitch of its roof in degrees."
        },
        "win": {
         "type": "boolean",
         "default": true,
         "description": "Window in the front wall."
+       }
+      }
+     }
+    },
+    "steps": {
+     "type": "array",
+     "maxItems": 20,
+     "description": "Steps in the eaves (main roof only, not on a hip roof): from 'at' on, the eave of one side lies 'out' metres further out (negative: in), e.g. a house narrower at the front.",
+     "items": {
+      "type": "object",
+      "required": [
+       "at",
+       "out"
+      ],
+      "properties": {
+       "side": {
+        "description": "Which eave: 0 / 1 (or \"a\" / \"b\"); a is the low edge across the ridge (small z when the ridge runs along x).",
+        "enum": [
+         0,
+         1,
+         "a",
+         "b",
+         "A",
+         "B"
+        ],
+        "default": 0
+       },
+       "at": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1000,
+        "description": "Metres along the ridge from the gable at its low end."
+       },
+       "out": {
+        "type": "number",
+        "minimum": -20,
+        "maximum": 20,
+        "description": "How far the eave lies further out from here on, in metres (negative: in)."
        }
       }
      }
@@ -386,7 +432,7 @@
        },
        "terrace": {
         "type": "boolean",
-        "description": "Roof terrace / open area: no roof above it, a railing along every edge without a wall."
+        "description": "Roof terrace / open area: no roof above it, a railing along every edge without a wall. Its edges that no other room shares get no wall."
        }
       }
      }
@@ -434,7 +480,7 @@
      "items": {
       "$ref": "#/$defs/device"
      },
-     "description": "Furniture, lights, sensors ..."
+     "description": "Furniture, lights, sensors ... On a floor of kind 'roof': things on the roof (a solar panel follows the roof surface below it) or in the loft."
     },
     "stairs": {
      "type": "array",
@@ -565,10 +611,12 @@
       "barstool",
       "basin",
       "bathtub",
+      "battery",
       "bed",
       "bed_single",
       "boiler",
       "bookcase",
+      "bridge",
       "bush",
       "camera",
       "car",
@@ -585,8 +633,14 @@
       "fence",
       "fireplace",
       "fridge",
+      "fusebox",
+      "gasmeter",
+      "heatmeter",
+      "houseentry",
+      "inverter",
       "island",
       "kitchen",
+      "kitchenrun",
       "lamp",
       "lawn",
       "ledring",
@@ -610,6 +664,8 @@
       "plant",
       "pool",
       "pouf",
+      "powermeter",
+      "presence",
       "printer",
       "radiator",
       "router",
@@ -622,6 +678,7 @@
       "smoke",
       "sofa",
       "sofa2",
+      "solarpanel",
       "speaker",
       "spot",
       "stove",
@@ -638,9 +695,11 @@
       "tv_wall",
       "tvstand",
       "vacuum",
+      "wallbox",
       "walllamp",
       "wardrobe",
-      "washer"
+      "washer",
+      "watermeter"
      ]
     },
     "x": {

@@ -588,6 +588,7 @@ export default {
   'imp.file': 'Scegli file …',
   'imp.exFlat': 'Esempio: appartamento',
   'imp.exHouse': 'Esempio: casa con terreno',
+  'imp.exShow': 'Esempio: casa modello (con tutto)',
   'imp.prompt': 'Copia prompt IA',
   'imp.promptCopied': 'Prompt copiato. Incollalo in una chat IA, aggiungi la tua descrizione e incolla qui il JSON.',
   'imp.promptShown': 'Il prompt è ora nella casella di testo (la copia non è stata possibile). Selezionalo, copialo e incollalo in una chat IA.',
