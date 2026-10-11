@@ -1,8 +1,9 @@
-/* Roofs (#137, step 19): the roof box of a roof floor, the roof surfaces with dormers and further roofs, the railing round a roof terrace,
+/* Roofs (#137, step 19): the roof box of a roof floor, the roof surfaces with dormers (gable, flat, shed; a hole in the slope under each,
+ * #339) and further roofs, the railing round a roof terrace,
  * solar panels lying on the roof (#176) and the fading of the roofs when the camera comes close. The boxes are pure (unit test:
  * tests/roofs.test.mjs), the rest draws with three.js. */
 import * as THREE from './vendor/three.module.min.js';
-import { dormerParts } from './dormer.js';
+import { dormerParts, roofSurface } from './dormer.js';
 import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
 import { roofY0, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom } from './attic.js';
@@ -82,21 +83,16 @@ export function initRoofs(ctx) {
       flush(1);
     }
   }
-  /** roof surface as triangles; pitch in degrees, ridge along the longer side unless set */
+  /** roof surface as triangles; pitch in degrees, ridge along the longer side unless set; the slopes have a hole under each dormer (#339) */
   function roofGeometry(bb, r) {
-    const { alongX, a0, a1, b0, b1, bc, h, ins } = roofFrame(bb, r);       // a = ridge axis, b = across (shared with the solar panels on the roof)
-    const P = (a, b, y) => (alongX ? [a, y, b] : [b, y, a]);
     const tris = [];
-    const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
     if (r.type === 'flat') {
+      const { alongX, a0, a1, b0, b1 } = roofFrame(bb, r);                  // a = ridge axis, b = across (shared with the solar panels on the roof)
+      const P = (a, b, y) => (alongX ? [a, y, b] : [b, y, a]);
+      const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
       quad(P(a0, b0, 0.1), P(a1, b0, 0.1), P(a1, b1, 0.1), P(a0, b1, 0.1));
       quad(P(a0, b0, 0), P(a0, b1, 0), P(a1, b1, 0), P(a1, b0, 0));
-    } else {
-      quad(P(a0, b0, 0), P(a1, b0, 0), P(a1 - ins, bc, h), P(a0 + ins, bc, h));
-      quad(P(a1, b1, 0), P(a0, b1, 0), P(a0 + ins, bc, h), P(a1 - ins, bc, h));
-      tris.push(P(a0, b1, 0), P(a0, b0, 0), P(a0 + ins, bc, h));
-      tris.push(P(a1, b0, 0), P(a1, b1, 0), P(a1 - ins, bc, h));
-    }
+    } else tris.push(...roofSurface(bb, r));
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
     geo.computeVertexNormals();

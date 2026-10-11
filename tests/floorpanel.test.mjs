@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 const F = await import(`${process.env.STATIC_DIR || '/tmp/static'}/floorpanel.js`);
+const DM = await import(`${process.env.STATIC_DIR || '/tmp/static'}/dormer.js`);
 const t = (k) => k;
 
 test('a new floor is empty; a roof floor gets the default roof (its own copy)', () => {
@@ -47,4 +48,26 @@ test('base of a further roof: the outline of the floor, or 4 x 4 m', () => {
 test('new dormers alternate sides and spread out: middle, quarter, three quarters', () => {
   assert.deepEqual([0, 1, 2, 3, 4, 5, 6].map(F.nextDormerSpot), [
     { side: 0, pos: 0.5 }, { side: 1, pos: 0.5 }, { side: 0, pos: 0.25 }, { side: 1, pos: 0.25 }, { side: 0, pos: 0.75 }, { side: 1, pos: 0.75 }, { side: 0, pos: 0.5 }]);
+});
+
+test('dormer width (#339): the start (distance from the gable) stays where it is', () => {
+  const bb = { x0: 0, x1: 10, z0: 0, z1: 6 }, r = { type: 'gable', pitch: 35, overhang: 0.4 };
+  const d = { type: 'shed', w: 2, pos: 0 };
+  d.pos = DM.posForStart(bb, r, d, 3);
+  F.setDormerWidth(bb, r, d, 5);
+  assert.equal(d.w, 5);
+  assert.ok(Math.abs(DM.dormerStart(bb, r, d) - 3) < 1e-9);
+  const e = { w: 2, pos: 0.4 };
+  F.setDormerWidth(null, r, e, 3);                                   // no roof box: only the width
+  assert.deepEqual(e, { w: 3, pos: 0.4 });
+});
+test('dormer type (#339): a shed dormer goes onto the outer wall, a shed pitch stays sensible', () => {
+  const d = { type: 'gable', eave: 0.8 };
+  F.setDormerType(d, 'flat', { overhang: 0.5 });
+  assert.deepEqual(d, { type: 'flat', eave: 0.8 });
+  F.setDormerType(d, 'shed', { overhang: 0.5 });
+  assert.deepEqual(d, { type: 'shed', eave: 0.5 });
+  F.setDormerType(d, 'shed', { overhang: 0 });
+  assert.equal(d.eave, 0.2);
+  assert.deepEqual([F.clampShedPitch(12), F.clampShedPitch(0), F.clampShedPitch(99), F.clampShedPitch('x'), F.clampShedPitch(1)], [12, 15, 60, 15, 2]);
 });

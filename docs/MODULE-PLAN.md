@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.70.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.71.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -19,7 +19,7 @@ Stand: Version 3.70.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `i18n.js` und `lang/*.js` | 213 + je Sprache | Übersetzungen (7 Sprachen) |
 | `stairs.js` | ~410 | Treppengeometrie (gerade, L, U, Wendel, Wandtreppe mit Podesten, mehrere Etagen; `splitStoreys`: Teil über der offenen Etage, #246) |
 | `rooms.js` | 146 | Automatische Raumerkennung |
-| `dormer.js` | ~80 | Dachgauben (Geometrie, Größe des Fensters) |
+| `dormer.js` | ~150 | Dachgauben (Geometrie, Größe des Fensters): Sattel-, Flach- und lange Schleppgaube (#339), Anfang in Metern vom Giebel (`dormerStart`, `posForStart`), Hauptdach mit Loch unter jeder Gaube (`roofSurface`); mit Unit-Tests |
 | `shutters.js` | ~120 | Rollläden an Fenstern, auch an Gaubenfenstern (#331): Haken und eigene Entität (`shutter`, `shutterEntity`), wie weit der Panzer unten ist, Text („60 % offen“), außen an der Wand (`shutterSide`), alle Entitäten eines Fensters (`linkedEntities`), Kugel und Schild über dem Fenster (`shutterBallY`, `shutterLabelY`, #335), Regeln der Rollladen-Karte (`sliderPosition`, `shownPosition`, `shutterCardText`); den Panzer baut `walls.js`, bewegt `openings.js`, die Kugel setzt `floorbuild.js`; reine Logik mit Unit-Tests |
 | `shuttercard.js` | ~100 | Rollladen-Karte im Live-Modus (#335): nur der Rollladen, großer senkrechter Schieber mit dem Panzer, Hoch / Stopp / Runter, feste Stufen 0–100 %; neu gezeichnet nur, wenn sich am Rollladen etwas ändert |
 | `dormerwin.js` | ~110 | Fenster der Dachgauben als echte Fenster (Kontakt, offen/zu, Raum, Liste): nie gespeicherte Wand pro Gaubenfenster an der richtigen Etage, in der Wand des Raums darunter, wenn eine direkt hinter der Gaube steht (#275), „Vorderseite auf die Wand“; `openingWalls(f)` für alles, was Türen/Fenster sucht; reine Logik mit Unit-Tests |
@@ -102,7 +102,7 @@ Stand: Version 3.70.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `frameloop.js` | ~20 | Wie oft das Bild gezeichnet wird (Schritt 22): flüssig bei Bewegung, sparsam im Leerlauf und auf schwachen Tablets; mit Unit-Tests |
 | `houseload.js` | ~55 | Haus öffnen (Schritt 22): wechseln (vorher speichern), Import und Beispielhaus öffnen, Sicherung einspielen |
 | `roofmove.js` | ~65 | Dächer verschieben (#255): Dächer der Dach-Etage als Rechtecke, welches unter dem Zeiger liegt, verschieben (Solarpanels wandern mit, `panelsOn`; beim Ziehen wandert nur das gezeichnete Dach, #257), Größe an Ecken und Seiten ziehen (`roofHandles`, `resizeBox`, `setRoofBox`, #259), Ziehen in 5-cm-Schritten; mit Unit-Tests |
-| `attic.js` | ~110 | Ausgebauter Dachstuhl (#260, #265): Kniestock, auf welcher Etage das Dach beginnt, welches Dach welche Etage abschneidet, Ebenen der Dachflächen, Räume in den Gauben (dort wird nicht abgeschnitten), Firsthöhe ↔ Neigung; reine Logik mit Unit-Test |
+| `attic.js` | ~110 | Ausgebauter Dachstuhl (#260, #265): Kniestock, auf welcher Etage das Dach beginnt, welches Dach welche Etage abschneidet, Ebenen der Dachflächen, Räume in den Gauben (dort wird nicht abgeschnitten, unter einer Schleppgaube bis unter ihr schräges Dach, #339), Firsthöhe ↔ Neigung; reine Logik mit Unit-Test |
 | `atticclip.js` | ~70 | Schneidet die Wand-Materialien per Shader am Dach ab, außer in Gauben (die Rechnung steht getestet in attic.js) |
 | `planview.js` | ~50 | 2D-Plan dreht mit der 3D-Ansicht (#212): Winkel aus der Kamera, Punkte drehen, lesbare Schrift; Schalter |
 | `placement.js` | ~60 | Platzieren (Schritt 22): Einrasten an Raster und Wandecken, Wandgeräte flach an die Wand, LED-Ring um den Raum; Wandgeräte-Liste; reine Rechnung mit Unit-Tests |

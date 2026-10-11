@@ -35,6 +35,9 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 **Neu in 3.70** (ausführlich in Abschnitt **41** unten)
 13. **Rollladen-Karte wie in Home Assistant** (41.1 bis 41.5): Live, am Handy die Kugel 🪟 **über** einem Fenster mit Rollladen antippen. Die Karte zeigt **nur den Rollladen** (nicht den Fensterkontakt), einen großen Schieber, Hoch / Stopp / Runter und 0 / 25 / 50 / 75 / 100 %; den Schieber ziehen oder eine Stufe antippen.
 
+**Neu in 3.71** (ausführlich in Abschnitt **42** unten)
+14. **Lange Schleppgaube** (42.1 bis 42.6, #339): Bearbeiten, Etage „Dach“, „Etage verwalten“ aufklappen. Bei einer Gaube „Dachform der Gaube“ auf **„Schleppgaube“** stellen, „Breite“ z. B. 6 m, **„Abstand vom Giebel“** z. B. 3 m. In 3D: die Wand geht vorne senkrecht hoch, das Dach der Gaube läuft flacher bis ins Hauptdach, links und rechts davon ist wieder normale Schräge.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -142,7 +145,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 39. Neu in 3.67 | 0 | 0 | 2 | 0 | 39.1, 39.2 |
 | 40. Neu in 3.69: Rollläden an den Fenstern | 0 | 0 | 6 | 0 | 40.1 bis 40.6 |
 | 41. Neu in 3.70: Rollladen-Karte | 0 | 0 | 5 | 0 | 41.1 bis 41.5 |
-| **Zusammen** | **198** | **1** | **85** | **2** | |
+| 42. Neu in 3.71: lange Schleppgaube | 0 | 0 | 6 | 0 | 42.1 bis 42.6 |
+| **Zusammen** | **198** | **1** | **91** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -658,3 +662,13 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 41.3 | Am Schieber mit dem Finger den Panzer nach oben bis etwa zur Mitte ziehen und loslassen | Beim Ziehen zeigt die Karte groß die Prozent („50 % offen“); nach dem Loslassen fährt der Rollladen in 3D bis dorthin, das Schild über dem Fenster zeigt dasselbe | ❓ |
 | 41.4 | „75 %“ antippen, dann „100 %“, dann „▼ Runter“ | Der Rollladen fährt jeweils dorthin; die gewählte Stufe ist blau markiert; nach „Runter“ ist er ganz zu | ❓ |
 | 41.5 | Am Handy hochkant: die Karte offen lassen und unten auf „Ansicht ▴“ schauen | Die Karte steht **über** den Knöpfen unten (Normal, Temp., Feuchte, CO₂), nichts davon verdeckt die Karte | ❓ |
+
+## 42. Neu in 3.71: lange Schleppgaube
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 42.1 | Bearbeiten, Etage „Dach“, „Etage verwalten“: bei einer Gaube „Dachform der Gaube“ auf „Schleppgaube“ stellen | Neue Felder „Neigung der Gaube (°)“ (15) und ein Hinweis erscheinen; „Abstand zur Traufe“ springt auf den Überstand (0,4 m). In 3D: die Vorderwand steht auf der Außenwand und geht senkrecht hoch, das Dach der Gaube läuft flacher nach oben ins Hauptdach, unter dem First (#339) | ❓ |
+| 42.2 | „Breite“ auf 6 m (oder mehr als 5 m) stellen | Die Gaube wird so lang, sie bleibt auf dem Dach und unter dem First; eine Sattelgaube bliebe höchstens 5 m breit | ❓ |
+| 42.3 | „Abstand vom Giebel“ auf 3 m stellen, danach die „Breite“ ändern | Die Gaube beginnt 3 m vom Giebel links (bzw. oben) im Plan; beim Ändern der Breite bleibt ihr Anfang stehen, der Schieber „Position am First“ wandert mit | ❓ |
+| 42.4 | „Neigung der Gaube“ auf 8 und dann auf 25 stellen, danach „Höhe der Wand“ sehr hoch (z. B. 3 m) | Das Gaubendach wird flacher bzw. steiler. Ist die Wand zu hoch für die Neigung, wird zuerst das Gaubendach flacher (das Feld zeigt den benutzten Wert), erst dann die Wand niedriger; nichts ragt über den First | ❓ |
+| 42.5 | Haken „Ausgebauter Dachstuhl“ setzen (Kniestock), dann die Etage darunter öffnen | Unter der Schleppgaube gehen die Wände gerade hoch bis unter ihr schräges Dach; daneben werden sie an der Dachschräge abgeschnitten | ❓ |
+| 42.6 | Mit der Kamera nah an eine Gaube (auch eine normale) heran, oder einen Raum unter einer Gaube öffnen | Die Schräge des Hauptdachs läuft **nicht** mehr quer durch den Raum unter der Gaube: dort hat das Dach ein Loch, das Gaube und Gaubendach schließen | ❓ |

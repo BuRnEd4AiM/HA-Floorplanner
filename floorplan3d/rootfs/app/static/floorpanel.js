@@ -1,7 +1,8 @@
 /* Floor panel ("Manage floor"): name and kind of the open floor, move it up or down, add a basement or a roof, delete it; for a roof floor the
- * roof (shape, pitch, its own base, overhang, ridge), its dormers and further roofs (e.g. a flat roof over an annex). The rules for the base
+ * roof (shape, pitch, its own base, overhang, ridge), its dormers (gable, flat or a long shed dormer, #339, placed by its distance from the
+ * gable) and further roofs (e.g. a flat roof over an annex). The rules for the base
  * boxes, new floors, moving floors and placing new dormers are pure functions (tested); initFloorPanel draws the panel. */
-import { dormerParts, DORMER_DEFAULT, DORMER_TYPES } from './dormer.js';
+import { dormerParts, dormerStart, posForStart, DORMER_DEFAULT, DORMER_TYPES, SHED_PITCH } from './dormer.js';
 import { ridgeHeight, pitchFor } from './attic.js';
 
 export const ROOF_DEFAULT = { type: 'gable', pitch: 35, overhang: 0.4 };
@@ -37,6 +38,19 @@ export function boxOf(floor) {
 }
 /** where the n-th new dormer goes: alternating sides, the middle first, then a quarter and three quarters along */
 export const nextDormerSpot = (n) => ({ side: n % 2, pos: [0.5, 0.25, 0.75][Math.floor(n / 2) % 3] });
+/** a new width for dormer d on the roof r (base box bb): its start (distance from the gable) stays where it is (#339) */
+export function setDormerWidth(bb, r, d, w) {
+  const s = bb ? dormerStart(bb, r, d) : null;
+  d.w = w;
+  if (s != null) d.pos = posForStart(bb, r, d, s);
+}
+/** a new type for dormer d on the roof r: a shed dormer (#339) stands on the outer wall (its front where the overhang ends) */
+export function setDormerType(d, type, r) {
+  d.type = type;
+  if (type === 'shed') d.eave = Math.max(0.2, r?.overhang ?? 0.4);
+}
+/** a pitch typed for the roof of a shed dormer: 2° to 60° (it also stays 3° flatter than the main roof, see fitDormer) */
+export const clampShedPitch = (v) => Math.max(2, Math.min(60, +v || SHED_PITCH));
 
 /** ctx: $, t, layout(), floor(), floorIdx(), setFloorIdx(i), fields: { field, inp, lenInput }, snapshot(), build(), fitCamera(), buildNav(force),
  *  renderObjList(), scheduleSave(), switchFloor(i), clearSelection(), roofBox(i), autoRoofBox(i), groundIdx(), uid(),
@@ -202,12 +216,27 @@ export function initFloorPanel(ctx) {
       const bb = ctx.roofBox(ctx.layout().floors.indexOf(f)), fit = bb ? dormerParts(bb, r, d) : null;
       const cap = document.createElement('b'); cap.className = 'dormerCap'; cap.textContent = `${t('dormer.one')} ${i + 1}`; card.append(cap);
       card.append(field(t('dormer.side'), select([[0, t('dormer.sideA')], [1, t('dormer.sideB')]], d.side === 1 ? 1 : 0, (v) => { d.side = +v; })));
-      const pos = inp('range', Math.round((d.pos ?? 0.5) * 100), (v) => { d.pos = Math.max(0, Math.min(1, +v / 100)); }, { min: 0, max: 100, step: 1 });
+      const pos = inp('range', Math.round((d.pos ?? 0.5) * 100), (v) => { d.pos = Math.max(0, Math.min(1, +v / 100)); queueMicrotask(render); }, { min: 0, max: 100, step: 1 });
       card.append(field(t('dormer.pos'), pos));
-      card.append(field(t('dormer.width'), lenInput(() => d.w ?? DORMER_DEFAULT.w, (v) => { d.w = v; }, { min: 0.6 })));
+      if (fit) {                                                   // where it begins, in metres from the gable (#339)
+        const st = lenInput(() => dormerStart(bb, r, d), (v) => { d.pos = posForStart(bb, r, d, v); queueMicrotask(render); }, { min: 0 });
+        st.className = 'dormerStart'; st.title = t('dormer.startTip');
+        card.append(field(t('dormer.start'), st));
+      }
+      const wd = lenInput(() => d.w ?? DORMER_DEFAULT.w, (v) => { setDormerWidth(bb, r, d, v); queueMicrotask(render); }, { min: 0.6 });
+      wd.className = 'dormerWidth';
+      card.append(field(t('dormer.width'), wd));
       card.append(field(t('dormer.height'), lenInput(() => d.hw ?? DORMER_DEFAULT.hw, (v) => { d.hw = v; }, { min: 0.4 })));
       card.append(field(t('dormer.eave'), lenInput(() => d.eave ?? DORMER_DEFAULT.eave, (v) => { d.eave = v; }, { min: 0.2 })));
-      card.append(field(t('dormer.type'), select(DORMER_TYPES.map((v) => [v, t(`dormer.${v}`)]), d.type || 'gable', (v) => { d.type = v; })));
+      const ty = select(DORMER_TYPES.map((v) => [v, t(`dormer.${v}`)]), d.type || 'gable', (v) => setDormerType(d, v, r));
+      ty.className = 'dormerType';
+      card.append(field(t('dormer.type'), ty));
+      if (d.type === 'shed') {                                     // the pitch of its own roof, and what it is
+        const sp = inp('number', fit?.fit.sp ?? d.sp ?? SHED_PITCH, (v) => { d.sp = clampShedPitch(v); queueMicrotask(render); }, { step: 1, min: 2, max: 60 });
+        sp.className = 'dormerShedPitch';
+        card.append(field(t('dormer.shedPitch'), sp));
+        const hint = document.createElement('p'); hint.className = 'sub dormerShedHint'; hint.textContent = t('dormer.shedHint'); card.append(hint);
+      }
       const win = document.createElement('input'); win.type = 'checkbox'; win.checked = d.win !== false;
       win.addEventListener('change', () => { ctx.snapshot(); d.win = win.checked; ctx.build(); ctx.scheduleSave(); });
       card.append(field(t('dormer.window'), win));
