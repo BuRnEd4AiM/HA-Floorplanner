@@ -98,6 +98,7 @@ export function initImport({ t, lang, houseId, onImported }) {
   const load = async (name) => { try { const r = await fetch(`api/import/examples/${name}`); if (!r.ok) throw new Error(); text.value = JSON.stringify(await r.json(), null, 1).replace(/\[\s+(-?[\d.]+),\s+(-?[\d.]+)\s+\]/g, '[$1, $2]'); checked = ''; run.disabled = true; say(''); } catch { say(`<div class="imp-errors">${t('imp.noBackend')}</div>`); } };
   $('#importExFlat').addEventListener('click', () => load('flat'));
   $('#importExHouse').addEventListener('click', () => load('house'));
+  $('#importExShow').addEventListener('click', () => load('showcase'));
   $('#importPrompt').addEventListener('click', async () => {
     const p = await buildPrompt(lang());
     try { await navigator.clipboard.writeText(p); say(`<div class="imp-ok">${t('imp.promptCopied')}</div>`); }

@@ -21,7 +21,7 @@ You can write the JSON by hand, let an **AI** generate it, derive it from **GeoJ
 
 [Quick start](#quick-start-in-30-seconds) · [Coordinates](#coordinates) · [Format](#format-schemaversion-1) · [API](#api) · [GeoJSON](#geojson) · [AI prompting](#ai-prompting) · [Export](#export-round-trip) · [Troubleshooting](#error-messages)
 
-Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 floor) and [`docs/examples/house.json`](examples/house.json) (house with plot, basement, ground floor, upper floor, roof). The example rooms and floors have German names; names are just text and can be changed in the editor.
+Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 floor) [`docs/examples/house.json`](examples/house.json) (house with plot, basement, ground floor, upper floor, roof) and [`docs/examples/showcase.json`](examples/showcase.json) (**show house with everything in it**: every device type, every kind of door and window, all five kinds of stairs, a roof with a step, three kinds of dormers and solar panels, a garden house with its own roof, a roof terrace, a void over the living room, power cables from the house connection to the wallbox, a garden with pool and bridge). The show house uses every field of the format; its entities (e.g. `light.flur`) are examples to replace with your own. The example rooms and floors have German names; names are just text and can be changed in the editor.
 
 ## Quick start in 30 seconds
 
@@ -29,7 +29,7 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
 
 ![Houses panel with import and export buttons](img/import-en-0-panel.png)
 
-**2. Load an example and check it.** Click **Example: flat** or **Example: house with plot**, then **Check**. You get a summary (floors, rooms, walls, doors/windows, devices) and any warnings. **Import** only becomes active once exactly this text has been checked without errors.
+**2. Load an example and check it.** Click **Example: flat**, **Example: house with plot** or **Example: show house (everything in it)**, then **Check**. You get a summary (floors, rooms, walls, doors/windows, devices) and any warnings. **Import** only becomes active once exactly this text has been checked without errors.
 
 ![Import dialog after a successful check](img/import-en-1-dialog.png)
 
@@ -53,7 +53,7 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
 
 - Everything is in **metres**. `x` points east (right), `z` points south (down in the plan). `[0,0]` is the top left corner.
 - Polygons: 3 to 100 points, any order, **must not cross themselves**.
-- `building.origin: [x, z]` moves the building on the plot (plot boundary and garden objects stay where they are).
+- `building.origin: [x, z]` moves the building on the plot (plot boundary and garden objects stay where they are). The base of a roof (`box`) belongs to the building and moves with it.
 
 ## Format (schemaVersion 1)
 
@@ -126,7 +126,7 @@ Unknown types are skipped with a warning. All types are listed in the schema (`/
 **Bridge / walkway** (`"type": "bridge"`): `len` = length (0.5 to 30 m, default 3), `w` = width (0.5 to 5 m, default 1.2), `noRail: true` = no railing, `rise` = the far end (towards `rot` 0, +x) is this much higher (+) or lower (−), −3 to 3 m. The walking surface is at the level of the floor, `rot` turns it.
 `{ "type": "bridge", "x": 12, "z": 4, "len": 3, "rot": 90 }`
 
-**Solar panel** (`"type": "solarpanel"`): `cols` = panels side by side, `rows` = rows (each 1 to 12, default 1), `mount` = `auto` (default: flat on sloped roofs, on a rack on a flat roof and the ground), `flat` or `stand`. When the device is on the floor of kind `roof`, it follows the roof surface below it.
+**Solar panel** (`"type": "solarpanel"`): `cols` = panels side by side, `rows` = rows (each 1 to 12, default 1), `mount` = `auto` (default: flat on sloped roofs, on a rack on a flat roof and the ground), `flat` or `stand`. When the device is on the floor of kind `roof`, it follows the roof surface below it: `{ "name": "Roof", "kind": "roof", "roof": { "type": "gable" }, "devices": [{ "type": "solarpanel", "x": 6, "z": 7, "cols": 5, "rows": 2 }] }`. The `roof` floor can hold devices and rooms (e.g. a loft), but no stairs, blocks or floor openings.
 `{ "type": "solarpanel", "x": 4, "z": 2, "cols": 4, "rows": 2 }`
 
 **Power** (`houseentry`, `fusebox`, `powermeter`, `inverter`, `solarpanel`, `battery`, `wallbox`; plus the meters `watermeter`, `gasmeter`, `heatmeter`, which only show their reading): cables join two devices. Every device that is a target or has cables gets an `id` (free choice, only valid inside the file); the cables are listed at the starting device as `cables`: `route` is `floor` (along the floor, default), `through` (through the floor to another storey) or `air`. The flow direction of the dots follows the value of the `entity` (negative = backwards, kW is converted). Targets on another floor are allowed.
@@ -162,7 +162,7 @@ Unknown stair types are skipped with a warning, invalid numbers (e.g. `floors` 9
 
 ### Floors
 
-The order does not matter: basements come first, attic / roof last. The roof shape is set in `building.roof` (or in a floor with `"kind": "roof"`). **Further roofs** (e.g. an annex with a flat roof): `"roof": { "type": "gable", "parts": [{ "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "type": "flat", "level": 0, "name": "Annex" }] }`, up to 8; `level` is the index of the floor in `building.floors` the roof sits on (without it: on top of the house), plus `pitch`, `overhang`, `dormers`. Garden objects from `plot.objects` are placed on the first floor that is not a basement.
+The order does not matter: basements come first, attic / roof last. **Roof terrace:** a room with `"terrace": true` is open (no roof above it, a railing instead of walls); only edges it shares with an ordinary room become walls. A `footprint` of its own in a floor counts for that floor only (e.g. a ground floor with a garage). The roof shape is set in `building.roof` (or in a floor with `"kind": "roof"`). **Further roofs** (e.g. an annex with a flat roof): `"roof": { "type": "gable", "parts": [{ "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "type": "flat", "level": 0, "name": "Annex" }] }`, up to 8; `level` is the index of the floor in `building.floors` the roof sits on (without it: on top of the house), plus `pitch`, `overhang`, `dormers`. Garden objects from `plot.objects` are placed on the first floor that is not a basement.
 
 ## API
 
@@ -179,6 +179,7 @@ curl "$BASE/api/export/property?house=main" -o my-house.json
 # JSON schema (editor autocompletion, AI validation) and examples
 curl "$BASE/api/import/schema"
 curl "$BASE/api/import/examples/house"
+curl "$BASE/api/import/examples/showcase"     # show house with everything
 ```
 
 On success: `{"ok":true,"id":"...","name":"...","summary":{...},"warnings":[...]}`.

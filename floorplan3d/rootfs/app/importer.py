@@ -148,8 +148,9 @@ def _on_segment(p, a, b, tol=0.015) -> bool:
 
 
 # ---------------------------------------------------------------- walls from footprint + rooms
-def derive_walls(footprint, rooms, outer_t, inner_t, height):
-    """Wall centre lines from the outline and the room polygons. Shared edges become ONE wall, T-junctions split walls."""
+def derive_walls(footprint, rooms, outer_t, inner_t, height, open_rooms=frozenset()):
+    """Wall centre lines from the outline and the room polygons. Shared edges become ONE wall, T-junctions split walls.
+    `open_rooms`: indices of roof terraces, open areas with a railing: an edge that only they touch gets no wall."""
     key = lambda p: (round(p[0], 2), round(p[1], 2))
     sources = []                                    # (polygon, source id)
     if footprint:
@@ -169,7 +170,10 @@ def derive_walls(footprint, rooms, outer_t, inner_t, height):
                 segs.setdefault(tuple(sorted((u, v))), set()).add(src)
     walls = []
     for (a, b), src in sorted(segs.items()):
-        outer = ("foot" in src) if footprint else (len(src) == 1)
+        in_rooms = src - {"foot"}
+        if in_rooms and in_rooms <= open_rooms:
+            continue                                # the open side of a roof terrace: its railing, not a wall
+        outer = ("foot" in src) if footprint else (len(in_rooms - open_rooms) == 1)
         walls.append({"a": [a[0], a[1]], "b": [b[0], b[1]], "thickness": outer_t if outer else inner_t, "height": height, "openings": []})
     return walls
 
@@ -512,12 +516,14 @@ def build_layout(data):
         name = str(f.get("name") or {"floor": f"Etage {fi + 1}", "basement": "Keller", "roof": "Dach"}[kind])[:60]
         out = {"id": ids("f"), "name": name, "kind": kind, "walls": [], "rooms": [], "devices": [], "blocks": [], "stairs": [], "holes": []}
         input_ids[fi] = out["id"]
-        if kind == "roof":
+        if kind == "roof":                              # the roof, and what stands up here: solar panels on the roof, a loft's rooms and things
             out["roof"] = _roof(rep, f"{fp}.roof", f.get("roof", {}))
-            floors.append(out)
-            continue
+            for key in ("stairs", "blocks", "holes"):
+                if f.get(key):
+                    rep.warn(f"{fp}.{key}", f"a roof floor has no {key}: ignored")
         # rooms
         rooms = []
+        open_rooms = set()
         raw_rooms = f.get("rooms", [])
         if not isinstance(raw_rooms, list) or len(raw_rooms) > MAX_ROOMS:
             rep.error(f"{fp}.rooms", f"\"rooms\" must be a list (max {MAX_ROOMS})")
@@ -537,10 +543,11 @@ def build_layout(data):
                 room["area"] = r["area"][:80]
             if r.get("terrace") is True:
                 room["terrace"] = True                          # roof terrace: open area with a railing
+                open_rooms.add(len(rooms))
             out["rooms"].append(room)
             rooms.append(poly)
-        # walls: explicit list wins, otherwise derived from outline + rooms
-        foot = _polygon(rep, f"{fp}.footprint", f["footprint"], "footprint", 4) if "footprint" in f else default_foot
+        # walls: explicit list wins, otherwise derived from outline + rooms (the building's outline is not the roof floor's)
+        foot = _polygon(rep, f"{fp}.footprint", f["footprint"], "footprint", 4) if "footprint" in f else (default_foot if kind != "roof" else None)
         if "walls" in f:
             if not isinstance(f["walls"], list) or len(f["walls"]) > MAX_ITEMS:
                 rep.error(f"{fp}.walls", "\"walls\" must be a list")
@@ -570,7 +577,7 @@ def build_layout(data):
                         else:
                             _place_opening(rep, op, [wall], o, spec, ids)
         elif foot or rooms:
-            for w in derive_walls(foot, rooms, outer_t, inner_t, height):
+            for w in derive_walls(foot, rooms, outer_t, inner_t, height, open_rooms):
                 out["walls"].append({"id": ids("w"), **w})
         # openings given at floor level, placed on the nearest wall
         for oi, spec in enumerate(f.get("openings") or []):
@@ -583,8 +590,9 @@ def build_layout(data):
             if d is not None:
                 d["x"], d["z"] = round(d["x"] + ox, 3), round(d["z"] + oz, 3)
                 out["devices"].append(d)
-        out["stairs"] = _stairs_of_floor(rep, fp, f.get("stairs"), ids, ox, oz)
-        _blocks_and_holes(rep, fp, f, out, ids)
+        if kind != "roof":
+            out["stairs"] = _stairs_of_floor(rep, fp, f.get("stairs"), ids, ox, oz)
+            _blocks_and_holes(rep, fp, f, out, ids)
         floors.append(out)
 
     if "roof" in b and not any(x["kind"] == "roof" for x in floors):
@@ -638,6 +646,10 @@ def build_layout(data):
                 w["b"] = [round(w["b"][0] + ox, 3), round(w["b"][1] + oz, 3)]
             for r in fl["rooms"] + fl.get("blocks", []) + fl.get("holes", []):
                 r["points"] = [[round(p[0] + ox, 3), round(p[1] + oz, 3)] for p in r["points"]]
+            roof = fl.get("roof") or {}
+            for box in [roof.get("box")] + [p.get("box") for p in roof.get("parts", [])]:     # a roof's base box is in building metres too
+                if box:
+                    box.update(x0=round(box["x0"] + ox, 3), x1=round(box["x1"] + ox, 3), z0=round(box["z0"] + oz, 3), z1=round(box["z1"] + oz, 3))
     for fl in floors:
         summary["rooms"] += len(fl["rooms"])
         summary["walls"] += len(fl["walls"])
@@ -875,8 +887,9 @@ def layout_to_property(layout, name="Haus"):
             if item["roof"].get("parts"):
                 item["roof"]["parts"] = [{**{k: v for k, v in p.items() if k not in ("id", "level")},
                                           **({"level": index_of[p["level"]]} if p.get("level") in index_of else {})} for p in item["roof"]["parts"]]
-            floors.append(item)
-            continue
+            if not (f.get("rooms") or f.get("walls") or f.get("devices")):      # a plain roof; otherwise also its solar panels, a loft's rooms
+                floors.append(item)
+                continue
         item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace") if k in r} for r in f.get("rooms", [])]
         item["walls"] = []
         for w in f.get("walls", []):
@@ -896,6 +909,9 @@ def layout_to_property(layout, name="Haus"):
                                  **({"kind": c["kind"]} if c.get("kind") in CABLE_KINDS else {}),
                                  **({"entity": c["entity"]} if c.get("entity") else {})} for c in cs]
             item["devices"].append(od)
+        if kind == "roof":                              # stairs, blocks and floor openings belong to the storeys
+            floors.append(item)
+            continue
         stairs = []
         for st in f.get("stairs", []):
             if st.get("type") not in STAIR_TYPES or not (_num(st.get("x")) and _num(st.get("z"))):

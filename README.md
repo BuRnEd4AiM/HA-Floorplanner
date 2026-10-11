@@ -99,6 +99,8 @@ curl -X POST "$BASE/api/import?name=Cabin" -H "Content-Type: application/json" -
 curl "$BASE/api/export/property?house=main" -o my-house.json                                    # export any house in the same format
 ```
 
+Want to see every option at once? [`docs/examples/showcase.json`](docs/examples/showcase.json) is a show house with everything in it (every device type, door and window, all five kinds of stairs, dormers, solar roof, roof terrace, garden house, power cables), also in the dialog as *Example: show house*.
+
 Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT.en.md)** · **[Deutsch](docs/IMPORT.md)**
 
 ## 🎯 Features
