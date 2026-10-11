@@ -1,4 +1,4 @@
-"""Roofs and selecting: solar panels on the roof (#176), moving and sizing roofs (#255, #259), lived-in attic (#260), a long shed dormer (#339) with the windows of the rooms under it (#341), several things at once (#211, #247), the turning 2D plan (#212).
+"""Roofs and selecting: solar panels on the roof (#176), moving and sizing roofs (#255, #259), lived-in attic (#260), a long shed dormer (#339) with the windows of the rooms under it (#341), flush to the gable (#345), several things at once (#211, #247), the turning 2D plan (#212).
 """
 # a house of its own: four storeys with walls and no roof yet (the checks below add the roof). The test house of base.py has a roof already,
 # so the roof would come on top of it and the attic checks would find no walls below. The test house comes back at the end.
@@ -146,6 +146,11 @@ pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, w = L[L.
 pgSol.wait_for_timeout(400)
 fw1 = front_tris()
 check("shed dormer (#341): a window in the wall under it shows through the dormer's front (a hole in its front wall)", len(fw0) == 1 and len(fw1) == 1 and fw1[0] > fw0[0], (fw0, fw1))
+# "distance from the gable" 0: the shed dormer goes flush up to the edge of the roof, no gap (#345); the ridge runs along z, the roof's edge at z -0.4
+pgSol.fill(".dormerCard .dormerStart", "0"); pgSol.press(".dormerCard .dormerStart", "Enter"); pgSol.wait_for_timeout(500)
+dparts = {m["part"]: m["box"] for m in pgSol.evaluate("window.__fp.roofMeshes()") if m["part"] in ("wall", "roof")}
+check("shed dormer (#345): with distance 0 from the gable its walls and roof end exactly at the edge of the roof",
+      len(dparts) == 2 and all(abs(b[2] + 0.4) < 0.01 for b in dparts.values()), dparts)
 pgSol.evaluate("() => { const r = window.__fp.layout.floors.at(-1).roof; delete r.knee; delete r.dormers; window.__fp.rebuild(); }")
 pgSol.wait_for_timeout(2500)                                  # the autosave has run: put the layout back as it was for the next tests
 pgSol.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", sol_saved); pgSol.wait_for_timeout(400)

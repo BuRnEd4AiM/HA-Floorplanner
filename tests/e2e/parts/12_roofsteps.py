@@ -48,6 +48,16 @@ if d1:
     pgSt.mouse.dblclick(*d1); pgSt.wait_for_timeout(500)
 sec2 = pgSt.evaluate("""(async () => { const S = await import('./roofsteps.js'), fp = window.__fp; return S.sectionsOf(fp.roofBox(1), fp.layout.floors[1].roof, 0).map((q) => q.out); })()""")
 check("roof steps (#342): a double click on a diamond removes the step that piece starts with", sec2 == [-0.5], (sec2, steps_now()))
+# a corner of the step (#345): dragged along and across, the step and its piece follow
+pgSt.evaluate("(() => { const r = window.__fp.layout.floors[1].roof; r.steps = [{ side: 0, at: 0, out: -0.5 }, { side: 0, at: 6, out: 0 }]; window.__fp.rebuild(); })()")
+pgSt.mouse.click(*at(9, 4)); pgSt.wait_for_timeout(400)
+c0 = pgSt.evaluate("(() => { const e = document.querySelector('[data-roofcorner=\"0-1-0\"]'); if (!e) return null; const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; })()")
+c1 = at(4.5, 0.8)
+if c0:
+    pgSt.mouse.move(*c0); pgSt.mouse.down(); pgSt.mouse.move((c0[0] + c1[0]) / 2, (c0[1] + c1[1]) / 2, steps=4); pgSt.mouse.move(*c1, steps=4); pgSt.mouse.up(); pgSt.wait_for_timeout(600)
+sec3 = pgSt.evaluate("""(async () => { const S = await import('./roofsteps.js'), fp = window.__fp; return S.sectionsOf(fp.roofBox(1), fp.layout.floors[1].roof, 0).map((q) => [+q.a0.toFixed(2), q.out]); })()""")
+check("roof steps (#345): the two corners of a step are shown; dragging the front one moves the step to 4.5 m and its eave 80 cm in",
+      c0 is not None and pgSt.locator("[data-roofcorner]").count() == 2 and sec3 == [[0, -0.8], [4.5, 0]], (c0, sec3))
 # the roof panel: a card per step, "+ Step" adds one
 pgSt.evaluate("document.querySelector('#floorPanel').open = true"); pgSt.evaluate("window.__fp.switchFloor(0)"); pgSt.evaluate("window.__fp.switchFloor(1)"); pgSt.wait_for_timeout(500)
 n_cards = pgSt.locator(".roofStepCard").count()

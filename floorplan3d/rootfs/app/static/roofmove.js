@@ -4,7 +4,7 @@
  * the main roof can have steps (#342): its outline and their handles come along, stepTarget says which roof can get them. Pure
  * (unit test: tests/roofmove.test.mjs). */
 
-import { outline, stepHandles } from './roofsteps.js';
+import { outline, stepHandles, cornerHandles } from './roofsteps.js';
 
 /** the selection id of the main roof of floor f (a further roof uses its own id) */
 export const mainRoofId = (f) => `${f.id}:roof`;
@@ -19,7 +19,7 @@ export function roofRects(f, autoBox) {
   const main = okBox(r.box) ? r.box : autoBox;
   if (okBox(main)) {
     const box = { x0: main.x0, x1: main.x1, z0: main.z0, z1: main.z1 };
-    out.push({ id: mainRoofId(f), main: true, name: '', box, outline: outline(box, r), steps: stepHandles(box, r) });
+    out.push({ id: mainRoofId(f), main: true, name: '', box, outline: outline(box, r), steps: stepHandles(box, r), corners: cornerHandles(box, r) });
   }
   (r.parts || []).forEach((p, i) => { if (okBox(p.box)) out.push({ id: p.id || `part${i}`, main: false, name: p.name || '', box: { ...p.box } }); });
   return out;

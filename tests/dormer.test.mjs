@@ -119,7 +119,7 @@ test('the window of a long shed dormer stays window-sized and in the middle of i
 
 test('start along the ridge: metres from the gable end of the house, and back to pos', () => {
   const d = { type: 'shed', w: 4 };
-  assert.ok(Math.abs(D.dormerStart(bb, roof, { ...d, pos: 0 }) - (-0.4 + 0.1)) < 1e-9, 'pos 0: right after the roof edge');
+  assert.ok(Math.abs(D.dormerStart(bb, roof, { ...d, pos: 0 })) < 1e-9, 'pos 0: at the gable wall (and from there flush to the roof edge, #345)');
   const pos = D.posForStart(bb, roof, d, 3.5);
   assert.ok(Math.abs(D.dormerStart(bb, roof, { ...d, pos }) - 3.5) < 1e-9, 'begins 3.5 m from the gable');
   assert.equal(D.posForStart(bb, roof, d, 99), 1, 'as far as the roof goes');
@@ -204,4 +204,25 @@ test('roof with steps: a dormer on the wide part stands on that slope', () => {
   const front = D.dormerParts(bb, stepped, { type: 'flat', side: 0, pos: 0.9, w: 1.6, eave: 0.8 }).wall[0];
   assert.ok(Math.abs(front[2] - (-1.4 + 0.8)) < 1e-9, 'its front 80 cm in from the moved eave');
   assert.ok(Math.abs(D.dormerParts(bb, { ...roof, steps: [] }, { side: 0 }).wall[0][2] - D.dormerParts(bb, roof, { side: 0 }).wall[0][2]) < 1e-12, 'without steps as before');
+});
+
+test('flush to the edge (#345): a shed or flat dormer at a gable wall goes on to the edge of the roof, without a gap', () => {
+  for (const type of ['shed', 'flat']) {
+    const d = { type, side: 0, w: 4, hw: 1, eave: 0.4, win: false, pos: D.posForStart(bb, roof, { type, w: 4 }, 0) };
+    const n = D.fitDormer(bb, roof, d), p = D.dormerParts(bb, roof, d), xs = [...p.wall, ...p.roof].map((q) => q[0]);
+    assert.ok(n.flush0 && !n.flush1, type);
+    assert.ok(Math.abs(Math.min(...xs) + 0.4) < 1e-9, `${type}: walls and roof end exactly at the roof's edge`);
+    assert.ok(Math.abs(Math.max(...xs) - (4 + 0.1)) < 1e-9, `${type}: the other side as before (its roof 10 cm over)`);
+    assert.equal(D.dormerStart(bb, roof, d), 0);
+    const s = D.roofSurface(bb, { ...roof, dormers: [d] });
+    for (let i = 0; i < s.length; i += 3) {                        // the slope has its hole right up to the edge
+      const cx = (s[i][0] + s[i + 1][0] + s[i + 2][0]) / 3, e = (s[i][2] + s[i + 1][2] + s[i + 2][2]) / 3 + 0.4;
+      assert.ok(!(cx > -0.4 + 1e-6 && cx < 4 - 1e-6 && e > n.eave + 1e-6 && e < n.eT - 1e-6), `${type}: no slope under the dormer`);
+    }
+  }
+  const both = D.fitDormer(bb, roof, { type: 'shed', w: 10 });       // as long as the house: flush at both ends
+  assert.ok(both.flush0 && both.flush1 && Math.abs(both.u0 + 5.4) < 1e-9 && Math.abs(both.u1 - 5.4) < 1e-9);
+  assert.ok(!D.fitDormer(bb, roof, { type: 'gable', pos: 0 }).flush0, 'a gable dormer keeps its gap');
+  assert.ok(!D.fitDormer(bb, { ...roof, type: 'hip' }, { type: 'shed', w: 2, pos: 0 }).flush0, 'on a hip roof nothing is flush');
+  assert.ok(!D.fitDormer(bb, roof, { type: 'shed', w: 4, pos: 0.5 }).flush0, 'in the middle: walls on both sides as before');
 });

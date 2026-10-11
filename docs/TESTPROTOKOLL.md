@@ -42,6 +42,9 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 **Neu in 3.73** (ausführlich in Abschnitt **44** unten)
 16. **Dach mit Absatz** (44.1 bis 44.6, #342): Bearbeiten, Etage „Dach“, Ansicht **2D**. Das Dach anklicken, dann **Doppelklick auf die Dachkante** an der Stelle, wo das Haus breiter wird. Die **Raute** des vorderen Teils nach innen ziehen. In 3D: das Dach ist vorne schmaler, der First bleibt gerade.
 
+**Neu in 3.74** (ausführlich in Abschnitt **45** unten)
+17. **Schleppgaube bis zur Kante, Ecken einzeln ziehen** (45.1 bis 45.3, #345): bei der Schleppgaube „Abstand vom Giebel“ auf **0** stellen: sie geht bündig bis an die Dachkante. Im 2D-Plan beim Dach mit Absatz die **Kreise** an einem Absatz einzeln ziehen.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -152,7 +155,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 42. Neu in 3.71: lange Schleppgaube | 0 | 0 | 6 | 0 | 42.1 bis 42.6 |
 | 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube | 0 | 0 | 4 | 0 | 43.1 bis 43.4 |
 | 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter) | 0 | 0 | 6 | 0 | 44.1 bis 44.6 |
-| **Zusammen** | **198** | **1** | **101** | **2** | |
+| 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen | 0 | 0 | 3 | 0 | 45.1 bis 45.3 |
+| **Zusammen** | **198** | **1** | **104** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -696,3 +700,10 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 44.4 | „Etage verwalten“ aufklappen, Abschnitt „Absätze“: Seite, „Ab (Abstand vom Giebel)“ und „Nach außen“ ändern, „+ Absatz“, × | Das Dach ändert sich passend; „+ Absatz“ legt einen auf Seite A in der Hausmitte an (50 cm nach außen) | ❓ |
 | 44.5 | „Ausgebauter Dachstuhl“ an, die Etage darunter öffnen; eine Gaube und ein Solarpanel auf den breiten Teil setzen | Die Wände werden an der richtigen Dachfläche abgeschnitten; Gaube und Panel sitzen auf der flacheren Fläche des breiten Teils | ❓ |
 | 44.6 | Dachform „Walmdach“ wählen | Statt der Absätze steht ein Hinweis (nur Sattel- und Flachdach); das Walmdach bleibt rechteckig | ❓ |
+
+## 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 45.1 | Bei einer Schleppgaube „Abstand vom Giebel“ auf 0 stellen (oder den Schieber ganz an den Rand), dann von der Giebelseite schauen | Vorderwand, Seitenwand und Dach der Gaube enden genau an der Dachkante, kein Abstand; Giebel und Gaubenseite sind eine Fläche (#345) | ❓ |
+| 45.2 | Die Gaube so breit machen, dass sie bis zum anderen Giebel reicht | Auch dort bündig bis an die Kante | ❓ |
+| 45.3 | Dach mit Absatz (44.1), Ansicht 2D: das Dach anklicken und einen **Kreis** an einem Absatz ziehen, längs und quer | Der Absatz wandert längs mit, die Kante dieses Stücks quer (5-cm-Schritte); beim Loslassen folgt das Dach in 3D; Strg+Z nimmt es zurück | ❓ |

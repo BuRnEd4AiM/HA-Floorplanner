@@ -95,7 +95,7 @@ export function frontHoles(n, walls, dy) {
     if (Math.abs(bW - bF) > ON_FRONT) continue;
     for (const o of wl.openings) {
       const cx = wl.a[0] + dx * o.pos, cz = wl.a[1] + dz * o.pos, c = (F.alongX ? cx : cz) - at, sill = o.sill || 0;
-      const h = { u0: Math.max(-hw2, c - o.width / 2), u1: Math.min(hw2, c + o.width / 2), y0: Math.max(n.yF - 0.05, sill + dy), y1: Math.min(n.yT, sill + o.height + dy) };
+      const h = { u0: Math.max(n.u0 ?? -hw2, c - o.width / 2), u1: Math.min(n.u1 ?? hw2, c + o.width / 2), y0: Math.max(n.yF - 0.05, sill + dy), y1: Math.min(n.yT, sill + o.height + dy) };
       if (h.u1 - h.u0 > 0.01 && h.y1 - h.y0 > 0.01) out.push(h);
     }
   }

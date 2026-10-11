@@ -3,6 +3,7 @@
  * x0 or z0) its eave lies further out (out > 0) or in (out < 0) than the base box, up to the next step. The ridge stays straight and at one
  * height and the eave stays at the height of the walls, so where the house is wider the slope is a little flatter; at a step a small
  * upright triangle closes the gap between the two slopes. Gable and flat roofs only (a hip roof keeps its rectangle).
+ * In the 2D plan every piece has a diamond (drag it out or in) and every step two corners (drag them along and across, #345).
  * Stored as roof.steps = [{ side, at, out }]. Pure, no three.js, no DOM (unit test: tests/roofsteps.test.mjs). */
 
 export const MAX_STEPS = 20;
@@ -102,6 +103,35 @@ export function addStepAt(bb, r, x, z, tol) {
     return side;
   }
   return null;
+}
+
+/** the corners of the steps in the 2D plan (#345): where an eave jumps, one corner on each of the two pieces (one when it does not jump),
+ *  [{ side, k (the step: the piece after it), piece, x, z }] */
+export function cornerHandles(bb, r) {
+  const alongX = alongXOf(bb, r), { b0, b1 } = axes(bb, alongX), out = [];
+  for (const side of [0, 1]) {
+    const secs = sectionsOf(bb, r, side);
+    for (let k = 1; k < secs.length; k++) {
+      for (const piece of [k - 1, k]) {
+        if (piece === k && Math.abs(secs[k].out - secs[k - 1].out) < 1e-9) continue;
+        const a = secs[k].a0, b = side === 0 ? b0 - secs[piece].out : b1 + secs[piece].out;
+        out.push({ side, k, piece, x: alongX ? a : b, z: alongX ? b : a });
+      }
+    }
+  }
+  return out;
+}
+/** a corner of step k of side `side` dragged to (x, z) (#345): the step goes along the ridge (at least MIN_SECTION from its neighbours), the
+ *  eave of the piece the corner belongs to goes out or in; on the `grid` (0 = free). true when something changed */
+export function moveCorner(bb, r, side, k, piece, x, z, grid) {
+  if (!bb || !stepsAllowed(r) || k < 1) return false;
+  const secs = sectionsOf(bb, r, side), st = stepFor(bb, r, side, k, false);
+  if (!secs[k] || !st) return false;
+  const { a0 } = axes(bb, alongXOf(bb, r)), a = alongXOf(bb, r) ? x : z;
+  const at = r3(Math.max(secs[k - 1].a0 + MIN_SECTION, Math.min(secs[k].a1 - MIN_SECTION, grid > 0 ? Math.round(a / grid) * grid : a)) - a0);
+  const moved = Math.abs(+st.at - at) > 1e-9;
+  if (moved) st.at = at;
+  return moveSection(bb, r, side, piece, x, z, grid) || moved;
 }
 
 /** the stored step that starts piece i of side `side`; for the first piece one at 0 is made when `make` and there is none */

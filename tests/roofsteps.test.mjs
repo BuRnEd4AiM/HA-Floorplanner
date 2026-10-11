@@ -72,3 +72,16 @@ test('the frame of a slope piece: the eave moves out, the ridge stays', () => {
   assert.deepEqual([H.b0, H.b1, H.half], [-0.4, 8.9, 4.4]);
   assert.equal(S.sectionFrame(F, 0, 0).half, 4.9);
 });
+
+test('corners of the steps (#345): two per step (one where the eave does not jump); dragging one moves the step and its piece', () => {
+  const r = gable([{ side: 0, at: 0, out: -0.5 }, { side: 0, at: 6, out: 0 }, { side: 1, at: 8, out: 0 }]);
+  const c = S.cornerHandles(bb, r);
+  assert.deepEqual(c, [{ side: 0, k: 1, piece: 0, x: 6, z: 0.5 }, { side: 0, k: 1, piece: 1, x: 6, z: 0 }, { side: 1, k: 1, piece: 0, x: 8, z: 9 }]);
+  assert.equal(S.moveCorner(bb, r, 0, 1, 0, 5.02, 0.81, 0.05), true, 'the corner of the front piece: step to 5 m, its eave 80 cm in');
+  assert.deepEqual(S.sectionsOf(bb, r, 0).map((q) => [q.a0, q.out]), [[0, -0.8], [5, 0]]);
+  assert.equal(S.moveCorner(bb, r, 0, 1, 1, 0.1, -1.2, 0.05), true, 'the other corner, far along: stops 30 cm after the piece before');
+  assert.deepEqual(S.sectionsOf(bb, r, 0).map((q) => [q.a0, q.out]), [[0, -0.8], [0.3, 1.2]]);
+  assert.equal(S.moveCorner(bb, r, 0, 1, 1, 0.3, -1.2, 0.05), false, 'no change');
+  assert.equal(S.moveCorner(bb, r, 0, 0, 0, 1, 1, 0.05), false, 'there is no step before the first piece');
+  assert.equal(S.moveCorner(bb, { ...r, type: 'hip' }, 0, 1, 0, 1, 1, 0.05), false);
+});
