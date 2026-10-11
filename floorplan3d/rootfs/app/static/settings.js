@@ -64,9 +64,10 @@ export function initSettings(ctx) {
   let preset = null;                 // this user's own start values for the look (#250, viewprefs.js): never saved as everybody's settings
   /** settings from the server laid over the current ones; the preset fields stay as this browser has them */
   const fromServer = (srv) => ctx.set({ ...ctx.get(), ...srv, ...keepSession(ctx.get(), preset) });
-  /** start this user's preset (from api/me) on top of the loaded settings; false when it sets nothing */
-  function usePreset(p) {
-    preset = startPreset(ctx.get(), p);
+  /** start this user's preset (from api/me) on top of the loaded settings; false when it sets nothing. fields: what it may set (the
+   *  dashboard card adds its own look, viewprefs.js CARD_FIELDS) */
+  function usePreset(p, fields) {
+    preset = startPreset(ctx.get(), p, fields);
     if (preset) { ctx.set(preset.settings); fill(); }                // the form shows what this user sees
     return !!preset;
   }

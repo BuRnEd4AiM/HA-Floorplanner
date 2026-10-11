@@ -27,6 +27,7 @@ test('how a screen starts: editor, wall tablet, room tablet, read-only user', ()
   assert.deepEqual(A.startup({ canEdit: true }, P('')), { tabletRoom: null, kiosk: false, readonly: false, live: false });
   assert.deepEqual(A.startup({ canEdit: true }, P('mode=live')), { tabletRoom: null, kiosk: false, readonly: false, live: true });
   assert.deepEqual(A.startup({ canEdit: true }, P('kiosk=1')), { tabletRoom: null, kiosk: true, readonly: false, live: true });
+  assert.deepEqual(A.startup({ canEdit: true }, P('card=1')), { tabletRoom: null, kiosk: true, readonly: false, live: true });   // the dashboard card (#13)
   assert.deepEqual(A.startup({ canEdit: true, room: 'Küche' }, P('')), { tabletRoom: 'Küche', kiosk: true, readonly: false, live: true });
   assert.equal(A.startup({ canEdit: true, room: 'Küche' }, P('room=Bad')).tabletRoom, 'Bad');      // the address wins
   assert.deepEqual(A.startup({ canEdit: false }, P('')), { tabletRoom: null, kiosk: true, readonly: true, live: true });

@@ -12,6 +12,7 @@ import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
 import { initKiosk } from './kiosk.js';
+import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
 import { initPhoneNav } from './phonenav.js';
 import { initPhoneStatus } from './phonestatus.js';
@@ -65,7 +66,7 @@ import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { toWorld, stairHandles } from './stairs.js';
-import { floorLabels } from './viewprefs.js';
+import { floorLabels, CARD_FIELDS } from './viewprefs.js';
 import { applyLocks, lockedSettings } from './userlocks.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel, fetchAreas } from './livechannel.js';
@@ -93,6 +94,7 @@ window.fp3dBooted = true;           // every module is loaded: the boot guard (b
 /* ================= State ================= */
 const FLOOR_H = 3.0;
 const params = new URLSearchParams(location.search);
+const card = cardOptions(params);         // opened by the dashboard card (#13, cardmode.js): its options, else null
 
 let settings = defaultSettings();      // the stored settings come over these (appstate.js)
 const DEFAULT_LOOK = defaultSettings();
@@ -673,7 +675,11 @@ const kiosk = initKiosk({
   closeLivePopup: () => popup.close(), closeRoomPanel: () => roomPanel.close(), closeSearch: () => search.close(),
   tabletRoom: () => tabletRoom, findRoomByName: (n) => findRoomByName(n), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom,
   openRoomPanel: (id) => roomPanel.open(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
-  applyStart: () => (me.start ? startView.apply(me.start) : null),                                   // a saved start view wins (#315)
+  applyStart: () => cardUi?.start() ?? (me.start ? startView.apply(me.start) : null),             // the card's floor (#13), else a saved start view (#315)
+});
+/* ---- Dashboard card (#13): the floor to start with, the room colouring, without room panel or bars; the code lives in cardmode.js ---- */
+const cardUi = card && initCardMode({
+  $, opts: card, layout: () => layout, groundIdx: () => groundIdx(), tabletRoom: () => tabletRoom, switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on),
 });
 
 function refreshSelHelper() {
@@ -893,6 +899,7 @@ const roomPanel = initRoomPanel({
   onStates: ON_STATES, imperial: () => imperial(), stateText: (id) => stateText(id), cams, settings: () => settings,
   openings: { entities: (o) => openingEntities(o), kind: (o) => openKind(o), KINDS: OPEN_KINDS, pane: (o, i) => paneEntity(o, i), isOpen: (e) => isOpen(e), text: (e) => openText(e) },
   closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
+  off: () => cardUi?.roomPanel() === false,                                  // a dashboard card without the room panel (#13)
 });
 /* ---- Phones: the room shows above the room sheet, not behind it; the code lives in sheetview.js ---- */
 sheetView = initSheetView({ camera, canvas, panel: $('#roomPanel'), side: () => floorCards.column() });   // side: the floor cards' column (phones)
@@ -1366,7 +1373,7 @@ plan = createPlan({
 
 var booted = false;                                       // init() is through: layout, models and first scene are there (test hook ready())
 async function init() {
-  if (params.get('kiosk')) document.body.classList.add('kiosk');
+  if (params.get('kiosk') || card) document.body.classList.add('kiosk');
   try { me = await (await fetch('api/me')).json(); } catch { /* standalone */ }
   const start = startup(me, params);                      // wall tablet, room tablet, read-only, live (appstate.js)
   tabletRoom = start.tabletRoom;
@@ -1375,7 +1382,7 @@ async function init() {
   if (start.readonly) document.body.classList.add('readonly');
   if (!me.canEdit && me.adminCheck === false) setStatus(t('me.noAdminCheck'));
   if (!(await loadSettings())) setStatus(t('set.notLoaded'));
-  settingsStore.usePreset(me.preset);                     // this user's / tablet's own start values for the look (#250)
+  settingsStore.usePreset(card ? { ...me.preset, ...card.look } : me.preset, card ? CARD_FIELDS : undefined);   // this user's / tablet's own start values for the look (#250), and the dashboard card's (#13): never saved
   locks = applyLocks(document, me.locks);                 // and what this user may not use: hidden here, control / cameras refused by the server
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
@@ -1393,11 +1400,13 @@ async function init() {
     if (hit) { switchFloor(hit.floor); focusRoom(hit.room.id); roomPanel.open(hit.room.id); }
     updateHouseToggle();
   }
-  if (await startView.apply(me.start)) {                  // a saved start view (#315): the user's own or everybody's
+  if (cardUi?.start()) updateHouseToggle();               // the dashboard card's floor or whole house (#13)
+  else if (await startView.apply(me.start)) {             // a saved start view (#315): the user's own or everybody's
     const hit = tabletRoom && findRoomByName(tabletRoom);
     if (hit && focusedRoom === hit.room.id) roomPanel.open(hit.room.id);
     updateHouseToggle();
   }
+  cardUi?.heat();                                         // the card's room colouring (temperature, humidity, CO2)
   liveChan.start();                                         // first full list, the live channel, polling while it is down
   booted = true;
 }

@@ -238,6 +238,42 @@ Dark theme by default (light theme and a hologram look as a gimmick are one clic
 
 Requires Home Assistant OS or Supervised (anything with the Add-on / App store). Details on permissions and tablet setup are in the [documentation](floorplan3d/DOCS.md).
 
+## 🧩 Dashboard card
+
+Show the live 3D view on any dashboard with the card `custom:floorplan3d-card`. A tap on a device controls it, as in the add-on; editing stays in the add-on. The add-on must be installed and running.
+
+**Install with HACS:** HACS → ⋮ → **Custom repositories** → `https://github.com/BuRnEd4AiM/HA-Floorplanner`, type **Dashboard** → open **3D Floorplan Card** → **Download**, then reload the browser. HACS adds the card as a dashboard resource by itself.
+**Install by hand:** copy [`dist/floorplan3d-card.js`](dist/floorplan3d-card.js) to `/config/www/`, then **Settings → Dashboards → ⋮ → Resources → Add**: `/local/floorplan3d-card.js`, *JavaScript module*.
+
+Then edit a dashboard → **Add card** → **3D Floorplan**. Every option can be set in the visual editor (floors and rooms are offered from your plan), or in YAML:
+
+```yaml
+type: custom:floorplan3d-card
+floor: Erdgeschoss      # a floor name, a number (0 = ground floor, 1 = above, -1 = basement) or "house"
+height: 450px           # or fill: true for the whole screen
+theme: auto             # follows the dark / light mode of Home Assistant
+heatmap: temp           # start with the temperature colours (temp, humid, co2)
+```
+
+| Option | Values | Default |
+| --- | --- | --- |
+| `title` | text above the view | none |
+| `house` / `floor` / `room` | house name; floor name, number or `house`; a room name (opens that room like a room tablet) | as in the add-on |
+| `height` / `fill` | a height (`400`, `450px`, `60vh`); `fill: true` fills the screen. In a sections dashboard the card takes the size of its cell | `400px` |
+| `theme` | `auto`, `dark`, `light`, `holo` | as in the add-on |
+| `quality` | `low` (fast), `high` (beautiful) | automatic |
+| `walls` | `auto` (sink towards the camera), `see_through`, `low`, `full` | as in the add-on |
+| `labels` | `important`, `all`, `none` | as in the add-on |
+| `heatmap` | `temp`, `humid`, `co2` | off |
+| `alerts` | `true` / `false` (warnings) | as in the add-on |
+| `idle_return` | minutes without a touch, then back to the card's floor (0 = never) | as in the add-on |
+| `night` | `off`, `sun`, `time` (dim at night) | as in the add-on |
+| `room_panel` | `false`: a tap on a room only zooms in | `true` |
+| `show_nav` / `show_bar` | `false`: no bar at the top (floors, rooms) / at the bottom (view, room colours, search) | `true` |
+| `addon` | the add-on's slug, only if the card does not find it by itself | found by itself |
+
+The look of a card applies to that card only and never changes the add-on's settings. Every card is a full 3D view: one or two per dashboard are fine, on weak tablets prefer `quality: low`.
+
 ## 🚀 Quick start
 
 | Action | How |

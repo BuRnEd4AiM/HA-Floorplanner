@@ -46,7 +46,8 @@ export const areaText = (points, imperial) => (imperial ? `${(polyArea(points) *
 export const SHEET_MEDIA = '(max-width: 760px)';
 
 /** ctx: $, t, live (initLiveControls), floor(), states(), entities(), areas(), entityDevices(f), pointInPoly, onStates, imperial(), stateText(id), cams,
- *  settings(), openings: { entities(o), kind(o), KINDS, pane(o, i), isOpen(e), text(e) }, closeLivePopup(), leaveFocus() */
+ *  settings(), openings: { entities(o), kind(o), KINDS, pane(o, i), isOpen(e), text(e) }, closeLivePopup(), leaveFocus(),
+ *  off() (optional: true = never opens, a dashboard card without the room panel, #13) */
 export function initRoomPanel(ctx) {
   const { $, t, live } = ctx;
   let forId = null;
@@ -61,7 +62,7 @@ export function initRoomPanel(ctx) {
     return ctx.stateText(id);
   }
   function close() { forId = null; $('#roomPanel').hidden = true; heatBox.hidden = true; }
-  function open(id) { forId = id; ctx.closeLivePopup(); render(); }
+  function open(id) { if (ctx.off?.()) return; forId = id; ctx.closeLivePopup(); render(); }   // off: a dashboard card without the room panel (#13)
   function render() {
     const box = $('#roomPanel'), states = ctx.states(), f = ctx.floor(), op = ctx.openings;
     const room = f?.rooms.find((r) => r.id === forId);

@@ -755,3 +755,14 @@ body.replay #timelineBtn { background: var(--accent); border-color: var(--accent
   #tlBar .tlDayBtn { order: 9; flex: 1 1 100%; max-width: none; }
   body.replay #roomPanel { max-height: 40%; }
 }
+
+/* dashboard card (#13, cardmode.js): the card can leave out the bar at the top (floors, rooms, status pills) and the one at the bottom
+   (room colouring, view menu, compass, search); the house and a tap on it stay */
+body.card-nonav #navBar, body.card-nonav #roomMenu, body.card-nonav #phoneNav, body.card-nonav #navLeft, body.card-nonav #navRight,
+body.card-nonav #floorRail { display: none !important; }
+body.card-nobar #modeBar, body.card-nobar #viewMenu, body.card-nobar #compass, body.card-nobar #findBtn, body.card-nobar #findBox { display: none !important; }
+@media (max-height: 520px) {                       /* a low card: the colour scale of the room colouring stays clear of the compass */
+  body.card #viewLegend { top: 58px; transform: none; }
+  body.card.card-nonav #viewLegend { top: 12px; }
+  body.card #viewLegend .lg { height: 110px; }
+}

@@ -12,19 +12,28 @@ export const PRESET_FIELDS = {
   belowMode: ['dim', 'stacked', 'hidden'],    // floors below the open one
   belowLabels: [true, false],                 // names and labels of the floors below
 };
+/** what the dashboard card (#13, cardmode.js) can set for its screen: the preset fields and a few more; a function checks a number */
+export const CARD_FIELDS = {
+  ...PRESET_FIELDS,
+  theme: ['holo', 'dark', 'light'],
+  alerts: [true, false],                      // warnings (smoke, water, open windows in the rain ...)
+  idleReturn: (v) => Number.isInteger(v) && v >= 0 && v <= 1440,   // minutes without a touch, then back to the start view (0 = never)
+  nightDim: ['off', 'sun', 'time'],           // dim at night
+};
+const allowed = (vals, v) => (typeof vals === 'function' ? vals(v) : vals.includes(v));
 
-/** a preset with only known fields and allowed values (anything else is dropped); {} for junk */
-export function cleanPreset(p) {
+/** a preset with only known fields (PRESET_FIELDS or the ones given) and allowed values (anything else is dropped); {} for junk */
+export function cleanPreset(p, fields = PRESET_FIELDS) {
   const out = {};
   if (!p || typeof p !== 'object' || Array.isArray(p)) return out;
-  for (const [k, vals] of Object.entries(PRESET_FIELDS)) if (vals.includes(p[k])) out[k] = p[k];
+  for (const [k, vals] of Object.entries(fields)) if (allowed(vals, p[k])) out[k] = p[k];
   return out;
 }
 
 /** start a preset on top of the settings: { settings (with the preset), base (the settings of everybody for those fields), start (the
- *  preset) }; null when the preset sets nothing */
-export function startPreset(settings, preset) {
-  const p = cleanPreset(preset), keys = Object.keys(p);
+ *  preset) }; null when the preset sets nothing. fields: what it may set (the dashboard card: CARD_FIELDS) */
+export function startPreset(settings, preset, fields = PRESET_FIELDS) {
+  const p = cleanPreset(preset, fields), keys = Object.keys(p);
   if (!keys.length) return null;
   return { settings: { ...settings, ...p }, base: Object.fromEntries(keys.map((k) => [k, settings[k]])), start: p };
 }

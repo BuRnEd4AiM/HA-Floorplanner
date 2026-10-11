@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.74.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -43,6 +43,7 @@ Stand: Version 3.74.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `moreinfo.js` | 27 | Home-Assistant-Dialog |
 | `offline.js` | ~100 | Offline-Liste |
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
+| `cardmode.js` | ~80 | Dashboard-Karte (#13): die Seite in der Lovelace-Karte (`?card=1`): Optionen aus der Adresse (`cardOptions`), Etage oder ganzes Haus zum Start und nach der Ruhezeit (`cardFloor`), Raumfarben, ohne Raum-Fenster oder Leisten; das Aussehen der Karte nur für diesen Bildschirm (über die Vorgaben in `viewprefs.js`); reine Logik mit Unit-Tests. Die Karte selbst ist `dist/floorplan3d-card.js` (außerhalb des Add-ons, eine Datei ohne Build, Unit-Tests `tests/card.test.mjs`) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
 | `roomlight.js` | ~95 | Raumlicht-Shader (Lichtflecken, Wandschein), Farbskalen |
 | `earth.js` | ~150 | Erde, Rasen, Grundstücksform, Schnitt durch den Boden |
