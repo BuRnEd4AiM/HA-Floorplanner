@@ -16,15 +16,16 @@ export const DEFAULT_SETTINGS = Object.freeze({
 /** a fresh, changeable copy of the default settings */
 export const defaultSettings = () => structuredClone({ ...DEFAULT_SETTINGS });
 
-/** how this screen starts: me (from api/me: canEdit, room) and the address (?room=, ?kiosk=, ?mode=live). tabletRoom: the room this
- *  screen is locked to (one tablet per room); kiosk: no editing bars; readonly: the user may not edit; live: start in the live mode */
+/** how this screen starts: me (from api/me: canEdit, room) and the address (?room=, ?kiosk=, ?card=, ?mode=live). tabletRoom: the room
+ *  this screen is locked to (one tablet per room); kiosk: no editing bars (also in the dashboard card, #13); readonly: the user may not
+ *  edit; live: start in the live mode */
 export function startup(me, params) {
-  const tabletRoom = params.get('room') || me.room || null;
+  const tabletRoom = params.get('room') || me.room || null, kiosk = !!params.get('kiosk') || !!params.get('card');
   return {
     tabletRoom,
-    kiosk: !!params.get('kiosk') || !me.canEdit || !!tabletRoom,
+    kiosk: kiosk || !me.canEdit || !!tabletRoom,
     readonly: !me.canEdit,
-    live: params.get('mode') === 'live' || !!params.get('kiosk') || !!tabletRoom || !me.canEdit,
+    live: params.get('mode') === 'live' || kiosk || !!tabletRoom || !me.canEdit,
   };
 }
 

@@ -41,3 +41,14 @@ test('presets from the users dialog: trimmed users, empty presets and rows witho
   assert.deepEqual(V.collectPresets([{ user: ' tab ', preset: { seeThrough: true, x: 1 } }, { user: 'b', preset: {} }, { user: '', preset: { cutaway: false } }]),
     { tab: { seeThrough: true } });
 });
+test('the dashboard card (#13) may set more for its screen: theme, warnings, idle return, night; only allowed values', () => {
+  const p = { theme: 'light', alerts: false, idleReturn: 5, nightDim: 'sun', seeThrough: true, units: 'imperial' };
+  assert.deepEqual(V.cleanPreset(p, V.CARD_FIELDS), { theme: 'light', alerts: false, idleReturn: 5, nightDim: 'sun', seeThrough: true });
+  assert.deepEqual(V.cleanPreset(p), { seeThrough: true });                                     // a user's preset still cannot set the theme
+  assert.deepEqual(V.cleanPreset({ theme: 'pink', idleReturn: -1, nightDim: 'always' }, V.CARD_FIELDS), {});
+  assert.deepEqual(V.cleanPreset({ idleReturn: 2.5 }, V.CARD_FIELDS), {});
+  assert.deepEqual(V.cleanPreset({ idleReturn: 0 }, V.CARD_FIELDS), { idleReturn: 0 });
+  const st = V.startPreset({ theme: 'dark', alerts: true, seeThrough: false }, { theme: 'light', alerts: false }, V.CARD_FIELDS);
+  assert.deepEqual(st.settings, { theme: 'light', alerts: false, seeThrough: false });
+  assert.deepEqual(V.forSaving(st.settings, st).body, { theme: 'dark', alerts: true, seeThrough: false });   // never saved as everybody's
+});

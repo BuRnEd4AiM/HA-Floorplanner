@@ -21,7 +21,6 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 
 ## Open
 
-- ⬜ HACS Lovelace card to show the floor plan on any dashboard ([#13](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/13))
 - ⬜ Sun light and shadows through the windows by the position of the sun ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68))
 - ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138))
 
@@ -68,7 +67,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 
 ## v0.9 – Dashboards
 
-- ⬜ HACS Lovelace card to show the floor plan on any dashboard ([#13](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/13))
+- ✅ HACS Lovelace card to show the floor plan on any dashboard (3.75.0) ([#13](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/13))
 - ✅ Furniture library with previews (1.3.0)
 - ✅ Cables with flowing dots and the watts on them, part of the power add-on (3.35.0) ([#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136))
 
