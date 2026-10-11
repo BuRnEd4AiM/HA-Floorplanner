@@ -152,6 +152,12 @@ pgS = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X
 pgS.goto(BASE + "?debug=1&mode=edit"); pgS.wait_for_timeout(2000)
 pgS.evaluate(box_js); pgS.wait_for_timeout(2500)
 op, sc = pgS.evaluate(walls_js)
+pgS.evaluate(box_js.replace("window.__fp.rebuild();", "f.walls.forEach((w, i) => w.openings.push(i % 2 ? {id: 'sd' + i, type: 'door', style: 'single', width: 0.9, height: 2.05, sill: 0, pos: 1.5} : {id: 'sn' + i, type: 'window', style: 'double', width: 1.2, height: 1.3, sill: 0.9, pos: 1.5})); f.devices.push({id: 'seeSofa', type: 'sofa', x: 3, z: 2.5, y: 0, rot: 0, scale: 1, name: 'Sofa', entity: ''}); window.__fp.rebuild();"))
+pgS.wait_for_timeout(2500)
+# the lowest opacity of the wall pieces, of the doors and windows in the walls (frame, leaf, glass) and of the sofa
+wop, oop, dop = pgS.evaluate("(() => { let w = 1, o = 1, d = 1; const low = (x, v) => { let m = v; x.traverse(c => { if (c.material && !c.userData.proxy) [].concat(c.material).forEach(mm => { m = Math.min(m, mm.opacity); }); }); return m; }; window.__fp.scene.traverse(x => { const k = x.userData && x.userData.kind; if (k === 'wall') x.children.forEach(c => { if (c.userData.kind === 'opening') o = low(c, o); else w = low(c, w); }); if (k === 'device' && x.userData.id === 'seeSofa') d = low(x, d); }); return [w, o, d]; })()")
+check("see-through walls: only the wall turns see-through, its doors and windows stay as they are (glass 45 %, frame and leaf solid)", wop < 0.35 and oop >= 0.44, (wop, oop))
+check("see-through walls: furniture stays solid", dop > 0.99, dop)
 pgS.close()
 set_setting("seeThrough", False)
 pgS2 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})

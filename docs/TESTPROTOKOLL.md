@@ -49,8 +49,11 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 18. **So sieht die Karte aus, schon in der Demo** (46.1, #13): `https://burned4aim.github.io/HA-Floorplanner/?card=1&floor=house&heatmap=temp&theme=light` öffnen: das ganze Haus, hell, mit Temperaturfarben, ohne Werkzeugleiste.
 19. **Das Haus auf dem Dashboard, nur in Home Assistant** (46.2 bis 46.9, #13): Add-on auf 3.75.1 aktualisieren. **Wichtig:** 3.75.0 hatte einen Fehler, HACS hat die Karte nicht mitgeladen (#348). In HACS bei „3D Floorplan Card“ auf **3.75.1** aktualisieren (oder ⋮ → „Erneut herunterladen“) und den Browser mit Strg+F5 neu laden. In HACS → ⋮ → **Benutzerdefinierte Repositories** `https://github.com/BuRnEd4AiM/HA-Floorplanner` mit Typ **Dashboard** hinzufügen, **3D Floorplan Card** herunterladen, Browser neu laden. Dann ein Dashboard bearbeiten → **Karte hinzufügen** → **3D Floorplan**. Im Editor eine Etage wählen und speichern: das Haus erscheint in der Karte, ein Tipp auf eine Lampen-Kugel schaltet sie.
 
-**Neu in 3.76** (ausführlich in Abschnitt **47** unten, nur im Add-on: die Demo hat keinen Import)
-20. **Musterhaus mit allem drin** (47.1 bis 47.5, #353): Bearbeiten, links „Häuser“ aufklappen, **„Haus aus JSON importieren …“**, dann **„Beispiel: Musterhaus (alles drin)“**, **Prüfen**, **Importieren**. Danach „Ganzes Haus“ und jede Etage ansehen. Zum Schluss das Musterhaus wieder löschen, wenn du es nicht behalten willst.
+**Neu in 3.76** (ausführlich in Abschnitt **47** unten)
+20. **Durchsichtig: nur die Wand, nicht Fenster und Türen** (47.1, 47.2, #350): unten „Ansicht“ → **„Durchsichtig“** einschalten, die Kamera um das Haus drehen. Die Wände zur Kamera werden durchsichtig, **Fenster, Türen und Möbel bleiben normal sichtbar**.
+
+**Neu in 3.77** (ausführlich in Abschnitt **48** unten, nur im Add-on: die Demo hat keinen Import)
+21. **Musterhaus mit allem drin** (48.1 bis 48.5, #353): Bearbeiten, links „Häuser“ aufklappen, **„Haus aus JSON importieren …“**, dann **„Beispiel: Musterhaus (alles drin)“**, **Prüfen**, **Importieren**. Danach „Ganzes Haus“ und jede Etage ansehen. Zum Schluss das Musterhaus wieder löschen, wenn du es nicht behalten willst.
 
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
@@ -164,8 +167,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter) | 0 | 0 | 6 | 0 | 44.1 bis 44.6 |
 | 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen | 0 | 0 | 3 | 0 | 45.1 bis 45.3 |
 | 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 0 | 1 | 8 | 0 | ❌ 46.2, 46.1, 46.3 bis 46.9 |
-| 47. Neu in 3.76: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 0 | 0 | 5 | 0 | 47.1 bis 47.5 |
-| **Zusammen** | **198** | **2** | **117** | **2** | |
+| 47. Neu in 3.76: Durchsichtig nur die Wand | 0 | 0 | 2 | 0 | 47.1, 47.2 |
+| 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 0 | 0 | 5 | 0 | 48.1 bis 48.5 |
+| **Zusammen** | **198** | **2** | **119** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -730,11 +734,17 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 46.8 | Ein Sections-Dashboard: die Karte größer und kleiner ziehen; ein anderes Dashboard mit „Bildschirm füllen“ | Die Ansicht füllt immer die ganze Karte, ohne Ränder oder Balken | ❓ |
 | 46.9 | Das Add-on anhalten, das Dashboard neu laden; danach wieder starten | Die Karte sagt „Das Add-on 3D Floorplan läuft nicht …“; nach dem Start erscheint das Haus von selbst (bis zu einer halben Minute) | ❓ |
 
-## 47. Neu in 3.76: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import)
+## 47. Neu in 3.76: Durchsichtig nur die Wand
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 47.1 | Bearbeiten, „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Prüfen“ | Grün: 4 Etagen, 19 Räume, 61 Wände, 39 Türen/Fenster, 145 Geräte; keine Fehler und keine Hinweise (#353) | ❓ |
-| 47.2 | „Importieren“, dann „Ganzes Haus“ | Ein neues Haus „Musterhaus – alles drin“: Keller in der Erde, Erdgeschoss mit Garage, Obergeschoss mit Dachterrasse (Geländer, keine Wände), Satteldach mit drei Gauben und Solaranlage, Gartenhaus mit Walmdach, Pool mit Brücke, Einfahrt mit Auto | ❓ |
-| 47.3 | Die Etagen einzeln öffnen und die Treppen suchen | U-Treppe vom Keller bis ins Obergeschoss, L-Treppe von der Werkstatt in die Garage, Wandtreppe vom Wohnzimmer zur Galerie, Wendeltreppe außen an der Garage zur Dachterrasse, Bodentreppe im Kinderzimmer | ❓ |
-| 47.4 | Etage „Dach“: die Solaranlage anklicken; dann „Dieses Haus als JSON exportieren“ und die Datei wieder importieren | Die Solaranlage liegt auf der Dachfläche; im wieder importierten Haus ist sie noch da (vorher ging sie verloren) | ❓ |
-| 47.5 | „Häuser“ → das Musterhaus löschen | Es ist weg, das eigene Haus bleibt unverändert | ❓ |
+| 47.1 | Unten „Ansicht“ → „Durchsichtig“ einschalten, die Kamera langsam um das Haus drehen | Die Wände zur Kamera werden durchsichtig; ihre Fenster (Rahmen, Glas, Rollladen) und Türen (Rahmen, Türblatt) bleiben so sichtbar wie sonst (#350) | ❓ |
+| 47.2 | Dabei auf die Möbel hinter der durchsichtigen Wand schauen (Sofa, Schrank, Tisch) | Die Möbel bleiben fest, nicht durchsichtig | ❓ |
+
+## 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import)
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 48.1 | Bearbeiten, „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Prüfen“ | Grün: 4 Etagen, 19 Räume, 61 Wände, 39 Türen/Fenster, 145 Geräte; keine Fehler und keine Hinweise (#353) | ❓ |
+| 48.2 | „Importieren“, dann „Ganzes Haus“ | Ein neues Haus „Musterhaus – alles drin“: Keller in der Erde, Erdgeschoss mit Garage, Obergeschoss mit Dachterrasse (Geländer, keine Wände), Satteldach mit drei Gauben und Solaranlage, Gartenhaus mit Walmdach, Pool mit Brücke, Einfahrt mit Auto | ❓ |
+| 48.3 | Die Etagen einzeln öffnen und die Treppen suchen | U-Treppe vom Keller bis ins Obergeschoss, L-Treppe von der Werkstatt in die Garage, Wandtreppe vom Wohnzimmer zur Galerie, Wendeltreppe außen an der Garage zur Dachterrasse, Bodentreppe im Kinderzimmer | ❓ |
+| 48.4 | Etage „Dach“: die Solaranlage anklicken; dann „Dieses Haus als JSON exportieren“ und die Datei wieder importieren | Die Solaranlage liegt auf der Dachfläche; im wieder importierten Haus ist sie noch da (vorher ging sie verloren) | ❓ |
+| 48.5 | „Häuser“ → das Musterhaus löschen | Es ist weg, das eigene Haus bleibt unverändert | ❓ |

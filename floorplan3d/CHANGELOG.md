@@ -4,12 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
-## [3.76.0] - 2026-10-11
+## [3.77.0] - 2026-10-11
 ### Added
 - **Example: show house with everything in it**: the import dialog has a third example, *Example: show house (everything in it)* (`examples/showcase.json`, also in `docs/examples/` and through `GET /api/import/examples/showcase`). One house that uses every part of the JSON format: all 93 device types, all 14 kinds of doors and windows (with roller shutters, window sensors per pane, own sizes), all five kinds of stairs (U over two floors, L, straight, spiral, wall stair with landing), a basement with explicit walls, a ground floor with its own outline (garage), an upper floor with a roof terrace, a void over the living room and a gallery, a gable roof with a step in the eaves, three kinds of dormers and solar panels, a garden house with its own hip roof, power cables from the house connection over meter, fuse box, inverter and battery to the wallbox, a kitchen run, Nanoleaf, LED ring, and a garden with pool, bridge and ground-mounted solar panels. A unit test makes sure the example keeps using every device type, opening preset and stair type, and a new browser test part `14_showcase` imports it through the dialog.
 
 ### Fixed
 - **JSON import** (#353): a room with `"terrace": true` (roof terrace) no longer gets walls along its open sides, only where it meets an ordinary room; things on the floor of kind `roof` (solar panels on the roof, a loft's rooms) are now imported and exported instead of silently dropped; the base box of a roof and of further roofs moves with `building.origin` like the rooms; the import schema (`/api/import/schema`, also used by *Copy AI prompt*) lists all device types again (13 were missing, among them `wallbox`, `battery`, `solarpanel`, `inverter`, `kitchenrun`, `bridge`) and describes shed dormers (`shed`, `sp`) and steps in the eaves (`steps`). A test keeps the schema's device types in line with the library.
+
+## [3.76.0] - 2026-10-11
+### Changed
+- **See-through: only the wall turns see-through, not its doors and windows** (#350): with *See-through* on (View menu or ⚙), the walls facing the camera fade while you turn the camera, and with them their windows (frame, glass, roller shutter) and doors (frame, leaf), so these almost disappeared. Now only the wall itself fades; doors and windows keep their normal look, and the furniture behind the wall stays solid as before. `fadesWithWall` in `cutaway.js` (unit test); the browser test checks a wall with a door and a window and a sofa behind it.
 
 ## [3.75.1] - 2026-10-11
 ### Fixed
