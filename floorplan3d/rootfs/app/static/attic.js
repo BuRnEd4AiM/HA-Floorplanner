@@ -86,8 +86,9 @@ export function roofPlanes(bb, spec, y0 = 0) {
 
 const FRONT = 0.25;  // a wall this far in front of a dormer's front wall still reaches up into it (the wall thickness)
 /** the room inside each dormer of the roof (#265), where walls are not cut: { x0, x1, z0, z1 } (from the dormer's front wall back to the
- *  ridge line), top (its ceiling, lifted by y0), gh (the extra height of a gable dormer in its middle), at (its middle along the ridge),
- *  alongX (the ridge runs along x) */
+ *  ridge line), top (its ceiling at the front, lifted by y0), gh (the extra height of a gable dormer in its middle), at (its middle along
+ *  the ridge), alongX (the ridge runs along x), rise (how much the ceiling of a shed dormer climbs per metre back from the front, #339;
+ *  0 for the others), fb (the front's x or z across the ridge), dir (+1 / -1: the way from the front back into the dormer) */
 export function dormerRooms(bb, spec, y0 = 0) {
   if (!bb || !spec || spec.type === 'flat') return [];
   const out = [];
@@ -99,7 +100,7 @@ export function dormerRooms(bb, spec, y0 = 0) {
     const [b0, b1] = n.side === 0 ? [F.b0 + front, bc] : [bc, F.b1 - front];
     const [a0, a1] = [n.at - hw2, n.at + hw2];
     const box = F.alongX ? { x0: a0, x1: a1, z0: b0, z1: b1 } : { x0: b0, x1: b1, z0: a0, z1: a1 };
-    out.push({ ...box, top: y0 + n.yT - GAP, gh: n.gh, at: n.at, alongX: F.alongX });
+    out.push({ ...box, top: y0 + n.yT - GAP, gh: n.gh, at: n.at, alongX: F.alongX, rise: n.ts, fb: n.side === 0 ? F.b0 + n.eave : F.b1 - n.eave, dir: n.side === 0 ? 1 : -1 });
   }
   return out;
 }
@@ -110,8 +111,8 @@ export function keptAt(planes, rooms, x, y, z) {
   if (planes.every(([a, b, c, d]) => a * x + b * y + c * z + d >= -1e-9)) return true;
   return rooms.some((q) => {
     if (x < q.x0 || x > q.x1 || z < q.z0 || z > q.z1) return false;
-    const u = q.alongX ? x : z, hw = q.alongX ? (q.x1 - q.x0) / 2 : (q.z1 - q.z0) / 2;
-    return y <= q.top + q.gh * Math.max(0, 1 - Math.abs(u - q.at) / hw);
+    const u = q.alongX ? x : z, hw = q.alongX ? (q.x1 - q.x0) / 2 : (q.z1 - q.z0) / 2, b = q.alongX ? z : x;
+    return y <= q.top + q.gh * Math.max(0, 1 - Math.abs(u - q.at) / hw) + (q.rise || 0) * Math.max(0, (b - q.fb) * q.dir);
   });
 }
 /** is the point under the roof planes only (no dormers) */

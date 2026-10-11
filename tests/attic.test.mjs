@@ -82,6 +82,22 @@ test('dormers (#265): inside a dormer the wall is kept up to its ceiling, beside
   assert.deepEqual(A.dormerRooms(bb, { type: 'flat', dormers: spec.dormers }, 0), []);
 });
 
+test('shed dormer (#339): the wall under it reaches up to its sloping roof, on either side of the roof', () => {
+  for (const side of [0, 1]) {
+    const spec = { type: 'gable', pitch: 35, overhang: 0.4, ridge: 'x', dormers: [{ side, pos: 0.5, w: 6, hw: 1.8, eave: 0.4, type: 'shed', sp: 10 }] };
+    const P = A.roofPlanes(bb, spec, 0), [q] = A.dormerRooms(bb, spec, 0);
+    near(q.rise, Math.tan((10 * Math.PI) / 180));
+    assert.equal(q.dir, side === 0 ? 1 : -1);
+    const x = (q.x0 + q.x1) / 2, front = side === 0 ? 0 : 8, z = (k) => front + q.dir * k;   // k metres behind the outer wall
+    assert.ok(A.keptAt(P, [q], x, q.top - 0.05, z(0.1)), 'up to the front wall height at the front');
+    assert.ok(A.keptAt(P, [q], x, q.top + 0.25, z(2)), 'higher further back: the roof climbs');
+    assert.ok(!A.keptAt(P, [q], x, q.top + q.rise * 2 + 0.05, z(2)), 'but not above the sloping roof');
+    assert.ok(!A.keptAt(P, [q], q.x1 + 0.3, q.top - 0.05, z(0.1)), 'beside the dormer the slope cuts');
+  }
+  const flat = A.dormerRooms(bb, { type: 'gable', pitch: 35, ridge: 'x', dormers: [{ type: 'flat' }] }, 0)[0];
+  assert.equal(flat.rise, 0, 'other dormers have a level ceiling');
+});
+
 test('ridge height: set by the pitch, and the pitch for a typed height', () => {
   const spec = { type: 'gable', pitch: 35, overhang: 0.4, ridge: 'x' };   // 8 m deep: 4 m from the wall line to the ridge
   near(A.ridgeHeight(bb, spec), 4 * Math.tan((35 * Math.PI) / 180));

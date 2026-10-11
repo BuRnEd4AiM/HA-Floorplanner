@@ -710,12 +710,13 @@ def _roof(rep, path, spec, part=False):
     return roof
 
 
-DORMER_TYPES = {"gable", "flat"}
+DORMER_TYPES = {"gable", "flat", "shed"}
 MAX_DORMERS = 20
 
 
 def _dormers(rep, path, raw):
-    """Roof dormers (Gauben): side 0|1 (or "a"|"b"), pos 0..1 along the ridge, w/hw/eave in metres, type gable|flat, win bool."""
+    """Roof dormers (Gauben): side 0|1 (or "a"|"b"), pos 0..1 along the ridge, w/hw/eave in metres, type gable|flat|shed, win bool;
+    a shed dormer (Schleppgaube, #339) also has sp, the pitch of its roof in degrees. The app keeps a gable dormer at most 5 m wide."""
     if raw is None:
         return []
     if not isinstance(raw, list):
@@ -737,7 +738,8 @@ def _dormers(rep, path, raw):
             rep.warn(f"{dp}.type", f"unknown dormer type '{typ}', using gable")
             typ = "gable"
         item = {"id": f"dm{i + 1}", "side": side, "type": typ, "win": d.get("win") is not False}
-        for key, lo, hi, default in (("pos", 0, 1, 0.5), ("w", 0.6, 5, 1.6), ("hw", 0.4, 3, 1.2), ("eave", 0.2, 10, 0.8)):
+        nums = (("pos", 0, 1, 0.5), ("w", 0.6, 30, 1.6), ("hw", 0.4, 3, 1.2), ("eave", 0.2, 10, 0.8)) + ((("sp", 2, 60, 15),) if typ == "shed" else ())
+        for key, lo, hi, default in nums:
             if key in d and not _num(d[key], lo, hi):
                 rep.warn(f"{dp}.{key}", f"{key} must be a number between {lo} and {hi}, using {default}")
             item[key] = float(d[key]) if _num(d.get(key), lo, hi) else default

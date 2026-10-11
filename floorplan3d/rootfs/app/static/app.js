@@ -1462,7 +1462,7 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     elev: (i) => elev(i),
-    roofMeshes: () => { const out = []; scene.traverse((o) => { if (o.userData?.roofPart) { const w = new THREE.Vector3(); o.getWorldPosition(w); out.push({ tag: o.userData.roofPart, y: +w.y.toFixed(3) }); } }); return out; },
+    roofMeshes: () => { const out = []; scene.traverse((o) => { if (o.userData?.roofPart) { const w = new THREE.Vector3(); o.getWorldPosition(w); out.push({ tag: o.userData.roofPart, y: +w.y.toFixed(3), tris: (o.geometry?.attributes?.position?.count || 0) / 3 }); } }); return out; },
     heatGlow: (id) => registry.get(id)?.userData.heat?.[0]?.emissiveIntensity ?? -1,
     cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
     liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
@@ -1482,7 +1482,8 @@ if (params.get('debug')) {
     blockOpen: (id) => { const sh = [].concat(registry.get(id)?.geometry?.parameters?.shapes || []); return sh.length > 1 || sh.some((x) => x.holes.length > 0); },
     solidShape: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh && [].concat(o.material).some((m) => !m.transparent || m.opacity > 0.3)) ok = true; }); return ok; },
     roofCut: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { n = Math.max(n, m.userData.attic || 0); }); }); return n; },   // roof planes cutting wall id (#260)
-    roofKeep: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { n = Math.max(n, m.userData.atticU?.atticNR.value || 0); }); }); return n; },   // dormer rooms kept on wall id (#265)
+    roofKeep: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { n = Math.max(n, m.userData.atticU?.atticNR.value || 0); }); }); return n; },
+    roofRise: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { n = Math.max(n, ...(m.userData.atticU?.atticRise.value || []).map((v) => v.x)); }); }); return n; },   // a shed dormer's sloping ceiling over wall id (#339)   // dormer rooms kept on wall id (#265)
     clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earth.plane))) n++; }); return n; },
     earthDbg: () => ({ n: earth.plane.normal.toArray(), c: earth.plane.constant, solid: earth.lawn(), cut: earth.cut(), capVisible: !!earth.info()?.cap.visible, capVerts: earth.info()?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earth.box(), ground: earth.ground() }),
     stateOf: (e) => states[e]?.state,

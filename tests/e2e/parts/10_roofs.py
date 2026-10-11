@@ -1,4 +1,4 @@
-"""Roofs and selecting: solar panels on the roof (#176), moving and sizing roofs (#255, #259), lived-in attic (#260), several things at once (#211, #247), the turning 2D plan (#212).
+"""Roofs and selecting: solar panels on the roof (#176), moving and sizing roofs (#255, #259), lived-in attic (#260), a long shed dormer (#339), several things at once (#211, #247), the turning 2D plan (#212).
 """
 # a house of its own: four storeys with walls and no roof yet (the checks below add the roof). The test house of base.py has a roof already,
 # so the roof would come on top of it and the attic checks would find no walls below. The test house comes back at the end.
@@ -10,6 +10,9 @@ put_layout({"version": 1, "floors": [{"id": f"rf{i}", "name": n, "kind": "floor"
                                       "devices": [], "blocks": [], "stairs": []} for i, n in enumerate(("EG", "OG", "DG", "SG"))]})
 # --- solar panels on the roof (#176): on the roof floor a panel lies on the roof surface, follows its slope, a field of rows x columns
 pgSol = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+sol_errs = []                                                 # errors of this page (shown with a failed check below)
+pgSol.on("console", lambda m: sol_errs.append(m.text) if m.type == "error" else None)
+pgSol.on("pageerror", lambda e: sol_errs.append("PAGEERROR " + str(e)))
 pgSol.goto(BASE + "?debug=1&mode=edit"); pgSol.wait_for_timeout(2500)
 sol_saved = api_admin("api/layout")
 sol = pgSol.evaluate("""() => { const fp = window.__fp; fp.addRoofForTest(); const ri = fp.layout.floors.length - 1, f = fp.layout.floors[ri], rb = fp.roofBox(ri);
@@ -87,10 +90,13 @@ cx, cz = (rb0["x0"] + rb0["x1"]) / 2, (rb0["z0"] + rb0["z1"]) / 2
 pgSol.evaluate(f"window.__fp.camAt({cx}, window.__fp.elev(window.__fp.layout.floors.length - 1) + 14, {cz + 0.5}, {cx}, {cz})"); pgSol.wait_for_timeout(600)
 mid = pgSol.evaluate("(() => { const r = document.querySelector('#view').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()")
 hit = pgSol.evaluate(f"window.__fp.pickAt({mid[0]}, {mid[1]})")
+pick_state = pgSol.evaluate("""() => { const fp = window.__fp, r = document.querySelector('#view').getBoundingClientRect();   // what the page looked like (for a failed check)
+  return { house: fp.houseMode(), floor: fp.floorIdx(), floors: fp.layout.floors.length, roofs: fp.roofMeshes().length, view: [Math.round(r.width), Math.round(r.height)],
+           body: document.body.className, cam: fp.cam().map((v) => +v.toFixed(2)) }; }""")
 pgSol.keyboard.press("Escape"); pgSol.mouse.click(*mid); pgSol.wait_for_timeout(300)
 b3 = rbox()
 pgSol.mouse.move(*mid); pgSol.mouse.down(); pgSol.mouse.move(mid[0] + 40, mid[1], steps=5); pgSol.mouse.move(mid[0] + 80, mid[1], steps=5); pgSol.mouse.up(); pgSol.wait_for_timeout(600)
-check("roofs (#255): in 3D the roof is picked, and pressed again it is dragged", (hit or {}).get("kind") == "roof" and (rsel() or "").startswith("roof:") and abs(rbox()["x0"] - b3["x0"]) > 0.2, (hit, rsel(), b3, rbox()))
+check("roofs (#255): in 3D the roof is picked, and pressed again it is dragged", (hit or {}).get("kind") == "roof" and (rsel() or "").startswith("roof:") and abs(rbox()["x0"] - b3["x0"]) > 0.2, (hit, rsel(), b3, rbox(), pick_state, sol_errs[-5:]))
 # --- a lived-in attic (#260): with a knee wall the roof starts in the storey below, whose walls are cut at the slopes
 att = pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1, below = L[ri - 1], wid = below.walls[0]?.id;
   const roofY = () => Math.min(...fp.roofMeshes().filter((m) => m.tag === 'main').map((m) => m.y));
@@ -108,6 +114,31 @@ check("attic (#260): with a knee wall of 1 m the roof starts 1 m above the store
       att["wid"] and att["cut0"] == 0 and att["cut1"] == 2 and abs(att["base"] - 1) < 0.01 and att["drop"] > 0.5 and att["cut2"] == 0, att)
 check("attic (#265): a dormer keeps the wall up under it; the roof can start further down, then that storey is cut too",
       att["keep"] == 1 and att.get("lowerCut", 2) == 2 and abs(att.get("lowerBase", 1) - 1) < 0.01, att)
+# --- a long shed dormer (#339): chosen in the roof panel it stands on the outer wall, begins where it is told, cuts a hole into the main roof,
+# and the wall below reaches up under its sloping roof
+shed_from = len(sol_errs)                                     # only the errors from here on
+pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1; Object.assign(L[ri].roof, { type: 'gable', pitch: 35, overhang: 0.4, knee: 1 });
+  delete L[ri].roof.dormers; delete L[ri].roof.ridge; fp.rebuild(); fp.switchFloor(ri - 1); fp.switchFloor(ri); document.querySelector('#floorPanel').open = true; }""")
+pgSol.wait_for_timeout(500)
+main_tris = lambda: pgSol.evaluate("window.__fp.roofMeshes().filter((m) => m.tag === 'main').map((m) => m.tris)")
+t0 = main_tris()
+pgSol.click("#addDormer"); pgSol.wait_for_timeout(300)
+pgSol.locator(".dormerCard .dormerType").last.select_option("shed"); pgSol.wait_for_timeout(400)
+fields = [pgSol.locator(f".dormerCard {c}").count() for c in (".dormerShedPitch", ".dormerShedHint", ".dormerStart")]
+for cls, v in ((".dormerWidth", "9.8425"), (".dormerStart", "4.9213")):   # units are imperial here: 3 m long, beginning 1.5 m from the gable
+    pgSol.fill(f".dormerCard {cls}", v); pgSol.press(f".dormerCard {cls}", "Enter"); pgSol.wait_for_timeout(400)
+sd = pgSol.evaluate("window.__fp.layout.floors.at(-1).roof.dormers.at(-1)")
+start = pgSol.input_value(".dormerCard .dormerStart"); t1 = main_tris()
+check("shed dormer (#339): the roof panel offers it with its own pitch; it stands on the outer wall, 3 m long, beginning 1.5 m from the gable",
+      fields == [1, 1, 1] and sd["type"] == "shed" and abs(sd["eave"] - 0.4) < 1e-9 and abs(sd["w"] - 3) < 1e-3 and abs(float(start) / 3.28084 - 1.5) < 0.002, (fields, sd, start))
+check("shed dormer (#339): the main roof gets a hole under it (more pieces), the dormer's wall and roof are drawn", len(t0) == 1 and len(t1) >= 3 and t1[0] > t0[0], (t0, t1))
+lw = pgSol.evaluate("""() => { const fp = window.__fp, ri = fp.layout.floors.length - 1, wid = fp.layout.floors[ri - 1].walls[0].id; fp.switchFloor(ri - 1);
+  const r = { keep: fp.roofKeep(wid), rise: fp.roofRise(wid) }; return r; }""")
+pgSol.wait_for_timeout(600)                                   # drawn with the cut: the wall shader must compile
+pgSol.evaluate("window.__fp.switchFloor(window.__fp.layout.floors.length - 1)"); pgSol.wait_for_timeout(300)
+check("shed dormer (#339): the storey under it keeps its walls up under the sloping dormer roof (no shader error)",
+      lw["keep"] >= 1 and lw["rise"] > 0.01 and not [e for e in sol_errs[shed_from:] if "Shader" in e or "WebGL" in e], (lw, sol_errs[shed_from:][:3]))
+pgSol.evaluate("() => { const r = window.__fp.layout.floors.at(-1).roof; delete r.knee; delete r.dormers; window.__fp.rebuild(); }")
 pgSol.wait_for_timeout(2500)                                  # the autosave has run: put the layout back as it was for the next tests
 pgSol.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", sol_saved); pgSol.wait_for_timeout(400)
 pgSol.close()

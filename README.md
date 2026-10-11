@@ -147,7 +147,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 ### 🧰 Make it yours
 
 - **Customisable toolbar**: ✎ lets you show, hide and re-order the tools; rarely used ones fold into a *More ▾* menu
-- **Dormers and roof size**: add dormers (gabled or flat) from the toolbar, and set the roof size by hand if the automatic one does not fit
+- **Dormers and roof size**: add dormers (gabled, flat, or a long shed dormer that raises part of one roof side) from the toolbar, and set the roof size by hand if the automatic one does not fit
 - **Double-click a wall** to add a corner exactly there
 - **Placed devices stay selected** so you can fine-tune them right away (switchable in the settings)
 - **First start**: an empty house shows a welcome card: draw walls, try the example house or import your own

@@ -278,6 +278,16 @@ def test_dormers_are_imported_and_cleaned():
     assert any(p.endswith("dormers[3]") for p in paths) and not rep.errors
 
 
+def test_a_long_shed_dormer_keeps_its_length_and_pitch():
+    layout, _, rep, _ = importer.build_layout(roof_house([
+        {"side": "a", "pos": 0.6, "w": 7, "hw": 2.2, "eave": 0.4, "type": "shed", "sp": 12, "win": False},
+        {"type": "shed", "sp": 80}, {"type": "gable", "sp": 12}]))
+    d = roof_of(layout)["dormers"]
+    assert d[0] == {"id": "dm1", "side": 0, "type": "shed", "win": False, "pos": 0.6, "w": 7.0, "hw": 2.2, "eave": 0.4, "sp": 12.0}
+    assert d[1]["sp"] == 15 and any(w["path"].endswith("[1].sp") for w in rep.warnings)    # too steep: the default
+    assert "sp" not in d[2]                                                                 # only a shed dormer has its own pitch
+
+
 def test_dormers_on_a_flat_roof_are_dropped_with_a_warning():
     layout, _, rep, _ = importer.build_layout(roof_house([{"side": 0}], "flat"))
     assert "dormers" not in roof_of(layout) and any(w["path"].endswith("roof.dormers") for w in rep.warnings)
