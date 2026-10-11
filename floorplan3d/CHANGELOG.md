@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.72.0] - 2026-10-11
+### Added
+- **The windows of the rooms show through a shed dormer** (#341): a long shed dormer (3.71.0) runs over several rooms, but a dormer has only one window of its own. Now every room under it can have its own window: put a door or window into the wall of the room under the dormer as usual (tool *Door/Window*). Where the dormer's front stands on such a wall (parallel, at most 25 cm in front of it or behind it), its front wall gets a hole for every door and window of that wall, so the real windows show through the dormer with frame, glass and roller shutter. They are ordinary windows: contact, open / closed, room, roller shutter, the list "n open". The dormer's own window can be switched off as before (tick *Window*). Works for every dormer type. The holes come from `frontHoles` in `dormerwin.js`, the front wall is cut around them in `dormerParts` (`dormer.js`, both with unit tests); the browser test puts a window under a shed dormer.
+
 ## [3.71.0] - 2026-10-11
 ### Added
 - **Long shed dormer (Schleppgaube)** (#339): a dormer can now be a *shed dormer*: its front wall goes straight up and its roof runs up at its own, flatter pitch into the main roof below the ridge. This is how a part of one roof side is raised while it stays the same roof: the rooms under it are no longer cut by the slope but have straight walls. Choose *Shed dormer* as the dormer's roof in the roof panel (floor *Roof*, section *Dormers*): it is put onto the outer wall (its distance from the eave becomes the overhang) and gets a field for its pitch (15° unless set). A shed or flat dormer may be as long as the roof (a gable dormer stays at most 5 m wide). When the chosen wall height and pitch would reach above the ridge, the dormer roof gets flatter first and the wall lower only when even that is not enough; the pitch field shows what is used. The window of a shed dormer is at most 1.2 m wide, in the middle of its front.

@@ -3,7 +3,8 @@
  * search. Its size and place come from the dormer (set in the roof panel); style, name and sensors are stored on the dormer (d.window).
  * When a wall of the room under the dormer runs right behind the dormer's front, the window is cut into that wall (#275), so it shows
  * in the room; otherwise it sits in a short wall of its own in the dormer's front. Either way it hangs on a wall object that is never
- * saved (f.dormerWalls, each knowing its outside for a roller shutter, #331): openingWalls(f) gives the walls of a floor together with them, for everything that looks for doors and windows. Pure, no three.js, no DOM
+ * saved (f.dormerWalls, each knowing its outside for a roller shutter, #331): openingWalls(f) gives the walls of a floor together with them, for everything that looks for doors and windows.
+ * The doors and windows of a wall the dormer's front stands on show through the front (frontHoles, #341). Pure, no three.js, no DOM
  * (unit test: tests/dormerwin.test.mjs). */
 import { fitDormer, dormerWindow } from './dormer.js';
 import { clipRoofFloor } from './attic.js';
@@ -77,6 +78,28 @@ export function hostWall(walls, n, win) {
   const ok = wallsBehind(walls, n, win).filter(({ wall, s, pos }) => s >= -0.25 && s <= depth
     && !(wall.openings || []).some((o) => Math.abs(o.pos - pos) < (o.width + win.width) / 2 + 0.02));
   return ok.sort((p, q) => Math.abs(p.s) - Math.abs(q.s))[0] || null;
+}
+const ON_FRONT = 0.25;                                                // a wall this near the dormer's front (in front or behind) is its front (#341)
+/** the doors and windows of the walls (of one floor) that stand on the front of dormer n (parallel, at most 25 cm away): where they show
+ *  through its front wall (#341, a long shed dormer over several rooms, each with its own window). [{ u0, u1, y0, y1 }]: along the ridge
+ *  from the dormer's middle, heights in the roof's frame (y over a floor + dy), cut to the front wall; for dormerParts */
+export function frontHoles(n, walls, dy) {
+  if (!n) return [];
+  const { F, at, w, eave } = n, hw2 = w / 2, bF = n.side === 0 ? F.b0 + eave : F.b1 - eave, out = [];
+  for (const wl of walls || []) {
+    const L = Math.hypot(wl.b[0] - wl.a[0], wl.b[1] - wl.a[1]);
+    if (L < 0.1 || !(wl.openings || []).length) continue;
+    const dx = (wl.b[0] - wl.a[0]) / L, dz = (wl.b[1] - wl.a[1]) / L;
+    if (Math.abs(F.alongX ? dz : dx) > PARALLEL) continue;                 // parallel to the front (which runs along the ridge)
+    const bW = F.alongX ? (wl.a[1] + wl.b[1]) / 2 : (wl.a[0] + wl.b[0]) / 2;
+    if (Math.abs(bW - bF) > ON_FRONT) continue;
+    for (const o of wl.openings) {
+      const cx = wl.a[0] + dx * o.pos, cz = wl.a[1] + dz * o.pos, c = (F.alongX ? cx : cz) - at, sill = o.sill || 0;
+      const h = { u0: Math.max(-hw2, c - o.width / 2), u1: Math.min(hw2, c + o.width / 2), y0: Math.max(n.yF - 0.05, sill + dy), y1: Math.min(n.yT, sill + o.height + dy) };
+      if (h.u1 - h.u0 > 0.01 && h.y1 - h.y0 > 0.01) out.push(h);
+    }
+  }
+  return out;
 }
 /** "Put the front on the wall": the distance from the eave that brings the dormer's front onto the nearest wall of the room under it
  *  (parallel, behind the whole window, up to 3 m away), or null when there is no such wall */

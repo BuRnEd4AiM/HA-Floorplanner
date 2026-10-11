@@ -86,8 +86,10 @@ export function dormerWindow(n) {
   return { width: n.type === 'shed' ? Math.min(w - 2 * m, SHED_WIN) : w - 2 * m, height: n.hw - sill - head, sill, a: XZ(-hw2), b: XZ(hw2) };
 }
 
-/** triangles ([x, y, z] points, 3 per triangle) of a dormer: front wall + cheeks, roof, window glass; null if it does not fit */
-export function dormerParts(bb, r, d) {
+/** triangles ([x, y, z] points, 3 per triangle) of a dormer: front wall + cheeks, roof, window glass; null if it does not fit. holes: openings
+ *  in the front wall ({ u0, u1, y0, y1 }: along the ridge from the dormer's middle, heights as y), where the windows of a wall right behind
+ *  the front show through (#341, frontHoles in dormerwin.js) */
+export function dormerParts(bb, r, d, holes = []) {
   const n = fitDormer(bb, r, d);
   if (!n) return null;
   const { F, at, w, eave, yF, yT, gh, eT, eR } = n, hw2 = w / 2, yB = n.type === 'shed' ? eR * F.tan : yT;   // yB: where the cheeks end on the slope
@@ -97,7 +99,13 @@ export function dormerParts(bb, r, d) {
   };
   const wall = [], roof = [], glass = [];
   const quad = (out, p, q, u, v) => out.push(p, q, u, p, u, v);
-  quad(wall, P(-hw2, eave, yF - 0.05), P(hw2, eave, yF - 0.05), P(hw2, eave, yT), P(-hw2, eave, yT));           // front wall
+  const cuts = (vals, lo, hi) => [...new Set([lo, ...vals.filter((v) => v > lo + 1e-6 && v < hi - 1e-6), hi])].sort((p, q) => p - q);
+  const us = cuts(holes.flatMap((h) => [h.u0, h.u1]), -hw2, hw2), ys = cuts(holes.flatMap((h) => [h.y0, h.y1]), yF - 0.05, yT);
+  for (let i = 0; i + 1 < us.length; i++) for (let j = 0; j + 1 < ys.length; j++) {        // front wall, cut into a grid around the holes
+    const um = (us[i] + us[i + 1]) / 2, ym = (ys[j] + ys[j + 1]) / 2;
+    if (holes.some((h) => um > h.u0 && um < h.u1 && ym > h.y0 && ym < h.y1)) continue;
+    quad(wall, P(us[i], eave, ys[j]), P(us[i + 1], eave, ys[j]), P(us[i + 1], eave, ys[j + 1]), P(us[i], eave, ys[j + 1]));
+  }
   for (const s of [-1, 1]) wall.push(P(s * hw2, eave, yF - 0.05), P(s * hw2, eave, yT), P(s * hw2, eT, yB));      // cheeks (triangles up to the slope)
   if (n.type === 'flat') {
     quad(roof, P(-hw2 - OVER, eave - OVER, yT), P(hw2 + OVER, eave - OVER, yT), P(hw2 + OVER, eT, yT), P(-hw2 - OVER, eT, yT));

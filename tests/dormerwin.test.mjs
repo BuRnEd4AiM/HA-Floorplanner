@@ -117,3 +117,28 @@ test('put the front on the wall: the distance from the eave that brings the dorm
   W.syncDormerWindows(floors, roofs(floors), elev, uid);
   assert.equal(floors[1].dormerWalls[0].host, 'w1', 'after that the window sits in the outer wall');
 });
+
+test('frontHoles (#341): the windows of a wall the dormer stands on show through its front, cut to the front wall', async () => {
+  const { fitDormer } = await import(`${dir}/dormer.js`);
+  const roof = { type: 'gable', pitch: 35, overhang: 0.4 };
+  const n = fitDormer(bb, roof, { type: 'shed', side: 0, pos: 0.5, w: 6, hw: 1.6, eave: 0.4, sp: 10, win: false });   // front on z = 0, x 2 .. 8
+  const win = (id, x, extra = {}) => ({ id, type: 'window', width: 1, height: 1.0, sill: 1.0, pos: x, ...extra });
+  const wall = { id: 'wf', a: [0, 0], b: [10, 0], thickness: 0.3, openings: [win('o1', 3.5), win('o2', 6.5), win('o3', 9.5)] };
+  const dy = -0.6;                                                   // a floor 0.6 m under the roof's base
+  const h = W.frontHoles(n, [wall], dy);
+  assert.equal(h.length, 2, 'the window at x 9.5 is beside the dormer');
+  assert.ok(Math.abs(h[0].u0 - (3 - n.at)) < 1e-9 && Math.abs(h[0].u1 - (4 - n.at)) < 1e-9, 'along the ridge from the middle');
+  assert.ok(Math.abs(h[0].y0 - 0.4) < 1e-9 && Math.abs(h[0].y1 - 1.4) < 1e-9, 'sill and top in the roof frame');
+  assert.ok(Math.abs(W.frontHoles(n, [wall], -0.9)[0].y0 - (n.yF - 0.05)) < 1e-9, 'cut at the bottom of the front wall');
+  const back = { ...wall, a: [10, 0.2], b: [0, 0.2] };              // 20 cm behind the front, drawn the other way round: still its front
+  assert.equal(W.frontHoles(n, [back], dy).length, 2);
+  assert.ok(Math.abs(W.frontHoles(n, [back], dy)[0].u0 - (6 - n.at)) < 1e-9, 'pos counts from the wall start');
+  assert.equal(W.frontHoles(n, [{ ...wall, a: [0, 0.6], b: [10, 0.6] }], dy).length, 0, 'too far behind the front');
+  assert.equal(W.frontHoles(n, [{ ...wall, a: [2, 0], b: [2, 6] }], dy).length, 0, 'not parallel');
+  assert.equal(W.frontHoles(n, [wall], -10).length, 0, 'a floor far below: no window reaches up to the dormer');
+  const wide = W.frontHoles(n, [{ ...wall, openings: [win('o4', 2.2, { width: 2 })] }], dy)[0];
+  assert.ok(Math.abs(wide.u0 + 3) < 1e-9, 'cut at the side of the dormer');
+  const door = W.frontHoles(n, [{ ...wall, openings: [{ id: 'd', type: 'door', width: 0.9, height: 2.1, pos: 5 }] }], 0)[0];
+  assert.ok(Math.abs(door.y0 - (n.yF - 0.05)) < 1e-9, 'a door (no sill) starts at the bottom of the front');
+  assert.deepEqual(W.frontHoles(null, [wall], 0), []);
+});
