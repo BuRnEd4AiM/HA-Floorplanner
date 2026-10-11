@@ -152,7 +152,7 @@ In the whole-house view the **Auseinander** button pulls the floors apart (tap a
 
 **View menu:** the *View ▴* button sits in the bottom bar next to Normal / Temperature / Humidity / CO₂; its menu (Auto, Halbschnitt, pull apart, walls, floors in the plan) opens upwards.
 
-**See-through walls:** in ⚙ you can make the walls between the camera and the room fade instead of sinking (*Make walls facing the camera see-through …*).
+**See-through walls:** in ⚙ you can make the walls between the camera and the room fade instead of sinking (*Make walls facing the camera see-through …*). Only the wall fades: its doors and windows and the furniture behind it stay solid.
 
 **Live mode:** a second tap into the room you are in goes back to the view before (floor or whole house, same camera).
 

@@ -68,6 +68,13 @@ test('cutaway: a wall facing the camera sinks; walls at the back and low / half 
 test('cutaway: see-through fades the wall instead of sinking it', () => {
   assert.deepEqual(C.wallTargets([1, 0], 1, 0, { ...base, seeThrough: true }), { low: 1, fade: 0.3 });
 });
+test('cutaway: see-through fades the wall pieces, not the doors and windows in it', () => {
+  assert.equal(C.fadesWithWall({ kind: 'wall', id: 'w1' }), true);
+  assert.equal(C.fadesWithWall({}), true);                  // a wall piece, its edge lines
+  assert.equal(C.fadesWithWall(undefined), true);
+  assert.equal(C.fadesWithWall({ kind: 'opening', id: 'o1' }), false);
+  assert.equal(C.fadesWithWall({ kind: 'handle' }), false);
+});
 test('cutaway: approach moves 20 % of the way and snaps when close', () => {
   assert.equal(C.approach(1, 0, 0.002), 0.8);
   assert.equal(C.approach(0.0015, 0, 0.002), 0);

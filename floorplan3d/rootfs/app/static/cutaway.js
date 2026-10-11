@@ -1,5 +1,6 @@
 /* Cutaway: the walls between the camera and the inside of the house sink down (setting "Auto") or become see-through, so you can look into the
- * rooms from every side; looking almost straight down keeps them. Roof fading and the cut through the earth are updated in the same frame.
+ * rooms from every side; looking almost straight down keeps them. See-through fades only the wall itself: its doors and windows stay solid.
+ * Roof fading and the cut through the earth are updated in the same frame.
  * The decisions are pure functions (tested); initCutaway moves the walls. */
 
 export const CUT_LOW = 0.14;                    // height factor of a sunk wall
@@ -27,6 +28,11 @@ export function wallTargets(n, dx, dz, s) {
   const sink = s.cutaway && toward && !s.seeThrough;          // see-through walls fade instead of sinking
   return { low: sink ? CUT_LOW : 1, fade: s.seeThrough && toward ? s.wallSee : 1 };
 }
+/** whether a part of a wall group fades with the wall: a door or window in it (frame, leaf, glass, roller shutter) keeps its own look */
+export function fadesWithWall(userData) {
+  const kind = userData?.kind;
+  return kind !== 'opening' && kind !== 'handle';
+}
 /** one smooth step from cur towards target (20 %), snapping when close */
 export function approach(cur, target, eps) {
   const v = cur + (target - cur) * 0.2;
@@ -41,13 +47,13 @@ export function initCutaway(ctx) {
     const { cx, cz } = ctx.center();
     return { group, n: outwardNormal(w, cx, cz), low: 1 };
   }
-  /** fade all materials of a wall to `f` (1 = as built); the built opacity is remembered on the material */
+  /** fade the materials of a wall to `f` (1 = as built), but not those of its doors and windows; the built opacity is remembered on the material */
   function setWallFade(c, f) {
     if (c.fadeNow === f) return;
     c.fadeNow = f;
-    c.group.traverse((o) => {
-      if (!o.material || o.userData?.kind === 'handle') return;
-      [].concat(o.material).forEach((m) => {
+    (function fade(o) {
+      if (!fadesWithWall(o.userData)) return;
+      [].concat(o.material || []).forEach((m) => {
         const u = m.userData;
         if (u.baseOp === undefined) { u.baseOp = m.opacity; u.baseTr = m.transparent; u.baseDW = m.depthWrite; }
         const tr = f < 1 || u.baseTr;
@@ -55,7 +61,8 @@ export function initCutaway(ctx) {
         m.depthWrite = f < 1 ? false : u.baseDW;
         if (m.transparent !== tr) { m.transparent = tr; m.needsUpdate = true; }
       });
-    });
+      o.children.forEach(fade);
+    })(c.group);
   }
   /** every frame; true when a wall sank, rose or faded (its shadow changes) */
   function update() {

@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.76.0] - 2026-10-11
+### Changed
+- **See-through: only the wall turns see-through, not its doors and windows** (#350): with *See-through* on (View menu or ⚙), the walls facing the camera fade while you turn the camera, and with them their windows (frame, glass, roller shutter) and doors (frame, leaf), so these almost disappeared. Now only the wall itself fades; doors and windows keep their normal look, and the furniture behind the wall stays solid as before. `fadesWithWall` in `cutaway.js` (unit test); the browser test checks a wall with a door and a window and a sofa behind it.
+
 ## [3.75.1] - 2026-10-11
 ### Fixed
 - **The dashboard card is installed by HACS again** (#348): HACS downloaded only the demo file and not the card, so a dashboard said *Custom element doesn't exist: floorplan3d-card* (and `/hacsfiles/HA-Floorplanner/floorplan3d-card.js` gave 404). Once a release has files attached, HACS downloads only those, and every release had just the demo attached. Now every release also carries `floorplan3d-card.js`, attached when the release is created (before it is published), and the release workflow adds it to the newest release when it is missing. In HACS: update the card to 3.75.1 (or ⋮ → *Redownload*), then reload the browser.

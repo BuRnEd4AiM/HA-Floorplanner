@@ -1,6 +1,6 @@
 {
- "version": "3.75.1",
- "buildHash": "c41e37f0ef1bcadd37dccb71fc38fd003394df7b7741077f266c64f2420a8ba5",
+ "version": "3.76.0",
+ "buildHash": "3250b7358d5148fb72864cb415d1c26fa8268a358f0dd24ac1df33d82e71b3f4",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -148,7 +148,7 @@
   "static/cardmode.js": "c1abe827f942e38a4c4288f8df69def9534ae61586b47d4a53cbfc48aecb0d45",
   "static/collide.js": "5aed943367370103d314a2e5d76aef9b046dc7461b69f1335255553439a6b187",
   "static/compass.js": "a47770fbc2511ddc67ec3e2bbd52c4052ba95cde66ef539aeba0e1f1ed3d1408",
-  "static/cutaway.js": "297a7ade141190883abf7a960c5fe622844e9a6e13025dc4a809d5ff01cdf3c4",
+  "static/cutaway.js": "1874b9867ddaab2cf6bdbde12c151a956ad7ff5a71ebf36aa02e01180744cd62",
   "static/dormer.js": "4e590294e6b39ff9963f2cc299d3593a939334950afd888507c794e665ea023f",
   "static/dormerwin.js": "8fd84b5d56692f36e08b180da2a45a5f091298393c114ab2f70d290cd0e67e1a",
   "static/draw3d.js": "fc9e5e32fe118a76f44fa02be985bba4326c166a0575095c76b6d5ba2ed211ae",
