@@ -588,6 +588,7 @@ export default {
   'imp.file': 'Wybierz plik …',
   'imp.exFlat': 'Przykład: mieszkanie',
   'imp.exHouse': 'Przykład: dom z działką',
+  'imp.exShow': 'Przykład: dom pokazowy (wszystko w środku)',
   'imp.prompt': 'Kopiuj prompt AI',
   'imp.promptCopied': 'Prompt skopiowany. Wklej go w czacie z AI, dodaj swój opis i wklej tutaj JSON.',
   'imp.promptShown': 'Prompt jest teraz w polu tekstowym (kopiowanie nie było możliwe). Zaznacz go, skopiuj i wklej w czacie z AI.',

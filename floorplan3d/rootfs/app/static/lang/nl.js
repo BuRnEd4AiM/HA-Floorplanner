@@ -588,6 +588,7 @@ export default {
   'imp.file': 'Bestand kiezen …',
   'imp.exFlat': 'Voorbeeld: appartement',
   'imp.exHouse': 'Voorbeeld: huis met kavel',
+  'imp.exShow': 'Voorbeeld: modelwoning (alles erin)',
   'imp.prompt': 'AI-prompt kopiëren',
   'imp.promptCopied': 'Prompt gekopieerd. Plak hem in een AI-chat, voeg je beschrijving toe en plak de JSON hier.',
   'imp.promptShown': 'De prompt staat nu in het tekstvak (kopiëren was niet mogelijk). Selecteer, kopieer en plak hem in een AI-chat.',

@@ -22,7 +22,7 @@ Du kannst die JSON von Hand schreiben, von einer **KI** erzeugen lassen, aus **G
 
 [Schnellstart](#schnellstart-in-30-sekunden) · [Koordinaten](#koordinaten) · [Format](#format-schemaversion-1) · [API](#api) · [GeoJSON](#geojson) · [KI-Prompting](#ki-prompting) · [Export](#export-round-trip) · [Fehlersuche](#grenzen--fehlersuche)
 
-Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.json) (Wohnung, 1 Etage) und [`docs/examples/house.json`](examples/house.json) (Haus mit Grundstück, Keller, EG, OG, Dach).
+Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.json) (Wohnung, 1 Etage) [`docs/examples/house.json`](examples/house.json) (Haus mit Grundstück, Keller, EG, OG, Dach) und [`docs/examples/showcase.json`](examples/showcase.json) (**Musterhaus – alles drin**: jeder Gerätetyp, jede Tür- und Fensterart, alle fünf Treppenarten, Dach mit Absatz, drei Gaubenarten und Solaranlage, Gartenhaus mit eigenem Dach, Dachterrasse, Luftraum, Strom-Kabel vom Hausanschluss bis zur Wallbox, Garten mit Pool und Brücke). Am Musterhaus siehst du jedes Feld des Formats im Einsatz; die Entitäten darin (z. B. `light.flur`) sind Beispiele und durch deine eigenen zu ersetzen.
 
 ## Schnellstart in 30 Sekunden
 
@@ -30,7 +30,7 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 
 ![Häuser-Bereich mit Import- und Export-Schaltfläche](img/import-0-panel.png)
 
-**2. Beispiel laden und prüfen.** **Beispiel: Wohnung** oder **Beispiel: Haus mit Grundstück** klicken, dann **Prüfen**. Du bekommst eine Zusammenfassung (Etagen, Räume, Wände, Türen/Fenster, Geräte) und eventuelle Warnungen. **Importieren** wird erst aktiv, wenn genau dieser Text fehlerfrei geprüft wurde.
+**2. Beispiel laden und prüfen.** **Beispiel: Wohnung**, **Beispiel: Haus mit Grundstück** oder **Beispiel: Musterhaus (alles drin)** klicken, dann **Prüfen**. Du bekommst eine Zusammenfassung (Etagen, Räume, Wände, Türen/Fenster, Geräte) und eventuelle Warnungen. **Importieren** wird erst aktiv, wenn genau dieser Text fehlerfrei geprüft wurde.
 
 ![Importdialog mit erfolgreicher Prüfung](img/import-1-dialog.png)
 
@@ -54,7 +54,7 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 
 - Alles in **Metern**. `x` = nach Osten (rechts), `z` = nach Süden (unten im Grundriss). `[0,0]` ist die obere linke Ecke.
 - Polygone: 3–100 Punkte, Reihenfolge egal, **nicht selbstüberschneidend**.
-- `building.origin: [x, z]` verschiebt das Gebäude auf dem Grundstück (Grundstücksgrenze und Gartenobjekte bleiben stehen).
+- `building.origin: [x, z]` verschiebt das Gebäude auf dem Grundstück (Grundstücksgrenze und Gartenobjekte bleiben stehen). Die Grundfläche eines Dachs (`box`) gehört zum Gebäude und wandert mit.
 
 ## Format (schemaVersion 1)
 
@@ -128,7 +128,7 @@ Unbekannte Typen werden mit Warnung übersprungen. Alle Typen stehen im Schema (
 **Brücke / Übergang** (`"type": "bridge"`): `len` = Länge (0,5 bis 30 m, Standard 3), `w` = Breite (0,5 bis 5 m, Standard 1,2), `noRail: true` = ohne Geländer, `rise` = das Ende (Richtung `rot` 0, +x) liegt so viel höher (+) oder tiefer (−), −3 bis 3 m. Die Lauffläche liegt auf Höhe der Etage, `rot` richtet sie aus.
 `{ "type": "bridge", "x": 12, "z": 4, "len": 3, "rot": 90 }`
 
-**Solarpanel** (`"type": "solarpanel"`): `cols` = Panels nebeneinander, `rows` = Reihen (je 1 bis 12, Standard 1), `mount` = `auto` (Standard: flach auf schrägen Dächern, aufgeständert auf Flachdach und Boden), `flat` oder `stand`. Liegt das Gerät in der Etage vom Typ `roof`, folgt es der Dachfläche darunter.
+**Solarpanel** (`"type": "solarpanel"`): `cols` = Panels nebeneinander, `rows` = Reihen (je 1 bis 12, Standard 1), `mount` = `auto` (Standard: flach auf schrägen Dächern, aufgeständert auf Flachdach und Boden), `flat` oder `stand`. Liegt das Gerät in der Etage vom Typ `roof`, folgt es der Dachfläche darunter: `{ "name": "Dach", "kind": "roof", "roof": { "type": "gable" }, "devices": [{ "type": "solarpanel", "x": 6, "z": 7, "cols": 5, "rows": 2 }] }`. Die Etage `roof` kann Geräte und Räume haben (z. B. Spitzboden), aber keine Treppen, Blöcke oder Bodenöffnungen.
 `{ "type": "solarpanel", "x": 4, "z": 2, "cols": 4, "rows": 2 }`
 
 **Strom** (`houseentry`, `fusebox`, `powermeter`, `inverter`, `solarpanel`, `battery`, `wallbox`; dazu die Zähler `watermeter`, `gasmeter`, `heatmeter`, die nur ihren Zählerstand zeigen): Kabel verbinden zwei Geräte. Jedes Gerät, das ein Ziel ist oder Kabel hat, bekommt eine `id` (frei wählbar, nur in der Datei gültig), die Kabel stehen als `cables` beim Startgerät: `route` ist `floor` (am Boden entlang, Standard), `through` (durch den Boden in die andere Etage) oder `air`. Die Richtung der fließenden Punkte folgt dem Wert der `entity` (negativ = rückwärts, kW wird umgerechnet). Ziele in einer anderen Etage sind erlaubt.
@@ -164,7 +164,7 @@ Unbekannte Treppentypen werden mit Warnung übersprungen, ungültige Zahlen (z. 
 
 ### Etagen
 
-Reihenfolge ist egal: Keller zuerst, Dachgeschoss/Dach zuletzt. Die Dachform steht in `building.roof` (oder in einer Etage mit `"kind": "roof"`). **Weitere Dächer** (z. B. Anbau mit Flachdach): `"roof": { "type": "gable", "parts": [{ "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "type": "flat", "level": 0, "name": "Anbau" }] }`, bis zu 8; `level` ist der Index der Etage in `building.floors`, auf der das Dach sitzt (ohne `level`: oben auf dem Haus), außerdem `pitch`, `overhang`, `dormers`. Gartenobjekte aus `plot.objects` landen auf der ersten Nicht-Keller-Etage.
+Reihenfolge ist egal: Keller zuerst, Dachgeschoss/Dach zuletzt. **Dachterrasse:** ein Raum mit `"terrace": true` ist offen (kein Dach darüber, ein Geländer statt Wänden); nur Kanten, die er mit einem normalen Raum teilt, werden Wände. Ein eigener `footprint` in einer Etage gilt nur für diese Etage (z. B. Erdgeschoss mit Garage). Die Dachform steht in `building.roof` (oder in einer Etage mit `"kind": "roof"`). **Weitere Dächer** (z. B. Anbau mit Flachdach): `"roof": { "type": "gable", "parts": [{ "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "type": "flat", "level": 0, "name": "Anbau" }] }`, bis zu 8; `level` ist der Index der Etage in `building.floors`, auf der das Dach sitzt (ohne `level`: oben auf dem Haus), außerdem `pitch`, `overhang`, `dormers`. Gartenobjekte aus `plot.objects` landen auf der ersten Nicht-Keller-Etage.
 
 ## API
 
@@ -181,6 +181,7 @@ curl "$BASE/api/export/property?house=main" -o mein-haus.json
 # JSON-Schema (Editor-Autovervollständigung, KI-Validierung) und Beispiele
 curl "$BASE/api/import/schema"
 curl "$BASE/api/import/examples/house"
+curl "$BASE/api/import/examples/showcase"     # Musterhaus mit allem
 ```
 
 Antwort bei Erfolg: `{"ok":true,"id":"…","name":"…","summary":{…},"warnings":[…]}`.
