@@ -1,9 +1,10 @@
 /* Floor panel ("Manage floor"): name and kind of the open floor, move it up or down, add a basement or a roof, delete it; for a roof floor the
- * roof (shape, pitch, its own base, overhang, ridge), its dormers (gable, flat or a long shed dormer, #339, placed by its distance from the
- * gable) and further roofs (e.g. a flat roof over an annex). The rules for the base
+ * roof (shape, pitch, its own base, overhang, ridge), steps in its eaves (#342), its dormers (gable, flat or a long shed dormer, #339,
+ * placed by its distance from the gable) and further roofs (e.g. a flat roof over an annex). The rules for the base
  * boxes, new floors, moving floors and placing new dormers are pure functions (tested); initFloorPanel draws the panel. */
 import { dormerParts, dormerStart, posForStart, DORMER_DEFAULT, DORMER_TYPES, SHED_PITCH } from './dormer.js';
 import { ridgeHeight, pitchFor } from './attic.js';
+import { stepsAllowed, alongXOf, MAX_STEPS } from './roofsteps.js';
 
 export const ROOF_DEFAULT = { type: 'gable', pitch: 35, overhang: 0.4 };
 /** an empty floor of a kind (a roof floor gets the default roof) */
@@ -48,6 +49,11 @@ export function setDormerWidth(bb, r, d, w) {
 export function setDormerType(d, type, r) {
   d.type = type;
   if (type === 'shed') d.eave = Math.max(0.2, r?.overhang ?? 0.4);
+}
+/** a new step for the eaves of roof r with base box bb (#342): on side A in the middle of the house, 50 cm further out */
+export function newStep(bb, r) {
+  const len = bb ? (alongXOf(bb, r) ? bb.x1 - bb.x0 : bb.z1 - bb.z0) : 4;
+  return { side: 0, at: Math.round(len * 10) / 20, out: 0.5 };
 }
 /** a pitch typed for the roof of a shed dormer: 2° to 60° (it also stays 3° flatter than the main roof, see fitDormer) */
 export const clampShedPitch = (v) => Math.max(2, Math.min(60, +v || SHED_PITCH));
@@ -175,8 +181,33 @@ export function initFloorPanel(ctx) {
     rsel.value = r.ridge || '';
     rsel.addEventListener('change', () => { ctx.snapshot(); r.ridge = rsel.value || undefined; ctx.build(); ctx.scheduleSave(); });
     box.append(field(t('roof.ridge'), rsel));
+    renderSteps(box, f, r);
     renderDormers(box, f, r);
     renderRoofParts(box, r);
+  }
+  /** steps in the eaves (#342): a house that is narrower at the front and wider at the back; one card per step */
+  function renderSteps(box, f, r) {
+    const head = document.createElement('h4'); head.id = 'roofStepsHead'; head.textContent = t('roof.steps'); box.append(head);
+    const help = document.createElement('p'); help.className = 'sub'; help.id = 'roofStepsHelp'; help.textContent = t(stepsAllowed(r) ? 'roof.stepsHelp' : 'roof.stepsHip'); box.append(help);
+    if (!stepsAllowed(r)) return;
+    const bb = ctx.roofBox(ctx.layout().floors.indexOf(f));
+    (r.steps || []).forEach((st, i) => {
+      const card = document.createElement('div'); card.className = 'dormerCard roofStepCard';
+      const cap = document.createElement('b'); cap.className = 'dormerCap'; cap.textContent = `${t('roof.stepOne')} ${i + 1}`; card.append(cap);
+      card.append(field(t('dormer.side'), select([[0, t('dormer.sideA')], [1, t('dormer.sideB')]], st.side === 1 ? 1 : 0, (v) => { st.side = +v; })));
+      const at = lenInput(() => +st.at || 0, (v) => { st.at = v; }, { min: 0 }); at.className = 'roofStepAt';
+      card.append(field(t('roof.stepAt'), at));
+      const out = lenInput(() => +st.out || 0, (v) => { st.out = v; }, { min: -20 }); out.className = 'roofStepOut';
+      card.append(field(t('roof.stepOut'), out));
+      const del = document.createElement('button'); del.type = 'button'; del.className = 'roofPartDel'; del.textContent = '×'; del.title = t('roof.stepRemove');
+      del.addEventListener('click', () => { ctx.snapshot(); r.steps.splice(i, 1); if (!r.steps.length) delete r.steps; redo(); });
+      card.append(del);
+      box.append(card);
+    });
+    const add = document.createElement('button'); add.type = 'button'; add.id = 'addRoofStep'; add.textContent = t('roof.stepAdd');
+    add.disabled = (r.steps || []).length >= MAX_STEPS;
+    add.addEventListener('click', () => { ctx.snapshot(); (r.steps ||= []).push(newStep(bb, r)); redo(); });
+    box.append(add);
   }
   /** further roofs of the house (#125): one card per roof, with its own shape, base and the floor it sits on */
   function renderRoofParts(box, r) {

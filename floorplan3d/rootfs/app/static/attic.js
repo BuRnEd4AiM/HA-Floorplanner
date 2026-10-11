@@ -5,6 +5,7 @@
  * three.js, no DOM (unit test: tests/attic.test.mjs); atticclip.js cuts the wall materials with it. */
 import { roofFrame } from './solarroof.js';
 import { fitDormer } from './dormer.js';
+import { sectionsOf } from './roofsteps.js';
 
 /** the knee wall height of a roof spec in metres, or null when the roof sits on top of the storey below as usual */
 export function kneeOf(spec, maxH = Infinity) {
@@ -60,22 +61,30 @@ export function roofOverRoom({ cuts, dormers, pts }) {
 const GAP = 0.03;   // walls end this far under the roof surface, so the roof is never hidden by a wall top
 /** the planes of a roof's slopes (base box bb, spec with type / pitch / overhang / ridge, lifted by y0) as [nx, ny, nz, d] with a unit normal:
  *  a point p lies under the roof when nx*px + ny*py + nz*pz + d >= 0 for every plane (the roof is the lowest of its planes). A flat roof
- *  gives no planes (nothing is cut). */
+ *  gives no planes (nothing is cut). On a roof with steps (#342) every piece of a slope has its own plane, which only counts along its own
+ *  stretch of the ridge: then the plane carries [..., axisX (1: the stretch is in x, 0: in z), from, to] */
 export function roofPlanes(bb, spec, y0 = 0) {
   if (!bb || spec?.type === 'flat') return [];
   const F = roofFrame(bb, spec);
   if (!(F.h > 0)) return [];
   const out = [];
   // a plane y = c + s * u (u = a or b, the coordinate along which it rises); under it: c + s*u - y >= 0
-  const plane = (axis, s, c) => {
+  const plane = (axis, s, c, range) => {
     const len = Math.hypot(s, 1), n = [0, -1 / len, 0];
     const k = (axis === 'a') === F.alongX ? 0 : 2;                         // a is x when the ridge runs along x
     n[k] = s / len;
-    out.push([n[0], n[1], n[2], (c + y0 - GAP) / len]);
+    out.push([n[0], n[1], n[2], (c + y0 - GAP) / len, ...(range || [])]);
   };
   const m = F.h / F.half;
-  plane('b', -m, F.h + m * F.bc);                                           // the long side towards b1
-  plane('b', m, F.h - m * F.bc);                                            // the long side towards b0
+  for (const side of [1, 0]) {                                              // the long sides towards b1 and towards b0
+    const secs = sectionsOf(bb, spec, side);
+    secs.forEach((q, i) => {
+      const range = secs.length > 1 ? [F.alongX ? 1 : 0, i === 0 ? -1e6 : q.a0, i === secs.length - 1 ? 1e6 : q.a1] : null;
+      const s = F.h / (F.half + q.out);
+      if (side === 1) plane('b', q.out ? -s : -m, q.out ? s * (F.b1 + q.out) : F.h + m * F.bc, range);
+      else plane('b', q.out ? s : m, q.out ? -s * (F.b0 - q.out) : F.h - m * F.bc, range);
+    });
+  }
   if (F.ins > 0) {                                                          // a hip roof: its two ends
     const e = F.h / F.ins;
     plane('a', e, -e * F.a0);
@@ -95,7 +104,7 @@ export function dormerRooms(bb, spec, y0 = 0) {
   for (const d of spec.dormers || []) {
     const n = fitDormer(bb, spec, d);
     if (!n) continue;
-    const F = n.F, bc = (F.b0 + F.b1) / 2, hw2 = n.w / 2;
+    const F = n.F, bc = F.bc ?? (F.b0 + F.b1) / 2, hw2 = n.w / 2;
     const front = Math.max(0, n.eave - FRONT);                              // a wall right under the dormer's front wall still counts
     const [b0, b1] = n.side === 0 ? [F.b0 + front, bc] : [bc, F.b1 - front];
     const [a0, a1] = [n.at - hw2, n.at + hw2];
@@ -108,7 +117,8 @@ export function dormerRooms(bb, spec, y0 = 0) {
 /** is the point (x, y, z) kept: under the roof (all planes, see roofPlanes) or inside a dormer room (see dormerRooms). The wall shader in
  *  atticclip.js does the same per pixel */
 export function keptAt(planes, rooms, x, y, z) {
-  if (planes.every(([a, b, c, d]) => a * x + b * y + c * z + d >= -1e-9)) return true;
+  const counts = (p) => p.length < 7 || ((u) => u >= p[5] && u <= p[6])(p[4] ? x : z);   // a plane of a slope piece: only along its stretch
+  if (planes.every((p) => !counts(p) || p[0] * x + p[1] * y + p[2] * z + p[3] >= -1e-9)) return true;
   return rooms.some((q) => {
     if (x < q.x0 || x > q.x1 || z < q.z0 || z > q.z1) return false;
     const u = q.alongX ? x : z, hw = q.alongX ? (q.x1 - q.x0) / 2 : (q.z1 - q.z0) / 2, b = q.alongX ? z : x;

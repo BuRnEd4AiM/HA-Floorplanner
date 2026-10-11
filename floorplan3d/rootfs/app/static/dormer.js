@@ -1,10 +1,13 @@
 /* Roof dormers (Dachgauben): a box with its own roof that stands out of one slope of the roof: a gable or flat dormer, or a shed dormer
  * (Schleppgaube, #339) whose roof runs up at its own, flatter pitch into the main roof below the ridge; a shed or flat dormer can be as long
- * as the roof. The slopes of the main roof get a hole where a dormer stands (roofSurface).
+ * as the roof. The slopes of the main roof get a hole where a dormer stands (roofSurface). On a roof with steps (#342, roofsteps.js) a
+ * dormer stands on the slope piece under its middle.
  * Pure geometry, no DOM or three.js: the roof floor's footprint and a dormer go in, triangles come out.
  *
  * Coordinates: along the ridge `u`, across the slope `e` = distance from the eave (the lower edge of the slope), height `y`
  * (0 = the base of the roof). On a slope with the pitch angle p the surface is at y = e * tan(p). */
+
+import { sectionsOf, outAt, intervals, sectionFrame } from './roofsteps.js';
 
 export const DORMER_DEFAULT = { side: 0, pos: 0.5, w: 1.6, hw: 1.2, eave: 0.8, type: 'gable', win: true };
 export const DORMER_TYPES = ['gable', 'flat', 'shed'];
@@ -22,7 +25,7 @@ export function roofFrame(bb, r) {
   const half = (b1 - b0) / 2;
   const tan = Math.tan(((r.pitch ?? 35) * Math.PI) / 180);
   const ins = r.type === 'hip' ? Math.min(half, (a1 - a0) / 2) : 0;
-  return { alongX, a0, a1, b0, b1, half, tan, ins };
+  return { alongX, a0, a1, b0, b1, half, tan, ins, bc: (b0 + b1) / 2 };
 }
 
 /** where the middle of a dormer of width w can go along the ridge: [lo, hi] (hi < lo: it is longer than the roof) */
@@ -31,7 +34,7 @@ const span = (F, w) => [F.a0 + F.ins + w / 2 + OVER, F.a1 - F.ins - w / 2 - OVER
 /** the dormer with every value clamped so it really fits on the slope; null when there is no room for it (flat roof, tiny roof) */
 export function fitDormer(bb, r, d) {
   if (!bb || !r || r.type === 'flat') return null;
-  const F = roofFrame(bb, r);
+  let F = roofFrame(bb, r);
   const n = { ...DORMER_DEFAULT, ...d };
   n.side = n.side === 1 ? 1 : 0;
   n.type = DORMER_TYPES.includes(n.type) ? n.type : 'gable';
@@ -40,6 +43,7 @@ export function fitDormer(bb, r, d) {
   if (hi < lo) return null;                                        // longer than the roof
   n.pos = Math.max(0, Math.min(1, Number.isFinite(+n.pos) ? +n.pos : 0.5));
   n.at = lo + (hi - lo) * n.pos;                                   // centre along the ridge (m)
+  F = sectionFrame(F, n.side, outAt(bb, r, n.side, n.at));         // on a roof with steps (#342): the slope piece the dormer stands on
   n.eave = Math.max(0.2, Math.min(F.half * 0.8, +n.eave || DORMER_DEFAULT.eave));
   const yF = n.eave * F.tan;
   if (n.type === 'shed') {                                         // its roof runs up at the pitch sp until it meets the main roof (at eR)
@@ -128,32 +132,41 @@ export function dormerParts(bb, r, d, holes = []) {
 /** the main roof (gable or hip, not flat) as triangles ([x, y, z] points, 3 per triangle), as roofGeometry in roofs.js draws it: the two
  *  long slopes with a hole where a dormer stands (from its front back to where it meets the slope; its walls and roof close the hole, so
  *  the slope does not run through the room under a dormer), and the two ends (gable triangles or hip ends). The slopes are cut into a grid
- *  at the dormers' edges, so neighbouring pieces share their corners. */
+ *  at the dormers' edges, so neighbouring pieces share their corners. On a roof with steps (#342) every piece of a slope has its own eave
+ *  and pitch up to the same ridge, and an upright triangle closes each step. */
 export function roofSurface(bb, r) {
-  const F = roofFrame(bb, r), h = F.half * F.tan, bc = (F.b0 + F.b1) / 2, k = F.half > 0 ? F.ins / F.half : 0;
+  const F = roofFrame(bb, r), h = F.half * F.tan, bc = F.bc, k = F.half > 0 ? F.ins / F.half : 0;
   const tris = [];
   const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
   const XYZ = (a, b, y) => (F.alongX ? [a, y, b] : [b, y, a]);
-  const holes = [[], []];
-  for (const d of r.dormers || []) {
-    const n = fitDormer(bb, r, d);
-    if (n) holes[n.side].push({ a0: n.at - n.w / 2, a1: n.at + n.w / 2, e0: n.eave, e1: n.eT });
-  }
+  const ns = (r.dormers || []).map((d) => fitDormer(bb, r, d)).filter(Boolean);
   const cuts = (vals, lo, hi) => [...new Set([lo, ...vals.filter((v) => v > lo + 1e-6 && v < hi - 1e-6), hi])].sort((p, q) => p - q);
   for (const side of [0, 1]) {
-    const hs = holes[side], P = (a, e) => XYZ(a, side === 0 ? F.b0 + e : F.b1 - e, e * F.tan);
-    const as = cuts(hs.flatMap((q) => [q.a0, q.a1]), F.a0, F.a1), es = cuts(hs.flatMap((q) => [q.e0, q.e1]), 0, F.half);
-    for (let i = 0; i + 1 < as.length; i++) {
-      const lo = (e) => (i === 0 ? F.a0 + e * k : as[i]), hi = (e) => (i + 2 === as.length ? F.a1 - e * k : as[i + 1]);   // a hip slope leans in at its ends
-      for (let j = 0; j + 1 < es.length; j++) {
-        const am = (as[i] + as[i + 1]) / 2, em = (es[j] + es[j + 1]) / 2, e0 = es[j], e1 = es[j + 1];
-        if (hs.some((q) => am > q.a0 && am < q.a1 && em > q.e0 && em < q.e1)) continue;   // under a dormer
-        const c = [P(lo(e0), e0), P(hi(e0), e0), P(hi(e1), e1), P(lo(e1), e1)];
-        quad(...(side === 0 ? c : c.reverse()));
+    const secs = sectionsOf(bb, r, side).map((q, i, all) => ({ ...q, a0: i === 0 ? F.a0 : q.a0, a1: i === all.length - 1 ? F.a1 : q.a1 }));
+    secs.forEach((sec, si) => {
+      const G = sectionFrame(F, side, sec.out), P = (a, e) => XYZ(a, side === 0 ? G.b0 + e : G.b1 - e, e * G.tan);
+      const last = si === secs.length - 1;
+      const hs = ns.filter((n) => n.side === side && n.at >= sec.a0 && (n.at < sec.a1 || last))
+        .map((n) => ({ a0: n.at - n.w / 2, a1: n.at + n.w / 2, e0: n.eave, e1: n.eT }));
+      const as = cuts(hs.flatMap((q) => [q.a0, q.a1]), sec.a0, sec.a1), es = cuts(hs.flatMap((q) => [q.e0, q.e1]), 0, G.half);
+      for (let i = 0; i + 1 < as.length; i++) {
+        const lo = (e) => (i === 0 ? sec.a0 + (si === 0 ? e * k : 0) : as[i]);                          // a hip slope leans in at its ends
+        const hi = (e) => (i + 2 === as.length ? sec.a1 - (last ? e * k : 0) : as[i + 1]);
+        for (let j = 0; j + 1 < es.length; j++) {
+          const am = (as[i] + as[i + 1]) / 2, em = (es[j] + es[j + 1]) / 2, e0 = es[j], e1 = es[j + 1];
+          if (hs.some((q) => am > q.a0 && am < q.a1 && em > q.e0 && em < q.e1)) continue;   // under a dormer
+          const c = [P(lo(e0), e0), P(hi(e0), e0), P(hi(e1), e1), P(lo(e1), e1)];
+          quad(...(side === 0 ? c : c.reverse()));
+        }
       }
-    }
+      if (si > 0 && Math.abs(secs[si - 1].out - sec.out) > 1e-9) {                                   // a step: upright triangle up to the ridge
+        const eb = (o) => (side === 0 ? F.b0 - o : F.b1 + o);
+        tris.push(XYZ(sec.a0, eb(secs[si - 1].out), 0), XYZ(sec.a0, eb(sec.out), 0), XYZ(sec.a0, bc, h));
+      }
+    });
   }
-  tris.push(XYZ(F.a0, F.b1, 0), XYZ(F.a0, F.b0, 0), XYZ(F.a0 + F.ins, bc, h));
-  tris.push(XYZ(F.a1, F.b0, 0), XYZ(F.a1, F.b1, 0), XYZ(F.a1 - F.ins, bc, h));
+  const iv = intervals(bb, r, F.a0, F.a1), f0 = iv[0], fl = iv[iv.length - 1];
+  tris.push(XYZ(F.a0, F.b1 + f0.out1, 0), XYZ(F.a0, F.b0 - f0.out0, 0), XYZ(F.a0 + F.ins, bc, h));
+  tris.push(XYZ(F.a1, F.b0 - fl.out0, 0), XYZ(F.a1, F.b1 + fl.out1, 0), XYZ(F.a1 - F.ins, bc, h));
   return tris;
 }

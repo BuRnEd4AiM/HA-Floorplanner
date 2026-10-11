@@ -3,15 +3,16 @@
  * same as keptAt in attic.js (unit tested there). */
 import * as THREE from './vendor/three.module.min.js';
 
-export const MAX_PLANES = 4, MAX_ROOMS = 8;
+export const MAX_PLANES = 8, MAX_ROOMS = 8;
 
-/** the uniforms for one cut: clip = { planes: [[nx, ny, nz, d]], rooms: [{ x0, x1, z0, z1, top, gh, at, alongX, rise, fb, dir }] }, all in
+/** the uniforms for one cut: clip = { planes: [[nx, ny, nz, d] or [nx, ny, nz, d, axisX, from, to] (#342)], rooms: [{ x0, x1, z0, z1, top, gh, at, alongX, rise, fb, dir }] }, all in
  *  the world frame */
 export function atticUniforms(clip) {
   const planes = clip.planes.slice(0, MAX_PLANES), rooms = clip.rooms.slice(0, MAX_ROOMS);
   const fill = (n, f) => Array.from({ length: n }, (_, i) => f(i));
   return {
     atticPlanes: { value: fill(MAX_PLANES, (i) => new THREE.Vector4(...(planes[i] || [0, 0, 0, 1]))) },
+    atticRange: { value: fill(MAX_PLANES, (i) => { const p = planes[i]; return p?.length >= 7 ? new THREE.Vector4(p[4], p[5], p[6], 0) : new THREE.Vector4(0, -1e6, 1e6, 0); }) },
     atticNP: { value: planes.length },
     atticBox: { value: fill(MAX_ROOMS, (i) => { const q = rooms[i]; return q ? new THREE.Vector4(q.x0, q.x1, q.z0, q.z1) : new THREE.Vector4(); }) },
     atticTop: { value: fill(MAX_ROOMS, (i) => { const q = rooms[i]; return q ? new THREE.Vector4(q.top, q.gh, q.at, q.alongX ? 1 : 0) : new THREE.Vector4(); }) },
@@ -22,6 +23,7 @@ export function atticUniforms(clip) {
 
 const HEAD = `
 uniform vec4 atticPlanes[${MAX_PLANES}];
+uniform vec4 atticRange[${MAX_PLANES}];
 uniform int atticNP;
 uniform vec4 atticBox[${MAX_ROOMS}];
 uniform vec4 atticTop[${MAX_ROOMS}];
@@ -31,7 +33,12 @@ varying vec3 vAtticPos;`;
 const CUT = `
   {
     bool above = false;
-    for (int i = 0; i < ${MAX_PLANES}; i++) { if (i >= atticNP) break; if (dot(atticPlanes[i].xyz, vAtticPos) + atticPlanes[i].w < 0.0) above = true; }
+    for (int i = 0; i < ${MAX_PLANES}; i++) {
+      if (i >= atticNP) break;
+      vec4 R = atticRange[i];
+      float ua = R.x > 0.5 ? vAtticPos.x : vAtticPos.z;                   // a plane of a slope piece only counts along its stretch (#342)
+      if (ua >= R.y && ua <= R.z && dot(atticPlanes[i].xyz, vAtticPos) + atticPlanes[i].w < 0.0) above = true;
+    }
     if (above) {
       bool inside = false;
       for (int i = 0; i < ${MAX_ROOMS}; i++) {

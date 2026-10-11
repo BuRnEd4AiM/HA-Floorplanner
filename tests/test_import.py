@@ -288,6 +288,18 @@ def test_a_long_shed_dormer_keeps_its_length_and_pitch():
     assert "sp" not in d[2]                                                                 # only a shed dormer has its own pitch
 
 
+def test_roof_steps_are_imported_and_cleaned():
+    house = roof_house([])
+    house["building"]["roof"]["steps"] = [{"side": "a", "at": 0, "out": -0.5}, {"side": 1, "at": 6, "out": 0.8}, {"side": 2, "at": 1, "out": 0}, {"at": 3}]
+    layout, _, rep, _ = importer.build_layout(house)
+    assert roof_of(layout)["steps"] == [{"side": 0, "at": 0.0, "out": -0.5}, {"side": 1, "at": 6.0, "out": 0.8}]
+    assert sum(1 for w in rep.warnings if ".steps[" in w["path"]) == 2
+    hip = roof_house([], "hip")
+    hip["building"]["roof"]["steps"] = [{"side": 0, "at": 1, "out": 1}]
+    layout, _, rep, _ = importer.build_layout(hip)
+    assert "steps" not in roof_of(layout) and any(w["path"].endswith("roof.steps") for w in rep.warnings)
+
+
 def test_dormers_on_a_flat_roof_are_dropped_with_a_warning():
     layout, _, rep, _ = importer.build_layout(roof_house([{"side": 0}], "flat"))
     assert "dormers" not in roof_of(layout) and any(w["path"].endswith("roof.dormers") for w in rep.warnings)

@@ -71,3 +71,8 @@ test('dormer type (#339): a shed dormer goes onto the outer wall, a shed pitch s
   assert.equal(d.eave, 0.2);
   assert.deepEqual([F.clampShedPitch(12), F.clampShedPitch(0), F.clampShedPitch(99), F.clampShedPitch('x'), F.clampShedPitch(1)], [12, 15, 60, 15, 2]);
 });
+test('a new step (#342): side A, in the middle of the house, 50 cm out', () => {
+  assert.deepEqual(F.newStep({ x0: 0, x1: 12, z0: 0, z1: 9 }, { type: 'gable' }), { side: 0, at: 6, out: 0.5 });
+  assert.deepEqual(F.newStep({ x0: 0, x1: 6, z0: 0, z1: 9 }, { type: 'gable' }), { side: 0, at: 4.5, out: 0.5 }, 'ridge along z: along z');
+  assert.equal(F.newStep(null, {}).at, 2);
+});

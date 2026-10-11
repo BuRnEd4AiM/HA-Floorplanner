@@ -10,6 +10,7 @@ import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange, secti
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 import { boxItems, groupTargets, moveGroup } from './multisel.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
+import { addStepAt, moveSection, removeStep } from './roofsteps.js';
 import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
 import { hasShutter, shutterEntity, linkedEntities, shutterSide, shutterText } from './shutters.js';
 
@@ -242,7 +243,7 @@ export function createPlan(ctx) {
     if (f.kind !== 'roof') return '';
     return (ctx.roofRects?.() || []).map((r) => {
       const b = r.box, on = sel?.kind === 'roof' && sel.id === r.id;
-      const poly = [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]];
+      const poly = r.outline?.length > 2 ? r.outline : [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]];   // with the steps of its eaves (#342)
       return `<polygon points="${pts(poly)}" fill="${on ? 'rgba(232,120,90,.18)' : 'rgba(200,90,60,.06)'}" stroke="${on ? C.accent : '#e0785a'}" stroke-width="${on ? 3 : 2}" stroke-dasharray="9 5" pointer-events="none" data-roof="${r.id}"/>`
         + `<text x="${sx((b.x0 + b.x1) / 2)}" y="${sy(b.z0) + 16}" text-anchor="middle" font-size="12" fill="#e0785a" pointer-events="none">${esc(r.name || ctx.t('prop.roof'))}</text>`;
     }).join('');
@@ -255,6 +256,8 @@ export function createPlan(ctx) {
     const near = (p) => Math.hypot(sx(p[0]) - px, sy(p[1]) - py) <= 11;
     if (sel.kind === 'roof') {                                   // a roof (#259): its corners and the middle of its sides change its size
       const r = (ctx.roofRects?.() || []).find((q) => q.id === sel.id);
+      const st = r && (r.steps || []).find((q) => near([q.x, q.z]));   // a piece of an eave between steps (#342): moves out or in
+      if (st) return { type: 'roof-step', id: r.id, side: st.side, i: st.i };
       const hd = r && roofHandles(r.box).find((q) => near([q.x, q.z]));
       return hd ? { type: 'roof-size', id: r.id, which: hd.which, start: { ...r.box } } : null;
     }
@@ -596,6 +599,9 @@ export function createPlan(ctx) {
       if (sel.kind === 'roof') {                                 // the size handles of a roof (#259)
         const r = (ctx.roofRects?.() || []).find((q) => q.id === sel.id);
         if (r) roofHandles(r.box).forEach((q) => { o += `<rect x="${sx(q.x) - 6}" y="${sy(q.z) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.accent}" stroke-width="2" data-roofh="${q.which}"/>`; });
+        if (r) (r.steps || []).forEach((q) => {                  // the pieces of the eaves between steps (#342): diamonds
+          o += `<rect x="${sx(q.x) - 6}" y="${sy(q.z) - 6}" width="12" height="12" fill="${C.accent}" stroke="#fff" stroke-width="2" transform="rotate(45 ${sx(q.x)} ${sy(q.z)})" data-roofstep="${q.side}-${q.i}"/>`;
+        });
       }
     }
 
@@ -704,7 +710,7 @@ export function createPlan(ctx) {
     const f = floor();
     if (!f || !W || !H) return;
     const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...(f.blocks || []).flatMap((q) => q.points), ...(f.holes || []).flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z]), ...(f.stairs || []).map((d) => [d.x, d.z]),
-      ...(f.kind === 'roof' ? (ctx.roofRects?.() || []).flatMap(({ box: b }) => [[b.x0, b.z0], [b.x1, b.z1]]) : [])];   // a roof floor: its roofs (#255)
+      ...(f.kind === 'roof' ? (ctx.roofRects?.() || []).flatMap(({ box: b, outline: o }) => [[b.x0, b.z0], [b.x1, b.z1], ...(o || [])]) : [])];   // a roof floor: its roofs (#255), with steps (#342)
     if (!p.length && f.bg?.img && !f.bg.hidden && !isLive()) p.push([f.bg.x, f.bg.z], [f.bg.x + f.bg.w, f.bg.z + f.bg.w * (f.bg.ar || 1)]);   // empty floor: frame the template
     if (!p.length) { s = 60; tx = W / 2 - 3 * s; ty = H / 2 - 2 * s; render(); return; }
     const xs = p.map((q) => q[0]), zs = p.map((q) => q[1]);
@@ -823,6 +829,7 @@ export function createPlan(ctx) {
     if (hd.type === 'dev-size') return { type: 'devsize', which: hd.which, d: hd.d, moved: false };
     if (hd.type === 'ring-end') return { type: 'ringend', d: hd.d, i: hd.i, end: hd.end, moved: false };
     if (hd.type === 'roof-size') return { type: 'roofsize', id: hd.id, which: hd.which, start: hd.start, moved: false };
+    if (hd.type === 'roof-step') return { type: 'roofstep', id: hd.id, side: hd.side, i: hd.i, moved: false };
     if (hd.type === 'stair-size') return { type: 'stairsize', which: hd.which, st: hd.st, moved: false };
     if (hd.type === 'wall-end') {
       const p = hd.wall[hd.end];
@@ -945,6 +952,11 @@ export function createPlan(ctx) {
         const nb = resizeBox(drag.start, drag.which, x, z, e.altKey ? 0 : 0.05);   // 5 cm steps, Alt: free
         const now = (ctx.roofRects?.() || []).find((q) => q.id === drag.id)?.box;
         if (now && ['x0', 'x1', 'z0', 'z1'].some((k) => now[k] !== nb[k])) { snapshotOnce(); if (ctx.resizeRoof(drag.id, nb)) { drag.moved = true; render(); } }
+        return;
+      }
+      if (drag.type === 'roofstep' && moved) {                    // a piece of an eave (#342): out or in, 5 cm steps (Alt: free); the house is built on release
+        const tg = ctx.roofStepTarget?.(drag.id);
+        if (tg) { snapshotOnce(); if (moveSection(tg.bb, tg.r, drag.side, drag.i, x, z, e.altKey ? 0 : 0.05)) { drag.moved = true; render(); } }
         return;
       }
       if (drag.type === 'roof' && moved) {
@@ -1082,7 +1094,7 @@ export function createPlan(ctx) {
       return;
     }
     if (d.type === 'erase') { if (!moved) { const h = pickAt(x, z); if (h) { ctx.snapshot(); ctx.deleteItem(h); } } return; }
-    if (d.type === 'device' || d.type === 'opening' || d.type === 'points' || d.type === 'stair' || d.type === 'roof' || d.type === 'roofsize') {
+    if (d.type === 'device' || d.type === 'opening' || d.type === 'points' || d.type === 'stair' || d.type === 'roof' || d.type === 'roofsize' || d.type === 'roofstep') {
       if (d.moved) { ctx.commit(); } snapDone = false;
       return;
     }
@@ -1175,6 +1187,13 @@ export function createPlan(ctx) {
       let h = pickAt(x, z);
       if (h?.kind === 'opening' && !onOpeningExact(h.id, x, z)) h = null;   // only beside a door / window, not on it: the wall counts
       const sel = ctx.getSelection(), selWall = sel?.kind === 'wall' ? floor().walls.find((w) => w.id === sel.id) : null;
+      const tg = sel?.kind === 'roof' ? ctx.roofStepTarget?.(sel.id) : null;
+      if (tg) {                                                      // the selected roof (#342): a double click on its eave adds a step there,
+        const hs = handleAt(px, py), probe = { ...tg.r, steps: (tg.r.steps || []).map((q) => ({ ...q })) };   // one on the handle of a piece removes
+        const done = hs?.type === 'roof-step' ? removeStep(tg.bb, probe, hs.side, hs.i) : addStepAt(tg.bb, probe, x, z, Math.max(0.15, 12 / s)) != null;   // the step it starts with
+        if (done) { ctx.snapshot(); if (probe.steps?.length) tg.r.steps = probe.steps; else delete tg.r.steps; ctx.commit(); return; }
+        if (hs?.type === 'roof-step') return;
+      }
       if (selWall && h?.kind !== 'opening' && distSeg(x, z, selWall.a, selWall.b) <= Math.max(selWall.thickness / 2, 12 / s)) {
         if (!splitWallAt(selWall, x, z)) ctx.setStatus(ctx.t('wall.splitNo'));   // the selected wall wins over a device, garden thing or room under it
         return;

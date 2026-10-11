@@ -111,3 +111,13 @@ test('ground under a turned device: the roof height relative to the model origin
   near(g(1, 0), 1);                                                              // turned 90 degrees local +x is world -z: 1 m towards the ridge, 1 m higher
   assert.equal(g(0, 40), 0);
 });
+
+test('roof with steps (#342): the wide part has its own, flatter slope and reaches beyond the box', () => {
+  const r = { ...gable, steps: [{ side: 0, at: 5, out: 1 }] };     // side A (z 0) 1 m further out from x 5
+  const narrow = S.roofSurfaceAt(bb, r, 2, 1), wide = S.roofSurfaceAt(bb, r, 8, 1);
+  near(narrow.y, 1);                                                // 45°: 1 m in, 1 m up
+  near(wide.y, (3 * 2) / 4);                                       // the ridge (3 m) over 4 m: 2 m in from the moved eave
+  assert.ok(wide.slope < narrow.slope);
+  assert.ok(S.roofSurfaceAt(bb, r, 8, -0.5) && !S.roofSurfaceAt(bb, r, 2, -0.5), 'only the wide part reaches out');
+  near(S.roofSurfaceAt(bb, r, 8, 3).y, 3);                          // the ridge stays
+});

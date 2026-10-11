@@ -39,6 +39,9 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 14. **Lange Schleppgaube** (42.1 bis 42.6, #339): Bearbeiten, Etage „Dach“, „Etage verwalten“ aufklappen. Bei einer Gaube „Dachform der Gaube“ auf **„Schleppgaube“** stellen, „Breite“ z. B. 6 m, **„Abstand vom Giebel“** z. B. 3 m. In 3D: die Wand geht vorne senkrecht hoch, das Dach der Gaube läuft flacher bis ins Hauptdach, links und rechts davon ist wieder normale Schräge.
 15. **Neu in 3.72: ein Fenster pro Raum unter der Schleppgaube** (43.1 bis 43.4, #341): bei der Schleppgaube den Haken „Fenster“ aus. Dann die Etage darunter öffnen und mit dem Werkzeug „Tür/Fenster“ in die Wand jedes Raums unter der Gaube ein Fenster setzen. Von außen sind die Fenster jetzt **durch die Gaube** zu sehen.
 
+**Neu in 3.73** (ausführlich in Abschnitt **44** unten)
+16. **Dach mit Absatz** (44.1 bis 44.6, #342): Bearbeiten, Etage „Dach“, Ansicht **2D**. Das Dach anklicken, dann **Doppelklick auf die Dachkante** an der Stelle, wo das Haus breiter wird. Die **Raute** des vorderen Teils nach innen ziehen. In 3D: das Dach ist vorne schmaler, der First bleibt gerade.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -148,7 +151,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 41. Neu in 3.70: Rollladen-Karte | 0 | 0 | 5 | 0 | 41.1 bis 41.5 |
 | 42. Neu in 3.71: lange Schleppgaube | 0 | 0 | 6 | 0 | 42.1 bis 42.6 |
 | 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube | 0 | 0 | 4 | 0 | 43.1 bis 43.4 |
-| **Zusammen** | **198** | **1** | **95** | **2** | |
+| 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter) | 0 | 0 | 6 | 0 | 44.1 bis 44.6 |
+| **Zusammen** | **198** | **1** | **101** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -682,3 +686,13 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 43.2 | Eines der Fenster anklicken, Kontakt und Haken „Rollladen“ mit Entität setzen | Es ist ein normales Fenster: Kontakt, offen = rot, Rollladen fährt außen vor dem Glas, Kugel 🪟 im Live-Modus | ❓ |
 | 43.3 | Live: in den Raum tippen (Raum-Karte), oben auf „n offen“ schauen | Das Fenster steht beim richtigen Raum, ein offenes Fenster zählt bei „n offen“ | ❓ |
 | 43.4 | Ein Fenster in der Wand verschieben oder löschen | Das Loch in der Gaube wandert mit bzw. ist wieder zu | ❓ |
+
+## 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter)
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 44.1 | Bearbeiten, Etage „Dach“, Ansicht 2D: das Dach anklicken, dann Doppelklick auf eine lange Dachkante | An der Stelle wird die Kante geteilt: auf beiden Teilen erscheint eine **Raute** (#342) | ❓ |
+| 44.2 | Die Raute eines Teils nach innen oder außen ziehen | Die Kante dieses Teils wandert in 5-cm-Schritten mit (Alt: frei); beim Loslassen ist das Dach in 3D an dieser Stelle schmaler bzw. breiter, der First bleibt gerade und gleich hoch, am Absatz schließt ein kleines Dreieck die Lücke | ❓ |
+| 44.3 | Strg+Z, dann Doppelklick auf eine Raute | Strg+Z nimmt das Ziehen zurück; der Doppelklick nimmt den Absatz wieder weg | ❓ |
+| 44.4 | „Etage verwalten“ aufklappen, Abschnitt „Absätze“: Seite, „Ab (Abstand vom Giebel)“ und „Nach außen“ ändern, „+ Absatz“, × | Das Dach ändert sich passend; „+ Absatz“ legt einen auf Seite A in der Hausmitte an (50 cm nach außen) | ❓ |
+| 44.5 | „Ausgebauter Dachstuhl“ an, die Etage darunter öffnen; eine Gaube und ein Solarpanel auf den breiten Teil setzen | Die Wände werden an der richtigen Dachfläche abgeschnitten; Gaube und Panel sitzen auf der flacheren Fläche des breiten Teils | ❓ |
+| 44.6 | Dachform „Walmdach“ wählen | Statt der Absätze steht ein Hinweis (nur Sattel- und Flachdach); das Walmdach bleibt rechteckig | ❓ |

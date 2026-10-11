@@ -73,3 +73,14 @@ test('setting a roof box: the main roof keeps it, panels stay; no change gives f
   assert.equal(R.setRoofBox(f, 'rp1', { x0: 12, x1: 18, z0: 0, z1: 5 }, auto), true);
   assert.equal(f.roof.parts[0].box.x1, 18);
 });
+
+test('steps (#342): the main roof brings its outline and step handles; a click on the wider part picks it', () => {
+  const f = roofFloor(); f.roof.steps = [{ side: 0, at: 5, out: 1 }];
+  const m = R.roofRects(f, auto)[0];
+  assert.deepEqual(m.outline, [[0, 0], [5, 0], [5, -1], [10, -1], [10, 8], [0, 8]]);
+  assert.equal(m.steps.length, 2);
+  assert.equal(R.roofAt(R.roofRects(f, auto), 7, -0.5)?.id, 'dach:roof', 'outside the box, inside the step');
+  assert.equal(R.roofAt(R.roofRects(f, auto), 2, -0.5), null);
+  assert.deepEqual(R.stepTarget(f, 'dach:roof', auto), { bb: auto, r: f.roof });
+  assert.equal(R.stepTarget(f, 'rp1', auto), null, 'only the main roof');
+});

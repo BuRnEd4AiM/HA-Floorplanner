@@ -1,5 +1,6 @@
 // Solar panels on the roof (#176): where a point lies on a roof surface, how a panel has to be tilted to lie on it,
 // and how a field of panels (rows x columns) is laid out. Pure maths, no three.js, no DOM (unit test: tests/solarroof.test.mjs).
+import { outAt } from './roofsteps.js';
 
 /** one panel: width (local x), depth (local z, the long side), the gap between panels in a field */
 export const PANEL = { w: 1.0, d: 1.65, gap: 0.02 };
@@ -23,12 +24,13 @@ export function roofFrame(bb, r) {
  *  null when the point is not under this roof. A flat roof is its top plate (0.1 m). */
 export function roofSurfaceAt(bb, r, x, z) {
   if (!bb) return null;
-  const F = roofFrame(bb, r);
-  if (x < F.x0 - 1e-9 || x > F.x1 + 1e-9 || z < F.z0 - 1e-9 || z > F.z1 + 1e-9) return null;
+  const F = roofFrame(bb, r), a = F.alongX ? x : z, b = F.alongX ? z : x;
+  const o0 = outAt(bb, r, 0, a), o1 = outAt(bb, r, 1, a);                  // a roof with steps (#342): the eaves here
+  if (a < F.a0 - 1e-9 || a > F.a1 + 1e-9 || b < F.b0 - o0 - 1e-9 || b > F.b1 + o1 + 1e-9) return null;
   if (F.flat) return { y: 0.1, n: [0, 1, 0], slope: 0 };
-  const a = F.alongX ? x : z, b = F.alongX ? z : x;
   // the roof is the lowest of its planes: the two long sides, and with a hip roof the two ends
-  const planes = [{ y: (F.h * (F.half - Math.abs(b - F.bc))) / F.half, run: F.half, da: 0, db: b >= F.bc ? 1 : -1 }];
+  const o = b >= F.bc ? o1 : o0, run = F.half + o;
+  const planes = [{ y: o ? (F.h * (b >= F.bc ? F.b1 + o1 - b : b - F.b0 + o0)) / run : (F.h * (F.half - Math.abs(b - F.bc))) / F.half, run, da: 0, db: b >= F.bc ? 1 : -1 }];
   if (F.ins > 0) {
     planes.push({ y: (F.h * (a - F.a0)) / F.ins, run: F.ins, da: -1, db: 0 });
     planes.push({ y: (F.h * (F.a1 - a)) / F.ins, run: F.ins, da: 1, db: 0 });
