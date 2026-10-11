@@ -3,7 +3,8 @@
  * solar panels lying on the roof (#176) and the fading of the roofs when the camera comes close. The boxes are pure (unit test:
  * tests/roofs.test.mjs), the rest draws with three.js. */
 import * as THREE from './vendor/three.module.min.js';
-import { dormerParts, roofSurface } from './dormer.js';
+import { dormerParts, roofSurface, fitDormer } from './dormer.js';
+import { frontHoles } from './dormerwin.js';
 import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
 import { roofY0, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom } from './attic.js';
@@ -99,7 +100,7 @@ export function initRoofs(ctx) {
     return geo;
   }
   /** one roof (the main one, or a further one of the house): `spec` has type / pitch / overhang / dormers, `bb` is its base, `y0` lifts it onto the floor it sits on */
-  function drawRoof(g, bb, spec, y0, tag, holo, ghost) {
+  function drawRoof(g, bb, spec, y0, tag, holo, ghost, holesOf = () => []) {
     const geo = roofGeometry(bb, spec);
     const m = new THREE.Mesh(geo, holo
       ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : 0.45, side: THREE.DoubleSide, depthWrite: false })
@@ -111,22 +112,22 @@ export function initRoofs(ctx) {
     const fade = (mesh, ms) => { if (!ghost) roofs.push({ mesh, mats: ms.map((x) => ({ x, base: x.opacity, transparent: x.transparent, depthWrite: x.depthWrite })), box: null }); };
     fade(m, mats);
     (spec.dormers || []).forEach((d) => {                                 // dormers (Gauben): wall, little roof and window out of one slope
-      const parts = dormerParts(bb, spec, d);
+      const parts = dormerParts(bb, spec, d, holesOf(d));
       if (!parts) return;
-      const part = (tris, material, edgeAngle) => {
+      const part = (tris, material, edgeAngle, name) => {
         if (!tris.length) return;
         const geo = new THREE.BufferGeometry();
         geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
         geo.computeVertexNormals();
         const pm = new THREE.Mesh(geo, material), ms = [material];
         if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); pm.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, edgeAngle), em)); ms.push(em); }
-        pm.position.y = y0; pm.userData.roofPart = tag;
+        pm.position.y = y0; pm.userData.roofPart = tag; pm.userData.dormerPart = name;
         g.add(pm); fade(pm, ms);
       };
       const hm = (opacity) => new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : opacity, side: THREE.DoubleSide, depthWrite: false });
-      part(parts.wall, holo ? hm(0.5) : mat('#d9d3c6', ghost, { side: THREE.DoubleSide }), 20);
-      part(parts.roof, holo ? hm(0.45) : mat('#8f3b2f', ghost, { side: THREE.DoubleSide }), 20);
-      if (!d.window || d.hostWall) part(parts.glass, new THREE.MeshBasicMaterial({ color: holo ? 0x3df2ff : 0x9fd4ff, transparent: true, opacity: ghost ? 0.2 : 0.75, side: THREE.DoubleSide, depthWrite: false }), 90);
+      part(parts.wall, holo ? hm(0.5) : mat('#d9d3c6', ghost, { side: THREE.DoubleSide }), 20, 'wall');
+      part(parts.roof, holo ? hm(0.45) : mat('#8f3b2f', ghost, { side: THREE.DoubleSide }), 20, 'roof');
+      if (!d.window || d.hostWall) part(parts.glass, new THREE.MeshBasicMaterial({ color: holo ? 0x3df2ff : 0x9fd4ff, transparent: true, opacity: ghost ? 0.2 : 0.75, side: THREE.DoubleSide, depthWrite: false }), 90, 'glass');
     });
   }
   /** the roofs of roof floor i: the main one and further roofs, each with its base box and lift (also where solar panels lie, #176) */
@@ -160,12 +161,18 @@ export function initRoofs(ctx) {
     const dormers = roofList(ri).flatMap((R) => dormerRooms(R.bb, R.spec, R.y0));
     return roofOverRoom({ cuts: clipRoofFloor(ctx.layout().floors, i) === ri, dormers, pts });
   }
-  function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost)); }
+  /** the holes in the front walls of the dormers of roof R (of roof floor i) for the doors and windows of the walls they stand on (#341): of
+   *  the storeys below and of the roof floor itself */
+  const holesFor = (i, R) => (d) => {
+    const n = fitDormer(R.bb, R.spec, d), floors = ctx.layout().floors;
+    return n ? floors.flatMap((f, fi) => (fi > i || (f.kind === 'roof' && fi !== i) ? [] : frontHoles(n, f.walls, ctx.elev(fi) - ctx.elev(i) - R.y0))) : [];
+  };
+  function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost, holesFor(i, R))); }
   /** the roofs of roof floor i (slopes and dormers) see-through over the floor shown: only the part over the room's outline pts (a
    *  focused room), or all of it (pts null: a whole floor under the roof, #275) */
   function buildOver(g, i, pts, holo) {
     const n0 = g.children.length, u = pts ? polyUniforms(pts) : null;
-    roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, true));
+    roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, true, holesFor(i, R)));
     g.children.slice(n0).forEach((m) => m.traverse((x) => {
       if (!x.material) return;
       [].concat(x.material).forEach((mm) => { mm.transparent = true; mm.opacity = Math.min(mm.opacity, holo ? 0.2 : 0.3); mm.depthWrite = false; if (u) clipToPoly(mm, u); });

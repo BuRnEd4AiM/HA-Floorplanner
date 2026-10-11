@@ -163,3 +163,18 @@ test('roof surface: a hole under every dormer, as big as the dormer where it mee
     }
   }
 });
+
+test('front wall with holes (#341): the windows of the wall behind show through, the rest stays closed', () => {
+  const d = { type: 'shed', side: 0, pos: 0.5, w: 6, hw: 1.6, eave: 0.4, sp: 10, win: false };
+  const n = D.fitDormer(bb, roof, d), front = (p) => p.wall.slice(0, p.wall.length - 6);   // the two cheeks come last
+  const full = area(front(D.dormerParts(bb, roof, d)));
+  assert.ok(Math.abs(full - 6 * (n.yT - n.yF + 0.05)) < 1e-9);
+  const holes = [{ u0: -2, u1: -1, y0: n.yF + 0.3, y1: n.yF + 1.2 }, { u0: 1, u1: 2, y0: n.yF + 0.3, y1: n.yF + 1.2 }];
+  const p = D.dormerParts(bb, roof, d, holes), f = front(p);
+  assert.ok(Math.abs(area(f) - (full - 2 * 0.9)) < 1e-9, 'two holes of 1 x 0.9 m');
+  for (let i = 0; i < f.length; i += 3) {
+    const u = (f[i][0] + f[i + 1][0] + f[i + 2][0]) / 3 - n.at, y = (f[i][1] + f[i + 1][1] + f[i + 2][1]) / 3;
+    assert.ok(!holes.some((h) => u > h.u0 && u < h.u1 && y > h.y0 && y < h.y1), 'nothing of the front wall in a hole');
+  }
+  assert.equal(p.roof.length, D.dormerParts(bb, roof, d).roof.length, 'the roof of the dormer stays');
+});

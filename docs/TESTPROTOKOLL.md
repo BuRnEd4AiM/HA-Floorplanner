@@ -37,6 +37,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 
 **Neu in 3.71** (ausführlich in Abschnitt **42** unten)
 14. **Lange Schleppgaube** (42.1 bis 42.6, #339): Bearbeiten, Etage „Dach“, „Etage verwalten“ aufklappen. Bei einer Gaube „Dachform der Gaube“ auf **„Schleppgaube“** stellen, „Breite“ z. B. 6 m, **„Abstand vom Giebel“** z. B. 3 m. In 3D: die Wand geht vorne senkrecht hoch, das Dach der Gaube läuft flacher bis ins Hauptdach, links und rechts davon ist wieder normale Schräge.
+15. **Neu in 3.72: ein Fenster pro Raum unter der Schleppgaube** (43.1 bis 43.4, #341): bei der Schleppgaube den Haken „Fenster“ aus. Dann die Etage darunter öffnen und mit dem Werkzeug „Tür/Fenster“ in die Wand jedes Raums unter der Gaube ein Fenster setzen. Von außen sind die Fenster jetzt **durch die Gaube** zu sehen.
 
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
@@ -146,7 +147,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 40. Neu in 3.69: Rollläden an den Fenstern | 0 | 0 | 6 | 0 | 40.1 bis 40.6 |
 | 41. Neu in 3.70: Rollladen-Karte | 0 | 0 | 5 | 0 | 41.1 bis 41.5 |
 | 42. Neu in 3.71: lange Schleppgaube | 0 | 0 | 6 | 0 | 42.1 bis 42.6 |
-| **Zusammen** | **198** | **1** | **91** | **2** | |
+| 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube | 0 | 0 | 4 | 0 | 43.1 bis 43.4 |
+| **Zusammen** | **198** | **1** | **95** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -672,3 +674,11 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 42.4 | „Neigung der Gaube“ auf 8 und dann auf 25 stellen, danach „Höhe der Wand“ sehr hoch (z. B. 3 m) | Das Gaubendach wird flacher bzw. steiler. Ist die Wand zu hoch für die Neigung, wird zuerst das Gaubendach flacher (das Feld zeigt den benutzten Wert), erst dann die Wand niedriger; nichts ragt über den First | ❓ |
 | 42.5 | Haken „Ausgebauter Dachstuhl“ setzen (Kniestock), dann die Etage darunter öffnen | Unter der Schleppgaube gehen die Wände gerade hoch bis unter ihr schräges Dach; daneben werden sie an der Dachschräge abgeschnitten | ❓ |
 | 42.6 | Mit der Kamera nah an eine Gaube (auch eine normale) heran, oder einen Raum unter einer Gaube öffnen | Die Schräge des Hauptdachs läuft **nicht** mehr quer durch den Raum unter der Gaube: dort hat das Dach ein Loch, das Gaube und Gaubendach schließen | ❓ |
+
+## 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 43.1 | Schleppgaube auf der Außenwand (42.1), Haken „Fenster“ aus. Etage darunter öffnen, Werkzeug „Tür/Fenster“: in die Wand unter der Gaube zwei Fenster setzen (z. B. eines pro Raum), Sims etwa 1,2 m | Von außen (Ganzes Haus oder Live) sind beide Fenster **durch die Gaube** zu sehen, mit Rahmen und Glas; die Gaube hat dort keine geschlossene Wand mehr (#341) | ❓ |
+| 43.2 | Eines der Fenster anklicken, Kontakt und Haken „Rollladen“ mit Entität setzen | Es ist ein normales Fenster: Kontakt, offen = rot, Rollladen fährt außen vor dem Glas, Kugel 🪟 im Live-Modus | ❓ |
+| 43.3 | Live: in den Raum tippen (Raum-Karte), oben auf „n offen“ schauen | Das Fenster steht beim richtigen Raum, ein offenes Fenster zählt bei „n offen“ | ❓ |
+| 43.4 | Ein Fenster in der Wand verschieben oder löschen | Das Loch in der Gaube wandert mit bzw. ist wieder zu | ❓ |

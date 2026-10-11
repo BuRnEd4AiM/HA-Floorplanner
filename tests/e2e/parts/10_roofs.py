@@ -1,4 +1,4 @@
-"""Roofs and selecting: solar panels on the roof (#176), moving and sizing roofs (#255, #259), lived-in attic (#260), a long shed dormer (#339), several things at once (#211, #247), the turning 2D plan (#212).
+"""Roofs and selecting: solar panels on the roof (#176), moving and sizing roofs (#255, #259), lived-in attic (#260), a long shed dormer (#339) with the windows of the rooms under it (#341), several things at once (#211, #247), the turning 2D plan (#212).
 """
 # a house of its own: four storeys with walls and no roof yet (the checks below add the roof). The test house of base.py has a roof already,
 # so the roof would come on top of it and the attic checks would find no walls below. The test house comes back at the end.
@@ -118,7 +118,7 @@ check("attic (#265): a dormer keeps the wall up under it; the roof can start fur
 # and the wall below reaches up under its sloping roof
 shed_from = len(sol_errs)                                     # only the errors from here on
 pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1; Object.assign(L[ri].roof, { type: 'gable', pitch: 35, overhang: 0.4, knee: 1 });
-  delete L[ri].roof.dormers; delete L[ri].roof.ridge; fp.rebuild(); fp.switchFloor(ri - 1); fp.switchFloor(ri); document.querySelector('#floorPanel').open = true; }""")
+  delete L[ri].roof.dormers; delete L[ri].roof.ridge; delete L[ri].roof.box; /* dragged above: back on the walls */ fp.rebuild(); fp.switchFloor(ri - 1); fp.switchFloor(ri); document.querySelector('#floorPanel').open = true; }""")
 pgSol.wait_for_timeout(500)
 main_tris = lambda: pgSol.evaluate("window.__fp.roofMeshes().filter((m) => m.tag === 'main').map((m) => m.tris)")
 t0 = main_tris()
@@ -138,6 +138,14 @@ pgSol.wait_for_timeout(600)                                   # drawn with the c
 pgSol.evaluate("window.__fp.switchFloor(window.__fp.layout.floors.length - 1)"); pgSol.wait_for_timeout(300)
 check("shed dormer (#339): the storey under it keeps its walls up under the sloping dormer roof (no shader error)",
       lw["keep"] >= 1 and lw["rise"] > 0.01 and not [e for e in sol_errs[shed_from:] if "Shader" in e or "WebGL" in e], (lw, sol_errs[shed_from:][:3]))
+# a window in the wall under the dormer (one per room, #341) shows through the dormer's front: its front wall gets a hole there
+front_tris = lambda: [m["tris"] for m in pgSol.evaluate("window.__fp.roofMeshes()") if m["part"] == "wall"]
+fw0 = front_tris()
+pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, w = L[L.length - 2].walls.find((x) => x.id.endsWith('w3'));   // x = 0: the dormer's front
+  w.openings.push({ id: 'shedWin', type: 'window', style: 'single', width: 1, height: 0.9, sill: 1.4, pos: 3 }); fp.rebuild(); }""")
+pgSol.wait_for_timeout(400)
+fw1 = front_tris()
+check("shed dormer (#341): a window in the wall under it shows through the dormer's front (a hole in its front wall)", len(fw0) == 1 and len(fw1) == 1 and fw1[0] > fw0[0], (fw0, fw1))
 pgSol.evaluate("() => { const r = window.__fp.layout.floors.at(-1).roof; delete r.knee; delete r.dormers; window.__fp.rebuild(); }")
 pgSol.wait_for_timeout(2500)                                  # the autosave has run: put the layout back as it was for the next tests
 pgSol.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", sol_saved); pgSol.wait_for_timeout(400)

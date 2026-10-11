@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.71.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.72.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -22,7 +22,7 @@ Stand: Version 3.71.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `dormer.js` | ~150 | Dachgauben (Geometrie, Größe des Fensters): Sattel-, Flach- und lange Schleppgaube (#339), Anfang in Metern vom Giebel (`dormerStart`, `posForStart`), Hauptdach mit Loch unter jeder Gaube (`roofSurface`); mit Unit-Tests |
 | `shutters.js` | ~120 | Rollläden an Fenstern, auch an Gaubenfenstern (#331): Haken und eigene Entität (`shutter`, `shutterEntity`), wie weit der Panzer unten ist, Text („60 % offen“), außen an der Wand (`shutterSide`), alle Entitäten eines Fensters (`linkedEntities`), Kugel und Schild über dem Fenster (`shutterBallY`, `shutterLabelY`, #335), Regeln der Rollladen-Karte (`sliderPosition`, `shownPosition`, `shutterCardText`); den Panzer baut `walls.js`, bewegt `openings.js`, die Kugel setzt `floorbuild.js`; reine Logik mit Unit-Tests |
 | `shuttercard.js` | ~100 | Rollladen-Karte im Live-Modus (#335): nur der Rollladen, großer senkrechter Schieber mit dem Panzer, Hoch / Stopp / Runter, feste Stufen 0–100 %; neu gezeichnet nur, wenn sich am Rollladen etwas ändert |
-| `dormerwin.js` | ~110 | Fenster der Dachgauben als echte Fenster (Kontakt, offen/zu, Raum, Liste): nie gespeicherte Wand pro Gaubenfenster an der richtigen Etage, in der Wand des Raums darunter, wenn eine direkt hinter der Gaube steht (#275), „Vorderseite auf die Wand“; `openingWalls(f)` für alles, was Türen/Fenster sucht; reine Logik mit Unit-Tests |
+| `dormerwin.js` | ~110 | Fenster der Dachgauben als echte Fenster (Kontakt, offen/zu, Raum, Liste): nie gespeicherte Wand pro Gaubenfenster an der richtigen Etage, in der Wand des Raums darunter, wenn eine direkt hinter der Gaube steht (#275), „Vorderseite auf die Wand“; `openingWalls(f)` für alles, was Türen/Fenster sucht; reine Logik mit Unit-Tests; Türen/Fenster einer Wand, auf der die Vorderseite einer Gaube steht, durch die Gaube zeigen (`frontHoles`, #341) |
 | `ledring.js` | 195 | LED-Ring |
 | `nanoleaf.js` | 179 | Nanoleaf-Formen und kleiner Editor |
 | `autoplace.js` | 179 | Automatisches Platzieren der Entitäten eines Bereichs |
