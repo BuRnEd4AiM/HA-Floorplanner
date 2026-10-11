@@ -18,7 +18,8 @@
   const MIN_ADDON = '3.75.0';                       // the first add-on version that knows ?card=1
   // The Supervisor names an add-on "<first 8 hex digits of sha1(repository address in lower case)>_<slug>", "local_<slug>" for a copy in
   // /addons. The card looks for the add-on's sidebar panel first; these are tried when it is hidden ("Show in sidebar" off): the
-  // repository added as https://github.com/BuRnEd4AiM/HA-Floorplanner, with "/" or with ".git" at the end, or a local copy.
+  // repository added as https://github.com/BuRnEd4AiM/HA-Floorplanner, with "/" or with ".git" at the end, or a local copy. Then, for
+  // an administrator, the list of installed add-ons (the repository added under another address, #352).
   const KNOWN = ['05edeb72', '986a80b9', 'b9c4c5d0', 'local'].map((h) => `${h}_${SLUG}`);
   const DEFAULT_HEIGHT = '400px';
   const OPTIONS = {                                 // the choices of the editor's drop-downs; "default" = as set in the add-on (left out)
@@ -36,8 +37,8 @@
   const TEXT = {
     en: {
       loading: 'Loading 3D Floorplan …',
-      notFound: 'The 3D Floorplan add-on was not found. Install and start it (Settings → Add-ons), or enter its slug in the card option "addon".',
-      notRunning: 'The 3D Floorplan add-on is not running. Start it in Settings → Add-ons.',
+      notFound: 'The 3D Floorplan add-on was not found. Install and start it (Settings → Apps, formerly Add-ons), or enter its slug in the card option "addon". Tried: {tried}',
+      notRunning: 'The 3D Floorplan add-on is not running. Start it in Settings → Apps (formerly Add-ons).',
       tooOld: 'The 3D Floorplan add-on is version {v}. The card needs {min} or newer: update the add-on.',
       noAccess: 'Home Assistant does not let this user open the add-on: {e}',
       failed: 'The 3D Floorplan add-on could not be opened: {e}',
@@ -59,8 +60,8 @@
     },
     de: {
       loading: '3D Floorplan wird geladen …',
-      notFound: 'Das Add-on 3D Floorplan wurde nicht gefunden. Installiere und starte es (Einstellungen → Add-ons) oder trage seinen Slug in der Karten-Option „addon“ ein.',
-      notRunning: 'Das Add-on 3D Floorplan läuft nicht. Starte es unter Einstellungen → Add-ons.',
+      notFound: 'Das Add-on 3D Floorplan wurde nicht gefunden. Installiere und starte es (Einstellungen → Apps, früher Add-ons) oder trage seinen Slug in der Karten-Option „addon“ ein. Gesucht: {tried}',
+      notRunning: 'Das Add-on 3D Floorplan läuft nicht. Starte es unter Einstellungen → Apps (früher Add-ons).',
       tooOld: 'Das Add-on 3D Floorplan hat die Version {v}. Die Karte braucht {min} oder neuer: bitte das Add-on aktualisieren.',
       noAccess: 'Home Assistant lässt diesen Benutzer das Add-on nicht öffnen: {e}',
       failed: 'Das Add-on 3D Floorplan konnte nicht geöffnet werden: {e}',
@@ -115,7 +116,7 @@
 
   /* ---- the add-on: looked up once per page and slug (cards asking at the same time share the answer; a failure is asked again) ---- */
   const found = new Map();
-  /** { slug, ingressUrl, version } of the running add-on; throws { kind: notFound | notRunning | tooOld | noAccess | failed, message } */
+  /** { slug, ingressUrl, version } of the running add-on; throws { kind: notFound | notRunning | tooOld | noAccess | failed, message, tried } */
   function findAddon(hass, config) {
     const key = config.addon || '';
     if (!found.has(key)) found.set(key, lookup(hass, config).catch((e) => { found.delete(key); throw e; }));
@@ -123,33 +124,50 @@
   }
   async function lookup(hass, config) {
     let denied = null, other = null;
-    for (const slug of Floorplan3dCard.slugs(hass.panels, config.addon)) {
-      let info;
-      try { info = await supervisor(hass, `/addons/${slug}/info`); }
-      catch (e) {
-        if (/unauthori[sz]ed|forbidden/i.test(`${e?.code} ${e?.message}`)) denied = e;
-        else if (!KNOWN.includes(slug)) other = e;                     // the card option or the sidebar panel named it: a real failure
-        continue;                                                      // a usual name that is not installed here
+    const tried = [];
+    const attempt = async (slugs) => {
+      for (const slug of slugs) {
+        if (tried.includes(slug)) continue;
+        tried.push(slug);
+        let info;
+        try { info = await supervisor(hass, `/addons/${slug}/info`); }
+        catch (e) {
+          if (/unauthori[sz]ed|forbidden/i.test(`${e?.code} ${e?.message}`)) denied = e;
+          else if (!KNOWN.includes(slug)) other = e;                   // the card option, the sidebar panel or the list named it: a real failure
+          continue;                                                    // a usual name that is not installed here
+        }
+        if (!info?.ingress_url) continue;
+        if (info.state && info.state !== 'started') throw { kind: 'notRunning' };
+        if (Floorplan3dCard.olderThan(info.version, MIN_ADDON)) throw { kind: 'tooOld', version: info.version };
+        return { slug, ingressUrl: info.ingress_url, version: info.version };
       }
-      if (!info?.ingress_url) continue;
-      if (info.state && info.state !== 'started') throw { kind: 'notRunning' };
-      if (Floorplan3dCard.olderThan(info.version, MIN_ADDON)) throw { kind: 'tooOld', version: info.version };
-      return { slug, ingressUrl: info.ingress_url, version: info.version };
+      return null;
+    };
+    let hit = await attempt(Floorplan3dCard.slugs(hass.panels, config.addon));
+    if (!hit && !config.addon) {                                       // installed under another name and not in the sidebar: the installed
+      const list = await supervisor(hass, '/addons').catch(() => null); // add-ons (administrators only, others get "unauthorized")
+      hit = await attempt(Floorplan3dCard.slugsFromList(list));
     }
+    if (hit) return hit;
     if (denied) throw { kind: 'noAccess', message: denied.message || denied.code };
     if (other) throw { kind: 'failed', message: other.message || other.code || String(other) };
-    throw { kind: 'notFound' };
+    throw { kind: 'notFound', tried };
   }
+  const isOurs = (s) => typeof s === 'string' && (s === SLUG || s.endsWith(`_${SLUG}`));
 
   class Floorplan3dCard extends HTMLElement {
     /* ---- pure helpers (tests/card.test.mjs) ---- */
 
-    /** the add-on slugs to try: the card option alone, else the add-on's sidebar panel(s), then the usual names */
+    /** the add-on slugs to try: the card option alone, else the add-on's sidebar panel(s), then the usual names. A panel names its add-on
+     *  in config.addon (Home Assistant 2026.2 and newer, #352) or config.ingress (older) */
     static slugs(panels, want) {
       if (want) return [String(want).trim()];
-      const fromPanels = Object.values(panels || {}).map((p) => p?.config?.ingress)
-        .filter((s) => typeof s === 'string' && (s === SLUG || s.endsWith(`_${SLUG}`)));
+      const fromPanels = Object.values(panels || {}).flatMap((p) => [p?.config?.addon, p?.config?.ingress]).filter(isOurs);
       return [...new Set([...fromPanels, ...KNOWN])];
+    }
+    /** the slugs of this add-on in the Supervisor's list of installed add-ons ({ addons: [{ slug }] }, { apps: [...] } in a newer API) */
+    static slugsFromList(data) {
+      return [...new Set([].concat(data?.addons || data?.apps || []).map((a) => a?.slug).filter(isOurs))];
     }
 
     /** true when version a is older than b ("3.74.2" < "3.75.0"); an unknown version is not older (a dev build) */
@@ -324,7 +342,7 @@
         if (run !== this._run) return;
         const kind = TEXT.en[e?.kind] ? e.kind : 'failed';
         frame.hidden = true; frame.removeAttribute('src');
-        this._message(fill(T[kind], { v: e?.version, min: MIN_ADDON, e: e?.message || e?.code || String(e) }), true);
+        this._message(fill(T[kind], { v: e?.version, min: MIN_ADDON, e: e?.message || e?.code || String(e), tried: (e?.tried || []).join(', ') }), true);
         clearTimeout(this._retry);
         if (this.isConnected) this._retry = setTimeout(() => this._render(), 30000);   // the add-on may be starting: try again
       }

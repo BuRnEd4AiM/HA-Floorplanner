@@ -270,7 +270,7 @@ heatmap: temp           # start with the temperature colours (temp, humid, co2)
 | `night` | `off`, `sun`, `time` (dim at night) | as in the add-on |
 | `room_panel` | `false`: a tap on a room only zooms in | `true` |
 | `show_nav` / `show_bar` | `false`: no bar at the top (floors, rooms) / at the bottom (view, room colours, search) | `true` |
-| `addon` | the add-on's slug, only if the card does not find it by itself | found by itself |
+| `addon` | the add-on's slug, only if the card does not find it by itself (the message *not found* lists the names it tried; the slug is in the address of the add-on's page under Settings → Apps) | found by itself |
 
 If a dashboard says *Custom element doesn't exist: floorplan3d-card*, the browser has not loaded the card: open `http://<your Home Assistant>:8123/hacsfiles/HA-Floorplanner/floorplan3d-card.js`. A 404 means HACS has not downloaded it: HACS → *3D Floorplan Card* → ⋮ → *Redownload* (3.75.0 had this problem, 3.75.1 fixes it), then reload the browser with Ctrl+F5.
 
