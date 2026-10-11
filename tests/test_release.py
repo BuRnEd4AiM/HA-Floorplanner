@@ -1,5 +1,6 @@
 """tools/release_versions.py: which releases the release workflow creates (several merges in a row must not skip versions)."""
 import importlib.util
+import json
 from pathlib import Path
 
 spec = importlib.util.spec_from_file_location("release_versions", Path(__file__).parent.parent / "tools" / "release_versions.py")
@@ -45,3 +46,14 @@ def test_the_workflow_skips_versions_without_a_commit_and_never_breaks_its_pipe(
     assert "| head" not in loop                      # head closes the pipe early: git gets SIGPIPE and set -o pipefail stops the run
     assert "never in config.yaml, skipped" in loop   # an old version that was never shipped is skipped
     assert loop.index('[ "$ver" = "$cfg" ]') < loop.index('target="$GITHUB_SHA"')   # only the current version may fall back to the run's commit
+
+
+def test_every_release_carries_the_dashboard_card():
+    """Once a release has files attached (the demo), HACS downloads only those: the card must be one of them, under the name of hacs.json (#348)."""
+    root = Path(__file__).parent.parent
+    name = json.loads((root / "hacs.json").read_text(encoding="utf-8"))["filename"]
+    wf = (root / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+    assert (root / "dist" / name).is_file()
+    assert f"dist/{name}" in wf and "gh release upload" in wf
+    create = next(l for l in wf.splitlines() if "gh release create" in l)
+    assert "card[@]" in create                                   # attached when the release is made, not after it is published

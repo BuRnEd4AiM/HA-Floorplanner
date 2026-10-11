@@ -272,6 +272,8 @@ heatmap: temp           # start with the temperature colours (temp, humid, co2)
 | `show_nav` / `show_bar` | `false`: no bar at the top (floors, rooms) / at the bottom (view, room colours, search) | `true` |
 | `addon` | the add-on's slug, only if the card does not find it by itself | found by itself |
 
+If a dashboard says *Custom element doesn't exist: floorplan3d-card*, the browser has not loaded the card: open `http://<your Home Assistant>:8123/hacsfiles/HA-Floorplanner/floorplan3d-card.js`. A 404 means HACS has not downloaded it: HACS → *3D Floorplan Card* → ⋮ → *Redownload* (3.75.0 had this problem, 3.75.1 fixes it), then reload the browser with Ctrl+F5.
+
 The look of a card applies to that card only and never changes the add-on's settings. Every card is a full 3D view: one or two per dashboard are fine, on weak tablets prefer `quality: low`.
 
 ## 🚀 Quick start
