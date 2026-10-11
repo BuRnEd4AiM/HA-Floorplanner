@@ -1,26 +1,35 @@
 /* Moving roofs (#255): on the open roof floor every roof (the main one and the further ones) can be picked and dragged, in 3D and in the 2D
  * plan, or nudged with the arrow keys. A roof is a rectangle (its base box); the main roof follows the house by itself until it is first
- * moved, then it keeps its own box ("size set by hand"). Solar panels lying on a roof go along; dormers sit on the roof anyway. Pure
+ * moved, then it keeps its own box ("size set by hand"). Solar panels lying on a roof go along; dormers sit on the roof anyway. The eaves of
+ * the main roof can have steps (#342): its outline and their handles come along, stepTarget says which roof can get them. Pure
  * (unit test: tests/roofmove.test.mjs). */
+
+import { outline, stepHandles } from './roofsteps.js';
 
 /** the selection id of the main roof of floor f (a further roof uses its own id) */
 export const mainRoofId = (f) => `${f.id}:roof`;
 
 const okBox = (b) => !!b && [b.x0, b.x1, b.z0, b.z1].every(Number.isFinite) && b.x1 > b.x0 && b.z1 > b.z0;
 
-/** the roofs of roof floor f as rectangles: [{ id, main, name, box }]; autoBox: the box the main roof takes from the house below (or null) */
+/** the roofs of roof floor f as rectangles: [{ id, main, name, box }]; autoBox: the box the main roof takes from the house below (or null).
+ *  The main roof also has its outline with the steps of its eaves and their handles (#342, roofsteps.js) */
 export function roofRects(f, autoBox) {
   if (f?.kind !== 'roof') return [];
   const r = f.roof || {}, out = [];
   const main = okBox(r.box) ? r.box : autoBox;
-  if (okBox(main)) out.push({ id: mainRoofId(f), main: true, name: '', box: { x0: main.x0, x1: main.x1, z0: main.z0, z1: main.z1 } });
+  if (okBox(main)) {
+    const box = { x0: main.x0, x1: main.x1, z0: main.z0, z1: main.z1 };
+    out.push({ id: mainRoofId(f), main: true, name: '', box, outline: outline(box, r), steps: stepHandles(box, r) });
+  }
   (r.parts || []).forEach((p, i) => { if (okBox(p.box)) out.push({ id: p.id || `part${i}`, main: false, name: p.name || '', box: { ...p.box } }); });
   return out;
 }
 
 /** the roof under the point (x, z): the smallest rectangle that holds it (a small further roof inside the main one wins), or null */
 export function roofAt(rects, x, z) {
-  const hit = rects.filter(({ box: b }) => x >= b.x0 && x <= b.x1 && z >= b.z0 && z <= b.z1);
+  const inPoly = (pts) => pts.reduce((on, p, i) => { const q = pts[(i || pts.length) - 1];
+    return (p[1] > z) !== (q[1] > z) && x < ((q[0] - p[0]) * (z - p[1])) / (q[1] - p[1]) + p[0] ? !on : on; }, false);
+  const hit = rects.filter(({ box: b, outline: o }) => (x >= b.x0 && x <= b.x1 && z >= b.z0 && z <= b.z1) || (o?.length > 2 && inPoly(o)));   // with steps also outside the box (#342)
   hit.sort((a, b) => (a.box.x1 - a.box.x0) * (a.box.z1 - a.box.z0) - (b.box.x1 - b.box.x0) * (b.box.z1 - b.box.z0));
   return hit[0] || null;
 }
@@ -35,6 +44,9 @@ export function roofBoxFor(f, id, autoBox) {
   const p = (r.parts || []).find((q, i) => (q.id || `part${i}`) === id);
   return p && okBox(p.box) ? p.box : null;
 }
+
+/** the roof whose eaves can get steps (#342): the main roof of floor f, with its base box bb (the one it is drawn with); null for the others */
+export const stepTarget = (f, id, bb) => (f?.kind === 'roof' && id === mainRoofId(f) && okBox(bb) ? { bb, r: (f.roof ||= {}) } : null);
 
 const r3 = (v) => +v.toFixed(3);
 /** the solar panels of floor f lying on a roof with base box b: they go along when it moves */

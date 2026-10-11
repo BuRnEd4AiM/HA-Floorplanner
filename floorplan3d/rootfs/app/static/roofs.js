@@ -1,10 +1,11 @@
 /* Roofs (#137, step 19): the roof box of a roof floor, the roof surfaces with dormers (gable, flat, shed; a hole in the slope under each,
- * #339) and further roofs, the railing round a roof terrace,
+ * #339), steps in the eaves (#342) and further roofs, the railing round a roof terrace,
  * solar panels lying on the roof (#176) and the fading of the roofs when the camera comes close. The boxes are pure (unit test:
  * tests/roofs.test.mjs), the rest draws with three.js. */
 import * as THREE from './vendor/three.module.min.js';
 import { dormerParts, roofSurface, fitDormer } from './dormer.js';
 import { frontHoles } from './dormerwin.js';
+import { intervals } from './roofsteps.js';
 import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
 import { roofY0, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom } from './attic.js';
@@ -91,8 +92,11 @@ export function initRoofs(ctx) {
       const { alongX, a0, a1, b0, b1 } = roofFrame(bb, r);                  // a = ridge axis, b = across (shared with the solar panels on the roof)
       const P = (a, b, y) => (alongX ? [a, y, b] : [b, y, a]);
       const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
-      quad(P(a0, b0, 0.1), P(a1, b0, 0.1), P(a1, b1, 0.1), P(a0, b1, 0.1));
-      quad(P(a0, b0, 0), P(a0, b1, 0), P(a1, b1, 0), P(a1, b0, 0));
+      intervals(bb, r, a0, a1).forEach(({ a0: p0, a1: p1, out0, out1 }) => {   // with steps (#342) one piece per stretch where no eave changes
+        const q0 = b0 - out0, q1 = b1 + out1;
+        quad(P(p0, q0, 0.1), P(p1, q0, 0.1), P(p1, q1, 0.1), P(p0, q1, 0.1));
+        quad(P(p0, q0, 0), P(p0, q1, 0), P(p1, q1, 0), P(p1, q0, 0));
+      });
     } else tris.push(...roofSurface(bb, r));
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3));
@@ -153,7 +157,7 @@ export function initRoofs(ctx) {
     const R = ri < 0 ? null : roofList(ri).find((r) => r.tag === 'main');
     if (!R) return null;
     const E = ctx.elev(ri);
-    const planes = roofPlanes(R.bb, R.spec, R.y0).map(([x, y, z, d]) => [x, y, z, d - y * E]);
+    const planes = roofPlanes(R.bb, R.spec, R.y0).map(([x, y, z, d, ...range]) => [x, y, z, d - y * E, ...range]);
     return planes.length ? { planes, rooms: dormerRooms(R.bb, R.spec, R.y0).map((q) => ({ ...q, top: q.top + E })) } : null;
   }
   /** is the roof of roof floor ri drawn over a focused room of floor i (outline pts): only when it cuts that floor or has a dormer over the room */

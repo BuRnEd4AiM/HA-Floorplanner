@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.73.0] - 2026-10-11
+### Added
+- **Roof with steps: a house narrower at the front and wider at the back** (#342): the eaves of a gable or flat roof can now have steps. From a point along the ridge the eave of one side lies further out (or in) than the rest, as where a house springs out a bit. The ridge stays straight and at one height and the eave stays at the height of the walls, so where the house is wider the slope is a little flatter; at a step a small upright triangle closes the gap between the two slopes. In the 2D plan (also in 2D + 3D): click the roof on the roof floor, double click on its edge to split it there, then drag the diamond handle of a piece out or in (5 cm steps, Alt: free); a double click on a diamond removes the step again. The roof panel (*Manage floor*) has a card per step (side, from where, how far out) and *+ Step*. The walls under the roof are cut at the right slope, solar panels lie on it, and a dormer stands on the slope under its middle. A hip roof keeps its rectangle. The JSON import knows `steps` (`side`, `at`, `out`). New module `roofsteps.js` (unit tests); dormers, roof surface, wall cut (the shader now takes up to 8 slope planes, each along its own stretch), solar panels and the 2D plan use it; new browser test part `12_roofsteps`.
+
+### Changed
+- The dormer unit tests run with the other module tests (they now import `roofsteps.js`).
+
 ## [3.72.0] - 2026-10-11
 ### Added
 - **The windows of the rooms show through a shed dormer** (#341): a long shed dormer (3.71.0) runs over several rooms, but a dormer has only one window of its own. Now every room under it can have its own window: put a door or window into the wall of the room under the dormer as usual (tool *Door/Window*). Where the dormer's front stands on such a wall (parallel, at most 25 cm in front of it or behind it), its front wall gets a hole for every door and window of that wall, so the real windows show through the dormer with frame, glass and roller shutter. They are ordinary windows: contact, open / closed, room, roller shutter, the list "n open". The dormer's own window can be switched off as before (tick *Window*). Works for every dormer type. The holes come from `frontHoles` in `dormerwin.js`, the front wall is cut around them in `dormerParts` (`dormer.js`, both with unit tests); the browser test puts a window under a shed dormer.

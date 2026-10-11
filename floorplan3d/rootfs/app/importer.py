@@ -679,6 +679,10 @@ def _roof(rep, path, spec, part=False):
         rep.warn(f"{path}.dormers", "a flat roof has no dormers, ignored")
     if dormers:
         roof["dormers"] = dormers
+    if not part:
+        steps = _steps(rep, f"{path}.steps", spec.get("steps"), typ)
+        if steps:
+            roof["steps"] = steps
     if part:
         name = spec.get("name")
         if isinstance(name, str) and name.strip():
@@ -708,6 +712,34 @@ def _roof(rep, path, spec, part=False):
             if out:
                 roof["parts"] = out
     return roof
+
+
+MAX_STEPS = 20
+
+
+def _steps(rep, path, raw, typ):
+    """Steps in the eaves (#342, house narrower at the front): side 0|1 (or "a"|"b"), at = metres along the ridge from the gable at the
+    low end of the ridge axis, out = metres the eave lies further out from there on (negative: in). Not on a hip roof."""
+    if raw is None:
+        return []
+    if not isinstance(raw, list):
+        rep.warn(path, "steps must be a list, ignored")
+        return []
+    if typ == "hip":
+        rep.warn(path, "a hip roof has no steps, ignored")
+        return []
+    out = []
+    for i, st in enumerate(raw[:MAX_STEPS]):
+        sp = f"{path}[{i}]"
+        side = st.get("side", 0) if isinstance(st, dict) else None
+        side = {"a": 0, "b": 1}.get(side.lower(), side) if isinstance(side, str) else side
+        if not isinstance(st, dict) or side not in (0, 1) or isinstance(side, bool) or not _num(st.get("at"), 0, 1000) or not _num(st.get("out"), -20, 20):
+            rep.warn(sp, "a step needs side 0/1 (or \"a\"/\"b\"), at (0 to 1000 m) and out (-20 to 20 m), ignored")
+            continue
+        out.append({"side": side, "at": float(st["at"]), "out": float(st["out"])})
+    if len(raw) > MAX_STEPS:
+        rep.warn(path, f"only the first {MAX_STEPS} steps are used")
+    return out
 
 
 DORMER_TYPES = {"gable", "flat", "shed"}

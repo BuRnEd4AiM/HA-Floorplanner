@@ -1,8 +1,8 @@
-// Unit tests for dormer.js (run: cp floorplan3d/rootfs/app/static/dormer.js /tmp/dormer.mjs && DORMER_MJS=/tmp/dormer.mjs node --test tests/dormer.test.mjs)
+// Unit tests for dormer.js (run like offline.test.mjs, see there: it imports roofsteps.js)
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-const D = await import(process.env.DORMER_MJS || '/tmp/dormer.mjs');
+const D = await import(`${process.env.STATIC_DIR || '/tmp/static'}/dormer.js`);
 const bb = { x0: 0, x1: 10, z0: 0, z1: 6 };                       // ridge along x (the longer side), 6 m across
 const roof = { type: 'gable', pitch: 35, overhang: 0.4 };
 const flat = (tris) => tris.flat();
@@ -177,4 +177,31 @@ test('front wall with holes (#341): the windows of the wall behind show through,
     assert.ok(!holes.some((h) => u > h.u0 && u < h.u1 && y > h.y0 && y < h.y1), 'nothing of the front wall in a hole');
   }
   assert.equal(p.roof.length, D.dormerParts(bb, roof, d).roof.length, 'the roof of the dormer stays');
+});
+
+// ---- a roof with steps (#342): narrower at the front, wider at the back
+const stepped = { ...roof, steps: [{ side: 0, at: 5, out: 1 }] };     // side A (z 0) lies 1 m further out from x 5 on
+const planArea = (tris) => { let s = 0; for (let i = 0; i < tris.length; i += 3) { const [a, b, c] = [tris[i], tris[i + 1], tris[i + 2]];
+  s += Math.abs((b[0] - a[0]) * (c[2] - a[2]) - (c[0] - a[0]) * (b[2] - a[2])) / 2; } return s; };
+
+test('roof with steps: the slopes cover the stepped outline, one ridge at one height, the eaves at 0', () => {
+  const s = D.roofSurface(bb, stepped), h = 3.4 * tan35;
+  assert.ok(Math.abs(planArea(s) - (10.8 * 6.8 + 5.4 * 1)) < 1e-9, `${planArea(s)}`);
+  assert.ok(s.every((p) => p[1] >= -1e-9 && p[1] <= h + 1e-9), 'nothing above the ridge or below the eaves');
+  assert.ok(s.some((p) => Math.abs(p[2] + 1.4) < 1e-9 && p[1] === 0), 'the wide part reaches the moved eave');
+  assert.ok(Math.abs(area(s) - area(oldRoof(bb, roof))) > 0.1, 'not the old roof');
+  const step = [];                                                 // the upright triangle at x = 5 between the two eaves
+  for (let i = 0; i < s.length; i += 3) if ([0, 1, 2].every((k) => Math.abs(s[i + k][0] - 5) < 1e-9)) step.push(s[i], s[i + 1], s[i + 2]);
+  assert.equal(step.length, 3);
+  assert.ok(Math.abs(area(step) - (1 * h) / 2) < 1e-9, 'closes the gap up to the ridge');
+});
+
+test('roof with steps: a dormer on the wide part stands on that slope', () => {
+  const n = D.fitDormer(bb, stepped, { type: 'flat', side: 0, pos: 0.9, w: 1.6, eave: 0.8 }), m = D.fitDormer(bb, stepped, { type: 'flat', side: 0, pos: 0.1, w: 1.6, eave: 0.8 });
+  assert.ok(n.at > 5 && m.at < 5);
+  assert.ok(Math.abs(n.F.b0 + 1.4) < 1e-9 && Math.abs(m.F.b0 + 0.4) < 1e-9, 'its eave');
+  assert.ok(Math.abs(n.F.half * n.F.tan - m.F.half * m.F.tan) < 1e-9 && n.F.tan < m.F.tan, 'the same ridge, a flatter slope');
+  const front = D.dormerParts(bb, stepped, { type: 'flat', side: 0, pos: 0.9, w: 1.6, eave: 0.8 }).wall[0];
+  assert.ok(Math.abs(front[2] - (-1.4 + 0.8)) < 1e-9, 'its front 80 cm in from the moved eave');
+  assert.ok(Math.abs(D.dormerParts(bb, { ...roof, steps: [] }, { side: 0 }).wall[0][2] - D.dormerParts(bb, roof, { side: 0 }).wall[0][2]) < 1e-12, 'without steps as before');
 });

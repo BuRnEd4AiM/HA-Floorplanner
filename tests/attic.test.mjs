@@ -122,3 +122,16 @@ test('room view (#306): the roof is drawn over a room only when it cuts the floo
   assert.equal(A.roofOverRoom({ cuts: false, dormers: [{ x0: 3, x1: 5, z0: 0, z1: 2 }], pts: room }), true);   // a dormer over the room
   assert.equal(A.roofOverRoom({ cuts: false, dormers: [{ x0: 6, x1: 8, z0: 0, z1: 2 }], pts: room }), false);  // a dormer elsewhere
 });
+
+test('roof with steps (#342): every slope piece cuts only along its own stretch', () => {
+  const spec = { type: 'gable', pitch: 45, overhang: 0, ridge: 'x', steps: [{ side: 0, at: 5, out: 1 }] };   // 10 x 8 m, side A 1 m out from x 5
+  const P = A.roofPlanes(bb, spec, 0);
+  assert.equal(P.length, 3, 'side B, and two pieces of side A');
+  assert.ok(P.filter((p) => p.length === 7).length === 2 && P.some((p) => p.length === 4), 'the pieces carry their stretch');
+  // at z = 0.5 (0.5 m inside the narrow part's eave): narrow slope y = 0.5, wide slope y = 4 * 1.5 / 5 = 1.2
+  assert.ok(A.underRoof(P, 2, 0.4, 0.5) && !A.underRoof(P, 2, 0.6, 0.5), 'the narrow part: its own 45° slope');
+  assert.ok(A.underRoof(P, 8, 1.1, 0.5) && !A.underRoof(P, 8, 1.3, 0.5), 'the wide part: the flatter slope');
+  assert.ok(A.underRoof(P, 8, 0.1, -0.5), 'the wide part reaches out beyond the box');
+  const plain = A.roofPlanes(bb, { ...spec, steps: [] }, 0), before = A.roofPlanes(bb, { type: 'gable', pitch: 45, overhang: 0, ridge: 'x' }, 0);
+  assert.deepEqual(plain, before, 'without steps the planes are the same as before');
+});

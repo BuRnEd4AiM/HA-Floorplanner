@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.72.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.73.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -102,6 +102,7 @@ Stand: Version 3.72.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `frameloop.js` | ~20 | Wie oft das Bild gezeichnet wird (Schritt 22): flüssig bei Bewegung, sparsam im Leerlauf und auf schwachen Tablets; mit Unit-Tests |
 | `houseload.js` | ~55 | Haus öffnen (Schritt 22): wechseln (vorher speichern), Import und Beispielhaus öffnen, Sicherung einspielen |
 | `roofmove.js` | ~65 | Dächer verschieben (#255): Dächer der Dach-Etage als Rechtecke, welches unter dem Zeiger liegt, verschieben (Solarpanels wandern mit, `panelsOn`; beim Ziehen wandert nur das gezeichnete Dach, #257), Größe an Ecken und Seiten ziehen (`roofHandles`, `resizeBox`, `setRoofBox`, #259), Ziehen in 5-cm-Schritten; mit Unit-Tests |
+| `roofsteps.js` | ~150 | Dach mit Absätzen (#342): Traufe einer Seite ab einer Stelle weiter außen/innen (`sectionsOf`, `outAt`, `intervals`), Umriss und Rauten-Anfasser im 2D-Plan (`outline`, `stepHandles`), Absatz per Doppelklick, Ziehen, Entfernen (`addStepAt`, `moveSection`, `removeStep`), Rahmen einer Dachfläche (`sectionFrame`); reine Logik mit Unit-Tests |
 | `attic.js` | ~110 | Ausgebauter Dachstuhl (#260, #265): Kniestock, auf welcher Etage das Dach beginnt, welches Dach welche Etage abschneidet, Ebenen der Dachflächen, Räume in den Gauben (dort wird nicht abgeschnitten, unter einer Schleppgaube bis unter ihr schräges Dach, #339), Firsthöhe ↔ Neigung; reine Logik mit Unit-Test |
 | `atticclip.js` | ~70 | Schneidet die Wand-Materialien per Shader am Dach ab, außer in Gauben (die Rechnung steht getestet in attic.js) |
 | `planview.js` | ~50 | 2D-Plan dreht mit der 3D-Ansicht (#212): Winkel aus der Kamera, Punkte drehen, lesbare Schrift; Schalter |
