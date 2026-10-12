@@ -87,9 +87,10 @@ check("roofs (#259): undo gives the roof its size back", abs(rbox()["x1"] - rb0[
 pgSol.evaluate("() => { const f = window.__fp.layout.floors.at(-1); f.devices = f.devices.filter((d) => d.id !== 'solTest'); window.__fp.rebuild(); }")   # nothing else on the roof
 pgSol.click("#view3d"); pgSol.wait_for_timeout(600)
 cx, cz = (rb0["x0"] + rb0["x1"]) / 2, (rb0["z0"] + rb0["z1"]) / 2
-pgSol.evaluate(f"window.__fp.camAt({cx}, window.__fp.elev(window.__fp.layout.floors.length - 1) + 14, {cz + 0.5}, {cx}, {cz})"); pgSol.wait_for_timeout(600)
 mid = pgSol.evaluate("(() => { const r = document.querySelector('#view').getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()")
-hit = pgSol.evaluate(f"window.__fp.pickAt({mid[0]}, {mid[1]})")
+# the pick right after the camera moved, before a frame is drawn (#360): it used to aim with the camera's old direction (and missed on a slow CI machine)
+hit = pgSol.evaluate(f"(() => {{ window.__fp.camAt({cx}, window.__fp.elev(window.__fp.layout.floors.length - 1) + 14, {cz + 0.5}, {cx}, {cz}); return window.__fp.pickAt({mid[0]}, {mid[1]}); }})()")
+pgSol.wait_for_timeout(600)
 pick_state = pgSol.evaluate("""() => { const fp = window.__fp, r = document.querySelector('#view').getBoundingClientRect();   // what the page looked like (for a failed check)
   return { house: fp.houseMode(), floor: fp.floorIdx(), floors: fp.layout.floors.length, roofs: fp.roofMeshes().length, view: [Math.round(r.width), Math.round(r.height)],
            body: document.body.className, cam: fp.cam().map((v) => +v.toFixed(2)) }; }""")

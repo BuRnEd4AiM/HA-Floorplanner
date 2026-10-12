@@ -11,6 +11,7 @@ export function initPicking(ctx) {
   function setRay(e) {
     const r = ctx.canvas.getBoundingClientRect();
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ctx.camera.updateMatrixWorld();          // the camera may have moved since the last frame: aim with where it looks now, not where it looked then (#360)
     ray.setFromCamera(ndc, ctx.camera);
   }
   /** the point [x, z] on the open floor under the pointer, null when the ray misses it */
