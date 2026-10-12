@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { floorShapes } from './blocks.js';
 import { polyArea } from './rooms.js';
 import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js';
-import { inIso, clipWallToRoom } from './roomclip.js';
+import { inIso, deviceInIso, clipWallToRoom } from './roomclip.js';
 import { buildWall, wallLength } from './walls.js';
 import { atticUniforms, cutAtRoof } from './atticclip.js';
 import { solarPose, groundFn } from './solarroof.js';
@@ -207,7 +207,7 @@ export function initFloorBuild(ctx) {
     const half = ctx.halfCut() && !ctx.lowWalls(), halfAt = (f.walls[0]?.height || 2.6) * 0.5 - 0.05, mode = ctx.settings().labelMode;
     const holo1 = (m) => holoify(m, ghost, ctx.belowVis());
     f.devices.forEach((d) => {
-      if (iso && !ghost && !inIso(iso, d.x, d.z)) return;
+      if (iso && !ghost && !deviceInIso(iso, d.x, d.z, f.rooms)) return;   // not a device behind a wall in the next room (#358)
       const onRoof = roofs && d.type === 'solarpanel' ? solarPose(d, roofs) : null;
       const model = ctx.makeModel(d.type, (m) => { if (!ghost) addPickProxy(m); ctx.tapBalls.moved(d.id); if (GROUND_COVER.has(d.type)) underFloors(m); if (holo && !OUTDOOR.has(d.type)) holo1(m); ctx.modelLoaded(); }, d, onRoof ? { ...onRoof, groundAt: onRoof.mount === 'stand' ? groundFn(d, roofs, onRoof.y + (d.y ?? 0)) : undefined } : undefined);   // on a rack the posts reach the roof (#208)
       if (d.type === 'picture') ctx.setPicture(model, d);

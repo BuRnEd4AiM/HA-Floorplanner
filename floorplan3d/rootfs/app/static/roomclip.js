@@ -1,5 +1,5 @@
-/* Isolation of a focused room (#137, step 24): is a point in the room (or close to its edge), the part of a wall that runs along the room,
- * and the point-in-polygon test the whole app uses. Pure geometry (unit test: tests/roomclip.test.mjs). */
+/* Isolation of a focused room (#137, step 24): is a point in the room (or close to its edge), which devices belong to it, the part of a wall
+ * that runs along the room, and the point-in-polygon test the whole app uses. Pure geometry (unit test: tests/roomclip.test.mjs). */
 import { wallLength } from './walls.js';
 import { distToPoly } from './rooms.js';
 
@@ -16,6 +16,13 @@ export function pointInPoly(x, z, pts) {
 }
 /** is (x, z) in the room or within ISO_TOL of its edge */
 export const inIso = (room, x, z) => pointInPoly(x, z, room.points) || distToPoly(x, z, room.points) < ISO_TOL;
+/** does a device at (x, z) belong to the isolated room: in it, or close to its edge (a wall lamp on its wall) but not inside another room of
+ *  the floor (rooms: the floor's rooms), so a device just behind a wall the two rooms share stays in its own room (#358) */
+export function deviceInIso(room, x, z, rooms = []) {
+  if (pointInPoly(x, z, room.points)) return true;
+  if (distToPoly(x, z, room.points) >= ISO_TOL) return false;
+  return !rooms.some((r) => r.id !== room.id && (r.points || []).length > 2 && pointInPoly(x, z, r.points));
+}
 /** The part of wall w that runs along the room's outline (a long outer wall is cut down to this room), or null. */
 export function clipWallToRoom(room, w) {
   const L = wallLength(w), N = Math.max(8, Math.ceil(L / 0.1));

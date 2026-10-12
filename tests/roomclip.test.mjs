@@ -16,6 +16,19 @@ test('in the room: inside, or close to its edge (a wall lamp)', () => {
   assert.ok(R.inIso(room, 4.2, 1.5));
   assert.ok(!R.inIso(room, 4.5, 1.5));
 });
+test('a device belongs to the room: inside it, or close to its edge, but not when it stands in the room behind the wall (#358)', () => {
+  const next = { id: 'next', points: [[4, 0], [8, 0], [8, 3], [4, 3]] };              // shares the wall x = 4
+  const mine = { ...room, id: 'mine' };
+  const rooms = [mine, next];
+  assert.ok(R.deviceInIso(mine, 2, 1.5, rooms));                                     // in the room
+  assert.ok(!R.deviceInIso(mine, 4.2, 1.5, rooms));                                  // 20 cm behind the shared wall: the next room's lamp
+  assert.ok(R.deviceInIso(next, 4.2, 1.5, rooms));                                   // ... shown in that room
+  assert.ok(R.deviceInIso(mine, 2, -0.2, rooms));                                    // 20 cm outside an outer wall: a wall lamp, still this room's
+  assert.ok(R.deviceInIso(mine, 4.2, 1.5));                                          // without the other rooms as before
+  assert.ok(!R.deviceInIso(mine, 2, -0.5, rooms));                                   // too far away
+  assert.ok(R.deviceInIso(mine, 3.9, 1.5, [mine, { id: 'x', points: [[3, 1], [5, 1], [5, 2], [3, 2]] }]));   // inside the room wins over an overlap
+  assert.ok(R.deviceInIso(mine, 4.2, 1.5, [mine, { id: 'bad', points: [[4, 0], [8, 0]] }]));               // a room without an outline does not count
+});
 test('a wall along the room is kept, a long outer wall is cut down to the room, openings move along, a wall elsewhere is dropped', () => {
   const along = { a: [0, 0], b: [4, 0], openings: [] };
   assert.equal(R.clipWallToRoom(room, along), along);
