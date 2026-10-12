@@ -21,6 +21,8 @@ Open the add-on page with `?kiosk=1` (for example in a dashboard iframe or a kio
 
 The card `custom:floorplan3d-card` shows the live 3D view of this add-on on any Home Assistant dashboard; a tap on a device controls it. Install it with HACS (custom repository `https://github.com/BuRnEd4AiM/HA-Floorplanner`, type *Dashboard*) or copy `dist/floorplan3d-card.js` from the repository to `/config/www/` and add `/local/floorplan3d-card.js` as a dashboard resource (*JavaScript module*). Then add the card **3D Floorplan** to a dashboard. Its options (floor, room, height, theme, room colours, warnings, the bars …) are in the visual editor and in the [README](https://github.com/BuRnEd4AiM/HA-Floorplanner#-dashboard-card). The card opens this add-on through Ingress, so the add-on must be running; nothing has to be set up in the add-on. A card is never an editor, also for administrators, and its look is never saved as the add-on's settings.
 
+With a room chosen, the option **Show** (`view`) makes a card for that one room: *Only the room in 3D* (`view: room`) shows the room and never leaves it, without the room panel over it; *Only the room's controls* (`view: panel`) shows just its room panel (lights, heating, shutters, doors and windows) filling the card, without 3D. Two cards side by side give the room and its controls at the same time.
+
 ## Custom 3D models
 
 In the device tool use **Upload GLB**. Models are scaled to fit 1 m and can be resized per device. Draco/Meshopt-compressed files are not supported yet.

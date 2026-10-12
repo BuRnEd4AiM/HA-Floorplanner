@@ -43,7 +43,7 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `moreinfo.js` | 27 | Home-Assistant-Dialog |
 | `offline.js` | ~100 | Offline-Liste |
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
-| `cardmode.js` | ~80 | Dashboard-Karte (#13): die Seite in der Lovelace-Karte (`?card=1`): Optionen aus der Adresse (`cardOptions`), Etage oder ganzes Haus zum Start und nach der Ruhezeit (`cardFloor`), Raumfarben, ohne Raum-Fenster oder Leisten; das Aussehen der Karte nur für diesen Bildschirm (über die Vorgaben in `viewprefs.js`); reine Logik mit Unit-Tests. Die Karte selbst ist `dist/floorplan3d-card.js` (außerhalb des Add-ons, eine Datei ohne Build, Unit-Tests `tests/card.test.mjs`) |
+| `cardmode.js` | ~110 | Dashboard-Karte (#13): die Seite in der Lovelace-Karte (`?card=1`): Optionen aus der Adresse (`cardOptions`), Etage oder ganzes Haus zum Start und nach der Ruhezeit (`cardFloor`), Raumfarben, ohne Raum-Fenster oder Leisten; Karte für einen Raum (#356, `view`): nur der Raum in 3D, ohne ihn zu verlassen (`room`), oder nur sein Raum-Fenster ohne 3D (`panel`, `alone()` in `roompanel.js`); das Aussehen der Karte nur für diesen Bildschirm (über die Vorgaben in `viewprefs.js`); reine Logik mit Unit-Tests. Die Karte selbst ist `dist/floorplan3d-card.js` (außerhalb des Add-ons, eine Datei ohne Build, Unit-Tests `tests/card.test.mjs`) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
 | `roomlight.js` | ~95 | Raumlicht-Shader (Lichtflecken, Wandschein), Farbskalen |
 | `earth.js` | ~150 | Erde, Rasen, Grundstücksform, Schnitt durch den Boden |

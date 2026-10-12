@@ -261,6 +261,7 @@ heatmap: temp           # start with the temperature colours (temp, humid, co2)
 | --- | --- | --- |
 | `title` | text above the view | none |
 | `house` / `floor` / `room` | house name; floor name, number or `house`; a room name (opens that room like a room tablet) | as in the add-on |
+| `view` | with a `room`: `room` = only that room in 3D, the card never leaves it; `panel` = only the room's controls (its room panel), without 3D | `3d` |
 | `height` / `fill` | a height (`400`, `450px`, `60vh`); `fill: true` fills the screen. In a sections dashboard the card takes the size of its cell | `400px` |
 | `theme` | `auto`, `dark`, `light`, `holo` | as in the add-on |
 | `quality` | `low` (fast), `high` (beautiful) | automatic |
@@ -270,11 +271,19 @@ heatmap: temp           # start with the temperature colours (temp, humid, co2)
 | `alerts` | `true` / `false` (warnings) | as in the add-on |
 | `idle_return` | minutes without a touch, then back to the card's floor (0 = never) | as in the add-on |
 | `night` | `off`, `sun`, `time` (dim at night) | as in the add-on |
-| `room_panel` | `false`: a tap on a room only zooms in | `true` |
+| `room_panel` | `false`: a tap on a room (and the room tablet start) only zooms in, without the room panel over the house | `true` |
 | `show_nav` / `show_bar` | `false`: no bar at the top (floors, rooms) / at the bottom (view, room colours, search) | `true` |
 | `addon` | the add-on's slug, only if the card does not find it by itself (the message *not found* lists the names it tried; the slug is in the address of the add-on's page under Settings → Apps) | found by itself |
 
 If a dashboard says *Custom element doesn't exist: floorplan3d-card*, the browser has not loaded the card: open `http://<your Home Assistant>:8123/hacsfiles/HA-Floorplanner/floorplan3d-card.js`. A 404 means HACS has not downloaded it: HACS → *3D Floorplan Card* → ⋮ → *Redownload* (3.75.0 had this problem, 3.75.1 fixes it), then reload the browser with Ctrl+F5.
+
+**A room and its controls side by side** (#356): two cards with the same `room`, one with `view: room` (the room in 3D, it stays in the room) and one with `view: panel` (only the room panel: lights, heating, shutters, doors and windows). The card with `view: panel` draws no 3D picture, so it costs almost nothing.
+
+```yaml
+type: custom:floorplan3d-card
+room: Wohnzimmer
+view: panel             # or room
+```
 
 The look of a card applies to that card only and never changes the add-on's settings. Every card is a full 3D view: one or two per dashboard are fine, on weak tablets prefer `quality: low`.
 

@@ -741,6 +741,7 @@ export default {
   'rp.switch': 'INTERRUTTORI',
   'rp.sensor': 'SENSORI',
   'rp.empty': 'Nessun dispositivo con entità in questa stanza.',
+  'card.pickRoom': 'Scegli una stanza nelle impostazioni della scheda: questa scheda mostra una sola stanza.',
   'live.stop': 'Stop',
   'live.lock': 'Blocca',
   'live.unlock': 'Sblocca',

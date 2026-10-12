@@ -677,9 +677,11 @@ const kiosk = initKiosk({
   openRoomPanel: (id) => roomPanel.open(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
   applyStart: () => cardUi?.start() ?? (me.start ? startView.apply(me.start) : null),             // the card's floor (#13), else a saved start view (#315)
 });
-/* ---- Dashboard card (#13): the floor to start with, the room colouring, without room panel or bars; the code lives in cardmode.js ---- */
+/* ---- Dashboard card (#13): the floor to start with, the room colouring, without room panel or bars, only one room or only its panel; the code lives in cardmode.js ---- */
 const cardUi = card && initCardMode({
-  $, opts: card, layout: () => layout, groundIdx: () => groundIdx(), tabletRoom: () => tabletRoom, switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on),
+  $, t, opts: card, layout: () => layout, groundIdx: () => groundIdx(), tabletRoom: () => tabletRoom, switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on),
+  floorIdx: () => floorIdx, focusedRoom: () => focusedRoom, focusRoom: (id) => focusRoom(id), room: () => (tabletRoom && findRoomByName(tabletRoom)) || null,
+  openRoomPanel: (id) => roomPanel.open(id),
 });
 
 function refreshSelHelper() {
@@ -900,6 +902,7 @@ const roomPanel = initRoomPanel({
   openings: { entities: (o) => openingEntities(o), kind: (o) => openKind(o), KINDS: OPEN_KINDS, pane: (o, i) => paneEntity(o, i), isOpen: (e) => isOpen(e), text: (e) => openText(e) },
   closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
   off: () => cardUi?.roomPanel() === false,                                  // a dashboard card without the room panel (#13)
+  alone: () => !!cardUi?.panelOnly(),                                        // a dashboard card with nothing but the room panel (#356)
 });
 /* ---- Phones: the room shows above the room sheet, not behind it; the code lives in sheetview.js ---- */
 sheetView = initSheetView({ camera, canvas, panel: $('#roomPanel'), side: () => floorCards.column() });   // side: the floor cards' column (phones)
@@ -908,6 +911,7 @@ function liveSelect(h) {
   if (h?.kind === 'device' || h?.kind === 'opening') popup.show(h.id, h.seg ?? null);
   else if (h?.kind === 'room') {
     popup.close();
+    if (cardUi?.locked()) return;                                                 // a dashboard card for one room never leaves it (#356)
     if (focusedRoom === h.id) { leaveRoomView(); return; }                      // a second tap into the same room: back to the view before
     if (focusedRoom === null) roomBackView = { room: h.id, house: houseMode, floor: floorIdx, pos: camera.position.clone(), target: controls.target.clone() };
     focusRoom(h.id); roomPanel.open(h.id);
@@ -1420,7 +1424,7 @@ controls.addEventListener('change', wake);
 const perfHud = initPerfHud({ $, renderer, low: LOW, param: params.get('fps'), lang: currentLanguage, onChange: wake });   // FPS and more, chosen in the View menu (perfhud.js)
 function animate(now = performance.now()) {
   requestAnimationFrame(animate);
-  if (document.hidden) return;                                   // screen off / tab in background: draw nothing
+  if (document.hidden || cardUi?.panelOnly()) return;            // screen off / tab in background / a card with only the room panel: draw nothing
   const due = frameDue(now, lastActive, lastFrame, LOW);          // nothing happens or a weak tablet: a few frames a second are enough (frameloop.js)
   if (!due.draw) return;
   if (due.throttled) lastFrame = now;

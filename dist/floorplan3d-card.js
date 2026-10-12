@@ -3,6 +3,8 @@
  *
  *   type: custom:floorplan3d-card
  *   floor: Erdgeschoss        # optional: a floor by its name or number (0 = ground floor, -1 = basement) or "house"
+ *   room: Wohnzimmer          # optional: a room (a room tablet); with it view: room shows only that room and never leaves it,
+ *   view: panel               #   view: panel only its room panel, the controls without 3D (two cards side by side: the room and its controls, #356)
  *
  * Installed through HACS (hacs.json at the top of the repository, type "Dashboard") or by hand: this file into /config/www and
  * /local/floorplan3d-card.js as a dashboard resource (JavaScript module). One plain file, no build step, no imports.
@@ -16,6 +18,7 @@
   const TAG = 'floorplan3d-card';
   const SLUG = 'floorplan3d';                       // the add-on's slug (floorplan3d/config.yaml)
   const MIN_ADDON = '3.75.0';                       // the first add-on version that knows ?card=1
+  const MIN_VIEW = '3.78.0';                        // ... and view=room / view=panel (only one room, only its room panel)
   // The Supervisor names an add-on "<first 8 hex digits of sha1(repository address in lower case)>_<slug>", "local_<slug>" for a copy in
   // /addons. The card looks for the add-on's sidebar panel first; these are tried when it is hidden ("Show in sidebar" off): the
   // repository added as https://github.com/BuRnEd4AiM/HA-Floorplanner, with "/" or with ".git" at the end, or a local copy. Then, for
@@ -23,6 +26,7 @@
   const KNOWN = ['05edeb72', '986a80b9', 'b9c4c5d0', 'local'].map((h) => `${h}_${SLUG}`);
   const DEFAULT_HEIGHT = '400px';
   const OPTIONS = {                                 // the choices of the editor's drop-downs; "default" = as set in the add-on (left out)
+    view: ['3d', 'room', 'panel'],
     theme: ['default', 'auto', 'dark', 'light', 'holo'],
     quality: ['auto', 'low', 'high'],
     walls: ['default', 'auto', 'see_through', 'low', 'full'],
@@ -31,7 +35,7 @@
     night: ['default', 'off', 'sun', 'time'],
     alerts: ['default', 'on', 'off'],
   };
-  const SKIP = { theme: 'default', quality: 'auto', walls: 'default', labels: 'default', heatmap: 'off', night: 'default', alerts: 'default' };
+  const SKIP = { view: '3d', theme: 'default', quality: 'auto', walls: 'default', labels: 'default', heatmap: 'off', night: 'default', alerts: 'default' };
   const ON_BY_DEFAULT = ['room_panel', 'show_nav', 'show_bar'];
 
   const TEXT = {
@@ -43,10 +47,12 @@
       noAccess: 'Home Assistant does not let this user open the add-on: {e}',
       failed: 'The 3D Floorplan add-on could not be opened: {e}',
       title: 'Title', house: 'House', floor: 'Floor', room: 'Room (a room tablet)', height: 'Height', fill: 'Fill the screen',
+      view: 'Show', 'view.3d': 'The 3D view', 'view.room': 'Only the room in 3D (stays in the room, choose a room)',
+      'view.panel': 'Only the room\'s controls, without 3D (choose a room)',
       look: 'Look', parts: 'Shown in the card', advanced: 'Advanced',
       theme: 'Theme', quality: 'Quality', walls: 'Walls', labels: 'Value labels', heatmap: 'Room colours', night: 'Dim at night',
       alerts: 'Warnings', idle_return: 'Back to the start after (minutes without a touch, 0 = never)',
-      room_panel: 'Room panel when a room is tapped', show_nav: 'Bar at the top (floors, rooms)', show_bar: 'Bar at the bottom (view, room colours, search)',
+      room_panel: 'Room panel over the 3D view (a tapped room, a room tablet)', show_nav: 'Bar at the top (floors, rooms)', show_bar: 'Bar at the bottom (view, room colours, search)',
       addon: 'Add-on slug (only when it is not found by itself)',
       wholeHouse: 'Whole house', firstHouse: 'As in the add-on', anyRoom: 'None',
       'theme.default': 'As in the add-on', 'theme.auto': 'Like Home Assistant (dark / light)', 'theme.dark': 'Dark', 'theme.light': 'Light', 'theme.holo': 'Hologram',
@@ -66,10 +72,12 @@
       noAccess: 'Home Assistant lässt diesen Benutzer das Add-on nicht öffnen: {e}',
       failed: 'Das Add-on 3D Floorplan konnte nicht geöffnet werden: {e}',
       title: 'Titel', house: 'Haus', floor: 'Etage', room: 'Raum (Raum-Tablet)', height: 'Höhe', fill: 'Bildschirm füllen',
+      view: 'Anzeige', 'view.3d': '3D-Ansicht', 'view.room': 'Nur der Raum in 3D (bleibt im Raum, Raum wählen)',
+      'view.panel': 'Nur die Steuerung des Raums, ohne 3D (Raum wählen)',
       look: 'Aussehen', parts: 'In der Karte zeigen', advanced: 'Erweitert',
       theme: 'Design', quality: 'Qualität', walls: 'Wände', labels: 'Wert-Anzeigen', heatmap: 'Raumfarben', night: 'Nachts abdunkeln',
       alerts: 'Warnungen', idle_return: 'Zurück zum Start nach (Minuten ohne Berührung, 0 = nie)',
-      room_panel: 'Raum-Fenster beim Antippen eines Raums', show_nav: 'Leiste oben (Etagen, Räume)', show_bar: 'Leiste unten (Ansicht, Raumfarben, Suche)',
+      room_panel: 'Raum-Fenster über der 3D-Ansicht (Raum antippen, Raum-Tablet)', show_nav: 'Leiste oben (Etagen, Räume)', show_bar: 'Leiste unten (Ansicht, Raumfarben, Suche)',
       addon: 'Slug des Add-ons (nur wenn es nicht von selbst gefunden wird)',
       wholeHouse: 'Ganzes Haus', firstHouse: 'Wie im Add-on', anyRoom: 'Keiner',
       'theme.default': 'Wie im Add-on', 'theme.auto': 'Wie Home Assistant (dunkel / hell)', 'theme.dark': 'Dunkel', 'theme.light': 'Hell', 'theme.holo': 'Hologramm',
@@ -178,12 +186,18 @@
       return false;
     }
 
+    /** true when the card asks for something the add-on is too old for: only one room or only its room panel (view) */
+    static needsNewer(config = {}, version) {
+      return (config.view === 'room' || config.view === 'panel') && Floorplan3dCard.olderThan(version, MIN_VIEW);
+    }
+
     /** the address of the add-on page in the card: the Ingress address and the options (cardmode.js in the add-on reads them).
      *  dark: Home Assistant shows its dark theme (for theme: auto) */
     static frameUrl(ingressUrl, config = {}, dark = false) {
       const q = new URLSearchParams({ card: '1' });
       const put = (k, v) => { if (v != null && String(v).trim() !== '') q.set(k, String(v).trim()); };
       put('house', config.house); put('floor', config.floor); put('room', config.room);
+      if (config.view === 'room' || config.view === 'panel') q.set('view', config.view);
       put('theme', config.theme === 'auto' ? (dark ? 'dark' : 'light') : config.theme === 'default' ? null : config.theme);
       if (config.quality === 'low' || config.quality === 'high') q.set('perf', config.quality);
       if (config.walls !== 'default') put('walls', config.walls);
@@ -246,6 +260,7 @@
       const text = { text: {} };
       return [
         { name: 'title', selector: text },
+        { name: 'view', selector: choose('view') },
         ...(plan && plan.houses.length < 2 ? [] : [{ name: 'house', selector: plan ? list(plan.houses, []) : text }]),
         { type: 'grid', name: '', schema: [
           { name: 'floor', selector: plan ? list(plan.floors, [{ value: 'house', label: T.wholeHouse }]) : text },
@@ -333,6 +348,7 @@
       const frame = root.querySelector('iframe');
       try {
         const addon = await findAddon(hass, this._config);
+        if (Floorplan3dCard.needsNewer(this._config, addon.version)) throw { kind: 'tooOld', version: addon.version, min: MIN_VIEW };
         await session(hass);
         if (run !== this._run) return;                                  // a newer config came in meanwhile
         const url = Floorplan3dCard.frameUrl(addon.ingressUrl, this._config, this._dark);
@@ -342,7 +358,7 @@
         if (run !== this._run) return;
         const kind = TEXT.en[e?.kind] ? e.kind : 'failed';
         frame.hidden = true; frame.removeAttribute('src');
-        this._message(fill(T[kind], { v: e?.version, min: MIN_ADDON, e: e?.message || e?.code || String(e), tried: (e?.tried || []).join(', ') }), true);
+        this._message(fill(T[kind], { v: e?.version, min: e?.min || MIN_ADDON, e: e?.message || e?.code || String(e), tried: (e?.tried || []).join(', ') }), true);
         clearTimeout(this._retry);
         if (this.isConnected) this._retry = setTimeout(() => this._render(), 30000);   // the add-on may be starting: try again
       }

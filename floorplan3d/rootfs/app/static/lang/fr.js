@@ -741,6 +741,7 @@ export default {
   'rp.switch': 'INTERRUPTEURS',
   'rp.sensor': 'CAPTEURS',
   'rp.empty': 'Aucun appareil avec une entité dans cette pièce.',
+  'card.pickRoom': 'Choisissez une pièce dans les réglages de la carte : cette carte n’affiche qu’une seule pièce.',
   'live.stop': 'Stop',
   'live.lock': 'Verrouiller',
   'live.unlock': 'Déverrouiller',

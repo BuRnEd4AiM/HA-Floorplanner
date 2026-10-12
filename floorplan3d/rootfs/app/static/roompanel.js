@@ -47,7 +47,9 @@ export const SHEET_MEDIA = '(max-width: 760px)';
 
 /** ctx: $, t, live (initLiveControls), floor(), states(), entities(), areas(), entityDevices(f), pointInPoly, onStates, imperial(), stateText(id), cams,
  *  settings(), openings: { entities(o), kind(o), KINDS, pane(o, i), isOpen(e), text(e) }, closeLivePopup(), leaveFocus(),
- *  off() (optional: true = never opens, a dashboard card without the room panel, #13) */
+ *  off() (optional: true = never opens, a dashboard card without the room panel, #13),
+ *  alone() (optional: true = the page shows nothing but the room panel, a dashboard card for the controls of one room: it stays open and the
+ *  heating goes inside it, #356) */
 export function initRoomPanel(ctx) {
   const { $, t, live } = ctx;
   let forId = null;
@@ -61,22 +63,24 @@ export function initRoomPanel(ctx) {
     if (dom === 'cover') return shutterText(s, t);                     // "60 % open" instead of Home Assistant's raw state
     return ctx.stateText(id);
   }
-  function close() { forId = null; $('#roomPanel').hidden = true; heatBox.hidden = true; }
+  function hide() { forId = null; $('#roomPanel').hidden = true; heatBox.hidden = true; }
+  function close() { if (!ctx.alone?.()) hide(); }                     // alone: the card that is only this panel keeps it open
   function open(id) { if (ctx.off?.()) return; forId = id; ctx.closeLivePopup(); render(); }   // off: a dashboard card without the room panel (#13)
   function render() {
     const box = $('#roomPanel'), states = ctx.states(), f = ctx.floor(), op = ctx.openings;
     const room = f?.rooms.find((r) => r.id === forId);
-    if (!room) { close(); return; }
+    if (!room) { hide(); return; }
     box.hidden = false;
     box.replaceChildren();
     const head = document.createElement('div'); head.className = 'rp-head';
     const title = document.createElement('b'); title.textContent = room.name || '';
     const x = document.createElement('button'); x.className = 'rp-x'; x.textContent = '×'; x.addEventListener('click', () => { close(); ctx.leaveFocus(); });
-    head.append(title, x);
+    head.append(title);
+    if (!ctx.alone?.()) head.append(x);                         // the card that is only this panel cannot be closed
     const area = document.createElement('div'); area.className = 'sub';
     area.textContent = areaText(room.points, ctx.imperial());
     box.append(head, area);
-    if (matchMedia(SHEET_MEDIA).matches) box.append(heatBox);            // phones: the heating sits inside the room sheet, a second panel at the top left no room for the house
+    if (matchMedia(SHEET_MEDIA).matches || ctx.alone?.()) box.append(heatBox);   // phones: the heating sits inside the room sheet, a second panel at the top left no room for the house
     else if (heatBox.parentNode !== heatHome) heatHome.append(heatBox);
     const rc = live.roomControls(room);
     if (rc) box.append(rc);

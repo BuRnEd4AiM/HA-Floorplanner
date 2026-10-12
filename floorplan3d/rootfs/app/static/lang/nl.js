@@ -741,6 +741,7 @@ export default {
   'rp.switch': 'SCHAKELAARS',
   'rp.sensor': 'SENSOREN',
   'rp.empty': 'Geen apparaten met een entiteit in deze kamer.',
+  'card.pickRoom': 'Kies een kamer in de instellingen van de kaart: deze kaart toont maar één kamer.',
   'live.stop': 'Stop',
   'live.lock': 'Vergrendelen',
   'live.unlock': 'Ontgrendelen',
