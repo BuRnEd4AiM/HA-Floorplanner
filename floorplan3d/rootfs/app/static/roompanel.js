@@ -3,7 +3,7 @@
  * it. Which doors and windows belong to a room and how the rows are grouped are pure functions (tested); initRoomPanel draws. */
 import { wallLength } from './walls.js';
 import { distToPoly, polyArea, pointInPoly } from './rooms.js';
-import { openingWalls, isDormerWall } from './dormerwin.js';
+import { openingWalls } from './dormerwin.js';
 import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
 import { initHeatPanel } from './heatpanel.js';
 import { shutterEntity, floorShutters, shutterText } from './shutters.js';
@@ -13,12 +13,13 @@ export const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['climat
 export const rpGroupOf = (dom) => (dom === 'binary_sensor' ? 'sensor' : dom === 'fan' || dom === 'input_boolean' ? 'switch' : dom === 'script' ? 'scene' : dom);
 export const inRoomPanel = (id) => RP_GROUPS.some(([g]) => g === rpGroupOf(id.split('.')[0]));
 
-/** the doors / windows on the walls of a room (their middle within 35 cm of the room's outline), and the dormer windows over it */
+/** the doors / windows on the walls of a room (their middle within 35 cm of the room's outline) and those inside the outline: the dormer
+ *  windows over it and a door in a wall inside the room (the door of a closet the room's outline takes in, #362) */
 export function roomOpenings(room, f) {
   const out = [];
   openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
     const L = wallLength(w) || 1, k = o.pos / L, x = w.a[0] + (w.b[0] - w.a[0]) * k, z = w.a[1] + (w.b[1] - w.a[1]) * k;
-    if (distToPoly(x, z, room.points) < 0.35 || (isDormerWall(w) && pointInPoly(x, z, room.points))) out.push(o);
+    if (distToPoly(x, z, room.points) < 0.35 || pointInPoly(x, z, room.points)) out.push(o);
   }));
   return out;
 }

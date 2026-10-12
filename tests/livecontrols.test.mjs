@@ -67,6 +67,12 @@ const floor = { walls: [
 test('room openings: the doors and windows on the walls of the room, not those of other rooms', () => {
   assert.deepEqual(R.roomOpenings(room, floor).map((o) => o.id), ['d1', 'w1']);
 });
+test('room openings: the door of a closet the room\'s outline takes in, in a wall inside the room, belongs to the room (#362)', () => {
+  const kitchen = { points: [[0, 0], [3, 0], [3, 4], [-1, 4], [-1, 3], [0, 3]] };       // 3 x 4 m and a 1 x 1 m closet under the stairs
+  const fl = { walls: [{ a: [0, 3], b: [0, 4], openings: [{ id: 'closet', type: 'door', pos: 0.5, width: 0.55 }] },   // 50 cm from every edge
+    { a: [10, 0], b: [14, 0], openings: [{ id: 'far', type: 'door', pos: 2, width: 0.9 }] }] };
+  assert.deepEqual(R.roomOpenings(kitchen, fl).map((o) => o.id), ['closet']);
+});
 test('room opening spans: from - to along the wall, with type and sensor', () => {
   const s = R.roomOpeningSpans(room, floor);
   assert.equal(s.length, 2);

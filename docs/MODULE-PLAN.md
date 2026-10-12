@@ -61,7 +61,7 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `entitypicker.js` | ~95 | Entitäten-Auswahl mit Suche, nach Bereich gruppiert |
 | `livecontrols.js` | ~180 | Live-Steuerung: Schalten, Licht (Helligkeit, Farbe, Effekte), Szenen, ganzer Raum (`roomIds`: Lampen und Szenen eines Raums) |
 | `livepopup.js` | ~170 | Live-Karte beim Antippen (Gerät, Tür/Fenster, LED-Ring; Rollladen über `shuttercard.js`), bleibt über der Leiste unten; wird nur neu gebaut, wenn sich etwas ändert, das sie zeigt, und nicht, solange ein Schieber, Farbwähler oder eine Liste darin bedient wird (#336, `popupKey` ist reine Logik mit Unit-Tests) |
-| `roompanel.js` | ~190 | Raum-Panel mit Heizungs-Panel |
+| `roompanel.js` | ~190 | Raum-Panel mit Heizungs-Panel; welche Türen und Fenster zu einem Raum gehören (`roomOpenings`: am Rand oder innerhalb des Umrisses, z. B. die Tür einer Kammer im Raum, #362) |
 | `sheetview.js` | ~45 | Handy: Raum über der Raum-Karte zeigen statt dahinter, Kamera-Abstand bei schmalem Bild; Bild nach links schieben für die Spalte der Etagen-Karten (#292) (Unit-Tests) |
 | `phonemenu.js` | ~50 | Handy: obere Leiste als ☰-Menü (Live-Ansicht); am Handy nur Live + 3D, kein Bearbeiten, keine Benutzer (#299); `isPhoneScreen`/`phoneView` sind reine Logik mit Unit-Tests |
 | `phonenav.js` | ~45 | Handy: die Etagen als Klappliste neben ☰ und dem Zimmer-Knopf statt der Etagen-Knöpfe (#281); `phoneFloorModel` ist reine Logik mit Unit-Tests |
@@ -87,7 +87,7 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `timelineui.js` | ~190 | Sicherheit (Oberfläche): 🛡️-Knopf, Liste der Tage (mit Download), Leiste unten mit Abspielen, Geschwindigkeit, Schieber und Ereignissen |
 | `layoutnorm.js` | ~25 | Geladenen Plan vervollständigen, „Erdgeschoss“ in der Sprache des Nutzers (Schritt 23); reine Logik mit Unit-Tests |
 | `userlocks.js` | ~55 | Sperren pro Benutzer / Tablet: was ein Benutzer nicht benutzen darf (Schalten, Kameras, Einstellungen, Ansicht wechseln …), ausblenden per CSS; Schalten und Kameras verweigert auch der Server; reine Logik mit Unit-Tests |
-| `roomclip.js` | ~55 | Raum freistellen: Punkt im Raum, welche Geräte zum Raum gehören (`deviceInIso`: nicht die hinter einer gemeinsamen Wand im Nachbarraum, #358), Wand auf den Raum zuschneiden, Punkt-im-Polygon (Schritt 24); reine Geometrie mit Unit-Tests |
+| `roomclip.js` | ~55 | Raum freistellen: Punkt im Raum, welche Geräte zum Raum gehören (`deviceInIso`: nicht die hinter einer gemeinsamen Wand im Nachbarraum, #358), Wand auf den Raum zuschneiden (auch eine Wand mitten im Raum bleibt mit ihrer Tür, #362), Punkt-im-Polygon (Schritt 24); reine Geometrie mit Unit-Tests |
 | `modelfx.js` | ~90 | Trefferboxen eines Modells, Hologramm-Darstellung, Flaches unter den Böden (Schritt 24), Aussehen der LED-Ring-Abschnitte (`ringLook`, #325) |
 | `labels.js` | ~50 | Text im 3D-Bild: Raumname, Wert-Pille am Gerät, leuchtendes Strom-Schild (Schritt 24) |
 | `pickrules.js` | ~50 | Was ein Tipp im Live-Modus treffen darf (#234): keine Türen/Fenster, kein Kamera-Kegel, keine Anwesenheit; Geräte mit Kugel nur über die Kugel (#262); welcher von mehreren Treffern gewinnt; reine Logik mit Unit-Tests |

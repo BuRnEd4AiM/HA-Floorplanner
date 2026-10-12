@@ -89,6 +89,16 @@ check("room isolation (#358): the chosen room shows its lamp and its wall lamp, 
 pgR.evaluate("window.__fp.liveTapRoom('isoB')"); pgR.wait_for_timeout(600)
 iso = pgR.evaluate("['isoMine', 'isoWall', 'isoNext'].map(i => window.__fp.has(i))")
 check("room isolation (#358): ... that lamp shows in its own room", iso == [False, False, True], iso)
+# a closet the room's outline takes in: its wall stands inside the room, its door 50 cm and more from every edge; both are the room's (#362)
+pgR.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+  f.walls.push({id: 'isoCloset', a: [21, 1], b: [21, 2.5], thickness: 0.2, height: 2.6, openings: [{id: 'isoDoor', type: 'door', width: 0.55, height: 2.05, sill: 0, pos: 0.75}]});
+  window.__fp.rebuild(); }""")
+pgR.evaluate("window.__fp.liveTapRoom('isoA')"); pgR.wait_for_timeout(600)
+iso = pgR.evaluate("['isoCloset', 'isoDoor'].map(i => window.__fp.has(i))")
+check("room isolation (#362): a wall inside the chosen room and its door are shown", iso == [True, True], iso)
+pgR.evaluate("window.__fp.liveTapRoom('isoB')"); pgR.wait_for_timeout(600)
+iso = pgR.evaluate("['isoCloset', 'isoDoor'].map(i => window.__fp.has(i))")
+check("room isolation (#362): ... not in the room beside it", iso == [False, False], iso)
 pgR.close()
 # --- live mode: only things linked to an entity can be tapped, doors and windows have no hit box, lamps get a bigger finger box (#130)
 def place_far(pg):

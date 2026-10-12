@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.78.3] - 2026-10-12
+### Fixed
+- **The door of a closet inside a room belongs to the room** (#362): a room whose outline takes in a small closet (here a closet under the stairs off the kitchen) has the closet's wall and door inside it, not on its edge. When the room was chosen, that wall and its door were missing in 3D, the object list showed the door under *No room* and the room panel did not list its contact: a door only counted for a room when its middle was within 35 cm of the room's edge (inside the room only for dormer windows), and a chosen room only kept the walls within 30 cm of its edge. Now doors, windows and walls inside the room's outline belong to it too, as the list of open doors and windows already counted them. `roomOpenings` in `roompanel.js`, `clipWallToRoom` in `roomclip.js` (unit tests); the browser test part `11_live` checks a closet wall with its door in a chosen room.
+
 ## [3.78.2] - 2026-10-12
 ### Fixed
 - **A tap right after the camera moved no longer misses** (#360): when the camera jumped (going into a room, the start view, a test), a tap or click before the next frame was drawn aimed with the camera's old direction and could hit nothing or the wrong thing. The camera's world matrix is now renewed before the ray of a tap is built (`picking.js`). On a slow machine this made the browser test check *in 3D the roof is picked* (part `10_roofs`) fail now and then; the check now moves the camera and picks in one step, so it always tests this case.
