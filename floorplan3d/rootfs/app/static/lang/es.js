@@ -741,6 +741,7 @@ export default {
   'rp.switch': 'INTERRUPTORES',
   'rp.sensor': 'SENSORES',
   'rp.empty': 'No hay dispositivos con entidad en esta habitación.',
+  'card.pickRoom': 'Elige una habitación en los ajustes de la tarjeta: esta tarjeta muestra solo una habitación.',
   'live.stop': 'Parar',
   'live.lock': 'Cerrar con llave',
   'live.unlock': 'Abrir cerradura',

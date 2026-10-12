@@ -12,7 +12,13 @@ test('without ?card the page is not in a card', () => {
   assert.equal(C.cardOptions(P('card=false')), null);
 });
 test('a card without options: everything as in the add-on, room panel and bars shown', () => {
-  assert.deepEqual(C.cardOptions(P('card=1')), { floor: null, heat: null, roomPanel: true, nav: true, bar: true, look: {} });
+  assert.deepEqual(C.cardOptions(P('card=1')), { floor: null, view: '3d', heat: null, roomPanel: true, nav: true, bar: true, look: {} });
+});
+test('the view of the card: the 3D view, only the room, only its room panel; anything else is the 3D view', () => {
+  assert.equal(C.cardOptions(P('card=1&room=Küche&view=room')).view, 'room');
+  assert.equal(C.cardOptions(P('card=1&room=Küche&view=panel')).view, 'panel');
+  assert.equal(C.cardOptions(P('card=1&view=3d')).view, '3d');
+  assert.equal(C.cardOptions(P('card=1&view=everything')).view, '3d');
 });
 test('the options of the card are read from the address', () => {
   const o = C.cardOptions(P('card=1&floor=Obergeschoss&heatmap=temp&room_panel=0&show_nav=false&show_bar=0&theme=light&walls=see_through'

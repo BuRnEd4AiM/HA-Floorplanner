@@ -72,6 +72,58 @@ check("card (#13): without the bars at the top and the bottom", fr.locator("#nav
       and fr.locator("#compass").is_hidden())
 check("card (#13): the height option", pgC.evaluate("window.c1.shadowRoot.querySelector('.box').style.height") == "300px")
 pgC.screenshot(path=os.path.join(S, "card.png"))
+# a card for one room (#356): only the room in 3D and never leave it, only its room panel without 3D, and the hint without a room
+rr = fr.evaluate("(() => { const fs = window.__fp.layout.floors; for (let i = 0; i < fs.length; i++) { const r = fs[i].rooms.find(x => x.name); if (r) return [i, r.id, r.name]; } })()")
+pgC.evaluate(f"window.c1.setConfig({{ room: {json.dumps(rr[2])}, view: 'room' }})")
+pgC.wait_for_function("cardMsg(window.c1).includes('3.78.0')", timeout=10000)
+check("card (#356): one room only needs add-on 3.78.0: with an older one the card says so and opens nothing", pgC.evaluate("cardSrc(window.c1)") == "", pgC.evaluate("cardMsg(window.c1)"))
+pgC.goto(BASE + "cardhost.html")
+pgC.evaluate("""window.newHass = fakeHass((m) => {
+  if (m.endpoint === '/addons/abcd1234_floorplan3d/info') return { state: 'started', version: '3.78.0', ingress_url: '/' };
+  if (m.endpoint === '/ingress/session') return { session: 'sess3' };
+  if (m.endpoint === '/ingress/validate_session') return {};
+  throw { code: 'unknown_error', message: 'Addon does not exist' };
+})""")
+def card_frame(part):
+    """the add-on page in the card whose address has `part`, opened again with the test hooks"""
+    f = None
+    for _ in range(40):
+        f = next((x for x in pgC.frames if part in x.url and "debug=1" not in x.url), None)
+        if f: break
+        pgC.wait_for_timeout(250)
+    f.goto(f.url + "&debug=1")
+    f.wait_for_function("window.__fp && window.__fp.ready && window.__fp.ready()", timeout=30000)
+    f.wait_for_timeout(800)
+    return f
+pgC.evaluate(f"window.c7 = addCard({{ room: {json.dumps(rr[2])}, view: 'room', idle_return: 1 }}, newHass)")
+pgC.wait_for_function("cardSrc(window.c7).includes('view=room')", timeout=10000)
+fr = card_frame("view=room")
+cls = fr.evaluate("[...document.body.classList]")
+check("card (#356): only the room: it starts in the room, without the room panel, the bar at the top or the search",
+      all(c in cls for c in ["card-room", "card-nonav", "roomtablet"]) and fr.evaluate("window.__fp.focusedRoom()") == rr[1] and fr.evaluate("window.__fp.floorIdx()") == rr[0]
+      and fr.locator("#roomPanel").is_hidden() and fr.locator("#navBar").is_hidden() and fr.locator("#findBtn").is_hidden() and fr.locator("#view").is_visible(), cls)
+fr.evaluate(f"window.__fp.liveTapRoom('{rr[1]}')"); fr.wait_for_timeout(500)
+check("card (#356): only the room: a tap into the room does not leave it", fr.evaluate("window.__fp.focusedRoom()") == rr[1] and fr.locator("#roomPanel").is_hidden())
+fr.evaluate("window.__fp.kioskIdle(2 * 60000); window.__fp.kioskTick()"); fr.wait_for_timeout(1200)
+check("card (#356): only the room: after the idle time it is still in the room", fr.evaluate("window.__fp.focusedRoom()") == rr[1] and fr.evaluate("window.__fp.houseMode()") is False)
+pgC.evaluate(f"window.c7.setConfig({{ room: {json.dumps(rr[2])}, view: 'panel', idle_return: 1 }})")
+pgC.wait_for_function("cardSrc(window.c7).includes('view=panel')", timeout=10000)
+fr = card_frame("view=panel")
+box = fr.evaluate("(() => { const r = document.getElementById('roomPanel').getBoundingClientRect(); return [r.left, r.top, r.width, r.height, innerWidth, innerHeight]; })()")
+check("card (#356): only the controls: the room panel of the room fills the card, no 3D picture, no close button, the heating inside it",
+      "card-panel" in fr.evaluate("[...document.body.classList]") and fr.locator("#roomPanel").is_visible() and fr.locator("#view").is_hidden()
+      and fr.locator("#roomPanel .rp-head b").inner_text().strip() == rr[2].strip() and fr.locator("#roomPanel .rp-x").count() == 0
+      and fr.evaluate("document.getElementById('heatPanel').parentNode.id") == "roomPanel"
+      and box[0] == 0 and box[1] == 0 and abs(box[2] - box[4]) <= 2 and abs(box[3] - box[5]) <= 2, box)
+fr.evaluate("window.__fp.kioskIdle(2 * 60000); window.__fp.kioskTick()"); fr.wait_for_timeout(1200)
+check("card (#356): only the controls: the room panel stays open after the idle time", fr.locator("#roomPanel").is_visible()
+      and fr.locator("#roomPanel .rp-head b").inner_text().strip() == rr[2].strip())
+pgC.screenshot(path=os.path.join(S, "card-panel.png"))
+pgC.evaluate("window.c7.setConfig({ view: 'panel' })")
+pgC.wait_for_function("cardSrc(window.c7).includes('view=panel') && !cardSrc(window.c7).includes('room=')", timeout=10000)
+fr = card_frame("view=panel")
+check("card (#356): only the controls without a room: the card says to choose one", fr.locator("#cardHint").is_visible() and fr.locator("#roomPanel").is_hidden(),
+      fr.evaluate("document.getElementById('cardHint')?.textContent"))
 # not in the sidebar and installed under another name (#352): an administrator's card finds it in the list of installed add-ons
 pgC.goto(BASE + "cardhost.html")
 pgC.evaluate("""window.c6 = addCard({}, fakeHass((m) => {

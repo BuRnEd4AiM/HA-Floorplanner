@@ -91,6 +91,20 @@ test('the address: floor numbers, defaults left out, theme like Home Assistant',
   assert.equal(q(Card.frameUrl('/', { idle_return: 'soon' })).idle_return, undefined);
   assert.equal(q(Card.frameUrl('/', { quality: 'low' })).perf, 'low');
 });
+test('the view: only the room or only its room panel goes into the address, the 3D view is left out', () => {
+  assert.equal(q(Card.frameUrl('/', { room: 'Küche', view: 'room' })).view, 'room');
+  assert.equal(q(Card.frameUrl('/', { room: 'Küche', view: 'panel' })).view, 'panel');
+  assert.equal(q(Card.frameUrl('/', { view: '3d' })).view, undefined);
+  assert.equal(q(Card.frameUrl('/', { view: 'pink' })).view, undefined);
+});
+test('only the room or only its room panel needs a newer add-on; the 3D view works with the older one', () => {
+  assert.equal(Card.needsNewer({ view: 'panel' }, '3.77.1'), true);
+  assert.equal(Card.needsNewer({ view: 'room' }, '3.77.1'), true);
+  assert.equal(Card.needsNewer({ view: 'panel' }, '3.78.0'), false);
+  assert.equal(Card.needsNewer({ view: 'room' }, 'dev'), false);
+  assert.equal(Card.needsNewer({}, '3.75.0'), false);
+  assert.equal(Card.needsNewer({ view: '3d' }, '3.75.0'), false);
+});
 test('the height: a number or a CSS length, the screen with fill, the cell of a sections dashboard, the panel view', () => {
   assert.equal(Card.frameHeight({}), '400px');
   assert.equal(Card.frameHeight({ height: 300 }), '300px');
@@ -111,6 +125,9 @@ test('the editor shows the defaults as what they mean and leaves them out of the
   eq(Card.editorConfig({ type: 'custom:floorplan3d-card', floor: 0 }, d), { type: 'custom:floorplan3d-card', floor: '0', alerts: false, room_panel: false });
   const c = Card.editorConfig({ type: 'custom:floorplan3d-card', custom: 1 }, { ...Card.editorData({}), theme: 'auto', alerts: 'on', show_bar: false, height: '', fill: false, idle_return: 10, room: '' });
   eq(c, { type: 'custom:floorplan3d-card', custom: 1, theme: 'auto', alerts: true, show_bar: false, idle_return: 10 });
+  assert.equal(Card.editorData({}).view, '3d');
+  eq(Card.editorConfig({ room: 'Küche' }, { ...Card.editorData({ room: 'Küche' }), view: 'panel' }), { room: 'Küche', view: 'panel' });
+  eq(Card.editorConfig({ room: 'Küche', view: 'panel' }, { ...Card.editorData({ room: 'Küche', view: 'panel' }), view: '3d' }), { room: 'Küche' });
 });
 test('the editor fields: drop-downs from the add-on\'s plan, free text without it', () => {
   const names = (schema) => schema.flatMap((s) => (s.schema ? names(s.schema) : [s.name]));
@@ -121,7 +138,7 @@ test('the editor fields: drop-downs from the add-on\'s plan, free text without i
   const free = Card.editorSchema(null);
   assert.ok(names(free).includes('house'));
   eq(free.flatMap((s) => s.schema || [s]).find((s) => s.name === 'floor').selector, { text: {} });
-  for (const n of ['theme', 'quality', 'walls', 'labels', 'heatmap', 'night', 'alerts', 'idle_return', 'room_panel', 'show_nav', 'show_bar', 'addon', 'height', 'fill', 'title', 'room']) {
+  for (const n of ['view', 'theme', 'quality', 'walls', 'labels', 'heatmap', 'night', 'alerts', 'idle_return', 'room_panel', 'show_nav', 'show_bar', 'addon', 'height', 'fill', 'title', 'room']) {
     assert.ok(names(free).includes(n), n);
   }
 });

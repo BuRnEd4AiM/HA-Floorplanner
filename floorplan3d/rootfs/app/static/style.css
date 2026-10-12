@@ -761,6 +761,15 @@ body.replay #timelineBtn { background: var(--accent); border-color: var(--accent
 body.card-nonav #navBar, body.card-nonav #roomMenu, body.card-nonav #phoneNav, body.card-nonav #navLeft, body.card-nonav #navRight,
 body.card-nonav #floorRail { display: none !important; }
 body.card-nobar #modeBar, body.card-nobar #viewMenu, body.card-nobar #compass, body.card-nobar #findBtn, body.card-nobar #findBox { display: none !important; }
+/* a card for one room (cardmode.js, #356): view=room shows only the room in 3D and nothing that leads out of it (the bar at the top goes too,
+   card-nonav: floors, rooms), view=panel only its room panel, which fills the card, without the 3D picture behind it */
+body.card-room #findBtn, body.card-room #findBox, body.card-room #alertBar { display: none !important; }
+body.card-panel #stage > :not(#roomPanel):not(#cardHint) { display: none !important; }
+body.card-panel #roomPanel { top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: auto !important; max-width: none !important;
+  max-height: none !important; border: 0; border-radius: 0; box-shadow: none; clip-path: none; }
+#cardHint { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; max-width: calc(100% - 48px); padding: 14px 18px;
+  text-align: center; line-height: 1.4; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; color: var(--text); }
+#cardHint[hidden] { display: none; }
 @media (max-height: 520px) {                       /* a low card: the colour scale of the room colouring stays clear of the compass */
   body.card #viewLegend { top: 58px; transform: none; }
   body.card.card-nonav #viewLegend { top: 12px; }

@@ -741,6 +741,7 @@ export default {
   'rp.switch': 'PRZEŁĄCZNIKI',
   'rp.sensor': 'CZUJNIKI',
   'rp.empty': 'Brak urządzeń z encją w tym pokoju.',
+  'card.pickRoom': 'Wybierz pokój w ustawieniach karty: ta karta pokazuje tylko jeden pokój.',
   'live.stop': 'Stop',
   'live.lock': 'Zablokuj',
   'live.unlock': 'Odblokuj',
