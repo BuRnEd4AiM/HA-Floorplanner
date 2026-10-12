@@ -1,6 +1,6 @@
 {
- "version": "3.78.0",
- "buildHash": "22295675a0bd7135fee2f7346e4afbf8a9fe802af29d971e1455f4c716927af7",
+ "version": "3.78.1",
+ "buildHash": "03f545f5e2dcc8bd042e201b949af22704a381a1d01f86ed8f290cb615b1445e",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -157,7 +157,7 @@
   "static/edititems.js": "985e424b803a5140c26f97eb63c19abba02d66be365ecf6da158c652b1f8c47c",
   "static/entitypicker.js": "b04001c54b2501a937cced5b74b091ee30f10dc9a96487ed4de6ecd26f189915",
   "static/entitystate.js": "5f088c54e147f0745fe295232e3335dd4f31e748d427a3349cc5211cf98dfac0",
-  "static/floorbuild.js": "a53ae15acfbbee730a9ff37b5d571e2e9a58e7de687f0fc3557551a3a9589daa",
+  "static/floorbuild.js": "b22170f6985d9bdbce6b4912e15a2fa6dc2691306dd0812199bf5ffb9daf017b",
   "static/floorcards.js": "da47f82a563d55aeaa10bbb8ca0c3f7b540e6138663d2a2fe2818492e5ca23c1",
   "static/floorpanel.js": "61636335bfe7327b8138184405453a4ecbe129f2cd1e3f8735bf0472aae6dae2",
   "static/floorrail.js": "10ecd93393ed14db8841dd58b7359d98615f1b29a5b0aca67c3b43b6341d0b1a",
@@ -212,7 +212,7 @@
   "static/roofmove.js": "d25d2d6b20c906b60f655b8a0a69e3f7c541a89f6e2f488f004cf099a313282a",
   "static/roofs.js": "f9a0a9c324b6afbf6c18bf3055f80c0986bea1fc14a65e03722ad24048c29970",
   "static/roofsteps.js": "2eedc181f8fa750ea7bcc2b86f0f95d18f02459c4fa768e5da0bc13b600b0d50",
-  "static/roomclip.js": "c391f625839bc53edf7665d1b5b3b6e1102e26c97b6b5b92bd83558814334295",
+  "static/roomclip.js": "b88df1c550c9cb8efa20c9202a287eb91198838e36c0a5662e7dc1dba1334e37",
   "static/roomentities.js": "74f50c1878a4c9d58f93f7748d4b88ee6a85fce7c04fc5cacb42edeaf5cdff50",
   "static/roomlight.js": "db1e74eff656bf8cc70e9ecd0166081a3d3e0798f402392cc27e1a4826434e09",
   "static/roompanel.js": "bbc0e79ede2f41a953c3b10495df35c41990d866e331ae8989b7f7045bac0cb7",

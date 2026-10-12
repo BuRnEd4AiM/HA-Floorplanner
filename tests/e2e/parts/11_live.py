@@ -76,6 +76,19 @@ check("second tap: the first tap zooms into the room", pgR.evaluate("window.__fp
 pgR.evaluate(f"window.__fp.liveTapRoom('{ri['id']}')"); pgR.wait_for_timeout(600)
 cam2 = pgR.evaluate("window.__fp.cam()")
 check("second tap: a second tap into the same room goes back to the view before", pgR.evaluate("window.__fp.focusedRoom()") is None and pgR.locator("#roomPanel").is_hidden() and max(abs(a - b2) for a, b2 in zip(cam0, cam2)) < 1e-3, (cam0, cam2))
+# a chosen room shows its own devices and a wall lamp on its outer wall, not a lamp just behind a wall it shares with the next room (#358);
+# two rooms beside the house, only in this page (never saved)
+pgR.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+  f.rooms.push({id: 'isoA', name: 'IsoA', points: [[20, 0], [24, 0], [24, 3], [20, 3]]}, {id: 'isoB', name: 'IsoB', points: [[24, 0], [28, 0], [28, 3], [24, 3]]});
+  const lamp = (id, x, z, y) => ({id, type: 'light', x, z, y, rot: 0, scale: 1, name: id, entity: ''});
+  f.devices.push(lamp('isoMine', 22, 1.5, 0.9), lamp('isoWall', 22, -0.2, 1.8), lamp('isoNext', 24.2, 1.5, 0.9));
+  window.__fp.rebuild(); }""")
+pgR.evaluate("window.__fp.liveTapRoom('isoA')"); pgR.wait_for_timeout(600)
+iso = pgR.evaluate("['isoMine', 'isoWall', 'isoNext'].map(i => window.__fp.has(i))")
+check("room isolation (#358): the chosen room shows its lamp and its wall lamp, not the lamp 20 cm behind the shared wall", iso == [True, True, False], iso)
+pgR.evaluate("window.__fp.liveTapRoom('isoB')"); pgR.wait_for_timeout(600)
+iso = pgR.evaluate("['isoMine', 'isoWall', 'isoNext'].map(i => window.__fp.has(i))")
+check("room isolation (#358): ... that lamp shows in its own room", iso == [False, False, True], iso)
 pgR.close()
 # --- live mode: only things linked to an entity can be tapped, doors and windows have no hit box, lamps get a bigger finger box (#130)
 def place_far(pg):
