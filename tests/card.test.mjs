@@ -45,6 +45,22 @@ test('the add-on is found by its sidebar panel first; the card option alone when
   assert.equal(new Set(s).size, s.length);
   eq(Card.slugs(panels, ' my_floorplan3d '), ['my_floorplan3d']);
 });
+test('Home Assistant 2026.2 and newer names the add-on of a panel in config.addon (#352)', () => {
+  const panels = {
+    lovelace: { url_path: 'lovelace', config: { mode: 'storage' } },
+    '1a2b3c4d_floorplan3d': { component_name: 'app', url_path: '1a2b3c4d_floorplan3d', config: { addon: '1a2b3c4d_floorplan3d' } },
+    other: { component_name: 'app', url_path: 'core_ssh', config: { addon: 'core_ssh' } },
+  };
+  const s = Card.slugs(panels, '');
+  assert.equal(s[0], '1a2b3c4d_floorplan3d');
+  assert.ok(!s.includes('core_ssh'));
+});
+test('the list of installed add-ons: only this add-on, under any repository name (#352)', () => {
+  eq(Card.slugsFromList({ addons: [{ slug: 'core_ssh' }, { slug: '9f8e7d6c_floorplan3d' }, { slug: 'floorplan3d_x' }, null, {}] }), ['9f8e7d6c_floorplan3d']);
+  eq(Card.slugsFromList({ apps: [{ slug: 'local_floorplan3d' }] }), ['local_floorplan3d']);
+  eq(Card.slugsFromList(null), []);
+  eq(Card.slugsFromList({}), []);
+});
 test('versions: an older add-on is recognised, an unknown one is not', () => {
   assert.equal(Card.olderThan('3.74.0', '3.75.0'), true);
   assert.equal(Card.olderThan('3.75.0', '3.75.0'), false);

@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.77.1] - 2026-10-11
+### Fixed
+- **Dashboard card: "add-on not found" on Home Assistant 2026.2 and newer** (#352): the card finds the add-on through its sidebar panel, and since Home Assistant 2026.2 the panel names its add-on in `config.addon` instead of `config.ingress`, so the card (and the preview in its editor) said *The 3D Floorplan add-on was not found* although the add-on was running. The card now reads both. When the add-on is not in the sidebar and the repository was added under another address, an administrator's card also looks in the list of installed add-ons. The message names the add-on names it tried and says *Settings → Apps* (the new name of Add-ons). `slugs` and `slugsFromList` in `dist/floorplan3d-card.js` (unit tests); the browser test uses the new panel format and the list. In HACS: update the card to 3.77.1, then reload the browser.
+
 ## [3.77.0] - 2026-10-11
 ### Added
 - **Example: show house with everything in it**: the import dialog has a third example, *Example: show house (everything in it)* (`examples/showcase.json`, also in `docs/examples/` and through `GET /api/import/examples/showcase`). One house that uses every part of the JSON format: all 93 device types, all 14 kinds of doors and windows (with roller shutters, window sensors per pane, own sizes), all five kinds of stairs (U over two floors, L, straight, spiral, wall stair with landing), a basement with explicit walls, a ground floor with its own outline (garage), an upper floor with a roof terrace, a void over the living room and a gallery, a gable roof with a step in the eaves, three kinds of dormers and solar panels, a garden house with its own hip roof, power cables from the house connection over meter, fuse box, inverter and battery to the wallbox, a kitchen run, Nanoleaf, LED ring, and a garden with pool, bridge and ground-mounted solar panels. A unit test makes sure the example keeps using every device type, opening preset and stair type, and a new browser test part `14_showcase` imports it through the dialog.

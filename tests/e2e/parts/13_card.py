@@ -7,7 +7,7 @@ HOST = """<!doctype html><html><head><meta charset="utf-8"><script src="/__card.
 <script>
 window.calls = [];
 window.fakeHass = (answer, panel = true) => ({ language: 'en', locale: { language: 'en' }, themes: { darkMode: false },
-  panels: { lovelace: { url_path: 'lovelace', config: {} }, ...(panel ? { abcd1234_floorplan3d: { url_path: 'abcd1234_floorplan3d', config: { ingress: 'abcd1234_floorplan3d' } } } : {}) },
+  panels: { lovelace: { url_path: 'lovelace', config: {} }, ...(panel ? { abcd1234_floorplan3d: { component_name: 'app', url_path: 'abcd1234_floorplan3d', config: { addon: 'abcd1234_floorplan3d' } } } : {}) },
   callWS: async (m) => { window.calls.push(m.endpoint); return answer(m); } });
 window.okHass = window.fakeHass((m) => {
   if (m.endpoint === '/addons/abcd1234_floorplan3d/info') return { state: 'started', version: '3.75.0', ingress_url: '/' };
@@ -72,6 +72,17 @@ check("card (#13): without the bars at the top and the bottom", fr.locator("#nav
       and fr.locator("#compass").is_hidden())
 check("card (#13): the height option", pgC.evaluate("window.c1.shadowRoot.querySelector('.box').style.height") == "300px")
 pgC.screenshot(path=os.path.join(S, "card.png"))
+# not in the sidebar and installed under another name (#352): an administrator's card finds it in the list of installed add-ons
+pgC.goto(BASE + "cardhost.html")
+pgC.evaluate("""window.c6 = addCard({}, fakeHass((m) => {
+  if (m.endpoint === '/addons') return { addons: [{ slug: 'core_ssh' }, { slug: '9f8e7d6c_floorplan3d' }] };
+  if (m.endpoint === '/addons/9f8e7d6c_floorplan3d/info') return { state: 'started', version: '3.76.1', ingress_url: '/' };
+  if (m.endpoint === '/ingress/session') return { session: 'sess2' };
+  throw { code: 'unknown_error', message: 'Addon does not exist' };
+}, false))""")
+pgC.wait_for_function("cardSrc(window.c6) !== ''", timeout=10000)
+check("card (#352): not in the sidebar, the repository added under another address: found in the list of installed add-ons",
+      pgC.evaluate("cardSrc(window.c6)").startswith("/?card=1") and "/addons/9f8e7d6c_floorplan3d/info" in pgC.evaluate("window.calls"), pgC.evaluate("window.calls"))
 # the card tells what is wrong (a fresh page: the add-on found above is kept for every card of a page; each card here its own add-on name)
 pgC.goto(BASE + "cardhost.html")
 pgC.evaluate("""window.c2 = addCard({}, fakeHass(() => { throw { code: 'unknown_error', message: 'Addon is not installed' }; }, false));
@@ -81,6 +92,6 @@ pgC.evaluate("""window.c2 = addCard({}, fakeHass(() => { throw { code: 'unknown_
 pgC.wait_for_timeout(1500)
 msgs = pgC.evaluate("[c2, c3, c4, c5].map(c => [cardMsg(c), cardSrc(c)])")
 check("card (#13): add-on not installed, not running, too old, no access: the card says so and opens nothing",
-      "not found" in msgs[0][0] and "not running" in msgs[1][0] and "3.60.0" in msgs[2][0] and "does not let this user" in msgs[3][0]
+      "not found" in msgs[0][0] and "local_floorplan3d" in msgs[0][0] and "not running" in msgs[1][0] and "3.60.0" in msgs[2][0] and "does not let this user" in msgs[3][0]
       and all(s == "" for _, s in msgs), msgs)
 pgC.close()
