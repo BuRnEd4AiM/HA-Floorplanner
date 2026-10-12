@@ -38,3 +38,12 @@ test('a wall along the room is kept, a long outer wall is cut down to the room, 
   assert.deepEqual(c.openings.map((o) => o.id), ['d']);
   assert.equal(R.clipWallToRoom(room, { a: [8, 8], b: [10, 8] }), null);
 });
+test('a wall inside the room (a closet its outline takes in) is kept with its door, not dropped (#362)', () => {
+  const kitchen = { points: [[0, 0], [3, 0], [3, 4], [-1, 4], [-1, 3], [0, 3]] };       // 3 x 4 m and a 1 x 1 m closet under the stairs
+  const closet = { a: [0, 3], b: [0, 4], openings: [{ id: 'd', pos: 0.5, width: 0.55 }] };   // its middle is 50 cm from every edge
+  assert.equal(R.clipWallToRoom(kitchen, closet), closet);
+  const through = { a: [1, 1], b: [1, 9], openings: [{ id: 'in', pos: 1 }, { id: 'out', pos: 6 }] };   // runs out of the room: cut at its edge
+  const c = R.clipWallToRoom(kitchen, through);
+  assert.ok(Math.abs(c.a[1] - 1) < 1e-9 && Math.abs(c.b[1] - 4) <= R.ISO_TOL + 0.1, JSON.stringify(c));
+  assert.deepEqual(c.openings.map((o) => o.id), ['in']);
+});

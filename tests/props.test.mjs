@@ -55,6 +55,13 @@ test('object list: each room with its doors / windows and devices, then the rest
   assert.equal(g[3][1][0].label, 'prop.wall 1 · 8.0 m');
   assert.equal(g[4][1][0].label, 'stair.wall');
 });
+test('object list: the door of a closet the room\'s outline takes in is listed with the room, not under "no room" (#362)', () => {
+  const fl = { rooms: [{ id: 'k', name: 'Raum 11', points: [[0, 0], [3, 0], [3, 4], [-1, 4], [-1, 3], [0, 3]] }],
+    walls: [{ id: 'w', a: [0, 3], b: [0, 4], openings: [{ id: 'closet', type: 'door', pos: 0.5, width: 0.55 }] }], devices: [] };
+  const g = O.objectGroups(fl, { t, pointInPoly: G.pointInPoly });
+  assert.deepEqual(g[0][1].map((i) => i.id), ['k', 'closet']);
+  assert.ok(!g.some((x) => x[0] === 'obj.noRoom'));
+});
 test('object list: an object on the border of two rooms is listed once, in the first room', () => {
   const g = O.objectGroups({ ...f, devices: [{ id: 'dx', type: 'lamp', x: 4, z: 1.5 }] }, { t, pointInPoly: () => true });
   const all = g.flatMap((x) => x[1]).filter((i) => i.id === 'dx');

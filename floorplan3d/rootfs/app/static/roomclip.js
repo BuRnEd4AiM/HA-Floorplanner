@@ -23,13 +23,14 @@ export function deviceInIso(room, x, z, rooms = []) {
   if (distToPoly(x, z, room.points) >= ISO_TOL) return false;
   return !rooms.some((r) => r.id !== room.id && (r.points || []).length > 2 && pointInPoly(x, z, r.points));
 }
-/** The part of wall w that runs along the room's outline (a long outer wall is cut down to this room), or null. */
+/** The part of wall w that runs along the room's outline or inside it (a long outer wall is cut down to this room; a wall inside the room,
+ *  like the wall of a closet its outline takes in, stays with its door, #362), or null. */
 export function clipWallToRoom(room, w) {
   const L = wallLength(w), N = Math.max(8, Math.ceil(L / 0.1));
   const near = [];
   for (let i = 0; i <= N; i++) {
     const k = i / N;
-    near.push(distToPoly(w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k, room.points) < ISO_TOL);
+    near.push(inIso(room, w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k));
   }
   let best = null, start = -1;
   for (let i = 0; i <= N + 1; i++) {

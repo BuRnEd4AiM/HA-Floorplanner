@@ -1,6 +1,6 @@
 {
- "version": "3.78.2",
- "buildHash": "9a4eff3b6cc36a806b7b0116b37b3bb84e053d71652bb54bcad8c9d08b668793",
+ "version": "3.78.3",
+ "buildHash": "5e1b19548c25fa3685025486c4095b422e1e5aab54e9b0f8564fbcc7fc563280",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -212,10 +212,10 @@
   "static/roofmove.js": "d25d2d6b20c906b60f655b8a0a69e3f7c541a89f6e2f488f004cf099a313282a",
   "static/roofs.js": "f9a0a9c324b6afbf6c18bf3055f80c0986bea1fc14a65e03722ad24048c29970",
   "static/roofsteps.js": "2eedc181f8fa750ea7bcc2b86f0f95d18f02459c4fa768e5da0bc13b600b0d50",
-  "static/roomclip.js": "b88df1c550c9cb8efa20c9202a287eb91198838e36c0a5662e7dc1dba1334e37",
+  "static/roomclip.js": "ca3f724a26b23ded5b8f9646d0e45fac1aba99add227b5b2aac37da62243a510",
   "static/roomentities.js": "74f50c1878a4c9d58f93f7748d4b88ee6a85fce7c04fc5cacb42edeaf5cdff50",
   "static/roomlight.js": "db1e74eff656bf8cc70e9ecd0166081a3d3e0798f402392cc27e1a4826434e09",
-  "static/roompanel.js": "bbc0e79ede2f41a953c3b10495df35c41990d866e331ae8989b7f7045bac0cb7",
+  "static/roompanel.js": "b366b1113d421a0c3970f7c77d327ecfed65679b550de0484944c7ba848d1a16",
   "static/rooms.js": "b3c65f81043bce516d51f6e0d975e3f0a424bdde953c29212e49f898c89eab17",
   "static/search.js": "e9c80b4c472b45a19932e6482373680364d8acee8c38f1ef1a1c1a9a27bee91d",
   "static/settings.js": "d0c6bb8a3d7e9e76ad6f44048ceccac6da4349c10a8e7bbb59e4e0e7002d4c8a",
