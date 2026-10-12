@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.78.2] - 2026-10-12
+### Fixed
+- **A tap right after the camera moved no longer misses** (#360): when the camera jumped (going into a room, the start view, a test), a tap or click before the next frame was drawn aimed with the camera's old direction and could hit nothing or the wrong thing. The camera's world matrix is now renewed before the ray of a tap is built (`picking.js`). On a slow machine this made the browser test check *in 3D the roof is picked* (part `10_roofs`) fail now and then; the check now moves the camera and picks in one step, so it always tests this case.
+
 ## [3.78.1] - 2026-10-12
 ### Fixed
 - **A chosen room no longer shows devices of the room behind the wall** (#358): when a room is chosen (tapped in live mode, from the room menu, a room tablet or the dashboard card), only that room is drawn, but devices of the neighbouring room that stood just behind a wall the two rooms share showed up in it too. The room kept every device within 30 cm of its edge, meant for wall lamps on its own wall. Now a device outside the room but close to its edge only belongs to it when it does not stand inside another room of the floor; a wall lamp on an outer wall stays, and walls, doors and windows are kept as before. This matches the room panel, which already listed only the devices inside the room. `deviceInIso` in `roomclip.js` (unit test); the browser test part `11_live` checks two rooms side by side.

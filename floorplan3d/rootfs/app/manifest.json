@@ -1,6 +1,6 @@
 {
- "version": "3.78.1",
- "buildHash": "03f545f5e2dcc8bd042e201b949af22704a381a1d01f86ed8f290cb615b1445e",
+ "version": "3.78.2",
+ "buildHash": "9a4eff3b6cc36a806b7b0116b37b3bb84e053d71652bb54bcad8c9d08b668793",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -198,7 +198,7 @@
   "static/phonemenu.js": "3cc82c411973a480298ace9e40edadb1fb1ab43e5553e7412ffdd2c389d06bdf",
   "static/phonenav.js": "6fda53489de6125ece2588578c85c72630f72aa80bf52cb63a106ec3dfbf7b99",
   "static/phonestatus.js": "5559dc21b4da89509a809dd76964893f492593a2bf6c5ada950481dfcd04fbe6",
-  "static/picking.js": "c9d7626f4c6e203b624f62a1652cf50144b27c72574e30a3cc1b742c49644f72",
+  "static/picking.js": "4c83b6ba5f0f44fea4816b7ca663dcca65f85e814db0920c43d856a5abad9101",
   "static/pickrules.js": "3ebe6dd237837d7a0046dcf6c99b30b0ed197c80b19d219a4ba2d22f13c9c563",
   "static/picture.js": "683aabb3b95ce03e47edc60048e2ea25dbfd514728366437f0479408f5f60abe",
   "static/placement.js": "f36d69640496ff93cf798c470fc83845cf24f12cca10d068209b6ca44fd38486",
