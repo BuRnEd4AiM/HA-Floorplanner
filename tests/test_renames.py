@@ -145,6 +145,17 @@ def test_side_entities_are_the_ones_home_assistant_keeps_off_its_dashboards():
     assert rn.look({}, entries, [], T)[2]["side"] == rn.side_entities(entries)          # kept with the state (#368)
 
 
+def test_climate_parts_are_the_other_entities_of_a_thermostats_device():
+    def ent(eid, dev):
+        return {**entry(eid, eid), "device_id": dev}
+    entries = [ent("climate.kueche", "trv1"), ent("switch.kueche_child_lock", "trv1"), ent("sensor.kueche_valve", "trv1"),
+               ent("switch.relais", "relay1"), ent("sensor.relais_ip", "relay1"), entry("switch.no_device", "x"),
+               ent("climate.b", "two"), ent("climate.a", "two"), ent("switch.two_lock", "two")]
+    assert rn.climate_parts(entries) == {"switch.kueche_child_lock": "climate.kueche", "sensor.kueche_valve": "climate.kueche",
+                                         "switch.two_lock": "climate.a"}
+    assert rn.look({}, entries, [], T)[2]["parts"] == rn.climate_parts(entries)          # kept with the state (#370)
+
+
 def test_look_rename_and_new_name_together():
     _, _, state = rn.look({}, [entry("sensor.old_temperature", "u")], [st("sensor.old_temperature", "Alt Temperatur", "21")], T)
     renames, changes, state = rn.look(state, [entry("sensor.new_temperature", "u")], [st("sensor.new_temperature", "Neu Temperatur", "21")], T + 5)

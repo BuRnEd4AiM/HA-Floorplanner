@@ -5,7 +5,7 @@ import { wallLength } from './walls.js';
 import { distToPoly, polyArea, pointInPoly } from './rooms.js';
 import { openingWalls } from './dormerwin.js';
 import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
-import { initHeatPanel } from './heatpanel.js';
+import { initHeatPanel, splitHeatParts } from './heatpanel.js';
 import { shutterEntity, floorShutters, shutterText } from './shutters.js';
 
 export const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['climate', 'rp.climate'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['camera', 'rp.camera'], ['sensor', 'rp.sensor'], ['scene', 'rp.scene']];
@@ -56,7 +56,8 @@ export function initRoomPanel(ctx) {
   let forId = null;
   const openCtl = new Set();               // lights whose colour / effect / scene controls are unfolded in the room panel
   const heatBox = $('#heatPanel'), heatHome = heatBox.parentNode;
-  const heat = initHeatPanel({ box: heatBox, t, states: () => ctx.states(), callService: (...a) => live.callService(...a), open: () => !!forId });
+  const heat = initHeatPanel({ box: heatBox, t, states: () => ctx.states(), callService: (...a) => live.callService(...a), open: () => !!forId,
+    stateText: (id) => ctx.stateText(id), isOn: (id) => ctx.onStates.has(ctx.states()[id]?.state) });
   /** the text on a row of the room panel */
   function rowValue(id) {
     const s = ctx.states()[id], dom = id.split('.')[0];
@@ -94,10 +95,13 @@ export function initRoomPanel(ctx) {
       .filter((id) => !placedIds.has(id) && states[id] && inRoomPanel(id))
       .map((id) => ({ entity: id, name: nameOf(id) || id }));
     devs.push(...extra);
-    heat.render(devs.filter((d) => d.entity.startsWith('climate.')));
+    const climates = devs.filter((d) => d.entity.startsWith('climate.'));
+    const partOf = Object.assign({}, ...ctx.areas().map((a) => a.parts || {}));            // entity -> the thermostat of its device (#370)
+    const { parts, rest } = splitHeatParts(devs, climates.map((d) => d.entity), partOf);   // a thermostat's child lock ... shows with the heating
+    heat.render(climates, parts);
     RP_GROUPS.forEach(([group, key]) => {
       if (group === 'climate') return;                          // thermostats have their own panel next to this one
-      const list = devs.filter((d) => rpGroupOf(d.entity.split('.')[0]) === group);
+      const list = rest.filter((d) => rpGroupOf(d.entity.split('.')[0]) === group);
       if (!list.length) return;
       const h = document.createElement('h4'); h.textContent = t(key); box.append(h);
       if (group === 'light') {                                   // all lights of the room off in one tap

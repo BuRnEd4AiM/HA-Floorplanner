@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.79.2] - 2026-10-13
+### Fixed
+- **The child lock of a thermostat shows with the heating, not among the room's switches** (#370): a thermostat brings further entities along in Home Assistant, such as its child lock, window detection or valve detection. They were listed in the room panel under *Switches* next to the light switches. Home Assistant knows which entities belong to the same device (the entity registry the add-on already reads); the add-on now remembers which entity belongs to a thermostat's device (`climate_parts` in `renames.py`, `parts` in `/api/areas`), and the room panel shows those entities in the heating panel under their thermostat (switches as slide switches, values as text; `splitHeatParts` and `partName` in `heatpanel.js`, with unit tests). If the thermostat is not in that room, they stay in the room's list.
+
 ## [3.79.1] - 2026-10-13
 ### Fixed
 - **The room panel no longer lists the side entities of a device** (#368): a room linked to a Home Assistant area showed under *Sensors* every entity of the area, also the diagnostic ones of its devices; for a Tasmota relay that is its last restart time, MQTT and WiFi connect counts, restart reason, SSID, IP address, firmware and signal, although only its switch is used. Home Assistant marks such entities as diagnostic or configuration (`entity_category`) and keeps them off its own dashboards; the add-on now does the same in the room panel, in the room's entity list and when placing a whole area, and also leaves out entities hidden in Home Assistant. The add-on already reads Home Assistant's entity registry (for renamed entities), it now also remembers these entities (`side_entities` in `renames.py`); `/api/areas` lists them under `side` instead of `entities` (`area_list` in `server.py`), so the entity picker still sorts them into their area (`areaIndex` in `livechannel.js`). Unit tests in `tests/test_renames.py`, `tests/test_server.py` and `tests/livechannel.test.mjs`.
