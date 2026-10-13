@@ -40,7 +40,8 @@ import { linkedEntities } from './shutters.js';
 import { initCutaway } from './cutaway.js';
 import { initSettings } from './settings.js';
 import { initFloorPanel, newFloor } from './floorpanel.js';
-import { MAX_LIGHTS, LIGHT_PROFILE, cssHex, hexVec, colorFromStops, roomLightMat as makeRoomLightMat, fillLights as fillRoomLights } from './roomlight.js';
+import { hexVec, colorFromStops, roomLightMat as makeRoomLightMat, fillLights as fillRoomLights } from './roomlight.js';
+import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
@@ -232,7 +233,7 @@ function rebuildGrid() {
 const registry = new Map();       // id -> Object3D
 const pickables = [];
 const labelSprites = new Map();   // device id -> sprite
-const tapBalls = initTapBalls({ ceiling: () => settings.wallHeight || 2.6,
+const tapBalls = initTapBalls({ ceiling: () => settings.wallHeight || 2.6, deviceClass: (e) => states[e]?.dc,
   labelsIn: (g) => [...labelSprites.values()].filter((sp) => sp.parent === g && sp.visible && !sp.userData.atWindow).map((sp) => sp.position) });   // live mode: a ball over everything that can be tapped (#238); a shutter's label is over its own ball (#335)
 const openingHandles = new Map();   // opening id -> { mesh, outline }: unscaled hit boxes that stay usable when the wall is lowered
 let cutawayWalls = [];            // { group, mid:[x,z], n:[nx,nz] } for the active floor
@@ -573,7 +574,7 @@ function applyStates() {
       const obj = registry.get(d.id);
       if (!obj) return;
       const on = d.entity && isOnNow(d.entity);
-      const rgb = on && Array.isArray(states[d.entity]?.rgb) ? states[d.entity].rgb : null;   // lit parts take the light's colour
+      const rgb = on ? lampRgb(d, states[d.entity]) : null;   // lit parts take the light's colour (or the one set on a lamp that reports none, #367)
       obj.userData.heat?.forEach((m) => { m.emissive.set(on ? 0xff5a1a : 0x000000); m.emissiveIntensity = on ? 0.9 : 0; });   // a radiator glows while its thermostat heats
       obj.userData.glow?.forEach((m) => {
         m.emissive.set(on ? (rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255) : 0xffd27a) : 0x000000);
@@ -610,7 +611,6 @@ function applyStates() {
   buildNav();                             // room pills show a dot while somebody is in the room
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
     const holo = isHolo();
-    const defCol = hexVec(cssHex(settings.defaultLightColor));
     roomMeshes.forEach(({ mesh, room, wash, glow, f, ghost }) => {
       const target = holo ? mesh : glow;
       const U = target?.material.uniforms;
@@ -618,25 +618,7 @@ function applyStates() {
       const k = ghost ? 0.3 + 0.6 * bv : 1;
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
       if (!holo) mesh.material.color.set(heat != null ? heat : (room.color || '#8a7f70'));      // solid themes: the floor itself takes the temperature / humidity colour
-      const lights = heat ? [] : entityDevices(f)            // a TV's backlight and each LED ring section are lights of their own
-        .filter((d) => d.entity && /^(light|switch)\./.test(d.entity) && ON_STATES.has(states[d.entity]?.state) && pointInPoly(d.x, d.z, room.points))
-        .flatMap((d) => {
-          const st = states[d.entity];
-          const br = st.brightness != null ? 0.12 + 0.88 * st.brightness / 100 : 1;
-          const c = Array.isArray(st.rgb) ? new THREE.Vector3(st.rgb[0] / 255, st.rgb[1] / 255, st.rgb[2] / 255) : defCol.clone();
-          const sw = d.entity.startsWith('switch.') ? 0.6 : 1;
-          const prof = LIGHT_PROFILE[d.type] || LIGHT_PROFILE.light;      // an LED strip or a panel does not light the whole room like a ceiling lamp
-          const r = settings.glowRadius * (0.7 + 0.5 * br) * sw * prof.r * (d.type === 'ledseg' ? Math.min(1.6, Math.max(0.7, d.len / 2.5)) : 1);   // a long section lights more of the wall
-          if (d.type === 'nanoleaf' && d.panels?.length) {                 // a layout shines from where its panels really are, a little off the wall
-            const n = Math.min(4, d.panels.length), a = ((d.rot || 0) * Math.PI) / 180, cs = Math.cos(a), sn = Math.sin(a), k2 = d.scale || 1;
-            return Array.from({ length: n }, (_, i) => d.panels[Math.floor((i * d.panels.length) / n)]).map((p) => ({
-              x: d.x + (p.x * cs * (d.mirror ? -1 : 1) * (d.sx || 1) + 0.12 * sn) * k2, y: (d.y || 0) + p.y * k2 * (d.sy || 1), z: d.z + (-p.x * sn * (d.mirror ? -1 : 1) * (d.sx || 1) + 0.12 * cs) * k2,
-              r: r * 0.75, c: c.clone().multiplyScalar(br * prof.k * 1.1 / Math.sqrt(n)),
-            }));
-          }
-          return [{ x: d.x, y: d.y || 0, z: d.z, r, c: c.multiplyScalar(br * prof.k) }];
-        })
-        .slice(0, MAX_LIGHTS);
+      const lights = heat ? [] : lampLights(entityDevices(f), room, { states, onStates: ON_STATES, rooms: f.rooms, settings });   // a TV's backlight and each LED ring section are lights of their own (lamplight.js)
       fillLights(target.material, lights, holo ? 1 : (ghost ? k : 1));
       if (holo) U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
       else glow.visible = lights.length > 0;
@@ -1257,7 +1239,7 @@ const props = initProps({
   renderRoomEntities: () => renderRoomEntities(), stateText: (id) => stateText(id), roomAt: (x, z) => roomAt(x, z), pointInPoly, controlsTarget: () => controls.target,
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type) => baseDims(type), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
   uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
-  fromDisp: (v) => fromDisp(v), uid: () => uid(),
+  fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor,
 });
 function renderObjList() { objList.render(); }
 function renderRoomEntities() { roomEnts.render(); }
@@ -1516,6 +1498,11 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height, r: ((b.children[0]?.scale.x || 0) / 2) * px };   // r: radius in pixels (#314)
     },
     ballSize: (id) => { const s = tapBalls.ball(id)?.children[0]; return s ? +s.scale.x.toFixed(3) : null; },   // the shown size of a tap ball (m, #262)
+    ballIcon: (id) => tapBalls.icon(id),                             // the icon of a tap ball ('switch': the drawn light switch, #366)
+    roomLights: (id) => {                                            // the lamps lighting a room now: reach (m) and colour (0..1), #367
+      const rm = roomMeshes.get(id), U = (isHolo() ? rm?.mesh : rm?.glow)?.material.uniforms;
+      return U?.uCount ? Array.from({ length: U.uCount.value }, (_, i) => ({ r: +U.uPos.value[i].w.toFixed(3), c: U.uCol.value[i].toArray().map((v) => +v.toFixed(3)) })) : null;
+    },
     ballY: (id) => { const b = tapBalls.ball(id); return b ? +b.position.y.toFixed(3) : null; },   // height of a tap ball over its floor (a shutter's: over the window, #335)
     neighborCount: () => world.children.filter((c) => c.userData.neighbor).length, neighborOutlines: () => neighbors.outlines(elev(floorIdx)).length,
     devPose: (id) => { const o = registry.get(id); if (!o) return null; o.updateWorldMatrix(true, true); const n = new THREE.Vector3(0, 1, 0).applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())), bx = new THREE.Box3(); o.children.forEach((c) => { if (!c.userData.proxy) bx.expandByObject(c); }); const sz = bx.getSize(new THREE.Vector3()); return { y: +o.getWorldPosition(new THREE.Vector3()).y.toFixed(3), n: n.toArray().map((v) => +v.toFixed(3)), mount: o.userData.onRoof || null, size: [+sz.x.toFixed(2), +sz.z.toFixed(2)], h: +sz.y.toFixed(2), minY: +bx.min.y.toFixed(3), visible: o.visible }; },

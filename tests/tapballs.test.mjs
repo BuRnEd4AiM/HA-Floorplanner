@@ -31,7 +31,11 @@ test('icon (#240): what the ball controls, by the kind of its entity; some devic
   assert.equal(T.ballIcon({ type: 'light', entity: 'light.a' }), '💡');
   assert.equal(T.ballIcon({ type: 'strip', entity: 'light.led' }), '💡');                   // an LED strip: a lamp too
   assert.equal(T.ballIcon({ type: 'switch', entity: 'cover.rollladen' }), '🪟');            // shutters
-  assert.equal(T.ballIcon({ type: 'switch', entity: 'switch.steckdose' }), '🔌');
+  assert.equal(T.ballIcon({ type: 'switch', entity: 'switch.h1_szfa_sw01' }), T.SWITCH_ICON);   // a switch is a switch, not a plug (#366)
+  assert.equal(T.ballIcon({ type: 'switch', entity: 'switch.sw' }, () => 'switch'), T.SWITCH_ICON);
+  assert.equal(T.ballIcon({ type: 'switch', entity: 'switch.steckdose' }, (e) => (e === 'switch.steckdose' ? 'outlet' : null)), '🔌');   // Home Assistant says it is a plug
+  assert.equal(T.ballIcon({ type: 'washer', entity: 'switch.waschmaschine' }), '🫧');      // a device type with its own icon keeps it
+  assert.equal(T.ballIcon({ type: 'pendant', entity: 'switch.relais' }), '💡');              // a lamp on a relay is a lamp (#367)
   assert.equal(T.ballIcon({ type: 'camera', entity: 'camera.flur' }), '📷');
   assert.equal(T.ballIcon({ type: 'tv_wall', entity: 'media_player.tv' }), '📺');
   assert.equal(T.ballIcon({ type: 'tv_wall', entity: 'media_player.tv', ledEntity: 'light.tv_led' }), '📺');   // the TV, not its backlight

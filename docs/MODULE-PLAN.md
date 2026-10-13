@@ -45,7 +45,8 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `kiosk.js` | ~70 | Wandtablet (Bildschirmschoner, Nacht) |
 | `cardmode.js` | ~110 | Dashboard-Karte (#13): die Seite in der Lovelace-Karte (`?card=1`): Optionen aus der Adresse (`cardOptions`), Etage oder ganzes Haus zum Start und nach der Ruhezeit (`cardFloor`), Raumfarben, ohne Raum-Fenster oder Leisten; Karte für einen Raum (#356, `view`): nur der Raum in 3D, ohne ihn zu verlassen (`room`), oder nur sein Raum-Fenster ohne 3D (`panel`, `alone()` in `roompanel.js`); das Aussehen der Karte nur für diesen Bildschirm (über die Vorgaben in `viewprefs.js`); reine Logik mit Unit-Tests. Die Karte selbst ist `dist/floorplan3d-card.js` (außerhalb des Add-ons, eine Datei ohne Build, Unit-Tests `tests/card.test.mjs`) |
 | `badges.js` | ~50 | Wertplaketten entzerren |
-| `roomlight.js` | ~95 | Raumlicht-Shader (Lichtflecken, Wandschein), Farbskalen |
+| `roomlight.js` | ~85 | Raumlicht-Shader (Lichtflecken, Wandschein), Farbskalen |
+| `lamplight.js` | ~75 | Welche Lampen ihren Raum beleuchten, wie weit und in welcher Farbe (`lampLights`, aus `app.js` geholt): eine Lampe an einem Relais (`switch.…`) wie jede Lampe, eigene Lichtfarbe einer Lampe, die keine Farbe meldet (`lightColor`, Feld in `props.js`), eine Lampe an der Wand knapp außerhalb des Umrisses (#367); reine Logik mit Unit-Tests |
 | `earth.js` | ~150 | Erde, Rasen, Grundstücksform, Schnitt durch den Boden |
 | `badgetext.js` | ~35 | Texte der Wert-Anzeigen über den Geräten (Sensoren, Zähler, Licht, Rollo …), mit Unit-Tests |
 | `bridge.js` | ~35 | Metallbrücke / Übergang (#189): Lauffläche, Träger, Geländer (reine Geometrie, Unit-Tests) |
@@ -78,7 +79,7 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `cameras.js` | ~190 | Kameras (Sichtkegel, Übersicht, Standbilder) |
 | `neighbor.js` | ~120 | Nachbarhaus (#220): anderes Haus daneben zeigen (3D und Umriss im Plan), Einstellungen; Geometrie mit Unit-Tests |
 | `multisel.js` | ~120 | Mehrfachauswahl (#211, #247): Shift / Strg + Klick, Rahmen aufziehen im 2D-Plan (`boxItems`), alle löschen in einem Schritt, Rahmen in 3D, Kasten im Panel, alle zusammen verschieben (`groupTargets`, `moveGroup`) |
-| `tapballs.js` | ~140 | Kugeln zum Antippen im Live-Modus (#238): Lage über/unter dem Gerät, Farbe nach Zustand, auf dem Bildschirm auseinanderschieben (#314, `spreadScreen`); reine Regeln mit Unit-Tests |
+| `tapballs.js` | ~140 | Kugeln zum Antippen im Live-Modus (#238): Lage über/unter dem Gerät, Farbe nach Zustand, Symbol (ein Schalter bekommt einen gezeichneten Lichtschalter, eine Steckdose den Stecker, #366, eine Lampe am Relais die Glühbirne, #367), auf dem Bildschirm auseinanderschieben (#314, `spreadScreen`); reine Regeln mit Unit-Tests |
 | `startview.js` | ~95 | Startansicht (#315): aktuelle Ansicht speichern (für alle und pro Benutzer), beim Start und am Wandtablet dorthin zurück; reine Regeln mit Unit-Tests |
 | `renames.js` | ~50 | In Home Assistant umbenannte Entitäten: neue Entity-IDs und HA-Namen (nicht von Hand vergebene) in den Plan und die Rückgängig-Liste einer offenen Ansicht; Gegenstück im Add-on ist `renames.py` (Wächter über die Registry, schreibt alle Häuser, Einstellungen und users.json um); reine Logik mit Unit-Tests |
 | `bootguard.js` | ~60 | Startschutz (#328): klassisches Skript vor `app.js`; startet `app.js` nicht (alte Dateien im Browser-Cache), holt es alle Dateien neu und lädt einmal neu, sonst eine Meldung statt leerer Seite; Unit-Tests mit nachgebautem Fenster |

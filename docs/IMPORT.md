@@ -120,7 +120,7 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 ### Geräte & Möbel
 
 `{ "type": "sofa", "x": 2, "z": 3, "y": 0, "rot": 180, "scale": 1, "name": "…", "entity": "light.xyz" }`
-Unbekannte Typen werden mit Warnung übersprungen. Alle Typen stehen im Schema (`/api/import/schema`), u. a. Licht (`light`, `spot`, `strip`, `pendant`, `nanoleaf`, `tv_led`), Möbel (`sofa`, `bed`, `kitchen`, …), Sensoren, Garten (`tree`, `lawn`, `pool`, `fence`, `terrace`). Weitere Felder: `ledEntity`, `hideModel`, `panels` (Nanoleaf), `pts` / `closed` / `segs` / `inset` (LED-Ring).
+Unbekannte Typen werden mit Warnung übersprungen. Alle Typen stehen im Schema (`/api/import/schema`), u. a. Licht (`light`, `spot`, `strip`, `pendant`, `nanoleaf`, `tv_led`), Möbel (`sofa`, `bed`, `kitchen`, …), Sensoren, Garten (`tree`, `lawn`, `pool`, `fence`, `terrace`). Weitere Felder: `ledEntity`, `hideModel`, `lightColor` (Lichtfarbe einer Lampe, die keine Farbe meldet, z. B. an einem Relais: `"#e8f0ff"`), `panels` (Nanoleaf), `pts` / `closed` / `segs` / `inset` (LED-Ring).
 
 **Küchenzeile** (`"type": "kitchenrun"`): `legs` = bis zu 3 Schenkel (gerade, L, U), jeder eine Liste von Modulen (`base`, `drawers`, `sink`, `stove`, `dish`, `fridge`, `tall`, `gap`), dazu `upper` (Oberschränke, Standard `true`) und `depth` (0,4 bis 1,2 m).
 `{ "type": "kitchenrun", "x": 3, "z": 2, "legs": [["base","sink","dish","stove","fridge"],["base","base"]], "upper": true }`

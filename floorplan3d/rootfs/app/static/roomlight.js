@@ -2,14 +2,9 @@
  * hologram theme, the light pool on the floor of the solid themes and the wash on the walls, up to MAX_LIGHTS lamps per room; and the colour
  * scales of the room colourings (temperature, humidity, CO2). Colour maths is pure (tested). */
 import * as THREE from './vendor/three.module.min.js';
+import { MAX_LIGHTS } from './lamplight.js';                 // which lamps light a room, how far and in which colour: lamplight.js (#367)
 
-export const MAX_LIGHTS = 8;
-/** how far (r, relative to the setting) and how strongly (k) a kind of lamp lights the room */
-export const LIGHT_PROFILE = {
-  light: { r: 0.85, k: 0.8 }, lamp: { r: 0.6, k: 0.6 }, orb: { r: 0.3, k: 0.4 }, strip: { r: 0.4, k: 0.4 },
-  panel_tri: { r: 0.35, k: 0.4 }, panel_hex: { r: 0.35, k: 0.4 }, panel_sq: { r: 0.35, k: 0.4 }, panel_bar: { r: 0.4, k: 0.4 }, nanoleaf: { r: 0.45, k: 0.5 }, tv_led: { r: 0.55, k: 0.55 },
-  ledseg: { r: 0.5, k: 0.45 },
-};
+export { MAX_LIGHTS, LIGHT_PROFILE } from './lamplight.js';
 /** '#rrggbb' -> 0xrrggbb */
 export const cssHex = (s) => parseInt(s.slice(1), 16);
 /** 0xrrggbb -> vector of 0..1 */
@@ -75,9 +70,9 @@ export function roomLightMat(kind, alpha = 1, ghost = false, floorHex = 0x0a1830
     transparent: wash || alpha < 1, depthWrite: !wash && !ghost, side: wash ? THREE.BackSide : THREE.DoubleSide,
   });
 }
-/** put the lamps [{ x, y, z, r, c (Vector3) }] into a light material; strength and wash height come from the settings */
+/** put the lamps [{ x, y, z, r, c: [r, g, b] }] (lampLights in lamplight.js) into a light material; strength and wash height come from the settings */
 export function fillLights(m, lights, k, settings) {
   const U = m.uniforms;
   U.uCount.value = lights.length; U.uStr.value = settings.glowStrength * k; U.uH.value = settings.glowHeight;
-  lights.forEach((l, i) => { U.uPos.value[i].set(l.x, l.y, l.z, l.r); U.uCol.value[i].copy(l.c); });
+  lights.forEach((l, i) => { U.uPos.value[i].set(l.x, l.y, l.z, l.r); U.uCol.value[i].set(l.c[0], l.c[1], l.c[2]); });
 }

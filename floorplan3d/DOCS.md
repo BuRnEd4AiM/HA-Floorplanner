@@ -75,6 +75,8 @@ If you open the add-on directly (for example through a mapped port), `?room=Wohn
 In live mode, tapping a light or scene opens its controls and, below them, **Whole room: <room>**. There you can switch **all lights of the room** on or off, set brightness, colour and warm/cold white for all of them, and start the room's **scenes**. The same block sits at the top of the room panel (tap a room).
 Lights and scenes belong to a room when they are placed inside it or assigned to the room's Home Assistant area.
 
+**Lamps on a relay and the light colour:** a lamp (ceiling light, pendant, spot, wall lamp, floor lamp, LED strip ...) that is only switched on and off, e.g. by a relay (a `switch.…` entity), lights the floor just like a light entity and has a light bulb on its tap ball. A relay does not tell the lamp's colour, so every lamp has the field **Lichtfarbe** (light colour) in the side panel: the floor, the lamp and its ball glow in that colour, e.g. cool white instead of warm white. A lamp that reports a colour itself uses that one; ↺ goes back to the default light colour of the settings. A lamp on the wall, just outside the room's outline, lights the room too (not the room on the other side of the wall).
+
 ## Nanoleaf and other effect lights
 
 Nanoleaf (Shapes, Elements, Canvas ...) works through the official Home Assistant *Nanoleaf* integration: every panel set shows up as a light entity, place it like any other light (a *Lichtkugel* or *LED-Streifen* fits well). If a light offers effects (Nanoleaf scenes, WLED, Hue ...), the live popup shows an **Effects** drop-down; for a whole room the effects that all its lights share are offered.

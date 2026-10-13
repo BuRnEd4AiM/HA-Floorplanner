@@ -4,9 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
-## [3.78.4] - 2026-10-13
+## [3.79.0] - 2026-10-13
+### Added
+- **Lamps on a relay light the floor, and every lamp can have its own light colour** (#367): a lamp that is only switched on and off, e.g. by a relay (a `switch.…` entity on a ceiling light, pendant, spot, wall lamp, floor lamp, LED strip ...), only lit the floor with 60 % of the reach of a light entity, always in the default light colour, and its tap ball showed a plug. Now it lights the floor like any lamp and its ball shows a light bulb. As a relay does not tell the lamp's colour, the side panel of a lamp has the new field **Lichtfarbe** (light colour, `lightColor`): the floor, the lamp and its ball glow in it, e.g. cool white instead of warm white; a lamp that reports a colour itself keeps using that, ↺ goes back to the default light colour of the settings; the import format keeps it too (`lightColor`, docs/IMPORT.md). A lamp just outside its room's outline (up to 30 cm, on the wall, not in another room) now lights the room too; before, it did not light the floor at all. The rules are in the new module `lamplight.js` (moved out of `app.js`, unit tests `tests/lamplight.test.mjs`); the browser test part `04_lights` checks a lamp on a relay.
+
 ### Fixed
 - **A TV with nothing but a backlight can no longer be tapped in live mode** (#364): a TV (or wall TV) whose own entity was empty but whose backlight (the LED behind the TV) was linked got a tap ball (a grey light bulb) and could be tapped, and its card only said *No entity linked*, without any button. What is linked to nothing has no ball and takes no tap (#130), and the backlight alone no longer counts as a link of the TV: its card only shows the TV itself. The backlight is still a light of the room: it shines, and it is listed in the room panel and under *Whole room*. `linkedDevice` in `pickrules.js` is now the one rule for the tap and the ball (`wantsBall` in `tapballs.js`), with unit tests; the browser test part `04_lights` checks such a TV.
+- **A switch shows a light switch on its tap ball, not a plug** (#366): every `switch.…` entity got a plug 🔌 on its ball in live mode, also a wall switch or a relay. There is no emoji for a light switch, so the ball now draws one (a white plate with a rocker). Only a switch that Home Assistant reports as an outlet (`device_class: outlet`) keeps the plug; a device type with its own icon (a washing machine, a wallbox ...) keeps it too. `ballIcon` in `tapballs.js` (unit tests); the browser test part `11_live` checks a switch.
 
 ## [3.78.3] - 2026-10-12
 ### Fixed
