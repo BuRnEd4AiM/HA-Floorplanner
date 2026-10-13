@@ -705,7 +705,7 @@ function kitchenRun(g, dev) {
     } else if (c.type === 'tall') {
       add(box(w, 2.1, D, body, 0, 0, 0)); add(box(w - 0.03, 2.0, 0.02, front, 0, 0.05, D / 2 + 0.005)); add(box(0.02, 0.3, 0.025, steel, 0.2, 1.0, D / 2 + 0.02));
     }
-    if (upper && ['base', 'drawers', 'sink', 'dish', 'stove'].includes(c.type)) {                      // wall cabinets, a hood above the stove
+    if (upper && c.up) {                                                                             // wall cabinets, a hood above the stove (each module can do without, #372)
       if (c.type === 'stove') {
         add(box(c.w - 0.1, 0.1, 0.42, steel, 0, 1.55, -D / 2 + 0.21));
         add(box(0.2, 0.6, 0.2, steel, 0, 1.65, -D / 2 + 0.1));

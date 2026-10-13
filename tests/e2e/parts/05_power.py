@@ -30,6 +30,19 @@ wdn.fill(str(round(float(wdn.input_value()) * 0.75, 4))); wdn.dispatch_event("ch
 nw = kr()["legs"][0][di]
 check("kitchen run: one module can be made narrower (own width)", isinstance(nw, dict) and nw["m"] == "dish" and abs(nw["w"] - 0.45) < 0.02, kr()["legs"][0])
 check("kitchen run: the dishwasher is in the module list under its name", "Dishwasher" in pgK2.locator(".kitchenMod select").first.inner_text() or "Spülmaschine" in pgK2.locator(".kitchenMod select").first.inner_text(), pgK2.locator(".kitchenMod select").first.inner_text())
+ups = pgK2.locator(".kitchenMod .kitchenUp")                   # a module without its wall cabinet (#372): a tick in every row
+fi = kr()["legs"][0].index("fridge")
+check("kitchen run (#372): every row has a ticked wall cabinet box, hidden at the fridge, with a hint above",
+      ups.count() == sum(len(l) for l in kr()["legs"]) and ups.nth(0).is_checked() and ups.nth(0).is_visible() and not ups.nth(fi).is_visible() and pgK2.is_visible(".kitchenHint"),
+      (ups.count(), kr()["legs"]))
+first = kr()["legs"][0][0]
+ups.nth(0).uncheck(); pgK2.wait_for_timeout(300)
+check("kitchen run (#372): unticking leaves out the wall cabinet of that one module", kr()["legs"][0][0] == {"m": first, "up": False} and not ups.nth(0).is_checked() and ups.nth(1).is_checked(), kr()["legs"][0])
+pgK2.locator(".kitchenMod select").nth(0).select_option("drawers"); pgK2.wait_for_timeout(300)
+check("kitchen run (#372): the module keeps going without a wall cabinet when its type changes", kr()["legs"][0][0] == {"m": "drawers", "up": False}, kr()["legs"][0][0])
+pgK2.uncheck("#kitchenUpper"); pgK2.wait_for_timeout(300)
+check("kitchen run (#372): with all wall cabinets off, the ticks of the rows are hidden", kr()["upper"] is False and not ups.nth(1).is_visible() and not pgK2.is_visible(".kitchenHint"))
+pgK2.check("#kitchenUpper"); pgK2.wait_for_timeout(300)
 pgK2.click("#view3d"); pgK2.wait_for_timeout(800)
 check("kitchen run: built in 3D without errors", True)
 pgK2.click("button[data-tool=device]"); pgK2.fill("#paletteSearch", ""); pgK2.wait_for_timeout(200)

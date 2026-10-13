@@ -284,6 +284,8 @@ export default {
   'power.sum.battery': 'Opslag',
   'roof.partsHelp': 'Een tweede dak toevoegen (bijv. boven een aanbouw): druk hieronder op “+ Extra dak” en kies de vorm, de maat (links, boven, breedte, diepte) en de verdieping waarop het rust.',
   'kitchen.width': 'Breedte van de module',
+  'kitchen.upperOne': 'Bovenkast boven deze module (fornuis: afzuigkap)',
+  'kitchen.upperHint': 'Het vinkje in elke rij hieronder zet de bovenkast boven die module aan of uit (de afzuigkap boven het fornuis). Zonder vinkje staat er alleen de onderkast met het werkblad.',
   'power.editorOn': 'Stroomeditor: plaats een apparaat uit de bibliotheek, klik dan met “Kabel” eerst een stroomapparaat en dan het volgende aan. Al het andere is verborgen.',
   'power.pickPower': 'Dat is geen stroomapparaat, klik een stroomapparaat aan.',
   'dev.houseentry': 'Huisaansluiting',

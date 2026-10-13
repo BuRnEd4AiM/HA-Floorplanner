@@ -284,6 +284,8 @@ export default {
   'power.sum.battery': 'Stockage',
   'roof.partsHelp': 'Pour ajouter un deuxième toit (par ex. sur une annexe) : appuie sur « + Autre toit » ci-dessous, puis choisis la forme, la taille (gauche, haut, largeur, profondeur) et l’étage sur lequel il repose.',
   'kitchen.width': 'Largeur du module',
+  'kitchen.upperOne': 'Meuble haut au-dessus de ce module (cuisinière : hotte)',
+  'kitchen.upperHint': 'La case de chaque ligne ci-dessous ajoute ou retire le meuble haut au-dessus de ce module (la hotte au-dessus de la cuisinière). Sans elle, il ne reste que le meuble bas avec le plan de travail.',
   'power.editorOn': 'Éditeur courant : place un appareil de la bibliothèque, puis avec « Câble » clique un appareil électrique, puis le suivant. Tout le reste est masqué.',
   'power.pickPower': 'Ce n’est pas un appareil électrique, clique un appareil électrique.',
   'dev.houseentry': 'Raccordement',

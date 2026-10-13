@@ -284,6 +284,8 @@ export default {
   'power.sum.battery': 'Accumulo',
   'roof.partsHelp': 'Per aggiungere un secondo tetto (ad es. su un’aggiunta): premi «+ Altro tetto» qui sotto, poi scegli forma, dimensione (sinistra, alto, larghezza, profondità) e il piano su cui poggia.',
   'kitchen.width': 'Larghezza del modulo',
+  'kitchen.upperOne': 'Pensile sopra questo modulo (piano cottura: cappa)',
+  'kitchen.upperHint': 'La casella in ogni riga qui sotto aggiunge o toglie il pensile sopra quel modulo (la cappa sopra il piano cottura). Senza resta solo il mobile base con il piano di lavoro.',
   'power.editorOn': 'Editor corrente: metti un dispositivo dalla libreria, poi con «Cavo» clicca un dispositivo elettrico e poi il successivo. Tutto il resto è nascosto.',
   'power.pickPower': 'Non è un dispositivo elettrico, clicca un dispositivo elettrico.',
   'dev.houseentry': 'Allacciamento',

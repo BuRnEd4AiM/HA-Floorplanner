@@ -12,15 +12,31 @@ export const MAX_MODS = 16;
 export const DEFAULT_LEGS = () => [['base', 'sink', 'dish', 'base', 'stove', 'base', 'fridge']];
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 export const MIN_MOD_W = 0.3, MAX_MOD_W = 2.4;
-/* A module is the name of its type (standard width) or { m: type, w: width in metres } when it was resized. */
+/* The modules that can have a wall cabinet above them (the stove a hood); the others are tall or empty. */
+export const UPPER_TYPES = ['base', 'drawers', 'sink', 'dish', 'stove'];
+/* A module is the name of its type (standard width, wall cabinet above it) or { m: type, w: width in metres, up: false } when it
+ * was resized or has no wall cabinet (only the base cabinet with the worktop). */
 export const modType = (m) => (typeof m === 'string' ? m : m?.m);
 export const modW = (m) => (typeof m === 'object' && Number.isFinite(m?.w) ? clamp(m.w, MIN_MOD_W, MAX_MOD_W) : MOD_W[modType(m)]);
-/** the same module with another type (keeps a custom width) or another width (back to the plain name when it equals the standard) */
-export const withType = (m, type) => (typeof m === 'object' && Number.isFinite(m?.w) ? { m: type, w: m.w } : type);
+const ownW = (m) => (typeof m === 'object' && Number.isFinite(m?.w) ? m.w : undefined);
+/** does the module keep its wall cabinet (true unless switched off, also for types without one) */
+export const modUp = (m) => !(typeof m === 'object' && m?.up === false);
+/** is there a wall cabinet (or a hood) above the module: a type that can have one and not switched off */
+export const hasUpper = (m) => UPPER_TYPES.includes(modType(m)) && modUp(m);
+const make = (type, w, up) => {
+  const o = { m: type };
+  if (w !== undefined) o.w = w;
+  if (up === false) o.up = false;
+  return Object.keys(o).length > 1 ? o : type;
+};
+/** the same module with another type (keeps a custom width) or another width (back to the plain name when it equals the standard),
+ *  or with / without the wall cabinet above it; the other settings stay */
+export const withType = (m, type) => make(type, ownW(m), modUp(m));
 export const withWidth = (m, w) => {
   const type = modType(m), v = Math.round(clamp(w, MIN_MOD_W, MAX_MOD_W) * 100) / 100;
-  return v === MOD_W[type] ? type : { m: type, w: v };
+  return make(type, v === MOD_W[type] ? undefined : v, modUp(m));
 };
+export const withUpper = (m, on) => make(modType(m), ownW(m), !!on);
 
 /** the legs of a run, cleaned: unknown modules dropped, at most MAX_LEGS legs of MAX_MODS modules each */
 export function cleanLegs(legs) {
@@ -43,7 +59,7 @@ export function kitchenLayout(d = {}) {
     mods.forEach((m, mi) => {
       const w = modW(m);
       cells.push({
-        type: modType(m), leg: li, idx: mi, w, d: D, ang: Math.atan2(-h[1], h[0]),
+        type: modType(m), leg: li, idx: mi, w, d: D, ang: Math.atan2(-h[1], h[0]), up: hasUpper(m),
         cx: P[0] + h[0] * (s + w / 2) + right[0] * D / 2,
         cz: P[1] + h[1] * (s + w / 2) + right[1] * D / 2,
       });
