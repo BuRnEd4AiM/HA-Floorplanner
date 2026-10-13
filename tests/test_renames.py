@@ -137,6 +137,14 @@ def test_look_first_time_only_remembers():
     assert state["names"] == {"light.a": "Lampe"} and state["current"] == ["light.a"] and state["history"] == {}
 
 
+def test_side_entities_are_the_ones_home_assistant_keeps_off_its_dashboards():
+    entries = [entry("switch.h1_ku_sw01", "1"), {**entry("sensor.h1_ku_sw01_ssid", "2"), "entity_category": "diagnostic"},
+               {**entry("sensor.h1_ku_sw01_ip", "3"), "entity_category": "diagnostic"}, {**entry("select.h1_ku_sw01_power_on", "4"), "entity_category": "config"},
+               {**entry("sensor.helper", "5"), "hidden_by": "user"}, {**entry("sensor.temp", "6"), "entity_category": None, "hidden_by": None}]
+    assert rn.side_entities(entries) == ["select.h1_ku_sw01_power_on", "sensor.h1_ku_sw01_ip", "sensor.h1_ku_sw01_ssid", "sensor.helper"]
+    assert rn.look({}, entries, [], T)[2]["side"] == rn.side_entities(entries)          # kept with the state (#368)
+
+
 def test_look_rename_and_new_name_together():
     _, _, state = rn.look({}, [entry("sensor.old_temperature", "u")], [st("sensor.old_temperature", "Alt Temperatur", "21")], T)
     renames, changes, state = rn.look(state, [entry("sensor.new_temperature", "u")], [st("sensor.new_temperature", "Neu Temperatur", "21")], T + 5)

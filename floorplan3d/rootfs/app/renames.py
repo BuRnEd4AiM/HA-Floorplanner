@@ -7,6 +7,9 @@ entity and creates it again with the same unique id) or by another add-on such a
 settings and users.json get the new id. A device of the plan that still carries Home Assistant's old name gets the new name; a name typed
 by hand stays. What was renamed while the add-on was stopped is caught up at the next start (the remembered state is a file).
 
+The registry also tells which entities Home Assistant keeps off its own dashboards (diagnostic and config entities: a relay's signal, IP,
+restart time ...; and the ones hidden there): the area lists leave them out (side_entities, #368).
+
 The comparison and the rewriting are pure (tests/test_renames.py); run_watch keeps the connection and never raises.
 """
 import asyncio
@@ -24,6 +27,7 @@ QUIET = 2.0               # seconds without a registry event before looking (one
 GONE_KEEP = 3600.0        # a deleted entry is remembered this long: created again with the same unique id, it counts as renamed
 HISTORY_KEEP = 7 * 86400.0  # how long a plan saved by a browser that missed a rename (asleep, offline) is still corrected
 NOT_REAL = ("unavailable", "unknown")
+SIDE_CATEGORIES = ("diagnostic", "config")   # entity categories Home Assistant leaves off its dashboards
 
 
 def entry_key(entry: dict):
@@ -143,8 +147,15 @@ def look(state: dict, entries: list, states: list, now: float) -> tuple[dict, di
     changes = name_changes(state.get("names") or {}, names, renames) if state.get("names") else {}
     current = {x.get("entity_id") for x in (*entries, *states) if isinstance(x.get("entity_id"), str)}
     new_state = {"known": known, "names": {k: v for k, v in names.items() if k in current},
-                 "history": remember(state.get("history") or {}, renames, now), "current": sorted(current)}
+                 "history": remember(state.get("history") or {}, renames, now), "current": sorted(current), "side": side_entities(entries)}
     return renames, changes, new_state
+
+
+def side_entities(entries: list) -> list:
+    """Entity ids Home Assistant keeps off its own dashboards: diagnostic and config entities (the signal, IP, firmware or restart time of a
+    relay, the settings of a device) and the ones hidden in Home Assistant (#368). Sorted."""
+    return sorted({e["entity_id"] for e in entries if isinstance(e.get("entity_id"), str)
+                   and (e.get("entity_category") in SIDE_CATEGORIES or e.get("hidden_by"))})
 
 
 def is_registry_event(data: dict) -> bool:

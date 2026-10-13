@@ -112,6 +112,8 @@ Select a room and pick its **HA area** in the properties panel. Afterwards:
 - entity lists (device properties and the sidebar search) are grouped by area, the area of the room the device stands in is on top, and searching for an area name finds its entities;
 - the room panel in live mode also shows the area's lights, covers, media players, switches and sensors that are not placed on the plan yet.
 
+What Home Assistant keeps off its own dashboards is left out there too: **diagnostic** and **configuration** entities of a device (for a relay e.g. its signal, IP address, SSID, firmware, restart time or restart reason) and entities you **hid** in Home Assistant (entity settings → *Visible* off). So a relay of which you only use the switch shows just the switch. Something you place on the plan yourself is always shown; in the entity picker these entities stay in their area.
+
 Areas are read through Home Assistant's template API; if that is not available the lists simply stay ungrouped.
 
 ## 2D editor
