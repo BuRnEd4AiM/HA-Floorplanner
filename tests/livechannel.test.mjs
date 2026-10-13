@@ -35,3 +35,8 @@ test('areas: which entity lies in which Home Assistant area; junk gives none', (
   assert.equal(r.areas.length, 3);
   assert.deepEqual(L.areaIndex({ error: 'x' }), { areas: [], areaOf: {} });
 });
+test('areas (#368): the side entities (diagnostic, config, hidden) are not in the list of the area but keep their area for the picker', () => {
+  const r = L.areaIndex([{ id: 'kueche', name: 'Küche', entities: ['switch.sw01'], side: ['sensor.sw01_ssid', 'sensor.sw01_ip'] }]);
+  assert.deepEqual(r.areas[0].entities, ['switch.sw01']);
+  assert.deepEqual(r.areaOf, { 'switch.sw01': 'kueche', 'sensor.sw01_ssid': 'kueche', 'sensor.sw01_ip': 'kueche' });
+});

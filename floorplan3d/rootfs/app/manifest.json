@@ -1,6 +1,6 @@
 {
- "version": "3.79.0",
- "buildHash": "26323592d96d94319d6e616cdf256d184c9ebd2b956cacabae3315a6fd0456eb",
+ "version": "3.79.1",
+ "buildHash": "b8dc1bbc979498c296ae4e899ec8a94195cf8281f1815e47a4ceb054b214bf96",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -129,8 +129,8 @@
   "library/washer.glb": "0c9704df1817d2699b72305b96cde097c9558bacabaef2fd5ab1ff4c03b81abf",
   "manifest.py": "a1ffaefe4047ba87036bdc63183149f9cedebddfd31bda1746f89631580291da",
   "property.schema.json": "d7cc273879f26810eb11541fd853edd860a94a204a836eb7ef6833216a69ebc2",
-  "renames.py": "a4ef58364aae6c468dc3f4383fa95fd2d8dae9d716a4da582d7a9a07c2bd7b70",
-  "server.py": "8a11b256da3bdd3a815532ee4cea4759fcfbe6d9690cb5ba0f2d3b26bbf6523e",
+  "renames.py": "38a961727bb594fe16d364383646118176d852fe761f93ca45654710779bf737",
+  "server.py": "f9ee0cf7b2d5fd2b66f01aa29a416fbc21084928ca1f3bbd4123cd0e9a68eeff",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "3a541620793f7a69607719e4b2b337440d6e3d9f6876a765573fd3d02207262a",
   "static/app.js": "47f023e21f778743a532d9ce4f3b2457205c056367271ad52ce5ba74d08a9a93",
@@ -180,7 +180,7 @@
   "static/lang/pl.js": "e04039d40ea0989d6a56ed2e05b21fa1aeb485940f1307cde843e2edbd218b5a",
   "static/layoutnorm.js": "4d97bc7ab7697ae6d9bedaa492f3752aad91b70f1d82f94f835b607b47c21729",
   "static/ledring.js": "a1b6854d31b2f45fc7ae99f90b2fe409410de93217f3e1c90d7db2add98c8135",
-  "static/livechannel.js": "f882408cc666453d58dccb2cdc6bedca4914ab283a58dbc15a8e5d0a207a6f85",
+  "static/livechannel.js": "42984af7f6ec99a950fc311652faaf6de4311534cb60768b92028fda8823afc8",
   "static/livecontrols.js": "3e4f7329bff3590f72d8c8a1779a30dbe68172b921402edd2aa026f2c1e88d60",
   "static/livepopup.js": "5835d99be0486269abc892b698fcdbbab362d04c7c7ea57ee8cd7ecd6c463f8a",
   "static/modelfx.js": "a2169e2731058e5bee3663b64ec7f1d6aef3dbcbfd429c7f1518bb20d67f3e33",

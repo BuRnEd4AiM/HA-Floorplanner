@@ -23,10 +23,11 @@ export const stateSig = (list) => JSON.stringify(list.map((e) => [e.entity_id, e
 /** a poll is due: the channel is down, or the last full list is older than FULL_MS */
 export const pollDue = (liveOk, lastFull, now) => !liveOk || now - lastFull > FULL_MS;
 
-/** Home Assistant's areas ([{ id, name, entities }]) and the area of every entity: { areas, areaOf (entity_id -> area id) }; junk -> none */
+/** Home Assistant's areas ([{ id, name, entities, side }]) and the area of every entity: { areas, areaOf (entity_id -> area id) }; junk -> none.
+ *  side: the area's diagnostic, config and hidden entities (#368): not listed in the room, but the entity picker sorts them into their area */
 export function areaIndex(list) {
   const areas = Array.isArray(list) ? list : [], areaOf = {};
-  areas.forEach((x) => (x.entities || []).forEach((e) => { areaOf[e] = x.id; }));
+  areas.forEach((x) => [...(x.entities || []), ...(x.side || [])].forEach((e) => { areaOf[e] = x.id; }));
   return { areas, areaOf };
 }
 /** the areas from the add-on (api/areas); none while it cannot be reached */
