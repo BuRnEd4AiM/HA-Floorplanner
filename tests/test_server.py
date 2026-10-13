@@ -107,8 +107,10 @@ def test_area_list_leaves_out_the_side_entities():
     data = [{"id": "kueche", "name": "Küche", "entities": ["switch.h1_ku_sw01", "sensor.h1_ku_sw01_ssid", "sensor.h1_ku_sw01_ip", 5]},
             {"id": "bad", "entities": ["light.bad"]}, "junk"]
     assert server.area_list(data, {"sensor.h1_ku_sw01_ssid", "sensor.h1_ku_sw01_ip"}) == [
-        {"id": "bad", "name": "bad", "entities": ["light.bad"], "side": []},
-        {"id": "kueche", "name": "Küche", "entities": ["switch.h1_ku_sw01"], "side": ["sensor.h1_ku_sw01_ssid", "sensor.h1_ku_sw01_ip"]}]   # #368
+        {"id": "bad", "name": "bad", "entities": ["light.bad"], "side": [], "parts": {}},
+        {"id": "kueche", "name": "Küche", "entities": ["switch.h1_ku_sw01"], "side": ["sensor.h1_ku_sw01_ssid", "sensor.h1_ku_sw01_ip"], "parts": {}}]   # #368
+    parts = {"switch.h1_ku_sw01": "climate.kueche", "switch.elsewhere": "climate.x"}                                   # #370: only the area's own
+    assert server.area_list(data, (), parts)[1]["parts"] == {"switch.h1_ku_sw01": "climate.kueche"}
     assert server.area_list(data)[1]["entities"] == ["switch.h1_ku_sw01", "sensor.h1_ku_sw01_ssid", "sensor.h1_ku_sw01_ip"]
     assert server.area_list(None) == []
 
@@ -125,7 +127,9 @@ async def test_areas_leave_out_what_the_registry_keeps_off_the_dashboards(client
     monkeypatch.setattr(server, "HA_API", str(ha.make_url("")).rstrip("/"))
     assert (await (await client.get("/api/areas")).json())[0]["entities"] == ["switch.sw01", "sensor.sw01_ip"]   # the registry not read yet
     client.app[server.KEY_RENAMES]["side"] = {"sensor.sw01_ip"}                                              # what the watcher keeps (#368)
-    assert await (await client.get("/api/areas")).json() == [{"id": "kueche", "name": "Küche", "entities": ["switch.sw01"], "side": ["sensor.sw01_ip"]}]
+    client.app[server.KEY_RENAMES]["parts"] = {"switch.sw01": "climate.kueche"}                                       # #370
+    assert await (await client.get("/api/areas")).json() == [{"id": "kueche", "name": "Küche", "entities": ["switch.sw01"], "side": ["sensor.sw01_ip"],
+                                                              "parts": {"switch.sw01": "climate.kueche"}}]
 
 
 async def test_service_whitelist(client, monkeypatch):

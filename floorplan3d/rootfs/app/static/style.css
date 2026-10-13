@@ -665,6 +665,9 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 #heatPanel .hp-modes { display: flex; flex-wrap: wrap; gap: 6px; }
 #heatPanel .hp-modes button { padding: 3px 10px; font-size: 12px; }
 #heatPanel .hp-modes button.on { background: var(--accent); color: #04121c; border-color: var(--accent); }
+#heatPanel .hp-part { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 13px; }   /* child lock ... of the thermostat (#370) */
+#heatPanel .hp-part-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+#heatPanel .hp-part-v { white-space: nowrap; }
 @media (max-width: 760px) { #heatPanel { right: 12px; left: 12px; width: auto; max-width: none; top: 52px; max-height: 38%; } }
 /* phones: the heating is part of the room sheet (roompanel.js moves it in) */
 #roomPanel > #heatPanel { position: static; width: auto; max-width: none; max-height: none; overflow: visible; margin: 10px 0 4px; padding: 10px 0 0;

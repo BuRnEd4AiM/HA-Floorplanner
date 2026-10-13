@@ -55,6 +55,34 @@ test('clicks in a row on + become one set_temperature call after the pause', (ct
   assert.deepEqual(calls, [['climate.a', 'set_temperature', { temperature: 22 }]]);
   assert.equal(p.pending(), 0);
 });
+test('the other entities of a thermostat\'s device go with the heating, those of a thermostat in another room stay (#370)', () => {
+  const rows = [{ entity: 'climate.kueche' }, { entity: 'switch.kueche_child_lock' }, { entity: 'switch.licht' }, { entity: 'switch.bad_child_lock' }];
+  const partOf = { 'switch.kueche_child_lock': 'climate.kueche', 'switch.bad_child_lock': 'climate.bad' };
+  const { parts, rest } = H.splitHeatParts(rows, ['climate.kueche'], partOf);
+  assert.deepEqual(parts, { 'climate.kueche': [{ entity: 'switch.kueche_child_lock' }] });
+  assert.deepEqual(rest.map((d) => d.entity), ['climate.kueche', 'switch.licht', 'switch.bad_child_lock']);
+  assert.deepEqual(H.splitHeatParts(rows, [], undefined).rest.length, 4);
+});
+test('a part\'s name without the thermostat\'s name in front', () => {
+  assert.equal(H.partName('Heizung Küche Child lock', 'Heizung Küche'), 'Child lock');
+  assert.equal(H.partName('heizung küche Child lock', 'Heizung Küche'), 'Child lock');
+  assert.equal(H.partName('Kindersicherung', 'Heizung Küche'), 'Kindersicherung');
+  assert.equal(H.partName('Heizung Küche', 'Heizung Küche'), 'Heizung Küche');
+});
+test('the parts show under their thermostat: a slide switch for the child lock, the value of a sensor', () => {
+  const calls = [], box = el('div');
+  const states = { 'climate.k': { state: 'heat', tt: 21, name: 'Heizung Küche' }, 'switch.k_lock': { state: 'off', name: 'Heizung Küche Child lock' }, 'sensor.k_valve': { state: '40' } };
+  const p = H.initHeatPanel({ box, t: (k) => k, states: () => states, callService: (...a) => calls.push(a), open: () => true, stateText: (e) => `${states[e].state} %` });
+  p.render([{ entity: 'climate.k' }], { 'climate.k': [{ entity: 'switch.k_lock' }, { entity: 'sensor.k_valve', name: 'Ventil' }] });
+  const rows = find(box, (n) => n.className === 'hp-part');
+  assert.equal(rows.length, 2);
+  assert.equal(rows[0].children[0].textContent, 'Child lock');
+  const cb = find(rows[0], (n) => n.tag === 'input')[0];
+  assert.equal(cb.checked, false);
+  cb.checked = true; cb.listeners.change();
+  assert.deepEqual(calls, [['switch.k_lock', 'turn_on']]);
+  assert.equal(rows[1].children[1].textContent, '40 %');
+});
 test('a mode button calls set_hvac_mode at once', () => {
   const calls = [], box = el('div');
   const states = { 'climate.a': { state: 'heat', tt: 21, modes: ['off', 'heat'] } };

@@ -156,6 +156,8 @@ In the whole-house view the **Auseinander** button pulls the floors apart (tap a
 
 **Room panel (live mode):** the devices of a room by kind: lights (with *Alle aus*), covers, heating, media, switches (slide switches), cameras, sensors, scenes & scripts. On phones and tablets held upright it comes up from the bottom.
 
+The thermostats of the room have their own **heating panel** next to it (current and target temperature, modes). What else the thermostat's device brings along in Home Assistant, such as its **child lock**, window or valve detection, is shown there under the thermostat (switches as slide switches, values as text) and not among the room's switches and sensors. If the thermostat is not in this room, they stay in the room's list.
+
 **View menu:** the *View ▴* button sits in the bottom bar next to Normal / Temperature / Humidity / CO₂; its menu (Auto, Halbschnitt, pull apart, walls, floors in the plan) opens upwards.
 
 **See-through walls:** in ⚙ you can make the walls between the camera and the room fade instead of sinking (*Make walls facing the camera see-through …*). Only the wall fades: its doors and windows and the furniture behind it stay solid.

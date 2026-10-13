@@ -28,7 +28,7 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `autoplace.js` | 179 | Automatisches Platzieren der Entitäten eines Bereichs |
 | `alerts.js` | 62 | Warnungen und Nachtabdunklung (Rechenteil) |
 | `kitchen.js` | 63 | Küchenzeile: Geometrie aus Modulen (mit Breiten) |
-| `heatpanel.js` | 74 | Heizungs-Panel (Schritt 1 von #137) |
+| `heatpanel.js` | ~110 | Heizungs-Panel (Schritt 1 von #137); die übrigen Entitäten des Thermostat-Geräts (Kindersicherung …) unter dem Thermostat statt bei den Schaltern des Raums (`splitHeatParts`, `partName`, #370) |
 | `compass.js` | ~40 | Kompass (Nadel zählt über 360° weiter), mit Unit-Tests |
 | `alertsui.js` | ~75 | Warnungen: Banner, roter Raum, Sprung in den Raum (Schritt 3 von #137) |
 | `search.js` | ~70 | „Wo ist …?“-Suche mit Ring (Schritt 3) |

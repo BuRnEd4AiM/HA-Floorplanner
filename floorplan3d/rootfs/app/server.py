@@ -1011,17 +1011,19 @@ AREA_TEMPLATE = (
 )
 
 
-def area_list(data, side=()) -> list:
+def area_list(data, side=(), parts=None) -> list:
     """The areas as the template gives them, cleaned and sorted by name. The entities Home Assistant keeps off its dashboards (side:
     diagnostic, config and hidden ones, from the registry, #368) are not among an area's "entities" (the room panel, the room's entity
     list and placing a whole area use those, so a relay's signal or IP is not listed in its room) but under "side" (the entity picker
-    still sorts them into their area)."""
-    side = set(side)
+    still sorts them into their area). "parts": {entity: its thermostat} for the entities of a thermostat's device (parts: from the
+    registry, #370): the room panel shows them with the heating."""
+    side, parts = set(side), parts or {}
 
     def one(a):
         ids = [e for e in a.get("entities", []) if isinstance(e, str)]
         return {"id": str(a["id"]), "name": str(a.get("name") or a["id"]),
-                "entities": [e for e in ids if e not in side], "side": [e for e in ids if e in side]}
+                "entities": [e for e in ids if e not in side], "side": [e for e in ids if e in side],
+                "parts": {e: parts[e] for e in ids if e in parts}}
     out = [one(a) for a in data if isinstance(a, dict) and "id" in a] if isinstance(data, list) else []
     return sorted(out, key=lambda a: a["name"].lower())
 
@@ -1038,7 +1040,8 @@ async def get_areas(request):
                 data = json.loads(await r.text())
     except (aiohttp.ClientError, ValueError):
         return web.json_response([])
-    return web.json_response(area_list(data, request.app[KEY_RENAMES].get("side") or ()))
+    watch = request.app[KEY_RENAMES]
+    return web.json_response(area_list(data, watch.get("side") or (), watch.get("parts") or {}))
 
 
 async def call_service(request):
@@ -1512,7 +1515,7 @@ KEY_TIMELINE = web.AppKey("timeline", dict)     # {"rec": the running Recorder}
 
 
 # ---------- entities renamed in Home Assistant: the plans follow (renames.py) ----------
-KEY_RENAMES = web.AppKey("renames", dict)       # {"history": {old: [new, when]}, "current": set of entity ids} for put_layout, "side": set of ids get_areas leaves out
+KEY_RENAMES = web.AppKey("renames", dict)       # {"history": {old: [new, when]}, "current": set of entity ids} for put_layout, "side": set of ids get_areas leaves out, "parts": {id: its thermostat}
 
 
 def apply_renames(app, ids: dict, names: dict) -> dict:
@@ -1548,7 +1551,8 @@ async def rename_watcher(app):
 
         def keep(state):
             app[KEY_RENAMES].update(history=state.get("history") or {}, current=set(state.get("current") or ()),
-                                    side=set(state.get("side") or ()))      # kept off the area lists (#368)
+                                    side=set(state.get("side") or ()),      # kept off the area lists (#368)
+                                    parts=dict(state.get("parts") or {}))   # the entities of a thermostat's device (#370)
 
         def load():
             state = read_json(path, {})

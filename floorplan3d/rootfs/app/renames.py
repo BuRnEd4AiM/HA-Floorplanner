@@ -8,7 +8,8 @@ settings and users.json get the new id. A device of the plan that still carries 
 by hand stays. What was renamed while the add-on was stopped is caught up at the next start (the remembered state is a file).
 
 The registry also tells which entities Home Assistant keeps off its own dashboards (diagnostic and config entities: a relay's signal, IP,
-restart time ...; and the ones hidden there): the area lists leave them out (side_entities, #368).
+restart time ...; and the ones hidden there): the area lists leave them out (side_entities, #368). And which entities belong to the device
+of a thermostat (its child lock, window detection ...): the room panel shows them with the heating (climate_parts, #370).
 
 The comparison and the rewriting are pure (tests/test_renames.py); run_watch keeps the connection and never raises.
 """
@@ -147,7 +148,8 @@ def look(state: dict, entries: list, states: list, now: float) -> tuple[dict, di
     changes = name_changes(state.get("names") or {}, names, renames) if state.get("names") else {}
     current = {x.get("entity_id") for x in (*entries, *states) if isinstance(x.get("entity_id"), str)}
     new_state = {"known": known, "names": {k: v for k, v in names.items() if k in current},
-                 "history": remember(state.get("history") or {}, renames, now), "current": sorted(current), "side": side_entities(entries)}
+                 "history": remember(state.get("history") or {}, renames, now), "current": sorted(current), "side": side_entities(entries),
+                 "parts": climate_parts(entries)}
     return renames, changes, new_state
 
 
@@ -156,6 +158,22 @@ def side_entities(entries: list) -> list:
     relay, the settings of a device) and the ones hidden in Home Assistant (#368). Sorted."""
     return sorted({e["entity_id"] for e in entries if isinstance(e.get("entity_id"), str)
                    and (e.get("entity_category") in SIDE_CATEGORIES or e.get("hidden_by"))})
+
+
+def climate_parts(entries: list) -> dict:
+    """{entity id: the climate entity of the same device} for the other entities of a thermostat's device (child lock, window detection,
+    valve position ...): the room panel shows them with the heating, not among the room's switches and sensors (#370). A device with
+    several climate entities: the first by name."""
+    by_device = {}
+    for e in entries:
+        dev, eid = e.get("device_id"), e.get("entity_id")
+        if isinstance(dev, str) and dev and isinstance(eid, str):
+            by_device.setdefault(dev, []).append(eid)
+    out = {}
+    for ids in by_device.values():
+        heads = sorted(i for i in ids if i.startswith("climate."))
+        out.update({i: heads[0] for i in ids if heads and not i.startswith("climate.")})
+    return out
 
 
 def is_registry_event(data: dict) -> bool:
