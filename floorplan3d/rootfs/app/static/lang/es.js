@@ -284,6 +284,8 @@ export default {
   'power.sum.battery': 'Almacenamiento',
   'roof.partsHelp': 'Para añadir un segundo tejado (p. ej. sobre un anexo): pulsa «+ Otro tejado» abajo y elige la forma, el tamaño (izquierda, arriba, ancho, fondo) y la planta en la que se apoya.',
   'kitchen.width': 'Ancho del módulo',
+  'kitchen.upperOne': 'Armario alto sobre este módulo (cocina: campana)',
+  'kitchen.upperHint': 'La casilla de cada fila de abajo pone o quita el armario alto sobre ese módulo (la campana sobre la cocina). Sin ella solo queda el mueble bajo con la encimera.',
   'power.editorOn': 'Editor de energía: coloca un aparato de la biblioteca y con «Cable» haz clic en un aparato eléctrico y luego en el siguiente. Todo lo demás está oculto.',
   'power.pickPower': 'Eso no es un aparato eléctrico, haz clic en un aparato eléctrico.',
   'dev.houseentry': 'Acometida',

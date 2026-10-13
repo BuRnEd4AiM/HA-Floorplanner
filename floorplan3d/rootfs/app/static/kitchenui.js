@@ -1,6 +1,7 @@
-/* Kitchen run (#124): the properties of a selected run: shape, depth, wall cabinets and every module of every leg (type, width, order).
+/* Kitchen run (#124): the properties of a selected run: shape, depth, wall cabinets and every module of every leg (type, width, order,
+ * the wall cabinet above it, #372).
  * The geometry (and its tests) is in kitchen.js. */
-import { MOD_TYPES, MAX_MODS, cleanLegs, legLength, modType, modW, withType, withWidth, MIN_MOD_W } from './kitchen.js';
+import { MOD_TYPES, MAX_MODS, UPPER_TYPES, cleanLegs, legLength, modType, modW, modUp, withType, withWidth, withUpper, MIN_MOD_W } from './kitchen.js';
 
 /** ctx: t, changed(), snapshot(), renderProps(), field(label, input), lenInput(get, set, opts), toDisp(m), imperial(); returns kitchenProps(body, device) */
 export function initKitchenUi(ctx) {
@@ -23,6 +24,7 @@ export function initKitchenUi(ctx) {
     const upper = document.createElement('input'); upper.type = 'checkbox'; upper.id = 'kitchenUpper'; upper.checked = it.upper !== false;
     upper.addEventListener('change', () => { ctx.snapshot(); it.upper = upper.checked; apply(); });
     body.append(ctx.field(t('kitchen.upper'), upper));
+    if (it.upper !== false) { const hint = document.createElement('p'); hint.className = 'sub kitchenHint'; hint.textContent = t('kitchen.upperHint'); body.append(hint); }
     body.append(ctx.field(t('kitchen.depth'), ctx.lenInput(() => it.depth ?? 0.6, (v) => { it.depth = Math.max(0.4, Math.min(1.2, v)); }, { min: 0.4 })));
     legs.forEach((leg, li) => {
       const box = document.createElement('div'); box.className = 'kitchenLeg';
@@ -37,7 +39,10 @@ export function initKitchenUi(ctx) {
         wd.classList.add('kitchenW'); wd.title = t('kitchen.width');
         const btn = (txt, title, fn, off) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = txt; b.title = title; b.disabled = !!off; b.addEventListener('click', () => { ctx.snapshot(); fn(); apply(); }); return b; };
         wd.addEventListener('change', () => ctx.renderProps());
-        row.append(sel, wd,
+        const up = document.createElement('input'); up.type = 'checkbox'; up.className = 'kitchenUp'; up.title = t('kitchen.upperOne');   // the wall cabinet above this module (the hood above the stove)
+        up.checked = modUp(m); up.hidden = it.upper === false || !UPPER_TYPES.includes(modType(m));
+        up.addEventListener('change', () => { ctx.snapshot(); leg[mi] = withUpper(m, up.checked); apply(); });
+        row.append(sel, wd, up,
           btn('↑', t('kitchen.left'), () => { [leg[mi - 1], leg[mi]] = [leg[mi], leg[mi - 1]]; }, mi === 0),
           btn('↓', t('kitchen.right'), () => { [leg[mi + 1], leg[mi]] = [leg[mi], leg[mi + 1]]; }, mi === leg.length - 1),
           btn('×', t('kitchen.del'), () => { leg.splice(mi, 1); }));

@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.80.0] - 2026-10-13
+### Added
+- **A kitchen run can do without the wall cabinet above single modules** (#372): until now the tick *Oberschränke* (wall cabinets) switched the wall cabinets of the whole run on or off. Now every row of the module list has its own tick: without it, that module is only the base cabinet with the worktop (above the stove: no hood). The tick sits next to the width; modules that never have a wall cabinet (fridge, tall cabinet, gap) have none. The tick at the top stays the main switch for the whole run. The module keeps the setting when its type, width or place changes, and the import format keeps it too (`{"m": "base", "up": false}`, docs/IMPORT.md). The rules are in `kitchen.js` (`withUpper`, `hasUpper`, unit tests), the tick in `kitchenui.js`; the browser test part `05_power` checks it.
+
 ## [3.79.2] - 2026-10-13
 ### Fixed
 - **The child lock of a thermostat shows with the heating, not among the room's switches** (#370): a thermostat brings further entities along in Home Assistant, such as its child lock, window detection or valve detection. They were listed in the room panel under *Switches* next to the light switches. Home Assistant knows which entities belong to the same device (the entity registry the add-on already reads); the add-on now remembers which entity belongs to a thermostat's device (`climate_parts` in `renames.py`, `parts` in `/api/areas`), and the room panel shows those entities in the heating panel under their thermostat (switches as slide switches, values as text; `splitHeatParts` and `partName` in `heatpanel.js`, with unit tests). If the thermostat is not in that room, they stay in the room's list.

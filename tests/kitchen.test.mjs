@@ -71,3 +71,20 @@ test('withType keeps a custom width, cleanLegs drops unknown modules but keeps r
   assert.equal(K.withType('base', 'drawers'), 'drawers');
   assert.deepEqual(K.cleanLegs([['base', { m: 'x', w: 1 }, { m: 'fridge', w: 0.7 }]]), [['base', { m: 'fridge', w: 0.7 }]]);
 });
+
+test('a module can do without its wall cabinet (#372), the setting stays when type or width change', () => {
+  assert.equal(K.modUp('base'), true);
+  assert.deepEqual(K.withUpper('base', false), { m: 'base', up: false });
+  assert.equal(K.withUpper({ m: 'base', up: false }, true), 'base');
+  assert.deepEqual(K.withUpper({ m: 'sink', w: 0.8 }, false), { m: 'sink', w: 0.8, up: false });
+  assert.deepEqual(K.withType({ m: 'base', up: false }, 'drawers'), { m: 'drawers', up: false });
+  assert.deepEqual(K.withWidth({ m: 'base', up: false }, 0.9), { m: 'base', w: 0.9, up: false });
+  assert.deepEqual(K.withWidth({ m: 'base', w: 0.9, up: false }, 0.6), { m: 'base', up: false });
+  assert.deepEqual(K.cleanLegs([[{ m: 'stove', up: false }, { m: 'dish', up: true }]]), [[{ m: 'stove', up: false }, 'dish']]);
+});
+
+test('the cells say which module has a wall cabinet above it: not the tall ones, not the switched off ones', () => {
+  const l = K.kitchenLayout({ legs: [['base', { m: 'sink', up: false }, 'stove', { m: 'stove', w: 0.9, up: false }, 'fridge', 'tall', 'gap', 'drawers', 'dish']] });
+  assert.deepEqual(l.cells.map((c) => c.up), [true, false, true, false, false, false, false, true, true]);
+  near(l.w, 0.6 + 1.0 + 0.6 + 0.9 + 0.6 * 5);                  // the width does not change
+});

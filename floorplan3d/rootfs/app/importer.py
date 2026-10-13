@@ -304,12 +304,13 @@ def _device(rep: Report, path: str, spec, ids):
                          **({"kind": c["kind"]} if c.get("kind") in CABLE_KINDS else {}),
                          **({"entity": c["entity"][:120]} if isinstance(c.get("entity"), str) and c["entity"] else {})} for c in raw]
     if typ == "kitchenrun":
-        def module(m):                                   # a name, or {"m": name, "w": width in metres} for a resized module
-            if isinstance(m, str):
+        def module(m):                                   # a name, or {"m": name, "w": width in metres, "up": false} for a resized module
+            if isinstance(m, str):                       # or one without a wall cabinet above it (#372)
                 return m if m in KITCHEN_MODULES else None
-            if isinstance(m, dict) and m.get("m") in KITCHEN_MODULES and _num(m.get("w"), 0.3, 2.4):
-                return {"m": m["m"], "w": round(float(m["w"]), 2)}
-            return None
+            if not isinstance(m, dict) or m.get("m") not in KITCHEN_MODULES or ("w" in m and not _num(m.get("w"), 0.3, 2.4)):
+                return None
+            out = {"m": m["m"], **({"w": round(float(m["w"]), 2)} if "w" in m else {}), **({"up": False} if m.get("up") is False else {})}
+            return out if len(out) > 1 else m["m"]
         legs = [[x for x in map(module, leg) if x is not None][:16] for leg in (spec.get("legs") or [])[:3] if isinstance(leg, list)]
         d["legs"] = [lg for lg in legs if lg] or [["base", "sink", "dish", "base", "stove", "base", "fridge"]]
         d["upper"] = spec.get("upper") is not False

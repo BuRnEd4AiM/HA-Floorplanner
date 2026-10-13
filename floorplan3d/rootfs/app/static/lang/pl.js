@@ -284,6 +284,8 @@ export default {
   'power.sum.battery': 'Magazyn',
   'roof.partsHelp': 'Aby dodać drugi dach (np. nad przybudówką): naciśnij poniżej „+ Dalszy dach”, a potem wybierz kształt, rozmiar (lewo, góra, szerokość, głębokość) i piętro, na którym stoi.',
   'kitchen.width': 'Szerokość modułu',
+  'kitchen.upperOne': 'Szafka górna nad tym modułem (kuchenka: okap)',
+  'kitchen.upperHint': 'Pole wyboru w każdym wierszu poniżej włącza lub wyłącza szafkę górną nad tym modułem (okap nad kuchenką). Bez niego zostaje tylko szafka dolna z blatem.',
   'power.editorOn': 'Edytor prądu: wstaw urządzenie z biblioteki, potem „Kablem” kliknij jedno urządzenie prądowe, a potem następne. Reszta jest ukryta.',
   'power.pickPower': 'To nie jest urządzenie prądowe, kliknij urządzenie prądowe.',
   'dev.houseentry': 'Przyłącze',

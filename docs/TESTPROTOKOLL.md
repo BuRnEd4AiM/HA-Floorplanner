@@ -55,6 +55,9 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 **Neu in 3.77** (ausführlich in Abschnitt **48** unten, nur im Add-on: die Demo hat keinen Import)
 21. **Musterhaus mit allem drin** (48.1 bis 48.5, #353): Bearbeiten, links „Häuser“ aufklappen, **„Haus aus JSON importieren …“**, dann **„Beispiel: Musterhaus (alles drin)“**, **Prüfen**, **Importieren**. Danach „Ganzes Haus“ und jede Etage ansehen. Zum Schluss das Musterhaus wieder löschen, wenn du es nicht behalten willst.
 
+**Neu in 3.80** (ausführlich in Abschnitt **49** unten)
+22. **Küchenzeile ohne Oberschrank über einzelnen Modulen** (49.1 bis 49.4, #372): Bearbeiten, die Küchenzeile anklicken. In der Modul-Liste steht in jeder Zeile neben der Breite ein Haken: beim gewünschten Modul wegnehmen. In 3D ist nur dort der Oberschrank weg, Unterschrank und Arbeitsplatte bleiben.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -169,7 +172,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 1 | 1 | 7 | 0 | ❌ 46.3, 46.1, 46.4 bis 46.9 |
 | 47. Neu in 3.76: Durchsichtig nur die Wand | 0 | 0 | 2 | 0 | 47.1, 47.2 |
 | 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 0 | 0 | 5 | 0 | 48.1 bis 48.5 |
-| **Zusammen** | **199** | **2** | **118** | **2** | |
+| 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 0 | 0 | 4 | 0 | 49.1 bis 49.4 |
+| **Zusammen** | **199** | **2** | **122** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -748,3 +752,11 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 48.3 | Die Etagen einzeln öffnen und die Treppen suchen | U-Treppe vom Keller bis ins Obergeschoss, L-Treppe von der Werkstatt in die Garage, Wandtreppe vom Wohnzimmer zur Galerie, Wendeltreppe außen an der Garage zur Dachterrasse, Bodentreppe im Kinderzimmer | ❓ |
 | 48.4 | Etage „Dach“: die Solaranlage anklicken; dann „Dieses Haus als JSON exportieren“ und die Datei wieder importieren | Die Solaranlage liegt auf der Dachfläche; im wieder importierten Haus ist sie noch da (vorher ging sie verloren) | ❓ |
 | 48.5 | „Häuser“ → das Musterhaus löschen | Es ist weg, das eigene Haus bleibt unverändert | ❓ |
+
+## 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 49.1 | Bearbeiten, die Küchenzeile anklicken; in der Modul-Liste bei einem Unterschrank den Haken neben der Breite wegnehmen | In 3D ist nur der Oberschrank über diesem Modul weg; Unterschrank und Arbeitsplatte bleiben (#372) | ❓ |
+| 49.2 | Beim Herd den Haken wegnehmen; beim Kühlschrank nachsehen | Die Haube über dem Herd ist weg; Kühlschrank, Hochschrank und Lücke haben keinen Haken | ❓ |
+| 49.3 | Bei einem Modul ohne Oberschrank den Typ (z. B. Schubladen) oder die Breite ändern und es mit ↑/↓ verschieben | Der Oberschrank bleibt weg, er wandert mit dem Modul | ❓ |
+| 49.4 | Oben den Haken „Oberschränke“ wegnehmen, dann wieder setzen | Weg: alle Oberschränke sind weg, die Haken in den Zeilen verschwinden; wieder gesetzt: die Oberschränke kommen zurück, nur nicht über den Modulen ohne Haken | ❓ |

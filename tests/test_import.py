@@ -432,6 +432,15 @@ def test_kitchen_module_with_own_width_survives_import_and_export():
     assert back["legs"] == [["base", {"m": "dish", "w": 0.45}]]
 
 
+def test_kitchen_module_without_wall_cabinet_survives_import_and_export():
+    spec = _prop([{"type": "kitchenrun", "x": 3, "z": 3, "legs": [[{"m": "base", "up": False}, {"m": "dish", "w": 0.45, "up": False}, {"m": "sink", "up": True}, {"m": "stove", "up": "no"}]]}])
+    layout, _, rep, _ = importer.build_layout(spec)
+    want = [[{"m": "base", "up": False}, {"m": "dish", "w": 0.45, "up": False}, "sink", "stove"]]
+    assert layout["floors"][0]["devices"][0]["legs"] == want and not rep.errors
+    back = importer.layout_to_property(layout)["building"]["floors"][0]["devices"][0]
+    assert back["legs"] == want
+
+
 def test_cable_kind_and_own_sensor_survive_import_and_export():
     spec = _prop([{"type": "battery", "x": 1, "z": 1, "id": "b", "cables": [{"to": "f", "kind": "battery", "entity": "sensor.bat_w"}, {"to": "f", "kind": "bogus"}]},
                   {"type": "fusebox", "x": 2, "z": 1, "id": "f"}])
