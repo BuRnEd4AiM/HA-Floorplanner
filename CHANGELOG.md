@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.78.4] - 2026-10-13
+### Fixed
+- **A TV with nothing but a backlight can no longer be tapped in live mode** (#364): a TV (or wall TV) whose own entity was empty but whose backlight (the LED behind the TV) was linked got a tap ball (a grey light bulb) and could be tapped, and its card only said *No entity linked*, without any button. What is linked to nothing has no ball and takes no tap (#130), and the backlight alone no longer counts as a link of the TV: its card only shows the TV itself. The backlight is still a light of the room: it shines, and it is listed in the room panel and under *Whole room*. `linkedDevice` in `pickrules.js` is now the one rule for the tap and the ball (`wantsBall` in `tapballs.js`), with unit tests; the browser test part `04_lights` checks such a TV.
+
 ## [3.78.3] - 2026-10-12
 ### Fixed
 - **The door of a closet inside a room belongs to the room** (#362): a room whose outline takes in a small closet (here a closet under the stairs off the kitchen) has the closet's wall and door inside it, not on its edge. When the room was chosen, that wall and its door were missing in 3D, the object list showed the door under *No room* and the room panel did not list its contact: a door only counted for a room when its middle was within 35 cm of the room's edge (inside the room only for dormer windows), and a chosen room only kept the walls within 30 cm of its edge. Now doors, windows and walls inside the room's outline belong to it too, as the list of open doors and windows already counted them. `roomOpenings` in `roompanel.js`, `clipWallToRoom` in `roomclip.js` (unit tests); the browser test part `11_live` checks a closet wall with its door in a chosen room.

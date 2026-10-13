@@ -3,15 +3,16 @@
  * icon and colour rules (unit test: tests/tapballs.test.mjs); the balls are three.js objects beside the device models in the floor group
  * (not inside them, so they never change a model's size). */
 import * as THREE from './vendor/three.module.min.js';
-import { LIVE_NO_TAP } from './pickrules.js';
+import { LIVE_NO_TAP, linkedDevice } from './pickrules.js';
 import { shutterBallY } from './shutters.js';
 
 export const BALL = { r: 0.3, finger: 0.4, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
 
-/** does device d get a ball: it is linked to something that can be switched or opened, and it can be tapped in the live mode */
+/** does device d get a ball: it is linked to something that can be switched or opened, and it can be tapped in the live mode (the same
+ *  rule as the tap, linkedDevice: a TV with nothing but a backlight has no ball, #364) */
 export function wantsBall(d) {
   if (!d || d.hideModel || LIVE_NO_TAP.has(d.type)) return false;
-  return !!(d.entity || d.ledEntity || (d.segs || []).some((s) => s.entity));
+  return linkedDevice(d);
 }
 
 const TYPE_ICON = { camera: '📷', tv: '📺', tv_wall: '📺', speaker: '🔊', vacuum: '🧹', thermostat: '🌡', radiator: '🌡', boiler: '🌡', washer: '🫧',
@@ -21,8 +22,8 @@ const DOMAIN_ICON = { light: '💡', cover: '🪟', switch: '🔌', input_boolea
   vacuum: '🧹', scene: '✨', script: '✨', button: '⏺', siren: '🚨', valve: '🚰', water_heater: '🌡', humidifier: '💧', alarm_control_panel: '🛡' };
 /** the little icon in the ball: what the device controls (its entity's kind), some device types have their own (a camera, a TV ...) */
 export function ballIcon(d) {
-  const e = d?.entity || d?.ledEntity || (d?.segs || []).find((s) => s.entity)?.entity || '', domain = e.split('.')[0];
-  if (domain === 'light') return '💡';                                   // a lamp, an LED strip, a TV backlight: all a light bulb
+  const e = d?.entity || (d?.segs || []).find((s) => s.entity)?.entity || '', domain = e.split('.')[0];
+  if (domain === 'light') return '💡';                                   // a lamp, an LED strip, an LED ring: all a light bulb
   return TYPE_ICON[d?.type] || DOMAIN_ICON[domain] || (domain === 'sensor' || domain === 'binary_sensor' ? 'ℹ' : '●');
 }
 

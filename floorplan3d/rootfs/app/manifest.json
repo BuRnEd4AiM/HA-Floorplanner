@@ -1,6 +1,6 @@
 {
- "version": "3.78.3",
- "buildHash": "5e1b19548c25fa3685025486c4095b422e1e5aab54e9b0f8564fbcc7fc563280",
+ "version": "3.78.4",
+ "buildHash": "c3435bcd1384d3453051e660766b55918312b1d0b2c158ecaeabe9a974e0f105",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -199,7 +199,7 @@
   "static/phonenav.js": "6fda53489de6125ece2588578c85c72630f72aa80bf52cb63a106ec3dfbf7b99",
   "static/phonestatus.js": "5559dc21b4da89509a809dd76964893f492593a2bf6c5ada950481dfcd04fbe6",
   "static/picking.js": "4c83b6ba5f0f44fea4816b7ca663dcca65f85e814db0920c43d856a5abad9101",
-  "static/pickrules.js": "3ebe6dd237837d7a0046dcf6c99b30b0ed197c80b19d219a4ba2d22f13c9c563",
+  "static/pickrules.js": "1d7beb11362d76cce8c1e2712f6d1c54cab80f271c5d289a6127e817c588447f",
   "static/picture.js": "683aabb3b95ce03e47edc60048e2ea25dbfd514728366437f0479408f5f60abe",
   "static/placement.js": "f36d69640496ff93cf798c470fc83845cf24f12cca10d068209b6ca44fd38486",
   "static/plan2d.js": "6c11cd4e7544d2ba01bc02419c561119bea75cb5c19456b999f519b8277221c3",
@@ -228,7 +228,7 @@
   "static/stairtool.js": "422659db0370707e2f2c9eb0a1dae7459f8c93d0fdf06f8a731447fd266607a5",
   "static/startview.js": "da8d6d4ce30c1a3bd866e4f95d0bfa2190f08220178c381c0b5b85b31894a634",
   "static/style.css": "beb805b61daf8e852bcec5e1eca7e4a7b182048ca56e5b6c158a53efb458811e",
-  "static/tapballs.js": "a0ad2cc8e12d1b8af188ff752867cf56ecc6b2e3a5c560c1e97ddd78c3c6963c",
+  "static/tapballs.js": "47c2067ad7a82f184e7c748b314e24afa9d5ed87100a229136eb17e78992fae4",
   "static/timeline.js": "9cd1878b21bad1139a1bb67bdc4f0532d64b6f3ec0fd662c390aedb8d53ea554",
   "static/timelineui.js": "14284ed033acfeccd3163a5933cf9d75e42776d46c71c95f323f2159e9df8462",
   "static/toolbar.js": "5a23ab6ad9fe51afb2b365c87b4c24850d16b9090349687d247270f152569d3b",
