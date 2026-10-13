@@ -1,6 +1,6 @@
 {
  "version": "3.80.0",
- "buildHash": "2331c42e52647ea04a7d2fc02c0589e40730a0fa1bccf66198b638b387cafb8b",
+ "buildHash": "3b810e02169ab1de2cf1dc077a45bd51739a96f27c0d97641d99fa1df37166ee",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -228,7 +228,7 @@
   "static/stairs.js": "739440443b5b346a356d0572ad8764ad1d51d2b918b617c4963d79dabc4e415e",
   "static/stairtool.js": "422659db0370707e2f2c9eb0a1dae7459f8c93d0fdf06f8a731447fd266607a5",
   "static/startview.js": "da8d6d4ce30c1a3bd866e4f95d0bfa2190f08220178c381c0b5b85b31894a634",
-  "static/style.css": "f0704085f5cfcb5a31b40089c6dd818d8461e636157879bda616f85d1fc9c6eb",
+  "static/style.css": "513a62dd4e288b75038cd701e533b2d5d32c42acb53cbc9ebfd3775ea91fdcc8",
   "static/tapballs.js": "e36ac541b9bdbc9cdbb759adfea91ac1c2bc759e7cf0d1c9a0665377094aee12",
   "static/timeline.js": "9cd1878b21bad1139a1bb67bdc4f0532d64b6f3ec0fd662c390aedb8d53ea554",
   "static/timelineui.js": "14284ed033acfeccd3163a5933cf9d75e42776d46c71c95f323f2159e9df8462",

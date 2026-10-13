@@ -682,7 +682,8 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 .kitchenMod .kitchenW { width: 64px; flex: 0 0 64px; }
 .kitchenMod .kitchenUp { flex: 0 0 18px; width: 18px; margin: 0; align-self: center; }
 .kitchenMod .kitchenUp[hidden] { display: block; visibility: hidden; }   /* keeps the buttons of every row in line */
-.kitchenMod button, .kitchenAdd { padding: 2px 8px; }
+.kitchenMod button { padding: 2px 5px; }   /* narrow, so the name of the module keeps its room next to the tick (#372) */
+.kitchenAdd { padding: 2px 8px; }
 
 #cableBtn[hidden] { display: none; }
 body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset; }
