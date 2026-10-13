@@ -771,6 +771,11 @@
      "type": "boolean",
      "description": "Invisible in live mode, the light keeps shining."
     },
+    "lightColor": {
+     "type": "string",
+     "pattern": "^#[0-9a-fA-F]{6}$",
+     "description": "Colour of a lamp's light where its entity reports none (a lamp on a relay, a white-only light), e.g. #e8f0ff for cool white."
+    },
     "panels": {
      "type": "array",
      "description": "Only for type nanoleaf: [{s: tri|tri2|hex|sq|bar, x, y, r}] in metres / degrees."

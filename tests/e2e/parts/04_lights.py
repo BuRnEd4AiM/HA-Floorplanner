@@ -30,6 +30,15 @@ here = pg10.evaluate("window.__fp.isShown('pr1')"); dot = pg10.locator("#roomMen
 sp = pg10.evaluate("window.__fp.screenOf('pr1')")
 ph = pg10.evaluate(f"window.__fp.liveHitAt({sp['x']}, {sp['y']})") if sp else None
 check("presence (#234): the figure takes no tap in live mode", sp is not None and (ph or {}).get("id") != "pr1", (sp, ph))
+tvs = pg10.evaluate("window.__fp.screenOf('tvx')")
+th = pg10.evaluate(f"window.__fp.liveHitAt({tvs['x']}, {tvs['y']})") if tvs else None
+check("TV with nothing but a backlight (#364): no ball and no tap in live mode", tvs is not None and pg10.evaluate("window.__fp.ballSize('tvx')") is None and (th or {}).get("id") != "tvx", (tvs, th))
+# --- a lamp switched by a relay (a switch entity) lights the floor like any lamp, in the colour set on it (#367)
+pg10.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices.push({id:'relay1', type:'pendant', x:4, z:10, y:1.9, rot:0, scale:1, name:'Relais', entity:'switch.garage', lightColor:'#00ff00'}); window.__fp.fakeState('switch.garage', 'on'); window.__fp.rebuild(); })()")
+pg10.wait_for_timeout(500)
+rl = pg10.evaluate("window.__fp.roomLights('rp1')") or []; gr = pg10.evaluate("window.__fp.settings().glowRadius")
+green = [l for l in rl if l["c"][1] > 0.5 and l["c"][0] < 0.01 and l["c"][2] < 0.01]
+check("relay lamp (#367): it lights the floor as far as a lamp, in the colour set on it, with a light bulb on its ball", len(green) == 1 and green[0]["r"] >= 0.85 * gr * 1.2 - 0.01 and pg10.evaluate("window.__fp.ballIcon('relay1')") == "💡", (rl, gr, pg10.evaluate("window.__fp.ballIcon('relay1')")))
 pg10.evaluate("window.__fp.fakeState('person.anna', 'not_home'); window.__fp.rebuild()"); pg10.wait_for_timeout(300)
 away = pg10.evaluate("window.__fp.isShown('pr1')"); dot2 = pg10.locator("#roomMenu .pill.occupied").count()
 check("presence: person shows with a dot on the room while home, hides when away", here is True and dot == 1 and away is False and dot2 == 0, (here, dot, away, dot2))

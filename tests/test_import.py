@@ -122,6 +122,16 @@ def test_nanoleaf_panels_and_flags_survive():
     assert d["hideModel"] is True and d["ledEntity"] == "light.x" and len(d["panels"]) == 1
 
 
+def test_light_colour_of_a_lamp_on_a_relay_survives_import_and_export():
+    f = square_flat(devices=[{"type": "pendant", "x": 1, "z": 1, "entity": "switch.relais", "lightColor": "#E8F0FF"},
+                             {"type": "spot", "x": 2, "z": 1, "lightColor": "kaltweiss"}])
+    layout = importer.build_layout(f)[0]
+    a, b = layout["floors"][0]["devices"]
+    assert a["lightColor"] == "#e8f0ff" and "lightColor" not in b                  # only a colour as #rrggbb
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"][0]
+    assert again["lightColor"] == "#e8f0ff"
+
+
 def test_ledring_sections_survive_import_and_export():
     f = square_flat(rooms=[{"points": [[0, 0], [4, 0], [4, 3], [0, 3]]}],
                     devices=[{"type": "ledring", "x": 2, "z": 1.5, "entity": "light.main", "closed": True, "inset": 0.15,

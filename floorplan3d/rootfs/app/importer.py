@@ -284,6 +284,8 @@ def _device(rep: Report, path: str, spec, ids):
     for k in DEVICE_FLAGS:
         if spec.get(k) is True:
             d[k] = True
+    if isinstance(spec.get("lightColor"), str) and re.fullmatch(r"#[0-9a-fA-F]{6}", spec["lightColor"]):
+        d["lightColor"] = spec["lightColor"].lower()   # the colour of a lamp that reports none, e.g. one on a relay (#367)
     if typ == "nanoleaf" and isinstance(spec.get("panels"), list):
         panels = []
         for p in spec["panels"][:300]:
@@ -900,7 +902,7 @@ def layout_to_property(layout, name="Haus"):
             item["walls"].append(ow)
         item["devices"] = []
         for d in f.get("devices", []):
-            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
+            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
             cs = cables_of(d)
             if cs or d["id"] in feeding:
                 od["id"] = d["id"]

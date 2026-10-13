@@ -3,27 +3,34 @@
  * icon and colour rules (unit test: tests/tapballs.test.mjs); the balls are three.js objects beside the device models in the floor group
  * (not inside them, so they never change a model's size). */
 import * as THREE from './vendor/three.module.min.js';
-import { LIVE_NO_TAP } from './pickrules.js';
+import { LIVE_NO_TAP, linkedDevice } from './pickrules.js';
 import { shutterBallY } from './shutters.js';
+import { isLamp } from './lamplight.js';
 
 export const BALL = { r: 0.3, finger: 0.4, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
 
-/** does device d get a ball: it is linked to something that can be switched or opened, and it can be tapped in the live mode */
+/** does device d get a ball: it is linked to something that can be switched or opened, and it can be tapped in the live mode (the same
+ *  rule as the tap, linkedDevice: a TV with nothing but a backlight has no ball, #364) */
 export function wantsBall(d) {
   if (!d || d.hideModel || LIVE_NO_TAP.has(d.type)) return false;
-  return !!(d.entity || d.ledEntity || (d.segs || []).some((s) => s.entity));
+  return linkedDevice(d);
 }
 
 const TYPE_ICON = { camera: '📷', tv: '📺', tv_wall: '📺', speaker: '🔊', vacuum: '🧹', thermostat: '🌡', radiator: '🌡', boiler: '🌡', washer: '🫧',
   router: '📶', smoke: '🚨', wallbox: '🔌', battery: '🔋', fan: '🌀', solarpanel: '☀', inverter: '☀', powermeter: '⚡', houseentry: '⚡', fusebox: '⚡',
   watermeter: '🚰', gasmeter: '🔥', heatmeter: '♨' };
-const DOMAIN_ICON = { light: '💡', cover: '🪟', switch: '🔌', input_boolean: '⏻', fan: '🌀', media_player: '📺', climate: '🌡', camera: '📷', lock: '🔒',
+const DOMAIN_ICON = { light: '💡', cover: '🪟', input_boolean: '⏻', fan: '🌀', media_player: '📺', climate: '🌡', camera: '📷', lock: '🔒',
   vacuum: '🧹', scene: '✨', script: '✨', button: '⏺', siren: '🚨', valve: '🚰', water_heater: '🌡', humidifier: '💧', alarm_control_panel: '🛡' };
-/** the little icon in the ball: what the device controls (its entity's kind), some device types have their own (a camera, a TV ...) */
-export function ballIcon(d) {
-  const e = d?.entity || d?.ledEntity || (d?.segs || []).find((s) => s.entity)?.entity || '', domain = e.split('.')[0];
-  if (domain === 'light') return '💡';                                   // a lamp, an LED strip, a TV backlight: all a light bulb
-  return TYPE_ICON[d?.type] || DOMAIN_ICON[domain] || (domain === 'sensor' || domain === 'binary_sensor' ? 'ℹ' : '●');
+/** the icon of a switch (#366): there is no emoji for a light switch (🔌 is a plug), so the ball draws one (drawSwitch) */
+export const SWITCH_ICON = 'switch';
+/** the little icon in the ball: what the device controls (its entity's kind), some device types have their own (a camera, a TV ...).
+ *  deviceClass(entity): the device class Home Assistant gives the entity; a switch entity is a plug only when it is an outlet (#366) */
+export function ballIcon(d, deviceClass = () => null) {
+  const e = d?.entity || (d?.segs || []).find((s) => s.entity)?.entity || '', domain = e.split('.')[0];
+  if (domain === 'light' || (domain === 'switch' && isLamp(d))) return '💡';   // a lamp, an LED strip, an LED ring, a lamp on a relay (#367): all a light bulb
+  if (TYPE_ICON[d?.type]) return TYPE_ICON[d.type];
+  if (domain === 'switch') return deviceClass(e) === 'outlet' ? '🔌' : SWITCH_ICON;
+  return DOMAIN_ICON[domain] || (domain === 'sensor' || domain === 'binary_sensor' ? 'ℹ' : '●');
 }
 
 /** height of the ball over the floor: `lift` m above the top of the device; where that would reach the ceiling (a ceiling lamp) it hangs
@@ -103,14 +110,33 @@ export function ballLook(on, rgb) {
   return { color: Array.isArray(rgb) ? ((rgb[0] & 255) << 16) | ((rgb[1] & 255) << 8) | (rgb[2] & 255) : BALL.on, opacity: 1 };
 }
 
-export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x, y, z }] (value labels the balls keep clear of)
+/** a light switch on the ball (#366), on a canvas of size s: a white plate with a rocker, its upper half lit */
+function drawSwitch(g, s) {
+  const box = (x, y, w, h, r) => {
+    g.beginPath(); g.moveTo(x + r, y);
+    g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
+    g.closePath();
+  };
+  const c = s / 2, p = s * 0.56, w = p * 0.48, h = p * 0.68, k = s * 0.018;
+  g.save();
+  g.shadowColor = 'rgba(0,0,0,0.4)'; g.shadowBlur = s * 0.05; g.shadowOffsetY = s * 0.02;
+  box(c - p / 2, c - p / 2, p, p, s * 0.08); g.fillStyle = '#f6f7f9'; g.fill();          // the plate
+  g.restore();
+  g.lineWidth = s * 0.012; g.strokeStyle = 'rgba(0,0,0,0.18)'; g.stroke();
+  box(c - w / 2, c - h / 2, w, h, s * 0.04); g.fillStyle = '#aab3c0'; g.fill();          // the rocker
+  g.lineWidth = s * 0.02; g.strokeStyle = 'rgba(40,50,65,0.55)'; g.stroke();
+  box(c - w / 2 + k, c - h / 2 + k, w - 2 * k, h / 2 - k, s * 0.028); g.fillStyle = '#ffffff'; g.fill();
+}
+
+export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x, y, z }] (value labels the balls keep clear of), deviceClass(entity)
   const fingerGeo = new THREE.SphereGeometry(BALL.finger, 10, 8), fingerMat = new THREE.MeshBasicMaterial({ visible: false });
-  const balls = new Map();                 // device id -> { ball (the finger ball, parent), sprite, canvas, key, model, group, placed, base, home (after settle), icon }
+  const balls = new Map();                 // device id -> { ball (the finger ball, parent), sprite, canvas, key, model, group, placed, base, home (after settle), dev, icon }
+  const dcOf = (e) => ctx.deviceClass?.(e) ?? null;
   let unsettled = false;                   // a ball was placed anew: push the balls apart again (settle)
   let lastView = '';                       // camera and screen the balls were last pushed apart for on the screen (declutter)
   /** draw the round badge: the state colour with a light rim and the icon in the middle */
   function paint(b, color) {
-    const key = `${color}`;
+    const key = `${color}|${b.icon}`;
     if (b.key === key) return;
     b.key = key;
     const c = b.canvas, g = c.getContext('2d'), s = c.width, hex = `#${color.toString(16).padStart(6, '0')}`;
@@ -118,9 +144,12 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
     g.beginPath(); g.arc(s / 2, s / 2, s / 2 - 6, 0, Math.PI * 2);
     g.fillStyle = hex; g.fill();
     g.lineWidth = 6; g.strokeStyle = 'rgba(255,255,255,0.9)'; g.stroke();
-    g.font = `${Math.round(s * 0.5)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
-    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff';
-    g.fillText(b.icon, s / 2, s / 2 + s * 0.03);
+    if (b.icon === SWITCH_ICON) drawSwitch(g, s);
+    else {
+      g.font = `${Math.round(s * 0.5)}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff';
+      g.fillText(b.icon, s / 2, s / 2 + s * 0.03);
+    }
     b.sprite.material.map.needsUpdate = true;
   }
   /** a ball for device d next to its model in the floor group; returns it (for the pick list), or null when d does not want one.
@@ -138,7 +167,7 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
     ball.add(sprite);
     ball.visible = false;
     group.add(ball);
-    const b = { ball, sprite, canvas, key: '', model, group, placed: false, icon: ballIcon(d), at };
+    const b = { ball, sprite, canvas, key: '', model, group, placed: false, dev: d, icon: ballIcon(d, dcOf), at };
     balls.set(d.id, b);
     paint(b, BALL.off);
     return ball;
@@ -173,6 +202,7 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
     if (b.ball.visible !== (live && shown)) lastView = '';
     b.ball.visible = live && shown;
     if (b.ball.visible && !b.placed) b.placed = place(b);
+    b.icon = ballIcon(b.dev, dcOf);                // the device class may come with a later state (a plug or a switch, #366)
     const look = ballLook(on, rgb);
     paint(b, look.color); b.sprite.material.opacity = look.opacity;
   }
@@ -221,5 +251,6 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
   /** everything may have moved (back in the live mode after editing): measure all again */
   const remeasure = () => balls.forEach((b) => { b.placed = false; });
   function clear() { balls.forEach((b) => { b.sprite.material.map.dispose(); b.sprite.material.dispose(); }); balls.clear(); }
-  return { add, update, settle, declutter, moved, remeasure, clear, has: (id) => balls.has(id), shown: (id) => !!balls.get(id)?.ball.visible, ball: (id) => balls.get(id)?.ball || null };
+  return { add, update, settle, declutter, moved, remeasure, clear, has: (id) => balls.has(id), shown: (id) => !!balls.get(id)?.ball.visible, ball: (id) => balls.get(id)?.ball || null,
+    icon: (id) => balls.get(id)?.icon ?? null };
 }

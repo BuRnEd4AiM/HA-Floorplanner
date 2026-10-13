@@ -1,6 +1,6 @@
 /* Properties panel (edit mode): the fields of the selected object: wall, room (with its entity list), placeholder block, floor opening, stair
  * (stairtool.js), door / window (with a window's roller shutter, #331), device (position, size, tilt, picture, LED ring sections, kitchen
- * run, power cables, entity, camera, TV backlight), and a power cable (power.js). Which fields a device gets is decided by pure functions
+ * run, power cables, entity, a lamp's light colour, camera, TV backlight), and a power cable (power.js). Which fields a device gets is decided by pure functions
  * (tested); initProps draws the panel. */
 import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange, sectionHex } from './ledring.js';
 import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
@@ -10,6 +10,7 @@ import { MOUNTS, MAX_FIELD } from './solarroof.js';
 import { BRIDGE, bridgeSize } from './bridge.js';
 import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
 import { hasShutter, setShutter, setShutterEntity, shutterChoices } from './shutters.js';
+import { wantsLightColor } from './lamplight.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -26,7 +27,8 @@ export function stretchValue(n) {
 /** ctx: $, t, floor(), isLive(), selection(), roomCtx(), setRoomCtx(id), fields: { field, inp, lenInput, pickerField }, entityPicker(list, room, current, onChange),
  *  entities(), areas(), findOpening(id), snapshot(), changed(), build(), refreshSelection(), deleteItem(sel), applyStates(), setStatus(txt),
  *  renderObjList(), renderRoomEntities(), stateText(id), roomAt(x, z), pointInPoly, controlsTarget() ({x, z}), wallTypes, ledLike, catOf, baseDims(type),
- *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH, power(), stairTool(), fmtLen(m), toDisp(m), imperial() */
+ *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH, power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
+ *  defaultLightColor() (settings: the colour of a lamp that reports none) */
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
@@ -272,6 +274,7 @@ export function initProps(ctx) {
     if (it.type === 'bridge') bridgeProps(body, it);
     if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), ctx.entityPicker(pickFrom(entities), ctx.roomAt(it.x, it.z), it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
+    if (wantsLightColor(it)) lightColorField(body, it);
     if (it.type === 'camera') {                                  // #69: field of view cone on the floor
       body.append(field(t('cam.fov'), inp('number', it.fov ?? 90, (v) => { it.fov = Math.max(0, Math.min(180, +v || 0)); }, { step: 5, min: 0, max: 180 })));
       body.append(field(t('cam.range'), lenInput(() => it.range ?? 4, (v) => (it.range = Math.max(0.5, v)), { min: 0.5, step: 0.5 })));
@@ -283,6 +286,18 @@ export function initProps(ctx) {
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();
+  }
+
+  /** the colour of a lamp's light where its entity reports none (#367): a lamp switched by a relay, a white-only light; ↺: back to the
+   *  default light colour of the settings */
+  function lightColorField(body, it) {
+    const ci = inp('color', it.lightColor || ctx.defaultLightColor(), (v) => { it.lightColor = v; ctx.applyStates(); }, { id: 'devLightColor' });
+    const row = field(t('prop.lightColor'), ci);
+    const rb = document.createElement('button'); rb.type = 'button'; rb.id = 'devLightColorReset'; rb.textContent = '↺'; rb.title = t('prop.lightColorReset'); rb.disabled = !it.lightColor;
+    rb.addEventListener('click', () => { ctx.snapshot(); delete it.lightColor; ctx.changed(); ctx.applyStates(); render(); });
+    row.append(rb);
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('prop.lightColorHint');
+    body.append(row, hp);
   }
 
   /** Metal bridge (#189): length, width, railing */

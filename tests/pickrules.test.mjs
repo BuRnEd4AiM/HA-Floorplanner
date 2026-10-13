@@ -21,7 +21,8 @@ test('live mode (#236): temperature, humidity and CO2 sensors take no tap either
 });
 test('only what is linked to something can be tapped in the live mode', () => {
   assert.ok(P.linkedDevice({ entity: 'light.a' }));
-  assert.ok(P.linkedDevice({ entity: '', ledEntity: 'light.tv' }));
+  assert.ok(P.linkedDevice({ entity: 'media_player.tv', ledEntity: 'light.tv' }));
+  assert.ok(!P.linkedDevice({ entity: '', ledEntity: 'light.tv' }));           // a TV with nothing but its backlight (#364)
   assert.ok(P.linkedDevice({ segs: [{}, { entity: 'light.s' }] }));
   assert.ok(!P.linkedDevice({ entity: '' }));
   assert.ok(!P.linkedDevice(null));
