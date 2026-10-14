@@ -224,6 +224,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Low-power mode** for Fire tablets and other weak devices (automatic in kiosk mode and on touch screens): lower resolution, throttled animation, no shadows, blur or glow. ⚙ **Performance on this device** switches it per tablet
 - **Warnings** for smoke, gas, CO, water, alarm and windows open in the rain (red banner, the room flashes), a **"Where is …?" search**, and a **kiosk mode**: back to the start view when idle, screen-saver turn, night dimming
 - **Renamed in Home Assistant, renamed in the plan**: change an entity id or a device name in Home Assistant or Zigbee2MQTT and every linked device in every house follows by itself, also in an open view
+- **Device overview** (📋): every linked device by room with its state, its battery level (from the battery sensor of the same Home Assistant device) and whether it is offline; filter by battery or offline
 - **Devices offline** at a glance: a pill over the plan shows how many placed devices are unavailable, unknown, missing in Home Assistant or not linked, with a list that jumps to each one
 - Floor and room buttons **scroll sideways** with ‹ › arrows when they do not fit the screen
 - Open a specific house with `?house=Parents`

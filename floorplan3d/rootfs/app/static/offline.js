@@ -68,6 +68,7 @@ export function initOffline(ctx) {
     pill.textContent = list.length ? t('off.pill', { n: list.length }) : t('off.pillOk');
     const sig = JSON.stringify(list.map((x) => [x.id, x.entity, x.reason]));
     if (sig !== offlineSig) { offlineSig = sig; if ($('#offlineDialog').open) renderList(); }
+    return list;
   }
   function sinceText(iso) {
     const ms = Date.parse(iso || '');

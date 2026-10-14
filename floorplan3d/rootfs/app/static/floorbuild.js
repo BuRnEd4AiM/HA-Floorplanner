@@ -13,6 +13,8 @@ import { addPickProxy, underFloors, holoify } from './modelfx.js';
 import { shutterEntity, shutterSide, shutterLabelY } from './shutters.js';
 import { openingPoint } from './openings.js';
 import { openingBallAt } from './tapballs.js';
+import { pillFinger } from './labels.js';
+import { isHeater } from './heating.js';
 
 export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
 export const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
@@ -231,18 +233,20 @@ export function initFloorBuild(ctx) {
       g.add(model);
       ctx.registry.set(d.id, model);
       if (half && (d.y || 0) >= halfAt) { model.userData.cutHidden = true; model.visible = false; }   // half section: what hangs above the cut (ceiling lamps, LED ring, high pictures) would float in the air
-      if (!ghost && !model.userData.cutHidden) { ctx.pickables.push(model); const tb = ctx.tapBalls.add(g, model, d); if (tb) ctx.pickables.push(tb); }
+      const label = wantsLabel(d, mode) && o.labels, tapPill = label && isHeater(d) && !ghost && !model.userData.cutHidden;   // a heater shows only its temperature, no ball: the pill is tapped
+      if (!ghost && !model.userData.cutHidden) { ctx.pickables.push(model); const tb = tapPill ? null : ctx.tapBalls.add(g, model, d); if (tb) ctx.pickables.push(tb); }
       if (d.type === 'camera' && !ghost && (d.fov ?? 90) > 0) {
         const cone = ctx.cams.addCone(d);
         g.add(cone);
         ctx.pickables.push(cone);
       }
-      if (wantsLabel(d, mode) && o.labels) {
+      if (label) {
         const sp = ctx.textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true });
         sp.position.set(d.x, (d.y || 0) + 0.3 + 0.2 * (d.scale || 1), d.z);
         if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * ctx.belowVis(); }
         g.add(sp);
         ctx.labelSprites.set(d.id, sp);
+        if (tapPill) ctx.pickables.push(pillFinger(sp, { kind: 'device', id: d.id }));
       }
     });
   }

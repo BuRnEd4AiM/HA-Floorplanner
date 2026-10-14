@@ -132,6 +132,12 @@ async def test_areas_leave_out_what_the_registry_keeps_off_the_dashboards(client
                                                               "parts": {"switch.sw01": "climate.kueche"}}]
 
 
+async def test_batteries_are_what_the_registry_watcher_found(client):
+    assert await (await client.get("/api/batteries")).json() == {}                       # registry not read (no Home Assistant)
+    client.app[server.KEY_RENAMES]["battery"] = {"binary_sensor.door": "sensor.door_battery"}                     # #376
+    assert await (await client.get("/api/batteries")).json() == {"binary_sensor.door": "sensor.door_battery"}
+
+
 async def test_service_whitelist(client, monkeypatch):
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
     bad = [
@@ -605,6 +611,12 @@ async def test_earth_margin_is_a_clamped_length(client):
     assert (await (await client.put("/api/settings", json={**s, "earthMargin": 12})).json())["earthMargin"] == 12.0
     s = await (await client.get("/api/settings")).json()
     assert (await (await client.put("/api/settings", json={**s, "earthMargin": 5000})).json())["earthMargin"] == 100.0
+
+
+def test_slim_state_battery_level_of_its_own():
+    assert server.slim_state({"entity_id": "vacuum.robbi", "state": "docked", "attributes": {"battery_level": 87}})["bat"] == 87
+    assert server.slim_state({"entity_id": "vacuum.robbi", "state": "docked", "attributes": {"battery_level": "87"}})["bat"] is None
+    assert server.slim_state({"entity_id": "light.x", "state": "on", "attributes": {}})["bat"] is None
 
 
 def test_slim_state_says_since_when_an_entity_is_offline():

@@ -668,6 +668,30 @@ body:not(.v-2d):not(.v-split) #planFloorsToggle { display: none !important; }
 #heatPanel .hp-part { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 13px; }   /* child lock ... of the thermostat (#370) */
 #heatPanel .hp-part-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
 #heatPanel .hp-part-v { white-space: nowrap; }
+/* the device overview (#376): shown and hidden with "📋 Geräte" at the top, on the left so the room and heating panels stay free */
+#devicePanel { position: absolute; top: 58px; left: 12px; width: 340px; max-width: calc(100% - 24px); max-height: calc(100% - 140px); overflow-y: auto; padding: 12px 14px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 18px; z-index: 6; box-shadow: 0 0 30px rgba(35,224,255,.2); }
+#devicePanel[hidden] { display: none; }
+#devicePanel .dl-head { display: flex; align-items: center; justify-content: space-between; }
+#devicePanel .dl-head b { font-size: 18px; }
+#devicePanel .dl-x { background: none; border: 0; color: var(--muted); font-size: 20px; cursor: pointer; padding: 0 4px; min-height: 0; }
+#devicePanel .dl-filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+#devicePanel .dl-filters .pill { padding: 3px 10px; font-size: 12px; }
+#devicePanel .dl-sum { margin: 4px 0 2px; }
+#devicePanel h4 { margin: 12px 0 2px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+#devicePanel h5 { margin: 10px 0 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
+#devicePanel .dl-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+#devicePanel .dl-row { width: 100%; display: flex; align-items: center; gap: 8px; padding: 6px 10px; text-align: left; min-height: 0; }
+#devicePanel .dl-row.off { border-color: #b3261e; }
+#devicePanel .dl-ic { flex: none; width: 1.4em; text-align: center; }
+#devicePanel .dl-n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#devicePanel .dl-v { flex: none; display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); max-width: 55%; }
+#devicePanel .dl-state { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#devicePanel .dl-bat { white-space: nowrap; padding: 1px 6px; border-radius: 999px; background: rgba(60,180,110,.18); color: var(--text, #fff); }
+#devicePanel .dl-bat.low { background: #b3261e; color: #fff; }
+@media (max-width: 760px) { #devicePanel { left: 12px; right: 12px; width: auto; max-width: none; top: 52px; max-height: 60%; } }
+#heatPanel .hp-ha { margin-top: 8px; }   /* the thermostat in Home Assistant */
+#heatPanel .hp-ha .mi { padding: 3px 10px; font-size: 12px; min-height: 0; }
 @media (max-width: 760px) { #heatPanel { right: 12px; left: 12px; width: auto; max-width: none; top: 52px; max-height: 38%; } }
 /* phones: the heating is part of the room sheet (roompanel.js moves it in) */
 #roomPanel > #heatPanel { position: static; width: auto; max-width: none; max-height: none; overflow: visible; margin: 10px 0 4px; padding: 10px 0 0;

@@ -31,6 +31,15 @@ export function areaIndex(list) {
   return { areas, areaOf };
 }
 /** the areas from the add-on (api/areas); none while it cannot be reached */
+/** { entity: the battery entity of its device } from Home Assistant's registries (#376: the device overview), {} when not known */
+export async function fetchBatteries() {
+  try {
+    const r = await fetch('api/batteries');
+    const m = r.ok ? await r.json() : {};
+    return m && typeof m === 'object' && !Array.isArray(m) ? m : {};
+  } catch { return {}; }
+}
+
 export async function fetchAreas() {
   try {
     const r = await fetch('api/areas');

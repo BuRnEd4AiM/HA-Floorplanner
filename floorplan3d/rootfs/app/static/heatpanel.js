@@ -1,5 +1,5 @@
 /* Heating panel (#134): next to the room panel, for the thermostats of the room (live mode), each with the other entities of its device
- * (child lock, window detection ..., #370) instead of among the room's switches.
+ * (child lock, window detection ..., #370) instead of among the room's switches, and a button that opens the thermostat in Home Assistant.
  * A target temperature that is clicked with - / + is only sent after a short pause, so clicks in a row become one call. */
 export const HEAT_DELAY = 700;
 
@@ -34,10 +34,11 @@ export function partName(name, head) {
 const TOGGLES = new Set(['switch', 'input_boolean', 'fan']);   // parts with a slide switch; the others show their state
 
 /**
- * @param {{box: HTMLElement, t: Function, states: () => object, callService: Function, open: () => boolean, stateText?: Function, isOn?: Function}} ctx
- *   `open` says whether the room panel is open (the heating panel only shows next to it); stateText(id) / isOn(id): a part's state.
+ * @param {{box: HTMLElement, t: Function, states: () => object, callService: Function, open: () => boolean, stateText?: Function, isOn?: Function, details?: Function}} ctx
+ *   `open` says whether the room panel is open (the heating panel only shows next to it); stateText(id) / isOn(id): a part's state;
+ *   details(id): a button that opens the entity in Home Assistant (its own dialog), null where that is not possible.
  */
-export function initHeatPanel({ box, t, states, callService, open, stateText = (e) => states()[e]?.state ?? '', isOn = (e) => states()[e]?.state === 'on' }) {
+export function initHeatPanel({ box, t, states, callService, open, stateText = (e) => states()[e]?.state ?? '', isOn = (e) => states()[e]?.state === 'on', details = () => null }) {
   const pending = new Map();                 // entity -> { v, timer }: a target that was clicked but not sent yet
   let devs = [], parts = {};
   const target = (e, s) => pending.get(e)?.v ?? s?.tt;
@@ -106,6 +107,8 @@ export function initHeatPanel({ box, t, states, callService, open, stateText = (
         card.append(modes);
       }
       (parts[e] || []).forEach((p) => card.append(partRow(p, nm.textContent)));
+      const ha = details(e);                     // straight to the thermostat in Home Assistant (history, settings ...)
+      if (ha) { const row = document.createElement('div'); row.className = 'hp-ha'; row.append(ha); card.append(row); }
       box.append(card);
     });
   }

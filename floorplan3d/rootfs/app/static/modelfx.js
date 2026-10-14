@@ -41,20 +41,21 @@ export function underFloors(m) {
 
 /** Turn a model into a translucent blue wireframe hologram; lit parts are remembered for state changes. */
 export function holoify(model, ghost, belowVis) {
-  const glow = new Set(model.userData.glow || []), led = new Set(model.userData.led || []);
+  const glow = new Set(model.userData.glow || []), led = new Set(model.userData.led || []), heat = new Set(model.userData.heat || []);
   const meshes = [];
   model.traverse((o) => { if (o.isMesh && !o.userData.proxy && !o.userData.holo) meshes.push(o); });
   const hg = model.userData.holoGlow ||= { fill: [], edge: [] }, hl = model.userData.holoLed ||= { fill: [], edge: [] };
   const segOf = new Map();                                     // LED ring: material -> its section
   (model.userData.segs || []).forEach((sg) => { sg.holo ||= { fill: [], edge: [] }; sg.glow.forEach((m) => segOf.set(m, sg)); });
   for (const o of meshes) {
-    const isGlow = glow.has(o.material), isLed = led.has(o.material), sg = segOf.get(o.material);
+    const isGlow = glow.has(o.material), isLed = led.has(o.material), sg = segOf.get(o.material), isHeat = heat.has(o.material);
     o.material = new THREE.MeshBasicMaterial({ color: HOLO.fill, transparent: true, opacity: ghost ? 0.03 + 0.2 * belowVis : (model.userData.solid ? 0.8 : 0.38), depthWrite: !!model.userData.solid && !ghost, side: model.userData.solid ? THREE.DoubleSide : THREE.FrontSide });
     o.userData.holo = true;
     const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: ghost ? 0.08 + 0.55 * belowVis : 0.95 });
     o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, 25), em));
     if (isGlow) { hg.fill.push(o.material); hg.edge.push(em); }
     if (isLed) { hl.fill.push(o.material); hl.edge.push(em); }
+    if (isHeat) (model.userData.holoHeat ||= []).push(o.material);   // a radiator's metal: red while it heats (heating.js)
     if (sg) { sg.holo.fill.push(o.material); sg.holo.edge.push(em); }
   }
 }

@@ -18,4 +18,4 @@ export const effRgb = (e, effectColors) => fxRgb(e.fxc, effectColors) || e.rgb;
 
 /** the state the app keeps of an entity of the add-on's list (rgbRaw: the light's own colour, rgb: the one to show) */
 export const toState = (e, effectColors) => ({ since: e.since, state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e, effectColors), rgbRaw: e.rgb,
-  dc: e.dc, ct: e.ct, hvac: e.hvac, tt: e.tt, tmin: e.tmin, tmax: e.tmax, tstep: e.tstep, modes: e.modes, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members });
+  dc: e.dc, ct: e.ct, hvac: e.hvac, tt: e.tt, tmin: e.tmin, tmax: e.tmax, tstep: e.tstep, modes: e.modes, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members, bat: e.bat });

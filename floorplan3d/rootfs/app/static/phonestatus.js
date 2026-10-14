@@ -6,7 +6,7 @@
  * otherwise, so desktop, tablets, phones held sideways and the room tablet are unchanged.
  * phoneStatusModel is pure and tested in tests/phonestatus.test.mjs. */
 
-export const STATUS_PILLS = ['energyPill', 'meterPill', 'offlinePill', 'openPill', 'camPill'];
+export const STATUS_PILLS = ['energyPill', 'meterPill', 'devicesPill', 'offlinePill', 'openPill', 'camPill'];
 export const PHONE_QUERY = '(max-width: 760px)';
 
 /** what the button shows. pills: [{ hidden, alert }] (alert: the pill is red / warns) */

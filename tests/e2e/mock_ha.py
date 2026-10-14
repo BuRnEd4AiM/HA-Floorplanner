@@ -1,16 +1,17 @@
 import json, os
 from aiohttp import web
-STATE = {"climate.wohnzimmer": "heat", "light.wohnzimmer": "on", "sensor.temp": "21.5", "cover.rollo": "closed", "switch.garage": "off", "binary_sensor.rauch": "off", "sensor.co2": "850", "sensor.leistung": "95.4", "camera.flur": "idle"}
+STATE = {"climate.wohnzimmer": "heat", "light.wohnzimmer": "on", "sensor.temp": "21.5", "cover.rollo": "closed", "switch.garage": "off", "binary_sensor.rauch": "off", "sensor.co2": "850", "sensor.leistung": "95.4", "camera.flur": "idle", "sensor.rauch_battery": "15"}
 CALLS = []
 CALL_DATA = []      # the data of the climate calls (set_temperature / set_hvac_mode) and of set_cover_position
 CLIMATE = {"temperature": 21.0, "hvac_action": "heating"}
 SUBS = []          # websocket subscribers of state_changed (the add-on's live channel)
 REG_SUBS = []      # websocket subscribers of the registry events (the add-on's watch for renamed entities)
 REGISTRY = {e: "u_" + e for e in STATE}     # entity id -> unique id of its registry entry
+DEVICES = {"u_binary_sensor.rauch": "dev_rauch", "u_sensor.rauch_battery": "dev_rauch"}   # unique id -> device: the smoke alarm and its battery (#376)
 ALIAS = {}         # entity id the tests know -> its id after a rename (/_rename)
 COVER_POS = {}     # covers with a position (current_position), from set_cover_position on; /_set takes it away again
 def cur(e): return ALIAS.get(e, e)
-NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur"}
+NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
 def state_of(e):
     attrs = {"friendly_name": NAMES[e]}
     if e == "climate.wohnzimmer":
@@ -21,11 +22,12 @@ def state_of(e):
     if e == "binary_sensor.rauch": attrs["device_class"] = "smoke"
     if e == "sensor.co2": attrs.update({"unit_of_measurement": "ppm", "device_class": "carbon_dioxide"})
     if e == "sensor.leistung": attrs.update({"unit_of_measurement": "W", "device_class": "power"})
+    if e == "sensor.rauch_battery": attrs.update({"unit_of_measurement": "%", "device_class": "battery"})
     return {"entity_id": e, "state": STATE[e], "attributes": attrs}
 async def states(r):
     return web.json_response([state_of(cur("light.wohnzimmer")), state_of(cur("sensor.temp")),
       {"entity_id":"scene.gaming","state":"unknown","attributes":{"friendly_name":"Gaming","entity_id":["light.wohnzimmer","light.andere"]}},
-      state_of(cur("cover.rollo")), state_of(cur("switch.garage")), state_of(cur("binary_sensor.rauch")), state_of(cur("sensor.co2")), state_of(cur("sensor.leistung")), state_of(cur("camera.flur")), state_of(cur("climate.wohnzimmer"))])
+      state_of(cur("cover.rollo")), state_of(cur("switch.garage")), state_of(cur("binary_sensor.rauch")), state_of(cur("sensor.co2")), state_of(cur("sensor.leistung")), state_of(cur("camera.flur")), state_of(cur("climate.wohnzimmer")), state_of(cur("sensor.rauch_battery"))])
 async def push(e):
     for ws, sid in list(SUBS):
         try: await ws.send_json({"id": sid, "type": "event", "event": {"event_type": "state_changed", "data": {"entity_id": e, "new_state": state_of(e)}}})
@@ -76,7 +78,7 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": [state_of(e) for e in STATE]})
         elif m.get("type") == "config/entity_registry/list":    # the watch for renamed entities
             await ws.send_json({"id": m["id"], "type": "result", "success": True,
-                                "result": [{"entity_id": e, "platform": "mock", "unique_id": u} for e, u in REGISTRY.items()]})
+                                "result": [{"entity_id": e, "platform": "mock", "unique_id": u, "device_id": DEVICES.get(u)} for e, u in REGISTRY.items()]})
         elif "id" in m:
             await ws.send_json({"id": m["id"], "type": "result", "success": False, "error": {"code": "unknown_command"}})
     SUBS[:] = [x for x in SUBS if x[0] is not ws]

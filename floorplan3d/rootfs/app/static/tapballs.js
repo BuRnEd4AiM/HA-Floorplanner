@@ -6,6 +6,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { LIVE_NO_TAP, linkedDevice } from './pickrules.js';
 import { shutterBallY } from './shutters.js';
 import { isLamp } from './lamplight.js';
+import { drawOffline } from './offlinemarks.js';
 
 export const BALL = { r: 0.3, finger: 0.4, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
 
@@ -134,12 +135,14 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
   const dcOf = (e) => ctx.deviceClass?.(e) ?? null;
   let unsettled = false;                   // a ball was placed anew: push the balls apart again (settle)
   let lastView = '';                       // camera and screen the balls were last pushed apart for on the screen (declutter)
-  /** draw the round badge: the state colour with a light rim and the icon in the middle */
-  function paint(b, color) {
-    const key = `${color}|${b.icon}`;
+  /** draw the round badge: the state colour with a light rim and the icon in the middle; off ('offline' | 'unlinked'): the offline sign
+   *  instead (#375) */
+  function paint(b, color, off = null) {
+    const key = `${color}|${b.icon}|${off || ''}`;
     if (b.key === key) return;
     b.key = key;
     const c = b.canvas, g = c.getContext('2d'), s = c.width, hex = `#${color.toString(16).padStart(6, '0')}`;
+    if (off) { drawOffline(g, s, off); b.sprite.material.map.needsUpdate = true; return; }
     g.clearRect(0, 0, s, s);
     g.beginPath(); g.arc(s / 2, s / 2, s / 2 - 6, 0, Math.PI * 2);
     g.fillStyle = hex; g.fill();
@@ -195,8 +198,9 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
     unsettled = true;
     return true;
   }
-  /** show the ball of device `id` in the live mode only (placed over the model the first time it shows), in the colour of its state */
-  function update(id, on, rgb, live, shown = true) {
+  /** show the ball of device `id` in the live mode only (placed over the model the first time it shows), in the colour of its state;
+   *  off: why it is offline ('offline' | 'unlinked', offlinemarks.js), its ball then shows the offline sign */
+  function update(id, on, rgb, live, shown = true, off = null) {
     const b = balls.get(id);
     if (!b) return;
     if (b.ball.visible !== (live && shown)) lastView = '';
@@ -204,7 +208,8 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
     if (b.ball.visible && !b.placed) b.placed = place(b);
     b.icon = ballIcon(b.dev, dcOf);                // the device class may come with a later state (a plug or a switch, #366)
     const look = ballLook(on, rgb);
-    paint(b, look.color); b.sprite.material.opacity = look.opacity;
+    b.off = off || null;
+    paint(b, look.color, off); b.sprite.material.opacity = off ? 1 : look.opacity;
   }
   /** after the balls were placed: the ones that show are pushed apart where they would cover each other, per floor (#244) */
   function settle() {
@@ -252,5 +257,5 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
   const remeasure = () => balls.forEach((b) => { b.placed = false; });
   function clear() { balls.forEach((b) => { b.sprite.material.map.dispose(); b.sprite.material.dispose(); }); balls.clear(); }
   return { add, update, settle, declutter, moved, remeasure, clear, has: (id) => balls.has(id), shown: (id) => !!balls.get(id)?.ball.visible, ball: (id) => balls.get(id)?.ball || null,
-    icon: (id) => balls.get(id)?.icon ?? null };
+    icon: (id) => balls.get(id)?.icon ?? null, off: (id) => balls.get(id)?.off ?? null };
 }

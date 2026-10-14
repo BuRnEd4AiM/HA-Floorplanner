@@ -9,7 +9,8 @@ by hand stays. What was renamed while the add-on was stopped is caught up at the
 
 The registry also tells which entities Home Assistant keeps off its own dashboards (diagnostic and config entities: a relay's signal, IP,
 restart time ...; and the ones hidden there): the area lists leave them out (side_entities, #368). And which entities belong to the device
-of a thermostat (its child lock, window detection ...): the room panel shows them with the heating (climate_parts, #370).
+of a thermostat (its child lock, window detection ...): the room panel shows them with the heating (climate_parts, #370). And the battery
+sensor of each entity's device: the device overview shows its level (battery_of, #376).
 
 The comparison and the rewriting are pure (tests/test_renames.py); run_watch keeps the connection and never raises.
 """
@@ -149,7 +150,7 @@ def look(state: dict, entries: list, states: list, now: float) -> tuple[dict, di
     current = {x.get("entity_id") for x in (*entries, *states) if isinstance(x.get("entity_id"), str)}
     new_state = {"known": known, "names": {k: v for k, v in names.items() if k in current},
                  "history": remember(state.get("history") or {}, renames, now), "current": sorted(current), "side": side_entities(entries),
-                 "parts": climate_parts(entries)}
+                 "parts": climate_parts(entries), "battery": battery_of(entries, states)}
     return renames, changes, new_state
 
 
@@ -173,6 +174,25 @@ def climate_parts(entries: list) -> dict:
     for ids in by_device.values():
         heads = sorted(i for i in ids if i.startswith("climate."))
         out.update({i: heads[0] for i in ids if heads and not i.startswith("climate.")})
+    return out
+
+
+def battery_of(entries: list, states: list) -> dict:
+    """{entity id: the battery entity of its device} for the entities of every device with a battery (#376): its level (a sensor with
+    device_class battery, in %) or, without one, its "battery low" binary sensor; the device overview shows it next to the device. The
+    battery entities themselves are not keys. A device with several: the first sensor by name."""
+    dc = {s.get("entity_id"): (s.get("attributes") or {}).get("device_class") for s in states if isinstance(s, dict)}
+    by_device = {}
+    for e in entries:
+        dev, eid = e.get("device_id"), e.get("entity_id")
+        if isinstance(dev, str) and dev and isinstance(eid, str):
+            by_device.setdefault(dev, []).append(eid)
+    out = {}
+    for ids in by_device.values():
+        bats = sorted(i for i in ids if dc.get(i) == "battery" and i.startswith(("sensor.", "binary_sensor.")))
+        if bats:
+            best = next((i for i in bats if i.startswith("sensor.")), bats[0])
+            out.update({i: best for i in ids if i not in bats})
     return out
 
 

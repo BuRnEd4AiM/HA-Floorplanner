@@ -15,7 +15,7 @@ import { initKiosk } from './kiosk.js';
 import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
 import { initPhoneNav } from './phonenav.js';
-import { initPhoneStatus } from './phonestatus.js';
+import { initPhoneStatus, PHONE_QUERY } from './phonestatus.js';
 import { initCameras } from './cameras.js';
 import { initFloorCards, columnZoom } from './floorcards.js';
 import { initFloorRail } from './floorrail.js';
@@ -70,7 +70,8 @@ import { toWorld, stairHandles } from './stairs.js';
 import { floorLabels, CARD_FIELDS } from './viewprefs.js';
 import { applyLocks, lockedSettings } from './userlocks.js';
 import { initTapBalls } from './tapballs.js';
-import { initLiveChannel, fetchAreas } from './livechannel.js';
+import { initLiveChannel, fetchAreas, fetchBatteries } from './livechannel.js';
+import { initDeviceList } from './devicelist.js';
 import { initTimeline } from './timelineui.js';
 import { replayEntities } from './timeline.js';
 import { initPersist } from './persist.js';
@@ -87,6 +88,8 @@ import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, f
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO, ringLook } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
+import { heatMode, heatLook, paintHeat, pillTone } from './heating.js';
+import { initOfflineMarks, offlineMarks } from './offlinemarks.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
 import { initRenames } from './renames.js';
@@ -115,6 +118,8 @@ let entityChoice = '';
 let entities = [];
 let areas = [];                      // Home Assistant areas: [{id, name, entities[]}]
 let areaOf = {};                     // entity_id -> area id
+let batteryOf = {};                  // entity_id -> the battery entity of its device (#376, the device overview)
+let offReasons = new Map();          // device / opening id -> why it is offline (offline.js), for the device overview
 const fxRgb = (name) => fxRgbOf(name, settings.effectColors);            // the colour of a light effect (entitystate.js)
 let states = {};                   // entity_id -> { state, unit }
 let replayBack = null;             // security view: the mode and live states from before (timelineui.js), null while live
@@ -345,7 +350,7 @@ function build() {
   wake();
   plan?.render();
   clearGroup(world);
-  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
+  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
   syncDormerWindows(layout.floors, roofList, elev, uid);   // dormer windows are real windows on the floor they belong to (dormerwin.js)
   const holo = isHolo();
   const iso = isolatedRoom();
@@ -563,7 +568,9 @@ function applyStates() {
   cams.updateCones();
   cams.updatePill();
   floorCards.update();
-  offline.update();
+  const offList = offline.update(), offIds = offlineMarks(offList);   // what is offline or linked to nothing: a sign in 3D too (#375)
+  offReasons = new Map(); offList.forEach((x) => { if (!offReasons.has(x.id) || offReasons.get(x.id) === 'unlinked') offReasons.set(x.id, x.reason); });
+  deviceList.update();                    // the device overview (#376): its button, and the list while it is open
   alertsUi.update();
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
@@ -575,7 +582,7 @@ function applyStates() {
       if (!obj) return;
       const on = d.entity && isOnNow(d.entity);
       const rgb = on ? lampRgb(d, states[d.entity]) : null;   // lit parts take the light's colour (or the one set on a lamp that reports none, #367)
-      obj.userData.heat?.forEach((m) => { m.emissive.set(on ? 0xff5a1a : 0x000000); m.emissiveIntensity = on ? 0.9 : 0; });   // a radiator glows while its thermostat heats
+      if (obj.userData.heat) paintHeat(obj.userData, heatLook(heatMode(d.entity, states[d.entity], on)));   // a radiator: red while it heats, cool blue while not (heating.js)
       obj.userData.glow?.forEach((m) => {
         m.emissive.set(on ? (rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255) : 0xffd27a) : 0x000000);
         m.emissiveIntensity = on ? 1.4 : 0;
@@ -602,12 +609,13 @@ function applyStates() {
       }), { ghost, bv, edit: !isLive() });
       obj.visible = !obj.userData.cutHidden && !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on)      // a person who is not there is not drawn in live mode
         && !power.hides(d.id);                                  // the power editor shows nothing but the power things (#174: the next state update brought them all back)          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
-      tapBalls.update(d.id, on, rgb, isLive() && !ghost, obj.visible);   // the ball to tap in the live mode, lit while on (#238)
+      tapBalls.update(d.id, on, rgb, isLive() && !ghost, obj.visible, offIds.get(d.id)?.reason);   // the ball to tap in the live mode, lit while on (#238), the offline sign (#375)
       const sp = labelSprites.get(d.id);
-      if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W'); }
+      if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W', pillTone(d, states[d.entity], on)); }   // a heater's temperature: red / blue
     });
   }
   tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
+  offMarks.update(offIds, new Map(offList.map((x) => [x.id, x.floor])));   // the offline sign over what has no ball showing it (offlinemarks.js)
   buildNav();                             // room pills show a dot while somebody is in the room
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
     const holo = isHolo();
@@ -630,7 +638,14 @@ function applyStates() {
   markShadows();                                                   // things may have shown, hidden or moved (also after every build)
 }
 
-/* ---- Offline devices: the code lives in offline.js ---- */
+/* ---- The device overview (#376): the code lives in devicelist.js ---- */
+const deviceList = initDeviceList({
+  $, t, layout: () => layout, states: () => states, batteryOf: () => batteryOf, offline: () => offReasons, onStates: ON_STATES,
+  pointInPoly: (...a) => pointInPoly(...a), distToPoly, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, ready: () => entities.length > 0,
+  show: (target) => offline.show(target), narrow: () => matchMedia(PHONE_QUERY).matches,
+});
+/* ---- Offline devices: the code lives in offline.js, their signs in 3D in offlinemarks.js (#375) ---- */
+const offMarks = initOfflineMarks({ registry, labelSprites, ballShown: (id) => tapBalls.shown(id), floorShown: (fi) => houseMode || fi === floorIdx });
 const offline = initOffline({
   $, t, layout: () => layout, entities: () => entities, states: () => states, catOf, pointInPoly: (...a) => pointInPoly(...a), currentLanguage: () => currentLanguage(),
   houseMode: () => houseMode, floorIdx: () => floorIdx, switchFloor: (i) => switchFloor(i), isLive: () => isLive(), liveSelect: (h) => liveSelect(h),
@@ -1121,6 +1136,7 @@ function liveMove(d) {
   if (obj?.userData.onRoof) roofsUi.placeSolar(obj, d, roofList(floorIdx));   // follows the roof while it is moved (the mount itself changes on the next build)
   const sp = labelSprites.get(d.id);
   if (sp) sp.position.set(d.x, sp.position.y, d.z);
+  offMarks.refresh();                                              // its offline sign goes along
   cams.cones.get(d.id)?.mesh.position.set(d.x, 0, d.z);          // the field of view of a camera moves with it
   refreshSelHelper();
 }
@@ -1296,7 +1312,7 @@ initBackups({ t, commitSettings, prepare: async () => { if (!settingsStore.loade
 initVersion({ t, active: () => !isLive() && !!settings.updateCheck });
 
 /* ================= Data loading ================= */
-async function loadAreas() { ({ areas, areaOf } = await fetchAreas()); }   // Home Assistant's areas and which entity is in which (livechannel.js)
+async function loadAreas() { let a; [a, batteryOf] = await Promise.all([fetchAreas(), fetchBatteries()]); ({ areas, areaOf } = a); }   // Home Assistant's areas and which entity is in which (livechannel.js)
 
 function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 
@@ -1461,7 +1477,7 @@ if (params.get('debug')) {
     roofMeshes: () => { const out = []; scene.traverse((o) => { if (o.userData?.roofPart) { const w = new THREE.Vector3(); o.getWorldPosition(w); out.push({ tag: o.userData.roofPart, y: +w.y.toFixed(3), tris: (o.geometry?.attributes?.position?.count || 0) / 3, part: o.userData.dormerPart || null, box: ((b3) => [b3.min.x, b3.max.x, b3.min.z, b3.max.z].map((v) => +v.toFixed(3)))(new THREE.Box3().setFromObject(o)) }); } }); return out; },
     heatGlow: (id) => registry.get(id)?.userData.heat?.[0]?.emissiveIntensity ?? -1,
     cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
-    liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
+    liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, ball: !!h.data.tapBall } : null; },   // ball: a tap ball or a heater's temperature was hit
     touchSize: (id) => { let m = 0; registry.get(id)?.children.forEach((c) => { if (c.userData.touchOnly) { c.geometry.computeBoundingBox(); const s = c.geometry.boundingBox.getSize(new THREE.Vector3()); m = Math.min(s.x, s.y, s.z); } }); return m; },
     addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach', uid())); build(); }, camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofsUi.faded.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
     liveTapRoom: (id) => liveSelect({ kind: 'room', id }), liveTap: (id) => liveSelect({ kind: 'device', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
@@ -1488,6 +1504,12 @@ if (params.get('debug')) {
     upper: (id) => { const u = registry.get(id)?.userData.upper; return u ? u.visible : null; },   // the storeys of a stair above the open floor (#246)
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     badgePill: (id) => !!labelSprites.get(id)?.userData.pill,
+    badgeScreen: (id) => {                                           // the value badge of a device on the screen, null while it does not show
+      const sp = labelSprites.get(id);
+      if (!sp?.visible) return null;
+      const v = sp.getWorldPosition(new THREE.Vector3()).project(camera), r = canvas.getBoundingClientRect();
+      return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
+    },
     selection: () => selection,
     multi: () => multiSel.items(),
     ballScreen: (id) => {                                            // the tap ball of a device on the screen, null while it does not show (#238)
@@ -1498,7 +1520,10 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height, r: ((b.children[0]?.scale.x || 0) / 2) * px };   // r: radius in pixels (#314)
     },
     ballSize: (id) => { const s = tapBalls.ball(id)?.children[0]; return s ? +s.scale.x.toFixed(3) : null; },   // the shown size of a tap ball (m, #262)
-    ballIcon: (id) => tapBalls.icon(id),                             // the icon of a tap ball ('switch': the drawn light switch, #366)
+    ballIcon: (id) => tapBalls.icon(id),
+    ballOff: (id) => tapBalls.off(id),                               // the offline sign on a tap ball: 'offline' | 'unlinked' | null (#375)
+    offMark: (id) => (offMarks.shown(id) ? offMarks.reason(id) : null),   // the offline sign over a thing without a ball (#375)
+    openingLook: (id) => registry.get(id)?.userData.look ?? null,    // a door / window: open (red), closed (green frame), offline (amber), #375                             // the icon of a tap ball ('switch': the drawn light switch, #366)
     roomLights: (id) => {                                            // the lamps lighting a room now: reach (m) and colour (0..1), #367
       const rm = roomMeshes.get(id), U = (isHolo() ? rm?.mesh : rm?.glow)?.material.uniforms;
       return U?.uCount ? Array.from({ length: U.uCount.value }, (_, i) => ({ r: +U.uPos.value[i].w.toFixed(3), c: U.uCol.value[i].toArray().map((v) => +v.toFixed(3)) })) : null;

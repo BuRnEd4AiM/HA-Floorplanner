@@ -156,6 +156,25 @@ def test_climate_parts_are_the_other_entities_of_a_thermostats_device():
     assert rn.look({}, entries, [], T)[2]["parts"] == rn.climate_parts(entries)          # kept with the state (#370)
 
 
+def test_battery_of_is_the_battery_sensor_of_each_entitys_device():
+    def ent(eid, dev):
+        return {**entry(eid, eid), "device_id": dev}
+    def st(eid, dc=None):
+        return {"entity_id": eid, "state": "1", "attributes": {"device_class": dc} if dc else {}}
+    entries = [ent("binary_sensor.door", "c1"), ent("sensor.door_battery", "c1"), ent("sensor.door_temp", "c1"),
+               ent("climate.bad", "trv"), ent("binary_sensor.bad_low", "trv"),                       # only a "battery low" sensor
+               ent("light.decke", "bulb"), ent("sensor.decke_power", "bulb"),                        # no battery at all
+               ent("switch.x", "both"), ent("binary_sensor.x_low", "both"), ent("sensor.x_bat", "both"),   # the level wins over "low"
+               entry("sensor.loose", "l")]
+    states = [st("binary_sensor.door", "door"), st("sensor.door_battery", "battery"), st("sensor.door_temp", "temperature"),
+              st("climate.bad"), st("binary_sensor.bad_low", "battery"), st("light.decke"), st("sensor.decke_power", "power"),
+              st("switch.x"), st("binary_sensor.x_low", "battery"), st("sensor.x_bat", "battery"), st("sensor.loose", "battery")]
+    assert rn.battery_of(entries, states) == {"binary_sensor.door": "sensor.door_battery", "sensor.door_temp": "sensor.door_battery",
+                                              "climate.bad": "binary_sensor.bad_low", "switch.x": "sensor.x_bat"}
+    assert rn.look({}, entries, states, T)[2]["battery"] == rn.battery_of(entries, states)   # kept with the state (#376)
+    assert rn.battery_of(entries, []) == {}
+
+
 def test_look_rename_and_new_name_together():
     _, _, state = rn.look({}, [entry("sensor.old_temperature", "u")], [st("sensor.old_temperature", "Alt Temperatur", "21")], T)
     renames, changes, state = rn.look(state, [entry("sensor.new_temperature", "u")], [st("sensor.new_temperature", "Neu Temperatur", "21")], T + 5)

@@ -1,9 +1,12 @@
 /* Doors, gates and windows with a contact sensor: open or closed (also per pane of a window with one sensor per pane), the red tint and the
- * opening leaf in 3D, the pill "n open" with its list, and the animation of the leaves. The decisions are pure functions (tested). */
+ * opening leaf in 3D (shut: a green frame, so you see which ones have a sensor; a sensor that does not report: an amber frame, #375), the
+ * pill "n open" with its list, and the animation of the leaves. The decisions are pure functions (tested). */
 import { openingWalls } from './dormerwin.js';
 import { shutterEntity, shutterClosed, curtainScale, shutterLabel, curtainStep } from './shutters.js';
 
 export const OPEN_HEX = 0xff4a3d;
+export const SENSOR_HEX = 0x2fcf6a;              // the frame of a shut door / window with a sensor
+export const OFFLINE_HEX = 0xffa21f;             // the frame of one whose sensor does not report
 /** which group an opening belongs to in the lists */
 export const openKind = (o) => (o.type === 'door' ? (o.style === 'garage' ? 'gates' : 'doors') : 'windows');
 export const OPEN_KINDS = ['doors', 'gates', 'windows'];
@@ -13,6 +16,21 @@ export const paneEntity = (o, i) => (o.paneEntities && o.paneEntities[i]) || o.e
 export const openingEntities = (o) => [...new Set([o.entity, ...(o.paneEntities || [])].filter(Boolean))];
 /** is a state "open"? on / open / ..., and a garage door on its way (opening, closing) is not closed */
 export const isOpenState = (st, onStates) => !!st && (onStates.has(st.state) || ['opening', 'closing'].includes(st.state));
+/** how a door / window looks by its sensors ents (openingEntities): 'open' (red), 'closed' (green frame), 'offline' (a sensor is
+ *  unavailable, unknown or gone: amber frame), null without a sensor. open: one of them is open; stateOf(e): its state, null while the
+ *  states are not loaded */
+export function contactLook(ents, open, stateOf) {
+  if (!ents.length) return null;
+  if (open) return 'open';
+  if (!stateOf) return null;
+  return ents.some((e) => { const s = stateOf(e); return !s || s.state === 'unavailable' || s.state === 'unknown'; }) ? 'offline' : 'closed';
+}
+/** the colour of one part of an opening (frame, door, metal, glass; walls.js) with look l (contactLook); base: its own colour */
+export function partHex(part, l, base) {
+  if (l === 'open') return OPEN_HEX;
+  if (part !== 'frame') return base;
+  return l === 'closed' ? SENSOR_HEX : l === 'offline' ? OFFLINE_HEX : base;
+}
 /** the middle of an opening in floor coordinates */
 export function openingPoint(w, o) {
   const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1;
@@ -60,17 +78,20 @@ export function initOpenings(ctx) {
   /** tint and leaf targets of every opening, and the pill */
   function apply() {
     let n = 0, any = false;
+    const states = ctx.states(), stateOf = Object.keys(states).length ? (e) => states[e] : null;
     ctx.layout().floors.forEach((f, fi) => openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
       openingEntities(o).forEach((e) => { any = true; if (isOpen(e)) n++; });
       const obj = ctx.registry.get(o.id);
       applyShutter(o, obj, fi);
-      if (!obj?.userData.pivot) return;
+      if (!obj?.userData.tint) return;                            // a bare gap in the wall
       const pps = obj.userData.panePivots;
       const opens = pps ? pps.map((_, i) => isOpen(paneEntity(o, i))) : [isOpen(o.entity)];
       const open = opens.some(Boolean);
       obj.userData.open = open;
-      obj.userData.tint.forEach(({ m, base }) => m.color.setHex(open && openingEntities(o).length ? OPEN_HEX : base));
-      (pps || [obj.userData.pivot]).forEach((pv, i) => { pv.userData.target = opens[i] ? pv.userData.dir * pv.userData.max : 0; });
+      const look = contactLook(openingEntities(o), open, stateOf);
+      obj.userData.look = look;
+      obj.userData.tint.forEach(({ k, m, base }) => m.color.setHex(partHex(k, look, base)));
+      if (obj.userData.pivot) (pps || [obj.userData.pivot]).forEach((pv, i) => { pv.userData.target = opens[i] ? pv.userData.dir * pv.userData.max : 0; });
     })));
     const pill = $('#openPill');
     pill.hidden = !any;

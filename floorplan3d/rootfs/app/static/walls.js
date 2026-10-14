@@ -198,7 +198,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1) {
   proxy.userData.proxy = true;
   g.add(proxy);
   g.userData.pivot = pivot;
-  g.userData.tint = Object.values(mats).map((m) => ({ m, base: m.color.getHex() }));
+  g.userData.tint = Object.entries(mats).map(([k, m]) => ({ k, m, base: m.color.getHex() }));   // k: frame, door, metal, glass (openings.js partHex)
   g.traverse((m) => { if (m.isMesh) m.castShadow = true; });
   g.position.x = o.pos - 0;                              // replaced by caller (needs wall length)
   return g;

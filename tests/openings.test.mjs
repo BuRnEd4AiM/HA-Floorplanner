@@ -80,3 +80,28 @@ test('cutaway: approach moves 20 % of the way and snaps when close', () => {
   assert.equal(C.approach(0.0015, 0, 0.002), 0);
   assert.equal(C.approach(0.5, 0.5, 0.01), 0.5);
 });
+
+test('a door / window with a sensor (#375): red while open, a green frame while shut, an amber one while its sensor does not report', () => {
+  const st = { 'binary_sensor.d': { state: 'off' }, 'binary_sensor.w': { state: 'unavailable' }, 'binary_sensor.u': { state: 'unknown' } };
+  const of = (e) => st[e];
+  assert.equal(O.contactLook([], false, of), null);                                   // no sensor: as it is
+  assert.equal(O.contactLook(['binary_sensor.d'], true, of), 'open');
+  assert.equal(O.contactLook(['binary_sensor.d'], false, of), 'closed');
+  assert.equal(O.contactLook(['binary_sensor.w'], false, of), 'offline');
+  assert.equal(O.contactLook(['binary_sensor.u'], false, of), 'offline');
+  assert.equal(O.contactLook(['binary_sensor.gone'], false, of), 'offline');            // deleted or renamed in Home Assistant
+  assert.equal(O.contactLook(['binary_sensor.d', 'binary_sensor.w'], false, of), 'offline');   // one pane does not report
+  assert.equal(O.contactLook(['binary_sensor.d', 'binary_sensor.w'], true, of), 'open');       // the other one is open: that counts
+  assert.equal(O.contactLook(['binary_sensor.d'], false, null), null);                  // states not loaded yet: nothing known
+});
+test('the colour of each part: open tints all of it red, shut / offline only the frame', () => {
+  assert.equal(O.partHex('door', 'open', 0x8a6a48), O.OPEN_HEX);
+  assert.equal(O.partHex('frame', 'open', 0xf4f4f4), O.OPEN_HEX);
+  assert.equal(O.partHex('frame', 'closed', 0xf4f4f4), O.SENSOR_HEX);
+  assert.equal(O.partHex('door', 'closed', 0x8a6a48), 0x8a6a48);
+  assert.equal(O.partHex('glass', 'closed', 0x9cc9ee), 0x9cc9ee);
+  assert.equal(O.partHex('frame', 'offline', 0xf4f4f4), O.OFFLINE_HEX);
+  assert.equal(O.partHex('metal', 'offline', 0xc9c9c9), 0xc9c9c9);
+  assert.equal(O.partHex('frame', null, 0xf4f4f4), 0xf4f4f4);
+  assert.notEqual(O.SENSOR_HEX, O.OPEN_HEX); assert.notEqual(O.OFFLINE_HEX, O.SENSOR_HEX);
+});
