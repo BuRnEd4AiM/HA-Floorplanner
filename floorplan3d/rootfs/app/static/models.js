@@ -231,11 +231,12 @@ const builders = {
     g.userData.glow = [glow];
   },
   thermostat(g) {
-    const glow = glowMat(0xff9a5c);
-    g.add(box(0.9, 0.6, 0.08, std('#f4f4f4')));
-    for (let i = 0; i < 6; i++) g.add(box(0.03, 0.5, 0.02, std('#dcdcdc'), -0.36 + i * 0.145, 0.05, 0.05));
+    const glow = glowMat(0xff9a5c), body = std('#f4f4f4'), rib = std('#dcdcdc');
+    g.add(box(0.9, 0.6, 0.08, body));
+    for (let i = 0; i < 6; i++) g.add(box(0.03, 0.5, 0.02, rib, -0.36 + i * 0.145, 0.05, 0.05));
     g.add(box(0.06, 0.04, 0.01, glow, 0.38, 0.5, 0.045));
     g.userData.glow = [glow];
+    g.userData.heat = [body, rib];                 // the whole radiator turns red while it heats (heating.js), not only the little light
   },
   tv_wall(g) {
     const glow = glowMat(0x9db8ff);

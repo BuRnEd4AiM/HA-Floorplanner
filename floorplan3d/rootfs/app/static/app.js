@@ -87,6 +87,7 @@ import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, f
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO, ringLook } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
+import { heatMode, heatLook, paintHeat, pillTone } from './heating.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
 import { initRenames } from './renames.js';
@@ -575,7 +576,7 @@ function applyStates() {
       if (!obj) return;
       const on = d.entity && isOnNow(d.entity);
       const rgb = on ? lampRgb(d, states[d.entity]) : null;   // lit parts take the light's colour (or the one set on a lamp that reports none, #367)
-      obj.userData.heat?.forEach((m) => { m.emissive.set(on ? 0xff5a1a : 0x000000); m.emissiveIntensity = on ? 0.9 : 0; });   // a radiator glows while its thermostat heats
+      if (obj.userData.heat) paintHeat(obj.userData, heatLook(heatMode(d.entity, states[d.entity], on)));   // a radiator: red while it heats, cool blue while not (heating.js)
       obj.userData.glow?.forEach((m) => {
         m.emissive.set(on ? (rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255) : 0xffd27a) : 0x000000);
         m.emissiveIntensity = on ? 1.4 : 0;
@@ -604,7 +605,7 @@ function applyStates() {
         && !power.hides(d.id);                                  // the power editor shows nothing but the power things (#174: the next state update brought them all back)          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
       tapBalls.update(d.id, on, rgb, isLive() && !ghost, obj.visible);   // the ball to tap in the live mode, lit while on (#238)
       const sp = labelSprites.get(d.id);
-      if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W'); }
+      if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W', pillTone(d, states[d.entity], on)); }   // a heater's temperature: red / blue
     });
   }
   tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
@@ -1461,7 +1462,7 @@ if (params.get('debug')) {
     roofMeshes: () => { const out = []; scene.traverse((o) => { if (o.userData?.roofPart) { const w = new THREE.Vector3(); o.getWorldPosition(w); out.push({ tag: o.userData.roofPart, y: +w.y.toFixed(3), tris: (o.geometry?.attributes?.position?.count || 0) / 3, part: o.userData.dormerPart || null, box: ((b3) => [b3.min.x, b3.max.x, b3.min.z, b3.max.z].map((v) => +v.toFixed(3)))(new THREE.Box3().setFromObject(o)) }); } }); return out; },
     heatGlow: (id) => registry.get(id)?.userData.heat?.[0]?.emissiveIntensity ?? -1,
     cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
-    liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id } : null; },
+    liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, ball: !!h.data.tapBall } : null; },   // ball: a tap ball or a heater's temperature was hit
     touchSize: (id) => { let m = 0; registry.get(id)?.children.forEach((c) => { if (c.userData.touchOnly) { c.geometry.computeBoundingBox(); const s = c.geometry.boundingBox.getSize(new THREE.Vector3()); m = Math.min(s.x, s.y, s.z); } }); return m; },
     addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach', uid())); build(); }, camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofsUi.faded.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
     liveTapRoom: (id) => liveSelect({ kind: 'room', id }), liveTap: (id) => liveSelect({ kind: 'device', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
@@ -1488,6 +1489,12 @@ if (params.get('debug')) {
     upper: (id) => { const u = registry.get(id)?.userData.upper; return u ? u.visible : null; },   // the storeys of a stair above the open floor (#246)
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     badgePill: (id) => !!labelSprites.get(id)?.userData.pill,
+    badgeScreen: (id) => {                                           // the value badge of a device on the screen, null while it does not show
+      const sp = labelSprites.get(id);
+      if (!sp?.visible) return null;
+      const v = sp.getWorldPosition(new THREE.Vector3()).project(camera), r = canvas.getBoundingClientRect();
+      return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
+    },
     selection: () => selection,
     multi: () => multiSel.items(),
     ballScreen: (id) => {                                            // the tap ball of a device on the screen, null while it does not show (#238)

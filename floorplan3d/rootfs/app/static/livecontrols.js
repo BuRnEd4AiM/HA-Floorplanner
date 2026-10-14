@@ -66,11 +66,12 @@ export function initLiveControls(ctx) {
   const scenesOf = (ids) => scenesWith(ctx.states(), ids);
   const nameOf = (id) => ctx.entities().find((e) => e.entity_id === id)?.name || id;
 
-  /** small button that opens Home Assistant's own dialog for the entity (history, logbook, settings); null outside the HA frontend */
-  function detailsButton(entityId, compact = false) {
+  /** small button that opens Home Assistant's own dialog for the entity (history, logbook, settings); null outside the HA frontend.
+   *  label: its text instead of "Details" */
+  function detailsButton(entityId, compact = false, label = '') {
     if (!entityId || !ctx.canMoreInfo() || ctx.locked?.('details')) return null;
     const b = document.createElement('button'); b.type = 'button'; b.className = compact ? 'rp-more mi' : 'mi';
-    b.textContent = compact ? 'ⓘ' : `ⓘ ${t('live.details')}`; b.title = t('live.detailsHint');
+    b.textContent = compact ? 'ⓘ' : `ⓘ ${label || t('live.details')}`; b.title = t('live.detailsHint');
     b.addEventListener('click', (ev) => { ev.stopPropagation(); ctx.openMoreInfo(entityId); });
     return b;
   }

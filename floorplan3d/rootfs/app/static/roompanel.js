@@ -57,7 +57,7 @@ export function initRoomPanel(ctx) {
   const openCtl = new Set();               // lights whose colour / effect / scene controls are unfolded in the room panel
   const heatBox = $('#heatPanel'), heatHome = heatBox.parentNode;
   const heat = initHeatPanel({ box: heatBox, t, states: () => ctx.states(), callService: (...a) => live.callService(...a), open: () => !!forId,
-    stateText: (id) => ctx.stateText(id), isOn: (id) => ctx.onStates.has(ctx.states()[id]?.state) });
+    stateText: (id) => ctx.stateText(id), isOn: (id) => ctx.onStates.has(ctx.states()[id]?.state), details: (id) => live.detailsButton(id, false, t('cam.openHa')) });
   /** the text on a row of the room panel */
   function rowValue(id) {
     const s = ctx.states()[id], dom = id.split('.')[0];

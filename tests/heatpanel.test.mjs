@@ -91,3 +91,17 @@ test('a mode button calls set_hvac_mode at once', () => {
   find(box, (n) => n.textContent === 'off')[0].listeners.click();
   assert.deepEqual(calls, [['climate.a', 'set_hvac_mode', { hvac_mode: 'off' }]]);
 });
+test('each thermostat has a button that opens it in Home Assistant, where that is possible', () => {
+  const box = el('div'), asked = [];
+  const states = { 'climate.a': { state: 'heat', tt: 21 }, 'climate.b': { state: 'off' } };
+  const details = (e) => { asked.push(e); if (e === 'climate.b') return null; const b = el('button'); b.className = 'mi'; b.entity = e; return b; };
+  const p = H.initHeatPanel({ box, t: (k) => k, states: () => states, callService: () => {}, open: () => true, details });
+  p.render([{ entity: 'climate.a' }, { entity: 'climate.b' }]);
+  assert.deepEqual(asked, ['climate.a', 'climate.b']);
+  const rows = find(box, (n) => n.className === 'hp-ha');
+  assert.equal(rows.length, 1);                                 // outside Home Assistant (null) no empty row
+  assert.equal(rows[0].children[0].entity, 'climate.a');
+  const plain = el('div');                                      // without details: no button at all
+  H.initHeatPanel({ box: plain, t: (k) => k, states: () => states, callService: () => {}, open: () => true }).render([{ entity: 'climate.a' }]);
+  assert.equal(find(plain, (n) => n.className === 'hp-ha').length, 0);
+});

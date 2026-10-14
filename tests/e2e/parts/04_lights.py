@@ -82,7 +82,8 @@ pgH = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X
 pgH.goto(BASE + "?debug=1&mode=live"); pgH.wait_for_timeout(2000)
 pgH.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.length = 0; f.devices.length = 0; f.rooms.length = 0;
   f.rooms.push({id: 'hRoom', name: 'Heizraum', points: [[0,0],[6,0],[6,5],[0,5]]});
-  f.devices.push({id: 'hRad', type: 'radiator', x: 3, z: 0.3, y: 0.15, rot: 0, scale: 1, name: 'Heizkörper', entity: 'climate.wohnzimmer'}, {id: 'hLamp', type: 'light', x: 2, z: 2, y: 2.3, rot: 0, scale: 1, name: 'Lampe', entity: 'light.wohnzimmer'});
+  f.devices.push({id: 'hRad', type: 'radiator', x: 3, z: 0.3, y: 0.15, rot: 0, scale: 1, name: 'Heizkörper', entity: 'climate.wohnzimmer'}, {id: 'hLamp', type: 'light', x: 2, z: 2, y: 2.3, rot: 0, scale: 1, name: 'Lampe', entity: 'light.wohnzimmer'},
+    {id: 'hTherm', type: 'thermostat', x: 5, z: 4.7, y: 0.2, rot: 180, scale: 1, name: 'Heizung', entity: 'climate.wohnzimmer'});
   window.__fp.rebuild(); window.__fp.openRoomPanel('hRoom'); }""")
 pgH.wait_for_timeout(1500)
 check("heating: the heating panel is shown next to the room panel", pgH.locator("#heatPanel").is_visible() and pgH.locator("#roomPanel").is_visible())
@@ -91,6 +92,14 @@ check("heating: it shows the room temperature, the target and that it heats", "2
 rp = pgH.inner_text("#roomPanel")
 check("heating: the thermostat is no longer in the room panel's list (the lamp still is)", "Heizkörper" not in rp and "Lampe" in rp, rp)
 check("heating: the radiator glows while it heats", pgH.evaluate("window.__fp.heatGlow('hRad')") > 0.5, pgH.evaluate("window.__fp.heatGlow('hRad')"))
+check("heating: a thermostat's whole radiator glows too, not only its little light", pgH.evaluate("window.__fp.heatGlow('hTherm')") > 0.5, pgH.evaluate("window.__fp.heatGlow('hTherm')"))
+bH = pgH.evaluate("window.__fp.badge('hRad')")
+check("heating: a heater shows only its temperature, on a red pill while it heats, and no ball", "20.5" in (bH or "") and (bH or "").endswith("|heat") and pgH.evaluate("window.__fp.ballScreen('hRad')") is None, bH)
+pgH.evaluate("window.__fp.closeRoomPanel && window.__fp.closeRoomPanel()"); pgH.evaluate("window.__fp.topDown()"); pgH.wait_for_timeout(400)
+pH = pgH.evaluate("window.__fp.badgeScreen('hRad')")
+hH = pgH.evaluate(f"window.__fp.liveHitAt({pH['x']}, {pH['y']})") if pH else None
+check("heating: a tap on the temperature hits the radiator", (hH or {}).get("id") == "hRad" and (hH or {}).get("ball"), (pH, hH))
+pgH.evaluate("window.__fp.openRoomPanel('hRoom')"); pgH.wait_for_timeout(400)
 pgH.click("#heatPanel .hp-set button >> nth=1"); pgH.click("#heatPanel .hp-set button >> nth=1"); pgH.wait_for_timeout(1500)
 cd = json.load(urllib.request.urlopen(HA + "/_calldata"))
 check("heating: two clicks on + become one call, 21 -> 22 degrees", [c for c in cd if c[0] == "set_temperature"][-1:] == [["set_temperature", "climate.wohnzimmer", 22.0]], cd)
@@ -99,6 +108,8 @@ pgH.click("#heatPanel .hp-modes button >> nth=0"); pgH.wait_for_timeout(1200)
 cd = json.load(urllib.request.urlopen(HA + "/_calldata"))
 check("heating: the mode buttons call set_hvac_mode (off)", ["set_hvac_mode", "climate.wohnzimmer", "off"] in cd, cd)
 check("heating: off, the radiator stops glowing and the badge says so", pgH.evaluate("window.__fp.heatGlow('hRad')") == 0 and pgH.locator("#heatPanel .hp-badge.off").count() == 1, pgH.evaluate("window.__fp.heatGlow('hRad')"))
+check("heating: off, the temperature pill turns blue", (pgH.evaluate("window.__fp.badge('hRad')") or "").endswith("|cold"), pgH.evaluate("window.__fp.badge('hRad')"))
+check("heating: outside Home Assistant there is no button to it in the heating panel", pgH.locator("#heatPanel .hp-ha").count() == 0)
 urllib.request.urlopen(HA + "/_set?e=climate.wohnzimmer&s=heat")
 pgH.close()
 
