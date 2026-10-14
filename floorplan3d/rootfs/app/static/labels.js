@@ -64,8 +64,10 @@ export function textSprite(text, anisotropy, { size = 30, scaleX = 2.4, scaleY =
 /** an invisible tap target on a value pill (a heater's temperature, which has no tap ball): a ball of radius r round the pill's middle, a
  *  child of the sprite (it goes where the pill goes); data: what a tap on it hits ({ kind, id }), live mode only like a tap ball. It is only
  *  hit while the pill shows */
+let fingerGeo = null, fingerMat = null;          // one ball and one (invisible) material for every pill
 export function pillFinger(sprite, data, r = 0.32) {
-  const f = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), new THREE.MeshBasicMaterial({ visible: false }));
+  fingerGeo ||= new THREE.SphereGeometry(1, 10, 8); fingerMat ||= new THREE.MeshBasicMaterial({ visible: false });
+  const f = new THREE.Mesh(fingerGeo, fingerMat);
   f.scale.set(r / sprite.scale.x, r / sprite.scale.y, r / sprite.scale.z);   // the sprite is stretched, the ball is not
   f.userData = { ...data, tapBall: true, touchOnly: true };
   f.raycast = function raycast(ray, hits) { if (sprite.visible) THREE.Mesh.prototype.raycast.call(this, ray, hits); };

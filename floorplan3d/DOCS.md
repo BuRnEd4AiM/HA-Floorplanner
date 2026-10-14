@@ -156,7 +156,9 @@ In the whole-house view the **Auseinander** button pulls the floors apart (tap a
 
 **Room panel (live mode):** the devices of a room by kind: lights (with *Alle aus*), covers, heating, media, switches (slide switches), cameras, sensors, scenes & scripts. On phones and tablets held upright it comes up from the bottom.
 
-The thermostats of the room have their own **heating panel** next to it (current and target temperature, modes). What else the thermostat's device brings along in Home Assistant, such as its **child lock**, window or valve detection, is shown there under the thermostat (switches as slide switches, values as text) and not among the room's switches and sensors. If the thermostat is not in this room, they stay in the room's list.
+The thermostats of the room have their own **heating panel** next to it (current and target temperature, modes). What else the thermostat's device brings along in Home Assistant, such as its **child lock**, window or valve detection, is shown there under the thermostat (switches as slide switches, values as text) and not among the room's switches and sensors. If the thermostat is not in this room, they stay in the room's list. The button **ⓘ In Home Assistant öffnen** under each thermostat opens Home Assistant's own dialog of the entity (history, settings); it shows when the add-on runs inside Home Assistant (side bar or dashboard card).
+
+**Heaters in 3D:** a radiator, towel radiator or *Heizung* linked to an entity shows only its temperature, on a **red** pill while it heats and a **blue** one while it does not (idle, off); the radiator itself turns red while it heats and a cool blue otherwise. Tap the temperature to open its card. With the value labels switched off it gets a tap ball like other devices.
 
 **View menu:** the *View ▴* button sits in the bottom bar next to Normal / Temperature / Humidity / CO₂; its menu (Auto, Halbschnitt, pull apart, walls, floors in the plan) opens upwards.
 
@@ -214,6 +216,10 @@ Rename an entity or a device in Home Assistant, in Zigbee2MQTT ("update Home Ass
 ## Devices offline
 
 The pill **✓ 0 offline** over the plan (live and edit mode) turns red (**⚠ n offline**) as soon as a placed device is **unavailable** in Home Assistant, reports an **unknown** state, or no longer exists there (e.g. deleted). Tap it to see the list with floor, room, entity and since when it is offline. Tap an entry to jump to the device. LED ring sections, TV backlights and door/window contacts are checked too. Placed lamps and smart devices that are **not linked** to an entity are listed too (furniture, garden objects and pictures are not). Only what is placed in the plan is checked.
+
+The 3D view marks them as well: a small ball with a **crossed-out lightning bolt** floats over each one (red: offline, amber: not linked), over a door or window it sits in its middle. In live mode a device with a tap ball shows the sign on its ball.
+
+**Doors and windows with a sensor** show it by their frame: **green** while shut, **red** (the whole door or window) while open, **amber** while the sensor does not report. Doors and windows without a sensor keep their own colour.
 
 ## Library, doors, windows and pictures
 

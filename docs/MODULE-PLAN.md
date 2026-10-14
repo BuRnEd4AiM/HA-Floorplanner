@@ -28,7 +28,9 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `autoplace.js` | 179 | Automatisches Platzieren der Entitäten eines Bereichs |
 | `alerts.js` | 62 | Warnungen und Nachtabdunklung (Rechenteil) |
 | `kitchen.js` | ~80 | Küchenzeile: Geometrie aus Modulen (mit Breiten), Oberschrank über einzelnen Modulen weglassen (`withUpper`, `hasUpper`, #372) |
-| `heatpanel.js` | ~110 | Heizungs-Panel (Schritt 1 von #137); die übrigen Entitäten des Thermostat-Geräts (Kindersicherung …) unter dem Thermostat statt bei den Schaltern des Raums (`splitHeatParts`, `partName`, #370) |
+| `heatpanel.js` | ~115 | Heizungs-Panel (Schritt 1 von #137); die übrigen Entitäten des Thermostat-Geräts (Kindersicherung …) unter dem Thermostat statt bei den Schaltern des Raums (`splitHeatParts`, `partName`, #370); Knopf „In Home Assistant öffnen“ je Thermostat (#374) |
+| `heating.js` | ~70 | Heizkörper in 3D (#374): welche Geräte Heizungen sind (`isHeater`), was sie gerade tun (`heatMode`), Farbe des Temperatur-Schilds (rot heizt, blau nicht, `pillTone`), roter / blauer Heizkörper (`heatLook`, `paintHeat`, auch im Hologramm); Heizungen haben keine Kugel, das Schild ist zum Antippen; reine Logik mit Unit-Tests |
+| `offlinemarks.js` | ~110 | Offline in 3D (#375): Kugel mit durchgestrichenem Blitz über allem, was die Offline-Liste nennt (rot offline, gelb ohne Entität), über dem Gerät, auf seinem Werte-Schild oder in der Mitte der Tür / des Fensters; eine Tipp-Kugel zeigt das Zeichen selbst (`tapballs.js`); Auswahl und Platz (`offlineMarks`, `markCenterY`) mit Unit-Tests |
 | `compass.js` | ~40 | Kompass (Nadel zählt über 360° weiter), mit Unit-Tests |
 | `alertsui.js` | ~75 | Warnungen: Banner, roter Raum, Sprung in den Raum (Schritt 3 von #137) |
 | `search.js` | ~70 | „Wo ist …?“-Suche mit Ring (Schritt 3) |
@@ -53,7 +55,7 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `solarroof.js` | ~80 | Solarpanels auf dem Dach (#176): Dachfläche an einer Stelle (Höhe, Neigung), Kippung des Panels, Panel-Feld (reine Rechnung, Unit-Tests) |
 | `floorpanel.js` | ~185 | Etagen-Verwaltung: Name, Art, Reihenfolge, Keller/Dach, Dach mit Gauben und weiteren Dächern |
 | `settings.js` | ~165 | Einstellungen: Formular, Laden (mit Wiederholung), Speichern (ETag), Benutzer-Dialog |
-| `openings.js` | ~110 | Türen, Tore, Fenster mit Kontakt: offen/zu, Liste „n offen", Bewegung der Flügel |
+| `openings.js` | ~130 | Türen, Tore, Fenster mit Kontakt: offen/zu, Liste „n offen", Bewegung der Flügel; zu mit Sensor: grüner Rahmen, Sensor offline: gelber Rahmen (`contactLook`, `partHex`, #375) |
 | `cutaway.js` | ~90 | Wände zur Kamera hin absenken oder durchsichtig machen |
 | `props.js` | ~260 | Eigenschaften-Panel (Wand, Raum, Block, Bodenöffnung, Tür/Fenster, Gerät, LED-Ring) |
 | `objlist.js` | ~100 | Objektliste der Etage (nach Raum gruppiert) |

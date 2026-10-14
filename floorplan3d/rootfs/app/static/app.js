@@ -88,6 +88,7 @@ import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO, ringLook } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
 import { heatMode, heatLook, paintHeat, pillTone } from './heating.js';
+import { initOfflineMarks, offlineMarks } from './offlinemarks.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
 import { initRenames } from './renames.js';
@@ -346,7 +347,7 @@ function build() {
   wake();
   plan?.render();
   clearGroup(world);
-  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
+  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
   syncDormerWindows(layout.floors, roofList, elev, uid);   // dormer windows are real windows on the floor they belong to (dormerwin.js)
   const holo = isHolo();
   const iso = isolatedRoom();
@@ -564,7 +565,7 @@ function applyStates() {
   cams.updateCones();
   cams.updatePill();
   floorCards.update();
-  offline.update();
+  const offList = offline.update(), offIds = offlineMarks(offList);   // what is offline or linked to nothing: a sign in 3D too (#375)
   alertsUi.update();
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
@@ -603,12 +604,13 @@ function applyStates() {
       }), { ghost, bv, edit: !isLive() });
       obj.visible = !obj.userData.cutHidden && !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on)      // a person who is not there is not drawn in live mode
         && !power.hides(d.id);                                  // the power editor shows nothing but the power things (#174: the next state update brought them all back)          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
-      tapBalls.update(d.id, on, rgb, isLive() && !ghost, obj.visible);   // the ball to tap in the live mode, lit while on (#238)
+      tapBalls.update(d.id, on, rgb, isLive() && !ghost, obj.visible, offIds.get(d.id)?.reason);   // the ball to tap in the live mode, lit while on (#238), the offline sign (#375)
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W', pillTone(d, states[d.entity], on)); }   // a heater's temperature: red / blue
     });
   }
   tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
+  offMarks.update(offIds, new Map(offList.map((x) => [x.id, x.floor])));   // the offline sign over what has no ball showing it (offlinemarks.js)
   buildNav();                             // room pills show a dot while somebody is in the room
   {                                       // lit rooms: light spreads from each lamp, in the lamp's colour (hologram: tints the floor itself, other themes: a glow layer on top)
     const holo = isHolo();
@@ -631,7 +633,8 @@ function applyStates() {
   markShadows();                                                   // things may have shown, hidden or moved (also after every build)
 }
 
-/* ---- Offline devices: the code lives in offline.js ---- */
+/* ---- Offline devices: the code lives in offline.js, their signs in 3D in offlinemarks.js (#375) ---- */
+const offMarks = initOfflineMarks({ registry, labelSprites, ballShown: (id) => tapBalls.shown(id), floorShown: (fi) => houseMode || fi === floorIdx });
 const offline = initOffline({
   $, t, layout: () => layout, entities: () => entities, states: () => states, catOf, pointInPoly: (...a) => pointInPoly(...a), currentLanguage: () => currentLanguage(),
   houseMode: () => houseMode, floorIdx: () => floorIdx, switchFloor: (i) => switchFloor(i), isLive: () => isLive(), liveSelect: (h) => liveSelect(h),
@@ -1122,6 +1125,7 @@ function liveMove(d) {
   if (obj?.userData.onRoof) roofsUi.placeSolar(obj, d, roofList(floorIdx));   // follows the roof while it is moved (the mount itself changes on the next build)
   const sp = labelSprites.get(d.id);
   if (sp) sp.position.set(d.x, sp.position.y, d.z);
+  offMarks.refresh();                                              // its offline sign goes along
   cams.cones.get(d.id)?.mesh.position.set(d.x, 0, d.z);          // the field of view of a camera moves with it
   refreshSelHelper();
 }
@@ -1505,7 +1509,10 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height, r: ((b.children[0]?.scale.x || 0) / 2) * px };   // r: radius in pixels (#314)
     },
     ballSize: (id) => { const s = tapBalls.ball(id)?.children[0]; return s ? +s.scale.x.toFixed(3) : null; },   // the shown size of a tap ball (m, #262)
-    ballIcon: (id) => tapBalls.icon(id),                             // the icon of a tap ball ('switch': the drawn light switch, #366)
+    ballIcon: (id) => tapBalls.icon(id),
+    ballOff: (id) => tapBalls.off(id),                               // the offline sign on a tap ball: 'offline' | 'unlinked' | null (#375)
+    offMark: (id) => (offMarks.shown(id) ? offMarks.reason(id) : null),   // the offline sign over a thing without a ball (#375)
+    openingLook: (id) => registry.get(id)?.userData.look ?? null,    // a door / window: open (red), closed (green frame), offline (amber), #375                             // the icon of a tap ball ('switch': the drawn light switch, #366)
     roomLights: (id) => {                                            // the lamps lighting a room now: reach (m) and colour (0..1), #367
       const rm = roomMeshes.get(id), U = (isHolo() ? rm?.mesh : rm?.glow)?.material.uniforms;
       return U?.uCount ? Array.from({ length: U.uCount.value }, (_, i) => ({ r: +U.uPos.value[i].w.toFixed(3), c: U.uCol.value[i].toArray().map((v) => +v.toFixed(3)) })) : null;

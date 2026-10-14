@@ -24,6 +24,9 @@ urllib.request.urlopen(HA + "/_set?e=sensor.temp&s=unavailable"); pg17.wait_for_
 off = pg17.evaluate("window.__fp.offline().filter(x => x.id.startsWith('off')).map(x => [x.id, x.reason])")
 status_open(pg17)
 check("offline: an unavailable device shows up at once (live)", ["offA", "unavailable"] in off and pg17.locator("#offlinePill").is_visible(), off)
+mk = pg17.evaluate("['offA', 'offB', 'offC', 'offD'].map(id => [window.__fp.offMark(id), window.__fp.ballOff(id)])")
+check("offline in 3D (#375): a sign over the sensor (red) and the spot linked to nothing (amber); the missing lamp shows it on its ball; not on the sofa",
+      mk == [["offline", None], [None, "offline"], ["unlinked", None], [None, None]], mk)
 status_open(pg17)
 pg17.click("#offlinePill"); pg17.wait_for_timeout(300)
 n_items = pg17.locator("#offlineList li").count()
@@ -37,7 +40,13 @@ pg17.keyboard.press("Escape"); pg17.wait_for_timeout(200)
 pg17.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
   f.walls.push({ id: 'jw', a: [20, 0], b: [24, 0], thickness: 0.2, height: 2.6, openings: [{ id: 'jwin', type: 'window', pos: 2, width: 1.2, height: 1.2, sill: 0.9, entity: 'binary_sensor.rauch', name: 'Sprungfenster' }] });
   window.__fp.rebuild(); })()""")
+pg17.wait_for_timeout(400)
+check("doors / windows (#375): a shut window with a sensor has a green frame", pg17.evaluate("window.__fp.openingLook('jwin')") == "closed", pg17.evaluate("window.__fp.openingLook('jwin')"))
+urllib.request.urlopen(HA + "/_set?e=binary_sensor.rauch&s=unavailable"); pg17.wait_for_timeout(1200)
+check("doors / windows (#375): its sensor offline: an amber frame and the offline sign on the window",
+      pg17.evaluate("window.__fp.openingLook('jwin')") == "offline" and pg17.evaluate("window.__fp.offMark('jwin')") == "offline", (pg17.evaluate("window.__fp.openingLook('jwin')"), pg17.evaluate("window.__fp.offMark('jwin')")))
 urllib.request.urlopen(HA + "/_set?e=binary_sensor.rauch&s=on"); pg17.wait_for_timeout(1200)
+check("doors / windows (#375): open it is red (no green), the sign is gone", pg17.evaluate("window.__fp.openingLook('jwin')") == "open" and pg17.evaluate("window.__fp.offMark('jwin')") is None, pg17.evaluate("window.__fp.openingLook('jwin')"))
 status_open(pg17)
 pg17.click("#openPill"); pg17.wait_for_timeout(300)
 pg17.locator("#openList li button", has_text="Sprungfenster").click(); pg17.wait_for_timeout(500)
@@ -46,6 +55,7 @@ urllib.request.urlopen(HA + "/_set?e=binary_sensor.rauch&s=off"); pg17.wait_for_
 pg17.keyboard.press("Escape"); pg17.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.walls.splice(f.walls.findIndex(w => w.id === 'jw'), 1); window.__fp.rebuild(); })()"); pg17.wait_for_timeout(3800)   # the marker ring of the jump is gone again
 urllib.request.urlopen(HA + "/_set?e=sensor.temp&s=21.5"); pg17.wait_for_timeout(1200)
 check("offline: back online, off the list", not [x for x in pg17.evaluate("window.__fp.offline()") if x["id"] == "offA"])
+check("offline in 3D (#375): back online, its sign is gone", pg17.evaluate("window.__fp.offMark('offA')") is None)
 mem = [pg17.evaluate("(() => { window.__fp.rebuild(); window.__fp.frame(); return window.__fp.renderer.info.memory.geometries; })()") for _ in range(4)]
 check("tablet: rebuilding the scene does not leak graphics memory", mem[0] == mem[-1], mem)
 check("tablet: low-power mode without blur", pg17.evaluate("window.__fp.LOW && document.body.classList.contains('low')"))
