@@ -850,6 +850,7 @@ def slim_state(st):
         "rgb": a.get("rgb_color"),
         "dc": a.get("device_class"),
         "ct": a.get("current_temperature"),
+        "bat": a.get("battery_level") if isinstance(a.get("battery_level"), (int, float)) and not isinstance(a.get("battery_level"), bool) else None,   # a vacuum ... reports its battery itself (#376)
         **_climate(st, a),
         "ch": a.get("current_humidity"),
         "app": a.get("app_name") if st["entity_id"].startswith("media_player.") else None,
@@ -1042,6 +1043,12 @@ async def get_areas(request):
         return web.json_response([])
     watch = request.app[KEY_RENAMES]
     return web.json_response(area_list(data, watch.get("side") or (), watch.get("parts") or {}))
+
+
+async def get_batteries(request):
+    """{entity id: the battery entity of its device} from Home Assistant's registries (#376): the device overview shows the battery level
+    next to each device. Empty without Home Assistant or before the registry was read."""
+    return web.json_response(request.app[KEY_RENAMES].get("battery") or {})
 
 
 async def call_service(request):
@@ -1515,7 +1522,7 @@ KEY_TIMELINE = web.AppKey("timeline", dict)     # {"rec": the running Recorder}
 
 
 # ---------- entities renamed in Home Assistant: the plans follow (renames.py) ----------
-KEY_RENAMES = web.AppKey("renames", dict)       # {"history": {old: [new, when]}, "current": set of entity ids} for put_layout, "side": set of ids get_areas leaves out, "parts": {id: its thermostat}
+KEY_RENAMES = web.AppKey("renames", dict)       # {"history": {old: [new, when]}, "current": set of entity ids} for put_layout, "side": set of ids get_areas leaves out, "parts": {id: its thermostat}, "battery": {id: the battery entity of its device}
 
 
 def apply_renames(app, ids: dict, names: dict) -> dict:
@@ -1552,7 +1559,8 @@ async def rename_watcher(app):
         def keep(state):
             app[KEY_RENAMES].update(history=state.get("history") or {}, current=set(state.get("current") or ()),
                                     side=set(state.get("side") or ()),      # kept off the area lists (#368)
-                                    parts=dict(state.get("parts") or {}))   # the entities of a thermostat's device (#370)
+                                    parts=dict(state.get("parts") or {}),   # the entities of a thermostat's device (#370)
+                                    battery=dict(state.get("battery") or {}))   # the battery entity of each entity's device (#376)
 
         def load():
             state = read_json(path, {})
@@ -1772,6 +1780,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/entities", get_entities),
         web.get("/api/live", live_ws),
         web.get("/api/areas", get_areas),
+        web.get("/api/batteries", get_batteries),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
         web.static("/", STATIC_DIR, show_index=False),

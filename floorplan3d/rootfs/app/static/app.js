@@ -15,7 +15,7 @@ import { initKiosk } from './kiosk.js';
 import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
 import { initPhoneNav } from './phonenav.js';
-import { initPhoneStatus } from './phonestatus.js';
+import { initPhoneStatus, PHONE_QUERY } from './phonestatus.js';
 import { initCameras } from './cameras.js';
 import { initFloorCards, columnZoom } from './floorcards.js';
 import { initFloorRail } from './floorrail.js';
@@ -70,7 +70,8 @@ import { toWorld, stairHandles } from './stairs.js';
 import { floorLabels, CARD_FIELDS } from './viewprefs.js';
 import { applyLocks, lockedSettings } from './userlocks.js';
 import { initTapBalls } from './tapballs.js';
-import { initLiveChannel, fetchAreas } from './livechannel.js';
+import { initLiveChannel, fetchAreas, fetchBatteries } from './livechannel.js';
+import { initDeviceList } from './devicelist.js';
 import { initTimeline } from './timelineui.js';
 import { replayEntities } from './timeline.js';
 import { initPersist } from './persist.js';
@@ -117,6 +118,8 @@ let entityChoice = '';
 let entities = [];
 let areas = [];                      // Home Assistant areas: [{id, name, entities[]}]
 let areaOf = {};                     // entity_id -> area id
+let batteryOf = {};                  // entity_id -> the battery entity of its device (#376, the device overview)
+let offReasons = new Map();          // device / opening id -> why it is offline (offline.js), for the device overview
 const fxRgb = (name) => fxRgbOf(name, settings.effectColors);            // the colour of a light effect (entitystate.js)
 let states = {};                   // entity_id -> { state, unit }
 let replayBack = null;             // security view: the mode and live states from before (timelineui.js), null while live
@@ -566,6 +569,8 @@ function applyStates() {
   cams.updatePill();
   floorCards.update();
   const offList = offline.update(), offIds = offlineMarks(offList);   // what is offline or linked to nothing: a sign in 3D too (#375)
+  offReasons = new Map(); offList.forEach((x) => { if (!offReasons.has(x.id) || offReasons.get(x.id) === 'unlinked') offReasons.set(x.id, x.reason); });
+  deviceList.update();                    // the device overview (#376): its button, and the list while it is open
   alertsUi.update();
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
@@ -633,6 +638,12 @@ function applyStates() {
   markShadows();                                                   // things may have shown, hidden or moved (also after every build)
 }
 
+/* ---- The device overview (#376): the code lives in devicelist.js ---- */
+const deviceList = initDeviceList({
+  $, t, layout: () => layout, states: () => states, batteryOf: () => batteryOf, offline: () => offReasons, onStates: ON_STATES,
+  pointInPoly: (...a) => pointInPoly(...a), distToPoly, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, ready: () => entities.length > 0,
+  show: (target) => offline.show(target), narrow: () => matchMedia(PHONE_QUERY).matches,
+});
 /* ---- Offline devices: the code lives in offline.js, their signs in 3D in offlinemarks.js (#375) ---- */
 const offMarks = initOfflineMarks({ registry, labelSprites, ballShown: (id) => tapBalls.shown(id), floorShown: (fi) => houseMode || fi === floorIdx });
 const offline = initOffline({
@@ -1301,7 +1312,7 @@ initBackups({ t, commitSettings, prepare: async () => { if (!settingsStore.loade
 initVersion({ t, active: () => !isLive() && !!settings.updateCheck });
 
 /* ================= Data loading ================= */
-async function loadAreas() { ({ areas, areaOf } = await fetchAreas()); }   // Home Assistant's areas and which entity is in which (livechannel.js)
+async function loadAreas() { let a; [a, batteryOf] = await Promise.all([fetchAreas(), fetchBatteries()]); ({ areas, areaOf } = a); }   // Home Assistant's areas and which entity is in which (livechannel.js)
 
 function toState(e) { return toStateOf(e, settings.effectColors); }       // what is kept of an entity (entitystate.js)
 

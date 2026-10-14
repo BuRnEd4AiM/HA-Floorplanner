@@ -56,6 +56,23 @@ pg17.keyboard.press("Escape"); pg17.evaluate("(() => { const f = window.__fp.lay
 urllib.request.urlopen(HA + "/_set?e=sensor.temp&s=21.5"); pg17.wait_for_timeout(1200)
 check("offline: back online, off the list", not [x for x in pg17.evaluate("window.__fp.offline()") if x["id"] == "offA"])
 check("offline in 3D (#375): back online, its sign is gone", pg17.evaluate("window.__fp.offMark('offA')") is None)
+# --- the device overview (#376): every linked device by room, with its battery (here the smoke alarm's battery sensor of the same device)
+pg17.evaluate("""(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+  f.devices.push({ id: 'dlSmoke', type: 'smoke', x: 1.5, z: 1, y: 2.5, rot: 0, scale: 1, name: 'Rauchmelder Flur', entity: 'binary_sensor.rauch' }); window.__fp.rebuild(); })()""")
+pg17.wait_for_timeout(500)
+status_open(pg17)
+check("device overview (#376): the button is there and says one battery is low", pg17.locator("#devicesPill").is_visible() and "🪫 1" in pg17.inner_text("#devicesPill"), pg17.inner_text("#devicesPill"))
+pg17.click("#devicesPill"); pg17.wait_for_timeout(400)
+row = pg17.locator("#devicePanel .dl-row[data-id=dlSmoke]")
+check("device overview (#376): the list shows the device with the battery of its Home Assistant device", pg17.locator("#devicePanel").is_visible() and row.count() == 1 and "15 %" in row.inner_text() and "🪫" in row.inner_text(),
+      row.inner_text() if row.count() else pg17.inner_text("#devicePanel")[:300])
+pg17.click("#devicePanel .dl-filters button[data-filter=battery]"); pg17.wait_for_timeout(200)
+ids = pg17.evaluate("[...document.querySelectorAll('#devicePanel .dl-row')].map(b => b.dataset.id)")
+check("device overview (#376): the battery filter lists only what has a battery", ids == ["dlSmoke"], ids)
+row.click(); pg17.wait_for_timeout(600)
+check("device overview (#376): a tap shows the device, on a phone the list closes", pg17.locator("#livePopup").is_visible() and not pg17.locator("#devicePanel").is_visible())
+pg17.keyboard.press("Escape")
+pg17.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices.splice(f.devices.findIndex(d => d.id === 'dlSmoke'), 1); window.__fp.rebuild(); })()"); pg17.wait_for_timeout(3800)   # the marker ring of the jump is gone again
 mem = [pg17.evaluate("(() => { window.__fp.rebuild(); window.__fp.frame(); return window.__fp.renderer.info.memory.geometries; })()") for _ in range(4)]
 check("tablet: rebuilding the scene does not leak graphics memory", mem[0] == mem[-1], mem)
 check("tablet: low-power mode without blur", pg17.evaluate("window.__fp.LOW && document.body.classList.contains('low')"))
