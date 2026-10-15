@@ -486,12 +486,11 @@ body.v-2d #compass { display: none; }
 }
 
 /* camera popup (#69) */
-#livePopup img.pop-cam { display: block; width: 100%; max-height: 220px; object-fit: cover; margin-top: 8px; border-radius: 10px; background: #000; }
-#livePopup img.pop-cam.tap { cursor: pointer; }
+#livePopup .pop-cam { display: block; width: 100%; max-height: 220px; object-fit: cover; margin-top: 8px; border-radius: 10px; background: #000; }
+#livePopup .pop-cam.tap { cursor: pointer; }
 #livePopup img.pop-cam.bad { opacity: .25; min-height: 80px; }
-#livePopup .camLive { position: relative; margin-top: 8px; }        /* #381: the live picture with its badge */
-#livePopup .camLive img.pop-cam { margin-top: 0; }
-#livePopup .camLive img.pop-cam:not([src]) { aspect-ratio: 16 / 9; }
+#livePopup .camLive { position: relative; margin-top: 8px; }        /* #381, #383: the live video (or still image) with its badge */
+#livePopup .camLive .pop-cam { margin-top: 0; aspect-ratio: auto 16 / 9; }
 .camLiveBadge { position: absolute; top: 8px; right: 8px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; line-height: 16px;
   color: #fff; background: rgba(0,0,0,.55); pointer-events: none; }
 .camLive[data-state="live"] .camLiveBadge::before { content: ''; display: inline-block; width: 7px; height: 7px; margin-right: 5px; border-radius: 50%;

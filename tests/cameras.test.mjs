@@ -51,10 +51,3 @@ test('groups: one per floor+room, groups with movement first', () => {
   assert.ok(g.length >= 3);
   assert.equal(g.reduce((n, x) => n + x.cams.length, 0), 4);
 });
-test('live picture (#381): connect again after a stream, still images after three without a picture or when refused', () => {
-  assert.deepEqual(C.liveNext({ status: 200, pictures: 40, fails: 2 }), { wait: 500, fails: 0 });     // it ran (ended after 10 minutes): straight on
-  assert.deepEqual(C.liveNext({ status: 502, pictures: 0, fails: 0 }), { wait: 2000, fails: 1 });
-  assert.deepEqual(C.liveNext({ status: 0, pictures: 0, fails: 1 }), { wait: 4000, fails: 2 });
-  assert.deepEqual(C.liveNext({ status: 200, pictures: 0, fails: C.LIVE_TRIES - 1 }), { still: true, fails: C.LIVE_TRIES });
-  for (const status of [403, 404, 429]) assert.equal(C.liveNext({ status, fails: 0 }).still, true);   // switched off, an old add-on, too many
-});
