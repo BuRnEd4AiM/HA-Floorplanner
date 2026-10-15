@@ -79,17 +79,37 @@ cc = pg13.evaluate("window.__fp.coneScreen('tcam')")
 pg13.click('[data-mode="live"]'); pg13.wait_for_timeout(600)
 hc = pg13.evaluate(f"window.__fp.liveHitAt({cc['x']}, {cc['y']})") if cc else None
 check("camera cone (#234): no hit box in live mode, only the camera itself", cc is not None and (hc or {}).get("id") != "tcam", (cc, hc))
-# the camera card shows the live picture (#381): Home Assistant's MJPEG stream through the add-on, cut into pictures by the page
-pg13.evaluate("window.__fp.liveTap('tcam')"); pg13.wait_for_timeout(1500)
-live_src = lambda: pg13.evaluate("document.querySelector('#livePopup .camLive img.pop-cam')?.src || ''")
-s1 = live_src(); pg13.wait_for_timeout(700); s2 = live_src()
-check("camera card (#381): the live picture runs (a new picture every few tenths of a second)",
-      pg13.locator('#livePopup .camLive[data-state="live"]').count() == 1 and s1.startswith("blob:") and s2.startswith("blob:") and s1 != s2,
-      (pg13.evaluate("document.querySelector('#livePopup .camLive')?.outerHTML || 'no live picture'"), s1, s2))
+# the camera card plays the camera live (#381, #383): Home Assistant's HLS stream (websocket camera/stream), its files through the add-on
+def live_state(want, tries=60):
+    for _ in range(tries):
+        st = pg13.evaluate("document.querySelector('#livePopup .camLive')?.dataset.state || ''")
+        if st == want: return st
+        pg13.wait_for_timeout(250)
+    return st
+pg13.evaluate("window.__fp.liveTap('tcam')")
+st = live_state("live")
+vid = "document.querySelector('#livePopup .camLive video.pop-cam')"
+check("camera card (#383): the live video plays (Home Assistant's HLS stream through the add-on)",
+      st == "live" and pg13.evaluate(f"{vid}?.currentTime || 0") > 0, (st, pg13.evaluate("document.querySelector('#livePopup .camLive')?.outerHTML || 'no live picture'")))
+seen = json.loads(urllib.request.urlopen(HA + "/_hls").read())
+check("camera card (#383): playlists, init and segments came through the add-on", all(f in seen for f in ("master_playlist.m3u8", "playlist.m3u8", "init.mp4", "segment/0.m4s")), seen)
 check("camera card (#381): the badge says LIVE", "LIVE" in pg13.inner_text("#livePopup .camLiveBadge"))
-pg13.keyboard.press("Escape"); pg13.wait_for_timeout(1500)
-s3 = live_src(); pg13.wait_for_timeout(700)
-check("camera card (#381): the stream stops when the card is closed", s3 == live_src(), (s3, live_src()))
+pg13.evaluate(f"{vid}.__keep = 1")
+urllib.request.urlopen(HA + "/_set?e=binary_sensor.rauch&s=on"); pg13.wait_for_timeout(1500)
+check("camera card (#383): drawn anew (motion), it keeps its running video",
+      "Motion detected" in pg13.inner_text("#livePopup") and pg13.evaluate(f"!!{vid}?.__keep && !{vid}.paused"), pg13.inner_text("#livePopup"))
+urllib.request.urlopen(HA + "/_set?e=binary_sensor.rauch&s=off"); pg13.wait_for_timeout(600)
+pg13.keyboard.press("Escape"); pg13.wait_for_timeout(1800)
+check("camera card (#383): the stream stops when the card is closed", pg13.evaluate(f"{vid} ? !{vid}.getAttribute('src') : true"),
+      pg13.evaluate(f"{vid}?.getAttribute('src')"))
+pg13.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()], c = f.devices.find(d => d.id === 'tcam');
+  f.devices.push({...c, id: 'tcam2', x: c.x + 0.4, entity: 'camera.garten', motionEntity: ''}); window.__fp.rebuild(); }""")
+pg13.wait_for_timeout(400)
+pg13.evaluate("window.__fp.liveTap('tcam2')")
+check("camera card (#383): a camera without a stream shows still images", live_state("still", 40) == "still" and pg13.locator("#livePopup .camLive img.pop-cam").count() == 1,
+      pg13.evaluate("document.querySelector('#livePopup .camLive')?.outerHTML || 'no picture'"))
+pg13.keyboard.press("Escape")
+pg13.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices = f.devices.filter(d => d.id !== 'tcam2'); window.__fp.rebuild(); }")
 pg13.click('[data-mode="edit"]'); pg13.wait_for_timeout(600)
 pg13.evaluate("() => { window.__fp.layout.floors[window.__fp.floorIdx()].devices.find(d => d.id === 'tcam').fov = 0; window.__fp.rebuild(); }"); pg13.wait_for_timeout(300)
 check("field of view 0 means no cone", pg13.evaluate("window.__fp.coneScreen('tcam')") is None)

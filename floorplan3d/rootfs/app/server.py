@@ -1150,44 +1150,62 @@ async def get_camera(request):
     return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
 
 
-CAMERA_LIVE_SECONDS = 600      # a live picture ends after 10 minutes; the page starts a new one while the camera is still on the screen
-CAMERA_LIVE_IDLE = 20          # ... and when the camera sends nothing for 20 seconds
-MAX_CAMERA_LIVE = 4            # live pictures at the same time (each one keeps a stream from the camera running in Home Assistant)
-KEY_CAMERA_LIVE = web.AppKey("camera_live", list)
+HLS_TOKEN = re.compile(r"^[a-f0-9]{16,128}$")
+HLS_FILE = re.compile(r"^(?:master_playlist\.m3u8|playlist\.m3u8|init\.mp4|segment/\d{1,12}(?:\.\d{1,6})?\.m4s)$")
+HLS_QUERY = ("_HLS_msn", "_HLS_part")              # the blocking playlist reload of low latency HLS
+HLS_TYPES = ("application/vnd.apple.mpegurl", "video/mp4", "video/iso.segment")
+MAX_HLS_BYTES = 32 * 1024 * 1024
 
 
-async def get_camera_live(request):
-    """Live picture of one camera (#381): Home Assistant's MJPEG stream (camera_proxy_stream) passed through unchanged. The ingress
-    proxies of Home Assistant drop the boundary of multipart/x-mixed-replace and would compress it, so it goes out as
-    application/octet-stream (neither cut nor compressed) and the page finds the pictures itself (static/mjpeg.js)."""
+async def get_camera_hls(request):
+    """Live picture of one camera (#381, #383): asks Home Assistant for its own HLS stream of the camera (websocket camera/stream, the
+    stream its live view plays) and answers the address of the playlist under this add-on (api/hls/...). Home Assistant runs one such
+    stream per camera for every viewer. An MJPEG stream (camera_proxy_stream) cannot be used: the Supervisor passes an answer from
+    Home Assistant on only when it is complete, and that stream never ends. 404: the camera has no stream (the page shows still images)."""
     entity = request.match_info["entity"]
     if (refused := camera_refused(request, entity)) is not None:
         return refused
-    open_now = request.app[KEY_CAMERA_LIVE]
-    if open_now[0] >= MAX_CAMERA_LIVE:
-        return web.json_response({"error": "too many live pictures"}, status=429)
-    open_now[0] += 1
-    out = None
     try:
-        timeout = aiohttp.ClientTimeout(total=None, connect=10, sock_read=CAMERA_LIVE_IDLE)
-        async with aiohttp.ClientSession(timeout=timeout) as s:
-            async with s.get(f"{HA_API}/camera_proxy_stream/{entity}", headers=ha_headers()) as r:
-                if r.status != 200:
-                    return web.json_response({"error": f"HA answered {r.status}"}, status=502)
-                out = web.StreamResponse(headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "X-Accel-Buffering": "no"})
-                out.content_type = "application/octet-stream"
-                await out.prepare(request)
-                end = time.monotonic() + CAMERA_LIVE_SECONDS
-                async for piece in r.content.iter_any():
-                    await out.write(piece)
-                    if time.monotonic() > end:
-                        break
-    except (aiohttp.ClientError, asyncio.TimeoutError, ConnectionError):
-        if out is None:
-            return web.json_response({"error": "camera not reachable"}, status=502)
-    finally:
-        open_now[0] -= 1
-    return out
+        async with _HaSocket() as ws:
+            await ws.send_json({"id": 1, "type": "camera/stream", "entity_id": entity, "format": "hls"})
+            while True:
+                res = await asyncio.wait_for(ws.receive_json(), 30)       # Home Assistant may need a while to open the camera's stream
+                if res.get("id") == 1:
+                    break
+    except Exception as err:  # noqa: BLE001 - no websocket, no answer: no live picture
+        log.warning("Camera %s: no HLS stream from Home Assistant (%s)", entity, err)
+        return web.json_response({"error": "Home Assistant not reachable"}, status=502)
+    m = re.match(r"^/api/hls/([a-f0-9]+)/master_playlist\.m3u8$", str((res.get("result") or {}).get("url") or "")) if res.get("success") else None
+    if not m or not HLS_TOKEN.match(m.group(1)):
+        log.info("Camera %s has no HLS stream: %s", entity, (res.get("error") or {}).get("message") or res.get("result"))
+        return web.json_response({"error": "the camera has no stream"}, status=404)
+    return web.json_response({"url": f"api/hls/{m.group(1)}/master_playlist.m3u8"}, headers={"Cache-Control": "no-store"})
+
+
+async def get_hls(request):
+    """One file of a camera's HLS stream (playlist, init, segment), passed through from Home Assistant. Each one is a complete answer,
+    so it also comes through the Supervisor. Only Home Assistant's own HLS file names; the token comes from get_camera_hls."""
+    token, name = request.match_info["token"], request.match_info["name"]
+    if not HLS_TOKEN.match(token) or not HLS_FILE.match(name):
+        return web.json_response({"error": "not an HLS file"}, status=400)
+    if not validate_settings(read_settings(request))["cameraImages"] or "cameras" in user_locks(request):
+        return web.json_response({"error": "camera images are switched off or locked"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no supervisor token"}, status=503)
+    query = {k: v for k, v in request.query.items() if k in HLS_QUERY and v.isdigit()}
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as s:
+            async with s.get(f"{HA_API}/hls/{token}/{name}", headers=ha_headers(), params=query) as r:
+                ctype = (r.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+                body = await r.content.read(MAX_HLS_BYTES + 1)
+                status = r.status
+    except (aiohttp.ClientError, asyncio.TimeoutError):
+        return web.json_response({"error": "camera not reachable"}, status=502)
+    if status != 200:
+        return web.Response(status=status if status in (404, 416) else 502)       # 404 / 416: a part that is not there yet
+    if ctype not in HLS_TYPES or len(body) > MAX_HLS_BYTES:
+        return web.json_response({"error": "unexpected answer"}, status=502)
+    return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
 
 
 async def index(request):
@@ -1782,7 +1800,6 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app[KEY_CONFIG] = Path(config_path or os.environ.get("CONFIG_DIR") or ("/config" if Path("/config").is_dir() else app[KEY_DATA] / "addon_config"))
     app[KEY_LIVE] = LiveHub()
     app[KEY_TIMELINE] = {}
-    app[KEY_CAMERA_LIVE] = [0]       # live pictures open now
     app.on_startup.append(seed_users_file)
     app.on_response_prepare.append(no_stale_files)
     app.on_cleanup.append(stop_live)
@@ -1831,7 +1848,8 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/batteries", get_batteries),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
-        web.get("/api/camera/{entity}/live", get_camera_live),
+        web.get("/api/camera/{entity}/hls", get_camera_hls),
+        web.get("/api/hls/{token}/{name:.+}", get_hls),
         web.static("/", STATIC_DIR, show_index=False),
     ])
     sub = web.Application(client_max_size=MAX_BACKUP_BYTES)   # the restore upload may be far larger than any other request

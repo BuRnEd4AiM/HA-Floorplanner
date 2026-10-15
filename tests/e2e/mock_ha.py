@@ -71,6 +71,11 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
     await ws.send_json({"type": "auth_ok"})
     async for msg in ws:
         m = json.loads(msg.data)
+        if m.get("type") == "camera/stream":
+            ok = m.get("entity_id") == "camera.flur"
+            await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": {"url": f"/api/hls/{HLS_TOKEN}/master_playlist.m3u8"} if ok else None,
+                                "error": None if ok else {"code": "start_stream_failed", "message": "no stream"}})
+            continue
         if m.get("type") == "subscribe_events":
             (SUBS if m.get("event_type", "state_changed") == "state_changed" else REG_SUBS).append((ws, m["id"]))
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": None})
@@ -86,24 +91,32 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
     return ws
 PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000" "1f15c4890000000d49444154789c6360f8ffff3f0005fe02fea75a3c260000000049454e44ae426082")
 async def camera_proxy(r): return web.Response(body=PNG, content_type="image/png")
-async def camera_proxy_stream(r):
-    """Home Assistant's MJPEG stream (#381): a picture every 0.2 s, as long as somebody watches (at most a minute)"""
-    import asyncio
-    res = web.StreamResponse()
-    res.headers["Content-Type"] = "multipart/x-mixed-replace;boundary=frameboundary"
-    await res.prepare(r)
-    try:
-        for _ in range(300):
-            await res.write(b"--frameboundary\r\nContent-Type: image/png\r\nContent-Length: %d\r\n\r\n" % len(PNG) + PNG + b"\r\n")
-            await asyncio.sleep(0.2)
-    except (ConnectionError, asyncio.CancelledError):
-        pass
-    return res
+# Home Assistant's HLS stream of camera.flur (#383): websocket camera/stream gives the address, then playlists, init and segments.
+# A tiny VP9 test video (tests/e2e/hls, 3 x 1 s, made with ffmpeg) as a finished playlist: the page plays it, it ends, the page starts again.
+HLS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hls")
+HLS_TOKEN = "0123456789abcdef0123456789abcdef"
+HLS_SEEN = []      # the HLS files asked for (through the add-on)
+def hls_file(name): return open(os.path.join(HLS_DIR, name), "rb").read()
+async def hls(r):
+    if r.match_info["token"] != HLS_TOKEN: return web.Response(status=404)
+    name = r.match_info["name"]; HLS_SEEN.append(name)
+    if name == "master_playlist.m3u8":
+        return web.Response(text='#EXTM3U\n#EXT-X-STREAM-INF:BANDWIDTH=60000,CODECS="vp09.00.10.08"\nplaylist.m3u8\n', content_type="application/vnd.apple.mpegurl")
+    if name == "playlist.m3u8":
+        segs = "".join(f"#EXTINF:1.000,\n./segment/{i}.m4s\n" for i in range(3))
+        return web.Response(text=f'#EXTM3U\n#EXT-X-VERSION:7\n#EXT-X-TARGETDURATION:1\n#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-MAP:URI="init.mp4"\n{segs}#EXT-X-ENDLIST\n',
+                            content_type="application/vnd.apple.mpegurl")
+    if name == "init.mp4": return web.Response(body=hls_file("init.mp4"), content_type="video/mp4")
+    if name.startswith("segment/") and name[8:-4].isdigit() and int(name[8:-4]) < 3:
+        return web.Response(body=hls_file(f"seg{int(name[8:-4])}.m4s"), content_type="video/iso.segment")
+    return web.Response(status=404)
+async def hls_seen(r): return web.json_response(HLS_SEEN)
 async def calls(r): return web.json_response(CALLS)
 async def call_data(r): return web.json_response(CALL_DATA)
 async def template(r):
     return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
 app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename),
-                web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy), web.get("/camera_proxy_stream/{e}", camera_proxy_stream)])
+                web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
+                web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

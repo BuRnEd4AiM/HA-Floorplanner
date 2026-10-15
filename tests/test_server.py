@@ -239,39 +239,51 @@ async def test_camera_image_is_checked_before_anything_is_asked(client, monkeypa
     assert (await client.get("/api/camera/camera.flur")).status == 503           # no Home Assistant behind it
     await client.put("/api/settings", json={"cameraImages": False})
     assert (await client.get("/api/camera/camera.flur")).status == 403           # switched off in the settings
-    assert (await client.get("/api/camera/camera.flur/live")).status == 403      # the live picture too (#381)
-    assert (await client.get("/api/camera/light.kueche/live")).status == 400
+    assert (await client.get("/api/camera/camera.flur/hls")).status == 403       # the live picture too (#381, #383)
+    assert (await client.get("/api/camera/light.kueche/hls")).status == 400
+    assert (await client.get("/api/hls/0123456789abcdef/playlist.m3u8")).status == 403
 
 
-async def test_camera_live_passes_the_stream_through(client, monkeypatch, aiohttp_server):
-    """#381: Home Assistant's MJPEG stream goes out unchanged as application/octet-stream (the ingress would drop its boundary)"""
+async def test_camera_hls_asks_home_assistant_and_passes_its_files_through(client, monkeypatch, aiohttp_server):
+    """#383: the live picture is Home Assistant's HLS stream (websocket camera/stream); its files are complete answers, which the
+    Supervisor passes on (an endless MJPEG stream it never did)"""
     from aiohttp import web
-    parts = [b"--frameboundary\r\nContent-Type: image/jpeg\r\nContent-Length: 4\r\n\r\n\xff\xd8\xff\xd9\r\n"] * 3
-    asked = []
+    token, asked = "ab" * 16, []
 
-    async def stream(request):
-        asked.append((request.match_info["e"], request.headers.get("Authorization")))
-        if request.match_info["e"] == "camera.gone":
-            return web.json_response({}, status=404)
-        r = web.StreamResponse()
-        r.content_type = "multipart/x-mixed-replace"
-        await r.prepare(request)
-        for p in parts:
-            await r.write(p)
-        return r
-    fake = web.Application(); fake.router.add_get("/camera_proxy_stream/{e}", stream)
+    async def ws(request):
+        w = web.WebSocketResponse(); await w.prepare(request)
+        await w.send_json({"type": "auth_required"}); await w.receive_json(); await w.send_json({"type": "auth_ok"})
+        m = await w.receive_json()
+        ok = m["type"] == "camera/stream" and m["entity_id"] == "camera.flur" and m["format"] == "hls"
+        await w.send_json({"id": m["id"], "type": "result", "success": ok, "result": {"url": f"/api/hls/{token}/master_playlist.m3u8"} if ok else None,
+                           "error": None if ok else {"code": "start_stream_failed", "message": "no stream"}})
+        await w.close()
+        return w
+
+    async def hls(request):
+        asked.append((request.match_info["name"], dict(request.query), request.headers.get("Authorization")))
+        if request.match_info["name"] == "init.mp4":
+            return web.Response(body=b"\x00\x00\x00\x18ftyp", content_type="video/mp4")
+        if request.match_info["name"] == "segment/9.0.m4s":
+            return web.Response(status=404)
+        return web.Response(text="#EXTM3U\n", content_type="application/vnd.apple.mpegurl")
+    fake = web.Application(); fake.router.add_get("/websocket", ws); fake.router.add_get("/hls/{token}/{name:.+}", hls)
     srv = await aiohttp_server(fake)
     monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
-    r = await client.get("/api/camera/camera.flur/live")
-    assert r.status == 200 and r.headers["Content-Type"] == "application/octet-stream" and r.headers["Cache-Control"] == "no-store"
-    assert await r.read() == b"".join(parts)
-    assert asked == [("camera.flur", "Bearer t")]
-    assert client.app[server.KEY_CAMERA_LIVE] == [0]                              # counted down again
-    assert (await client.get("/api/camera/camera.gone/live")).status == 502
-    client.app[server.KEY_CAMERA_LIVE][0] = server.MAX_CAMERA_LIVE
-    assert (await client.get("/api/camera/camera.flur/live")).status == 429      # too many at the same time: the page shows still images
-    client.app[server.KEY_CAMERA_LIVE][0] = 0
+    r = await client.get("/api/camera/camera.flur/hls")
+    assert r.status == 200 and await r.json() == {"url": f"api/hls/{token}/master_playlist.m3u8"}
+    assert (await client.get("/api/camera/camera.garten/hls")).status == 404      # no stream: the page shows still images
+    r = await client.get(f"/api/hls/{token}/playlist.m3u8?_HLS_msn=12&_HLS_part=3&evil=1")
+    assert r.status == 200 and r.headers["Content-Type"].startswith("application/vnd.apple.mpegurl") and await r.text() == "#EXTM3U\n"
+    assert asked[-1] == ("playlist.m3u8", {"_HLS_msn": "12", "_HLS_part": "3"}, "Bearer t")       # only the low latency reload is passed on
+    r = await client.get(f"/api/hls/{token}/init.mp4")
+    assert r.status == 200 and r.headers["Content-Type"] == "video/mp4" and r.headers["Cache-Control"] == "no-store"
+    assert (await client.get(f"/api/hls/{token}/segment/9.0.m4s")).status == 404  # a part that is not there yet
+    n = len(asked)
+    for bad in (f"/api/hls/{token}/../states", f"/api/hls/{token}/states", "/api/hls/XYZ/playlist.m3u8", f"/api/hls/{token}/segment/1.m4s.x"):
+        assert (await client.get(bad)).status in (400, 404), bad
+    assert len(asked) == n                                                          # nothing else is asked from Home Assistant
 
 
 async def test_editors_permissions(client, monkeypatch, tmp_path):
