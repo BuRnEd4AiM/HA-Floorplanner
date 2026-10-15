@@ -838,3 +838,33 @@ async def test_interface_files_are_always_revalidated(client):
         assert r.status == 200 and r.headers.get("Cache-Control") == "no-cache", path
     assert "bootguard.js" in await (await client.get("/")).text()
     assert (await client.get("/api/settings")).headers.get("Cache-Control") is None     # the API keeps its own headers
+
+
+async def test_camera_pictures_and_hls_files_are_read_to_their_end(client, monkeypatch, aiohttp_server):
+    """A still image or a video piece comes from Home Assistant in several pieces (through the Supervisor). The whole answer must be
+    passed on, not only what had arrived at the first look: a cut JPEG shows black, a cut video piece never plays."""
+    import asyncio
+    from aiohttp import web
+    pic = b"\xff\xd8" + bytes(range(256)) * 1200 + b"\xff\xd9"            # about 300 KB
+
+    async def slowly(request, ctype):
+        r = web.StreamResponse()
+        r.content_type = ctype
+        await r.prepare(request)
+        for i in range(0, len(pic), 40000):
+            await r.write(pic[i:i + 40000])
+            await asyncio.sleep(0.02)
+        return r
+
+    async def proxy(request): return await slowly(request, "image/jpeg")
+    async def hls(request): return await slowly(request, "video/iso.segment")
+    fake = web.Application(); fake.router.add_get("/camera_proxy/{e}", proxy); fake.router.add_get("/hls/{token}/{name:.+}", hls)
+    srv = await aiohttp_server(fake)
+    monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    r = await client.get("/api/camera/camera.flur")
+    assert r.status == 200 and await r.read() == pic
+    r = await client.get(f"/api/hls/{'ab' * 16}/segment/3.1.m4s")
+    assert r.status == 200 and await r.read() == pic
+    monkeypatch.setattr(server, "MAX_CAMERA_BYTES", 100000)
+    assert (await client.get("/api/camera/camera.flur")).status == 502              # too big: refused, not cut

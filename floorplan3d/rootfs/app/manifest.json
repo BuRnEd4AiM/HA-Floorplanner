@@ -1,6 +1,6 @@
 {
- "version": "3.83.1",
- "buildHash": "3364a56225dd3eda2a1814d16e8adb077f1d1c209da267fc6b0ebffb8cd808cb",
+ "version": "3.83.2",
+ "buildHash": "f56ae15eceb6719cfb1eb0602d6b9f25dbdca3f6db944f285339a50e992136a0",
  "files": {
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
@@ -130,7 +130,7 @@
   "manifest.py": "a1ffaefe4047ba87036bdc63183149f9cedebddfd31bda1746f89631580291da",
   "property.schema.json": "f66ca5d163fbf6ad87ce2c83626a10b12e1ef737951faa1bceef0030bcf630d9",
   "renames.py": "342f85f2ac5a8bd785fbf7f365afec38f61bef76647ae629a02dc53f4db4d777",
-  "server.py": "0377ca30cecf4b5491deb56996eb0e79f54309b3d908e761bcfa4aa8de829d52",
+  "server.py": "267e26507b8f95ec442efd469cc5cb24dde1d2887261a9600ec4d448424ebfc7",
   "static/alerts.js": "c97e12cd645bf121cc961bcb83243000027e37ec7cb1a1d0d0d733f82aa0e224",
   "static/alertsui.js": "3a541620793f7a69607719e4b2b337440d6e3d9f6876a765573fd3d02207262a",
   "static/app.js": "6bd036d6421b862f81208708e0f62ee25d4bf63cfffed4d70bff8e541c6dec5b",
