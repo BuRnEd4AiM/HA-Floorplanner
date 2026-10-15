@@ -1,4 +1,5 @@
-"""Tool bar, placing and the side menus: customisable tool bar, splitting walls, placed devices stay selected, backups (#321), start view (#315), the version pill.
+"""Tool bar, placing and the side menus: customisable tool bar, splitting walls, placed devices stay selected, backups (#321), start view (#315), the version pill,
+the furniture in Scandinavian style (library search, new groups, finish).
 """
 # --- customisable tool bar: dormer button, folded "More" menu, hide / order stored per browser
 pgT = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
@@ -125,3 +126,30 @@ check("version: no secure context, no 'not possible' hint, browser files match",
 pgV3.keyboard.press("Escape"); pgV3.wait_for_timeout(200)
 check("version: a newer version on GitHub turns the pill blue", "ver-new" in (pgV3.get_attribute("#versionPill", "class") or "") and "99.0.0" in pgV3.inner_text("#versionPill"), pgV3.inner_text("#versionPill"))
 pgV3.close()
+# --- furniture in Scandinavian style (scandi.js): the library finds it by the shop's names, two new groups, a placed piece takes its finish
+pgN = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+pgN.goto(BASE + "?debug=1&mode=edit"); pgN.wait_for_timeout(1500)
+pgN.click("button[data-tool=device]"); pgN.wait_for_timeout(400)
+pgN.fill("#paletteSearch", "kallax"); pgN.wait_for_timeout(200)
+check("Scandinavian furniture: the library finds the 4 cube shelves by 'kallax', with previews", pgN.locator("#paletteGrid button.dev").count() == 4 and pgN.locator("#paletteGrid button.dev img").count() == 4, pgN.locator("#paletteGrid button.dev").count())
+pgN.fill("#paletteSearch", "malm"); pgN.wait_for_timeout(200)
+check("Scandinavian furniture: 'malm' finds the bed, the 2 chests and the bedside table", pgN.locator("#paletteGrid button.dev").count() == 4, pgN.locator("#paletteGrid button.dev").count())
+pgN.fill("#paletteSearch", ""); pgN.wait_for_timeout(200)
+pgN.locator("#paletteCats button", has_text="Kids").click(); pgN.wait_for_timeout(200)
+check("Scandinavian furniture: the new group Kids", pgN.locator("#paletteGrid button.dev").count() == 5 and "Plush shark" in pgN.inner_text("#paletteGrid"), pgN.inner_text("#paletteGrid"))
+pgN.locator("#paletteCats button", has_text="Entrance").click(); pgN.wait_for_timeout(200)
+check("Scandinavian furniture: the new group Entrance", pgN.locator("#paletteGrid button.dev").count() == 4, pgN.locator("#paletteGrid button.dev").count())
+pgN.click("button[data-tool=select]"); pgN.wait_for_timeout(200)
+pgN.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+  f.devices.push({id: 'skCube', type: 'shelf_cube2x4', x: 60, z: 60, y: 0, rot: 0, scale: 1, name: 'Regal', entity: ''}); window.__fp.rebuild(); window.__fp.select('device', 'skCube'); }""")
+pgN.wait_for_timeout(400)
+fin = "() => { let f = null; window.__fp.scene.traverse((o) => { if (o.userData.kind === 'device' && o.userData.id === 'skCube') f = o.userData.finish; }); return f; }"
+check("Scandinavian furniture: a placed cube shelf is built, white by default", pgN.evaluate(fin) == "white", pgN.evaluate(fin))
+check("Scandinavian furniture: the side panel offers its finishes", pgN.locator("#devFinish option").count() == 5 and pgN.input_value("#devFinish") == "white", pgN.locator("#devFinish option").all_inner_texts())
+pgN.select_option("#devFinish", "oak"); pgN.wait_for_timeout(400)
+dev = "() => window.__fp.layout.floors[window.__fp.floorIdx()].devices.find((v) => v.id === 'skCube').finish"
+check("Scandinavian furniture: choosing oak stores it and rebuilds the shelf in oak", pgN.evaluate(dev) == "oak" and pgN.evaluate(fin) == "oak", (pgN.evaluate(dev), pgN.evaluate(fin)))
+pgN.select_option("#devFinish", "white"); pgN.wait_for_timeout(400)
+check("Scandinavian furniture: back to the default finish removes it from the piece", pgN.evaluate(dev) is None and pgN.evaluate(fin) == "white", pgN.evaluate(dev))
+pgN.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices = f.devices.filter((v) => v.id !== 'skCube'); window.__fp.rebuild(); }")
+pgN.close()

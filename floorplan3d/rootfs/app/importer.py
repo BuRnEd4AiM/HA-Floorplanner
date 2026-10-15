@@ -1,6 +1,6 @@
 """Property JSON  ->  3D Floorplan layout (and back).
 
-Pure functions, no I/O besides reading models.js once for the list of device types.
+Pure functions, no I/O besides reading models.js and scandi.js once for the list of device types.
 The format is documented in docs/IMPORT.md and described by property.schema.json.
 
     build_layout(data)      -> (layout, report)      data = property JSON (dict)
@@ -60,13 +60,17 @@ KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall",
 
 
 def _load_device_types() -> dict:
-    """type -> default height, read from the frontend's models.js so the two never drift apart."""
+    """type -> default height, read from the frontend's models.js (and scandi.js, the furniture in Scandinavian style) so they never drift apart."""
     types = {}
+    static = Path(__file__).parent / "static"
     try:
-        text = (Path(__file__).parent / "static" / "models.js").read_text(encoding="utf-8")
+        text = (static / "models.js").read_text(encoding="utf-8")
         for m in re.finditer(r"^\s+(\w+):\s*\{\s*label:\s*'[^']*',\s*y:\s*([\d.]+)(,\s*hidden:\s*true)?\s*\}", text, re.M):
             if not m.group(3):
                 types[m.group(1)] = float(m.group(2))
+        for m in re.finditer(r"^  (\w+): \{ cat: '\w+',(.*)$", (static / "scandi.js").read_text(encoding="utf-8"), re.M):
+            y = re.search(r"\by: ([\d.]+),", m.group(2))
+            types[m.group(1)] = float(y.group(1)) if y else 0.0
     except OSError:
         pass
     return types
@@ -286,6 +290,8 @@ def _device(rep: Report, path: str, spec, ids):
             d[k] = True
     if isinstance(spec.get("lightColor"), str) and re.fullmatch(r"#[0-9a-fA-F]{6}", spec["lightColor"]):
         d["lightColor"] = spec["lightColor"].lower()   # the colour of a lamp that reports none, e.g. one on a relay (#367)
+    if isinstance(spec.get("finish"), str) and re.fullmatch(r"[a-z]{2,20}", spec["finish"]):
+        d["finish"] = spec["finish"]                   # the finish of a piece in Scandinavian style (oak, white ...; scandi.js knows which)
     if typ == "nanoleaf" and isinstance(spec.get("panels"), list):
         panels = []
         for p in spec["panels"][:300]:
@@ -903,7 +909,7 @@ def layout_to_property(layout, name="Haus"):
             item["walls"].append(ow)
         item["devices"] = []
         for d in f.get("devices", []):
-            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
+            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
             cs = cables_of(d)
             if cs or d["id"] in feeding:
                 od["id"] = d["id"]

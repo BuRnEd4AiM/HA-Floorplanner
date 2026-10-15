@@ -61,6 +61,9 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 **Neu in 3.82** (ausführlich in Abschnitt **50** unten)
 23. **Strom-Rechnung: welcher Sensor ist was** (50.1 bis 50.8, #378, #379): Bearbeiten, **„Strom-Editor“** drücken, dann daneben **„⚡ Rechnung“**. Oben steht die Rechnung mit den Werten von jetzt. In der Demo: Erzeugung 3,20 kW, + Bezug 450 W, − Batterie lädt 600 W, **= Hausverbrauch 3,05 kW** (vorher stand oben links fälschlich 3,65 kW, weil die Batterie fehlte). Darunter Netz, Erzeugung, Batterie, Hausverbrauch und Räume einstellen und sehen, wie sich die Rechnung und die Strom-Anzeige oben links ändern.
 
+**Neu in 3.84** (ausführlich in Abschnitt **51** unten)
+24. **Über 50 neue Möbel im Stil der bekannten skandinavischen Klassiker** (51.1 bis 51.8): Bearbeiten, Werkzeug **„Gerät“**, links in der Bibliothek blättern (neue Gruppen **„Kinder“** und **„Flur“**) oder im Suchfeld z. B. **„kallax“**, **„billy“**, **„poäng“** oder **„blåhaj“** eingeben. Ein Teil setzen, anklicken und rechts bei **„Ausführung“** z. B. Eiche oder Schwarzbraun wählen.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -177,7 +180,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 0 | 0 | 5 | 0 | 48.1 bis 48.5 |
 | 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 0 | 0 | 4 | 0 | 49.1 bis 49.4 |
 | 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 0 | 0 | 8 | 0 | 50.1 bis 50.8 |
-| **Zusammen** | **199** | **2** | **130** | **2** | |
+| 51. Neu in 3.84: Möbel im skandinavischen Stil | 0 | 0 | 8 | 0 | 51.1 bis 51.8 |
+| **Zusammen** | **199** | **2** | **138** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -751,7 +755,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 48.1 | Bearbeiten, „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Prüfen“ | Grün: 4 Etagen, 19 Räume, 61 Wände, 39 Türen/Fenster, 145 Geräte; keine Fehler und keine Hinweise (#353) | ❓ |
+| 48.1 | Bearbeiten, „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Prüfen“ | Grün: 4 Etagen, 19 Räume, 61 Wände, 39 Türen/Fenster, 200 Geräte (seit 3.84 mit den Möbeln im skandinavischen Stil); keine Fehler und keine Hinweise (#353) | ❓ |
 | 48.2 | „Importieren“, dann „Ganzes Haus“ | Ein neues Haus „Musterhaus – alles drin“: Keller in der Erde, Erdgeschoss mit Garage, Obergeschoss mit Dachterrasse (Geländer, keine Wände), Satteldach mit drei Gauben und Solaranlage, Gartenhaus mit Walmdach, Pool mit Brücke, Einfahrt mit Auto | ❓ |
 | 48.3 | Die Etagen einzeln öffnen und die Treppen suchen | U-Treppe vom Keller bis ins Obergeschoss, L-Treppe von der Werkstatt in die Garage, Wandtreppe vom Wohnzimmer zur Galerie, Wendeltreppe außen an der Garage zur Dachterrasse, Bodentreppe im Kinderzimmer | ❓ |
 | 48.4 | Etage „Dach“: die Solaranlage anklicken; dann „Dieses Haus als JSON exportieren“ und die Datei wieder importieren | Die Solaranlage liegt auf der Dachfläche; im wieder importierten Haus ist sie noch da (vorher ging sie verloren) | ❓ |
@@ -776,3 +780,15 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 50.6 | Bei „Batterie“ den Haken „Batterie im Hausverbrauch mitrechnen“ wegnehmen, dann wieder setzen | Weg: oben „Batterie (nicht mitgerechnet)“, der Verbrauch ist ohne Batterie; wieder gesetzt: wie vorher | ❓ |
 | 50.7 | Bei „Räume“ „Vorschlagen“ drücken oder bei einem Raum „+ Sensor hinzufügen …“ (z. B. „Wohnzimmer Leistung“) | Der Raum zeigt den Sensor mit seinem Wert; oben „↳ Raumname“ und „Rest (keinem Raum zugeordnet)“; × nimmt ihn wieder heraus | ❓ |
 | 50.8 | Fenster schließen, „Live“, mit der Maus auf die Strom-Anzeige oben links zeigen | Die Anzeige rechnet mit den Einstellungen aus dem Fenster; der Hinweis nennt die Räume und den Rest | ❓ |
+
+## 51. Neu in 3.84: Möbel im skandinavischen Stil
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 51.1 | Bearbeiten, Werkzeug „Gerät“, links die Bibliothek ansehen | Neue Gruppen „Kinder“ und „Flur“; in „Wohnen“, „Küche“, „Bad“, „Schlafen“, „Büro“, „Licht“ und „Deko“ viele neue Teile mit Vorschaubild (Würfelregale, Bücherregale, Sofas, Sessel, Kommoden, Schränke, Schreibtische, Lampen …) | ❓ |
+| 51.2 | Im Suchfeld „kallax“ eingeben, dann „billy“, „malm“, „pax“, „poäng“ | „kallax“: die 4 Würfelregale; „billy“: die 2 hohen Bücherregale; „malm“: Bett mit hohem Kopfteil, 2 Kommoden, Nachttisch; „pax“: die 2 Kleiderschränke; „poäng“: der Schwingsessel | ❓ |
+| 51.3 | Ein Würfelregal 2×4 in einen Raum setzen, im 2D-Plan nachsehen | In 3D ein weißes Regal mit 8 Fächern (Boxen, Bücher, eine Tür); im 2D-Plan ist das Rechteck so groß wie das Regal (77 × 39 cm) | ❓ |
+| 51.4 | Das Regal anklicken, rechts bei „Ausführung“ „Eiche“ wählen, dann „Schwarzbraun“; Strg+Z | Das Regal wird sofort eichenfarben, dann schwarzbraun; Strg+Z holt die vorige Ausführung zurück. Nach dem Neuladen ist die gewählte Ausführung noch da | ❓ |
+| 51.5 | Eine „Papier-Hängelampe“ (Gruppe „Licht“) setzen und mit einer Lampe aus Home Assistant verknüpfen, dann „Live“ und die Lampe einschalten | Die Papierkugel hängt unter der Decke und leuchtet, der Raum wird hell wie bei den anderen Lampen | ❓ |
+| 51.6 | In der Gruppe „Kinder“ das Hochbett und den Plüschhai setzen | Hochbett mit Leiter und Rausfallschutz, darunter frei; ein kleiner blauer Hai mit weißem Bauch | ❓ |
+| 51.7 | Einen Kleiderschrank mit Schiebetüren an eine Wand schieben | Er bleibt an der Wand stehen und lässt sich nicht hineinschieben (Wandstopp) | ❓ |
+| 51.8 | Sprache auf Englisch stellen und die Bibliothek ansehen | Alle neuen Teile und die Ausführungen haben englische Namen, z. B. „Cube shelf 2×4“, „Oak“ | ❓ |

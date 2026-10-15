@@ -54,6 +54,7 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `lamplight.js` | ~75 | Welche Lampen ihren Raum beleuchten, wie weit und in welcher Farbe (`lampLights`, aus `app.js` geholt): eine Lampe an einem Relais (`switch.…`) wie jede Lampe, eigene Lichtfarbe einer Lampe, die keine Farbe meldet (`lightColor`, Feld in `props.js`), eine Lampe an der Wand knapp außerhalb des Umrisses (#367); reine Logik mit Unit-Tests |
 | `earth.js` | ~150 | Erde, Rasen, Grundstücksform, Schnitt durch den Boden |
 | `badgetext.js` | ~35 | Texte der Wert-Anzeigen über den Geräten (Sensoren, Zähler, Licht, Rollo …), mit Unit-Tests |
+| `scandi.js` | ~500 | Möbel im Stil der bekannten skandinavischen Klassiker (über 50 Teile: Würfelregale, Bücherregale, Sofas, Kommoden, Schränke, Kinderzimmer, Flur, Papierlampen …): jedes Teil als reine Geometrie (Liste aus Quadern, Zylindern, Kugeln in echten Maßen), Grundfläche für den 2D-Plan (`footOf`), Ausführungen (`finishOf`, `finishChoices`, `matOf`); `models.js` macht daraus die 3D-Teile (`scandiModel`); reine Logik mit Unit-Tests |
 | `bridge.js` | ~35 | Metallbrücke / Übergang (#189): Lauffläche, Träger, Geländer (reine Geometrie, Unit-Tests) |
 | `solarroof.js` | ~80 | Solarpanels auf dem Dach (#176): Dachfläche an einer Stelle (Höhe, Neigung), Kippung des Panels, Panel-Feld (reine Rechnung, Unit-Tests) |
 | `floorpanel.js` | ~185 | Etagen-Verwaltung: Name, Art, Reihenfolge, Keller/Dach, Dach mit Gauben und weiteren Dächern |
