@@ -197,6 +197,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Open windows and doors**: windows tilt open in 3D, **each pane of a double or triple window can have its own sensor**, an *n open* pill shows the overall state
 - **Presence**: people (`person`, `device_tracker`) and presence / motion sensors appear as a glowing figure while they are home; room pills show a dot when somebody is in the room
 - **Heat and humidity views**: rooms are coloured by temperature or humidity
+- **Power at a glance**: solar, grid, battery and consumption at the top, cables with flowing dots between the power devices, and in the power editor the tab **⚡ Rechnung**: which sensor is grid, solar, battery, house and room, signs, and the calculation live with a check that it adds up
 - **Home Assistant areas**: entities are grouped by your areas and assigned automatically
 
 <table>

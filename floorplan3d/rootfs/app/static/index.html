@@ -29,6 +29,7 @@
       <button data-tool="erase" data-i18n="tool.erase" data-i18n-title="tip.erase"></button>
       <button id="powerEditBtn" type="button" data-i18n="tool.power" data-i18n-title="tip.power"></button>
       <button id="cableBtn" data-tool="cable" type="button" hidden data-i18n="tool.cable" data-i18n-title="tip.cable"></button>
+      <button id="energyBtn" type="button" hidden data-i18n="tool.energy" data-i18n-title="tip.energy"></button>
       <button id="dormerBtn" type="button" data-i18n="tool.dormer" data-i18n-title="tip.dormer"></button>
       <button id="importBtn" type="button" data-i18n="tool.import" data-i18n-title="tip.import"></button>
       <button id="toolsMoreBtn" type="button" hidden aria-haspopup="true" aria-expanded="false" data-i18n="tool.more" data-i18n-title="tip.more"></button>
@@ -346,6 +347,13 @@
     <div class="prop stack"><label for="setTimelineKeep" data-i18n="tl.setKeep"></label><input id="setTimelineKeep" type="number" min="1" max="31" step="1"></div>
     <div id="tlSetDays"></div>
   </form>
+</dialog>
+
+<dialog id="energyDialog">
+  <div class="dlgHead"><h2 data-i18n="energy.title"></h2><button type="button" id="energyClose" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button></div>
+  <p class="hint" data-i18n="energy.hint"></p>
+  <div id="energyResult"></div>
+  <div id="energyBody"></div>
 </dialog>
 
 <dialog id="usersDialog">
