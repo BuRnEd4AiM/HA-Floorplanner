@@ -56,8 +56,8 @@ pg13.click("#planFloorsBtn"); pg13.wait_for_timeout(300)
 check("floors chip: on again (below)", name0 in legend() and pg13.evaluate("localStorage.getItem('fp3d.planFloors')") == "below")
 pg13.click("#view3d"); pg13.wait_for_timeout(400)
 # --- cameras (#69) and the room panel (#67)
-camapi = pg13.evaluate("fetch('api/camera/camera.flur').then(r => [r.status, r.headers.get('content-type')])")
-check("camera still image comes through the add-on", camapi == [200, "image/png"], camapi)
+camapi = pg13.evaluate("fetch('api/camera/camera.flur').then(async r => [r.status, r.headers.get('content-type'), (await r.arrayBuffer()).byteLength])")
+check("camera still image comes through the add-on, whole (#385: it comes in two pieces)", camapi == [200, "image/png", 70], camapi)
 check("only cameras can be fetched", pg13.evaluate("fetch('api/camera/light.x').then(r => r.status)") == 400)
 rid = pg13.evaluate("""() => {
   const f = window.__fp.layout.floors[window.__fp.floorIdx()], r = f.rooms[0];

@@ -90,7 +90,14 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
     REG_SUBS[:] = [x for x in REG_SUBS if x[0] is not ws]
     return ws
 PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000" "1f15c4890000000d49444154789c6360f8ffff3f0005fe02fea75a3c260000000049454e44ae426082")
-async def camera_proxy(r): return web.Response(body=PNG, content_type="image/png")
+async def in_two(r, body, ctype):
+    """an answer in two pieces with a pause between them, as pictures and video pieces come through the Supervisor (#385)"""
+    import asyncio
+    res = web.StreamResponse(); res.content_type = ctype
+    await res.prepare(r)
+    await res.write(body[:len(body) // 2]); await asyncio.sleep(0.1); await res.write(body[len(body) // 2:])
+    return res
+async def camera_proxy(r): return await in_two(r, PNG, "image/png")
 # Home Assistant's HLS stream of camera.flur (#383): websocket camera/stream gives the address, then playlists, init and segments.
 # A tiny VP9 test video (tests/e2e/hls, 3 x 1 s, made with ffmpeg) as a finished playlist: the page plays it, it ends, the page starts again.
 HLS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hls")
@@ -106,9 +113,9 @@ async def hls(r):
         segs = "".join(f"#EXTINF:1.000,\n./segment/{i}.m4s\n" for i in range(3))
         return web.Response(text=f'#EXTM3U\n#EXT-X-VERSION:7\n#EXT-X-TARGETDURATION:1\n#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-MAP:URI="init.mp4"\n{segs}#EXT-X-ENDLIST\n',
                             content_type="application/vnd.apple.mpegurl")
-    if name == "init.mp4": return web.Response(body=hls_file("init.mp4"), content_type="video/mp4")
+    if name == "init.mp4": return await in_two(r, hls_file("init.mp4"), "video/mp4")
     if name.startswith("segment/") and name[8:-4].isdigit() and int(name[8:-4]) < 3:
-        return web.Response(body=hls_file(f"seg{int(name[8:-4])}.m4s"), content_type="video/iso.segment")
+        return await in_two(r, hls_file(f"seg{int(name[8:-4])}.m4s"), "video/iso.segment")
     return web.Response(status=404)
 async def hls_seen(r): return web.json_response(HLS_SEEN)
 async def calls(r): return web.json_response(CALLS)

@@ -1118,6 +1118,17 @@ CAMERA_TYPES = ("image/jpeg", "image/png", "image/gif", "image/webp")
 MAX_CAMERA_BYTES = 8 * 1024 * 1024
 
 
+async def read_all(resp, limit: int):
+    """The whole body of an answer from Home Assistant, or None when it is bigger than limit. (content.read(n) is not that: it gives
+    what has arrived so far, and through the Supervisor a picture or a video piece arrives in several pieces, #385.)"""
+    body = bytearray()
+    async for piece in resp.content.iter_chunked(64 * 1024):
+        body += piece
+        if len(body) > limit:
+            return None
+    return bytes(body)
+
+
 def camera_refused(request, entity: str):
     """why a camera picture may not be fetched (the answer to send), None when it may"""
     if not CAMERA_ID.match(entity):
@@ -1142,10 +1153,10 @@ async def get_camera(request):
                 if r.status != 200:
                     return web.json_response({"error": f"HA answered {r.status}"}, status=502)
                 ctype = (r.headers.get("Content-Type") or "").split(";")[0].strip().lower()
-                body = await r.content.read(MAX_CAMERA_BYTES + 1)
+                body = await read_all(r, MAX_CAMERA_BYTES)
     except (aiohttp.ClientError, asyncio.TimeoutError):
         return web.json_response({"error": "camera not reachable"}, status=502)
-    if ctype not in CAMERA_TYPES or len(body) > MAX_CAMERA_BYTES:
+    if ctype not in CAMERA_TYPES or body is None:
         return web.json_response({"error": "unexpected answer from the camera"}, status=502)
     return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
 
@@ -1197,13 +1208,13 @@ async def get_hls(request):
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=60)) as s:
             async with s.get(f"{HA_API}/hls/{token}/{name}", headers=ha_headers(), params=query) as r:
                 ctype = (r.headers.get("Content-Type") or "").split(";")[0].strip().lower()
-                body = await r.content.read(MAX_HLS_BYTES + 1)
+                body = await read_all(r, MAX_HLS_BYTES)
                 status = r.status
     except (aiohttp.ClientError, asyncio.TimeoutError):
         return web.json_response({"error": "camera not reachable"}, status=502)
     if status != 200:
         return web.Response(status=status if status in (404, 416) else 502)       # 404 / 416: a part that is not there yet
-    if ctype not in HLS_TYPES or len(body) > MAX_HLS_BYTES:
+    if ctype not in HLS_TYPES or body is None:
         return web.json_response({"error": "unexpected answer"}, status=502)
     return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
 
