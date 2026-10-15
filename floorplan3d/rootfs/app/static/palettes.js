@@ -1,6 +1,7 @@
 /* Palettes (the library on the left): the device types by category and search, the 3D models you uploaded (and the ones that come with the add-on).
  * Which entries are shown is decided by pure functions (tested); initPalettes draws the buttons and loads / uploads / deletes models. */
 import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, forgetGlb } from './models.js';
+import { SCANDI, SCANDI_TYPES } from './scandi.js';
 
 /* extra search words so the library also finds things under their everyday names */
 export const SEARCH_ALIASES = {
@@ -13,6 +14,7 @@ export const SEARCH_ALIASES = {
   watermeter: 'wasser wasseruhr zähler zaehler meter water', gasmeter: 'gas gasuhr zähler zaehler meter', heatmeter: 'wärme waerme wärmezähler heizung fernwärme zähler zaehler meter heat', powermeter: 'strom stromzähler zähler zaehler meter',
   light: 'leuchte lampe', lamp: 'leuchte stehlampe', bed: 'doppelbett', wardrobe: 'schrank kleiderschrank', shelf: 'regal', bookcase: 'bücherregal buecherregal',
 };
+SCANDI_TYPES.forEach((k) => { SEARCH_ALIASES[k] = SCANDI[k].search; });   // the furniture in Scandinavian style is also found by the names of the shop's pieces
 
 /** the device types shown in the library: not hidden, in the category (or all), and matching the search (name, key or an everyday name).
  *  types: { key: def }, opts: { cat, query, catOf(key), name(key) } */

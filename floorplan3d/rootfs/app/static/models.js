@@ -6,6 +6,7 @@ import { kitchenLayout } from './kitchen.js';
 import { solarField, standParts, PANEL, STAND } from './solarroof.js';
 import { bridgeParts } from './bridge.js';
 import { LAMP_TYPES } from './lamplight.js';
+import { SCANDI, SCANDI_TYPES, partsOf, matOf, finishOf } from './scandi.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -105,6 +106,7 @@ export const DEVICE_TYPES = {
   nanoleaf:   { label: 'Nanoleaf Layout',   y: 1.4 },
   tv_led:     { label: 'TV-Hintergrundlicht', y: 1.0 },
 };
+SCANDI_TYPES.forEach((k) => { DEVICE_TYPES[k] = { label: SCANDI[k].label, y: SCANDI[k].y || 0 }; });   // the furniture in Scandinavian style (scandi.js)
 
 
 /* Library categories (room types) for the palette */
@@ -113,13 +115,16 @@ export const CATEGORIES = {
   kitchen: ['kitchenrun', 'kitchen', 'island', 'sink', 'stove', 'oven', 'microwave', 'dishwasher', 'fridge', 'washer'],
   bath:    ['bathtub', 'shower', 'toilet', 'basin', 'doublebasin', 'mirror', 'towelrad'],
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
+  kids:    [],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
+  entry:   [],
   lighting: LAMP_TYPES,                                         // the lamps (lamplight.js: a lamp on a relay lights the room like any lamp, #367)
   smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence', 'watermeter', 'gasmeter', 'heatmeter'],
   power:   ['houseentry', 'fusebox', 'powermeter', 'inverter', 'solarpanel', 'battery', 'wallbox'],
   outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car', 'bridge'],
   decor:   ['picture'],
 };
+SCANDI_TYPES.forEach((k) => { if (SCANDI[k].cat !== 'lighting') CATEGORIES[SCANDI[k].cat].push(k); });   // the lamps are in LAMP_TYPES already
 export const catOf = (type) => Object.keys(CATEGORIES).find((k) => CATEGORIES[k].includes(type)) || 'living';
 
 const std = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.05, ...extra });
@@ -640,9 +645,34 @@ export function makeModel(type, onReady, dev, opts) {
   if (type === 'kitchenrun') { kitchenRun(g, dev); return g; }
   if (type === 'bridge') { bridgeModel(g, dev); return g; }
   if (type === 'solarpanel') { solarPanels(g, dev, opts?.mount || 'stand', opts?.groundAt); return g; }
+  if (SCANDI[type]) { scandiModel(g, type, dev); return g; }
   (builders[type] || builders.sensor)(g);
   centreOnFootprint(g);
   return g;
+}
+/** Furniture in Scandinavian style (scandi.js): its parts as meshes, in the finish chosen on the device; a lamp's shade glows with its entity */
+function scandiModel(g, type, dev) {
+  const fin = finishOf(type, dev), mats = new Map(), glow = [];
+  const matFor = (m) => {
+    if (!mats.has(m)) {
+      const s = matOf(m, fin);
+      const mm = s.glow ? glowMat(s.c) : std(s.c, { roughness: s.rough ?? 0.7, metalness: s.metal ?? 0.05, ...(s.opacity ? { transparent: true, opacity: s.opacity } : {}) });
+      if (s.glow) glow.push(mm);
+      mats.set(m, mm);
+    }
+    return mats.get(m);
+  };
+  partsOf(type).forEach((p) => {
+    const geo = p.s === 'box' ? new THREE.BoxGeometry(p.w, p.h, p.d) : p.s === 'cyl' ? new THREE.CylinderGeometry(p.r, p.r2, p.h, p.seg || 16) : new THREE.SphereGeometry(p.r, 18, 12);
+    const m = new THREE.Mesh(geo, matFor(p.m));
+    m.position.set(p.x, p.y + (p.s === 'ball' ? p.r * (p.sy || 1) : p.h / 2), p.z);
+    m.rotation.order = p.ord || 'XYZ';
+    m.rotation.set(p.rx || 0, p.ry || 0, p.rz || 0);
+    if (p.s === 'ball') m.scale.set(p.sx || 1, p.sy || 1, p.sz || 1);
+    g.add(m);
+  });
+  if (glow.length) g.userData.glow = glow;
+  g.userData.finish = fin;
 }
 /** Metal bridge / walkway (#189): grating deck on two steel beams, railing on both sides (see bridgeParts) */
 function bridgeModel(g, dev) {

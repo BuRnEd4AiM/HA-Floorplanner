@@ -36,7 +36,9 @@ def test_examples_import_cleanly(name):
 def test_device_types_parsed_from_models_js():
     models = (APP / "static" / "models.js").read_text(encoding="utf-8")
     declared = set(re.findall(r"^  (\w+):\s*\{ label:", models, re.M))
-    assert importer.DEVICE_TYPES and set(importer.DEVICE_TYPES) | {"door", "window"} == declared
+    scandi = set(re.findall(r"^  (\w+): \{ cat:", (APP / "static" / "scandi.js").read_text(encoding="utf-8"), re.M))     # the furniture in Scandinavian style
+    assert len(scandi) >= 50 and importer.DEVICE_TYPES and set(importer.DEVICE_TYPES) | {"door", "window"} == declared | scandi
+    assert importer.DEVICE_TYPES["pendant_paper"] == 1.9 and importer.DEVICE_TYPES["lamp_table"] == 0.75 and importer.DEVICE_TYPES["shelf_cube2x2"] == 0
 
 
 def test_shared_walls_are_one_wall_and_outer_walls_are_thick():
@@ -130,6 +132,16 @@ def test_light_colour_of_a_lamp_on_a_relay_survives_import_and_export():
     assert a["lightColor"] == "#e8f0ff" and "lightColor" not in b                  # only a colour as #rrggbb
     again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"][0]
     assert again["lightColor"] == "#e8f0ff"
+
+
+def test_furniture_in_scandinavian_style_and_its_finish_survive_import_and_export():
+    f = square_flat(devices=[{"type": "shelf_cube2x4", "x": 1, "z": 1, "finish": "oak"}, {"type": "pendant_paper", "x": 2, "z": 1},
+                             {"type": "chair_swing", "x": 3, "z": 1, "finish": "Eiche <b>"}])
+    layout, _, rep, _ = importer.build_layout(f)
+    a, b, c = layout["floors"][0]["devices"]
+    assert not rep.warnings and a["finish"] == "oak" and b["y"] == 1.9 and "finish" not in c      # only a plain word: the add-on falls back to the default
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"]
+    assert [d["type"] for d in again] == ["shelf_cube2x4", "pendant_paper", "chair_swing"] and again[0]["finish"] == "oak"
 
 
 def test_ledring_sections_survive_import_and_export():

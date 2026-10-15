@@ -3,7 +3,7 @@
  * are exempt. Pure functions (unit test: tests/collide.test.mjs); a footprint is { w, d } or { r } as plan2d's footOf gives it. */
 
 /** things that hang on the wall or the ceiling: they may touch the wall */
-export const WALL_HUNG = ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke'];
+export const WALL_HUNG = ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke', 'pendant_paper', 'pendant_dome'];
 /** never stopped besides those: the LED ring (follows the walls) and the bridge (spans across walls); the caller adds the outdoor things */
 export const STOP_EXEMPT_BASE = ['ledring', 'bridge', ...WALL_HUNG];
 

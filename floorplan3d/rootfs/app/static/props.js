@@ -11,6 +11,7 @@ import { BRIDGE, bridgeSize } from './bridge.js';
 import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
 import { hasShutter, setShutter, setShutterEntity, shutterChoices } from './shutters.js';
 import { wantsLightColor } from './lamplight.js';
+import { finishChoices, finishOf } from './scandi.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -254,6 +255,7 @@ export function initProps(ctx) {
     const cm = document.createElement('input'); cm.type = 'checkbox'; cm.checked = !!it.mirror; cm.id = 'devMirror';
     cm.addEventListener('change', () => { ctx.snapshot(); if (cm.checked) it.mirror = true; else delete it.mirror; ctx.changed(); });
     body.append(field(t('prop.mirror'), cm));
+    if (finishChoices(it.type)) finishField(body, it);
     if (it.type === 'picture') {
       const lab = document.createElement('label'); lab.className = 'uploadBtn';
       const span = document.createElement('span'); span.textContent = t(it.img ? 'pic.replace' : 'pic.load');
@@ -286,6 +288,15 @@ export function initProps(ctx) {
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();
+  }
+
+  /** the finish of a piece in Scandinavian style (scandi.js): white, black-brown, oak ...; the first one is the default and is not stored */
+  function finishField(body, it) {
+    const list = finishChoices(it.type), sel = document.createElement('select'); sel.id = 'devFinish';
+    list.forEach((f) => sel.add(new Option(t(`fin.${f}`), f)));
+    sel.value = finishOf(it.type, it);
+    sel.addEventListener('change', () => { ctx.snapshot(); if (sel.value === list[0]) delete it.finish; else it.finish = sel.value; ctx.changed(); });
+    body.append(field(t('prop.finish'), sel));
   }
 
   /** the colour of a lamp's light where its entity reports none (#367): a lamp switched by a relay, a white-only light; ↺: back to the
