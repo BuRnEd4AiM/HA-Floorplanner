@@ -79,6 +79,17 @@ cc = pg13.evaluate("window.__fp.coneScreen('tcam')")
 pg13.click('[data-mode="live"]'); pg13.wait_for_timeout(600)
 hc = pg13.evaluate(f"window.__fp.liveHitAt({cc['x']}, {cc['y']})") if cc else None
 check("camera cone (#234): no hit box in live mode, only the camera itself", cc is not None and (hc or {}).get("id") != "tcam", (cc, hc))
+# the camera card shows the live picture (#381): Home Assistant's MJPEG stream through the add-on, cut into pictures by the page
+pg13.evaluate("window.__fp.liveTap('tcam')"); pg13.wait_for_timeout(1500)
+live_src = lambda: pg13.evaluate("document.querySelector('#livePopup .camLive img.pop-cam')?.src || ''")
+s1 = live_src(); pg13.wait_for_timeout(700); s2 = live_src()
+check("camera card (#381): the live picture runs (a new picture every few tenths of a second)",
+      pg13.locator('#livePopup .camLive[data-state="live"]').count() == 1 and s1.startswith("blob:") and s2.startswith("blob:") and s1 != s2,
+      (pg13.evaluate("document.querySelector('#livePopup .camLive')?.outerHTML || 'no live picture'"), s1, s2))
+check("camera card (#381): the badge says LIVE", "LIVE" in pg13.inner_text("#livePopup .camLiveBadge"))
+pg13.keyboard.press("Escape"); pg13.wait_for_timeout(1500)
+s3 = live_src(); pg13.wait_for_timeout(700)
+check("camera card (#381): the stream stops when the card is closed", s3 == live_src(), (s3, live_src()))
 pg13.click('[data-mode="edit"]'); pg13.wait_for_timeout(600)
 pg13.evaluate("() => { window.__fp.layout.floors[window.__fp.floorIdx()].devices.find(d => d.id === 'tcam').fov = 0; window.__fp.rebuild(); }"); pg13.wait_for_timeout(300)
 check("field of view 0 means no cone", pg13.evaluate("window.__fp.coneScreen('tcam')") is None)

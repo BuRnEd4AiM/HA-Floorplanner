@@ -81,7 +81,8 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `houses.js` | ~95 | Häuser (Liste, Auswahl, Neu/Kopieren/Umbenennen/Löschen) |
 | `floorrail.js` | ~115 | Etagen-Leiste (Vorschaubilder) |
 | `floorcards.js` | ~110 | Etagenkarten (Ganzes Haus); auf dem Handy kleine Karten mit Symbolen (#290, `compactParts`) in einer freien Spalte rechts neben dem Haus (#292, `cardColumn`, `columnZoom`; alle mit Unit-Tests) |
-| `cameras.js` | ~190 | Kameras (Sichtkegel, Übersicht, Standbilder) |
+| `cameras.js` | ~300 | Kameras (Sichtkegel, Übersicht, Standbilder, Live-Bild der Kamera-Karte #381: ein Stream pro Kamera, nur solange ein Bild davon zu sehen ist; `liveNext`, wann neu verbinden oder auf Standbilder zurückfallen, ist reine Logik mit Unit-Tests) |
+| `mjpeg.js` | ~120 | MJPEG-Stream von Home Assistant in einzelne Bilder zerlegen (#381; die Ingress-Weiterleitung entfernt die *boundary*, deshalb liest die Seite die Bilder selbst); reine Logik mit Unit-Tests |
 | `neighbor.js` | ~120 | Nachbarhaus (#220): anderes Haus daneben zeigen (3D und Umriss im Plan), Einstellungen; Geometrie mit Unit-Tests |
 | `multisel.js` | ~120 | Mehrfachauswahl (#211, #247): Shift / Strg + Klick, Rahmen aufziehen im 2D-Plan (`boxItems`), alle löschen in einem Schritt, Rahmen in 3D, Kasten im Panel, alle zusammen verschieben (`groupTargets`, `moveGroup`) |
 | `tapballs.js` | ~140 | Kugeln zum Antippen im Live-Modus (#238): Lage über/unter dem Gerät, Farbe nach Zustand, Symbol (ein Schalter bekommt einen gezeichneten Lichtschalter, eine Steckdose den Stecker, #366, eine Lampe am Relais die Glühbirne, #367), auf dem Bildschirm auseinanderschieben (#314, `spreadScreen`); reine Regeln mit Unit-Tests |

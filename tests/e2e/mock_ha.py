@@ -86,11 +86,24 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
     return ws
 PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000" "1f15c4890000000d49444154789c6360f8ffff3f0005fe02fea75a3c260000000049454e44ae426082")
 async def camera_proxy(r): return web.Response(body=PNG, content_type="image/png")
+async def camera_proxy_stream(r):
+    """Home Assistant's MJPEG stream (#381): a picture every 0.2 s, as long as somebody watches (at most a minute)"""
+    import asyncio
+    res = web.StreamResponse()
+    res.headers["Content-Type"] = "multipart/x-mixed-replace;boundary=frameboundary"
+    await res.prepare(r)
+    try:
+        for _ in range(300):
+            await res.write(b"--frameboundary\r\nContent-Type: image/png\r\nContent-Length: %d\r\n\r\n" % len(PNG) + PNG + b"\r\n")
+            await asyncio.sleep(0.2)
+    except (ConnectionError, asyncio.CancelledError):
+        pass
+    return res
 async def calls(r): return web.json_response(CALLS)
 async def call_data(r): return web.json_response(CALL_DATA)
 async def template(r):
     return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
 app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename),
-                web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy)])
+                web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy), web.get("/camera_proxy_stream/{e}", camera_proxy_stream)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)
