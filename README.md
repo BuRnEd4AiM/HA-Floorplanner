@@ -118,7 +118,7 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 | **Whole-house view** | See all floors, basement and roof stacked as one building |
 | **Clear object list** | Everything grouped by room (the room, its doors / windows and furniture), with a search field; the side panel can be dragged wider |
 | **Detect rooms** | Draw the walls, press *Räume erkennen*: every closed loop of walls becomes a room |
-| **Cameras** | The field of view as a cone on the floor, red with movement; a tap shows a still image, then Home Assistant's live view |
+| **Cameras** | The field of view as a cone on the floor, red with movement; a tap shows the camera live, a second tap opens Home Assistant's live view |
 | **Room panel** | Lights (with *all off*), covers, heating, media, switches, cameras, sensors, scenes by kind, with slide switches; a bottom sheet on phones |
 | **Several houses** | One floor plan per house (yours, your parents', a holiday home ...), a house selector and `?house=` links for kiosks |
 

@@ -1,6 +1,18 @@
-/* Cameras (#69): the field of view as a cone on the floor (red while there is motion), the cameras overview in the top bar and the still images
- * (fetched through the add-on, renewed every few seconds while one is on the screen). The decisions are pure functions (tested); initCameras draws. */
+/* Cameras (#69): the field of view as a cone on the floor (red while there is motion), the cameras overview in the top bar, the still images
+ * (fetched through the add-on, renewed every few seconds while one is on the screen) and the live picture of the camera card (#381: Home
+ * Assistant's MJPEG stream through the add-on, cut into pictures by mjpeg.js). The decisions are pure functions (tested); initCameras draws. */
 import * as THREE from './vendor/three.module.min.js';
+import { mjpegParser } from './mjpeg.js';
+
+export const LIVE_TRIES = 3;                 // live streams in a row without a picture, then still images instead
+export const LIVE_PAUSE = 5 * 60 * 1000;     // ... for 5 minutes, then the live picture is tried again
+/** what to do when a live stream has ended: 'still' (no live picture for now), or after how many ms to connect again.
+ *  status: the add-on's answer (0: no answer), pictures: how many came, fails: streams without a picture before this one */
+export function liveNext({ status = 0, pictures = 0, fails = 0 }) {
+  if ([403, 404, 429].includes(status)) return { still: true, fails };    // switched off or locked, an old add-on, too many live pictures
+  if (pictures) return { wait: 500, fails: 0 };                           // it ran (the add-on ends a stream after 10 minutes): straight on
+  return fails + 1 >= LIVE_TRIES ? { still: true, fails: fails + 1 } : { wait: 2000 * (fails + 1), fails: fails + 1 };
+}
 
 export const CONE_RED = 0xff3a3a;
 export const MOTION_DC = new Set(['motion', 'occupancy', 'presence', 'moving']);
@@ -128,6 +140,116 @@ export function initCameras(ctx) {
     }, 5000);
   }
 
+  /* ---- live picture (#381) ---- */
+  const lives = new Map();                   // entity -> { id, imgs, ctrl, retry, url, next, busy, tok, fails }: one stream per camera
+  const noLive = new Map();                  // entity -> when its live picture last gave up (still images until LIVE_PAUSE has passed)
+  let liveTimer = 0;
+  const shown = (im) => im.isConnected && im.getClientRects().length > 0;           // not in a closed card
+  function setLook(im, look) {
+    const box = im.parentElement;
+    if (!box?.classList.contains('camLive') || box.dataset.state === look) return;
+    box.dataset.state = look;
+    box.querySelector('.camLiveBadge').textContent = t(`cam.${look}`);
+  }
+  /** the camera live (a picture in a box with a small badge: connecting / live / still image); a tap opens Home Assistant's live view.
+   *  The stream runs while a picture of it is on the screen and the page is visible; when it does not work: still images as before */
+  function camLive(entityId, cls = 'pop-cam') {
+    const box = document.createElement('div'); box.className = 'camLive';
+    const badge = document.createElement('span'); badge.className = 'camLiveBadge';
+    if (Date.now() - (noLive.get(entityId) || -Infinity) < LIVE_PAUSE) {
+      const img = camImage(entityId, cls);
+      box.append(img, badge); setLook(img, 'still');
+      return box;
+    }
+    noLive.delete(entityId);
+    const img = document.createElement('img'); img.className = `${cls} tap`; img.alt = ''; img.dataset.live = entityId; img.title = t('cam.openHa');
+    img.addEventListener('click', () => openInHa(entityId));
+    box.append(img, badge);
+    let s = lives.get(entityId);
+    if (!s) { s = { id: entityId, imgs: new Set(), ctrl: null, retry: 0, url: '', next: null, busy: false, tok: 0, fails: 0 }; lives.set(entityId, s); }
+    s.imgs.add(img);
+    const pic = s.url || camUrls.get(entityId);        // the last picture until the stream brings a new one
+    if (pic) img.src = pic;
+    setLook(img, s.url && s.ctrl ? 'live' : 'wait');
+    if (!liveTimer) liveTimer = setInterval(watchLive, 1000);
+    setTimeout(watchLive);                              // once the card is drawn
+    return box;
+  }
+  /** starts and stops the streams: only for cameras with a picture on the screen, nothing while the page is hidden */
+  function watchLive() {
+    lives.forEach((s, id) => {
+      s.imgs.forEach((im) => { if (!im.isConnected) s.imgs.delete(im); });
+      const wanted = !document.hidden && [...s.imgs].some(shown);
+      if (!wanted) {
+        stopLive(s);
+        if (!s.imgs.size) { if (s.url) URL.revokeObjectURL(s.url); lives.delete(id); }
+      } else if (!s.ctrl && !s.retry) runLive(s);
+    });
+    if (!lives.size) { clearInterval(liveTimer); liveTimer = 0; }
+  }
+  function stopLive(s) {
+    clearTimeout(s.retry); s.retry = 0;
+    if (s.ctrl) { const c = s.ctrl; s.ctrl = null; c.abort(); }
+  }
+  async function runLive(s) {
+    const ctrl = new AbortController();
+    s.ctrl = ctrl;
+    let status = 0, pictures = 0;
+    try {
+      const r = await fetch(`api/camera/${encodeURIComponent(s.id)}/live`, { cache: 'no-store', signal: ctrl.signal });
+      status = r.status;
+      if (!r.ok || !r.body) throw new Error(String(r.status));
+      const parser = mjpegParser((pic, type) => { pictures++; present(s, new Blob([pic], { type })); });
+      const reader = r.body.getReader();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        parser.push(value);
+      }
+    } catch { /* stopped, cut off, no MJPEG: see below */ }
+    ctrl.abort();                                       // a stream that was no MJPEG must not go on loading
+    if (s.ctrl !== ctrl) return;                        // stopped on purpose (card closed, page hidden)
+    s.ctrl = null;
+    const next = liveNext({ status, pictures, fails: s.fails });
+    s.fails = next.fails;
+    if (next.still) { toStill(s); return; }
+    s.imgs.forEach((im) => setLook(im, 'wait'));
+    s.retry = setTimeout(() => { s.retry = 0; watchLive(); }, next.wait);
+  }
+  /** the live picture does not work for this camera: its pictures become still images (renewed every few seconds) */
+  function toStill(s) {
+    stopLive(s);
+    noLive.set(s.id, Date.now());
+    lives.delete(s.id);
+    s.imgs.forEach((im) => { delete im.dataset.live; im.dataset.cam = s.id; setLook(im, 'still'); });
+    if (s.imgs.size) { ensureTimer(); refresh(s.id); }
+  }
+  /** the newest picture on every image of the camera; while one is being decoded, newer ones wait (only the newest is kept) */
+  function present(s, blob) {
+    s.next = blob;
+    if (!s.busy) paint(s);
+  }
+  function paint(s) {
+    const blob = s.next;
+    s.next = null;
+    if (!blob || lives.get(s.id) !== s) return;        // gone meanwhile (still images now)
+    const url = URL.createObjectURL(blob), old = s.url, imgs = [...s.imgs], tok = ++s.tok;
+    s.url = url; s.busy = true;
+    let left = imgs.length;
+    const finish = () => {
+      if (s.tok !== tok || !s.busy) return;
+      s.busy = false; clearTimeout(guard);
+      if (old) URL.revokeObjectURL(old);
+      paint(s);
+    };
+    const guard = setTimeout(finish, 2000);            // a picture that never says it is loaded does not stop the stream
+    imgs.forEach((im) => {
+      im.onload = im.onerror = () => { im.onload = im.onerror = null; if (--left <= 0) finish(); };
+      im.src = url; setLook(im, 'live');
+    });
+    if (!imgs.length) finish();
+  }
+
   /* ---- top bar: the pill and the overview ---- */
   function updatePill() {
     const pill = $('#camPill'), l = list(), places = motionPlaces(l, ctx.layout()), n = l.filter((x) => x.motion).length;
@@ -169,5 +291,5 @@ export function initCameras(ctx) {
       grid.append(sec);
     });
   }
-  return { cones, addCone, updateCones, clear, coneCenter, pulse, motion: motionOf, camImage, haButton, openInHa, updatePill, renderMenu };
+  return { cones, addCone, updateCones, clear, coneCenter, pulse, motion: motionOf, camImage, camLive, haButton, openInHa, updatePill, renderMenu };
 }

@@ -83,9 +83,9 @@ export function initLivePopup(ctx) {
     const mi = live.detailsButton(d.entity);
     if (mi) title.append(mi);
     box.append(title, sub);
-    if (d.type === 'camera') {                                  // #69: still image (renewed every few seconds), a second tap opens Home Assistant's live view
+    if (d.type === 'camera') {                                  // #69, #381: the live picture (still images when it does not work), a tap on it opens Home Assistant's live view
       if (d.motionEntity) { const mo = document.createElement('div'); mo.className = 'sub'; mo.textContent = ctx.cams.motion(d) ? t('cam.motionOn') : t('cam.motionOff'); box.append(mo); }
-      if (d.entity?.startsWith('camera.') && ctx.settings().cameraImages) box.append(ctx.cams.camImage(d.entity, 'pop-cam'));
+      if (d.entity?.startsWith('camera.') && ctx.settings().cameraImages) box.append(ctx.cams.camLive(d.entity, 'pop-cam'));
     }
     const acts = d.entity ? ACTIONS[d.entity.split('.')[0]] : null;
     if (acts) {

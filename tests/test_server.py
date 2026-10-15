@@ -239,6 +239,39 @@ async def test_camera_image_is_checked_before_anything_is_asked(client, monkeypa
     assert (await client.get("/api/camera/camera.flur")).status == 503           # no Home Assistant behind it
     await client.put("/api/settings", json={"cameraImages": False})
     assert (await client.get("/api/camera/camera.flur")).status == 403           # switched off in the settings
+    assert (await client.get("/api/camera/camera.flur/live")).status == 403      # the live picture too (#381)
+    assert (await client.get("/api/camera/light.kueche/live")).status == 400
+
+
+async def test_camera_live_passes_the_stream_through(client, monkeypatch, aiohttp_server):
+    """#381: Home Assistant's MJPEG stream goes out unchanged as application/octet-stream (the ingress would drop its boundary)"""
+    from aiohttp import web
+    parts = [b"--frameboundary\r\nContent-Type: image/jpeg\r\nContent-Length: 4\r\n\r\n\xff\xd8\xff\xd9\r\n"] * 3
+    asked = []
+
+    async def stream(request):
+        asked.append((request.match_info["e"], request.headers.get("Authorization")))
+        if request.match_info["e"] == "camera.gone":
+            return web.json_response({}, status=404)
+        r = web.StreamResponse()
+        r.content_type = "multipart/x-mixed-replace"
+        await r.prepare(request)
+        for p in parts:
+            await r.write(p)
+        return r
+    fake = web.Application(); fake.router.add_get("/camera_proxy_stream/{e}", stream)
+    srv = await aiohttp_server(fake)
+    monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    r = await client.get("/api/camera/camera.flur/live")
+    assert r.status == 200 and r.headers["Content-Type"] == "application/octet-stream" and r.headers["Cache-Control"] == "no-store"
+    assert await r.read() == b"".join(parts)
+    assert asked == [("camera.flur", "Bearer t")]
+    assert client.app[server.KEY_CAMERA_LIVE] == [0]                              # counted down again
+    assert (await client.get("/api/camera/camera.gone/live")).status == 502
+    client.app[server.KEY_CAMERA_LIVE][0] = server.MAX_CAMERA_LIVE
+    assert (await client.get("/api/camera/camera.flur/live")).status == 429      # too many at the same time: the page shows still images
+    client.app[server.KEY_CAMERA_LIVE][0] = 0
 
 
 async def test_editors_permissions(client, monkeypatch, tmp_path):

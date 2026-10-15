@@ -1118,9 +1118,8 @@ CAMERA_TYPES = ("image/jpeg", "image/png", "image/gif", "image/webp")
 MAX_CAMERA_BYTES = 8 * 1024 * 1024
 
 
-async def get_camera(request):
-    """Still image of one camera (Home Assistant's camera proxy). Only jpeg / png / gif / webp, never cached."""
-    entity = request.match_info["entity"]
+def camera_refused(request, entity: str):
+    """why a camera picture may not be fetched (the answer to send), None when it may"""
     if not CAMERA_ID.match(entity):
         return web.json_response({"error": "not a camera"}, status=400)
     if not validate_settings(read_settings(request))["cameraImages"]:
@@ -1129,6 +1128,14 @@ async def get_camera(request):
         return web.json_response({"error": "cameras are locked for this user"}, status=403)
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "no supervisor token"}, status=503)
+    return None
+
+
+async def get_camera(request):
+    """Still image of one camera (Home Assistant's camera proxy). Only jpeg / png / gif / webp, never cached."""
+    entity = request.match_info["entity"]
+    if (refused := camera_refused(request, entity)) is not None:
+        return refused
     try:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
             async with s.get(f"{HA_API}/camera_proxy/{entity}", headers=ha_headers()) as r:
@@ -1141,6 +1148,46 @@ async def get_camera(request):
     if ctype not in CAMERA_TYPES or len(body) > MAX_CAMERA_BYTES:
         return web.json_response({"error": "unexpected answer from the camera"}, status=502)
     return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})
+
+
+CAMERA_LIVE_SECONDS = 600      # a live picture ends after 10 minutes; the page starts a new one while the camera is still on the screen
+CAMERA_LIVE_IDLE = 20          # ... and when the camera sends nothing for 20 seconds
+MAX_CAMERA_LIVE = 4            # live pictures at the same time (each one keeps a stream from the camera running in Home Assistant)
+KEY_CAMERA_LIVE = web.AppKey("camera_live", list)
+
+
+async def get_camera_live(request):
+    """Live picture of one camera (#381): Home Assistant's MJPEG stream (camera_proxy_stream) passed through unchanged. The ingress
+    proxies of Home Assistant drop the boundary of multipart/x-mixed-replace and would compress it, so it goes out as
+    application/octet-stream (neither cut nor compressed) and the page finds the pictures itself (static/mjpeg.js)."""
+    entity = request.match_info["entity"]
+    if (refused := camera_refused(request, entity)) is not None:
+        return refused
+    open_now = request.app[KEY_CAMERA_LIVE]
+    if open_now[0] >= MAX_CAMERA_LIVE:
+        return web.json_response({"error": "too many live pictures"}, status=429)
+    open_now[0] += 1
+    out = None
+    try:
+        timeout = aiohttp.ClientTimeout(total=None, connect=10, sock_read=CAMERA_LIVE_IDLE)
+        async with aiohttp.ClientSession(timeout=timeout) as s:
+            async with s.get(f"{HA_API}/camera_proxy_stream/{entity}", headers=ha_headers()) as r:
+                if r.status != 200:
+                    return web.json_response({"error": f"HA answered {r.status}"}, status=502)
+                out = web.StreamResponse(headers={"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "X-Accel-Buffering": "no"})
+                out.content_type = "application/octet-stream"
+                await out.prepare(request)
+                end = time.monotonic() + CAMERA_LIVE_SECONDS
+                async for piece in r.content.iter_any():
+                    await out.write(piece)
+                    if time.monotonic() > end:
+                        break
+    except (aiohttp.ClientError, asyncio.TimeoutError, ConnectionError):
+        if out is None:
+            return web.json_response({"error": "camera not reachable"}, status=502)
+    finally:
+        open_now[0] -= 1
+    return out
 
 
 async def index(request):
@@ -1735,6 +1782,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app[KEY_CONFIG] = Path(config_path or os.environ.get("CONFIG_DIR") or ("/config" if Path("/config").is_dir() else app[KEY_DATA] / "addon_config"))
     app[KEY_LIVE] = LiveHub()
     app[KEY_TIMELINE] = {}
+    app[KEY_CAMERA_LIVE] = [0]       # live pictures open now
     app.on_startup.append(seed_users_file)
     app.on_response_prepare.append(no_stale_files)
     app.on_cleanup.append(stop_live)
@@ -1783,6 +1831,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/batteries", get_batteries),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
+        web.get("/api/camera/{entity}/live", get_camera_live),
         web.static("/", STATIC_DIR, show_index=False),
     ])
     sub = web.Application(client_max_size=MAX_BACKUP_BYTES)   # the restore upload may be far larger than any other request
