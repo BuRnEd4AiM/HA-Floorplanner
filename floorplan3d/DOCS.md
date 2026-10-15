@@ -217,6 +217,18 @@ Rename an entity or a device in Home Assistant, in Zigbee2MQTT ("update Home Ass
 
 The button **📋 Geräte** at the top shows and hides a list of every placed device linked to Home Assistant and every door or window with a sensor, by floor and room: its state, its **battery level** and whether it is offline. The battery comes from the battery sensor of the same device in Home Assistant (e.g. `sensor.…_battery`), so a door contact or a thermostat shows its battery without any setting; a robot vacuum shows the level it reports itself. *🔋 Batterie* lists only what has a battery, the emptiest first; at 20 % or less it is red, and the button shows how many are low (**📋 Geräte · 🪫 2**). *⚠ Offline* lists only what is offline. Tap a device to see it in the plan. On a phone the button is in the 📊 list.
 
+## Power: what is what (⚡ Rechnung)
+
+The power overview at the top left (☀ production · ⚡ grid · ⌂ consumption · 🔋 battery) counts with the power devices of the plan. To say exactly which sensor is what, switch on **Strom-Editor** in edit mode and press **⚡ Rechnung** next to *Kabel*. The window has a part for each:
+
+- **Netz** (house connection): one sensor where plus means drawn from the grid and minus fed in, or two sensors for drawn and fed in. *Vorzeichen umdrehen* when your meter counts the other way round. Under the sensor you see its value now and how it is read (→ *Bezug* / *Einspeisung*).
+- **Erzeugung**: one or more solar sensors (e.g. one per inverter or balcony plant); they are added up.
+- **Batterie**: the charge level (%) and one sensor (plus = charging) or two for charging and discharging. Switch off *Batterie im Hausverbrauch mitrechnen* when your production sensor measures the output of a hybrid inverter, which already includes the battery.
+- **Hausverbrauch**: without a sensor it is calculated as production + drawn − fed in + discharging − charging. With a sensor of its own the overview shows the measured value and the calculation stays next to it as a check.
+- **Räume**: the sensors (smart plugs, sub-meters) that measure what each room uses. *Vorschlagen* takes the sensors in watts from the room's Home Assistant area or placed in the room. What no room accounts for is shown as the rest.
+
+At the top the window shows the calculation with the values of now. When something does not add up it says so: a consumption below zero (usually a sign the wrong way round; the button *Vorzeichen … umdrehen* turns it), a house sensor far from the calculation, rooms that use more than the whole house, a sensor counted twice. Everything left empty comes from the power devices of the plan. The settings are saved with the house; the overview's tooltip lists the rooms and the rest.
+
 ## Devices offline
 
 The pill **✓ 0 offline** over the plan (live and edit mode) turns red (**⚠ n offline**) as soon as a placed device is **unavailable** in Home Assistant, reports an **unknown** state, or no longer exists there (e.g. deleted). Tap it to see the list with floor, room, entity and since when it is offline. Tap an entry to jump to the device. LED ring sections, TV backlights and door/window contacts are checked too. Placed lamps and smart devices that are **not linked** to an entity are listed too (furniture, garden objects and pictures are not). Only what is placed in the plan is checked.

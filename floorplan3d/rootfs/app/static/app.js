@@ -8,6 +8,8 @@ import { initSearch } from './search.js';
 import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
 import { initPower } from './power.js';
+import { initEnergyUi } from './energyui.js';
+import { energyBalance } from './energycalc.js';
 import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
 import { initBadges } from './badges.js';
@@ -438,6 +440,11 @@ const power = initPower({
   deleteItem: (sel) => deleteItem(sel),
   field: (...a) => field(...a), pickerField: (...a) => pickerField(...a), entityPicker: (...a) => entityPicker(...a), roomAt: (x, z) => roomAt(x, z),
 });
+/* the tab "⚡ Rechnung" of the power editor (#378): which sensor is what and how it is counted; the code lives in energyui.js and energycalc.js */
+const energyUi = initEnergyUi({
+  $, t, layout: () => layout, states: () => states, entities: () => entities, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
+  entityPicker: (...a) => entityPicker(...a), pickerField: (...a) => pickerField(...a), snapshot: () => snapshot(), changed: () => changed(false), refresh: () => power.update(),
+});
 
 let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
 const VIEW_STOPS = { temp: ['tempStops', '°C'], humid: ['humidStops', '%'], co2: ['co2Stops', 'ppm'] };
@@ -565,6 +572,7 @@ function applyStates() {
   if (plan?.isVisible()) plan.render();
   updateViewLegend();
   power.update();
+  energyUi.update();                      // the tab "⚡ Rechnung" while it is open (#378)
   cams.updateCones();
   cams.updatePill();
   floorCards.update();
@@ -1453,6 +1461,7 @@ if (params.get('debug')) {
     openRoomPanel(id) { roomPanel.open(id); },
     powerLinks: () => power.links(),
     powerInfo: () => power.info(),
+    energy: () => energyBalance(states, layout),
     ledShown(id) { return !!registry.get(id)?.userData.ledParts?.[0]?.visible; },
     isShown(id) { return !!registry.get(id)?.visible; },
     editNano(id) { const d = floor().devices.find((v) => v.id === id); if (d) editNano(d); },

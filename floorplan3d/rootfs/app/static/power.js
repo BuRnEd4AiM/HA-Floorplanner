@@ -1,8 +1,10 @@
 /* Power add-on (#136), the 3D / DOM part: cables between power devices with flowing dots and the watt value, the power editor
  * (only power things are shown and can be picked), the cable tool, the energy overview next to the room menu and the properties of
- * power devices and cables. The calculations are in powerlogic.js (tested); the app gives this module what it needs through `ctx`. */
+ * power devices and cables. The calculations are in powerlogic.js and, for the overview, energycalc.js (both tested; what counts as what
+ * is set in the tab "⚡ Rechnung", energyui.js); the app gives this module what it needs through `ctx`. */
 import * as THREE from './vendor/three.module.min.js';
-import { POWER_TYPES, showsInPowerEditor, CABLE_ROUTES, CABLE_KINDS, cableKind, cableColor, cablesOf, ownCables, powerWatts, fmtWatts, cablePoints, energySummary, energyText, meterReadings, meterText } from './powerlogic.js';
+import { POWER_TYPES, showsInPowerEditor, CABLE_ROUTES, CABLE_KINDS, cableKind, cableColor, cablesOf, ownCables, powerWatts, fmtWatts, cablePoints, meterReadings, meterText } from './powerlogic.js';
+import { energyBalance, energyText } from './energycalc.js';
 
 const POWER_DOTS = 8;
 const dotGeo = new THREE.SphereGeometry(0.035, 8, 6);
@@ -91,7 +93,7 @@ export function initPower(ctx) {
   /* ---------- the overview next to the room menu ---------- */
   function updateEnergy() {
     const pill = $('#energyPill'); if (!pill) return;
-    const txt = energyText(energySummary(ctx.states(), powerList().map(({ d }) => d)), t);
+    const txt = energyText(energyBalance(ctx.states(), ctx.layout()), t);   // with the settings of the tab "⚡ Rechnung" (#378)
     pill.hidden = !txt;
     pill.textContent = txt?.text || '';
     pill.title = txt?.title || '';
@@ -163,6 +165,7 @@ export function initPower(ctx) {
     document.body.dataset.power = on ? '1' : '';
     $('#powerEditBtn')?.classList.toggle('active', on);
     $('#cableBtn').hidden = !on;
+    $('#energyBtn').hidden = !on;                                  // the tab "⚡ Rechnung" (#378)
     if (on) { ctx.setPaletteCat('power'); showPower = true; if (!POWER_TYPES.has(ctx.getDeviceType())) ctx.setDeviceType('fusebox'); ctx.setTool('device'); ctx.setStatus(t('power.editorOn')); }
     else if (ctx.getTool() === 'cable' || ctx.getTool() === 'device') ctx.setTool('select');
     ctx.rebuildPalette();
