@@ -151,6 +151,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Customisable toolbar**: ✎ lets you show, hide and re-order the tools; rarely used ones fold into a *More ▾* menu
 - **Dormers and roof size**: add dormers (gabled, flat, or a long shed dormer that raises part of one roof side) from the toolbar, and set the roof size by hand if the automatic one does not fit; steps in the eaves for a house that is narrower at the front (drag them in the 2D plan)
 - **Double-click a wall** to add a corner exactly there
+- **Measure** (tool *Messen*, key `M`, in the 2D plan and in 2D + 3D): click two points for their distance (corners and wall faces snap), or click two walls and type their exact distance (face to face or centre to centre) or the angle between them: the wall moves, the walls joined to it and the rooms follow
 - **Placed devices stay selected** so you can fine-tune them right away (switchable in the settings)
 - **First start**: an empty house shows a welcome card: draw walls, try the example house or import your own
 
@@ -299,6 +300,7 @@ The look of a card applies to that card only and never changes the add-on's sett
 | Link an entity | Select a device, search the entity in the side panel |
 | Resize | Drag the two square handles in the 2D plan, or type the size in metres |
 | Move / rotate | Drag it, `Q` / `E` rotate in 15° steps |
+| Measure, set two walls apart | Tool **Messen** `M`: click two points, or two walls and type their distance or angle in the side panel |
 | Lock an item | Tick the box before its name in the object list |
 | Live mode | Tap a device to control it, tap a room for the whole room |
 | History of a device | ⓘ *Details* in its popup opens Home Assistant's own dialog |

@@ -664,6 +664,7 @@ export function createPlan(ctx) {
       }
     }
     if (!live && cursor && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole' || tool === 'device' || tool === 'stairs')) o += `<circle cx="${sx(cursor[0])}" cy="${sy(cursor[1])}" r="5" fill="none" stroke="${C.accent}" stroke-width="1.5"/>`;
+    if (!live && tool === 'measure' && ctx.measure) o += ctx.measure.svg({ sx, sy, s, rot });   // the measurement (measure.js)
 
     if (!live && bgMode === 'move' && bg?.img && !bg.hidden) {   // frame and corner handles of the template
       const cs = bgCorners(bg);
@@ -1055,8 +1056,13 @@ export function createPlan(ctx) {
     } else if (tool === 'opening') {
       opPreview = openingTarget(x, z);
       render();
+    } else if (tool === 'measure') {
+      ctx.measure?.hover(x, z, measureTol(), e.altKey);
+      render();
     }
   });
+  /** how far a measure click snaps (measure.js): to a corner about 10 px, to a wall face a few px beside it */
+  const measureTol = () => ({ corner: 10 / s, wall: Math.max(0.06, 7 / s) });
 
   function openingTarget(x, z, def = ctx.OPENING_DEFAULTS[ctx.getOpeningType()]) {
     let best = null, bd = Math.max(0.3, 14 / s);
@@ -1162,6 +1168,9 @@ export function createPlan(ctx) {
         ctx.setSelection({ kind: 'opening', id: o.id });
         ctx.commit();
       }
+    } else if (tool === 'measure') {                            // measuring (measuretool.js): two points, or two walls to set apart
+      ctx.measure?.click(x, z, measureTol(), e.altKey);
+      render();
     } else if (tool === 'cable') {
       const h = pickAt(x, z);
       if (h?.kind === 'device') ctx.cableClick(h.id);
@@ -1191,7 +1200,7 @@ export function createPlan(ctx) {
     }
     cancel();
   }
-  function cancel() { drawPts = []; cursor = null; opPreview = null; ctx.setStatus(''); render(); }
+  function cancel() { drawPts = []; cursor = null; opPreview = null; ctx.measure?.clear(); ctx.setStatus(''); render(); }
 
   root.addEventListener('dblclick', (e) => {
     if (isLive()) return;
@@ -1276,7 +1285,7 @@ export function createPlan(ctx) {
     });
     return best;
   }
-  root.addEventListener('pointerleave', () => { if (!drag) { opPreview = null; if (!drawPts.length) cursor = null; render(); } });
+  root.addEventListener('pointerleave', () => { if (!drag) { opPreview = null; if (!drawPts.length) cursor = null; ctx.measure?.leave(); render(); } });
 
   new ResizeObserver(() => { if (visible) schedule(); }).observe(root);
 
@@ -1297,7 +1306,7 @@ export function createPlan(ctx) {
     pickAt, splitWallAt, wallNear,           // for the browser tests
     fit,
     cancel,
-    reset() { drawPts = []; cursor = null; opPreview = null; calibPts = []; calibCur = null; },
+    reset() { drawPts = []; cursor = null; opPreview = null; calibPts = []; calibCur = null; ctx.measure?.clear(); },
     setBgMode(m) { bgMode = m; calibPts = []; calibCur = null; root.classList.toggle('bgmode', !!m); render(); },
     hasDraft: () => drawPts.length > 0,
     finishRoom,

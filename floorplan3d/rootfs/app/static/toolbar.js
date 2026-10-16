@@ -5,7 +5,7 @@ const KEY = 'fp3d.toolbar';
 export const TOOLS = [
   ['select', '[data-tool=select]'], ['wall', '[data-tool=wall]'], ['room', '[data-tool=room]'], ['autoRooms', '#autoRooms'],
   ['block', '[data-tool=block]'], ['plot', '[data-tool=plot]'], ['stairs', '[data-tool=stairs]'], ['hole', '[data-tool=hole]'],
-  ['opening', '[data-tool=opening]'], ['device', '[data-tool=device]'], ['erase', '[data-tool=erase]'],
+  ['opening', '[data-tool=opening]'], ['device', '[data-tool=device]'], ['measure', '[data-tool=measure]'], ['erase', '[data-tool=erase]'],
   ['power', '#powerEditBtn'], ['cable', '#cableBtn'], ['energy', '#energyBtn'], ['dormer', '#dormerBtn'], ['import', '#importBtn'],
 ];
 const ALWAYS = new Set(['select']);                       // the selection tool can not be hidden, so the bar never gets empty

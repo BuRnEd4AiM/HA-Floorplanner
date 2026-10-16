@@ -285,7 +285,7 @@ body.v-split #view { position: absolute; left: 50%; top: 0; width: 50%; height: 
 body.v-split #plan2d { background: rgba(3, 21, 71, .35); }
 body.v-2d #plan2d { background: rgba(3, 21, 71, .35); }
 #plan2d { cursor: default; }
-body[data-tool="wall"] #plan2d, body[data-tool="room"] #plan2d, body[data-tool="device"] #plan2d, body[data-tool="opening"] #plan2d { cursor: crosshair; }
+body[data-tool="wall"] #plan2d, body[data-tool="room"] #plan2d, body[data-tool="device"] #plan2d, body[data-tool="opening"] #plan2d, body[data-tool="measure"] #plan2d { cursor: crosshair; }
 body.live #plan2d { cursor: pointer; }
 
 body:not(.live) #roomPanel { display: none !important; }   /* edit mode: the side panel already lists the room's entities */
@@ -330,6 +330,16 @@ body.readonly #bgPanel { display: none; }
 #stairPalette .palette, #blockPalette .prop { margin-bottom: 8px; }
 #stairPalette .palette button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 #stairPalette .sub, #blockPalette .sub { margin: 8px 0 0; }
+
+/* measuring (measuretool.js) */
+#measureBody .msBig { font-size: 22px; font-weight: 700; color: #ffd84a; margin: 6px 0 2px; }
+#measureBody .msParts { margin: 0 0 8px; }
+#measureBody h4 { margin: 12px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+#measureBody .msRow { display: flex; align-items: center; gap: 6px; }
+#measureBody .msRow input { flex: 1; min-width: 0; }
+#measureBody .msUnit { color: var(--muted); min-width: 1.4em; }
+#measureBody .stopTools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+#plan2d .msLabel, #plan2d .msAngle { user-select: none; }
 
 /* furniture library */
 #paletteSearch { width: 100%; margin-bottom: 6px; }

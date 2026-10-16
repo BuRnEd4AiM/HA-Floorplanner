@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.91.0] - 2026-10-16
+### Added
+- **Measuring in the 2D plan and in 2D + 3D** (#399): a new tool **Messen** in the tool bar, also with the key **M** (in the 3D view it opens 2D + 3D). Click two points: the plan shows the line with its length, the side panel the length, how far across and down the plan it goes and its slope. Clicks snap to wall ends, to the inner and outer corners of the wall faces, to room corners and onto the face of a wall; **Alt** measures from a free point. Click **two walls** one after the other and set them exactly in the side panel: for parallel walls the **clear distance** (face to face) or the distance between the wall centres, for any two walls the **angle** between them. The orange wall moves (a straight wall drawn in several pieces as a whole), the walls joined to it stretch along, a wall that ends on it too, and the rooms follow; a turned wall keeps its length and turns round the corner. **⇄** moves the other wall instead, Ctrl+Z takes it back. The plan shows the two walls, the distance between their faces at right angles and the angle in the corner; the 3D view shows the line with its length, and clicks there measure too. Translated into all 7 languages. New modules `measure.js` (points, distances, angles, what moves; pure logic, unit tests `tests/measure.test.mjs`) and `measuretool.js` (side panel, line in 3D); browser test part `19_measure`.
+
 ## [3.90.0] - 2026-10-16
 ### Added
 - **Garage, workshop and carport: about 55 new pieces** in three new library groups, all in their real sizes, so you can try out whether the car, the motorhome or the workbench fits:

@@ -46,6 +46,7 @@ test('keys: undo, delete, turn, floor up / down, nudge steps, tools; nothing in 
   assert.equal(E.keyCommand('arrowup', { ...none, ctrl: true }, { ...s, selKind: 'room' }), null);
   assert.deepEqual(E.keyCommand('w', none, s), { do: 'tool', tool: 'wall' });
   assert.deepEqual(E.keyCommand('t', none, s), { do: 'tool', tool: 'stairs' });
+  assert.deepEqual(E.keyCommand('m', none, s), { do: 'tool', tool: 'measure' });              // measuring (#399)
   assert.equal(E.keyCommand('x', none, s), null);
   assert.equal(E.keyCommand('delete', none, { ...s, live: true }), null);
 });

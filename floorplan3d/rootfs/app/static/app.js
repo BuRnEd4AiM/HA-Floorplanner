@@ -97,6 +97,7 @@ import { initOfflineMarks, offlineMarks } from './offlinemarks.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
 import { initRenames } from './renames.js';
+import { initMeasureTool } from './measuretool.js';
 window.fp3dBooted = true;           // every module is loaded: the boot guard (bootguard.js) stands down (#328)
 
 /* ================= State ================= */
@@ -844,6 +845,11 @@ function snapToWall(d, maxDist = 2, keepFacing = false) { return snapOnWall(d, f
 const pictures = initPictures({ snapshot: () => snapshot(), changed: () => changed(), renderProps: () => renderProps() });
 function setPicture(model, d) { pictures.setPicture(model, d); }
 function uploadPicture(file, d) { return pictures.uploadPicture(file, d); }
+/* ---- measuring (tool "Messen", key M): distance of two points, distance / angle of two walls; the code lives in measuretool.js and measure.js ---- */
+const measureTool = initMeasureTool({
+  $, t, floor: () => floor(), floorIdx: () => floorIdx, elev: (i) => elev(i), scene, textSprite: (...a) => textSprite(...a), fmtLen: (m) => fmtLen(m),
+  toDisp, fromDisp, imperial, snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), renderPlan: () => plan?.render(),
+});
 /* ================= Pointer events: select, drag, draw, place, double click; the code lives in draw3d.js ================= */
 draw3d = initDraw3d({
   canvas, controls, temp, t, setStatus: (x) => setStatus(x), fmtLen: (m) => fmtLen(m), clearGroup: (g) => clearGroup(g), elev: () => elev(),
@@ -854,7 +860,7 @@ draw3d = initDraw3d({
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), multi: { toggle: (h) => multiSel.toggle(h), clear: () => multiSel.clear() }, liveTap: (e) => handleLiveTap(e),
   cableClick: (id) => power.cableClick(id), deleteItem: (sel) => deleteItem(sel), newDevice: (x, z) => newDevice(x, z), holdPlaced: () => holdPlaced(),
   editNano: (d) => editNano(d), switchDevice: (d) => deviceEntities(d).forEach((e) => live.quickAction(e)),   // #251
-  roofBox: (id) => roofRectOf(id)?.box || null, dragRoof: (id, dx, dz) => dragRoofBy(id, dx, dz),
+  roofBox: (id) => roofRectOf(id)?.box || null, dragRoof: (id, dx, dz) => dragRoofBy(id, dx, dz), measure: measureTool,
 });
 
 /** a device was just placed: it stays selected and can be moved at once; the next click on empty space deselects it and placing goes on */
@@ -972,7 +978,8 @@ function setTool(next) {
   $('#stairPalette').hidden = next !== 'stairs';
   $('#blockPalette').hidden = next !== 'block';
   $('#plotPalette').hidden = next !== 'plot';
-  if ((next === 'block' || next === 'stairs' || next === 'plot' || next === 'hole') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn in the 2D plan
+  $('#measurePanel').hidden = next !== 'measure';
+  if ((next === 'block' || next === 'stairs' || next === 'plot' || next === 'hole' || next === 'measure') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn (measured) in the 2D plan
   canvas.style.cursor = next === 'select' ? 'default' : 'crosshair';
 }
 document.querySelectorAll('#tools button[data-tool]').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
@@ -1380,7 +1387,7 @@ plan = createPlan({
   powerMode: () => power.isMode(), showCables: () => power.cablesShown(), isPowerType: (type) => power.isType(type), cablesOf: (d) => power.cablesOf(d), cableColor: (d, c) => power.cableColor(d, c), cableClick: (id) => power.cableClick(id),
   newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, OPENING_DEFAULTS, uid, pointInPoly,
   roomHeat: (room, f) => (viewMode === 'normal' ? null : roomHeat(room, f)),
-  states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, fmtLen, t, setStatus,
+  states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, fmtLen, t, setStatus, measure: measureTool,
   area: (p) => (imperial() ? `${(polyArea(p) * 10.7639).toFixed(0)} ft²` : `${polyArea(p).toFixed(1)} m²`),
 });
 
@@ -1557,7 +1564,7 @@ if (params.get('debug')) {
     snapPicture: (id) => { const d = floor().devices.find((v) => v.id === id); snapToWall(d, 3, true); return [d.x, d.z, d.rot]; },
     LOW, elev, houseMode: () => houseMode, setHouseMode, moveFloor, addFloorOf, floorIdx: () => floorIdx,
     holeCount: (i) => floorOpenings(i).length,
-    plan: () => plan,
+    plan: () => plan, measure: () => measureTool,
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
     pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, seg: h.data.seg } : null; },
     ringGlow: (id) => (registry.get(id)?.userData.segs || []).map((sg) => sg.glow[0].emissiveIntensity > 0),
