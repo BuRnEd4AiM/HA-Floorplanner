@@ -85,6 +85,7 @@ import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
 import { frameDue, shadowDue } from './frameloop.js';
 import { initPerfHud } from './perfhud.js';
+import { floorsMode, floorElev, hasSlab, isCovered, underRoof, liveFloors, initHouseFloors } from './housefloors.js';
 import { initHouseLoad } from './houseload.js';
 import { roofRects, moveRoof, tagRoofMeshes, panelsOn, setRoofBox, stepTarget } from './roofmove.js';
 import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
@@ -139,13 +140,9 @@ const $ = (s) => document.querySelector(s);
 const uid = () => Math.random().toString(36).slice(2, 9);
 const floor = () => layout.floors[floorIdx];
 const groundIdx = () => Math.max(0, layout.floors.findIndex((f) => f.kind !== 'basement'));   // first floor above ground
-let exploded = false;                  // whole-house view with the floors pulled apart
 const WALL_SEE = 0.3;                  // opacity of a wall between the camera and the room when the walls are made see-through
-const EXPLODE_GAP = 2.5;               // extra space between every two floors when pulled apart (m); the lowest floor stays, all above it lift
-const elev = (i = floorIdx) => {
-  const k = i - groundIdx();
-  return k * FLOOR_H + (houseMode && exploded ? i * EXPLODE_GAP : 0);
-};
+/** height of floor i; the whole-house view can pull the floors apart or stack them like a real house (setting houseFloors, housefloors.js) */
+const elev = (i = floorIdx) => floorElev(i, groundIdx(), FLOOR_H, floorsMode(settings, houseMode));
 /** how clearly the floors below the open one show: dimmed (the setting), fully (stacked) */
 const belowVis = () => (settings.belowMode === 'stacked' ? 1 : settings.belowVisibility);
 let houseMode = false;                 // "whole house" view: every floor solid, nothing ghosted
@@ -374,6 +371,7 @@ function build() {
     plotLoop = loop;
     world.add(loop);
   }
+  const stacked = floorsMode(settings, houseMode) === 'stacked' && !iso;   // like a real house: ceilings between the floors (housefloors.js)
   layout.floors.forEach((f, i) => {
     if (i > floorIdx && !houseMode) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
@@ -385,13 +383,16 @@ function build() {
     g.position.y = elev(i);
     world.add(g);
     const holes = floorOpenings(i);
+    const stack = stacked ? { covered: isCovered(layout.floors, i), slab: hasSlab(layout.floors, i), upTo: underRoof(layout.floors, i) ? roofBox(i + 1) : null } : null;
+    if (stack?.covered) Object.assign(g.userData, { covered: true, ceiling: settings.wallHeight || 2.6 });   // its balls and labels stay in its rooms
     if (f.kind === 'roof' && !iso) {
       roofsUi.build(g, i, f, holo, ghost);
       if (!ghost && !houseMode && i === floorIdx) tagRoofMeshes(g, f, (m, id) => { pickables.push(m); if (!registry.has(id)) registry.set(id, m); roofParts.set(id, [...(roofParts.get(id) || []), m]); });   // the roofs of the open roof floor can be picked and moved (#255)
     }
     const roofsHere = f.kind === 'roof' ? roofList(i) : null;
 
-    const part = { holo, ghost, iso, labels: labelsHere, holes };   // rooms, floor opening rims and blocks: floorbuild.js
+    const part = { holo, ghost, iso, labels: labelsHere, holes, stack };   // rooms, floor opening rims and blocks: floorbuild.js
+    floorBuild.slab(g, f, i, { ...part, edge: edgeMaterial });
     floorBuild.rooms(g, f, part);
     floorBuild.holeRims(g, f, part);
     floorBuild.blocks(g, f, i, part);
@@ -400,6 +401,7 @@ function build() {
     floorBuild.walls(g, f, i, { ...part, edge: edgeMaterial, roofClip: roofsUi.wallClip(i) });   // under the roof the walls follow the slope (#260)
 
     floorBuild.devices(g, f, { ...part, roofs: roofsHere });       // devices, tap balls, camera cones, value labels: floorbuild.js
+    floorBuild.inside(g, part);
   });
   const overRi = houseMode ? -1 : coverRoofFloor(layout.floors, floorIdx);   // the roof over the floor shown (not drawn yet: it is a floor above), see-through
   if (iso ? overRi >= 0 && roofsUi.overRoom(overRi, floorIdx, iso.points) : overRi > floorIdx) { const g = new THREE.Group(); g.position.y = elev(overRi); world.add(g); roofsUi.over(g, overRi, iso ? iso.points : null, holo); }   // a focused room: only the part over it, and only under a slope or a dormer (#306)
@@ -579,11 +581,12 @@ function applyStates() {
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
   const bv = belowVis();
-  for (let fi = 0; fi <= floorIdx; fi++) {
-    const f = layout.floors[fi], ghost = fi < floorIdx;
+  liveFloors(layout.floors.length, floorIdx, houseMode).forEach((fi) => {   // the whole-house view: every floor, not only the one opened last (#392)
+    const f = layout.floors[fi];
     f.devices.forEach((d) => {
       const obj = registry.get(d.id);
       if (!obj) return;
+      const ghost = houseMode ? !!obj.userData.ghost : fi < floorIdx;   // dimmed: below the open floor (whole house: a see-through basement)
       const on = d.entity && isOnNow(d.entity);
       const rgb = on ? lampRgb(d, states[d.entity]) : null;   // lit parts take the light's colour (or the one set on a lamp that reports none, #367)
       if (obj.userData.heat) paintHeat(obj.userData, heatLook(heatMode(d.entity, states[d.entity], on, d.type)));   // a radiator: red while it heats, cool blue while not; an air conditioner's outlet (heating.js)
@@ -618,7 +621,7 @@ function applyStates() {
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W', pillTone(d, states[d.entity], on)); }   // a heater's temperature: red / blue
     });
-  }
+  });
   tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
   offMarks.update(offIds, new Map(offList.map((x) => [x.id, x.floor])));   // the offline sign over what has no ball showing it (offlinemarks.js)
   buildNav();                             // room pills show a dot while somebody is in the room
@@ -1055,6 +1058,7 @@ function updateNavToggles() {
   $('#autoToggle').classList.toggle('active', !!settings.cutaway);
   $('#seeToggle').classList.toggle('active', !!settings.seeThrough);
   $('#belowLabelsToggle').classList.toggle('active', settings.belowLabels !== false);
+  houseFloors.update();
 }
 function setLowWalls(v) {
   lowWalls = v;
@@ -1094,19 +1098,18 @@ const floorRail = initFloorRail({
 
 function fillFloorSelect() { buildNav(true); }
 
-function updateExplodeToggle() {
-  const b = $('#explodeToggle');
-  b.hidden = !houseMode || layout.floors.length < 2;
-  b.classList.toggle('active', exploded);
-}
-$('#explodeToggle').addEventListener('click', () => { exploded = !exploded; updateExplodeToggle(); build(); fitCamera(); });
+/* the floors of the whole-house view: as built, pulled apart or stacked like a real house (buttons in the view menu); housefloors.js */
+const houseFloors = initHouseFloors({
+  $, settings: () => settings, houseMode: () => houseMode, floorCount: () => layout.floors.length,
+  choose: (m) => { $('#setHouseFloors').value = m; commitSettings(); },
+});
 function setHouseMode(on) {
   houseMode = on; selection = null; lockedSel = false; focusedRoom = null; multiSel.clear(); document.body.classList.toggle('house', on);
   clearFocusOutline(); build(); fitCamera(); refreshSelection(); buildNav(true);
-  floorCards.update(); updateExplodeToggle();
+  floorCards.update(); houseFloors.update();
 }
 function switchFloor(i) {
-  houseMode = false; document.body.classList.remove('house'); floorCards.update(); updateExplodeToggle();
+  houseMode = false; document.body.classList.remove('house'); floorCards.update(); houseFloors.update();
   floorIdx = i; selection = null; lockedSel = false; focusedRoom = null; multiSel.clear(); endDrawing(); popup.close(); roomPanel.close();
   clearFocusOutline(); build(); fitCamera(); refreshSelection();
   if (bgUi.mode()) bgUi.setMode(null); else bgUi.render();
@@ -1292,6 +1295,7 @@ const settingsStore = initSettings({
     }
     applySettings(prev);
     build();
+    if (houseMode && floorsMode(prev, true) !== floorsMode(settings, true)) fitCamera();   // pulled apart the house is taller
   },
 });
 const loadSettings = () => settingsStore.load();
@@ -1504,7 +1508,7 @@ if (params.get('debug')) {
     roofKeep: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { n = Math.max(n, m.userData.atticU?.atticNR.value || 0); }); }); return n; },
     roofRise: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { n = Math.max(n, ...(m.userData.atticU?.atticRise.value || []).map((v) => v.x)); }); }); return n; },   // a shed dormer's sloping ceiling over wall id (#339)   // dormer rooms kept on wall id (#265)
     clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earth.plane))) n++; }); return n; },
-    earthDbg: () => ({ n: earth.plane.normal.toArray(), c: earth.plane.constant, solid: earth.lawn(), cut: earth.cut(), capVisible: !!earth.info()?.cap.visible, capVerts: earth.info()?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earth.box(), ground: earth.ground() }),
+    earthDbg: () => ({ n: earth.plane.normal.toArray(), c: earth.plane.constant, solid: earth.lawn(), cut: earth.cut(), capVisible: !!earth.info()?.cap.visible, capVerts: earth.info()?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earth.box(), ground: earth.ground(), pads: earth.pads() }),
     stateOf: (e) => states[e]?.state,
     fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),

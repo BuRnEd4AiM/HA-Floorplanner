@@ -60,3 +60,9 @@ test('every lamp profile has a reach and a strength', () => {
   for (const [k, p] of Object.entries(L.LIGHT_PROFILE)) assert.ok(p.r > 0 && p.k > 0, k);
   assert.equal(L.MAX_LIGHTS, 8);
 });
+
+test('where the lawn is cut open the house stands on ground, not over a black hole (#391)', () => {
+  assert.ok(E.padLevel(false, 0.4) < -0.02 && E.padLevel(false, 0.4) > -0.05);   // without a basement: just under the lawn, under the floors
+  assert.ok(Math.abs(E.padLevel(true, 3.4) - -3.415) < 1e-9);                     // with one: the bottom of the pit, under the basement floor
+  assert.ok(E.padLevel(true, 3.4) < -3);
+});

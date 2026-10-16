@@ -27,6 +27,9 @@ export function offlineMarks(list) {
  *  place (half a value pill when it sits on the pill, 0 on the top of a model). Done with the anchor, so it stays above it from every
  *  side, also looking straight down. A door or a window has its mark in the middle (center 0.5) */
 export const markCenterY = (below = 0) => 0.5 - (below + MARK.r + MARK.gap) / (2 * MARK.r);
+/** a floor under another one (the floors stacked, housefloors.js): does a mark over y (below: as markCenterY) stay under the ceiling; when
+ *  not it hangs under its place instead (anchor 1 - markCenterY), so it stays inside the room */
+export const markFits = (y, below, ceiling) => y + below + MARK.gap + 2 * MARK.r <= ceiling + 1e-9;
 
 /** draw the sign on a canvas (2D context g, size s): a dark grey ball with a coloured rim, a lightning bolt, crossed out */
 export function drawOffline(g, s, reason = 'offline') {
@@ -68,12 +71,15 @@ export function initOfflineMarks(ctx) {
     const obj = m.obj, group = kind === 'opening' ? obj.parent?.parent : obj.parent;
     if (!group) return false;
     if (m.sprite.parent !== group) group.add(m.sprite);
+    const ceil = group.userData.covered ? group.userData.ceiling : null;   // stacked: seen only inside its floor, under its ceiling
+    m.sprite.material.depthTest = !!ceil;
+    const anchor = (y, below) => (ceil && !markFits(y, below, ceil) ? 1 - markCenterY(below) : markCenterY(below));
     group.updateWorldMatrix(true, true);
     inv.copy(group.matrixWorld).invert();
     const pill = kind === 'device' ? ctx.labelSprites.get(id) : null;
     if (pill?.visible && pill.parent === group) {
       m.sprite.position.copy(pill.position);
-      m.sprite.center.set(0.5, markCenterY(PILL_HALF));
+      m.sprite.center.set(0.5, anchor(pill.position.y, PILL_HALF));
       return true;
     }
     box.makeEmpty();
@@ -85,6 +91,7 @@ export function initOfflineMarks(ctx) {
     if (box.isEmpty()) return false;
     box.getCenter(v);
     if (kind === 'opening') { m.sprite.position.copy(v); m.sprite.center.set(0.5, 0.5); }
+    else if (ceil && !markFits(box.max.y, 0, ceil)) { m.sprite.position.set(v.x, box.min.y, v.z); m.sprite.center.set(0.5, 1 - markCenterY(0)); }   // under a ceiling lamp
     else { m.sprite.position.set(v.x, box.max.y, v.z); m.sprite.center.set(0.5, markCenterY(0)); }
     return true;
   }
