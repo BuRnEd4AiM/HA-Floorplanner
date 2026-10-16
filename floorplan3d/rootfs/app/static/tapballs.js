@@ -8,6 +8,7 @@ import { shutterBallY } from './shutters.js';
 import { isLamp } from './lamplight.js';
 import { drawOffline } from './offlinemarks.js';
 import { LEISURE } from './leisure.js';
+import { inRoom } from './housefloors.js';
 
 export const BALL = { r: 0.3, finger: 0.4, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
 
@@ -194,8 +195,8 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
       box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld).applyMatrix4(inv));
     });
     if (box.isEmpty()) return false;
-    const c = box.getCenter(new THREE.Vector3());
-    b.base = { x: c.x, y: ballY(box.min.y, box.max.y, ctx.ceiling()), z: c.z };
+    const c = box.getCenter(new THREE.Vector3()), y = ballY(box.min.y, box.max.y, ctx.ceiling());
+    b.base = { x: c.x, y: b.group.userData.covered ? inRoom(y, ctx.ceiling(), BALL.r + BALL.ceilingGap) : y, z: c.z };   // a floor under another one (stacked, housefloors.js): in the room
     b.ball.position.set(b.base.x, b.base.y, b.base.z);
     unsettled = true;
     return true;

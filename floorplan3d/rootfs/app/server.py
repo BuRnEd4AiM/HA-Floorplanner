@@ -77,6 +77,7 @@ DEFAULT_SETTINGS = {
     "nightTo": "06:00",
     "belowMode": "dim",        # floors below the open one: dim (see-through, belowVisibility) | stacked (clearly visible) | hidden
     "belowLabels": True,       # room names and value labels of the floors below the open one (#249)
+    "houseFloors": "normal",   # floors of the whole-house view: normal (as built) | apart (pulled apart) | stacked (like a real house)
     "belowVisibility": 0.5,    # how clearly floors below the current one shine through (0.05..1)
     "wallOpacity": 0.72,       # hologram walls: 0.2 (glass) .. 1 (solid)
     "glowRadius": 3.5,         # metres a lamp lights up
@@ -104,7 +105,8 @@ RANGES = {"idleReturn": (0.0, 240.0), "belowVisibility": (0.05, 1.0), "wallOpaci
 VIEWS = ("3d", "2d", "split", "all")
 # what a user preset may set and the values allowed (the same list as PRESET_FIELDS in static/viewprefs.js, #250)
 PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWalls": (True, False),
-                 "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False)}
+                 "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False),
+                 "houseFloors": ("normal", "apart", "stacked")}
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control" and "cameras" are refused here too
 LOCKS = ("control", "details", "cameras", "energy", "colorModes", "viewMenu", "views", "houses", "search", "settings", "timeline")
@@ -483,6 +485,8 @@ def validate_settings(data: dict) -> dict:
         out["labelMode"] = DEFAULT_SETTINGS["labelMode"]
     if out["belowMode"] not in ("dim", "stacked", "hidden"):
         out["belowMode"] = DEFAULT_SETTINGS["belowMode"]
+    if out["houseFloors"] not in PRESET_FIELDS["houseFloors"]:
+        out["houseFloors"] = DEFAULT_SETTINGS["houseFloors"]
     if out["earth"] not in ("off", "glass", "solid"):
         out["earth"] = DEFAULT_SETTINGS["earth"]
     if out["nightDim"] not in ("off", "sun", "time"):

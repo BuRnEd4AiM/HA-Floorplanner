@@ -42,11 +42,18 @@ export function cutPlane(cam, info) {
   return { dx, dz, px: info.cx + dx * ext, pz: info.cz + dz * ext };
 }
 
+/** the ground under the house where the lawn is cut open (#391): without a basement the house stands on its floor slab at the lawn (just
+ *  under it, the room floors lie over it), with one the pit of the basement has its bottom slab. depth: how deep the earth reaches */
+export function padLevel(hasBasement, depth) {
+  return hasBasement ? -depth - 0.015 : -0.03;
+}
+
 /** ctx: layout(), groundIdx(), floorH, settings(), houseMode() */
 export function initEarth(ctx) {
   const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), -1000);   // nothing cut until the camera says where
   let info = null;                                                     // { cx, cz, corners, rings, depth, cap, key } while the earth is cut
   let lawn = false, ground = false, box = null;                        // solid lawn is drawn / any ground is drawn (it replaces the grid)
+  let pads = 0;                                                        // pieces of ground under the house (padLevel)
   let soilTex = null;
   function soilTexture() {                       // earth layers for the sides and the cut: topsoil, loam, clay, gravel
     if (soilTex) return soilTex;
@@ -59,7 +66,7 @@ export function initEarth(ctx) {
     soilTex.colorSpace = THREE.SRGBColorSpace;
     return soilTex;
   }
-  function reset() { info = null; lawn = false; ground = false; }
+  function reset() { info = null; lawn = false; ground = false; pads = 0; }
   function build(world, holo) {
     const layout = ctx.layout(), settings = ctx.settings(), nb = ctx.groundIdx();
     const foot = houseFootprint(layout.floors, nb);
@@ -94,6 +101,15 @@ export function initEarth(ctx) {
     top.position.y = -0.02;                                       // so looking into the cut never shows a green bottom
     top.renderOrder = -1;
     world.add(top);
+    if (holes.length) {                                           // where the lawn is cut open the house stands on ground, not over a black hole
+      const padMat = new THREE.MeshBasicMaterial({ color: holo ? 0x123f6e : 0x8c857a, transparent: !solid || holo, opacity: solid ? (holo ? 0.85 : 1) : 0.2, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip });
+      const pad = new THREE.Mesh(new THREE.ShapeGeometry(holes.map((ring) => new THREE.Shape(ring.map(([x, z]) => new THREE.Vector2(x, -z))))).rotateX(-Math.PI / 2), padMat);
+      pad.position.y = padLevel(nb > 0, depth);                  // seen through the dimmed floor below the open one, or where it is hidden
+      pad.renderOrder = -1;
+      pad.userData.earthPad = true;
+      world.add(pad);
+      pads = holes.length;
+    }
     earth.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 30), new THREE.LineBasicMaterial({ color: holo ? 0x3dffb0 : 0x7a5a38, transparent: true, opacity: holo ? 0.5 : 0.6, clippingPlanes: clip })));
     world.add(earth);
     lawn = solid; ground = true;
@@ -130,5 +146,5 @@ export function initEarth(ctx) {
     info.cap.geometry = capGeometry(c.px - c.dx * 0.01, c.pz - c.dz * 0.01, -c.dz, c.dx, info.rings, info.depth);
     info.cap.visible = true;
   }
-  return { plane, build, reset, updateCut, cut: () => !!info, info: () => info, lawn: () => lawn, ground: () => ground, box: () => box };
+  return { plane, build, reset, updateCut, cut: () => !!info, info: () => info, lawn: () => lawn, ground: () => ground, box: () => box, pads: () => pads };
 }

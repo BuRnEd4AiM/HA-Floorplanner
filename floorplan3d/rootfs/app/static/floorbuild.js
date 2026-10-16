@@ -12,12 +12,15 @@ import { solarPose, groundFn } from './solarroof.js';
 import { addPickProxy, underFloors, holoify } from './modelfx.js';
 import { shutterEntity, shutterSide, shutterLabelY } from './shutters.js';
 import { openingPoint } from './openings.js';
-import { openingBallAt } from './tapballs.js';
+import { openingBallAt, BALL } from './tapballs.js';
 import { pillFinger } from './labels.js';
 import { isHeater } from './heating.js';
+import { houseFootprint } from './earth.js';
+import { slabDepth, wallUpTo, wallUnder, inRoom, shutterLabelIn } from './housefloors.js';
 
 export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
 export const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
+const LABEL_HALF = 0.25;                                             // half the height of a value label and a little air (m)
 const LABEL_DOMAINS = new Set(['sensor', 'binary_sensor', 'climate', 'cover']);   // "important": measured values
 /** value labels on devices: none, only the important ones (sensors, climate, covers) or every device with an entity */
 export function wantsLabel(d, mode) {
@@ -38,8 +41,37 @@ export const roomCenter = (points) => points.reduce((a, p) => [a[0] + p[0] / poi
  *  railing(g, room, f, holo, ghost) (roof terrace), lowWalls(), roomMeshes (Map), alerts ({ hasRoom(id), pulses }), registry (Map), pickables (Array), floorOpenings(i), floorH, holoEdge,
  *  houseMode(), halfCut(), elev(i), stairMesh(st, holo, ghost, edge, upTo) (stairtool.js), cutawayInfo(w, group), openingHandle(w, o, g),
  *  cutawayWalls() (the list of the open floor's walls for the cutaway), makeModel(type, onLoad, d, pose) (models.js), setPicture(model, d),
- *  placeSolar(model, d, roofs), tapBalls, cams, labelSprites (Map), modelLoaded(); textSprite takes (text, opts) */
+ *  placeSolar(model, d, roofs), tapBalls, cams, labelSprites (Map), modelLoaded(); textSprite takes (text, opts).
+ *  The floors stacked like a real house (housefloors.js): o.stack = { covered (a floor with rooms lies over this one), slab (this floor stands
+ *  on a ceiling), upTo (the roof box over this storey: its walls reach up to the roof) }, null otherwise */
 export function initFloorBuild(ctx) {
+  /** stacked (housefloors.js): the ceiling floor f stands on, from the top of the walls below up to its floor, in the outline of the floor
+   *  (its walls with their thickness, rooms and blocks), with its stairwells and floor openings left open; its edge closes the facade */
+  function slab(g, f, i, o) {
+    if (!o.stack?.slab) return;
+    const d = slabDepth(ctx.floorH, ctx.settings().wallHeight);
+    if (!d) return;
+    let rings = houseFootprint([f], 0);
+    if (!rings.length) rings = [...f.rooms, ...(f.blocks || [])].filter((r) => r.points.length >= 3).map((r) => r.points);
+    const shapes = rings.flatMap((ring) => floorShapes(ring, o.holes));
+    if (!shapes.length) return;
+    const eg = new THREE.ExtrudeGeometry(shapes, { depth: d, bevelEnabled: false, curveSegments: 1 });
+    eg.rotateX(-Math.PI / 2);
+    const m = new THREE.Mesh(eg, o.holo
+      ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: o.ghost ? 0.06 : 0.35, depthWrite: false })
+      : ctx.mat('#cbc4b8', o.ghost));
+    m.position.y = -d - 0.003;                                   // just under the room floors
+    m.castShadow = m.receiveShadow = !o.holo;
+    m.userData.slab = true;
+    if (o.holo && o.edge) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(eg, 30), o.edge));
+    g.add(m);
+  }
+  /** stacked: the room names, value labels, balls and offline signs of a floor that lies under another one are hidden by what is in front
+   *  of them (the floors above, the walls), so they show only where you can look into the floor, not through the floors over it */
+  function inside(g, o) {
+    if (!o.stack?.covered) return;
+    g.traverse((x) => { if (x.isSprite) x.material.depthTest = true; });
+  }
   /** the rooms of floor f in its group g. o: { holo, ghost, iso (the focused room), labels (names shown), holes (stairwell openings) } */
   function rooms(g, f, o) {
     const { holo, ghost, iso } = o;
@@ -141,16 +173,18 @@ export function initFloorBuild(ctx) {
   /** the roller shutters in the windows of wall w (#331): a ball on top of the window (a tap in the live mode opens the shutter's card,
    *  #335) and, like the value label of a device, a label over it with how far it is open (openings.js writes it; labels: the floor shows
    *  its labels) */
-  function shutterParts(g, w, labels) {
-    const mode = ctx.settings().labelMode;
+  function shutterParts(g, w, labels, covered = false) {
+    const mode = ctx.settings().labelMode, ceiling = ctx.settings().wallHeight || 2.6;
     (w.openings || []).forEach((op) => {
       const e = shutterEntity(op);
       if (!e) return;
-      const tb = ctx.tapBalls.add(g, null, { id: op.id, entity: e }, openingBallAt(w, op), 'opening');
+      const at = openingBallAt(w, op);
+      if (covered) at.y = inRoom(at.y, ceiling, BALL.r + BALL.ceilingGap);   // stacked: the ball stays in the room, under the ceiling
+      const tb = ctx.tapBalls.add(g, null, { id: op.id, entity: e }, at, 'opening');
       if (tb) ctx.pickables.push(tb);
       if (!labels || !wantsLabel({ entity: e }, mode)) return;
       const sp = ctx.textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true }), [x, z] = openingPoint(w, op);
-      sp.position.set(x, shutterLabelY(op), z);
+      sp.position.set(x, covered ? shutterLabelIn(shutterLabelY(op), at.y, ceiling, LABEL_HALF) : shutterLabelY(op), z);
       sp.userData.atWindow = true;                             // the balls need not keep clear of it: it is over the window's own ball (#335)
       g.add(sp);
       ctx.labelSprites.set(op.id, sp);
@@ -170,6 +204,7 @@ export function initFloorBuild(ctx) {
       let w = w0;
       if (wallLength(w) < 0.01) return;
       if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
+      if (o.stack?.upTo && !low && !half && wallUnder(w, o.stack.upTo)) w = { ...w, height: wallUpTo(w.height, ctx.settings().wallHeight, ctx.floorH) };   // stacked: up to the roof
       const wallMat = holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : ctx.mat('#d9d4cc', ghost);
@@ -185,7 +220,7 @@ export function initFloorBuild(ctx) {
         info.handles = (w.openings || []).map((op) => ctx.openingHandle(w, op, g));
         ctx.cutawayWalls().push(info);
         ctx.registry.set(w.id, wg); ctx.pickables.push(wg);
-        shutterParts(g, w, o.labels);
+        shutterParts(g, w, o.labels, !!o.stack?.covered);
       }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
@@ -199,7 +234,7 @@ export function initFloorBuild(ctx) {
         wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
       }
       g.add(wg);
-      if (!ghost) { w.openings.forEach((op) => ctx.openingHandle(w, op, g)); shutterParts(g, w, o.labels); }
+      if (!ghost) { w.openings.forEach((op) => ctx.openingHandle(w, op, g)); shutterParts(g, w, o.labels, !!o.stack?.covered); }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
     });
   }
@@ -242,7 +277,8 @@ export function initFloorBuild(ctx) {
       }
       if (label) {
         const sp = ctx.textSprite('…', { size: 30, scaleX: 1.5, scaleY: 0.375, pill: true });
-        sp.position.set(d.x, (d.y || 0) + 0.3 + 0.2 * (d.scale || 1), d.z);
+        const ly = (d.y || 0) + 0.3 + 0.2 * (d.scale || 1);
+        sp.position.set(d.x, o.stack?.covered ? inRoom(ly, ctx.settings().wallHeight || 2.6, LABEL_HALF) : ly, d.z);   // stacked: in the room
         if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * ctx.belowVis(); }
         g.add(sp);
         ctx.labelSprites.set(d.id, sp);
@@ -250,5 +286,5 @@ export function initFloorBuild(ctx) {
       }
     });
   }
-  return { rooms, holeRims, blocks, stairs, walls, devices };
+  return { slab, inside, rooms, holeRims, blocks, stairs, walls, devices };
 }

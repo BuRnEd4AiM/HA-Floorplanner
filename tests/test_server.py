@@ -641,6 +641,15 @@ async def test_live_channel_pushes_state_changes(aiohttp_client, aiohttp_server,
     await ws.close()
 
 
+async def test_house_floors_setting_accepts_known_modes_only(client):
+    s = await (await client.get("/api/settings")).json()
+    assert s["houseFloors"] == "normal"                                       # the whole-house view as built
+    for mode in ("apart", "stacked", "normal"):
+        assert (await (await client.put("/api/settings", json={**s, "houseFloors": mode})).json())["houseFloors"] == mode
+        s = await (await client.get("/api/settings")).json()
+    assert (await (await client.put("/api/settings", json={**s, "houseFloors": "sideways"})).json())["houseFloors"] == "normal"
+
+
 async def test_earth_setting_accepts_known_modes_only(client):
     s = await (await client.get("/api/settings")).json()
     assert s["earth"] == "solid"

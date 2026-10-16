@@ -1,4 +1,4 @@
-"""Floors and views of an imported house: floor rail, floor cards, half section, arrow keys, cameras (#69), room panel (#67), automatic rooms (#17), pull apart, view menu, see-through walls.
+"""Floors and views of an imported house: floor rail, floor cards, half section, arrow keys, cameras (#69), room panel (#67), automatic rooms (#17), pull apart, stacked like a real house, view menu, see-through walls, devices of every floor in the whole-house view (#392).
 """
 # --- floor rail, floor cards, half section, arrow keys, stairs, frameless opening
 ex = json.load(open(os.path.join(S, "..", "..", "docs", "examples", "house.json")))
@@ -159,6 +159,30 @@ check("pull apart: floors get a gap in the whole-house view", pg13.locator("#exp
 check("pull apart: EVERY floor is lifted off the one below (also the ground floor off the basement)", len(gaps1) >= 2 and all(g1 > g0 + 1 for g0, g1 in zip(gaps0, gaps1)), (gaps0, gaps1))
 view_menu(pg13); pg13.click("#explodeToggle"); pg13.wait_for_timeout(600)
 check("pull apart: stacked again", abs(pg13.evaluate("window.__fp.elev(2) - window.__fp.elev(1)") - gap0) < 1e-6 and pg13.evaluate(gaps_js) == gaps0)
+# --- the floors on top of each other like a real house: ceilings fill the gap, the things of a floor under another one stay in its rooms
+slabs_js = "(() => { let n = 0; window.__fp.scene.traverse(o => { if (o.userData && o.userData.slab) n++; }); return n; })()"
+sprites_js = """(() => { let cov = 0, deep = 0; window.__fp.scene.traverse(o => { if (!o.isSprite) return; let g = o.parent, c = false;
+  while (g) { if (g.userData && g.userData.covered) { c = true; break; } g = g.parent; } if (c) { cov++; if (o.material.depthTest) deep++; } }); return [cov, deep]; })()"""
+check("stack: no ceilings in the usual whole-house view", pg13.evaluate(slabs_js) == 0 and pg13.locator("#stackToggle").count() == 1)
+view_menu(pg13); pg13.click("#stackToggle"); pg13.wait_for_timeout(1200)
+cov = pg13.evaluate(sprites_js)
+check("stack: the floors keep their storeys, a ceiling under every floor that stands on another one", pg13.evaluate(gaps_js) == gaps0 and pg13.evaluate(slabs_js) >= 2
+      and "active" in (pg13.get_attribute("#stackToggle", "class") or ""), (pg13.evaluate(gaps_js), gaps0, pg13.evaluate(slabs_js)))
+check("stack: names and labels of a floor under another one hide behind the floors above (not seen through them)", cov[0] > 0 and cov[0] == cov[1], cov)
+check("stack: saved as the setting (houseFloors)", api_admin("api/settings")["houseFloors"] == "stacked")
+view_menu(pg13); pg13.click("#explodeToggle"); pg13.wait_for_timeout(1000)
+check("stack: 'pull apart' takes over from it", pg13.evaluate(slabs_js) == 0 and all(g1 > g0 + 1 for g0, g1 in zip(gaps0, pg13.evaluate(gaps_js)))
+      and "active" not in (pg13.get_attribute("#stackToggle", "class") or "") and api_admin("api/settings")["houseFloors"] == "apart")
+view_menu(pg13); pg13.click("#explodeToggle"); pg13.wait_for_timeout(800)
+check("stack: back to the usual view", api_admin("api/settings")["houseFloors"] == "normal" and pg13.evaluate(gaps_js) == gaps0)
+# --- the whole-house view shows the devices of every floor, not only those of the floor opened last (#392)
+pg13.evaluate("""() => { const L = window.__fp.layout, k = L.floors.map(f => f.kind).lastIndexOf('floor'), f = L.floors[k], r = f.rooms.find(x => x.points.length >= 3);
+  const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);
+  f.devices.push({ id: 'up392', type: 'lamp', x: c[0], z: c[1], y: 0, rot: 0, scale: 1, name: 'Lampe', entity: 'light.wohnzimmer' }); window.__fp.switchFloor(0); }""")
+pg13.wait_for_timeout(500)
+pg13.click("#floorRail .railHouse"); pg13.wait_for_timeout(800)
+pg13.click("[data-mode=live]"); pg13.wait_for_timeout(1500)
+check("whole house (#392): a lamp on a floor above the one opened last has its tap ball", pg13.evaluate("window.__fp.ballScreen('up392')") is not None)
 pg13.close()
 # --- view menu in the bottom bar, half section hides what hangs above the cut, see-through walls, a second tap leaves the room (#132, #131, #129, #128)
 pgW = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})

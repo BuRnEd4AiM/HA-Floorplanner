@@ -76,6 +76,11 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 29. **Fernseher am Schwenkarm** (54.1 bis 54.4): im Suchfeld **„schwenkarm“** eingeben, den **„Wand-TV mit Schwenkarm“** an eine Wand setzen, anklicken und rechts **„Schwenken“**, **„Abstand zur Wand“** und **„Neigen“** ändern; bei **„Hintergrundlicht“** ein Licht wählen.
 30. **Klimageräte und Ventilatoren** (54.5 bis 54.8): links die neue Gruppe **„Klima & Lüftung“**; ein Klimagerät mit seinem Thermostat (`climate.…`) verknüpfen und in „Live“ auf Kühlen und Heizen stellen.
 
+**Neu in 3.88** (ausführlich in Abschnitt **55** unten)
+31. **Etagen aufeinander wie ein echtes Haus** (55.1 bis 55.5): „Ganzes Haus“, unten „Ansicht“ → **„Aufeinander“**. Die Etagen sitzen ohne Lücke aufeinander, dazwischen eine Decke. In „Live“ bleiben die Kugeln und Schilder vom Erdgeschoss im Erdgeschoss und schweben nicht mehr über dem 1. Stock.
+32. **Kein schwarzes Loch unter dem Erdgeschoss** (55.6, #391): den 1. Stock öffnen: das Erdgeschoss darunter ist blass, steht aber auf Boden, nicht über einem schwarzen Loch.
+33. **Ganzes Haus: alle Etagen zeigen ihre Lampen** (55.7, #392): erst das Erdgeschoss öffnen, dann „Ganzes Haus“ und „Live“: auch die Lampen im 1. Stock haben ihre Kugeln und leuchten.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -196,7 +201,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 0 | 0 | 12 | 0 | 52.1 bis 52.12 |
 | 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs | 0 | 0 | 3 | 0 | 53.1 bis 53.3 |
 | 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 0 | 0 | 8 | 0 | 54.1 bis 54.8 |
-| **Zusammen** | **199** | **2** | **161** | **2** | |
+| 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 0 | 0 | 7 | 0 | 55.1 bis 55.7 |
+| **Zusammen** | **199** | **2** | **168** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -842,3 +848,14 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 54.6 | Das Split-Klimagerät an eine Wand setzen, mit dem Thermostat (`climate.…`) verknüpfen, in „Live“ auf Kühlen, dann auf Heizen stellen | Kühlt es, wird die Klappe unten blau, heizt es, wird sie rot; das Display leuchtet, solange es läuft (auch bei nur Lüften oder Entfeuchten); das Schild zeigt die Temperatur | ❓ |
 | 54.7 | Ein mobiles Klimagerät an einer Steckdose (`switch.…`) einschalten | Der Luftauslass oben wird blau (es kühlt), das Display leuchtet | ❓ |
 | 54.8 | Den Deckenventilator mit seinem Ventilator (`fan.…`) verknüpfen, unter „LEDs einzeln verknüpfen“ bei „Licht“ die Lampe des Ventilators wählen | Die Leuchte unter dem Ventilator folgt ihrem eigenen Licht und erhellt den Raum | ❓ |
+
+## 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 55.1 | „Ganzes Haus“, unten „Ansicht“ öffnen | Neben „Auseinander“ steht ein Knopf **„Aufeinander“**; in einer einzelnen Etage sind beide nicht da | ❓ |
+| 55.2 | „Aufeinander“ drücken, das Haus von der Seite ansehen | Die Etagen sitzen ohne Lücke aufeinander, zwischen ihnen ist eine Decke (ein etwa 40 cm hohes Band in der Fassade), die Wände unter dem Dach reichen bis an das Dach; an der Treppe ist die Decke offen | ❓ |
+| 55.3 | Noch einmal „Aufeinander“ drücken; dann „Auseinander“ und danach „Aufeinander“ | Wieder die gewohnte Ansicht (kleine Lücke); „Auseinander“ und „Aufeinander“ lösen sich ab, nur einer ist gedrückt | ❓ |
+| 55.4 | „Aufeinander“ an, „Live“, schräg von oben schauen, dann tiefer von der Seite in das Erdgeschoss schauen | Die Kugeln (💡), Schilder (z. B. „22,1 °C“) und Raumnamen vom Erdgeschoss schweben nicht über dem 1. Stock; von der Seite sieht man sie im Erdgeschoss unter der Decke | ❓ |
+| 55.5 | Seite neu laden, „Ganzes Haus“; ⚙ öffnen | Das Haus steht wieder „aufeinander“; in ⚙ steht bei „Etagen im ganzen Haus“ „Aufeinander (wie ein echtes Haus)“, dort lässt es sich auch umstellen | ❓ |
+| 55.6 | Haus ohne Keller, Erde „fest“: den 1. Stock öffnen (#391) | Das Erdgeschoss darunter ist blass, aber darunter ist Boden (grau), kein schwarzes Loch im Rasen | ❓ |
+| 55.7 | Das Erdgeschoss öffnen, dann „Ganzes Haus“ und „Live“ (#392) | Auch die Lampen im 1. Stock haben ihre Kugeln und leuchten, wenn sie an sind; ebenso umgekehrt (erst den 1. Stock öffnen: das Erdgeschoss hat seine Kugeln) | ❓ |

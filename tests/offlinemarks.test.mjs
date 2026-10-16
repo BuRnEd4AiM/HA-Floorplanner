@@ -44,6 +44,14 @@ test('the mark sits just above what it is on: the top of a model, a value pill',
   near((0.5 - M.markCenterY(M.PILL_HALF)) * 2 * M.MARK.r, M.PILL_HALF + M.MARK.r + M.MARK.gap);
 });
 
+test('the floors stacked: a mark that would reach through the ceiling of a floor under another one hangs under its place instead', () => {
+  assert.equal(M.markFits(1.0, 0, 2.6), true);                                     // a lamp on a table: over it
+  assert.equal(M.markFits(2.4, 0, 2.6), false);                                    // a ceiling lamp: no room over it
+  assert.equal(M.markFits(2.6 - 2 * M.MARK.r - M.MARK.gap, 0, 2.6), true);         // just fits
+  assert.equal(M.markFits(2.2, M.PILL_HALF, 2.6), false);                          // over a value pill high up
+  near(1 - M.markCenterY(0) - 0.5, (M.MARK.r + M.MARK.gap) / (2 * M.MARK.r));      // hanging under: the same gap, the other way
+});
+
 test('the sign: a lightning bolt crossed out, red when offline, amber when linked to nothing', () => {
   const red = fakeCanvas(), amber = fakeCanvas();
   M.drawOffline(red.g, 128, 'offline'); M.drawOffline(amber.g, 128, 'unlinked');

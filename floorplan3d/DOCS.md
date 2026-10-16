@@ -146,7 +146,7 @@ Outdoor items (*Baum, Busch, Pool, Rasen, Terrasse, Weg, Zaun*) are normal devic
 
 On wide screens the floors are a **column of thumbnails** at the left edge (top floor first); the **Ganzes Haus** button on top shows the whole house, where a small **card** beside every floor lists its rooms, lights on and windows open (tap = open that floor). Narrow screens and wall tablets show the floor pills instead.
 
-In the whole-house view the **Auseinander** button pulls the floors apart (tap again to stack them). ⚙ → *Etagen darunter* chooses how the floors below the open floor look: dimmed, stacked or hidden.
+In the whole-house view the View menu has two buttons for the floors: **Auseinander** pulls them apart, **Aufeinander** stacks them like a real house (no gap: a ceiling between the floors, the walls reach up to the roof; the balls, labels and names of a floor under another one stay inside its rooms instead of floating over the floor above). Tap the pressed button again for the usual view (a small gap between the floors). The choice is kept (⚙ → *Etagen im ganzen Haus*, also per user in the users dialog). ⚙ → *Etagen darunter* chooses how the floors below the open floor look: dimmed, stacked or hidden.
 
 **Value badges**: ⚙ → *Value badges on devices* shows measurements on the devices ("21.4 °C", "95 W", shutter position ...): only the important ones, all devices, or none. **Temp. / Feuchte / CO₂** at the bottom colour the rooms by their sensors; a scale at the bottom right shows the colours (adjustable in ⚙).
 
@@ -166,7 +166,7 @@ The thermostats of the room have their own **heating panel** next to it (current
 
 **Heaters in 3D:** a radiator, towel radiator or *Heizung* linked to an entity shows only its temperature, on a **red** pill while it heats and a **blue** one while it does not (idle, off); the radiator itself turns red while it heats and a cool blue otherwise. Tap the temperature to open its card. With the value labels switched off it gets a tap ball like other devices.
 
-**View menu:** the *View ▴* button sits in the bottom bar next to Normal / Temperature / Humidity / CO₂; its menu (Auto, Halbschnitt, pull apart, walls, floors in the plan) opens upwards.
+**View menu:** the *View ▴* button sits in the bottom bar next to Normal / Temperature / Humidity / CO₂; its menu (Auto, Halbschnitt, pull apart, stack, walls, floors in the plan) opens upwards.
 
 **See-through walls:** in ⚙ you can make the walls between the camera and the room fade instead of sinking (*Make walls facing the camera see-through …*). Only the wall fades: its doors and windows and the furniture behind it stay solid.
 
