@@ -1092,4 +1092,11 @@ export default {
   'ms.done': 'Hecho – Ctrl+Z lo deshace.',
   'ms.cannot': 'Así no es posible: las paredes se solaparían o el valor no encaja.',
   'ms.pickWalls': 'Consejo: haz clic directamente en dos paredes (no en una esquina) para ajustar aquí su distancia y ángulo.',
+  'prop.barCeiling': 'En el techo',
+  'prop.barCeilingHint': 'Cuelga del techo sobre la barra (hecho para una altura de 2,6 m) y sigue su forma, recta o en esquina. Su luz se puede enlazar más abajo, en «Vincular los LED uno a uno», como «Parte del techo», a una luz propia.',
+  'var.none': 'Nada',
+  'var.rack': 'Copero con copas colgadas',
+  'var.canopy': 'Panel suspendido con LED',
+  'var.pendants': 'Lámparas colgantes',
+  'led.ceiling': 'Parte del techo',
 };

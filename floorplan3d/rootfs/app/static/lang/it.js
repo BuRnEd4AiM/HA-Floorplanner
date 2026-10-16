@@ -1092,4 +1092,11 @@ export default {
   'ms.done': 'Fatto – Ctrl+Z lo annulla.',
   'ms.cannot': 'Così non va: le pareti si sovrapporrebbero, oppure il valore non è adatto.',
   'ms.pickWalls': 'Suggerimento: clicca direttamente su due pareti (non su un angolo) per impostare qui distanza e angolo.',
+  'prop.barCeiling': 'Al soffitto',
+  'prop.barCeilingHint': 'Pende dal soffitto sopra il bancone (fatto per una stanza alta 2,6 m) e ne segue la forma, dritta o ad angolo. La sua luce si può collegare più sotto, in «Collegare i LED uno per uno», come «Parte a soffitto», a una luce propria.',
+  'var.none': 'Niente',
+  'var.rack': 'Portabicchieri con calici appesi',
+  'var.canopy': 'Pannello sospeso con LED',
+  'var.pendants': 'Lampade a sospensione',
+  'led.ceiling': 'Parte a soffitto',
 };

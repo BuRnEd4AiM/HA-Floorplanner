@@ -1091,4 +1091,11 @@ export default {
   'ms.done': 'Gotowe – Ctrl+Z cofa zmianę.',
   'ms.cannot': 'Tak się nie da: ściany by na siebie nachodziły albo wartość nie pasuje.',
   'ms.pickWalls': 'Wskazówka: kliknij bezpośrednio dwie ściany (nie narożnik), aby ustawić tu ich odległość i kąt.',
+  'prop.barCeiling': 'Pod sufitem',
+  'prop.barCeilingHint': 'Wisi pod sufitem nad ladą (zrobione dla pomieszczenia o wysokości 2,6 m) i biegnie jak ona, prosto lub za róg. Jego światło można niżej, w „Połącz diody LED osobno”, jako „Część pod sufitem” połączyć z osobnym światłem.',
+  'var.none': 'Nic',
+  'var.rack': 'Wieszak na kieliszki z wiszącymi kieliszkami',
+  'var.canopy': 'Panel podwieszany z LED',
+  'var.pendants': 'Lampy wiszące',
+  'led.ceiling': 'Część pod sufitem',
 };

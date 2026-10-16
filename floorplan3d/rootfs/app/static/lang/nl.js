@@ -1085,4 +1085,11 @@ export default {
   'ms.done': 'Klaar – Ctrl+Z maakt het ongedaan.',
   'ms.cannot': 'Zo gaat het niet: de muren zouden overlappen, of de waarde past niet.',
   'ms.pickWalls': 'Tip: klik direct op twee muren (niet op een hoek), dan kun je hier hun afstand en hoek instellen.',
+  'prop.barCeiling': 'Aan het plafond',
+  'prop.barCeilingHint': 'Hangt boven de bar aan het plafond (gemaakt voor een ruimte van 2,6 m hoog) en volgt de vorm, recht of om de hoek. Het licht ervan kun je hieronder bij „LED’s apart koppelen” als „Plafonddeel” aan een eigen lamp koppelen.',
+  'var.none': 'Niets',
+  'var.rack': 'Glazenrek met hangende glazen',
+  'var.canopy': 'Plafondpaneel met led',
+  'var.pendants': 'Hanglampen',
+  'led.ceiling': 'Plafonddeel',
 };

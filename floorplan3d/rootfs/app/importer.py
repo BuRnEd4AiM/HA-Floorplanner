@@ -296,7 +296,7 @@ def _device(rep: Report, path: str, spec, ids):
     if isinstance(spec.get("finish"), str) and re.fullmatch(r"[a-z]{2,20}", spec["finish"]):
         d["finish"] = spec["finish"]                   # the finish of a piece in Scandinavian style (oak, white ...; scandi.js knows which)
     if isinstance(spec.get("variant"), str) and re.fullmatch(r"[a-z0-9]{2,20}", spec["variant"]):
-        d["variant"] = spec["variant"]                 # how a piece is built (the PC desk: its monitors, MONITOR_LAYOUTS in leisure.js)
+        d["variant"] = spec["variant"]                 # how a piece is built (the PC desk: its monitors, MONITOR_LAYOUTS; a bar: what hangs over it, BAR_CEILINGS in leisure.js)
     if isinstance(spec.get("tvSize"), (str, int)) and re.fullmatch(r"[0-9]{2}", str(spec["tvSize"])):
         d["tvSize"] = str(spec["tvSize"])             # the size of a TV on a swivel arm in inches (tvmount.js: 43 ... 85, an unknown one shows 55)
     if isinstance(spec.get("leds"), list):            # the entities of the LED zones of a piece (a mirror, the bar ...; ledzones.js), "" follows "entity"

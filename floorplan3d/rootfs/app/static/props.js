@@ -11,8 +11,8 @@ import { BRIDGE, bridgeSize } from './bridge.js';
 import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
 import { hasShutter, setShutter, setShutterEntity, shutterChoices } from './shutters.js';
 import { wantsLightColor } from './lamplight.js';
-import { finishChoices, finishOf, variantChoices, variantOf } from './scandi.js';
-import { zoneKeys, setZone } from './ledzones.js';
+import { finishChoices, finishOf, variantChoices, variantOf, variantLabel, variantHint } from './scandi.js';
+import { zoneKeys, setZone, fitZones } from './ledzones.js';
 import { TV_SIZES, ARM, armPose } from './tvmount.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
@@ -281,7 +281,7 @@ export function initProps(ctx) {
     if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), ctx.entityPicker(pickFrom(entities), ctx.roomAt(it.x, it.z), it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
     if (wantsLightColor(it)) lightColorField(body, it);
-    if (zoneKeys(it.type).length) zoneFields(body, it);
+    if (zoneKeys(it.type, it).length) zoneFields(body, it);
     if (it.type === 'camera') {                                  // #69: field of view cone on the floor
       body.append(field(t('cam.fov'), inp('number', it.fov ?? 90, (v) => { it.fov = Math.max(0, Math.min(180, +v || 0)); }, { step: 5, min: 0, max: 180 })));
       body.append(field(t('cam.range'), lenInput(() => it.range ?? 4, (v) => (it.range = Math.max(0.5, v)), { min: 0.5, step: 0.5 })));
@@ -300,7 +300,7 @@ export function initProps(ctx) {
   function zoneFields(body, it) {
     const h = document.createElement('h4'); h.textContent = t('zone.title'); body.append(h);
     const lights = pickFrom(ctx.entities().filter((e) => /^(light|switch)\./.test(e.entity_id)));
-    zoneKeys(it.type).forEach((key, i) => {
+    zoneKeys(it.type, it).forEach((key, i) => {
       const box = document.createElement('div'); box.className = 'ringSec'; box.dataset.zone = i; box.style.borderLeftColor = sectionHex(i);
       const head = document.createElement('div'); head.className = 'ringSecHead';
       const lb = document.createElement('b'); lb.textContent = t(`led.${key}`); head.append(lb);
@@ -310,14 +310,15 @@ export function initProps(ctx) {
     const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('zone.help'); body.append(hp);
   }
 
-  /** the variant of a piece (the PC desk: how its monitors stand, leisure.js); the first one is the default and is not stored. Drawn anew: the
-   *  size fields follow the variant */
+  /** the variant of a piece (the PC desk: how its monitors stand, a bar counter: what hangs from the ceiling over it, leisure.js); the first
+   *  one is the default and is not stored. Drawn anew: the size fields and the LED zones follow the variant */
   function variantField(body, it) {
     const list = variantChoices(it.type), sel = document.createElement('select'); sel.id = 'devVariant';
     list.forEach((v) => sel.add(new Option(t(`var.${v}`), v)));
     sel.value = variantOf(it.type, it);
-    sel.addEventListener('change', () => { ctx.snapshot(); if (sel.value === list[0]) delete it.variant; else it.variant = sel.value; ctx.changed(); render(); });
-    body.append(field(t('prop.variant'), sel));
+    sel.addEventListener('change', () => { ctx.snapshot(); if (sel.value === list[0]) delete it.variant; else it.variant = sel.value; fitZones(it); ctx.changed(); render(); });
+    body.append(field(t(variantLabel(it.type)), sel));
+    if (variantHint(it.type)) { const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t(variantHint(it.type)); body.append(hp); }
   }
 
   /** the finish of a piece in Scandinavian style (scandi.js): white, black-brown, oak ...; the first one is the default and is not stored */

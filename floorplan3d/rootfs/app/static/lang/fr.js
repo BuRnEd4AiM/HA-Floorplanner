@@ -1091,4 +1091,11 @@ export default {
   'ms.done': 'Fait – Ctrl+Z annule.',
   'ms.cannot': 'Impossible : les murs se chevaucheraient, ou la valeur ne convient pas.',
   'ms.pickWalls': 'Astuce : clique directement sur deux murs (pas sur un coin) pour régler ici leur distance et leur angle.',
+  'prop.barCeiling': 'Au plafond',
+  'prop.barCeilingHint': 'Suspendu au plafond au-dessus du comptoir (prévu pour une hauteur de pièce de 2,6 m), il suit sa forme, droite ou en angle. Sa lumière peut être reliée à une lumière à elle plus bas, dans « Lier les LED une par une », sous « Partie plafond ».',
+  'var.none': 'Rien',
+  'var.rack': 'Porte-verres avec verres suspendus',
+  'var.canopy': 'Panneau suspendu avec LED',
+  'var.pendants': 'Suspensions',
+  'led.ceiling': 'Partie plafond',
 };

@@ -423,6 +423,13 @@ export function variantOf(type, dev) {
 }
 /** the variants the side panel offers (null: nothing to choose) */
 export const variantChoices = (type) => (SCANDI[type]?.variants?.length > 1 ? SCANDI[type].variants : null);
+/** the name of that choice in the side panel (a translation key): the bar counters choose what hangs from the ceiling, the rest an arrangement */
+export const variantLabel = (type) => SCANDI[type]?.variantLabel || 'prop.variant';
+/** the variant whose size the side panel shows: the bar counters their own (what hangs from the ceiling over them does not count), the rest
+ *  the one they are built in */
+export const sizeVariant = (type, dev) => (SCANDI[type]?.sizeVariant ?? variantOf(type, dev));
+/** a hint under that choice (a translation key), null: none */
+export const variantHint = (type) => SCANDI[type]?.variantHint || null;
 
 const turnX = ([x, y, z], a) => [x, y * Math.cos(a) - z * Math.sin(a), y * Math.sin(a) + z * Math.cos(a)];
 const turnY = ([x, y, z], a) => [x * Math.cos(a) + z * Math.sin(a), y, -x * Math.sin(a) + z * Math.cos(a)];

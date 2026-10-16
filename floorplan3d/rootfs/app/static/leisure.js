@@ -265,6 +265,72 @@ function barCounter(len = 2.4) {
   p.push(...bottles(-0.6, -0.3, 0.91, -0.35, 5), C(0.035, 0.1, 0.3, 0.91, -0.3, 'glass', 0.03, 12), C(0.035, 0.1, 0.4, 0.91, -0.3, 'glass', 0.03, 12));
   return p;
 }
+/* what hangs from the ceiling over a bar counter (the variants of bar_counter and bar_corner): it follows the counter, straight or round
+ * the corner, and lies inside its footprint (the plan and the wall stop stay as they are); its light is the LED zone 'ceiling' (z2) */
+/** the ways to build it, the first is the default: nothing, a glass rack with the glasses hanging upside down and LED under its board, a
+ *  floating ceiling panel with light on top and downlights under it, pendant lamps on a ceiling track */
+export const BAR_CEILINGS = ['none', 'rack', 'canopy', 'pendants'];
+/** the ceiling it hangs from: the usual room height (the default wall height) */
+export const BAR_CEIL = 2.6;
+/** the LED zones of a bar counter: the counter edge and the plinth, with a ceiling part its light too */
+const barLeds = (v) => (v && v !== 'none' ? ['counter', 'floor', 'ceiling'] : ['counter', 'floor']);
+/** where the ceiling part goes over a counter: boards [cx, cz, w, d] joined without overlapping, their outline (corners in order), the track of
+ *  the pendant lamps (a line through the middle) and the lamps on it */
+const OVER_BAR = { boards: [[0, -0.05, 2.0, 0.5]], outline: [[-1, -0.3], [1, -0.3], [1, 0.2], [-1, 0.2]], track: [[-1, -0.05], [1, -0.05]], lamps: [[-0.7, -0.05], [0, -0.05], [0.7, -0.05]] };
+const OVER_CORNER = { boards: [[0.1, -0.05, 2.2, 0.5], [0.95, -0.9, 0.5, 1.2]], outline: [[-1, -0.3], [0.7, -0.3], [0.7, -1.5], [1.2, -1.5], [1.2, 0.2], [-1, 0.2]],
+  track: [[-1, -0.05], [0.95, -0.05], [0.95, -1.45]], lamps: [[-0.7, -0.05], [0.15, -0.05], [0.95, -0.05], [0.95, -0.75], [0.95, -1.4]] };
+/** is (x, z) inside the outline */
+function inside(poly, x, z) {
+  let c = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, zi] = poly[i], [xj, zj] = poly[j];
+    if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c;
+  }
+  return c;
+}
+/** a box along every edge of the outline, `inset` metres inside it: h high from y, t thick, in m */
+const edges = (poly, inset, y, h, t, m, cut = 0) => poly.map((a, i) => {
+  const b = poly[(i + 1) % poly.length], mx = (a[0] + b[0]) / 2, mz = (a[1] + b[1]) / 2, alongX = Math.abs(b[0] - a[0]) > Math.abs(b[1] - a[1]);
+  const len = Math.abs(alongX ? b[0] - a[0] : b[1] - a[1]) - cut, s = inside(poly, mx + (alongX ? 0 : 0.01), mz + (alongX ? 0.01 : 0)) ? 1 : -1;
+  return alongX ? B(len, h, t, mx, y, mz + s * (inset + t / 2), m) : B(t, h, len, mx + s * (inset + t / 2), y, mz, m);
+});
+/** where it hangs from the ceiling: near every corner of the outline, inside it */
+const hangers = (poly, k = 0.06) => poly.map(([x, z]) => [[k, k], [-k, k], [k, -k], [-k, -k]].map(([dx, dz]) => [x + dx, z + dz]).find(([x2, z2]) => inside(poly, x2, z2)));
+/** a rod or cable from y up to the ceiling with a small plate there */
+const toCeiling = ([x, z], y, r, m) => [rod([x, y, z], [x, BAR_CEIL - 0.012, z], r, m), C(0.035, 0.012, x, BAR_CEIL - 0.012, z, m, 0.035, 16)];
+/** a wine glass hanging upside down from a rail at y: its foot, the stem, the bowl open to the floor */
+const hangingGlass = (x, y, z) => [C(0.032, 0.004, x, y - 0.004, z, 'glass', 0.032, 12), C(0.004, 0.07, x, y - 0.074, z, 'glass', 0.004, 6), C(0.022, 0.13, x, y - 0.204, z, 'glass', 0.04, 14)];
+/** the ceiling part v (BAR_CEILINGS) over a counter, placed by `o` (OVER_BAR, OVER_CORNER) */
+function barCeiling(v, o) {
+  const p = [];
+  if (v === 'rack') {                                    // a board in the finish on a steel frame, two rails of glasses under it along its long side, LED along its edges
+    const y = 2.15;
+    o.boards.forEach(([cx, cz, w, d]) => {
+      p.push(B(w, 0.03, d, cx, y, cz));
+      const alongX = w >= d, L = alongX ? w : d, D = alongX ? d : w;
+      [-D / 4, D / 4].forEach((v2) => {
+        p.push(alongX ? B(L - 0.04, 0.01, 0.025, cx, y - 0.035, cz + v2, 'chrome') : B(0.025, 0.01, L - 0.04, cx + v2, y - 0.035, cz, 'chrome'));
+        for (let u = -L / 2 + 0.07; u <= L / 2 - 0.07 + 1e-6; u += 0.14) p.push(...hangingGlass(alongX ? cx + u : cx + v2, y - 0.035, alongX ? cz + v2 : cz + u));
+      });
+    });
+    p.push(...edges(o.outline, 0, y - 0.05, 0.05, 0.02, 'iron'), ...edges(o.outline, 0.04, y - 0.009, 0.008, 0.012, 'z2', 0.1));
+    hangers(o.outline).forEach((q) => p.push(...toCeiling(q, y + 0.03, 0.006, 'chrome')));
+  } else if (v === 'canopy') {                           // a floating panel in the finish on four (six) cables, light all round on top and downlights under it
+    const y = 2.3;
+    o.boards.forEach(([cx, cz, w, d]) => p.push(B(w, 0.05, d, cx, y, cz)));
+    p.push(...edges(o.outline, 0.05, y + 0.05, 0.012, 0.02, 'z2', 0.1));
+    o.lamps.forEach(([x, z]) => p.push(C(0.035, 0.004, x, y - 0.004, z, 'z2', 0.035, 16)));
+    hangers(o.outline, 0.08).forEach((q) => p.push(...toCeiling(q, y + 0.05, 0.002, 'iron')));
+  } else if (v === 'pendants') {                         // a black track on the ceiling, a pendant lamp on a cable from it at every lamp
+    for (let i = 1; i < o.track.length; i++) {
+      const [a, b] = [o.track[i - 1], o.track[i]], alongX = a[1] === b[1];
+      p.push(alongX ? B(Math.abs(b[0] - a[0]) + 0.04, 0.03, 0.04, (a[0] + b[0]) / 2, BAR_CEIL - 0.03, a[1], 'black') : B(0.04, 0.03, Math.abs(b[1] - a[1]) + 0.04, a[0], BAR_CEIL - 0.03, (a[1] + b[1]) / 2, 'black'));
+    }
+    o.lamps.forEach(([x, z]) => p.push(rod([x, 2.01, z], [x, BAR_CEIL - 0.03, z], 0.003, 'black'), C(0.035, 0.16, x, 1.85, z, 'iron', 0.13, 24),
+      C(0.12, 0.004, x, 1.848, z, 'z2', 0.12, 20), S(0.03, x, 1.87, z, 'z2')));
+  }
+  return p;
+}
 /** a bar counter round the corner: the long run of 2.4 m and a return of 1.2 m to the back on the right, LED like the straight one */
 function barCorner() {
   const p = [B(2.36, 0.08, 0.6, 0, 0, -0.15, 'black'), B(0.6, 0.08, 1.22, 0.87, 0, -1.09, 'black'), B(2.4, 0.8, 0.66, 0, 0.08, -0.15), B(0.66, 0.8, 1.22, 0.87, 0.08, -1.09),
@@ -560,7 +626,8 @@ const dehumidifier = () => [...[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([i, k])
  *  tap in the live mode), leds (the LED zones, see ledzones.js), lamp (a lamp: lights its room, also when switched by a relay), light (how far
  *  and how strongly it lights its room, lamplight.js), wall (hangs on the wall: clicks onto it, not stopped by it), ceil (hangs from the
  *  ceiling), flat (lies on the floor: drawn under the rest of the plan), variants (ways to build it, chosen on the device: `variant`; the first
- *  is the default; pc_setup: MONITOR_LAYOUTS), cool (an air conditioner: on a plain switch it cools), parts(variant) */
+ *  is the default; pc_setup: MONITOR_LAYOUTS, the bar counters: BAR_CEILINGS), variantLabel / variantHint (the name of that choice in the side panel,
+ *  else 'prop.variant', and a hint under it), sizeVariant (the variant whose size the side panel shows), leds also as a function of the variant, cool (an air conditioner: on a plain switch it cools), parts(variant) */
 export const LEISURE = {
   sauna_cabin: { cat: 'wellness', label: 'Sauna mit Glasfront', fin: ['spruce', 'hemlock', 'cedar', 'thermo'], search: 'sauna saunakabine finnische sauna wellness glasfront', icon: '🧖', parts: () => saunaCabin(2.0, 1.8, 2.05, true) },
   sauna_small: { cat: 'wellness', label: 'Sauna klein', fin: ['spruce', 'hemlock', 'cedar', 'thermo'], search: 'sauna saunakabine finnische sauna wellness klein', icon: '🧖', parts: () => saunaCabin(1.3, 1.2, 2.0, false) },
@@ -590,8 +657,10 @@ export const LEISURE = {
   wallbars: { cat: 'fitness', label: 'Sprossenwand', fin: ['birch', 'pine', 'oak'], search: 'sprossenwand turnen klettern gymnastik fitness', wall: true,
     parts: () => [B(0.055, 2.4, 0.13, -0.4225, 0, 0), B(0.055, 2.4, 0.13, 0.4225, 0, 0), ...range(16).map((i) => rod([-0.4, 0.12 + i * 0.145, 0.01], [0.4, 0.12 + i * 0.145, 0.01], 0.017, 'f'))] },
   mirror_gym: { cat: 'fitness', label: 'Spiegelwand mit LED', fin: [], search: 'spiegel spiegelwand led indirekt beleuchtet fitness tanz', y: 0.3, wall: true, lamp: true, light: { r: 0.6, k: 0.5 }, leds: ['back', 'front'], parts: () => twoZoneMirror(2.0, 1.8) },
-  bar_counter: { cat: 'bar', label: 'Bartheke mit LED', fin: ['blackbrown', 'oak', 'walnut', 'white', 'anthracite'], search: 'bar theke bartheke tresen led beleuchtet hausbar', icon: '🍸', leds: ['counter', 'floor'], lamp: true, light: { r: 0.55, k: 0.5 }, parts: () => barCounter(2.4) },
-  bar_corner: { cat: 'bar', label: 'Bartheke über Eck mit LED', fin: ['blackbrown', 'oak', 'walnut', 'white', 'anthracite'], search: 'bar theke bartheke tresen eck l-form led beleuchtet hausbar', icon: '🍸', leds: ['counter', 'floor'], lamp: true, light: { r: 0.6, k: 0.5 }, parts: barCorner },
+  bar_counter: { cat: 'bar', label: 'Bartheke mit LED', fin: ['blackbrown', 'oak', 'walnut', 'white', 'anthracite'], search: 'bar theke bartheke tresen led beleuchtet hausbar gläserregal glaeserregal gläserhalter deckensegel pendelleuchte', icon: '🍸', leds: barLeds, lamp: true, light: { r: 0.55, k: 0.5 },
+    variants: BAR_CEILINGS, variantLabel: 'prop.barCeiling', variantHint: 'prop.barCeilingHint', sizeVariant: 'none', parts: (v) => [...barCounter(2.4), ...barCeiling(v, OVER_BAR)] },
+  bar_corner: { cat: 'bar', label: 'Bartheke über Eck mit LED', fin: ['blackbrown', 'oak', 'walnut', 'white', 'anthracite'], search: 'bar theke bartheke tresen eck l-form led beleuchtet hausbar gläserregal glaeserregal gläserhalter deckensegel pendelleuchte', icon: '🍸', leds: barLeds, lamp: true, light: { r: 0.6, k: 0.5 },
+    variants: BAR_CEILINGS, variantLabel: 'prop.barCeiling', variantHint: 'prop.barCeilingHint', sizeVariant: 'none', parts: (v) => [...barCorner(), ...barCeiling(v, OVER_CORNER)] },
   backbar: { cat: 'bar', label: 'Barregal mit Flaschen', fin: ['blackbrown', 'oak', 'walnut', 'white', 'anthracite'], search: 'barregal rückbuffet rueckbuffet flaschen spirituosen regal led hausbar', icon: '🍸', lamp: true, light: { r: 0.5, k: 0.45 }, parts: backBar },
   barstool_back: { cat: 'bar', label: 'Barhocker mit Lehne', fin: ['black', 'cognac', 'darkgrey', 'red', 'white'], search: 'barhocker hocker tresenhocker bar', round: true, parts: barStoolBack },
   bar_table: { cat: 'bar', label: 'Stehtisch', fin: ['black', 'white', 'oak', 'walnut'], search: 'stehtisch bistrotisch bartisch bar', round: true, parts: () => [C(0.35, 0.035, 0, 1.065, 0, 'f', 0.35, 36), C(0.035, 1.02, 0, 0.045, 0, 'chrome', 0.035, 12), C(0.24, 0.045, 0, 0, 0, 'iron', 0.26, 32)] },
