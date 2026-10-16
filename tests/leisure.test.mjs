@@ -71,10 +71,11 @@ test('wall pieces are flat enough to hang (mirrors and screens a few centimetres
   for (const k of L.LEISURE_WALL) assert.ok(S.footOf(k).d <= 0.5, `${k} is ${S.footOf(k).d} m deep`);
   for (const k of ['mirror_led', 'mirror_led_round', 'mirror_led_zones', 'mirror_led_tall', 'mirror_gym', 'screen_frame', 'neon_sign', 'acoustic_panel']) assert.ok(S.footOf(k).d <= 0.04, k);
   for (const k of L.LEISURE_WALL) assert.ok(WALL_TYPES.has(k) && WALL_HUNG.includes(k), k);
-  for (const k of ['projector', 'pool_lamp', 'starsky']) assert.ok(L.LEISURE_HUNG.includes(k) && WALL_HUNG.includes(k) && !WALL_TYPES.has(k), k);
+  for (const k of ['projector', 'pool_lamp', 'starsky', 'ac_ceiling', 'fan_ceiling']) assert.ok(L.LEISURE_HUNG.includes(k) && WALL_HUNG.includes(k) && !WALL_TYPES.has(k), k);
   assert.ok(!WALL_TYPES.has('sauna_cabin') && !WALL_HUNG.includes('treadmill'));
   assert.equal(L.LEISURE.projector.y, 2.0);
-  assert.deepEqual(L.LEISURE_FLAT.sort(), ['gymfloor', 'starsky', 'yogamat']);
+  assert.deepEqual(L.LEISURE_FLAT.sort(), ['ac_ceiling', 'gymfloor', 'starsky', 'yogamat']);
+  assert.ok(L.LEISURE_WALL.includes('ac_wall') && S.footOf('ac_wall').d <= 0.25);
 });
 test('the lamps (LED mirrors, the LED bar, the neon sign ...) are lamps that glow and light their room in their own way', () => {
   for (const k of L.LEISURE_LAMPS) {
@@ -94,7 +95,8 @@ test('lit parts: the sauna stones, the screen, the displays, the RGB of a PC lig
 });
 test('LED zones: a piece with zones has parts in every zone and none beyond them; no other piece has zone parts', () => {
   const withZones = KEYS.filter((k) => L.LEISURE[k].leds);
-  assert.deepEqual(withZones.sort(), ['bar_corner', 'bar_counter', 'mirror_cabinet', 'mirror_gym', 'mirror_hollywood', 'mirror_led_tall', 'mirror_led_zones']);
+  assert.deepEqual(withZones.sort(), ['bar_corner', 'bar_counter', 'fan_ceiling', 'mirror_cabinet', 'mirror_gym', 'mirror_hollywood', 'mirror_led_tall', 'mirror_led_zones']);
+  assert.deepEqual(L.LEISURE.fan_ceiling.leds, ['light']);                     // the ceiling fan's light: an entity of its own
   for (const k of ['mirror_gym', 'mirror_led_tall']) assert.deepEqual(L.LEISURE[k].leds, ['back', 'front'], k);     // the big mirrors: behind and in front
   for (const k of KEYS) {
     const zs = [...mats(k)].filter((m) => /^z\d$/.test(m)).map((m) => S.matOf(m).zone).sort();
@@ -149,4 +151,18 @@ test('shapes: moving parts, turning them round y (also parts turned already), a 
   const bw = S.bounds([w]), bd = S.bounds([dz]);
   near(bw.x1 - bw.x0, 0.05); near(bw.y0, 0.1); near(bw.z1 - bw.z0, 0.4);
   near(bd.z1 - bd.z0, 0.05); near(bd.y1, 0.5); near(bd.x1 - bd.x0, 0.4);
+});
+test('air conditioners and fans: in their own group; the air conditioners cool, their outlet shows it and their display glows; real sizes', () => {
+  const climate = KEYS.filter((k) => L.LEISURE[k].cat === 'climate');
+  assert.deepEqual(climate.sort(), ['ac_ceiling', 'ac_outdoor', 'ac_portable', 'ac_wall', 'air_purifier', 'dehumidifier', 'fan_ceiling', 'fan_stand', 'fan_tower']);
+  assert.equal(catOf('ac_wall'), 'climate');
+  assert.deepEqual(L.LEISURE_COOL.sort(), ['ac_ceiling', 'ac_portable', 'ac_wall']);
+  for (const k of KEYS) assert.equal(mats(k).has('acvent'), L.LEISURE_COOL.includes(k), k);   // only an air conditioner's outlet shows heating / cooling
+  assert.ok(S.matOf('acvent').heat && !S.matOf('acdisplay').heat && S.matOf('acdisplay').glow);
+  for (const k of ['ac_wall', 'ac_portable', 'ac_ceiling', 'fan_stand', 'fan_tower', 'air_purifier', 'dehumidifier']) assert.ok(mats(k).has('acdisplay'), k);
+  near(S.footOf('ac_wall').w, 0.9, 0.01);
+  near(S.footOf('ac_ceiling').w, 0.62, 0.01);
+  assert.ok(S.footOf('fan_ceiling').w > 1.2 && S.footOf('fan_ceiling').w < 1.45);
+  const bb = S.bounds(S.partsOf('ac_outdoor'));
+  assert.ok(bb.y1 > 0.55 && bb.y1 < 0.7 && bb.x1 - bb.x0 < 0.95);
 });

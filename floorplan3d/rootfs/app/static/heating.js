@@ -2,8 +2,14 @@
  * heats and blue while it does not (no tap ball: the pill itself is the tap target); the radiator itself turns red while it heats and a
  * cool blue while it does not. Pure rules (unit test: tests/heating.test.mjs); paintHeat sets the colours on the model's materials. */
 
+import { LEISURE_COOL } from './leisure.js';
+
 /** device types that are heaters */
 export const HEATER_TYPES = new Set(['thermostat', 'radiator', 'towelrad']);
+/** device types that cool: an air conditioner on a plain switch cools while it is on (leisure.js) */
+export const COOLER_TYPES = new Set(LEISURE_COOL);
+/** what a thermostat or an air conditioner does (its hvac_action) while it runs: its lit parts glow; drying and only fanning count too */
+export const RUNNING = new Set(['heating', 'cooling', 'drying', 'fan']);
 
 /** is device d a heater: linked to a thermostat (climate.*), or a radiator / towel radiator / thermostat linked to anything */
 export function isHeater(d) {
@@ -13,8 +19,8 @@ export function isHeater(d) {
 
 /** what a heater does now: 'heating' | 'cooling' | 'idle' | 'off', null when that is not known (no state, unavailable, a sensor).
  *  A thermostat says it with its hvac_action (s.hvac); one that does not report it counts as heating while it is set to heat.
- *  on: whether anything else (a radiator on a switch) is on */
-export function heatMode(entityId, s, on = false) {
+ *  on: whether anything else (a radiator on a switch) is on; type: the device's type (an air conditioner on a switch cools) */
+export function heatMode(entityId, s, on = false, type = '') {
   if (!entityId || !s || s.state === 'unavailable' || s.state === 'unknown') return null;
   const dom = entityId.split('.')[0];
   if (dom === 'climate') {
@@ -23,14 +29,14 @@ export function heatMode(entityId, s, on = false) {
     return s.state === 'heat' ? 'heating' : s.state === 'cool' ? 'cooling' : 'idle';
   }
   if (dom === 'sensor' || dom === 'binary_sensor') return null;
-  return on ? 'heating' : 'off';
+  return on ? (COOLER_TYPES.has(type) ? 'cooling' : 'heating') : 'off';
 }
 
 /** the colour of a heater's temperature pill: 'heat' (red) while it heats, 'cold' (blue) while it does not, null for the usual dark pill
  *  (not a heater, or nothing known) */
 export function pillTone(d, s, on = false) {
   if (!isHeater(d)) return null;
-  const m = heatMode(d.entity, s, on);
+  const m = heatMode(d.entity, s, on, d.type);
   return m === 'heating' ? 'heat' : m ? 'cold' : null;
 }
 

@@ -72,6 +72,10 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 27. **Gaming-PC-Arbeitsplatz mit anderen Bildschirmen** (53.1, 53.2): den „Gaming-PC-Arbeitsplatz“ (Gruppe „Büro“) setzen, anklicken, rechts bei **„Anordnung“** z. B. „Curved + 2 hochkant“ wählen.
 28. **Große Spiegel mit zwei LEDs** (53.3): die „Spiegelwand mit LED“ (Gruppe „Fitness“) oder den „Ganzkörperspiegel mit LED“ (Gruppe „Flur“) anklicken: unter „LEDs einzeln verknüpfen“ stehen „Hinten (indirekt)“ und „Vorne“.
 
+**Neu in 3.87** (ausführlich in Abschnitt **54** unten)
+29. **Fernseher am Schwenkarm** (54.1 bis 54.4): im Suchfeld **„schwenkarm“** eingeben, den **„Wand-TV mit Schwenkarm“** an eine Wand setzen, anklicken und rechts **„Schwenken“**, **„Abstand zur Wand“** und **„Neigen“** ändern; bei **„Hintergrundlicht“** ein Licht wählen.
+30. **Klimageräte und Ventilatoren** (54.5 bis 54.8): links die neue Gruppe **„Klima & Lüftung“**; ein Klimagerät mit seinem Thermostat (`climate.…`) verknüpfen und in „Live“ auf Kühlen und Heizen stellen.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -191,7 +195,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 51. Neu in 3.84: Möbel im skandinavischen Stil | 0 | 0 | 8 | 0 | 51.1 bis 51.8 |
 | 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 0 | 0 | 12 | 0 | 52.1 bis 52.12 |
 | 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs | 0 | 0 | 3 | 0 | 53.1 bis 53.3 |
-| **Zusammen** | **199** | **2** | **153** | **2** | |
+| 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 0 | 0 | 8 | 0 | 54.1 bis 54.8 |
+| **Zusammen** | **199** | **2** | **161** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -825,3 +830,15 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 53.1 | Den „Gaming-PC-Arbeitsplatz“ (Gruppe „Büro“) setzen und anklicken, rechts bei „Anordnung“ nacheinander alle Möglichkeiten wählen | „2 Monitore nebeneinander“ (so wie bisher), „1 Monitor“, „3 Monitore nebeneinander“ (die äußeren schräg nach innen), „4 Monitore (2 × 2)“ an einem Monitorarm, „Curved-Monitor“ (gebogen), „Curved + 2 hochkant“; bei 3 Monitoren und bei Curved + 2 hochkant wird der Tisch breiter (1,80 m), auch im 2D-Plan | ❓ |
 | 53.2 | Eine Anordnung wählen, Strg+Z; dann eine wählen und die Seite neu laden | Strg+Z holt die vorige Anordnung zurück; nach dem Neuladen ist die gewählte noch da | ❓ |
 | 53.3 | Die „Spiegelwand mit LED“ und den „Ganzkörperspiegel mit LED“ anklicken, unter „LEDs einzeln verknüpfen“ für „Hinten (indirekt)“ und „Vorne“ je ein Licht wählen, „Live“, beide einzeln schalten | Der Rand hinter dem Spiegel und die zwei Lichtstreifen vorne links und rechts leuchten jeweils mit ihrem eigenen Licht; der Spiegel antippen zeigt zwei Knöpfe | ❓ |
+
+## 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 54.1 | Den „Wand-TV mit Schwenkarm“ (Gruppe „Wohnen“, Suche „schwenkarm“) nahe an eine Wand setzen | Er springt an die Wand; man sieht die Wandplatte, den Klapparm und den Fernseher ein Stück (15 cm) vor der Wand | ❓ |
+| 54.2 | Anklicken, rechts „Schwenken“ auf 30, dann auf −30, „Neigen“ auf 10, „Abstand zur Wand“ auf 0,4 m, „Größe“ auf 75″ | Der Bildschirm dreht sich nach rechts bzw. links (von vorne gesehen), kippt nach unten, steht weiter von der Wand ab, wird größer; der Arm klappt dabei mit aus und der Fernseher stößt nie an die Wand. Beim Schwenken steht unter den Feldern, wie weit er von der Wand absteht | ❓ |
+| 54.3 | Bei „Hintergrundlicht (LED hinter dem TV)“ ein Licht wählen, das Licht einschalten, dann schwenken | Der Rahmen hinter dem Fernseher leuchtet in der Farbe des Lichts und dreht sich mit dem Fernseher mit | ❓ |
+| 54.4 | Etwas ändern, Strg+Z; dann die Seite neu laden | Strg+Z holt die vorige Stellung zurück; nach dem Neuladen steht er noch so, wie eingestellt | ❓ |
+| 54.5 | Links die Gruppe „Klima & Lüftung“ öffnen | Klimagerät (Split, Wand), Klima-Außengerät / Wärmepumpe, mobiles Klimagerät, Klima-Deckenkassette, Deckenventilator mit Licht, Standventilator, Turmventilator, Luftreiniger, Luftentfeuchter, jeweils mit Vorschaubild | ❓ |
+| 54.6 | Das Split-Klimagerät an eine Wand setzen, mit dem Thermostat (`climate.…`) verknüpfen, in „Live“ auf Kühlen, dann auf Heizen stellen | Kühlt es, wird die Klappe unten blau, heizt es, wird sie rot; das Display leuchtet, solange es läuft (auch bei nur Lüften oder Entfeuchten); das Schild zeigt die Temperatur | ❓ |
+| 54.7 | Ein mobiles Klimagerät an einer Steckdose (`switch.…`) einschalten | Der Luftauslass oben wird blau (es kühlt), das Display leuchtet | ❓ |
+| 54.8 | Den Deckenventilator mit seinem Ventilator (`fan.…`) verknüpfen, unter „LEDs einzeln verknüpfen“ bei „Licht“ die Lampe des Ventilators wählen | Die Leuchte unter dem Ventilator folgt ihrem eigenen Licht und erhellt den Raum | ❓ |

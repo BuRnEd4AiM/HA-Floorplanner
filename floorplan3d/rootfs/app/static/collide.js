@@ -5,7 +5,7 @@
 import { LEISURE_HUNG } from './leisure.js';
 
 /** things that hang on the wall or the ceiling: they may touch the wall */
-export const WALL_HUNG = ['picture', 'tv_wall', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke', 'pendant_paper', 'pendant_dome', ...LEISURE_HUNG];   // the last: mirrors, screens, the projector ... (leisure.js)
+export const WALL_HUNG = ['picture', 'tv_wall', 'tv_arm', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'curtain', 'spot', 'pendant', 'smoke', 'pendant_paper', 'pendant_dome', ...LEISURE_HUNG];   // the last: mirrors, screens, the projector ... (leisure.js)
 /** never stopped besides those: the LED ring (follows the walls) and the bridge (spans across walls); the caller adds the outdoor things */
 export const STOP_EXEMPT_BASE = ['ledring', 'bridge', ...WALL_HUNG];
 

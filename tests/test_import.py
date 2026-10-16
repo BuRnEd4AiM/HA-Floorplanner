@@ -766,3 +766,15 @@ def test_things_on_the_roof_floor_survive_import_and_export():
     plain = importer.layout_to_property(importer.build_layout(roof_house([]))[0])["building"]["floors"][-1]
     assert set(plain) == {"name", "kind", "roof"}                                   # a plain roof is exported as before
 
+
+
+def test_the_tv_on_its_swivel_arm_keeps_its_size_swing_distance_and_tilt():
+    f = square_flat(devices=[{"type": "tv_arm", "x": 1, "z": 1, "tvSize": "65", "armSwing": 30, "armReach": 0.25, "armTilt": -8, "ledEntity": "light.tv"},
+                             {"type": "tv_arm", "x": 2, "z": 1, "tvSize": "groß", "armSwing": "rechts"}, {"type": "tv_arm", "x": 3, "z": 1, "tvSize": 75}])
+    layout, _, rep, _ = importer.build_layout(f)
+    a, b, c = layout["floors"][0]["devices"]
+    assert (a["tvSize"], a["armSwing"], a["armReach"], a["armTilt"], a["ledEntity"]) == ("65", 30, 0.25, -8, "light.tv")
+    assert "tvSize" not in b and "armSwing" not in b and c["tvSize"] == "75"       # not a size: the default; a number is fine
+    assert [w for w in rep.warnings if "armSwing" in w["path"]]
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"]
+    assert (again[0]["tvSize"], again[0]["armSwing"], again[0]["armReach"], again[0]["armTilt"]) == ("65", 30, 0.25, -8)

@@ -1043,4 +1043,11 @@ export default {
   'dev.mirror_led_zones': 'Miroir LED à 3 zones', 'dev.mirror_hollywood': 'Miroir Hollywood', 'dev.mirror_cabinet': 'Armoire de toilette avec LED',
   'dev.mirror_led_tall': 'Miroir en pied avec LED',
   'prop.variant': 'Disposition', 'var.two': '2 écrans côte à côte', 'var.one': '1 écran', 'var.three': '3 écrans côte à côte', 'var.four': '4 écrans (2 × 2)', 'var.curved': 'Écran incurvé', 'var.curved2': 'Incurvé + 2 en portrait',
+  'dev.tv_arm': 'TV murale sur bras pivotant', 'cat.climate': 'Climatisation & air', 'led.light': 'Lumière', 'dev.ac_wall': 'Climatiseur (split, mural)',
+  'dev.ac_outdoor': 'Unité extérieure / pompe à chaleur', 'dev.ac_portable': 'Climatiseur mobile', 'dev.ac_ceiling': 'Cassette de plafond',
+  'dev.fan_ceiling': 'Ventilateur de plafond avec lumière', 'dev.fan_stand': 'Ventilateur sur pied', 'dev.fan_tower': 'Ventilateur colonne',
+  'dev.air_purifier': 'Purificateur d\'air', 'dev.dehumidifier': 'Déshumidificateur', 'tvarm.size': 'Taille', 'tvarm.swing': 'Pivoter (°)',
+  'tvarm.reach': 'Distance au mur', 'tvarm.tilt': 'Incliner (°)',
+  'tvarm.help': 'Pivoter : + tourne l\'écran vers la droite, − vers la gauche (vu de face). Incliner : + le penche vers le bas. En pivotant, le bras avance la TV assez pour qu\'elle ne touche pas le mur.',
+  'tvarm.pulled': 'À cet angle, elle est à {len} du mur.',
 };

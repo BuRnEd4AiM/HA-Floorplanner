@@ -1042,4 +1042,11 @@ export default {
   'dev.mirror_led': 'Lustro z pośrednim LED', 'dev.mirror_led_round': 'Okrągłe lustro z LED', 'dev.mirror_led_zones': 'Lustro LED z 3 strefami',
   'dev.mirror_hollywood': 'Lustro Hollywood', 'dev.mirror_cabinet': 'Szafka z lustrem i LED', 'dev.mirror_led_tall': 'Lustro pełnej długości z LED',
   'prop.variant': 'Układ', 'var.two': '2 monitory obok siebie', 'var.one': '1 monitor', 'var.three': '3 monitory obok siebie', 'var.four': '4 monitory (2 × 2)', 'var.curved': 'Monitor zakrzywiony', 'var.curved2': 'Zakrzywiony + 2 pionowe',
+  'dev.tv_arm': 'Telewizor na ramieniu obrotowym', 'cat.climate': 'Klimatyzacja i powietrze', 'led.light': 'Światło', 'dev.ac_wall': 'Klimatyzator (split, ścienny)',
+  'dev.ac_outdoor': 'Jednostka zewnętrzna / pompa ciepła', 'dev.ac_portable': 'Klimatyzator przenośny', 'dev.ac_ceiling': 'Kaseta sufitowa',
+  'dev.fan_ceiling': 'Wentylator sufitowy z lampą', 'dev.fan_stand': 'Wentylator stojący', 'dev.fan_tower': 'Wentylator kolumnowy',
+  'dev.air_purifier': 'Oczyszczacz powietrza', 'dev.dehumidifier': 'Osuszacz powietrza', 'tvarm.size': 'Rozmiar', 'tvarm.swing': 'Obrót (°)',
+  'tvarm.reach': 'Odległość od ściany', 'tvarm.tilt': 'Pochylenie (°)',
+  'tvarm.help': 'Obrót: + obraca ekran w prawo, − w lewo (patrząc z przodu). Pochylenie: + pochyla go w dół. Przy obracaniu ramię wysuwa telewizor tak daleko, by nie dotykał ściany.',
+  'tvarm.pulled': 'Przy tym kącie stoi {len} od ściany.',
 };
