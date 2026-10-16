@@ -85,6 +85,11 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 34. **Flüssig auf dem iPad, auch mit dem Musterhaus** (56.1 bis 56.3, #394): das Musterhaus („alles drin“) öffnen, auf dem iPad drehen und zoomen, auch „Ganzes Haus“: es soll nicht mehr ruckeln. Alles sieht aus wie vorher.
 35. **„Aufeinander“ auch bei einer Etage** (56.4 bis 56.6, #396): eine Etage öffnen (z. B. Obergeschoss), unten „Ansicht“ → **„Aufeinander“**: die Etage sitzt direkt auf der Etage darunter, deren Schilder schweben nicht mehr darüber. Im Benutzer-Fenster lässt es sich pro Benutzer vorgeben und sperren.
 
+**Neu in 3.90** (ausführlich in Abschnitt **57** unten)
+36. **Garage, Werkstatt und Carport einrichten** (57.1 bis 57.5): Bearbeiten, Werkzeug **„Gerät“**, links die neuen Gruppen **„Fahrzeuge“**, **„Werkstatt“** und **„Garage & Carport“** ansehen. Ein Auto, das Wohnmobil und die Werkbank in die Garage stellen: passt alles hinein? Ein Auto anklicken und rechts bei **„Ausführung“** die Farbe ändern.
+37. **Licht am Auto und in der Werkstatt** (57.6, 57.7): das Auto mit einem Schalter verknüpfen, in „Live“ einschalten: Scheinwerfer und Rücklichter leuchten. Die „LED-Werkstattleuchte“ an die Decke setzen und schalten: sie erhellt die Garage.
+38. **Musterhaus mit Garage und Hof** (57.8, nur im Add-on): das Musterhaus neu importieren: in der Garage stehen der blaue Kombi, die Werkbank und ein Fahrrad an der Wand, vorne rechts ist ein Hof mit drei Carports, Wohnmobilen, Wohnwagen und einer Hebebühne.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -207,7 +212,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 0 | 0 | 8 | 0 | 54.1 bis 54.8 |
 | 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 0 | 0 | 7 | 0 | 55.1 bis 55.7 |
 | 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 0 | 0 | 7 | 0 | 56.1 bis 56.7 |
-| **Zusammen** | **199** | **2** | **175** | **2** | |
+| 57. Neu in 3.90: Garage, Werkstatt und Carport | 0 | 0 | 7 | 1 | 57.1 bis 57.7 |
+| **Zusammen** | **199** | **2** | **182** | **3** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -875,3 +881,15 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 56.5 | „Aufeinander“ drücken, von der Seite schauen | Die Etage sitzt ohne Lücke auf der Etage darunter (Decke dazwischen); die Namen und Schilder der Etage darunter schweben nicht mehr über der offenen Etage | ❓ |
 | 56.6 | „Benutzer“ → bei einem Benutzer unter „🔒 Gesperrt“ „Abstand der Etagen (Auseinander / Aufeinander)“ abhaken, als dieser Benutzer öffnen | Die Knöpfe „Auseinander“ und „Aufeinander“ fehlen; die Ansicht bleibt so, wie sie eingestellt ist | ❓ |
 | 56.7 | README auf GitHub öffnen (#395) | Das Abzeichen „release“ zeigt die Version (v3.89.0), keinen Fehlertext | ❓ |
+
+## 57. Neu in 3.90: Garage, Werkstatt und Carport
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 57.1 | Bearbeiten, Werkzeug „Gerät“, links die Gruppe „Fahrzeuge“ öffnen | Kleinwagen, Limousine, Kombi, SUV, Sportwagen, Pick-up, Transporter / Kleinbus, Kastenwagen (Camper), Wohnmobil, Alkoven-Wohnmobil, Wohnwagen, PKW-Anhänger, Motorrad, Motorroller, Fahrrad, E-Bike, Lastenrad, Aufsitzmäher, Mähroboter mit Ladestation, jedes mit Vorschaubild | ❓ |
+| 57.2 | Die Gruppen „Werkstatt“ und „Garage & Carport“ öffnen | Werkstatt: Werkbank (auch mit Lochwand und Licht), Lochwand, Werkstattwagen, Werkzeugschrank, Schwerlastregal, Sichtlagerkästen, Hebebühne, Wagenheber, Kompressor, Standbohrmaschine, Tischkreissäge, Schleifbock, Schweißgerät, Werkstattsauger, Reifenregal, Reifensatz, Stehleiter, zwei Werkstattleuchten, Feuerlöscher, Ölfass, Rollbrett. Garage & Carport: Carport, Doppelcarport, Solarcarport, Mülltonnen, Mülltonnenbox, Fahrradständer, Fahrrad an der Wand, Deckenregal, Metallschrank, Schubkarre, Rasenmäher, Gartengeräte, Hochdruckreiniger, Radstopper | ❓ |
+| 57.3 | Im Suchfeld „wohnmobil“, „hebebühne“, „mülltonne“, „kombi“ eingeben | Es werden die passenden Teile gefunden | ❓ |
+| 57.4 | Ein Auto und das Wohnmobil in die Garage stellen, von allen Seiten ansehen, im 2D-Plan die Größe ansehen | Sie sind so groß wie in echt (Kombi etwa 4,8 m lang, Wohnmobil 7 m lang und fast 3 m hoch); man sieht Fenster, Räder, Lichter, Spiegel | ❓ |
+| 57.5 | Ein Auto anklicken, rechts bei „Ausführung“ eine andere Farbe wählen, Strg+Z; dann eine wählen und die Seite neu laden | Die Farbe wechselt (glänzend wie Autolack); Strg+Z holt die vorige zurück; nach dem Neuladen ist die gewählte noch da | ❓ |
+| 57.6 | Das Auto mit einem Schalter verknüpfen, „Live“, ein- und ausschalten | Eingeschaltet leuchten vorne die Scheinwerfer weiß und hinten die Rücklichter rot; ausgeschaltet sind sie dunkel | ❓ |
+| 57.7 | Die „LED-Werkstattleuchte“ und die „Werkbank mit Lochwand und Licht“ setzen, mit Lichtern verknüpfen, in „Live“ schalten; die Lochwand, die Sichtlagerkästen und den Feuerlöscher nahe an eine Wand setzen | Die Leuchten und das Licht unter dem Brett der Werkbank leuchten und erhellen den Raum; die Wandteile springen an die Wand | ❓ |
+| 57.8 | Im Add-on das Musterhaus („alles drin“) neu importieren, Erdgeschoss öffnen | In der Garage stehen der blaue Kombi, die Werkbank, ein Regal, ein Fahrrad an der Wand; vorne rechts auf dem Grundstück ein Hof mit Carport, Doppelcarport, Solarcarport, Autos, Wohnmobilen, Wohnwagen, Anhänger und einer Limousine auf der Hebebühne | ➖ |

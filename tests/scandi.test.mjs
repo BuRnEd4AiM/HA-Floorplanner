@@ -6,14 +6,15 @@ const dir = process.env.STATIC_DIR || '/tmp/static';
 const S = await import(`${dir}/scandi.js`);
 const { LAMP_TYPES } = await import(`${dir}/lamplight.js`);
 const { LEISURE } = await import(`${dir}/leisure.js`);
-const OWN = S.SCANDI_TYPES.filter((k) => !LEISURE[k]);     // the pieces of leisure.js are in SCANDI too: tests/leisure.test.mjs checks them
+const { GARAGE } = await import(`${dir}/garage.js`);
+const OWN = S.SCANDI_TYPES.filter((k) => !LEISURE[k] && !GARAGE[k]);     // the pieces of leisure.js and garage.js are in SCANDI too: their own tests check them
 const near = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 const HEX = /^#[0-9a-f]{6}$/;
 const CATS = ['living', 'kitchen', 'bath', 'bedroom', 'kids', 'office', 'entry', 'lighting', 'decor'];
 
 test('more than 50 pieces, each with a group, a German name, search words and parts', () => {
   assert.ok(OWN.length >= 50, OWN.length);
-  assert.ok(Object.keys(LEISURE).every((k) => S.SCANDI[k] === LEISURE[k]));
+  assert.ok(Object.keys(LEISURE).every((k) => S.SCANDI[k] === LEISURE[k]) && Object.keys(GARAGE).every((k) => S.SCANDI[k] === GARAGE[k]));
   for (const k of OWN) {
     const d = S.SCANDI[k];
     assert.ok(CATS.includes(d.cat), k);
@@ -25,8 +26,8 @@ test('every part has a real size and a known material in every finish of its pie
   for (const k of S.SCANDI_TYPES) {
     const fins = S.SCANDI[k].fin.length ? S.SCANDI[k].fin : [null];
     for (const p of S.partsOf(k)) {
-      const sizes = p.s === 'box' ? [p.w, p.h, p.d] : p.s === 'cyl' ? [p.r, p.r2, p.h] : [p.r, p.sx, p.sy, p.sz];
-      assert.ok(['box', 'cyl', 'ball'].includes(p.s), k);
+      const sizes = p.s === 'box' || p.s === 'ext' ? [p.w, p.h, p.d] : p.s === 'cyl' ? [p.r, p.r2, p.h] : [p.r, p.sx, p.sy, p.sz];
+      assert.ok(['box', 'cyl', 'ball', 'ext'].includes(p.s), k);
       assert.ok(sizes.every((v) => Number.isFinite(v) && v > 0), `${k}: ${JSON.stringify(p)}`);
       assert.ok([p.x, p.y, p.z, p.rx || 0, p.ry || 0, p.rz || 0].every(Number.isFinite), `${k}: ${JSON.stringify(p)}`);
       for (const f of fins) assert.match(S.matOf(p.m, f)?.c || '', HEX, `${k}: ${p.m} in ${f}`);

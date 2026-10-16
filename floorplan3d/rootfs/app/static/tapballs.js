@@ -8,6 +8,7 @@ import { shutterBallY } from './shutters.js';
 import { isLamp } from './lamplight.js';
 import { drawOffline } from './offlinemarks.js';
 import { LEISURE } from './leisure.js';
+import { GARAGE } from './garage.js';
 import { inRoom } from './housefloors.js';
 
 export const BALL = { r: 0.3, finger: 0.4, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
@@ -22,7 +23,7 @@ export function wantsBall(d) {
 const TYPE_ICON = { camera: '📷', tv: '📺', tv_wall: '📺', tv_arm: '📺', speaker: '🔊', vacuum: '🧹', thermostat: '🌡', radiator: '🌡', boiler: '🌡', washer: '🫧',
   router: '📶', smoke: '🚨', wallbox: '🔌', battery: '🔋', fan: '🌀', solarpanel: '☀', inverter: '☀', powermeter: '⚡', houseentry: '⚡', fusebox: '⚡',
   watermeter: '🚰', gasmeter: '🔥', heatmeter: '♨' };
-Object.entries(LEISURE).forEach(([k, v]) => { if (v.icon) TYPE_ICON[k] = v.icon; });   // the sauna, the treadmill, the projector, the PC ... (leisure.js)
+Object.entries({ ...LEISURE, ...GARAGE }).forEach(([k, v]) => { if (v.icon) TYPE_ICON[k] = v.icon; });   // the sauna, the projector, the PC ... (leisure.js), cars, the robot mower ... (garage.js)
 const DOMAIN_ICON = { light: '💡', cover: '🪟', input_boolean: '⏻', fan: '🌀', media_player: '📺', climate: '🌡', camera: '📷', lock: '🔒',
   vacuum: '🧹', scene: '✨', script: '✨', button: '⏺', siren: '🚨', valve: '🚰', water_heater: '🌡', humidifier: '💧', alarm_control_panel: '🛡' };
 /** the icon of a switch (#366): there is no emoji for a light switch (🔌 is a plug), so the ball draws one (drawSwitch) */

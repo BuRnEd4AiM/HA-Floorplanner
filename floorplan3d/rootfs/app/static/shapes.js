@@ -1,6 +1,7 @@
 /* Building blocks of the pieces made of simple parts (scandi.js: furniture in Scandinavian style, leisure.js: sauna, fitness, bar, cinema,
- * PC, LED mirrors): boxes, cylinders, balls, rods and bars between two points, legs, rows of books ... Pure geometry, no three.js; the
- * format of a part is described in scandi.js. Unit tests: tests/scandi.test.mjs, tests/leisure.test.mjs */
+ * PC, LED mirrors, garage.js: vehicles, workshop, carport): boxes, cylinders, balls, rods and bars between two points, legs, rows of books,
+ * side profiles drawn across a width (the body of a car) ... Pure geometry, no three.js; the format of a part is described in scandi.js.
+ * Unit tests: tests/scandi.test.mjs, tests/leisure.test.mjs, tests/garage.test.mjs */
 
 export const B = (w, h, d, x = 0, y = 0, z = 0, m = 'f', rot = {}) => ({ s: 'box', w, h, d, x, y, z, m, ...rot });
 export const C = (r, h, x = 0, y = 0, z = 0, m = 'f', r2 = r, seg = 16) => ({ s: 'cyl', r, r2, h, x, y, z, m, seg });
@@ -71,3 +72,20 @@ export const tilted = (w, h, d, x, cy, z, a, m, off = 0) => B(w, h, d, x, cy - h
 export const wheelX = (r, t, x, cy, z, m, seg = 24) => ({ ...C(r, t, x, cy - t / 2, z, m, r, seg), rz: Math.PI / 2 });
 /** a cylinder lying along z (a disc facing the front), its middle at (x, cy, z), t thick */
 export const discZ = (r, t, x, cy, z, m, seg = 24) => ({ ...C(r, t, x, cy - t / 2, z, m, r, seg), rx: Math.PI / 2 });
+/** a body of a side profile: the outline pts [[z, y], ...] seen from the side (front towards +z) drawn `w` wide along x round x (an 'ext'
+ *  part: the box around it like a box part, its outline from the middle of that box); bevel: how round its edges at the sides are (m) */
+export function prof(pts, w, x = 0, m = 'f', bevel = 0) {
+  const zs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
+  const z0 = Math.min(...zs), z1 = Math.max(...zs), y0 = Math.min(...ys), y1 = Math.max(...ys), cz = (z0 + z1) / 2, cy = (y0 + y1) / 2;
+  return { s: 'ext', w, h: y1 - y0, d: z1 - z0, x, y: y0, z: cz, m, pts: pts.map(([z, y]) => [z - cz, y - cy]), ...(bevel ? { bev: bevel } : {}) };
+}
+/** n + 1 points [[z, y], ...] on a circle round (cz, cy) with radius r, from angle a0 to a1 (0: towards +z, PI / 2: up) */
+export const arc = (cz, cy, r, a0, a1, n = 8) => Array.from({ length: n + 1 }, (_, i) => {
+  const a = a0 + ((a1 - a0) * i) / n;
+  return [cz + r * Math.cos(a), cy + r * Math.sin(a)];
+});
+/** a ring of n rods (radius t) round (cz, cy) with radius r, standing upright at x (a bicycle's tyre and rim: you see through it) */
+export function hoop(x, cy, cz, r, t, m, n = 24) {
+  const q = arc(cz, cy, r, 0, 2 * Math.PI, n);
+  return q.slice(1).map(([z, y], i) => rod([x, q[i][1], q[i][0]], [x, y, z], t, m, 6));
+}

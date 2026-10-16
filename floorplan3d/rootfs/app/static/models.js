@@ -122,6 +122,7 @@ export const CATEGORIES = {
   office:  ['desk', 'monitor', 'officechair', 'printer'],
   entry:   [],
   wellness: [], fitness: [], bar: [], cinema: [], climate: [], // sauna, fitness, the bar, the home cinema, air conditioners and fans (leisure.js)
+  vehicles: [], workshop: [], garage: [],                       // cars, campers, bikes; the workshop; carports, bins, garden tools (garage.js)
   lighting: LAMP_TYPES,                                         // the lamps (lamplight.js: a lamp on a relay lights the room like any lamp, #367)
   smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence', 'watermeter', 'gasmeter', 'heatmeter'],
   power:   ['houseentry', 'fusebox', 'powermeter', 'inverter', 'solarpanel', 'battery', 'wallbox'],
@@ -677,15 +678,26 @@ function scandiModel(g, type, dev) {
   g.userData.finish = fin;
   if (variant) g.userData.variant = variant;
 }
-/** one part of a piece made of parts (the format of scandi.js: a box, a cylinder or a ball, y its bottom, turned in its order) as a mesh */
+/** one part of a piece made of parts (the format of scandi.js: a box, a cylinder, a ball or a side profile, y its bottom, turned in its order) as a mesh */
 function partMesh(p, mat) {
-  const geo = p.s === 'box' ? new THREE.BoxGeometry(p.w, p.h, p.d) : p.s === 'cyl' ? new THREE.CylinderGeometry(p.r, p.r2, p.h, p.seg || 16) : new THREE.SphereGeometry(p.r, 18, 12);
+  const geo = p.s === 'box' ? new THREE.BoxGeometry(p.w, p.h, p.d) : p.s === 'cyl' ? new THREE.CylinderGeometry(p.r, p.r2, p.h, p.seg || 16)
+    : p.s === 'ext' ? profileGeo(p) : new THREE.SphereGeometry(p.r, 18, 12);
   const m = new THREE.Mesh(geo, mat);
   m.position.set(p.x, p.y + (p.s === 'ball' ? p.r * (p.sy || 1) : p.h / 2), p.z);
   m.rotation.order = p.ord || 'XYZ';
   m.rotation.set(p.rx || 0, p.ry || 0, p.rz || 0);
   if (p.s === 'ball') m.scale.set(p.sx || 1, p.sy || 1, p.sz || 1);
   return m;
+}
+/** a side profile drawn across its width (an 'ext' part, prof in shapes.js: the body of a car): the outline in the y-z plane, extruded along x
+ *  round its middle; its side edges rounded by `bev` without growing (the outline stays its outermost edge) */
+function profileGeo(p) {
+  const b = Math.min(p.bev || 0, p.w / 3);
+  const geo = new THREE.ExtrudeGeometry(new THREE.Shape(p.pts.map(([z, y]) => new THREE.Vector2(z, y))),
+    { depth: p.w - 2 * b, bevelEnabled: b > 0, bevelThickness: b, bevelSize: b, bevelOffset: -b, bevelSegments: 2, curveSegments: 1 });
+  geo.translate(0, 0, b - p.w / 2);
+  geo.rotateY(-Math.PI / 2);                    // the outline's first axis becomes z, the extrusion x
+  return geo;
 }
 /** Wall TV on a swivel arm (tvmount.js): the arm on the wall, the TV swung, tilted and pulled out on it as set on the device. Its screen glows
  *  with the entity; the frame behind it is its backlight (shown only with a backlight entity, like tvLed) */

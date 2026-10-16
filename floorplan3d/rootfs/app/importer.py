@@ -1,6 +1,6 @@
 """Property JSON  ->  3D Floorplan layout (and back).
 
-Pure functions, no I/O besides reading models.js, scandi.js and leisure.js once for the list of device types.
+Pure functions, no I/O besides reading models.js, scandi.js, leisure.js and garage.js once for the list of device types.
 The format is documented in docs/IMPORT.md and described by property.schema.json.
 
     build_layout(data)      -> (layout, report)      data = property JSON (dict)
@@ -61,8 +61,8 @@ KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall",
 
 
 def _load_device_types() -> dict:
-    """type -> default height, read from the frontend's models.js (and scandi.js, the furniture in Scandinavian style, and leisure.js: sauna,
-    fitness, bar, cinema, PC, LED mirrors) so they never drift apart."""
+    """type -> default height, read from the frontend's models.js (and scandi.js, the furniture in Scandinavian style, leisure.js: sauna,
+    fitness, bar, cinema, PC, LED mirrors, and garage.js: vehicles, workshop, carport) so they never drift apart."""
     types = {}
     static = Path(__file__).parent / "static"
     try:
@@ -70,7 +70,7 @@ def _load_device_types() -> dict:
         for m in re.finditer(r"^\s+(\w+):\s*\{\s*label:\s*'[^']*',\s*y:\s*([\d.]+)(,\s*hidden:\s*true)?\s*\}", text, re.M):
             if not m.group(3):
                 types[m.group(1)] = float(m.group(2))
-        for name in ("scandi.js", "leisure.js"):
+        for name in ("scandi.js", "leisure.js", "garage.js"):
             for m in re.finditer(r"^  (\w+): \{ cat: '\w+',(.*)$", (static / name).read_text(encoding="utf-8"), re.M):
                 y = re.search(r"\by: ([\d.]+),", m.group(2))
                 types[m.group(1)] = float(y.group(1)) if y else 0.0

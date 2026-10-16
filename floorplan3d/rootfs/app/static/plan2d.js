@@ -16,6 +16,7 @@ import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
 import { hasShutter, shutterEntity, linkedEntities, shutterSide, shutterText } from './shutters.js';
 import { SCANDI, SCANDI_TYPES, footOf as scandiFoot, variantOf } from './scandi.js';
 import { LEISURE_FLAT } from './leisure.js';
+import { GARAGE_FLAT } from './garage.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -25,7 +26,7 @@ const C = {
 
 const POLY_KINDS = new Set(['room', 'block', 'hole']);                     // shapes edited by their corners
 const polyList = (f, kind) => (kind === 'room' ? f.rooms : kind === 'block' ? f.blocks || [] : f.holes || []);
-const FLAT = new Set(['carpet', 'rug_round', 'lawn', 'terrace', 'path', 'pool', ...LEISURE_FLAT]);   // lie on the ground (or on the ceiling: the star sky): drawn below, picked last
+const FLAT = new Set(['carpet', 'rug_round', 'lawn', 'terrace', 'path', 'pool', ...LEISURE_FLAT, ...GARAGE_FLAT]);   // lie on the ground (or on the ceiling: the star sky): drawn below, picked last
 /* footprint (m) of every device type: [w, d] or radius for round ones */
 const FOOT = {
   light: { r: 0.2 }, lamp: { r: 0.2 }, orb: { r: 0.11 }, strip: { w: 1, d: 0.06 }, panel_tri: { w: 0.24, d: 0.24 }, panel_hex: { w: 0.26, d: 0.26 }, panel_sq: { w: 0.24, d: 0.24 }, panel_bar: { w: 0.9, d: 0.06 }, nanoleaf: { w: 0.5, d: 0.06 }, tv_led: { w: 1.3, d: 0.06 }, switch: { w: 0.14, d: 0.14 }, sensor: { r: 0.09 }, thermostat: { w: 0.9, d: 0.16 },

@@ -5,11 +5,13 @@
  * plan2d.js takes the footprint from them (footOf), the side panel offers the finishes (white, black-brown, oak ...). Unit tests:
  * tests/scandi.test.mjs
  *
- * A part: { s: 'box', w, h, d } | { s: 'cyl', r (top), r2 (bottom), h, seg } | { s: 'ball', r, sx, sy, sz } with x, z (its middle), y (its
- * bottom before it is turned), m (the material: 'f' the finish, 'f2' the finish a little darker, else a key of MATS) and rx, ry, rz (turned
- * round its middle, in the order of three.js). */
+ * A part: { s: 'box', w, h, d } | { s: 'cyl', r (top), r2 (bottom), h, seg } | { s: 'ball', r, sx, sy, sz } | { s: 'ext', w, h, d, pts, bev }
+ * (a side profile drawn w wide along x, pts its outline [[z, y], ...] from the middle of the w x h x d box round it, bev how round its side
+ * edges are: prof in shapes.js) with x, z (its middle), y (its bottom before it is turned), m (the material: 'f' the finish, 'f2' the finish a
+ * little darker, else a key of MATS) and rx, ry, rz (turned round its middle, in the order of three.js). */
 import { B, C, S, prism, rod, bar, knob, hline, vline, legs, books, tiltX, glassDoor } from './shapes.js';     // the building blocks
 import { LEISURE, LEISURE_MATS, LEISURE_FINISHES } from './leisure.js';                                         // sauna, fitness, bar, cinema, PC, LED mirrors
+import { GARAGE, GARAGE_MATS, GARAGE_FINISHES } from './garage.js';                                              // vehicles, workshop, carport
 
 /** the finishes a piece can have (side panel: "Ausführung"); rough / metal: how the surface looks */
 export const FINISHES = {
@@ -19,6 +21,7 @@ export const FINISHES = {
   lightgrey: { c: '#b9bbbd', rough: 0.95 }, darkgrey: { c: '#5c6066', rough: 0.95 }, beige: { c: '#d5c7ae', rough: 0.95 },
   blue: { c: '#4d6a8f', rough: 0.9 }, green: { c: '#62795d', rough: 0.9 }, rust: { c: '#a65a3c', rough: 0.95 }, yellow: { c: '#d9a93b', rough: 0.9 },
   ...LEISURE_FINISHES,
+  ...GARAGE_FINISHES,
 };
 /** the fixed materials (glow: the shade of a lamp, lights up with its entity) */
 export const MATS = {
@@ -33,6 +36,7 @@ export const MATS = {
   bin1: { c: '#7cb66b' }, bin2: { c: '#4a90c8' }, bin3: { c: '#f2f2ee' }, bin4: { c: '#e9c548' },
   glow: { c: '#fff2cc', glow: true },
   ...LEISURE_MATS,
+  ...GARAGE_MATS,
 };
 
 /** '#rrggbb' times k (darker below 1) */
@@ -332,7 +336,7 @@ function palm() {
 }
 
 const WOOD = ['white', 'blackbrown', 'oak'], FABRIC = ['lightgrey', 'darkgrey', 'beige', 'blue', 'green', 'rust', 'yellow'];
-/** the pieces (and those of leisure.js): cat (library group), label (German, the translations are in i18n.js / lang/*.js), fin (the finishes, the first is the default),
+/** the pieces (and those of leisure.js and garage.js): cat (library group), label (German, the translations are in i18n.js / lang/*.js), fin (the finishes, the first is the default),
  *  search (more words the library search finds it by), y (height over the floor when placed), round (round footprint), parts() */
 export const SCANDI = {
   shelf_cube2x2: { cat: 'living', label: 'Würfelregal 2×2', fin: [...WOOD, 'birch', 'grey'], search: 'kallax expedit würfel wuerfel cube regal', parts: () => cubeShelf(2, 2, [[0, 0, 'box'], [1, 1, 'books']]) },
@@ -401,6 +405,7 @@ export const SCANDI = {
     parts: () => [C(0.06, 0.2, 0, 0, 0, 'f', 0.19, 28), C(0.175, 0.006, 0, 0.002, 0, 'glow', 0.175, 24), S(0.045, 0, 0.03, 0, 'glow'), C(0.025, 0.04, 0, 0.2, 0, 'f', 0.025, 12), C(0.004, 0.48, 0, 0.24, 0, 'black', 0.004, 6), C(0.05, 0.03, 0, 0.72, 0, 'white', 0.05, 16)] },
   plant_palm: { cat: 'decor', label: 'Zimmerpalme', fin: ['white', 'terracotta', 'black'], search: 'pflanze palme fejka zimmerpflanze', parts: palm },
   ...LEISURE,                                                    // the pieces of leisure.js are built, drawn and offered the same way
+  ...GARAGE,                                                     // and those of garage.js (vehicles, workshop, carport)
 };
 export const SCANDI_TYPES = Object.keys(SCANDI);
 
@@ -431,7 +436,7 @@ export function pointOf(p, v) {
 }
 /** half the size of a part along its own axes */
 function halfOf(p) {
-  if (p.s === 'box') return [p.w / 2, p.h / 2, p.d / 2];
+  if (p.s === 'box' || p.s === 'ext') return [p.w / 2, p.h / 2, p.d / 2];
   if (p.s === 'cyl') { const r = Math.max(p.r, p.r2); return [r, p.h / 2, r]; }
   return [p.r * (p.sx || 1), p.r * (p.sy || 1), p.r * (p.sz || 1)];
 }
