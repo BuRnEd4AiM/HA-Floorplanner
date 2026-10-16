@@ -4,6 +4,7 @@
  * light are in roomlight.js. */
 import { deviceInIso } from './roomclip.js';
 import { LEISURE_LAMPS, LEISURE_LIGHT } from './leisure.js';
+import { GARAGE_LAMPS, GARAGE_LIGHT } from './garage.js';
 
 export const MAX_LIGHTS = 8;
 /** how far (r, relative to the setting) and how strongly (k) a kind of lamp lights the room */
@@ -14,11 +15,13 @@ export const LIGHT_PROFILE = {
   lamp_paper: { r: 0.6, k: 0.6 }, lamp_arc: { r: 0.65, k: 0.6 }, lamp_table: { r: 0.45, k: 0.5 },
   ledzone: { r: 0.4, k: 0.4 },                                  // an LED zone of a piece (a mirror's backlight, the bar's plinth ...) with an entity of its own
   ...LEISURE_LIGHT,                                             // LED mirrors, the bar, the neon sign, the star sky ... (leisure.js)
+  ...GARAGE_LIGHT,                                              // the workshop lamps, the workbench with its light (garage.js)
 };
 /** the device types that are lamps (the palette's lighting group, models.js) */
 export const LAMP_TYPES = ['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'ledring', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led',
   'pendant_paper', 'pendant_dome', 'lamp_paper', 'lamp_arc', 'lamp_table',        // lamps in Scandinavian style (scandi.js)
-  ...LEISURE_LAMPS];                                                               // LED mirrors, the bar with LED, the neon sign ... (leisure.js)
+  ...LEISURE_LAMPS,                                                                // LED mirrors, the bar with LED, the neon sign ... (leisure.js)
+  ...GARAGE_LAMPS];                                                                // the workshop lamps (garage.js)
 /** is device d a lamp (also a section of an LED ring, 'ledseg', and an LED zone of a piece, 'ledzone') */
 export const isLamp = (d) => !!d && (LAMP_TYPES.includes(d.type) || d.type === 'ledseg' || d.type === 'ledzone');
 

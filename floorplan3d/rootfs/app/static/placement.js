@@ -3,13 +3,15 @@
 import { ringFromRoom } from './ledring.js';
 import { SCANDI, footOf } from './scandi.js';
 import { LEISURE_WALL } from './leisure.js';
+import { GARAGE_WALL } from './garage.js';
 
 /** things that light up like an LED (glow instead of a lamp light) */
 export const LED_LIKE = { strip: 1, tv_led: 1, nanoleaf: 1, panel_tri: 1, panel_hex: 1, panel_sq: 1, panel_bar: 1, orb: 1 };
 /** wall-hung devices: pictures, mirrors, panels, radiators, meters ...; they click onto the nearest wall when placed */
 export const WALL_TYPES = new Set(['picture', 'tv_wall', 'tv_arm', 'mirror', 'walllamp', 'radiator', 'towelrad', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led', 'camera', 'thermostat', 'switch', 'inverter', 'powermeter', 'fusebox', 'wallbox', 'gasmeter', 'heatmeter',
-  ...LEISURE_WALL]);       // LED mirrors, the screen, the neon sign, the dartboard, the wall bars ... (leisure.js)
-/** how deep a wall-hung piece of leisure.js is (a mirror cabinet, the wall bars, the bucket shower): its back then lies on the wall face; 0 for the rest */
+  ...LEISURE_WALL,         // LED mirrors, the screen, the neon sign, the dartboard, the wall bars ... (leisure.js)
+  ...GARAGE_WALL]);        // the pegboard, the bins on the wall, the fire extinguisher, a bike on the wall ... (garage.js)
+/** how deep a wall-hung piece of leisure.js or garage.js is (a mirror cabinet, the wall bars, the bucket shower, a bike on the wall): its back then lies on the wall face; 0 for the rest */
 export const wallDepth = (d) => (SCANDI[d?.type]?.wall ? footOf(d.type).d * (d.scale || 1) * (d.sz || 1) : 0);
 
 /** a wall end within 30 cm catches the point, else the grid of `step` metres */

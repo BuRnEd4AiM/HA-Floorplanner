@@ -38,9 +38,12 @@ def test_device_types_parsed_from_models_js():
     declared = set(re.findall(r"^  (\w+):\s*\{ label:", models, re.M))
     scandi = set(re.findall(r"^  (\w+): \{ cat:", (APP / "static" / "scandi.js").read_text(encoding="utf-8"), re.M))     # the furniture in Scandinavian style
     leisure = set(re.findall(r"^  (\w+): \{ cat:", (APP / "static" / "leisure.js").read_text(encoding="utf-8"), re.M))   # sauna, fitness, bar, cinema, PC, LED mirrors
-    assert len(scandi) >= 50 and len(leisure) >= 50 and importer.DEVICE_TYPES and set(importer.DEVICE_TYPES) | {"door", "window"} == declared | scandi | leisure
+    garage = set(re.findall(r"^  (\w+): \{ cat:", (APP / "static" / "garage.js").read_text(encoding="utf-8"), re.M))     # vehicles, workshop, carport
+    assert len(scandi) >= 50 and len(leisure) >= 50 and len(garage) >= 50 and importer.DEVICE_TYPES
+    assert set(importer.DEVICE_TYPES) | {"door", "window"} == declared | scandi | leisure | garage
     assert importer.DEVICE_TYPES["pendant_paper"] == 1.9 and importer.DEVICE_TYPES["lamp_table"] == 0.75 and importer.DEVICE_TYPES["shelf_cube2x2"] == 0
     assert importer.DEVICE_TYPES["projector"] == 2.0 and importer.DEVICE_TYPES["mirror_led_zones"] == 1.1 and importer.DEVICE_TYPES["sauna_cabin"] == 0
+    assert importer.DEVICE_TYPES["motorhome"] == 0 and importer.DEVICE_TYPES["work_lamp"] == 2.1 and importer.DEVICE_TYPES["ceiling_rack"] == 1.9
 
 
 def test_shared_walls_are_one_wall_and_outer_walls_are_thick():
