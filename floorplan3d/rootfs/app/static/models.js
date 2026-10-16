@@ -7,6 +7,7 @@ import { solarField, standParts, PANEL, STAND } from './solarroof.js';
 import { bridgeParts } from './bridge.js';
 import { LAMP_TYPES } from './lamplight.js';
 import { SCANDI, SCANDI_TYPES, partsOf, matOf, finishOf, variantOf } from './scandi.js';
+import { tvArmParts } from './tvmount.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -17,6 +18,7 @@ export const DEVICE_TYPES = {
   thermostat: { label: 'Heizung',     y: 0.2 },
   tv:         { label: 'TV',          y: 0.5 },
   tv_wall:    { label: 'Wand-TV',     y: 1.0 },
+  tv_arm:     { label: 'Wand-TV mit Schwenkarm', y: 1.0 },
   sofa:       { label: 'Sofa',        y: 0 },
   bed:        { label: 'Bett',        y: 0 },
   table:      { label: 'Tisch',       y: 0 },
@@ -111,14 +113,14 @@ SCANDI_TYPES.forEach((k) => { DEVICE_TYPES[k] = { label: SCANDI[k].label, y: SCA
 
 /* Library categories (room types) for the palette */
 export const CATEGORIES = {
-  living:  ['sofa', 'sofa2', 'armchair', 'pouf', 'table', 'coffeetable', 'sidetable', 'diningtable', 'chair', 'barstool', 'tv', 'tv_wall', 'tvstand', 'sideboard', 'shelf', 'bookcase', 'fireplace', 'piano', 'carpet', 'curtain', 'plant'],
+  living:  ['sofa', 'sofa2', 'armchair', 'pouf', 'table', 'coffeetable', 'sidetable', 'diningtable', 'chair', 'barstool', 'tv', 'tv_wall', 'tv_arm', 'tvstand', 'sideboard', 'shelf', 'bookcase', 'fireplace', 'piano', 'carpet', 'curtain', 'plant'],
   kitchen: ['kitchenrun', 'kitchen', 'island', 'sink', 'stove', 'oven', 'microwave', 'dishwasher', 'fridge', 'washer'],
   bath:    ['bathtub', 'shower', 'toilet', 'basin', 'doublebasin', 'mirror', 'towelrad'],
   bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   kids:    [],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
   entry:   [],
-  wellness: [], fitness: [], bar: [], cinema: [],              // sauna, fitness, the bar, the home cinema (leisure.js)
+  wellness: [], fitness: [], bar: [], cinema: [], climate: [], // sauna, fitness, the bar, the home cinema, air conditioners and fans (leisure.js)
   lighting: LAMP_TYPES,                                         // the lamps (lamplight.js: a lamp on a relay lights the room like any lamp, #367)
   smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence', 'watermeter', 'gasmeter', 'heatmeter'],
   power:   ['houseentry', 'fusebox', 'powermeter', 'inverter', 'solarpanel', 'battery', 'wallbox'],
@@ -646,6 +648,7 @@ export function makeModel(type, onReady, dev, opts) {
   if (type === 'kitchenrun') { kitchenRun(g, dev); return g; }
   if (type === 'bridge') { bridgeModel(g, dev); return g; }
   if (type === 'solarpanel') { solarPanels(g, dev, opts?.mount || 'stand', opts?.groundAt); return g; }
+  if (type === 'tv_arm') { tvArmModel(g, dev); return g; }
   if (SCANDI[type]) { scandiModel(g, type, dev); return g; }
   (builders[type] || builders.sensor)(g);
   centreOnFootprint(g);
@@ -654,30 +657,48 @@ export function makeModel(type, onReady, dev, opts) {
 /** Furniture in Scandinavian style (scandi.js) and the pieces of leisure.js: its parts as meshes, in the finish chosen on the device; a lamp's
  *  shade glows with its entity, an LED zone with its own one */
 function scandiModel(g, type, dev) {
-  const fin = finishOf(type, dev), variant = variantOf(type, dev), mats = new Map(), glow = [], zones = Array.from({ length: SCANDI[type].leds?.length || 0 }, () => []);
+  const fin = finishOf(type, dev), variant = variantOf(type, dev), mats = new Map(), glow = [], heat = [], zones = Array.from({ length: SCANDI[type].leds?.length || 0 }, () => []);
   const matFor = (m) => {
     if (!mats.has(m)) {
       const s = matOf(m, fin);
       const mm = s.glow ? glowMat(s.c) : std(s.c, { roughness: s.rough ?? 0.7, metalness: s.metal ?? 0.05, ...(s.opacity ? { transparent: true, opacity: s.opacity } : {}) });
       if (s.on) mm.userData.on = s.on;                           // lit in its own colour when the entity tells none (a sauna's stones, a screen ...)
       if (s.glow) (zones[s.zone] || glow).push(mm);               // an LED zone follows its own entity (ledzones.js), the rest the device's
+      if (s.heat) heat.push(mm);                                  // an air conditioner's outlet: blue while it cools, red while it heats (heating.js)
       mats.set(m, mm);
     }
     return mats.get(m);
   };
-  partsOf(type, variant).forEach((p) => {
-    const geo = p.s === 'box' ? new THREE.BoxGeometry(p.w, p.h, p.d) : p.s === 'cyl' ? new THREE.CylinderGeometry(p.r, p.r2, p.h, p.seg || 16) : new THREE.SphereGeometry(p.r, 18, 12);
-    const m = new THREE.Mesh(geo, matFor(p.m));
-    m.position.set(p.x, p.y + (p.s === 'ball' ? p.r * (p.sy || 1) : p.h / 2), p.z);
-    m.rotation.order = p.ord || 'XYZ';
-    m.rotation.set(p.rx || 0, p.ry || 0, p.rz || 0);
-    if (p.s === 'ball') m.scale.set(p.sx || 1, p.sy || 1, p.sz || 1);
-    g.add(m);
-  });
+  partsOf(type, variant).forEach((p) => g.add(partMesh(p, matFor(p.m))));
   if (glow.length) g.userData.glow = glow;
+  if (heat.length) g.userData.heat = heat;
   if (zones.length) g.userData.segs = zones.map((z) => ({ glow: z }));     // drawn like the sections of an LED ring (modelfx.js ringLook)
   g.userData.finish = fin;
   if (variant) g.userData.variant = variant;
+}
+/** one part of a piece made of parts (the format of scandi.js: a box, a cylinder or a ball, y its bottom, turned in its order) as a mesh */
+function partMesh(p, mat) {
+  const geo = p.s === 'box' ? new THREE.BoxGeometry(p.w, p.h, p.d) : p.s === 'cyl' ? new THREE.CylinderGeometry(p.r, p.r2, p.h, p.seg || 16) : new THREE.SphereGeometry(p.r, 18, 12);
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(p.x, p.y + (p.s === 'ball' ? p.r * (p.sy || 1) : p.h / 2), p.z);
+  m.rotation.order = p.ord || 'XYZ';
+  m.rotation.set(p.rx || 0, p.ry || 0, p.rz || 0);
+  if (p.s === 'ball') m.scale.set(p.sx || 1, p.sy || 1, p.sz || 1);
+  return m;
+}
+/** Wall TV on a swivel arm (tvmount.js): the arm on the wall, the TV swung, tilted and pulled out on it as set on the device. Its screen glows
+ *  with the entity; the frame behind it is its backlight (shown only with a backlight entity, like tvLed) */
+function tvArmModel(g, dev) {
+  const glow = glowMat(0x9db8ff), led = glowMat(), steel = std('#2c2f34', { metalness: 0.55, roughness: 0.4 });
+  const mats = { plate: steel, arm: steel, tvbody: std('#111'), screen: glow, led }, parts = [];
+  tvArmParts(dev || {}).forEach((p) => {
+    const m = partMesh(p, mats[p.m]);
+    if (p.m === 'led') { m.userData.ledPart = true; m.visible = false; parts.push(m); }
+    g.add(m);
+  });
+  g.userData.glow = [glow];
+  g.userData.led = [led];
+  g.userData.ledParts = parts;
 }
 /** Metal bridge / walkway (#189): grating deck on two steel beams, railing on both sides (see bridgeParts) */
 function bridgeModel(g, dev) {

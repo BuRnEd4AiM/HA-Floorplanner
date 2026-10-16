@@ -1042,4 +1042,11 @@ export default {
   'dev.mirror_led_round': 'Espejo redondo con LED', 'dev.mirror_led_zones': 'Espejo LED de 3 zonas', 'dev.mirror_hollywood': 'Espejo Hollywood',
   'dev.mirror_cabinet': 'Armario con espejo y LED', 'dev.mirror_led_tall': 'Espejo de cuerpo entero con LED',
   'prop.variant': 'Disposición', 'var.two': '2 monitores uno al lado del otro', 'var.one': '1 monitor', 'var.three': '3 monitores uno al lado del otro', 'var.four': '4 monitores (2 × 2)', 'var.curved': 'Monitor curvo', 'var.curved2': 'Curvo + 2 en vertical',
+  'dev.tv_arm': 'TV de pared con brazo giratorio', 'cat.climate': 'Clima y aire', 'led.light': 'Luz', 'dev.ac_wall': 'Aire acondicionado (split, pared)',
+  'dev.ac_outdoor': 'Unidad exterior / bomba de calor', 'dev.ac_portable': 'Aire acondicionado portátil', 'dev.ac_ceiling': 'Cassette de techo',
+  'dev.fan_ceiling': 'Ventilador de techo con luz', 'dev.fan_stand': 'Ventilador de pie', 'dev.fan_tower': 'Ventilador de torre',
+  'dev.air_purifier': 'Purificador de aire', 'dev.dehumidifier': 'Deshumidificador', 'tvarm.size': 'Tamaño', 'tvarm.swing': 'Girar (°)',
+  'tvarm.reach': 'Distancia a la pared', 'tvarm.tilt': 'Inclinar (°)',
+  'tvarm.help': 'Girar: + gira la pantalla a la derecha, − a la izquierda (vista de frente). Inclinar: + la inclina hacia abajo. Al girar, el brazo saca el televisor lo suficiente para que no toque la pared.',
+  'tvarm.pulled': 'Con este ángulo queda a {len} de la pared.',
 };

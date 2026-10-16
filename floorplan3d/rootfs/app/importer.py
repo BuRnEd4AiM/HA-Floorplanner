@@ -43,7 +43,7 @@ ROOF_TYPES = {"gable", "hip", "flat"}
 FLOOR_KINDS = {"floor", "basement", "roof"}
 ROOM_COLORS = ["#b89b74", "#c9c2b4", "#8fb1c2", "#a99bb8", "#9db39a", "#c2a58f", "#9fb0c9", "#b7b08f"]
 # optional device fields that are copied when they have the right type
-DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len", "rise")
+DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len", "rise", "armSwing", "armReach", "armTilt")
 DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img", "batPower")
 DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert", "noRail")
 CABLE_ROUTES = ("floor", "through", "air")
@@ -297,6 +297,8 @@ def _device(rep: Report, path: str, spec, ids):
         d["finish"] = spec["finish"]                   # the finish of a piece in Scandinavian style (oak, white ...; scandi.js knows which)
     if isinstance(spec.get("variant"), str) and re.fullmatch(r"[a-z0-9]{2,20}", spec["variant"]):
         d["variant"] = spec["variant"]                 # how a piece is built (the PC desk: its monitors, MONITOR_LAYOUTS in leisure.js)
+    if isinstance(spec.get("tvSize"), (str, int)) and re.fullmatch(r"[0-9]{2}", str(spec["tvSize"])):
+        d["tvSize"] = str(spec["tvSize"])             # the size of a TV on a swivel arm in inches (tvmount.js: 43 ... 85, an unknown one shows 55)
     if isinstance(spec.get("leds"), list):            # the entities of the LED zones of a piece (a mirror, the bar ...; ledzones.js), "" follows "entity"
         leds = [e[:120] if isinstance(e, str) else "" for e in spec["leds"][:MAX_LED_ZONES]]
         while leds and not leds[-1]:
@@ -920,7 +922,7 @@ def layout_to_property(layout, name="Haus"):
             item["walls"].append(ow)
         item["devices"] = []
         for d in f.get("devices", []):
-            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "variant", "leds", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
+            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "variant", "tvSize", "leds", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
             cs = cables_of(d)
             if cs or d["id"] in feeding:
                 od["id"] = d["id"]

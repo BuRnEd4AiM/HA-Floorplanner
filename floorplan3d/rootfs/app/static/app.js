@@ -91,7 +91,7 @@ import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, f
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO, ringLook } from './modelfx.js';
 import { textSprite as makeTextSprite } from './labels.js';
-import { heatMode, heatLook, paintHeat, pillTone } from './heating.js';
+import { heatMode, heatLook, paintHeat, pillTone, RUNNING } from './heating.js';
 import { initOfflineMarks, offlineMarks } from './offlinemarks.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
@@ -417,8 +417,8 @@ function build() {
 }
 
 /** is this entity "on" for the glow of its device? A thermostat only while it really heats or cools (hvac_action), else by its state */
-const isOnNow = (e) => { const s = states[e]; if (!s) return false; if (e.startsWith('climate.') && s.hvac) return s.hvac === 'heating' || s.hvac === 'cooling'; return ON_STATES.has(s.state); };
-const ON_STATES = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'unlocked', 'home']);
+const isOnNow = (e) => { const s = states[e]; if (!s) return false; if (e.startsWith('climate.') && s.hvac) return RUNNING.has(s.hvac); return ON_STATES.has(s.state); };   // a thermostat / an air conditioner: while it runs (heating.js)
+const ON_STATES = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'dry', 'fan_only', 'unlocked', 'home']);
 
 /** texts for the value badges and state lines (badgetext.js) */
 function labelText(entityId, type) { return badgeText(states[entityId], entityId, t, type); }
@@ -586,7 +586,7 @@ function applyStates() {
       if (!obj) return;
       const on = d.entity && isOnNow(d.entity);
       const rgb = on ? lampRgb(d, states[d.entity]) : null;   // lit parts take the light's colour (or the one set on a lamp that reports none, #367)
-      if (obj.userData.heat) paintHeat(obj.userData, heatLook(heatMode(d.entity, states[d.entity], on)));   // a radiator: red while it heats, cool blue while not (heating.js)
+      if (obj.userData.heat) paintHeat(obj.userData, heatLook(heatMode(d.entity, states[d.entity], on, d.type)));   // a radiator: red while it heats, cool blue while not; an air conditioner's outlet (heating.js)
       obj.userData.glow?.forEach((m) => {
         m.emissive.set(on ? (rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255) : (m.userData.on ?? 0xffd27a)) : 0x000000);   // on: a part's own colour (a sauna's stones, a screen)
         m.emissiveIntensity = on ? 1.4 : 0;

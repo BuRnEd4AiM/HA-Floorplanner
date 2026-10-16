@@ -1042,4 +1042,11 @@ export default {
   'dev.mirror_led_round': 'Specchio rotondo con LED', 'dev.mirror_led_zones': 'Specchio LED a 3 zone', 'dev.mirror_hollywood': 'Specchio Hollywood',
   'dev.mirror_cabinet': 'Specchiera contenitore con LED', 'dev.mirror_led_tall': 'Specchio a figura intera con LED',
   'prop.variant': 'Disposizione', 'var.two': '2 monitor affiancati', 'var.one': '1 monitor', 'var.three': '3 monitor affiancati', 'var.four': '4 monitor (2 × 2)', 'var.curved': 'Monitor curvo', 'var.curved2': 'Curvo + 2 in verticale',
+  'dev.tv_arm': 'TV a parete con braccio orientabile', 'cat.climate': 'Clima e aria', 'led.light': 'Luce', 'dev.ac_wall': 'Condizionatore (split, parete)',
+  'dev.ac_outdoor': 'Unità esterna / pompa di calore', 'dev.ac_portable': 'Condizionatore portatile', 'dev.ac_ceiling': 'Cassetta a soffitto',
+  'dev.fan_ceiling': 'Ventilatore da soffitto con luce', 'dev.fan_stand': 'Ventilatore a piantana', 'dev.fan_tower': 'Ventilatore a torre',
+  'dev.air_purifier': 'Purificatore d\'aria', 'dev.dehumidifier': 'Deumidificatore', 'tvarm.size': 'Dimensione', 'tvarm.swing': 'Ruotare (°)',
+  'tvarm.reach': 'Distanza dalla parete', 'tvarm.tilt': 'Inclinare (°)',
+  'tvarm.help': 'Ruotare: + gira lo schermo a destra, − a sinistra (visto di fronte). Inclinare: + lo piega in basso. Ruotando, il braccio porta avanti il televisore quanto basta perché non tocchi la parete.',
+  'tvarm.pulled': 'Con questo angolo sta a {len} dalla parete.',
 };

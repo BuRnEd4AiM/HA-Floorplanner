@@ -26,7 +26,8 @@
       { "type": "chair",   "x": 15.5, "z": 25.3, "rot": 180 },
       { "type": "sauna_barrel", "x": 5, "z": 37, "rot": 90, "name": "Fass-Sauna", "entity": "switch.fasssauna" },
       { "type": "hottub", "x": 20.5, "z": 30.5, "name": "Whirlpool", "entity": "light.whirlpool" },
-      { "type": "bar_counter", "x": 29.2, "z": 31, "rot": 270, "name": "Poolbar", "entity": "light.poolbar" }
+      { "type": "bar_counter", "x": 29.2, "z": 31, "rot": 270, "name": "Poolbar", "entity": "light.poolbar" },
+      { "type": "ac_outdoor", "x": 7.6, "z": 16.0, "rot": 270, "name": "Klima-Außengerät" }
     ]
   },
   "building": {
@@ -107,6 +108,7 @@
           { "type": "heatmeter",  "x": 5.6, "z": 4.75, "rot": 180, "name": "Wärmemengenzähler", "entity": "sensor.waermemenge" },
           { "type": "router",     "x": 3.65, "z": 3.2, "rot": 90, "name": "Router", "entity": "binary_sensor.internet" },
           { "type": "washer",     "x": 0.6, "z": 9.45, "rot": 180, "name": "Waschmaschine", "entity": "sensor.waschmaschine_status" },
+          { "type": "dehumidifier", "x": 3.0, "z": 7.45, "name": "Luftentfeuchter", "entity": "humidifier.keller_entfeuchter" },
           { "type": "boiler",     "x": 2.9, "z": 9.4, "name": "Warmwasser", "entity": "water_heater.speicher" },
           { "type": "sink",       "x": 1.8, "z": 9.5, "rot": 180, "scale": 0.8, "name": "Ausguss" },
           { "type": "shelf",      "x": 3.8, "z": 7.5, "rot": 90 },
@@ -175,6 +177,8 @@
           { "type": "acoustic_panel", "x": 20.6, "z": -3.925 },
           { "type": "acoustic_panel", "x": 18.0, "z": 0.425, "rot": 180, "finish": "walnut" },
           { "type": "popcorn", "x": 17.6, "z": -3.5, "name": "Popcornmaschine", "entity": "switch.popcorn" },
+          { "type": "ac_wall", "x": 23.0, "z": -3.83, "y": 2.1, "name": "Klima Heimkino", "entity": "climate.heimkino" },
+          { "type": "air_purifier", "x": 19.0, "z": 0.2, "name": "Luftreiniger Kino", "entity": "fan.luftreiniger_kino" },
           { "type": "pc_setup", "x": 17.6, "z": -2.0, "rot": 90, "name": "Gaming-PC", "entity": "switch.gaming_pc", "variant": "curved2" },
           { "type": "gaming_chair", "x": 18.4, "z": -2.0, "rot": 270 },
           { "type": "pc_gaming", "x": 17.45, "z": -0.6, "rot": 90, "finish": "white" },
@@ -194,8 +198,11 @@
           { "type": "kettlebells", "x": 17.6, "z": 7.0, "rot": 90 },
           { "type": "gymball", "x": 17.7, "z": 9.3 },
           { "type": "yogamat", "x": 19.2, "z": 9.2, "rot": 90 },
+          { "type": "tv_arm", "x": 19.3, "z": 0.58, "y": 1.45, "name": "Fitness-TV", "entity": "media_player.fitness_tv", "ledEntity": "light.fitness_tv_led", "tvSize": "65", "armSwing": -20, "armReach": 0.25, "armTilt": 6 },
+          { "type": "fan_stand", "x": 21.2, "z": 4.3, "rot": 270, "name": "Ventilator Fitness", "entity": "switch.fitness_ventilator" },
           { "type": "backbar", "x": 25.16, "z": 3.0, "rot": 270, "name": "Barregal", "entity": "light.barregal" },
           { "type": "bar_corner", "x": 23.75, "z": 3.3, "rot": 270, "name": "Bar", "entity": "light.bar", "leds": ["light.bar_theke", "light.bar_sockel"] },
+          { "type": "ac_ceiling", "x": 23.2, "z": 5.0, "y": 2.47, "name": "Klima Bar", "entity": "climate.bar" },
           { "type": "barstool_back", "x": 22.2, "z": 2.3, "rot": 90 },
           { "type": "barstool_back", "x": 22.2, "z": 2.9, "rot": 90 },
           { "type": "barstool_back", "x": 22.2, "z": 3.5, "rot": 90 },
@@ -210,6 +217,8 @@
           { "type": "bar_table", "x": 22.2, "z": 9.3 },
           { "type": "screen_frame", "x": 21.68, "z": 2.6, "rot": 90 },
           { "type": "pc_tower", "x": 12.3, "z": 7.4, "rot": 90 },
+          { "type": "ac_portable", "x": 16.45, "z": 5.6, "rot": 270, "name": "Mobiles Klimagerät", "entity": "climate.werkstatt_mobil" },
+          { "type": "fan_tower", "x": 16.7, "z": 9.6, "name": "Turmventilator", "entity": "fan.werkstatt" },
           { "type": "laptop", "x": 14.5, "z": 7.75, "y": 0.75 },
           { "type": "server_rack", "x": 4.3, "z": 2.3, "rot": 90, "name": "Netzwerkschrank" }
         ]
@@ -380,6 +389,7 @@
           { "type": "wardrobe",   "x": 7.35, "z": 2.4, "rot": 90 },
           { "type": "dresser",    "x": 11.6, "z": 3.1, "rot": 270 },
           { "type": "light",      "x": 9.5, "z": 2.2, "name": "Schlafzimmerlicht", "entity": "light.schlafzimmer" },
+          { "type": "fan_ceiling", "x": 9.5, "z": 1.3, "y": 2.19, "name": "Deckenventilator", "entity": "fan.schlafzimmer", "leds": ["light.schlafzimmer_ventilator"] },
           { "type": "bed_single", "x": 4.1, "z": 8.5, "rot": 90 },
           { "type": "crib",       "x": 5.0, "z": 9.45, "rot": 180 },
           { "type": "light",      "x": 4.9, "z": 7.5, "name": "Kinderzimmerlicht", "entity": "light.kinderzimmer" },

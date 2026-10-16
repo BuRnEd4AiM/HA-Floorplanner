@@ -18,7 +18,7 @@ export function wantsBall(d) {
   return linkedDevice(d);
 }
 
-const TYPE_ICON = { camera: '📷', tv: '📺', tv_wall: '📺', speaker: '🔊', vacuum: '🧹', thermostat: '🌡', radiator: '🌡', boiler: '🌡', washer: '🫧',
+const TYPE_ICON = { camera: '📷', tv: '📺', tv_wall: '📺', tv_arm: '📺', speaker: '🔊', vacuum: '🧹', thermostat: '🌡', radiator: '🌡', boiler: '🌡', washer: '🫧',
   router: '📶', smoke: '🚨', wallbox: '🔌', battery: '🔋', fan: '🌀', solarpanel: '☀', inverter: '☀', powermeter: '⚡', houseentry: '⚡', fusebox: '⚡',
   watermeter: '🚰', gasmeter: '🔥', heatmeter: '♨' };
 Object.entries(LEISURE).forEach(([k, v]) => { if (v.icon) TYPE_ICON[k] = v.icon; });   // the sauna, the treadmill, the projector, the PC ... (leisure.js)

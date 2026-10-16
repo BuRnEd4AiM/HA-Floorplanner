@@ -138,6 +138,12 @@ const DICT = {
     'dev.mirror_led_round': 'Runder Spiegel mit LED', 'dev.mirror_led_zones': 'LED-Spiegel mit 3 Zonen', 'dev.mirror_hollywood': 'Hollywood-Spiegel',
     'dev.mirror_cabinet': 'Spiegelschrank mit LED', 'dev.mirror_led_tall': 'Ganzkörperspiegel mit LED',
     'prop.variant': 'Anordnung', 'var.two': '2 Monitore nebeneinander', 'var.one': '1 Monitor', 'var.three': '3 Monitore nebeneinander', 'var.four': '4 Monitore (2 × 2)', 'var.curved': 'Curved-Monitor', 'var.curved2': 'Curved + 2 hochkant',
+    'dev.tv_arm': 'Wand-TV mit Schwenkarm', 'cat.climate': 'Klima & Lüftung', 'led.light': 'Licht', 'dev.ac_wall': 'Klimagerät (Split, Wand)',
+    'dev.ac_outdoor': 'Klima-Außengerät / Wärmepumpe', 'dev.ac_portable': 'Mobiles Klimagerät', 'dev.ac_ceiling': 'Klima-Deckenkassette',
+    'dev.fan_ceiling': 'Deckenventilator mit Licht', 'dev.fan_stand': 'Standventilator', 'dev.fan_tower': 'Turmventilator', 'dev.air_purifier': 'Luftreiniger',
+    'dev.dehumidifier': 'Luftentfeuchter', 'tvarm.size': 'Größe', 'tvarm.swing': 'Schwenken (°)', 'tvarm.reach': 'Abstand zur Wand', 'tvarm.tilt': 'Neigen (°)',
+    'tvarm.help': 'Schwenken: + dreht den Bildschirm nach rechts, − nach links (von vorne gesehen). Neigen: + kippt ihn nach unten. Beim Schwenken zieht der Arm den Fernseher so weit vor, dass er nicht an die Wand stößt.',
+    'tvarm.pulled': 'Bei diesem Winkel steht er {len} von der Wand ab.',
   },
   en: {
     'tl.zoom': 'Time line zoom (how much of the day it shows); also with the mouse wheel over it', 'tl.btn': 'Security', 'tl.tip': 'Security: play back a day and see what switched on and off in the house, and when', 'tl.title': 'Security', 'tl.hint': 'The add-on records every day what switches in the house (lights, doors, windows, covers, people …). Pick a day to play it back. Nothing can be switched here.', 'tl.loading': 'Loading …', 'tl.failed': 'The recording could not be loaded.', 'tl.off': 'Recording is switched off (🗄️ Backup at the top → Security).', 'tl.noHa': 'Without Home Assistant nothing is recorded.', 'tl.none': 'No day recorded yet. Recording starts as soon as devices are placed in the plan.', 'tl.files': 'The last {n} days and today are kept, one file per day in {folder}.', 'tl.today': 'Today', 'tl.download': 'Download file', 'tl.exit': 'Leave security view (back to live)', 'tl.prev': 'Previous event', 'tl.play': 'Play', 'tl.pause': 'Pause', 'tl.next': 'Next event', 'tl.speed': 'Speed', 'tl.events': 'Events', 'tl.noEvents': 'No events', 'tl.on': 'on', 'tl.offState': 'off', 'tl.setTitle': 'Security', 'tl.setHint': 'Records what switches in the house so a day can be played back later (🛡️ at the top). One file per day is stored in the add-on configuration folder.', 'tl.setOn': 'Record', 'tl.setKeep': 'Days to keep', 'bk.btn': '🗄️ Backup', 'bk.tip': 'Backup, automatic backups and security (recording)', 'bk.title': 'Backup & security', 'sv.title': 'Start view', 'sv.help': 'The page opens with this view, and the wall tablet comes back to it. Set up the view first (floor or whole house, room, angle), then “Use current view”. Without a saved view: the user\'s room or the ground floor. For single users see “Users”.', 'sv.take': '📌 Use current view', 'sv.auto': 'Automatic', 'sv.saved': 'Saved: {where}', 'sv.none': 'Automatic (the user\'s room or the ground floor)', 'sv.whole': 'Whole house', 'sv.row.auto': 'Start: automatic', 'sv.row.keep': 'Start: saved view', 'sv.row.take': 'Start: use current view', 'sv.rowTip': 'Start view of this user: “use current view” saves the view behind this window', 'lock.timeline': 'Security (🛡️)',
@@ -272,6 +278,12 @@ const DICT = {
     'dev.mirror_led_zones': 'LED mirror with 3 zones', 'dev.mirror_hollywood': 'Hollywood mirror', 'dev.mirror_cabinet': 'Mirror cabinet with LED',
     'dev.mirror_led_tall': 'Full-length mirror with LED',
     'prop.variant': 'Arrangement', 'var.two': '2 monitors side by side', 'var.one': '1 monitor', 'var.three': '3 monitors side by side', 'var.four': '4 monitors (2 × 2)', 'var.curved': 'Curved monitor', 'var.curved2': 'Curved + 2 portrait',
+    'dev.tv_arm': 'Wall TV on swivel arm', 'cat.climate': 'Climate & air', 'led.light': 'Light', 'dev.ac_wall': 'Air conditioner (split, wall)',
+    'dev.ac_outdoor': 'AC outdoor unit / heat pump', 'dev.ac_portable': 'Portable air conditioner', 'dev.ac_ceiling': 'AC ceiling cassette',
+    'dev.fan_ceiling': 'Ceiling fan with light', 'dev.fan_stand': 'Standing fan', 'dev.fan_tower': 'Tower fan', 'dev.air_purifier': 'Air purifier',
+    'dev.dehumidifier': 'Dehumidifier', 'tvarm.size': 'Size', 'tvarm.swing': 'Swing (°)', 'tvarm.reach': 'Distance from wall', 'tvarm.tilt': 'Tilt (°)',
+    'tvarm.help': 'Swing: + turns the screen to the right, − to the left (seen from the front). Tilt: + tips it down. When swung, the arm pulls the TV out far enough that it does not touch the wall.',
+    'tvarm.pulled': 'At this angle it stands {len} off the wall.',
   },
 };
 

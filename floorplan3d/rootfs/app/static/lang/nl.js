@@ -1039,4 +1039,10 @@ export default {
   'dev.mirror_led_zones': 'LED-spiegel met 3 zones', 'dev.mirror_hollywood': 'Hollywoodspiegel', 'dev.mirror_cabinet': 'Spiegelkast met LED',
   'dev.mirror_led_tall': 'Passpiegel met LED',
   'prop.variant': 'Opstelling', 'var.two': '2 monitoren naast elkaar', 'var.one': '1 monitor', 'var.three': '3 monitoren naast elkaar', 'var.four': '4 monitoren (2 × 2)', 'var.curved': 'Gebogen monitor', 'var.curved2': 'Gebogen + 2 staand',
+  'dev.tv_arm': 'Wand-tv op zwenkarm', 'cat.climate': 'Klimaat & lucht', 'led.light': 'Licht', 'dev.ac_wall': 'Airco (split, wand)',
+  'dev.ac_outdoor': 'Airco-buitenunit / warmtepomp', 'dev.ac_portable': 'Mobiele airco', 'dev.ac_ceiling': 'Airco-plafondcassette',
+  'dev.fan_ceiling': 'Plafondventilator met licht', 'dev.fan_stand': 'Staande ventilator', 'dev.fan_tower': 'Torenventilator', 'dev.air_purifier': 'Luchtreiniger',
+  'dev.dehumidifier': 'Luchtontvochtiger', 'tvarm.size': 'Grootte', 'tvarm.swing': 'Zwenken (°)', 'tvarm.reach': 'Afstand tot de wand', 'tvarm.tilt': 'Kantelen (°)',
+  'tvarm.help': 'Zwenken: + draait het scherm naar rechts, − naar links (van voren gezien). Kantelen: + kantelt het naar beneden. Bij het zwenken trekt de arm de tv zo ver naar voren dat hij de wand niet raakt.',
+  'tvarm.pulled': 'Bij deze hoek staat hij {len} van de wand.',
 };

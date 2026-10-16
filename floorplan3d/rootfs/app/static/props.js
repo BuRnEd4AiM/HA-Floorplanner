@@ -13,6 +13,7 @@ import { hasShutter, setShutter, setShutterEntity, shutterChoices } from './shut
 import { wantsLightColor } from './lamplight.js';
 import { finishChoices, finishOf, variantChoices, variantOf } from './scandi.js';
 import { zoneKeys, setZone } from './ledzones.js';
+import { TV_SIZES, ARM, armPose } from './tvmount.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -238,7 +239,7 @@ export function initProps(ctx) {
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { it.rot = ((+v % 360) + 360) % 360; }, { step: 15 })));
     body.append(field(t('prop.elev'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
-    if (it.type !== 'picture') {
+    if (it.type !== 'picture' && it.type !== 'tv_arm') {         // the TV on its arm: its size is chosen below (tvArmProps)
       const base = ctx.baseDims(it.type, it);
       if (base) {                                                     // real dimensions in metres, type them in directly
         const dim = (key, axis, label) => field(label, lenInput(() => base[axis] * (it.scale || 1) * (it[key] || 1), (v) => {
@@ -276,6 +277,7 @@ export function initProps(ctx) {
     if (it.type === 'kitchenrun') kitchenProps(body, it);
     if (it.type === 'solarpanel') solarProps(body, it);
     if (it.type === 'bridge') bridgeProps(body, it);
+    if (it.type === 'tv_arm') tvArmProps(body, it);
     if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), ctx.entityPicker(pickFrom(entities), ctx.roomAt(it.x, it.z), it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
     if (wantsLightColor(it)) lightColorField(body, it);
@@ -285,7 +287,7 @@ export function initProps(ctx) {
       body.append(field(t('cam.range'), lenInput(() => it.range ?? 4, (v) => (it.range = Math.max(0.5, v)), { min: 0.5, step: 0.5 })));
       body.append(pickerField(t('cam.motionSensor'), ctx.entityPicker(pickFrom(entities.filter((e) => e.domain === 'binary_sensor')), ctx.roomAt(it.x, it.z), it.motionEntity || '', (v) => { ctx.snapshot(); if (v) it.motionEntity = v; else delete it.motionEntity; ctx.changed(); })));
     }
-    if (it.type === 'tv' || it.type === 'tv_wall') {          // built-in backlight: shown behind the TV, shines into the room
+    if (it.type === 'tv' || it.type === 'tv_wall' || it.type === 'tv_arm') {          // built-in backlight: shown behind the TV, shines into the room
       body.append(pickerField(t('prop.ledEntity'), ctx.entityPicker(pickFrom(entities.filter((e) => /^(light|switch)\./.test(e.entity_id))), ctx.roomAt(it.x, it.z), it.ledEntity || '', (v) => { ctx.snapshot(); if (v) it.ledEntity = v; else delete it.ledEntity; ctx.changed(); })));
     }
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
@@ -349,6 +351,30 @@ export function initProps(ctx) {
     rc.addEventListener('change', () => { ctx.snapshot(); if (rc.checked) delete it.noRail; else it.noRail = true; ctx.changed(); });
     body.append(field(t('bridge.rail'), rc));
     const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('bridge.help'); body.append(hp);
+  }
+
+  /** Wall TV on a swivel arm (tvmount.js): its size, how far it is swung to the side, how far it stands off the wall, how far it is tilted
+   *  down; a value at its default is not stored. Swung far, the arm pulls it further out than asked for: the note says how far */
+  function tvArmProps(body, it) {
+    const p = armPose(it), sel = document.createElement('select'); sel.id = 'tvSize';
+    Object.keys(TV_SIZES).forEach((k) => sel.add(new Option(`${k}″ (${Math.round(k * 2.54)} cm)`, k)));
+    sel.value = p.size;
+    sel.addEventListener('change', () => { ctx.snapshot(); if (sel.value === ARM.size) delete it.tvSize; else it.tvSize = sel.value; ctx.changed(); note(); });
+    const deg = (key, max, step) => inp('number', p[key === 'armSwing' ? 'swing' : 'tilt'], (v) => {
+      const a = Math.round(Math.max(-max, Math.min(max, +v || 0)));
+      if (a) it[key] = a; else delete it[key];
+      note();
+    }, { step, min: -max, max, id: key });
+    const reach = lenInput(() => p.reach, (v) => { const r = +Math.max(ARM.minReach, Math.min(ARM.maxReach, v)).toFixed(3); if (r === ARM.reach) delete it.armReach; else it.armReach = r; note(); }, { min: ARM.minReach, step: 0.05 });
+    reach.id = 'armReach';
+    body.append(field(t('tvarm.size'), sel), field(t('tvarm.swing'), deg('armSwing', ARM.swing, 5)), field(t('tvarm.reach'), reach), field(t('tvarm.tilt'), deg('armTilt', ARM.tilt, 1)));
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.id = 'tvArmNote';
+    function note() {                                            // swung far, the arm pulls the TV further out than asked for: say how far
+      const q = armPose(it);
+      hp.textContent = t('tvarm.help') + (q.out > q.reach + 0.005 ? ` ${t('tvarm.pulled', { len: ctx.fmtLen(q.out) })}` : '');
+    }
+    note();
+    body.append(hp);
   }
 
   /** Solar panels (#176): a field of columns x rows; on the roof floor it lies on the roof surface, or stands on a rack */

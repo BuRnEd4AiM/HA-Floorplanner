@@ -41,6 +41,15 @@ test('a radiator on a switch heats while it is on; a sensor says nothing about h
   assert.equal(H.heatMode('sensor.heizkoerper', { state: '33.7', unit: '°C' }, false), null);
   assert.equal(H.heatMode('binary_sensor.x', { state: 'on' }, true), null);
 });
+test('an air conditioner on a switch cools while it is on; on a thermostat it says itself; drying and fanning count as running', () => {
+  assert.equal(H.heatMode('switch.klima', { state: 'on' }, true, 'ac_portable'), 'cooling');
+  assert.equal(H.heatMode('switch.klima', { state: 'off' }, false, 'ac_wall'), 'off');
+  assert.equal(H.heatMode('switch.heizstab', { state: 'on' }, true, 'radiator'), 'heating');
+  assert.equal(H.heatMode('climate.klima', { state: 'heat', hvac: 'heating' }, true, 'ac_wall'), 'heating');   // a split unit heats too
+  assert.ok(['ac_wall', 'ac_portable', 'ac_ceiling'].every((k) => H.COOLER_TYPES.has(k)) && !H.COOLER_TYPES.has('fan_stand'));
+  assert.ok(['heating', 'cooling', 'drying', 'fan'].every((a) => H.RUNNING.has(a)) && !H.RUNNING.has('idle') && !H.RUNNING.has('off'));
+  assert.equal(H.pillTone({ type: 'ac_wall', entity: 'climate.klima' }, { state: 'cool', hvac: 'cooling' }, true), 'cold');
+});
 
 test('the temperature pill of a heater: red while it heats, blue while it does not, dark when nothing is known or not a heater', () => {
   const rad = { type: 'thermostat', entity: 'climate.bad' };

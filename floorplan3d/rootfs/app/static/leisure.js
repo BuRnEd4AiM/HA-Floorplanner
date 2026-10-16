@@ -1,11 +1,12 @@
-/* Sauna and wellness, fitness, the bar, the home cinema, the PC corner and mirrors with LED light: own simple models in their real sizes,
+/* Sauna and wellness, fitness, the bar, the home cinema, the PC corner, mirrors with LED light, air conditioners and fans: own simple models in their real sizes,
  * made of parts like the furniture in Scandinavian style (scandi.js, which lists these pieces too, so models.js, plan2d.js and the side
  * panel treat both alike). Pure geometry, no three.js; the building blocks are in shapes.js, the format of a part in scandi.js.
  *
  * What lights up follows the device's entity: 'glow' and the other lit materials (a sauna's stones, a screen, a display, the RGB parts of a
  * PC ...; `on`: their colour when the entity tells none). A piece with LED zones (leds: [...], materials 'z0', 'z1' ...) can link every
  * zone to an entity of its own (a mirror's backlight and its front light, the bar's counter edge and its plinth); a zone without one
- * follows the device's entity (ledzones.js). Unit tests: tests/leisure.test.mjs */
+ * follows the device's entity (ledzones.js). The air outlet of an air conditioner ('acvent', heat: true) turns blue while it cools and red
+ * while it heats (heating.js, like a radiator). Unit tests: tests/leisure.test.mjs */
 import { B, C, S, rod, bar, legs, hline, vline, at, turnAll, tilted, wheelX, discZ } from './shapes.js';
 
 const PI = Math.PI, H = PI / 2;
@@ -30,6 +31,8 @@ export const LEISURE_MATS = {
   ember: { c: '#5e5650', glow: true, on: '#ff5a1f' }, ir: { c: '#5a3a34', glow: true, on: '#ff3b1f' }, screen: { c: '#e9ecef', glow: true, on: '#dce8ff' },
   display: { c: '#1c2733', glow: true, on: '#9cc8ff' }, lens: { c: '#2b3440', glow: true, on: '#f4f8ff' }, rgb: { c: '#3a3f4a', glow: true, on: '#a050ff' },
   neon: { c: '#e7d6ee', glow: true, on: '#ff3fb4' }, stars: { c: '#c9d3e8', glow: true, on: '#f4f8ff' },
+  acvent: { c: '#d3d8dc', rough: 0.4, heat: true }, acdisplay: { c: '#222a31', glow: true, on: '#6fd3ff' }, mesh: { c: '#b4b9bd', rough: 0.9 },
+  copper: { c: '#b8743c', metal: 0.6, rough: 0.35 }, hose: { c: '#d6d8d9', rough: 0.85 },
   z0: { c: '#fff2cc', glow: true, zone: 0 }, z1: { c: '#fff2cc', glow: true, zone: 1 }, z2: { c: '#fff2cc', glow: true, zone: 2 }, z3: { c: '#fff2cc', glow: true, zone: 3 },
 };
 
@@ -494,12 +497,70 @@ function mirrorCabinet() {
     B(0.8, 0.055, 0.02, 0, 0.655, 0.064, 'z0'), B(0.6, 0.01, 0.08, 0, 0, 0.0, 'z1')];
 }
 
+/* ---------- climate: air conditioners, fans, air purifier ---------- */
+/** n blades of a fan turning round z (facing the front), r long and w wide, round (cx, cy) at z */
+const fanBlades = (n, r, cx, cy, z, m, w, t = 0.006) => range(n).map((i) => {
+  const a = (i * 2 * PI) / n + 0.3;
+  return B(w, r, t, cx - Math.sin(a) * (r / 2 + 0.02), cy + Math.cos(a) * (r / 2 + 0.02) - r / 2, z, m, { rz: a });
+});
+/** the indoor unit of a split air conditioner (0.9 m wide), on the wall: the front, the flap the air comes out of (blue while it cools, red
+ *  while it heats), its display */
+function acWall() {
+  return [B(0.9, 0.24, 0.2, 0, 0.06, -0.01), B(0.9, 0.05, 0.15, 0, 0.01, -0.035), B(0.9, 0.22, 0.012, 0, 0.08, 0.096), hline(0.88, 0, 0.19, 0.103),
+    tilted(0.84, 0.055, 0.012, 0, 0.035, 0.055, -0.55, 'acvent'), B(0.84, 0.004, 0.11, 0, 0.006, -0.02, 'line'),
+    B(0.07, 0.022, 0.004, 0.3, 0.13, 0.103, 'acdisplay'), B(0.006, 0.006, 0.004, 0.36, 0.135, 0.103, 'acdisplay')];
+}
+/** the outdoor unit of an air conditioner or a heat pump: on two rails, the big fan behind its grille, the pipes at the side */
+function acOutdoor() {
+  const fx = -0.12, fy = 0.34;
+  return [B(0.05, 0.05, 0.34, -0.3, 0, 0, 'iron'), B(0.05, 0.05, 0.34, 0.3, 0, 0, 'iron'), B(0.8, 0.55, 0.3, 0, 0.05, 0), B(0.82, 0.02, 0.32, 0, 0.6, 0, 'f2'),
+    discZ(0.225, 0.006, fx, fy, 0.153, 'f2'), discZ(0.205, 0.004, fx, fy, 0.157, 'dark'), ...fanBlades(3, 0.17, fx, fy, 0.165, 'mesh', 0.09),
+    discZ(0.04, 0.02, fx, fy, 0.17, 'iron'), ...range(7).map((i) => B(0.42, 0.006, 0.006, fx, fy - 0.18 + i * 0.06, 0.176, 'iron')), B(0.17, 0.22, 0.004, 0.28, 0.1, 0.151, 'f2'),
+    rod([0.4, 0.2, 0.05], [0.44, 0.2, 0.05], 0.012, 'copper'), rod([0.4, 0.26, 0.05], [0.44, 0.26, 0.05], 0.009, 'copper')];
+}
+/** a portable air conditioner on castors: the air comes out on top, the hot air leaves through the hose at the back */
+function acPortable() {
+  const p = [...[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([i, k]) => C(0.022, 0.04, i * 0.18, 0, k * 0.14, 'black', 0.022, 10)), B(0.45, 0.7, 0.36, 0, 0.04, 0),
+    B(0.36, 0.012, 0.15, 0, 0.74, 0.08, 'acvent'), ...range(5).map((i) => B(0.34, 0.006, 0.006, 0, 0.75, 0.02 + i * 0.03, 'line')),
+    B(0.11, 0.03, 0.004, 0, 0.62, 0.182, 'acdisplay'), ...range(6).map((i) => hline(0.32, 0, 0.12 + i * 0.05, 0.181))];
+  const hose = [[0, 0.5, -0.18], [0, 0.55, -0.27], [0, 0.66, -0.33], [0, 0.82, -0.36], [0, 1.0, -0.37]];
+  for (let i = 1; i < hose.length; i++) p.push(rod(hose[i - 1], hose[i], 0.065, 'hose', 16));
+  return p;
+}
+/** a ceiling cassette (60 x 60): the panel with an air outlet on each side, the grille in the middle, the box above in the ceiling */
+function acCeiling() {
+  return [B(0.57, 0.1, 0.57, 0, 0.033, 0, 'f2'), B(0.62, 0.03, 0.62, 0, 0.003, 0), B(0.32, 0.004, 0.32, 0, 0.001, 0, 'mesh'),
+    B(0.4, 0.006, 0.05, 0, 0, 0.24, 'acvent'), B(0.4, 0.006, 0.05, 0, 0, -0.24, 'acvent'), B(0.05, 0.006, 0.4, 0.24, 0, 0, 'acvent'), B(0.05, 0.006, 0.4, -0.24, 0, 0, 'acvent'),
+    B(0.03, 0.004, 0.015, 0.25, 0, 0.27, 'acdisplay')];
+}
+/** a ceiling fan with a light (its own LED zone): the light under the motor, five blades, the rod up to the ceiling */
+function fanCeiling() {
+  return [S(0.1, 0, 0, 0, 'z0', 1, 0.55, 1), C(0.13, 0.12, 0, 0.08, 0, 'steel', 0.11, 24),
+    ...range(5).flatMap((i) => { const a = (i * 2 * PI) / 5; return turnAll([B(0.13, 0.008, 0.52, 0, 0.13, 0.42), B(0.035, 0.012, 0.16, 0, 0.125, 0.15, 'steel')], a); }),
+    C(0.015, 0.16, 0, 0.2, 0, 'steel', 0.015, 10), C(0.07, 0.05, 0, 0.36, 0, 'steel', 0.05, 20)];
+}
+/** a standing fan: its foot, the pole, the motor and the blades behind a round guard; its display glows while it runs */
+function fanStand() {
+  return [C(0.17, 0.04, 0, 0, 0, 'f', 0.18, 28), C(0.018, 0.95, 0, 0.04, 0, 'steel', 0.018, 10), B(0.05, 0.004, 0.025, 0, 0.04, 0.11, 'acdisplay'),
+    B(0.04, 0.1, 0.04, 0, 0.98, -0.03), discZ(0.065, 0.14, 0, 1.1, -0.06), ...fanBlades(3, 0.17, 0, 1.1, 0.06, 'f', 0.1),
+    discZ(0.21, 0.1, 0, 1.1, 0.06, 'smoke', 40), discZ(0.04, 0.012, 0, 1.1, 0.115)];
+}
+/** a tower fan: a slim column on a round foot, the air comes out of the slot in front; the display on top glows while it runs */
+const fanTower = () => [C(0.16, 0.04, 0, 0, 0, 'f', 0.17, 28), C(0.11, 1.0, 0, 0.04, 0, 'f', 0.11, 28), B(0.07, 0.72, 0.02, 0, 0.18, 0.1, 'mesh'),
+  C(0.07, 0.004, 0, 1.04, 0.01, 'acdisplay', 0.07, 20)];
+/** an air purifier: a round column, the filter all round it, the grille on top and a ring of light under it */
+const airPurifier = () => [C(0.14, 0.06, 0, 0, 0, 'f', 0.14, 32), C(0.142, 0.36, 0, 0.06, 0, 'mesh', 0.142, 32), C(0.14, 0.07, 0, 0.42, 0, 'f', 0.14, 32),
+  C(0.142, 0.012, 0, 0.49, 0, 'acdisplay', 0.142, 32), C(0.13, 0.03, 0, 0.502, 0, 'dark', 0.13, 32)];
+/** a dehumidifier on castors: the water tank in front (you see the water), the grille and the display on top */
+const dehumidifier = () => [...[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([i, k]) => C(0.018, 0.03, i * 0.14, 0, k * 0.09, 'black', 0.018, 10)), B(0.35, 0.52, 0.25, 0, 0.03, 0),
+  B(0.3, 0.2, 0.008, 0, 0.05, 0.128, 'smoke'), B(0.28, 0.07, 0.006, 0, 0.06, 0.131, 'water'), B(0.28, 0.006, 0.14, 0, 0.55, 0.03, 'mesh'), B(0.08, 0.004, 0.04, 0, 0.55, -0.08, 'acdisplay')];
+
 /** the pieces: cat (library group), label (German, the translations are in i18n.js / lang/*.js), fin (the finishes, the first is the default),
  *  search (more words the library search finds it by), y (height over the floor when placed), round (round footprint), icon (of the ball to
  *  tap in the live mode), leds (the LED zones, see ledzones.js), lamp (a lamp: lights its room, also when switched by a relay), light (how far
  *  and how strongly it lights its room, lamplight.js), wall (hangs on the wall: clicks onto it, not stopped by it), ceil (hangs from the
  *  ceiling), flat (lies on the floor: drawn under the rest of the plan), variants (ways to build it, chosen on the device: `variant`; the first
- *  is the default; pc_setup: MONITOR_LAYOUTS), parts(variant) */
+ *  is the default; pc_setup: MONITOR_LAYOUTS), cool (an air conditioner: on a plain switch it cools), parts(variant) */
 export const LEISURE = {
   sauna_cabin: { cat: 'wellness', label: 'Sauna mit Glasfront', fin: ['spruce', 'hemlock', 'cedar', 'thermo'], search: 'sauna saunakabine finnische sauna wellness glasfront', icon: '🧖', parts: () => saunaCabin(2.0, 1.8, 2.05, true) },
   sauna_small: { cat: 'wellness', label: 'Sauna klein', fin: ['spruce', 'hemlock', 'cedar', 'thermo'], search: 'sauna saunakabine finnische sauna wellness klein', icon: '🧖', parts: () => saunaCabin(1.3, 1.2, 2.0, false) },
@@ -567,6 +628,15 @@ export const LEISURE = {
   mirror_hollywood: { cat: 'bath', label: 'Hollywood-Spiegel', fin: ['white', 'black'], search: 'hollywood spiegel schminkspiegel glühbirnen gluehbirnen led beleuchtet', y: 1.1, wall: true, lamp: true, light: { r: 0.4, k: 0.45 }, leds: ['bulbs', 'back'], parts: hollywoodMirror },
   mirror_cabinet: { cat: 'bath', label: 'Spiegelschrank mit LED', fin: ['white', 'oak', 'grey', 'anthracite'], search: 'spiegelschrank spiegel schrank led beleuchtet bad', y: 1.2, wall: true, lamp: true, light: { r: 0.4, k: 0.4 }, leds: ['top', 'bottom'], parts: mirrorCabinet },
   mirror_led_tall: { cat: 'entry', label: 'Ganzkörperspiegel mit LED', fin: [], search: 'spiegel ganzkörperspiegel ganzkoerperspiegel led indirekt beleuchtet flur', y: 0.25, wall: true, lamp: true, light: { r: 0.45, k: 0.4 }, leds: ['back', 'front'], parts: () => twoZoneMirror(0.6, 1.7, 0.05, 0.07) },
+  ac_wall: { cat: 'climate', label: 'Klimagerät (Split, Wand)', fin: ['white', 'black', 'grey'], search: 'klima klimaanlage klimagerät klimageraet split innengerät innengeraet wandgerät air conditioner kühlen kuehlen', y: 2.0, wall: true, cool: true, icon: '❄', parts: acWall },
+  ac_outdoor: { cat: 'climate', label: 'Klima-Außengerät / Wärmepumpe', fin: ['white', 'grey', 'anthracite'], search: 'klima klimaanlage außengerät aussengeraet split wärmepumpe waermepumpe heatpump outdoor', icon: '❄', parts: acOutdoor },
+  ac_portable: { cat: 'climate', label: 'Mobiles Klimagerät', fin: ['white', 'black', 'grey'], search: 'klima klimagerät klimageraet mobil mobiles monoblock abluftschlauch air conditioner kühlen kuehlen', cool: true, icon: '❄', parts: acPortable },
+  ac_ceiling: { cat: 'climate', label: 'Klima-Deckenkassette', fin: ['white', 'grey'], search: 'klima klimaanlage deckenkassette kassette decke deckengerät deckengeraet air conditioner', y: 2.37, ceil: true, flat: true, cool: true, icon: '❄', parts: acCeiling },
+  fan_ceiling: { cat: 'climate', label: 'Deckenventilator mit Licht', fin: ['walnut', 'oak', 'white', 'black'], search: 'ventilator deckenventilator lüfter luefter decke licht lampe fan', y: 2.09, ceil: true, leds: ['light'], icon: '🌀', parts: fanCeiling },
+  fan_stand: { cat: 'climate', label: 'Standventilator', fin: ['white', 'black', 'grey'], search: 'ventilator standventilator lüfter luefter fan', icon: '🌀', parts: fanStand },
+  fan_tower: { cat: 'climate', label: 'Turmventilator', fin: ['white', 'black', 'grey'], search: 'ventilator turmventilator säulenventilator saeulenventilator lüfter luefter fan', round: true, icon: '🌀', parts: fanTower },
+  air_purifier: { cat: 'climate', label: 'Luftreiniger', fin: ['white', 'grey', 'black'], search: 'luftreiniger luftfilter purifier hepa luft', round: true, icon: '🌬', parts: airPurifier },
+  dehumidifier: { cat: 'climate', label: 'Luftentfeuchter', fin: ['white', 'grey', 'black'], search: 'luftentfeuchter entfeuchter feuchtigkeit dehumidifier keller', icon: '💧', parts: dehumidifier },
 };
 const keys = (flag) => Object.keys(LEISURE).filter((k) => LEISURE[k][flag]);
 /** the lamps among them (lamplight.js), how they light the room, what hangs on the wall or the ceiling (placement.js, collide.js), what lies flat */
@@ -576,4 +646,6 @@ export const LEISURE_WALL = keys('wall');
 export const LEISURE_HUNG = [...keys('wall'), ...keys('ceil')];
 export const LEISURE_FLAT = keys('flat');
 /** the library groups these pieces add (models.js puts them before the lamps) */
-export const LEISURE_CATS = ['wellness', 'fitness', 'bar', 'cinema'];
+export const LEISURE_CATS = ['wellness', 'fitness', 'bar', 'cinema', 'climate'];
+/** the air conditioners: on a plain switch they cool while they are on (heating.js) */
+export const LEISURE_COOL = keys('cool');

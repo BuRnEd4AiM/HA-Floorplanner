@@ -607,7 +607,12 @@
    "properties": {
     "type": {
      "enum": [
+      "ac_ceiling",
+      "ac_outdoor",
+      "ac_portable",
+      "ac_wall",
       "acoustic_panel",
+      "air_purifier",
       "armchair",
       "backbar",
       "bar_corner",
@@ -653,6 +658,7 @@
       "crosstrainer",
       "curtain",
       "dartboard",
+      "dehumidifier",
       "desk",
       "desk_drawers",
       "desk_small",
@@ -666,6 +672,9 @@
       "dresser6",
       "drinks_fridge",
       "dumbbells",
+      "fan_ceiling",
+      "fan_stand",
+      "fan_tower",
       "fence",
       "fireplace",
       "fridge",
@@ -796,6 +805,7 @@
       "treadmill",
       "tree",
       "tv",
+      "tv_arm",
       "tv_led",
       "tv_wall",
       "tvbench",
@@ -857,7 +867,7 @@
     },
     "ledEntity": {
      "type": "string",
-     "description": "Backlight entity of a tv / tv_wall."
+     "description": "Backlight entity of a tv / tv_wall / tv_arm."
     },
     "motionEntity": {
      "type": "string",
@@ -899,6 +909,29 @@
      "type": "string",
      "pattern": "^[a-z0-9]{2,20}$",
      "description": "How a piece is built. pc_setup (the gaming PC desk): its monitors: two (2 side by side, the default), one, three (3 side by side), four (2 x 2), curved, curved2 (curved with 2 portrait monitors beside it). An unknown one shows the default."
+    },
+    "tvSize": {
+     "type": "string",
+     "pattern": "^[0-9]{2}$",
+     "description": "Only for type tv_arm (wall TV on a swivel arm): its size in inches: 43, 50, 55 (default), 65, 75 or 85."
+    },
+    "armSwing": {
+     "type": "number",
+     "minimum": -80,
+     "maximum": 80,
+     "description": "Only for type tv_arm: how far the TV is swung to the side in degrees (+ turns the screen to the right seen from the front; default 0)."
+    },
+    "armReach": {
+     "type": "number",
+     "minimum": 0.08,
+     "maximum": 0.8,
+     "description": "Only for type tv_arm: distance from the wall to the back of the TV in metres (default 0.15). Swung or tilted, the arm pulls it out further when it would touch the wall."
+    },
+    "armTilt": {
+     "type": "number",
+     "minimum": -15,
+     "maximum": 15,
+     "description": "Only for type tv_arm: tilt in degrees (+ tips the screen down; default 0)."
     },
     "leds": {
      "type": "array",
