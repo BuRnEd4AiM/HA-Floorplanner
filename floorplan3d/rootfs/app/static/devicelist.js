@@ -53,7 +53,7 @@ export function deviceRows(env) {
       rooms.get(k).items.push(item);
     };
     f.devices.forEach((d) => {
-      const e = d.entity || ringEntities(d)[0] || '';
+      const e = d.entity || ringEntities(d)[0] || (d.leds || []).find(Boolean) || '';   // an LED ring, a piece with LED zones (ledzones.js): its first light
       if (!e) return;                                              // only what is linked
       const s = states[e];
       const icon = ballIcon(d, (x) => states[x]?.dc);

@@ -3,6 +3,7 @@
  * can have a colour of its own (lightColor, e.g. cool white). Pure rules (unit test: tests/lamplight.test.mjs); the shaders that draw the
  * light are in roomlight.js. */
 import { deviceInIso } from './roomclip.js';
+import { LEISURE_LAMPS, LEISURE_LIGHT } from './leisure.js';
 
 export const MAX_LIGHTS = 8;
 /** how far (r, relative to the setting) and how strongly (k) a kind of lamp lights the room */
@@ -11,12 +12,15 @@ export const LIGHT_PROFILE = {
   panel_tri: { r: 0.35, k: 0.4 }, panel_hex: { r: 0.35, k: 0.4 }, panel_sq: { r: 0.35, k: 0.4 }, panel_bar: { r: 0.4, k: 0.4 }, nanoleaf: { r: 0.45, k: 0.5 }, tv_led: { r: 0.55, k: 0.55 },
   ledseg: { r: 0.5, k: 0.45 },
   lamp_paper: { r: 0.6, k: 0.6 }, lamp_arc: { r: 0.65, k: 0.6 }, lamp_table: { r: 0.45, k: 0.5 },
+  ledzone: { r: 0.4, k: 0.4 },                                  // an LED zone of a piece (a mirror's backlight, the bar's plinth ...) with an entity of its own
+  ...LEISURE_LIGHT,                                             // LED mirrors, the bar, the neon sign, the star sky ... (leisure.js)
 };
 /** the device types that are lamps (the palette's lighting group, models.js) */
 export const LAMP_TYPES = ['light', 'pendant', 'spot', 'walllamp', 'lamp', 'orb', 'strip', 'ledring', 'panel_tri', 'panel_hex', 'panel_sq', 'panel_bar', 'nanoleaf', 'tv_led',
-  'pendant_paper', 'pendant_dome', 'lamp_paper', 'lamp_arc', 'lamp_table'];       // the last ones: lamps in Scandinavian style (scandi.js)
-/** is device d a lamp (also a section of an LED ring, 'ledseg') */
-export const isLamp = (d) => !!d && (LAMP_TYPES.includes(d.type) || d.type === 'ledseg');
+  'pendant_paper', 'pendant_dome', 'lamp_paper', 'lamp_arc', 'lamp_table',        // lamps in Scandinavian style (scandi.js)
+  ...LEISURE_LAMPS];                                                               // LED mirrors, the bar with LED, the neon sign ... (leisure.js)
+/** is device d a lamp (also a section of an LED ring, 'ledseg', and an LED zone of a piece, 'ledzone') */
+export const isLamp = (d) => !!d && (LAMP_TYPES.includes(d.type) || d.type === 'ledseg' || d.type === 'ledzone');
 
 /** '#rrggbb' -> [r, g, b] (0..255), null for anything else */
 export function hexRgb(s) {

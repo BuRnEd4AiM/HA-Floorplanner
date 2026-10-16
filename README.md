@@ -168,7 +168,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 ### 🪑 Furnish it
 
 - **Furniture library with previews**, search and categories (Living, Kitchen, Bath, Bedroom, Office, Lighting, Tech, Outdoor, Decor). The search understands everyday names ("Fernseher", "Couch" ...)
-- **140+ built-in pieces**: sofas, beds, kitchens, bathroom, lamps, TVs (also wall-mounted), radiators, cameras, robot vacuum and more, among them over 50 in the style of the well-known Scandinavian flat-pack classics (cube shelves, white bookcases, swing armchair, chests of drawers, wardrobes, kids' room, hall, paper lamps), most of them in several finishes (white, black-brown, oak …)
+- **200+ built-in pieces**: sofas, beds, kitchens, bathroom, lamps, TVs (also wall-mounted), radiators, cameras, robot vacuum and more, among them over 50 in the style of the well-known Scandinavian flat-pack classics (cube shelves, white bookcases, swing armchair, chests of drawers, wardrobes, kids' room, hall, paper lamps), most of them in several finishes (white, black-brown, oak …), and about 60 for sauna & wellness, fitness, the bar, the home cinema and the PC corner (sauna cabins, treadmill, power rack, bar counter with LED, pool table, screen and projector, gaming PC with RGB …); mirrors with LED light, also with several LED zones each linked to its own light
 - **Your own 3D models**: upload any `.glb` file
 - **Pictures on walls**: upload a PNG / JPG / WebP and hang it, it clicks flat onto the nearest wall
 - **Exact sizes**: enter width, height and depth in metres, or drag the handles in the 2D plan. Tilt, roll and mirror pieces freely

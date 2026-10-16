@@ -23,7 +23,10 @@
       { "type": "oven",    "x": 12.4, "z": 23.9, "rot": 90, "name": "Pizzaofen" },
       { "type": "table",   "x": 15.5, "z": 24.5, "name": "Gartentisch" },
       { "type": "chair",   "x": 15.5, "z": 23.7 },
-      { "type": "chair",   "x": 15.5, "z": 25.3, "rot": 180 }
+      { "type": "chair",   "x": 15.5, "z": 25.3, "rot": 180 },
+      { "type": "sauna_barrel", "x": 5, "z": 37, "rot": 90, "name": "Fass-Sauna", "entity": "switch.fasssauna" },
+      { "type": "hottub", "x": 20.5, "z": 30.5, "name": "Whirlpool", "entity": "light.whirlpool" },
+      { "type": "bar_counter", "x": 29.2, "z": 31, "rot": 270, "name": "Poolbar", "entity": "light.poolbar" }
     ]
   },
   "building": {
@@ -42,7 +45,11 @@
           { "name": "Technik",     "points": [[3.5, 0], [7, 0], [7, 5], [3.5, 5]], "color": "#9aa3ad" },
           { "name": "Vorrat",      "points": [[3.5, 5], [7, 5], [7, 10], [3.5, 10]] },
           { "name": "Partyraum",   "points": [[7, 0], [12, 0], [12, 10], [7, 10]], "area": "partyraum" },
-          { "name": "Werkstatt",   "points": [[12, 3], [17, 3], [17, 10], [12, 10]] }
+          { "name": "Werkstatt",   "points": [[12, 3], [17, 3], [17, 10], [12, 10]] },
+          { "name": "Sauna & Wellness", "points": [[17, -9], [25.6, -9], [25.6, -4], [17, -4]], "color": "#c2a58f" },
+          { "name": "Heimkino",    "points": [[17, -4], [25.6, -4], [25.6, 0.5], [17, 0.5]], "color": "#a99bb8" },
+          { "name": "Fitness",     "points": [[17, 0.5], [21.6, 0.5], [21.6, 10], [17, 10]], "color": "#9fb0c9" },
+          { "name": "Bar",         "points": [[21.6, 0.5], [25.6, 0.5], [25.6, 10], [21.6, 10]], "color": "#b7b08f" }
         ],
         "walls": [
           { "a": [0, 0],   "b": [3.5, 0],  "thickness": 0.4 },
@@ -50,7 +57,7 @@
           { "a": [7, 0],   "b": [12, 0],   "thickness": 0.4, "openings": [{ "preset": "windowBath", "pos": 2.5, "name": "Lichtschacht Partyraum" }] },
           { "a": [12, 0],  "b": [12, 3],   "thickness": 0.4 },
           { "a": [12, 3],  "b": [17, 3],   "thickness": 0.4 },
-          { "a": [17, 3],  "b": [17, 10],  "thickness": 0.4 },
+          { "a": [17, 3],  "b": [17, 10],  "thickness": 0.4, "openings": [{ "preset": "door", "pos": 5.5 }] },
           { "a": [17, 10], "b": [12, 10],  "thickness": 0.4, "openings": [{ "preset": "windowBath", "pos": 2.5 }] },
           { "a": [12, 10], "b": [7, 10],   "thickness": 0.4, "openings": [{ "type": "window", "style": "fixed", "width": 1.2, "height": 0.5, "sill": 1.8, "pos": 2.5, "name": "Oberlicht" }] },
           { "a": [7, 10],  "b": [3.5, 10], "thickness": 0.4, "openings": [{ "preset": "windowBath", "pos": 1.75 }] },
@@ -64,7 +71,20 @@
           { "a": [3.5, 5], "b": [7, 5],    "thickness": 0.12 },
           { "a": [7, 0],   "b": [7, 5],    "thickness": 0.12, "openings": [{ "preset": "door", "pos": 2.5 }] },
           { "a": [7, 5],   "b": [7, 10],   "thickness": 0.12 },
-          { "a": [12, 3],  "b": [12, 10],  "thickness": 0.24, "openings": [{ "preset": "door", "pos": 1 }] }
+          { "a": [12, 3],  "b": [12, 10],  "thickness": 0.24, "openings": [{ "preset": "door", "pos": 1 }] },
+          { "a": [17, -9], "b": [25.6, -9], "thickness": 0.4, "openings": [{ "preset": "windowBath", "pos": 6.5, "name": "Lichtschacht Wellness" }] },
+          { "a": [25.6, -9], "b": [25.6, -4], "thickness": 0.4 },
+          { "a": [25.6, -4], "b": [25.6, 0.5], "thickness": 0.4 },
+          { "a": [25.6, 0.5], "b": [25.6, 10], "thickness": 0.4 },
+          { "a": [25.6, 10], "b": [21.6, 10], "thickness": 0.4 },
+          { "a": [21.6, 10], "b": [17, 10], "thickness": 0.4 },
+          { "a": [17, 0.5], "b": [17, 3],  "thickness": 0.4 },
+          { "a": [17, -4], "b": [17, 0.5], "thickness": 0.4 },
+          { "a": [17, -9], "b": [17, -4],  "thickness": 0.4 },
+          { "a": [17, -4], "b": [25.6, -4], "thickness": 0.12, "openings": [{ "preset": "doorGlass", "pos": 1 }] },
+          { "a": [17, 0.5], "b": [21.6, 0.5], "thickness": 0.12, "openings": [{ "preset": "door", "pos": 3.2 }] },
+          { "a": [21.6, 0.5], "b": [25.6, 0.5], "thickness": 0.12 },
+          { "a": [21.6, 0.5], "b": [21.6, 10], "thickness": 0.12, "openings": [{ "preset": "doorGap", "pos": 4.5 }] }
         ],
         "stairs": [
           { "type": "U", "x": 0.65, "z": 3.6, "rot": 270, "w": 1.0, "turn": "left", "floors": 2, "landing": 0.2, "name": "Haupttreppe" },
@@ -135,7 +155,63 @@
           { "type": "nightstand2", "x": 15.6, "z": 3.47, "finish": "oak" },
           { "type": "lamp_table", "x": 15.6, "z": 3.47, "y": 0.55, "entity": "light.gaestebett_tischlampe", "name": "Tischlampe Gästebett" },
           { "type": "lamp_arc", "x": 11.46, "z": 5.67, "rot": 270, "entity": "light.partyraum_bogenlampe", "name": "Bogenlampe Partyraum" },
-          { "type": "officechair_high", "x": 15.86, "z": 4.0, "rot": 90 }
+          { "type": "officechair_high", "x": 15.86, "z": 4.0, "rot": 90 },
+          { "type": "sauna_cabin", "x": 18.25, "z": -7.88, "name": "Sauna", "entity": "climate.sauna" },
+          { "type": "sauna_small", "x": 20.0, "z": -8.18, "finish": "thermo" },
+          { "type": "sauna_ir", "x": 21.5, "z": -8.25, "name": "Infrarotkabine", "entity": "switch.infrarotkabine" },
+          { "type": "sauna_heater", "x": 22.65, "z": -8.55 },
+          { "type": "bucket_shower", "x": 25.165, "z": -7.8, "rot": 270 },
+          { "type": "plunge_tub", "x": 24.7, "z": -6.3, "rot": 270 },
+          { "type": "lounger", "x": 21.0, "z": -4.8, "rot": 90 },
+          { "type": "mirror_led_zones", "x": 17.215, "z": -5.6, "rot": 90, "name": "LED-Spiegel Wellness", "leds": ["light.spiegel_hinten", "light.spiegel_vorne", "light.spiegel_unten"] },
+          { "type": "screen_roll", "x": 25.35, "z": -1.75, "rot": 270, "name": "Leinwand", "entity": "media_player.beamer" },
+          { "type": "projector", "x": 21.0, "z": -1.75, "rot": 90, "name": "Beamer", "entity": "media_player.beamer" },
+          { "type": "cinema_row", "x": 21.6, "z": -1.75, "rot": 90, "finish": "red" },
+          { "type": "cinema_seat", "x": 19.8, "z": -1.75, "rot": 90, "finish": "red" },
+          { "type": "starsky", "x": 21.3, "z": -1.75, "name": "Sternenhimmel", "entity": "light.sternenhimmel" },
+          { "type": "speaker_floor", "x": 25.2, "z": -3.6, "rot": 270 },
+          { "type": "speaker_floor", "x": 25.2, "z": 0.1, "rot": 270 },
+          { "type": "subwoofer", "x": 25.18, "z": -2.6, "rot": 270 },
+          { "type": "acoustic_panel", "x": 20.6, "z": -3.925 },
+          { "type": "acoustic_panel", "x": 18.0, "z": 0.425, "rot": 180, "finish": "walnut" },
+          { "type": "popcorn", "x": 17.6, "z": -3.5, "name": "Popcornmaschine", "entity": "switch.popcorn" },
+          { "type": "pc_setup", "x": 17.6, "z": -2.0, "rot": 90, "name": "Gaming-PC", "entity": "switch.gaming_pc" },
+          { "type": "gaming_chair", "x": 18.4, "z": -2.0, "rot": 270 },
+          { "type": "pc_gaming", "x": 17.45, "z": -0.6, "rot": 90, "finish": "white" },
+          { "type": "treadmill", "x": 17.75, "z": 2.1, "name": "Laufband", "entity": "switch.laufband" },
+          { "type": "crosstrainer", "x": 18.7, "z": 2.0 },
+          { "type": "bike_trainer", "x": 19.45, "z": 2.2 },
+          { "type": "bike_spin", "x": 20.05, "z": 2.4, "finish": "red" },
+          { "type": "rower", "x": 21.1, "z": 2.6 },
+          { "type": "gymfloor", "x": 19.3, "z": 5.0 },
+          { "type": "powerrack", "x": 19.3, "z": 5.0 },
+          { "type": "weightbench", "x": 19.0, "z": 7.3 },
+          { "type": "cablestation", "x": 20.6, "z": 9.04, "rot": 180 },
+          { "type": "dumbbells", "x": 17.47, "z": 5.0, "rot": 90 },
+          { "type": "mirror_gym", "x": 17.215, "z": 5.0, "rot": 90, "name": "Spiegelwand Fitness", "entity": "light.fitness_spiegel" },
+          { "type": "wallbars", "x": 21.475, "z": 7.5, "rot": 270 },
+          { "type": "punchingbag", "x": 20.6, "z": 6.3 },
+          { "type": "kettlebells", "x": 17.6, "z": 7.0, "rot": 90 },
+          { "type": "gymball", "x": 17.7, "z": 9.3 },
+          { "type": "yogamat", "x": 19.2, "z": 9.2, "rot": 90 },
+          { "type": "backbar", "x": 25.16, "z": 3.0, "rot": 270, "name": "Barregal", "entity": "light.barregal" },
+          { "type": "bar_corner", "x": 23.75, "z": 3.3, "rot": 270, "name": "Bar", "entity": "light.bar", "leds": ["light.bar_theke", "light.bar_sockel"] },
+          { "type": "barstool_back", "x": 22.2, "z": 2.3, "rot": 90 },
+          { "type": "barstool_back", "x": 22.2, "z": 2.9, "rot": 90 },
+          { "type": "barstool_back", "x": 22.2, "z": 3.5, "rot": 90 },
+          { "type": "beer_tap", "x": 22.86, "z": 2.6, "rot": 270 },
+          { "type": "drinks_fridge", "x": 25.1, "z": 1.2, "rot": 270 },
+          { "type": "wine_fridge", "x": 25.08, "z": 5.2, "rot": 270, "finish": "anthracite" },
+          { "type": "neon_sign", "x": 23.5, "z": 0.575, "name": "Neon Cocktail", "entity": "light.neon_cocktail" },
+          { "type": "pooltable", "x": 23.5, "z": 7.1, "rot": 90 },
+          { "type": "pool_lamp", "x": 23.5, "z": 7.1, "rot": 90, "name": "Billardlampe", "entity": "light.billard" },
+          { "type": "kicker", "x": 24.7, "z": 9.15 },
+          { "type": "dartboard", "x": 21.75, "z": 6.2, "rot": 90 },
+          { "type": "bar_table", "x": 22.2, "z": 9.3 },
+          { "type": "screen_frame", "x": 21.68, "z": 2.6, "rot": 90 },
+          { "type": "pc_tower", "x": 12.3, "z": 7.4, "rot": 90 },
+          { "type": "laptop", "x": 14.5, "z": 7.75, "y": 0.75 },
+          { "type": "server_rack", "x": 4.3, "z": 2.3, "rot": 90, "name": "Netzwerkschrank" }
         ]
       },
       {
@@ -248,7 +324,8 @@
           { "type": "bathtall", "x": 0.37, "z": 7.9, "rot": 90 },
           { "type": "highchair", "x": 3.92, "z": 7.82, "rot": 90 },
           { "type": "drawers_roll", "x": 7.29, "z": 1.31, "rot": 90 },
-          { "type": "lamp_paper", "x": 11.58, "z": 3.47, "rot": 270, "entity": "light.bibliothek_papierlampe", "name": "Papierlampe Bibliothek" }
+          { "type": "lamp_paper", "x": 11.58, "z": 3.47, "rot": 270, "entity": "light.bibliothek_papierlampe", "name": "Papierlampe Bibliothek" },
+          { "type": "mirror_led_round", "x": 0.195, "z": 8.7, "rot": 90, "name": "Spiegel Gäste-WC", "entity": "light.gaeste_wc_spiegel" }
         ]
       },
       {
@@ -339,7 +416,11 @@
           { "type": "coffeetable_lo", "x": 9.5, "z": 6.0, "finish": "blackbrown" },
           { "type": "chair_shell", "x": 14.5, "z": 7.45, "rot": 270, "finish": "yellow" },
           { "type": "shark", "x": 4.97, "z": 7.4, "rot": 180, "y": 1.6 },
-          { "type": "pendant_paper", "x": 1.6, "z": 2.65, "entity": "light.spielecke_haengelampe", "name": "Hängelampe Spielecke" }
+          { "type": "pendant_paper", "x": 1.6, "z": 2.65, "entity": "light.spielecke_haengelampe", "name": "Hängelampe Spielecke" },
+          { "type": "mirror_cabinet", "x": 3.635, "z": 2.3, "rot": 90, "name": "Spiegelschrank Bad", "entity": "light.bad_spiegelschrank", "leds": ["", "light.bad_nachtlicht"] },
+          { "type": "mirror_led", "x": 0.195, "z": 2.6, "rot": 90, "name": "Spiegel Flur", "entity": "light.flur_spiegel" },
+          { "type": "mirror_hollywood", "x": 0.22, "z": 8.0, "rot": 90, "name": "Schminkspiegel", "entity": "light.schminkspiegel" },
+          { "type": "mirror_led_tall", "x": 3.425, "z": 8.2, "rot": 270 }
         ]
       },
       {

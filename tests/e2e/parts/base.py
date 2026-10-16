@@ -352,7 +352,7 @@ check("library search finds a TV by its everyday name (incl. wall TV)", pg2.loca
 pg2.fill("#paletteSearch", "")
 pg2.locator("#paletteCats button", has_text="Bath").click(); pg2.wait_for_timeout(200)
 nb = pg2.locator("#paletteGrid button.dev").count()
-check("library category filters", 5 <= nb <= 10, nb)
+check("library category filters", 5 <= nb <= 16, nb)       # the bathroom: 7 own pieces, 3 in Scandinavian style, 5 LED mirrors
 pg2.locator("#paletteCats button", has_text="All").click()
 pg2.click("button[data-tool=select]")
 check("14 door and window presets", pg2.locator("#openingPalette button").count() == 14)

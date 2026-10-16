@@ -15,10 +15,11 @@ export function skipInLive(data, type) {
   return data.kind === 'device' && LIVE_NO_TAP.has(type);
 }
 
-/** in the live mode only what is linked to something can be tapped (a light, a switch, a TV, an LED ring with lights). A TV's backlight alone
+/** in the live mode only what is linked to something can be tapped (a light, a switch, a TV, an LED ring with lights, a piece with LED zones,
+ *  ledzones.js). A TV's backlight alone
  *  does not count (#364): the TV's card only shows the TV itself ("no device linked"); the backlight is a light of the room (room panel) */
 export function linkedDevice(d) {
-  return !!d && !!(d.entity || (d.segs || []).some((s) => s.entity));
+  return !!d && !!(d.entity || (d.segs || []).some((s) => s.entity) || (d.leds || []).some(Boolean));
 }
 
 /** in the live mode a device with a tap ball is tapped on its ball only (#262): a hit on its model (data without tapBall) does not count, so

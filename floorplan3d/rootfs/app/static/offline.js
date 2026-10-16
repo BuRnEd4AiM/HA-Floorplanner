@@ -43,6 +43,7 @@ export function offlineDevices(env) {
       }
       add(d.entity, fi, 'device', d.id, name, d.x, d.z, f);
       add(d.ledEntity, fi, 'device', d.id, name, d.x, d.z, f);
+      (d.leds || []).forEach((e) => add(e, fi, 'device', d.id, name, d.x, d.z, f));   // the LED zones of a piece with entities of their own (ledzones.js)
       if (d.type === 'ledring') ringEntities(d).forEach((e) => add(e, fi, 'device', d.id, name, d.x, d.z, f));
     });
     openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {

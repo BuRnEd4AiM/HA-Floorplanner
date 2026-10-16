@@ -1,9 +1,11 @@
 /* Live popup: the small card that opens when a device or a door / window is tapped in live mode (state, actions, light controls, the scenes the
  * light is part of, the whole room; a window's roller shutter: its own card, shuttercard.js, #331, #335), and the LED ring card with one
  * button per section. The card is drawn anew only when something it shows changes (#336): a state update of any other entity of the house
- * (power meters, temperatures every few seconds) no longer replaces its buttons and sliders under the finger. popupKey is pure (unit test). */
+ * (power meters, temperatures every few seconds) no longer replaces its buttons and sliders under the finger. A piece with LED zones linked to
+ * entities of their own (a mirror, the bar, ledzones.js) gets a button per zone like the LED ring. popupKey is pure (unit test). */
 import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
 import { ringCount, segEntity, ringEntities } from './ledring.js';
+import { zoneKeys, zoneEntity, hasOwnZones, pieceEntities } from './ledzones.js';
 import { shutterEntity } from './shutters.js';
 import { initShutterCard } from './shuttercard.js';
 
@@ -55,6 +57,7 @@ export function initLivePopup(ctx) {
     const ids = [d.entity, d.motionEntity], scenes = [];
     let room = null;
     if (d.type === 'ledring') ids.push(...ringEntities(d));
+    else if (hasOwnZones(d)) ids.push(...pieceEntities(d));
     else if (withRoom(d)) {
       if (d.entity.startsWith('light.')) scenes.push(...live.scenesWith([d.entity]));
       const rm = roomOf(d), r = rm && live.roomIds(rm);
@@ -77,6 +80,7 @@ export function initLivePopup(ctx) {
     key = k;
     box.innerHTML = '';
     if (d.type === 'ledring') { ringPopup(box, d); return; }
+    if (hasOwnZones(d)) { zonePopup(box, d); return; }
     const title = document.createElement('div'); title.className = 'title'; title.textContent = d.name || '';
     const sub = document.createElement('div'); sub.className = 'sub';
     sub.textContent = d.entity ? `${d.isOpening ? ctx.openText(d.entity) : ctx.stateText(d.entity)} · ${d.entity}` : t('live.noEntity');
@@ -118,18 +122,30 @@ export function initLivePopup(ctx) {
   }
   /** LED ring in live mode: one button per section, the tapped section's own controls, then the whole ring */
   function ringPopup(box, d) {
+    const n = ringCount(d);
+    sectionsPopup(box, d, { n, entity: (i) => segEntity(d, i), all: ringEntities(d), label: (i) => String(i + 1), heading: (i) => t('ring.section', { n: i + 1 }),
+      title: d.name || t('dev.ledring'), summary: (on) => t('ring.summary', { on, n }), whole: t('ring.whole') });
+  }
+  /** a piece with LED zones (ledzones.js): one button per zone with its name, the tapped zone's own controls, then all of them */
+  function zonePopup(box, d) {
+    const keys = zoneKeys(d.type), n = keys.length;
+    sectionsPopup(box, d, { n, entity: (i) => zoneEntity(d, i), all: pieceEntities(d), label: (i) => t(`led.${keys[i]}`), heading: (i) => t(`led.${keys[i]}`),
+      title: d.name || t(`dev.${d.type}`), summary: (on) => t('zone.summary', { on, n }), whole: t('zone.whole') });
+  }
+  /** the card of a device in sections: spec { n, entity(i), all (every entity), label(i) (its button), heading(i), title, summary(on), whole } */
+  function sectionsPopup(box, d, spec) {
     const states = ctx.states();
-    const n = ringCount(d), all = ringEntities(d), isOnE = (e) => !!e && ctx.onStates.has(states[e]?.state);
+    const { n, all } = spec, isOnE = (e) => !!e && ctx.onStates.has(states[e]?.state);
     const div = (cls, txt) => { const x = document.createElement('div'); x.className = cls; if (txt != null) x.textContent = txt; return x; };
-    const on = Array.from({ length: n }, (_, i) => isOnE(segEntity(d, i))).filter(Boolean).length;
-    const title = div('title', d.name || t('dev.ledring')), mi = live.detailsButton(d.entity);
+    const on = Array.from({ length: n }, (_, i) => isOnE(spec.entity(i))).filter(Boolean).length;
+    const title = div('title', spec.title), mi = live.detailsButton(d.entity);
     if (mi) title.append(mi);
-    box.append(title, div('sub', all.length ? t('ring.summary', { on, n }) : t('live.noEntity')));
+    box.append(title, div('sub', all.length ? spec.summary(on) : t('live.noEntity')));
     if (!all.length) return;
     const row = div('actions ringSegs');
     for (let i = 0; i < n; i++) {
-      const e = segEntity(d, i), b = document.createElement('button');
-      b.textContent = String(i + 1); b.title = e || t('live.noEntity');
+      const e = spec.entity(i), b = document.createElement('button');
+      b.textContent = spec.label(i); b.title = e || t('live.noEntity');
       b.classList.toggle('on', isOnE(e)); b.classList.toggle('sel', seg === i);
       const c = isOnE(e) ? (Array.isArray(states[e]?.rgb) ? states[e].rgb : [255, 210, 122]) : null;
       if (c) b.style.setProperty('--seg', `rgb(${c[0]},${c[1]},${c[2]})`);      // a lit section shows its colour
@@ -138,9 +154,9 @@ export function initLivePopup(ctx) {
       row.append(b);
     }
     box.append(row);
-    const e = seg != null && seg < n ? segEntity(d, seg) : '';
+    const e = seg != null && seg < n ? spec.entity(seg) : '';
     if (e) {
-      const h = document.createElement('h4'); h.textContent = t('ring.section', { n: seg + 1 });
+      const h = document.createElement('h4'); h.textContent = spec.heading(seg);
       const r = div('actions');
       [['turn_on', 'live.on'], ['turn_off', 'live.off']].forEach(([svc, k]) => {
         const b = document.createElement('button'); b.textContent = t(k);
@@ -153,7 +169,7 @@ export function initLivePopup(ctx) {
       if (e.startsWith('light.')) box.append(live.lightControls([e]));
     }
     if (all.length > 1 || !e) {
-      const h = document.createElement('h4'); h.textContent = t('ring.whole');
+      const h = document.createElement('h4'); h.textContent = spec.whole;
       const r = div('actions');
       [['turn_on', 'live.allOn'], ['turn_off', 'live.allOff']].forEach(([svc, k]) => {
         const b = document.createElement('button'); b.textContent = t(k);

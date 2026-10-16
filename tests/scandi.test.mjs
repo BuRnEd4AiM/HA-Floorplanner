@@ -5,13 +5,16 @@ import assert from 'node:assert/strict';
 const dir = process.env.STATIC_DIR || '/tmp/static';
 const S = await import(`${dir}/scandi.js`);
 const { LAMP_TYPES } = await import(`${dir}/lamplight.js`);
+const { LEISURE } = await import(`${dir}/leisure.js`);
+const OWN = S.SCANDI_TYPES.filter((k) => !LEISURE[k]);     // the pieces of leisure.js are in SCANDI too: tests/leisure.test.mjs checks them
 const near = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 const HEX = /^#[0-9a-f]{6}$/;
 const CATS = ['living', 'kitchen', 'bath', 'bedroom', 'kids', 'office', 'entry', 'lighting', 'decor'];
 
 test('more than 50 pieces, each with a group, a German name, search words and parts', () => {
-  assert.ok(S.SCANDI_TYPES.length >= 50, S.SCANDI_TYPES.length);
-  for (const k of S.SCANDI_TYPES) {
+  assert.ok(OWN.length >= 50, OWN.length);
+  assert.ok(Object.keys(LEISURE).every((k) => S.SCANDI[k] === LEISURE[k]));
+  for (const k of OWN) {
     const d = S.SCANDI[k];
     assert.ok(CATS.includes(d.cat), k);
     assert.ok(d.label && d.search, k);
@@ -31,7 +34,7 @@ test('every part has a real size and a known material in every finish of its pie
   }
 });
 test('every piece stands on the floor, is centred on its footprint, and the plan footprint is its real size', () => {
-  for (const k of S.SCANDI_TYPES) {
+  for (const k of OWN) {
     const bb = S.bounds(S.partsOf(k));
     assert.ok(bb.y0 > -0.005, `${k} reaches below the floor: ${bb.y0}`);
     assert.ok(Math.abs(bb.x0 + bb.x1) < 0.002 && Math.abs(bb.z0 + bb.z1) < 0.002, `${k} is not centred`);
@@ -75,7 +78,7 @@ test('materials: the finish, the finish a little darker, the fixed ones', () => 
   assert.equal(S.shade('#ffffff', 2), '#ffffff');
 });
 test('the lamps are in the lighting group and glow; nothing else does', () => {
-  for (const k of S.SCANDI_TYPES) {
+  for (const k of OWN) {
     const glows = S.partsOf(k).some((p) => S.matOf(p.m, S.finishOf(k)).glow);
     assert.equal(glows, S.SCANDI[k].cat === 'lighting', k);
     if (S.SCANDI[k].cat === 'lighting') assert.ok(LAMP_TYPES.includes(k), k);

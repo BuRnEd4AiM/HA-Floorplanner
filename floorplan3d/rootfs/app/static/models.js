@@ -118,13 +118,14 @@ export const CATEGORIES = {
   kids:    [],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
   entry:   [],
+  wellness: [], fitness: [], bar: [], cinema: [],              // sauna, fitness, the bar, the home cinema (leisure.js)
   lighting: LAMP_TYPES,                                         // the lamps (lamplight.js: a lamp on a relay lights the room like any lamp, #367)
   smart:   ['switch', 'sensor', 'thermostat', 'radiator', 'boiler', 'camera', 'speaker', 'vacuum', 'smoke', 'router', 'presence', 'watermeter', 'gasmeter', 'heatmeter'],
   power:   ['houseentry', 'fusebox', 'powermeter', 'inverter', 'solarpanel', 'battery', 'wallbox'],
   outdoor: ['tree', 'bush', 'lawn', 'terrace', 'path', 'pool', 'fence', 'car', 'bridge'],
   decor:   ['picture'],
 };
-SCANDI_TYPES.forEach((k) => { if (SCANDI[k].cat !== 'lighting') CATEGORIES[SCANDI[k].cat].push(k); });   // the lamps are in LAMP_TYPES already
+SCANDI_TYPES.forEach((k) => { if (SCANDI[k].cat !== 'lighting') CATEGORIES[SCANDI[k].cat].push(k); });   // the lamps are in LAMP_TYPES already (a lamp of another group, e.g. an LED mirror, is in both: its own group comes first)
 export const catOf = (type) => Object.keys(CATEGORIES).find((k) => CATEGORIES[k].includes(type)) || 'living';
 
 const std = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.05, ...extra });
@@ -650,14 +651,16 @@ export function makeModel(type, onReady, dev, opts) {
   centreOnFootprint(g);
   return g;
 }
-/** Furniture in Scandinavian style (scandi.js): its parts as meshes, in the finish chosen on the device; a lamp's shade glows with its entity */
+/** Furniture in Scandinavian style (scandi.js) and the pieces of leisure.js: its parts as meshes, in the finish chosen on the device; a lamp's
+ *  shade glows with its entity, an LED zone with its own one */
 function scandiModel(g, type, dev) {
-  const fin = finishOf(type, dev), mats = new Map(), glow = [];
+  const fin = finishOf(type, dev), mats = new Map(), glow = [], zones = Array.from({ length: SCANDI[type].leds?.length || 0 }, () => []);
   const matFor = (m) => {
     if (!mats.has(m)) {
       const s = matOf(m, fin);
       const mm = s.glow ? glowMat(s.c) : std(s.c, { roughness: s.rough ?? 0.7, metalness: s.metal ?? 0.05, ...(s.opacity ? { transparent: true, opacity: s.opacity } : {}) });
-      if (s.glow) glow.push(mm);
+      if (s.on) mm.userData.on = s.on;                           // lit in its own colour when the entity tells none (a sauna's stones, a screen ...)
+      if (s.glow) (zones[s.zone] || glow).push(mm);               // an LED zone follows its own entity (ledzones.js), the rest the device's
       mats.set(m, mm);
     }
     return mats.get(m);
@@ -672,6 +675,7 @@ function scandiModel(g, type, dev) {
     g.add(m);
   });
   if (glow.length) g.userData.glow = glow;
+  if (zones.length) g.userData.segs = zones.map((z) => ({ glow: z }));     // drawn like the sections of an LED ring (modelfx.js ringLook)
   g.userData.finish = fin;
 }
 /** Metal bridge / walkway (#189): grating deck on two steel beams, railing on both sides (see bridgeParts) */

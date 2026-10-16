@@ -64,6 +64,10 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 **Neu in 3.84** (ausführlich in Abschnitt **51** unten)
 24. **Über 50 neue Möbel im Stil der bekannten skandinavischen Klassiker** (51.1 bis 51.8): Bearbeiten, Werkzeug **„Gerät“**, links in der Bibliothek blättern (neue Gruppen **„Kinder“** und **„Flur“**) oder im Suchfeld z. B. **„kallax“**, **„billy“**, **„poäng“** oder **„blåhaj“** eingeben. Ein Teil setzen, anklicken und rechts bei **„Ausführung“** z. B. Eiche oder Schwarzbraun wählen.
 
+**Neu in 3.85** (ausführlich in Abschnitt **52** unten)
+25. **Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED** (52.1 bis 52.6): Bearbeiten, Werkzeug **„Gerät“**, links die neuen Gruppen **„Sauna & Wellness“**, **„Fitness“**, **„Bar“** und **„Heimkino“** ansehen (die PCs stehen bei **„Büro“**, die LED-Spiegel bei **„Bad“**), oder im Suchfeld z. B. **„sauna“**, **„laufband“**, **„beamer“**, **„spiegel“** eingeben.
+26. **Spiegel mit mehreren LEDs, jede einzeln verknüpft** (52.7 bis 52.10): den **„LED-Spiegel mit 3 Zonen“** an eine Wand setzen, anklicken, rechts unter **„LEDs einzeln verknüpfen“** für „Hinten (indirekt)“, „Vorne“ und „Unten“ je ein Licht wählen. Dann **„Live“** und den Spiegel antippen: ein Knopf pro LED.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -181,7 +185,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 0 | 0 | 4 | 0 | 49.1 bis 49.4 |
 | 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 0 | 0 | 8 | 0 | 50.1 bis 50.8 |
 | 51. Neu in 3.84: Möbel im skandinavischen Stil | 0 | 0 | 8 | 0 | 51.1 bis 51.8 |
-| **Zusammen** | **199** | **2** | **138** | **2** | |
+| 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 0 | 0 | 12 | 0 | 52.1 bis 52.12 |
+| **Zusammen** | **199** | **2** | **150** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -755,7 +760,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 48.1 | Bearbeiten, „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Prüfen“ | Grün: 4 Etagen, 19 Räume, 61 Wände, 39 Türen/Fenster, 200 Geräte (seit 3.84 mit den Möbeln im skandinavischen Stil); keine Fehler und keine Hinweise (#353) | ❓ |
+| 48.1 | Bearbeiten, „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Prüfen“ | Grün: 4 Etagen, 23 Räume, 74 Wände, 44 Türen/Fenster, 264 Geräte (seit 3.84 mit den Möbeln im skandinavischen Stil, seit 3.85 mit Sauna, Fitness, Heimkino und Bar im neuen Kellerteil); keine Fehler und keine Hinweise (#353) | ❓ |
 | 48.2 | „Importieren“, dann „Ganzes Haus“ | Ein neues Haus „Musterhaus – alles drin“: Keller in der Erde, Erdgeschoss mit Garage, Obergeschoss mit Dachterrasse (Geländer, keine Wände), Satteldach mit drei Gauben und Solaranlage, Gartenhaus mit Walmdach, Pool mit Brücke, Einfahrt mit Auto | ❓ |
 | 48.3 | Die Etagen einzeln öffnen und die Treppen suchen | U-Treppe vom Keller bis ins Obergeschoss, L-Treppe von der Werkstatt in die Garage, Wandtreppe vom Wohnzimmer zur Galerie, Wendeltreppe außen an der Garage zur Dachterrasse, Bodentreppe im Kinderzimmer | ❓ |
 | 48.4 | Etage „Dach“: die Solaranlage anklicken; dann „Dieses Haus als JSON exportieren“ und die Datei wieder importieren | Die Solaranlage liegt auf der Dachfläche; im wieder importierten Haus ist sie noch da (vorher ging sie verloren) | ❓ |
@@ -792,3 +797,19 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 51.6 | In der Gruppe „Kinder“ das Hochbett und den Plüschhai setzen | Hochbett mit Leiter und Rausfallschutz, darunter frei; ein kleiner blauer Hai mit weißem Bauch | ❓ |
 | 51.7 | Einen Kleiderschrank mit Schiebetüren an eine Wand schieben | Er bleibt an der Wand stehen und lässt sich nicht hineinschieben (Wandstopp) | ❓ |
 | 51.8 | Sprache auf Englisch stellen und die Bibliothek ansehen | Alle neuen Teile und die Ausführungen haben englische Namen, z. B. „Cube shelf 2×4“, „Oak“ | ❓ |
+
+## 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 52.1 | Bearbeiten, Werkzeug „Gerät“, links die Bibliothek ansehen | Neue Gruppen „Sauna & Wellness“, „Fitness“, „Bar“ und „Heimkino“, jede mit Vorschaubildern; bei „Büro“ PC, Gaming-PC, PC-Arbeitsplatz, Laptop, Gaming-Stuhl, Netzwerkschrank; bei „Bad“ die LED-Spiegel und der Spiegelschrank | ❓ |
+| 52.2 | Eine „Sauna mit Glasfront“ in einen Raum setzen, mit dem Schalter oder Thermostat der Sauna verknüpfen, „Live“, die Sauna einschalten | Holzkabine mit Glasfront und Glastür, innen zwei Bänke und der Ofen; eingeschaltet glühen die Saunasteine orange und das Licht unter der Bank und hinter der Lehne leuchtet | ❓ |
+| 52.3 | Bei „Ausführung“ „Thermoholz“ wählen | Die Kabine wird dunkelbraun | ❓ |
+| 52.4 | Aus „Fitness“ Laufband, Power Rack und Hantelbank setzen, aus „Bar“ die „Bartheke mit LED“, das Barregal und den Billardtisch | Die Teile stehen in echter Größe im Raum (Billardtisch 2,50 × 1,40 m), im 2D-Plan genauso groß | ❓ |
+| 52.5 | Aus „Heimkino“ die „Leinwand mit Rahmen“ an eine Wand setzen und den „Beamer (Decke)“ davor; beide mit dem Beamer oder Mediaplayer verknüpfen, „Live“, abspielen | Die Leinwand rastet an der Wand ein; der Beamer hängt unter der Decke. Beim Abspielen leuchtet die Leinwand hell und die Linse des Beamers | ❓ |
+| 52.6 | Den „Gaming-PC mit RGB“ mit dem Schalter des PCs verknüpfen, „Live“, einschalten | Die Lüfter vorne und die Teile hinter dem Glas leuchten lila (oder in der Farbe des Lichts, wenn es ein Licht ist) | ❓ |
+| 52.7 | Den „LED-Spiegel mit 3 Zonen“ an eine Wand setzen und anklicken | Der Spiegel rastet flach an der Wand ein; rechts unter „LEDs einzeln verknüpfen“ drei Felder „Hinten (indirekt)“, „Vorne“, „Unten“, jedes mit einem farbigen Streifen; in 3D haben die LEDs genau diese Farben | ❓ |
+| 52.8 | Nur das Hauptgerät (oben „Entität“) mit einem Licht verknüpfen, „Live“, einschalten | Alle LEDs des Spiegels leuchten, der Raum wird etwas heller | ❓ |
+| 52.9 | Zurück zu „Bearbeiten“, für „Hinten (indirekt)“ und „Unten“ je ein eigenes Licht wählen; „Live“, den Spiegel antippen | Die Karte zeigt „x von 3 LED-Zonen an“ und drei Knöpfe „Hinten (indirekt)“, „Vorne“, „Unten“; ein Knopf öffnet die Steuerung nur dieser LED, „Alle LEDs“ schaltet alle | ❓ |
+| 52.10 | Nur das Licht „Hinten“ einschalten, z. B. in Blau | In 3D leuchtet nur der Rand hinter dem Spiegel blau, die anderen LEDs bleiben aus | ❓ |
+| 52.11 | Die „Bartheke mit LED“ anklicken, „Thekenkante“ und „Sockel“ mit zwei Lichtern verknüpfen, in „Live“ beide einschalten | Die Kante der Theke und das Licht am Boden vor dem Sockel leuchten jeweils in der Farbe ihres Lichts | ❓ |
+| 52.12 | „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Importieren“, dann den „Keller“ öffnen | Rechts neben der Werkstatt ein neuer Kellerteil mit „Sauna & Wellness“, „Heimkino“, „Fitness“ und „Bar“; im Garten Fass-Sauna, Whirlpool und Poolbar | ❓ |

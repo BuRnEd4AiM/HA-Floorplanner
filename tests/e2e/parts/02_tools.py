@@ -138,7 +138,7 @@ pgN.fill("#paletteSearch", ""); pgN.wait_for_timeout(200)
 pgN.locator("#paletteCats button", has_text="Kids").click(); pgN.wait_for_timeout(200)
 check("Scandinavian furniture: the new group Kids", pgN.locator("#paletteGrid button.dev").count() == 5 and "Plush shark" in pgN.inner_text("#paletteGrid"), pgN.inner_text("#paletteGrid"))
 pgN.locator("#paletteCats button", has_text="Entrance").click(); pgN.wait_for_timeout(200)
-check("Scandinavian furniture: the new group Entrance", pgN.locator("#paletteGrid button.dev").count() == 4, pgN.locator("#paletteGrid button.dev").count())
+check("Scandinavian furniture: the new group Entrance (and the full-length LED mirror of leisure.js)", pgN.locator("#paletteGrid button.dev").count() == 5, pgN.locator("#paletteGrid button.dev").count())
 pgN.click("button[data-tool=select]"); pgN.wait_for_timeout(200)
 pgN.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
   f.devices.push({id: 'skCube', type: 'shelf_cube2x4', x: 60, z: 60, y: 0, rot: 0, scale: 1, name: 'Regal', entity: ''}); window.__fp.rebuild(); window.__fp.select('device', 'skCube'); }""")
