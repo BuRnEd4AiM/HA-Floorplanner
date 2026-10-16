@@ -90,6 +90,10 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 37. **Licht am Auto und in der Werkstatt** (57.6, 57.7): das Auto mit einem Schalter verknüpfen, in „Live“ einschalten: Scheinwerfer und Rücklichter leuchten. Die „LED-Werkstattleuchte“ an die Decke setzen und schalten: sie erhellt die Garage.
 38. **Musterhaus mit Garage und Hof** (57.8, nur im Add-on): das Musterhaus neu importieren: in der Garage stehen der blaue Kombi, die Werkbank und ein Fahrrad an der Wand, vorne rechts ist ein Hof mit drei Carports, Wohnmobilen, Wohnwagen und einer Hebebühne.
 
+**Neu in 3.91** (ausführlich in Abschnitt **58** unten)
+39. **Messen mit der Taste M** (58.1 bis 58.3, #399): Bearbeiten, Taste **M** drücken (oder oben **„Messen“**): es öffnet sich 2D + 3D. Zwei Punkte im Plan anklicken: die Linie mit ihrer Länge erscheint, rechts stehen die Maße.
+40. **Zwei Wände genau einstellen** (58.4 bis 58.8): zwei gegenüberliegende Wände eines Raums nacheinander anklicken, rechts beim **„Lichter Abstand“** z. B. 4 eintippen und **„Setzen“**: die orange Wand rückt genau dorthin, die Wände daneben und der Raum ziehen mit. Dann zwei Wände in einer Ecke anklicken und den **„Winkel“** auf z. B. 120 stellen. Strg+Z macht es rückgängig.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -213,7 +217,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 0 | 0 | 7 | 0 | 55.1 bis 55.7 |
 | 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 0 | 0 | 7 | 0 | 56.1 bis 56.7 |
 | 57. Neu in 3.90: Garage, Werkstatt und Carport | 0 | 0 | 7 | 1 | 57.1 bis 57.7 |
-| **Zusammen** | **199** | **2** | **182** | **3** | |
+| 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 0 | 0 | 8 | 0 | 58.1 bis 58.8 |
+| **Zusammen** | **199** | **2** | **190** | **3** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -893,3 +898,15 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 57.6 | Das Auto mit einem Schalter verknüpfen, „Live“, ein- und ausschalten | Eingeschaltet leuchten vorne die Scheinwerfer weiß und hinten die Rücklichter rot; ausgeschaltet sind sie dunkel | ❓ |
 | 57.7 | Die „LED-Werkstattleuchte“ und die „Werkbank mit Lochwand und Licht“ setzen, mit Lichtern verknüpfen, in „Live“ schalten; die Lochwand, die Sichtlagerkästen und den Feuerlöscher nahe an eine Wand setzen | Die Leuchten und das Licht unter dem Brett der Werkbank leuchten und erhellen den Raum; die Wandteile springen an die Wand | ❓ |
 | 57.8 | Im Add-on das Musterhaus („alles drin“) neu importieren, Erdgeschoss öffnen | In der Garage stehen der blaue Kombi, die Werkbank, ein Regal, ein Fahrrad an der Wand; vorne rechts auf dem Grundstück ein Hof mit Carport, Doppelcarport, Solarcarport, Autos, Wohnmobilen, Wohnwagen, Anhänger und einer Limousine auf der Hebebühne | ➖ |
+
+## 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 58.1 | Bearbeiten, in der 3D-Ansicht die Taste M drücken | Das Werkzeug „Messen“ ist an, es öffnet sich 2D + 3D, rechts steht der Abschnitt „Messen“ mit „Klicke den ersten Punkt“ | ❓ |
+| 58.2 | Im 2D-Plan zwei Punkte anklicken (eine Ecke, dann irgendwo); mit Alt gedrückt zwei freie Punkte | Gelbe Linie mit Länge im Plan und im 3D-Bild; rechts die Länge groß, darunter ↔, ↕ und der Winkel; Ecken und Wandflächen rasten ein, mit Alt nicht | ❓ |
+| 58.3 | Im 3D-Bild von 2D + 3D zwei Punkte auf dem Boden anklicken | Auch so wird gemessen, die Linie erscheint in beiden Bildern | ❓ |
+| 58.4 | Zwei gegenüberliegende Wände eines Raums nacheinander anklicken (auf die Wand, nicht auf die Ecke) | Die erste Wand ist blau gestrichelt, die zweite orange; rechts „Lichter Abstand“ und „Abstand der Wandmitten“, im Plan ein grüner Abstand im rechten Winkel | ❓ |
+| 58.5 | Beim „Lichter Abstand“ 4 eintippen, „Setzen“ (oder Enter) | Die orange Wand rückt so, dass zwischen den Wandflächen genau 4,00 m sind; die Wände daneben werden länger / kürzer, der Raum und seine Fläche passen sich an; Türen und Fenster in der verschobenen Wand bleiben drin | ❓ |
+| 58.6 | „⇄ Die andere Wand bewegen“, einen Wert setzen; dann Strg+Z | Jetzt bewegt sich die andere Wand; Strg+Z holt den Stand davor zurück | ❓ |
+| 58.7 | Zwei Wände in einer Ecke anklicken, beim „Winkel“ 120 setzen, dann 90 | Im Plan steht der Winkel in der Ecke; die zweite Wand dreht sich um die Ecke, bleibt gleich lang, die Wand an ihrem anderen Ende zieht mit; mit 90 ist es wieder rechtwinklig | ❓ |
+| 58.8 | Eine gesperrte Wand (in der Objektliste abgehakt) als zweite Wand nehmen und einen Abstand setzen; Esc; ein anderes Werkzeug wählen | Die gesperrte Wand bewegt sich nicht, oben steht ein Hinweis; Esc löscht die Messung; mit einem anderen Werkzeug verschwindet der Abschnitt „Messen“ | ❓ |

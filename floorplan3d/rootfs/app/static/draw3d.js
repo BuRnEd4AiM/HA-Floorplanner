@@ -166,7 +166,7 @@ export function initDraw3d(ctx) {
     } else if ((tool === 'wall' || tool === 'room') && gp) {
       cursor = ctx.snap(gp);
       updateTemp();
-    }
+    } else if (tool === 'measure' && gp) ctx.measure?.hover3d(gp, e.altKey);
   });
 
   canvas.addEventListener('pointerup', (e) => {
@@ -191,6 +191,8 @@ export function initDraw3d(ctx) {
     } else if (tool === 'erase') {
       const h = ctx.pick(e);
       if (h) { ctx.snapshot(); ctx.deleteItem(h); }
+    } else if (tool === 'measure' && gp) {
+      ctx.measure?.click3d(gp, e.altKey);                       // measuring (measuretool.js), also in the 3D view
     } else if (tool === 'wall' && gp) {
       const p = ctx.snap(gp), last = drawPts[drawPts.length - 1];
       if (samePoint(p, last)) { endDrawing(); return; }

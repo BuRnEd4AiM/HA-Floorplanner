@@ -5,7 +5,7 @@ import { clampOpeningPos, openingOverlaps } from './walls.js';
 import { openingWalls, isDormerWall } from './dormerwin.js';
 
 const LISTS = { wall: 'walls', room: 'rooms', device: 'devices', stair: 'stairs', block: 'blocks', hole: 'holes' };
-const TOOL_KEYS = { v: 'select', w: 'wall', b: 'block', t: 'stairs', r: 'room', o: 'opening', d: 'device' };
+const TOOL_KEYS = { v: 'select', w: 'wall', b: 'block', t: 'stairs', r: 'room', o: 'opening', d: 'device', m: 'measure' };
 const DRAFT_TOOLS = new Set(['room', 'block', 'plot', 'hole', 'stairs']);   // tools whose outline Enter closes
 
 /** the door / window `id` on floor f (also a dormer window, dormerwin.js): { wall, opening } or null */
