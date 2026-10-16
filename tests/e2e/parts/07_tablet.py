@@ -76,6 +76,8 @@ pg17.evaluate("(() => { const f = window.__fp.layout.floors[window.__fp.floorIdx
 mem = [pg17.evaluate("(() => { window.__fp.rebuild(); window.__fp.frame(); return window.__fp.renderer.info.memory.geometries; })()") for _ in range(4)]
 check("tablet: rebuilding the scene does not leak graphics memory", mem[0] == mem[-1], mem)
 check("tablet: low-power mode without blur", pg17.evaluate("window.__fp.LOW && document.body.classList.contains('low')"))
+lw = pg17.evaluate("(() => { let w = 0; window.__fp.scene.traverse(o => { if (o.isSprite && o.material.map && o.material.map.image) w = Math.max(w, o.material.map.image.width); }); return w; })()")
+check("tablet (#394): labels are drawn at half the sharpness in low-power mode (a quarter of the graphics memory)", lw == 512, lw)
 check("live: no grid", not pg17.evaluate("window.__fp.earthDbg()")["gridShown"])
 # tablets: a row too long for the screen scrolls with arrows (upright phones wrap it into more rows instead); a wide stand-in makes it too long
 pg17.set_viewport_size({"width": 1000, "height": 1000}); pg17.wait_for_timeout(400)

@@ -9,10 +9,11 @@ const H = await import(`${dir}/housefloors.js`);
 const sq = (x0, z0, x1, z1) => ({ points: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]] });
 const fl = (kind, rooms = [], extra = {}) => ({ kind, rooms, walls: [], blocks: [], ...extra });
 
-test('only the whole-house view pulls the floors apart or stacks them; anything unknown is normal', () => {
+test('only the whole-house view pulls the floors apart; stacked works with one floor open too (#396); anything unknown is normal', () => {
   assert.equal(H.floorsMode({ houseFloors: 'stacked' }, true), 'stacked');
   assert.equal(H.floorsMode({ houseFloors: 'apart' }, true), 'apart');
-  assert.equal(H.floorsMode({ houseFloors: 'stacked' }, false), 'normal');   // one floor shown: as built
+  assert.equal(H.floorsMode({ houseFloors: 'stacked' }, false), 'stacked');  // one floor open: right on the floor below
+  assert.equal(H.floorsMode({ houseFloors: 'apart' }, false), 'normal');     // ... but never pulled apart from it
   assert.equal(H.floorsMode({ houseFloors: 'bogus' }, true), 'normal');
   assert.equal(H.floorsMode({}, true), 'normal');
   assert.equal(H.floorsMode(null, true), 'normal');
@@ -52,6 +53,19 @@ test('which floor stands on a ceiling: one with something on it over another flo
   assert.equal(H.hasSlab(floors, 3), true);                                  // knee walls under the roof
   assert.equal(H.hasSlab(floors, 9), false);
   assert.equal(H.hasSlab([fl('floor'), fl('floor', [], { blocks: [sq(0, 0, 1, 1)] })], 1), true);
+  assert.equal(H.hasSlab(floors, 1, 1), false);                              // the floors below hidden: nothing to stand on
+});
+
+test('which floors are drawn: the whole house all, one floor open it and those below (not when they are hidden)', () => {
+  assert.deepEqual(H.drawnFloors(4, 2, true, false), { lowest: 0, top: 3 });
+  assert.deepEqual(H.drawnFloors(4, 2, false, false), { lowest: 0, top: 2 });
+  assert.deepEqual(H.drawnFloors(4, 2, false, true), { lowest: 2, top: 2 });
+});
+
+test('the buttons: "Auseinander" in the whole-house view, "Aufeinander" also with one floor open, both only with two floors or more', () => {
+  assert.deepEqual(H.shownButtons(true, 3), { apart: true, stacked: true });
+  assert.deepEqual(H.shownButtons(false, 3), { apart: false, stacked: true });
+  assert.deepEqual(H.shownButtons(true, 1), { apart: false, stacked: false });
 });
 
 test('a floor is covered when a floor above it has rooms: a roof alone does not hide the floor under it', () => {
@@ -60,6 +74,8 @@ test('a floor is covered when a floor above it has rooms: a roof alone does not 
   floors[3].rooms = [sq(1, 1, 4, 4)];                                        // a lived-in attic
   assert.deepEqual(floors.map((_, i) => H.isCovered(floors, i)), [true, true, true, false]);
   assert.equal(H.isCovered([fl('floor', [sq(0, 0, 1, 1)]), fl('floor', [{ points: [[0, 0], [1, 1]] }])], 0), false);   // not a room yet
+  assert.equal(H.isCovered(floors, 1, 1), false);                            // one floor open (the ground floor): nothing drawn over it
+  assert.equal(H.isCovered(floors, 0, 1), true);                             // the basement under it is covered by it
 });
 
 test('under a roof the walls reach up to it; lower walls (a parapet) stay as they are', () => {

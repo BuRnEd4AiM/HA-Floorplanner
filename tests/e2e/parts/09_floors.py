@@ -1,4 +1,4 @@
-"""Floors and views of an imported house: floor rail, floor cards, half section, arrow keys, cameras (#69), room panel (#67), automatic rooms (#17), pull apart, stacked like a real house, view menu, see-through walls, devices of every floor in the whole-house view (#392).
+"""Floors and views of an imported house: floor rail, floor cards, half section, arrow keys, cameras (#69), room panel (#67), automatic rooms (#17), pull apart, stacked like a real house (also one floor, #396), view menu, see-through walls, devices of every floor in the whole-house view (#392).
 """
 # --- floor rail, floor cards, half section, arrow keys, stairs, frameless opening
 ex = json.load(open(os.path.join(S, "..", "..", "docs", "examples", "house.json")))
@@ -175,6 +175,16 @@ check("stack: 'pull apart' takes over from it", pg13.evaluate(slabs_js) == 0 and
       and "active" not in (pg13.get_attribute("#stackToggle", "class") or "") and api_admin("api/settings")["houseFloors"] == "apart")
 view_menu(pg13); pg13.click("#explodeToggle"); pg13.wait_for_timeout(800)
 check("stack: back to the usual view", api_admin("api/settings")["houseFloors"] == "normal" and pg13.evaluate(gaps_js) == gaps0)
+# --- one floor open (#396): "Aufeinander" there too (the open floor right on the floor below), "Auseinander" only in the whole-house view
+pg13.evaluate("window.__fp.switchFloor(2)"); pg13.wait_for_timeout(800)
+view_menu(pg13)
+check("stack, one floor (#396): only 'Aufeinander' is offered", pg13.locator("#stackToggle").is_visible() and not pg13.locator("#explodeToggle").is_visible())
+pg13.click("#stackToggle"); pg13.wait_for_timeout(1000)
+cov1 = pg13.evaluate(sprites_js)
+check("stack, one floor (#396): a ceiling under the open floor, the names and labels of the floors below hide under it",
+      pg13.evaluate(slabs_js) >= 1 and cov1[0] > 0 and cov1[0] == cov1[1] and api_admin("api/settings")["houseFloors"] == "stacked", cov1)
+view_menu(pg13); pg13.click("#stackToggle"); pg13.wait_for_timeout(600)
+check("stack, one floor: off again", pg13.evaluate(slabs_js) == 0 and api_admin("api/settings")["houseFloors"] == "normal")
 # --- the whole-house view shows the devices of every floor, not only those of the floor opened last (#392)
 pg13.evaluate("""() => { const L = window.__fp.layout, k = L.floors.map(f => f.kind).lastIndexOf('floor'), f = L.floors[k], r = f.rooms.find(x => x.points.length >= 3);
   const c = r.points.reduce((a, p) => [a[0] + p[0] / r.points.length, a[1] + p[1] / r.points.length], [0, 0]);

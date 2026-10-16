@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
 import { hasShutter, shutterSlats, curtainDepth, SHUTTER_UP, SHUTTER_SPEED } from './shutters.js';
+import { mergeParts } from './meshmerge.js';
 
 /* Wall geometry with real openings (doors/windows).
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
@@ -200,6 +201,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1) {
   g.userData.pivot = pivot;
   g.userData.tint = Object.entries(mats).map(([k, m]) => ({ k, m, base: m.color.getHex() }));   // k: frame, door, metal, glass (openings.js partHex)
   g.traverse((m) => { if (m.isMesh) m.castShadow = true; });
+  mergeParts(g);                                         // the fixed parts of the frame in one mesh: fewer draw calls (meshmerge.js, #394)
   g.position.x = o.pos - 0;                              // replaced by caller (needs wall length)
   return g;
 }
@@ -253,5 +255,6 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
     }
   }
   solid(cursor, half + t / 2, 0, H);
+  mergeParts(group);                                     // the pieces round the openings in one mesh (the doors and windows stay apart)
   return group;
 }

@@ -34,6 +34,8 @@ check("show house: the garden house roof sits on the garden house (both moved by
 pgS.click("#floorRail .railHouse"); pgS.wait_for_timeout(2500)
 rm = pgS.evaluate("window.__fp.roofMeshes()")
 check("show house: whole house draws the main roof with dormers and the garden house roof", {"main", "rp1"} <= {m["tag"] for m in rm} and any(m["part"] for m in rm), sorted({m["tag"] for m in rm}))
+calls = pgS.evaluate("(() => { window.__fp.frame(); window.__fp.frame(); return window.__fp.renderer.info.render.calls; })()")
+check("show house (#394): the parts of a model are drawn together, far fewer draw calls (about 3700 before)", 0 < calls < 2000, calls)
 pv = roof_floor["devices"][0]["id"]
 check("show house: the solar panels are shown on the roof", pgS.evaluate(f"window.__fp.isShown('{pv}')"))
 bad = [e for e in own if "favicon" not in e]

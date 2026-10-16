@@ -22,6 +22,7 @@ test('the CSS hides what is locked, nothing when nothing is locked', () => {
 });
 test('every lock hides something', () => {
   for (const [k, sel] of L.LOCKS) assert.ok(sel && L.lockCss([k]).length > 0, k);
+  assert.match(L.lockCss(['floorGap']), /#explodeToggle, #stackToggle/);          // the floors apart / stacked (#396): stays as preset
 });
 test('locked cameras: no camera images are fetched, the settings object stays the same otherwise', () => {
   const s = { cameraImages: true, theme: 'dark' };

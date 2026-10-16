@@ -109,7 +109,7 @@ PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWall
                  "houseFloors": ("normal", "apart", "stacked")}
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control" and "cameras" are refused here too
-LOCKS = ("control", "details", "cameras", "energy", "colorModes", "viewMenu", "views", "houses", "search", "settings", "timeline")
+LOCKS = ("control", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "search", "settings", "timeline")
 
 
 def clean_locks(val) -> dict:

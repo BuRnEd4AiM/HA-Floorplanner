@@ -8,10 +8,12 @@
 export const HOUSE_FLOORS = ['normal', 'apart', 'stacked'];
 export const APART_GAP = 2.5;              // extra space between every two floors when pulled apart (m)
 
-/** the way the floors stand: only the whole-house view pulls them apart or stacks them; anything unknown is 'normal' */
+/** the way the floors stand: pulled apart only in the whole-house view; stacked in both views (one floor open: it sits right on the floors
+ *  below it, #396); anything unknown is 'normal' */
 export function floorsMode(settings, houseMode) {
   const m = settings?.houseFloors;
-  return houseMode && HOUSE_FLOORS.includes(m) ? m : 'normal';
+  if (!HOUSE_FLOORS.includes(m)) return 'normal';
+  return m === 'apart' && !houseMode ? 'normal' : m;
 }
 
 /** the button of the view menu for 'apart' / 'stacked': a tap switches it on, a second tap back to 'normal' */
@@ -31,16 +33,21 @@ export function slabDepth(floorH, wallHeight) {
 
 const hasArea = (list) => (list || []).some((x) => (x.points || []).length >= 3);
 
-/** stacked: does floor i stand on a ceiling: there is a floor below it and it has something (rooms, blocks, walls) */
-export function hasSlab(floors, i) {
+/** stacked: does floor i stand on a ceiling: a floor below it is drawn (`lowest`: the lowest floor drawn) and it has something (rooms,
+ *  blocks, walls) */
+export function hasSlab(floors, i, lowest = 0) {
   const f = floors[i];
-  return i > 0 && !!f && (hasArea(f.rooms) || hasArea(f.blocks) || (f.walls || []).length > 0);
+  return i > lowest && !!f && (hasArea(f.rooms) || hasArea(f.blocks) || (f.walls || []).length > 0);
 }
 
 /** stacked: floor i lies under a floor with rooms (or blocks): looking from above, that floor hides it; its balls, labels and names are
  *  then seen only where you can look into it (a wall sunk or see-through), not through the floors above */
-export function isCovered(floors, i) {
-  return floors.slice(i + 1).some((f) => hasArea(f.rooms) || hasArea(f.blocks));
+export function isCovered(floors, i, top = floors.length - 1) {
+  return floors.slice(i + 1, top + 1).some((f) => hasArea(f.rooms) || hasArea(f.blocks));   // top: the highest floor drawn (one floor open: it)
+}
+/** which floors are drawn: { lowest, top }; one floor open: it and the floors below it (none of them when they are hidden by choice) */
+export function drawnFloors(count, floorIdx, houseMode, belowHidden) {
+  return houseMode ? { lowest: 0, top: count - 1 } : { lowest: belowHidden ? floorIdx : 0, top: floorIdx };
 }
 
 /** stacked: the storey right under a roof floor: its walls reach up to the roof (no gap between them and the eaves); a wall lower than the
@@ -75,13 +82,17 @@ export function liveFloors(count, floorIdx, houseMode) {
   return Array.from({ length: houseMode ? count : Math.max(0, Math.min(count, floorIdx + 1)) }, (_, i) => i);
 }
 
-/** the buttons of the view menu, shown in the whole-house view with two floors or more. ctx: $, settings(), houseMode(), floorCount(),
- *  choose(mode) (sets the setting houseFloors and applies it) */
+/** which buttons of the view menu show (a house with two floors or more): "Auseinander" in the whole-house view, "Aufeinander" also with
+ *  one floor open (#396) */
+export const shownButtons = (houseMode, count) => ({ apart: houseMode && count >= 2, stacked: count >= 2 });
+
+/** the buttons of the view menu. ctx: $, settings(), houseMode(), floorCount(), choose(mode) (sets the setting houseFloors and applies it).
+ *  A user can be kept from them (lock "floorGap", userlocks.js) */
 export function initHouseFloors(ctx) {
   const buttons = [['#explodeToggle', 'apart'], ['#stackToggle', 'stacked']];
   function update() {
-    const show = ctx.houseMode() && ctx.floorCount() >= 2, cur = floorsMode(ctx.settings(), true);
-    buttons.forEach(([sel, mode]) => { const b = ctx.$(sel); b.hidden = !show; b.classList.toggle('active', cur === mode); });
+    const show = shownButtons(ctx.houseMode(), ctx.floorCount()), cur = floorsMode(ctx.settings(), true);
+    buttons.forEach(([sel, mode]) => { const b = ctx.$(sel); b.hidden = !show[mode]; b.classList.toggle('active', cur === mode); });
   }
   buttons.forEach(([sel, mode]) => ctx.$(sel).addEventListener('click', () => ctx.choose(toggleMode(floorsMode(ctx.settings(), true), mode))));
   return { update };

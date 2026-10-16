@@ -85,13 +85,13 @@ import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
 import { frameDue, shadowDue } from './frameloop.js';
 import { initPerfHud } from './perfhud.js';
-import { floorsMode, floorElev, hasSlab, isCovered, underRoof, liveFloors, initHouseFloors } from './housefloors.js';
+import { floorsMode, floorElev, hasSlab, isCovered, underRoof, drawnFloors, liveFloors, initHouseFloors } from './housefloors.js';
 import { initHouseLoad } from './houseload.js';
 import { roofRects, moveRoof, tagRoofMeshes, panelsOn, setRoofBox, stepTarget } from './roofmove.js';
 import { defaultSettings, startup, toDisp as toDispOf, fromDisp as fromDispOf, fmtLen as fmtLenOf } from './appstate.js';
 import { pointInPoly, inIso } from './roomclip.js';
 import { HOLO, ringLook } from './modelfx.js';
-import { textSprite as makeTextSprite } from './labels.js';
+import { textSprite as makeTextSprite, labelRes } from './labels.js';
 import { heatMode, heatLook, paintHeat, pillTone, RUNNING } from './heating.js';
 import { initOfflineMarks, offlineMarks } from './offlinemarks.js';
 import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
@@ -251,7 +251,7 @@ function mat(color, ghost, extra = {}) {
 }
 
 /** a text label in the scene: plain, as a dark pill on a device or as a glowing badge (labels.js) */
-function textSprite(text, opts) { return makeTextSprite(text, renderer.capabilities.getMaxAnisotropy(), opts); }
+function textSprite(text, opts) { return makeTextSprite(text, renderer.capabilities.getMaxAnisotropy(), { res: labelRes(LOW), ...opts }); }
 const isHolo = () => settings.theme === 'holo';
 
 /* ---- Room lighting: each lit lamp shines from its own position (shaders and colour scales live in roomlight.js) ---- */
@@ -372,6 +372,7 @@ function build() {
     world.add(loop);
   }
   const stacked = floorsMode(settings, houseMode) === 'stacked' && !iso;   // like a real house: ceilings between the floors (housefloors.js)
+  const drawn = drawnFloors(layout.floors.length, floorIdx, houseMode, settings.belowMode === 'hidden');
   layout.floors.forEach((f, i) => {
     if (i > floorIdx && !houseMode) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
@@ -383,7 +384,7 @@ function build() {
     g.position.y = elev(i);
     world.add(g);
     const holes = floorOpenings(i);
-    const stack = stacked ? { covered: isCovered(layout.floors, i), slab: hasSlab(layout.floors, i), upTo: underRoof(layout.floors, i) ? roofBox(i + 1) : null } : null;
+    const stack = stacked ? { covered: isCovered(layout.floors, i, drawn.top), slab: hasSlab(layout.floors, i, drawn.lowest), upTo: underRoof(layout.floors, i) ? roofBox(i + 1) : null } : null;
     if (stack?.covered) Object.assign(g.userData, { covered: true, ceiling: settings.wallHeight || 2.6 });   // its balls and labels stay in its rooms
     if (f.kind === 'roof' && !iso) {
       roofsUi.build(g, i, f, holo, ghost);

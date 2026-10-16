@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.min.js';
+import { mergeParts } from './meshmerge.js';
 import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
 import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
 import { ringSections, piecesLocal, pointAt } from './ledring.js';
@@ -643,15 +644,15 @@ export function makeModel(type, onReady, dev, opts) {
     }).catch(() => { ph.material.color.set(0xff5555); });
     return g;
   }
-  if (type === 'nanoleaf') { nanoleaf(g, dev); return g; }
+  if (type === 'nanoleaf') { nanoleaf(g, dev); return g; }      // one mesh per panel / section: they light one by one
   if (type === 'ledring') { ledRing(g, dev); return g; }
-  if (type === 'kitchenrun') { kitchenRun(g, dev); return g; }
-  if (type === 'bridge') { bridgeModel(g, dev); return g; }
-  if (type === 'solarpanel') { solarPanels(g, dev, opts?.mount || 'stand', opts?.groundAt); return g; }
-  if (type === 'tv_arm') { tvArmModel(g, dev); return g; }
-  if (SCANDI[type]) { scandiModel(g, type, dev); return g; }
-  (builders[type] || builders.sensor)(g);
-  centreOnFootprint(g);
+  if (type === 'kitchenrun') kitchenRun(g, dev);
+  else if (type === 'bridge') bridgeModel(g, dev);
+  else if (type === 'solarpanel') solarPanels(g, dev, opts?.mount || 'stand', opts?.groundAt);
+  else if (type === 'tv_arm') tvArmModel(g, dev);
+  else if (SCANDI[type]) scandiModel(g, type, dev);
+  else { (builders[type] || builders.sensor)(g); centreOnFootprint(g); }
+  mergeParts(g);                    // parts that look the same become one mesh: far fewer draw calls (meshmerge.js, #394)
   return g;
 }
 /** Furniture in Scandinavian style (scandi.js) and the pieces of leisure.js: its parts as meshes, in the finish chosen on the device; a lamp's

@@ -10,6 +10,7 @@ export const LOCKS = [
   ['energy', '#energyPill, #meterPill, #powerBtn'],                    // power and meter overview
   ['colorModes', '#modeBar [data-vm], #powerBtn, #viewLegend'],        // temperature / humidity / CO2 / power colours of the rooms
   ['viewMenu', '#viewMenuBtn, #viewMenu'],                             // the "View" menu (see-through, low walls ...): the look stays as preset
+  ['floorGap', '#explodeToggle, #stackToggle'],                       // the floors pulled apart / on top of each other (#396): stays as preset
   ['views', '#view2d, #view3d, #viewSplit'],                           // switching 2D / 3D / 2D + 3D
   ['houses', '#houseGroup'],                                           // switching to another house
   ['search', '#findBtn, #findBox'],                                    // the "Where is ...?" search

@@ -5,7 +5,7 @@
 ### Draw your home, see it in 3D and control it right where things are.
 
 [![CI](https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/workflows/ci.yml/badge.svg)](https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/BuRnEd4AiM/HA-Floorplanner?display_name=tag&sort=semver)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases)
+[![Release](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2FBuRnEd4AiM%2FHA-Floorplanner%2Fmain%2Ffloorplan3d%2Fconfig.yaml&query=%24.version&prefix=v&label=release&color=blue&cacheSeconds=3600)](https://github.com/BuRnEd4AiM/HA-Floorplanner/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Home Assistant add-on](https://img.shields.io/badge/Home%20Assistant-add--on-41BDF5?logo=homeassistant&logoColor=white)
 ![Ingress](https://img.shields.io/badge/Ingress-yes-success)
