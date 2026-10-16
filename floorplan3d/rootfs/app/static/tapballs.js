@@ -7,6 +7,7 @@ import { LIVE_NO_TAP, linkedDevice } from './pickrules.js';
 import { shutterBallY } from './shutters.js';
 import { isLamp } from './lamplight.js';
 import { drawOffline } from './offlinemarks.js';
+import { LEISURE } from './leisure.js';
 
 export const BALL = { r: 0.3, finger: 0.4, gap: 0.04, maxShift: 0.9, lift: 0.26, ceilingGap: 0.08, on: 0xffc94d, off: 0x5d6f8a };
 
@@ -20,6 +21,7 @@ export function wantsBall(d) {
 const TYPE_ICON = { camera: '📷', tv: '📺', tv_wall: '📺', speaker: '🔊', vacuum: '🧹', thermostat: '🌡', radiator: '🌡', boiler: '🌡', washer: '🫧',
   router: '📶', smoke: '🚨', wallbox: '🔌', battery: '🔋', fan: '🌀', solarpanel: '☀', inverter: '☀', powermeter: '⚡', houseentry: '⚡', fusebox: '⚡',
   watermeter: '🚰', gasmeter: '🔥', heatmeter: '♨' };
+Object.entries(LEISURE).forEach(([k, v]) => { if (v.icon) TYPE_ICON[k] = v.icon; });   // the sauna, the treadmill, the projector, the PC ... (leisure.js)
 const DOMAIN_ICON = { light: '💡', cover: '🪟', input_boolean: '⏻', fan: '🌀', media_player: '📺', climate: '🌡', camera: '📷', lock: '🔒',
   vacuum: '🧹', scene: '✨', script: '✨', button: '⏺', siren: '🚨', valve: '🚰', water_heater: '🌡', humidifier: '💧', alarm_control_panel: '🛡' };
 /** the icon of a switch (#366): there is no emoji for a light switch (🔌 is a plug), so the ball draws one (drawSwitch) */
@@ -27,7 +29,7 @@ export const SWITCH_ICON = 'switch';
 /** the little icon in the ball: what the device controls (its entity's kind), some device types have their own (a camera, a TV ...).
  *  deviceClass(entity): the device class Home Assistant gives the entity; a switch entity is a plug only when it is an outlet (#366) */
 export function ballIcon(d, deviceClass = () => null) {
-  const e = d?.entity || (d?.segs || []).find((s) => s.entity)?.entity || '', domain = e.split('.')[0];
+  const e = d?.entity || (d?.segs || []).find((s) => s.entity)?.entity || (d?.leds || []).find(Boolean) || '', domain = e.split('.')[0];
   if (domain === 'light' || (domain === 'switch' && isLamp(d))) return '💡';   // a lamp, an LED strip, an LED ring, a lamp on a relay (#367): all a light bulb
   if (TYPE_ICON[d?.type]) return TYPE_ICON[d.type];
   if (domain === 'switch') return deviceClass(e) === 'outlet' ? '🔌' : SWITCH_ICON;

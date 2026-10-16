@@ -30,8 +30,15 @@ test('wall snap: without rooms the side the device is on; nothing near: unchange
   assert.equal(P.snapToWall(far, walls, [], inPoly, 2), false);
   assert.deepEqual(far, { x: 20, z: 20, rot: 45 });
 });
+test('wall snap: a deep wall piece (mirror cabinet, wall bars) lies with its back on the wall face, a thin one 2 cm off it', () => {
+  const room = [{ points: sq(0, 0, 4, 3) }];
+  const cab = { type: 'mirror_cabinet', x: 2, z: 0.5, rot: 0 }, bars = { type: 'wallbars', x: 2, z: 0.5, rot: 0, scale: 2 }, mir = { type: 'mirror_led', x: 2, z: 0.5, rot: 0 };
+  assert.equal(P.wallDepth(cab), 0.15); assert.equal(P.wallDepth(bars), 0.26); assert.equal(P.wallDepth({ type: 'picture' }), 0); assert.equal(P.wallDepth({ type: 'sauna_cabin' }), 0);
+  P.snapToWall(cab, walls, room, inPoly, 2); P.snapToWall(bars, walls, room, inPoly, 2); P.snapToWall(mir, walls, room, inPoly, 2);
+  assert.deepEqual([cab.z, bars.z, mir.z], [0.175, 0.23, 0.12]);
+});
 test('wall types and LED-like lights', () => {
-  for (const t of ['picture', 'tv_wall', 'gasmeter', 'heatmeter', 'powermeter']) assert.ok(P.WALL_TYPES.has(t), t);
+  for (const t of ['picture', 'tv_wall', 'gasmeter', 'heatmeter', 'powermeter', 'mirror_led', 'screen_frame', 'neon_sign']) assert.ok(P.WALL_TYPES.has(t), t);
   assert.ok(!P.WALL_TYPES.has('watermeter') && !P.WALL_TYPES.has('sofa'));
   assert.ok('strip' in P.LED_LIKE && !('lamp' in P.LED_LIKE));
 });

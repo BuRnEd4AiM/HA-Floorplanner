@@ -49,7 +49,8 @@ import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { planPlacement, classify } from './autoplace.js';
-import { RING_DEFAULT_INSET, segEntity, ringEntities, ringSectionsWorld } from './ledring.js';
+import { RING_DEFAULT_INSET } from './ledring.js';
+import { sectionEntity, pieceEntities, entityDevices as placedEntities, switchEntities } from './ledzones.js';
 import { DEVICE_TYPES, catOf, makeModel, isCustom } from './models.js';
 import {
   OPENING_DEFAULTS, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
@@ -259,13 +260,8 @@ const isHolo = () => settings.theme === 'holo';
 /* ---- Room lighting: each lit lamp shines from its own position (shaders and colour scales live in roomlight.js) ---- */
 const roomLightMat = (kind, alpha = 1, ghost = false) => makeRoomLightMat(kind, alpha, ghost, HOLO.floor);
 const fillLights = (m, lights, k = 1) => fillRoomLights(m, lights, k, settings);
-/** every placed entity as its own entry: a TV's backlight and each section of an LED ring count as devices of their own (at the section's middle) */
-function entityDevices(f) {
-  return f.devices.flatMap((dv) => {
-    if (dv.type === 'ledring') return ringSectionsWorld(dv).map((e) => ({ ...dv, id: dv.id, seg: e.i, x: e.mid[0], z: e.mid[1], len: e.len, entity: segEntity(dv, e.i), type: 'ledseg', name: `${dv.name || t('dev.ledring')} · ${e.i + 1}` }));
-    return [{ ...dv }, ...(dv.ledEntity ? [{ ...dv, entity: dv.ledEntity, type: 'tv_led', panels: undefined }] : [])];
-  });
-}
+/** every placed entity as its own entry: a TV's backlight, each section of an LED ring and each LED zone with its own entity (ledzones.js) */
+const entityDevices = (f) => placedEntities(f.devices, t('dev.ledring'), (d, key) => `${d.name || t(`dev.${d.type}`)} · ${t(`led.${key}`)}`);
 const roomMeshes = new Map();     // room id -> { mesh, room }
 
 /* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing; the code lives in earth.js ---- */
@@ -592,7 +588,7 @@ function applyStates() {
       const rgb = on ? lampRgb(d, states[d.entity]) : null;   // lit parts take the light's colour (or the one set on a lamp that reports none, #367)
       if (obj.userData.heat) paintHeat(obj.userData, heatLook(heatMode(d.entity, states[d.entity], on)));   // a radiator: red while it heats, cool blue while not (heating.js)
       obj.userData.glow?.forEach((m) => {
-        m.emissive.set(on ? (rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255) : 0xffd27a) : 0x000000);
+        m.emissive.set(on ? (rgb ? new THREE.Color(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255) : (m.userData.on ?? 0xffd27a)) : 0x000000);   // on: a part's own colour (a sauna's stones, a screen)
         m.emissiveIntensity = on ? 1.4 : 0;
       });
       const hg = obj.userData.holoGlow;
@@ -611,13 +607,14 @@ function applyStates() {
           hl.edge.forEach((m) => { if (lon && lrgb) m.color.setRGB(Math.min(1, lrgb[0] / 255 + 0.35), Math.min(1, lrgb[1] / 255 + 0.35), Math.min(1, lrgb[2] / 255 + 0.35)); else m.color.setHex(lon ? HOLO.onEdge : HOLO.edge); });
         }
       }
-      if (obj.userData.segs) ringLook(obj, obj.userData.segs.map((_, i) => {   // LED ring: every section shows its own light, editing: its colour (modelfx.js)
-        const e = segEntity(d, i), son = !!e && ON_STATES.has(states[e]?.state);
+      if (obj.userData.segs) ringLook(obj, obj.userData.segs.map((_, i) => {   // LED ring and LED zones: every section shows its own light, editing: its colour (modelfx.js)
+        const e = sectionEntity(d, i), son = !!e && ON_STATES.has(states[e]?.state);
         return { on: son, rgb: son && Array.isArray(states[e]?.rgb) ? states[e].rgb : null };
       }), { ghost, bv, edit: !isLive() });
       obj.visible = !obj.userData.cutHidden && !(d.hideModel && isLive()) && !(d.type === 'presence' && isLive() && d.entity && !on)      // a person who is not there is not drawn in live mode
         && !power.hides(d.id);                                  // the power editor shows nothing but the power things (#174: the next state update brought them all back)          // invisible lights (LED strips ...) still shine, they just are not drawn in live mode
-      tapBalls.update(d.id, on, rgb, isLive() && !ghost, obj.visible, offIds.get(d.id)?.reason);   // the ball to tap in the live mode, lit while on (#238), the offline sign (#375)
+      const ballOn = on || pieceEntities(d).some((e) => isOnNow(e));   // a piece with LED zones: lit while one of them is
+      tapBalls.update(d.id, ballOn, rgb, isLive() && !ghost, obj.visible, offIds.get(d.id)?.reason);   // the ball to tap in the live mode, lit while on (#238), the offline sign (#375)
       const sp = labelSprites.get(d.id);
       if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible; sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W', pillTone(d, states[d.entity], on)); }   // a heater's temperature: red / blue
     });
@@ -835,8 +832,8 @@ function newDevice(x, z) {
 }
 /** LED ring along the walls of the room at (x, z), `inset` metres from the room outline; a 2 x 2 m square outside rooms */
 function ringAt(x, z, inset = RING_DEFAULT_INSET) { return ringAround(roomAt(x, z), x, z, inset, settings.wallHeight); }
-/** the entities a double click / quick action switches: an LED ring switches all of its sections */
-const deviceEntities = (d) => (d?.type === 'ledring' ? ringEntities(d) : d?.entity ? [d.entity] : []);
+/** the entities a double click / quick action switches: an LED ring all of its sections, a piece all of its LED zones (ledzones.js) */
+const deviceEntities = (d) => switchEntities(d);
 /** put the device flat on the closest wall (within `maxDist`), facing the side it is on (or, with `keepFacing`, the way it already faces); placement.js */
 function snapToWall(d, maxDist = 2, keepFacing = false) { return snapOnWall(d, floor().walls, floor().rooms, pointInPoly, maxDist, keepFacing); }
 /* ---- a picture on the wall: frame, image, upload; the code lives in picture.js ---- */
@@ -1558,6 +1555,7 @@ if (params.get('debug')) {
     topDown() { is2d = true; controls.enableRotate = false; build(); fitCamera(); },     // test helper: orthogonal-ish camera above the floor
     pickAt(x, y) { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, seg: h.data.seg } : null; },
     ringGlow: (id) => (registry.get(id)?.userData.segs || []).map((sg) => sg.glow[0].emissiveIntensity > 0),
+    glowColors: (id) => (registry.get(id)?.userData.glow || []).map((m) => (m.emissiveIntensity > 0 ? `#${m.emissive.getHexString()}` : null)),   // the lit parts of a device: their colour, null while off
     ringSegScreen(id, i) {                                        // screen position of the middle of an LED ring section
       const v = registry.get(id)?.children[i]?.getObjectByName('mid')?.getWorldPosition(new THREE.Vector3());
       if (!v) return null;

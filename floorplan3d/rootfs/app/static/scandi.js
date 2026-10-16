@@ -8,6 +8,8 @@
  * A part: { s: 'box', w, h, d } | { s: 'cyl', r (top), r2 (bottom), h, seg } | { s: 'ball', r, sx, sy, sz } with x, z (its middle), y (its
  * bottom before it is turned), m (the material: 'f' the finish, 'f2' the finish a little darker, else a key of MATS) and rx, ry, rz (turned
  * round its middle, in the order of three.js). */
+import { B, C, S, prism, rod, bar, knob, hline, vline, legs, books, tiltX, glassDoor } from './shapes.js';     // the building blocks
+import { LEISURE, LEISURE_MATS, LEISURE_FINISHES } from './leisure.js';                                         // sauna, fitness, bar, cinema, PC, LED mirrors
 
 /** the finishes a piece can have (side panel: "Ausführung"); rough / metal: how the surface looks */
 export const FINISHES = {
@@ -16,6 +18,7 @@ export const FINISHES = {
   turquoise: { c: '#3e9c97', metal: 0.3, rough: 0.5 }, alu: { c: '#c4c8cc', metal: 0.6, rough: 0.35 },
   lightgrey: { c: '#b9bbbd', rough: 0.95 }, darkgrey: { c: '#5c6066', rough: 0.95 }, beige: { c: '#d5c7ae', rough: 0.95 },
   blue: { c: '#4d6a8f', rough: 0.9 }, green: { c: '#62795d', rough: 0.9 }, rust: { c: '#a65a3c', rough: 0.95 }, yellow: { c: '#d9a93b', rough: 0.9 },
+  ...LEISURE_FINISHES,
 };
 /** the fixed materials (glow: the shade of a lamp, lights up with its entity) */
 export const MATS = {
@@ -29,6 +32,7 @@ export const MATS = {
   cloth1: { c: '#c94f3d', rough: 0.95 }, cloth2: { c: '#3d5a80', rough: 0.95 }, cloth3: { c: '#e0d6c3', rough: 0.95 }, cloth4: { c: '#6b8f71', rough: 0.95 },
   bin1: { c: '#7cb66b' }, bin2: { c: '#4a90c8' }, bin3: { c: '#f2f2ee' }, bin4: { c: '#e9c548' },
   glow: { c: '#fff2cc', glow: true },
+  ...LEISURE_MATS,
 };
 
 /** '#rrggbb' times k (darker below 1) */
@@ -43,60 +47,6 @@ export function matOf(m, fin) {
   if (m === 'f2') return { ...f, c: shade(f.c, fin === 'white' ? 0.92 : 0.8) };
   return MATS[m];
 }
-
-/* ---------- building blocks ---------- */
-const B = (w, h, d, x = 0, y = 0, z = 0, m = 'f', rot = {}) => ({ s: 'box', w, h, d, x, y, z, m, ...rot });
-const C = (r, h, x = 0, y = 0, z = 0, m = 'f', r2 = r, seg = 16) => ({ s: 'cyl', r, r2, h, x, y, z, m, seg });
-const S = (r, x = 0, y = 0, z = 0, m = 'f', sx = 1, sy = 1, sz = 1) => ({ s: 'ball', r, x, y, z, m, sx, sy, sz });
-const prism = (r, h, x, cy, z, m, rot) => ({ s: 'cyl', r, r2: r, h, x, y: cy - h / 2, z, m, seg: 3, ...rot });   // a triangle (fins, leaves), cy: its middle
-const sub = (q, p) => [q[0] - p[0], q[1] - p[1], q[2] - p[2]];
-/** a round rod from point p to point q (its own y axis turned onto p -> q) */
-function rod(p, q, r, m = 'metal', seg = 10) {
-  const [dx, dy, dz] = sub(q, p), L = Math.hypot(dx, dy, dz) || 1e-6;
-  return { s: 'cyl', r, r2: r, h: L, seg, x: (p[0] + q[0]) / 2, y: (p[1] + q[1]) / 2 - L / 2, z: (p[2] + q[2]) / 2, m, rx: Math.atan2(dz, dy), rz: Math.asin(Math.max(-1, Math.min(1, -dx / L))) };
-}
-/** a square bar (w wide, t thick) from p to q; a flat one (mostly level) keeps its width level */
-function bar(p, q, w, t, m = 'f') {
-  const [dx, dy, dz] = sub(q, p), L = Math.hypot(dx, dy, dz) || 1e-6, x = (p[0] + q[0]) / 2, cy = (p[1] + q[1]) / 2, z = (p[2] + q[2]) / 2;
-  if (Math.abs(dy) >= Math.hypot(dx, dz)) return { s: 'box', w, h: L, d: t, x, y: cy - L / 2, z, m, rx: Math.atan2(dz, dy), rz: Math.asin(Math.max(-1, Math.min(1, -dx / L))) };
-  return { s: 'box', w, h: t, d: L, x, y: cy - t / 2, z, m, ord: 'YXZ', rx: Math.atan2(-dy, Math.hypot(dx, dz)), ry: Math.atan2(dx, dz) };   // turned, then tilted: the width stays level
-}
-/** a knob on a front at (x, y), standing out from z */
-const knob = (x, y, z, m = 'metal') => rod([x, y, z], [x, y, z + 0.022], 0.012, m);
-/** a thin dark gap on a front (between drawers, doors) */
-const hline = (w, x, y, z) => B(w, 0.004, 0.004, x, y - 0.002, z, 'line');
-const vline = (h, x, y, z) => B(0.004, h, 0.004, x, y, z, 'line');
-/** four legs (t thick, round or square) under a w x d top, `inset` from its edges */
-const legs = (w, d, h, t, inset = 0, m = 'f', round = false, y = 0) => [[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([i, k]) => {
-  const x = i * (w / 2 - inset - t / 2), z = k * (d / 2 - inset - t / 2);
-  return round ? C(t / 2, h, x, y, z, m, t / 2, 10) : B(t, h, t, x, y, z, m);
-});
-/** a row of books standing from x0 along `len` metres, at most hmax high; `seed` picks their sizes and colours (always the same) */
-function books(x0, len, y, z, depth, hmax, seed) {
-  const out = [];
-  let x = x0, s = seed;
-  const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-  while (x < x0 + len - 0.035) {
-    const t = 0.022 + rnd() * 0.028, h = hmax * (0.72 + rnd() * 0.28);
-    out.push(B(t, h, depth * (0.82 + rnd() * 0.16), x + t / 2, y, z, `book${1 + Math.floor(rnd() * 5)}`));
-    x += t + 0.002;
-  }
-  return out;
-}
-/** turn parts round the x axis by a (they lean back with a < 0) round the point (py, pz); only for parts in the order XYZ */
-function tiltX(parts, a, py = 0, pz = 0) {
-  const c = Math.cos(a), s = Math.sin(a);
-  parts.forEach((p) => {
-    const half = p.s === 'ball' ? p.r * (p.sy || 1) : p.h / 2, y = p.y + half - py, z = p.z - pz;
-    p.y = y * c - z * s + py - half; p.z = y * s + z * c + pz; p.rx = (p.rx || 0) + a;
-  });
-  return parts;
-}
-/** a framed glass door (w x h) from y0, its face at z */
-const glassDoor = (x, w, y0, h, z, st = 0.05) => [
-  B(st, h, 0.018, x - w / 2 + st / 2, y0, z), B(st, h, 0.018, x + w / 2 - st / 2, y0, z),
-  B(w - 2 * st, st, 0.018, x, y0, z), B(w - 2 * st, st * 1.2, 0.018, x, y0 + h - st * 1.2, z), B(w - 2 * st, h - st * 2.2, 0.006, x, y0 + st, z, 'glass'),
-];
 
 /* ---------- the pieces ---------- */
 /** cube shelf: cols x rows cubes of 33.5 cm; inserts [col, row, 'box' | 'door' | 'books'] */
@@ -382,7 +332,7 @@ function palm() {
 }
 
 const WOOD = ['white', 'blackbrown', 'oak'], FABRIC = ['lightgrey', 'darkgrey', 'beige', 'blue', 'green', 'rust', 'yellow'];
-/** the pieces: cat (library group), label (German, the translations are in i18n.js / lang/*.js), fin (the finishes, the first is the default),
+/** the pieces (and those of leisure.js): cat (library group), label (German, the translations are in i18n.js / lang/*.js), fin (the finishes, the first is the default),
  *  search (more words the library search finds it by), y (height over the floor when placed), round (round footprint), parts() */
 export const SCANDI = {
   shelf_cube2x2: { cat: 'living', label: 'Würfelregal 2×2', fin: [...WOOD, 'birch', 'grey'], search: 'kallax expedit würfel wuerfel cube regal', parts: () => cubeShelf(2, 2, [[0, 0, 'box'], [1, 1, 'books']]) },
@@ -450,6 +400,7 @@ export const SCANDI = {
   pendant_dome: { cat: 'lighting', label: 'Metall-Hängelampe', fin: ['alu', 'white', 'black'], search: 'foto pendelleuchte leuchte', y: 1.9,
     parts: () => [C(0.06, 0.2, 0, 0, 0, 'f', 0.19, 28), C(0.175, 0.006, 0, 0.002, 0, 'glow', 0.175, 24), S(0.045, 0, 0.03, 0, 'glow'), C(0.025, 0.04, 0, 0.2, 0, 'f', 0.025, 12), C(0.004, 0.48, 0, 0.24, 0, 'black', 0.004, 6), C(0.05, 0.03, 0, 0.72, 0, 'white', 0.05, 16)] },
   plant_palm: { cat: 'decor', label: 'Zimmerpalme', fin: ['white', 'terracotta', 'black'], search: 'pflanze palme fejka zimmerpflanze', parts: palm },
+  ...LEISURE,                                                    // the pieces of leisure.js are built, drawn and offered the same way
 };
 export const SCANDI_TYPES = Object.keys(SCANDI);
 

@@ -1,6 +1,6 @@
 /* Properties panel (edit mode): the fields of the selected object: wall, room (with its entity list), placeholder block, floor opening, stair
  * (stairtool.js), door / window (with a window's roller shutter, #331), device (position, size, tilt, picture, LED ring sections, kitchen
- * run, power cables, entity, a lamp's light colour, camera, TV backlight), and a power cable (power.js). Which fields a device gets is decided by pure functions
+ * run, power cables, entity, a lamp's light colour, camera, TV backlight, the LED zones of a piece), and a power cable (power.js). Which fields a device gets is decided by pure functions
  * (tested); initProps draws the panel. */
 import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange, sectionHex } from './ledring.js';
 import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
@@ -12,6 +12,7 @@ import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
 import { hasShutter, setShutter, setShutterEntity, shutterChoices } from './shutters.js';
 import { wantsLightColor } from './lamplight.js';
 import { finishChoices, finishOf } from './scandi.js';
+import { zoneKeys, setZone } from './ledzones.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -277,6 +278,7 @@ export function initProps(ctx) {
     if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), ctx.entityPicker(pickFrom(entities), ctx.roomAt(it.x, it.z), it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
     if (wantsLightColor(it)) lightColorField(body, it);
+    if (zoneKeys(it.type).length) zoneFields(body, it);
     if (it.type === 'camera') {                                  // #69: field of view cone on the floor
       body.append(field(t('cam.fov'), inp('number', it.fov ?? 90, (v) => { it.fov = Math.max(0, Math.min(180, +v || 0)); }, { step: 5, min: 0, max: 180 })));
       body.append(field(t('cam.range'), lenInput(() => it.range ?? 4, (v) => (it.range = Math.max(0.5, v)), { min: 0.5, step: 0.5 })));
@@ -288,6 +290,21 @@ export function initProps(ctx) {
     const es = document.createElement('div'); es.id = 'entState'; es.className = 'entState';
     body.append(es);
     renderEntState();
+  }
+
+  /** the LED zones of a piece (ledzones.js: a mirror's light behind it and in front ...): an entity for each, empty: the zone follows the
+   *  device's entity; the colour on the left is the zone's colour in the 3D view while editing (like the sections of an LED ring) */
+  function zoneFields(body, it) {
+    const h = document.createElement('h4'); h.textContent = t('zone.title'); body.append(h);
+    const lights = pickFrom(ctx.entities().filter((e) => /^(light|switch)\./.test(e.entity_id)));
+    zoneKeys(it.type).forEach((key, i) => {
+      const box = document.createElement('div'); box.className = 'ringSec'; box.dataset.zone = i; box.style.borderLeftColor = sectionHex(i);
+      const head = document.createElement('div'); head.className = 'ringSecHead';
+      const lb = document.createElement('b'); lb.textContent = t(`led.${key}`); head.append(lb);
+      box.append(head, ctx.entityPicker(lights, ctx.roomAt(it.x, it.z), it.leds?.[i] || '', (v) => { ctx.snapshot(); setZone(it, i, v); ctx.changed(); }));
+      body.append(box);
+    });
+    const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('zone.help'); body.append(hp);
   }
 
   /** the finish of a piece in Scandinavian style (scandi.js): white, black-brown, oak ...; the first one is the default and is not stored */

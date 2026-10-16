@@ -37,8 +37,10 @@ def test_device_types_parsed_from_models_js():
     models = (APP / "static" / "models.js").read_text(encoding="utf-8")
     declared = set(re.findall(r"^  (\w+):\s*\{ label:", models, re.M))
     scandi = set(re.findall(r"^  (\w+): \{ cat:", (APP / "static" / "scandi.js").read_text(encoding="utf-8"), re.M))     # the furniture in Scandinavian style
-    assert len(scandi) >= 50 and importer.DEVICE_TYPES and set(importer.DEVICE_TYPES) | {"door", "window"} == declared | scandi
+    leisure = set(re.findall(r"^  (\w+): \{ cat:", (APP / "static" / "leisure.js").read_text(encoding="utf-8"), re.M))   # sauna, fitness, bar, cinema, PC, LED mirrors
+    assert len(scandi) >= 50 and len(leisure) >= 50 and importer.DEVICE_TYPES and set(importer.DEVICE_TYPES) | {"door", "window"} == declared | scandi | leisure
     assert importer.DEVICE_TYPES["pendant_paper"] == 1.9 and importer.DEVICE_TYPES["lamp_table"] == 0.75 and importer.DEVICE_TYPES["shelf_cube2x2"] == 0
+    assert importer.DEVICE_TYPES["projector"] == 2.0 and importer.DEVICE_TYPES["mirror_led_zones"] == 1.1 and importer.DEVICE_TYPES["sauna_cabin"] == 0
 
 
 def test_shared_walls_are_one_wall_and_outer_walls_are_thick():
@@ -142,6 +144,20 @@ def test_furniture_in_scandinavian_style_and_its_finish_survive_import_and_expor
     assert not rep.warnings and a["finish"] == "oak" and b["y"] == 1.9 and "finish" not in c      # only a plain word: the add-on falls back to the default
     again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"]
     assert [d["type"] for d in again] == ["shelf_cube2x4", "pendant_paper", "chair_swing"] and again[0]["finish"] == "oak"
+
+
+def test_leisure_pieces_and_the_entities_of_their_led_zones_survive_import_and_export():
+    f = square_flat(devices=[{"type": "mirror_led_zones", "x": 1, "z": 1, "entity": "light.mirror", "leds": ["light.back", "", "light.below", "", ""]},
+                             {"type": "bar_counter", "x": 2, "z": 1, "finish": "oak", "leds": ["", ""]},
+                             {"type": "sauna_cabin", "x": 3, "z": 1, "finish": "thermo", "leds": "light.x"},
+                             {"type": "mirror_hollywood", "x": 1, "z": 2, "leds": [5, "light.back"] + ["light.y"] * 20}])
+    layout, _, rep, _ = importer.build_layout(f)
+    a, b, c, d = layout["floors"][0]["devices"]
+    assert not rep.warnings and a["leds"] == ["light.back", "", "light.below"] and a["y"] == 1.1      # empty zones at the end are left out
+    assert "leds" not in b and b["finish"] == "oak" and "leds" not in c and c["finish"] == "thermo"    # all empty, or not a list: nothing stored
+    assert d["leds"][:2] == ["", "light.back"] and len(d["leds"]) == importer.MAX_LED_ZONES              # not an entity: it follows the device
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"]
+    assert again[0]["leds"] == ["light.back", "", "light.below"] and again[0]["entity"] == "light.mirror" and "leds" not in again[1]
 
 
 def test_ledring_sections_survive_import_and_export():

@@ -1,6 +1,6 @@
 """Property JSON  ->  3D Floorplan layout (and back).
 
-Pure functions, no I/O besides reading models.js and scandi.js once for the list of device types.
+Pure functions, no I/O besides reading models.js, scandi.js and leisure.js once for the list of device types.
 The format is documented in docs/IMPORT.md and described by property.schema.json.
 
     build_layout(data)      -> (layout, report)      data = property JSON (dict)
@@ -56,11 +56,13 @@ MAX_STAIR_POINTS = 30
 SOLAR_MAX_FIELD = 12                                              # MAX_FIELD in static/solarroof.js
 SOLAR_MOUNTS = ("auto", "flat", "stand")                          # MOUNTS in static/solarroof.js
 MAX_PER_FLOOR = 100                                               # stairs, blocks and floor openings per floor
+MAX_LED_ZONES = 8                                                 # LED zones of a piece (leds in static/leisure.js, ledzones.js)
 KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap")   # same as MOD_W in static/kitchen.js (checked by a test)
 
 
 def _load_device_types() -> dict:
-    """type -> default height, read from the frontend's models.js (and scandi.js, the furniture in Scandinavian style) so they never drift apart."""
+    """type -> default height, read from the frontend's models.js (and scandi.js, the furniture in Scandinavian style, and leisure.js: sauna,
+    fitness, bar, cinema, PC, LED mirrors) so they never drift apart."""
     types = {}
     static = Path(__file__).parent / "static"
     try:
@@ -68,9 +70,10 @@ def _load_device_types() -> dict:
         for m in re.finditer(r"^\s+(\w+):\s*\{\s*label:\s*'[^']*',\s*y:\s*([\d.]+)(,\s*hidden:\s*true)?\s*\}", text, re.M):
             if not m.group(3):
                 types[m.group(1)] = float(m.group(2))
-        for m in re.finditer(r"^  (\w+): \{ cat: '\w+',(.*)$", (static / "scandi.js").read_text(encoding="utf-8"), re.M):
-            y = re.search(r"\by: ([\d.]+),", m.group(2))
-            types[m.group(1)] = float(y.group(1)) if y else 0.0
+        for name in ("scandi.js", "leisure.js"):
+            for m in re.finditer(r"^  (\w+): \{ cat: '\w+',(.*)$", (static / name).read_text(encoding="utf-8"), re.M):
+                y = re.search(r"\by: ([\d.]+),", m.group(2))
+                types[m.group(1)] = float(y.group(1)) if y else 0.0
     except OSError:
         pass
     return types
@@ -292,6 +295,12 @@ def _device(rep: Report, path: str, spec, ids):
         d["lightColor"] = spec["lightColor"].lower()   # the colour of a lamp that reports none, e.g. one on a relay (#367)
     if isinstance(spec.get("finish"), str) and re.fullmatch(r"[a-z]{2,20}", spec["finish"]):
         d["finish"] = spec["finish"]                   # the finish of a piece in Scandinavian style (oak, white ...; scandi.js knows which)
+    if isinstance(spec.get("leds"), list):            # the entities of the LED zones of a piece (a mirror, the bar ...; ledzones.js), "" follows "entity"
+        leds = [e[:120] if isinstance(e, str) else "" for e in spec["leds"][:MAX_LED_ZONES]]
+        while leds and not leds[-1]:
+            leds.pop()
+        if leds:
+            d["leds"] = leds
     if typ == "nanoleaf" and isinstance(spec.get("panels"), list):
         panels = []
         for p in spec["panels"][:300]:
@@ -909,7 +918,7 @@ def layout_to_property(layout, name="Haus"):
             item["walls"].append(ow)
         item["devices"] = []
         for d in f.get("devices", []):
-            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
+            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "leds", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
             cs = cables_of(d)
             if cs or d["id"] in feeding:
                 od["id"] = d["id"]

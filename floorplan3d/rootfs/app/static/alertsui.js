@@ -16,7 +16,7 @@ export function initAlertsUi(ctx) {
   function locateEntity(id) {
     for (let fi = 0; fi < ctx.layout().floors.length; fi++) {
       const f = ctx.layout().floors[fi], roomAt = (x, z) => f.rooms.find((r) => ctx.pointInPoly(x, z, r.points))?.id || null;
-      const d = f.devices.find((q) => q.entity === id || q.ledEntity === id || (q.type === 'ledring' && ringEntities(q).includes(id)));
+      const d = f.devices.find((q) => q.entity === id || q.ledEntity === id || (q.leds || []).includes(id) || (q.type === 'ledring' && ringEntities(q).includes(id)));
       if (d) return { floor: fi, roomId: roomAt(d.x, d.z) };
       for (const w of openingWalls(f)) {
         const o = (w.openings || []).find((q) => ctx.openingEntities(q).includes(id));
