@@ -68,6 +68,10 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 25. **Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED** (52.1 bis 52.6): Bearbeiten, Werkzeug **„Gerät“**, links die neuen Gruppen **„Sauna & Wellness“**, **„Fitness“**, **„Bar“** und **„Heimkino“** ansehen (die PCs stehen bei **„Büro“**, die LED-Spiegel bei **„Bad“**), oder im Suchfeld z. B. **„sauna“**, **„laufband“**, **„beamer“**, **„spiegel“** eingeben.
 26. **Spiegel mit mehreren LEDs, jede einzeln verknüpft** (52.7 bis 52.10): den **„LED-Spiegel mit 3 Zonen“** an eine Wand setzen, anklicken, rechts unter **„LEDs einzeln verknüpfen“** für „Hinten (indirekt)“, „Vorne“ und „Unten“ je ein Licht wählen. Dann **„Live“** und den Spiegel antippen: ein Knopf pro LED.
 
+**Neu in 3.86** (ausführlich in Abschnitt **53** unten)
+27. **Gaming-PC-Arbeitsplatz mit anderen Bildschirmen** (53.1, 53.2): den „Gaming-PC-Arbeitsplatz“ (Gruppe „Büro“) setzen, anklicken, rechts bei **„Anordnung“** z. B. „Curved + 2 hochkant“ wählen.
+28. **Große Spiegel mit zwei LEDs** (53.3): die „Spiegelwand mit LED“ (Gruppe „Fitness“) oder den „Ganzkörperspiegel mit LED“ (Gruppe „Flur“) anklicken: unter „LEDs einzeln verknüpfen“ stehen „Hinten (indirekt)“ und „Vorne“.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -186,7 +190,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 0 | 0 | 8 | 0 | 50.1 bis 50.8 |
 | 51. Neu in 3.84: Möbel im skandinavischen Stil | 0 | 0 | 8 | 0 | 51.1 bis 51.8 |
 | 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 0 | 0 | 12 | 0 | 52.1 bis 52.12 |
-| **Zusammen** | **199** | **2** | **150** | **2** | |
+| 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs | 0 | 0 | 3 | 0 | 53.1 bis 53.3 |
+| **Zusammen** | **199** | **2** | **153** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -813,3 +818,10 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 52.10 | Nur das Licht „Hinten“ einschalten, z. B. in Blau | In 3D leuchtet nur der Rand hinter dem Spiegel blau, die anderen LEDs bleiben aus | ❓ |
 | 52.11 | Die „Bartheke mit LED“ anklicken, „Thekenkante“ und „Sockel“ mit zwei Lichtern verknüpfen, in „Live“ beide einschalten | Die Kante der Theke und das Licht am Boden vor dem Sockel leuchten jeweils in der Farbe ihres Lichts | ❓ |
 | 52.12 | „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Importieren“, dann den „Keller“ öffnen | Rechts neben der Werkstatt ein neuer Kellerteil mit „Sauna & Wellness“, „Heimkino“, „Fitness“ und „Bar“; im Garten Fass-Sauna, Whirlpool und Poolbar | ❓ |
+
+## 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 53.1 | Den „Gaming-PC-Arbeitsplatz“ (Gruppe „Büro“) setzen und anklicken, rechts bei „Anordnung“ nacheinander alle Möglichkeiten wählen | „2 Monitore nebeneinander“ (so wie bisher), „1 Monitor“, „3 Monitore nebeneinander“ (die äußeren schräg nach innen), „4 Monitore (2 × 2)“ an einem Monitorarm, „Curved-Monitor“ (gebogen), „Curved + 2 hochkant“; bei 3 Monitoren und bei Curved + 2 hochkant wird der Tisch breiter (1,80 m), auch im 2D-Plan | ❓ |
+| 53.2 | Eine Anordnung wählen, Strg+Z; dann eine wählen und die Seite neu laden | Strg+Z holt die vorige Anordnung zurück; nach dem Neuladen ist die gewählte noch da | ❓ |
+| 53.3 | Die „Spiegelwand mit LED“ und den „Ganzkörperspiegel mit LED“ anklicken, unter „LEDs einzeln verknüpfen“ für „Hinten (indirekt)“ und „Vorne“ je ein Licht wählen, „Live“, beide einzeln schalten | Der Rand hinter dem Spiegel und die zwei Lichtstreifen vorne links und rechts leuchten jeweils mit ihrem eigenen Licht; der Spiegel antippen zeigt zwei Knöpfe | ❓ |

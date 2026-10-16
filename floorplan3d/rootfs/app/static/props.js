@@ -11,7 +11,7 @@ import { BRIDGE, bridgeSize } from './bridge.js';
 import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
 import { hasShutter, setShutter, setShutterEntity, shutterChoices } from './shutters.js';
 import { wantsLightColor } from './lamplight.js';
-import { finishChoices, finishOf } from './scandi.js';
+import { finishChoices, finishOf, variantChoices, variantOf } from './scandi.js';
 import { zoneKeys, setZone } from './ledzones.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
@@ -28,7 +28,7 @@ export function stretchValue(n) {
 
 /** ctx: $, t, floor(), isLive(), selection(), roomCtx(), setRoomCtx(id), fields: { field, inp, lenInput, pickerField }, entityPicker(list, room, current, onChange),
  *  entities(), areas(), findOpening(id), snapshot(), changed(), build(), refreshSelection(), deleteItem(sel), applyStates(), setStatus(txt),
- *  renderObjList(), renderRoomEntities(), stateText(id), roomAt(x, z), pointInPoly, controlsTarget() ({x, z}), wallTypes, ledLike, catOf, baseDims(type),
+ *  renderObjList(), renderRoomEntities(), stateText(id), roomAt(x, z), pointInPoly, controlsTarget() ({x, z}), wallTypes, ledLike, catOf, baseDims(type, dev),
  *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH, power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
  *  defaultLightColor() (settings: the colour of a lamp that reports none) */
 export function initProps(ctx) {
@@ -239,7 +239,7 @@ export function initProps(ctx) {
     body.append(field(t('prop.elev'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
     body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
     if (it.type !== 'picture') {
-      const base = ctx.baseDims(it.type);
+      const base = ctx.baseDims(it.type, it);
       if (base) {                                                     // real dimensions in metres, type them in directly
         const dim = (key, axis, label) => field(label, lenInput(() => base[axis] * (it.scale || 1) * (it[key] || 1), (v) => {
           const n = Math.max(0.1, Math.min(10, v / (base[axis] * (it.scale || 1))));
@@ -256,6 +256,7 @@ export function initProps(ctx) {
     const cm = document.createElement('input'); cm.type = 'checkbox'; cm.checked = !!it.mirror; cm.id = 'devMirror';
     cm.addEventListener('change', () => { ctx.snapshot(); if (cm.checked) it.mirror = true; else delete it.mirror; ctx.changed(); });
     body.append(field(t('prop.mirror'), cm));
+    if (variantChoices(it.type)) variantField(body, it);
     if (finishChoices(it.type)) finishField(body, it);
     if (it.type === 'picture') {
       const lab = document.createElement('label'); lab.className = 'uploadBtn';
@@ -305,6 +306,16 @@ export function initProps(ctx) {
       body.append(box);
     });
     const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('zone.help'); body.append(hp);
+  }
+
+  /** the variant of a piece (the PC desk: how its monitors stand, leisure.js); the first one is the default and is not stored. Drawn anew: the
+   *  size fields follow the variant */
+  function variantField(body, it) {
+    const list = variantChoices(it.type), sel = document.createElement('select'); sel.id = 'devVariant';
+    list.forEach((v) => sel.add(new Option(t(`var.${v}`), v)));
+    sel.value = variantOf(it.type, it);
+    sel.addEventListener('change', () => { ctx.snapshot(); if (sel.value === list[0]) delete it.variant; else it.variant = sel.value; ctx.changed(); render(); });
+    body.append(field(t('prop.variant'), sel));
   }
 
   /** the finish of a piece in Scandinavian style (scandi.js): white, black-brown, oak ...; the first one is the default and is not stored */

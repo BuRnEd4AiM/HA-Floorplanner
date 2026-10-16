@@ -236,6 +236,9 @@ function kettlebell(r, x, z) {
 /** a wall mirror w x h with LED light behind it (it shows round its edge and lights the wall), m: the LED's material (the lamp or a zone);
  *  its bottom edge on y = 0, the back on the wall */
 const ledMirror = (w, h, m = 'glow') => [B(w + 0.03, h + 0.03, 0.006, 0, 0, -0.012, m), B(w - 0.1, h - 0.1, 0.014, 0, 0.065, -0.005, 'black'), B(w, h, 0.006, 0, 0.015, 0.011, 'mirror')];
+/** a big mirror with two LED zones: the light behind it (zone 0) and two frosted light bands in front, left and right (zone 1) */
+const twoZoneMirror = (w, h, band = 0.06, inset = 0.1) => [...ledMirror(w, h, 'z0'), B(band, h - 0.16, 0.002, -(w / 2 - inset), 0.095, 0.0155, 'z1'),
+  B(band, h - 0.16, 0.002, w / 2 - inset, 0.095, 0.0155, 'z1')];
 
 /* ---------- the bar ---------- */
 /** bottles standing in a row from x0 to x1 on y at z, colours and sizes always the same for a seed */
@@ -414,13 +417,40 @@ function pcTower(gaming) {
   return p;
 }
 /** a monitor (0.62 wide, 27 inch) on its stand, its screen at y over the desk at 0.75, turned by a, standing at (x, z) */
-function monitor(x, z, a) {
-  return at(turnAll([B(0.62, 0.37, 0.025, 0, 0.92, 0, 'black'), B(0.6, 0.345, 0.004, 0, 0.932, 0.0145, 'display'), B(0.05, 0.18, 0.03, 0, 0.75, -0.035, 'iron'), B(0.22, 0.012, 0.18, 0, 0.75, -0.03, 'iron')], a), x, 0, z);
+/** the screen of a 27-inch monitor (0.62 x 0.37) without a stand, its bottom at y0, turned by a, its middle at (x, z) */
+const panel27 = (x, y0, z, a) => at(turnAll([B(0.62, 0.37, 0.025, 0, y0, 0, 'black'), B(0.6, 0.345, 0.004, 0, y0 + 0.012, 0.0145, 'display')], a), x, 0, z);
+/** a 27-inch monitor on its stand on the desk (0.75) */
+const monitor = (x, z, a) => [...panel27(x, 0.92, z, a), ...at(turnAll([B(0.05, 0.18, 0.03, 0, 0.75, -0.035, 'iron'), B(0.22, 0.012, 0.18, 0, 0.75, -0.03, 'iron')], a), x, 0, z)];
+/** a 24-inch monitor turned upright (portrait: 0.34 wide, 0.56 high) on its stand */
+const portrait = (x, z, a) => at(turnAll([B(0.34, 0.56, 0.025, 0, 0.86, 0, 'black'), B(0.32, 0.54, 0.004, 0, 0.87, 0.0145, 'display'), B(0.05, 0.13, 0.03, 0, 0.75, -0.035, 'iron'),
+  B(0.2, 0.012, 0.18, 0, 0.75, -0.03, 'iron')], a), x, 0, z);
+/** a curved ultrawide monitor (34 inch: 0.82 wide, curved with a radius of 1.5 m): flat pieces along the curve, the edges come forward */
+function curved(x, z, w = 0.82) {
+  const R = 1.5, n = 8, sw = 2 * (R - 0.02) * Math.sin(w / R / n / 2), p = [B(0.06, 0.17, 0.04, 0, 0.75, -0.04, 'iron'), B(0.3, 0.012, 0.2, 0, 0.75, -0.04, 'iron')];
+  for (let i = 0; i < n; i++) {                                // the screen pieces just touch each other (sw: their width on the curve 2 cm in front), the frame well behind them
+    const a = ((i + 0.5) / n - 0.5) * (w / R);
+    p.push(...at(turnAll([B(w / n, 0.37, 0.02, 0, 0.9, -0.012, 'black'), B(sw, 0.345, 0.004, 0, 0.912, 0.02, 'display')], -a), R * Math.sin(a), 0, R * (1 - Math.cos(a))));
+  }
+  return at(p, x, 0, z);
 }
-function pcSetup() {
-  return [B(1.6, 0.03, 0.8, 0, 0.72, 0), B(0.04, 0.72, 0.7, -0.76, 0, 0, 'f2'), B(0.04, 0.72, 0.7, 0.76, 0, 0, 'f2'), B(1.48, 0.35, 0.02, 0, 0.35, -0.33, 'f2'),
-    ...monitor(-0.33, -0.17, 0.22), ...monitor(0.33, -0.17, -0.22), B(0.9, 0.003, 0.35, 0.08, 0.75, 0.17, 'rubber'), B(0.44, 0.022, 0.14, -0.05, 0.753, 0.15, 'black'),
-    B(0.42, 0.004, 0.12, -0.05, 0.775, 0.15, 'rgb'), B(0.065, 0.035, 0.11, 0.33, 0.753, 0.16, 'black'), B(1.5, 0.008, 0.01, 0, 0.71, -0.385, 'rgb'), ...at(pcTower(true), 0.5, 0, -0.06)];
+/** how the monitors of the PC desk stand (the variants of pc_setup, the first is the default): one, two side by side, three side by side,
+ *  four (2 x 2 on a monitor arm), a curved one, a curved one with two upright beside it; the desk is as wide as they need */
+export const MONITOR_LAYOUTS = {
+  two: { w: 1.6, screens: () => [...monitor(-0.33, -0.17, 0.22), ...monitor(0.33, -0.17, -0.22)] },
+  one: { w: 1.4, screens: () => monitor(0, -0.17, 0) },
+  three: { w: 1.8, screens: () => [...monitor(0, -0.19, 0), ...monitor(-0.6, -0.055, 0.45), ...monitor(0.6, -0.055, -0.45)] },
+  four: { w: 1.6, screens: () => [...[-1, 1].flatMap((s) => [...panel27(s * 0.32, 0.86, -0.17, -s * 0.18), ...panel27(s * 0.32, 1.25, -0.19, -s * 0.18),
+    B(0.3, 0.025, 0.025, s * 0.15, 1.04, -0.23, 'iron'), B(0.3, 0.025, 0.025, s * 0.15, 1.43, -0.25, 'iron')]),
+    rod([0, 0.75, -0.3], [0, 1.6, -0.3], 0.02, 'iron'), B(0.08, 0.05, 0.12, 0, 0.7, -0.33, 'iron')] },
+  curved: { w: 1.6, screens: () => curved(0, -0.2) },
+  curved2: { w: 1.8, screens: () => [...curved(0, -0.2), ...portrait(-0.565, -0.065, 0.5), ...portrait(0.565, -0.065, -0.5)] },
+};
+/** the PC desk: its monitors (layout), keyboard and mouse on a desk mat, the gaming PC under the desk on the right, an RGB strip at the back */
+function pcSetup(layout = 'two') {
+  const L = MONITOR_LAYOUTS[layout] || MONITOR_LAYOUTS.two, W = L.w, s = W / 2;
+  return [B(W, 0.03, 0.8, 0, 0.72), B(0.04, 0.72, 0.7, -s + 0.04, 0, 0, 'f2'), B(0.04, 0.72, 0.7, s - 0.04, 0, 0, 'f2'), B(W - 0.12, 0.35, 0.02, 0, 0.35, -0.33, 'f2'),
+    ...L.screens(), B(0.9, 0.003, 0.35, 0.08, 0.75, 0.17, 'rubber'), B(0.44, 0.022, 0.14, -0.05, 0.753, 0.15, 'black'),
+    B(0.42, 0.004, 0.12, -0.05, 0.775, 0.15, 'rgb'), B(0.065, 0.035, 0.11, 0.33, 0.753, 0.16, 'black'), B(W - 0.1, 0.008, 0.01, 0, 0.71, -0.385, 'rgb'), ...at(pcTower(true), s - 0.3, 0, -0.06)];
 }
 function laptop() {
   return [B(0.34, 0.016, 0.24, 0, 0, 0), B(0.3, 0.002, 0.11, 0, 0.016, -0.03, 'black'), B(0.1, 0.002, 0.06, 0, 0.016, 0.075, 'f2'),
@@ -468,7 +498,8 @@ function mirrorCabinet() {
  *  search (more words the library search finds it by), y (height over the floor when placed), round (round footprint), icon (of the ball to
  *  tap in the live mode), leds (the LED zones, see ledzones.js), lamp (a lamp: lights its room, also when switched by a relay), light (how far
  *  and how strongly it lights its room, lamplight.js), wall (hangs on the wall: clicks onto it, not stopped by it), ceil (hangs from the
- *  ceiling), flat (lies on the floor: drawn under the rest of the plan), parts() */
+ *  ceiling), flat (lies on the floor: drawn under the rest of the plan), variants (ways to build it, chosen on the device: `variant`; the first
+ *  is the default; pc_setup: MONITOR_LAYOUTS), parts(variant) */
 export const LEISURE = {
   sauna_cabin: { cat: 'wellness', label: 'Sauna mit Glasfront', fin: ['spruce', 'hemlock', 'cedar', 'thermo'], search: 'sauna saunakabine finnische sauna wellness glasfront', icon: '🧖', parts: () => saunaCabin(2.0, 1.8, 2.05, true) },
   sauna_small: { cat: 'wellness', label: 'Sauna klein', fin: ['spruce', 'hemlock', 'cedar', 'thermo'], search: 'sauna saunakabine finnische sauna wellness klein', icon: '🧖', parts: () => saunaCabin(1.3, 1.2, 2.0, false) },
@@ -497,7 +528,7 @@ export const LEISURE = {
     parts: () => range(16).map((i) => B(0.497, 0.02, 0.497, -0.75 + (i % 4) * 0.5, 0, -0.75 + Math.floor(i / 4) * 0.5)) },
   wallbars: { cat: 'fitness', label: 'Sprossenwand', fin: ['birch', 'pine', 'oak'], search: 'sprossenwand turnen klettern gymnastik fitness', wall: true,
     parts: () => [B(0.055, 2.4, 0.13, -0.4225, 0, 0), B(0.055, 2.4, 0.13, 0.4225, 0, 0), ...range(16).map((i) => rod([-0.4, 0.12 + i * 0.145, 0.01], [0.4, 0.12 + i * 0.145, 0.01], 0.017, 'f'))] },
-  mirror_gym: { cat: 'fitness', label: 'Spiegelwand mit LED', fin: [], search: 'spiegel spiegelwand led indirekt beleuchtet fitness tanz', y: 0.3, wall: true, lamp: true, light: { r: 0.6, k: 0.5 }, parts: () => ledMirror(2.0, 1.8) },
+  mirror_gym: { cat: 'fitness', label: 'Spiegelwand mit LED', fin: [], search: 'spiegel spiegelwand led indirekt beleuchtet fitness tanz', y: 0.3, wall: true, lamp: true, light: { r: 0.6, k: 0.5 }, leds: ['back', 'front'], parts: () => twoZoneMirror(2.0, 1.8) },
   bar_counter: { cat: 'bar', label: 'Bartheke mit LED', fin: ['blackbrown', 'oak', 'walnut', 'white', 'anthracite'], search: 'bar theke bartheke tresen led beleuchtet hausbar', icon: '🍸', leds: ['counter', 'floor'], lamp: true, light: { r: 0.55, k: 0.5 }, parts: () => barCounter(2.4) },
   bar_corner: { cat: 'bar', label: 'Bartheke über Eck mit LED', fin: ['blackbrown', 'oak', 'walnut', 'white', 'anthracite'], search: 'bar theke bartheke tresen eck l-form led beleuchtet hausbar', icon: '🍸', leds: ['counter', 'floor'], lamp: true, light: { r: 0.6, k: 0.5 }, parts: barCorner },
   backbar: { cat: 'bar', label: 'Barregal mit Flaschen', fin: ['blackbrown', 'oak', 'walnut', 'white', 'anthracite'], search: 'barregal rückbuffet rueckbuffet flaschen spirituosen regal led hausbar', icon: '🍸', lamp: true, light: { r: 0.5, k: 0.45 }, parts: backBar },
@@ -526,7 +557,7 @@ export const LEISURE = {
   starsky: { cat: 'cinema', label: 'Sternenhimmel (LED)', fin: [], search: 'sternenhimmel sterne led glasfaser decke kino heimkino', y: 2.47, ceil: true, flat: true, lamp: true, light: { r: 0.6, k: 0.3 }, parts: starSky },
   pc_tower: { cat: 'office', label: 'PC (Tower)', fin: ['black', 'white', 'grey'], search: 'pc computer rechner tower', icon: '🖥', parts: () => pcTower(false) },
   pc_gaming: { cat: 'office', label: 'Gaming-PC mit RGB', fin: ['black', 'white'], search: 'gaming pc computer rechner rgb tower', icon: '🖥', parts: () => pcTower(true) },
-  pc_setup: { cat: 'office', label: 'PC-Arbeitsplatz mit 2 Monitoren', fin: ['black', 'white', 'oak'], search: 'pc computer gaming setup schreibtisch monitor bildschirm zwei rgb', icon: '🖥', parts: pcSetup },
+  pc_setup: { cat: 'office', label: 'Gaming-PC-Arbeitsplatz', fin: ['black', 'white', 'oak'], search: 'pc computer gaming setup schreibtisch monitor bildschirm zwei drei vier curved hochkant rgb', variants: Object.keys(MONITOR_LAYOUTS), icon: '🖥', parts: (v) => pcSetup(v) },
   laptop: { cat: 'office', label: 'Laptop', fin: ['alu', 'black', 'grey'], search: 'laptop notebook computer macbook', y: 0.75, icon: '💻', parts: laptop },
   gaming_chair: { cat: 'office', label: 'Gaming-Stuhl', fin: ['red', 'blue', 'green', 'white', 'black'], search: 'gaming stuhl gamingstuhl gaming chair bürostuhl buerostuhl', parts: gamingChair },
   server_rack: { cat: 'office', label: 'Netzwerkschrank', fin: ['black', 'white'], search: 'netzwerkschrank serverschrank rack server homelab nas switch router', icon: '🖧', parts: serverRack },
@@ -535,7 +566,7 @@ export const LEISURE = {
   mirror_led_zones: { cat: 'bath', label: 'LED-Spiegel mit 3 Zonen', fin: [], search: 'spiegel led zonen mehrere indirekt beleuchtet badspiegel lichtspiegel', y: 1.1, wall: true, lamp: true, light: { r: 0.45, k: 0.45 }, leds: ['back', 'front', 'bottom'], parts: zoneMirror },
   mirror_hollywood: { cat: 'bath', label: 'Hollywood-Spiegel', fin: ['white', 'black'], search: 'hollywood spiegel schminkspiegel glühbirnen gluehbirnen led beleuchtet', y: 1.1, wall: true, lamp: true, light: { r: 0.4, k: 0.45 }, leds: ['bulbs', 'back'], parts: hollywoodMirror },
   mirror_cabinet: { cat: 'bath', label: 'Spiegelschrank mit LED', fin: ['white', 'oak', 'grey', 'anthracite'], search: 'spiegelschrank spiegel schrank led beleuchtet bad', y: 1.2, wall: true, lamp: true, light: { r: 0.4, k: 0.4 }, leds: ['top', 'bottom'], parts: mirrorCabinet },
-  mirror_led_tall: { cat: 'entry', label: 'Ganzkörperspiegel mit LED', fin: [], search: 'spiegel ganzkörperspiegel ganzkoerperspiegel led indirekt beleuchtet flur', y: 0.25, wall: true, lamp: true, light: { r: 0.45, k: 0.4 }, parts: () => ledMirror(0.6, 1.7) },
+  mirror_led_tall: { cat: 'entry', label: 'Ganzkörperspiegel mit LED', fin: [], search: 'spiegel ganzkörperspiegel ganzkoerperspiegel led indirekt beleuchtet flur', y: 0.25, wall: true, lamp: true, light: { r: 0.45, k: 0.4 }, leds: ['back', 'front'], parts: () => twoZoneMirror(0.6, 1.7, 0.05, 0.07) },
 };
 const keys = (flag) => Object.keys(LEISURE).filter((k) => LEISURE[k][flag]);
 /** the lamps among them (lamplight.js), how they light the room, what hangs on the wall or the ceiling (placement.js, collide.js), what lies flat */

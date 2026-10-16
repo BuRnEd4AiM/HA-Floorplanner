@@ -1034,8 +1034,9 @@ export default {
   'dev.pool_lamp': 'Biljartlamp', 'dev.kicker': 'Tafelvoetbal', 'dev.screen_frame': 'Kaderscherm', 'dev.screen_roll': 'Elektrisch projectiescherm',
   'dev.projector': 'Beamer (plafond)', 'dev.cinema_seat': 'Bioscoopstoel', 'dev.cinema_row': 'Rij van 3 bioscoopstoelen', 'dev.popcorn': 'Popcornmachine',
   'dev.speaker_floor': 'Vloerstaande luidspreker', 'dev.subwoofer': 'Subwoofer', 'dev.acoustic_panel': 'Akoestisch lamellenpaneel', 'dev.starsky': 'Sterrenhemel (LED)',
-  'dev.pc_tower': 'Pc (tower)', 'dev.pc_gaming': 'Gaming-pc met RGB', 'dev.pc_setup': 'Pc-werkplek met 2 monitoren', 'dev.laptop': 'Laptop',
+  'dev.pc_tower': 'Pc (tower)', 'dev.pc_gaming': 'Gaming-pc met RGB', 'dev.pc_setup': 'Gaming-pc-werkplek', 'dev.laptop': 'Laptop',
   'dev.gaming_chair': 'Gamestoel', 'dev.server_rack': 'Netwerkkast', 'dev.mirror_led': 'Spiegel met indirecte LED', 'dev.mirror_led_round': 'Ronde spiegel met LED',
   'dev.mirror_led_zones': 'LED-spiegel met 3 zones', 'dev.mirror_hollywood': 'Hollywoodspiegel', 'dev.mirror_cabinet': 'Spiegelkast met LED',
   'dev.mirror_led_tall': 'Passpiegel met LED',
+  'prop.variant': 'Opstelling', 'var.two': '2 monitoren naast elkaar', 'var.one': '1 monitor', 'var.three': '3 monitoren naast elkaar', 'var.four': '4 monitoren (2 × 2)', 'var.curved': 'Gebogen monitor', 'var.curved2': 'Gebogen + 2 staand',
 };

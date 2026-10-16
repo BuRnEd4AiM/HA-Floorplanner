@@ -94,13 +94,38 @@ test('lit parts: the sauna stones, the screen, the displays, the RGB of a PC lig
 });
 test('LED zones: a piece with zones has parts in every zone and none beyond them; no other piece has zone parts', () => {
   const withZones = KEYS.filter((k) => L.LEISURE[k].leds);
-  assert.deepEqual(withZones.sort(), ['bar_corner', 'bar_counter', 'mirror_cabinet', 'mirror_hollywood', 'mirror_led_zones']);
+  assert.deepEqual(withZones.sort(), ['bar_corner', 'bar_counter', 'mirror_cabinet', 'mirror_gym', 'mirror_hollywood', 'mirror_led_tall', 'mirror_led_zones']);
+  for (const k of ['mirror_gym', 'mirror_led_tall']) assert.deepEqual(L.LEISURE[k].leds, ['back', 'front'], k);     // the big mirrors: behind and in front
   for (const k of KEYS) {
     const zs = [...mats(k)].filter((m) => /^z\d$/.test(m)).map((m) => S.matOf(m).zone).sort();
     assert.deepEqual(zs, (L.LEISURE[k].leds || []).map((_, i) => i), k);
   }
   assert.deepEqual(L.LEISURE.mirror_led_zones.leds, ['back', 'front', 'bottom']);
   for (let i = 0; i < 4; i++) assert.ok(S.matOf(`z${i}`).glow && S.matOf(`z${i}`).zone === i);
+});
+test('the PC desk in every monitor layout: real parts, on the floor, centred, as wide as its monitors need; the default is two', () => {
+  assert.deepEqual(S.variantChoices('pc_setup'), ['two', 'one', 'three', 'four', 'curved', 'curved2']);
+  assert.deepEqual(Object.keys(L.MONITOR_LAYOUTS), S.variantChoices('pc_setup'));
+  const widths = { two: 1.6, one: 1.4, three: 1.8, four: 1.6, curved: 1.6, curved2: 1.8 };
+  for (const v of S.variantChoices('pc_setup')) {
+    const parts = S.partsOf('pc_setup', v), bb = S.bounds(parts);
+    for (const p of parts) for (const f of L.LEISURE.pc_setup.fin) assert.match(S.matOf(p.m, f)?.c || '', HEX, `${v}: ${p.m}`);
+    assert.ok(bb.y0 > -0.005 && bb.y1 < 1.7 && Math.abs(bb.x0 + bb.x1) < 0.002 && Math.abs(bb.z0 + bb.z1) < 0.002, v);
+    assert.deepEqual(S.footOf('pc_setup', v), { w: widths[v], d: 0.8 }, v);
+    assert.ok(parts.some((p) => p.m === 'display'), v);
+  }
+  const screens = (v) => S.partsOf('pc_setup', v).filter((p) => p.m === 'display').length;
+  assert.deepEqual(['one', 'two', 'three', 'four'].map(screens), [1, 2, 3, 4]);
+  assert.equal(screens('curved2'), 8 + 2);                    // the curved one is made of 8 pieces
+  assert.equal(S.partsOf('pc_setup'), S.partsOf('pc_setup', 'two'));
+  assert.equal(S.partsOf('pc_setup', 'nope'), S.partsOf('pc_setup', 'two'));
+  assert.notEqual(S.partsOf('pc_setup', 'three'), S.partsOf('pc_setup', 'two'));
+  assert.equal(S.variantOf('pc_setup', { variant: 'four' }), 'four');
+  assert.equal(S.variantOf('pc_setup', { variant: 'x' }), 'two');
+  assert.equal(S.variantOf('pc_setup', {}), 'two');
+  assert.equal(S.variantOf('sofa_3', { variant: 'four' }), null);
+  assert.equal(S.variantChoices('sauna_cabin'), null);
+  assert.equal(S.partsOf('sofa_3', 'four'), S.partsOf('sofa_3'));     // a piece without variants ignores one
 });
 test('every piece the ball has an icon for and the search finds by its everyday name', () => {
   for (const k of KEYS) assert.ok(!L.LEISURE[k].icon || typeof L.LEISURE[k].icon === 'string', k);
