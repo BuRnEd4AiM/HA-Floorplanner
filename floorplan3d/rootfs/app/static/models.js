@@ -6,7 +6,7 @@ import { kitchenLayout } from './kitchen.js';
 import { solarField, standParts, PANEL, STAND } from './solarroof.js';
 import { bridgeParts } from './bridge.js';
 import { LAMP_TYPES } from './lamplight.js';
-import { SCANDI, SCANDI_TYPES, partsOf, matOf, finishOf } from './scandi.js';
+import { SCANDI, SCANDI_TYPES, partsOf, matOf, finishOf, variantOf } from './scandi.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -654,7 +654,7 @@ export function makeModel(type, onReady, dev, opts) {
 /** Furniture in Scandinavian style (scandi.js) and the pieces of leisure.js: its parts as meshes, in the finish chosen on the device; a lamp's
  *  shade glows with its entity, an LED zone with its own one */
 function scandiModel(g, type, dev) {
-  const fin = finishOf(type, dev), mats = new Map(), glow = [], zones = Array.from({ length: SCANDI[type].leds?.length || 0 }, () => []);
+  const fin = finishOf(type, dev), variant = variantOf(type, dev), mats = new Map(), glow = [], zones = Array.from({ length: SCANDI[type].leds?.length || 0 }, () => []);
   const matFor = (m) => {
     if (!mats.has(m)) {
       const s = matOf(m, fin);
@@ -665,7 +665,7 @@ function scandiModel(g, type, dev) {
     }
     return mats.get(m);
   };
-  partsOf(type).forEach((p) => {
+  partsOf(type, variant).forEach((p) => {
     const geo = p.s === 'box' ? new THREE.BoxGeometry(p.w, p.h, p.d) : p.s === 'cyl' ? new THREE.CylinderGeometry(p.r, p.r2, p.h, p.seg || 16) : new THREE.SphereGeometry(p.r, 18, 12);
     const m = new THREE.Mesh(geo, matFor(p.m));
     m.position.set(p.x, p.y + (p.s === 'ball' ? p.r * (p.sy || 1) : p.h / 2), p.z);
@@ -677,6 +677,7 @@ function scandiModel(g, type, dev) {
   if (glow.length) g.userData.glow = glow;
   if (zones.length) g.userData.segs = zones.map((z) => ({ glow: z }));     // drawn like the sections of an LED ring (modelfx.js ringLook)
   g.userData.finish = fin;
+  if (variant) g.userData.variant = variant;
 }
 /** Metal bridge / walkway (#189): grating deck on two steel beams, railing on both sides (see bridgeParts) */
 function bridgeModel(g, dev) {

@@ -295,6 +295,8 @@ def _device(rep: Report, path: str, spec, ids):
         d["lightColor"] = spec["lightColor"].lower()   # the colour of a lamp that reports none, e.g. one on a relay (#367)
     if isinstance(spec.get("finish"), str) and re.fullmatch(r"[a-z]{2,20}", spec["finish"]):
         d["finish"] = spec["finish"]                   # the finish of a piece in Scandinavian style (oak, white ...; scandi.js knows which)
+    if isinstance(spec.get("variant"), str) and re.fullmatch(r"[a-z0-9]{2,20}", spec["variant"]):
+        d["variant"] = spec["variant"]                 # how a piece is built (the PC desk: its monitors, MONITOR_LAYOUTS in leisure.js)
     if isinstance(spec.get("leds"), list):            # the entities of the LED zones of a piece (a mirror, the bar ...; ledzones.js), "" follows "entity"
         leds = [e[:120] if isinstance(e, str) else "" for e in spec["leds"][:MAX_LED_ZONES]]
         while leds and not leds[-1]:
@@ -918,7 +920,7 @@ def layout_to_property(layout, name="Haus"):
             item["walls"].append(ow)
         item["devices"] = []
         for d in f.get("devices", []):
-            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "leds", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
+            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "variant", "leds", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
             cs = cables_of(d)
             if cs or d["id"] in feeding:
                 od["id"] = d["id"]

@@ -895,13 +895,18 @@
      "pattern": "^[a-z]{2,20}$",
      "description": "Finish of a piece in Scandinavian style (shelf_cube2x2, sofa_3 ...) or of a leisure piece (sauna_cabin, bar_counter, treadmill ...): white, blackbrown, oak, birch, pine, walnut, grey ...; sofas and armchairs in fabric colours (lightgrey, darkgrey, beige, blue, green, rust, yellow); saunas in spruce, hemlock, cedar, thermo; red, anthracite, purple, cognac. A finish the piece does not have shows its default."
     },
+    "variant": {
+     "type": "string",
+     "pattern": "^[a-z0-9]{2,20}$",
+     "description": "How a piece is built. pc_setup (the gaming PC desk): its monitors: two (2 side by side, the default), one, three (3 side by side), four (2 x 2), curved, curved2 (curved with 2 portrait monitors beside it). An unknown one shows the default."
+    },
     "leds": {
      "type": "array",
      "maxItems": 8,
      "items": {
       "type": "string"
      },
-     "description": "Entities of the LED zones of a piece with several LEDs (mirror_led_zones: behind, front, below; mirror_hollywood: bulbs, behind; mirror_cabinet: top, below; bar_counter and bar_corner: counter edge, plinth), in this order. An empty string or a missing zone follows \"entity\"."
+     "description": "Entities of the LED zones of a piece with several LEDs (mirror_led_zones: behind, front, below; mirror_hollywood: bulbs, behind; mirror_cabinet: top, below; mirror_gym and mirror_led_tall: behind, front; bar_counter and bar_corner: counter edge, plinth), in this order. An empty string or a missing zone follows \"entity\"."
     },
     "panels": {
      "type": "array",

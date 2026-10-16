@@ -1037,8 +1037,9 @@ export default {
   'dev.pool_lamp': 'Lámpara de billar', 'dev.kicker': 'Futbolín', 'dev.screen_frame': 'Pantalla con marco', 'dev.screen_roll': 'Pantalla motorizada',
   'dev.projector': 'Proyector (techo)', 'dev.cinema_seat': 'Butaca de cine', 'dev.cinema_row': 'Fila de 3 butacas de cine', 'dev.popcorn': 'Máquina de palomitas',
   'dev.speaker_floor': 'Altavoz de suelo', 'dev.subwoofer': 'Subwoofer', 'dev.acoustic_panel': 'Panel acústico de listones', 'dev.starsky': 'Cielo estrellado (LED)',
-  'dev.pc_tower': 'PC (torre)', 'dev.pc_gaming': 'PC gaming con RGB', 'dev.pc_setup': 'Puesto de PC con 2 monitores', 'dev.laptop': 'Portátil',
+  'dev.pc_tower': 'PC (torre)', 'dev.pc_gaming': 'PC gaming con RGB', 'dev.pc_setup': 'Puesto de PC gaming', 'dev.laptop': 'Portátil',
   'dev.gaming_chair': 'Silla gaming', 'dev.server_rack': 'Armario de red', 'dev.mirror_led': 'Espejo con LED indirecto',
   'dev.mirror_led_round': 'Espejo redondo con LED', 'dev.mirror_led_zones': 'Espejo LED de 3 zonas', 'dev.mirror_hollywood': 'Espejo Hollywood',
   'dev.mirror_cabinet': 'Armario con espejo y LED', 'dev.mirror_led_tall': 'Espejo de cuerpo entero con LED',
+  'prop.variant': 'Disposición', 'var.two': '2 monitores uno al lado del otro', 'var.one': '1 monitor', 'var.three': '3 monitores uno al lado del otro', 'var.four': '4 monitores (2 × 2)', 'var.curved': 'Monitor curvo', 'var.curved2': 'Curvo + 2 en vertical',
 };

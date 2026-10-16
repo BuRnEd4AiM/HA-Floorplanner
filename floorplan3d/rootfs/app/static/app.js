@@ -861,17 +861,18 @@ function holdPlaced() {
 function editNano(d) {
   openNanoEditor({ panels: d.panels, t, onSave: (panels) => { snapshot(); d.panels = panels; changed(); renderProps(); } });
 }
-/** size (m) of a built-in model at scale 1, measured from the model itself (null for custom GLB models) */
+/** size (m) of a built-in model at scale 1, measured from the model itself (null for custom GLB models); a piece in its variant (dev.variant) */
 const dimsCache = new Map();
-function baseDims(type) {
+function baseDims(type, dev) {
   if (isCustom(type) || type === 'nanoleaf' || type === 'ledring') return null;
-  if (!dimsCache.has(type)) {
-    const g = makeModel(type);
+  const key = dev?.variant ? `${type}|${dev.variant}` : type;
+  if (!dimsCache.has(key)) {
+    const g = makeModel(type, undefined, dev?.variant ? { variant: dev.variant } : undefined);
     g.updateMatrixWorld(true);
     const sz = new THREE.Box3().setFromObject(g).getSize(new THREE.Vector3());
-    dimsCache.set(type, sz.x > 0.001 && sz.y > 0.001 && sz.z > 0.001 ? { x: sz.x, y: sz.y, z: sz.z } : null);
+    dimsCache.set(key, sz.x > 0.001 && sz.y > 0.001 && sz.z > 0.001 ? { x: sz.x, y: sz.y, z: sz.z } : null);
   }
-  return dimsCache.get(type);
+  return dimsCache.get(key);
 }
 /* ---- Delete, arrow keys, Q / E and the shortcut keys; the code lives in edititems.js ---- */
 const editItems = initEditItems({
@@ -1258,7 +1259,7 @@ const props = initProps({
   findOpening: (id) => findOpening(id), snapshot: () => snapshot(), changed: () => changed(), build: () => build(), refreshSelection: () => refreshSelection(),
   deleteItem: (sel) => deleteItem(sel), applyStates: () => applyStates(), setStatus: (x) => setStatus(x), renderObjList: () => renderObjList(),
   renderRoomEntities: () => renderRoomEntities(), stateText: (id) => stateText(id), roomAt: (x, z) => roomAt(x, z), pointInPoly, controlsTarget: () => controls.target,
-  wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type) => baseDims(type), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
+  wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseDims(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
   uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor,
 });

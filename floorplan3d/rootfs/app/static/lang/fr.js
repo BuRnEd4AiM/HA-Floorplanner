@@ -1038,8 +1038,9 @@ export default {
   'dev.screen_roll': 'Écran motorisé', 'dev.projector': 'Vidéoprojecteur (plafond)', 'dev.cinema_seat': 'Fauteuil de cinéma',
   'dev.cinema_row': 'Rangée de 3 fauteuils de cinéma', 'dev.popcorn': 'Machine à pop-corn', 'dev.speaker_floor': 'Enceinte colonne',
   'dev.subwoofer': 'Caisson de basses', 'dev.acoustic_panel': 'Panneau acoustique à lamelles', 'dev.starsky': 'Ciel étoilé (LED)', 'dev.pc_tower': 'PC (tour)',
-  'dev.pc_gaming': 'PC gaming RGB', 'dev.pc_setup': 'Poste PC avec 2 écrans', 'dev.laptop': 'Ordinateur portable', 'dev.gaming_chair': 'Chaise gaming',
+  'dev.pc_gaming': 'PC gaming RGB', 'dev.pc_setup': 'Poste PC gaming', 'dev.laptop': 'Ordinateur portable', 'dev.gaming_chair': 'Chaise gaming',
   'dev.server_rack': 'Baie réseau', 'dev.mirror_led': 'Miroir avec LED indirecte', 'dev.mirror_led_round': 'Miroir rond avec LED',
   'dev.mirror_led_zones': 'Miroir LED à 3 zones', 'dev.mirror_hollywood': 'Miroir Hollywood', 'dev.mirror_cabinet': 'Armoire de toilette avec LED',
   'dev.mirror_led_tall': 'Miroir en pied avec LED',
+  'prop.variant': 'Disposition', 'var.two': '2 écrans côte à côte', 'var.one': '1 écran', 'var.three': '3 écrans côte à côte', 'var.four': '4 écrans (2 × 2)', 'var.curved': 'Écran incurvé', 'var.curved2': 'Incurvé + 2 en portrait',
 };

@@ -160,6 +160,16 @@ def test_leisure_pieces_and_the_entities_of_their_led_zones_survive_import_and_e
     assert again[0]["leds"] == ["light.back", "", "light.below"] and again[0]["entity"] == "light.mirror" and "leds" not in again[1]
 
 
+def test_the_monitor_layout_of_the_pc_desk_survives_import_and_export():
+    f = square_flat(devices=[{"type": "pc_setup", "x": 1, "z": 1, "variant": "curved2"}, {"type": "pc_setup", "x": 2, "z": 1, "variant": "Drei <b>"},
+                             {"type": "pc_setup", "x": 3, "z": 1}])
+    layout, _, rep, _ = importer.build_layout(f)
+    a, b, c = layout["floors"][0]["devices"]
+    assert not rep.warnings and a["variant"] == "curved2" and "variant" not in b and "variant" not in c   # only a plain word, else the default
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"]
+    assert again[0]["variant"] == "curved2" and "variant" not in again[2]
+
+
 def test_ledring_sections_survive_import_and_export():
     f = square_flat(rooms=[{"points": [[0, 0], [4, 0], [4, 3], [0, 3]]}],
                     devices=[{"type": "ledring", "x": 2, "z": 1.5, "entity": "light.main", "closed": True, "inset": 0.15,

@@ -411,6 +411,13 @@ export function finishOf(type, dev) {
 }
 /** the finishes the side panel offers (null: nothing to choose) */
 export const finishChoices = (type) => (SCANDI[type]?.fin?.length > 1 ? SCANDI[type].fin : null);
+/** the variant a piece is built in (the PC desk: how its monitors stand): the one chosen on the device, else its first (null: it has none) */
+export function variantOf(type, dev) {
+  const l = SCANDI[type]?.variants || [];
+  return l.includes(dev?.variant) ? dev.variant : l[0] || null;
+}
+/** the variants the side panel offers (null: nothing to choose) */
+export const variantChoices = (type) => (SCANDI[type]?.variants?.length > 1 ? SCANDI[type].variants : null);
 
 const turnX = ([x, y, z], a) => [x, y * Math.cos(a) - z * Math.sin(a), y * Math.sin(a) + z * Math.cos(a)];
 const turnY = ([x, y, z], a) => [x * Math.cos(a) + z * Math.sin(a), y, -x * Math.sin(a) + z * Math.cos(a)];
@@ -441,17 +448,18 @@ export function bounds(parts) {
   return bb;
 }
 const partsCache = new Map();
-/** the parts of a piece, centred on its footprint (the same list every time: do not change it) */
-export function partsOf(type) {
+/** the parts of a piece in a variant (none or an unknown one: its default), centred on its footprint (the same list every time: do not change it) */
+export function partsOf(type, variant = null) {
   if (!SCANDI[type]) return [];
-  if (!partsCache.has(type)) {
-    const parts = SCANDI[type].parts(), bb = bounds(parts), cx = (bb.x0 + bb.x1) / 2, cz = (bb.z0 + bb.z1) / 2;
-    partsCache.set(type, parts.map((p) => ({ ...p, x: p.x - cx, z: p.z - cz })));
+  const v = variantOf(type, { variant }), key = v ? `${type}|${v}` : type;
+  if (!partsCache.has(key)) {
+    const parts = SCANDI[type].parts(v), bb = bounds(parts), cx = (bb.x0 + bb.x1) / 2, cz = (bb.z0 + bb.z1) / 2;
+    partsCache.set(key, parts.map((p) => ({ ...p, x: p.x - cx, z: p.z - cz })));
   }
-  return partsCache.get(type);
+  return partsCache.get(key);
 }
 /** the footprint in the 2D plan: { w, d } (m), { r } for a round piece */
-export function footOf(type) {
-  const bb = bounds(partsOf(type)), w = +(bb.x1 - bb.x0).toFixed(2), d = +(bb.z1 - bb.z0).toFixed(2);
+export function footOf(type, variant = null) {
+  const bb = bounds(partsOf(type, variant)), w = +(bb.x1 - bb.x0).toFixed(2), d = +(bb.z1 - bb.z0).toFixed(2);
   return SCANDI[type]?.round ? { r: +(Math.max(w, d) / 2).toFixed(3) } : { w, d };
 }

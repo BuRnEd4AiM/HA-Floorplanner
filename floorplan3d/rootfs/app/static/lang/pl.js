@@ -1038,7 +1038,8 @@ export default {
   'dev.screen_roll': 'Ekran elektryczny', 'dev.projector': 'Projektor (sufit)', 'dev.cinema_seat': 'Fotel kinowy', 'dev.cinema_row': 'Rząd 3 foteli kinowych',
   'dev.popcorn': 'Maszyna do popcornu', 'dev.speaker_floor': 'Kolumna głośnikowa', 'dev.subwoofer': 'Subwoofer', 'dev.acoustic_panel': 'Panel akustyczny lamelowy',
   'dev.starsky': 'Gwiaździste niebo (LED)', 'dev.pc_tower': 'Komputer (wieża)', 'dev.pc_gaming': 'Komputer gamingowy z RGB',
-  'dev.pc_setup': 'Stanowisko PC z 2 monitorami', 'dev.laptop': 'Laptop', 'dev.gaming_chair': 'Fotel gamingowy', 'dev.server_rack': 'Szafa sieciowa',
+  'dev.pc_setup': 'Stanowisko PC do gier', 'dev.laptop': 'Laptop', 'dev.gaming_chair': 'Fotel gamingowy', 'dev.server_rack': 'Szafa sieciowa',
   'dev.mirror_led': 'Lustro z pośrednim LED', 'dev.mirror_led_round': 'Okrągłe lustro z LED', 'dev.mirror_led_zones': 'Lustro LED z 3 strefami',
   'dev.mirror_hollywood': 'Lustro Hollywood', 'dev.mirror_cabinet': 'Szafka z lustrem i LED', 'dev.mirror_led_tall': 'Lustro pełnej długości z LED',
+  'prop.variant': 'Układ', 'var.two': '2 monitory obok siebie', 'var.one': '1 monitor', 'var.three': '3 monitory obok siebie', 'var.four': '4 monitory (2 × 2)', 'var.curved': 'Monitor zakrzywiony', 'var.curved2': 'Zakrzywiony + 2 pionowe',
 };

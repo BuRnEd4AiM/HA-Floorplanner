@@ -1,4 +1,4 @@
-"""Sauna, fitness, bar, cinema, PC and LED mirrors (leisure.js): the new library groups, a placed sauna that glows while it heats, the LED zones of a mirror (side panel, 3D, live card).
+"""Sauna, fitness, bar, cinema, PC and LED mirrors (leisure.js): the new library groups, a placed sauna that glows while it heats, the monitor layouts of the PC desk, the LED zones of the mirrors (side panel, 3D, live card).
 """
 # --- the library: four new groups, the search finds the pieces by their everyday names
 pgL = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
@@ -35,6 +35,27 @@ pgL.evaluate("window.__fp.fakeState('switch.sauna_test', 'on'); window.__fp.appl
 on = pgL.evaluate("window.__fp.glowColors('lsSauna')")
 check("sauna: dark while off; on, the light glows warm and the stones orange", all(c is None for c in off) and "#ff5a1f" in on and "#ffd27a" in on, (off, on))
 pgL.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices = f.devices.filter((v) => v.id !== 'lsSauna'); window.__fp.rebuild(); }")
+# --- the gaming PC desk: its monitor layout is chosen in the side panel and the desk is built (and drawn in the plan) in it
+pgL.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+  f.devices.push({id: 'lsPc', type: 'pc_setup', x: 62, z: 60, y: 0, rot: 0, scale: 1, name: 'PC', entity: ''}); window.__fp.rebuild(); window.__fp.select('device', 'lsPc'); }""")
+pgL.wait_for_timeout(400)
+var = "() => { let v = null; window.__fp.scene.traverse((o) => { if (o.userData.kind === 'device' && o.userData.id === 'lsPc' && o.userData.variant) v = o.userData.variant; }); return v; }"
+opts = pgL.locator("#devVariant option").all_inner_texts()
+check("PC desk: the side panel offers the monitor layouts, two side by side to start with",
+      opts == ["2 monitors side by side", "1 monitor", "3 monitors side by side", "4 monitors (2 × 2)", "Curved monitor", "Curved + 2 portrait"] and pgL.input_value("#devVariant") == "two" and pgL.evaluate(var) == "two", (opts, pgL.evaluate(var)))
+pgL.select_option("#devVariant", "curved2"); pgL.wait_for_timeout(400)
+dev = "() => window.__fp.layout.floors[window.__fp.floorIdx()].devices.find((v) => v.id === 'lsPc').variant"
+check("PC desk: a curved monitor with two upright ones is stored and built", pgL.evaluate(dev) == "curved2" and pgL.evaluate(var) == "curved2", (pgL.evaluate(dev), pgL.evaluate(var)))
+pgL.select_option("#devVariant", "two"); pgL.wait_for_timeout(400)
+check("PC desk: back to two monitors removes the choice from the piece", pgL.evaluate(dev) is None and pgL.evaluate(var) == "two", pgL.evaluate(dev))
+pgL.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices = f.devices.filter((v) => v.id !== 'lsPc'); window.__fp.rebuild(); }")
+# --- the big mirrors have two LED zones: behind and in front
+pgL.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+  f.devices.push({id: 'lsBig', type: 'mirror_gym', x: 63, z: 60, y: 0.3, rot: 0, scale: 1, name: 'Spiegelwand', entity: ''}); window.__fp.rebuild(); window.__fp.select('device', 'lsBig'); }""")
+pgL.wait_for_timeout(400)
+heads = pgL.locator("#propsBody .ringSec[data-zone] .ringSecHead b").all_inner_texts()
+check("big mirror: two LED zones in the side panel, behind and in front", heads == ["Behind (indirect)", "Front"] and len(pgL.evaluate("window.__fp.ringGlow('lsBig')")) == 2, heads)
+pgL.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices = f.devices.filter((v) => v.id !== 'lsBig'); window.__fp.rebuild(); }")
 # --- a mirror with 3 LED zones: one field per zone, empty zones follow the device, a zone with its own light shines on its own
 pgL.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
   f.devices.push({id: 'lsMir', type: 'mirror_led_zones', x: 61, z: 60, y: 1.1, rot: 0, scale: 1, name: 'Spiegel', entity: 'light.ls_spiegel'});

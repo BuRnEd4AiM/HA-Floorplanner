@@ -13,7 +13,7 @@ import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
 import { addStepAt, moveSection, moveCorner, removeStep } from './roofsteps.js';
 import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
 import { hasShutter, shutterEntity, linkedEntities, shutterSide, shutterText } from './shutters.js';
-import { SCANDI_TYPES, footOf as scandiFoot } from './scandi.js';
+import { SCANDI, SCANDI_TYPES, footOf as scandiFoot, variantOf } from './scandi.js';
 import { LEISURE_FLAT } from './leisure.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -91,7 +91,7 @@ export function createPlan(ctx) {
     return Math.hypot(px - (a[0] + dx * t), pz - (a[1] + dz * t));
   };
   function footOf(d) {
-    const base = FOOT[d.type] || DEFAULT_FOOT;
+    const base = SCANDI[d.type]?.variants ? scandiFoot(d.type, variantOf(d.type, d)) : FOOT[d.type] || DEFAULT_FOOT;   // a piece in a variant: its own size (the PC desk with 3 monitors is wider)
     const k = d.scale || 1;
     if (d.type === 'picture') return { w: (d.w || 0.6) * k, d: 0.06 };
     if (d.type === 'kitchenrun') { const l = kitchenLayout(d); return { w: l.w * k, d: l.d * k }; }

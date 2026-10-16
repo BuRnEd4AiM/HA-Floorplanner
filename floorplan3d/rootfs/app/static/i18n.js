@@ -133,10 +133,11 @@ const DICT = {
     'dev.pooltable': 'Billardtisch', 'dev.pool_lamp': 'Billardlampe', 'dev.kicker': 'Tischkicker', 'dev.screen_frame': 'Leinwand mit Rahmen',
     'dev.screen_roll': 'Motorleinwand', 'dev.projector': 'Beamer (Decke)', 'dev.cinema_seat': 'Kinosessel', 'dev.cinema_row': 'Kinosessel 3er-Reihe',
     'dev.popcorn': 'Popcornmaschine', 'dev.speaker_floor': 'Standlautsprecher', 'dev.subwoofer': 'Subwoofer', 'dev.acoustic_panel': 'Akustikpaneel (Lamellen)',
-    'dev.starsky': 'Sternenhimmel (LED)', 'dev.pc_tower': 'PC (Tower)', 'dev.pc_gaming': 'Gaming-PC mit RGB', 'dev.pc_setup': 'PC-Arbeitsplatz mit 2 Monitoren',
+    'dev.starsky': 'Sternenhimmel (LED)', 'dev.pc_tower': 'PC (Tower)', 'dev.pc_gaming': 'Gaming-PC mit RGB', 'dev.pc_setup': 'Gaming-PC-Arbeitsplatz',
     'dev.laptop': 'Laptop', 'dev.gaming_chair': 'Gaming-Stuhl', 'dev.server_rack': 'Netzwerkschrank', 'dev.mirror_led': 'Spiegel mit indirekter LED',
     'dev.mirror_led_round': 'Runder Spiegel mit LED', 'dev.mirror_led_zones': 'LED-Spiegel mit 3 Zonen', 'dev.mirror_hollywood': 'Hollywood-Spiegel',
     'dev.mirror_cabinet': 'Spiegelschrank mit LED', 'dev.mirror_led_tall': 'Ganzkörperspiegel mit LED',
+    'prop.variant': 'Anordnung', 'var.two': '2 Monitore nebeneinander', 'var.one': '1 Monitor', 'var.three': '3 Monitore nebeneinander', 'var.four': '4 Monitore (2 × 2)', 'var.curved': 'Curved-Monitor', 'var.curved2': 'Curved + 2 hochkant',
   },
   en: {
     'tl.zoom': 'Time line zoom (how much of the day it shows); also with the mouse wheel over it', 'tl.btn': 'Security', 'tl.tip': 'Security: play back a day and see what switched on and off in the house, and when', 'tl.title': 'Security', 'tl.hint': 'The add-on records every day what switches in the house (lights, doors, windows, covers, people …). Pick a day to play it back. Nothing can be switched here.', 'tl.loading': 'Loading …', 'tl.failed': 'The recording could not be loaded.', 'tl.off': 'Recording is switched off (🗄️ Backup at the top → Security).', 'tl.noHa': 'Without Home Assistant nothing is recorded.', 'tl.none': 'No day recorded yet. Recording starts as soon as devices are placed in the plan.', 'tl.files': 'The last {n} days and today are kept, one file per day in {folder}.', 'tl.today': 'Today', 'tl.download': 'Download file', 'tl.exit': 'Leave security view (back to live)', 'tl.prev': 'Previous event', 'tl.play': 'Play', 'tl.pause': 'Pause', 'tl.next': 'Next event', 'tl.speed': 'Speed', 'tl.events': 'Events', 'tl.noEvents': 'No events', 'tl.on': 'on', 'tl.offState': 'off', 'tl.setTitle': 'Security', 'tl.setHint': 'Records what switches in the house so a day can be played back later (🛡️ at the top). One file per day is stored in the add-on configuration folder.', 'tl.setOn': 'Record', 'tl.setKeep': 'Days to keep', 'bk.btn': '🗄️ Backup', 'bk.tip': 'Backup, automatic backups and security (recording)', 'bk.title': 'Backup & security', 'sv.title': 'Start view', 'sv.help': 'The page opens with this view, and the wall tablet comes back to it. Set up the view first (floor or whole house, room, angle), then “Use current view”. Without a saved view: the user\'s room or the ground floor. For single users see “Users”.', 'sv.take': '📌 Use current view', 'sv.auto': 'Automatic', 'sv.saved': 'Saved: {where}', 'sv.none': 'Automatic (the user\'s room or the ground floor)', 'sv.whole': 'Whole house', 'sv.row.auto': 'Start: automatic', 'sv.row.keep': 'Start: saved view', 'sv.row.take': 'Start: use current view', 'sv.rowTip': 'Start view of this user: “use current view” saves the view behind this window', 'lock.timeline': 'Security (🛡️)',
@@ -266,10 +267,11 @@ const DICT = {
     'dev.kicker': 'Table football', 'dev.screen_frame': 'Fixed frame screen', 'dev.screen_roll': 'Motorised screen', 'dev.projector': 'Projector (ceiling)',
     'dev.cinema_seat': 'Cinema seat', 'dev.cinema_row': 'Row of 3 cinema seats', 'dev.popcorn': 'Popcorn machine', 'dev.speaker_floor': 'Floor-standing speaker',
     'dev.subwoofer': 'Subwoofer', 'dev.acoustic_panel': 'Acoustic slat panel', 'dev.starsky': 'Starry sky (LED)', 'dev.pc_tower': 'PC (tower)',
-    'dev.pc_gaming': 'Gaming PC with RGB', 'dev.pc_setup': 'PC desk with 2 monitors', 'dev.laptop': 'Laptop', 'dev.gaming_chair': 'Gaming chair',
+    'dev.pc_gaming': 'Gaming PC with RGB', 'dev.pc_setup': 'Gaming PC desk', 'dev.laptop': 'Laptop', 'dev.gaming_chair': 'Gaming chair',
     'dev.server_rack': 'Network cabinet', 'dev.mirror_led': 'Mirror with indirect LED', 'dev.mirror_led_round': 'Round mirror with LED',
     'dev.mirror_led_zones': 'LED mirror with 3 zones', 'dev.mirror_hollywood': 'Hollywood mirror', 'dev.mirror_cabinet': 'Mirror cabinet with LED',
     'dev.mirror_led_tall': 'Full-length mirror with LED',
+    'prop.variant': 'Arrangement', 'var.two': '2 monitors side by side', 'var.one': '1 monitor', 'var.three': '3 monitors side by side', 'var.four': '4 monitors (2 × 2)', 'var.curved': 'Curved monitor', 'var.curved2': 'Curved + 2 portrait',
   },
 };
 
