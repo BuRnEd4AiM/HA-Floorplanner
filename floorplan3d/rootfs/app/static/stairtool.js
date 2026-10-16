@@ -3,6 +3,7 @@
  * wall along a path drawn in the plan), the stair fields of the properties panel, and the 3D mesh of a stair.
  * The geometry of the shaft is a pure function (tested). */
 import * as THREE from './vendor/three.module.min.js';
+import { mergeParts } from './meshmerge.js';
 import { stairDefaults, stairBounds, stairLocal, splitStoreys, POLE_R, stairCounts, stairLength, stairFloors, wallPathFromClicks, MAX_FLOORS, MIN_TREAD, MAX_TREAD, RAIL_H, MAX_LANDING, landingLength, FLOOR_LANDING } from './stairs.js';
 import { OPENING_DEFAULTS, wallLength } from './walls.js';
 
@@ -72,6 +73,7 @@ export function initStairTool(ctx) {
       up.visible = !ctx.isLive?.();
       g.add(up); g.userData.upper = up;
     }
+    mergeParts(g);                    // the steps in one mesh, the balusters in one: fewer draw calls (meshmerge.js, #394)
     return g;
   }
   /** the storeys above the open floor: see-through in the editor, hidden in the live mode (#246); root: the scene (or a floor group) */

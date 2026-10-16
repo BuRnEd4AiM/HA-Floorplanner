@@ -81,6 +81,10 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 32. **Kein schwarzes Loch unter dem Erdgeschoss** (55.6, #391): den 1. Stock öffnen: das Erdgeschoss darunter ist blass, steht aber auf Boden, nicht über einem schwarzen Loch.
 33. **Ganzes Haus: alle Etagen zeigen ihre Lampen** (55.7, #392): erst das Erdgeschoss öffnen, dann „Ganzes Haus“ und „Live“: auch die Lampen im 1. Stock haben ihre Kugeln und leuchten.
 
+**Neu in 3.89** (ausführlich in Abschnitt **56** unten)
+34. **Flüssig auf dem iPad, auch mit dem Musterhaus** (56.1 bis 56.3, #394): das Musterhaus („alles drin“) öffnen, auf dem iPad drehen und zoomen, auch „Ganzes Haus“: es soll nicht mehr ruckeln. Alles sieht aus wie vorher.
+35. **„Aufeinander“ auch bei einer Etage** (56.4 bis 56.6, #396): eine Etage öffnen (z. B. Obergeschoss), unten „Ansicht“ → **„Aufeinander“**: die Etage sitzt direkt auf der Etage darunter, deren Schilder schweben nicht mehr darüber. Im Benutzer-Fenster lässt es sich pro Benutzer vorgeben und sperren.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -202,7 +206,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs | 0 | 0 | 3 | 0 | 53.1 bis 53.3 |
 | 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 0 | 0 | 8 | 0 | 54.1 bis 54.8 |
 | 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 0 | 0 | 7 | 0 | 55.1 bis 55.7 |
-| **Zusammen** | **199** | **2** | **168** | **2** | |
+| 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 0 | 0 | 7 | 0 | 56.1 bis 56.7 |
+| **Zusammen** | **199** | **2** | **175** | **2** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -859,3 +864,14 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 55.5 | Seite neu laden, „Ganzes Haus“; ⚙ öffnen | Das Haus steht wieder „aufeinander“; in ⚙ steht bei „Etagen im ganzen Haus“ „Aufeinander (wie ein echtes Haus)“, dort lässt es sich auch umstellen | ❓ |
 | 55.6 | Haus ohne Keller, Erde „fest“: den 1. Stock öffnen (#391) | Das Erdgeschoss darunter ist blass, aber darunter ist Boden (grau), kein schwarzes Loch im Rasen | ❓ |
 | 55.7 | Das Erdgeschoss öffnen, dann „Ganzes Haus“ und „Live“ (#392) | Auch die Lampen im 1. Stock haben ihre Kugeln und leuchten, wenn sie an sind; ebenso umgekehrt (erst den 1. Stock öffnen: das Erdgeschoss hat seine Kugeln) | ❓ |
+
+## 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 56.1 | Auf dem iPad das Musterhaus („alles drin“) öffnen, in „Live“ drehen und zoomen, auch in „Ganzes Haus“ (#394) | Es läuft flüssig, ruckelt nicht mehr | ❓ |
+| 56.2 | Unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ | Bei „Zeichenaufrufe“ stehen im ganzen Haus etwa 1.300 statt früher etwa 3.700 | ❓ |
+| 56.3 | Möbel, Bar, Sauna, Küche, Türen, Fenster und Treppen ansehen; eine Lampe, eine LED-Zone, einen Rollladen und eine Tür mit Kontakt schalten | Alles sieht aus wie vorher; was leuchtet, leuchtet; Türen und Fenster gehen auf, Rollläden fahren | ❓ |
+| 56.4 | Eine Etage öffnen (z. B. Obergeschoss), unten „Ansicht“ öffnen (#396) | „Aufeinander“ steht da, „Auseinander“ nicht (das gibt es nur in „Ganzes Haus“) | ❓ |
+| 56.5 | „Aufeinander“ drücken, von der Seite schauen | Die Etage sitzt ohne Lücke auf der Etage darunter (Decke dazwischen); die Namen und Schilder der Etage darunter schweben nicht mehr über der offenen Etage | ❓ |
+| 56.6 | „Benutzer“ → bei einem Benutzer unter „🔒 Gesperrt“ „Abstand der Etagen (Auseinander / Aufeinander)“ abhaken, als dieser Benutzer öffnen | Die Knöpfe „Auseinander“ und „Aufeinander“ fehlen; die Ansicht bleibt so, wie sie eingestellt ist | ❓ |
+| 56.7 | README auf GitHub öffnen (#395) | Das Abzeichen „release“ zeigt die Version (v3.89.0), keinen Fehlertext | ❓ |

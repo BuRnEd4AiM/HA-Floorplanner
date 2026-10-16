@@ -10,10 +10,15 @@ const PILL_TONE = {
 };
 const DARK_PILL = { fill: 'rgba(16,22,30,.82)', rim: 'rgba(255,255,255,.35)', glow: null };
 
-/** a text sprite; anisotropy: the renderer's best texture filtering (sharp when seen at an angle) */
-export function textSprite(text, anisotropy, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = false, pill = false } = {}) {
+/** how sharp the text of a label is drawn: 4x (sharp when zooming in), on a tablet in low-power mode 2x: its picture is a quarter of the size
+ *  (256 kB instead of 1 MB of graphics memory per label, #394), which a tablet screen does not show, and a new value is sent to the graphics
+ *  chip four times faster */
+export const labelRes = (low) => (low ? 2 : 4);
+
+/** a text sprite; anisotropy: the renderer's best texture filtering (sharp when seen at an angle); res: labelRes */
+export function textSprite(text, anisotropy, { size = 30, scaleX = 2.4, scaleY = 0.6, depthTest = false, pill = false, res = 4 } = {}) {
   const c = document.createElement('canvas');
-  const S = 4;                                    // render text at 4x so it stays sharp when zooming in
+  const S = res;                                  // the text is drawn at this many times the 256 x 64 layout
   c.width = 256 * S; c.height = 64 * S;
   const tex = new THREE.CanvasTexture(c);
   tex.anisotropy = anisotropy;
