@@ -892,7 +892,7 @@ body.card-panel #roomPanel { top: 0 !important; left: 0 !important; right: 0 !im
 body.low .glass { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(16, 22, 30, .9); }
 #sideStack { position: absolute; top: 58px; right: 12px; z-index: 4; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
 #sideStack > * { pointer-events: auto; }
-body:not(.live) #sideStack, body.card #sideStack, #roomPanel:not([hidden]) ~ #sideStack { display: none; }
+body.card #sideStack, #roomPanel:not([hidden]) ~ #sideStack { display: none; }   /* edit mode: only the energy picture (the chips are live only) */
 #skyChips { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 #skyChips[hidden] { display: none; }
 .skyChip { padding: 7px 14px; border-radius: 999px; font-weight: 600; white-space: nowrap; background: rgba(16, 22, 30, .72);
@@ -908,7 +908,7 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 #wxFall.still i { animation: none; }
 @keyframes wxFall { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 256px, 0); } }
 
-/* ---- Energy flow as a picture (#420, energyflowui.js): in the stack at the top right, live mode, wide screens ---- */
+/* ---- Energy flow as a picture (#420, energyflowui.js): in the stack at the top right, live and edit mode, wide screens ---- */
 #energyCard { display: block; padding: 10px 12px 2px; border-radius: 16px; cursor: pointer; text-align: left; font: inherit; }
 #energyCard[hidden] { display: none; }
 .ef-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #aeb9c6; margin: 0 0 2px 4px; }
@@ -924,7 +924,7 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 .ef-sub { font-size: 11.5px; fill: #aeb9c6; }
 .ef-node .ef-side { text-anchor: start; }
 @media (max-width: 760px) { #energyCard { display: none !important; } }
-@media (min-width: 761px) { body.live.flowcard #energyPill { display: none !important; } }
+@media (min-width: 761px) { body.flowcard #energyPill { display: none !important; } }
 
 /* ---- Room tiles (#421, roomtilesui.js): live mode, a strip over the view buttons; centred while it fits, swiped sideways when not ---- */
 #roomTiles { position: absolute; left: 156px; right: 16px; bottom: 62px; z-index: 4; display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px;

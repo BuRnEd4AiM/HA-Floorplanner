@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.98.1] - 2026-10-17
+### Changed
+- **Energy as a picture also in edit mode** (#420): on wide screens the card with the sun, the grid, the house and the battery now stands at the top right in edit mode too, instead of the line of numbers. Only phones keep the line (no room for the card). "Power as a picture" in the View menu and in the settings still gives the line back.
+
 ## [3.98.0] - 2026-10-17
 ### Added
 - **Sky by the time of day** (#418): behind the 3D view a sky that follows the sun instead of one colour: dark blue with stars at night, pink at dawn, orange at sunrise and sunset, blue by day. The sun comes from `sun.sun` (the add-on now sends its elevation and the next sunrise / sunset), without it from the clock. The lawn turns darker at night and warmer at sunset; the light in the house stays as it is. Live mode, wide screens: a chip at the top right, e.g. "🌇 Evening · 18:45 · Sunset 18:52". Setting **"Sky"** (by the time of day and the weather / plain colour); the hologram design keeps its own backdrop. Costs nothing per frame: the sky is CSS behind the see-through canvas.

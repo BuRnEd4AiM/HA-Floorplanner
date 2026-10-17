@@ -86,9 +86,11 @@ for _ in range(5):                                       # a periodic refresh of
     pgW.evaluate("window.__fp.fakeState('sensor.pv_test', '1500'); window.__fp.rebuild()"); pgW.wait_for_timeout(400)
 pi = pgW.evaluate("window.__fp.powerInfo()")
 check("power: the button shows one cable with flowing dots and a watt label", pi["shown"] and len(pi["flows"]) == 1 and pi["flows"][0]["active"] and pi["flows"][0]["dir"] == 1 and pi["flows"][0]["dots"] == 8 and pi["labels"] == 1, pi)
-if "1.50 kW" not in (pgW.inner_text("#energyPill") if pgW.is_visible("#energyPill") else ""):
+def overview():                                  # the picture on wide screens (#420), else the line of numbers
+    return pgW.inner_text("#energyCard") if pgW.is_visible("#energyCard") else pgW.inner_text("#energyPill") if pgW.is_visible("#energyPill") else ""
+if "1.50 kW" not in overview():
     pgW.evaluate("window.__fp.fakeState('sensor.pv_test', '1500'); window.__fp.rebuild()"); pgW.wait_for_timeout(500)
-check("power: the overview next to the room menu shows the production", pgW.is_visible("#energyPill") and "1.50 kW" in pgW.inner_text("#energyPill"), pgW.inner_text("#energyPill") if pgW.is_visible("#energyPill") else "hidden")
+check("power: the overview shows the production (the picture on wide screens, #420)", "1.50 kW" in overview(), overview() or "hidden")
 pgW.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
   f.devices.push({id: 'pwb', type: 'battery', x: 76, z: 70, y: 0, rot: 0, scale: 1, name: 'Bat', entity: 'sensor.bat_pct', batPower: 'sensor.bat_w'});
   window.__fp.fakeState('sensor.bat_pct', '82', '%'); window.__fp.fakeState('sensor.bat_w', '600', 'W'); window.__fp.rebuild(); }""")

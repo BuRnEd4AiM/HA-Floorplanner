@@ -1,6 +1,6 @@
-/* Energy flow as a picture (#420): live mode on wide screens, at the top right under the sky chips, a card with the sun, the grid, the house
- * and the battery and dots running along the lines between them, instead of the line of numbers (#energyPill, which stays on phones and
- * in edit mode). A tap does what a tap on that line does: the power cables in the house on / off. Redrawn only when a value changed; the
+/* Energy flow as a picture (#420): on wide screens (live and edit mode), at the top right under the sky chips, a card with the sun, the grid,
+ * the house and the battery and dots running along the lines between them, instead of the line of numbers (#energyPill, which stays on
+ * phones). A tap does what a tap on that line does: the power cables in the house on / off. Redrawn only when a value changed; the
  * dots are a CSS animation, standing still in the "fast" performance mode. What flows where comes from energyflow.js (tested). */
 import { energyFlows, flowTexts, dotSeconds } from './energyflow.js';
 import { energyBalance } from './energycalc.js';
@@ -34,7 +34,7 @@ export function flowSvg(fl, tx) {
   return `<svg viewBox="0 ${top} 300 ${bottom - top}" width="300" height="${bottom - top}" role="img">${lines}${circles}</svg>`;
 }
 
-/** ctx: $, t, settings(), states(), layout(), isLive(), low() (fast performance mode), toggleCables() (what a tap on the line of numbers does), commitSettings() */
+/** ctx: $, t, settings(), states(), layout(), low() (fast performance mode), toggleCables() (what a tap on the line of numbers does), commitSettings() */
 export function initEnergyFlow(ctx) {
   const { $, t } = ctx;
   const card = $('#energyCard');
@@ -44,7 +44,7 @@ export function initEnergyFlow(ctx) {
   function update() {
     const on = ctx.settings().energyCard !== false;
     $('#flowToggle').classList.toggle('active', on);
-    const fl = on && ctx.isLive() ? energyFlows(energyBalance(ctx.states(), ctx.layout())) : null;
+    const fl = on ? energyFlows(energyBalance(ctx.states(), ctx.layout())) : null;   // in edit mode too: the owner wanted the picture there as well
     document.body.classList.toggle('flowcard', !!fl);              // the line of numbers steps aside on wide screens (style.css)
     card.hidden = !fl;
     if (!fl) { last = ''; return; }
