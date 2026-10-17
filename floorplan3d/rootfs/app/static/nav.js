@@ -66,7 +66,7 @@ export function initNav(ctx) {
     const key = JSON.stringify([houseMode, floorIdx, layout.floors.map((x) => x.kind), layout.floors.map((x) => x.name), entries.map(({ r, fl }) => [r.id, r.name, isOccupied(r, fl)]), focusedRoom, ctx.settings().language]);
     if (!force && key === navKey) return;
     navKey = key;
-    $('#floorPills').replaceChildren(...layout.floors.map((x, i) => pill(x.name, i === floorIdx && !houseMode, () => ctx.switchFloor(i))),
+    $('#floorPills').replaceChildren(...layout.floors.map((x, i) => (ctx.floorShown?.(i) ?? true) && pill(x.name, i === floorIdx && !houseMode, () => ctx.switchFloor(i))).filter(Boolean),   // a floor with nothing of the building shown stays out (#409)
       ...(layout.floors.length > 1 || layout.floors.some((x) => x.devices.length) ? [pill(t('nav.house'), houseMode, () => ctx.setHouseMode(!houseMode), t('nav.houseTip'))] : []));
     // the rooms are one drop-down instead of a row of buttons (a long row has to be scrolled on a tablet)
     const btn = $('#roomMenuBtn'), menu = $('#roomMenu');

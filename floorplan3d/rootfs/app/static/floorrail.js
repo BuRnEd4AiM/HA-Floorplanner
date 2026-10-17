@@ -95,6 +95,7 @@ export function initFloorRail(ctx) {
       items.push(h);
     }
     for (let i = layout.floors.length - 1; i >= 0; i--) {   // top floor first, like the building
+      if (!(ctx.floorShown?.(i) ?? true)) continue;          // nothing of the building shown on this floor (#409)
       const b = mk('floorThumb' + (i === floorIdx && !houseMode ? ' active' : ''), layout.floors[i].name, () => ctx.switchFloor(i));
       b.dataset.floor = i;
       const cv = document.createElement('canvas'); cv.width = 240; cv.height = 130;

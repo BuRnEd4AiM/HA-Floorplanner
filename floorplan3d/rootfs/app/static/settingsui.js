@@ -4,6 +4,7 @@
 import { cleanPreset, collectPresets } from './viewprefs.js';
 import { LOCK_KEYS, cleanLocks, collectLocks } from './userlocks.js';
 import { ALL, cleanStartView } from './startview.js';
+import { buildingsOf } from './buildings.js';
 
 export const VIEW_OPTS = ['3d', '2d', 'split', 'all'];
 /** the preset fields of a user row (#250): field, its options [value, text key]; "Default" (no value) comes first */
@@ -21,26 +22,31 @@ export function readPreset(fields) {
   return cleanPreset(Object.fromEntries(fields.filter((f) => f.value !== '').map((f) => [f.key, f.value === 'true' ? true : f.value === 'false' ? false : f.value])));
 }
 
-/** rooms for the tablet dropdown of one house: { house, rooms: [{ name, floor }] }, top floor first, roofs and unnamed rooms left out */
+/** rooms for the tablet dropdown of one house: { house, rooms: [{ name, floor }], buildings: [{ id, name }] }, top floor first, roofs and
+ *  unnamed rooms left out; the buildings of the plan when it has several (#409) */
 export function roomsByHouse(lay, houseName) {
   const rooms = [...(lay.floors || [])].reverse().filter((f) => f.kind !== 'roof')
     .flatMap((f) => (f.rooms || []).filter((r) => r.name).map((r) => ({ name: r.name, floor: f.name })));
-  return { house: houseName, rooms };
+  const buildings = buildingsOf(lay);
+  return { house: houseName, rooms, buildings: buildings.length >= 2 ? buildings.map((b) => ({ id: b.id, name: b.name || '' })) : [] };
 }
 
-/** the users that have a room, a view, a preset or locks, as [{ user, room, view, preset, locks }] (view defaults to 3d, preset to {}, locks to []) */
+/** the users that have a room, a view, a preset, locks or a building, as [{ user, room, view, preset, locks, start, building }] (view
+ *  defaults to 3d, preset to {}, locks to [], building to '' = all of them) */
 export function tabletEntries(settings) {
   const rooms = settings.userRooms || {}, views = settings.userViews || {}, presets = settings.userPresets || {}, locks = settings.userLocks || {};
-  const starts = settings.startViews || {};
-  return [...new Set([...Object.keys(rooms), ...Object.keys(views), ...Object.keys(presets), ...Object.keys(locks), ...Object.keys(starts).filter((u) => u !== ALL)])]
+  const starts = settings.startViews || {}, buildings = settings.userBuildings || {};
+  return [...new Set([...Object.keys(rooms), ...Object.keys(views), ...Object.keys(presets), ...Object.keys(locks), ...Object.keys(starts).filter((u) => u !== ALL),
+    ...Object.keys(buildings)])]
     .map((user) => ({ user, room: rooms[user] || '', view: views[user] || '3d', preset: cleanPreset(presets[user]), locks: cleanLocks(locks[user]),
-      start: cleanStartView(starts[user]) }));
+      start: cleanStartView(starts[user]), building: buildings[user] || '' }));
 }
 
-/** rows typed in the dialog [{ user, room, view, preset, locks, start }] -> { rooms, views, presets, locks, starts }; rows without a user are dropped,
- *  "whole house" has no room entry, an empty preset no preset entry, a user without locks no lock entry, an automatic start no start entry (#315) */
+/** rows typed in the dialog [{ user, room, view, preset, locks, start, building }] -> { rooms, views, presets, locks, starts, buildings }; rows
+ *  without a user are dropped, "whole house" has no room entry, an empty preset no preset entry, a user without locks no lock entry, an
+ *  automatic start no start entry (#315), "all buildings" no building entry (#409) */
 export function collectTablets(rows) {
-  const rooms = {}, views = {}, starts = {};
+  const rooms = {}, views = {}, starts = {}, buildings = {};
   rows.forEach((r) => {
     const u = (r.user || '').trim();
     if (!u) return;
@@ -48,8 +54,9 @@ export function collectTablets(rows) {
     views[u] = r.view;
     const st = cleanStartView(r.start);
     if (st && u !== ALL) starts[u] = st;
+    if (r.building) buildings[u] = r.building;
   });
-  return { rooms, views, presets: collectPresets(rows), locks: collectLocks(rows), starts };
+  return { rooms, views, presets: collectPresets(rows), locks: collectLocks(rows), starts, buildings };
 }
 
 /** colour stops typed in the dialog [{ v, c }] (v is a number or a string): sorted by value, rows without a number dropped; fewer than two -> fallback */
@@ -81,10 +88,29 @@ export function initSettingsUi(ctx) {
     const dl = $('#haUsers'); dl.replaceChildren();
     users.forEach((u) => { const o = document.createElement('option'); o.value = u.username; o.label = u.name; dl.append(o); });
   }
-  /** the preset box of a user row (#250): one dropdown per field, "Default" leaves the general setting; below it the locks: what this
-   *  user may not use (userlocks.js) */
-  function presetBox(preset, locks) {
+  /** the building a user row sees (#409): all of them, or one of a plan with several (grouped by house); '' = all */
+  function buildingSelect(building) {
+    const groups = (roomGroups || currentRoomGroups()).filter((g) => g.buildings?.length);
+    if (!groups.length && !building) return null;
+    const lab = document.createElement('label'); lab.textContent = t('bld.user');
+    const sel = document.createElement('select'); sel.dataset.role = 'building'; sel.title = t('bld.userTip');
+    sel.add(new Option(t('bld.all'), ''));
+    groups.forEach((g) => {
+      const og = document.createElement('optgroup'); og.label = g.house || '';
+      g.buildings.forEach((b) => og.append(new Option(b.name || t('bld.unnamed'), b.id)));
+      sel.append(og);
+    });
+    if (building && !groups.some((g) => g.buildings.some((b) => b.id === building))) sel.add(new Option(building, building));
+    sel.value = building || '';
+    lab.append(sel);
+    return lab;
+  }
+  /** the preset box of a user row (#250): the building it sees (#409), one dropdown per field, "Default" leaves the general setting; below
+   *  it the locks: what this user may not use (userlocks.js) */
+  function presetBox(preset, locks, building = '') {
     const box = document.createElement('div'); box.className = 'presetBox'; box.hidden = true;
+    const bs = buildingSelect(building);
+    if (bs) box.append(bs);
     PRESET_UI.forEach(([key, opts]) => {
       const lab = document.createElement('label'); lab.textContent = t(`set.preset.${key}`);
       const sel = document.createElement('select'); sel.dataset.preset = key;
@@ -103,7 +129,7 @@ export function initSettingsUi(ctx) {
     return box;
   }
   const openBoxes = new Set();                 // users whose preset box is open (the rows are drawn again after every change)
-  const presetCount = (box) => [...box.querySelectorAll('select')].filter((x) => x.value !== '').length;
+  const presetCount = (box) => [...box.querySelectorAll('select')].filter((x) => x.value !== '').length;   // the building counts too
   const lockCount = (box) => box.querySelectorAll('[data-lock]:checked').length;
   /** the start view of a user row (#315): automatic, the saved one, or take the view shown now (behind the dialog) */
   function startSelect(row, start) {
@@ -123,7 +149,7 @@ export function initSettingsUi(ctx) {
     });
     return st;
   }
-  function tabletRow(user = '', room = '', view = '3d', preset = {}, locks = [], start = null) {
+  function tabletRow(user = '', room = '', view = '3d', preset = {}, locks = [], start = null, building = '') {
     const row = document.createElement('div'); row.className = 'stop tablet';
     const u = document.createElement('input'); u.type = 'text'; u.value = user; u.dataset.role = 'user'; u.placeholder = t('set.tabletUser'); u.setAttribute('list', 'haUsers');
     const sel = document.createElement('select'); sel.dataset.role = 'room';
@@ -142,7 +168,7 @@ export function initSettingsUi(ctx) {
     vs.value = VIEW_OPTS.includes(view) ? view : '3d';
     const del = document.createElement('button'); del.type = 'button'; del.textContent = '×';
     del.addEventListener('click', () => { row.remove(); ctx.commit(); });
-    const box = presetBox(preset, locks);
+    const box = presetBox(preset, locks, building);
     const gear = document.createElement('button'); gear.type = 'button'; gear.className = 'presetBtn';
     const label = () => {
       const n = presetCount(box), l = lockCount(box);
@@ -162,12 +188,13 @@ export function initSettingsUi(ctx) {
   function renderTablets() {
     const box = $('#tabletRows');
     box.replaceChildren();
-    tabletEntries(ctx.settings()).forEach((e) => box.append(tabletRow(e.user, e.room, e.view, e.preset, e.locks, e.start)));
+    tabletEntries(ctx.settings()).forEach((e) => box.append(tabletRow(e.user, e.room, e.view, e.preset, e.locks, e.start, e.building)));
   }
   function readTablets() {
     return collectTablets([...document.querySelectorAll('#tabletRows .tablet')].map((r) => ({
       user: r.querySelector('[data-role=user]').value, room: r.querySelector('[data-role=room]').value, view: r.querySelector('[data-role=view]').value,
       preset: readPreset([...r.querySelectorAll('[data-preset]')].map((x) => ({ key: x.dataset.preset, value: x.value }))),
+      building: r.querySelector('[data-role=building]')?.value || '',
       locks: [...r.querySelectorAll('[data-lock]:checked')].map((x) => x.dataset.lock),
       start: (() => { try { return r.dataset.start ? JSON.parse(r.dataset.start) : null; } catch { return null; } })() })));
   }

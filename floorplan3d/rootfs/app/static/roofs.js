@@ -39,7 +39,8 @@ export function partBox(p) {
   return b && [b.x0, b.x1, b.z0, b.z1].every(Number.isFinite) && b.x1 > b.x0 && b.z1 > b.z0 ? { x0: b.x0, x1: b.x1, z0: b.z0, z1: b.z1 } : null;
 }
 
-/** ctx: layout(), elev(i), mat(color, ghost, extra), HOLO, camera(), editingRoof(), settings(), wallSee */
+/** ctx: layout(), elev(i), mat(color, ghost, extra), HOLO, camera(), editingRoof(), settings(), wallSee, roofShown(i, R) and roofFloors(i)
+ *  (several buildings in one plan, #409: which roofs are drawn, the floors the main roof takes its size from) */
 export function initRoofs(ctx) {
   const roofs = [];                  // roofs that thin out when the camera comes close
   const mat = (...a) => ctx.mat(...a), HOLO = ctx.HOLO;
@@ -138,7 +139,7 @@ export function initRoofs(ctx) {
   function roofList(i) {
     const f = ctx.layout().floors[i], out = [];
     if (f?.kind !== 'roof') return out;
-    const bb = roofBoxOf(ctx.layout().floors, i);
+    const bb = roofBoxOf(ctx.roofFloors?.(i) || ctx.layout().floors, i);   // the main roof of one building of several follows that one (#409)
     const spec = f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 });
     if (bb) out.push({ bb, spec, y0: roofY0(ctx.layout().floors, i, ctx.elev), tag: 'main' });   // on a knee wall it starts lower down (#260, #265)
     (f.roof?.parts || []).forEach((p, pi) => {                              // further roofs: an annex with its own roof, on the floor it stands on
@@ -171,12 +172,14 @@ export function initRoofs(ctx) {
     const n = fitDormer(R.bb, R.spec, d), floors = ctx.layout().floors;
     return n ? floors.flatMap((f, fi) => (fi > i || (f.kind === 'roof' && fi !== i) ? [] : frontHoles(n, f.walls, ctx.elev(fi) - ctx.elev(i) - R.y0))) : [];
   };
-  function buildRoof(g, i, f, holo, ghost) { roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost, holesFor(i, R))); }
+  /** the roofs that are drawn: not those of a building that is not shown (#409) */
+  const drawn = (i) => roofList(i).filter((R) => ctx.roofShown?.(i, R) ?? true);
+  function buildRoof(g, i, f, holo, ghost) { drawn(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, ghost, holesFor(i, R))); }
   /** the roofs of roof floor i (slopes and dormers) see-through over the floor shown: only the part over the room's outline pts (a
    *  focused room), or all of it (pts null: a whole floor under the roof, #275) */
   function buildOver(g, i, pts, holo) {
     const n0 = g.children.length, u = pts ? polyUniforms(pts) : null;
-    roofList(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, true, holesFor(i, R)));
+    drawn(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0, R.tag, holo, true, holesFor(i, R)));
     g.children.slice(n0).forEach((m) => m.traverse((x) => {
       if (!x.material) return;
       [].concat(x.material).forEach((mm) => { mm.transparent = true; mm.opacity = Math.min(mm.opacity, holo ? 0.2 : 0.3); mm.depthWrite = false; if (u) clipToPoly(mm, u); });

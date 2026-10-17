@@ -91,6 +91,7 @@ DEFAULT_SETTINGS = {
     "userPresets": {},         # Home Assistant user name -> its own start values for the look (PRESET_FIELDS, #250)
     "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
     "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
+    "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
@@ -110,7 +111,7 @@ PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWall
                  "houseFloors": ("normal", "apart", "stacked")}
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control" and "cameras" are refused here too
-LOCKS = ("control", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "search", "settings", "timeline")
+LOCKS = ("control", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
 
 
 def clean_locks(val) -> dict:
@@ -293,7 +294,9 @@ async def get_me(request):
     preset = next((v for k, v in presets.items() if k.strip().lower() in user["ids"]), {})
     starts = clean_start_views(read_settings(request).get("startViews", {}))
     start = next((v for k, v in starts.items() if k != "*" and k.strip().lower() in user["ids"]), starts.get("*"))   # own start view, else everybody's
-    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset, "start": start,
+    buildings = read_settings(request).get("userBuildings", {})
+    building = next((v for k, v in buildings.items() if str(k).strip().lower() in user["ids"]), None) if isinstance(buildings, dict) else None
+    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset, "start": start, "building": building,
                               "locks": [k for k in LOCKS if k in user_locks(request)],
                               "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
 
@@ -558,7 +561,8 @@ def backup_settings(request) -> None:
 
 
 # ---------- users and tablets in a file of the add-on config folder ----------
-USER_KEYS = ("userRooms", "userViews", "userPresets", "userLocks", "startViews")   # what users.json in the config folder holds
+USER_KEYS = ("userRooms", "userViews", "userPresets", "userLocks", "startViews", "userBuildings")   # what users.json in the config folder holds
+NEWER_USER_KEYS = ("startViews", "userBuildings")   # a file written before these existed keeps the stored ones
 
 
 def users_file(request) -> Path:
@@ -571,7 +575,7 @@ def read_users_file(request) -> dict | None:
     if not isinstance(data, dict):
         return None
     clean = validate_settings({k: data.get(k) for k in USER_KEYS})
-    return {k: clean[k] for k in USER_KEYS if k in data or k != "startViews"}   # a file from before the start views (#315) keeps them
+    return {k: clean[k] for k in USER_KEYS if k in data or k not in NEWER_USER_KEYS}   # a file from before the start views (#315) keeps them
 
 
 def write_users_file(request, settings: dict) -> bool:

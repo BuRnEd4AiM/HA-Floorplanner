@@ -49,6 +49,9 @@
     <div class="group" id="houseGroup" hidden>
       <select id="houseSelect" aria-label="House"></select>
     </div>
+    <div class="group" id="buildingGroup" hidden>
+      <select id="buildingSelect" aria-label="Building" data-i18n-title="bld.switchTip"></select>
+    </div>
     <div class="group right">
       <span id="status"></span>
       <button id="versionPill" class="pill ver-wait" type="button" hidden></button>
@@ -145,6 +148,11 @@
           <button type="button" id="importOpen" data-i18n="imp.open"></button>
           <button type="button" id="propExport" data-i18n="imp.exportProp"></button>
         </div>
+      </details>
+
+      <details id="buildingPanel" class="edit-only">
+        <summary data-i18n="bld.panel"></summary>
+        <div id="buildingBody"></div>
       </details>
 
       <details id="floorPanel" class="edit-only">

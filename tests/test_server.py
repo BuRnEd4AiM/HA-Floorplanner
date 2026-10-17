@@ -425,6 +425,32 @@ async def test_user_views_validation_and_me_view(client, monkeypatch, tmp_path):
     assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "someone"})).json())["view"] == "3d"
 
 
+async def test_user_building_and_its_lock_reach_the_user(client, monkeypatch, tmp_path):
+    """#409: the building of a plan a user / tablet sees (users dialog), and the lock that keeps it there."""
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["admin"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    admin = {"X-Remote-User-Name": "admin"}
+    r = await client.put("/api/settings", json={"userBuildings": {"tablet_gh": "b123", "bad": 5}, "userLocks": {"tablet_gh": ["building", "nope"]}}, headers=admin)
+    s = await r.json()
+    assert s["userBuildings"] == {"tablet_gh": "b123"} and s["userLocks"] == {"tablet_gh": ["building"]}
+    me = await (await client.get("/api/me", headers={"X-Remote-User-Name": "tablet_gh"})).json()
+    assert me["building"] == "b123" and me["locks"] == ["building"]
+    assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "someone"})).json())["building"] is None
+
+
+async def test_a_users_file_from_before_the_buildings_keeps_them(aiohttp_client, tmp_path):
+    import json
+    (tmp_path / "cfg").mkdir()
+    c = await aiohttp_client(server.make_app(tmp_path / "data", tmp_path / "cfg"))
+    await c.put("/api/settings", json={"userBuildings": {"tab": "b1"}, "userRooms": {"tab": "Flur"}})
+    (tmp_path / "cfg" / "users.json").write_text(json.dumps({"userRooms": {"tab": "Bad"}}), "utf-8")   # written by an older version
+    s = await (await c.post("/api/users-file/sync", json={})).json()
+    assert s["userRooms"] == {"tab": "Bad"} and s["userBuildings"] == {"tab": "b1"}
+
+
 async def test_users_endpoint_editors_only(client, monkeypatch, tmp_path):
     opts = tmp_path / "options.json"
     opts.write_text('{"editors": ["admin"]}')
@@ -774,7 +800,7 @@ async def test_users_and_tablets_are_mirrored_into_the_config_folder_and_synced_
     assert (await (await client.get("/api/users-file")).json())["exists"] is False
     await client.put("/api/settings", json={"userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d", "tv": "bogus"}})
     import json
-    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}, "userLocks": {}, "startViews": {}}
+    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}, "userLocks": {}, "startViews": {}, "userBuildings": {}}
     st = await (await client.get("/api/users-file")).json()
     assert st["exists"] and st["inSync"] and st["users"] == 1
 
