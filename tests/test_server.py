@@ -795,6 +795,25 @@ async def test_locks_per_user_are_cleaned_reach_that_user_and_are_enforced(clien
     assert r.status == 403
 
 
+async def test_the_alarm_panel_can_be_locked_for_a_user(client, monkeypatch):
+    """#406: arming and disarming the alarm can be taken away from a tablet on its own; the server refuses it"""
+    s = await (await client.put("/api/settings", json={"userLocks": {"Flur": ["alarm"]}})).json()
+    assert s["userLocks"] == {"Flur": ["alarm"]}
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    flur = {"X-Remote-User-Name": "flur"}
+    r = await client.post("/api/service", json={"domain": "alarm_control_panel", "service": "alarm_disarm", "entity_id": "alarm_control_panel.haus",
+                                                "data": {"code": "1234"}}, headers=flur)
+    assert r.status == 403
+    r = await client.post("/api/service", json={"domain": "alarm_control_panel", "service": "alarm_trigger", "entity_id": "alarm_control_panel.haus"})
+    assert r.status == 400                                    # not a service the plan offers, for anybody
+
+
+def test_slim_state_carries_what_the_live_card_controls():
+    s = server.slim_state({"entity_id": "media_player.tv", "state": "playing", "attributes": {"volume_level": 0.5, "media_title": "Song"}})
+    assert s["ctl"] == {"vol": 50, "title": "Song"}
+    assert server.slim_state({"entity_id": "light.x", "state": "on", "attributes": {}})["ctl"] is None
+
+
 async def test_users_and_tablets_are_mirrored_into_the_config_folder_and_synced_back(client, tmp_path):
     cfg = tmp_path / "addon_config" / "users.json"
     assert (await (await client.get("/api/users-file")).json())["exists"] is False

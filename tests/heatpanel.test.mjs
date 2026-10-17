@@ -105,3 +105,12 @@ test('each thermostat has a button that opens it in Home Assistant, where that i
   H.initHeatPanel({ box: plain, t: (k) => k, states: () => states, callService: () => {}, open: () => true }).render([{ entity: 'climate.a' }]);
   assert.equal(find(plain, (n) => n.className === 'hp-ha').length, 0);
 });
+
+test('presets and fan modes (#406): a known name translated, any other as Home Assistant names it', () => {
+  const t = (k) => ({ 'heat.preset.eco': 'Eco', 'heat.fan.high': 'Hoch' }[k] || k);
+  assert.equal(H.chipText(t, 'preset', 'eco'), 'Eco');
+  assert.equal(H.chipText(t, 'preset', 'ECO'), 'Eco');
+  assert.equal(H.chipText(t, 'fan', 'high'), 'Hoch');
+  assert.equal(H.chipText(t, 'preset', 'urlaub'), 'Urlaub');
+  assert.equal(H.chipText(t, 'fan', '3'), '3');
+});

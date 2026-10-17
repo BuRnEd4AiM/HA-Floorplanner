@@ -2,15 +2,19 @@
  * light is part of, the whole room; a window's roller shutter: its own card, shuttercard.js, #331, #335), and the LED ring card with one
  * button per section. The card is drawn anew only when something it shows changes (#336): a state update of any other entity of the house
  * (power meters, temperatures every few seconds) no longer replaces its buttons and sliders under the finger. A piece with LED zones linked to
- * entities of their own (a mirror, the bar, ledzones.js) gets a button per zone like the LED ring. popupKey is pure (unit test). */
+ * entities of their own (a mirror, the bar, ledzones.js) gets a button per zone like the LED ring. Music players, robot vacuums, fans, alarm
+ * panels, buttons and choice lists get their controls from devicecontrols.js, a thermostat the heating panel's (#406). popupKey is pure (unit test). */
 import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
 import { ringCount, segEntity, ringEntities } from './ledring.js';
 import { zoneKeys, zoneEntity, hasOwnZones, pieceEntities } from './ledzones.js';
 import { shutterEntity } from './shutters.js';
 import { initShutterCard } from './shuttercard.js';
+import { initDeviceControls } from './devicecontrols.js';
+import { initHeatPanel } from './heatpanel.js';
 
-/** what the card shows of an entity's state: the state and its unit, brightness, colour, effects, a cover's position (not: since, other attributes) */
-export const shownState = (s) => (s ? [s.state, s.unit, s.brightness, s.rgb, s.fx, s.fxc, s.position] : null);
+/** what the card shows of an entity's state: the state and its unit, brightness, colour, effects, a cover's position, a thermostat's target and
+ *  what it is doing, the values of the device controls (volume, track, fan speed, presets ..., #406) (not: since, other attributes) */
+export const shownState = (s) => (s ? [s.state, s.unit, s.brightness, s.rgb, s.fx, s.fxc, s.position, s.tt ?? null, s.hvac ?? null, s.ctl ?? null] : null);
 /** the key of the card: the device (or window) as stored, the tapped LED ring section, the language, what else the card depends on (extra), and
  *  for each entity it shows (ids, any order) its name and the shown part of its state. The same key: the card would look the same. */
 export function popupKey({ dev = null, seg = null, lang = '', extra = null, ids = [], states = {}, name = (e) => e }) {
@@ -26,6 +30,9 @@ export function initLivePopup(ctx) {
   let key = '';                                 // what the card shows (popupKey); '' = draw it anew
   let sliding = false;                          // a slider of the card is held (phones do not always give it the focus)
   const shutter = initShutterCard({ t, live, states: () => ctx.states(), rerender: () => render() });
+  const devCtl = initDeviceControls({ t, states: () => ctx.states(), callService: (...a) => live.callService(...a) });
+  const heatBox = document.createElement('div'); heatBox.className = 'popHeat';      // a thermostat's controls (kept: a target clicked a moment ago is still on its way)
+  const heat = initHeatPanel({ box: heatBox, t, states: () => ctx.states(), callService: (...a) => live.callService(...a), open: () => true, heading: false });
   const letGo = () => { if (sliding) { sliding = false; if (forId) setTimeout(render); } };      // let go: what changed meanwhile is drawn
   box.addEventListener('pointerdown', (ev) => {
     if (!ev.target.matches?.('input[type=range]')) return;
@@ -101,6 +108,13 @@ export function initLivePopup(ctx) {
         row.append(b);
       });
       box.append(row);
+    }
+    if (d.entity && !d.isOpening && d.entity.startsWith('climate.')) {        // target, modes, presets, fan modes (#406)
+      box.append(heatBox);
+      heat.render([{ entity: d.entity, name: d.name }], {});
+    } else if (d.entity && !d.isOpening) {
+      const more = devCtl.controls(d.entity);                   // music, robot vacuum, fan, alarm, button, choice list (#406)
+      if (more) box.append(more);
     }
     if (d.entity && d.entity.startsWith('light.') && !d.isOpening) {
       box.append(live.lightControls([d.entity]));

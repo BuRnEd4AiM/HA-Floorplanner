@@ -4,6 +4,19 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.96.0] - 2026-10-17
+### Added
+- **More devices switched right in the plan** (#406): a tap on a device in live mode opens its card, and the card now has the controls of more kinds of devices:
+  - **Music and TV** (`media_player`): what is playing (title – artist), **⏮ ⏯ ⏭** (previous, play / pause, next), a **volume** slider (or louder / quieter), **mute** and the **source** (HDMI, Spotify, radio …). Off, it has a button to switch it on.
+  - **Robot vacuum** (`vacuum`): its state in words (cleaning, at the dock, on its way back …), **clean** / **pause** / **back to the dock** / **locate**, and the **suction**.
+  - **Fan** (`fan`): on / off, the **speed** on the fan's own steps (a fan with 4 speeds: 25, 50, 75, 100 %), **swing** and its **presets** (night, nature …).
+  - **Thermostat and air conditioner** (`climate`): the live card has the target temperature with − / +, the modes, and new: the **presets** (eco, comfort, away, boost …) and the **fan modes** (auto, low, high …), also in the heating panel next to the room panel.
+  - **Alarm panel** (`alarm_control_panel`): its state (disarmed, armed home / away / night, alarm), **arm** (home, away, night, vacation, as far as the panel can) and **disarm**, with a field for the **code** where Home Assistant asks for one (a wrong code is refused, the card says so). New lock in the users dialog: **"Alarm panel (arm / disarm)"** takes it away from a user or tablet, the add-on refuses it then too.
+  - **Buttons** (`button`, `input_button`): **press**. **Choice lists** (`select`, `input_select`): a drop-down with the options.
+  - Which buttons a device gets follows what Home Assistant says it can do (`supported_features`), so a simple radio gets no "next track".
+- **The add-on checks every switching command more closely**: each domain has its own list of allowed services and every value is checked (range, type, length) before it goes to Home Assistant; anything else (e.g. a vacuum's raw commands, the alarm's "trigger") is refused. New module `controls.py` (unit tests `tests/test_controls.py`); entities carry the few values the controls need as `ctl` (volume, track, sources, suction, fan speed, presets, options …).
+- New module `devicecontrols.js` (which buttons a device gets: pure, unit tests `tests/devicecontrols.test.mjs`, and the drawing). The demo has a speaker, a robot vacuum, a fan, an alarm panel (code 1234) and a house mode to try it. New browser test part `23_device_controls`. Translated into all 7 languages.
+
 ## [3.95.0] - 2026-10-17
 ### Added
 - **Energy: take over the energy dashboard of Home Assistant** (#407): the tab **⚡ Rechnung** of the power editor has a new part **🧭 Einrichten** at the top. **⤵ Aus dem Energie-Dashboard übernehmen** reads what is set up in Home Assistant's energy dashboard and shows it as a proposal: the grid, the solar sensors, the battery with its charge level, and the gas and water meters. **✓ Übernehmen** puts grid, solar and battery into the tab (Ctrl+Z takes it back); the rooms and the house sensor stay as they are.
