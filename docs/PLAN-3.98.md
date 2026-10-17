@@ -100,5 +100,5 @@ Himmel am Tag / mit `?skytime=21:30` / `?skytime=19:15` · Uhrzeit-Anzeige · �
 - [x] E. Werkzeugleiste (`toolicons.js`, `index.html`, CSS; `toolbar.js` meldet seine Reihenfolge über `onApply`, „Dach“ steht jetzt bei den Zeichen-Werkzeugen)
 - [x] Texte in 7 Sprachen (bei jedem Teil gleich mit; Prüfung `tests/test_i18n.py`)
 - [ ] Unit-Tests + CI-Liste, Browser-Test-Teil `25_sky_tiles.py`, betroffene Teile lokal grün
-- [ ] Version 3.98.0, CHANGELOG (beide), DOCS, ROADMAP, MODULE-PLAN, Testprotokoll Abschnitt 65, Manifest
+- [x] Version 3.98.0, CHANGELOG (beide), DOCS, ROADMAP, MODULE-PLAN, Testprotokoll Abschnitt 65 und Punkt 1 der Kurzen Prüfliste, Manifest
 - [ ] Pull Request fertig (kein Entwurf mehr), CI grün, dem Besitzer erklären, wie er mergt

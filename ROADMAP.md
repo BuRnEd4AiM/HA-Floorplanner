@@ -26,7 +26,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 - ✅ Version and checksum pill (add-on files, browser, GitHub)
 - ✅ Add-on store listing (icon, logo, translations), welcome card on first start
 
-## Done in 3.59 – 3.97
+## Done in 3.59 – 3.98
 
 - ✅ Phones held upright: values folded into one 📊 button, small floor cards beside the house, phones only show the house (3.59.0 – 3.63.0) ([#288](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/288), [#290](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/290), [#292](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/292), [#294](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/294), [#299](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/299))
 - ✅ Performance display: FPS and more in the View menu (3.60.0)
@@ -55,6 +55,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 - ✅ Energy: take over the energy dashboard of Home Assistant, set-up check list, gas and water meters in one click (3.95.0) ([#407](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/407))
 - ✅ More devices switched in the live card: music and TV, robot vacuum, fan, presets and fan modes of thermostats, alarm panel with code, buttons, choice lists (3.96.0) ([#406](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/406))
 - ✅ A message by WhatsApp (CallMeBot or a notify service of Home Assistant) when the alarm, a smoke, gas, CO or water sensor goes off, with the place in the plan (3.97.0) ([#414](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/414))
+- ✅ Sky by the time of day and the weather in it, rain warning per window, energy flow as a picture, room tiles in live mode, tool bar with icons and groups (3.98.0) ([#418](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/418), [#419](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/419), [#420](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/420), [#421](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/421), [#422](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/422))
 
 ## Done in 3.26 – 3.58
 
