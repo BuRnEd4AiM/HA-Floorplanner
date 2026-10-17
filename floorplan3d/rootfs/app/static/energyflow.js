@@ -47,7 +47,8 @@ export function flowTexts(fl, t) {
     const b = n.battery, dir = b.dir ?? (b.w == null ? null : Math.abs(b.w) < IDLE ? 0 : Math.sign(b.w));
     const amount = b.w == null ? '' : fmtWatts(b.w);
     out.battery = { value: b.level == null ? (amount || '–') : `${Math.round(b.level)} %`,
-      sub: dir > 0 ? t('flow.charging', { w: amount }).trim() : dir < 0 ? t('flow.discharging', { w: amount }).trim() : t('flow.battery') };
+      sub: dir > 0 ? t('flow.charging', { w: amount }).trim() : dir < 0 ? t('flow.discharging', { w: amount }).trim()
+        : dir === 0 ? t('flow.idle', { w: amount }) : t('flow.noPower') };   // idle (e.g. holding its reserve) / its power unknown: say which
   }
   return out;
 }

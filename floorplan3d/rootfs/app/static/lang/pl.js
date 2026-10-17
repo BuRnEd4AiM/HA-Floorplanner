@@ -1294,7 +1294,7 @@ export default {
   'prop.rainWarn': 'Ostrzegaj przy deszczu',
   'prop.rainWarnHint': 'Pojawi się ostrzeżenie, gdy to okno jest otwarte, a encja pogody zgłasza deszcz. Odznacz dla okna, które może zostać otwarte w deszczu.',
   'flow.title': 'Prąd teraz', 'flow.solar': 'Słońce', 'flow.grid': 'Sieć', 'flow.fromGrid': 'Pobór z sieci', 'flow.toGrid': 'Oddawanie do sieci',
-  'flow.home': 'Dom zużywa', 'flow.battery': 'Bateria', 'flow.charging': 'ładuje {w}', 'flow.discharging': 'rozładowuje {w}',
+  'flow.home': 'Dom zużywa', 'flow.charging': 'ładuje {w}', 'flow.discharging': 'rozładowuje {w}',
   'flow.tip': 'Dotknij: pokaż lub ukryj kable w domu', 'nav.flow': 'Prąd jako obraz',
   'nav.flowTip': 'Słońce, sieć, dom i bateria z płynącym prądem w prawym górnym rogu zamiast wiersza liczb (tryb na żywo, szeroki ekran)',
   'set.energyCard': 'Prąd jako obraz (tryb na żywo, szeroki ekran)',
@@ -1303,4 +1303,5 @@ export default {
   'set.roomTiles': 'Kafelki pomieszczeń na dole (tryb na żywo)', 'set.preset.roomTiles': 'Kafelki pomieszczeń',
   'tg.draw': 'Rysuj', 'tg.place': 'Wstaw', 'tg.tools': 'Narzędzia', 'tool.s.autoRooms': 'Wykryj', 'tool.s.hole': 'Otwór', 'tool.s.power': 'Prąd',
   'tool.s.energy': 'Bilans', 'tool.s.import': 'Import', 'tool.s.more': 'Więcej',
+  'flow.idle': 'w spoczynku · {w}', 'flow.noPower': 'brak czujnika mocy',
 };

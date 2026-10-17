@@ -68,5 +68,13 @@ test('the texts of the circles', () => {
   const idle = F.flowTexts(F.energyFlows(bal({ grid: 5, imp: 5, exp: 0, load: null, battery: { v: 100, flow: 0, dir: 0 } })), t);
   assert.equal(idle.grid.sub, 'flow.grid');
   assert.equal(idle.home.value, '–');
-  assert.equal(idle.battery.sub, 'flow.battery');
+  assert.equal(idle.battery.sub, 'flow.idle{"w":"0 W"}');
+});
+
+test('the battery at night: resting (holding its reserve) or its power unknown, not just "battery"', () => {
+  const night = (battery) => F.flowTexts(F.energyFlows(bal({ prod: 0, grid: 1020, imp: 1020, exp: 0, load: 1020, battery })), t).battery;
+  assert.deepEqual(night({ v: 9, flow: 0, dir: 0 }), { value: '9 %', sub: 'flow.idle{"w":"0 W"}' });
+  assert.equal(night({ v: 9, flow: 12, dir: 0 }).sub, 'flow.idle{"w":"12 W"}', 'a few watts still count as resting');
+  assert.deepEqual(night({ v: 9, flow: null, dir: null }), { value: '9 %', sub: 'flow.noPower' });
+  assert.equal(night({ v: 9, flow: null, dir: -1 }).sub, 'flow.discharging{"w":""}', 'a text sensor tells only the direction');
 });

@@ -4,9 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.98.1)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.98.2)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.98.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.98.2** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 1. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
 2. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
@@ -262,8 +262,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 0 | 0 | 4 | 3 | 62.1 bis 62.4 |
 | 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 0 | 0 | 8 | 3 | 63.1 bis 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
-| 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 0 | 0 | 14 | 2 | 65.1 bis 65.13, 65.16 |
-| **Zusammen** | **283** | **1** | **162** | **21** | |
+| 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 0 | 0 | 14 | 3 | 65.1 bis 65.13, 65.16 |
+| **Zusammen** | **283** | **1** | **162** | **22** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -272,6 +272,7 @@ Das sind die Punkte, die nur der Besitzer im echten Betrieb prüfen kann. Nach W
 
 1. **Wandtablet** (8.5): das Warnbanner. Nur mit echtem Gerät möglich (10.2 und 10.3 sind seit 2026-10-17 ✅).
 2. **Import mit Dach-Angaben** (15.6, 12.6a): JSON-Import mit `roof.box` bzw. `roof.dormers` (13.3 bis 13.5 sind seit 2026-10-17 ✅).
+3. **Batterie im Strom-Bild** (65.17, neu in 3.98.2): nachts im Add-on ansehen, was unter der Batterie steht („ruht · 0 W“ oder „kein Leistungs-Sensor“).
 
 Fertig seit 2026-10-17: 21.4 (Hinweis auf neue Version) und der ganze Abschnitt 20 (erster Start).
 
@@ -1057,3 +1058,4 @@ Vorlage: die Beispielbilder in `docs/ideen-3.98/`. In der Demo zeigt `?skytime=2
 | 65.14 | Im Add-on: Live-Modus mit echtem `sun.sun` und echter Wetter-Entität | Der Himmel passt zur echten Tageszeit, die Anzeige nennt den echten Sonnenuntergang bzw. -aufgang und das echte Wetter | ➖ |
 | 65.15 | Im Add-on: ein echtes Fenster, das bei Regen offen bleiben darf, „Bei Regen warnen“ abhaken | Bei Regen keine Warnung für dieses Fenster, die anderen warnen weiter | ➖ |
 | 65.16 | Neu in 3.98.1: „Bearbeiten“ am PC | Oben rechts steht auch hier die Karte „Strom jetzt“, die kleine Zahlenzeile ist weg; ein Tipp auf die Karte zeigt die Kabel | ❓ |
+| 65.17 | Neu in 3.98.2: die Karte „Strom jetzt“ ansehen, wenn die Batterie weder lädt noch entlädt (im Add-on z. B. nachts bei fast leerer Batterie) | Unter der Batterie steht „ruht · 0 W“ statt nur „Batterie“; meldet die Batterie keine Leistung (kein Leistungs-Sensor eingerichtet), steht dort „kein Leistungs-Sensor“. Lädt sie, steht weiter „lädt … W“ | ➖ |
