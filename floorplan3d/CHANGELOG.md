@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.97.0] - 2026-10-17
+### Added
+- **A message on alarm, by WhatsApp** (#414): when the **alarm panel goes off** or a **smoke, gas, carbon monoxide or water sensor** reports, the add-on sends a message at once, also when no screen is open (it keeps its own connection to Home Assistant, like the security recorder). The message says what went off, **where it is in the plan** (house · floor · room) and the time, e.g. "🔥 Rauch erkannt: Rauchmelder Küche – Erdgeschoss · Küche · 17.10. 18:22".
+  - **Two ways:** WhatsApp **directly through CallMeBot** (free: your number and the key CallMeBot sends you once) or **any notify service of Home Assistant** (a WhatsApp, Telegram or Signal integration, the Companion app …; the list offers the ones Home Assistant has).
+  - New part **"🚨 Message on alarm (WhatsApp)"** in the settings (editors only): on / off, which sensors, optionally a message when everything is back to normal, **Send a test** (a wrong key is said so).
+  - No flood: the same sensor again only after 10 minutes, at most 10 messages in 10 minutes; what is already going off when the add-on starts is not sent again.
+  - The phone number and the key stay in the add-on (`notify.json`), not in the settings every tablet reads; the key is never handed out again. New endpoints `GET/PUT /api/notify`, `POST /api/notify/test` (editors only).
+  - New modules `alarmnotify.py` (what is an alarm, the text, where it is, the watching; unit tests `tests/test_alarmnotify.py`) and `notifyui.js` (the settings part). Browser test part `24_alarm_notify` with a stand-in CallMeBot. Translated into all 7 languages; add-on docs: "Message on alarm (WhatsApp)".
+
 ## [3.96.0] - 2026-10-17
 ### Added
 - **More devices switched right in the plan** (#406): a tap on a device in live mode opens its card, and the card now has the controls of more kinds of devices:

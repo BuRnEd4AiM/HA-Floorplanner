@@ -209,6 +209,17 @@ On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-
 
 Without any setup the plan warns when a **smoke, gas, carbon monoxide or water sensor** (a `binary_sensor` with that device class) reports *on*, when an **alarm panel** is triggered, and when a **window is open while it rains** (the weather entity reports rain, hail or sleet). A red banner appears at the top and the room flashes red; a tap on the banner jumps into the room. The room is found from the device or window bound to the sensor, otherwise from the Home Assistant area of the room. ⚙ → *Wall tablet: warnings and kiosk* switches warnings off, can jump to a new warning by itself and sets the weather entity (empty = the first one).
 
+## Message on alarm (WhatsApp)
+
+⚙ → **🚨 Message on alarm (WhatsApp)** (editors only): when the **alarm panel** goes off (*triggered*) or a **smoke, gas, carbon monoxide or water sensor** reports, the add-on sends a message at once, also when no screen is open. The message says what went off, where it is in the plan (house · floor · room) and the time, in the language of the add-on. Tick which of them should send a message, and *Also report when everything is back to normal* if you want a second message then. The same sensor is reported again only after 10 minutes, and at most 10 messages go out in 10 minutes, so a broken sensor cannot flood the phone. What is already going off when the add-on starts is not sent again.
+
+Two ways to send it:
+
+- **WhatsApp directly (CallMeBot, free):** enter your WhatsApp number with the country code (e.g. `+49 170 1234567`) and the key (*apikey*) of CallMeBot. You get the key once: the [CallMeBot page](https://www.callmebot.com/blog/free-api-whatsapp-messages/) says which number to send a WhatsApp to, and the answer contains the key. CallMeBot is a free service of a third party; the add-on sends it the number, the key and the text of the message.
+- **Notify service of Home Assistant:** any `notify.…` service you already have, for example a WhatsApp, Telegram or Signal integration or the Companion app on your phone (`mobile_app_…`). The list offers the services Home Assistant reports; the name can also be typed.
+
+**Send a test** saves and sends a test message; if it does not work, the reason is shown (e.g. a wrong key). The phone number and the key are kept by the add-on (`notify.json` in its data folder), not in the settings the tablets read, and the key is never shown again (leave the field empty to keep it).
+
 ## Search
 
 The 🔍 button at the bottom left opens **"Where is …?"**: type part of a device, window or room name. A tap (or Enter for the first hit) switches to the right floor, moves the camera there and marks the device with a ring; in live mode its controls open.

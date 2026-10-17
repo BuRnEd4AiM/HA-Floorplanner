@@ -4,9 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.96.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.97.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.96.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.97.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 1. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
 2. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
@@ -14,8 +14,8 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 4. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
 5. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
 6. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
-7. **Nochmal prüfen, war ❌** (31.1 und 60.9): eine **Wendeltreppe** mit „Etagen“ 2: auf der Etage dazwischen hört das Geländer am Podest auf, man kann aussteigen (behoben in 3.93.0).
-8. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+7. **Nochmal prüfen, war ❌** (31.1, 60.9 und 46.3): eine **Wendeltreppe** mit „Etagen“ 2: auf der Etage dazwischen hört das Geländer am Podest auf, man kann aussteigen (behoben in 3.93.0). Nur im Add-on: die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+8. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
 9. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
 10. **Rollläden** (40.1 bis 40.6, 41.1 bis 41.5): ein Fenster mit Haken „Rollladen“; in „Live“ die Kugel 🪟 über dem Fenster antippen: Karte mit großem Schieber.
 11. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
@@ -260,7 +260,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 0 | 0 | 11 | 2 | 61.1 bis 61.9, 61.12, 61.13 |
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 0 | 0 | 4 | 3 | 62.1 bis 62.4 |
 | 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 0 | 0 | 8 | 3 | 63.1 bis 63.8 |
-| **Zusammen** | **199** | **2** | **229** | **15** | |
+| 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
+| **Zusammen** | **199** | **2** | **229** | **21** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1023,3 +1024,13 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 63.9 | Im Add-on einen echten Lautsprecher / Fernseher, Saugroboter oder Ventilator mit einem Gerät im Plan verknüpfen und in „Live“ bedienen | Die Knöpfe tun, was sie sagen; Geräte, die etwas nicht können (z. B. kein „Weiter“), zeigen den Knopf nicht | ➖ |
 | 63.10 | Im Add-on die echte Alarmanlage verknüpfen, scharf und mit Code unscharf schalten | Wie in Home Assistant; ein falscher Code wird abgelehnt | ➖ |
 | 63.11 | „Benutzer“ → bei einem Tablet ⚙ → „🔒 Gesperrt“: „Alarmanlage bedienen“ abhaken, auf dem Tablet die Alarmanlage antippen | Die Knöpfe der Alarmanlage fehlen, alles andere lässt sich weiter schalten | ➖ |
+
+## 64. Neu in 3.97: Alarm per WhatsApp (#414)
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 64.1 | Im Add-on ⚙ öffnen, nach unten zu „🚨 Benachrichtigung bei Alarm (WhatsApp)“ | Der Teil ist da (nur für Bearbeiter), aus, alle fünf Melder angehakt | ➖ |
+| 64.2 | Auf der Seite von CallMeBot (Link im Teil) den Schlüssel holen; „WhatsApp direkt“, die eigene Nummer mit +49 und den Schlüssel eintragen, „Nachricht bei Alarm senden“ anhaken, „Speichern“ | „Gespeichert. Bereit: bei Alarm kommt eine Nachricht.“ | ➖ |
+| 64.3 | „Test senden“ | Nach ein paar Sekunden kommt die WhatsApp „✅ Test: die Alarm-Benachrichtigung vom 3D Floorplan funktioniert.“ | ➖ |
+| 64.4 | Einen Rauchmelder mit seinem Testknopf auslösen (oder in Home Assistant den Zustand eines Wassermelders auf „an“ setzen) | Eine WhatsApp „🔥 Rauch erkannt: …“ mit Etage, Raum und Uhrzeit, auch wenn kein Bildschirm offen ist; ein zweites Auslösen gleich danach schickt keine zweite | ➖ |
+| 64.5 | Statt WhatsApp „Benachrichtigungsdienst von Home Assistant“ wählen, z. B. die Companion-App (mobile_app_…), „Test senden“ | Die Nachricht kommt auf dem Handy über die App | ➖ |
+| 64.6 | Auf einem Tablet, das nicht bearbeiten darf, ⚙ öffnen | Der Teil „Benachrichtigung bei Alarm“ fehlt | ➖ |

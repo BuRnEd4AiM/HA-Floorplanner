@@ -22,6 +22,7 @@ from urllib.parse import unquote
 import aiohttp
 from aiohttp import web
 
+import alarmnotify as an
 import controls
 import importer
 import manifest as mf
@@ -1700,6 +1701,136 @@ async def get_energy_prefs(request):
     return web.json_response({"prefs": prefs, "siblings": energy_siblings(prefs, registry) if prefs else {}})
 
 
+# ---------- a message when something goes off: alarm panel, smoke, gas, CO, water (#414, alarmnotify.py) ----------
+CALLMEBOT_URL = os.environ.get("CALLMEBOT_URL", "https://api.callmebot.com/whatsapp.php")
+KEY_NOTIFY = web.AppKey("notify", dict)         # {"cfg": the settings of the messages, "lang": Home Assistant's language}
+
+
+def notify_path(request) -> Path:
+    return data_dir(request) / "notify.json"      # not in the settings: every tablet reads those; the phone number and the key stay here
+
+
+def notify_cfg(request) -> dict:
+    store = request.app[KEY_NOTIFY]
+    if "cfg" not in store:
+        stored = read_json(notify_path(request), {})
+        store["cfg"] = an.clean(stored, stored)
+    return store["cfg"]
+
+
+def notify_lang(request) -> str:
+    """the language of the messages: the one picked in the settings, else Home Assistant's, else English"""
+    s = validate_settings(read_settings(request))
+    if s["langChosen"] and s["language"] in an.TEXTS:
+        return s["language"]
+    ha = (request.app[KEY_NOTIFY].get("lang") or "")[:2]
+    return ha if ha in an.TEXTS else "en"
+
+
+async def send_notify(cfg: dict, message: str):
+    """one message the way the settings say (CallMeBot or a notify service of Home Assistant): (ok, error text)"""
+    why = an.ready({**cfg, "on": True})
+    if why:
+        return False, f"not set up: {why}"
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=20)) as s:
+            if cfg["via"] == "ha":
+                if not SUPERVISOR_TOKEN:
+                    return False, "no Home Assistant (standalone mode)"
+                async with s.post(f"{HA_API}/services/notify/{cfg['service']}", headers=ha_headers(),
+                                  json={"title": "3D Floorplan", "message": message}) as r:
+                    return (True, None) if r.status == 200 else (False, f"Home Assistant answered {r.status}")
+            async with s.get(CALLMEBOT_URL, params={"phone": cfg["phone"], "text": message, "apikey": cfg["apikey"]}) as r:
+                said = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", (await r.text())[:2000])).replace(message, "").strip()
+                if r.status != 200 or re.search(r"invalid|error|wrong|not (valid|found|allowed)", said, re.I):
+                    return False, f"CallMeBot ({r.status}): {said[:160]}"
+                return True, None
+    except Exception as err:  # noqa: BLE001 - no network, a timeout ...: said, never raised
+        return False, str(err) or type(err).__name__
+
+
+async def get_notify(request):
+    """the settings of the messages (without the CallMeBot key) and Home Assistant's notify services to choose from (editors)"""
+    if not await can_edit(request):
+        return forbidden()
+    services = []
+    if SUPERVISOR_TOKEN:
+        try:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+                async with s.get(f"{HA_API}/services", headers=ha_headers()) as r:
+                    for d in (await r.json() if r.status == 200 else []):
+                        if isinstance(d, dict) and d.get("domain") == "notify" and isinstance(d.get("services"), dict):
+                            services = sorted(n for n in d["services"] if an.SERVICE.match(n) and n not in ("send_message", "persistent_notification"))
+        except Exception:  # noqa: BLE001 - the list is only a help, the name can be typed
+            services = []
+    cfg = notify_cfg(request)
+    return web.json_response({**an.public(cfg), "ready": an.ready(cfg), "services": services})
+
+
+async def put_notify(request):
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    if not isinstance(body, dict):
+        return web.json_response({"error": "object expected"}, status=400)
+    cfg = an.clean(body, notify_cfg(request))
+    write_json_atomic(notify_path(request), cfg)
+    request.app[KEY_NOTIFY]["cfg"] = cfg
+    return web.json_response({**an.public(cfg), "ready": an.ready(cfg)})
+
+
+async def test_notify(request):
+    """send a test message the way it is set up now"""
+    if not await can_edit(request):
+        return forbidden()
+    ok, err = await send_notify(notify_cfg(request), an.test_text(notify_lang(request)))
+    return web.json_response({"ok": ok, "error": err}, status=200 if ok else 502)
+
+
+def notify_places(request, cache: dict) -> list:
+    """[(house name, layout)] of every house, for where a sensor is; a file is only read again when it changed"""
+    out = []
+    for h in houses_index(request):
+        p = house_file(request, h["id"])
+        try:
+            key = p.stat().st_mtime_ns
+        except OSError:
+            continue
+        if cache.get(p, (None,))[0] != key:
+            cache[p] = (key, read_json(p, {}))
+        out.append((h.get("name") or "", cache[p][1]))
+    return out
+
+
+async def alarm_notifier(app):
+    """Background task: a message when something goes off (also with no browser open). Only with Home Assistant (a token)."""
+    app[KEY_NOTIFY] = {}
+    task = None
+    if SUPERVISOR_TOKEN:
+        ctx, cache = _AppCtx(app), {}
+
+        async def start():
+            await asyncio.sleep(5)
+            tz = await ha_time_zone()
+            try:
+                async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+                    async with s.get(f"{HA_API}/config", headers=ha_headers()) as r:
+                        app[KEY_NOTIFY]["lang"] = str((await r.json()).get("language") or "") if r.status == 200 else ""
+            except Exception:  # noqa: BLE001 - English then
+                pass
+            await an.run_watch(connect=_HaSocket, config=lambda: notify_cfg(ctx), send=lambda msg: send_notify(notify_cfg(ctx), msg),
+                               places=lambda: notify_places(ctx, cache), lang=lambda: notify_lang(ctx),
+                               clock=lambda: datetime.datetime.now(tz).strftime("%d.%m. %H:%M"))
+
+        task = asyncio.create_task(start())
+    yield
+    if task:
+        task.cancel()
+
+
 async def timeline_allowed(request) -> bool:
     return "timeline" not in user_locks(request)
 
@@ -1852,6 +1983,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.cleanup_ctx.append(backup_scheduler)
     app.cleanup_ctx.append(timeline_recorder)
     app.cleanup_ctx.append(rename_watcher)
+    app.cleanup_ctx.append(alarm_notifier)
     app.add_routes([
         web.get("/", index),
         web.get("/api/users-file", get_users_file),
@@ -1893,6 +2025,9 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/areas", get_areas),
         web.get("/api/batteries", get_batteries),
         web.get("/api/energy/prefs", get_energy_prefs),
+        web.get("/api/notify", get_notify),
+        web.put("/api/notify", put_notify),
+        web.post("/api/notify/test", test_notify),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
         web.get("/api/camera/{entity}/hls", get_camera_hls),

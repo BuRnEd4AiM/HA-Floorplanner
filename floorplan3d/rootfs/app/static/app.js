@@ -82,6 +82,7 @@ import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { initEditItems } from './edititems.js';
 import { initClipboard } from './clipboard.js';
 import { initEnergySetup } from './energysetup.js';
+import { initNotifyUi } from './notifyui.js';
 import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
 import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
@@ -1383,6 +1384,7 @@ const settingsStore = initSettings({
   },
 });
 const loadSettings = () => settingsStore.load();
+initNotifyUi({ $, t });                         // settings: a message on alarm by WhatsApp (#414), notifyui.js
 const commitSettings = () => settingsStore.commit();
 function applySettings(prev = {}) {
   setLanguage(settings.language);

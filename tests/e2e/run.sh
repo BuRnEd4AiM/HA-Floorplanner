@@ -13,7 +13,7 @@ LOGS=$(mktemp -d); DATA=$(mktemp -d)
 echo '{"editors": ["admin"]}' > "$LOGS/opts.json"
 python3 make_glb.py
 MOCK_PORT=$MPORT python3 mock_ha.py > "$LOGS/mock.log" 2>&1 & MOCK=$!
-PORT=$PORT DATA_DIR=$DATA SUPERVISOR_TOKEN=x HA_API=http://localhost:$MPORT OPTIONS_FILE=$LOGS/opts.json \
+PORT=$PORT DATA_DIR=$DATA SUPERVISOR_TOKEN=x HA_API=http://localhost:$MPORT CALLMEBOT_URL=http://localhost:$MPORT/_callmebot OPTIONS_FILE=$LOGS/opts.json \
   python3 ../../floorplan3d/rootfs/app/server.py > "$LOGS/server.log" 2>&1 & SERVER=$!
 trap 'kill $MOCK $SERVER 2>/dev/null; rm -rf "$DATA"' EXIT
 for i in $(seq 1 30); do curl -s -o /dev/null "http://localhost:$PORT/" && break; sleep 1; done
