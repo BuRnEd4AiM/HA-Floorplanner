@@ -958,3 +958,20 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
   .rtTemp { font-size: 21px; }
   .rtTags { font-size: 11px; }
 }
+
+/* ---- Tool bar with icons and groups (#422, toolicons.js): icon over the name, a caption over the first tool of each group ---- */
+#tools { gap: 2px; align-items: stretch; padding: 15px 6px 4px; border-radius: 14px; border: 1px solid var(--line); background: color-mix(in srgb, var(--text) 4%, transparent); }
+#tools .tBtn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 56px; padding: 5px 7px;
+  border-radius: 11px; border-color: transparent; background: transparent; font-size: 11.5px; line-height: 1.1; white-space: nowrap; }
+#tools .tBtn[hidden] { display: none; }
+#tools .tBtn:hover { border-color: transparent; background: color-mix(in srgb, var(--text) 8%, transparent); }
+#tools .tBtn.active { background: var(--accent); color: var(--accent-text); box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 35%, transparent); }
+.tIcon { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+#tools .tBtn.tgStart { margin-left: 9px; }
+#tools .tBtn.tgStart::after { content: ''; position: absolute; left: -6px; top: 4px; bottom: 4px; border-left: 1px solid var(--line); }
+#tools .tBtn[data-cap]::before { content: attr(data-cap); position: absolute; left: 6px; top: -14px; font-size: 9.5px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted); white-space: nowrap; pointer-events: none; }
+#toolsMore .tBtn { flex-direction: row; justify-content: flex-start; gap: 8px; min-width: 0; font-size: 13px; }
+#toolsMore .tBtn.tgStart { margin-left: 0; }
+#toolsMore .tBtn::before, #toolsMore .tBtn::after { display: none; }
+#toolsEditBtn { align-self: center; }

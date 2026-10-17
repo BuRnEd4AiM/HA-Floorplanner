@@ -4,10 +4,10 @@ const KEY = 'fp3d.toolbar';
 /** id -> how to find the button; the order here is the default order */
 export const TOOLS = [
   ['select', '[data-tool=select]'], ['wall', '[data-tool=wall]'], ['room', '[data-tool=room]'], ['autoRooms', '#autoRooms'],
-  ['block', '[data-tool=block]'], ['plot', '[data-tool=plot]'], ['stairs', '[data-tool=stairs]'], ['hole', '[data-tool=hole]'],
+  ['block', '[data-tool=block]'], ['plot', '[data-tool=plot]'], ['stairs', '[data-tool=stairs]'], ['hole', '[data-tool=hole]'], ['dormer', '#dormerBtn'],
   ['opening', '[data-tool=opening]'], ['device', '[data-tool=device]'], ['measure', '[data-tool=measure]'], ['erase', '[data-tool=erase]'],
-  ['power', '#powerEditBtn'], ['cable', '#cableBtn'], ['energy', '#energyBtn'], ['dormer', '#dormerBtn'], ['import', '#importBtn'],
-];
+  ['power', '#powerEditBtn'], ['cable', '#cableBtn'], ['energy', '#energyBtn'], ['import', '#importBtn'],
+];   // the roof stands with the drawing tools since the bar has groups (#422)
 const ALWAYS = new Set(['select']);                       // the selection tool can not be hidden, so the bar never gets empty
 const DEFAULT = { order: TOOLS.map(([id]) => id), hidden: [], folded: ['import'] };
 
@@ -29,7 +29,8 @@ function load() {
 }
 function save(cfg) { try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch { /* no storage: the choice lasts for this session */ } }
 
-export function initToolbar({ t, applyI18n }) {
+/** onApply([[id, button]]): after every change, the tools shown in the bar in their order (the groups of the bar, toolicons.js) */
+export function initToolbar({ t, applyI18n, onApply }) {
   const bar = document.getElementById('tools');
   const moreBtn = document.getElementById('toolsMoreBtn'), more = document.getElementById('toolsMore');
   const dlg = document.getElementById('toolsDialog'), list = document.getElementById('toolsList');
@@ -47,6 +48,7 @@ export function initToolbar({ t, applyI18n }) {
     moreBtn.hidden = !folded;
     if (!folded) closeMore();
     markActive();
+    onApply?.(cfg.order.map((id) => [id, btn(id)]).filter(([id, b]) => b && !b.hidden && !cfg.hidden.includes(id) && !(cfg.folded.includes(id))));
   }
   function markActive() { moreBtn.classList.toggle('active', !!more.querySelector('button.active')); }
   function closeMore() { more.hidden = true; moreBtn.setAttribute('aria-expanded', 'false'); }
@@ -63,7 +65,7 @@ export function initToolbar({ t, applyI18n }) {
     list.replaceChildren(...cfg.order.map((id, i) => {
       const b = btn(id);
       const row = document.createElement('div'); row.className = 'tbRow';
-      const name = document.createElement('span'); name.className = 'tbName'; name.textContent = (b?.textContent || id).trim();
+      const name = document.createElement('span'); name.className = 'tbName'; name.textContent = (b?.dataset.full ? t(b.dataset.full) : b?.textContent || id).trim();   // the full name, the bar may show a short one
       const mk = (label, title, on, disabled = false) => {
         const x = document.createElement('button'); x.type = 'button'; x.textContent = label; x.title = title; x.disabled = disabled;
         x.addEventListener('click', on); return x;

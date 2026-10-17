@@ -1302,4 +1302,6 @@ export default {
   'tile.on': '{n} encendida(s)', 'tile.off': 'apagado', 'tile.open': 'abierto', 'nav.tiles': 'Tarjetas de habitaciones',
   'nav.tilesTip': 'Una tarjeta por habitación abajo: temperatura, luces, ventanas abiertas, presencia; tocar lleva a la habitación',
   'set.roomTiles': 'Tarjetas de habitaciones abajo (modo en vivo)', 'set.preset.roomTiles': 'Tarjetas de habitaciones',
+  'tg.draw': 'Dibujar', 'tg.place': 'Colocar', 'tg.tools': 'Herramientas', 'tool.s.autoRooms': 'Detectar', 'tool.s.hole': 'Hueco',
+  'tool.s.power': 'Electricidad', 'tool.s.energy': 'Balance', 'tool.s.import': 'Importar', 'tool.s.more': 'Más',
 };

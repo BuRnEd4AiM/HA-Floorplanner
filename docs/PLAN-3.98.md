@@ -97,8 +97,8 @@ Himmel am Tag / mit `?skytime=21:30` / `?skytime=19:15` · Uhrzeit-Anzeige · �
 - [x] B2. Haken „Bei Regen warnen“ am Fenster (`rainWarn`, `findAlerts`, Eigenschaften, Import/Export, Schema, Tests)
 - [x] C. Strom als Bild (`energyflow.js`, `energyflowui.js`, Knopf „Strom als Bild“ im Menü Ansicht, Einstellung `energyCard`, Sperre „Strom“ blendet es aus)
 - [x] D. Raum-Kacheln (`roomtiles.js`, `roomtilesui.js`, `roomHeat` nutzt `roomReading`; Knopf im Menü Ansicht, Einstellung, Benutzer-Voreinstellung)
-- [ ] E. Werkzeugleiste (`toolicons.js`, `index.html`, CSS)
-- [ ] Texte in 7 Sprachen
+- [x] E. Werkzeugleiste (`toolicons.js`, `index.html`, CSS; `toolbar.js` meldet seine Reihenfolge über `onApply`, „Dach“ steht jetzt bei den Zeichen-Werkzeugen)
+- [x] Texte in 7 Sprachen (bei jedem Teil gleich mit; Prüfung `tests/test_i18n.py`)
 - [ ] Unit-Tests + CI-Liste, Browser-Test-Teil `25_sky_tiles.py`, betroffene Teile lokal grün
 - [ ] Version 3.98.0, CHANGELOG (beide), DOCS, ROADMAP, MODULE-PLAN, Testprotokoll Abschnitt 65, Manifest
 - [ ] Pull Request fertig (kein Entwurf mehr), CI grün, dem Besitzer erklären, wie er mergt

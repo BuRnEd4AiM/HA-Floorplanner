@@ -1,7 +1,8 @@
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
-import { initToolbar } from './toolbar.js';
+import { initToolbar, TOOLS } from './toolbar.js';
+import { decorate as decorateTools, markGroups } from './toolicons.js';
 import { DEFAULT_LEGS } from './kitchen.js';
 import { initAlertsUi } from './alertsui.js';
 import { initSearch } from './search.js';
@@ -1069,7 +1070,8 @@ $('#dormerBtn').addEventListener('click', () => {
   $('#floorPanel').scrollIntoView({ block: 'start', behavior: 'smooth' });
 });
 $('#importBtn').addEventListener('click', () => $('#importOpen').click());
-const toolbarUi = initToolbar({ t });
+decorateTools(TOOLS.map(([id]) => id), (id) => $('#tools').querySelector(TOOLS.find(([k]) => k === id)[1]), $('#toolsMoreBtn'));   // icons and groups (#422), toolicons.js
+const toolbarUi = initToolbar({ t, onApply: (shown) => markGroups(shown, t) });
 
 function setMode(next) {
   mode = next = phoneView(phoneMenu.isPhone(), { mode: next }).mode;   // phones only show the house (#299)
@@ -1392,6 +1394,7 @@ function applySettings(prev = {}) {
   const rs = document.documentElement.style;
   rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow); rs.setProperty('--bg-glow-s', String(settings.bgGlowStrength ?? 0));
   applyI18n();
+  toolbarUi.apply();                                  // the captions of the tool groups in the new language (#422)
   scene.background = isHolo() || sky.on() ? null : new THREE.Color(themeColors().scene);   // the sky shows through the canvas (#418)
   renderer.shadowMap.enabled = settings.shadows && !LOW;
   sun.castShadow = settings.shadows && !LOW;

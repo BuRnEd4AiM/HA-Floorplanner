@@ -1301,4 +1301,6 @@ export default {
   'tile.on': '{n} allumée(s)', 'tile.off': 'éteint', 'tile.open': 'ouvert', 'nav.tiles': 'Tuiles des pièces',
   'nav.tilesTip': 'Une carte par pièce en bas : température, lumières, fenêtres ouvertes, présence ; toucher pour aller à la pièce',
   'set.roomTiles': 'Tuiles des pièces en bas (mode direct)', 'set.preset.roomTiles': 'Tuiles des pièces',
+  'tg.draw': 'Dessiner', 'tg.place': 'Placer', 'tg.tools': 'Outils', 'tool.s.autoRooms': 'Détecter', 'tool.s.hole': 'Trémie', 'tool.s.power': 'Électricité',
+  'tool.s.energy': 'Bilan', 'tool.s.import': 'Importer', 'tool.s.more': 'Plus',
 };

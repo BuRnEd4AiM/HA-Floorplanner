@@ -1295,4 +1295,6 @@ export default {
   'tile.on': '{n} aan', 'tile.off': 'uit', 'tile.open': 'open', 'nav.tiles': 'Kamertegels',
   'nav.tilesTip': 'Onderaan een kaart per kamer: temperatuur, lampen, open ramen, wie er is; tikken vliegt naar de kamer',
   'set.roomTiles': 'Kamertegels onderaan (live)', 'set.preset.roomTiles': 'Kamertegels',
+  'tg.draw': 'Tekenen', 'tg.place': 'Plaatsen', 'tg.tools': 'Gereedschap', 'tool.s.autoRooms': 'Herkennen', 'tool.s.hole': 'Sparing', 'tool.s.power': 'Stroom',
+  'tool.s.energy': 'Balans', 'tool.s.import': 'Importeren', 'tool.s.more': 'Meer',
 };

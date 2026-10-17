@@ -1301,4 +1301,6 @@ export default {
   'tile.on': '{n} wł.', 'tile.off': 'wył.', 'tile.open': 'otwarte', 'nav.tiles': 'Kafelki pomieszczeń',
   'nav.tilesTip': 'Na dole karta dla każdego pomieszczenia: temperatura, światła, otwarte okna, obecność; dotknięcie przenosi do pomieszczenia',
   'set.roomTiles': 'Kafelki pomieszczeń na dole (tryb na żywo)', 'set.preset.roomTiles': 'Kafelki pomieszczeń',
+  'tg.draw': 'Rysuj', 'tg.place': 'Wstaw', 'tg.tools': 'Narzędzia', 'tool.s.autoRooms': 'Wykryj', 'tool.s.hole': 'Otwór', 'tool.s.power': 'Prąd',
+  'tool.s.energy': 'Bilans', 'tool.s.import': 'Import', 'tool.s.more': 'Więcej',
 };

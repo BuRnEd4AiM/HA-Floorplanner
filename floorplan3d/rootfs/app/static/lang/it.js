@@ -1302,4 +1302,6 @@ export default {
   'tile.on': '{n} accese', 'tile.off': 'spento', 'tile.open': 'aperto', 'nav.tiles': 'Schede delle stanze',
   'nav.tilesTip': 'Una scheda per stanza in basso: temperatura, luci, finestre aperte, presenza; tocca per andare alla stanza',
   'set.roomTiles': 'Schede delle stanze in basso (modalità live)', 'set.preset.roomTiles': 'Schede delle stanze',
+  'tg.draw': 'Disegnare', 'tg.place': 'Posizionare', 'tg.tools': 'Strumenti', 'tool.s.autoRooms': 'Rileva', 'tool.s.hole': 'Foro', 'tool.s.power': 'Energia',
+  'tool.s.energy': 'Bilancio', 'tool.s.import': 'Importa', 'tool.s.more': 'Altro',
 };

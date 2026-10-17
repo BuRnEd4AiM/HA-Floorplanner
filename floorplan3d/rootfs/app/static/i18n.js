@@ -227,6 +227,8 @@ const DICT = {
     'tile.on': '{n} an', 'tile.off': 'aus', 'tile.open': 'offen', 'nav.tiles': 'Raum-Kacheln',
     'nav.tilesTip': 'Unten eine Karte pro Raum: Temperatur, Lichter, offene Fenster, wer da ist; antippen fliegt zum Raum',
     'set.roomTiles': 'Raum-Kacheln unten (Live)', 'set.preset.roomTiles': 'Raum-Kacheln',
+    'tg.draw': 'Zeichnen', 'tg.place': 'Setzen', 'tg.tools': 'Werkzeuge', 'tool.s.autoRooms': 'Erkennen', 'tool.s.hole': 'Öffnung', 'tool.s.power': 'Strom',
+    'tool.s.energy': 'Rechnung', 'tool.s.import': 'Import', 'tool.s.more': 'Mehr',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -450,6 +452,8 @@ const DICT = {
     'tile.on': '{n} on', 'tile.off': 'off', 'tile.open': 'open', 'nav.tiles': 'Room tiles',
     'nav.tilesTip': 'A card per room at the bottom: temperature, lights, open windows, who is there; a tap flies to the room',
     'set.roomTiles': 'Room tiles at the bottom (live mode)', 'set.preset.roomTiles': 'Room tiles',
+    'tg.draw': 'Draw', 'tg.place': 'Place', 'tg.tools': 'Tools', 'tool.s.autoRooms': 'Detect', 'tool.s.hole': 'Opening', 'tool.s.power': 'Power',
+    'tool.s.energy': 'Bookkeeping', 'tool.s.import': 'Import', 'tool.s.more': 'More',
   },
 };
 
