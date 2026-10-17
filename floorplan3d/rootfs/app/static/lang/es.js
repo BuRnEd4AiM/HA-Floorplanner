@@ -1305,4 +1305,12 @@ export default {
   'tg.draw': 'Dibujar', 'tg.place': 'Colocar', 'tg.tools': 'Herramientas', 'tool.s.autoRooms': 'Detectar', 'tool.s.hole': 'Hueco',
   'tool.s.power': 'Electricidad', 'tool.s.energy': 'Balance', 'tool.s.import': 'Importar', 'tool.s.more': 'Más',
   'flow.idle': 'en reposo · {w}', 'flow.noPower': 'sin sensor de potencia',
+  'cover.label': 'Suelo', 'cover.hint': 'Lo que cubre el suelo. En el modo «rápido» y con el tema holograma queda de un solo color.', 'cover.none': 'Un color',
+  'cover.parquet': 'Parqué de roble', 'cover.parquetLight': 'Parqué claro', 'cover.parquetDark': 'Parqué oscuro', 'cover.tiles': 'Baldosas (30 cm)',
+  'cover.tilesSmall': 'Baldosas pequeñas (baño)', 'cover.tilesDark': 'Baldosas antracita (60 cm)', 'cover.concrete': 'Hormigón',
+  'set.windowFrames': 'Marcos de las ventanas', 'set.windowFrames.white': 'Blanco', 'set.windowFrames.anthracite': 'Antracita (paredes más claras)',
+  'set.roomLabels': 'Etiquetas de habitaciones en lugar de las bolas y valores de los dispositivos (modo en vivo, pantalla ancha)', 'set.preset.roomLabels': 'Etiquetas de habitaciones',
+ 
+  'nav.roomLabelsTip': 'O bien las etiquetas de las habitaciones (nombre, temperatura, luces, ventanas abiertas, un punto verde si hay alguien; las bolas y valores de los dispositivos se ocultan, toque una habitación para ver sus dispositivos) o los dispositivos como antes (modo en vivo, pantalla ancha)',
+  'nav.roomView': 'Se ve', 'nav.roomView.labels': 'Etiquetas de habitaciones', 'nav.roomView.devices': 'Dispositivos',
 };

@@ -107,6 +107,7 @@
         <button id="planFloorsToggle" class="pill" data-i18n-title="nav.planFloorsTip"></button>
         <button id="flowToggle" class="pill" data-i18n="nav.flow" data-i18n-title="nav.flowTip"></button>
         <button id="tilesToggle" class="pill" data-i18n="nav.tiles" data-i18n-title="nav.tilesTip"></button>
+        <button id="roomLabelsToggle" class="pill" data-i18n-title="nav.roomLabelsTip"></button>
       </div>
       <button id="navLeft" class="navArrow" type="button" hidden aria-label="‹">‹</button>
       <button id="navRight" class="navArrow" type="button" hidden aria-label="›">›</button>
@@ -127,6 +128,7 @@
       </div>
       <div id="floorRail"></div>
       <div id="floorCards"></div>
+      <div id="roomLabels" hidden></div>
       <div id="livePopup" hidden></div>
       <aside id="roomPanel" hidden></aside>
       <div id="sideStack"><div id="skyChips" hidden></div><button id="energyCard" class="glass" type="button" hidden></button></div>
@@ -453,6 +455,9 @@
       <select id="setSky"><option value="time" data-i18n="set.sky.time"></option><option value="off" data-i18n="set.sky.off"></option></select></div>
     <div class="row check"><input id="setEnergyCard" type="checkbox"><label for="setEnergyCard" data-i18n="set.energyCard"></label></div>
     <div class="row check"><input id="setRoomTiles" type="checkbox"><label for="setRoomTiles" data-i18n="set.roomTiles"></label></div>
+    <div class="row check"><input id="setRoomLabels" type="checkbox"><label for="setRoomLabels" data-i18n="set.roomLabels"></label></div>
+    <div class="row"><label for="setWindowFrames" data-i18n="set.windowFrames"></label>
+      <select id="setWindowFrames"><option value="white" data-i18n="set.windowFrames.white"></option><option value="anthracite" data-i18n="set.windowFrames.anthracite"></option></select></div>
 
     <h3 data-i18n="set.section.kiosk"></h3>
     <p class="hint" data-i18n="set.kioskHelp"></p>

@@ -27,6 +27,7 @@ pgE.close()
 set_setting("language", "de")               # the older checks were written for the German interface and the hologram design
 set_setting("theme", "holo")
 set_setting("placeSelect", False)           # ... and place several devices with single clicks
+set_setting("roomLabels", False)            # ... and tap the devices' balls in live mode: the devices, not the room labels (#430, 26_look checks those)
 pg = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
 pg.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
 pg.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))

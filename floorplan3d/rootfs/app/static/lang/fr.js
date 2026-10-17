@@ -1304,4 +1304,12 @@ export default {
   'tg.draw': 'Dessiner', 'tg.place': 'Placer', 'tg.tools': 'Outils', 'tool.s.autoRooms': 'Détecter', 'tool.s.hole': 'Trémie', 'tool.s.power': 'Électricité',
   'tool.s.energy': 'Bilan', 'tool.s.import': 'Importer', 'tool.s.more': 'Plus',
   'flow.idle': 'au repos · {w}', 'flow.noPower': 'pas de capteur de puissance',
+  'cover.label': 'Sol', 'cover.hint': 'Ce qui recouvre le sol. En mode « rapide » et avec le thème hologramme, il reste d’une seule couleur.',
+  'cover.none': 'Une couleur', 'cover.parquet': 'Parquet chêne', 'cover.parquetLight': 'Parquet clair', 'cover.parquetDark': 'Parquet foncé',
+  'cover.tiles': 'Carrelage (30 cm)', 'cover.tilesSmall': 'Petits carreaux (salle de bain)', 'cover.tilesDark': 'Carrelage anthracite (60 cm)',
+  'cover.concrete': 'Béton', 'set.windowFrames': 'Cadres des fenêtres', 'set.windowFrames.white': 'Blanc',
+  'set.windowFrames.anthracite': 'Anthracite (murs plus clairs)', 'set.roomLabels': 'Étiquettes des pièces au lieu des boules et valeurs des appareils (mode direct, grand écran)',
+  'set.preset.roomLabels': 'Étiquettes des pièces',
+  'nav.roomLabelsTip': 'Soit les étiquettes des pièces (nom, température, lumières, fenêtres ouvertes, un point vert quand quelqu’un est là ; les boules et valeurs des appareils sont masquées, touchez une pièce pour voir ses appareils), soit les appareils comme avant (mode direct, grand écran)',
+  'nav.roomView': 'Affiché', 'nav.roomView.labels': 'Étiquettes des pièces', 'nav.roomView.devices': 'Appareils',
 };

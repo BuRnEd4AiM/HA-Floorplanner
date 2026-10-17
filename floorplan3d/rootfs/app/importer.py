@@ -42,6 +42,8 @@ WINDOW_STYLES = {"single", "double", "triple", "fixed"}
 ROOF_TYPES = {"gable", "hip", "flat"}
 FLOOR_KINDS = {"floor", "basement", "roof"}
 ROOM_COLORS = ["#b89b74", "#c9c2b4", "#8fb1c2", "#a99bb8", "#9db39a", "#c2a58f", "#9fb0c9", "#b7b08f"]
+# the floor coverings of a room (#427), the same names as COVERINGS in static/floorcover.js (tests/test_import.py checks it)
+COVERINGS = ("parquet", "parquetLight", "parquetDark", "tiles", "tilesSmall", "tilesDark", "concrete")
 # optional device fields that are copied when they have the right type
 DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len", "rise", "armSwing", "armReach", "armTilt")
 DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img", "batPower")
@@ -568,6 +570,8 @@ def build_layout(data):
             if r.get("terrace") is True:
                 room["terrace"] = True                          # roof terrace: open area with a railing
                 open_rooms.add(len(rooms))
+            if r.get("covering") in COVERINGS:
+                room["covering"] = r["covering"]                # the floor: parquet, tiles, concrete instead of one colour (#427)
             out["rooms"].append(room)
             rooms.append(poly)
         # walls: explicit list wins, otherwise derived from outline + rooms (the building's outline is not the roof floor's)
@@ -914,7 +918,7 @@ def layout_to_property(layout, name="Haus"):
             if not (f.get("rooms") or f.get("walls") or f.get("devices")):      # a plain roof; otherwise also its solar panels, a loft's rooms
                 floors.append(item)
                 continue
-        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace") if k in r} for r in f.get("rooms", [])]
+        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace", "covering") if k in r} for r in f.get("rooms", [])]
         item["walls"] = []
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": []}

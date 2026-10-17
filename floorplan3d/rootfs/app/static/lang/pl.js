@@ -1304,4 +1304,11 @@ export default {
   'tg.draw': 'Rysuj', 'tg.place': 'Wstaw', 'tg.tools': 'Narzędzia', 'tool.s.autoRooms': 'Wykryj', 'tool.s.hole': 'Otwór', 'tool.s.power': 'Prąd',
   'tool.s.energy': 'Bilans', 'tool.s.import': 'Import', 'tool.s.more': 'Więcej',
   'flow.idle': 'w spoczynku · {w}', 'flow.noPower': 'brak czujnika mocy',
+  'cover.label': 'Podłoga', 'cover.hint': 'Czym pokryta jest podłoga. W trybie „szybkim” i w motywie hologramu pozostaje jednolita.',
+  'cover.none': 'Jeden kolor', 'cover.parquet': 'Parkiet dębowy', 'cover.parquetLight': 'Parkiet jasny', 'cover.parquetDark': 'Parkiet ciemny',
+  'cover.tiles': 'Płytki (30 cm)', 'cover.tilesSmall': 'Małe płytki (łazienka)', 'cover.tilesDark': 'Płytki antracytowe (60 cm)', 'cover.concrete': 'Beton',
+  'set.windowFrames': 'Ramy okien', 'set.windowFrames.white': 'Białe', 'set.windowFrames.anthracite': 'Antracytowe (jaśniejsze ściany)',
+  'set.roomLabels': 'Etykiety pokoi zamiast kul i wartości urządzeń (tryb na żywo, szeroki ekran)', 'set.preset.roomLabels': 'Etykiety pokoi',
+  'nav.roomLabelsTip': 'Albo etykiety pokoi (nazwa, temperatura, światła, otwarte okna, zielona kropka, gdy ktoś jest; kule i wartości urządzeń są ukryte, dotknij pokoju, aby zobaczyć jego urządzenia), albo urządzenia jak dotąd (tryb na żywo, szeroki ekran)',
+  'nav.roomView': 'Widok', 'nav.roomView.labels': 'Etykiety pokoi', 'nav.roomView.devices': 'Urządzenia',
 };

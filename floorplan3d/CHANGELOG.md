@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.99.0] - 2026-10-17
+### Added
+- **Real floors per room** (#427): in the properties of a room, *Boden* puts parquet (oak, light, dark), tiles (30 cm, small for the bathroom, anthracite 60 cm) or concrete in it instead of one colour. The patterns are drawn by the browser (no picture files) at their real size; the colour views Temp. / Humidity / CO₂ colour the floor as before; the 2D plan and the floor thumbnails show the room in the colour of its floor. One colour in the "fast" performance mode and in the hologram design. Import / export and the JSON schema know the new field `covering`.
+- **Anthracite window frames** (#428): ⚙ → *Fensterrahmen*: white (as always) or anthracite, with lighter walls; the door frames stay white.
+- **Room labels or devices** (#430): in live mode on wide screens either a glass label over every room of the floor shown (name, temperature, lights on with the edge in their colour, open window, a green dot when somebody is there) or the devices as before, never both (the owner's wish). The room labels are the new default: the devices' balls and value labels and the names on the floor are off meanwhile; a tap on a label or a room opens it with its devices. Not in the whole-house view, with a room opened, in edit mode or on phones. *Ansicht* → *Im Bild: Raum-Schilder / Geräte* switches (also ⚙; the users dialog can preset it).
+### Changed
+- **Glass look** (#429): the buttons over the picture and the floor cards on the left are frosted glass like the room tiles and the energy picture (light glass in the light design, no blur in the "fast" mode).
+- The demo shows the new floors and the anthracite window frames.
+
 ## [3.98.2] - 2026-10-17
 ### Changed
 - **Battery in the energy picture says what it does** (#420): instead of only "Battery" under it, the circle now says **"idle · 0 W"** when it neither charges nor discharges (e.g. at night at 9 %, when most batteries hold their reserve) and **"no power sensor"** when its power is unknown, so a missing power sensor can be told apart from a resting battery.

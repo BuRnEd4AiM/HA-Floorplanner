@@ -5,6 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { buildWall } from './walls.js';
 import { initRoofs } from './roofs.js';
 import { layoutUrl } from './houses.js';
+import { floorHex } from './floorcover.js';
 
 /** where a point [x, z] of the neighbour's plan lies in this plan: turned by nb.rot degrees (like a device), moved by nb.x / nb.z */
 export function placePoint([x, z], nb) {
@@ -81,7 +82,7 @@ export function initNeighbors(ctx) {
         (f.rooms || []).forEach((r) => {
           if ((r.points || []).length < 3) return;
           const geo = new THREE.ShapeGeometry(new THREE.Shape(r.points.map(([x, z]) => new THREE.Vector2(x, -z)))).rotateX(-Math.PI / 2);
-          const m = new THREE.Mesh(geo, ctx.mat(r.color || '#8a7f70', false, { side: THREE.DoubleSide }));
+          const m = new THREE.Mesh(geo, ctx.mat(floorHex(r), false, { side: THREE.DoubleSide }));   // a covered floor in its colour (#427)
           m.position.y = 0.01; m.receiveShadow = true; g.add(m);
           if (r.terrace) R.railing(g, r, f, holo, false, bridgesAt(ctx.bridges?.(), nb, floorElev(L.floors, i, ctx.floorH) + nb.y, ctx.floorH));   // its terrace keeps its railing, open where our bridge arrives
         });

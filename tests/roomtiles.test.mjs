@@ -71,3 +71,24 @@ test('the texts of a tile', () => {
   assert.deepEqual(R.tileTexts({ temp: null, lights: 0, open: 0 }, t, num), { temp: '–', lights: '💡 tile.off', open: '' });
   assert.equal(R.tileTexts({ temp: 20, lights: 0, open: 0 }, t, num, true).temp, '68,0°');
 });
+
+test('the texts of a label over a room in 3D (#430): short, nothing for what is not there', () => {
+  const num = (v) => v.toFixed(1).replace('.', ',');
+  assert.deepEqual(R.labelTexts({ temp: 21.44, lights: 5, open: 1 }, num), { temp: '21,4°', lights: '💡 5', open: '🪟' });
+  assert.deepEqual(R.labelTexts({ temp: null, lights: 0, open: 0 }, num), { temp: '', lights: '', open: '' });
+  assert.equal(R.labelTexts({ temp: 20, lights: 0, open: 0 }, num, true).temp, '68,0°');
+});
+
+test('the labels over the rooms show in live mode on a wide screen, one floor, no room opened, the 3D view shown; and can be switched off', () => {
+  const on = { on: true, live: true, wide: true, house: false, focused: null, view3d: true };
+  assert.equal(R.labelsShown(on), true);
+  for (const k of ['on', 'live', 'wide', 'view3d']) assert.equal(R.labelsShown({ ...on, [k]: false }), false, k);
+  assert.equal(R.labelsShown({ ...on, house: true }), false, 'the whole house');
+  assert.equal(R.labelsShown({ ...on, focused: 'r1' }), false, 'a room opened');
+});
+
+test('a label floats over most furniture, under the ceiling', () => {
+  assert.equal(R.labelHeight(2.6), 1.2);
+  assert.ok(Math.abs(R.labelHeight(2.2) - 1.034) < 1e-9);
+  assert.equal(R.labelHeight(undefined), 1.2);
+});

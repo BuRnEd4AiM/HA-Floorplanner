@@ -1,7 +1,7 @@
 /* Room tiles (#421): what a room's card in live mode shows: its temperature, how many lights are on (and their colour), open windows and
  * whether somebody is there. Also the average reading of a room (temperature, humidity, CO₂) that the room colours of the views "Temp." /
- * "Feuchte" / "CO₂" use (`roomReading`, moved here out of roomHeat in app.js). Pure (unit test: tests/roomtiles.test.mjs); roomtilesui.js
- * draws the strip. */
+ * "Feuchte" / "CO₂" use (`roomReading`, moved here out of roomHeat in app.js). And what the labels over the rooms in the 3D view show and
+ * when they show (#430). Pure (unit test: tests/roomtiles.test.mjs); roomtilesui.js draws the strip, roomlabels.js the labels. */
 import { pointInPoly } from './rooms.js';
 import { roomOpenings } from './roompanel.js';
 import { occupied } from './nav.js';
@@ -64,3 +64,20 @@ export function tileTexts(s, t, num, imperial = false) {
     open: s.open ? `🪟 ${t('tile.open')}` : '',
   };
 }
+
+/** the texts of a label over a room in 3D (#430), short: { temp: '21,4°' or '' without one, lights: '💡 2' or '' (none on), open: '🪟' or '' } */
+export function labelTexts(s, num, imperial = false) {
+  return {
+    temp: s.temp === null ? '' : `${num(imperial ? s.temp * 9 / 5 + 32 : s.temp)}°`,
+    lights: s.lights ? `💡 ${s.lights}` : '',
+    open: s.open ? '🪟' : '',
+  };
+}
+
+/** do the labels over the rooms show? on (setting), live mode, a wide screen (phones have the tiles), one floor (the whole house would
+ *  pile them up), no room opened (its card says it all) and the 3D view shown */
+export const labelsShown = ({ on, live, wide, house, focused, view3d }) => !!(on && live && wide && !house && !focused && view3d);
+
+/** how high over its floor the label of a room floats (m): over most furniture, low enough to stay over its room when the camera looks
+ *  down at an angle */
+export const labelHeight = (wallHeight) => Math.min(1.2, 0.47 * (wallHeight || 2.6));

@@ -1305,4 +1305,12 @@ export default {
   'tg.draw': 'Disegnare', 'tg.place': 'Posizionare', 'tg.tools': 'Strumenti', 'tool.s.autoRooms': 'Rileva', 'tool.s.hole': 'Foro', 'tool.s.power': 'Energia',
   'tool.s.energy': 'Bilancio', 'tool.s.import': 'Importa', 'tool.s.more': 'Altro',
   'flow.idle': 'a riposo · {w}', 'flow.noPower': 'nessun sensore di potenza',
+  'cover.label': 'Pavimento', 'cover.hint': 'Ciò che copre il pavimento. In modalità «veloce» e con il tema ologramma resta di un solo colore.',
+  'cover.none': 'Un colore', 'cover.parquet': 'Parquet rovere', 'cover.parquetLight': 'Parquet chiaro', 'cover.parquetDark': 'Parquet scuro',
+  'cover.tiles': 'Piastrelle (30 cm)', 'cover.tilesSmall': 'Piastrelle piccole (bagno)', 'cover.tilesDark': 'Piastrelle antracite (60 cm)',
+  'cover.concrete': 'Cemento', 'set.windowFrames': 'Telai delle finestre', 'set.windowFrames.white': 'Bianco',
+  'set.windowFrames.anthracite': 'Antracite (pareti più chiare)', 'set.roomLabels': 'Etichette delle stanze al posto delle sfere e dei valori dei dispositivi (modalità live, schermo largo)',
+  'set.preset.roomLabels': 'Etichette delle stanze',
+  'nav.roomLabelsTip': 'O le etichette delle stanze (nome, temperatura, luci, finestre aperte, un punto verde se c’è qualcuno; le sfere e i valori dei dispositivi sono nascosti, tocca una stanza per vederne i dispositivi) o i dispositivi come prima (modalità live, schermo largo)',
+  'nav.roomView': 'In vista', 'nav.roomView.labels': 'Etichette delle stanze', 'nav.roomView.devices': 'Dispositivi',
 };

@@ -14,6 +14,7 @@ import { wantsLightColor } from './lamplight.js';
 import { finishChoices, finishOf, variantChoices, variantOf, variantLabel, variantHint } from './scandi.js';
 import { zoneKeys, setZone, fitZones } from './ledzones.js';
 import { TV_SIZES, ARM, armPose } from './tvmount.js';
+import { COVERING_KEYS, cleanCovering } from './floorcover.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -139,7 +140,15 @@ export function initProps(ctx) {
   function roomProps(body, it) {
     const areas = ctx.areas();
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
-    body.append(field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v))));
+    {                                                          // the floor (#427): one colour, or parquet, tiles, concrete
+      const cs = document.createElement('select'); cs.id = 'roomCovering'; cs.title = t('cover.hint');
+      cs.add(new Option(t('cover.none'), ''));
+      COVERING_KEYS.forEach((k) => cs.add(new Option(t(`cover.${k}`), k)));
+      cs.value = cleanCovering(it.covering) || '';
+      cs.addEventListener('change', () => { ctx.snapshot(); if (cs.value) it.covering = cs.value; else delete it.covering; ctx.changed(); render(); });
+      body.append(field(t('cover.label'), cs));
+    }
+    if (!cleanCovering(it.covering)) body.append(field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v), { id: 'roomColor' })));   // a covering brings its own colours
     {                                                          // roof terrace / open area: no roof above it, railing on the edges without a wall
       const tc = document.createElement('input'); tc.type = 'checkbox'; tc.checked = !!it.terrace; tc.id = 'roomTerrace';
       tc.addEventListener('change', () => {

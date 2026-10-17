@@ -230,6 +230,13 @@ const DICT = {
     'tg.draw': 'Zeichnen', 'tg.place': 'Setzen', 'tg.tools': 'Werkzeuge', 'tool.s.autoRooms': 'Erkennen', 'tool.s.hole': 'Öffnung', 'tool.s.power': 'Strom',
     'tool.s.energy': 'Rechnung', 'tool.s.import': 'Import', 'tool.s.more': 'Mehr',
     'flow.idle': 'ruht · {w}', 'flow.noPower': 'kein Leistungs-Sensor',
+    'cover.label': 'Boden', 'cover.hint': 'Was auf dem Boden liegt. Im Sparmodus „Schnell“ und im Design „Hologramm“ bleibt er einfarbig.',
+    'cover.none': 'Einfarbig', 'cover.parquet': 'Parkett Eiche', 'cover.parquetLight': 'Parkett hell', 'cover.parquetDark': 'Parkett dunkel',
+    'cover.tiles': 'Fliesen (30 cm)', 'cover.tilesSmall': 'Fliesen klein (Bad)', 'cover.tilesDark': 'Fliesen anthrazit (60 cm)', 'cover.concrete': 'Beton',
+    'set.windowFrames': 'Fensterrahmen', 'set.windowFrames.white': 'Weiß', 'set.windowFrames.anthracite': 'Anthrazit (hellere Wände)',
+    'set.roomLabels': 'Raum-Schilder statt der Geräte-Kugeln und Werte (Live, breiter Bildschirm)', 'set.preset.roomLabels': 'Raum-Schilder',
+    'nav.roomLabelsTip': 'Entweder Raum-Schilder (über jedem Raum Name, Temperatur, Lichter, offene Fenster, grüner Punkt wenn jemand da ist; die Kugeln und Werte der Geräte sind aus, einen Raum antippen zeigt seine Geräte) oder die Geräte wie bisher (Live, breiter Bildschirm)',
+    'nav.roomView': 'Im Bild', 'nav.roomView.labels': 'Raum-Schilder', 'nav.roomView.devices': 'Geräte',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -456,6 +463,13 @@ const DICT = {
     'tg.draw': 'Draw', 'tg.place': 'Place', 'tg.tools': 'Tools', 'tool.s.autoRooms': 'Detect', 'tool.s.hole': 'Opening', 'tool.s.power': 'Power',
     'tool.s.energy': 'Bookkeeping', 'tool.s.import': 'Import', 'tool.s.more': 'More',
     'flow.idle': 'idle · {w}', 'flow.noPower': 'no power sensor',
+    'cover.label': 'Floor', 'cover.hint': 'What covers the floor. In the “fast” performance mode and the hologram theme it stays one colour.',
+    'cover.none': 'One colour', 'cover.parquet': 'Oak parquet', 'cover.parquetLight': 'Light parquet', 'cover.parquetDark': 'Dark parquet',
+    'cover.tiles': 'Tiles (30 cm)', 'cover.tilesSmall': 'Small tiles (bathroom)', 'cover.tilesDark': 'Anthracite tiles (60 cm)', 'cover.concrete': 'Concrete',
+    'set.windowFrames': 'Window frames', 'set.windowFrames.white': 'White', 'set.windowFrames.anthracite': 'Anthracite (lighter walls)',
+    'set.roomLabels': 'Room labels instead of the devices\' balls and values (live mode, wide screens)', 'set.preset.roomLabels': 'Room labels',
+    'nav.roomLabelsTip': 'Either room labels (over every room its name, temperature, lights, open windows, a green dot when somebody is there; the devices\' balls and values are off, tap a room to see its devices) or the devices as before (live mode, wide screens)',
+    'nav.roomView': 'Shown', 'nav.roomView.labels': 'Room labels', 'nav.roomView.devices': 'Devices',
   },
 };
 

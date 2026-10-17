@@ -207,8 +207,9 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1) {
 }
 
 /** Returns a Group positioned at the wall centre with local x along the wall. bare: only the doors / windows, no wall (a dormer window).
- *  shutterSide(o): the side (local z, +1 / -1) the roller shutter of window o hangs on, outside (shutters.js), +1 without it. */
-export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null, bare = false, shutterSide = null }) {
+ *  shutterSide(o): the side (local z, +1 / -1) the roller shutter of window o hangs on, outside (shutters.js), +1 without it.
+ *  windowFrame: the colour of the window frames ('#rrggbb', facade.js, #428), the door frames stay white; null: white as well */
+export function buildWall(w, { material, ghost = false, low = false, cut = 0, makeMat, holo = false, edgeMaterial = null, bare = false, shutterSide = null, windowFrame = null }) {
   const len = wallLength(w);
   const t = w.thickness;
   const H = (w.height || 2.6) * (low ? 0.12 : cut || 1);   // `cut`: fraction of the height that stays (half section)
@@ -227,6 +228,7 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
     frame: makeMat('#f4f4f4', ghost), door: makeMat('#8a6a48', ghost), metal: makeMat('#c9c9c9', ghost),
     glass: makeMat('#9cc9ee', ghost, { opacity: ghost ? 0.15 : 0.45, roughness: 0.1 }),
   };
+  const winMats = windowFrame && !holo ? { ...mats, frame: makeMat(windowFrame, ghost) } : mats;   // anthracite window frames (#428)
   // the roller shutters of the windows (#331): one material of their own, not tinted red with an open window
   const shutterMat = (w.openings || []).some(hasShutter) ? (holo ? basic(0x8fb4ff, 0.8) : makeMat('#a7adb4', ghost)) : null;
   const solid = (x0, x1, y0, y1) => {
@@ -249,7 +251,7 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
     if (o.sill > 0) solid(x0, x1, 0, o.sill);             // below (windows)
     cursor = x1;
     if (!low) {
-      const og = buildOpening({ ...o }, t, mats, low, shutterMat, shutterSide && hasShutter(o) ? shutterSide(o) : 1);
+      const og = buildOpening({ ...o }, t, o.type === 'window' ? winMats : mats, low, shutterMat, shutterSide && hasShutter(o) ? shutterSide(o) : 1);
       og.position.x = c;
       group.add(og);
     }

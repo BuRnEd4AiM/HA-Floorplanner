@@ -1,5 +1,6 @@
 /* Floor rail: a side bar with a little isometric picture of every floor (rooms, walls with windows and doors, or the roof) and a button for the whole
  * house. The drawing is done by drawThumb (a plain 2D canvas, tested with a fake canvas); initFloorRail builds the buttons. */
+import { floorHex } from './floorcover.js';
 
 const ISO = (x, z, h) => [(x - z) * 0.866, (x + z) * 0.5 - h];
 
@@ -40,7 +41,7 @@ export function drawThumb(cv, f, rb, opts) {
     poly([c10, c11, r1], holo ? null : '#6f332a', holo ? accent : null);
     return;
   }
-  f.rooms.forEach((r) => poly(r.points.map(([x, z]) => P(x, z, 0)), holo ? accent + '30' : r.color || '#8a7f70', holo ? accent : 'rgba(0,0,0,.25)'));
+  f.rooms.forEach((r) => poly(r.points.map(([x, z]) => P(x, z, 0)), holo ? accent + '30' : floorHex(r), holo ? accent : 'rgba(0,0,0,.25)'));
   const base = '#d9d4cc';
   [...f.walls].sort((p, q) => (p.a[0] + p.a[1] + p.b[0] + p.b[1]) - (q.a[0] + q.a[1] + q.b[0] + q.b[1])).forEach((w) => {
     const len = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);

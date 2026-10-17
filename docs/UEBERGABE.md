@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-10-17, Version **3.98.2**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`, dann bei den **Entscheidungen des Besitzers** unten weitermachen.
+Stand: 2026-10-17, Version **3.99.0**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`, dann bei den **Entscheidungen des Besitzers** unten weitermachen.
 
 ## Der Besitzer
 
@@ -16,15 +16,17 @@ Stand: 2026-10-17, Version **3.98.2**. Diese Datei ist für den nächsten Chat (
 |---|---|---|
 | 3.98.0 | #423 (gemergt) | Himmel nach Uhrzeit (#418), Wetter im Bild und Regen-Warnung pro Fenster (#419), Strom als Bild (#420), Raum-Kacheln (#421), Werkzeugleiste mit Symbolen und Gruppen (#422). Plan und Entscheidungen: `docs/PLAN-3.98.md`, Beispielbilder: `docs/ideen-3.98/` |
 | 3.98.1 | #424 (gemergt) | „Strom als Bild“ auch im Bearbeiten-Modus statt der kleinen Zahlenzeile (Wunsch des Besitzers) |
-| 3.98.2 | Branch `claude/bold-cannon-9w2m0w` | Batterie im Strom-Bild: „ruht · 0 W“, wenn sie weder lädt noch entlädt, „kein Leistungs-Sensor“, wenn ihre Leistung unbekannt ist (Wunsch des Besitzers nach seinem Nachtbild: 9 %, alles kam aus dem Netz). Testprotokoll 65.17 (nur im Add-on) |
+| 3.98.2 | #426 (gemergt) | Batterie im Strom-Bild: „ruht · 0 W“, wenn sie weder lädt noch entlädt, „kein Leistungs-Sensor“, wenn ihre Leistung unbekannt ist (Wunsch des Besitzers nach seinem Nachtbild: 9 %, alles kam aus dem Netz). Testprotokoll 65.17 (nur im Add-on) |
 
-Testprotokoll: Abschnitt **65** (65.1 bis 65.17) ist neu und noch ❓; der Besitzer prüft ihn in der Demo. 65.14, 65.15 und 65.17 gehen nur im Add-on.
+| 3.99.0 | Branch `claude/bold-cannon-9w2m0w` | Zweite Runde Aussehen, vom Besitzer ausgewählt: echte Böden pro Raum (#427, `floorcover.js`, `floortex.js`), Fensterrahmen weiß / anthrazit (#428, `facade.js`), Glas-Optik für Etagen-Karten und Knöpfe (#429, nur CSS), Raum-Schilder im 3D-Bild (#430, `roomlabels.js`): auf Wunsch des Besitzers **entweder Raum-Schilder oder Geräte** (Schalter „Im Bild: Raum-Schilder / Geräte“ in „Ansicht“, Normalfall Raum-Schilder; ein Schild antippen öffnet den Raum mit seinen Geräten). Die älteren Browser-Test-Teile laufen mit „Geräte“ (`base.py`), `26_look` prüft die Schilder. Browser-Test-Teil `26_look`. Die Demo hat Böden und anthrazitfarbene Rahmen eingestellt |
+
+Testprotokoll: Abschnitte **65** (65.1 bis 65.17) und **66** (66.1 bis 66.11) sind neu und noch ❓; der Besitzer prüft sie in der Demo. 65.14, 65.15, 65.17 und 66.11 gehen nur im Add-on.
 
 ## Entscheidungen des Besitzers (2026-10-17) und was als Nächstes kommt
 
 - **Mergen:** Claude darf die Pull Requests dieser Sitzung selbst mergen, sobald alles grün ist (Methode „merge“).
 - **Batterie-Text:** ja, so gebaut (3.98.2, siehe oben).
-- **Zweite Runde Ideen fürs Aussehen** (Bilder in `docs/ideen-3.99/`), ausgewählt für **3.99.0**:
+- **Zweite Runde Ideen fürs Aussehen** (Bilder in `docs/ideen-3.99/`), ausgewählt und gebaut in **3.99.0** (siehe oben):
   1. **Echte Böden** (`1-boeden.jpg`): Parkett, Fliesen, Beton je Raum, pro Raum wählbar.
   2. **Dunkle Fensterrahmen, hellere Wände** (`2-fassade.jpg`).
   3. **Glas-Optik** für die Etagen-Karten links und die Knöpfe (`4-glas.jpg`), passend zu den Karten aus 3.98.
