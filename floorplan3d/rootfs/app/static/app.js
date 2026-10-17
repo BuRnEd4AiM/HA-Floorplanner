@@ -45,6 +45,7 @@ import { initFloorPanel, newFloor } from './floorpanel.js';
 import { hexVec, colorFromStops, roomLightMat as makeRoomLightMat, fillLights as fillRoomLights } from './roomlight.js';
 import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
+import { initSky } from './skyui.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -269,6 +270,8 @@ const roomMeshes = new Map();     // room id -> { mesh, room }
 
 /* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing; the code lives in earth.js ---- */
 const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH: FLOOR_H, settings: () => settings, houseMode: () => houseMode });
+const sky = initSky({ $, t, canvas, params, settings: () => settings, states: () => states, isLive: () => isLive(), isHolo: () => isHolo(),   // sky and weather (#418, #419), skyui.js
+  low: () => perfParam === 'low', earthTint: (c) => earth.setTint(c) });
 let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
 /** the grid is a drawing aid (never in live mode, under any ground only while drawing, on the level of the floor shown); the earth cut follows the camera */
 function updateEarthCut() {
@@ -637,6 +640,7 @@ function applyStates() {
   offReasons = new Map(); offList.forEach((x) => { if (!offReasons.has(x.id) || offReasons.get(x.id) === 'unlinked') offReasons.set(x.id, x.reason); });
   deviceList.update();                    // the device overview (#376): its button, and the list while it is open
   alertsUi.update();
+  sky.apply();                            // the sky of the hour and the weather (#418, #419)
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
   const bv = belowVis();
@@ -1392,7 +1396,7 @@ function applySettings(prev = {}) {
   const rs = document.documentElement.style;
   rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow); rs.setProperty('--bg-glow-s', String(settings.bgGlowStrength ?? 0));
   applyI18n();
-  scene.background = isHolo() ? null : new THREE.Color(themeColors().scene);
+  scene.background = isHolo() || sky.on() ? null : new THREE.Color(themeColors().scene);   // the sky shows through the canvas (#418)
   renderer.shadowMap.enabled = settings.shadows && !LOW;
   sun.castShadow = settings.shadows && !LOW;
   markShadows();

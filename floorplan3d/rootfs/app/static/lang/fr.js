@@ -1284,4 +1284,11 @@ export default {
   'heat.fan.on': 'Marche',
   'heat.fan.off': 'Arrêt',
   'heat.fan.quiet': 'Silencieux',
+  'sky.night': 'Nuit', 'sky.dawn': 'Aube', 'sky.morning': 'Matin', 'sky.day': 'Jour', 'sky.evening': 'Soir', 'sky.dusk': 'Crépuscule',
+  'sky.set': 'Coucher du soleil {t}', 'sky.rise': 'Lever du soleil {t}', 'set.sky': 'Ciel',
+  'set.skyHint': 'Le fond derrière la maison suit le soleil (sun.sun) et la météo : rose le matin, bleu le jour, orange le soir, étoilé la nuit.',
+  'set.sky.time': 'Selon l\'heure et la météo', 'set.sky.off': 'Couleur unie', 'wx.wind': 'Vent {v}', 'wx.clear-night': 'Nuit claire', 'wx.sunny': 'Ensoleillé',
+  'wx.partlycloudy': 'Partiellement nuageux', 'wx.cloudy': 'Nuageux', 'wx.fog': 'Brouillard', 'wx.windy': 'Venteux', 'wx.windy-variant': 'Venteux et nuageux',
+  'wx.exceptional': 'Intempéries', 'wx.rainy': 'Pluie', 'wx.pouring': 'Averse', 'wx.lightning-rainy': 'Orage avec pluie', 'wx.lightning': 'Orage',
+  'wx.hail': 'Grêle', 'wx.snowy': 'Neige', 'wx.snowy-rainy': 'Neige fondue',
 };

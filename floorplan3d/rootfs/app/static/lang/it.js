@@ -1285,4 +1285,11 @@ export default {
   'heat.fan.on': 'Acceso',
   'heat.fan.off': 'Spento',
   'heat.fan.quiet': 'Silenzioso',
+  'sky.night': 'Notte', 'sky.dawn': 'Aurora', 'sky.morning': 'Mattina', 'sky.day': 'Giorno', 'sky.evening': 'Sera', 'sky.dusk': 'Crepuscolo',
+  'sky.set': 'Tramonto {t}', 'sky.rise': 'Alba {t}', 'set.sky': 'Cielo',
+  'set.skyHint': 'Lo sfondo dietro la casa segue il sole (sun.sun) e il meteo: rosa al mattino, blu di giorno, arancione la sera, stellato di notte.',
+  'set.sky.time': 'In base all\'ora e al meteo', 'set.sky.off': 'Tinta unita', 'wx.wind': 'Vento {v}', 'wx.clear-night': 'Notte serena',
+  'wx.sunny': 'Soleggiato', 'wx.partlycloudy': 'Parzialmente nuvoloso', 'wx.cloudy': 'Nuvoloso', 'wx.fog': 'Nebbia', 'wx.windy': 'Ventoso',
+  'wx.windy-variant': 'Ventoso e nuvoloso', 'wx.exceptional': 'Maltempo', 'wx.rainy': 'Pioggia', 'wx.pouring': 'Pioggia forte',
+  'wx.lightning-rainy': 'Temporale con pioggia', 'wx.lightning': 'Temporale', 'wx.hail': 'Grandine', 'wx.snowy': 'Neve', 'wx.snowy-rainy': 'Nevischio',
 };

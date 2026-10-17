@@ -1285,4 +1285,11 @@ export default {
   'heat.fan.on': 'Encendido',
   'heat.fan.off': 'Apagado',
   'heat.fan.quiet': 'Silencioso',
+  'sky.night': 'Noche', 'sky.dawn': 'Amanecer', 'sky.morning': 'Mañana', 'sky.day': 'Día', 'sky.evening': 'Tarde', 'sky.dusk': 'Anochecer',
+  'sky.set': 'Puesta de sol {t}', 'sky.rise': 'Salida del sol {t}', 'set.sky': 'Cielo',
+  'set.skyHint': 'El fondo detrás de la casa sigue al sol (sun.sun) y al tiempo: rosa por la mañana, azul de día, naranja por la tarde, con estrellas de noche.',
+  'set.sky.time': 'Según la hora y el tiempo', 'set.sky.off': 'Color liso', 'wx.wind': 'Viento {v}', 'wx.clear-night': 'Noche despejada', 'wx.sunny': 'Soleado',
+  'wx.partlycloudy': 'Parcialmente nublado', 'wx.cloudy': 'Nublado', 'wx.fog': 'Niebla', 'wx.windy': 'Ventoso', 'wx.windy-variant': 'Ventoso y nublado',
+  'wx.exceptional': 'Tiempo severo', 'wx.rainy': 'Lluvia', 'wx.pouring': 'Lluvia intensa', 'wx.lightning-rainy': 'Tormenta con lluvia',
+  'wx.lightning': 'Tormenta', 'wx.hail': 'Granizo', 'wx.snowy': 'Nieve', 'wx.snowy-rainy': 'Aguanieve',
 };

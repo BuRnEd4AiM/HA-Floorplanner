@@ -67,6 +67,7 @@
   <main>
     <div id="stage">
       <canvas id="view"></canvas>
+      <div id="wxFall" hidden><i></i></div>
       <div id="welcome" hidden>
         <button id="welClose" type="button" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button>
         <h2 data-i18n="wel.title"></h2>
@@ -126,6 +127,7 @@
       <div id="floorCards"></div>
       <div id="livePopup" hidden></div>
       <aside id="roomPanel" hidden></aside>
+      <div id="sideStack"><div id="skyChips" hidden></div></div>
       <aside id="heatPanel" hidden></aside>
       <aside id="devicePanel" hidden></aside>
     </div>
@@ -444,6 +446,8 @@
     <div class="row"><label for="setEarthMargin" data-i18n="set.earthMargin"></label><input id="setEarthMargin" type="number" step="any"></div>
     <p id="earthMarginNote" class="sub" data-i18n="set.earthMarginPlot" hidden></p>
     <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
+    <div class="row"><label for="setSky" data-i18n="set.sky" data-i18n-title="set.skyHint"></label>
+      <select id="setSky"><option value="time" data-i18n="set.sky.time"></option><option value="off" data-i18n="set.sky.off"></option></select></div>
 
     <h3 data-i18n="set.section.kiosk"></h3>
     <p class="hint" data-i18n="set.kioskHelp"></p>

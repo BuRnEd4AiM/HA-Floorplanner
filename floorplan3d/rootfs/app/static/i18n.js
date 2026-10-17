@@ -210,6 +210,13 @@ const DICT = {
     'dev.bin_box': 'Mülltonnenbox', 'dev.bike_rack': 'Fahrradständer', 'dev.bike_wall': 'Fahrrad an der Wand', 'dev.ceiling_rack': 'Deckenregal',
     'dev.garage_cabinet': 'Metallschrank', 'dev.wheelbarrow': 'Schubkarre', 'dev.lawn_mower': 'Rasenmäher',
     'dev.garden_tools': 'Gartengeräte an der Wand', 'dev.pressure_washer': 'Hochdruckreiniger', 'dev.wheel_stop': 'Radstopper (Paar)',
+    'sky.night': 'Nacht', 'sky.dawn': 'Morgendämmerung', 'sky.morning': 'Morgen', 'sky.day': 'Tag', 'sky.evening': 'Abend', 'sky.dusk': 'Abenddämmerung',
+    'sky.set': 'Sonnenuntergang {t}', 'sky.rise': 'Sonnenaufgang {t}', 'set.sky': 'Himmel',
+    'set.skyHint': 'Der Hintergrund hinter dem Haus folgt der Sonne (sun.sun) und dem Wetter: morgens rosa, tagsüber blau, abends orange, nachts mit Sternen.',
+    'set.sky.time': 'Nach Uhrzeit und Wetter', 'set.sky.off': 'Einfarbig', 'wx.wind': 'Wind {v}', 'wx.clear-night': 'Klare Nacht', 'wx.sunny': 'Sonnig',
+    'wx.partlycloudy': 'Teilweise bewölkt', 'wx.cloudy': 'Bewölkt', 'wx.fog': 'Nebel', 'wx.windy': 'Windig', 'wx.windy-variant': 'Windig und bewölkt',
+    'wx.exceptional': 'Unwetter', 'wx.rainy': 'Regen', 'wx.pouring': 'Starkregen', 'wx.lightning-rainy': 'Gewitter mit Regen', 'wx.lightning': 'Gewitter',
+    'wx.hail': 'Hagel', 'wx.snowy': 'Schnee', 'wx.snowy-rainy': 'Schneeregen',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -416,6 +423,13 @@ const DICT = {
     'dev.bins': 'Wheelie bins (4)', 'dev.bin_box': 'Bin store', 'dev.bike_rack': 'Bike rack', 'dev.bike_wall': 'Bike on the wall',
     'dev.ceiling_rack': 'Ceiling rack', 'dev.garage_cabinet': 'Metal cabinet', 'dev.wheelbarrow': 'Wheelbarrow', 'dev.lawn_mower': 'Lawn mower',
     'dev.garden_tools': 'Garden tools on the wall', 'dev.pressure_washer': 'Pressure washer', 'dev.wheel_stop': 'Wheel stops (pair)',
+    'sky.night': 'Night', 'sky.dawn': 'Dawn', 'sky.morning': 'Morning', 'sky.day': 'Day', 'sky.evening': 'Evening', 'sky.dusk': 'Dusk', 'sky.set': 'Sunset {t}',
+    'sky.rise': 'Sunrise {t}', 'set.sky': 'Sky',
+    'set.skyHint': 'The background behind the house follows the sun (sun.sun) and the weather: pink in the morning, blue by day, orange in the evening, stars at night.',
+    'set.sky.time': 'By the time of day and the weather', 'set.sky.off': 'Plain colour', 'wx.wind': 'Wind {v}', 'wx.clear-night': 'Clear night',
+    'wx.sunny': 'Sunny', 'wx.partlycloudy': 'Partly cloudy', 'wx.cloudy': 'Cloudy', 'wx.fog': 'Fog', 'wx.windy': 'Windy', 'wx.windy-variant': 'Windy and cloudy',
+    'wx.exceptional': 'Severe weather', 'wx.rainy': 'Rain', 'wx.pouring': 'Pouring rain', 'wx.lightning-rainy': 'Thunderstorm with rain',
+    'wx.lightning': 'Thunderstorm', 'wx.hail': 'Hail', 'wx.snowy': 'Snow', 'wx.snowy-rainy': 'Sleet',
   },
 };
 

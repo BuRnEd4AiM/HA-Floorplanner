@@ -68,7 +68,10 @@ DEFAULT_SETTINGS = {
     "timelineKeepDays": 7.0,   # ... days kept before today (older ones are deleted)
     "alerts": True,            # smoke, gas, CO, water, alarm and windows open in the rain: banner + red room
     "alertJump": False,        # jump to the room of a new warning by itself (wall tablets)
-    "weatherEntity": "",       # weather.* for "window open in the rain"; empty = the first one
+    "weatherEntity": "",       # weather.* for "window open in the rain" and the weather in the sky (#419); empty = the first one
+    "sky": "time",             # time: the sky behind the 3D view follows the sun and the weather (#418) | off: one colour
+    "energyCard": True,        # live mode on wide screens: the energy flow as a picture instead of the line of numbers (#420)
+    "roomTiles": True,         # live mode: a card per room at the bottom (#421)
     "idleReturn": 0.0,         # wall tablets: minutes without a touch until the start view returns (0 = off)
     "idleOrbit": False,        # ... and the house then turns slowly (screen saver)
     "nightDim": "off",         # off | sun | time: dim the live view at night
@@ -106,7 +109,7 @@ VIEWS = ("3d", "2d", "split", "all")
 # what a user preset may set and the values allowed (the same list as PRESET_FIELDS in static/viewprefs.js, #250)
 PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWalls": (True, False),
                  "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False),
-                 "houseFloors": ("normal", "apart", "stacked")}
+                 "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False)}
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too
 LOCKS = ("control", "alarm", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
@@ -505,6 +508,8 @@ def validate_settings(data: dict) -> dict:
         out["houseFloors"] = DEFAULT_SETTINGS["houseFloors"]
     if out["earth"] not in ("off", "glass", "solid"):
         out["earth"] = DEFAULT_SETTINGS["earth"]
+    if out["sky"] not in ("time", "off"):
+        out["sky"] = DEFAULT_SETTINGS["sky"]
     if out["nightDim"] not in ("off", "sun", "time"):
         out["nightDim"] = DEFAULT_SETTINGS["nightDim"]
     for key in ("nightFrom", "nightTo"):
@@ -857,6 +862,24 @@ def _climate(st, a):
     }
 
 
+def _num(v):
+    return v if isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) else None
+
+
+def _sky(st, a):
+    """What the sky needs (#418, #419): of sun.sun its elevation and the next sunrise / sunset, of a weather entity temperature and wind."""
+    eid = st["entity_id"]
+    if eid == "sun.sun":
+        return {"sun": {"elev": _num(a.get("elevation")), "rising": a.get("rising") if isinstance(a.get("rising"), bool) else None,
+                        "rise": a.get("next_rising") if isinstance(a.get("next_rising"), str) else None,
+                        "set": a.get("next_setting") if isinstance(a.get("next_setting"), str) else None}}
+    if eid.startswith("weather."):
+        def unit(k):
+            return a.get(k)[:12] if isinstance(a.get(k), str) else None
+        return {"wx": {"t": _num(a.get("temperature")), "tu": unit("temperature_unit"), "w": _num(a.get("wind_speed")), "wu": unit("wind_speed_unit")}}
+    return {}
+
+
 def slim_state(st):
     """The few fields of a Home Assistant state the floor plan uses (same shape for /api/entities and the live channel)."""
     a = st.get("attributes") or {}
@@ -879,6 +902,7 @@ def slim_state(st):
         "fxc": a.get("effect"),
         "members": _members(st),
         "ctl": controls.extras(st),                          # what the live card needs to control it (#406): volume, fan speed, presets ...
+        **_sky(st, a),                                       # sun.sun and weather.* for the sky (#418, #419)
         "since": st.get("last_changed") if st["state"] in ("unavailable", "unknown") else None,   # for the offline list
     }
 

@@ -885,3 +885,25 @@ body.card-panel #roomPanel { top: 0 !important; left: 0 !important; right: 0 !im
   body.card.card-nonav #viewLegend { top: 12px; }
   body.card #viewLegend .lg { height: 110px; }
 }
+
+/* ---- Sky and weather (#418, #419, skyui.js): chips at the top right, rain / snow over the picture ---- */
+.glass { background: rgba(16, 22, 30, .72); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 10px 30px rgba(0, 0, 0, .3); color: #eef3f8; }
+body.low .glass { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(16, 22, 30, .9); }
+#sideStack { position: absolute; top: 58px; right: 12px; z-index: 4; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+#sideStack > * { pointer-events: auto; }
+body:not(.live) #sideStack, body.card #sideStack, #roomPanel:not([hidden]) ~ #sideStack { display: none; }
+#skyChips { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+#skyChips[hidden] { display: none; }
+.skyChip { padding: 7px 14px; border-radius: 999px; font-weight: 600; white-space: nowrap; background: rgba(16, 22, 30, .72);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, .12); color: #eef3f8; pointer-events: none; }
+body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(16, 22, 30, .9); }
+@media (max-width: 760px) { #skyChips { display: none; } }
+#wxFall { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+#wxFall[hidden], body:not(.live) #wxFall { display: none; }
+#wxFall i { position: absolute; left: 0; right: 0; top: -256px; height: calc(100% + 256px); background: var(--fall) repeat; animation: wxFall .7s linear infinite; will-change: transform; }
+#wxFall.heavy i { animation-duration: .45s; }
+#wxFall.snow i { animation-duration: 7s; }
+#wxFall.snow.heavy i { animation-duration: 5s; }
+#wxFall.still i { animation: none; }
+@keyframes wxFall { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 256px, 0); } }
