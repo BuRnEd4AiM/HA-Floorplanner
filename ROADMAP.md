@@ -4,6 +4,14 @@
 
 Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplanner/milestones) and [issues](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues). Dates are targets, not promises.
 
+## Open
+
+- ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138); the performance display 3.60.0 and fewer draw calls 3.89.0 are the first steps)
+- ⬜ Control more devices right in the plan: music, robot vacuum, fan, alarm panel … ([#406](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/406))
+- ⬜ Verified on real Home Assistant installs, the goal of 1.0 (the short list of what to check first is at the top of [docs/TESTPROTOKOLL.md](docs/TESTPROTOKOLL.md))
+
+Not planned: sun light and shadows through the windows by the position of the sun ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68), closed).
+
 ## Done
 
 - **0.1 Foundation** – walls, rooms, floors, snapping grid, 3D view, device placement, entity binding, auto-save, undo
@@ -19,10 +27,33 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ✅ Version and checksum pill (add-on files, browser, GitHub)
 - ✅ Add-on store listing (icon, logo, translations), welcome card on first start
 
-## Open
+## Done in 3.59 – 3.95
 
-- ⬜ Sun light and shadows through the windows by the position of the sun ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68))
-- ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138))
+- ✅ Phones held upright: values folded into one 📊 button, small floor cards beside the house, phones only show the house (3.59.0 – 3.63.0) ([#288](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/288), [#290](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/290), [#292](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/292), [#294](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/294), [#299](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/299))
+- ✅ Performance display: FPS and more in the View menu (3.60.0)
+- ✅ Lock things per user / tablet (switching, details, cameras, power …) (3.61.0)
+- ✅ Several selected things move together (3.62.0)
+- ✅ Security: what switched in the house recorded per day, a time line to play it back (3.64.0 – 3.66.0) ([#317](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/317))
+- ✅ Start view can be chosen, backup in its own dialog (3.66.0) ([#315](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/315), [#321](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/321))
+- ✅ LED ring sections in their own colours while editing (3.67.0) ([#325](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/325))
+- ✅ Renamed in Home Assistant, renamed in the plan (3.68.0)
+- ✅ Roller shutters on every window, a shutter card like in Home Assistant (3.69.0 – 3.70.0) ([#331](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/331), [#335](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/335))
+- ✅ Browser test in parts, all at the same time in CI (3.69.1)
+- ✅ Long shed dormer, roof with steps, windows of the rooms through a dormer (3.71.0 – 3.74.0) ([#339](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/339), [#341](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/341), [#342](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/342), [#345](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/345))
+- ✅ Dashboard card for Home Assistant (HACS), also one room or only its controls (3.75.0 – 3.78.0) ([#13](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/13), [#348](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/348), [#352](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/352), [#356](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/356))
+- ✅ Example: show house with everything in it (3.77.0)
+- ✅ Lamps on a relay light the floor, own light colour per lamp (3.79.0) ([#367](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/367))
+- ✅ Kitchen: wall cabinet per module (3.80.0) ([#372](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/372))
+- ✅ Heaters show their temperature, contact sensors with a green frame, device overview with battery levels, offline marks in 3D (3.81.0) ([#374](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/374), [#375](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/375), [#376](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/376))
+- ✅ Power editor tab "⚡ Rechnung": which sensor is what and how it is counted (3.82.0) ([#378](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/378), [#379](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/379))
+- ✅ Camera card with the live video (3.83.0 – 3.83.2) ([#381](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/381), [#383](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/383), [#385](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/385))
+- ✅ Library: Scandinavian furniture, sauna, fitness, bar, home cinema, PC desk, LED mirrors with zones, swivel TV, air conditioners and fans, garage, workshop and carport (3.84.0 – 3.90.0)
+- ✅ Floors stacked like a real house ("Aufeinander"), smoother on the iPad (3.88.0 – 3.89.0) ([#391](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/391), [#392](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/392), [#394](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/394), [#396](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/396))
+- ✅ Measuring in the 2D plan: length, distance and angle of two walls (3.91.0) ([#399](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/399))
+- ✅ Bar with something hanging from the ceiling (3.92.0) ([#401](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/401))
+- ✅ Redo, copy / paste / duplicate, no overwriting when two screens edit at the same time, spiral stair rail per floor (3.93.0) ([#403](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/403), [#404](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/404), [#405](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/405), [#318](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/318))
+- ✅ Several buildings in one plan: switch, roofs per building, per user, bring another house in (3.94.0) ([#409](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/409))
+- ✅ Energy: take over the energy dashboard of Home Assistant, set-up check list, gas and water meters in one click (3.95.0) ([#407](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/407))
 
 ## Done in 3.26 – 3.58
 
@@ -40,7 +71,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 - ✅ Doors and windows also in very short wall pieces (3.33.0) ([#142](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/142))
 - ✅ Power add-on: inverter, meters, solar panels, animated cables with the watts on them, on/off button at the bottom (3.34.0 – 3.42.0) ([#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136))
   - ✅ Water, gas and heat meters with their reading as a badge (3.42.0)
-  - Ideas for later are collected in the comment of [#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136#issuecomment-5981634564) (separate import / export sensors, flip the sign, setup checklist, take over from the energy dashboard)
+  - ✅ The ideas of the comment of [#136](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/136#issuecomment-5981634564): separate import / export sensors and flipping the sign (3.82.0), setup check list and taking over the energy dashboard (3.95.0)
 - ✅ Power button / power editor is a real switch that stays on until pressed again (3.40.8) ([#174](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/174))
 - ✅ Compass needle turns all the way back after one full turn (3.39.3) ([#175](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/175))
 - ✅ Stairs over several floors, light wall stair with landings and an outdoor spiral over several floors (3.40.0) ([#188](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/188))

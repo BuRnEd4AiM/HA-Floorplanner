@@ -10,6 +10,7 @@ REGISTRY = {e: "u_" + e for e in STATE}     # entity id -> unique id of its regi
 DEVICES = {"u_binary_sensor.rauch": "dev_rauch", "u_sensor.rauch_battery": "dev_rauch"}   # unique id -> device: the smoke alarm and its battery (#376)
 ALIAS = {}         # entity id the tests know -> its id after a rename (/_rename)
 COVER_POS = {}     # covers with a position (current_position), from set_cover_position on; /_set takes it away again
+ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_prefs, #407) and more registry entries (entity -> device): POST /_energy
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
 def state_of(e):
@@ -81,9 +82,14 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": None})
         elif m.get("type") == "get_states":         # the security view recorder starts with all states
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": [state_of(e) for e in STATE]})
-        elif m.get("type") == "config/entity_registry/list":    # the watch for renamed entities
+        elif m.get("type") == "config/entity_registry/list":    # the watch for renamed entities (and the devices of the energy meters, #407)
             await ws.send_json({"id": m["id"], "type": "result", "success": True,
-                                "result": [{"entity_id": e, "platform": "mock", "unique_id": u, "device_id": DEVICES.get(u)} for e, u in REGISTRY.items()]})
+                                "result": [{"entity_id": e, "platform": "mock", "unique_id": u, "device_id": DEVICES.get(u)} for e, u in REGISTRY.items()]
+                                + [{"entity_id": e, "platform": "mock", "unique_id": "energy_" + e, "device_id": d} for e, d in ENERGY["registry"].items()]})
+        elif m.get("type") == "energy/get_prefs":               # the energy dashboard (#407): "not_found" while it is not set up
+            ok = ENERGY["prefs"] is not None
+            await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": ENERGY["prefs"] if ok else None,
+                                **({} if ok else {"error": {"code": "not_found", "message": "No prefs"}})})
         elif "id" in m:
             await ws.send_json({"id": m["id"], "type": "result", "success": False, "error": {"code": "unknown_command"}})
     SUBS[:] = [x for x in SUBS if x[0] is not ws]
@@ -120,10 +126,14 @@ async def hls(r):
 async def hls_seen(r): return web.json_response(HLS_SEEN)
 async def calls(r): return web.json_response(CALLS)
 async def call_data(r): return web.json_response(CALL_DATA)
+async def set_energy(r):          # test helper (#407): the energy dashboard's settings and the devices of its sensors; {} sets it back
+    body = await r.json()
+    ENERGY["prefs"], ENERGY["registry"] = body.get("prefs"), body.get("registry") or {}
+    return web.json_response({"ok": True})
 async def template(r):
     return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
-app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename),
+app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

@@ -4,6 +4,17 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.95.0] - 2026-10-17
+### Added
+- **Energy: take over the energy dashboard of Home Assistant** (#407): the tab **⚡ Rechnung** of the power editor has a new part **🧭 Einrichten** at the top. **⤵ Aus dem Energie-Dashboard übernehmen** reads what is set up in Home Assistant's energy dashboard and shows it as a proposal: the grid, the solar sensors, the battery with its charge level, and the gas and water meters. **✓ Übernehmen** puts grid, solar and battery into the tab (Ctrl+Z takes it back); the rooms and the house sensor stay as they are.
+  - **The signs are turned the right way**: Home Assistant counts the battery plus = discharging, the tab plus = charging, so its sensor is turned round by itself; a sensor marked as inverted in the energy dashboard, or two sensors (charge / discharge, import / export), are taken over as such.
+  - **Only energy meters (kWh) in the energy dashboard**: the proposal takes the power sensor (W) on the same device and marks it "guessed, please check below".
+  - **Check list**: what is set up (✅), what is missing (○), what should be checked (⚠, e.g. a sensor without a value or a calculation that does not add up) and what is optional (ℹ): grid, solar, battery, house consumption, rooms, meters, calculation. It follows the live values while the window is open.
+  - **Meters in one click**: a gas or water meter of the energy dashboard that is not in the plan yet gets a button **+ Gaszähler / Wasserzähler in den Plan setzen**: it is put into the open floor (onto the nearest wall) and linked to its sensor.
+  - New endpoint `GET /api/energy/prefs` (editors only): the energy dashboard's settings and the other sensors of each device. New modules `energyprefs.js` (pure: the energy dashboard as the tab's settings, the check list; unit tests `tests/energyprefs.test.mjs`) and `energysetup.js` (the part of the window). The demo answers with an energy dashboard of its own. Translated into all 7 languages.
+### Changed
+- **Roadmap and test protocol tidied up** (#408): the roadmap lists what is open first and has the new things from 3.59 to 3.95; sun light (#68) is marked as not planned. The test protocol starts with a short list of the 15 most important points to check, the long older lists are folded below it.
+
 ## [3.94.0] - 2026-10-17
 ### Added
 - **Several buildings in one plan** (#409): draw the main house and the garden house (or a workshop, a granny flat …) together in one plan and say which part is which:

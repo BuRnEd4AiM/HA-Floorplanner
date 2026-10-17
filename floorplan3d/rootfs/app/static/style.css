@@ -752,6 +752,14 @@ body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset;
 .enSign { text-align: center; color: var(--muted); font-weight: 700; }
 .enVal { text-align: right; white-space: nowrap; }
 .enWarn { color: #d97a12; margin: 6px 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+#energySetup { margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.enHaList, .enChecklist { margin: 4px 0 8px; padding-left: 0; list-style: none; }
+.enHaList li { margin: 2px 0 2px 1.2em; list-style: disc; }
+.enCl { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 3px 0; }
+.enCl.warn { color: #d97a12; }
+.enCl.todo { font-weight: 600; }
+.enCl.info { color: var(--muted); }
+.enClIcon { width: 1.4em; text-align: center; flex: none; }
 .enOk { color: #2fae62; margin: 6px 0; font-weight: 600; }
 .enNow { color: var(--muted); font-size: 12px; }
 .enFrom { font-size: 12px; margin: 0 0 6px; }

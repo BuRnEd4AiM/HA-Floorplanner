@@ -40,6 +40,8 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `powerlogic.js` | ~60 | Strom: Rechenteil der Kabel (Watt, Kabelarten, Verlauf) und der Zähler, mit Unit-Tests |
 | `energycalc.js` | ~230 | Strom-Rechnung (#378, #379): welcher Sensor was ist (`energySources`: Einstellung des Reiters „⚡ Rechnung“, sonst die Stromgeräte des Plans), die Rechnung (`energyBalance`: Erzeugung, Netz, Batterie, Hausverbrauch, Räume, Rest), was nicht aufgeht (`energyChecks`, `signFixes`), Vorschlag für die Räume (`suggestRooms`), die Zeilen im Fenster (`balanceRows`) und der Text der Strom-Anzeige (`energyText`); reine Logik mit Unit-Tests |
 | `energyui.js` | ~200 | Reiter „⚡ Rechnung“ im Strom-Editor (#378): das Fenster mit Netz, Erzeugung, Batterie, Hausverbrauch und Räumen, oben die Rechnung live mit Warnungen und Knopf zum Umdrehen des Vorzeichens |
+| `energyprefs.js` | ~130 | Energie leichter einrichten (#407), reine Logik mit Unit-Tests: das Energie-Dashboard von Home Assistant als Einstellungen des Reiters „⚡ Rechnung“ (Vorzeichen umgerechnet: Batterie dort plus = entladen; nur kWh-Zähler: der Watt-Sensor am selben Gerät als Vermutung), Gas- und Wasserzähler, die Checkliste (was eingerichtet ist, was fehlt) |
+| `energysetup.js` | ~100 | Oberer Teil von „⚡ Rechnung“ (#407): Knopf „Aus dem Energie-Dashboard übernehmen“, Vorschlag, „Übernehmen“, Checkliste mit „+ Zähler in den Plan setzen“ |
 | `toolbar.js` | 88 | Anpassbare Werkzeugleiste |
 | `backups.js` | ~80 | Backup-Fenster oben (🗄️, #321): ganzes Backup, automatische Sicherung, Einstellungen der Sicherheit |
 | `version.js` | 122 | Versionsanzeige und Datei-Prüfung |

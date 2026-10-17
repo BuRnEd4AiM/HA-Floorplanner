@@ -15,7 +15,7 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - Pure logic (no three.js, no DOM) is kept separate and gets a node unit test in tests/ (like kitchen.js, heatpanel.js) plus a CI step.
 - When an existing part of app.js is changed anyway, move that part into a module in the same PR if it is small and safe. Keep docs/MODULE-PLAN.md up to date (move rows from "still in app.js" to "already split").
 ## Test protocol
-- When entering test results in docs/TESTPROTOKOLL.md, only change the result tables, then run `python3 tools/testprotokoll.py`: it rewrites the overview table (counts and open numbers). tests/test_testprotokoll.py fails if it is out of date. Also update the hand-written "Jetzt prüfen" / "Ältere offene Punkte" lists if items in them are done.
+- When entering test results in docs/TESTPROTOKOLL.md, only change the result tables, then run `python3 tools/testprotokoll.py`: it rewrites the overview table (counts and open numbers). tests/test_testprotokoll.py fails if it is out of date. Also update the hand-written "Kurze Prüfliste" / "Ältere offene Punkte" lists if items in them are done.
 - A PR that only changes text (*.md in docs/ or the top folder), unit tests (tests/*.mjs, tests/test_*.py) or tools/ skips the browser test in CI.
 ## Browser test (tests/e2e)
 - It is split into parts (tests/e2e/parts/, `tests/e2e/run.sh --list`). CI runs every part as its own job at the same time (a few minutes).

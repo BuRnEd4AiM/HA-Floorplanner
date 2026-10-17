@@ -6,7 +6,8 @@ import { energyBalance, energySources, energyChecks, balanceRows, suggestRooms, 
 
 /**
  * ctx: $, t, layout(), states(), entities(), entityPicker(list, room, current, onChange), pickerField(label, picker), snapshot(),
- * changed() (saves; nothing in 3D changes), refresh() (the power overview), areaOf(), pointInPoly(x, z, points)
+ * changed() (saves; nothing in 3D changes), refresh() (the power overview), areaOf(), pointInPoly(x, z, points), setup (the top of the
+ * window: the energy dashboard and the check list, energysetup.js, #407)
  */
 export function initEnergyUi(ctx) {
   const { $, t } = ctx;
@@ -197,6 +198,7 @@ export function initEnergyUi(ctx) {
     }
     body.replaceChildren(...out);
     renderResult();
+    ctx.setup?.render();
   }
 
   /** after every state update: the calculation and the values while the window is open (the pickers stay as they are; all of it again
@@ -205,6 +207,7 @@ export function initEnergyUi(ctx) {
     if (!dlg?.open) return;
     if (ctx.layout() !== drawn) { render(); return; }
     renderResult();
+    ctx.setup?.update();
     lives.forEach(([node, fn]) => { node.textContent = fn(); });
   }
   function open() { render(); dlg.showModal(); }
@@ -214,5 +217,5 @@ export function initEnergyUi(ctx) {
     const r = dlg.getBoundingClientRect();
     if (e.target === dlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) dlg.close();
   });
-  return { open, update, isOpen: () => !!dlg?.open };
+  return { open, update, render, isOpen: () => !!dlg?.open };
 }

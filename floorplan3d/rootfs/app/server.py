@@ -1690,6 +1690,59 @@ async def rename_watcher(app):
         task.cancel()
 
 
+# ---------- the energy dashboard of Home Assistant (#407): what it knows, to take over in the power editor ----------
+def energy_stat_ids(prefs) -> set:
+    """Every entity the energy preferences name (stat_energy_from, stat_rate, stat_soc ... in every source, also in the older nested
+    form flow_from / flow_to / power / power_config); statistics of other kinds ("domain:name") are left out."""
+    out = set()
+
+    def walk(v):
+        if isinstance(v, dict):
+            for k, x in v.items():
+                if k.startswith("stat_") and isinstance(x, str) and re.match(r"^[a-z_]+\.[^\s:]+$", x):
+                    out.add(x)
+                else:
+                    walk(x)
+        elif isinstance(v, list):
+            for x in v:
+                walk(x)
+    walk(prefs)
+    return out
+
+
+def energy_siblings(prefs, registry: list) -> dict:
+    """{entity of the preferences: the other sensors of the same device}: an energy meter (kWh) usually has its power sensor (W) next
+    to it, which the power editor needs."""
+    by_device, device_of = {}, {}
+    for r in registry or []:
+        e, d = r.get("entity_id"), r.get("device_id")
+        if isinstance(e, str) and d:
+            device_of[e] = d
+            by_device.setdefault(d, []).append(e)
+    return {e: sorted(x for x in by_device.get(device_of[e], []) if x != e and x.startswith("sensor."))
+            for e in sorted(energy_stat_ids(prefs)) if e in device_of}
+
+
+async def get_energy_prefs(request):
+    """The energy dashboard's settings and, for every sensor in them, the other sensors of its device (editors only). prefs is null
+    while the energy dashboard is not set up."""
+    if not await can_edit(request):
+        return forbidden()
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
+    try:
+        async with _HaSocket() as ws:
+            more = []
+            try:
+                prefs = await rn.ask(ws, 1, {"type": "energy/get_prefs"}, more)
+            except LookupError:
+                prefs = None                                     # "not_found": the energy dashboard is not set up yet
+            registry = await rn.ask(ws, 2, {"type": "config/entity_registry/list"}, more) if prefs else []
+    except (OSError, RuntimeError, ConnectionError, asyncio.TimeoutError, aiohttp.ClientError, LookupError) as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    return web.json_response({"prefs": prefs, "siblings": energy_siblings(prefs, registry) if prefs else {}})
+
+
 async def timeline_allowed(request) -> bool:
     return "timeline" not in user_locks(request)
 
@@ -1882,6 +1935,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/live", live_ws),
         web.get("/api/areas", get_areas),
         web.get("/api/batteries", get_batteries),
+        web.get("/api/energy/prefs", get_energy_prefs),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
         web.get("/api/camera/{entity}/hls", get_camera_hls),
