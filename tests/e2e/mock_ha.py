@@ -11,6 +11,7 @@ DEVICES = {"u_binary_sensor.rauch": "dev_rauch", "u_sensor.rauch_battery": "dev_
 ALIAS = {}         # entity id the tests know -> its id after a rename (/_rename)
 COVER_POS = {}     # covers with a position (current_position), from set_cover_position on; /_set takes it away again
 ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_prefs, #407) and more registry entries (entity -> device): POST /_energy
+NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["callmebot", phone, text, apikey] through /_callmebot
 EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes}}, {} takes them away
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
@@ -39,6 +40,9 @@ async def service(r):
     body = await r.json(); dom, svc = r.match_info["d"], r.match_info["s"]
     CALLS.append([dom, svc, body.get("entity_id")])
     e = body.get("entity_id")
+    if dom == "notify":           # #414: a message of the add-on
+        NOTIFIED.append(["ha", svc, body.get("message")])
+        return web.json_response([])
     if e in EXTRA:                # #406: what the device does with the call, the data kept for the test
         x, a = EXTRA[e], EXTRA[e].setdefault("attributes", {})
         CALL_DATA.append([svc, e, {k: v for k, v in body.items() if k != "entity_id"}])
@@ -150,10 +154,18 @@ async def set_energy(r):          # test helper (#407): the energy dashboard's s
 async def set_extra(r):           # test helper (#406): more entities with their attributes; {} takes them away
     EXTRA.clear(); EXTRA.update(await r.json())
     return web.json_response({"ok": True})
+async def services_list(r):       # Home Assistant's services: the notify ones the alarm message can use (#414)
+    return web.json_response([{"domain": "light", "services": {"turn_on": {}}}, {"domain": "notify", "services": {"mobile_app_test": {}, "whatsapp": {}, "send_message": {}}}])
+async def callmebot(r):           # the free WhatsApp gateway (#414): "bad" is a wrong key
+    q = r.query
+    NOTIFIED.append(["callmebot", q.get("phone"), q.get("text"), q.get("apikey")])
+    if q.get("apikey") == "bad": return web.Response(text="<p>APIKey is invalid. You need to get a new one.</p>", content_type="text/html")
+    return web.Response(text="<p>Message queued. You will receive it in a few seconds.</p>", content_type="text/html")
+async def notified(r): return web.json_response(NOTIFIED)
 async def template(r):
     return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
-app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra),
+app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

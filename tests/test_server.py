@@ -977,3 +977,33 @@ async def test_energy_prefs_needs_home_assistant_and_an_editor(client, monkeypat
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
     monkeypatch.setattr(server, "load_admin_ids", _no_admins)
     assert (await client.get("/api/energy/prefs", headers={"X-Remote-User-Name": "tablet"})).status == 403
+
+
+async def test_alarm_messages_settings_stay_in_the_add_on(client, monkeypatch, tmp_path):
+    """#414: the phone number and the CallMeBot key are kept in their own file, the key is never handed out; only editors see them"""
+    r = await (await client.get("/api/notify")).json()
+    assert r["on"] is False and r["hasKey"] is False and r["services"] == [] and r["ready"] == "off"
+    r = await (await client.put("/api/notify", json={"on": True, "via": "whatsapp", "phone": "+49 170 1234567", "apikey": "987654", "kinds": ["alarm", "smoke"]})).json()
+    assert r["hasKey"] is True and "apikey" not in r and r["phone"] == "+491701234567" and r["ready"] is None
+    import json
+    stored = json.loads(next(tmp_path.rglob("notify.json")).read_text("utf-8"))
+    assert stored["apikey"] == "987654"
+    assert "987654" not in await (await client.get("/api/settings")).text()                        # not in the settings every tablet reads
+    r = await (await client.put("/api/notify", json={"kinds": ["water"]})).json()
+    assert r["hasKey"] is True and r["kinds"] == ["water"] and r["on"] is True                       # a save without the key keeps it
+    r = await (await client.put("/api/notify", json={"via": "ha", "service": ""})).json()
+    assert r["ready"] == "service"
+    t = await client.post("/api/notify/test")
+    assert t.status == 502 and "service" in (await t.json())["error"]                                # not set up: said, nothing sent
+    await client.put("/api/notify", json={"service": "notify.mobile_app_x"})
+    t = await client.post("/api/notify/test")
+    assert t.status == 502 and "Home Assistant" in (await t.json())["error"]                         # standalone: no Home Assistant to ask
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["admin"]}')
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")                   # in Home Assistant: who may edit is decided by the options
+    tab = {"X-Remote-User-Name": "tablet"}
+    assert (await client.get("/api/notify", headers=tab)).status == 403
+    assert (await client.put("/api/notify", json={"on": False}, headers=tab)).status == 403
+    assert (await client.post("/api/notify/test", headers=tab)).status == 403
