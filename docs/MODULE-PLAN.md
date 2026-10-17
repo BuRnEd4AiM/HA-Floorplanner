@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.98.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.99.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.700**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -142,6 +142,10 @@ Stand: Version 3.98.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `energyflowui.js` | ~60 | Karte „Strom jetzt“ oben rechts (Live, breiter Bildschirm) statt der Zahlenzeile, SVG mit wandernden Punkten, Tipp schaltet die Kabel, Knopf im Menü „Ansicht“ |
 | `roomtiles.js` | ~65 | Raum-Kacheln (#421), reine Logik mit Unit-Tests: Temperatur, Lichter an (mit Farbe), offene Fenster, jemand da; `roomReading` (Mittelwert Temperatur / Feuchte / CO₂ eines Raums, aus `roomHeat` in `app.js` geholt) |
 | `roomtilesui.js` | ~45 | Leiste mit einer Karte pro Raum unten im Live-Modus (Handy: wischbar), Tipp fliegt zum Raum, Knopf im Menü „Ansicht“ |
+| `roomlabels.js` | ~90 | Raum-Schilder im 3D-Bild (#430): Live, breiter Bildschirm, ein Glas-Schild über jedem Raum der offenen Etage (Name, Temperatur, Lichter, offenes Fenster, Punkt bei Anwesenheit), wandert jedes Bild mit der Kamera, die Namen auf dem Boden treten so lange zurück; Knopf im Menü „Ansicht“. Was ein Schild zeigt und wann Schilder zu sehen sind (`labelTexts`, `labelsShown`, `labelHeight`): reine Logik in `roomtiles.js` mit Unit-Tests |
+| `floorcover.js` | ~45 | Echte Böden (#427), reine Logik mit Unit-Tests: welche Beläge es gibt (Parkett, Fliesen, Beton) mit Muster, Größe und Farbe von weitem, wann das Muster gezeichnet wird (nicht im Hologramm, nicht im Sparmodus), die Farbe im 2D-Plan und in den Etagen-Bildern (`floorHex`), die Farbe des 3D-Bodens mit Farbansicht (`floorPaint`) |
+| `floortex.js` | ~85 | Echte Böden in 3D (#427): die Muster im Browser auf eine Leinwand gemalt (eine Textur pro Belag, für alle Räume geteilt), `paintFloor` nach jeder Zustandsänderung (Farbansicht statt Muster und zurück) |
+| `facade.js` | ~15 | Fensterrahmen weiß oder anthrazit mit helleren Wänden (#428), reine Logik mit Unit-Tests; `walls.js` gibt nur den Fenstern die Rahmenfarbe, Türrahmen bleiben weiß |
 | `toolicons.js` | ~65 | Werkzeugleiste mit Symbolen und Gruppen (#422): Symbole, Gruppen, wo eine Gruppen-Überschrift hinkommt (`groupStarts`, Unit-Tests); `toolbar.js` meldet seine Reihenfolge über `onApply` |
 
 ## Noch in `app.js`

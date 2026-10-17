@@ -17,6 +17,9 @@ import { pillFinger } from './labels.js';
 import { isHeater } from './heating.js';
 import { houseFootprint } from './earth.js';
 import { slabDepth, wallUpTo, wallUnder, inRoom, shutterLabelIn } from './housefloors.js';
+import { patternOf, floorHex } from './floorcover.js';
+import { facadeOf } from './facade.js';
+import { coveringTexture } from './floortex.js';
 
 export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
 export const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
@@ -37,11 +40,12 @@ export function roomLabel(r, topView, imperial) {
 /** the middle of a room (mean of its corners), where its name floats */
 export const roomCenter = (points) => points.reduce((a, p) => [a[0] + p[0] / points.length, a[1] + p[1] / points.length], [0, 0]);
 
-/** ctx: settings(), floorIdx(), topView(), imperial(), belowVis(), mat(color, ghost, extra), roomLightMat(kind, alpha, ghost), textSprite(text),
+/** ctx: settings(), floorIdx(), topView(), imperial(), belowVis(), fast() (the "fast" performance mode), mat(color, ghost, extra), roomLightMat(kind, alpha, ghost), textSprite(text),
  *  railing(g, room, f, holo, ghost) (roof terrace), lowWalls(), roomMeshes (Map), alerts ({ hasRoom(id), pulses }), registry (Map), pickables (Array), floorOpenings(i), floorH, holoEdge,
  *  houseMode(), halfCut(), elev(i), stairMesh(st, holo, ghost, edge, upTo) (stairtool.js), cutawayInfo(w, group), openingHandle(w, o, g),
  *  cutawayWalls() (the list of the open floor's walls for the cutaway), makeModel(type, onLoad, d, pose) (models.js), setPicture(model, d),
- *  placeSolar(model, d, roofs), tapBalls, cams, labelSprites (Map), modelLoaded(); textSprite takes (text, opts).
+ *  placeSolar(model, d, roofs), tapBalls, cams, labelSprites (Map), modelLoaded(), roomName(f, id, sprite) (the name of a room on a floor
+ *  that is not dimmed, roomlabels.js); textSprite takes (text, opts).
  *  The floors stacked like a real house (housefloors.js): o.stack = { covered (a floor with rooms lies over this one), slab (this floor stands
  *  on a ceiling), upTo (the roof box over this storey: its walls reach up to the roof) }, null otherwise */
 export function initFloorBuild(ctx) {
@@ -81,10 +85,12 @@ export function initFloorBuild(ctx) {
       const shape = floorShapes(r.points, o.holes);               // the room minus stairwell openings (also where they only overlap it partly)
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
+      const cover = patternOf(r, { holo, low: ctx.fast() });     // parquet, tiles, concrete (#427): its pattern, else one colour
       const m = new THREE.Mesh(geo, holo
         ? (ghost ? ctx.roomLightMat('floor', 0.15 + 0.5 * ctx.belowVis(), true)
                  : ctx.roomLightMat('floor', ctx.floorIdx() > 0 ? 1 - 0.65 * ctx.belowVis() : 1))
-        : ctx.mat(r.color || '#8a7f70', ghost, { side: THREE.DoubleSide }));
+        : ctx.mat(cover ? '#ffffff' : floorHex(r), ghost, { side: THREE.DoubleSide, ...(cover ? { map: coveringTexture(cover), roughness: 0.75 } : {}) }));
+      if (cover) m.material.userData.cover = cover;
       m.position.y = 0.01;
       m.receiveShadow = true;
       g.add(m);
@@ -118,6 +124,7 @@ export function initFloorBuild(ctx) {
         const sp = ctx.textSprite(roomLabel(r, ctx.topView(), ctx.imperial()));
         sp.position.set(c[0], 0.45, c[1]);
         if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * ctx.belowVis(); }
+        else ctx.roomName?.(f, r.id, sp);                       // it steps aside while the label over the room shows (#430, roomlabels.js)
         g.add(sp);
       }
     });
@@ -192,7 +199,7 @@ export function initFloorBuild(ctx) {
   }
   /** the walls with their doors and windows; on the open floor they take part in the cutaway and can be picked */
   function walls(g, f, i, o) {
-    const { holo, ghost, iso } = o, low = ctx.lowWalls(), half = ctx.halfCut() && !low;
+    const { holo, ghost, iso } = o, low = ctx.lowWalls(), half = ctx.halfCut() && !low, look = facadeOf(ctx.settings());   // window frames, wall colour (#428)
     const attic = o.roofClip ? atticUniforms(o.roofClip) : null;   // under the roof (#260): the walls end at the slopes, not inside a dormer (#265)
     const hosted = new Map();                                     // dormer windows cut into a wall of this floor (#275), by wall id
     (f.dormerWalls || []).forEach((d) => { if (d.host) hosted.set(d.host, [...(hosted.get(d.host) || []), ...d.openings]); });
@@ -207,8 +214,8 @@ export function initFloorBuild(ctx) {
       if (o.stack?.upTo && !low && !half && wallUnder(w, o.stack.upTo)) w = { ...w, height: wallUpTo(w.height, ctx.settings().wallHeight, ctx.floorH) };   // stacked: up to the roof
       const wallMat = holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
-        : ctx.mat('#d9d4cc', ghost);
-      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge, shutterSide: sideOf(w) });
+        : ctx.mat(look.wall, ghost);
+      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge, shutterSide: sideOf(w), windowFrame: look.frame });
       if (half) {                                                // what sticks out above the cut (door leaves, window frames) is clipped off
         const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (w.height || 2.6) * 0.5 + 0.001);
         wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
@@ -228,7 +235,7 @@ export function initFloorBuild(ctx) {
       if (w.host) return;                                        // cut into a wall of the room, drawn with it (above)
       const [ox, oz] = [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];
       if (iso && !ghost && !inIso(iso, ox, oz)) return;
-      const wg = buildWall(w, { material: null, ghost, low, makeMat: ctx.mat, holo, bare: true, shutterSide: sideOf(w) });
+      const wg = buildWall(w, { material: null, ghost, low, makeMat: ctx.mat, holo, bare: true, shutterSide: sideOf(w), windowFrame: look.frame });
       if (half) {
         const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (f.walls[0]?.height || 2.6) * 0.5 + 0.001);
         wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });

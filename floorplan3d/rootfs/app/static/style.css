@@ -975,3 +975,24 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
 #toolsMore .tBtn.tgStart { margin-left: 0; }
 #toolsMore .tBtn::before, #toolsMore .tBtn::after { display: none; }
 #toolsEditBtn { align-self: center; }
+
+/* ---- Labels over the rooms (#430, roomlabels.js): live mode, wide screens; moved with the camera every frame ---- */
+#roomLabels { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 3; }
+#roomLabels[hidden] { display: none; }
+.rlPill { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; padding: 5px 11px 5px 9px; border-radius: 999px;
+  white-space: nowrap; font-size: 12.5px; font-weight: 600; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); will-change: transform; }
+.rlPill b { font-weight: 600; }
+.rlPill i { font-style: normal; font-weight: 400; color: #c7d2dd; }
+.rlPill.lit { border-color: var(--lc); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lc) 40%, transparent), 0 6px 18px rgba(0, 0, 0, .35); }
+.rlDot { width: 8px; height: 8px; border-radius: 50%; background: #2ad0a0; box-shadow: 0 0 8px #2ad0a0; }
+.rlPill::after { content: ''; position: absolute; left: 50%; bottom: -7px; width: 2px; height: 7px; background: rgba(255, 255, 255, .45); transform: translateX(-50%); }
+@media (max-width: 760px) { #roomLabels { display: none !important; } }
+
+/* ---- Glass look (#429): the floor cards on the left and the buttons over the picture, like the cards of 3.98; light glass in the light
+ * theme; the "fast" mode without the blur. :where keeps it weak: a chosen button and a warning (red "2 open") keep their own colours ---- */
+:root { --glass: rgba(16, 22, 30, .55); --glass-solid: rgba(16, 22, 30, .88); --glass-line: rgba(255, 255, 255, .16); }
+[data-theme="light"] { --glass: rgba(255, 255, 255, .62); --glass-solid: rgba(255, 255, 255, .94); --glass-line: rgba(0, 0, 0, .1); }
+#floorRail button, :where(#navBar, #modeBar) .pill, .pill:where(#findBtn) {
+  background: var(--glass); border-color: var(--glass-line); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); }
+#floorRail button { border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); }   /* the open floor keeps its blue edge and glow */
+:where(body.low) #floorRail button, :where(body.low) :where(#navBar, #modeBar) .pill, :where(body.low) .pill:where(#findBtn) { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--glass-solid); }

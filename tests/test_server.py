@@ -250,6 +250,14 @@ async def test_settings_sky_cards_tiles(client):
     assert s["sky"] == "time" and s["energyCard"] is True and s["roomTiles"] is True
 
 
+async def test_settings_room_labels_and_window_frames(client):
+    """the labels over the rooms can be switched off (#430), the window frames are white or anthracite (#428); anything else falls back"""
+    s = await (await client.put("/api/settings", json={"roomLabels": False, "windowFrames": "anthracite"})).json()
+    assert s["roomLabels"] is False and s["windowFrames"] == "anthracite"
+    s = await (await client.put("/api/settings", json={"roomLabels": "no", "windowFrames": "pink"})).json()
+    assert s["roomLabels"] is True and s["windowFrames"] == "white"
+
+
 async def test_settings_look_and_stops(client):
     r = await client.put("/api/settings", json={
         "wallOpacity": 5, "glowRadius": 0.01, "bgTop": "#ABCDEF", "bgBottom": "red",

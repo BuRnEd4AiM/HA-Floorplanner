@@ -759,6 +759,24 @@ def test_a_roof_terrace_gets_a_railing_not_walls():
         assert shared["thickness"] == 0.3                                                                     # the wall to the terrace is an outer wall
 
 
+def test_the_floor_covering_of_a_room_survives_import_and_export():                    # parquet, tiles, concrete (#427)
+    rooms = [{"name": "Wohnen", "points": [[0, 0], [4, 0], [4, 3], [0, 3]], "covering": "parquet"},
+             {"name": "Bad", "points": [[4, 0], [7, 0], [7, 3], [4, 3]], "covering": "marmor"}]
+    layout, _, rep, _ = importer.build_layout(square_flat(rooms=rooms))
+    a, b = layout["floors"][0]["rooms"]
+    assert a["covering"] == "parquet" and "covering" not in b                            # an unknown covering is left out: one colour
+    again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["rooms"][0]
+    assert again["covering"] == "parquet"
+
+
+def test_the_floor_coverings_are_the_same_in_the_importer_the_schema_and_the_browser():
+    js = (APP / "static" / "floorcover.js").read_text(encoding="utf-8")
+    block = js[js.index("export const COVERINGS = {"):js.index("};", js.index("export const COVERINGS = {"))]
+    assert tuple(re.findall(r"^  (\w+): \{", block, re.M)) == importer.COVERINGS
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    assert tuple(json.dumps(schema).split('"covering": {"enum": ')[1].split("]")[0].strip("[").replace('"', "").split(", ")) == importer.COVERINGS
+
+
 def test_roof_boxes_move_with_the_building_origin():
     spec = {"schemaVersion": 1, "building": {"origin": [10, 20], "floors": [
         {"name": "EG", "kind": "floor", "rooms": [{"points": [[0, 0], [8, 0], [8, 5], [0, 5]]}]},

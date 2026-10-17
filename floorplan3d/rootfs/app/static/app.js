@@ -45,6 +45,8 @@ import { initCutaway } from './cutaway.js';
 import { initSettings } from './settings.js';
 import { initFloorPanel, newFloor } from './floorpanel.js';
 import { hexVec, colorFromStops, roomLightMat as makeRoomLightMat, fillLights as fillRoomLights } from './roomlight.js';
+import { paintFloor } from './floortex.js';                                      // floor coverings (#427)
+import { initRoomLabels } from './roomlabels.js';
 import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
 import { initSky } from './skyui.js';
@@ -210,7 +212,7 @@ function clearGroup(g) {
   g.traverse((o) => {
     if (o === g) return;
     o.geometry?.dispose();
-    if (o.material) [].concat(o.material).forEach((m) => { for (const k of ['map', 'alphaMap', 'emissiveMap']) m[k]?.dispose?.(); });
+    if (o.material) [].concat(o.material).forEach((m) => { for (const k of ['map', 'alphaMap', 'emissiveMap']) if (!m[k]?.userData.shared) m[k]?.dispose?.(); });   // the floor patterns are shared (#427)
   });
   g.clear();
 }
@@ -387,7 +389,7 @@ const neighbors = initNeighbors({
 
 /* a floor in 3D: room floors, floor opening rims, blocks, stairs, walls and devices; the code lives in floorbuild.js */
 const floorBuild = initFloorBuild({
-  settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(),
+  settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(), fast: () => LOW,
   mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
   lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
   registry, pickables, floorOpenings: (i) => floorOpenings(i), floorH: FLOOR_H, holoEdge: HOLO.edge,
@@ -395,6 +397,7 @@ const floorBuild = initFloorBuild({
   cutawayInfo: (w, wg) => wallCutawayInfo(w, wg), openingHandle: (w, o, g) => makeOpeningHandle(w, o, g), cutawayWalls: () => cutawayWalls,
   makeModel: (...a) => makeModel(...a), setPicture: (m, d) => setPicture(m, d), placeSolar: (...a) => roofsUi.placeSolar(...a),
   tapBalls, cams: { addCone: (d) => cams.addCone(d) }, labelSprites, modelLoaded: () => { applyStates(); refreshSelHelper(); },
+  roomName: (f, id, sp) => roomLabels.nameSprite(f, id, sp),
 });
 function build() {
   localizeDefaults(); welcomeUi?.update();
@@ -402,7 +405,7 @@ function build() {
   refreshView();
   plan?.render();
   clearGroup(world);
-  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
+  registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0; roomLabels.clear();
   syncDormerWindows(layout.floors, roofList, elev, uid);   // dormer windows are real windows on the floor they belong to (dormerwin.js)
   const holo = isHolo();
   const iso = isolatedRoom();
@@ -525,6 +528,10 @@ const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: (
   isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(),
   lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
   openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); } });
+const roomLabels = initRoomLabels({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // labels over the rooms (#430), roomlabels.js
+  settings: () => settings, states: () => states, isLive: () => isLive(), view3d: () => layoutMode !== '2d', elev: (i) => elev(i), camera, canvas,
+  placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e),
+  openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(), lang: () => currentLanguage(), imperial: () => settings.units === 'imperial' });
 
 /* ---- Doors, gates and windows with a contact sensor: the code lives in openings.js ---- */
 const openings = initOpenings({
@@ -629,6 +636,7 @@ function applyStates() {
   power.update();
   energyFlow.update();                    // the energy flow as a picture (#420)
   roomTiles.update();                     // the room tiles (#421)
+  roomLabels.update();                    // the labels over the rooms (#430)
   energyUi.update();                      // the tab "⚡ Rechnung" while it is open (#378)
   cams.updateCones();
   cams.updatePill();
@@ -693,7 +701,7 @@ function applyStates() {
       if (!U) return;
       const k = ghost ? 0.3 + 0.6 * bv : 1;
       const heat = viewMode === 'normal' ? null : roomHeat(room, f);
-      if (!holo) mesh.material.color.set(heat != null ? heat : (room.color || '#8a7f70'));      // solid themes: the floor itself takes the temperature / humidity colour
+      if (!holo) paintFloor(mesh.material, room, heat);      // solid themes: the floor itself takes the temperature / humidity colour, else its pattern (#427, floortex.js)
       const lights = heat ? [] : lampLights(entityDevices(f), room, { states, onStates: ON_STATES, rooms: f.rooms, settings });   // a TV's backlight and each LED ring section are lights of their own (lamplight.js)
       fillLights(target.material, lights, holo ? 1 : (ghost ? k : 1));
       if (holo) U.uBase.value.copy(heat != null ? hexVec(heat) : hexVec(HOLO.floor));
@@ -1541,6 +1549,7 @@ function animate(now = performance.now()) {
   declutterLabels();
   tapBalls.declutter(camera, canvas.clientWidth, canvas.clientHeight);   // tap balls that land on each other on the screen move apart (#314)
   floorCards.place();
+  roomLabels.place();                                            // the labels over the rooms follow the camera (#430)
   if (shadowDue(shadowDirty, now, lastShadow)) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; lastShadow = now; }   // shadows only when something changed (#253)
   renderer.render(scene, camera);
   perfHud.frame(now, due, frameStart);

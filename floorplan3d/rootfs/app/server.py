@@ -72,6 +72,8 @@ DEFAULT_SETTINGS = {
     "sky": "time",             # time: the sky behind the 3D view follows the sun and the weather (#418) | off: one colour
     "energyCard": True,        # live mode on wide screens: the energy flow as a picture instead of the line of numbers (#420)
     "roomTiles": True,         # live mode: a card per room at the bottom (#421)
+    "roomLabels": True,        # live mode, wide screens: a label over every room in the 3D view (name, temperature, lights, somebody there, #430)
+    "windowFrames": "white",   # white | anthracite: the colour of the window frames; anthracite with lighter walls (#428)
     "idleReturn": 0.0,         # wall tablets: minutes without a touch until the start view returns (0 = off)
     "idleOrbit": False,        # ... and the house then turns slowly (screen saver)
     "nightDim": "off",         # off | sun | time: dim the live view at night
@@ -109,7 +111,7 @@ VIEWS = ("3d", "2d", "split", "all")
 # what a user preset may set and the values allowed (the same list as PRESET_FIELDS in static/viewprefs.js, #250)
 PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWalls": (True, False),
                  "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False),
-                 "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False)}
+                 "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False)}
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too
 LOCKS = ("control", "alarm", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
@@ -510,6 +512,8 @@ def validate_settings(data: dict) -> dict:
         out["earth"] = DEFAULT_SETTINGS["earth"]
     if out["sky"] not in ("time", "off"):
         out["sky"] = DEFAULT_SETTINGS["sky"]
+    if out["windowFrames"] not in ("white", "anthracite"):
+        out["windowFrames"] = DEFAULT_SETTINGS["windowFrames"]
     if out["nightDim"] not in ("off", "sun", "time"):
         out["nightDim"] = DEFAULT_SETTINGS["nightDim"]
     for key in ("nightFrom", "nightTo"):

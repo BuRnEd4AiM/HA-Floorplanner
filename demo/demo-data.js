@@ -12,8 +12,8 @@ const layout = {
     id: 'kg', name: 'Keller', kind: 'basement',
     rooms: [
       { id: 'k1', name: 'Hobbyraum',  color: '#8f8a7e', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
-      { id: 'k2', name: 'Technik',    color: '#7d8590', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
-      { id: 'k3', name: 'Waschküche', color: '#8a96a0', points: [[0, 4.5], [10, 4.5], [10, 7], [0, 7]] },
+      { id: 'k2', name: 'Technik',    covering: 'concrete', color: '#7d8590', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
+      { id: 'k3', name: 'Waschküche', covering: 'concrete', color: '#8a96a0', points: [[0, 4.5], [10, 4.5], [10, 7], [0, 7]] },
     ],
     walls: [
       W('k_w1', [0, 0], [10, 0], 0.3, [Win('k_o1', 2.5, { height: 0.6, sill: 1.8 })]),
@@ -43,12 +43,12 @@ const layout = {
     stairs: [{ id: 'st1', name: 'Treppe', type: 'straight', x: 6.5, z: 3.9, rot: 0, w: 1.0, tread: 0.2, turn: 'right', dir: 'up' },
       { id: 'st2', name: 'Wendeltreppe zur Dachterrasse', type: 'spiral', x: 14.1, z: 5.05, rot: 180, w: 0.9, turn: 'right', dir: 'up', floors: 1 }],
     rooms: [
-      { id: 'r1', name: 'Wohnzimmer',    area: 'wohnzimmer', color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
-      { id: 'r2', name: 'Küche',         color: '#c9c2b4', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
-      { id: 'r3', name: 'Bad',           color: '#8fb1c2', points: [[0, 4.5], [3, 4.5], [3, 7], [0, 7]] },
-      { id: 'r4', name: 'Schlafzimmer',  area: 'schlafzimmer', color: '#a99bb8', points: [[3, 4.5], [7, 4.5], [7, 7], [3, 7]] },
-      { id: 'r5', name: 'Büro',          area: 'buero', color: '#9db39a', points: [[7, 4.5], [10, 4.5], [10, 7], [7, 7]] },
-      { id: 'gr1', name: 'Garage',       color: '#8d9096', points: [[10, 0], [15, 0], [15, 6], [10, 6]] },
+      { id: 'r1', name: 'Wohnzimmer',    area: 'wohnzimmer', covering: 'parquet', color: '#b89b74', points: [[0, 0], [6, 0], [6, 4.5], [0, 4.5]] },
+      { id: 'r2', name: 'Küche',         covering: 'tiles', color: '#c9c2b4', points: [[6, 0], [10, 0], [10, 4.5], [6, 4.5]] },
+      { id: 'r3', name: 'Bad',           covering: 'tilesSmall', color: '#8fb1c2', points: [[0, 4.5], [3, 4.5], [3, 7], [0, 7]] },
+      { id: 'r4', name: 'Schlafzimmer',  area: 'schlafzimmer', covering: 'parquetLight', color: '#a99bb8', points: [[3, 4.5], [7, 4.5], [7, 7], [3, 7]] },
+      { id: 'r5', name: 'Büro',          area: 'buero', covering: 'parquetDark', color: '#9db39a', points: [[7, 4.5], [10, 4.5], [10, 7], [7, 7]] },
+      { id: 'gr1', name: 'Garage',       covering: 'concrete', color: '#8d9096', points: [[10, 0], [15, 0], [15, 6], [10, 6]] },
     ],
     walls: [
       W('w1', [0, 0], [6, 0], 0.24, [Win('o1', 1.6, { entity: 'binary_sensor.fenster_wohnzimmer', name: 'Fenster Wohnzimmer' }), Win('o2', 4.4)]),
@@ -136,9 +136,9 @@ const layout = {
   }, {
     id: 'og', name: 'Obergeschoss',
     rooms: [
-      { id: 'q1', name: 'Kinderzimmer', color: '#a0b8d8', points: [[0, 0], [5, 0], [5, 4], [0, 4]] },
-      { id: 'q2', name: 'Gästezimmer', color: '#c8b0a0', points: [[5, 0], [10, 0], [10, 4], [5, 4]] },
-      { id: 'q3', name: 'Dachterrasse', color: '#a58a63', terrace: true, points: [[10, 0], [15, 0], [15, 6], [10, 6]] },
+      { id: 'q1', name: 'Kinderzimmer', covering: 'parquetLight', color: '#a0b8d8', points: [[0, 0], [5, 0], [5, 4], [0, 4]] },
+      { id: 'q2', name: 'Gästezimmer', covering: 'parquet', color: '#c8b0a0', points: [[5, 0], [10, 0], [10, 4], [5, 4]] },
+      { id: 'q3', name: 'Dachterrasse', covering: 'tilesDark', color: '#a58a63', terrace: true, points: [[10, 0], [15, 0], [15, 6], [10, 6]] },
     ],
     walls: [
       W('u1', [0, 0], [10, 0], 0.24, [Win('u5', 2.5), Win('u6', 7.5)]),
@@ -163,7 +163,7 @@ const layout = {
     id: 'dg', name: 'Dachgeschoss',
     holes: [{ id: 'h1', points: [[3.6, 0.9], [5.4, 0.9], [5.4, 1.9], [3.6, 1.9]] }],
     rooms: [
-      { id: 'p1', name: 'Studio', color: '#b0c8a0', points: [[1, 0.5], [6, 0.5], [6, 3.5], [1, 3.5]] },
+      { id: 'p1', name: 'Studio', covering: 'parquet', color: '#b0c8a0', points: [[1, 0.5], [6, 0.5], [6, 3.5], [1, 3.5]] },
     ],
     walls: [
       W('t1', [1, 0.5], [6, 0.5], 0.24, [Win('t5', 2.5)]),
@@ -308,6 +308,7 @@ const entities = {
 let settings = {
   language: 'auto', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', belowMode: 'dim', cameraImages: true, cutaway: true,
+  windowFrames: 'anthracite',                               // 3.99: the demo shows the dark window frames (#428)
 };
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });

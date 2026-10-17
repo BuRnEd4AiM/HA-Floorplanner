@@ -10,6 +10,7 @@ import { armPose } from './tvmount.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange, sectionHex } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 import { boxItems, groupTargets, moveGroup } from './multisel.js';
+import { floorHex } from './floorcover.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
 import { addStepAt, moveSection, moveCorner, removeStep } from './roofsteps.js';
 import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
@@ -400,7 +401,7 @@ export function createPlan(ctx) {
     f.rooms.forEach((rm) => {
       const isSel = sel?.kind === 'room' && sel.id === rm.id;
       const heat = ctx.roomHeat ? ctx.roomHeat(rm, f) : null;
-      const fill = heat || rm.color || '#8a7f70';
+      const fill = heat || floorHex(rm);                     // a covered floor: its mean colour (#427)
       o += `<polygon points="${pts(rm.points)}" fill="${fill}" fill-opacity="${heat ? 0.45 : 0.26}" stroke="${isSel ? C.sel : 'rgba(255,255,255,.25)'}" stroke-width="${isSel ? 2 : 1}" stroke-dasharray="${isSel ? '' : '4 4'}"/>`;
     });
 

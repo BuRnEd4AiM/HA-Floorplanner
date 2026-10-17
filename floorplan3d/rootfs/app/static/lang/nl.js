@@ -1298,4 +1298,10 @@ export default {
   'tg.draw': 'Tekenen', 'tg.place': 'Plaatsen', 'tg.tools': 'Gereedschap', 'tool.s.autoRooms': 'Herkennen', 'tool.s.hole': 'Sparing', 'tool.s.power': 'Stroom',
   'tool.s.energy': 'Balans', 'tool.s.import': 'Importeren', 'tool.s.more': 'Meer',
   'flow.idle': 'in rust · {w}', 'flow.noPower': 'geen vermogenssensor',
+  'cover.label': 'Vloer', 'cover.hint': 'Wat op de vloer ligt. In de modus ‘snel’ en het hologram-thema blijft hij één kleur.', 'cover.none': 'Eén kleur',
+  'cover.parquet': 'Eiken parket', 'cover.parquetLight': 'Licht parket', 'cover.parquetDark': 'Donker parket', 'cover.tiles': 'Tegels (30 cm)',
+  'cover.tilesSmall': 'Kleine tegels (badkamer)', 'cover.tilesDark': 'Antraciet tegels (60 cm)', 'cover.concrete': 'Beton', 'set.windowFrames': 'Raamkozijnen',
+  'set.windowFrames.white': 'Wit', 'set.windowFrames.anthracite': 'Antraciet (lichtere muren)',
+  'set.roomLabels': 'Kamerlabels in het 3D-beeld (live, breed scherm)', 'set.preset.roomLabels': 'Kamerlabels', 'nav.roomLabels': 'Kamerlabels',
+  'nav.roomLabelsTip': 'Een label boven elke kamer: naam, temperatuur, lampen, open ramen, een groene stip als er iemand is (live, breed scherm)',
 };

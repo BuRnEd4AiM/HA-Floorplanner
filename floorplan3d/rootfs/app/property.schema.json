@@ -433,6 +433,10 @@
        "terrace": {
         "type": "boolean",
         "description": "Roof terrace / open area: no roof above it, a railing along every edge without a wall. Its edges that no other room shares get no wall."
+       },
+       "covering": {
+        "enum": ["parquet", "parquetLight", "parquetDark", "tiles", "tilesSmall", "tilesDark", "concrete"],
+        "description": "The floor of the room: parquet (oak, light, dark), tiles (30 cm, small 15 cm, dark 60 cm) or concrete instead of one colour (`color` is then left aside). Without it the floor has its colour."
        }
       }
      }
