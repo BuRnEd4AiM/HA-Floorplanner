@@ -907,3 +907,21 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 #wxFall.snow.heavy i { animation-duration: 5s; }
 #wxFall.still i { animation: none; }
 @keyframes wxFall { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 256px, 0); } }
+
+/* ---- Energy flow as a picture (#420, energyflowui.js): in the stack at the top right, live mode, wide screens ---- */
+#energyCard { display: block; padding: 10px 12px 2px; border-radius: 16px; cursor: pointer; text-align: left; font: inherit; }
+#energyCard[hidden] { display: none; }
+.ef-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #aeb9c6; margin: 0 0 2px 4px; }
+#energyCard svg { display: block; overflow: visible; }
+.ef-line { fill: none; stroke-width: 3; stroke-opacity: .35; }
+.ef-dots { fill: none; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 0 16; animation: efDots 1.5s linear infinite; }
+#energyCard.still .ef-dots { animation: none; }
+@keyframes efDots { from { stroke-dashoffset: 16; } to { stroke-dashoffset: 0; } }
+.ef-node circle { fill: rgba(10, 14, 20, .6); stroke-width: 3; }
+.ef-node text { text-anchor: middle; font-family: inherit; }
+.ef-icon { font-size: 18px; }
+.ef-val { font-size: 13px; font-weight: 700; fill: #fff; }
+.ef-sub { font-size: 11.5px; fill: #aeb9c6; }
+.ef-node .ef-side { text-anchor: start; }
+@media (max-width: 760px) { #energyCard { display: none !important; } }
+@media (min-width: 761px) { body.live.flowcard #energyPill { display: none !important; } }

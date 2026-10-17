@@ -1294,4 +1294,9 @@ export default {
   'wx.lightning-rainy': 'Temporale con pioggia', 'wx.lightning': 'Temporale', 'wx.hail': 'Grandine', 'wx.snowy': 'Neve', 'wx.snowy-rainy': 'Nevischio',
   'prop.rainWarn': 'Avvisa se piove',
   'prop.rainWarnHint': 'Compare un avviso se questa finestra è aperta mentre l\'entità meteo segnala pioggia. Togli la spunta per una finestra che può restare aperta sotto la pioggia.',
+  'flow.title': 'Energia adesso', 'flow.solar': 'Sole', 'flow.grid': 'Rete', 'flow.fromGrid': 'Dalla rete', 'flow.toGrid': 'Immessa in rete',
+  'flow.home': 'Consumo casa', 'flow.battery': 'Batteria', 'flow.charging': 'in carica {w}', 'flow.discharging': 'in scarica {w}',
+  'flow.tip': 'Tocca: mostra o nascondi i cavi nella casa', 'nav.flow': 'Energia come immagine',
+  'nav.flowTip': 'Sole, rete, casa e batteria con la corrente che scorre, in alto a destra al posto della riga di numeri (modalità live, schermo largo)',
+  'set.energyCard': 'Energia come immagine (modalità live, schermo largo)',
 };

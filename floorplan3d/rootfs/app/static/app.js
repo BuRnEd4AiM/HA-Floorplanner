@@ -9,6 +9,7 @@ import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
 import { initPower } from './power.js';
 import { initEnergyUi } from './energyui.js';
+import { initEnergyFlow } from './energyflowui.js';
 import { energyBalance } from './energycalc.js';
 import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
@@ -500,6 +501,8 @@ const energySetup = initEnergySetup({
   refresh: () => power.update(), rerender: () => energyUi.render(), floor: () => floor(), center: () => floorBounds(), uid, setStatus,
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0, onWall: (d) => { if (WALL_TYPES.has(d.type)) snapToWall(d, 100); }, placed: () => changed(),
 });
+const energyFlow = initEnergyFlow({ $, t, settings: () => settings, states: () => states, layout: () => layout, isLive: () => isLive(),   // the energy flow as a picture (#420), energyflowui.js
+  low: () => perfParam === 'low', toggleCables: () => power.toggle(), commitSettings: () => commitSettings() });
 const energyUi = initEnergyUi({
   $, t, layout: () => layout, states: () => states, entities: () => entities, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
   entityPicker: (...a) => entityPicker(...a), pickerField: (...a) => pickerField(...a), snapshot: () => snapshot(), changed: () => changed(false), refresh: () => power.update(),
@@ -632,6 +635,7 @@ function applyStates() {
   if (plan?.isVisible()) plan.render();
   updateViewLegend();
   power.update();
+  energyFlow.update();                    // the energy flow as a picture (#420)
   energyUi.update();                      // the tab "⚡ Rechnung" while it is open (#378)
   cams.updateCones();
   cams.updatePill();

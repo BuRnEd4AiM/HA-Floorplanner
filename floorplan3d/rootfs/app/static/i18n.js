@@ -219,6 +219,11 @@ const DICT = {
     'wx.hail': 'Hagel', 'wx.snowy': 'Schnee', 'wx.snowy-rainy': 'Schneeregen',
     'prop.rainWarn': 'Bei Regen warnen',
     'prop.rainWarnHint': 'Ist das Fenster offen, während die Wetter-Entität Regen meldet, kommt eine Warnung. Haken weg für ein Fenster, das bei Regen offen bleiben darf.',
+    'flow.title': 'Strom jetzt', 'flow.solar': 'Sonne', 'flow.grid': 'Netz', 'flow.fromGrid': 'Bezug vom Netz', 'flow.toGrid': 'Einspeisung',
+    'flow.home': 'Haus braucht', 'flow.battery': 'Batterie', 'flow.charging': 'lädt {w}', 'flow.discharging': 'entlädt {w}',
+    'flow.tip': 'Tippen: die Strom-Kabel im Haus zeigen oder ausblenden', 'nav.flow': 'Strom als Bild',
+    'nav.flowTip': 'Oben rechts Sonne, Netz, Haus und Batterie mit wanderndem Strom statt der Zahlenzeile (Live, breiter Bildschirm)',
+    'set.energyCard': 'Strom als Bild (Live, breiter Bildschirm)',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -434,6 +439,11 @@ const DICT = {
     'wx.lightning': 'Thunderstorm', 'wx.hail': 'Hail', 'wx.snowy': 'Snow', 'wx.snowy-rainy': 'Sleet',
     'prop.rainWarn': 'Warn in the rain',
     'prop.rainWarnHint': 'A warning comes when this window is open while the weather entity reports rain. Untick it for a window that may stay open in the rain.',
+    'flow.title': 'Power now', 'flow.solar': 'Sun', 'flow.grid': 'Grid', 'flow.fromGrid': 'From the grid', 'flow.toGrid': 'Into the grid',
+    'flow.home': 'House uses', 'flow.battery': 'Battery', 'flow.charging': 'charging {w}', 'flow.discharging': 'discharging {w}',
+    'flow.tip': 'Tap: show or hide the power cables in the house', 'nav.flow': 'Power as a picture',
+    'nav.flowTip': 'Sun, grid, house and battery with the power running between them at the top right instead of the line of numbers (live mode, wide screens)',
+    'set.energyCard': 'Power as a picture (live mode, wide screens)',
   },
 };
 

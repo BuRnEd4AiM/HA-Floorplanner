@@ -1294,4 +1294,9 @@ export default {
   'wx.lightning': 'Tormenta', 'wx.hail': 'Granizo', 'wx.snowy': 'Nieve', 'wx.snowy-rainy': 'Aguanieve',
   'prop.rainWarn': 'Avisar si llueve',
   'prop.rainWarnHint': 'Aparece un aviso si esta ventana está abierta mientras la entidad del tiempo indica lluvia. Desmárcalo para una ventana que puede quedar abierta con lluvia.',
+  'flow.title': 'Electricidad ahora', 'flow.solar': 'Sol', 'flow.grid': 'Red', 'flow.fromGrid': 'De la red', 'flow.toGrid': 'A la red',
+  'flow.home': 'Consumo de la casa', 'flow.battery': 'Batería', 'flow.charging': 'cargando {w}', 'flow.discharging': 'descargando {w}',
+  'flow.tip': 'Tocar: mostrar u ocultar los cables en la casa', 'nav.flow': 'Electricidad en imagen',
+  'nav.flowTip': 'Sol, red, casa y batería con la corriente fluyendo, arriba a la derecha en lugar de la línea de cifras (modo en vivo, pantalla ancha)',
+  'set.energyCard': 'Electricidad en imagen (modo en vivo, pantalla ancha)',
 };

@@ -1293,4 +1293,9 @@ export default {
   'wx.hail': 'Grêle', 'wx.snowy': 'Neige', 'wx.snowy-rainy': 'Neige fondue',
   'prop.rainWarn': 'Avertir en cas de pluie',
   'prop.rainWarnHint': 'Un avertissement apparaît si cette fenêtre est ouverte alors que l\'entité météo signale de la pluie. Décochez pour une fenêtre qui peut rester ouverte sous la pluie.',
+  'flow.title': 'Électricité maintenant', 'flow.solar': 'Soleil', 'flow.grid': 'Réseau', 'flow.fromGrid': 'Pris au réseau', 'flow.toGrid': 'Injecté au réseau',
+  'flow.home': 'Consommation', 'flow.battery': 'Batterie', 'flow.charging': 'en charge {w}', 'flow.discharging': 'se décharge {w}',
+  'flow.tip': 'Toucher : afficher ou masquer les câbles dans la maison', 'nav.flow': 'Électricité en image',
+  'nav.flowTip': 'Soleil, réseau, maison et batterie avec le courant qui circule, en haut à droite au lieu de la ligne de chiffres (mode direct, écran large)',
+  'set.energyCard': 'Électricité en image (mode direct, écran large)',
 };

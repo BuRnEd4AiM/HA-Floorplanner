@@ -1293,4 +1293,9 @@ export default {
   'wx.lightning-rainy': 'Burza z deszczem', 'wx.lightning': 'Burza', 'wx.hail': 'Grad', 'wx.snowy': 'Śnieg', 'wx.snowy-rainy': 'Deszcz ze śniegiem',
   'prop.rainWarn': 'Ostrzegaj przy deszczu',
   'prop.rainWarnHint': 'Pojawi się ostrzeżenie, gdy to okno jest otwarte, a encja pogody zgłasza deszcz. Odznacz dla okna, które może zostać otwarte w deszczu.',
+  'flow.title': 'Prąd teraz', 'flow.solar': 'Słońce', 'flow.grid': 'Sieć', 'flow.fromGrid': 'Pobór z sieci', 'flow.toGrid': 'Oddawanie do sieci',
+  'flow.home': 'Dom zużywa', 'flow.battery': 'Bateria', 'flow.charging': 'ładuje {w}', 'flow.discharging': 'rozładowuje {w}',
+  'flow.tip': 'Dotknij: pokaż lub ukryj kable w domu', 'nav.flow': 'Prąd jako obraz',
+  'nav.flowTip': 'Słońce, sieć, dom i bateria z płynącym prądem w prawym górnym rogu zamiast wiersza liczb (tryb na żywo, szeroki ekran)',
+  'set.energyCard': 'Prąd jako obraz (tryb na żywo, szeroki ekran)',
 };
