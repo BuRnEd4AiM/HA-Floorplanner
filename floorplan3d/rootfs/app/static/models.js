@@ -7,8 +7,9 @@ import { kitchenLayout } from './kitchen.js';
 import { solarField, standParts, PANEL, STAND } from './solarroof.js';
 import { bridgeParts } from './bridge.js';
 import { LAMP_TYPES } from './lamplight.js';
-import { SCANDI, SCANDI_TYPES, partsOf, matOf, finishOf, variantOf } from './scandi.js';
+import { SCANDI, SCANDI_TYPES, partsOf, matOf, finishOf, variantOf, sizeVariant } from './scandi.js';
 import { tvArmParts } from './tvmount.js';
+import { zoneCount } from './ledzones.js';
 
 /* Geräte-Typen: label, Standardhöhe (y) über dem Boden. Alle Maße in Metern. */
 export const DEVICE_TYPES = {
@@ -626,6 +627,20 @@ function loadGlb(name) {
 export function forgetGlb(name) { glbCache.delete(name); }
 
 export function isCustom(type) { return typeof type === 'string' && type.startsWith('glb:'); }
+/** size (m) of a built-in model at scale 1, measured from the model itself (null for custom GLB models); a piece in its variant (dev.variant),
+ *  a bar counter without what hangs from the ceiling over it (sizeVariant); moved here from app.js */
+const sizeCache = new Map();
+export function baseSize(type, dev) {
+  if (isCustom(type) || type === 'nanoleaf' || type === 'ledring') return null;
+  const v = SCANDI[type] ? sizeVariant(type, dev) : null, key = v ? `${type}|${v}` : type;
+  if (!sizeCache.has(key)) {
+    const g = makeModel(type, undefined, v ? { variant: v } : undefined);
+    g.updateMatrixWorld(true);
+    const sz = new THREE.Box3().setFromObject(g).getSize(new THREE.Vector3());
+    sizeCache.set(key, sz.x > 0.001 && sz.y > 0.001 && sz.z > 0.001 ? { x: sz.x, y: sz.y, z: sz.z } : null);
+  }
+  return sizeCache.get(key);
+}
 
 /** Build a device model. For custom models a placeholder is shown until the GLB has loaded;
  *  `onReady` is called afterwards so the caller can refresh shadows/selection helpers. */
@@ -659,7 +674,7 @@ export function makeModel(type, onReady, dev, opts) {
 /** Furniture in Scandinavian style (scandi.js) and the pieces of leisure.js: its parts as meshes, in the finish chosen on the device; a lamp's
  *  shade glows with its entity, an LED zone with its own one */
 function scandiModel(g, type, dev) {
-  const fin = finishOf(type, dev), variant = variantOf(type, dev), mats = new Map(), glow = [], heat = [], zones = Array.from({ length: SCANDI[type].leds?.length || 0 }, () => []);
+  const fin = finishOf(type, dev), variant = variantOf(type, dev), mats = new Map(), glow = [], heat = [], zones = Array.from({ length: zoneCount(type, dev) }, () => []);
   const matFor = (m) => {
     if (!mats.has(m)) {
       const s = matOf(m, fin);

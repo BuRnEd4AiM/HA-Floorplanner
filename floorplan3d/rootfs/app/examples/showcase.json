@@ -245,7 +245,7 @@
           { "type": "tv_arm", "x": 19.3, "z": 0.58, "y": 1.45, "name": "Fitness-TV", "entity": "media_player.fitness_tv", "ledEntity": "light.fitness_tv_led", "tvSize": "65", "armSwing": -20, "armReach": 0.25, "armTilt": 6 },
           { "type": "fan_stand", "x": 21.2, "z": 4.3, "rot": 270, "name": "Ventilator Fitness", "entity": "switch.fitness_ventilator" },
           { "type": "backbar", "x": 25.16, "z": 3.0, "rot": 270, "name": "Barregal", "entity": "light.barregal" },
-          { "type": "bar_corner", "x": 23.75, "z": 3.3, "rot": 270, "name": "Bar", "entity": "light.bar", "leds": ["light.bar_theke", "light.bar_sockel"] },
+          { "type": "bar_corner", "x": 23.75, "z": 3.3, "rot": 270, "name": "Bar", "entity": "light.bar", "variant": "rack", "leds": ["light.bar_theke", "light.bar_sockel", "light.bar_decke"] },
           { "type": "ac_ceiling", "x": 23.2, "z": 5.0, "y": 2.47, "name": "Klima Bar", "entity": "climate.bar" },
           { "type": "barstool_back", "x": 22.2, "z": 2.3, "rot": 90 },
           { "type": "barstool_back", "x": 22.2, "z": 2.9, "rot": 90 },

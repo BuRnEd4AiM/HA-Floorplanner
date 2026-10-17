@@ -15,6 +15,8 @@ const ON = new Set(['on']);
 test('the zones of a type: their keys and how many; none for other types', () => {
   assert.deepEqual(Z.zoneKeys('mirror_led_zones'), ['back', 'front', 'bottom']);
   assert.equal(Z.zoneCount('bar_counter'), 2);
+  assert.equal(Z.zoneCount('bar_counter', { variant: 'rack' }), 3);                       // with what hangs from the ceiling: its light too
+  assert.deepEqual(Z.zoneKeys('bar_corner', { variant: 'pendants' }), ['counter', 'floor', 'ceiling']);
   assert.equal(Z.zoneCount('mirror_led'), 0);
   assert.equal(Z.zoneCount('light'), 0);
   assert.equal(Z.zoneCount(undefined), 0);
@@ -97,4 +99,16 @@ test('a piece linked only through its zones can be tapped and shows a light bulb
   assert.equal(ballIcon(d), '💡');
   assert.equal(ballIcon({ type: 'sauna_cabin', entity: 'climate.sauna' }), '🧖');
   assert.equal(ballIcon({ type: 'projector', entity: 'media_player.beamer' }), '📽');
+});
+test('a bar counter built without its ceiling part drops the light of that part, the others stay', () => {
+  const bar = { id: 'b1', type: 'bar_counter', variant: 'rack', entity: 'light.bar', leds: ['light.edge', '', 'light.ceiling'] };
+  assert.deepEqual(Z.zoneEntities(bar), ['light.edge', 'light.bar', 'light.ceiling']);
+  delete bar.variant; Z.fitZones(bar);
+  assert.deepEqual(bar.leds, ['light.edge']);
+  const only = { type: 'bar_counter', leds: ['', '', 'light.ceiling'] };
+  Z.fitZones(only);
+  assert.equal(only.leds, undefined);
+  const none = { type: 'sofa_3', leds: ['x'] };
+  Z.fitZones(none);
+  assert.equal(none.leds, undefined);
 });

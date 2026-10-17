@@ -1,4 +1,4 @@
-"""Sauna, fitness, bar, cinema, PC and LED mirrors (leisure.js): the new library groups, a placed sauna that glows while it heats, the monitor layouts of the PC desk, the LED zones of the mirrors (side panel, 3D, live card).
+"""Sauna, fitness, bar, cinema, PC and LED mirrors (leisure.js): the new library groups, a placed sauna that glows while it heats, the monitor layouts of the PC desk, the LED zones of the mirrors (side panel, 3D, live card), what hangs from the ceiling over the bar.
 """
 # --- the library: four new groups, the search finds the pieces by their everyday names
 pgL = b.new_page(viewport={"width": 1500, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
@@ -80,6 +80,35 @@ calls = ha_calls()[before:]
 check("LED zones: the zone's own card switches its own light", "Below" in pgL.locator("#livePopup h4").first.inner_text() and ["switch", "turn_on", "switch.garage"] in calls, calls)
 pgL.click("#modeSwitch button[data-mode=edit]"); pgL.wait_for_timeout(400)
 pgL.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices = f.devices.filter((v) => v.id !== 'lsMir'); window.__fp.rebuild(); }")
+# --- the bar round the corner: what hangs from the ceiling over it is chosen in the side panel, its light is an LED zone of its own
+pgL.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()];
+  f.devices.push({id: 'lsBar', type: 'bar_corner', x: 64, z: 60, y: 0, rot: 0, scale: 1, name: 'Bar', entity: 'light.ls_bar'});
+  window.__fp.fakeState('light.ls_bar', 'on'); window.__fp.rebuild(); window.__fp.select('device', 'lsBar'); }""")
+pgL.wait_for_timeout(400)
+bvar = "() => { let v = null; window.__fp.scene.traverse((o) => { if (o.userData.kind === 'device' && o.userData.id === 'lsBar' && o.userData.variant) v = o.userData.variant; }); return v; }"
+bdev = "() => window.__fp.layout.floors[window.__fp.floorIdx()].devices.find((v) => v.id === 'lsBar')"
+zheads = lambda: pgL.locator("#propsBody .ringSec[data-zone] .ringSecHead b").all_inner_texts()
+height = lambda: pgL.locator("#propsBody .prop", has=pgL.locator("label", has_text="Height (size)")).locator("input").input_value()
+opts = pgL.locator("#devVariant option").all_inner_texts()
+label = pgL.locator("#propsBody .prop", has=pgL.locator("#devVariant")).locator("label").inner_text()
+check("bar: the side panel offers what hangs from the ceiling over it, nothing to start with",
+      label == "From the ceiling" and opts == ["Nothing", "Glass rack with hanging glasses", "Ceiling panel with LED", "Pendant lamps"]
+      and pgL.input_value("#devVariant") == "none" and pgL.evaluate(bvar) == "none" and zheads() == ["Counter edge", "Plinth"], (label, opts, zheads()))
+h0, unit = height(), (3.2808 if api("api/settings")["units"] == "imperial" else 1)   # the size fields show feet after the test house
+pgL.select_option("#devVariant", "rack"); pgL.wait_for_timeout(500)
+check("bar: the glass rack is stored and built, its light is a third LED zone, the size fields keep the counter's own height",
+      pgL.evaluate(bdev)["variant"] == "rack" and pgL.evaluate(bvar) == "rack" and zheads() == ["Counter edge", "Plinth", "Ceiling part"]
+      and pgL.evaluate("window.__fp.ringGlow('lsBar')") == [True, True, True] and height() == h0 and float(h0) < 1.3 * unit, (pgL.evaluate(bdev), zheads(), h0, height()))
+pgL.fill(".ringSec[data-zone='2'] input[type=search]", "garage"); pgL.keyboard.press("Enter"); pgL.wait_for_timeout(400)
+pgL.evaluate("window.__fp.fakeState('switch.garage', 'off'); window.__fp.applyStates()"); pgL.wait_for_timeout(300)
+check("bar: the ceiling part follows its own light (off), the counter the bar's (on)",
+      pgL.evaluate(bdev)["leds"] == ["", "", "switch.garage"] and pgL.evaluate("window.__fp.ringGlow('lsBar')") == [True, True, False], (pgL.evaluate(bdev), pgL.evaluate("window.__fp.ringGlow('lsBar')")))
+pgL.select_option("#devVariant", "pendants"); pgL.wait_for_timeout(400)
+check("bar: pendant lamps instead keep the light of the ceiling part", pgL.evaluate(bvar) == "pendants" and pgL.evaluate(bdev)["leds"] == ["", "", "switch.garage"], pgL.evaluate(bdev))
+pgL.select_option("#devVariant", "none"); pgL.wait_for_timeout(400)
+d = pgL.evaluate(bdev)
+check("bar: nothing on the ceiling again drops the choice and the ceiling light, two zones are left", "variant" not in d and "leds" not in d and zheads() == ["Counter edge", "Plinth"], (d, zheads()))
+pgL.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices = f.devices.filter((v) => v.id !== 'lsBar'); window.__fp.rebuild(); }")
 bad = [e for e in own if "favicon" not in e]
 check("leisure pieces: no console errors", not bad, bad)
 pgL.close()

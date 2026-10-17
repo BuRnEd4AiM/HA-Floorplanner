@@ -128,7 +128,7 @@ export function initLivePopup(ctx) {
   }
   /** a piece with LED zones (ledzones.js): one button per zone with its name, the tapped zone's own controls, then all of them */
   function zonePopup(box, d) {
-    const keys = zoneKeys(d.type), n = keys.length;
+    const keys = zoneKeys(d.type, d), n = keys.length;
     sectionsPopup(box, d, { n, entity: (i) => zoneEntity(d, i), all: pieceEntities(d), label: (i) => t(`led.${keys[i]}`), heading: (i) => t(`led.${keys[i]}`),
       title: d.name || t(`dev.${d.type}`), summary: (on) => t('zone.summary', { on, n }), whole: t('zone.whole') });
   }

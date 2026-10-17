@@ -94,6 +94,10 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 39. **Messen mit der Taste M** (58.1 bis 58.3, #399): Bearbeiten, Taste **M** drücken (oder oben **„Messen“**): es öffnet sich 2D + 3D. Zwei Punkte im Plan anklicken: die Linie mit ihrer Länge erscheint, rechts stehen die Maße.
 40. **Zwei Wände genau einstellen** (58.4 bis 58.8): zwei gegenüberliegende Wände eines Raums nacheinander anklicken, rechts beim **„Lichter Abstand“** z. B. 4 eintippen und **„Setzen“**: die orange Wand rückt genau dorthin, die Wände daneben und der Raum ziehen mit. Dann zwei Wände in einer Ecke anklicken und den **„Winkel“** auf z. B. 120 stellen. Strg+Z macht es rückgängig.
 
+**Neu in 3.92** (ausführlich in Abschnitt **59** unten)
+41. **Bar mit Deckenteil** (59.1 bis 59.5, #401): Bearbeiten, die Bar über Eck anklicken (oder eine neue aus der Gruppe „Bar“ setzen), rechts bei **„An der Decke“** z. B. **„Gläserregal mit hängenden Gläsern“** wählen: über der Theke hängt jetzt ein Regal in L-Form mit Gläsern. Probiere auch **„Deckensegel mit LED“** und **„Pendelleuchten“**.
+42. **Eigenes Licht für das Deckenteil** (59.6, 59.7): unten bei **„LEDs einzeln verknüpfen“** beim **„Deckenteil“** ein Licht wählen, dann in „Live“ die Bar antippen: das Deckenteil hat einen eigenen Knopf.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -218,7 +222,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 0 | 0 | 7 | 0 | 56.1 bis 56.7 |
 | 57. Neu in 3.90: Garage, Werkstatt und Carport | 0 | 0 | 7 | 1 | 57.1 bis 57.7 |
 | 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 0 | 0 | 8 | 0 | 58.1 bis 58.8 |
-| **Zusammen** | **199** | **2** | **190** | **3** | |
+| 59. Neu in 3.92: Bar mit Deckenteil | 0 | 0 | 7 | 1 | 59.1 bis 59.7 |
+| **Zusammen** | **199** | **2** | **197** | **4** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -910,3 +915,15 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 58.6 | „⇄ Die andere Wand bewegen“, einen Wert setzen; dann Strg+Z | Jetzt bewegt sich die andere Wand; Strg+Z holt den Stand davor zurück | ❓ |
 | 58.7 | Zwei Wände in einer Ecke anklicken, beim „Winkel“ 120 setzen, dann 90 | Im Plan steht der Winkel in der Ecke; die zweite Wand dreht sich um die Ecke, bleibt gleich lang, die Wand an ihrem anderen Ende zieht mit; mit 90 ist es wieder rechtwinklig | ❓ |
 | 58.8 | Eine gesperrte Wand (in der Objektliste abgehakt) als zweite Wand nehmen und einen Abstand setzen; Esc; ein anderes Werkzeug wählen | Die gesperrte Wand bewegt sich nicht, oben steht ein Hinweis; Esc löscht die Messung; mit einem anderen Werkzeug verschwindet der Abschnitt „Messen“ | ❓ |
+
+## 59. Neu in 3.92: Bar mit Deckenteil
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 59.1 | Bearbeiten, eine „Bartheke über Eck mit LED“ setzen und anklicken | Rechts steht „An der Decke“ mit „Nichts“; darunter ein kurzer Hinweis; bei „LEDs einzeln verknüpfen“ stehen Thekenkante und Sockel | ❓ |
+| 59.2 | Bei „An der Decke“ „Gläserregal mit hängenden Gläsern“ wählen, die Bar von allen Seiten ansehen | Über der Theke hängt in L-Form ein Brett mit Stahlrahmen an Stangen von der Decke, darunter zwei Reihen Weingläser kopfüber und ein LED-Streifen; es folgt der Theke genau | ❓ |
+| 59.3 | „Deckensegel mit LED“, dann „Pendelleuchten“ wählen | Ein schwebendes Brett in der Farbe der Bar mit Licht oben und Spots unten; dann eine schwarze Schiene an der Decke mit 5 Pendelleuchten (bei der geraden Bar 3) | ❓ |
+| 59.4 | Dasselbe mit der geraden „Bartheke mit LED“ | Regal, Segel und Leuchten sind gerade und so lang wie die Theke | ❓ |
+| 59.5 | Im 2D-Plan die Bar ansehen, bei den Maßen rechts auf „Höhe“ schauen, an eine Wand schieben | Im Plan ist sie so groß wie vorher; „Höhe“ zeigt die Theke (etwa 1,2 m), nicht die Decke; sie stoppt an der Wand wie vorher | ❓ |
+| 59.6 | Bei „LEDs einzeln verknüpfen“ beim „Deckenteil“ ein Licht wählen, ein- und ausschalten | Das Licht des Deckenteils folgt seinem eigenen Licht, die Theke dem Licht der Bar; ohne eigenes Licht leuchtet es mit der Bar | ❓ |
+| 59.7 | „Live“, die Bar antippen; danach wieder „An der Decke: Nichts“ wählen | Die Karte hat einen Knopf „Deckenteil“; mit „Nichts“ ist das Deckenteil weg, sein Licht auch, Thekenkante und Sockel bleiben | ❓ |
+| 59.8 | Im Add-on das Musterhaus („alles drin“) neu importieren | Über der Bar im Keller hängt ein Gläserregal | ➖ |

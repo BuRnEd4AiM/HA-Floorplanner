@@ -10,11 +10,12 @@ const { LAMP_TYPES, LIGHT_PROFILE, isLamp } = await import(`${dir}/lamplight.js`
 const { WALL_TYPES } = await import(`${dir}/placement.js`);
 const { WALL_HUNG } = await import(`${dir}/collide.js`);
 const { DEVICE_TYPES, CATEGORIES, catOf } = await import(`${dir}/models.js`);
+const { zoneKeys } = await import(`${dir}/ledzones.js`);
 const near = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 const HEX = /^#[0-9a-f]{6}$/;
 const KEYS = Object.keys(L.LEISURE);
 const size = (k) => { const bb = S.bounds(S.partsOf(k)); return [bb.x1 - bb.x0, bb.y1 - bb.y0, bb.z1 - bb.z0].map((v) => +v.toFixed(2)); };
-const mats = (k) => new Set(S.partsOf(k).map((p) => p.m));
+const mats = (k, v = null) => new Set(S.partsOf(k, v).map((p) => p.m));
 
 test('more than 50 pieces, each in a library group with a German name, search words and parts', () => {
   assert.ok(KEYS.length >= 50, KEYS.length);
@@ -98,9 +99,9 @@ test('LED zones: a piece with zones has parts in every zone and none beyond them
   assert.deepEqual(withZones.sort(), ['bar_corner', 'bar_counter', 'fan_ceiling', 'mirror_cabinet', 'mirror_gym', 'mirror_hollywood', 'mirror_led_tall', 'mirror_led_zones']);
   assert.deepEqual(L.LEISURE.fan_ceiling.leds, ['light']);                     // the ceiling fan's light: an entity of its own
   for (const k of ['mirror_gym', 'mirror_led_tall']) assert.deepEqual(L.LEISURE[k].leds, ['back', 'front'], k);     // the big mirrors: behind and in front
-  for (const k of KEYS) {
-    const zs = [...mats(k)].filter((m) => /^z\d$/.test(m)).map((m) => S.matOf(m).zone).sort();
-    assert.deepEqual(zs, (L.LEISURE[k].leds || []).map((_, i) => i), k);
+  for (const k of KEYS) for (const v of L.LEISURE[k].variants || [null]) {          // in every variant (a bar with a ceiling part has one more)
+    const zs = [...mats(k, v)].filter((m) => /^z\d$/.test(m)).map((m) => S.matOf(m).zone).sort();
+    assert.deepEqual(zs, zoneKeys(k, { variant: v }).map((_, i) => i), `${k} ${v}`);
   }
   assert.deepEqual(L.LEISURE.mirror_led_zones.leds, ['back', 'front', 'bottom']);
   for (let i = 0; i < 4; i++) assert.ok(S.matOf(`z${i}`).glow && S.matOf(`z${i}`).zone === i);
@@ -165,4 +166,32 @@ test('air conditioners and fans: in their own group; the air conditioners cool, 
   assert.ok(S.footOf('fan_ceiling').w > 1.2 && S.footOf('fan_ceiling').w < 1.45);
   const bb = S.bounds(S.partsOf('ac_outdoor'));
   assert.ok(bb.y1 > 0.55 && bb.y1 < 0.7 && bb.x1 - bb.x0 < 0.95);
+});
+test('the bar counters: what hangs from the ceiling over them, straight or round the corner, with its own light; nothing to start with', () => {
+  for (const k of ['bar_counter', 'bar_corner']) {
+    assert.deepEqual(S.variantChoices(k), ['none', 'rack', 'canopy', 'pendants']);
+    assert.equal(S.variantOf(k, {}), 'none');
+    assert.equal(S.variantLabel(k), 'prop.barCeiling');
+    assert.equal(S.variantHint(k), 'prop.barCeilingHint');
+    assert.deepEqual(zoneKeys(k, {}), ['counter', 'floor']);
+    const plain = S.bounds(S.partsOf(k));
+    assert.ok(plain.y1 < 1.3, k);                                                        // the counter alone: 1.1 m high (a bottle on its top a bit more)
+    for (const v of ['rack', 'canopy', 'pendants']) {
+      const parts = S.partsOf(k, v), bb = S.bounds(parts);
+      assert.deepEqual(zoneKeys(k, { variant: v }), ['counter', 'floor', 'ceiling'], v);
+      near(bb.y1, L.BAR_CEIL, 0.001);                                                     // up to the ceiling
+      assert.deepEqual(S.footOf(k, v), S.footOf(k), `${k} ${v}`);                          // inside the counter: the plan and the wall stop stay
+      for (const ax of ['x0', 'x1', 'z0', 'z1']) near(bb[ax], plain[ax], 1e-9);
+      const top = parts.filter((p) => p.y > 1.2);
+      assert.ok(top.some((p) => S.matOf(p.m).zone === 2), `${k} ${v}: no light`);
+      assert.ok(top.every((p) => p.y > 1.8), `${k} ${v}: hangs too low`);                // 70 cm and more over the 1.1 m counter
+      for (const p of parts) for (const f of L.LEISURE[k].fin) assert.match(S.matOf(p.m, f)?.c || '', HEX, `${v}: ${p.m}`);
+    }
+    const glasses = (v) => S.partsOf(k, v).filter((p) => p.m === 'glass' && p.y > 1.8).length / 3;
+    assert.ok(glasses('rack') >= 20 && glasses('canopy') === 0, `${k}: ${glasses('rack')} glasses`);
+  }
+  const lamps = (k) => S.partsOf(k, 'pendants').filter((p) => p.s === 'ball' && p.m === 'z2').length;
+  assert.deepEqual([lamps('bar_counter'), lamps('bar_corner')], [3, 5]);                 // the corner one has lamps along both runs
+  const overReturn = S.partsOf('bar_corner', 'rack').filter((p) => p.m === 'glass' && p.y > 1.8 && p.z < -0.6);
+  assert.ok(overReturn.length > 0);                                                       // glasses over the return too
 });
