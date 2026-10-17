@@ -14,20 +14,21 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 4. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
 5. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
 6. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
-7. **Nochmal prüfen, war ❌** (31.1, 60.9 und 46.3): eine **Wendeltreppe** mit „Etagen“ 2: auf der Etage dazwischen hört das Geländer am Podest auf, man kann aussteigen (behoben in 3.93.0). Nur im Add-on: die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
-8. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
-9. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
-10. **Rollläden** (40.1 bis 40.6, 41.1 bis 41.5): ein Fenster mit Haken „Rollladen“; in „Live“ die Kugel 🪟 über dem Fenster antippen: Karte mit großem Schieber.
+7. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+8. **Wendeltreppe von der Seite** (60.9): eine Wendeltreppe mit „Etagen“ 2, „Ganzes Haus“: auf der Etage dazwischen hört das Geländer am Podest auf und fängt danach neu an (31.1 geht schon, hier nur der genaue Blick aufs Geländer).
+9. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
+10. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
 11. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
-12. **Startansicht und Kugeln** (38.1 bis 38.3): ⚙ → „📌 Aktuelle Ansicht übernehmen“, neu laden; in „Live“ verdecken sich die Kugeln nicht.
-13. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
-14. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
-15. **Wandtablet** (10.2, 10.3 und 8.5, nur mit echtem Gerät): zurück zur Startansicht, Bildschirmschoner, Warnbanner.
+12. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
+13. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
+14. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
-**Zuletzt geprüft (2026-10-10): ✅** der ganze Abschnitt 28 (Nachbarhaus und Brücke), 21.5, 21.6, 18.3, 18.7, 18.8 (Abschnitt 18 damit fertig), 9.6, 9.7 (Backup, automatisches Speichern) und 6.1 bis 6.3 (Kameras). 10.1 entfällt: die Raum-Zuordnung fürs Wandtablet läuft jetzt über „Benutzer & Tablets“.
+**Zuletzt geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
 
 <details>
 <summary>Ältere Prüflisten bis 3.94 (ausführlich, zum Nachschlagen)</summary>
+
+**Davor geprüft (2026-10-10): ✅** der ganze Abschnitt 28 (Nachbarhaus und Brücke), 21.5, 21.6, 18.3, 18.7, 18.8 (Abschnitt 18 damit fertig), 9.6, 9.7 (Backup, automatisches Speichern) und 6.1 bis 6.3 (Kameras). 10.1 entfällt: die Raum-Zuordnung fürs Wandtablet läuft jetzt über „Benutzer & Tablets“.
 
 **Am Vortag geprüft (2026-10-09): ✅** 36.11 (Handy quer), der ganze Abschnitt 32 (Dächer verschieben und Größe ziehen), 31.2 und 31.4 bis 31.7. **❌ 31.1**: bei der Wandtreppe mit „Etagen“ 2 ist noch ein langer Lauf vorhanden (#318, vorerst nur notiert). Ebenso am selben Tag ✅: 10.4 und 10.5 (Leistungsmodus, Benutzer sehen nur ihren Raum), 37.1 bis 37.5 (Handy hochkant, Leistungsanzeige), 37.7 und 37.8 (mehrere zusammen verschieben). Ebenso am selben Tag: der ganze Abschnitt 33 (nur die Kugel zählt im Live-Modus) und der ganze Abschnitt 34 (ausgebauter Dachstuhl). Am selben Tag davor ebenso ✅: 7.1a, 11.6, 14.4, 16.4, 17.4, 18.1, 18.2, 18.4 bis 18.6, 18.9, 18.10, 19.1 bis 19.5, 21.2, 21.3, der ganze Abschnitt 22 (22.1 bis 22.9) und 23.1 bis 23.16: Öffnungs-Auswahl gruppiert, Benutzer nach Update wieder da, Haus ohne Keller, Gauben in der Demo, Werkzeugleiste, automatische Sicherung, Versionsanzeige mit Prüfsumme, Ansicht-Knopf, Halbschnitt, durchsichtige Wände, Zurück-Zoomen im Live, Heizungs-Panel, weitere Dächer, Küchenzeile, Strom-Editor mit Kabeln und Kamera-Sichtkegel.
 
@@ -40,19 +41,19 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 4. **Benutzer sperren** (3.61.0, 37.6): „Benutzer“ → „⚙“ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen, die Haken sind noch da.
 
 **Neu in 3.66** (ausführlich in Abschnitt **38** unten)
-7. **Kugeln verdecken sich nicht mehr** (38.1): Live, schräg von oben auf Lampen schauen, drehen.
-8. **Startansicht wählen** (38.2, 38.3): Ansicht einstellen, ⚙ → „📌 Aktuelle Ansicht übernehmen“, neu laden.
-9. **Sicherheit über die ganze Breite** (38.5) und **„🗄️ Backup“ oben** (38.6).
-10. **Keine dunkle Fläche beim Platzieren** (38.8): „2D + 3D“, Werkzeug „Treppe“.
+7. ✅ (2026-10-17) **Kugeln verdecken sich nicht mehr** (38.1): Live, schräg von oben auf Lampen schauen, drehen.
+8. ✅ (2026-10-17) **Startansicht wählen** (38.2, 38.3): Ansicht einstellen, ⚙ → „📌 Aktuelle Ansicht übernehmen“, neu laden.
+9. ✅ (2026-10-17) **Sicherheit über die ganze Breite** (38.5) und **„🗄️ Backup“ oben** (38.6).
+10. ✅ (2026-10-17) **Keine dunkle Fläche beim Platzieren** (38.8): „2D + 3D“, Werkzeug „Treppe“.
 
 **Neu in 3.67** (ausführlich in Abschnitt **39** unten)
-11. **LED-Ring-Abschnitte farbig** (39.1, 39.2): Bearbeiten, LED-Ring in mehrere Abschnitte teilen, in 2D und 3D schauen.
+11. ✅ (2026-10-17) **LED-Ring-Abschnitte farbig** (39.1, 39.2): Bearbeiten, LED-Ring in mehrere Abschnitte teilen, in 2D und 3D schauen.
 
 **Neu in 3.69** (ausführlich in Abschnitt **40** unten)
-12. **Rollladen an jedem Fenster, auch an der Gaube** (40.1 bis 40.6): Bearbeiten, ein Fenster anklicken, Haken „Rollladen“. Live: die Kugel 🪟 über dem Küchenfenster antippen, „Hoch“ / „Runter“ und Schieber ausprobieren.
+12. ✅ (2026-10-17) **Rollladen an jedem Fenster, auch an der Gaube** (40.1 bis 40.6): Bearbeiten, ein Fenster anklicken, Haken „Rollladen“. Live: die Kugel 🪟 über dem Küchenfenster antippen, „Hoch“ / „Runter“ und Schieber ausprobieren.
 
 **Neu in 3.70** (ausführlich in Abschnitt **41** unten)
-13. **Rollladen-Karte wie in Home Assistant** (41.1 bis 41.5): Live, am Handy die Kugel 🪟 **über** einem Fenster mit Rollladen antippen. Die Karte zeigt **nur den Rollladen** (nicht den Fensterkontakt), einen großen Schieber, Hoch / Stopp / Runter und 0 / 25 / 50 / 75 / 100 %; den Schieber ziehen oder eine Stufe antippen.
+13. ✅ (2026-10-17) **Rollladen-Karte wie in Home Assistant** (41.1 bis 41.5): Live, am Handy die Kugel 🪟 **über** einem Fenster mit Rollladen antippen. Die Karte zeigt **nur den Rollladen** (nicht den Fensterkontakt), einen großen Schieber, Hoch / Stopp / Runter und 0 / 25 / 50 / 75 / 100 %; den Schieber ziehen oder eine Stufe antippen.
 
 **Neu in 3.71** (ausführlich in Abschnitt **42** unten)
 14. **Lange Schleppgaube** (42.1 bis 42.6, #339): Bearbeiten, Etage „Dach“, „Etage verwalten“ aufklappen. Bei einer Gaube „Dachform der Gaube“ auf **„Schleppgaube“** stellen, „Breite“ z. B. 6 m, **„Abstand vom Giebel“** z. B. 3 m. In 3D: die Wand geht vorne senkrecht hoch, das Dach der Gaube läuft flacher bis ins Hauptdach, links und rechts davon ist wieder normale Schräge.
@@ -139,16 +140,16 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 1. Über jeder Lampe, Kamera, dem Fernseher, Rollladen-Schalter usw. schwebt eine **größere Kugel mit kleinem Symbol** (💡 🪟 📷 📺 🌡 …). Unter Deckenlampen hängt sie **darunter**. Kugeln, die dicht beieinander liegen, rücken etwas auseinander und **verdecken sich nicht** (auch nicht die Wert-Schilder).
 2. Lampe an: die Kugel leuchtet in der **Lichtfarbe**, aus: grau-blau. Ein **Tipp auf die Kugel** öffnet bzw. schaltet das Gerät.
 2a. ✅ (2026-10-09) **Neu: nur die Kugel zählt** (3.51.0, #262): die Kugeln sind **größer**. Auf eine **Lampe selbst** (nicht auf ihre Kugel) tippen: es passiert **nichts** am Gerät, der Tipp geht in den Raum (wie ein Tipp ins Leere). Auf die **Kugel** tippen: das Gerät öffnet bzw. schaltet sich. Ein LED-Ring lässt sich weiter **Abschnitt für Abschnitt** antippen. Geräte **ohne** Kugel verhalten sich wie bisher.
-3. Auf die **Anwesenheits-Figur**, einen **Temperatur-/CO₂-Sensor** und den **Sichtkegel der Kamera** tippen: es passiert **nichts**. Auf die **Kamera selbst** tippen: das Kamerabild öffnet sich.
+3. ✅ (2026-10-17, 30.1 bis 30.4) Auf die **Anwesenheits-Figur**, einen **Temperatur-/CO₂-Sensor** und den **Sichtkegel der Kamera** tippen: es passiert **nichts**. Auf die **Kamera selbst** tippen: das Kamerabild öffnet sich.
 4. Oben die **Energie-Anzeige** zeigt nur Strom. **Daneben ein eigenes Feld** „🚰 1234.6 m³ · 🔥 845.2 m³ · ♨ 5321 kWh“. Unten „Strom“ drücken: nur das Strom-Feld leuchtet blau.
-4a. Treppe über 2 Etagen (z. B. Wendeltreppe mit „Etagen“ 2): im **Live** endet sie auf der gewählten Etage, **nichts darüber**. Im **Bearbeiten** ist der obere Teil durchsichtig zu sehen.
+4a. ✅ (2026-10-17, 31.3) Treppe über 2 Etagen (z. B. Wendeltreppe mit „Etagen“ 2): im **Live** endet sie auf der gewählten Etage, **nichts darüber**. Im **Bearbeiten** ist der obere Teil durchsichtig zu sehen.
 
 **B. Treppen** (oben „Bearbeiten“, Werkzeug „Treppe“)
-5. **Treppenhaus** mit „Etagen“ 2 im Garten setzen: auf jeder Etage Wände, Raum, **Podest vor der Treppe mit Tür**; in 3D kommt die U-Treppe auf jeder Etage an.
-6. Nur **eine Etage** ansehen (nicht „Ganzes Haus“): im Bearbeiten ist der obere Teil der Treppe **durchsichtig** zu sehen, im Live fehlt er (Punkt 4a), nichts Festes schwebt.
-7. **L- oder U-Treppe**: in den Eigenschaften „Podest nach dem Knick“ z. B. 0,8 → das Podest an der Wende wird tiefer.
-8. **Wandtreppe** um eine Ecke zeichnen, an der Ecke ruhig zweimal klicken: **ebenes Podest**, keine Stufe mittendrin. Mit „Etagen“ 2: dieselbe Treppe **noch einmal eine Etage höher**. ❌ (2026-10-09, 31.1): noch ein langer Lauf vorhanden, #318. Gemeint war die **Wendeltreppe**: ihr Geländer lief über alle Etagen durch, repariert in 3.93 (bitte 60.9 prüfen).
-9. **Wendeltreppe** (in der Demo von der Garage auf die Dachterrasse): oben ein **Viertelkreis-Podest** zum Aussteigen; mit „Etagen“ 2 auf **jeder Etage** eines.
+5. ✅ (2026-10-17, 29.1, 29.2) **Treppenhaus** mit „Etagen“ 2 im Garten setzen: auf jeder Etage Wände, Raum, **Podest vor der Treppe mit Tür**; in 3D kommt die U-Treppe auf jeder Etage an.
+6. ✅ (2026-10-17, 29.6, 31.3) Nur **eine Etage** ansehen (nicht „Ganzes Haus“): im Bearbeiten ist der obere Teil der Treppe **durchsichtig** zu sehen, im Live fehlt er (Punkt 4a), nichts Festes schwebt.
+7. ✅ (2026-10-17, 29.3) **L- oder U-Treppe**: in den Eigenschaften „Podest nach dem Knick“ z. B. 0,8 → das Podest an der Wende wird tiefer.
+8. ✅ (2026-10-17, 29.7, 31.1) **Wandtreppe** um eine Ecke zeichnen, an der Ecke ruhig zweimal klicken: **ebenes Podest**, keine Stufe mittendrin. Mit „Etagen“ 2: dieselbe Treppe **noch einmal eine Etage höher**. ❌ (2026-10-09, 31.1): noch ein langer Lauf vorhanden, #318. Gemeint war die **Wendeltreppe**: ihr Geländer lief über alle Etagen durch, repariert in 3.93; Nachtest 2026-10-17 ✅.
+9. ✅ (2026-10-17, 29.8) **Wendeltreppe** (in der Demo von der Garage auf die Dachterrasse): oben ein **Viertelkreis-Podest** zum Aussteigen; mit „Etagen“ 2 auf **jeder Etage** eines.
 
 **C. Zwei Häuser und Brücke**
 10. ✅ (2026-10-10, 28) Oben in der Auswahl gibt es **„Demo-Haus“ und „Nachbarhaus“**. „Ganzes Haus“: beide stehen nebeneinander, die **Brücke** führt von Dachterrasse zu Dachterrasse, das **Geländer ist an beiden Enden offen**.
@@ -156,8 +157,8 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 12. ✅ (2026-10-10, 28.2) „Häuser & Backup“ → Nachbarhaus: „Höhe“ oder „Lage X“ ändern → es rückt mit (Abschnitt 28).
 
 **D. Sonstiges**
-13. **Strom-Editor** einschalten, dann ein anderes Werkzeug wählen: der Knopf „Strom-Editor“ **bleibt blau**.
-14. Im Kamera-/Offline-Menü oder bei „n offen“ einen Eintrag wählen: die Kamera **fliegt hin** (wie bei der Suche).
+13. ✅ (2026-10-09, 31.7) **Strom-Editor** einschalten, dann ein anderes Werkzeug wählen: der Knopf „Strom-Editor“ **bleibt blau**.
+14. ✅ (2026-10-17, 27.5) Im Kamera-/Offline-Menü oder bei „n offen“ einen Eintrag wählen: die Kamera **fliegt hin** (wie bei der Suche).
 15. ✅ (2026-10-08) **Mehrere löschen** (Bearbeiten, Werkzeug „Auswählen“, 2D oder 2D + 3D): **Strg** (oder Shift) gedrückt halten und mehrere Dinge anklicken, sie bekommen einen grünen Rahmen. Oder **Strg/Shift gedrückt halten und ziehen**: ein grüner Rahmen, alles darin wird ausgewählt. Dann **Entf** drücken (oder rechts „Alle n löschen“): alles weg. **Strg+Z** holt alles zurück.
 16. **Schilder der Etagen darunter** (#249): eine obere Etage öffnen, unten „Ansicht“ → **„Schilder darunter“** ausschalten: die Raumnamen und Werte-Schilder der Etagen darunter verschwinden. „Ganzes Haus“ zeigt trotzdem alles. Wieder einschalten: sie sind zurück. (Auch im Zahnrad unter „Aussehen“.)
 17. **Voreinstellungen pro Benutzer/Tablet** (#250): oben „Benutzer“ → bei einem Benutzer **„⚙ Voreinstellungen“** → z. B. „Wände zur Kamera: Durchsichtig“ wählen. Der Knopf zeigt dann „⚙ 1 gesetzt“. Mit diesem Benutzer (Tablet) angemeldet startet die Ansicht so. Bei dir selbst ändert sich nichts. (In der Demo-Datei gibt es nur einen Benutzer: hier nur prüfen, dass das Kästchen aufgeht und sich merkt, was du wählst.)
@@ -206,38 +207,38 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 7. Türen, Fenster, Garage | 6 | 0 | 0 | 0 | – |
 | 8. Live-Ansicht (echte Geräte) | 6 | 0 | 1 | 0 | 8.5 |
 | 9. Bearbeiten | 7 | 0 | 0 | 0 | – |
-| 10. Tablet und Bedienung | 3 | 0 | 2 | 0 | 10.2, 10.3 |
+| 10. Tablet und Bedienung | 5 | 0 | 0 | 0 | – |
 | 11. Benutzer & Tablets (3.20.0) | 7 | 0 | 0 | 0 | – |
 | 12. Dachgauben (3.21.0) | 7 | 0 | 1 | 0 | 12.6a |
-| 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss | 2 | 0 | 3 | 0 | 13.3 bis 13.5 |
+| 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss | 5 | 0 | 0 | 0 | – |
 | 14. Erdreich unter Anbauten ohne Keller (Fehler #93) | 4 | 0 | 0 | 0 | – |
 | 15. Dachgröße von Hand (3.22.0) | 5 | 0 | 1 | 0 | 15.6 |
 | 16. Wiederholung der drei Fehler (3.22.0) | 4 | 0 | 0 | 0 | – |
 | 17. Werkzeugleiste anpassen und Raumliste nach Haus (3.23.0) | 7 | 0 | 0 | 0 | – |
 | 18. Automatische Sicherung (3.24.0) | 10 | 0 | 0 | 0 | – |
 | 19. Version und Prüfsumme in der Leiste (3.25.0) | 5 | 0 | 0 | 0 | – |
-| 20. Erster Start (3.26.0) | 0 | 0 | 8 | 0 | 20.1 bis 20.8 |
-| 21. Neu in 3.26.1 bis 3.27.1 | 5 | 0 | 1 | 0 | 21.4 |
+| 20. Erster Start (3.26.0) | 8 | 0 | 0 | 0 | – |
+| 21. Neu in 3.26.1 bis 3.27.1 | 6 | 0 | 0 | 0 | – |
 | 22. Ansicht und Live-Bedienung (3.28.0) | 9 | 0 | 0 | 0 | – |
 | 23. Demo-Rundgang für 3.29 bis 3.36 (Besitzer) | 16 | 0 | 1 | 0 | 23.17 |
-| 24. Treppen: mehrere Etagen, Wandtreppe, Außen-Wendeltreppe (3.40.x) | 0 | 0 | 13 | 0 | 24.1 bis 24.13 |
-| 25. Solarpanels auf dem Dach (3.41.0) | 0 | 0 | 9 | 0 | 25.1 bis 25.9 |
-| 26. Wasser-, Gas- und Wärmezähler (3.42.0) | 0 | 0 | 4 | 0 | 26.1 bis 26.4 |
-| 27. Metallbrücke / Übergang (3.43.0) | 0 | 0 | 8 | 0 | 27.1 bis 27.8 |
+| 24. Treppen: mehrere Etagen, Wandtreppe, Außen-Wendeltreppe (3.40.x) | 13 | 0 | 0 | 0 | – |
+| 25. Solarpanels auf dem Dach (3.41.0) | 9 | 0 | 0 | 0 | – |
+| 26. Wasser-, Gas- und Wärmezähler (3.42.0) | 4 | 0 | 0 | 0 | – |
+| 27. Metallbrücke / Übergang (3.43.0) | 8 | 0 | 0 | 0 | – |
 | 28. Nachbarhaus und Brücke zur Dachterrasse (3.44.0) | 8 | 0 | 0 | 0 | – |
-| 29. Treppenhaus, Podest an der Wende, Ausgang auf jeder Etage (3.45.0) | 0 | 0 | 8 | 0 | 29.1 bis 29.8 |
-| 30. Live-Modus: weniger aus Versehen antippen (3.45.1) | 0 | 0 | 4 | 0 | 30.1 bis 30.4 |
-| 31. Treppen über mehrere Etagen, Zähler in der Übersicht (3.46.0) | 5 | 1 | 1 | 0 | ❌ 31.1, 31.3 |
+| 29. Treppenhaus, Podest an der Wende, Ausgang auf jeder Etage (3.45.0) | 8 | 0 | 0 | 0 | – |
+| 30. Live-Modus: weniger aus Versehen antippen (3.45.1) | 4 | 0 | 0 | 0 | – |
+| 31. Treppen über mehrere Etagen, Zähler in der Übersicht (3.46.0) | 7 | 0 | 0 | 0 | – |
 | 32. Dächer verschieben und ihre Größe ziehen (3.49.0 bis 3.50.0) | 9 | 0 | 0 | 0 | – |
 | 33. Live-Modus: nur über die Kugel antippen (3.51.0) | 6 | 0 | 0 | 0 | – |
 | 34. Ausgebauter Dachstuhl (3.52.0) | 8 | 0 | 0 | 0 | – |
 | 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0) | 6 | 0 | 0 | 0 | – |
 | 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 15 | 0 | 0 | 0 | – |
 | 37. Neu in 3.59 bis 3.62 | 7 | 0 | 1 | 0 | 37.6 |
-| 38. Neu in 3.66 | 0 | 0 | 6 | 2 | 38.1 bis 38.3, 38.5, 38.6, 38.8 |
-| 39. Neu in 3.67 | 0 | 0 | 2 | 0 | 39.1, 39.2 |
-| 40. Neu in 3.69: Rollläden an den Fenstern | 0 | 0 | 6 | 0 | 40.1 bis 40.6 |
-| 41. Neu in 3.70: Rollladen-Karte | 0 | 0 | 5 | 0 | 41.1 bis 41.5 |
+| 38. Neu in 3.66 | 8 | 0 | 0 | 0 | – |
+| 39. Neu in 3.67 | 2 | 0 | 0 | 0 | – |
+| 40. Neu in 3.69: Rollläden an den Fenstern | 6 | 0 | 0 | 0 | – |
+| 41. Neu in 3.70: Rollladen-Karte | 5 | 0 | 0 | 0 | – |
 | 42. Neu in 3.71: lange Schleppgaube | 0 | 0 | 6 | 0 | 42.1 bis 42.6 |
 | 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube | 0 | 0 | 4 | 0 | 43.1 bis 43.4 |
 | 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter) | 0 | 0 | 6 | 0 | 44.1 bis 44.6 |
@@ -261,17 +262,17 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 0 | 0 | 4 | 3 | 62.1 bis 62.4 |
 | 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 0 | 0 | 8 | 3 | 63.1 bis 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
-| **Zusammen** | **199** | **2** | **229** | **21** | |
+| **Zusammen** | **282** | **1** | **149** | **19** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
 
 Das sind die Punkte, die nur der Besitzer im echten Betrieb prüfen kann. Nach Wichtigkeit geordnet, die Nummern verweisen auf die Tabellen unten. Ergebnis jeweils unten in der Tabelle eintragen (✅ / ❌).
 
-1. **Nach dem Update auf 3.28.0** (Abschnitt 21): nur noch 21.4 (erst bei der nächsten Version prüfbar).
-2. **Erster Start** (Abschnitt 20): auf einer sauberen Installation oder in einem privaten Fenster.
-3. **Wandtablet** (10.2, 10.3 und 8.5): zurück zur Startansicht, Bildschirmschoner, Warnbanner. Nur mit echtem Gerät möglich.
-4. **Import des eigenen Hauses** (13.3 bis 13.5, 15.6, 12.6a).
+1. **Wandtablet** (8.5): das Warnbanner. Nur mit echtem Gerät möglich (10.2 und 10.3 sind seit 2026-10-17 ✅).
+2. **Import mit Dach-Angaben** (15.6, 12.6a): JSON-Import mit `roof.box` bzw. `roof.dormers` (13.3 bis 13.5 sind seit 2026-10-17 ✅).
+
+Fertig seit 2026-10-17: 21.4 (Hinweis auf neue Version) und der ganze Abschnitt 20 (erster Start).
 
 ## Automatische Tests
 
@@ -380,8 +381,8 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
 | 10.1 | Wandtablet mit ?kiosk=1 oder ?room=…: zeigt nur den Raum | ✅ entfällt (2026-10-10): die Raum-Zuordnung fürs Wandtablet läuft jetzt über „Benutzer & Tablets“ (Abschnitt 11, geprüft); `?kiosk=1` / `?room=…` gibt es weiter als Notlösung |
-| 10.2 | Zurück zur Startansicht nach einigen Minuten ohne Berührung | ❓ |
-| 10.3 | Bildschirmschoner und Nachtabsenkung, die erste Berührung weckt nur | ❓ |
+| 10.2 | Zurück zur Startansicht nach einigen Minuten ohne Berührung | ✅ (2026-10-17) |
+| 10.3 | Bildschirmschoner und Nachtabsenkung, die erste Berührung weckt nur | ✅ (2026-10-17) |
 | 10.4 | Leistungsmodus: Automatisch / Schön / Schnell | ✅ |
 | 10.5 | Benutzer sehen nur ihren Raum und ihre Ansicht | ✅ |
 
@@ -413,9 +414,9 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 |---|---|---|
 | 13.1 | JSON-Import (Prüfen, dann Importieren) läuft ohne Fehler und ohne Warnungen durch | ✅ |
 | 13.2 | Es entsteht ein neues Haus mit allen Etagen (Keller, Erdgeschoss, Obergeschoss, Dachgeschoss) | ✅ |
-| 13.3 | Räume, Türen und Fenster liegen an den richtigen Stellen | ❓ |
-| 13.4 | Das bestehende Haus bleibt unverändert, Umschalten über die Hausauswahl geht | ❓ |
-| 13.5 | Treppen fehlen beim Import und lassen sich im Editor zeichnen | ❓ |
+| 13.3 | Räume, Türen und Fenster liegen an den richtigen Stellen | ✅ (2026-10-17) |
+| 13.4 | Das bestehende Haus bleibt unverändert, Umschalten über die Hausauswahl geht | ✅ (2026-10-17) |
+| 13.5 | Treppen fehlen beim Import und lassen sich im Editor zeichnen | ✅ (2026-10-17) |
 
 ### 14. Erdreich unter Anbauten ohne Keller (Fehler #93)
 | Nr. | Prüfpunkt | Ergebnis |
@@ -480,14 +481,14 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 ### 20. Erster Start (3.26.0)
 | Nr. | Prüfpunkt | Ergebnis |
 |---|---|---|
-| 20.1 | Auf einer Neuinstallation folgt die Oberfläche der Browsersprache (Einstellung „Auto") | ❓ |
-| 20.2 | Das Design ist standardmäßig „Dunkel" | ❓ |
-| 20.3 | Ein leeres Haus zeigt die Willkommenskarte mit drei Knöpfen | ❓ |
-| 20.4 | „Wände zeichnen" schließt die Karte und wählt das Wand-Werkzeug (2D + 3D) | ❓ |
-| 20.5 | „Beispielhaus ausprobieren" legt ein neues Haus an und öffnet es | ❓ |
-| 20.6 | „Haus aus JSON importieren" öffnet den Importdialog | ❓ |
-| 20.7 | Die Etage heißt je nach Sprache „Ground floor", „Erdgeschoss" und so weiter | ❓ |
-| 20.8 | Bestehende Installationen behalten Sprache und Design | ❓ |
+| 20.1 | Auf einer Neuinstallation folgt die Oberfläche der Browsersprache (Einstellung „Auto") | ✅ (2026-10-17) |
+| 20.2 | Das Design ist standardmäßig „Dunkel" | ✅ (2026-10-17) |
+| 20.3 | Ein leeres Haus zeigt die Willkommenskarte mit drei Knöpfen | ✅ (2026-10-17) |
+| 20.4 | „Wände zeichnen" schließt die Karte und wählt das Wand-Werkzeug (2D + 3D) | ✅ (2026-10-17) |
+| 20.5 | „Beispielhaus ausprobieren" legt ein neues Haus an und öffnet es | ✅ (2026-10-17) |
+| 20.6 | „Haus aus JSON importieren" öffnet den Importdialog | ✅ (2026-10-17) |
+| 20.7 | Die Etage heißt je nach Sprache „Ground floor", „Erdgeschoss" und so weiter | ✅ (2026-10-17) |
+| 20.8 | Bestehende Installationen behalten Sprache und Design | ✅ (2026-10-17) |
 
 ### 21. Neu in 3.26.1 bis 3.27.1
 
@@ -496,7 +497,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 21.1 | Etagen auseinander (Ganzes Haus, „auseinander"): jede Etage hat ihre Lücke, auch das Erdgeschoss hebt sich vom Keller ab (#146) | ✅ (Besitzer, 3.26.1) |
 | 21.2 | Versionsanzeige: im Fenster steht „Browser: zeigt genau diese Dateien", auch bei `http://` (#144) | ✅ |
 | 21.3 | Einstellungen ⚙ zeigt das Kästchen „Alle 5 Minuten bei GitHub nachsehen …" (#140) | ✅ |
-| 21.4 | Sobald es eine neuere Version gibt, wird die Anzeige im Bearbeiten-Modus nach spätestens 5 Minuten blau: „⬆ Neue Version verfügbar" (#140) | ❓ (erst bei der nächsten Version prüfbar) |
+| 21.4 | Sobald es eine neuere Version gibt, wird die Anzeige im Bearbeiten-Modus nach spätestens 5 Minuten blau: „⬆ Neue Version verfügbar" (#140) | ✅ (2026-10-17) |
 | 21.5 | Backup-Panel: die Beschriftungen der Zahlenfelder stehen über den Feldern, nicht in einer schmalen Spalte | ✅ |
 | 21.6 | Im Protokoll des Add-ons steht beim Start „Starting 3D Floorplan on port 8099 ..." | ✅ |
 
@@ -548,51 +549,51 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 24.1 | Bearbeiten, Werkzeug „Treppe" → Typ „Wandtreppe", Feld „Etagen" auf 2 | Hinweis „Weiter an der Wand entlang klicken …" | ❓ |
-| 24.2 | In der 2D-Ansicht an einer Wand entlang klicken, an der Ecke weiter an der nächsten Wand, zuletzt **Enter** (oder Doppelklick) | Eine Treppe entsteht; ihr Weg liegt genau auf der Wandfläche, in der Ecke ist ein **Podest**; „Esc" bricht ab | ❓ |
-| 24.3 | 3D ansehen | Dünne Stufenplatten an der Wand, darunter frei; Podest in der Ecke | ❓ |
-| 24.4 | Eine Etage höher und zwei höher schauen | In jeder Etage, durch die die Treppe geht, ist die Aussparung im Boden (orange gestrichelt), dort darüber nicht mehr | ❓ |
-| 24.5 | Treppe anklicken → Eigenschaften: „Etagen" auf 1 stellen | nur noch die Etage direkt darüber hat die Aussparung | ❓ |
-| 24.6 | Treppe anklicken, das weiße Quadrat am Rand der Stufen ziehen | Breite ändert sich | ❓ |
-| 24.7 | „Stufen nach" links/rechts umstellen | Die Stufen stehen auf der anderen Seite des Wegs | ❓ |
-| 24.8 | Wandtreppe mit **zwei Knicken** zeichnen (U-förmiger Weg, Podest dazwischen) | Zwei Podeste, die Stufen verteilen sich nach Länge der Abschnitte | ❓ |
-| 24.9 | Typ „Wendel", „Etagen" auf 2, im Garten neben dem Haus platzieren | Wendeltreppe mit zwei Umdrehungen (eine pro Etage), kein Treppenhaus drumherum | ❓ |
-| 24.10 | „Gerade", „L" oder „U" mit „Etagen" 2 | Eine lange Treppe über zwei Etagen | ❓ |
-| 24.11 | Alte Treppen im bestehenden Haus ansehen | Unverändert (Etagen = 1) | ❓ |
-| 24.12 | Haus → „Dieses Haus als JSON exportieren“, Datei ansehen | Treppen stehen mit `"type": "wall"`, `"floors"` und `"path"` in der Datei, ebenso Blöcke und Bodenöffnungen (3.40.1) | ❓ |
-| 24.13 | Diese Datei wieder importieren (neues Haus) | Die Treppen sind genauso wieder da | ❓ |
+| 24.1 | Bearbeiten, Werkzeug „Treppe" → Typ „Wandtreppe", Feld „Etagen" auf 2 | Hinweis „Weiter an der Wand entlang klicken …" | ✅ (2026-10-17) |
+| 24.2 | In der 2D-Ansicht an einer Wand entlang klicken, an der Ecke weiter an der nächsten Wand, zuletzt **Enter** (oder Doppelklick) | Eine Treppe entsteht; ihr Weg liegt genau auf der Wandfläche, in der Ecke ist ein **Podest**; „Esc" bricht ab | ✅ (2026-10-17) |
+| 24.3 | 3D ansehen | Dünne Stufenplatten an der Wand, darunter frei; Podest in der Ecke | ✅ (2026-10-17) |
+| 24.4 | Eine Etage höher und zwei höher schauen | In jeder Etage, durch die die Treppe geht, ist die Aussparung im Boden (orange gestrichelt), dort darüber nicht mehr | ✅ (2026-10-17) |
+| 24.5 | Treppe anklicken → Eigenschaften: „Etagen" auf 1 stellen | nur noch die Etage direkt darüber hat die Aussparung | ✅ (2026-10-17) |
+| 24.6 | Treppe anklicken, das weiße Quadrat am Rand der Stufen ziehen | Breite ändert sich | ✅ (2026-10-17) |
+| 24.7 | „Stufen nach" links/rechts umstellen | Die Stufen stehen auf der anderen Seite des Wegs | ✅ (2026-10-17) |
+| 24.8 | Wandtreppe mit **zwei Knicken** zeichnen (U-förmiger Weg, Podest dazwischen) | Zwei Podeste, die Stufen verteilen sich nach Länge der Abschnitte | ✅ (2026-10-17) |
+| 24.9 | Typ „Wendel", „Etagen" auf 2, im Garten neben dem Haus platzieren | Wendeltreppe mit zwei Umdrehungen (eine pro Etage), kein Treppenhaus drumherum | ✅ (2026-10-17) |
+| 24.10 | „Gerade", „L" oder „U" mit „Etagen" 2 | Eine lange Treppe über zwei Etagen | ✅ (2026-10-17) |
+| 24.11 | Alte Treppen im bestehenden Haus ansehen | Unverändert (Etagen = 1) | ✅ (2026-10-17) |
+| 24.12 | Haus → „Dieses Haus als JSON exportieren“, Datei ansehen | Treppen stehen mit `"type": "wall"`, `"floors"` und `"path"` in der Datei, ebenso Blöcke und Bodenöffnungen (3.40.1) | ✅ (2026-10-17) |
+| 24.13 | Diese Datei wieder importieren (neues Haus) | Die Treppen sind genauso wieder da | ✅ (2026-10-17) |
 
 ## 25. Solarpanels auf dem Dach (3.41.0)
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 25.1 | Bearbeiten, Etage „Dach“ öffnen (gibt es keine: im Etagen-Panel „+ Dach“) | Das Dach ist zu sehen | ❓ |
-| 25.2 | Aus der Bibliothek (Strom) ein **Solarpanel** auf eine Dachseite setzen | Das Panel liegt flach auf der Dachfläche, schräg wie das Dach, ohne Ständer | ❓ |
-| 25.3 | Das Panel verschieben, z. B. Richtung Dachrinne oder auf die andere Dachseite | Es bleibt auf dem Dach und kippt auf der anderen Seite mit | ❓ |
-| 25.4 | Eigenschaften: „Panels nebeneinander“ 4, „Reihen“ 2 | Ein Feld aus 8 Panels mit Montageschienen | ❓ |
-| 25.5 | Das Panel drehen (Drehung in den Eigenschaften) | Es bleibt flach auf dem Dach liegen | ❓ |
-| 25.6 | Im Etagen-Panel die Dachform auf „Flachdach“ stellen | Die Panels stehen aufgeständert (schräg zur Sonne) oben auf dem Flachdach | ❓ |
-| 25.7 | „Montage“ auf „Flach auf dem Dach“ bzw. „Aufgeständert“ | Das Panel liegt flach bzw. steht auf Ständern | ❓ |
-| 25.8 | Ein Solarpanel in einer normalen Etage (Garten) | Wie bisher auf einem Ständer am Boden; in den Eigenschaften steht, wie man es aufs Dach legt | ❓ |
-| 25.9 | Haus → Export, Datei ansehen und wieder importieren | `cols`, `rows`, `mount` stehen in der Datei und sind nach dem Import wieder da | ❓ |
+| 25.1 | Bearbeiten, Etage „Dach“ öffnen (gibt es keine: im Etagen-Panel „+ Dach“) | Das Dach ist zu sehen | ✅ (2026-10-17) |
+| 25.2 | Aus der Bibliothek (Strom) ein **Solarpanel** auf eine Dachseite setzen | Das Panel liegt flach auf der Dachfläche, schräg wie das Dach, ohne Ständer | ✅ (2026-10-17) |
+| 25.3 | Das Panel verschieben, z. B. Richtung Dachrinne oder auf die andere Dachseite | Es bleibt auf dem Dach und kippt auf der anderen Seite mit | ✅ (2026-10-17) |
+| 25.4 | Eigenschaften: „Panels nebeneinander“ 4, „Reihen“ 2 | Ein Feld aus 8 Panels mit Montageschienen | ✅ (2026-10-17) |
+| 25.5 | Das Panel drehen (Drehung in den Eigenschaften) | Es bleibt flach auf dem Dach liegen | ✅ (2026-10-17) |
+| 25.6 | Im Etagen-Panel die Dachform auf „Flachdach“ stellen | Die Panels stehen aufgeständert (schräg zur Sonne) oben auf dem Flachdach | ✅ (2026-10-17) |
+| 25.7 | „Montage“ auf „Flach auf dem Dach“ bzw. „Aufgeständert“ | Das Panel liegt flach bzw. steht auf Ständern | ✅ (2026-10-17) |
+| 25.8 | Ein Solarpanel in einer normalen Etage (Garten) | Wie bisher auf einem Ständer am Boden; in den Eigenschaften steht, wie man es aufs Dach legt | ✅ (2026-10-17) |
+| 25.9 | Haus → Export, Datei ansehen und wieder importieren | `cols`, `rows`, `mount` stehen in der Datei und sind nach dem Import wieder da | ✅ (2026-10-17) |
 
 ## 26. Wasser-, Gas- und Wärmezähler (3.42.0)
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 26.1 | Bearbeiten, Bibliothek, im Suchfeld „zähler“ eingeben | Stromzähler, Wasserzähler, Gaszähler, Wärmemengenzähler | ❓ |
-| 26.2 | Einen Wasserzähler in den Keller setzen | Blauer Zähler mit runder Anzeige auf einem Messingrohr | ❓ |
-| 26.3 | Gaszähler und Wärmemengenzähler an eine Wand setzen | Beiger Gaszähler mit Zählwerk; kleiner weißer Wärmezähler mit rotem und blauem Rohr | ❓ |
-| 26.4 | Beim Zähler in den Eigenschaften den passenden Sensor wählen (z. B. `sensor.wasserzaehler`) | Über dem Zähler steht der Stand, z. B. „🚰 1234.6 m³“, „🔥 845.2 m³“, „♨ 5321 kWh“ | ❓ |
+| 26.1 | Bearbeiten, Bibliothek, im Suchfeld „zähler“ eingeben | Stromzähler, Wasserzähler, Gaszähler, Wärmemengenzähler | ✅ (2026-10-17) |
+| 26.2 | Einen Wasserzähler in den Keller setzen | Blauer Zähler mit runder Anzeige auf einem Messingrohr | ✅ (2026-10-17) |
+| 26.3 | Gaszähler und Wärmemengenzähler an eine Wand setzen | Beiger Gaszähler mit Zählwerk; kleiner weißer Wärmezähler mit rotem und blauem Rohr | ✅ (2026-10-17) |
+| 26.4 | Beim Zähler in den Eigenschaften den passenden Sensor wählen (z. B. `sensor.wasserzaehler`) | Über dem Zähler steht der Stand, z. B. „🚰 1234.6 m³“, „🔥 845.2 m³“, „♨ 5321 kWh“ | ✅ (2026-10-17) |
 
 ## 27. Metallbrücke / Übergang (3.43.0)
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 27.1 | Bearbeiten, obere Etage öffnen, Bibliothek „Außen“ → „Brücke / Übergang“ zwischen zwei Gebäudeteile setzen | Eine 3 m lange Metallbrücke mit Gitterboden und Geländer auf beiden Seiten, auf Höhe der Etage | ❓ |
-| 27.2 | Mit „Drehung“ ausrichten, in den Eigenschaften „Länge“ und „Breite“ ändern | Die Brücke wird länger / breiter, das Geländer passt sich an | ❓ |
-| 27.3 | Haken „Geländer“ wegnehmen | Nur noch Boden und Träger | ❓ |
-| 27.4 | Haus → Export und wieder importieren | `len`, `w`, `noRail` stehen in der Datei und sind wieder da | ❓ |
+| 27.1 | Bearbeiten, obere Etage öffnen, Bibliothek „Außen“ → „Brücke / Übergang“ zwischen zwei Gebäudeteile setzen | Eine 3 m lange Metallbrücke mit Gitterboden und Geländer auf beiden Seiten, auf Höhe der Etage | ✅ (2026-10-17) |
+| 27.2 | Mit „Drehung“ ausrichten, in den Eigenschaften „Länge“ und „Breite“ ändern | Die Brücke wird länger / breiter, das Geländer passt sich an | ✅ (2026-10-17) |
+| 27.3 | Haken „Geländer“ wegnehmen | Nur noch Boden und Träger | ✅ (2026-10-17) |
+| 27.4 | Haus → Export und wieder importieren | `len`, `w`, `noRail` stehen in der Datei und sind wieder da | ✅ (2026-10-17) |
 
 **Hinweis:** Zwischen zwei **getrennten** Häusern (zwei Grundrisse in der Häuser-Liste) geht das noch nicht, weil das Programm nicht weiß, wie die Häuser zueinander liegen. Innerhalb eines Grundrisses (Haupthaus und Anbau) funktioniert es.
 
@@ -604,10 +605,10 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 27.5 | Pille „n offen“ antippen und einen Eintrag wählen; ebenso in der Liste „offline“ und bei „Im Plan zeigen“ in der Kamera-Übersicht (3.43.7, #215) | Die Kamera fliegt zum Fenster bzw. zur Tür, ein Ring zeigt die Stelle (wie bei der Suche) | ❓ |
-| 27.6 | Ansicht „2D + 3D“, oben rechts im Plan „↻ Plan dreht mit“ einschalten, dann die 3D-Ansicht drehen; noch einmal drücken (3.43.8, #212) | Der Plan dreht mit, oben ist immer die Blickrichtung; Schrift lesbar, Klicken und Zeichnen gehen weiter; der zweite Druck stellt den Plan wieder gerade | ❓ |
-| 27.7 | Ein Ding anklicken, mit **Shift** weitere anklicken (2D und 3D); **Esc**; Shift + Klick auf ein schon ausgewähltes Ding (3.43.9, #211) | Grüner Rahmen um alle, rechts „n ausgewählt“; Esc hebt die Auswahl auf; Shift + Klick nimmt ein Ding wieder heraus (Löschen mit Entf und Strg+Z ist schon mit Punkt 15 oben ✅) | ❓ |
-| 27.8 | Wandtreppe anklicken, „Podest nach dem Knick“ z. B. 1 m; beim Zeichnen einer Wandtreppe mitten auf einer Geraden einmal zusätzlich klicken (3.43.10, #210) | Nach jeder Ecke bleibt die Treppe 1 m eben; an der zusätzlichen Stelle entsteht ein flaches Podest, danach geht die Treppe weiter | ❓ |
+| 27.5 | Pille „n offen“ antippen und einen Eintrag wählen; ebenso in der Liste „offline“ und bei „Im Plan zeigen“ in der Kamera-Übersicht (3.43.7, #215) | Die Kamera fliegt zum Fenster bzw. zur Tür, ein Ring zeigt die Stelle (wie bei der Suche) | ✅ (2026-10-17) |
+| 27.6 | Ansicht „2D + 3D“, oben rechts im Plan „↻ Plan dreht mit“ einschalten, dann die 3D-Ansicht drehen; noch einmal drücken (3.43.8, #212) | Der Plan dreht mit, oben ist immer die Blickrichtung; Schrift lesbar, Klicken und Zeichnen gehen weiter; der zweite Druck stellt den Plan wieder gerade | ✅ (2026-10-17) |
+| 27.7 | Ein Ding anklicken, mit **Shift** weitere anklicken (2D und 3D); **Esc**; Shift + Klick auf ein schon ausgewähltes Ding (3.43.9, #211) | Grüner Rahmen um alle, rechts „n ausgewählt“; Esc hebt die Auswahl auf; Shift + Klick nimmt ein Ding wieder heraus (Löschen mit Entf und Strg+Z ist schon mit Punkt 15 oben ✅) | ✅ (2026-10-17) |
+| 27.8 | Wandtreppe anklicken, „Podest nach dem Knick“ z. B. 1 m; beim Zeichnen einer Wandtreppe mitten auf einer Geraden einmal zusätzlich klicken (3.43.10, #210) | Nach jeder Ecke bleibt die Treppe 1 m eben; an der zusätzlichen Stelle entsteht ein flaches Podest, danach geht die Treppe weiter | ✅ (2026-10-17) |
 
 ## 28. Nachbarhaus und Brücke zur Dachterrasse (3.44.0)
 
@@ -628,31 +629,31 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 29.1 | Bearbeiten, Werkzeug „Treppe“ → „Treppenhaus“, „Etagen“ auf 2, im Plan klicken | Vier Wände mit Raum „Treppenhaus“; vor der Treppe ein Podest, dort die Tür. Dasselbe (Wände, Raum, Tür) auch in den beiden Etagen darüber | ❓ |
-| 29.2 | 3D ansehen | Auf jeder Etage kommt die U-Treppe an, man kann aufs Podest aussteigen; danach geht es mit der nächsten U-Treppe weiter nach oben | ❓ |
-| 29.3 | U- oder L-Treppe setzen, in den Eigenschaften „Podest nach dem Knick“ z. B. 0,8 | Das Podest an der Wende wird 0,8 m tiefer, der zweite Lauf rückt weiter | ❓ |
-| 29.4 | Gerade Treppe mit „Etagen“ 2 | Zwei Läufe übereinander, auf der Etage dazwischen kommt man an (nicht mehr ein langer Lauf) | ❓ |
-| 29.5 | Haus → Export und wieder importieren | `landing` bleibt bei L- und U-Treppen erhalten | ❓ |
-| 29.6 | Treppenhaus mit „Etagen“ 2 im Keller setzen, nur den Keller ansehen (nicht „Ganzes Haus“) | Nur der Teil bis zur nächsten Etage ist zu sehen, nichts schwebt darüber; im EG kommt die Treppe an und geht weiter (3.45.1) | ❓ |
-| 29.7 | Wandtreppe um eine Ecke zeichnen und an der Ecke zweimal knapp hintereinander klicken, „Podest nach dem Knick“ 1 | An der Ecke ein ebenes Podest ohne Stufe dazwischen, die Treppe geht erst danach weiter (3.45.1) | ❓ |
-| 29.8 | Wendeltreppe (in der Demo: von der Garage auf die Dachterrasse) von oben ansehen | Nach der letzten Stufe ein Viertelkreis-Podest auf Bodenhöhe bis zum Rand der Öffnung, dort steigt man aus; mit der Drehung zeigt es in die gewünschte Richtung (3.45.1) | ❓ |
+| 29.1 | Bearbeiten, Werkzeug „Treppe“ → „Treppenhaus“, „Etagen“ auf 2, im Plan klicken | Vier Wände mit Raum „Treppenhaus“; vor der Treppe ein Podest, dort die Tür. Dasselbe (Wände, Raum, Tür) auch in den beiden Etagen darüber | ✅ (2026-10-17) |
+| 29.2 | 3D ansehen | Auf jeder Etage kommt die U-Treppe an, man kann aufs Podest aussteigen; danach geht es mit der nächsten U-Treppe weiter nach oben | ✅ (2026-10-17) |
+| 29.3 | U- oder L-Treppe setzen, in den Eigenschaften „Podest nach dem Knick“ z. B. 0,8 | Das Podest an der Wende wird 0,8 m tiefer, der zweite Lauf rückt weiter | ✅ (2026-10-17) |
+| 29.4 | Gerade Treppe mit „Etagen“ 2 | Zwei Läufe übereinander, auf der Etage dazwischen kommt man an (nicht mehr ein langer Lauf) | ✅ (2026-10-17) |
+| 29.5 | Haus → Export und wieder importieren | `landing` bleibt bei L- und U-Treppen erhalten | ✅ (2026-10-17) |
+| 29.6 | Treppenhaus mit „Etagen“ 2 im Keller setzen, nur den Keller ansehen (nicht „Ganzes Haus“) | Nur der Teil bis zur nächsten Etage ist zu sehen, nichts schwebt darüber; im EG kommt die Treppe an und geht weiter (3.45.1) | ✅ (2026-10-17) |
+| 29.7 | Wandtreppe um eine Ecke zeichnen und an der Ecke zweimal knapp hintereinander klicken, „Podest nach dem Knick“ 1 | An der Ecke ein ebenes Podest ohne Stufe dazwischen, die Treppe geht erst danach weiter (3.45.1) | ✅ (2026-10-17) |
+| 29.8 | Wendeltreppe (in der Demo: von der Garage auf die Dachterrasse) von oben ansehen | Nach der letzten Stufe ein Viertelkreis-Podest auf Bodenhöhe bis zum Rand der Öffnung, dort steigt man aus; mit der Drehung zeigt es in die gewünschte Richtung (3.45.1) | ✅ (2026-10-17) |
 
 ## 30. Live-Modus: weniger aus Versehen antippen (3.45.1)
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 30.1 | Live-Modus, auf eine Anwesenheits-Figur tippen | Nichts passiert (kein Fenster), ein Tipp daneben trifft den Raum | ❓ |
-| 30.2 | Live-Modus, in den roten/blauen Sichtkegel einer Kamera tippen | Die Kamera öffnet sich nicht; ein Licht oder der Raum darunter wird getroffen | ❓ |
-| 30.3 | Live-Modus, direkt auf die Kamera tippen | Das Kamera-Fenster öffnet sich wie bisher | ❓ |
-| 30.4 | Live-Modus, auf einen Temperatur- oder CO₂-Sensor tippen (3.46.0) | Nichts passiert; ein Thermostat lässt sich weiter antippen | ❓ |
+| 30.1 | Live-Modus, auf eine Anwesenheits-Figur tippen | Nichts passiert (kein Fenster), ein Tipp daneben trifft den Raum | ✅ (2026-10-17) |
+| 30.2 | Live-Modus, in den roten/blauen Sichtkegel einer Kamera tippen | Die Kamera öffnet sich nicht; ein Licht oder der Raum darunter wird getroffen | ✅ (2026-10-17) |
+| 30.3 | Live-Modus, direkt auf die Kamera tippen | Das Kamera-Fenster öffnet sich wie bisher | ✅ (2026-10-17) |
+| 30.4 | Live-Modus, auf einen Temperatur- oder CO₂-Sensor tippen (3.46.0) | Nichts passiert; ein Thermostat lässt sich weiter antippen | ✅ (2026-10-17) |
 
 ## 31. Treppen über mehrere Etagen, Zähler in der Übersicht (3.46.0)
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 31.1 | Wandtreppe mit „Etagen“ 2 zeichnen | Dieselbe Wandtreppe noch einmal eine Etage höher; auf der Etage dazwischen kommt sie an (kein langer Lauf mehr) | ❌ (2026-10-09) noch ein langer Lauf vorhanden, #318. Gemeint war die Wendeltreppe: ihr Geländer ging durch, behoben in 3.93.0 (60.9), bitte neu prüfen |
+| 31.1 | Wandtreppe mit „Etagen“ 2 zeichnen | Dieselbe Wandtreppe noch einmal eine Etage höher; auf der Etage dazwischen kommt sie an (kein langer Lauf mehr) | ✅ (2026-10-17) Nachtest nach 3.93.0: geht. Vorher (2026-10-09) war noch ein langer Lauf zu sehen, #318 (gemeint war die Wendeltreppe, ihr Geländer lief durch) |
 | 31.2 | Wendeltreppe mit „Etagen“ 2 | Pro Etage eine Umdrehung, auf jeder Etage ein Viertelkreis-Podest zum Aussteigen | ✅ |
-| 31.3 | Eine Treppe über 2 Etagen, nur die untere Etage ansehen | Der obere Teil ist durchsichtig zu sehen (ganze Höhe), nicht fest in der Luft | ❓ |
+| 31.3 | Eine Treppe über 2 Etagen, nur die untere Etage ansehen | Der obere Teil ist durchsichtig zu sehen (ganze Höhe), nicht fest in der Luft | ✅ (2026-10-17) |
 | 31.4 | Wasser- und Gaszähler mit Sensor im Haus, oben die Energie-Anzeige ansehen | In einer zweiten Zeile: „🚰 … m³ · 🔥 … m³“ | ✅ |
 | 31.5 | Live-Modus ansehen | Über jeder Lampe, Kamera, jedem Schalter usw. schwebt eine kleine Kugel (unter Deckenlampen hängt sie darunter); sie leuchtet in der Lichtfarbe, wenn an. Antippen der Kugel schaltet bzw. öffnet das Gerät | ✅ |
 | 31.6 | Brücke: „Höhenunterschied am Ende“ groß machen, z. B. 1,2 m bei 4 m Länge | Statt einer steilen Rampe hat die Brücke Stufen | ✅ |
@@ -744,39 +745,39 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 38.1 | Live, schräg von oben auf einen Raum mit vielen Lampen schauen (Stehlampe vor einer Deckenlampe), dann drehen und zoomen | Die runden Kugeln liegen nicht mehr aufeinander, sie rücken auf dem Bildschirm auseinander und bleiben nahe bei ihrem Gerät (#314) | ❓ |
-| 38.2 | Ansicht einstellen (z. B. „Ganzes Haus“ oder ein Raum, Blickwinkel), dann ⚙ → „Wandtablet“ → „📌 Aktuelle Ansicht übernehmen“; Seite neu laden | Daneben steht „Gespeichert: …“; nach dem Neuladen öffnet sich genau diese Ansicht (#315) | ❓ |
-| 38.3 | ⚙ → „Automatisch“, neu laden | Wieder der alte Start (Erdgeschoss bzw. Raum des Benutzers) | ❓ |
-| 38.4 | „Benutzer“ → bei einem Benutzer „Start: aktuelle Ansicht übernehmen“ | Steht danach auf „Start: gespeicherte Ansicht“; dieser Benutzer startet dort und das Wandtablet kehrt dorthin zurück (Wirkung nur im Add-on) | ➖ |
-| 38.5 | Oben 🛡️ Sicherheit, einen Tag abspielen | Die Leiste unten geht über die ganze Breite (#316) | ❓ |
-| 38.6 | Oben „🗄️ Backup“ | Ein Fenster mit Backup, automatischer Sicherung und Sicherheit; in der Seitenleiste heißt der Abschnitt nur noch „Häuser“ (#321) | ❓ |
-| 38.7 | Im Backup-Fenster unter „Sicherheit“ | Liste der aufgezeichneten Tage, je Tag ▶ (abspielen) und ⬇ (Datei herunterladen); „Tage behalten“ ändern bleibt gespeichert (#317, nur im Add-on mit Aufzeichnung) | ➖ |
-| 38.8 | Bearbeiten, „2D + 3D“, Werkzeug „Treppe“ oder „Gerät“ | Rechts in 3D keine große dunkle Fläche mehr; Rasen sichtbar mit leichtem Raster darüber (#320) | ❓ |
+| 38.1 | Live, schräg von oben auf einen Raum mit vielen Lampen schauen (Stehlampe vor einer Deckenlampe), dann drehen und zoomen | Die runden Kugeln liegen nicht mehr aufeinander, sie rücken auf dem Bildschirm auseinander und bleiben nahe bei ihrem Gerät (#314) | ✅ (2026-10-17) |
+| 38.2 | Ansicht einstellen (z. B. „Ganzes Haus“ oder ein Raum, Blickwinkel), dann ⚙ → „Wandtablet“ → „📌 Aktuelle Ansicht übernehmen“; Seite neu laden | Daneben steht „Gespeichert: …“; nach dem Neuladen öffnet sich genau diese Ansicht (#315) | ✅ (2026-10-17) |
+| 38.3 | ⚙ → „Automatisch“, neu laden | Wieder der alte Start (Erdgeschoss bzw. Raum des Benutzers) | ✅ (2026-10-17) |
+| 38.4 | „Benutzer“ → bei einem Benutzer „Start: aktuelle Ansicht übernehmen“ | Steht danach auf „Start: gespeicherte Ansicht“; dieser Benutzer startet dort und das Wandtablet kehrt dorthin zurück (Wirkung nur im Add-on) | ✅ (2026-10-17) |
+| 38.5 | Oben 🛡️ Sicherheit, einen Tag abspielen | Die Leiste unten geht über die ganze Breite (#316) | ✅ (2026-10-17) |
+| 38.6 | Oben „🗄️ Backup“ | Ein Fenster mit Backup, automatischer Sicherung und Sicherheit; in der Seitenleiste heißt der Abschnitt nur noch „Häuser“ (#321) | ✅ (2026-10-17) |
+| 38.7 | Im Backup-Fenster unter „Sicherheit“ | Liste der aufgezeichneten Tage, je Tag ▶ (abspielen) und ⬇ (Datei herunterladen); „Tage behalten“ ändern bleibt gespeichert (#317, nur im Add-on mit Aufzeichnung) | ✅ (2026-10-17) |
+| 38.8 | Bearbeiten, „2D + 3D“, Werkzeug „Treppe“ oder „Gerät“ | Rechts in 3D keine große dunkle Fläche mehr; Rasen sichtbar mit leichtem Raster darüber (#320) | ✅ (2026-10-17) |
 
 ## 39. Neu in 3.67
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 39.1 | Bearbeiten, einen LED-Ring (indirekt) auswählen, „Anzahl Abschnitte“ z. B. 4, „Gleichmäßig verteilen“ | Im 2D-Plan hat jeder Abschnitt eine eigene, helle Farbe (Linie und Nummer); in den Eigenschaften hat jeder Abschnitt links einen Rand in derselben Farbe (#325) | ❓ |
-| 39.2 | Dasselbe in 3D anschauen, dann einen Abschnitt einschalten und in den Live-Modus wechseln | In 3D sind die ausgeschalteten Abschnitte leicht in ihrer Farbe getönt; der eingeschaltete leuchtet in seiner Lichtfarbe; im Live-Modus sind keine Markierungsfarben zu sehen | ❓ |
+| 39.1 | Bearbeiten, einen LED-Ring (indirekt) auswählen, „Anzahl Abschnitte“ z. B. 4, „Gleichmäßig verteilen“ | Im 2D-Plan hat jeder Abschnitt eine eigene, helle Farbe (Linie und Nummer); in den Eigenschaften hat jeder Abschnitt links einen Rand in derselben Farbe (#325) | ✅ (2026-10-17) |
+| 39.2 | Dasselbe in 3D anschauen, dann einen Abschnitt einschalten und in den Live-Modus wechseln | In 3D sind die ausgeschalteten Abschnitte leicht in ihrer Farbe getönt; der eingeschaltete leuchtet in seiner Lichtfarbe; im Live-Modus sind keine Markierungsfarben zu sehen | ✅ (2026-10-17) |
 
 ## 40. Neu in 3.69: Rollläden an den Fenstern
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 40.1 | Bearbeiten, Erdgeschoss, ein Fenster ohne Rollladen anklicken (z. B. im Bad); in den Eigenschaften den Haken „Rollladen“ setzen, dann wieder entfernen | Mit Haken erscheint darunter das Feld „Rollladen-Entität“ (zeigt die Rollläden aus Home Assistant), im 2D-Plan eine gestrichelte Linie außen am Fenster; ohne Haken ist beides wieder weg (#331) | ❓ |
-| 40.2 | Erdgeschoss in 3D: Küchenfenster und Schlafzimmerfenster anschauen (von innen und von außen) | Küche: der Rollladen ist ganz unten (zu); Schlafzimmer: gut zur Hälfte unten (40 % offen); der Rollladen hängt außen vor dem Glas. Über jedem dieser Fenster steht ein Schild „↕ Geschlossen“ bzw. „↕ 40 % offen“ | ❓ |
-| 40.3 | Live, Erdgeschoss: die Kugel 🪟 unter dem Küchenfenster antippen, „Hoch“ drücken, danach den Schieber in die Mitte ziehen | Eine Karte „Fenster Küche“ mit „🪟 Rollladen“, Hoch / Stopp / Runter und Schieber; nach „Hoch“ fährt der Rollladen in 3D sichtbar hoch, die Karte und das Schild über dem Fenster zeigen „Offen“; mit dem Schieber in der Mitte fährt er bis zur Hälfte runter und das Schild zeigt „↕ 50 % offen“ | ❓ |
-| 40.4 | Live, in die Küche tippen (Raum-Karte) | Unter „ROLLLÄDEN“ steht „Fenster Küche“ mit Öffnen / Stopp / Schließen; unter „FENSTER“ steht weiter der Fensterkontakt. Oben bei „n offen“ zählt ein offener Rollladen nicht als offenes Fenster | ❓ |
-| 40.5 | Etage „Dach“: das Gaubenfenster anklicken (Bearbeiten), dann im Live-Modus seine Kugel 🪟 antippen und „Runter“ drücken | Bearbeiten: Haken „Rollladen“ ist gesetzt, Entität „Rollladen Gaube“. Live: die Karte „Gaubenfenster“ öffnet sich, der Rollladen der Gaube fährt herunter | ❓ |
-| 40.6 | Live, Ansicht 2D, Erdgeschoss | Außen an Küche und Schlafzimmer steht „↕ Geschlossen“ bzw. „↕ 40 % offen“; beim Küchenfenster steht der Text des Fensterkontakts darunter, nichts liegt übereinander; ein Tipp aufs Fenster öffnet die Karte mit dem Rollladen | ❓ |
+| 40.1 | Bearbeiten, Erdgeschoss, ein Fenster ohne Rollladen anklicken (z. B. im Bad); in den Eigenschaften den Haken „Rollladen“ setzen, dann wieder entfernen | Mit Haken erscheint darunter das Feld „Rollladen-Entität“ (zeigt die Rollläden aus Home Assistant), im 2D-Plan eine gestrichelte Linie außen am Fenster; ohne Haken ist beides wieder weg (#331) | ✅ (2026-10-17) |
+| 40.2 | Erdgeschoss in 3D: Küchenfenster und Schlafzimmerfenster anschauen (von innen und von außen) | Küche: der Rollladen ist ganz unten (zu); Schlafzimmer: gut zur Hälfte unten (40 % offen); der Rollladen hängt außen vor dem Glas. Über jedem dieser Fenster steht ein Schild „↕ Geschlossen“ bzw. „↕ 40 % offen“ | ✅ (2026-10-17) |
+| 40.3 | Live, Erdgeschoss: die Kugel 🪟 unter dem Küchenfenster antippen, „Hoch“ drücken, danach den Schieber in die Mitte ziehen | Eine Karte „Fenster Küche“ mit „🪟 Rollladen“, Hoch / Stopp / Runter und Schieber; nach „Hoch“ fährt der Rollladen in 3D sichtbar hoch, die Karte und das Schild über dem Fenster zeigen „Offen“; mit dem Schieber in der Mitte fährt er bis zur Hälfte runter und das Schild zeigt „↕ 50 % offen“ | ✅ (2026-10-17) |
+| 40.4 | Live, in die Küche tippen (Raum-Karte) | Unter „ROLLLÄDEN“ steht „Fenster Küche“ mit Öffnen / Stopp / Schließen; unter „FENSTER“ steht weiter der Fensterkontakt. Oben bei „n offen“ zählt ein offener Rollladen nicht als offenes Fenster | ✅ (2026-10-17) |
+| 40.5 | Etage „Dach“: das Gaubenfenster anklicken (Bearbeiten), dann im Live-Modus seine Kugel 🪟 antippen und „Runter“ drücken | Bearbeiten: Haken „Rollladen“ ist gesetzt, Entität „Rollladen Gaube“. Live: die Karte „Gaubenfenster“ öffnet sich, der Rollladen der Gaube fährt herunter | ✅ (2026-10-17) |
+| 40.6 | Live, Ansicht 2D, Erdgeschoss | Außen an Küche und Schlafzimmer steht „↕ Geschlossen“ bzw. „↕ 40 % offen“; beim Küchenfenster steht der Text des Fensterkontakts darunter, nichts liegt übereinander; ein Tipp aufs Fenster öffnet die Karte mit dem Rollladen | ✅ (2026-10-17) |
 
 ## 41. Neu in 3.70: Rollladen-Karte
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 41.1 | Live, Erdgeschoss, schräg von oben auf das Küchenfenster schauen | Die Kugel 🪟 sitzt **über** dem Fenster (dort, wo der Rollladen sitzt), nicht darunter; das Schild „↕ Geschlossen“ steht über der Kugel (#335) | ❓ |
-| 41.2 | Die Kugel 🪟 über dem Küchenfenster antippen | Eine Karte „🪟 Rollladen · Fenster Küche“ öffnet sich: groß „Geschlossen“, daneben ein hoher Schieber mit dem Panzer, Hoch / Stopp / Runter und darunter 0 % / 25 % / 50 % / 75 % / 100 %. **Kein** Fensterkontakt („Fenster · Offen · binary_sensor…“) in der Karte | ❓ |
-| 41.3 | Am Schieber mit dem Finger den Panzer nach oben bis etwa zur Mitte ziehen und loslassen | Beim Ziehen zeigt die Karte groß die Prozent („50 % offen“); nach dem Loslassen fährt der Rollladen in 3D bis dorthin, das Schild über dem Fenster zeigt dasselbe | ❓ |
-| 41.4 | „75 %“ antippen, dann „100 %“, dann „▼ Runter“ | Der Rollladen fährt jeweils dorthin; die gewählte Stufe ist blau markiert; nach „Runter“ ist er ganz zu | ❓ |
-| 41.5 | Am Handy hochkant: die Karte offen lassen und unten auf „Ansicht ▴“ schauen | Die Karte steht **über** den Knöpfen unten (Normal, Temp., Feuchte, CO₂), nichts davon verdeckt die Karte | ❓ |
+| 41.1 | Live, Erdgeschoss, schräg von oben auf das Küchenfenster schauen | Die Kugel 🪟 sitzt **über** dem Fenster (dort, wo der Rollladen sitzt), nicht darunter; das Schild „↕ Geschlossen“ steht über der Kugel (#335) | ✅ (2026-10-17) |
+| 41.2 | Die Kugel 🪟 über dem Küchenfenster antippen | Eine Karte „🪟 Rollladen · Fenster Küche“ öffnet sich: groß „Geschlossen“, daneben ein hoher Schieber mit dem Panzer, Hoch / Stopp / Runter und darunter 0 % / 25 % / 50 % / 75 % / 100 %. **Kein** Fensterkontakt („Fenster · Offen · binary_sensor…“) in der Karte | ✅ (2026-10-17) |
+| 41.3 | Am Schieber mit dem Finger den Panzer nach oben bis etwa zur Mitte ziehen und loslassen | Beim Ziehen zeigt die Karte groß die Prozent („50 % offen“); nach dem Loslassen fährt der Rollladen in 3D bis dorthin, das Schild über dem Fenster zeigt dasselbe | ✅ (2026-10-17) |
+| 41.4 | „75 %“ antippen, dann „100 %“, dann „▼ Runter“ | Der Rollladen fährt jeweils dorthin; die gewählte Stufe ist blau markiert; nach „Runter“ ist er ganz zu | ✅ (2026-10-17) |
+| 41.5 | Am Handy hochkant: die Karte offen lassen und unten auf „Ansicht ▴“ schauen | Die Karte steht **über** den Knöpfen unten (Normal, Temp., Feuchte, CO₂), nichts davon verdeckt die Karte | ✅ (2026-10-17) |
 
 ## 42. Neu in 3.71: lange Schleppgaube
 | Nr. | Was tun | Erwartung | Ergebnis |
