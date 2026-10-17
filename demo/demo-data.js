@@ -288,6 +288,7 @@ const entities = {
   'sensor.wasserzaehler':    { name: 'Wasserzähler',           state: '1234.6', unit: 'm³', dc: 'water' },
   'sensor.gaszaehler':       { name: 'Gaszähler',              state: '845.2', unit: 'm³', dc: 'gas' },
   'sensor.waermemenge':      { name: 'Wärmemengenzähler',      state: '5321', unit: 'kWh', dc: 'energy' },
+  'sensor.wasser_garten':    { name: 'Wasserzähler Garten',    state: '87.3', unit: 'm³', dc: 'water' },
   'sensor.pv_dach':          { name: 'PV Dach',                state: '4100', unit: 'W', dc: 'power' },
   'light.nachbar_wohnen':    { name: 'Nachbar Wohnen Licht',   state: 'on', rgb: [255, 200, 140] },
 };
@@ -334,6 +335,17 @@ export function installDemoBackend() {
       if (method === 'PATCH') { h.name = String(JSON.parse(init.body || '{}').name || h.name).trim(); return json({ ok: true }); }
       if (method === 'DELETE' && houses.length > 1) { houses.splice(houses.indexOf(h), 1); delete layouts[id]; return json({ ok: true }); }
       return json({ error: 'cannot delete' }, 400);
+    }
+    if (path === 'api/energy/prefs') {                   // the energy dashboard of Home Assistant (#407), as in a real one: the battery counted plus = discharging there,
+      return json({ prefs: { energy_sources: [               // so its sensor (plus = charging here) is the inverted one; the garden water meter is not in the plan yet
+        { type: 'grid', stat_energy_from: 'sensor.netz_bezug_kwh', stat_energy_to: 'sensor.netz_einspeisung_kwh', stat_rate: 'sensor.netz_leistung' },
+        { type: 'solar', stat_energy_from: 'sensor.pv_ertrag_kwh', stat_rate: 'sensor.pv_leistung' },
+        { type: 'battery', stat_energy_from: 'sensor.batterie_entladen_kwh', stat_energy_to: 'sensor.batterie_geladen_kwh', stat_soc: 'sensor.batterie_ladung',
+          power_config: { stat_rate_inverted: 'sensor.batterie_leistung' } },
+        { type: 'gas', stat_energy_from: 'sensor.gaszaehler' },
+        { type: 'water', stat_energy_from: 'sensor.wasserzaehler' },
+        { type: 'water', stat_energy_from: 'sensor.wasser_garten' },
+      ], device_consumption: [] }, siblings: {} });
     }
     if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all' });
     if (path === 'api/users') return json([{ username: 'admin', name: 'Admin', admin: true }, { username: 'tablet_wohnzimmer', name: 'Tablet Wohnzimmer', admin: false }, { username: 'familie', name: 'Familie', admin: false }]);

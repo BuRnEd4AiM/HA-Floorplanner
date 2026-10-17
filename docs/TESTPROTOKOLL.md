@@ -4,17 +4,36 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Heute zu Hause prüfen (Stand 3.62.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.95.0)
 
-Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.62.0** stehen. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). In den Tabellen unten steht bei jedem Punkt ✅ (geht), ❌ (geht nicht), ❓ (noch nicht getestet) oder ➖ (nur im Add-on prüfbar).
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.95.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+
+1. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
+2. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
+3. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
+4. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
+5. **Energie einrichten** (62.1 bis 62.4, im Add-on 62.5 bis 62.7): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“.
+6. **Strom-Rechnung** (50.1 bis 50.8): in „⚡ Rechnung“ geht die Rechnung auf; „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
+7. **Nochmal prüfen, war ❌** (31.1 und 60.9): eine **Wendeltreppe** mit „Etagen“ 2: auf der Etage dazwischen hört das Geländer am Podest auf, man kann aussteigen (behoben in 3.93.0).
+8. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+9. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
+10. **Rollläden** (40.1 bis 40.6, 41.1 bis 41.5): ein Fenster mit Haken „Rollladen“; in „Live“ die Kugel 🪟 über dem Fenster antippen: Karte mit großem Schieber.
+11. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
+12. **Startansicht und Kugeln** (38.1 bis 38.3): ⚙ → „📌 Aktuelle Ansicht übernehmen“, neu laden; in „Live“ verdecken sich die Kugeln nicht.
+13. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
+14. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
+15. **Wandtablet** (10.2, 10.3 und 8.5, nur mit echtem Gerät): zurück zur Startansicht, Bildschirmschoner, Warnbanner.
 
 **Zuletzt geprüft (2026-10-10): ✅** der ganze Abschnitt 28 (Nachbarhaus und Brücke), 21.5, 21.6, 18.3, 18.7, 18.8 (Abschnitt 18 damit fertig), 9.6, 9.7 (Backup, automatisches Speichern) und 6.1 bis 6.3 (Kameras). 10.1 entfällt: die Raum-Zuordnung fürs Wandtablet läuft jetzt über „Benutzer & Tablets“.
+
+<details>
+<summary>Ältere Prüflisten bis 3.94 (ausführlich, zum Nachschlagen)</summary>
 
 **Am Vortag geprüft (2026-10-09): ✅** 36.11 (Handy quer), der ganze Abschnitt 32 (Dächer verschieben und Größe ziehen), 31.2 und 31.4 bis 31.7. **❌ 31.1**: bei der Wandtreppe mit „Etagen“ 2 ist noch ein langer Lauf vorhanden (#318, vorerst nur notiert). Ebenso am selben Tag ✅: 10.4 und 10.5 (Leistungsmodus, Benutzer sehen nur ihren Raum), 37.1 bis 37.5 (Handy hochkant, Leistungsanzeige), 37.7 und 37.8 (mehrere zusammen verschieben). Ebenso am selben Tag: der ganze Abschnitt 33 (nur die Kugel zählt im Live-Modus) und der ganze Abschnitt 34 (ausgebauter Dachstuhl). Am selben Tag davor ebenso ✅: 7.1a, 11.6, 14.4, 16.4, 17.4, 18.1, 18.2, 18.4 bis 18.6, 18.9, 18.10, 19.1 bis 19.5, 21.2, 21.3, der ganze Abschnitt 22 (22.1 bis 22.9) und 23.1 bis 23.16: Öffnungs-Auswahl gruppiert, Benutzer nach Update wieder da, Haus ohne Keller, Gauben in der Demo, Werkzeugleiste, automatische Sicherung, Versionsanzeige mit Prüfsumme, Ansicht-Knopf, Halbschnitt, durchsichtige Wände, Zurück-Zoomen im Live, Heizungs-Panel, weitere Dächer, Küchenzeile, Strom-Editor mit Kabeln und Kamera-Sichtkegel.
 
 **Davor geprüft (2026-10-08): ✅** 36.1 bis 36.10 und 36.12 bis 36.14: Gaubenfenster (Name, Kontakt, löschen, in der Wand, „Vorderseite auf die Wand“), Dach über dem Raum durchsichtig, Handy-Menü ☰, kein Hineinzoomen bei der Suche, Raum-Karte, Tablet/PC unverändert, Etagen- und Zimmer-Listen, alles auf einen Blick. Ebenso ✅ das Löschen mehrerer Dinge (Punkt 15 unten). Daraus kam der Wunsch „mehrere zusammen verschieben“, eingebaut in 3.62.0 (37.7, 37.8). Später am selben Tag ebenso ✅: 36.15 (Wand teilen), der ganze Abschnitt 35 (Gauben im ausgebauten Dachstuhl, „Dach beginnt auf Etage“, Firsthöhe, Haken weg) und 34.1 bis 34.3 (Kniestock).
 
-**Jetzt prüfen** (ausführlich in Abschnitt **37** unten)
+**Prüfen ab 3.62** (ausführlich in Abschnitt **37** unten)
 1. ✅ (2026-10-09) **Neu: mehrere zusammen verschieben** (3.62.0, 37.7 und 37.8): Bearbeiten, Werkzeug „Auswählen“, Ansicht **2D** oder **2D + 3D**. Mit **Strg/Shift + Klick** (oder Strg/Shift + Rahmen ziehen) mehrere Dinge auswählen, z. B. Raum, Wände, Lampe und Sofa. Dann **ohne** Strg/Shift auf eins davon drücken und **ziehen**: **alle** wandern zusammen und bleiben ausgewählt (grüner Rahmen). Wände, die an einer mitgezogenen Wand hängen, werden länger/kürzer und bleiben verbunden; Türen und Fenster wandern mit ihrer Wand. **Strg+Z** holt alles in einem Schritt zurück. Nur **klicken** (nicht ziehen) auf eins davon: nur dieses ist dann ausgewählt.
 2. ✅ (2026-10-09) **Leistungsanzeige** (3.60.0, 37.5): unten „Ansicht“ → „⏱ Leistung“ auf „FPS“, dann „alle Werte“, dann „aus“.
 3. ✅ (2026-10-09) **Handy hochkant** (3.59.0 bis 3.60.1, 37.1 bis 37.4): Knopf 📊 oben; in „Ganzes Haus“ kleine Etagen-Karten rechts neben dem Haus, auch beim Hineinzoomen.
@@ -169,6 +188,8 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 
 Ausführlicher stehen die Punkte in den Abschnitten **28 bis 37** weiter unten.
 
+</details>
+
 ## Übersicht: was ist geprüft?
 
 Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools/testprotokoll.py`). Sie wird bei jeder Änderung automatisch geprüft. Ergebnisse also nur unten eintragen, die Übersicht folgt. ❓ heißt: noch nicht getestet (oder kein Ergebnis eingetragen).
@@ -237,7 +258,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 59. Neu in 3.92: Bar mit Deckenteil | 0 | 0 | 7 | 1 | 59.1 bis 59.7 |
 | 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 0 | 0 | 9 | 3 | 60.1 bis 60.9 |
 | 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 0 | 0 | 11 | 2 | 61.1 bis 61.9, 61.12, 61.13 |
-| **Zusammen** | **199** | **2** | **217** | **9** | |
+| 62. Neu in 3.95: Energie leichter einrichten (#407) | 0 | 0 | 4 | 3 | 62.1 bis 62.4 |
+| **Zusammen** | **199** | **2** | **221** | **12** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -626,7 +648,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 31.1 | Wandtreppe mit „Etagen“ 2 zeichnen | Dieselbe Wandtreppe noch einmal eine Etage höher; auf der Etage dazwischen kommt sie an (kein langer Lauf mehr) | ❌ (2026-10-09) noch ein langer Lauf vorhanden, #318 |
+| 31.1 | Wandtreppe mit „Etagen“ 2 zeichnen | Dieselbe Wandtreppe noch einmal eine Etage höher; auf der Etage dazwischen kommt sie an (kein langer Lauf mehr) | ❌ (2026-10-09) noch ein langer Lauf vorhanden, #318. Gemeint war die Wendeltreppe: ihr Geländer ging durch, behoben in 3.93.0 (60.9), bitte neu prüfen |
 | 31.2 | Wendeltreppe mit „Etagen“ 2 | Pro Etage eine Umdrehung, auf jeder Etage ein Viertelkreis-Podest zum Aussteigen | ✅ |
 | 31.3 | Eine Treppe über 2 Etagen, nur die untere Etage ansehen | Der obere Teil ist durchsichtig zu sehen (ganze Höhe), nicht fest in der Luft | ❓ |
 | 31.4 | Wasser- und Gaszähler mit Sensor im Haus, oben die Energie-Anzeige ansehen | In einer zweiten Zeile: „🚰 … m³ · 🔥 … m³“ | ✅ |
@@ -974,3 +996,14 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 61.11 | Dasselbe ohne den Haken „Gebäude wechseln“ | Er startet im Gartenhaus, kann aber oben umschalten | ➖ |
 | 61.12 | Unten „Anderes Haus hereinholen“: ein Haus der Liste wählen, „⤵ Hereinholen“ | Es wird ein Gebäude dieses Plans: steht es als Nachbarhaus daneben, genau dort, sonst 3 m rechts daneben; seine Etagen liegen auf den Etagen gleicher Höhe | ❓ |
 | 61.13 | Danach Strg+Z | Alles Hereingeholte ist wieder weg; das andere Haus steht weiter in der Häuser-Liste | ❓ |
+
+## 62. Neu in 3.95: Energie leichter einrichten (#407)
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 62.1 | Bearbeiten, „Strom-Editor“, daneben „⚡ Rechnung“ | Ganz oben steht „🧭 Einrichten“ mit dem Knopf „⤵ Aus dem Energie-Dashboard übernehmen“ und darunter die Checkliste (✅ eingerichtet, ○ fehlt noch, ⚠ bitte prüfen, ℹ zur Info) | ❓ |
+| 62.2 | In der Demo: „⤵ Aus dem Energie-Dashboard übernehmen“ | Die Liste zeigt Netz (Netzbezug), Solar (PV Wechselrichter), Batterie mit „Vorzeichen umgedreht“, Ladestand und drei Zähler | ❓ |
+| 62.3 | „✓ Übernehmen“ | Die Zeile darunter sagt „Übernommen: Netz, Solar, Batterie“; unten in den Feldern stehen diese Sensoren, die Rechnung geht auf; Strg+Z nimmt es zurück | ❓ |
+| 62.4 | In der Checkliste bei „Zähler“ auf „+ Wasserzähler in den Plan setzen“ | Der Wasserzähler Garten steht in der Mitte der Etage und ist mit seinem Sensor verknüpft; die Zeile wird ✅ | ❓ |
+| 62.5 | Im Add-on mit eingerichtetem Energie-Dashboard: „⤵ Aus dem Energie-Dashboard übernehmen“, dann „✓ Übernehmen“ | Netz, Solar und Batterie wie im Energie-Dashboard von Home Assistant; die Rechnung oben stimmt (Batterie „lädt“ / „entlädt“ richtig herum) | ➖ |
+| 62.6 | Im Add-on, wenn im Energie-Dashboard nur Zähler in kWh stehen (keine Watt-Sensoren) | Der Vorschlag nimmt den Watt-Sensor am selben Gerät und schreibt „geraten (Sensor am selben Gerät), bitte unten prüfen“ dazu | ➖ |
+| 62.7 | Im Add-on ohne eingerichtetes Energie-Dashboard | Die Zeile sagt, dass das Energie-Dashboard noch nicht eingerichtet ist; nichts wird geändert | ➖ |

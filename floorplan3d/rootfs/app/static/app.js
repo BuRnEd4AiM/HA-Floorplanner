@@ -81,6 +81,7 @@ import { initPersist } from './persist.js';
 import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { initEditItems } from './edititems.js';
 import { initClipboard } from './clipboard.js';
+import { initEnergySetup } from './energysetup.js';
 import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
 import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
@@ -489,9 +490,16 @@ const power = initPower({
   field: (...a) => field(...a), pickerField: (...a) => pickerField(...a), entityPicker: (...a) => entityPicker(...a), roomAt: (x, z) => roomAt(x, z),
 });
 /* the tab "⚡ Rechnung" of the power editor (#378): which sensor is what and how it is counted; the code lives in energyui.js and energycalc.js */
+/* the top of the tab: take over the energy dashboard of Home Assistant, the setup check list (energysetup.js, #407) */
+const energySetup = initEnergySetup({
+  $, t, layout: () => layout, states: () => states, entities: () => entities, snapshot: () => snapshot(), changed: () => changed(false),
+  refresh: () => power.update(), rerender: () => energyUi.render(), floor: () => floor(), center: () => floorBounds(), uid, setStatus,
+  deviceY: (type) => DEVICE_TYPES[type]?.y || 0, onWall: (d) => { if (WALL_TYPES.has(d.type)) snapToWall(d, 100); }, placed: () => changed(),
+});
 const energyUi = initEnergyUi({
   $, t, layout: () => layout, states: () => states, entities: () => entities, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
   entityPicker: (...a) => entityPicker(...a), pickerField: (...a) => pickerField(...a), snapshot: () => snapshot(), changed: () => changed(false), refresh: () => power.update(),
+  setup: energySetup,
 });
 
 let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
@@ -907,6 +915,7 @@ function newDevice(x, z) {
   if (power.isMode() && !power.shows(deviceType)) { power.setMode(false); setTool('device'); setStatus(t('power.editorOff')); }   // the power editor would hide it at once (#207)
   return d;
 }
+/** a meter of the energy dashboard put into the plan (#407): on the floor shown, in its middle (on the nearest wall when it hangs on one) */
 /** LED ring along the walls of the room at (x, z), `inset` metres from the room outline; a 2 x 2 m square outside rooms */
 function ringAt(x, z, inset = RING_DEFAULT_INSET) { return ringAround(roomAt(x, z), x, z, inset, settings.wallHeight); }
 /** the entities a double click / quick action switches: an LED ring all of its sections, a piece all of its LED zones (ledzones.js) */

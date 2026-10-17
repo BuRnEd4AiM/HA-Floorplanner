@@ -931,3 +931,30 @@ async def test_camera_pictures_and_hls_files_are_read_to_their_end(client, monke
     assert r.status == 200 and await r.read() == pic
     monkeypatch.setattr(server, "MAX_CAMERA_BYTES", 100000)
     assert (await client.get("/api/camera/camera.flur")).status == 502              # too big: refused, not cut
+
+
+def test_energy_dashboard_sensors_and_their_devices():
+    """#407: the entities the energy dashboard names (flat and older nested form, no external statistics), and the other sensors of
+    each one's device (where its power sensor usually is)."""
+    prefs = {"energy_sources": [
+        {"type": "grid", "flow_from": [{"stat_energy_from": "sensor.imp_kwh"}], "flow_to": [{"stat_energy_to": "sensor.exp_kwh"}],
+         "power": [{"stat_rate": "sensor.grid_w", "power_config": {"stat_rate_inverted": "sensor.grid_raw"}}]},
+        {"type": "solar", "stat_energy_from": "sensor.pv_kwh"}, {"type": "gas", "stat_energy_from": "external:gas_total"},
+        {"type": "battery", "stat_energy_from": "sensor.bout", "stat_soc": "sensor.soc"}],
+        "device_consumption": [{"stat_consumption": "sensor.wm_kwh", "stat_rate": "sensor.wm_w"}]}
+    assert server.energy_stat_ids(prefs) == {"sensor.imp_kwh", "sensor.exp_kwh", "sensor.grid_w", "sensor.grid_raw", "sensor.pv_kwh", "sensor.bout",
+                                             "sensor.soc", "sensor.wm_kwh", "sensor.wm_w"}
+    reg = [{"entity_id": "sensor.pv_kwh", "device_id": "inv"}, {"entity_id": "sensor.pv_w", "device_id": "inv"}, {"entity_id": "switch.inv", "device_id": "inv"},
+           {"entity_id": "sensor.imp_kwh", "device_id": "meter"}, {"entity_id": "sensor.meter_w", "device_id": "meter"}, {"entity_id": "sensor.lonely", "device_id": None}]
+    assert server.energy_siblings(prefs, reg) == {"sensor.imp_kwh": ["sensor.meter_w"], "sensor.pv_kwh": ["sensor.pv_w"]}
+    assert server.energy_stat_ids(None) == set() and server.energy_siblings(None, reg) == {}
+
+
+async def test_energy_prefs_needs_home_assistant_and_an_editor(client, monkeypatch, tmp_path):
+    assert (await client.get("/api/energy/prefs")).status == 503            # standalone: there is no Home Assistant to ask
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["admin"]}')
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    assert (await client.get("/api/energy/prefs", headers={"X-Remote-User-Name": "tablet"})).status == 403
