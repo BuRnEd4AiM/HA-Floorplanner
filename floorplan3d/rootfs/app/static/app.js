@@ -504,7 +504,7 @@ const energySetup = initEnergySetup({
   refresh: () => power.update(), rerender: () => energyUi.render(), floor: () => floor(), center: () => floorBounds(), uid, setStatus,
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0, onWall: (d) => { if (WALL_TYPES.has(d.type)) snapToWall(d, 100); }, placed: () => changed(),
 });
-const energyFlow = initEnergyFlow({ $, t, settings: () => settings, states: () => states, layout: () => layout, isLive: () => isLive(),   // the energy flow as a picture (#420), energyflowui.js
+const energyFlow = initEnergyFlow({ $, t, settings: () => settings, states: () => states, layout: () => layout,   // the energy flow as a picture (#420), energyflowui.js
   low: () => perfParam === 'low', toggleCables: () => power.toggle(), commitSettings: () => commitSettings() });
 const energyUi = initEnergyUi({
   $, t, layout: () => layout, states: () => states, entities: () => entities, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),

@@ -79,8 +79,9 @@ check("room tiles: and on again", pgS.is_visible("#roomTiles") and api("api/sett
 rain = lambda: [a["entity"] for a in pgS.evaluate("window.__fp.alerts()") if a["kind"] == "rain"]
 check("rain warning: the open window warns while it rains", "binary_sensor.fenster_kr" in rain(), rain())
 pgS.click("#modeSwitch [data-mode=edit]"); pgS.wait_for_timeout(600)
-check("edit mode: no sky chips, no rain, no energy card, no room tiles",
-      not pgS.is_visible("#skyChips") and not pgS.is_visible("#wxFall") and not pgS.is_visible("#energyCard") and not pgS.is_visible("#roomTiles"))
+check("edit mode: no sky chips, no rain, no room tiles; the energy picture stays instead of the line of numbers (3.98.1)",
+      not pgS.is_visible("#skyChips") and not pgS.is_visible("#wxFall") and not pgS.is_visible("#roomTiles")
+      and pgS.is_visible("#energyCard") and not pgS.is_visible("#energyPill"))
 pgS.evaluate("window.__fp.select('opening', 'kr_win')"); pgS.wait_for_timeout(400)
 check("rain warning: the window has the tick 'Bei Regen warnen', ticked", pgS.is_visible("#openRainWarn") and pgS.is_checked("#openRainWarn"))
 pgS.uncheck("#openRainWarn"); pgS.wait_for_timeout(2500)
