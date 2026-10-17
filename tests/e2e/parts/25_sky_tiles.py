@@ -2,9 +2,10 @@
 room tiles in live mode (#421) and the tool bar with icons and groups (#422).
 """
 saved_st = api_admin("api/layout")              # put back at the end
-theme_st, lang_st = api("api/settings")["theme"], api("api/settings")["language"]
+theme_st, lang_st, units_st = api("api/settings")["theme"], api("api/settings")["language"], api("api/settings")["units"]
 set_setting("theme", "dark")                    # base.py uses the hologram, which keeps its own backdrop: no sky there
 set_setting("language", "de")                   # the texts below are the German ones
+set_setting("units", "metric")                  # ... and the temperature in °C
 def extra(d):
     urllib.request.urlopen(urllib.request.Request(HA + "/_extra", data=json.dumps(d).encode(), method="POST", headers={"Content-Type": "application/json"})).read()
 def W(v):
@@ -110,8 +111,9 @@ check("sky: 'Einfarbig' in the settings gives the plain background back", pgS.ev
 set_setting("sky", "time")
 pgP = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})
 pgP.goto(BASE + "?debug=1&mode=live"); pgP.wait_for_timeout(2000)
-check("phone: no energy card and no sky chips (no room for them), the room tiles are there",
-      not pgP.is_visible("#energyCard") and not pgP.is_visible("#skyChips") and pgP.is_visible("#roomTiles"))
+pgP.evaluate("window.__fp.switchFloor(0)"); pgP.wait_for_timeout(800)
+seen = [pgP.is_visible(s) for s in ("#energyCard", "#skyChips", "#roomTiles")]
+check("phone: no energy card and no sky chips (no room for them), the room tiles are there", seen == [False, False, True], seen)
 pgP.close()
 check("3.98 checks: no errors in the browser", not own, own[:3])
 pgS.close()
@@ -120,3 +122,4 @@ urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dum
                                               headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
 set_setting("theme", theme_st)
 set_setting("language", lang_st)
+set_setting("units", units_st)
