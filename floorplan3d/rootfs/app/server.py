@@ -7,6 +7,7 @@
 import asyncio
 import base64
 import datetime
+import hashlib
 import json
 import math
 import logging
@@ -400,11 +401,21 @@ async def delete_house(request):
 
 
 # ---------- layout ----------
+def layout_rev(path: Path) -> str:
+    """A version tag of a stored plan (#403): a browser that loaded an older state must not overwrite a plan saved meanwhile on another
+    screen. Taken from the content (not the file time, which some file systems keep in whole seconds only)."""
+    try:
+        return f'"{hashlib.sha1(path.read_bytes()).hexdigest()[:16]}"'
+    except OSError:
+        return '"0"'
+
+
 async def get_layout(request):
     hid = pick_house(request)
     if hid is None:
         return web.json_response({"error": "unknown house"}, status=404)
-    return web.json_response(read_json(house_file(request, hid), EMPTY_LAYOUT))
+    p = house_file(request, hid)
+    return web.json_response(read_json(p, EMPTY_LAYOUT), headers={"ETag": layout_rev(p)})
 
 
 async def put_layout(request):
@@ -419,13 +430,17 @@ async def put_layout(request):
         return web.json_response({"error": "invalid JSON"}, status=400)
     if not isinstance(data, dict) or not isinstance(data.get("floors"), list):
         return web.json_response({"error": "floors missing"}, status=400)
+    p = house_file(request, hid)
+    have = request.headers.get("If-Match")                 # no tag (an older browser, a script): saved as before
+    if have and have.removeprefix("W/") != layout_rev(p):
+        return web.json_response({"error": "the plan was changed on another screen meanwhile", "conflict": True}, status=409)
     watch = request.app[KEY_RENAMES]
     if watch.get("history") and rn.fix_stale(data, watch["history"], watch["current"], time.time()):
         log.info("A browser saved the plan with entity ids renamed in Home Assistant meanwhile: the new ids were put in")
-    write_json_atomic(house_file(request, hid), data)
+    write_json_atomic(p, data)
     if hid == DEFAULT_HOUSE and not (data_dir(request) / "houses.json").exists():
         save_houses(request, houses_index(request))
-    return web.json_response({"ok": True})
+    return web.json_response({"ok": True}, headers={"ETag": layout_rev(p)})
 
 
 # ---------- settings ----------
@@ -1608,13 +1623,15 @@ KEY_RENAMES = web.AppKey("renames", dict)       # {"history": {old: [new, when]}
 def apply_renames(app, ids: dict, names: dict) -> dict:
     """New entity ids (and Home Assistant's new names of devices not named by hand) into every house, the settings and users.json."""
     ctx = _AppCtx(app)
-    houses = []
+    houses, revs = [], {}
     for h in houses_index(ctx):
         p = house_file(ctx, h["id"])
         data = read_json(p, None)
         if isinstance(data, dict) and rn.rewrite(data, ids, names):
+            before = layout_rev(p)
             write_json_atomic(p, data)
             houses.append(h["id"])
+            revs[h["id"]] = [before, layout_rev(p)]     # an open view does the same rewrite and takes the new tag (#403)
     stored = read_json(settings_path(ctx), None)
     settings = isinstance(stored, dict) and bool(ids) and rn.rewrite(stored, ids) > 0
     if settings:
@@ -1626,7 +1643,7 @@ def apply_renames(app, ids: dict, names: dict) -> dict:
             write_json_atomic(users_file(ctx), users)
         except OSError:
             log.warning("could not write %s", users_file(ctx))
-    return {"houses": houses, "settings": bool(settings)}
+    return {"houses": houses, "revs": revs, "settings": bool(settings)}
 
 
 async def rename_watcher(app):
@@ -1657,7 +1674,7 @@ async def rename_watcher(app):
             log.info("Renamed in Home Assistant: %s; new names: %s; houses updated: %s%s",
                      ", ".join(f"{a} -> {b}" for a, b in ids.items()) or "-", ", ".join(f"{e}: {n[1]}" for e, n in names.items()) or "-",
                      ", ".join(done["houses"]) or "-", " (and the settings)" if done["settings"] else "")
-            await app[KEY_LIVE].broadcast({"type": "renamed", "ids": ids, "names": names, "settings": done["settings"]})
+            await app[KEY_LIVE].broadcast({"type": "renamed", "ids": ids, "names": names, "settings": done["settings"], "revs": done["revs"]})
 
         async def start():
             await asyncio.sleep(5)

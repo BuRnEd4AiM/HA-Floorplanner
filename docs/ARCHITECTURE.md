@@ -6,7 +6,7 @@ Browser (Home Assistant sidebar, Ingress)
  ▼
 server.py  (aiohttp, port 8099)
  ├─ /                 static frontend
- ├─ /api/layout       floors, walls, rooms, devices      → /data/layout.json (first house), /data/layouts/<id>.json
+ ├─ /api/layout       floors, walls, rooms, devices      → /data/layout.json (first house), /data/layouts/<id>.json (ETag / If-Match: no silent overwrite, #403)
  ├─ /api/houses       house index (several floor plans)  → /data/houses.json
  ├─ /api/backup       export / import everything         → /data/backups/ (safety copies)
  ├─ /api/backgrounds  floor plan templates, wall pictures → /data/backgrounds/

@@ -276,15 +276,18 @@ async def test_apply_renames_rewrites_every_house_settings_and_users_file(aiohtt
     assert (await client.put("/api/settings", json={"weatherEntity": "weather.home", "startViews": {"*": {"house": "main"}}})).status == 200
     (tmp_path / "cfg" / "users.json").write_text(json.dumps({"version": 1, "userRooms": {"tab": "r1"}, "note": "weather.home"}))
 
+    tag = (await client.get("/api/layout")).headers["ETag"]
     done = server.apply_renames(app, {"light.a": "light.b", "weather.home": "weather.haus"}, {"light.b": ["Lampe", "Lampe neu"]})
     assert sorted(done["houses"]) == sorted(["main", other["id"]]) and done["settings"] is True
-    main = await (await client.get("/api/layout")).json()
+    r = await client.get("/api/layout")
+    assert done["revs"]["main"] == [tag, r.headers["ETag"]] and tag != r.headers["ETag"]   # an open view takes the new tag (#403)
+    main = await r.json()
     assert main["floors"][0]["devices"][1]["entity"] == "light.b" and main["floors"][0]["devices"][1]["name"] == "Leselampe"
     g = await (await client.get(f"/api/layout?house={other['id']}")).json()
     assert g["floors"][0]["devices"][0] == {"id": "x", "name": "Lampe neu", "entity": "light.b"}
     assert (await (await client.get("/api/settings")).json())["weatherEntity"] == "weather.haus"
     assert json.loads((tmp_path / "cfg" / "users.json").read_text())["note"] == "weather.haus"
-    assert server.apply_renames(app, {"light.nothing": "light.x"}, {}) == {"houses": [], "settings": False}
+    assert server.apply_renames(app, {"light.nothing": "light.x"}, {}) == {"houses": [], "revs": {}, "settings": False}
 
 
 async def test_put_layout_corrects_ids_renamed_meanwhile(aiohttp_client, tmp_path):

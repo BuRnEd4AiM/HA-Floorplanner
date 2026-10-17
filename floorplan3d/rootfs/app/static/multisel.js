@@ -93,6 +93,11 @@ export function initMultiSelect(ctx) {
     if (list.length) ctx.setStatus(t('multi.count', { n: list.length }));
   }
   function clear() { if (!list.length) return; list = []; outline(); }
+  /** exactly these things become the selection (what was just pasted, #405) */
+  function selectOnly(items) {
+    list = items.length > 1 ? items.map((x) => ({ kind: x.kind, id: x.id })) : [];
+    ctx.setSelection(items[items.length - 1] || null);
+  }
   /** delete everything that is selected in one undo step; false when nothing is */
   function deleteAll() {
     const items = deleteOrder(list, ctx.selection());
@@ -115,5 +120,5 @@ export function initMultiSelect(ctx) {
     d.append(p, b, c);
     return d;
   }
-  return { toggle, addAll, clear, deleteAll, box, outline, has, items: () => list };
+  return { toggle, addAll, clear, selectOnly, deleteAll, box, outline, has, items: () => list };
 }

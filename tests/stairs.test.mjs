@@ -267,9 +267,24 @@ test('spiral (#209): thin steps on a middle pole, nothing below them, a hand rai
   }
   const top = L.treads[L.treads.length - 1].top;
   near(L.pole.r, S.POLE_R); near(L.pole.h, top + S.RAIL_H);
-  assert.equal(L.rail.length, L.treads.length);
-  L.rail.forEach(([x, y, z], k) => { near(y, L.treads[k].top + S.RAIL_H); near(Math.hypot(x, z), st.w - S.RAIL_IN); });
+  assert.equal(L.rails.flat().length, L.treads.length);
+  L.rails.flat().forEach(([x, y, z], k) => { near(y, L.treads[k].top + S.RAIL_H); near(Math.hypot(x, z), st.w - S.RAIL_IN); });
   assert.equal(S.stairLocal({ ...S.stairDefaults('straight') }, H).pole, undefined);
+});
+test('spiral (#318): every turn has its own hand rail, open at the landing of the floor in between, so you can step off there', () => {
+  const st = { ...S.stairDefaults('spiral'), floors: 3 }, L = S.stairLocal(st, H), T = S.stairSteps(H).n - 1;
+  assert.equal(L.rails.length, 3);                                           // one per floor it climbs
+  L.rails.forEach((r, f) => {
+    assert.equal(r.length, T);                                                // a post on every step of that turn
+    assert.ok(r.every(([, y]) => y > f * H + S.RAIL_H && y <= (f + 1) * H + S.RAIL_H - 1e-6));   // all of it within its own storey
+  });
+  const ang = ([x, , z]) => Math.atan2(z, x);
+  for (const f of [0, 1]) {                                                   // the gap: from the last post of a turn to the first of the next
+    const land = L.treads.filter((t) => t.exit)[f], mid = land.poly[3];       // a point on the outer edge of the landing
+    const a = ang(L.rails[f].at(-1)), b = ang(L.rails[f + 1][0]), m = Math.atan2(mid[1], mid[0]);
+    const span = (x, y) => ((y - x) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+    assert.ok(span(a, m) < span(a, b), `landing ${f} lies in the gap of the rail`);
+  }
 });
 /* ---- landings of a wall stair (#210) ---- */
 test('wall stair (#210): "landing after a bend" keeps the stair flat that long after the corner, at the corner height', () => {
@@ -337,14 +352,14 @@ test('split at a storey (#246): the live mode leaves out the storeys above the o
   assert.ok(p.below.treads.length && p.below.treads.every((t) => (t.storey || 0) === 0));
   assert.equal(p.below.treads.length + p.above.treads.length, L.treads.length);
   assert.ok(p.below.treads.some((t) => t.exit && Math.abs(t.top - H) < 1e-6));             // the landing on the floor in between stays
-  assert.ok(p.below.rail.length > 1 && p.below.rail.every(([, y]) => y <= H + S.RAIL_H + 1e-6));   // the hand rail ends there ...
-  assert.deepEqual(p.above.rail[0], p.below.rail.at(-1));                                    // ... and the rest runs on from that point
-  assert.equal(p.below.rail.length + p.above.rail.length - 1, L.rail.length);
+  assert.ok(p.below.rails.length === 1 && p.below.rails[0].every(([, y]) => y <= H + S.RAIL_H + 1e-6));   // the hand rail of the first turn ends there ...
+  assert.equal(p.above.rails.length, 2);                                                         // ... the turns above have their own (#318)
+  assert.deepEqual([...p.below.rails, ...p.above.rails], L.rails);
   near(p.below.poleH + p.above.poleH, L.pole.h); near(p.below.poleH, H + S.RAIL_H);
   const whole = S.splitStoreys(L, Infinity, H);                                               // the whole-house view: nothing above
   assert.equal(whole.above, null); assert.equal(whole.below.treads.length, L.treads.length); near(whole.below.poleH, L.pole.h);
   const u = S.stairLocal({ ...S.stairDefaults('U'), floors: 2 }, H), pu = S.splitStoreys(u, 0, H);   // no rail, no pole
   assert.ok(pu.above.treads.length && pu.above.treads.every((t) => t.storey === 1));
-  assert.deepEqual(pu.below.rail, []); assert.equal(pu.below.poleH, 0);
+  assert.deepEqual(pu.below.rails, []); assert.equal(pu.below.poleH, 0);
   assert.equal(S.splitStoreys(S.stairLocal(S.stairDefaults('straight'), H), 0, H).above, null);   // one floor: nothing to split
 });

@@ -26,6 +26,34 @@ async def test_layout_default_and_roundtrip(client):
     assert (await (await client.get("/api/layout")).json()) == layout
 
 
+async def test_layout_refuses_a_save_over_a_plan_changed_on_another_screen(client):
+    """#403: two screens open the plan; the second one saving its older state gets 409 instead of overwriting the first one's work."""
+    first = await client.get("/api/layout")
+    tag = first.headers["ETag"]
+    a = {"version": 1, "floors": [{"id": "a", "name": "A", "walls": [], "rooms": [], "devices": []}]}
+    b = {"version": 1, "floors": [{"id": "b", "name": "B", "walls": [], "rooms": [], "devices": []}]}
+    r = await client.put("/api/layout", json=a, headers={"If-Match": tag})          # screen 1 saves: fine, a new tag comes back
+    assert r.status == 200 and r.headers["ETag"] != tag
+    tag1 = r.headers["ETag"]
+    r = await client.put("/api/layout", json=b, headers={"If-Match": tag})          # screen 2 still has the old tag
+    assert r.status == 409 and (await r.json())["conflict"] is True
+    assert (await (await client.get("/api/layout")).json()) == a                     # screen 1's work is kept
+    assert (await client.get("/api/layout")).headers["ETag"] == tag1
+    r = await client.put("/api/layout", json=a, headers={"If-Match": f"W/{tag1}"})   # a proxy may mark the tag as weak
+    assert r.status == 200 and r.headers["ETag"] == tag1                            # same content, same tag
+    assert (await client.put("/api/layout", json=b)).status == 200                 # no tag ("keep my version", older browsers): saved
+    assert (await (await client.get("/api/layout")).json()) == b
+
+
+async def test_layout_tags_are_per_house(client):
+    h = await (await client.post("/api/houses", json={"name": "Zwei"})).json()
+    t_main = (await client.get("/api/layout")).headers["ETag"]
+    t_two = (await client.get(f"/api/layout?house={h['id']}")).headers["ETag"]
+    plan = {"version": 1, "floors": [{"id": "x", "name": "X", "walls": [], "rooms": [], "devices": []}]}
+    assert (await client.put(f"/api/layout?house={h['id']}", json=plan, headers={"If-Match": t_two})).status == 200
+    assert (await client.put("/api/layout", json=plan, headers={"If-Match": t_main})).status == 200   # the other house did not change
+
+
 async def test_layout_rejects_garbage(client):
     assert (await client.put("/api/layout", data="not json")).status == 400
     assert (await client.put("/api/layout", json={"nope": 1})).status == 400
