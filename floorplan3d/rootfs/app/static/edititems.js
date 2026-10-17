@@ -39,11 +39,15 @@ export function jointPoints(f, w) {
 /** Q / E: turn by 15° left / right, kept within 0..359 */
 export const turned = (rot, key) => ((rot || 0) + (key === 'q' ? -15 : 15) + 360) % 360;
 
-/** what a key does: { do: 'undo' | 'delete' | 'turn' | 'floor' | 'nudge' | 'tool', ... } or null. k: the key in lower case, mods: { ctrl, alt,
- *  shift } (ctrl = Ctrl or Cmd), s: { live, selKind (kind of the selection or null), grid, floorIdx, floors } */
+/** what a key does: { do: 'undo' | 'redo' | 'copy' | 'paste' | 'duplicate' | 'delete' | 'turn' | 'floor' | 'nudge' | 'tool', ... } or null.
+ *  k: the key in lower case, mods: { ctrl, alt, shift } (ctrl = Ctrl or Cmd), s: { live, selKind (kind of the selection or null), grid,
+ *  floorIdx, floors } */
 export function keyCommand(k, mods, s) {
   if (s.live) return null;
+  if (mods.ctrl && (k === 'y' || (k === 'z' && mods.shift))) return { do: 'redo' };          // #404
   if (mods.ctrl && k === 'z') return { do: 'undo' };
+  if (mods.ctrl && (k === 'c' || k === 'd')) return s.selKind ? { do: k === 'c' ? 'copy' : 'duplicate' } : null;   // #405; nothing selected: the browser's own
+  if (mods.ctrl && k === 'v') return { do: 'paste' };
   if (k === 'delete' || k === 'backspace') return { do: 'delete' };
   if ((k === 'q' || k === 'e') && (s.selKind === 'stair' || s.selKind === 'device')) return { do: 'turn', key: k };
   if ((k === 'arrowup' || k === 'arrowdown') && !s.selKind && !mods.ctrl && !mods.alt && !mods.shift) {   // nothing selected: up / down change the floor
@@ -54,12 +58,12 @@ export function keyCommand(k, mods, s) {
     const step = mods.alt ? 0.01 : mods.shift ? 0.1 : s.grid;               // Alt 1 cm, Shift 10 cm, otherwise one grid step
     return { do: 'nudge', dx: k === 'arrowleft' ? -step : k === 'arrowright' ? step : 0, dz: k === 'arrowup' ? -step : k === 'arrowdown' ? step : 0 };
   }
-  if (TOOL_KEYS[k]) return { do: 'tool', tool: TOOL_KEYS[k] };
+  if (TOOL_KEYS[k] && !mods.ctrl) return { do: 'tool', tool: TOOL_KEYS[k] };               // Ctrl + a letter is never a tool (Ctrl+V, Ctrl+D ...)
   return null;
 }
 
 /** ctx: t, floor(), floorIdx(), floors() (how many), settings(), selection(), setSelection(sel), isLive(), tool(), snapshot(), changed(),
- *  setStatus(txt), undo(), moveDeviceTo(d, x, z), power ({ deleteCable(id), dropCablesTo(id) }), multi ({ items(), deleteAll() }),
+ *  setStatus(txt), undo(), redo(), clip ({ copy(), paste(), duplicate() }, clipboard.js), moveDeviceTo(d, x, z), power ({ deleteCable(id), dropCablesTo(id) }), multi ({ items(), deleteAll() }),
  *  switchFloor(i), setTool(name), moveRoof(id, dx, dz) (#255), escape() (stop drawing, close popups ...), finishDraft() (true when Enter closed an outline) */
 export function initEditItems(ctx) {
   /** delete one thing; batch: several in a row (#211), the caller rebuilds once */
@@ -116,6 +120,10 @@ export function initEditItems(ctx) {
       { live: ctx.isLive(), selKind: sel?.kind || null, grid: ctx.settings().grid, floorIdx: ctx.floorIdx(), floors: ctx.floors() });
     if (!c) return;
     if (c.do === 'undo') { e.preventDefault(); ctx.undo(); }
+    else if (c.do === 'redo') { e.preventDefault(); ctx.redo(); }
+    else if (c.do === 'copy') { if (ctx.clip.copy()) e.preventDefault(); }
+    else if (c.do === 'paste') { if (ctx.clip.paste()) e.preventDefault(); }
+    else if (c.do === 'duplicate') { e.preventDefault(); ctx.clip.duplicate(); }
     else if (c.do === 'delete') { if (ctx.multi.items().length) ctx.multi.deleteAll(); else if (sel) { ctx.snapshot(); deleteItem(sel); } }
     else if (c.do === 'turn') {
       const item = itemIn(ctx.floor(), sel.kind, sel.id);

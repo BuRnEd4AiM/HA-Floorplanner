@@ -46,15 +46,15 @@ export function initStairTool(ctx) {
     const parts = splitStoreys(stairLocal(st, ctx.floorH), upTo, ctx.floorH);
     const railMat = holo ? stepMat : ctx.mat('#7c838b', ghost, { metalness: 0.5, roughness: 0.4 });
     const add = (into, geo, m, edges) => { const o = new THREE.Mesh(geo, m); into.add(o); if (holo && edgeMaterial && edges) into.add(new THREE.LineSegments(edges(geo), edgeMaterial)); return o; };
-    /** one part: the pole from `from` up `poleH` (spiral, #209), the hand rail with a baluster per step (`skip` = the first one is in the
-     *  part below already), the steps */
-    function drawPart(into, part, sMat, rMat, solid, from = 0, skip = 0) {
+    /** one part: the pole from `from` up `poleH` (spiral, #209), the hand rails (one per storey, open at every landing, #318) with a
+     *  baluster per step, the steps */
+    function drawPart(into, part, sMat, rMat, solid, from = 0) {
       const rail = (geo) => { add(into, geo, rMat, (x) => new THREE.EdgesGeometry(x, 30)).castShadow = solid && !holo; };
       if (part.poleH > 0) rail(new THREE.CylinderGeometry(POLE_R, POLE_R, part.poleH, 16).translate(0, from + part.poleH / 2, 0));
-      if (part.rail.length > 1) {
-        rail(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(part.rail.map((q) => new THREE.Vector3(...q))), part.rail.length * 4, 0.022, 6));   // hand rail
-        part.rail.slice(skip).forEach(([x, y, z]) => rail(new THREE.CylinderGeometry(0.012, 0.012, RAIL_H, 6).translate(x, y - RAIL_H / 2, z)));   // one baluster per step
-      }
+      part.rails.filter((r) => r.length > 1).forEach((r) => {
+        rail(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(r.map((q) => new THREE.Vector3(...q))), r.length * 4, 0.022, 6));   // hand rail
+        r.forEach(([x, y, z]) => rail(new THREE.CylinderGeometry(0.012, 0.012, RAIL_H, 6).translate(x, y - RAIL_H / 2, z)));   // one baluster per step
+      });
       part.treads.forEach((tr) => {
         const shape = new THREE.Shape(tr.poly.map(([x, z]) => new THREE.Vector2(x, -z)));
         const geo = new THREE.ExtrudeGeometry(shape, { depth: tr.thin || tr.top, bevelEnabled: false });   // a thin step is a plate with nothing below it
@@ -69,7 +69,7 @@ export function initStairTool(ctx) {
       const up = new THREE.Group();
       const upMat = holo ? new THREE.MeshBasicMaterial({ color: 0x2a8cff, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide })
         : ctx.mat('#c9bba1', true, { side: THREE.DoubleSide });
-      drawPart(up, parts.above, upMat, holo ? upMat : ctx.mat('#7c838b', true, { metalness: 0.5, roughness: 0.4 }), false, parts.above.poleFrom, parts.below.rail.length ? 1 : 0);
+      drawPart(up, parts.above, upMat, holo ? upMat : ctx.mat('#7c838b', true, { metalness: 0.5, roughness: 0.4 }), false, parts.above.poleFrom);
       up.visible = !ctx.isLive?.();
       g.add(up); g.userData.upper = up;
     }

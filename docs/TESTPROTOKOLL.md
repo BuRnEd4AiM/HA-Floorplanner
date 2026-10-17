@@ -98,6 +98,12 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 41. **Bar mit Deckenteil** (59.1 bis 59.5, #401): Bearbeiten, die Bar über Eck anklicken (oder eine neue aus der Gruppe „Bar“ setzen), rechts bei **„An der Decke“** z. B. **„Gläserregal mit hängenden Gläsern“** wählen: über der Theke hängt jetzt ein Regal in L-Form mit Gläsern. Probiere auch **„Deckensegel mit LED“** und **„Pendelleuchten“**.
 42. **Eigenes Licht für das Deckenteil** (59.6, 59.7): unten bei **„LEDs einzeln verknüpfen“** beim **„Deckenteil“** ein Licht wählen, dann in „Live“ die Bar antippen: das Deckenteil hat einen eigenen Knopf.
 
+**Neu in 3.93** (ausführlich in Abschnitt **60** unten)
+43. **Wiederholen** (60.1 bis 60.3, #404): Bearbeiten, eine Lampe anklicken und mit den Pfeiltasten verschieben, **Strg+Z** (zurück), dann **Strg+Y** (wieder vor). Oben neben „Speichern“ gibt es dafür auch die Knöpfe **↶** und **↷**.
+44. **Kopieren und Einfügen** (60.4 bis 60.8, #405): eine Lampe anklicken, **Strg+C**, dann **Strg+V**: eine zweite Lampe steht etwas daneben. **Strg+D** verdoppelt direkt. Auf eine andere Etage wechseln und **Strg+V**: dieselbe Lampe steht dort an derselben Stelle. Ein Fenster anklicken und **Strg+D**: ein zweites Fenster in derselben Wand.
+45. **Wendeltreppe: Geländer pro Etage** (60.9, #318): eine Wendeltreppe mit „Etagen“ 2 setzen und von der Seite ansehen: auf der Etage dazwischen hört das Geländer am Podest auf und fängt danach neu an, man kann dort aussteigen.
+46. **Schutz beim Speichern** (60.10 bis 60.12, #403, nur im Add-on): den Plan auf zwei Geräten (oder in zwei Fenstern) im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage **„Plan wurde woanders geändert“**.
+
 **Noch offen aus Abschnitt 36**
 5. ✅ (2026-10-09) **Handy quer** (36.11): die Etagen-Knöpfe stehen oben als kleine Pillen und verdecken den Kompass nicht; die Knöpfe unten rutschen nicht aus dem Bild.
 6. **Demo-Hinweis** (3.55.0): der Hinweis „Demo · changes are not saved“ unten verschwindet nach ein paar Sekunden und verdeckt die Knöpfe unten nicht.
@@ -116,7 +122,7 @@ Alles in der **Demo**: https://burned4aim.github.io/HA-Floorplanner/ öffnen und
 5. **Treppenhaus** mit „Etagen“ 2 im Garten setzen: auf jeder Etage Wände, Raum, **Podest vor der Treppe mit Tür**; in 3D kommt die U-Treppe auf jeder Etage an.
 6. Nur **eine Etage** ansehen (nicht „Ganzes Haus“): im Bearbeiten ist der obere Teil der Treppe **durchsichtig** zu sehen, im Live fehlt er (Punkt 4a), nichts Festes schwebt.
 7. **L- oder U-Treppe**: in den Eigenschaften „Podest nach dem Knick“ z. B. 0,8 → das Podest an der Wende wird tiefer.
-8. **Wandtreppe** um eine Ecke zeichnen, an der Ecke ruhig zweimal klicken: **ebenes Podest**, keine Stufe mittendrin. Mit „Etagen“ 2: dieselbe Treppe **noch einmal eine Etage höher**. ❌ (2026-10-09, 31.1): noch ein langer Lauf vorhanden, #318.
+8. **Wandtreppe** um eine Ecke zeichnen, an der Ecke ruhig zweimal klicken: **ebenes Podest**, keine Stufe mittendrin. Mit „Etagen“ 2: dieselbe Treppe **noch einmal eine Etage höher**. ❌ (2026-10-09, 31.1): noch ein langer Lauf vorhanden, #318. Gemeint war die **Wendeltreppe**: ihr Geländer lief über alle Etagen durch, repariert in 3.93 (bitte 60.9 prüfen).
 9. **Wendeltreppe** (in der Demo von der Garage auf die Dachterrasse): oben ein **Viertelkreis-Podest** zum Aussteigen; mit „Etagen“ 2 auf **jeder Etage** eines.
 
 **C. Zwei Häuser und Brücke**
@@ -223,7 +229,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 57. Neu in 3.90: Garage, Werkstatt und Carport | 0 | 0 | 7 | 1 | 57.1 bis 57.7 |
 | 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 0 | 0 | 8 | 0 | 58.1 bis 58.8 |
 | 59. Neu in 3.92: Bar mit Deckenteil | 0 | 0 | 7 | 1 | 59.1 bis 59.7 |
-| **Zusammen** | **199** | **2** | **197** | **4** | |
+| 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 0 | 0 | 9 | 3 | 60.1 bis 60.9 |
+| **Zusammen** | **199** | **2** | **206** | **7** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -927,3 +934,19 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 59.6 | Bei „LEDs einzeln verknüpfen“ beim „Deckenteil“ ein Licht wählen, ein- und ausschalten | Das Licht des Deckenteils folgt seinem eigenen Licht, die Theke dem Licht der Bar; ohne eigenes Licht leuchtet es mit der Bar | ❓ |
 | 59.7 | „Live“, die Bar antippen; danach wieder „An der Decke: Nichts“ wählen | Die Karte hat einen Knopf „Deckenteil“; mit „Nichts“ ist das Deckenteil weg, sein Licht auch, Thekenkante und Sockel bleiben | ❓ |
 | 59.8 | Im Add-on das Musterhaus („alles drin“) neu importieren | Über der Bar im Keller hängt ein Gläserregal | ➖ |
+
+## 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 60.1 | Bearbeiten, oben rechts neben „Speichern“ schauen | Zwei Knöpfe ↶ und ↷, beide grau (es gibt noch nichts rückgängig zu machen) | ❓ |
+| 60.2 | Eine Lampe anklicken, mit einer Pfeiltaste verschieben, Strg+Z, dann Strg+Y (oder Strg+Umschalt+Z) (#404) | Strg+Z holt sie zurück, Strg+Y schiebt sie wieder hin; ↶ und ↷ werden je nachdem drückbar oder grau | ❓ |
+| 60.3 | Strg+Z, dann etwas anderes ändern, dann Strg+Y | Nach einer neuen Änderung gibt es nichts mehr zu wiederholen (↷ grau) | ❓ |
+| 60.4 | Eine Lampe anklicken, Strg+C, dann zweimal Strg+V (#405) | Oben steht „Kopiert: 1“; jede Kopie steht ein Stück weiter rechts unten und ist gleich ausgewählt; sie hat dasselbe Licht verknüpft | ❓ |
+| 60.5 | Eine Kopie anklicken, Strg+D, dann Strg+Z | Strg+D verdoppelt sie direkt daneben; ein Strg+Z nimmt die Kopie wieder weg | ❓ |
+| 60.6 | Nach Strg+C auf eine andere Etage wechseln, Strg+V | Dieselbe Lampe steht dort an derselben Stelle | ❓ |
+| 60.7 | Im 2D-Plan mit Strg + Rahmen einen Raum mit Wänden, Fenstern und Möbeln auswählen, Strg+D | Alles zusammen wird verdoppelt (Wände mit ihren Fenstern, Raum, Möbel), ein Stück versetzt, und ist ausgewählt; es lässt sich gleich zusammen verschieben | ❓ |
+| 60.8 | Ein Fenster anklicken, Strg+D, nochmal Strg+D | Ein zweites (drittes) gleiches Fenster in derselben Wand daneben; ist die Wand voll, steht oben „kein Platz in der Wand“ | ❓ |
+| 60.9 | Eine Wendeltreppe mit „Etagen“ 2 setzen, „Ganzes Haus“, von der Seite ansehen (#318) | Auf der Etage dazwischen endet das Geländer am Podest und fängt nach dem Podest neu an; der Ausstieg auf die Etage ist frei | ❓ |
+| 60.10 | Im Add-on den Plan in zwei Fenstern im Bearbeiten öffnen; im ersten eine Lampe verschieben, kurz warten (#403) | Das erste Fenster speichert normal („Gespeichert ✓“) | ➖ |
+| 60.11 | Im zweiten Fenster etwas anderes verschieben, kurz warten | Es kommt die Frage „Plan wurde woanders geändert“ mit zwei Knöpfen; Esc schließt sie nicht. „Die andere Version laden“: das zweite Fenster zeigt jetzt die Lampe vom ersten Fenster, die eigene Änderung ist weg | ➖ |
+| 60.12 | Noch einmal: im ersten Fenster ändern, dann im zweiten, diesmal „Meine Version behalten“ | Das zweite Fenster speichert über das erste; nach dem Neuladen des ersten Fensters ist dort der Stand vom zweiten | ➖ |

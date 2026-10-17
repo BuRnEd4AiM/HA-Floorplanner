@@ -50,3 +50,17 @@ test('keys: undo, delete, turn, floor up / down, nudge steps, tools; nothing in 
   assert.equal(E.keyCommand('x', none, s), null);
   assert.equal(E.keyCommand('delete', none, { ...s, live: true }), null);
 });
+test('redo, copy, paste and duplicate keys (#404, #405); Ctrl + a letter is never a tool', () => {
+  const none = { ctrl: false, alt: false, shift: false }, ctrl = { ...none, ctrl: true }, s = { live: false, selKind: null, grid: 0.25, floorIdx: 1, floors: 3 };
+  assert.deepEqual(E.keyCommand('y', ctrl, s), { do: 'redo' });
+  assert.deepEqual(E.keyCommand('z', { ...ctrl, shift: true }, s), { do: 'redo' });       // Ctrl+Shift+Z (Cmd+Shift+Z on a Mac)
+  assert.deepEqual(E.keyCommand('z', ctrl, s), { do: 'undo' });
+  assert.equal(E.keyCommand('c', ctrl, s), null);                                          // nothing selected: the browser copies text
+  assert.deepEqual(E.keyCommand('c', ctrl, { ...s, selKind: 'device' }), { do: 'copy' });
+  assert.deepEqual(E.keyCommand('d', ctrl, { ...s, selKind: 'wall' }), { do: 'duplicate' });
+  assert.equal(E.keyCommand('d', ctrl, s), null);
+  assert.deepEqual(E.keyCommand('v', ctrl, s), { do: 'paste' });
+  assert.deepEqual(E.keyCommand('d', none, s), { do: 'tool', tool: 'device' });            // without Ctrl: still the tools
+  assert.equal(E.keyCommand('w', ctrl, s), null);
+  assert.equal(E.keyCommand('v', ctrl, { ...s, live: true }), null);
+});

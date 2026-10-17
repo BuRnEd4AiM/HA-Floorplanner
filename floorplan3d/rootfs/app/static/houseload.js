@@ -1,8 +1,9 @@
 /* Opening a house (step 22 of the split, #137): switch to another plan of the list (edits of the open one are saved first), open an
- * imported plan or the example house from the welcome card, and load a whole backup file. What happens in the view once a plan is open
- * (floor, selection, camera) stays in app.js (ctx.opened). */
+ * imported plan or the example house from the welcome card, and load a whole backup file. Also the question when another screen saved
+ * the open plan meanwhile (#403). What happens in the view once a plan is open (floor, selection, camera) stays in app.js (ctx.opened). */
 
-/** ctx: $, t, hs (houses.js), hasLayout(), flush() (save the open plan if it was changed), opened(layout), setStatus(txt), alert(txt), confirm(txt), reload() */
+/** ctx: $, t, hs (houses.js), hasLayout(), flush() (save the open plan if it was changed), load() (the plan of the open house from the
+ *  add-on, persist.js), opened(layout), setStatus(txt), alert(txt), confirm(txt), reload() */
 export function initHouseLoad(ctx) {
   const { $, t, hs } = ctx;
   /** open house `id`: nothing when it is open already */
@@ -11,8 +12,18 @@ export function initHouseLoad(ctx) {
     await ctx.flush();                                            // edits of the house we leave
     hs.setCurrent(id);
     let layout;
-    try { layout = await (await fetch(hs.url())).json(); } catch { ctx.setStatus(t('loadFailed')); return; }
+    try { layout = await ctx.load(); } catch { ctx.setStatus(t('loadFailed')); return; }
     ctx.opened(layout);
+  }
+  /** another screen saved the open plan meanwhile (#403): load that version or keep this one -> Promise<'reload' | 'keep'> */
+  const conflictDlg = $('#conflictDialog');
+  conflictDlg.addEventListener('cancel', (e) => e.preventDefault());   // Esc decides nothing: one of the two buttons
+  function askConflict() {
+    return new Promise((resolve) => {
+      conflictDlg.addEventListener('close', () => resolve(conflictDlg.returnValue === 'reload' ? 'reload' : 'keep'), { once: true });
+      conflictDlg.returnValue = '';
+      conflictDlg.showModal();
+    });
   }
   /** the example house of the welcome card: imported as a new house and opened */
   async function openExample() {
@@ -45,5 +56,5 @@ export function initHouseLoad(ctx) {
     } catch (err) { ctx.alert(`${t('backup.failed')}: ${err.message}`); }
   });
   $('#houseSelect').addEventListener('change', (e) => switchHouse(e.target.value));
-  return { switchHouse, openExample, openImported };
+  return { switchHouse, openExample, openImported, askConflict };
 }

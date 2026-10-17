@@ -75,12 +75,14 @@ export function stairLocal(st, H) {
   if (st.type === 'spiral') {
     // a real spiral stair (#209): a pole in the middle, thin step plates fixed to it, nothing below them, a hand rail along the outside.
     // One turn per floor, and on every floor it reaches a quarter landing at floor level out to the edge of the opening, where you step off
-    // (#233, #236); the next turn starts where that landing ends
+    // (#233, #236); the next turn starts where that landing ends. Every turn has a hand rail of its own: it ends at the landing and the
+    // next one starts after it, so the way off onto the floor in between is open (#318)
     const R = w, a = (2 * Math.PI) / T, dirn = sg, Q = Math.PI / 2;
     const at = (q, r) => [Math.cos(q) * r, Math.sin(q) * r];
-    const rail = [];
+    const rails = [];
     for (let f = 0; f < nf; f++) {
-      const s0 = f * (2 * Math.PI + Q), extra = f ? { storey: f } : {};
+      const s0 = f * (2 * Math.PI + Q), extra = f ? { storey: f } : {}, rail = [];
+      rails.push(rail);
       for (let k = 0; k < T; k++) {
         const a0 = (s0 + k * a) * dirn, a1 = (s0 + (k + 1) * a) * dirn, seg = 3;
         const poly = [at(a0, POLE_R)];
@@ -98,7 +100,7 @@ export function stairLocal(st, H) {
     const pole = { r: POLE_R, h: nf * H - rise + RAIL_H };
     hole = Array.from({ length: 20 }, (_, i) => [Math.cos((i / 20) * 2 * Math.PI) * (R + 0.05), Math.sin((i / 20) * 2 * Math.PI) * (R + 0.05)]);
     arrow = [[0, 0], [Math.cos(2 * Math.PI * 0.95 * dirn) * R * 0.85, Math.sin(2 * Math.PI * 0.95 * dirn) * R * 0.85]];
-    return { treads, hole, arrow, pole, rail };
+    return { treads, hole, arrow, pole, rails };
   }
 
   if (st.type === 'straight') {
@@ -146,13 +148,13 @@ export function storeysShown(st, i, openFloor, wholeHouse) {
  *  points and the pole height of each part (above.poleFrom: where its pole starts); the upper rail starts at the last point of the lower
  *  one, so it runs on without a gap. above is null when nothing lies above (the whole-house view, a stair over one floor) */
 export function splitStoreys(L, upTo, H) {
-  const rail = L.rail || [], poleH = L.pole?.h || 0;
+  const rails = L.rails || [], poleH = L.pole?.h || 0;                // one hand rail per storey (spiral, #318)
   const upper = Number.isFinite(upTo) ? L.treads.filter((tr) => (tr.storey || 0) > upTo) : [];
-  if (!upper.length) return { below: { treads: L.treads, rail, poleH }, above: null };
-  const top = (upTo + 1) * H + RAIL_H, k = rail.findIndex(([, y]) => y > top + 1e-6), n = k < 0 ? rail.length : k, cut = Math.min(poleH, top);
+  if (!upper.length) return { below: { treads: L.treads, rails, poleH }, above: null };
+  const cut = Math.min(poleH, (upTo + 1) * H + RAIL_H);
   return {
-    below: { treads: L.treads.filter((tr) => (tr.storey || 0) <= upTo), rail: rail.slice(0, n), poleH: L.pole ? cut : 0 },
-    above: { treads: upper, rail: rail.slice(Math.max(0, n - 1)), poleFrom: L.pole ? cut : 0, poleH: L.pole ? poleH - cut : 0 },
+    below: { treads: L.treads.filter((tr) => (tr.storey || 0) <= upTo), rails: rails.slice(0, upTo + 1), poleH: L.pole ? cut : 0 },
+    above: { treads: upper, rails: rails.slice(upTo + 1), poleFrom: L.pole ? cut : 0, poleH: L.pole ? poleH - cut : 0 },
   };
 }
 

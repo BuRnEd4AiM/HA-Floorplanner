@@ -80,6 +80,7 @@ import { replayEntities } from './timeline.js';
 import { initPersist } from './persist.js';
 import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { initEditItems } from './edititems.js';
+import { initClipboard } from './clipboard.js';
 import { initPicking } from './picking.js';
 import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
@@ -733,23 +734,29 @@ function updateCutaway() { return cutaway.update(); }
 const compass = initCompass({ $, t, camera, controls });
 
 /* ================= Changes, undo, save: the undo list and the autosave live in persist.js ================= */
-const persist = initPersist({ t, layout: () => layout, url: () => hs.url(), autosaveSeconds: () => settings.autosaveSeconds, setStatus: (x) => setStatus(x) });
+const persist = initPersist({
+  t, layout: () => layout, url: () => hs.url(), autosaveSeconds: () => settings.autosaveSeconds, setStatus: (x) => setStatus(x),
+  conflict: () => houseLoad.askConflict(), reopen: (l) => { layout = l; normalizeLayout(); showPlan(layout); renderObjList(); refreshSelection(); },   // another screen saved meanwhile (#403)
+});
 function snapshot() { persist.snapshot(); }
-function undo() {
-  const prev = persist.popUndo();
-  if (!prev) return;
-  layout = prev;
+/** another state of the plan replaces the open one (undo, redo, the plan loaded again): the floor stays, nothing is selected */
+function showPlan(l) {
+  layout = l;
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
   selection = null; focusedRoom = null; multiSel.clear(); clearFocusOutline();
-  fillFloorSelect(); build(); scheduleSave(); bgUi.render(); renderFloorPanel(); neighbors.renderUi();
+  fillFloorSelect(); build(); bgUi.render(); renderFloorPanel(); neighbors.renderUi(); historyButtons();
 }
+function undo() { const prev = persist.popUndo(); if (prev) { showPlan(prev); scheduleSave(); } }
+function redo() { const next = persist.popRedo(); if (next) { showPlan(next); scheduleSave(); } }      // #404
+/** the ↶ / ↷ buttons can be pressed only while there is something to undo / do again */
+function historyButtons() { $('#undoBtn').disabled = !persist.canUndo(); $('#redoBtn').disabled = !persist.canRedo(); }
 function changed(rebuild = true) {
   if (rebuild) build();
   renderObjList();
   scheduleSave();
 }
 function setStatus(txt) { $('#status').textContent = txt; }
-function scheduleSave() { persist.schedule(); }
+function scheduleSave() { persist.schedule(); historyButtons(); }
 /* ================= Resizable side panel (drag its left edge) ================= */
 (() => {
   const bar = $('#panelResizer'), root = document.documentElement;
@@ -770,12 +777,12 @@ function scheduleSave() { persist.schedule(); }
 /* ================= Houses (several floor plans): list, drop-down and buttons live in houses.js; loading a plan stays here ================= */
 const hs = initHouses({ $, t, params, save: () => save(), switchHouse: (id) => switchHouse(id), alert: (x) => alert(x) });
 const houseLoad = initHouseLoad({
-  $, t, hs, hasLayout: () => !!layout, flush: async () => { if (persist.touched()) await save(); }, setStatus: (x) => setStatus(x),
+  $, t, hs, hasLayout: () => !!layout, flush: async () => { if (persist.touched()) await save(); }, load: () => persist.load(), setStatus: (x) => setStatus(x),
   alert: (x) => alert(x), confirm: (x) => confirm(x), reload: () => location.reload(),
   opened: (l) => {                                                 // a plan was opened: the ground floor, nothing selected, a fresh undo list
     layout = l;
     normalizeLayout();
-    persist.clearUndo();
+    persist.clearUndo(); historyButtons();
     floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
     clearFocusOutline(); hs.renderUi(); neighbors.renderUi();
     build(); fitCamera(); buildNav(true); bgUi.render(); renderFloorPanel(); renderObjList(); refreshSelection();
@@ -871,11 +878,17 @@ function holdPlaced() {
 function editNano(d) {
   openNanoEditor({ panels: d.panels, t, onSave: (panels) => { snapshot(); d.panels = panels; changed(); renderProps(); } });
 }
+/* ---- Copy, paste, duplicate (Ctrl+C / V / D, #405): the code lives in clipboard.js ---- */
+const clipboard = initClipboard({
+  t, floor: () => floor(), items: () => (multiSel.items().length ? multiSel.items() : selection ? [selection] : []),
+  select: (items) => multiSel.selectOnly(items), snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), uid: () => uid(),
+});
 /* ---- Delete, arrow keys, Q / E and the shortcut keys; the code lives in edititems.js ---- */
 const editItems = initEditItems({
   t, floor: () => floor(), floorIdx: () => floorIdx, floors: () => layout.floors.length, settings: () => settings,
   selection: () => selection, setSelection: (s) => { selection = s; }, isLive: () => isLive(), tool: () => tool,
-  snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), undo: () => undo(), moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z),
+  snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), undo: () => undo(), redo: () => redo(), clip: clipboard,
+  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z),
   power: { deleteCable: (id) => power.deleteCable(id), dropCablesTo: (id) => power.dropCablesTo(id) }, multi: { items: () => multiSel.items(), deleteAll: () => multiSel.deleteAll() },
   switchFloor: (i) => switchFloor(i), setTool: (x) => setTool(x),
   finishDraft: () => { if (!plan?.hasDraft()) return false; plan.finishRoom(); return true; }, moveRoof: (id, dx, dz) => moveRoofBy(id, dx, dz),
@@ -1061,6 +1074,8 @@ function setLowWalls(v) {
   build();
 }
 $('#saveBtn').addEventListener('click', save);
+$('#undoBtn').addEventListener('click', () => undo());
+$('#redoBtn').addEventListener('click', () => redo());
 
 /* ================= Floors, rooms, navigation pills ================= */
 let focusedRoom = null;
@@ -1332,7 +1347,7 @@ const liveChan = initLiveChannel({
   entities: () => entities, setEntities: (x) => { entities = x; }, states: () => states, setStates: (x) => { states = x; }, toState: (e) => toState(e),
   wake: () => wake(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); },
   firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
-  renamed: (d) => renamed(d),
+  renamed: (d) => { persist.renamed(d.revs?.[hs.id() || 'main']); renamed(d); },   // the stored plan was rewritten too: its new version tag (#403)
 });
 /* ---- Security view: a recorded day played back in the same view, nothing can be switched (timelineui.js, timeline.js) ---- */
 const timeline = initTimeline({
@@ -1394,7 +1409,7 @@ async function init() {
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
   await hs.load();
-  try { layout = await (await fetch(hs.url())).json(); } catch { setStatus(t('loadFailed')); }
+  try { layout = await persist.load(); } catch { setStatus(t('loadFailed')); }
   normalizeLayout();
   floorIdx = groundIdx();                                 // start on the ground floor, not in the basement
   hs.renderUi(); neighbors.renderUi();
@@ -1488,6 +1503,7 @@ if (params.get('debug')) {
     addRoofForTest: () => { layout.floors.push(newFloor('roof', 'Dach', uid())); build(); }, camFar: () => { camera.position.set(controls.target.x, 60, controls.target.z + 60); controls.update(); }, roofFactor: () => Math.max(...roofsUi.faded.flatMap((r) => r.mats.map((m) => m.x.opacity / (m.base || 1)))),
     liveTapRoom: (id) => liveSelect({ kind: 'room', id }), liveTap: (id) => liveSelect({ kind: 'device', id }), focusedRoom: () => focusedRoom, cam: () => camera.position.toArray(),   // for tests
     select(kind, id) { selection = { kind, id }; refreshSelection(); },
+    selectMany: (items) => multiSel.selectOnly(items),               // several things selected at once (for tests, #405)
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),
     rebuild: () => build(), applyStates: () => applyStates(),
     switchHouse,
