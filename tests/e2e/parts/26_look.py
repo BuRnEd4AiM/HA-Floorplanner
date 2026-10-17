@@ -3,6 +3,9 @@ floor cards and buttons (#429) and the labels over the rooms in 3D (#430, can be
 """
 saved_lk = api_admin("api/layout")              # put back at the end
 theme_lk, lang_lk, units_lk = api("api/settings")["theme"], api("api/settings")["language"], api("api/settings")["units"]
+labels_lk, mode_lk = api("api/settings")["roomLabels"], api("api/settings")["labelMode"]
+set_setting("roomLabels", True)                 # the default of a new install (base.py switches it to the devices for the older parts)
+set_setting("labelMode", "important")           # the value labels of the sensors (they step aside for the room labels)
 set_setting("theme", "dark")                    # base.py uses the hologram, which has its own floor: no patterns there
 set_setting("language", "de")                   # the texts below are the German ones
 set_setting("units", "metric")                  # ... and the temperature in °C
@@ -38,6 +41,8 @@ pgL.evaluate("window.__fp.switchFloor(0)"); pgL.wait_for_timeout(800)   # the fl
 FLOOR = """(id) => { let m = null; window.__fp.scene.traverse((o) => { if (o.userData?.kind === 'room' && o.userData.id === id) m = o; });
   return m && { map: !!m.material.map, color: m.material.color.getHexString() }; }"""
 NAME = """(n) => { let v = null; window.__fp.scene.traverse((o) => { if (o.isSprite && o.userData.text === n) v = o.visible; }); return v; }"""
+PILLS = """() => { let n = 0; window.__fp.scene.traverse((o) => { if (o.isSprite && o.userData.pill && o.visible && o.parent?.visible) n++; }); return n; }"""   # value labels shown
+BALL = "window.__fp.ballScreen('lk_light') !== null"   # the tap ball of the room's lamp shows
 
 # --- floor coverings (#427)
 check("floors (#427): a room with parquet has its pattern on the floor (white under it), a room without one keeps its colour",
@@ -58,16 +63,24 @@ check("room labels: placed over the picture (moved with the camera) and lit in t
       "translate(" in (pill.get_attribute("style") or "") and "lit" in (pill.get_attribute("class") or "") and "#ff7828" in (pill.get_attribute("style") or ""),
       pill.get_attribute("style"))
 check("room labels: the name on the floor steps aside meanwhile", pgL.evaluate(NAME, "Schilderraum") is False, pgL.evaluate(NAME, "Schilderraum"))
-view_menu(pgL); pgL.click("#roomLabelsToggle"); pgL.wait_for_timeout(500)
-check("room labels: 'Raum-Schilder' in the View menu switches them off (and is saved); the name on the floor is back",
-      not pgL.is_visible("#roomLabels") and api("api/settings")["roomLabels"] is False and pgL.evaluate(NAME, "Schilderraum") is True)
-view_menu(pgL); pgL.click("#roomLabelsToggle"); pgL.wait_for_timeout(500)
-check("room labels: and on again", pgL.is_visible("#roomLabels") and api("api/settings")["roomLabels"] is True)
+check("room labels: either the labels or the devices: no tap balls and no value labels on the floor meanwhile",
+      not pgL.evaluate(BALL) and pgL.evaluate(PILLS) == 0, (pgL.evaluate(BALL), pgL.evaluate(PILLS)))
+view_menu(pgL)
+check("room labels: the View menu says what is shown: 'Im Bild: Raum-Schilder'", pgL.inner_text("#roomLabelsToggle") == "Im Bild: Raum-Schilder", pgL.inner_text("#roomLabelsToggle"))
+pgL.click("#roomLabelsToggle"); pgL.wait_for_timeout(600)
+check("room labels: a tap switches to 'Im Bild: Geräte' (and is saved): no labels, the devices' balls, value labels and the names on the floor are back",
+      pgL.inner_text("#roomLabelsToggle") == "Im Bild: Geräte" and not pgL.is_visible("#roomLabels") and api("api/settings")["roomLabels"] is False
+      and pgL.evaluate(BALL) and pgL.evaluate(PILLS) > 0 and pgL.evaluate(NAME, "Schilderraum") is True,
+      (pgL.inner_text("#roomLabelsToggle"), pgL.evaluate(BALL), pgL.evaluate(PILLS)))
+pgL.click("#roomLabelsToggle"); pgL.wait_for_timeout(600)
+check("room labels: and back to the room labels", pgL.is_visible("#roomLabels") and api("api/settings")["roomLabels"] is True and not pgL.evaluate(BALL))
 if pgL.is_visible("#viewMenu"): pgL.click("#viewMenuBtn"); pgL.wait_for_timeout(200)   # close the View menu again (it lies over the tiles)
-pgL.locator("#roomTiles [data-room=lk_room]").click(); pgL.wait_for_timeout(900)
-check("room labels: not while a room is opened (its card says it all)", pgL.evaluate("window.__fp.focusedRoom()") == "lk_room" and not pgL.is_visible("#roomLabels"))
-pgL.locator("#roomTiles [data-room=lk_room]").click(); pgL.wait_for_timeout(700)
-check("room labels: back again when the room is left", pgL.evaluate("window.__fp.focusedRoom()") is None and pgL.is_visible("#roomLabels"))
+pgL.locator("#roomLabels [data-room=lk_room]").click(); pgL.wait_for_timeout(1000)
+check("room labels: a tap on a label opens the room; then its devices show (ball and value labels), the labels step aside",
+      pgL.evaluate("window.__fp.focusedRoom()") == "lk_room" and not pgL.is_visible("#roomLabels") and pgL.evaluate(BALL) and pgL.evaluate(PILLS) > 0,
+      (pgL.evaluate("window.__fp.focusedRoom()"), pgL.evaluate(BALL), pgL.evaluate(PILLS)))
+pgL.locator("#roomTiles [data-room=lk_room]").click(); pgL.wait_for_timeout(800)
+check("room labels: back again when the room is left, the devices off again", pgL.evaluate("window.__fp.focusedRoom()") is None and pgL.is_visible("#roomLabels") and not pgL.evaluate(BALL))
 
 # --- the glass look (#429)
 glass = pgL.evaluate("""() => ['#modeBar .pill:not(.active)', '#floorRail button', '#findBtn'].map((s) => { const e = document.querySelector(s);
@@ -122,3 +135,5 @@ urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dum
 set_setting("theme", theme_lk)
 set_setting("language", lang_lk)
 set_setting("units", units_lk)
+set_setting("roomLabels", labels_lk)
+set_setting("labelMode", mode_lk)

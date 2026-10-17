@@ -1309,7 +1309,8 @@ export default {
   'cover.parquet': 'Parqué de roble', 'cover.parquetLight': 'Parqué claro', 'cover.parquetDark': 'Parqué oscuro', 'cover.tiles': 'Baldosas (30 cm)',
   'cover.tilesSmall': 'Baldosas pequeñas (baño)', 'cover.tilesDark': 'Baldosas antracita (60 cm)', 'cover.concrete': 'Hormigón',
   'set.windowFrames': 'Marcos de las ventanas', 'set.windowFrames.white': 'Blanco', 'set.windowFrames.anthracite': 'Antracita (paredes más claras)',
-  'set.roomLabels': 'Etiquetas de las habitaciones en la vista 3D (modo en vivo, pantalla ancha)', 'set.preset.roomLabels': 'Etiquetas de habitaciones',
-  'nav.roomLabels': 'Etiquetas de habitaciones',
-  'nav.roomLabelsTip': 'Una etiqueta sobre cada habitación: nombre, temperatura, luces, ventanas abiertas, un punto verde si hay alguien (modo en vivo, pantalla ancha)',
+  'set.roomLabels': 'Etiquetas de habitaciones en lugar de las bolas y valores de los dispositivos (modo en vivo, pantalla ancha)', 'set.preset.roomLabels': 'Etiquetas de habitaciones',
+ 
+  'nav.roomLabelsTip': 'O bien las etiquetas de las habitaciones (nombre, temperatura, luces, ventanas abiertas, un punto verde si hay alguien; las bolas y valores de los dispositivos se ocultan, toque una habitación para ver sus dispositivos) o los dispositivos como antes (modo en vivo, pantalla ancha)',
+  'nav.roomView': 'Se ve', 'nav.roomView.labels': 'Etiquetas de habitaciones', 'nav.roomView.devices': 'Dispositivos',
 };

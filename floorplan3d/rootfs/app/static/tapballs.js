@@ -139,6 +139,7 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
   const dcOf = (e) => ctx.deviceClass?.(e) ?? null;
   let unsettled = false;                   // a ball was placed anew: push the balls apart again (settle)
   let lastView = '';                       // camera and screen the balls were last pushed apart for on the screen (declutter)
+  let quiet = false;                       // the labels over the rooms show instead of the devices (#430, roomlabels.js): no balls
   /** draw the round badge: the state colour with a light rim and the icon in the middle; off ('offline' | 'unlinked'): the offline sign
    *  instead (#375) */
   function paint(b, color, off = null) {
@@ -207,8 +208,8 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
   function update(id, on, rgb, live, shown = true, off = null) {
     const b = balls.get(id);
     if (!b) return;
-    if (b.ball.visible !== (live && shown)) lastView = '';
-    b.ball.visible = live && shown;
+    if (b.ball.visible !== (live && shown && !quiet)) lastView = '';
+    b.ball.visible = live && shown && !quiet;
     if (b.ball.visible && !b.placed) b.placed = place(b);
     b.icon = ballIcon(b.dev, dcOf);                // the device class may come with a later state (a plug or a switch, #366)
     const look = ballLook(on, rgb);
@@ -260,6 +261,8 @@ export function initTapBalls(ctx) {   // ctx: ceiling(), labelsIn(group) -> [{ x
   /** everything may have moved (back in the live mode after editing): measure all again */
   const remeasure = () => balls.forEach((b) => { b.placed = false; });
   function clear() { balls.forEach((b) => { b.sprite.material.map.dispose(); b.sprite.material.dispose(); }); balls.clear(); }
-  return { add, update, settle, declutter, moved, remeasure, clear, has: (id) => balls.has(id), shown: (id) => !!balls.get(id)?.ball.visible, ball: (id) => balls.get(id)?.ball || null,
+  /** the room labels show instead of the devices (#430): the balls hide (from the next update on) */
+  const setQuiet = (q) => { quiet = !!q; };
+  return { add, update, settle, declutter, moved, remeasure, clear, quiet: setQuiet, has: (id) => balls.has(id), shown: (id) => !!balls.get(id)?.ball.visible, ball: (id) => balls.get(id)?.ball || null,
     icon: (id) => balls.get(id)?.icon ?? null, off: (id) => balls.get(id)?.off ?? null };
 }

@@ -8,7 +8,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.99.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
-1. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder** (66.1 bis 66.10): „Live“ ansehen und nah heranzoomen; „Ansicht“ → „Raum-Schilder“ aus und an; im Bearbeiten einem Raum einen anderen Boden geben.
+1. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10): „Live“ ansehen und nah heranzoomen; ein Raum-Schild antippen; „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
 2. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
 3. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
 4. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
@@ -1072,8 +1072,8 @@ Vorlage: die Beispielbilder in `docs/ideen-3.99/` (1, 2, 4 und 5). Die Demo hat 
 | 66.4 | „2D“ ansehen | Die Räume haben die Farbe ihres Bodens (Parkett braun, Fliesen hell, Beton grau); auch die kleinen Etagen-Bilder links | ❓ |
 | 66.5 | Fenster von außen ansehen | Die Fensterrahmen sind anthrazit, die Wände heller; Türrahmen bleiben weiß. ⚙ → „Fensterrahmen“ → „Weiß“ stellt den alten Look her | ❓ |
 | 66.6 | Die Knöpfe unten (Normal, Temp. …), oben (Zimmer, Geräte …) und die Etagen-Karten links ansehen | Leicht durchsichtig wie Milchglas, das Bild scheint verschwommen durch; im hellen Design helles Glas | ❓ |
-| 66.7 | „Live“: über den Räumen | Über jedem Raum ein Schild: Name, Temperatur, „💡 5“ wenn Lichter an sind (Rand in Lichtfarbe), 🪟 bei offenem Fenster, grüner Punkt wenn jemand da ist; die Namen auf dem Boden sind weg; die Schilder wandern beim Drehen mit | ❓ |
-| 66.8 | „Ansicht“ → „Raum-Schilder“ aus und wieder an | Die Schilder verschwinden (die Namen liegen wieder auf dem Boden) und kommen wieder | ❓ |
-| 66.9 | Eine Raum-Kachel unten antippen, dann noch einmal | Solange der Raum offen ist, keine Schilder; danach wieder da. Bei „Ganzes Haus“ und im Bearbeiten-Modus auch keine | ❓ |
+| 66.7 | „Live“: über den Räumen | Über jedem Raum ein Schild: Name, Temperatur, „💡 5“ wenn Lichter an sind (Rand in Lichtfarbe), 🪟 bei offenem Fenster, grüner Punkt wenn jemand da ist; die Kugeln und Werte der Geräte und die Namen auf dem Boden sind weg (entweder Schilder oder Geräte); die Schilder wandern beim Drehen mit | ❓ |
+| 66.8 | „Ansicht“ → „Im Bild: Raum-Schilder“ antippen, dann noch einmal | Es steht „Im Bild: Geräte“: keine Schilder, die Kugeln und Werte der Geräte und die Namen auf dem Boden sind wieder da; noch ein Tipp: wieder die Schilder | ❓ |
+| 66.9 | Ein Schild (z. B. „Wohnzimmer“) antippen, dann unten die Kachel des Raums | Der Raum öffnet sich mit seinen Geräten (Kugeln und Werte), keine Schilder; nach dem Kachel-Tipp wieder die Schilder. Bei „Ganzes Haus“ und im Bearbeiten-Modus keine Schilder, dort die Geräte wie bisher | ❓ |
 | 66.10 | Am Handy „Live“ | Keine Schilder (dort gibt es die Kacheln), die Namen liegen auf dem Boden | ❓ |
 | 66.11 | Im Add-on: eigenen Räumen einen Boden geben, Fensterrahmen auf „Anthrazit“ | Bleibt nach dem Neuladen so; ein Tablet im Sparmodus „Schnell“ zeigt die Böden einfarbig in ihrer Farbe | ➖ |

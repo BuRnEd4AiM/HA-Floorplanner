@@ -1308,6 +1308,7 @@ export default {
   'cover.none': 'Jeden kolor', 'cover.parquet': 'Parkiet dębowy', 'cover.parquetLight': 'Parkiet jasny', 'cover.parquetDark': 'Parkiet ciemny',
   'cover.tiles': 'Płytki (30 cm)', 'cover.tilesSmall': 'Małe płytki (łazienka)', 'cover.tilesDark': 'Płytki antracytowe (60 cm)', 'cover.concrete': 'Beton',
   'set.windowFrames': 'Ramy okien', 'set.windowFrames.white': 'Białe', 'set.windowFrames.anthracite': 'Antracytowe (jaśniejsze ściany)',
-  'set.roomLabels': 'Etykiety pokoi w widoku 3D (tryb na żywo, szeroki ekran)', 'set.preset.roomLabels': 'Etykiety pokoi', 'nav.roomLabels': 'Etykiety pokoi',
-  'nav.roomLabelsTip': 'Etykieta nad każdym pokojem: nazwa, temperatura, światła, otwarte okna, zielona kropka, gdy ktoś jest (tryb na żywo, szeroki ekran)',
+  'set.roomLabels': 'Etykiety pokoi zamiast kul i wartości urządzeń (tryb na żywo, szeroki ekran)', 'set.preset.roomLabels': 'Etykiety pokoi',
+  'nav.roomLabelsTip': 'Albo etykiety pokoi (nazwa, temperatura, światła, otwarte okna, zielona kropka, gdy ktoś jest; kule i wartości urządzeń są ukryte, dotknij pokoju, aby zobaczyć jego urządzenia), albo urządzenia jak dotąd (tryb na żywo, szeroki ekran)',
+  'nav.roomView': 'Widok', 'nav.roomView.labels': 'Etykiety pokoi', 'nav.roomView.devices': 'Urządzenia',
 };

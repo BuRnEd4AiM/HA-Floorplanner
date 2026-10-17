@@ -1308,7 +1308,8 @@ export default {
   'cover.none': 'Une couleur', 'cover.parquet': 'Parquet chêne', 'cover.parquetLight': 'Parquet clair', 'cover.parquetDark': 'Parquet foncé',
   'cover.tiles': 'Carrelage (30 cm)', 'cover.tilesSmall': 'Petits carreaux (salle de bain)', 'cover.tilesDark': 'Carrelage anthracite (60 cm)',
   'cover.concrete': 'Béton', 'set.windowFrames': 'Cadres des fenêtres', 'set.windowFrames.white': 'Blanc',
-  'set.windowFrames.anthracite': 'Anthracite (murs plus clairs)', 'set.roomLabels': 'Étiquettes des pièces dans la vue 3D (mode direct, grand écran)',
-  'set.preset.roomLabels': 'Étiquettes des pièces', 'nav.roomLabels': 'Étiquettes des pièces',
-  'nav.roomLabelsTip': 'Une étiquette sur chaque pièce : nom, température, lumières, fenêtres ouvertes, un point vert quand quelqu’un est là (mode direct, grand écran)',
+  'set.windowFrames.anthracite': 'Anthracite (murs plus clairs)', 'set.roomLabels': 'Étiquettes des pièces au lieu des boules et valeurs des appareils (mode direct, grand écran)',
+  'set.preset.roomLabels': 'Étiquettes des pièces',
+  'nav.roomLabelsTip': 'Soit les étiquettes des pièces (nom, température, lumières, fenêtres ouvertes, un point vert quand quelqu’un est là ; les boules et valeurs des appareils sont masquées, touchez une pièce pour voir ses appareils), soit les appareils comme avant (mode direct, grand écran)',
+  'nav.roomView': 'Affiché', 'nav.roomView.labels': 'Étiquettes des pièces', 'nav.roomView.devices': 'Appareils',
 };

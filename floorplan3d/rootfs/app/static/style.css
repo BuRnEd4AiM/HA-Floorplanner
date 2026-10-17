@@ -980,7 +980,8 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
 #roomLabels { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 3; }
 #roomLabels[hidden] { display: none; }
 .rlPill { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; padding: 5px 11px 5px 9px; border-radius: 999px;
-  white-space: nowrap; font-size: 12.5px; font-weight: 600; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); will-change: transform; }
+  white-space: nowrap; font-size: 12.5px; font-weight: 600; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); will-change: transform;
+  pointer-events: auto; cursor: pointer; }   /* a tap opens the room with its devices */
 .rlPill b { font-weight: 600; }
 .rlPill i { font-style: normal; font-weight: 400; color: #c7d2dd; }
 .rlPill.lit { border-color: var(--lc); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lc) 40%, transparent), 0 6px 18px rgba(0, 0, 0, .35); }

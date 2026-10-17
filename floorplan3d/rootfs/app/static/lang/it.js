@@ -1309,7 +1309,8 @@ export default {
   'cover.none': 'Un colore', 'cover.parquet': 'Parquet rovere', 'cover.parquetLight': 'Parquet chiaro', 'cover.parquetDark': 'Parquet scuro',
   'cover.tiles': 'Piastrelle (30 cm)', 'cover.tilesSmall': 'Piastrelle piccole (bagno)', 'cover.tilesDark': 'Piastrelle antracite (60 cm)',
   'cover.concrete': 'Cemento', 'set.windowFrames': 'Telai delle finestre', 'set.windowFrames.white': 'Bianco',
-  'set.windowFrames.anthracite': 'Antracite (pareti più chiare)', 'set.roomLabels': 'Etichette delle stanze nella vista 3D (modalità live, schermo largo)',
-  'set.preset.roomLabels': 'Etichette delle stanze', 'nav.roomLabels': 'Etichette delle stanze',
-  'nav.roomLabelsTip': 'Un’etichetta su ogni stanza: nome, temperatura, luci, finestre aperte, un punto verde se c’è qualcuno (modalità live, schermo largo)',
+  'set.windowFrames.anthracite': 'Antracite (pareti più chiare)', 'set.roomLabels': 'Etichette delle stanze al posto delle sfere e dei valori dei dispositivi (modalità live, schermo largo)',
+  'set.preset.roomLabels': 'Etichette delle stanze',
+  'nav.roomLabelsTip': 'O le etichette delle stanze (nome, temperatura, luci, finestre aperte, un punto verde se c’è qualcuno; le sfere e i valori dei dispositivi sono nascosti, tocca una stanza per vederne i dispositivi) o i dispositivi come prima (modalità live, schermo largo)',
+  'nav.roomView': 'In vista', 'nav.roomView.labels': 'Etichette delle stanze', 'nav.roomView.devices': 'Dispositivi',
 };

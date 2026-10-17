@@ -1,8 +1,9 @@
 /* Labels over the rooms in 3D (#430): live mode on wide screens, over every room of the open floor a glass label with its name, the
- * temperature, how many lights are on (the edge in their colour), 🪟 for an open window and a green dot when somebody is there. The room
- * names lying on the floor step aside meanwhile. HTML over the picture, moved along with the camera every frame (place), filled again only
- * when a label changed (update). What a label shows and when they show comes from roomtiles.js (tested). "Room labels" in the View menu and
- * in the settings switch them off. */
+ * temperature, how many lights are on (the edge in their colour), 🪟 for an open window and a green dot when somebody is there. Either the
+ * labels or the devices (the owner's wish): while the labels show, the devices' balls and value labels are off and the room names lying on
+ * the floor step aside; a tapped room (or label) shows its devices. HTML over the picture, moved along with the camera every frame (place), filled
+ * again only when a label changed (update). What a label shows and when they show comes from roomtiles.js (tested). The View menu switches
+ * between "room labels" and "devices" (also in the settings). */
 import * as THREE from './vendor/three.module.min.js';
 import { roomSummary, labelTexts, labelsShown, labelHeight } from './roomtiles.js';
 import { roomCenter } from './floorbuild.js';
@@ -12,7 +13,9 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const NAME_Y = 0.45;                               // where floorbuild.js puts the room name over the floor
 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), focusedRoom(), settings(), states(), isLive(), view3d() (the 3D view is shown), elev(i),
- *  camera, canvas, placed(floor), areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), commitSettings(), lang(), imperial() */
+ *  camera, canvas, placed(floor), areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), commitSettings(), lang(), imperial(),
+ *  quiet(on) (the devices' balls off while the labels show), changed() (draw the states again: the balls and value labels come or go),
+ *  openRoom(id) (what a tap on a label does: the room opens with its devices) */
 export function initRoomLabels(ctx) {
   const { $, t, camera, canvas } = ctx;
   const box = $('#roomLabels');
@@ -20,6 +23,7 @@ export function initRoomLabels(ctx) {
   let pills = [], last = '', shown = false;
   const v = new THREE.Vector3();
   $('#roomLabelsToggle').addEventListener('click', () => { $('#setRoomLabels').checked = ctx.settings().roomLabels === false; ctx.commitSettings(); });
+  box.addEventListener('click', (e) => { const p = e.target.closest('[data-room]'); if (p) ctx.openRoom?.(p.dataset.room); });
 
   // phones, the dashboard card and a room tablet (its one room) have no room for them, like the room tiles
   const cls = document.body.classList, phone = window.matchMedia?.('(max-width: 760px)');
@@ -32,8 +36,11 @@ export function initRoomLabels(ctx) {
     names.forEach((n) => { n.sp.visible = !(on && n.f === f); });
   }
   function update() {
-    $('#roomLabelsToggle').classList.toggle('active', ctx.settings().roomLabels !== false);
+    const on = ctx.settings().roomLabels !== false, btn = $('#roomLabelsToggle');
+    btn.classList.toggle('active', on);
+    btn.textContent = `${t('nav.roomView')}: ${t(on ? 'nav.roomView.labels' : 'nav.roomView.devices')}`;
     shown = isShown();
+    ctx.quiet?.(shown);
     hideNames(shown);
     const f = ctx.layout().floors[ctx.floorIdx()];
     if (!shown || !f) { box.hidden = true; box.replaceChildren(); last = ''; pills = []; return; }
@@ -58,9 +65,10 @@ export function initRoomLabels(ctx) {
       return { el: box.children[k], at, x: NaN, y: NaN };
     });
   }
-  /** every frame: the labels follow the camera; they come or go when what decides it changed (live mode, floor, a room opened ...) */
+  /** every frame: the labels follow the camera; they (and with them the devices) come or go when what decides it changed (live mode, floor,
+   *  a room opened ...) */
   function place() {
-    if (isShown() !== shown) update();
+    if (isShown() !== shown) { if (ctx.changed) ctx.changed(); else update(); }
     if (!shown || !pills.length) return;
     const w = canvas.clientWidth, hh = canvas.clientHeight;
     const cr = canvas.getBoundingClientRect(), br = box.getBoundingClientRect(), ox = cr.left - br.left, oy = cr.top - br.top;   // 2D + 3D: the 3D view is only part of the stage
