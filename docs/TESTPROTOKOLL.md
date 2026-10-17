@@ -15,15 +15,14 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 5. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
 6. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
 7. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
-8. **Wendeltreppe von der Seite** (60.9): eine Wendeltreppe mit „Etagen“ 2, „Ganzes Haus“: auf der Etage dazwischen hört das Geländer am Podest auf und fängt danach neu an (31.1 geht schon, hier nur der genaue Blick aufs Geländer).
-9. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
-10. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
-11. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
-12. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
-13. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
-14. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
+8. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
+9. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
+10. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
+11. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
+12. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
+13. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
-**Zuletzt geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
+**Zuletzt geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), 60.9 (Geländer der Wendeltreppe pro Etage, #318), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
 
 <details>
 <summary>Ältere Prüflisten bis 3.94 (ausführlich, zum Nachschlagen)</summary>
@@ -121,7 +120,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 **Neu in 3.93** (ausführlich in Abschnitt **60** unten)
 43. **Wiederholen** (60.1 bis 60.3, #404): Bearbeiten, eine Lampe anklicken und mit den Pfeiltasten verschieben, **Strg+Z** (zurück), dann **Strg+Y** (wieder vor). Oben neben „Speichern“ gibt es dafür auch die Knöpfe **↶** und **↷**.
 44. **Kopieren und Einfügen** (60.4 bis 60.8, #405): eine Lampe anklicken, **Strg+C**, dann **Strg+V**: eine zweite Lampe steht etwas daneben. **Strg+D** verdoppelt direkt. Auf eine andere Etage wechseln und **Strg+V**: dieselbe Lampe steht dort an derselben Stelle. Ein Fenster anklicken und **Strg+D**: ein zweites Fenster in derselben Wand.
-45. **Wendeltreppe: Geländer pro Etage** (60.9, #318): eine Wendeltreppe mit „Etagen“ 2 setzen und von der Seite ansehen: auf der Etage dazwischen hört das Geländer am Podest auf und fängt danach neu an, man kann dort aussteigen.
+45. ✅ (2026-10-17) **Wendeltreppe: Geländer pro Etage** (60.9, #318): eine Wendeltreppe mit „Etagen“ 2 setzen und von der Seite ansehen: auf der Etage dazwischen hört das Geländer am Podest auf und fängt danach neu an, man kann dort aussteigen.
 46. **Schutz beim Speichern** (60.10 bis 60.12, #403, nur im Add-on): den Plan auf zwei Geräten (oder in zwei Fenstern) im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage **„Plan wurde woanders geändert“**.
 
 **Neu in 3.94** (ausführlich in Abschnitt **61** unten, #409)
@@ -257,12 +256,12 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 57. Neu in 3.90: Garage, Werkstatt und Carport | 0 | 0 | 7 | 1 | 57.1 bis 57.7 |
 | 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 0 | 0 | 8 | 0 | 58.1 bis 58.8 |
 | 59. Neu in 3.92: Bar mit Deckenteil | 0 | 0 | 7 | 1 | 59.1 bis 59.7 |
-| 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 0 | 0 | 9 | 3 | 60.1 bis 60.9 |
+| 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 1 | 0 | 8 | 3 | 60.1 bis 60.8 |
 | 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 0 | 0 | 11 | 2 | 61.1 bis 61.9, 61.12, 61.13 |
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 0 | 0 | 4 | 3 | 62.1 bis 62.4 |
 | 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 0 | 0 | 8 | 3 | 63.1 bis 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
-| **Zusammen** | **282** | **1** | **149** | **19** | |
+| **Zusammen** | **283** | **1** | **148** | **19** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -978,7 +977,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 60.6 | Nach Strg+C auf eine andere Etage wechseln, Strg+V | Dieselbe Lampe steht dort an derselben Stelle | ❓ |
 | 60.7 | Im 2D-Plan mit Strg + Rahmen einen Raum mit Wänden, Fenstern und Möbeln auswählen, Strg+D | Alles zusammen wird verdoppelt (Wände mit ihren Fenstern, Raum, Möbel), ein Stück versetzt, und ist ausgewählt; es lässt sich gleich zusammen verschieben | ❓ |
 | 60.8 | Ein Fenster anklicken, Strg+D, nochmal Strg+D | Ein zweites (drittes) gleiches Fenster in derselben Wand daneben; ist die Wand voll, steht oben „kein Platz in der Wand“ | ❓ |
-| 60.9 | Eine Wendeltreppe mit „Etagen“ 2 setzen, „Ganzes Haus“, von der Seite ansehen (#318) | Auf der Etage dazwischen endet das Geländer am Podest und fängt nach dem Podest neu an; der Ausstieg auf die Etage ist frei | ❓ |
+| 60.9 | Eine Wendeltreppe mit „Etagen“ 2 setzen, „Ganzes Haus“, von der Seite ansehen (#318) | Auf der Etage dazwischen endet das Geländer am Podest und fängt nach dem Podest neu an; der Ausstieg auf die Etage ist frei | ✅ (2026-10-17) |
 | 60.10 | Im Add-on den Plan in zwei Fenstern im Bearbeiten öffnen; im ersten eine Lampe verschieben, kurz warten (#403) | Das erste Fenster speichert normal („Gespeichert ✓“) | ➖ |
 | 60.11 | Im zweiten Fenster etwas anderes verschieben, kurz warten | Es kommt die Frage „Plan wurde woanders geändert“ mit zwei Knöpfen; Esc schließt sie nicht. „Die andere Version laden“: das zweite Fenster zeigt jetzt die Lampe vom ersten Fenster, die eigene Änderung ist weg | ➖ |
 | 60.12 | Noch einmal: im ersten Fenster ändern, dann im zweiten, diesmal „Meine Version behalten“ | Das zweite Fenster speichert über das erste; nach dem Neuladen des ersten Fensters ist dort der Stand vom zweiten | ➖ |
