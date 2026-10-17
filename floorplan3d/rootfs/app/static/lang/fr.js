@@ -1298,4 +1298,7 @@ export default {
   'flow.tip': 'Toucher : afficher ou masquer les câbles dans la maison', 'nav.flow': 'Électricité en image',
   'nav.flowTip': 'Soleil, réseau, maison et batterie avec le courant qui circule, en haut à droite au lieu de la ligne de chiffres (mode direct, écran large)',
   'set.energyCard': 'Électricité en image (mode direct, écran large)',
+  'tile.on': '{n} allumée(s)', 'tile.off': 'éteint', 'tile.open': 'ouvert', 'nav.tiles': 'Tuiles des pièces',
+  'nav.tilesTip': 'Une carte par pièce en bas : température, lumières, fenêtres ouvertes, présence ; toucher pour aller à la pièce',
+  'set.roomTiles': 'Tuiles des pièces en bas (mode direct)', 'set.preset.roomTiles': 'Tuiles des pièces',
 };

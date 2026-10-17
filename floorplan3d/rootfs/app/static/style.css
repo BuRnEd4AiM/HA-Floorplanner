@@ -925,3 +925,36 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 .ef-node .ef-side { text-anchor: start; }
 @media (max-width: 760px) { #energyCard { display: none !important; } }
 @media (min-width: 761px) { body.live.flowcard #energyPill { display: none !important; } }
+
+/* ---- Room tiles (#421, roomtilesui.js): live mode, a strip over the view buttons; centred while it fits, swiped sideways when not ---- */
+#roomTiles { position: absolute; left: 156px; right: 16px; bottom: 62px; z-index: 4; display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px;
+  scrollbar-width: none; pointer-events: none; }
+#roomTiles::-webkit-scrollbar { display: none; }
+#roomTiles > * { pointer-events: auto; }
+#roomTiles > :first-child { margin-left: auto; }
+#roomTiles > :last-child { margin-right: auto; }
+#roomTiles[hidden], body:not(.live) #roomTiles, body.card #roomTiles, #livePopup:not([hidden]) ~ #roomTiles { display: none; }
+#roomPanel:not([hidden]) ~ #roomTiles { right: 324px; }
+.rtTile { flex: 0 0 auto; width: 150px; padding: 9px 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 1px; text-align: left; font: inherit;
+  color: #eef3f8; cursor: pointer; background: rgba(16, 22, 30, .72); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 8px 24px rgba(0, 0, 0, .3); }
+body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(16, 22, 30, .9); }
+.rtTile.lit { border-color: var(--lc); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lc) 40%, transparent), 0 8px 26px color-mix(in srgb, var(--lc) 22%, transparent); }
+.rtTile.active { outline: 2px solid var(--accent); outline-offset: 1px; }
+.rtHead { display: flex; justify-content: space-between; gap: 6px; font-size: 14px; white-space: nowrap; }
+.rtHead b { overflow: hidden; text-overflow: ellipsis; }
+.rtHead i { font-style: normal; }
+.rtFloor { font-size: 11px; color: #9aa6b2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rtTemp { font-size: 24px; font-weight: 300; line-height: 1.2; }
+.rtTags { display: flex; gap: 6px; font-size: 12px; white-space: nowrap; }
+.rtTags > span { padding: 2px 7px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #9aa6b2; }
+.rtTile.lit .rtLight { background: color-mix(in srgb, var(--lc) 28%, transparent); color: #fff; }
+.rtTags > .rtOpen { background: rgba(229, 72, 77, .22); color: #ffb4b4; }
+@media (max-width: 760px) {
+  #roomTiles { left: 0; right: 0; bottom: 136px; padding: 6px 12px; gap: 8px; }
+  #roomPanel:not([hidden]) ~ #roomTiles { display: none; }
+  .rtTile { width: 128px; padding: 8px 10px; }
+  .rtHead { font-size: 13px; }
+  .rtTemp { font-size: 21px; }
+  .rtTags { font-size: 11px; }
+}

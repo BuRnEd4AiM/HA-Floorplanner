@@ -1298,4 +1298,7 @@ export default {
   'flow.tip': 'Dotknij: pokaż lub ukryj kable w domu', 'nav.flow': 'Prąd jako obraz',
   'nav.flowTip': 'Słońce, sieć, dom i bateria z płynącym prądem w prawym górnym rogu zamiast wiersza liczb (tryb na żywo, szeroki ekran)',
   'set.energyCard': 'Prąd jako obraz (tryb na żywo, szeroki ekran)',
+  'tile.on': '{n} wł.', 'tile.off': 'wył.', 'tile.open': 'otwarte', 'nav.tiles': 'Kafelki pomieszczeń',
+  'nav.tilesTip': 'Na dole karta dla każdego pomieszczenia: temperatura, światła, otwarte okna, obecność; dotknięcie przenosi do pomieszczenia',
+  'set.roomTiles': 'Kafelki pomieszczeń na dole (tryb na żywo)', 'set.preset.roomTiles': 'Kafelki pomieszczeń',
 };

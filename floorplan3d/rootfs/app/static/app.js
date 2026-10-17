@@ -47,6 +47,8 @@ import { hexVec, colorFromStops, roomLightMat as makeRoomLightMat, fillLights as
 import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
 import { initSky } from './skyui.js';
+import { roomReading, roomEntityIds } from './roomtiles.js';
+import { initRoomTiles } from './roomtilesui.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -511,28 +513,17 @@ const energyUi = initEnergyUi({
 
 let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
 const VIEW_STOPS = { temp: ['tempStops', '°C'], humid: ['humidStops', '%'], co2: ['co2Stops', 'ppm'] };
-/* Temperature / humidity of a room: average of every matching sensor placed in it or assigned to its HA area
-   (sensors with °C/°F or device_class temperature/humidity, and the current values of climate entities). */
+/* Temperature / humidity / CO₂ of a room: average of every matching sensor placed in it or assigned to its HA area (roomtiles.js) */
 function roomHeat(room, f) {
-  const ids = new Set(entityDevices(f).filter((d) => d.entity && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
-  if (room.area) (areas.find((x) => x.id === room.area)?.entities || []).forEach((id) => ids.add(id));
-  const mode = viewMode, vals = [];
-  ids.forEach((id) => {
-    const s = states[id];
-    if (!s) return;
-    const num = parseFloat(s.state);
-    if (id.startsWith('climate.')) {
-      const v = mode === 'temp' ? s.ct : mode === 'humid' ? s.ch : null;
-      if (typeof v === 'number') vals.push(v);
-    } else if (!isNaN(num) && id.startsWith('sensor.')) {
-      if (mode === 'temp' && (s.unit === '°C' || s.unit === '°F' || s.dc === 'temperature')) vals.push(s.unit === '°F' ? (num - 32) * 5 / 9 : num);
-      else if (mode === 'humid' && s.unit === '%' && (s.dc === 'humidity' || /feucht|humid/i.test(id))) vals.push(num);
-      else if (mode === 'co2' && (s.dc === 'carbon_dioxide' || (s.unit === 'ppm' && /co2/i.test(id)))) vals.push(num);
-    }
-  });
-  if (!vals.length) return null;
-  return colorFromStops(settings[VIEW_STOPS[mode][0]], vals.reduce((x, y) => x + y) / vals.length);
+  const v = roomReading(roomEntityIds(room, entityDevices(f), areaEntitiesOf(room)), states, viewMode);
+  return v === null ? null : colorFromStops(settings[VIEW_STOPS[viewMode][0]], v);
 }
+const areaEntitiesOf = (room) => (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []);
+const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
+  settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf,
+  isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(),
+  lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
+  openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); } });
 
 /* ---- Doors, gates and windows with a contact sensor: the code lives in openings.js ---- */
 const openings = initOpenings({
@@ -636,6 +627,7 @@ function applyStates() {
   updateViewLegend();
   power.update();
   energyFlow.update();                    // the energy flow as a picture (#420)
+  roomTiles.update();                     // the room tiles (#421)
   energyUi.update();                      // the tab "⚡ Rechnung" while it is open (#378)
   cams.updateCones();
   cams.updatePill();

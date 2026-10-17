@@ -1299,4 +1299,7 @@ export default {
   'flow.tip': 'Tocca: mostra o nascondi i cavi nella casa', 'nav.flow': 'Energia come immagine',
   'nav.flowTip': 'Sole, rete, casa e batteria con la corrente che scorre, in alto a destra al posto della riga di numeri (modalità live, schermo largo)',
   'set.energyCard': 'Energia come immagine (modalità live, schermo largo)',
+  'tile.on': '{n} accese', 'tile.off': 'spento', 'tile.open': 'aperto', 'nav.tiles': 'Schede delle stanze',
+  'nav.tilesTip': 'Una scheda per stanza in basso: temperatura, luci, finestre aperte, presenza; tocca per andare alla stanza',
+  'set.roomTiles': 'Schede delle stanze in basso (modalità live)', 'set.preset.roomTiles': 'Schede delle stanze',
 };

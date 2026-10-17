@@ -1299,4 +1299,7 @@ export default {
   'flow.tip': 'Tocar: mostrar u ocultar los cables en la casa', 'nav.flow': 'Electricidad en imagen',
   'nav.flowTip': 'Sol, red, casa y batería con la corriente fluyendo, arriba a la derecha en lugar de la línea de cifras (modo en vivo, pantalla ancha)',
   'set.energyCard': 'Electricidad en imagen (modo en vivo, pantalla ancha)',
+  'tile.on': '{n} encendida(s)', 'tile.off': 'apagado', 'tile.open': 'abierto', 'nav.tiles': 'Tarjetas de habitaciones',
+  'nav.tilesTip': 'Una tarjeta por habitación abajo: temperatura, luces, ventanas abiertas, presencia; tocar lleva a la habitación',
+  'set.roomTiles': 'Tarjetas de habitaciones abajo (modo en vivo)', 'set.preset.roomTiles': 'Tarjetas de habitaciones',
 };

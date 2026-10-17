@@ -12,6 +12,7 @@ export const PRESET_FIELDS = {
   belowMode: ['dim', 'stacked', 'hidden'],    // floors below the open one
   belowLabels: [true, false],                 // names and labels of the floors below
   houseFloors: ['normal', 'apart', 'stacked'], // the floors of the whole-house view: as built, pulled apart, stacked like a real house
+  roomTiles: [true, false],                   // the room tiles at the bottom of the live mode (#421)
 };
 /** what the dashboard card (#13, cardmode.js) can set for its screen: the preset fields and a few more; a function checks a number */
 export const CARD_FIELDS = {

@@ -1292,4 +1292,7 @@ export default {
   'flow.tip': 'Tikken: de stroomkabels in het huis tonen of verbergen', 'nav.flow': 'Stroom als plaatje',
   'nav.flowTip': 'Zon, net, huis en batterij met de stroom die loopt, rechtsboven in plaats van de regel met getallen (live, breed scherm)',
   'set.energyCard': 'Stroom als plaatje (live, breed scherm)',
+  'tile.on': '{n} aan', 'tile.off': 'uit', 'tile.open': 'open', 'nav.tiles': 'Kamertegels',
+  'nav.tilesTip': 'Onderaan een kaart per kamer: temperatuur, lampen, open ramen, wie er is; tikken vliegt naar de kamer',
+  'set.roomTiles': 'Kamertegels onderaan (live)', 'set.preset.roomTiles': 'Kamertegels',
 };
