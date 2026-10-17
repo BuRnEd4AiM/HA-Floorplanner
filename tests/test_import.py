@@ -242,10 +242,27 @@ def test_window_roller_shutter_is_imported_and_exported():
     assert sorted(o["shutterEntity"] for o in ops2) == ["cover.nur_entitaet", "cover.rollladen_kueche"] and not rep2.errors
 
 
+def test_window_without_rain_warning_survives_export():
+    """a window that may stay open in the rain (#419): rainWarn false is kept, on a door it is dropped, true is the default"""
+    room = [{"points": [[0, 0], [6, 0], [6, 3], [0, 3]]}]
+    f = square_flat(rooms=room, openings=[
+        {"preset": "window", "at": [1.5, 0], "entity": "binary_sensor.fenster_bad", "rainWarn": False},
+        {"preset": "window", "at": [4.5, 0], "entity": "binary_sensor.fenster_kueche", "rainWarn": True},
+        {"preset": "door", "at": [3, 3], "rainWarn": False}])
+    layout, _, rep, _ = importer.build_layout(f)
+    assert not rep.errors
+    ops = {o.get("entity", o["type"]): o for w in layout["floors"][0]["walls"] for o in w["openings"]}
+    assert ops["binary_sensor.fenster_bad"]["rainWarn"] is False
+    assert "rainWarn" not in ops["binary_sensor.fenster_kueche"] and "rainWarn" not in ops["door"]
+    again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout, "x"))
+    ops2 = {o.get("entity"): o for w in again["floors"][0]["walls"] for o in w["openings"] if o["type"] == "window"}
+    assert ops2["binary_sensor.fenster_bad"]["rainWarn"] is False and "rainWarn" not in ops2["binary_sensor.fenster_kueche"] and not rep2.errors
+
+
 def test_schema_describes_the_roller_shutter():
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     props = next(d["properties"] for d in schema["$defs"].values() if "paneEntities" in d.get("properties", {}))
-    assert {"shutter", "shutterEntity"} <= set(props)
+    assert {"shutter", "shutterEntity", "rainWarn"} <= set(props)
 
 
 def test_export_then_import_reproduces_the_plan():

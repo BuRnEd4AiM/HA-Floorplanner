@@ -16,6 +16,7 @@ export const PRESET_UI = [
   ['belowMode', [['dim', 'set.belowMode.dim'], ['stacked', 'set.belowMode.stacked'], ['hidden', 'set.belowMode.hidden']]],
   ['belowLabels', [[true, 'set.preset.show'], [false, 'set.preset.hide']]],
   ['houseFloors', [['normal', 'set.houseFloors.normal'], ['apart', 'set.houseFloors.apart'], ['stacked', 'set.houseFloors.stacked']]],
+  ['roomTiles', [[true, 'set.preset.show'], [false, 'set.preset.hide']]],
 ];
 /** a preset read from the dropdowns [{ key, value }] (values are strings: '' = default, 'true' / 'false' for yes / no) */
 export function readPreset(fields) {

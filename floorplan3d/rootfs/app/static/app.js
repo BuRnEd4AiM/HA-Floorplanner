@@ -1,7 +1,8 @@
 import * as THREE from './vendor/three.module.min.js';
 import { OrbitControls } from './vendor/controls/OrbitControls.js';
 import { initImport } from './import.js';
-import { initToolbar } from './toolbar.js';
+import { initToolbar, TOOLS } from './toolbar.js';
+import { decorate as decorateTools, markGroups } from './toolicons.js';
 import { DEFAULT_LEGS } from './kitchen.js';
 import { initAlertsUi } from './alertsui.js';
 import { initSearch } from './search.js';
@@ -9,6 +10,7 @@ import { initBackups } from './backups.js';
 import { initVersion } from './version.js';
 import { initPower } from './power.js';
 import { initEnergyUi } from './energyui.js';
+import { initEnergyFlow } from './energyflowui.js';
 import { energyBalance } from './energycalc.js';
 import { initCompass } from './compass.js';
 import { initOffline } from './offline.js';
@@ -45,6 +47,9 @@ import { initFloorPanel, newFloor } from './floorpanel.js';
 import { hexVec, colorFromStops, roomLightMat as makeRoomLightMat, fillLights as fillRoomLights } from './roomlight.js';
 import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
+import { initSky } from './skyui.js';
+import { roomReading, roomEntityIds } from './roomtiles.js';
+import { initRoomTiles } from './roomtilesui.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -269,6 +274,8 @@ const roomMeshes = new Map();     // room id -> { mesh, room }
 
 /* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing; the code lives in earth.js ---- */
 const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH: FLOOR_H, settings: () => settings, houseMode: () => houseMode });
+const sky = initSky({ $, t, canvas, params, settings: () => settings, states: () => states, isLive: () => isLive(), isHolo: () => isHolo(),   // sky and weather (#418, #419), skyui.js
+  low: () => perfParam === 'low', earthTint: (c) => earth.setTint(c) });
 let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
 /** the grid is a drawing aid (never in live mode, under any ground only while drawing, on the level of the floor shown); the earth cut follows the camera */
 function updateEarthCut() {
@@ -497,6 +504,8 @@ const energySetup = initEnergySetup({
   refresh: () => power.update(), rerender: () => energyUi.render(), floor: () => floor(), center: () => floorBounds(), uid, setStatus,
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0, onWall: (d) => { if (WALL_TYPES.has(d.type)) snapToWall(d, 100); }, placed: () => changed(),
 });
+const energyFlow = initEnergyFlow({ $, t, settings: () => settings, states: () => states, layout: () => layout, isLive: () => isLive(),   // the energy flow as a picture (#420), energyflowui.js
+  low: () => perfParam === 'low', toggleCables: () => power.toggle(), commitSettings: () => commitSettings() });
 const energyUi = initEnergyUi({
   $, t, layout: () => layout, states: () => states, entities: () => entities, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
   entityPicker: (...a) => entityPicker(...a), pickerField: (...a) => pickerField(...a), snapshot: () => snapshot(), changed: () => changed(false), refresh: () => power.update(),
@@ -505,28 +514,17 @@ const energyUi = initEnergyUi({
 
 let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
 const VIEW_STOPS = { temp: ['tempStops', '°C'], humid: ['humidStops', '%'], co2: ['co2Stops', 'ppm'] };
-/* Temperature / humidity of a room: average of every matching sensor placed in it or assigned to its HA area
-   (sensors with °C/°F or device_class temperature/humidity, and the current values of climate entities). */
+/* Temperature / humidity / CO₂ of a room: average of every matching sensor placed in it or assigned to its HA area (roomtiles.js) */
 function roomHeat(room, f) {
-  const ids = new Set(entityDevices(f).filter((d) => d.entity && pointInPoly(d.x, d.z, room.points)).map((d) => d.entity));
-  if (room.area) (areas.find((x) => x.id === room.area)?.entities || []).forEach((id) => ids.add(id));
-  const mode = viewMode, vals = [];
-  ids.forEach((id) => {
-    const s = states[id];
-    if (!s) return;
-    const num = parseFloat(s.state);
-    if (id.startsWith('climate.')) {
-      const v = mode === 'temp' ? s.ct : mode === 'humid' ? s.ch : null;
-      if (typeof v === 'number') vals.push(v);
-    } else if (!isNaN(num) && id.startsWith('sensor.')) {
-      if (mode === 'temp' && (s.unit === '°C' || s.unit === '°F' || s.dc === 'temperature')) vals.push(s.unit === '°F' ? (num - 32) * 5 / 9 : num);
-      else if (mode === 'humid' && s.unit === '%' && (s.dc === 'humidity' || /feucht|humid/i.test(id))) vals.push(num);
-      else if (mode === 'co2' && (s.dc === 'carbon_dioxide' || (s.unit === 'ppm' && /co2/i.test(id)))) vals.push(num);
-    }
-  });
-  if (!vals.length) return null;
-  return colorFromStops(settings[VIEW_STOPS[mode][0]], vals.reduce((x, y) => x + y) / vals.length);
+  const v = roomReading(roomEntityIds(room, entityDevices(f), areaEntitiesOf(room)), states, viewMode);
+  return v === null ? null : colorFromStops(settings[VIEW_STOPS[viewMode][0]], v);
 }
+const areaEntitiesOf = (room) => (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []);
+const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
+  settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf,
+  isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(),
+  lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
+  openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); } });
 
 /* ---- Doors, gates and windows with a contact sensor: the code lives in openings.js ---- */
 const openings = initOpenings({
@@ -629,6 +627,8 @@ function applyStates() {
   if (plan?.isVisible()) plan.render();
   updateViewLegend();
   power.update();
+  energyFlow.update();                    // the energy flow as a picture (#420)
+  roomTiles.update();                     // the room tiles (#421)
   energyUi.update();                      // the tab "⚡ Rechnung" while it is open (#378)
   cams.updateCones();
   cams.updatePill();
@@ -637,6 +637,7 @@ function applyStates() {
   offReasons = new Map(); offList.forEach((x) => { if (!offReasons.has(x.id) || offReasons.get(x.id) === 'unlinked') offReasons.set(x.id, x.reason); });
   deviceList.update();                    // the device overview (#376): its button, and the list while it is open
   alertsUi.update();
+  sky.apply();                            // the sky of the hour and the weather (#418, #419)
   if (!layout.floors[floorIdx]) return;
   applyOpenings();
   const bv = belowVis();
@@ -1069,7 +1070,8 @@ $('#dormerBtn').addEventListener('click', () => {
   $('#floorPanel').scrollIntoView({ block: 'start', behavior: 'smooth' });
 });
 $('#importBtn').addEventListener('click', () => $('#importOpen').click());
-const toolbarUi = initToolbar({ t });
+decorateTools(TOOLS.map(([id]) => id), (id) => $('#tools').querySelector(TOOLS.find(([k]) => k === id)[1]), $('#toolsMoreBtn'));   // icons and groups (#422), toolicons.js
+const toolbarUi = initToolbar({ t, onApply: (shown) => markGroups(shown, t) });
 
 function setMode(next) {
   mode = next = phoneView(phoneMenu.isPhone(), { mode: next }).mode;   // phones only show the house (#299)
@@ -1392,7 +1394,8 @@ function applySettings(prev = {}) {
   const rs = document.documentElement.style;
   rs.setProperty('--bg-top', settings.bgTop); rs.setProperty('--bg-bottom', settings.bgBottom); rs.setProperty('--bg-glow', settings.bgGlow); rs.setProperty('--bg-glow-s', String(settings.bgGlowStrength ?? 0));
   applyI18n();
-  scene.background = isHolo() ? null : new THREE.Color(themeColors().scene);
+  toolbarUi.apply();                                  // the captions of the tool groups in the new language (#422)
+  scene.background = isHolo() || sky.on() ? null : new THREE.Color(themeColors().scene);   // the sky shows through the canvas (#418)
   renderer.shadowMap.enabled = settings.shadows && !LOW;
   sun.castShadow = settings.shadows && !LOW;
   markShadows();

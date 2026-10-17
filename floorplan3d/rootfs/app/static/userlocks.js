@@ -8,7 +8,7 @@ export const LOCKS = [
   ['alarm', '.devctl-alarm :is(.actions, .dc-code)'],                // arming and disarming the alarm panel (#406; the server refuses it too); its state stays in sight
   ['details', '.mi'],                                                  // the ⓘ button: Home Assistant's own dialog of an entity
   ['cameras', '#camPill, #camMenu, img[data-cam]'],                    // camera list and still images (the server refuses them too)
-  ['energy', '#energyPill, #meterPill, #powerBtn'],                    // power and meter overview
+  ['energy', '#energyPill, #meterPill, #powerBtn, #energyCard, #flowToggle'],   // power and meter overview, also as a picture (#420)
   ['colorModes', '#modeBar [data-vm], #powerBtn, #viewLegend'],        // temperature / humidity / CO2 / power colours of the rooms
   ['viewMenu', '#viewMenuBtn, #viewMenu'],                             // the "View" menu (see-through, low walls ...): the look stays as preset
   ['floorGap', '#explodeToggle, #stackToggle'],                       // the floors pulled apart / on top of each other (#396): stays as preset

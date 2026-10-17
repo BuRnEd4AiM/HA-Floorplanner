@@ -301,6 +301,8 @@ const entities = {
   'sensor.wasser_garten':    { name: 'Wasserzähler Garten',    state: '87.3', unit: 'm³', dc: 'water' },
   'sensor.pv_dach':          { name: 'PV Dach',                state: '4100', unit: 'W', dc: 'power' },
   'light.nachbar_wohnen':    { name: 'Nachbar Wohnen Licht',   state: 'on', rgb: [255, 200, 140] },
+  // the weather in the sky (#419); ?weather=rainy (snowy, cloudy, pouring ...) shows another one. No sun.sun: the demo's sky follows the clock (#418)
+  'weather.zuhause':         { name: 'Zuhause', state: new URLSearchParams(location.search).get('weather') || 'partlycloudy', wx: { t: 14, tu: '°C', w: 12, wu: 'km/h' } },
 };
 
 let settings = {
@@ -377,7 +379,7 @@ export function installDemoBackend() {
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
         hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null,
-        bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null })));
+        bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null })));
     }
     if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
       const v = typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __DEMO_VERSION__;

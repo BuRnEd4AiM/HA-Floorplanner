@@ -19,4 +19,5 @@ export const effRgb = (e, effectColors) => fxRgb(e.fxc, effectColors) || e.rgb;
 /** the state the app keeps of an entity of the add-on's list (rgbRaw: the light's own colour, rgb: the one to show) */
 export const toState = (e, effectColors) => ({ since: e.since, state: e.state, unit: e.unit, brightness: e.brightness, position: e.position, rgb: effRgb(e, effectColors), rgbRaw: e.rgb,
   dc: e.dc, ct: e.ct, hvac: e.hvac, tt: e.tt, tmin: e.tmin, tmax: e.tmax, tstep: e.tstep, modes: e.modes, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members, bat: e.bat,
-  ctl: e.ctl });   // ctl: what the live card controls (volume, fan speed, presets ..., #406)
+  ctl: e.ctl,      // ctl: what the live card controls (volume, fan speed, presets ..., #406)
+  sun: e.sun, wx: e.wx });   // sun.sun's elevation and next sunrise / sunset, a weather entity's temperature and wind (the sky, #418, #419)

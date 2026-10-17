@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 3.98.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.500**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -136,6 +136,13 @@ Stand: Version 3.75.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht
 | `housefloors.js` | ~90 | Etagen im ganzen Haus (Einstellung `houseFloors`): mit kleinem Abstand, auseinander oder aufeinander wie ein echtes Haus; Höhe jeder Etage (`floorElev`, aus `app.js` geholt), Dicke der Decke (`slabDepth`), welche Etage eine Decke hat und welche verdeckt ist (`hasSlab`, `isCovered`), Wände bis ans Dach (`wallUpTo`, `wallUnder`), Kugeln und Schilder im Raum (`inRoom`, `shutterLabelIn`), welche Etagen ihre Zustände zeigen (`liveFloors`, #392); „Aufeinander“ auch bei einer offenen Etage (`drawnFloors`, `shownButtons`, #396); die Knöpfe „Auseinander“ / „Aufeinander“ im Menü Ansicht (`initHouseFloors`, aus `app.js` geholt; Sperre `floorGap` in `userlocks.js`); Regeln mit Unit-Tests |
 | `meshmerge.js` | ~95 | Weniger Zeichenaufrufe (#394): Teile eines Modells, die gleich aussehen (gleiches oder gleich aussehendes Material), werden ein Mesh (`mergeParts`); was sich später ändert (in `userData` genannt, eigene `userData`, versteckt, mit Kindern, Materialien von Leuchten / LEDs / Heizung) bleibt einzeln; benutzt von `models.js` (Geräte), `walls.js` (Wandstücke, feste Teile von Türen und Fenstern) und `stairtool.js` (Stufen, Stäbe); mit Unit-Tests |
 | `perfhud.js` | ~140 | Leistungsanzeige: Bilder pro Sekunde und weitere Werte (Zeit pro Bild, Zeichenaufrufe, Dreiecke, Auflösung, Sparmodus, Grafikchip, Speicher) oben rechts im 3D-Bild, Auswahl im Menü „Ansicht“, pro Gerät gemerkt, `?fps=1` / `?fps=all`; Zählen und Textzeilen mit Unit-Tests |
+| `sky.js` | ~165 | Himmel nach Uhrzeit (#418) und Wetter darin (#419), reine Logik mit Unit-Tests: Sonne aus `sun.sun` oder der Uhr (`sunNow`, `approxSun`), Tagesabschnitt, Farben des Himmels und Tönung des Rasens nach Sonnenhöhe und Wolken, Wetter-Entität (`weatherLook`), Texte der Anzeigen oben rechts, `?skytime=` |
+| `skyui.js` | ~105 | Himmel als CSS hinter der durchsichtigen Leinwand, Sterne, Wolken, Regen/Schnee als CSS-Animation (bei „Schnell“ still), Anzeigen oben rechts, Rasen-Tönung über `earth.setTint` |
+| `energyflow.js` | ~55 | Strom als Bild (#420), reine Logik mit Unit-Tests: welche Kreise es gibt und wie viel Watt auf jeder Linie läuft (Sonne zuerst ins Haus, dann in die Batterie, Rest ins Netz), Texte der Kreise, Tempo der Punkte |
+| `energyflowui.js` | ~60 | Karte „Strom jetzt“ oben rechts (Live, breiter Bildschirm) statt der Zahlenzeile, SVG mit wandernden Punkten, Tipp schaltet die Kabel, Knopf im Menü „Ansicht“ |
+| `roomtiles.js` | ~65 | Raum-Kacheln (#421), reine Logik mit Unit-Tests: Temperatur, Lichter an (mit Farbe), offene Fenster, jemand da; `roomReading` (Mittelwert Temperatur / Feuchte / CO₂ eines Raums, aus `roomHeat` in `app.js` geholt) |
+| `roomtilesui.js` | ~45 | Leiste mit einer Karte pro Raum unten im Live-Modus (Handy: wischbar), Tipp fliegt zum Raum, Knopf im Menü „Ansicht“ |
+| `toolicons.js` | ~65 | Werkzeugleiste mit Symbolen und Gruppen (#422): Symbole, Gruppen, wo eine Gruppen-Überschrift hinkommt (`groupStarts`, Unit-Tests); `toolbar.js` meldet seine Reihenfolge über `onApply` |
 
 ## Noch in `app.js`
 

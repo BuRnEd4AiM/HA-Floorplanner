@@ -54,6 +54,7 @@ export function initEarth(ctx) {
   let info = null;                                                     // { cx, cz, corners, rings, depth, cap, key } while the earth is cut
   let lawn = false, ground = false, box = null;                        // solid lawn is drawn / any ground is drawn (it replaces the grid)
   let pads = 0;                                                        // pieces of ground under the house (padLevel)
+  let tint = null, tinted = [];                                        // the sky's tint of the lawn and the soil ([r, g, b], #418) and what it colours
   let soilTex = null;
   function soilTexture() {                       // earth layers for the sides and the cut: topsoil, loam, clay, gravel
     if (soilTex) return soilTex;
@@ -66,7 +67,13 @@ export function initEarth(ctx) {
     soilTex.colorSpace = THREE.SRGBColorSpace;
     return soilTex;
   }
-  function reset() { info = null; lawn = false; ground = false; pads = 0; }
+  function reset() { info = null; lawn = false; ground = false; pads = 0; tinted = []; }
+  /** darker at night, warmer at sunset (#418): [r, g, b] factors on the colours of the lawn and the soil, null = as they are */
+  function setTint(rgb) {
+    tint = rgb;
+    tinted.forEach(([m, base]) => { m.color.copy(base); if (tint) m.color.multiply(new THREE.Color(...tint)); });
+  }
+  const keepTint = (m) => { if (m.color) { tinted.push([m, m.color.clone()]); if (tint) m.color.multiply(new THREE.Color(...tint)); } return m; };
   function build(world, holo) {
     const layout = ctx.layout(), settings = ctx.settings(), nb = ctx.groundIdx();
     const foot = houseFootprint(layout.floors, nb);
@@ -92,8 +99,9 @@ export function initEarth(ctx) {
     geo.translate(0, -depth - 0.02, 0);
     const solid = settings.earth === 'solid', cut = solid && nb > 0 && ctx.houseMode(), clip = cut ? [plane] : [];   // without a basement there is nothing to show in a cut
     const tex = soilTexture().clone(); tex.needsUpdate = true; tex.repeat.set(0.5, 1 / depth);
-    const lawnMat = new THREE.MeshBasicMaterial({ color: holo ? 0x1d6b4a : 0x6fa858, transparent: !solid || holo, opacity: solid ? (holo ? 0.85 : 1) : 0.2, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip });
-    const soil = new THREE.MeshBasicMaterial({ map: solid ? tex : null, color: solid ? (holo ? 0x8a6a8a : 0xffffff) : 0x6b4a2f, transparent: !solid || holo, opacity: solid ? (holo ? 0.9 : 1) : 0.22, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip });
+    const tintOf = (m) => (holo ? m : keepTint(m));                // the hologram keeps its own colours: no sky there
+    const lawnMat = tintOf(new THREE.MeshBasicMaterial({ color: holo ? 0x1d6b4a : 0x6fa858, transparent: !solid || holo, opacity: solid ? (holo ? 0.85 : 1) : 0.2, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip }));
+    const soil = tintOf(new THREE.MeshBasicMaterial({ map: solid ? tex : null, color: solid ? (holo ? 0x8a6a8a : 0xffffff) : 0x6b4a2f, transparent: !solid || holo, opacity: solid ? (holo ? 0.9 : 1) : 0.22, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip }));
     const none = new THREE.MeshBasicMaterial({ visible: false });
     const earth = new THREE.Mesh(geo, [none, soil]);              // the block: only its sides (soil); its caps are not drawn ...
     earth.renderOrder = -1;
@@ -102,7 +110,7 @@ export function initEarth(ctx) {
     top.renderOrder = -1;
     world.add(top);
     if (holes.length) {                                           // where the lawn is cut open the house stands on ground, not over a black hole
-      const padMat = new THREE.MeshBasicMaterial({ color: holo ? 0x123f6e : 0x8c857a, transparent: !solid || holo, opacity: solid ? (holo ? 0.85 : 1) : 0.2, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip });
+      const padMat = tintOf(new THREE.MeshBasicMaterial({ color: holo ? 0x123f6e : 0x8c857a, transparent: !solid || holo, opacity: solid ? (holo ? 0.85 : 1) : 0.2, depthWrite: solid, side: THREE.DoubleSide, clippingPlanes: clip }));
       const pad = new THREE.Mesh(new THREE.ShapeGeometry(holes.map((ring) => new THREE.Shape(ring.map(([x, z]) => new THREE.Vector2(x, -z))))).rotateX(-Math.PI / 2), padMat);
       pad.position.y = padLevel(nb > 0, depth);                  // seen through the dimmed floor below the open one, or where it is hidden
       pad.renderOrder = -1;
@@ -114,7 +122,7 @@ export function initEarth(ctx) {
     world.add(earth);
     lawn = solid; ground = true;
     if (cut) {
-      const cap = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ map: tex, color: holo ? 0x8a6a8a : 0xffffff, transparent: holo, opacity: holo ? 0.9 : 1, side: THREE.DoubleSide }));
+      const cap = new THREE.Mesh(new THREE.BufferGeometry(), tintOf(new THREE.MeshBasicMaterial({ map: tex, color: holo ? 0x8a6a8a : 0xffffff, transparent: holo, opacity: holo ? 0.9 : 1, side: THREE.DoubleSide })));
       world.add(cap);
       info = { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, corners: [[x0, z0], [x1, z0], [x1, z1], [x0, z1]], rings: [outline, ...holes], depth, cap, key: '' };
     }
@@ -146,5 +154,5 @@ export function initEarth(ctx) {
     info.cap.geometry = capGeometry(c.px - c.dx * 0.01, c.pz - c.dz * 0.01, -c.dz, c.dx, info.rings, info.depth);
     info.cap.visible = true;
   }
-  return { plane, build, reset, updateCut, cut: () => !!info, info: () => info, lawn: () => lawn, ground: () => ground, box: () => box, pads: () => pads };
+  return { plane, build, reset, updateCut, setTint, cut: () => !!info, info: () => info, lawn: () => lawn, ground: () => ground, box: () => box, pads: () => pads };
 }

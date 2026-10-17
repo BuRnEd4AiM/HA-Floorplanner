@@ -33,7 +33,7 @@ export function initAlertsUi(ctx) {
     if (!ctx.entities().length) return;
     const windows = [];
     ctx.layout().floors.forEach((f) => openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
-      if (o.type === 'window') ctx.openingEntities(o).forEach((e) => windows.push({ entity: e, name: o.name || ctx.entities().find((x) => x.entity_id === e)?.name || t('prop.window') }));
+      if (o.type === 'window') ctx.openingEntities(o).forEach((e) => windows.push({ entity: e, name: o.name || ctx.entities().find((x) => x.entity_id === e)?.name || t('prop.window'), rain: o.rainWarn !== false }));   // the tick "warn in the rain" (#419)
     })));
     const list = ctx.settings().alerts === false ? [] : findAlerts(ctx.entities(), windows, ctx.settings().weatherEntity).map((a) => ({ ...a, at: locateEntity(a.entity) }));
     const sig = JSON.stringify(list.map((a) => [a.kind, a.entity, a.at]));

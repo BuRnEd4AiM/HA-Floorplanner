@@ -4,23 +4,24 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.97.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.98.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.97.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.98.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
-1. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
-2. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
-3. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
-4. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
-5. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
-6. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
-7. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
-8. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
-9. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
-10. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
-11. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
-12. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
-13. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
+1. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
+2. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
+3. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
+4. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
+5. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
+6. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
+7. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
+8. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+9. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
+10. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
+11. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
+12. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
+13. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
+14. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
 **Zuletzt geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), 60.9 (Geländer der Wendeltreppe pro Etage, #318), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
 
@@ -261,7 +262,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 0 | 0 | 4 | 3 | 62.1 bis 62.4 |
 | 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 0 | 0 | 8 | 3 | 63.1 bis 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
-| **Zusammen** | **283** | **1** | **148** | **19** | |
+| 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 0 | 0 | 13 | 2 | 65.1 bis 65.13 |
+| **Zusammen** | **283** | **1** | **161** | **21** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1034,3 +1036,23 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 64.4 | Einen Rauchmelder mit seinem Testknopf auslösen (oder in Home Assistant den Zustand eines Wassermelders auf „an“ setzen) | Eine WhatsApp „🔥 Rauch erkannt: …“ mit Etage, Raum und Uhrzeit, auch wenn kein Bildschirm offen ist; ein zweites Auslösen gleich danach schickt keine zweite | ➖ |
 | 64.5 | Statt WhatsApp „Benachrichtigungsdienst von Home Assistant“ wählen, z. B. die Companion-App (mobile_app_…), „Test senden“ | Die Nachricht kommt auf dem Handy über die App | ➖ |
 | 64.6 | Auf einem Tablet, das nicht bearbeiten darf, ⚙ öffnen | Der Teil „Benachrichtigung bei Alarm“ fehlt | ➖ |
+
+## 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422)
+Vorlage: die Beispielbilder in `docs/ideen-3.98/`. In der Demo zeigt `?skytime=21:30` eine andere Uhrzeit und `?weather=rainy` (oder `snowy`, `cloudy`, `pouring`) ein anderes Wetter, z. B. https://burned4aim.github.io/HA-Floorplanner/?skytime=21:30&weather=snowy
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 65.1 | Demo öffnen, „Live“ | Hinter dem Haus ein Himmel passend zur Uhrzeit statt Schwarz (tagsüber blau); oben rechts z. B. „☀️ Tag · 14:05 · Sonnenuntergang …“ und darunter „⛅ Teilweise bewölkt · 14 °C · Wind 12 km/h“ | ❓ |
+| 65.2 | Adresse mit `?skytime=21:30`, dann mit `?skytime=18:05` | 21:30: dunkelblau mit Sternen, der Rasen dunkler, „🌙 Nacht · … · Sonnenaufgang …“; 18:05: lila und orange am Horizont, „Abenddämmerung“ bzw. „Abend“. Die Lampen leuchten **nicht** extra (wie gewünscht) | ❓ |
+| 65.3 | Adresse mit `?weather=rainy`, dann `?weather=snowy` | Grauer Himmel, Regen fällt über das Bild, oben „🌧️ Regen · …“; bei Schnee fallen Flocken. Im Bearbeiten-Modus fällt nichts | ❓ |
+| 65.4 | ⚙ → „Himmel“ auf „Einfarbig“, dann zurück auf „Nach Uhrzeit und Wetter“ | Einfarbig: der Hintergrund wie früher, keine Anzeigen oben rechts; danach ist der Himmel wieder da | ❓ |
+| 65.5 | Mit `?weather=rainy`: oben die rote Warnung „Fenster offen bei Regen · Fenster Wohnzimmer“. Bearbeiten, das Wohnzimmerfenster anklicken, Haken **„Bei Regen warnen“** wegnehmen | Die Warnung verschwindet; Haken wieder setzen: sie ist wieder da | ❓ |
+| 65.6 | „Live“ am PC: oben rechts die Karte **„Strom jetzt“** ansehen | Sonne 3.20 kW, Netz 450 W „Bezug vom Netz“, Haus 3.05 kW, Batterie 82 % „lädt 600 W“; Punkte wandern von der Sonne zum Haus und zur Batterie und vom Netz zum Haus; die Zahlenzeile oben links ist weg | ❓ |
+| 65.7 | Die Karte antippen, dann „Ansicht“ → „Strom als Bild“ | Antippen: die Strom-Kabel im Haus erscheinen (nochmal: weg). „Strom als Bild“ aus: die Zahlenzeile ist zurück | ❓ |
+| 65.8 | „Live“ am PC: unten über „Normal / Temp. …“ die **Raum-Kacheln** | Eine Karte pro Raum: Name, Temperatur (z. B. Wohnzimmer 21,3°), „💡 5 an“ mit farbigem Rand, „🪟 offen“, 👤 im Büro und Wohnzimmer; Räume ohne Licht „aus“ | ❓ |
+| 65.9 | Eine Kachel antippen, dann nochmal; „Ganzes Haus“ und eine Kachel aus dem Obergeschoss antippen | Die Kamera fliegt in den Raum, rechts die Raum-Karte; nochmal: zurück. Ganzes Haus: alle Räume mit Etage, der Tipp öffnet die Etage und den Raum | ❓ |
+| 65.10 | Am Handy hochkant „Live“ | Die Kacheln sind kleiner und lassen sich zur Seite wischen; oben rechts keine Uhrzeit- und keine Strom-Karte (dort bleibt 📊) | ❓ |
+| 65.11 | „Ansicht“ → „Raum-Kacheln“ ausschalten, wieder einschalten | Die Leiste verschwindet und kommt wieder | ❓ |
+| 65.12 | Bearbeiten: die Werkzeugleiste oben ansehen | Symbole mit Namen darunter, in Gruppen „ZEICHNEN“, „SETZEN“, „WERKZEUGE“; das gewählte Werkzeug blau; jedes Werkzeug funktioniert wie vorher | ❓ |
+| 65.13 | „Mehr“ (⋯) antippen, dann ✎ (Werkzeuge anpassen): ein Werkzeug ausblenden, eins verschieben, „Zurücksetzen“ | „Mehr“ zeigt „Import“; im Anpassen stehen die vollen Namen („Räume erkennen“, „Strom-Editor“); die Gruppen passen sich an, Zurücksetzen stellt alles wieder her | ❓ |
+| 65.14 | Im Add-on: Live-Modus mit echtem `sun.sun` und echter Wetter-Entität | Der Himmel passt zur echten Tageszeit, die Anzeige nennt den echten Sonnenuntergang bzw. -aufgang und das echte Wetter | ➖ |
+| 65.15 | Im Add-on: ein echtes Fenster, das bei Regen offen bleiben darf, „Bei Regen warnen“ abhaken | Bei Regen keine Warnung für dieses Fenster, die anderen warnen weiter | ➖ |

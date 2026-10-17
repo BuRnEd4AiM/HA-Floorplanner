@@ -130,6 +130,8 @@ Areas are read through Home Assistant's template API; if that is not available t
 
 Use the buttons **2D**, **3D** and **2D + 3D** at the top. The 2D plan and the 3D view show the same data: whatever you draw or move in one appears in the other immediately (best seen in the split view).
 
+The tools at the top have an icon with their name under it and stand in groups: *Auswählen* | **Zeichnen** (walls, rooms, detect rooms, blocks, plot, stairs, floor openings, roof) | **Setzen** (doors and windows, devices) | **Werkzeuge** (measure, erase, power …). ✎ at the end of the bar shows, hides, moves or folds tools into *Mehr*; the groups follow the order you choose.
+
 - **Place devices:** pick *Gerät* and a type, click into the plan. The new device is selected right away, so you can move it (drag or arrow keys) or link its entity; the next click on empty space deselects it and the next device can be placed.
 - **Draw:** pick *Wall* or *Room* and click the corners. Double click, Enter or Esc finishes; clicking the first corner closes a room. Corners snap to the grid and to existing corners. Hold **Shift** for 45° angles, **Alt** to switch snapping off.
 - **Move:** with *Select*, drag furniture, doors/windows (along their wall), whole walls or rooms. A selected wall or room shows corner handles; connected walls and room corners move along.
@@ -207,7 +209,17 @@ On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-
 
 ## Warnings
 
-Without any setup the plan warns when a **smoke, gas, carbon monoxide or water sensor** (a `binary_sensor` with that device class) reports *on*, when an **alarm panel** is triggered, and when a **window is open while it rains** (the weather entity reports rain, hail or sleet). A red banner appears at the top and the room flashes red; a tap on the banner jumps into the room. The room is found from the device or window bound to the sensor, otherwise from the Home Assistant area of the room. ⚙ → *Wall tablet: warnings and kiosk* switches warnings off, can jump to a new warning by itself and sets the weather entity (empty = the first one).
+Without any setup the plan warns when a **smoke, gas, carbon monoxide or water sensor** (a `binary_sensor` with that device class) reports *on*, when an **alarm panel** is triggered, and when a **window is open while it rains** (the weather entity reports rain, hail or sleet). A red banner appears at the top and the room flashes red; a tap on the banner jumps into the room. The room is found from the device or window bound to the sensor, otherwise from the Home Assistant area of the room. ⚙ → *Wall tablet: warnings and kiosk* switches warnings off, can jump to a new warning by itself and sets the weather entity (empty = the first one). A window that may stay open in the rain (a skylight with a rain sensor, a window under a roof …): select it in edit mode and take the tick **Bei Regen warnen** away; that window then never warns.
+
+## Sky and weather
+
+The background behind the 3D view follows the sun: dark blue with stars at night, pink at dawn, orange at sunrise and sunset, blue by day. The sun comes from Home Assistant's `sun.sun` (no setup), without it from the clock. The lawn is darker at night and warmer at sunset; the light in the house stays as it is. The weather entity of the warnings (or the first `weather.*`) turns the sky grey with clouds, and in live mode rain or snow falls over the picture (it stands still in the performance mode *Fast*). On wide screens two chips at the top right say the time of day with the next sunrise or sunset, and the weather with temperature and wind. ⚙ → *Sky*: *plain colour* switches it off; the hologram design keeps its own backdrop. In the demo, `?skytime=21:30` shows another hour and `?weather=rainy` (or `snowy`, `cloudy`, `pouring` …) another weather.
+
+## Room tiles and energy as a picture
+
+In live mode a strip over the view buttons has a **card per room** of the floor shown (in the whole house: every room with its floor): the temperature (the same rooms and sensors as the colour view *Temp.*), how many lights are on (the card's edge in their colour), open windows and 👤 when somebody is there (a presence device, or a motion, presence or occupancy sensor in the room or its area). A tap flies to the room and opens its room card; a second tap goes back. On phones the cards are smaller and are swiped sideways. *Ansicht* → **Raum-Kacheln** (or ⚙) switches them off; the users dialog can preset them per user or tablet.
+
+On wide screens the power overview is a picture at the top right: the **sun, the grid, the house and the battery** with dots running along the lines between them, faster with more power (the sun feeds the house first, then the battery, the rest goes into the grid; the grid covers what is missing). A tap shows or hides the power cables, like the line of numbers. *Ansicht* → **Strom als Bild** (or ⚙) gives the line of numbers back; on phones and in edit mode it is always the line. The lock *power* of the users dialog hides both.
 
 ## Message on alarm (WhatsApp)
 
@@ -241,7 +253,7 @@ The button **📋 Geräte** at the top shows and hides a list of every placed de
 
 ## Power: what is what (⚡ Rechnung)
 
-The power overview at the top left (☀ production · ⚡ grid · ⌂ consumption · 🔋 battery) counts with the power devices of the plan. To say exactly which sensor is what, switch on **Strom-Editor** in edit mode and press **⚡ Rechnung** next to *Kabel*. The window has a part for each:
+The power overview (the picture at the top right, or the line ☀ production · ⚡ grid · ⌂ consumption · 🔋 battery at the top left) counts with the power devices of the plan. To say exactly which sensor is what, switch on **Strom-Editor** in edit mode and press **⚡ Rechnung** next to *Kabel*. The window has a part for each:
 
 - **Netz** (house connection): one sensor where plus means drawn from the grid and minus fed in, or two sensors for drawn and fed in. *Vorzeichen umdrehen* when your meter counts the other way round. Under the sensor you see its value now and how it is read (→ *Bezug* / *Einspeisung*).
 - **Erzeugung**: one or more solar sensors (e.g. one per inverter or balcony plant); they are added up.

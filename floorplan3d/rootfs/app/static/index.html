@@ -16,24 +16,24 @@
       <button data-mode="live" data-i18n="mode.live" data-i18n-title="mode.liveTip"></button>
     </div>
     <div class="group edit-only" id="tools">
-      <button data-tool="select" class="active" data-i18n="tool.select" data-i18n-title="tip.select"></button>
-      <button data-tool="wall" data-i18n="tool.wall" data-i18n-title="tip.wall"></button>
-      <button data-tool="room" data-i18n="tool.room" data-i18n-title="tip.room"></button>
-      <button id="autoRooms" data-i18n="tool.autoRooms" data-i18n-title="tip.autoRooms"></button>
-      <button data-tool="block" data-i18n="tool.block" data-i18n-title="tip.block"></button>
-      <button data-tool="plot" data-i18n="tool.plot" data-i18n-title="tip.plot"></button>
-      <button data-tool="stairs" data-i18n="tool.stairs" data-i18n-title="tip.stairs"></button>
-      <button data-tool="hole" data-i18n="tool.hole" data-i18n-title="tip.hole"></button>
-      <button data-tool="opening" data-i18n="tool.opening" data-i18n-title="tip.opening"></button>
-      <button data-tool="device" data-i18n="tool.device" data-i18n-title="tip.device"></button>
-      <button data-tool="measure" data-i18n="tool.measure" data-i18n-title="tip.measure"></button>
-      <button data-tool="erase" data-i18n="tool.erase" data-i18n-title="tip.erase"></button>
-      <button id="powerEditBtn" type="button" data-i18n="tool.power" data-i18n-title="tip.power"></button>
-      <button id="cableBtn" data-tool="cable" type="button" hidden data-i18n="tool.cable" data-i18n-title="tip.cable"></button>
-      <button id="energyBtn" type="button" hidden data-i18n="tool.energy" data-i18n-title="tip.energy"></button>
-      <button id="dormerBtn" type="button" data-i18n="tool.dormer" data-i18n-title="tip.dormer"></button>
-      <button id="importBtn" type="button" data-i18n="tool.import" data-i18n-title="tip.import"></button>
-      <button id="toolsMoreBtn" type="button" hidden aria-haspopup="true" aria-expanded="false" data-i18n="tool.more" data-i18n-title="tip.more"></button>
+      <button data-tool="select" class="active" data-i18n-title="tip.select"><span class="tLabel" data-i18n="tool.select"></span></button>
+      <button data-tool="wall" data-i18n-title="tip.wall"><span class="tLabel" data-i18n="tool.wall"></span></button>
+      <button data-tool="room" data-i18n-title="tip.room"><span class="tLabel" data-i18n="tool.room"></span></button>
+      <button id="autoRooms" data-i18n-title="tip.autoRooms" data-full="tool.autoRooms"><span class="tLabel" data-i18n="tool.s.autoRooms"></span></button>
+      <button data-tool="block" data-i18n-title="tip.block"><span class="tLabel" data-i18n="tool.block"></span></button>
+      <button data-tool="plot" data-i18n-title="tip.plot"><span class="tLabel" data-i18n="tool.plot"></span></button>
+      <button data-tool="stairs" data-i18n-title="tip.stairs"><span class="tLabel" data-i18n="tool.stairs"></span></button>
+      <button data-tool="hole" data-i18n-title="tip.hole" data-full="tool.hole"><span class="tLabel" data-i18n="tool.s.hole"></span></button>
+      <button data-tool="opening" data-i18n-title="tip.opening"><span class="tLabel" data-i18n="tool.opening"></span></button>
+      <button data-tool="device" data-i18n-title="tip.device"><span class="tLabel" data-i18n="tool.device"></span></button>
+      <button data-tool="measure" data-i18n-title="tip.measure"><span class="tLabel" data-i18n="tool.measure"></span></button>
+      <button data-tool="erase" data-i18n-title="tip.erase"><span class="tLabel" data-i18n="tool.erase"></span></button>
+      <button id="powerEditBtn" type="button" data-i18n-title="tip.power" data-full="tool.power"><span class="tLabel" data-i18n="tool.s.power"></span></button>
+      <button id="cableBtn" data-tool="cable" type="button" hidden data-i18n-title="tip.cable"><span class="tLabel" data-i18n="tool.cable"></span></button>
+      <button id="energyBtn" type="button" hidden data-i18n-title="tip.energy" data-full="tool.energy"><span class="tLabel" data-i18n="tool.s.energy"></span></button>
+      <button id="dormerBtn" type="button" data-i18n-title="tip.dormer"><span class="tLabel" data-i18n="tool.dormer"></span></button>
+      <button id="importBtn" type="button" data-i18n-title="tip.import" data-full="tool.import"><span class="tLabel" data-i18n="tool.s.import"></span></button>
+      <button id="toolsMoreBtn" type="button" hidden aria-haspopup="true" aria-expanded="false" data-i18n-title="tip.more" data-full="tool.more"><span class="tLabel" data-i18n="tool.s.more"></span></button>
       <div id="toolsMore" hidden></div>
       <button id="toolsEditBtn" type="button" class="icon" data-i18n-title="tbar.edit" aria-label="Customise tools">✎</button>
     </div>
@@ -67,6 +67,7 @@
   <main>
     <div id="stage">
       <canvas id="view"></canvas>
+      <div id="wxFall" hidden><i></i></div>
       <div id="welcome" hidden>
         <button id="welClose" type="button" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button>
         <h2 data-i18n="wel.title"></h2>
@@ -104,6 +105,8 @@
         <button id="belowLabelsToggle" class="pill" data-i18n="nav.belowLabels" data-i18n-title="nav.belowLabelsTip"></button>
         <button id="wallToggle" class="pill"></button>
         <button id="planFloorsToggle" class="pill" data-i18n-title="nav.planFloorsTip"></button>
+        <button id="flowToggle" class="pill" data-i18n="nav.flow" data-i18n-title="nav.flowTip"></button>
+        <button id="tilesToggle" class="pill" data-i18n="nav.tiles" data-i18n-title="nav.tilesTip"></button>
       </div>
       <button id="navLeft" class="navArrow" type="button" hidden aria-label="‹">‹</button>
       <button id="navRight" class="navArrow" type="button" hidden aria-label="›">›</button>
@@ -126,6 +129,8 @@
       <div id="floorCards"></div>
       <div id="livePopup" hidden></div>
       <aside id="roomPanel" hidden></aside>
+      <div id="sideStack"><div id="skyChips" hidden></div><button id="energyCard" class="glass" type="button" hidden></button></div>
+      <div id="roomTiles" hidden></div>
       <aside id="heatPanel" hidden></aside>
       <aside id="devicePanel" hidden></aside>
     </div>
@@ -444,6 +449,10 @@
     <div class="row"><label for="setEarthMargin" data-i18n="set.earthMargin"></label><input id="setEarthMargin" type="number" step="any"></div>
     <p id="earthMarginNote" class="sub" data-i18n="set.earthMarginPlot" hidden></p>
     <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
+    <div class="row"><label for="setSky" data-i18n="set.sky" data-i18n-title="set.skyHint"></label>
+      <select id="setSky"><option value="time" data-i18n="set.sky.time"></option><option value="off" data-i18n="set.sky.off"></option></select></div>
+    <div class="row check"><input id="setEnergyCard" type="checkbox"><label for="setEnergyCard" data-i18n="set.energyCard"></label></div>
+    <div class="row check"><input id="setRoomTiles" type="checkbox"><label for="setRoomTiles" data-i18n="set.roomTiles"></label></div>
 
     <h3 data-i18n="set.section.kiosk"></h3>
     <p class="hint" data-i18n="set.kioskHelp"></p>

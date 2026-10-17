@@ -181,7 +181,7 @@ export function initProps(ctx) {
     const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
     const room = rc ? f.rooms.find((r) => r.id === rc) : null;
     body.append(pickerField(t('prop.contact'), ctx.entityPicker(pickFrom(contact.length ? contact : entities), room, it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
-    if (it.type === 'window') shutterProps(body, it, entities, room);    // right under the contact: the roller shutter (#331)
+    if (it.type === 'window') { rainProps(body, it); shutterProps(body, it, entities, room); }   // right under the contact: the rain warning (#419), the roller shutter (#331)
     const count = paneCount(it);
     if (count) {
       const h = document.createElement('h4'); h.textContent = t('pane.title'); body.append(h);
@@ -200,6 +200,15 @@ export function initProps(ctx) {
       ci.addEventListener('change', () => { ctx.snapshot(); it.inv = ci.checked; ctx.changed(); });
       body.append(field(t('prop.inv'), ci));
     }
+  }
+
+  /** a window with a contact warns when it is open in the rain; one that may stay open then is taken out by the tick (#419) */
+  function rainProps(body, it) {
+    if (!it.entity && !(it.paneEntities || []).some(Boolean)) return;
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.rainWarn !== false; cb.id = 'openRainWarn';
+    cb.addEventListener('change', () => { ctx.snapshot(); if (cb.checked) delete it.rainWarn; else it.rainWarn = false; ctx.changed(); ctx.applyStates(); });
+    const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t('prop.rainWarnHint'); lb.append(cb, document.createTextNode(' ' + t('prop.rainWarn')));
+    body.append(lb);
   }
 
   /** the roller shutter of a window, also of a dormer window (#331): the tick, then its own cover entity (the contact above stays the

@@ -228,6 +228,28 @@ def test_slim_state_climate_fields():
     assert "hvac" not in lamp and "tt" not in lamp          # only thermostats carry the heating fields
 
 
+def test_slim_state_sun_and_weather():
+    """the sky (#418, #419): sun.sun with its elevation and next sunrise / sunset, a weather entity with temperature and wind"""
+    sun = server.slim_state({"entity_id": "sun.sun", "state": "above_horizon", "attributes": {
+        "elevation": 12.3, "rising": False, "next_rising": "2026-10-18T05:30:00+00:00", "next_setting": "2026-10-17T16:20:00+00:00"}})
+    assert sun["sun"] == {"elev": 12.3, "rising": False, "rise": "2026-10-18T05:30:00+00:00", "set": "2026-10-17T16:20:00+00:00"}
+    odd = server.slim_state({"entity_id": "sun.sun", "state": "above_horizon", "attributes": {"elevation": "high", "rising": "yes", "next_rising": 5}})
+    assert odd["sun"] == {"elev": None, "rising": None, "rise": None, "set": None}
+    wx = server.slim_state({"entity_id": "weather.home", "state": "rainy", "attributes": {
+        "temperature": 11.4, "temperature_unit": "°C", "wind_speed": 23.6, "wind_speed_unit": "km/h", "humidity": 90}})
+    assert wx["wx"] == {"t": 11.4, "tu": "°C", "w": 23.6, "wu": "km/h"}
+    lamp = server.slim_state({"entity_id": "light.x", "state": "on", "attributes": {"elevation": 3, "temperature": 5}})
+    assert "sun" not in lamp and "wx" not in lamp
+
+
+async def test_settings_sky_cards_tiles(client):
+    """the sky, the energy picture and the room tiles can be switched off (#418, #420, #421); anything else falls back"""
+    s = await (await client.put("/api/settings", json={"sky": "off", "energyCard": False, "roomTiles": False})).json()
+    assert s["sky"] == "off" and s["energyCard"] is False and s["roomTiles"] is False
+    s = await (await client.put("/api/settings", json={"sky": "rainbow", "energyCard": "no", "roomTiles": 0})).json()
+    assert s["sky"] == "time" and s["energyCard"] is True and s["roomTiles"] is True
+
+
 async def test_settings_look_and_stops(client):
     r = await client.put("/api/settings", json={
         "wallOpacity": 5, "glowRadius": 0.01, "bgTop": "#ABCDEF", "bgBottom": "red",

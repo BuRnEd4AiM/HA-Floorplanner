@@ -30,6 +30,15 @@ test('a window open in the rain warns, only while it rains', () => {
   assert.deepEqual(A.findAlerts([E('weather.a', 'sunny'), E('weather.b', 'pouring'), E('binary_sensor.fenster', 'on')], win, 'weather.b').map((a) => a.kind), ['rain']);
 });
 
+test('a window that may stay open in the rain does not warn (#419)', () => {
+  const ents = [E('weather.home', 'rainy'), E('binary_sensor.bad', 'on'), E('binary_sensor.kueche', 'on')];
+  const win = [{ entity: 'binary_sensor.bad', name: 'Bad', rain: false }, { entity: 'binary_sensor.kueche', name: 'Küche', rain: true }];
+  assert.deepEqual(A.findAlerts(ents, win).map((a) => a.name), ['Küche']);
+  assert.deepEqual(A.findAlerts(ents, [{ entity: 'binary_sensor.bad', name: 'Bad', rain: false }]), []);
+  // the same contact on a second window that does warn still warns once
+  assert.deepEqual(A.findAlerts(ents, [{ entity: 'binary_sensor.bad', name: 'A', rain: false }, { entity: 'binary_sensor.bad', name: 'B' }]).map((a) => a.name), ['B']);
+});
+
 test('night by the clock also across midnight, by the sun from sun.sun', () => {
   const at = (h, m = 0) => new Date(2026, 0, 1, h, m);
   assert.equal(A.nightActive('time', '22:00', '06:00', at(23), ''), true);

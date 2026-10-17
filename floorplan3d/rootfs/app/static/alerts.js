@@ -11,7 +11,7 @@ const OPEN = new Set(['on', 'open', 'opening']);
 
 /**
  * entities: [{ entity_id, name, state, dc }] as the add-on reports them
- * windows:  [{ entity, name }] window contacts placed in the plan
+ * windows:  [{ entity, name, rain }] window contacts placed in the plan; rain: false = this window may stay open in the rain (#419)
  * weatherId: the weather entity to use, '' = the first one there is
  * Returns [{ kind: 'smoke'|'gas'|'co'|'water'|'alarm'|'rain', entity, name }]
  */
@@ -27,7 +27,7 @@ export function findAlerts(entities, windows = [], weatherId = '') {
     const st = new Map((entities || []).map((e) => [e.entity_id, e.state]));
     const seen = new Set();
     windows.forEach((win) => {
-      if (!win.entity || seen.has(win.entity) || !OPEN.has(st.get(win.entity))) return;
+      if (!win.entity || win.rain === false || seen.has(win.entity) || !OPEN.has(st.get(win.entity))) return;
       seen.add(win.entity);
       out.push({ kind: 'rain', entity: win.entity, name: win.name || win.entity });
     });
