@@ -933,7 +933,7 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 #roomTiles > * { pointer-events: auto; }
 #roomTiles > :first-child { margin-left: auto; }
 #roomTiles > :last-child { margin-right: auto; }
-#roomTiles[hidden], body:not(.live) #roomTiles, body.card #roomTiles, #livePopup:not([hidden]) ~ #roomTiles { display: none; }
+#roomTiles[hidden], body:not(.live) #roomTiles, body.card #roomTiles, body.roomtablet #roomTiles, #livePopup:not([hidden]) ~ #roomTiles { display: none; }   /* a room tablet shows its one room */
 #roomPanel:not([hidden]) ~ #roomTiles { right: 324px; }
 .rtTile { flex: 0 0 auto; width: 150px; padding: 9px 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 1px; text-align: left; font: inherit;
   color: #eef3f8; cursor: pointer; background: rgba(16, 22, 30, .72); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);

@@ -1,6 +1,6 @@
 {
  "version": "3.98.0",
- "buildHash": "1cdf8e9a4a4dbb5858939410a78d6959f871ca2615cd97d40376a46fbb14d252",
+ "buildHash": "7e892da1e80a5871bd17c2d5829539eda0d17237d2af43d2289dd18cb04bdd65",
  "files": {
   "alarmnotify.py": "350d9ec78caf3ce49df4b5d77867b759212cf35fae93d26dc395fc4f48f80fc1",
   "controls.py": "6d7830e85d1010f56885e15edb68a870a696b6e6a265e859b8a3e0aa4e3ae9c8",
@@ -258,7 +258,7 @@
   "static/stairs.js": "8e99ca6cbffac36f65683843f33d7be7a2049edd8d3ef62411898f93498789de",
   "static/stairtool.js": "e43ac3cde376fe243d6e9b13b545e4ac2fc4dde092776c8a6d5a8bd77c250b8f",
   "static/startview.js": "da8d6d4ce30c1a3bd866e4f95d0bfa2190f08220178c381c0b5b85b31894a634",
-  "static/style.css": "09bfa6e8120186cdca1bce29c497b5a1e24a32b7bdfbd05dc17eb89315cb26e6",
+  "static/style.css": "136328a5a05c61d32a356d40c929d125b87c3d9f5e09b642990991eaa9797544",
   "static/tapballs.js": "52014e497ef91db65d9012dcf7f3f7f6fbf8f50339879be0dcab348ebe039388",
   "static/timeline.js": "9cd1878b21bad1139a1bb67bdc4f0532d64b6f3ec0fd662c390aedb8d53ea554",
   "static/timelineui.js": "14284ed033acfeccd3163a5933cf9d75e42776d46c71c95f323f2159e9df8462",

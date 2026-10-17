@@ -2,8 +2,9 @@
 room tiles in live mode (#421) and the tool bar with icons and groups (#422).
 """
 saved_st = api_admin("api/layout")              # put back at the end
-theme_st = api("api/settings")["theme"]
+theme_st, lang_st = api("api/settings")["theme"], api("api/settings")["language"]
 set_setting("theme", "dark")                    # base.py uses the hologram, which keeps its own backdrop: no sky there
+set_setting("language", "de")                   # the texts below are the German ones
 def extra(d):
     urllib.request.urlopen(urllib.request.Request(HA + "/_extra", data=json.dumps(d).encode(), method="POST", headers={"Content-Type": "application/json"})).read()
 def W(v):
@@ -36,6 +37,7 @@ own = []
 pgS.on("console", lambda m: own.append(m.text) if m.type == "error" else None)
 pgS.on("pageerror", lambda e: own.append("PAGEERROR " + str(e)))
 pgS.goto(BASE + "?debug=1&mode=live"); pgS.wait_for_timeout(2200)
+pgS.evaluate("window.__fp.switchFloor(0)"); pgS.wait_for_timeout(800)   # the floor with the new room (the page may open another one)
 
 # --- the sky (#418) and the weather (#419)
 bg = pgS.evaluate("document.querySelector('#view').style.background")
@@ -80,7 +82,7 @@ check("edit mode: no sky chips, no rain, no energy card, no room tiles",
       not pgS.is_visible("#skyChips") and not pgS.is_visible("#wxFall") and not pgS.is_visible("#energyCard") and not pgS.is_visible("#roomTiles"))
 pgS.evaluate("window.__fp.select('opening', 'kr_win')"); pgS.wait_for_timeout(400)
 check("rain warning: the window has the tick 'Bei Regen warnen', ticked", pgS.is_visible("#openRainWarn") and pgS.is_checked("#openRainWarn"))
-pgS.uncheck("#openRainWarn"); pgS.wait_for_timeout(1500)
+pgS.uncheck("#openRainWarn"); pgS.wait_for_timeout(2500)
 win = next(o for w in api_admin("api/layout")["floors"][0]["walls"] for o in w.get("openings", []) if o.get("id") == "kr_win")
 check("rain warning: without the tick this window does not warn, saved as rainWarn false", "binary_sensor.fenster_kr" not in rain() and win.get("rainWarn") is False, (rain(), win))
 
@@ -117,3 +119,4 @@ extra({})
 urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(saved_st).encode(), method="PUT",
                                               headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
 set_setting("theme", theme_st)
+set_setting("language", lang_st)
