@@ -1,6 +1,6 @@
 /* Energy flow as a picture (#420): out of the power of the house now (energyBalance in energycalc.js) which circles there are (sun, grid,
  * house, battery) and how many watts run along each line between them, like the energy distribution card of Home Assistant; the texts in
- * the circles. Pure (unit test: tests/energyflow.test.mjs); energyflowui.js draws the card. */
+ * the circles; the water, gas and heat meters under them. Pure (unit test: tests/energyflow.test.mjs); energyflowui.js draws the card. */
 import { fmtWatts } from './powerlogic.js';
 import { IDLE } from './energycalc.js';
 
@@ -52,3 +52,7 @@ export function flowTexts(fl, t) {
   }
   return out;
 }
+
+/** the water, gas and heat meters under the picture (instead of their own pill at the top left): [{ text: '🚰 1234.6 m³', title: 'Wasserzähler
+ *  (Garten)' }]; meters: meterReadings (powerlogic.js) */
+export const meterChips = (meters, t) => (meters || []).map((m) => ({ text: m.text, title: `${t(`dev.${m.type}`)}${m.name ? ` (${m.name})` : ''}` }));

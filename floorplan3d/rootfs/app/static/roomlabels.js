@@ -5,12 +5,13 @@
  * again only when a label changed (update). What a label shows and when they show comes from roomtiles.js (tested). The View menu switches
  * between "room labels" and "devices" (also in the settings). */
 import * as THREE from './vendor/three.module.min.js';
-import { roomSummary, labelTexts, labelsShown, labelHeight } from './roomtiles.js';
+import { roomSummary, labelTexts, labelsShown, labelHeight, stackLabels } from './roomtiles.js';
 import { roomCenter } from './floorbuild.js';
 
 const hex = (c) => '#' + c.map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0')).join('');
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const NAME_Y = 0.45;                               // where floorbuild.js puts the room name over the floor
+const STEM = 8;                                    // px: the line from a label down to its room (longer when the label was pushed up)
 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), focusedRoom(), settings(), states(), isLive(), view3d() (the 3D view is shown), elev(i),
  *  camera, canvas, placed(floor), areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), commitSettings(), lang(), imperial(),
@@ -62,7 +63,8 @@ export function initRoomLabels(ctx) {
       const n = names.find((x) => x.f === f && x.id === r.id);                     // where its name lies (the floor's group may be moved)
       const at = n ? n.sp.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, h - NAME_Y, 0))
         : new THREE.Vector3(roomCenter(r.points)[0], y0 + h, roomCenter(r.points)[1]);
-      return { el: box.children[k], at, x: NaN, y: NaN };
+      const el = box.children[k];
+      return { el, at, x: NaN, y: NaN, up: 0, w: el?.offsetWidth || 0, h: el?.offsetHeight || 0 };
     });
   }
   /** every frame: the labels follow the camera; they (and with them the devices) come or go when what decides it changed (live mode, floor,
@@ -72,16 +74,22 @@ export function initRoomLabels(ctx) {
     if (!shown || !pills.length) return;
     const w = canvas.clientWidth, hh = canvas.clientHeight;
     const cr = canvas.getBoundingClientRect(), br = box.getBoundingClientRect(), ox = cr.left - br.left, oy = cr.top - br.top;   // 2D + 3D: the 3D view is only part of the stage
+    const vis = [];
     pills.forEach((p) => {
       if (!p.el) return;
       v.copy(p.at).project(camera);
       const on = v.z < 1 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05;
-      const x = Math.round((v.x + 1) / 2 * w + ox), y = Math.round((1 - v.y) / 2 * hh + oy);
       if (!on) { if (p.x !== -1) { p.el.style.display = 'none'; p.x = -1; } return; }
-      if (x === p.x && y === p.y) return;
-      if (p.x === -1) p.el.style.display = '';
-      p.x = x; p.y = y;
-      p.el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
+      if (p.x === -1) { p.el.style.display = ''; p.x = NaN; }
+      if (!p.w) { p.w = p.el.offsetWidth; p.h = p.el.offsetHeight; }
+      vis.push({ p, x: Math.round((v.x + 1) / 2 * w + ox), y: Math.round((1 - v.y) / 2 * hh + oy) });
+    });
+    const up = stackLabels(vis.map((q) => ({ x: q.x, y: q.y, w: q.p.w, h: q.p.h })), STEM);   // labels on each other move apart, upwards (roomtiles.js)
+    vis.forEach(({ p, x, y }, k) => {
+      if (x === p.x && y === p.y && up[k] === p.up) return;
+      p.x = x; p.y = y; p.up = up[k];
+      p.el.style.transform = `translate(${x}px, ${y - up[k] - STEM}px) translate(-50%, -100%)`;
+      p.el.style.setProperty('--stem', `${STEM + up[k]}px`);
     });
   }
   return {

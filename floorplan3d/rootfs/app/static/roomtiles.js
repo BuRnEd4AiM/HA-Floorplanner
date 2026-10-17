@@ -81,3 +81,27 @@ export const labelsShown = ({ on, live, wide, house, focused, view3d }) => !!(on
 /** how high over its floor the label of a room floats (m): over most furniture, low enough to stay over its room when the camera looks
  *  down at an angle */
 export const labelHeight = (wallHeight) => Math.min(1.2, 0.47 * (wallHeight || 2.6));
+
+/** labels over the rooms that land on each other on the screen (the camera low, rooms one behind the other) are pushed apart, upwards:
+ *  the lowest one (mostly the nearest room) keeps its place, a line still leads down to its room. items: [{ x (middle), y (where the line
+ *  ends, over the room), w, h }] in screen pixels; stem: the line under a label that is not pushed; gap: room between two labels.
+ *  Returns how far each label goes up (pixels), in the order given */
+export function stackLabels(items, stem = 8, gap = 4) {
+  const order = items.map((_, i) => i).sort((a, b) => items[b].y - items[a].y || items[a].x - items[b].x);
+  const up = items.map(() => 0), placed = [];
+  const mid = (i) => items[i].y - stem - items[i].h / 2 - up[i];          // the middle of label i on the screen
+  for (const i of order) {
+    let moved = true, guard = 0;
+    while (moved && guard++ < 20) {                                      // up until it covers no label placed before it
+      moved = false;
+      for (const j of placed) {
+        const a = items[i], b = items[j];
+        if (Math.abs(a.x - b.x) < (a.w + b.w) / 2 + gap && Math.abs(mid(i) - mid(j)) < (a.h + b.h) / 2 + gap) {
+          up[i] = a.y - stem - a.h / 2 - (mid(j) - (a.h + b.h) / 2 - gap); moved = true;
+        }
+      }
+    }
+    placed.push(i);
+  }
+  return up.map((u) => Math.max(0, Math.round(u)));
+}

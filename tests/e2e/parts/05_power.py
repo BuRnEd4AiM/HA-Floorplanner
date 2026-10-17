@@ -63,9 +63,11 @@ pgK2.wait_for_timeout(500)
 check("meters (#136): water, gas and heat meter are built in 3D", all(pgK2.evaluate(f"window.__fp.has('{i}')") for i in ("mW", "mG", "mH")))
 bw, bg, bh = (pgK2.evaluate(f"window.__fp.badge('{i}')") for i in ("mW", "mG", "mH"))
 check("meters (#136): the badges show the reading with its own sign", (bw or "").startswith("🚰 1234.6 m³") and (bg or "").startswith("🔥 845.2 m³") and (bh or "").startswith("♨ 5321 kWh"), (bw, bg, bh))
-mp = pgK2.inner_text("#meterPill") if pgK2.is_visible("#meterPill") else "hidden"
+card = pgK2.is_visible("#energyCard")       # wide screens: the meters are in the energy picture (3.99.1), else in a pill of their own
+mp = pgK2.inner_text("#energyCard .ef-meters" if card else "#meterPill") if pgK2.is_visible("#energyCard .ef-meters" if card else "#meterPill") else "hidden"
 ep = pgK2.inner_text("#energyPill") if pgK2.is_visible("#energyPill") else ""
-check("meters (#245): water, gas and heat in a pill of their own, not in the power overview", "🚰 1234.6 m³" in mp and "🔥 845.2 m³" in mp and "🚰" not in ep, (mp, ep))
+check("meters (#245): water, gas and heat on their own (in the energy picture under the circles, or a pill), not in the line of power",
+      "🚰 1234.6 m³" in mp and "🔥 845.2 m³" in mp and "♨ 5321 kWh" in mp and "🚰" not in ep and (not card or not pgK2.is_visible("#meterPill")), (card, mp, ep))
 pgK2.close()
 
 # --- power add-on (#136): cable between solar panel and inverter

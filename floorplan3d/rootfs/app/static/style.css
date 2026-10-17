@@ -925,6 +925,9 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 .ef-node .ef-side { text-anchor: start; }
 @media (max-width: 760px) { #energyCard { display: none !important; } }
 @media (min-width: 761px) { body.flowcard #energyPill { display: none !important; } }
+.ef-meters { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 10px; max-width: 300px; }
+.ef-meters span { padding: 3px 10px; border-radius: 999px; font-size: 12px; white-space: nowrap; background: rgba(255, 255, 255, .08); color: #dfe6ee; }
+@media (min-width: 761px) { body.flowcard #meterPill { display: none !important; } }   /* the meters are in the card then (3.99.1) */
 
 /* ---- Room tiles (#421, roomtilesui.js): live mode, a strip over the view buttons; centred while it fits, swiped sideways when not ---- */
 #roomTiles { position: absolute; left: 156px; right: 16px; bottom: 62px; z-index: 4; display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px;
@@ -986,7 +989,8 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
 .rlPill i { font-style: normal; font-weight: 400; color: #c7d2dd; }
 .rlPill.lit { border-color: var(--lc); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lc) 40%, transparent), 0 6px 18px rgba(0, 0, 0, .35); }
 .rlDot { width: 8px; height: 8px; border-radius: 50%; background: #2ad0a0; box-shadow: 0 0 8px #2ad0a0; }
-.rlPill::after { content: ''; position: absolute; left: 50%; bottom: -7px; width: 2px; height: 7px; background: rgba(255, 255, 255, .45); transform: translateX(-50%); }
+.rlPill::after { content: ''; position: absolute; left: 50%; bottom: calc(-1 * var(--stem, 8px)); width: 2px; height: var(--stem, 8px); background: rgba(255, 255, 255, .45);
+  transform: translateX(-50%); pointer-events: none; }   /* the line down to its room, longer for a label pushed up */
 @media (max-width: 760px) { #roomLabels { display: none !important; } }
 
 /* ---- Glass look (#429): the floor cards on the left and the buttons over the picture, like the cards of 3.98; light glass in the light

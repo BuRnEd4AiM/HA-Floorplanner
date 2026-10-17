@@ -92,3 +92,14 @@ test('a label floats over most furniture, under the ceiling', () => {
   assert.ok(Math.abs(R.labelHeight(2.2) - 1.034) < 1e-9);
   assert.equal(R.labelHeight(undefined), 1.2);
 });
+
+test('labels over the rooms that land on each other are pushed apart upwards; the lowest keeps its place', () => {
+  const L = (x, y, w = 120, h = 26) => ({ x, y, w, h });
+  assert.deepEqual(R.stackLabels([L(100, 300), L(400, 300)]), [0, 0], 'side by side: nothing moves');
+  assert.deepEqual(R.stackLabels([L(100, 280), L(110, 300)]), [10, 0], 'the higher one (further away) goes up, just clear of the lower one');
+  const three = R.stackLabels([L(100, 300), L(100, 300), L(100, 300)]);
+  assert.equal(Math.min(...three), 0);
+  assert.deepEqual([...three].sort((a, b) => a - b), [0, 30, 60], 'three on one spot: stacked one over the other');
+  assert.deepEqual(R.stackLabels([L(100, 300), L(100, 250)]), [0, 0], 'one well above the other: nothing moves');
+  assert.deepEqual(R.stackLabels([]), []);
+});

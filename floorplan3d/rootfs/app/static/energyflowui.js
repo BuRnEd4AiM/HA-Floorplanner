@@ -1,8 +1,10 @@
 /* Energy flow as a picture (#420): on wide screens (live and edit mode), at the top right under the sky chips, a card with the sun, the grid,
  * the house and the battery and dots running along the lines between them, instead of the line of numbers (#energyPill, which stays on
  * phones). A tap does what a tap on that line does: the power cables in the house on / off. Redrawn only when a value changed; the
- * dots are a CSS animation, standing still in the "fast" performance mode. What flows where comes from energyflow.js (tested). */
-import { energyFlows, flowTexts, dotSeconds } from './energyflow.js';
+ * dots are a CSS animation, standing still in the "fast" performance mode. What flows where comes from energyflow.js (tested). Under the
+ * picture the water, gas and heat meters, instead of their own pill at the top left (#meterPill, which stays on phones). */
+import { energyFlows, flowTexts, dotSeconds, meterChips } from './energyflow.js';
+import { meterReadings } from './powerlogic.js';
 import { energyBalance } from './energycalc.js';
 
 const COL = { solar: '#ff9800', grid: '#488fc2', home: '#4caf50', battery: '#f06292' };
@@ -48,7 +50,9 @@ export function initEnergyFlow(ctx) {
     document.body.classList.toggle('flowcard', !!fl);              // the line of numbers steps aside on wide screens (style.css)
     card.hidden = !fl;
     if (!fl) { last = ''; return; }
-    const html = `<div class="ef-title">${esc(t('flow.title'))}</div>${flowSvg(fl, flowTexts(fl, t))}`;
+    const meters = meterChips(meterReadings(ctx.states(), ctx.layout().floors.flatMap((f) => f.devices || [])), t);   // water, gas, heat: here, not at the top left
+    const html = `<div class="ef-title">${esc(t('flow.title'))}</div>${flowSvg(fl, flowTexts(fl, t))}`
+      + (meters.length ? `<div class="ef-meters">${meters.map((m) => `<span title="${esc(m.title)}">${esc(m.text)}</span>`).join('')}</div>` : '');
     if (html !== last) { card.innerHTML = html; last = html; }
     card.classList.toggle('still', !!ctx.low());
     card.title = t('flow.tip');

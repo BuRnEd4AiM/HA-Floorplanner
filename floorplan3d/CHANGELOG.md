@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.99.1] - 2026-10-17
+### Changed
+- **Room labels no longer lie on each other** (#430): seen low from the side, labels of rooms one behind the other landed on the same spot on the screen. Now they are pushed apart, upwards: the nearer room keeps its place, the farther one goes up on a longer line down to its room.
+- **The meters in the energy picture** (#420): the water, gas and heat meters (e.g. 🚰 1234.6 m³ · 🔥 845.2 m³ · ♨ 5321 kWh) stand under the circles of "Power now" on wide screens instead of in a pill of their own at the top left. Phones keep the pill.
+
 ## [3.99.0] - 2026-10-17
 ### Added
 - **Real floors per room** (#427): in the properties of a room, *Boden* puts parquet (oak, light, dark), tiles (30 cm, small for the bathroom, anthracite 60 cm) or concrete in it instead of one colour. The patterns are drawn by the browser (no picture files) at their real size; the colour views Temp. / Humidity / CO₂ colour the floor as before; the 2D plan and the floor thumbnails show the room in the colour of its floor. One colour in the "fast" performance mode and in the hologram design. Import / export and the JSON schema know the new field `covering`.
