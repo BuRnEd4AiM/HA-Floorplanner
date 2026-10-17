@@ -22,6 +22,7 @@ from urllib.parse import unquote
 import aiohttp
 from aiohttp import web
 
+import controls
 import importer
 import manifest as mf
 import renames as rn
@@ -36,10 +37,6 @@ OPTIONS_FILE = Path(os.environ.get("OPTIONS_FILE", "/data/options.json"))
 MAX_MODEL_BYTES = 20 * 1024 * 1024
 MAX_LAYOUT_BYTES = 10 * 1024 * 1024
 MAX_BG_BYTES = 8 * 1024 * 1024
-ALLOWED_DOMAINS = {"light", "switch", "cover", "fan", "media_player", "climate", "lock", "scene", "script", "input_boolean"}
-SERVICES = {"toggle", "turn_on", "turn_off", "open_cover", "close_cover", "stop_cover", "lock", "unlock", "set_cover_position",
-            "set_temperature", "set_hvac_mode"}
-HVAC_MODES = {"off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"}
 
 LANGUAGES = ("auto", "de", "en", "fr", "es", "it", "nl", "pl")
 DEFAULT_SETTINGS = {
@@ -110,8 +107,8 @@ PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWall
                  "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False),
                  "houseFloors": ("normal", "apart", "stacked")}
 
-# what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control" and "cameras" are refused here too
-LOCKS = ("control", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
+# what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too
+LOCKS = ("control", "alarm", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
 
 
 def clean_locks(val) -> dict:
@@ -880,6 +877,7 @@ def slim_state(st):
         "fx": _effects(a),
         "fxc": a.get("effect"),
         "members": _members(st),
+        "ctl": controls.extras(st),                          # what the live card needs to control it (#406): volume, fan speed, presets ...
         "since": st.get("last_changed") if st["state"] in ("unavailable", "unknown") else None,   # for the offline list
     }
 
@@ -1083,52 +1081,11 @@ async def call_service(request):
         body = await request.json()
     except ValueError:
         return web.json_response({"error": "invalid JSON"}, status=400)
-    domain, service, entity = body.get("domain"), body.get("service"), body.get("entity_id")
-    if domain not in ALLOWED_DOMAINS or service not in SERVICES or not isinstance(entity, str) \
-            or entity.split(".")[0] != domain:
-        return web.json_response({"error": "domain/service/entity not allowed"}, status=400)
-    payload = {"entity_id": entity}
-    data = body.get("data")
-    if data is not None:
-        if not isinstance(data, dict):
-            return web.json_response({"error": "data must be an object"}, status=400)
-        for key, val in data.items():
-            if domain == "climate" and key == "temperature":
-                if isinstance(val, bool) or not isinstance(val, (int, float)) or not 4 <= val <= 40:
-                    return web.json_response({"error": "data not allowed"}, status=400)
-                payload[key] = round(float(val), 1)
-                continue
-            if domain == "climate" and key == "hvac_mode":
-                if val not in HVAC_MODES:
-                    return web.json_response({"error": "data not allowed"}, status=400)
-                payload[key] = val
-                continue
-            if domain == "light" and key == "rgb_color":
-                if (not isinstance(val, list) or len(val) != 3
-                        or any(isinstance(v, bool) or not isinstance(v, (int, float)) or not 0 <= v <= 255 for v in val)):
-                    return web.json_response({"error": "data not allowed"}, status=400)
-                payload[key] = [int(v) for v in val]
-                continue
-            if domain == "light" and key == "color_temp_kelvin":
-                if isinstance(val, bool) or not isinstance(val, (int, float)) or not 1500 <= val <= 9000:
-                    return web.json_response({"error": "data not allowed"}, status=400)
-                payload[key] = int(val)
-                continue
-            if domain == "light" and key == "effect":
-                if not isinstance(val, str) or not 0 < len(val) <= 64:
-                    return web.json_response({"error": "data not allowed"}, status=400)
-                payload[key] = val
-                continue
-            ok_key = (key, domain) in (("brightness_pct", "light"), ("position", "cover"))
-            if not ok_key or isinstance(val, bool) or not isinstance(val, (int, float)) or not 0 <= val <= 100:
-                return web.json_response({"error": "data not allowed"}, status=400)
-            payload[key] = int(val)
-    if service == "set_cover_position" and "position" not in payload:
-        return web.json_response({"error": "position missing"}, status=400)
-    if (service == "set_temperature" and "temperature" not in payload) or (service == "set_hvac_mode" and "hvac_mode" not in payload):
-        return web.json_response({"error": "value missing"}, status=400)
-    if (service in ("set_temperature", "set_hvac_mode")) != (domain == "climate" and service in ("set_temperature", "set_hvac_mode")):
-        return web.json_response({"error": "domain/service/entity not allowed"}, status=400)
+    domain, service, payload, err = controls.check(body)          # the domain, its service and every value it carries (#406)
+    if err:
+        return web.json_response({"error": err}, status=400)
+    if domain == "alarm_control_panel" and "alarm" in user_locks(request):
+        return web.json_response({"error": "the alarm panel is locked for this user"}, status=403)
     async with aiohttp.ClientSession() as s:
         async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(),
                           json=payload) as r:

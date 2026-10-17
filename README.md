@@ -120,6 +120,7 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 | **Detect rooms** | Draw the walls, press *Räume erkennen*: every closed loop of walls becomes a room |
 | **Cameras** | The field of view as a cone on the floor, red with movement; a tap shows the camera live, a second tap opens Home Assistant's live view |
 | **Room panel** | Lights (with *all off*), covers, heating, media, switches, cameras, sensors, scenes by kind, with slide switches; a bottom sheet on phones |
+| **More devices in the live card** | Music and TV (play / pause, next, volume, mute, source), robot vacuum (clean, pause, back to the dock, suction), fan (speed, swing, presets), thermostats and air conditioners (target, modes, presets, fan modes), alarm panel (arm / disarm with its code, can be locked per user), buttons and choice lists; each device only gets the buttons it can do |
 | **Several houses** | One floor plan per house (yours, your parents', a holiday home ...), a house selector and `?house=` links for kiosks |
 
 <table>

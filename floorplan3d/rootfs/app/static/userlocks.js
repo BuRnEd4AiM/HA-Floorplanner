@@ -1,10 +1,11 @@
 /* Locks per user / tablet: the users dialog can take things away from a user (switching devices, cameras, the settings, changing the view ...).
  * Pure rules (unit test: tests/userlocks.test.mjs) and one small DOM step (applyLocks: a <style> that hides what is locked).
- * "control" and "cameras" are also refused by the server (api/service, api/camera), the rest is only hidden in the browser. */
+ * "control", "alarm" and "cameras" are also refused by the server (api/service, api/camera), the rest is only hidden in the browser. */
 
 /** what can be locked, in the order of the dialog, with what is hidden on the screen */
 export const LOCKS = [
-  ['control', '.lightctl, .roomctl, .sceneList, #livePopup .actions, #roomPanel :is(.rp-alloff, label.sw, .rp-ctl, .rp-more:not(.mi))'],   // switching lights, covers, scenes ... (the server refuses it too)
+  ['control', '.lightctl, .roomctl, .sceneList, #livePopup :is(.actions, .devctl :is(input, select, .dc-mute, .sub), .popHeat :is(.hp-set button, .hp-modes)), #roomPanel :is(.rp-alloff, label.sw, .rp-ctl, .rp-more:not(.mi))'],   // switching lights, covers, scenes ... (the server refuses it too); what a device does now stays in sight
+  ['alarm', '.devctl-alarm :is(.actions, .dc-code)'],                // arming and disarming the alarm panel (#406; the server refuses it too); its state stays in sight
   ['details', '.mi'],                                                  // the ⓘ button: Home Assistant's own dialog of an entity
   ['cameras', '#camPill, #camMenu, img[data-cam]'],                    // camera list and still images (the server refuses them too)
   ['energy', '#energyPill, #meterPill, #powerBtn'],                    // power and meter overview

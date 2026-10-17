@@ -1548,6 +1548,7 @@ if (params.get('debug')) {
   window.__fp = {
     ready: () => booted,
     openRoomPanel(id) { roomPanel.open(id); },
+    showPopup(id) { popup.show(id); },                // the live card of a device, as a tap opens it
     powerLinks: () => power.links(),
     powerInfo: () => power.info(),
     energy: () => energyBalance(states, layout),

@@ -53,9 +53,14 @@ test('the device, the tapped LED ring section, the language, the room and the na
   assert.notEqual(key({ name: (e) => (e === 'scene.abend' ? 'Abend' : e) }), key());
   assert.equal(key({ dev: { ...lamp } }), key());              // the same device as a new object (plan loaded again): the same key
 });
-test('the shown part of a state: state, unit, brightness, colour, effects, position; nothing for a missing entity', () => {
+test('the shown part of a state: state, unit, brightness, colour, effects, position, target, what it does, controls; nothing for a missing entity', () => {
   assert.equal(P.shownState(undefined), null);
-  assert.deepEqual(P.shownState({ since: 5, state: 'on', unit: '', brightness: 10, rgb: [1, 2, 3], fx: ['A'], fxc: 'A', position: 60, ct: 20 }), ['on', '', 10, [1, 2, 3], ['A'], 'A', 60]);
+  assert.deepEqual(P.shownState({ since: 5, state: 'on', unit: '', brightness: 10, rgb: [1, 2, 3], fx: ['A'], fxc: 'A', position: 60, ct: 20 }),
+    ['on', '', 10, [1, 2, 3], ['A'], 'A', 60, null, null, null]);
+  assert.deepEqual(P.shownState({ state: 'heat', tt: 21, hvac: 'heating', ct: 20 }).slice(7), [21, 'heating', null]);
+  // #406: the volume, the track, a fan's speed ... are on the card: a change draws it anew (the room temperature does not)
+  const tv = (vol) => P.popupKey({ ids: ['media_player.tv'], states: { 'media_player.tv': { state: 'playing', ctl: { vol, title: 'Song' } } } });
+  assert.notEqual(tv(30), tv(40));
 });
 test('without anything given the key still works (nothing shown)', () => {
   assert.equal(typeof P.popupKey({}), 'string');

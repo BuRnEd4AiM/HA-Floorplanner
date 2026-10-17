@@ -11,6 +11,7 @@ DEVICES = {"u_binary_sensor.rauch": "dev_rauch", "u_sensor.rauch_battery": "dev_
 ALIAS = {}         # entity id the tests know -> its id after a rename (/_rename)
 COVER_POS = {}     # covers with a position (current_position), from set_cover_position on; /_set takes it away again
 ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_prefs, #407) and more registry entries (entity -> device): POST /_energy
+EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes}}, {} takes them away
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
 def state_of(e):
@@ -28,15 +29,31 @@ def state_of(e):
 async def states(r):
     return web.json_response([state_of(cur("light.wohnzimmer")), state_of(cur("sensor.temp")),
       {"entity_id":"scene.gaming","state":"unknown","attributes":{"friendly_name":"Gaming","entity_id":["light.wohnzimmer","light.andere"]}},
-      state_of(cur("cover.rollo")), state_of(cur("switch.garage")), state_of(cur("binary_sensor.rauch")), state_of(cur("sensor.co2")), state_of(cur("sensor.leistung")), state_of(cur("camera.flur")), state_of(cur("climate.wohnzimmer")), state_of(cur("sensor.rauch_battery"))])
+      state_of(cur("cover.rollo")), state_of(cur("switch.garage")), state_of(cur("binary_sensor.rauch")), state_of(cur("sensor.co2")), state_of(cur("sensor.leistung")), state_of(cur("camera.flur")), state_of(cur("climate.wohnzimmer")), state_of(cur("sensor.rauch_battery"))]
+      + [{"entity_id": e, **v} for e, v in EXTRA.items()])
 async def push(e):
     for ws, sid in list(SUBS):
-        try: await ws.send_json({"id": sid, "type": "event", "event": {"event_type": "state_changed", "data": {"entity_id": e, "new_state": state_of(e)}}})
+        try: await ws.send_json({"id": sid, "type": "event", "event": {"event_type": "state_changed", "data": {"entity_id": e, "new_state": {"entity_id": e, **EXTRA[e]} if e in EXTRA else state_of(e)}}})
         except Exception: SUBS.remove((ws, sid))
 async def service(r):
     body = await r.json(); dom, svc = r.match_info["d"], r.match_info["s"]
     CALLS.append([dom, svc, body.get("entity_id")])
     e = body.get("entity_id")
+    if e in EXTRA:                # #406: what the device does with the call, the data kept for the test
+        x, a = EXTRA[e], EXTRA[e].setdefault("attributes", {})
+        CALL_DATA.append([svc, e, {k: v for k, v in body.items() if k != "entity_id"}])
+        flips = {"media_play_pause": "paused" if x["state"] == "playing" else "playing", "start": "cleaning", "pause": "paused", "return_to_base": "returning",
+                 "alarm_arm_home": "armed_home", "alarm_arm_away": "armed_away", "turn_on": "on", "turn_off": "off"}
+        if svc in flips: x["state"] = flips[svc]
+        if svc == "alarm_disarm":
+            if body.get("code") != "4711": return web.json_response({"message": "Invalid code"}, status=400)
+            x["state"] = "disarmed"
+        for key, attr in (("volume_level", "volume_level"), ("is_volume_muted", "is_volume_muted"), ("source", "source"), ("fan_speed", "fan_speed"),
+                          ("percentage", "percentage"), ("oscillating", "oscillating"), ("preset_mode", "preset_mode"), ("fan_mode", "fan_mode")):
+            if key in body: a[attr] = body[key]
+        if svc == "select_option": x["state"] = body["option"]
+        await push(e)
+        return web.json_response([])
     if svc == "toggle": STATE[e] = "off" if STATE[e] == "on" else "on"
     if svc == "turn_off": STATE[e] = "off"
     if svc == "turn_on": STATE[e] = "on"
@@ -130,10 +147,13 @@ async def set_energy(r):          # test helper (#407): the energy dashboard's s
     body = await r.json()
     ENERGY["prefs"], ENERGY["registry"] = body.get("prefs"), body.get("registry") or {}
     return web.json_response({"ok": True})
+async def set_extra(r):           # test helper (#406): more entities with their attributes; {} takes them away
+    EXTRA.clear(); EXTRA.update(await r.json())
+    return web.json_response({"ok": True})
 async def template(r):
     return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
-app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy),
+app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

@@ -1,5 +1,6 @@
 /* Heating panel (#134): next to the room panel, for the thermostats of the room (live mode), each with the other entities of its device
- * (child lock, window detection ..., #370) instead of among the room's switches, and a button that opens the thermostat in Home Assistant.
+ * (child lock, window detection ..., #370) instead of among the room's switches, its presets and fan modes (#406), and a button that opens the
+ * thermostat in Home Assistant. The live card of a thermostat or air conditioner shows the same (livepopup.js).
  * A target temperature that is clicked with - / + is only sent after a short pause, so clicks in a row become one call. */
 export const HEAT_DELAY = 700;
 
@@ -32,13 +33,20 @@ export function partName(name, head) {
   return h && n.length > h.length && n.toLowerCase().startsWith(`${h.toLowerCase()} `) ? n.slice(h.length + 1) : n;
 }
 const TOGGLES = new Set(['switch', 'input_boolean', 'fan']);   // parts with a slide switch; the others show their state
+/** the text of a preset or fan mode (kind 'preset' | 'fan'): translated when i18n.js knows the name (eco, comfort, away, low, high ...), else as
+ *  Home Assistant names it, the first letter capital */
+export function chipText(t, kind, m) {
+  const k = `heat.${kind}.${String(m).toLowerCase()}`, tr = t(k);
+  return tr !== k ? tr : String(m).charAt(0).toUpperCase() + String(m).slice(1);
+}
 
 /**
  * @param {{box: HTMLElement, t: Function, states: () => object, callService: Function, open: () => boolean, stateText?: Function, isOn?: Function, details?: Function}} ctx
  *   `open` says whether the room panel is open (the heating panel only shows next to it); stateText(id) / isOn(id): a part's state;
- *   details(id): a button that opens the entity in Home Assistant (its own dialog), null where that is not possible.
+ *   details(id): a button that opens the entity in Home Assistant (its own dialog), null where that is not possible; heading: false in the live
+ *   card of a thermostat or air conditioner (#406), which has its own title.
  */
-export function initHeatPanel({ box, t, states, callService, open, stateText = (e) => states()[e]?.state ?? '', isOn = (e) => states()[e]?.state === 'on', details = () => null }) {
+export function initHeatPanel({ box, t, states, callService, open, stateText = (e) => states()[e]?.state ?? '', isOn = (e) => states()[e]?.state === 'on', details = () => null, heading = true }) {
   const pending = new Map();                 // entity -> { v, timer }: a target that was clicked but not sent yet
   let devs = [], parts = {};
   const target = (e, s) => pending.get(e)?.v ?? s?.tt;
@@ -65,12 +73,24 @@ export function initHeatPanel({ box, t, states, callService, open, stateText = (
     }
     return row;
   }
+  /** a row of names Home Assistant gave (kind 'preset' or 'fan'), the one set now marked; a name i18n.js knows is translated */
+  function chips(list, now, kind, pick) {
+    const wrap = document.createElement('div'); wrap.className = `hp-modes hp-${kind}s`;
+    const lab = document.createElement('small'); lab.className = 'hp-chips-l'; lab.textContent = t(`heat.${kind}`); wrap.append(lab);
+    list.forEach((m) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = m === now ? 'on' : ''; b.dataset.v = m;
+      b.textContent = chipText(t, kind, m);
+      b.addEventListener('click', () => pick(m));
+      wrap.append(b);
+    });
+    return wrap;
+  }
   /** list: the thermostats [{ entity, name }]; withParts: { climate id: [rows] } (splitHeatParts) */
   function render(list, withParts) {
     if (list) { devs = list; parts = withParts || {}; }
     if (!devs.length || !open()) { box.hidden = true; return; }
     box.hidden = false; box.replaceChildren();
-    const h = document.createElement('h4'); h.textContent = t('heat.title'); box.append(h);
+    if (heading) { const h = document.createElement('h4'); h.textContent = t('heat.title'); box.append(h); }
     devs.forEach((d) => {
       const e = d.entity, s = states()[e], card = document.createElement('div'); card.className = 'hp';
       const head = document.createElement('div'); head.className = 'hp-head';
@@ -106,6 +126,9 @@ export function initHeatPanel({ box, t, states, callService, open, stateText = (
         });
         card.append(modes);
       }
+      const c = s?.ctl || {};                    // presets (eco, comfort, away ...) and fan modes (#406)
+      if (c.presets?.length) card.append(chips(c.presets, c.preset, 'preset', (p) => callService(e, 'set_preset_mode', { preset_mode: p })));
+      if (c.fans?.length) card.append(chips(c.fans, c.fan, 'fan', (m) => callService(e, 'set_fan_mode', { fan_mode: m })));
       (parts[e] || []).forEach((p) => card.append(partRow(p, nm.textContent)));
       const ha = details(e);                     // straight to the thermostat in Home Assistant (history, settings ...)
       if (ha) { const row = document.createElement('div'); row.className = 'hp-ha'; row.append(ha); card.append(row); }

@@ -7,7 +7,6 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 ## Open
 
 - ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138); the performance display 3.60.0 and fewer draw calls 3.89.0 are the first steps)
-- ⬜ Control more devices right in the plan: music, robot vacuum, fan, alarm panel … ([#406](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/406))
 - ⬜ Verified on real Home Assistant installs, the goal of 1.0 (the short list of what to check first is at the top of [docs/TESTPROTOKOLL.md](docs/TESTPROTOKOLL.md))
 
 Not planned: sun light and shadows through the windows by the position of the sun ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68), closed).
@@ -27,7 +26,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 - ✅ Version and checksum pill (add-on files, browser, GitHub)
 - ✅ Add-on store listing (icon, logo, translations), welcome card on first start
 
-## Done in 3.59 – 3.95
+## Done in 3.59 – 3.96
 
 - ✅ Phones held upright: values folded into one 📊 button, small floor cards beside the house, phones only show the house (3.59.0 – 3.63.0) ([#288](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/288), [#290](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/290), [#292](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/292), [#294](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/294), [#299](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/299))
 - ✅ Performance display: FPS and more in the View menu (3.60.0)
@@ -54,6 +53,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 - ✅ Redo, copy / paste / duplicate, no overwriting when two screens edit at the same time, spiral stair rail per floor (3.93.0) ([#403](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/403), [#404](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/404), [#405](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/405), [#318](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/318))
 - ✅ Several buildings in one plan: switch, roofs per building, per user, bring another house in (3.94.0) ([#409](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/409))
 - ✅ Energy: take over the energy dashboard of Home Assistant, set-up check list, gas and water meters in one click (3.95.0) ([#407](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/407))
+- ✅ More devices switched in the live card: music and TV, robot vacuum, fan, presets and fan modes of thermostats, alarm panel with code, buttons, choice lists (3.96.0) ([#406](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/406))
 
 ## Done in 3.26 – 3.58
 

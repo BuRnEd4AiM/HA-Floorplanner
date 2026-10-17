@@ -71,6 +71,11 @@ const layout = {
     ],
     devices: [
       { id: 'd1',  type: 'tv_wall',    x: 2.5, z: 0.16, y: 1.2,  rot: 0,   scale: 1,   name: 'Fernseher',       entity: 'media_player.tv', ledEntity: 'light.tv_led' },
+      { id: 'dc_sp', type: 'speaker',  x: 5.6, z: 0.4,  y: 0,    rot: 0,   scale: 1,   name: 'Lautsprecher Wohnzimmer', entity: 'media_player.sonos_wz' },   // #406: music, vacuum, fan, alarm, choice list
+      { id: 'dc_fan', type: 'fan_stand', x: 0.6, z: 4.0, y: 0,    rot: 45,  scale: 1,   name: 'Standventilator', entity: 'fan.ventilator_wz' },
+      { id: 'dc_vac', type: 'vacuum',  x: 8.6, z: 3.9,  y: 0,    rot: 0,   scale: 1,   name: 'Saugroboter', entity: 'vacuum.robo' },
+      { id: 'dc_al', type: 'switch',   x: 9.86, z: 5.3, y: 1.4,  rot: 270, scale: 1,   name: 'Alarmanlage (Code 1234)', entity: 'alarm_control_panel.haus' },
+      { id: 'dc_hm', type: 'switch',   x: 9.86, z: 5.9, y: 1.1,  rot: 270, scale: 1,   name: 'Hausmodus', entity: 'input_select.hausmodus' },
       { id: 'd2',  type: 'sofa',       x: 2.5, z: 3.5,  y: 0,    rot: 180, scale: 1.1, name: 'Sofa',            entity: '' },
       { id: 'd3',  type: 'table',      x: 2.5, z: 2.2,  y: 0,    rot: 0,   scale: 0.6, name: 'Couchtisch',      entity: '' },
       { id: 'd4',  type: 'light',      x: 3,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Deckenlicht',     entity: 'light.wohnzimmer' },
@@ -251,8 +256,13 @@ const entities = {
   'scene.wz_aus':            { name: 'Wohnzimmer Aus',         state: 'scening' },
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
   'switch.flur':             { name: 'Flur Schalter',          state: 'off' },
-  'media_player.tv':         { name: 'Fernseher',              state: 'playing', app: 'Netflix' },
-  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat', hvac: 'heating', ct: 21.2, ch: 48, tt: 22, tmin: 16, tmax: 26, tstep: 0.5, modes: ['off', 'heat', 'auto'] },
+  'media_player.tv':         { name: 'Fernseher',              state: 'playing', app: 'Netflix', ctl: { vol: 25, muted: false, title: 'Die Serie – Folge 3', sources: ['HDMI 1', 'HDMI 2', 'Netflix', 'YouTube'], source: 'Netflix' } },
+  'media_player.sonos_wz':   { name: 'Lautsprecher Wohnzimmer', state: 'playing', ctl: { vol: 35, muted: false, title: 'Sommerregen', artist: 'Die Demo-Band', sources: ['Radio', 'Spotify', 'Line-in'], source: 'Spotify' } },
+  'fan.ventilator_wz':       { name: 'Standventilator',        state: 'on', ctl: { pct: 67, step: 33.33, osc: true, presets: ['Normal', 'Natur', 'Nacht'], preset: 'Normal' } },
+  'vacuum.robo':             { name: 'Saugroboter',            state: 'docked', bat: 92, ctl: { speeds: ['Leise', 'Standard', 'Stark', 'Turbo'], speed: 'Standard' } },
+  'alarm_control_panel.haus': { name: 'Alarmanlage',           state: 'disarmed', ctl: { code: 'number', codeArm: false } },
+  'input_select.hausmodus':  { name: 'Hausmodus',              state: 'Zu Hause', ctl: { options: ['Zu Hause', 'Abwesend', 'Urlaub', 'Nacht'] } },
+  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat', hvac: 'heating', ct: 21.2, ch: 48, tt: 22, tmin: 16, tmax: 26, tstep: 0.5, modes: ['off', 'heat', 'auto'], ctl: { presets: ['eco', 'comfort', 'away', 'boost'], preset: 'comfort' } },
   'sensor.netz_leistung':    { name: 'Netzbezug',              state: '450',  unit: 'W' },
   'sensor.pv_leistung':      { name: 'PV Wechselrichter',      state: '3.2',  unit: 'kW' },
   'sensor.pv_string1':       { name: 'PV Modul 1',             state: '1100', unit: 'W' },
@@ -366,7 +376,8 @@ export function installDemoBackend() {
       return json(Object.entries(entities).map(([entity_id, e]) => ({
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
-        hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null })));
+        hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null,
+        bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null })));
     }
     if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
       const v = typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __DEMO_VERSION__;
@@ -390,6 +401,28 @@ export function installDemoBackend() {
       if (service === 'turn_off') e.state = 'off';
       if (service === 'set_temperature') { e.tt = data.temperature; if (e.state !== 'off') e.hvac = e.ct < e.tt ? 'heating' : 'idle'; }
       if (service === 'set_hvac_mode') { e.state = data.hvac_mode; e.hvac = data.hvac_mode === 'off' ? 'off' : (e.ct < e.tt ? 'heating' : 'idle'); }
+      const c = e.ctl || (e.ctl = {});                          // #406: music, vacuum, fan, alarm, choice list, presets
+      if (id.startsWith('media_player.') && service === 'turn_on') e.state = 'paused';
+      if (service === 'media_play_pause') e.state = e.state === 'playing' ? 'paused' : 'playing';
+      if (service === 'media_next_track' || service === 'media_previous_track') {
+        const songs = ['Sommerregen', 'Abendlicht', 'Nordwind', 'Kaffee am Morgen'], i = songs.indexOf(c.title);
+        c.title = songs[(Math.max(0, i) + (service === 'media_next_track' ? 1 : songs.length - 1)) % songs.length]; e.state = 'playing';
+      }
+      if (service === 'volume_set') c.vol = Math.round(data.volume_level * 100);
+      if (service === 'volume_mute') c.muted = data.is_volume_muted;
+      if (service === 'select_source') c.source = data.source;
+      if (service === 'start') e.state = 'cleaning';
+      if (service === 'pause') e.state = 'paused';
+      if (service === 'stop') e.state = 'idle';
+      if (service === 'return_to_base') { e.state = 'returning'; setTimeout(() => { if (e.state === 'returning') e.state = 'docked'; }, 4000); }
+      if (service === 'set_fan_speed') c.speed = data.fan_speed;
+      if (service === 'set_percentage') { c.pct = data.percentage; e.state = data.percentage > 0 ? 'on' : 'off'; }
+      if (service === 'oscillate') c.osc = data.oscillating;
+      if (service === 'set_preset_mode') c.preset = data.preset_mode;
+      if (service === 'set_fan_mode') c.fan = data.fan_mode;
+      if (service.startsWith('alarm_arm_')) e.state = `armed_${service.slice(10)}`;
+      if (service === 'alarm_disarm') { if (data?.code !== '1234') return json({ ok: false }, 502); e.state = 'disarmed'; }   // the demo's code
+      if (service === 'select_option') e.state = data.option;
       return json({ ok: true });
     }
     if (path === 'api/backgrounds' && method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
