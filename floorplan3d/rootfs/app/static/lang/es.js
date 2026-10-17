@@ -1295,7 +1295,7 @@ export default {
   'prop.rainWarn': 'Avisar si llueve',
   'prop.rainWarnHint': 'Aparece un aviso si esta ventana está abierta mientras la entidad del tiempo indica lluvia. Desmárcalo para una ventana que puede quedar abierta con lluvia.',
   'flow.title': 'Electricidad ahora', 'flow.solar': 'Sol', 'flow.grid': 'Red', 'flow.fromGrid': 'De la red', 'flow.toGrid': 'A la red',
-  'flow.home': 'Consumo de la casa', 'flow.battery': 'Batería', 'flow.charging': 'cargando {w}', 'flow.discharging': 'descargando {w}',
+  'flow.home': 'Consumo de la casa', 'flow.charging': 'cargando {w}', 'flow.discharging': 'descargando {w}',
   'flow.tip': 'Tocar: mostrar u ocultar los cables en la casa', 'nav.flow': 'Electricidad en imagen',
   'nav.flowTip': 'Sol, red, casa y batería con la corriente fluyendo, arriba a la derecha en lugar de la línea de cifras (modo en vivo, pantalla ancha)',
   'set.energyCard': 'Electricidad en imagen (modo en vivo, pantalla ancha)',
@@ -1304,4 +1304,5 @@ export default {
   'set.roomTiles': 'Tarjetas de habitaciones abajo (modo en vivo)', 'set.preset.roomTiles': 'Tarjetas de habitaciones',
   'tg.draw': 'Dibujar', 'tg.place': 'Colocar', 'tg.tools': 'Herramientas', 'tool.s.autoRooms': 'Detectar', 'tool.s.hole': 'Hueco',
   'tool.s.power': 'Electricidad', 'tool.s.energy': 'Balance', 'tool.s.import': 'Importar', 'tool.s.more': 'Más',
+  'flow.idle': 'en reposo · {w}', 'flow.noPower': 'sin sensor de potencia',
 };

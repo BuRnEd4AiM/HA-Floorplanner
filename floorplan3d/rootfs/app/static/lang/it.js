@@ -1295,7 +1295,7 @@ export default {
   'prop.rainWarn': 'Avvisa se piove',
   'prop.rainWarnHint': 'Compare un avviso se questa finestra è aperta mentre l\'entità meteo segnala pioggia. Togli la spunta per una finestra che può restare aperta sotto la pioggia.',
   'flow.title': 'Energia adesso', 'flow.solar': 'Sole', 'flow.grid': 'Rete', 'flow.fromGrid': 'Dalla rete', 'flow.toGrid': 'Immessa in rete',
-  'flow.home': 'Consumo casa', 'flow.battery': 'Batteria', 'flow.charging': 'in carica {w}', 'flow.discharging': 'in scarica {w}',
+  'flow.home': 'Consumo casa', 'flow.charging': 'in carica {w}', 'flow.discharging': 'in scarica {w}',
   'flow.tip': 'Tocca: mostra o nascondi i cavi nella casa', 'nav.flow': 'Energia come immagine',
   'nav.flowTip': 'Sole, rete, casa e batteria con la corrente che scorre, in alto a destra al posto della riga di numeri (modalità live, schermo largo)',
   'set.energyCard': 'Energia come immagine (modalità live, schermo largo)',
@@ -1304,4 +1304,5 @@ export default {
   'set.roomTiles': 'Schede delle stanze in basso (modalità live)', 'set.preset.roomTiles': 'Schede delle stanze',
   'tg.draw': 'Disegnare', 'tg.place': 'Posizionare', 'tg.tools': 'Strumenti', 'tool.s.autoRooms': 'Rileva', 'tool.s.hole': 'Foro', 'tool.s.power': 'Energia',
   'tool.s.energy': 'Bilancio', 'tool.s.import': 'Importa', 'tool.s.more': 'Altro',
+  'flow.idle': 'a riposo · {w}', 'flow.noPower': 'nessun sensore di potenza',
 };

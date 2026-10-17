@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.98.2] - 2026-10-17
+### Changed
+- **Battery in the energy picture says what it does** (#420): instead of only "Battery" under it, the circle now says **"idle · 0 W"** when it neither charges nor discharges (e.g. at night at 9 %, when most batteries hold their reserve) and **"no power sensor"** when its power is unknown, so a missing power sensor can be told apart from a resting battery.
+
 ## [3.98.1] - 2026-10-17
 ### Changed
 - **Energy as a picture also in edit mode** (#420): on wide screens the card with the sun, the grid, the house and the battery now stands at the top right in edit mode too, instead of the line of numbers. Only phones keep the line (no room for the card). "Power as a picture" in the View menu and in the settings still gives the line back.

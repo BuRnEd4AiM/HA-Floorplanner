@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-10-17, Version **3.98.1**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`, dann mit den **offenen Fragen** unten beim Besitzer weitermachen.
+Stand: 2026-10-17, Version **3.98.2**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`, dann bei den **Entscheidungen des Besitzers** unten weitermachen.
 
 ## Der Besitzer
 
@@ -15,29 +15,28 @@ Stand: 2026-10-17, Version **3.98.1**. Diese Datei ist für den nächsten Chat (
 | Version | Pull Request | Inhalt |
 |---|---|---|
 | 3.98.0 | #423 (gemergt) | Himmel nach Uhrzeit (#418), Wetter im Bild und Regen-Warnung pro Fenster (#419), Strom als Bild (#420), Raum-Kacheln (#421), Werkzeugleiste mit Symbolen und Gruppen (#422). Plan und Entscheidungen: `docs/PLAN-3.98.md`, Beispielbilder: `docs/ideen-3.98/` |
-| 3.98.1 | **#424 (offen, CI grün)** | „Strom als Bild“ auch im Bearbeiten-Modus statt der kleinen Zahlenzeile (Wunsch des Besitzers). Branch `claude/funny-bardeen-6cdspw` |
+| 3.98.1 | #424 (gemergt) | „Strom als Bild“ auch im Bearbeiten-Modus statt der kleinen Zahlenzeile (Wunsch des Besitzers) |
+| 3.98.2 | Branch `claude/bold-cannon-9w2m0w` | Batterie im Strom-Bild: „ruht · 0 W“, wenn sie weder lädt noch entlädt, „kein Leistungs-Sensor“, wenn ihre Leistung unbekannt ist (Wunsch des Besitzers nach seinem Nachtbild: 9 %, alles kam aus dem Netz). Testprotokoll 65.17 (nur im Add-on) |
 
-Diese Übergabe-Datei, die Bilder in `docs/ideen-3.99/` und `tools/add_i18n.py` liegen im selben Branch wie #424 und kommen mit dessen Merge nach `main`.
+Testprotokoll: Abschnitt **65** (65.1 bis 65.17) ist neu und noch ❓; der Besitzer prüft ihn in der Demo. 65.14, 65.15 und 65.17 gehen nur im Add-on.
 
-Testprotokoll: Abschnitt **65** (65.1 bis 65.16) ist neu und noch ❓; der Besitzer prüft ihn in der Demo. 65.14 und 65.15 gehen nur im Add-on.
+## Entscheidungen des Besitzers (2026-10-17) und was als Nächstes kommt
 
-## Offene Fragen an den Besitzer (in dieser Reihenfolge)
-
-1. **#424 mergen?** Alles grün. Wenn er „ja“ sagt: mergen (Methode „merge“, wie bisher), dann zeigt die Demo nach ein paar Minuten v3.98.1.
-2. **Batterie-Anzeige im Strom-Bild:** Sein Bild nachts: Sonne 0 W, Netz 1,02 kW „Bezug vom Netz“, Haus 1,02 kW, Batterie 9 % mit nur „Batterie“ darunter. Er meinte, die Batterie müsste zuerst entladen werden. Erklärt: Die Rechnung zeigt, was die Sensoren melden; bei 9 % halten die meisten Batterien ihre Reserve und geben nichts mehr ab. Ihn gebeten, in Home Assistant die Leistung der Batterie anzusehen (meldet sie dort Entladen, fehlt im Strom-Editor unter „⚡ Rechnung“ der Leistungs-Sensor). **Vorschlag, noch ohne Antwort:** statt „Batterie“ anzeigen: **„ruht · 0 W“**, wenn sie weder lädt noch entlädt, und **„kein Leistungs-Sensor“**, wenn ihre Leistung unbekannt ist. Code: `flowTexts` in `static/energyflow.js` (heute: Richtung 0 und unbekannt geben beide `flow.battery`), Test `tests/energyflow.test.mjs`, zwei neue Texte in 7 Sprachen (`tools/add_i18n.py`).
-3. **Zweite Runde Ideen fürs Aussehen** (Bilder in `docs/ideen-3.99/`, vom Besitzer noch nicht ausgewählt; auf den Bildern sind Kugeln und Wert-Schilder nur für die Fotos ausgeblendet):
-   1. **Echte Böden** (`1-boeden.jpg`): Parkett, Fliesen, Beton je Raum, pro Raum wählbar.
-   2. **Dunkle Fensterrahmen, hellere Wände** (`2-fassade.jpg`).
-   3. **Rasen mit Mähstreifen** (`3-garten.jpg`, vorher `3b-garten-vorher.jpg`).
-   4. **Glas-Optik** für die Etagen-Karten links und die Knöpfe (`4-glas.jpg`), passend zu den Karten aus 3.98.
-   5. **Raum-Schilder im 3D-Bild** (`5-raumschilder.jpg`): Name, Temperatur, Lichter, grüner Punkt bei Anwesenheit.
-   6. Alles zusammen (`6-alles.jpg`).
+- **Mergen:** Claude darf die Pull Requests dieser Sitzung selbst mergen, sobald alles grün ist (Methode „merge“).
+- **Batterie-Text:** ja, so gebaut (3.98.2, siehe oben).
+- **Zweite Runde Ideen fürs Aussehen** (Bilder in `docs/ideen-3.99/`), ausgewählt für **3.99.0**:
+  1. **Echte Böden** (`1-boeden.jpg`): Parkett, Fliesen, Beton je Raum, pro Raum wählbar.
+  2. **Dunkle Fensterrahmen, hellere Wände** (`2-fassade.jpg`).
+  3. **Glas-Optik** für die Etagen-Karten links und die Knöpfe (`4-glas.jpg`), passend zu den Karten aus 3.98.
+  4. **Raum-Schilder im 3D-Bild** (`5-raumschilder.jpg`): Name, Temperatur, Lichter, grüner Punkt bei Anwesenheit. Wunsch: **muss abschaltbar sein**.
+  - Nicht gewählt: **Rasen mit Mähstreifen** (`3-garten.jpg`).
+- Außerdem offen: Testprotokoll Abschnitt 65 in der Demo prüfen.
 
 ### Technische Notizen zu den Ideen (Runde 2)
 
 - **Böden:** Der Boden eines Raums ist ein Mesh mit `userData.kind === 'room'` (gebaut in `floorbuild.js`, Farbe `room.color`, `MeshStandardMaterial`). Darüber liegen flache Licht-Ebenen (`ShaderMaterial`, Raumlicht aus `roomlight.js`), die eine Textur verdecken würden: die Textur muss in diese Darstellung mit hinein (oder die Licht-Ebene wird durchsichtiger). Die UV-Koordinaten der Grundfläche sind Meter (ShapeGeometry), also Textur-Wiederholung pro Meter. Neues Feld am Raum (z. B. `floor: 'parquet' | 'tiles' | 'concrete' | …`), Auswahl in den Eigenschaften, Import/Export/Schema (`importer.py`, `property.schema.json`) wie bei `rainWarn`. Texturen im Browser gezeichnet (Canvas, wie `soilTexture` in `earth.js`), keine Bilddateien. Im Sparmodus („Schnell“) einfarbig lassen (#138).
 - **Fensterrahmen:** `walls.js` Zeile ~227 `frame: makeMat('#f4f4f4', …)`; Wände `floorbuild.js` `'#d9d4cc'`. Am besten eine Einstellung „Farbe der Fensterrahmen“ (weiß / anthrazit).
-- **Rasen:** `earth.js`, `lawnMat` (`MeshBasicMaterial`, `0x6fa858`); Streifen-Textur per Canvas; die Himmel-Tönung (`setTint`) multipliziert die Farbe weiter, also Farbe weiß lassen und die Tönung über `color` wirken lassen.
+- **Rasen** (nicht gewählt): `earth.js`, `lawnMat` (`MeshBasicMaterial`, `0x6fa858`); Streifen-Textur per Canvas; die Himmel-Tönung (`setTint`) multipliziert die Farbe weiter, also Farbe weiß lassen und die Tönung über `color` wirken lassen.
 - **Glas:** nur CSS; die Klasse `.glass` und die Werte gibt es seit 3.98 in `style.css` (Abschnitt „Sky and weather“). Im Sparmodus ohne `backdrop-filter` (`body.low`).
 - **Raum-Schilder:** die Daten liefert schon `roomSummary` in `roomtiles.js`. Darstellung als Sprite in 3D (wie `labels.js`) oder als HTML über dem Bild (Raummitte jedes Bild projizieren). Die heutigen Raumnamen auf dem Boden dann weglassen.
 
@@ -57,4 +56,4 @@ Testprotokoll: Abschnitt **65** (65.1 bis 65.16) ist neu und noch ❓; der Besit
 - Neue Texte: `python3 tools/add_i18n.py texts.json` (alle 7 Sprachen auf einmal), danach `python3 -m pytest -q tests/test_i18n.py`.
 - Neues reines Modul mit Test: in `.github/workflows/ci.yml` in die lange Zeile `for t in … toolicons; do` eintragen.
 - Nach jeder Änderung in `floorplan3d/`: `python3 tools/make_manifest.py` (sonst schlägt `tests/test_manifest.py` fehl); danach `graphify update .`.
-- Ist der Pull Request des Branches gemergt: den Branch neu von `main` starten (`git fetch origin main && git checkout -B claude/funny-bardeen-6cdspw origin/main`) und einen **neuen** Pull Request aufmachen.
+- Ist der Pull Request des Branches gemergt: den Branch neu von `main` starten (`git fetch origin main && git checkout -B <branch> origin/main`) und einen **neuen** Pull Request aufmachen.

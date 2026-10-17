@@ -1288,7 +1288,7 @@ export default {
   'prop.rainWarn': 'Waarschuwen bij regen',
   'prop.rainWarnHint': 'Er komt een waarschuwing als dit raam open is terwijl de weer-entiteit regen meldt. Haal het vinkje weg bij een raam dat bij regen open mag blijven.',
   'flow.title': 'Stroom nu', 'flow.solar': 'Zon', 'flow.grid': 'Net', 'flow.fromGrid': 'Van het net', 'flow.toGrid': 'Teruglevering',
-  'flow.home': 'Huis verbruikt', 'flow.battery': 'Batterij', 'flow.charging': 'laadt {w}', 'flow.discharging': 'ontlaadt {w}',
+  'flow.home': 'Huis verbruikt', 'flow.charging': 'laadt {w}', 'flow.discharging': 'ontlaadt {w}',
   'flow.tip': 'Tikken: de stroomkabels in het huis tonen of verbergen', 'nav.flow': 'Stroom als plaatje',
   'nav.flowTip': 'Zon, net, huis en batterij met de stroom die loopt, rechtsboven in plaats van de regel met getallen (live, breed scherm)',
   'set.energyCard': 'Stroom als plaatje (live, breed scherm)',
@@ -1297,4 +1297,5 @@ export default {
   'set.roomTiles': 'Kamertegels onderaan (live)', 'set.preset.roomTiles': 'Kamertegels',
   'tg.draw': 'Tekenen', 'tg.place': 'Plaatsen', 'tg.tools': 'Gereedschap', 'tool.s.autoRooms': 'Herkennen', 'tool.s.hole': 'Sparing', 'tool.s.power': 'Stroom',
   'tool.s.energy': 'Balans', 'tool.s.import': 'Importeren', 'tool.s.more': 'Meer',
+  'flow.idle': 'in rust · {w}', 'flow.noPower': 'geen vermogenssensor',
 };
