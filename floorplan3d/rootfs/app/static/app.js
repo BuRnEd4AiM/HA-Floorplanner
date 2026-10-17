@@ -81,6 +81,8 @@ import { initPersist } from './persist.js';
 import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { initEditItems } from './edititems.js';
 import { initClipboard } from './clipboard.js';
+import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
+import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
 import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
@@ -264,7 +266,7 @@ const entityDevices = (f) => placedEntities(f.devices, t('dev.ledring'), (d, key
 const roomMeshes = new Map();     // room id -> { mesh, room }
 
 /* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing; the code lives in earth.js ---- */
-const earth = initEarth({ layout: () => layout, groundIdx: () => groundIdx(), floorH: FLOOR_H, settings: () => settings, houseMode: () => houseMode });
+const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH: FLOOR_H, settings: () => settings, houseMode: () => houseMode });
 let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
 /** the grid is a drawing aid (never in live mode, under any ground only while drawing, on the level of the floor shown); the earth cut follows the camera */
 function updateEarthCut() {
@@ -279,6 +281,48 @@ function updateEarthCut() {
 
 /** Isolation: while a room is focused only that room, its walls and its devices are drawn (clipping in roomclip.js). */
 function isolatedRoom() { return focusedRoom ? floor()?.rooms.find((r) => r.id === focusedRoom) ?? null : null; }
+/* ---- Several buildings in one plan (#409): the plan as the building shown sees it, worked out at every build (buildings.js); what is drawn,
+ *  framed and listed comes from it, what is edited stays the plan itself. The switch and the panel live in buildingsui.js ---- */
+let view = null, owners = null, roofViews = new Map();
+function refreshView() {
+  const b = buildingsUi?.shown();
+  owners = b ? roomOwners(layout) : null;
+  view = b ? viewOf(layout, b, owners) : null;
+  roofViews = new Map();
+}
+const shownLayout = () => view || layout;
+const shownFloor = () => shownLayout().floors[floorIdx];
+/** a roof is drawn: it belongs to the building shown or to all of them */
+function roofShown(i, R) {
+  const b = buildingsUi?.shown(), f = layout.floors[i];
+  if (!b || !f) return true;
+  const o = roofOwner(layout, i, R.tag === 'main' ? f.roof : R.spec, R.bb, owners || roomOwners(layout));
+  return o === null || o === b;
+}
+/** the floors the main roof of roof floor i takes its size from: those of its own building, or of the building shown (null: all) */
+function roofFloors(i) {
+  const b = pickBuilding(layout, layout.floors[i]?.roof?.building) || buildingsUi?.shown();
+  if (!b) return null;
+  if (!roofViews.has(b)) roofViews.set(b, viewOf(layout, b, owners || roomOwners(layout)).floors);
+  return roofViews.get(b);
+}
+/** floor i has something of the building shown (its buttons show), the open floor always (strict: also the open floor only then) */
+function floorShown(i, strict = false) {
+  if (!view || (i === floorIdx && !strict)) return true;
+  const vf = view.floors[i];
+  return floorHas(vf) || (vf?.kind === 'roof' && roofList(i).some((R) => roofShown(i, R)));
+}
+/** a room drawn while one building is shown belongs to it (unless the floors above or below give it another one); known: the rooms there were */
+let knownRooms = new Set();
+const roomIds = () => new Set(layout.floors.flatMap((f) => (f.rooms || []).map((r) => r.id)));
+function claimNewRooms() {
+  const b = buildingsUi?.shown();
+  if (b) layout.floors.forEach((f, fi) => (f.rooms || []).forEach((r) => {
+    if (!knownRooms.has(r.id) && !r.building && [null, b].includes(inheritedBuilding(layout, fi, r))) r.building = b;
+  }));
+  knownRooms = roomIds();
+}
+let buildingsUi = null;
 
 
 /** Doors/windows live inside their wall group, which is scaled down when the wall is lowered. This unscaled
@@ -304,6 +348,7 @@ function makeOpeningHandle(w, o, group) {
 /* ---- Roofs: roof box, roof surfaces with dormers and further roofs, terrace railing, solar panels on the roof, fading; the code lives in roofs.js ---- */
 const roofsUi = initRoofs({
   layout: () => layout, elev: (i) => elev(i), mat: (...a) => mat(...a), HOLO, camera: () => camera, settings: () => settings, wallSee: WALL_SEE,
+  roofShown: (i, R) => roofShown(i, R), roofFloors: (i) => roofFloors(i),
   editingRoof: () => !houseMode && floor()?.kind === 'roof',     // the roof floor is open: the roof (and its dormers) must stay clearly visible
 });
 const roofBox = (i) => roofsUi.box(i), autoRoofBox = (i) => roofsUi.autoBox(i), roofList = (i) => roofsUi.list(i);
@@ -345,6 +390,7 @@ const floorBuild = initFloorBuild({
 function build() {
   localizeDefaults(); welcomeUi?.update();
   wake();
+  refreshView();
   plan?.render();
   clearGroup(world);
   registry.clear(); pickables.length = 0; roofParts.clear(); labelSprites.clear(); tapBalls.clear(); offMarks.clear(); cams.clear(); cutawayWalls = []; roofsUi.reset(); roomMeshes.clear(); openingHandles.clear(); alertsUi.pulses.length = 0;
@@ -375,7 +421,8 @@ function build() {
   }
   const stacked = floorsMode(settings, houseMode) === 'stacked' && !iso;   // like a real house: ceilings between the floors (housefloors.js)
   const drawn = drawnFloors(layout.floors.length, floorIdx, houseMode, settings.belowMode === 'hidden');
-  layout.floors.forEach((f, i) => {
+  layout.floors.forEach((_, i) => {
+    const f = shownLayout().floors[i];           // only the building shown (#409)
     if (i > floorIdx && !houseMode) return;
     if (iso && i < floorIdx) return;            // no floors below while isolated
     if (!houseMode && settings.belowMode === 'hidden' && i < floorIdx) return;   // floors below hidden by choice
@@ -474,7 +521,7 @@ function roomHeat(room, f) {
 
 /* ---- Doors, gates and windows with a contact sensor: the code lives in openings.js ---- */
 const openings = initOpenings({
-  $, t, layout: () => layout, states: () => states, onStates: ON_STATES, registry, pointInPoly, distToPoly, show: (target) => offline.show(target),
+  $, t, layout: () => shownLayout(), states: () => states, onStates: ON_STATES, registry, pointInPoly, distToPoly, show: (target) => offline.show(target),
   tapBalls, isLive: () => isLive(), floorIdx: () => floorIdx, labelSprites, labelsOn: () => settings.labelMode !== 'none',   // the balls and labels of the windows' roller shutters (#331)
 });
 const isOpen = (entity) => openings.isOpen(entity);
@@ -547,7 +594,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.
 
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
 const floorCards = initFloorCards({
-  $, t, camera, canvas, layout: () => layout, states: () => states, onStates: ON_STATES, settings: () => settings, isOpen: (e) => isOpen(e), houseMode: () => houseMode,
+  $, t, camera, canvas, layout: () => shownLayout(), states: () => states, onStates: ON_STATES, settings: () => settings, isOpen: (e) => isOpen(e), houseMode: () => houseMode,
   layoutMode: () => layoutMode, roomFocused: () => !!focusedRoom, elev: (i) => elev(i), floorH: FLOOR_H, switchFloor: (i) => switchFloor(i),
 });
 
@@ -658,7 +705,7 @@ const deviceList = initDeviceList({
 /* ---- Offline devices: the code lives in offline.js, their signs in 3D in offlinemarks.js (#375) ---- */
 const offMarks = initOfflineMarks({ registry, labelSprites, ballShown: (id) => tapBalls.shown(id), floorShown: (fi) => houseMode || fi === floorIdx });
 const offline = initOffline({
-  $, t, layout: () => layout, entities: () => entities, states: () => states, catOf, pointInPoly: (...a) => pointInPoly(...a), currentLanguage: () => currentLanguage(),
+  $, t, layout: () => shownLayout(), entities: () => entities, states: () => states, catOf, pointInPoly: (...a) => pointInPoly(...a), currentLanguage: () => currentLanguage(),
   houseMode: () => houseMode, floorIdx: () => floorIdx, switchFloor: (i) => switchFloor(i), isLive: () => isLive(), liveSelect: (h) => liveSelect(h),
   selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); }, jump: (x) => search.goTo(x),
 });
@@ -670,7 +717,7 @@ const alertsUi = initAlertsUi({
   switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => roomPanel.open(id), kioskTouched: () => kiosk.touched(),
 });
 const search = initSearch({
-  $, t, layout: () => layout, entities: () => entities, pointInPoly: (...a) => pointInPoly(...a), houseMode: () => houseMode, floorIdx: () => floorIdx,
+  $, t, layout: () => shownLayout(), entities: () => entities, pointInPoly: (...a) => pointInPoly(...a), houseMode: () => houseMode, floorIdx: () => floorIdx,
   switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom, openRoomPanel: (id) => roomPanel.open(id),
   isLive: () => isLive(), liveSelect: (h) => liveSelect(h), elev: (i) => elev(i), scene, camera, controls,
   selectLocked: (sel) => { selection = sel; lockedSel = true; refreshSelection(); }, wake: () => wake(),
@@ -744,16 +791,20 @@ function showPlan(l) {
   layout = l;
   floorIdx = Math.min(floorIdx, layout.floors.length - 1);
   selection = null; focusedRoom = null; multiSel.clear(); clearFocusOutline();
+  knownRooms = roomIds();
   fillFloorSelect(); build(); bgUi.render(); renderFloorPanel(); neighbors.renderUi(); historyButtons();
+  buildingsUi?.renderSwitch(); buildingsUi?.renderPanel();
 }
 function undo() { const prev = persist.popUndo(); if (prev) { showPlan(prev); scheduleSave(); } }
 function redo() { const next = persist.popRedo(); if (next) { showPlan(next); scheduleSave(); } }      // #404
 /** the ↶ / ↷ buttons can be pressed only while there is something to undo / do again */
 function historyButtons() { $('#undoBtn').disabled = !persist.canUndo(); $('#redoBtn').disabled = !persist.canRedo(); }
 function changed(rebuild = true) {
+  claimNewRooms();
   if (rebuild) build();
   renderObjList();
   scheduleSave();
+  buildingsUi?.renderPanel();                                      // a new room shows up in "Buildings in this plan" (#409)
 }
 function setStatus(txt) { $('#status').textContent = txt; }
 function scheduleSave() { persist.schedule(); historyButtons(); }
@@ -783,12 +834,26 @@ const houseLoad = initHouseLoad({
     layout = l;
     normalizeLayout();
     persist.clearUndo(); historyButtons();
+    buildingsUi.opened(); knownRooms = roomIds();                  // the building this screen shows in this plan (#409)
     floorIdx = groundIdx(); selection = null; lockedSel = false; focusedRoom = null; houseMode = false; document.body.classList.remove('house');   // open on the ground floor, not in the basement
     clearFocusOutline(); hs.renderUi(); neighbors.renderUi();
     build(); fitCamera(); buildNav(true); bgUi.render(); renderFloorPanel(); renderObjList(); refreshSelection();
   },
 });
 function switchHouse(id) { return houseLoad.switchHouse(id); }
+buildingsUi = initBuildingsUi({
+  $, t, layout: () => layout, houseId: () => hs.id(), houses: () => hs.list(), houseLabel: (h) => hs.label(h), uid: () => uid(), floorH: FLOOR_H,
+  snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), confirm: (x) => confirm(x),
+  shownChanged: () => {                                            // another building shown: its floor (the ground floor when the open one has nothing of it), framed
+    refreshView();
+    if (view && !floorShown(floorIdx, true)) {
+      const ok = view.floors.map((_, i) => i).filter((i) => floorShown(i, true));
+      if (ok.length) floorIdx = ok.find((i) => i >= groundIdx()) ?? ok[0];
+    }
+    selection = null; lockedSel = false; focusedRoom = null; multiSel.clear(); clearFocusOutline();
+    build(); fitCamera(); buildNav(true); renderObjList(); refreshSelection(); floorCards.update(); renderFloorPanel();
+  },
+});
 initImport({ t, lang: () => currentLanguage(), houseId: () => hs.id(), onImported: (j) => houseLoad.openImported(j) });
 welcomeUi = initWelcome({
   t, getLayout: () => layout, isEdit: () => !isLive(),
@@ -1020,12 +1085,12 @@ document.querySelectorAll('#modeSwitch button').forEach((b) => b.addEventListene
 
 /** what the camera frames: the floor shown (or the isolated room), the centre of its walls, the whole house (nav.js) */
 function floorBounds() {
-  const f = floor(), iso = isolatedRoom();
-  return floorBoundsOf(f, layout.floors, { iso, rb: !iso && f.kind === 'roof' ? roofBox(floorIdx) : null });   // a roof has no walls of its own: frame the house below it
+  const f = shownFloor(), iso = isolatedRoom();
+  return floorBoundsOf(f, shownLayout().floors, { iso, rb: !iso && f.kind === 'roof' ? roofBox(floorIdx) : null });   // a roof has no walls of its own: frame the house below it
 }
 /** centre of the walls of the floor shown. Garden things and lamps outside the house must not pull it away: it decides which walls face the camera (see-through / lowering) */
-function wallsCenter() { return (!isolatedRoom() && wallsCenterOf(floor())) || floorBounds(); }
-function houseBounds() { return houseBoundsOf(layout.floors); }
+function wallsCenter() { return (!isolatedRoom() && wallsCenterOf(shownFloor())) || floorBounds(); }
+function houseBounds() { return houseBoundsOf(shownLayout().floors); }
 function fitCamera() {
   const { cx, cz, size } = houseMode ? houseBounds() : floorBounds();
   const midY = houseMode ? (elev(layout.floors.length - 1) + elev(0)) / 2 + FLOOR_H / 2 : elev();
@@ -1084,14 +1149,14 @@ const focusGroup = new THREE.Group();
 scene.add(focusGroup);
 /* ---- Floor pills, room menu, scroll arrows, the tablet's room button; the code lives in nav.js ---- */
 const nav = initNav({
-  $, t, layout: () => layout, floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom, settings: () => settings, tabletRoom: () => tabletRoom,
+  $, t, layout: () => shownLayout(), floorShown: (i) => floorShown(i), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom, settings: () => settings, tabletRoom: () => tabletRoom,
   isOn: (e) => ON_STATES.has(states[e]?.state), pointInPoly, switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on), focusRoom: (id) => focusRoom(id),
   get roomPanel() { return roomPanel; }, toggleMenu: (m, b, o) => toggleMenu(m, b, o), floorRail: () => floorRail, renderPlanFloorsChip: () => renderPlanFloorsChip(),
   phoneNav: () => phoneNav,
 });
 /* ---- Phones: the floors as a drop-down next to ☰ and the room button; the code lives in phonenav.js ---- */
 const phoneNav = initPhoneNav({
-  $, t, layout: () => layout, floorIdx: () => floorIdx, houseMode: () => houseMode,
+  $, t, layout: () => layout, floorShown: (i) => floorShown(i), floorIdx: () => floorIdx, houseMode: () => houseMode,
   switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on), closeOthers: () => dropdowns.forEach(([m, b]) => toggleMenu(m, b, false)),
 });
 /* ---- Phones held upright: power, water / gas, offline, open and cameras fold into one drop-down; the code lives in phonestatus.js ---- */
@@ -1102,7 +1167,7 @@ const findRoomByName = (name) => findRoomIn(layout.floors, name);
 
 /* ================= Floor rail: side bar with a thumbnail per floor; the code lives in floorrail.js ================= */
 const floorRail = initFloorRail({
-  $, t, layout: () => layout, floorIdx: () => floorIdx, houseMode: () => houseMode, isHolo: () => isHolo(), settings: () => settings,
+  $, t, layout: () => shownLayout(), floorShown: (i) => floorShown(i), floorIdx: () => floorIdx, houseMode: () => houseMode, isHolo: () => isHolo(), settings: () => settings,
   roofBox: (i) => roofBox(i), switchFloor: (i) => switchFloor(i), setHouseMode: (on) => setHouseMode(on),
 });
 
@@ -1210,7 +1275,7 @@ $('#belowLabelsToggle').addEventListener('click', () => {                 // nam
 /* ================= Palettes: devices, custom models; the code lives in palettes.js ================= */
 const palettes = initPalettes({ $, t, getType: () => deviceType, setType: (k) => { deviceType = k; }, alert: (x) => alert(x) });
 /* ================= Placeholder blocks and stairs: the code lives in blocks.js and stairtool.js ================= */
-const floorOpenings = (i) => floorOpeningsOf(layout.floors, i, FLOOR_H);
+const floorOpenings = (i) => floorOpeningsOf(shownLayout().floors, i, FLOOR_H);
 const blocks = initBlocks({
   $, t, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, setFloorIdx: (i) => { floorIdx = i; }, snapshot: () => snapshot(), changed: (...a) => changed(...a),
   setStatus: (x) => setStatus(x), select: (sel) => { selection = sel; }, uid: () => uid(), plan: () => plan, fillFloorSelect: () => fillFloorSelect(),
@@ -1254,7 +1319,7 @@ function releaseLock() {                 // back to the room (if the object came
   refreshSelection();
 }
 const objList = initObjList({
-  $, t, floor: () => floor(), isLive: () => isLive(), selection: () => selection, locked: () => lockedSel, lockTo: (sel) => { selection = sel; lockedSel = true; refreshSelection(); },
+  $, t, floor: () => shownFloor(), isLive: () => isLive(), selection: () => selection, locked: () => lockedSel, lockTo: (sel) => { selection = sel; lockedSel = true; refreshSelection(); },
   releaseLock: () => releaseLock(), registry, tool: () => tool, setTool: (x) => setTool(x), itemOf: (k, id) => itemOf(k, id), snapshot: () => snapshot(), changed: () => changed(),
   renderProps: () => renderProps(), plan: () => plan, pointInPoly,
 });
@@ -1371,6 +1436,7 @@ function normalizeLayout() { layout = normalizeLayoutOf(layout, t('floor.default
 plan = createPlan({
   stage: $('#stage'),
   floor: () => floor(), layout: () => layout, getFloorIdx: () => floorIdx, settings: () => settings,
+  shownFloor: () => shownFloor(), shownLayout: () => shownLayout(),   // what is drawn and picked: one building of several (#409)
   getTool: () => tool, getOpeningType: () => openingType, isLive: () => isLive(), isLocked: () => lockedSel,
   getSelection: () => selection,
   holdPlaced,
@@ -1411,6 +1477,8 @@ async function init() {
   await hs.load();
   try { layout = await persist.load(); } catch { setStatus(t('loadFailed')); }
   normalizeLayout();
+  buildingsUi.start(me.building, (me.locks || []).includes('building'));   // one building of several: this user's / tablet's, maybe kept to it (#409)
+  knownRooms = roomIds();
   floorIdx = groundIdx();                                 // start on the ground floor, not in the basement
   hs.renderUi(); neighbors.renderUi();
   await palettes.loadModels();

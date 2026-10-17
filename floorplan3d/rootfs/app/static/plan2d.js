@@ -76,6 +76,7 @@ export function createPlan(ctx) {
   let calibPts = [], calibCur = null;
 
   const floor = () => ctx.floor();
+  const shown = () => ctx.shownFloor?.() || floor();             // what is drawn and can be picked: one building of several (#409)
   const sx = (x) => x * s + tx, sy = (z) => z * s + ty;
   const wx = (px) => (px - tx) / s, wz = (py) => (py - ty) / s;
   const grid = () => ctx.settings().grid || 0.25;
@@ -138,7 +139,7 @@ export function createPlan(ctx) {
   /* Snap to nearby corner points first, then to the grid. `fine` = 5 cm grid (devices). */
   function snapPt(x, z, { fine = false, ends = true, free = false } = {}) {
     if (ends) {
-      const f = floor(), tol = 10 / s;
+      const f = shown(), tol = 10 / s;
       let best = null, bd = tol;
       const test = (p) => { const d = Math.hypot(p[0] - x, p[1] - z); if (d < bd) { bd = d; best = p; } };
       f.walls.forEach((w) => { test(w.a); test(w.b); });
@@ -164,7 +165,7 @@ export function createPlan(ctx) {
   function openingAt(x, z) {
     const tol = Math.max(0.12, 8 / s);
     let best = null, bd = Infinity;
-    floor().walls.forEach((w) => {
+    shown().walls.forEach((w) => {
       const [ux, uz, L] = dirOf(w);
       (w.openings || []).forEach((o) => {
         const cx = w.a[0] + ux * o.pos, cz = w.a[1] + uz * o.pos;
@@ -178,7 +179,7 @@ export function createPlan(ctx) {
   /* exact hits for a double click: the generous reach of pickAt (opening / device padding, a few pixels) must not take a
    * double click away from a wall that is right there */
   function onOpeningExact(id, x, z) {
-    for (const w of floor().walls) {
+    for (const w of shown().walls) {
       const o = (w.openings || []).find((q) => q.id === id);
       if (!o) continue;
       const [ux, uz] = dirOf(w);
@@ -188,7 +189,7 @@ export function createPlan(ctx) {
     return false;
   }
   function onDeviceExact(id, x, z) {
-    const d = floor().devices.find((q) => q.id === id);
+    const d = shown().devices.find((q) => q.id === id);
     if (!d) return false;
     if (d.type === 'ledring') return true;
     const f = footOf(d), th = (-(d.rot || 0) * Math.PI) / 180, c = Math.cos(th), sn = Math.sin(th);
@@ -199,7 +200,7 @@ export function createPlan(ctx) {
   /** the line of a cable in the plan: straight when it hangs in the air, otherwise first along x, then along z like the real cable on the floor */
   const cableLine = (a, b, route) => (route === 'air' ? [a, b] : [a, [b[0], a[1]], b]);
   function cableAt(x, z) {
-    const f = floor(), tol = Math.max(0.2, 9 / s);
+    const f = shown(), tol = Math.max(0.2, 9 / s);
     let best = null;
     f.devices.forEach((d) => ctx.cablesOf(d).forEach((c) => {
       const tg = f.devices.find((q) => q.id === c.to);
@@ -210,7 +211,7 @@ export function createPlan(ctx) {
     return best ? { kind: 'cable', id: best.id } : null;
   }
   function pickAt(x, z) {
-    const f = floor();
+    const f = shown();
     if (ctx.powerMode?.()) {                                                   // the power editor: only power devices, with a little room around them
       const pw = f.devices.filter((d) => ctx.isPowerType(d.type)), tol = Math.max(0.35, 14 / s);
       const near = pw.map((d) => ({ d, k: Math.hypot(d.x - x, d.z - z) })).filter((q) => q.k <= tol || devHit(q.d, x, z)).sort((a, b) => a.k - b.k)[0];
@@ -258,7 +259,7 @@ export function createPlan(ctx) {
   function handleAt(px, py) {
     const sel = ctx.getSelection();
     if (!sel || ctx.isItemLocked?.(sel.kind, sel.id)) return null;
-    const f = floor();
+    const f = shown();
     const near = (p) => Math.hypot(sx(p[0]) - px, sy(p[1]) - py) <= 11;
     if (sel.kind === 'roof') {                                   // a roof (#259): its corners and the middle of its sides change its size
       const r = (ctx.roofRects?.() || []).find((q) => q.id === sel.id);
@@ -344,7 +345,7 @@ export function createPlan(ctx) {
     W = r.width; H = r.height;
     if (!W || !H) return;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    const f = floor();
+    const f = shown();
     if (!f) { svg.innerHTML = ''; return; }
     const sel = ctx.getSelection();
     const live = isLive();
@@ -377,8 +378,8 @@ export function createPlan(ctx) {
     if (plotB?.length >= 3) o += `<polygon points="${pts(plotB)}" fill="rgba(60,255,176,.05)" stroke="rgba(60,255,176,.7)" stroke-width="1.5" stroke-dasharray="8 5"/>`;
 
     /* placeholder blocks: solid masses that stand in for floors you do not draw */
-    const idxB = ctx.getFloorIdx(), H3 = ctx.floorH();
-    ctx.layout().floors.forEach((fl, i) => {
+    const idxB = ctx.getFloorIdx(), H3 = ctx.floorH(), view = ctx.shownLayout?.() || ctx.layout();   // one building of several (#409)
+    view.floors.forEach((fl, i) => {
       if (i > idxB) return;
       (fl.blocks || []).forEach((b) => {
         const cur = i === idxB, isSel = cur && sel?.kind === 'block' && sel.id === b.id;
@@ -392,7 +393,7 @@ export function createPlan(ctx) {
 
     const idx = ctx.getFloorIdx();
     (ctx.ghostFloors ? ctx.ghostFloors() : []).forEach(({ i, col }) => {          // lowest floor first, so the nearer ones lie on top
-      ctx.layout().floors[i].walls.forEach((w) => { o += `<polygon points="${pts(wallPoly(w.a, w.b, w.thickness, w.thickness / 2, w.thickness / 2))}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-opacity=".75" stroke-width="1" style="pointer-events:none"/>`; });
+      view.floors[i].walls.forEach((w) => { o += `<polygon points="${pts(wallPoly(w.a, w.b, w.thickness, w.thickness / 2, w.thickness / 2))}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-opacity=".75" stroke-width="1" style="pointer-events:none"/>`; });
     });
 
     /* rooms */
@@ -424,7 +425,7 @@ export function createPlan(ctx) {
       return out;
     };
     const holeOf = (st) => `<polygon points="${pts(polyToWorld(st, stairLocal(st, H3).hole))}" fill="rgba(255,138,42,.12)" stroke="#ff8a2a" stroke-width="1.2" stroke-dasharray="5 3"/>`;
-    arrivingStairs(ctx.layout().floors, idxB).forEach(({ st }) => { o += holeOf(st) + drawStair(st, true, false); });   // from lower floors, also over several floors
+    arrivingStairs(view.floors, idxB).forEach(({ st }) => { o += holeOf(st) + drawStair(st, true, false); });   // from lower floors, also over several floors
     (f.stairs || []).forEach((st) => {
       if (st.dir === 'down') o += holeOf(st);
       o += drawStair(st, false, sel?.kind === 'stair' && sel.id === st.id);
@@ -719,7 +720,7 @@ export function createPlan(ctx) {
   function fit() {
     const r = root.getBoundingClientRect();
     W = r.width; H = r.height;
-    const f = floor();
+    const f = shown();
     if (!f || !W || !H) return;
     const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...(f.blocks || []).flatMap((q) => q.points), ...(f.holes || []).flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z]), ...(f.stairs || []).map((d) => [d.x, d.z]),
       ...(f.kind === 'roof' ? (ctx.roofRects?.() || []).flatMap(({ box: b, outline: o }) => [[b.x0, b.z0], [b.x1, b.z1], ...(o || [])]) : [])];   // a roof floor: its roofs (#255), with steps (#342)
@@ -1066,7 +1067,7 @@ export function createPlan(ctx) {
 
   function openingTarget(x, z, def = ctx.OPENING_DEFAULTS[ctx.getOpeningType()]) {
     let best = null, bd = Math.max(0.3, 14 / s);
-    floor().walls.forEach((w) => { const d = distSeg(x, z, w.a, w.b); if (d < bd) { bd = d; best = w; } });
+    shown().walls.forEach((w) => { const d = distSeg(x, z, w.a, w.b); if (d < bd) { bd = d; best = w; } });
     if (!best) return null;
     const raw = Math.round(ctx.projectOnWall(best, [x, z]) / 0.05) * 0.05;
     const width = ctx.fitOpeningWidth(best, def.width);
@@ -1106,7 +1107,7 @@ export function createPlan(ctx) {
       return;
     }
     if (d.type === 'multi') {                                         // a click toggles the thing under it, a frame adds what lies inside (#247)
-      if (d.b) ctx.addMulti(boxItems(floor(), d.a, d.b, (kind, v) => kind !== 'device' || !ctx.powerMode?.() || ctx.isPowerType(v.type)));
+      if (d.b) ctx.addMulti(boxItems(shown(), d.a, d.b, (kind, v) => kind !== 'device' || !ctx.powerMode?.() || ctx.isPowerType(v.type)));
       else if (d.hit) ctx.toggleMulti(d.hit);
       render();
       return;
@@ -1250,7 +1251,7 @@ export function createPlan(ctx) {
   function wallNear(x, z) {
     const tol = Math.max(0.1, 12 / s);
     let best = null, bd = Infinity;
-    floor().walls.forEach((w) => { const d = distSeg(x, z, w.a, w.b); if (d <= Math.max(w.thickness / 2, tol) && d < bd) { bd = d; best = w; } });
+    shown().walls.forEach((w) => { const d = distSeg(x, z, w.a, w.b); if (d <= Math.max(w.thickness / 2, tol) && d < bd) { bd = d; best = w; } });
     return best;
   }
   /* split a wall in two at the point of it closest to (x, z) (wallsplit.js). Returns false when there is no room for it
@@ -1267,7 +1268,7 @@ export function createPlan(ctx) {
 
   /* nearest edge of a room / block (the selected one wins) under the pointer, with the point on that edge */
   function edgeAt(x, z) {
-    const f = floor(), sel = ctx.getSelection(), tol = Math.max(0.08, 10 / s);
+    const f = shown(), sel = ctx.getSelection(), tol = Math.max(0.08, 10 / s);
     const polys = [...f.rooms.map((p) => ({ kind: 'room', poly: p })), ...(f.blocks || []).map((p) => ({ kind: 'block', poly: p })), ...(f.holes || []).map((p) => ({ kind: 'hole', poly: p }))];
     let best = null;
     polys.forEach(({ kind, poly }) => {

@@ -3,14 +3,14 @@
  * menu of nav.js). Whether the floor button replaces the pills is decided in style.css (narrow or very low screens only).
  * phoneFloorModel is pure and tested in tests/phonenav.test.mjs. */
 
-/** what the floor button says and what its list holds. lb: { house } */
-export function phoneFloorModel(floors, floorIdx, houseMode, lb) {
-  const items = floors.map((f, fi) => ({ kind: 'floor', fi, label: f.name, active: !houseMode && fi === floorIdx }));
+/** what the floor button says and what its list holds. lb: { house }; shown(fi): the floor has something of the building shown (#409) */
+export function phoneFloorModel(floors, floorIdx, houseMode, lb, shown = () => true) {
+  const items = floors.map((f, fi) => ({ kind: 'floor', fi, label: f.name, active: !houseMode && fi === floorIdx })).filter((it) => shown(it.fi));
   if (floors.length > 1 || floors.some((f) => f.devices.length)) items.push({ kind: 'house', label: lb.house, active: houseMode });
   return { label: houseMode ? lb.house : floors[floorIdx]?.name || '', items };
 }
 
-/** ctx: $, t, layout(), floorIdx(), houseMode(), switchFloor(i), setHouseMode(on), closeOthers() (the other drop-downs) */
+/** ctx: $, t, layout(), floorIdx(), houseMode(), switchFloor(i), setHouseMode(on), closeOthers() (the other drop-downs), floorShown(i) (#409) */
 export function initPhoneNav(ctx) {
   const { $, t } = ctx;
   const btn = document.createElement('button'), menu = document.createElement('div');
@@ -25,7 +25,7 @@ export function initPhoneNav(ctx) {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) set(false); });
 
   function build() {
-    const m = phoneFloorModel(ctx.layout().floors, ctx.floorIdx(), ctx.houseMode(), { house: t('nav.house') });
+    const m = phoneFloorModel(ctx.layout().floors, ctx.floorIdx(), ctx.houseMode(), { house: t('nav.house') }, (i) => ctx.floorShown?.(i) ?? true);
     btn.textContent = `${m.label} ▾`;
     menu.replaceChildren(...m.items.map((it) => {
       const b = document.createElement('button');

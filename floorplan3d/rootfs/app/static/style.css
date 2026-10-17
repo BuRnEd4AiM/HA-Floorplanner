@@ -369,6 +369,17 @@ body.kiosk #houseGroup { display: none; }
 body.live #panelResizer { display: none; }
 @media (max-width: 700px) { #panelResizer { display: none; } }
 #houseGroup[hidden] { display: none; }
+#buildingGroup[hidden] { display: none; }
+#buildingSelect { max-width: 190px; }
+body.kiosk #buildingGroup { display: none; }
+#buildingPanel h4 { margin: 12px 0 4px; }
+.bldRow { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+.bldRow .bldName { flex: 1; min-width: 0; }
+.bldFloor { margin: 8px 0 2px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.bldRoom { display: flex; gap: 6px; align-items: center; margin-bottom: 3px; }
+.bldRoom span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bldRoom select { max-width: 60%; }
+.bldWarn { color: var(--warn, #e0a030); }
 #objList .objfilter { width: 100%; margin: 6px 0; }
 dialog .dlgHead { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; margin: 0 -20px 4px; padding: 16px 20px 8px; background: var(--bg); border-bottom: 1px solid var(--line); }
 dialog .dlgHead h2 { margin: 0; }

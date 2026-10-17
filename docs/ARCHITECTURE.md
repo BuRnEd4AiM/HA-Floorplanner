@@ -35,7 +35,7 @@ server.py  (aiohttp, port 8099)
 
 More modules (heating panel, kitchen run, tool bar, backups, ...) and the plan for splitting the rest of `app.js`: see [MODULE-PLAN.md](MODULE-PLAN.md).
 
-The layout is plain JSON: floors → walls (with openings), rooms, devices. Both editors change the same object and call `changed()`, which rebuilds the 3D scene and schedules a save.
+The layout is plain JSON: floors → walls (with openings), rooms, devices. A plan can hold several buildings (`buildings: [{ id, name }]`, `room.building`, a roof's `building`, #409): `buildings.js` works out what belongs to which one and the plan as one building sees it (`viewOf`); drawing, framing and the lists use that view, editing always the plan itself. Both editors change the same object and call `changed()`, which rebuilds the 3D scene and schedules a save.
 
 ## Backend rules
 

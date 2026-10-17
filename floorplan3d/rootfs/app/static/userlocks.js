@@ -13,6 +13,7 @@ export const LOCKS = [
   ['floorGap', '#explodeToggle, #stackToggle'],                       // the floors pulled apart / on top of each other (#396): stays as preset
   ['views', '#view2d, #view3d, #viewSplit'],                           // switching 2D / 3D / 2D + 3D
   ['houses', '#houseGroup'],                                           // switching to another house
+  ['building', '#buildingGroup'],                                      // switching to another building of the plan (#409): stays on its own
   ['search', '#findBtn, #findBox'],                                    // the "Where is ...?" search
   ['settings', '#settingsBtn'],                                        // the settings dialog (⚙)
   ['timeline', '#timelineBtn'],                                        // security view: what switched when (the server refuses it too)
