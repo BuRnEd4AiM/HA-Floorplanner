@@ -1292,4 +1292,6 @@ export default {
   'wx.partlycloudy': 'Parcialmente nublado', 'wx.cloudy': 'Nublado', 'wx.fog': 'Niebla', 'wx.windy': 'Ventoso', 'wx.windy-variant': 'Ventoso y nublado',
   'wx.exceptional': 'Tiempo severo', 'wx.rainy': 'Lluvia', 'wx.pouring': 'Lluvia intensa', 'wx.lightning-rainy': 'Tormenta con lluvia',
   'wx.lightning': 'Tormenta', 'wx.hail': 'Granizo', 'wx.snowy': 'Nieve', 'wx.snowy-rainy': 'Aguanieve',
+  'prop.rainWarn': 'Avisar si llueve',
+  'prop.rainWarnHint': 'Aparece un aviso si esta ventana está abierta mientras la entidad del tiempo indica lluvia. Desmárcalo para una ventana que puede quedar abierta con lluvia.',
 };

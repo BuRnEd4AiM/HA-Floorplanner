@@ -1292,4 +1292,6 @@ export default {
   'wx.sunny': 'Soleggiato', 'wx.partlycloudy': 'Parzialmente nuvoloso', 'wx.cloudy': 'Nuvoloso', 'wx.fog': 'Nebbia', 'wx.windy': 'Ventoso',
   'wx.windy-variant': 'Ventoso e nuvoloso', 'wx.exceptional': 'Maltempo', 'wx.rainy': 'Pioggia', 'wx.pouring': 'Pioggia forte',
   'wx.lightning-rainy': 'Temporale con pioggia', 'wx.lightning': 'Temporale', 'wx.hail': 'Grandine', 'wx.snowy': 'Neve', 'wx.snowy-rainy': 'Nevischio',
+  'prop.rainWarn': 'Avvisa se piove',
+  'prop.rainWarnHint': 'Compare un avviso se questa finestra è aperta mentre l\'entità meteo segnala pioggia. Togli la spunta per una finestra che può restare aperta sotto la pioggia.',
 };

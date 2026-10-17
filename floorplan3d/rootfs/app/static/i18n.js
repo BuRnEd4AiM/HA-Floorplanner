@@ -217,6 +217,8 @@ const DICT = {
     'wx.partlycloudy': 'Teilweise bewölkt', 'wx.cloudy': 'Bewölkt', 'wx.fog': 'Nebel', 'wx.windy': 'Windig', 'wx.windy-variant': 'Windig und bewölkt',
     'wx.exceptional': 'Unwetter', 'wx.rainy': 'Regen', 'wx.pouring': 'Starkregen', 'wx.lightning-rainy': 'Gewitter mit Regen', 'wx.lightning': 'Gewitter',
     'wx.hail': 'Hagel', 'wx.snowy': 'Schnee', 'wx.snowy-rainy': 'Schneeregen',
+    'prop.rainWarn': 'Bei Regen warnen',
+    'prop.rainWarnHint': 'Ist das Fenster offen, während die Wetter-Entität Regen meldet, kommt eine Warnung. Haken weg für ein Fenster, das bei Regen offen bleiben darf.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -430,6 +432,8 @@ const DICT = {
     'wx.sunny': 'Sunny', 'wx.partlycloudy': 'Partly cloudy', 'wx.cloudy': 'Cloudy', 'wx.fog': 'Fog', 'wx.windy': 'Windy', 'wx.windy-variant': 'Windy and cloudy',
     'wx.exceptional': 'Severe weather', 'wx.rainy': 'Rain', 'wx.pouring': 'Pouring rain', 'wx.lightning-rainy': 'Thunderstorm with rain',
     'wx.lightning': 'Thunderstorm', 'wx.hail': 'Hail', 'wx.snowy': 'Snow', 'wx.snowy-rainy': 'Sleet',
+    'prop.rainWarn': 'Warn in the rain',
+    'prop.rainWarnHint': 'A warning comes when this window is open while the weather entity reports rain. Untick it for a window that may stay open in the rain.',
   },
 };
 

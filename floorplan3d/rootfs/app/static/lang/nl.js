@@ -1285,4 +1285,6 @@ export default {
   'wx.partlycloudy': 'Half bewolkt', 'wx.cloudy': 'Bewolkt', 'wx.fog': 'Mist', 'wx.windy': 'Winderig', 'wx.windy-variant': 'Winderig en bewolkt',
   'wx.exceptional': 'Noodweer', 'wx.rainy': 'Regen', 'wx.pouring': 'Stortregen', 'wx.lightning-rainy': 'Onweer met regen', 'wx.lightning': 'Onweer',
   'wx.hail': 'Hagel', 'wx.snowy': 'Sneeuw', 'wx.snowy-rainy': 'Natte sneeuw',
+  'prop.rainWarn': 'Waarschuwen bij regen',
+  'prop.rainWarnHint': 'Er komt een waarschuwing als dit raam open is terwijl de weer-entiteit regen meldt. Haal het vinkje weg bij een raam dat bij regen open mag blijven.',
 };

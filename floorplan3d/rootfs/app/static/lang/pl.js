@@ -1291,4 +1291,6 @@ export default {
   'wx.sunny': 'Słonecznie', 'wx.partlycloudy': 'Częściowe zachmurzenie', 'wx.cloudy': 'Pochmurno', 'wx.fog': 'Mgła', 'wx.windy': 'Wietrznie',
   'wx.windy-variant': 'Wietrznie i pochmurno', 'wx.exceptional': 'Gwałtowna pogoda', 'wx.rainy': 'Deszcz', 'wx.pouring': 'Ulewa',
   'wx.lightning-rainy': 'Burza z deszczem', 'wx.lightning': 'Burza', 'wx.hail': 'Grad', 'wx.snowy': 'Śnieg', 'wx.snowy-rainy': 'Deszcz ze śniegiem',
+  'prop.rainWarn': 'Ostrzegaj przy deszczu',
+  'prop.rainWarnHint': 'Pojawi się ostrzeżenie, gdy to okno jest otwarte, a encja pogody zgłasza deszcz. Odznacz dla okna, które może zostać otwarte w deszczu.',
 };

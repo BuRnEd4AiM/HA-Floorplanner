@@ -1291,4 +1291,6 @@ export default {
   'wx.partlycloudy': 'Partiellement nuageux', 'wx.cloudy': 'Nuageux', 'wx.fog': 'Brouillard', 'wx.windy': 'Venteux', 'wx.windy-variant': 'Venteux et nuageux',
   'wx.exceptional': 'Intempéries', 'wx.rainy': 'Pluie', 'wx.pouring': 'Averse', 'wx.lightning-rainy': 'Orage avec pluie', 'wx.lightning': 'Orage',
   'wx.hail': 'Grêle', 'wx.snowy': 'Neige', 'wx.snowy-rainy': 'Neige fondue',
+  'prop.rainWarn': 'Avertir en cas de pluie',
+  'prop.rainWarnHint': 'Un avertissement apparaît si cette fenêtre est ouverte alors que l\'entité météo signale de la pluie. Décochez pour une fenêtre qui peut rester ouverte sous la pluie.',
 };

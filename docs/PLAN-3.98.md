@@ -94,7 +94,7 @@ Himmel am Tag / mit `?skytime=21:30` / `?skytime=19:15` · Uhrzeit-Anzeige · �
 - [x] Beispielbilder, Issues #418 bis #422, dieser Plan
 - [x] A. Himmel (`sky.js`, `skyui.js`, Server `sun`, Einstellung, Demo `?skytime`), Texte in 7 Sprachen, `tests/sky.test.mjs` in der CI-Liste
 - [x] B1. Wetter im Bild (`weatherLook`, Regen/Schnee, Anzeige, Server `wx`, Demo `?weather`)
-- [ ] B2. Haken „Bei Regen warnen“ am Fenster (`rainWarn`, `findAlerts`, Eigenschaften)
+- [x] B2. Haken „Bei Regen warnen“ am Fenster (`rainWarn`, `findAlerts`, Eigenschaften, Import/Export, Schema, Tests)
 - [ ] C. Strom als Bild (`energyflow.js`, `energyflowui.js`)
 - [ ] D. Raum-Kacheln (`roomtiles.js`, `roomtilesui.js`, `roomHeat` umgezogen)
 - [ ] E. Werkzeugleiste (`toolicons.js`, `index.html`, CSS)

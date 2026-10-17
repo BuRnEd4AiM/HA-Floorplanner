@@ -594,6 +594,10 @@
     "shutterEntity": {
      "type": "string",
      "description": "Cover entity of the roller shutter, e.g. cover.rollladen_wohnzimmer (implies shutter: true)"
+    },
+    "rainWarn": {
+     "type": "boolean",
+     "description": "false: no warning when this window is open in the rain (windows only; default true)"
     }
    }
   },

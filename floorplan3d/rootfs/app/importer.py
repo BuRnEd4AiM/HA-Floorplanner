@@ -227,6 +227,8 @@ def _opening_from(rep: Report, path: str, spec: dict):
             o["shutter"] = True
             if shutter_entity:
                 o["shutterEntity"] = shutter_entity[:120]
+    if spec.get("rainWarn") is False and o["type"] == "window":   # this window may stay open in the rain: no warning for it (#419)
+        o["rainWarn"] = False
     return o
 
 
@@ -917,7 +919,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": []}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "rainWarn") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []
