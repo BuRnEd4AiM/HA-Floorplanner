@@ -78,3 +78,10 @@ test('the battery at night: resting (holding its reserve) or its power unknown, 
   assert.deepEqual(night({ v: 9, flow: null, dir: null }), { value: '9 %', sub: 'flow.noPower' });
   assert.equal(night({ v: 9, flow: null, dir: -1 }).sub, 'flow.discharging{"w":""}', 'a text sensor tells only the direction');
 });
+
+test('the water, gas and heat meters under the picture: their reading, the kind and name as the tooltip', () => {
+  const chips = F.meterChips([{ type: 'watermeter', name: 'Garten', text: '🚰 87.3 m³' }, { type: 'gasmeter', name: '', text: '🔥 845.2 m³' }], t);
+  assert.deepEqual(chips, [{ text: '🚰 87.3 m³', title: 'dev.watermeter (Garten)' }, { text: '🔥 845.2 m³', title: 'dev.gasmeter' }]);
+  assert.deepEqual(F.meterChips([], t), []);
+  assert.deepEqual(F.meterChips(null, t), []);
+});

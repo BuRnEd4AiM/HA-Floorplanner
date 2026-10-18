@@ -63,6 +63,13 @@ check("room labels: placed over the picture (moved with the camera) and lit in t
       "translate(" in (pill.get_attribute("style") or "") and "lit" in (pill.get_attribute("class") or "") and "#ff7828" in (pill.get_attribute("style") or ""),
       pill.get_attribute("style"))
 check("room labels: the name on the floor steps aside meanwhile", pgL.evaluate(NAME, "Schilderraum") is False, pgL.evaluate(NAME, "Schilderraum"))
+pgL.evaluate("window.__fp.camAt(33, window.__fp.elev(window.__fp.floorIdx()) + 1.5, 42, 48, 42)"); pgL.wait_for_timeout(900)   # just over the labels (1.2 m), along the two rooms: they would lie on each other
+apart = pgL.evaluate("""() => { const r = (id) => document.querySelector(`#roomLabels [data-room=${id}]`)?.getBoundingClientRect();
+  const a = r('lk_room'), b = r('lk_plain'); if (!a || !b || !a.width || !b.width) return null;
+  const stem = (id) => parseFloat(document.querySelector(`#roomLabels [data-room=${id}]`).style.getPropertyValue('--stem')) || 0;
+  return { overlap: a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom, near: stem('lk_room'), far: stem('lk_plain') }; }""")
+check("room labels (3.99.1): seen low from the side, labels that would lie on each other are pushed apart; the farther one goes up on a longer line",
+      apart and not apart["overlap"] and apart["far"] > apart["near"], apart)
 check("room labels: either the labels or the devices: no tap balls and no value labels on the floor meanwhile",
       not pgL.evaluate(BALL) and pgL.evaluate(PILLS) == 0, (pgL.evaluate(BALL), pgL.evaluate(PILLS)))
 view_menu(pgL)
