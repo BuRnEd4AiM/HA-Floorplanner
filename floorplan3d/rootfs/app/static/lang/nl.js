@@ -30,7 +30,7 @@ export default {
   'bk.tip': 'Back-up, automatische back-ups en beveiliging (opname)',
   'bk.title': 'Back-up & beveiliging',
   'sv.title': 'Startweergave',
-  'sv.help': 'De pagina opent met deze weergave en de wandtablet keert ernaar terug. Stel eerst de weergave in (verdieping of heel huis, kamer, hoek), dan „Huidige weergave gebruiken”. Zonder opgeslagen weergave: de kamer van de gebruiker of de begane grond. Voor afzonderlijke gebruikers zie „Gebruikers”.',
+  'sv.help': 'De pagina opent met deze weergave en de wandtablet keert ernaar terug. Stel eerst de weergave in (verdieping of heel huis, kamer, hoek), dan „Huidige weergave gebruiken”. Zonder opgeslagen weergave: de kamer van de gebruiker of de begane grond. Voor afzonderlijke gebruikers zie „Gebruikers & tablets” verderop.',
   'sv.take': '📌 Huidige weergave gebruiken',
   'sv.auto': 'Automatisch',
   'sv.saved': 'Opgeslagen: {where}',
@@ -771,8 +771,7 @@ export default {
   'users.saveTip': 'Schrijft de gebruikers en tablets nu naar het bestand users.json in de Home Assistant-map (maakt het aan als het nog niet bestaat)',
   'users.saveDone': 'Bestand opgeslagen: {n} gebruikers staan in users.json.',
   'users.syncMissing': 'Er is nog geen bestand in de map. Druk op “Bestand maken / opslaan” en het is er.',
-  'users.btn': 'Gebruikers',
-  'users.tip': 'Gebruikers en tablets beheren (alleen beheerders)',
+  
   'users.fileTitle': 'Back-up in Home Assistant',
   'users.fileHelp': 'Gebruikers en tablets worden automatisch opgeslagen als bestand “users.json” in de configuratiemap van de add-on in Home Assistant (map “addon_configs”, submap “…floorplan3d”). Zo gaan ze niet verloren bij een update of herinstallatie. Het bestand kan daar ook met de hand worden bewerkt.',
   'users.syncBtn': '↻ Synchroniseren',
@@ -951,7 +950,6 @@ export default {
   'find.title': 'Waar is …? Apparaat of kamer zoeken',
   'find.placeholder': 'Waar is …? (apparaat of kamer)',
   'find.none': 'Niets gevonden.',
-  
   'set.alerts': 'Waarschuwingen tonen (rook, gas, CO, water, alarm, raam open bij regen)',
   'set.alertJump': 'Bij een nieuwe waarschuwing vanzelf naar de kamer springen',
   'set.weather': 'Weerentiteit voor „raam open bij regen” (leeg = de eerste)',
@@ -987,7 +985,6 @@ export default {
   'off.missing': 'Niet in Home Assistant',
   'off.since': 'sinds {t}',
   'set.autosave': 'Automatisch opslaan na (s)',
-  
   'vm.normal': 'Normaal', 'vm.temp': 'Temp.', 'vm.humid': 'Vocht', 'vm.co2': 'CO₂',
   'set.bgGlowStrength': 'Gloedsterkte (0 = uit)',
   'dev.presence': 'Aanwezigheid / persoon', 'nav.occupied': 'Er is iemand in deze kamer',
@@ -1198,7 +1195,6 @@ export default {
   'an.phone': 'Je WhatsApp-nummer (met landcode)',
   'an.key': 'Sleutel van CallMeBot (apikey)',
   'an.keySaved': 'opgeslagen – leeg laten om hem te houden',
-  'an.keyHelp': 'De sleutel krijg je één keer: de pagina van CallMeBot zegt naar welk nummer je een WhatsApp stuurt; het antwoord bevat de sleutel.',
   'an.service': 'Dienst (notify.…)',
   'an.serviceHint': 'Bijvoorbeeld een WhatsApp-, Telegram- of Signal-integratie of de Companion-app (mobile_app_…).',
   'an.serviceNone': 'Home Assistant heeft nog geen meldingsdienst gemeld; de naam kan ook getypt worden.',
@@ -1345,4 +1341,8 @@ export default {
   'sg.alarm.notifyOff': 'Het bericht naar je telefoon bij alarm stelt een gebruiker in die mag bewerken.', 'sg.tablet': 'Wandtablet',
   'sg.tablet.sub': 'Startweergave, schermbeveiliging, \'s nachts dimmen', 'sg.tablet.help': 'Voor een scherm dat altijd aan staat. Geldt in de live-weergave.',
   'sg.colors': 'Kleuren voor temperatuur, vocht, CO₂', 'sg.colors.sub': 'Vanaf welke waarde een ruimte welke kleur krijgt',
+  'sg.users': 'Gebruikers & tablets', 'sg.users.sub': 'Wie welke ruimte en weergave ziet, vergrendelingen, back-up', 'an.stepsTitle': 'Zo stel je WhatsApp in:',
+  'an.step1': 'Sla het WhatsApp-nummer van CallMeBot op in je contacten en stuur het het bericht „I allow callmebot to send me messages”. Het nummer staat hier:',
+  'an.step2': 'CallMeBot antwoordt snel met je sleutel (apikey). Vul die hieronder in, samen met je eigen WhatsApp-nummer met landcode.',
+  'an.step3': 'Vink bovenaan „Bericht bij alarm sturen” aan, „Opslaan”, dan „Test sturen”: het testbericht komt op je telefoon.',
 };

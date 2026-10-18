@@ -12,8 +12,8 @@ pgG.goto(BASE + "?debug=1&mode=edit"); pgG.wait_for_timeout(1500)
 pgG.click("#settingsBtn"); pgG.wait_for_timeout(600)
 GROUPS = "() => [...document.querySelectorAll('#settingsDialog details.setGroup')].map((d) => [d.dataset.group, d.open, !d.hidden])"
 g0 = pgG.evaluate(GROUPS)
-check("settings in groups: ten groups, all shut at first, the fields out of sight",
-      len(g0) == 10 and not any(o for _, o, _ in g0) and all(v for _, _, v in g0) and not pgG.is_visible("#setLanguage") and pgG.is_visible("#setSearch"), g0)
+check("settings in groups: eleven groups (with users & tablets, #454), all shut at first, the fields out of sight",
+      len(g0) == 11 and not any(o for _, o, _ in g0) and all(v for _, _, v in g0) and not pgG.is_visible("#setLanguage") and pgG.is_visible("#setSearch"), g0)
 check("settings in groups: each group says what is in it", "Fassade" in pgG.inner_text("details[data-group=outside] > summary")
       and "Alarmanlage" in pgG.inner_text("details[data-group=alarm] > summary"), pgG.inner_text("details[data-group=outside] > summary"))
 pgG.click("details[data-group=outside] > summary"); pgG.wait_for_timeout(300)
@@ -26,7 +26,8 @@ pgG.fill("#setSearch", "alarm"); pgG.wait_for_timeout(300)
 g1 = dict((g, (o, v)) for g, o, v in pgG.evaluate(GROUPS))
 HITS = "() => [...document.querySelectorAll('#settingsDialog .sgHit')].map((e) => e.textContent.trim().slice(0, 40))"
 check("search: 'alarm' leaves the group 'Warnungen & Alarm' open, the others away (its name fits: no marks all over it)",
-      g1["alarm"] == (True, True) and not g1["general"][1] and not g1["outside"][1] and pgG.evaluate(HITS) == [], (g1, pgG.evaluate(HITS)))
+      g1["alarm"] == (True, True) and not g1["general"][1] and not g1["outside"][1]
+      and pgG.evaluate("() => document.querySelectorAll('details[data-group=alarm] .sgHit').length") == 0, (g1, pgG.evaluate(HITS)))
 check("alarm (#owner question): the group explains the alarm panel and names the one Home Assistant has",
       "Alarmo" in pgG.inner_text("details[data-group=alarm] .sgInfo") and "Alarmo Haus" in pgG.inner_text("#alarmPanels")
       and "Scharf (abwesend)" in pgG.inner_text("#alarmPanels") and pgG.is_visible("#alarmNotify"), pgG.inner_text("#alarmPanels"))

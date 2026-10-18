@@ -41,6 +41,12 @@ def open_setting(pg, sel):
     """the settings dialog folds its groups shut (setgroups.js): open the group that holds this field"""
     pg.evaluate("(s) => { const d = document.querySelector(s)?.closest('details'); if (d) d.open = true; }", sel)
 
+def open_users(pg):
+    """users & tablets are a group of the settings (#454): open the settings and that group (it loads the users, the file state and the rooms)"""
+    if not pg.evaluate("document.querySelector('#settingsDialog').open"):
+        pg.click("#settingsBtn"); pg.wait_for_timeout(200)
+    open_setting(pg, "#tabletRows"); pg.wait_for_timeout(600)
+
 def view_menu(pg):
     """the view buttons (Auto, half section, pull apart, walls) sit in a drop-down at the top"""
     if not pg.locator("#viewMenu").is_visible():
@@ -114,7 +120,7 @@ if __name__ == "__main__":
         pg_.goto, pg_.reload = ready(pg_.goto), ready(pg_.reload)
         return pg_
     b.new_page = new_page
-    ns = dict(S=S, BASE=BASE, HA=HA, api=api, api_admin=api_admin, set_setting=set_setting, ha_calls=ha_calls, status_open=status_open, view_menu=view_menu, open_setting=open_setting,
+    ns = dict(S=S, BASE=BASE, HA=HA, api=api, api_admin=api_admin, set_setting=set_setting, ha_calls=ha_calls, status_open=status_open, view_menu=view_menu, open_setting=open_setting, open_users=open_users,
               check=check, errors=errors, results=results, json=json, os=os, sys=sys, time=time, urllib=urllib, Path=Path, p=p, b=b)
     if not run("base", PARTS_DIR / "base.py", ns):
         print("\nthe test house could not be built: the parts are not run")

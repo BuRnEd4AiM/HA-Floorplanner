@@ -4,28 +4,29 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.0.2)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.0.3)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.0.2** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.0.3** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
-1. **Neu in 4.0.2: Gebäude-Filter richtig** (69.1 bis 69.3, im Add-on 69.4): zwei Gebäude anlegen, einen Raum dem zweiten geben, oben umschalten: keine Wandstücke bleiben stehen, die Etage darunter verschwindet nicht mit, die Geräteliste zeigt nur das gewählte Gebäude.
-2. **Neu in 4.0.1: Einstellungen in Gruppen** (68.1 bis 68.8): ⚙ antippen, Gruppen auf- und zuklappen, oben „Alarm“ suchen, die Gruppe „Warnungen & Alarm“ lesen.
-3. **Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade** (67.1 bis 67.12): nah an die Wände im Bad, in der Küche und im Wohnzimmer zoomen; außen ums Haus drehen; im Bearbeiten einem Raum einen Boden, eine Farbe aus der Farbreihe, eine Größe und 45° geben; unter „Wände“ Raufaser, eine Tapete oder Fliesen wählen, „Unten anders“ ausprobieren; eine einzelne Wand anklicken und eine Seite anders machen; ⚙ → „Fassade“.
-4. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25): „Live“ ansehen und nah heranzoomen, auch flach von der Seite; ein Raum-Schild und einen Punkt antippen; nachts die Sterne ansehen; auf dem Tablet eine Raum-Kachel antippen; am Handy die Raum-Kacheln wischen (flüssig, ohne Hängen), unten „Strom“ drücken (die Karte „Strom jetzt“ erscheint), die Raum-Schilder ansehen und ganz unten Uhrzeit und Wetter; „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
-5. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
-6. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
-7. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
-8. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
-9. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
-10. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
-11. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
-12. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
-13. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „Warnungen & Alarm“ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
-14. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
-15. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
-16. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
-17. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
-18. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
+1. **Neu in 4.0.3: Benutzer in ⚙, WhatsApp-Anleitung** (70.1 bis 70.6): oben gibt es keinen Knopf „Benutzer“ mehr; ⚙ → „👥 Benutzer & Tablets“ aufklappen; ⚙ → „Warnungen & Alarm“ → die drei Schritte für WhatsApp lesen. Alles, was früher „Benutzer“ → … hieß, geht jetzt über ⚙ → „Benutzer & Tablets“.
+2. **Neu in 4.0.2: Gebäude-Filter richtig** (69.1 bis 69.3, im Add-on 69.4): zwei Gebäude anlegen, einen Raum dem zweiten geben, oben umschalten: keine Wandstücke bleiben stehen, die Etage darunter verschwindet nicht mit, die Geräteliste zeigt nur das gewählte Gebäude.
+3. **Neu in 4.0.1: Einstellungen in Gruppen** (68.1 bis 68.8): ⚙ antippen, Gruppen auf- und zuklappen, oben „Alarm“ suchen, die Gruppe „Warnungen & Alarm“ lesen.
+4. **Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade** (67.1 bis 67.12): nah an die Wände im Bad, in der Küche und im Wohnzimmer zoomen; außen ums Haus drehen; im Bearbeiten einem Raum einen Boden, eine Farbe aus der Farbreihe, eine Größe und 45° geben; unter „Wände“ Raufaser, eine Tapete oder Fliesen wählen, „Unten anders“ ausprobieren; eine einzelne Wand anklicken und eine Seite anders machen; ⚙ → „Fassade“.
+5. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25): „Live“ ansehen und nah heranzoomen, auch flach von der Seite; ein Raum-Schild und einen Punkt antippen; nachts die Sterne ansehen; auf dem Tablet eine Raum-Kachel antippen; am Handy die Raum-Kacheln wischen (flüssig, ohne Hängen), unten „Strom“ drücken (die Karte „Strom jetzt“ erscheint), die Raum-Schilder ansehen und ganz unten Uhrzeit und Wetter; „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
+6. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
+7. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
+8. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
+9. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
+10. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
+11. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
+12. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
+13. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+14. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „Warnungen & Alarm“ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
+15. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
+16. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
+17. **Benutzer sperren** (37.6, 61.10, 61.11): ⚙ → „Benutzer & Tablets“ → bei einem Benutzer ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
+18. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
+19. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
 **Zuletzt geprüft (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
 
@@ -273,7 +274,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448) | 0 | 0 | 12 | 2 | 67.1 bis 67.12 |
 | 68. Neu in 4.0.1: Einstellungen in Gruppen, Suche, was die Alarmanlage ist (#450) | 0 | 0 | 8 | 1 | 68.1 bis 68.8 |
 | 69. Neu in 4.0.2: Gebäude-Filter richtig (#451) | 0 | 0 | 3 | 1 | 69.1 bis 69.3 |
-| **Zusammen** | **284** | **2** | **207** | **27** | |
+| 70. Neu in 4.0.3: Benutzer & Tablets in den Einstellungen, WhatsApp leichter einrichten (#454) | 0 | 0 | 6 | 1 | 70.1 bis 70.6 |
+| **Zusammen** | **284** | **2** | **213** | **28** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1141,3 +1143,15 @@ Nach Bildern des Besitzers aus seinem Haus „Kinder“: beim Umschalten oben bl
 | 69.2 | Einen Raum im Obergeschoss dem zweiten Gebäude geben (z. B. das Kinderzimmer), oben das erste Gebäude wählen, „Ganzes Haus“ | Nur dieser Raum fehlt; das Erdgeschoss darunter bleibt ganz stehen. Rechts steht beim Raum darunter weiter sein Gebäude oder „automatisch (Grundstück)“. Umgekehrt folgen die Räume darüber weiter dem Erdgeschoss (61.3) | ❓ |
 | 69.3 | Oben „📋 Geräte“ öffnen, dann oben zwischen den Gebäuden umschalten | Die Liste zeigt nur die Geräte, Türen und Fenster des gewählten Gebäudes (und was in keinem Raum steht, z. B. im Garten); die Zahl der schwachen Batterien am Knopf auch. „🏘 Alle Gebäude“ zeigt wieder alles | ❓ |
 | 69.4 | Im Add-on, Haus „Kinder“: oben „Gebäude 1“ und „Gebäude 2“ umschalten, auch mit WZFA in Gebäude 2 | „Raum 1“ im EG bleibt stehen (rechts „automatisch (Grundstück)“, bis er selbst ein Gebäude bekommt); keine Mauern ohne ihren Raum; die Geräteliste passt zum Bild | ➖ |
+
+## 70. Neu in 4.0.3: Benutzer & Tablets in den Einstellungen, WhatsApp leichter einrichten (#454)
+Der Knopf „Benutzer“ oben ist weg: alles daraus steht jetzt in ⚙ → „👥 Benutzer & Tablets“. Ältere Prüfschritte mit „Benutzer“ → … gehen genauso über diese Gruppe.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 70.1 | Demo öffnen, oben in der Leiste schauen | Kein Knopf „Benutzer“ mehr, die Leiste ist kürzer | ❓ |
+| 70.2 | ⚙ → Gruppe „👥 Benutzer & Tablets“ aufklappen | Die Benutzer mit Raum, Ansicht und Start stehen da; oben in jeder Zeile der Benutzer mit ⚙ und ×, darunter Raum, Ansicht, Start; unten „Sicherung in Home Assistant“ mit „Datei erstellen / speichern“ und „Synchronisieren“ | ❓ |
+| 70.3 | „+ Benutzer“, einen Benutzer wählen, Raum wählen; Fenster schließen und wieder öffnen | Der Benutzer bleibt gespeichert, mit Raum | ❓ |
+| 70.4 | Bei einem Benutzer ⚙ → „🔒 Gesperrt“ einen Haken setzen | Wie bisher: der Haken bleibt, der Knopf zeigt 🔒 1 | ❓ |
+| 70.5 | Am Handy ⚙ öffnen | Die Gruppe „Benutzer & Tablets“ gibt es am Handy nicht (wie vorher der Knopf) | ❓ |
+| 70.6 | ⚙ → „Warnungen & Alarm“ → „Benachrichtigung bei Alarm“, „Senden über: WhatsApp direkt“ | Drei nummerierte Schritte: Nachricht „I allow callmebot to send me messages“ an CallMeBot (mit Link), Schlüssel und Nummer eintragen, Haken, Speichern, Test senden | ❓ |
+| 70.7 | Im Add-on: die drei Schritte wirklich machen | Die Test-Nachricht kommt per WhatsApp aufs Handy | ➖ |
