@@ -1,6 +1,6 @@
 {
  "version": "3.99.5",
- "buildHash": "7cdd1eea035ff98e74db3d12b1f53fb38c8fcc0c27332b9bb96f28f076bb4d3d",
+ "buildHash": "f994f5200b82cf117d96e870f1e33c1962c761c51f75a782bdac49ca716d5e0a",
  "files": {
   "alarmnotify.py": "350d9ec78caf3ce49df4b5d77867b759212cf35fae93d26dc395fc4f48f80fc1",
   "controls.py": "6d7830e85d1010f56885e15edb68a870a696b6e6a265e859b8a3e0aa4e3ae9c8",
@@ -135,7 +135,7 @@
   "server.py": "83164a165714231205bb6bb5227a6f065b7e178748c323afddb3f8d4f072aa6b",
   "static/alerts.js": "8308c560da644008c84a87263aca67b375e0b056cd58a5ec8fb338db848aaab0",
   "static/alertsui.js": "503c006f839253eb31f5e2adb4e6612d21fd657b8691956fd095546dce5177ea",
-  "static/app.js": "3f6bb7fb76c90ccd7f8586cad1e84583926672f9aa62543a2acbe271f9e1816c",
+  "static/app.js": "27940bea41fbf93c817992fcfe0676c9927cb09eb57014a1e2d74d04785966d5",
   "static/appstate.js": "245079a8fb80ec0d50aec836c1835f6522e7232372b827758caeedcfa7ffb070",
   "static/attic.js": "1c31524de44895638c5498cce26a7aa64b092c5c713d82bf26c895a2a1715820",
   "static/atticclip.js": "3f99788b46c36ace3b01e450da69e32163103616d12f4e039a37770def0b744d",
@@ -254,7 +254,7 @@
   "static/settings.js": "2887b986e910f7b430a4fc06ea500538f6dd60bf308996fdf3c2eacc83b2aa4e",
   "static/settingsui.js": "c777b3d71df8c14586fd11d4885fd7136f33a1672f0d1ecea4f7a564589caea3",
   "static/shapes.js": "5fc7095df73969bb45a433e1be8a051ff9b0698740755f635bdd7df5cb59f007",
-  "static/sheetview.js": "e190e2af95d27eda3f0566f087de73e77ed92ab6d1779e7da2a6c8bd1aa94d30",
+  "static/sheetview.js": "eb1e32f72dcc8f974c108532e90a8806ed01bad8fab3439d1a5d8bfcff03d710",
   "static/shuttercard.js": "83d94cda3d6eed7b634f8c9167db95382c9eefefccda4b4d4ba5790a0d49562d",
   "static/shutters.js": "f49cdfe770b5ce5c104a202b4904a5c8ec33234f2b73ae906ff7a580261135c5",
   "static/sky.js": "001892ae123af82780d2ba8abc6eee76dcc1549e0d03d37cf3818018c8b8eec6",

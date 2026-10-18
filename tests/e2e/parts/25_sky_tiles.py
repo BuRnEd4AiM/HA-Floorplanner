@@ -148,8 +148,13 @@ cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []}); p
 st2 = pgP.evaluate(STRIP)
 check("phone: a real finger swipe to the right brings the first tiles back", st2["left"] < st1["left"] - 100, (st1, st2))
 pgP.wait_for_timeout(500)
+pgP.add_style_tag(content="body #roomPanel { bottom: 46px !important; }")   # the iPhone keeps the room sheet clear of its home bar (#440)
 pgP.locator("#roomTiles .rtTile").first.tap(); pgP.wait_for_timeout(900)
 check("phone: a tap on a tile still opens its room", pgP.evaluate("window.__fp.focusedRoom()") is not None, pgP.evaluate("window.__fp.focusedRoom()"))
+sheet = pgP.evaluate("""() => { const v = document.querySelector('#view').getBoundingClientRect(), s = document.querySelector('#roomPanel').getBoundingClientRect();
+  return { gap: Math.round(v.bottom - s.bottom), top: Math.round(s.top - v.top), h: Math.round(v.height), shift: window.__fp.viewShift() }; }""")
+check("phone (#440): the room sheet stands clear of the bottom like on an iPhone; the picture still moves up so the room is seen above the sheet, not behind it",
+      pgP.is_visible("#roomPanel") and sheet["gap"] >= 40 and sheet["shift"] >= (sheet["h"] - sheet["top"]) // 2 - 2, sheet)
 pgP.close()
 check("3.98 checks: no errors in the browser", not own, own[:3])
 pgS.close()
