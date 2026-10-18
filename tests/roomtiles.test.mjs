@@ -103,3 +103,11 @@ test('labels over the rooms that land on each other are pushed apart upwards; th
   assert.deepEqual(R.stackLabels([L(100, 300), L(100, 250)]), [0, 0], 'one well above the other: nothing moves');
   assert.deepEqual(R.stackLabels([]), []);
 });
+
+test('a strip that scrolls sideways: arrows only where there is more to see (3.99.2)', () => {
+  assert.deepEqual(R.stripEnds(0, 800, 800), { left: false, right: false }, 'everything fits');
+  assert.deepEqual(R.stripEnds(0, 2000, 800), { left: false, right: true }, 'at the start: more on the right');
+  assert.deepEqual(R.stripEnds(600, 2000, 800), { left: true, right: true }, 'in the middle');
+  assert.deepEqual(R.stripEnds(1200, 2000, 800), { left: true, right: false }, 'at the end');
+  assert.deepEqual(R.stripEnds(1199, 2000, 800), { left: true, right: false }, 'a pixel from the end counts as the end');
+});

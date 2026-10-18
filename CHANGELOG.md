@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.99.2] - 2026-10-18
+### Changed
+- **Room tiles that do not fit** (#421): with many rooms (the whole house of a big plan) the strip of room tiles was simply cut off on the right. Now an arrow at each end with more to see scrolls it, the cut side fades out, and the mouse wheel scrolls it sideways too. Phones keep swiping.
+- **Floor cards next to the energy picture**: in the whole-house view the floor cards no longer slide under the "Power now" card and the sky chips at the top right; they move to the other side of the house.
+
 ## [3.99.1] - 2026-10-17
 ### Changed
 - **Room labels no longer lie on each other** (#430): seen low from the side, labels of rooms one behind the other landed on the same spot on the screen. Now they are pushed apart, upwards: the nearer room keeps its place, the farther one goes up on a longer line down to its room.

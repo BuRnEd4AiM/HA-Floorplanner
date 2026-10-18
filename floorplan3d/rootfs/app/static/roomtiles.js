@@ -105,3 +105,10 @@ export function stackLabels(items, stem = 8, gap = 4) {
   }
   return up.map((u) => Math.max(0, Math.round(u)));
 }
+
+/** a strip that scrolls sideways (the room tiles when they do not fit, 3.99.2): is there more to see on the left / on the right?
+ *  { left, right } from its scroll position and sizes (pixels; 2 px slack for rounding) */
+export function stripEnds(scrollLeft, scrollWidth, clientWidth) {
+  const max = scrollWidth - clientWidth;
+  return { left: max > 2 && scrollLeft > 2, right: max > 2 && scrollLeft < max - 2 };
+}

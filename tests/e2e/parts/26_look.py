@@ -22,7 +22,8 @@ lay = json.loads(json.dumps(saved_lk))
 f0 = lay["floors"][0]
 f0.setdefault("rooms", []).extend([
     {"id": "lk_room", "name": "Schilderraum", "color": "#8a7f70", "covering": "parquet", "points": [[40, 40], [44, 40], [44, 44], [40, 44]]},
-    {"id": "lk_plain", "name": "Farbraum", "color": "#123456", "points": [[44, 40], [48, 40], [48, 44], [44, 44]]}])
+    {"id": "lk_plain", "name": "Farbraum", "color": "#123456", "points": [[44, 40], [48, 40], [48, 44], [44, 44]]}]
+    + [{"id": f"lk_t{i}", "name": f"Kachel {i}", "color": "#8a7f70", "points": [[60 + 3 * i, 60], [62 + 3 * i, 60], [62 + 3 * i, 62], [60 + 3 * i, 62]]} for i in range(6)])   # tiles enough to scroll
 f0.setdefault("walls", []).append({"id": "lk_wall", "a": [40, 40], "b": [48, 40], "thickness": 0.2, "height": 2.6, "openings": [
     {"id": "lk_win", "type": "window", "style": "double", "width": 1.2, "height": 1.2, "sill": 0.9, "pos": 2},
     {"id": "lk_door", "type": "door", "style": "single", "width": 0.9, "height": 2.0, "sill": 0, "pos": 6}]})
@@ -127,6 +128,23 @@ check("window frames (#428): 'Anthrazit' in the settings: dark window frames, th
       pgL.evaluate(FRAME, "lk_win") == "2e3338" and pgL.evaluate(FRAME, "lk_door") == "f4f4f4" and pgL.evaluate(WALL, "lk_wall") == "f4f0ea"
       and api("api/settings")["windowFrames"] == "anthracite", (pgL.evaluate(FRAME, "lk_win"), pgL.evaluate(FRAME, "lk_door"), pgL.evaluate(WALL, "lk_wall")))
 set_setting("windowFrames", "white")
+
+# --- more room tiles than fit (3.99.2): arrows at the ends, the mouse wheel scrolls; the whole house on a smaller screen
+pgT = b.new_page(viewport={"width": 1000, "height": 800}, extra_http_headers={"X-Remote-User-Name": "admin"})
+pgT.goto(BASE + "?debug=1&mode=live"); pgT.wait_for_timeout(2000)
+pgT.click("#floorRail .railHouse"); pgT.wait_for_timeout(1500)
+strip = lambda: pgT.evaluate("(() => { const b = document.querySelector('#roomTiles'); return { n: b.children.length, over: b.scrollWidth - b.clientWidth, x: b.scrollLeft }; })()")
+st = strip()
+check("room tiles (3.99.2): more tiles than fit: an arrow on the right (more to see), none on the left, the cut side fades out",
+      st["n"] >= 8 and st["over"] > 50 and pgT.is_visible("#tilesRight") and not pgT.is_visible("#tilesLeft") and "moreR" in (pgT.get_attribute("#roomTiles", "class") or ""), st)
+pgT.click("#tilesRight"); pgT.wait_for_timeout(900)
+check("room tiles: the arrow scrolls the strip, now there is an arrow on the left too", strip()["x"] > 100 and pgT.is_visible("#tilesLeft"), strip())
+at = pgT.evaluate("""(() => { const s = document.querySelector('#roomTiles').getBoundingClientRect();   // the middle of a tile that shows
+  const r = [...document.querySelectorAll('#roomTiles .rtTile')].map((e) => e.getBoundingClientRect()).find((r) => r.left >= s.left && r.right <= s.right);
+  return [r.left + r.width / 2, r.top + r.height / 2]; })()""")
+pgT.mouse.move(*at); pgT.mouse.wheel(0, 4000); pgT.wait_for_timeout(600)
+check("room tiles: the mouse wheel scrolls it to the end: no arrow on the right then", strip()["x"] >= strip()["over"] - 2 and not pgT.is_visible("#tilesRight") and pgT.is_visible("#tilesLeft"), strip())
+pgT.close()
 
 # --- phones: no labels (the tiles are there)
 pgP2 = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})

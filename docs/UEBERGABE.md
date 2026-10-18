@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-10-17, Version **3.99.1**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`, dann bei den **Entscheidungen des Besitzers** unten weitermachen.
+Stand: 2026-10-18, Version **3.99.2**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`, dann bei den **Entscheidungen des Besitzers** unten weitermachen.
 
 ## Der Besitzer
 
@@ -19,9 +19,10 @@ Stand: 2026-10-17, Version **3.99.1**. Diese Datei ist für den nächsten Chat (
 | 3.98.2 | #426 (gemergt) | Batterie im Strom-Bild: „ruht · 0 W“, wenn sie weder lädt noch entlädt, „kein Leistungs-Sensor“, wenn ihre Leistung unbekannt ist (Wunsch des Besitzers nach seinem Nachtbild: 9 %, alles kam aus dem Netz). Testprotokoll 65.17 (nur im Add-on) |
 
 | 3.99.0 | #431 (gemergt) | Zweite Runde Aussehen, vom Besitzer ausgewählt: echte Böden pro Raum (#427, `floorcover.js`, `floortex.js`), Fensterrahmen weiß / anthrazit (#428, `facade.js`), Glas-Optik für Etagen-Karten und Knöpfe (#429, nur CSS), Raum-Schilder im 3D-Bild (#430, `roomlabels.js`): auf Wunsch des Besitzers **entweder Raum-Schilder oder Geräte** (Schalter „Im Bild: Raum-Schilder / Geräte“ in „Ansicht“, Normalfall Raum-Schilder; ein Schild antippen öffnet den Raum mit seinen Geräten). Die älteren Browser-Test-Teile laufen mit „Geräte“ (`base.py`), `26_look` prüft die Schilder. Browser-Test-Teil `26_look`. Die Demo hat Böden und anthrazitfarbene Rahmen eingestellt |
-| 3.99.1 | Branch `claude/bold-cannon-9w2m0w` | Nach Bildern des Besitzers: Raum-Schilder, die von der Seite übereinander lagen, rücken auseinander (`stackLabels` in `roomtiles.js`); die Zähler (Wasser, Gas, Wärme) stehen in der Karte „Strom jetzt“ statt oben links (`meterChips` in `energyflow.js`). Testprotokoll 66.12, 66.13 |
+| 3.99.1 | #432 (gemergt) | Nach Bildern des Besitzers: Raum-Schilder, die von der Seite übereinander lagen, rücken auseinander (`stackLabels` in `roomtiles.js`); die Zähler (Wasser, Gas, Wärme) stehen in der Karte „Strom jetzt“ statt oben links (`meterChips` in `energyflow.js`). Testprotokoll 66.12, 66.13 |
+| 3.99.2 | Branch `claude/bold-cannon-9w2m0w` | Nach einem Test des Besitzers mit dem Musterhaus: die Raum-Kacheln, die nicht alle hinpassen, bekommen Pfeile, einen weichen Rand und Mausrad-Scrollen (`stripEnds` in `roomtiles.js`); die Etagen-Karten weichen der Karte „Strom jetzt“ aus. Testprotokoll 66.14, 66.15 |
 
-Testprotokoll: Abschnitte **65** (65.1 bis 65.17) und **66** (66.1 bis 66.13) sind neu und noch ❓; der Besitzer prüft sie in der Demo. 65.14, 65.15, 65.17 und 66.11 gehen nur im Add-on.
+Testprotokoll: Abschnitte **65** (65.1 bis 65.17) und **66** (66.1 bis 66.15) sind neu und noch ❓; der Besitzer prüft sie in der Demo. 65.14, 65.15, 65.17 und 66.11 gehen nur im Add-on.
 
 ## Entscheidungen des Besitzers (2026-10-17) und was als Nächstes kommt
 

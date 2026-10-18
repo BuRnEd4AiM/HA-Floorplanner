@@ -128,7 +128,8 @@ export function initFloorCards(ctx) {
       c.el.style.display = on ? '' : 'none';
       if (on) vis.push({ c, y: q.y, height: c.el.offsetHeight, natW: phone ? c.compactW : c.natW, narrowW: phone ? c.compactW : c.narrowW });
     });
-    const r = arrangeCards(vis, { w, h, ox, minX, maxX });
+    const side = $('#sideStack'), sw = side?.offsetParent && side.offsetWidth ? side.offsetWidth + 20 : 0;   // the energy picture and sky chips at the top right: not under them (3.99.2)
+    const r = arrangeCards(vis, { w: w - sw, h, ox, minX, maxX });
     cards.forEach((c) => c.el.classList.toggle('narrow', r.narrow));
     vis.forEach((v, k) => { v.c.el.style.transform = `translate(${(r.x + ox).toFixed(0)}px, ${(r.ys[k] + oy).toFixed(0)}px)`; });
   }
