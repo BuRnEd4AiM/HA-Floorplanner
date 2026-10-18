@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.99.4] - 2026-10-18
+### Fixed
+- **The room tile you tapped is no longer empty** (#436): on the tablet (the "fast" performance mode) the tile of the room opened lost its name, temperature and lights: dark text on the dark tile. Now it has its own light text on a tint of the accent colour.
+### Changed
+- **More and nicer stars at night** (#436): many faint stars, some clearer ones and a few bright ones with a soft glow, some a little bluish or warm, sharp on tablets too, and a faint Milky Way across the sky. Under a cloudy sky some stars still shine through (none when it is overcast), and the clouds lie in front of the stars.
+- **Room labels tidied up** (#436): with many rooms the labels piled up into towers over the house, on long lines. Now a label that would cover another one moves up one row at most; if there is still no room it shrinks to a small dot over its room (a tap opens the room as before). The rooms that matter more keep their labels: lights on, then somebody there, an open window, a temperature, then the nearer rooms. Zooming in turns the dots back into labels.
+
 ## [3.99.3] - 2026-10-18
 ### Fixed
 - **"Power now" only while the button "Strom" is pressed** (#434): the card with the sun, the grid, the house and the battery (and the meters under it) was always at the top right on wide screens, also when the button **Strom** at the bottom was not pressed. Now it shows only while **Strom** is on (or the power editor is open); a tap on the card switches it off again, like the button. The line of numbers at the top left stays away on wide screens as before. The button **Strom** now also shows when only the sensors of the tab "⚡ Rechnung" are set and no power device stands in the plan, so the card can still be called up.

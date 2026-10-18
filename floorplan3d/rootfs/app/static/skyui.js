@@ -2,19 +2,27 @@
  * (the renderer has alpha), stars at night, clouds, the lawn tinted, rain or snow falling over the picture in live mode and the chips at
  * the top right (time and sunset, weather). Costs nothing per frame: the sky is CSS, the rain a CSS animation of `transform` only,
  * standing still in the "fast" performance mode (#138). The colours and texts come from sky.js (tested). */
-import { sunNow, approxSun, skyColors, skyCss, starAlpha, groundTint, weatherId, weatherLook, weatherText, sunText, skyTimeOf } from './sky.js';
+import { sunNow, approxSun, skyColors, skyCss, starAlpha, milkyWay, groundTint, weatherId, weatherLook, weatherText, sunText, skyTimeOf } from './sky.js';
 
-const STAR_STEPS = 5, TILE = 512;
+const STAR_STEPS = 5, TILE = 640;
 
-/** a tile of stars (seeded, the same every time), `alpha` how clearly they show */
+/** a tile of stars (seeded, the same every time), `alpha` how clearly they show: many faint ones, some clearer, a few bright ones with a
+ *  soft glow, most white, some bluish or warm. Drawn sharp for the screen's pixels (tablets have two or more per CSS pixel). */
 function drawStars(alpha) {
-  const c = document.createElement('canvas'); c.width = c.height = TILE;
-  const g = c.getContext('2d');
+  const px = Math.min(2, window.devicePixelRatio || 1), c = document.createElement('canvas');
+  c.width = c.height = Math.round(TILE * px);
+  const g = c.getContext('2d'); g.scale(px, px);
   let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  for (let i = 0; i < 70; i++) {
-    const x = rnd() * TILE, y = rnd() * TILE, big = rnd() < 0.1;
-    g.globalAlpha = alpha * (0.35 + rnd() * 0.65);
-    g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, big ? 1.5 : 0.7 + rnd() * 0.5, 0, 7); g.fill();
+  const tint = () => { const k = rnd(); return k < 0.16 ? '196,214,255' : k < 0.26 ? '255,230,196' : '255,255,255'; };
+  const dot = (x, y, r, a, col) => { g.fillStyle = `rgba(${col},${a.toFixed(3)})`; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
+  for (let i = 0; i < 330; i++) dot(rnd() * TILE, rnd() * TILE, 0.4 + rnd() * 0.4, alpha * (0.22 + rnd() * 0.4), tint());
+  for (let i = 0; i < 70; i++) dot(rnd() * TILE, rnd() * TILE, 0.8 + rnd() * 0.5, alpha * (0.5 + rnd() * 0.45), tint());
+  for (let i = 0; i < 12; i++) {
+    const r = 5 + rnd() * 5, x = r + rnd() * (TILE - 2 * r), y = r + rnd() * (TILE - 2 * r), col = tint();   // the glow stays inside the tile
+    const glow = g.createRadialGradient(x, y, 0, x, y, r);
+    glow.addColorStop(0, `rgba(${col},${(0.4 * alpha).toFixed(3)})`); glow.addColorStop(1, `rgba(${col},0)`);
+    g.fillStyle = glow; g.fillRect(x - r, y - r, 2 * r, 2 * r);
+    dot(x, y, 1.2 + rnd() * 0.6, alpha, col);
   }
   return c.toDataURL();
 }
@@ -74,7 +82,8 @@ export function initSky(ctx) {
     const at = fixed(), date = at || new Date();
     const sun = at ? approxSun(date) : sunNow(ctx.states(), date);
     const { s: ws, look } = weather(), cloud = look?.cloud || 0;
-    const layers = [starLayer(starAlpha(sun.elev, cloud)), ...(cloud >= 0.3 ? cloudLayers(cloud, sun.elev) : [])].filter(Boolean);
+    const sa = starAlpha(sun.elev, cloud);   // the clouds in front, the stars and the Milky Way behind them
+    const layers = [...(cloud >= 0.3 ? cloudLayers(cloud, sun.elev) : []), starLayer(sa), milkyWay(sa)].filter(Boolean);
     const css = skyCss(skyColors(sun.elev, sun.rising, cloud), layers);
     if (css !== lastCss) { ctx.canvas.style.background = css; lastCss = css; }
     const tint = groundTint(sun.elev, cloud), tk = tint.join();

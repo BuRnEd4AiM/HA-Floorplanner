@@ -3,9 +3,10 @@
  * labels or the devices (the owner's wish): while the labels show, the devices' balls and value labels are off and the room names lying on
  * the floor step aside; a tapped room (or label) shows its devices. HTML over the picture, moved along with the camera every frame (place), filled
  * again only when a label changed (update). What a label shows and when they show comes from roomtiles.js (tested). The View menu switches
- * between "room labels" and "devices" (also in the settings). */
+ * between "room labels" and "devices" (also in the settings). Labels that would lie on each other are tidied (#436): the ones that matter
+ * more keep their place, another moves up a row at most, else it shrinks to a small dot over its room. */
 import * as THREE from './vendor/three.module.min.js';
-import { roomSummary, labelTexts, labelsShown, labelHeight, stackLabels } from './roomtiles.js';
+import { roomSummary, labelTexts, labelsShown, labelHeight, labelRank, tidyLabels } from './roomtiles.js';
 import { roomCenter } from './floorbuild.js';
 
 const hex = (c) => '#' + c.map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0')).join('');
@@ -47,12 +48,13 @@ export function initRoomLabels(ctx) {
     if (!shown || !f) { box.hidden = true; box.replaceChildren(); last = ''; pills = []; return; }
     let fmt;
     try { fmt = new Intl.NumberFormat(ctx.lang(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }); } catch { fmt = new Intl.NumberFormat('en', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
-    const rooms = f.rooms.filter((r) => r.name && r.points.length >= 3);
+    const rooms = f.rooms.filter((r) => r.name && r.points.length >= 3), ranks = [];
     const html = rooms.map((r) => {
       const s = roomSummary(r, f, { placed: ctx.placed(f), areaEntities: ctx.areaEntities(r), states: ctx.states(), isOn: ctx.isOn, isOpen: ctx.isOpen, openingEntities: ctx.openingEntities });
       const tx = labelTexts(s, (x) => fmt.format(x), ctx.imperial());
       const col = s.lights ? (s.rgb ? hex(s.rgb) : '#ffcf70') : '';
-      return `<div class="rlPill glass${col ? ' lit' : ''}" data-room="${esc(r.id)}"${col ? ` style="--lc:${col}"` : ''}>`
+      ranks.push(labelRank(s));
+      return `<div class="rlPill glass${col ? ' lit' : ''}" data-room="${esc(r.id)}" title="${esc(r.name)}"${col ? ` style="--lc:${col}"` : ''}>`
         + (s.occupied ? `<span class="rlDot" title="${esc(t('nav.occupied'))}"></span>` : '') + `<b>${esc(r.name)}</b>`
         + [tx.temp, tx.lights, tx.open].filter(Boolean).map((x) => `<i>${esc(x)}</i>`).join('') + '</div>';
     }).join('');
@@ -64,7 +66,8 @@ export function initRoomLabels(ctx) {
       const at = n ? n.sp.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, h - NAME_Y, 0))
         : new THREE.Vector3(roomCenter(r.points)[0], y0 + h, roomCenter(r.points)[1]);
       const el = box.children[k];
-      return { el, at, x: NaN, y: NaN, up: 0, w: el?.offsetWidth || 0, h: el?.offsetHeight || 0 };
+      el?.classList.remove('mini');                                                  // measured as a label; place() makes it a dot again if need be
+      return { el, at, rank: ranks[k], x: NaN, y: NaN, up: 0, mini: false, w: el?.offsetWidth || 0, h: el?.offsetHeight || 0 };
     });
   }
   /** every frame: the labels follow the camera; they (and with them the devices) come or go when what decides it changed (live mode, floor,
@@ -84,12 +87,14 @@ export function initRoomLabels(ctx) {
       if (!p.w) { p.w = p.el.offsetWidth; p.h = p.el.offsetHeight; }
       vis.push({ p, x: Math.round((v.x + 1) / 2 * w + ox), y: Math.round((1 - v.y) / 2 * hh + oy) });
     });
-    const up = stackLabels(vis.map((q) => ({ x: q.x, y: q.y, w: q.p.w, h: q.p.h })), STEM);   // labels on each other move apart, upwards (roomtiles.js)
+    const tidy = tidyLabels(vis.map((q) => ({ x: q.x, y: q.y, w: q.p.w, h: q.p.h, rank: q.p.rank, mini: q.p.mini })), { stem: STEM });   // roomtiles.js
     vis.forEach(({ p, x, y }, k) => {
-      if (x === p.x && y === p.y && up[k] === p.up) return;
-      p.x = x; p.y = y; p.up = up[k];
-      p.el.style.transform = `translate(${x}px, ${y - up[k] - STEM}px) translate(-50%, -100%)`;
-      p.el.style.setProperty('--stem', `${STEM + up[k]}px`);
+      const { up, mini } = tidy[k];
+      if (x === p.x && y === p.y && up === p.up && mini === p.mini) return;
+      if (mini !== p.mini) p.el.classList.toggle('mini', mini);
+      p.x = x; p.y = y; p.up = up; p.mini = mini;
+      p.el.style.transform = `translate(${x}px, ${y - up - STEM}px) translate(-50%, -100%)`;
+      p.el.style.setProperty('--stem', `${STEM + up}px`);
     });
   }
   return {

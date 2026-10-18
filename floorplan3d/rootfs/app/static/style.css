@@ -954,7 +954,10 @@ body:not(.live) .tileArrow, body.card .tileArrow, body.roomtablet .tileArrow, #l
   border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 8px 24px rgba(0, 0, 0, .3); }
 body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(16, 22, 30, .9); }
 .rtTile.lit { border-color: var(--lc); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lc) 40%, transparent), 0 8px 26px color-mix(in srgb, var(--lc) 22%, transparent); }
-.rtTile.active { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* the tile of the room opened: its own light text and a tint of the accent. The general button.active gave it dark text, and on the dark tile
+   of the fast mode (body.low, the tablet) the name and the temperature were gone */
+#roomTiles .rtTile.active { color: #fff; font-weight: 400; background: color-mix(in srgb, var(--accent) 30%, rgba(16, 22, 30, .9));
+  border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
 .rtHead { display: flex; justify-content: space-between; gap: 6px; font-size: 14px; white-space: nowrap; }
 .rtHead b { overflow: hidden; text-overflow: ellipsis; }
 .rtHead i { font-style: normal; }
@@ -1003,6 +1006,12 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
 .rlDot { width: 8px; height: 8px; border-radius: 50%; background: #2ad0a0; box-shadow: 0 0 8px #2ad0a0; }
 .rlPill::after { content: ''; position: absolute; left: 50%; bottom: calc(-1 * var(--stem, 8px)); width: 2px; height: var(--stem, 8px); background: rgba(255, 255, 255, .45);
   transform: translateX(-50%); pointer-events: none; }   /* the line down to its room, longer for a label pushed up */
+/* a label with no room left (#436): a small dot over its room, the edge in the light's colour, the green dot when somebody is there; a tap opens the room */
+.rlPill.mini { width: 13px; height: 13px; padding: 0; gap: 0; justify-content: center; z-index: -1; background: rgba(232, 238, 245, .88);
+  border: 2px solid rgba(16, 22, 30, .6); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.rlPill.mini.lit { background: var(--lc); border-color: rgba(16, 22, 30, .6); }
+.rlPill.mini b, .rlPill.mini i { display: none; }
+.rlPill.mini .rlDot { width: 5px; height: 5px; box-shadow: none; }
 @media (max-width: 760px) { #roomLabels { display: none !important; } }
 
 /* ---- Glass look (#429): the floor cards on the left and the buttons over the picture, like the cards of 3.98; light glass in the light

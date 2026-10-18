@@ -73,6 +73,23 @@ check("room labels (3.99.1): seen low from the side, labels that would lie on ea
       apart and not apart["overlap"] and apart["far"] > apart["near"], apart)
 check("room labels: either the labels or the devices: no tap balls and no value labels on the floor meanwhile",
       not pgL.evaluate(BALL) and pgL.evaluate(PILLS) == 0, (pgL.evaluate(BALL), pgL.evaluate(PILLS)))
+APART = "window.__fp.camAt(33, window.__fp.elev(window.__fp.floorIdx()) + 1.5, 42, 48, 42)"
+pgL.evaluate("window.__fp.camAt(52, window.__fp.elev(window.__fp.floorIdx()) + 1.5, 61, 80, 61)"); pgL.wait_for_timeout(900)   # along the row of six small rooms: their labels would lie on one spot
+ROW = """() => [0, 1, 2, 3, 4, 5].map((i) => { const e = document.querySelector(`#roomLabels [data-room=lk_t${i}]`);
+  return e && e.style.display !== 'none' ? { mini: e.classList.contains('mini'), stem: parseFloat(e.style.getPropertyValue('--stem')) || 0, w: e.offsetWidth } : null; })"""
+row = pgL.evaluate(ROW)
+shown = [r for r in row if r]
+check("room labels (#436): seen along a row of rooms no tower of labels on long lines: one row up at most, the others small dots over their rooms",
+      len(shown) >= 4 and any(r["mini"] for r in shown) and any(not r["mini"] for r in shown) and all(r["stem"] <= 50 for r in shown)
+      and all(r["w"] < 20 for r in shown if r["mini"]), row)
+dot = next((i for i, r in enumerate(row) if r and r["mini"]), None)
+if dot is not None:
+    pgL.locator(f"#roomLabels [data-room=lk_t{dot}]").dispatch_event("click"); pgL.wait_for_timeout(900)
+check("room labels: a tap on such a dot opens its room, like a label", dot is not None and pgL.evaluate("window.__fp.focusedRoom()") == f"lk_t{dot}",
+      (dot, pgL.evaluate("window.__fp.focusedRoom()")))
+if dot is not None:
+    pgL.locator(f"#roomTiles [data-room=lk_t{dot}]").dispatch_event("click"); pgL.wait_for_timeout(900)   # back out of the room
+pgL.evaluate(APART); pgL.wait_for_timeout(900)
 view_menu(pgL)
 check("room labels: the View menu says what is shown: 'Im Bild: Raum-Schilder'", pgL.inner_text("#roomLabelsToggle") == "Im Bild: Raum-Schilder", pgL.inner_text("#roomLabelsToggle"))
 pgL.click("#roomLabelsToggle"); pgL.wait_for_timeout(600)
