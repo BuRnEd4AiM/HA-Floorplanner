@@ -1,11 +1,12 @@
 /* Several buildings in one plan (#409): a plan (one house of the house list) can hold more than one building, e.g. the main house and the
  * garden house on one plot, drawn together. The editors name the buildings (layout.buildings) and say which room belongs to which one
- * (room.building); a room without one takes the building of a room on another floor that holds its middle (draw the ground floor, the
- * floors above follow). Walls, doors, windows, devices, stairs and blocks belong to the building of their room, a further roof to that of
- * the rooms under it. A screen shows one building or all of them; what lies in no room (the garden, the carport ...) belongs to the plot
- * and always shows. Bringing another plan of the house list into this one as a building of its own: mergePlan. Pure (no DOM, no three.js;
- * unit test: tests/buildings.test.mjs). */
-import { pointInPoly, deviceInIso, clipWallToRoom, ISO_TOL } from './roomclip.js';
+ * (room.building); a room without one takes the building of a room that holds its middle on a floor towards the ground floor (draw the
+ * ground floor, the floors above and the basement follow; never the other way round, #451). Walls, doors, windows, devices, stairs and
+ * blocks belong to the building of their room (a wall only with the part that runs along it), a further roof to that of the rooms under it;
+ * what lies in no room of its floor to that of the room under it (towards the ground floor). A screen shows one building or all of them;
+ * what lies in no room at all (the garden, the carport ...) belongs to the plot and always shows. Bringing another plan of the house list
+ * into this one as a building of its own: mergePlan. Pure (no DOM, no three.js; unit test: tests/buildings.test.mjs). */
+import { pointInPoly, deviceInIso, inIso, ISO_TOL } from './roomclip.js';
 import { placePoint, floorElev } from './neighbor.js';
 
 /** the buildings of a plan: [{ id, name }] */
@@ -35,15 +36,23 @@ export function insidePoint(pts) {
 }
 const polyOk = (r) => Array.isArray(r?.points) && r.points.length > 2;
 
-/** the building room `room` of floor fi takes when it has none of its own: that of a room with one on another floor that holds its
- *  middle, the nearest floor first (the one below before the one above); null: none (the plot) */
+/** the floors a thing of floor fi takes its building from when it has none of its own, the nearest first: towards the ground floor (a floor
+ *  above it the floors below, down to the ground floor; a basement the floors above, up to the ground floor); none for the ground floor
+ *  itself. So a room upstairs never takes the rooms below with it into its building (#451) */
+export function groundward(floors, fi) {
+  const g = Math.max(0, (floors || []).findIndex((f) => f.kind !== 'basement')), out = [];
+  if (fi > g) for (let i = fi - 1; i >= g; i--) out.push(i);
+  else for (let i = fi + 1; i <= g; i++) out.push(i);
+  return out;
+}
+/** the building room `room` of floor fi takes when it has none of its own: that of a room with one that holds its middle on a floor
+ *  towards the ground floor (groundward), the nearest floor first; null: none (the plot) */
 export function inheritedBuilding(layout, fi, room) {
   const known = new Set(buildingsOf(layout).map((x) => x.id)), floors = layout?.floors || [];
   const own = (r) => (typeof r.building === 'string' && known.has(r.building) ? r.building : null);
   if (!polyOk(room)) return null;
   const [cx, cz] = insidePoint(room.points);
-  const order = floors.map((_, i) => i).filter((i) => i !== fi).sort((p, q) => Math.abs(p - fi) - Math.abs(q - fi) || p - q);
-  for (const i of order) {
+  for (const i of groundward(floors, fi)) {
     const q = (floors[i].rooms || []).find((x) => own(x) && polyOk(x) && pointInPoly(cx, cz, x.points));
     if (q) return own(q);
   }
@@ -72,37 +81,75 @@ const boxOf = (pts) => {
   const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]);
   return [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
 };
-/** the buildings a point (a device, a stair) of a floor belongs to, by the rooms of that floor (ro: its entries of roomOwners): [] in no room */
-export function pointOwners(ro, x, z) {
+/** the building of the room that holds the point (x, z) on the floors towards the ground floor from floor fi (groundward, the nearest
+ *  first; ro: roomOwners): a building id, null (a room of the plot) or undefined (in no room there either) */
+export function groundOwner(layout, ro, fi, x, z) {
+  for (const i of groundward(layout?.floors, fi)) {
+    const hit = (ro[i] || []).find(({ room }) => polyOk(room) && pointInPoly(x, z, room.points));
+    if (hit) return hit.b;
+  }
+  return undefined;
+}
+/** the buildings a point (a device, a stair) of a floor belongs to, by the rooms of that floor (ro: its entries of roomOwners); in no room
+ *  that of under(x, z) (groundOwner: the room under it), [] in none there either */
+export function pointOwners(ro, x, z, under = () => undefined) {
   const rooms = ro.map((o) => o.room);
   const hit = ro.find(({ room }) => polyOk(room) && deviceInIso(room, x, z, rooms));   // also a wall lamp on the room's wall (roomclip.js)
-  return hit ? [hit.b] : [];
-}
-/** the buildings a wall belongs to: of every room it runs along or through ([] in no room; a wall between two buildings belongs to both) */
-export function wallOwners(ro, w) {
-  const [wx0, wx1, wz0, wz1] = boxOf([w.a, w.b]), tol = ISO_TOL;
-  return ro.filter(({ room }) => {
-    if (!polyOk(room)) return false;
-    const [x0, x1, z0, z1] = boxOf(room.points);
-    return wx1 >= x0 - tol && wx0 <= x1 + tol && wz1 >= z0 - tol && wz0 <= z1 + tol && !!clipWallToRoom(room, w);
-  }).map((o) => o.b);
+  if (hit) return [hit.b];
+  const u = under(x, z);
+  return u === undefined ? [] : [u];
 }
 /** shows with building b: belongs to no room, to the plot, or to b */
 const shownWith = (owners, b) => !owners.length || owners.some((x) => x === null || x === b);
+/** a piece of a wall shorter than this does not show alone: where a wall of another building meets a room of the one shown */
+const MIN_PIECE = 0.4;
+/** The parts of wall w that show with building b (ro: the entries of its floor of roomOwners): true (all of it), false (none) or
+ *  [[t0, t1], ...] (0..1 from a to b). A point of the wall shows when it runs along or through a room of b or of the plot (a wall between two
+ *  buildings shows with both), or along no room and over that of under(x, z) (pointOwners). So a long outer wall shows only along the rooms
+ *  shown, not along the rooms of the other building (#451) */
+export function wallParts(ro, w, b, under = () => undefined) {
+  const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]), N = Math.max(8, Math.ceil(L / 0.1)), [wx0, wx1, wz0, wz1] = boxOf([w.a, w.b]), tol = ISO_TOL;
+  const near = ro.filter(({ room }) => {
+    if (!polyOk(room)) return false;
+    const [x0, x1, z0, z1] = boxOf(room.points);
+    return wx1 >= x0 - tol && wx0 <= x1 + tol && wz1 >= z0 - tol && wz0 <= z1 + tol;
+  });
+  const shows = [];
+  for (let i = 0; i <= N; i++) {
+    const k = i / N, x = w.a[0] + (w.b[0] - w.a[0]) * k, z = w.a[1] + (w.b[1] - w.a[1]) * k;
+    const by = near.filter(({ room }) => inIso(room, x, z)).map((o) => o.b);
+    const u = by.length ? undefined : under(x, z);
+    shows.push(shownWith(by.length ? by : u === undefined ? [] : [u], b));
+  }
+  if (shows.every(Boolean)) return true;
+  const parts = [];
+  for (let i = 0, start = -1; i <= N + 1; i++) {
+    if (i <= N && shows[i]) { if (start < 0) start = i; continue; }
+    if (start >= 0 && ((i - 1 - start) / N) * L >= MIN_PIECE - 1e-9) parts.push([start / N, (i - 1) / N]);
+    start = -1;
+  }
+  return parts.length ? parts : false;
+}
 
 /** the plan as building b sees it: every floor with only what belongs to b or to the plot (the things themselves are the same objects, only
- *  the lists are new). The plan itself when b is not one of its buildings (all of them shown) */
+ *  the lists are new); a wall that shows only in part is in the list, its parts in wallCuts (Map id -> [[t0, t1], ...], wallParts; drawn
+ *  with cutWall). The plan itself when b is not one of its buildings (all of them shown) */
 export function viewOf(layout, b, owners = null) {
   if (!pickBuilding(layout, b)) return layout;
   const ro = owners || roomOwners(layout);
   return { ...layout, floors: (layout.floors || []).map((f, fi) => {
-    const o = ro[fi] || [], at = (x, z) => shownWith(pointOwners(o, x, z), b);
+    const o = ro[fi] || [], under = (x, z) => groundOwner(layout, ro, fi, x, z), at = (x, z) => shownWith(pointOwners(o, x, z, under), b);
     const inside = (k) => !polyOk(k) || at(...insidePoint(k.points));
-    const walls = (f.walls || []).filter((w) => shownWith(wallOwners(o, w), b)), ids = new Set(walls.map((w) => w.id));
+    const wallCuts = new Map(), walls = (f.walls || []).filter((w) => {
+      const p = wallParts(o, w, b, under);
+      if (Array.isArray(p)) wallCuts.set(w.id, p);
+      return !!p;
+    }), ids = new Set(walls.map((w) => w.id));
     return {
       ...f,
       rooms: o.filter((x) => x.b === null || x.b === b).map((x) => x.room),
       walls,
+      wallCuts,
       devices: (f.devices || []).filter((d) => at(d.x || 0, d.z || 0)),
       stairs: (f.stairs || []).filter((s) => at(s.x || 0, s.z || 0)),
       blocks: (f.blocks || []).filter(inside),

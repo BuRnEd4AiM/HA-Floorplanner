@@ -37,11 +37,21 @@ function roomAt(f, x, z, env, edge) {
   return f.rooms.map((r) => ({ r, d: env.distToPoly(x, z, r.points) })).filter((q) => q.d < 0.4).sort((p, q) => p.d - q.d)[0]?.r || null;
 }
 
+/** a door / window o of wall w on floor f shows: all of the wall shows, or the part it is on (one building of several: f.wallCuts of
+ *  viewOf in buildings.js, #451) */
+function openingShown(f, w, o) {
+  const cut = f.wallCuts?.get(w.id);
+  if (!cut) return true;
+  const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+  return cut.some(([t0, t1]) => o.pos >= t0 * L && o.pos <= t1 * L);
+}
+
 /**
  * The overview: [{ floor, name, rooms: [{ name, items }] }], floors in their order, rooms by name (things in no room last), items by name.
  * item: { kind: 'device' | 'opening', id, floor, name, entity, type, icon (as on its tap ball), value, battery (batteryInfo), off (why it is
  * offline, offline.js) }.
- * env: { layout, states, t, pointInPoly, distToPoly, onStates, batteryOf, offline (Map id -> reason), nameOf(entity) }
+ * env: { layout (the building shown, viewOf in buildings.js), states, t, pointInPoly, distToPoly, onStates, batteryOf, offline (Map id ->
+ * reason), nameOf(entity) }
  */
 export function deviceRows(env) {
   const { layout, states, t } = env, off = env.offline || new Map(), batteryOf = env.batteryOf || {};
@@ -62,7 +72,7 @@ export function deviceRows(env) {
     });
     openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
       const ents = openingEntities(o), sh = shutterEntity(o);
-      if (!ents.length && !sh) return;
+      if ((!ents.length && !sh) || !openingShown(f, w, o)) return;
       const [x, z] = openingPoint(w, o), vals = [];
       if (ents.length) vals.push(ents.some((e) => isOpenState(states[e], env.onStates)) ? t('state.open') : ents.some((e) => states[e]) ? t('state.closed') : '—');
       if (sh) vals.push(shutterLabel(states[sh], t));

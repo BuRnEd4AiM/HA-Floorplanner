@@ -40,11 +40,17 @@ export function clipWallToRoom(room, w) {
   }
   if (!best || (best[1] - best[0]) / N * L < 0.3) return null;
   if (best[0] === 0 && best[1] === N) return w;
-  const t0 = best[0] / N, t1 = best[1] / N;
-  const at = (k) => [w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k];
+  return cutWall(w, best[0] / N, best[1] / N);
+}
+/** the piece of wall w from t0 to t1 (0..1 from a to b) as a wall of its own, with the doors and windows whose middle lies on it (the same
+ *  id: it is still that wall when picked). Also the part of a wall that shows with one building of several (buildings.js, #451) */
+export function cutWall(w, t0, t1) {
+  if (t0 <= 0 && t1 >= 1) return w;
+  const L = wallLength(w), at = (k) => [w.a[0] + (w.b[0] - w.a[0]) * k, w.a[1] + (w.b[1] - w.a[1]) * k];
   return {
     ...w, a: at(t0), b: at(t1),
     openings: (w.openings || []).filter((o) => o.pos >= t0 * L && o.pos <= t1 * L).map((o) => ({ ...o, pos: o.pos - t0 * L })),
   };
 }
-
+/** wall w as drawn: [w], or its parts where one building of several shows only parts of it (cuts: f.wallCuts of viewOf in buildings.js) */
+export const wallPieces = (w, cuts) => cuts?.get(w.id)?.map(([t0, t1]) => cutWall(w, t0, t1)) || [w];

@@ -10,6 +10,7 @@ import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
 import { roofY0, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom } from './attic.js';
 import { polyUniforms, clipToPoly } from './atticclip.js';
+import { wallPieces } from './roomclip.js';
 
 /** footprint (bounding box) of everything under a roof floor */
 export function roofBoxOf(floors, i) {
@@ -27,7 +28,7 @@ export function autoRoofBox(floors, i) {
   const pts = [];
   floors.forEach((f, k) => {
     if (k >= i || f.kind === 'basement' || f.kind === 'roof') return;
-    f.walls.forEach((w) => { if (!open(k, [w.a, w.b])) pts.push(w.a, w.b); });
+    f.walls.flatMap((w) => wallPieces(w, f.wallCuts)).forEach((w) => { if (!open(k, [w.a, w.b])) pts.push(w.a, w.b); });   // one building of several: its parts (#451)
     f.rooms.forEach((r) => { if (!r.terrace && !open(k, r.points)) pts.push(...r.points); });
   });
   if (!pts.length) return null;

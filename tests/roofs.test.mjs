@@ -13,6 +13,11 @@ test('roof box: everything under the roof floor, basements and the roof floor it
   assert.deepEqual(R.roofBoxOf(floors, 2), { x0: 0, x1: 10, z0: 0, z1: 6 });
   assert.equal(R.autoRoofBox([floor('floor'), floor('roof')], 1), null);
 });
+test('roof box of one building of several: a wall that shows only in part counts with its part (#451)', () => {
+  const f = { ...floor('floor', [{ points: sq(14, 0, 18, 4) }], [{ id: 'w', a: [0, 0], b: [18, 0] }]), wallCuts: new Map([['w', [[14 / 18, 1]]]]) };
+  const box = R.autoRoofBox([f, floor('roof')], 1);
+  assert.ok(Math.abs(box.x0 - 14) < 1e-9 && box.x1 === 18 && box.z0 === 0 && box.z1 === 4, JSON.stringify(box));
+});
 test('roof box: a roof terrace (and what lies below it) has no roof', () => {
   const floors = [
     floor('floor', [{ points: sq(0, 0, 8, 6) }, { points: sq(8, 0, 12, 6) }]),                        // the garage at x 8..12

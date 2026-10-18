@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.0.1] - 2026-10-18
+### Fixed
+- **One building of several shows cleanly** (#451): a long wall that runs along a room of the building shown and along rooms of another building is drawn only along the building shown (and along rooms of the plot), no piece of it stands in the empty rooms of the other building any more. A wall that only meets a room of the building shown from the other building (30–40 cm at its end) no longer sticks out. Framing the view and the roof of one building use these parts too.
+- **A room no longer takes the floor below with it** (#451): a room without a building of its own took the building of a room that lies over or under its middle on another floor, also of a room **upstairs**: giving a small room on the upper floor to building 2 took the big room on the ground floor below it (and its walls) along. Now only the floors above follow the ground floor (and a basement follows the ground floor above it), as the help says; the ground floor never follows another floor.
+- **What lies in no room upstairs** (a piece of wall, a lamp between two rooms) belongs to the building of the room under it, not to all buildings.
+- **The device list shows only the building shown** (#451): with a building chosen at the top, "📋 Devices" lists only its devices, doors and windows (and what stands in no room, e.g. in the garden), and the number of low batteries on the button counts only those.
+
 ## [4.0.0] - 2026-10-18
 ### Added
 - **Walls with a finish** (#448): in the properties of a room, *Wände* gives its walls a finish on the room's side: smooth paint, woodchip (Raufaser), textured plaster, lime plaster, exposed concrete, wallpapers (stripes, damask, dots, harlequin, leaves, art deco fans, zigzag, plaid, linen), tiles (20 × 20, 10 × 10, metro, metro in herringbone, large 60 × 30, hexagons, glass mosaic, marble, zellige), brick (red, white painted, anthracite, yellow), natural stone, wood panelling and acoustic wood slats. The rooms next door keep their own walls; doors and windows stay open.

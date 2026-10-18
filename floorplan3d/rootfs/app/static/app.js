@@ -718,9 +718,9 @@ function applyStates() {
   markShadows();                                                   // things may have shown, hidden or moved (also after every build)
 }
 
-/* ---- The device overview (#376): the code lives in devicelist.js ---- */
+/* ---- The device overview (#376): the code lives in devicelist.js; only the building shown (#451) ---- */
 const deviceList = initDeviceList({
-  $, t, layout: () => layout, states: () => states, batteryOf: () => batteryOf, offline: () => offReasons, onStates: ON_STATES,
+  $, t, layout: () => shownLayout(), states: () => states, batteryOf: () => batteryOf, offline: () => offReasons, onStates: ON_STATES,
   pointInPoly: (...a) => pointInPoly(...a), distToPoly, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, ready: () => entities.length > 0,
   show: (target) => offline.show(target), narrow: () => matchMedia(PHONE_QUERY).matches,
 });

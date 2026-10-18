@@ -1,5 +1,6 @@
 /* Navigation (#137, step 21): the floor pills and the room menu over the scene, the scroll arrows of that bar, the tablet's room button,
  * and the sizes the camera frames (a floor, the whole house, the centre of the walls). The pure part is tested in tests/nav.test.mjs. */
+import { wallPieces } from './roomclip.js';
 
 /** centre and size (at least 4 m) of a set of [x, z] points; null when there are none */
 export function boundsOf(pts) {
@@ -8,7 +9,9 @@ export function boundsOf(pts) {
   const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
   return { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, size: Math.max(x1 - x0, z1 - z0, 4) };
 }
-const floorPts = (f) => [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])];
+/** the ends of the walls of floor f as drawn: of their parts where one building of several shows only parts of them (#451) */
+export const wallEnds = (f) => f.walls.flatMap((w) => wallPieces(w, f.wallCuts)).flatMap((w) => [w.a, w.b]);
+const floorPts = (f) => [...wallEnds(f), ...f.rooms.flatMap((r) => r.points), ...f.devices.map((d) => [d.x, d.z])];
 /** everything of the house; 12 m round the origin for an empty one */
 export function houseBoundsOf(floors) { return boundsOf(floors.flatMap(floorPts)) || { cx: 0, cz: 0, size: 12 }; }
 /** one floor (or only the isolated room); a roof floor frames the roof box `rb` of the house below it */
@@ -20,7 +23,7 @@ export function floorBoundsOf(f, floors, { iso = null, rb = null } = {}) {
 /** centre of the walls of a floor (garden things and lamps outside the house must not pull it away); null without walls */
 export function wallsCenterOf(f) {
   if (!f.walls.length) return null;
-  const b = boundsOf(f.walls.flatMap((w) => [w.a, w.b]));
+  const b = boundsOf(wallEnds(f));
   return { cx: b.cx, cz: b.cz };
 }
 /** a room by its name (no matter the case and spaces) or its id, on any floor: { floor, room } */
