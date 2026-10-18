@@ -770,11 +770,36 @@ def test_the_floor_covering_of_a_room_survives_import_and_export():             
 
 
 def test_the_floor_coverings_are_the_same_in_the_importer_the_schema_and_the_browser():
-    js = (APP / "static" / "floorcover.js").read_text(encoding="utf-8")
-    block = js[js.index("export const COVERINGS = {"):js.index("};", js.index("export const COVERINGS = {"))]
-    assert tuple(re.findall(r"^  (\w+): \{", block, re.M)) == importer.COVERINGS
+    js = (APP / "static" / "finishes.js").read_text(encoding="utf-8")
+    block = js[js.index("export const PATTERNS = {"):js.index("};", js.index("export const PATTERNS = {"))]
+    places = {"F": ("floor",), "W": ("wall",), "A": ("facade",), "WA": ("wall", "facade")}
+    browser = {k: places[on] for k, on in re.findall(r"^  (\w+): \{ on: (\w+),", block, re.M)}
+    assert browser == importer.FINISHES                                                 # every pattern, for the same places (#448)
+    assert importer.COVERINGS[:3] == ("parquet", "parquetLight", "parquetDark") and len(importer.COVERINGS) >= 25
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     assert tuple(json.dumps(schema).split('"covering": {"enum": ')[1].split("]")[0].strip("[").replace('"', "").split(", ")) == importer.COVERINGS
+    side = json.dumps(schema["$defs"]["sideFinish"]["properties"]["pattern"]["enum"])
+    assert json.loads(side) == [k for k, on in importer.FINISHES.items() if any(o != "floor" for o in on)]
+
+
+def test_the_finishes_of_floors_and_walls_survive_import_and_export():          # #448
+    rooms = [{"name": "Bad", "points": [[0, 0], [4, 0], [4, 3], [0, 3]], "covering": "herringbone",
+              "floorLook": {"color": "#AABBCC", "size": 0.12, "angle": -45, "junk": 1},
+              "wallLook": {"pattern": "woodchip", "color": "#ffffff"}, "wallBelow": {"pattern": "wMetro", "height": 9}},
+             {"name": "Flur", "points": [[4, 0], [7, 0], [7, 3], [4, 3]], "floorLook": {"color": "#112233"},
+              "wallLook": {"pattern": "parquet"}, "wallBelow": {"pattern": "nope"}}]
+    layout, _, rep, _ = importer.build_layout(square_flat(rooms=rooms))
+    a, b = layout["floors"][0]["rooms"]
+    assert a["floorLook"] == {"color": "#aabbcc", "size": 0.12, "angle": 315.0}
+    assert a["wallLook"] == {"pattern": "woodchip", "color": "#ffffff"}
+    assert a["wallBelow"] == {"pattern": "wMetro", "height": 3.0}                        # at most 3 m
+    assert not any(k in b for k in ("floorLook", "wallLook", "wallBelow"))              # no look without a covering, no parquet on walls
+    spec = importer.layout_to_property(layout, "x")
+    spec["building"]["floors"][0]["walls"][0]["faces"] = {"left": {"pattern": "wpDamask", "color2": "#c9a35a"}, "right": {"pattern": "parquet"}}
+    again = importer.build_layout(spec)[0]["floors"][0]
+    assert again["rooms"][0]["wallBelow"] == a["wallBelow"] and again["rooms"][0]["floorLook"] == a["floorLook"]
+    assert again["walls"][0]["faces"] == {"left": {"pattern": "wpDamask", "color2": "#c9a35a"}}   # an accent wall; parquet is no wall
+    assert importer.layout_to_property({"floors": [again]}, "x")["building"]["floors"][0]["walls"][0]["faces"] == again["walls"][0]["faces"]
 
 
 def test_roof_boxes_move_with_the_building_origin():

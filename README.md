@@ -252,7 +252,9 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Weather in the sky**: clouds, rain and snow from your weather entity, and a **rain warning per window** when one is open while it rains
 - **Labels over the rooms**: name, temperature, lights on and open windows, a green dot when somebody is there; a tap opens the room. Or the devices instead (*View → In the picture*)
 - **Room tiles** at the bottom: every room with its temperature, lights and open windows, swipe sideways when there are many
-- **Real floors** per room: parquet (light, natural, dark), tiles, small tiles, concrete ...; **window frames** white or anthracite; floor cards and buttons in a **glass look**
+- **Real floors** per room: parquet, herringbone, chevron, wide planks, tiles, hexagons, cement tiles, terrazzo, marble, stone, paving, carpet ... (about 30), each with its own **colour, joint colour, size and angle**
+- **Walls with a finish** per room: paint, woodchip, plaster, wallpapers, tiles (also only **up to a height**, e.g. 1.20 m in the bathroom), brick, stone, wood; an **accent wall** on its own; the **facade** outside (plaster, brick, wood, slate ...)
+- **Window frames** white or anthracite; floor cards and buttons in a **glass look**
 - Dark theme by default (light theme and a hologram look as a gimmick are one click away), metric or imperial units, and 7 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski)
 
 <table>

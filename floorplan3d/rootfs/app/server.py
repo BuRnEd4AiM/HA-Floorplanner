@@ -74,6 +74,8 @@ DEFAULT_SETTINGS = {
     "roomTiles": True,         # live mode: a card per room at the bottom (#421)
     "roomLabels": True,        # live mode, wide screens: a label over every room in the 3D view (name, temperature, lights, somebody there, #430)
     "windowFrames": "white",   # white | anthracite: the colour of the window frames; anthracite with lighter walls (#428)
+    "facade": "",              # the finish of the outside of the walls (#448): '' (their colour, as always) or a facade pattern (importer.FACADE_FINISHES)
+    "facadeColor": "",         # ... its colour, '' for the pattern's own
     "idleReturn": 0.0,         # wall tablets: minutes without a touch until the start view returns (0 = off)
     "idleOrbit": False,        # ... and the house then turns slowly (screen saver)
     "nightDim": "off",         # off | sun | time: dim the live view at night
@@ -514,6 +516,11 @@ def validate_settings(data: dict) -> dict:
         out["sky"] = DEFAULT_SETTINGS["sky"]
     if out["windowFrames"] not in ("white", "anthracite"):
         out["windowFrames"] = DEFAULT_SETTINGS["windowFrames"]
+    if out["facade"] not in importer.FACADE_FINISHES:
+        out["facade"] = ""
+    if not (out["facade"] and re.fullmatch(r"#[0-9a-fA-F]{6}", out["facadeColor"] or "")):
+        out["facadeColor"] = ""
+    out["facadeColor"] = out["facadeColor"].lower()
     if out["nightDim"] not in ("off", "sun", "time"):
         out["nightDim"] = DEFAULT_SETTINGS["nightDim"]
     for key in ("nightFrom", "nightTo"):

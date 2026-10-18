@@ -42,8 +42,65 @@ WINDOW_STYLES = {"single", "double", "triple", "fixed"}
 ROOF_TYPES = {"gable", "hip", "flat"}
 FLOOR_KINDS = {"floor", "basement", "roof"}
 ROOM_COLORS = ["#b89b74", "#c9c2b4", "#8fb1c2", "#a99bb8", "#9db39a", "#c2a58f", "#9fb0c9", "#b7b08f"]
-# the floor coverings of a room (#427), the same names as COVERINGS in static/floorcover.js (tests/test_import.py checks it)
-COVERINGS = ("parquet", "parquetLight", "parquetDark", "tiles", "tilesSmall", "tilesDark", "concrete")
+# the finishes of floors, walls and the facade (#448): the same patterns as PATTERNS in static/finishes.js, with the places they go
+# (tests/test_import.py checks it); the floor coverings of a room (#427) are the ones for floors
+_F, _W, _A, _WA = ("floor",), ("wall",), ("facade",), ("wall", "facade")
+FINISHES = {
+    **{k: _F for k in ("parquet", "parquetLight", "parquetDark", "plankWide", "herringbone", "chevron", "basket", "laminate", "deck", "cork",
+                       "tiles", "tilesSmall", "tilesDark", "tilesLarge", "tilesWood", "checker", "hexFloor", "mosaic", "cement", "terrazzo",
+                       "marble", "slate", "stoneSlabs", "flagstone", "paving", "cobble", "concrete", "carpet", "carpetTiles")},
+    "paint": _WA, "woodchip": _W, "plaster": _WA, "limewash": _W, "concreteWall": _WA,
+    **{k: _W for k in ("wpStripes", "wpDamask", "wpDots", "wpDiamond", "wpLeaves", "wpScallop", "wpZigzag", "wpPlaid", "wpLinen",
+                       "wTiles", "wTilesSmall", "wMetro", "wMetroHerring", "wTilesLarge", "wHex", "wMosaic", "wMarble", "wZellige")},
+    **{k: _WA for k in ("brick", "brickWhite", "brickDark", "brickYellow", "stoneWall")},
+    "woodPanel": _W, "woodSlats": _W,
+    **{k: _A for k in ("woodCladding", "woodGrey", "shingles", "facadePanels")},
+}
+COVERINGS = tuple(k for k, on in FINISHES.items() if "floor" in on)
+FACADE_FINISHES = tuple(k for k, on in FINISHES.items() if "facade" in on)
+_HEX6 = re.compile(r"#[0-9a-fA-F]{6}")
+
+
+def _isnum(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
+def clean_look(v):
+    """the changes to a pattern (colour, second colour, size of one element in metres, angle): only what is valid; None when nothing is"""
+    if not isinstance(v, dict):
+        return None
+    o = {k: v[k].lower() for k in ("color", "color2") if isinstance(v.get(k), str) and _HEX6.fullmatch(v[k])}
+    if _isnum(v.get("size")):
+        o["size"] = round(min(5.0, max(0.01, float(v["size"]))), 3)
+    if _isnum(v.get("angle")):
+        o["angle"] = round(float(v["angle"]) % 360, 1)
+    return o or None
+
+
+def clean_finish(v, where):
+    """a finish {pattern, color, color2, size, angle} for a floor, wall, facade or side (one side of a wall: wall and facade patterns)"""
+    if not isinstance(v, dict) or not isinstance(v.get("pattern"), str) or v["pattern"] not in FINISHES:
+        return None
+    on = FINISHES[v["pattern"]]
+    if not (any(o != "floor" for o in on) if where == "side" else where in on):
+        return None
+    return {"pattern": v["pattern"], **(clean_look(v) or {})}
+
+
+def clean_below(v):
+    """the lower part of the walls of a room: a wall finish with its height (5 cm .. 3 m, 1.20 m when none is given)"""
+    f = clean_finish(v, "wall")
+    if f:
+        f["height"] = round(min(3.0, max(0.05, float(v["height"]) if _isnum(v.get("height")) else 1.2)), 2)
+    return f
+
+
+def clean_faces(v):
+    """the two sides of one wall (an accent wall): {left, right}, None when neither is valid"""
+    if not isinstance(v, dict):
+        return None
+    o = {k: f for k in ("left", "right") if (f := clean_finish(v.get(k), "side"))}
+    return o or None
 # optional device fields that are copied when they have the right type
 DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len", "rise", "armSwing", "armReach", "armTilt")
 DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img", "batPower")
@@ -571,7 +628,13 @@ def build_layout(data):
                 room["terrace"] = True                          # roof terrace: open area with a railing
                 open_rooms.add(len(rooms))
             if r.get("covering") in COVERINGS:
-                room["covering"] = r["covering"]                # the floor: parquet, tiles, concrete instead of one colour (#427)
+                room["covering"] = r["covering"]                # the floor: parquet, tiles, stone ... instead of one colour (#427)
+                if (look := clean_look(r.get("floorLook"))):
+                    room["floorLook"] = look                    # ... its colour, size and angle (#448)
+            if (wl := clean_finish(r.get("wallLook"), "wall")):
+                room["wallLook"] = wl                           # the walls: paint, woodchip, wallpaper, tiles ... (#448)
+            if (wb := clean_below(r.get("wallBelow"))):
+                room["wallBelow"] = wb                          # ... and below a height something else
             out["rooms"].append(room)
             rooms.append(poly)
         # walls: explicit list wins, otherwise derived from outline + rooms (the building's outline is not the roof floor's)
@@ -588,6 +651,8 @@ def build_layout(data):
                     wall = {"id": ids("w"), "a": [float(w["a"][0]), float(w["a"][1])], "b": [float(w["b"][0]), float(w["b"][1])],
                             "thickness": float(w["thickness"]) if _num(w.get("thickness"), 0.03, 1.5) else outer_t,
                             "height": float(w["height"]) if _num(w.get("height"), 0.5, 10) else height, "openings": []}
+                    if (faces := clean_faces(w.get("faces"))):
+                        wall["faces"] = faces                   # one side of this wall otherwise: an accent wall (#448)
                     if math.hypot(wall["b"][0] - wall["a"][0], wall["b"][1] - wall["a"][1]) < 0.05:
                         rep.warn(wp, "wall shorter than 5 cm: skipped")
                         continue
@@ -918,10 +983,10 @@ def layout_to_property(layout, name="Haus"):
             if not (f.get("rooms") or f.get("walls") or f.get("devices")):      # a plain roof; otherwise also its solar panels, a loft's rooms
                 floors.append(item)
                 continue
-        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace", "covering") if k in r} for r in f.get("rooms", [])]
+        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
         item["walls"] = []
         for w in f.get("walls", []):
-            ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": []}
+            ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
                 oo = {k: o[k] for k in ("type", "style", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "rainWarn") if k in o}
                 ow["openings"].append(oo)

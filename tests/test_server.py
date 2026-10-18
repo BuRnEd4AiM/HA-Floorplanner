@@ -258,6 +258,18 @@ async def test_settings_room_labels_and_window_frames(client):
     assert s["roomLabels"] is True and s["windowFrames"] == "white"
 
 
+async def test_settings_facade(client):
+    """the outside of the walls (#448): none as always, or a facade pattern with its own colour; woodchip or a bad colour fall back"""
+    s = await (await client.get("/api/settings")).json()
+    assert s["facade"] == "" and s["facadeColor"] == ""
+    s = await (await client.put("/api/settings", json={"facade": "brick", "facadeColor": "#AA3322"})).json()
+    assert s["facade"] == "brick" and s["facadeColor"] == "#aa3322"
+    s = await (await client.put("/api/settings", json={"facade": "woodchip", "facadeColor": "red"})).json()
+    assert s["facade"] == "" and s["facadeColor"] == ""
+    s = await (await client.put("/api/settings", json={"facade": "woodCladding", "facadeColor": "red"})).json()
+    assert s["facade"] == "woodCladding" and s["facadeColor"] == ""
+
+
 async def test_settings_look_and_stops(client):
     r = await client.put("/api/settings", json={
         "wallOpacity": 5, "glowRadius": 0.01, "bgTop": "#ABCDEF", "bgBottom": "red",

@@ -4,25 +4,26 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.99.6)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.0.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.99.6** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.0.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
-1. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25): „Live“ ansehen und nah heranzoomen, auch flach von der Seite; ein Raum-Schild und einen Punkt antippen; nachts die Sterne ansehen; auf dem Tablet eine Raum-Kachel antippen; am Handy die Raum-Kacheln wischen (flüssig, ohne Hängen), unten „Strom“ drücken (die Karte „Strom jetzt“ erscheint), die Raum-Schilder ansehen und ganz unten Uhrzeit und Wetter; „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
-2. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
-3. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
-4. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
-5. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
-6. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
-7. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
-8. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
-9. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
-10. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
-11. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
-12. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
-13. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
-14. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
-15. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
+1. **Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade** (67.1 bis 67.12): nah an die Wände im Bad, in der Küche und im Wohnzimmer zoomen; außen ums Haus drehen; im Bearbeiten einem Raum einen Boden, eine Farbe aus der Farbreihe, eine Größe und 45° geben; unter „Wände“ Raufaser, eine Tapete oder Fliesen wählen, „Unten anders“ ausprobieren; eine einzelne Wand anklicken und eine Seite anders machen; ⚙ → „Fassade“.
+2. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25): „Live“ ansehen und nah heranzoomen, auch flach von der Seite; ein Raum-Schild und einen Punkt antippen; nachts die Sterne ansehen; auf dem Tablet eine Raum-Kachel antippen; am Handy die Raum-Kacheln wischen (flüssig, ohne Hängen), unten „Strom“ drücken (die Karte „Strom jetzt“ erscheint), die Raum-Schilder ansehen und ganz unten Uhrzeit und Wetter; „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
+3. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
+4. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
+5. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
+6. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
+7. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
+8. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
+9. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
+10. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+11. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
+12. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
+13. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
+14. **Benutzer sperren** (37.6, 61.10, 61.11): „Benutzer“ → ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
+15. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
+16. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
 **Zuletzt geprüft (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
 
@@ -267,7 +268,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
 | 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 0 | 0 | 14 | 3 | 65.1 bis 65.13, 65.16 |
 | 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 1 | 1 | 22 | 1 | ❌ 66.21, 66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25 |
-| **Zusammen** | **284** | **2** | **184** | **23** | |
+| 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448) | 0 | 0 | 12 | 2 | 67.1 bis 67.12 |
+| **Zusammen** | **284** | **2** | **196** | **25** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1093,3 +1095,22 @@ Vorlage: die Beispielbilder in `docs/ideen-3.99/` (1, 2, 4 und 5). Die Demo hat 
 | 66.23 | Neu in 3.99.6 (#441): am Handy (iPhone, auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten langsam, schnell und etwas schräg nach links und rechts wischen | Die Leiste läuft flüssig mit dem Finger und bleibt nicht hängen, nach einem schnellen Wisch gleitet sie weich aus; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ❓ |
 | 66.24 | Neu in 3.99.6 (#442): am Handy „Live“, unten „Strom“ drücken, dann auf die Karte „Strom jetzt“ tippen | Oben in der Mitte erscheint die Karte „Strom jetzt“ klein (Sonne, Netz, Haus, Batterie, darunter Wasser, Gas, Wärme), ganz zu sehen; das Haus und die Raum-Kacheln bleiben frei; ein Tipp auf die Karte schaltet „Strom“ aus, die Karte verschwindet | ❓ |
 | 66.25 | Neu in 3.99.6 (#445): am Handy „Live“, ganz unten nachsehen | Ganz unten unter den Knöpfen eine kurze Zeile mit der Uhrzeit und dem Wetter, z. B. „☀️ 12:24 · ⛅ Teilweise bewölkt · 14 °C“; nichts überdeckt sich (Knöpfe, Kompass, Raum-Kacheln). Am PC und Tablet bleiben die beiden Zeilen oben rechts | ❓ |
+
+## 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448)
+Die Demo hat schon Beispiele eingestellt: Wohnzimmer Fischgrät und Raufaser, Küche Großformat-Fliesen, Metro-Fliesen bis 1,40 m und salbeigrüne Farbe, Bad Sechseck-Fliesen und blaue Fliesen bis 1,20 m, Schlafzimmer Teppich und Blätter-Tapete, Büro Rauputz; oben Punkte- und Streifen-Tapete, Chevron, Terrassendielen; im Dachgeschoss weißer Backstein; außen Rauputz. Zum Hineinschauen nah an eine Wand zoomen und das Bild drehen (die Wände zur Kamera hin senken sich).
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 67.1 | Demo öffnen, Erdgeschoss, nah an die Wände im Bad, in der Küche und im Wohnzimmer zoomen | Bad: blaue Fliesen bis etwa Hüfthöhe, darüber weiß; Küche: weiße Metro-Fliesen, darüber salbeigrün; Wohnzimmer: feine Raufaser, Boden Fischgrät. Türen und Fenster bleiben frei, die Muster wirken nicht verzerrt | ❓ |
+| 67.2 | Obergeschoss und Dachgeschoss ansehen | Kinderzimmer Punkte-Tapete, Gästezimmer Streifen-Tapete und Chevron-Boden, Dachterrasse Holzdielen, Studio weißer Backstein und breite Dielen | ❓ |
+| 67.3 | Von außen ums Haus drehen | Die Außenwände haben Rauputz; ⚙ → „Fassade“ → z. B. „Klinker rot“ macht alle Außenwände zu Klinker, „Glatt (wie bisher)“ stellt es zurück; „Farbe der Fassade“ färbt sie um | ❓ |
+| 67.4 | „Bearbeiten“, einen Raum anklicken, rechts „Boden“ aufklappen | Die Muster stehen unter „Holz“, „Fliesen“, „Stein“, „Sonstiges“, gut 25 Stück; ein anderes wählen: der Boden wechselt sofort | ❓ |
+| 67.5 | Unter dem Boden auf einen Farbkreis tippen, dann „Farbe“ und „Fugen“ selbst wählen | Der Boden nimmt die Farbe an (z. B. Nussbaum), die Fugen ihre Farbe; „↺ Wie vorgegeben“ stellt alles zurück | ❓ |
+| 67.6 | „Größe“ ändern (z. B. Fliesen 60 statt 30 cm), „Drehung“ 45° antippen | Die Fliesen werden größer bzw. liegen schräg (diagonal); 90° dreht die Dielen quer zum Raum; jede andere Zahl geht auch | ❓ |
+| 67.7 | Beim Raum unter „Wände“ z. B. „Raufaser“, „Rauputz“, „Tapete Ornament“, „Metro-Fliesen“, „Klinker rot“ wählen | Die Wände des Raums ändern sich sofort, nur auf der Seite dieses Raums; die Nachbarräume bleiben, wie sie sind; Farbe, Größe und Drehung gehen wie beim Boden | ❓ |
+| 67.8 | Haken „Unten anders (z. B. Fliesen)“, darunter Muster und „Bis Höhe“ (z. B. 1,50 m) | Unten Fliesen bis zur Höhe, darüber die Wand von oben; unter einem Fenster auch Fliesen | ❓ |
+| 67.9 | „Wände für alle Räume der Etage übernehmen“ | Alle Räume der Etage bekommen dieselben Wände (unten steht, wie viele); Strg+Z macht es rückgängig | ❓ |
+| 67.10 | Eine einzelne Wand anklicken, rechts „Oberfläche dieser Wand“: auf einer Seite eine Tapete wählen | Nur diese Seite dieser Wand hat die Tapete, über die ganze Höhe (Akzentwand); die Seiten stehen mit dem Namen des Raums („Zu Wohnzimmer“) oder „Außen“; „Wie der Raum“ nimmt es zurück | ❓ |
+| 67.11 | Unten „Temp.“, dann „Normal“; das Design „Hologramm“ | Bei „Temp.“ färben sich die Böden wie bisher (die Wände behalten ihr Muster); im Hologramm keine Muster, alles wie bisher | ❓ |
+| 67.12 | „2D“ ansehen | Die Räume haben die Farbe ihres Bodens, auch mit eigener Farbe (z. B. Nussbaum dunkel) | ❓ |
+| 67.13 | Im Add-on: eigenen Räumen Böden und Wände geben, neu laden; ein Tablet im Sparmodus „Schnell“ | Bleibt nach dem Neuladen so; im Sparmodus sind Böden und Wände einfarbig in ihrer Farbe (ohne Muster), das Bild bleibt flüssig | ➖ |
+| 67.14 | Im Add-on: Export (Haus als JSON) und wieder Import | Böden, Farben, Größen, Drehungen, Wände, „Unten anders“ und Akzentwände kommen wieder mit | ➖ |

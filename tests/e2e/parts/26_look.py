@@ -124,7 +124,7 @@ check("floors: choosing 'Beton' puts the pattern on the floor and saves it; the 
       room.get("covering") == "concrete" and pgL.evaluate(FLOOR, "lk_plain")["map"] is True and pgL.locator("#roomColor").count() == 0, room)
 pgL.click("#view2d"); pgL.wait_for_timeout(600)
 plan = pgL.evaluate("document.querySelector('#plan2d svg').innerHTML")
-check("floors: the 2D plan shows a covered room in its colour (concrete grey)", 'fill="#999995"' in plan)
+check("floors: the 2D plan shows a covered room in its colour (concrete grey)", 'fill="#9a9a96"' in plan)
 pgL.click("#view3d"); pgL.wait_for_timeout(500)
 pgL.evaluate("window.__fp.select('room', 'lk_plain')"); pgL.wait_for_timeout(300)
 pgL.select_option("#roomCovering", ""); pgL.wait_for_timeout(2500)

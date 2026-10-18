@@ -46,6 +46,8 @@ import { initSettings } from './settings.js';
 import { initFloorPanel, newFloor } from './floorpanel.js';
 import { hexVec, colorFromStops, roomLightMat as makeRoomLightMat, fillLights as fillRoomLights } from './roomlight.js';
 import { paintFloor } from './floortex.js';                                      // floor coverings (#427)
+import { initFacadeUi } from './finishui.js';                                    // the facade in the settings (#448)
+import { sweepTextures } from './finishtex.js';                                   // finishes of floors and walls (#448)
 import { initRoomLabels } from './roomlabels.js';
 import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
@@ -478,6 +480,7 @@ function build() {
   refreshSelection();
   buildNav();
   floorRail.schedule();
+  sweepTextures();                                // pictures of finishes no longer shown are freed when there are many (#448)
 }
 
 /** is this entity "on" for the glow of its device? A thermostat only while it really heats or cools (hvac_action), else by its state */
@@ -1382,6 +1385,7 @@ const startView = initStartView({
 const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
+  facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones
