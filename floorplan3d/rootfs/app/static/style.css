@@ -931,7 +931,8 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 
 /* ---- Room tiles (#421, roomtilesui.js): live mode, a strip over the view buttons; centred while it fits, swiped sideways when not ---- */
 #roomTiles { position: absolute; left: 156px; right: 16px; bottom: 62px; z-index: 4; display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px;
-  scrollbar-width: none; pointer-events: none; }
+  scrollbar-width: none; pointer-events: none; touch-action: pan-y; }   /* sideways the finger moves it (dragscroll.js, #438: the iPhone did not) */
+#roomTiles.moreL, #roomTiles.moreR { pointer-events: auto; }   /* more than fits: a swipe may start between two tiles too */
 #roomTiles::-webkit-scrollbar { display: none; }
 #roomTiles > * { pointer-events: auto; }
 #roomTiles > :first-child { margin-left: auto; }

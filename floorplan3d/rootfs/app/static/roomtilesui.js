@@ -2,9 +2,11 @@
  * floor, the top one first): its name, the temperature, the lights that are on (the card's edge in their colour), open windows and 👤 when
  * somebody is there. A tap flies to the room and opens its room card. On phones the strip is smaller and is swiped sideways. Redrawn only
  * when a card changed; what a card shows comes from roomtiles.js (tested). "Room tiles" in the View menu and in the settings switch it off.
- * More tiles than fit (the whole house): arrows at the ends, the cut side fades out, the mouse wheel scrolls the strip sideways (3.99.2). */
+ * More tiles than fit (the whole house): arrows at the ends, the cut side fades out, the mouse wheel scrolls the strip sideways (3.99.2), a
+ * finger swipes it on every device, the iPhone too (dragscroll.js, #438). */
 import { roomSummary, tileTexts, stripEnds } from './roomtiles.js';
 import { navEntries } from './nav.js';
+import { initDragScroll } from './dragscroll.js';
 
 const hex = (c) => '#' + c.map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0')).join('');
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -33,6 +35,7 @@ export function initRoomTiles(ctx) {
     if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || box.scrollWidth <= box.clientWidth) return;
     box.scrollLeft += e.deltaY; e.preventDefault();
   }, { passive: false });
+  initDragScroll(box);                                             // a finger (dragscroll.js)
   function tile({ r, fl, fi }, fmt, house) {
     const s = roomSummary(r, fl, { placed: ctx.placed(fl), areaEntities: ctx.areaEntities(r), states: ctx.states(), isOn: ctx.isOn, isOpen: ctx.isOpen, openingEntities: ctx.openingEntities });
     const tx = tileTexts(s, t, (v) => fmt.format(v), ctx.imperial());
