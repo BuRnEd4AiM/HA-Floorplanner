@@ -4,13 +4,13 @@
 
 Stand: 2026-10-18 · 52 Sitzungen
 
-**Insgesamt: 3,32 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 3,36 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 9,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 39,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 3,27 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 10,0 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 39,7 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 3,31 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,14 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 39 | 1,32 Mrd. | 3,8 Mio. |
+| 2026-10 | 39 | 1,36 Mrd. | 4,0 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-10-18 | [01UoZhsk…](https://claude.ai/code/session_01UoZhskVzkQSQ3wfn9kvzoS) | claude/ecstatic-curie-689tep | 46,8 Mio. | 139 Tsd. | gezählt |
+| 2026-10-18 | [01UoZhsk…](https://claude.ai/code/session_01UoZhskVzkQSQ3wfn9kvzoS) | claude/ecstatic-curie-689tep | 92,3 Mio. | 273 Tsd. | gezählt |
 | 2026-10-18 | [019zzCWW…](https://claude.ai/code/session_019zzCWWeL1ePBsdNchUFqrK) | claude/vigilant-archimedes-biceo2 | 18,1 Mio. | 78 Tsd. | gezählt |
 | 2026-10-18 | [01PzW5gz…](https://claude.ai/code/session_01PzW5gzJowdneEPuwrLp69Y) | claude/wall-finishes-448 | 51,1 Mio. | 245 Tsd. | gezählt |
 | 2026-10-18 | [01EBbu2D…](https://claude.ai/code/session_01EBbu2DEhkhatLAduMRnY5U) | claude/stoic-sagan-rl75nd | 28,8 Mio. | 87 Tsd. | gezählt |
