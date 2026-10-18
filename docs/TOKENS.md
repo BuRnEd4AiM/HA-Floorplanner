@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-10-18 · 49 Sitzungen
+Stand: 2026-10-18 · 50 Sitzungen
 
-**Insgesamt: 3,20 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 3,25 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 9,4 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 37,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 3,15 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 9,6 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 38,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 3,20 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,13 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 36 | 1,20 Mrd. | 3,4 Mio. |
+| 2026-10 | 37 | 1,25 Mrd. | 3,6 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-10-18 | [01PzW5gz…](https://claude.ai/code/session_01PzW5gzJowdneEPuwrLp69Y) | claude/wall-finishes-448 | 51,1 Mio. | 245 Tsd. | gezählt |
 | 2026-10-18 | [01EBbu2D…](https://claude.ai/code/session_01EBbu2DEhkhatLAduMRnY5U) | claude/stoic-sagan-rl75nd | 28,8 Mio. | 87 Tsd. | gezählt |
 | 2026-10-18 | [01AYWz6w…](https://claude.ai/code/session_01AYWz6wYzsThMe2d8wbBU2F) | claude/ecstatic-mendel-q1v3yr | 4,1 Mio. | 46 Tsd. | gezählt |
 | 2026-10-17 | [018qPqU6…](https://claude.ai/code/session_018qPqU6foiwRbhCmgn9QDNk) | HA-Floorplanner Aufgabe #425 | 146,5 Mio. | 246 Tsd. | Sitzungsliste |
