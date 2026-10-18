@@ -164,6 +164,22 @@ export function sunText(sun, date, t) {
   return parts.join(' · ');
 }
 
+/** the one short line at the bottom of a phone (#445): "☀️ 12:24 · ⛅ Teilweise bewölkt · 14 °C" (s: the weather entity's state as in
+ *  weatherText); without known weather the next sunset (sunrise) instead: "☀️ 12:24 · Sonnenuntergang 17:58" */
+export function shortSkyText(sun, date, s, t) {
+  const parts = [`${PHASE_ICON[skyPhase(sun.elev, sun.rising)]} ${hhmm(date)}`];
+  const look = s && weatherLook(s.state);
+  if (look) {
+    parts.push(`${look.icon} ${t(`wx.${look.key}`)}`);
+    const temp = num(s.wx?.t);
+    if (temp !== null) parts.push(`${Math.round(temp)} ${s.wx.tu || '°C'}`);
+  } else {
+    const up = sun.elev > -0.833, next = up ? sun.set : sun.rise;
+    if (next) parts.push(t(up ? 'sky.set' : 'sky.rise', { t: hhmm(next) }));
+  }
+  return parts.join(' · ');
+}
+
 /** "HH:MM" of the address (?skytime=21:30) as that time today, for trying the sky out; null for anything else */
 export function skyTimeOf(text, today) {
   const m = /^(\d{1,2}):(\d{2})$/.exec(String(text || '').trim());

@@ -115,6 +115,16 @@ test('the line of the time chip: the sunset while the sun is up, else the sunris
   assert.equal(S.sunText({ elev: 30, rising: true, rise: null, set: null }, now, t), '☀️ sky.day · 18:45');
 });
 
+test('the short line on phones (#445): the time and the weather, without weather the sunset', () => {
+  const now = new Date(2026, 9, 17, 12, 24);
+  const day = { elev: 30, rising: false, rise: new Date(2026, 9, 18, 7, 12), set: new Date(2026, 9, 17, 17, 58) };
+  assert.equal(S.shortSkyText(day, now, { state: 'partlycloudy', wx: { t: 14.4, tu: '°C', w: 12 } }, t), '☀️ 12:24 · ⛅ wx.partlycloudy · 14 °C');
+  assert.equal(S.shortSkyText(day, now, { state: 'rainy' }, t), '☀️ 12:24 · 🌧️ wx.rainy', 'no temperature: left out');
+  assert.equal(S.shortSkyText(day, now, null, t), '☀️ 12:24 · sky.set{"t":"17:58"}', 'no weather entity: the sunset');
+  assert.equal(S.shortSkyText({ ...day, elev: -20 }, now, { state: 'unknown' }, t), '🌙 12:24 · sky.rise{"t":"07:12"}', 'at night: the sunrise');
+  assert.equal(S.shortSkyText({ elev: 30, rising: true, rise: null, set: null }, now, null, t), '☀️ 12:24');
+});
+
 test('?skytime=HH:MM sets the clock of the sky for trying it out', () => {
   const today = new Date(2026, 9, 17, 10, 0);
   const d = S.skyTimeOf('21:30', today);

@@ -1,8 +1,9 @@
 /* The sky behind the 3D view (#418) and the weather in it (#419): the gradient of the hour as the background of the see-through canvas
  * (the renderer has alpha), stars at night, clouds, the lawn tinted, rain or snow falling over the picture in live mode and the chips at
- * the top right (time and sunset, weather). Costs nothing per frame: the sky is CSS, the rain a CSS animation of `transform` only,
- * standing still in the "fast" performance mode (#138). The colours and texts come from sky.js (tested). */
-import { sunNow, approxSun, skyColors, skyCss, starAlpha, milkyWay, groundTint, weatherId, weatherLook, weatherText, sunText, skyTimeOf } from './sky.js';
+ * the top right (time and sunset, weather); phones have one short line at the bottom instead (#skyLine, #445). Costs nothing per frame:
+ * the sky is CSS, the rain a CSS animation of `transform` only, standing still in the "fast" performance mode (#138). The colours and
+ * texts come from sky.js (tested). */
+import { sunNow, approxSun, skyColors, skyCss, starAlpha, milkyWay, groundTint, weatherId, weatherLook, weatherText, sunText, shortSkyText, skyTimeOf } from './sky.js';
 
 const STAR_STEPS = 5, TILE = 640;
 
@@ -56,7 +57,7 @@ function cloudLayers(cloud, elev) {
 export function initSky(ctx) {
   const { $, t } = ctx;
   const stars = new Map(), falls = new Map();
-  let lastCss = null, lastTint = '', lastChips = '', lastFall = '';
+  let lastCss = null, lastTint = '', lastChips = '', lastLine = '', lastFall = '';
   const fixed = () => skyTimeOf(ctx.params.get('skytime'), new Date());   // ?skytime=21:30: the sky at that time today (to try it out)
   const on = () => ctx.settings().sky !== 'off' && !ctx.isHolo();
   function starLayer(a) {
@@ -69,7 +70,14 @@ export function initSky(ctx) {
     if (lastCss !== null) { ctx.canvas.style.background = ''; lastCss = null; }
     if (lastTint) { ctx.earthTint(null); lastTint = ''; }
     $('#skyChips').hidden = true; lastChips = '';
+    line('');
     $('#wxFall').hidden = true; lastFall = '';
+  }
+  /** the short line at the bottom of a phone (style.css shows it there only; the view buttons move up for it) */
+  function line(text) {
+    if (text === lastLine) return;
+    const el = $('#skyLine');
+    el.textContent = text; el.hidden = !text; document.body.classList.toggle('skyline', !!text); lastLine = text;
   }
   /** the weather entity's state and how it looks; nulls without one */
   function weather() {
@@ -96,6 +104,7 @@ export function initSky(ctx) {
       box.replaceChildren(...lines.map((l) => { const d = document.createElement('div'); d.className = 'skyChip'; d.textContent = l; return d; }));
       box.hidden = !lines.length; lastChips = ck;
     }
+    line(live ? shortSkyText(sun, date, ws, t) : '');
     const fk = live && look?.fall ? `${look.fall}${look.heavy ? '+' : ''}` : '';
     const still = !!ctx.low();
     if (fk + still !== lastFall) {

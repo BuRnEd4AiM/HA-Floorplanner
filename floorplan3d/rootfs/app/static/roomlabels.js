@@ -1,5 +1,5 @@
-/* Labels over the rooms in 3D (#430): live mode on wide screens, over every room of the open floor a glass label with its name, the
- * temperature, how many lights are on (the edge in their colour), 🪟 for an open window and a green dot when somebody is there. Either the
+/* Labels over the rooms in 3D (#430): live mode (on phones too, smaller, #444), over every room of the open floor a glass label with its
+ * name, the temperature, how many lights are on (the edge in their colour), 🪟 for an open window and a green dot when somebody is there. Either the
  * labels or the devices (the owner's wish): while the labels show, the devices' balls and value labels are off and the room names lying on
  * the floor step aside; a tapped room (or label) shows its devices. HTML over the picture, moved along with the camera every frame (place), filled
  * again only when a label changed (update). What a label shows and when they show comes from roomtiles.js (tested). The View menu switches
@@ -27,9 +27,9 @@ export function initRoomLabels(ctx) {
   $('#roomLabelsToggle').addEventListener('click', () => { $('#setRoomLabels').checked = ctx.settings().roomLabels === false; ctx.commitSettings(); });
   box.addEventListener('click', (e) => { const p = e.target.closest('[data-room]'); if (p) ctx.openRoom?.(p.dataset.room); });
 
-  // phones, the dashboard card and a room tablet (its one room) have no room for them, like the room tiles
-  const cls = document.body.classList, phone = window.matchMedia?.('(max-width: 760px)');
-  const wide = () => !phone?.matches && !cls.contains('card') && !cls.contains('roomtablet');
+  // the dashboard card and a room tablet (its one room) have no room for them, like the room tiles; phones have them, smaller (#444)
+  const cls = document.body.classList;
+  const wide = () => !cls.contains('card') && !cls.contains('roomtablet');
   const isShown = () => labelsShown({ on: ctx.settings().roomLabels !== false, live: ctx.isLive(), wide: wide(), house: ctx.houseMode(),
     focused: ctx.focusedRoom(), view3d: ctx.view3d() });
   /** the room names on the open floor hide while the labels show */

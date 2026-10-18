@@ -8,6 +8,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 ### Fixed
 - **Swiping the room tiles on the phone runs smoothly** (#441): since 3.99.5 the page moved the strip at every move of the finger, and on the iPhone that jerked and got stuck, a slanted swipe stopped it. Now the browser scrolls the strip itself again (smooth, it glides on by itself), only sideways. The strip takes touches as soon as it has more tiles than fit, which is what the iPhone needed to scroll it at all (#438). The page moves the strip only as a stand-in, when the browser does not take over after a few millimetres.
 - **"Strom" shows the power on the phone** (#442): on phones the card "Power now" was switched off completely, and the line of numbers sits in the list behind "📊" at the top, so pressing "Strom" showed only the thin cables in the house. Now the card appears on phones too while "Strom" is pressed: a little smaller, in the middle under the top bar. A tap on it switches "Strom" off again.
+### Changed
+- **Room labels on the phone too** (#444): "View" → "In the picture: room labels" did nothing on phones, the labels over the rooms were switched off there. Now they show on phones as well, a little smaller; labels without room become small dots as everywhere, a tap opens the room.
+### Added
+- **Time and weather at the bottom of the phone** (#445): one short line at the very bottom, "☀️ 12:24 · ⛅ Partly cloudy · 14 °C" (without a weather entity the next sunset or sunrise). It uses the strip kept clear of the iPhone's home bar, which stayed empty in the Home Assistant app; where there is none, the view buttons move up a little.
 
 ## [3.99.5] - 2026-10-18
 ### Fixed

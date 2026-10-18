@@ -47,6 +47,7 @@ check("sky (#418): a gradient with stars behind the 3D view instead of one colou
       "linear-gradient" in bg and "url(" in bg and pgS.evaluate("window.__fp.scene.background === null"), bg[:120])
 check("sky: the chip at the top right says night and the next sunrise", "Nacht" in chips and "Sonnenaufgang" in chips, chips)
 check("weather (#419): the second chip has the weather, its temperature and the wind", "Regen · 11 °C · Wind 24 km/h" in chips, chips)
+check("sky: on wide screens no short line at the bottom (that is for phones, #445)", not pgS.is_visible("#skyLine"))
 check("weather: rain falls over the picture in live mode", pgS.is_visible("#wxFall") and "rain" in pgS.get_attribute("#wxFall", "class"), pgS.get_attribute("#wxFall", "class"))
 
 # --- the energy flow as a picture (#420), only while the button "Strom" is pressed (#434)
@@ -124,6 +125,12 @@ pgP.goto(BASE + "?debug=1&mode=live"); pgP.wait_for_timeout(2000)
 pgP.evaluate("window.__fp.switchFloor(0)"); pgP.wait_for_timeout(800)
 seen = [pgP.is_visible(s) for s in ("#energyCard", "#skyChips", "#roomTiles")]
 check("phone: no energy card before 'Strom' is pressed, no sky chips (no room for them), the room tiles are there", seen == [False, False, True], seen)
+sky = pgP.evaluate("""() => { const r = (s) => document.querySelector(s).getBoundingClientRect(), l = r('#skyLine'), m = r('#modeBar'), t = r('#roomTiles');
+  return { text: document.querySelector('#skyLine').textContent, l: Math.round(l.left), r: Math.round(l.right), t: Math.round(l.top), b: Math.round(l.bottom),
+    bar: Math.round(m.top), barB: Math.round(m.bottom), tiles: Math.round(t.bottom), h: innerHeight }; }""")
+check("phone (#445): one short line at the very bottom with the time and the weather, under the view buttons; they stay clear of the tiles",
+      pgP.is_visible("#skyLine") and sky["text"].startswith("🌙 ") and sky["text"].endswith(" · 🌧️ Regen · 11 °C") and sky["t"] >= sky["barB"]
+      and sky["b"] <= sky["h"] and sky["l"] >= 0 and sky["r"] <= 390 and sky["bar"] >= sky["tiles"], sky)
 pgP.tap("#powerBtn"); pgP.wait_for_timeout(600)
 ecard = pgP.evaluate("""() => { const r = (s) => document.querySelector(s).getBoundingClientRect(), c = r('#energyCard');
   return { l: Math.round(c.left), r: Math.round(c.right), t: Math.round(c.top), b: Math.round(c.bottom), tiles: Math.round(r('#roomTiles').top), nav: Math.round(r('#navBar').bottom) }; }""")
