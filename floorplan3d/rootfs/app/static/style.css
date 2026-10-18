@@ -908,7 +908,7 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 #wxFall.still i { animation: none; }
 @keyframes wxFall { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 256px, 0); } }
 
-/* ---- Energy flow as a picture (#420, energyflowui.js): in the stack at the top right, live and edit mode, wide screens ---- */
+/* ---- Energy flow as a picture (#420, energyflowui.js): in the stack at the top right, live and edit mode; phones too, smaller (#442) ---- */
 #energyCard { display: block; padding: 10px 12px 2px; border-radius: 16px; cursor: pointer; text-align: left; font: inherit; }
 #energyCard[hidden] { display: none; }
 .ef-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #aeb9c6; margin: 0 0 2px 4px; }
@@ -923,7 +923,23 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 .ef-val { font-size: 13px; font-weight: 700; fill: #fff; }
 .ef-sub { font-size: 11.5px; fill: #aeb9c6; }
 .ef-node .ef-side { text-anchor: start; }
-@media (max-width: 760px) { #energyCard { display: none !important; } }
+@media (max-width: 760px) {   /* phones (#442): a little smaller, in the middle under the top bar; only while "Strom" is pressed */
+  #sideStack { left: 12px; align-items: center; }
+  #energyCard { padding: 8px 10px 2px; }
+  #energyCard svg { width: 250px; height: auto; }
+  #energyCard .ef-val { font-size: 14px; }
+  #energyCard .ef-sub { font-size: 13px; }
+  #energyCard .ef-icon { font-size: 20px; }
+  #energyCard .ef-meters { max-width: 250px; }
+}
+@media (max-height: 520px) {   /* phones held sideways: no room for the sky chips; the card stands over the room tiles while "Strom" is pressed */
+  #skyChips { display: none; }
+  #sideStack { z-index: 6; }
+  #energyCard svg { width: 200px; height: auto; }
+  #energyCard .ef-val { font-size: 14.5px; }
+  #energyCard .ef-sub { font-size: 14px; }
+  #energyCard .ef-icon { font-size: 22px; }
+}
 @media (min-width: 761px) { body.flowcard #energyPill { display: none !important; } }
 .ef-meters { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 10px; max-width: 300px; }
 .ef-meters span { padding: 3px 10px; border-radius: 999px; font-size: 12px; white-space: nowrap; background: rgba(255, 255, 255, .08); color: #dfe6ee; }
@@ -931,8 +947,8 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 
 /* ---- Room tiles (#421, roomtilesui.js): live mode, a strip over the view buttons; centred while it fits, swiped sideways when not ---- */
 #roomTiles { position: absolute; left: 156px; right: 16px; bottom: 62px; z-index: 4; display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px;
-  scrollbar-width: none; pointer-events: none; touch-action: pan-y; }   /* sideways the finger moves it (dragscroll.js, #438: the iPhone did not) */
-#roomTiles.moreL, #roomTiles.moreR { pointer-events: auto; }   /* more than fits: a swipe may start between two tiles too */
+  scrollbar-width: none; pointer-events: none; touch-action: pan-x; overscroll-behavior-x: contain; }   /* the browser scrolls it, only sideways (#441) */
+#roomTiles.moreL, #roomTiles.moreR { pointer-events: auto; }   /* more than fits: the strip takes touches, else the iPhone does not scroll it (#438) */
 #roomTiles::-webkit-scrollbar { display: none; }
 #roomTiles > * { pointer-events: auto; }
 #roomTiles > :first-child { margin-left: auto; }

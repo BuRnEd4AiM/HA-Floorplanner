@@ -1,6 +1,7 @@
-/* Energy flow as a picture (#420): on wide screens (live and edit mode), at the top right under the sky chips, a card with the sun, the grid,
- * the house and the battery and dots running along the lines between them, instead of the line of numbers (#energyPill, which stays on
- * phones). It shows only while the button "Strom" at the bottom is on (or the power editor is open, #434): on its own it stays away. A tap
+/* Energy flow as a picture (#420): live and edit mode, at the top right under the sky chips, a card with the sun, the grid, the house and
+ * the battery and dots running along the lines between them, instead of the line of numbers (#energyPill, which stays on phones, in the
+ * list behind "📊"). On phones the card is a little smaller and in the middle under the top bar (style.css, #442: there "Strom" showed
+ * nothing). It shows only while the button "Strom" at the bottom is on (or the power editor is open, #434): on its own it stays away. A tap
  * on it does what the button does: the power off again (the cables in the house too). Redrawn only when a value changed; the
  * dots are a CSS animation, standing still in the "fast" performance mode. What flows where comes from energyflow.js (tested). Under the
  * picture the water, gas and heat meters, instead of their own pill at the top left (#meterPill, which stays on phones). */

@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.99.6] - 2026-10-18
+### Fixed
+- **Swiping the room tiles on the phone runs smoothly** (#441): since 3.99.5 the page moved the strip at every move of the finger, and on the iPhone that jerked and got stuck, a slanted swipe stopped it. Now the browser scrolls the strip itself again (smooth, it glides on by itself), only sideways. The strip takes touches as soon as it has more tiles than fit, which is what the iPhone needed to scroll it at all (#438). The page moves the strip only as a stand-in, when the browser does not take over after a few millimetres.
+- **"Strom" shows the power on the phone** (#442): on phones the card "Power now" was switched off completely, and the line of numbers sits in the list behind "📊" at the top, so pressing "Strom" showed only the thin cables in the house. Now the card appears on phones too while "Strom" is pressed: a little smaller, in the middle under the top bar. A tap on it switches "Strom" off again.
+
 ## [3.99.5] - 2026-10-18
 ### Fixed
 - **Swiping the room tiles on the iPhone** (#438): on the iPhone (Safari, also in the Home Assistant app) the strip of room tiles at the bottom could not be swiped sideways, so the rooms further right were out of reach (phones have no arrows). Now the finger moves the strip itself, the same on every device: it follows the finger, a quick swipe glides on and slows down, a tap still opens the room and a swipe opens none. The mouse keeps its wheel and the arrows.
