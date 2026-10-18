@@ -1,0 +1,28 @@
+{
+ "session": "estimate-other-accounts",
+ "start": "2026-09-29",
+ "updated": "2026-10-18T00:00:00Z",
+ "source": "estimate",
+ "sessions": 13,
+ "input": 200000,
+ "cache_write": 24000000,
+ "output": 6000000,
+ "cache_read": 1969800000,
+ "title": "Sitzungen von einem anderen Zugang, nur aus den Commits bekannt; geschätzt 2 Mrd. (eher 1 bis 4 Mrd.)",
+ "note": "Estimated on 2026-10-18. These sessions appear in the Claude-Session lines of the commits but not in the session list of the account that made the count, so their usage is unknown. Among them are the four longest sessions of the project (2026-09-29 to 2026-10-07, about 300 commits). The 34 measured sessions used about 13 million tokens per commit, the early sessions committed more often; split like the measured ones.",
+ "session_ids": [
+  "session_0124tRFQEofQyQXEExVxmZFG",
+  "session_013PW4mf5BymX3Y55VJgLetS",
+  "session_013S5jupe7Fj98mF8WUAREpA",
+  "session_0188xLYUQf5ScaDHc591fQRD",
+  "session_018HN248w8eKbmUxcqDHroMe",
+  "session_019VzANRhrt1fvWFzA14v4U6",
+  "session_01AvWQhxoXkkPKTdzyqi1ARv",
+  "session_01BHHrXRUAuih7ruszex33MU",
+  "session_01BwxpvBvjSceQsSQam9dVCW",
+  "session_01Co8i9MW1FxCgsyBxKaj1v4",
+  "session_01J1nsF2AL7XMH3cEQw96vU5",
+  "session_01PEqFF6enzzaff4ocAuopEV",
+  "session_01TAtgQoTSatZD6mu8GmS1rP"
+ ]
+}

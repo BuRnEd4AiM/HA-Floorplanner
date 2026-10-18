@@ -2,6 +2,9 @@
   "hooks": {
     "SessionStart": [
       { "hooks": [ { "type": "command", "command": "pip install -q graphifyy >/dev/null 2>&1; cd \"$CLAUDE_PROJECT_DIR\" && graphify update . >/dev/null 2>&1; true", "timeout": 300 } ] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Bash", "hooks": [ { "type": "command", "command": "python3 \"$CLAUDE_PROJECT_DIR/tools/tokens.py\" --hook; true", "timeout": 60 } ] }
     ]
   }
 }

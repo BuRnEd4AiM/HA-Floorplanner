@@ -1,0 +1,20 @@
+{
+ "session": "session_01AYWz6wYzsThMe2d8wbBU2F",
+ "start": "2026-10-18",
+ "updated": "2026-10-18T10:32:35Z",
+ "branch": "claude/ecstatic-mendel-q1v3yr",
+ "source": "counted",
+ "input": 70,
+ "cache_write": 106305,
+ "cache_read": 3988232,
+ "output": 45714,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 70,
+   "cache_write": 106305,
+   "cache_read": 3988232,
+   "output": 45714,
+   "requests": 35
+  }
+ }
+}

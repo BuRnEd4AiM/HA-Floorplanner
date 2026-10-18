@@ -1,0 +1,12 @@
+{
+ "session": "session_012BmCWD138w3DGR2YJJ7g6r",
+ "start": "2026-10-10",
+ "updated": "2026-10-10T11:30:10Z",
+ "branch": "claude/zen-brown-nnrain",
+ "source": "session list",
+ "input": 3226,
+ "cache_write": 147739,
+ "cache_read": 13157664,
+ "output": 35207,
+ "title": "Pull request continuation"
+}

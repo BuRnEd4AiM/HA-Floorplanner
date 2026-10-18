@@ -1,0 +1,36 @@
+name: Token count
+
+# Adds up the token counts of all Claude sessions (docs/tokens/*.json, written by the hook in .claude/settings.json at every
+# commit) into docs/TOKENS.md, after every merge that brings new counts. Pull requests never touch docs/TOKENS.md, so parallel
+# sessions do not get merge conflicts over it.
+on:
+  push:
+    branches: [main]
+    paths: ["docs/tokens/**", "tools/tokens.py"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tokens
+  cancel-in-progress: false
+
+jobs:
+  sum:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/tokens.py
+      - name: Commit docs/TOKENS.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/TOKENS.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Token count [skip ci]"
+          for i in 1 2 3; do
+            git pull --rebase -q && git push && exit 0
+            echo "push failed (attempt $i), retrying"; sleep $((i * 10))
+          done
+          exit 1

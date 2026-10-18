@@ -1,0 +1,12 @@
+{
+ "session": "session_01PrxD3LLwhtvvnDYp2QdQCq",
+ "start": "2026-10-09",
+ "updated": "2026-10-10T10:59:11Z",
+ "branch": "claude/gallant-cori-43l5to",
+ "source": "session list",
+ "input": 5825,
+ "cache_write": 1144080,
+ "cache_read": 22295302,
+ "output": 43154,
+ "title": "Test-Durchlauf fortgesetzt"
+}

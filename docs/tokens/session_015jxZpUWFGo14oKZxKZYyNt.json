@@ -1,0 +1,12 @@
+{
+ "session": "session_015jxZpUWFGo14oKZxKZYyNt",
+ "start": "2026-10-11",
+ "updated": "2026-10-11T22:10:31Z",
+ "branch": "claude/stoic-babbage-2plhny",
+ "source": "session list",
+ "input": 6215,
+ "cache_write": 170978,
+ "cache_read": 12091782,
+ "output": 57568,
+ "title": "Transparente Ansicht: nur Wände"
+}

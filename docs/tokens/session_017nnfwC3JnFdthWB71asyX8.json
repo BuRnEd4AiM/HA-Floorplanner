@@ -1,0 +1,12 @@
+{
+ "session": "session_017nnfwC3JnFdthWB71asyX8",
+ "start": "2026-10-08",
+ "updated": "2026-10-08T20:46:57Z",
+ "branch": "claude/e2e-roof-handles-robust",
+ "source": "session list",
+ "input": 2462,
+ "cache_write": 147275,
+ "cache_read": 9606779,
+ "output": 23928,
+ "title": "Hausansicht Anzeigefeld Problem"
+}

@@ -1,0 +1,12 @@
+{
+ "session": "session_017RmDgf3S8q36qxvfp9Ni6T",
+ "start": "2026-10-10",
+ "updated": "2026-10-10T19:36:14Z",
+ "branch": "claude/shutter-card",
+ "source": "session list",
+ "input": 1722,
+ "cache_write": 258749,
+ "cache_read": 25267317,
+ "output": 89180,
+ "title": "Rollladen menu improvements"
+}

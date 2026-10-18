@@ -1,0 +1,12 @@
+{
+ "session": "session_01E4Fxjxm2eC1ZA7uBPz1FWw",
+ "start": "2026-10-10",
+ "updated": "2026-10-10T20:05:49Z",
+ "branch": "claude/keen-wright-85zm3m",
+ "source": "session list",
+ "input": 158,
+ "cache_write": 202914,
+ "cache_read": 13384206,
+ "output": 66954,
+ "title": "Stop live popup redrawing on every state update"
+}

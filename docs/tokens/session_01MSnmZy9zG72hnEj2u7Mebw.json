@@ -1,0 +1,12 @@
+{
+ "session": "session_01MSnmZy9zG72hnEj2u7Mebw",
+ "start": "2026-10-10",
+ "updated": "2026-10-10T19:05:59Z",
+ "branch": "claude/zen-goldberg-e5qnaf",
+ "source": "session list",
+ "input": 17187,
+ "cache_write": 413556,
+ "cache_read": 78795434,
+ "output": 118044,
+ "title": "Test-Suite Aufteilung"
+}

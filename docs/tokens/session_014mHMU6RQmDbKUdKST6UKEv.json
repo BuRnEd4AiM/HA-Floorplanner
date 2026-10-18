@@ -1,0 +1,12 @@
+{
+ "session": "session_014mHMU6RQmDbKUdKST6UKEv",
+ "start": "2026-10-12",
+ "updated": "2026-10-12T21:05:15Z",
+ "branch": "claude/vibrant-heisenberg-k6ut1i",
+ "source": "session list",
+ "input": 1662,
+ "cache_write": 143888,
+ "cache_read": 10385412,
+ "output": 43634,
+ "title": "Tür wird im Raum nicht angezeigt"
+}

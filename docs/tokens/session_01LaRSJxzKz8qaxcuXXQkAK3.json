@@ -1,0 +1,12 @@
+{
+ "session": "session_01LaRSJxzKz8qaxcuXXQkAK3",
+ "start": "2026-10-15",
+ "updated": "2026-10-15T10:15:05Z",
+ "branch": "claude/compassionate-davinci-u52t9b",
+ "source": "session list",
+ "input": 210,
+ "cache_write": 306297,
+ "cache_read": 26517032,
+ "output": 125575,
+ "title": "Floorplan Stromabrechnung Admin-Modus"
+}
