@@ -40,6 +40,8 @@ async def service(r):
     body = await r.json(); dom, svc = r.match_info["d"], r.match_info["s"]
     CALLS.append([dom, svc, body.get("entity_id")])
     e = body.get("entity_id")
+    if isinstance(e, list):       # several at once (homeassistant.turn_on of the holiday alarm's sirens, #456): only noted
+        return web.json_response([])
     if dom == "notify":           # #414: a message of the add-on
         NOTIFIED.append(["ha", svc, body.get("message")])
         return web.json_response([])
@@ -68,6 +70,10 @@ async def service(r):
     return web.json_response([])
 async def set_state(r):          # test helper: a change that happens outside the floor plan (wall switch, automation)
     e, s = r.query["e"], r.query["s"]
+    if e in EXTRA:                # one of the added entities (#456: a door contact of the holiday alarm)
+        EXTRA[e]["state"] = s
+        await push(e)
+        return web.json_response({"ok": True, "subscribers": len(SUBS)})
     STATE[e] = s
     COVER_POS.pop(e, None)
     await push(e)
@@ -161,11 +167,19 @@ async def callmebot(r):           # the free WhatsApp gateway (#414): "bad" is a
     NOTIFIED.append(["callmebot", q.get("phone"), q.get("text"), q.get("apikey")])
     if q.get("apikey") == "bad": return web.Response(text="<p>APIKey is invalid. You need to get a new one.</p>", content_type="text/html")
     return web.Response(text="<p>Message queued. You will receive it in a few seconds.</p>", content_type="text/html")
+async def cmb_tg_user(r):         # Telegram to users through CallMeBot (#456)
+    NOTIFIED.append(["tg_user", r.query.get("user"), r.query.get("text")])
+    return web.Response(text="<p>Message to: " + r.query.get("user", "") + " sent</p>", content_type="text/html")
+async def cmb_tg_group(r):        # ... into a group with its key; "bad" is a wrong key
+    NOTIFIED.append(["tg_group", r.query.get("apikey"), r.query.get("text")])
+    if r.query.get("apikey") == "bad": return web.Response(text="<p>Error: wrong apikey</p>", content_type="text/html")
+    return web.Response(text="<p>Message sent to the group</p>", content_type="text/html")
 async def notified(r): return web.json_response(NOTIFIED)
 async def template(r):
     return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
 app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified),
+                web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

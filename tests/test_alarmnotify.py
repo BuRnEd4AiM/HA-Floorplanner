@@ -15,18 +15,42 @@ def st(eid, state, dc=None, name=None):
 
 def test_settings_are_cleaned_and_the_key_stays_in_the_add_on():
     c = an.clean({"on": True, "via": "whatsapp", "phone": "+49 170 / 123-4567", "apikey": "123456", "kinds": ["smoke", "bogus", "alarm"], "clear": True})
-    assert c == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "service": "", "clear": True, "apikey": "123456"}
-    assert an.public(c) == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "service": "", "clear": True, "hasKey": True}
+    assert c == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "tgMode": "user", "tgUsers": [],
+                 "clear": True, "apikey": "123456", "tgkey": ""}
+    assert an.public(c) == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "tgMode": "user",
+                            "tgUsers": [], "clear": True, "hasKey": True, "hasTgKey": False}
     kept = an.clean({"phone": "+491701234567"}, c)
     assert kept["apikey"] == "123456" and kept["on"] is True              # a save without the key keeps it
     assert an.clean({"apikey": ""}, c)["apikey"] == ""                    # "" removes it
     assert an.clean({"apikey": None}, c)["apikey"] == ""
     assert an.clean({"apikey": "a b<script>"}, c)["apikey"] == "123456"   # junk is not taken
-    assert an.clean({"service": "notify.mobile_app_pixel"})["service"] == "mobile_app_pixel"
-    assert an.clean({"service": "../evil"})["service"] == ""
+    assert an.clean({"service": "notify.mobile_app_pixel"})["services"] == ["mobile_app_pixel"]          # one service as before 4.0.3
+    assert an.clean({"service": "../evil"})["services"] == []
+    assert an.clean({}, {"service": "whatsapp"})["services"] == ["whatsapp"]                            # an old file: its one service is kept
     assert an.clean({"phone": "abc"})["phone"] == ""
     assert an.clean({"via": "sms"})["via"] == "whatsapp"
-    assert an.clean("junk") == {**an.DEFAULT, "apikey": ""}
+    assert an.clean("junk") == {**an.DEFAULT, "apikey": "", "tgkey": ""}
+
+
+def test_several_services_and_telegram_by_callmebot():
+    """#456: notify services picked from Home Assistant's list (several); Telegram to users or into a group with the group's key"""
+    assert an.clean({"services": ["notify.telegram_familie", "mobile_app_pixel", "telegram_familie", "bad name", 7]})["services"] == ["telegram_familie", "mobile_app_pixel"]
+    assert an.clean({"services": "a, b c|a"})["services"] == ["a", "b", "c"]
+    assert an.clean({"services": [f"s{i}" for i in range(20)]})["services"] == [f"s{i}" for i in range(10)]
+    c = an.clean({"via": "telegram", "tgMode": "group", "tgkey": "AbC-123_x", "tgUsers": "flo_weber, @anna_m |+491701234567 x <b>"})
+    assert c["via"] == "telegram" and c["tgMode"] == "group" and c["tgkey"] == "AbC-123_x" and c["tgUsers"] == ["@flo_weber", "@anna_m", "+491701234567"]
+    assert an.public(c)["hasTgKey"] is True and "tgkey" not in an.public(c)
+    assert an.clean({"tgUsers": []}, c)["tgkey"] == "AbC-123_x"                                         # a save without the key keeps it
+    assert an.clean({"tgkey": ""}, c)["tgkey"] == "" and an.clean({"tgMode": "bot"}, c)["tgMode"] == "group"
+
+
+def test_callmebot_answer():
+    assert an.callmebot_failed(200, "<p>Message queued. You will receive it in a few seconds.</p>", "Hi") is None
+    assert "APIKey is invalid" in an.callmebot_failed(200, "<p>APIKey is invalid. You need to get a new one.</p>", "Hi")
+    assert an.callmebot_failed(200, "<p>User @flo has not authorized CallMeBot</p>", "Hi")
+    assert an.callmebot_failed(200, "Sent to @flo: error 12", "x")
+    assert an.callmebot_failed(500, "oops", "x").startswith("CallMeBot (500)")
+    assert an.callmebot_failed(200, "<b>Text sent: Rauch wrong?</b>", "Rauch wrong?") is None                # the message itself does not count
 
 
 def test_ready_says_what_is_missing():
@@ -34,8 +58,12 @@ def test_ready_says_what_is_missing():
     assert an.ready({"on": True, "via": "whatsapp", "phone": "", "apikey": "1"}) == "phone"
     assert an.ready({"on": True, "via": "whatsapp", "phone": "+491", "apikey": ""}) == "apikey"
     assert an.ready({"on": True, "via": "whatsapp", "phone": "+491", "apikey": "1"}) is None
-    assert an.ready({"on": True, "via": "ha", "service": ""}) == "service"
-    assert an.ready({"on": True, "via": "ha", "service": "whatsapp"}) is None
+    assert an.ready({"on": True, "via": "ha", "services": []}) == "service"
+    assert an.ready({"on": True, "via": "ha", "services": ["whatsapp"]}) is None
+    assert an.ready({"on": True, "via": "telegram", "tgMode": "user", "tgUsers": []}) == "tguser"
+    assert an.ready({"on": True, "via": "telegram", "tgMode": "user", "tgUsers": ["@flo_weber"]}) is None
+    assert an.ready({"on": True, "via": "telegram", "tgMode": "group", "tgUsers": ["@flo_weber"], "tgkey": ""}) == "tgkey"
+    assert an.ready({"on": True, "via": "telegram", "tgMode": "group", "tgkey": "k"}) is None
 
 
 def test_what_goes_off():
@@ -87,6 +115,10 @@ def test_where_and_the_text():
     assert an.where_of([("Haus", lay), ("Garten", {})], "binary_sensor.rauch") == "Haus · Erdgeschoss · Küche"   # several houses: the house too
     assert an.where_of([("Haus", lay)], "binary_sensor.flur") == "Erdgeschoss"                                   # in no room
     assert an.where_of([("Haus", lay)], "binary_sensor.nirgends") == ""
+    lay["floors"][0]["walls"] = [{"a": [0, 3], "b": [4, 3], "openings": [{"type": "door", "pos": 2, "entity": "binary_sensor.tuer"},
+                                                                     {"type": "window", "pos": 1, "paneEntities": ["binary_sensor.fluegel"]}]}]
+    assert an.where_of([("Haus", lay)], "binary_sensor.tuer") == "Erdgeschoss · Küche"                          # a door contact (#456): the room beside it
+    assert an.where_of([("Haus", lay)], "binary_sensor.fluegel") == "Erdgeschoss · Küche"                       # ... or one pane's contact
     assert an.text("start", "smoke", "Rauchmelder", "Erdgeschoss · Küche", "de", "17.10. 18:22") == "🔥 Rauch erkannt: Rauchmelder\nErdgeschoss · Küche · 17.10. 18:22"
     assert an.text("start", "alarm", "Alarm", lang="en") == "🚨 ALARM: Alarm"
     assert an.text("clear", "water", "Keller", lang="xx").startswith("✅ Back to normal")

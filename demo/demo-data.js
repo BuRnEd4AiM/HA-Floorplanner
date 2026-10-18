@@ -312,7 +312,20 @@ let settings = {
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
 };
 
-const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', service: '', clear: false, apikey: '' };   // api/notify in the demo
+const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
+// the holiday alarm (#456) in the demo: set up with the code 1234; armed for 25 s, a "burglar" opens the office door (the whole flow can be seen)
+const guard = { cfg: { sensors: ['binary_sensor.tuer_buero', 'binary_sensor.fenster_kueche', 'binary_sensor.fenster_wohnzimmer'], offline: true, delay: 20, actions: [],
+  notify: true, report: true, code: '1234' }, st: { phase: 'off', since: 0, due: 0, by: '', what: null }, armedAt: 0 };
+function guardView() {
+  const g = guard, now = Date.now() / 1000;
+  if (g.st.phase === 'arming' && now >= g.st.due) { g.st = { ...g.st, phase: 'armed', due: 0 }; g.armedAt = now; }
+  if (g.st.phase === 'armed' && g.armedAt && now - g.armedAt >= 25 && g.cfg.sensors.includes('binary_sensor.tuer_buero')) {
+    entities['binary_sensor.tuer_buero'].state = 'on';
+    g.st = { ...g.st, phase: g.cfg.delay ? 'entry' : 'alarm', due: now + g.cfg.delay, what: { entity: 'binary_sensor.tuer_buero', name: 'Bürotür', why: 'open', at: now } };
+  }
+  if (g.st.phase === 'entry' && now >= g.st.due) g.st = { ...g.st, phase: 'alarm', due: 0 };
+  return { phase: g.st.phase, left: ['arming', 'entry'].includes(g.st.phase) ? Math.max(0, Math.round(g.st.due - now)) : 0, since: g.st.since, by: g.st.by, what: g.st.what };
+}
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
 export function installDemoBackend() {
@@ -432,11 +445,34 @@ export function installDemoBackend() {
     }
     if (path === 'api/notify') {                         // the message on alarm (#414): shown in the demo too, kept only in this tab, never sent
       if (method === 'PUT') {
-        const b = JSON.parse(init.body || '{}'), key = typeof b.apikey === 'string' && b.apikey.trim() ? b.apikey.trim() : notify.apikey;
-        Object.assign(notify, b, { apikey: key });
+        const b = JSON.parse(init.body || '{}'), keep = (k) => (typeof b[k] === 'string' && b[k].trim() ? b[k].trim() : notify[k]);
+        const list = (v) => (Array.isArray(v) ? v : String(v || '').split(/[\s,;|]+/)).filter(Boolean);
+        Object.assign(notify, b, { apikey: keep('apikey'), tgkey: keep('tgkey'), services: list(b.services ?? notify.services),
+          tgUsers: list(b.tgUsers ?? notify.tgUsers).map((u) => (/^[@+]/.test(u) ? u : `@${u}`)) });
       }
-      const n = notify, ready = !n.on ? 'off' : n.via === 'ha' ? (n.service ? null : 'service') : !n.phone ? 'phone' : n.apikey ? null : 'apikey';
-      return json({ on: n.on, kinds: n.kinds, via: n.via, phone: n.phone, service: n.service, clear: n.clear, hasKey: !!n.apikey, ready, services: ['mobile_app_handy', 'whatsapp'] });
+      const n = notify, ready = !n.on ? 'off' : n.via === 'ha' ? (n.services.length ? null : 'service')
+        : n.via === 'telegram' ? (n.tgMode === 'group' ? (n.tgkey ? null : 'tgkey') : (n.tgUsers.length ? null : 'tguser'))
+        : !n.phone ? 'phone' : n.apikey ? null : 'apikey';
+      return json({ on: n.on, kinds: n.kinds, via: n.via, phone: n.phone, services: n.services, available: ['mobile_app_handy', 'telegram_familie', 'whatsapp'],
+        tgMode: n.tgMode, tgUsers: n.tgUsers, clear: n.clear, hasKey: !!n.apikey, hasTgKey: !!n.tgkey, ready });
+    }
+    if (path === 'api/guard') {
+      if (method === 'PUT') {
+        const b = JSON.parse(init.body || '{}');
+        ['sensors', 'actions', 'offline', 'notify', 'report', 'delay'].forEach((k) => { if (k in b) guard.cfg[k] = b[k]; });
+        if (/^[0-9]{4,8}$/.test(b.code || '')) guard.cfg.code = b.code;
+      }
+      const { code, ...pub } = guard.cfg, ready = !pub.sensors.length ? 'sensors' : code ? null : 'code';
+      const cfg = { ...pub, hasCode: !!code };
+      return json(method === 'PUT' ? { cfg, ready } : { view: guardView(), ready, sensors: pub.sensors, delay: pub.delay, locked: false, canEdit: true, cfg });
+    }
+    if (path === 'api/guard/arm' || path === 'api/guard/disarm') {
+      const b = JSON.parse(init.body || '{}'), now = Date.now() / 1000;
+      if (b.code !== guard.cfg.code) return json({ error: 'code', left: 4 }, 403);
+      if (path.endsWith('/arm') && guard.st.phase === 'off') guard.st = { phase: guard.cfg.delay ? 'arming' : 'armed', since: now, due: now + guard.cfg.delay, by: 'demo', what: null };
+      if (path.endsWith('/disarm')) { guard.st = { phase: 'off', since: now, due: 0, by: 'demo', what: null }; guard.armedAt = 0; entities['binary_sensor.tuer_buero'].state = 'off'; }
+      if (guard.st.phase === 'armed') guard.armedAt = now;
+      return json({ view: guardView() });
     }
     if (path === 'api/notify/test') return json({ error: 'in der Demo wird nichts gesendet' }, 501);
     if (path === 'api/backgrounds' && method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);

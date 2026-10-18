@@ -23,6 +23,7 @@ import aiohttp
 from aiohttp import web
 
 import alarmnotify as an
+import guard as gd
 import controls
 import importer
 import manifest as mf
@@ -116,7 +117,7 @@ PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWall
                  "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False)}
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too
-LOCKS = ("control", "alarm", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
+LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
 
 
 def clean_locks(val) -> dict:
@@ -1738,6 +1739,7 @@ async def get_energy_prefs(request):
 
 # ---------- a message when something goes off: alarm panel, smoke, gas, CO, water (#414, alarmnotify.py) ----------
 CALLMEBOT_URL = os.environ.get("CALLMEBOT_URL", "https://api.callmebot.com/whatsapp.php")
+CALLMEBOT_TG = os.environ.get("CALLMEBOT_TG", "https://api.callmebot.com")   # Telegram: text.php (users), telegram/group.php (a group, #456)
 KEY_NOTIFY = web.AppKey("notify", dict)         # {"cfg": the settings of the messages, "lang": Home Assistant's language}
 
 
@@ -1763,7 +1765,8 @@ def notify_lang(request) -> str:
 
 
 async def send_notify(cfg: dict, message: str):
-    """one message the way the settings say (CallMeBot or a notify service of Home Assistant): (ok, error text)"""
+    """one message the way the settings say (WhatsApp or Telegram through CallMeBot, or notify services of Home Assistant): (ok, error
+    text); with several services it is sent to each, an error names the ones that failed"""
     why = an.ready({**cfg, "on": True})
     if why:
         return False, f"not set up: {why}"
@@ -1772,20 +1775,29 @@ async def send_notify(cfg: dict, message: str):
             if cfg["via"] == "ha":
                 if not SUPERVISOR_TOKEN:
                     return False, "no Home Assistant (standalone mode)"
-                async with s.post(f"{HA_API}/services/notify/{cfg['service']}", headers=ha_headers(),
-                                  json={"title": "3D Floorplan", "message": message}) as r:
-                    return (True, None) if r.status == 200 else (False, f"Home Assistant answered {r.status}")
-            async with s.get(CALLMEBOT_URL, params={"phone": cfg["phone"], "text": message, "apikey": cfg["apikey"]}) as r:
-                said = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", (await r.text())[:2000])).replace(message, "").strip()
-                if r.status != 200 or re.search(r"invalid|error|wrong|not (valid|found|allowed)", said, re.I):
-                    return False, f"CallMeBot ({r.status}): {said[:160]}"
-                return True, None
+                bad = []
+                for svc in cfg["services"]:
+                    async with s.post(f"{HA_API}/services/notify/{svc}", headers=ha_headers(),
+                                      json={"title": "3D Floorplan", "message": message}) as r:
+                        if r.status != 200:
+                            bad.append(f"notify.{svc}: Home Assistant answered {r.status}")
+                return (False, "; ".join(bad)) if bad else (True, None)
+            if cfg["via"] == "telegram":
+                group = cfg.get("tgMode") == "group"
+                url = f"{CALLMEBOT_TG}/telegram/group.php" if group else f"{CALLMEBOT_TG}/text.php"
+                params = {"apikey": cfg["tgkey"], "text": message, "html": "no"} if group else {"user": "|".join(cfg["tgUsers"]), "text": message}
+            else:
+                url, params = CALLMEBOT_URL, {"phone": cfg["phone"], "text": message, "apikey": cfg["apikey"]}
+            async with s.get(url, params=params) as r:
+                err = an.callmebot_failed(r.status, await r.text(), message)
+                return (False, err) if err else (True, None)
     except Exception as err:  # noqa: BLE001 - no network, a timeout ...: said, never raised
         return False, str(err) or type(err).__name__
 
 
 async def get_notify(request):
-    """the settings of the messages (without the CallMeBot key) and Home Assistant's notify services to choose from (editors)"""
+    """the settings of the messages (without the CallMeBot keys; "services" are the ticked ones) and Home Assistant's notify services to
+    choose from ("available", also those of configuration.yaml) (editors)"""
     if not await can_edit(request):
         return forbidden()
     services = []
@@ -1799,7 +1811,7 @@ async def get_notify(request):
         except Exception:  # noqa: BLE001 - the list is only a help, the name can be typed
             services = []
     cfg = notify_cfg(request)
-    return web.json_response({**an.public(cfg), "ready": an.ready(cfg), "services": services})
+    return web.json_response({**an.public(cfg), "ready": an.ready(cfg), "available": services})
 
 
 async def put_notify(request):
@@ -1859,6 +1871,158 @@ async def alarm_notifier(app):
             await an.run_watch(connect=_HaSocket, config=lambda: notify_cfg(ctx), send=lambda msg: send_notify(notify_cfg(ctx), msg),
                                places=lambda: notify_places(ctx, cache), lang=lambda: notify_lang(ctx),
                                clock=lambda: datetime.datetime.now(tz).strftime("%d.%m. %H:%M"))
+
+        task = asyncio.create_task(start())
+    yield
+    if task:
+        task.cancel()
+
+
+# ---------- the add-on's own holiday alarm: chosen sensors, a code, sirens and a message when it goes off (#456, guard.py) ----------
+KEY_GUARD = web.AppKey("guard", dict)           # {"cfg", "state", "tries", "places", "tz"}
+
+
+def guard_path(request) -> Path:
+    return data_dir(request) / "guard.json"       # with the hashed code: not in the settings every tablet reads
+
+
+def guard_store(request) -> dict:
+    store = request.app[KEY_GUARD]
+    if "cfg" not in store:
+        stored = read_json(guard_path(request), {})
+        stored = stored if isinstance(stored, dict) else {}
+        store["cfg"], store["state"] = gd.clean_cfg(stored.get("cfg"), stored.get("cfg")), gd.clean_state(stored.get("state"))
+    return store
+
+
+def guard_save(request, state=None) -> None:
+    store = guard_store(request)
+    if state is not None:
+        store["state"] = state
+    write_json_atomic(guard_path(request), {"cfg": store["cfg"], "state": store["state"]})
+
+
+async def guard_act(request, events) -> None:
+    """what the events say: the message (through the settings of alarmnotify), sirens and lights on at an alarm, off again after it"""
+    store = guard_store(request)
+    cfg = store["cfg"]
+    when = datetime.datetime.now(store.get("tz")).strftime("%d.%m. %H:%M")
+    for ev, data in events:
+        if ev == "alarm" and cfg["actions"] and SUPERVISOR_TOKEN:
+            await guard_switch(cfg["actions"], "turn_on")
+        if ev == "disarmed" and data.get("alarm") and SUPERVISOR_TOKEN:
+            off = [e for e in cfg["actions"] if e.split(".")[0] in gd.OFF_DOMAINS]
+            if off:
+                await guard_switch(off, "turn_off")
+        where = an.where_of(await asyncio.to_thread(notify_places, request, store.setdefault("places", {})), data["entity"]) if ev == "alarm" else ""
+        msg = gd.message(ev, data, cfg, notify_lang(request), where, when)
+        if msg and cfg["notify"]:
+            ok, err = await send_notify(notify_cfg(request), msg)
+            log.info("holiday alarm message (%s): %s", ev, "sent" if ok else f"not sent: {err}")
+
+
+async def guard_switch(entities, service) -> None:
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
+            async with s.post(f"{HA_API}/services/homeassistant/{service}", headers=ha_headers(), json={"entity_id": entities}) as r:
+                log.info("holiday alarm: %s %s -> %s", service, ", ".join(entities), r.status)
+    except Exception as err:  # noqa: BLE001 - said in the log, the message still goes out
+        log.warning("holiday alarm: %s failed (%s)", service, err)
+
+
+def guard_tick(request):
+    """the time goes on also without the watcher (standalone, or between its looks): leaving time over -> armed, entry time over -> alarm"""
+    store = guard_store(request)
+    st, events = gd.tick(store["state"], store["cfg"], time.time())
+    if events:
+        guard_save(request, st)
+        asyncio.create_task(guard_act(_AppCtx(request.app), events))
+
+
+async def get_guard(request):
+    """the state for every screen (the lock screen); for editors also the settings (without the code)"""
+    store = guard_store(request)
+    guard_tick(request)
+    cfg, edit = store["cfg"], await can_edit(request)
+    out = {"view": gd.view(store["state"], time.time()), "ready": gd.ready(cfg), "sensors": cfg["sensors"], "delay": cfg["delay"],
+           "locked": "guard" in user_locks(request), "canEdit": edit}
+    if edit:
+        out["cfg"] = gd.public(cfg)
+    return web.json_response(out)
+
+
+async def put_guard(request):
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    if not isinstance(body, dict):
+        return web.json_response({"error": "object expected"}, status=400)
+    store = guard_store(request)
+    old, new = store["cfg"], gd.clean_cfg(body, store["cfg"])
+    if store["state"]["phase"] != "off":
+        new = {**new, "code": new["code"] or old["code"], "sensors": new["sensors"] or old["sensors"]}   # armed: it must stay possible to switch it off
+    store["cfg"] = new
+    guard_save(request)
+    return web.json_response({"cfg": gd.public(store["cfg"]), "ready": gd.ready(store["cfg"])})
+
+
+async def guard_with_code(request, arm: bool):
+    """arm or disarm with the code; locked users are refused, after a few wrong codes everybody waits (and a message goes out when armed)"""
+    if "guard" in user_locks(request):
+        return web.json_response({"error": "locked"}, status=403)
+    store = guard_store(request)
+    store.setdefault("tries", gd.Tries())
+    try:
+        body = await request.json()
+    except ValueError:
+        body = {}
+    now = time.time()
+    if arm and gd.ready(store["cfg"]):
+        return web.json_response({"error": "not set up", "ready": gd.ready(store["cfg"])}, status=409)
+    wait = store["tries"].wait(now)
+    if wait:
+        return web.json_response({"error": "wait", "wait": wait}, status=429)
+    if not gd.check_code(store["cfg"], (body or {}).get("code") if isinstance(body, dict) else None):
+        n = store["tries"].wrong(now)
+        if n == gd.TRIES and store["state"]["phase"] != "off" and store["cfg"]["notify"]:
+            asyncio.create_task(send_notify(notify_cfg(request), gd.text("tries", notify_lang(request), n=n)))
+        return web.json_response({"error": "code", "left": max(0, gd.TRIES - n)}, status=403)
+    store["tries"].right()
+    who = current_user(request)["name"] or "?"
+    st, events = (gd.arm if arm else lambda s, c, t, b: gd.disarm(s, t, b))(store["state"], store["cfg"], now, who)
+    guard_save(request, st)
+    if events:
+        asyncio.create_task(guard_act(_AppCtx(request.app), events))
+    return web.json_response({"view": gd.view(st, now)})
+
+
+async def arm_guard(request):
+    return await guard_with_code(request, True)
+
+
+async def disarm_guard(request):
+    return await guard_with_code(request, False)
+
+
+async def guard_watcher(app):
+    """Background task: while the holiday alarm is armed, watch its sensors (also with no browser open). Only with Home Assistant."""
+    app[KEY_GUARD] = {}
+    task = None
+    if SUPERVISOR_TOKEN:
+        ctx = _AppCtx(app)
+
+        async def start():
+            await asyncio.sleep(3)
+            guard_store(ctx)["tz"] = await ha_time_zone()
+
+            def put(st):
+                guard_save(ctx, st)
+
+            await gd.run_guard(connect=_HaSocket, get=lambda: (guard_store(ctx)["cfg"], guard_store(ctx)["state"]), put=put,
+                               act=lambda events: guard_act(ctx, events))
 
         task = asyncio.create_task(start())
     yield
@@ -2019,6 +2183,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.cleanup_ctx.append(timeline_recorder)
     app.cleanup_ctx.append(rename_watcher)
     app.cleanup_ctx.append(alarm_notifier)
+    app.cleanup_ctx.append(guard_watcher)
     app.add_routes([
         web.get("/", index),
         web.get("/api/users-file", get_users_file),
@@ -2063,6 +2228,10 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/notify", get_notify),
         web.put("/api/notify", put_notify),
         web.post("/api/notify/test", test_notify),
+        web.get("/api/guard", get_guard),
+        web.put("/api/guard", put_guard),
+        web.post("/api/guard/arm", arm_guard),
+        web.post("/api/guard/disarm", disarm_guard),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
         web.get("/api/camera/{entity}/hls", get_camera_hls),
