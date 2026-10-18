@@ -3,7 +3,9 @@
 The add-on keeps its own websocket to Home Assistant (like the security recorder), also with no browser open, and sends a short message
 the moment one of them goes off: by WhatsApp directly through CallMeBot (free: a phone number and the key CallMeBot sends back), by
 Telegram through CallMeBot (to Telegram users, or into a group with the group's key, #456), or through notify services of Home Assistant
-(picked from the ones it has, also those of configuration.yaml: a WhatsApp, Telegram or Signal integration, the Companion app ...). The text
+(picked from the ones it has, also those of configuration.yaml: a WhatsApp, Telegram or Signal integration, the Companion app ...) and its
+notify entities (#460: what an integration set up in Home Assistant's UI offers, e.g. one per chat of its own Telegram bot; sent with
+notify.send_message). The text
 says what went off and where it is in the plan (house · floor · room). The same sensor is reported again only after a pause; when the
 add-on (re)connects, what is already going off is not sent again. Optionally a second message when it is back to normal.
 
@@ -25,12 +27,14 @@ COOLDOWN = 600.0          # seconds before the same sensor is reported again
 BURST = 10                # at most this many messages ...
 BURST_WINDOW = 600.0      # ... within this many seconds (a broken sensor flapping must not send a hundred messages)
 SERVICE = re.compile(r"^[a-z0-9_]{1,64}$")
+NOTIFY_ENTITY = re.compile(r"^notify\.[a-z0-9_]{1,100}$")
 PHONE = re.compile(r"^\+?[0-9]{6,16}$")
 APIKEY = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 TG_USER = re.compile(r"^(@[A-Za-z0-9_]{5,32}|\+[0-9]{6,16})$")   # a Telegram user name or a phone number (CallMeBot text.php)
 VIA = ("whatsapp", "telegram", "ha")
 SECRETS = ("apikey", "tgkey")      # the CallMeBot keys of WhatsApp and of a Telegram group: stay in the add-on
-DEFAULT = {"on": False, "kinds": list(KINDS), "via": "whatsapp", "phone": "", "services": [], "tgMode": "user", "tgUsers": [], "clear": False}
+DEFAULT = {"on": False, "kinds": list(KINDS), "via": "whatsapp", "phone": "", "services": [], "entities": [], "tgMode": "user", "tgUsers": [],
+           "clear": False}
 
 TEXTS = {
     "de": {"alarm": "🚨 ALARM: {name}", "smoke": "🔥 Rauch erkannt: {name}", "gas": "⚠️ Gas erkannt: {name}", "co": "☠️ Kohlenmonoxid erkannt: {name}",
@@ -74,6 +78,8 @@ def clean(data, old=None) -> dict:
     svc = data.get("services", [data["service"]] if isinstance(data.get("service"), str) else None)
     if isinstance(svc, (list, str)):
         out["services"] = services_of(svc)
+    if isinstance(data.get("entities"), list):
+        out["entities"] = list(dict.fromkeys(e for e in data["entities"] if isinstance(e, str) and NOTIFY_ENTITY.match(e)))[:10]
     if isinstance(data.get("tgUsers"), (list, str)):
         out["tgUsers"] = tg_users(data["tgUsers"])
     for name in SECRETS:
@@ -122,7 +128,7 @@ def ready(cfg: dict):
     if not cfg.get("on"):
         return "off"
     if cfg.get("via") == "ha":
-        return None if cfg.get("services") else "service"
+        return None if cfg.get("services") or cfg.get("entities") else "service"
     if cfg.get("via") == "telegram":
         if cfg.get("tgMode") == "group":
             return None if cfg.get("tgkey") else "tgkey"
@@ -130,6 +136,27 @@ def ready(cfg: dict):
     if not cfg.get("phone"):
         return "phone"
     return None if cfg.get("apikey") else "apikey"
+
+
+def notify_targets(services, states, registry) -> list:
+    """what Home Assistant can send a message through, with where it comes from (#460): [{id, name, origin, platform}] where origin is
+    'app' (notify.mobile_app_…, the Companion app), 'integration' (a notify entity of an integration set up in the UI, e.g. one per chat of
+    the Telegram bot; platform from the entity registry) or 'yaml' (another notify.<name> service: the old way, mostly configuration.yaml).
+    services: the answer of /api/services, states: of /api/states, registry: config/entity_registry/list. Junk is skipped."""
+    platform = {r.get("entity_id"): r.get("platform") or "" for r in registry or [] if isinstance(r, dict)}
+    out = []
+    for st in states or []:
+        eid = st.get("entity_id", "") if isinstance(st, dict) else ""
+        if NOTIFY_ENTITY.match(eid):
+            name = (st.get("attributes") or {}).get("friendly_name") or eid
+            out.append({"id": eid, "name": str(name)[:80], "origin": "integration", "platform": str(platform.get(eid, ""))[:40]})
+    for d in services or []:
+        if isinstance(d, dict) and d.get("domain") == "notify" and isinstance(d.get("services"), dict):
+            for n in d["services"]:
+                if SERVICE.match(n) and n not in ("send_message", "persistent_notification"):
+                    out.append({"id": n, "name": n, "origin": "app" if n.startswith("mobile_app_") else "yaml", "platform": ""})
+    order = {"app": 0, "integration": 1, "yaml": 2}
+    return sorted(out, key=lambda x: (order[x["origin"]], x["name"].lower()))
 
 
 def callmebot_failed(status: int, page: str, message: str):

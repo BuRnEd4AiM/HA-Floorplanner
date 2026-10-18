@@ -1,7 +1,8 @@
 /* Settings dialog, part "🚨 Message on alarm" (#414): when the alarm panel goes off or a smoke, gas, carbon monoxide or water sensor
  * reports, the add-on sends a message at once (alarmnotify.py on the server, also with no screen open): by WhatsApp through CallMeBot
  * (phone number + the key CallMeBot sends back), by Telegram through CallMeBot (to users, or into a group with its key, #456) or through
- * notify services of Home Assistant, ticked in the list of the ones it has (also those of configuration.yaml, #456). Only editors see it;
+ * notify services and notify entities of Home Assistant, ticked in a list grouped by where they come from (the phone app, set up in
+ * Home Assistant's UI such as its own Telegram bot, or the old way in configuration.yaml; #456, #460). Only editors see it;
  * the phone number and the keys are kept by the add-on (api/notify), not in the settings every tablet reads. Saved with its own button; "Send a test" saves
  * first. Above it, in the group "Warnings & alarm", which alarm panels Home Assistant has: the add-on has no alarm of its own, the doors
  * and windows that set it off are chosen in the alarm panel (e.g. Alarmo). */
@@ -11,10 +12,24 @@ const KINDS = ['alarm', 'smoke', 'gas', 'co', 'water'];
 const CALLMEBOT = 'https://www.callmebot.com/blog/free-api-whatsapp-messages/';
 const CMB_TG = 'https://www.callmebot.com/blog/telegram-text-messages/';
 const CMB_TG_GROUP = 'https://www.callmebot.com/blog/telegram-group-messages-api-easy/';
+const ADD_TELEGRAM_BOT = 'https://my.home-assistant.io/redirect/config_flow_start/?domain=telegram_bot';
 const SIGNS = [[/^mobile_app_/, '📱'], [/telegram/, '✈️'], [/whatsapp/, '💬'], [/signal/, '🔵'], [/mail|smtp/, '✉️'], [/alexa|echo/, '🔊']];
+const PLATFORMS = { telegram_bot: 'Telegram-Bot', mobile_app: 'Home Assistant App', signal_messenger: 'Signal', smtp: 'E-Mail', ntfy: 'ntfy',
+  pushover: 'Pushover', matrix: 'Matrix', discord: 'Discord', slack: 'Slack', whatsapp: 'WhatsApp', alexa_media: 'Alexa', gotify: 'Gotify' };
+export const ORIGINS = ['app', 'integration', 'yaml'];
 
 /** a notify service of Home Assistant with a sign for what it probably is ("📱 mobile_app_pixel", "✈️ telegram_familie") */
 export const serviceLabel = (name) => `${(SIGNS.find(([re]) => re.test(name)) || [null, '🔔'])[1]} ${name}`;
+/** the name of the integration a notify entity belongs to ("Telegram-Bot"), '' when unknown */
+export const platformName = (p) => PLATFORMS[p] || (p ? p.replace(/_/g, ' ') : '');
+/** what to send through, grouped by where it comes from (#460): [{ origin, items: [{ id, name, origin, platform }] }] in the order of ORIGINS;
+ *  ticked ones Home Assistant no longer lists are kept (a notify entity as set up in the UI, a service as configuration.yaml) */
+export function targetGroups(available, picked = []) {
+  const all = [...(available || [])];
+  picked.filter((id) => !all.some((a) => a.id === id))
+    .forEach((id) => all.push({ id, name: id, origin: id.startsWith('notify.') ? 'integration' : id.startsWith('mobile_app_') ? 'app' : 'yaml', platform: '' }));
+  return ORIGINS.map((origin) => ({ origin, items: all.filter((a) => a.origin === origin) })).filter((g) => g.items.length);
+}
 
 /** ctx: $, t, entities() */
 export function initNotifyUi(ctx) {
@@ -55,6 +70,7 @@ export function initNotifyUi(ctx) {
       on: v('anOn').checked, clear: v('anClear').checked, via: v('anVia').value,
       kinds: KINDS.filter((k) => v(`anKind_${k}`).checked), phone: v('anPhone').value, tgMode: v('anTgMode').value, tgUsers: v('anTgUsers').value,
       services: [...box.querySelectorAll('[data-svc]:checked')].map((c) => c.dataset.svc).concat(v('anService')?.value.split(/[\s,;|]+/).filter(Boolean) || []),
+      entities: [...box.querySelectorAll('[data-ent]:checked')].map((c) => c.dataset.ent),
     };
     const key = v('anKey').value.trim(), tgKey = v('anTgKey').value.trim();
     if (key) out.apikey = key;                                // empty: the stored key stays
@@ -119,19 +135,36 @@ export function initNotifyUi(ctx) {
     tgUser.append(...steps(['an.tgu.step1', 'an.tgu.step2', 'an.step3'], CMB_TG), field('anTgUsers', 'an.tg.users', users));
     tgGroup.append(...steps(['an.tgg.step1', 'an.tgg.step2', 'an.step3'], CMB_TG_GROUP), field('anTgKey', 'an.tg.key', secret(cfg.hasTgKey)));
     tg.append(field('anTgMode', 'an.tg.mode', mode), tgUser, tgGroup);
-    // notify services of Home Assistant: ticked in its list (also those of configuration.yaml, #456); typed only when it lists none
-    const ha = el('div', 'anHa'), picked = cfg.services || [];
-    const all = [...new Set([...services, ...picked])];
-    if (all.length) {
-      const list = el('div', 'anSvcs');
-      all.forEach((s) => {
-        const row = el('label', 'row check'), cb = el('input'); cb.type = 'checkbox'; cb.dataset.svc = s; cb.checked = picked.includes(s);
-        row.append(cb, el('span', '', serviceLabel(s))); list.append(row);
+    // what Home Assistant can send through, grouped by where it comes from (#460): the phone app, set up in its UI (notify entities, e.g.
+    // one per chat of its own Telegram bot), the old way in configuration.yaml; typed only when it lists nothing
+    const ha = el('div', 'anHa'), picked = [...(cfg.services || []), ...(cfg.entities || [])];
+    const groups = targetGroups(services, picked);
+    if (groups.length) {
+      ha.append(el('div', 'sub', t('an.svcPick')));
+      groups.forEach((g) => {
+        const list = el('div', `anSvcs anSrc-${g.origin}`);
+        list.append(el('div', 'anSrcHead', t(`an.src.${g.origin}`)));
+        if (g.origin === 'yaml') list.append(el('p', 'sub', t('an.src.yamlHint')));
+        g.items.forEach((s) => {
+          const row = el('label', 'row check anTarget'), cb = el('input'); cb.type = 'checkbox'; cb.checked = picked.includes(s.id);
+          if (g.origin === 'integration') cb.dataset.ent = s.id; else cb.dataset.svc = s.id;
+          const name = el('span', 'n', g.origin === 'integration' ? `${(SIGNS.find(([re]) => re.test(`${s.platform} ${s.id}`)) || [null, '🔔'])[1]} ${s.name}` : serviceLabel(s.name));
+          name.append(el('small', '', [g.origin === 'integration' ? s.id : `notify.${s.id}`, platformName(s.platform)].filter(Boolean).join(' · ')));
+          row.append(cb, name); list.append(row);
+        });
+        ha.append(list);
       });
-      ha.append(el('div', 'sub', t('an.svcPick')), list);
     }
     if (!services.length) { const svc = el('input'); svc.placeholder = 'mobile_app_…'; ha.append(field('anService', 'an.service', svc)); }
     ha.append(el('p', 'sub', services.length ? t('an.serviceHint') : t('an.serviceNone')));
+    // your own Telegram bot in Home Assistant (#460): set up in its UI (no YAML any more), then it shows above under "set up in Home Assistant"
+    const guide = el('details', 'anGuide');
+    guide.append(el('summary', '', t('an.tgbot.title')));
+    const ol = el('ol', 'anSteps');
+    ['an.tgbot.s1', 'an.tgbot.s2', 'an.tgbot.s3', 'an.tgbot.s4'].forEach((k) => ol.append(el('li', '', t(k))));
+    const add = el('a', 'anMy', t('an.tgbot.add')); add.href = ADD_TELEGRAM_BOT; add.target = '_blank'; add.rel = 'noopener';
+    guide.append(ol, add, el('p', 'sub', t('an.tgbot.note')));
+    ha.append(guide);
     const shown = () => {
       wa.hidden = via.value !== 'whatsapp'; tg.hidden = via.value !== 'telegram'; ha.hidden = via.value !== 'ha';
       tgUser.hidden = mode.value !== 'user'; tgGroup.hidden = mode.value !== 'group';

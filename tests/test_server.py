@@ -1042,6 +1042,8 @@ async def test_alarm_messages_settings_stay_in_the_add_on(client, monkeypatch, t
     assert t.status == 502 and "Home Assistant" in (await t.json())["error"]                         # standalone: no Home Assistant to ask
     r = await (await client.put("/api/notify", json={"via": "telegram", "tgMode": "group", "tgkey": "group-key-1"})).json()   # Telegram group (#456)
     assert r["hasTgKey"] is True and "tgkey" not in r and r["ready"] is None and r["services"] == ["mobile_app_x"]
+    r = await (await client.put("/api/notify", json={"via": "ha", "services": [], "entities": ["notify.telegram_bot_familie", "light.x"]})).json()
+    assert r["entities"] == ["notify.telegram_bot_familie"] and r["ready"] is None                    # a notify entity alone is enough (#460)
     assert "group-key-1" not in await (await client.get("/api/notify")).text()
     opts = tmp_path / "options.json"
     opts.write_text('{"editors": ["admin"]}')

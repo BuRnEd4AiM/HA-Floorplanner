@@ -437,6 +437,18 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 #alarmNotify .anSteps { margin: 4px 0 10px; padding-left: 22px; font-size: 12px; color: var(--muted); }   /* how to get the CallMeBot key (#454) */
 #alarmNotify .anSteps li { margin-bottom: 4px; }
 #alarmNotify a { color: var(--accent); }
+/* what to send through, grouped by where it comes from (#460): the phone app, set up in Home Assistant's UI, configuration.yaml */
+#alarmNotify .anSvcs { margin: 6px 0 10px; padding: 6px 10px 4px; border: 1px solid var(--line); border-radius: 8px; border-left-width: 4px; }
+#alarmNotify .anSrc-app { border-left-color: #3fa7ff; }
+#alarmNotify .anSrc-integration { border-left-color: #47c27a; }
+#alarmNotify .anSrc-yaml { border-left-color: #c99a3a; }
+#alarmNotify .anSrcHead { font-weight: 700; font-size: 13px; margin: 2px 0 4px; }
+#alarmNotify .anSvcs > .sub { margin: 0 0 6px; }
+#alarmNotify .anTarget .n { display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+#alarmNotify .anTarget small { color: var(--muted); font-size: 11px; }
+#alarmNotify .anGuide { margin: 8px 0; padding: 6px 10px; border: 1px dashed var(--line); border-radius: 8px; }
+#alarmNotify .anGuide summary { cursor: pointer; font-weight: 600; }
+#alarmNotify .anMy { display: inline-block; margin: 2px 0 6px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent); text-decoration: none; }
 dialog .row[hidden] { display: none; }
 #settingsDialog .sgHit { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 #settingsDialog p.sub { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
@@ -1131,6 +1143,19 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
 @keyframes gdPulse { 50% { box-shadow: 0 0 2px rgba(255,74,61,.2); } }
 @keyframes gdFlash { 50% { background: rgba(60, 4, 4, .66); } }
 body.low #guardScreen { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(6, 10, 18, .8); }
+/* editors are not locked out (#460): a strip at the top of the picture and a red frame round the screen while it is armed */
+#guardBar { position: absolute; top: 58px; left: 50%; transform: translateX(-50%); z-index: 7; max-width: calc(100% - 24px); padding: 8px 18px;
+  border-radius: 999px; border: 1px solid #c0392b; background: rgba(142, 43, 34, .92); color: #fff; font-weight: 700; font-size: 14px;
+  box-shadow: 0 0 18px rgba(255, 60, 40, .45); cursor: pointer; white-space: normal; text-align: center; }
+#guardBar[hidden] { display: none; }
+#guardBar.gd-arming { background: rgba(160, 100, 20, .92); border-color: #e0a030; }
+#guardBar.gd-entry, #guardBar.gd-alarm { background: #ff4a3d; border-color: #ff4a3d; animation: gdPulse 1s ease-in-out infinite; }
+body.guardArmed #alertBar { top: 104px; }
+body.guardArmed::after { content: ''; position: fixed; inset: 0; z-index: 2900; pointer-events: none; border: 4px solid rgba(192, 57, 43, .85);
+  box-shadow: inset 0 0 24px rgba(192, 57, 43, .35); }
+body.guardAlarm::after { animation: gdFrame 1s ease-in-out infinite; }
+@keyframes gdFrame { 50% { border-color: rgba(255, 74, 61, .3); } }
+body.low.guardAlarm::after { animation: none; }
 body.low #guardScreen.gd-entry, body.low #guardScreen.gd-alarm { animation: none; background: rgba(110, 8, 8, .8); }
 .gdBox { margin: 6px 0 12px; }
 .gdBox h4 { margin: 4px 0 4px; font-size: 13px; }

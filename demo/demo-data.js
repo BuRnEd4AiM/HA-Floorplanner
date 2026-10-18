@@ -312,7 +312,7 @@ let settings = {
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
 };
 
-const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
+const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
 // the holiday alarm (#456) in the demo: set up with the code 1234; armed for 25 s, a "burglar" opens the office door (the whole flow can be seen)
 const guard = { cfg: { sensors: ['binary_sensor.tuer_buero', 'binary_sensor.fenster_kueche', 'binary_sensor.fenster_wohnzimmer'], offline: true, delay: 20, actions: [],
   notify: true, report: true, code: '1234' }, st: { phase: 'off', since: 0, due: 0, by: '', what: null }, armedAt: 0 };
@@ -448,12 +448,16 @@ export function installDemoBackend() {
         const b = JSON.parse(init.body || '{}'), keep = (k) => (typeof b[k] === 'string' && b[k].trim() ? b[k].trim() : notify[k]);
         const list = (v) => (Array.isArray(v) ? v : String(v || '').split(/[\s,;|]+/)).filter(Boolean);
         Object.assign(notify, b, { apikey: keep('apikey'), tgkey: keep('tgkey'), services: list(b.services ?? notify.services),
+          entities: list(b.entities ?? notify.entities).filter((e) => /^notify\.[a-z0-9_]+$/.test(e)),
           tgUsers: list(b.tgUsers ?? notify.tgUsers).map((u) => (/^[@+]/.test(u) ? u : `@${u}`)) });
       }
-      const n = notify, ready = !n.on ? 'off' : n.via === 'ha' ? (n.services.length ? null : 'service')
+      const n = notify, ready = !n.on ? 'off' : n.via === 'ha' ? (n.services.length || n.entities.length ? null : 'service')
         : n.via === 'telegram' ? (n.tgMode === 'group' ? (n.tgkey ? null : 'tgkey') : (n.tgUsers.length ? null : 'tguser'))
         : !n.phone ? 'phone' : n.apikey ? null : 'apikey';
-      return json({ on: n.on, kinds: n.kinds, via: n.via, phone: n.phone, services: n.services, available: ['mobile_app_handy', 'telegram_familie', 'whatsapp'],
+      return json({ on: n.on, kinds: n.kinds, via: n.via, phone: n.phone, services: n.services, entities: n.entities,
+        available: [{ id: 'mobile_app_handy', name: 'mobile_app_handy', origin: 'app', platform: '' },     // where each one comes from (#460)
+          { id: 'notify.telegram_bot_familie', name: 'Familien-Chat', origin: 'integration', platform: 'telegram_bot' },
+          { id: 'telegram_familie', name: 'telegram_familie', origin: 'yaml', platform: '' }, { id: 'whatsapp', name: 'whatsapp', origin: 'yaml', platform: '' }],
         tgMode: n.tgMode, tgUsers: n.tgUsers, clear: n.clear, hasKey: !!n.apikey, hasTgKey: !!n.tgkey, ready });
     }
     if (path === 'api/guard') {
@@ -464,7 +468,9 @@ export function installDemoBackend() {
       }
       const { code, ...pub } = guard.cfg, ready = !pub.sensors.length ? 'sensors' : code ? null : 'code';
       const cfg = { ...pub, hasCode: !!code };
-      return json(method === 'PUT' ? { cfg, ready } : { view: guardView(), ready, sensors: pub.sensors, delay: pub.delay, locked: false, canEdit: true, cfg });
+      // ?wand=1 shows it as on a wall tablet (a user who may not edit): the lock screen instead of the strip (#460)
+      const wall = new URLSearchParams(location.search).has('wand');
+      return json(method === 'PUT' ? { cfg, ready } : { view: guardView(), ready, sensors: pub.sensors, delay: pub.delay, locked: false, canEdit: !wall, cfg });
     }
     if (path === 'api/guard/arm' || path === 'api/guard/disarm') {
       const b = JSON.parse(init.body || '{}'), now = Date.now() / 1000;

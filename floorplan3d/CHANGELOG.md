@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.1.1] - 2026-10-18
+### Changed
+- **The holiday alarm does not lock out the owner** (#460): users who may edit get no lock screen any more when it is armed. Instead a **red strip at the top** of the picture says *Urlaubs-Alarm wird scharf in … s*, *ist SCHARF · seit …*, which door is open and the seconds left, or *ALARM*, and a **red frame** runs round the whole screen (blinking at an alarm); the plan can be used as usual. A tap on the strip (or the 🛡 button) opens the keypad to switch it off. Wall tablets (users who may not edit) still get the half see-through lock screen; *Nur ansehen* is gone.
+- **Where each message target comes from** (#460): with *Senden über* → *Benachrichtigungsdienst von Home Assistant* the list is split into **📱 Home Assistant App (Handy)**, **🧩 In Home Assistant eingerichtet (Geräte & Dienste)** and **📄 Aus der configuration.yaml (alte Art)**, each row with its full name (`notify.…`) and, for the ones set up in Home Assistant, the integration (e.g. *Telegram-Bot*).
+### Added
+- **Home Assistant's own Telegram bot** (#460): the chats of the Telegram bot integration (and other notify entities, which integrations set up in the UI make since Home Assistant 2025) show in the list and can be ticked; the message goes to them with `notify.send_message`. A folding guide **✈️ Eigenen Telegram-Bot einrichten** explains the four steps (@BotFather, chat ID, add the integration with the button that opens it in Home Assistant, tick the chat); nothing needs to go into `configuration.yaml`.
+
 ## [4.1.0] - 2026-10-18
 ### Added
 - **Holiday alarm, the add-on's own alarm** (#456): ⚙ → *Warnungen & Alarm* → **🛡 Urlaubs-Alarm**, no Alarmo needed. Tick the door, window and motion sensors that set it off (grouped, with their room and whether they are open now), whether a sensor that stays offline for more than 5 minutes counts too (battery, radio; not while Home Assistant starts again), the seconds to leave the house and to switch it off when coming home (30 to start with), a code of 4 to 8 digits (stored only as a salted hash), the sirens, lights, switches, scripts or scenes to switch on at an alarm, and whether a message goes out (through *Benachrichtigung bei Alarm*) also when somebody arms or disarms it. The add-on watches by itself, also with no screen open.

@@ -15,10 +15,10 @@ def st(eid, state, dc=None, name=None):
 
 def test_settings_are_cleaned_and_the_key_stays_in_the_add_on():
     c = an.clean({"on": True, "via": "whatsapp", "phone": "+49 170 / 123-4567", "apikey": "123456", "kinds": ["smoke", "bogus", "alarm"], "clear": True})
-    assert c == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "tgMode": "user", "tgUsers": [],
-                 "clear": True, "apikey": "123456", "tgkey": ""}
-    assert an.public(c) == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "tgMode": "user",
-                            "tgUsers": [], "clear": True, "hasKey": True, "hasTgKey": False}
+    assert c == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "entities": [], "tgMode": "user",
+                 "tgUsers": [], "clear": True, "apikey": "123456", "tgkey": ""}
+    assert an.public(c) == {"on": True, "kinds": ["alarm", "smoke"], "via": "whatsapp", "phone": "+491701234567", "services": [], "entities": [],
+                            "tgMode": "user", "tgUsers": [], "clear": True, "hasKey": True, "hasTgKey": False}
     kept = an.clean({"phone": "+491701234567"}, c)
     assert kept["apikey"] == "123456" and kept["on"] is True              # a save without the key keeps it
     assert an.clean({"apikey": ""}, c)["apikey"] == ""                    # "" removes it
@@ -42,6 +42,26 @@ def test_several_services_and_telegram_by_callmebot():
     assert an.public(c)["hasTgKey"] is True and "tgkey" not in an.public(c)
     assert an.clean({"tgUsers": []}, c)["tgkey"] == "AbC-123_x"                                         # a save without the key keeps it
     assert an.clean({"tgkey": ""}, c)["tgkey"] == "" and an.clean({"tgMode": "bot"}, c)["tgMode"] == "group"
+
+
+def test_notify_entities_and_where_each_target_comes_from():
+    """#460: notify entities (set up in Home Assistant's UI, e.g. one per chat of its Telegram bot) can be ticked too; the list says where
+    each one comes from: the phone app, an integration (with its name from the entity registry) or the old way (configuration.yaml)"""
+    c = an.clean({"via": "ha", "entities": ["notify.telegram_bot_familie", "notify.telegram_bot_familie", "light.flur", "notify.Böse", 5]})
+    assert c["entities"] == ["notify.telegram_bot_familie"]
+    assert an.clean({"services": []}, c)["entities"] == ["notify.telegram_bot_familie"]                 # a save without them keeps them
+    assert an.clean({"entities": [f"notify.c{i}" for i in range(20)]})["entities"] == [f"notify.c{i}" for i in range(10)]
+    assert an.ready({"on": True, "via": "ha", "services": [], "entities": ["notify.telegram_bot_familie"]}) is None
+    services = [{"domain": "light", "services": {"turn_on": {}}},
+                {"domain": "notify", "services": {"telegram_alt": {}, "mobile_app_pixel": {}, "send_message": {}, "persistent_notification": {}, "bad name": {}}}]
+    states = [st("notify.telegram_bot_familie", "unknown", name="Familie"), st("notify.signal_flo", "unknown"), st("light.flur", "on"), "junk"]
+    registry = [{"entity_id": "notify.telegram_bot_familie", "platform": "telegram_bot"}, {"entity_id": "light.flur", "platform": "hue"}, None]
+    assert an.notify_targets(services, states, registry) == [
+        {"id": "mobile_app_pixel", "name": "mobile_app_pixel", "origin": "app", "platform": ""},
+        {"id": "notify.telegram_bot_familie", "name": "Familie", "origin": "integration", "platform": "telegram_bot"},
+        {"id": "notify.signal_flo", "name": "notify.signal_flo", "origin": "integration", "platform": ""},
+        {"id": "telegram_alt", "name": "telegram_alt", "origin": "yaml", "platform": ""}]
+    assert an.notify_targets(None, None, None) == [] and an.notify_targets("junk", [], []) == []
 
 
 def test_callmebot_answer():
