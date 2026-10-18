@@ -1,7 +1,8 @@
 """Several buildings in one plan (#409): a plan of its own with a main house over two floors and a garden house; the panel "Buildings in
 this plan" (add, rename, assign rooms; the upper floor follows by itself), the switch at the top (only the building shown is drawn, listed
 and framed, a floor without it leaves the floor buttons), every building its own roof, the building of a user / tablet with its lock, and
-another house of the list brought in as a building of its own.
+another house of the list brought in as a building of its own; a long wall along both buildings shows only along the one shown, a room
+downstairs does not follow a room upstairs, the device list shows only the building shown (#451).
 """
 def send(method, path, body=None, user="admin"):
     rq = urllib.request.Request(BASE + path, data=json.dumps(body).encode() if body is not None else None, method=method,
@@ -109,8 +110,48 @@ check("buildings: the brought in house stays in the house list", any(h["id"] == 
 pgB.keyboard.press("Control+z"); pgB.wait_for_timeout(600)
 check("buildings: one undo takes it out again", len(pgB.evaluate("window.__fp.layout.buildings")) == 2)
 pgB.close()
-for h in (aid, hid):
+
+# --- #451: a long wall along both buildings shows only along the building shown, a room downstairs does not follow a room upstairs, the
+# device list shows only the building shown
+wall = lambda i, a, b: {"id": i, "a": a, "b": b, "thickness": 0.2, "height": 2.6, "openings": []}
+cid = send("POST", "api/houses", {"name": "Anbau"})["id"]
+send("PUT", f"api/layout?house={cid}", {"version": 1, "buildings": [{"id": "g1", "name": "Haus"}, {"id": "g2", "name": "Anbau"}], "floors": [
+    {"id": "ce", "name": "EG", **empty, "walls": [wall("clong", [0, 0], [14, 0]), wall("cmid", [8, 0], [8, 6]), wall("cback", [0, 6], [14, 6])],
+     "rooms": [{"id": "chaus", "name": "Haus", "color": "#999", "points": sq(0, 0, 8, 6)},
+               {"id": "canbau", "name": "Anbau", "color": "#999", "points": sq(8, 0, 14, 6), "building": "g2"}],
+     "devices": [{"id": "clamp1", "type": "spot", "x": 4, "z": 3, "rot": 0, "scale": 1, "entity": "light.wohnzimmer"},
+                 {"id": "clamp2", "type": "spot", "x": 11, "z": 3, "rot": 0, "scale": 1, "entity": "light.andere"}]},
+    {"id": "co", "name": "OG", **empty, "walls": box_walls("cow", 2, 1, 6, 5), "devices": [],
+     "rooms": [{"id": "coben", "name": "Oben", "color": "#999", "points": sq(2, 1, 6, 5), "building": "g2"}]}]})
+pgC = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+pgC.on("console", lambda m: own.append(m.text) if m.type == "error" else None)
+pgC.on("pageerror", lambda e: own.append("PAGEERROR " + str(e)))
+pgC.goto(BASE + f"?debug=1&mode=edit&house={cid}"); pgC.wait_for_timeout(1500)
+WALL_X = """(id) => { let x0 = Infinity, x1 = -Infinity;
+  window.__fp.scene.traverse((o) => {
+    if (!o.isMesh || !o.geometry) return;
+    let p = o; while (p && p.userData?.kind !== 'wall') p = p.parent;
+    if (!p || p.userData.id !== id) return;
+    o.updateWorldMatrix(true, false); o.geometry.computeBoundingBox();
+    const bb = o.geometry.boundingBox, V = o.position.constructor;
+    for (const x of [bb.min.x, bb.max.x]) for (const z of [bb.min.z, bb.max.z]) { const v = new V(x, bb.min.y, z).applyMatrix4(o.matrixWorld); x0 = Math.min(x0, v.x); x1 = Math.max(x1, v.x); }
+  });
+  return [x0, x1]; }"""
+pgC.select_option("#buildingSelect", "g1"); pgC.wait_for_timeout(1000)
+x0, x1 = pgC.evaluate(WALL_X, "clong")
+check("buildings (#451): the room downstairs without a building stays with the plot under a room of the other building upstairs",
+      pgC.evaluate("window.__fp.has('chaus')") and pgC.evaluate("window.__fp.has('clamp1')") and not pgC.evaluate("window.__fp.has('clamp2')"))
+check("buildings (#451): a long wall along both buildings shows only along the building shown, not along the other one", x0 < 0.5 and 7.9 < x1 < 8.8, (x0, x1))
+pgC.click("#devicesPill"); pgC.wait_for_timeout(500)
+check("buildings (#451): the device list shows only the devices of the building shown",
+      pgC.locator("#devicePanel .dl-row[data-id=clamp1]").count() == 1 and pgC.locator("#devicePanel .dl-row[data-id=clamp2]").count() == 0, pgC.inner_text("#devicePanel")[:300])
+pgC.select_option("#buildingSelect", "g2"); pgC.wait_for_timeout(1000)
+x0, x1 = pgC.evaluate(WALL_X, "clong")
+check("buildings (#451): with the other building the wall shows whole (along it and the plot), its devices in the list", x0 < 0.5 and x1 > 13.5
+      and pgC.locator("#devicePanel .dl-row[data-id=clamp2]").count() == 1, (x0, x1))
+pgC.close()
+for h in (aid, hid, cid):
     send("DELETE", f"api/houses/{h}")
-check("buildings: the test houses are gone again", not any(h["id"] in (aid, hid) for h in api("api/houses")))
+check("buildings: the test houses are gone again", not any(h["id"] in (aid, hid, cid) for h in api("api/houses")))
 bad = [e for e in own if "favicon" not in e]
 check("buildings: no console errors", not bad, bad)

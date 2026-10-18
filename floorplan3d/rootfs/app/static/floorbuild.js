@@ -5,7 +5,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { floorShapes } from './blocks.js';
 import { polyArea } from './rooms.js';
 import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js';
-import { inIso, deviceInIso, clipWallToRoom } from './roomclip.js';
+import { inIso, deviceInIso, clipWallToRoom, wallPieces } from './roomclip.js';
 import { buildWall, wallLength } from './walls.js';
 import { atticUniforms, cutAtRoof } from './atticclip.js';
 import { solarPose, groundFn } from './solarroof.js';
@@ -215,8 +215,7 @@ export function initFloorBuild(ctx) {
       if (facade && !outline) outline = houseFootprint([f], 0);
       dressWall(grp, pieces, wallSkins(w, f.rooms, { facade, outline }), { t: w.thickness || 0.2, len, fast: ctx.fast() });
     } : null);
-    f.walls.forEach((w1) => {
-      const w0 = hosted.has(w1.id) ? { ...w1, openings: [...(w1.openings || []), ...hosted.get(w1.id)] } : w1;
+    f.walls.forEach((w1) => wallPieces(hosted.has(w1.id) ? { ...w1, openings: [...(w1.openings || []), ...hosted.get(w1.id)] } : w1, f.wallCuts).forEach((w0) => {   // one building of several: only its parts (#451)
       let w = w0;
       if (wallLength(w) < 0.01) return;
       if (iso && !ghost) { w = clipWallToRoom(iso, w); if (!w) return; }
@@ -235,11 +234,12 @@ export function initFloorBuild(ctx) {
         const info = ctx.cutawayInfo(w, wg);
         info.handles = (w.openings || []).map((op) => ctx.openingHandle(w, op, g));
         ctx.cutawayWalls().push(info);
-        ctx.registry.set(w.id, wg); ctx.pickables.push(wg);
+        if (!ctx.registry.has(w.id)) ctx.registry.set(w.id, wg);   // a wall in parts: its first part
+        ctx.pickables.push(wg);
         shutterParts(g, w, o.labels, !!o.stack?.covered);
       }
       wg.children.forEach((c) => { if (c.userData?.kind === 'opening') { ctx.registry.set(c.userData.id, c); if (!ghost) ctx.pickables.push(c); } });
-    });
+    }));
     (f.dormerWalls || []).forEach((w) => {                       // the windows of the dormers over this floor: only the window, the dormer is the wall
       if (w.host) return;                                        // cut into a wall of the room, drawn with it (above)
       const [ox, oz] = [(w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2];

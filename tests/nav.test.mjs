@@ -29,6 +29,12 @@ test('walls centre: garden things do not count; none without walls', () => {
   assert.deepEqual(N.wallsCenterOf(f), { cx: 2, cz: 1 });
   assert.equal(N.wallsCenterOf(fl()), null);
 });
+test('a wall that shows only in part (one building of several, #451): its parts frame the floor, not the whole wall', () => {
+  const f = fl({ walls: [{ id: 'w', a: [0, 0], b: [20, 0] }, { id: 'v', a: [12, 0], b: [12, 4] }], wallCuts: new Map([['w', [[0.5, 1]]]]) });
+  assert.deepEqual(N.wallEnds(f), [[10, 0], [20, 0], [12, 0], [12, 4]]);
+  assert.deepEqual(N.wallsCenterOf(f), { cx: 15, cz: 2 });
+  assert.deepEqual(N.floorBoundsOf(f, [f]), { cx: 15, cz: 2, size: 10 });
+});
 test('find a room by name (case and spaces do not matter) or id, on any floor', () => {
   const floors = [fl({ rooms: [{ id: 'a', name: 'Küche' }] }), fl({ rooms: [{ id: 'b', name: ' Bad ' }] })];
   assert.deepEqual(N.findRoomByName(floors, 'bad'), { floor: 1, room: floors[1].rooms[0] });
