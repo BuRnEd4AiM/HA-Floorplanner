@@ -2,15 +2,17 @@
  * reports, the add-on sends a message at once (alarmnotify.py on the server, also with no screen open): by WhatsApp through CallMeBot
  * (phone number + the key CallMeBot sends back) or through a notify service of Home Assistant. Only editors see it; the phone number and
  * the key are kept by the add-on (api/notify), not in the settings every tablet reads. Saved with its own button; "Send a test" saves
- * first. */
+ * first. Above it, in the group "Warnings & alarm", which alarm panels Home Assistant has: the add-on has no alarm of its own, the doors
+ * and windows that set it off are chosen in the alarm panel (e.g. Alarmo). */
+import { alarmPanels } from './alerts.js';
 
 const KINDS = ['alarm', 'smoke', 'gas', 'co', 'water'];
 const CALLMEBOT = 'https://www.callmebot.com/blog/free-api-whatsapp-messages/';
 
-/** ctx: $, t */
+/** ctx: $, t, entities() */
 export function initNotifyUi(ctx) {
   const { $, t } = ctx;
-  const box = $('#alarmNotify'), head = $('#alarmNotifyTitle');
+  const box = $('#alarmNotify'), head = $('#alarmNotifyTitle'), off = $('#alarmNotifyOff'), panelsEl = $('#alarmPanels');
   let cfg = null, services = [], status = '', busy = false;
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const check = (id, key, on) => {
@@ -21,7 +23,15 @@ export function initNotifyUi(ctx) {
   const field = (id, key, input) => { const row = el('div', 'prop stack'), lb = el('label', '', t(key)); lb.htmlFor = id; input.id = id; row.append(lb, input); return row; };
   const why = (r) => (r ? t(`an.ready.${r}`) : t('an.ready.ok'));
 
+  /** the alarm panels of Home Assistant and their state, or a tip when there is none */
+  function renderPanels() {
+    if (!panelsEl) return;
+    const list = alarmPanels(ctx.entities?.() || []);
+    const st = (s) => { const k = `dc.st.${s}`, v = t(k); return v === k ? s : v; };
+    panelsEl.textContent = list.length ? t('sg.alarm.found', { list: list.map((p) => `${p.name} (${st(p.state)})`).join(', ') }) : t('sg.alarm.none');
+  }
   async function load() {
+    renderPanels();
     if (!box) return;
     try {
       const r = await fetch('api/notify');
@@ -66,6 +76,7 @@ export function initNotifyUi(ctx) {
   function render() {
     if (!box) return;
     if (head) head.hidden = !cfg;
+    if (off) off.hidden = !!cfg;                              // who may not edit learns why the part is missing
     box.hidden = !cfg;
     if (!cfg) { box.replaceChildren(); return; }
     const out = [el('p', 'hint', t('an.help')), check('anOn', 'an.on', cfg.on)];
@@ -95,5 +106,5 @@ export function initNotifyUi(ctx) {
     box.replaceChildren(...out);
   }
   $('#settingsBtn')?.addEventListener('click', load);         // read again each time the settings open (another screen may have changed it)
-  return { load, render };
+  return { load, render, renderPanels };
 }

@@ -22,7 +22,7 @@ own = []
 pgN.on("console", lambda m: own.append(m.text) if m.type == "error" else None)
 pgN.on("pageerror", lambda e: own.append("PAGEERROR " + str(e)))
 pgN.goto(BASE + "?debug=1&mode=edit"); pgN.wait_for_timeout(1500)
-pgN.click("#settingsBtn"); pgN.wait_for_timeout(800)
+pgN.click("#settingsBtn"); open_setting(pgN, "#alarmNotify"); pgN.wait_for_timeout(800)
 txt = pgN.inner_text("#alarmNotify") if pgN.is_visible("#alarmNotify") else ""
 opts = pgN.evaluate("() => [...document.querySelectorAll('#anServices option')].map((o) => o.value)")
 check("alarm message (#414): the settings have the part, off at first, every kind ticked, Home Assistant's notify services to choose from",

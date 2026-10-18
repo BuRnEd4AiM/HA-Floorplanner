@@ -138,7 +138,7 @@ WALL = """(id) => { let c = null; window.__fp.scene.traverse((o) => { if (!c && 
   c = o.children.find((m) => m.isMesh && m.material?.color)?.material.color.getHexString() || null; }); return c; }"""   # the wall pieces (the doors and windows are groups)
 check("window frames: white as always", pgL.evaluate(FRAME, "lk_win") == "f4f4f4" and pgL.evaluate(WALL, "lk_wall") == "d9d4cc",
       (pgL.evaluate(FRAME, "lk_win"), pgL.evaluate(WALL, "lk_wall")))
-pgL.click("#settingsBtn"); pgL.wait_for_timeout(300)
+pgL.click("#settingsBtn"); open_setting(pgL, "#setWindowFrames"); pgL.wait_for_timeout(300)
 pgL.select_option("#setWindowFrames", "anthracite"); pgL.wait_for_timeout(1200)
 pgL.keyboard.press("Escape"); pgL.wait_for_timeout(300)
 check("window frames (#428): 'Anthrazit' in the settings: dark window frames, the walls lighter, the door frame stays white; saved",

@@ -410,6 +410,33 @@ dialog .dlgHead { position: sticky; top: 0; z-index: 2; display: flex; align-ite
 dialog .dlgHead h2 { margin: 0; }
 dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: 16px; line-height: 1; flex: none; }
 #settingsDialog { padding-top: 0; }
+/* Settings in groups that fold open (setgroups.js): a search at the top, one card per group */
+#settingsDialog .dlgHead { flex-wrap: wrap; row-gap: 8px; }
+#settingsDialog .sgBar { flex: 1 0 100%; min-width: 0; display: flex; gap: 8px; }
+#settingsDialog .sgBar input { flex: 1 1 0; width: 0; min-width: 0; }   /* else its own width (20 letters) pushes the button out on a phone */
+#settingsDialog .sgBar button { flex: none; white-space: nowrap; }
+.setGroup { margin: 8px 0; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--field) 45%, transparent); }
+.setGroup[hidden] { display: none; }
+.setGroup > summary { display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; list-style: none; user-select: none; border-radius: 10px; }
+.setGroup > summary::-webkit-details-marker { display: none; }
+.setGroup > summary::after { content: '›'; margin-left: auto; font-size: 22px; line-height: 1; color: var(--muted); transition: transform .15s; }
+.setGroup[open] > summary::after { transform: rotate(90deg); }
+.setGroup > summary:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.setGroup > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.setGroup[open] > summary { border-bottom: 1px solid var(--line); border-radius: 10px 10px 0 0; }
+.setGroup .sgIcon { font-size: 20px; width: 26px; text-align: center; flex: none; }
+.setGroup .sgText { display: flex; flex-direction: column; min-width: 0; }
+.setGroup .sgText small { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.setGroup .sgBody { padding: 10px 12px 4px; }
+.setGroup .sgBody > h4 { margin: 12px 0 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.setGroup .sgBody > h4:first-child { margin-top: 2px; }
+.setGroup .sgInfo { margin: 6px 0 10px; padding: 8px 10px; border-left: 3px solid var(--accent); border-radius: 6px; background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.setGroup .sgInfo h4 { margin: 0 0 4px; font-size: 13px; }
+.setGroup .sgInfo p { margin: 0 0 4px; }
+#alarmPanels { font-weight: 600; color: var(--text); }
+dialog .row[hidden] { display: none; }
+#settingsDialog .sgHit { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+#settingsDialog p.sub { color: var(--muted); font-size: 12px; margin: 0 0 8px; }
 
 /* Nanoleaf layout editor */
 #nanoDialog { width: min(760px, 96vw); }

@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.0.1] - 2026-10-18
+### Changed
+- **The settings in groups that fold open** (#450): ⚙ was one long list. Now it has ten groups: *Allgemein*, *Zeichnen & Bearbeiten*, *3D-Bild & Leistung*, *Was im Bild erscheint*, *Etagen*, *Haus außen & Umgebung*, *Licht & Hintergrund*, *Warnungen & Alarm*, *Wandtablet* and *Farben für Temperatur, Feuchte, CO₂*. Each one says in a small line what is in it, a tap opens or shuts it, *Alle aufklappen* opens all of them. They are all shut at first; the browser remembers which ones were left open.
+- The times for *Nachts abdunkeln* only show when it goes by the clock.
+### Added
+- **A search in the settings** (#450): type a word at the top (*Alarm*, *Himmel*, *Wand* …): only the groups that have it stay, opened, with the matching rows marked. The tooltips count too (*Sonne* finds the sky). Escape empties it.
+- **What the alarm panel is** (#450): the group *Warnungen & Alarm* explains it: an alarm panel of Home Assistant (for example the free integration *Alarmo*); which doors, windows and motion sensors set it off is chosen there, not in the add-on. It names the alarm panels Home Assistant has, with their state. Who may not edit is told why the part *Benachrichtigung bei Alarm* is missing.
+- The demo shows the part *Benachrichtigung bei Alarm* as well (nothing is sent there).
+
 ## [4.0.0] - 2026-10-18
 ### Added
 - **Walls with a finish** (#448): in the properties of a room, *Wände* gives its walls a finish on the room's side: smooth paint, woodchip (Raufaser), textured plaster, lime plaster, exposed concrete, wallpapers (stripes, damask, dots, harlequin, leaves, art deco fans, zigzag, plaid, linen), tiles (20 × 20, 10 × 10, metro, metro in herringbone, large 60 × 30, hexagons, glass mosaic, marble, zellige), brick (red, white painted, anthracite, yellow), natural stone, wood panelling and acoustic wood slats. The rooms next door keep their own walls; doors and windows stay open.
