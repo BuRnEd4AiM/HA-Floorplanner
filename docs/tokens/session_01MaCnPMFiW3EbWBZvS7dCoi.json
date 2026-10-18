@@ -1,0 +1,12 @@
+{
+ "session": "session_01MaCnPMFiW3EbWBZvS7dCoi",
+ "start": "2026-10-08",
+ "updated": "2026-10-08T12:09:57Z",
+ "branch": "claude/wonderful-gates-noedoj",
+ "source": "session list",
+ "input": 114,
+ "cache_write": 137542,
+ "cache_read": 7741324,
+ "output": 32121,
+ "title": "Mehrfachauswahl verschieben"
+}

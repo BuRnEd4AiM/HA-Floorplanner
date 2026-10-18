@@ -1,0 +1,12 @@
+{
+ "session": "session_013ybHa2kGG27pzFqdqWHQpv",
+ "start": "2026-10-11",
+ "updated": "2026-10-12T08:28:30Z",
+ "branch": "claude/stoic-babbage-2plhny",
+ "source": "session list",
+ "input": 2416,
+ "cache_write": 1396067,
+ "cache_read": 66283079,
+ "output": 170226,
+ "title": "API-Beispielhaus mit JSON-Import"
+}

@@ -1,0 +1,12 @@
+{
+ "session": "session_01BS1Jxgjs2cAXciRdmfc8bZ",
+ "start": "2026-10-11",
+ "updated": "2026-10-11T12:36:45Z",
+ "branch": "claude/custom-roof-shape-wl0hkt",
+ "source": "session list",
+ "input": 4647,
+ "cache_write": 679042,
+ "cache_read": 108409433,
+ "output": 311665,
+ "title": "Dachform individuell anpassbar"
+}

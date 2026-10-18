@@ -1,0 +1,12 @@
+{
+ "session": "session_014EMbuYdPVEfbtKKyVDzVc2",
+ "start": "2026-10-08",
+ "updated": "2026-10-08T08:23:34Z",
+ "branch": "claude/phone-card-column",
+ "source": "session list",
+ "input": 5084,
+ "cache_write": 256940,
+ "cache_read": 26400059,
+ "output": 52924,
+ "title": "Ahndy Ansicht UI-Layout"
+}

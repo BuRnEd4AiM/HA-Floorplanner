@@ -1,0 +1,12 @@
+{
+ "session": "session_01Nzv2rMmP1BbCvBYZGSg2Gv",
+ "start": "2026-10-08",
+ "updated": "2026-10-08T10:37:43Z",
+ "branch": "claude/settings-save-queue",
+ "source": "session list",
+ "input": 2898,
+ "cache_write": 128463,
+ "cache_read": 6565398,
+ "output": 15101,
+ "title": "Handy-Ansicht Zoom-Problem"
+}

@@ -1,0 +1,12 @@
+{
+ "session": "session_0132BsGqvKaKs1PrQXtB1nEn",
+ "start": "2026-10-10",
+ "updated": "2026-10-10T10:58:58Z",
+ "branch": "claude/modest-ptolemy-usty9u",
+ "source": "session list",
+ "input": 642,
+ "cache_write": 116119,
+ "cache_read": 8251166,
+ "output": 31156,
+ "title": "Entitäten-Update-Verzögerung"
+}

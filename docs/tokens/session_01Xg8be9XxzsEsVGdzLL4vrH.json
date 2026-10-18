@@ -1,0 +1,12 @@
+{
+ "session": "session_01Xg8be9XxzsEsVGdzLL4vrH",
+ "start": "2026-10-08",
+ "updated": "2026-10-08T09:29:51Z",
+ "branch": "claude/optimistic-newton-s9n1x8",
+ "source": "session list",
+ "input": 1138,
+ "cache_write": 102798,
+ "cache_read": 7218236,
+ "output": 26072,
+ "title": "FPS und Performance-Werte anzeigen"
+}

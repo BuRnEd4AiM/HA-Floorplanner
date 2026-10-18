@@ -1,0 +1,12 @@
+{
+ "session": "session_01FPVzmbs14EGEYwbbiaVE26",
+ "start": "2026-10-08",
+ "updated": "2026-10-08T14:13:18Z",
+ "branch": "claude/phone-view-only",
+ "source": "session list",
+ "input": 2469,
+ "cache_write": 103020,
+ "cache_read": 7222934,
+ "output": 21784,
+ "title": "Handy-Ansicht Funktionalität"
+}

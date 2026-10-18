@@ -1,0 +1,12 @@
+{
+ "session": "session_01GTkWVi2MgYXdi4hb2RxZsm",
+ "start": "2026-10-13",
+ "updated": "2026-10-13T19:44:31Z",
+ "branch": "claude/cool-lamport-o9ikj3",
+ "source": "session list",
+ "input": 862,
+ "cache_write": 921315,
+ "cache_read": 43582594,
+ "output": 129316,
+ "title": "TV-Auswahl ohne Entität"
+}

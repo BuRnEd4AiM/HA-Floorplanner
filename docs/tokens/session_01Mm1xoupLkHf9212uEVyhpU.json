@@ -1,0 +1,12 @@
+{
+ "session": "session_01Mm1xoupLkHf9212uEVyhpU",
+ "start": "2026-10-07",
+ "updated": "2026-10-08T06:18:54Z",
+ "branch": "claude/peaceful-einstein-g5nyno",
+ "source": "session list",
+ "input": 12277,
+ "cache_write": 872672,
+ "cache_read": 78688029,
+ "output": 132211,
+ "title": "Testverbindung"
+}

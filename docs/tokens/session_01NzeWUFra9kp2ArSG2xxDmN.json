@@ -1,0 +1,12 @@
+{
+ "session": "session_01NzeWUFra9kp2ArSG2xxDmN",
+ "start": "2026-10-15",
+ "updated": "2026-10-15T16:43:40Z",
+ "branch": "claude/modest-curie-gm04am",
+ "source": "session list",
+ "input": 264,
+ "cache_write": 461845,
+ "cache_read": 46705166,
+ "output": 239502,
+ "title": "3D-Vorlagen im IKEA-Stil"
+}

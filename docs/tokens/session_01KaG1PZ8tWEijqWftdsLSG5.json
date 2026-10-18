@@ -1,0 +1,12 @@
+{
+ "session": "session_01KaG1PZ8tWEijqWftdsLSG5",
+ "start": "2026-10-15",
+ "updated": "2026-10-15T14:05:14Z",
+ "branch": "claude/affectionate-planck-wc8mjh",
+ "source": "session list",
+ "input": 318,
+ "cache_write": 614520,
+ "cache_read": 39879248,
+ "output": 163949,
+ "title": "Kamera-Stream-Anzeige"
+}

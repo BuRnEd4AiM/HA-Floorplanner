@@ -82,7 +82,8 @@ jobs:
 
   changes:
     # no_browser: true when the change cannot alter what the browser sees: only text (*.md in docs/ or in the top folder, e.g. a test result in
-    #   docs/TESTPROTOKOLL.md), unit tests (tests/*.mjs, tests/test_*.py) or tools/. The browser test is skipped then.
+    #   docs/TESTPROTOKOLL.md), the token counts (docs/tokens/*.json), unit tests (tests/*.mjs, tests/test_*.py) or tools/.
+    #   The browser test is skipped then.
     # parts: the parts of the browser test (tests/e2e/parts/), each one runs as its own job below, all at the same time
     runs-on: ubuntu-latest
     outputs:
@@ -98,7 +99,7 @@ jobs:
         run: |
           files=$(git diff --name-only "$BASE" HEAD 2>/dev/null) || files="unknown"
           echo "$files"
-          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(docs/[^ ]*\.md|[^/ ]*\.md|tests/[^/ ]*\.(mjs|py)|tools/[^ ]*)$'; then no_browser=true; else no_browser=false; fi
+          if [ -n "$files" ] && ! echo "$files" | grep -qvE '^(docs/[^ ]*\.md|docs/tokens/[^/ ]*\.json|[^/ ]*\.md|tests/[^/ ]*\.(mjs|py)|tools/[^ ]*)$'; then no_browser=true; else no_browser=false; fi
           echo "no_browser=$no_browser" | tee -a "$GITHUB_OUTPUT"
       - id: parts
         run: echo "parts=$(python3 tests/e2e/test_e2e.py --json)" | tee -a "$GITHUB_OUTPUT"

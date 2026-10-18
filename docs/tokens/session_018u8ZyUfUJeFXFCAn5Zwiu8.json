@@ -1,0 +1,12 @@
+{
+ "session": "session_018u8ZyUfUJeFXFCAn5Zwiu8",
+ "start": "2026-10-10",
+ "updated": "2026-10-10T17:14:35Z",
+ "branch": "claude/rollladen-fenster",
+ "source": "session list",
+ "input": 3355,
+ "cache_write": 543168,
+ "cache_read": 100489656,
+ "output": 209024,
+ "title": "Rollladensteuerung für Fenster"
+}

@@ -1,0 +1,12 @@
+{
+ "session": "session_016ebtk6ka4D2jrgLhH5KTJN",
+ "start": "2026-10-08",
+ "updated": "2026-10-08T14:31:33Z",
+ "branch": "claude/tesläufe-feedback-ensjpf",
+ "source": "session list",
+ "input": 26,
+ "cache_write": 48129,
+ "cache_read": 995982,
+ "output": 4267,
+ "title": "Tesläufe feedback"
+}

@@ -47,6 +47,14 @@ Testprotokoll: Abschnitte **65** (65.1 bis 65.17) und **66** (66.1 bis 66.22) si
 - **Glas:** nur CSS; die Klasse `.glass` und die Werte gibt es seit 3.98 in `style.css` (Abschnitt „Sky and weather“). Im Sparmodus ohne `backdrop-filter` (`body.low`).
 - **Raum-Schilder:** die Daten liefert schon `roomSummary` in `roomtiles.js`. Darstellung als Sprite in 3D (wie `labels.js`) oder als HTML über dem Bild (Raummitte jedes Bild projizieren). Die heutigen Raumnamen auf dem Boden dann weglassen.
 
+## Token-Zähler (seit 2026-10-18)
+
+- Der Besitzer wollte wissen, wie viele Tokens Claude verbraucht, egal mit welchem Zugang. Übersicht: `docs/TOKENS.md`.
+- Jede Sitzung hat eine eigene Datei `docs/tokens/<sitzung>.json`. Der Hook in `.claude/settings.json` ruft vor jedem `git commit` `tools/tokens.py --hook` auf: er zählt den Verlauf der Sitzung (mit Helfern) und legt die Datei in den Commit. Darum steckt in jedem Commit von Claude auch diese Datei; das ist gewollt.
+- `docs/TOKENS.md` schreibt nur der Workflow „Token count“ nach dem Merge (`.github/workflows/tokens.yml`), nie ein Pull Request (sonst Konflikte zwischen parallelen Sitzungen).
+- Startwerte: 34 Sitzungen mit echten Zahlen aus der Sitzungsliste eines Zugangs, die übrigen 13 (anderer Zugang, nur aus den Commits bekannt) geschätzt (`docs/tokens/estimate-other-accounts.json`).
+- Von Hand zählen: `python3 tools/tokens.py --now`.
+
 ## Beispielbilder machen (so entstanden alle Bilder in `docs/ideen-3.98/` und `docs/ideen-3.99/`)
 
 1. Demo lokal bauen: `cd demo && npm ci && node build.mjs` (schreibt `demo/floorplan3d-demo.html`; diese Datei **nicht** committen, nach dem Merge baut sie die CI selbst: „Rebuild demo [skip ci]“; vor dem Commit `git checkout demo/floorplan3d-demo.html`).

@@ -1,0 +1,12 @@
+{
+ "session": "session_01BFqDRmriTudDBkgGdDCyZ4",
+ "start": "2026-10-14",
+ "updated": "2026-10-14T09:28:35Z",
+ "branch": "claude/quirky-archimedes-ui4nyl",
+ "source": "session list",
+ "input": 26223,
+ "cache_write": 66200,
+ "cache_read": 944579,
+ "output": 10999,
+ "title": "Heizungssteuerung mit externem Temperatursensor"
+}
