@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Draw docs/img/social-preview.png (GitHub social preview, 1280 x 640) in the dark design: the whole house of the demo
-(dark theme) on a plain dark card. Needs: pip install playwright, a Chromium (PLAYWRIGHT_BROWSERS_PATH or CHROME env var).
+(dark theme, in the editor, without the sky) on a plain dark card. Needs: pip install playwright, a Chromium (PLAYWRIGHT_BROWSERS_PATH or CHROME env var).
 Usage: python3 tools/make_social_preview.py [output.png]"""
 import base64
 import io
+import json
 import os
 import sys
 import tempfile
@@ -12,10 +13,13 @@ from pathlib import Path
 from PIL import Image, ImageChops
 from playwright.sync_api import sync_playwright
 
+from make_screenshots import HOOK          # the settings the demo starts with (tools/make_screenshots.py)
+
 ROOT = Path(__file__).resolve().parent.parent
 DEMO = ROOT / "demo" / "floorplan3d-demo.html"
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "docs" / "img" / "social-preview.png"
 HIDE = "body *{visibility:hidden!important} #view{visibility:visible!important}"          # only the 3D canvas stays
+CAM = os.environ.get("CAM", "-6, 15, 34, 9, 3")                                                # camAt(x, y, z, look at x, z)
 
 CARD = """<!doctype html><meta charset="utf-8"><style>
 *{box-sizing:border-box} body{margin:0;width:1280px;height:640px;overflow:hidden;font-family:'DejaVu Sans',system-ui,sans-serif;color:#e8eef5;
@@ -46,15 +50,18 @@ def main():
     with sync_playwright() as p:
         b = p.chromium.launch(**({"executable_path": chrome} if chrome else {}),
                               args=["--use-gl=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"])
-        pg = b.new_page(viewport={"width": 1000, "height": 700}, device_scale_factor=3)
-        pg.goto(DEMO.as_uri() + "?mode=live&debug=1"); pg.wait_for_timeout(3500)
+        ctx = b.new_context(viewport={"width": 1000, "height": 700}, device_scale_factor=3)
+        # a plain background instead of the sky (so the house can be cut out), no value badges (they make a small picture look crowded)
+        ctx.add_init_script(HOOK % json.dumps({"settings": {"sky": "off", "labelMode": "none", "belowLabels": False}, "timeline": None}))
+        pg = ctx.new_page()
+        pg.goto(DEMO.as_uri() + "?mode=edit&debug=1", wait_until="domcontentloaded", timeout=120000)    # the editor: no tap balls on the house
+        pg.wait_for_function("window.__fp && window.__fp.ready()", timeout=120000); pg.wait_for_timeout(2000)
         assert pg.evaluate("document.documentElement.dataset.theme") == "dark", "the demo must start in the dark design"
         pg.evaluate("window.__fp.setHouseMode(true)"); pg.wait_for_timeout(2500)
-        # no value badges and no room names on the house (they make a small picture look crowded)
-        pg.evaluate("(() => { window.__fp.settings().labelMode = 'none'; window.__fp.layout.floors.forEach((f) => f.rooms.forEach((r) => { r.name = ''; })); window.__fp.rebuild(); })()")
+        # no room names on the house
+        pg.evaluate("(() => { window.__fp.layout.floors.forEach((f) => f.rooms.forEach((r) => { r.name = ''; })); window.__fp.rebuild(); })()")
         pg.wait_for_timeout(800)
-        # turn the camera to look at the house from the front, a little from above
-        pg.mouse.move(500, 350); pg.mouse.down(); pg.mouse.move(700, 275, steps=6); pg.mouse.move(900, 200, steps=6); pg.mouse.up(); pg.wait_for_timeout(1000)
+        pg.evaluate(f"window.__fp.camAt({CAM})"); pg.wait_for_timeout(1200)   # the house from the front, a little from above
         pg.add_style_tag(content=HIDE); pg.wait_for_timeout(600)
         raw = Image.open(io.BytesIO(pg.locator("#view").screenshot())).convert("RGB")
         bg = raw.getpixel((4, 4))                                                         # the colour of the 3D scene: the card gets the same, so it blends

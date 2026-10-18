@@ -18,15 +18,15 @@
 
 <sub>**Try the demo:** one click and it runs right in your browser, always the newest version, no install and no Home Assistant needed. Or download it as one HTML file with an example house, lights and sensors and double-click it.</sub>
 
-<img src="docs/img/3d.png" alt="3D view of a house on its plot with live lights, sensors and open windows" width="900">
+<img src="docs/img/3d.jpg" alt="3D view of a house at dusk with live lights, labels over the rooms and room tiles at the bottom" width="900">
 
-*Your own floor plan in 3D on its plot, live with your real lights, sensors, windows and scenes.*
+*Your own floor plan in 3D on its plot, live with your real lights, sensors, windows and scenes, under the sky of the time of day.*
 
-<img src="docs/img/overview.gif" alt="Quick tour: live 3D view, room control, heat and humidity, whole house with the basement in the ground, LED ring, 2D plan, split view and the device library" width="900">
+<img src="docs/img/overview.gif" alt="Quick tour: live 3D view, room control, heat colours, power, whole house, night sky, 2D plan, split view and the device library" width="900">
 
-<sub>Quick tour (sped up): room control, heat and humidity colours, whole house, 2D / split view, device library. All from the <a href="#-try-it-without-home-assistant">demo file</a>.</sub>
+<sub>Quick tour (sped up): room control, heat colours, power, whole house, night sky, 2D / split view, device library. All from the <a href="#-try-it-without-home-assistant">demo file</a>.</sub>
 
-**[Features](#-features) · [Import by JSON / AI](#-describe-it-instead-of-drawing-it) · [Installation](#-installation) · [Quick start](#-quick-start) · [Tablets](#-wall-tablets--kiosk) · [Documentation](#-documentation) · [Roadmap](ROADMAP.md)**
+**[Features](#-features) · [Import by JSON / AI](#-describe-it-instead-of-drawing-it) · [Installation](#-installation) · [Quick start](#-quick-start) · [Phones & tablets](#-phones-and-wall-tablets) · [Documentation](#-documentation) · [Roadmap](ROADMAP.md)**
 
 </div>
 
@@ -51,6 +51,7 @@ What that means for you: the code is automatically tested (backend and browser t
 | 🏗️ **Build it** | Draw walls, rooms, stairs, doors and windows in a 2D blueprint that is linked live with the 3D view |
 | 🤖 **Or describe it** | Paste a **JSON description** (written by hand, by an AI, or from GeoJSON) and get the whole house, plot and garden included. Also available as a **REST API** |
 | 💡 **Control it** | Every device is a Home Assistant entity: lights, scenes, effects, Nanoleaf layouts, TV backlight, windows, heat and humidity |
+| 🌅 **See it at a glance** | Labels over the rooms and room tiles, power as a picture, the sky of the time of day with the weather, real floors |
 | 📱 **Everywhere** | Phone, desktop and wall tablets (kiosk mode, per-user rooms), 7 languages, offline and private |
 
 ## 🤖 Describe it instead of drawing it
@@ -87,7 +88,7 @@ Tell the add-on what your property looks like and it builds the house: walls fro
 ```
 
 </td>
-<td width="54%" valign="top"><img src="docs/img/import-en-4-whole-house.png" alt="Example house with plot and garden, built from docs/examples/house.json"><br><sub>Result of <a href="docs/examples/house.json">docs/examples/house.json</a>: 4 floors, plot, garden</sub></td>
+<td width="54%" valign="top"><img src="docs/img/import-en-4-whole-house.jpg" alt="Example house with plot and garden, built from docs/examples/house.json"><br><sub>Result of <a href="docs/examples/house.json">docs/examples/house.json</a>: 4 floors, plot, garden</sub></td>
 </tr>
 </table>
 
@@ -126,12 +127,12 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/split.png" alt="2D and 3D split view"><br><sub><b>2D + 3D split view</b>: draw in the blueprint, see it in 3D instantly</sub></td>
-<td width="50%"><img src="docs/img/house.png" alt="Whole-house view with plot, garden and the basement in the ground"><br><sub><b>Whole-house view</b>: all floors stacked, the house in its plot and garden</sub></td>
+<td width="50%"><img src="docs/img/split.jpg" alt="2D and 3D split view"><br><sub><b>2D + 3D split view</b>: draw in the blueprint, see it in 3D instantly</sub></td>
+<td width="50%"><img src="docs/img/house.jpg" alt="Whole-house view with plot, garden and the basement in the ground"><br><sub><b>Whole-house view</b>: all floors stacked, the house in its plot and garden</sub></td>
 </tr>
 <tr>
-<td width="50%"><img src="docs/img/ground.png" alt="Basement in the earth, shown as a section with soil layers"><br><sub><b>Basement in the ground</b>: cut open like a section drawing, turns with the camera</sub></td>
-<td width="50%"><img src="docs/img/ledring.png" alt="LED ring under the bedroom ceiling with its sections"><br><sub><b>LED ring</b>: indirect light around the room, one light per section</sub></td>
+<td width="50%"><img src="docs/img/ground.jpg" alt="Basement in the earth, shown as a section with soil layers"><br><sub><b>Basement in the ground</b>: cut open like a section drawing, turns with the camera</sub></td>
+<td width="50%"><img src="docs/img/ledring.jpg" alt="LED ring under the bedroom ceiling with its sections"><br><sub><b>LED ring</b>: indirect light around the room, one light per section</sub></td>
 </tr>
 </table>
 
@@ -141,8 +142,8 @@ Describe plot, rooms, windows and devices as JSON (write it by hand, let an AI g
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/import-en-1-dialog.png" alt="Import dialog"><br><sub><b>Import dialog</b>: examples, check, AI prompt</sub></td>
-<td width="50%"><img src="docs/img/import-en-5-plan2d.png" alt="Plan with plot boundary"><br><sub><b>Result</b>: plot boundary in the plan</sub></td>
+<td width="50%"><img src="docs/img/import-en-1-dialog.jpg" alt="Import dialog"><br><sub><b>Import dialog</b>: examples, check, AI prompt</sub></td>
+<td width="50%"><img src="docs/img/import-en-5-plan2d.jpg" alt="Plan with plot boundary"><br><sub><b>Result</b>: plot boundary in the plan</sub></td>
 </tr>
 </table>
 
@@ -159,8 +160,8 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/toolbar.png" alt="Dialog to customise the toolbar"><br><sub><b>Toolbar</b>: show, hide and order the tools</sub></td>
-<td width="50%"><img src="docs/img/welcome.png" alt="Welcome card on an empty house"><br><sub><b>First start</b>: three ways to begin</sub></td>
+<td width="50%"><img src="docs/img/toolbar.jpg" alt="Dialog to customise the toolbar"><br><sub><b>Toolbar</b>: show, hide and order the tools</sub></td>
+<td width="50%"><img src="docs/img/welcome.jpg" alt="Welcome card on an empty house"><br><sub><b>First start</b>: three ways to begin</sub></td>
 </tr>
 <tr>
 <td width="50%"><img src="docs/img/backup.png" alt="Automatic backup settings"><br><sub><b>Automatic backups</b> with check and restore</sub></td>
@@ -180,8 +181,8 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/library.png" alt="Furniture library with previews"><br><sub><b>Furniture library</b> with previews, search and categories</sub></td>
-<td width="50%"><img src="docs/img/2d.png" alt="2D blueprint editor"><br><sub><b>2D blueprint editor</b> with snapping, dimensions and live state colours</sub></td>
+<td width="50%"><img src="docs/img/library.jpg" alt="Furniture library with previews"><br><sub><b>Furniture library</b> with previews, search and categories</sub></td>
+<td width="50%"><img src="docs/img/2d.jpg" alt="2D blueprint editor"><br><sub><b>2D blueprint editor</b> with snapping, dimensions and live state colours</sub></td>
 </tr>
 </table>
 
@@ -200,13 +201,17 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Open windows and doors**: windows tilt open in 3D, **each pane of a double or triple window can have its own sensor**, an *n open* pill shows the overall state
 - **Presence**: people (`person`, `device_tracker`) and presence / motion sensors appear as a glowing figure while they are home; room pills show a dot when somebody is in the room
 - **Heat and humidity views**: rooms are coloured by temperature or humidity
-- **Power at a glance**: solar, grid, battery and consumption at the top, cables with flowing dots between the power devices, and in the power editor the tab **⚡ Rechnung**: which sensor is grid, solar, battery, house and room, signs, and the calculation live with a check that it adds up
+- **Power as a picture**: press *Power* (*Strom*) and the card *Power now* shows sun, grid, battery and house with flowing dots, plus the water, gas and heat meters; cables with flowing dots run between the power devices in the house. In the power editor the tab **⚡ Rechnung**: which sensor is grid, solar, battery, house and room, signs, and the calculation live with a check that it adds up
 - **Home Assistant areas**: entities are grouped by your areas and assigned automatically
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/room.png" alt="Room panel with whole-room control and scenes"><br><sub><b>Whole-room control</b>: lights, colour, brightness and scenes</sub></td>
-<td width="50%"><img src="docs/img/light.png" alt="Light popup with colour, brightness and scenes"><br><sub><b>Light popup</b>: tap a lamp right where it stands</sub></td>
+<td width="50%"><img src="docs/img/room.jpg" alt="Room panel with whole-room control, heating and scenes"><br><sub><b>Whole-room control</b>: lights, colour, brightness, heating and scenes</sub></td>
+<td width="50%"><img src="docs/img/light.jpg" alt="Light popup with colour, brightness and scenes"><br><sub><b>Light popup</b>: tap a lamp right where it stands</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/img/power.jpg" alt="The card Power now with sun, grid, battery and house, cables with flowing dots in the house"><br><sub><b>Power as a picture</b>: sun, grid, battery and house at a glance</sub></td>
+<td width="50%"><img src="docs/img/heat.jpg" alt="Rooms coloured by their temperature, with a colour scale"><br><sub><b>Heat view</b>: every room in the colour of its temperature</sub></td>
 </tr>
 </table>
 
@@ -217,13 +222,19 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Import by JSON / AI / GeoJSON**: describe plot, rooms, windows and devices and get a new house; includes examples, schema, API and an AI prompt ([guide](docs/IMPORT.en.md))
 - **7 languages**: Deutsch, English, Français, Español, Italiano, Nederlands, Polski (⚙ → Language, or *Auto*). Adding another one is a single file, see [CONTRIBUTING](CONTRIBUTING.md)
 - **Security (Sicherheit)**: every switch in the house is recorded (one file per day, the last 7 days kept). Pick a day and play it back in the 3D view with a time line: play, pause, jump from event to event, see when which light went on, which door opened. Read-only, on phone, tablet and PC
+
+<div align="center"><img src="docs/img/security.jpg" alt="Security: a recorded evening played back in 3D, the time line with its events at the bottom" width="760"><br><sub><b>Security</b>: yesterday evening played back, every event as an icon on the time line</sub></div>
+
 - **Backup and restore**: one file with all houses, settings, pictures and models. A safety copy is made before every restore
 - **Automatic backups**: optional, daily or at your own interval, stored in the add-on's config folder (`addon_configs`), with retention by days and count, a *Check the newest* test and one-click restore
 - **Undo**: `Ctrl+Z` for everything you draw
 - **Your data stays yours**: layouts live in the add-on's `/data` folder and survive updates
 
-### 📱 Wall tablets / kiosk
+### 📱 Phones and wall tablets
 
+<div align="center"><img src="docs/img/phone.png" alt="Three phones: the house at dusk with room labels and tiles, the card Power now, a room opened with its controls" width="760"><br><sub><b>On the phone</b>: room labels and tiles, <i>Power</i> as a small card, a tapped room opens as a sheet from below, time and weather in the last line</sub></div>
+
+- **Phones**: the same live view, made for one hand: floors and rooms in one drop-down, room labels over the rooms and room tiles you swipe sideways, the room panel as a sheet from below, *Power* as a small card under the top bar, and the time and the weather in a short line at the very bottom
 - One Home Assistant user per tablet: it starts in **its own room** and sees only the views you allow
 - **Low-power mode** for Fire tablets and other weak devices (automatic in kiosk mode and on touch screens): lower resolution, throttled animation, no shadows, blur or glow. ⚙ **Performance on this device** switches it per tablet
 - **Warnings** for smoke, gas, CO, water, alarm and windows open in the rain (red banner, the room flashes), a **"Where is …?" search**, and a **kiosk mode**: back to the start view when idle, screen-saver turn, night dimming
@@ -233,9 +244,23 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - Floor and room buttons **scroll sideways** with ‹ › arrows when they do not fit the screen
 - Open a specific house with `?house=Parents`
 
+<div align="center"><img src="docs/img/devices.jpg" alt="Device overview: every linked device by room with its state and battery level" width="760"><br><sub><b>Device overview</b> (📋): every device by room, with battery and offline filters</sub></div>
+
 ### 🎨 Look
 
-Dark theme by default (light theme and a hologram look as a gimmick are one click away), metric or imperial units, and 7 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski).
+- **Sky by the time of day**: morning, midday, dusk and night, the sun where Home Assistant's `sun.sun` has it, at night stars and a faint Milky Way; a chip shows the time and the next sunset or sunrise
+- **Weather in the sky**: clouds, rain and snow from your weather entity, and a **rain warning per window** when one is open while it rains
+- **Labels over the rooms**: name, temperature, lights on and open windows, a green dot when somebody is there; a tap opens the room. Or the devices instead (*View → In the picture*)
+- **Room tiles** at the bottom: every room with its temperature, lights and open windows, swipe sideways when there are many
+- **Real floors** per room: parquet (light, natural, dark), tiles, small tiles, concrete ...; **window frames** white or anthracite; floor cards and buttons in a **glass look**
+- Dark theme by default (light theme and a hologram look as a gimmick are one click away), metric or imperial units, and 7 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/img/sky.jpg" alt="The same house four times: sunny morning, rain with a rain warning, dusk, clear night with stars"><br><sub><b>Sky and weather</b>: sunny morning, rain (with the rain warning), dusk, starry night</sub></td>
+<td width="50%"><img src="docs/img/floors.jpg" alt="Close-up of the ground floor with parquet, tiles and concrete floors and anthracite window frames"><br><sub><b>Real floors</b> per room and anthracite window frames</sub></td>
+</tr>
+</table>
 
 ## 📦 Installation
 

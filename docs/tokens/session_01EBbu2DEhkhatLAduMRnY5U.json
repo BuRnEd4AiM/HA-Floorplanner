@@ -1,0 +1,20 @@
+{
+ "session": "session_01EBbu2DEhkhatLAduMRnY5U",
+ "start": "2026-10-18",
+ "updated": "2026-10-18T12:10:06Z",
+ "branch": "claude/stoic-sagan-rl75nd",
+ "source": "counted",
+ "input": 262,
+ "cache_write": 281153,
+ "cache_read": 28459110,
+ "output": 86655,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 262,
+   "cache_write": 281153,
+   "cache_read": 28459110,
+   "output": 86655,
+   "requests": 131
+  }
+ }
+}
