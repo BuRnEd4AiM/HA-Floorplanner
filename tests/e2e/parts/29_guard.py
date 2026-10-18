@@ -13,6 +13,10 @@ def notified():
 def admin_req(path, body, method="PUT"):
     return urllib.request.urlopen(urllib.request.Request(BASE + path, data=json.dumps(body).encode(), method=method,
                                                          headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
+def until(pg, text, ms):
+    """wait until the lock screen says text (it asks the add-on every 2 s; the CI runner is slow): no fixed sleeps that run out (#458)"""
+    try: pg.wait_for_function("(t) => (document.querySelector('#guardScreen .gdTitle')?.textContent || '').includes(t)", arg=text, timeout=ms)
+    except Exception: pass
 extra({"binary_sensor.tuer_e2e": {"state": "off", "attributes": {"friendly_name": "Haustür E2E", "device_class": "door"}},
        "siren.e2e": {"state": "off", "attributes": {"friendly_name": "Sirene E2E"}}})
 admin_req("api/notify", {"on": True, "via": "whatsapp", "phone": "+491701234567", "apikey": "987654"})
@@ -26,11 +30,11 @@ check("holiday alarm: the settings list the door contact under 'Türen'", pgG.is
 pgG.check("#guardBox [data-gd-sensor='binary_sensor.tuer_e2e']")
 pgG.evaluate("document.querySelectorAll('#guardBox details.gdGroup').forEach((d) => { d.open = true; })")
 pgG.check("#guardBox [data-gd-action='siren.e2e']")
-pgG.fill("#gdDelay", "3"); pgG.fill("#gdCode", "2468")
+pgG.fill("#gdDelay", "6"); pgG.fill("#gdCode", "2468")             # 3 s ran out on the CI runner before the check could look (#458)
 pgG.click("#gdSave"); pgG.wait_for_timeout(800)
 g = api_admin("api/guard")
 check("holiday alarm: saved, ready, the code stored but never handed out", "Bereit" in pgG.inner_text("#guardBox .gdStatus") and g["ready"] is None
-      and g["cfg"]["sensors"] == ["binary_sensor.tuer_e2e"] and g["cfg"]["actions"] == ["siren.e2e"] and g["cfg"]["delay"] == 3 and g["cfg"]["hasCode"]
+      and g["cfg"]["sensors"] == ["binary_sensor.tuer_e2e"] and g["cfg"]["actions"] == ["siren.e2e"] and g["cfg"]["delay"] == 6 and g["cfg"]["hasCode"]
       and "2468" not in json.dumps(g), g)
 pgG.keyboard.press("Escape"); pgG.wait_for_timeout(2500)
 check("holiday alarm: now the 🛡 button is there", pgG.is_visible("#guardBtn") and "Alarm aus" in pgG.inner_text("#guardBtn"), pgG.inner_text("#guardBtn") if pgG.is_visible("#guardBtn") else "")
@@ -44,7 +48,7 @@ pgG.keyboard.type("2468"); pgG.keyboard.press("Enter"); pgG.wait_for_timeout(800
 check("holiday alarm: with the code (also typed) it arms; the lock screen covers everything and counts the time to leave",
       pgG.is_visible("#guardScreen") and "Scharf in" in pgG.inner_text("#guardScreen .gdTitle") and api("api/guard")["view"]["phase"] == "arming"
       and pgG.evaluate("document.elementFromPoint(700, 500).closest('#guardScreen') !== null"), pgG.inner_text("#guardScreen"))
-pgG.wait_for_timeout(5000)
+until(pgG, "ist scharf", 12000); pgG.wait_for_timeout(1000)
 check("holiday alarm: then it is armed, and says so by WhatsApp", "ist scharf" in pgG.inner_text("#guardScreen .gdTitle")
       and any("Urlaubs-Alarm ist scharf" in (m[2] or "") for m in notified()[n0:]), (pgG.inner_text("#guardScreen .gdTitle"), notified()[n0:]))
 pgT = b.new_page(viewport={"width": 1280, "height": 800}, extra_http_headers={"X-Remote-User-Name": "tablet_e2e"})
@@ -52,10 +56,10 @@ pgT.goto(BASE + "?debug=1"); pgT.wait_for_timeout(2500)
 check("holiday alarm: a wall tablet shows the lock screen too, with the keypad, without 'Nur ansehen'",
       pgT.is_visible("#guardScreen") and pgT.locator("#guardScreen .gdPad button").count() == 12 and pgT.locator("#guardPeek").count() == 0)
 n0, c0 = len(notified()), len(ha_calls())
-ha_set("binary_sensor.tuer_e2e", "on"); pgG.wait_for_timeout(1800)
+ha_set("binary_sensor.tuer_e2e", "on"); until(pgG, "Code eingeben", 4000)
 check("holiday alarm: the door opens: the time to type the code", "Code eingeben" in pgG.inner_text("#guardScreen .gdTitle")
       and api("api/guard")["view"]["phase"] == "entry", pgG.inner_text("#guardScreen .gdTitle"))
-pgG.wait_for_timeout(4500)
+until(pgG, "ALARM:", 12000); pgG.wait_for_timeout(1500)
 calls = ha_calls()[c0:]
 check("holiday alarm: nobody typed it: the alarm, the siren on, a WhatsApp with the door",
       "ALARM: Haustür E2E wurde geöffnet" in pgG.inner_text("#guardScreen .gdTitle") and ["homeassistant", "turn_on", ["siren.e2e"]] in calls
