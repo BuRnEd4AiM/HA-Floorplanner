@@ -61,12 +61,12 @@ Home Assistant does not pass URL parameters into add-on panels, so what someone 
 
 1. Create a normal (non-admin) Home Assistant user for each tablet or family member, e.g. `tablet_wohnzimmer` (Settings → People → Users).
 2. Log the tablet into that user and open the add-on once.
-3. On your own account open the add-on → the **Users** button in the top bar (administrators only), press **+ User** and pick the user from the list of Home Assistant users (you can also type to search).
+3. On your own account open the add-on → ⚙ → the group **👥 Users & tablets** (administrators only, not on phones), press **+ User** and pick the user from the list of Home Assistant users (you can also type to search).
 4. Choose what that user gets:
    - **Room:** the tablet then starts with only its room (with the room's entities). A button at the top toggles between the room and the whole floor. *Whole house* shows everything.
    - **View in live mode:** *3D only* (default for everybody without an entry), *2D only*, *2D + 3D* or *Switchable* (the user gets the 2D / 3D / split buttons).
 
-**Backup that survives updates:** every change is also saved as `users.json` in the add-on configuration folder of Home Assistant (folder `addon_configs` → the folder ending in `floorplan3d`; reachable with the *File editor* or *Samba* add-on). The button **💾 Create / save file** writes it at once (use it once after the update if the folder has no file yet). If the assignments are ever lost, press **↻ Synchronise** in the Users dialog: the file is read and the users and tablets are taken from it. After a fresh installation this happens by itself.
+**Backup that survives updates:** every change is also saved as `users.json` in the add-on configuration folder of Home Assistant (folder `addon_configs` → the folder ending in `floorplan3d`; reachable with the *File editor* or *Samba* add-on). The button **💾 Create / save file** writes it at once (use it once after the update if the folder has no file yet). If the assignments are ever lost, press **↻ Synchronise** in ⚙ → *Users & tablets*: the file is read and the users and tablets are taken from it. After a fresh installation this happens by itself.
 
 If you open the add-on directly (for example through a mapped port), `?room=Wohnzimmer` does the same as the room assignment.
 
@@ -241,7 +241,7 @@ The buttons over the picture and the floor cards on the left are frosted glass, 
 
 Two ways to send it:
 
-- **WhatsApp directly (CallMeBot, free):** enter your WhatsApp number with the country code (e.g. `+49 170 1234567`) and the key (*apikey*) of CallMeBot. You get the key once: the [CallMeBot page](https://www.callmebot.com/blog/free-api-whatsapp-messages/) says which number to send a WhatsApp to, and the answer contains the key. CallMeBot is a free service of a third party; the add-on sends it the number, the key and the text of the message.
+- **WhatsApp directly (CallMeBot, free):** the part shows three numbered steps. 1. Save CallMeBot's WhatsApp number (it is on the [CallMeBot page](https://www.callmebot.com/blog/free-api-whatsapp-messages/)) in your contacts and send it *I allow callmebot to send me messages*. 2. CallMeBot answers with your key (*apikey*): enter it and your own WhatsApp number with the country code (e.g. `+49 170 1234567`). 3. Tick *Send a message on alarm*, *Save*, then *Send a test*. CallMeBot is a free service of a third party; the add-on sends it the number, the key and the text of the message.
 - **Notify service of Home Assistant:** any `notify.…` service you already have, for example a WhatsApp, Telegram or Signal integration or the Companion app on your phone (`mobile_app_…`). The list offers the services Home Assistant reports; the name can also be typed.
 
 **Send a test** saves and sends a test message; if it does not work, the reason is shown (e.g. a wrong key). The phone number and the key are kept by the add-on (`notify.json` in its data folder), not in the settings the tablets read, and the key is never shown again (leave the field empty to keep it).

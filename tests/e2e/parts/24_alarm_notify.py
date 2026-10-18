@@ -28,6 +28,9 @@ opts = pgN.evaluate("() => [...document.querySelectorAll('#anServices option')].
 check("alarm message (#414): the settings have the part, off at first, every kind ticked, Home Assistant's notify services to choose from",
       pgN.is_visible("#alarmNotifyTitle") and "Benachrichtigung bei Alarm" in pgN.text_content("#alarmNotifyTitle") and not pgN.is_checked("#anOn")
       and all(pgN.is_checked(f"#anKind_{k}") for k in ("alarm", "smoke", "gas", "co", "water")) and opts == ["mobile_app_test", "whatsapp"], (txt, opts))
+check("alarm message (#454): WhatsApp has three numbered steps, the first with the link to CallMeBot",
+      pgN.locator("#alarmNotify .anSteps li").count() == 3 and "I allow callmebot to send me messages" in pgN.inner_text("#alarmNotify .anSteps")
+      and pgN.locator("#alarmNotify .anSteps li a[href*=callmebot]").count() == 1)
 pgN.check("#anOn"); pgN.select_option("#anVia", "whatsapp")
 pgN.fill("#anPhone", "+49 170 1234567"); pgN.fill("#anKey", "987654")
 pgN.click("#anSave"); pgN.wait_for_timeout(800)

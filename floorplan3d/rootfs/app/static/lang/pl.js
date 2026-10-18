@@ -30,7 +30,7 @@ export default {
   'bk.tip': 'Kopia zapasowa, automatyczne kopie i bezpieczeństwo (nagrywanie)',
   'bk.title': 'Kopia i bezpieczeństwo',
   'sv.title': 'Widok startowy',
-  'sv.help': 'Strona otwiera się z tym widokiem, a tablet ścienny do niego wraca. Najpierw ustaw widok (piętro lub cały dom, pokój, kąt), potem „Użyj bieżącego widoku”. Bez zapisanego widoku: pokój użytkownika lub parter. Dla pojedynczych użytkowników zobacz „Użytkownicy”.',
+  'sv.help': 'Strona otwiera się z tym widokiem, a tablet ścienny do niego wraca. Najpierw ustaw widok (piętro lub cały dom, pokój, kąt), potem „Użyj bieżącego widoku”. Bez zapisanego widoku: pokój użytkownika lub parter. Dla pojedynczych użytkowników zobacz „Użytkownicy i tablety” niżej.',
   'sv.take': '📌 Użyj bieżącego widoku',
   'sv.auto': 'Automatyczny',
   'sv.saved': 'Zapisany: {where}',
@@ -771,8 +771,7 @@ export default {
   'users.saveTip': 'Zapisuje teraz użytkowników i tablety w pliku users.json w folderze Home Assistant (tworzy go, jeśli jeszcze nie istnieje)',
   'users.saveDone': 'Plik zapisany: {n} użytkowników w users.json.',
   'users.syncMissing': 'W folderze nie ma jeszcze pliku. Naciśnij „Utwórz / zapisz plik”, a zostanie utworzony.',
-  'users.btn': 'Użytkownicy',
-  'users.tip': 'Zarządzanie użytkownikami i tabletami (tylko administratorzy)',
+  
   'users.fileTitle': 'Kopia w Home Assistant',
   'users.fileHelp': 'Użytkownicy i tablety są zapisywane automatycznie w pliku „users.json” w folderze konfiguracji dodatku w Home Assistant (folder „addon_configs”, podfolder „…floorplan3d”). Dzięki temu nie giną przy aktualizacji ani ponownej instalacji. Plik można tam też edytować ręcznie.',
   'users.syncBtn': '↻ Synchronizuj',
@@ -951,7 +950,6 @@ export default {
   'find.title': 'Gdzie jest …? Szukaj urządzenia lub pokoju',
   'find.placeholder': 'Gdzie jest …? (urządzenie lub pokój)',
   'find.none': 'Nic nie znaleziono.',
-  
   'set.alerts': 'Pokazuj ostrzeżenia (dym, gaz, CO, woda, alarm, okno otwarte w deszczu)',
   'set.alertJump': 'Przy nowym ostrzeżeniu samodzielnie przejdź do pokoju',
   'set.weather': 'Encja pogody dla „okno otwarte w deszczu” (puste = pierwsza)',
@@ -987,7 +985,6 @@ export default {
   'off.missing': 'Brak w Home Assistant',
   'off.since': 'od {t}',
   'set.autosave': 'Autozapis po (s)',
-  
   'vm.normal': 'Normalnie', 'vm.temp': 'Temp.', 'vm.humid': 'Wilgotność', 'vm.co2': 'CO₂',
   'set.bgGlowStrength': 'Siła poświaty (0 = wył.)',
   'dev.presence': 'Obecność / osoba', 'nav.occupied': 'Ktoś jest w tym pokoju',
@@ -1204,7 +1201,6 @@ export default {
   'an.phone': 'Twój numer WhatsApp (z kierunkowym kraju)',
   'an.key': 'Klucz z CallMeBot (apikey)',
   'an.keySaved': 'zapisany – zostaw puste, aby go zachować',
-  'an.keyHelp': 'Klucz dostajesz raz: na stronie CallMeBot jest numer, na który wysyłasz WhatsApp; odpowiedź zawiera klucz.',
   'an.service': 'Usługa (notify.…)',
   'an.serviceHint': 'Na przykład integracja WhatsApp, Telegram lub Signal albo aplikacja Companion (mobile_app_…).',
   'an.serviceNone': 'Home Assistant nie zgłosił jeszcze żadnej usługi powiadomień; nazwę można też wpisać.',
@@ -1350,4 +1346,8 @@ export default {
   'sg.alarm.notifyOff': 'Wiadomość na telefon przy alarmie ustawia użytkownik, który może edytować.', 'sg.tablet': 'Tablet ścienny',
   'sg.tablet.sub': 'Widok startowy, wygaszacz, przyciemnianie nocą', 'sg.tablet.help': 'Dla ekranu, który jest zawsze włączony. Działa w widoku na żywo.',
   'sg.colors': 'Kolory dla temperatury, wilgotności, CO₂', 'sg.colors.sub': 'Od jakiej wartości pokój dostaje jaki kolor',
+  'sg.users': 'Użytkownicy i tablety', 'sg.users.sub': 'Kto widzi który pokój i widok, blokady, kopia', 'an.stepsTitle': 'Jak ustawić WhatsApp:',
+  'an.step1': 'Zapisz numer WhatsApp CallMeBot w kontaktach i wyślij mu wiadomość „I allow callmebot to send me messages”. Numer jest tutaj:',
+  'an.step2': 'CallMeBot wkrótce odpowie z twoim kluczem (apikey). Wpisz go poniżej razem z własnym numerem WhatsApp z kierunkowym kraju.',
+  'an.step3': 'Zaznacz u góry „Wysyłaj wiadomość przy alarmie”, „Zapisz”, potem „Wyślij test”: wiadomość testowa przyjdzie na telefon.',
 };

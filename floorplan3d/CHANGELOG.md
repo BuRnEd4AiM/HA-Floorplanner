@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.0.3] - 2026-10-18
+### Changed
+- **Users & tablets are in the settings** (#454): the button *Benutzer* in the top bar and its own window are gone; everything of it (users with room, view, start view, presets and locks, the backup file `users.json` with *Datei erstellen / speichern* and *Synchronisieren*) is now the group **👥 Benutzer & Tablets** of ⚙, for administrators only as before and not on phones. The rows of a user fit the narrower window: the user with ⚙ and × on top, room, view and start below. The top bar is shorter.
+- **WhatsApp on alarm is easier to set up** (#454): ⚙ → *Warnungen & Alarm* → *Benachrichtigung bei Alarm* shows three numbered steps for CallMeBot (send it the message *I allow callmebot to send me messages*, enter the key it sends back and your number, tick, save and send a test) instead of one long sentence.
+
 ## [4.0.2] - 2026-10-18
 ### Fixed
 - **One building of several shows cleanly** (#451): a long wall that runs along a room of the building shown and along rooms of another building is drawn only along the building shown (and along rooms of the plot), no piece of it stands in the empty rooms of the other building any more. A wall that only meets a room of the building shown from the other building (30–40 cm at its end) no longer sticks out. Framing the view and the roof of one building use these parts too.

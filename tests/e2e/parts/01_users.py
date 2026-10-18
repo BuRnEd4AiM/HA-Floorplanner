@@ -1,4 +1,4 @@
-"""Users and rights: read-only tablet view, the users tab and its file, presets per user (#250), labels of the floors below (#249), arrow keys and the floors switch (#98, #99).
+"""Users and rights: read-only tablet view, users & tablets in the settings (#454) and its file, presets per user (#250), labels of the floors below (#249), arrow keys and the floors switch (#98, #99).
 """
 # --- a user who is neither admin nor editor only gets the read-only live view
 pg3 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "tablet_wz"})
@@ -13,15 +13,17 @@ check("low-power mode: on for ?kiosk, ?perf=high overrides", pg4.evaluate("windo
 pg4.close(); pg5.close()
 code = pg3.evaluate("fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({version:1,floors:[]})}).then(r => r.status)")
 check("non-editor cannot save (403)", code == 403, code)
-check("users tab: hidden for a read-only user", not pg3.locator("#usersBtn").is_visible())
+check("users & tablets: hidden for a read-only user", pg3.evaluate("getComputedStyle(document.querySelector('details[data-group=users]')).display") == "none")
 pg3.close()
-# --- users & tablets: an own tab in the top bar (not in the gear), saved into a file of the config folder, sync button
+# --- users & tablets: a group of the settings for admins (#454, before a tab of its own), saved into a file of the config folder, sync button
 pgU = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
 pgU.goto(BASE + "?debug=1&mode=edit"); pgU.wait_for_timeout(1500)
-check("users tab: visible in the top bar for admins", pgU.locator("#usersBtn").is_visible())
 pgU.click("#settingsBtn"); pgU.wait_for_timeout(200)
-check("users & tablets are no longer inside the gear dialog", pgU.locator("#settingsDialog #tabletRows").count() == 0)
-pgU.keyboard.press("Escape"); pgU.click("#usersBtn"); pgU.wait_for_timeout(300)
+check("users & tablets (#454): a group of the settings for admins, no button of its own in the top bar",
+      pgU.locator("#usersBtn").count() == 0 and pgU.locator("#usersDialog").count() == 0 and pgU.is_visible("details[data-group=users] > summary")
+      and "👥" in pgU.inner_text("details[data-group=users] > summary"))
+open_users(pgU)
+check("users & tablets (#454): opening the group shows the rows and the file state", pgU.is_visible("#addTablet") and pgU.inner_text("#usersFileStatus") != "")
 pgU.click("#addTablet"); pgU.fill("#tabletRows .tablet input", "tablet_flur"); pgU.press("#tabletRows .tablet input", "Tab"); pgU.wait_for_timeout(700)
 uf = pgU.evaluate("fetch('api/users-file').then(r => r.json())"); uv = api("api/settings")["userViews"]
 check("users tab: a tablet is saved and written to the file", "tablet_flur" in uv and uf.get("inSync") is True and uf.get("fileUsers", 0) >= 1, (uv, uf))
@@ -35,7 +37,7 @@ pgV = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X
 pgV.goto(BASE + "?mode=edit"); pgV.wait_for_timeout(1200)
 pgV.evaluate("fetch('api/settings').then(r => r.json().then(s => fetch('api/settings', {method: 'PUT', headers: {'Content-Type': 'application/json', 'If-Match': r.headers.get('ETag')}, body: JSON.stringify({...s, theme: 'light'})})))"); pgV.wait_for_timeout(500)
 pgV.goto(BASE + "?mode=edit"); pgV.wait_for_timeout(1200)
-pgV.click("#usersBtn"); pgV.wait_for_timeout(400); pgV.click("#usersSave"); pgV.wait_for_timeout(800)
+open_users(pgV); pgV.click("#usersSave"); pgV.wait_for_timeout(800)
 check("users dialog: saving the file keeps the design", api("api/settings")["theme"] == "light", api("api/settings")["theme"])
 pgV.evaluate("fetch('api/settings').then(r => r.json().then(s => fetch('api/settings', {method: 'PUT', headers: {'Content-Type': 'application/json', 'If-Match': r.headers.get('ETag')}, body: JSON.stringify({...s, theme: 'holo'})})))"); pgV.wait_for_timeout(400)
 pgV.close()
@@ -54,7 +56,7 @@ view_menu(pgA); pgA.click("#autoToggle"); pgA.wait_for_timeout(800)
 now = api_admin("api/settings")
 check("presets (#250): saving another setting keeps everybody's value of the preset field", now["labelMode"] == glob["labelMode"] and now["cutaway"] != glob["cutaway"] and pgA.evaluate("window.__fp.settings().labelMode") == "none", (now["labelMode"], now["cutaway"]))
 view_menu(pgA); pgA.click("#autoToggle"); pgA.wait_for_timeout(800)
-pgA.keyboard.press("Escape"); pgA.click("#usersBtn"); pgA.wait_for_timeout(500)
+pgA.keyboard.press("Escape"); open_users(pgA)
 ri = pgA.evaluate("[...document.querySelectorAll('#tabletRows .tablet')].findIndex(r => r.querySelector('[data-role=user]').value === 'tablet_pre')")
 row = pgA.locator("#tabletRows .tablet").nth(max(ri, 0))
 check("presets (#250): the users dialog shows a preset button with the count", ri >= 0 and row.locator(".presetBtn.active").count() == 1 and row.locator(".presetBtn").inner_text() == "⚙ 3", row.locator(".presetBtn").inner_text() if row.count() else "no row")

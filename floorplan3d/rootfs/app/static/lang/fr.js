@@ -30,7 +30,7 @@ export default {
   'bk.tip': 'Sauvegarde, sauvegardes automatiques et sécurité (enregistrement)',
   'bk.title': 'Sauvegarde & sécurité',
   'sv.title': 'Vue de départ',
-  'sv.help': 'La page s\'ouvre avec cette vue et la tablette murale y revient. Réglez d\'abord la vue (étage ou maison entière, pièce, angle), puis « Utiliser la vue actuelle ». Sans vue enregistrée : la pièce de l\'utilisateur ou le rez-de-chaussée. Pour un utilisateur précis, voir « Utilisateurs ».',
+  'sv.help': 'La page s\'ouvre avec cette vue et la tablette murale y revient. Réglez d\'abord la vue (étage ou maison entière, pièce, angle), puis « Utiliser la vue actuelle ». Sans vue enregistrée : la pièce de l\'utilisateur ou le rez-de-chaussée. Pour un utilisateur précis, voir « Utilisateurs et tablettes » plus bas.',
   'sv.take': '📌 Utiliser la vue actuelle',
   'sv.auto': 'Automatique',
   'sv.saved': 'Enregistrée : {where}',
@@ -771,8 +771,7 @@ export default {
   'users.saveTip': 'Écrit maintenant les utilisateurs et tablettes dans le fichier users.json du dossier Home Assistant (le crée s\'il n\'existe pas encore)',
   'users.saveDone': 'Fichier enregistré : {n} utilisateurs dans users.json.',
   'users.syncMissing': 'Il n\'y a pas encore de fichier dans le dossier. Appuie sur « Créer / enregistrer le fichier » et il sera là.',
-  'users.btn': 'Utilisateurs',
-  'users.tip': 'Gérer les utilisateurs et tablettes (admins uniquement)',
+  
   'users.fileTitle': 'Sauvegarde dans Home Assistant',
   'users.fileHelp': 'Les utilisateurs et tablettes sont enregistrés automatiquement dans le fichier « users.json » du dossier de configuration de l\'add-on de Home Assistant (dossier « addon_configs », sous-dossier « …floorplan3d »). Ils survivent ainsi à une mise à jour ou une réinstallation. Le fichier peut aussi être modifié à la main.',
   'users.syncBtn': '↻ Synchroniser',
@@ -951,7 +950,6 @@ export default {
   'find.title': 'Où est …? Chercher un appareil ou une pièce',
   'find.placeholder': 'Où est …? (appareil ou pièce)',
   'find.none': 'Rien trouvé.',
-  
   'set.alerts': 'Afficher les alertes (fumée, gaz, CO, eau, alarme, fenêtre ouverte sous la pluie)',
   'set.alertJump': 'Aller seul dans la pièce d\'une nouvelle alerte',
   'set.weather': 'Entité météo pour « fenêtre ouverte sous la pluie » (vide = la première)',
@@ -987,7 +985,6 @@ export default {
   'off.missing': 'Absent de Home Assistant',
   'off.since': 'depuis {t}',
   'set.autosave': 'Enregistrement auto après (s)',
-  
   'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Humidité', 'vm.co2': 'CO₂',
   'set.bgGlowStrength': 'Intensité de la lueur (0 = off)',
   'dev.presence': 'Présence / personne', 'nav.occupied': 'Quelqu\'un est dans cette pièce',
@@ -1204,7 +1201,6 @@ export default {
   'an.phone': 'Votre numéro WhatsApp (avec l’indicatif du pays)',
   'an.key': 'Clé de CallMeBot (apikey)',
   'an.keySaved': 'enregistrée – laisser vide pour la garder',
-  'an.keyHelp': 'La clé s’obtient une fois : la page de CallMeBot indique à quel numéro envoyer un WhatsApp ; la réponse contient la clé.',
   'an.service': 'Service (notify.…)',
   'an.serviceHint': 'Par exemple une intégration WhatsApp, Telegram ou Signal ou l’app Companion (mobile_app_…).',
   'an.serviceNone': 'Home Assistant n’a pas encore signalé de service de notification ; le nom peut aussi être saisi.',
@@ -1353,4 +1349,8 @@ export default {
   'sg.alarm.notifyOff': 'Le message sur le téléphone en cas d\'alarme est configuré par un utilisateur qui peut modifier.', 'sg.tablet': 'Tablette murale',
   'sg.tablet.sub': 'Vue de départ, économiseur d\'écran, assombrir la nuit', 'sg.tablet.help': 'Pour un écran toujours allumé. S\'applique en vue directe.',
   'sg.colors': 'Couleurs pour température, humidité, CO₂', 'sg.colors.sub': 'À partir de quelle valeur une pièce prend quelle couleur',
+  'sg.users': 'Utilisateurs et tablettes', 'sg.users.sub': 'Qui voit quelle pièce et quelle vue, verrous, sauvegarde', 'an.stepsTitle': 'Configurer WhatsApp :',
+  'an.step1': 'Enregistrez le numéro WhatsApp de CallMeBot dans vos contacts et envoyez-lui le message « I allow callmebot to send me messages ». Le numéro est ici :',
+  'an.step2': 'CallMeBot répond rapidement avec votre clé (apikey). Saisissez-la ci-dessous, avec votre propre numéro WhatsApp et l\'indicatif du pays.',
+  'an.step3': 'Cochez « Envoyer un message en cas d’alarme » en haut, « Enregistrer », puis « Envoyer un test » : le message de test arrive sur votre téléphone.',
 };

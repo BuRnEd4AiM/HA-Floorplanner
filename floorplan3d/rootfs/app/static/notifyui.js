@@ -89,9 +89,9 @@ export function initNotifyUi(ctx) {
     out.push(field('anVia', 'an.via', via));
     const wa = el('div', 'anWa'), phone = el('input'); phone.type = 'tel'; phone.placeholder = '+49 170 1234567'; phone.value = cfg.phone || ''; phone.autocomplete = 'off';
     const key = el('input'); key.type = 'password'; key.autocomplete = 'off'; key.placeholder = cfg.hasKey ? t('an.keySaved') : '123456';
-    const how = el('p', 'sub', `${t('an.keyHelp')} `), a = el('a', '', 'callmebot.com'); a.href = CALLMEBOT; a.target = '_blank'; a.rel = 'noopener';
-    how.append(a);
-    wa.append(field('anPhone', 'an.phone', phone), field('anKey', 'an.key', key), how);
+    const steps = el('ol', 'anSteps'), a = el('a', '', 'callmebot.com'); a.href = CALLMEBOT; a.target = '_blank'; a.rel = 'noopener';
+    ['an.step1', 'an.step2', 'an.step3'].forEach((k, i) => { const li = el('li', '', `${t(k)} `); if (!i) li.append(a); steps.append(li); });   // how to get the key (#454)
+    wa.append(el('div', 'sub', t('an.stepsTitle')), steps, field('anPhone', 'an.phone', phone), field('anKey', 'an.key', key));
     const ha = el('div', 'anHa'), svc = el('input'); svc.placeholder = 'mobile_app_…'; svc.value = cfg.service || ''; svc.setAttribute('list', 'anServices');
     const dl = el('datalist'); dl.id = 'anServices'; services.forEach((s) => dl.append(new Option(s, s)));
     ha.append(field('anService', 'an.service', svc), dl, el('p', 'sub', services.length ? t('an.serviceHint') : t('an.serviceNone')));

@@ -30,7 +30,7 @@ export default {
   'bk.tip': 'Backup, backup automatici e sicurezza (registrazione)',
   'bk.title': 'Backup e sicurezza',
   'sv.title': 'Vista iniziale',
-  'sv.help': 'La pagina si apre con questa vista e il tablet a parete ci ritorna. Imposta prima la vista (piano o casa intera, stanza, angolo), poi «Usa la vista attuale». Senza vista salvata: la stanza dell\'utente o il piano terra. Per singoli utenti vedi «Utenti».',
+  'sv.help': 'La pagina si apre con questa vista e il tablet a parete ci ritorna. Imposta prima la vista (piano o casa intera, stanza, angolo), poi «Usa la vista attuale». Senza vista salvata: la stanza dell\'utente o il piano terra. Per singoli utenti vedi «Utenti e tablet» più in basso.',
   'sv.take': '📌 Usa la vista attuale',
   'sv.auto': 'Automatica',
   'sv.saved': 'Salvata: {where}',
@@ -771,8 +771,7 @@ export default {
   'users.saveTip': 'Scrive ora utenti e tablet nel file users.json della cartella di Home Assistant (lo crea se non esiste ancora)',
   'users.saveDone': 'File salvato: {n} utenti in users.json.',
   'users.syncMissing': 'Non c\'è ancora nessun file nella cartella. Premi «Crea / salva file» e sarà creato.',
-  'users.btn': 'Utenti',
-  'users.tip': 'Gestire utenti e tablet (solo amministratori)',
+  
   'users.fileTitle': 'Backup in Home Assistant',
   'users.fileHelp': 'Utenti e tablet vengono salvati automaticamente nel file «users.json» della cartella di configurazione dell\'add-on di Home Assistant (cartella «addon_configs», sottocartella «…floorplan3d»). Così non vanno persi con un aggiornamento o una reinstallazione. Il file si può anche modificare a mano.',
   'users.syncBtn': '↻ Sincronizza',
@@ -951,7 +950,6 @@ export default {
   'find.title': 'Dov\'è …? Cerca dispositivo o stanza',
   'find.placeholder': 'Dov\'è …? (dispositivo o stanza)',
   'find.none': 'Nessun risultato.',
-  
   'set.alerts': 'Mostra avvisi (fumo, gas, CO, acqua, allarme, finestra aperta con la pioggia)',
   'set.alertJump': 'Vai da solo nella stanza di un nuovo avviso',
   'set.weather': 'Entità meteo per «finestra aperta con la pioggia» (vuoto = la prima)',
@@ -987,7 +985,6 @@ export default {
   'off.missing': 'Non in Home Assistant',
   'off.since': 'da {t}',
   'set.autosave': 'Salvataggio automatico dopo (s)',
-  
   'vm.normal': 'Normale', 'vm.temp': 'Temp.', 'vm.humid': 'Umidità', 'vm.co2': 'CO₂',
   'set.bgGlowStrength': 'Intensità del bagliore (0 = off)',
   'dev.presence': 'Presenza / persona', 'nav.occupied': 'Qualcuno è in questa stanza',
@@ -1205,7 +1202,6 @@ export default {
   'an.phone': 'Il tuo numero WhatsApp (con prefisso internazionale)',
   'an.key': 'Chiave di CallMeBot (apikey)',
   'an.keySaved': 'salvata – lasciare vuoto per mantenerla',
-  'an.keyHelp': 'La chiave si ottiene una volta: la pagina di CallMeBot indica a quale numero inviare un WhatsApp; la risposta contiene la chiave.',
   'an.service': 'Servizio (notify.…)',
   'an.serviceHint': 'Per esempio un’integrazione WhatsApp, Telegram o Signal o l’app Companion (mobile_app_…).',
   'an.serviceNone': 'Home Assistant non ha ancora indicato servizi di notifica; il nome si può anche digitare.',
@@ -1356,4 +1352,8 @@ export default {
   'sg.alarm.notifyOff': 'Il messaggio sul telefono in caso di allarme lo imposta un utente che può modificare.', 'sg.tablet': 'Tablet a parete',
   'sg.tablet.sub': 'Vista iniziale, salvaschermo, oscurare di notte', 'sg.tablet.help': 'Per uno schermo sempre acceso. Vale nella vista dal vivo.',
   'sg.colors': 'Colori per temperatura, umidità, CO₂', 'sg.colors.sub': 'Da quale valore una stanza prende quale colore',
+  'sg.users': 'Utenti e tablet', 'sg.users.sub': 'Chi vede quale stanza e vista, blocchi, backup', 'an.stepsTitle': 'Come configurare WhatsApp:',
+  'an.step1': 'Salva il numero WhatsApp di CallMeBot nei contatti e inviagli il messaggio «I allow callmebot to send me messages». Il numero è qui:',
+  'an.step2': 'CallMeBot risponde presto con la tua chiave (apikey). Inseriscila qui sotto, con il tuo numero WhatsApp e il prefisso internazionale.',
+  'an.step3': 'Spunta in alto «Invia un messaggio in caso di allarme», «Salva», poi «Invia un test»: il messaggio di prova arriva sul telefono.',
 };

@@ -56,7 +56,6 @@
       <span id="status"></span>
       <button id="versionPill" class="pill ver-wait" type="button" hidden></button>
       <button id="backupBtn" class="admin-only" data-i18n="bk.btn" data-i18n-title="bk.tip"></button>
-      <button id="usersBtn" class="admin-only" data-i18n="users.btn" data-i18n-title="users.tip"></button>
       <button id="undoBtn" class="icon edit-only" type="button" disabled data-i18n-title="tip.undo" aria-label="Undo">↶</button>
       <button id="redoBtn" class="icon edit-only" type="button" disabled data-i18n-title="tip.redo" aria-label="Redo">↷</button>
       <button id="saveBtn" class="primary edit-only" data-i18n="save"></button>
@@ -399,20 +398,6 @@
   <div id="energyBody"></div>
 </dialog>
 
-<dialog id="usersDialog">
-  <form method="dialog" novalidate>
-    <div class="dlgHead"><h2 data-i18n="set.section.tablets"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
-    <p class="hint" data-i18n="set.tabletHelp"></p>
-    <datalist id="haUsers"></datalist>
-    <div id="tabletRows"></div>
-    <div class="stopTools"><button type="button" id="addTablet" data-i18n="set.addTablet"></button></div>
-
-    <h3 data-i18n="users.fileTitle"></h3>
-    <p class="hint" data-i18n="users.fileHelp"></p>
-    <div class="stopTools"><button type="button" id="usersSave" data-i18n="users.saveBtn" data-i18n-title="users.saveTip"></button> <button type="button" id="usersSync" data-i18n="users.syncBtn" data-i18n-title="users.syncTip"></button></div>
-    <p class="sub" id="usersFileStatus"></p>
-  </form>
-</dialog>
 
 <dialog id="settingsDialog">
   <form method="dialog" novalidate>
@@ -549,6 +534,20 @@
           <select id="setNightDim"><option value="off" data-i18n="set.nightDim.off"></option><option value="sun" data-i18n="set.nightDim.sun"></option><option value="time" data-i18n="set.nightDim.time"></option></select></div>
         <div class="row"><label for="setNightFrom" data-i18n="set.nightFrom"></label><input id="setNightFrom" type="time"></div>
         <div class="row"><label for="setNightTo" data-i18n="set.nightTo"></label><input id="setNightTo" type="time"></div>
+      </div>
+    </details>
+
+    <details class="setGroup admin-only" data-group="users">
+      <summary><span class="sgIcon">👥</span><span class="sgText"><b data-i18n="sg.users"></b><small data-i18n="sg.users.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="set.tabletHelp"></p>
+        <datalist id="haUsers"></datalist>
+        <div id="tabletRows"></div>
+        <div class="stopTools"><button type="button" id="addTablet" data-i18n="set.addTablet"></button></div>
+        <h4 data-i18n="users.fileTitle"></h4>
+        <p class="hint" data-i18n="users.fileHelp"></p>
+        <div class="stopTools"><button type="button" id="usersSave" data-i18n="users.saveBtn" data-i18n-title="users.saveTip"></button> <button type="button" id="usersSync" data-i18n="users.syncBtn" data-i18n-title="users.syncTip"></button></div>
+        <p class="sub" id="usersFileStatus"></p>
       </div>
     </details>
 

@@ -1,7 +1,7 @@
 /* Settings: the form of the settings dialog (which field holds which setting, lengths shown in m or ft), loading them from the add-on (with
- * retries while it restarts), saving every change (the ETag guards against overwriting a change made on another screen), and the users dialog
- * (tablet assignments, mirrored to a file). Applying the settings to the 3D view stays in app.js. Form reading and the rules between settings
- * are pure functions (tested). */
+ * retries while it restarts), saving every change (the ETag guards against overwriting a change made on another screen), and its group
+ * "Users & tablets" (tablet assignments, mirrored to a file; it was a dialog of its own until #454). Applying the settings to the 3D view
+ * stays in app.js. Form reading and the rules between settings are pure functions (tested). */
 import { startPreset, forSaving, keepSession } from './viewprefs.js';
 
 /** setting -> form field */
@@ -59,7 +59,7 @@ export function oneAtATime(fn) {
  *  committed(prev) (apply the new settings to the house and the view), alert(txt), reload(), facadeUi (finishui.js: the facade, #448) */
 export function initSettings(ctx) {
   const { $, t, ui } = ctx;
-  const dlg = $('#settingsDialog'), usersDlg = $('#usersDialog');
+  const dlg = $('#settingsDialog'), usersGroup = dlg.querySelector('details[data-group=users]');
   let loaded = false, etag = null;   // never save settings that were not loaded from the server first (would wipe e.g. the tablet assignments)
   let preset = null;                 // this user's own start values for the look (#250, viewprefs.js): never saved as everybody's settings
   /** settings from the server laid over the current ones; the preset fields stay as this browser has them */
@@ -137,9 +137,9 @@ export function initSettings(ctx) {
     try { if (e.target.value === 'auto') localStorage.removeItem(ctx.perfKey); else localStorage.setItem(ctx.perfKey, e.target.value); } catch { /* no storage */ }
     ctx.reload();
   });
-  $('#settingsBtn').addEventListener('click', () => { fill(); dlg.showModal(); });
+  $('#settingsBtn').addEventListener('click', () => { fill(); dlg.showModal(); if (usersGroup?.open) openUsers(); });
 
-  /* ---- users dialog: tablets per user, mirrored to users.json ---- */
+  /* ---- group "Users & tablets" (admins only): tablets per user, mirrored to users.json ---- */
   async function refreshUsersFile(note = '') {
     const el = $('#usersFileStatus');
     try {
@@ -171,17 +171,16 @@ export function initSettings(ctx) {
       await refreshUsersFile(t('users.saveDone', { n: tabletUsers(ctx.get()) }));
     } catch (e) { await refreshUsersFile(t('users.syncFail', { msg: String(e.message || e) })); }
   }
-  $('#usersBtn').addEventListener('click', async () => {
-    if (!loaded) await load();
-    fill();                                  // the form behind the dialogs must hold the real settings before the first save reads it back (else the defaults, e.g. the hologram theme, win)
-    usersDlg.showModal(); ui.loadHaUsers(); refreshUsersFile();
-    ui.loadRoomGroups().then((ok) => { if (usersDlg.open && ok) ui.renderTablets(); });   // all houses, grouped; the first paint already shows the open house
-  });
+  /** the group was opened (or the settings with it open): the users of Home Assistant, whether the file matches, the rooms of all houses */
+  async function openUsers() {
+    if (!loaded) await load();               // the form must hold the real settings before the first save reads it back (else the defaults, e.g. the hologram theme, win)
+    ui.loadHaUsers(); refreshUsersFile();
+    ui.loadRoomGroups().then((ok) => { if (dlg.open && ok) ui.renderTablets(); });   // all houses, grouped; the first paint already shows the open house
+  }
+  usersGroup?.addEventListener('toggle', () => { if (usersGroup.open && dlg.open) openUsers(); });
   $('#usersSave').addEventListener('click', saveUsersFile);
   $('#usersSync').addEventListener('click', syncUsersFile);
-  usersDlg.addEventListener('change', async () => { await commit(); refreshUsersFile(); });
-  usersDlg.addEventListener('click', (e) => { if (e.target === usersDlg) usersDlg.close(); });
-  dlg.addEventListener('change', commit);
+  dlg.addEventListener('change', async (e) => { await commit(); if (usersGroup?.contains(e.target)) refreshUsersFile(); });
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });     // a click on the dark backdrop closes it too
   /** read the stored settings again (the add-on changed them itself, e.g. a renamed weather entity): no stale copy, no false conflict */
   async function refetch() { loaded = false; return load(); }

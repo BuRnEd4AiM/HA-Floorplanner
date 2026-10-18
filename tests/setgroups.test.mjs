@@ -69,11 +69,17 @@ test('settings dialog: every field is in a group (only the search at the top is 
   ['alarmNotify', 'alarmPanels', 'tempStops', 'svTake'].forEach((id) => assert.ok(ids.get(id), id));
 });
 test('settings dialog: each group has an id, a summary with a title and a body', () => {
-  const groups = [...dlg.matchAll(/<details class="setGroup" data-group="([a-z]+)">\s*<summary>(.*?)<\/summary>\s*<div class="sgBody">/gs)];
+  const groups = [...dlg.matchAll(/<details class="setGroup[^"]*" data-group="([a-z]+)">\s*<summary>(.*?)<\/summary>\s*<div class="sgBody">/gs)];
   assert.equal(groups.length, (dlg.match(/<details/g) || []).length);
   assert.ok(groups.length >= 8);
   const ids = groups.map((g) => g[1]);
   assert.equal(new Set(ids).size, ids.length);
   groups.forEach((g) => assert.match(g[2], new RegExp(`data-i18n="sg\\.${g[1]}"`), g[1]));
   assert.equal(idsByGroup().get('alarmNotify'), 'alarm');
+});
+test('users & tablets are a group of the settings for admins only, no dialog of their own (#454)', () => {
+  const ids = idsByGroup();
+  ['tabletRows', 'addTablet', 'usersSave', 'usersSync', 'usersFileStatus', 'haUsers'].forEach((id) => assert.equal(ids.get(id), 'users', id));
+  assert.match(dlg, /<details class="setGroup admin-only" data-group="users">/);
+  assert.ok(!html.includes('id="usersDialog"') && !html.includes('id="usersBtn"'));
 });

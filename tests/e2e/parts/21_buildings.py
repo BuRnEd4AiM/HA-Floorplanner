@@ -71,7 +71,7 @@ saved = api_admin(f"api/layout?house={hid}")
 check("buildings: saved with the plan", len(saved.get("buildings", [])) == 2 and saved["floors"][0]["rooms"][1].get("building") == gh_id)
 
 # --- the users dialog offers the buildings for a user row
-pgB.click("#usersBtn"); pgB.wait_for_timeout(1200); pgB.click("#addTablet"); pgB.wait_for_timeout(200)
+open_users(pgB); pgB.wait_for_timeout(1200); pgB.click("#addTablet"); pgB.wait_for_timeout(200)
 pgB.locator("#tabletRows .tablet .presetBtn").last.click(); pgB.wait_for_timeout(200)
 opts = pgB.locator("#tabletRows .tablet [data-role=building]").last.locator("option").all_inner_texts()
 check("buildings: the users dialog offers the buildings for a user / tablet", "Gartenhaus" in opts and "Haupthaus" in opts, opts)

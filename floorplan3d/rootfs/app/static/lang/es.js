@@ -30,7 +30,7 @@ export default {
   'bk.tip': 'Copia de seguridad, copias automáticas y seguridad (grabación)',
   'bk.title': 'Copia de seguridad y seguridad',
   'sv.title': 'Vista inicial',
-  'sv.help': 'La página se abre con esta vista y la tableta de pared vuelve a ella. Ajusta primero la vista (planta o casa entera, habitación, ángulo) y luego «Usar la vista actual». Sin vista guardada: la habitación del usuario o la planta baja. Para usuarios concretos, ver «Usuarios».',
+  'sv.help': 'La página se abre con esta vista y la tableta de pared vuelve a ella. Ajusta primero la vista (planta o casa entera, habitación, ángulo) y luego «Usar la vista actual». Sin vista guardada: la habitación del usuario o la planta baja. Para usuarios concretos, ver «Usuarios y tabletas» más abajo.',
   'sv.take': '📌 Usar la vista actual',
   'sv.auto': 'Automática',
   'sv.saved': 'Guardada: {where}',
@@ -771,8 +771,7 @@ export default {
   'users.saveTip': 'Escribe ahora los usuarios y tablets en el archivo users.json de la carpeta de Home Assistant (lo crea si aún no existe)',
   'users.saveDone': 'Archivo guardado: {n} usuarios en users.json.',
   'users.syncMissing': 'Aún no hay archivo en la carpeta. Pulsa «Crear / guardar archivo» y se creará.',
-  'users.btn': 'Usuarios',
-  'users.tip': 'Gestionar usuarios y tablets (solo administradores)',
+  
   'users.fileTitle': 'Copia en Home Assistant',
   'users.fileHelp': 'Los usuarios y tablets se guardan automáticamente en el archivo «users.json» de la carpeta de configuración del add-on de Home Assistant (carpeta «addon_configs», subcarpeta «…floorplan3d»). Así no se pierden con una actualización o reinstalación. El archivo también se puede editar a mano.',
   'users.syncBtn': '↻ Sincronizar',
@@ -951,7 +950,6 @@ export default {
   'find.title': '¿Dónde está …? Buscar dispositivo o estancia',
   'find.placeholder': '¿Dónde está …? (dispositivo o estancia)',
   'find.none': 'No se encontró nada.',
-  
   'set.alerts': 'Mostrar avisos (humo, gas, CO, agua, alarma, ventana abierta con lluvia)',
   'set.alertJump': 'Ir sola a la estancia de un aviso nuevo',
   'set.weather': 'Entidad del tiempo para «ventana abierta con lluvia» (vacío = la primera)',
@@ -987,7 +985,6 @@ export default {
   'off.missing': 'No está en Home Assistant',
   'off.since': 'desde {t}',
   'set.autosave': 'Autoguardado tras (s)',
-  
   'vm.normal': 'Normal', 'vm.temp': 'Temp.', 'vm.humid': 'Humedad', 'vm.co2': 'CO₂',
   'set.bgGlowStrength': 'Intensidad del brillo (0 = off)',
   'dev.presence': 'Presencia / persona', 'nav.occupied': 'Hay alguien en esta habitación',
@@ -1205,7 +1202,6 @@ export default {
   'an.phone': 'Tu número de WhatsApp (con prefijo del país)',
   'an.key': 'Clave de CallMeBot (apikey)',
   'an.keySaved': 'guardada – dejar vacío para conservarla',
-  'an.keyHelp': 'La clave se obtiene una vez: la página de CallMeBot indica a qué número enviar un WhatsApp; la respuesta trae la clave.',
   'an.service': 'Servicio (notify.…)',
   'an.serviceHint': 'Por ejemplo una integración de WhatsApp, Telegram o Signal o la app Companion (mobile_app_…).',
   'an.serviceNone': 'Home Assistant aún no ha indicado ningún servicio de notificación; el nombre también se puede escribir.',
@@ -1354,4 +1350,8 @@ export default {
   'sg.alarm.notifyOff': 'El mensaje al móvil en caso de alarma lo configura un usuario que puede editar.', 'sg.tablet': 'Tableta de pared',
   'sg.tablet.sub': 'Vista inicial, salvapantallas, oscurecer de noche', 'sg.tablet.help': 'Para una pantalla siempre encendida. Se aplica en la vista en vivo.',
   'sg.colors': 'Colores para temperatura, humedad, CO₂', 'sg.colors.sub': 'A partir de qué valor una habitación toma qué color',
+  'sg.users': 'Usuarios y tabletas', 'sg.users.sub': 'Quién ve qué habitación y vista, bloqueos, copia', 'an.stepsTitle': 'Cómo configurar WhatsApp:',
+  'an.step1': 'Guarda el número de WhatsApp de CallMeBot en tus contactos y envíale el mensaje «I allow callmebot to send me messages». El número está aquí:',
+  'an.step2': 'CallMeBot responde enseguida con tu clave (apikey). Escríbela abajo, junto con tu propio número de WhatsApp con el prefijo del país.',
+  'an.step3': 'Marca arriba «Enviar un mensaje en caso de alarma», «Guardar» y luego «Enviar una prueba»: el mensaje de prueba llega a tu móvil.',
 };
