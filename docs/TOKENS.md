@@ -25,7 +25,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-10-18 | [01AYWz6w…](https://claude.ai/code/session_01AYWz6wYzsThMe2d8wbBU2F) | claude/ecstatic-mendel-q1v3yr | 3,4 Mio. | 43 Tsd. | gezählt |
+| 2026-10-18 | [01AYWz6w…](https://claude.ai/code/session_01AYWz6wYzsThMe2d8wbBU2F) | claude/ecstatic-mendel-q1v3yr | 4,1 Mio. | 46 Tsd. | gezählt |
 | 2026-10-17 | [018qPqU6…](https://claude.ai/code/session_018qPqU6foiwRbhCmgn9QDNk) | HA-Floorplanner Aufgabe #425 | 146,5 Mio. | 246 Tsd. | Sitzungsliste |
 | 2026-10-15 | [01NzeWUF…](https://claude.ai/code/session_01NzeWUFra9kp2ArSG2xxDmN) | 3D-Vorlagen im IKEA-Stil | 47,4 Mio. | 240 Tsd. | Sitzungsliste |
 | 2026-10-15 | [01KaG1PZ…](https://claude.ai/code/session_01KaG1PZ8tWEijqWftdsLSG5) | Kamera-Stream-Anzeige | 40,7 Mio. | 164 Tsd. | Sitzungsliste |
