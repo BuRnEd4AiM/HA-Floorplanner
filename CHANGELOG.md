@@ -4,6 +4,19 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-10-18
+### Added
+- **Walls with a finish** (#448): in the properties of a room, *Wände* gives its walls a finish on the room's side: smooth paint, woodchip (Raufaser), textured plaster, lime plaster, exposed concrete, wallpapers (stripes, damask, dots, harlequin, leaves, art deco fans, zigzag, plaid, linen), tiles (20 × 20, 10 × 10, metro, metro in herringbone, large 60 × 30, hexagons, glass mosaic, marble, zellige), brick (red, white painted, anthracite, yellow), natural stone, wood panelling and acoustic wood slats. The rooms next door keep their own walls; doors and windows stay open.
+- **Something else below** (#448): *Unten anders* puts e.g. tiles up to 1.20 m (any height) and the wall finish above, as in a bathroom or kitchen. *Wände für alle Räume der Etage übernehmen* gives every room of the floor the same walls in one step.
+- **Accent wall** (#448): a wall's properties have *Oberfläche dieser Wand*: each side (named by its room, or *Außen*) can have a finish of its own over the whole height.
+- **Facade** (#448): ⚙ → *Fassade*: textured plaster, brick (red, white, anthracite, yellow), natural stone, wood cladding (larch, weathered), slate, exposed concrete or facade panels on the outside of the walls, with its own colour (*Farbe der Fassade*); *Glatt (wie bisher)* keeps the walls as they were.
+- **Many more floors** (#448): besides the parquets, tiles and concrete: wide planks, herringbone, chevron, basket weave, laminate, decking, cork, large tiles 120 × 60, wood-look tiles, checkerboard, hexagons, mosaic, cement tiles, terrazzo, marble, slate, natural stone slabs, flagstones, paving, cobblestones, carpet and carpet tiles, under the headings wood, tiles, stone and other.
+- **Every pattern can be changed** (#448): its colour (a row of colours to tap, or any colour), the second colour (grout, motif, gaps, veins), the size of one tile, plank or motif in cm, and the angle it is laid at (0°, 45°, 90°, 135° or any other); *↺ Wie vorgegeben* takes it back. The patterns are drawn by the browser (no picture files) with a relief that catches the light, repeat without a seam and start at the corner of the room (floors) or at the floor (walls).
+- Import / export and the JSON schema know the new fields `floorLook`, `wallLook`, `wallBelow` (rooms) and `faces` (walls); the settings `facade` and `facadeColor`.
+### Changed
+- The demo shows the new finishes: herringbone and woodchip in the living room, metro tiles in the kitchen, tiles up to 1.20 m in the bathroom, carpet and leaves wallpaper in the bedroom, wallpapers upstairs, white brick in the studio, plaster outside.
+- One colour without pictures in the "fast" performance mode (walls and floors in the colour they have from afar), none in the hologram design.
+
 ## [3.99.6] - 2026-10-18
 ### Fixed
 - **Swiping the room tiles on the phone runs smoothly** (#441): since 3.99.5 the page moved the strip at every move of the finger, and on the iPhone that jerked and got stuck, a slanted swipe stopped it. Now the browser scrolls the strip itself again (smooth, it glides on by itself), only sideways. The strip takes touches as soon as it has more tiles than fit, which is what the iPhone needed to scroll it at all (#438). The page moves the strip only as a stand-in, when the browser does not take over after a few millimetres.

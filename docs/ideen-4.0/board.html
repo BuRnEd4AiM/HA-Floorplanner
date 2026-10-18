@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#1d2026;font:13px sans-serif;color:#eee}
+#grid{display:grid;grid-template-columns:repeat(var(--cols),1fr);gap:6px;padding:6px}
+.c{position:relative}.c span{position:absolute;left:5px;bottom:5px;background:rgba(0,0,0,.7);padding:3px 7px;border-radius:5px;font-size:15px}
+canvas{display:block;width:100%}</style></head><body><h2 id="h" style="margin:10px 10px 2px;font-weight:600"></h2><div id="grid"></div>
+<script type="module">
+import * as THREE from '/static/vendor/three.module.min.js';
+import { PATTERNS, resolve, planeUV } from '/static/finishes.js';
+import { finishMaterial } from '/static/finishtex.js';
+import { t, setLanguage } from '/static/i18n.js';
+import { patternName } from '/static/finishui.js';
+setLanguage('de');
+const q = new URLSearchParams(location.search), only = q.get('keys')?.split(','), where = q.get('where'), M = +(q.get('m') || 2.4), wall = q.get('wall') === '1';
+const keys = only || Object.keys(PATTERNS).filter((k) => !where || PATTERNS[k].on.includes(where));
+const cols = +(q.get('cols') || 6); document.documentElement.style.setProperty('--cols', cols);
+const W = 300, renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); renderer.setSize(W, W);
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#2a2d33');
+scene.add(new THREE.HemisphereLight(0xffffff, 0x334455, 0.9));
+const sun = new THREE.DirectionalLight(0xffffff, 1.1); sun.position.set(-3, 6, 4); scene.add(sun);
+const cam = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+if (wall) { cam.position.set(M * 0.15, M * 0.5, M * 1.35); cam.lookAt(0, M * 0.45, 0); } else { cam.position.set(0, M * 1.15, M * 0.75); cam.lookAt(0, 0, 0); }
+for (const k of keys) {
+  const fin = resolve({ pattern: k }), geo = new THREE.PlaneGeometry(M * 1.6, M * 1.6, 1, 1), pos = geo.attributes.position, uv = geo.attributes.uv;
+  for (let i = 0; i < pos.count; i++) { const [u, v] = planeUV(fin, pos.getX(i) + M, pos.getY(i) + M * 0.8); uv.setXY(i, u, v); }
+  const m = new THREE.Mesh(geo, finishMaterial(fin));
+  if (wall) m.position.set(0, M * 0.8, 0); else m.rotation.x = -Math.PI / 2;
+  scene.add(m); renderer.render(scene, cam); scene.remove(m);
+  const c = document.createElement('div'); c.className = 'c'; const img = document.createElement('canvas'); img.width = img.height = W;
+  img.getContext('2d').drawImage(renderer.domElement, 0, 0); c.append(img); const s = document.createElement('span'); s.textContent = t(patternName(k)); c.append(s);
+  document.getElementById('grid').append(c);
+}
+document.getElementById('h').textContent = q.get('title') || '';
+window.done = true;
+</script></body></html>

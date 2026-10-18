@@ -82,6 +82,21 @@
   }
  },
  "$defs": {
+  "hex": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+  "look": {
+   "type": "object",
+   "properties": {
+    "color": { "$ref": "#/$defs/hex", "description": "The main colour (tiles, wood, paint)." },
+    "color2": { "$ref": "#/$defs/hex", "description": "The second colour: grout, the motif of a wallpaper, the gaps." },
+    "size": { "type": "number", "minimum": 0.01, "maximum": 5, "description": "One element in metres: a tile, the width of a plank, a motif." },
+    "angle": { "type": "number", "description": "Degrees the pattern is turned (0, 45 diagonal, 90 across)." }
+   }
+  },
+  "sideFinish": {
+   "type": "object",
+   "required": ["pattern"],
+   "properties": { "pattern": { "enum": ["paint", "woodchip", "plaster", "limewash", "concreteWall", "wpStripes", "wpDamask", "wpDots", "wpDiamond", "wpLeaves", "wpScallop", "wpZigzag", "wpPlaid", "wpLinen", "wTiles", "wTilesSmall", "wMetro", "wMetroHerring", "wTilesLarge", "wHex", "wMosaic", "wMarble", "wZellige", "brick", "brickWhite", "brickDark", "brickYellow", "stoneWall", "woodPanel", "woodSlats", "woodCladding", "woodGrey", "shingles", "facadePanels"] }, "color": { "$ref": "#/$defs/hex" }, "color2": { "$ref": "#/$defs/hex" }, "size": { "type": "number" }, "angle": { "type": "number" } }
+  },
   "stair": {
    "type": "object",
    "description": "A stair. It belongs to the floor it starts on; with dir 'up' it climbs `floors` floors (a hole is cut into each of them), with dir 'down' it comes up from below and ends on this floor.",
@@ -435,8 +450,24 @@
         "description": "Roof terrace / open area: no roof above it, a railing along every edge without a wall. Its edges that no other room shares get no wall."
        },
        "covering": {
-        "enum": ["parquet", "parquetLight", "parquetDark", "tiles", "tilesSmall", "tilesDark", "concrete"],
-        "description": "The floor of the room: parquet (oak, light, dark), tiles (30 cm, small 15 cm, dark 60 cm) or concrete instead of one colour (`color` is then left aside). Without it the floor has its colour."
+        "enum": ["parquet", "parquetLight", "parquetDark", "plankWide", "herringbone", "chevron", "basket", "laminate", "deck", "cork", "tiles", "tilesSmall", "tilesDark", "tilesLarge", "tilesWood", "checker", "hexFloor", "mosaic", "cement", "terrazzo", "marble", "slate", "stoneSlabs", "flagstone", "paving", "cobble", "concrete", "carpet", "carpetTiles"],
+        "description": "The floor of the room: wood (parquet, wide planks, herringbone, chevron, basket weave, laminate, decking, cork), tiles (30 cm, small, anthracite 60 cm, large 120 x 60, wood look, checkerboard, hexagons, mosaic, cement tiles, terrazzo, marble), stone (slate, natural stone, flagstones, paving, cobbles), concrete or carpet instead of one colour (`color` is then left aside). Without it the floor has its colour."
+       },
+       "floorLook": {
+        "$ref": "#/$defs/look",
+        "description": "How the covering looks: its colour, second colour (grout, motif, gaps), the size of one tile or plank and the angle it is laid at. Without it the covering's own."
+       },
+       "wallLook": {
+        "type": "object",
+        "required": ["pattern"],
+        "description": "The finish of the room's walls on its side (paint, woodchip, plaster, wallpapers, tiles, brick, wood ...), with its colour, size and angle like `floorLook`. Without it the walls have the house's wall colour.",
+        "properties": { "pattern": { "enum": ["paint", "woodchip", "plaster", "limewash", "concreteWall", "wpStripes", "wpDamask", "wpDots", "wpDiamond", "wpLeaves", "wpScallop", "wpZigzag", "wpPlaid", "wpLinen", "wTiles", "wTilesSmall", "wMetro", "wMetroHerring", "wTilesLarge", "wHex", "wMosaic", "wMarble", "wZellige", "brick", "brickWhite", "brickDark", "brickYellow", "stoneWall", "woodPanel", "woodSlats"] }, "color": { "$ref": "#/$defs/hex" }, "color2": { "$ref": "#/$defs/hex" }, "size": { "type": "number" }, "angle": { "type": "number" } }
+       },
+       "wallBelow": {
+        "type": "object",
+        "required": ["pattern"],
+        "description": "The lower part of the room's walls up to `height` metres (e.g. tiles up to 1.20 m), like `wallLook`.",
+        "properties": { "pattern": { "enum": ["paint", "woodchip", "plaster", "limewash", "concreteWall", "wpStripes", "wpDamask", "wpDots", "wpDiamond", "wpLeaves", "wpScallop", "wpZigzag", "wpPlaid", "wpLinen", "wTiles", "wTilesSmall", "wMetro", "wMetroHerring", "wTilesLarge", "wHex", "wMosaic", "wMarble", "wZellige", "brick", "brickWhite", "brickDark", "brickYellow", "stoneWall", "woodPanel", "woodSlats"] }, "color": { "$ref": "#/$defs/hex" }, "color2": { "$ref": "#/$defs/hex" }, "size": { "type": "number" }, "angle": { "type": "number" }, "height": { "type": "number", "minimum": 0.05, "maximum": 3, "default": 1.2 } }
        }
       }
      }
@@ -468,6 +499,11 @@
         "items": {
          "$ref": "#/$defs/opening"
         }
+       },
+       "faces": {
+        "type": "object",
+        "description": "An accent wall: a finish of its own over the whole height on the left and / or right side (walking from a to b in the plan, x to the right, z down), instead of the room's finish or the facade.",
+        "properties": { "left": { "$ref": "#/$defs/sideFinish" }, "right": { "$ref": "#/$defs/sideFinish" } }
        }
       }
      }

@@ -14,7 +14,7 @@ import { wantsLightColor } from './lamplight.js';
 import { finishChoices, finishOf, variantChoices, variantOf, variantLabel, variantHint } from './scandi.js';
 import { zoneKeys, setZone, fitZones } from './ledzones.js';
 import { TV_SIZES, ARM, armPose } from './tvmount.js';
-import { COVERING_KEYS, cleanCovering } from './floorcover.js';
+import { initFinishUi } from './finishui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -36,6 +36,10 @@ export function stretchValue(n) {
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
+  const finishUi = initFinishUi({   // floors, walls and accent walls (#448)
+    t, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), floor: () => ctx.floor(), imperial: () => ctx.imperial(),
+    setStatus: (x) => ctx.setStatus(x),
+  });
   const kitchenProps = initKitchenUi({
     t, changed: () => ctx.changed(), snapshot: () => ctx.snapshot(), renderProps: () => render(),
     field, lenInput, toDisp: (m) => ctx.toDisp(m), imperial: () => ctx.imperial(),
@@ -111,6 +115,7 @@ export function initProps(ctx) {
     body.append(field(t('prop.thickness'), lenInput(() => it.thickness, (v) => (it.thickness = Math.max(0.05, v)))));
     body.append(field(t('prop.height'), lenInput(() => it.height, (v) => (it.height = Math.max(0.3, v)), { min: 0.3, step: 0.1 })));
     wallSplitBox(body, it);
+    finishUi.faceFields(body, it);                             // one side of this wall otherwise: an accent wall (#448)
   }
 
   /* split the wall at an exact distance from its start, or into equal parts (wallsplit.js); the first piece stays selected */
@@ -140,15 +145,8 @@ export function initProps(ctx) {
   function roomProps(body, it) {
     const areas = ctx.areas();
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
-    {                                                          // the floor (#427): one colour, or parquet, tiles, concrete
-      const cs = document.createElement('select'); cs.id = 'roomCovering'; cs.title = t('cover.hint');
-      cs.add(new Option(t('cover.none'), ''));
-      COVERING_KEYS.forEach((k) => cs.add(new Option(t(`cover.${k}`), k)));
-      cs.value = cleanCovering(it.covering) || '';
-      cs.addEventListener('change', () => { ctx.snapshot(); if (cs.value) it.covering = cs.value; else delete it.covering; ctx.changed(); render(); });
-      body.append(field(t('cover.label'), cs));
-    }
-    if (!cleanCovering(it.covering)) body.append(field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v), { id: 'roomColor' })));   // a covering brings its own colours
+    // the floor (#427, #448): one colour, or parquet, herringbone, tiles, stone, carpet ... with its colour, size and angle (the walls below)
+    finishUi.floorFields(body, it, () => field(t('prop.color'), inp('color', it.color || '#8a7f70', (v) => (it.color = v), { id: 'roomColor' })));
     {                                                          // roof terrace / open area: no roof above it, railing on the edges without a wall
       const tc = document.createElement('input'); tc.type = 'checkbox'; tc.checked = !!it.terrace; tc.id = 'roomTerrace';
       tc.addEventListener('change', () => {
@@ -165,6 +163,7 @@ export function initProps(ctx) {
     asel.value = it.area || '';
     asel.addEventListener('change', () => { ctx.snapshot(); it.area = asel.value || undefined; if (!it.name || areas.some((x) => x.name === it.name)) { const ar = areas.find((x) => x.id === asel.value); if (ar) it.name = ar.name; } ctx.changed(); render(); });
     body.append(field(t('prop.area'), asel));
+    finishUi.wallFields(body, it);
     ctx.setRoomCtx(it.id);
     roomEntsBox(body);
   }

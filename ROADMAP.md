@@ -26,8 +26,9 @@ Not planned: sun light and shadows through the windows by the position of the su
 - ✅ Version and checksum pill (add-on files, browser, GitHub)
 - ✅ Add-on store listing (icon, logo, translations), welcome card on first start
 
-## Done in 3.59 – 3.98
+## Done in 3.59 – 4.0
 
+- ✅ Walls with a finish (woodchip, plaster, wallpapers, tiles, brick, wood …), tiles up to a height, accent walls, the facade outside, many more floors, every pattern with its colour, size and angle (4.0.0) ([#448](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/448))
 - ✅ Phones held upright: values folded into one 📊 button, small floor cards beside the house, phones only show the house (3.59.0 – 3.63.0) ([#288](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/288), [#290](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/290), [#292](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/292), [#294](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/294), [#299](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/299))
 - ✅ Performance display: FPS and more in the View menu (3.60.0)
 - ✅ Lock things per user / tablet (switching, details, cameras, power …) (3.61.0)

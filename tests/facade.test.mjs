@@ -19,3 +19,12 @@ test('anthracite: dark frames and lighter walls', () => {
   assert.ok(lum(a.frame) < lum(F.FACADES.white.frame) / 3, 'the frames are dark');
   assert.ok(lum(a.wall) > lum(F.FACADES.white.wall), 'the walls are lighter');
 });
+
+test('the facade (#448): none as always, else a pattern for the outside with its own colour or the one chosen', () => {
+  assert.equal(F.facadeFinish({}), null);
+  assert.equal(F.facadeFinish({ facade: '' }), null);
+  assert.equal(F.facadeFinish({ facade: 'woodchip' }), null, 'woodchip is for rooms');
+  assert.deepEqual(F.facadeFinish({ facade: 'brick', facadeColor: '' }), { pattern: 'brick' });
+  assert.deepEqual(F.facadeFinish({ facade: 'plaster', facadeColor: '#F0E0D0' }), { pattern: 'plaster', color: '#f0e0d0' });
+  assert.equal(F.facadeFinish(null), null);
+});

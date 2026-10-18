@@ -18,8 +18,10 @@ import { isHeater } from './heating.js';
 import { houseFootprint } from './earth.js';
 import { slabDepth, wallUpTo, wallUnder, inRoom, shutterLabelIn } from './housefloors.js';
 import { patternOf, floorHex } from './floorcover.js';
-import { facadeOf } from './facade.js';
-import { coveringTexture } from './floortex.js';
+import { facadeOf, facadeFinish } from './facade.js';
+import { floorUVs, floorLook } from './floortex.js';
+import { wallSkins, hasSkins } from './finishes.js';
+import { dressWall } from './wallskin.js';
 
 export const GROUND_COVER = new Set(['lawn', 'terrace', 'path']);   // lie flat on the ground: never over the floors of the house
 export const OUTDOOR = new Set(['picture', 'tree', 'bush', 'pool', 'lawn', 'terrace', 'path', 'fence']);   // keep their natural colours in the hologram theme
@@ -85,11 +87,12 @@ export function initFloorBuild(ctx) {
       const shape = floorShapes(r.points, o.holes);               // the room minus stairwell openings (also where they only overlap it partly)
       const geo = new THREE.ShapeGeometry(shape);
       geo.rotateX(-Math.PI / 2);
-      const cover = patternOf(r, { holo, low: ctx.fast() });     // parquet, tiles, concrete (#427): its pattern, else one colour
+      const cover = patternOf(r, { holo, low: ctx.fast() });     // parquet, tiles, stone ... (#427, #448): its pattern, else one colour
+      if (cover) floorUVs(geo, cover, r.points);                 // turned and scaled like the finish says, from the room's corner
       const m = new THREE.Mesh(geo, holo
         ? (ghost ? ctx.roomLightMat('floor', 0.15 + 0.5 * ctx.belowVis(), true)
                  : ctx.roomLightMat('floor', ctx.floorIdx() > 0 ? 1 - 0.65 * ctx.belowVis() : 1))
-        : ctx.mat(cover ? '#ffffff' : floorHex(r), ghost, { side: THREE.DoubleSide, ...(cover ? { map: coveringTexture(cover), roughness: 0.75 } : {}) }));
+        : ctx.mat(cover ? '#ffffff' : floorHex(r), ghost, { side: THREE.DoubleSide, ...(cover ? floorLook(cover) : {}) }));
       if (cover) m.material.userData.cover = cover;
       m.position.y = 0.01;
       m.receiveShadow = true;
@@ -206,6 +209,12 @@ export function initFloorBuild(ctx) {
     const dormerOut = new Map();                                  // roller shutters (#331) hang outside: a dormer window's dormer knows where that is
     (f.dormerWalls || []).forEach((d) => d.openings.forEach((op) => dormerOut.set(op.id, d.outside)));
     const sideOf = (w) => (op) => dormerOut.get(op.id) ?? shutterSide(w, op, f.rooms);
+    const facade = facadeFinish(ctx.settings()), skins = !holo && !ghost && hasSkins(f, facade);   // finishes on the walls (#448)
+    let outline = null;                                          // the outline of the floor: a side outside it gets the facade
+    const dressOf = (w) => (skins ? (grp, pieces, len) => {
+      if (facade && !outline) outline = houseFootprint([f], 0);
+      dressWall(grp, pieces, wallSkins(w, f.rooms, { facade, outline }), { t: w.thickness || 0.2, len, fast: ctx.fast() });
+    } : null);
     f.walls.forEach((w1) => {
       const w0 = hosted.has(w1.id) ? { ...w1, openings: [...(w1.openings || []), ...hosted.get(w1.id)] } : w1;
       let w = w0;
@@ -215,7 +224,7 @@ export function initFloorBuild(ctx) {
       const wallMat = holo
         ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: ghost ? 0.04 + 0.2 * ctx.belowVis() : ctx.settings().wallOpacity, depthWrite: false, side: THREE.DoubleSide })
         : ctx.mat(look.wall, ghost);
-      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge, shutterSide: sideOf(w), windowFrame: look.frame });
+      const wg = buildWall(w, { material: wallMat, ghost, low, cut: half ? 0.5 : 0, makeMat: ctx.mat, holo, edgeMaterial: o.edge, shutterSide: sideOf(w), windowFrame: look.frame, dress: dressOf(w) });
       if (half) {                                                // what sticks out above the cut (door leaves, window frames) is clipped off
         const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), ctx.elev(i) + (w.height || 2.6) * 0.5 + 0.001);
         wg.traverse((x) => { if (x.material) [].concat(x.material).forEach((m) => { m.clippingPlanes = [plane]; }); });
