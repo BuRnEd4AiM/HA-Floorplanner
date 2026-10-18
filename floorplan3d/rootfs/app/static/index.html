@@ -416,96 +416,153 @@
 
 <dialog id="settingsDialog">
   <form method="dialog" novalidate>
-    <div class="dlgHead"><h2 data-i18n="settings"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <div class="dlgHead"><h2 data-i18n="settings"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button>
+      <div class="sgBar"><input id="setSearch" type="search" autocomplete="off" data-i18n-placeholder="sg.search" data-i18n-title="sg.searchTip"><button type="button" id="sgAll"></button></div></div>
+    <p id="sgNone" class="hint" data-i18n="sg.none" hidden></p>
 
-    <h3 data-i18n="set.section.general"></h3>
-    <div class="row"><label for="setLanguage" data-i18n="set.language"></label>
-      <select id="setLanguage"><option value="auto">Auto</option><option value="de">Deutsch</option><option value="en">English</option><option value="fr">Français</option><option value="es">Español</option><option value="it">Italiano</option><option value="nl">Nederlands</option><option value="pl">Polski</option></select></div>
-    <div class="row"><label for="setTheme" data-i18n="set.theme"></label>
-      <select id="setTheme"><option value="holo" data-i18n="set.theme.holo"></option><option value="dark" data-i18n="set.theme.dark"></option><option value="light" data-i18n="set.theme.light"></option></select></div>
-    <div class="row"><label for="setUnits" data-i18n="set.units"></label>
-      <select id="setUnits"><option value="metric" data-i18n="set.units.metric"></option><option value="imperial" data-i18n="set.units.imperial"></option></select></div>
+    <details class="setGroup" data-group="general">
+      <summary><span class="sgIcon">⚙️</span><span class="sgText"><b data-i18n="sg.general"></b><small data-i18n="sg.general.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setLanguage" data-i18n="set.language"></label>
+          <select id="setLanguage"><option value="auto">Auto</option><option value="de">Deutsch</option><option value="en">English</option><option value="fr">Français</option><option value="es">Español</option><option value="it">Italiano</option><option value="nl">Nederlands</option><option value="pl">Polski</option></select></div>
+        <div class="row"><label for="setTheme" data-i18n="set.theme"></label>
+          <select id="setTheme"><option value="holo" data-i18n="set.theme.holo"></option><option value="dark" data-i18n="set.theme.dark"></option><option value="light" data-i18n="set.theme.light"></option></select></div>
+        <div class="row"><label for="setUnits" data-i18n="set.units"></label>
+          <select id="setUnits"><option value="metric" data-i18n="set.units.metric"></option><option value="imperial" data-i18n="set.units.imperial"></option></select></div>
+        <div class="row check"><input id="setUpdateCheck" type="checkbox"><label for="setUpdateCheck" data-i18n="set.updateCheck"></label></div>
+      </div>
+    </details>
 
-    <h3 data-i18n="set.section.drawing"></h3>
-    <div class="row"><label for="setGrid" data-i18n="set.grid"></label>
-      <select id="setGrid"><option value="0.05">5 cm</option><option value="0.1">10 cm</option><option value="0.25">25 cm</option><option value="0.5">50 cm</option><option value="1">1 m</option></select></div>
-    <div class="row"><label for="setWallHeight" data-i18n="set.wallHeight"></label>
-      <input id="setWallHeight" type="number" step="any"></div>
-    <div class="row"><label for="setWallThickness" data-i18n="set.wallThickness"></label>
-      <input id="setWallThickness" type="number" step="any"></div>
-    <div class="row"><label for="setAutosave" data-i18n="set.autosave"></label>
-      <input id="setAutosave" type="number" step="any"></div>
+    <details class="setGroup" data-group="drawing">
+      <summary><span class="sgIcon">✏️</span><span class="sgText"><b data-i18n="sg.drawing"></b><small data-i18n="sg.drawing.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setGrid" data-i18n="set.grid"></label>
+          <select id="setGrid"><option value="0.05">5 cm</option><option value="0.1">10 cm</option><option value="0.25">25 cm</option><option value="0.5">50 cm</option><option value="1">1 m</option></select></div>
+        <div class="row"><label for="setWallHeight" data-i18n="set.wallHeight"></label>
+          <input id="setWallHeight" type="number" step="any"></div>
+        <div class="row"><label for="setWallThickness" data-i18n="set.wallThickness"></label>
+          <input id="setWallThickness" type="number" step="any"></div>
+        <div class="row"><label for="setAutosave" data-i18n="set.autosave"></label>
+          <input id="setAutosave" type="number" step="any"></div>
+        <div class="row check"><input id="setWallStop" type="checkbox"><label for="setWallStop" data-i18n="set.wallStop"></label></div>
+        <div class="row check"><input id="setPlaceSelect" type="checkbox"><label for="setPlaceSelect" data-i18n="set.placeSelect"></label></div>
+      </div>
+    </details>
 
-    <h3 data-i18n="set.section.view"></h3>
-    <div class="row check"><input id="setShadows" type="checkbox"><label for="setShadows" data-i18n="set.shadows"></label></div>
-    <div class="row"><label for="setPerf" data-i18n="set.perf"></label>
-      <select id="setPerf"><option value="auto" data-i18n="set.perf.auto"></option><option value="high" data-i18n="set.perf.high"></option><option value="low" data-i18n="set.perf.low"></option></select></div>
-    <p class="sub" data-i18n="set.perfHint"></p>
-    <div class="row"><label for="setLabels" data-i18n="set.labels"></label>
-      <select id="setLabels"><option value="important" data-i18n="set.labels.important"></option><option value="all" data-i18n="set.labels.all"></option><option value="none" data-i18n="set.labels.none"></option></select></div>
-    <div class="row check"><input id="setCameraImages" type="checkbox"><label for="setCameraImages" data-i18n="set.cameraImages" data-i18n-title="set.cameraImagesHint"></label></div>
-    <div class="row check"><input id="setWallStop" type="checkbox"><label for="setWallStop" data-i18n="set.wallStop"></label></div>
-    <div class="row check"><input id="setPlaceSelect" type="checkbox"><label for="setPlaceSelect" data-i18n="set.placeSelect"></label></div>
-    <div class="row check"><input id="setUpdateCheck" type="checkbox"><label for="setUpdateCheck" data-i18n="set.updateCheck"></label></div>
-    <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
-    <div class="row check"><input id="setSeeThrough" type="checkbox"><label for="setSeeThrough" data-i18n="set.seeThrough"></label></div>
-    <div class="row"><label for="setEarth" data-i18n="set.earth"></label>
-      <select id="setEarth"><option value="solid" data-i18n="set.earth.solid"></option><option value="glass" data-i18n="set.earth.glass"></option><option value="off" data-i18n="set.earth.off"></option></select></div>
-    <div class="row"><label for="setEarthMargin" data-i18n="set.earthMargin"></label><input id="setEarthMargin" type="number" step="any"></div>
-    <p id="earthMarginNote" class="sub" data-i18n="set.earthMarginPlot" hidden></p>
-    <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
-    <div class="row"><label for="setSky" data-i18n="set.sky" data-i18n-title="set.skyHint"></label>
-      <select id="setSky"><option value="time" data-i18n="set.sky.time"></option><option value="off" data-i18n="set.sky.off"></option></select></div>
-    <div class="row check"><input id="setEnergyCard" type="checkbox"><label for="setEnergyCard" data-i18n="set.energyCard"></label></div>
-    <div class="row check"><input id="setRoomTiles" type="checkbox"><label for="setRoomTiles" data-i18n="set.roomTiles"></label></div>
-    <div class="row check"><input id="setRoomLabels" type="checkbox"><label for="setRoomLabels" data-i18n="set.roomLabels"></label></div>
-    <div class="row"><label for="setWindowFrames" data-i18n="set.windowFrames"></label>
-      <select id="setWindowFrames"><option value="white" data-i18n="set.windowFrames.white"></option><option value="anthracite" data-i18n="set.windowFrames.anthracite"></option></select></div>
-    <div class="row"><label for="setFacade" data-i18n="set.facade" data-i18n-title="set.facadeHint"></label><select id="setFacade"></select></div>
-    <div class="row"><label for="setFacadeColor" data-i18n="set.facadeColor"></label><input id="setFacadeColor" type="color"></div>
+    <details class="setGroup" data-group="view">
+      <summary><span class="sgIcon">🧊</span><span class="sgText"><b data-i18n="sg.view"></b><small data-i18n="sg.view.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setPerf" data-i18n="set.perf"></label>
+          <select id="setPerf"><option value="auto" data-i18n="set.perf.auto"></option><option value="high" data-i18n="set.perf.high"></option><option value="low" data-i18n="set.perf.low"></option></select></div>
+        <p class="sub" data-i18n="set.perfHint"></p>
+        <div class="row check"><input id="setShadows" type="checkbox"><label for="setShadows" data-i18n="set.shadows"></label></div>
+        <div class="row check"><input id="setCutaway" type="checkbox"><label for="setCutaway" data-i18n="set.cutaway"></label></div>
+        <div class="row check"><input id="setSeeThrough" type="checkbox"><label for="setSeeThrough" data-i18n="set.seeThrough"></label></div>
+        <div class="row check"><input id="setLowWalls" type="checkbox"><label for="setLowWalls" data-i18n="set.lowWalls"></label></div>
+        <div class="row"><label for="setWallOpacity" data-i18n="set.wallOpacity"></label><input id="setWallOpacity" type="number" step="any" min="0.2" max="1"></div>
+      </div>
+    </details>
 
-    <h3 data-i18n="set.section.kiosk"></h3>
-    <p class="hint" data-i18n="set.kioskHelp"></p>
-    <div class="row check"><input id="setAlerts" type="checkbox"><label for="setAlerts" data-i18n="set.alerts"></label></div>
-    <div class="row check"><input id="setAlertJump" type="checkbox"><label for="setAlertJump" data-i18n="set.alertJump"></label></div>
-    <div class="row"><label for="setWeather" data-i18n="set.weather"></label><input id="setWeather" type="text" placeholder="weather.home" list="weatherList"></div>
-    <datalist id="weatherList"></datalist>
-    <div class="row"><label data-i18n="sv.title"></label><span id="svState" class="sub"></span></div>
-    <p class="sub" data-i18n="sv.help"></p>
-    <div class="stopTools"><button type="button" id="svTake" data-i18n="sv.take"></button> <button type="button" id="svAuto" data-i18n="sv.auto"></button></div>
-    <div class="row"><label for="setIdleReturn" data-i18n="set.idleReturn"></label><input id="setIdleReturn" type="number" min="0" step="1"></div>
-    <div class="row check"><input id="setIdleOrbit" type="checkbox"><label for="setIdleOrbit" data-i18n="set.idleOrbit"></label></div>
-    <div class="row"><label for="setNightDim" data-i18n="set.nightDim"></label>
-      <select id="setNightDim"><option value="off" data-i18n="set.nightDim.off"></option><option value="sun" data-i18n="set.nightDim.sun"></option><option value="time" data-i18n="set.nightDim.time"></option></select></div>
-    <div class="row"><label for="setNightFrom" data-i18n="set.nightFrom"></label><input id="setNightFrom" type="time"></div>
-    <div class="row"><label for="setNightTo" data-i18n="set.nightTo"></label><input id="setNightTo" type="time"></div>
+    <details class="setGroup" data-group="show">
+      <summary><span class="sgIcon">🏷️</span><span class="sgText"><b data-i18n="sg.show"></b><small data-i18n="sg.show.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setLabels" data-i18n="set.labels"></label>
+          <select id="setLabels"><option value="important" data-i18n="set.labels.important"></option><option value="all" data-i18n="set.labels.all"></option><option value="none" data-i18n="set.labels.none"></option></select></div>
+        <div class="row check"><input id="setRoomTiles" type="checkbox"><label for="setRoomTiles" data-i18n="set.roomTiles"></label></div>
+        <div class="row check"><input id="setRoomLabels" type="checkbox"><label for="setRoomLabels" data-i18n="set.roomLabels"></label></div>
+        <div class="row check"><input id="setEnergyCard" type="checkbox"><label for="setEnergyCard" data-i18n="set.energyCard"></label></div>
+        <div class="row check"><input id="setCameraImages" type="checkbox"><label for="setCameraImages" data-i18n="set.cameraImages" data-i18n-title="set.cameraImagesHint"></label></div>
+      </div>
+    </details>
 
-    <h3 id="alarmNotifyTitle" data-i18n="an.title" hidden></h3>
-    <div id="alarmNotify" hidden></div>
+    <details class="setGroup" data-group="floors">
+      <summary><span class="sgIcon">🏢</span><span class="sgText"><b data-i18n="sg.floors"></b><small data-i18n="sg.floors.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setBelowMode" data-i18n="set.belowMode"></label>
+          <select id="setBelowMode"><option value="dim" data-i18n="set.belowMode.dim"></option><option value="stacked" data-i18n="set.belowMode.stacked"></option><option value="hidden" data-i18n="set.belowMode.hidden"></option></select></div>
+        <div class="row"><label for="setBelow" data-i18n="set.below"></label><input id="setBelow" type="number" step="any" min="0.05" max="1"></div>
+        <div class="row check"><input id="setBelowLabels" type="checkbox"><label for="setBelowLabels" data-i18n="set.belowLabels" data-i18n-title="set.belowLabelsHint"></label></div>
+        <div class="row"><label for="setHouseFloors" data-i18n="set.houseFloors" data-i18n-title="set.houseFloorsHint"></label>
+          <select id="setHouseFloors"><option value="normal" data-i18n="set.houseFloors.normal"></option><option value="apart" data-i18n="set.houseFloors.apart"></option><option value="stacked" data-i18n="set.houseFloors.stacked"></option></select></div>
+      </div>
+    </details>
 
-    <h3 data-i18n="set.section.look"></h3>
-    <div class="row"><label for="setWallOpacity" data-i18n="set.wallOpacity"></label><input id="setWallOpacity" type="number" step="any" min="0.2" max="1"></div>
-    <div class="row"><label for="setBelow" data-i18n="set.below"></label><input id="setBelow" type="number" step="any" min="0.05" max="1"></div>
-    <div class="row"><label for="setBelowMode" data-i18n="set.belowMode"></label>
-      <select id="setBelowMode"><option value="dim" data-i18n="set.belowMode.dim"></option><option value="stacked" data-i18n="set.belowMode.stacked"></option><option value="hidden" data-i18n="set.belowMode.hidden"></option></select></div>
-    <div class="row check"><input id="setBelowLabels" type="checkbox"><label for="setBelowLabels" data-i18n="set.belowLabels" data-i18n-title="set.belowLabelsHint"></label></div>
-    <div class="row"><label for="setHouseFloors" data-i18n="set.houseFloors" data-i18n-title="set.houseFloorsHint"></label>
-      <select id="setHouseFloors"><option value="normal" data-i18n="set.houseFloors.normal"></option><option value="apart" data-i18n="set.houseFloors.apart"></option><option value="stacked" data-i18n="set.houseFloors.stacked"></option></select></div>
-    <div class="row"><label for="setGlowRadius" data-i18n="set.glowRadius"></label><input id="setGlowRadius" type="number" step="any"></div>
-    <div class="row"><label for="setGlowStrength" data-i18n="set.glowStrength"></label><input id="setGlowStrength" type="number" step="any"></div>
-    <div class="row"><label for="setGlowHeight" data-i18n="set.glowHeight"></label><input id="setGlowHeight" type="number" step="any"></div>
-    <div class="row"><label for="setDefaultLight" data-i18n="set.defaultLight"></label><input id="setDefaultLight" type="color"></div>
-    <div class="row"><label for="setBgTop" data-i18n="set.bgTop"></label><input id="setBgTop" type="color"></div>
-    <div class="row"><label for="setBgBottom" data-i18n="set.bgBottom"></label><input id="setBgBottom" type="color"></div>
-    <div class="row"><label for="setBgGlow" data-i18n="set.bgGlow"></label><input id="setBgGlow" type="color"></div>
-    <div class="row"><label for="setBgGlowStrength" data-i18n="set.bgGlowStrength"></label><input id="setBgGlowStrength" type="range" min="0" max="1" step="0.05"></div>
+    <details class="setGroup" data-group="outside">
+      <summary><span class="sgIcon">🌳</span><span class="sgText"><b data-i18n="sg.outside"></b><small data-i18n="sg.outside.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setFacade" data-i18n="set.facade" data-i18n-title="set.facadeHint"></label><select id="setFacade"></select></div>
+        <div class="row"><label for="setFacadeColor" data-i18n="set.facadeColor"></label><input id="setFacadeColor" type="color"></div>
+        <div class="row"><label for="setWindowFrames" data-i18n="set.windowFrames"></label>
+          <select id="setWindowFrames"><option value="white" data-i18n="set.windowFrames.white"></option><option value="anthracite" data-i18n="set.windowFrames.anthracite"></option></select></div>
+        <div class="row"><label for="setEarth" data-i18n="set.earth"></label>
+          <select id="setEarth"><option value="solid" data-i18n="set.earth.solid"></option><option value="glass" data-i18n="set.earth.glass"></option><option value="off" data-i18n="set.earth.off"></option></select></div>
+        <div class="row"><label for="setEarthMargin" data-i18n="set.earthMargin"></label><input id="setEarthMargin" type="number" step="any"></div>
+        <p id="earthMarginNote" class="sub" data-i18n="set.earthMarginPlot" hidden></p>
+        <div class="row"><label for="setSky" data-i18n="set.sky" data-i18n-title="set.skyHint"></label>
+          <select id="setSky"><option value="time" data-i18n="set.sky.time"></option><option value="off" data-i18n="set.sky.off"></option></select></div>
+      </div>
+    </details>
 
-    <h3 data-i18n="set.section.tempColors"></h3>
-    <div id="tempStops" class="stops"></div>
-    <h3 data-i18n="set.section.humidColors"></h3>
-    <div id="humidStops" class="stops"></div>
-    <h3 data-i18n="set.section.co2Colors"></h3>
-    <div id="co2Stops" class="stops"></div>
+    <details class="setGroup" data-group="light">
+      <summary><span class="sgIcon">💡</span><span class="sgText"><b data-i18n="sg.light"></b><small data-i18n="sg.light.sub"></small></span></summary>
+      <div class="sgBody">
+        <div class="row"><label for="setGlowRadius" data-i18n="set.glowRadius"></label><input id="setGlowRadius" type="number" step="any"></div>
+        <div class="row"><label for="setGlowStrength" data-i18n="set.glowStrength"></label><input id="setGlowStrength" type="number" step="any"></div>
+        <div class="row"><label for="setGlowHeight" data-i18n="set.glowHeight"></label><input id="setGlowHeight" type="number" step="any"></div>
+        <div class="row"><label for="setDefaultLight" data-i18n="set.defaultLight"></label><input id="setDefaultLight" type="color"></div>
+        <div class="row"><label for="setBgTop" data-i18n="set.bgTop"></label><input id="setBgTop" type="color"></div>
+        <div class="row"><label for="setBgBottom" data-i18n="set.bgBottom"></label><input id="setBgBottom" type="color"></div>
+        <div class="row"><label for="setBgGlow" data-i18n="set.bgGlow"></label><input id="setBgGlow" type="color"></div>
+        <div class="row"><label for="setBgGlowStrength" data-i18n="set.bgGlowStrength"></label><input id="setBgGlowStrength" type="range" min="0" max="1" step="0.05"></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="alarm">
+      <summary><span class="sgIcon">🚨</span><span class="sgText"><b data-i18n="sg.alarm"></b><small data-i18n="sg.alarm.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="sg.alarm.help"></p>
+        <div class="row check"><input id="setAlerts" type="checkbox"><label for="setAlerts" data-i18n="set.alerts"></label></div>
+        <div class="row check"><input id="setAlertJump" type="checkbox"><label for="setAlertJump" data-i18n="set.alertJump"></label></div>
+        <div class="row"><label for="setWeather" data-i18n="set.weather"></label><input id="setWeather" type="text" placeholder="weather.home" list="weatherList"></div>
+        <datalist id="weatherList"></datalist>
+        <div class="sgInfo">
+          <h4 data-i18n="sg.alarm.what"></h4>
+          <p class="sub" data-i18n="sg.alarm.whatHelp"></p>
+          <p id="alarmPanels" class="sub"></p>
+        </div>
+        <h4 id="alarmNotifyTitle" data-i18n="an.title" hidden></h4>
+        <div id="alarmNotify" hidden></div>
+        <p id="alarmNotifyOff" class="sub" data-i18n="sg.alarm.notifyOff" hidden></p>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="tablet">
+      <summary><span class="sgIcon">📱</span><span class="sgText"><b data-i18n="sg.tablet"></b><small data-i18n="sg.tablet.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="sg.tablet.help"></p>
+        <div class="row"><label data-i18n="sv.title"></label><span id="svState" class="sub"></span></div>
+        <p class="sub" data-i18n="sv.help"></p>
+        <div class="stopTools"><button type="button" id="svTake" data-i18n="sv.take"></button> <button type="button" id="svAuto" data-i18n="sv.auto"></button></div>
+        <div class="row"><label for="setIdleReturn" data-i18n="set.idleReturn"></label><input id="setIdleReturn" type="number" min="0" step="1"></div>
+        <div class="row check"><input id="setIdleOrbit" type="checkbox"><label for="setIdleOrbit" data-i18n="set.idleOrbit"></label></div>
+        <div class="row"><label for="setNightDim" data-i18n="set.nightDim"></label>
+          <select id="setNightDim"><option value="off" data-i18n="set.nightDim.off"></option><option value="sun" data-i18n="set.nightDim.sun"></option><option value="time" data-i18n="set.nightDim.time"></option></select></div>
+        <div class="row"><label for="setNightFrom" data-i18n="set.nightFrom"></label><input id="setNightFrom" type="time"></div>
+        <div class="row"><label for="setNightTo" data-i18n="set.nightTo"></label><input id="setNightTo" type="time"></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="colors">
+      <summary><span class="sgIcon">🌡️</span><span class="sgText"><b data-i18n="sg.colors"></b><small data-i18n="sg.colors.sub"></small></span></summary>
+      <div class="sgBody">
+        <h4 data-i18n="set.section.tempColors"></h4>
+        <div id="tempStops" class="stops"></div>
+        <h4 data-i18n="set.section.humidColors"></h4>
+        <div id="humidStops" class="stops"></div>
+        <h4 data-i18n="set.section.co2Colors"></h4>
+        <div id="co2Stops" class="stops"></div>
+      </div>
+    </details>
 
     <menu><button value="close" class="primary" data-i18n="close"></button></menu>
   </form>

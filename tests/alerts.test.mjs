@@ -58,3 +58,9 @@ test('search ranks exact and starting matches first', () => {
   assert.equal(A.matchScore('Bad', 'küche'), 0);
   assert.equal(A.matchScore('Bad', ''), 0);
 });
+test('alarm panels: the alarm_control_panel entities with name and state', () => {
+  assert.deepEqual(A.alarmPanels([E('alarm_control_panel.haus', 'disarmed', { name: 'Alarmanlage' }), E('binary_sensor.tuer', 'on'), E('alarm_control_panel.garage', 'armed_away')]),
+    [{ entity: 'alarm_control_panel.haus', name: 'Alarmanlage', state: 'disarmed' }, { entity: 'alarm_control_panel.garage', name: 'alarm_control_panel.garage', state: 'armed_away' }]);
+  assert.deepEqual(A.alarmPanels(null), []);
+  assert.deepEqual(A.alarmPanels([{ state: 'on' }]), []);
+});

@@ -312,6 +312,7 @@ let settings = {
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
 };
 
+const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', service: '', clear: false, apikey: '' };   // api/notify in the demo
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
 export function installDemoBackend() {
@@ -429,6 +430,15 @@ export function installDemoBackend() {
       if (service === 'select_option') e.state = data.option;
       return json({ ok: true });
     }
+    if (path === 'api/notify') {                         // the message on alarm (#414): shown in the demo too, kept only in this tab, never sent
+      if (method === 'PUT') {
+        const b = JSON.parse(init.body || '{}'), key = typeof b.apikey === 'string' && b.apikey.trim() ? b.apikey.trim() : notify.apikey;
+        Object.assign(notify, b, { apikey: key });
+      }
+      const n = notify, ready = !n.on ? 'off' : n.via === 'ha' ? (n.service ? null : 'service') : !n.phone ? 'phone' : n.apikey ? null : 'apikey';
+      return json({ on: n.on, kinds: n.kinds, via: n.via, phone: n.phone, service: n.service, clear: n.clear, hasKey: !!n.apikey, ready, services: ['mobile_app_handy', 'whatsapp'] });
+    }
+    if (path === 'api/notify/test') return json({ error: 'in der Demo wird nichts gesendet' }, 501);
     if (path === 'api/backgrounds' && method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
     if (path === 'api/models') {
       if (method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
