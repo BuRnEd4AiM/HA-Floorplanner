@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.99.3] - 2026-10-18
+### Fixed
+- **"Power now" only while the button "Strom" is pressed** (#434): the card with the sun, the grid, the house and the battery (and the meters under it) was always at the top right on wide screens, also when the button **Strom** at the bottom was not pressed. Now it shows only while **Strom** is on (or the power editor is open); a tap on the card switches it off again, like the button. The line of numbers at the top left stays away on wide screens as before. The button **Strom** now also shows when only the sensors of the tab "⚡ Rechnung" are set and no power device stands in the plan, so the card can still be called up.
+
 ## [3.99.2] - 2026-10-18
 ### Changed
 - **Room tiles that do not fit** (#421): with many rooms (the whole house of a big plan) the strip of room tiles was simply cut off on the right. Now an arrow at each end with more to see scrolls it, the cut side fades out, and the mouse wheel scrolls it sideways too. Phones keep swiping.

@@ -264,8 +264,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 0 | 0 | 8 | 3 | 63.1 bis 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
 | 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 0 | 0 | 14 | 3 | 65.1 bis 65.13, 65.16 |
-| 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 0 | 0 | 14 | 1 | 66.1 bis 66.10, 66.12 bis 66.15 |
-| **Zusammen** | **283** | **1** | **176** | **23** | |
+| 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 0 | 0 | 16 | 1 | 66.1 bis 66.10, 66.12 bis 66.17 |
+| **Zusammen** | **283** | **1** | **178** | **23** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1081,3 +1081,5 @@ Vorlage: die Beispielbilder in `docs/ideen-3.99/` (1, 2, 4 und 5). Die Demo hat 
 | 66.13 | Neu in 3.99.1: oben links und in der Karte „Strom jetzt“ nachsehen | Oben links keine Zeile mit Wasser, Gas und Wärme mehr; die Zähler stehen unten in der Karte „Strom jetzt“ (🚰 1234.6 m³ · 🔥 845.2 m³ · ♨ 5321 kWh). Am Handy bleibt die Zeile | ❓ |
 | 66.14 | Neu in 3.99.2: „Live“, links „Ganzes Haus“ (oder das Fenster schmaler machen) | Passen die Raum-Kacheln unten nicht alle hin, ist rechts ein Pfeil ›, der Rand wird weich ausgeblendet; der Pfeil (oder das Mausrad über den Kacheln) schiebt weiter, dann ist links ein Pfeil ‹. Nichts ist einfach abgeschnitten | ❓ |
 | 66.15 | Neu in 3.99.2: „Ganzes Haus“ mit der Karte „Strom jetzt“ oben rechts | Die Etagen-Karten (Obergeschoss, Erdgeschoss …) liegen nicht unter der Karte „Strom jetzt“, sondern daneben bzw. auf der anderen Seite des Hauses | ❓ |
+| 66.16 | Neu in 3.99.3 (#434): „Live“ auf dem Tablet oder PC, unten „Strom“ **nicht** gedrückt | Oben rechts keine Karte „Strom jetzt“ und auch keine Zahlenzeile oben links |
+| 66.17 | Unten „Strom“ drücken, dann auf die Karte „Strom jetzt“ tippen | Mit „Strom“ erscheint die Karte (und die Kabel im Haus); ein Tipp auf die Karte schaltet „Strom“ wieder aus, die Karte verschwindet |

@@ -36,9 +36,8 @@ export function initPower(ctx) {
   /* ---------- the 3D cables ---------- */
   function update() {
     const layout = ctx.layout(), registry = ctx.registry, selection = ctx.getSelection(), states = ctx.states();
-    const btn = $('#powerBtn');
-    if (btn) { btn.hidden = !powerList().length; btn.classList.toggle('active', cablesShown()); }
-    updateEnergy();
+    const btn = $('#powerBtn'), energy = updateEnergy();
+    if (btn) { btn.hidden = !powerList().length && !energy; btn.classList.toggle('active', cablesShown()); }   // also without power devices: the sensors of "⚡ Rechnung" (#434)
     const on = cablesShown();
     const links = [];
     layout.floors.forEach((f) => f.devices.forEach((d) => cablesOf(d).forEach((c) => links.push({ d, c }))));
@@ -91,18 +90,20 @@ export function initPower(ctx) {
   }
 
   /* ---------- the overview next to the room menu ---------- */
+  /** the line of numbers (and the meters beside it); true when there is power to show */
   function updateEnergy() {
-    const pill = $('#energyPill'); if (!pill) return;
+    const pill = $('#energyPill'); if (!pill) return false;
     const txt = energyText(energyBalance(ctx.states(), ctx.layout()), t);   // with the settings of the tab "⚡ Rechnung" (#378)
     pill.hidden = !txt;
     pill.textContent = txt?.text || '';
     pill.title = txt?.title || '';
     pill.classList.toggle('active', cablesShown());
-    const mp = $('#meterPill'); if (!mp) return;                             // water, gas and heat in a pill of their own beside it (#237, #245)
+    const mp = $('#meterPill'); if (!mp) return !!txt;                       // water, gas and heat in a pill of their own beside it (#237, #245)
     const mt = meterText(meterReadings(ctx.states(), ctx.layout().floors.flatMap((f) => f.devices)), t);
     mp.hidden = !mt;
     mp.textContent = mt?.text || '';
     mp.title = mt?.title || '';
+    return !!txt;
   }
 
   /* ---------- picking in 3D (the power editor) ---------- */

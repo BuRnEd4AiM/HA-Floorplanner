@@ -1,6 +1,7 @@
 /* Energy flow as a picture (#420): on wide screens (live and edit mode), at the top right under the sky chips, a card with the sun, the grid,
  * the house and the battery and dots running along the lines between them, instead of the line of numbers (#energyPill, which stays on
- * phones). A tap does what a tap on that line does: the power cables in the house on / off. Redrawn only when a value changed; the
+ * phones). It shows only while the button "Strom" at the bottom is on (or the power editor is open, #434): on its own it stays away. A tap
+ * on it does what the button does: the power off again (the cables in the house too). Redrawn only when a value changed; the
  * dots are a CSS animation, standing still in the "fast" performance mode. What flows where comes from energyflow.js (tested). Under the
  * picture the water, gas and heat meters, instead of their own pill at the top left (#meterPill, which stays on phones). */
 import { energyFlows, flowTexts, dotSeconds, meterChips } from './energyflow.js';
@@ -36,20 +37,23 @@ export function flowSvg(fl, tx) {
   return `<svg viewBox="0 ${top} 300 ${bottom - top}" width="300" height="${bottom - top}" role="img">${lines}${circles}</svg>`;
 }
 
-/** ctx: $, t, settings(), states(), layout(), low() (fast performance mode), toggleCables() (what a tap on the line of numbers does), commitSettings() */
+/** ctx: $, t, settings(), states(), layout(), low() (fast performance mode), toggleCables() (what a tap on the line of numbers does), commitSettings(),
+ *  cablesShown() (the button "Strom" is on, or the power editor) */
 export function initEnergyFlow(ctx) {
   const { $, t } = ctx;
   const card = $('#energyCard');
   let last = '';
-  card.addEventListener('click', () => ctx.toggleCables());
+  card.addEventListener('click', () => { ctx.toggleCables(); update(); });
+  ['#powerBtn', '#energyPill', '#powerEditBtn'].forEach((s) => $(s)?.addEventListener('click', () => update()));   // after power.js has switched (its listener comes first)
   $('#flowToggle').addEventListener('click', () => { $('#setEnergyCard').checked = ctx.settings().energyCard === false; ctx.commitSettings(); });
   function update() {
     const on = ctx.settings().energyCard !== false;
     $('#flowToggle').classList.toggle('active', on);
     const fl = on ? energyFlows(energyBalance(ctx.states(), ctx.layout())) : null;   // in edit mode too: the owner wanted the picture there as well
-    document.body.classList.toggle('flowcard', !!fl);              // the line of numbers steps aside on wide screens (style.css)
-    card.hidden = !fl;
-    if (!fl) { last = ''; return; }
+    document.body.classList.toggle('flowcard', !!fl);              // the line of numbers steps aside on wide screens (style.css), also while the card waits
+    const shown = !!fl && !!ctx.cablesShown?.();                   // only while "Strom" is pressed (#434)
+    card.hidden = !shown;
+    if (!shown) { last = ''; return; }
     const meters = meterChips(meterReadings(ctx.states(), ctx.layout().floors.flatMap((f) => f.devices || [])), t);   // water, gas, heat: here, not at the top left
     const html = `<div class="ef-title">${esc(t('flow.title'))}</div>${flowSvg(fl, flowTexts(fl, t))}`
       + (meters.length ? `<div class="ef-meters">${meters.map((m) => `<span title="${esc(m.title)}">${esc(m.text)}</span>`).join('')}</div>` : '');
