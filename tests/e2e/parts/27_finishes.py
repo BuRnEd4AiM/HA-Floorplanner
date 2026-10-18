@@ -95,7 +95,7 @@ pgF.select_option(f"#{side_b}", ""); pgF.wait_for_timeout(2500)
 check("accent wall: 'Wie der Raum' gives it back", "faces" not in wall("fn_w1"), wall("fn_w1"))
 
 # --- the facade (a setting)
-pgF.click("#settingsBtn"); pgF.wait_for_timeout(300)
+pgF.click("#settingsBtn"); open_setting(pgF, "#setFacade"); pgF.wait_for_timeout(300)
 pgF.select_option("#setFacade", "brick"); pgF.wait_for_timeout(1500)
 pgF.keyboard.press("Escape"); pgF.wait_for_timeout(1200)
 out = [s for s in pgF.evaluate(SKINS, "fn_w2") if -1 in s["sides"]]

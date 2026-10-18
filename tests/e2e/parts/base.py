@@ -101,6 +101,7 @@ check("Enter in search assigns first match", any(d["entity"] == "light.wohnzimme
 
 # --- settings: English + light theme + imperial
 pg.click("#settingsBtn"); pg.wait_for_timeout(200)
+open_setting(pg, "#setWallHeight"); open_setting(pg, "#setLanguage")
 pg.fill("#setWallHeight", "2.2"); pg.press("#setWallHeight", "Tab"); pg.wait_for_timeout(400)
 hs = {w["height"] for w in pg.evaluate("window.__fp.layout")["floors"][0]["walls"]}
 check("wall height setting applies to existing walls", hs == {2.2}, hs)

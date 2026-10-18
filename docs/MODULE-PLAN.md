@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 4.0.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.700**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 4.0.1. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.700**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -43,7 +43,8 @@ Stand: Version 4.0.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `energyprefs.js` | ~130 | Energie leichter einrichten (#407), reine Logik mit Unit-Tests: das Energie-Dashboard von Home Assistant als Einstellungen des Reiters „⚡ Rechnung“ (Vorzeichen umgerechnet: Batterie dort plus = entladen; nur kWh-Zähler: der Watt-Sensor am selben Gerät als Vermutung), Gas- und Wasserzähler, die Checkliste (was eingerichtet ist, was fehlt) |
 | `energysetup.js` | ~100 | Oberer Teil von „⚡ Rechnung“ (#407): Knopf „Aus dem Energie-Dashboard übernehmen“, Vorschlag, „Übernehmen“, Checkliste mit „+ Zähler in den Plan setzen“ |
 | `devicecontrols.js` | ~190 | Mehr Geräte in der Live-Karte steuern (#406): Musik/TV, Saugroboter, Ventilator, Alarmanlage mit Code, Taster, Auswahllisten; welche Knöpfe ein Gerät bekommt (`controlPlan`, nach `supported_features`, reine Logik mit Unit-Tests) und das Zeichnen. Erlaubte Befehle prüft der Server in `controls.py` |
-| `notifyui.js` | ~110 | Einstellungen, Teil „🚨 Benachrichtigung bei Alarm (WhatsApp)“ (#414): an/aus, welche Melder, WhatsApp über CallMeBot oder ein notify-Dienst, „Test senden“; gespeichert über `api/notify` (nur Bearbeiter). Das Beobachten und Senden macht der Server in `alarmnotify.py` (Unit-Tests) |
+| `notifyui.js` | ~120 | Einstellungen, Teil „🚨 Benachrichtigung bei Alarm (WhatsApp)“ (#414): an/aus, welche Melder, WhatsApp über CallMeBot oder ein notify-Dienst, „Test senden“; gespeichert über `api/notify` (nur Bearbeiter, sonst ein Satz, warum es fehlt). Darüber, welche Alarmanlagen Home Assistant hat, mit Zustand (#450, `alarmPanels` in `alerts.js`, Unit-Test). Das Beobachten und Senden macht der Server in `alarmnotify.py` (Unit-Tests) |
+| `setgroups.js` | ~95 | Einstellungen in Gruppen zum Auf- und Zuklappen (#450): die Gruppen sind `<details class="setGroup">` in `index.html`; merkt sich pro Browser, welche offen sind, „Alle aufklappen / zuklappen“, die Suche oben (nur passende Gruppen, aufgeklappt, Treffer markiert; `searchGroups`, `fold`, `readOpen` mit Unit-Tests, dazu prüft der Test, dass jedes Feld des Fensters in einer Gruppe liegt), die Zeiten von „Nachts abdunkeln“ nur bei „Nach Uhrzeit“ |
 | `toolbar.js` | 88 | Anpassbare Werkzeugleiste |
 | `backups.js` | ~80 | Backup-Fenster oben (🗄️, #321): ganzes Backup, automatische Sicherung, Einstellungen der Sicherheit |
 | `version.js` | 122 | Versionsanzeige und Datei-Prüfung |

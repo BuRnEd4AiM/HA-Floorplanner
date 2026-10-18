@@ -35,6 +35,13 @@ export function findAlerts(entities, windows = [], weatherId = '') {
   return out;
 }
 
+/** the alarm panels Home Assistant has (alarm_control_panel, e.g. Alarmo), as [{ entity, name, state }]: the add-on shows when one goes
+ *  off; which doors and windows set it off is chosen in the panel itself */
+export function alarmPanels(entities) {
+  return (entities || []).filter((e) => String(e.entity_id || '').startsWith('alarm_control_panel.'))
+    .map((e) => ({ entity: e.entity_id, name: e.name || e.entity_id, state: e.state }));
+}
+
 /** minutes after midnight of "HH:MM" */
 const mins = (s) => { const [h, m] = String(s || '').split(':').map(Number); return (h || 0) * 60 + (m || 0); };
 

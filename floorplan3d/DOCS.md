@@ -33,7 +33,7 @@ In the device tool use **Upload GLB**. Models are scaled to fit 1 m and can be r
 | --- | --- |
 | `log_level` | Log verbosity of the backend |
 
-All other settings (language, theme, units, grid ...) live in the ⚙ dialog inside the app.
+All other settings (language, theme, units, grid ...) live in the ⚙ dialog inside the app. It has ten groups that fold open and shut (*General*, *Drawing & editing*, *3D view & performance*, *What the picture shows*, *Floors*, *Outside & surroundings*, *Light & background*, *Warnings & alarm*, *Wall tablet*, *Colours for temperature, humidity, CO₂*); each says in a small line what is in it, and the browser remembers which ones were left open. The search at the top (*🔍 Search …*) keeps only the groups with that word, opened, and marks the matching rows; the tooltips count too, so *sun* finds the sky.
 
 ## Support
 
@@ -209,7 +209,9 @@ On touch screens and with `?kiosk=1` or `?room=...` the app switches to a **low-
 
 ## Warnings
 
-Without any setup the plan warns when a **smoke, gas, carbon monoxide or water sensor** (a `binary_sensor` with that device class) reports *on*, when an **alarm panel** is triggered, and when a **window is open while it rains** (the weather entity reports rain, hail or sleet). A red banner appears at the top and the room flashes red; a tap on the banner jumps into the room. The room is found from the device or window bound to the sensor, otherwise from the Home Assistant area of the room. ⚙ → *Wall tablet: warnings and kiosk* switches warnings off, can jump to a new warning by itself and sets the weather entity (empty = the first one). A window that may stay open in the rain (a skylight with a rain sensor, a window under a roof …): select it in edit mode and take the tick **Bei Regen warnen** away; that window then never warns.
+Without any setup the plan warns when a **smoke, gas, carbon monoxide or water sensor** (a `binary_sensor` with that device class) reports *on*, when an **alarm panel** is triggered, and when a **window is open while it rains** (the weather entity reports rain, hail or sleet). A red banner appears at the top and the room flashes red; a tap on the banner jumps into the room. The room is found from the device or window bound to the sensor, otherwise from the Home Assistant area of the room. ⚙ → *Warnings & alarm* switches warnings off, can jump to a new warning by itself and sets the weather entity (empty = the first one). A window that may stay open in the rain (a skylight with a rain sensor, a window under a roof …): select it in edit mode and take the tick **Bei Regen warnen** away; that window then never warns.
+
+**The alarm panel** is an alarm panel of Home Assistant (an `alarm_control_panel` entity, for example from the free integration [Alarmo](https://github.com/nielsfaber/alarmo) via HACS, or from a real alarm system). The add-on has no alarm of its own: which doors, windows and motion sensors set it off, and in which mode (away, home, night), is chosen in the alarm panel. The group *Warnings & alarm* names the alarm panels Home Assistant has, with their state. Put the alarm panel into the plan as a device (bind it to its entity) to arm and disarm it from its card in live mode, with the code if it has one.
 
 ## Sky and weather
 
@@ -235,7 +237,7 @@ The buttons over the picture and the floor cards on the left are frosted glass, 
 
 ## Message on alarm (WhatsApp)
 
-⚙ → **🚨 Message on alarm (WhatsApp)** (editors only): when the **alarm panel** goes off (*triggered*) or a **smoke, gas, carbon monoxide or water sensor** reports, the add-on sends a message at once, also when no screen is open. The message says what went off, where it is in the plan (house · floor · room) and the time, in the language of the add-on. Tick which of them should send a message, and *Also report when everything is back to normal* if you want a second message then. The same sensor is reported again only after 10 minutes, and at most 10 messages go out in 10 minutes, so a broken sensor cannot flood the phone. What is already going off when the add-on starts is not sent again.
+⚙ → *Warnings & alarm* → **🚨 Message on alarm (WhatsApp)** (editors only; who may not edit is told so there): when the **alarm panel** goes off (*triggered*) or a **smoke, gas, carbon monoxide or water sensor** reports, the add-on sends a message at once, also when no screen is open. The message says what went off, where it is in the plan (house · floor · room) and the time, in the language of the add-on. Tick which of them should send a message, and *Also report when everything is back to normal* if you want a second message then. The same sensor is reported again only after 10 minutes, and at most 10 messages go out in 10 minutes, so a broken sensor cannot flood the phone. What is already going off when the add-on starts is not sent again.
 
 Two ways to send it:
 
@@ -250,10 +252,10 @@ The 🔍 button at the bottom left opens **"Where is …?"**: type part of a dev
 
 ## Wall tablet kiosk
 
-In ⚙ → *Wall tablet: warnings and kiosk*, for the live view:
+In ⚙ → *Wall tablet*, for the live view:
 - **Back to the start view** after a number of minutes without a touch (0 = off). A room tablet goes back to its room, otherwise the ground floor.
 - **Screen saver**: the house then turns slowly until the next touch.
-- **Dim at night**, by the sun (`sun.sun`) or between two times (e.g. 22:00 to 06:00). The first touch only wakes the screen, it does not switch anything.
+- **Dim at night**, by the sun (`sun.sun`) or between two times (e.g. 22:00 to 06:00; the two times show when *By time* is chosen). The first touch only wakes the screen, it does not switch anything.
 
 ## Renamed in Home Assistant
 
