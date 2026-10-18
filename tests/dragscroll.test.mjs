@@ -1,4 +1,4 @@
-// Unit tests for dragscroll.js (a finger swipes the room tiles, #438; run like offline.test.mjs, see there)
+// Unit tests for dragscroll.js (a finger swipes the room tiles, #438, #441; run like offline.test.mjs, see there)
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -25,4 +25,13 @@ test('the glide moves, slows down and stops', () => {
   let v = 3, moved = 0, frames = 0;
   while (v && frames < 1000) { const s = D.glideStep(v, 16); moved += s.dx; v = s.v; frames++; }
   assert.ok(frames < 200 && moved > 500 && moved < 1200, `a quick swipe glides on a little and stops (${frames} frames, ${Math.round(moved)} px)`);
+});
+
+test('where the browser does not scroll: the strip follows the finger from where the page took over (#441)', () => {
+  assert.equal(D.dragOffset(0), 0);
+  assert.equal(D.dragOffset(D.WAIT), 0, 'up to WAIT px the browser may still take over');
+  assert.equal(D.dragOffset(-D.WAIT), 0);
+  assert.equal(D.dragOffset(D.WAIT + 5), 5, 'then it follows, without a jump');
+  assert.equal(D.dragOffset(-D.WAIT - 30), -30, 'to the left too');
+  assert.ok(D.WAIT > D.SLOP, 'a tap ends before the page moves anything');
 });

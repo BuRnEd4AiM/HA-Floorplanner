@@ -74,8 +74,8 @@ export function labelTexts(s, num, imperial = false) {
   };
 }
 
-/** do the labels over the rooms show? on (setting), live mode, a wide screen (phones have the tiles), one floor (the whole house would
- *  pile them up), no room opened (its card says it all) and the 3D view shown */
+/** do the labels over the rooms show? on (setting), live mode, `wide`: room for them (not the dashboard card or a room tablet; phones
+ *  too since #444), one floor (the whole house would pile them up), no room opened (its card says it all) and the 3D view shown */
 export const labelsShown = ({ on, live, wide, house, focused, view3d }) => !!(on && live && wide && !house && !focused && view3d);
 
 /** how high over its floor the label of a room floats (m): over most furniture, low enough to stay over its room when the camera looks

@@ -47,6 +47,7 @@ check("sky (#418): a gradient with stars behind the 3D view instead of one colou
       "linear-gradient" in bg and "url(" in bg and pgS.evaluate("window.__fp.scene.background === null"), bg[:120])
 check("sky: the chip at the top right says night and the next sunrise", "Nacht" in chips and "Sonnenaufgang" in chips, chips)
 check("weather (#419): the second chip has the weather, its temperature and the wind", "Regen · 11 °C · Wind 24 km/h" in chips, chips)
+check("sky: on wide screens no short line at the bottom (that is for phones, #445)", not pgS.is_visible("#skyLine"))
 check("weather: rain falls over the picture in live mode", pgS.is_visible("#wxFall") and "rain" in pgS.get_attribute("#wxFall", "class"), pgS.get_attribute("#wxFall", "class"))
 
 # --- the energy flow as a picture (#420), only while the button "Strom" is pressed (#434)
@@ -113,7 +114,7 @@ names = pgS.evaluate("[...document.querySelectorAll('#toolsList .tbName')].map((
 check("tool bar: the customise dialog keeps the full names", "Räume erkennen" in names and "Strom-Editor" in names, names)
 pgS.keyboard.press("Escape"); pgS.wait_for_timeout(200)
 
-# --- the sky can be switched off; phones keep the line of numbers
+# --- the sky can be switched off; on phones the energy card is smaller and shows only with "Strom" (#442)
 set_setting("sky", "off")
 pgS.goto(BASE + "?debug=1&mode=live"); pgS.wait_for_timeout(1800)
 check("sky: 'Einfarbig' in the settings gives the plain background back", pgS.evaluate("document.querySelector('#view').style.background") == ""
@@ -123,30 +124,48 @@ pgP = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_tou
 pgP.goto(BASE + "?debug=1&mode=live"); pgP.wait_for_timeout(2000)
 pgP.evaluate("window.__fp.switchFloor(0)"); pgP.wait_for_timeout(800)
 seen = [pgP.is_visible(s) for s in ("#energyCard", "#skyChips", "#roomTiles")]
-check("phone: no energy card and no sky chips (no room for them), the room tiles are there", seen == [False, False, True], seen)
+check("phone: no energy card before 'Strom' is pressed, no sky chips (no room for them), the room tiles are there", seen == [False, False, True], seen)
+sky = pgP.evaluate("""() => { const r = (s) => document.querySelector(s).getBoundingClientRect(), l = r('#skyLine'), m = r('#modeBar'), t = r('#roomTiles');
+  return { text: document.querySelector('#skyLine').textContent, l: Math.round(l.left), r: Math.round(l.right), t: Math.round(l.top), b: Math.round(l.bottom),
+    bar: Math.round(m.top), barB: Math.round(m.bottom), tiles: Math.round(t.bottom), h: innerHeight }; }""")
+check("phone (#445): one short line at the very bottom with the time and the weather, under the view buttons; they stay clear of the tiles",
+      pgP.is_visible("#skyLine") and sky["text"].startswith("🌙 ") and sky["text"].endswith(" · 🌧️ Regen · 11 °C") and sky["t"] >= sky["barB"]
+      and sky["b"] <= sky["h"] and sky["l"] >= 0 and sky["r"] <= 390 and sky["bar"] >= sky["tiles"], sky)
+pgP.tap("#powerBtn"); pgP.wait_for_timeout(600)
+ecard = pgP.evaluate("""() => { const r = (s) => document.querySelector(s).getBoundingClientRect(), c = r('#energyCard');
+  return { l: Math.round(c.left), r: Math.round(c.right), t: Math.round(c.top), b: Math.round(c.bottom), tiles: Math.round(r('#roomTiles').top), nav: Math.round(r('#navBar').bottom) }; }""")
+check("phone (#442): 'Strom' shows the energy card, whole on the screen between the top bar and the room tiles",
+      pgP.is_visible("#energyCard") and pgP.evaluate("window.__fp.powerInfo().shown") and ecard["l"] >= 0 and ecard["r"] <= 390
+      and ecard["t"] >= ecard["nav"] and ecard["b"] <= ecard["tiles"] and pgP.locator("#energyCard .ef-node").count() >= 3, ecard)
+pgP.tap("#energyCard"); pgP.wait_for_timeout(400)
+check("phone: a tap on the energy card switches 'Strom' off again", not pgP.is_visible("#energyCard") and not pgP.evaluate("window.__fp.powerInfo().shown"))
 pgP.evaluate("""() => { const f = window.__fp.layout.floors[0];            // rooms enough that the tiles do not fit (only on this page, not saved)
   for (let i = 0; i < 5; i++) f.rooms.push({ id: 'sw' + i, name: 'Wischraum ' + i, color: '#8a7f70', points: [[90 + 3 * i, 90], [92 + 3 * i, 90], [92 + 3 * i, 92], [90 + 3 * i, 92]] });
   window.__fp.rebuild(); }"""); pgP.wait_for_timeout(900)
-STRIP = "(() => { const b = document.querySelector('#roomTiles'); return { left: b.scrollLeft, more: b.scrollWidth - b.clientWidth, touch: getComputedStyle(b).touchAction }; })()"
+STRIP = "(() => { const b = document.querySelector('#roomTiles'); return { left: b.scrollLeft, more: b.scrollWidth - b.clientWidth, touch: getComputedStyle(b).touchAction, pe: getComputedStyle(b).pointerEvents }; })()"
 st0 = pgP.evaluate(STRIP)
-# a finger swipe made of pointer events only: the browser itself never scrolls for those, like the iPhone that did not scroll the strip (#438)
+# a finger swipe made of pointer events only: the browser itself never scrolls for those, like the iPhone that did not scroll the strip
+# (#438); the page moves it then as a stand-in (dragscroll.js), once the finger went WAIT px without the browser taking over
 pgP.evaluate("""() => { const b = document.querySelector('#roomTiles'), t = b.querySelector('.rtTile'), y = t.getBoundingClientRect().top + 30;
   const ev = (type, x) => t.dispatchEvent(new PointerEvent(type, { pointerId: 41, pointerType: 'touch', isPrimary: true, clientX: x, clientY: y, bubbles: true }));
   ev('pointerdown', 330); for (let x = 320; x >= 120; x -= 20) ev('pointermove', x); ev('pointerup', 120);
   t.dispatchEvent(new MouseEvent('click', { bubbles: true })); }""")   # the click a phone may send after the swipe
 pgP.wait_for_timeout(700)
 st1 = pgP.evaluate(STRIP)
-check("phone (#438): the room tiles follow the finger sideways, also where the browser does not scroll them itself (iPhone); the page keeps only up and down",
-      st0["more"] > 100 and st0["left"] == 0 and st1["left"] >= min(180, st0["more"]) and st0["touch"] == "pan-y", (st0, st1))
+check("phone (#438): the room tiles follow the finger sideways, also where the browser does not scroll them itself; the browser may scroll them only sideways",
+      st0["more"] > 100 and st0["left"] == 0 and st1["left"] >= min(176, st0["more"]) and st0["touch"] == "pan-x" and st0["pe"] == "auto", (st0, st1))
 check("phone: the swipe opens no room (the click after it is swallowed)", pgP.evaluate("window.__fp.focusedRoom()") is None, pgP.evaluate("window.__fp.focusedRoom()"))
 cdp = pgP.context.new_cdp_session(pgP)
+pgP.evaluate("""() => { window.__tilePtr = []; const b = document.querySelector('#roomTiles');
+  ['pointercancel', 'pointerup'].forEach((t) => b.addEventListener(t, () => window.__tilePtr.push(t))); }""")
 ty = pgP.evaluate("document.querySelector('#roomTiles .rtTile').getBoundingClientRect().top + 30")
 cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [{"x": 60, "y": ty}]})
 for x in range(75, 300, 15):
     cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": x, "y": ty}]}); pgP.wait_for_timeout(16)
 cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []}); pgP.wait_for_timeout(900)
 st2 = pgP.evaluate(STRIP)
-check("phone: a real finger swipe to the right brings the first tiles back", st2["left"] < st1["left"] - 100, (st1, st2))
+check("phone (#441): a real finger swipe to the right brings the first tiles back, and the browser scrolls the strip itself (smooth, not the page)",
+      st2["left"] < st1["left"] - 100 and pgP.evaluate("window.__tilePtr") == ["pointercancel"], (st1, st2, pgP.evaluate("window.__tilePtr")))
 pgP.wait_for_timeout(500)
 pgP.add_style_tag(content="body #roomPanel { bottom: 46px !important; }")   # the iPhone keeps the room sheet clear of its home bar (#440)
 pgP.locator("#roomTiles .rtTile").first.tap(); pgP.wait_for_timeout(900)

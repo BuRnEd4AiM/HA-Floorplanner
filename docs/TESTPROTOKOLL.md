@@ -4,11 +4,11 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.99.5)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 3.99.6)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.99.5** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v3.99.6** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
-1. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10, 66.12 bis 66.22): „Live“ ansehen und nah heranzoomen, auch flach von der Seite; ein Raum-Schild und einen Punkt antippen; nachts die Sterne ansehen; auf dem Tablet eine Raum-Kachel antippen; am iPhone die Raum-Kacheln wischen und einen Raum antippen (er steht über der Raum-Karte); „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
+1. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25): „Live“ ansehen und nah heranzoomen, auch flach von der Seite; ein Raum-Schild und einen Punkt antippen; nachts die Sterne ansehen; auf dem Tablet eine Raum-Kachel antippen; am Handy die Raum-Kacheln wischen (flüssig, ohne Hängen), unten „Strom“ drücken (die Karte „Strom jetzt“ erscheint), die Raum-Schilder ansehen und ganz unten Uhrzeit und Wetter; „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
 2. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
 3. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
 4. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
@@ -24,7 +24,9 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 14. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
 15. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
-**Zuletzt geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), 60.9 (Geländer der Wendeltreppe pro Etage, #318), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
+**Zuletzt geprüft (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
+
+**Davor geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), 60.9 (Geländer der Wendeltreppe pro Etage, #318), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
 
 <details>
 <summary>Ältere Prüflisten bis 3.94 (ausführlich, zum Nachschlagen)</summary>
@@ -264,8 +266,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 0 | 0 | 8 | 3 | 63.1 bis 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
 | 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 0 | 0 | 14 | 3 | 65.1 bis 65.13, 65.16 |
-| 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 0 | 0 | 21 | 1 | 66.1 bis 66.10, 66.12 bis 66.22 |
-| **Zusammen** | **283** | **1** | **183** | **23** | |
+| 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 1 | 1 | 22 | 1 | ❌ 66.21, 66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25 |
+| **Zusammen** | **284** | **2** | **184** | **23** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1075,7 +1077,7 @@ Vorlage: die Beispielbilder in `docs/ideen-3.99/` (1, 2, 4 und 5). Die Demo hat 
 | 66.7 | „Live“: über den Räumen | Über jedem Raum ein Schild: Name, Temperatur, „💡 5“ wenn Lichter an sind (Rand in Lichtfarbe), 🪟 bei offenem Fenster, grüner Punkt wenn jemand da ist; die Kugeln und Werte der Geräte und die Namen auf dem Boden sind weg (entweder Schilder oder Geräte); die Schilder wandern beim Drehen mit | ❓ |
 | 66.8 | „Ansicht“ → „Im Bild: Raum-Schilder“ antippen, dann noch einmal | Es steht „Im Bild: Geräte“: keine Schilder, die Kugeln und Werte der Geräte und die Namen auf dem Boden sind wieder da; noch ein Tipp: wieder die Schilder | ❓ |
 | 66.9 | Ein Schild (z. B. „Wohnzimmer“) antippen, dann unten die Kachel des Raums | Der Raum öffnet sich mit seinen Geräten (Kugeln und Werte), keine Schilder; nach dem Kachel-Tipp wieder die Schilder. Bei „Ganzes Haus“ und im Bearbeiten-Modus keine Schilder, dort die Geräte wie bisher | ❓ |
-| 66.10 | Am Handy „Live“ | Keine Schilder (dort gibt es die Kacheln), die Namen liegen auf dem Boden | ❓ |
+| 66.10 | Neu in 3.99.6 (#444): am Handy „Live“, „Ansicht“ → „Im Bild: Raum-Schilder“ (bis 3.99.5 gab es am Handy keine Schilder) | Über den Räumen kleine Schilder (Name, Temperatur, Lichter …), Räume ohne Platz zeigen einen Punkt; ein Tipp auf ein Schild öffnet den Raum unten. „Im Bild: Geräte“ zeigt wieder die Kugeln und die Namen auf dem Boden | ❓ |
 | 66.11 | Im Add-on: eigenen Räumen einen Boden geben, Fensterrahmen auf „Anthrazit“ | Bleibt nach dem Neuladen so; ein Tablet im Sparmodus „Schnell“ zeigt die Böden einfarbig in ihrer Farbe | ➖ |
 | 66.12 | Neu in 3.99.1: „Live“, das Bild flach von der Seite drehen (Räume hintereinander) | Die Raum-Schilder liegen nicht übereinander: das hintere rückt nach oben, ein Strich führt zu seinem Raum | ❓ |
 | 66.13 | Neu in 3.99.1: oben links und in der Karte „Strom jetzt“ nachsehen | Oben links keine Zeile mit Wasser, Gas und Wärme mehr; die Zähler stehen unten in der Karte „Strom jetzt“ (🚰 1234.6 m³ · 🔥 845.2 m³ · ♨ 5321 kWh). Am Handy bleibt die Zeile | ❓ |
@@ -1086,5 +1088,8 @@ Vorlage: die Beispielbilder in `docs/ideen-3.99/` (1, 2, 4 und 5). Die Demo hat 
 | 66.18 | Neu in 3.99.4 (#436): auf dem Tablet „Live“, unten eine Raum-Kachel antippen | Die Kachel des Raums bleibt lesbar: Name, Temperatur und Licht stehen hell auf blau getöntem Grund (vorher war sie leer) | ❓ |
 | 66.19 | Nachts „Live“ ansehen (in der Demo `?skytime=23:30` an die Adresse hängen) | Viel mehr Sterne, verschieden hell, ein paar leuchten sanft, eine schwache Milchstraße; bei „bewölkt“ scheinen noch einige Sterne durch, die Wolken liegen davor | ❓ |
 | 66.20 | „Live“ mit vielen Räumen, das Bild flach von der Seite ansehen (wie auf dem Foto mit den langen Strichen) | Keine Türme aus Schildern mit langen Strichen: höchstens zwei Reihen; Räume ohne Platz zeigen einen kleinen Punkt, ein Tipp darauf öffnet den Raum; beim Heranzoomen werden aus den Punkten wieder Schilder | ❓ |
-| 66.21 | Neu in 3.99.5 (#438): am iPhone (auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten nach links und rechts wischen | Die Leiste folgt dem Finger, ein schneller Wisch gleitet nach; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ❓ |
-| 66.22 | Neu in 3.99.5 (#440): am iPhone „Live“, einen Raum antippen (Kachel unten oder im Bild) | Unten öffnet sich die Raum-Karte, der Raum selbst steht darüber gut sichtbar (nicht dahinter) | ❓ |
+| 66.21 | Neu in 3.99.5 (#438): am iPhone (auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten nach links und rechts wischen | Die Leiste folgt dem Finger, ein schneller Wisch gleitet nach; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ❌ (2026-10-18, ruckelt und bleibt hängen, #441; neu: 66.23) |
+| 66.22 | Neu in 3.99.5 (#440): am iPhone „Live“, einen Raum antippen (Kachel unten oder im Bild) | Unten öffnet sich die Raum-Karte, der Raum selbst steht darüber gut sichtbar (nicht dahinter) | ✅ (2026-10-18) |
+| 66.23 | Neu in 3.99.6 (#441): am Handy (iPhone, auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten langsam, schnell und etwas schräg nach links und rechts wischen | Die Leiste läuft flüssig mit dem Finger und bleibt nicht hängen, nach einem schnellen Wisch gleitet sie weich aus; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ❓ |
+| 66.24 | Neu in 3.99.6 (#442): am Handy „Live“, unten „Strom“ drücken, dann auf die Karte „Strom jetzt“ tippen | Oben in der Mitte erscheint die Karte „Strom jetzt“ klein (Sonne, Netz, Haus, Batterie, darunter Wasser, Gas, Wärme), ganz zu sehen; das Haus und die Raum-Kacheln bleiben frei; ein Tipp auf die Karte schaltet „Strom“ aus, die Karte verschwindet | ❓ |
+| 66.25 | Neu in 3.99.6 (#445): am Handy „Live“, ganz unten nachsehen | Ganz unten unter den Knöpfen eine kurze Zeile mit der Uhrzeit und dem Wetter, z. B. „☀️ 12:24 · ⛅ Teilweise bewölkt · 14 °C“; nichts überdeckt sich (Knöpfe, Kompass, Raum-Kacheln). Am PC und Tablet bleiben die beiden Zeilen oben rechts | ❓ |

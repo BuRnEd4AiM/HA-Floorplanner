@@ -163,11 +163,16 @@ pgT.mouse.move(*at); pgT.mouse.wheel(0, 4000); pgT.wait_for_timeout(600)
 check("room tiles: the mouse wheel scrolls it to the end: no arrow on the right then", strip()["x"] >= strip()["over"] - 2 and not pgT.is_visible("#tilesRight") and pgT.is_visible("#tilesLeft"), strip())
 pgT.close()
 
-# --- phones: no labels (the tiles are there)
+# --- phones: the labels too (#444), smaller
 pgP2 = b.new_page(viewport={"width": 390, "height": 844}, is_mobile=True, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"})
 pgP2.goto(BASE + "?debug=1&mode=live"); pgP2.wait_for_timeout(2000)
 pgP2.evaluate("window.__fp.switchFloor(0)"); pgP2.wait_for_timeout(800)
-check("room labels: none on a phone, the names stay on the floor", not pgP2.is_visible("#roomLabels") and pgP2.evaluate(NAME, "Schilderraum") is True)
+ph = pgP2.evaluate("""() => { const e = document.querySelector('#roomLabels [data-room=lk_room]'); return e && { size: getComputedStyle(e).fontSize, mini: e.classList.contains('mini') }; }""")
+check("room labels (#444): on a phone too, smaller; the name on the floor steps aside",
+      pgP2.is_visible("#roomLabels") and ph and ph["size"] == "11px" and pgP2.evaluate(NAME, "Schilderraum") is False, ph)
+pgP2.locator("#roomLabels [data-room=lk_room]").dispatch_event("click"); pgP2.wait_for_timeout(1000)
+check("room labels: a tap on a phone opens the room (its card at the bottom), the labels step aside",
+      pgP2.evaluate("window.__fp.focusedRoom()") == "lk_room" and pgP2.is_visible("#roomPanel") and not pgP2.is_visible("#roomLabels"), pgP2.evaluate("window.__fp.focusedRoom()"))
 pgP2.close()
 check("3.99 checks: no errors in the browser", not own_lk, own_lk[:3])
 pgL.close()
