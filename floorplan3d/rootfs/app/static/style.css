@@ -938,6 +938,17 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 #roomTiles > :last-child { margin-right: auto; }
 #roomTiles[hidden], body:not(.live) #roomTiles, body.card #roomTiles, body.roomtablet #roomTiles, #livePopup:not([hidden]) ~ #roomTiles { display: none; }   /* a room tablet shows its one room */
 #roomPanel:not([hidden]) ~ #roomTiles { right: 324px; }
+/* more tiles than fit (3.99.2): the cut side fades out, an arrow at each end with more to see */
+#roomTiles.moreR { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent); }
+#roomTiles.moreL { -webkit-mask-image: linear-gradient(90deg, transparent, #000 64px); mask-image: linear-gradient(90deg, transparent, #000 64px); }
+#roomTiles.moreL.moreR { -webkit-mask-image: linear-gradient(90deg, transparent, #000 64px, #000 calc(100% - 64px), transparent); mask-image: linear-gradient(90deg, transparent, #000 64px, #000 calc(100% - 64px), transparent); }
+.tileArrow { position: absolute; bottom: 68px; z-index: 5; width: 34px; padding: 0; border-radius: 12px; font-size: 24px; line-height: 1; color: #eef3f8;
+  background: rgba(16, 22, 30, .78); border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+.tileArrow[hidden] { display: none; }
+#tilesLeft { left: 156px; }
+#tilesRight { right: 16px; }
+#roomPanel:not([hidden]) ~ #tilesRight { right: 324px; }
+body:not(.live) .tileArrow, body.card .tileArrow, body.roomtablet .tileArrow, #livePopup:not([hidden]) ~ .tileArrow { display: none; }
 .rtTile { flex: 0 0 auto; width: 150px; padding: 9px 12px; border-radius: 14px; display: flex; flex-direction: column; gap: 1px; text-align: left; font: inherit;
   color: #eef3f8; cursor: pointer; background: rgba(16, 22, 30, .72); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, .12); box-shadow: 0 8px 24px rgba(0, 0, 0, .3); }
@@ -956,6 +967,7 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
 @media (max-width: 760px) {
   #roomTiles { left: 0; right: 0; bottom: 136px; padding: 6px 12px; gap: 8px; }
   #roomPanel:not([hidden]) ~ #roomTiles { display: none; }
+  .tileArrow { display: none !important; }   /* phones swipe */
   .rtTile { width: 128px; padding: 8px 10px; }
   .rtHead { font-size: 13px; }
   .rtTemp { font-size: 21px; }
