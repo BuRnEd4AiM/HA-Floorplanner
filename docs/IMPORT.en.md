@@ -4,7 +4,7 @@
 
 **Describe plot, rooms, windows, doors and devices. The house builds itself.**
 
-<img src="img/import-en-4-whole-house.png" alt="Imported house with plot in the 3D view" width="820">
+<img src="img/import-en-4-whole-house.jpg" alt="Imported house with plot in the 3D view" width="820">
 
 [Deutsch](IMPORT.md) · **English**
 
@@ -27,27 +27,27 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
 
 **1. Open the import dialog.** In edit mode, expand **Houses** in the side panel and click **Import house from JSON …**.
 
-![Houses panel with import and export buttons](img/import-en-0-panel.png)
+![Houses panel with import and export buttons](img/import-en-0-panel.jpg)
 
 **2. Load an example and check it.** Click **Example: flat**, **Example: house with plot** or **Example: show house (everything in it)**, then **Check**. You get a summary (floors, rooms, walls, doors/windows, devices) and any warnings. **Import** only becomes active once exactly this text has been checked without errors.
 
-![Import dialog after a successful check](img/import-en-1-dialog.png)
+![Import dialog after a successful check](img/import-en-1-dialog.jpg)
 
 **3. Read errors.** An error carries the exact path into your JSON (here: a room whose edges cross each other). Nothing is created while there are errors.
 
-![Error message with JSON path](img/import-en-2-error.png)
+![Error message with JSON path](img/import-en-2-error.jpg)
 
 **4. Import.** The house is created as a **new house** and opened right away. Your existing house stays untouched; switch back any time with the house selector at the top.
 
-![Imported house (ground floor)](img/import-en-3-result.png)
+![Imported house (ground floor)](img/import-en-3-result.jpg)
 
 **5. Whole house and plot.** In live mode, **Whole house** shows building, roof, plot and garden objects (lawn, terrace, trees, fence). The house stands in the lawn, the basement sits in the earth and is shown cut open on the camera side.
 
-![Whole house with plot](img/import-en-4-whole-house.png)
+![Whole house with plot](img/import-en-4-whole-house.jpg)
 
 **6. Keep working in the 2D plan.** The plot boundary is dashed. From here on everything is a normal house: move walls, link devices to entities, add rooms.
 
-![2D plan with dashed plot boundary](img/import-en-5-plan2d.png)
+![2D plan with dashed plot boundary](img/import-en-5-plan2d.jpg)
 
 ## Coordinates
 

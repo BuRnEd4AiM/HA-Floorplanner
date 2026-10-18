@@ -4,7 +4,7 @@
 
 **Grundstück, Räume, Fenster, Türen und Geräte beschreiben – das Haus entsteht automatisch.**
 
-<img src="img/import-4-whole-house.png" alt="Importiertes Haus mit Grundstück in der 3D-Ansicht" width="820">
+<img src="img/import-4-whole-house.jpg" alt="Importiertes Haus mit Grundstück in der 3D-Ansicht" width="820">
 
 **Deutsch** · [English](IMPORT.en.md)
 
@@ -28,27 +28,27 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 
 **1. Importdialog öffnen.** Im Bearbeiten-Modus in der Seitenleiste **Häuser** aufklappen und **Haus aus JSON importieren …** klicken.
 
-![Häuser-Bereich mit Import- und Export-Schaltfläche](img/import-0-panel.png)
+![Häuser-Bereich mit Import- und Export-Schaltfläche](img/import-0-panel.jpg)
 
 **2. Beispiel laden und prüfen.** **Beispiel: Wohnung**, **Beispiel: Haus mit Grundstück** oder **Beispiel: Musterhaus (alles drin)** klicken, dann **Prüfen**. Du bekommst eine Zusammenfassung (Etagen, Räume, Wände, Türen/Fenster, Geräte) und eventuelle Warnungen. **Importieren** wird erst aktiv, wenn genau dieser Text fehlerfrei geprüft wurde.
 
-![Importdialog mit erfolgreicher Prüfung](img/import-1-dialog.png)
+![Importdialog mit erfolgreicher Prüfung](img/import-1-dialog.jpg)
 
 **3. Fehler lesen.** Bei einem Fehler steht der genaue Pfad in der JSON dabei (hier: ein Raum, dessen Ecken sich überkreuzen). Nichts wird angelegt, solange es Fehler gibt.
 
-![Fehlermeldung mit JSON-Pfad](img/import-2-error.png)
+![Fehlermeldung mit JSON-Pfad](img/import-2-error.jpg)
 
 **4. Importieren.** Das Haus wird als **neues Haus** angelegt und sofort geöffnet. Dein bisheriges Haus bleibt unverändert; über die Hausauswahl oben wechselst du jederzeit zurück.
 
-![Importiertes Haus (Erdgeschoss)](img/import-3-result.png)
+![Importiertes Haus (Erdgeschoss)](img/import-3-result.jpg)
 
 **5. Ganzes Haus und Grundstück.** Im Live-Modus zeigt **Ganzes Haus** Gebäude, Dach, Grundstück und Gartenobjekte (Rasen, Terrasse, Bäume, Zaun). Das Haus steht im Rasen, der Keller steckt in der Erde und wird an der Kameraseite aufgeschnitten gezeigt.
 
-![Ganzes Haus mit Grundstück](img/import-4-whole-house.png)
+![Ganzes Haus mit Grundstück](img/import-4-whole-house.jpg)
 
 **6. Im 2D-Plan weiterarbeiten.** Die Grundstücksgrenze erscheint gestrichelt. Ab jetzt ist alles normal bearbeitbar: Wände verschieben, Geräte mit Entities verknüpfen, Räume ergänzen.
 
-![2D-Plan mit gestrichelter Grundstücksgrenze](img/import-5-plan2d.png)
+![2D-Plan mit gestrichelter Grundstücksgrenze](img/import-5-plan2d.jpg)
 
 ## Koordinaten
 

@@ -64,6 +64,15 @@ Testprotokoll: Abschnitte **65** (65.1 bis 65.17) und **66** (66.1 bis 66.25) si
 4. Ein Skript in die Seite spielen, das die Idee nur für das Foto malt (`docs/ideen-3.99/mockup2.js`, `docs/ideen-3.98/mockup.js`), dann `page.screenshot`. Beispiel: `python3 docs/ideen-3.99/make_pictures.py /tmp/bilder 1-boeden`.
 5. Die Bilder als JPG (Qualität 80) in `docs/ideen-<version>/` legen und dem Besitzer schicken.
 
+## Die Bilder der README und der Import-Anleitung neu machen (2026-10-18, Wunsch des Besitzers: „mache mal bitte die bilder alle neu“)
+
+- Alle Bilder in `docs/img` macht **ein** Skript: `python3 tools/make_screenshots.py` (alle, etwa 15 Minuten) oder nur einzelne, z. B. `python3 tools/make_screenshots.py hero phone sky`. Mit `OUT=/pfad` landen sie erst woanders (zum Anschauen). Vorher die Demo bauen (siehe oben, Schritt 1) und Playwright 1.56.0 installieren; das Skript nimmt `/opt/pw-browsers/chromium` von selbst.
+- Namen: `hero` (3d.jpg), `house`, `ground`, `ledring`, `room`, `light`, `split`, `plan` (2d.jpg), `library`, `toolbar`, `power`, `heat`, `floors`, `sky` (vier Tageszeiten/Wetter in einem Bild), `devices`, `security`, `phone` (drei Handys in einem Bild, PNG mit durchsichtigen Ecken), `tour` (overview.gif); aus einem Wegwerf-Add-on: `welcome`, `backup`, `version` und `import` (die Bilder von `docs/IMPORT.md` auf Deutsch, `docs/IMPORT.en.md` auf Englisch und `import-demo.gif`).
+- Das Bild für GitHub (Social Preview): `python3 tools/make_social_preview.py` (im Editor ohne Himmel, damit das Haus ausgeschnitten werden kann). Es muss danach von Hand in GitHub hochgeladen werden: Settings → General → Social preview.
+- Große Bildschirmfotos sind **JPG** (höchstens 2400 px breit, Qualität 85): ein Himmel mit Sternen machte ein PNG 2 bis 3 MB groß.
+- Feste Uhrzeit des Himmels pro Bild (`?skytime=`), englische Oberfläche, „Ansicht“ → „Schilder darunter“ aus (sonst scheinen die Kellernamen durch den Rasen). Die Demo bekommt ihre Einstellungen und für `security` einen aufgezeichneten Beispieltag über `HOOK` im Skript (fängt `fetch` ab, bevor die Demo es ersetzt).
+- Karten (Lampe, LED-Ring) liegen mitten über dem Raum: das Skript schiebt das 3D-Bild danach mit der rechten Maustaste zur Seite (`pan`), von einer freien Stelle aus, nicht auf einer Karte.
+
 ## Stolperfallen (aus dieser Sitzung)
 
 - `body` trägt `data-tool` (das gewählte Werkzeug): ein Selektor wie `[data-tool=wall] svg` trifft auch den `body`. Immer auf `#tools` einschränken.
