@@ -9,6 +9,11 @@ test('a bottom sheet over the lower half moves the picture up into the free part
   const s = V.sheetShift(view, { left: 60, top: 324, right: 378, bottom: 688 });
   assert.equal(s, Math.round((700 - 324) / 2));
 });
+test('the sheet of an iPhone stands higher, clear of the home bar: the picture still moves up (#440)', () => {
+  assert.equal(V.sheetShift(view, { left: 12, top: 300, right: 378, bottom: 654 }), Math.round((700 - 300) / 2));   // 46 px above the bottom
+  assert.equal(V.sheetShift({ left: 0, top: 0, right: 430, bottom: 1000 }, { left: 12, top: 470, right: 418, bottom: 900 }), Math.round((1000 - 470) / 2), 'a tall phone: 12 % of its height');
+  assert.equal(V.sheetShift(view, { left: 12, top: 200, right: 378, bottom: 500 }), 0, 'a panel in the middle is no bottom sheet');
+});
 test('closed panel, side panel (tablet, desktop) and a small sheet move nothing', () => {
   assert.equal(V.sheetShift(view, null), 0);
   assert.equal(V.sheetShift({ left: 0, top: 0, right: 1300, bottom: 800 }, { left: 988, top: 58, right: 1288, bottom: 788 }), 0);

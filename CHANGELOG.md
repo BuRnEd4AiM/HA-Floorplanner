@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [3.99.5] - 2026-10-18
+### Fixed
+- **Swiping the room tiles on the iPhone** (#438): on the iPhone (Safari, also in the Home Assistant app) the strip of room tiles at the bottom could not be swiped sideways, so the rooms further right were out of reach (phones have no arrows). Now the finger moves the strip itself, the same on every device: it follows the finger, a quick swipe glides on and slows down, a tap still opens the room and a swipe opens none. The mouse keeps its wheel and the arrows.
+- **The tapped room no longer hides behind the room card on the iPhone** (#440): on phones the picture moves up while the room card is open at the bottom, so the room stands above it. The iPhone keeps the card clear of its home bar, a little higher than before, and then the picture did not move: the room lay behind the card. Now a card that far up still counts.
+
 ## [3.99.4] - 2026-10-18
 ### Fixed
 - **The room tile you tapped is no longer empty** (#436): on the tablet (the "fast" performance mode) the tile of the room opened lost its name, temperature and lights: dark text on the dark tile. Now it has its own light text on a tint of the accent colour.

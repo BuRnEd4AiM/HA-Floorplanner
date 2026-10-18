@@ -124,6 +124,37 @@ pgP.goto(BASE + "?debug=1&mode=live"); pgP.wait_for_timeout(2000)
 pgP.evaluate("window.__fp.switchFloor(0)"); pgP.wait_for_timeout(800)
 seen = [pgP.is_visible(s) for s in ("#energyCard", "#skyChips", "#roomTiles")]
 check("phone: no energy card and no sky chips (no room for them), the room tiles are there", seen == [False, False, True], seen)
+pgP.evaluate("""() => { const f = window.__fp.layout.floors[0];            // rooms enough that the tiles do not fit (only on this page, not saved)
+  for (let i = 0; i < 5; i++) f.rooms.push({ id: 'sw' + i, name: 'Wischraum ' + i, color: '#8a7f70', points: [[90 + 3 * i, 90], [92 + 3 * i, 90], [92 + 3 * i, 92], [90 + 3 * i, 92]] });
+  window.__fp.rebuild(); }"""); pgP.wait_for_timeout(900)
+STRIP = "(() => { const b = document.querySelector('#roomTiles'); return { left: b.scrollLeft, more: b.scrollWidth - b.clientWidth, touch: getComputedStyle(b).touchAction }; })()"
+st0 = pgP.evaluate(STRIP)
+# a finger swipe made of pointer events only: the browser itself never scrolls for those, like the iPhone that did not scroll the strip (#438)
+pgP.evaluate("""() => { const b = document.querySelector('#roomTiles'), t = b.querySelector('.rtTile'), y = t.getBoundingClientRect().top + 30;
+  const ev = (type, x) => t.dispatchEvent(new PointerEvent(type, { pointerId: 41, pointerType: 'touch', isPrimary: true, clientX: x, clientY: y, bubbles: true }));
+  ev('pointerdown', 330); for (let x = 320; x >= 120; x -= 20) ev('pointermove', x); ev('pointerup', 120);
+  t.dispatchEvent(new MouseEvent('click', { bubbles: true })); }""")   # the click a phone may send after the swipe
+pgP.wait_for_timeout(700)
+st1 = pgP.evaluate(STRIP)
+check("phone (#438): the room tiles follow the finger sideways, also where the browser does not scroll them itself (iPhone); the page keeps only up and down",
+      st0["more"] > 100 and st0["left"] == 0 and st1["left"] >= min(180, st0["more"]) and st0["touch"] == "pan-y", (st0, st1))
+check("phone: the swipe opens no room (the click after it is swallowed)", pgP.evaluate("window.__fp.focusedRoom()") is None, pgP.evaluate("window.__fp.focusedRoom()"))
+cdp = pgP.context.new_cdp_session(pgP)
+ty = pgP.evaluate("document.querySelector('#roomTiles .rtTile').getBoundingClientRect().top + 30")
+cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [{"x": 60, "y": ty}]})
+for x in range(75, 300, 15):
+    cdp.send("Input.dispatchTouchEvent", {"type": "touchMove", "touchPoints": [{"x": x, "y": ty}]}); pgP.wait_for_timeout(16)
+cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []}); pgP.wait_for_timeout(900)
+st2 = pgP.evaluate(STRIP)
+check("phone: a real finger swipe to the right brings the first tiles back", st2["left"] < st1["left"] - 100, (st1, st2))
+pgP.wait_for_timeout(500)
+pgP.add_style_tag(content="body #roomPanel { bottom: 46px !important; }")   # the iPhone keeps the room sheet clear of its home bar (#440)
+pgP.locator("#roomTiles .rtTile").first.tap(); pgP.wait_for_timeout(900)
+check("phone: a tap on a tile still opens its room", pgP.evaluate("window.__fp.focusedRoom()") is not None, pgP.evaluate("window.__fp.focusedRoom()"))
+sheet = pgP.evaluate("""() => { const v = document.querySelector('#view').getBoundingClientRect(), s = document.querySelector('#roomPanel').getBoundingClientRect();
+  return { gap: Math.round(v.bottom - s.bottom), top: Math.round(s.top - v.top), h: Math.round(v.height), shift: window.__fp.viewShift() }; }""")
+check("phone (#440): the room sheet stands clear of the bottom like on an iPhone; the picture still moves up so the room is seen above the sheet, not behind it",
+      pgP.is_visible("#roomPanel") and sheet["gap"] >= 40 and sheet["shift"] >= (sheet["h"] - sheet["top"]) // 2 - 2, sheet)
 pgP.close()
 check("3.98 checks: no errors in the browser", not own, own[:3])
 pgS.close()
