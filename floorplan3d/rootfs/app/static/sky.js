@@ -96,8 +96,17 @@ export function skyColors(elev, rising = false, cloud = 0) {
   return { top: rgbHex(top), mid: rgbHex(mid), low: rgbHex(low) };
 }
 
-/** how clearly the stars show (0..1): only at night and without clouds */
-export const starAlpha = (elev, cloud = 0) => clamp((-elev - 4) / 8, 0, 1) * (1 - clamp(cloud, 0, 1));
+/** how clearly the stars show (0..1): only at night; clouds hide them, a cloudy sky still lets some through, an overcast one none */
+export const starAlpha = (elev, cloud = 0) => clamp((-elev - 4) / 8, 0, 1) * clamp(1 - 1.1 * clamp(cloud, 0, 1) ** 2, 0, 1);
+
+/** the faint band of the Milky Way across the night sky as a CSS layer, a few brighter patches along it; null while the stars are faint */
+export function milkyWay(alpha) {
+  if (!(alpha >= 0.3)) return null;
+  const a = (k) => +(k * alpha).toFixed(3), c = (k) => `rgba(205,212,255,${a(k)})`;
+  return [[30, 26, 22, 9], [52, 42, 18, 8], [74, 58, 20, 9]]
+    .map(([x, y, w, h]) => `radial-gradient(ellipse ${w}% ${h}% at ${x}% ${y}%, ${c(0.09)}, ${c(0)} 70%)`)
+    .concat(`linear-gradient(152deg, ${c(0)} 22%, ${c(0.055)} 40%, ${c(0.11)} 48%, ${c(0.055)} 56%, ${c(0)} 72%)`).join(', ');
+}
 
 /** the lawn's tint [r, g, b]: darker and bluer at night, warmer at sunrise and sunset, a little darker under clouds */
 export function groundTint(elev, cloud = 0) {

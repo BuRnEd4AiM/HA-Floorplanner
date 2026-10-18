@@ -70,7 +70,14 @@ test('sky colours: dark at night, blue by day, warm at the horizon at sunset, gr
 test('stars only at night and under a clear sky; the lawn darker at night and warmer at sunset', () => {
   assert.equal(S.starAlpha(5), 0);
   assert.equal(S.starAlpha(-20), 1);
-  assert.equal(S.starAlpha(-20, 1), 0);
+  assert.equal(S.starAlpha(-20, 1), 0, 'overcast: none');
+  const cloudy = S.starAlpha(-20, 0.75), some = S.starAlpha(-20, 0.35);
+  assert.ok(cloudy > 0.3 && cloudy < 0.5 && some > 0.8 && some < 1, 'cloudy: some still shine through');
+  assert.equal(S.milkyWay(0.2), null, 'no Milky Way while the stars are faint');
+  const band = S.milkyWay(1);
+  assert.match(band, /linear-gradient\(152deg/);
+  assert.equal(band.match(/radial-gradient/g).length, 3);
+  assert.ok(!/NaN|undefined/.test(band + S.milkyWay(0.6)));
   assert.deepEqual(S.groundTint(40), [1, 1, 1]);
   const n = S.groundTint(-20), e = S.groundTint(5);
   assert.ok(n[0] < 0.5 && n[2] > n[0], 'night: dark and blue');

@@ -93,15 +93,34 @@ test('a label floats over most furniture, under the ceiling', () => {
   assert.equal(R.labelHeight(undefined), 1.2);
 });
 
-test('labels over the rooms that land on each other are pushed apart upwards; the lowest keeps its place', () => {
-  const L = (x, y, w = 120, h = 26) => ({ x, y, w, h });
-  assert.deepEqual(R.stackLabels([L(100, 300), L(400, 300)]), [0, 0], 'side by side: nothing moves');
-  assert.deepEqual(R.stackLabels([L(100, 280), L(110, 300)]), [10, 0], 'the higher one (further away) goes up, just clear of the lower one');
-  const three = R.stackLabels([L(100, 300), L(100, 300), L(100, 300)]);
-  assert.equal(Math.min(...three), 0);
-  assert.deepEqual([...three].sort((a, b) => a - b), [0, 30, 60], 'three on one spot: stacked one over the other');
-  assert.deepEqual(R.stackLabels([L(100, 300), L(100, 250)]), [0, 0], 'one well above the other: nothing moves');
-  assert.deepEqual(R.stackLabels([]), []);
+test('labels on each other are tidied: the one that matters more keeps its place, another moves up a row at most, else it becomes a dot (#436)', () => {
+  const L = (x, y, rank = 0, w = 120, h = 26) => ({ x, y, w, h, rank });
+  const ups = (r) => r.map((o) => (o.mini ? 'dot' : o.up));
+  assert.deepEqual(ups(R.tidyLabels([L(100, 300), L(400, 300)])), [0, 0], 'side by side: nothing moves');
+  assert.deepEqual(ups(R.tidyLabels([L(100, 280), L(110, 300)])), [10, 0], 'the higher one (further away) goes up, just clear of the lower one');
+  assert.deepEqual(ups(R.tidyLabels([L(100, 300), L(100, 250)])), [0, 0], 'one well above the other: nothing moves');
+  assert.deepEqual(ups(R.tidyLabels([L(100, 300), L(100, 300), L(100, 300)])), [0, 30, 'dot'], 'three on one spot: one row up, the third a dot, no tower');
+  assert.deepEqual(ups(R.tidyLabels([L(100, 300, 0), L(100, 300, 9)])), [30, 0], 'the room with the lights on keeps its place, the other one moves up');
+  assert.deepEqual(ups(R.tidyLabels([L(100, 300), L(100, 300, 0, 120, 26), L(100, 300, 5)])), [30, 'dot', 0], 'by rank first, then the nearer one');
+  const row = Array.from({ length: 8 }, (_, i) => L(100 + i * 40, 300 - i * 2));                  // a long house from the side: eight on a line
+  const r = R.tidyLabels(row);
+  assert.ok(r.every((o) => o.mini || o.up <= 30), 'no label goes up more than one row');
+  assert.ok(r.filter((o) => !o.mini).length >= 3 && r.some((o) => o.mini), r.map((o) => (o.mini ? 'dot' : o.up)).join());
+  assert.deepEqual(ups(R.tidyLabels([L(100, 300), L(100, 300)])), [0, 30], 'a full row up is still allowed ...');
+  assert.deepEqual(ups(R.tidyLabels([L(100, 300), { ...L(100, 300), mini: true }])), [0, 'dot'],
+    '... but a dot needs a little more room than that to grow again (no flicker while the view turns)');
+  assert.deepEqual(ups(R.tidyLabels([L(100, 300), { ...L(100, 268), mini: true }])), [0, 4], 'with that room it is a label again');
+  assert.deepEqual(R.tidyLabels([]), []);
+  assert.deepEqual(R.tidyLabels([L(0, 0)], { rows: 0 }), [{ up: 0, mini: false }]);
+});
+
+test('what makes a label matter more: lights on, then somebody there, a window open, a temperature', () => {
+  const s = (o) => ({ temp: null, lights: 0, open: 0, occupied: false, ...o });
+  assert.equal(R.labelRank(s({})), 0);
+  assert.ok(R.labelRank(s({ lights: 1 })) > R.labelRank(s({ occupied: true, open: 1, temp: 20 })));
+  assert.ok(R.labelRank(s({ occupied: true })) > R.labelRank(s({ open: 2, temp: 20 })));
+  assert.ok(R.labelRank(s({ open: 1 })) > R.labelRank(s({ temp: 20 })));
+  assert.equal(R.labelRank(s({ temp: 0 })), 1, 'zero degrees is a temperature too');
 });
 
 test('a strip that scrolls sideways: arrows only where there is more to see (3.99.2)', () => {

@@ -82,28 +82,33 @@ export const labelsShown = ({ on, live, wide, house, focused, view3d }) => !!(on
  *  down at an angle */
 export const labelHeight = (wallHeight) => Math.min(1.2, 0.47 * (wallHeight || 2.6));
 
-/** labels over the rooms that land on each other on the screen (the camera low, rooms one behind the other) are pushed apart, upwards:
- *  the lowest one (mostly the nearest room) keeps its place, a line still leads down to its room. items: [{ x (middle), y (where the line
- *  ends, over the room), w, h }] in screen pixels; stem: the line under a label that is not pushed; gap: room between two labels.
- *  Returns how far each label goes up (pixels), in the order given */
-export function stackLabels(items, stem = 8, gap = 4) {
-  const order = items.map((_, i) => i).sort((a, b) => items[b].y - items[a].y || items[a].x - items[b].x);
-  const up = items.map(() => 0), placed = [];
-  const mid = (i) => items[i].y - stem - items[i].h / 2 - up[i];          // the middle of label i on the screen
+/** how much a room's label matters when labels lie on each other (#436): lights on, somebody there, a window open, a temperature */
+export const labelRank = (s) => (s.lights ? 8 : 0) + (s.occupied ? 4 : 0) + (s.open ? 2 : 0) + (s.temp !== null && s.temp !== undefined ? 1 : 0);
+
+/**
+ * Room labels that would lie on each other, tidied (3.99.1, #436): the ones that matter more (labelRank; then the nearer = lower on the
+ * screen) keep their place. One that covers a label placed before it moves up just clear of it, a short line leading down to its room, but
+ * at most `rows` rows; if it still covers one it shrinks to a small dot over its room (a tap opens the room as before) instead of a tower
+ * of labels on long lines. items: [{ x (middle), y (where the line ends, over the room), w, h, rank, mini (a dot the frame before: it needs
+ * a little more room to grow again, so it does not flicker while the view turns) }] in screen pixels; stem: the line under a label;
+ * gap: room between two labels. Returns [{ up (pixels), mini }] in the order given
+ */
+export function tidyLabels(items, { stem = 8, gap = 4, rows = 1 } = {}) {
+  const order = items.map((_, i) => i).sort((a, b) => (items[b].rank || 0) - (items[a].rank || 0) || items[b].y - items[a].y || items[a].x - items[b].x);
+  const out = items.map(() => ({ up: 0, mini: false })), boxes = [];
+  const box = (it, up) => ({ l: it.x - it.w / 2, r: it.x + it.w / 2, b: it.y - stem - up, t: it.y - stem - up - it.h });
+  const hit = (q, o, g) => q.l < o.r + g && o.l < q.r + g && q.t < o.b + g && o.t < q.b + g;
   for (const i of order) {
-    let moved = true, guard = 0;
-    while (moved && guard++ < 20) {                                      // up until it covers no label placed before it
-      moved = false;
-      for (const j of placed) {
-        const a = items[i], b = items[j];
-        if (Math.abs(a.x - b.x) < (a.w + b.w) / 2 + gap && Math.abs(mid(i) - mid(j)) < (a.h + b.h) / 2 + gap) {
-          up[i] = a.y - stem - a.h / 2 - (mid(j) - (a.h + b.h) / 2 - gap); moved = true;
-        }
-      }
+    const it = items[i], g = it.mini ? gap + 6 : gap, most = rows * (it.h + gap);
+    let up = 0, q = box(it, 0), over = boxes.filter((o) => hit(q, o, g));
+    for (let guard = 0; over.length && up <= most && guard < 20; guard++) {
+      up = it.y - stem - (Math.min(...over.map((o) => o.t)) - g);            // its foot just over the highest label in the way
+      q = box(it, up); over = boxes.filter((o) => hit(q, o, g));
     }
-    placed.push(i);
+    if (over.length || up > most) { out[i].mini = true; continue; }        // the dots are small: they keep no room free
+    out[i].up = Math.max(0, Math.round(up)); boxes.push(q);
   }
-  return up.map((u) => Math.max(0, Math.round(u)));
+  return out;
 }
 
 /** a strip that scrolls sideways (the room tiles when they do not fit, 3.99.2): is there more to see on the left / on the right?

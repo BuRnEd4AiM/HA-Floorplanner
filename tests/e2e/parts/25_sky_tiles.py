@@ -72,6 +72,11 @@ check("room tiles (#421): a card per room; the new room with its temperature, th
 check("room tiles: a lit room has the light's colour at its edge", "lit" in (tile.get_attribute("class") or "") and "#ff7828" in (tile.get_attribute("style") or ""), tile.get_attribute("style"))
 tile.click(); pgS.wait_for_timeout(900)
 check("room tiles: a tap flies to the room and opens its room card", pgS.evaluate("window.__fp.focusedRoom()") == "kr_room" and pgS.is_visible("#roomPanel"))
+look = pgS.evaluate("""() => { document.body.classList.add('low'); const t = document.querySelector('#roomTiles [data-room=kr_room]');
+  const r = { active: t.classList.contains('active'), tile: getComputedStyle(t).color, name: getComputedStyle(t.querySelector('.rtHead b')).color,
+    temp: getComputedStyle(t.querySelector('.rtTemp')).color }; document.body.classList.remove('low'); return r; }""")
+check("room tiles (#436): the tile of the opened room keeps its name and temperature readable, also in the fast mode of the tablet (light text, not dark on dark)",
+      look["active"] and look["tile"] == look["name"] == look["temp"] == "rgb(255, 255, 255)", look)
 pgS.locator("#roomTiles [data-room=kr_room]").click(); pgS.wait_for_timeout(700)
 check("room tiles: a second tap goes back", pgS.evaluate("window.__fp.focusedRoom()") is None)
 view_menu(pgS); pgS.click("#tilesToggle"); pgS.wait_for_timeout(500)
