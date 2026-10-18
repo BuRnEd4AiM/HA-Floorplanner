@@ -1,6 +1,6 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-10-18, Version **3.99.2**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`, dann bei den **Entscheidungen des Besitzers** unten weitermachen.
+Stand: 2026-10-18, Version **3.99.3**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`, dann bei den **Entscheidungen des Besitzers** unten weitermachen.
 
 ## Der Besitzer
 
@@ -20,7 +20,8 @@ Stand: 2026-10-18, Version **3.99.2**. Diese Datei ist für den nächsten Chat (
 
 | 3.99.0 | #431 (gemergt) | Zweite Runde Aussehen, vom Besitzer ausgewählt: echte Böden pro Raum (#427, `floorcover.js`, `floortex.js`), Fensterrahmen weiß / anthrazit (#428, `facade.js`), Glas-Optik für Etagen-Karten und Knöpfe (#429, nur CSS), Raum-Schilder im 3D-Bild (#430, `roomlabels.js`): auf Wunsch des Besitzers **entweder Raum-Schilder oder Geräte** (Schalter „Im Bild: Raum-Schilder / Geräte“ in „Ansicht“, Normalfall Raum-Schilder; ein Schild antippen öffnet den Raum mit seinen Geräten). Die älteren Browser-Test-Teile laufen mit „Geräte“ (`base.py`), `26_look` prüft die Schilder. Browser-Test-Teil `26_look`. Die Demo hat Böden und anthrazitfarbene Rahmen eingestellt |
 | 3.99.1 | #432 (gemergt) | Nach Bildern des Besitzers: Raum-Schilder, die von der Seite übereinander lagen, rücken auseinander (`stackLabels` in `roomtiles.js`); die Zähler (Wasser, Gas, Wärme) stehen in der Karte „Strom jetzt“ statt oben links (`meterChips` in `energyflow.js`). Testprotokoll 66.12, 66.13 |
-| 3.99.2 | Branch `claude/bold-cannon-9w2m0w` | Nach einem Test des Besitzers mit dem Musterhaus: die Raum-Kacheln, die nicht alle hinpassen, bekommen Pfeile, einen weichen Rand und Mausrad-Scrollen (`stripEnds` in `roomtiles.js`); die Etagen-Karten weichen der Karte „Strom jetzt“ aus. Testprotokoll 66.14, 66.15 |
+| 3.99.2 | #433 (gemergt) | Nach einem Test des Besitzers mit dem Musterhaus: die Raum-Kacheln, die nicht alle hinpassen, bekommen Pfeile, einen weichen Rand und Mausrad-Scrollen (`stripEnds` in `roomtiles.js`); die Etagen-Karten weichen der Karte „Strom jetzt“ aus. Testprotokoll 66.14, 66.15 |
+| 3.99.3 | Branch `claude/inspiring-brahmagupta-79bkxq` | Nach einem Foto des Besitzers vom Tablet (#434): die Karte „Strom jetzt“ erscheint nur, solange unten „Strom“ gedrückt ist (oder der Strom-Editor offen ist); ein Tipp auf die Karte schaltet „Strom“ aus. Der Knopf „Strom“ erscheint auch, wenn nur die Sensoren von „⚡ Rechnung“ eingestellt sind (`energyflowui.js`, `power.js`). Die roten Schriften „PLUS Features Activated“ / „Please Get a License“ auf seinem Tablet kommen von Fully Kiosk Browser (PLUS-Funktion ohne Lizenz), nicht vom Add-on. Testprotokoll 66.16, 66.17 |
 
 Testprotokoll: Abschnitte **65** (65.1 bis 65.17) und **66** (66.1 bis 66.15) sind neu und noch ❓; der Besitzer prüft sie in der Demo. 65.14, 65.15, 65.17 und 66.11 gehen nur im Add-on.
 

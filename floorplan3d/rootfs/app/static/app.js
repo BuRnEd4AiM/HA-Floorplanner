@@ -508,7 +508,7 @@ const energySetup = initEnergySetup({
   deviceY: (type) => DEVICE_TYPES[type]?.y || 0, onWall: (d) => { if (WALL_TYPES.has(d.type)) snapToWall(d, 100); }, placed: () => changed(),
 });
 const energyFlow = initEnergyFlow({ $, t, settings: () => settings, states: () => states, layout: () => layout,   // the energy flow as a picture (#420), energyflowui.js
-  low: () => perfParam === 'low', toggleCables: () => power.toggle(), commitSettings: () => commitSettings() });
+  low: () => perfParam === 'low', toggleCables: () => power.toggle(), commitSettings: () => commitSettings(), cablesShown: () => power.cablesShown() });
 const energyUi = initEnergyUi({
   $, t, layout: () => layout, states: () => states, entities: () => entities, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
   entityPicker: (...a) => entityPicker(...a), pickerField: (...a) => pickerField(...a), snapshot: () => snapshot(), changed: () => changed(false), refresh: () => power.update(),

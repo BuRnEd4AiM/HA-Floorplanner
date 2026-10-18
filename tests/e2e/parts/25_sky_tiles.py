@@ -49,16 +49,20 @@ check("sky: the chip at the top right says night and the next sunrise", "Nacht" 
 check("weather (#419): the second chip has the weather, its temperature and the wind", "Regen · 11 °C · Wind 24 km/h" in chips, chips)
 check("weather: rain falls over the picture in live mode", pgS.is_visible("#wxFall") and "rain" in pgS.get_attribute("#wxFall", "class"), pgS.get_attribute("#wxFall", "class"))
 
-# --- the energy flow as a picture (#420)
+# --- the energy flow as a picture (#420), only while the button "Strom" is pressed (#434)
+check("energy picture (#434): no card while 'Strom' is not pressed, no line of numbers either; the button is there (sensors of ⚡ Rechnung, no power devices)",
+      pgS.is_visible("#powerBtn") and not pgS.is_visible("#energyCard") and not pgS.is_visible("#energyPill"),
+      (pgS.is_visible("#powerBtn"), pgS.is_visible("#energyCard"), pgS.is_visible("#energyPill")))
+pgS.click("#powerBtn"); pgS.wait_for_timeout(500)
 card = pgS.inner_text("#energyCard") if pgS.is_visible("#energyCard") else ""
-check("energy picture (#420): the card is there with sun, grid, house and battery; the line of numbers steps aside",
-      all(x in card for x in ("3.20 kW", "450 W", "3.05 kW", "82 %")) and not pgS.is_visible("#energyPill"), card)
+check("energy picture (#420): with 'Strom' pressed the card is there with sun, grid, house and battery; the line of numbers steps aside",
+      all(x in card for x in ("3.20 kW", "450 W", "3.05 kW", "82 %")) and not pgS.is_visible("#energyPill") and "active" in (pgS.get_attribute("#powerBtn", "class") or ""), card)
 check("energy picture: dots run on the three lines that carry power (sun to house and battery, grid to house)",
       pgS.locator("#energyCard .ef-dots").count() == 3, pgS.locator("#energyCard .ef-dots").count())
-shown0 = pgS.evaluate("window.__fp.powerInfo().shown")
 pgS.click("#energyCard"); pgS.wait_for_timeout(400)
-check("energy picture: a tap shows or hides the power cables like the line of numbers", pgS.evaluate("window.__fp.powerInfo().shown") != shown0)
-pgS.click("#energyCard"); pgS.wait_for_timeout(300)
+check("energy picture (#434): a tap on it switches 'Strom' off again and the card goes",
+      not pgS.evaluate("window.__fp.powerInfo().shown") and not pgS.is_visible("#energyCard") and "active" not in (pgS.get_attribute("#powerBtn", "class") or ""))
+pgS.click("#powerBtn"); pgS.wait_for_timeout(400)               # on again for the edit mode below
 
 # --- the room tiles (#421)
 tile = pgS.locator("#roomTiles [data-room=kr_room]")
@@ -79,7 +83,7 @@ check("room tiles: and on again", pgS.is_visible("#roomTiles") and api("api/sett
 rain = lambda: [a["entity"] for a in pgS.evaluate("window.__fp.alerts()") if a["kind"] == "rain"]
 check("rain warning: the open window warns while it rains", "binary_sensor.fenster_kr" in rain(), rain())
 pgS.click("#modeSwitch [data-mode=edit]"); pgS.wait_for_timeout(600)
-check("edit mode: no sky chips, no rain, no room tiles; the energy picture stays instead of the line of numbers (3.98.1)",
+check("edit mode: no sky chips, no rain, no room tiles; with 'Strom' on the energy picture stays instead of the line of numbers (3.98.1)",
       not pgS.is_visible("#skyChips") and not pgS.is_visible("#wxFall") and not pgS.is_visible("#roomTiles")
       and pgS.is_visible("#energyCard") and not pgS.is_visible("#energyPill"))
 pgS.evaluate("window.__fp.select('opening', 'kr_win')"); pgS.wait_for_timeout(400)
