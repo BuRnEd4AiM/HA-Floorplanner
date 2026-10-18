@@ -119,7 +119,8 @@ check("phone (#299): only live and 3D, no Edit, no 2D, no users", pg17.locator("
 pg17.click("#fitBtn"); pg17.wait_for_timeout(300)
 check("phone menu: a choice closes it again", pg17.locator("#toolbar").is_hidden() and pg17.locator("#tbMenuBtn").inner_text() == "☰")
 pg17.evaluate("window.__fp.layout.floors[window.__fp.floorIdx()].devices = window.__fp.layout.floors[window.__fp.floorIdx()].devices.filter(d => d.id !== 'alSmoke')")
-pg17.evaluate("Object.assign(window.__fp.settings(), { idleReturn: 1, idleOrbit: true, nightDim: 'time', nightFrom: '00:00', nightTo: '23:59' })")
+pg17.evaluate("""() => { const d = new Date(), now = d.getHours() * 60 + d.getMinutes(), hm = (m) => { m = (m + 1440) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+  Object.assign(window.__fp.settings(), { idleReturn: 1, idleOrbit: true, nightDim: 'time', nightFrom: hm(now - 60), nightTo: hm(now + 60) }); }""")   # night from an hour ago to in an hour ('00:00' to '23:59' missed the minute 23:59)
 # phones: three buttons at the top: ☰, the floor as a drop-down (phonenav.js) and the rooms, instead of the floor pills
 check("phone nav: a floor button and the room button instead of the floor pills", pg17.locator("#phoneNavBtn").is_visible() and pg17.locator("#roomMenuBtn").is_visible() and pg17.locator("#floorPills").is_hidden(), pg17.inner_text("#phoneNavBtn"))
 pg17.click("#phoneNavBtn"); pg17.wait_for_timeout(300)
