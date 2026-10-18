@@ -24,13 +24,13 @@ pgN.on("pageerror", lambda e: own.append("PAGEERROR " + str(e)))
 pgN.goto(BASE + "?debug=1&mode=edit"); pgN.wait_for_timeout(1500)
 pgN.click("#settingsBtn"); open_setting(pgN, "#alarmNotify"); pgN.wait_for_timeout(800)
 txt = pgN.inner_text("#alarmNotify") if pgN.is_visible("#alarmNotify") else ""
-opts = pgN.evaluate("() => [...document.querySelectorAll('#anServices option')].map((o) => o.value)")
-check("alarm message (#414): the settings have the part, off at first, every kind ticked, Home Assistant's notify services to choose from",
+opts = pgN.evaluate("() => [...document.querySelectorAll('#alarmNotify [data-svc]')].map((c) => c.dataset.svc)")
+check("alarm message (#414, #456): the settings have the part, off at first, every kind ticked, Home Assistant's notify services as a list to tick",
       pgN.is_visible("#alarmNotifyTitle") and "Benachrichtigung bei Alarm" in pgN.text_content("#alarmNotifyTitle") and not pgN.is_checked("#anOn")
       and all(pgN.is_checked(f"#anKind_{k}") for k in ("alarm", "smoke", "gas", "co", "water")) and opts == ["mobile_app_test", "whatsapp"], (txt, opts))
 check("alarm message (#454): WhatsApp has three numbered steps, the first with the link to CallMeBot",
-      pgN.locator("#alarmNotify .anSteps li").count() == 3 and "I allow callmebot to send me messages" in pgN.inner_text("#alarmNotify .anSteps")
-      and pgN.locator("#alarmNotify .anSteps li a[href*=callmebot]").count() == 1)
+      pgN.locator("#alarmNotify .anWa .anSteps li").count() == 3 and "I allow callmebot to send me messages" in pgN.inner_text("#alarmNotify .anWa .anSteps")
+      and pgN.locator("#alarmNotify .anWa .anSteps li a[href*=callmebot]").count() == 1)
 pgN.check("#anOn"); pgN.select_option("#anVia", "whatsapp")
 pgN.fill("#anPhone", "+49 170 1234567"); pgN.fill("#anKey", "987654")
 pgN.click("#anSave"); pgN.wait_for_timeout(800)
@@ -69,12 +69,32 @@ ha_set("binary_sensor.rauch", "off"); time.sleep(0.4); ha_set("binary_sensor.rau
 check("alarm message: going off again right after is not sent twice", not any("Rauch erkannt" in (m[2] or "") for m in notified()[n1:]), notified()[n1:])
 ha_set("binary_sensor.rauch", "off")
 
-pgN.select_option("#anVia", "ha"); pgN.fill("#anService", "whatsapp")
+pgN.select_option("#anVia", "ha"); pgN.check("#alarmNotify [data-svc=whatsapp]"); pgN.check("#alarmNotify [data-svc=mobile_app_test]")
 n0 = len(notified())
-pgN.click("#anTest"); pgN.wait_for_timeout(1200)
+pgN.click("#anTest"); pgN.wait_for_timeout(1500)
+last = [m for m in notified()[n0:] if m[0] == "ha"]
+check("alarm message (#456): through the ticked notify services of Home Assistant, to each of them",
+      sorted(m[1] for m in last) == ["mobile_app_test", "whatsapp"] and all("Test" in m[2] for m in last), last)
+# Telegram through CallMeBot (#456): into a group with its key, or to users
+pgN.select_option("#anVia", "telegram")
+check("alarm message (#456): Telegram shows who it goes to and the steps", pgN.is_visible("#anTgMode") and pgN.is_visible("#anTgUsers")
+      and "@CallMeBot_txtbot" in pgN.inner_text("#alarmNotify .anTgUser .anSteps") and not pgN.is_visible("#anPhone"))
+pgN.select_option("#anTgMode", "group"); pgN.fill("#anTgKey", "grp-key1")
+n0 = len(notified())
+pgN.click("#anTest"); pgN.wait_for_timeout(1500)
 last = notified()[n0:]
-check("alarm message: through a notify service of Home Assistant (notify.whatsapp)", last and last[-1][0] == "ha" and last[-1][1] == "whatsapp" and "Test" in last[-1][2], last)
-pgN.evaluate("() => fetch('api/notify', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: false, apikey: null, phone: '', service: ''})})")
+check("alarm message (#456): the test goes into the Telegram group with its key; the key is not handed out again",
+      last and last[-1][0] == "tg_group" and last[-1][1] == "grp-key1" and "Test" in last[-1][2] and pgN.input_value("#anTgKey") == ""
+      and "grp-key1" not in json.dumps(pgN.evaluate("() => fetch('api/notify').then((r) => r.json())")), last)
+pgN.select_option("#anTgMode", "user"); pgN.fill("#anTgUsers", "flo_weber, @anna_m")
+n0 = len(notified())
+pgN.click("#anTest"); pgN.wait_for_timeout(1500)
+last = notified()[n0:]
+check("alarm message (#456): ... or to Telegram users (an @ is added)", last and last[-1][0] == "tg_user" and last[-1][1] == "@flo_weber|@anna_m"
+      and pgN.input_value("#anTgUsers") == "@flo_weber, @anna_m", last)
+pgN.select_option("#anTgMode", "group"); pgN.fill("#anTgKey", "bad"); pgN.click("#anTest"); pgN.wait_for_timeout(1500)
+check("alarm message (#456): a wrong group key is said so", "Nicht gesendet" in pgN.inner_text("#alarmNotify .anStatus"), pgN.inner_text("#alarmNotify .anStatus"))
+pgN.evaluate("() => fetch('api/notify', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: false, apikey: null, tgkey: null, phone: '', services: [], tgUsers: [], via: 'whatsapp', tgMode: 'user'})})")
 pgN.wait_for_timeout(300)
 pgN.close()
 

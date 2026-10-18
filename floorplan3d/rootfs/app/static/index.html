@@ -84,6 +84,7 @@
         <button id="energyPill" class="pill" hidden type="button"></button>
         <span id="meterPill" class="pill" hidden></span>
         <span class="spacer"></span>
+        <button id="guardBtn" class="pill" hidden type="button" data-i18n-title="gd.btnTip"></button>
         <button id="houseToggle" class="pill" hidden></button>
         <button id="devicesPill" class="pill" hidden type="button" aria-expanded="false" data-i18n-title="dl.tip"></button>
         <button id="offlinePill" class="pill" hidden data-i18n-title="off.tip"></button>
@@ -515,6 +516,7 @@
           <p class="sub" data-i18n="sg.alarm.whatHelp"></p>
           <p id="alarmPanels" class="sub"></p>
         </div>
+        <div id="guardBox" class="gdBox"></div>
         <h4 id="alarmNotifyTitle" data-i18n="an.title" hidden></h4>
         <div id="alarmNotify" hidden></div>
         <p id="alarmNotifyOff" class="sub" data-i18n="sg.alarm.notifyOff" hidden></p>
@@ -566,6 +568,8 @@
     <menu><button value="close" class="primary" data-i18n="close"></button></menu>
   </form>
 </dialog>
+
+<div id="guardScreen" hidden role="dialog" aria-modal="true"></div>
 
 <script src="bootguard.js"></script>
 <script type="module" src="app.js"></script>

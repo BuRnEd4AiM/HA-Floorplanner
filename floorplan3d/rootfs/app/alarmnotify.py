@@ -1,8 +1,9 @@
 """A message when something goes off in the house: the alarm panel, a smoke, gas, carbon monoxide or water sensor (#414).
 
 The add-on keeps its own websocket to Home Assistant (like the security recorder), also with no browser open, and sends a short message
-the moment one of them goes off: by WhatsApp directly through CallMeBot (free: a phone number and the key CallMeBot sends back), or
-through any notify service of Home Assistant (a WhatsApp, Telegram or Signal integration, the Companion app on the phone ...). The text
+the moment one of them goes off: by WhatsApp directly through CallMeBot (free: a phone number and the key CallMeBot sends back), by
+Telegram through CallMeBot (to Telegram users, or into a group with the group's key, #456), or through notify services of Home Assistant
+(picked from the ones it has, also those of configuration.yaml: a WhatsApp, Telegram or Signal integration, the Companion app ...). The text
 says what went off and where it is in the plan (house · floor · room). The same sensor is reported again only after a pause; when the
 add-on (re)connects, what is already going off is not sent again. Optionally a second message when it is back to normal.
 
@@ -26,7 +27,10 @@ BURST_WINDOW = 600.0      # ... within this many seconds (a broken sensor flappi
 SERVICE = re.compile(r"^[a-z0-9_]{1,64}$")
 PHONE = re.compile(r"^\+?[0-9]{6,16}$")
 APIKEY = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
-DEFAULT = {"on": False, "kinds": list(KINDS), "via": "whatsapp", "phone": "", "service": "", "clear": False}
+TG_USER = re.compile(r"^(@[A-Za-z0-9_]{5,32}|\+[0-9]{6,16})$")   # a Telegram user name or a phone number (CallMeBot text.php)
+VIA = ("whatsapp", "telegram", "ha")
+SECRETS = ("apikey", "tgkey")      # the CallMeBot keys of WhatsApp and of a Telegram group: stay in the add-on
+DEFAULT = {"on": False, "kinds": list(KINDS), "via": "whatsapp", "phone": "", "services": [], "tgMode": "user", "tgUsers": [], "clear": False}
 
 TEXTS = {
     "de": {"alarm": "🚨 ALARM: {name}", "smoke": "🔥 Rauch erkannt: {name}", "gas": "⚠️ Gas erkannt: {name}", "co": "☠️ Kohlenmonoxid erkannt: {name}",
@@ -47,10 +51,12 @@ TEXTS = {
 
 
 def clean(data, old=None) -> dict:
-    """The settings of the messages, checked; the CallMeBot key ("apikey") is taken over from `old` unless a new one is given ("" or null
-    removes it). Never raises."""
+    """The settings of the messages, checked; the CallMeBot keys ("apikey" of WhatsApp, "tgkey" of a Telegram group) are taken over from
+    `old` unless a new one is given ("" or null removes it). Never raises."""
     data = data if isinstance(data, dict) else {}
     old = old if isinstance(old, dict) else {}
+    if isinstance(old.get("service"), str) and "services" not in old:                  # one service until 4.0.3
+        old = {**old, "services": [old["service"]] if old["service"] else []}
     out = {**DEFAULT, **{k: old[k] for k in DEFAULT if k in old}}
     if isinstance(data.get("on"), bool):
         out["on"] = data["on"]
@@ -58,37 +64,80 @@ def clean(data, old=None) -> dict:
         out["clear"] = data["clear"]
     if isinstance(data.get("kinds"), list):
         out["kinds"] = [k for k in KINDS if k in data["kinds"]]
-    if data.get("via") in ("whatsapp", "ha"):
+    if data.get("via") in VIA:
         out["via"] = data["via"]
+    if data.get("tgMode") in ("user", "group"):
+        out["tgMode"] = data["tgMode"]
     if isinstance(data.get("phone"), str):
         p = re.sub(r"[\s/()-]", "", data["phone"])
         out["phone"] = p if PHONE.match(p) else ""
-    if isinstance(data.get("service"), str):
-        s = data["service"].strip()
-        s = s[7:] if s.startswith("notify.") else s
-        out["service"] = s if SERVICE.match(s) else ""
-    key = old.get("apikey", "")
-    if "apikey" in data:
-        v = data["apikey"]
-        key = v.strip() if isinstance(v, str) and APIKEY.match(v.strip()) else ("" if v in ("", None) else key)
-    out["apikey"] = key if isinstance(key, str) and APIKEY.match(key) else ""
+    svc = data.get("services", [data["service"]] if isinstance(data.get("service"), str) else None)
+    if isinstance(svc, (list, str)):
+        out["services"] = services_of(svc)
+    if isinstance(data.get("tgUsers"), (list, str)):
+        out["tgUsers"] = tg_users(data["tgUsers"])
+    for name in SECRETS:
+        key = old.get(name, "")
+        if name in data:
+            v = data[name]
+            key = v.strip() if isinstance(v, str) and APIKEY.match(v.strip()) else ("" if v in ("", None) else key)
+        out[name] = key if isinstance(key, str) and APIKEY.match(key) else ""
     return out
 
 
+def _items(v):
+    """a list, or a text with commas, spaces or | between the items"""
+    return [x for x in (v if isinstance(v, list) else re.split(r"[\s,;|]+", v)) if isinstance(x, str) and x.strip()]
+
+
+def services_of(v) -> list:
+    """notify services of Home Assistant without "notify.", checked, each once, at most 10"""
+    out = []
+    for s in _items(v):
+        s = s.strip()
+        s = s[7:] if s.startswith("notify.") else s
+        if SERVICE.match(s) and s not in out:
+            out.append(s)
+    return out[:10]
+
+
+def tg_users(v) -> list:
+    """Telegram users for CallMeBot: "@name" ("name" gets its @) or "+phone", checked, each once, at most 10"""
+    out = []
+    for u in _items(v):
+        u = u.strip()
+        u = u if u[:1] in "@+" else f"@{u}"
+        if TG_USER.match(u) and u not in out:
+            out.append(u)
+    return out[:10]
+
+
 def public(cfg: dict) -> dict:
-    """the settings as the browser sees them: the key itself stays in the add-on, only whether there is one"""
-    return {**{k: v for k, v in cfg.items() if k != "apikey"}, "hasKey": bool(cfg.get("apikey"))}
+    """the settings as the browser sees them: the keys themselves stay in the add-on, only whether there are some"""
+    return {**{k: v for k, v in cfg.items() if k not in SECRETS}, "hasKey": bool(cfg.get("apikey")), "hasTgKey": bool(cfg.get("tgkey"))}
 
 
 def ready(cfg: dict):
-    """None when the messages can be sent, else why not ('off', 'phone', 'apikey', 'service')"""
+    """None when the messages can be sent, else why not ('off', 'phone', 'apikey', 'service', 'tguser', 'tgkey')"""
     if not cfg.get("on"):
         return "off"
     if cfg.get("via") == "ha":
-        return None if cfg.get("service") else "service"
+        return None if cfg.get("services") else "service"
+    if cfg.get("via") == "telegram":
+        if cfg.get("tgMode") == "group":
+            return None if cfg.get("tgkey") else "tgkey"
+        return None if cfg.get("tgUsers") else "tguser"
     if not cfg.get("phone"):
         return "phone"
     return None if cfg.get("apikey") else "apikey"
+
+
+def callmebot_failed(status: int, page: str, message: str):
+    """what CallMeBot answered, as an error text, or None when it took the message (it answers with a short HTML page)"""
+    said = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", page[:2000])).replace(message, "").strip()
+    if status != 200 or re.search(r"invalid|error|wrong|not (valid|found|allowed|authori[sz]ed)|unauthori[sz]ed|denied", said, re.I):
+        return f"CallMeBot ({status}): {said[:160]}"
+    return None
 
 
 def kind_of(st):
@@ -149,16 +198,31 @@ def _inside(x, z, pts):
     return hit
 
 
+def _spots(f, eid):
+    """the points where entity eid is on floor f: a device, or a door / window with it as contact (then a point on either side of the wall)"""
+    for d in f.get("devices") or []:
+        if isinstance(d, dict) and d.get("entity") == eid:
+            yield [(d.get("x", 0), d.get("z", 0))]
+    for w in f.get("walls") or []:
+        if not isinstance(w, dict) or len(w.get("a") or []) < 2 or len(w.get("b") or []) < 2:
+            continue
+        for o in w.get("openings") or []:
+            if not isinstance(o, dict) or eid not in [o.get("entity"), *(o.get("paneEntities") or [])]:
+                continue
+            (ax, az), (bx, bz) = w["a"][:2], w["b"][:2]
+            length = ((bx - ax) ** 2 + (bz - az) ** 2) ** 0.5 or 1
+            ux, uz = (bx - ax) / length, (bz - az) / length
+            x, z = ax + ux * (o.get("pos") or 0), az + uz * (o.get("pos") or 0)
+            yield [(x - uz * 0.3, z + ux * 0.3), (x + uz * 0.3, z - ux * 0.3)]
+
+
 def where_of(houses, eid) -> str:
-    """where entity eid is placed in the plans: 'house · floor · room' (the house only when there are several), '' when not placed.
-    houses: [(house name, layout)]"""
+    """where entity eid is placed in the plans: 'house · floor · room' (the house only when there are several), '' when not placed. A door
+    or window contact (#456) is in the room on either side of its wall. houses: [(house name, layout)]"""
     for hname, lay in houses:
         for f in (lay or {}).get("floors") or []:
-            for d in f.get("devices") or []:
-                if not isinstance(d, dict) or d.get("entity") != eid:
-                    continue
-                x, z = d.get("x", 0), d.get("z", 0)
-                room = next((r.get("name") for r in f.get("rooms") or [] if isinstance(r, dict) and r.get("name")
+            for pts in _spots(f, eid):
+                room = next((r.get("name") for x, z in pts for r in f.get("rooms") or [] if isinstance(r, dict) and r.get("name")
                              and len(r.get("points") or []) >= 3 and _inside(x, z, r["points"])), "")
                 parts = ([hname] if len(houses) > 1 and hname else []) + [f.get("name") or "", room or ""]
                 return " · ".join(p for p in parts if p)

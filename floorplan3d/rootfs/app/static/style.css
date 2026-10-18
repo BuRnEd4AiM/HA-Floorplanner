@@ -1104,3 +1104,44 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
   background: var(--glass); border-color: var(--glass-line); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); }
 #floorRail button { border-radius: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); }   /* the open floor keeps its blue edge and glow */
 :where(body.low) #floorRail button, :where(body.low) :where(#navBar, #modeBar) .pill, :where(body.low) .pill:where(#findBtn) { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--glass-solid); }
+
+/* Holiday alarm (#456, guardui.js): the 🛡 button, the lock screen over the whole screen while it is armed, its part in the settings */
+#guardBtn.armed { background: #8e2b22; border-color: #c0392b; color: #fff; }
+#guardBtn.alert { background: #ff4a3d; border-color: #ff4a3d; color: #fff; box-shadow: 0 0 14px rgba(255,74,61,.7); animation: gdPulse 1s ease-in-out infinite; }
+#guardScreen { position: fixed; inset: 0; z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(6, 10, 18, .58); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); color: #fff; overflow-y: auto; }
+#guardScreen[hidden] { display: none; }
+#guardScreen.gd-entry, #guardScreen.gd-alarm { background: rgba(110, 8, 8, .6); animation: gdFlash 1.2s ease-in-out infinite; }
+#guardScreen .gdCard { width: min(340px, 100%); padding: 18px 18px 14px; border-radius: 20px; text-align: center; background: rgba(16, 22, 32, .82);
+  border: 1px solid rgba(255,255,255,.18); box-shadow: 0 10px 40px rgba(0,0,0,.45); }
+#guardScreen .gdIcon { font-size: 52px; line-height: 1.1; }
+#guardScreen .gdTitle { font-size: 19px; font-weight: 700; margin: 6px 0 4px; }
+#guardScreen .gdSub { margin: 2px 0 6px; font-size: 13px; color: rgba(255,255,255,.75); }
+#guardScreen .gdWarn { margin: 6px 0; padding: 6px 8px; border-radius: 8px; font-size: 12.5px; background: rgba(255,179,71,.16); border: 1px solid rgba(255,179,71,.6); }
+#guardScreen .gdDots { margin: 10px 0 8px; min-height: 28px; font-size: 22px; letter-spacing: .3em; color: rgba(255,255,255,.85); }
+#guardScreen .gdPad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#guardScreen .gdPad button { height: 56px; font-size: 24px; border-radius: 14px; color: #fff; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); }
+#guardScreen .gdPad button:active { background: rgba(255,255,255,.28); }
+#guardScreen .gdGo { width: 100%; margin-top: 10px; height: 48px; font-size: 17px; font-weight: 700; border-radius: 14px; color: #fff; background: #c0392b; border-color: #c0392b; }
+#guardScreen.gd-ask .gdGo { background: #8e2b22; }
+#guardScreen .gdGo:disabled { opacity: .45; }
+#guardScreen .gdNote { margin: 8px 0 0; font-weight: 600; color: #ffb3a8; }
+#guardScreen .gdTools { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+#guardScreen .gdTools button { background: transparent; color: rgba(255,255,255,.8); border-color: rgba(255,255,255,.3); }
+@keyframes gdPulse { 50% { box-shadow: 0 0 2px rgba(255,74,61,.2); } }
+@keyframes gdFlash { 50% { background: rgba(60, 4, 4, .66); } }
+body.low #guardScreen { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(6, 10, 18, .8); }
+body.low #guardScreen.gd-entry, body.low #guardScreen.gd-alarm { animation: none; background: rgba(110, 8, 8, .8); }
+.gdBox { margin: 6px 0 12px; }
+.gdBox h4 { margin: 4px 0 4px; font-size: 13px; }
+.gdBox .gdGroup { margin: 4px 0; border: 1px solid var(--line); border-radius: 8px; }
+.gdBox .gdGroup > summary { display: flex; align-items: center; gap: 6px; padding: 6px 8px; cursor: pointer; font-size: 13px; }
+.gdBox .gdGroup > summary .gdAllNone { flex: 1; }
+.gdBox .gdGroup > summary button { font-size: 11px; padding: 2px 8px; }
+.gdBox .gdItem { display: flex; align-items: center; gap: 8px; padding: 4px 8px; font-size: 13px; }
+.gdBox .gdItem input { width: auto; margin: 0; }
+.gdBox .gdItem .n { flex: 1; min-width: 0; }
+.gdBox .gdItem .n small { display: block; color: var(--muted); font-size: 11px; }
+.gdBox .chip { font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.gdBox .chip.open { color: #ffb347; border-color: #ffb347; }
+.gdBox .chip.offline { color: #ff6b6b; border-color: #ff6b6b; }

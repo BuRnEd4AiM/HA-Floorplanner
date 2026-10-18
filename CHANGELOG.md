@@ -4,6 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-10-18
+### Added
+- **Holiday alarm, the add-on's own alarm** (#456): ⚙ → *Warnungen & Alarm* → **🛡 Urlaubs-Alarm**, no Alarmo needed. Tick the door, window and motion sensors that set it off (grouped, with their room and whether they are open now), whether a sensor that stays offline for more than 5 minutes counts too (battery, radio; not while Home Assistant starts again), the seconds to leave the house and to switch it off when coming home (30 to start with), a code of 4 to 8 digits (stored only as a salted hash), the sirens, lights, switches, scripts or scenes to switch on at an alarm, and whether a message goes out (through *Benachrichtigung bei Alarm*) also when somebody arms or disarms it. The add-on watches by itself, also with no screen open.
+- **A lock screen while it is armed** (#456): a 🛡 button over the plan arms it with the code. While it is armed a half see-through screen covers the whole tablet with a keypad: it counts the time to leave, says when it is armed, counts the time to type the code when a door opens, and shows the alarm in red with what was opened. Only the code switches it off (on any screen); after five wrong codes everybody waits five minutes and a message says so. Users who may edit can *Nur ansehen* (just look at the plan), wall tablets cannot. New lock in *Benutzer & Tablets*: **Urlaubs-Alarm** takes arming and disarming away from a user (the server refuses it too).
+- **Telegram through CallMeBot** (#456): *Senden über* → *Telegram*: to people (their Telegram user names; each sends `/start` to @CallMeBot_txtbot once) or **into a Telegram group** with the group's key from CallMeBot, each with numbered steps. The group key stays in the add-on like the WhatsApp key.
+- **Notify services of Home Assistant to tick** (#456): instead of typing `notify.…`, the list shows every notify service Home Assistant has, also those of `configuration.yaml` (Telegram, the Companion app, WhatsApp, Signal, mail …, each with a sign), and the message goes to every ticked one.
+### Changed
+- The place in a message also names the room of a door or window contact (the room beside its wall), not only of a device.
+- The demo has the holiday alarm set up with the code 1234: armed for 25 seconds, a "burglar" opens the office door, so the whole flow can be seen.
+
 ## [4.0.3] - 2026-10-18
 ### Changed
 - **Users & tablets are in the settings** (#454): the button *Benutzer* in the top bar and its own window are gone; everything of it (users with room, view, start view, presets and locks, the backup file `users.json` with *Datei erstellen / speichern* and *Synchronisieren*) is now the group **👥 Benutzer & Tablets** of ⚙, for administrators only as before and not on phones. The rows of a user fit the narrower window: the user with ⚙ and × on top, room, view and start below. The top bar is shorter.

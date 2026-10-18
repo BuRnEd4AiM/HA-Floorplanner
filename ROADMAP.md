@@ -31,6 +31,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 - ✅ Walls with a finish (woodchip, plaster, wallpapers, tiles, brick, wood …), tiles up to a height, accent walls, the facade outside, many more floors, every pattern with its colour, size and angle (4.0.0) ([#448](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/448))
 - ✅ The settings in groups that fold open, with a search; what the alarm panel is and which one Home Assistant has (4.0.1) ([#450](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/450))
 - ✅ Users & tablets inside the settings; WhatsApp on alarm in three steps (4.0.3) ([#454](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/454))
+- ✅ The add-on's own holiday alarm with a lock screen and a code, Telegram (also groups), notify services to tick (4.1.0) ([#456](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/456))
 - ✅ Phones held upright: values folded into one 📊 button, small floor cards beside the house, phones only show the house (3.59.0 – 3.63.0) ([#288](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/288), [#290](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/290), [#292](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/292), [#294](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/294), [#299](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/299))
 - ✅ Performance display: FPS and more in the View menu (3.60.0)
 - ✅ Lock things per user / tablet (switching, details, cameras, power …) (3.61.0)

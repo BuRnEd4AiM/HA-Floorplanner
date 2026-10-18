@@ -1024,7 +1024,7 @@ async def test_energy_prefs_needs_home_assistant_and_an_editor(client, monkeypat
 async def test_alarm_messages_settings_stay_in_the_add_on(client, monkeypatch, tmp_path):
     """#414: the phone number and the CallMeBot key are kept in their own file, the key is never handed out; only editors see them"""
     r = await (await client.get("/api/notify")).json()
-    assert r["on"] is False and r["hasKey"] is False and r["services"] == [] and r["ready"] == "off"
+    assert r["on"] is False and r["hasKey"] is False and r["services"] == [] and r["available"] == [] and r["ready"] == "off"
     r = await (await client.put("/api/notify", json={"on": True, "via": "whatsapp", "phone": "+49 170 1234567", "apikey": "987654", "kinds": ["alarm", "smoke"]})).json()
     assert r["hasKey"] is True and "apikey" not in r and r["phone"] == "+491701234567" and r["ready"] is None
     import json
@@ -1040,6 +1040,9 @@ async def test_alarm_messages_settings_stay_in_the_add_on(client, monkeypatch, t
     await client.put("/api/notify", json={"service": "notify.mobile_app_x"})
     t = await client.post("/api/notify/test")
     assert t.status == 502 and "Home Assistant" in (await t.json())["error"]                         # standalone: no Home Assistant to ask
+    r = await (await client.put("/api/notify", json={"via": "telegram", "tgMode": "group", "tgkey": "group-key-1"})).json()   # Telegram group (#456)
+    assert r["hasTgKey"] is True and "tgkey" not in r and r["ready"] is None and r["services"] == ["mobile_app_x"]
+    assert "group-key-1" not in await (await client.get("/api/notify")).text()
     opts = tmp_path / "options.json"
     opts.write_text('{"editors": ["admin"]}')
     monkeypatch.setattr(server, "OPTIONS_FILE", opts)
@@ -1049,3 +1052,50 @@ async def test_alarm_messages_settings_stay_in_the_add_on(client, monkeypatch, t
     assert (await client.get("/api/notify", headers=tab)).status == 403
     assert (await client.put("/api/notify", json={"on": False}, headers=tab)).status == 403
     assert (await client.post("/api/notify/test", headers=tab)).status == 403
+
+
+async def test_holiday_alarm_arm_and_disarm_only_with_the_code(client, monkeypatch, tmp_path):
+    """#456: the add-on's own alarm: editors set it up (the code is stored hashed), everybody arms and disarms with the code, a lock and
+    wrong codes stop it"""
+    import json
+    r = await (await client.get("/api/guard")).json()
+    assert r["view"]["phase"] == "off" and r["ready"] == "sensors" and r["cfg"]["hasCode"] is False
+    assert (await client.post("/api/guard/arm", json={"code": "1234"})).status == 409                      # not set up yet
+    r = await (await client.put("/api/guard", json={"sensors": ["binary_sensor.haustuer"], "code": "1234", "delay": 0})).json()
+    assert r["ready"] is None and r["cfg"]["hasCode"] is True and "code" not in r["cfg"]
+    stored = next(tmp_path.rglob("guard.json")).read_text("utf-8")
+    assert "1234" not in stored and json.loads(stored)["cfg"]["code"]["hash"]
+    assert "1234" not in await (await client.get("/api/settings")).text()
+    bad = await client.post("/api/guard/arm", json={"code": "9999"})
+    assert bad.status == 403 and (await bad.json())["left"] == 4
+    r = await (await client.post("/api/guard/arm", json={"code": "1234"})).json()
+    assert r["view"]["phase"] == "armed"
+    assert (await (await client.get("/api/guard")).json())["view"]["phase"] == "armed"
+    assert (await client.post("/api/guard/disarm", json={})).status == 403
+    for _ in range(4):
+        await client.post("/api/guard/disarm", json={"code": "0000"})
+    r = await client.post("/api/guard/disarm", json={"code": "1234"})
+    assert r.status == 429 and (await r.json())["wait"] > 0                                                # five wrong codes: wait, even with the right one
+    server_store = client.server.app[server.KEY_GUARD]
+    server_store["tries"].right()
+    r = await (await client.post("/api/guard/disarm", json={"code": "1234"})).json()
+    assert r["view"]["phase"] == "off" and json.loads(next(tmp_path.rglob("guard.json")).read_text("utf-8"))["state"]["phase"] == "off"
+    await client.put("/api/guard", json={"delay": 30})
+    r = await (await client.post("/api/guard/arm", json={"code": "1234"})).json()
+    assert r["view"]["phase"] == "arming" and 29 <= r["view"]["left"] <= 30                                # time to leave the house
+    r = await (await client.put("/api/guard", json={"code": "", "removeCode": True, "sensors": []})).json()
+    assert r["ready"] is None and r["cfg"]["hasCode"] is True                                             # armed: the code and the sensors stay
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["admin"]}')
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    tab = {"X-Remote-User-Name": "tablet"}
+    r = await (await client.get("/api/guard", headers=tab)).json()
+    assert r["view"]["phase"] == "arming" and "cfg" not in r and r["canEdit"] is False and r["locked"] is False   # the state, not the settings
+    assert (await client.put("/api/guard", json={"delay": 0}, headers=tab)).status == 403
+    r = await (await client.post("/api/guard/disarm", json={"code": "1234"}, headers=tab)).json()
+    assert r["view"]["phase"] == "off"                                                                     # a tablet may, with the code
+    await client.put("/api/settings", json={**(await (await client.get("/api/settings")).json()), "userLocks": {"tablet": ["guard"]}},
+                     headers={"X-Remote-User-Name": "admin", "If-Match": (await client.get("/api/settings")).headers.get("ETag", "")})
+    assert (await client.post("/api/guard/arm", json={"code": "1234"}, headers=tab)).status == 403         # ... unless it is locked for it

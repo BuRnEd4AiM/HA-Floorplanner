@@ -93,6 +93,7 @@ import { initClipboard } from './clipboard.js';
 import { initEnergySetup } from './energysetup.js';
 import { initNotifyUi } from './notifyui.js';
 import { initSetGroups } from './setgroups.js';
+import { initGuardUi } from './guardui.js';
 import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
 import { initBuildingsUi } from './buildingsui.js';
 import { initPicking } from './picking.js';
@@ -1402,6 +1403,7 @@ const settingsStore = initSettings({
 const loadSettings = () => settingsStore.load();
 initNotifyUi({ $, t, entities: () => entities }); // settings: a message on alarm by WhatsApp (#414) and the alarm panels, notifyui.js
 initSetGroups({ $, t });                         // settings in groups that fold open, with a search, setgroups.js
+initGuardUi({ $, t, entities: () => entities, layout: () => layout });   // the holiday alarm: 🛡 button, lock screen, its settings (#456), guardui.js
 const commitSettings = () => settingsStore.commit();
 function applySettings(prev = {}) {
   setLanguage(settings.language);
