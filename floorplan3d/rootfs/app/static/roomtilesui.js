@@ -4,7 +4,7 @@
  * when a card changed; what a card shows comes from roomtiles.js (tested). "Room tiles" in the View menu and in the settings switch it off.
  * More tiles than fit (the whole house): arrows at the ends, the cut side fades out, the mouse wheel scrolls the strip sideways (3.99.2), a
  * finger swipes it on every device, the iPhone too (dragscroll.js, #438). */
-import { roomSummary, tileTexts, stripEnds } from './roomtiles.js';
+import { roomSummary, tileTexts, stripEnds, liveToggle } from './roomtiles.js';
 import { navEntries } from './nav.js';
 import { initDragScroll } from './dragscroll.js';
 
@@ -12,13 +12,18 @@ const hex = (c) => '#' + c.map((v) => Math.round(Math.min(255, Math.max(0, v))).
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), focusedRoom(), settings(), states(), isLive(), placed(floor) (its devices with entities),
- *  areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), openRoom(floorIndex, roomId), commitSettings(), lang(), imperial() */
+ *  areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), openRoom(floorIndex, roomId), commitSettings(), lang(), imperial(),
+ *  goLive() (a tap on "Raum-Kacheln" in edit mode) */
 export function initRoomTiles(ctx) {
   const { $, t } = ctx;
   const box = $('#roomTiles');
   let last = '';
   box.addEventListener('click', (e) => { const b = e.target.closest('[data-room]'); if (b) ctx.openRoom(+b.dataset.floor, b.dataset.room); });
-  $('#tilesToggle').addEventListener('click', () => { $('#setRoomTiles').checked = ctx.settings().roomTiles === false; ctx.commitSettings(); });
+  $('#tilesToggle').addEventListener('click', () => {
+    const next = liveToggle({ on: ctx.settings().roomTiles !== false, live: ctx.isLive() });   // edit mode: on, and live (roomtiles.js)
+    $('#setRoomTiles').checked = next.on; ctx.commitSettings();
+    if (next.live) ctx.goLive();
+  });
   const left = $('#tilesLeft'), right = $('#tilesRight');
   /** the arrows and the fading edges where there is more to see */
   function ends() {

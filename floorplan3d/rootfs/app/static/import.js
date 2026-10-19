@@ -111,5 +111,8 @@ export function initImport({ t, lang, houseId, onImported }) {
   });
   document.getElementById('importOpen')?.addEventListener('click', () => { say(''); run.disabled = true; dlg.showModal(); });
   dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
-  document.getElementById('propExport')?.addEventListener('click', () => { location.href = `api/export/property?house=${encodeURIComponent(houseId() || '')}`; });
+  document.getElementById('propExport')?.addEventListener('click', () => {    // a link, not a new address: the demo answers it too (demo-data.js)
+    const a = Object.assign(document.createElement('a'), { href: `api/export/property?house=${encodeURIComponent(houseId() || '')}`, download: '' });
+    document.body.append(a); a.click(); a.remove();
+  });
 }

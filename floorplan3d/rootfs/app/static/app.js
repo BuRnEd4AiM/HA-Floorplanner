@@ -532,12 +532,12 @@ const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: (
   settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf,
   isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(),
   lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
-  openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); } });
+  openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); }, goLive: () => setMode('live') });
 const roomLabels = initRoomLabels({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // labels over the rooms (#430), roomlabels.js
   settings: () => settings, states: () => states, isLive: () => isLive(), view3d: () => layoutMode !== '2d', elev: (i) => elev(i), camera, canvas,
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e),
   openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(), lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
-  quiet: (q) => tapBalls.quiet(q), changed: () => applyStates(), openRoom: (id) => liveSelect({ kind: 'room', id }) });
+  quiet: (q) => tapBalls.quiet(q), changed: () => applyStates(), openRoom: (id) => liveSelect({ kind: 'room', id }), goLive: () => setMode('live') });
 
 /* ---- Doors, gates and windows with a contact sensor: the code lives in openings.js ---- */
 const openings = initOpenings({

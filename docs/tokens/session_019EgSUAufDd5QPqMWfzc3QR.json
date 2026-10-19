@@ -1,0 +1,20 @@
+{
+ "session": "session_019EgSUAufDd5QPqMWfzc3QR",
+ "start": "2026-10-19",
+ "updated": "2026-10-19T08:28:25Z",
+ "branch": "claude/epic-planck-l833hc",
+ "source": "counted",
+ "input": 190,
+ "cache_write": 247704,
+ "cache_read": 18347604,
+ "output": 64807,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 190,
+   "cache_write": 247704,
+   "cache_read": 18347604,
+   "output": 64807,
+   "requests": 95
+  }
+ }
+}
