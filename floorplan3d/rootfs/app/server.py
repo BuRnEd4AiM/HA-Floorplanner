@@ -1781,6 +1781,11 @@ async def send_notify(cfg: dict, message: str):
                                       json={"title": "3D Floorplan", "message": message}) as r:
                         if r.status != 200:
                             bad.append(f"notify.{svc}: Home Assistant answered {r.status}")
+                if cfg.get("entities"):                           # notify entities (#460): all in one notify.send_message
+                    async with s.post(f"{HA_API}/services/notify/send_message", headers=ha_headers(),
+                                      json={"entity_id": cfg["entities"], "title": "3D Floorplan", "message": message}) as r:
+                        if r.status != 200:
+                            bad.append(f"{', '.join(cfg['entities'])}: Home Assistant answered {r.status}")
                 return (False, "; ".join(bad)) if bad else (True, None)
             if cfg["via"] == "telegram":
                 group = cfg.get("tgMode") == "group"
@@ -1796,22 +1801,27 @@ async def send_notify(cfg: dict, message: str):
 
 
 async def get_notify(request):
-    """the settings of the messages (without the CallMeBot keys; "services" are the ticked ones) and Home Assistant's notify services to
-    choose from ("available", also those of configuration.yaml) (editors)"""
+    """the settings of the messages (without the CallMeBot keys; "services" and "entities" are the ticked ones) and what Home Assistant can
+    send through ("available": its notify services and notify entities, each with where it comes from, #460) (editors)"""
     if not await can_edit(request):
         return forbidden()
-    services = []
+    available = []
     if SUPERVISOR_TOKEN:
+        services, states, registry = [], [], []
         try:
             async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
                 async with s.get(f"{HA_API}/services", headers=ha_headers()) as r:
-                    for d in (await r.json() if r.status == 200 else []):
-                        if isinstance(d, dict) and d.get("domain") == "notify" and isinstance(d.get("services"), dict):
-                            services = sorted(n for n in d["services"] if an.SERVICE.match(n) and n not in ("send_message", "persistent_notification"))
-        except Exception:  # noqa: BLE001 - the list is only a help, the name can be typed
-            services = []
+                    services = await r.json() if r.status == 200 else []
+                async with s.get(f"{HA_API}/states", headers=ha_headers()) as r:
+                    states = await r.json() if r.status == 200 else []
+            if any(isinstance(x, dict) and str(x.get("entity_id", "")).startswith("notify.") for x in states):
+                async with _HaSocket() as ws:                     # which integration a notify entity belongs to (e.g. the Telegram bot)
+                    registry = await rn.ask(ws, 1, {"type": "config/entity_registry/list"}, [])
+        except Exception:  # noqa: BLE001 - the list is only a help, a name can be typed
+            pass
+        available = an.notify_targets(services, states, registry)
     cfg = notify_cfg(request)
-    return web.json_response({**an.public(cfg), "ready": an.ready(cfg), "available": services})
+    return web.json_response({**an.public(cfg), "ready": an.ready(cfg), "available": available})
 
 
 async def put_notify(request):

@@ -1,8 +1,8 @@
 /* Holiday alarm (#456) on the screen: the 🛡 button over the plan, the lock screen that covers the whole tablet (half see-through) while it
  * is armed and only goes away with the code, and its part in the settings (group "Warnings & alarm", editors only): the sensors that set it
  * off, offline counts, the time to leave and to come home, the code, the sirens and lights, the message. The rules are in guard.js (tested),
- * the alarm itself runs in the add-on (guard.py), also with no screen open. Editors may look at the plan while it is armed ("Nur ansehen"),
- * a wall tablet may not. */
+ * the alarm itself runs in the add-on (guard.py), also with no screen open. Editors (the owner) are not locked out (#460): instead of the lock
+ * screen they get a red strip at the top and a red frame round the screen while it is armed; a tap on the strip opens the keypad. */
 import { sensorChoices, actionChoices, openNow, leftNow, screenOf, pressKey } from './guard.js';
 
 const PAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
@@ -10,9 +10,10 @@ const PAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'];
 /** ctx: $, t, entities(), layout() */
 export function initGuardUi(ctx) {
   const { $, t } = ctx;
-  const btn = $('#guardBtn'), scr = $('#guardScreen'), box = $('#guardBox');
+  const btn = $('#guardBtn'), scr = $('#guardScreen'), box = $('#guardBox'), bar = $('#guardBar');
   if (!btn || !scr) return { poll() {} };
-  let info = null, fetchedAt = 0, code = '', note = '', asking = false, peek = '', busy = false, timer = 0, saveNote = '', wasShown = false;
+  // asking: the keypad was opened on purpose, 'arm' (it is off) or 'disarm' (an editor, armed)
+  let info = null, fetchedAt = 0, code = '', note = '', asking = '', busy = false, timer = 0, saveNote = '', wasShown = false;
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const phase = () => info?.view?.phase || 'off';
   const left = () => leftNow(info?.view, fetchedAt, Date.now());
@@ -23,8 +24,7 @@ export function initGuardUi(ctx) {
       const r = await fetch('api/guard');
       if (r.ok) { info = await r.json(); fetchedAt = Date.now(); }
     } catch { /* offline: try again */ }
-    if (peek && peek !== phase()) peek = '';                    // "only look" lasts until something changes (an alarm shows again)
-    if (asking && phase() !== 'off') { asking = false; code = ''; }   // armed meanwhile on another screen
+    if ((asking === 'arm') !== (phase() === 'off') && asking) { asking = ''; code = ''; }   // armed / switched off meanwhile on another screen
     render();
     timer = setTimeout(poll, phase() === 'off' && !asking ? 15000 : 2000);
   }
@@ -34,7 +34,7 @@ export function initGuardUi(ctx) {
     try {
       const r = await fetch(`api/guard/${arm ? 'arm' : 'disarm'}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
       const j = await r.json().catch(() => ({}));
-      if (r.ok) { info = { ...info, view: j.view }; fetchedAt = Date.now(); asking = false; note = ''; peek = ''; }
+      if (r.ok) { info = { ...info, view: j.view }; fetchedAt = Date.now(); asking = ''; note = ''; }
       else note = r.status === 429 ? t('gd.wait', { s: j.wait }) : r.status === 403 && j.error === 'code' ? t('gd.wrong', { n: j.left }) : t('gd.failed', { e: j.error || r.status });
     } catch (err) { note = t('gd.failed', { e: err.message }); }
     code = ''; busy = false;
@@ -49,19 +49,32 @@ export function initGuardUi(ctx) {
     btn.classList.toggle('alert', p === 'entry' || p === 'alarm');
     btn.classList.toggle('armed', p === 'arming' || p === 'armed');
   }
+  /** editors: a strip at the top and a red frame instead of the lock screen; what it says, a tap opens the keypad */
+  function renderBar() {
+    const sc = screenOf(info?.view, left()), p = phase(), on = !!info && !info.ready && !!info.canEdit && sc.show;
+    document.body.classList.toggle('guardArmed', on);
+    document.body.classList.toggle('guardAlarm', on && (p === 'entry' || p === 'alarm'));
+    if (!bar) return;
+    bar.hidden = !on;
+    if (!on) return;
+    const at = (s) => (s ? new Date(s * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '');
+    bar.className = `gd-${sc.tone}`;
+    bar.textContent = t(`gd.bar.${p}`, { s: sc.left, t: at(p === 'alarm' ? sc.what?.at : info.view.since), name: sc.what?.name || '' });
+  }
   function renderScreen() {
     const sc = screenOf(info?.view, left()), p = phase();
-    const shown = !!info && !info.ready && (asking ? p === 'off' : sc.show && peek !== p);
+    const shown = !!info && !info.ready && (asking ? (asking === 'arm') === (p === 'off') : sc.show && !info.canEdit);
     scr.hidden = !shown;
     document.body.classList.toggle('guardLocked', shown);
     if (shown && !wasShown && !asking) document.querySelectorAll('dialog[open]').forEach((d) => d.close());   // nothing lies over the lock screen
     wasShown = shown;
     if (!shown) { scr.replaceChildren(); return; }
-    scr.className = `gd-${asking ? 'ask' : sc.tone}`;
+    const arming = asking === 'arm';
+    scr.className = `gd-${arming ? 'ask' : sc.tone}`;
     const card = el('div', 'gdCard');
     card.append(el('div', 'gdIcon', p === 'entry' || p === 'alarm' ? '🚨' : '🛡'));
-    card.append(el('div', 'gdTitle', asking ? t('gd.armTitle') : t(sc.key, { s: sc.left, name: sc.what?.name || '' })));
-    if (asking) {
+    card.append(el('div', 'gdTitle', arming ? t('gd.armTitle') : t(sc.key, { s: sc.left, name: sc.what?.name || '' })));
+    if (arming) {
       const open = openNow(info.sensors, ctx.entities());
       card.append(el('p', 'gdSub', t('gd.armHint', { s: info.delay })));
       if (open.length) card.append(el('p', 'gdWarn', t('gd.openWarn', { list: open.map((o) => `${o.name} (${t(`gd.st.${o.state}`)})`).join(', ') })));
@@ -71,34 +84,38 @@ export function initGuardUi(ctx) {
       card.append(el('div', 'gdDots', code ? '●'.repeat(code.length) : t('gd.codeAsk')));
       const pad = el('div', 'gdPad');
       PAD.forEach((k) => { const b = el('button', '', k); b.type = 'button'; b.dataset.key = k; b.addEventListener('click', () => key(k)); pad.append(b); });
-      const go = el('button', 'gdGo', t(asking ? 'gd.arm' : 'gd.disarm')); go.type = 'button'; go.id = 'guardGo'; go.disabled = busy || code.length < 4;
-      go.addEventListener('click', () => send(asking));
+      const go = el('button', 'gdGo', t(arming ? 'gd.arm' : 'gd.disarm')); go.type = 'button'; go.id = 'guardGo'; go.disabled = busy || code.length < 4;
+      go.addEventListener('click', () => send(arming));
       card.append(pad, go);
     }
     if (note) card.append(el('p', 'gdNote', note));
     const tools = el('div', 'gdTools');
-    if (asking) { const x = el('button', '', t('close')); x.type = 'button'; x.id = 'guardClose'; x.addEventListener('click', () => { asking = false; code = ''; note = ''; render(); }); tools.append(x); }
-    else if (info.canEdit) { const v = el('button', '', t('gd.peek')); v.type = 'button'; v.id = 'guardPeek'; v.addEventListener('click', () => { peek = p; code = ''; render(); }); tools.append(v); }
+    if (asking) { const x = el('button', '', t('close')); x.type = 'button'; x.id = 'guardClose'; x.addEventListener('click', () => { asking = ''; code = ''; note = ''; render(); }); tools.append(x); }
     if (tools.childNodes.length) card.append(tools);
     scr.replaceChildren(card);
   }
   function key(k) {
-    if (k === 'OK') { if (code.length >= 4) send(asking); return; }
+    if (k === 'OK') { if (code.length >= 4) send(asking === 'arm' || (!asking && phase() === 'off')); return; }
     code = pressKey(code, k); note = '';
     render();
   }
-  function render() { renderButton(); renderScreen(); }
-  btn.addEventListener('click', () => {
-    if (phase() === 'off') { asking = true; code = ''; note = ''; render(); poll(); }
-    else { peek = ''; render(); }                                 // armed: the lock screen again (after "only look")
-  });
+  function render() { renderButton(); renderBar(); renderScreen(); }
+  /** open the keypad: to arm it, or (an editor) to switch it off */
+  function ask() {
+    if (phase() === 'off') asking = 'arm';
+    else if (info?.canEdit) asking = 'disarm';
+    else return;                                                  // a tablet has the lock screen already
+    code = ''; note = ''; render(); poll();
+  }
+  btn.addEventListener('click', ask);
+  bar?.addEventListener('click', ask);
   addEventListener('keydown', (e) => {                           // a keyboard works too; nothing else gets a key while it is shown
     if (scr.hidden || e.key === 'Tab') return;
     e.stopPropagation();
     const k = /^[0-9]$/.test(e.key) ? e.key : e.key === 'Backspace' ? '⌫' : e.key === 'Enter' ? 'OK' : e.key === 'Escape' && asking ? 'ESC' : null;
     if (!k) return;
     e.preventDefault();
-    if (k === 'ESC') { asking = false; code = ''; render(); } else key(k);
+    if (k === 'ESC') { asking = ''; code = ''; render(); } else key(k);
   }, true);
   setInterval(() => { if (phase() === 'arming' || phase() === 'entry') render(); }, 1000);   // the seconds count down
   document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
@@ -148,9 +165,9 @@ export function initGuardUi(ctx) {
     out.push(el('div', 'sub', t('gd.actions')));
     actionChoices(ctx.entities(), cfg.actions).forEach((g) => out.push(pickGroup(t(`gd.ag.${g.group}`), g.items, cfg.actions, 'data-gd-action', g.items.some((x) => cfg.actions.includes(x.entity)))));
     out.push(checkRow('gdNotify', 'gd.notify', cfg.notify), checkRow('gdReport', 'gd.report', cfg.report));
-    const bar = el('div', 'stopTools'), sv = el('button', '', t('gd.save')); sv.type = 'button'; sv.id = 'gdSave';
-    sv.addEventListener('click', saveSettings); bar.append(sv);
-    out.push(bar, el('p', 'sub gdStatus', saveNote || t(`gd.ready.${info.ready || 'ok'}`)));
+    const tools = el('div', 'stopTools'), sv = el('button', '', t('gd.save')); sv.type = 'button'; sv.id = 'gdSave';
+    sv.addEventListener('click', saveSettings); tools.append(sv);
+    out.push(tools, el('p', 'sub gdStatus', saveNote || t(`gd.ready.${info.ready || 'ok'}`)));
     box.replaceChildren(...out);
   }
   async function saveSettings() {

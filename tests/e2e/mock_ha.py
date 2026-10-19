@@ -11,8 +11,8 @@ DEVICES = {"u_binary_sensor.rauch": "dev_rauch", "u_sensor.rauch_battery": "dev_
 ALIAS = {}         # entity id the tests know -> its id after a rename (/_rename)
 COVER_POS = {}     # covers with a position (current_position), from set_cover_position on; /_set takes it away again
 ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_prefs, #407) and more registry entries (entity -> device): POST /_energy
-NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["callmebot", phone, text, apikey] through /_callmebot
-EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes}}, {} takes them away
+NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["ha_entity", "notify.a,notify.b", message] through notify.send_message (#460), ["callmebot", phone, text, apikey] through /_callmebot
+EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes[, platform]}}, {} takes them away; with "platform" also in the entity registry (#460)
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
 def state_of(e):
@@ -40,10 +40,10 @@ async def service(r):
     body = await r.json(); dom, svc = r.match_info["d"], r.match_info["s"]
     CALLS.append([dom, svc, body.get("entity_id")])
     e = body.get("entity_id")
-    if isinstance(e, list):       # several at once (homeassistant.turn_on of the holiday alarm's sirens, #456): only noted
+    if dom == "notify":           # #414: a message of the add-on; #460: notify.send_message to notify entities
+        NOTIFIED.append(["ha_entity", ",".join(e), body.get("message")] if svc == "send_message" and isinstance(e, list) else ["ha", svc, body.get("message")])
         return web.json_response([])
-    if dom == "notify":           # #414: a message of the add-on
-        NOTIFIED.append(["ha", svc, body.get("message")])
+    if isinstance(e, list):       # several at once (homeassistant.turn_on of the holiday alarm's sirens, #456): only noted
         return web.json_response([])
     if e in EXTRA:                # #406: what the device does with the call, the data kept for the test
         x, a = EXTRA[e], EXTRA[e].setdefault("attributes", {})
@@ -112,7 +112,8 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
         elif m.get("type") == "config/entity_registry/list":    # the watch for renamed entities (and the devices of the energy meters, #407)
             await ws.send_json({"id": m["id"], "type": "result", "success": True,
                                 "result": [{"entity_id": e, "platform": "mock", "unique_id": u, "device_id": DEVICES.get(u)} for e, u in REGISTRY.items()]
-                                + [{"entity_id": e, "platform": "mock", "unique_id": "energy_" + e, "device_id": d} for e, d in ENERGY["registry"].items()]})
+                                + [{"entity_id": e, "platform": "mock", "unique_id": "energy_" + e, "device_id": d} for e, d in ENERGY["registry"].items()]
+                                + [{"entity_id": e, "platform": v["platform"], "unique_id": "extra_" + e} for e, v in EXTRA.items() if "platform" in v]})
         elif m.get("type") == "energy/get_prefs":               # the energy dashboard (#407): "not_found" while it is not set up
             ok = ENERGY["prefs"] is not None
             await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": ENERGY["prefs"] if ok else None,

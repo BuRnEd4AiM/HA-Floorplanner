@@ -32,6 +32,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 - ✅ The settings in groups that fold open, with a search; what the alarm panel is and which one Home Assistant has (4.0.1) ([#450](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/450))
 - ✅ Users & tablets inside the settings; WhatsApp on alarm in three steps (4.0.3) ([#454](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/454))
 - ✅ The add-on's own holiday alarm with a lock screen and a code, Telegram (also groups), notify services to tick (4.1.0) ([#456](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/456))
+- ✅ The holiday alarm does not lock out editors (red strip and frame instead), message targets sorted by where they come from, Home Assistant's own Telegram bot (4.1.1) ([#460](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/460))
 - ✅ Phones held upright: values folded into one 📊 button, small floor cards beside the house, phones only show the house (3.59.0 – 3.63.0) ([#288](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/288), [#290](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/290), [#292](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/292), [#294](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/294), [#299](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/299))
 - ✅ Performance display: FPS and more in the View menu (3.60.0)
 - ✅ Lock things per user / tablet (switching, details, cameras, power …) (3.61.0)

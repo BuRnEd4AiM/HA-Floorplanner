@@ -1,6 +1,7 @@
-"""4.1.0 (#456): the add-on's own holiday alarm: set up in the settings, armed with the code on the lock screen that covers the whole
-screen, a door opens: the time to type the code, then the alarm (siren on, a WhatsApp); only the code switches it off, a wall tablet
-cannot just look past it.
+"""4.1.0 (#456): the add-on's own holiday alarm: set up in the settings, armed with the code; on a wall tablet the lock screen covers the
+whole screen, a door opens: the time to type the code, then the alarm (siren on, a WhatsApp); only the code switches it off, a wall tablet
+cannot just look past it. 4.1.1 (#460): an editor is not locked out: a red strip at the top and a red frame say it is armed, a tap opens
+the keypad.
 """
 lang_g = api("api/settings")["language"]
 set_setting("language", "de")
@@ -13,10 +14,15 @@ def notified():
 def admin_req(path, body, method="PUT"):
     return urllib.request.urlopen(urllib.request.Request(BASE + path, data=json.dumps(body).encode(), method=method,
                                                          headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
-def until(pg, text, ms):
-    """wait until the lock screen says text (it asks the add-on every 2 s; the CI runner is slow): no fixed sleeps that run out (#458)"""
-    try: pg.wait_for_function("(t) => (document.querySelector('#guardScreen .gdTitle')?.textContent || '').includes(t)", arg=text, timeout=ms)
+def until(pg, text, ms, sel="#guardScreen .gdTitle"):
+    """wait until the lock screen (or the editor's strip) says text (it asks the add-on every 2 s; the CI runner is slow): no fixed sleeps
+    that run out (#458)"""
+    try: pg.wait_for_function("([s, t]) => (document.querySelector(s)?.textContent || '').includes(t)", arg=[sel, text], timeout=ms)
     except Exception: pass
+def bar(pg):
+    return pg.inner_text("#guardBar") if pg.is_visible("#guardBar") else ""
+def covered(pg):
+    return pg.evaluate("document.elementFromPoint(700, 500).closest('#guardScreen') !== null")
 extra({"binary_sensor.tuer_e2e": {"state": "off", "attributes": {"friendly_name": "Haustür E2E", "device_class": "door"}},
        "siren.e2e": {"state": "off", "attributes": {"friendly_name": "Sirene E2E"}}})
 admin_req("api/notify", {"on": True, "via": "whatsapp", "phone": "+491701234567", "apikey": "987654"})
@@ -45,35 +51,41 @@ pgG.click("#guardGo"); pgG.wait_for_timeout(800)
 check("holiday alarm: a wrong code is refused", "Falscher Code" in pgG.inner_text("#guardScreen") and api("api/guard")["view"]["phase"] == "off")
 n0 = len(notified())
 pgG.keyboard.type("2468"); pgG.keyboard.press("Enter"); pgG.wait_for_timeout(800)
-check("holiday alarm: with the code (also typed) it arms; the lock screen covers everything and counts the time to leave",
-      pgG.is_visible("#guardScreen") and "Scharf in" in pgG.inner_text("#guardScreen .gdTitle") and api("api/guard")["view"]["phase"] == "arming"
-      and pgG.evaluate("document.elementFromPoint(700, 500).closest('#guardScreen') !== null"), pgG.inner_text("#guardScreen"))
-until(pgG, "ist scharf", 12000); pgG.wait_for_timeout(1000)
-check("holiday alarm: then it is armed, and says so by WhatsApp", "ist scharf" in pgG.inner_text("#guardScreen .gdTitle")
-      and any("Urlaubs-Alarm ist scharf" in (m[2] or "") for m in notified()[n0:]), (pgG.inner_text("#guardScreen .gdTitle"), notified()[n0:]))
+check("holiday alarm (#460): with the code (also typed) it arms; an editor is not locked out: a strip counts the time to leave, a red frame",
+      not pgG.is_visible("#guardScreen") and not covered(pgG) and "wird scharf in" in bar(pgG) and api("api/guard")["view"]["phase"] == "arming"
+      and pgG.evaluate("document.body.classList.contains('guardArmed')"), (bar(pgG), pgG.inner_text("#guardScreen") if pgG.is_visible("#guardScreen") else ""))
 pgT = b.new_page(viewport={"width": 1280, "height": 800}, extra_http_headers={"X-Remote-User-Name": "tablet_e2e"})
 pgT.goto(BASE + "?debug=1"); pgT.wait_for_timeout(2500)
-check("holiday alarm: a wall tablet shows the lock screen too, with the keypad, without 'Nur ansehen'",
-      pgT.is_visible("#guardScreen") and pgT.locator("#guardScreen .gdPad button").count() == 12 and pgT.locator("#guardPeek").count() == 0)
+check("holiday alarm: a wall tablet gets the lock screen that covers everything, with the keypad, no strip",
+      pgT.is_visible("#guardScreen") and covered(pgT) and pgT.locator("#guardScreen .gdPad button").count() == 12 and not pgT.is_visible("#guardBar"))
+until(pgG, "SCHARF", 12000, "#guardBar"); until(pgT, "ist scharf", 6000)
+check("holiday alarm: then it is armed: the strip says so (the plan stays usable), and a WhatsApp", "ist SCHARF" in bar(pgG)
+      and "ist scharf" in pgT.inner_text("#guardScreen .gdTitle") and not covered(pgG)
+      and any("Urlaubs-Alarm ist scharf" in (m[2] or "") for m in notified()[n0:]), (bar(pgG), notified()[n0:]))
+pgG.click("#guardBar"); pgG.wait_for_timeout(500)
+check("holiday alarm (#460): a tap on the strip opens the keypad to switch it off, with 'Schließen'",
+      pgG.is_visible("#guardScreen") and pgG.inner_text("#guardGo") == "Ausschalten" and pgG.is_visible("#guardClose"))
+pgG.click("#guardClose"); pgG.wait_for_timeout(400)
+check("holiday alarm: closed again, still armed", not pgG.is_visible("#guardScreen") and "SCHARF" in bar(pgG) and api("api/guard")["view"]["phase"] == "armed")
 n0, c0 = len(notified()), len(ha_calls())
-ha_set("binary_sensor.tuer_e2e", "on"); until(pgG, "Code eingeben", 4000)
-check("holiday alarm: the door opens: the time to type the code", "Code eingeben" in pgG.inner_text("#guardScreen .gdTitle")
-      and api("api/guard")["view"]["phase"] == "entry", pgG.inner_text("#guardScreen .gdTitle"))
-until(pgG, "ALARM:", 12000); pgG.wait_for_timeout(1500)
+ha_set("binary_sensor.tuer_e2e", "on"); until(pgT, "Code eingeben", 4000); until(pgG, "Alarm in", 3000, "#guardBar")
+check("holiday alarm: the door opens: the time to type the code (tablet), the editor's strip says which door",
+      "Code eingeben" in pgT.inner_text("#guardScreen .gdTitle") and "Haustür E2E" in bar(pgG) and "Alarm in" in bar(pgG)
+      and api("api/guard")["view"]["phase"] == "entry", (pgT.inner_text("#guardScreen .gdTitle"), bar(pgG)))
+until(pgT, "ALARM:", 12000); until(pgG, "ALARM:", 4000, "#guardBar"); pgG.wait_for_timeout(1500)
 calls = ha_calls()[c0:]
 check("holiday alarm: nobody typed it: the alarm, the siren on, a WhatsApp with the door",
-      "ALARM: Haustür E2E wurde geöffnet" in pgG.inner_text("#guardScreen .gdTitle") and ["homeassistant", "turn_on", ["siren.e2e"]] in calls
-      and any("EINBRUCH-ALARM: Haustür E2E" in (m[2] or "") for m in notified()[n0:]), (pgG.inner_text("#guardScreen .gdTitle"), calls, notified()[n0:]))
-pgG.click("#guardPeek"); pgG.wait_for_timeout(400)
-check("holiday alarm: an editor may just look at the plan; the button stays red", not pgG.is_visible("#guardScreen") and "Alarm" in pgG.inner_text("#guardBtn")
-      and "alert" in pgG.get_attribute("#guardBtn", "class"))
-pgG.click("#guardBtn"); pgG.wait_for_timeout(400)
-check("holiday alarm: a tap on the button brings the lock screen back", pgG.is_visible("#guardScreen"))
+      "ALARM: Haustür E2E wurde geöffnet" in pgT.inner_text("#guardScreen .gdTitle") and ["homeassistant", "turn_on", ["siren.e2e"]] in calls
+      and any("EINBRUCH-ALARM: Haustür E2E" in (m[2] or "") for m in notified()[n0:]), (pgT.inner_text("#guardScreen .gdTitle"), calls, notified()[n0:]))
+check("holiday alarm (#460): the editor still sees the plan; the strip, the frame and the button say ALARM",
+      "ALARM: Haustür E2E" in bar(pgG) and not covered(pgG) and pgG.evaluate("document.body.classList.contains('guardAlarm')")
+      and "alert" in pgG.get_attribute("#guardBtn", "class"), bar(pgG))
 n0, c0 = len(notified()), len(ha_calls())
 for k in "2468": pgT.click(f"#guardScreen [data-key='{k}']")
 pgT.click("#guardGo"); pgT.wait_for_timeout(1500); pgG.wait_for_timeout(2500)
 check("holiday alarm: the code on the tablet switches it off everywhere, the siren off again, a WhatsApp says who",
-      not pgT.is_visible("#guardScreen") and not pgG.is_visible("#guardScreen") and api("api/guard")["view"]["phase"] == "off"
+      not pgT.is_visible("#guardScreen") and not pgG.is_visible("#guardBar") and api("api/guard")["view"]["phase"] == "off"
+      and not pgG.evaluate("document.body.classList.contains('guardArmed')")
       and ["homeassistant", "turn_off", ["siren.e2e"]] in ha_calls()[c0:] and any("Alarm beendet" in (m[2] or "") for m in notified()[n0:]),
       (ha_calls()[c0:], notified()[n0:]))
 pgT.close(); pgG.close()

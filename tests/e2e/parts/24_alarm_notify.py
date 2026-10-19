@@ -1,5 +1,6 @@
 """A message on alarm (#414): the part "🚨 Message on alarm" of the settings (only for editors), WhatsApp through CallMeBot (test message,
-a wrong key said so), a smoke sensor going off sends a message with the place in the plan, and a notify service of Home Assistant.
+a wrong key said so), a smoke sensor going off sends a message with the place in the plan, and a notify service of Home Assistant;
+the list says where each one comes from (#460: phone app, set up in Home Assistant such as its own Telegram bot, configuration.yaml).
 """
 import time
 saved_an = api_admin("api/layout")              # put back at the end
@@ -9,6 +10,10 @@ def notified():
     return json.loads(urllib.request.urlopen(HA + "/_notified").read())
 def ha_set(e, s):
     urllib.request.urlopen(f"{HA}/_set?e={e}&s={s}").read()
+def mock_extra(d):
+    urllib.request.urlopen(urllib.request.Request(HA + "/_extra", data=json.dumps(d).encode(), method="POST", headers={"Content-Type": "application/json"})).read()
+# #460: a notify entity of Home Assistant's own Telegram bot (set up in its UI: one per chat)
+mock_extra({"notify.telegram_familie_chat": {"state": "unknown", "attributes": {"friendly_name": "Familien-Chat"}, "platform": "telegram_bot"}})
 # a smoke sensor in a room of the plan (saved before the page opens): the message says where it is
 lay = json.loads(json.dumps(saved_an))
 f0 = lay["floors"][0]
@@ -28,6 +33,15 @@ opts = pgN.evaluate("() => [...document.querySelectorAll('#alarmNotify [data-svc
 check("alarm message (#414, #456): the settings have the part, off at first, every kind ticked, Home Assistant's notify services as a list to tick",
       pgN.is_visible("#alarmNotifyTitle") and "Benachrichtigung bei Alarm" in pgN.text_content("#alarmNotifyTitle") and not pgN.is_checked("#anOn")
       and all(pgN.is_checked(f"#anKind_{k}") for k in ("alarm", "smoke", "gas", "co", "water")) and opts == ["mobile_app_test", "whatsapp"], (txt, opts))
+heads = pgN.evaluate("() => [...document.querySelectorAll('#alarmNotify .anSvcs')].map((g) => [g.className, g.querySelector('.anSrcHead').textContent, g.textContent])")
+check("alarm message (#460): the list says where each one comes from: phone app, set up in Home Assistant (the Telegram bot's chat), configuration.yaml",
+      [h[0].split("anSrc-")[1] for h in heads] == ["app", "integration", "yaml"] and "Handy" in heads[0][1] and "mobile_app_test" in heads[0][2]
+      and "Geräte & Dienste" in heads[1][1] and "Familien-Chat" in heads[1][2] and "Telegram-Bot" in heads[1][2] and "notify.telegram_familie_chat" in heads[1][2]
+      and "configuration.yaml" in heads[2][1] and "whatsapp" in heads[2][2] and "mobile_app" not in heads[2][2]
+      and pgN.locator("#alarmNotify [data-ent='notify.telegram_familie_chat']").count() == 1, heads)
+check("alarm message (#460): how to set up your own Telegram bot, with the button that opens it in Home Assistant",
+      "Telegram-Bot einrichten" in (pgN.text_content("#alarmNotify .anGuide summary") or "") and pgN.locator("#alarmNotify .anGuide .anSteps li").count() == 4
+      and "domain=telegram_bot" in (pgN.get_attribute("#alarmNotify .anGuide a.anMy", "href") or ""))
 check("alarm message (#454): WhatsApp has three numbered steps, the first with the link to CallMeBot",
       pgN.locator("#alarmNotify .anWa .anSteps li").count() == 3 and "I allow callmebot to send me messages" in pgN.inner_text("#alarmNotify .anWa .anSteps")
       and pgN.locator("#alarmNotify .anWa .anSteps li a[href*=callmebot]").count() == 1)
@@ -75,6 +89,14 @@ pgN.click("#anTest"); pgN.wait_for_timeout(1500)
 last = [m for m in notified()[n0:] if m[0] == "ha"]
 check("alarm message (#456): through the ticked notify services of Home Assistant, to each of them",
       sorted(m[1] for m in last) == ["mobile_app_test", "whatsapp"] and all("Test" in m[2] for m in last), last)
+pgN.uncheck("#alarmNotify [data-svc=whatsapp]"); pgN.uncheck("#alarmNotify [data-svc=mobile_app_test]")
+pgN.check("#alarmNotify [data-ent='notify.telegram_familie_chat']")
+n0 = len(notified())
+pgN.click("#anTest"); pgN.wait_for_timeout(1500)
+last = notified()[n0:]
+check("alarm message (#460): a chat of Home Assistant's Telegram bot alone is enough, sent with notify.send_message",
+      len(last) == 1 and last[0][0] == "ha_entity" and last[0][1] == "notify.telegram_familie_chat" and "Test" in last[0][2]
+      and pgN.evaluate("() => fetch('api/notify').then((r) => r.json())")["entities"] == ["notify.telegram_familie_chat"], last)
 # Telegram through CallMeBot (#456): into a group with its key, or to users
 pgN.select_option("#anVia", "telegram")
 check("alarm message (#456): Telegram shows who it goes to and the steps", pgN.is_visible("#anTgMode") and pgN.is_visible("#anTgUsers")
@@ -94,7 +116,7 @@ check("alarm message (#456): ... or to Telegram users (an @ is added)", last and
       and pgN.input_value("#anTgUsers") == "@flo_weber, @anna_m", last)
 pgN.select_option("#anTgMode", "group"); pgN.fill("#anTgKey", "bad"); pgN.click("#anTest"); pgN.wait_for_timeout(1500)
 check("alarm message (#456): a wrong group key is said so", "Nicht gesendet" in pgN.inner_text("#alarmNotify .anStatus"), pgN.inner_text("#alarmNotify .anStatus"))
-pgN.evaluate("() => fetch('api/notify', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: false, apikey: null, tgkey: null, phone: '', services: [], tgUsers: [], via: 'whatsapp', tgMode: 'user'})})")
+pgN.evaluate("() => fetch('api/notify', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({on: false, apikey: null, tgkey: null, phone: '', services: [], entities: [], tgUsers: [], via: 'whatsapp', tgMode: 'user'})})")
 pgN.wait_for_timeout(300)
 pgN.close()
 
@@ -108,5 +130,6 @@ pgR3.goto(BASE + "?debug=1"); pgR3.wait_for_timeout(800)
 pgR3.evaluate("(l) => fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(l)})", saved_an); pgR3.wait_for_timeout(400)
 pgR3.close()
 set_setting("language", lang_an)
+mock_extra({})
 bad = [x for x in own if "favicon" not in x and "status of 502" not in x]    # the test with the wrong key, on purpose
 check("alarm message: no console errors", not bad, bad)
