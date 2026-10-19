@@ -1,5 +1,10 @@
 /* Demo mode: replaces the add-on backend with in-memory data so the editor runs from a single HTML file.
  * Installed as window.fetch shim before the app starts. Nothing is sent anywhere and nothing is persisted. */
+import flatExample from '../floorplan3d/rootfs/app/examples/flat.json';
+import houseExample from '../floorplan3d/rootfs/app/examples/house.json';
+import showcaseExample from '../floorplan3d/rootfs/app/examples/showcase.json';
+import propertySchema from '../floorplan3d/rootfs/app/property.schema.json';
+
 const W = (id, a, b, thickness, openings = []) => ({ id, a, b, thickness, height: 2.6, openings });
 const D = (id, pos, extra = {}) => ({ id, type: 'door', pos, width: 0.9, height: 2.05, sill: 0, ...extra });
 const Win = (id, pos, extra = {}) => ({ id, type: 'window', pos, width: 1.2, height: 1.2, sill: 0.9, ...extra });
@@ -303,7 +308,48 @@ const entities = {
   'light.nachbar_wohnen':    { name: 'Nachbar Wohnen Licht',   state: 'on', rgb: [255, 200, 140] },
   // the weather in the sky (#419); ?weather=rainy (snowy, cloudy, pouring ...) shows another one. No sun.sun: the demo's sky follows the clock (#418)
   'weather.zuhause':         { name: 'Zuhause', state: new URLSearchParams(location.search).get('weather') || 'partlycloudy', wx: { t: 14, tu: '°C', w: 12, wu: 'km/h' } },
+  // the batteries of the sensors' devices (#376: "Geräte" → "Batterie"); the kitchen window contact and the basement sensor are nearly empty
+  'sensor.fenster_wohnzimmer_batterie': { name: 'Fenster Wohnzimmer Batterie', state: '84', unit: '%', dc: 'battery' },
+  'sensor.fenster_kueche_batterie':     { name: 'Fenster Küche Batterie',      state: '12', unit: '%', dc: 'battery' },
+  'sensor.tuer_buero_batterie':         { name: 'Bürotür Batterie',            state: '63', unit: '%', dc: 'battery' },
+  'sensor.tuer_wz_kueche_batterie':     { name: 'Tür Wohnzimmer-Küche Batterie', state: '91', unit: '%', dc: 'battery' },
+  'sensor.buero_praesenz_batterie':     { name: 'Büro Anwesenheit Batterie',   state: '47', unit: '%', dc: 'battery' },
+  'sensor.bad_feuchte_batterie':        { name: 'Bad Luftfeuchte Batterie',    state: '35', unit: '%', dc: 'battery' },
+  'sensor.keller_feuchte_batterie':     { name: 'Keller Luftfeuchte Batterie', state: '8', unit: '%', dc: 'battery' },
 };
+// api/batteries: the battery entity of each sensor's device, as the add-on reads it from Home Assistant's registries
+const batteryOf = {
+  'binary_sensor.fenster_wohnzimmer': 'sensor.fenster_wohnzimmer_batterie', 'binary_sensor.fenster_kueche': 'sensor.fenster_kueche_batterie',
+  'binary_sensor.tuer_buero': 'sensor.tuer_buero_batterie', 'binary_sensor.tuer_wohnzimmer_kueche': 'sensor.tuer_wz_kueche_batterie',
+  'binary_sensor.buero_praesenz': 'sensor.buero_praesenz_batterie', 'sensor.bad_feuchte': 'sensor.bad_feuchte_batterie',
+  'sensor.keller_feuchte': 'sensor.keller_feuchte_batterie',
+};
+
+/* Security (🛡️ Sicherheit): two recorded days, yesterday and today until now. Every day the same story in the demo house: up in the
+ * morning, Anna leaves by car, a window is aired, Max comes home, the living room evening, lights out. Lines as in the add-on's files
+ * (timeline.py): first a snapshot of every state, then one line per change. */
+const isoDay = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function recordedDay(iso) {
+  const [y, m, d] = iso.split('-').map(Number), start = new Date(y, m - 1, d).getTime() / 1000, end = new Date(y, m - 1, d + 1).getTime() / 1000;
+  const off = { state: 'off' }, at = (hh, mm) => start + hh * 3600 + mm * 60;
+  const snap = Object.fromEntries(['light.wohnzimmer', 'light.stehlampe', 'light.kueche', 'light.schlafzimmer', 'light.bad', 'light.buero',
+    'light.shapes_wz', 'light.tv_led', 'light.sofa_led', 'light.voute_bett', 'light.voute_fenster', 'light.garage', 'binary_sensor.fenster_wohnzimmer',
+    'binary_sensor.fenster_kueche', 'binary_sensor.tuer_buero', 'binary_sensor.tuer_wohnzimmer_kueche', 'binary_sensor.buero_praesenz'].map((e) => [e, off]));
+  Object.assign(snap, { 'person.anna': { state: 'home' }, 'person.max': { state: 'not_home' }, 'cover.garagentor': { state: 'closed', position: 0 } });
+  const ev = [[6, 40, 'light.bad', { state: 'on' }], [6, 55, 'light.kueche', { state: 'on' }], [7, 20, 'light.bad', off], [7, 35, 'light.kueche', off],
+    [7, 45, 'cover.garagentor', { state: 'open', position: 100 }], [7, 46, 'person.anna', { state: 'not_home' }], [7, 52, 'cover.garagentor', { state: 'closed', position: 0 }],
+    [11, 5, 'binary_sensor.fenster_kueche', { state: 'on' }], [11, 40, 'binary_sensor.fenster_kueche', off], [17, 10, 'cover.garagentor', { state: 'open', position: 100 }],
+    [17, 11, 'person.max', { state: 'home' }], [17, 14, 'cover.garagentor', { state: 'closed', position: 0 }], [17, 20, 'light.kueche', { state: 'on' }],
+    [17, 45, 'binary_sensor.fenster_wohnzimmer', { state: 'on' }], [18, 30, 'light.wohnzimmer', { state: 'on', brightness: 70, rgb: [255, 140, 110] }],
+    [18, 31, 'light.stehlampe', { state: 'on' }], [18, 50, 'person.anna', { state: 'home' }], [19, 5, 'light.tv_led', { state: 'on', rgb: [255, 60, 160] }],
+    [19, 6, 'light.shapes_wz', { state: 'on', rgb: [120, 90, 255] }], [19, 30, 'light.buero', { state: 'on', rgb: [255, 226, 110] }],
+    [19, 31, 'binary_sensor.buero_praesenz', { state: 'on' }], [19, 40, 'light.kueche', off], [21, 50, 'light.voute_bett', { state: 'on', rgb: [190, 80, 255] }],
+    [22, 30, 'light.wohnzimmer', off], [22, 31, 'light.stehlampe', off], [22, 32, 'light.tv_led', off], [22, 33, 'light.shapes_wz', off], [23, 10, 'light.voute_bett', off]];
+  const now = Date.now() / 1000;
+  const lines = [{ t: start + 1, snap }, ...ev.map(([hh, mm, e, s]) => ({ t: at(hh, mm), e, s })).filter((l) => l.t <= now)];
+  return { day: iso, start, end, now, lines };
+}
+const recordedDays = () => { const d = new Date(); const today = isoDay(d); d.setDate(d.getDate() - 1); return [today, isoDay(d)]; };
 
 let settings = {
   language: 'auto', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
@@ -327,9 +373,26 @@ function guardView() {
   return { phase: g.st.phase, left: ['arming', 'entry'].includes(g.st.phase) ? Math.max(0, Math.round(g.st.due - now)) : 0, since: g.st.since, by: g.st.by, what: g.st.what };
 }
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+const file = (text, name, type) => new Response(text, { status: 200, headers: { 'Content-Type': type, 'Content-Disposition': `attachment; filename="${name}"` } });
+const ONLY_ADDON = 'In der Demo nicht verfügbar (nur im Add-on).';
+const examples = { flat: flatExample, house: houseExample, showcase: showcaseExample };
+const demoVersion = () => (typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __DEMO_VERSION__);
 
 export function installDemoBackend() {
   window.__fpNoLive = true;                                  // no add-on server behind the demo: no live channel, states change only here
+  // links into the add-on (🗄️ Backup → "Backup herunterladen", ⬇ of a recorded day, "Als Datei exportieren"): answered here too and saved
+  // as a file. Opened as a page they left the demo (a GitHub error page, an empty tab from the file)
+  document.addEventListener('click', async (e) => {
+    const a = e.target.closest?.('a[href]'), href = a?.getAttribute('href') || '';
+    if (!href.startsWith('api/')) return;
+    e.preventDefault();
+    const r = await window.fetch(href);
+    if (!r.ok) { window.alert((await r.json().catch(() => ({}))).error || ONLY_ADDON); return; }
+    const name = /filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') || '')?.[1] || a.getAttribute('download') || 'floorplan3d.json';
+    const blob = URL.createObjectURL(await r.blob()), dl = Object.assign(document.createElement('a'), { href: blob, download: name });
+    document.body.append(dl); dl.click(); dl.remove();
+    setTimeout(() => URL.revokeObjectURL(blob), 10000);
+  }, true);
   const realFetch = window.fetch.bind(window);
   window.fetch = async (input, init = {}) => {
     const url = typeof input === 'string' ? input : input.url;
@@ -398,9 +461,9 @@ export function installDemoBackend() {
         bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null })));
     }
     if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
-      const v = typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __DEMO_VERSION__;
-      return json({ known: true, version: v, buildHash: 'demo', short: 'demo', server: { ok: true, files: 0, changed: [], missing: [], extra: [] }, staticFiles: {} });
+      return json({ known: true, version: demoVersion(), buildHash: 'demo', short: 'demo', server: { ok: true, files: 0, changed: [], missing: [], extra: [] }, staticFiles: {} });
     }
+    if (path === 'api/version/remote') return json({ state: 'same', version: demoVersion(), short: 'demo' });   // built from GitHub's newest main
     if (path === 'api/service' && method === 'POST') {
       const { service, entity_id: id, data } = JSON.parse(init.body);
       const e = entities[id];
@@ -480,12 +543,35 @@ export function installDemoBackend() {
       if (guard.st.phase === 'armed') guard.armedAt = now;
       return json({ view: guardView() });
     }
+    if (path === 'api/batteries') return json(batteryOf);
+    if (path === 'api/timeline') {
+      return json({ days: recordedDays().map((day) => ({ day, size: JSON.stringify(recordedDay(day).lines).length })), on: true, keepDays: 7, recording: true,
+        ha: true, folder: 'addon_configs/…_floorplan3d/timeline' });
+    }
+    if (path.startsWith('api/timeline/')) {
+      const day = path.slice('api/timeline/'.length);
+      if (!recordedDays().includes(day)) return json({ error: 'not recorded' }, 404);
+      const rec = recordedDay(day);
+      if (/[?&]download=/.test(url)) return file(rec.lines.map((l) => JSON.stringify(l)).join('\n') + '\n', `floorplan3d-timeline-${day}.jsonl`, 'application/x-ndjson');
+      return json(rec);
+    }
+    if (path === 'api/backup') {                         // the demo's houses and settings as a backup file of the add-on; restoring one needs the add-on
+      if (method === 'POST') return json({ error: ONLY_ADDON }, 501);
+      return file(JSON.stringify({ format: 'floorplan3d-backup', version: 1, exported: new Date().toISOString(), houses: houses.map((h) => ({ ...h, layout: layouts[h.id] })),
+        settings, backgrounds: {}, models: {} }), 'floorplan3d-backup-demo.json', 'application/json');
+    }
+    if (path === 'api/import/schema') return json(propertySchema);
+    if (path.startsWith('api/import/examples/')) {         // the examples of the import dialog, the AI prompt's lists: the same as in the add-on
+      const ex = examples[path.slice('api/import/examples/'.length)];
+      return ex ? json(ex) : json({ error: 'unknown example' }, 404);
+    }
+    if (path === 'api/import') return json({ error: ONLY_ADDON }, 501);   // building a house from JSON is the add-on's (importer.py)
     if (path === 'api/notify/test') return json({ error: 'in der Demo wird nichts gesendet' }, 501);
     if (path === 'api/backgrounds' && method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
     if (path === 'api/models') {
       if (method === 'POST') return json({ error: 'Upload ist in der Demo deaktiviert' }, 501);
       return json([]);
     }
-    return json({ error: 'not available in demo' }, 404);
+    return json({ error: ONLY_ADDON }, 404);
   };
 }

@@ -115,6 +115,12 @@ check("glass (#429): the view buttons, the floor cards and the search button are
 # --- edit mode: no labels; the floor of a room is chosen in its properties (#427)
 pgL.click("#modeSwitch [data-mode=edit]"); pgL.wait_for_timeout(700)
 check("room labels: none in edit mode, the names lie on the floor again", not pgL.is_visible("#roomLabels") and pgL.evaluate(NAME, "Schilderraum") is True)
+view_menu(pgL); pgL.click("#roomLabelsToggle"); pgL.wait_for_timeout(900)
+check("room labels: in edit mode a tap on 'Im Bild: Raum-Schilder' goes live and shows them (the demo starts in edit mode, the tap did nothing there)",
+      pgL.evaluate("document.body.classList.contains('live')") and pgL.is_visible("#roomLabels") and api("api/settings")["roomLabels"] is True
+      and pgL.inner_text("#roomLabelsToggle") == "Im Bild: Raum-Schilder", pgL.inner_text("#roomLabelsToggle"))
+if pgL.is_visible("#viewMenu"): pgL.click("#viewMenuBtn"); pgL.wait_for_timeout(200)
+pgL.click("#modeSwitch [data-mode=edit]"); pgL.wait_for_timeout(700)
 pgL.evaluate("window.__fp.select('room', 'lk_plain')"); pgL.wait_for_timeout(400)
 check("floors: the room's properties have 'Boden' with 'Einfarbig' chosen, and its colour",
       pgL.is_visible("#roomCovering") and pgL.eval_on_selector("#roomCovering", "e => e.value") == "" and pgL.is_visible("#roomColor"))

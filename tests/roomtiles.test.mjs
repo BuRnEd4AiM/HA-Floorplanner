@@ -87,6 +87,13 @@ test('the labels over the rooms show in live mode on a wide screen, one floor, n
   assert.equal(R.labelsShown({ ...on, focused: 'r1' }), false, 'a room opened');
 });
 
+test('the switch in the View menu: in live mode on and off; in edit mode, where nothing shows, on and live', () => {
+  assert.deepEqual(R.liveToggle({ on: true, live: true }), { on: false, live: false });
+  assert.deepEqual(R.liveToggle({ on: false, live: true }), { on: true, live: false });
+  assert.deepEqual(R.liveToggle({ on: true, live: false }), { on: true, live: true }, 'the demo starts in edit mode: the tap shows the labels');
+  assert.deepEqual(R.liveToggle({ on: false, live: false }), { on: true, live: true });
+});
+
 test('a label floats over most furniture, under the ceiling', () => {
   assert.equal(R.labelHeight(2.6), 1.2);
   assert.ok(Math.abs(R.labelHeight(2.2) - 1.034) < 1e-9);

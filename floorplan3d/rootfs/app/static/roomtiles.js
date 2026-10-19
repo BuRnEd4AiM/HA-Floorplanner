@@ -74,6 +74,11 @@ export function labelTexts(s, num, imperial = false) {
   };
 }
 
+/** a tap on "Im Bild: Raum-Schilder" or "Raum-Kacheln" in the View menu: in live mode it switches them on or off; in edit mode, where
+ *  neither shows, it switches them on and goes live, so the tap shows what it says (the demo starts in edit mode: nothing happened there).
+ *  -> { on: the setting, live: go to live mode } */
+export const liveToggle = ({ on, live }) => (live ? { on: !on, live: false } : { on: true, live: true });
+
 /** do the labels over the rooms show? on (setting), live mode, `wide`: room for them (not the dashboard card or a room tablet; phones
  *  too since #444), one floor (the whole house would pile them up), no room opened (its card says it all) and the 3D view shown */
 export const labelsShown = ({ on, live, wide, house, focused, view3d }) => !!(on && live && wide && !house && !focused && view3d);

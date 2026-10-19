@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.1.2] - 2026-10-19
+### Fixed
+- **„Im Bild: Raum-Schilder“ did nothing in the demo** (#462): the demo starts in edit mode on a PC or tablet, and room labels and room tiles only show in live mode, so a tap on *Ansicht* → *Im Bild: Raum-Schilder* (or *Raum-Kacheln*) changed nothing to see. In edit mode the tap now switches them on and goes to live mode, where they show (in the add-on too). In live mode it switches them on and off as before.
+- **The demo has what was missing** (#462): **🛡️ Sicherheit** plays back two recorded days (yesterday and today until now) instead of *Die Aufzeichnung konnte nicht geladen werden*; **Geräte → Batterie** lists the batteries of the window, door and other sensors (two nearly empty); **🗄️ Backup → Backup herunterladen** saves the demo's houses and settings as a real backup file of the add-on (before it left the demo for an error page), ⬇ of a recorded day saves its file; **Import** shows the examples and the AI prompt lists every device type; *Version → Jetzt prüfen (auch mit GitHub)* answers. What only the add-on can do (building a house from JSON, restoring a backup, exporting a house) says so instead of leaving the page: *Häuser → Als Datei exportieren* is a download link now, not a new address.
+
 ## [4.1.1] - 2026-10-18
 ### Changed
 - **The holiday alarm does not lock out the owner** (#460): users who may edit get no lock screen any more when it is armed. Instead a **red strip at the top** of the picture says *Urlaubs-Alarm wird scharf in … s*, *ist SCHARF · seit …*, which door is open and the seconds left, or *ALARM*, and a **red frame** runs round the whole screen (blinking at an alarm); the plan can be used as usual. A tap on the strip (or the 🛡 button) opens the keypad to switch it off. Wall tablets (users who may not edit) still get the half see-through lock screen; *Nur ansehen* is gone.

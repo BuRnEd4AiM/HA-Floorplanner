@@ -6,7 +6,7 @@
  * between "room labels" and "devices" (also in the settings). Labels that would lie on each other are tidied (#436): the ones that matter
  * more keep their place, another moves up a row at most, else it shrinks to a small dot over its room. */
 import * as THREE from './vendor/three.module.min.js';
-import { roomSummary, labelTexts, labelsShown, labelHeight, labelRank, tidyLabels } from './roomtiles.js';
+import { roomSummary, labelTexts, labelsShown, labelHeight, labelRank, tidyLabels, liveToggle } from './roomtiles.js';
 import { roomCenter } from './floorbuild.js';
 
 const hex = (c) => '#' + c.map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0')).join('');
@@ -17,14 +17,18 @@ const STEM = 8;                                    // px: the line from a label 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), focusedRoom(), settings(), states(), isLive(), view3d() (the 3D view is shown), elev(i),
  *  camera, canvas, placed(floor), areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), commitSettings(), lang(), imperial(),
  *  quiet(on) (the devices' balls off while the labels show), changed() (draw the states again: the balls and value labels come or go),
- *  openRoom(id) (what a tap on a label does: the room opens with its devices) */
+ *  openRoom(id) (what a tap on a label does: the room opens with its devices), goLive() (a tap on the switch in edit mode) */
 export function initRoomLabels(ctx) {
   const { $, t, camera, canvas } = ctx;
   const box = $('#roomLabels');
   const names = [];                                // { f, id, sp }: the room names on the floors built (floorbuild.js)
   let pills = [], last = '', shown = false;
   const v = new THREE.Vector3();
-  $('#roomLabelsToggle').addEventListener('click', () => { $('#setRoomLabels').checked = ctx.settings().roomLabels === false; ctx.commitSettings(); });
+  $('#roomLabelsToggle').addEventListener('click', () => {
+    const next = liveToggle({ on: ctx.settings().roomLabels !== false, live: ctx.isLive() });   // edit mode: on, and live (roomtiles.js)
+    $('#setRoomLabels').checked = next.on; ctx.commitSettings();
+    if (next.live) ctx.goLive();
+  });
   box.addEventListener('click', (e) => { const p = e.target.closest('[data-room]'); if (p) ctx.openRoom?.(p.dataset.room); });
 
   // the dashboard card and a room tablet (its one room) have no room for them, like the room tiles; phones have them, smaller (#444)
