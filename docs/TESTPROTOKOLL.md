@@ -262,7 +262,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 0 | 0 | 8 | 0 | 58.1 bis 58.8 |
 | 59. Neu in 3.92: Bar mit Deckenteil | 0 | 0 | 7 | 1 | 59.1 bis 59.7 |
 | 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 1 | 0 | 8 | 3 | 60.1 bis 60.8 |
-| 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 3 | 0 | 8 | 2 | 61.4 bis 61.9, 61.12, 61.13 |
+| 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 11 | 0 | 0 | 2 | – |
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 4 | 0 | 0 | 3 | – |
 | 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 2 | 0 | 6 | 3 | 63.1 bis 63.5, 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
@@ -277,7 +277,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 7 | 0 | 0 | 0 | – |
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
-| **Zusammen** | **385** | **3** | **140** | **33** | |
+| **Zusammen** | **393** | **3** | **132** | **33** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1005,16 +1005,16 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 61.1 | Bearbeiten, rechts „🏘 Gebäude in diesem Plan“ aufklappen | Ein Hinweis, der Knopf „+ Gebäude“ und unten „Anderes Haus hereinholen“ | ✅ (2026-10-20) |
 | 61.2 | Zweimal „+ Gebäude“, die Namen auf „Haupthaus“ und „Gartenhaus“ ändern | Beide stehen in der Liste, oben erscheint die Auswahl „🏘 Alle Gebäude“ | ✅ (2026-10-20) |
 | 61.3 | Bei den Räumen des Erdgeschosses jeweils das Gebäude wählen | Die Räume der oberen Etagen zeigen „automatisch (…)“ mit dem Gebäude des Raums darunter | ✅ (2026-10-20) |
-| 61.4 | Ein Gebäude mit × löschen, dann Strg+Z | Die Räume bleiben, gehören zu keinem Gebäude mehr; Strg+Z holt das Gebäude zurück | ❓ |
-| 61.5 | Oben „Gartenhaus“ wählen, dann einen neuen Raum im Gartenhaus zeichnen | Der neue Raum gehört zum Gartenhaus (in der Liste rechts) | ❓ |
-| 61.6 | Oben „Gartenhaus“ wählen, in 3D und 2D ansehen | Nur das Gartenhaus mit seinen Räumen, Wänden und Geräten; Gartenmöbel (in keinem Raum) bleiben; das Bild zeigt das Gartenhaus formatfüllend | ❓ |
-| 61.7 | Links die Etagen ansehen | Etagen ohne etwas vom Gartenhaus (z. B. das Obergeschoss) fehlen | ❓ |
-| 61.8 | „Ganzes Haus“ und „Live“ mit „Gartenhaus“ | Auch dort nur das Gartenhaus; Warnungen (Rauch, Wasser) kommen weiter für den ganzen Plan | ❓ |
-| 61.9 | Oben „🏘 Alle Gebäude“, rechts bei den Dächern „🏠 Jedes Gebäude bekommt sein eigenes Dach“ | Jedes Gebäude hat ein eigenes Dach in derselben Form (vorher eins über allen, mit Hinweis) | ❓ |
+| 61.4 | Ein Gebäude mit × löschen, dann Strg+Z | Die Räume bleiben, gehören zu keinem Gebäude mehr; Strg+Z holt das Gebäude zurück | ✅ (2026-10-20) |
+| 61.5 | Oben „Gartenhaus“ wählen, dann einen neuen Raum im Gartenhaus zeichnen | Der neue Raum gehört zum Gartenhaus (in der Liste rechts) | ✅ (2026-10-20) |
+| 61.6 | Oben „Gartenhaus“ wählen, in 3D und 2D ansehen | Nur das Gartenhaus mit seinen Räumen, Wänden und Geräten; Gartenmöbel (in keinem Raum) bleiben; das Bild zeigt das Gartenhaus formatfüllend | ✅ (2026-10-20) |
+| 61.7 | Links die Etagen ansehen | Etagen ohne etwas vom Gartenhaus (z. B. das Obergeschoss) fehlen | ✅ (2026-10-20) |
+| 61.8 | „Ganzes Haus“ und „Live“ mit „Gartenhaus“ | Auch dort nur das Gartenhaus; Warnungen (Rauch, Wasser) kommen weiter für den ganzen Plan | ✅ (2026-10-20) |
+| 61.9 | Oben „🏘 Alle Gebäude“, rechts bei den Dächern „🏠 Jedes Gebäude bekommt sein eigenes Dach“ | Jedes Gebäude hat ein eigenes Dach in derselben Form (vorher eins über allen, mit Hinweis) | ✅ (2026-10-20) |
 | 61.10 | „Benutzer“ → bei einem Benutzer ⚙ → „Gebäude“: Gartenhaus wählen, unter „🔒 Gesperrt“ „Gebäude wechseln“ abhaken, als dieser Benutzer öffnen | Er sieht nur das Gartenhaus, die Auswahl oben fehlt | ➖ |
 | 61.11 | Dasselbe ohne den Haken „Gebäude wechseln“ | Er startet im Gartenhaus, kann aber oben umschalten | ➖ |
-| 61.12 | Unten „Anderes Haus hereinholen“: ein Haus der Liste wählen, „⤵ Hereinholen“ | Es wird ein Gebäude dieses Plans: steht es als Nachbarhaus daneben, genau dort, sonst 3 m rechts daneben; seine Etagen liegen auf den Etagen gleicher Höhe | ❓ |
-| 61.13 | Danach Strg+Z | Alles Hereingeholte ist wieder weg; das andere Haus steht weiter in der Häuser-Liste | ❓ |
+| 61.12 | Unten „Anderes Haus hereinholen“: ein Haus der Liste wählen, „⤵ Hereinholen“ | Es wird ein Gebäude dieses Plans: steht es als Nachbarhaus daneben, genau dort, sonst 3 m rechts daneben; seine Etagen liegen auf den Etagen gleicher Höhe | ✅ (2026-10-20) |
+| 61.13 | Danach Strg+Z | Alles Hereingeholte ist wieder weg; das andere Haus steht weiter in der Häuser-Liste | ✅ (2026-10-20) |
 
 ## 62. Neu in 3.95: Energie leichter einrichten (#407)
 | Nr. | Was tun | Erwartung | Ergebnis |
