@@ -9,6 +9,7 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - The owner is not a developer: explain everything simply in German.
 - Always say how to approve a pull request: open the link, "Merge pull request", "Confirm merge".
 - Document bugs as GitHub issues and close them when fixed (use "Fixes #n" in the PR).
+- Test results (the owner's wish, 2026-10-20): when he tests or asks what to test, ask with the AskUserQuestion tool (a choice in the chat to tap), never as a list he has to type back. One question per test number from docs/TESTPROTOKOLL.md (header = the number, e.g. "74.1"; the question says in short German what to do and what he should see), options "✅ Geht", "❌ Geht nicht", "⏭ Noch nicht getestet"; "Other" lets him write why. At most 4 questions per call: several rounds, the newest section first. Then enter the answers (✅/❌ (date), see "Test protocol"); a ❌ with his text becomes an issue.
 ## Checksums
 - After every change in floorplan3d/ (also the version in config.yaml) run `python3 tools/make_manifest.py` and commit floorplan3d/rootfs/app/manifest.json. The tests (tests/test_manifest.py) fail otherwise. The add-on shows the version and checksum in the top bar and compares files, browser and GitHub.
 ## Code structure (new rule)

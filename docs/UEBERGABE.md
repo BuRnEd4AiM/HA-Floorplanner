@@ -6,6 +6,7 @@ Stand: 2026-10-20, Version **4.1.3**. Diese Datei ist für den nächsten Chat (a
 
 - Kein Entwickler: einfach und auf Deutsch erklären, kurze Sätze, keine Fachwörter.
 - Er testet in der **Demo** (https://burned4aim.github.io/HA-Floorplanner/) und schickt Ergebnisse als Nummern aus `docs/TESTPROTOKOLL.md`, z. B. „65.1 bis 65.8 geht“. Eintragen: nur die Ergebnis-Zellen ändern (`✅ (Datum)`), dann `python3 tools/testprotokoll.py`, die „Kurze Prüfliste“ oben und „Ältere offene Punkte“ nachziehen (siehe `.claude/CLAUDE.md`).
+- **Testen per Auswahl im Chat** (sein Wunsch, 2026-10-20): wenn er testet, fragt Claude die Testpunkte mit dem Werkzeug AskUserQuestion ab, eine Frage je Nummer (✅ Geht / ❌ Geht nicht / ⏭ Noch nicht getestet, dazu „Other“ für einen Satz), höchstens 4 je Runde; dann eintragen wie oben. Genau so in `.claude/CLAUDE.md`.
 - Er mag **Beispielbilder vor dem Bauen**: Ideen erst als Bild zeigen (die Demo mit eingespieltem Skript fotografieren, siehe unten), dann bauen, was er auswählt.
 - Zu jedem Pull Request erklären, wie er mergt (Link öffnen, „Merge pull request“, „Confirm merge“). Er hat Claude schon mehrmals gebeten, selbst zu mergen, sobald alles grün ist („mache den merge wenn er bereit ist“, „gerne“). Das gilt pro Pull Request: kurz fragen, wenn er es nicht schon gesagt hat.
 - Er hat die Reihenfolge seiner Werkzeugleiste früher selbst angepasst („Gerät“ steht bei ihm vorne). Das ist kein Fehler; ✎ → „Zurücksetzen“ stellt die normale Reihenfolge her (schon gesagt).
