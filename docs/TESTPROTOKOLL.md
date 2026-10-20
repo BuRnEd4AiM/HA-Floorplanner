@@ -259,8 +259,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 0 | 0 | 7 | 0 | 55.1 bis 55.7 |
 | 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 0 | 0 | 7 | 0 | 56.1 bis 56.7 |
 | 57. Neu in 3.90: Garage, Werkstatt und Carport | 0 | 0 | 7 | 1 | 57.1 bis 57.7 |
-| 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 0 | 0 | 8 | 0 | 58.1 bis 58.8 |
-| 59. Neu in 3.92: Bar mit Deckenteil | 0 | 0 | 7 | 1 | 59.1 bis 59.7 |
+| 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 1 | 0 | 7 | 0 | 58.2 bis 58.8 |
+| 59. Neu in 3.92: Bar mit Deckenteil | 7 | 0 | 0 | 1 | – |
 | 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 9 | 0 | 0 | 3 | – |
 | 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 11 | 0 | 0 | 2 | – |
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 4 | 0 | 0 | 3 | – |
@@ -277,7 +277,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 7 | 0 | 0 | 0 | – |
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
-| **Zusammen** | **401** | **3** | **124** | **33** | |
+| **Zusammen** | **409** | **3** | **116** | **33** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -962,7 +962,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 58.1 | Bearbeiten, in der 3D-Ansicht die Taste M drücken | Das Werkzeug „Messen“ ist an, es öffnet sich 2D + 3D, rechts steht der Abschnitt „Messen“ mit „Klicke den ersten Punkt“ | ❓ |
+| 58.1 | Bearbeiten, in der 3D-Ansicht die Taste M drücken | Das Werkzeug „Messen“ ist an, es öffnet sich 2D + 3D, rechts steht der Abschnitt „Messen“ mit „Klicke den ersten Punkt“ | ✅ (2026-10-20) |
 | 58.2 | Im 2D-Plan zwei Punkte anklicken (eine Ecke, dann irgendwo); mit Alt gedrückt zwei freie Punkte | Gelbe Linie mit Länge im Plan und im 3D-Bild; rechts die Länge groß, darunter ↔, ↕ und der Winkel; Ecken und Wandflächen rasten ein, mit Alt nicht | ❓ |
 | 58.3 | Im 3D-Bild von 2D + 3D zwei Punkte auf dem Boden anklicken | Auch so wird gemessen, die Linie erscheint in beiden Bildern | ❓ |
 | 58.4 | Zwei gegenüberliegende Wände eines Raums nacheinander anklicken (auf die Wand, nicht auf die Ecke) | Die erste Wand ist blau gestrichelt, die zweite orange; rechts „Lichter Abstand“ und „Abstand der Wandmitten“, im Plan ein grüner Abstand im rechten Winkel | ❓ |
@@ -974,13 +974,13 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 59. Neu in 3.92: Bar mit Deckenteil
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 59.1 | Bearbeiten, eine „Bartheke über Eck mit LED“ setzen und anklicken | Rechts steht „An der Decke“ mit „Nichts“; darunter ein kurzer Hinweis; bei „LEDs einzeln verknüpfen“ stehen Thekenkante und Sockel | ❓ |
-| 59.2 | Bei „An der Decke“ „Gläserregal mit hängenden Gläsern“ wählen, die Bar von allen Seiten ansehen | Über der Theke hängt in L-Form ein Brett mit Stahlrahmen an Stangen von der Decke, darunter zwei Reihen Weingläser kopfüber und ein LED-Streifen; es folgt der Theke genau | ❓ |
-| 59.3 | „Deckensegel mit LED“, dann „Pendelleuchten“ wählen | Ein schwebendes Brett in der Farbe der Bar mit Licht oben und Spots unten; dann eine schwarze Schiene an der Decke mit 5 Pendelleuchten (bei der geraden Bar 3) | ❓ |
-| 59.4 | Dasselbe mit der geraden „Bartheke mit LED“ | Regal, Segel und Leuchten sind gerade und so lang wie die Theke | ❓ |
-| 59.5 | Im 2D-Plan die Bar ansehen, bei den Maßen rechts auf „Höhe“ schauen, an eine Wand schieben | Im Plan ist sie so groß wie vorher; „Höhe“ zeigt die Theke (etwa 1,2 m), nicht die Decke; sie stoppt an der Wand wie vorher | ❓ |
-| 59.6 | Bei „LEDs einzeln verknüpfen“ beim „Deckenteil“ ein Licht wählen, ein- und ausschalten | Das Licht des Deckenteils folgt seinem eigenen Licht, die Theke dem Licht der Bar; ohne eigenes Licht leuchtet es mit der Bar | ❓ |
-| 59.7 | „Live“, die Bar antippen; danach wieder „An der Decke: Nichts“ wählen | Die Karte hat einen Knopf „Deckenteil“; mit „Nichts“ ist das Deckenteil weg, sein Licht auch, Thekenkante und Sockel bleiben | ❓ |
+| 59.1 | Bearbeiten, eine „Bartheke über Eck mit LED“ setzen und anklicken | Rechts steht „An der Decke“ mit „Nichts“; darunter ein kurzer Hinweis; bei „LEDs einzeln verknüpfen“ stehen Thekenkante und Sockel | ✅ (2026-10-20) |
+| 59.2 | Bei „An der Decke“ „Gläserregal mit hängenden Gläsern“ wählen, die Bar von allen Seiten ansehen | Über der Theke hängt in L-Form ein Brett mit Stahlrahmen an Stangen von der Decke, darunter zwei Reihen Weingläser kopfüber und ein LED-Streifen; es folgt der Theke genau | ✅ (2026-10-20) |
+| 59.3 | „Deckensegel mit LED“, dann „Pendelleuchten“ wählen | Ein schwebendes Brett in der Farbe der Bar mit Licht oben und Spots unten; dann eine schwarze Schiene an der Decke mit 5 Pendelleuchten (bei der geraden Bar 3) | ✅ (2026-10-20) |
+| 59.4 | Dasselbe mit der geraden „Bartheke mit LED“ | Regal, Segel und Leuchten sind gerade und so lang wie die Theke | ✅ (2026-10-20) |
+| 59.5 | Im 2D-Plan die Bar ansehen, bei den Maßen rechts auf „Höhe“ schauen, an eine Wand schieben | Im Plan ist sie so groß wie vorher; „Höhe“ zeigt die Theke (etwa 1,2 m), nicht die Decke; sie stoppt an der Wand wie vorher | ✅ (2026-10-20) |
+| 59.6 | Bei „LEDs einzeln verknüpfen“ beim „Deckenteil“ ein Licht wählen, ein- und ausschalten | Das Licht des Deckenteils folgt seinem eigenen Licht, die Theke dem Licht der Bar; ohne eigenes Licht leuchtet es mit der Bar | ✅ (2026-10-20) |
+| 59.7 | „Live“, die Bar antippen; danach wieder „An der Decke: Nichts“ wählen | Die Karte hat einen Knopf „Deckenteil“; mit „Nichts“ ist das Deckenteil weg, sein Licht auch, Thekenkante und Sockel bleiben | ✅ (2026-10-20) |
 | 59.8 | Im Add-on das Musterhaus („alles drin“) neu importieren | Über der Bar im Keller hängt ein Gläserregal | ➖ |
 
 ## 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe
