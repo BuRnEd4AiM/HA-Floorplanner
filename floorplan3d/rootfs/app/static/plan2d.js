@@ -10,7 +10,7 @@ import { armPose } from './tvmount.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange, sectionHex } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
 import { boxItems, groupTargets, moveGroup } from './multisel.js';
-import { floorHex } from './floorcover.js';
+import { planFill } from './floorcover.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
 import { addStepAt, moveSection, moveCorner, removeStep } from './roofsteps.js';
 import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
@@ -400,9 +400,8 @@ export function createPlan(ctx) {
     /* rooms */
     f.rooms.forEach((rm) => {
       const isSel = sel?.kind === 'room' && sel.id === rm.id;
-      const heat = ctx.roomHeat ? ctx.roomHeat(rm, f) : null;
-      const fill = heat || floorHex(rm);                     // a covered floor: its mean colour (#427)
-      o += `<polygon points="${pts(rm.points)}" fill="${fill}" fill-opacity="${heat ? 0.45 : 0.26}" stroke="${isSel ? C.sel : 'rgba(255,255,255,.25)'}" stroke-width="${isSel ? 2 : 1}" stroke-dasharray="${isSel ? '' : '4 4'}"/>`;
+      const { fill, opacity } = planFill(rm, ctx.roomHeat ? ctx.roomHeat(rm, f) : null);   // the view colour, else the floor's (#427, #467)
+      o += `<polygon points="${pts(rm.points)}" fill="${fill}" fill-opacity="${opacity}" stroke="${isSel ? C.sel : 'rgba(255,255,255,.25)'}" stroke-width="${isSel ? 2 : 1}" stroke-dasharray="${isSel ? '' : '4 4'}"/>`;
     });
 
     /* floor openings (Bodenöffnungen): cut out of this floor, hatched with an orange dashed rim */

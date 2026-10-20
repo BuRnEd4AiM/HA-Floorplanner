@@ -18,6 +18,7 @@ f0.setdefault("walls", []).extend([
         {"id": "fn_win", "type": "window", "style": "single", "width": 1.0, "height": 1.0, "sill": 1.0, "pos": 1.5}]},
     {"id": "fn_w2", "a": [70, 70], "b": [77, 70], "thickness": 0.3, "height": 2.6, "openings": []}]
     + [{"id": f"fn_w{i + 3}", "a": a, "b": c, "thickness": 0.3, "height": 2.6, "openings": []} for i, (a, c) in enumerate([([77, 70], [77, 73]), ([77, 73], [70, 73]), ([70, 73], [70, 70])])])
+f0.setdefault("devices", []).append({"id": "fn_temp", "type": "sensor", "x": 71, "z": 71, "y": 1.5, "rot": 0, "scale": 1, "name": "Mustertemperatur", "entity": "sensor.temp"})   # a reading for Temp. (#467)
 urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(lay).encode(), method="PUT",
                                               headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
 pgF = b.new_page(viewport={"width": 1440, "height": 1100}, extra_http_headers={"X-Remote-User-Name": "admin"})
@@ -93,6 +94,20 @@ check("accent wall: 'Tapete Ornament' on the side of the hall: saved on the wall
       and [(s["y0"], s["y1"]) for s in sk if s["key"] == "wpDamask"] == [(0, 2.6)] and {s["key"] for s in sk if 1 in s["sides"]} == {"woodchip", "wMetro"}, (wall("fn_w1"), sk))
 pgF.select_option(f"#{side_b}", ""); pgF.wait_for_timeout(2500)
 check("accent wall: 'Wie der Raum' gives it back", "faces" not in wall("fn_w1"), wall("fn_w1"))
+
+# --- the 2D plan (#467): a room has the colour of its floor, with Temp. the colour of its temperature; never a number in fill (black)
+import re
+FILLS = """() => [...document.querySelectorAll('#plan2d polygon[stroke-dasharray]')].filter((p) => ['0.26', '0.45'].includes(p.getAttribute('fill-opacity')))
+  .map((p) => [p.getAttribute('fill'), p.getAttribute('fill-opacity')])"""   # the room polygons
+pgF.click("#view2d"); pgF.wait_for_timeout(800)
+f_norm = pgF.evaluate(FILLS)
+pgF.click('#modeBar [data-vm="temp"]'); pgF.wait_for_timeout(800)
+f_temp = pgF.evaluate(FILLS)
+hexes = lambda fs: all(re.fullmatch(r"#[0-9a-fA-F]{6}", f or "") for f, _ in fs)
+check("2D plan: the rooms have the colour of their floor; with Temp. a room with a reading has its colour as #rrggbb (not black, #467)",
+      f_norm and hexes(f_norm) and all(o == "0.26" for _, o in f_norm) and hexes(f_temp) and any(o == "0.45" for _, o in f_temp)
+      and "#000000" not in [f for f, o in f_temp if o == "0.45"], (f_norm[:4], f_temp[:4]))
+pgF.click('#modeBar [data-vm="normal"]'); pgF.click("#view3d"); pgF.wait_for_timeout(800)
 
 # --- the facade (a setting)
 pgF.click("#settingsBtn"); open_setting(pgF, "#setFacade"); pgF.wait_for_timeout(300)

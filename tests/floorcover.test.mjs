@@ -51,3 +51,13 @@ test('the floor of the 3D view: a view colour hides the pattern, under the patte
   assert.deepEqual(C.floorPaint(room, null, false), { color: C.floorFinish(room).mean, pattern: false }, 'fast mode: the colour from afar');
   assert.deepEqual(C.floorPaint({ color: '#123456' }, null, false), { color: '#123456', pattern: false });
 });
+
+test('the fill of a room in the 2D plan: the view colour as #rrggbb, else the colour of its floor (#467)', () => {
+  const room = { color: '#123456', covering: 'tiles' };
+  assert.deepEqual(C.planFill(room, 0xff8800), { fill: '#ff8800', opacity: 0.45 });
+  assert.deepEqual(C.planFill(room, 0x0000ff), { fill: '#0000ff', opacity: 0.45 }, 'leading zeros');
+  assert.deepEqual(C.planFill(room, 0), { fill: '#000000', opacity: 0.45 }, 'black is a colour too');
+  assert.deepEqual(C.planFill(room, null), { fill: C.floorHex(room), opacity: 0.26 });
+  assert.deepEqual(C.planFill({ color: '#123456' }, undefined), { fill: '#123456', opacity: 0.26 });
+  for (const h of [0xff8800, 0x0a0b0c, null]) assert.match(C.planFill(room, h).fill, /^#[0-9a-f]{6}$/, String(h));
+});

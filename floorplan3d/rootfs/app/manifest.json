@@ -1,6 +1,6 @@
 {
- "version": "4.1.3",
- "buildHash": "30c3b140631629eb8fc2c7d781dd468d177ff5ec3725e853d9c524ce097cf25b",
+ "version": "4.1.4",
+ "buildHash": "662eb7fe6323eea4207f31d81b93e6f3d45590e1982e9ff0c2d07467eba79037",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "controls.py": "6d7830e85d1010f56885e15edb68a870a696b6e6a265e859b8a3e0aa4e3ae9c8",
@@ -179,7 +179,7 @@
   "static/finishui.js": "343b128ac94f8789987d07bd487da1c6d0d23baa29e7affba97deb711da84d95",
   "static/floorbuild.js": "b3ae8f539846971142a0d7ffe4a78347074d12963f00bc1e6fd2b860e9b3032a",
   "static/floorcards.js": "796804bf786da9691727263c67a012f1d897d19a5cdfd0dfa2287465354348cf",
-  "static/floorcover.js": "927371baafbcfaac553eb4bcef4abfa746a1740a79396264b884826572251bff",
+  "static/floorcover.js": "9f8f0c620b151e7cc320f046fc54f3662e50b67b6a39bd3a538f0d626640b025",
   "static/floorpanel.js": "61636335bfe7327b8138184405453a4ecbe129f2cd1e3f8735bf0472aae6dae2",
   "static/floorrail.js": "2ca488635f5e25b0baddfeddc299f80f023ca33a7898cc895ae40a8c891bf440",
   "static/floortex.js": "8532729eb5d2806c68377b5524286d2b4044ef4b475182f3e5f6474bd889ed53",
@@ -238,7 +238,7 @@
   "static/pickrules.js": "525bf9afe6801f557ff4de22509c0841eac5d10a19166dc49b3c92cd7c987559",
   "static/picture.js": "683aabb3b95ce03e47edc60048e2ea25dbfd514728366437f0479408f5f60abe",
   "static/placement.js": "5b27e7ead20524990018a8279d7ffb6197d5cb7369d6cc8ada2431221b6c2c54",
-  "static/plan2d.js": "491ffa3fa7192f950974fba3a3f50191943e174a34f674af70889c8dc8b98e20",
+  "static/plan2d.js": "a14c63ee412c6c9a3bbe4fd82079a21a14cedb10ff34744e85b2cd9fd46a0fb8",
   "static/planview.js": "26cdce2cf0b68f981bd266d78e134cc66883b5d70921f4fbee6f9adfd785a95c",
   "static/power.js": "c05c1bd1f26a1c1dca9d4fc24926a0fee98861c45876d71df2a1449d3294a42f",
   "static/powerlogic.js": "a7ffe12b8dbf1d1dce94d12b528a1080765a8faea1c1ff31f4c985b90e11f340",

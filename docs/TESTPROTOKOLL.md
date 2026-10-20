@@ -4,12 +4,12 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.1.3)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.1.4)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.1.3** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.1.4** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
-1. **4.1.1 im Add-on: deine Dienste nach Herkunft, eigener Telegram-Bot** (72.8, 72.9, nur im Add-on; 72.1 bis 72.7 ✅): ⚙ → „Benachrichtigung bei Alarm“ → „Benachrichtigungsdienst von Home Assistant“: stehen deine Dienste in der richtigen Gruppe; eigenen Telegram-Bot nach der Anleitung einrichten und „Test senden“.
-2. **4.0: noch offen bei Wänden und Böden** (67.9 bis 67.12; 67.1 bis 67.8 ✅): im Bearbeiten „Wände für alle Räume der Etage übernehmen“ und Strg+Z; eine einzelne Wand anklicken und eine Seite anders machen (Akzentwand); unten „Temp.“ und das Design „Hologramm“; „2D“ zeigt die Bodenfarben.
+1. **Neu in 4.1.4: Raumfarben im 2D-Plan** (75.1, 75.2, #467): „Bearbeiten“, „2D“, unten „Temp.“: die Räume haben die Farbe ihrer Temperatur, keiner ist schwarz (auch im Design „Hologramm“); mit „Normal“ die Farbe ihres Bodens.
+2. **4.1.1 im Add-on: deine Dienste nach Herkunft, eigener Telegram-Bot** (72.8, 72.9, nur im Add-on; 72.1 bis 72.7 ✅): ⚙ → „Benachrichtigung bei Alarm“ → „Benachrichtigungsdienst von Home Assistant“: stehen deine Dienste in der richtigen Gruppe; eigenen Telegram-Bot nach der Anleitung einrichten und „Test senden“.
 3. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25): „Live“ ansehen und nah heranzoomen, auch flach von der Seite; ein Raum-Schild und einen Punkt antippen; nachts die Sterne ansehen; auf dem Tablet eine Raum-Kachel antippen; am Handy die Raum-Kacheln wischen (flüssig, ohne Hängen), unten „Strom“ drücken (die Karte „Strom jetzt“ erscheint), die Raum-Schilder ansehen und ganz unten Uhrzeit und Wetter; „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
 4. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
 5. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
@@ -26,7 +26,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 16. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
 17. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
-**Zuletzt geprüft (2026-10-20, per Auswahl im Chat):** ✅ alles, was in der Demo geht, von 4.1.3 bis 4.0.1: 74.1, 74.2, 73.1 bis 73.7, 72.1 bis 72.7 (roter Streifen und Rand statt Sperrbildschirm, Wandtablet mit `?wand=1`, Dienste nach Herkunft), 71.1 bis 71.6 und 71.8 bis 71.11 (Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen), 70.1 bis 70.6 (Benutzer & Tablets in ⚙, WhatsApp-Schritte), 69.1 bis 69.3 (Gebäude-Filter), 68.1 bis 68.8 (Einstellungen in Gruppen), 67.1 bis 67.8 (Wände und Böden mit Muster, Fassade). **Davor (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
+**Zuletzt geprüft (2026-10-20, per Auswahl im Chat):** ✅ 67.9 bis 67.11 (Wände für alle Räume, Akzentwand, „Temp.“ und Hologramm). ❌ 67.12: im 2D-Plan waren die Räume mit „Temp.“ schwarz (#467, behoben in 4.1.4: 75.1, 75.2). **Davor am selben Tag:** ✅ alles, was in der Demo geht, von 4.1.3 bis 4.0.1: 74.1, 74.2, 73.1 bis 73.7, 72.1 bis 72.7 (roter Streifen und Rand statt Sperrbildschirm, Wandtablet mit `?wand=1`, Dienste nach Herkunft), 71.1 bis 71.6 und 71.8 bis 71.11 (Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen), 70.1 bis 70.6 (Benutzer & Tablets in ⚙, WhatsApp-Schritte), 69.1 bis 69.3 (Gebäude-Filter), 68.1 bis 68.8 (Einstellungen in Gruppen), 67.1 bis 67.8 (Wände und Böden mit Muster, Fassade). **Davor (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
 
 **Davor geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), 60.9 (Geländer der Wendeltreppe pro Etage, #318), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
 
@@ -269,7 +269,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
 | 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 0 | 0 | 14 | 3 | 65.1 bis 65.13, 65.16 |
 | 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 1 | 1 | 22 | 1 | ❌ 66.21, 66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25 |
-| 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448) | 8 | 0 | 4 | 2 | 67.9 bis 67.12 |
+| 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448) | 11 | 1 | 0 | 2 | ❌ 67.12 |
 | 68. Neu in 4.0.1: Einstellungen in Gruppen, Suche, was die Alarmanlage ist (#450) | 8 | 0 | 0 | 1 | – |
 | 69. Neu in 4.0.2: Gebäude-Filter richtig (#451) | 3 | 0 | 0 | 1 | – |
 | 70. Neu in 4.0.3: Benutzer & Tablets in den Einstellungen, WhatsApp leichter einrichten (#454) | 7 | 0 | 0 | 0 | – |
@@ -277,7 +277,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 72. Neu in 4.1.1: Streifen statt Sperrbildschirm für Bearbeiter, Dienste nach Herkunft, eigener Telegram-Bot (#460) | 7 | 0 | 0 | 2 | – |
 | 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 7 | 0 | 0 | 0 | – |
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
-| **Zusammen** | **336** | **2** | **188** | **33** | |
+| 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 0 | 0 | 2 | 0 | 75.1, 75.2 |
+| **Zusammen** | **339** | **3** | **186** | **33** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1116,10 +1117,10 @@ Die Demo hat schon Beispiele eingestellt: Wohnzimmer Fischgrät und Raufaser, K�
 | 67.6 | „Größe“ ändern (z. B. Fliesen 60 statt 30 cm), „Drehung“ 45° antippen | Die Fliesen werden größer bzw. liegen schräg (diagonal); 90° dreht die Dielen quer zum Raum; jede andere Zahl geht auch | ✅ (2026-10-20) |
 | 67.7 | Beim Raum unter „Wände“ z. B. „Raufaser“, „Rauputz“, „Tapete Ornament“, „Metro-Fliesen“, „Klinker rot“ wählen | Die Wände des Raums ändern sich sofort, nur auf der Seite dieses Raums; die Nachbarräume bleiben, wie sie sind; Farbe, Größe und Drehung gehen wie beim Boden | ✅ (2026-10-20) |
 | 67.8 | Haken „Unten anders (z. B. Fliesen)“, darunter Muster und „Bis Höhe“ (z. B. 1,50 m) | Unten Fliesen bis zur Höhe, darüber die Wand von oben; unter einem Fenster auch Fliesen | ✅ (2026-10-20) |
-| 67.9 | „Wände für alle Räume der Etage übernehmen“ | Alle Räume der Etage bekommen dieselben Wände (unten steht, wie viele); Strg+Z macht es rückgängig | ❓ |
-| 67.10 | Eine einzelne Wand anklicken, rechts „Oberfläche dieser Wand“: auf einer Seite eine Tapete wählen | Nur diese Seite dieser Wand hat die Tapete, über die ganze Höhe (Akzentwand); die Seiten stehen mit dem Namen des Raums („Zu Wohnzimmer“) oder „Außen“; „Wie der Raum“ nimmt es zurück | ❓ |
-| 67.11 | Unten „Temp.“, dann „Normal“; das Design „Hologramm“ | Bei „Temp.“ färben sich die Böden wie bisher (die Wände behalten ihr Muster); im Hologramm keine Muster, alles wie bisher | ❓ |
-| 67.12 | „2D“ ansehen | Die Räume haben die Farbe ihres Bodens, auch mit eigener Farbe (z. B. Nussbaum dunkel) | ❓ |
+| 67.9 | „Wände für alle Räume der Etage übernehmen“ | Alle Räume der Etage bekommen dieselben Wände (unten steht, wie viele); Strg+Z macht es rückgängig | ✅ (2026-10-20) |
+| 67.10 | Eine einzelne Wand anklicken, rechts „Oberfläche dieser Wand“: auf einer Seite eine Tapete wählen | Nur diese Seite dieser Wand hat die Tapete, über die ganze Höhe (Akzentwand); die Seiten stehen mit dem Namen des Raums („Zu Wohnzimmer“) oder „Außen“; „Wie der Raum“ nimmt es zurück | ✅ (2026-10-20) |
+| 67.11 | Unten „Temp.“, dann „Normal“; das Design „Hologramm“ | Bei „Temp.“ färben sich die Böden wie bisher (die Wände behalten ihr Muster); im Hologramm keine Muster, alles wie bisher | ✅ (2026-10-20) |
+| 67.12 | „2D“ ansehen | Die Räume haben die Farbe ihres Bodens, auch mit eigener Farbe (z. B. Nussbaum dunkel) | ❌ (2026-10-20, „die Farbe des Raums wird in 2D nicht richtig angezeigt“: mit „Temp.“ waren die Räume schwarz, #467; neu: 75.1, 75.2) |
 | 67.13 | Im Add-on: eigenen Räumen Böden und Wände geben, neu laden; ein Tablet im Sparmodus „Schnell“ | Bleibt nach dem Neuladen so; im Sparmodus sind Böden und Wände einfarbig in ihrer Farbe (ohne Muster), das Bild bleibt flüssig | ➖ |
 | 67.14 | Im Add-on: Export (Haus als JSON) und wieder Import | Böden, Farben, Größen, Drehungen, Wände, „Unten anders“ und Akzentwände kommen wieder mit | ➖ |
 
@@ -1209,3 +1210,10 @@ Der Besitzer meldete: „Im Bild: Raum-Schilder“ geht im „Ganzes Haus“ nic
 |---|---|---|---|
 | 74.1 | „Live“, links „Ganzes Haus“, unten „Ansicht“: „Im Bild: Raum-Schilder“ ist an | Im Bild keine Geräte-Kugeln, keine Werte-Schilder und keine Raumnamen, auch im Keller nicht; nur die Etagen-Karten neben dem Haus (Räume, Lichter an, Fenster offen); ein Tipp auf eine Karte öffnet die Etage, dort sind die Raum-Schilder wieder da | ✅ (2026-10-20) |
 | 74.2 | Im „Ganzes Haus“ „Ansicht“ → „Im Bild: Raum-Schilder“ antippen (wird „Im Bild: Geräte“), dann noch einmal | Mit „Geräte“ sind die Kugeln, Werte und Raumnamen im ganzen Haus wieder da; mit „Raum-Schilder“ wieder nur die Etagen-Karten | ✅ (2026-10-20) |
+
+## 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467)
+Der Besitzer meldete bei 67.12 (mit Bild): Die Farbe der Räume wird im 2D-Plan nicht richtig angezeigt. Grund: Bei „Temp.“, „Feuchte“ und „CO₂“ bekam der 2D-Plan die Farbe als Zahl statt als Farbe; der Browser malte jeden Raum mit Messwert dunkelgrau bis schwarz, in jedem Design.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 75.1 | „Bearbeiten“, Ansicht „2D“, Erdgeschoss, unten „Temp.“ (auch im Design „Hologramm“), dann „Feuchte“ | Die Räume mit Messwert haben die Farbe ihrer Temperatur wie in der Leiste „Temp.“ links (blau kühl, grün und gelb mittel, rot warm), keiner ist schwarz; bei „Feuchte“ ihre Feuchte-Farbe | ❓ |
+| 75.2 | Unten „Normal“, weiter in „2D“ | Die Räume haben wieder die Farbe ihres Bodens (Wohnzimmer braun, Küche hell, Garage grau), auch mit eigener Farbe (z. B. Nussbaum dunkel) | ❓ |
