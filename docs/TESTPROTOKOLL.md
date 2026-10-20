@@ -267,8 +267,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 0 | 0 | 4 | 3 | 62.1 bis 62.4 |
 | 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 0 | 0 | 8 | 3 | 63.1 bis 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
-| 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 0 | 0 | 14 | 3 | 65.1 bis 65.13, 65.16 |
-| 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 1 | 1 | 22 | 1 | ❌ 66.21, 66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25 |
+| 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 3 | 0 | 11 | 3 | 65.4 bis 65.13, 65.16 |
+| 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 23 | 1 | 0 | 1 | ❌ 66.21 |
 | 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448) | 11 | 1 | 0 | 2 | ❌ 67.12 |
 | 68. Neu in 4.0.1: Einstellungen in Gruppen, Suche, was die Alarmanlage ist (#450) | 8 | 0 | 0 | 1 | – |
 | 69. Neu in 4.0.2: Gebäude-Filter richtig (#451) | 3 | 0 | 0 | 1 | – |
@@ -277,8 +277,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 72. Neu in 4.1.1: Streifen statt Sperrbildschirm für Bearbeiter, Dienste nach Herkunft, eigener Telegram-Bot (#460) | 7 | 0 | 0 | 2 | – |
 | 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 7 | 0 | 0 | 0 | – |
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
-| 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 0 | 0 | 2 | 0 | 75.1, 75.2 |
-| **Zusammen** | **339** | **3** | **186** | **33** | |
+| 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
+| **Zusammen** | **366** | **3** | **159** | **33** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1057,9 +1057,9 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 Vorlage: die Beispielbilder in `docs/ideen-3.98/`. In der Demo zeigt `?skytime=21:30` eine andere Uhrzeit und `?weather=rainy` (oder `snowy`, `cloudy`, `pouring`) ein anderes Wetter, z. B. https://burned4aim.github.io/HA-Floorplanner/?skytime=21:30&weather=snowy
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 65.1 | Demo öffnen, „Live“ | Hinter dem Haus ein Himmel passend zur Uhrzeit statt Schwarz (tagsüber blau); oben rechts z. B. „☀️ Tag · 14:05 · Sonnenuntergang …“ und darunter „⛅ Teilweise bewölkt · 14 °C · Wind 12 km/h“ | ❓ |
-| 65.2 | Adresse mit `?skytime=21:30`, dann mit `?skytime=18:05` | 21:30: dunkelblau mit Sternen, der Rasen dunkler, „🌙 Nacht · … · Sonnenaufgang …“; 18:05: lila und orange am Horizont, „Abenddämmerung“ bzw. „Abend“. Die Lampen leuchten **nicht** extra (wie gewünscht) | ❓ |
-| 65.3 | Adresse mit `?weather=rainy`, dann `?weather=snowy` | Grauer Himmel, Regen fällt über das Bild, oben „🌧️ Regen · …“; bei Schnee fallen Flocken. Im Bearbeiten-Modus fällt nichts | ❓ |
+| 65.1 | Demo öffnen, „Live“ | Hinter dem Haus ein Himmel passend zur Uhrzeit statt Schwarz (tagsüber blau); oben rechts z. B. „☀️ Tag · 14:05 · Sonnenuntergang …“ und darunter „⛅ Teilweise bewölkt · 14 °C · Wind 12 km/h“ | ✅ (2026-10-20) |
+| 65.2 | Adresse mit `?skytime=21:30`, dann mit `?skytime=18:05` | 21:30: dunkelblau mit Sternen, der Rasen dunkler, „🌙 Nacht · … · Sonnenaufgang …“; 18:05: lila und orange am Horizont, „Abenddämmerung“ bzw. „Abend“. Die Lampen leuchten **nicht** extra (wie gewünscht) | ✅ (2026-10-20) |
+| 65.3 | Adresse mit `?weather=rainy`, dann `?weather=snowy` | Grauer Himmel, Regen fällt über das Bild, oben „🌧️ Regen · …“; bei Schnee fallen Flocken. Im Bearbeiten-Modus fällt nichts | ✅ (2026-10-20) |
 | 65.4 | ⚙ → „Himmel“ auf „Einfarbig“, dann zurück auf „Nach Uhrzeit und Wetter“ | Einfarbig: der Hintergrund wie früher, keine Anzeigen oben rechts; danach ist der Himmel wieder da | ❓ |
 | 65.5 | Mit `?weather=rainy`: oben die rote Warnung „Fenster offen bei Regen · Fenster Wohnzimmer“. Bearbeiten, das Wohnzimmerfenster anklicken, Haken **„Bei Regen warnen“** wegnehmen | Die Warnung verschwindet; Haken wieder setzen: sie ist wieder da | ❓ |
 | 65.6 | „Live“ am PC: oben rechts die Karte **„Strom jetzt“** ansehen | Sonne 3.20 kW, Netz 450 W „Bezug vom Netz“, Haus 3.05 kW, Batterie 82 % „lädt 600 W“; Punkte wandern von der Sonne zum Haus und zur Batterie und vom Netz zum Haus; die Zahlenzeile oben links ist weg | ❓ |
@@ -1079,31 +1079,31 @@ Vorlage: die Beispielbilder in `docs/ideen-3.98/`. In der Demo zeigt `?skytime=2
 Vorlage: die Beispielbilder in `docs/ideen-3.99/` (1, 2, 4 und 5). Die Demo hat die Böden und die anthrazitfarbenen Fensterrahmen schon eingestellt.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 66.1 | Demo öffnen, „Live“, Erdgeschoss, nah heranzoomen | Wohnzimmer Parkett (Eiche), Küche helle Fliesen, Bad kleine Fliesen, Schlafzimmer helles Parkett, Büro dunkles Parkett, Garage Beton; die Muster wirken nicht verzerrt | ❓ |
-| 66.2 | Unten „Temp.“, dann „Normal“ | Bei „Temp.“ färben sich die Böden nach der Temperatur (ohne Muster), bei „Normal“ sind die Muster wieder da | ❓ |
-| 66.3 | „Bearbeiten“, einen Raum anklicken, rechts „Boden“: z. B. „Fliesen anthrazit (60 cm)“, dann „Einfarbig“ | Der Boden wechselt sofort; bei einem Muster verschwindet das Farbfeld, bei „Einfarbig“ ist es wieder da | ❓ |
-| 66.4 | „2D“ ansehen | Die Räume haben die Farbe ihres Bodens (Parkett braun, Fliesen hell, Beton grau); auch die kleinen Etagen-Bilder links | ❓ |
-| 66.5 | Fenster von außen ansehen | Die Fensterrahmen sind anthrazit, die Wände heller; Türrahmen bleiben weiß. ⚙ → „Fensterrahmen“ → „Weiß“ stellt den alten Look her | ❓ |
-| 66.6 | Die Knöpfe unten (Normal, Temp. …), oben (Zimmer, Geräte …) und die Etagen-Karten links ansehen | Leicht durchsichtig wie Milchglas, das Bild scheint verschwommen durch; im hellen Design helles Glas | ❓ |
-| 66.7 | „Live“: über den Räumen | Über jedem Raum ein Schild: Name, Temperatur, „💡 5“ wenn Lichter an sind (Rand in Lichtfarbe), 🪟 bei offenem Fenster, grüner Punkt wenn jemand da ist; die Kugeln und Werte der Geräte und die Namen auf dem Boden sind weg (entweder Schilder oder Geräte); die Schilder wandern beim Drehen mit | ❓ |
-| 66.8 | „Ansicht“ → „Im Bild: Raum-Schilder“ antippen, dann noch einmal | Es steht „Im Bild: Geräte“: keine Schilder, die Kugeln und Werte der Geräte und die Namen auf dem Boden sind wieder da; noch ein Tipp: wieder die Schilder | ❓ |
-| 66.9 | Ein Schild (z. B. „Wohnzimmer“) antippen, dann unten die Kachel des Raums | Der Raum öffnet sich mit seinen Geräten (Kugeln und Werte), keine Schilder; nach dem Kachel-Tipp wieder die Schilder. Bei „Ganzes Haus“ und im Bearbeiten-Modus keine Schilder, dort die Geräte wie bisher | ❓ |
-| 66.10 | Neu in 3.99.6 (#444): am Handy „Live“, „Ansicht“ → „Im Bild: Raum-Schilder“ (bis 3.99.5 gab es am Handy keine Schilder) | Über den Räumen kleine Schilder (Name, Temperatur, Lichter …), Räume ohne Platz zeigen einen Punkt; ein Tipp auf ein Schild öffnet den Raum unten. „Im Bild: Geräte“ zeigt wieder die Kugeln und die Namen auf dem Boden | ❓ |
+| 66.1 | Demo öffnen, „Live“, Erdgeschoss, nah heranzoomen | Wohnzimmer Parkett (Eiche), Küche helle Fliesen, Bad kleine Fliesen, Schlafzimmer helles Parkett, Büro dunkles Parkett, Garage Beton; die Muster wirken nicht verzerrt | ✅ (2026-10-20) |
+| 66.2 | Unten „Temp.“, dann „Normal“ | Bei „Temp.“ färben sich die Böden nach der Temperatur (ohne Muster), bei „Normal“ sind die Muster wieder da | ✅ (2026-10-20) |
+| 66.3 | „Bearbeiten“, einen Raum anklicken, rechts „Boden“: z. B. „Fliesen anthrazit (60 cm)“, dann „Einfarbig“ | Der Boden wechselt sofort; bei einem Muster verschwindet das Farbfeld, bei „Einfarbig“ ist es wieder da | ✅ (2026-10-20) |
+| 66.4 | „2D“ ansehen | Die Räume haben die Farbe ihres Bodens (Parkett braun, Fliesen hell, Beton grau); auch die kleinen Etagen-Bilder links | ✅ (2026-10-20) |
+| 66.5 | Fenster von außen ansehen | Die Fensterrahmen sind anthrazit, die Wände heller; Türrahmen bleiben weiß. ⚙ → „Fensterrahmen“ → „Weiß“ stellt den alten Look her | ✅ (2026-10-20) |
+| 66.6 | Die Knöpfe unten (Normal, Temp. …), oben (Zimmer, Geräte …) und die Etagen-Karten links ansehen | Leicht durchsichtig wie Milchglas, das Bild scheint verschwommen durch; im hellen Design helles Glas | ✅ (2026-10-20) |
+| 66.7 | „Live“: über den Räumen | Über jedem Raum ein Schild: Name, Temperatur, „💡 5“ wenn Lichter an sind (Rand in Lichtfarbe), 🪟 bei offenem Fenster, grüner Punkt wenn jemand da ist; die Kugeln und Werte der Geräte und die Namen auf dem Boden sind weg (entweder Schilder oder Geräte); die Schilder wandern beim Drehen mit | ✅ (2026-10-20) |
+| 66.8 | „Ansicht“ → „Im Bild: Raum-Schilder“ antippen, dann noch einmal | Es steht „Im Bild: Geräte“: keine Schilder, die Kugeln und Werte der Geräte und die Namen auf dem Boden sind wieder da; noch ein Tipp: wieder die Schilder | ✅ (2026-10-20) |
+| 66.9 | Ein Schild (z. B. „Wohnzimmer“) antippen, dann unten die Kachel des Raums | Der Raum öffnet sich mit seinen Geräten (Kugeln und Werte), keine Schilder; nach dem Kachel-Tipp wieder die Schilder. Bei „Ganzes Haus“ und im Bearbeiten-Modus keine Schilder, dort die Geräte wie bisher | ✅ (2026-10-20) |
+| 66.10 | Neu in 3.99.6 (#444): am Handy „Live“, „Ansicht“ → „Im Bild: Raum-Schilder“ (bis 3.99.5 gab es am Handy keine Schilder) | Über den Räumen kleine Schilder (Name, Temperatur, Lichter …), Räume ohne Platz zeigen einen Punkt; ein Tipp auf ein Schild öffnet den Raum unten. „Im Bild: Geräte“ zeigt wieder die Kugeln und die Namen auf dem Boden | ✅ (2026-10-20) |
 | 66.11 | Im Add-on: eigenen Räumen einen Boden geben, Fensterrahmen auf „Anthrazit“ | Bleibt nach dem Neuladen so; ein Tablet im Sparmodus „Schnell“ zeigt die Böden einfarbig in ihrer Farbe | ➖ |
-| 66.12 | Neu in 3.99.1: „Live“, das Bild flach von der Seite drehen (Räume hintereinander) | Die Raum-Schilder liegen nicht übereinander: das hintere rückt nach oben, ein Strich führt zu seinem Raum | ❓ |
-| 66.13 | Neu in 3.99.1: oben links und in der Karte „Strom jetzt“ nachsehen | Oben links keine Zeile mit Wasser, Gas und Wärme mehr; die Zähler stehen unten in der Karte „Strom jetzt“ (🚰 1234.6 m³ · 🔥 845.2 m³ · ♨ 5321 kWh). Am Handy bleibt die Zeile | ❓ |
-| 66.14 | Neu in 3.99.2: „Live“, links „Ganzes Haus“ (oder das Fenster schmaler machen) | Passen die Raum-Kacheln unten nicht alle hin, ist rechts ein Pfeil ›, der Rand wird weich ausgeblendet; der Pfeil (oder das Mausrad über den Kacheln) schiebt weiter, dann ist links ein Pfeil ‹. Nichts ist einfach abgeschnitten | ❓ |
-| 66.15 | Neu in 3.99.2: „Ganzes Haus“ mit der Karte „Strom jetzt“ oben rechts | Die Etagen-Karten (Obergeschoss, Erdgeschoss …) liegen nicht unter der Karte „Strom jetzt“, sondern daneben bzw. auf der anderen Seite des Hauses | ❓ |
-| 66.16 | Neu in 3.99.3 (#434): „Live“ auf dem Tablet oder PC, unten „Strom“ **nicht** gedrückt | Oben rechts keine Karte „Strom jetzt“ und auch keine Zahlenzeile oben links | ❓ |
-| 66.17 | Unten „Strom“ drücken, dann auf die Karte „Strom jetzt“ tippen | Mit „Strom“ erscheint die Karte (und die Kabel im Haus); ein Tipp auf die Karte schaltet „Strom“ wieder aus, die Karte verschwindet | ❓ |
-| 66.18 | Neu in 3.99.4 (#436): auf dem Tablet „Live“, unten eine Raum-Kachel antippen | Die Kachel des Raums bleibt lesbar: Name, Temperatur und Licht stehen hell auf blau getöntem Grund (vorher war sie leer) | ❓ |
-| 66.19 | Nachts „Live“ ansehen (in der Demo `?skytime=23:30` an die Adresse hängen) | Viel mehr Sterne, verschieden hell, ein paar leuchten sanft, eine schwache Milchstraße; bei „bewölkt“ scheinen noch einige Sterne durch, die Wolken liegen davor | ❓ |
-| 66.20 | „Live“ mit vielen Räumen, das Bild flach von der Seite ansehen (wie auf dem Foto mit den langen Strichen) | Keine Türme aus Schildern mit langen Strichen: höchstens zwei Reihen; Räume ohne Platz zeigen einen kleinen Punkt, ein Tipp darauf öffnet den Raum; beim Heranzoomen werden aus den Punkten wieder Schilder | ❓ |
+| 66.12 | Neu in 3.99.1: „Live“, das Bild flach von der Seite drehen (Räume hintereinander) | Die Raum-Schilder liegen nicht übereinander: das hintere rückt nach oben, ein Strich führt zu seinem Raum | ✅ (2026-10-20) |
+| 66.13 | Neu in 3.99.1: oben links und in der Karte „Strom jetzt“ nachsehen | Oben links keine Zeile mit Wasser, Gas und Wärme mehr; die Zähler stehen unten in der Karte „Strom jetzt“ (🚰 1234.6 m³ · 🔥 845.2 m³ · ♨ 5321 kWh). Am Handy bleibt die Zeile | ✅ (2026-10-20) |
+| 66.14 | Neu in 3.99.2: „Live“, links „Ganzes Haus“ (oder das Fenster schmaler machen) | Passen die Raum-Kacheln unten nicht alle hin, ist rechts ein Pfeil ›, der Rand wird weich ausgeblendet; der Pfeil (oder das Mausrad über den Kacheln) schiebt weiter, dann ist links ein Pfeil ‹. Nichts ist einfach abgeschnitten | ✅ (2026-10-20) |
+| 66.15 | Neu in 3.99.2: „Ganzes Haus“ mit der Karte „Strom jetzt“ oben rechts | Die Etagen-Karten (Obergeschoss, Erdgeschoss …) liegen nicht unter der Karte „Strom jetzt“, sondern daneben bzw. auf der anderen Seite des Hauses | ✅ (2026-10-20) |
+| 66.16 | Neu in 3.99.3 (#434): „Live“ auf dem Tablet oder PC, unten „Strom“ **nicht** gedrückt | Oben rechts keine Karte „Strom jetzt“ und auch keine Zahlenzeile oben links | ✅ (2026-10-20) |
+| 66.17 | Unten „Strom“ drücken, dann auf die Karte „Strom jetzt“ tippen | Mit „Strom“ erscheint die Karte (und die Kabel im Haus); ein Tipp auf die Karte schaltet „Strom“ wieder aus, die Karte verschwindet | ✅ (2026-10-20) |
+| 66.18 | Neu in 3.99.4 (#436): auf dem Tablet „Live“, unten eine Raum-Kachel antippen | Die Kachel des Raums bleibt lesbar: Name, Temperatur und Licht stehen hell auf blau getöntem Grund (vorher war sie leer) | ✅ (2026-10-20) |
+| 66.19 | Nachts „Live“ ansehen (in der Demo `?skytime=23:30` an die Adresse hängen) | Viel mehr Sterne, verschieden hell, ein paar leuchten sanft, eine schwache Milchstraße; bei „bewölkt“ scheinen noch einige Sterne durch, die Wolken liegen davor | ✅ (2026-10-20) |
+| 66.20 | „Live“ mit vielen Räumen, das Bild flach von der Seite ansehen (wie auf dem Foto mit den langen Strichen) | Keine Türme aus Schildern mit langen Strichen: höchstens zwei Reihen; Räume ohne Platz zeigen einen kleinen Punkt, ein Tipp darauf öffnet den Raum; beim Heranzoomen werden aus den Punkten wieder Schilder | ✅ (2026-10-20) |
 | 66.21 | Neu in 3.99.5 (#438): am iPhone (auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten nach links und rechts wischen | Die Leiste folgt dem Finger, ein schneller Wisch gleitet nach; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ❌ (2026-10-18, ruckelt und bleibt hängen, #441; neu: 66.23) |
 | 66.22 | Neu in 3.99.5 (#440): am iPhone „Live“, einen Raum antippen (Kachel unten oder im Bild) | Unten öffnet sich die Raum-Karte, der Raum selbst steht darüber gut sichtbar (nicht dahinter) | ✅ (2026-10-18) |
-| 66.23 | Neu in 3.99.6 (#441): am Handy (iPhone, auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten langsam, schnell und etwas schräg nach links und rechts wischen | Die Leiste läuft flüssig mit dem Finger und bleibt nicht hängen, nach einem schnellen Wisch gleitet sie weich aus; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ❓ |
-| 66.24 | Neu in 3.99.6 (#442): am Handy „Live“, unten „Strom“ drücken, dann auf die Karte „Strom jetzt“ tippen | Oben in der Mitte erscheint die Karte „Strom jetzt“ klein (Sonne, Netz, Haus, Batterie, darunter Wasser, Gas, Wärme), ganz zu sehen; das Haus und die Raum-Kacheln bleiben frei; ein Tipp auf die Karte schaltet „Strom“ aus, die Karte verschwindet | ❓ |
-| 66.25 | Neu in 3.99.6 (#445): am Handy „Live“, ganz unten nachsehen | Ganz unten unter den Knöpfen eine kurze Zeile mit der Uhrzeit und dem Wetter, z. B. „☀️ 12:24 · ⛅ Teilweise bewölkt · 14 °C“; nichts überdeckt sich (Knöpfe, Kompass, Raum-Kacheln). Am PC und Tablet bleiben die beiden Zeilen oben rechts | ❓ |
+| 66.23 | Neu in 3.99.6 (#441): am Handy (iPhone, auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten langsam, schnell und etwas schräg nach links und rechts wischen | Die Leiste läuft flüssig mit dem Finger und bleibt nicht hängen, nach einem schnellen Wisch gleitet sie weich aus; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ✅ (2026-10-20) |
+| 66.24 | Neu in 3.99.6 (#442): am Handy „Live“, unten „Strom“ drücken, dann auf die Karte „Strom jetzt“ tippen | Oben in der Mitte erscheint die Karte „Strom jetzt“ klein (Sonne, Netz, Haus, Batterie, darunter Wasser, Gas, Wärme), ganz zu sehen; das Haus und die Raum-Kacheln bleiben frei; ein Tipp auf die Karte schaltet „Strom“ aus, die Karte verschwindet | ✅ (2026-10-20) |
+| 66.25 | Neu in 3.99.6 (#445): am Handy „Live“, ganz unten nachsehen | Ganz unten unter den Knöpfen eine kurze Zeile mit der Uhrzeit und dem Wetter, z. B. „☀️ 12:24 · ⛅ Teilweise bewölkt · 14 °C“; nichts überdeckt sich (Knöpfe, Kompass, Raum-Kacheln). Am PC und Tablet bleiben die beiden Zeilen oben rechts | ✅ (2026-10-20) |
 
 ## 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448)
 Die Demo hat schon Beispiele eingestellt: Wohnzimmer Fischgrät und Raufaser, Küche Großformat-Fliesen, Metro-Fliesen bis 1,40 m und salbeigrüne Farbe, Bad Sechseck-Fliesen und blaue Fliesen bis 1,20 m, Schlafzimmer Teppich und Blätter-Tapete, Büro Rauputz; oben Punkte- und Streifen-Tapete, Chevron, Terrassendielen; im Dachgeschoss weißer Backstein; außen Rauputz. Zum Hineinschauen nah an eine Wand zoomen und das Bild drehen (die Wände zur Kamera hin senken sich).
@@ -1215,5 +1215,5 @@ Der Besitzer meldete: „Im Bild: Raum-Schilder“ geht im „Ganzes Haus“ nic
 Der Besitzer meldete bei 67.12 (mit Bild): Die Farbe der Räume wird im 2D-Plan nicht richtig angezeigt. Grund: Bei „Temp.“, „Feuchte“ und „CO₂“ bekam der 2D-Plan die Farbe als Zahl statt als Farbe; der Browser malte jeden Raum mit Messwert dunkelgrau bis schwarz, in jedem Design.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 75.1 | „Bearbeiten“, Ansicht „2D“, Erdgeschoss, unten „Temp.“ (auch im Design „Hologramm“), dann „Feuchte“ | Die Räume mit Messwert haben die Farbe ihrer Temperatur wie in der Leiste „Temp.“ links (blau kühl, grün und gelb mittel, rot warm), keiner ist schwarz; bei „Feuchte“ ihre Feuchte-Farbe | ❓ |
-| 75.2 | Unten „Normal“, weiter in „2D“ | Die Räume haben wieder die Farbe ihres Bodens (Wohnzimmer braun, Küche hell, Garage grau), auch mit eigener Farbe (z. B. Nussbaum dunkel) | ❓ |
+| 75.1 | „Bearbeiten“, Ansicht „2D“, Erdgeschoss, unten „Temp.“ (auch im Design „Hologramm“), dann „Feuchte“ | Die Räume mit Messwert haben die Farbe ihrer Temperatur wie in der Leiste „Temp.“ links (blau kühl, grün und gelb mittel, rot warm), keiner ist schwarz; bei „Feuchte“ ihre Feuchte-Farbe | ✅ (2026-10-20) |
+| 75.2 | Unten „Normal“, weiter in „2D“ | Die Räume haben wieder die Farbe ihres Bodens (Wohnzimmer braun, Küche hell, Garage grau), auch mit eigener Farbe (z. B. Nussbaum dunkel) | ✅ (2026-10-20) |
