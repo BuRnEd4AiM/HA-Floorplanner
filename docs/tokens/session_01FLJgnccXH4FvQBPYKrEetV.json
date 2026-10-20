@@ -1,20 +1,20 @@
 {
  "session": "session_01FLJgnccXH4FvQBPYKrEetV",
  "start": "2026-10-20",
- "updated": "2026-10-20T19:15:18Z",
+ "updated": "2026-10-20T20:50:32Z",
  "branch": "claude/jolly-mccarthy-h45dtm",
  "source": "counted",
- "input": 192,
- "cache_write": 215225,
- "cache_read": 16837533,
- "output": 57576,
+ "input": 286,
+ "cache_write": 281191,
+ "cache_read": 29376344,
+ "output": 83350,
  "models": {
   "claude-opus-5-5": {
-   "input": 192,
-   "cache_write": 215225,
-   "cache_read": 16837533,
-   "output": 57576,
-   "requests": 96
+   "input": 286,
+   "cache_write": 281191,
+   "cache_read": 29376344,
+   "output": 83350,
+   "requests": 140
   }
  }
 }

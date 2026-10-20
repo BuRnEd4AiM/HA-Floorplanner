@@ -9,23 +9,21 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.1.4** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 1. **4.1.1 im Add-on: deine Dienste nach Herkunft, eigener Telegram-Bot** (72.8, 72.9, nur im Add-on; 72.1 bis 72.7 ✅): ⚙ → „Benachrichtigung bei Alarm“ → „Benachrichtigungsdienst von Home Assistant“: stehen deine Dienste in der richtigen Gruppe; eigenen Telegram-Bot nach der Anleitung einrichten und „Test senden“.
-2. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ zuerst „Ansicht“ → „Im Bild: Geräte“ (oder das Schild eines Raums antippen), sonst sind die Kugeln der Geräte nicht zu sehen. Dann den Lautsprecher (Wohnzimmer, an der Fernseh-Wand in der Ecke zur Küche), den Fernseher, den Saugroboter (Küche), den Standventilator (Wohnzimmer), die Alarmanlage (Code 1234, Büro an der Außenwand) und den Hausmodus antippen und die Knöpfe ausprobieren.
+2. **Neu: mehr Geräte steuern** (63.4, 63.5, 63.8, zum Schluss 63.1 bis 63.3 mit dem Ton; 63.6, 63.7 ✅; im Add-on 63.9 bis 63.11): in „Live“ zuerst „Ansicht“ → „Im Bild: Geräte“ (oder das Schild eines Raums antippen), sonst sind die Kugeln der Geräte nicht zu sehen. Dann den Lautsprecher (Wohnzimmer, an der Fernseh-Wand in der Ecke zur Küche), den Fernseher, den Saugroboter (Küche), den Standventilator (Wohnzimmer), die Alarmanlage (Code 1234, Büro an der Außenwand) und den Hausmodus antippen und die Knöpfe ausprobieren.
 3. **Am Handy: Raum-Kacheln** (65.10): hochkant „Live“, die Kacheln sind kleiner und lassen sich wischen; oben rechts keine Uhrzeit-Karte, der Knopf 📊 ist da.
 4. **4.0 im Add-on** (66.11, 67.13, 67.14): eigenen Räumen Böden und Wände geben, neu laden; ein Tablet im Sparmodus „Schnell“; Export und Import eines Hauses.
 5. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
 6. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
-7. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
-8. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
-9. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
-10. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
-11. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „Warnungen & Alarm“ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
-12. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
-13. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
-14. **Benutzer sperren** (37.6, 61.10, 61.11): ⚙ → „Benutzer & Tablets“ → bei einem Benutzer ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
-15. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
-16. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
+7. **Energie einrichten und Strom-Rechnung** (50.1 bis 50.8, im Add-on 62.5 bis 62.7; 62.1 bis 62.4 ✅): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
+8. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+9. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „Warnungen & Alarm“ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
+10. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
+11. **Messen** (58.5 bis 58.8; 58.1 bis 58.4 ✅): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
+12. **Benutzer sperren** (37.6, 61.10, 61.11): ⚙ → „Benutzer & Tablets“ → bei einem Benutzer ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
+13. **Neue Möbel kurz durchblättern** (51 bis 54, 57; 59 ✅): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
+14. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
-**Zuletzt geprüft (2026-10-20, per Auswahl im Chat):** ✅ 75.1, 75.2 (Raumfarben im 2D-Plan, 4.1.4), der ganze Abschnitt 66, soweit in der Demo prüfbar (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25: Böden, Fensterrahmen, Glas, Raum-Schilder, Strom-Karte, Sterne, am Handy flüssige Raum-Kacheln, Strom-Karte und Zeile mit Uhrzeit und Wetter), 65.1 bis 65.9, 65.11 bis 65.13, 65.16 (Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste). 63.1 bis 63.4 noch nicht: die Geräte waren in „Live“ nicht zu finden (mit Raum-Schildern sind die Kugeln aus, Hinweis jetzt in der Prüfliste). **Davor am selben Tag:** ✅ 67.9 bis 67.11 (Wände für alle Räume, Akzentwand, „Temp.“ und Hologramm). ❌ 67.12: im 2D-Plan waren die Räume mit „Temp.“ schwarz (#467, behoben in 4.1.4: 75.1, 75.2). **Davor am selben Tag:** ✅ alles, was in der Demo geht, von 4.1.3 bis 4.0.1: 74.1, 74.2, 73.1 bis 73.7, 72.1 bis 72.7 (roter Streifen und Rand statt Sperrbildschirm, Wandtablet mit `?wand=1`, Dienste nach Herkunft), 71.1 bis 71.6 und 71.8 bis 71.11 (Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen), 70.1 bis 70.6 (Benutzer & Tablets in ⚙, WhatsApp-Schritte), 69.1 bis 69.3 (Gebäude-Filter), 68.1 bis 68.8 (Einstellungen in Gruppen), 67.1 bis 67.8 (Wände und Böden mit Muster, Fassade). **Davor (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
+**Zuletzt geprüft (2026-10-20 abends, per Auswahl im Chat):** ✅ 63.6, 63.7 (Alarmanlage mit Code), 62.1 bis 62.4 (Energie aus dem Energie-Dashboard), 61.1 bis 61.9, 61.12, 61.13 (mehrere Gebäude), 60.1 bis 60.8 (Rückgängig, Kopieren, Einfügen), 59.1 bis 59.7 (Bar mit Deckenteil), 58.1 bis 58.4 (Messen). Noch nicht: 63.4, 63.5, 63.8 und 58.5; 63.1 bis 63.3 (Ton: Lautsprecher, Fernseher) will der Besitzer als Letztes prüfen. **Davor am selben Tag:** ✅ 75.1, 75.2 (Raumfarben im 2D-Plan, 4.1.4), der ganze Abschnitt 66, soweit in der Demo prüfbar (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25: Böden, Fensterrahmen, Glas, Raum-Schilder, Strom-Karte, Sterne, am Handy flüssige Raum-Kacheln, Strom-Karte und Zeile mit Uhrzeit und Wetter), 65.1 bis 65.9, 65.11 bis 65.13, 65.16 (Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste). 63.1 bis 63.4 noch nicht: die Geräte waren in „Live“ nicht zu finden (mit Raum-Schildern sind die Kugeln aus, Hinweis jetzt in der Prüfliste). **Davor am selben Tag:** ✅ 67.9 bis 67.11 (Wände für alle Räume, Akzentwand, „Temp.“ und Hologramm). ❌ 67.12: im 2D-Plan waren die Räume mit „Temp.“ schwarz (#467, behoben in 4.1.4: 75.1, 75.2). **Davor am selben Tag:** ✅ alles, was in der Demo geht, von 4.1.3 bis 4.0.1: 74.1, 74.2, 73.1 bis 73.7, 72.1 bis 72.7 (roter Streifen und Rand statt Sperrbildschirm, Wandtablet mit `?wand=1`, Dienste nach Herkunft), 71.1 bis 71.6 und 71.8 bis 71.11 (Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen), 70.1 bis 70.6 (Benutzer & Tablets in ⚙, WhatsApp-Schritte), 69.1 bis 69.3 (Gebäude-Filter), 68.1 bis 68.8 (Einstellungen in Gruppen), 67.1 bis 67.8 (Wände und Böden mit Muster, Fassade). **Davor (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
 
 **Davor geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), 60.9 (Geländer der Wendeltreppe pro Etage, #318), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
 
@@ -259,12 +257,12 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 0 | 0 | 7 | 0 | 55.1 bis 55.7 |
 | 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 0 | 0 | 7 | 0 | 56.1 bis 56.7 |
 | 57. Neu in 3.90: Garage, Werkstatt und Carport | 0 | 0 | 7 | 1 | 57.1 bis 57.7 |
-| 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 0 | 0 | 8 | 0 | 58.1 bis 58.8 |
-| 59. Neu in 3.92: Bar mit Deckenteil | 0 | 0 | 7 | 1 | 59.1 bis 59.7 |
-| 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 1 | 0 | 8 | 3 | 60.1 bis 60.8 |
-| 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 0 | 0 | 11 | 2 | 61.1 bis 61.9, 61.12, 61.13 |
-| 62. Neu in 3.95: Energie leichter einrichten (#407) | 0 | 0 | 4 | 3 | 62.1 bis 62.4 |
-| 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 0 | 0 | 8 | 3 | 63.1 bis 63.8 |
+| 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 4 | 0 | 4 | 0 | 58.5 bis 58.8 |
+| 59. Neu in 3.92: Bar mit Deckenteil | 7 | 0 | 0 | 1 | – |
+| 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 9 | 0 | 0 | 3 | – |
+| 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 11 | 0 | 0 | 2 | – |
+| 62. Neu in 3.95: Energie leichter einrichten (#407) | 4 | 0 | 0 | 3 | – |
+| 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 2 | 0 | 6 | 3 | 63.1 bis 63.5, 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
 | 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 13 | 0 | 1 | 3 | 65.10 |
 | 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 23 | 1 | 0 | 1 | ❌ 66.21 |
@@ -277,7 +275,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 7 | 0 | 0 | 0 | – |
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
-| **Zusammen** | **376** | **3** | **149** | **33** | |
+| **Zusammen** | **412** | **3** | **113** | **33** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -962,10 +960,10 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 58.1 | Bearbeiten, in der 3D-Ansicht die Taste M drücken | Das Werkzeug „Messen“ ist an, es öffnet sich 2D + 3D, rechts steht der Abschnitt „Messen“ mit „Klicke den ersten Punkt“ | ❓ |
-| 58.2 | Im 2D-Plan zwei Punkte anklicken (eine Ecke, dann irgendwo); mit Alt gedrückt zwei freie Punkte | Gelbe Linie mit Länge im Plan und im 3D-Bild; rechts die Länge groß, darunter ↔, ↕ und der Winkel; Ecken und Wandflächen rasten ein, mit Alt nicht | ❓ |
-| 58.3 | Im 3D-Bild von 2D + 3D zwei Punkte auf dem Boden anklicken | Auch so wird gemessen, die Linie erscheint in beiden Bildern | ❓ |
-| 58.4 | Zwei gegenüberliegende Wände eines Raums nacheinander anklicken (auf die Wand, nicht auf die Ecke) | Die erste Wand ist blau gestrichelt, die zweite orange; rechts „Lichter Abstand“ und „Abstand der Wandmitten“, im Plan ein grüner Abstand im rechten Winkel | ❓ |
+| 58.1 | Bearbeiten, in der 3D-Ansicht die Taste M drücken | Das Werkzeug „Messen“ ist an, es öffnet sich 2D + 3D, rechts steht der Abschnitt „Messen“ mit „Klicke den ersten Punkt“ | ✅ (2026-10-20) |
+| 58.2 | Im 2D-Plan zwei Punkte anklicken (eine Ecke, dann irgendwo); mit Alt gedrückt zwei freie Punkte | Gelbe Linie mit Länge im Plan und im 3D-Bild; rechts die Länge groß, darunter ↔, ↕ und der Winkel; Ecken und Wandflächen rasten ein, mit Alt nicht | ✅ (2026-10-20) |
+| 58.3 | Im 3D-Bild von 2D + 3D zwei Punkte auf dem Boden anklicken | Auch so wird gemessen, die Linie erscheint in beiden Bildern | ✅ (2026-10-20) |
+| 58.4 | Zwei gegenüberliegende Wände eines Raums nacheinander anklicken (auf die Wand, nicht auf die Ecke) | Die erste Wand ist blau gestrichelt, die zweite orange; rechts „Lichter Abstand“ und „Abstand der Wandmitten“, im Plan ein grüner Abstand im rechten Winkel | ✅ (2026-10-20) |
 | 58.5 | Beim „Lichter Abstand“ 4 eintippen, „Setzen“ (oder Enter) | Die orange Wand rückt so, dass zwischen den Wandflächen genau 4,00 m sind; die Wände daneben werden länger / kürzer, der Raum und seine Fläche passen sich an; Türen und Fenster in der verschobenen Wand bleiben drin | ❓ |
 | 58.6 | „⇄ Die andere Wand bewegen“, einen Wert setzen; dann Strg+Z | Jetzt bewegt sich die andere Wand; Strg+Z holt den Stand davor zurück | ❓ |
 | 58.7 | Zwei Wände in einer Ecke anklicken, beim „Winkel“ 120 setzen, dann 90 | Im Plan steht der Winkel in der Ecke; die zweite Wand dreht sich um die Ecke, bleibt gleich lang, die Wand an ihrem anderen Ende zieht mit; mit 90 ist es wieder rechtwinklig | ❓ |
@@ -974,26 +972,26 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 59. Neu in 3.92: Bar mit Deckenteil
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 59.1 | Bearbeiten, eine „Bartheke über Eck mit LED“ setzen und anklicken | Rechts steht „An der Decke“ mit „Nichts“; darunter ein kurzer Hinweis; bei „LEDs einzeln verknüpfen“ stehen Thekenkante und Sockel | ❓ |
-| 59.2 | Bei „An der Decke“ „Gläserregal mit hängenden Gläsern“ wählen, die Bar von allen Seiten ansehen | Über der Theke hängt in L-Form ein Brett mit Stahlrahmen an Stangen von der Decke, darunter zwei Reihen Weingläser kopfüber und ein LED-Streifen; es folgt der Theke genau | ❓ |
-| 59.3 | „Deckensegel mit LED“, dann „Pendelleuchten“ wählen | Ein schwebendes Brett in der Farbe der Bar mit Licht oben und Spots unten; dann eine schwarze Schiene an der Decke mit 5 Pendelleuchten (bei der geraden Bar 3) | ❓ |
-| 59.4 | Dasselbe mit der geraden „Bartheke mit LED“ | Regal, Segel und Leuchten sind gerade und so lang wie die Theke | ❓ |
-| 59.5 | Im 2D-Plan die Bar ansehen, bei den Maßen rechts auf „Höhe“ schauen, an eine Wand schieben | Im Plan ist sie so groß wie vorher; „Höhe“ zeigt die Theke (etwa 1,2 m), nicht die Decke; sie stoppt an der Wand wie vorher | ❓ |
-| 59.6 | Bei „LEDs einzeln verknüpfen“ beim „Deckenteil“ ein Licht wählen, ein- und ausschalten | Das Licht des Deckenteils folgt seinem eigenen Licht, die Theke dem Licht der Bar; ohne eigenes Licht leuchtet es mit der Bar | ❓ |
-| 59.7 | „Live“, die Bar antippen; danach wieder „An der Decke: Nichts“ wählen | Die Karte hat einen Knopf „Deckenteil“; mit „Nichts“ ist das Deckenteil weg, sein Licht auch, Thekenkante und Sockel bleiben | ❓ |
+| 59.1 | Bearbeiten, eine „Bartheke über Eck mit LED“ setzen und anklicken | Rechts steht „An der Decke“ mit „Nichts“; darunter ein kurzer Hinweis; bei „LEDs einzeln verknüpfen“ stehen Thekenkante und Sockel | ✅ (2026-10-20) |
+| 59.2 | Bei „An der Decke“ „Gläserregal mit hängenden Gläsern“ wählen, die Bar von allen Seiten ansehen | Über der Theke hängt in L-Form ein Brett mit Stahlrahmen an Stangen von der Decke, darunter zwei Reihen Weingläser kopfüber und ein LED-Streifen; es folgt der Theke genau | ✅ (2026-10-20) |
+| 59.3 | „Deckensegel mit LED“, dann „Pendelleuchten“ wählen | Ein schwebendes Brett in der Farbe der Bar mit Licht oben und Spots unten; dann eine schwarze Schiene an der Decke mit 5 Pendelleuchten (bei der geraden Bar 3) | ✅ (2026-10-20) |
+| 59.4 | Dasselbe mit der geraden „Bartheke mit LED“ | Regal, Segel und Leuchten sind gerade und so lang wie die Theke | ✅ (2026-10-20) |
+| 59.5 | Im 2D-Plan die Bar ansehen, bei den Maßen rechts auf „Höhe“ schauen, an eine Wand schieben | Im Plan ist sie so groß wie vorher; „Höhe“ zeigt die Theke (etwa 1,2 m), nicht die Decke; sie stoppt an der Wand wie vorher | ✅ (2026-10-20) |
+| 59.6 | Bei „LEDs einzeln verknüpfen“ beim „Deckenteil“ ein Licht wählen, ein- und ausschalten | Das Licht des Deckenteils folgt seinem eigenen Licht, die Theke dem Licht der Bar; ohne eigenes Licht leuchtet es mit der Bar | ✅ (2026-10-20) |
+| 59.7 | „Live“, die Bar antippen; danach wieder „An der Decke: Nichts“ wählen | Die Karte hat einen Knopf „Deckenteil“; mit „Nichts“ ist das Deckenteil weg, sein Licht auch, Thekenkante und Sockel bleiben | ✅ (2026-10-20) |
 | 59.8 | Im Add-on das Musterhaus („alles drin“) neu importieren | Über der Bar im Keller hängt ein Gläserregal | ➖ |
 
 ## 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 60.1 | Bearbeiten, oben rechts neben „Speichern“ schauen | Zwei Knöpfe ↶ und ↷, beide grau (es gibt noch nichts rückgängig zu machen) | ❓ |
-| 60.2 | Eine Lampe anklicken, mit einer Pfeiltaste verschieben, Strg+Z, dann Strg+Y (oder Strg+Umschalt+Z) (#404) | Strg+Z holt sie zurück, Strg+Y schiebt sie wieder hin; ↶ und ↷ werden je nachdem drückbar oder grau | ❓ |
-| 60.3 | Strg+Z, dann etwas anderes ändern, dann Strg+Y | Nach einer neuen Änderung gibt es nichts mehr zu wiederholen (↷ grau) | ❓ |
-| 60.4 | Eine Lampe anklicken, Strg+C, dann zweimal Strg+V (#405) | Oben steht „Kopiert: 1“; jede Kopie steht ein Stück weiter rechts unten und ist gleich ausgewählt; sie hat dasselbe Licht verknüpft | ❓ |
-| 60.5 | Eine Kopie anklicken, Strg+D, dann Strg+Z | Strg+D verdoppelt sie direkt daneben; ein Strg+Z nimmt die Kopie wieder weg | ❓ |
-| 60.6 | Nach Strg+C auf eine andere Etage wechseln, Strg+V | Dieselbe Lampe steht dort an derselben Stelle | ❓ |
-| 60.7 | Im 2D-Plan mit Strg + Rahmen einen Raum mit Wänden, Fenstern und Möbeln auswählen, Strg+D | Alles zusammen wird verdoppelt (Wände mit ihren Fenstern, Raum, Möbel), ein Stück versetzt, und ist ausgewählt; es lässt sich gleich zusammen verschieben | ❓ |
-| 60.8 | Ein Fenster anklicken, Strg+D, nochmal Strg+D | Ein zweites (drittes) gleiches Fenster in derselben Wand daneben; ist die Wand voll, steht oben „kein Platz in der Wand“ | ❓ |
+| 60.1 | Bearbeiten, oben rechts neben „Speichern“ schauen | Zwei Knöpfe ↶ und ↷, beide grau (es gibt noch nichts rückgängig zu machen) | ✅ (2026-10-20) |
+| 60.2 | Eine Lampe anklicken, mit einer Pfeiltaste verschieben, Strg+Z, dann Strg+Y (oder Strg+Umschalt+Z) (#404) | Strg+Z holt sie zurück, Strg+Y schiebt sie wieder hin; ↶ und ↷ werden je nachdem drückbar oder grau | ✅ (2026-10-20) |
+| 60.3 | Strg+Z, dann etwas anderes ändern, dann Strg+Y | Nach einer neuen Änderung gibt es nichts mehr zu wiederholen (↷ grau) | ✅ (2026-10-20) |
+| 60.4 | Eine Lampe anklicken, Strg+C, dann zweimal Strg+V (#405) | Oben steht „Kopiert: 1“; jede Kopie steht ein Stück weiter rechts unten und ist gleich ausgewählt; sie hat dasselbe Licht verknüpft | ✅ (2026-10-20) |
+| 60.5 | Eine Kopie anklicken, Strg+D, dann Strg+Z | Strg+D verdoppelt sie direkt daneben; ein Strg+Z nimmt die Kopie wieder weg | ✅ (2026-10-20) |
+| 60.6 | Nach Strg+C auf eine andere Etage wechseln, Strg+V | Dieselbe Lampe steht dort an derselben Stelle | ✅ (2026-10-20) |
+| 60.7 | Im 2D-Plan mit Strg + Rahmen einen Raum mit Wänden, Fenstern und Möbeln auswählen, Strg+D | Alles zusammen wird verdoppelt (Wände mit ihren Fenstern, Raum, Möbel), ein Stück versetzt, und ist ausgewählt; es lässt sich gleich zusammen verschieben | ✅ (2026-10-20) |
+| 60.8 | Ein Fenster anklicken, Strg+D, nochmal Strg+D | Ein zweites (drittes) gleiches Fenster in derselben Wand daneben; ist die Wand voll, steht oben „kein Platz in der Wand“ | ✅ (2026-10-20) |
 | 60.9 | Eine Wendeltreppe mit „Etagen“ 2 setzen, „Ganzes Haus“, von der Seite ansehen (#318) | Auf der Etage dazwischen endet das Geländer am Podest und fängt nach dem Podest neu an; der Ausstieg auf die Etage ist frei | ✅ (2026-10-17) |
 | 60.10 | Im Add-on den Plan in zwei Fenstern im Bearbeiten öffnen; im ersten eine Lampe verschieben, kurz warten (#403) | Das erste Fenster speichert normal („Gespeichert ✓“) | ➖ |
 | 60.11 | Im zweiten Fenster etwas anderes verschieben, kurz warten | Es kommt die Frage „Plan wurde woanders geändert“ mit zwei Knöpfen; Esc schließt sie nicht. „Die andere Version laden“: das zweite Fenster zeigt jetzt die Lampe vom ersten Fenster, die eigene Änderung ist weg | ➖ |
@@ -1002,27 +1000,27 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 61.1 | Bearbeiten, rechts „🏘 Gebäude in diesem Plan“ aufklappen | Ein Hinweis, der Knopf „+ Gebäude“ und unten „Anderes Haus hereinholen“ | ❓ |
-| 61.2 | Zweimal „+ Gebäude“, die Namen auf „Haupthaus“ und „Gartenhaus“ ändern | Beide stehen in der Liste, oben erscheint die Auswahl „🏘 Alle Gebäude“ | ❓ |
-| 61.3 | Bei den Räumen des Erdgeschosses jeweils das Gebäude wählen | Die Räume der oberen Etagen zeigen „automatisch (…)“ mit dem Gebäude des Raums darunter | ❓ |
-| 61.4 | Ein Gebäude mit × löschen, dann Strg+Z | Die Räume bleiben, gehören zu keinem Gebäude mehr; Strg+Z holt das Gebäude zurück | ❓ |
-| 61.5 | Oben „Gartenhaus“ wählen, dann einen neuen Raum im Gartenhaus zeichnen | Der neue Raum gehört zum Gartenhaus (in der Liste rechts) | ❓ |
-| 61.6 | Oben „Gartenhaus“ wählen, in 3D und 2D ansehen | Nur das Gartenhaus mit seinen Räumen, Wänden und Geräten; Gartenmöbel (in keinem Raum) bleiben; das Bild zeigt das Gartenhaus formatfüllend | ❓ |
-| 61.7 | Links die Etagen ansehen | Etagen ohne etwas vom Gartenhaus (z. B. das Obergeschoss) fehlen | ❓ |
-| 61.8 | „Ganzes Haus“ und „Live“ mit „Gartenhaus“ | Auch dort nur das Gartenhaus; Warnungen (Rauch, Wasser) kommen weiter für den ganzen Plan | ❓ |
-| 61.9 | Oben „🏘 Alle Gebäude“, rechts bei den Dächern „🏠 Jedes Gebäude bekommt sein eigenes Dach“ | Jedes Gebäude hat ein eigenes Dach in derselben Form (vorher eins über allen, mit Hinweis) | ❓ |
+| 61.1 | Bearbeiten, rechts „🏘 Gebäude in diesem Plan“ aufklappen | Ein Hinweis, der Knopf „+ Gebäude“ und unten „Anderes Haus hereinholen“ | ✅ (2026-10-20) |
+| 61.2 | Zweimal „+ Gebäude“, die Namen auf „Haupthaus“ und „Gartenhaus“ ändern | Beide stehen in der Liste, oben erscheint die Auswahl „🏘 Alle Gebäude“ | ✅ (2026-10-20) |
+| 61.3 | Bei den Räumen des Erdgeschosses jeweils das Gebäude wählen | Die Räume der oberen Etagen zeigen „automatisch (…)“ mit dem Gebäude des Raums darunter | ✅ (2026-10-20) |
+| 61.4 | Ein Gebäude mit × löschen, dann Strg+Z | Die Räume bleiben, gehören zu keinem Gebäude mehr; Strg+Z holt das Gebäude zurück | ✅ (2026-10-20) |
+| 61.5 | Oben „Gartenhaus“ wählen, dann einen neuen Raum im Gartenhaus zeichnen | Der neue Raum gehört zum Gartenhaus (in der Liste rechts) | ✅ (2026-10-20) |
+| 61.6 | Oben „Gartenhaus“ wählen, in 3D und 2D ansehen | Nur das Gartenhaus mit seinen Räumen, Wänden und Geräten; Gartenmöbel (in keinem Raum) bleiben; das Bild zeigt das Gartenhaus formatfüllend | ✅ (2026-10-20) |
+| 61.7 | Links die Etagen ansehen | Etagen ohne etwas vom Gartenhaus (z. B. das Obergeschoss) fehlen | ✅ (2026-10-20) |
+| 61.8 | „Ganzes Haus“ und „Live“ mit „Gartenhaus“ | Auch dort nur das Gartenhaus; Warnungen (Rauch, Wasser) kommen weiter für den ganzen Plan | ✅ (2026-10-20) |
+| 61.9 | Oben „🏘 Alle Gebäude“, rechts bei den Dächern „🏠 Jedes Gebäude bekommt sein eigenes Dach“ | Jedes Gebäude hat ein eigenes Dach in derselben Form (vorher eins über allen, mit Hinweis) | ✅ (2026-10-20) |
 | 61.10 | „Benutzer“ → bei einem Benutzer ⚙ → „Gebäude“: Gartenhaus wählen, unter „🔒 Gesperrt“ „Gebäude wechseln“ abhaken, als dieser Benutzer öffnen | Er sieht nur das Gartenhaus, die Auswahl oben fehlt | ➖ |
 | 61.11 | Dasselbe ohne den Haken „Gebäude wechseln“ | Er startet im Gartenhaus, kann aber oben umschalten | ➖ |
-| 61.12 | Unten „Anderes Haus hereinholen“: ein Haus der Liste wählen, „⤵ Hereinholen“ | Es wird ein Gebäude dieses Plans: steht es als Nachbarhaus daneben, genau dort, sonst 3 m rechts daneben; seine Etagen liegen auf den Etagen gleicher Höhe | ❓ |
-| 61.13 | Danach Strg+Z | Alles Hereingeholte ist wieder weg; das andere Haus steht weiter in der Häuser-Liste | ❓ |
+| 61.12 | Unten „Anderes Haus hereinholen“: ein Haus der Liste wählen, „⤵ Hereinholen“ | Es wird ein Gebäude dieses Plans: steht es als Nachbarhaus daneben, genau dort, sonst 3 m rechts daneben; seine Etagen liegen auf den Etagen gleicher Höhe | ✅ (2026-10-20) |
+| 61.13 | Danach Strg+Z | Alles Hereingeholte ist wieder weg; das andere Haus steht weiter in der Häuser-Liste | ✅ (2026-10-20) |
 
 ## 62. Neu in 3.95: Energie leichter einrichten (#407)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 62.1 | Bearbeiten, „Strom-Editor“, daneben „⚡ Rechnung“ | Ganz oben steht „🧭 Einrichten“ mit dem Knopf „⤵ Aus dem Energie-Dashboard übernehmen“ und darunter die Checkliste (✅ eingerichtet, ○ fehlt noch, ⚠ bitte prüfen, ℹ zur Info) | ❓ |
-| 62.2 | In der Demo: „⤵ Aus dem Energie-Dashboard übernehmen“ | Die Liste zeigt Netz (Netzbezug), Solar (PV Wechselrichter), Batterie mit „Vorzeichen umgedreht“, Ladestand und drei Zähler | ❓ |
-| 62.3 | „✓ Übernehmen“ | Die Zeile darunter sagt „Übernommen: Netz, Solar, Batterie“; unten in den Feldern stehen diese Sensoren, die Rechnung geht auf; Strg+Z nimmt es zurück | ❓ |
-| 62.4 | In der Checkliste bei „Zähler“ auf „+ Wasserzähler in den Plan setzen“ | Der Wasserzähler Garten steht in der Mitte der Etage und ist mit seinem Sensor verknüpft; die Zeile wird ✅ | ❓ |
+| 62.1 | Bearbeiten, „Strom-Editor“, daneben „⚡ Rechnung“ | Ganz oben steht „🧭 Einrichten“ mit dem Knopf „⤵ Aus dem Energie-Dashboard übernehmen“ und darunter die Checkliste (✅ eingerichtet, ○ fehlt noch, ⚠ bitte prüfen, ℹ zur Info) | ✅ (2026-10-20) |
+| 62.2 | In der Demo: „⤵ Aus dem Energie-Dashboard übernehmen“ | Die Liste zeigt Netz (Netzbezug), Solar (PV Wechselrichter), Batterie mit „Vorzeichen umgedreht“, Ladestand und drei Zähler | ✅ (2026-10-20) |
+| 62.3 | „✓ Übernehmen“ | Die Zeile darunter sagt „Übernommen: Netz, Solar, Batterie“; unten in den Feldern stehen diese Sensoren, die Rechnung geht auf; Strg+Z nimmt es zurück | ✅ (2026-10-20) |
+| 62.4 | In der Checkliste bei „Zähler“ auf „+ Wasserzähler in den Plan setzen“ | Der Wasserzähler Garten steht in der Mitte der Etage und ist mit seinem Sensor verknüpft; die Zeile wird ✅ | ✅ (2026-10-20) |
 | 62.5 | Im Add-on mit eingerichtetem Energie-Dashboard: „⤵ Aus dem Energie-Dashboard übernehmen“, dann „✓ Übernehmen“ | Netz, Solar und Batterie wie im Energie-Dashboard von Home Assistant; die Rechnung oben stimmt (Batterie „lädt“ / „entlädt“ richtig herum) | ➖ |
 | 62.6 | Im Add-on, wenn im Energie-Dashboard nur Zähler in kWh stehen (keine Watt-Sensoren) | Der Vorschlag nimmt den Watt-Sensor am selben Gerät und schreibt „geraten (Sensor am selben Gerät), bitte unten prüfen“ dazu | ➖ |
 | 62.7 | Im Add-on ohne eingerichtetes Energie-Dashboard | Die Zeile sagt, dass das Energie-Dashboard noch nicht eingerichtet ist; nichts wird geändert | ➖ |
@@ -1035,8 +1033,8 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 63.3 | Den **Fernseher** antippen | Auch er hat jetzt ⏮ ⏸ ⏭, Lautstärke und die Quellen (HDMI 1, HDMI 2, Netflix, YouTube) | ❓ |
 | 63.4 | Den **Saugroboter** in der Küche antippen, „Saugen“ | Oben steht „🔌 An der Station“, nach „Saugen“ „🧹 Saugt“ und die Knöpfe „Pause“ und „Zur Station“; die Saugstufe lässt sich wählen | ❓ |
 | 63.5 | Den **Standventilator** im Wohnzimmer antippen | An / Aus / Umschalten, der Schieber „Stufe“ (springt auf 33, 67 oder 100 %), „↔ Schwenken“ und die Modi Normal / Natur / Nacht | ❓ |
-| 63.6 | Die **Alarmanlage** (Schalter rechts im Büro an der Außenwand) antippen, „Scharf (abwesend)“ | Oben steht rot „🛡 Scharf (abwesend)“, darunter ein Feld „Code“ und „Unscharf schalten“ | ❓ |
-| 63.7 | Einen falschen Code eingeben und „Unscharf schalten“, dann 1234 | Mit dem falschen Code bleibt sie scharf und unten steht „Aktion fehlgeschlagen“; mit 1234 ist sie wieder „Unscharf“ | ❓ |
+| 63.6 | Die **Alarmanlage** (Schalter rechts im Büro an der Außenwand) antippen, „Scharf (abwesend)“ | Oben steht rot „🛡 Scharf (abwesend)“, darunter ein Feld „Code“ und „Unscharf schalten“ | ✅ (2026-10-20) |
+| 63.7 | Einen falschen Code eingeben und „Unscharf schalten“, dann 1234 | Mit dem falschen Code bleibt sie scharf und unten steht „Aktion fehlgeschlagen“; mit 1234 ist sie wieder „Unscharf“ | ✅ (2026-10-20) |
 | 63.8 | Den **Hausmodus** antippen und „Urlaub“ wählen; die **Heizung** im Wohnzimmer antippen | Der Hausmodus steht auf „Urlaub“; die Heizungskarte hat − / +, die Modi und neu „Vorwahl“ (Eco, Komfort, Abwesend, Boost) | ❓ |
 | 63.9 | Im Add-on einen echten Lautsprecher / Fernseher, Saugroboter oder Ventilator mit einem Gerät im Plan verknüpfen und in „Live“ bedienen | Die Knöpfe tun, was sie sagen; Geräte, die etwas nicht können (z. B. kein „Weiter“), zeigen den Knopf nicht | ➖ |
 | 63.10 | Im Add-on die echte Alarmanlage verknüpfen, scharf und mit Code unscharf schalten | Wie in Home Assistant; ein falscher Code wird abgelehnt | ➖ |
