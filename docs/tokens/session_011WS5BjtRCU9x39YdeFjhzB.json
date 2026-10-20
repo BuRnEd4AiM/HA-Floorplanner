@@ -1,20 +1,20 @@
 {
  "session": "session_011WS5BjtRCU9x39YdeFjhzB",
  "start": "2026-10-20",
- "updated": "2026-10-20T14:03:17Z",
+ "updated": "2026-10-20T14:20:39Z",
  "branch": "claude/stoic-cray-rb7ve0",
  "source": "counted",
- "input": 190,
- "cache_write": 239935,
- "cache_read": 19489924,
- "output": 61392,
+ "input": 228,
+ "cache_write": 264817,
+ "cache_read": 25132549,
+ "output": 74609,
  "models": {
   "claude-opus-5-5": {
-   "input": 190,
-   "cache_write": 239935,
-   "cache_read": 19489924,
-   "output": 61392,
-   "requests": 95
+   "input": 228,
+   "cache_write": 264817,
+   "cache_read": 25132549,
+   "output": 74609,
+   "requests": 114
   }
  }
 }
