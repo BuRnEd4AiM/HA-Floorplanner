@@ -127,7 +127,7 @@ export function initFloorBuild(ctx) {
         const sp = ctx.textSprite(roomLabel(r, ctx.topView(), ctx.imperial()));
         sp.position.set(c[0], 0.45, c[1]);
         if (ghost) { sp.material.transparent = true; sp.material.opacity = 0.25 + 0.5 * ctx.belowVis(); }
-        else ctx.roomName?.(f, r.id, sp);                       // it steps aside while the label over the room shows (#430, roomlabels.js)
+        ctx.roomName?.(f, r.id, sp);                            // it steps aside while the label over the room shows (#430, roomlabels.js); the whole house: all of them, the see-through basement too (#464)
         g.add(sp);
       }
     });

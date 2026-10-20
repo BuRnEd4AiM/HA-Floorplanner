@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.1.3] - 2026-10-20
+### Fixed
+- **„Im Bild: Raum-Schilder“ seemed to do nothing in the whole-house view** (#464): there are no room labels in *Ganzes Haus* (over every room of every floor they would pile up), and until now the devices' balls and value labels showed there instead, as with *Geräte*. Now, as the owner chose, the picture of the whole house shows nothing with *Raum-Schilder*: no balls, no value labels, no room names, only the floor cards beside the house (rooms, lights on, windows open; a tap opens the floor). *Im Bild: Geräte* shows the devices in the whole house as before.
+
 ## [4.1.2] - 2026-10-19
 ### Fixed
 - **„Im Bild: Raum-Schilder“ did nothing in the demo** (#462): the demo starts in edit mode on a PC or tablet, and room labels and room tiles only show in live mode, so a tap on *Ansicht* → *Im Bild: Raum-Schilder* (or *Raum-Kacheln*) changed nothing to see. In edit mode the tap now switches them on and goes to live mode, where they show (in the add-on too). In live mode it switches them on and off as before.

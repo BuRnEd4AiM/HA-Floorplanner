@@ -87,6 +87,14 @@ test('the labels over the rooms show in live mode on a wide screen, one floor, n
   assert.equal(R.labelsShown({ ...on, focused: 'r1' }), false, 'a room opened');
 });
 
+test('the room view (#464): the devices are off with the labels, and in the whole house too, where only the floor cards show', () => {
+  const on = { on: true, live: true, wide: true, house: false, focused: null, view3d: true };
+  assert.equal(R.roomView(on), true);
+  assert.equal(R.roomView({ ...on, house: true }), true, 'the whole house: nothing in the picture, no devices either');
+  for (const k of ['on', 'live', 'wide', 'view3d']) assert.equal(R.roomView({ ...on, house: true, [k]: false }), false, k);
+  assert.equal(R.roomView({ ...on, house: true, focused: 'r1' }), false, 'a room opened: its devices show');
+});
+
 test('the switch in the View menu: in live mode on and off; in edit mode, where nothing shows, on and live', () => {
   assert.deepEqual(R.liveToggle({ on: true, live: true }), { on: false, live: false });
   assert.deepEqual(R.liveToggle({ on: false, live: true }), { on: true, live: false });

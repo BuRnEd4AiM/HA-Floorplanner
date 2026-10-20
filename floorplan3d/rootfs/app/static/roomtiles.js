@@ -79,9 +79,15 @@ export function labelTexts(s, num, imperial = false) {
  *  -> { on: the setting, live: go to live mode } */
 export const liveToggle = ({ on, live }) => (live ? { on: !on, live: false } : { on: true, live: true });
 
-/** do the labels over the rooms show? on (setting), live mode, `wide`: room for them (not the dashboard card or a room tablet; phones
- *  too since #444), one floor (the whole house would pile them up), no room opened (its card says it all) and the 3D view shown */
-export const labelsShown = ({ on, live, wide, house, focused, view3d }) => !!(on && live && wide && !house && !focused && view3d);
+/** is the room view on ("Im Bild: Raum-Schilder"): the devices' balls and value labels are off? on (setting), live mode, `wide`: room for
+ *  it (not the dashboard card or a room tablet; phones too since #444), no room opened (its card says it all) and the 3D view shown; the
+ *  whole house too (#464) */
+export const roomView = ({ on, live, wide, focused, view3d }) => !!(on && live && wide && !focused && view3d);
+
+/** do the labels over the rooms show? In the room view on one floor. Not in the whole house: the labels would pile up there; the picture
+ *  shows nothing then, only the floor cards beside the house (#464, the owner's choice; before, the devices showed and the switch seemed
+ *  to do nothing) */
+export const labelsShown = (s) => roomView(s) && !s.house;
 
 /** how high over its floor the label of a room floats (m): over most furniture, low enough to stay over its room when the camera looks
  *  down at an angle */

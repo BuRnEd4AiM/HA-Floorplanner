@@ -542,7 +542,7 @@ const roomLabels = initRoomLabels({ $, t, layout: () => shownLayout(), floorIdx:
 /* ---- Doors, gates and windows with a contact sensor: the code lives in openings.js ---- */
 const openings = initOpenings({
   $, t, layout: () => shownLayout(), states: () => states, onStates: ON_STATES, registry, pointInPoly, distToPoly, show: (target) => offline.show(target),
-  tapBalls, isLive: () => isLive(), floorIdx: () => floorIdx, labelSprites, labelsOn: () => settings.labelMode !== 'none' && !roomLabels.shown(),   // the balls and labels of the windows' roller shutters (#331); not while the room labels show (#430)
+  tapBalls, isLive: () => isLive(), floorIdx: () => floorIdx, labelSprites, labelsOn: () => settings.labelMode !== 'none' && !roomLabels.quiet(),   // the balls and labels of the windows' roller shutters (#331); not while the room labels show (#430, the whole house: #464)
 });
 const isOpen = (entity) => openings.isOpen(entity);
 const openText = (entity) => openings.openText(entity);
@@ -693,7 +693,7 @@ function applyStates() {
       const ballOn = on || pieceEntities(d).some((e) => isOnNow(e));   // a piece with LED zones: lit while one of them is
       tapBalls.update(d.id, ballOn, rgb, isLive() && !ghost, obj.visible, offIds.get(d.id)?.reason);   // the ball to tap in the live mode, lit while on (#238), the offline sign (#375)
       const sp = labelSprites.get(d.id);
-      if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible && !roomLabels.shown(); sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W', pillTone(d, states[d.entity], on)); }   // a heater's temperature: red / blue
+      if (sp) { sp.visible = settings.labelMode !== 'none' && obj.visible && !roomLabels.quiet(); sp.userData.setText(labelText(d.entity, d.type), isHolo() && states[d.entity]?.unit === 'W', pillTone(d, states[d.entity], on)); }   // a heater's temperature: red / blue
     });
   });
   tapBalls.settle();                      // tap balls that would cover each other move apart (#244)
