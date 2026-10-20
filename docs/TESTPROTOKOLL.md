@@ -9,7 +9,7 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.1.3** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 1. **Neu in 4.1.3: Ganzes Haus mit Raum-Schildern** (74.1, 74.2): „Live“, links „Ganzes Haus“, unten „Ansicht“ → „Im Bild: Raum-Schilder“: im Bild keine Kugeln, keine Werte, keine Raumnamen, nur die Etagen-Karten an der Seite; auf „Im Bild: Geräte“ umschalten: die Geräte sind wieder da.
-2. **Neu in 4.1.2: die Demo durchgesehen** (73.1 bis 73.7): im „Bearbeiten“ unten „Ansicht“ → „Im Bild: Raum-Schilder“ (wechselt zu „Live“ mit den Schildern); oben „🛡️ Sicherheit“ einen Tag abspielen; „Geräte“ → „Batterie“; „🗄️ Backup“ → „Backup herunterladen“; rechts „Häuser“ → Import-Beispiele.
+2. **Neu in 4.1.2: die Demo durchgesehen** (noch offen: 73.2, 73.5 bis 73.7; 73.1, 73.3, 73.4 ✅): im „Bearbeiten“ unten „Ansicht“ → „Raum-Kacheln“ (wechselt zu „Live“ mit den Kacheln); „🗄️ Backup“ → „Backup herunterladen“; rechts „Häuser“ → Import-Beispiele; oben die Versionsanzeige → „Jetzt prüfen (auch mit GitHub)“.
 3. **Neu in 4.1.1: roter Streifen statt Sperrbildschirm für dich, Dienste nach Herkunft, eigener Telegram-Bot** (72.1 bis 72.7, im Add-on 72.8 und 72.9): in „Live“ 🛡, Code 1234, scharf schalten: oben ein roter Streifen und ein roter Rand, der Plan bleibt bedienbar; mit `?wand=1` am Ende der Adresse wie ein Wandtablet (Sperrbildschirm); ⚙ → „Benachrichtigung bei Alarm“ → „Benachrichtigungsdienst von Home Assistant“: drei Gruppen und die Telegram-Bot-Anleitung.
 4. **Neu in 4.1: Urlaubs-Alarm mit Sperrbildschirm** (71.1 bis 71.11, in der Demo mit `?wand=1`): in „Live“ oben 🛡 antippen, Code 1234, scharf schalten, warten bis der gespielte Einbrecher die Bürotür öffnet, mit 1234 ausschalten; in ⚙ → „Warnungen & Alarm“ den Urlaubs-Alarm, Telegram und die Liste der Dienste ansehen.
 5. **Neu in 4.0.3: Benutzer in ⚙, WhatsApp-Anleitung** (70.1 bis 70.6): oben gibt es keinen Knopf „Benutzer“ mehr; ⚙ → „👥 Benutzer & Tablets“ aufklappen; ⚙ → „Warnungen & Alarm“ → die drei Schritte für WhatsApp lesen. Alles, was früher „Benutzer“ → … hieß, geht jetzt über ⚙ → „Benutzer & Tablets“.
@@ -32,7 +32,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 22. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
 23. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
-**Zuletzt geprüft (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
+**Zuletzt geprüft (2026-10-20):** ✅ 73.1, 73.3, 73.4 (Raum-Schilder aus „Bearbeiten“, Sicherheit mit zwei Tagen, Batterien in der Demo; zum ersten Mal per Auswahl im Chat abgefragt). **Davor (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
 
 **Davor geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), 60.9 (Geländer der Wendeltreppe pro Etage, #318), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
 
@@ -281,9 +281,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 70. Neu in 4.0.3: Benutzer & Tablets in den Einstellungen, WhatsApp leichter einrichten (#454) | 1 | 0 | 6 | 0 | 70.1 bis 70.6 |
 | 71. Neu in 4.1: Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen (#456) | 0 | 0 | 10 | 4 | 71.1 bis 71.6, 71.8 bis 71.11 |
 | 72. Neu in 4.1.1: Streifen statt Sperrbildschirm für Bearbeiter, Dienste nach Herkunft, eigener Telegram-Bot (#460) | 0 | 0 | 7 | 2 | 72.1 bis 72.7 |
-| 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 0 | 0 | 7 | 0 | 73.1 bis 73.7 |
+| 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 3 | 0 | 4 | 0 | 73.2, 73.5 bis 73.7 |
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 0 | 0 | 2 | 0 | 74.1, 74.2 |
-| **Zusammen** | **285** | **2** | **239** | **33** | |
+| **Zusammen** | **288** | **2** | **236** | **33** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1201,10 +1201,10 @@ Wer bearbeiten darf (du als Admin), wird vom Urlaubs-Alarm nicht mehr gesperrt, 
 Der Besitzer meldete: „Im Bild: Raum-Schilder“ geht in der Demo nicht. Grund: Die Demo startet am PC und Tablet in „Bearbeiten“, die Schilder gibt es aber nur in „Live“. Dazu fehlte in der Demo einiges, was nur das Add-on liefern konnte.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 73.1 | Demo am PC oder Tablet öffnen (sie startet in „Bearbeiten“), unten „Ansicht“ → „Im Bild: Raum-Schilder“ antippen | Die Demo wechselt zu „Live“, über den Räumen stehen die Schilder; der Knopf sagt weiter „Im Bild: Raum-Schilder“. Noch ein Tipp (jetzt in „Live“): „Im Bild: Geräte“, die Schilder sind weg | ❓ |
+| 73.1 | Demo am PC oder Tablet öffnen (sie startet in „Bearbeiten“), unten „Ansicht“ → „Im Bild: Raum-Schilder“ antippen | Die Demo wechselt zu „Live“, über den Räumen stehen die Schilder; der Knopf sagt weiter „Im Bild: Raum-Schilder“. Noch ein Tipp (jetzt in „Live“): „Im Bild: Geräte“, die Schilder sind weg | ✅ (2026-10-20) |
 | 73.2 | „Bearbeiten“, „Ansicht“ → „Raum-Kacheln“ antippen | Die Demo wechselt zu „Live“, unten sind die Raum-Kacheln | ❓ |
-| 73.3 | Oben „🛡️ Sicherheit“ | Zwei Tage zur Auswahl: heute („Heute“) und gestern. Gestern antippen, ▶: morgens gehen Bad- und Küchenlicht an, Anna fährt weg (Garagentor), mittags ist das Küchenfenster offen, abends Wohnzimmer, Büro und Schlafzimmer; ✕ führt zurück zu „Live“ | ❓ |
-| 73.4 | „Live“, oben „Geräte“ → „Batterie“ | Fenster, Türen, Feuchte- und Anwesenheitssensor mit ihrer Batterie; „Luftfeuchte Keller“ (8 %) und „Fenster Küche“ (12 %) sind rot. Oben steht „🪫 2 Batterie schwach“, am Knopf „Geräte · 🪫 2“ | ❓ |
+| 73.3 | Oben „🛡️ Sicherheit“ | Zwei Tage zur Auswahl: heute („Heute“) und gestern. Gestern antippen, ▶: morgens gehen Bad- und Küchenlicht an, Anna fährt weg (Garagentor), mittags ist das Küchenfenster offen, abends Wohnzimmer, Büro und Schlafzimmer; ✕ führt zurück zu „Live“ | ✅ (2026-10-20) |
+| 73.4 | „Live“, oben „Geräte“ → „Batterie“ | Fenster, Türen, Feuchte- und Anwesenheitssensor mit ihrer Batterie; „Luftfeuchte Keller“ (8 %) und „Fenster Küche“ (12 %) sind rot. Oben steht „🪫 2 Batterie schwach“, am Knopf „Geräte · 🪫 2“ | ✅ (2026-10-20) |
 | 73.5 | Oben „🗄️ Backup“ → „Backup herunterladen“, dann unten bei „Sicherheit“ ⬇ bei einem Tag | Es wird eine Datei `floorplan3d-backup-demo.json` gespeichert (bzw. `floorplan3d-timeline-….jsonl`), die Demo bleibt offen (vorher war die Seite danach leer oder es kam eine Fehlerseite) | ❓ |
 | 73.6 | Rechts „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Haus mit Grundstück“, dann „Prüfen“; danach „Dieses Haus als JSON exportieren“ | Das Beispiel steht im Feld; „Prüfen“ sagt „Der Import braucht das Add-on und ist in der Demo nicht verfügbar.“; Exportieren sagt „In der Demo nicht verfügbar (nur im Add-on).“ und die Demo bleibt offen | ❓ |
 | 73.7 | Oben auf die grüne Versionsanzeige tippen → „Jetzt prüfen (auch mit GitHub)“ | „GitHub (main): gleicher Stand“ und „Alles stimmt, auch mit GitHub“ | ❓ |
