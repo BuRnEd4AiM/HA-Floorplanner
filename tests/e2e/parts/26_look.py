@@ -106,6 +106,18 @@ check("room labels: a tap on a label opens the room; then its devices show (ball
       (pgL.evaluate("window.__fp.focusedRoom()"), pgL.evaluate(BALL), pgL.evaluate(PILLS)))
 pgL.locator("#roomTiles [data-room=lk_room]").click(); pgL.wait_for_timeout(800)
 check("room labels: back again when the room is left, the devices off again", pgL.evaluate("window.__fp.focusedRoom()") is None and pgL.is_visible("#roomLabels") and not pgL.evaluate(BALL))
+BALLS = """() => { let n = 0; window.__fp.scene.traverse((o) => { if (o.userData?.tapBall && o.visible && o.parent?.visible) n++; }); return n; }"""   # tap balls shown
+pgL.click("#floorRail .railHouse"); pgL.wait_for_timeout(1500)
+whole = lambda: (pgL.is_visible("#roomLabels"), pgL.evaluate(BALLS), pgL.evaluate(PILLS), pgL.evaluate(NAME, "Schilderraum"), pgL.locator(".floorCard:visible").count())
+check("room labels (#464): the whole house shows no labels (they would pile up) and no devices either: no tap balls, no value labels, no room names, only the floor cards beside the house",
+      whole()[:4] == (False, 0, 0, False) and whole()[4] > 0, whole())
+view_menu(pgL); pgL.click("#roomLabelsToggle"); pgL.wait_for_timeout(700)
+check("room labels: 'Im Bild: Geräte' in the whole house: the tap balls, value labels and room names are back", whole()[0] is False and whole()[1] > 0 and whole()[2] > 0 and whole()[3] is True, whole())
+pgL.click("#roomLabelsToggle"); pgL.wait_for_timeout(700)
+check("room labels: and 'Raum-Schilder' again: nothing but the floor cards", whole()[:4] == (False, 0, 0, False), whole())
+if pgL.is_visible("#viewMenu"): pgL.click("#viewMenuBtn"); pgL.wait_for_timeout(200)
+pgL.evaluate("window.__fp.switchFloor(0)"); pgL.wait_for_timeout(900)
+check("room labels: one floor open again: the labels are back", pgL.is_visible("#roomLabels") and pgL.evaluate(BALLS) == 0, pgL.evaluate(BALLS))
 
 # --- the glass look (#429)
 glass = pgL.evaluate("""() => ['#modeBar .pill:not(.active)', '#floorRail button', '#findBtn'].map((s) => { const e = document.querySelector(s);
