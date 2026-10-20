@@ -8,31 +8,25 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.1.3** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
-1. **Neu in 4.1.3: Ganzes Haus mit Raum-Schildern** (74.1, 74.2): „Live“, links „Ganzes Haus“, unten „Ansicht“ → „Im Bild: Raum-Schilder“: im Bild keine Kugeln, keine Werte, keine Raumnamen, nur die Etagen-Karten an der Seite; auf „Im Bild: Geräte“ umschalten: die Geräte sind wieder da.
-2. **Neu in 4.1.2: die Demo durchgesehen** (73.1 bis 73.7): im „Bearbeiten“ unten „Ansicht“ → „Im Bild: Raum-Schilder“ (wechselt zu „Live“ mit den Schildern); oben „🛡️ Sicherheit“ einen Tag abspielen; „Geräte“ → „Batterie“; „🗄️ Backup“ → „Backup herunterladen“; rechts „Häuser“ → Import-Beispiele.
-3. **Neu in 4.1.1: roter Streifen statt Sperrbildschirm für dich, Dienste nach Herkunft, eigener Telegram-Bot** (72.1 bis 72.7, im Add-on 72.8 und 72.9): in „Live“ 🛡, Code 1234, scharf schalten: oben ein roter Streifen und ein roter Rand, der Plan bleibt bedienbar; mit `?wand=1` am Ende der Adresse wie ein Wandtablet (Sperrbildschirm); ⚙ → „Benachrichtigung bei Alarm“ → „Benachrichtigungsdienst von Home Assistant“: drei Gruppen und die Telegram-Bot-Anleitung.
-4. **Neu in 4.1: Urlaubs-Alarm mit Sperrbildschirm** (71.1 bis 71.11, in der Demo mit `?wand=1`): in „Live“ oben 🛡 antippen, Code 1234, scharf schalten, warten bis der gespielte Einbrecher die Bürotür öffnet, mit 1234 ausschalten; in ⚙ → „Warnungen & Alarm“ den Urlaubs-Alarm, Telegram und die Liste der Dienste ansehen.
-5. **Neu in 4.0.3: Benutzer in ⚙, WhatsApp-Anleitung** (70.1 bis 70.6): oben gibt es keinen Knopf „Benutzer“ mehr; ⚙ → „👥 Benutzer & Tablets“ aufklappen; ⚙ → „Warnungen & Alarm“ → die drei Schritte für WhatsApp lesen. Alles, was früher „Benutzer“ → … hieß, geht jetzt über ⚙ → „Benutzer & Tablets“.
-6. **Neu in 4.0.2: Gebäude-Filter richtig** (69.1 bis 69.3, im Add-on 69.4): zwei Gebäude anlegen, einen Raum dem zweiten geben, oben umschalten: keine Wandstücke bleiben stehen, die Etage darunter verschwindet nicht mit, die Geräteliste zeigt nur das gewählte Gebäude.
-7. **Neu in 4.0.1: Einstellungen in Gruppen** (68.1 bis 68.8): ⚙ antippen, Gruppen auf- und zuklappen, oben „Alarm“ suchen, die Gruppe „Warnungen & Alarm“ lesen.
-8. **Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade** (67.1 bis 67.12): nah an die Wände im Bad, in der Küche und im Wohnzimmer zoomen; außen ums Haus drehen; im Bearbeiten einem Raum einen Boden, eine Farbe aus der Farbreihe, eine Größe und 45° geben; unter „Wände“ Raufaser, eine Tapete oder Fliesen wählen, „Unten anders“ ausprobieren; eine einzelne Wand anklicken und eine Seite anders machen; ⚙ → „Fassade“.
-9. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25): „Live“ ansehen und nah heranzoomen, auch flach von der Seite; ein Raum-Schild und einen Punkt antippen; nachts die Sterne ansehen; auf dem Tablet eine Raum-Kachel antippen; am Handy die Raum-Kacheln wischen (flüssig, ohne Hängen), unten „Strom“ drücken (die Karte „Strom jetzt“ erscheint), die Raum-Schilder ansehen und ganz unten Uhrzeit und Wetter; „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
-10. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
-11. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
-12. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
-13. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
-14. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
-15. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
-16. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
-17. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
-18. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „Warnungen & Alarm“ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
-19. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
-20. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
-21. **Benutzer sperren** (37.6, 61.10, 61.11): ⚙ → „Benutzer & Tablets“ → bei einem Benutzer ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
-22. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
-23. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
+1. **4.1.1 im Add-on: deine Dienste nach Herkunft, eigener Telegram-Bot** (72.8, 72.9, nur im Add-on; 72.1 bis 72.7 ✅): ⚙ → „Benachrichtigung bei Alarm“ → „Benachrichtigungsdienst von Home Assistant“: stehen deine Dienste in der richtigen Gruppe; eigenen Telegram-Bot nach der Anleitung einrichten und „Test senden“.
+2. **4.0: noch offen bei Wänden und Böden** (67.9 bis 67.12; 67.1 bis 67.8 ✅): im Bearbeiten „Wände für alle Räume der Etage übernehmen“ und Strg+Z; eine einzelne Wand anklicken und eine Seite anders machen (Akzentwand); unten „Temp.“ und das Design „Hologramm“; „2D“ zeigt die Bodenfarben.
+3. **Neu in 3.99: Böden, Fensterrahmen, Glas-Optik, Raum-Schilder oder Geräte** (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25): „Live“ ansehen und nah heranzoomen, auch flach von der Seite; ein Raum-Schild und einen Punkt antippen; nachts die Sterne ansehen; auf dem Tablet eine Raum-Kachel antippen; am Handy die Raum-Kacheln wischen (flüssig, ohne Hängen), unten „Strom“ drücken (die Karte „Strom jetzt“ erscheint), die Raum-Schilder ansehen und ganz unten Uhrzeit und Wetter; „Ansicht“ → „Im Bild: Raum-Schilder“ auf „Geräte“ umschalten und zurück; im Bearbeiten einem Raum einen anderen Boden geben.
+4. **Neu: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste** (65.1 bis 65.13, 65.16): „Live“ ansehen, mit `?skytime=21:30` und `?weather=rainy`; die Karte „Strom jetzt“ und die Raum-Kacheln antippen; im Bearbeiten die neue Werkzeugleiste ausprobieren.
+5. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
+6. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
+7. **Wiederholen, Kopieren, Einfügen** (60.1 bis 60.8): Strg+Z, dann Strg+Y; eine Lampe anklicken, Strg+C, Strg+V; Strg+D verdoppelt.
+8. **Mehrere Gebäude in einem Plan** (61.1 bis 61.9, 61.12): rechts „🏘 Gebäude in diesem Plan“, zwei Gebäude anlegen, Räume zuordnen, oben umschalten, „🏠 Jedes Gebäude bekommt sein eigenes Dach“.
+9. **Neu: mehr Geräte steuern** (63.1 bis 63.8, im Add-on 63.9 bis 63.11): in „Live“ den Lautsprecher, den Saugroboter, den Standventilator, die Alarmanlage (Code 1234) und den Hausmodus antippen und die neuen Knöpfe ausprobieren.
+10. **Energie einrichten und Strom-Rechnung** (62.1 bis 62.4, im Add-on 62.5 bis 62.7, dazu 50.1 bis 50.8): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
+11. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+12. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „Warnungen & Alarm“ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
+13. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
+14. **Messen** (58.1 bis 58.8): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
+15. **Benutzer sperren** (37.6, 61.10, 61.11): ⚙ → „Benutzer & Tablets“ → bei einem Benutzer ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
+16. **Neue Möbel kurz durchblättern** (51 bis 54, 57, 59): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
+17. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
-**Zuletzt geprüft (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
+**Zuletzt geprüft (2026-10-20, per Auswahl im Chat):** ✅ alles, was in der Demo geht, von 4.1.3 bis 4.0.1: 74.1, 74.2, 73.1 bis 73.7, 72.1 bis 72.7 (roter Streifen und Rand statt Sperrbildschirm, Wandtablet mit `?wand=1`, Dienste nach Herkunft), 71.1 bis 71.6 und 71.8 bis 71.11 (Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen), 70.1 bis 70.6 (Benutzer & Tablets in ⚙, WhatsApp-Schritte), 69.1 bis 69.3 (Gebäude-Filter), 68.1 bis 68.8 (Einstellungen in Gruppen), 67.1 bis 67.8 (Wände und Böden mit Muster, Fassade). **Davor (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
 
 **Davor geprüft (2026-10-17): ✅** 10.2 und 10.3 (Wandtablet: zurück zur Startansicht, Bildschirmschoner), 13.3 bis 13.5 (Import mit Keller und Anbau), der ganze Abschnitt 20 (erster Start), 21.4 (Hinweis auf neue Version), die ganzen Abschnitte 24 bis 27 (Treppen über mehrere Etagen, Solarpanels, Wasser-, Gas- und Wärmezähler, Brücke und die Nachträge 27.5 bis 27.8), 29 (Treppenhaus) und 30 (weniger aus Versehen antippen), 31.1 und 31.3 (Abschnitt 31 damit fertig; 31.1 war ❌, geht jetzt), 60.9 (Geländer der Wendeltreppe pro Etage, #318), die ganzen Abschnitte 38 (Kugeln, Startansicht, Backup-Fenster), 39 (LED-Ring-Abschnitte farbig), 40 und 41 (Rollläden und Rollladen-Karte).
 
@@ -275,15 +269,15 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
 | 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 0 | 0 | 14 | 3 | 65.1 bis 65.13, 65.16 |
 | 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 1 | 1 | 22 | 1 | ❌ 66.21, 66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25 |
-| 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448) | 0 | 0 | 12 | 2 | 67.1 bis 67.12 |
-| 68. Neu in 4.0.1: Einstellungen in Gruppen, Suche, was die Alarmanlage ist (#450) | 0 | 0 | 8 | 1 | 68.1 bis 68.8 |
-| 69. Neu in 4.0.2: Gebäude-Filter richtig (#451) | 0 | 0 | 3 | 1 | 69.1 bis 69.3 |
-| 70. Neu in 4.0.3: Benutzer & Tablets in den Einstellungen, WhatsApp leichter einrichten (#454) | 1 | 0 | 6 | 0 | 70.1 bis 70.6 |
-| 71. Neu in 4.1: Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen (#456) | 0 | 0 | 10 | 4 | 71.1 bis 71.6, 71.8 bis 71.11 |
-| 72. Neu in 4.1.1: Streifen statt Sperrbildschirm für Bearbeiter, Dienste nach Herkunft, eigener Telegram-Bot (#460) | 0 | 0 | 7 | 2 | 72.1 bis 72.7 |
-| 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 0 | 0 | 7 | 0 | 73.1 bis 73.7 |
-| 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 0 | 0 | 2 | 0 | 74.1, 74.2 |
-| **Zusammen** | **285** | **2** | **239** | **33** | |
+| 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448) | 8 | 0 | 4 | 2 | 67.9 bis 67.12 |
+| 68. Neu in 4.0.1: Einstellungen in Gruppen, Suche, was die Alarmanlage ist (#450) | 8 | 0 | 0 | 1 | – |
+| 69. Neu in 4.0.2: Gebäude-Filter richtig (#451) | 3 | 0 | 0 | 1 | – |
+| 70. Neu in 4.0.3: Benutzer & Tablets in den Einstellungen, WhatsApp leichter einrichten (#454) | 7 | 0 | 0 | 0 | – |
+| 71. Neu in 4.1: Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen (#456) | 10 | 0 | 0 | 4 | – |
+| 72. Neu in 4.1.1: Streifen statt Sperrbildschirm für Bearbeiter, Dienste nach Herkunft, eigener Telegram-Bot (#460) | 7 | 0 | 0 | 2 | – |
+| 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 7 | 0 | 0 | 0 | – |
+| 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
+| **Zusammen** | **336** | **2** | **188** | **33** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1114,14 +1108,14 @@ Vorlage: die Beispielbilder in `docs/ideen-3.99/` (1, 2, 4 und 5). Die Demo hat 
 Die Demo hat schon Beispiele eingestellt: Wohnzimmer Fischgrät und Raufaser, Küche Großformat-Fliesen, Metro-Fliesen bis 1,40 m und salbeigrüne Farbe, Bad Sechseck-Fliesen und blaue Fliesen bis 1,20 m, Schlafzimmer Teppich und Blätter-Tapete, Büro Rauputz; oben Punkte- und Streifen-Tapete, Chevron, Terrassendielen; im Dachgeschoss weißer Backstein; außen Rauputz. Zum Hineinschauen nah an eine Wand zoomen und das Bild drehen (die Wände zur Kamera hin senken sich).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 67.1 | Demo öffnen, Erdgeschoss, nah an die Wände im Bad, in der Küche und im Wohnzimmer zoomen | Bad: blaue Fliesen bis etwa Hüfthöhe, darüber weiß; Küche: weiße Metro-Fliesen, darüber salbeigrün; Wohnzimmer: feine Raufaser, Boden Fischgrät. Türen und Fenster bleiben frei, die Muster wirken nicht verzerrt | ❓ |
-| 67.2 | Obergeschoss und Dachgeschoss ansehen | Kinderzimmer Punkte-Tapete, Gästezimmer Streifen-Tapete und Chevron-Boden, Dachterrasse Holzdielen, Studio weißer Backstein und breite Dielen | ❓ |
-| 67.3 | Von außen ums Haus drehen | Die Außenwände haben Rauputz; ⚙ → „Fassade“ → z. B. „Klinker rot“ macht alle Außenwände zu Klinker, „Glatt (wie bisher)“ stellt es zurück; „Farbe der Fassade“ färbt sie um | ❓ |
-| 67.4 | „Bearbeiten“, einen Raum anklicken, rechts „Boden“ aufklappen | Die Muster stehen unter „Holz“, „Fliesen“, „Stein“, „Sonstiges“, gut 25 Stück; ein anderes wählen: der Boden wechselt sofort | ❓ |
-| 67.5 | Unter dem Boden auf einen Farbkreis tippen, dann „Farbe“ und „Fugen“ selbst wählen | Der Boden nimmt die Farbe an (z. B. Nussbaum), die Fugen ihre Farbe; „↺ Wie vorgegeben“ stellt alles zurück | ❓ |
-| 67.6 | „Größe“ ändern (z. B. Fliesen 60 statt 30 cm), „Drehung“ 45° antippen | Die Fliesen werden größer bzw. liegen schräg (diagonal); 90° dreht die Dielen quer zum Raum; jede andere Zahl geht auch | ❓ |
-| 67.7 | Beim Raum unter „Wände“ z. B. „Raufaser“, „Rauputz“, „Tapete Ornament“, „Metro-Fliesen“, „Klinker rot“ wählen | Die Wände des Raums ändern sich sofort, nur auf der Seite dieses Raums; die Nachbarräume bleiben, wie sie sind; Farbe, Größe und Drehung gehen wie beim Boden | ❓ |
-| 67.8 | Haken „Unten anders (z. B. Fliesen)“, darunter Muster und „Bis Höhe“ (z. B. 1,50 m) | Unten Fliesen bis zur Höhe, darüber die Wand von oben; unter einem Fenster auch Fliesen | ❓ |
+| 67.1 | Demo öffnen, Erdgeschoss, nah an die Wände im Bad, in der Küche und im Wohnzimmer zoomen | Bad: blaue Fliesen bis etwa Hüfthöhe, darüber weiß; Küche: weiße Metro-Fliesen, darüber salbeigrün; Wohnzimmer: feine Raufaser, Boden Fischgrät. Türen und Fenster bleiben frei, die Muster wirken nicht verzerrt | ✅ (2026-10-20) |
+| 67.2 | Obergeschoss und Dachgeschoss ansehen | Kinderzimmer Punkte-Tapete, Gästezimmer Streifen-Tapete und Chevron-Boden, Dachterrasse Holzdielen, Studio weißer Backstein und breite Dielen | ✅ (2026-10-20) |
+| 67.3 | Von außen ums Haus drehen | Die Außenwände haben Rauputz; ⚙ → „Fassade“ → z. B. „Klinker rot“ macht alle Außenwände zu Klinker, „Glatt (wie bisher)“ stellt es zurück; „Farbe der Fassade“ färbt sie um | ✅ (2026-10-20) |
+| 67.4 | „Bearbeiten“, einen Raum anklicken, rechts „Boden“ aufklappen | Die Muster stehen unter „Holz“, „Fliesen“, „Stein“, „Sonstiges“, gut 25 Stück; ein anderes wählen: der Boden wechselt sofort | ✅ (2026-10-20) |
+| 67.5 | Unter dem Boden auf einen Farbkreis tippen, dann „Farbe“ und „Fugen“ selbst wählen | Der Boden nimmt die Farbe an (z. B. Nussbaum), die Fugen ihre Farbe; „↺ Wie vorgegeben“ stellt alles zurück | ✅ (2026-10-20) |
+| 67.6 | „Größe“ ändern (z. B. Fliesen 60 statt 30 cm), „Drehung“ 45° antippen | Die Fliesen werden größer bzw. liegen schräg (diagonal); 90° dreht die Dielen quer zum Raum; jede andere Zahl geht auch | ✅ (2026-10-20) |
+| 67.7 | Beim Raum unter „Wände“ z. B. „Raufaser“, „Rauputz“, „Tapete Ornament“, „Metro-Fliesen“, „Klinker rot“ wählen | Die Wände des Raums ändern sich sofort, nur auf der Seite dieses Raums; die Nachbarräume bleiben, wie sie sind; Farbe, Größe und Drehung gehen wie beim Boden | ✅ (2026-10-20) |
+| 67.8 | Haken „Unten anders (z. B. Fliesen)“, darunter Muster und „Bis Höhe“ (z. B. 1,50 m) | Unten Fliesen bis zur Höhe, darüber die Wand von oben; unter einem Fenster auch Fliesen | ✅ (2026-10-20) |
 | 67.9 | „Wände für alle Räume der Etage übernehmen“ | Alle Räume der Etage bekommen dieselben Wände (unten steht, wie viele); Strg+Z macht es rückgängig | ❓ |
 | 67.10 | Eine einzelne Wand anklicken, rechts „Oberfläche dieser Wand“: auf einer Seite eine Tapete wählen | Nur diese Seite dieser Wand hat die Tapete, über die ganze Höhe (Akzentwand); die Seiten stehen mit dem Namen des Raums („Zu Wohnzimmer“) oder „Außen“; „Wie der Raum“ nimmt es zurück | ❓ |
 | 67.11 | Unten „Temp.“, dann „Normal“; das Design „Hologramm“ | Bei „Temp.“ färben sich die Böden wie bisher (die Wände behalten ihr Muster); im Hologramm keine Muster, alles wie bisher | ❓ |
@@ -1133,52 +1127,52 @@ Die Demo hat schon Beispiele eingestellt: Wohnzimmer Fischgrät und Raufaser, K�
 ⚙ oben rechts öffnet die Einstellungen. Statt einer langen Liste stehen dort zehn Gruppen, die man auf- und zuklappt.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 68.1 | Demo öffnen, ⚙ antippen | Zehn Gruppen, alle zugeklappt: Allgemein, Zeichnen & Bearbeiten, 3D-Bild & Leistung, Was im Bild erscheint, Etagen, Haus außen & Umgebung, Licht & Hintergrund, Warnungen & Alarm, Wandtablet, Farben. Unter jedem Namen steht klein, was drin ist | ❓ |
-| 68.2 | Eine Gruppe antippen, dann noch einmal | Sie klappt auf (der Pfeil rechts dreht sich) und wieder zu; die Einstellungen darin wirken wie bisher | ❓ |
-| 68.3 | Eine Gruppe offen lassen, das Fenster schließen und wieder öffnen | Dieselbe Gruppe ist wieder offen (der Browser merkt es sich) | ❓ |
-| 68.4 | Oben „Alle aufklappen“, dann „Alle zuklappen“ | Alle Gruppen gehen auf, der Knopf heißt dann „Alle zuklappen“; danach sind alle wieder zu | ❓ |
-| 68.5 | Oben ins Suchfeld „Alarm“ tippen | Nur noch die passenden Gruppen, aufgeklappt, die passenden Zeilen haben einen farbigen Rahmen; „Himmel“ oder „Sonne“ findet den Himmel, „Fassade“ die Fassade | ❓ |
-| 68.6 | Etwas Unsinniges suchen, dann Esc drücken (am Tablet das ✕ im Suchfeld) | „Keine Einstellung passt zu diesem Wort.“; nach Esc ist die Suche leer und die Gruppen sind wie vorher, das Fenster bleibt offen | ❓ |
-| 68.7 | Gruppe „Warnungen & Alarm“ öffnen | Oben steht, wie Warnungen erscheinen; im blauen Kasten „Was ist mit „Alarmanlage“ gemeint?“: die Erklärung (Türen und Fenster wählt man in der Alarmanlage von Home Assistant, z. B. Alarmo) und darunter „In Home Assistant gefunden: Alarmanlage (🛡 Unscharf)“; darunter „🚨 Benachrichtigung bei Alarm (WhatsApp)“ (in der Demo wird nichts gesendet: „Test senden“ sagt das) | ❓ |
-| 68.8 | Gruppe „Wandtablet“, „Nachts abdunkeln“ auf „Nach Uhrzeit“, dann „Aus“ | Die Zeilen „Abdunkeln ab“ und „Abdunkeln bis“ erscheinen nur bei „Nach Uhrzeit“ | ❓ |
+| 68.1 | Demo öffnen, ⚙ antippen | Zehn Gruppen, alle zugeklappt: Allgemein, Zeichnen & Bearbeiten, 3D-Bild & Leistung, Was im Bild erscheint, Etagen, Haus außen & Umgebung, Licht & Hintergrund, Warnungen & Alarm, Wandtablet, Farben. Unter jedem Namen steht klein, was drin ist | ✅ (2026-10-20) |
+| 68.2 | Eine Gruppe antippen, dann noch einmal | Sie klappt auf (der Pfeil rechts dreht sich) und wieder zu; die Einstellungen darin wirken wie bisher | ✅ (2026-10-20) |
+| 68.3 | Eine Gruppe offen lassen, das Fenster schließen und wieder öffnen | Dieselbe Gruppe ist wieder offen (der Browser merkt es sich) | ✅ (2026-10-20) |
+| 68.4 | Oben „Alle aufklappen“, dann „Alle zuklappen“ | Alle Gruppen gehen auf, der Knopf heißt dann „Alle zuklappen“; danach sind alle wieder zu | ✅ (2026-10-20) |
+| 68.5 | Oben ins Suchfeld „Alarm“ tippen | Nur noch die passenden Gruppen, aufgeklappt, die passenden Zeilen haben einen farbigen Rahmen; „Himmel“ oder „Sonne“ findet den Himmel, „Fassade“ die Fassade | ✅ (2026-10-20) |
+| 68.6 | Etwas Unsinniges suchen, dann Esc drücken (am Tablet das ✕ im Suchfeld) | „Keine Einstellung passt zu diesem Wort.“; nach Esc ist die Suche leer und die Gruppen sind wie vorher, das Fenster bleibt offen | ✅ (2026-10-20) |
+| 68.7 | Gruppe „Warnungen & Alarm“ öffnen | Oben steht, wie Warnungen erscheinen; im blauen Kasten „Was ist mit „Alarmanlage“ gemeint?“: die Erklärung (Türen und Fenster wählt man in der Alarmanlage von Home Assistant, z. B. Alarmo) und darunter „In Home Assistant gefunden: Alarmanlage (🛡 Unscharf)“; darunter „🚨 Benachrichtigung bei Alarm (WhatsApp)“ (in der Demo wird nichts gesendet: „Test senden“ sagt das) | ✅ (2026-10-20) |
+| 68.8 | Gruppe „Wandtablet“, „Nachts abdunkeln“ auf „Nach Uhrzeit“, dann „Aus“ | Die Zeilen „Abdunkeln ab“ und „Abdunkeln bis“ erscheinen nur bei „Nach Uhrzeit“ | ✅ (2026-10-20) |
 | 68.9 | Im Add-on: ⚙ → „Warnungen & Alarm“ | Steht die eigene Alarmanlage (z. B. Alarmo) mit ihrem Zustand da? Als Benutzer, der nicht bearbeiten darf: statt der WhatsApp-Einstellung der Satz, dass das ein Bearbeiter einstellt | ➖ |
 
 ## 69. Neu in 4.0.2: Gebäude-Filter richtig (#451)
 Nach Bildern des Besitzers aus seinem Haus „Kinder“: beim Umschalten oben blieben Wandstücke stehen, ein Raum im 1. Stock nahm den großen Raum im EG darunter mit, und die Geräteliste zeigte alle Geräte.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 69.1 | „Bearbeiten“, rechts „🏘 Gebäude in diesem Plan“: zwei Gebäude anlegen, im Erdgeschoss nur die Küche dem zweiten Gebäude geben, oben das erste Gebäude wählen | Die Küche ist weg, mit ihren Wänden. Eine lange Wand, die an der Küche und an einem anderen Raum entlang läuft, steht nur noch an dem anderen Raum: kein Wandstück ragt in die leere Küche | ❓ |
-| 69.2 | Einen Raum im Obergeschoss dem zweiten Gebäude geben (z. B. das Kinderzimmer), oben das erste Gebäude wählen, „Ganzes Haus“ | Nur dieser Raum fehlt; das Erdgeschoss darunter bleibt ganz stehen. Rechts steht beim Raum darunter weiter sein Gebäude oder „automatisch (Grundstück)“. Umgekehrt folgen die Räume darüber weiter dem Erdgeschoss (61.3) | ❓ |
-| 69.3 | Oben „📋 Geräte“ öffnen, dann oben zwischen den Gebäuden umschalten | Die Liste zeigt nur die Geräte, Türen und Fenster des gewählten Gebäudes (und was in keinem Raum steht, z. B. im Garten); die Zahl der schwachen Batterien am Knopf auch. „🏘 Alle Gebäude“ zeigt wieder alles | ❓ |
+| 69.1 | „Bearbeiten“, rechts „🏘 Gebäude in diesem Plan“: zwei Gebäude anlegen, im Erdgeschoss nur die Küche dem zweiten Gebäude geben, oben das erste Gebäude wählen | Die Küche ist weg, mit ihren Wänden. Eine lange Wand, die an der Küche und an einem anderen Raum entlang läuft, steht nur noch an dem anderen Raum: kein Wandstück ragt in die leere Küche | ✅ (2026-10-20) |
+| 69.2 | Einen Raum im Obergeschoss dem zweiten Gebäude geben (z. B. das Kinderzimmer), oben das erste Gebäude wählen, „Ganzes Haus“ | Nur dieser Raum fehlt; das Erdgeschoss darunter bleibt ganz stehen. Rechts steht beim Raum darunter weiter sein Gebäude oder „automatisch (Grundstück)“. Umgekehrt folgen die Räume darüber weiter dem Erdgeschoss (61.3) | ✅ (2026-10-20) |
+| 69.3 | Oben „📋 Geräte“ öffnen, dann oben zwischen den Gebäuden umschalten | Die Liste zeigt nur die Geräte, Türen und Fenster des gewählten Gebäudes (und was in keinem Raum steht, z. B. im Garten); die Zahl der schwachen Batterien am Knopf auch. „🏘 Alle Gebäude“ zeigt wieder alles | ✅ (2026-10-20) |
 | 69.4 | Im Add-on, Haus „Kinder“: oben „Gebäude 1“ und „Gebäude 2“ umschalten, auch mit WZFA in Gebäude 2 | „Raum 1“ im EG bleibt stehen (rechts „automatisch (Grundstück)“, bis er selbst ein Gebäude bekommt); keine Mauern ohne ihren Raum; die Geräteliste passt zum Bild | ➖ |
 
 ## 70. Neu in 4.0.3: Benutzer & Tablets in den Einstellungen, WhatsApp leichter einrichten (#454)
 Der Knopf „Benutzer“ oben ist weg: alles daraus steht jetzt in ⚙ → „👥 Benutzer & Tablets“. Ältere Prüfschritte mit „Benutzer“ → … gehen genauso über diese Gruppe.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 70.1 | Demo öffnen, oben in der Leiste schauen | Kein Knopf „Benutzer“ mehr, die Leiste ist kürzer | ❓ |
-| 70.2 | ⚙ → Gruppe „👥 Benutzer & Tablets“ aufklappen | Die Benutzer mit Raum, Ansicht und Start stehen da; oben in jeder Zeile der Benutzer mit ⚙ und ×, darunter Raum, Ansicht, Start; unten „Sicherung in Home Assistant“ mit „Datei erstellen / speichern“ und „Synchronisieren“ | ❓ |
-| 70.3 | „+ Benutzer“, einen Benutzer wählen, Raum wählen; Fenster schließen und wieder öffnen | Der Benutzer bleibt gespeichert, mit Raum | ❓ |
-| 70.4 | Bei einem Benutzer ⚙ → „🔒 Gesperrt“ einen Haken setzen | Wie bisher: der Haken bleibt, der Knopf zeigt 🔒 1 | ❓ |
-| 70.5 | Am Handy ⚙ öffnen | Die Gruppe „Benutzer & Tablets“ gibt es am Handy nicht (wie vorher der Knopf) | ❓ |
-| 70.6 | ⚙ → „Warnungen & Alarm“ → „Benachrichtigung bei Alarm“, „Senden über: WhatsApp direkt“ | Drei nummerierte Schritte: Nachricht „I allow callmebot to send me messages“ an CallMeBot (mit Link), Schlüssel und Nummer eintragen, Haken, Speichern, Test senden | ❓ |
+| 70.1 | Demo öffnen, oben in der Leiste schauen | Kein Knopf „Benutzer“ mehr, die Leiste ist kürzer | ✅ (2026-10-20) |
+| 70.2 | ⚙ → Gruppe „👥 Benutzer & Tablets“ aufklappen | Die Benutzer mit Raum, Ansicht und Start stehen da; oben in jeder Zeile der Benutzer mit ⚙ und ×, darunter Raum, Ansicht, Start; unten „Sicherung in Home Assistant“ mit „Datei erstellen / speichern“ und „Synchronisieren“ | ✅ (2026-10-20) |
+| 70.3 | „+ Benutzer“, einen Benutzer wählen, Raum wählen; Fenster schließen und wieder öffnen | Der Benutzer bleibt gespeichert, mit Raum | ✅ (2026-10-20) |
+| 70.4 | Bei einem Benutzer ⚙ → „🔒 Gesperrt“ einen Haken setzen | Wie bisher: der Haken bleibt, der Knopf zeigt 🔒 1 | ✅ (2026-10-20) |
+| 70.5 | Am Handy ⚙ öffnen | Die Gruppe „Benutzer & Tablets“ gibt es am Handy nicht (wie vorher der Knopf) | ✅ (2026-10-20) |
+| 70.6 | ⚙ → „Warnungen & Alarm“ → „Benachrichtigung bei Alarm“, „Senden über: WhatsApp direkt“ | Drei nummerierte Schritte: Nachricht „I allow callmebot to send me messages“ an CallMeBot (mit Link), Schlüssel und Nummer eintragen, Haken, Speichern, Test senden | ✅ (2026-10-20) |
 | 70.7 | Im Add-on: die drei Schritte wirklich machen | Die Test-Nachricht kommt per WhatsApp aufs Handy | ✅ (2026-10-18) |
 
 ## 71. Neu in 4.1: Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen (#456)
 In der Demo ist der Urlaubs-Alarm schon eingerichtet: Code **1234**, Bürotür und zwei Fenster gewählt, 20 Sekunden Zeit. 25 Sekunden nach dem Scharfschalten öffnet ein gespielter Einbrecher die Bürotür. Seit 4.1.1 gilt der Sperrbildschirm nur für Wandtablets: in der Demo dafür `?wand=1` an die Adresse hängen.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 71.1 | Demo öffnen, „Live“ | Oben im Bild steht der Knopf „🛡 Alarm aus“ | ❓ |
-| 71.2 | 🛡 antippen | Ein halb durchsichtiges Fenster mit Ziffernfeld: „Urlaubs-Alarm scharf schalten“, darunter „Noch offen: Fenster Wohnzimmer“; „Schließen“ geht zurück | ❓ |
-| 71.3 | Einen falschen Code (z. B. 1111) und „Scharf schalten“ | „Falscher Code (noch 4 Versuche)“, nichts passiert | ❓ |
-| 71.4 | 1234 und „Scharf schalten“ | Der Sperrbildschirm deckt alles ab: „Scharf in 20 Sekunden – bitte jetzt das Haus verlassen“, die Zahl zählt herunter; hinter dem Bildschirm lässt sich nichts antippen | ❓ |
-| 71.5 | Warten | „Urlaubs-Alarm ist scharf“; nach etwa 25 Sekunden öffnet sich die Bürotür: der Bildschirm wird rot, „Alarm in 20 Sekunden – Code eingeben!“ | ❓ |
-| 71.6 | Nichts eingeben, warten | „ALARM: Bürotür wurde geöffnet“ mit Uhrzeit, rot blinkend | ❓ |
+| 71.1 | Demo öffnen, „Live“ | Oben im Bild steht der Knopf „🛡 Alarm aus“ | ✅ (2026-10-20) |
+| 71.2 | 🛡 antippen | Ein halb durchsichtiges Fenster mit Ziffernfeld: „Urlaubs-Alarm scharf schalten“, darunter „Noch offen: Fenster Wohnzimmer“; „Schließen“ geht zurück | ✅ (2026-10-20) |
+| 71.3 | Einen falschen Code (z. B. 1111) und „Scharf schalten“ | „Falscher Code (noch 4 Versuche)“, nichts passiert | ✅ (2026-10-20) |
+| 71.4 | 1234 und „Scharf schalten“ | Der Sperrbildschirm deckt alles ab: „Scharf in 20 Sekunden – bitte jetzt das Haus verlassen“, die Zahl zählt herunter; hinter dem Bildschirm lässt sich nichts antippen | ✅ (2026-10-20) |
+| 71.5 | Warten | „Urlaubs-Alarm ist scharf“; nach etwa 25 Sekunden öffnet sich die Bürotür: der Bildschirm wird rot, „Alarm in 20 Sekunden – Code eingeben!“ | ✅ (2026-10-20) |
+| 71.6 | Nichts eingeben, warten | „ALARM: Bürotür wurde geöffnet“ mit Uhrzeit, rot blinkend | ✅ (2026-10-20) |
 | 71.7 | „👁 Nur ansehen“ (entfällt seit 4.1.1: wer bearbeiten darf, bekommt keinen Sperrbildschirm mehr, siehe 72) | – | ➖ |
-| 71.8 | 1234 und „Ausschalten“ | Der Sperrbildschirm ist weg, der Knopf sagt wieder „🛡 Alarm aus“, die Bürotür ist wieder zu | ❓ |
-| 71.9 | „Bearbeiten“, ⚙ → „Warnungen & Alarm“ → „🛡 Urlaubs-Alarm“ | Türen und Fenster mit Raum und „offen“ / „zu“, „alle“ / „keine“; offline-Haken, Sekunden, Code, „Bei Alarm einschalten“ (Lichter, Schalter …), Nachricht; „Speichern“ sagt „Bereit“ | ❓ |
-| 71.10 | ⚙ → „Benachrichtigung bei Alarm“ → „Senden über: Telegram“, „An wen?“ umschalten | Bei „An Personen“ die Schritte mit @CallMeBot_txtbot und das Feld für Benutzernamen, bei „In eine Telegram-Gruppe“ die Schritte und das Feld für den Schlüssel | ❓ |
-| 71.11 | „Senden über: Benachrichtigungsdienst von Home Assistant“ | Eine Liste zum Ankreuzen (in der Demo 📱 mobile_app_handy, ✈️ telegram_familie, 💬 whatsapp), mehrere gehen | ❓ |
+| 71.8 | 1234 und „Ausschalten“ | Der Sperrbildschirm ist weg, der Knopf sagt wieder „🛡 Alarm aus“, die Bürotür ist wieder zu | ✅ (2026-10-20) |
+| 71.9 | „Bearbeiten“, ⚙ → „Warnungen & Alarm“ → „🛡 Urlaubs-Alarm“ | Türen und Fenster mit Raum und „offen“ / „zu“, „alle“ / „keine“; offline-Haken, Sekunden, Code, „Bei Alarm einschalten“ (Lichter, Schalter …), Nachricht; „Speichern“ sagt „Bereit“ | ✅ (2026-10-20) |
+| 71.10 | ⚙ → „Benachrichtigung bei Alarm“ → „Senden über: Telegram“, „An wen?“ umschalten | Bei „An Personen“ die Schritte mit @CallMeBot_txtbot und das Feld für Benutzernamen, bei „In eine Telegram-Gruppe“ die Schritte und das Feld für den Schlüssel | ✅ (2026-10-20) |
+| 71.11 | „Senden über: Benachrichtigungsdienst von Home Assistant“ | Eine Liste zum Ankreuzen (in der Demo 📱 mobile_app_handy, ✈️ telegram_familie, 💬 whatsapp), mehrere gehen | ✅ (2026-10-20) |
 | 71.12 | Im Add-on: Urlaubs-Alarm mit echten Türen einrichten, Telegram oder WhatsApp einrichten, scharf schalten, eine Tür öffnen und nicht ausschalten | Nach der eingestellten Zeit: Nachricht aufs Handy mit Tür und Raum, gewählte Sirene / Lichter gehen an; mit dem Code am Wandtablet aus: Sirene aus, Nachricht „Alarm beendet, ausgeschaltet von …“ | ➖ |
 | 71.13 | Im Add-on: Telegram in eine Gruppe (Schlüssel von CallMeBot), „Test senden“ | Die Test-Nachricht kommt in der Gruppe an | ➖ |
 | 71.14 | Im Add-on: als Wandtablet-Benutzer, während der Alarm scharf ist | Sperrbildschirm mit Ziffernfeld, ohne „Nur ansehen“; mit der Sperre „Urlaubs-Alarm“ ohne Ziffernfeld | ➖ |
@@ -1187,13 +1181,13 @@ In der Demo ist der Urlaubs-Alarm schon eingerichtet: Code **1234**, Bürotür u
 Wer bearbeiten darf (du als Admin), wird vom Urlaubs-Alarm nicht mehr gesperrt, sieht aber deutlich, dass er scharf ist. Wandtablets bekommen weiter den Sperrbildschirm. Die Test-Nachrichten per WhatsApp und Telegram (CallMeBot) kamen beim Besitzer an (2026-10-18).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 72.1 | Demo öffnen (ohne `?wand=1`), „Live“, 🛡, Code 1234, „Scharf schalten“ | Kein Sperrbildschirm: oben im Bild ein Streifen „🛡 Urlaubs-Alarm wird scharf in 20 s“ (orange), um den ganzen Bildschirm ein roter Rand; der Plan lässt sich weiter drehen und antippen | ❓ |
-| 72.2 | Warten | Der Streifen wird rot: „🛡 Urlaubs-Alarm ist SCHARF · seit (Uhrzeit) · antippen zum Ausschalten“ | ❓ |
-| 72.3 | Auf den Streifen tippen | Das Ziffernfeld kommt („Ausschalten“, „Schließen“); „Schließen“ geht zurück, der Alarm bleibt scharf | ❓ |
-| 72.4 | Warten, bis der Einbrecher die Bürotür öffnet | Der Streifen blinkt: „🚨 Bürotür offen: Alarm in 20 s – antippen und Code eingeben“, danach „🚨 ALARM: Bürotür · (Uhrzeit)“; der rote Rand blinkt | ❓ |
-| 72.5 | Streifen antippen, 1234, „Ausschalten“ | Streifen und Rand sind weg, der Knopf sagt wieder „🛡 Alarm aus“ | ❓ |
-| 72.6 | Demo mit `?wand=1` am Ende der Adresse öffnen, scharf schalten | Wie ein Wandtablet: der halb durchsichtige Sperrbildschirm deckt alles ab, ohne Streifen | ❓ |
-| 72.7 | „Bearbeiten“, ⚙ → „Warnungen & Alarm“ → „Benachrichtigung bei Alarm“ → „Senden über: Benachrichtigungsdienst von Home Assistant“ | Drei Gruppen mit farbigem Rand: „📱 Home Assistant App (Handy)“ (mobile_app_handy), „🧩 In Home Assistant eingerichtet“ (✈️ Familien-Chat · Telegram-Bot), „📄 Aus der configuration.yaml“ (telegram_familie, whatsapp); unter jedem Eintrag klein der volle Name; darunter aufklappbar „✈️ Eigenen Telegram-Bot einrichten (Anleitung)“ mit 4 Schritten und dem Knopf | ❓ |
+| 72.1 | Demo öffnen (ohne `?wand=1`), „Live“, 🛡, Code 1234, „Scharf schalten“ | Kein Sperrbildschirm: oben im Bild ein Streifen „🛡 Urlaubs-Alarm wird scharf in 20 s“ (orange), um den ganzen Bildschirm ein roter Rand; der Plan lässt sich weiter drehen und antippen | ✅ (2026-10-20) |
+| 72.2 | Warten | Der Streifen wird rot: „🛡 Urlaubs-Alarm ist SCHARF · seit (Uhrzeit) · antippen zum Ausschalten“ | ✅ (2026-10-20) |
+| 72.3 | Auf den Streifen tippen | Das Ziffernfeld kommt („Ausschalten“, „Schließen“); „Schließen“ geht zurück, der Alarm bleibt scharf | ✅ (2026-10-20) |
+| 72.4 | Warten, bis der Einbrecher die Bürotür öffnet | Der Streifen blinkt: „🚨 Bürotür offen: Alarm in 20 s – antippen und Code eingeben“, danach „🚨 ALARM: Bürotür · (Uhrzeit)“; der rote Rand blinkt | ✅ (2026-10-20) |
+| 72.5 | Streifen antippen, 1234, „Ausschalten“ | Streifen und Rand sind weg, der Knopf sagt wieder „🛡 Alarm aus“ | ✅ (2026-10-20) |
+| 72.6 | Demo mit `?wand=1` am Ende der Adresse öffnen, scharf schalten | Wie ein Wandtablet: der halb durchsichtige Sperrbildschirm deckt alles ab, ohne Streifen | ✅ (2026-10-20) |
+| 72.7 | „Bearbeiten“, ⚙ → „Warnungen & Alarm“ → „Benachrichtigung bei Alarm“ → „Senden über: Benachrichtigungsdienst von Home Assistant“ | Drei Gruppen mit farbigem Rand: „📱 Home Assistant App (Handy)“ (mobile_app_handy), „🧩 In Home Assistant eingerichtet“ (✈️ Familien-Chat · Telegram-Bot), „📄 Aus der configuration.yaml“ (telegram_familie, whatsapp); unter jedem Eintrag klein der volle Name; darunter aufklappbar „✈️ Eigenen Telegram-Bot einrichten (Anleitung)“ mit 4 Schritten und dem Knopf | ✅ (2026-10-20) |
 | 72.8 | Im Add-on: die Liste ansehen | Deine Dienste stehen in der richtigen Gruppe: die Handy-App oben, in der UI eingerichtete (z. B. Telegram-Bot) in der Mitte, die aus der configuration.yaml unten | ➖ |
 | 72.9 | Im Add-on: eigenen Telegram-Bot nach der Anleitung einrichten, den Chat anhaken, „Speichern“, „Test senden“ | Die Test-Nachricht kommt vom eigenen Bot in Telegram an (auch in einer Gruppe, wenn der Bot dort Mitglied ist) | ➖ |
 
@@ -1201,17 +1195,17 @@ Wer bearbeiten darf (du als Admin), wird vom Urlaubs-Alarm nicht mehr gesperrt, 
 Der Besitzer meldete: „Im Bild: Raum-Schilder“ geht in der Demo nicht. Grund: Die Demo startet am PC und Tablet in „Bearbeiten“, die Schilder gibt es aber nur in „Live“. Dazu fehlte in der Demo einiges, was nur das Add-on liefern konnte.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 73.1 | Demo am PC oder Tablet öffnen (sie startet in „Bearbeiten“), unten „Ansicht“ → „Im Bild: Raum-Schilder“ antippen | Die Demo wechselt zu „Live“, über den Räumen stehen die Schilder; der Knopf sagt weiter „Im Bild: Raum-Schilder“. Noch ein Tipp (jetzt in „Live“): „Im Bild: Geräte“, die Schilder sind weg | ❓ |
-| 73.2 | „Bearbeiten“, „Ansicht“ → „Raum-Kacheln“ antippen | Die Demo wechselt zu „Live“, unten sind die Raum-Kacheln | ❓ |
-| 73.3 | Oben „🛡️ Sicherheit“ | Zwei Tage zur Auswahl: heute („Heute“) und gestern. Gestern antippen, ▶: morgens gehen Bad- und Küchenlicht an, Anna fährt weg (Garagentor), mittags ist das Küchenfenster offen, abends Wohnzimmer, Büro und Schlafzimmer; ✕ führt zurück zu „Live“ | ❓ |
-| 73.4 | „Live“, oben „Geräte“ → „Batterie“ | Fenster, Türen, Feuchte- und Anwesenheitssensor mit ihrer Batterie; „Luftfeuchte Keller“ (8 %) und „Fenster Küche“ (12 %) sind rot. Oben steht „🪫 2 Batterie schwach“, am Knopf „Geräte · 🪫 2“ | ❓ |
-| 73.5 | Oben „🗄️ Backup“ → „Backup herunterladen“, dann unten bei „Sicherheit“ ⬇ bei einem Tag | Es wird eine Datei `floorplan3d-backup-demo.json` gespeichert (bzw. `floorplan3d-timeline-….jsonl`), die Demo bleibt offen (vorher war die Seite danach leer oder es kam eine Fehlerseite) | ❓ |
-| 73.6 | Rechts „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Haus mit Grundstück“, dann „Prüfen“; danach „Dieses Haus als JSON exportieren“ | Das Beispiel steht im Feld; „Prüfen“ sagt „Der Import braucht das Add-on und ist in der Demo nicht verfügbar.“; Exportieren sagt „In der Demo nicht verfügbar (nur im Add-on).“ und die Demo bleibt offen | ❓ |
-| 73.7 | Oben auf die grüne Versionsanzeige tippen → „Jetzt prüfen (auch mit GitHub)“ | „GitHub (main): gleicher Stand“ und „Alles stimmt, auch mit GitHub“ | ❓ |
+| 73.1 | Demo am PC oder Tablet öffnen (sie startet in „Bearbeiten“), unten „Ansicht“ → „Im Bild: Raum-Schilder“ antippen | Die Demo wechselt zu „Live“, über den Räumen stehen die Schilder; der Knopf sagt weiter „Im Bild: Raum-Schilder“. Noch ein Tipp (jetzt in „Live“): „Im Bild: Geräte“, die Schilder sind weg | ✅ (2026-10-20) |
+| 73.2 | „Bearbeiten“, „Ansicht“ → „Raum-Kacheln“ antippen | Die Demo wechselt zu „Live“, unten sind die Raum-Kacheln | ✅ (2026-10-20) |
+| 73.3 | Oben „🛡️ Sicherheit“ | Zwei Tage zur Auswahl: heute („Heute“) und gestern. Gestern antippen, ▶: morgens gehen Bad- und Küchenlicht an, Anna fährt weg (Garagentor), mittags ist das Küchenfenster offen, abends Wohnzimmer, Büro und Schlafzimmer; ✕ führt zurück zu „Live“ | ✅ (2026-10-20) |
+| 73.4 | „Live“, oben „Geräte“ → „Batterie“ | Fenster, Türen, Feuchte- und Anwesenheitssensor mit ihrer Batterie; „Luftfeuchte Keller“ (8 %) und „Fenster Küche“ (12 %) sind rot. Oben steht „🪫 2 Batterie schwach“, am Knopf „Geräte · 🪫 2“ | ✅ (2026-10-20) |
+| 73.5 | Oben „🗄️ Backup“ → „Backup herunterladen“, dann unten bei „Sicherheit“ ⬇ bei einem Tag | Es wird eine Datei `floorplan3d-backup-demo.json` gespeichert (bzw. `floorplan3d-timeline-….jsonl`), die Demo bleibt offen (vorher war die Seite danach leer oder es kam eine Fehlerseite) | ✅ (2026-10-20) |
+| 73.6 | Rechts „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Haus mit Grundstück“, dann „Prüfen“; danach „Dieses Haus als JSON exportieren“ | Das Beispiel steht im Feld; „Prüfen“ sagt „Der Import braucht das Add-on und ist in der Demo nicht verfügbar.“; Exportieren sagt „In der Demo nicht verfügbar (nur im Add-on).“ und die Demo bleibt offen | ✅ (2026-10-20) |
+| 73.7 | Oben auf die grüne Versionsanzeige tippen → „Jetzt prüfen (auch mit GitHub)“ | „GitHub (main): gleicher Stand“ und „Alles stimmt, auch mit GitHub“ | ✅ (2026-10-20) |
 
 ## 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464)
 Der Besitzer meldete: „Im Bild: Raum-Schilder“ geht im „Ganzes Haus“ nicht. Grund: Im ganzen Haus gibt es keine Schilder (über allen Räumen aller Etagen lägen sie übereinander), es kamen dort stattdessen die Geräte wie bei „Geräte“. Er hat gewählt: im ganzen Haus dann alles ausblenden, nur die Etagen-Karten an der Seite.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 74.1 | „Live“, links „Ganzes Haus“, unten „Ansicht“: „Im Bild: Raum-Schilder“ ist an | Im Bild keine Geräte-Kugeln, keine Werte-Schilder und keine Raumnamen, auch im Keller nicht; nur die Etagen-Karten neben dem Haus (Räume, Lichter an, Fenster offen); ein Tipp auf eine Karte öffnet die Etage, dort sind die Raum-Schilder wieder da | ❓ |
-| 74.2 | Im „Ganzes Haus“ „Ansicht“ → „Im Bild: Raum-Schilder“ antippen (wird „Im Bild: Geräte“), dann noch einmal | Mit „Geräte“ sind die Kugeln, Werte und Raumnamen im ganzen Haus wieder da; mit „Raum-Schilder“ wieder nur die Etagen-Karten | ❓ |
+| 74.1 | „Live“, links „Ganzes Haus“, unten „Ansicht“: „Im Bild: Raum-Schilder“ ist an | Im Bild keine Geräte-Kugeln, keine Werte-Schilder und keine Raumnamen, auch im Keller nicht; nur die Etagen-Karten neben dem Haus (Räume, Lichter an, Fenster offen); ein Tipp auf eine Karte öffnet die Etage, dort sind die Raum-Schilder wieder da | ✅ (2026-10-20) |
+| 74.2 | Im „Ganzes Haus“ „Ansicht“ → „Im Bild: Raum-Schilder“ antippen (wird „Im Bild: Geräte“), dann noch einmal | Mit „Geräte“ sind die Kugeln, Werte und Raumnamen im ganzen Haus wieder da; mit „Raum-Schilder“ wieder nur die Etagen-Karten | ✅ (2026-10-20) |
