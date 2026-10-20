@@ -27,6 +27,13 @@ export function patternOf(room, { holo = false, low = false } = {}) {
 /** the colour of a room where its pattern is not drawn: the colour of its covering from afar, else its own colour */
 export const floorHex = (room) => floorFinish(room)?.mean || room?.color || PLAIN;
 
+/** the fill of a room in the 2D plan: heat (the colour of the views Temp. / Humidity / CO₂ as 0xrrggbb, or null) as '#rrggbb', stronger;
+ *  else the colour of its floor (#467: the number itself in fill="…" is no SVG colour, the rooms turned black) */
+export function planFill(room, heat) {
+  if (heat != null) return { fill: `#${(heat & 0xffffff).toString(16).padStart(6, '0')}`, opacity: 0.45 };
+  return { fill: floorHex(room), opacity: 0.26 };
+}
+
 /** what the floor of the 3D view takes: heat (the colour of the views Temp. / Humidity / CO₂, or null), patterned (the pattern is on it).
  *  { color, pattern }: a view colour hides the pattern; under the pattern the colour is white (the pattern is the colour) */
 export function floorPaint(room, heat, patterned) {

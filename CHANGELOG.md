@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.1.4] - 2026-10-20
+### Fixed
+- **Rooms turned black in the 2D plan with Temp., Feuchte or CO₂** (#467): the colour of a room's reading was handed to the plan as a number, which is no colour there, so every room with a sensor was drawn dark grey or black instead of in the colour of its temperature, humidity or CO₂ (in every design). Now the plan shows the colour of the reading, and *Normal* the colour of the floor as before.
+
 ## [4.1.3] - 2026-10-20
 ### Fixed
 - **„Im Bild: Raum-Schilder“ seemed to do nothing in the whole-house view** (#464): there are no room labels in *Ganzes Haus* (over every room of every floor they would pile up), and until now the devices' balls and value labels showed there instead, as with *Geräte*. Now, as the owner chose, the picture of the whole house shows nothing with *Raum-Schilder*: no balls, no value labels, no room names, only the floor cards beside the house (rooms, lights on, windows open; a tap opens the floor). *Im Bild: Geräte* shows the devices in the whole house as before.
