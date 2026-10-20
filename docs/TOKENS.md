@@ -4,13 +4,13 @@
 
 Stand: 2026-10-20 · 54 Sitzungen
 
-**Insgesamt: 3,44 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 3,45 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 10,2 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
 | Neu gelesen | 40,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 3,39 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Wieder gelesen | 3,40 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,14 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 41 | 1,44 Mrd. | 4,2 Mio. |
+| 2026-10 | 41 | 1,45 Mrd. | 4,2 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-10-20 | [011WS5Bj…](https://claude.ai/code/session_011WS5BjtRCU9x39YdeFjhzB) | claude/stoic-cray-rb7ve0 | 12,3 Mio. | 41 Tsd. | gezählt |
+| 2026-10-20 | [011WS5Bj…](https://claude.ai/code/session_011WS5BjtRCU9x39YdeFjhzB) | claude/stoic-cray-rb7ve0 | 27,0 Mio. | 79 Tsd. | gezählt |
 | 2026-10-19 | [019EgSUA…](https://claude.ai/code/session_019EgSUAufDd5QPqMWfzc3QR) | claude/epic-planck-l833hc | 18,7 Mio. | 65 Tsd. | gezählt |
 | 2026-10-18 | [01UoZhsk…](https://claude.ai/code/session_01UoZhskVzkQSQ3wfn9kvzoS) | claude/ecstatic-curie-689tep | 137,8 Mio. | 369 Tsd. | gezählt |
 | 2026-10-18 | [019zzCWW…](https://claude.ai/code/session_019zzCWWeL1ePBsdNchUFqrK) | claude/vigilant-archimedes-biceo2 | 18,1 Mio. | 78 Tsd. | gezählt |
