@@ -12,7 +12,7 @@ test('without ?card the page is not in a card', () => {
   assert.equal(C.cardOptions(P('card=false')), null);
 });
 test('a card without options: everything as in the add-on, room panel and bars shown', () => {
-  assert.deepEqual(C.cardOptions(P('card=1')), { floor: null, view: '3d', heat: null, roomPanel: true, nav: true, bar: true, look: {} });
+  assert.deepEqual(C.cardOptions(P('card=1')), { floor: null, view: '3d', heat: null, roomPanel: true, nav: true, bar: true, tabs: false, look: {} });
 });
 test('the view of the card: the 3D view, only the room, only its room panel; anything else is the 3D view', () => {
   assert.equal(C.cardOptions(P('card=1&room=Küche&view=room')).view, 'room');
@@ -58,4 +58,9 @@ test('no such floor: the start stays automatic', () => {
   assert.equal(C.cardFloor(floors, '', 1), null);
   assert.equal(C.cardFloor(floors, null, 1), null);
   assert.equal(C.cardFloor([], 'house'), null);
+});
+test('the tab bar (#479): only when the card asks for it', () => {
+  assert.equal(C.cardOptions(P('card=1&tabs=1')).tabs, true);
+  assert.equal(C.cardOptions(P('card=1&tabs=0')).tabs, false);
+  assert.equal(C.cardOptions(P('card=1')).tabs, false);
 });

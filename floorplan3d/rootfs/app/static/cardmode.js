@@ -39,6 +39,7 @@ export function cardOptions(params) {
     roomPanel: flag(params.get('room_panel')) !== false,
     nav: flag(params.get('show_nav')) !== false,
     bar: flag(params.get('show_bar')) !== false,
+    tabs: flag(params.get('tabs')) === true,                        // the tab bar at the bottom (#479): off in a card unless asked for
     look,
   };
 }

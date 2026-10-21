@@ -4,6 +4,17 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.3.0] - 2026-10-21
+### Added
+- **Tab bar at the bottom: the add-on as the only dashboard, step 1** (#479, the owner's wish: "nur noch dieses Programm … keine anderen Dashboards mehr"): in live mode a bar at the very bottom with **🏠 Haus** (the 3D picture as always) and **📷 Kameras**, a page with every camera of the plan as a big tile (still image, renewed while the page is open), the ones that see movement first, the motion sensors below; a tap shows the camera big and live, with *Alle Kameras*, *Im Plan zeigen* and Home Assistant's own dialog. While a page is open the 3D picture rests (no drawing, like with the screen off). The camera button at the top opens this page in live mode (the drop-down stays in the editor). No bar while editing, in the dashboard card (unless asked for) or with nothing but the house. More tabs follow step by step (today, energy for several houses, climate, music, household, routines, family: example pictures in `docs/ideen-4.3/`, plan in `docs/PLAN-4.3.md`).
+- **Tabs per user** (#479, "es soll ja aber auch noch administrativ verwaltet werden"): ⚙ → *👥 Benutzer & Tablets* → ⚙ of a user: a tick per page (*Reiter unten*) and *Fängt an mit* (the tab the screen starts with and comes back to after the minutes of *Zurück zur Startansicht*). Kept in `users.json` too. A user who may not see the cameras (lock) gets no camera page. ⚙ → *Wandtablet* → *Reiter-Leiste unten* switches the bar off for everybody.
+- **⛶ Vollbild** at the right of the bar, where the browser allows it (also inside the dashboard card).
+- **Set up a tablet** (⚙ → *Wandtablet* → *📱 Tablet einrichten*): the steps for a start page in full screen without Home Assistant's sidebar, with the card's text to copy.
+- **Dashboard card**: `tabs: true` shows the tab bar in the card; `kiosk: true` makes a wall tablet of it: Home Assistant's sidebar and the dashboard's top bar are hidden for users without admin rights (to try out; `?kiosk=off` in the address leaves it). Both in the card's editor under *In der Karte zeigen*.
+
+### Changed
+- The demo has no live stream of its cameras and now says so at once, so a camera opened big shows its still image straight away.
+
 ## [4.2.1] - 2026-10-21
 ### Changed
 - **A choice list with a few options shows them as buttons** (#474): the live card of a choice list (`input_select` / `select`, e.g. a house mode *Zu Hause / Abwesend / Urlaub / Nacht*) had only a drop-down, so *Urlaub* was no button to tap. Up to 6 options now stand side by side as buttons like a fan's presets, the chosen one highlighted; longer lists stay a drop-down. Its ball shows ☰ instead of a plain dot.

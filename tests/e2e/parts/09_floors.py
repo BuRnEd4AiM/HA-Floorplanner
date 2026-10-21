@@ -124,6 +124,11 @@ urllib.request.urlopen(HA + "/_set?e=binary_sensor.rauch&s=on"); pg13.wait_for_t
 camtxt = pg13.inner_text("#camPill")
 check("cameras button says where movement was detected", pg13.locator("#camPill.alert").count() == 1 and "Motion detected" in camtxt, camtxt)
 pg13.click("#camPill"); pg13.wait_for_timeout(600)
+check("cameras button in live mode (#479): opens the camera page of the tab bar, the camera with movement marked",
+      pg13.is_visible("#tabPages") and pg13.locator(".tpCam.alert").count() == 1 and pg13.is_hidden("#camMenu"))
+pg13.click("#tabBar [data-tab=house]"); pg13.wait_for_timeout(300)
+pg13.click('[data-mode="edit"]'); pg13.wait_for_timeout(600)          # the drop-down overview is the editor's (no tab bar there)
+pg13.click("#camPill"); pg13.wait_for_timeout(600)
 check("cameras overview: grouped by room, the room with movement marked", pg13.locator("#camGrid .camGroup.alert").count() == 1 and pg13.locator("#camGrid .camGroupHead").count() == 1)
 check("cameras overview: a card with a picture per camera", pg13.locator("#camGrid .camCard").count() == 1 and pg13.locator("#camGrid img.cam-big").count() == 1)
 check("cameras overview: button straight to the Home Assistant entity", pg13.locator("#camGrid .haBtn").count() == 1)

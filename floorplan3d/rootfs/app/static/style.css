@@ -1228,3 +1228,42 @@ kbd { display: inline-block; min-width: 1.6em; padding: 1px 6px; border-radius: 
 #paletteRecent[hidden] { display: none; }
 #paletteRecent .palHead { display: block; margin: 0 0 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 #paletteRecent .recentRow { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
+
+/* ---------- tab bar at the bottom and its pages (#479, tabs.js / tabsui.js / pagecameras.js) ---------- */
+#tabBar { flex: none; display: flex; justify-content: center; gap: 4px; padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: var(--panel); border-top: 1px solid var(--line); z-index: 8; }
+#tabBar[hidden] { display: none; }
+#tabBar button { flex: 0 1 118px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px;
+  border: 0; border-radius: 12px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#tabBar button .ti { font-size: 22px; line-height: 1; }
+#tabBar button.active { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+#tabBar .tbFull { flex: 0 0 auto; margin-left: auto; padding: 6px 12px; }
+#tabPages { position: absolute; inset: 0; z-index: 6; overflow-y: auto; padding: 16px clamp(12px, 2vw, 24px); background: var(--bg); }
+#tabPages[hidden], .tabPage[hidden] { display: none; }
+.tpHead { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 14px; }
+.tpHead h2 { margin: 0; font-size: 22px; }
+.tpSub { color: var(--muted); }
+.tpTools { display: flex; gap: 8px; margin-left: auto; }
+.tpBack { border-radius: 999px; }
+.tpChip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font-weight: 600; }
+.tpChip.alert { background: rgba(229, 72, 77, .18); border-color: rgba(229, 72, 77, .65); }
+.tpCams { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 14px; }
+.tpCam { position: relative; padding: 0; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); background: #000; color: #fff; text-align: left; }
+.tpCam.alert { box-shadow: 0 0 0 3px #e5484d; border-color: #e5484d; }
+.tpCam .tp-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.tpCam .tp-img.bad { opacity: .25; }
+.tpCam .tpName, .tpCam .tpPlace, .tpCam .tpMotion { position: absolute; padding: 3px 10px; border-radius: 999px; background: rgba(0, 0, 0, .58); font-size: 13px; line-height: 1.4; }
+.tpCam .tpName { left: 10px; top: 10px; font-weight: 700; font-size: 14px; }
+.tpCam .tpPlace { left: 10px; bottom: 10px; color: #d8e0e8; }
+.tpCam .tpMotion { right: 10px; top: 10px; background: rgba(201, 54, 59, .9); font-weight: 700; }
+.tpNoImg { display: grid; place-items: center; height: 100%; padding: 16px; color: #9aa6b4; text-align: center; }
+.tpBig .camLive { position: relative; }
+.tpBig .tp-live { display: block; width: 100%; max-height: calc(100vh - 190px); aspect-ratio: auto 16 / 9; object-fit: contain; background: #000; border-radius: 14px; }
+.tpSensors { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tpSensors h3 { flex: 0 0 100%; margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.tabletGuide { margin: 10px 0; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; }
+.tabletGuide h4 { margin: 2px 0 0; }
+.tabletGuide ol { margin: 8px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.tabletGuide pre { margin: 6px 0; padding: 8px 10px; border-radius: 8px; background: var(--field); font-size: 12px; user-select: all; white-space: pre-wrap; }
+body.hasTabs #status { bottom: 84px; }
+body.phoneview #tabPages { padding-top: 62px; }   /* phones: the ☰ and the floor buttons float over the top of the page */

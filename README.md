@@ -307,9 +307,13 @@ heatmap: temp           # start with the temperature colours (temp, humid, co2)
 | `night` | `off`, `sun`, `time` (dim at night) | as in the add-on |
 | `room_panel` | `false`: a tap on a room (and the room tablet start) only zooms in, without the room panel over the house | `true` |
 | `show_nav` / `show_bar` | `false`: no bar at the top (floors, rooms) / at the bottom (view, room colours, search) | `true` |
+| `tabs` | `true`: the tab bar of the add-on at the very bottom (🏠 house, 📷 cameras …, per user as set in the add-on; add-on 4.3.0) | `false` |
+| `kiosk` | `true`: a wall tablet, Home Assistant's sidebar and the top bar of the dashboard are hidden, never for administrators; `?kiosk=off` in the address leaves it for a moment (to try out: Home Assistant changes its inner parts now and then, otherwise use *Kiosk Mode* from HACS) | `false` |
 | `addon` | the add-on's slug, only if the card does not find it by itself (the message *not found* lists the names it tried; the slug is in the address of the add-on's page under Settings → Apps) | found by itself |
 
 If a dashboard says *Custom element doesn't exist: floorplan3d-card*, the browser has not loaded the card: open `http://<your Home Assistant>:8123/hacsfiles/HA-Floorplanner/floorplan3d-card.js`. A 404 means HACS has not downloaded it: HACS → *3D Floorplan Card* → ⋮ → *Redownload* (3.75.0 had this problem, 3.75.1 fixes it), then reload the browser with Ctrl+F5.
+
+**The add-on as the only dashboard of a wall tablet** (#479): a dashboard with one view of type *Panel* and only this card, `fill: true`, `tabs: true`, `kiosk: true`, as the default dashboard of the tablet's own user (without admin rights). The tablet then shows the house with the tab bar at the bottom and nothing of Home Assistant around it; which tabs it gets and which one it starts with is set in the add-on (⚙ → *Users & tablets*). The add-on's ⚙ → *Wall tablet* → *Set up a tablet* has the steps and the card's text to copy.
 
 **A room and its controls side by side** (#356): two cards with the same `room`, one with `view: room` (the room in 3D, it stays in the room) and one with `view: panel` (only the room panel: lights, heating, shutters, doors and windows). The card with `view: panel` draws no 3D picture, so it costs almost nothing.
 

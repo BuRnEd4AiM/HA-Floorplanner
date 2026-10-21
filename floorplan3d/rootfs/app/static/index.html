@@ -67,6 +67,7 @@
     <div id="stage">
       <canvas id="view"></canvas>
       <div id="wxFall" hidden><i></i></div>
+      <div id="tabPages" hidden><section class="tabPage" data-page="cameras" hidden></section></div>
       <div id="welcome" hidden>
         <button id="welClose" type="button" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button>
         <h2 data-i18n="wel.title"></h2>
@@ -292,6 +293,7 @@
       </section>
     </aside>
   </main>
+  <nav id="tabBar" hidden></nav>
 </div>
 
 <dialog id="importDialog">
@@ -558,6 +560,23 @@
       <summary><span class="sgIcon">📱</span><span class="sgText"><b data-i18n="sg.tablet"></b><small data-i18n="sg.tablet.sub"></small></span></summary>
       <div class="sgBody">
         <p class="hint" data-i18n="sg.tablet.help"></p>
+        <div class="row check"><input id="setTabBar" type="checkbox"><label for="setTabBar" data-i18n="set.tabBar" data-i18n-title="set.tabBarTip"></label></div>
+        <div class="tabletGuide">
+          <h4 data-i18n="tg.title"></h4>
+          <ol>
+            <li data-i18n="tg.step1"></li>
+            <li data-i18n="tg.step2"></li>
+            <li data-i18n="tg.step3"></li>
+            <li data-i18n="tg.step4"></li>
+            <li data-i18n="tg.step5"></li>
+          </ol>
+          <pre id="tgYaml">type: custom:floorplan3d-card
+fill: true
+tabs: true
+kiosk: true</pre>
+          <div class="stopTools"><button type="button" id="tgCopy" data-i18n="tg.copy"></button></div>
+          <p class="sub" data-i18n="tg.note"></p>
+        </div>
         <div class="row"><label data-i18n="sv.title"></label><span id="svState" class="sub"></span></div>
         <p class="sub" data-i18n="sv.help"></p>
         <div class="stopTools"><button type="button" id="svTake" data-i18n="sv.take"></button> <button type="button" id="svAuto" data-i18n="sv.auto"></button></div>

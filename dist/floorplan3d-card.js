@@ -37,6 +37,7 @@
   };
   const SKIP = { view: '3d', theme: 'default', quality: 'auto', walls: 'default', labels: 'default', heatmap: 'off', night: 'default', alerts: 'default' };
   const ON_BY_DEFAULT = ['room_panel', 'show_nav', 'show_bar'];
+  const OFF_BY_DEFAULT = ['tabs', 'kiosk'];        // #479: the tab bar of the add-on; Home Assistant's sidebar and top bar away (wall tablet)
 
   const TEXT = {
     en: {
@@ -53,6 +54,8 @@
       theme: 'Theme', quality: 'Quality', walls: 'Walls', labels: 'Value labels', heatmap: 'Room colours', night: 'Dim at night',
       alerts: 'Warnings', idle_return: 'Back to the start after (minutes without a touch, 0 = never)',
       room_panel: 'Room panel over the 3D view (a tapped room, a room tablet)', show_nav: 'Bar at the top (floors, rooms)', show_bar: 'Bar at the bottom (view, room colours, search)',
+      tabs: 'Tabs at the very bottom (house, cameras …, as set per user in the add-on)',
+      kiosk: 'Wall tablet: hide Home Assistant\'s sidebar and top bar (not for administrators; to try out)',
       addon: 'Add-on slug (only when it is not found by itself)',
       wholeHouse: 'Whole house', firstHouse: 'As in the add-on', anyRoom: 'None',
       'theme.default': 'As in the add-on', 'theme.auto': 'Like Home Assistant (dark / light)', 'theme.dark': 'Dark', 'theme.light': 'Light', 'theme.holo': 'Hologram',
@@ -78,6 +81,8 @@
       theme: 'Design', quality: 'Qualität', walls: 'Wände', labels: 'Wert-Anzeigen', heatmap: 'Raumfarben', night: 'Nachts abdunkeln',
       alerts: 'Warnungen', idle_return: 'Zurück zum Start nach (Minuten ohne Berührung, 0 = nie)',
       room_panel: 'Raum-Fenster über der 3D-Ansicht (Raum antippen, Raum-Tablet)', show_nav: 'Leiste oben (Etagen, Räume)', show_bar: 'Leiste unten (Ansicht, Raumfarben, Suche)',
+      tabs: 'Reiter ganz unten (Haus, Kameras …, wie im Add-on pro Benutzer eingestellt)',
+      kiosk: 'Wandtablet: Seitenleiste und Kopfzeile von Home Assistant ausblenden (nicht für Admins; zum Ausprobieren)',
       addon: 'Slug des Add-ons (nur wenn es nicht von selbst gefunden wird)',
       wholeHouse: 'Ganzes Haus', firstHouse: 'Wie im Add-on', anyRoom: 'Keiner',
       'theme.default': 'Wie im Add-on', 'theme.auto': 'Wie Home Assistant (dunkel / hell)', 'theme.dark': 'Dunkel', 'theme.light': 'Hell', 'theme.holo': 'Hologramm',
@@ -121,6 +126,35 @@
     if (!ingress.users && ingress.timer) { clearInterval(ingress.timer); ingress.timer = null; }
   }
   document.addEventListener('visibilitychange', () => { if (!document.hidden && ingress.users) refresh(); });   // back from sleep: a new session at once
+
+  /* ---- wall tablet (option kiosk, #479): Home Assistant's sidebar and the top bar of the dashboard away, so the card is all there is.
+   * The sidebar is hidden the way Home Assistant's own profile setting "Always hide the sidebar" does it (the event hass-dock-sidebar,
+   * kept by this browser); the top bar by a style in the dashboard's root (hui-root), found through the shadow roots. Home Assistant
+   * changes these inner parts now and then: what is not found stays as it is, nothing breaks. ---- */
+  const KIOSK_CSS = '.header, .toolbar { display: none !important; } :host { --header-height: 0px !important; }';
+  /** the first element with this tag name, looking into shadow roots too (at most `budget` nodes) */
+  function deepFind(root, tag, budget = 6000) {
+    const stack = [root];
+    while (stack.length && budget-- > 0) {
+      const node = stack.pop();
+      if (node.localName === tag) return node;
+      if (node.shadowRoot) stack.push(node.shadowRoot);
+      for (const c of node.children || []) stack.push(c);
+    }
+    return null;
+  }
+  /** hide the sidebar and the top bar; false while the dashboard's root is not there yet */
+  function kioskApply(from) {
+    try {
+      if (localStorage.getItem('dockedSidebar') !== '"always_hidden"') {
+        from.dispatchEvent(new CustomEvent('hass-dock-sidebar', { detail: { dock: 'always_hidden' }, bubbles: true, composed: true }));
+      }
+    } catch { /* no storage: the sidebar stays */ }
+    const root = deepFind(document.documentElement, 'hui-root')?.shadowRoot;
+    if (!root) return false;
+    if (!root.getElementById('fp3dKiosk')) { const st = document.createElement('style'); st.id = 'fp3dKiosk'; st.textContent = KIOSK_CSS; root.append(st); }
+    return true;
+  }
 
   /* ---- the add-on: looked up once per page and slug (cards asking at the same time share the answer; a failure is asked again) ---- */
   const found = new Map();
@@ -186,6 +220,12 @@
       return false;
     }
 
+    /** the card makes the screen a wall tablet (option kiosk, #479): never for an administrator (who manages the dashboard), and
+     *  ?kiosk=off in the address of the dashboard switches it off for a moment */
+    static kioskWanted(config = {}, user = null, search = '') {
+      return config.kiosk === true && !!user && !user.is_admin && !/[?&]kiosk=(off|0|false|no)(&|$)/i.test(search);
+    }
+
     /** true when the card asks for something the add-on is too old for: only one room or only its room panel (view) */
     static needsNewer(config = {}, version) {
       return (config.view === 'room' || config.view === 'panel') && Floorplan3dCard.olderThan(version, MIN_VIEW);
@@ -205,6 +245,7 @@
       if (config.heatmap && config.heatmap !== 'off') q.set('heatmap', config.heatmap);
       if (config.night !== 'default') put('night', config.night);
       for (const k of ['alerts', ...ON_BY_DEFAULT]) if (typeof config[k] === 'boolean') q.set(k, config[k] ? '1' : '0');
+      if (config.tabs === true) q.set('tabs', '1');                   // the tab bar at the bottom (#479, add-on 4.3.0)
       const idle = Number(config.idle_return);
       if (config.idle_return != null && config.idle_return !== '' && Number.isFinite(idle)) q.set('idle_return', String(Math.min(1440, Math.max(0, Math.round(idle)))));
       const base = String(ingressUrl || '/');
@@ -248,7 +289,7 @@
       if (c.alerts === 'on') c.alerts = true; else if (c.alerts === 'off') c.alerts = false;
       for (const k of ON_BY_DEFAULT) if (c[k] !== false) delete c[k];
       for (const k of ['title', 'house', 'floor', 'room', 'height', 'addon']) if (c[k] == null || String(c[k]).trim() === '') delete c[k];
-      if (c.fill !== true) delete c.fill;
+      for (const k of ['fill', ...OFF_BY_DEFAULT]) if (c[k] !== true) delete c[k];
       if (c.idle_return == null || c.idle_return === '' || !Number.isFinite(Number(c.idle_return))) delete c.idle_return;
       return c;
     }
@@ -271,7 +312,7 @@
           { type: 'grid', name: '', schema: ['theme', 'quality', 'walls', 'labels', 'heatmap', 'night', 'alerts'].map((k) => ({ name: k, selector: choose(k) })) },
           { name: 'idle_return', selector: { number: { min: 0, max: 1440, mode: 'box', unit_of_measurement: 'min' } } },
         ] },
-        { type: 'expandable', name: 'parts', flatten: true, title: T.parts, schema: ON_BY_DEFAULT.map((k) => ({ name: k, selector: { boolean: {} } })) },
+        { type: 'expandable', name: 'parts', flatten: true, title: T.parts, schema: [...ON_BY_DEFAULT, ...OFF_BY_DEFAULT].map((k) => ({ name: k, selector: { boolean: {} } })) },
         { type: 'expandable', name: 'advanced', flatten: true, title: T.advanced, schema: [{ name: 'addon', selector: text }] },
       ];
     }
@@ -306,7 +347,7 @@
     }
     disconnectedCallback() {
       if (this._held) { this._held = false; hold(false); }
-      clearTimeout(this._retry);
+      clearTimeout(this._retry); clearTimeout(this._kioskTry);
     }
 
     _dom() {
@@ -325,6 +366,11 @@
       this._root = root;
       root.querySelector('iframe').addEventListener('load', () => { if (root.querySelector('iframe').src) root.querySelector('.msg').hidden = true; });
       return root;
+    }
+    /** wall tablet: try a few times, the dashboard around the card may still be building */
+    _kiosk(tries = 0) {
+      clearTimeout(this._kioskTry);
+      if (!kioskApply(this) && tries < 10 && this.isConnected) this._kioskTry = setTimeout(() => this._kiosk(tries + 1), 1000);
     }
     _size() {
       if (!this._root || !this._config) return;
@@ -354,6 +400,7 @@
         const url = Floorplan3dCard.frameUrl(addon.ingressUrl, this._config, this._dark);
         if (frame.getAttribute('src') !== url) { this._message(T.loading); frame.setAttribute('src', url); }
         frame.hidden = false;
+        if (Floorplan3dCard.kioskWanted(this._config, hass.user, location.search)) this._kiosk();
       } catch (e) {
         if (run !== this._run) return;
         const kind = TEXT.en[e?.kind] ? e.kind : 'failed';

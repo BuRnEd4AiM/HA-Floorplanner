@@ -162,6 +162,9 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `wallskin.js` | ~45 | Wände mit Oberfläche in 3D (#448): eine dünne Haut 2 mm vor jeder Wandseite mit Oberfläche, nur auf den festen Teilen (Türen und Fenster bleiben frei), Teil der Wandgruppe (senkt sich und wird durchsichtig mit der Wand, am Dach abgeschnitten, ein Tipp trifft die Wand); ein Mesh pro Muster und Wand |
 | `finishui.js` | ~175 | Oberflächen im Eigenschaften-Fenster (#448): Boden (Muster, Farbreihe, Farbe, Fugen, Größe in cm, Drehung), Wände des Raums (unten anders bis zu einer Höhe, für alle Räume der Etage), die zwei Seiten einer Wand (Akzentwand), die Fassade in den Einstellungen (`initFacadeUi`); Namen und Größen mit Unit-Tests |
 | `toolicons.js` | ~65 | Werkzeugleiste mit Symbolen und Gruppen (#422): Symbole, Gruppen, wo eine Gruppen-Überschrift hinkommt (`groupStarts`, Unit-Tests); `toolbar.js` meldet seine Reihenfolge über `onApply` |
+| `tabs.js` | ~55 | Reiter-Leiste unten (#479), reine Logik mit Unit-Tests: welche Reiter es gibt (`TABS`, gleiche Liste wie `TABS` in `server.py`), was pro Benutzer gespeichert wird (`userTabs`: ausgeblendete Seiten, Start-Reiter), welche Reiter ein Bildschirm zeigt (Haus immer, eine Seite nur mit Inhalt, nicht ausgeblendet, nicht gesperrt), wann die Leiste da ist (Live, nicht in der Karte, Einstellung `tabBar`), Start-Reiter |
+| `tabsui.js` | ~85 | Die Leiste unten (unter `main`, das 3D-Bild wird dafür kleiner), die Seiten über dem Bild, ⛶ Vollbild wo erlaubt, der Kopier-Knopf der Tablet-Anleitung; `covered()` hält das Zeichnen an, solange eine Seite offen ist |
+| `pagecameras.js` | ~85 | Seite 📷 Kameras der Leiste: Kacheln mit Standbild (`cameras.js` `camImage`), groß mit Live-Bild (`camLive`), Bewegungsmelder; das Modell `cameraPage` steht rein in `cameras.js` (Unit-Test) |
 
 ## Noch in `app.js`
 
