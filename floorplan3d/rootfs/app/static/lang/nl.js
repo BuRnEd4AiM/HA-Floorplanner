@@ -1067,7 +1067,7 @@ export default {
   'ms.length': 'Afstand',
   'ms.walls': 'Twee muren',
   'ms.wallsHint': 'De blauw gestreepte muur blijft staan, de oranje beweegt. Muren die eraan vastzitten rekken mee, de ruimtes ook.',
-  'ms.clear': 'Vrije afstand (vlak tot vlak)',
+  'ms.clear': 'Binnenmaat (muur tot muur)',
   'ms.center': 'Afstand tussen de hartlijnen van de muren',
   'ms.angle': 'Hoek tussen de muren',
   'ms.notParallel': 'De muren zijn niet evenwijdig. Alleen evenwijdige muren hebben een afstand: zet de hoek eerst op 0° (of 180°).',

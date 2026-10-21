@@ -1074,7 +1074,7 @@ export default {
   'ms.length': 'Distanza',
   'ms.walls': 'Due pareti',
   'ms.wallsHint': 'La parete tratteggiata in blu resta ferma, quella arancione si sposta. Le pareti collegate la seguono, e anche le stanze.',
-  'ms.clear': 'Distanza libera (da faccia a faccia)',
+  'ms.clear': 'Distanza interna (da parete a parete)',
   'ms.center': 'Distanza tra gli assi delle pareti',
   'ms.angle': 'Angolo tra le pareti',
   'ms.notParallel': 'Le pareti non sono parallele. Solo le pareti parallele hanno una distanza: imposta prima l\'angolo a 0° (o 180°).',

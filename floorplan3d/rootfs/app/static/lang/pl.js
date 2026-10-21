@@ -1073,7 +1073,7 @@ export default {
   'ms.length': 'Odległość',
   'ms.walls': 'Dwie ściany',
   'ms.wallsHint': 'Ściana z niebieską przerywaną linią zostaje, pomarańczowa się przesuwa. Połączone z nią ściany rozciągają się, pomieszczenia też.',
-  'ms.clear': 'Odległość w świetle (lico do lica)',
+  'ms.clear': 'Wymiar wewnętrzny (od ściany do ściany)',
   'ms.center': 'Odległość między osiami ścian',
   'ms.angle': 'Kąt między ścianami',
   'ms.notParallel': 'Ściany nie są równoległe. Odległość mają tylko ściany równoległe: najpierw ustaw kąt na 0° (lub 180°).',
