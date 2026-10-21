@@ -7,7 +7,8 @@ import { energyBalance, energySources, energyChecks, balanceRows, suggestRooms, 
 /**
  * ctx: $, t, layout(), states(), entities(), entityPicker(list, room, current, onChange), pickerField(label, picker), snapshot(),
  * changed() (saves; nothing in 3D changes), refresh() (the power overview), areaOf(), pointInPoly(x, z, points), setup (the top of the
- * window: the energy dashboard and the check list, energysetup.js, #407)
+ * window: the energy dashboard and the check list, energysetup.js, #407), meterPart(helpers) (the meters of the page ⚡ Energie,
+ * energymetersui.js, #481)
  */
 export function initEnergyUi(ctx) {
   const { $, t } = ctx;
@@ -196,6 +197,7 @@ export function initEnergyUi(ctx) {
         });
       });
     }
+    if (ctx.meterPart) out.push(...ctx.meterPart({ t, el, edit, energy, adder, entities: ctx.entities, states: ctx.states }));   // the meters of the page ⚡ Energie (#481)
     body.replaceChildren(...out);
     renderResult();
     ctx.setup?.render();

@@ -12,6 +12,7 @@ ALIAS = {}         # entity id the tests know -> its id after a rename (/_rename
 COVER_POS = {}     # covers with a position (current_position), from set_cover_position on; /_set takes it away again
 ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_prefs, #407) and more registry entries (entity -> device): POST /_energy
 NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["ha_entity", "notify.a,notify.b", message] through notify.send_message (#460), ["callmebot", phone, text, apikey] through /_callmebot
+STATS_ASKED = []   # the statistics the add-on asked for (#479): [ids, period]
 EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes[, platform]}}, {} takes them away; with "platform" also in the entity registry (#460)
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
@@ -40,6 +41,12 @@ async def service(r):
     body = await r.json(); dom, svc = r.match_info["d"], r.match_info["s"]
     CALLS.append([dom, svc, body.get("entity_id")])
     e = body.get("entity_id")
+    if dom == "weather" and svc == "get_forecasts":    # #479: the forecast of the page "Heute" (with ?return_response)
+        import datetime as dt
+        day0 = dt.datetime.now(dt.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        rows = [{"datetime": (day0 + dt.timedelta(days=i)).isoformat(), "condition": ["sunny", "rainy", "cloudy", "partlycloudy", "snowy"][i % 5],
+                 "temperature": 14 - i, "templow": 5 - i, "precipitation": i * 1.5, "precipitation_probability": i * 20} for i in range(5)]
+        return web.json_response({"changed_states": [], "service_response": {e: {"forecast": rows}}})
     if dom == "notify":           # #414: a message of the add-on; #460: notify.send_message to notify entities
         NOTIFIED.append(["ha_entity", ",".join(e), body.get("message")] if svc == "send_message" and isinstance(e, list) else ["ha", svc, body.get("message")])
         return web.json_response([])
@@ -119,11 +126,44 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
             ok = ENERGY["prefs"] is not None
             await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": ENERGY["prefs"] if ok else None,
                                 **({} if ok else {"error": {"code": "not_found", "message": "No prefs"}})})
+        elif m.get("type") == "recorder/statistics_during_period":   # #479: the history of the page "Energie": a little per period
+            STATS_ASKED.append([m.get("statistic_ids"), m.get("period")])
+            await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": stat_rows(m)})
+        elif m.get("type") == "recorder/get_statistics_metadata":
+            await ws.send_json({"id": m["id"], "type": "result", "success": True,
+                                "result": [{"statistic_id": i, "unit_class": "volume" if "wasser" in i or "gas" in i else "energy",
+                                            "statistics_unit_of_measurement": "m³" if "wasser" in i or "gas" in i else "kWh"} for i in m.get("statistic_ids") or []]})
         elif "id" in m:
             await ws.send_json({"id": m["id"], "type": "result", "success": False, "error": {"code": "unknown_command"}})
     SUBS[:] = [x for x in SUBS if x[0] is not ws]
     REG_SUBS[:] = [x for x in REG_SUBS if x[0] is not ws]
     return ws
+def stat_rows(m):
+    """the change of every statistic in every hour / day / week / month between start and end: a fixed amount per meter (#479)"""
+    import datetime as dt
+    a, b = dt.datetime.fromisoformat(m["start_time"]), dt.datetime.fromisoformat(m["end_time"])
+    step = {"hour": dt.timedelta(hours=1), "day": dt.timedelta(days=1), "week": dt.timedelta(days=7), "month": dt.timedelta(days=30)}[m["period"]]
+    per = {"hour": 1, "day": 24, "week": 168, "month": 720}[m["period"]]
+    base = lambda i: 0.4 if "bezug" in i else 0.3 if "einspeis" in i else 0.6 if "pv" in i else 0.05 if "wasser" in i else 0.25
+    out = {}
+    for i in m.get("statistic_ids") or []:
+        rows, t = [], a
+        while t < b:
+            rows.append({"start": t.timestamp() * 1000, "end": (t + step).timestamp() * 1000, "change": round(base(i) * per, 3)})
+            t += step
+        out[i] = rows
+    return out
+async def calendars(r):           # #479: Home Assistant's calendars and their events (page "Heute")
+    return web.json_response([{"entity_id": "calendar.familie", "name": "Familie"}, {"entity_id": "calendar.muell", "name": "Müllabfuhr"}])
+async def calendar_events(r):
+    import datetime as dt
+    start = dt.datetime.fromisoformat(r.query["start"].replace("Z", "+00:00")).astimezone()
+    day = start.date() + dt.timedelta(days=1) if start.hour >= 12 else start.date()        # the first day asked for (local)
+    if r.match_info["id"] == "calendar.muell":
+        return web.json_response([{"start": {"date": (day + dt.timedelta(days=1)).isoformat()}, "end": {"date": (day + dt.timedelta(days=2)).isoformat()}, "summary": "Gelber Sack"}])
+    at = dt.datetime.combine(day, dt.time(15, 0)).astimezone()
+    return web.json_response([{"start": {"dateTime": at.isoformat()}, "end": {"dateTime": (at + dt.timedelta(hours=1)).isoformat()}, "summary": "Zahnarzt"}])
+async def stats_asked(r): return web.json_response(STATS_ASKED)
 PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000" "1f15c4890000000d49444154789c6360f8ffff3f0005fe02fea75a3c260000000049454e44ae426082")
 async def in_two(r, body, ctype):
     """an answer in two pieces with a pause between them, as pictures and video pieces come through the Supervisor (#385)"""
@@ -183,5 +223,6 @@ app = web.Application()
 app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified),
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
-                web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen)])
+                web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
+                web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_stats", stats_asked)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

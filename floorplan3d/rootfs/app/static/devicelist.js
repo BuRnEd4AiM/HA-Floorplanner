@@ -195,5 +195,5 @@ export function initDeviceList(ctx) {
   let low = 0;
   pill.addEventListener('click', (e) => { e.stopPropagation(); if (!isOpen()) filter = openFilter(filter, low); set(!isOpen()); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen() && !document.querySelector('dialog[open]')) set(false); });
-  return { update, open: () => set(true), close: () => set(false), isOpen, setFilter: (k) => { filter = FILTERS.includes(k) ? k : 'all'; sig = ''; if (isOpen()) render(); } };
+  return { update, open: () => set(true), close: () => set(false), isOpen, low: () => low, setFilter: (k) => { filter = FILTERS.includes(k) ? k : 'all'; sig = ''; if (isOpen()) render(); } };
 }

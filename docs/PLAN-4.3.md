@@ -2,7 +2,8 @@
 
 Dieser Plan ist die **Übergabe**: Falls die Arbeit abbricht, kann eine andere Sitzung hier weitermachen. Erst diesen Plan lesen, dann `docs/UEBERGABE.md` und `.claude/CLAUDE.md`.
 
-- **Stand (2026-10-21):** Ideen gesammelt, Beispielbilder gemacht (`docs/ideen-4.3/`). Der Besitzer hat „Schritt 1 bauen“ gewählt: **Schritt 1 ist gebaut (4.3.0, #479)**, siehe `docs/UEBERGABE.md`. Dazu seine zwei Hinweise: „es soll ja aber auch noch administrativ verwaltet werden“ (Reiter pro Benutzer nur durch Admins, die Leiste nur in „Live“) und „baue es direkt auch für den hacs store“ (die Karte bekam `tabs` und `kiosk`).
+- **Stand (2026-10-21 abends):** 4.3.0 (#480) und 4.4.0 (#482, ☀ Heute und ⚡ Energie) sind gemergt. **Als Nächstes: Paket 2** (siehe „Paket 2 und 3: so weitermachen“ unten).
+- **Davor:** Ideen gesammelt, Beispielbilder gemacht (`docs/ideen-4.3/`). Der Besitzer hat „Schritt 1 bauen“ gewählt: **Schritt 1 ist gebaut (4.3.0, #479)**, siehe `docs/UEBERGABE.md`. Dazu seine zwei Hinweise: „es soll ja aber auch noch administrativ verwaltet werden“ (Reiter pro Benutzer nur durch Admins, die Leiste nur in „Live“) und „baue es direkt auch für den hacs store“ (die Karte bekam `tabs` und `kiosk`).
 - **Branch der Ideen-Runde:** `claude/nice-shannon-mee5c5`
 - **Beispielbilder neu machen:** `python3 docs/ideen-4.3/make_pictures.py /tmp/bilder [namen]` (Demo vorher bauen, Playwright 1.56, siehe `docs/UEBERGABE.md`), danach als JPG (Qualität 80) nach `docs/ideen-4.3/`. Die Seiten malt `docs/ideen-4.3/mockup.js` nur für das Foto (Werte teils aus der Demo, teils ausgedacht).
 
@@ -34,9 +35,9 @@ Dieser Plan ist die **Übergabe**: Falls die Arbeit abbricht, kann eine andere S
 ## Vorgeschlagene Reihenfolge (je ein Pull Request, einzeln testbar)
 
 1. ✅ **4.3.0 Reiter-Leiste und Rechte** (gebaut, #479): die Leiste unten (Handy: 4 + „Mehr“), pro Benutzer Haken je Reiter und Start-Reiter (neben `userLocks` in `users.json`), Server prüft die Rechte wie bei `user_locks`. Was es schon gibt, wird eine Seite: 📷 Kameras (heute `#camMenu`), 🛡 Alarm und Verlauf in Kameras, 📋 Geräte (Batterien, offline) in Heute. Dazu die **Anleitung „Tablet einrichten“** (siehe unten).
-2. **4.4.0 Energie:** Verlauf aus der Statistik von Home Assistant, pro Haus (`layout.energy` jedes Hauses) und zusammen.
-3. **4.5.0 Heute** (Startseite fürs Tablet).
-4. Danach nach Wunsch: Klima, Musik & TV, Haushalt, Abläufe, Familie/Pinnwand.
+2. ✅ **4.4.0 Energie** (gebaut mit Heute, #481; der Besitzer wollte alle übrigen Reiter, in drei Paketen: 1. Heute + Energie, 2. Klima + Abläufe + Familie, 3. Musik & TV + Haushalt): Verlauf aus der Statistik von Home Assistant, pro Haus (`layout.energy` jedes Hauses) und zusammen.
+3. ✅ **Heute** (Startseite fürs Tablet): in 4.4.0 mit Energie gebaut.
+4. **4.5.0: Paket 2** (Klima, Abläufe, Familie mit Pinnwand), **4.6.0: Paket 3** (Musik & TV, Haushalt). Der Besitzer hat am 2026-10-21 „ja“ gesagt: Paket 2 bauen und selbst mergen, wenn alles grün ist. Rezept und Notizen: unten „Paket 2 und 3: so weitermachen“.
 
 ## Technische Notizen
 
@@ -48,6 +49,31 @@ Dieser Plan ist die **Übergabe**: Falls die Arbeit abbricht, kann eine andere S
 - **Haushalt:** Waschmaschine & Co. je nach Integration; ohne eigene Integration „fertig“ über einen Leistungs-Sensor (unter x W seit n Minuten). Einkaufsliste über `todo.*` (Websocket `todo/item/list`, Dienst `todo.add_item`).
 - **Pinnwand:** im Add-on gespeichert (Datenordner), für alle gleich, optional als Nachricht ans Handy (`alarmnotify.py`-Kanal).
 - **Abläufe:** Szenen/Skripte gibt es schon (Favoriten, `favorites.js`); „Ich gehe“/„Gute Nacht“ prüfen vorher offene Fenster/Türen, Lichter, Medien (Regeln rein, mit Test).
+
+## Paket 2 und 3: so weitermachen (für den nächsten Chat)
+
+Der Besitzer hat die Reiter schon gewählt und die Bilder gesehen; nicht noch einmal fragen, was gebaut wird. Kleine Fragen (z. B. wer die Pinnwand leeren darf) mit einer vernünftigen Antwort selbst entscheiden und im Pull Request nennen. Paket 2 = 4.5.0 (🌡 Klima, ▶ Abläufe, 👨‍👩‍👧 Familie, Issue #483, im Pull Request „Fixes #483“), Paket 3 = 4.6.0 (🎵 Musik & TV, 🧺 Haushalt), je ein Issue und ein Pull Request („Fixes #n“), Testprotokoll-Abschnitt 80 bzw. 81.
+
+### Rezept: ein neuer Reiter (so entstanden ☀ Heute und ⚡ Energie in 4.4.0)
+
+1. **Leiste:** Schlüssel in `TABS` in `static/tabs.js` (Reihenfolge = Reihenfolge in der Leiste) und gleich in `TABS` in `server.py` (`tests/test_server.py` vergleicht beide). Darf eine Sperre den Reiter verbieten, Eintrag in `TAB_LOCK` (Sperren: `LOCKS` in `userlocks.js` und `server.py`; z. B. Klima und Abläufe mit `control`, wer nicht steuern darf, sieht sie nicht). `tests/tabs.test.mjs` und `tests/e2e/parts/31_tabs.py` (erwartet die Liste der Reiter) nachziehen.
+2. **Regeln** ohne DOM und three.js in ein eigenes Modul (Vorbild `today.js`, `energyhistory.js`) mit `tests/<name>.test.mjs`; den Namen in `.github/workflows/ci.yml` in die lange `for t in …`-Zeile.
+3. **Seite** `static/page<name>.js`: `init<Name>Page(ctx)` gibt `{ render, update, has, reset }` zurück. `tabsui.js` ruft `render()` beim Öffnen, `update()` bei jeder Änderung der Zustände (nur solange die Seite offen ist), `reset()` beim Verlassen, `has()` bei jedem Aufbau der Leiste (falsch = kein Reiter, z. B. kein Gerät dieser Art). Vorbild `pagetoday.js` (Karten `.tpCard`), `pageenergy.js` (eigene Abfragen mit Wiederholen nach Fehlern).
+4. **HTML/CSS:** `<section class="tabPage" data-page="<key>" hidden></section>` in `#tabPages` in `index.html`; Klassen mit eigenem Kürzel in `style.css` (Heute `.td*`, Energie `.pe*`, gemeinsam `.tp*`).
+5. **app.js** bekommt nur den Import, `init…({ … })` (Werte als Funktionen: `states: () => states`, `layout: () => layout`) und den Eintrag in `pages` von `initTabsUi` (bei `const tabsUi`). Steuern geht über `live.callService(entity, service)` wie in den anderen Modulen.
+6. **Daten von Home Assistant**, die die Seite nicht schon hat (die Zustände hat sie über `states`): reine Funktionen in `floorplan3d/rootfs/app/pages.py` (Test `tests/test_pages.py`), Endpunkt in `server.py` (Muster `get_forecast`, Cache `pages_cached`/`pages_keep`, Websocket über `_HaSocket`), Antwort im Test-Home-Assistant `tests/e2e/mock_ha.py` **und** in der Demo `demo/demo-data.js` (sonst „nicht verfügbar“ in der Demo).
+7. **Einstellungen** der Seite (z. B. welche Szenen): Feld in `appstate.js` (Normalwert) und `server.py` (Normalwert und Prüfung, wie `agendaCalendars`), Felder in ⚙ → Gruppe „🗂 Reiter unten“ (`data-group="tabs"` in `index.html`) über einen Teil wie `todayprefs.js` (`fill` / `read`, in `app.js` in `parts`).
+8. **Texte:** `tab.<key>` und die der Seite in eine JSON-Datei, `python3 tools/add_i18n.py datei.json` (7 Sprachen), `python3 -m pytest -q tests/test_i18n.py`.
+9. **Browser-Test:** neuer Teil `tests/e2e/parts/33_<name>.py` (Vorbild `32_today_energy.py`: legt seine Zustände über `/_extra` an und räumt am Ende auf), lokal `tests/e2e/run.sh 31_tabs 33_<name>`.
+10. **Zum Schluss:** Version in `floorplan3d/config.yaml`, `CHANGELOG.md` und `floorplan3d/CHANGELOG.md`, `floorplan3d/DOCS.md`, `docs/MODULE-PLAN.md`, `docs/ROADMAP.md`, Zeile in der Tabelle in `docs/UEBERGABE.md`, Testprotokoll-Abschnitt (danach `python3 tools/testprotokoll.py`), `python3 tools/make_manifest.py`, `graphify update .`; die Demo bauen (`cd demo && node build.mjs`) und die neue Seite einmal ansehen, `demo/floorplan3d-demo.html` **nicht** committen.
+
+### Notizen je Seite (Bilder in `docs/ideen-4.3/`)
+
+- **🌡 Klima** (`4-klima.jpg`): je Raum eine Karte: Ist-Temperatur und Feuchte (`roomReading(ids, states, mode)` und `roomEntityIds(room, placed, areaEntities)` in `roomtiles.js`, so rechnen auch die Raum-Kacheln), Soll mit − / + (`clampTarget`, `HEAT_DELAY` in `heatpanel.js`: mehrere Tipps werden ein Aufruf), heizt / kühlt / aus (`heatMode` in `heating.js`), CO₂ mit „Lüften“, wenn es über der zweiten Stufe von `settings.co2Stops` liegt, ein offenes Fenster im Raum („Heizung aus?“, `openings.items()`). Darunter die Klimageräte ohne Raum und eine Wärmepumpe (`water_heater.*` / `climate.*` ohne Raum). `has()`: mindestens ein `climate.*` oder ein Raum mit Temperatur. Die Demo hat Heizungen und die Klimaanlage im Büro (`climate.klima_buero`).
+- **▶ Abläufe** (`9-ablaeufe.jpg`, `9b-ich-gehe.jpg`): große Knöpfe für Szenen, Skripte und Knöpfe (`FAV_SERVICE` in `favorites.js` kennt die Dienste); welche, wählt ein Admin in ⚙ → „🗂 Reiter unten“ (leer = alle `scene.*` und `script.*`). „Ich gehe“ und „Gute Nacht“ zeigen vorher, was noch offen oder an ist (offene Fenster/Türen `openings.items()`, Lichter `lightGroups.count()`, laufende `media_player.*`) mit „Trotzdem“ und „Alles aus“; die Prüfung als reine Regel mit Test. Automationen nur ansehen und ein-/ausschalten (`automation.turn_on/off`), nicht bearbeiten.
+- **👨‍👩‍👧 Familie** (`10-familie.jpg`): jede `person.*` mit Bild (`entity_picture`), wo (Zustand / Zone, `people` in `today.js`), seit wann (`last_changed`), Handy-Akku (der `sensor.*_battery_level` desselben Geräts wie der `device_tracker` der Person, über das Entity-Register; ohne Treffer weglassen). **Pinnwand:** im Add-on gespeichert (eine Datei im Datenordner wie `users.json`, für alle gleich), Endpunkte `api/pinboard` (lesen, anheften, löschen), Text gekürzt (z. B. 300 Zeichen, höchstens 30 Zettel), mit Name (`api/me`) und Zeit; die Pinnwand auch als Karte auf ☀ Heute (im Bild `2-heute.jpg`). Optional als Nachricht ans Handy über die Kanäle von „Benachrichtigung bei Alarm“ (`alarmnotify.py`).
+- **🎵 Musik & TV** (Paket 3, `7-musik.jpg`): `media_player.*` mit Titel, Bild (`entity_picture` liegt bei Home Assistant; dafür braucht es einen Endpunkt wie das Kamerabild über `camera_proxy` in `server.py`), Lautstärke, Weiter/Pause, Räume zusammen (`media_player.join`, nur wenn `group_members` da ist), Sender als Knöpfe (`media_player.play_media`, Liste in ⚙). Bei 63.1 bis 63.3 (Ton) testet der Besitzer erst ganz zum Schluss.
+- **🧺 Haushalt** (Paket 3, `8-haushalt.jpg`): Waschmaschine, Trockner, Spülmaschine (eigener Zustand der Integration, sonst „fertig“ über einen Leistungs-Sensor: unter x W seit n Minuten, Regel mit Test), Saugroboter (`vacuum.*`, die Demo hat `dc_vac`), Einkaufsliste über `todo.*` (Websocket `todo/item/list`, Dienste `todo.add_item` / `todo.update_item`), Müll (schon in ☀ Heute: `wasteCalendar`).
 
 ## Tablet: Startseite, Vollbild, ohne Seitenleiste
 

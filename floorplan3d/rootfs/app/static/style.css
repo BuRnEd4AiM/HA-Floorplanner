@@ -1233,6 +1233,9 @@ kbd { display: inline-block; min-width: 1.6em; padding: 1px 6px; border-radius: 
 #tabBar { flex: none; display: flex; justify-content: center; gap: 4px; padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
   background: var(--panel); border-top: 1px solid var(--line); z-index: 8; }
 #tabBar[hidden] { display: none; }
+#tabBar { overflow-x: auto; scrollbar-width: none; justify-content: safe center; }   /* more tabs than fit (a phone): the bar scrolls sideways */
+#tabBar::-webkit-scrollbar { display: none; }
+#tabBar button { flex-shrink: 0; min-width: 68px; }
 #tabBar button { flex: 0 1 118px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 4px;
   border: 0; border-radius: 12px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #tabBar button .ti { font-size: 22px; line-height: 1; }
@@ -1267,3 +1270,68 @@ kbd { display: inline-block; min-width: 1.6em; padding: 1px 6px; border-radius: 
 .tabletGuide pre { margin: 6px 0; padding: 8px 10px; border-radius: 8px; background: var(--field); font-size: 12px; user-select: all; white-space: pre-wrap; }
 body.hasTabs #status { bottom: 84px; }
 body.phoneview #tabPages { padding-top: 62px; }   /* phones: the ☰ and the floor buttons float over the top of the page */
+
+/* the cards of the pages (#479): ☀ Heute and ⚡ Energie */
+.tpCard { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; min-width: 0; }
+.tpChip.on { background: color-mix(in srgb, var(--accent) 22%, transparent); border-color: var(--accent); }
+.tpChip.green { background: rgba(70, 167, 88, .18); border-color: rgba(70, 167, 88, .6); }
+button.tpChip { cursor: pointer; font-size: 14px; }
+button.tpChip:disabled { opacity: .35; }
+.peH { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.peChips { display: flex; flex-wrap: wrap; gap: 6px; }
+.peKinds { margin-left: auto; }
+.peNav { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; flex-wrap: wrap; }
+.pePeriod { font-size: 17px; min-width: 9em; text-align: center; }
+.peTiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 12px; margin-bottom: 12px; }
+.peTileName { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
+.peTileVal { font-size: 28px; font-weight: 800; line-height: 1.2; }
+.peTileVal small { font-size: 14px; font-weight: 600; }
+.peTileSub { color: var(--muted); font-size: 12px; }
+.peSwatch { display: inline-block; width: 11px; height: 11px; border-radius: 3px; flex: none; }
+.peMain { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 12px; margin-bottom: 12px; }
+@media (max-width: 900px) { .peMain { grid-template-columns: minmax(0, 1fr); } }
+.peChart { display: block; width: 100%; height: auto; }
+.peChart .peGrid { stroke: var(--line); stroke-width: 1; }
+.peChart .peAxis { fill: var(--muted); font-size: 11px; }
+.peChart .peEmpty { fill: var(--line); }
+.peChart .peNow { stroke: var(--text); stroke-opacity: .45; stroke-dasharray: 3 3; }
+.peChart .peNowText { fill: var(--text); font-size: 11px; }
+.peLegend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 6px; font-size: 13px; }
+.peLegend span { display: inline-flex; align-items: center; gap: 6px; }
+.peTopRow { display: grid; grid-template-columns: minmax(0, 1fr) 90px auto; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
+.peTopRow:first-of-type { border-top: 0; }
+.peTopName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.peTopBar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.peTopBar i { display: block; height: 100%; background: var(--muted); border-radius: 4px; }
+.peEmptyCard { color: var(--muted); }
+.tdGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 1000px) { .tdGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .tdGrid { grid-template-columns: minmax(0, 1fr); } }
+.tdCol { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.tdTime { font-size: clamp(48px, 7vw, 84px); font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.tdDate { font-size: 19px; font-weight: 600; margin-top: 6px; }
+.tdWxNow { display: flex; align-items: center; gap: 14px; }
+.tdWxIcon { font-size: 52px; line-height: 1; }
+.tdWxTemp { font-size: 34px; font-weight: 800; }
+.tdDays { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 12px; text-align: center; }
+.tdDay { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px; border: 1px solid var(--line); border-radius: 12px; font-size: 13px; }
+.tdDay small { color: var(--muted); }
+.tdDayIcon { font-size: 22px; }
+.tdRain { font-size: 11px; }
+.tdDayHead { margin: 8px 0 2px; font-weight: 700; color: var(--muted); font-size: 13px; }
+.tdRow { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 0; border: 0; border-top: 1px solid var(--line); background: none; color: var(--text); text-align: left; font: inherit; }
+.tdRow:first-of-type, .peH + .tdRow, .tdDayHead + .tdRow { border-top: 0; }
+.tdWhen { flex: none; min-width: 3.4em; }
+.tdWhat { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tdWhat small { display: block; color: var(--muted); }
+.tdNext .tdWhat { font-weight: 700; font-size: 17px; }
+.tdAva { width: 34px; height: 34px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-text); font-weight: 800; }
+.tdAct { cursor: pointer; border-radius: 0; }
+.tdAct.alert .tdWhat { color: #e5484d; font-weight: 700; }
+.tdIcon { font-size: 20px; width: 1.4em; text-align: center; }
+.tdGo { color: var(--muted); font-size: 20px; }
+.tdAllOk { margin: 0; color: #46a758; font-weight: 700; }
+.tdPowerRow { display: flex; flex-wrap: wrap; gap: 8px 18px; width: 100%; border: 0; background: none; color: var(--text); padding: 0; font-family: inherit; font-size: 20px; font-weight: 700; line-height: 1.4; text-align: left; cursor: pointer; }
+.emPrices { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 10px; }
+.emPrices label { display: flex; flex-direction: column; gap: 4px; }
+.emKind { margin-top: 8px; }
