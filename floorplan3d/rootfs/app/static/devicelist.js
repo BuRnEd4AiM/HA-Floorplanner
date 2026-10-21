@@ -1,8 +1,10 @@
 /* Device overview (#376): a list that the button "📋 Geräte" at the top shows and hides: every placed device linked to Home Assistant and
  * every door / window with a sensor or a roller shutter, by floor and room, with its state, its battery (the battery entity of its device
  * in Home Assistant, server: battery_of in renames.py, or the battery level it reports itself) and whether it is offline. A tap on one
- * shows it in the plan. Filters: all, with a battery (the emptiest first), offline. The rows are pure (unit test: tests/devicelist.test.mjs);
- * initDeviceList draws the panel and redraws it only when something it shows changed. */
+ * shows it in the plan. Filters: all, on / open ("what is still on?", #471: lights and other things that run, open doors and windows),
+ * with a battery (the emptiest first), offline. Low batteries turn the button orange and a tap on it opens the list at "Battery" (#471).
+ * The rows are pure (unit test: tests/devicelist.test.mjs); initDeviceList draws the panel and redraws it only when something it shows
+ * changed. */
 import { badgeText } from './badgetext.js';
 import { ringEntities } from './ledring.js';
 import { openingWalls } from './dormerwin.js';
@@ -12,7 +14,13 @@ import { ballIcon, SWITCH_ICON } from './tapballs.js';
 
 /** a battery at or under this level (%) is low */
 export const LOW_BATTERY = 20;
-export const FILTERS = ['all', 'battery', 'offline'];
+export const FILTERS = ['all', 'on', 'battery', 'offline'];
+
+/** the states of things that run: what "on / open" lists (a lamp, a switch, a fan, a player that plays, a robot vacuum that cleans).
+ *  Not a thermostat (it "heats" all winter), a person at home, a sensor or a lock */
+const RUNS = { light: ['on'], switch: ['on'], fan: ['on'], input_boolean: ['on'], humidifier: ['on'], siren: ['on'], media_player: ['on', 'playing'], vacuum: ['cleaning'] };
+/** does entity e run now (states: entity -> { state })? */
+export const isRunning = (e, states) => !!e && !!RUNS[e.split('.')[0]]?.includes(states[e]?.state);
 
 const level = (n) => (Number.isFinite(n) ? { level: Math.max(0, Math.min(100, Math.round(n))), low: n <= LOW_BATTERY } : null);
 const unknown = (s) => !s || s.state === 'unavailable' || s.state === 'unknown';
@@ -49,7 +57,7 @@ function openingShown(f, w, o) {
 /**
  * The overview: [{ floor, name, rooms: [{ name, items }] }], floors in their order, rooms by name (things in no room last), items by name.
  * item: { kind: 'device' | 'opening', id, floor, name, entity, type, icon (as on its tap ball), value, battery (batteryInfo), off (why it is
- * offline, offline.js) }.
+ * offline, offline.js), on (it runs: isRunning of any of its entities; a door / window: open) }.
  * env: { layout (the building shown, viewOf in buildings.js), states, t, pointInPoly, distToPoly, onStates, batteryOf, offline (Map id ->
  * reason), nameOf(entity) }
  */
@@ -68,18 +76,19 @@ export function deviceRows(env) {
       const s = states[e];
       const icon = ballIcon(d, (x) => states[x]?.dc);
       add(roomAt(f, d.x, d.z, env, false), { kind: 'device', id: d.id, floor: fi, name: d.name || nameOf(e) || t(`dev.${d.type}`), entity: e, type: d.type,
-        icon: icon === SWITCH_ICON ? '⏻' : icon, value: badgeText(s, e, t, d.type), battery: batteryInfo(e, states, batteryOf), off: off.get(d.id) || null });
+        icon: icon === SWITCH_ICON ? '⏻' : icon, value: badgeText(s, e, t, d.type), battery: batteryInfo(e, states, batteryOf), off: off.get(d.id) || null,
+        on: [d.entity, d.ledEntity, ...ringEntities(d), ...(d.leds || [])].some((x) => isRunning(x, states)) });
     });
     openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
       const ents = openingEntities(o), sh = shutterEntity(o);
       if ((!ents.length && !sh) || !openingShown(f, w, o)) return;
-      const [x, z] = openingPoint(w, o), vals = [];
-      if (ents.length) vals.push(ents.some((e) => isOpenState(states[e], env.onStates)) ? t('state.open') : ents.some((e) => states[e]) ? t('state.closed') : '—');
+      const [x, z] = openingPoint(w, o), vals = [], open = ents.some((e) => isOpenState(states[e], env.onStates));
+      if (ents.length) vals.push(open ? t('state.open') : ents.some((e) => states[e]) ? t('state.closed') : '—');
       if (sh) vals.push(shutterLabel(states[sh], t));
       const bat = [...ents, sh].filter(Boolean).map((e) => batteryInfo(e, states, batteryOf)).filter(Boolean)
         .sort((p, q) => Number(q.low) - Number(p.low) || (p.level ?? 101) - (q.level ?? 101))[0] || null;   // the emptiest of its sensors
       add(roomAt(f, x, z, env, true), { kind: 'opening', id: o.id, floor: fi, name: o.name || t(`prop.${o.type}`), entity: ents[0] || sh, type: o.type,
-        icon: o.type === 'door' ? (o.style === 'garage' ? '🚗' : '🚪') : '🪟', value: vals.join(' · '), battery: bat, off: off.get(o.id) || null });
+        icon: o.type === 'door' ? (o.style === 'garage' ? '🚗' : '🚪') : '🪟', value: vals.join(' · '), battery: bat, off: off.get(o.id) || null, on: open });
     }));
     const list = [...rooms.values()].sort((p, q) => Number(p.none) - Number(q.none) || p.name.localeCompare(q.name));
     list.forEach((r) => r.items.sort((p, q) => p.name.localeCompare(q.name)));
@@ -87,10 +96,10 @@ export function deviceRows(env) {
   }).filter((f) => f.rooms.length);
 }
 
-/** the overview with only the things of filter ('all' | 'battery' | 'offline'); with a battery the emptiest come first in each room.
- *  Rooms and floors that are left empty go */
+/** the overview with only the things of filter ('all' | 'on' | 'battery' | 'offline'); with a battery the emptiest come first in each
+ *  room. Rooms and floors that are left empty go */
 export function filterRows(floors, filter = 'all') {
-  const keep = filter === 'battery' ? (it) => !!it.battery : filter === 'offline' ? (it) => !!it.off : () => true;
+  const keep = filter === 'battery' ? (it) => !!it.battery : filter === 'offline' ? (it) => !!it.off : filter === 'on' ? (it) => !!it.on && !it.off : () => true;
   const order = filter === 'battery' ? (p, q) => Number(q.battery.low) - Number(p.battery.low) || (p.battery.level ?? 101) - (q.battery.level ?? 101) || p.name.localeCompare(q.name) : null;
   return floors.map((f) => ({ ...f, rooms: f.rooms.map((r) => {
     const items = r.items.filter(keep);
@@ -98,11 +107,15 @@ export function filterRows(floors, filter = 'all') {
   }).filter((r) => r.items.length) })).filter((f) => f.rooms.length);
 }
 
-/** counts for the head of the list and the button: { n: things, battery: with a battery, low: low batteries, off: offline } */
+/** counts for the head of the list and the button: { n: things, on: on / open, battery: with a battery, low: low batteries, off: offline } */
 export function summary(floors) {
   const all = floors.flatMap((f) => f.rooms.flatMap((r) => r.items));
-  return { n: all.length, battery: all.filter((i) => i.battery).length, low: all.filter((i) => i.battery?.low).length, off: all.filter((i) => i.off).length };
+  return { n: all.length, on: all.filter((i) => i.on && !i.off).length, battery: all.filter((i) => i.battery).length, low: all.filter((i) => i.battery?.low).length, off: all.filter((i) => i.off).length };
 }
+
+/** the filter the list opens with from the button: "Battery" while batteries are low and nothing else was chosen (#471: "a tap shows which
+ *  ones"), else the one chosen before */
+export const openFilter = (filter, low) => (low > 0 && filter === 'all' ? 'battery' : filter);
 
 /** the text of a battery: "🔋 85 %", low "🪫 12 %"; a "battery low" sensor: "🪫" / "🔋 ok" */
 export function batteryText(b, t) {
@@ -138,7 +151,7 @@ export function initDeviceList(ctx) {
     head.append(el('b', '', t('dl.title')), x);
     const chips = el('div', 'dl-filters');
     FILTERS.forEach((k) => {
-      const b = el('button', k === filter ? 'pill active' : 'pill', t(`dl.${k}`) + (k === 'battery' && sum.low ? ` (🪫 ${sum.low})` : k === 'offline' && sum.off ? ` (${sum.off})` : ''));
+      const b = el('button', k === filter ? 'pill active' : 'pill', t(`dl.${k}`) + (k === 'battery' && sum.low ? ` (🪫 ${sum.low})` : k === 'offline' && sum.off ? ` (${sum.off})` : k === 'on' ? ` (${sum.on})` : ''));
       b.type = 'button'; b.dataset.filter = k;
       b.addEventListener('click', () => { filter = k; sig = ''; render(); });
       chips.append(b);
@@ -172,11 +185,15 @@ export function initDeviceList(ctx) {
   function update() {
     pill.hidden = !ctx.ready();
     if (pill.hidden) { if (isOpen()) set(false); return; }
-    const rows = deviceRows(env()), low = summary(rows).low;
+    const rows = deviceRows(env());
+    low = summary(rows).low;
     pill.textContent = low ? t('dl.pillLow', { n: low }) : t('dl.pill');
+    pill.classList.toggle('lowbat', low > 0);
+    pill.title = low ? t('dl.tipLow', { n: low }) : t('dl.tip');
     if (isOpen()) render(rows);
   }
-  pill.addEventListener('click', (e) => { e.stopPropagation(); set(!isOpen()); });
+  let low = 0;
+  pill.addEventListener('click', (e) => { e.stopPropagation(); if (!isOpen()) filter = openFilter(filter, low); set(!isOpen()); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen() && !document.querySelector('dialog[open]')) set(false); });
   return { update, open: () => set(true), close: () => set(false), isOpen, setFilter: (k) => { filter = FILTERS.includes(k) ? k : 'all'; sig = ''; if (isOpen()) render(); } };
 }

@@ -4,24 +4,25 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.1.4)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.2.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.1.4** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.2.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
-1. **4.1.1 im Add-on: deine Dienste nach Herkunft, eigener Telegram-Bot** (72.8, 72.9, nur im Add-on; 72.1 bis 72.7 ✅): ⚙ → „Benachrichtigung bei Alarm“ → „Benachrichtigungsdienst von Home Assistant“: stehen deine Dienste in der richtigen Gruppe; eigenen Telegram-Bot nach der Anleitung einrichten und „Test senden“.
-2. **Neu: mehr Geräte steuern** (63.4, 63.5, 63.8, zum Schluss 63.1 bis 63.3 mit dem Ton; 63.6, 63.7 ✅; im Add-on 63.9 bis 63.11): in „Live“ zuerst „Ansicht“ → „Im Bild: Geräte“ (oder das Schild eines Raums antippen), sonst sind die Kugeln der Geräte nicht zu sehen. Dann den Lautsprecher (Wohnzimmer, an der Fernseh-Wand in der Ecke zur Küche), den Fernseher, den Saugroboter (Küche), den Standventilator (Wohnzimmer), die Alarmanlage (Code 1234, Büro an der Außenwand) und den Hausmodus antippen und die Knöpfe ausprobieren.
-3. **Am Handy: Raum-Kacheln** (65.10): hochkant „Live“, die Kacheln sind kleiner und lassen sich wischen; oben rechts keine Uhrzeit-Karte, der Knopf 📊 ist da.
-4. **4.0 im Add-on** (66.11, 67.13, 67.14): eigenen Räumen Böden und Wände geben, neu laden; ein Tablet im Sparmodus „Schnell“; Export und Import eines Hauses.
-5. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
-6. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
-7. **Energie einrichten und Strom-Rechnung** (50.1 bis 50.8, im Add-on 62.5 bis 62.7; 62.1 bis 62.4 ✅): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
-8. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
-9. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „Warnungen & Alarm“ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
-10. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
-11. **Messen** (58.5 bis 58.8; 58.1 bis 58.4 ✅): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
-12. **Benutzer sperren** (37.6, 61.10, 61.11): ⚙ → „Benutzer & Tablets“ → bei einem Benutzer ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
-13. **Neue Möbel kurz durchblättern** (51 bis 54, 57; 59 ✅): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
-14. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
+1. **Neu in 4.2.0: Schnellzugriff** (76.1 bis 76.14, im Add-on 76.15): oben „💡 … an“ mit Licht-Gruppen („Aus“ zweimal tippen), unten vorne die Favoriten, „📋 Geräte“ → „💡 An / offen“, orange bei schwachen Batterien; beim Bearbeiten „Gelöscht · ↶ Rückgängig“, Taste „?“ und „🕘 Zuletzt benutzt“.
+2. **4.1.1 im Add-on: deine Dienste nach Herkunft, eigener Telegram-Bot** (72.8, 72.9, nur im Add-on; 72.1 bis 72.7 ✅): ⚙ → „Benachrichtigung bei Alarm“ → „Benachrichtigungsdienst von Home Assistant“: stehen deine Dienste in der richtigen Gruppe; eigenen Telegram-Bot nach der Anleitung einrichten und „Test senden“.
+3. **Neu: mehr Geräte steuern** (63.4, 63.5, 63.8, zum Schluss 63.1 bis 63.3 mit dem Ton; 63.6, 63.7 ✅; im Add-on 63.9 bis 63.11): in „Live“ zuerst „Ansicht“ → „Im Bild: Geräte“ (oder das Schild eines Raums antippen), sonst sind die Kugeln der Geräte nicht zu sehen. Dann den Lautsprecher (Wohnzimmer, an der Fernseh-Wand in der Ecke zur Küche), den Fernseher, den Saugroboter (Küche), den Standventilator (Wohnzimmer), die Alarmanlage (Code 1234, Büro an der Außenwand) und den Hausmodus antippen und die Knöpfe ausprobieren.
+4. **Am Handy: Raum-Kacheln** (65.10): hochkant „Live“, die Kacheln sind kleiner und lassen sich wischen; oben rechts keine Uhrzeit-Karte, der Knopf 📊 ist da.
+5. **4.0 im Add-on** (66.11, 67.13, 67.14): eigenen Räumen Böden und Wände geben, neu laden; ein Tablet im Sparmodus „Schnell“; Export und Import eines Hauses.
+6. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
+7. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
+8. **Energie einrichten und Strom-Rechnung** (50.1 bis 50.8, im Add-on 62.5 bis 62.7; 62.1 bis 62.4 ✅): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
+9. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
+10. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „Warnungen & Alarm“ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
+11. **Etagen aufeinander, flüssig auf dem iPad** (55.1 bis 55.7, 56.1 bis 56.6): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
+12. **Messen** (58.5 bis 58.8; 58.1 bis 58.4 ✅): Taste **M**, zwei Punkte anklicken; zwei Wände anklicken und den lichten Abstand setzen.
+13. **Benutzer sperren** (37.6, 61.10, 61.11): ⚙ → „Benutzer & Tablets“ → bei einem Benutzer ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
+14. **Neue Möbel kurz durchblättern** (51 bis 54, 57; 59 ✅): Gruppen „Sauna & Wellness“, „Bar“, „Klima & Lüftung“, „Fahrzeuge“, „Werkstatt“: ein paar Stücke setzen, sehen sie richtig aus?
+15. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
 
 **Zuletzt geprüft (2026-10-20 abends, per Auswahl im Chat):** ✅ 63.6, 63.7 (Alarmanlage mit Code), 62.1 bis 62.4 (Energie aus dem Energie-Dashboard), 61.1 bis 61.9, 61.12, 61.13 (mehrere Gebäude), 60.1 bis 60.8 (Rückgängig, Kopieren, Einfügen), 59.1 bis 59.7 (Bar mit Deckenteil), 58.1 bis 58.4 (Messen). Noch nicht: 63.4, 63.5, 63.8 und 58.5; 63.1 bis 63.3 (Ton: Lautsprecher, Fernseher) will der Besitzer als Letztes prüfen. **Davor am selben Tag:** ✅ 75.1, 75.2 (Raumfarben im 2D-Plan, 4.1.4), der ganze Abschnitt 66, soweit in der Demo prüfbar (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25: Böden, Fensterrahmen, Glas, Raum-Schilder, Strom-Karte, Sterne, am Handy flüssige Raum-Kacheln, Strom-Karte und Zeile mit Uhrzeit und Wetter), 65.1 bis 65.9, 65.11 bis 65.13, 65.16 (Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste). 63.1 bis 63.4 noch nicht: die Geräte waren in „Live“ nicht zu finden (mit Raum-Schildern sind die Kugeln aus, Hinweis jetzt in der Prüfliste). **Davor am selben Tag:** ✅ 67.9 bis 67.11 (Wände für alle Räume, Akzentwand, „Temp.“ und Hologramm). ❌ 67.12: im 2D-Plan waren die Räume mit „Temp.“ schwarz (#467, behoben in 4.1.4: 75.1, 75.2). **Davor am selben Tag:** ✅ alles, was in der Demo geht, von 4.1.3 bis 4.0.1: 74.1, 74.2, 73.1 bis 73.7, 72.1 bis 72.7 (roter Streifen und Rand statt Sperrbildschirm, Wandtablet mit `?wand=1`, Dienste nach Herkunft), 71.1 bis 71.6 und 71.8 bis 71.11 (Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen), 70.1 bis 70.6 (Benutzer & Tablets in ⚙, WhatsApp-Schritte), 69.1 bis 69.3 (Gebäude-Filter), 68.1 bis 68.8 (Einstellungen in Gruppen), 67.1 bis 67.8 (Wände und Böden mit Muster, Fassade). **Davor (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
 
@@ -275,7 +276,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 7 | 0 | 0 | 0 | – |
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
-| **Zusammen** | **412** | **3** | **113** | **33** | |
+| 76. Neu in 4.2.0: Schnellzugriff, Licht-Gruppen, Favoriten und Hilfen beim Bearbeiten (#471) | 0 | 0 | 14 | 1 | 76.1 bis 76.14 |
+| **Zusammen** | **412** | **3** | **127** | **34** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1214,3 +1216,23 @@ Der Besitzer meldete bei 67.12 (mit Bild): Die Farbe der Räume wird im 2D-Plan 
 |---|---|---|---|
 | 75.1 | „Bearbeiten“, Ansicht „2D“, Erdgeschoss, unten „Temp.“ (auch im Design „Hologramm“), dann „Feuchte“ | Die Räume mit Messwert haben die Farbe ihrer Temperatur wie in der Leiste „Temp.“ links (blau kühl, grün und gelb mittel, rot warm), keiner ist schwarz; bei „Feuchte“ ihre Feuchte-Farbe | ✅ (2026-10-20) |
 | 75.2 | Unten „Normal“, weiter in „2D“ | Die Räume haben wieder die Farbe ihres Bodens (Wohnzimmer braun, Küche hell, Garage grau), auch mit eigener Farbe (z. B. Nussbaum dunkel) | ✅ (2026-10-20) |
+
+## 76. Neu in 4.2.0: Schnellzugriff, Licht-Gruppen, Favoriten und Hilfen beim Bearbeiten (#471)
+Der Besitzer hat aus einer Auswahl alle sieben Ideen gewählt und dazu gesagt: Gruppen aus mehreren Räumen, damit nicht aus Versehen alles ausgeht, wenn noch jemand in einem Raum ist, und nichts überladen. Die Demo hat drei Gruppen (Wohnen, Oben, Keller) und vier Favoriten eingestellt.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 76.1 | „Live“, oben „💡 … an“ antippen | Eine kleine Liste „Lichter“: „🏠 Ganzes Haus“, „Wohnen“, „Oben“, „Keller“, jede mit „… an“ und einem Knopf „Aus“; 👤, wo gerade jemand im Raum ist | ❓ |
+| 76.2 | Bei „Wohnen“ einmal „Aus“ antippen, dann ein paar Sekunden warten | Der Knopf wird rot „Sicher? Aus“, es geht noch nichts aus; nach etwa 3 Sekunden steht wieder „Aus“ da | ❓ |
+| 76.3 | Bei „Wohnen“ zweimal kurz nacheinander „Aus“ | Nur die Lichter von Wohnzimmer und Küche gehen aus (Schlafzimmer, Büro, Keller bleiben an); die Zeile sagt „alle aus“, oben die Zahl wird kleiner | ❓ |
+| 76.4 | Bei „Ganzes Haus“ zweimal „Aus“ | Alle Lichter sind aus; schließt man die Liste, ist der Knopf „💡 … an“ oben weg (er erscheint wieder, sobald ein Licht an ist) | ❓ |
+| 76.5 | Unten ganz vorne in der Leiste der Raum-Kacheln: die Favoriten „Wohnzimmer Gemütlich“, „Wohnzimmer Aus“, „Stehlampe“, „Küche Licht“. „Wohnzimmer Gemütlich“ antippen, dann „Küche Licht“ | Die Szene macht die Wohnzimmer-Lichter an; „Küche Licht“ geht an und aus, der Knopf leuchtet, solange es an ist, und sagt „An“ / „Aus“ | ❓ |
+| 76.6 | Ein Licht im Bild antippen (z. B. Bürolicht), auf seiner Karte ☆ antippen, dann noch einmal | Aus ☆ wird ★ und unten kommt ein Knopf „Büro Licht“ dazu; noch ein Tipp: wieder ☆, der Knopf ist weg | ❓ |
+| 76.7 | ⚙ → „⭐ Schnellzugriff“ → „Favoriten“: „Bad Licht“ eintippen, „+ Hinzufügen“; dann „climate.wohnzimmer“ eintippen, „+ Hinzufügen“; bei einem Favoriten ↑ und × | „Bad Licht“ steht in der Liste und unten in der Leiste; beim Thermostat steht „Das geht nicht als Favorit …“; ↑ schiebt nach vorne, × nimmt heraus | ❓ |
+| 76.8 | ⚙ → „Schnellzugriff“ → „Licht-Gruppen“: „+ Neue Gruppe“, Name „Schlafen“, Schlafzimmer und Bad ankreuzen, schließen, oben „💡 … an“ | Die neue Gruppe „Schlafen“ steht in der Liste oben, mit ihren Lichtern; „Wohnen“ hat Wohnzimmer und Küche angehakt | ❓ |
+| 76.9 | Oben „📋 Geräte · 🪫 2“ ansehen und antippen | Der Knopf ist orange; die Liste öffnet gleich bei „🔋 Batterie“, die zwei schwachen (rot) stehen oben | ❓ |
+| 76.10 | In der Geräte-Liste „💡 An / offen“ | Nur was gerade an ist (Lichter, Fernseher, Ventilator …) und offene Türen und Fenster, nach Raum; die Zahl am Knopf stimmt | ❓ |
+| 76.11 | „Bearbeiten“: ein Möbel antippen, „Entf“ (oder 🗑 im Eigenschaften-Fenster); dann „↶ Rückgängig“ im Hinweis. Noch einmal löschen und nichts tun | Unten erscheint „Gelöscht · ↶ Rückgängig“; der Knopf holt das Möbel zurück; ohne Tipp verschwindet der Hinweis nach etwa 6 Sekunden | ❓ |
+| 76.12 | „Bearbeiten“: Taste „?“ (oder rechts unter „Steuerung“ „⌨ Alle Tasten (?)“) | Eine Karte „⌨ Tasten“ mit allen Tasten: Werkzeuge (V, W, R, M …), Rückgängig, Kopieren, Schieben um 1 cm / 10 cm, Etage höher / tiefer | ❓ |
+| 76.13 | „Bearbeiten“, Werkzeug „Gerät“, ein Teil wählen (z. B. „TV“) und ins Bild setzen | In der Bibliothek oben „🕘 Zuletzt benutzt“ mit dem Teil; ein Tipp darauf wählt es wieder | ❓ |
+| 76.14 | Am Handy hochkant „Live“: oben „📊“ → „💡 … an“ | Die Liste „Lichter“ mit Haus und Gruppen wie am PC, „Aus“ zweimal tippen; unten vorne die Favoriten | ❓ |
+| 76.15 | Im Add-on: eigene Licht-Gruppen anlegen (z. B. Kinderzimmer), abends eine Gruppe ausschalten | Nur die Lichter dieser Räume gehen aus; die Gruppen bleiben nach Neuladen und auf jedem Gerät gleich | ➖ |

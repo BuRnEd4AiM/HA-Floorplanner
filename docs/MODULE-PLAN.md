@@ -1,6 +1,6 @@
 # Aufteilung des Codes: Stand und Plan
 
-Stand: Version 4.1.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.700**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
+Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht nach der Regel unten Schritt für Schritt weiter). Die Hauptdatei `floorplan3d/rootfs/app/static/app.js` hatte am Anfang gut **5.100 Zeilen**, jetzt sind es noch etwa **1.700**. Das Ziel ist, sie in kleine Module mit klarer Schnittstelle und eigenen Unit-Tests zu zerlegen, damit neue Funktionen einfacher und sicherer dazukommen.
 
 ## Regel für alles Neue
 
@@ -30,7 +30,13 @@ Stand: Version 4.1.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `kitchen.js` | ~80 | Küchenzeile: Geometrie aus Modulen (mit Breiten), Oberschrank über einzelnen Modulen weglassen (`withUpper`, `hasUpper`, #372) |
 | `heatpanel.js` | ~115 | Heizungs-Panel (Schritt 1 von #137); die übrigen Entitäten des Thermostat-Geräts (Kindersicherung …) unter dem Thermostat statt bei den Schaltern des Raums (`splitHeatParts`, `partName`, #370); Knopf „In Home Assistant öffnen“ je Thermostat (#374) |
 | `heating.js` | ~80 | Heizkörper in 3D (#374): welche Geräte Heizungen sind (`isHeater`), was sie gerade tun (`heatMode`; ein Klimagerät an einem Schalter kühlt: `COOLER_TYPES`), wann ein Thermostat / Klimagerät läuft (`RUNNING`, aus `app.js` geholt), Farbe des Temperatur-Schilds (rot heizt, blau nicht, `pillTone`), roter / blauer Heizkörper (`heatLook`, `paintHeat`, auch im Hologramm); Heizungen haben keine Kugel, das Schild ist zum Antippen; reine Logik mit Unit-Tests |
-| `devicelist.js` | ~170 | Geräte-Übersicht (#376): Knopf „📋 Geräte“ oben, Liste aller verknüpften Geräte und Türen/Fenster mit Sensor nach Etage und Raum, mit Zustand, Batteriestand (Batterie-Sensor desselben Geräts, Server `battery_of`, `/api/batteries`) und offline; Filter Alle / Batterie / Offline; Zeilen, Filter und Zählung (`deviceRows`, `filterRows`, `summary`, `batteryInfo`) reine Logik mit Unit-Tests |
+| `devicelist.js` | ~190 | Geräte-Übersicht (#376): Knopf „📋 Geräte“ oben, Liste aller verknüpften Geräte und Türen/Fenster mit Sensor nach Etage und Raum, mit Zustand, Batteriestand (Batterie-Sensor desselben Geräts, Server `battery_of`, `/api/batteries`) und offline; Filter Alle / An / offen (#471, `isRunning`) / Batterie / Offline; schwache Batterien: Knopf orange, ein Tipp öffnet bei „Batterie“ (`openFilter`, #471); Zeilen, Filter und Zählung (`deviceRows`, `filterRows`, `summary`, `batteryInfo`) reine Logik mit Unit-Tests |
+| `lightgroups.js` | ~100 | Licht-Gruppen (#471), reine Logik mit Unit-Tests: welche Lichter das ganze Haus und jede Gruppe aus Räumen hat und welche an sind (`lightRows`, `roomLights`), „Aus“ erst beim zweiten Tippen (`confirmTap`, `CONFIRM_MS`), gespeicherte Gruppen säubern (`cleanGroups`, wie `clean_light_groups` im Server), Räume für den Editor (`roomChoices`) |
+| `lightgroupsui.js` | ~140 | Licht-Gruppen am Bildschirm (#471): Knopf „💡 n an“ oben (nur wenn Lichter an sind; am Handy in der 📊-Liste), seine Liste (ganzes Haus, Gruppen, 👤, „Aus“ → „Sicher? Aus“), der Teil „Licht-Gruppen“ in ⚙ → „Schnellzugriff“ (Name, Räume nach Etage; Räume eines anderen Hauses bleiben); die Liste ist eins der Ausklapp-Menüs der oberen Leiste in `app.js` |
+| `favorites.js` | ~85 | Favoriten (#471), reine Logik mit Unit-Tests: was ein Favorit sein kann (nur was ein Tipp schaltet oder startet, nie ein Schloss oder eine Alarmanlage; `FAV_SERVICE` gleich `FAV_DOMAINS` im Server), Liste säubern, ☆/★, ↑ ↓, Knopf und Text (`favTile`, `favValue`) |
+| `favoritesui.js` | ~120 | Favoriten am Bildschirm (#471): Knöpfe vorne in der Leiste der Raum-Kacheln (`roomtilesui.js` setzt sie davor, auch wenn die Raum-Kacheln aus sind), ☆/★ auf der Live-Karte eines Geräts (`livepopup.js`, nur Bearbeiter), Liste in ⚙ → „Schnellzugriff“ (Name oder Entität, ↑ ↓ ×) |
+| `shortcuts.js` | ~70 | Tasten-Karte (#471): „?“ im Bearbeiten oder „⌨ Alle Tasten“ unter „Steuerung“; die Zeilen kommen aus `TOOL_KEYS` von `edititems.js`, der Unit-Test prüft jede Zeile gegen `keyCommand` |
+| `undotoast.js` | ~40 | „Gelöscht · ↶ Rückgängig“ (#471): kurzer Hinweis nach jedem Löschen im Bearbeiten (`edititems.js` meldet `deleted()`), mehrere auf einmal als einer; geht beim nächsten Schritt, Rückgängig oder Wiederholen weg |
 | `offlinemarks.js` | ~110 | Offline in 3D (#375): Kugel mit durchgestrichenem Blitz über allem, was die Offline-Liste nennt (rot offline, gelb ohne Entität), über dem Gerät, auf seinem Werte-Schild oder in der Mitte der Tür / des Fensters; eine Tipp-Kugel zeigt das Zeichen selbst (`tapballs.js`); Auswahl und Platz (`offlineMarks`, `markCenterY`) mit Unit-Tests |
 | `compass.js` | ~40 | Kompass (Nadel zählt über 360° weiter), mit Unit-Tests |
 | `alertsui.js` | ~75 | Warnungen: Banner, roter Raum, Sprung in den Raum (Schritt 3 von #137) |
@@ -90,7 +96,7 @@ Stand: Version 4.1.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `measuretool.js` | ~150 | Werkzeug „Messen“ (Taste M, #399): hält die Messung, Abschnitt „Messen“ in der Seitenleiste (Felder für Abstand und Winkel, ⇄ andere Wand), Linie mit Länge im 3D-Bild, Klicks im 2D-Plan (`plan2d.js`) und im 3D-Bild (`draw3d.js`) |
 | `stairtool.js` | ~175 | Treppen-Werkzeug (Platzieren, Treppenhaus, Wandtreppe zeichnen, Eigenschaften, 3D-Treppe) |
 | `blocks.js` | ~80 | Platzhalter-Blöcke, Bodenöffnungen, Grundstück, Boden mit Aussparungen |
-| `palettes.js` | ~105 | Paletten (Geräte, eigene Modelle, Suche) |
+| `palettes.js` | ~150 | Paletten (Geräte, eigene Modelle, Suche); oben „Zuletzt benutzt“: die zuletzt gesetzten Teile, pro Browser (#471, `recentList`, `recentShown` mit Unit-Tests) |
 | `background.js` | ~120 | Hintergrundbild (Vorlage zum Nachzeichnen, Eichen) |
 | `settingsui.js` | ~115 | Einstellungen: Tablet-Zuordnung und Farbskalen |
 | `houses.js` | ~95 | Häuser (Liste, Auswahl, Neu/Kopieren/Umbenennen/Löschen) |

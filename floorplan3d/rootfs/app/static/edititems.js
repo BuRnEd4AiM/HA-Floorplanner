@@ -5,7 +5,7 @@ import { clampOpeningPos, openingOverlaps } from './walls.js';
 import { openingWalls, isDormerWall } from './dormerwin.js';
 
 const LISTS = { wall: 'walls', room: 'rooms', device: 'devices', stair: 'stairs', block: 'blocks', hole: 'holes' };
-const TOOL_KEYS = { v: 'select', w: 'wall', b: 'block', t: 'stairs', r: 'room', o: 'opening', d: 'device', m: 'measure' };
+export const TOOL_KEYS = { v: 'select', w: 'wall', b: 'block', t: 'stairs', r: 'room', o: 'opening', d: 'device', m: 'measure' };
 const DRAFT_TOOLS = new Set(['room', 'block', 'plot', 'hole', 'stairs']);   // tools whose outline Enter closes
 
 /** the door / window `id` on floor f (also a dormer window, dormerwin.js): { wall, opening } or null */
@@ -39,7 +39,7 @@ export function jointPoints(f, w) {
 /** Q / E: turn by 15° left / right, kept within 0..359 */
 export const turned = (rot, key) => ((rot || 0) + (key === 'q' ? -15 : 15) + 360) % 360;
 
-/** what a key does: { do: 'undo' | 'redo' | 'copy' | 'paste' | 'duplicate' | 'delete' | 'turn' | 'floor' | 'nudge' | 'tool', ... } or null.
+/** what a key does: { do: 'undo' | 'redo' | 'copy' | 'paste' | 'duplicate' | 'delete' | 'turn' | 'floor' | 'nudge' | 'tool' | 'help', ... } or null.
  *  k: the key in lower case, mods: { ctrl, alt, shift } (ctrl = Ctrl or Cmd), s: { live, selKind (kind of the selection or null), grid,
  *  floorIdx, floors } */
 export function keyCommand(k, mods, s) {
@@ -58,18 +58,20 @@ export function keyCommand(k, mods, s) {
     const step = mods.alt ? 0.01 : mods.shift ? 0.1 : s.grid;               // Alt 1 cm, Shift 10 cm, otherwise one grid step
     return { do: 'nudge', dx: k === 'arrowleft' ? -step : k === 'arrowright' ? step : 0, dz: k === 'arrowup' ? -step : k === 'arrowdown' ? step : 0 };
   }
+  if (k === '?' && !mods.ctrl && !mods.alt) return { do: 'help' };                             // the card with every key (#471, shortcuts.js)
   if (TOOL_KEYS[k] && !mods.ctrl) return { do: 'tool', tool: TOOL_KEYS[k] };               // Ctrl + a letter is never a tool (Ctrl+V, Ctrl+D ...)
   return null;
 }
 
 /** ctx: t, floor(), floorIdx(), floors() (how many), settings(), selection(), setSelection(sel), isLive(), tool(), snapshot(), changed(),
  *  setStatus(txt), undo(), redo(), clip ({ copy(), paste(), duplicate() }, clipboard.js), moveDeviceTo(d, x, z), power ({ deleteCable(id), dropCablesTo(id) }), multi ({ items(), deleteAll() }),
- *  switchFloor(i), setTool(name), moveRoof(id, dx, dz) (#255), escape() (stop drawing, close popups ...), finishDraft() (true when Enter closed an outline) */
+ *  switchFloor(i), setTool(name), moveRoof(id, dx, dz) (#255), escape() (stop drawing, close popups ...), finishDraft() (true when Enter closed an outline),
+ *  deleted() (something was deleted: the note "Gelöscht · Rückgängig", undotoast.js #471), help() (the card with every key, shortcuts.js #471) */
 export function initEditItems(ctx) {
   /** delete one thing; batch: several in a row (#211), the caller rebuilds once */
   function deleteItem({ kind, id }, batch = false) {
     if (kind === 'cable') {
-      if (ctx.power.deleteCable(id)) { if (ctx.selection()?.id === id) ctx.setSelection(null); ctx.changed(); }
+      if (ctx.power.deleteCable(id)) { if (ctx.selection()?.id === id) ctx.setSelection(null); ctx.changed(); ctx.deleted?.(); }
       return;
     }
     const f = ctx.floor();
@@ -78,6 +80,7 @@ export function initEditItems(ctx) {
     if (kind === 'device') ctx.power.dropCablesTo(id);
     if (ctx.selection()?.id === id) ctx.setSelection(null);
     if (!batch) ctx.changed();
+    ctx.deleted?.();
   }
   /** Arrow keys: move the selected thing by (dx, dz) metres. Openings slide along their wall (left/up = towards a, right/down = towards b). */
   function nudgeSelection(dx, dz) {
@@ -131,6 +134,7 @@ export function initEditItems(ctx) {
     } else if (c.do === 'floor') { e.preventDefault(); ctx.switchFloor(c.to); }
     else if (c.do === 'nudge') { e.preventDefault(); nudgeSelection(c.dx, c.dz); }
     else if (c.do === 'tool') ctx.setTool(c.tool);
+    else if (c.do === 'help') { e.preventDefault(); ctx.help?.(); }
   });
   return { deleteItem, nudgeSelection, itemOf: (kind, id) => itemIn(ctx.floor(), kind, id) };
 }

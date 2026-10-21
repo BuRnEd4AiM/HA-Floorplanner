@@ -356,6 +356,8 @@ let settings = {
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', belowMode: 'dim', cameraImages: true, cutaway: true,
   windowFrames: 'anthracite',                               // 3.99: the demo shows the dark window frames (#428)
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
+  favorites: ['scene.wz_gemuetlich', 'scene.wz_aus', 'light.stehlampe', 'light.kueche'],   // 4.2: favourites and light groups (#471)
+  lightGroups: [{ id: 'g_wohnen', name: 'Wohnen', rooms: ['r1', 'r2'] }, { id: 'g_oben', name: 'Oben', rooms: ['q1', 'q2'] }, { id: 'g_keller', name: 'Keller', rooms: ['k1', 'k2', 'k3'] }],
 };
 
 const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
@@ -474,7 +476,8 @@ export function installDemoBackend() {
         return json({ ok: true });
       }
       if (service === 'turn_on' && data?.effect) e.fxc = data.effect;
-      if (service === 'toggle') e.state = e.state === 'on' ? 'off' : 'on';
+      if (service === 'toggle') e.state = id.startsWith('cover.') ? (e.state === 'open' ? 'closed' : 'open') : e.state === 'on' ? 'off' : 'on';   // a favourite (#471)
+      if (service === 'toggle' && id.startsWith('cover.')) e.position = e.state === 'open' ? 100 : 0;
       if (service === 'turn_on') { e.state = 'on'; if (data?.brightness_pct != null) e.brightness = data.brightness_pct; if (data?.rgb_color) e.rgb = data.rgb_color; if (data?.color_temp_kelvin) e.rgb = data.color_temp_kelvin < 4500 ? [255, 190, 120] : [200, 220, 255]; }
       if (service === 'set_cover_position') { e.position = data.position; e.state = data.position > 0 ? 'open' : 'closed'; }
       if (service === 'open_cover') { e.state = 'open'; e.position = 100; }

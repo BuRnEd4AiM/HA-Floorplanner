@@ -22,7 +22,8 @@ export function popupKey({ dev = null, seg = null, lang = '', extra = null, ids 
   return JSON.stringify([dev, seg, lang, extra, list.map((e) => [e, name(e), shownState(states[e])])]);
 }
 
-/** ctx: $, t, lang(), live (initLiveControls), floor(), findOpening(id), stateText(id), openText(id), cams, settings(), pointInPoly, states(), onStates */
+/** ctx: $, t, lang(), live (initLiveControls), floor(), findOpening(id), stateText(id), openText(id), cams, settings(), pointInPoly, states(), onStates,
+ *  star(entity) (☆ / ★ favourite, favoritesui.js #471: a button or null) */
 export function initLivePopup(ctx) {
   const { $, t, live } = ctx;
   const box = $('#livePopup');
@@ -93,6 +94,8 @@ export function initLivePopup(ctx) {
     sub.textContent = d.entity ? `${d.isOpening ? ctx.openText(d.entity) : ctx.stateText(d.entity)} · ${d.entity}` : t('live.noEntity');
     const mi = live.detailsButton(d.entity);
     if (mi) title.append(mi);
+    const fav = d.isOpening ? null : ctx.star?.(d.entity);
+    if (fav) title.append(fav);
     box.append(title, sub);
     if (d.type === 'camera') {                                  // #69, #381, #383: the live video (still images when there is none), a tap on it opens Home Assistant's live view
       if (d.motionEntity) { const mo = document.createElement('div'); mo.className = 'sub'; mo.textContent = ctx.cams.motion(d) ? t('cam.motionOn') : t('cam.motionOff'); box.append(mo); }

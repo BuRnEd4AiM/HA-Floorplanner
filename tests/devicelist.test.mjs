@@ -94,9 +94,31 @@ test('filters: with a battery (the emptiest first), offline; empty rooms go', ()
   assert.deepEqual(order[0].rooms[0].items.map((i) => i.name), ['b', 'c', 'd', 'a']);
 });
 
-test('summary: how many, with a battery, low, offline', () => {
-  assert.deepEqual(D.summary(D.deviceRows(env)), { n: 6, battery: 2, low: 1, off: 1 });
-  assert.deepEqual(D.summary([]), { n: 0, battery: 0, low: 0, off: 0 });
+test('summary: how many, on / open, with a battery, low, offline', () => {
+  assert.deepEqual(D.summary(D.deviceRows(env)), { n: 6, on: 2, battery: 2, low: 1, off: 1 });
+  assert.deepEqual(D.summary([]), { n: 0, on: 0, battery: 0, low: 0, off: 0 });
+});
+
+test('"what is still on?" (#471): lights and other things that run, open doors and windows; not a heating thermostat, not offline', () => {
+  const rows = D.deviceRows(env);
+  const on = D.filterRows(rows, 'on');
+  assert.deepEqual(on[0].rooms.map((r) => [r.name, r.items.map((i) => i.id)]), [['Küche', ['d1', 'o1']]]);   // the lamp and the open window
+  assert.deepEqual(D.filterRows(D.deviceRows({ ...env, states: { ...states, 'light.kueche': { state: 'off' }, 'binary_sensor.fenster': { state: 'off' } } }), 'on'), []);
+  const st = { 'light.a': { state: 'on' }, 'media_player.tv': { state: 'playing' }, 'media_player.idle': { state: 'idle' }, 'vacuum.r': { state: 'cleaning' },
+    'climate.c': { state: 'heat' }, 'person.p': { state: 'home' }, 'lock.l': { state: 'unlocked' }, 'binary_sensor.m': { state: 'on' }, 'switch.s': { state: 'unavailable' } };
+  assert.deepEqual(Object.keys(st).filter((e) => D.isRunning(e, st)), ['light.a', 'media_player.tv', 'vacuum.r']);
+  assert.equal(D.isRunning('', st), false);
+  assert.equal(D.isRunning('light.gone', st), false);
+  const ring = { floors: [{ name: 'EG', rooms: [], walls: [], devices: [{ id: 'tv', type: 'tv', x: 0, z: 0, entity: 'media_player.idle', ledEntity: 'light.a' }] }] };
+  assert.equal(D.deviceRows({ ...env, layout: ring, states: st })[0].rooms[0].items[0].on, true);   // the TV is off, its backlight is on
+  assert.ok(D.FILTERS.includes('on'));
+});
+
+test('the button with low batteries opens the list at "Battery" (#471), a filter chosen before stays', () => {
+  assert.equal(D.openFilter('all', 2), 'battery');
+  assert.equal(D.openFilter('all', 0), 'all');
+  assert.equal(D.openFilter('offline', 2), 'offline');
+  assert.equal(D.openFilter('on', 0), 'on');
 });
 
 test('a door on the edge of a room belongs to the nearest room; a sensor that never reported shows a dash', () => {
