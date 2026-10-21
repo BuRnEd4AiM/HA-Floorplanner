@@ -248,8 +248,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 1 | 1 | 7 | 0 | ❌ 46.3, 46.1, 46.4 bis 46.9 |
 | 47. Neu in 3.76: Durchsichtig nur die Wand | 0 | 0 | 2 | 0 | 47.1, 47.2 |
 | 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 0 | 0 | 5 | 0 | 48.1 bis 48.5 |
-| 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 0 | 0 | 4 | 0 | 49.1 bis 49.4 |
-| 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 1 | 0 | 7 | 0 | 50.2 bis 50.8 |
+| 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 1 | 0 | 3 | 0 | 49.2 bis 49.4 |
+| 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 8 | 0 | 0 | 0 | – |
 | 51. Neu in 3.84: Möbel im skandinavischen Stil | 8 | 0 | 0 | 0 | – |
 | 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 11 | 0 | 1 | 0 | 52.12 |
 | 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs | 3 | 0 | 0 | 0 | – |
@@ -277,7 +277,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
 | 76. Neu in 4.2.0: Schnellzugriff, Licht-Gruppen, Favoriten und Hilfen beim Bearbeiten (#471) | 0 | 0 | 14 | 1 | 76.1 bis 76.14 |
 | 77. Neu in 4.2.1: Saugroboter sichtbar, Hausmodus mit Knöpfen, „Innenmaß“ beim Messen (#473, #474) | 5 | 0 | 0 | 1 | – |
-| **Zusammen** | **472** | **5** | **70** | **35** | |
+| **Zusammen** | **480** | **5** | **62** | **35** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -861,7 +861,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 49.1 | Bearbeiten, die Küchenzeile anklicken; in der Modul-Liste bei einem Unterschrank den Haken neben der Breite wegnehmen | In 3D ist nur der Oberschrank über diesem Modul weg; Unterschrank und Arbeitsplatte bleiben (#372) | ❓ |
+| 49.1 | Bearbeiten, die Küchenzeile anklicken; in der Modul-Liste bei einem Unterschrank den Haken neben der Breite wegnehmen | In 3D ist nur der Oberschrank über diesem Modul weg; Unterschrank und Arbeitsplatte bleiben (#372) | ✅ (2026-10-21) |
 | 49.2 | Beim Herd den Haken wegnehmen; beim Kühlschrank nachsehen | Die Haube über dem Herd ist weg; Kühlschrank, Hochschrank und Lücke haben keinen Haken | ❓ |
 | 49.3 | Bei einem Modul ohne Oberschrank den Typ (z. B. Schubladen) oder die Breite ändern und es mit ↑/↓ verschieben | Der Oberschrank bleibt weg, er wandert mit dem Modul | ❓ |
 | 49.4 | Oben den Haken „Oberschränke“ wegnehmen, dann wieder setzen | Weg: alle Oberschränke sind weg, die Haken in den Zeilen verschwinden; wieder gesetzt: die Oberschränke kommen zurück, nur nicht über den Modulen ohne Haken | ❓ |
@@ -870,13 +870,13 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 50.1 | Bearbeiten, oben „Strom-Editor“ drücken | Neben „Kabel“ erscheint der Knopf „⚡ Rechnung“; ohne Strom-Editor ist er nicht da (#378) | ✅ (2026-10-21) |
-| 50.2 | „⚡ Rechnung“ drücken | Ein Fenster „Strom: was ist was und wie wird gerechnet“; oben „So wird gerade gerechnet“: Erzeugung, + Bezug aus dem Netz, − Batterie lädt, = Hausverbrauch (berechnet) mit den Werten von jetzt; bei allem, was nicht eingestellt ist, steht „Automatisch aus dem Plan: …“ mit dem Gerät und seinem Wert | ❓ |
-| 50.3 | Die Strom-Anzeige oben links ansehen (Demo: Erzeugung 3,20 kW, Bezug 450 W, Batterie lädt 600 W) | ⌂ zeigt 3,05 kW: die ladende Batterie wird abgezogen (vorher 3,65 kW, #379) | ❓ |
-| 50.4 | Bei „Netz“ einen Sensor wählen, dann „Vorzeichen umdrehen“ an- und wieder ausschalten | Unter dem Sensor „jetzt: … → Bezug“ bzw. „→ Einspeisung“; die Rechnung oben und die Anzeige oben links ändern sich sofort mit | ❓ |
-| 50.5 | Wenn die Rechnung unter null fällt: „⚠ … unter null“ mit dem Knopf „Vorzeichen am Netz umdrehen“ drücken | Die Warnung ist weg, unten steht „✓ Die Rechnung geht auf.“ | ❓ |
-| 50.6 | Bei „Batterie“ den Haken „Batterie im Hausverbrauch mitrechnen“ wegnehmen, dann wieder setzen | Weg: oben „Batterie (nicht mitgerechnet)“, der Verbrauch ist ohne Batterie; wieder gesetzt: wie vorher | ❓ |
-| 50.7 | Bei „Räume“ „Vorschlagen“ drücken oder bei einem Raum „+ Sensor hinzufügen …“ (z. B. „Wohnzimmer Leistung“) | Der Raum zeigt den Sensor mit seinem Wert; oben „↳ Raumname“ und „Rest (keinem Raum zugeordnet)“; × nimmt ihn wieder heraus | ❓ |
-| 50.8 | Fenster schließen, „Live“, mit der Maus auf die Strom-Anzeige oben links zeigen | Die Anzeige rechnet mit den Einstellungen aus dem Fenster; der Hinweis nennt die Räume und den Rest | ❓ |
+| 50.2 | „⚡ Rechnung“ drücken | Ein Fenster „Strom: was ist was und wie wird gerechnet“; oben „So wird gerade gerechnet“: Erzeugung, + Bezug aus dem Netz, − Batterie lädt, = Hausverbrauch (berechnet) mit den Werten von jetzt; bei allem, was nicht eingestellt ist, steht „Automatisch aus dem Plan: …“ mit dem Gerät und seinem Wert | ✅ (2026-10-21) |
+| 50.3 | Die Strom-Anzeige oben links ansehen (Demo: Erzeugung 3,20 kW, Bezug 450 W, Batterie lädt 600 W) | ⌂ zeigt 3,05 kW: die ladende Batterie wird abgezogen (vorher 3,65 kW, #379) | ✅ (2026-10-21) |
+| 50.4 | Bei „Netz“ einen Sensor wählen, dann „Vorzeichen umdrehen“ an- und wieder ausschalten | Unter dem Sensor „jetzt: … → Bezug“ bzw. „→ Einspeisung“; die Rechnung oben und die Anzeige oben links ändern sich sofort mit | ✅ (2026-10-21) |
+| 50.5 | Wenn die Rechnung unter null fällt: „⚠ … unter null“ mit dem Knopf „Vorzeichen am Netz umdrehen“ drücken | Die Warnung ist weg, unten steht „✓ Die Rechnung geht auf.“ | ✅ (2026-10-21) |
+| 50.6 | Bei „Batterie“ den Haken „Batterie im Hausverbrauch mitrechnen“ wegnehmen, dann wieder setzen | Weg: oben „Batterie (nicht mitgerechnet)“, der Verbrauch ist ohne Batterie; wieder gesetzt: wie vorher | ✅ (2026-10-21) |
+| 50.7 | Bei „Räume“ „Vorschlagen“ drücken oder bei einem Raum „+ Sensor hinzufügen …“ (z. B. „Wohnzimmer Leistung“) | Der Raum zeigt den Sensor mit seinem Wert; oben „↳ Raumname“ und „Rest (keinem Raum zugeordnet)“; × nimmt ihn wieder heraus | ✅ (2026-10-21) |
+| 50.8 | Fenster schließen, „Live“, mit der Maus auf die Strom-Anzeige oben links zeigen | Die Anzeige rechnet mit den Einstellungen aus dem Fenster; der Hinweis nennt die Räume und den Rest | ✅ (2026-10-21) |
 
 ## 51. Neu in 3.84: Möbel im skandinavischen Stil
 | Nr. | Was tun | Erwartung | Ergebnis |
