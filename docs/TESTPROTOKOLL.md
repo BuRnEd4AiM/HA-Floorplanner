@@ -249,11 +249,11 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 47. Neu in 3.76: Durchsichtig nur die Wand | 0 | 0 | 2 | 0 | 47.1, 47.2 |
 | 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 0 | 0 | 5 | 0 | 48.1 bis 48.5 |
 | 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 0 | 0 | 4 | 0 | 49.1 bis 49.4 |
-| 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 0 | 0 | 8 | 0 | 50.1 bis 50.8 |
-| 51. Neu in 3.84: Möbel im skandinavischen Stil | 3 | 0 | 5 | 0 | 51.4 bis 51.8 |
+| 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 1 | 0 | 7 | 0 | 50.2 bis 50.8 |
+| 51. Neu in 3.84: Möbel im skandinavischen Stil | 8 | 0 | 0 | 0 | – |
 | 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 11 | 0 | 1 | 0 | 52.12 |
 | 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs | 3 | 0 | 0 | 0 | – |
-| 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 7 | 0 | 1 | 0 | 54.6 |
+| 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 8 | 0 | 0 | 0 | – |
 | 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 7 | 0 | 0 | 0 | – |
 | 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 4 | 0 | 3 | 0 | 56.1, 56.2, 56.6 |
 | 57. Neu in 3.90: Garage, Werkstatt und Carport | 7 | 0 | 0 | 1 | – |
@@ -276,8 +276,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
 | 76. Neu in 4.2.0: Schnellzugriff, Licht-Gruppen, Favoriten und Hilfen beim Bearbeiten (#471) | 0 | 0 | 14 | 1 | 76.1 bis 76.14 |
-| 77. Neu in 4.2.1: Saugroboter sichtbar, Hausmodus mit Knöpfen, „Innenmaß“ beim Messen (#473, #474) | 0 | 0 | 5 | 1 | 77.1 bis 77.4, 77.6 |
-| **Zusammen** | **460** | **5** | **82** | **35** | |
+| 77. Neu in 4.2.1: Saugroboter sichtbar, Hausmodus mit Knöpfen, „Innenmaß“ beim Messen (#473, #474) | 5 | 0 | 0 | 1 | – |
+| **Zusammen** | **472** | **5** | **70** | **35** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -869,7 +869,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 50.1 | Bearbeiten, oben „Strom-Editor“ drücken | Neben „Kabel“ erscheint der Knopf „⚡ Rechnung“; ohne Strom-Editor ist er nicht da (#378) | ❓ |
+| 50.1 | Bearbeiten, oben „Strom-Editor“ drücken | Neben „Kabel“ erscheint der Knopf „⚡ Rechnung“; ohne Strom-Editor ist er nicht da (#378) | ✅ (2026-10-21) |
 | 50.2 | „⚡ Rechnung“ drücken | Ein Fenster „Strom: was ist was und wie wird gerechnet“; oben „So wird gerade gerechnet“: Erzeugung, + Bezug aus dem Netz, − Batterie lädt, = Hausverbrauch (berechnet) mit den Werten von jetzt; bei allem, was nicht eingestellt ist, steht „Automatisch aus dem Plan: …“ mit dem Gerät und seinem Wert | ❓ |
 | 50.3 | Die Strom-Anzeige oben links ansehen (Demo: Erzeugung 3,20 kW, Bezug 450 W, Batterie lädt 600 W) | ⌂ zeigt 3,05 kW: die ladende Batterie wird abgezogen (vorher 3,65 kW, #379) | ❓ |
 | 50.4 | Bei „Netz“ einen Sensor wählen, dann „Vorzeichen umdrehen“ an- und wieder ausschalten | Unter dem Sensor „jetzt: … → Bezug“ bzw. „→ Einspeisung“; die Rechnung oben und die Anzeige oben links ändern sich sofort mit | ❓ |
@@ -884,11 +884,11 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 51.1 | Bearbeiten, Werkzeug „Gerät“, links die Bibliothek ansehen | Neue Gruppen „Kinder“ und „Flur“; in „Wohnen“, „Küche“, „Bad“, „Schlafen“, „Büro“, „Licht“ und „Deko“ viele neue Teile mit Vorschaubild (Würfelregale, Bücherregale, Sofas, Sessel, Kommoden, Schränke, Schreibtische, Lampen …) | ✅ (2026-10-21) |
 | 51.2 | Im Suchfeld „kallax“ eingeben, dann „billy“, „malm“, „pax“, „poäng“ | „kallax“: die 4 Würfelregale; „billy“: die 2 hohen Bücherregale; „malm“: Bett mit hohem Kopfteil, 2 Kommoden, Nachttisch; „pax“: die 2 Kleiderschränke; „poäng“: der Schwingsessel | ✅ (2026-10-21) |
 | 51.3 | Ein Würfelregal 2×4 in einen Raum setzen, im 2D-Plan nachsehen | In 3D ein weißes Regal mit 8 Fächern (Boxen, Bücher, eine Tür); im 2D-Plan ist das Rechteck so groß wie das Regal (77 × 39 cm) | ✅ (2026-10-21) |
-| 51.4 | Das Regal anklicken, rechts bei „Ausführung“ „Eiche“ wählen, dann „Schwarzbraun“; Strg+Z | Das Regal wird sofort eichenfarben, dann schwarzbraun; Strg+Z holt die vorige Ausführung zurück. Nach dem Neuladen ist die gewählte Ausführung noch da | ❓ |
-| 51.5 | Eine „Papier-Hängelampe“ (Gruppe „Licht“) setzen und mit einer Lampe aus Home Assistant verknüpfen, dann „Live“ und die Lampe einschalten | Die Papierkugel hängt unter der Decke und leuchtet, der Raum wird hell wie bei den anderen Lampen | ❓ |
-| 51.6 | In der Gruppe „Kinder“ das Hochbett und den Plüschhai setzen | Hochbett mit Leiter und Rausfallschutz, darunter frei; ein kleiner blauer Hai mit weißem Bauch | ❓ |
-| 51.7 | Einen Kleiderschrank mit Schiebetüren an eine Wand schieben | Er bleibt an der Wand stehen und lässt sich nicht hineinschieben (Wandstopp) | ❓ |
-| 51.8 | Sprache auf Englisch stellen und die Bibliothek ansehen | Alle neuen Teile und die Ausführungen haben englische Namen, z. B. „Cube shelf 2×4“, „Oak“ | ❓ |
+| 51.4 | Das Regal anklicken, rechts bei „Ausführung“ „Eiche“ wählen, dann „Schwarzbraun“; Strg+Z | Das Regal wird sofort eichenfarben, dann schwarzbraun; Strg+Z holt die vorige Ausführung zurück. Nach dem Neuladen ist die gewählte Ausführung noch da | ✅ (2026-10-21) |
+| 51.5 | Eine „Papier-Hängelampe“ (Gruppe „Licht“) setzen und mit einer Lampe aus Home Assistant verknüpfen, dann „Live“ und die Lampe einschalten | Die Papierkugel hängt unter der Decke und leuchtet, der Raum wird hell wie bei den anderen Lampen | ✅ (2026-10-21) |
+| 51.6 | In der Gruppe „Kinder“ das Hochbett und den Plüschhai setzen | Hochbett mit Leiter und Rausfallschutz, darunter frei; ein kleiner blauer Hai mit weißem Bauch | ✅ (2026-10-21) |
+| 51.7 | Einen Kleiderschrank mit Schiebetüren an eine Wand schieben | Er bleibt an der Wand stehen und lässt sich nicht hineinschieben (Wandstopp) | ✅ (2026-10-21) |
+| 51.8 | Sprache auf Englisch stellen und die Bibliothek ansehen | Alle neuen Teile und die Ausführungen haben englische Namen, z. B. „Cube shelf 2×4“, „Oak“ | ✅ (2026-10-21) |
 
 ## 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen
 | Nr. | Was tun | Erwartung | Ergebnis |
@@ -921,7 +921,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 54.3 | Bei „Hintergrundlicht (LED hinter dem TV)“ ein Licht wählen, das Licht einschalten, dann schwenken | Der Rahmen hinter dem Fernseher leuchtet in der Farbe des Lichts und dreht sich mit dem Fernseher mit | ✅ (2026-10-21) |
 | 54.4 | Etwas ändern, Strg+Z; dann die Seite neu laden | Strg+Z holt die vorige Stellung zurück; nach dem Neuladen steht er noch so, wie eingestellt | ✅ (2026-10-21) |
 | 54.5 | Links die Gruppe „Klima & Lüftung“ öffnen | Klimagerät (Split, Wand), Klima-Außengerät / Wärmepumpe, mobiles Klimagerät, Klima-Deckenkassette, Deckenventilator mit Licht, Standventilator, Turmventilator, Luftreiniger, Luftentfeuchter, jeweils mit Vorschaubild | ✅ (2026-10-21) |
-| 54.6 | Das Split-Klimagerät an eine Wand setzen, mit dem Thermostat (`climate.…`) verknüpfen, in „Live“ auf Kühlen, dann auf Heizen stellen | Kühlt es, wird die Klappe unten blau, heizt es, wird sie rot; das Display leuchtet, solange es läuft (auch bei nur Lüften oder Entfeuchten); das Schild zeigt die Temperatur | ❓ |
+| 54.6 | Das Split-Klimagerät an eine Wand setzen, mit dem Thermostat (`climate.…`) verknüpfen, in „Live“ auf Kühlen, dann auf Heizen stellen | Kühlt es, wird die Klappe unten blau, heizt es, wird sie rot; das Display leuchtet, solange es läuft (auch bei nur Lüften oder Entfeuchten); das Schild zeigt die Temperatur | ✅ (2026-10-21) |
 | 54.7 | Ein mobiles Klimagerät an einer Steckdose (`switch.…`) einschalten | Der Luftauslass oben wird blau (es kühlt), das Display leuchtet | ✅ (2026-10-21) |
 | 54.8 | Den Deckenventilator mit seinem Ventilator (`fan.…`) verknüpfen, unter „LEDs einzeln verknüpfen“ bei „Licht“ die Lampe des Ventilators wählen | Die Leuchte unter dem Ventilator folgt ihrem eigenen Licht und erhellt den Raum | ✅ (2026-10-21) |
 
@@ -1241,9 +1241,9 @@ Der Besitzer hat aus einer Auswahl alle sieben Ideen gewählt und dazu gesagt: G
 Der Besitzer meldete bei 63.4: In der Küche gibt es keinen Saugroboter. Grund: Er stand in der Demo unter der Treppe. Und bei 63.8: Den Knopf „Urlaub“ gibt es nicht. Grund: Der Hausmodus zeigte seine Möglichkeiten nur in einer Liste zum Aufklappen, und seine Kugel war nur ein weißer Punkt. Bei 58.5 wünschte er sich einen anderen Namen für „Lichter Abstand“ (ein Fachwort aus dem Bau). Bei 54.6 fehlte „Kühlen“: das Klimagerät war mit der Heizung des Wohnzimmers verknüpft, die nur heizen kann; die Demo hat jetzt eine Klimaanlage im Büro, die auch kühlt.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 77.1 | Demo, „Live“, Erdgeschoss, „Ansicht“ → „Im Bild: Geräte“; in die Küche schauen, den Saugroboter antippen, „Saugen“ | Der Saugroboter (eine flache runde Scheibe) steht vor der Küchenzeile, darüber eine Kugel mit Besen 🧹; die Karte zeigt „🔌 An der Station“, nach „Saugen“ „🧹 Saugt“ mit „Pause“ und „Zur Station“, die Saugstufe lässt sich wählen | ❓ |
-| 77.2 | Im Büro an der Innenwand zum Schlafzimmer (rechts neben der Tür) die Kugel ☰ des **Hausmodus** antippen | Unter „Auswahl“ stehen vier Knöpfe: Zu Hause, Abwesend, Urlaub, Nacht; „Zu Hause“ ist blau | ❓ |
-| 77.3 | „Urlaub“ antippen, die Karte schließen und den Hausmodus noch einmal antippen | Jetzt ist „Urlaub“ blau, oben steht „Urlaub · input_select.hausmodus“ | ❓ |
-| 77.4 | Bearbeiten, Taste M, zwei gegenüberliegende Wände eines Raums anklicken | Rechts steht „Innenmaß (Wand bis Wand)“ statt „Lichter Abstand“, darunter wie bisher „Abstand der Wandmitten“; das Setzen geht wie in 58.5 | ❓ |
-| 77.6 | Neu (Frage des Besitzers bei 54.6: „da steht bei der Klima kein Kühlen“): Demo, „Live“, Erdgeschoss, „Im Bild: Geräte“; im Büro oben an der Wand zur Küche die **Klimaanlage Büro** antippen | Die Karte hat Aus, **Kühlen**, Heizen, Entfeuchten, Lüfter, Auto, dazu „Vorwahl“ und „Lüfter“ (Auto, Niedrig, Mittel, Hoch); sie kühlt („❄ kühlt“), die Klappe unten am Gerät ist blau. Auf „Heizen“ und mit + über 23 °C: „🔥 heizt“, die Klappe wird rot. (Die Heizung im Wohnzimmer kann nur heizen, darum hat sie kein „Kühlen“: das zeigt die Karte nur, wenn das Gerät in Home Assistant kühlen kann.) | ❓ |
+| 77.1 | Demo, „Live“, Erdgeschoss, „Ansicht“ → „Im Bild: Geräte“; in die Küche schauen, den Saugroboter antippen, „Saugen“ | Der Saugroboter (eine flache runde Scheibe) steht vor der Küchenzeile, darüber eine Kugel mit Besen 🧹; die Karte zeigt „🔌 An der Station“, nach „Saugen“ „🧹 Saugt“ mit „Pause“ und „Zur Station“, die Saugstufe lässt sich wählen | ✅ (2026-10-21) |
+| 77.2 | Im Büro an der Innenwand zum Schlafzimmer (rechts neben der Tür) die Kugel ☰ des **Hausmodus** antippen | Unter „Auswahl“ stehen vier Knöpfe: Zu Hause, Abwesend, Urlaub, Nacht; „Zu Hause“ ist blau | ✅ (2026-10-21) |
+| 77.3 | „Urlaub“ antippen, die Karte schließen und den Hausmodus noch einmal antippen | Jetzt ist „Urlaub“ blau, oben steht „Urlaub · input_select.hausmodus“ | ✅ (2026-10-21) |
+| 77.4 | Bearbeiten, Taste M, zwei gegenüberliegende Wände eines Raums anklicken | Rechts steht „Innenmaß (Wand bis Wand)“ statt „Lichter Abstand“, darunter wie bisher „Abstand der Wandmitten“; das Setzen geht wie in 58.5 | ✅ (2026-10-21) |
+| 77.6 | Neu (Frage des Besitzers bei 54.6: „da steht bei der Klima kein Kühlen“): Demo, „Live“, Erdgeschoss, „Im Bild: Geräte“; im Büro oben an der Wand zur Küche die **Klimaanlage Büro** antippen | Die Karte hat Aus, **Kühlen**, Heizen, Entfeuchten, Lüfter, Auto, dazu „Vorwahl“ und „Lüfter“ (Auto, Niedrig, Mittel, Hoch); sie kühlt („❄ kühlt“), die Klappe unten am Gerät ist blau. Auf „Heizen“ und mit + über 23 °C: „🔥 heizt“, die Klappe wird rot. (Die Heizung im Wohnzimmer kann nur heizen, darum hat sie kein „Kühlen“: das zeigt die Karte nur, wenn das Gerät in Home Assistant kühlen kann.) | ✅ (2026-10-21) |
 | 77.5 | Im Add-on eine Auswahl mit vielen Möglichkeiten (mehr als 6, z. B. ein Waschprogramm) mit einem Gerät verknüpfen und in „Live“ antippen | Hier bleibt es eine Liste zum Aufklappen (sonst würde die Karte zu groß) | ➖ |
