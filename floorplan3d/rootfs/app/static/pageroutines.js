@@ -12,7 +12,7 @@ const ROW_ICON = { open: '🪟', lights: '💡', media: '📺', locks: '🔓' };
 export function initRoutinesPage(ctx) {
   const { t, el } = ctx;
   const flash = new Map();                           // button (entity or check) -> 'ok' | 'bad' for a moment after a tap
-  let drawn = '', dlg = null, check = null, checkSig = '', busy = false, autosOpen = false;
+  let drawn = '', dlg = null, check = null, checkSig = '', busy = false, done = '', autosOpen = false;   // done: 'ok' | 'bad' after the check's buttons
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, on) => { const b = make('button', cls); b.type = 'button'; b.addEventListener('click', on); return b; };
   const domainOf = (e) => e.split('.')[0];
@@ -38,10 +38,10 @@ export function initRoutinesPage(ctx) {
     document.body.append(dlg);
   }
   function openCheck(kind) {
-    ensureDlg(); check = kind; checkSig = ''; busy = false;
+    ensureDlg(); check = kind; checkSig = ''; busy = false; done = '';
     drawCheck(); dlg.showModal();
   }
-  function drawCheck(done = '') {
+  function drawCheck() {
     if (!dlg || !check) return;
     const rows = now(), linked = linkedOf(check), sig = JSON.stringify([check, rows, linked, done, busy]);
     if (sig === checkSig) return;
@@ -80,9 +80,9 @@ export function initRoutinesPage(ctx) {
       ok = (await Promise.all(calls.map(([e, s]) => ctx.callService(e, s)))).every(Boolean);
     }
     if (linked) ok = (await start(linked)) && ok;
-    busy = false;
+    busy = false; done = ok ? 'ok' : 'bad';
     const kind = check;
-    drawCheck(ok ? 'ok' : 'bad');
+    drawCheck();
     if (ok) setTimeout(() => { if (check === kind) dlg.close(); }, 1500);
   }
 
