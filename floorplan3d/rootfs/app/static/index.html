@@ -86,12 +86,14 @@
         <span class="spacer"></span>
         <button id="guardBtn" class="pill" hidden type="button" data-i18n-title="gd.btnTip"></button>
         <button id="houseToggle" class="pill" hidden></button>
+        <button id="lightsPill" class="pill" hidden type="button" aria-haspopup="true" aria-expanded="false"></button>
         <button id="devicesPill" class="pill" hidden type="button" aria-expanded="false" data-i18n-title="dl.tip"></button>
         <button id="offlinePill" class="pill" hidden data-i18n-title="off.tip"></button>
         <button id="openPill" class="pill" hidden></button>
         <button id="camPill" class="pill" hidden data-i18n-title="cam.pillTip"></button>
       </nav>
       <div id="roomMenu" hidden></div>
+      <div id="lightsMenu" hidden></div>
       <div id="camMenu" hidden>
         <p class="sub" data-i18n="cam.hint"></p>
         <div id="camGrid"></div>
@@ -132,6 +134,7 @@
       <div id="floorCards"></div>
       <div id="roomLabels" hidden></div>
       <div id="livePopup" hidden></div>
+      <div id="undoToast" hidden role="status"><span></span><button type="button"></button></div>
       <aside id="roomPanel" hidden></aside>
       <div id="sideStack"><div id="skyChips" hidden></div><button id="energyCard" class="glass" type="button" hidden></button></div>
       <div id="roomTiles" hidden></div>
@@ -180,6 +183,7 @@
         <h3 data-i18n="panel.deviceType"></h3>
         <input id="paletteSearch" type="search" data-i18n-placeholder="pal.search">
         <div id="paletteCats"></div>
+        <div id="paletteRecent" hidden></div>
         <div id="paletteGrid" class="palette thumbs"></div>
         <h3 data-i18n="panel.models"></h3>
         <div id="modelGrid" class="palette"></div>
@@ -284,6 +288,7 @@
           <li data-i18n="keys.redo"></li>
           <li data-i18n="keys.copy"></li>
         </ul>
+        <button id="keysBtn" type="button" class="keysBtn" data-i18n="kc.btn"></button>
       </section>
     </aside>
   </main>
@@ -318,6 +323,14 @@
       <button type="submit" value="reload" id="conflictReload" class="primary" data-i18n="conf.reload"></button>
       <button type="submit" value="keep" id="conflictKeep" data-i18n="conf.keep"></button>
     </div>
+  </form>
+</dialog>
+
+<dialog id="keysDialog">
+  <form method="dialog" novalidate>
+    <div class="dlgHead"><h2 data-i18n="kc.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
+    <p class="sub" data-i18n="kc.hint"></p>
+    <div id="keysList"></div>
   </form>
 </dialog>
 
@@ -459,6 +472,23 @@
         <div class="row check"><input id="setRoomLabels" type="checkbox"><label for="setRoomLabels" data-i18n="set.roomLabels"></label></div>
         <div class="row check"><input id="setEnergyCard" type="checkbox"><label for="setEnergyCard" data-i18n="set.energyCard"></label></div>
         <div class="row check"><input id="setCameraImages" type="checkbox"><label for="setCameraImages" data-i18n="set.cameraImages" data-i18n-title="set.cameraImagesHint"></label></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="quick">
+      <summary><span class="sgIcon">⭐</span><span class="sgText"><b data-i18n="sg.quick"></b><small data-i18n="sg.quick.sub"></small></span></summary>
+      <div class="sgBody">
+        <h4 data-i18n="fav.title"></h4>
+        <p class="hint" data-i18n="fav.help"></p>
+        <div id="favList"></div>
+        <p id="favNone" class="sub" data-i18n="fav.none"></p>
+        <div class="stopTools favAddRow"><input id="favAdd" type="text" list="favChoices" autocomplete="off" data-i18n-placeholder="fav.addPh"> <button type="button" id="favAddBtn" data-i18n="fav.addBtn"></button></div>
+        <datalist id="favChoices"></datalist>
+        <p id="favMsg" class="sub favMsg"></p>
+        <h4 data-i18n="lg.groupsTitle"></h4>
+        <p class="hint" data-i18n="lg.help"></p>
+        <div id="lgGroups"></div>
+        <div class="stopTools"><button type="button" id="lgAdd" data-i18n="lg.add"></button></div>
       </div>
     </details>
 

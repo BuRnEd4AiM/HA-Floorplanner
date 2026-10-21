@@ -1,0 +1,20 @@
+{
+ "session": "session_014r9ofmkBtcwFDi1TP7xawo",
+ "start": "2026-10-21",
+ "updated": "2026-10-21T07:41:04Z",
+ "branch": "claude/intelligent-cannon-tlhqho",
+ "source": "counted",
+ "input": 348,
+ "cache_write": 421990,
+ "cache_read": 49525073,
+ "output": 160999,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 348,
+   "cache_write": 421990,
+   "cache_read": 49525073,
+   "output": 160999,
+   "requests": 174
+  }
+ }
+}

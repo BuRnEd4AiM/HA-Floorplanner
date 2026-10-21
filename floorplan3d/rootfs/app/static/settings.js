@@ -56,7 +56,8 @@ export function oneAtATime(fn) {
   };
 }
 /** ctx: $, t, get() (the settings), set(next), ui (settingsui.js), toDisp(m), fromDisp(v), layout(), entities(), perfStored, perfKey, setStatus(txt),
- *  committed(prev) (apply the new settings to the house and the view), alert(txt), reload(), facadeUi (finishui.js: the facade, #448) */
+ *  committed(prev) (apply the new settings to the house and the view), alert(txt), reload(), facadeUi (finishui.js: the facade, #448),
+ *  parts (more pieces of the form with fill(settings) / read(next): the favourites and the light groups, #471) */
 export function initSettings(ctx) {
   const { $, t, ui } = ctx;
   const dlg = $('#settingsDialog'), usersGroup = dlg.querySelector('details[data-group=users]');
@@ -83,6 +84,7 @@ export function initSettings(ctx) {
     $('#weatherList').replaceChildren(...ctx.entities().filter((e) => e.entity_id.startsWith('weather.')).map((e) => { const o = document.createElement('option'); o.value = e.entity_id; o.label = e.name; return o; }));
     $('#setPerf').value = ctx.perfStored;
     ctx.facadeUi?.fill(settings);                                  // the facade (#448, finishui.js)
+    (ctx.parts || []).forEach((p) => p.fill(settings));
     ui.renderTablets();
     ui.renderStops('#tempStops', 'tempStops', '°C');
     ui.renderStops('#humidStops', 'humidStops', '%');
@@ -101,6 +103,7 @@ export function initSettings(ctx) {
     next.humidStops = ui.readStops('#humidStops', settings.humidStops);
     next.co2Stops = ui.readStops('#co2Stops', settings.co2Stops);
     ctx.facadeUi?.read(next);
+    (ctx.parts || []).forEach((p) => p.read(next));
     return next;
   }
   async function load() {

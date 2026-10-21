@@ -36,3 +36,18 @@ test('models: yours are always shown, shipped ones only when they match; spaces 
   assert.deepEqual(P.filterModels(ms, 'oak table').map((m) => m.name), ['my-chair', 'Oak-Table']);
   assert.deepEqual(P.filterModels(ms, 'xyz').map((m) => m.name), ['my-chair']);
 });
+
+test('"last used" (#471): newest first, each once, at most RECENT_MAX', () => {
+  assert.deepEqual(P.recentList(['sofa', 'lamp'], 'light'), ['light', 'sofa', 'lamp']);
+  assert.deepEqual(P.recentList(['sofa', 'lamp', 'light'], 'light'), ['light', 'sofa', 'lamp']);
+  assert.deepEqual(P.recentList(['a', 'a', '', 3, 'b']), ['a', 'b']);
+  assert.deepEqual(P.recentList('junk', 'sofa'), ['sofa']);
+  assert.equal(P.recentList(['a', 'b', 'c', 'd', 'e', 'f', 'g'], 'x').length, P.RECENT_MAX);
+});
+test('"last used" shows in "All" without a search, only what still exists', () => {
+  const models = [{ name: 'my-chair.glb' }];
+  const list = ['glb:my-chair.glb', 'glb:gone.glb', 'secret', 'sofa', 'dropped'];
+  assert.deepEqual(P.recentShown(list, { cat: 'all', query: '', types, models }), ['glb:my-chair.glb', 'sofa']);
+  assert.deepEqual(P.recentShown(list, { cat: 'living', query: '', types, models }), []);
+  assert.deepEqual(P.recentShown(list, { cat: 'all', query: 'so', types, models }), []);
+});

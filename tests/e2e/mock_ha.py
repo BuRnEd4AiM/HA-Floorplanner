@@ -51,6 +51,7 @@ async def service(r):
         flips = {"media_play_pause": "paused" if x["state"] == "playing" else "playing", "start": "cleaning", "pause": "paused", "return_to_base": "returning",
                  "alarm_arm_home": "armed_home", "alarm_arm_away": "armed_away", "turn_on": "on", "turn_off": "off"}
         if svc in flips: x["state"] = flips[svc]
+        if svc == "toggle": x["state"] = "off" if x["state"] == "on" else "on"      # a favourite (#471)
         if svc == "alarm_disarm":
             if body.get("code") != "4711": return web.json_response({"message": "Invalid code"}, status=400)
             x["state"] = "disarmed"

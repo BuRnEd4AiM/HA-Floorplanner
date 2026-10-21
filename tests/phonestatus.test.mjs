@@ -21,5 +21,5 @@ test('warnings are counted, hidden pills are not', () => {
 });
 
 test('the five values of the top bar are folded', () => {
-  assert.deepEqual(P.STATUS_PILLS, ['energyPill', 'meterPill', 'devicesPill', 'offlinePill', 'openPill', 'camPill']);
+  assert.deepEqual(P.STATUS_PILLS, ['energyPill', 'meterPill', 'lightsPill', 'devicesPill', 'offlinePill', 'openPill', 'camPill']);
 });

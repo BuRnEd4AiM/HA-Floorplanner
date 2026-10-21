@@ -171,7 +171,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 ### 🪑 Furnish it
 
-- **Furniture library with previews**, search and categories (Living, Kitchen, Bath, Bedroom, Office, Lighting, Tech, Outdoor, Decor). The search understands everyday names ("Fernseher", "Couch" ...)
+- **Furniture library with previews**, search and categories (Living, Kitchen, Bath, Bedroom, Office, Lighting, Tech, Outdoor, Decor). The search understands everyday names ("Fernseher", "Couch" ...), and the pieces placed last stand on top
 - **270+ built-in pieces**: sofas, beds, kitchens, bathroom, lamps, TVs (also wall-mounted, and on a swivel arm you can swing, pull out and tilt), radiators, air conditioners and fans, cameras, robot vacuum and more, among them over 50 in the style of the well-known Scandinavian flat-pack classics (cube shelves, white bookcases, swing armchair, chests of drawers, wardrobes, kids' room, hall, paper lamps), most of them in several finishes (white, black-brown, oak …), and about 60 for sauna & wellness, fitness, the bar, the home cinema and the PC corner (sauna cabins, treadmill, power rack, bar counter with LED, also with a glass rack, a ceiling panel or pendant lamps hanging over it, pool table, screen and projector, gaming PC with RGB …); mirrors with LED light, also with several LED zones each linked to its own light; and about 55 for the garage, the workshop and the carport (small car, saloon, estate, SUV, sports car, pick-up, van, camper van, motorhomes, caravan, trailer, motorbike, scooter, bikes, cargo bike, ride-on and robot mower, workbench with pegboard, tool chest, car lift, compressor, table saw, welder, tyre rack, carports, bins …), the cars in car paint with head and tail lights that follow their entity
 - **Your own 3D models**: upload any `.glb` file
 - **Pictures on walls**: upload a PNG / JPG / WebP and hang it, it clicks flat onto the nearest wall
@@ -227,7 +227,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 - **Backup and restore**: one file with all houses, settings, pictures and models. A safety copy is made before every restore
 - **Automatic backups**: optional, daily or at your own interval, stored in the add-on's config folder (`addon_configs`), with retention by days and count, a *Check the newest* test and one-click restore
-- **Undo**: `Ctrl+Z` for everything you draw
+- **Undo**: `Ctrl+Z` for everything you draw, and a short *Deleted · ↶ Undo* note after every deletion (handy on a tablet); **?** shows every key on one card
 - **Your data stays yours**: layouts live in the add-on's `/data` folder and survive updates
 
 ### 📱 Phones and wall tablets
@@ -239,7 +239,9 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Low-power mode** for Fire tablets and other weak devices (automatic in kiosk mode and on touch screens): lower resolution, throttled animation, no shadows, blur or glow. ⚙ **Performance on this device** switches it per tablet
 - **Warnings** for smoke, gas, CO, water, alarm and windows open in the rain (red banner, the room flashes), a **"Where is …?" search**, and a **kiosk mode**: back to the start view when idle, screen-saver turn, night dimming
 - **Renamed in Home Assistant, renamed in the plan**: change an entity id or a device name in Home Assistant or Zigbee2MQTT and every linked device in every house follows by itself, also in an open view
-- **Device overview** (📋): every linked device by room with its state, its battery level (from the battery sensor of the same Home Assistant device) and whether it is offline; filter by battery or offline
+- **Device overview** (📋): every linked device by room with its state, its battery level (from the battery sensor of the same Home Assistant device) and whether it is offline; filter by **what is still on or open**, battery or offline. Low batteries turn the button orange and a tap shows which ones
+- **Lights off by group**: *💡 n on* at the top lists the whole house and your groups of rooms (e.g. *Kids*, *Upstairs*), each with an *Off* that asks once before it switches, so nothing goes off by accident
+- **Favourites**: the scenes and devices you use most as one-tap buttons in front of the room tiles (☆ on a device's card, or ⚙ → *Quick access*)
 - **Devices offline** at a glance: a pill over the plan shows how many placed devices are unavailable, unknown, missing in Home Assistant or not linked, with a list that jumps to each one
 - Floor and room buttons **scroll sideways** with ‹ › arrows when they do not fit the screen
 - Open a specific house with `?house=Parents`

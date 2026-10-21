@@ -12,8 +12,8 @@ pgG.goto(BASE + "?debug=1&mode=edit"); pgG.wait_for_timeout(1500)
 pgG.click("#settingsBtn"); pgG.wait_for_timeout(600)
 GROUPS = "() => [...document.querySelectorAll('#settingsDialog details.setGroup')].map((d) => [d.dataset.group, d.open, !d.hidden])"
 g0 = pgG.evaluate(GROUPS)
-check("settings in groups: eleven groups (with users & tablets, #454), all shut at first, the fields out of sight",
-      len(g0) == 11 and not any(o for _, o, _ in g0) and all(v for _, _, v in g0) and not pgG.is_visible("#setLanguage") and pgG.is_visible("#setSearch"), g0)
+check("settings in groups: twelve groups (with users & tablets, #454, and quick access, #471), all shut at first, the fields out of sight",
+      len(g0) == 12 and not any(o for _, o, _ in g0) and all(v for _, _, v in g0) and not pgG.is_visible("#setLanguage") and pgG.is_visible("#setSearch"), g0)
 check("settings in groups: each group says what is in it", "Fassade" in pgG.inner_text("details[data-group=outside] > summary")
       and "Alarmanlage" in pgG.inner_text("details[data-group=alarm] > summary"), pgG.inner_text("details[data-group=outside] > summary"))
 pgG.click("details[data-group=outside] > summary"); pgG.wait_for_timeout(300)

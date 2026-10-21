@@ -258,6 +258,31 @@ async def test_settings_room_labels_and_window_frames(client):
     assert s["roomLabels"] is True and s["windowFrames"] == "white"
 
 
+async def test_settings_favorites_and_light_groups(client):
+    """favourites and light groups (#471): only entities one tap may switch or start, each once; groups with a name, unique ids and room ids"""
+    s = await (await client.get("/api/settings")).json()
+    assert s["favorites"] == [] and s["lightGroups"] == []
+    s = await (await client.put("/api/settings", json={
+        "favorites": ["scene.kino", "lock.tuer", "scene.kino", "light.a", "Light.B", 5, "alarm_control_panel.haus"] + [f"light.l{i}" for i in range(30)],
+        "lightGroups": [{"id": "kids", "name": "  Kinder ", "rooms": ["k1", "k1", "", 7, "k2"]}, {"id": "kids", "name": "", "rooms": "x"}, "junk",
+                        {"name": "x" * 90, "rooms": ["r" * 200]}]})).json()
+    assert s["favorites"][:2] == ["scene.kino", "light.a"] and len(s["favorites"]) == 16
+    assert s["lightGroups"][0] == {"id": "kids", "name": "Kinder", "rooms": ["k1", "k2"]}
+    assert s["lightGroups"][1] == {"id": "kids_", "name": "#2", "rooms": []}
+    assert s["lightGroups"][2]["id"] == "g3" and len(s["lightGroups"][2]["name"]) == 40 and s["lightGroups"][2]["rooms"] == []
+    assert len(s["lightGroups"]) == 3
+    s = await (await client.put("/api/settings", json={"favorites": "light.a", "lightGroups": {"a": 1}})).json()
+    assert s["favorites"] == [] and s["lightGroups"] == []
+    assert len(server.clean_light_groups([{"id": f"g{i}", "name": "n", "rooms": []} for i in range(20)])) == 12
+
+
+def test_favorite_domains_match_the_browser():
+    """server.FAV_DOMAINS and FAV_SERVICE in static/favorites.js list the same domains (#471)"""
+    src = (Path(server.__file__).parent / "static" / "favorites.js").read_text()
+    block = src[src.index("export const FAV_SERVICE = {"):src.index("};", src.index("export const FAV_SERVICE = {"))]
+    assert set(server.re.findall(r"(\w+): '", block)) == set(server.FAV_DOMAINS)
+
+
 async def test_settings_facade(client):
     """the outside of the walls (#448): none as always, or a facade pattern with its own colour; woodchip or a bad colour fall back"""
     s = await (await client.get("/api/settings")).json()

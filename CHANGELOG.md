@@ -4,6 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.2.0] - 2026-10-21
+### Added
+- **Lights off for the whole house or a group of rooms** (#471): while lights are on, **💡 n an** shows at the top. A tap lists **Ganzes Haus** and your **light groups** (several rooms together, e.g. *Kinder* or *Oben*), each with how many of its lights are on, 👤 when somebody is in one of its rooms, and **Aus**. So nothing goes off by accident, the first tap only asks (**Sicher? Aus**), the second within three seconds switches off only that row's lights. The groups are set up in ⚙ → **⭐ Schnellzugriff** → *Licht-Gruppen* (a name and the rooms, ticked by floor). On phones the button is in the 📊 list.
+- **Favourites** (#471): the devices and scenes used most as buttons at the start of the strip at the bottom of the live mode, in front of the room tiles (also when the room tiles are off). One tap starts a scene, a script or a button, or toggles a light, switch, fan, roller shutter or player; a lit lamp glows in its colour. Set with **☆** on a device's card in live mode or in ⚙ → *Schnellzugriff* → *Favoriten* (add by name, ↑ ↓, ×), at most 16. A lock or an alarm panel is never a favourite.
+- **"What is still on?"** (#471): the device list (📋) has the filter **💡 An / offen**: lights, switches, fans, players and robot vacuums that run, and open doors and windows.
+- **Low batteries stand out** (#471): **📋 Geräte · 🪫 n** turns orange, and a tap opens the list at **🔋 Batterie** with the emptiest first.
+- **Undo after deleting** (#471): in the editor **Gelöscht · ↶ Rückgängig** shows for six seconds after something was deleted (several at once: *3 Teile gelöscht*); the button brings it back, handy on a tablet without Ctrl+Z.
+- **All keys on one card** (#471): **?** in the editor, or *⌨ Alle Tasten* under *Steuerung*, lists every key (tools, undo, copy, nudge by 1 cm / 10 cm, floors …).
+- **Recently used** (#471): the pieces placed last stand on top of the furniture library (*Alle*, no search), per browser.
+
 ## [4.1.4] - 2026-10-20
 ### Fixed
 - **Rooms turned black in the 2D plan with Temp., Feuchte or CO₂** (#467): the colour of a room's reading was handed to the plan as a number, which is no colour there, so every room with a sensor was drawn dark grey or black instead of in the colour of its temperature, humidity or CO₂ (in every design). Now the plan shows the colour of the reading, and *Normal* the colour of the floor as before.
