@@ -255,7 +255,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 0 | 0 | 8 | 0 | 54.1 bis 54.8 |
 | 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 0 | 0 | 7 | 0 | 55.1 bis 55.7 |
 | 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 0 | 0 | 7 | 0 | 56.1 bis 56.7 |
-| 57. Neu in 3.90: Garage, Werkstatt und Carport | 0 | 0 | 7 | 1 | 57.1 bis 57.7 |
+| 57. Neu in 3.90: Garage, Werkstatt und Carport | 3 | 0 | 4 | 1 | 57.4 bis 57.7 |
 | 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 8 | 0 | 0 | 0 | – |
 | 59. Neu in 3.92: Bar mit Deckenteil | 7 | 0 | 0 | 1 | – |
 | 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 9 | 0 | 0 | 3 | – |
@@ -275,7 +275,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
 | 76. Neu in 4.1.5: Saugroboter sichtbar, Hausmodus mit Knöpfen, „Innenmaß“ beim Messen (#473, #474) | 0 | 0 | 4 | 1 | 76.1 bis 76.3, 76.5 |
-| **Zusammen** | **418** | **5** | **109** | **34** | |
+| **Zusammen** | **421** | **5** | **106** | **34** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -948,9 +948,9 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 57. Neu in 3.90: Garage, Werkstatt und Carport
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 57.1 | Bearbeiten, Werkzeug „Gerät“, links die Gruppe „Fahrzeuge“ öffnen | Kleinwagen, Limousine, Kombi, SUV, Sportwagen, Pick-up, Transporter / Kleinbus, Kastenwagen (Camper), Wohnmobil, Alkoven-Wohnmobil, Wohnwagen, PKW-Anhänger, Motorrad, Motorroller, Fahrrad, E-Bike, Lastenrad, Aufsitzmäher, Mähroboter mit Ladestation, jedes mit Vorschaubild | ❓ |
-| 57.2 | Die Gruppen „Werkstatt“ und „Garage & Carport“ öffnen | Werkstatt: Werkbank (auch mit Lochwand und Licht), Lochwand, Werkstattwagen, Werkzeugschrank, Schwerlastregal, Sichtlagerkästen, Hebebühne, Wagenheber, Kompressor, Standbohrmaschine, Tischkreissäge, Schleifbock, Schweißgerät, Werkstattsauger, Reifenregal, Reifensatz, Stehleiter, zwei Werkstattleuchten, Feuerlöscher, Ölfass, Rollbrett. Garage & Carport: Carport, Doppelcarport, Solarcarport, Mülltonnen, Mülltonnenbox, Fahrradständer, Fahrrad an der Wand, Deckenregal, Metallschrank, Schubkarre, Rasenmäher, Gartengeräte, Hochdruckreiniger, Radstopper | ❓ |
-| 57.3 | Im Suchfeld „wohnmobil“, „hebebühne“, „mülltonne“, „kombi“ eingeben | Es werden die passenden Teile gefunden | ❓ |
+| 57.1 | Bearbeiten, Werkzeug „Gerät“, links die Gruppe „Fahrzeuge“ öffnen | Kleinwagen, Limousine, Kombi, SUV, Sportwagen, Pick-up, Transporter / Kleinbus, Kastenwagen (Camper), Wohnmobil, Alkoven-Wohnmobil, Wohnwagen, PKW-Anhänger, Motorrad, Motorroller, Fahrrad, E-Bike, Lastenrad, Aufsitzmäher, Mähroboter mit Ladestation, jedes mit Vorschaubild | ✅ (2026-10-21) |
+| 57.2 | Die Gruppen „Werkstatt“ und „Garage & Carport“ öffnen | Werkstatt: Werkbank (auch mit Lochwand und Licht), Lochwand, Werkstattwagen, Werkzeugschrank, Schwerlastregal, Sichtlagerkästen, Hebebühne, Wagenheber, Kompressor, Standbohrmaschine, Tischkreissäge, Schleifbock, Schweißgerät, Werkstattsauger, Reifenregal, Reifensatz, Stehleiter, zwei Werkstattleuchten, Feuerlöscher, Ölfass, Rollbrett. Garage & Carport: Carport, Doppelcarport, Solarcarport, Mülltonnen, Mülltonnenbox, Fahrradständer, Fahrrad an der Wand, Deckenregal, Metallschrank, Schubkarre, Rasenmäher, Gartengeräte, Hochdruckreiniger, Radstopper | ✅ (2026-10-21) |
+| 57.3 | Im Suchfeld „wohnmobil“, „hebebühne“, „mülltonne“, „kombi“ eingeben | Es werden die passenden Teile gefunden | ✅ (2026-10-21) |
 | 57.4 | Ein Auto und das Wohnmobil in die Garage stellen, von allen Seiten ansehen, im 2D-Plan die Größe ansehen | Sie sind so groß wie in echt (Kombi etwa 4,8 m lang, Wohnmobil 7 m lang und fast 3 m hoch); man sieht Fenster, Räder, Lichter, Spiegel | ❓ |
 | 57.5 | Ein Auto anklicken, rechts bei „Ausführung“ eine andere Farbe wählen, Strg+Z; dann eine wählen und die Seite neu laden | Die Farbe wechselt (glänzend wie Autolack); Strg+Z holt die vorige zurück; nach dem Neuladen ist die gewählte noch da | ❓ |
 | 57.6 | Das Auto mit einem Schalter verknüpfen, „Live“, ein- und ausschalten | Eingeschaltet leuchten vorne die Scheinwerfer weiß und hinten die Rücklichter rot; ausgeschaltet sind sie dunkel | ❓ |
