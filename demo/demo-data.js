@@ -78,9 +78,9 @@ const layout = {
       { id: 'd1',  type: 'tv_wall',    x: 2.5, z: 0.16, y: 1.2,  rot: 0,   scale: 1,   name: 'Fernseher',       entity: 'media_player.tv', ledEntity: 'light.tv_led' },
       { id: 'dc_sp', type: 'speaker',  x: 5.6, z: 0.4,  y: 0,    rot: 0,   scale: 1,   name: 'Lautsprecher Wohnzimmer', entity: 'media_player.sonos_wz' },   // #406: music, vacuum, fan, alarm, choice list
       { id: 'dc_fan', type: 'fan_stand', x: 0.6, z: 4.0, y: 0,    rot: 45,  scale: 1,   name: 'Standventilator', entity: 'fan.ventilator_wz' },
-      { id: 'dc_vac', type: 'vacuum',  x: 8.6, z: 3.9,  y: 0,    rot: 0,   scale: 1,   name: 'Saugroboter', entity: 'vacuum.robo' },
+      { id: 'dc_vac', type: 'vacuum',  x: 6.9, z: 1.2,  y: 0,    rot: 0,   scale: 1,   name: 'Saugroboter', entity: 'vacuum.robo' },   // in front of the kitchen counter, not under the stairs (#473)
       { id: 'dc_al', type: 'switch',   x: 9.86, z: 5.3, y: 1.4,  rot: 270, scale: 1,   name: 'Alarmanlage (Code 1234)', entity: 'alarm_control_panel.haus' },
-      { id: 'dc_hm', type: 'switch',   x: 9.86, z: 5.9, y: 1.1,  rot: 270, scale: 1,   name: 'Hausmodus', entity: 'input_select.hausmodus' },
+      { id: 'dc_hm', type: 'switch',   x: 7.08, z: 6.55, y: 1.1, rot: 90,  scale: 1,   name: 'Hausmodus', entity: 'input_select.hausmodus' },   // inner wall of the office, away from the meters' labels (#474)
       { id: 'd2',  type: 'sofa',       x: 2.5, z: 3.5,  y: 0,    rot: 180, scale: 1.1, name: 'Sofa',            entity: '' },
       { id: 'd3',  type: 'table',      x: 2.5, z: 2.2,  y: 0,    rot: 0,   scale: 0.6, name: 'Couchtisch',      entity: '' },
       { id: 'd4',  type: 'light',      x: 3,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Deckenlicht',     entity: 'light.wohnzimmer' },

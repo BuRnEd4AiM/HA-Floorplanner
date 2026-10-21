@@ -1,6 +1,6 @@
 {
- "version": "4.1.4",
- "buildHash": "662eb7fe6323eea4207f31d81b93e6f3d45590e1982e9ff0c2d07467eba79037",
+ "version": "4.1.5",
+ "buildHash": "25118c3c9e3cea0414eeeea612d6d3fb1aec3f1b54104104ec7becb95fcb1a20",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "controls.py": "6d7830e85d1010f56885e15edb68a870a696b6e6a265e859b8a3e0aa4e3ae9c8",
@@ -157,7 +157,7 @@
   "static/collide.js": "8b8d5036765906e3453a2ae8fa4c2c2e2af380fda031eb9fad78bf18d93f8496",
   "static/compass.js": "a47770fbc2511ddc67ec3e2bbd52c4052ba95cde66ef539aeba0e1f1ed3d1408",
   "static/cutaway.js": "1874b9867ddaab2cf6bdbde12c151a956ad7ff5a71ebf36aa02e01180744cd62",
-  "static/devicecontrols.js": "8d414f679a8c0a8f31c0c5b4fd5c11cc882cecf8c4fa58bf494dd2ec35733e51",
+  "static/devicecontrols.js": "61cae9e3f37567f92d5d911b295d9f6080edc1672ae76fc1ea6e08d1cdbb68a0",
   "static/devicelist.js": "fa4f24e798710799c9b536a7f68676ae016a1f2a1f168339512b372b337554ba",
   "static/dormer.js": "4e590294e6b39ff9963f2cc299d3593a939334950afd888507c794e665ea023f",
   "static/dormerwin.js": "8fd84b5d56692f36e08b180da2a45a5f091298393c114ab2f70d290cd0e67e1a",
@@ -272,7 +272,7 @@
   "static/stairtool.js": "e43ac3cde376fe243d6e9b13b545e4ac2fc4dde092776c8a6d5a8bd77c250b8f",
   "static/startview.js": "da8d6d4ce30c1a3bd866e4f95d0bfa2190f08220178c381c0b5b85b31894a634",
   "static/style.css": "17813b0e7e57f8c07aa1a9a921ba62e49fb087a4091875e3cad469a8b9553a33",
-  "static/tapballs.js": "495fc0973da8f4ce0b29b41cf0b1b52f82bfb825956f27be90a666b2b54a3596",
+  "static/tapballs.js": "00ab783053a30258214ae7e8b80e60875e12c52773a5e0117943ebcd6a4c52ea",
   "static/timeline.js": "9cd1878b21bad1139a1bb67bdc4f0532d64b6f3ec0fd662c390aedb8d53ea554",
   "static/timelineui.js": "14284ed033acfeccd3163a5933cf9d75e42776d46c71c95f323f2159e9df8462",
   "static/toolbar.js": "e588e0c96c00e82dc1d44314ae912ed6917f558001345c2602d3fc4eaefca644",

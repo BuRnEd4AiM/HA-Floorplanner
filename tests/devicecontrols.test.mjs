@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 const S = process.env.STATIC_DIR || '/tmp/static';
 const D = await import(`${S}/devicecontrols.js`);
+const T = await import(`${S}/tapballs.js`);
 const svcs = (p) => p.buttons.map((b) => b.svc);
 
 test('nothing for a domain without controls here, or without a state', () => {
@@ -84,6 +85,16 @@ test('alarm panel: arm when it is off, disarm when it is armed, the code where i
 test('button and choice list', () => {
   assert.deepEqual(D.controlPlan('button.klingel', { state: 'unknown' }), { kind: 'button' });
   assert.deepEqual(D.controlPlan('input_button.x', { state: '2026-01-01' }), { kind: 'button' });
-  assert.deepEqual(D.controlPlan('input_select.modus', { state: 'Eco', ctl: { options: ['Eco', 'Komfort'] } }), { kind: 'select', options: ['Eco', 'Komfort'], value: 'Eco' });
+  assert.deepEqual(D.controlPlan('input_select.modus', { state: 'Eco', ctl: { options: ['Eco', 'Komfort'] } }), { kind: 'select', options: ['Eco', 'Komfort'], value: 'Eco', chips: true });
   assert.deepEqual(D.controlPlan('select.x', { state: 'a' }).options, []);
+  assert.equal(D.controlPlan('select.x', { state: 'a' }).chips, false);                  // nothing to choose: no buttons
+});
+
+test('choice list: a few options are buttons, many a drop-down (#474)', () => {
+  const opts = (n) => Array.from({ length: n }, (_, i) => `M${i}`);
+  assert.equal(D.controlPlan('input_select.hausmodus', { state: 'Zu Hause', ctl: { options: ['Zu Hause', 'Abwesend', 'Urlaub', 'Nacht'] } }).chips, true);
+  assert.equal(D.controlPlan('select.x', { state: 'M0', ctl: { options: opts(D.CHIPS_MAX) } }).chips, true);
+  assert.equal(D.controlPlan('select.x', { state: 'M0', ctl: { options: opts(D.CHIPS_MAX + 1) } }).chips, false);
+  assert.equal(T.ballIcon({ type: 'switch', entity: 'input_select.hausmodus' }), '☰');    // its ball: a list, not just a dot
+  assert.equal(T.ballIcon({ type: 'switch', entity: 'select.waschprogramm' }), '☰');
 });

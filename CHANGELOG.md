@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.1.5] - 2026-10-21
+### Changed
+- **A choice list with a few options shows them as buttons** (#474): the live card of a choice list (`input_select` / `select`, e.g. a house mode *Zu Hause / Abwesend / Urlaub / Nacht*) had only a drop-down, so *Urlaub* was no button to tap. Up to 6 options now stand side by side as buttons like a fan's presets, the chosen one highlighted; longer lists stay a drop-down. Its ball shows ☰ instead of a plain dot.
+
+### Fixed
+- **Demo: the robot vacuum could not be found** (#473): it stood in the kitchen right under the stairs. It now stands in front of the kitchen counter. The demo's house mode moved from the crowded outer wall of the office (next to the meters' labels) to its inner wall.
+
 ## [4.1.4] - 2026-10-20
 ### Fixed
 - **Rooms turned black in the 2D plan with Temp., Feuchte or CO₂** (#467): the colour of a room's reading was handed to the plan as a number, which is no colour there, so every room with a sensor was drawn dark grey or black instead of in the colour of its temperature, humidity or CO₂ (in every design). Now the plan shows the colour of the reading, and *Normal* the colour of the floor as before.
