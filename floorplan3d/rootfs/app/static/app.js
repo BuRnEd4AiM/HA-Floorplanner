@@ -92,6 +92,7 @@ import { initRoutinesPage } from './pageroutines.js';
 import { initFamilyPage } from './pagefamily.js';
 import { initPinboard } from './pinboardui.js';
 import { initRoutinePrefs } from './routineprefs.js';
+import { initDashboards } from './dashboards.js';
 import { meterPart } from './energymetersui.js';
 import { initTodayPrefs } from './todayprefs.js';
 import { initTapBalls } from './tapballs.js';
@@ -647,8 +648,19 @@ document.addEventListener('click', (e) => { dropdowns.forEach(([m, b]) => { if (
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.forEach(([m, b]) => { if (!m.hidden) toggleMenu(m, b, false); }); });
 
 /* ================= Tab bar at the bottom (#479): the house and pages beside it; the code lives in tabs.js, tabsui.js and page*.js ================= */
+/** a room of a page (Klima, an own card "Raum"): to the house, its floor, the room open */
+const openRoomAt = (fi, id) => { tabsUi.show('house'); if (houseMode || fi !== floorIdx) switchFloor(fi); if (focusedRoom !== id) liveSelect({ kind: 'room', id }); };
+const dash = initDashboards({                                    // the pages arranged by an admin, own cards and pages (#484, dashboards.js)
+  $, t, lang: () => currentLanguage(), settings: () => settings, save: () => settingsStore.save(), canEdit: () => me.canEdit,
+  states: () => states, entities: () => entities, areas: () => areas, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, stateText: (e) => stateText(e),
+  callService: (e, svc, data) => live.callService(e, svc, data), layout: () => shownLayout(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf,
+  isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), openRoom: openRoomAt,
+  camImage: (e) => cams.camImage(e, 'oc-img'), openCamera: (e) => { camPage.big(e); tabsUi.show('cameras'); },
+  builtin: (k) => todayPage.card(k.split(':')[1]), tabsUi: () => tabsUi,
+});
+const board = dash.board;
 const camPage = initCameraPage({
-  t, el: $('#tabPages [data-page=cameras]'), cams, layout: () => layout, settings: () => lockedSettings(settings, [...locks]),
+  t, el: $('#tabPages [data-page=cameras]'), cams, layout: () => layout, settings: () => lockedSettings(settings, [...locks]), board,
   showDevice: (fi, id) => { tabsUi.show('house'); offline.show({ floor: fi, kind: 'device', id }); },
 });
 const namesOf = (re) => Object.fromEntries(entities.filter((e) => re.test(e.entity_id)).map((e) => [e.entity_id, e.name]));
@@ -658,26 +670,25 @@ const todayPage = initTodayPage({                                // ☀ Heute (p
   names: () => namesOf(/^(person|alarm_control_panel)\./),
   summary: () => ({ open: openings.items().map((x) => x.name), lights: lightGroups.count(), low: deviceList.low(),
     offline: offline.devices().filter((x) => x.reason !== 'unlinked').length }),
-  act: (k) => todayAct(k), pinboard, family: () => tabsUi.has('family'),
+  act: (k) => todayAct(k), pinboard, family: () => tabsUi.has('family'), board,
 });
 const climatePage = initClimatePage({                            // 🌡 Klima (pageclimate.js, climate.js, #483)
   t, el: $('#tabPages [data-page=climate]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => shownLayout(),
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
-  callService: (e, svc, data) => live.callService(e, svc, data),
-  openRoom: (fi, id) => { tabsUi.show('house'); if (houseMode || fi !== floorIdx) switchFloor(fi); if (focusedRoom !== id) liveSelect({ kind: 'room', id }); },
+  callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board,
 });
 const routinesPage = initRoutinesPage({                          // ▶ Abläufe (pageroutines.js, routines.js, #483)
   t, el: $('#tabPages [data-page=routines]'), states: () => states, settings: () => settings, canEdit: () => me.canEdit,
   names: () => namesOf(/^(scene|script|button|input_button|media_player|lock|automation)\./),
   openNames: () => openings.items().map((x) => x.name), litLights: () => lightGroups.lit(),
-  callService: (e, svc, data) => live.callService(e, svc, data),
+  callService: (e, svc, data) => live.callService(e, svc, data), board,
 });
 const familyPage = initFamilyPage({                              // 👨‍👩‍👧 Familie with the pinboard (pagefamily.js, family.js, #483)
-  t, el: $('#tabPages [data-page=family]'), lang: () => currentLanguage(), states: () => states, names: () => namesOf(/^person\./), pinboard,
+  t, el: $('#tabPages [data-page=family]'), lang: () => currentLanguage(), states: () => states, names: () => namesOf(/^person\./), pinboard, board,
 });
 const energyPage = initEnergyPage({                              // ⚡ Energie (pageenergy.js, energyhistory.js)
   t, el: $('#tabPages [data-page=energy]'), lang: () => currentLanguage(), layout: () => layout, houseId: () => hs.id(),
-  houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(),
+  houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(), board,
 });
 /** a tap on a row of "Im Haus" on the page ☀ Heute: to the house and what the row is about (the power: to the page ⚡ Energie) */
 function todayAct(k) {
@@ -693,9 +704,11 @@ function todayAct(k) {
 }
 const tabsUi = initTabsUi({
   $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => me,
-  pages: { today: { el: $('#tabPages [data-page=today]'), ...todayPage }, energy: { el: $('#tabPages [data-page=energy]'), ...energyPage },
+  pages: () => ({ today: { el: $('#tabPages [data-page=today]'), ...todayPage }, energy: { el: $('#tabPages [data-page=energy]'), ...energyPage },
     climate: { el: $('#tabPages [data-page=climate]'), ...climatePage }, cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage },
-    routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage } },
+    routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage },
+    ...dash.customPages() }),
+  edit: dash.edit, tabEdit: dash.tabEdit,
   onShow: (tab) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } wake(); },
 });
 

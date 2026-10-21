@@ -170,6 +170,18 @@ async def one_state(r):           # #483: one state (a person's picture is looke
     if e in STATE: return web.json_response(state_of(e))
     return web.json_response({"message": "Entity not found."}, status=404)
 async def image_serve(r): return web.Response(body=PNG, content_type="image/png")   # #483: an uploaded picture of a person
+HISTORY_ASKED = []    # #484: the histories the add-on asked for: [entity, start]
+async def history(r):             # #484: Home Assistant's history of one entity (a card "Verlauf"): a value every hour, 10 to 20
+    import datetime as dt
+    e = r.query.get("filter_entity_id", ""); HISTORY_ASKED.append([e, r.match_info["start"]])
+    start = dt.datetime.fromisoformat(r.match_info["start"].replace(" ", "+").replace("Z", "+00:00"))
+    now = dt.datetime.now(dt.timezone.utc)
+    rows, t, i = [], start, 0
+    while t < now:
+        rows.append({"state": str(15 + 5 * ((i % 10) - 5) / 5), "last_changed": t.isoformat()}); t += dt.timedelta(hours=1); i += 1
+    if rows: rows[0]["entity_id"] = e
+    return web.json_response([rows] if rows else [])
+async def history_asked(r): return web.json_response(HISTORY_ASKED)
 PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000" "1f15c4890000000d49444154789c6360f8ffff3f0005fe02fea75a3c260000000049454e44ae426082")
 async def in_two(r, body, ctype):
     """an answer in two pieces with a pause between them, as pictures and video pieces come through the Supervisor (#385)"""
@@ -231,5 +243,6 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
                 web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_stats", stats_asked),
-                web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve)])
+                web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),
+                web.get("/history/period/{start}", history), web.get("/_history", history_asked)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

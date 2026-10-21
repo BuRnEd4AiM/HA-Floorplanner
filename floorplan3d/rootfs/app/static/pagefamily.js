@@ -5,10 +5,11 @@ import { familyRows, avatarHue, whenOf, hasFamily, LOW_PHONE } from './family.js
 
 const AGAIN = 5 * 60000, MOVED = 30000;
 
-/** ctx: t, el (the page), lang(), states(), names() ({ entity: name }), pinboard (initPinboard) */
+/** ctx: t, el (the page), lang(), states(), names() ({ entity: name }), pinboard (initPinboard), board (pageboard.js, #484: keys
+ *  p:<person>, pinboard) */
 export function initFamilyPage(ctx) {
   const { t, el } = ctx;
-  let people = [], at = 0, asking = null, seen = '', drawn = '', box = null, notesBox = null, form = null;
+  let people = [], at = 0, asking = null, seen = '', drawn = '', box = null, notesBox = null, form = null, board = null, later = false;
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const lang = () => ctx.lang() || 'de';
   const whereSig = () => JSON.stringify(Object.entries(ctx.states()).filter(([e]) => e.startsWith('person.')).map(([e, s]) => [e, s?.state]));
@@ -48,30 +49,33 @@ export function initFamilyPage(ctx) {
     c.append(avatar(p), txt, side);
     return c;
   }
-  /** the skeleton once (the form keeps what is typed), the people and the notes again when they changed */
+  /** the skeleton once (the pinboard's form keeps what is typed), the people and the notes again when they changed */
   function build() {
     const head = make('div', 'tpHead'); head.append(make('h2', '', `👨‍👩‍👧 ${t('tab.family')}`));
-    box = make('div', 'fmPeople');
-    const board = make('div', 'tpCard pbBoard'); board.append(make('h3', 'peH', `📌 ${t('pb.title')}`));
+    box = make('div', 'fmGrid');
+    board = make('div', 'tpCard pbBoard'); board.append(make('h3', 'peH', `📌 ${t('pb.title')}`));
     notesBox = make('div'); form = ctx.pinboard.form();
     board.append(notesBox, form.el);
-    const grid = make('div', 'fmGrid'); grid.append(box, board);
-    el.replaceChildren(head, grid);
+    board.addEventListener('focusout', () => { if (later) { later = false; setTimeout(draw); } });
+    el.replaceChildren(head, box);
     drawn = '';
   }
-  function draw() {
+  function draw(force = false) {
     if (!box || !el.contains(box)) return;
     const rows = familyRows(people, ctx.states(), ctx.names());
     const sig = JSON.stringify([rows, ctx.pinboard.rev(), lang()]);
-    if (sig === drawn) return;
-    drawn = sig;
-    box.replaceChildren(...rows.map(personCard));
-    if (!rows.length) box.append(make('p', 'tpSub', t('fm.nobody')));
+    if (sig === drawn && !force) return;
     notesBox.replaceChildren(ctx.pinboard.list({ del: true }));
     form.refresh();
+    if (document.activeElement?.tagName === 'TEXTAREA' && board.contains(document.activeElement) && !force) { later = true; return; }   // typing a note: the cards move after it
+    drawn = sig;
+    const items = rows.map((p) => ({ key: `p:${p.id}`, el: personCard(p), width: 1 }));
+    if (!rows.length) items.push({ key: 'nobody', el: make('p', 'tpSub', t('fm.nobody')), width: 2 });
+    items.push({ key: 'pinboard', el: board, width: 2 });
+    ctx.board.fill('family', box, items, { min: 320 });
   }
   return {
-    render: () => { build(); draw(); load(); ctx.pinboard.load(); },
+    render: () => { build(); draw(true); load(); ctx.pinboard.load(); },
     update: () => { draw(); load(); ctx.pinboard.load(); },
     has: () => hasFamily(ctx.states()),
     reset: () => { drawn = ''; },

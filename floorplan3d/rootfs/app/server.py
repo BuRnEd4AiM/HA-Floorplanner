@@ -23,6 +23,7 @@ import aiohttp
 from aiohttp import web
 
 import alarmnotify as an
+import boards
 import guard as gd
 import controls
 import importer
@@ -106,6 +107,9 @@ DEFAULT_SETTINGS = {
     "routines": [],            # the buttons of the page ▶ Abläufe (#483): scenes, scripts, buttons; empty = every scene and script
     "routineLeave": "",        # the routine "Ich gehe" starts after its check (a scene, script or button, #483); "" = only the check
     "routineNight": "",        # the same for "Gute Nacht"
+    "pageLayouts": {},         # the pages arranged by an admin (#484): {page: {"order", "hidden", "cards"}} (boards.py, static/pagelayout.js)
+    "customTabs": [],          # own pages of the tab bar (#484): [{"id": "p_…", "name", "icon"}]
+    "tabOrder": [],            # the order of the tab bar (#484): tab keys, the house always first
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "bgTop": "#0a3ba8",
@@ -127,7 +131,7 @@ PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWall
                  "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False)}
 
 # the tabs of the tab bar (the same keys as TABS in static/tabs.js, #479); the house is always there, the others can be hidden per user
-TABS = ("house", "today", "energy", "climate", "cameras", "routines", "family")
+TABS = boards.TABS            # own pages of an admin (#484) are "p_…" (boards.CUSTOM_ID)
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too
 LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
@@ -158,7 +162,10 @@ def clean_user_tabs(val) -> dict:
         if not u or not isinstance(v, dict):
             continue
         hide = [k for k in TABS if k != "house" and isinstance(v.get("hide"), list) and k in v["hide"]]
-        start = v.get("start") if v.get("start") in TABS and v.get("start") != "house" and v.get("start") not in hide else ""
+        for k in v.get("hide") if isinstance(v.get("hide"), list) else []:          # own pages (#484)
+            if isinstance(k, str) and boards.CUSTOM_ID.match(k) and k not in hide:
+                hide.append(k)
+        start = v.get("start") if boards.is_tab_key(v.get("start")) and v.get("start") != "house" and v.get("start") not in hide else ""
         if hide or start:
             out[u] = {"hide": hide, **({"start": start} if start else {})}
     return out
@@ -564,6 +571,12 @@ def validate_settings(data: dict) -> dict:
             out[key] = pages.clean_calendars(val)
         elif key == "routines":
             out[key] = clean_routines(val)
+        elif key == "customTabs":
+            out[key] = boards.clean_custom_tabs(val)
+        elif key == "tabOrder":
+            out[key] = boards.clean_tab_order(val)
+        elif key == "pageLayouts":
+            pass                                                      # after the loop: it needs the own pages
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
@@ -615,6 +628,7 @@ def validate_settings(data: dict) -> dict:
         out["weatherEntity"] = ""
     if out["wasteCalendar"] and not pages.CALENDAR_ID.match(out["wasteCalendar"]):
         out["wasteCalendar"] = ""
+    out["pageLayouts"] = boards.clean_page_layouts(data.get("pageLayouts"), out["customTabs"])
     for key in ("routineLeave", "routineNight"):
         if out[key] and not clean_routines([out[key]]):
             out[key] = ""
@@ -1963,6 +1977,34 @@ async def get_agenda(request):
     return web.json_response({"events": hit, "waste": st["wasteCalendar"]})
 
 
+# ---------- the card "Verlauf" of a page (#484, boards.py): the history of one entity ----------
+HISTORY_HOURS = (6, 24, 168, 720)
+
+
+async def get_history(request):
+    """The numbers of one entity over the last hours (?entity=&hours=6|24|168|720) for a card "Verlauf", kept 2 minutes."""
+    entity, hours = request.query.get("entity", ""), request.query.get("hours", "24")
+    if not boards.ENTITY.match(entity) or not hours.isdigit() or int(hours) not in HISTORY_HOURS:
+        return web.json_response({"error": "an entity and hours 6, 24, 168 or 720"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"points": []})
+    key = ("history", entity, int(hours))
+    hit = pages_cached(request, key, 120)
+    if hit is not None:
+        return web.json_response(hit)
+    start = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=int(hours))).isoformat()
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=20)) as s:
+            async with s.get(f"{HA_API}/history/period/{start}", headers=ha_headers(),
+                             params={"filter_entity_id": entity, "minimal_response": "", "no_attributes": "", "significant_changes_only": ""}) as r:
+                if r.status != 200:
+                    return web.json_response({"error": f"HA answered {r.status}", "points": []}, status=502)
+                data = await r.json()
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}", "points": []}, status=502)
+    return web.json_response(pages_keep(request, key, {"points": boards.slim_history(data, entity)}))
+
+
 # ---------- 👨‍👩‍👧 Familie (#483, pages.py): the people with their phone's battery, their pictures, the pinboard ----------
 MAX_PICTURE_BYTES = 2 * 1024 * 1024
 
@@ -2569,6 +2611,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/forecast", get_forecast),
         web.get("/api/calendars", get_calendars),
         web.get("/api/agenda", get_agenda),
+        web.get("/api/history", get_history),
         web.get("/api/family", get_family),
         web.get("/api/family/{entity}/picture", get_family_picture),
         web.get("/api/pinboard", get_pinboard),

@@ -10,7 +10,8 @@ import { roomOpenings } from './roompanel.js';
 import { openingEntities } from './openings.js';
 
 /** ctx: t, el (the page), lang(), settings(), states(), layout() (the building shown), placed(floor) (its devices with entities),
- *  areaEntities(room), isOpen(entity), nameOf(entity), callService(entity, service, data), openRoom(floorIndex, roomId) */
+ *  areaEntities(room), isOpen(entity), nameOf(entity), callService(entity, service, data), openRoom(floorIndex, roomId), board (pageboard.js,
+ *  #484: the cards in the order an admin chose; keys room:<id>, loose, tip) */
 export function initClimatePage(ctx) {
   const { t, el } = ctx;
   const pending = new Map();                         // entity -> { v, timer }: a target tapped but not sent yet
@@ -112,23 +113,22 @@ export function initClimatePage(ctx) {
     head.append(tools);
     const shown = filterRooms(m.rooms, filter), floors = new Set(m.rooms.map((r) => r.floor)).size;
     const grid = make('div', 'clGrid');
-    shown.forEach((r) => grid.append(roomCard(r, floors)));
-    const out = [head, grid];
-    if (!shown.length) grid.append(make('p', 'tpSub', m.rooms.length ? t('cl.allFine') : t('cl.noRooms')));
-    const below = make('div', 'clBelow');
+    const items = shown.map((r) => ({ key: `room:${r.id}`, el: roomCard(r, floors), width: 1 }));
     if (m.loose.length) {
       const c = make('div', 'tpCard clLooseCard'); c.append(make('h3', 'peH', t('cl.loose')));
       m.loose.forEach((x) => c.append(looseRow(x)));
-      below.append(c);
+      items.push({ key: 'loose', el: c, width: 2 });
     }
     if (m.tips.length) {
       const c = make('div', 'tpCard clTip'); c.append(make('h3', 'peH', t('cl.tip')));
       const tip = m.tips[0];
       c.append(make('p', '', tip.key === 'window' ? t('cl.tip.window', { room: tip.room }) : t('cl.tip.air', { room: tip.room, n: Math.round(tip.co2) })));
-      below.append(c);
+      items.push({ key: 'tip', el: c, width: 2 });
     }
-    if (below.childElementCount) out.push(below);
-    el.replaceChildren(...out);
+    const out = [head];
+    if (!shown.length) out.push(make('p', 'tpSub', m.rooms.length ? t('cl.allFine') : t('cl.noRooms')));
+    el.replaceChildren(...out, grid);
+    ctx.board.fill('climate', grid, items, { min: 260 });
   }
   return {
     render: () => draw(true),

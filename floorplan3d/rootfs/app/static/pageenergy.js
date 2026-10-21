@@ -9,11 +9,11 @@ const OWN = '#cc7a00', GRID = '#488fc2';           // made itself (sun, battery)
 const ALL = '*';
 
 /** ctx: t, el (the page), lang(), layout() (the house shown), houseId(), houses() ([{ id, name }]), changed() (the tab bar again: the page
- *  can have something now or not) */
+ *  can have something now or not), board (pageboard.js, #484: keys tiles, chart, top, more) */
 export function initEnergyPage(ctx) {
   const { t, el } = ctx;
   let ha = null, haErr = false, asking = null, askedAt = 0;   // Home Assistant's energy dashboard: { meters, devices, price }
-  let kind = 'day', offset = 0, house = null, drawn = '', run = 0;
+  let kind = 'day', offset = 0, house = null, drawn = '', run = 0, forced = false;   // forced: a forced drawing overtaken by a newer one stays forced
   const layouts = new Map();                       // other houses: id -> layout (for their meters)
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on) => { const b = make('button', cls, text); b.type = 'button'; b.addEventListener('click', on); return b; };
@@ -147,6 +147,7 @@ export function initEnergyPage(ctx) {
 
   async function render(force = false) {
     const me = ++run;
+    if (force) forced = true;
     if (!ha || (haErr && force)) await probe(true);
     if (me !== run) return;
     const c = await chosen();
@@ -155,7 +156,7 @@ export function initEnergyPage(ctx) {
     const now = new Date(), p = periodRange(kind, offset, now), prev = periodRange(kind, offset - 1, now);
     const ids = meterIds(c.meters, c.devices);
     const sig = `${house}|${kind}|${offset}|${ids.join()}|${Math.floor(+now / 300000)}`;      // again at most every 5 minutes
-    if (!force && sig === drawn) return;
+    if (!forced && sig === drawn) return;
     let data;
     try {
       const r = await fetch('api/energy/stats', { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -164,12 +165,12 @@ export function initEnergyPage(ctx) {
       data = await r.json();
     } catch { if (me === run) empty(t('pe.noHa')); return; }
     if (me !== run) return;
-    drawn = sig;
+    drawn = sig; forced = false;
     const stats = data.stats || {}, units = data.units || {};
     const rows = bars(stats, c.meters, p.buckets, p.end), prevRows = bars(stats, c.meters, prev.buckets, prev.end);
     const cur = totals(rows), n = offset === 0 ? elapsed(p.buckets, now) : prevRows.length, before = totals(prevRows, n);
     const money = cost(cur, c.price);
-    const out = [head(), nav(p, c.own ? t('pe.ownMeters') : t('pe.haMeters'))];
+    const out = [head(), nav(p, c.own ? t('pe.ownMeters') : t('pe.haMeters'))], items = [];
     const tiles = make('div', 'peTiles');
     const prevText = (v) => t(`${offset === 0 ? 'pe.prev' : 'pe.prevFull'}.${p.kind}`, { v: num(v) });   // the period before: so far, or whole
     tiles.append(tile(t('pe.used'), num(cur.use), 'kWh', prevText(before.use)));
@@ -179,15 +180,14 @@ export function initEnergyPage(ctx) {
     if (cur.autarky != null && (m.solar.length || m.batOut.length)) tiles.append(tile(t('pe.autarky'), String(cur.autarky), '%', t('pe.autarkySub')));
     if (money) tiles.append(tile(t('pe.cost'), money.net.toLocaleString(lang(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }), '€',
       money.sell ? t('pe.costSub', { v: money.sell.toLocaleString(lang(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }) : ''));
-    out.push(tiles);
-    const grid = make('div', 'peMain');
+    items.push({ key: 'tiles', el: tiles, width: 4 });
     const card = make('div', 'tpCard peChartCard');
     card.append(make('h3', 'peH', t(`pe.chart.${p.kind}`)), chart(p, rows, now));
     const legend = make('div', 'peLegend');
     [[OWN, t('pe.legendOwn')], [GRID, t('pe.legendGrid')]].forEach(([col, txt]) => { const s = make('span'); const i = make('i', 'peSwatch'); i.style.background = col; s.append(i, document.createTextNode(txt)); legend.append(s); });
     legend.append(make('span', 'tpSub', 'kWh'));
     card.append(legend);
-    grid.append(card);
+    items.push({ key: 'chart', el: card, width: 3 });
     const top = topDevices(stats, c.devices, p.start, p.end);
     if (top.length) {
       const box = make('div', 'tpCard peTop');
@@ -199,17 +199,18 @@ export function initEnergyPage(ctx) {
         r.append(make('span', 'peTopName', d.name || d.id), bar, make('b', '', `${num(d.kwh)} kWh`));
         box.append(r);
       });
-      grid.append(box);
+      items.push({ key: 'top', el: box, width: 1 });
     }
-    out.push(grid);
     const more = make('div', 'peTiles');
     [['gas', '🔥'], ['water', '💧']].forEach(([k, icon]) => {
       if (!m[k].length) return;
       const unit = units[m[k][0]] || (k === 'water' ? 'm³' : 'kWh');
       more.append(tile(`${icon} ${t(`pe.${k}`)}`, num(cur[k]), unit, prevText(before[k])));
     });
-    if (more.childElementCount) out.push(more);
-    el.replaceChildren(...out);
+    if (more.childElementCount) items.push({ key: 'more', el: more, width: 4 });
+    const grid = make('div', 'peBoard');
+    el.replaceChildren(...out, grid);
+    ctx.board.fill('energy', grid, items, { min: 280 });
   }
   return {
     render: () => render(true), update: () => render(false),
