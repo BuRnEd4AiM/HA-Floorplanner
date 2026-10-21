@@ -13,7 +13,9 @@ def test_settings_are_cleaned_and_the_code_is_never_stored_as_such():
                      "actions": ["siren.flur", "light.wohnzimmer", "lock.tuer", "script.alarm"], "code": " 4711 ", "notify": False})
     assert c["sensors"] == ["binary_sensor.haustuer"] and c["delay"] == 300 and c["offline"] is False and c["notify"] is False and c["report"] is True
     assert c["actions"] == ["siren.flur", "light.wohnzimmer", "script.alarm"]                         # a lock is no siren
-    assert "4711" not in str(c) and g.check_code(c, "4711") and not g.check_code(c, "4712") and not g.check_code(c, None)
+    rest = {k: v for k, v in c.items() if k != "code"}                                              # the salt and hash are random hex: they may hold 4711 by chance (#477)
+    assert "4711" not in str(rest) and set(c["code"]) == {"salt", "hash"} and len(c["code"]["salt"]) == 32 and len(c["code"]["hash"]) == 64
+    assert g.check_code(c, "4711") and not g.check_code(c, "4712") and not g.check_code(c, None)
     assert g.public(c)["hasCode"] is True and "code" not in g.public(c)
     kept = g.clean_cfg({"delay": -5}, c)
     assert kept["delay"] == 0 and g.check_code(kept, "4711")                                             # a save without a code keeps it
