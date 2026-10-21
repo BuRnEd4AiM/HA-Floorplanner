@@ -9,7 +9,7 @@ export const BINDINGS = {
   language: '#setLanguage', theme: '#setTheme', units: '#setUnits', grid: '#setGrid',
   wallHeight: '#setWallHeight', wallThickness: '#setWallThickness', autosaveSeconds: '#setAutosave',
   shadows: '#setShadows', labelMode: '#setLabels', cameraImages: '#setCameraImages', earth: '#setEarth', earthMargin: '#setEarthMargin', lowWalls: '#setLowWalls', sky: '#setSky', energyCard: '#setEnergyCard', roomTiles: '#setRoomTiles', roomLabels: '#setRoomLabels', windowFrames: '#setWindowFrames',
-  alerts: '#setAlerts', alertJump: '#setAlertJump', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', seeThrough: '#setSeeThrough', belowLabels: '#setBelowLabels', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', updateCheck: '#setUpdateCheck', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount', timelineOn: '#setTimelineOn', timelineKeepDays: '#setTimelineKeep',
+  alerts: '#setAlerts', alertJump: '#setAlertJump', tabBar: '#setTabBar', weatherEntity: '#setWeather', idleReturn: '#setIdleReturn', idleOrbit: '#setIdleOrbit', nightDim: '#setNightDim', nightFrom: '#setNightFrom', nightTo: '#setNightTo', cutaway: '#setCutaway', seeThrough: '#setSeeThrough', belowLabels: '#setBelowLabels', wallStop: '#setWallStop', placeSelect: '#setPlaceSelect', updateCheck: '#setUpdateCheck', autoBackup: '#setAutoBackup', backupEveryHours: '#setBackupEvery', backupKeepDays: '#setBackupKeepDays', backupKeepCount: '#setBackupKeepCount', timelineOn: '#setTimelineOn', timelineKeepDays: '#setTimelineKeep',
   wallOpacity: '#setWallOpacity', belowVisibility: '#setBelow', belowMode: '#setBelowMode', houseFloors: '#setHouseFloors', glowRadius: '#setGlowRadius', glowStrength: '#setGlowStrength', glowHeight: '#setGlowHeight',
   defaultLightColor: '#setDefaultLight', bgTop: '#setBgTop', bgBottom: '#setBgBottom', bgGlow: '#setBgGlow', bgGlowStrength: '#setBgGlowStrength',
 };
@@ -38,7 +38,7 @@ export function resolveWallView(prev, next) {
   return !prev.seeThrough ? { ...next, cutaway: false } : { ...next, seeThrough: false };
 }
 /** how many users have a tablet assignment (room or view) */
-export const tabletUsers = (s) => new Set([...Object.keys(s.userRooms || {}), ...Object.keys(s.userViews || {}), ...Object.keys(s.userPresets || {}), ...Object.keys(s.userLocks || {}), ...Object.keys(s.userBuildings || {}),
+export const tabletUsers = (s) => new Set([...Object.keys(s.userRooms || {}), ...Object.keys(s.userViews || {}), ...Object.keys(s.userPresets || {}), ...Object.keys(s.userLocks || {}), ...Object.keys(s.userBuildings || {}), ...Object.keys(s.userTabs || {}),
   ...Object.keys(s.startViews || {}).filter((u) => u !== '*')]).size;
 
 /** fn wrapped so that only one call runs at a time; calls that come in meanwhile are folded into ONE more run right after it. fn gets
@@ -96,7 +96,7 @@ export function initSettings(ctx) {
       const v = formValue(key, $(sel), ctx.fromDisp);
       if (v !== undefined) next[key] = v;
     }
-    const tb = ui.readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views; next.userPresets = tb.presets; next.userLocks = tb.locks; next.userBuildings = tb.buildings;
+    const tb = ui.readTablets(); next.userRooms = tb.rooms; next.userViews = tb.views; next.userPresets = tb.presets; next.userLocks = tb.locks; next.userBuildings = tb.buildings; next.userTabs = tb.tabs;
     const all = settings.startViews?.['*'];                          // the start view of everybody is set in the settings dialog (startview.js, #315)
     next.startViews = { ...(all ? { '*': all } : {}), ...tb.starts };
     next.tempStops = ui.readStops('#tempStops', settings.tempStops);

@@ -98,6 +98,8 @@ DEFAULT_SETTINGS = {
     "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
     "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
     "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
+    "userTabs": {},            # Home Assistant user name -> {"hide": [tab], "start": tab}: the tab bar of that user (TABS, static/tabs.js, #479)
+    "tabBar": True,            # the tab bar at the bottom of the live view (#479): the house and pages beside it
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "bgTop": "#0a3ba8",
@@ -118,6 +120,9 @@ PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWall
                  "labelMode": ("important", "all", "none"), "belowMode": ("dim", "stacked", "hidden"), "belowLabels": (True, False),
                  "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False)}
 
+# the tabs of the tab bar (the same keys as TABS in static/tabs.js, #479); the house is always there, the others can be hidden per user
+TABS = ("house", "cameras")
+
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too
 LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
 
@@ -133,6 +138,23 @@ def clean_locks(val) -> dict:
         clean = [k for k in LOCKS if k in locks]
         if clean:
             out[str(user)[:80]] = clean
+    return out
+
+
+def clean_user_tabs(val) -> dict:
+    """{user: {"hide": [tab], "start": tab}} like cleanUserTabs in static/tabs.js: at most 50 users, only known tabs, the house never
+    hidden, a hidden or the house as start tab dropped, users with nothing left out."""
+    if not isinstance(val, dict):
+        return {}
+    out = {}
+    for user, v in list(val.items())[:50]:
+        u = str(user).strip()[:80]
+        if not u or not isinstance(v, dict):
+            continue
+        hide = [k for k in TABS if k != "house" and isinstance(v.get("hide"), list) and k in v["hide"]]
+        start = v.get("start") if v.get("start") in TABS and v.get("start") != "house" and v.get("start") not in hide else ""
+        if hide or start:
+            out[u] = {"hide": hide, **({"start": start} if start else {})}
     return out
 
 
@@ -304,7 +326,8 @@ async def get_me(request):
     start = next((v for k, v in starts.items() if k != "*" and k.strip().lower() in user["ids"]), starts.get("*"))   # own start view, else everybody's
     buildings = read_settings(request).get("userBuildings", {})
     building = next((v for k, v in buildings.items() if str(k).strip().lower() in user["ids"]), None) if isinstance(buildings, dict) else None
-    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset, "start": start, "building": building,
+    tabs = next((v for k, v in clean_user_tabs(read_settings(request).get("userTabs", {})).items() if k.strip().lower() in user["ids"]), {})
+    return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset, "start": start, "building": building, "tabs": tabs,
                               "locks": [k for k in LOCKS if k in user_locks(request)],
                               "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
 
@@ -517,6 +540,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = clean_favorites(val)
         elif key == "lightGroups":
             out[key] = clean_light_groups(val)
+        elif key == "userTabs":
+            out[key] = clean_user_tabs(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
@@ -613,8 +638,8 @@ def backup_settings(request) -> None:
 
 
 # ---------- users and tablets in a file of the add-on config folder ----------
-USER_KEYS = ("userRooms", "userViews", "userPresets", "userLocks", "startViews", "userBuildings")   # what users.json in the config folder holds
-NEWER_USER_KEYS = ("startViews", "userBuildings")   # a file written before these existed keeps the stored ones
+USER_KEYS = ("userRooms", "userViews", "userPresets", "userLocks", "startViews", "userBuildings", "userTabs")   # what users.json in the config folder holds
+NEWER_USER_KEYS = ("startViews", "userBuildings", "userTabs")   # a file written before these existed keeps the stored ones
 
 
 def users_file(request) -> Path:

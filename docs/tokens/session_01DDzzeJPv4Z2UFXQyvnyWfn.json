@@ -1,0 +1,20 @@
+{
+ "session": "session_01DDzzeJPv4Z2UFXQyvnyWfn",
+ "start": "2026-10-21",
+ "updated": "2026-10-21T18:35:30Z",
+ "branch": "claude/nice-shannon-mee5c5",
+ "source": "counted",
+ "input": 378,
+ "cache_write": 477164,
+ "cache_read": 61547376,
+ "output": 191159,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 378,
+   "cache_write": 477164,
+   "cache_read": 61547376,
+   "output": 191159,
+   "requests": 188
+  }
+ }
+}

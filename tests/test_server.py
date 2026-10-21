@@ -886,7 +886,7 @@ async def test_users_and_tablets_are_mirrored_into_the_config_folder_and_synced_
     assert (await (await client.get("/api/users-file")).json())["exists"] is False
     await client.put("/api/settings", json={"userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d", "tv": "bogus"}})
     import json
-    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}, "userLocks": {}, "startViews": {}, "userBuildings": {}}
+    assert json.loads(cfg.read_text("utf-8")) == {"version": 1, "userRooms": {"tablet_kueche": "Küche"}, "userViews": {"tablet_kueche": "2d"}, "userPresets": {}, "userLocks": {}, "startViews": {}, "userBuildings": {}, "userTabs": {}}
     st = await (await client.get("/api/users-file")).json()
     assert st["exists"] and st["inSync"] and st["users"] == 1
 
@@ -1126,3 +1126,24 @@ async def test_holiday_alarm_arm_and_disarm_only_with_the_code(client, monkeypat
     await client.put("/api/settings", json={**(await (await client.get("/api/settings")).json()), "userLocks": {"tablet": ["guard"]}},
                      headers={"X-Remote-User-Name": "admin", "If-Match": (await client.get("/api/settings")).headers.get("ETag", "")})
     assert (await client.post("/api/guard/arm", json={"code": "1234"}, headers=tab)).status == 403         # ... unless it is locked for it
+
+
+async def test_tabs_per_user_are_cleaned_reach_that_user_and_go_into_users_json(client, tmp_path):
+    """#479: the tab bar per user: only known tabs, the house never hidden, a hidden start tab dropped; api/me hands it to that user."""
+    import json
+    body = {"userTabs": {"Flur": {"hide": [], "start": "cameras"}, "kid": {"hide": ["cameras", "house", "bogus"], "start": "cameras"},
+                         "empty": {"hide": [], "start": "house"}, "junk": "cameras", " ": {"start": "cameras"}}, "tabBar": False}
+    s = await (await client.put("/api/settings", json=body)).json()
+    assert s["userTabs"] == {"Flur": {"hide": [], "start": "cameras"}, "kid": {"hide": ["cameras"]}}
+    assert s["tabBar"] is False
+    assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "flur"})).json())["tabs"] == {"hide": [], "start": "cameras"}
+    assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "someone"})).json())["tabs"] == {}
+    assert json.loads((tmp_path / "addon_config" / "users.json").read_text("utf-8"))["userTabs"] == s["userTabs"]
+    assert (await (await client.put("/api/settings", json={"userTabs": ["x"]})).json())["userTabs"] == {}
+
+
+def test_tabs_match_the_browser():
+    """server.TABS and TABS in static/tabs.js list the same tabs in the same order (#479)"""
+    src = (Path(server.__file__).parent / "static" / "tabs.js").read_text()
+    block = src[src.index("export const TABS = ["):src.index("];", src.index("export const TABS = ["))]
+    assert tuple(server.re.findall(r"\['(\w+)'", block)) == server.TABS

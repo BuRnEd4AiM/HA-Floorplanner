@@ -12,7 +12,7 @@ export function kioskDecision({ live, idleReturn, idleMs, home, night }) {
 
 /** ctx: $, controls, settings(), states(), isLive(), closeLivePopup(), closeRoomPanel(), closeSearch(), tabletRoom(), findRoomByName(name), switchFloor(i), focusRoom(id), focusedRoom(),
  *  openRoomPanel(id), groundIdx(), fitCamera(),
- *  applyStart() (go to the saved start view: a promise of true / false, null when there is none, #315) */
+ *  applyStart() (go to the saved start view: a promise of true / false, null when there is none, #315), homeTab() (the start tab, #479) */
 export function initKiosk(ctx) {
   const { $ } = ctx;
   let lastInput = Date.now(), kioskHome = true;
@@ -25,6 +25,7 @@ export function initKiosk(ctx) {
   ['pointerdown', 'keydown', 'wheel'].forEach((ev) => addEventListener(ev, touched, { passive: true, capture: true }));
   function goHome() {
     ctx.closeLivePopup(); ctx.closeRoomPanel(); ctx.closeSearch();
+    ctx.homeTab?.();                                               // the start tab of the tab bar (#479)
     const saved = ctx.applyStart?.();                              // a saved start view (#315): a promise, null without one
     if (saved) {
       saved.then((ok) => {

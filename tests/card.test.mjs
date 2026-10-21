@@ -138,7 +138,7 @@ test('the editor fields: drop-downs from the add-on\'s plan, free text without i
   const free = Card.editorSchema(null);
   assert.ok(names(free).includes('house'));
   eq(free.flatMap((s) => s.schema || [s]).find((s) => s.name === 'floor').selector, { text: {} });
-  for (const n of ['view', 'theme', 'quality', 'walls', 'labels', 'heatmap', 'night', 'alerts', 'idle_return', 'room_panel', 'show_nav', 'show_bar', 'addon', 'height', 'fill', 'title', 'room']) {
+  for (const n of ['view', 'theme', 'quality', 'walls', 'labels', 'heatmap', 'night', 'alerts', 'idle_return', 'room_panel', 'show_nav', 'show_bar', 'tabs', 'kiosk', 'addon', 'height', 'fill', 'title', 'room']) {
     assert.ok(names(free).includes(n), n);
   }
 });
@@ -149,4 +149,22 @@ test('the size for Home Assistant\'s layout follows the height', () => {
   eq(c.getGridOptions(), { columns: 12, rows: 6, min_columns: 4, min_rows: 3 });
   c._config = { height: 200 };
   assert.equal(c.getGridOptions().rows, 3);
+});
+test('the tab bar and the wall tablet (#479): off unless asked for, the tab bar into the address, the wall tablet never for an admin', () => {
+  const q = (u) => Object.fromEntries(new URLSearchParams(u.split('?')[1]));
+  assert.equal(q(Card.frameUrl('/', { tabs: true })).tabs, '1');
+  assert.equal(q(Card.frameUrl('/', { tabs: false })).tabs, undefined);
+  assert.equal(q(Card.frameUrl('/', { kiosk: true })).kiosk, undefined);              // the wall tablet is the card's own business, not the page's
+  const d = Card.editorData({});
+  assert.ok(!d.tabs && !d.kiosk);
+  eq(Card.editorConfig({}, { ...d, tabs: true, kiosk: false }), { tabs: true });
+  eq(Card.editorConfig({ tabs: true, kiosk: true }, { ...Card.editorData({ tabs: true, kiosk: true }), tabs: false, kiosk: false }), {});
+  const tablet = { name: 'Tablet', is_admin: false }, admin = { name: 'Du', is_admin: true };
+  assert.equal(Card.kioskWanted({ kiosk: true }, tablet, ''), true);
+  assert.equal(Card.kioskWanted({ kiosk: true }, admin, ''), false);
+  assert.equal(Card.kioskWanted({ kiosk: true }, null, ''), false);
+  assert.equal(Card.kioskWanted({}, tablet, ''), false);
+  assert.equal(Card.kioskWanted({ kiosk: true }, tablet, '?kiosk=off'), false);
+  assert.equal(Card.kioskWanted({ kiosk: true }, tablet, '?edit=1&kiosk=0'), false);
+  assert.equal(Card.kioskWanted({ kiosk: true }, tablet, '?kiosk=offline'), true);
 });

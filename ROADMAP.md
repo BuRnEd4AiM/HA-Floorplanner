@@ -29,6 +29,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 ## Done in 3.59 – 4.2
 
 - ✅ Quick access: lights off for the whole house or a group of rooms (two taps), favourites in front of the room tiles, "what is still on?", low batteries stand out, undo note after deleting, all keys on one card, recently used furniture (4.2.0) ([#471](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/471))
+- ✅ Tab bar at the bottom, the add-on as the only dashboard, step 1: 🏠 the house and 📷 the cameras as a page, tabs and start tab per user, the dashboard card with tabs and as a wall tablet without Home Assistant's sidebar, ⛶ full screen (4.3.0) ([#479](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/479)); next: ☀ today, ⚡ energy with history for several houses, 🌡 climate, 🎵 music, 🧺 household, ▶ routines, 👨‍👩‍👧 family (docs/PLAN-4.3.md)
 - ✅ Walls with a finish (woodchip, plaster, wallpapers, tiles, brick, wood …), tiles up to a height, accent walls, the facade outside, many more floors, every pattern with its colour, size and angle (4.0.0) ([#448](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/448))
 - ✅ The settings in groups that fold open, with a search; what the alarm panel is and which one Home Assistant has (4.0.1) ([#450](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/450))
 - ✅ Users & tablets inside the settings; WhatsApp on alarm in three steps (4.0.3) ([#454](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/454))

@@ -43,6 +43,14 @@ export function groupCameras(list) {
   return [...groups.values()].sort((p, q) => Number(q.cams.some((c) => c.motion)) - Number(p.cams.some((c) => c.motion)) || q.fi - p.fi || p.room.localeCompare(q.room));
 }
 
+/** the page 📷 of the tab bar (#479): the cameras as tiles, those that see movement first, and the motion sensors as a row below; each
+ *  with its place ("room · floor", the floor alone when it hangs in no room). sig: changes only when something shown changes */
+export function cameraPage(list, floors) {
+  const item = ({ d, fi, room, motion }) => ({ id: d.id, entity: d.entity, fi, name: d.name || d.entity, place: [room, floors[fi]?.name || ''].filter(Boolean).join(' · '), motion });
+  const cams = list.filter((x) => x.kind === 'cam').map(item), sensors = list.filter((x) => x.kind === 'sensor').map(item);
+  return { cams, sensors, motion: list.filter((x) => x.motion).length, sig: JSON.stringify([cams, sensors]) };
+}
+
 /** ctx: $, t, settings(), layout(), states(), onStates, pointInPoly(...), isHolo(), openMoreInfo(id), setStatus(txt), showDevice(fi, id), closeMenu() */
 export function initCameras(ctx) {
   const { $, t } = ctx;
@@ -174,5 +182,5 @@ export function initCameras(ctx) {
       grid.append(sec);
     });
   }
-  return { cones, addCone, updateCones, clear, coneCenter, pulse, motion: motionOf, camImage, camLive, haButton, openInHa, updatePill, renderMenu };
+  return { cones, addCone, updateCones, clear, coneCenter, pulse, motion: motionOf, camImage, camLive, haButton, openInHa, updatePill, renderMenu, list };
 }

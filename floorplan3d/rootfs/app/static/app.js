@@ -83,6 +83,8 @@ import { badgeText, stateText as plainStateText } from './badgetext.js';
 import { toWorld, stairHandles } from './stairs.js';
 import { floorLabels, CARD_FIELDS } from './viewprefs.js';
 import { applyLocks, lockedSettings } from './userlocks.js';
+import { initTabsUi } from './tabsui.js';
+import { initCameraPage } from './pagecameras.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel, fetchAreas, fetchBatteries } from './livechannel.js';
 import { initDeviceList } from './devicelist.js';
@@ -631,9 +633,20 @@ function openSettingsAt(group) {
 }
 const toggleViewMenu = (open) => toggleMenu(viewMenu, viewMenuBtn, open);
 viewMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleViewMenu(); });
-camPillBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(camMenu, camPillBtn); });
+camPillBtn.addEventListener('click', (e) => { e.stopPropagation(); if (tabsUi.has('cameras')) tabsUi.show('cameras'); else toggleMenu(camMenu, camPillBtn); });   // with the tab bar: its camera page
 document.addEventListener('click', (e) => { dropdowns.forEach(([m, b]) => { if (!m.hidden && !m.contains(e.target) && e.target !== b) toggleMenu(m, b, false); }); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.forEach(([m, b]) => { if (!m.hidden) toggleMenu(m, b, false); }); });
+
+/* ================= Tab bar at the bottom (#479): the house and pages beside it; the code lives in tabs.js, tabsui.js and pagecameras.js ================= */
+const camPage = initCameraPage({
+  t, el: $('#tabPages [data-page=cameras]'), cams, layout: () => layout, settings: () => lockedSettings(settings, [...locks]),
+  showDevice: (fi, id) => { tabsUi.show('house'); offline.show({ floor: fi, kind: 'device', id }); },
+});
+const tabsUi = initTabsUi({
+  $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => me,
+  pages: { cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage } },
+  onShow: (tab) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } wake(); },
+});
 
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
 const floorCards = initFloorCards({
@@ -670,6 +683,7 @@ function applyStates() {
   energyUi.update();                      // the tab "⚡ Rechnung" while it is open (#378)
   cams.updateCones();
   cams.updatePill();
+  tabsUi.update();                        // the tab bar and its open page (#479)
   floorCards.update();
   const offList = offline.update(), offIds = offlineMarks(offList);   // what is offline or linked to nothing: a sign in 3D too (#375)
   offReasons = new Map(); offList.forEach((x) => { if (!offReasons.has(x.id) || offReasons.get(x.id) === 'unlinked') offReasons.set(x.id, x.reason); });
@@ -779,6 +793,7 @@ const kiosk = initKiosk({
   tabletRoom: () => tabletRoom, findRoomByName: (n) => findRoomByName(n), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), focusedRoom: () => focusedRoom,
   openRoomPanel: (id) => roomPanel.open(id), groundIdx: () => groundIdx(), fitCamera: () => fitCamera(),
   applyStart: () => cardUi?.start() ?? (me.start ? startView.apply(me.start) : null),             // the card's floor (#13), else a saved start view (#315)
+  homeTab: () => tabsUi.home(),                                                                    // the start tab of the tab bar (#479)
 });
 /* ---- Dashboard card (#13): the floor to start with, the room colouring, without room panel or bars, only one room or only its panel; the code lives in cardmode.js ---- */
 const cardUi = card && initCardMode({
@@ -1557,6 +1572,7 @@ async function init() {
     updateHouseToggle();
   }
   cardUi?.heat();                                         // the card's room colouring (temperature, humidity, CO2)
+  tabsUi.update(); tabsUi.home();                         // the tab bar (#479): this user's / tablet's start tab
   liveChan.start();                                         // first full list, the live channel, polling while it is down
   booted = true;
 }
@@ -1570,7 +1586,7 @@ controls.addEventListener('change', wake);
 const perfHud = initPerfHud({ $, renderer, low: LOW, param: params.get('fps'), lang: currentLanguage, onChange: wake });   // FPS and more, chosen in the View menu (perfhud.js)
 function animate(now = performance.now()) {
   requestAnimationFrame(animate);
-  if (document.hidden || cardUi?.panelOnly()) return;            // screen off / tab in background / a card with only the room panel: draw nothing
+  if (document.hidden || cardUi?.panelOnly() || tabsUi.covered()) return;   // screen off / tab in background / a card with only the room panel / a page of the tab bar: draw nothing
   const due = frameDue(now, lastActive, lastFrame, LOW);          // nothing happens or a weak tablet: a few frames a second are enough (frameloop.js)
   if (!due.draw) return;
   if (due.throttled) lastFrame = now;

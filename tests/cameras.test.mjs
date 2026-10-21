@@ -51,3 +51,14 @@ test('groups: one per floor+room, groups with movement first', () => {
   assert.ok(g.length >= 3);
   assert.equal(g.reduce((n, x) => n + x.cams.length, 0), 4);
 });
+test('the camera page of the tab bar (#479): cameras and sensors apart, each with its place, the same signature for the same picture', () => {
+  const p = C.cameraPage(C.cameraEntries(env()), layout.floors);
+  assert.ok(p.cams.length >= 2 && p.cams.every((c) => c.entity.startsWith('camera.')));
+  assert.ok(p.sensors.every((c) => c.entity.startsWith('binary_sensor.')));
+  assert.equal(p.cams[0].id, 'c1'); assert.equal(p.cams[0].motion, true);
+  assert.match(p.cams[0].place, /^Flur · /);
+  assert.equal(p.cams.find((c) => c.id === 'c3').place, 'OG');                     // in no room: the floor alone
+  assert.equal(p.motion, C.cameraEntries(env()).filter((x) => x.motion).length);
+  assert.equal(C.cameraPage(C.cameraEntries(env()), layout.floors).sig, p.sig);
+  assert.equal(C.cameraPage([], layout.floors).cams.length, 0);
+});

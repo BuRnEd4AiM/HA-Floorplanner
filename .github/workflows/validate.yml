@@ -1,0 +1,23 @@
+name: Validate
+
+# HACS checks this repository the way it checks every repository of its store (the dashboard card dist/floorplan3d-card.js, #479):
+# the description, topics, README, hacs.json, the card file and the releases. It has to pass without ignored checks before the card can
+# go into the HACS default list (the steps: docs/HACS-STORE.md).
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  validate-hacs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: plugin

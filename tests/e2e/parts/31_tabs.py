@@ -1,0 +1,101 @@
+"""4.3.0 (#479): the tab bar at the bottom of the live view (the add-on as the only dashboard): 🏠 the house and 📷 the cameras as a page
+of its own, a camera big and back to the plan, the 3D picture resting while a page is open; per user in ⚙ → Users & tablets which tabs
+and which one a screen starts with (api/me), a camera lock takes the page away too, the setting switches the bar off, the dashboard card
+only with its option "tabs".
+"""
+saved_tb = api_admin("api/layout")              # put back at the end
+st_tb = api("api/settings")
+set_setting("language", "de")
+lay = json.loads(json.dumps(saved_tb))
+lay["floors"][0].setdefault("devices", []).append(
+    {"id": "tb_cam", "type": "camera", "x": 110, "z": 110, "y": 2.3, "rot": 0, "scale": 1, "name": "Kamera Tor", "entity": "camera.flur", "fov": 90, "range": 4})
+urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(lay).encode(), method="PUT",
+                                              headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
+own_tb = []
+def watch_tb(pg_):
+    # script errors only: a tablet without editing rights is refused api/version/remote (403), as always
+    pg_.on("console", lambda m: own_tb.append(m.text) if m.type == "error" and not m.text.startswith("Failed to load resource") else None)
+    pg_.on("pageerror", lambda e: own_tb.append("PAGEERROR " + str(e)))
+    return pg_
+tabs_of = lambda pg_: pg_.evaluate("[...document.querySelectorAll('#tabBar [data-tab]')].map((b) => b.dataset.tab)")
+active_of = lambda pg_: pg_.evaluate("document.querySelector('#tabBar [data-tab].active')?.dataset.tab || ''")
+
+pgT = watch_tb(b.new_page(viewport={"width": 1280, "height": 800}, extra_http_headers={"X-Remote-User-Name": "admin"}))
+pgT.goto(BASE + "?debug=1"); pgT.wait_for_timeout(1500)
+if pgT.is_visible("#modeSwitch [data-mode=edit]"): pgT.click("#modeSwitch [data-mode=edit]"); pgT.wait_for_timeout(500)
+check("tabs (#479): no tab bar while editing", pgT.is_hidden("#tabBar"))
+pgT.click("#modeSwitch [data-mode=live]"); pgT.wait_for_timeout(800)
+check("tabs: in live mode the bar at the bottom has 🏠 Haus and 📷 Kameras, the house open, under the 3D picture (not over it)",
+      pgT.is_visible("#tabBar") and tabs_of(pgT) == ["house", "cameras"] and active_of(pgT) == "house" and pgT.is_hidden("#tabPages")
+      and pgT.evaluate("document.querySelector('#tabBar').getBoundingClientRect().top >= document.querySelector('#view').getBoundingClientRect().bottom - 1"),
+      (tabs_of(pgT), active_of(pgT)))
+pgT.click("#tabBar [data-tab=cameras]"); pgT.wait_for_timeout(1500)
+f0 = pgT.evaluate("window.__fp.renderer.info.render.frame"); pgT.wait_for_timeout(1200)
+f1 = pgT.evaluate("window.__fp.renderer.info.render.frame")
+check("tabs: 📷 opens the camera page over the house, a tile with the camera's still image, its name and room; the 3D picture rests",
+      pgT.is_visible("#tabPages") and active_of(pgT) == "cameras" and pgT.locator(".tpCam[data-entity='camera.flur']").count() == 1
+      and pgT.locator(".tpCam img[data-cam='camera.flur']").count() == 1 and "Kamera Tor" in pgT.inner_text(".tpCam") and f1 == f0, (f0, f1))
+pgT.click(".tpCam[data-entity='camera.flur']"); pgT.wait_for_timeout(800)
+check("tabs: a tap on a tile shows the camera big (live or still image), with 'Alle Kameras' and 'Im Plan zeigen', no dialog of Home Assistant",
+      pgT.is_visible(".tpBig .camLive") and pgT.is_visible(".tpBack") and "Kamera Tor" in pgT.inner_text(".tpHead h2"))
+pgT.click(".tpTools button:first-child"); pgT.wait_for_timeout(1500)
+check("tabs: 'Im Plan zeigen' goes back to the house and marks the camera; the 3D picture draws again",
+      pgT.is_hidden("#tabPages") and active_of(pgT) == "house" and pgT.evaluate("window.__fp.renderer.info.render.frame") > f1)
+pgT.click("#tabBar [data-tab=cameras]"); pgT.wait_for_timeout(600)
+check("tabs: the camera page starts with all cameras again", pgT.locator(".tpCam").count() >= 1 and pgT.is_hidden(".tpBig"))
+pgT.click("#modeSwitch [data-mode=edit]"); pgT.wait_for_timeout(600)
+check("tabs: editing closes the page and the bar", pgT.is_hidden("#tabBar") and pgT.is_hidden("#tabPages"))
+
+# --- per user: the users dialog writes userTabs, api/me hands it over, the screen starts there
+open_users(pgT)
+pgT.click("#addTablet"); pgT.fill("#tabletRows .tablet:last-child [data-role=user]", "tablet_tabs")
+pgT.press("#tabletRows .tablet:last-child [data-role=user]", "Tab"); pgT.wait_for_timeout(800)
+pgT.click("#tabletRows .tablet:last-child .presetBtn"); pgT.wait_for_timeout(300)
+check("tabs: the user row's ⚙ box has a tick per page and 'Fängt an mit'",
+      pgT.is_visible("#tabletRows .tablet:last-child [data-tab-show=cameras]") and pgT.is_visible("#tabletRows .tablet:last-child [data-role=tabStart]"))
+pgT.select_option("#tabletRows .tablet:last-child [data-role=tabStart]", "cameras"); pgT.wait_for_timeout(1500)
+check("tabs: the start tab is saved for that user", api("api/settings")["userTabs"].get("tablet_tabs") == {"hide": [], "start": "cameras"}, api("api/settings")["userTabs"])
+pgT.keyboard.press("Escape"); pgT.close()
+me = json.load(urllib.request.urlopen(urllib.request.Request(BASE + "api/me", headers={"X-Remote-User-Name": "tablet_tabs"})))
+check("tabs: api/me hands the user its tabs", me.get("tabs") == {"hide": [], "start": "cameras"}, me)
+pgK = watch_tb(b.new_page(viewport={"width": 1280, "height": 800}, extra_http_headers={"X-Remote-User-Name": "tablet_tabs"}))
+pgK.goto(BASE + "?debug=1"); pgK.wait_for_timeout(1800)
+check("tabs: that tablet starts on its start tab, the cameras", pgK.is_visible("#tabPages") and active_of(pgK) == "cameras", active_of(pgK))
+set_setting("idleReturn", 1)
+pgK.reload(); pgK.wait_for_timeout(1500)
+pgK.click("#tabBar [data-tab=house]"); pgK.wait_for_timeout(300)
+pgK.evaluate("window.__fp.kioskIdle(2 * 60000)"); pgK.evaluate("window.__fp.kioskTick()"); pgK.wait_for_timeout(500)
+check("tabs: after a while without a touch the tablet goes back to its start tab", active_of(pgK) == "cameras", active_of(pgK))
+set_setting("idleReturn", st_tb.get("idleReturn", 0))
+pgK.close()
+
+set_setting("userTabs", {"tablet_tabs": {"hide": ["cameras"]}})
+pgH = watch_tb(b.new_page(viewport={"width": 1280, "height": 800}, extra_http_headers={"X-Remote-User-Name": "tablet_tabs"}))
+pgH.goto(BASE + "?debug=1"); pgH.wait_for_timeout(1500)
+check("tabs: a user without the camera page has only the house: no bar", pgH.is_hidden("#tabBar") and pgH.is_hidden("#tabPages"))
+pgH.close()
+set_setting("userTabs", {})
+set_setting("userLocks", {"tablet_tabs": ["cameras"]})
+pgL = watch_tb(b.new_page(viewport={"width": 1280, "height": 800}, extra_http_headers={"X-Remote-User-Name": "tablet_tabs"}))
+pgL.goto(BASE + "?debug=1"); pgL.wait_for_timeout(1500)
+check("tabs: a user who may not see the cameras (lock) gets no camera page either", pgL.is_hidden("#tabBar"))
+pgL.close()
+set_setting("userLocks", st_tb.get("userLocks", {}))
+set_setting("tabBar", False)
+pgO = watch_tb(b.new_page(viewport={"width": 1280, "height": 800}, extra_http_headers={"X-Remote-User-Name": "tablet_tabs"}))
+pgO.goto(BASE + "?debug=1"); pgO.wait_for_timeout(1500)
+check("tabs: ⚙ 'Reiter-Leiste unten' off: no bar", pgO.is_hidden("#tabBar"))
+pgO.close()
+set_setting("tabBar", True)
+pgC = watch_tb(b.new_page(viewport={"width": 1000, "height": 700}, extra_http_headers={"X-Remote-User-Name": "tablet_tabs"}))
+pgC.goto(BASE + "?debug=1&card=1"); pgC.wait_for_timeout(1500)
+no_bar = pgC.is_hidden("#tabBar")
+pgC.goto(BASE + "?debug=1&card=1&tabs=1"); pgC.wait_for_timeout(1500)
+check("tabs: the dashboard card has the bar only with its option tabs", no_bar and pgC.is_visible("#tabBar") and tabs_of(pgC) == ["house", "cameras"], tabs_of(pgC))
+pgC.close()
+check("tabs: no errors on the page", not own_tb, own_tb[:3])
+
+urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(saved_tb).encode(), method="PUT",
+                                              headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
+set_setting("userTabs", st_tb.get("userTabs", {}))
+set_setting("language", st_tb["language"])
