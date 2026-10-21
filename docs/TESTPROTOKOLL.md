@@ -250,10 +250,10 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 0 | 0 | 5 | 0 | 48.1 bis 48.5 |
 | 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 0 | 0 | 4 | 0 | 49.1 bis 49.4 |
 | 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 0 | 0 | 8 | 0 | 50.1 bis 50.8 |
-| 51. Neu in 3.84: Möbel im skandinavischen Stil | 0 | 0 | 8 | 0 | 51.1 bis 51.8 |
-| 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 0 | 0 | 12 | 0 | 52.1 bis 52.12 |
-| 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs | 0 | 0 | 3 | 0 | 53.1 bis 53.3 |
-| 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 5 | 0 | 3 | 0 | 54.6 bis 54.8 |
+| 51. Neu in 3.84: Möbel im skandinavischen Stil | 3 | 0 | 5 | 0 | 51.4 bis 51.8 |
+| 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 11 | 0 | 1 | 0 | 52.12 |
+| 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs | 3 | 0 | 0 | 0 | – |
+| 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 7 | 0 | 1 | 0 | 54.6 |
 | 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 7 | 0 | 0 | 0 | – |
 | 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 4 | 0 | 3 | 0 | 56.1, 56.2, 56.6 |
 | 57. Neu in 3.90: Garage, Werkstatt und Carport | 7 | 0 | 0 | 1 | – |
@@ -277,7 +277,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
 | 76. Neu in 4.2.0: Schnellzugriff, Licht-Gruppen, Favoriten und Hilfen beim Bearbeiten (#471) | 0 | 0 | 14 | 1 | 76.1 bis 76.14 |
 | 77. Neu in 4.2.1: Saugroboter sichtbar, Hausmodus mit Knöpfen, „Innenmaß“ beim Messen (#473, #474) | 0 | 0 | 5 | 1 | 77.1 bis 77.4, 77.6 |
-| **Zusammen** | **441** | **5** | **101** | **35** | |
+| **Zusammen** | **460** | **5** | **82** | **35** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -881,9 +881,9 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 51. Neu in 3.84: Möbel im skandinavischen Stil
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 51.1 | Bearbeiten, Werkzeug „Gerät“, links die Bibliothek ansehen | Neue Gruppen „Kinder“ und „Flur“; in „Wohnen“, „Küche“, „Bad“, „Schlafen“, „Büro“, „Licht“ und „Deko“ viele neue Teile mit Vorschaubild (Würfelregale, Bücherregale, Sofas, Sessel, Kommoden, Schränke, Schreibtische, Lampen …) | ❓ |
-| 51.2 | Im Suchfeld „kallax“ eingeben, dann „billy“, „malm“, „pax“, „poäng“ | „kallax“: die 4 Würfelregale; „billy“: die 2 hohen Bücherregale; „malm“: Bett mit hohem Kopfteil, 2 Kommoden, Nachttisch; „pax“: die 2 Kleiderschränke; „poäng“: der Schwingsessel | ❓ |
-| 51.3 | Ein Würfelregal 2×4 in einen Raum setzen, im 2D-Plan nachsehen | In 3D ein weißes Regal mit 8 Fächern (Boxen, Bücher, eine Tür); im 2D-Plan ist das Rechteck so groß wie das Regal (77 × 39 cm) | ❓ |
+| 51.1 | Bearbeiten, Werkzeug „Gerät“, links die Bibliothek ansehen | Neue Gruppen „Kinder“ und „Flur“; in „Wohnen“, „Küche“, „Bad“, „Schlafen“, „Büro“, „Licht“ und „Deko“ viele neue Teile mit Vorschaubild (Würfelregale, Bücherregale, Sofas, Sessel, Kommoden, Schränke, Schreibtische, Lampen …) | ✅ (2026-10-21) |
+| 51.2 | Im Suchfeld „kallax“ eingeben, dann „billy“, „malm“, „pax“, „poäng“ | „kallax“: die 4 Würfelregale; „billy“: die 2 hohen Bücherregale; „malm“: Bett mit hohem Kopfteil, 2 Kommoden, Nachttisch; „pax“: die 2 Kleiderschränke; „poäng“: der Schwingsessel | ✅ (2026-10-21) |
+| 51.3 | Ein Würfelregal 2×4 in einen Raum setzen, im 2D-Plan nachsehen | In 3D ein weißes Regal mit 8 Fächern (Boxen, Bücher, eine Tür); im 2D-Plan ist das Rechteck so groß wie das Regal (77 × 39 cm) | ✅ (2026-10-21) |
 | 51.4 | Das Regal anklicken, rechts bei „Ausführung“ „Eiche“ wählen, dann „Schwarzbraun“; Strg+Z | Das Regal wird sofort eichenfarben, dann schwarzbraun; Strg+Z holt die vorige Ausführung zurück. Nach dem Neuladen ist die gewählte Ausführung noch da | ❓ |
 | 51.5 | Eine „Papier-Hängelampe“ (Gruppe „Licht“) setzen und mit einer Lampe aus Home Assistant verknüpfen, dann „Live“ und die Lampe einschalten | Die Papierkugel hängt unter der Decke und leuchtet, der Raum wird hell wie bei den anderen Lampen | ❓ |
 | 51.6 | In der Gruppe „Kinder“ das Hochbett und den Plüschhai setzen | Hochbett mit Leiter und Rausfallschutz, darunter frei; ein kleiner blauer Hai mit weißem Bauch | ❓ |
@@ -893,25 +893,25 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 52.1 | Bearbeiten, Werkzeug „Gerät“, links die Bibliothek ansehen | Neue Gruppen „Sauna & Wellness“, „Fitness“, „Bar“ und „Heimkino“, jede mit Vorschaubildern; bei „Büro“ PC, Gaming-PC, PC-Arbeitsplatz, Laptop, Gaming-Stuhl, Netzwerkschrank; bei „Bad“ die LED-Spiegel und der Spiegelschrank | ❓ |
-| 52.2 | Eine „Sauna mit Glasfront“ in einen Raum setzen, mit dem Schalter oder Thermostat der Sauna verknüpfen, „Live“, die Sauna einschalten | Holzkabine mit Glasfront und Glastür, innen zwei Bänke und der Ofen; eingeschaltet glühen die Saunasteine orange und das Licht unter der Bank und hinter der Lehne leuchtet | ❓ |
-| 52.3 | Bei „Ausführung“ „Thermoholz“ wählen | Die Kabine wird dunkelbraun | ❓ |
-| 52.4 | Aus „Fitness“ Laufband, Power Rack und Hantelbank setzen, aus „Bar“ die „Bartheke mit LED“, das Barregal und den Billardtisch | Die Teile stehen in echter Größe im Raum (Billardtisch 2,50 × 1,40 m), im 2D-Plan genauso groß | ❓ |
-| 52.5 | Aus „Heimkino“ die „Leinwand mit Rahmen“ an eine Wand setzen und den „Beamer (Decke)“ davor; beide mit dem Beamer oder Mediaplayer verknüpfen, „Live“, abspielen | Die Leinwand rastet an der Wand ein; der Beamer hängt unter der Decke. Beim Abspielen leuchtet die Leinwand hell und die Linse des Beamers | ❓ |
-| 52.6 | Den „Gaming-PC mit RGB“ mit dem Schalter des PCs verknüpfen, „Live“, einschalten | Die Lüfter vorne und die Teile hinter dem Glas leuchten lila (oder in der Farbe des Lichts, wenn es ein Licht ist) | ❓ |
-| 52.7 | Den „LED-Spiegel mit 3 Zonen“ an eine Wand setzen und anklicken | Der Spiegel rastet flach an der Wand ein; rechts unter „LEDs einzeln verknüpfen“ drei Felder „Hinten (indirekt)“, „Vorne“, „Unten“, jedes mit einem farbigen Streifen; in 3D haben die LEDs genau diese Farben | ❓ |
-| 52.8 | Nur das Hauptgerät (oben „Entität“) mit einem Licht verknüpfen, „Live“, einschalten | Alle LEDs des Spiegels leuchten, der Raum wird etwas heller | ❓ |
-| 52.9 | Zurück zu „Bearbeiten“, für „Hinten (indirekt)“ und „Unten“ je ein eigenes Licht wählen; „Live“, den Spiegel antippen | Die Karte zeigt „x von 3 LED-Zonen an“ und drei Knöpfe „Hinten (indirekt)“, „Vorne“, „Unten“; ein Knopf öffnet die Steuerung nur dieser LED, „Alle LEDs“ schaltet alle | ❓ |
-| 52.10 | Nur das Licht „Hinten“ einschalten, z. B. in Blau | In 3D leuchtet nur der Rand hinter dem Spiegel blau, die anderen LEDs bleiben aus | ❓ |
-| 52.11 | Die „Bartheke mit LED“ anklicken, „Thekenkante“ und „Sockel“ mit zwei Lichtern verknüpfen, in „Live“ beide einschalten | Die Kante der Theke und das Licht am Boden vor dem Sockel leuchten jeweils in der Farbe ihres Lichts | ❓ |
+| 52.1 | Bearbeiten, Werkzeug „Gerät“, links die Bibliothek ansehen | Neue Gruppen „Sauna & Wellness“, „Fitness“, „Bar“ und „Heimkino“, jede mit Vorschaubildern; bei „Büro“ PC, Gaming-PC, PC-Arbeitsplatz, Laptop, Gaming-Stuhl, Netzwerkschrank; bei „Bad“ die LED-Spiegel und der Spiegelschrank | ✅ (2026-10-21) |
+| 52.2 | Eine „Sauna mit Glasfront“ in einen Raum setzen, mit dem Schalter oder Thermostat der Sauna verknüpfen, „Live“, die Sauna einschalten | Holzkabine mit Glasfront und Glastür, innen zwei Bänke und der Ofen; eingeschaltet glühen die Saunasteine orange und das Licht unter der Bank und hinter der Lehne leuchtet | ✅ (2026-10-21) |
+| 52.3 | Bei „Ausführung“ „Thermoholz“ wählen | Die Kabine wird dunkelbraun | ✅ (2026-10-21) |
+| 52.4 | Aus „Fitness“ Laufband, Power Rack und Hantelbank setzen, aus „Bar“ die „Bartheke mit LED“, das Barregal und den Billardtisch | Die Teile stehen in echter Größe im Raum (Billardtisch 2,50 × 1,40 m), im 2D-Plan genauso groß | ✅ (2026-10-21) |
+| 52.5 | Aus „Heimkino“ die „Leinwand mit Rahmen“ an eine Wand setzen und den „Beamer (Decke)“ davor; beide mit dem Beamer oder Mediaplayer verknüpfen, „Live“, abspielen | Die Leinwand rastet an der Wand ein; der Beamer hängt unter der Decke. Beim Abspielen leuchtet die Leinwand hell und die Linse des Beamers | ✅ (2026-10-21) |
+| 52.6 | Den „Gaming-PC mit RGB“ mit dem Schalter des PCs verknüpfen, „Live“, einschalten | Die Lüfter vorne und die Teile hinter dem Glas leuchten lila (oder in der Farbe des Lichts, wenn es ein Licht ist) | ✅ (2026-10-21) |
+| 52.7 | Den „LED-Spiegel mit 3 Zonen“ an eine Wand setzen und anklicken | Der Spiegel rastet flach an der Wand ein; rechts unter „LEDs einzeln verknüpfen“ drei Felder „Hinten (indirekt)“, „Vorne“, „Unten“, jedes mit einem farbigen Streifen; in 3D haben die LEDs genau diese Farben | ✅ (2026-10-21) |
+| 52.8 | Nur das Hauptgerät (oben „Entität“) mit einem Licht verknüpfen, „Live“, einschalten | Alle LEDs des Spiegels leuchten, der Raum wird etwas heller | ✅ (2026-10-21) |
+| 52.9 | Zurück zu „Bearbeiten“, für „Hinten (indirekt)“ und „Unten“ je ein eigenes Licht wählen; „Live“, den Spiegel antippen | Die Karte zeigt „x von 3 LED-Zonen an“ und drei Knöpfe „Hinten (indirekt)“, „Vorne“, „Unten“; ein Knopf öffnet die Steuerung nur dieser LED, „Alle LEDs“ schaltet alle | ✅ (2026-10-21) |
+| 52.10 | Nur das Licht „Hinten“ einschalten, z. B. in Blau | In 3D leuchtet nur der Rand hinter dem Spiegel blau, die anderen LEDs bleiben aus | ✅ (2026-10-21) |
+| 52.11 | Die „Bartheke mit LED“ anklicken, „Thekenkante“ und „Sockel“ mit zwei Lichtern verknüpfen, in „Live“ beide einschalten | Die Kante der Theke und das Licht am Boden vor dem Sockel leuchten jeweils in der Farbe ihres Lichts | ✅ (2026-10-21) |
 | 52.12 | „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Importieren“, dann den „Keller“ öffnen | Rechts neben der Werkstatt ein neuer Kellerteil mit „Sauna & Wellness“, „Heimkino“, „Fitness“ und „Bar“; im Garten Fass-Sauna, Whirlpool und Poolbar | ❓ |
 
 ## 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 53.1 | Den „Gaming-PC-Arbeitsplatz“ (Gruppe „Büro“) setzen und anklicken, rechts bei „Anordnung“ nacheinander alle Möglichkeiten wählen | „2 Monitore nebeneinander“ (so wie bisher), „1 Monitor“, „3 Monitore nebeneinander“ (die äußeren schräg nach innen), „4 Monitore (2 × 2)“ an einem Monitorarm, „Curved-Monitor“ (gebogen), „Curved + 2 hochkant“; bei 3 Monitoren und bei Curved + 2 hochkant wird der Tisch breiter (1,80 m), auch im 2D-Plan | ❓ |
-| 53.2 | Eine Anordnung wählen, Strg+Z; dann eine wählen und die Seite neu laden | Strg+Z holt die vorige Anordnung zurück; nach dem Neuladen ist die gewählte noch da | ❓ |
-| 53.3 | Die „Spiegelwand mit LED“ und den „Ganzkörperspiegel mit LED“ anklicken, unter „LEDs einzeln verknüpfen“ für „Hinten (indirekt)“ und „Vorne“ je ein Licht wählen, „Live“, beide einzeln schalten | Der Rand hinter dem Spiegel und die zwei Lichtstreifen vorne links und rechts leuchten jeweils mit ihrem eigenen Licht; der Spiegel antippen zeigt zwei Knöpfe | ❓ |
+| 53.1 | Den „Gaming-PC-Arbeitsplatz“ (Gruppe „Büro“) setzen und anklicken, rechts bei „Anordnung“ nacheinander alle Möglichkeiten wählen | „2 Monitore nebeneinander“ (so wie bisher), „1 Monitor“, „3 Monitore nebeneinander“ (die äußeren schräg nach innen), „4 Monitore (2 × 2)“ an einem Monitorarm, „Curved-Monitor“ (gebogen), „Curved + 2 hochkant“; bei 3 Monitoren und bei Curved + 2 hochkant wird der Tisch breiter (1,80 m), auch im 2D-Plan | ✅ (2026-10-21) |
+| 53.2 | Eine Anordnung wählen, Strg+Z; dann eine wählen und die Seite neu laden | Strg+Z holt die vorige Anordnung zurück; nach dem Neuladen ist die gewählte noch da | ✅ (2026-10-21) |
+| 53.3 | Die „Spiegelwand mit LED“ und den „Ganzkörperspiegel mit LED“ anklicken, unter „LEDs einzeln verknüpfen“ für „Hinten (indirekt)“ und „Vorne“ je ein Licht wählen, „Live“, beide einzeln schalten | Der Rand hinter dem Spiegel und die zwei Lichtstreifen vorne links und rechts leuchten jeweils mit ihrem eigenen Licht; der Spiegel antippen zeigt zwei Knöpfe | ✅ (2026-10-21) |
 
 ## 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren
 | Nr. | Was tun | Erwartung | Ergebnis |
@@ -922,8 +922,8 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 54.4 | Etwas ändern, Strg+Z; dann die Seite neu laden | Strg+Z holt die vorige Stellung zurück; nach dem Neuladen steht er noch so, wie eingestellt | ✅ (2026-10-21) |
 | 54.5 | Links die Gruppe „Klima & Lüftung“ öffnen | Klimagerät (Split, Wand), Klima-Außengerät / Wärmepumpe, mobiles Klimagerät, Klima-Deckenkassette, Deckenventilator mit Licht, Standventilator, Turmventilator, Luftreiniger, Luftentfeuchter, jeweils mit Vorschaubild | ✅ (2026-10-21) |
 | 54.6 | Das Split-Klimagerät an eine Wand setzen, mit dem Thermostat (`climate.…`) verknüpfen, in „Live“ auf Kühlen, dann auf Heizen stellen | Kühlt es, wird die Klappe unten blau, heizt es, wird sie rot; das Display leuchtet, solange es läuft (auch bei nur Lüften oder Entfeuchten); das Schild zeigt die Temperatur | ❓ |
-| 54.7 | Ein mobiles Klimagerät an einer Steckdose (`switch.…`) einschalten | Der Luftauslass oben wird blau (es kühlt), das Display leuchtet | ❓ |
-| 54.8 | Den Deckenventilator mit seinem Ventilator (`fan.…`) verknüpfen, unter „LEDs einzeln verknüpfen“ bei „Licht“ die Lampe des Ventilators wählen | Die Leuchte unter dem Ventilator folgt ihrem eigenen Licht und erhellt den Raum | ❓ |
+| 54.7 | Ein mobiles Klimagerät an einer Steckdose (`switch.…`) einschalten | Der Luftauslass oben wird blau (es kühlt), das Display leuchtet | ✅ (2026-10-21) |
+| 54.8 | Den Deckenventilator mit seinem Ventilator (`fan.…`) verknüpfen, unter „LEDs einzeln verknüpfen“ bei „Licht“ die Lampe des Ventilators wählen | Die Leuchte unter dem Ventilator folgt ihrem eigenen Licht und erhellt den Raum | ✅ (2026-10-21) |
 
 ## 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus
 | Nr. | Was tun | Erwartung | Ergebnis |
