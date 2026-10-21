@@ -1,6 +1,6 @@
 {
  "version": "4.6.0",
- "buildHash": "7db3a869ac10066a3ffe5421f8f0b18e4a3ecb80bbf5f7c59f63f85f44c93c54",
+ "buildHash": "3ae7ee40f33846707a042c7c487c523de998f9fa20a7e4d1bd67069964b3dd6b",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "boards.py": "5960c15149110291fae80b08f337913b5b2b7a1f9f142b8bd71b36eb5ac0a3a2",
@@ -246,7 +246,7 @@
   "static/pageclimate.js": "a3e1b833369ab1e2f149029e1959ab3e5229f39e3a589776e541535e377ccab5",
   "static/pagecustom.js": "d9ae49c374120114731fcc07a9985a0b410a5860a9c493252ea1fdf573283082",
   "static/pageenergy.js": "4caec67131aa72d5089e8e09c7d979cf938802e23ed400bae160b089382b2573",
-  "static/pagefamily.js": "3cc2051989a75ba627b07f810dca5c334ba5848ec1b5e3f4e0494fdef61f0b5d",
+  "static/pagefamily.js": "58a1ba78c4f2f4b018d72f92dc94f96bcabaa61b2db620b8a174b9427ae742dc",
   "static/pagelayout.js": "f96848b20c627a3034982e1f23b3631d20a282a2313bf15c5092b8f8833794b5",
   "static/pageroutines.js": "f89acc1cfc80fc189199e498cfaae2016829cd778db0944dc246a83ef42c1e0e",
   "static/pagetoday.js": "c5c90c7da18bf289b9d9dbf35935168618435da138bf9c651c465aab8c7118e6",

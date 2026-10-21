@@ -62,13 +62,13 @@ export function initFamilyPage(ctx) {
   }
   function draw(force = false) {
     if (!box || !el.contains(box)) return;
-    if (board.contains(document.activeElement) && !force) { later = true; return; }      // typing a note: the cards move after it
     const rows = familyRows(people, ctx.states(), ctx.names());
     const sig = JSON.stringify([rows, ctx.pinboard.rev(), lang()]);
     if (sig === drawn && !force) return;
-    drawn = sig;
     notesBox.replaceChildren(ctx.pinboard.list({ del: true }));
     form.refresh();
+    if (document.activeElement?.tagName === 'TEXTAREA' && board.contains(document.activeElement) && !force) { later = true; return; }   // typing a note: the cards move after it
+    drawn = sig;
     const items = rows.map((p) => ({ key: `p:${p.id}`, el: personCard(p), width: 1 }));
     if (!rows.length) items.push({ key: 'nobody', el: make('p', 'tpSub', t('fm.nobody')), width: 2 });
     items.push({ key: 'pinboard', el: board, width: 2 });
