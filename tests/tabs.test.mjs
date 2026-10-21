@@ -29,6 +29,12 @@ test('the shown tabs: the house always, a page only with something on it, not hi
   assert.deepEqual(T.shownTabs({ has: { cameras: true }, locks: ['control'] }), ['house', 'cameras']);
   assert.deepEqual(T.shownTabs({ has: { today: true, energy: true }, locks: ['energy'] }), ['house', 'today']);   // may not see the energy (#479)
 });
+test('the pages of 4.5 (#483): a user who may not switch has no climate and no routines, the family stays', () => {
+  const has = { climate: true, cameras: true, routines: true, family: true };
+  assert.deepEqual(T.shownTabs({ has }), ['house', 'climate', 'cameras', 'routines', 'family']);
+  assert.deepEqual(T.shownTabs({ has, locks: ['control'] }), ['house', 'cameras', 'family']);
+  assert.deepEqual(T.cleanTabEntry({ hide: ['family', 'routines'], start: 'climate' }), { hide: ['routines', 'family'], start: 'climate' });
+});
 test('the bar: live mode only, never in the dashboard card, not when switched off or with the house alone', () => {
   const two = ['house', 'cameras'];
   assert.equal(T.barShown({ live: true, card: false, on: true, tabs: two }), true);

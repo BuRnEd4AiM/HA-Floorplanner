@@ -25,8 +25,8 @@ pgT.goto(BASE + "?debug=1"); pgT.wait_for_timeout(1500)
 if pgT.is_visible("#modeSwitch [data-mode=edit]"): pgT.click("#modeSwitch [data-mode=edit]"); pgT.wait_for_timeout(500)
 check("tabs (#479): no tab bar while editing", pgT.is_hidden("#tabBar"))
 pgT.click("#modeSwitch [data-mode=live]"); pgT.wait_for_timeout(800)
-check("tabs: in live mode the bar at the bottom has 🏠 Haus, ☀ Heute and 📷 Kameras, the house open, under the 3D picture (not over it)",
-      pgT.is_visible("#tabBar") and tabs_of(pgT) == ["house", "today", "cameras"] and active_of(pgT) == "house" and pgT.is_hidden("#tabPages")
+check("tabs: in live mode the bar at the bottom has 🏠 Haus, ☀ Heute, 🌡 Klima (a thermostat), 📷 Kameras and ▶ Abläufe (a scene), the house open, under the 3D picture (not over it)",
+      pgT.is_visible("#tabBar") and tabs_of(pgT) == ["house", "today", "climate", "cameras", "routines"] and active_of(pgT) == "house" and pgT.is_hidden("#tabPages")
       and pgT.evaluate("document.querySelector('#tabBar').getBoundingClientRect().top >= document.querySelector('#view').getBoundingClientRect().bottom - 1"),
       (tabs_of(pgT), active_of(pgT)))
 pgT.click("#tabBar [data-tab=cameras]"); pgT.wait_for_timeout(1500)
@@ -91,7 +91,7 @@ pgC = watch_tb(b.new_page(viewport={"width": 1000, "height": 700}, extra_http_he
 pgC.goto(BASE + "?debug=1&card=1"); pgC.wait_for_timeout(1500)
 no_bar = pgC.is_hidden("#tabBar")
 pgC.goto(BASE + "?debug=1&card=1&tabs=1"); pgC.wait_for_timeout(1500)
-check("tabs: the dashboard card has the bar only with its option tabs", no_bar and pgC.is_visible("#tabBar") and tabs_of(pgC) == ["house", "today", "cameras"], tabs_of(pgC))
+check("tabs: the dashboard card has the bar only with its option tabs", no_bar and pgC.is_visible("#tabBar") and tabs_of(pgC) == ["house", "today", "climate", "cameras", "routines"], tabs_of(pgC))
 pgC.close()
 check("tabs: no errors on the page", not own_tb, own_tb[:3])
 

@@ -87,6 +87,11 @@ import { initTabsUi } from './tabsui.js';
 import { initCameraPage } from './pagecameras.js';
 import { initEnergyPage } from './pageenergy.js';
 import { initTodayPage } from './pagetoday.js';
+import { initClimatePage } from './pageclimate.js';
+import { initRoutinesPage } from './pageroutines.js';
+import { initFamilyPage } from './pagefamily.js';
+import { initPinboard } from './pinboardui.js';
+import { initRoutinePrefs } from './routineprefs.js';
 import { meterPart } from './energymetersui.js';
 import { initTodayPrefs } from './todayprefs.js';
 import { initTapBalls } from './tapballs.js';
@@ -646,12 +651,29 @@ const camPage = initCameraPage({
   t, el: $('#tabPages [data-page=cameras]'), cams, layout: () => layout, settings: () => lockedSettings(settings, [...locks]),
   showDevice: (fi, id) => { tabsUi.show('house'); offline.show({ floor: fi, kind: 'device', id }); },
 });
+const namesOf = (re) => Object.fromEntries(entities.filter((e) => re.test(e.entity_id)).map((e) => [e.entity_id, e.name]));
+const pinboard = initPinboard({ t, lang: () => currentLanguage(), changed: () => { if (tabsUi.open() === 'today') todayPage.update(); if (tabsUi.open() === 'family') familyPage.changed(); } });   // the pinboard (#483, pinboardui.js)
 const todayPage = initTodayPage({                                // ☀ Heute (pagetoday.js, today.js)
   t, el: $('#tabPages [data-page=today]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => layout,
-  names: () => Object.fromEntries(entities.filter((e) => /^(person|alarm_control_panel)\./.test(e.entity_id)).map((e) => [e.entity_id, e.name])),
+  names: () => namesOf(/^(person|alarm_control_panel)\./),
   summary: () => ({ open: openings.items().map((x) => x.name), lights: lightGroups.count(), low: deviceList.low(),
     offline: offline.devices().filter((x) => x.reason !== 'unlinked').length }),
-  act: (k) => todayAct(k),
+  act: (k) => todayAct(k), pinboard, family: () => tabsUi.has('family'),
+});
+const climatePage = initClimatePage({                            // 🌡 Klima (pageclimate.js, climate.js, #483)
+  t, el: $('#tabPages [data-page=climate]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => shownLayout(),
+  placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
+  callService: (e, svc, data) => live.callService(e, svc, data),
+  openRoom: (fi, id) => { tabsUi.show('house'); if (houseMode || fi !== floorIdx) switchFloor(fi); if (focusedRoom !== id) liveSelect({ kind: 'room', id }); },
+});
+const routinesPage = initRoutinesPage({                          // ▶ Abläufe (pageroutines.js, routines.js, #483)
+  t, el: $('#tabPages [data-page=routines]'), states: () => states, settings: () => settings, canEdit: () => me.canEdit,
+  names: () => namesOf(/^(scene|script|button|input_button|media_player|lock|automation)\./),
+  openNames: () => openings.items().map((x) => x.name), litLights: () => lightGroups.lit(),
+  callService: (e, svc, data) => live.callService(e, svc, data),
+});
+const familyPage = initFamilyPage({                              // 👨‍👩‍👧 Familie with the pinboard (pagefamily.js, family.js, #483)
+  t, el: $('#tabPages [data-page=family]'), lang: () => currentLanguage(), states: () => states, names: () => namesOf(/^person\./), pinboard,
 });
 const energyPage = initEnergyPage({                              // ⚡ Energie (pageenergy.js, energyhistory.js)
   t, el: $('#tabPages [data-page=energy]'), lang: () => currentLanguage(), layout: () => layout, houseId: () => hs.id(),
@@ -660,6 +682,7 @@ const energyPage = initEnergyPage({                              // ⚡ Energie 
 /** a tap on a row of "Im Haus" on the page ☀ Heute: to the house and what the row is about (the power: to the page ⚡ Energie) */
 function todayAct(k) {
   if (k === 'power' && tabsUi.has('energy')) { tabsUi.show('energy'); return; }
+  if (k === 'family') { tabsUi.show('family'); return; }                       // the pinboard card (#483)
   tabsUi.show('house');
   setTimeout(() => {                                              // after the tap: the drop-downs close on a tap outside of them
     if (k === 'open') { openings.renderList(); $('#openDialog').showModal(); }
@@ -671,7 +694,8 @@ function todayAct(k) {
 const tabsUi = initTabsUi({
   $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => me,
   pages: { today: { el: $('#tabPages [data-page=today]'), ...todayPage }, energy: { el: $('#tabPages [data-page=energy]'), ...energyPage },
-    cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage } },
+    climate: { el: $('#tabPages [data-page=climate]'), ...climatePage }, cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage },
+    routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage } },
   onShow: (tab) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } wake(); },
 });
 
@@ -1455,11 +1479,12 @@ const startView = initStartView({
   setHouseMode: (on) => setHouseMode(on), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), switchHouse: (id) => switchHouse(id),
 });
 const todayPrefs = initTodayPrefs({ $, t });             // ⚙ → "Reiter unten": the calendars of the page ☀ Heute (#481, todayprefs.js)
+const routinePrefs = initRoutinePrefs({ $, t, entities: () => entities });   // ... and the buttons of ▶ Abläufe (#483, routineprefs.js)
 const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
-  parts: [favorites, lightGroups, todayPrefs],          // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481)
+  parts: [favorites, lightGroups, todayPrefs, routinePrefs],          // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones

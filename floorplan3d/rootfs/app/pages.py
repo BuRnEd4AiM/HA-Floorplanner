@@ -1,6 +1,7 @@
 """Data for the pages of the tab bar (#481): what the add-on asks Home Assistant for the pages ⚡ Energie (the meters of its energy
 dashboard and their long-term statistics) and ☀ Heute (the weather forecast and the calendars), checked and cut down to what the pages
-show. Pure functions (unit test: tests/test_pages.py); server.py does the asking."""
+show; for 👨‍👩‍👧 Familie (#483) the people with the battery of their phone, and the notes of the pinboard the add-on keeps. Pure
+functions (unit test: tests/test_pages.py); server.py does the asking and the storing."""
 import math
 import re
 from datetime import datetime, timezone
@@ -187,3 +188,121 @@ def agenda_window(start, end):
     if not a or not b or b <= a or (b - a).days > 14:
         return None
     return a.astimezone(timezone.utc).isoformat(), b.astimezone(timezone.utc).isoformat()
+
+
+# ---------- 👨‍👩‍👧 Familie (#483): the people and the pinboard ----------
+PERSON_ID = re.compile(r"^person\.[a-z0-9_]{1,200}$")
+# a person's picture lies in Home Assistant: an uploaded one (image/serve) or one in its www folder (/local); nothing from elsewhere
+PICTURE = re.compile(r"^/(?:api/image/serve/[A-Za-z0-9_-]{1,64}/[0-9x]{1,12}|local/[A-Za-z0-9_./ -]{1,200})(?:\?[A-Za-z0-9=&_.-]{0,200})?$")
+MAX_PEOPLE = 30
+
+
+def person_picture(state):
+    """the path of a person's picture in Home Assistant (its entity_picture), or None"""
+    pic = ((state or {}).get("attributes") or {}).get("entity_picture") if isinstance(state, dict) else None
+    return pic if isinstance(pic, str) and PICTURE.match(pic) and ".." not in pic else None
+
+
+def _level(v):
+    try:
+        n = float(v)
+    except (TypeError, ValueError):
+        return None
+    return round(n) if math.isfinite(n) and 0 <= n <= 100 else None
+
+
+def phone_battery(tracker, by_id, device_of, on_device):
+    """(battery %, charging) of the phone behind a device_tracker: the battery sensor of the same device (the companion app has
+    sensor.<phone>_battery_level and _battery_state), else the tracker's own battery_level; (None, None) when nothing says it"""
+    level, charging = None, None
+    dev = device_of.get(tracker)
+    for e in sorted(on_device.get(dev, [])) if dev else []:
+        st = by_id.get(e) or {}
+        a, val = st.get("attributes") or {}, st.get("state")
+        if e.startswith("sensor.") and a.get("device_class") == "battery" and level is None:
+            level = _level(val)
+        elif e.startswith("binary_sensor.") and a.get("device_class") == "battery_charging":
+            charging = val == "on"
+        elif e.startswith("sensor.") and e.endswith("battery_state") and charging is None and isinstance(val, str):
+            charging = val.lower().replace(" ", "_") in ("charging", "full")
+    if level is None:
+        a = (by_id.get(tracker) or {}).get("attributes") or {}
+        level = _level(a.get("battery_level", a.get("battery")))
+    return level, charging
+
+
+def family(states, registry) -> list:
+    """Home Assistant's people (GET /api/states) with what the page shows: [{"id", "name", "state", "since" (last_changed), "picture"
+    (it has one), "battery", "charging"}]. The phone: the person's device_tracker in use (its "source"), else its first one; its device
+    from the entity registry (config/entity_registry/list)."""
+    by_id = {s["entity_id"]: s for s in states if isinstance(s, dict) and isinstance(s.get("entity_id"), str)} if isinstance(states, list) else {}
+    device_of, on_device = {}, {}
+    for e in registry if isinstance(registry, list) else []:
+        if isinstance(e, dict) and isinstance(e.get("entity_id"), str) and isinstance(e.get("device_id"), str) and e["device_id"]:
+            device_of[e["entity_id"]] = e["device_id"]
+            on_device.setdefault(e["device_id"], []).append(e["entity_id"])
+    out = []
+    for eid in sorted(by_id):
+        if not PERSON_ID.match(eid):
+            continue
+        s = by_id[eid]
+        a = s.get("attributes") or {}
+        trackers = [x for x in [a.get("source"), *(a.get("device_trackers") if isinstance(a.get("device_trackers"), list) else [])]
+                    if isinstance(x, str) and x.startswith("device_tracker.")]
+        battery, charging = None, None
+        for tr in dict.fromkeys(trackers):
+            battery, charging = phone_battery(tr, by_id, device_of, on_device)
+            if battery is not None:
+                break
+        name = a.get("friendly_name") if isinstance(a.get("friendly_name"), str) and a.get("friendly_name") else eid[7:]
+        out.append({"id": eid, "name": name[:80], "state": str(s.get("state") or "")[:80],
+                    "since": s.get("last_changed") if isinstance(s.get("last_changed"), str) and _when(s.get("last_changed")) else None,
+                    "picture": person_picture(s) is not None, "battery": battery, "charging": charging})
+    return out[:MAX_PEOPLE]
+
+
+NOTE_COLORS = ("yellow", "green", "blue", "pink")
+MAX_NOTES = 30
+MAX_NOTE = 300
+NOTE_ID = re.compile(r"^[a-f0-9]{8,32}$")
+CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
+
+
+def note_text(v) -> str:
+    """the text of a note (like cleanNote in static/family.js): control characters out, at most two empty lines in a row, trimmed, at
+    most MAX_NOTE characters"""
+    if not isinstance(v, str):
+        return ""
+    return re.sub(r"\n{3,}", "\n\n", CONTROL.sub("", v)).strip()[:MAX_NOTE]
+
+
+def clean_notes(val) -> list:
+    """the stored notes made safe: [{"id", "text", "by", "at", "color"}], newest first, at most MAX_NOTES"""
+    out, seen = [], set()
+    for n in val if isinstance(val, list) else []:
+        if not isinstance(n, dict) or not isinstance(n.get("id"), str) or not NOTE_ID.match(n["id"]) or n["id"] in seen:
+            continue
+        text, at = note_text(n.get("text")), _when(n.get("at"))
+        if not text or not at:
+            continue
+        seen.add(n["id"])
+        out.append({"id": n["id"], "text": text, "by": n["by"][:80] if isinstance(n.get("by"), str) else "", "at": at.astimezone(timezone.utc).isoformat(),
+                    "color": n.get("color") if n.get("color") in NOTE_COLORS else NOTE_COLORS[0]})
+    out.sort(key=lambda n: n["at"], reverse=True)
+    return out[:MAX_NOTES]
+
+
+def new_note(body, by: str, now: datetime, nid: str):
+    """(a new note, None) from what the page sent ({"text", "color"}), or (None, why not)"""
+    if not isinstance(body, dict):
+        return None, "invalid request"
+    text = note_text(body.get("text"))
+    if not text:
+        return None, "the note is empty"
+    color = body.get("color") if body.get("color") in NOTE_COLORS else NOTE_COLORS[0]
+    return {"id": nid, "text": text, "by": (by or "").strip()[:80], "at": now.astimezone(timezone.utc).isoformat(), "color": color}, None
+
+
+def add_note(notes: list, note: dict) -> list:
+    """the note in front of the others; a full pinboard lets its oldest note go"""
+    return clean_notes([note, *notes])

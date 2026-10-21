@@ -103,6 +103,9 @@ DEFAULT_SETTINGS = {
     "tabBar": True,            # the tab bar at the bottom of the live view (#479): the house and pages beside it
     "agendaCalendars": [],     # the calendars of the page ☀ Heute (#481); empty = all calendars of Home Assistant
     "wasteCalendar": "",       # the calendar of the waste collection (#481): its next dates stand apart on the page ☀ Heute
+    "routines": [],            # the buttons of the page ▶ Abläufe (#483): scenes, scripts, buttons; empty = every scene and script
+    "routineLeave": "",        # the routine "Ich gehe" starts after its check (a scene, script or button, #483); "" = only the check
+    "routineNight": "",        # the same for "Gute Nacht"
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "bgTop": "#0a3ba8",
@@ -124,7 +127,7 @@ PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWall
                  "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False)}
 
 # the tabs of the tab bar (the same keys as TABS in static/tabs.js, #479); the house is always there, the others can be hidden per user
-TABS = ("house", "today", "energy", "cameras")
+TABS = ("house", "today", "energy", "climate", "cameras", "routines", "family")
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too
 LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
@@ -506,6 +509,18 @@ def clean_favorites(val) -> list:
     return out[:16]
 
 
+ROUTINE_DOMAINS = ("scene", "script", "button", "input_button")
+
+
+def clean_routines(val) -> list:
+    """The buttons of the page ▶ Abläufe (#483, cleanRoutines in static/routines.js): scenes, scripts and buttons, each once, at most 24."""
+    out = []
+    for e in val if isinstance(val, list) else []:
+        if isinstance(e, str) and len(e) <= 255 and ENTITY_ID.match(e) and e.split(".")[0] in ROUTINE_DOMAINS and e not in out:
+            out.append(e)
+    return out[:24]
+
+
 def clean_light_groups(val) -> list:
     """The light groups (#471): [{"id", "name", "rooms": [room id]}], at most 12, like cleanGroups in static/lightgroups.js."""
     out, ids = [], set()
@@ -547,6 +562,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = clean_user_tabs(val)
         elif key == "agendaCalendars":
             out[key] = pages.clean_calendars(val)
+        elif key == "routines":
+            out[key] = clean_routines(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
@@ -598,6 +615,9 @@ def validate_settings(data: dict) -> dict:
         out["weatherEntity"] = ""
     if out["wasteCalendar"] and not pages.CALENDAR_ID.match(out["wasteCalendar"]):
         out["wasteCalendar"] = ""
+    for key in ("routineLeave", "routineNight"):
+        if out[key] and not clean_routines([out[key]]):
+            out[key] = ""
     return out
 
 
@@ -932,6 +952,8 @@ async def get_entities(request):
 
 def _climate(st, a):
     """What the heating panel needs of a thermostat: what it is doing now, the target temperature and what it may be set to."""
+    if st["entity_id"].startswith("water_heater."):           # a heat pump's hot water (the page 🌡 Klima, #483): only its target
+        return {"tt": a.get("temperature"), "tmin": a.get("min_temp"), "tmax": a.get("max_temp")}
     if not st["entity_id"].startswith("climate."):
         return {}
     modes = a.get("hvac_modes")
@@ -1192,6 +1214,8 @@ async def call_service(request):
         return web.json_response({"error": err}, status=400)
     if domain == "alarm_control_panel" and "alarm" in user_locks(request):
         return web.json_response({"error": "the alarm panel is locked for this user"}, status=403)
+    if domain == "automation" and not await can_edit(request):      # an automation on / off (▶ Abläufe, #483): only who may edit
+        return forbidden()
     async with aiohttp.ClientSession() as s:
         async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(),
                           json=payload) as r:
@@ -1939,6 +1963,108 @@ async def get_agenda(request):
     return web.json_response({"events": hit, "waste": st["wasteCalendar"]})
 
 
+# ---------- 👨‍👩‍👧 Familie (#483, pages.py): the people with their phone's battery, their pictures, the pinboard ----------
+MAX_PICTURE_BYTES = 2 * 1024 * 1024
+
+
+async def ha_states() -> list:
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+        async with s.get(f"{HA_API}/states", headers=ha_headers()) as r:
+            data = await r.json() if r.status == 200 else []
+    return data if isinstance(data, list) else []
+
+
+async def get_family(request):
+    """Home Assistant's people: where, since when, a picture or not, the battery of the phone (kept for a minute)."""
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"people": []})
+    hit = pages_cached(request, ("family",), 60)
+    if hit is not None:
+        return web.json_response(hit)
+    try:
+        states = await ha_states()
+        registry = []
+        if any(isinstance(x, dict) and str(x.get("entity_id", "")).startswith("person.") for x in states):
+            async with _HaSocket() as ws:                     # the phone's battery: a sensor of the device of the person's tracker
+                registry = await rn.ask(ws, 1, {"type": "config/entity_registry/list"}, [])
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}", "people": []}, status=502)
+    return web.json_response(pages_keep(request, ("family",), {"people": pages.family(states, registry)}))
+
+
+async def get_family_picture(request):
+    """The picture of a person (its entity_picture in Home Assistant: an uploaded one or one of its www folder), never from elsewhere."""
+    entity = request.match_info["entity"]
+    if not pages.PERSON_ID.match(entity):
+        return web.json_response({"error": "not a person"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no supervisor token"}, status=503)
+    base = HA_API[:-4] if HA_API.endswith("/api") else HA_API
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+            async with s.get(f"{HA_API}/states/{entity}", headers=ha_headers()) as r:
+                path = pages.person_picture(await r.json()) if r.status == 200 else None
+            if not path:
+                return web.json_response({"error": "no picture"}, status=404)
+            async with s.get(base.rstrip("/") + path, headers=ha_headers()) as r:
+                ctype = (r.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+                body = await read_all(r, MAX_PICTURE_BYTES) if r.status == 200 else None
+    except (aiohttp.ClientError, asyncio.TimeoutError, ValueError):
+        return web.json_response({"error": "Home Assistant not reachable"}, status=502)
+    if ctype not in CAMERA_TYPES or body is None:
+        return web.json_response({"error": "unexpected answer"}, status=502)
+    return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "private, max-age=3600", "X-Content-Type-Options": "nosniff"})
+
+
+def pinboard_path(request) -> Path:
+    return data_dir(request) / "pinboard.json"
+
+
+def read_notes(request) -> list:
+    stored = read_json(pinboard_path(request), {})
+    return pages.clean_notes(stored.get("notes") if isinstance(stored, dict) else [])
+
+
+def pinboard_answer(request, notes, **more):
+    """the notes and whether a note can also go to the phones (the channel of "Benachrichtigung bei Alarm" is set up)"""
+    return web.json_response({"notes": notes, "canSend": an.ready(notify_cfg(request)) is None, **more})
+
+
+async def get_pinboard(request):
+    """The notes of the pinboard, the same for everybody (newest first)."""
+    return pinboard_answer(request, read_notes(request))
+
+
+async def post_pinboard(request):
+    """A new note ({"text", "color", "send"}): with the name of who wrote it; "send": also as a message to the phones."""
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    h = request.headers
+    by = (h.get("X-Remote-User-Display-Name") or h.get("X-Remote-User-Name") or "").strip()
+    note, err = pages.new_note(body, by, datetime.datetime.now(datetime.timezone.utc), secrets.token_hex(8))
+    if err:
+        return web.json_response({"error": err}, status=400)
+    notes = pages.add_note(read_notes(request), note)
+    write_json_atomic(pinboard_path(request), {"notes": notes})
+    sent, why = None, None
+    if body.get("send") is True:
+        cfg = notify_cfg(request)
+        sent, why = await send_notify(cfg, f"📌 {note['by'] or '3D Floorplan'}: {note['text']}") if an.ready(cfg) is None else (False, "not set up")
+    return pinboard_answer(request, notes, sent=sent, **({"error": why} if why else {}))
+
+
+async def delete_pinboard(request):
+    """A note taken off (anybody may, like on a real pinboard at home)."""
+    nid = request.match_info["id"]
+    notes = read_notes(request)
+    left = [n for n in notes if n["id"] != nid]
+    if len(left) != len(notes):
+        write_json_atomic(pinboard_path(request), {"notes": left})
+    return pinboard_answer(request, left)
+
+
 # ---------- a message when something goes off: alarm panel, smoke, gas, CO, water (#414, alarmnotify.py) ----------
 CALLMEBOT_URL = os.environ.get("CALLMEBOT_URL", "https://api.callmebot.com/whatsapp.php")
 CALLMEBOT_TG = os.environ.get("CALLMEBOT_TG", "https://api.callmebot.com")   # Telegram: text.php (users), telegram/group.php (a group, #456)
@@ -2443,6 +2569,11 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/forecast", get_forecast),
         web.get("/api/calendars", get_calendars),
         web.get("/api/agenda", get_agenda),
+        web.get("/api/family", get_family),
+        web.get("/api/family/{entity}/picture", get_family_picture),
+        web.get("/api/pinboard", get_pinboard),
+        web.post("/api/pinboard", post_pinboard),
+        web.delete("/api/pinboard/{id}", delete_pinboard),
         web.get("/api/notify", get_notify),
         web.put("/api/notify", put_notify),
         web.post("/api/notify/test", test_notify),

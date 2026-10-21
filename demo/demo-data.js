@@ -251,6 +251,7 @@ const entities = {
   'light.bad':               { name: 'Bad Licht',              state: 'off' },
   'person.anna':             { name: 'Anna', state: 'home' },
   'person.max':              { name: 'Max', state: 'not_home' },
+  'person.lena':             { name: 'Lena', state: 'Schule' },      // 4.5: a zone of Home Assistant (the page 👨‍👩‍👧 Familie, #483)
   'binary_sensor.buero_praesenz': { name: 'Büro Anwesenheit', state: 'on' },
   'light.buero':             { name: 'Büro Licht',             state: 'on', rgb: [255, 226, 110] },
   'light.voute_bett':        { name: 'Voute Bettseite',        state: 'on', rgb: [190, 80, 255], brightness: 60 },
@@ -298,6 +299,14 @@ const entities = {
   'cover.rollladen_gaube':   { name: 'Rollladen Gaube',        state: 'open', position: 100 },
   'light.garage':            { name: 'Garage Licht',           state: 'off' },
   'script.filmabend':        { name: 'Filmabend',              state: 'off' },
+  // 4.5 (#483): more for the page ▶ Abläufe: a morning script, the night scene that "Gute Nacht" starts, automations to switch, the front door lock
+  'script.guten_morgen':     { name: 'Guten Morgen',           state: 'off' },
+  'scene.gute_nacht':        { name: 'Gute Nacht',             state: 'scening' },
+  'automation.flurlicht_bewegung': { name: 'Flurlicht bei Bewegung', state: 'on' },
+  'automation.rollladen_abends': { name: 'Rollläden bei Sonnenuntergang', state: 'on' },
+  'automation.urlaub_licht': { name: 'Urlaub: Licht zufällig',  state: 'off' },
+  'lock.haustuer':           { name: 'Haustür',                state: 'unlocked' },
+  'water_heater.warmwasser': { name: 'Warmwasser (Wärmepumpe)', state: 'heat_pump', ct: 48, tt: 50 },   // the page 🌡 Klima: in no room
   'sensor.bad_feuchte':      { name: 'Bad Luftfeuchte',        state: '64', unit: '%' },
   'sensor.wohnzimmer_co2':   { name: 'Wohnzimmer CO₂',         state: '920', unit: 'ppm', dc: 'carbon_dioxide' },
   'sensor.schlafzimmer_co2': { name: 'Schlafzimmer CO₂',       state: '1350', unit: 'ppm', dc: 'carbon_dioxide' },
@@ -360,7 +369,20 @@ let settings = {
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
   favorites: ['scene.wz_gemuetlich', 'scene.wz_aus', 'light.stehlampe', 'light.kueche'],   // 4.2: favourites and light groups (#471)
   lightGroups: [{ id: 'g_wohnen', name: 'Wohnen', rooms: ['r1', 'r2'] }, { id: 'g_oben', name: 'Oben', rooms: ['q1', 'q2'] }, { id: 'g_keller', name: 'Keller', rooms: ['k1', 'k2', 'k3'] }],
+  routines: [], routineLeave: '', routineNight: 'scene.gute_nacht',   // 4.5: ▶ Abläufe shows every scene and script, "Gute Nacht" then starts the night scene (#483)
 };
+// 4.5 (#483): the page 👨‍👩‍👧 Familie: the people as the add-on finds them (since when, the phone's battery; no pictures: the letters) and the pinboard
+const todayAt = (h, m) => { const d = new Date(); d.setHours(h, m, 0, 0); return d.toISOString(); };
+const family = () => ({ people: [
+  { id: 'person.anna', name: 'Anna', state: entities['person.anna'].state, since: todayAt(11, 2), picture: false, battery: 78, charging: false },
+  { id: 'person.max', name: 'Max', state: entities['person.max'].state, since: todayAt(8, 10), picture: false, battery: 45, charging: false },
+  { id: 'person.lena', name: 'Lena', state: entities['person.lena'].state, since: todayAt(7, 45), picture: false, battery: 18, charging: false },
+] });
+const pinboard = [
+  { id: 'a1b2c3d4e5f60001', text: 'Bin um 6 da 🚗', by: 'Max', at: todayAt(11, 48), color: 'yellow' },
+  { id: 'a1b2c3d4e5f60002', text: 'Katze füttern! 🐱', by: 'Anna', at: todayAt(8, 10), color: 'green' },
+  { id: 'a1b2c3d4e5f60003', text: 'Lena: Training fällt Do aus', by: 'Anna', at: new Date(Date.now() - 26 * 3600000).toISOString(), color: 'blue' },
+];
 
 const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
 // the holiday alarm (#456) in the demo: set up with the code 1234; armed for 25 s, a "burglar" opens the office door (the whole flow can be seen)
@@ -508,6 +530,24 @@ export function installDemoBackend() {
     if (path === 'api/forecast') return json({ forecast: demoForecast() });
     if (path === 'api/calendars') return json([{ entity_id: 'calendar.familie', name: 'Familie' }, { entity_id: 'calendar.muellabfuhr', name: 'Müllabfuhr' }]);
     if (path === 'api/agenda') return json({ events: demoAgenda(), waste: 'calendar.muellabfuhr' });
+    if (path === 'api/family') return json(family());
+    if (path.startsWith('api/family/')) return json({ error: 'no picture' }, 404);   // the demo's people have none: the page shows their letters
+    if (path === 'api/pinboard') {                          // kept only in this tab; "auch aufs Handy" sends nothing in the demo
+      if (method === 'POST') {
+        const b = JSON.parse(init.body || '{}'), text = String(b.text || '').trim().slice(0, 300);
+        if (!text) return json({ error: 'the note is empty' }, 400);
+        pinboard.unshift({ id: Math.random().toString(16).slice(2, 10).padEnd(8, '0') + Date.now().toString(16).slice(-8), text, by: 'Demo', at: new Date().toISOString(),
+          color: ['yellow', 'green', 'blue', 'pink'].includes(b.color) ? b.color : 'yellow' });
+        pinboard.splice(30);
+        return json({ notes: pinboard, canSend: false, sent: b.send ? false : null });
+      }
+      return json({ notes: pinboard, canSend: false });
+    }
+    if (path.startsWith('api/pinboard/') && method === 'DELETE') {
+      const i = pinboard.findIndex((n) => n.id === decodeURIComponent(path.slice('api/pinboard/'.length)));
+      if (i >= 0) pinboard.splice(i, 1);
+      return json({ notes: pinboard, canSend: false });
+    }
     if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all' });
     if (path === 'api/users') return json([{ username: 'admin', name: 'Admin', admin: true }, { username: 'tablet_wohnzimmer', name: 'Tablet Wohnzimmer', admin: false }, { username: 'familie', name: 'Familie', admin: false }]);
     if (path === 'api/users-file') return json({ file: 'users.json', exists: true, fileUsers: 2, users: 2, inSync: true });
@@ -538,6 +578,14 @@ export function installDemoBackend() {
       const { service, entity_id: id, data } = JSON.parse(init.body);
       const e = entities[id];
       if (!e) return json({ ok: false }, 502);
+      if (id === 'scene.gute_nacht') {                     // the night scene (#483): every light and the TV off
+        Object.keys(entities).filter((k) => k.startsWith('light.') || k === 'media_player.tv').forEach((k) => { entities[k].state = 'off'; });
+        return json({ ok: true });
+      }
+      if (id.startsWith('script.') && service === 'turn_on') {  // a script runs a moment (▶ Abläufe shows "läuft …")
+        e.state = 'on'; setTimeout(() => { e.state = 'off'; }, 3000);
+        return json({ ok: true });
+      }
       if (id.startsWith('scene.')) {                      // demo scenes: switch the living room lights
         const wz = ['light.wohnzimmer', 'light.stehlampe', 'light.shapes_wz'];
         wz.forEach((l) => { if (id.endsWith('_aus')) entities[l].state = 'off'; else { entities[l].state = 'on'; entities[l].rgb = [255, 170, 90]; } });
@@ -577,6 +625,7 @@ export function installDemoBackend() {
       if (service.startsWith('alarm_arm_')) e.state = `armed_${service.slice(10)}`;
       if (service === 'alarm_disarm') { if (data?.code !== '1234') return json({ ok: false }, 502); e.state = 'disarmed'; }   // the demo's code
       if (service === 'select_option') e.state = data.option;
+      if (service === 'lock' || service === 'unlock') e.state = `${service}ed`;
       return json({ ok: true });
     }
     if (path === 'api/notify') {                         // the message on alarm (#414): shown in the demo too, kept only in this tab, never sent

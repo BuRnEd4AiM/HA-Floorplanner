@@ -76,6 +76,7 @@ SERVICES = {
     "lock": {"lock": ({}, ()), "unlock": ({}, ())},
     "scene": {"turn_on": ({}, ())},
     "script": {s: ({}, ()) for s in ON_OFF},
+    "automation": {"turn_on": ({}, ()), "turn_off": ({}, ())},     # on / off on the page ▶ Abläufe (#483), only for editors (server.py)
     "climate": {**{s: ({}, ()) for s in ON_OFF},
                 "set_temperature": ({"temperature": _temp}, ("temperature",)),
                 "set_hvac_mode": ({"hvac_mode": _hvac}, ("hvac_mode",)),

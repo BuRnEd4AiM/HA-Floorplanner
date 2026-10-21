@@ -1,13 +1,14 @@
 /* The page ☀ Heute of the tab bar (#481), the start page of a wall tablet: the time and date, the weather now and the next days, the events
  * of today and tomorrow (the calendars chosen in ⚙, all without a choice), the next waste collection (its own calendar), who is at home,
- * what in the house needs a look (a tap leads there) and the power now. The rules are in today.js (tested); this file asks the add-on
- * (api/forecast, api/agenda) and draws. */
+ * what in the house needs a look (a tap leads there), the power now and the newest notes of the pinboard (#483, a tap leads to the page
+ * 👨‍👩‍👧 Familie). The rules are in today.js (tested); this file asks the add-on (api/forecast, api/agenda) and draws. */
 import { wxIcon, weatherEntity, nextDays, agendaDays, people, houseRows, alarmPanel, agendaSpan } from './today.js';
 import { isoLocal } from './energyhistory.js';
 import { energyBalance } from './energycalc.js';
 
 /** ctx: t, el (the page), lang(), settings(), states(), names() ({ entity: name }), layout(), summary() ({ open: [names], lights, low, offline }),
- *  act(key) (a tap on a row of "Im Haus": open | lights | alarm | low | offline | power) */
+ *  act(key) (a tap on a row of "Im Haus": open | lights | alarm | low | offline | power; on the pinboard: family), pinboard (pinboardui.js),
+ *  family() (the page 👨‍👩‍👧 Familie is in the bar: the pinboard card leads there and shows without notes too) */
 export function initTodayPage(ctx) {
   const { t, el } = ctx;
   let forecast = { at: 0, entity: '', rows: [] }, agenda = { at: 0, events: [], waste: '' }, clock = 0, drawn = '';
@@ -117,6 +118,17 @@ export function initTodayPage(ctx) {
     });
     return c;
   }
+  function pinCard() {
+    if (!ctx.pinboard || (!ctx.pinboard.notes().length && !ctx.family())) return null;
+    const c = card('tdPin', `📌 ${t('pb.title')}`);
+    c.append(ctx.pinboard.list({ max: 4 }));
+    if (ctx.family()) {
+      c.classList.add('tdOpen'); c.tabIndex = 0; c.setAttribute('role', 'button'); c.title = t('pb.open');
+      c.addEventListener('click', () => ctx.act('family'));
+      c.addEventListener('keydown', (e) => { if (e.key === 'Enter') ctx.act('family'); });
+    }
+    return c;
+  }
   function powerCard() {
     const bal = energyBalance(ctx.states(), ctx.layout());
     if (bal.prod == null && bal.load == null) return null;
@@ -138,19 +150,20 @@ export function initTodayPage(ctx) {
     const rows = houseRows({ ...sum, alarm: alarmPanel(st, names) });
     const bal = energyBalance(st, ctx.layout());
     const sig = JSON.stringify([timeOf(now), wx, st[wx]?.state, st[wx]?.wx?.t, forecast.rows.length, agenda.events.length, who, rows,
-      Math.round((bal.prod || 0) / 50), Math.round((bal.load || 0) / 50), bal.battery?.level]);
+      Math.round((bal.prod || 0) / 50), Math.round((bal.load || 0) / 50), bal.battery?.level, ctx.pinboard?.rev(), ctx.family?.()]);
     if (!force && sig === drawn) return;
     drawn = sig;
     const cols = [make('div', 'tdCol'), make('div', 'tdCol'), make('div', 'tdCol')];
     cols[0].append(clockCard(now));
     const w = weatherCard(wx, now); if (w) cols[0].append(w);
+    const pin = pinCard(); if (pin) cols[0].append(pin);
     cols[1].append(agendaCard(days));
     [wasteCard(days.waste), peopleCard(who)].forEach((x) => { if (x) cols[1].append(x); });
     cols[2].append(houseCard(rows));
     const p = powerCard(); if (p) cols[2].append(p);
     const grid = make('div', 'tdGrid'); grid.append(...cols);
     el.replaceChildren(grid);
-    loadForecast(wx); loadAgenda();
+    loadForecast(wx); loadAgenda(); ctx.pinboard?.load();
   }
   return {
     render: () => { draw(true); clearInterval(clock); clock = setInterval(() => draw(false), 20000); },
