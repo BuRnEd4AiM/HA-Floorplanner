@@ -11,6 +11,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Fixed
 - **Demo: the robot vacuum could not be found** (#473): it stood in the kitchen right under the stairs. It now stands in front of the kitchen counter. The demo's house mode moved from the crowded outer wall of the office (next to the meters' labels) to its inner wall.
+- **Demo: no air conditioner that cools**: the only thermostat of the demo heats (off / heat / auto), so a split air conditioner linked to it showed no *Kühlen*, which is right for such a device. The demo office now has an air conditioner of its own (cool, heat, dry, fan, auto, presets and fan speeds) that cools and heats.
 
 ## [4.2.0] - 2026-10-21
 ### Added
