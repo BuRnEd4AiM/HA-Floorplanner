@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.6.0] - 2026-10-21
+### Added
+- **The pages of the tab bar arranged like a Home Assistant dashboard** (#484, the owner's wish: "dass ich als Admin die einzelnen Dashboards bearbeiten kann wie im HA-Dashboard"; his choice after the example pictures in `docs/ideen-4.6/`: all of it, the same for everybody). Editors get **✎ Bearbeiten** in the bar on every page (☀ Heute, ⚡ Energie, 🌡 Klima, 📷 Kameras, ▶ Abläufe, 👨‍👩‍👧 Familie): a strip at the top, every card with **⠿** (drag it to another place) and **👁** (hide it), **↺ Wie am Anfang**, **✓ Fertig**. The cards close up like a masonry wall.
+- **Own cards, twelve kinds**: Knopf (scene, script or device with one tap), Schalter, Wert, Verlauf (a line of 6 h, 24 h, 7 or 30 days from Home Assistant's history), Licht (on / off, brightness), Thermostat (− / +), Rollladen (▲ ■ ▼), Kamera, Mehrere Geräte, Raum (like a room tile), Text and Fertige Karte (weather, waste, pinboard … of ☀ Heute). "＋ Karte hinzufügen" → the kind → the device from a list searched while typing (only devices that fit), name, width (normal, wide, very wide, whole row), time span and colour, with a preview; ⚙️ changes an own card, 🗑 deletes it.
+- **Own pages**: in the edit mode **🗂 Reiter** turns the bar into an editor: drag the tabs into their order, **＋ Seite** makes a page of your own (name, icon, starting empty, with the devices of an area or the cards of ☀ Heute, its place in the bar), a tap on an own page renames it or deletes it. Own pages can be ticked off per user like the others (⚙ → Benutzer & Tablets).
+- The add-on keeps it in the settings (`pageLayouts`, `customTabs`, `tabOrder`, checked in `boards.py`) and asks Home Assistant for the history of a card "Verlauf" (`api/history`, kept 2 minutes).
+
 ## [4.5.0] - 2026-10-21
 ### Added
 - **🌡 Klima** (#483, package 2 of 3 of the owner's wish "kannst du die anderen reiter auch machen"): a card per room with its temperature (blue when too cold, orange when too warm), the target of its thermostat with − / + (several taps become one call), whether it heats or cools, the humidity, the air (CO₂: "Luft gut", or "Lüften" from the third stop of the colour scale CO₂, normally 1200 ppm) and an open window or door while it heats, with **Heizung aus**; *Alle Räume* / *Nur mit Hinweis*; below the thermostats and water heaters in no room (a heat pump's hot water) and a tip. A tap on a room's name shows it in the house.

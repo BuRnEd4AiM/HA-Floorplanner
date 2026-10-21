@@ -52,6 +52,20 @@ test('start tab and the tab kept after a change', () => {
   assert.equal(T.keepTab('cameras', ['house', 'cameras'], false), 'house');               // no bar (edit mode): back to the house
   assert.equal(T.keepTab('cameras', ['house'], true), 'house');
 });
+test('own pages (#484): made safe, in the bar in the saved order, per user like the others', () => {
+  assert.deepEqual(T.cleanCustomTabs([{ id: 'p_garten', name: '  Garten ', icon: '🌱' }, { id: 'p_garten' }, { id: 'bad' }, { id: 'p_pool', icon: 'x'.repeat(20) }, 5]),
+    [{ id: 'p_garten', name: 'Garten', icon: '🌱' }, { id: 'p_pool', name: '?', icon: '⭐' }]);
+  assert.equal(T.cleanCustomTabs(Array.from({ length: 20 }, (_, i) => ({ id: `p_s${String(i).padStart(3, '0')}`, name: 'n' }))).length, T.MAX_CUSTOM);
+  assert.deepEqual(T.cleanTabOrder(['family', 'house', 'p_garten', 'family', 'bogus']), ['family', 'p_garten']);
+  assert.deepEqual(T.barTabs([{ id: 'p_garten', name: 'Garten', icon: '🌱' }], ['family', 'p_garten', 'today']).map((x) => x.key),
+    ['house', 'family', 'p_garten', 'today', 'energy', 'climate', 'cameras', 'routines']);
+  assert.deepEqual(T.barTabs([{ id: 'p_garten', name: 'Garten', icon: '🌱' }]).map((x) => x.key).slice(-2), ['family', 'p_garten']);   // no order: at the end
+  assert.equal(T.barTabs([{ id: 'p_garten', name: 'Garten', icon: '🌱' }]).at(-1).name, 'Garten');
+  assert.deepEqual(T.cleanTabEntry({ hide: ['p_garten', 'cameras', 'p_x'], start: 'p_garten' }), { hide: ['cameras', 'p_garten'] });
+  assert.deepEqual(T.cleanTabEntry({ hide: [], start: 'p_garten' }), { hide: [], start: 'p_garten' });
+  assert.deepEqual(T.shownTabs({ has: { p_garten: true, today: true }, keys: ['house', 'p_garten', 'today'] }), ['house', 'p_garten', 'today']);
+  assert.match(T.newTabId(['p_aaaaaa'], () => 0.5), /^p_[a-z0-9]{6}$/);
+});
 test('every tab has a key and an icon, the house comes first', () => {
   assert.equal(T.TABS[0][0], T.HOME);
   for (const [k, icon] of T.TABS) assert.ok(/^[a-z]+$/.test(k) && icon, k);

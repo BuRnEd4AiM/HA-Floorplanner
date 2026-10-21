@@ -178,6 +178,14 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `family.js` | ~70 | Seite 👨‍👩‍👧 Familie und Pinnwand (#483), reine Logik mit Unit-Tests: wo jemand ist, die Personen aus `api/family` mit den Live-Zuständen, Farbe des Buchstabens, „seit …“, Text und Farbe einer Notiz |
 | `pagefamily.js` | ~80 | Seite 👨‍👩‍👧 Familie: fragt `api/family` (alle 5 min, eher wenn jemand umzieht), Personen-Karten mit Bild (`api/family/<person>/picture`), daneben die Pinnwand |
 | `pinboardui.js` | ~100 | Die Pinnwand (`api/pinboard`): laden (höchstens jede Minute), anheften, abnehmen, Zettel, das Formular „Neue Notiz“ (bleibt beim Neuzeichnen stehen); auch die Karte auf ☀ Heute. Server: `pages.py` (`family`, `phone_battery`, `clean_notes`, `new_note`, Unit-Tests) |
+| `pagelayout.js` | ~95 | Seiten wie ein Dashboard (#484), reine Logik mit Unit-Tests: die Anordnung einer Seite (`order`, `hidden`, eigene `cards`, `cleanLayout`), die Karten in ihrer Reihenfolge (`arrange`: neue Karten an ihrem natürlichen Platz), verschieben, aus-/einblenden, eigene Karte rein/raus, „Wie am Anfang“, Zeilen des Mauerwerk-Rasters (`rowSpan`) |
+| `cards.js` | ~150 | Die zwölf Kartenarten (#484), reine Logik mit Unit-Tests: welche Geräte eine Art nimmt (`TYPE_DOMAINS`), eine Karte prüfen (`cleanCard`, gleiche Regeln wie `boards.py`), Vorschläge für die Geräte eines Bereichs, Wert mit Einheit, die Linie eines Verlaufs (`chartPaths`) |
+| `cardsui.js` | ~190 | Zeichnet eine eigene Karte (Knopf, Schalter, Wert, Verlauf mit `api/history`, Licht, Thermostat, Rollladen, Kamera, mehrere Geräte, Raum, Text, fertige Karte von ☀ Heute) |
+| `pageboard.js` | ~200 | Das Raster jeder Seite: Anordnung anwenden, Mauerwerk-Layout, Bearbeiten-Modus (Leiste oben, ⠿ ziehen, 👁, ⚙️/🗑, „＋ Karte“), gespeichert in `settings.pageLayouts` |
+| `cardeditor.js` | ~150 | Fenster „Karte hinzufügen“ (zwölf Arten) und „Karte einstellen“ (Gerätesuche, Name, Breite, Zeitraum, Farbe, Vorschau) |
+| `tabedit.js` | ~170 | Die Leiste bearbeiten: Reiter ziehen (`tabOrder`), „＋ Seite“ (Name, Symbol, anfangen mit leer / Bereich / Heute, Platz), eigene Seite umbenennen oder löschen (`customTabs`) |
+| `pagecustom.js` | ~40 | Eigene Seiten: je eine Seite mit nur eigenen Karten |
+| `dashboards.js` | ~65 | Setzt die Teile zusammen (Karten, Raster, Fenster, Leiste, eigene Seiten); `app.js` ruft nur `initDashboards`. Server: `boards.py` (gleiche Regeln, `api/history`, Unit-Tests `tests/test_boards.py`) |
 | `energymetersui.js` | ~80 | ⚡ Rechnung → „Zähler für den Verlauf“: die Zähler je Art und die Preise des Hauses (`layout.energy.meters`, `layout.energy.price`), „Aus dem Energie-Dashboard übernehmen“ |
 
 ## Noch in `app.js`

@@ -5,7 +5,7 @@
 import { cameraPage } from './cameras.js';
 
 /** ctx: t, el (the page), cams (initCameras: list(), camImage, camLive, haButton), layout(), settings(), showDevice(fi, id) (back to the
- *  house with the camera marked) */
+ *  house with the camera marked), board (pageboard.js) */
 export function initCameraPage(ctx) {
   const { t, el } = ctx;
   let big = null, drawn = '';                     // the camera shown big (entity), what is drawn (so a state change that shows nothing new draws nothing)
@@ -29,9 +29,10 @@ export function initCameraPage(ctx) {
     b.addEventListener('click', (e) => { e.stopPropagation(); big = c.entity; render(true); }, true);   // before the still image's own tap (Home Assistant's dialog)
     return b;
   }
+  /** all cameras: the tiles and the motion sensors as cards of the board (pageboard.js, #484: keys cam:<entity>, sensors) */
   function list(m) {
     const out = [head(`📷 ${t('tab.cameras')}`, t('tp.cam.count', { n: m.cams.length }), m)];
-    const grid = make('div', 'tpCams'); m.cams.forEach((c) => grid.append(tile(c)));
+    const grid = make('div', 'tpCams'), items = m.cams.map((c) => ({ key: `cam:${c.entity}`, el: tile(c), width: 1 }));
     out.push(grid);
     if (m.sensors.length) {
       const row = make('div', 'tpSensors');
@@ -41,9 +42,9 @@ export function initCameraPage(ctx) {
         chip.addEventListener('click', () => ctx.showDevice(s.fi, s.id));
         row.append(chip);
       });
-      out.push(row);
+      items.push({ key: 'sensors', el: row, width: 4 });
     }
-    return out;
+    return { out, grid, items };
   }
   function one(c) {
     const h = head(c.name, c.place, null);
@@ -66,11 +67,15 @@ export function initCameraPage(ctx) {
     const sig = `${big || ''}|${ctx.settings().cameraImages}|${m.sig}`;
     if (!force && sig === drawn) return;
     drawn = sig;
-    el.replaceChildren(...(c ? one(c) : list(m)));
+    if (c) { el.replaceChildren(...one(c)); return; }
+    const l = list(m);
+    el.replaceChildren(...l.out);
+    ctx.board.fill('cameras', l.grid, l.items, { min: 320 });
   }
   return {
     render: () => render(true), update: () => render(false),
     has: () => ctx.cams.list().some((x) => x.kind === 'cam'),
     reset: () => { big = null; drawn = ''; el.replaceChildren(); },   // the page was left: no still images fetched for it any more, the next visit starts with all cameras
+    big: (entity) => { big = entity; drawn = ''; },                  // the next render shows this camera big (an own card "Kamera", #484)
   };
 }

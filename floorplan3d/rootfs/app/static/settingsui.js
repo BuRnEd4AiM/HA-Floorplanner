@@ -5,7 +5,7 @@ import { cleanPreset, collectPresets } from './viewprefs.js';
 import { LOCK_KEYS, cleanLocks, collectLocks } from './userlocks.js';
 import { ALL, cleanStartView } from './startview.js';
 import { buildingsOf } from './buildings.js';
-import { TABS, HOME, cleanTabEntry, collectUserTabs } from './tabs.js';
+import { HOME, cleanTabEntry, collectUserTabs, barTabs } from './tabs.js';
 
 export const VIEW_OPTS = ['3d', '2d', 'split', 'all'];
 /** the preset fields of a user row (#250): field, its options [value, text key]; "Default" (no value) comes first */
@@ -114,14 +114,15 @@ export function initSettingsUi(ctx) {
     const part = document.createElement('div'); part.className = 'tabsPart';
     const head = document.createElement('div'); head.className = 'lockHead'; head.textContent = t('tab.users'); head.title = t('tab.usersTip');
     part.append(head);
-    TABS.filter(([k]) => k !== HOME).forEach(([k, icon]) => {
+    const all = barTabs(ctx.settings().customTabs, ctx.settings().tabOrder), name = (x) => `${x.icon} ${x.name || t(`tab.${x.key}`)}`;   // own pages too (#484)
+    all.filter((x) => x.key !== HOME).forEach((x) => {
       const lab = document.createElement('label'); lab.className = 'lockItem';
-      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.dataset.tabShow = k; cb.checked = !tabs.hide.includes(k);
-      lab.append(cb, document.createTextNode(`${icon} ${t(`tab.${k}`)}`)); part.append(lab);
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.dataset.tabShow = x.key; cb.checked = !tabs.hide.includes(x.key);
+      lab.append(cb, document.createTextNode(name(x))); part.append(lab);
     });
     const lab = document.createElement('label'); lab.textContent = t('tab.start');
     const sel = document.createElement('select'); sel.dataset.role = 'tabStart';
-    TABS.forEach(([k, icon]) => sel.add(new Option(`${icon} ${t(`tab.${k}`)}`, k === HOME ? '' : k)));
+    all.forEach((x) => sel.add(new Option(name(x), x.key === HOME ? '' : x.key)));
     sel.value = tabs.start || '';
     lab.append(sel); part.append(lab);
     return part;

@@ -8,7 +8,8 @@ const CHECK_ICON = { leave: '🚪', night: '🌙' };
 const ROW_ICON = { open: '🪟', lights: '💡', media: '📺', locks: '🔓' };
 
 /** ctx: t, el (the page), states(), settings(), names() ({ entity: name }), openNames() (the names of the open windows and doors),
- *  litLights() (the lights on in the house), callService(entity, service, data) (-> true when Home Assistant took it), canEdit() */
+ *  litLights() (the lights on in the house), callService(entity, service, data) (-> true when Home Assistant took it), canEdit(), board
+ *  (pageboard.js, #484: keys leave, night, r:<entity>, autos) */
 export function initRoutinesPage(ctx) {
   const { t, el } = ctx;
   const flash = new Map();                           // button (entity or check) -> 'ok' | 'bad' for a moment after a tap
@@ -102,20 +103,20 @@ export function initRoutinesPage(ctx) {
     drawn = sig;
     const head = make('div', 'tpHead');
     head.append(make('h2', '', `▶️ ${t('tab.routines')}`), make('span', 'tpSub', t('rt.sub')));
-    const grid = make('div', 'rtGrid');
+    const grid = make('div', 'rtGrid'), items = [];
     CHECKS.forEach((k) => {
       const linked = linkedOf(k), b = tile({ key: k, icon: CHECK_ICON[k], name: t(`rt.${k}`), cls: `rtCheck ${k}`,
         sub: linked ? t('rt.checkThen', { name: nameOf(linked) }) : t('rt.checkOnly'), on: () => openCheck(k) });
       b.dataset.check = k;
-      grid.append(b);
+      items.push({ key: k, el: b, width: 1 });
     });
     buttons.forEach((r) => {
       const b = tile({ key: r.entity, icon: r.icon || routineIcon(r.name, r.entity), name: r.name, cls: r.running ? 'running' : '',
         sub: r.running ? t('rt.running') : t(`rt.kind.${domainOf(r.entity)}`), on: async () => mark(r.entity, await start(r.entity)) });
       b.dataset.routine = r.entity;
-      grid.append(b);
+      items.push({ key: `r:${r.entity}`, el: b, width: 1 });
     });
-    const out = [head, grid];
+    const out = [head];
     if (!buttons.length) out.push(make('p', 'tpSub', t('rt.none')));
     if (autos.length) {
       const d = make('details', 'tpCard rtAutos'); d.open = autosOpen;
@@ -130,9 +131,10 @@ export function initRoutinesPage(ctx) {
         row.append(make('span', 'tdWhat', a.name), sw);
         d.append(row);
       });
-      out.push(d);
+      items.push({ key: 'autos', el: d, width: 4 });
     }
-    el.replaceChildren(...out);
+    el.replaceChildren(...out, grid);
+    ctx.board.fill('routines', grid, items, { min: 220 });
     drawCheck();
   }
   return {

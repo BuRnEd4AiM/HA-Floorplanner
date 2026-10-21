@@ -531,6 +531,12 @@ export function installDemoBackend() {
     if (path === 'api/calendars') return json([{ entity_id: 'calendar.familie', name: 'Familie' }, { entity_id: 'calendar.muellabfuhr', name: 'Müllabfuhr' }]);
     if (path === 'api/agenda') return json({ events: demoAgenda(), waste: 'calendar.muellabfuhr' });
     if (path === 'api/family') return json(family());
+    if (path === 'api/history') {                           // #484: a card "Verlauf": made-up numbers around the value now, one per hour (more for 7 / 30 days)
+      const q = new URL(url, location.href).searchParams, e = entities[q.get('entity')], hours = Number(q.get('hours')) || 24;
+      const now = Date.now(), base = parseFloat(e?.state) || 10, n = Math.min(240, hours), step = (hours * 3600000) / n;
+      return json({ points: Array.from({ length: n + 1 }, (_, i) => { const t = now - (n - i) * step, h = new Date(t).getHours();
+        return [t, Math.round((base + base * 0.15 * Math.sin(((h - 9) / 24) * 2 * Math.PI) + Math.sin(i * 1.7) * base * 0.02) * 10) / 10]; }) });
+    }
     if (path.startsWith('api/family/')) return json({ error: 'no picture' }, 404);   // the demo's people have none: the page shows their letters
     if (path === 'api/pinboard') {                          // kept only in this tab; "auch aufs Handy" sends nothing in the demo
       if (method === 'POST') {

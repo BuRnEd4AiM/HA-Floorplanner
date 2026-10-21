@@ -8,7 +8,8 @@ import { energyBalance } from './energycalc.js';
 
 /** ctx: t, el (the page), lang(), settings(), states(), names() ({ entity: name }), layout(), summary() ({ open: [names], lights, low, offline }),
  *  act(key) (a tap on a row of "Im Haus": open | lights | alarm | low | offline | power; on the pinboard: family), pinboard (pinboardui.js),
- *  family() (the page 👨‍👩‍👧 Familie is in the bar: the pinboard card leads there and shows without notes too) */
+ *  family() (the page 👨‍👩‍👧 Familie is in the bar: the pinboard card leads there and shows without notes too), board (pageboard.js: the
+ *  order an admin chose, own cards, #484) */
 export function initTodayPage(ctx) {
   const { t, el } = ctx;
   let forecast = { at: 0, entity: '', rows: [] }, agenda = { at: 0, events: [], waste: '' }, clock = 0, drawn = '';
@@ -143,32 +144,43 @@ export function initTodayPage(ctx) {
     return c;
   }
 
+  /** the cards of the page in their natural order (a card that has nothing to show is left out): [{ key, el, width }] */
+  function cards(now, only = null) {
+    const st = ctx.states(), wx = weatherEntity(ctx.settings(), st), names = ctx.names();
+    const days = () => agendaDays(agenda.events, now, agenda.waste);
+    const make1 = {
+      clock: () => clockCard(now),
+      weather: () => weatherCard(wx, now),
+      pinboard: () => pinCard(),
+      agenda: () => agendaCard(days()),
+      waste: () => wasteCard(days().waste),
+      people: () => peopleCard(people(st, names)),
+      house: () => houseCard(houseRows({ ...ctx.summary(), alarm: alarmPanel(st, names) })),
+      power: () => powerCard(),
+    };
+    loadForecast(wx); loadAgenda(); ctx.pinboard?.load();
+    return (only ? [only] : Object.keys(make1)).map((key) => ({ key, el: make1[key]?.() || null, width: 1 }));
+  }
   /** the page (again only when what it shows changed; the clock each minute) */
   function draw(force = false) {
     const now = new Date(), st = ctx.states(), wx = weatherEntity(ctx.settings(), st);
-    const names = ctx.names(), days = agendaDays(agenda.events, now, agenda.waste), who = people(st, names), sum = ctx.summary();
+    const names = ctx.names(), who = people(st, names), sum = ctx.summary();
     const rows = houseRows({ ...sum, alarm: alarmPanel(st, names) });
     const bal = energyBalance(st, ctx.layout());
     const sig = JSON.stringify([timeOf(now), wx, st[wx]?.state, st[wx]?.wx?.t, forecast.rows.length, agenda.events.length, who, rows,
       Math.round((bal.prod || 0) / 50), Math.round((bal.load || 0) / 50), bal.battery?.level, ctx.pinboard?.rev(), ctx.family?.()]);
     if (!force && sig === drawn) return;
     drawn = sig;
-    const cols = [make('div', 'tdCol'), make('div', 'tdCol'), make('div', 'tdCol')];
-    cols[0].append(clockCard(now));
-    const w = weatherCard(wx, now); if (w) cols[0].append(w);
-    const pin = pinCard(); if (pin) cols[0].append(pin);
-    cols[1].append(agendaCard(days));
-    [wasteCard(days.waste), peopleCard(who)].forEach((x) => { if (x) cols[1].append(x); });
-    cols[2].append(houseCard(rows));
-    const p = powerCard(); if (p) cols[2].append(p);
-    const grid = make('div', 'tdGrid'); grid.append(...cols);
+    const grid = make('div', 'tdGrid');
     el.replaceChildren(grid);
-    loadForecast(wx); loadAgenda(); ctx.pinboard?.load();
+    ctx.board.fill('today', grid, cards(now), { min: 340 });
   }
   return {
     render: () => { draw(true); clearInterval(clock); clock = setInterval(() => draw(false), 20000); },
     update: () => draw(false),
     has: () => true,
     reset: () => { clearInterval(clock); clock = 0; drawn = ''; },
+    /** a card of this page for another page (an own card "Fertige Karte", #484), null when it has nothing to show */
+    card: (key) => cards(new Date(), key)[0]?.el || null,
   };
 }
