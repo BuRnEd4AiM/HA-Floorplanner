@@ -100,6 +100,10 @@ Der Besitzer will nur noch dieses Programm benutzen: Reiter, die man pro Benutze
 - **Rückgängig-Hinweis:** `edititems.js` ruft nach jedem echten Löschen `ctx.deleted()`; `snapshot()`, `undo()`, `redo()` in `app.js` blenden ihn aus, damit sein Knopf nie etwas anderes zurücknimmt.
 - **Tasten-Karte:** Texte `kc.*` (die alten `keys.*` gehören zur kurzen Liste „Steuerung“ im Seitenteil). `TOOL_KEYS` ist aus `edititems.js` exportiert; `tests/shortcuts.test.mjs` prüft jede Zeile gegen `keyCommand`.
 
+## HACS-Store (2026-10-21, Wunsch des Besitzers: „kannst du gerne vorbereiten mit hacs“)
+
+Die Karte soll in den offiziellen HACS-Store (heute nur als benutzerdefiniertes Repository). Vorbereitet: Workflow `validate.yml` (`hacs/action`, Kategorie `plugin`, ohne `ignore`), Anleitung für den Besitzer in **`docs/HACS-STORE.md`** (Beschreibung des Repositorys verbessern, auf ein Release nach grüner Prüfung warten, dann selbst den Pull Request an `hacs/default`, Datei `plugin`, nach `BTNBx/xPower-Flow-Card`). Den Antrag darf nur der Besitzer stellen. Offen: Ist „Validate“ auf `main` grün und danach ein Release erschienen, dem Besitzer Bescheid sagen.
+
 ## Token-Zähler (seit 2026-10-18)
 
 - Der Besitzer wollte wissen, wie viele Tokens Claude verbraucht, egal mit welchem Zugang. Übersicht: `docs/TOKENS.md`.

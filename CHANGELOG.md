@@ -14,6 +14,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Changed
 - The demo has no live stream of its cameras and now says so at once, so a camera opened big shows its still image straight away.
+- **On the way to the HACS store**: the workflow *Validate* runs HACS's own check of this repository (daily, on every push to `main` and every pull request); what is still to do, and the request to HACS that only the owner can make, is in `docs/HACS-STORE.md`.
 
 ## [4.2.1] - 2026-10-21
 ### Changed
