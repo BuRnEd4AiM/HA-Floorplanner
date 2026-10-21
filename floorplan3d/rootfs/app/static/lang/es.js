@@ -1074,7 +1074,7 @@ export default {
   'ms.length': 'Distancia',
   'ms.walls': 'Dos paredes',
   'ms.wallsHint': 'La pared con trazos azules se queda, la naranja se mueve. Las paredes unidas a ella la siguen, y las habitaciones también.',
-  'ms.clear': 'Distancia libre (de cara a cara)',
+  'ms.clear': 'Distancia interior (de pared a pared)',
   'ms.center': 'Distancia entre los ejes de las paredes',
   'ms.angle': 'Ángulo entre las paredes',
   'ms.notParallel': 'Las paredes no son paralelas. Solo las paredes paralelas tienen una distancia: pon antes el ángulo a 0° (o 180°).',

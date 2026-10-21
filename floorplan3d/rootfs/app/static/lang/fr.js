@@ -1073,7 +1073,7 @@ export default {
   'ms.length': 'Distance',
   'ms.walls': 'Deux murs',
   'ms.wallsHint': 'Le mur en pointillés bleus reste en place, le mur orange bouge. Les murs qui y sont reliés suivent, les pièces aussi.',
-  'ms.clear': 'Distance libre (face à face)',
+  'ms.clear': 'Distance intérieure (mur à mur)',
   'ms.center': 'Distance entre les axes des murs',
   'ms.angle': 'Angle entre les murs',
   'ms.notParallel': 'Les murs ne sont pas parallèles. Seuls des murs parallèles ont une distance : règle d\'abord l\'angle sur 0° (ou 180°).',

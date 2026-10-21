@@ -25,7 +25,8 @@ const TYPE_ICON = { camera: '📷', tv: '📺', tv_wall: '📺', tv_arm: '📺',
   watermeter: '🚰', gasmeter: '🔥', heatmeter: '♨' };
 Object.entries({ ...LEISURE, ...GARAGE }).forEach(([k, v]) => { if (v.icon) TYPE_ICON[k] = v.icon; });   // the sauna, the projector, the PC ... (leisure.js), cars, the robot mower ... (garage.js)
 const DOMAIN_ICON = { light: '💡', cover: '🪟', input_boolean: '⏻', fan: '🌀', media_player: '📺', climate: '🌡', camera: '📷', lock: '🔒',
-  vacuum: '🧹', scene: '✨', script: '✨', button: '⏺', siren: '🚨', valve: '🚰', water_heater: '🌡', humidifier: '💧', alarm_control_panel: '🛡' };
+  vacuum: '🧹', scene: '✨', script: '✨', button: '⏺', siren: '🚨', valve: '🚰', water_heater: '🌡', humidifier: '💧', alarm_control_panel: '🛡',
+  input_select: '☰', select: '☰' };   // a choice list (the house mode ...): not just a dot (#474)
 /** the icon of a switch (#366): there is no emoji for a light switch (🔌 is a plug), so the ball draws one (drawSwitch) */
 export const SWITCH_ICON = 'switch';
 /** the little icon in the ball: what the device controls (its entity's kind), some device types have their own (a camera, a TV ...).

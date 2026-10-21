@@ -95,9 +95,11 @@ pgD.fill("#livePopup .dc-code", "4711"); press("alarm_disarm")
 check("device controls: the right code disarms it", "Unscharf" in show("dc4"), show("dc4"))
 
 txt = show("dc5")
-pgD.select_option("#livePopup .dc-option", "Urlaub"); pgD.wait_for_timeout(700)
+check("device controls: a short choice list shows its options as buttons, the chosen one marked (#474)",
+      pgD.locator("#livePopup .dc-option button").count() == 2 and pgD.get_attribute("#livePopup .dc-option button.on", "data-option") == "Zu Hause", txt)
+pgD.click('#livePopup .dc-option button[data-option="Urlaub"]'); pgD.wait_for_timeout(700)
 check("device controls: a choice list is set from its card", last("input_select.dc_mode") == ["select_option", "input_select.dc_mode", {"option": "Urlaub"}]
-      and "Urlaub" in show("dc5"), (txt, last("input_select.dc_mode")))
+      and (show("dc5") and pgD.get_attribute("#livePopup .dc-option button.on", "data-option") == "Urlaub"), (txt, last("input_select.dc_mode")))
 show("dc6"); press("press")
 check("device controls: a button is pressed", last("button.dc_bell") == ["press", "button.dc_bell", {}], last("button.dc_bell"))
 

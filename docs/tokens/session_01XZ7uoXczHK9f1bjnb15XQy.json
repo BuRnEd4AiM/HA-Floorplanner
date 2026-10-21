@@ -1,0 +1,20 @@
+{
+ "session": "session_01XZ7uoXczHK9f1bjnb15XQy",
+ "start": "2026-10-21",
+ "updated": "2026-10-21T09:07:10Z",
+ "branch": "claude/vibrant-knuth-ne1uru",
+ "source": "counted",
+ "input": 262,
+ "cache_write": 294832,
+ "cache_read": 28121834,
+ "output": 82490,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 262,
+   "cache_write": 294832,
+   "cache_read": 28121834,
+   "output": 82490,
+   "requests": 130
+  }
+ }
+}

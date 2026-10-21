@@ -15,6 +15,8 @@ const ALARM_ON = new Set(['armed_home', 'armed_away', 'armed_night', 'armed_vaca
 
 /** feature f of a device: what Home Assistant reports, every feature when it reports nothing (an older integration, the demo) */
 const can = (sf, f) => (Number.isInteger(sf) ? (sf & f) !== 0 : true);
+/** a choice list with up to this many options shows them as buttons (#474: "Urlaub" one tap away, like a fan's presets) */
+export const CHIPS_MAX = 6;
 const btn = (svc, label, icon = '', only = false) => ({ svc, label, icon, ...(only ? { only: true } : {}) });   // only: the sign alone, the word as its tip
 
 /** what the card of entity `id` with state `s` ({ state, ctl }, entitystate.js) offers, or null when the domain has no controls here:
@@ -22,7 +24,7 @@ const btn = (svc, label, icon = '', only = false) => ({ svc, label, icon, ...(on
  *   vacuum { buttons, speeds: { list, value } | null }
  *   fan    { pct: { value, step } | null, osc: true | false | null, presets: { list, value } | null }
  *   alarm  { armed, buttons, code: 'number' | 'text' | null (what the code field takes), codeFor: [services that need the code] }
- *   button {} · select { options, value }
+ *   button {} · select { options, value, chips (few options: buttons side by side instead of a drop-down, #474) }
  * buttons: [{ svc, label (key of i18n.js), icon, only (show the icon alone, a play / pause / next ... button) }] */
 export function controlPlan(id, s) {
   if (!id || !s) return null;
@@ -73,7 +75,10 @@ export function controlPlan(id, s) {
     return { kind: 'alarm', armed, buttons, code: codeFor.length ? code : null, codeFor };
   }
   if (domain === 'button' || domain === 'input_button') return { kind: 'button' };
-  if (domain === 'select' || domain === 'input_select') return { kind: 'select', options: c.options || [], value: st };
+  if (domain === 'select' || domain === 'input_select') {
+    const options = c.options || [];
+    return { kind: 'select', options, value: st, chips: options.length > 0 && options.length <= CHIPS_MAX };
+  }
   return null;
 }
 
@@ -163,6 +168,8 @@ export function initDeviceControls(ctx) {
       wrap.append(buttons(plan.buttons, (svc) => (code && plan.codeFor.includes(svc) && code.value ? { code: code.value } : undefined)));
     } else if (plan.kind === 'button') {
       wrap.append(row([{ text: `⏺ ${t('dc.press')}`, click: () => call('press'), data: { svc: 'press' } }]));
+    } else if (plan.kind === 'select' && plan.chips) {
+      wrap.append(label('dc.choose'), row(plan.options.map((o) => ({ text: o, on: o === plan.value, click: () => call('select_option', { option: o }), data: { option: o } })), 'actions dc-chips dc-option'));
     } else if (plan.kind === 'select' && plan.options.length) {
       wrap.append(label('dc.choose'), choose(plan.options, plan.value, (v) => call('select_option', { option: v }), 'dc-option'));
     }

@@ -78,9 +78,9 @@ const layout = {
       { id: 'd1',  type: 'tv_wall',    x: 2.5, z: 0.16, y: 1.2,  rot: 0,   scale: 1,   name: 'Fernseher',       entity: 'media_player.tv', ledEntity: 'light.tv_led' },
       { id: 'dc_sp', type: 'speaker',  x: 5.6, z: 0.4,  y: 0,    rot: 0,   scale: 1,   name: 'Lautsprecher Wohnzimmer', entity: 'media_player.sonos_wz' },   // #406: music, vacuum, fan, alarm, choice list
       { id: 'dc_fan', type: 'fan_stand', x: 0.6, z: 4.0, y: 0,    rot: 45,  scale: 1,   name: 'Standventilator', entity: 'fan.ventilator_wz' },
-      { id: 'dc_vac', type: 'vacuum',  x: 8.6, z: 3.9,  y: 0,    rot: 0,   scale: 1,   name: 'Saugroboter', entity: 'vacuum.robo' },
+      { id: 'dc_vac', type: 'vacuum',  x: 6.9, z: 1.2,  y: 0,    rot: 0,   scale: 1,   name: 'Saugroboter', entity: 'vacuum.robo' },   // in front of the kitchen counter, not under the stairs (#473)
       { id: 'dc_al', type: 'switch',   x: 9.86, z: 5.3, y: 1.4,  rot: 270, scale: 1,   name: 'Alarmanlage (Code 1234)', entity: 'alarm_control_panel.haus' },
-      { id: 'dc_hm', type: 'switch',   x: 9.86, z: 5.9, y: 1.1,  rot: 270, scale: 1,   name: 'Hausmodus', entity: 'input_select.hausmodus' },
+      { id: 'dc_hm', type: 'switch',   x: 7.08, z: 6.55, y: 1.1, rot: 90,  scale: 1,   name: 'Hausmodus', entity: 'input_select.hausmodus' },   // inner wall of the office, away from the meters' labels (#474)
       { id: 'd2',  type: 'sofa',       x: 2.5, z: 3.5,  y: 0,    rot: 180, scale: 1.1, name: 'Sofa',            entity: '' },
       { id: 'd3',  type: 'table',      x: 2.5, z: 2.2,  y: 0,    rot: 0,   scale: 0.6, name: 'Couchtisch',      entity: '' },
       { id: 'd4',  type: 'light',      x: 3,   z: 2.25, y: 2.55, rot: 0,   scale: 1.2, name: 'Deckenlicht',     entity: 'light.wohnzimmer' },
@@ -121,6 +121,7 @@ const layout = {
       { id: 'd22', type: 'ledring',    x: 5, z: 5.75, y: 2.5, rot: 0, scale: 1, name: 'Voute Schlafzimmer', entity: 'light.voute_bett', room: 'r4', inset: 0.15, closed: true,
         pts: [[-1.85, -1.1], [1.85, -1.1], [1.85, 1.1], [-1.85, 1.1]], segs: [{}, { entity: 'light.voute_fenster' }, {}, { entity: 'light.voute_fenster' }] },
       { id: 'd18', type: 'light',      x: 8.6, z: 5.75, y: 2.55, rot: 0,   scale: 1.2, name: 'Bürolicht',       entity: 'light.buero' },
+      { id: 'dc_ac', type: 'ac_wall',  x: 9.2, z: 4.68, y: 2.0,  rot: 0,   scale: 1,   name: 'Klimaanlage Büro', entity: 'climate.klima_buero' },   // one that can cool (test 54.6: the living room's thermostat only heats)
       { id: 'd19', type: 'switch',     x: 9.4, z: 6.88, y: 1.1,  rot: 0,   scale: 1,   name: 'Flurschalter',    entity: 'switch.flur' },
       { id: 'pw_he', type: 'houseentry', x: 9, z: 7.7, y: 0, rot: 0, scale: 1, name: 'Hausanschluss', entity: 'sensor.netz_leistung', cables: [{ id: 'c1', to: 'pw_zm', route: 'floor' }] },
       { id: 'pw_zm', type: 'powermeter', x: 9.82, z: 6.2, y: 1.4, rot: 270, scale: 1, name: 'Stromzähler', entity: 'sensor.netz_leistung', cables: [{ id: 'c2', to: 'pw_zk', route: 'floor' }] },
@@ -267,6 +268,7 @@ const entities = {
   'vacuum.robo':             { name: 'Saugroboter',            state: 'docked', bat: 92, ctl: { speeds: ['Leise', 'Standard', 'Stark', 'Turbo'], speed: 'Standard' } },
   'alarm_control_panel.haus': { name: 'Alarmanlage',           state: 'disarmed', ctl: { code: 'number', codeArm: false } },
   'input_select.hausmodus':  { name: 'Hausmodus',              state: 'Zu Hause', ctl: { options: ['Zu Hause', 'Abwesend', 'Urlaub', 'Nacht'] } },
+  'climate.klima_buero':     { name: 'Klimaanlage Büro',       state: 'cool', hvac: 'cooling', ct: 23.0, ch: 50, tt: 21, tmin: 16, tmax: 30, tstep: 0.5, modes: ['off', 'cool', 'heat', 'dry', 'fan_only', 'auto'], ctl: { presets: ['none', 'eco', 'boost', 'sleep'], preset: 'none', fans: ['auto', 'low', 'medium', 'high'], fan: 'auto' } },
   'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat', hvac: 'heating', ct: 21.2, ch: 48, tt: 22, tmin: 16, tmax: 26, tstep: 0.5, modes: ['off', 'heat', 'auto'], ctl: { presets: ['eco', 'comfort', 'away', 'boost'], preset: 'comfort' } },
   'sensor.netz_leistung':    { name: 'Netzbezug',              state: '450',  unit: 'W' },
   'sensor.pv_leistung':      { name: 'PV Wechselrichter',      state: '3.2',  unit: 'kW' },
@@ -452,7 +454,7 @@ export function installDemoBackend() {
       return json([
         { id: 'wohnzimmer', name: 'Wohnzimmer', entities: ['light.wohnzimmer', 'light.stehlampe', 'light.shapes_wz', 'light.tv_led', 'light.sofa_led', 'scene.wz_gemuetlich', 'scene.wz_aus', 'media_player.tv', 'cover.wohnzimmer', 'climate.wohnzimmer', 'sensor.wohnzimmer_leistung'] },
         { id: 'schlafzimmer', name: 'Schlafzimmer', entities: ['light.schlafzimmer', 'light.voute_bett', 'light.voute_fenster'] },
-        { id: 'buero', name: 'Büro', entities: ['light.buero', 'sensor.buero_temp'] },
+        { id: 'buero', name: 'Büro', entities: ['light.buero', 'sensor.buero_temp', 'climate.klima_buero'] },
       ]);
     }
     if (path === 'api/entities') {
@@ -483,8 +485,10 @@ export function installDemoBackend() {
       if (service === 'open_cover') { e.state = 'open'; e.position = 100; }
       if (service === 'close_cover') { e.state = 'closed'; e.position = 0; }
       if (service === 'turn_off') e.state = 'off';
-      if (service === 'set_temperature') { e.tt = data.temperature; if (e.state !== 'off') e.hvac = e.ct < e.tt ? 'heating' : 'idle'; }
-      if (service === 'set_hvac_mode') { e.state = data.hvac_mode; e.hvac = data.hvac_mode === 'off' ? 'off' : (e.ct < e.tt ? 'heating' : 'idle'); }
+      const hvacNow = () => ({ off: 'off', dry: 'drying', fan_only: 'fan' }[e.state]                  // what a thermostat does now; an air conditioner also cools
+        || (e.ct > e.tt && (e.state === 'cool' || (e.state !== 'heat' && e.modes?.includes('cool'))) ? 'cooling' : e.state !== 'cool' && e.ct < e.tt ? 'heating' : 'idle'));
+      if (service === 'set_temperature') { e.tt = data.temperature; e.hvac = hvacNow(); }
+      if (service === 'set_hvac_mode') { e.state = data.hvac_mode; e.hvac = hvacNow(); }
       const c = e.ctl || (e.ctl = {});                          // #406: music, vacuum, fan, alarm, choice list, presets
       if (id.startsWith('media_player.') && service === 'turn_on') e.state = 'paused';
       if (service === 'media_play_pause') e.state = e.state === 'playing' ? 'paused' : 'playing';
