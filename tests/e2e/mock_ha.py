@@ -13,7 +13,7 @@ COVER_POS = {}     # covers with a position (current_position), from set_cover_p
 ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_prefs, #407) and more registry entries (entity -> device): POST /_energy
 NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["ha_entity", "notify.a,notify.b", message] through notify.send_message (#460), ["callmebot", phone, text, apikey] through /_callmebot
 STATS_ASKED = []   # the statistics the add-on asked for (#479): [ids, period]
-EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes[, platform]}}, {} takes them away; with "platform" also in the entity registry (#460)
+EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes[, platform][, device]}}, {} takes them away; with "platform" or "device" also in the entity registry (#460, #483: a phone and its battery)
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
 def state_of(e):
@@ -121,7 +121,7 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
             await ws.send_json({"id": m["id"], "type": "result", "success": True,
                                 "result": [{"entity_id": e, "platform": "mock", "unique_id": u, "device_id": DEVICES.get(u)} for e, u in REGISTRY.items()]
                                 + [{"entity_id": e, "platform": "mock", "unique_id": "energy_" + e, "device_id": d} for e, d in ENERGY["registry"].items()]
-                                + [{"entity_id": e, "platform": v["platform"], "unique_id": "extra_" + e} for e, v in EXTRA.items() if "platform" in v]})
+                                + [{"entity_id": e, "platform": v.get("platform", "mock"), "unique_id": "extra_" + e, "device_id": v.get("device")} for e, v in EXTRA.items() if "platform" in v or "device" in v]})
         elif m.get("type") == "energy/get_prefs":               # the energy dashboard (#407): "not_found" while it is not set up
             ok = ENERGY["prefs"] is not None
             await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": ENERGY["prefs"] if ok else None,
@@ -164,6 +164,12 @@ async def calendar_events(r):
     at = dt.datetime.combine(day, dt.time(15, 0)).astimezone()
     return web.json_response([{"start": {"dateTime": at.isoformat()}, "end": {"dateTime": (at + dt.timedelta(hours=1)).isoformat()}, "summary": "Zahnarzt"}])
 async def stats_asked(r): return web.json_response(STATS_ASKED)
+async def one_state(r):           # #483: one state (a person's picture is looked up there)
+    e = r.match_info["e"]
+    if e in EXTRA: return web.json_response({"entity_id": e, **EXTRA[e]})
+    if e in STATE: return web.json_response(state_of(e))
+    return web.json_response({"message": "Entity not found."}, status=404)
+async def image_serve(r): return web.Response(body=PNG, content_type="image/png")   # #483: an uploaded picture of a person
 PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000" "1f15c4890000000d49444154789c6360f8ffff3f0005fe02fea75a3c260000000049454e44ae426082")
 async def in_two(r, body, ctype):
     """an answer in two pieces with a pause between them, as pictures and video pieces come through the Supervisor (#385)"""
@@ -224,5 +230,6 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
-                web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_stats", stats_asked)])
+                web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_stats", stats_asked),
+                web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

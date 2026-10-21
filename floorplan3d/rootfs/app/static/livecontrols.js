@@ -51,13 +51,15 @@ export function roomEntityIds(env, room, domain) {
  *  live channel), canEdit(), settings(), saveEffectColors(), canMoreInfo(), openMoreInfo(id), locked(key) (userlocks.js: 'control' = no switching) */
 export function initLiveControls(ctx) {
   const { t } = ctx;
+  /** -> true when Home Assistant took the call (the routines of ▶ Abläufe show ✓, #483) */
   async function callService(entityId, service, data) {
-    if (ctx.locked?.('control')) { ctx.setStatus(t('lock.controlMsg')); return; }
+    if (ctx.locked?.('control')) { ctx.setStatus(t('lock.controlMsg')); return false; }
     try {
       const r = await fetch('api/service', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(serviceBody(entityId, service, data)) });
       if (!r.ok) throw new Error(String(r.status));
-    } catch { ctx.setStatus(t('live.failed')); return; }
+    } catch { ctx.setStatus(t('live.failed')); return false; }
     ctx.afterService();
+    return true;
   }
   function quickAction(entityId) {
     const svc = quickService(entityId);

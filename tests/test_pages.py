@@ -84,3 +84,61 @@ def test_calendars_and_the_window_of_days():
     assert pages.agenda_window("2026-10-21T00:00:00+02:00", "2026-10-23T00:00:00+02:00") == ("2026-10-20T22:00:00+00:00", "2026-10-22T22:00:00+00:00")
     assert pages.agenda_window("2026-10-21T00:00:00", "2026-10-23T00:00:00+02:00") is None
     assert pages.agenda_window("2026-10-01T00:00:00+02:00", "2026-10-30T00:00:00+02:00") is None
+
+
+def test_the_people_with_the_battery_of_their_phone():
+    """#483: the battery sensor of the device of the person's tracker in use, else its first tracker, else the tracker's own attribute"""
+    states = [
+        {"entity_id": "person.anna", "state": "home", "last_changed": "2026-10-21T09:02:00+00:00",
+         "attributes": {"friendly_name": "Anna", "source": "device_tracker.anna_handy", "device_trackers": ["device_tracker.anna_handy"],
+                        "entity_picture": "/api/image/serve/0123abcd/512x512"}},
+        {"entity_id": "person.max", "state": "Arbeit", "last_changed": "bad",
+         "attributes": {"friendly_name": "Max", "device_trackers": ["device_tracker.max_alt", "device_tracker.max_handy"], "entity_picture": "https://evil.example/x.png"}},
+        {"entity_id": "person.oma", "state": "not_home", "attributes": {"source": "device_tracker.oma", "entity_picture": "/local/../secrets.yaml"}},
+        {"entity_id": "device_tracker.anna_handy", "state": "home", "attributes": {}},
+        {"entity_id": "sensor.anna_handy_battery_level", "state": "78", "attributes": {"device_class": "battery", "unit_of_measurement": "%"}},
+        {"entity_id": "sensor.anna_handy_battery_state", "state": "Charging", "attributes": {}},
+        {"entity_id": "device_tracker.max_handy", "state": "not_home", "attributes": {"battery_level": 45}},
+        {"entity_id": "device_tracker.oma", "state": "not_home", "attributes": {}},
+        {"entity_id": "sensor.oma_battery", "state": "unavailable", "attributes": {"device_class": "battery"}},
+        "junk",
+    ]
+    registry = [{"entity_id": "device_tracker.anna_handy", "device_id": "d1"}, {"entity_id": "sensor.anna_handy_battery_level", "device_id": "d1"},
+                {"entity_id": "sensor.anna_handy_battery_state", "device_id": "d1"}, {"entity_id": "device_tracker.oma", "device_id": "d3"},
+                {"entity_id": "sensor.oma_battery", "device_id": "d3"}, {"entity_id": "light.x"}, "junk"]
+    people = {p["id"]: p for p in pages.family(states, registry)}
+    assert list(people) == ["person.anna", "person.max", "person.oma"]
+    assert people["person.anna"] == {"id": "person.anna", "name": "Anna", "state": "home", "since": "2026-10-21T09:02:00+00:00", "picture": True,
+                                     "battery": 78, "charging": True}
+    assert people["person.max"]["battery"] == 45 and people["person.max"]["since"] is None and people["person.max"]["picture"] is False   # not from elsewhere
+    assert people["person.oma"]["battery"] is None and people["person.oma"]["picture"] is False and people["person.oma"]["name"] == "oma"
+    assert pages.family(None, None) == [] and pages.family([], "x") == []
+
+
+def test_a_persons_picture_only_from_home_assistant():
+    pic = lambda p: pages.person_picture({"attributes": {"entity_picture": p}})
+    assert pic("/api/image/serve/abc123/512x512") == "/api/image/serve/abc123/512x512"
+    assert pic("/local/people/anna.jpg?v=2") == "/local/people/anna.jpg?v=2"
+    for bad in ("https://example.com/a.png", "/local/../secrets.yaml", "/api/states", "//evil/x", None, 5):
+        assert pic(bad) is None, bad
+    assert pages.person_picture(None) is None and pages.person_picture("x") is None
+
+
+def test_the_notes_of_the_pinboard():
+    from datetime import datetime, timezone, timedelta
+    now = datetime(2026, 10, 21, 11, 48, tzinfo=timezone.utc)
+    note, err = pages.new_note({"text": "  Bin um 6 da 🚗\x07\n\n\n\nbis dann ", "color": "green"}, " Max ", now, "a1b2c3d4e5f6a7b8")
+    assert err is None and note == {"id": "a1b2c3d4e5f6a7b8", "text": "Bin um 6 da 🚗\n\nbis dann", "by": "Max", "at": "2026-10-21T11:48:00+00:00", "color": "green"}
+    assert pages.new_note({"text": "x", "color": "red"}, "", now, "a1b2c3d4")[0]["color"] == "yellow"
+    assert pages.new_note({"text": " \x07 "}, "", now, "a1b2c3d4") == (None, "the note is empty")
+    assert pages.new_note("x", "", now, "a1b2c3d4")[1] == "invalid request"
+    assert len(pages.new_note({"text": "y" * 500}, "", now, "a1b2c3d4")[0]["text"]) == pages.MAX_NOTE
+    stored = [{"id": f"{i:08x}", "text": f"n{i}", "by": "x", "at": (now - timedelta(hours=i)).isoformat(), "color": "blue"} for i in range(40)]
+    stored += [{"id": "bad id", "text": "x", "at": now.isoformat()}, {"id": "abcdef12", "text": "", "at": now.isoformat()}, {"id": "abcdef13", "text": "x", "at": "never"}, "junk"]
+    kept = pages.clean_notes(stored)
+    assert len(kept) == pages.MAX_NOTES and kept[0]["text"] == "n0" and kept[-1]["text"] == "n29"
+    newer = pages.add_note(kept, note)
+    assert newer[0]["id"] == note["id"] and len(newer) == pages.MAX_NOTES and newer[-1]["text"] == "n28"   # a full pinboard lets its oldest note go
+    mixed = pages.clean_notes([{"id": "aaaaaaaa", "text": "a", "at": "2026-10-21T13:00:00+02:00"}, {"id": "bbbbbbbb", "text": "b", "at": "2026-10-21T11:30:00+00:00"}])
+    assert [n["id"] for n in mixed] == ["bbbbbbbb", "aaaaaaaa"]                  # 11:30 UTC is after 11:00 UTC
+    assert pages.clean_notes(None) == [] and pages.clean_notes([{"id": "aaaaaaaa", "text": "a", "at": now.isoformat()}] * 2)[0]["id"] == "aaaaaaaa"

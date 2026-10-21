@@ -1147,3 +1147,62 @@ def test_tabs_match_the_browser():
     src = (Path(server.__file__).parent / "static" / "tabs.js").read_text()
     block = src[src.index("export const TABS = ["):src.index("];", src.index("export const TABS = ["))]
     assert tuple(server.re.findall(r"\['(\w+)'", block)) == server.TABS
+
+
+async def test_settings_of_the_routines(client):
+    """#483: the buttons of ▶ Abläufe (scenes, scripts, buttons, each once, at most 24) and the routines linked to the two checks"""
+    s = await (await client.get("/api/settings")).json()
+    assert s["routines"] == [] and s["routineLeave"] == "" and s["routineNight"] == ""
+    s = await (await client.put("/api/settings", json={"routines": ["scene.kino", "light.a", "scene.kino", "script.x", "button.b", 5] + [f"scene.s{i}" for i in range(30)],
+                                                        "routineLeave": "script.ich_gehe", "routineNight": "lock.tuer"})).json()
+    assert s["routines"][:3] == ["scene.kino", "script.x", "button.b"] and len(s["routines"]) == 24
+    assert s["routineLeave"] == "script.ich_gehe" and s["routineNight"] == ""
+    s = await (await client.put("/api/settings", json={"routines": "scene.kino", "routineLeave": 5})).json()
+    assert s["routines"] == [] and s["routineLeave"] == ""
+
+
+def test_routine_domains_match_the_browser():
+    """server.ROUTINE_DOMAINS and START in static/routines.js list the same domains (#483)"""
+    src = (Path(server.__file__).parent / "static" / "routines.js").read_text()
+    block = src[src.index("export const START = {"):src.index("};", src.index("export const START = {"))]
+    assert set(server.re.findall(r"(\w+): '", block)) == set(server.ROUTINE_DOMAINS)
+
+
+async def test_an_automation_is_switched_only_by_an_editor(client, monkeypatch):
+    """#483: automation.turn_on / turn_off go through, but only for who may edit"""
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "x")
+    async def no_admins():
+        return set()
+    monkeypatch.setattr(server, "load_admin_ids", no_admins)
+    r = await client.post("/api/service", json={"domain": "automation", "service": "turn_off", "entity_id": "automation.flur"}, headers={"X-Remote-User-Name": "kid"})
+    assert r.status == 403
+    assert server.controls.check({"domain": "automation", "service": "turn_off", "entity_id": "automation.flur"})[3] is None
+    assert server.controls.check({"domain": "automation", "service": "trigger", "entity_id": "automation.flur"})[3] is not None
+
+
+async def test_the_pinboard(client):
+    """#483: notes for everybody, newest first, with who wrote them; anybody may take one off; at most 30 (the oldest goes)"""
+    r = await (await client.get("/api/pinboard")).json()
+    assert r["notes"] == [] and r["canSend"] is False                       # no channel for messages set up
+    r = await client.post("/api/pinboard", json={"text": " Katze füttern! 🐱 ", "color": "green"}, headers={"X-Remote-User-Display-Name": "Anna"})
+    assert r.status == 200
+    one = (await r.json())["notes"][0]
+    assert one["text"] == "Katze füttern! 🐱" and one["by"] == "Anna" and one["color"] == "green" and len(one["id"]) == 16
+    r = await (await client.post("/api/pinboard", json={"text": "Bin um 6 da", "send": True}, headers={"X-Remote-User-Name": "max"})).json()
+    assert [n["text"] for n in r["notes"]] == ["Bin um 6 da", "Katze füttern! 🐱"] and r["notes"][0]["by"] == "max" and r["sent"] is False
+    assert (await client.post("/api/pinboard", json={"text": "   "})).status == 400
+    assert (await client.post("/api/pinboard", data="junk")).status == 400
+    r = await (await client.delete(f"/api/pinboard/{one['id']}")).json()
+    assert [n["text"] for n in r["notes"]] == ["Bin um 6 da"]
+    assert [n["text"] for n in (await (await client.get("/api/pinboard")).json())["notes"]] == ["Bin um 6 da"]
+    for i in range(31):
+        await client.post("/api/pinboard", json={"text": f"n{i}"})
+    notes = (await (await client.get("/api/pinboard")).json())["notes"]
+    assert len(notes) == 30 and notes[0]["text"] == "n30" and "Bin um 6 da" not in [n["text"] for n in notes]
+
+
+async def test_family_without_home_assistant(client):
+    """#483: standalone the page has nobody; a person's picture is refused for anything but a person"""
+    assert (await (await client.get("/api/family")).json()) == {"people": []}
+    assert (await client.get("/api/family/light.x/picture")).status == 400
+    assert (await client.get("/api/family/person.anna/picture")).status == 503

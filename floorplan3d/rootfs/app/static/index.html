@@ -67,7 +67,7 @@
     <div id="stage">
       <canvas id="view"></canvas>
       <div id="wxFall" hidden><i></i></div>
-      <div id="tabPages" hidden><section class="tabPage" data-page="today" hidden></section><section class="tabPage" data-page="energy" hidden></section><section class="tabPage" data-page="cameras" hidden></section></div>
+      <div id="tabPages" hidden><section class="tabPage" data-page="today" hidden></section><section class="tabPage" data-page="energy" hidden></section><section class="tabPage" data-page="climate" hidden></section><section class="tabPage" data-page="cameras" hidden></section><section class="tabPage" data-page="routines" hidden></section><section class="tabPage" data-page="family" hidden></section></div>
       <div id="welcome" hidden>
         <button id="welClose" type="button" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button>
         <h2 data-i18n="wel.title"></h2>
@@ -567,6 +567,13 @@
         <div class="row"><label for="setWasteCal" data-i18n="tp.today.waste"></label><select id="setWasteCal"></select></div>
         <h4 data-i18n="tp.energy.title"></h4>
         <p class="sub" data-i18n="tp.energy.help"></p>
+        <h4 data-i18n="rt.prefs"></h4>
+        <p class="sub" data-i18n="rt.prefsHelp"></p>
+        <div id="setRoutines" class="calList"></div>
+        <div class="row"><label for="setRoutineLeave" data-i18n="rt.prefLeave"></label><select id="setRoutineLeave"></select></div>
+        <div class="row"><label for="setRoutineNight" data-i18n="rt.prefNight"></label><select id="setRoutineNight"></select></div>
+        <h4 data-i18n="pb.prefs"></h4>
+        <p class="sub" data-i18n="pb.prefsHelp"></p>
       </div>
     </details>
 
