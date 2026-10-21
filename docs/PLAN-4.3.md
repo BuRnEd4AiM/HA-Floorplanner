@@ -2,7 +2,7 @@
 
 Dieser Plan ist die **Übergabe**: Falls die Arbeit abbricht, kann eine andere Sitzung hier weitermachen. Erst diesen Plan lesen, dann `docs/UEBERGABE.md` und `.claude/CLAUDE.md`.
 
-- **Stand (2026-10-21 spät abends):** 4.3.0 (#480) und 4.4.0 (#482, ☀ Heute und ⚡ Energie) sind gemergt, **Paket 2 ist gebaut (4.5.0, #483: 🌡 Klima, ▶ Abläufe, 👨‍👩‍👧 Familie mit Pinnwand)**. Als Nächstes: Paket 3 (siehe „Paket 2 und 3: so weitermachen“ unten).
+- **Stand (2026-10-21 spät abends):** 4.3.0 (#480) und 4.4.0 (#482, ☀ Heute und ⚡ Energie) sind gemergt, **Paket 2 ist gebaut (4.5.0, #483: 🌡 Klima, ▶ Abläufe, 👨‍👩‍👧 Familie mit Pinnwand)**. Davor (Wahl des Besitzers): **die Seiten selbst bearbeiten (#484, 4.6.0, Bilder `docs/ideen-4.6/`)**, dann Paket 3 (4.7.0, siehe „Paket 2 und 3: so weitermachen“ unten).
 - **Davor:** Ideen gesammelt, Beispielbilder gemacht (`docs/ideen-4.3/`). Der Besitzer hat „Schritt 1 bauen“ gewählt: **Schritt 1 ist gebaut (4.3.0, #479)**, siehe `docs/UEBERGABE.md`. Dazu seine zwei Hinweise: „es soll ja aber auch noch administrativ verwaltet werden“ (Reiter pro Benutzer nur durch Admins, die Leiste nur in „Live“) und „baue es direkt auch für den hacs store“ (die Karte bekam `tabs` und `kiosk`).
 - **Branch der Ideen-Runde:** `claude/nice-shannon-mee5c5`
 - **Beispielbilder neu machen:** `python3 docs/ideen-4.3/make_pictures.py /tmp/bilder [namen]` (Demo vorher bauen, Playwright 1.56, siehe `docs/UEBERGABE.md`), danach als JPG (Qualität 80) nach `docs/ideen-4.3/`. Die Seiten malt `docs/ideen-4.3/mockup.js` nur für das Foto (Werte teils aus der Demo, teils ausgedacht).
@@ -37,7 +37,7 @@ Dieser Plan ist die **Übergabe**: Falls die Arbeit abbricht, kann eine andere S
 1. ✅ **4.3.0 Reiter-Leiste und Rechte** (gebaut, #479): die Leiste unten (Handy: 4 + „Mehr“), pro Benutzer Haken je Reiter und Start-Reiter (neben `userLocks` in `users.json`), Server prüft die Rechte wie bei `user_locks`. Was es schon gibt, wird eine Seite: 📷 Kameras (heute `#camMenu`), 🛡 Alarm und Verlauf in Kameras, 📋 Geräte (Batterien, offline) in Heute. Dazu die **Anleitung „Tablet einrichten“** (siehe unten).
 2. ✅ **4.4.0 Energie** (gebaut mit Heute, #481; der Besitzer wollte alle übrigen Reiter, in drei Paketen: 1. Heute + Energie, 2. Klima + Abläufe + Familie, 3. Musik & TV + Haushalt): Verlauf aus der Statistik von Home Assistant, pro Haus (`layout.energy` jedes Hauses) und zusammen.
 3. ✅ **Heute** (Startseite fürs Tablet): in 4.4.0 mit Energie gebaut.
-4. ✅ **4.5.0: Paket 2** (Klima, Abläufe, Familie mit Pinnwand, #483), **4.6.0: Paket 3** (Musik & TV, Haushalt). Der Besitzer hat am 2026-10-21 „ja“ gesagt: Paket 2 bauen und selbst mergen, wenn alles grün ist. Rezept und Notizen: unten „Paket 2 und 3: so weitermachen“.
+4. ✅ **4.5.0: Paket 2** (Klima, Abläufe, Familie mit Pinnwand, #483), **4.6.0: Seiten selbst bearbeiten** (#484, der Wunsch kam während Paket 2), **4.7.0: Paket 3** (Musik & TV, Haushalt). Der Besitzer hat am 2026-10-21 „ja“ gesagt: Paket 2 bauen und selbst mergen, wenn alles grün ist. Rezept und Notizen: unten „Paket 2 und 3: so weitermachen“.
 
 ## Technische Notizen
 
