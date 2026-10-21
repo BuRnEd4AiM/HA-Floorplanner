@@ -40,6 +40,10 @@ Stand: 2026-10-21, Version **4.2.1**. Diese Datei ist für den nächsten Chat (a
 
 Testprotokoll (Stand 2026-10-21, Pause am Mittag): in der Demo ist von **44** bis **77** fast alles ✅. Am 2026-10-21 geprüft (per Auswahl im Chat): 65.10, 63.5, 58.5 bis 58.8, die ganzen Abschnitte 57, 55, 51, 50, 49, 47, 44, dazu 56.3 bis 56.5, 56.7, 54.1 bis 54.8, 53.1 bis 53.3, 52.1 bis 52.11, 46.1 und 77.1 bis 77.4, 77.6 (alles von 4.2.1); 63.4 und 63.8 waren ❌ und sind in 4.2.1 behoben (#473, #474). Bei 54.6 fragte der Besitzer, warum „Kühlen“ fehlt (Klimagerät mit der Heizung verknüpft): dafür hat die Demo jetzt die Klimaanlage im Büro. **Weiter nach der Pause:** 45.1 bis 45.3, 43.1 bis 43.4, 42.1 bis 42.6 (Schleppgaube, Absatz-Kreise; die Runde mit 45.1 bis 45.3 und 42.1 wurde wegen der Pause nicht beantwortet), 76.1 bis 76.14 (Schnellzugriff aus 4.2.0, andere Sitzung), 56.1, 56.2 (iPad), 56.6, 52.12 und 48 (Musterhaus importieren), dann die Punkte „nur im Add-on“ (35, im echten Home Assistant; der Besitzer will danach eine Version als stabil festhalten) und **ganz zum Schluss** 63.1 bis 63.3 (Ton: Lautsprecher, Fernseher; „als letztes bitte“). In „Live“ zuerst „Ansicht“ → „Im Bild: Geräte“, sonst verdecken die Raum-Schilder die Kugeln. Der Besitzer mag keine wiederholten Fragen: was er mit ⏭ beantwortet, in derselben Runde nicht noch einmal fragen.
 
+## Großer Wunsch (2026-10-21): Reiter, das Programm als einziges Dashboard
+
+Der Besitzer will nur noch dieses Programm benutzen: Reiter, die man pro Benutzer freischaltet, Energie für zwei Häuser, das Tablet mit Startseite im Vollbild ohne Seitenleiste. **Alle acht Reiter gewählt, Leiste unten.** Beispielbilder in `docs/ideen-4.3/`, Plan, technische Notizen und offene Fragen in **`docs/PLAN-4.3.md`**. Noch nichts gebaut: erst seine Antwort zu den Bildern abwarten, dann Schritt 1 (Reiter-Leiste und Rechte).
+
 ## Entscheidungen des Besitzers (2026-10-17) und was als Nächstes kommt
 
 - **Mergen:** Claude darf die Pull Requests dieser Sitzung selbst mergen, sobald alles grün ist (Methode „merge“).
