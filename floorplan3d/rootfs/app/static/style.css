@@ -1170,3 +1170,61 @@ body.low #guardScreen.gd-entry, body.low #guardScreen.gd-alarm { animation: none
 .gdBox .chip { font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
 .gdBox .chip.open { color: #ffb347; border-color: #ffb347; }
 .gdBox .chip.offline { color: #ff6b6b; border-color: #ff6b6b; }
+
+/* ---- Quick access (#471): the light list "💡 n an", favourites in front of the room tiles, "what is on", low batteries, the note after a
+   deletion, the card of keys, the pieces placed last ---- */
+#lightsPill.lit { border-color: #ffcf70; box-shadow: 0 0 12px rgba(255, 207, 112, .35); }
+#lightsMenu { position: absolute; top: 54px; right: 12px; z-index: 6; width: min(340px, calc(100% - 24px)); max-height: calc(100% - 140px); overflow-y: auto;
+  padding: 10px; display: flex; flex-direction: column; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+#lightsMenu[hidden] { display: none; }
+#lightsMenu .lgHead { padding: 2px 4px 4px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.lgRow { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; border: 1px solid var(--line); min-height: 40px; }
+.lgRow.house { border-style: dashed; }
+.lgRow.lit { border-color: color-mix(in srgb, #ffcf70 60%, var(--line)); }
+.lgName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lgWho { font-style: normal; }
+.lgOn { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.lgRow.lit .lgOn { color: #ffcf70; }
+.lgOff { padding: 5px 12px; border-radius: 999px; min-width: 64px; }
+.lgOff.armed { background: #b3261e; border-color: #b3261e; color: #fff; font-weight: 600; }
+.lgHint { margin: 2px 4px; }
+.lgSetup { align-self: flex-start; margin-top: 2px; font-size: 12px; }
+#devicesPill.lowbat { border-color: #f59f00; color: #ffb84d; box-shadow: 0 0 12px rgba(245, 159, 0, .35); }
+#devicesPill.lowbat.active { background: #f59f00; border-color: #f59f00; color: #1b1300; }
+.rtSep { flex: 0 0 1px; align-self: stretch; margin: 8px 2px; background: rgba(255, 255, 255, .2); }
+.rtTile.fav { width: 132px; justify-content: space-between; }
+.rtTile.fav .rtHead b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; hyphens: auto; }
+.rtTile.fav.gone { opacity: .55; }
+.rtTile.fav.tapped { transform: scale(.96); transition: transform .12s; }
+.favStar { margin-left: auto; padding: 2px 8px; font-size: 16px; line-height: 1.2; }
+.favStar.on { color: #ffcf40; border-color: #ffcf40; }
+.favRow { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.favRow .favName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.favRow small { grid-column: 1; grid-row: 2; }
+.favRow button { padding: 2px 8px; }
+.favAddRow { display: flex; gap: 6px; }
+.favAddRow input { flex: 1 1 auto; min-width: 0; }
+.favMsg:empty { display: none; }
+.favMsg { color: #ffb84d; }
+.lgEdit { margin: 8px 0; padding: 8px; border: 1px solid var(--line); border-radius: 10px; display: flex; flex-direction: column; gap: 6px; }
+.lgEditHead { display: flex; gap: 6px; }
+.lgEditHead input { flex: 1 1 auto; min-width: 0; font-weight: 600; }
+.lgFloor { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.lgFloor small { flex: 0 0 100%; color: var(--muted); }
+.lgRoom { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+#undoToast { position: absolute; left: 50%; bottom: 112px; transform: translateX(-50%); z-index: 30; display: flex; align-items: center; gap: 12px;
+  padding: 8px 8px 8px 16px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.45); white-space: nowrap; }
+#undoToast[hidden], body.live #undoToast { display: none; }
+#undoToast button { border-radius: 999px; padding: 6px 14px; background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+.keysBtn { margin-top: 6px; font-size: 12px; }
+#keysDialog { width: min(560px, 94vw); }
+.keysGroup h4 { margin: 12px 0 6px; }
+.keysGroup dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 0; align-items: center; }
+.keysGroup dt { white-space: nowrap; color: var(--muted); }
+.keysGroup dd { margin: 0; }
+kbd { display: inline-block; min-width: 1.6em; padding: 1px 6px; border-radius: 6px; border: 1px solid var(--line); border-bottom-width: 2px; background: rgba(255, 255, 255, .06);
+  font-family: inherit; font-size: 12px; font-weight: 600; line-height: 1.5; text-align: center; color: var(--text); }
+#paletteRecent[hidden] { display: none; }
+#paletteRecent .palHead { display: block; margin: 0 0 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+#paletteRecent .recentRow { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed var(--line); }

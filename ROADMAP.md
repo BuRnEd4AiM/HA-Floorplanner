@@ -26,8 +26,9 @@ Not planned: sun light and shadows through the windows by the position of the su
 - ✅ Version and checksum pill (add-on files, browser, GitHub)
 - ✅ Add-on store listing (icon, logo, translations), welcome card on first start
 
-## Done in 3.59 – 4.0
+## Done in 3.59 – 4.2
 
+- ✅ Quick access: lights off for the whole house or a group of rooms (two taps), favourites in front of the room tiles, "what is still on?", low batteries stand out, undo note after deleting, all keys on one card, recently used furniture (4.2.0) ([#471](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/471))
 - ✅ Walls with a finish (woodchip, plaster, wallpapers, tiles, brick, wood …), tiles up to a height, accent walls, the facade outside, many more floors, every pattern with its colour, size and angle (4.0.0) ([#448](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/448))
 - ✅ The settings in groups that fold open, with a search; what the alarm panel is and which one Home Assistant has (4.0.1) ([#450](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/450))
 - ✅ Users & tablets inside the settings; WhatsApp on alarm in three steps (4.0.3) ([#454](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/454))

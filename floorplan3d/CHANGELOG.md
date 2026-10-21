@@ -4,13 +4,23 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
-## [4.1.5] - 2026-10-21
+## [4.2.1] - 2026-10-21
 ### Changed
 - **A choice list with a few options shows them as buttons** (#474): the live card of a choice list (`input_select` / `select`, e.g. a house mode *Zu Hause / Abwesend / Urlaub / Nacht*) had only a drop-down, so *Urlaub* was no button to tap. Up to 6 options now stand side by side as buttons like a fan's presets, the chosen one highlighted; longer lists stay a drop-down. Its ball shows ☰ instead of a plain dot.
 - **Measure: *Lichter Abstand* is now *Innenmaß (Wand bis Wand)*** (English: *Inside distance (wall to wall)*): the owner's wish, the old name was a builder's term. The same plain words in every language.
 
 ### Fixed
 - **Demo: the robot vacuum could not be found** (#473): it stood in the kitchen right under the stairs. It now stands in front of the kitchen counter. The demo's house mode moved from the crowded outer wall of the office (next to the meters' labels) to its inner wall.
+
+## [4.2.0] - 2026-10-21
+### Added
+- **Lights off for the whole house or a group of rooms** (#471): while lights are on, **💡 n an** shows at the top. A tap lists **Ganzes Haus** and your **light groups** (several rooms together, e.g. *Kinder* or *Oben*), each with how many of its lights are on, 👤 when somebody is in one of its rooms, and **Aus**. So nothing goes off by accident, the first tap only asks (**Sicher? Aus**), the second within three seconds switches off only that row's lights. The groups are set up in ⚙ → **⭐ Schnellzugriff** → *Licht-Gruppen* (a name and the rooms, ticked by floor). On phones the button is in the 📊 list.
+- **Favourites** (#471): the devices and scenes used most as buttons at the start of the strip at the bottom of the live mode, in front of the room tiles (also when the room tiles are off). One tap starts a scene, a script or a button, or toggles a light, switch, fan, roller shutter or player; a lit lamp glows in its colour. Set with **☆** on a device's card in live mode or in ⚙ → *Schnellzugriff* → *Favoriten* (add by name, ↑ ↓, ×), at most 16. A lock or an alarm panel is never a favourite.
+- **"What is still on?"** (#471): the device list (📋) has the filter **💡 An / offen**: lights, switches, fans, players and robot vacuums that run, and open doors and windows.
+- **Low batteries stand out** (#471): **📋 Geräte · 🪫 n** turns orange, and a tap opens the list at **🔋 Batterie** with the emptiest first.
+- **Undo after deleting** (#471): in the editor **Gelöscht · ↶ Rückgängig** shows for six seconds after something was deleted (several at once: *3 Teile gelöscht*); the button brings it back, handy on a tablet without Ctrl+Z.
+- **All keys on one card** (#471): **?** in the editor, or *⌨ Alle Tasten* under *Steuerung*, lists every key (tools, undo, copy, nudge by 1 cm / 10 cm, floors …).
+- **Recently used** (#471): the pieces placed last stand on top of the furniture library (*Alle*, no search), per browser.
 
 ## [4.1.4] - 2026-10-20
 ### Fixed

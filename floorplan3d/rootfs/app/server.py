@@ -98,6 +98,8 @@ DEFAULT_SETTINGS = {
     "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
     "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
     "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
+    "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
+    "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
@@ -465,6 +467,37 @@ def clean_stops(val, default):
     return sorted(stops, key=lambda x: x["v"]) if len(stops) >= 2 else default
 
 
+FAV_DOMAINS = ("light", "switch", "input_boolean", "fan", "cover", "media_player", "scene", "script", "button", "input_button")
+ENTITY_ID = re.compile(r"^[a-z_]+\.[a-z0-9_]+$")
+
+
+def clean_favorites(val) -> list:
+    """The favourites (#471): entity ids of a domain that one tap switches or starts (static/favorites.js FAV_SERVICE), each once, at most 16."""
+    out = []
+    for e in val if isinstance(val, list) else []:
+        if isinstance(e, str) and len(e) <= 255 and ENTITY_ID.match(e) and e.split(".")[0] in FAV_DOMAINS and e not in out:
+            out.append(e)
+    return out[:16]
+
+
+def clean_light_groups(val) -> list:
+    """The light groups (#471): [{"id", "name", "rooms": [room id]}], at most 12, like cleanGroups in static/lightgroups.js."""
+    out, ids = [], set()
+    for i, g in enumerate([g for g in val if isinstance(g, dict)][:12] if isinstance(val, list) else []):
+        gid = g.get("id") if isinstance(g.get("id"), str) and g.get("id") else f"g{i + 1}"
+        gid = gid[:40]
+        while gid in ids:
+            gid += "_"
+        ids.add(gid)
+        name = g.get("name").strip()[:40] if isinstance(g.get("name"), str) else ""
+        rooms = []
+        for r in g.get("rooms") if isinstance(g.get("rooms"), list) else []:
+            if isinstance(r, str) and r and len(r) <= 80 and r not in rooms:
+                rooms.append(r)
+        out.append({"id": gid, "name": name or f"#{i + 1}", "rooms": rooms[:200]})
+    return out
+
+
 def validate_settings(data: dict) -> dict:
     """Keep only known keys with the right type; unknown keys are dropped."""
     out = dict(DEFAULT_SETTINGS)
@@ -480,6 +513,10 @@ def validate_settings(data: dict) -> dict:
             out[key] = clean_locks(val)
         elif key == "startViews":
             out[key] = clean_start_views(val)
+        elif key == "favorites":
+            out[key] = clean_favorites(val)
+        elif key == "lightGroups":
+            out[key] = clean_light_groups(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})

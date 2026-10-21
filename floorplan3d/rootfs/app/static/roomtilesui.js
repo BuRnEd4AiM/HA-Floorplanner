@@ -3,7 +3,8 @@
  * somebody is there. A tap flies to the room and opens its room card. On phones the strip is smaller and is swiped sideways. Redrawn only
  * when a card changed; what a card shows comes from roomtiles.js (tested). "Room tiles" in the View menu and in the settings switch it off.
  * More tiles than fit (the whole house): arrows at the ends, the cut side fades out, the mouse wheel scrolls the strip sideways (3.99.2), a
- * finger swipes it on every device, the iPhone too (dragscroll.js, #438). */
+ * finger swipes it on every device, the iPhone too (dragscroll.js, #438). The favourites (#471, favoritesui.js) come first, also when the
+ * room tiles are switched off. */
 import { roomSummary, tileTexts, stripEnds, liveToggle } from './roomtiles.js';
 import { navEntries } from './nav.js';
 import { initDragScroll } from './dragscroll.js';
@@ -13,12 +14,16 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), focusedRoom(), settings(), states(), isLive(), placed(floor) (its devices with entities),
  *  areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), openRoom(floorIndex, roomId), commitSettings(), lang(), imperial(),
- *  goLive() (a tap on "Raum-Kacheln" in edit mode) */
+ *  goLive() (a tap on "Raum-Kacheln" in edit mode), favorites ({ html(), tap(entity, button) }, favoritesui.js) */
 export function initRoomTiles(ctx) {
   const { $, t } = ctx;
   const box = $('#roomTiles');
   let last = '';
-  box.addEventListener('click', (e) => { const b = e.target.closest('[data-room]'); if (b) ctx.openRoom(+b.dataset.floor, b.dataset.room); });
+  box.addEventListener('click', (e) => {
+    const f = e.target.closest('[data-fav]');
+    if (f) { ctx.favorites?.tap(f.dataset.fav, f); return; }
+    const b = e.target.closest('[data-room]'); if (b) ctx.openRoom(+b.dataset.floor, b.dataset.room);
+  });
   $('#tilesToggle').addEventListener('click', () => {
     const next = liveToggle({ on: ctx.settings().roomTiles !== false, live: ctx.isLive() });   // edit mode: on, and live (roomtiles.js)
     $('#setRoomTiles').checked = next.on; ctx.commitSettings();
@@ -56,11 +61,12 @@ export function initRoomTiles(ctx) {
     $('#tilesToggle').classList.toggle('active', on);
     const layout = ctx.layout(), fi = ctx.floorIdx(), house = ctx.houseMode();
     const entries = on && ctx.isLive() && layout.floors[fi] ? navEntries(layout.floors, fi, house) : [];
-    box.hidden = !entries.length;
-    if (!entries.length) { last = ''; ends(); return; }
+    const favs = ctx.isLive() ? ctx.favorites?.html() || '' : '';
+    box.hidden = !entries.length && !favs;
+    if (box.hidden) { last = ''; ends(); return; }
     let fmt;
     try { fmt = new Intl.NumberFormat(ctx.lang(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }); } catch { fmt = new Intl.NumberFormat('en', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
-    const html = entries.map((e) => tile(e, fmt, house)).join('');
+    const html = favs + (favs && entries.length ? '<span class="rtSep" aria-hidden="true"></span>' : '') + entries.map((e) => tile(e, fmt, house)).join('');
     if (html !== last) { box.innerHTML = html; last = html; }
     ends();
   }

@@ -1,12 +1,12 @@
-/* Phones held upright: the values at the top (power overview, water / gas, offline, open, cameras / movement) fold into one button
- * "📊" next to the floor and the room button, so the top bar is a single row. A tap opens them as a drop-down list; tapping one of
- * them does what it always does (energy overview, offline list, open list, cameras) and closes the list. When something needs
+/* Phones held upright: the values at the top (power overview, water / gas, lights on (#471), offline, open, cameras / movement) fold into
+ * one button "📊" next to the floor and the room button, so the top bar is a single row. A tap opens them as a drop-down list; tapping one
+ * of them does what it always does (energy overview, light list, offline list, open list, cameras) and closes the list. When something needs
  * attention (open doors, movement, devices offline) the button turns red and shows "⚠️ n".
  * The pills are moved into the list only on phones held upright (same width as in style.css) and put back at their old place
  * otherwise, so desktop, tablets, phones held sideways and the room tablet are unchanged.
  * phoneStatusModel is pure and tested in tests/phonestatus.test.mjs. */
 
-export const STATUS_PILLS = ['energyPill', 'meterPill', 'devicesPill', 'offlinePill', 'openPill', 'camPill'];
+export const STATUS_PILLS = ['energyPill', 'meterPill', 'lightsPill', 'devicesPill', 'offlinePill', 'openPill', 'camPill'];
 export const PHONE_QUERY = '(max-width: 760px)';
 
 /** what the button shows. pills: [{ hidden, alert }] (alert: the pill is red / warns) */

@@ -52,8 +52,10 @@ import { initRoomLabels } from './roomlabels.js';
 import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
 import { initSky } from './skyui.js';
-import { roomReading, roomEntityIds } from './roomtiles.js';
+import { roomReading, roomEntityIds, roomSummary } from './roomtiles.js';
 import { initRoomTiles } from './roomtilesui.js';
+import { initLightGroups } from './lightgroupsui.js';
+import { initFavorites } from './favoritesui.js';
 import { initWelcome } from './welcome.js';
 import { openNanoEditor, DEFAULT_PANELS } from './nanoleaf.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
@@ -89,6 +91,8 @@ import { replayEntities } from './timeline.js';
 import { initPersist } from './persist.js';
 import { initFloorBuild, OUTDOOR } from './floorbuild.js';
 import { initEditItems } from './edititems.js';
+import { initUndoToast } from './undotoast.js';
+import { initShortcuts } from './shortcuts.js';
 import { initClipboard } from './clipboard.js';
 import { initEnergySetup } from './energysetup.js';
 import { initNotifyUi } from './notifyui.js';
@@ -528,11 +532,21 @@ function roomHeat(room, f) {
   return v === null ? null : colorFromStops(settings[VIEW_STOPS[viewMode][0]], v);
 }
 const areaEntitiesOf = (room) => (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []);
+/* favourites (#471): buttons in front of the room tiles, ☆ on a device's card, the list in ⚙ → "Quick access"; favoritesui.js */
+const favorites = initFavorites({ $, t, settings: () => settings, states: () => states, ready: () => entities.length > 0, entities: () => entities,
+  nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, callService: (e, svc) => live.callService(e, svc),
+  canEdit: () => me.canEdit, save: () => settingsStore.save(), changed: () => roomTiles.update(), commit: () => commitSettings() });
+/* light groups (#471): "💡 n an" at the top, the whole house or a group of rooms off with two taps; lightgroupsui.js */
+const isLit = (e) => ON_STATES.has(states[e]?.state);
+const lightGroups = initLightGroups({ $, t, layout: () => shownLayout(), plan: () => layout, settings: () => settings, placed: (f) => entityDevices(f),
+  areaEntities: areaEntitiesOf, isOn: isLit, callService: (e, svc) => live.callService(e, svc), canEdit: () => me.canEdit, setStatus: (x) => setStatus(x),
+  occupied: (r, f) => roomSummary(r, f, { placed: entityDevices(f), areaEntities: areaEntitiesOf(r), states, isOn: isLit, isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o) }).occupied,
+  openSettings: () => openSettingsAt('quick'), commit: () => commitSettings(), isOpen: () => !$('#lightsMenu').hidden, close: () => toggleMenu($('#lightsMenu'), $('#lightsPill'), false) });
 const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
   settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf,
   isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(),
   lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
-  openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); }, goLive: () => setMode('live') });
+  openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); }, goLive: () => setMode('live'), favorites });
 const roomLabels = initRoomLabels({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // labels over the rooms (#430), roomlabels.js
   settings: () => settings, states: () => states, isLive: () => isLive(), view3d: () => layoutMode !== '2d', elev: (i) => elev(i), camera, canvas,
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e),
@@ -601,10 +615,19 @@ $('#planFloorsBtn').addEventListener('click', cyclePlanFloors);
 /* ================= Top bar: view menu (Auto, half section, pull apart, walls) and the cameras overview ================= */
 const viewMenu = $('#viewMenu'), viewMenuBtn = $('#viewMenuBtn'), camMenu = $('#camMenu'), camPillBtn = $('#camPill');
 $('#roomMenuBtn').addEventListener('click', (e) => { e.stopPropagation(); toggleMenu($('#roomMenu'), $('#roomMenuBtn')); });
-const dropdowns = [[viewMenu, viewMenuBtn], [camMenu, camPillBtn], [$('#roomMenu'), $('#roomMenuBtn')]];       // only one of the drop-downs is open at a time
+const dropdowns = [[viewMenu, viewMenuBtn], [camMenu, camPillBtn], [$('#roomMenu'), $('#roomMenuBtn')], [$('#lightsMenu'), $('#lightsPill')]];       // only one of the drop-downs is open at a time
 function toggleMenu(menu, btn, open = menu.hidden) {
   dropdowns.forEach(([m, b]) => { const on = m === menu && open; m.hidden = !on; b.classList.toggle('active', on); b.setAttribute('aria-expanded', String(on)); });
   if (menu === camMenu && open) cams.renderMenu();
+  if (menu.id === 'lightsMenu' && open) lightGroups.render();
+  lightGroups.update();                     // "💡 n an" stays while its list is open, also with no light on
+}
+$('#lightsPill').addEventListener('click', (e) => { e.stopPropagation(); toggleMenu($('#lightsMenu'), $('#lightsPill')); });
+/** the settings with one group open (the light list's "Set up groups") */
+function openSettingsAt(group) {
+  $('#settingsBtn').click();
+  const g = $(`#settingsDialog details[data-group="${group}"]`);
+  if (g) { g.open = true; g.scrollIntoView({ block: 'start' }); }
 }
 const toggleViewMenu = (open) => toggleMenu(viewMenu, viewMenuBtn, open);
 viewMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleViewMenu(); });
@@ -641,7 +664,8 @@ function applyStates() {
   updateViewLegend();
   power.update();
   energyFlow.update();                    // the energy flow as a picture (#420)
-  roomTiles.update();                     // the room tiles (#421)
+  roomTiles.update();                     // the room tiles (#421) and the favourites in front of them (#471)
+  lightGroups.update();                   // "💡 n an" and its list (#471)
   roomLabels.update();                    // the labels over the rooms (#430)
   energyUi.update();                      // the tab "⚡ Rechnung" while it is open (#378)
   cams.updateCones();
@@ -809,7 +833,9 @@ const persist = initPersist({
   t, layout: () => layout, url: () => hs.url(), autosaveSeconds: () => settings.autosaveSeconds, setStatus: (x) => setStatus(x),
   conflict: () => houseLoad.askConflict(), reopen: (l) => { layout = l; normalizeLayout(); showPlan(layout); renderObjList(); refreshSelection(); },   // another screen saved meanwhile (#403)
 });
-function snapshot() { persist.snapshot(); }
+/* "Gelöscht · ↶ Rückgängig" for a few seconds after a deletion (#471), undotoast.js; it goes with the next change, undo or redo */
+const undoToast = initUndoToast({ $, t, undo: () => undo() });
+function snapshot() { persist.snapshot(); undoToast.changed(); }
 /** another state of the plan replaces the open one (undo, redo, the plan loaded again): the floor stays, nothing is selected */
 function showPlan(l) {
   layout = l;
@@ -819,8 +845,8 @@ function showPlan(l) {
   fillFloorSelect(); build(); bgUi.render(); renderFloorPanel(); neighbors.renderUi(); historyButtons();
   buildingsUi?.renderSwitch(); buildingsUi?.renderPanel();
 }
-function undo() { const prev = persist.popUndo(); if (prev) { showPlan(prev); scheduleSave(); } }
-function redo() { const next = persist.popRedo(); if (next) { showPlan(next); scheduleSave(); } }      // #404
+function undo() { undoToast.hide(); const prev = persist.popUndo(); if (prev) { showPlan(prev); scheduleSave(); } }
+function redo() { undoToast.hide(); const next = persist.popRedo(); if (next) { showPlan(next); scheduleSave(); } }      // #404
 /** the ↶ / ↷ buttons can be pressed only while there is something to undo / do again */
 function historyButtons() { $('#undoBtn').disabled = !persist.canUndo(); $('#redoBtn').disabled = !persist.canRedo(); }
 function changed(rebuild = true) {
@@ -924,6 +950,7 @@ function newDevice(x, z) {
     id: uid(), type: deviceType, x, z, y: def.y || 0, rot: 0, scale: 1,
     name: ent?.name || (custom ? deviceType.slice(4) : t(`dev.${deviceType}`)), entity: entityChoice || '',
   };
+  palettes.used(deviceType);                                     // "last used" on top of the library (#471)
   if (deviceType === 'nanoleaf') d.panels = DEFAULT_PANELS.map((p) => ({ ...p }));
   if (deviceType === 'kitchenrun') Object.assign(d, { legs: DEFAULT_LEGS(), upper: true, depth: 0.6 });
   if (deviceType === 'ledring') Object.assign(d, ringAt(x, z));     // all around the room it is placed in, just under the ceiling
@@ -978,7 +1005,7 @@ const editItems = initEditItems({
   t, floor: () => floor(), floorIdx: () => floorIdx, floors: () => layout.floors.length, settings: () => settings,
   selection: () => selection, setSelection: (s) => { selection = s; }, isLive: () => isLive(), tool: () => tool,
   snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), undo: () => undo(), redo: () => redo(), clip: clipboard,
-  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z),
+  moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), deleted: () => undoToast.deleted(), help: () => keysHelp.open(),
   power: { deleteCable: (id) => power.deleteCable(id), dropCablesTo: (id) => power.dropCablesTo(id) }, multi: { items: () => multiSel.items(), deleteAll: () => multiSel.deleteAll() },
   switchFloor: (i) => switchFloor(i), setTool: (x) => setTool(x),
   finishDraft: () => { if (!plan?.hasDraft()) return false; plan.finishRoom(); return true; }, moveRoof: (id, dx, dz) => moveRoofBy(id, dx, dz),
@@ -987,6 +1014,7 @@ const editItems = initEditItems({
 /** the plan object behind a selection handle (wall, room, opening, device, stair, block) */
 function itemOf(kind, id) { return editItems.itemOf(kind, id); }
 function deleteItem(sel, batch = false) { editItems.deleteItem(sel, batch); }      // batch: several in a row (#211), the caller rebuilds once
+const keysHelp = initShortcuts({ $, t, mac: /Mac|iPhone|iPad/.test(navigator.platform || '') });   // "?" or ⌨: every key of the editor (#471), shortcuts.js
 
 /* ================= Live control: the code lives in livecontrols.js (switching, light controls, scenes), livepopup.js and roompanel.js ================= */
 const live = initLiveControls({
@@ -997,7 +1025,7 @@ const live = initLiveControls({
 });
 const popup = initLivePopup({
   $, t, lang: () => currentLanguage(), live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), cams,
-  settings: () => settings, pointInPoly, states: () => states, onStates: ON_STATES,
+  settings: () => settings, pointInPoly, states: () => states, onStates: ON_STATES, star: (e) => favorites.star(e),   // ☆ favourite (#471)
 });
 const roomPanel = initRoomPanel({
   $, t, live, floor: () => floor(), states: () => states, entities: () => entities, areas: () => areas, entityDevices: (f) => entityDevices(f), pointInPoly,
@@ -1299,7 +1327,7 @@ $('#belowLabelsToggle').addEventListener('click', () => {                 // nam
 });
 
 /* ================= Palettes: devices, custom models; the code lives in palettes.js ================= */
-const palettes = initPalettes({ $, t, getType: () => deviceType, setType: (k) => { deviceType = k; }, alert: (x) => alert(x) });
+const palettes = initPalettes({ $, t, getType: () => deviceType, setType: (k) => { deviceType = k; }, alert: (x) => alert(x) });   // the last pieces placed on top (#471)
 /* ================= Placeholder blocks and stairs: the code lives in blocks.js and stairtool.js ================= */
 const floorOpenings = (i) => floorOpeningsOf(shownLayout().floors, i, FLOOR_H);
 const blocks = initBlocks({
@@ -1388,6 +1416,7 @@ const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
+  parts: [favorites, lightGroups],                      // ⚙ → "Quick access": favourites and light groups (#471)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones

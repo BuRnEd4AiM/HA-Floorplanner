@@ -1,5 +1,6 @@
-/* Palettes (the library on the left): the device types by category and search, the 3D models you uploaded (and the ones that come with the add-on).
- * Which entries are shown is decided by pure functions (tested); initPalettes draws the buttons and loads / uploads / deletes models. */
+/* Palettes (the library on the left): the device types by category and search, the 3D models you uploaded (and the ones that come with the add-on),
+ * and on top the pieces placed last ("Zuletzt benutzt", #471, kept per browser). Which entries are shown is decided by pure functions (tested);
+ * initPalettes draws the buttons and loads / uploads / deletes models. */
 import { DEVICE_TYPES, CATEGORIES, catOf, thumbnail, forgetGlb } from './models.js';
 import { SCANDI, SCANDI_TYPES } from './scandi.js';
 
@@ -30,10 +31,56 @@ export function filterModels(models, query) {
   return models.filter((m) => !m.builtin || !q || m.name.toLowerCase().replace(/-/g, '').includes(q));
 }
 
+export const RECENT_MAX = 6;
+const RECENT_KEY = 'fp3d.recentTypes';
+/** the pieces placed last, newest first: key put in front, each once, at most RECENT_MAX */
+export function recentList(list, key, max = RECENT_MAX) {
+  const now = Array.isArray(list) ? list.filter((k) => typeof k === 'string' && k) : [];
+  return (key ? [key, ...now.filter((k) => k !== key)] : now).filter((k, i, a) => a.indexOf(k) === i).slice(0, max);
+}
+/** the row "last used" shows: only types that exist and are not hidden (a model deleted meanwhile, a type an update dropped: gone), and
+ *  only in "All" without a search (there the whole list is about what was asked for) */
+export function recentShown(list, { cat, query, types, models }) {
+  if (cat !== 'all' || (query || '').trim()) return [];
+  return recentList(list).filter((k) => (k.startsWith('glb:') ? models.some((m) => `glb:${m.name}` === k) : types[k] && !types[k].hidden));
+}
+
 /** ctx: $, t, getType(), setType(key), alert(text), onModelsChanged?() */
 export function initPalettes(ctx) {
   const { $, t } = ctx;
   let cat = 'all', query = '', models = [];
+  let recent = [];
+  try { recent = recentList(JSON.parse(localStorage.getItem(RECENT_KEY) || '[]')); } catch { recent = []; }
+  /** a piece was placed: it goes in front of "last used" */
+  function used(key) {
+    const next = recentList(recent, key);
+    if (next.join() === recent.join()) return;
+    recent = next;
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(recent)); } catch { /* no storage: for this session */ }
+    build();
+  }
+  /** the row "last used" over the grid */
+  function renderRecent() {
+    const box = $('#paletteRecent');
+    if (!box) return;
+    const keys = recentShown(recent, { cat, query, types: DEVICE_TYPES, models });
+    box.hidden = !keys.length;
+    box.replaceChildren();
+    if (!keys.length) return;
+    box.append(Object.assign(document.createElement('small'), { className: 'palHead', textContent: t('pal.recent') }));
+    const row = document.createElement('div'); row.className = 'palette thumbs recentRow';
+    keys.forEach((key) => {
+      const glb = key.startsWith('glb:'), name = glb ? key.slice(4) : t(`dev.${key}`);
+      const b = document.createElement('button'); b.className = 'dev'; b.type = 'button'; b.dataset.recent = key;
+      const url = glb ? null : thumbnail(key);
+      if (url) { const im = document.createElement('img'); im.src = url; im.alt = ''; b.append(im); }
+      const sp = document.createElement('span'); sp.textContent = name; sp.title = name; b.append(sp);
+      b.classList.toggle('active', key === ctx.getType());
+      b.addEventListener('click', () => { ctx.setType(key); build(); });
+      row.append(b);
+    });
+    box.append(row);
+  }
   async function loadModels() {
     try { models = await (await fetch('api/models')).json(); } catch { models = []; }
   }
@@ -56,6 +103,7 @@ export function initPalettes(ctx) {
       b.addEventListener('click', () => { ctx.setType(key); build(); renderModels(); });
       grid.append(b);
     });
+    renderRecent();
     renderModels();
   }
   function renderModels() {
@@ -104,5 +152,5 @@ export function initPalettes(ctx) {
       await loadModels(); build();
     } catch (err) { ctx.alert(`${t('panel.uploadFailed')}: ${err.message}`); }
   });
-  return { build, loadModels, setCat: (k) => { cat = k; }, models: () => models };
+  return { build, loadModels, used, setCat: (k) => { cat = k; }, models: () => models };
 }
