@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.7.0] - 2026-10-21
+### Added
+- **Full screen kept on for a user, only a code ends it** (#487, the owner's wish: "dass der Benutzer den Vollbildmodus sozusagen dauerhaft anhat und ihn selbst nicht deaktivieren kann … nur mit einem Code"). Users dialog → the user's ⚙ → *🔒 Gesperrt* → **Vollbild verlassen**; below the users the **code for the full screen** (4 to 8 digits, one for every screen, kept hashed by the add-on in `fullscreen.json`, `api/fullscreen`). That screen shows a sheet *Tippen für Vollbild* until it is in full screen; in full screen the button at the right reads 🔒 *Vollbild beenden* and opens a keypad: a wrong code is refused (5 wrong: everybody waits 5 minutes), the right one ends it until ⛶ is tapped again, the page is reloaded or nobody touches the screen for 10 minutes. Leaving another way (Esc, a swipe, the back key) brings the sheet back at once; Chrome also holds Esc. A browser that refuses full screen is never locked out. Works best together with screen pinning (Android), Guided Access (iPad) or a kiosk browser, since no web page can stop the home button. The demo shows it with `?vollbild=1` (code 1234).
+
+### Changed
+- In full screen the button at the right of the bar says **Vollbild beenden**.
+
 ## [4.6.0] - 2026-10-21
 ### Added
 - **The pages of the tab bar arranged like a Home Assistant dashboard** (#484, the owner's wish: "dass ich als Admin die einzelnen Dashboards bearbeiten kann wie im HA-Dashboard"; his choice after the example pictures in `docs/ideen-4.6/`: all of it, the same for everybody). Editors get **✎ Bearbeiten** in the bar on every page (☀ Heute, ⚡ Energie, 🌡 Klima, 📷 Kameras, ▶ Abläufe, 👨‍👩‍👧 Familie): a strip at the top, every card with **⠿** (drag it to another place) and **👁** (hide it), **↺ Wie am Anfang**, **✓ Fertig**. The cards close up like a masonry wall.

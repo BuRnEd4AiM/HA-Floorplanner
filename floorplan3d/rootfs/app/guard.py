@@ -72,6 +72,15 @@ def hash_code(code: str, salt: str) -> str:
     return hashlib.pbkdf2_hmac("sha256", code.encode(), bytes.fromhex(salt), 100_000).hex()
 
 
+def make_code(v):
+    """a code typed (4 to 8 digits) as it is stored: {"salt", "hash"}; None for anything else (also used for the code that ends a kept
+    full screen, #487)"""
+    if not isinstance(v, str) or not CODE.match(v.strip()):
+        return None
+    salt = secrets.token_hex(16)
+    return {"salt": salt, "hash": hash_code(v.strip(), salt)}
+
+
 def clean_cfg(data, old=None) -> dict:
     """The settings of the alarm, checked. A new code (4 to 8 digits) is stored salted and hashed; without one the old code stays (""
     or null removes it, then it cannot be armed). Never raises."""
@@ -89,10 +98,9 @@ def clean_cfg(data, old=None) -> dict:
         out["delay"] = int(max(0, min(MAX_DELAY, data["delay"])))
     code = old.get("code") if isinstance(old.get("code"), dict) else None
     if "code" in data:
-        v = data["code"]
-        if isinstance(v, str) and CODE.match(v.strip()):
-            salt = secrets.token_hex(16)
-            code = {"salt": salt, "hash": hash_code(v.strip(), salt)}
+        v, new = data["code"], make_code(data["code"])
+        if new:
+            code = new
         elif v in ("", None) and data.get("removeCode") is True:
             code = None
     out["code"] = code if isinstance(code, dict) and isinstance(code.get("salt"), str) and isinstance(code.get("hash"), str) else None

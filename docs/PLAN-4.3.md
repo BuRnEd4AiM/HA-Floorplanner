@@ -2,7 +2,7 @@
 
 Dieser Plan ist die **Übergabe**: Falls die Arbeit abbricht, kann eine andere Sitzung hier weitermachen. Erst diesen Plan lesen, dann `docs/UEBERGABE.md` und `.claude/CLAUDE.md`.
 
-- **Stand (2026-10-21 spät abends):** 4.3.0 (#480) und 4.4.0 (#482, ☀ Heute und ⚡ Energie) sind gemergt, **Paket 2 ist gebaut (4.5.0, #483: 🌡 Klima, ▶ Abläufe, 👨‍👩‍👧 Familie mit Pinnwand)**. **Die Seiten selbst bearbeiten ist gebaut (#484, 4.6.0, Bilder `docs/ideen-4.6/`).** Als Nächstes Paket 3 (4.7.0, siehe „Paket 2 und 3: so weitermachen“ unten; vorher kurz fragen). Eine neue Seite braucht seit 4.6.0 zusätzlich feste Kartenschlüssel: sie gibt ihre Karten als `[{ key, el, width }]` an `ctx.board.fill(page, box, items, { min })` (Vorbild `pageclimate.js`), statt sie selbst in die Seite zu hängen.
+- **Stand (2026-10-21 spät abends):** 4.3.0 (#480) und 4.4.0 (#482, ☀ Heute und ⚡ Energie) sind gemergt, **Paket 2 ist gebaut (4.5.0, #483: 🌡 Klima, ▶ Abläufe, 👨‍👩‍👧 Familie mit Pinnwand)**. **Die Seiten selbst bearbeiten ist gebaut (#484, 4.6.0, Bilder `docs/ideen-4.6/`).** Dazwischen kam 4.7.0 (Vollbild fest mit Code, #487). Als Nächstes Paket 3 (4.8.0, siehe „Paket 2 und 3: so weitermachen“ unten; vorher kurz fragen). Eine neue Seite braucht seit 4.6.0 zusätzlich feste Kartenschlüssel: sie gibt ihre Karten als `[{ key, el, width }]` an `ctx.board.fill(page, box, items, { min })` (Vorbild `pageclimate.js`), statt sie selbst in die Seite zu hängen.
 - **Davor:** Ideen gesammelt, Beispielbilder gemacht (`docs/ideen-4.3/`). Der Besitzer hat „Schritt 1 bauen“ gewählt: **Schritt 1 ist gebaut (4.3.0, #479)**, siehe `docs/UEBERGABE.md`. Dazu seine zwei Hinweise: „es soll ja aber auch noch administrativ verwaltet werden“ (Reiter pro Benutzer nur durch Admins, die Leiste nur in „Live“) und „baue es direkt auch für den hacs store“ (die Karte bekam `tabs` und `kiosk`).
 - **Branch der Ideen-Runde:** `claude/nice-shannon-mee5c5`
 - **Beispielbilder neu machen:** `python3 docs/ideen-4.3/make_pictures.py /tmp/bilder [namen]` (Demo vorher bauen, Playwright 1.56, siehe `docs/UEBERGABE.md`), danach als JPG (Qualität 80) nach `docs/ideen-4.3/`. Die Seiten malt `docs/ideen-4.3/mockup.js` nur für das Foto (Werte teils aus der Demo, teils ausgedacht).
@@ -37,7 +37,7 @@ Dieser Plan ist die **Übergabe**: Falls die Arbeit abbricht, kann eine andere S
 1. ✅ **4.3.0 Reiter-Leiste und Rechte** (gebaut, #479): die Leiste unten (Handy: 4 + „Mehr“), pro Benutzer Haken je Reiter und Start-Reiter (neben `userLocks` in `users.json`), Server prüft die Rechte wie bei `user_locks`. Was es schon gibt, wird eine Seite: 📷 Kameras (heute `#camMenu`), 🛡 Alarm und Verlauf in Kameras, 📋 Geräte (Batterien, offline) in Heute. Dazu die **Anleitung „Tablet einrichten“** (siehe unten).
 2. ✅ **4.4.0 Energie** (gebaut mit Heute, #481; der Besitzer wollte alle übrigen Reiter, in drei Paketen: 1. Heute + Energie, 2. Klima + Abläufe + Familie, 3. Musik & TV + Haushalt): Verlauf aus der Statistik von Home Assistant, pro Haus (`layout.energy` jedes Hauses) und zusammen.
 3. ✅ **Heute** (Startseite fürs Tablet): in 4.4.0 mit Energie gebaut.
-4. ✅ **4.5.0: Paket 2** (Klima, Abläufe, Familie mit Pinnwand, #483), ✅ **4.6.0: Seiten selbst bearbeiten** (#484, der Wunsch kam während Paket 2), **4.7.0: Paket 3** (Musik & TV, Haushalt). Der Besitzer hat am 2026-10-21 „ja“ gesagt: Paket 2 bauen und selbst mergen, wenn alles grün ist. Rezept und Notizen: unten „Paket 2 und 3: so weitermachen“.
+4. ✅ **4.5.0: Paket 2** (Klima, Abläufe, Familie mit Pinnwand, #483), ✅ **4.6.0: Seiten selbst bearbeiten** (#484, der Wunsch kam während Paket 2), ✅ **4.7.0: Vollbild fest für einen Benutzer, nur mit Code** (#487, Wunsch dazwischen), **4.8.0: Paket 3** (Musik & TV, Haushalt). Der Besitzer hat am 2026-10-21 „ja“ gesagt: Paket 2 bauen und selbst mergen, wenn alles grün ist. Rezept und Notizen: unten „Paket 2 und 3: so weitermachen“.
 
 ## Technische Notizen
 
@@ -52,7 +52,7 @@ Dieser Plan ist die **Übergabe**: Falls die Arbeit abbricht, kann eine andere S
 
 ## Paket 2 und 3: so weitermachen (für den nächsten Chat)
 
-Der Besitzer hat die Reiter schon gewählt und die Bilder gesehen; nicht noch einmal fragen, was gebaut wird. Kleine Fragen (z. B. wer die Pinnwand leeren darf) mit einer vernünftigen Antwort selbst entscheiden und im Pull Request nennen. Paket 2 = 4.5.0 (🌡 Klima, ▶ Abläufe, 👨‍👩‍👧 Familie, Issue #483, im Pull Request „Fixes #483“), Paket 3 = 4.6.0 (🎵 Musik & TV, 🧺 Haushalt), je ein Issue und ein Pull Request („Fixes #n“), Testprotokoll-Abschnitt 80 bzw. 81.
+Der Besitzer hat die Reiter schon gewählt und die Bilder gesehen; nicht noch einmal fragen, was gebaut wird. Kleine Fragen (z. B. wer die Pinnwand leeren darf) mit einer vernünftigen Antwort selbst entscheiden und im Pull Request nennen. Paket 2 = 4.5.0 (🌡 Klima, ▶ Abläufe, 👨‍👩‍👧 Familie, Issue #483, im Pull Request „Fixes #483“), Paket 3 = 4.8.0 (🎵 Musik & TV, 🧺 Haushalt; 4.6.0 und 4.7.0 waren Wünsche dazwischen), je ein Issue und ein Pull Request („Fixes #n“), Testprotokoll-Abschnitt 80 bzw. 83.
 
 ### Rezept: ein neuer Reiter (so entstanden ☀ Heute und ⚡ Energie in 4.4.0)
 

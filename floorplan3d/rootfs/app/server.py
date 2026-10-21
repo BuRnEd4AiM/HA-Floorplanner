@@ -133,8 +133,10 @@ PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWall
 # the tabs of the tab bar (the same keys as TABS in static/tabs.js, #479); the house is always there, the others can be hidden per user
 TABS = boards.TABS            # own pages of an admin (#484) are "p_…" (boards.CUSTOM_ID)
 
-# what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too
-LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
+# what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too;
+# "fullscreen" keeps the screen in full screen, only the code ends it (#487, api/fullscreen)
+LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline",
+         "fullscreen")
 
 
 def clean_locks(val) -> dict:
@@ -2387,6 +2389,69 @@ async def disarm_guard(request):
     return await guard_with_code(request, False)
 
 
+# ---------- a full screen kept on for a user (lock "fullscreen", #487): only the code ends it; one code for every screen, set by an
+# editor, stored salted and hashed like the holiday alarm's (never in the settings every tablet reads) ----------
+KEY_FULL = web.AppKey("fullscreen", dict)       # {"code": {"salt", "hash"} | None, "tries": gd.Tries}
+
+
+def full_path(request) -> Path:
+    return data_dir(request) / "fullscreen.json"
+
+
+def full_store(request) -> dict:
+    store = request.app[KEY_FULL]
+    if "code" not in store:
+        stored = read_json(full_path(request), {})
+        c = stored.get("code") if isinstance(stored, dict) else None
+        store["code"] = c if isinstance(c, dict) and isinstance(c.get("salt"), str) and isinstance(c.get("hash"), str) else None
+        store["tries"] = gd.Tries()
+    return store
+
+
+async def get_fullscreen(request):
+    """whether the code is set (never the code itself)"""
+    return web.json_response({"hasCode": full_store(request)["code"] is not None})
+
+
+async def put_fullscreen(request):
+    """editors set the code (4 to 8 digits) or take it away ("")"""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    code = body.get("code") if isinstance(body, dict) else None
+    new = gd.make_code(code)
+    if not new and code != "":
+        return web.json_response({"error": "the code needs 4 to 8 digits"}, status=400)
+    store = full_store(request)
+    store["code"] = new
+    write_json_atomic(full_path(request), {"code": new})
+    return web.json_response({"hasCode": new is not None})
+
+
+async def unlock_fullscreen(request):
+    """the code typed on a kept full screen: right, the screen may leave it; no code set: nobody can; after a few wrong codes everybody
+    waits (like the holiday alarm)"""
+    store = full_store(request)
+    try:
+        body = await request.json()
+    except ValueError:
+        body = {}
+    if store["code"] is None:
+        return web.json_response({"error": "no code"}, status=409)
+    now = time.time()
+    wait = store["tries"].wait(now)
+    if wait:
+        return web.json_response({"error": "wait", "wait": wait}, status=429)
+    if not gd.check_code(store, body.get("code") if isinstance(body, dict) else None):
+        n = store["tries"].wrong(now)
+        return web.json_response({"error": "code", "left": max(0, gd.TRIES - n)}, status=403)
+    store["tries"].right()
+    return web.json_response({"ok": True})
+
+
 async def guard_watcher(app):
     """Background task: while the holiday alarm is armed, watch its sensors (also with no browser open). Only with Home Assistant."""
     app[KEY_GUARD] = {}
@@ -2557,6 +2622,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app[KEY_LIVE] = LiveHub()
     app[KEY_TIMELINE] = {}
     app[KEY_PAGES] = {}
+    app[KEY_FULL] = {}
     app.on_startup.append(seed_users_file)
     app.on_response_prepare.append(no_stale_files)
     app.on_cleanup.append(stop_live)
@@ -2624,6 +2690,9 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.put("/api/guard", put_guard),
         web.post("/api/guard/arm", arm_guard),
         web.post("/api/guard/disarm", disarm_guard),
+        web.get("/api/fullscreen", get_fullscreen),
+        web.put("/api/fullscreen", put_fullscreen),
+        web.post("/api/fullscreen/unlock", unlock_fullscreen),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
         web.get("/api/camera/{entity}/hls", get_camera_hls),
