@@ -4,6 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.4.0] - 2026-10-21
+### Added
+- **☀ Heute, the start page of the tab bar** (#481, the owner's wish: "kannst du die anderen reiter auch machen", package 1 of 3): the time and date in big, the weather now and the next five days (Home Assistant's forecast), the events of today and tomorrow from the calendars, the next waste collection from a calendar of its own, who is at home (and where, by zone), **Im Haus** with what needs a look (doors and windows open, lights on, the alarm armed, batteries low, devices offline; a tap leads there in the house) and the power now (a tap opens ⚡ Energie). ⚙ → **🗂 Reiter unten** chooses the calendars (none ticked: all) and the waste calendar; the switch of the bar moved there too.
+- **⚡ Energie, the history** (#481): today by hours, a week or a month by days, a year by months, from Home Assistant's long-term statistics: used, from the sun, from the grid, fed in, how much the house made itself (%), what it cost, bars of what came from sun and battery and what from the grid, the devices that used most (the devices of the energy dashboard), gas and water; ‹ › to go back in time, each tile compared with the period before (so far: "gestern um die Zeit"). With several houses a chip per house and **Alle zusammen** (every meter counted once).
+- **Meters and prices per house** (#481): Bearbeiten → Strom-Editor → ⚡ Rechnung → **Zähler für den Verlauf**: the meters (kWh, gas and water in m³) and prices of this house; empty: those of Home Assistant's energy dashboard (there is only one, so a second house needs its own here). **⤵ Aus dem Energie-Dashboard übernehmen** copies them in.
+- The add-on asks Home Assistant for the energy dashboard's meters (`api/energy/meters`), their statistics (`api/energy/stats`), the weather forecast (`api/forecast`, kept 15 minutes) and the calendars and their events (`api/calendars`, `api/agenda`, kept 5 minutes); a user locked out of the energy gets no energy page and the server refuses its data.
+
+### Changed
+- The tab bar scrolls sideways when it has more tabs than fit (phones).
+
 ## [4.3.0] - 2026-10-21
 ### Added
 - **Tab bar at the bottom: the add-on as the only dashboard, step 1** (#479, the owner's wish: "nur noch dieses Programm … keine anderen Dashboards mehr"): in live mode a bar at the very bottom with **🏠 Haus** (the 3D picture as always) and **📷 Kameras**, a page with every camera of the plan as a big tile (still image, renewed while the page is open), the ones that see movement first, the motion sensors below; a tap shows the camera big and live, with *Alle Kameras*, *Im Plan zeigen* and Home Assistant's own dialog. While a page is open the 3D picture rests (no drawing, like with the screen off). The camera button at the top opens this page in live mode (the drop-down stays in the editor). No bar while editing, in the dashboard card (unless asked for) or with nothing but the house. More tabs follow step by step (today, energy for several houses, climate, music, household, routines, family: example pictures in `docs/ideen-4.3/`, plan in `docs/PLAN-4.3.md`).

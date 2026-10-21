@@ -27,6 +27,7 @@ test('the shown tabs: the house always, a page only with something on it, not hi
   assert.deepEqual(T.shownTabs({ has: { cameras: true }, hide: ['cameras'] }), ['house']);
   assert.deepEqual(T.shownTabs({ has: { cameras: true }, locks: ['cameras'] }), ['house']);   // may not see the cameras: no camera page either
   assert.deepEqual(T.shownTabs({ has: { cameras: true }, locks: ['control'] }), ['house', 'cameras']);
+  assert.deepEqual(T.shownTabs({ has: { today: true, energy: true }, locks: ['energy'] }), ['house', 'today']);   // may not see the energy (#479)
 });
 test('the bar: live mode only, never in the dashboard card, not when switched off or with the house alone', () => {
   const two = ['house', 'cameras'];

@@ -67,7 +67,7 @@
     <div id="stage">
       <canvas id="view"></canvas>
       <div id="wxFall" hidden><i></i></div>
-      <div id="tabPages" hidden><section class="tabPage" data-page="cameras" hidden></section></div>
+      <div id="tabPages" hidden><section class="tabPage" data-page="today" hidden></section><section class="tabPage" data-page="energy" hidden></section><section class="tabPage" data-page="cameras" hidden></section></div>
       <div id="welcome" hidden>
         <button id="welClose" type="button" class="dlgClose" aria-label="Close" data-i18n-title="close">✕</button>
         <h2 data-i18n="wel.title"></h2>
@@ -556,11 +556,24 @@
       </div>
     </details>
 
+    <details class="setGroup" data-group="tabs">
+      <summary><span class="sgIcon">🗂️</span><span class="sgText"><b data-i18n="sg.tabs"></b><small data-i18n="sg.tabs.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="sg.tabs.help"></p>
+        <div class="row check"><input id="setTabBar" type="checkbox"><label for="setTabBar" data-i18n="set.tabBar" data-i18n-title="set.tabBarTip"></label></div>
+        <h4 data-i18n="tp.today.title"></h4>
+        <p class="sub" data-i18n="tp.today.calsHelp"></p>
+        <div id="setAgendaCals" class="calList"></div>
+        <div class="row"><label for="setWasteCal" data-i18n="tp.today.waste"></label><select id="setWasteCal"></select></div>
+        <h4 data-i18n="tp.energy.title"></h4>
+        <p class="sub" data-i18n="tp.energy.help"></p>
+      </div>
+    </details>
+
     <details class="setGroup" data-group="tablet">
       <summary><span class="sgIcon">📱</span><span class="sgText"><b data-i18n="sg.tablet"></b><small data-i18n="sg.tablet.sub"></small></span></summary>
       <div class="sgBody">
         <p class="hint" data-i18n="sg.tablet.help"></p>
-        <div class="row check"><input id="setTabBar" type="checkbox"><label for="setTabBar" data-i18n="set.tabBar" data-i18n-title="set.tabBarTip"></label></div>
         <div class="tabletGuide">
           <h4 data-i18n="tg.title"></h4>
           <ol>

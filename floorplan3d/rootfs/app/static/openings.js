@@ -136,5 +136,7 @@ export function initOpenings(ctx) {
     });
     return moved;
   }
-  return { isOpen, openText, apply, renderList, animate };
+  /** what is open now (the page ☀ Heute, #481) */
+  const items = () => openItems(ctx.layout().floors, { isOpen, t, pointInPoly: ctx.pointInPoly, distToPoly: ctx.distToPoly });
+  return { isOpen, openText, apply, renderList, animate, items };
 }

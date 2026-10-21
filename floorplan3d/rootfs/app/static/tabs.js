@@ -1,17 +1,21 @@
 /* Tabs (#479): a bar at the bottom of the live view so the add-on can be the only dashboard of a house (the owner's wish, docs/PLAN-4.3.md).
- * 🏠 is the house (the 3D picture as always), the other tabs are pages over it; more come step by step (4.3: the cameras). Which tabs a user
+ * 🏠 is the house (the 3D picture as always), the other tabs are pages over it; more come step by step (4.3: the cameras, 4.4: today and
+ * the energy). Which tabs a user
  * sees and which one a screen starts with is set per user in the users dialog (settings.userTabs, mirrored to users.json). Edit mode, the
  * dashboard card and a screen with only one tab have no bar. Pure rules (unit test: tests/tabs.test.mjs); tabsui.js draws the bar. */
 
 /** the tabs in the order of the bar: key, icon (the name is the text `tab.<key>`); server.py TABS lists the same keys */
 export const TABS = [
   ['house', '🏠'],
+  ['today', '☀️'],
+  ['energy', '⚡'],
   ['cameras', '📷'],
 ];
 export const TAB_KEYS = TABS.map(([k]) => k);
 export const HOME = 'house';
-/** a lock of the users dialog (userlocks.js) that takes a tab away as well: no camera page for a user who may not see the cameras */
-export const TAB_LOCK = { cameras: 'cameras' };
+/** a lock of the users dialog (userlocks.js) that takes a tab away as well: no camera page for a user who may not see the cameras, no
+ *  energy page for one who may not see the energy */
+export const TAB_LOCK = { cameras: 'cameras', energy: 'energy' };
 
 /** one user's entry { hide: [tab], start: tab } with only known tabs; the house can never be hidden; null when it says nothing */
 export function cleanTabEntry(v) {

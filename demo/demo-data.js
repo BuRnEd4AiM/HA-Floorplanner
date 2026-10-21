@@ -378,6 +378,65 @@ function guardView() {
 }
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 const file = (text, name, type) => new Response(text, { status: 200, headers: { 'Content-Type': type, 'Content-Disposition': `attachment; filename="${name}"` } });
+/* ---- the pages of the tab bar (#479): a made-up but plausible house for ⚡ Energie and ☀ Heute ---- */
+const DEMO_METERS = {
+  meters: { from: ['sensor.netz_bezug_kwh'], to: ['sensor.netz_einspeisung_kwh'], solar: ['sensor.pv_ertrag_kwh'], batIn: ['sensor.batterie_geladen_kwh'],
+    batOut: ['sensor.batterie_entladen_kwh'], gas: ['sensor.gaszaehler'], water: ['sensor.wasserzaehler', 'sensor.wasser_garten'] },
+  devices: [{ id: 'sensor.waermepumpe_kwh', name: 'Wärmepumpe' }, { id: 'sensor.waschmaschine_kwh', name: 'Waschmaschine' },
+    { id: 'sensor.fernseher_kwh', name: 'Fernseher' }, { id: 'sensor.kuehlschrank_kwh', name: 'Kühlschrank' }, { id: 'sensor.buero_pc_kwh', name: 'Büro (PC)' }],
+  price: { buy: 0.32, sell: 0.08 },
+};
+const wobble = (a, b) => { const x = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return x - Math.floor(x); };
+/** one day of the made-up house, hour by hour: what the meters count (kWh, gas and water in m³) */
+function demoDay(day) {
+  const doy = Math.floor((day - new Date(day.getFullYear(), 0, 1)) / 86400000), dn = Math.floor(+day / 86400000);
+  const season = 0.55 + 0.45 * Math.cos(((doy - 172) / 365) * 2 * Math.PI), sunny = 0.45 + 0.55 * wobble(dn, 99);
+  let soc = 3;                                                     // kWh in a 10 kWh battery at midnight
+  return Array.from({ length: 24 }, (_, h) => {
+    const solar = h >= 7 && h <= 18 ? Math.max(0, Math.sin((Math.PI * (h - 7)) / 11)) * 2.6 * season * sunny : 0;
+    const wp = (0.05 + 0.35 * (1 - season)) * (h < 6 || h > 20 ? 0.6 : 1), wm = h === 10 && dn % 3 === 0 ? 0.9 : 0, tv = h >= 19 && h <= 22 ? 0.12 : 0;
+    const fridge = 0.04, pc = h >= 9 && h <= 17 && (day.getDay() % 6) ? 0.09 : 0;
+    const use = 0.18 + wp + wm + tv + fridge + pc + (h >= 6 && h <= 8 ? 0.35 : 0) + (h >= 17 && h <= 21 ? 0.45 : 0) + 0.1 * wobble(dn, h);
+    let surplus = solar - use, batIn = 0, batOut = 0;
+    if (surplus > 0) { batIn = Math.min(surplus, 1.2, 10 - soc); soc += batIn; surplus -= batIn; } else { batOut = Math.min(-surplus, 0.8, soc - 1); batOut = Math.max(0, batOut); soc -= batOut; surplus += batOut; }
+    return { from: Math.max(0, -surplus), to: Math.max(0, surplus), solar, batIn, batOut, gas: (0.03 + 0.2 * (1 - season)) * (h >= 5 && h <= 22 ? 1 : 0.3),
+      water: (h === 7 || h === 19 ? 0.06 : h >= 6 && h <= 22 ? 0.008 : 0.001) * (0.7 + 0.6 * wobble(dn, h + 50)), garden: h === 20 && season > 0.6 ? 0.08 : 0,
+      wp, wm, tv, fridge, pc };
+  });
+}
+const DEMO_KEY = { 'sensor.netz_bezug_kwh': 'from', 'sensor.netz_einspeisung_kwh': 'to', 'sensor.pv_ertrag_kwh': 'solar', 'sensor.batterie_geladen_kwh': 'batIn',
+  'sensor.batterie_entladen_kwh': 'batOut', 'sensor.gaszaehler': 'gas', 'sensor.wasserzaehler': 'water', 'sensor.wasser_garten': 'garden',
+  'sensor.waermepumpe_kwh': 'wp', 'sensor.waschmaschine_kwh': 'wm', 'sensor.fernseher_kwh': 'tv', 'sensor.kuehlschrank_kwh': 'fridge', 'sensor.buero_pc_kwh': 'pc' };
+/** Home Assistant's long-term statistics of the made-up house: { stats: { id: [[start ms, change]] }, units } up to now */
+function demoStats(q) {
+  const start = new Date(q.start), end = new Date(q.end), now = new Date(), out = {}, ids = (q.ids || []).filter((i) => DEMO_KEY[i]);
+  ids.forEach((i) => { out[i] = []; });
+  const days = new Map();
+  const dayOf = (d) => { const k = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; if (!days.has(k)) days.set(k, demoDay(new Date(d.getFullYear(), d.getMonth(), d.getDate()))); return days.get(k); };
+  const sum = (a, b, key) => { let v = 0; for (let t = new Date(a); t < b && t < now; t = new Date(t.getFullYear(), t.getMonth(), t.getDate(), t.getHours() + 1)) v += dayOf(t)[t.getHours()][key]; return v; };
+  const step = (d) => (q.period === 'hour' ? new Date(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours() + 1) : q.period === 'month' ? new Date(d.getFullYear(), d.getMonth() + 1, 1)
+    : q.period === 'week' ? new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7) : new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1));
+  for (let a = new Date(start); a < end && a < now; a = step(a)) {
+    const b = step(a);
+    ids.forEach((i) => out[i].push([+a, Math.round(sum(a, b, DEMO_KEY[i]) * 1000) / 1000]));
+  }
+  return { stats: out, units: { 'sensor.gaszaehler': 'm³', 'sensor.wasserzaehler': 'm³', 'sensor.wasser_garten': 'm³' } };
+}
+/** five days of weather from today */
+function demoForecast() {
+  const d0 = new Date(); d0.setHours(12, 0, 0, 0);
+  return [['partlycloudy', 15, 7, 10], ['rainy', 11, 6, 80], ['cloudy', 12, 5, 30], ['sunny', 16, 4, 0], ['partlycloudy', 14, 6, 20]]
+    .map(([c, hi, lo, pp], i) => ({ t: new Date(+d0 + i * 86400000).toISOString(), c, hi, lo, p: pp / 20, pp }));
+}
+/** the family calendar and the waste collection around today */
+function demoAgenda() {
+  const day = (n, h, m = 0) => { const d = new Date(); d.setDate(d.getDate() + n); d.setHours(h, m, 0, 0); return d; };
+  const date = (n) => { const d = day(n, 12); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  const at = (n, h, m, title, len = 1) => ({ s: day(n, h, m).toISOString(), e: day(n, h + len, m).toISOString(), allDay: false, title, cal: 'calendar.familie' });
+  const all = (n, title, cal = 'calendar.familie', len = 1) => ({ s: date(n), e: date(n + len), allDay: true, title, cal });
+  return [at(0, 15, 0, 'Zahnarzt Anna'), at(0, 17, 30, 'Fußball-Training Max', 2), all(0, 'Herbstferien', 'calendar.familie', 5), at(1, 19, 0, 'Elternabend'),
+    at(1, 8, 15, 'Handwerker (Heizung)'), all(1, 'Gelber Sack', 'calendar.muellabfuhr'), all(3, 'Restmüll', 'calendar.muellabfuhr'), all(6, 'Papier', 'calendar.muellabfuhr')];
+}
 const ONLY_ADDON = 'In der Demo nicht verfügbar (nur im Add-on).';
 const examples = { flat: flatExample, house: houseExample, showcase: showcaseExample };
 const demoVersion = () => (typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __DEMO_VERSION__);
@@ -443,6 +502,12 @@ export function installDemoBackend() {
         { type: 'water', stat_energy_from: 'sensor.wasser_garten' },
       ], device_consumption: [] }, siblings: {} });
     }
+    // the pages of the tab bar (#479): the meters of the energy dashboard, their history, the forecast, calendars (all made up, see below)
+    if (path === 'api/energy/meters') return json(DEMO_METERS);
+    if (path === 'api/energy/stats' && method === 'POST') return json(demoStats(JSON.parse(init.body || '{}')));
+    if (path === 'api/forecast') return json({ forecast: demoForecast() });
+    if (path === 'api/calendars') return json([{ entity_id: 'calendar.familie', name: 'Familie' }, { entity_id: 'calendar.muellabfuhr', name: 'Müllabfuhr' }]);
+    if (path === 'api/agenda') return json({ events: demoAgenda(), waste: 'calendar.muellabfuhr' });
     if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all' });
     if (path === 'api/users') return json([{ username: 'admin', name: 'Admin', admin: true }, { username: 'tablet_wohnzimmer', name: 'Tablet Wohnzimmer', admin: false }, { username: 'familie', name: 'Familie', admin: false }]);
     if (path === 'api/users-file') return json({ file: 'users.json', exists: true, fileUsers: 2, users: 2, inSync: true });

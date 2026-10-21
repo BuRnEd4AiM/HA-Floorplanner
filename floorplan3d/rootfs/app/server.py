@@ -27,6 +27,7 @@ import guard as gd
 import controls
 import importer
 import manifest as mf
+import pages
 import renames as rn
 import timeline as tl
 
@@ -100,6 +101,8 @@ DEFAULT_SETTINGS = {
     "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
     "userTabs": {},            # Home Assistant user name -> {"hide": [tab], "start": tab}: the tab bar of that user (TABS, static/tabs.js, #479)
     "tabBar": True,            # the tab bar at the bottom of the live view (#479): the house and pages beside it
+    "agendaCalendars": [],     # the calendars of the page ☀ Heute (#481); empty = all calendars of Home Assistant
+    "wasteCalendar": "",       # the calendar of the waste collection (#481): its next dates stand apart on the page ☀ Heute
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "bgTop": "#0a3ba8",
@@ -121,7 +124,7 @@ PRESET_FIELDS = {"seeThrough": (True, False), "cutaway": (True, False), "lowWall
                  "houseFloors": ("normal", "apart", "stacked"), "roomTiles": (True, False), "roomLabels": (True, False)}
 
 # the tabs of the tab bar (the same keys as TABS in static/tabs.js, #479); the house is always there, the others can be hidden per user
-TABS = ("house", "cameras")
+TABS = ("house", "today", "energy", "cameras")
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too
 LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline")
@@ -542,6 +545,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = clean_light_groups(val)
         elif key == "userTabs":
             out[key] = clean_user_tabs(val)
+        elif key == "agendaCalendars":
+            out[key] = pages.clean_calendars(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
@@ -591,6 +596,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = DEFAULT_SETTINGS[key]
     if out["weatherEntity"] and not re.match(r"^weather\.[a-z0-9_]+$", out["weatherEntity"]):
         out["weatherEntity"] = ""
+    if out["wasteCalendar"] and not pages.CALENDAR_ID.match(out["wasteCalendar"]):
+        out["wasteCalendar"] = ""
     return out
 
 
@@ -1799,6 +1806,139 @@ async def get_energy_prefs(request):
     return web.json_response({"prefs": prefs, "siblings": energy_siblings(prefs, registry) if prefs else {}})
 
 
+# ---------- the pages of the tab bar (#481, pages.py): ⚡ Energie (meters and statistics) and ☀ Heute (forecast, calendars) ----------
+KEY_PAGES = web.AppKey("pages", dict)          # short-lived answers of Home Assistant (forecasts, calendar days): key -> (time, answer)
+HA_DOWN = (OSError, RuntimeError, ConnectionError, asyncio.TimeoutError, aiohttp.ClientError, LookupError, ValueError)
+
+
+def pages_cached(request, key, ttl):
+    hit = request.app[KEY_PAGES].get(key)
+    return hit[1] if hit and time.time() - hit[0] < ttl else None
+
+
+def pages_keep(request, key, answer):
+    cache = request.app[KEY_PAGES]
+    if len(cache) > 200:                        # a long-running add-on: forget the old ones
+        cache.clear()
+    cache[key] = (time.time(), answer)
+    return answer
+
+
+async def get_energy_meters(request):
+    """The meters of Home Assistant's energy dashboard by kind, its devices and fixed prices (the page ⚡ Energie; anybody who may
+    see the energy)."""
+    if "energy" in user_locks(request):
+        return web.json_response({"error": "the energy is locked for this user"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
+    try:
+        async with _HaSocket() as ws:
+            try:
+                prefs = await rn.ask(ws, 1, {"type": "energy/get_prefs"}, [])
+            except LookupError:
+                prefs = None                                     # the energy dashboard is not set up
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    return web.json_response(pages.energy_meters(prefs))
+
+
+async def post_energy_stats(request):
+    """How much each meter counted per hour / day / week / month of a span (Home Assistant's long-term statistics, kWh and m³)."""
+    if "energy" in user_locks(request):
+        return web.json_response({"error": "the energy is locked for this user"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    q, err = pages.clean_stats_request(body)
+    if err:
+        return web.json_response({"error": err}, status=400)
+    try:
+        async with _HaSocket() as ws:
+            res = await rn.ask(ws, 1, {"type": "recorder/statistics_during_period", "start_time": q["start"], "end_time": q["end"],
+                                       "statistic_ids": q["ids"], "period": q["period"], "types": ["change"],
+                                       "units": {"energy": "kWh", "volume": "m³"}}, [])
+            try:
+                meta = await rn.ask(ws, 2, {"type": "recorder/get_statistics_metadata", "statistic_ids": q["ids"]}, [])
+            except LookupError:
+                meta = []
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    return web.json_response(pages.slim_stats(res, meta))
+
+
+async def get_forecast(request):
+    """The forecast of a weather entity (daily or hourly), kept for 15 minutes."""
+    entity, kind = request.query.get("entity", ""), request.query.get("type", "daily")
+    if not pages.WEATHER_ID.match(entity) or kind not in ("daily", "hourly"):
+        return web.json_response({"error": "a weather entity and daily or hourly"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"forecast": []})
+    key = ("wx", entity, kind)
+    hit = pages_cached(request, key, 900)
+    if hit is not None:
+        return web.json_response(hit)
+    try:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{HA_API}/services/weather/get_forecasts?return_response", headers=ha_headers(),
+                              json={"entity_id": entity, "type": kind}) as r:
+                if r.status != 200:
+                    return web.json_response({"error": f"HA answered {r.status}", "forecast": []}, status=502)
+                data = await r.json()
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}", "forecast": []}, status=502)
+    return web.json_response(pages_keep(request, key, {"forecast": pages.slim_forecast(data, entity)}))
+
+
+async def ha_calendars() -> list:
+    """[{"entity_id", "name"}] of Home Assistant's calendars"""
+    async with aiohttp.ClientSession() as s:
+        async with s.get(f"{HA_API}/calendars", headers=ha_headers()) as r:
+            data = await r.json() if r.status == 200 else []
+    return [{"entity_id": c["entity_id"], "name": (c.get("name") or c["entity_id"])[:80]} for c in data if isinstance(c, dict)
+            and isinstance(c.get("entity_id"), str) and pages.CALENDAR_ID.match(c["entity_id"])][:50]
+
+
+async def get_calendars(request):
+    """Home Assistant's calendars, for choosing those of the page ☀ Heute."""
+    if not SUPERVISOR_TOKEN:
+        return web.json_response([])
+    try:
+        return web.json_response(await ha_calendars())
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+
+
+async def get_agenda(request):
+    """The events of the chosen calendars (all when none is chosen) and of the waste calendar between start and end (?start=&end=,
+    at most 14 days), kept for 5 minutes."""
+    win = pages.agenda_window(request.query.get("start"), request.query.get("end"))
+    if not win:
+        return web.json_response({"error": "start and end: dates with a time zone, at most 14 days apart"}, status=400)
+    st = validate_settings(read_settings(request))
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"events": [], "waste": st["wasteCalendar"]})
+    try:
+        ids = st["agendaCalendars"] or [c["entity_id"] for c in await ha_calendars()]
+        if st["wasteCalendar"] and st["wasteCalendar"] not in ids:
+            ids = ids + [st["wasteCalendar"]]
+        key = ("agenda", win, tuple(ids))
+        hit = pages_cached(request, key, 300)
+        if hit is None:
+            events = []
+            async with aiohttp.ClientSession() as s:
+                for cal in ids[:21]:
+                    async with s.get(f"{HA_API}/calendars/{cal}", headers=ha_headers(), params={"start": win[0], "end": win[1]}) as r:
+                        if r.status == 200:
+                            events += pages.slim_events(await r.json(), cal)
+            hit = pages_keep(request, key, events)
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}", "events": []}, status=502)
+    return web.json_response({"events": hit, "waste": st["wasteCalendar"]})
+
+
 # ---------- a message when something goes off: alarm panel, smoke, gas, CO, water (#414, alarmnotify.py) ----------
 CALLMEBOT_URL = os.environ.get("CALLMEBOT_URL", "https://api.callmebot.com/whatsapp.php")
 CALLMEBOT_TG = os.environ.get("CALLMEBOT_TG", "https://api.callmebot.com")   # Telegram: text.php (users), telegram/group.php (a group, #456)
@@ -2248,6 +2388,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app[KEY_CONFIG] = Path(config_path or os.environ.get("CONFIG_DIR") or ("/config" if Path("/config").is_dir() else app[KEY_DATA] / "addon_config"))
     app[KEY_LIVE] = LiveHub()
     app[KEY_TIMELINE] = {}
+    app[KEY_PAGES] = {}
     app.on_startup.append(seed_users_file)
     app.on_response_prepare.append(no_stale_files)
     app.on_cleanup.append(stop_live)
@@ -2297,6 +2438,11 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/areas", get_areas),
         web.get("/api/batteries", get_batteries),
         web.get("/api/energy/prefs", get_energy_prefs),
+        web.get("/api/energy/meters", get_energy_meters),
+        web.post("/api/energy/stats", post_energy_stats),
+        web.get("/api/forecast", get_forecast),
+        web.get("/api/calendars", get_calendars),
+        web.get("/api/agenda", get_agenda),
         web.get("/api/notify", get_notify),
         web.put("/api/notify", put_notify),
         web.post("/api/notify/test", test_notify),

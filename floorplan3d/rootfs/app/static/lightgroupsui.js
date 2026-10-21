@@ -132,5 +132,5 @@ export function initLightGroups(ctx) {
     ctx.commit();
     [...box.querySelectorAll('.lgEdit')].find((w) => w.dataset.id === g.id)?.querySelector('input')?.select();   // saving may have drawn the boxes anew
   });
-  return { update, render: opened, fill, read };
+  return { update, render: opened, fill, read, count: () => lightsOn(rows(false)) };   // count: lights on in the whole house (the page ☀ Heute, #481)
 }

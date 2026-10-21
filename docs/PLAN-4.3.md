@@ -34,9 +34,9 @@ Dieser Plan ist die **Übergabe**: Falls die Arbeit abbricht, kann eine andere S
 ## Vorgeschlagene Reihenfolge (je ein Pull Request, einzeln testbar)
 
 1. ✅ **4.3.0 Reiter-Leiste und Rechte** (gebaut, #479): die Leiste unten (Handy: 4 + „Mehr“), pro Benutzer Haken je Reiter und Start-Reiter (neben `userLocks` in `users.json`), Server prüft die Rechte wie bei `user_locks`. Was es schon gibt, wird eine Seite: 📷 Kameras (heute `#camMenu`), 🛡 Alarm und Verlauf in Kameras, 📋 Geräte (Batterien, offline) in Heute. Dazu die **Anleitung „Tablet einrichten“** (siehe unten).
-2. **4.4.0 Energie:** Verlauf aus der Statistik von Home Assistant, pro Haus (`layout.energy` jedes Hauses) und zusammen.
-3. **4.5.0 Heute** (Startseite fürs Tablet).
-4. Danach nach Wunsch: Klima, Musik & TV, Haushalt, Abläufe, Familie/Pinnwand.
+2. ✅ **4.4.0 Energie** (gebaut mit Heute, #481; der Besitzer wollte alle übrigen Reiter, in drei Paketen: 1. Heute + Energie, 2. Klima + Abläufe + Familie, 3. Musik & TV + Haushalt): Verlauf aus der Statistik von Home Assistant, pro Haus (`layout.energy` jedes Hauses) und zusammen.
+3. ✅ **Heute** (Startseite fürs Tablet): in 4.4.0 mit Energie gebaut.
+4. **4.5.0: Paket 2** (Klima, Abläufe, Familie mit Pinnwand), **4.6.0: Paket 3** (Musik & TV, Haushalt).
 
 ## Technische Notizen
 

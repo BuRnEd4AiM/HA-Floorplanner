@@ -85,6 +85,10 @@ import { floorLabels, CARD_FIELDS } from './viewprefs.js';
 import { applyLocks, lockedSettings } from './userlocks.js';
 import { initTabsUi } from './tabsui.js';
 import { initCameraPage } from './pagecameras.js';
+import { initEnergyPage } from './pageenergy.js';
+import { initTodayPage } from './pagetoday.js';
+import { meterPart } from './energymetersui.js';
+import { initTodayPrefs } from './todayprefs.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel, fetchAreas, fetchBatteries } from './livechannel.js';
 import { initDeviceList } from './devicelist.js';
@@ -523,7 +527,7 @@ const energyFlow = initEnergyFlow({ $, t, settings: () => settings, states: () =
 const energyUi = initEnergyUi({
   $, t, layout: () => layout, states: () => states, entities: () => entities, areaOf: () => areaOf, pointInPoly: (...a) => pointInPoly(...a),
   entityPicker: (...a) => entityPicker(...a), pickerField: (...a) => pickerField(...a), snapshot: () => snapshot(), changed: () => changed(false), refresh: () => power.update(),
-  setup: energySetup,
+  setup: energySetup, meterPart,                          // the meters of the page ⚡ Energie (#481, energymetersui.js)
 });
 
 let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
@@ -637,14 +641,37 @@ camPillBtn.addEventListener('click', (e) => { e.stopPropagation(); if (tabsUi.ha
 document.addEventListener('click', (e) => { dropdowns.forEach(([m, b]) => { if (!m.hidden && !m.contains(e.target) && e.target !== b) toggleMenu(m, b, false); }); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') dropdowns.forEach(([m, b]) => { if (!m.hidden) toggleMenu(m, b, false); }); });
 
-/* ================= Tab bar at the bottom (#479): the house and pages beside it; the code lives in tabs.js, tabsui.js and pagecameras.js ================= */
+/* ================= Tab bar at the bottom (#479): the house and pages beside it; the code lives in tabs.js, tabsui.js and page*.js ================= */
 const camPage = initCameraPage({
   t, el: $('#tabPages [data-page=cameras]'), cams, layout: () => layout, settings: () => lockedSettings(settings, [...locks]),
   showDevice: (fi, id) => { tabsUi.show('house'); offline.show({ floor: fi, kind: 'device', id }); },
 });
+const todayPage = initTodayPage({                                // ☀ Heute (pagetoday.js, today.js)
+  t, el: $('#tabPages [data-page=today]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => layout,
+  names: () => Object.fromEntries(entities.filter((e) => /^(person|alarm_control_panel)\./.test(e.entity_id)).map((e) => [e.entity_id, e.name])),
+  summary: () => ({ open: openings.items().map((x) => x.name), lights: lightGroups.count(), low: deviceList.low(),
+    offline: offline.devices().filter((x) => x.reason !== 'unlinked').length }),
+  act: (k) => todayAct(k),
+});
+const energyPage = initEnergyPage({                              // ⚡ Energie (pageenergy.js, energyhistory.js)
+  t, el: $('#tabPages [data-page=energy]'), lang: () => currentLanguage(), layout: () => layout, houseId: () => hs.id(),
+  houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(),
+});
+/** a tap on a row of "Im Haus" on the page ☀ Heute: to the house and what the row is about (the power: to the page ⚡ Energie) */
+function todayAct(k) {
+  if (k === 'power' && tabsUi.has('energy')) { tabsUi.show('energy'); return; }
+  tabsUi.show('house');
+  setTimeout(() => {                                              // after the tap: the drop-downs close on a tap outside of them
+    if (k === 'open') { openings.renderList(); $('#openDialog').showModal(); }
+    else if (k === 'lights') toggleMenu($('#lightsMenu'), $('#lightsPill'), true);
+    else if (k === 'low') { deviceList.setFilter('battery'); deviceList.open(); }
+    else if (k === 'offline') $('#offlinePill').click();
+  });
+}
 const tabsUi = initTabsUi({
   $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => me,
-  pages: { cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage } },
+  pages: { today: { el: $('#tabPages [data-page=today]'), ...todayPage }, energy: { el: $('#tabPages [data-page=energy]'), ...energyPage },
+    cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage } },
   onShow: (tab) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } wake(); },
 });
 
@@ -1427,11 +1454,12 @@ const startView = initStartView({
   houseMode: () => houseMode, floorIdx: () => floorIdx, focusedRoom: () => focusedRoom, camera, controls,
   setHouseMode: (on) => setHouseMode(on), switchFloor: (i) => switchFloor(i), focusRoom: (id) => focusRoom(id), switchHouse: (id) => switchHouse(id),
 });
+const todayPrefs = initTodayPrefs({ $, t });             // ⚙ → "Reiter unten": the calendars of the page ☀ Heute (#481, todayprefs.js)
 const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
-  parts: [favorites, lightGroups],                      // ⚙ → "Quick access": favourites and light groups (#471)
+  parts: [favorites, lightGroups, todayPrefs],          // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones

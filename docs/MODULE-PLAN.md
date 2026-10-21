@@ -165,6 +165,12 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `tabs.js` | ~55 | Reiter-Leiste unten (#479), reine Logik mit Unit-Tests: welche Reiter es gibt (`TABS`, gleiche Liste wie `TABS` in `server.py`), was pro Benutzer gespeichert wird (`userTabs`: ausgeblendete Seiten, Start-Reiter), welche Reiter ein Bildschirm zeigt (Haus immer, eine Seite nur mit Inhalt, nicht ausgeblendet, nicht gesperrt), wann die Leiste da ist (Live, nicht in der Karte, Einstellung `tabBar`), Start-Reiter |
 | `tabsui.js` | ~85 | Die Leiste unten (unter `main`, das 3D-Bild wird dafür kleiner), die Seiten über dem Bild, ⛶ Vollbild wo erlaubt, der Kopier-Knopf der Tablet-Anleitung; `covered()` hält das Zeichnen an, solange eine Seite offen ist |
 | `pagecameras.js` | ~85 | Seite 📷 Kameras der Leiste: Kacheln mit Standbild (`cameras.js` `camImage`), groß mit Live-Bild (`camLive`), Bewegungsmelder; das Modell `cameraPage` steht rein in `cameras.js` (Unit-Test) |
+| `today.js` | ~95 | Seite ☀ Heute (#481), reine Logik mit Unit-Tests: Wetter-Symbol (wie `sky.js`), die Wetter-Entität, die nächsten Tage der Vorhersage, Termine heute / morgen und die Müll-Termine (`agendaDays`), wer da ist (`people`), die Zeilen von „Im Haus“, die Alarmanlage |
+| `pagetoday.js` | ~150 | Seite ☀ Heute: fragt `api/forecast` (alle 15 min) und `api/agenda` (alle 5 min), zeichnet Uhr, Wetter, Termine, Müll, Personen, „Im Haus“ (ein Tipp: `todayAct` in `app.js`), Strom jetzt (`energyBalance`) |
+| `todayprefs.js` | ~45 | ⚙ → „Reiter unten“: welche Kalender und welcher Müll-Kalender (`agendaCalendars`, `wasteCalendar`), ein Teil des Einstellungs-Formulars (`fill` / `read`) |
+| `energyhistory.js` | ~140 | Seite ⚡ Energie (#481), reine Logik mit Unit-Tests: Zeiträume (Tag nach Stunden, Woche/Monat nach Tagen, Jahr nach Monaten, zurück), die Zähler eines Hauses (eigene oder die des Energie-Dashboards, „alle“ zusammen), Balken aus der Statistik, Summen, Selbst gemacht, Kosten, größte Verbraucher, Zahlen |
+| `pageenergy.js` | ~210 | Seite ⚡ Energie: fragt `api/energy/meters` und `api/energy/stats` (Zeitraum und der davor auf einmal), Häuser-Chips, Tag/Woche/Monat/Jahr, Kacheln, Balken (SVG, Farben wie „Strom jetzt“), größte Verbraucher, Gas und Wasser |
+| `energymetersui.js` | ~80 | ⚡ Rechnung → „Zähler für den Verlauf“: die Zähler je Art und die Preise des Hauses (`layout.energy.meters`, `layout.energy.price`), „Aus dem Energie-Dashboard übernehmen“ |
 
 ## Noch in `app.js`
 
