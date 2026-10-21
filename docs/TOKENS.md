@@ -4,13 +4,13 @@
 
 Stand: 2026-10-21 · 58 Sitzungen
 
-**Insgesamt: 3,65 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 3,74 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 10,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 42,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 3,60 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 11,0 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 42,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 3,68 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,14 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 45 | 1,65 Mrd. | 4,8 Mio. |
+| 2026-10 | 45 | 1,74 Mrd. | 5,0 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-10-21 | [01DDzzeJ…](https://claude.ai/code/session_01DDzzeJPv4Z2UFXQyvnyWfn) | claude/nice-shannon-mee5c5 | 62,2 Mio. | 191 Tsd. | gezählt |
+| 2026-10-21 | [01DDzzeJ…](https://claude.ai/code/session_01DDzzeJPv4Z2UFXQyvnyWfn) | claude/nice-shannon-mee5c5 | 145,5 Mio. | 371 Tsd. | gezählt |
 | 2026-10-21 | [01XZ7uoX…](https://claude.ai/code/session_01XZ7uoXczHK9f1bjnb15XQy) | claude/vibrant-knuth-ne1uru | 57,1 Mio. | 129 Tsd. | gezählt |
 | 2026-10-21 | [014r9ofm…](https://claude.ai/code/session_014r9ofmkBtcwFDi1TP7xawo) | claude/intelligent-cannon-tlhqho | 50,1 Mio. | 161 Tsd. | gezählt |
 | 2026-10-20 | [01FLJgnc…](https://claude.ai/code/session_01FLJgnccXH4FvQBPYKrEetV) | claude/jolly-mccarthy-h45dtm | 29,7 Mio. | 83 Tsd. | gezählt |
