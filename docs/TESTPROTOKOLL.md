@@ -243,10 +243,10 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 41. Neu in 3.70: Rollladen-Karte | 5 | 0 | 0 | 0 | – |
 | 42. Neu in 3.71: lange Schleppgaube | 0 | 0 | 6 | 0 | 42.1 bis 42.6 |
 | 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube | 0 | 0 | 4 | 0 | 43.1 bis 43.4 |
-| 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter) | 0 | 0 | 6 | 0 | 44.1 bis 44.6 |
+| 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter) | 2 | 0 | 4 | 0 | 44.3 bis 44.6 |
 | 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen | 0 | 0 | 3 | 0 | 45.1 bis 45.3 |
-| 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 1 | 1 | 7 | 0 | ❌ 46.3, 46.1, 46.4 bis 46.9 |
-| 47. Neu in 3.76: Durchsichtig nur die Wand | 1 | 0 | 1 | 0 | 47.2 |
+| 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 2 | 1 | 6 | 0 | ❌ 46.3, 46.4 bis 46.9 |
+| 47. Neu in 3.76: Durchsichtig nur die Wand | 2 | 0 | 0 | 0 | – |
 | 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 0 | 0 | 5 | 0 | 48.1 bis 48.5 |
 | 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 4 | 0 | 0 | 0 | – |
 | 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 8 | 0 | 0 | 0 | – |
@@ -277,7 +277,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
 | 76. Neu in 4.2.0: Schnellzugriff, Licht-Gruppen, Favoriten und Hilfen beim Bearbeiten (#471) | 0 | 0 | 14 | 1 | 76.1 bis 76.14 |
 | 77. Neu in 4.2.1: Saugroboter sichtbar, Hausmodus mit Knöpfen, „Innenmaß“ beim Messen (#473, #474) | 5 | 0 | 0 | 1 | – |
-| **Zusammen** | **484** | **5** | **58** | **35** | |
+| **Zusammen** | **488** | **5** | **54** | **35** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -816,8 +816,8 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 44.1 | Bearbeiten, Etage „Dach“, Ansicht 2D: das Dach anklicken, dann Doppelklick auf eine lange Dachkante | An der Stelle wird die Kante geteilt: auf beiden Teilen erscheint eine **Raute** (#342) | ❓ |
-| 44.2 | Die Raute eines Teils nach innen oder außen ziehen | Die Kante dieses Teils wandert in 5-cm-Schritten mit (Alt: frei); beim Loslassen ist das Dach in 3D an dieser Stelle schmaler bzw. breiter, der First bleibt gerade und gleich hoch, am Absatz schließt ein kleines Dreieck die Lücke | ❓ |
+| 44.1 | Bearbeiten, Etage „Dach“, Ansicht 2D: das Dach anklicken, dann Doppelklick auf eine lange Dachkante | An der Stelle wird die Kante geteilt: auf beiden Teilen erscheint eine **Raute** (#342) | ✅ (2026-10-21) |
+| 44.2 | Die Raute eines Teils nach innen oder außen ziehen | Die Kante dieses Teils wandert in 5-cm-Schritten mit (Alt: frei); beim Loslassen ist das Dach in 3D an dieser Stelle schmaler bzw. breiter, der First bleibt gerade und gleich hoch, am Absatz schließt ein kleines Dreieck die Lücke | ✅ (2026-10-21) |
 | 44.3 | Strg+Z, dann Doppelklick auf eine Raute | Strg+Z nimmt das Ziehen zurück; der Doppelklick nimmt den Absatz wieder weg | ❓ |
 | 44.4 | „Etage verwalten“ aufklappen, Abschnitt „Absätze“: Seite, „Ab (Abstand vom Giebel)“ und „Nach außen“ ändern, „+ Absatz“, × | Das Dach ändert sich passend; „+ Absatz“ legt einen auf Seite A in der Hausmitte an (50 cm nach außen) | ❓ |
 | 44.5 | „Ausgebauter Dachstuhl“ an, die Etage darunter öffnen; eine Gaube und ein Solarpanel auf den breiten Teil setzen | Die Wände werden an der richtigen Dachfläche abgeschnitten; Gaube und Panel sitzen auf der flacheren Fläche des breiten Teils | ❓ |
@@ -833,7 +833,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 46.1 | Demo mit der Adresse `https://burned4aim.github.io/HA-Floorplanner/?card=1&floor=house&heatmap=temp&theme=light` öffnen, Fenster schmal und niedrig ziehen; danach `…/?card=1&floor=1&show_bar=0&show_nav=0` | So sieht das Haus später in der Karte aus: ganzes Haus, hell, Temperaturfarben, keine Werkzeugleiste, die Farbskala verdeckt den Kompass nicht; die zweite Adresse zeigt das Obergeschoss ohne Knöpfe oben und unten | ❓ |
+| 46.1 | Demo mit der Adresse `https://burned4aim.github.io/HA-Floorplanner/?card=1&floor=house&heatmap=temp&theme=light` öffnen, Fenster schmal und niedrig ziehen; danach `…/?card=1&floor=1&show_bar=0&show_nav=0` | So sieht das Haus später in der Karte aus: ganzes Haus, hell, Temperaturfarben, keine Werkzeugleiste, die Farbskala verdeckt den Kompass nicht; die zweite Adresse zeigt das Obergeschoss ohne Knöpfe oben und unten | ✅ (2026-10-21) |
 | 46.2 | HACS → ⋮ → Benutzerdefinierte Repositories: `https://github.com/BuRnEd4AiM/HA-Floorplanner`, Typ „Dashboard“; „3D Floorplan Card“ herunterladen, Browser neu laden | HACS lädt die Karte und trägt sie selbst als Ressource ein (#13) | ✅ (2026-10-11) mit 3.75.1: die Karte ist geladen, ihr Editor öffnet sich (mit 3.75.0 fehlte sie, #348) |
 | 46.3 | Dashboard bearbeiten → „Karte hinzufügen“, nach „3D Floorplan“ suchen | Die Karte steht in der Liste; nach dem Hinzufügen zeigt sie das Haus live, ohne Werkzeugleiste | ❌ (2026-10-11) die Karte steht in der Liste, sagt aber „Das Add-on 3D Floorplan wurde nicht gefunden“ (#352, Home Assistant 2026.2 und neuer). Behoben in 3.77.1: in HACS die Karte auf 3.77.1 aktualisieren, Strg+F5, noch einmal prüfen |
 | 46.4 | Im Editor der Karte „Etage“ aufklappen | Die Etagen und Räume des eigenen Plans stehen zur Auswahl, dazu „Ganzes Haus“; die Vorschau wechselt auf die gewählte Etage | ❓ |
@@ -847,7 +847,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 47.1 | Unten „Ansicht“ → „Durchsichtig“ einschalten, die Kamera langsam um das Haus drehen | Die Wände zur Kamera werden durchsichtig; ihre Fenster (Rahmen, Glas, Rollladen) und Türen (Rahmen, Türblatt) bleiben so sichtbar wie sonst (#350) | ✅ (2026-10-21) |
-| 47.2 | Dabei auf die Möbel hinter der durchsichtigen Wand schauen (Sofa, Schrank, Tisch) | Die Möbel bleiben fest, nicht durchsichtig | ❓ |
+| 47.2 | Dabei auf die Möbel hinter der durchsichtigen Wand schauen (Sofa, Schrank, Tisch) | Die Möbel bleiben fest, nicht durchsichtig | ✅ (2026-10-21) |
 
 ## 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import)
 | Nr. | Was tun | Erwartung | Ergebnis |
