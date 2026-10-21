@@ -4,13 +4,13 @@
 
 Stand: 2026-10-21 · 57 Sitzungen
 
-**Insgesamt: 3,56 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 3,58 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 10,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 41,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 3,51 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 10,6 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 41,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 3,53 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,14 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 44 | 1,56 Mrd. | 4,5 Mio. |
+| 2026-10 | 44 | 1,58 Mrd. | 4,6 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-10-21 | [01XZ7uoX…](https://claude.ai/code/session_01XZ7uoXczHK9f1bjnb15XQy) | claude/vibrant-knuth-ne1uru | 28,5 Mio. | 82 Tsd. | gezählt |
+| 2026-10-21 | [01XZ7uoX…](https://claude.ai/code/session_01XZ7uoXczHK9f1bjnb15XQy) | claude/vibrant-knuth-ne1uru | 42,6 Mio. | 105 Tsd. | gezählt |
 | 2026-10-21 | [014r9ofm…](https://claude.ai/code/session_014r9ofmkBtcwFDi1TP7xawo) | claude/intelligent-cannon-tlhqho | 50,1 Mio. | 161 Tsd. | gezählt |
 | 2026-10-20 | [01FLJgnc…](https://claude.ai/code/session_01FLJgnccXH4FvQBPYKrEetV) | claude/jolly-mccarthy-h45dtm | 29,7 Mio. | 83 Tsd. | gezählt |
 | 2026-10-20 | [011WS5Bj…](https://claude.ai/code/session_011WS5BjtRCU9x39YdeFjhzB) | claude/stoic-cray-rb7ve0 | 27,0 Mio. | 79 Tsd. | gezählt |
