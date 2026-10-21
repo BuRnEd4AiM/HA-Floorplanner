@@ -19,6 +19,7 @@ export const LOCKS = [
   ['search', '#findBtn, #findBox'],                                    // the "Where is ...?" search
   ['settings', '#settingsBtn'],                                        // the settings dialog (⚙)
   ['timeline', '#timelineBtn'],                                        // security view: what switched when (the server refuses it too)
+  ['fullscreen', ''],                                                  // leaving the full screen (#487): hides nothing, fullscreenui.js keeps it, only the code ends it
 ];
 export const LOCK_KEYS = LOCKS.map(([k]) => k);
 
@@ -38,7 +39,7 @@ export function collectLocks(rows) {
 /** the CSS that hides what is locked; '' when nothing is locked */
 export function lockCss(locks) {
   const l = cleanLocks(locks);
-  const sels = LOCKS.filter(([k]) => l.includes(k)).map(([, s]) => s);
+  const sels = LOCKS.filter(([k, s]) => s && l.includes(k)).map(([, s]) => s);
   if (l.includes('colorModes') && l.includes('viewMenu')) sels.push('#modeBar');   // nothing left in the bar
   return sels.length ? `${sels.join(', ')} { display: none !important; }` : '';
 }

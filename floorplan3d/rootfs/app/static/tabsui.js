@@ -1,22 +1,14 @@
 /* The tab bar at the bottom of the live view (#479; the rules are in tabs.js, tested): one button per tab, the pages over the 3D picture,
- * and ⛶ full screen where the browser allows it (not inside a frame that forbids it, e.g. Home Assistant's add-on panel). While a page is
- * open the 3D picture rests: app.js draws nothing (covered()), like with the screen off. Since 4.6 (#484) the tabs come in the order an
- * admin chose, with his own pages; ✎ (editors, on a page) starts the page's edit mode (pageboard.js), in the bar's own edit mode
- * (tabedit.js) the tabs are dragged and "＋ Seite" makes a new page. */
+ * and ⛶ full screen where the browser allows it (fullscreenui.js: also a full screen kept on for a user, only the code ends it, #487).
+ * While a page is open the 3D picture rests: app.js draws nothing (covered()), like with the screen off. Since 4.6 (#484) the tabs come
+ * in the order an admin chose, with his own pages; ✎ (editors, on a page) starts the page's edit mode (pageboard.js), in the bar's own
+ * edit mode (tabedit.js) the tabs are dragged and "＋ Seite" makes a new page. */
 import { HOME, shownTabs, barShown, startTab, keepTab, barTabs } from './tabs.js';
-
-/** the page goes full screen or back (the standard way, the older one of Safari / WebViews); false when the browser does not allow it */
-const canFull = () => !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
-const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
-function toggleFull() {
-  const d = document.documentElement;
-  if (isFull()) (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
-  else (d.requestFullscreen || d.webkitRequestFullscreen)?.call(d)?.catch?.(() => {});
-}
 
 /** ctx: $, t, settings(), isLive(), card (true in the dashboard card without its option "tabs"), me() ({ tabs: { hide, start }, locks }),
  *  pages() ({ <tab>: { el, render(), update(), has(), reset() } }, own pages too), onShow(tab) (close what lies over the house, wake the
- *  drawing), edit ({ can() (editors), editing() (the page in the edit mode), toggle(tab) }), tabEdit ({ on(), newPage() }) */
+ *  drawing), edit ({ can() (editors), editing() (the page in the edit mode), toggle(tab) }), tabEdit ({ on(), newPage() }),
+ *  full (fullscreenui.js: { can(), isFull(), state(), click() }) */
 export function initTabsUi(ctx) {
   const { $, t } = ctx;
   const bar = $('#tabBar'), host = $('#tabPages');
@@ -27,7 +19,8 @@ export function initTabsUi(ctx) {
 
   function draw() {
     const all = order().filter((x) => tabs.includes(x.key)), editor = !!ctx.edit?.can(), moving = !!ctx.tabEdit?.on();
-    const sig = JSON.stringify([all, shown, canFull(), editor, moving, t('tab.house')]);      // the language too: the names follow a change in ⚙
+    const full = ctx.full, fs = full?.can() ? [full.isFull(), full.state()] : null;
+    const sig = JSON.stringify([all, shown, fs, editor, moving, t('tab.house')]);      // the language too: the names follow a change in ⚙
     if (sig === drawn) { mark(); return; }
     drawn = sig;
     bar.hidden = !shown;
@@ -52,10 +45,11 @@ export function initTabsUi(ctx) {
       e.addEventListener('click', () => ctx.edit.toggle(open));
       right.append(e);
     }
-    if (canFull() && !moving) {
-      const f = document.createElement('button'); f.type = 'button'; f.className = 'tbFull'; f.title = t('tab.fullTip');
-      f.innerHTML = '<span class="ti">⛶</span>'; f.append(document.createTextNode(t('tab.full')));
-      f.addEventListener('click', toggleFull);
+    if (fs && !moving) {                                           // in full screen: "Vollbild beenden", kept for this user: 🔒 and the code (#487)
+      const [on, st] = fs, kept = st === 'on';
+      const f = document.createElement('button'); f.type = 'button'; f.className = `tbFull${kept ? ' kept' : ''}`; f.title = t(kept ? 'fs.tip' : 'tab.fullTip');
+      f.innerHTML = `<span class="ti">${kept ? '🔒' : '⛶'}</span>`; f.append(document.createTextNode(t(on ? 'tab.fullEnd' : 'tab.full')));
+      f.addEventListener('click', () => full.click());
       right.append(f);
     }
     if (right.childElementCount) bar.append(right);

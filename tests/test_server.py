@@ -1128,6 +1128,43 @@ async def test_holiday_alarm_arm_and_disarm_only_with_the_code(client, monkeypat
     assert (await client.post("/api/guard/arm", json={"code": "1234"}, headers=tab)).status == 403         # ... unless it is locked for it
 
 
+async def test_kept_full_screen_ends_only_with_the_code(client, monkeypatch, tmp_path):
+    """#487: the lock "fullscreen" keeps a user's screen in full screen; one code (set by editors, stored hashed, not in the settings)
+    ends it, wrong codes make everybody wait"""
+    import json
+    assert (await (await client.get("/api/fullscreen")).json()) == {"hasCode": False}
+    assert (await client.post("/api/fullscreen/unlock", json={"code": "1234"})).status == 409             # no code yet: nobody leaves
+    assert (await client.put("/api/fullscreen", json={"code": "12a4"})).status == 400
+    assert (await client.put("/api/fullscreen", json={"code": "123"})).status == 400
+    assert (await (await client.put("/api/fullscreen", json={"code": "2468"})).json()) == {"hasCode": True}
+    stored = next(tmp_path.rglob("fullscreen.json")).read_text("utf-8")
+    assert "2468" not in stored and json.loads(stored)["code"]["hash"]
+    assert "2468" not in await (await client.get("/api/settings")).text()
+    bad = await client.post("/api/fullscreen/unlock", json={"code": "1111"})
+    assert bad.status == 403 and (await bad.json())["left"] == 4
+    assert (await client.post("/api/fullscreen/unlock", json={})).status == 403
+    assert (await (await client.post("/api/fullscreen/unlock", json={"code": "2468"})).json()) == {"ok": True}
+    for _ in range(5):
+        await client.post("/api/fullscreen/unlock", json={"code": "0000"})
+    r = await client.post("/api/fullscreen/unlock", json={"code": "2468"})
+    assert r.status == 429 and (await r.json())["wait"] > 0                                              # five wrong codes: wait, even with the right one
+    client.server.app[server.KEY_FULL]["tries"].right()
+    s = await (await client.put("/api/settings", json={"userLocks": {"Tablet": ["fullscreen", "bogus"]}})).json()
+    assert s["userLocks"] == {"Tablet": ["fullscreen"]}
+    assert (await (await client.get("/api/me", headers={"X-Remote-User-Name": "tablet"})).json())["locks"] == ["fullscreen"]
+    opts = tmp_path / "options.json"
+    opts.write_text('{"editors": ["admin"]}')
+    monkeypatch.setattr(server, "OPTIONS_FILE", opts)
+    monkeypatch.setattr(server, "load_admin_ids", _no_admins)
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    tab = {"X-Remote-User-Name": "tablet"}
+    assert (await client.put("/api/fullscreen", json={"code": ""}, headers=tab)).status == 403              # only editors set it
+    assert (await (await client.get("/api/fullscreen", headers=tab)).json()) == {"hasCode": True}
+    assert (await (await client.post("/api/fullscreen/unlock", json={"code": "2468"}, headers=tab)).json()) == {"ok": True}
+    r = await (await client.put("/api/fullscreen", json={"code": ""}, headers={"X-Remote-User-Name": "admin"})).json()
+    assert r == {"hasCode": False} and json.loads(next(tmp_path.rglob("fullscreen.json")).read_text("utf-8")) == {"code": None}
+
+
 async def test_tabs_per_user_are_cleaned_reach_that_user_and_go_into_users_json(client, tmp_path):
     """#479: the tab bar per user: only known tabs, the house never hidden, a hidden start tab dropped; api/me hands it to that user."""
     import json

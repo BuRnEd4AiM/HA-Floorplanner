@@ -84,6 +84,7 @@ import { toWorld, stairHandles } from './stairs.js';
 import { floorLabels, CARD_FIELDS } from './viewprefs.js';
 import { applyLocks, lockedSettings } from './userlocks.js';
 import { initTabsUi } from './tabsui.js';
+import { initFullscreen } from './fullscreenui.js';
 import { initCameraPage } from './pagecameras.js';
 import { initEnergyPage } from './pageenergy.js';
 import { initTodayPage } from './pagetoday.js';
@@ -702,8 +703,9 @@ function todayAct(k) {
     else if (k === 'offline') $('#offlinePill').click();
   });
 }
+const full = initFullscreen({ $, t, locks: () => locks, changed: () => tabsUi.redraw() });   // ⛶, kept on for a user with the lock (#487)
 const tabsUi = initTabsUi({
-  $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => me,
+  $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => me, full,
   pages: () => ({ today: { el: $('#tabPages [data-page=today]'), ...todayPage }, energy: { el: $('#tabPages [data-page=energy]'), ...energyPage },
     climate: { el: $('#tabPages [data-page=climate]'), ...climatePage }, cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage },
     routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage },
@@ -1615,6 +1617,7 @@ async function init() {
   locks = applyLocks(document, me.locks);                 // and what this user may not use: hidden here, control / cameras refused by the server
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
+  full.refresh();                                         // a full screen kept on for this user (#487), in this language
   await hs.load();
   try { layout = await persist.load(); } catch { setStatus(t('loadFailed')); }
   normalizeLayout();

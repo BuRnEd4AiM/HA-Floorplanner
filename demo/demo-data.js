@@ -385,6 +385,7 @@ const pinboard = [
 ];
 
 const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
+let fullCode = '1234';                                  // the code that ends a kept full screen (#487), kept only in this tab
 // the holiday alarm (#456) in the demo: set up with the code 1234; armed for 25 s, a "burglar" opens the office door (the whole flow can be seen)
 const guard = { cfg: { sensors: ['binary_sensor.tuer_buero', 'binary_sensor.fenster_kueche', 'binary_sensor.fenster_wohnzimmer'], offline: true, delay: 20, actions: [],
   notify: true, report: true, code: '1234' }, st: { phase: 'off', since: 0, due: 0, by: '', what: null }, armedAt: 0 };
@@ -554,7 +555,20 @@ export function installDemoBackend() {
       if (i >= 0) pinboard.splice(i, 1);
       return json({ notes: pinboard, canSend: false });
     }
-    if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all' });
+    // ?vollbild=1: this screen as a tablet whose full screen is kept on (#487): only the code (1234 in the demo) ends it
+    if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all', locks: new URLSearchParams(location.search).has('vollbild') ? ['fullscreen'] : [] });
+    if (path === 'api/fullscreen') {
+      if (method === 'PUT') {
+        const c = String(JSON.parse(init.body || '{}').code ?? '');
+        if (c && !/^[0-9]{4,8}$/.test(c)) return json({ error: 'the code needs 4 to 8 digits' }, 400);
+        fullCode = c;
+      }
+      return json({ hasCode: !!fullCode });
+    }
+    if (path === 'api/fullscreen/unlock') {
+      if (!fullCode) return json({ error: 'no code' }, 409);
+      return JSON.parse(init.body || '{}').code === fullCode ? json({ ok: true }) : json({ error: 'code', left: 4 }, 403);
+    }
     if (path === 'api/users') return json([{ username: 'admin', name: 'Admin', admin: true }, { username: 'tablet_wohnzimmer', name: 'Tablet Wohnzimmer', admin: false }, { username: 'familie', name: 'Familie', admin: false }]);
     if (path === 'api/users-file') return json({ file: 'users.json', exists: true, fileUsers: 2, users: 2, inSync: true });
     if (path === 'api/users-file/sync') return json(settings);
