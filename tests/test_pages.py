@@ -109,10 +109,27 @@ def test_the_people_with_the_battery_of_their_phone():
     people = {p["id"]: p for p in pages.family(states, registry)}
     assert list(people) == ["person.anna", "person.max", "person.oma"]
     assert people["person.anna"] == {"id": "person.anna", "name": "Anna", "state": "home", "since": "2026-10-21T09:02:00+00:00", "picture": True,
-                                     "battery": 78, "charging": True}
+                                     "battery": 78, "charging": True, "sources": [{"kind": "other", "entity": "device_tracker.anna_handy", "state": "home", "since": None}]}
     assert people["person.max"]["battery"] == 45 and people["person.max"]["since"] is None and people["person.max"]["picture"] is False   # not from elsewhere
     assert people["person.oma"]["battery"] is None and people["person.oma"]["picture"] is False and people["person.oma"]["name"] == "oma"
     assert pages.family(None, None) == [] and pages.family([], "x") == []
+
+
+def test_where_a_person_is_seen():                                  # #495: Wi-Fi, GPS, the phone's network and room
+    states = [
+        {"entity_id": "person.anna", "state": "home", "attributes": {"source": "device_tracker.anna_gps", "device_trackers": ["device_tracker.anna_gps", "device_tracker.anna_fritz"]}},
+        {"entity_id": "device_tracker.anna_gps", "state": "home", "last_changed": "2026-10-22T09:00:00+00:00", "attributes": {"source_type": "gps"}},
+        {"entity_id": "device_tracker.anna_fritz", "state": "home", "attributes": {"source_type": "router"}},
+        {"entity_id": "sensor.anna_handy_wifi_connection", "state": "Zuhause-5G", "attributes": {}},
+        {"entity_id": "sensor.anna_handy_area", "state": "Wohnzimmer", "attributes": {}},
+        {"entity_id": "sensor.anna_handy_battery_level", "state": "60", "attributes": {"device_class": "battery"}},
+    ]
+    registry = [{"entity_id": e, "device_id": "d1"} for e in ("device_tracker.anna_gps", "sensor.anna_handy_wifi_connection", "sensor.anna_handy_area", "sensor.anna_handy_battery_level")]
+    src = pages.family(states, registry)[0]["sources"]
+    assert [(x["kind"], x["state"]) for x in src] == [("gps", "home"), ("room", "Wohnzimmer"), ("ssid", "Zuhause-5G"), ("wifi", "home")]
+    assert src[0]["since"] == "2026-10-22T09:00:00+00:00" and src[3]["since"] is None
+    assert pages.clean_presence({"rule": "two", "ssids": [" Zuhause-5G ", "Zuhause-5G", "", 5, "x" * 99]}) == {"rule": "two", "ssids": ["Zuhause-5G", "x" * 64]}
+    assert pages.clean_presence("junk") == {"rule": "ha", "ssids": []}
 
 
 def test_a_persons_picture_only_from_home_assistant():

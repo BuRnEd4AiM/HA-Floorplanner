@@ -511,6 +511,13 @@ const DICT = {
     'sec.delAsk': 'Abschnitt löschen? Seine Karten stehen danach wieder oben.', 'sec.dropHere': 'Karten mit ⠿ hierher ziehen', 'sec.title': 'Name',
     'sec.titlePh': 'z. B. Wohnzimmer, Strom, Sicherheit', 'sec.icon': 'Symbol', 'sec.width': 'Breite', 'sec.normal': 'Normal',
     'sec.wide': 'Breit (zwei Spalten)',
+    'fm.s.home': 'zu Hause', 'fm.s.away': 'unterwegs', 'fm.s.wifiIn': 'Handy im WLAN (Router)', 'fm.s.wifiOut': 'nicht im WLAN (Router)', 'fm.s.gps': 'GPS: {v}',
+    'fm.s.bt': 'Bluetooth: {v}', 'fm.s.other': 'Ortung: {v}', 'fm.s.ssid': 'WLAN „{v}“ (Handy-App)', 'fm.s.noSsid': 'kein WLAN (Handy-App)',
+    'fm.s.room': 'im Raum {v}', 'fm.s.noRoom': 'in keinem Raum', 'fm.home0': 'Niemand zu Hause', 'fm.home1': '1 Person zu Hause',
+    'fm.homeN': '{n} Personen zu Hause', 'fm.rooms': 'Wer ist wo im Haus', 'fm.roomMotion': 'Bewegung / Anwesenheit', 'pr.title': '👨‍👩‍👧 Wer ist zu Hause',
+    'pr.help': 'Die Seite Familie zeigt bei jeder Person, was sagt, dass sie da ist: das Handy im WLAN (Router-Integration wie FRITZ!Box, UniFi, Ping), GPS der Home-Assistant-App, der WLAN-Name aus der App, der Raum (Bluetooth, z. B. Bermuda). Hier stellst du ein, wann jemand als zu Hause zählt.',
+    'pr.rule': 'Zu Hause, wenn', 'pr.rule.ha': 'Home Assistant es sagt (die Person)', 'pr.rule.any': 'eine Quelle es sagt (WLAN, GPS, Raum …)',
+    'pr.rule.two': 'zwei Quellen es sagen (sicherer)', 'pr.ssids': 'WLAN-Name(n) zu Hause', 'pr.ssidsPh': 'z. B. Zuhause-5G, Zuhause',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -996,6 +1003,14 @@ const DICT = {
     'sec.del': 'Delete the section (the cards stay)', 'sec.delAsk': 'Delete the section? Its cards then stand at the top again.',
     'sec.dropHere': 'Drag cards here with ⠿', 'sec.title': 'Name', 'sec.titlePh': 'e.g. Living room, Power, Security', 'sec.icon': 'Symbol',
     'sec.width': 'Width', 'sec.normal': 'Normal', 'sec.wide': 'Wide (two columns)',
+    'fm.s.home': 'at home', 'fm.s.away': 'away', 'fm.s.wifiIn': 'Phone on the Wi-Fi (router)', 'fm.s.wifiOut': 'not on the Wi-Fi (router)',
+    'fm.s.gps': 'GPS: {v}', 'fm.s.bt': 'Bluetooth: {v}', 'fm.s.other': 'Tracker: {v}', 'fm.s.ssid': 'Wi-Fi "{v}" (phone app)',
+    'fm.s.noSsid': 'no Wi-Fi (phone app)', 'fm.s.room': 'in the room {v}', 'fm.s.noRoom': 'in no room', 'fm.home0': 'Nobody at home',
+    'fm.home1': '1 person at home', 'fm.homeN': '{n} people at home', 'fm.rooms': 'Who is where in the house', 'fm.roomMotion': 'motion / presence',
+    'pr.title': '👨‍👩‍👧 Who is at home',
+    'pr.help': 'The family page shows for every person what says they are there: the phone on the Wi-Fi (router integrations such as FRITZ!Box, UniFi, Ping), GPS of the Home Assistant app, the Wi-Fi name from the app, the room (Bluetooth, e.g. Bermuda). Here you set when somebody counts as at home.',
+    'pr.rule': 'At home when', 'pr.rule.ha': 'Home Assistant says so (the person)', 'pr.rule.any': 'one source says so (Wi-Fi, GPS, room …)',
+    'pr.rule.two': 'two sources say so (safer)', 'pr.ssids': 'Home Wi-Fi name(s)', 'pr.ssidsPh': 'e.g. Home-5G, Home',
   },
 };
 

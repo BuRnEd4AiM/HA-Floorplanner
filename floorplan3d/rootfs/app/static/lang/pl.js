@@ -1559,4 +1559,11 @@ export default {
   'sec.delAsk': 'Usunąć sekcję? Jej karty wrócą na górę.', 'sec.dropHere': 'Przeciągnij tu karty za pomocą ⠿', 'sec.title': 'Nazwa',
   'sec.titlePh': 'np. Salon, Prąd, Bezpieczeństwo', 'sec.icon': 'Symbol', 'sec.width': 'Szerokość', 'sec.normal': 'Normalna',
   'sec.wide': 'Szeroka (dwie kolumny)',
+  'fm.s.home': 'w domu', 'fm.s.away': 'poza domem', 'fm.s.wifiIn': 'Telefon w Wi-Fi (router)', 'fm.s.wifiOut': 'poza Wi-Fi (router)', 'fm.s.gps': 'GPS: {v}',
+  'fm.s.bt': 'Bluetooth: {v}', 'fm.s.other': 'Lokalizacja: {v}', 'fm.s.ssid': 'Wi-Fi „{v}” (aplikacja)', 'fm.s.noSsid': 'brak Wi-Fi (aplikacja)',
+  'fm.s.room': 'w pokoju {v}', 'fm.s.noRoom': 'w żadnym pokoju', 'fm.home0': 'Nikogo nie ma w domu', 'fm.home1': '1 osoba w domu', 'fm.homeN': '{n} osób w domu',
+  'fm.rooms': 'Kto jest gdzie w domu', 'fm.roomMotion': 'ruch / obecność', 'pr.title': '👨‍👩‍👧 Kto jest w domu',
+  'pr.help': 'Strona Rodzina pokazuje przy każdej osobie, co wskazuje, że jest w domu: telefon w Wi-Fi (integracje routera jak FRITZ!Box, UniFi, Ping), GPS aplikacji Home Assistant, nazwa Wi-Fi z aplikacji, pokój (Bluetooth, np. Bermuda). Tutaj ustawiasz, kiedy ktoś liczy się jako obecny.',
+  'pr.rule': 'W domu, gdy', 'pr.rule.ha': 'Home Assistant tak mówi (osoba)', 'pr.rule.any': 'jedno źródło tak mówi (Wi-Fi, GPS, pokój …)',
+  'pr.rule.two': 'dwa źródła tak mówią (pewniej)', 'pr.ssids': 'Nazwa(-y) domowego Wi-Fi', 'pr.ssidsPh': 'np. Dom-5G, Dom',
 };

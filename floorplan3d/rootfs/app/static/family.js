@@ -17,19 +17,25 @@ export function whereOf(state) {
 }
 
 /**
- * The people of the page: [{ id, name, where, since (Date or null), picture (bool), battery (0..100 or null), charging, initial }], at home
- * first, then by name. people: what the add-on found (api/family: { id, name, state, since, picture, battery, charging }); states: the
- * live states (a person who moved since counts as moving now: since null until the add-on is asked again); names: { entity: name }.
- * A person that only the live states know (api/family not answered yet) is there too.
+ * The people of the page: [{ id, name, where, since (Date or null), picture (bool), battery (0..100 or null), charging, initial, presence
+ * (presenceOf: home by the rule of ⚙, the room, what each source says, #495) }], at home first, then by name. people: what the add-on
+ * found (api/family: { id, name, state, since, picture, battery, charging, sources }); states: the live states (a person who moved since
+ * counts as moving now: since null until the add-on is asked again); names: { entity: name }; presence: settings.presence. A person that
+ * only the live states know (api/family not answered yet) is there too.
  */
-export function familyRows(people, states, names = {}) {
+export function familyRows(people, states, names = {}, presence = {}) {
   const st = states || {}, byId = new Map((Array.isArray(people) ? people : []).filter((p) => p && typeof p.id === 'string').map((p) => [p.id, p]));
   Object.keys(st).filter((e) => e.startsWith('person.') && !byId.has(e)).forEach((e) => byId.set(e, { id: e }));
   return [...byId.values()].filter((p) => p.id.startsWith('person.') && (st[p.id] || p.state)).map((p) => {
     const state = st[p.id]?.state ?? p.state ?? '', name = names[p.id] || p.name || p.id.slice(7).replace(/_/g, ' ');
     const since = p.state === state && p.since && !Number.isNaN(+new Date(p.since)) ? new Date(p.since) : null;
     const bat = typeof p.battery === 'number' && Number.isFinite(p.battery) ? Math.max(0, Math.min(100, Math.round(p.battery))) : null;
-    return { id: p.id, name, where: whereOf(state), since, picture: !!p.picture, battery: bat, charging: p.charging === true, initial: (name.trim()[0] || '?').toUpperCase() };
+    const sources = (Array.isArray(p.sources) ? p.sources : []).map((x) => ({ ...x, state: st[x.entity]?.state ?? x.state }));   // live where the states know it
+    const pres = presenceOf(state, sources, presence);
+    let where = whereOf(state);
+    if (pres.home && where.key !== 'home') where = { key: 'home', zone: '' };              // the rule of ⚙ says home (Wi-Fi, room …)
+    else if (!pres.home && where.key === 'home') where = { key: 'away', zone: '' };
+    return { id: p.id, name, where, since, picture: !!p.picture, battery: bat, charging: p.charging === true, initial: (name.trim()[0] || '?').toUpperCase(), presence: pres };
   }).sort((a, b) => Number(b.where.key === 'home') - Number(a.where.key === 'home') || a.name.localeCompare(b.name));
 }
 
@@ -70,3 +76,40 @@ export function pinNotes(list) {
 
 /** has the page anything: a person in Home Assistant */
 export const hasFamily = (states) => Object.keys(states || {}).some((e) => e.startsWith('person.'));
+
+/* ---- who is really at home (#495, the owner: "ob jetzt wirklich eine Person im Haus ist oder nicht … mit dem Handy, dass es sich mit dem
+ * WLAN verbindet"): the sources the add-on found for a person (pages.py person_sources) and the rule chosen in ⚙ ---- */
+
+/** the rules: as Home Assistant's person says, at home when one source says so, when two do */
+export const PRESENCE_RULES = ['ha', 'any', 'two'];
+const AWAY = new Set(['not_home', 'away', 'unknown', 'unavailable', '']);
+
+/**
+ * What a source says: { kind, entity, home (true | false | null: says nothing), text (its state: a zone, the network, the room), since }.
+ * ssids: the names of the home Wi-Fi (the phone's network counts only when it is one of them; none set: it only shows).
+ */
+export function sourceSays(src, ssids = []) {
+  const state = String(src?.state ?? ''), s = state.toLowerCase();
+  let home = null;
+  if (['gps', 'wifi', 'bluetooth', 'other'].includes(src?.kind)) home = s === 'home' ? true : AWAY.has(s) ? (s === 'unknown' || s === 'unavailable' || !s ? null : false) : false;
+  else if (src?.kind === 'ssid') home = !ssids.length || !state || s === 'unknown' || s === 'unavailable' ? null : ssids.includes(state);
+  else if (src?.kind === 'room') home = AWAY.has(s) ? (s === 'not_home' || s === 'away' ? false : null) : true;
+  const since = src?.since && !Number.isNaN(+new Date(src.since)) ? new Date(src.since) : null;
+  return { kind: src?.kind || 'other', entity: src?.entity || '', home, text: state, since };
+}
+
+/**
+ * Is a person at home: { home, sure (two or more sources agree), room (the room the phone is in, or ''), says: [sourceSays] }.
+ * state: the person's state in Home Assistant; presence: settings.presence ({ rule, ssids }).
+ */
+export function presenceOf(state, sources, presence = {}) {
+  const rule = PRESENCE_RULES.includes(presence?.rule) ? presence.rule : 'ha', ssids = Array.isArray(presence?.ssids) ? presence.ssids : [];
+  const says = (Array.isArray(sources) ? sources : []).map((x) => sourceSays(x, ssids));
+  const yes = says.filter((x) => x.home === true).length, known = says.filter((x) => x.home !== null).length;
+  const room = says.find((x) => x.kind === 'room' && x.home)?.text || '';
+  let home;
+  if (rule === 'ha' || !known) home = state === 'home';
+  else if (rule === 'any') home = yes >= 1;
+  else home = yes >= Math.min(2, known);
+  return { home, sure: yes >= 2, room, says };
+}

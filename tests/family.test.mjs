@@ -62,3 +62,23 @@ test('the notes of the server: newest first, broken ones left out', () => {
 test('the page has something with a person', () => {
   assert.equal(F.hasFamily({ 'person.a': {} }), true); assert.equal(F.hasFamily({ 'light.a': {} }), false); assert.equal(F.hasFamily(null), false);
 });
+
+test('who is really at home (#495): what each source says, the rule of ⚙, the room', async () => {
+  const src = [{ kind: 'gps', entity: 'device_tracker.a', state: 'home', since: '2026-10-22T09:00:00Z' }, { kind: 'wifi', entity: 'device_tracker.b', state: 'not_home' },
+    { kind: 'ssid', entity: 'sensor.a_wifi_connection', state: 'Zuhause-5G' }, { kind: 'room', entity: 'sensor.a_area', state: 'Wohnzimmer' }, { kind: 'bluetooth', entity: 'x', state: 'unavailable' }];
+  const says = src.map((x) => F.sourceSays(x, ['Zuhause-5G']));
+  assert.deepEqual(says.map((x) => x.home), [true, false, true, true, null]);
+  assert.equal(F.sourceSays(src[2], []).home, null);                         // no home Wi-Fi set: the network only shows
+  assert.equal(F.sourceSays({ kind: 'gps', state: 'Schule' }).home, false);
+  assert.ok(says[0].since instanceof Date);
+  const p = F.presenceOf('not_home', src, { rule: 'any', ssids: ['Zuhause-5G'] });
+  assert.equal(p.home, true); assert.equal(p.sure, true); assert.equal(p.room, 'Wohnzimmer');
+  assert.equal(F.presenceOf('not_home', src, { rule: 'ha' }).home, false);   // as Home Assistant says
+  assert.equal(F.presenceOf('home', [], { rule: 'two' }).home, true);        // no sources: as Home Assistant says
+  assert.equal(F.presenceOf('home', [src[1]], { rule: 'any' }).home, false);  // the only source says away
+  assert.equal(F.presenceOf('not_home', [src[0], src[1]], { rule: 'two' }).home, false);   // one of two
+  const rows = F.familyRows([{ id: 'person.a', name: 'A', state: 'not_home', sources: src }], { 'person.a': { state: 'not_home' } }, {}, { rule: 'any', ssids: ['Zuhause-5G'] });
+  assert.equal(rows[0].where.key, 'home'); assert.equal(rows[0].presence.room, 'Wohnzimmer');
+  const P = await import(`${process.env.STATIC_DIR || '/tmp/static'}/presenceprefs.js`);
+  assert.deepEqual(P.parseSsids(' Zuhause-5G, Zuhause,,Zuhause-5G '), ['Zuhause-5G', 'Zuhause']);
+});

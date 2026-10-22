@@ -31,10 +31,13 @@ post_cf("/_extra", {
     "automation.cl_flur": {"state": "on", "attributes": {"friendly_name": "Flurlicht"}},
     "media_player.cl_tv": {"state": "playing", "attributes": {"friendly_name": "Fernseher"}},
     "person.anna": {"state": "home", "last_changed": "2026-10-21T09:02:00+00:00", "attributes": {"friendly_name": "Anna", "source": "device_tracker.anna_handy",
-                    "device_trackers": ["device_tracker.anna_handy"], "entity_picture": "/api/image/serve/abc123/512x512"}},
+                    "device_trackers": ["device_tracker.anna_handy", "device_tracker.anna_fritz"], "entity_picture": "/api/image/serve/abc123/512x512"}},
     "person.max": {"state": "Arbeit", "attributes": {"friendly_name": "Max"}},
     "device_tracker.anna_handy": {"state": "home", "device": "d_anna", "attributes": {"friendly_name": "Annas Handy"}},
     "sensor.anna_handy_battery_level": {"state": "15", "device": "d_anna", "attributes": {"friendly_name": "Annas Handy Akku", "device_class": "battery", "unit_of_measurement": "%"}},
+    "device_tracker.anna_fritz": {"state": "home", "attributes": {"friendly_name": "Annas Handy (FRITZ!Box)", "source_type": "router"}},
+    "sensor.anna_handy_wifi_connection": {"state": "Zuhause-5G", "device": "d_anna", "attributes": {"friendly_name": "Annas Handy WLAN"}},
+    "sensor.anna_handy_area": {"state": "Küche", "device": "d_anna", "attributes": {"friendly_name": "Annas Handy Raum"}},
 })
 urllib.request.urlopen(HA + "/_set?e=light.wohnzimmer&s=on").read()
 own_cf = []
@@ -155,6 +158,32 @@ atext = pgC.inner_text(anna) if pgC.locator(anna).count() else ""
 check("family: Anna at home with her picture and her phone's battery (15 %, red)", "zu Hause" in atext and "15 %" in atext
       and pgC.locator(f"{anna} .fmBat.low").count() == 1 and pgC.evaluate(f"document.querySelector(\"{anna} img\")?.naturalWidth || 0") > 0, atext)
 check("family: Max in the zone 'Arbeit'", "Arbeit" in pgC.inner_text(".fmPerson[data-person='person.max']"))
+srcs = pgC.evaluate(f"[...document.querySelectorAll(\"{anna} .fmSrc > div\")].map((r) => r.textContent)")
+check("presence (#495): Anna's card lists where she is seen: the router's Wi-Fi, the network of her phone, the room",
+      any("WLAN" in x and "Router" in x for x in srcs) and any("Zuhause-5G" in x for x in srcs) and any("Küche" in x for x in srcs)
+      and "Küche" in pgC.inner_text(f"{anna} .fmWhere"), srcs)
+check("presence: above the people, who is at home ('1 Person zu Hause', Anna)", "Anna" in pgC.inner_text("[data-page=family] .fmHome")
+      and "1 " in pgC.inner_text("[data-page=family] .fmHome"))
+def presence_rule(rule, ssids=None):               # ⚙ → "Reiter unten" → "Wer ist wirklich zu Hause?"
+    pgC.click("#tabBar [data-tab=house]"); pgC.wait_for_timeout(300)
+    pgC.click("#settingsBtn"); pgC.wait_for_timeout(400)
+    open_setting(pgC, "#setPresenceRule"); pgC.wait_for_timeout(300)
+    pgC.select_option("#setPresenceRule", rule); pgC.wait_for_timeout(300)
+    if ssids is not None: pgC.fill("#setPresenceSsids", ssids); pgC.press("#setPresenceSsids", "Tab"); pgC.wait_for_timeout(300)
+    pgC.keyboard.press("Escape"); pgC.wait_for_timeout(300)
+presence_rule("any", "Zuhause-5G, Gast")
+check("presence: ⚙ → 'Reiter unten': the rule and the home Wi-Fi are saved for everybody",
+      wait_for(lambda: api("api/settings")["presence"] == {"rule": "any", "ssids": ["Zuhause-5G", "Gast"]}), api("api/settings").get("presence"))
+for e_ in ("person.anna", "device_tracker.anna_handy", "device_tracker.anna_fritz"): urllib.request.urlopen(HA + f"/_set?e={e_}&s=not_home").read()
+pgC.click("#tabBar [data-tab=family]"); pgC.wait_for_timeout(1500)
+check("presence: rule 'one source is enough': Home Assistant says away, but her phone is in the home Wi-Fi: at home",
+      wait_for(lambda: "zu Hause" in pgC.inner_text(f"{anna} .fmWhere")) and pgC.locator(f"{anna} .fmSrc [data-kind=ssid].yes").count() == 1, pgC.inner_text(anna))
+presence_rule("ha")
+pgC.click("#tabBar [data-tab=family]"); pgC.wait_for_timeout(1500)
+check("presence: rule 'as Home Assistant says': away", wait_for(lambda: "unterwegs" in pgC.inner_text(f"{anna} .fmWhere")), pgC.inner_text(anna))
+for e_ in ("person.anna", "device_tracker.anna_handy", "device_tracker.anna_fritz"): urllib.request.urlopen(HA + f"/_set?e={e_}&s=home").read()
+set_setting("presence", {"rule": "ha", "ssids": []})
+pgC.wait_for_timeout(800)
 pgC.fill(".pbInput", "Bin um 6 da 🚗"); pgC.click(".pbPin"); pgC.wait_for_timeout(800)
 notes = api("api/pinboard")["notes"]
 check("pinboard: a new note is pinned for everybody, with who wrote it", notes and notes[0]["text"] == "Bin um 6 da 🚗" and notes[0]["by"] == "admin"

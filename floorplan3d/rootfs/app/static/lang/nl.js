@@ -1558,4 +1558,11 @@ export default {
   'sec.delAsk': 'Sectie verwijderen? De kaarten staan dan weer bovenaan.', 'sec.dropHere': 'Sleep kaarten hierheen met ⠿', 'sec.title': 'Naam',
   'sec.titlePh': 'bv. Woonkamer, Stroom, Beveiliging', 'sec.icon': 'Symbool', 'sec.width': 'Breedte', 'sec.normal': 'Normaal',
   'sec.wide': 'Breed (twee kolommen)',
+  'fm.s.home': 'thuis', 'fm.s.away': 'weg', 'fm.s.wifiIn': 'Telefoon op de wifi (router)', 'fm.s.wifiOut': 'niet op de wifi (router)', 'fm.s.gps': 'GPS: {v}',
+  'fm.s.bt': 'Bluetooth: {v}', 'fm.s.other': 'Locatie: {v}', 'fm.s.ssid': 'Wifi ‘{v}’ (app)', 'fm.s.noSsid': 'geen wifi (app)', 'fm.s.room': 'in de kamer {v}',
+  'fm.s.noRoom': 'in geen kamer', 'fm.home0': 'Niemand thuis', 'fm.home1': '1 persoon thuis', 'fm.homeN': '{n} personen thuis',
+  'fm.rooms': 'Wie is waar in huis', 'fm.roomMotion': 'beweging / aanwezigheid', 'pr.title': '👨‍👩‍👧 Wie is thuis',
+  'pr.help': 'De pagina Familie toont per persoon wat zegt dat die er is: de telefoon op de wifi (routerintegraties zoals FRITZ!Box, UniFi, Ping), gps van de Home Assistant-app, de wifinaam uit de app, de kamer (Bluetooth, bv. Bermuda). Hier stel je in wanneer iemand als thuis telt.',
+  'pr.rule': 'Thuis als', 'pr.rule.ha': 'Home Assistant het zegt (de persoon)', 'pr.rule.any': 'één bron het zegt (wifi, gps, kamer …)',
+  'pr.rule.two': 'twee bronnen het zeggen (zekerder)', 'pr.ssids': 'Wifinaam/-namen thuis', 'pr.ssidsPh': 'bv. Thuis-5G, Thuis',
 };
