@@ -6,6 +6,8 @@ import math
 import re
 from datetime import datetime, timezone
 
+import controls
+
 STAT_ID = re.compile(r"^[a-z0-9_]+[.:][a-z0-9_]{1,200}$")      # an entity ("sensor.x") or an external statistic ("domain:x")
 CALENDAR_ID = re.compile(r"^calendar\.[a-z0-9_]{1,200}$")
 WEATHER_ID = re.compile(r"^weather\.[a-z0-9_]{1,200}$")
@@ -306,3 +308,28 @@ def new_note(body, by: str, now: datetime, nid: str):
 def add_note(notes: list, note: dict) -> list:
     """the note in front of the others; a full pinboard lets its oldest note go"""
     return clean_notes([note, *notes])
+
+
+# ---------- 🎵 Musik & TV (#490) ----------
+MAX_STATIONS = 20
+
+
+def clean_stations(val) -> list:
+    """The radio stations of ⚙ (cleanStations in static/media.js): [{"name", "url"}], a stream (http/https) or one of Home Assistant's
+    media (media-source://), each address once, at most MAX_STATIONS; a name of 40 characters at most (the address when it has none)."""
+    out, seen = [], set()
+    for v in val if isinstance(val, list) else []:
+        url = v.get("url").strip() if isinstance(v, dict) and isinstance(v.get("url"), str) else ""
+        if not controls.STATION.match(url) or url in seen:
+            continue
+        name = v.get("name").strip() if isinstance(v.get("name"), str) else ""
+        seen.add(url)
+        out.append({"name": (CONTROL.sub(" ", name) or url)[:40], "url": url})
+    return out[:MAX_STATIONS]
+
+
+def media_picture(state):
+    """the address of a player's picture at Home Assistant (its media proxy), never anything else"""
+    a = state.get("attributes") if isinstance(state, dict) else None
+    v = a.get("entity_picture") if isinstance(a, dict) else None
+    return v if isinstance(v, str) and controls.MEDIA_PICTURE.match(v) else None

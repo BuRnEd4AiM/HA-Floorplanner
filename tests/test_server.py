@@ -1243,3 +1243,26 @@ async def test_family_without_home_assistant(client):
     assert (await (await client.get("/api/family")).json()) == {"people": []}
     assert (await client.get("/api/family/light.x/picture")).status == 400
     assert (await client.get("/api/family/person.anna/picture")).status == 503
+
+
+async def test_media_and_household_settings_are_cleaned_and_emptied_machines_are_kept(client, tmp_path):
+    """#490: the radio stations, the shopping list and the machines chosen in ⚙ are checked; "✓ Ausgeräumt" is kept for every screen;
+    without Home Assistant the pages get empty answers"""
+    import json
+    body = {"radioStations": [{"name": "SWR3", "url": "https://liveradio.example/swr3.mp3"}, {"name": "x", "url": "javascript:alert(1)"},
+                              {"url": "media-source://radio_browser/abc"}],
+            "shoppingList": "light.kueche", "appliances": {"washer": {"power": "sensor.wm_power", "status": "x"}, "boat": {"power": "sensor.b"}}}
+    s = await (await client.put("/api/settings", json=body)).json()
+    assert s["radioStations"] == [{"name": "SWR3", "url": "https://liveradio.example/swr3.mp3"},
+                                  {"name": "media-source://radio_browser/abc", "url": "media-source://radio_browser/abc"}]
+    assert s["shoppingList"] == "" and s["appliances"] == {"washer": {"power": "sensor.wm_power"}}
+    s = await (await client.put("/api/settings", json={**s, "shoppingList": "todo.einkauf"})).json()
+    assert s["shoppingList"] == "todo.einkauf"
+    assert await (await client.get("/api/household")).json() == {"appliances": []}
+    assert await (await client.get("/api/todo")).json() == {"lists": [], "entity": "", "items": []}
+    assert (await client.post("/api/household/ack", json={"kind": "boat"})).status == 400
+    assert (await client.post("/api/household/ack", json={"kind": "dishwasher"})).status == 200
+    assert json.loads(next(tmp_path.rglob("household.json")).read_text("utf-8"))["acks"]["dishwasher"] > 0
+    assert (await client.post("/api/todo", json={"entity": "todo.e", "action": "add", "item": "Milch"})).status == 503
+    assert (await client.get("/api/media/light.x/picture")).status == 400
+    assert (await client.get("/api/media/media_player.tv/picture")).status == 503

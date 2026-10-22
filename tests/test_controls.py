@@ -107,3 +107,26 @@ def test_extras_for_the_live_card():
     assert controls.extras(st("input_select.modus", "Eco", options=["Eco", "Komfort"])) == {"options": ["Eco", "Komfort"]}
     assert controls.extras(st("light.x", brightness=10)) is None
     assert controls.extras(st("media_player.y", "playing", media_title="x" * 300))["title"] == "x" * 100
+
+
+def test_music_page_stations_rooms_together_and_pictures():
+    """#490: a radio station of ⚙ is played, players join and part, the picture of a player through the add-on or from the internet"""
+    ok = lambda svc, data=None: controls.check({"domain": "media_player", "service": svc, "entity_id": "media_player.kueche", **({"data": data} if data else {})})  # noqa: E731
+    assert ok("play_media", {"media_content_id": "https://stream.example/swr3.mp3", "media_content_type": "music"})[2] == {
+        "entity_id": "media_player.kueche", "media_content_id": "https://stream.example/swr3.mp3", "media_content_type": "music"}
+    assert ok("play_media", {"media_content_id": "media-source://radio_browser/abc-123", "media_content_type": "music"})[3] is None
+    for data in ({"media_content_id": "file:///etc/passwd", "media_content_type": "music"}, {"media_content_id": "https://x y", "media_content_type": "music"},
+                 {"media_content_id": "https://x.example/a", "media_content_type": "video"}, {"media_content_id": "https://x.example/a"}):
+        assert ok("play_media", data)[3], data
+    assert ok("join", {"group_members": ["media_player.bad", "media_player.wz"]})[3] is None
+    for g in ([], ["light.x"], ["media_player.a", "media_player.a"], ["media_player.p%d" % i for i in range(21)], "media_player.a"):
+        assert ok("join", {"group_members": g})[3], g
+    assert ok("unjoin")[3] is None
+    st = {"entity_id": "media_player.tv", "state": "playing", "attributes": {"entity_picture": "/api/media_player_proxy/media_player.tv?token=abc&cache=9",
+                                                                            "group_members": ["media_player.tv", "media_player.kueche"], "supported_features": 524288}}
+    m = controls.extras(st)
+    assert m["pic"].startswith("p") and len(m["pic"]) == 13 and m["grp"] == ["media_player.tv", "media_player.kueche"]
+    assert controls.picture_key("https://i.scdn.co/image/ab67616d") == "https://i.scdn.co/image/ab67616d"
+    for v in ("/local/x.png", "http://insecure.example/a.jpg", "https://a.example/\"onerror", "/api/media_player_proxy/media_player.tv/../x", None):
+        assert controls.picture_key(v) is None, v
+    assert controls.extras({"entity_id": "media_player.s", "state": "on", "attributes": {"group_members": ["media_player.s"]}}) is None   # alone: nothing

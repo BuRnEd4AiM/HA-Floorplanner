@@ -91,6 +91,10 @@ import { initTodayPage } from './pagetoday.js';
 import { initClimatePage } from './pageclimate.js';
 import { initRoutinesPage } from './pageroutines.js';
 import { initFamilyPage } from './pagefamily.js';
+import { initMediaPage } from './pagemedia.js';
+import { initHouseholdPage } from './pagehousehold.js';
+import { initMediaPrefs } from './mediaprefs.js';
+import { placeOf } from './guard.js';
 import { initPinboard } from './pinboardui.js';
 import { initRoutinePrefs } from './routineprefs.js';
 import { initDashboards } from './dashboards.js';
@@ -684,6 +688,16 @@ const routinesPage = initRoutinesPage({                          // ▶ Abläufe
   openNames: () => openings.items().map((x) => x.name), litLights: () => lightGroups.lit(),
   callService: (e, svc, data) => live.callService(e, svc, data), board,
 });
+const roomOf = (e) => placeOf(layout, e)?.room || areas.find((a) => a.id === areaOf[e])?.name || '';   // the room of a device: in the plan, else its area
+const mediaPage = initMediaPage({                                // 🎵 Musik & TV (pagemedia.js, media.js, #490)
+  t, el: $('#tabPages [data-page=media]'), states: () => states, names: () => namesOf(/^media_player\./), roomOf, settings: () => settings,
+  canEdit: () => me.canEdit, callService: (e, svc, data) => live.callService(e, svc, data), board,
+});
+const householdPage = initHouseholdPage({                        // 🧺 Haushalt (pagehousehold.js, household.js, #490)
+  t, el: $('#tabPages [data-page=household]'), lang: () => currentLanguage(), states: () => states, names: () => namesOf(/^vacuum\./),
+  callService: (e, svc, data) => live.callService(e, svc, data), locked: () => locks.has('control'), builtin: (k) => todayPage.card(k),
+  changed: () => tabsUi.update(), board,
+});
 const familyPage = initFamilyPage({                              // 👨‍👩‍👧 Familie with the pinboard (pagefamily.js, family.js, #483)
   t, el: $('#tabPages [data-page=family]'), lang: () => currentLanguage(), states: () => states, names: () => namesOf(/^person\./), pinboard, board,
 });
@@ -708,6 +722,7 @@ const tabsUi = initTabsUi({
   $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => me, full,
   pages: () => ({ today: { el: $('#tabPages [data-page=today]'), ...todayPage }, energy: { el: $('#tabPages [data-page=energy]'), ...energyPage },
     climate: { el: $('#tabPages [data-page=climate]'), ...climatePage }, cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage },
+    media: { el: $('#tabPages [data-page=media]'), ...mediaPage }, household: { el: $('#tabPages [data-page=household]'), ...householdPage },
     routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage },
     ...dash.customPages() }),
   edit: dash.edit, tabEdit: dash.tabEdit,
@@ -1495,11 +1510,12 @@ const startView = initStartView({
 });
 const todayPrefs = initTodayPrefs({ $, t });             // ⚙ → "Reiter unten": the calendars of the page ☀ Heute (#481, todayprefs.js)
 const routinePrefs = initRoutinePrefs({ $, t, entities: () => entities });   // ... and the buttons of ▶ Abläufe (#483, routineprefs.js)
+const mediaPrefs = initMediaPrefs({ $, t, entities: () => entities });       // ... the radio stations, the shopping list and the machines (#490, mediaprefs.js)
 const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
-  parts: [favorites, lightGroups, todayPrefs, routinePrefs],          // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481)
+  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs],          // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones

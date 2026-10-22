@@ -25,6 +25,7 @@ from aiohttp import web
 import alarmnotify as an
 import boards
 import guard as gd
+import household as hh
 import controls
 import importer
 import manifest as mf
@@ -110,6 +111,9 @@ DEFAULT_SETTINGS = {
     "pageLayouts": {},         # the pages arranged by an admin (#484): {page: {"order", "hidden", "cards"}} (boards.py, static/pagelayout.js)
     "customTabs": [],          # own pages of the tab bar (#484): [{"id": "p_…", "name", "icon"}]
     "tabOrder": [],            # the order of the tab bar (#484): tab keys, the house always first
+    "radioStations": [],       # the radio stations of the page 🎵 Musik & TV (#490): [{"name", "url"}] (pages.clean_stations)
+    "shoppingList": "",        # the to-do list of the page 🧺 Haushalt (#490): a todo.*; "" = a shopping list of Home Assistant
+    "appliances": {},          # the machines of 🧺 Haushalt an admin chose (#490): {washer|dryer|dishwasher: {"power", "status"}}; the rest by name
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "bgTop": "#0a3ba8",
@@ -579,6 +583,10 @@ def validate_settings(data: dict) -> dict:
             out[key] = boards.clean_tab_order(val)
         elif key == "pageLayouts":
             pass                                                      # after the loop: it needs the own pages
+        elif key == "radioStations":
+            out[key] = pages.clean_stations(val)
+        elif key == "appliances":
+            out[key] = hh.clean_chosen(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
@@ -630,6 +638,8 @@ def validate_settings(data: dict) -> dict:
         out["weatherEntity"] = ""
     if out["wasteCalendar"] and not pages.CALENDAR_ID.match(out["wasteCalendar"]):
         out["wasteCalendar"] = ""
+    if out["shoppingList"] and not hh.TODO_ID.match(out["shoppingList"]):
+        out["shoppingList"] = ""
     out["pageLayouts"] = boards.clean_page_layouts(data.get("pageLayouts"), out["customTabs"])
     for key in ("routineLeave", "routineNight"):
         if out[key] and not clean_routines([out[key]]):
@@ -2109,6 +2119,126 @@ async def delete_pinboard(request):
     return pinboard_answer(request, left)
 
 
+# ---------- 🎵 Musik & TV (#490): the picture of a player ----------
+async def get_media_picture(request):
+    """The picture of what a player plays (Home Assistant's media proxy of that player), never anything else."""
+    entity = request.match_info["entity"]
+    if not controls.PLAYER.match(entity):
+        return web.json_response({"error": "not a media player"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no supervisor token"}, status=503)
+    base = HA_API[:-4] if HA_API.endswith("/api") else HA_API
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+            async with s.get(f"{HA_API}/states/{entity}", headers=ha_headers()) as r:
+                path = pages.media_picture(await r.json()) if r.status == 200 else None
+            if not path:
+                return web.json_response({"error": "no picture"}, status=404)
+            async with s.get(base.rstrip("/") + path, headers=ha_headers()) as r:
+                ctype = (r.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+                body = await read_all(r, MAX_PICTURE_BYTES) if r.status == 200 else None
+    except (aiohttp.ClientError, asyncio.TimeoutError, ValueError):
+        return web.json_response({"error": "Home Assistant not reachable"}, status=502)
+    if ctype not in CAMERA_TYPES or body is None:
+        return web.json_response({"error": "unexpected answer"}, status=502)
+    return web.Response(body=body, content_type=ctype, headers={"Cache-Control": "private, max-age=86400", "X-Content-Type-Options": "nosniff"})
+
+
+# ---------- 🧺 Haushalt (#490, household.py): the machines, "✓ Ausgeräumt" for everybody, the shopping list ----------
+def household_path(request) -> Path:
+    return data_dir(request) / "household.json"
+
+
+async def household_answer(request) -> dict:
+    """the machines found and what each does now (kept half a minute; the power sensors' last 24 hours from Home Assistant's history)"""
+    hit = pages_cached(request, ("household",), 30)
+    if hit is not None:
+        return hit
+    states = await ha_states()
+    found = hh.find_appliances(states, read_settings(request).get("appliances"))
+    power = sorted({r["power"] for r in found.values() if r.get("power")})
+    history = {}
+    if power:
+        start = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=24)).isoformat()
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=20)) as s:
+            async with s.get(f"{HA_API}/history/period/{start}", headers=ha_headers(),
+                             params={"filter_entity_id": ",".join(power), "minimal_response": "", "no_attributes": ""}) as r:
+                history = hh.history_points(await r.json()) if r.status == 200 else {}
+    stored = read_json(household_path(request), {})
+    acks = hh.clean_acks(stored.get("acks") if isinstance(stored, dict) else None)
+    by_id = {st["entity_id"]: st for st in states if isinstance(st, dict) and isinstance(st.get("entity_id"), str)}
+    now = time.time()
+    return pages_keep(request, ("household",), {"appliances": [hh.appliance(k, found[k], by_id, history, acks.get(k), now) for k in hh.KINDS if k in found]})
+
+
+async def get_household(request):
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"appliances": []})
+    try:
+        return web.json_response(await household_answer(request))
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}", "appliances": []}, status=502)
+
+
+async def post_household_ack(request):
+    """"✓ Ausgeräumt": the machine was emptied (anybody may, it is kept for every screen)."""
+    try:
+        body = await request.json()
+    except ValueError:
+        body = {}
+    kind = body.get("kind") if isinstance(body, dict) else None
+    if kind not in hh.KINDS:
+        return web.json_response({"error": "washer, dryer or dishwasher"}, status=400)
+    stored = read_json(household_path(request), {})
+    acks = {**hh.clean_acks(stored.get("acks") if isinstance(stored, dict) else None), kind: time.time()}
+    write_json_atomic(household_path(request), {"acks": acks})
+    request.app[KEY_PAGES].pop(("household",), None)
+    return await get_household(request)
+
+
+async def todo_answer(request, wanted=None) -> dict:
+    """the to-do lists of Home Assistant and the items of the one shown"""
+    lists = hh.todo_lists(await ha_states())
+    entity = hh.pick_list(lists, wanted, read_settings(request).get("shoppingList"))
+    items = []
+    if entity:
+        async with _HaSocket() as ws:
+            items = hh.slim_items(await rn.ask(ws, 1, {"type": "todo/item/list", "entity_id": entity}, []))
+    return {"lists": lists, "entity": entity, "items": items}
+
+
+async def get_todo(request):
+    """The shopping list (or another to-do list of Home Assistant, ?entity=)."""
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"lists": [], "entity": "", "items": []})
+    try:
+        return web.json_response(await todo_answer(request, request.query.get("entity")))
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}", "lists": [], "entity": "", "items": []}, status=502)
+
+
+async def post_todo(request):
+    """A change of the list: add an item, tick one off or back, clear the ticked ones (anybody may, like the pinboard)."""
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no supervisor token"}, status=503)
+    try:
+        body = await request.json()
+    except ValueError:
+        body = None
+    call = hh.todo_call(body)
+    if not call:
+        return web.json_response({"error": "an entity todo.* and add (item), done / undo (uid) or clear"}, status=400)
+    entity, service, data = call
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as s:
+            async with s.post(f"{HA_API}/services/todo/{service}", headers=ha_headers(), json={"entity_id": entity, **data}) as r:
+                ok = r.status == 200
+        answer = await todo_answer(request, entity)
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    return web.json_response({**answer, "ok": ok}, status=200 if ok else 502)
+
+
 # ---------- a message when something goes off: alarm panel, smoke, gas, CO, water (#414, alarmnotify.py) ----------
 CALLMEBOT_URL = os.environ.get("CALLMEBOT_URL", "https://api.callmebot.com/whatsapp.php")
 CALLMEBOT_TG = os.environ.get("CALLMEBOT_TG", "https://api.callmebot.com")   # Telegram: text.php (users), telegram/group.php (a group, #456)
@@ -2683,6 +2813,11 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/pinboard", get_pinboard),
         web.post("/api/pinboard", post_pinboard),
         web.delete("/api/pinboard/{id}", delete_pinboard),
+        web.get("/api/media/{entity}/picture", get_media_picture),
+        web.get("/api/household", get_household),
+        web.post("/api/household/ack", post_household_ack),
+        web.get("/api/todo", get_todo),
+        web.post("/api/todo", post_todo),
         web.get("/api/notify", get_notify),
         web.put("/api/notify", put_notify),
         web.post("/api/notify/test", test_notify),

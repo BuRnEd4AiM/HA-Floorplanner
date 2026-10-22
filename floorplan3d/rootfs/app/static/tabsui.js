@@ -6,9 +6,9 @@
 import { HOME, shownTabs, barShown, startTab, keepTab, barTabs } from './tabs.js';
 
 /** ctx: $, t, settings(), isLive(), card (true in the dashboard card without its option "tabs"), me() ({ tabs: { hide, start }, locks }),
- *  pages() ({ <tab>: { el, render(), update(), has(), reset() } }, own pages too), onShow(tab) (close what lies over the house, wake the
- *  drawing), edit ({ can() (editors), editing() (the page in the edit mode), toggle(tab) }), tabEdit ({ on(), newPage() }),
- *  full (fullscreenui.js: { can(), isFull(), state(), click() }) */
+ *  pages() ({ <tab>: { el, render(), update(), has(), reset(), badge() (optional: a number on the tab) } }, own pages too),
+ *  onShow(tab) (close what lies over the house, wake the drawing), edit ({ can() (editors), editing() (the page in the edit mode),
+ *  toggle(tab) }), tabEdit ({ on(), newPage() }), full (fullscreenui.js: { can(), isFull(), state(), click() }) */
 export function initTabsUi(ctx) {
   const { $, t } = ctx;
   const bar = $('#tabBar'), host = $('#tabPages');
@@ -19,15 +19,17 @@ export function initTabsUi(ctx) {
 
   function draw() {
     const all = order().filter((x) => tabs.includes(x.key)), editor = !!ctx.edit?.can(), moving = !!ctx.tabEdit?.on();
-    const full = ctx.full, fs = full?.can() ? [full.isFull(), full.state()] : null;
-    const sig = JSON.stringify([all, shown, fs, editor, moving, t('tab.house')]);      // the language too: the names follow a change in ⚙
+    const full = ctx.full, fs = full?.can() ? [full.isFull(), full.state()] : null, ps = pages();
+    const badges = all.map((x) => ps[x.key]?.badge?.() || 0);         // a number on a tab: machines done on 🧺 Haushalt (#490)
+    const sig = JSON.stringify([all, shown, fs, editor, moving, badges, t('tab.house')]);      // the language too: the names follow a change in ⚙
     if (sig === drawn) { mark(); return; }
     drawn = sig;
     bar.hidden = !shown;
     document.body.classList.toggle('hasTabs', shown);
-    bar.replaceChildren(...all.map((x) => {
+    bar.replaceChildren(...all.map((x, n) => {
       const b = document.createElement('button'); b.type = 'button'; b.dataset.tab = x.key;
       const i = document.createElement('span'); i.className = 'ti'; i.textContent = x.icon;
+      if (badges[n]) { const d = document.createElement('span'); d.className = 'tbBadge'; d.textContent = String(badges[n]); i.append(d); }
       b.append(i, document.createTextNode(nameOf(x)));
       b.addEventListener('click', () => { if (!ctx.tabEdit?.on()) show(x.key); });
       return b;
