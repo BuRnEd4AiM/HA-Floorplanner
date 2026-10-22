@@ -9,6 +9,8 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - **⚖ Vergleichen: the power of several houses in one chart** (#495, the owner: "wenn man mehrere Häuser hat mit unterschiedlichen Stromsensoren, dass es dann auch in einer Grafik irgendwie zu sehen ist"; picture `docs/ideen-4.9/2-strom-haeuser.jpg`). On ⚡ Energie with more than one house a chip *⚖ Vergleichen* beside *Alle zusammen*: every house with its own meters (⚡ Rechnung; the first house without its own takes those of Home Assistant's energy dashboard, a later one none, so nothing counts twice), each in its own colour: a tile per house (kWh in the period, the power now) and the sum, today a line per house through the hours, a week / month / year a bar per house and day / month, the power of each house now, the cost of each house. One question to Home Assistant's statistics for all houses (`energycompare.js`, the rules in `energyhistory.js`, tested).
 - **History card with several sensors** (#495): the own card *Verlauf* takes up to six sensors (`more`), a line each in its own colour on one scale, with a legend and each value now, e.g. the power sensors of every house.
 - Demo: the neighbour house has its own meter, price and power sensor, so *⚖ Vergleichen* shows both houses.
+### Fixed
+- CI: the browser test no longer fails before it starts when a package server of the GitHub runner answers 403 or hangs (that source is left out, a retry waits until the hanging apt-get lets go of the package lock).
 
 ## [4.9.0] - 2026-10-22
 ### Added
