@@ -12,6 +12,7 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 - Demo: an own page *🔘 Knöpfe* with buttons in every look.
 ### Fixed
 - The device list of *Karte einstellen* no longer squeezes its rows when the window is long.
+- CI: the browser test first tries Chromium without extra Ubuntu packages (the runner image has their libraries); a hung `apt-get update` is stopped before the next attempt instead of blocking it.
 
 ## [4.13.0] - 2026-10-22
 ### Added
