@@ -14,6 +14,7 @@ ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_pr
 NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["ha_entity", "notify.a,notify.b", message] through notify.send_message (#460), ["callmebot", phone, text, apikey] through /_callmebot
 STATS_ASKED = []   # the statistics the add-on asked for (#479): [ids, period]
 EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes[, platform][, device]}}, {} takes them away; with "platform" or "device" also in the entity registry (#460, #483: a phone and its battery)
+CAL_NEW = {}       # #495: the events "＋ Termin" of the calendar card made: {calendar: [event]}; GET /_calreset forgets them
 TODO = {}          # #490: the to-do lists: {entity: [{"uid", "summary", "status"}]}, POST /_todo; changed by todo.add_item / update_item / remove_completed_items
 HIST = {}          # #490: the history of some entities (a machine's power): {entity: [[iso time, state]]}, POST /_hist; others get the hourly numbers
 def cur(e): return ALIAS.get(e, e)
@@ -57,6 +58,11 @@ async def service(r):
             for it in items:
                 if it["uid"] == body["item"]: it["status"] = body["status"]
         if svc == "remove_completed_items": TODO[e] = [it for it in items if it["status"] != "completed"]
+        return web.json_response([])
+    if dom == "calendar" and svc == "create_event":     # #495: "＋ Termin" of the calendar card: kept, in the calendar's events from now on
+        CALL_DATA.append([svc, e, {k: v for k, v in body.items() if k != "entity_id"}])
+        when = lambda k: {"dateTime": body[k + "_date_time"]} if k + "_date_time" in body else {"date": body[k + "_date"]}
+        CAL_NEW.setdefault(e, []).append({"start": when("start"), "end": when("end"), "summary": body["summary"]})
         return web.json_response([])
     if dom == "notify":           # #414: a message of the add-on; #460: notify.send_message to notify entities
         NOTIFIED.append(["ha_entity", ",".join(e), body.get("message")] if svc == "send_message" and isinstance(e, list) else ["ha", svc, body.get("message")])
@@ -175,10 +181,14 @@ async def calendar_events(r):
     import datetime as dt
     start = dt.datetime.fromisoformat(r.query["start"].replace("Z", "+00:00")).astimezone()
     day = start.date() + dt.timedelta(days=1) if start.hour >= 12 else start.date()        # the first day asked for (local)
+    new = CAL_NEW.get(r.match_info["id"], [])
     if r.match_info["id"] == "calendar.muell":
-        return web.json_response([{"start": {"date": (day + dt.timedelta(days=1)).isoformat()}, "end": {"date": (day + dt.timedelta(days=2)).isoformat()}, "summary": "Gelber Sack"}])
+        return web.json_response([{"start": {"date": (day + dt.timedelta(days=1)).isoformat()}, "end": {"date": (day + dt.timedelta(days=2)).isoformat()}, "summary": "Gelber Sack"}] + new)
     at = dt.datetime.combine(day, dt.time(15, 0)).astimezone()
-    return web.json_response([{"start": {"dateTime": at.isoformat()}, "end": {"dateTime": (at + dt.timedelta(hours=1)).isoformat()}, "summary": "Zahnarzt"}])
+    return web.json_response([{"start": {"dateTime": at.isoformat()}, "end": {"dateTime": (at + dt.timedelta(hours=1)).isoformat()}, "summary": "Zahnarzt"}] + new)
+async def cal_reset(r):
+    CAL_NEW.clear()
+    return web.json_response({"ok": True})
 async def stats_asked(r): return web.json_response(STATS_ASKED)
 async def one_state(r):           # #483: one state (a person's picture is looked up there)
     e = r.match_info["e"]
@@ -264,7 +274,7 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
-                web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_stats", stats_asked),
+                web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_calreset", cal_reset), web.get("/_stats", stats_asked),
                 web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),
                 web.get("/history/period/{start}", history), web.get("/_history", history_asked),
                 web.post("/_todo", set_todo), web.post("/_hist", set_hist), web.get("/api/media_player_proxy/{e}", media_proxy)])

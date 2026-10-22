@@ -393,6 +393,22 @@ let settings = {
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
   favorites: ['scene.wz_gemuetlich', 'scene.wz_aus', 'light.stehlampe', 'light.kueche'],   // 4.2: favourites and light groups (#471)
   presence: { rule: 'any', ssids: ['Zuhause-5G'] },                                           // who is really at home (#495)
+  customTabs: [{ id: 'p_knoepfe', name: 'Knöpfe', icon: '🔘' }],                             // a page of buttons in every look (#495)
+  pageLayouts: { p_knoepfe: { cards: [
+    { id: 'c_wohnen', type: 'button', entity: 'light.wohnzimmer', name: 'Wohnzimmer', icon: '🛋', onColor: 'lamp', show: ['name', 'state', 'bar'], hold: 'more' },
+    { id: 'c_schlafen', type: 'button', entity: 'light.schlafzimmer', name: 'Schlafzimmer', icon: '🛏', show: ['name', 'state', 'since'] },
+    { id: 'c_heizung', type: 'button', entity: 'climate.wohnzimmer', name: 'Heizung', icon: '🔥', onColor: 'orange', shape: 'round' },
+    { id: 'c_kino', type: 'button', entity: 'scene.wz_gemuetlich', name: 'Kino', icon: '🎬', shape: 'round', onColor: 'purple' },
+    { id: 'c_kueche', type: 'button', entity: 'light.kueche', name: 'Küche', icon: '💡', shape: 'pill', width: 2, show: ['name', 'state', 'since'] },
+    { id: 'c_tuer', type: 'button', entity: 'lock.haustuer', name: 'Haustür', icon: '🔒', shape: 'pill', width: 2, onColor: 'red', tap: 'more' },
+    { id: 'c_nacht', type: 'button', entity: 'scene.gute_nacht', name: 'Gute Nacht', icon: '🌙', shape: 'pill', bsize: 'xl', width: 2, onColor: 'blue' },
+    { id: 'c_fernseher', type: 'button', entity: 'media_player.tv', icon: '📺', shape: 'icon' },
+    { id: 'c_musik', type: 'button', entity: 'media_player.sonos_wz', icon: '🎵', shape: 'icon', onColor: 'green' },
+    { id: 'c_robo', type: 'button', entity: 'vacuum.robo', name: 'Saugroboter', icon: '🏠', bsize: 's', tap: 'more' }] },
+  today: {                                                                       // the calendar card on ☀ Heute after the weather (#495)
+    order: ['clock', 'weather', 'c_kalender', 'pinboard', 'agenda', 'waste', 'people', 'house', 'power'],
+    cards: [{ id: 'c_kalender', type: 'calendar', name: 'Diese Woche', width: 4, days: 7, view: 'week', add: true,
+      cals: [{ id: 'calendar.familie', color: 'blue' }, { id: 'calendar.arbeit_anna', color: 'orange' }, { id: 'calendar.schule', color: 'green' }, { id: 'calendar.geburtstage', color: 'red' }] }] } },
   lightGroups: [{ id: 'g_wohnen', name: 'Wohnen', rooms: ['r1', 'r2'] }, { id: 'g_oben', name: 'Oben', rooms: ['q1', 'q2'] }, { id: 'g_keller', name: 'Keller', rooms: ['k1', 'k2', 'k3'] }],
   radioStations: [{ name: 'SWR3', url: 'https://radio.example/swr3.mp3' }, { name: 'Bayern 3', url: 'https://radio.example/bayern3.mp3' },   // 4.8: 🎵 (#490)
     { name: '1LIVE', url: 'https://radio.example/1live.mp3' }, { name: 'Deutschlandfunk', url: 'https://radio.example/dlf.mp3' }, { name: 'Klassik Radio', url: 'https://radio.example/klassik.mp3' }],
@@ -508,6 +524,33 @@ function demoAgenda() {
   return [at(0, 15, 0, 'Zahnarzt Anna'), at(0, 17, 30, 'Fußball-Training Max', 2), all(0, 'Herbstferien', 'calendar.familie', 5), at(1, 19, 0, 'Elternabend'),
     at(1, 8, 15, 'Handwerker (Heizung)'), all(1, 'Gelber Sack', 'calendar.muellabfuhr'), all(3, 'Restmüll', 'calendar.muellabfuhr'), all(6, 'Papier', 'calendar.muellabfuhr')];
 }
+/** the calendars of Home Assistant in the demo: the family, Anna's work, the school, the birthdays, the waste collection */
+const DEMO_CALENDARS = [{ entity_id: 'calendar.familie', name: 'Familie' }, { entity_id: 'calendar.arbeit_anna', name: 'Arbeit Anna' },
+  { entity_id: 'calendar.schule', name: 'Schule' }, { entity_id: 'calendar.geburtstage', name: 'Geburtstage' }, { entity_id: 'calendar.muellabfuhr', name: 'Müllabfuhr' }];
+const demoNewEvents = [];                                    // what "＋ Termin" put in (#495)
+/** the events of the calendar card (#495): those of ☀ Heute and more of the other calendars over a month, in the days asked for */
+function demoCalendar(ids, start, end) {
+  const day = (n, h, m = 0) => { const d = new Date(); d.setDate(d.getDate() + n); d.setHours(h, m, 0, 0); return d; };
+  const date = (n) => { const d = day(n, 12); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  const at = (n, h, m, title, cal, len = 1) => ({ s: day(n, h, m).toISOString(), e: day(n, h + len, m).toISOString(), allDay: false, title, cal });
+  const all = (n, title, cal, len = 1) => ({ s: date(n), e: date(n + len), allDay: true, title, cal });
+  const work = [1, 4, 5, 6, 7, 8, 11, 12, 13, 14, 15, 18, 19].map((n) => at(n, 8, 0, 'Büro', 'calendar.arbeit_anna', 8));
+  const ev = [...demoAgenda(), ...work, at(1, 9, 0, 'Team-Termin', 'calendar.arbeit_anna'), at(5, 13, 0, 'Mittag mit Jan', 'calendar.arbeit_anna'),
+    at(12, 10, 30, 'Kundentermin', 'calendar.arbeit_anna', 2), all(2, 'Oma wird 70 🎂', 'calendar.geburtstage'), all(21, 'Lena wird 9 🎂', 'calendar.geburtstage'),
+    all(-6, 'Opa Karl 🎂', 'calendar.geburtstage'), at(2, 14, 0, 'Kaffee bei Oma', 'calendar.familie', 3), at(3, 10, 0, 'Laufen', 'calendar.familie'),
+    at(5, 9, 30, 'Arzt Max', 'calendar.familie'), at(6, 18, 0, 'Chor', 'calendar.familie', 2), at(13, 18, 0, 'Chor', 'calendar.familie', 2),
+    at(4, 16, 0, 'Schwimmen Lena', 'calendar.schule'), at(11, 16, 0, 'Schwimmen Lena', 'calendar.schule'), at(-3, 16, 0, 'Schwimmen Lena', 'calendar.schule'),
+    at(7, 19, 30, 'Elternsprechtag', 'calendar.schule', 2), all(12, 'Wandertag', 'calendar.schule'), all(16, 'Projektwoche', 'calendar.schule', 5), ...demoNewEvents];
+  const time = (s) => new Date(/^\d{4}-\d{2}-\d{2}$/.test(s) ? `${s}T00:00:00` : s);
+  return ev.filter((x) => ids.includes(x.cal) && time(x.s) < end && time(x.e || x.s) > start);
+}
+/** when a demo entity's state last changed (seconds, "seit wann" of a button card, #495): when the demo saw it change, else a made-up time */
+const changedAt = new Map();
+function lastChanged(id, state) {
+  const was = changedAt.get(id);
+  if (!was || was.state !== state) changedAt.set(id, { state, at: was ? Math.floor(Date.now() / 1000) : Math.floor(Date.now() / 1000) - 600 - (id.length * 397) % 7200 });
+  return changedAt.get(id).at;
+}
 const ONLY_ADDON = 'In der Demo nicht verfügbar (nur im Add-on).';
 const examples = { flat: flatExample, house: houseExample, showcase: showcaseExample };
 const demoVersion = () => (typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __DEMO_VERSION__);
@@ -577,7 +620,11 @@ export function installDemoBackend() {
     if (path === 'api/energy/meters') return json(DEMO_METERS);
     if (path === 'api/energy/stats' && method === 'POST') return json(demoStats(JSON.parse(init.body || '{}')));
     if (path === 'api/forecast') return json({ forecast: demoForecast() });
-    if (path === 'api/calendars') return json([{ entity_id: 'calendar.familie', name: 'Familie' }, { entity_id: 'calendar.muellabfuhr', name: 'Müllabfuhr' }]);
+    if (path === 'api/calendars') return json(DEMO_CALENDARS);
+    if (path === 'api/calendar/events') {               // the calendar card (#495)
+      const q = new URL(url, location.href).searchParams;
+      return json({ events: demoCalendar((q.get('ids') || '').split(','), new Date(q.get('start')), new Date(q.get('end'))), failed: [] });
+    }
     if (path === 'api/agenda') return json({ events: demoAgenda(), waste: 'calendar.muellabfuhr' });
     if (path === 'api/family') return json(family());
     if (path === 'api/history') {                           // #484: a card "Verlauf": made-up numbers around the value now, one per hour (more for 7 / 30 days)
@@ -650,7 +697,8 @@ export function installDemoBackend() {
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
         hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null,
-        bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null })));
+        bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null,
+        lc: lastChanged(entity_id, e.state) })));
     }
     if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
       return json({ known: true, version: demoVersion(), buildHash: 'demo', short: 'demo', server: { ok: true, files: 0, changed: [], missing: [], extra: [] }, staticFiles: {} });
@@ -658,6 +706,11 @@ export function installDemoBackend() {
     if (path === 'api/version/remote') return json({ state: 'same', version: demoVersion(), short: 'demo' });   // built from GitHub's newest main
     if (path === 'api/service' && method === 'POST') {
       const { service, entity_id: id, data } = JSON.parse(init.body);
+      if (service === 'create_event' && DEMO_CALENDARS.some((c) => c.entity_id === id)) {   // "＋ Termin" of the calendar card (#495)
+        const allDay = !!data?.start_date;
+        demoNewEvents.push({ s: allDay ? data.start_date : data.start_date_time, e: allDay ? data.end_date : data.end_date_time, allDay, title: data.summary, cal: id });
+        return json({ ok: true });
+      }
       const e = entities[id];
       if (!e) return json({ ok: false }, 502);
       if (id === 'scene.gute_nacht') {                     // the night scene (#483): every light and the TV off

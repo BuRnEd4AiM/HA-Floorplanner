@@ -1,5 +1,6 @@
-/* The windows "＋ Karte hinzufügen" (the twelve kinds) and "Karte einstellen" (#484): the device from a list that is searched while
- * typing (only devices that fit the kind), several devices for "Mehrere Geräte", a room, a ready card of ☀ Heute or a text; name,
+/* The windows "＋ Karte hinzufügen" (the thirteen kinds) and "Karte einstellen" (#484): the device from a list that is searched while
+ * typing (only devices that fit the kind), several devices for "Mehrere Geräte", a room, the calendars of a calendar card (calcardui.js,
+ * #495), a ready card of ☀ Heute or a text; name,
  * width, time span and colour; on the right the card as it will look. Saved through the board (pageboard.js) into settings.pageLayouts.
  * The rules are in cards.js (tested). */
 import { CARD_TYPES, TYPE_ICON, BUILTINS, COLORS, COLOR_HEX, HOURS, MAX_ENTITIES, MAX_SERIES, TYPE_DOMAINS, fitsType, cleanCard, defaultWidth, seriesColor } from './cards.js';
@@ -8,7 +9,7 @@ import { SIZES } from './thermostat.js';
 
 const SHOW = 40;
 
-/** ctx: t, entities() ([{ entity_id, name }]), rooms() ([{ id, name, floor }]), cards (cardsui.js), board (pageboard.js) */
+/** ctx: t, entities() ([{ entity_id, name }]), rooms() ([{ id, name, floor }]), cards (cardsui.js), board (pageboard.js), calendar (calcardui.js) */
 export function initCardEditor(ctx) {
   const { t } = ctx;
   let dlg = null, current = null;                   // current: the preview of the card being set (drawn again when its history came)
@@ -30,7 +31,7 @@ export function initCardEditor(ctx) {
     const d = open();
     const grid = make('div', 'ceTypes');
     CARD_TYPES.forEach((type) => {
-      const b = btn('ceType', null, () => edit(page, { id: newCardId(ctx.board.layout(page).cards.map((c) => c.id)), type, width: defaultWidth(type), hours: 24, color: 'blue', size: 'big' }, true));
+      const b = btn('ceType', null, () => edit(page, { id: newCardId(ctx.board.layout(page).cards.map((c) => c.id)), type, width: defaultWidth(type), hours: 24, color: 'blue', size: 'big', cals: [], days: 7, view: 'week', add: true }, true));
       b.dataset.type = type;
       b.append(make('span', 'ceTypeIcon', TYPE_ICON[type]), make('b', '', t(`ct.type.${type}`)), make('small', '', t(`ct.typeSub.${type}`)));
       grid.append(b);
@@ -97,6 +98,8 @@ export function initCardEditor(ctx) {
       sel.addEventListener('change', () => { draft.room = sel.value; preview(); });
       field(t('ce.room'), sel);
     }
+    if (card.type === 'calendar') ctx.calendar.fields(draft, { field, seg, preview: () => preview() });   // calendars, days, view (#495)
+    if (card.type === 'button') ctx.cards.buttonFields(draft, { field, seg, preview: () => preview() });  // symbol, colour, shape, tap (#495)
     if (card.type === 'builtin') {
       const sel = make('select', 'ceSelect');
       sel.append(new Option(t('ce.pickBuiltin'), ''), ...BUILTINS.map((k) => new Option(t(`ce.builtin.${k.replace(':', '.')}`), k)));
@@ -131,7 +134,7 @@ export function initCardEditor(ctx) {
       const c = cleanCard(draft);
       save.disabled = !c;
       prev.replaceChildren(make('small', 'cePrevHead', t('ce.preview')));
-      if (!c) { prev.append(make('p', 'tpSub', card.type === 'text' ? t('ce.needText') : card.type === 'room' ? t('ce.pickRoom') : card.type === 'builtin' ? t('ce.pickBuiltin') : t('ce.needDevice'))); return; }
+      if (!c) { prev.append(make('p', 'tpSub', card.type === 'text' ? t('ce.needText') : card.type === 'room' ? t('ce.pickRoom') : card.type === 'builtin' ? t('ce.pickBuiltin') : card.type === 'calendar' ? t('ce.needCal') : t('ce.needDevice'))); return; }
       const el = ctx.cards.render(c);
       el.classList.add('cePreviewCard');
       prev.append(el);

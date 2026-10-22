@@ -84,6 +84,10 @@ def test_calendars_and_the_window_of_days():
     assert pages.agenda_window("2026-10-21T00:00:00+02:00", "2026-10-23T00:00:00+02:00") == ("2026-10-20T22:00:00+00:00", "2026-10-22T22:00:00+00:00")
     assert pages.agenda_window("2026-10-21T00:00:00", "2026-10-23T00:00:00+02:00") is None
     assert pages.agenda_window("2026-10-01T00:00:00+02:00", "2026-10-30T00:00:00+02:00") is None
+    assert pages.agenda_window("2026-09-28T00:00:00+02:00", "2026-11-09T00:00:00+01:00", 42)        # a calendar card's month (#495)
+    assert pages.agenda_window("2026-09-28T00:00:00+02:00", "2026-11-12T00:00:00+01:00", 42) is None
+    many = [{"start": {"date": "2026-10-01"}, "summary": str(i)} for i in range(200)]
+    assert len(pages.slim_events(many, "calendar.a")) == 50 and len(pages.slim_events(many, "calendar.a", 150)) == 150
 
 
 def test_the_people_with_the_battery_of_their_phone():

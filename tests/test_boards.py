@@ -32,6 +32,25 @@ def test_the_lists_match_the_browser():
     sec_js = (STATIC / "sections.js").read_text()
     assert "s_[a-z0-9]{3,16}" in sec_js and f"MAX_SECTIONS = {boards.MAX_SECTIONS}" in sec_js and f"MAX_TITLE = {boards.MAX_TITLE}" in sec_js
     assert "p_[a-z0-9]{3,16}" in (STATIC / "tabs.js").read_text() and "c_[a-z0-9]{3,16}" in cards
+    cal = (STATIC / "calcard.js").read_text()
+    assert tuple(js_list(cal, "CAL_VIEWS")) == boards.CAL_VIEWS and tuple(js_list(cal, "CAL_COLORS")) == boards.CAL_COLORS
+    assert re.search(r"export const CAL_DAYS = \[([^\]]+)\]", cal).group(1).replace(" ", "") == ",".join(map(str, boards.CAL_DAYS))
+    assert f"MAX_CALS = {boards.MAX_CALS}" in cal and "calendar\\.[a-z0-9_]{1,200}" in cal
+    look = (STATIC / "buttonlook.js").read_text()
+    for name in ("BTN_ICONS", "BTN_COLORS", "BTN_SHAPES", "BTN_SIZES", "BTN_SHOW", "BTN_TAP", "BTN_HOLD"):
+        assert tuple(js_list(look, name)) == getattr(boards, name), name
+
+
+def test_a_calendar_card():
+    """#495: several calendars each in a colour, the days, the view, '＋ Termin'"""
+    c = boards.clean_card({"id": "c_cal", "type": "calendar", "cals": [{"id": "calendar.familie", "color": "green"}, "calendar.arbeit",
+                                                                       {"id": "calendar.familie"}, {"id": "Calendar.X"}, 7], "days": 14, "view": "list", "add": False})
+    assert c == {"id": "c_cal", "type": "calendar", "name": "", "width": 3, "cals": [{"id": "calendar.familie", "color": "green"},
+                 {"id": "calendar.arbeit", "color": "orange"}], "days": 14, "view": "list", "add": False}
+    d = boards.clean_card({"id": "c_cal", "type": "calendar", "cals": ["calendar.a"], "days": 5, "view": "year", "width": 2})
+    assert d["days"] == 7 and d["view"] == "week" and d["add"] is True and d["width"] == 2
+    assert boards.clean_card({"id": "c_cal", "type": "calendar", "cals": []}) is None
+    assert len(boards.clean_cals([f"calendar.c{i}" for i in range(15)])) == boards.MAX_CALS
 
 
 def test_own_pages_and_the_order_of_the_bar():
@@ -111,3 +130,18 @@ async def test_settings_keep_pages_tabs_and_users(aiohttp_client, tmp_path):
     assert (await client.get("/api/history?entity=bad&hours=24")).status == 400
     assert (await client.get("/api/history?entity=sensor.t&hours=5")).status == 400
     json.dumps(s)
+
+
+def test_the_look_of_a_button():
+    """#495: symbol, colour when on, shape, size, what it shows, tap, long press, the page a tap opens"""
+    c = boards.clean_card({"id": "c_knopf", "type": "button", "entity": "light.a"})
+    assert {k: c[k] for k in ("icon", "onColor", "shape", "bsize", "show", "tap", "hold", "page")} == {
+        "icon": "", "onColor": "amber", "shape": "tile", "bsize": "m", "show": ["name", "state"], "tap": "toggle", "hold": "more", "page": ""}
+    d = boards.clean_card({"id": "c_knopf", "type": "button", "entity": "light.a", "icon": "🛋", "onColor": "lamp", "shape": "round", "bsize": "xl",
+                           "show": ["since", "bar", "x"], "tap": "page", "page": "climate", "hold": "details"})
+    assert d["icon"] == "🛋" and d["onColor"] == "lamp" and d["shape"] == "round" and d["bsize"] == "xl" and d["show"] == ["bar", "since"]
+    assert d["tap"] == "page" and d["page"] == "climate" and d["hold"] == "details"
+    assert boards.clean_look({"tap": "page", "page": "nirgends"})["tap"] == "toggle"
+    assert boards.clean_look({"shape": "icon", "show": ["name"]})["show"] == []
+    assert boards.clean_look({"icon": ["x"], "onColor": "pink"})["icon"] == "" and boards.clean_look({"onColor": "pink"})["onColor"] == "amber"
+    assert boards.clean_card({"id": "c_knopf", "type": "button", "entity": "climate.x"}) and not boards.clean_card({"id": "c_knopf", "type": "button", "entity": "sensor.x"})

@@ -1,14 +1,17 @@
-/* Own cards on the pages of the tab bar (#484, like the cards of a Home Assistant dashboard): twelve kinds, each with what it needs
- * (an entity of a fitting kind, several entities, a room, a text or a ready card of another page), its name, width and colour. Pure
+/* Own cards on the pages of the tab bar (#484, like the cards of a Home Assistant dashboard): thirteen kinds, each with what it needs
+ * (an entity of a fitting kind, several entities, a room, a text, calendars (calcard.js, #495) or a ready card of another page), its
+ * name, width and colour. Pure
  * (unit test: tests/cards.test.mjs; server.py clean_card checks the same); cardsui.js draws a card, cardeditor.js makes and changes one. */
 import { FAV_SERVICE } from './favorites.js';
 import { SIZES } from './thermostat.js';
+import { CAL_DAYS, CAL_VIEWS, cleanCals } from './calcard.js';
+import { cleanLook } from './buttonlook.js';
 
-export const CARD_TYPES = ['button', 'switch', 'value', 'graph', 'light', 'thermostat', 'cover', 'camera', 'entities', 'room', 'text', 'builtin'];
-export const TYPE_ICON = { button: '🔘', switch: '⏻', value: '🔢', graph: '📈', light: '💡', thermostat: '🌡️', cover: '🪟', camera: '📷', entities: '🧩', room: '🏠', text: '📝', builtin: '☀️' };
+export const CARD_TYPES = ['button', 'switch', 'value', 'graph', 'light', 'thermostat', 'cover', 'camera', 'calendar', 'entities', 'room', 'text', 'builtin'];
+export const TYPE_ICON = { button: '🔘', switch: '⏻', value: '🔢', graph: '📈', light: '💡', thermostat: '🌡️', cover: '🪟', camera: '📷', calendar: '📅', entities: '🧩', room: '🏠', text: '📝', builtin: '☀️' };
 /** the entities a kind of card takes, by domain (null: any entity); kinds without an entity are not listed */
 export const TYPE_DOMAINS = {
-  button: ['scene', 'script', 'button', 'input_button', 'light', 'switch', 'input_boolean', 'fan', 'cover', 'media_player'],
+  button: ['scene', 'script', 'button', 'input_button', 'light', 'switch', 'input_boolean', 'fan', 'cover', 'media_player', 'climate', 'water_heater', 'lock', 'vacuum'],
   switch: ['light', 'switch', 'input_boolean', 'fan'],
   value: null,
   graph: ['sensor', 'input_number', 'number'],
@@ -41,7 +44,7 @@ const text = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u0008\u000
 const int = (v, lo, hi, dflt) => (Number.isInteger(v) && v >= lo && v <= hi ? v : dflt);
 
 /** how wide a new card of a kind is (columns of the page) */
-export const defaultWidth = (type) => (type === 'graph' || type === 'text' ? 2 : 1);
+export const defaultWidth = (type) => (type === 'calendar' ? 3 : type === 'graph' || type === 'text' ? 2 : 1);
 
 /** a card made safe: { id, type, name, width, ...what its kind needs } or null when it cannot be one (the same rules as clean_card in
  *  server.py) */
@@ -59,6 +62,14 @@ export function cleanCard(c) {
   }
   if (c.type === 'graph' || c.type === 'value') out.color = COLORS.includes(c.color) ? c.color : 'blue';
   if (c.type === 'thermostat') out.size = SIZES.includes(c.size) ? c.size : 'big';      // the circle big or small (#495)
+  if (c.type === 'button') Object.assign(out, cleanLook(c));   // symbol, colour, shape, size, what it shows, tap and long press (#495)
+  if (c.type === 'calendar') {                       // several calendars, each in its colour (#495)
+    out.cals = cleanCals(c.cals);
+    if (!out.cals.length) return null;
+    out.days = CAL_DAYS.includes(c.days) ? c.days : 7;
+    out.view = CAL_VIEWS.includes(c.view) ? c.view : 'week';
+    out.add = c.add !== false;                       // "＋ Termin" on the card
+  }
   if (c.type === 'entities') {
     out.entities = [...new Set((Array.isArray(c.entities) ? c.entities : []).filter((e) => typeof e === 'string' && e.length <= 255 && ENTITY.test(e)))].slice(0, MAX_ENTITIES);
     if (!out.entities.length) return null;

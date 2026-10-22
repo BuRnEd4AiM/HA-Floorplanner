@@ -1569,7 +1569,7 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .ceField > label { font-size: 13px; color: var(--muted); font-weight: 600; }
 .ceSearch, .ceInput, .ceSelect { width: 100%; box-sizing: border-box; padding: 9px 12px; border-radius: 10px; font-size: 15px; }
 .ceList { display: flex; flex-direction: column; max-height: 210px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
-.ceItem { display: flex; align-items: center; gap: 8px; min-height: 0; padding: 7px 12px; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; text-align: left; font-weight: 500; }
+.ceItem { display: flex; flex-shrink: 0; align-items: center; gap: 8px; min-height: 0; padding: 7px 12px; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; text-align: left; font-weight: 500; }
 .ceItem:first-child { border-top: 0; }
 .ceItem.on { background: color-mix(in srgb, var(--accent) 18%, transparent); }
 .ceItem small { margin-left: auto; color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 45%; }
@@ -1678,3 +1678,78 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .hhNote { margin: 0; color: #ffb3a8; font-weight: 600; }
 .hhPref { display: grid; grid-template-columns: 1fr; gap: 4px; margin: 8px 0; }
 .hhPref label { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; color: var(--muted); }
+/* the calendar card (#495, calcardui.js): a chip per calendar, a week of columns, a list, a month, the next event, "＋ Termin" */
+.calTop { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.calChips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.calChip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: var(--field); font-size: 12.5px; }
+.calChip i, .calDots i { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.calAdd { padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
+.calWeek { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; }
+.calDay { display: flex; flex-direction: column; gap: 6px; min-height: 120px; padding: 8px 6px; border-radius: 12px; background: var(--field); min-width: 0; }
+.calDay.today { box-shadow: inset 0 0 0 2px var(--accent); }
+.calDayHead { text-align: center; font-size: 13px; font-weight: 600; color: var(--muted); }
+.calDay.today .calDayHead { color: var(--accent); }
+.calEv { display: flex; flex-direction: column; padding: 5px 8px; border-radius: 8px; color: #fff; line-height: 1.25; min-width: 0; }
+.calEv small { font-size: 11px; opacity: .9; }
+.calEv b { font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.calAgenda { display: flex; flex-direction: column; gap: 10px; }
+.calGroup h4, .calAgenda h4 { margin: 0 0 4px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.calRow { display: grid; grid-template-columns: 4px 5.5em 1fr; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); }
+.calBar { align-self: stretch; width: 4px; border-radius: 2px; min-height: 18px; }
+.calTime { font-size: 14px; white-space: nowrap; }
+.calTitle { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.calMonth { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.calWd { text-align: center; font-size: 11.5px; color: var(--muted); padding-bottom: 2px; }
+.calCell { display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 46px; padding: 5px 2px; border-radius: 9px; border: 1px solid transparent; }
+.calCell.other { opacity: .45; }
+.calCell.today b { color: var(--accent); }
+.calCell.on { border-color: var(--accent); }
+.calDots { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
+.calDots i { width: 7px; height: 7px; }
+.calPicked { margin-top: 10px; }
+.calNext { display: flex; gap: 12px; align-items: stretch; }
+.calNext > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.calNextTitle { font-size: 20px; overflow: hidden; text-overflow: ellipsis; }
+.calFailed { color: #ffb3a8; margin: 0 0 6px; }
+.calPicks { display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; }
+.calPick { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px; background: var(--field); flex-wrap: wrap; }
+.calPickName { flex: 1; min-width: 8em; display: flex; flex-direction: column; }
+.calPick small { color: var(--muted); font-size: 11.5px; }
+.calLater { margin-top: 12px; }
+.calLater .calRow { grid-template-columns: 4px 9.5em 1fr; }
+.calTick { padding: 0 6px; border: 0; background: none; font-size: 18px; }
+.calColors { display: inline-flex; gap: 6px; }
+.calDot { width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 2px solid transparent; }
+.calDot.on { border-color: var(--text); }
+.calDlg .calTimes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.calDlg .calAllDay { display: flex; align-items: center; gap: 8px; margin: 4px 0 8px; }
+.calErr { color: #ffb3a8; min-height: 1.2em; margin: 4px 0; }
+.calDlg [hidden] { display: none !important; }
+/* the button card's look (#495, buttoncardui.js): tile / round / pill / only the symbol, S M L XL, its colour while on (--obc) */
+.obCard .obBtn { position: relative; overflow: hidden; }
+.obBtn .obText { display: flex; flex-direction: column; align-items: inherit; gap: 2px; min-width: 0; max-width: 100%; }
+.obBtn .obName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.obBtn.on { background: color-mix(in srgb, var(--obc, #ffb547) 26%, var(--panel)); border-color: color-mix(in srgb, var(--obc, #ffb547) 70%, transparent); }
+.obBtn.on .obIcon { filter: drop-shadow(0 0 10px color-mix(in srgb, var(--obc, #ffb547) 70%, transparent)); }
+.obBar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: color-mix(in srgb, var(--text) 10%, transparent); }
+.obBar i { display: block; height: 100%; background: var(--obc, #ffb547); }
+.ob-s .obBtn { min-height: 96px; padding: 10px 8px; } .ob-s .obIcon { font-size: 28px; } .ob-s .obName { font-size: 14px; }
+.ob-l .obBtn { min-height: 200px; } .ob-l .obIcon { font-size: 60px; } .ob-l .obName { font-size: 22px; }
+.ob-xl .obBtn { min-height: 260px; } .ob-xl .obIcon { font-size: 80px; } .ob-xl .obName { font-size: 26px; }
+.ocCard.ob-round .obBtn { aspect-ratio: 1; min-height: 0; width: min(100%, 220px); margin: 0 auto; border-radius: 50%; padding: 12%; }
+.ocCard.ob-round.ob-s .obBtn { width: min(100%, 130px); } .ocCard.ob-round.ob-l .obBtn { width: min(100%, 280px); } .ocCard.ob-round.ob-xl .obBtn { width: min(100%, 340px); }
+.ob-pill .obBtn { flex-direction: row; justify-content: flex-start; text-align: left; min-height: 64px; padding: 10px 22px; border-radius: 999px; gap: 12px; }
+.ob-pill .obBtn .obText { align-items: flex-start; }
+.ob-pill .obIcon { font-size: 30px; } .ob-pill.ob-s .obBtn { min-height: 48px; } .ob-pill.ob-l .obBtn { min-height: 84px; } .ob-pill.ob-xl .obBtn { min-height: 104px; }
+.ob-icon .obBtn { min-height: 110px; } .ob-icon.ob-s .obBtn { min-height: 72px; } .ob-icon.ob-l .obBtn { min-height: 150px; } .ob-icon.ob-xl .obBtn { min-height: 200px; }
+.obIcons { flex-wrap: wrap; } .obIcons button { min-width: 42px; font-size: 18px; padding: 4px 6px; }
+.obColors { flex-wrap: wrap; align-items: center; }
+.obColors button:not([data-v=lamp]) { width: 30px; height: 30px; padding: 0; border-radius: 50%; background: var(--dot); border: 2px solid transparent; }
+.obColors button.on:not([data-v=lamp]) { border-color: var(--text); }
+.obColors button[data-v=lamp] { background: linear-gradient(135deg, #ffb547, #e86dc0) border-box; color: #111; font-weight: 600; }
+.obTap, .obShow { flex-wrap: wrap; }
+.ceField [data-act=obPage] { margin-top: 6px; }
+.ctlDlg { width: min(460px, calc(100vw - 32px)); }
+.ctlDlg .ctlBody { display: flex; flex-direction: column; gap: 12px; margin: 10px 0; }
+.ctlDlg .ctlBody .lightctl input[type=range], .ctlDlg .ctlBody .ocRange { width: 100%; }
+.ctlDlg .ocBtns button.on { border-color: var(--accent); }

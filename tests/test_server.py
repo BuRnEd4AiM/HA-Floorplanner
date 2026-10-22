@@ -226,6 +226,9 @@ def test_slim_state_climate_fields():
     assert s["modes"] == ["off", "heat"] and s["ct"] == 20.5
     lamp = server.slim_state({"entity_id": "light.x", "state": "on", "attributes": {"temperature": 5}})
     assert "hvac" not in lamp and "tt" not in lamp          # only thermostats carry the heating fields
+    assert lamp["lc"] is None and s["lc"] is None
+    assert server.slim_state({"entity_id": "light.x", "state": "on", "last_changed": "2026-10-22T18:00:00.123+00:00"})["lc"] == 1792692000   # #495
+    assert server.slim_state({"entity_id": "light.x", "state": "on", "last_changed": "gestern"})["lc"] is None
 
 
 def test_slim_state_sun_and_weather():
@@ -1266,3 +1269,38 @@ async def test_media_and_household_settings_are_cleaned_and_emptied_machines_are
     assert (await client.post("/api/todo", json={"entity": "todo.e", "action": "add", "item": "Milch"})).status == 503
     assert (await client.get("/api/media/light.x/picture")).status == 400
     assert (await client.get("/api/media/media_player.tv/picture")).status == 503
+
+
+async def test_the_events_of_a_calendar_card_and_a_new_event(client, aiohttp_server, monkeypatch):
+    """#495: the calendars of the card (a month at most), kept 5 minutes; '＋ Termin' goes to Home Assistant and the next ask is fresh"""
+    from aiohttp import web
+    asked, made = [], []
+
+    async def events(request):
+        cal = request.match_info["cal"]
+        asked.append(cal)
+        if cal == "calendar.kaputt":
+            return web.json_response({"message": "no"}, status=500)
+        return web.json_response([{"start": {"date": "2026-10-23"}, "end": {"date": "2026-10-24"}, "summary": f"{cal} {len(made)}"}])
+
+    async def create(request):
+        made.append(await request.json())
+        return web.json_response([])
+    fake = web.Application()
+    fake.router.add_get("/calendars/{cal}", events)
+    fake.router.add_post("/services/calendar/create_event", create)
+    ha = await aiohttp_server(fake)
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    monkeypatch.setattr(server, "HA_API", str(ha.make_url("")).rstrip("/"))
+    q = "/api/calendar/events?ids=calendar.familie,calendar.kaputt,sensor.x&start=2026-09-28T00:00:00%2B02:00&end=2026-11-09T00:00:00%2B01:00"
+    got = await (await client.get(q)).json()
+    assert got == {"events": [{"s": "2026-10-23", "e": "2026-10-24", "allDay": True, "title": "calendar.familie 0", "cal": "calendar.familie"}],
+                   "failed": ["calendar.kaputt"]}
+    await client.get(q)
+    assert asked == ["calendar.familie", "calendar.kaputt"]                          # kept
+    assert (await client.get(q.replace("2026-11-09", "2026-11-19"))).status == 400  # more than 42 days
+    assert (await client.get("/api/calendar/events?ids=&start=2026-10-01T00:00:00Z&end=2026-10-02T00:00:00Z")).status == 400
+    r = await client.post("/api/service", json={"domain": "calendar", "service": "create_event", "entity_id": "calendar.familie",
+                                                 "data": {"summary": "Zahnarzt", "start_date": "2026-10-23", "end_date": "2026-10-24"}})
+    assert r.status == 200 and made == [{"entity_id": "calendar.familie", "summary": "Zahnarzt", "start_date": "2026-10-23", "end_date": "2026-10-24"}]
+    assert (await (await client.get(q)).json())["events"][0]["title"] == "calendar.familie 1"    # asked again after the new event

@@ -1036,7 +1036,16 @@ def slim_state(st):
         "ctl": controls.extras(st),                          # what the live card needs to control it (#406): volume, fan speed, presets ...
         **_sky(st, a),                                       # sun.sun and weather.* for the sky (#418, #419)
         "since": st.get("last_changed") if st["state"] in ("unavailable", "unknown") else None,   # for the offline list
+        "lc": _epoch(st.get("last_changed")),                # when the state last changed, in seconds: "seit wann" of a button (#495)
     }
+
+
+def _epoch(v):
+    """an ISO time of Home Assistant -> whole seconds since 1970, None when it is none"""
+    try:
+        return int(datetime.datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp()) if isinstance(v, str) else None
+    except ValueError:
+        return None
 
 
 class LiveHub:
@@ -1249,7 +1258,11 @@ async def call_service(request):
         async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(),
                           json=payload) as r:
             ok = r.status == 200
-            return web.json_response({"ok": ok}, status=200 if ok else 502)
+    if ok and domain == "calendar":                                 # a new event (#495): the calendar pages ask Home Assistant again
+        cache = request.app[KEY_PAGES]
+        for k in [k for k in cache if isinstance(k, tuple) and k and k[0] in ("calendar", "agenda")]:
+            cache.pop(k, None)
+    return web.json_response({"ok": ok}, status=200 if ok else 502)
 
 
 CAMERA_ID = re.compile(r"^camera\.[a-z0-9_]{1,64}$")
@@ -1990,6 +2003,36 @@ async def get_agenda(request):
     except HA_DOWN as err:
         return web.json_response({"error": f"Home Assistant not reachable: {err}", "events": []}, status=502)
     return web.json_response({"events": hit, "waste": st["wasteCalendar"]})
+
+
+MAX_CARD_CALENDARS = 10
+
+
+async def get_calendar_events(request):
+    """The events of the calendars of a calendar card (#495, ?ids=calendar.a,calendar.b&start=&end=, at most 10 calendars and 42 days: a
+    month), kept for 5 minutes (a new event made through the card forgets them, call_service)."""
+    win = pages.agenda_window(request.query.get("start"), request.query.get("end"), 42)
+    ids = pages.clean_calendars(request.query.get("ids", "").split(","))[:MAX_CARD_CALENDARS]
+    if not win or not ids:
+        return web.json_response({"error": "ids: calendars; start and end: dates with a time zone, at most 42 days apart"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"events": []})
+    key = ("calendar", win, tuple(ids))
+    hit = pages_cached(request, key, 300)
+    if hit is None:
+        events, failed = [], []
+        try:
+            async with aiohttp.ClientSession() as s:
+                for cal in ids:
+                    async with s.get(f"{HA_API}/calendars/{cal}", headers=ha_headers(), params={"start": win[0], "end": win[1]}) as r:
+                        if r.status == 200:
+                            events += pages.slim_events(await r.json(), cal, 150)
+                        else:
+                            failed.append(cal)
+        except HA_DOWN as err:
+            return web.json_response({"error": f"Home Assistant not reachable: {err}", "events": []}, status=502)
+        hit = pages_keep(request, key, {"events": events, "failed": failed})
+    return web.json_response(hit)
 
 
 # ---------- the card "Verlauf" of a page (#484, boards.py): the history of one entity ----------
@@ -2810,6 +2853,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/forecast", get_forecast),
         web.get("/api/calendars", get_calendars),
         web.get("/api/agenda", get_agenda),
+        web.get("/api/calendar/events", get_calendar_events),
         web.get("/api/history", get_history),
         web.get("/api/family", get_family),
         web.get("/api/family/{entity}/picture", get_family_picture),

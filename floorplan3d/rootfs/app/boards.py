@@ -18,9 +18,10 @@ MAX_OWN = 40
 MAX_ENTITIES = 12
 MAX_SERIES = 6           # sensors of one history card (static/cards.js, #495)
 
-CARD_TYPES = ("button", "switch", "value", "graph", "light", "thermostat", "cover", "camera", "entities", "room", "text", "builtin")
+CARD_TYPES = ("button", "switch", "value", "graph", "light", "thermostat", "cover", "camera", "calendar", "entities", "room", "text", "builtin")
 TYPE_DOMAINS = {
-    "button": ("scene", "script", "button", "input_button", "light", "switch", "input_boolean", "fan", "cover", "media_player"),
+    "button": ("scene", "script", "button", "input_button", "light", "switch", "input_boolean", "fan", "cover", "media_player", "climate", "water_heater",
+               "lock", "vacuum"),   # #495: a thermostat, a lock or a vacuum opens the window with its controls
     "switch": ("light", "switch", "input_boolean", "fan"),
     "value": None,
     "graph": ("sensor", "input_number", "number"),
@@ -36,6 +37,20 @@ SECTION_ID = re.compile(r"^s_[a-z0-9]{3,16}$")
 MAX_SECTIONS = 12
 MAX_TITLE = 40
 SIZES = ("big", "small")   # a thermostat card, a built-in card that can be small (static/thermostat.js, #495)
+# the calendar card (static/calcard.js, #495): its calendars each in a colour, the days, the view
+CAL_VIEWS = ("week", "list", "month", "next")
+CAL_DAYS = (2, 7, 14, 31)
+CAL_COLORS = ("blue", "orange", "green", "red", "purple", "grey")
+CALENDAR_ID = re.compile(r"^calendar\.[a-z0-9_]{1,200}$")
+MAX_CALS = 10
+# how a button card looks and what it does (static/buttonlook.js, #495)
+BTN_ICONS = ("💡", "🛋", "🛏", "📺", "🎵", "🔥", "❄️", "🪟", "🚪", "🔒", "🌙", "☀️", "🍳", "🧺", "🚗", "🌱", "🎮", "🎬", "⚡", "🏠")
+BTN_COLORS = ("amber", "orange", "red", "purple", "blue", "green", "grey", "lamp")
+BTN_SHAPES = ("tile", "round", "pill", "icon")
+BTN_SIZES = ("s", "m", "l", "xl")
+BTN_SHOW = ("name", "state", "bar", "since")
+BTN_TAP = ("toggle", "more", "page", "none")
+BTN_HOLD = ("none", "more", "details")
 
 
 def is_tab_key(k) -> bool:
@@ -81,12 +96,40 @@ def fits_type(kind, entity) -> bool:
     return doms is None or entity.split(".")[0] in doms
 
 
+def clean_cals(v) -> list:
+    """the calendars of a calendar card: [{"id", "color"}], each once, at most MAX_CALS; no colour: the next one (cleanCals in static/calcard.js)"""
+    out = []
+    for c in v if isinstance(v, list) else []:
+        cid = c if isinstance(c, str) else c.get("id") if isinstance(c, dict) else None
+        if not isinstance(cid, str) or not CALENDAR_ID.match(cid) or any(x["id"] == cid for x in out) or len(out) >= MAX_CALS:
+            continue
+        color = c.get("color") if isinstance(c, dict) and c.get("color") in CAL_COLORS else CAL_COLORS[len(out) % len(CAL_COLORS)]
+        out.append({"id": cid, "color": color})
+    return out
+
+
+def clean_look(v) -> dict:
+    """the look of a button card: symbol, colour when on, shape, size, what it shows, tap, long press, the page a tap opens (cleanLook in
+    static/buttonlook.js)"""
+    v = v if isinstance(v, dict) else {}
+    show = [k for k in BTN_SHOW if k in v["show"]] if isinstance(v.get("show"), list) else ["name", "state"]
+    page = v["page"] if isinstance(v.get("page"), str) and is_tab_key(v["page"]) else ""
+    tap = v["tap"] if v.get("tap") in BTN_TAP else "toggle"
+    if tap == "page" and not page:
+        tap = "toggle"
+    pick = lambda k, allowed, dflt: v[k] if v.get(k) in allowed else dflt
+    return {"icon": pick("icon", BTN_ICONS, ""), "onColor": pick("onColor", BTN_COLORS, "amber"), "shape": pick("shape", BTN_SHAPES, "tile"),
+            "bsize": pick("bsize", BTN_SIZES, "m"), "show": [] if v.get("shape") == "icon" else show, "tap": tap,
+            "hold": pick("hold", BTN_HOLD, "more"), "page": page if tap == "page" else ""}
+
+
 def clean_card(c):
     """an own card made safe, or None (cleanCard in static/cards.js)"""
     if not isinstance(c, dict) or not isinstance(c.get("id"), str) or not OWN_ID.match(c["id"]) or c.get("type") not in CARD_TYPES:
         return None
     kind = c["type"]
-    out = {"id": c["id"], "type": kind, "name": _text(c.get("name"), 60), "width": _int(c.get("width"), 1, 4, 2 if kind in ("graph", "text") else 1)}
+    out = {"id": c["id"], "type": kind, "name": _text(c.get("name"), 60),
+           "width": _int(c.get("width"), 1, 4, 3 if kind == "calendar" else 2 if kind in ("graph", "text") else 1)}
     if kind in TYPE_DOMAINS:
         if not fits_type(kind, c.get("entity")):
             return None
@@ -103,6 +146,15 @@ def clean_card(c):
         out["color"] = c["color"] if c.get("color") in COLORS else "blue"
     if kind == "thermostat":
         out["size"] = c["size"] if c.get("size") in SIZES else "big"
+    if kind == "button":
+        out.update(clean_look(c))
+    if kind == "calendar":
+        out["cals"] = clean_cals(c.get("cals"))
+        if not out["cals"]:
+            return None
+        out["days"] = c["days"] if c.get("days") in CAL_DAYS and not isinstance(c.get("days"), bool) else 7
+        out["view"] = c["view"] if c.get("view") in CAL_VIEWS else "week"
+        out["add"] = c.get("add") is not False
     if kind == "entities":
         ents = []
         for e in c.get("entities") if isinstance(c.get("entities"), list) else []:

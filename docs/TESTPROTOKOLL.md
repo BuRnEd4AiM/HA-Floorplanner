@@ -295,7 +295,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 0 | 0 | 6 | 0 | 87.1 bis 87.6 |
 | 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495) | 0 | 0 | 8 | 0 | 88.1 bis 88.8 |
 | 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495) | 0 | 0 | 6 | 0 | 89.1 bis 89.6 |
-| **Zusammen** | **492** | **5** | **157** | **54** | |
+| 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495) | 0 | 0 | 7 | 0 | 90.1 bis 90.7 |
+| 91. Neu in 4.14.0: Knöpfe gestalten (#495) | 0 | 0 | 7 | 0 | 91.1 bis 91.7 |
+| **Zusammen** | **492** | **5** | **171** | **54** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1451,3 +1453,28 @@ Wunsch des Besitzers: „ob jetzt wirklich eine Person im Haus ist … mit dem H
 | 89.4 | Karte „Wer ist wo im Haus“ | Wohnzimmer – Anna; Räume mit Bewegungsmelder stehen mit „Bewegung / Anwesenheit“ da | ❓ |
 | 89.5 | Im Add-on: ⚙ → „Reiter unten“ → „Wer ist zu Hause“: „Zu Hause, wenn“ und „WLAN-Name(n) zu Hause“ | Drei Möglichkeiten (Home Assistant / eine Quelle / zwei Quellen); der eigene WLAN-Name lässt sich eintragen | ❓ |
 | 89.6 | Im Add-on mit dem eigenen Handy (Home-Assistant-App, WLAN-Sensor an) auf 👨‍👩‍👧 Familie | Bei dir stehen dein WLAN-Name und, wenn vorhanden, das Handy im Router; mit „eine Quelle“ zählst du zu Hause, sobald das Handy im WLAN ist | ❓ |
+
+## 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495)
+Wunsch des Besitzers: „verschiedene Kalender … zusätzlich eine Karte einfach mit Terminkalendern“. Bilder `docs/ideen-4.9/5-kalender.jpg` und `6-kalender-einstellen.jpg`.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 90.1 | Demo, „Live“, ☀ Heute | Unter Uhr und Wetter die Karte „Diese Woche“: oben die Kalender als farbige Punkte (Familie blau, Arbeit Anna orange, Schule grün, Geburtstage rot), darunter eine Spalte pro Tag mit farbigen Terminen, heute umrandet | ❓ |
+| 90.2 | Auf der Karte „＋ Termin“, Titel „Test“, Uhrzeit wählen, „✓ Eintragen“ | Das Fenster geht zu, der Termin steht sofort in der Karte | ❓ |
+| 90.3 | Noch einmal „＋ Termin“, „Ganztägig“ anhaken | „Von / Bis“ verschwinden, dafür „Bis (letzter Tag)“; ohne Titel sagt das Fenster „Bitte einen Titel eingeben.“ | ❓ |
+| 90.4 | ✎ Bearbeiten, an der Karte ⚙️ | Fenster „Karte ‚Kalender‘ einstellen“: alle Kalender mit Haken und sechs Farbpunkten, Zeitraum, Ansicht, „Termin eintragen“; rechts die Vorschau | ❓ |
+| 90.5 | Ansicht „☰ Liste“, dann „🗓 Monat“, dann „Nur nächster Termin“ (jeweils speichern, „✓ Fertig“) | Liste nach Tagen („Heute“, „Morgen“, …); Monat mit Punkten, Tippen auf einen Tag zeigt seine Termine darunter; nächster Termin groß, darunter „Danach“ mit zwei weiteren | ❓ |
+| 90.6 | ✎ → „＋ Karte“ → „📅 Kalender“, nur einen Kalender anhaken, Farbe ändern, „Hinzufügen“ | Eine zweite Kalender-Karte nur mit diesem Kalender in der gewählten Farbe | ❓ |
+| 90.7 | Im Add-on: eine Kalender-Karte mit deinen Kalendern, „＋ Termin“ in einen Kalender, der Termine annimmt (z. B. Lokaler Kalender, Google) | Der Termin steht danach auch im Kalender von Home Assistant | ❓ |
+
+## 91. Neu in 4.14.0: Knöpfe gestalten (#495)
+Wunsch des Besitzers: „mehr Möglichkeiten, Buttons anzupassen“. Bild `docs/ideen-4.9/7-knoepfe.jpg`.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 91.1 | Demo, „Live“, unten die neue Seite „🔘 Knöpfe“ | Knöpfe als Kachel, rund, als Pille und nur mit Symbol, in verschiedenen Farben; „Wohnzimmer“ in der Farbe der Lampe mit Helligkeits-Balken, „Schlafzimmer“ mit „seit … Std.“ | ❓ |
+| 91.2 | Auf „Küche“ tippen | Das Licht geht an, der Knopf wird farbig | ❓ |
+| 91.3 | „Wohnzimmer“ lange drücken (etwa eine halbe Sekunde) | Ein Fenster mit Reglern: An/Aus, Helligkeit, Farben | ❓ |
+| 91.4 | Auf „Heizung“ tippen, dann auf „Haustür“ | Heizung: Fenster mit dem Thermostat-Kreis; Haustür: Fenster mit „🔒 Abschließen“ / „🔓 Aufschließen“ | ❓ |
+| 91.5 | ✎ Bearbeiten, an einem Knopf ⚙️ | Symbol, „Farbe, wenn an“ (auch „oder die Farbe der Lampe“), „Form und Größe“, „Zeigen“, „Tippen“, „Lange drücken“; die Vorschau rechts ändert sich sofort | ❓ |
+| 91.6 | Bei „Tippen“ „Seite öffnen“ wählen, eine Seite aussuchen, speichern, „✓ Fertig“, dann auf den Knopf tippen | Die gewählte Seite geht auf | ❓ |
+| 91.7 | Im Add-on: einen eigenen Knopf für eine Lampe anlegen und gestalten | Sieht aus wie gewählt, Tippen und lange Drücken tun, was eingestellt ist | ❓ |
+

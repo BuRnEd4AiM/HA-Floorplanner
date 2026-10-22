@@ -160,8 +160,8 @@ def _event_time(v):
     return None, False
 
 
-def slim_events(events, cal: str) -> list:
-    """the events of one calendar (GET /api/calendars/<id>) -> [{s, e, allDay, title, cal}], at most 50"""
+def slim_events(events, cal: str, limit: int = 50) -> list:
+    """the events of one calendar (GET /api/calendars/<id>) -> [{s, e, allDay, title, cal}], at most `limit` (50; a calendar card's month 150)"""
     out = []
     for ev in events if isinstance(events, list) else []:
         if not isinstance(ev, dict):
@@ -172,7 +172,7 @@ def slim_events(events, cal: str) -> list:
             continue
         title = ev.get("summary") if isinstance(ev.get("summary"), str) else ""
         out.append({"s": s, "e": e, "allDay": all_day, "title": title[:120], "cal": cal})
-    return out[:50]
+    return out[:limit]
 
 
 def clean_calendars(val) -> list:
@@ -184,10 +184,11 @@ def clean_calendars(val) -> list:
     return out[:20]
 
 
-def agenda_window(start, end):
-    """the days asked for by the page (ISO with time zone, at most 14 days apart) -> (start, end) as UTC texts for Home Assistant, or None"""
+def agenda_window(start, end, days: int = 14):
+    """the days asked for by the page (ISO with time zone, at most `days` apart: 14, a calendar card's month 42) -> (start, end) as UTC
+    texts for Home Assistant, or None"""
     a, b = _when(start), _when(end)
-    if not a or not b or b <= a or (b - a).days > 14:
+    if not a or not b or b <= a or (b - a).days > days:
         return None
     return a.astimezone(timezone.utc).isoformat(), b.astimezone(timezone.utc).isoformat()
 

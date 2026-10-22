@@ -46,7 +46,7 @@ check("dashboards: ⠿ dragged 'Termine' in front of the clock: the order is sav
 
 # --- own cards: a switch and a history
 pgD.click("[data-page=today] .bdAdd"); pgD.wait_for_timeout(500)
-check("cards: '＋ Karte hinzufügen' offers twelve kinds", pgD.locator(".ceDlg .ceType").count() == 12)
+check("cards: '＋ Karte hinzufügen' offers thirteen kinds (the calendar since #495)", pgD.locator(".ceDlg .ceType").count() == 13)
 pgD.click(".ceDlg [data-type=switch]"); pgD.wait_for_timeout(400)
 pgD.fill(".ceDlg .ceSearch", "garage"); pgD.wait_for_timeout(300)
 offered = pgD.evaluate("[...document.querySelectorAll('.ceDlg .ceItem')].map((x) => x.dataset.entity)")
