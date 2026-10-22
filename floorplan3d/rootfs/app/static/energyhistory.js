@@ -126,14 +126,15 @@ export const barMax = (rows) => Math.max(0.1, ...rows.map((r) => Math.max(r.use,
 /** the span of the previous period, to ask for both at once */
 export const withPrevious = (kind, offset, now) => ({ cur: periodRange(kind, offset, now), prev: periodRange(kind, offset - 1, now) });
 
-const ENERGY_UNITS = new Set(['Wh', 'kWh', 'MWh', 'GJ', 'MJ']), VOLUME_UNITS = new Set(['m³', 'L', 'l', 'ft³', 'gal', 'CCF']);
-/** what a sensor can be as a meter, by its unit: 'energy' (kWh …), 'volume' (m³, L …) or null */
+const ENERGY_UNITS = new Set(['Wh', 'kWh', 'MWh', 'GJ', 'MJ']), VOLUME_UNITS = new Set(['m³', 'L', 'l', 'ft³', 'gal', 'CCF']), POWER_UNITS = new Set(['W', 'kW', 'MW']);
+/** what a sensor can be as a meter, by its unit: 'energy' (kWh …), 'volume' (m³, L …), 'power' (W: the page counts its mean as kWh, #503) or null */
 export function meterKind(state) {
   const u = state?.unit || '';
-  return ENERGY_UNITS.has(u) ? 'energy' : VOLUME_UNITS.has(u) ? 'volume' : null;
+  return ENERGY_UNITS.has(u) ? 'energy' : VOLUME_UNITS.has(u) ? 'volume' : POWER_UNITS.has(u) ? 'power' : null;
 }
-/** the kinds a meter of this sort can be: energy for the grid, sun and battery (and gas in kWh), volume for gas and water */
-export const KIND_SORT = { from: ['energy'], to: ['energy'], solar: ['energy'], batIn: ['energy'], batOut: ['energy'], gas: ['volume', 'energy'], water: ['volume'] };
+/** the kinds a meter of this sort can be: energy or power for the grid, sun and battery (and gas in kWh), volume for gas and water */
+export const KIND_SORT = { from: ['energy', 'power'], to: ['energy', 'power'], solar: ['energy', 'power'], batIn: ['energy', 'power'], batOut: ['energy', 'power'],
+  gas: ['volume', 'energy'], water: ['volume'] };
 
 /* ---- "⚖ Vergleichen": several houses side by side (#495, the owner: "wenn man mehrere Häuser hat mit unterschiedlichen Stromsensoren,
  * dass es dann auch in einer Grafik irgendwie zu sehen ist") ---- */

@@ -1,13 +1,14 @@
 /* "⤵ Von oben übernehmen" in "Zähler für den Verlauf" of the window ⚡ Rechnung (#501): asks the add-on for the counters (kWh) of the power
- * sensors set above (api/energy/counters), puts the ones it found into the meters and says per kind what it did; where a power sensor has
- * no counter, "＋ Zähler anlegen" makes one in Home Assistant (its "Integral" helper, api/energy/counter), which counts from then on.
+ * sensors set above (api/energy/counters) and puts them into the meters, else the power sensor itself (the page counts its mean as kWh),
+ * never into a kind that already has a meter; says per kind what it did. A power sensor without statistics in Home Assistant gets
+ * "＋ Zähler anlegen": Home Assistant's "Integral" helper (api/energy/counter), which counts from then on.
  * energycounters.js has the rules; energymetersui.js puts the button into its part. */
 import { COUNTER_KINDS, powerSources, counterQuery, takeCounters } from './energycounters.js';
 import { cleanMeters, hasMeters } from './energyhistory.js';
 
 const said = new WeakMap();                          // layout.energy -> the lines of the last "Von oben übernehmen" (the window is drawn again after it)
 
-/** h: { t, el(tag, cls, text), edit(fn), energy() (layout.energy), sources() (energycalc.js energySources) }; -> { button, lines } */
+/** h: { t, el(tag, cls, text), edit(fn), energy() (layout.energy), sources() (energycalc.js energySources), entities() }; -> { button, lines } */
 export function counterPart(h) {
   const { t, el } = h;
   const store = (meters) => { const e = h.energy(); if (hasMeters(meters)) e.meters = Object.fromEntries(Object.entries(meters).filter(([, v]) => v.length)); else delete e.meters; };
@@ -49,13 +50,19 @@ export function counterPart(h) {
       found = (await r.json()).found || {};
     } catch { button.disabled = false; remember([{ kind: 'from', ok: false, text: t('em.takeFail') }]); return; }
     button.disabled = false;
-    const res = takeCounters(h.energy().meters, found), list = [];
-    COUNTER_KINDS.forEach((kind) => (found[kind] || []).forEach((x) => {
-      const name = x.power_name || x.power;
-      if (x.counter) list.push({ kind, ok: true, text: `${x.counter.name} ${res.had.some((y) => y.kind === kind && y.id === x.counter.entity_id) ? t('ec.had') : t('ec.added')}` });
-      else if (src.signed.includes(x.power)) list.push({ kind, ok: false, text: `${name} — ${t('ec.signed')}` });
-      else list.push({ kind, ok: false, text: `${name} — ${t('ec.none')}`, make: x.power, powerName: name });
-    }));
+    const was = cleanMeters(h.energy().meters), res = takeCounters(was, found, src.signed), list = [];
+    const nameOf = (id) => h.entities?.().find((e) => e.entity_id === id)?.name || id;
+    const isIn = (l, kind, id) => l.some((y) => y.kind === kind && y.id === id);
+    COUNTER_KINDS.forEach((kind) => {
+      if (res.kept.includes(kind)) { list.push({ kind, ok: true, text: t('ec.kept', { names: was[kind].map(nameOf).join(', ') }) }); return; }
+      (found[kind] || []).forEach((x) => {
+        const name = x.power_name || x.power, id = x.counter?.entity_id || x.power;
+        if (isIn(res.had, kind, id)) list.push({ kind, ok: true, text: `${x.counter?.name || name} ${t('ec.had')}` });
+        else if (isIn(res.added, kind, id)) list.push({ kind, ok: true, text: x.counter ? `${x.counter.name} ${t('ec.added')}` : `${name} ${t('ec.power')}` });
+        else if (src.signed.includes(x.power)) list.push({ kind, ok: false, text: `${name} — ${t('ec.signed')}` });
+        else list.push({ kind, ok: false, text: `${name} — ${t('ec.noStats')}`, make: x.power, powerName: name });
+      });
+    });
     said.set(h.energy(), list);                      // before the window is drawn again: the new one shows it
     if (res.added.length) h.edit(() => store(res.meters)); else show();
   });

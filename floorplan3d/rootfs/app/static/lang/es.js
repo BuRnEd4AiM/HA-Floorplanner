@@ -1449,7 +1449,7 @@ export default {
   'td.allOk': 'Todo cerrado, apagado y en orden', 'td.row.open': '{n} abiertos', 'td.row.lights': '{n} luces encendidas', 'td.row.alarm': 'Alarma: {state}',
   'td.row.low': '{n} baterías bajas', 'td.row.offline': '{n} dispositivos sin conexión', 'td.power': 'Electricidad ahora',
   'em.title': 'Contadores para el historial (página ⚡ Energía)',
-  'em.hint': 'Contadores en kWh (gas y agua en m³) con los que la página ⚡ Energía calcula días, semanas, meses y años. Vacío: los del panel de energía de Home Assistant. Solo hay uno, así que una segunda casa necesita aquí los suyos.',
+  'em.hint': 'Contadores en kWh (gas y agua en m³) o sensores de potencia en W (la página calcula de ellos los kWh, también hacia atrás) con los que la página ⚡ Energía calcula días, semanas, meses y años. Vacío: los del panel de energía de Home Assistant. Solo hay uno, así que una segunda casa necesita aquí los suyos.',
   'em.own': 'Esta casa cuenta con sus propios contadores.', 'em.fromHa': 'Ahora: los contadores del panel de energía de Home Assistant.',
   'em.take': '⤵ Tomar del panel de energía', 'em.takeTip': 'Poner aquí los contadores del panel de energía (luego cambiarlos uno a uno)',
   'em.takeNone': 'El panel de energía no tiene contadores.', 'em.takeFail': 'No se pudo acceder a Home Assistant.', 'em.clear': 'Volver al panel de energía',
@@ -1604,7 +1604,7 @@ export default {
   'ec.take': "⤵ Tomar de arriba", 'ec.takeTip': "Buscar los contadores (kWh) de los sensores de arriba (vatios) y ponerlos aquí",
   'ec.nothing': "Arriba aún no hay ningún sensor.", 'ec.added': "tomado", 'ec.had': "ya estaba",
   'ec.signed': "mide ambos sentidos (+/−) en un sensor, no se puede crear un contador para él. Añade abajo los contadores kWh a mano.",
-  'ec.none': "solo mide la potencia (W), no tiene contador en kWh.", 'ec.make': "＋ Crear contador",
+  'ec.power': "tomado: la página ⚡ Energía calcula los kWh a partir de los vatios, también para los días anteriores", 'ec.kept': "ya está: {names}, nada duplicado", 'ec.noStats': "no tiene historial en Home Assistant (le falta state_class) ni contador en kWh.", 'ec.make': "＋ Crear contador",
   'ec.makeTip': "Crea en Home Assistant un ayudante «Integral» que cuenta kWh a partir de los vatios (desde ahora, sin días anteriores)",
   'ec.making': "creando …", 'ec.made': "creado y tomado. Cuenta desde ahora.", 'ec.makeFail': "no se pudo crear (Home Assistant lo rechazó).",
 };

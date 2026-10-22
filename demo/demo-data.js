@@ -629,7 +629,7 @@ export function installDemoBackend() {
       ['from', 'to', 'solar', 'batIn', 'batOut'].forEach((k) => {
         const ids = (q.get(k) || '').split(',').filter(Boolean);
         if (ids.length) found[k] = ids.map((p) => { const c = DEMO_COUNTERS[`${k}|${p}`] || Object.keys(entities).find((e) => entities[e].source === p);
-          return { power: p, power_name: entities[p]?.name || p, unit: entities[p]?.unit || null, counter: c ? { entity_id: c, name: entities[c]?.name || DEMO_COUNTER_NAMES[c] || c, how: 'device' } : null }; });
+          return { power: p, power_name: entities[p]?.name || p, unit: entities[p]?.unit || null, stats: true, counter: c ? { entity_id: c, name: entities[c]?.name || DEMO_COUNTER_NAMES[c] || c, how: 'device' } : null }; });
       });
       return json({ found });
     }

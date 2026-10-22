@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.16.0] - 2026-10-22
+### Changed
+- **Power sensors (W) count as meters too, no matter whether W or kWh** (#503, the owner: "kannst du es nicht einfach so machen, dass es egal ist ob W oder kWh, weil oben geht es ja auch"). Home Assistant keeps a time-weighted mean of every power sensor with a `state_class` per hour, day and month; the page ⚡ Energie now counts mean × hours as kWh, also for the days before. The lists of "Zähler für den Verlauf" offer W sensors for the grid, the sun and the battery. **⤵ Von oben übernehmen** takes a counter in kWh of the device when there is one, else the power sensor itself; a kind that already has a meter gets nothing added (else the same energy would count twice, e.g. a grid meter in kWh and the inverter's grid power). **＋ Zähler anlegen** is only offered for a sensor Home Assistant keeps no statistics of. A sensor measuring both ways (+/−) is not taken (drawn and fed in of the same hour would cancel out).
+
 ## [4.15.0] - 2026-10-22
 ### Added
 - **⤵ Von oben übernehmen: the meters of the page ⚡ Energie from the power sensors** (#501, the owner: "einen Knopf …, dass es von oben, was ich eingestellt habe, nach unten auch übernommen wird"). "Zähler für den Verlauf" needs counters in kWh (they only go up), the power editor above has sensors in W, so the list rightly did not offer them. The new button looks, for every sensor set above (grid, solar, battery charging / discharging), for its counter: an "Integral" helper of Home Assistant made from it, or a counter in kWh of the same device whose name fits (a total, not the one of the day), and takes it. Where there is none, **＋ Zähler anlegen** makes Home Assistant's "Integral" helper (W → kWh) through its config flow and takes it; it counts from then on. Per kind a line says what happened. A sensor measuring both ways (+/−) only gets a counter its device has. Server: `counters.py` (tested), `api/energy/counters`, `api/energy/counter` (editors only).

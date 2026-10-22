@@ -17,10 +17,25 @@ test('the power sensors set above per kind of meter', () => {
   assert.equal(C.counterQuery({ solar: ['sensor.a', 'sensor.b'], from: ['sensor.c'] }), 'solar=sensor.a%2Csensor.b&from=sensor.c');
 });
 
-test('the counters found go into the meters, those already there stay', () => {
-  const found = { solar: [{ power: 'sensor.pv1', counter: { entity_id: 'sensor.pv_gesamt' } }, { power: 'sensor.pv2', counter: null }],
-    from: [{ power: 'sensor.netz', counter: { entity_id: 'sensor.bezug' } }], batIn: [{ counter: { entity_id: 'Kaputt' } }] };
-  const r = C.takeCounters({ from: ['sensor.bezug'] }, found);
-  assert.deepEqual(r.meters.solar, ['sensor.pv_gesamt']); assert.deepEqual(r.meters.from, ['sensor.bezug']); assert.deepEqual(r.meters.batIn, []);
-  assert.deepEqual(r.added, [{ kind: 'solar', id: 'sensor.pv_gesamt' }]); assert.deepEqual(r.had, [{ kind: 'from', id: 'sensor.bezug' }]);
+test('the counters found go into the meters, else the power sensor itself, never a second meter of a kind', () => {
+  const found = { solar: [{ power: 'sensor.pv1', stats: true, counter: { entity_id: 'sensor.pv_gesamt' } }, { power: 'sensor.pv2', stats: true, counter: null }],
+    from: [{ power: 'sensor.netz_bezug_w', stats: true, counter: null }], batIn: [{ power: 'sensor.laden', stats: false, counter: null }],
+    batOut: [{ power: 'sensor.entladen', stats: true, counter: null }], to: [{ power: 'sensor.netz', stats: true, counter: null }] };
+  const r = C.takeCounters({ from: ['sensor.strom_bezug_kwh'] }, found, ['sensor.netz']);
+  assert.deepEqual(r.meters.solar, ['sensor.pv_gesamt', 'sensor.pv2']);                 // the counter; the second inverter without one: its power
+  assert.deepEqual(r.meters.from, ['sensor.strom_bezug_kwh']);                        // already counted in kWh: the power is not added (twice)
+  assert.deepEqual(r.meters.batIn, []);                                               // no statistics in Home Assistant: nothing to count with
+  assert.deepEqual(r.meters.batOut, ['sensor.entladen']);
+  assert.deepEqual(r.meters.to, []);                                                  // one sensor for both ways: not as a meter
+  assert.deepEqual(r.added, [{ kind: 'solar', id: 'sensor.pv_gesamt', how: 'counter' }, { kind: 'solar', id: 'sensor.pv2', how: 'power' },
+    { kind: 'batOut', id: 'sensor.entladen', how: 'power' }]);
+  assert.deepEqual(r.kept, ['from']);
+  const again = C.takeCounters(r.meters, found, ['sensor.netz']);
+  assert.deepEqual(again.added, []); assert.deepEqual(again.had.map((x) => x.id), ['sensor.pv_gesamt', 'sensor.pv2', 'sensor.entladen']);
+});
+
+test('a power sensor can be a meter (the page counts its mean as kWh)', async () => {
+  const H = await import(`${process.env.STATIC_DIR || '/tmp/static'}/energyhistory.js`);
+  assert.equal(H.meterKind({ unit: 'W' }), 'power'); assert.equal(H.meterKind({ unit: 'kWh' }), 'energy'); assert.equal(H.meterKind({ unit: '°C' }), null);
+  assert.ok(H.KIND_SORT.solar.includes('power') && H.KIND_SORT.batOut.includes('power') && !H.KIND_SORT.water.includes('power'));
 });
