@@ -6,11 +6,26 @@ export const DC_ICON = { temperature: '🌡 ', humidity: '💧 ', power: '⚡ ',
 /** meters show their own sign whatever the sensor says (a heat meter reports "energy" too) */
 export const TYPE_ICON = { watermeter: '🚰 ', gasmeter: '🔥 ', heatmeter: '♨ ' };
 
-/** the state as it is, with its unit */
-export function stateText(s, t) {
+/** the key of the words for a state (#492): on / off for anything, at home / away for a person or a phone, the state of a robot
+ *  vacuum or an alarm panel (dc.st.*) and of a player or a camera (mp.st.*: "bereit") by the domain of entity `id`; null for a state
+ *  Home Assistant's words are kept for (a zone, a mode ...) */
+function wordKey(state, id = '') {
+  if (state === 'on' || state === 'off') return `live.${state}`;
+  const dom = String(id).split('.')[0];
+  if (dom === 'person' || dom === 'device_tracker') return state === 'home' ? 'fm.home' : state === 'not_home' ? 'fm.away' : null;
+  if (dom === 'vacuum' || dom === 'alarm_control_panel') return `dc.st.${state}`;
+  if (dom === 'media_player' || dom === 'camera') return `mp.st.${state}`;
+  return null;
+}
+
+/** the state with its unit; in the page's language where it has the words ("An", "An der Station", "läuft", #492), else as it is.
+ *  id: the entity (its domain picks the words) */
+export function stateText(s, t, id = '') {
   if (!s) return '—';
   if (s.state === 'unavailable') return t('off.unavailable');
-  return s.unit ? `${s.state} ${s.unit}` : s.state;
+  if (s.unit) return `${s.state} ${s.unit}`;
+  const k = wordKey(s.state, id), w = k ? t(k) : null;
+  return w && w !== k ? w : s.state;
 }
 
 /** short text for the badge on a device of type `type` linked to entityId */
@@ -24,5 +39,5 @@ export function badgeText(s, entityId, t, type) {
   if (dom === 'light') return s.state !== 'on' ? t('live.off') : s.brightness != null ? `💡 ${s.brightness} %` : t('live.on');
   if (dom === 'media_player') return s.state === 'off' ? t('live.off') : `▶ ${s.app || s.state}`;
   if (dom === 'sensor' && !isNaN(num) && /^-?[\d.]+$/.test(s.state)) return `${icon}${Math.round(num * 10) / 10}${s.unit ? ' ' + s.unit : ''}`;
-  return stateText(s, t);
+  return stateText(s, t, entityId);
 }

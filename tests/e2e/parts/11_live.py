@@ -221,13 +221,13 @@ check("live card (#336): the lamp's card is open with its buttons", pgC.is_visib
 got = outside("sensor.temp", "22")
 check("live card (#336): a change of another entity (temperature) leaves the open card as it is, the same buttons", got and kept(), (got, sub()))
 got = outside("light.wohnzimmer", "off")
-check("live card (#336): a change of the lamp itself draws the card anew with the new state", got and not kept() and sub().startswith("off"), (got, sub()))
+check("live card (#336): a change of the lamp itself draws the card anew with the new state", got and not kept() and sub().startswith(("Aus", "Off")), (got, sub()))   # #492: the state in words
 mark()
 pgC.evaluate("document.querySelector('#livePopup input[type=color]').focus()")
 got = outside("light.wohnzimmer", "on")
-check("live card (#336): while the colour picker has the focus the card is not drawn anew", got and kept() and sub().startswith("off"), (got, sub()))
+check("live card (#336): while the colour picker has the focus the card is not drawn anew", got and kept() and sub().startswith(("Aus", "Off")), (got, sub()))
 pgC.evaluate("document.activeElement.blur()"); pgC.wait_for_timeout(300)
-check("live card (#336): the focus gone, what changed meanwhile is drawn", not kept() and sub().startswith("on"), sub())
+check("live card (#336): the focus gone, what changed meanwhile is drawn", not kept() and sub().startswith(("An", "On")), sub())
 pgC.evaluate("(() => { window.__fp.states()['light.wohnzimmer'].brightness = 50; window.__fp.applyStates(); })()"); pgC.wait_for_timeout(300)   # the mock lamp has no brightness
 rng = pgC.locator("#livePopup .lightctl input[type=range]")
 check("live card (#336): a brightness given, the card gets its slider", rng.count() == 1)
