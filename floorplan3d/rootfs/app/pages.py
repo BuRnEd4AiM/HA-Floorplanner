@@ -112,20 +112,40 @@ def _ms(v):
     return int(d.timestamp() * 1000) if d else None
 
 
-def slim_stats(result, metadata=None) -> dict:
-    """Home Assistant's answer to recorder/statistics_during_period (types: change) -> {"stats": {id: [[start ms, change], ...]},
-    "units": {id: unit}} (the unit after the conversion asked for: kWh for energy, m³ for volume)."""
+POWER_FACTOR = {"W": 0.001, "kW": 1.0, "MW": 1000.0}          # a power sensor's mean -> kW (Home Assistant converts to kW when asked)
+PERIOD_HOURS = {"hour": 1, "day": 24, "week": 168, "month": 730}
+
+
+def slim_stats(result, metadata=None, period: str = "hour") -> dict:
+    """Home Assistant's answer to recorder/statistics_during_period (types: change, mean) -> {"stats": {id: [[start ms, kWh or m³], ...]},
+    "units": {id: unit}} (the unit after the conversion asked for: kWh for energy, m³ for volume). A meter that is a power sensor (W,
+    #503, the owner: "dass es egal ist ob W oder kWh") counts the energy of its time-weighted mean: kW × the hours of the row (kWh)."""
+    units, power = {}, {}
+    for m in metadata or []:
+        if isinstance(m, dict) and _stat(m.get("statistic_id")):
+            cls, u = m.get("unit_class"), m.get("statistics_unit_of_measurement")
+            if cls == "power" or u in POWER_FACTOR:
+                power[m["statistic_id"]] = 1.0 if cls == "power" else POWER_FACTOR[u]   # converted to kW by Home Assistant, else as stored
+                units[m["statistic_id"]] = "kWh"
+            else:
+                units[m["statistic_id"]] = "kWh" if cls == "energy" else "m³" if cls == "volume" else (u[:12] if isinstance(u, str) else "")
     out = {}
     for sid, rows in (result or {}).items():
         if not _stat(sid) or not isinstance(rows, list):
             continue
-        out[sid] = [[_ms(r.get("start")), round(_num(r.get("change")), 4) if _num(r.get("change")) is not None else None]
-                    for r in rows if isinstance(r, dict) and _ms(r.get("start")) is not None][:800]
-    units = {}
-    for m in metadata or []:
-        if isinstance(m, dict) and _stat(m.get("statistic_id")):
-            cls, u = m.get("unit_class"), m.get("statistics_unit_of_measurement")
-            units[m["statistic_id"]] = "kWh" if cls == "energy" else "m³" if cls == "volume" else (u[:12] if isinstance(u, str) else "")
+        pts = []
+        for r in rows:
+            a = _ms(r.get("start")) if isinstance(r, dict) else None
+            if a is None:
+                continue
+            if sid in power:
+                b, mean = _ms(r.get("end")), _num(r.get("mean"))
+                hours = (b - a) / 3600000 if b and b > a else PERIOD_HOURS.get(period, 1)
+                v = mean * power[sid] * hours if mean is not None else None
+            else:
+                v = _num(r.get("change"))
+            pts.append([a, round(v, 4) if v is not None else None])
+        out[sid] = pts[:800]
     return {"stats": out, "units": units}
 
 

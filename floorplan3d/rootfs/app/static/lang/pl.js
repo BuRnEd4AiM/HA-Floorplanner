@@ -1442,7 +1442,7 @@ export default {
   'td.allOk': 'Wszystko zamknięte, wyłączone, w porządku', 'td.row.open': 'Otwarte: {n}', 'td.row.lights': 'Włączone światła: {n}',
   'td.row.alarm': 'Alarm: {state}', 'td.row.low': 'Słabe baterie: {n}', 'td.row.offline': 'Urządzenia offline: {n}', 'td.power': 'Prąd teraz',
   'em.title': 'Liczniki do historii (strona ⚡ Energia)',
-  'em.hint': 'Liczniki w kWh (gaz i woda w m³), z których strona ⚡ Energia liczy dni, tygodnie, miesiące i lata. Puste: te z panelu energii Home Assistant. Jest tylko jeden, więc drugi dom potrzebuje tu własnych.',
+  'em.hint': 'Liczniki w kWh (gaz i woda w m³) lub czujniki mocy w W (strona liczy z nich kWh, także wstecz), z których strona ⚡ Energia liczy dni, tygodnie, miesiące i lata. Puste: te z panelu energii Home Assistant. Jest tylko jeden, więc drugi dom potrzebuje tu własnych.',
   'em.own': 'Ten dom liczy własnymi licznikami.', 'em.fromHa': 'Teraz: liczniki z panelu energii Home Assistant.', 'em.take': '⤵ Przejmij z panelu energii',
   'em.takeTip': 'Wstaw tu liczniki z panelu energii (potem zmieniaj pojedynczo)', 'em.takeNone': 'Panel energii nie ma liczników.',
   'em.takeFail': 'Home Assistant był nieosiągalny.', 'em.clear': 'Znowu użyj panelu energii', 'em.from': 'Pobrane z sieci', 'em.to': 'Oddane do sieci',
@@ -1592,7 +1592,7 @@ export default {
   'ec.take': "⤵ Przejmij z góry", 'ec.takeTip': "Znajdź liczniki (kWh) czujników powyżej (waty) i wpisz je tutaj",
   'ec.nothing': "U góry nie ustawiono jeszcze żadnego czujnika.", 'ec.added': "przejęty", 'ec.had': "już był",
   'ec.signed': "mierzy oba kierunki (+/−) jednym czujnikiem, nie da się dla niego utworzyć licznika. Dodaj liczniki kWh poniżej ręcznie.",
-  'ec.none': "mierzy tylko moc (W), nie ma licznika w kWh.", 'ec.make': "＋ Utwórz licznik",
+  'ec.power': "przejęty: strona ⚡ Energia liczy z watów kWh, także za wcześniejsze dni", 'ec.kept': "już jest: {names}, nic podwójnie", 'ec.noStats': "nie ma historii w Home Assistant (brak state_class) ani licznika w kWh.", 'ec.make': "＋ Utwórz licznik",
   'ec.makeTip': "Tworzy w Home Assistant pomocnika „Całka”, który liczy kWh z watów (od teraz, bez wcześniejszych dni)", 'ec.making': "tworzenie …",
   'ec.made': "utworzony i przejęty. Liczy od teraz.", 'ec.makeFail': "nie udało się utworzyć (Home Assistant odmówił).",
 };

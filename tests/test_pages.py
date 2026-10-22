@@ -63,6 +63,20 @@ def test_statistics_answer_is_cut_down_and_units_come_with_it():
     assert out["units"] == {"sensor.a": "kWh", "sensor.w": "m³", "sensor.x": "€"}
 
 
+def test_a_power_sensor_as_a_meter_counts_its_mean():
+    """#503: a sensor in W as a meter: Home Assistant's time-weighted mean (converted to kW) × the hours of the row = kWh"""
+    h, t = 3600000, 1761000000000
+    res = {"sensor.pv_w": [{"start": t, "end": t + h, "mean": 2.5}, {"start": t + h, "end": t + 2 * h, "mean": None}, {"start": t + 2 * h, "mean": 0.5}],
+           "sensor.old_w": [{"start": t, "end": t + 24 * h, "mean": 1500}]}
+    meta = [{"statistic_id": "sensor.pv_w", "unit_class": "power", "statistics_unit_of_measurement": "W"},
+            {"statistic_id": "sensor.old_w", "unit_class": None, "statistics_unit_of_measurement": "W"}]    # an old one: not converted
+    out = pages.slim_stats(res, meta, "hour")
+    assert out["stats"]["sensor.pv_w"] == [[t, 2.5], [t + h, None], [t + 2 * h, 0.5]]          # 2.5 kW for an hour; a row without its end: an hour
+    assert out["stats"]["sensor.old_w"] == [[t, 36.0]]                                  # 1500 W for a day: 36 kWh
+    assert out["units"] == {"sensor.pv_w": "kWh", "sensor.old_w": "kWh"}
+    assert pages.slim_stats({"sensor.d": [{"start": t, "mean": 1}]}, [{"statistic_id": "sensor.d", "unit_class": "power"}], "day")["stats"]["sensor.d"] == [[t, 24.0]]
+
+
 def test_forecast_and_events():
     resp = {"changed_states": [], "service_response": {"weather.home": {"forecast": [
         {"datetime": "2026-10-22T00:00:00+00:00", "condition": "rainy", "temperature": 11.5, "templow": 6, "precipitation": 3.2, "precipitation_probability": 80},

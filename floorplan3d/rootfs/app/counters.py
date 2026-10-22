@@ -83,10 +83,16 @@ def clean_sources(query) -> dict:
     return out
 
 
+def has_stats(st) -> bool:
+    """does Home Assistant keep long-term statistics of it (its state_class): then the page can count a power sensor's mean as kWh"""
+    return ((st or {}).get("attributes") or {}).get("state_class") in ("measurement", "total", "total_increasing")
+
+
 def find_counters(sources: dict, states: dict, registry: list) -> dict:
-    """{kind: [{"power", "power_name", "unit", "counter"}]} for the power sensors per kind (counter: counter_for or None)"""
-    return {k: [{"power": p, "power_name": _name(states.get(p), p), "unit": _unit(states.get(p)), "counter": counter_for(p, k, states, registry)}
-                for p in ids] for k, ids in sources.items()}
+    """{kind: [{"power", "power_name", "unit", "stats", "counter"}]} for the power sensors per kind (counter: counter_for or None; stats:
+    has_stats, the power sensor itself can be the meter)"""
+    return {k: [{"power": p, "power_name": _name(states.get(p), p), "unit": _unit(states.get(p)), "stats": has_stats(states.get(p)),
+                 "counter": counter_for(p, k, states, registry)} for p in ids] for k, ids in sources.items()}
 
 
 def helper_input(source: str, name: str) -> dict:

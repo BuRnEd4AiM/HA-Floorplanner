@@ -25,17 +25,24 @@ export function powerSources(src) {
 export const counterQuery = (kinds) => new URLSearchParams(Object.entries(kinds || {}).map(([k, v]) => [k, v.join(',')])).toString();
 
 /**
- * The meters after the found counters were taken: meters (layout.energy.meters), found ({ kind: [{ power, counter }] }, api/energy/counters)
- * -> { meters (cleanMeters), added: [{ kind, id }], had: [{ kind, id }] } — a counter already there is left as it is.
+ * The meters after "⤵ Von oben übernehmen": meters (layout.energy.meters), found ({ kind: [{ power, stats, counter }] }, api/energy/counters),
+ * signed (powerSources) -> { meters (cleanMeters), added: [{ kind, id, how: 'counter' | 'power' }], had: [{ kind, id }], kept: [kinds] }.
+ * Per power sensor its counter (kWh) when it has one, else the power sensor itself (W, #503: the page counts its mean as kWh) when Home
+ * Assistant keeps its statistics and it does not measure both ways. A kind that already had meters gets nothing new (the same energy
+ * would count twice, e.g. a grid meter in kWh and the inverter's grid power).
  */
-export function takeCounters(meters, found) {
-  const m = cleanMeters(meters), added = [], had = [];
-  COUNTER_KINDS.forEach((kind) => (found?.[kind] || []).forEach((x) => {
-    const id = x?.counter?.entity_id;
-    if (typeof id !== 'string' || !/^sensor\.[a-z0-9_]+$/.test(id)) return;
-    if (m[kind].includes(id)) { had.push({ kind, id }); return; }
-    m[kind] = [...m[kind], id];
-    added.push({ kind, id });
-  }));
-  return { meters: m, added, had };
+export function takeCounters(meters, found, signed = []) {
+  const m = cleanMeters(meters), had = [], added = [], kept = [];
+  COUNTER_KINDS.forEach((kind) => {
+    const before = m[kind].length > 0;
+    (found?.[kind] || []).forEach((x) => {
+      const c = x?.counter?.entity_id, id = typeof c === 'string' ? c : x?.stats && !signed.includes(x?.power) ? x?.power : null;
+      if (typeof id !== 'string' || !/^sensor\.[a-z0-9_]+$/.test(id)) return;
+      if (m[kind].includes(id)) { had.push({ kind, id }); return; }
+      if (before) { if (!kept.includes(kind)) kept.push(kind); return; }
+      m[kind] = [...m[kind], id];
+      added.push({ kind, id, how: id === c ? 'counter' : 'power' });
+    });
+  });
+  return { meters: m, added, had, kept };
 }

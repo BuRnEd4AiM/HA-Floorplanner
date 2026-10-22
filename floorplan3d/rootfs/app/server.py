@@ -2004,7 +2004,8 @@ async def get_energy_meters(request):
 
 
 async def post_energy_stats(request):
-    """How much each meter counted per hour / day / week / month of a span (Home Assistant's long-term statistics, kWh and m³)."""
+    """How much each meter counted per hour / day / week / month of a span (Home Assistant's long-term statistics, kWh and m³; a power
+    sensor's mean as kWh, #503)."""
     if "energy" in user_locks(request):
         return web.json_response({"error": "the energy is locked for this user"}, status=403)
     if not SUPERVISOR_TOKEN:
@@ -2019,15 +2020,15 @@ async def post_energy_stats(request):
     try:
         async with _HaSocket() as ws:
             res = await rn.ask(ws, 1, {"type": "recorder/statistics_during_period", "start_time": q["start"], "end_time": q["end"],
-                                       "statistic_ids": q["ids"], "period": q["period"], "types": ["change"],
-                                       "units": {"energy": "kWh", "volume": "m³"}}, [])
+                                       "statistic_ids": q["ids"], "period": q["period"], "types": ["change", "mean"],
+                                       "units": {"energy": "kWh", "volume": "m³", "power": "kW"}}, [])   # a power sensor as a meter: its mean (#503)
             try:
                 meta = await rn.ask(ws, 2, {"type": "recorder/get_statistics_metadata", "statistic_ids": q["ids"]}, [])
             except LookupError:
                 meta = []
     except HA_DOWN as err:
         return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
-    return web.json_response(pages.slim_stats(res, meta))
+    return web.json_response(pages.slim_stats(res, meta, q["period"]))
 
 
 async def get_forecast(request):

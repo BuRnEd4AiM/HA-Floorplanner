@@ -61,7 +61,8 @@ def test_the_question_and_the_answer():
     assert q == {"solar": ["sensor.wr_leistung", "sensor.lonely"], "batIn": ["sensor.akku_laden"]}
     f = counters.find_counters(q, STATES, REG)
     assert [x["counter"] and x["counter"]["entity_id"] for x in f["solar"]] == ["sensor.wr_energie_gesamt", None]
-    assert f["solar"][1] == {"power": "sensor.lonely", "power_name": "Pumpe Leistung", "unit": "W", "counter": None}
+    assert f["solar"][1] == {"power": "sensor.lonely", "power_name": "Pumpe Leistung", "unit": "W", "stats": False, "counter": None}
+    assert counters.has_stats(st("W", "x", "measurement")) and not counters.has_stats(st("W", "x")) and not counters.has_stats(None)
 
 
 def test_the_helper_made():

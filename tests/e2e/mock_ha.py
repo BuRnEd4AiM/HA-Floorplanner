@@ -155,13 +155,16 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": stat_rows(m)})
         elif m.get("type") == "recorder/get_statistics_metadata":
             await ws.send_json({"id": m["id"], "type": "result", "success": True,
-                                "result": [{"statistic_id": i, "unit_class": "volume" if "wasser" in i or "gas" in i else "energy",
-                                            "statistics_unit_of_measurement": "m³" if "wasser" in i or "gas" in i else "kWh"} for i in m.get("statistic_ids") or []]})
+                                "result": [{"statistic_id": i, "unit_class": "power" if is_power(i) else "volume" if "wasser" in i or "gas" in i else "energy",
+                                            "statistics_unit_of_measurement": "W" if is_power(i) else "m³" if "wasser" in i or "gas" in i else "kWh"}
+                                           for i in m.get("statistic_ids") or []]})
         elif "id" in m:
             await ws.send_json({"id": m["id"], "type": "result", "success": False, "error": {"code": "unknown_command"}})
     SUBS[:] = [x for x in SUBS if x[0] is not ws]
     REG_SUBS[:] = [x for x in REG_SUBS if x[0] is not ws]
     return ws
+def is_power(i):                  # #503: an added entity in W is a power sensor in the statistics
+    return (EXTRA.get(i, {}).get("attributes") or {}).get("unit_of_measurement") in ("W", "kW")
 def stat_rows(m):
     """the change of every statistic in every hour / day / week / month between start and end: a fixed amount per meter (#479)"""
     import datetime as dt
@@ -173,7 +176,10 @@ def stat_rows(m):
     for i in m.get("statistic_ids") or []:
         rows, t = [], a
         while t < b:
-            rows.append({"start": t.timestamp() * 1000, "end": (t + step).timestamp() * 1000, "change": round(base(i) * per, 3)})
+            if is_power(i):           # #503: a power sensor has its time-weighted mean (in kW: the add-on asks for that unit), no change
+                rows.append({"start": t.timestamp() * 1000, "end": (t + step).timestamp() * 1000, "mean": 0.5})
+            else:
+                rows.append({"start": t.timestamp() * 1000, "end": (t + step).timestamp() * 1000, "change": round(base(i) * per, 3)})
             t += step
         out[i] = rows
     return out

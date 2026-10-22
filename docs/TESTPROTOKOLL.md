@@ -298,7 +298,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495) | 0 | 0 | 7 | 0 | 90.1 bis 90.7 |
 | 91. Neu in 4.14.0: Knöpfe gestalten (#495) | 0 | 0 | 7 | 0 | 91.1 bis 91.7 |
 | 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500) | 0 | 0 | 6 | 0 | 92.1 bis 92.6 |
-| **Zusammen** | **492** | **5** | **177** | **54** | |
+| 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503) | 0 | 0 | 4 | 0 | 93.1 bis 93.4 |
+| **Zusammen** | **492** | **5** | **181** | **54** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1489,4 +1490,13 @@ Wünsche des Besitzers: „einen Knopf …, dass es von oben, was ich eingestell
 | 92.4 | Noch einmal „⤵ Von oben übernehmen“ | Alles „war schon eingetragen“, nichts doppelt | ❓ |
 | 92.5 | Eine Notiz an die Pinnwand, dann „Backup herunterladen“, die Notiz löschen, das Backup einspielen | Die Notiz ist wieder da | ❓ |
 | 92.6 | Im Add-on: Urlaubs-Alarmanlage eingerichtet (Sensoren, Code), Backup einspielen | Sensoren und Einstellungen stimmen, der Code ist noch derselbe | ❓ |
+
+## 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503)
+Nachfrage des Besitzers: „kannst du es nicht einfach so machen, dass es egal ist ob W oder kWh?“
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 93.1 | Im Add-on: Bearbeiten → ⚡ Strom-Editor → „Zähler für den Verlauf“ → „⤵ Von oben übernehmen“ | Bei Solar und Batterie grüne Zeilen „… übernommen: die Seite ⚡ Energie rechnet aus den Watt die kWh“; beim Netzbezug „steht schon: Strom-HD_Strasse-Bezug, nichts doppelt eingetragen“ | ❓ |
+| 93.2 | Unten bei „Solar erzeugt“ in „＋ Sensor hinzufügen …“ tippen | Auch Sensoren in W (z. B. SolarNet PV-Leistung) stehen in der Liste | ❓ |
+| 93.3 | Unten auf ⚡ Energie, „Woche“ oder „Monat“ | Solar und Batterie zeigen kWh, auch für die Tage vor heute | ❓ |
+| 93.4 | Zum Vergleich in Home Assistants eigenem Energie-Dashboard denselben Tag ansehen | Die Werte liegen nah beieinander (aus dem Mittelwert gerechnet, darum nicht aufs Komma gleich) | ❓ |
 
