@@ -293,7 +293,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 85. Neu in 4.8.2: Tablets schneller (#494) | 0 | 0 | 4 | 0 | 85.1 bis 85.4 |
 | 86. Neu in 4.9.0: Thermostat als Kreis wie in Home Assistant (#495) | 0 | 0 | 9 | 0 | 86.1 bis 86.9 |
 | 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 0 | 0 | 6 | 0 | 87.1 bis 87.6 |
-| **Zusammen** | **492** | **5** | **143** | **54** | |
+| 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495) | 0 | 0 | 8 | 0 | 88.1 bis 88.8 |
+| **Zusammen** | **492** | **5** | **151** | **54** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1425,3 +1426,16 @@ Wunsch des Besitzers: „wenn man mehrere Häuser hat mit unterschiedlichen Stro
 | 87.4 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Verlauf“, nach „leistung“ suchen und „Netzbezug“ und „Nachbarhaus Verbrauch“ antippen | Beide sind markiert (farbiges Quadrat), die Vorschau zeigt zwei Linien mit Legende | ❓ |
 | 87.5 | Die Karte speichern und „✓ Fertig“ | Die Karte heißt „Verlauf“, zeigt zwei farbige Linien und oben beide Werte von jetzt | ❓ |
 | 87.6 | Im Add-on: bei jedem Haus in ⚡ Rechnung die eigenen Zähler eintragen, dann ⚡ Energie → „⚖ Vergleichen“ | Jedes Haus zeigt seine eigenen Werte; ein Haus ohne eigene Zähler zeigt „keine eigenen Zähler“ (außer dem ersten, das die Zähler aus dem Energie-Dashboard nimmt) | ❓ |
+
+## 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495)
+Wunsch des Besitzers: „dass ich so Kartenabschnitte frei auf dem Dashboard platzieren kann mit so Abschnitten“. Bild `docs/ideen-4.9/3-abschnitte.jpg`.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 88.1 | Demo, „Live“, ☀ Heute, unten ✎ Bearbeiten, oben „＋ Abschnitt“ | Ein Fenster „Abschnitt einstellen“ mit Name, Symbol und Breite; nach „Speichern“ steht der Abschnitt unter den Karten, leer mit „Karten mit ⠿ hierher ziehen“ | ❓ |
+| 88.2 | Eine Karte am ⠿ in den Abschnitt ziehen, eine zweite daneben | Beide stehen im Abschnitt, oben fehlen sie | ❓ |
+| 88.3 | Die blaue Ecke ↘ unten rechts einer Karte nach rechts ziehen | Die Karte wird breiter (über zwei oder drei Spalten), nach links wieder schmaler | ❓ |
+| 88.4 | Am Abschnitt ✏️: anderer Name, „Breit (zwei Spalten)“ | Der Abschnitt heißt anders und ist doppelt so breit | ❓ |
+| 88.5 | Zweiten Abschnitt anlegen, mit ‹ › die Reihenfolge ändern | Die Abschnitte tauschen den Platz | ❓ |
+| 88.6 | „✓ Fertig“ | Die Überschriften bleiben, alle Werkzeuge (⠿, ↘, ✏️) sind weg | ❓ |
+| 88.7 | Wieder ✎, am Abschnitt 🗑 | Nach der Rückfrage ist der Abschnitt weg, seine Karten stehen wieder oben | ❓ |
+| 88.8 | Dasselbe auf 🌡 Klima oder einer eigenen Seite | Geht genauso | ❓ |

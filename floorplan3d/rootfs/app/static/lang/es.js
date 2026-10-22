@@ -1567,4 +1567,10 @@ export default {
   'pe.cmp.chart': 'Consumo, un color por casa', 'pe.cmp.now': 'Potencia ahora',
   'pe.cmp.nowNone': 'Ninguna casa tiene un sensor de potencia para «ahora» (⚡ Factura → consumo de la casa).',
   'ce.series': 'Sensores (hasta {n}, una línea cada uno, p. ej. la potencia de cada casa)',
+  'bd.addSection': 'Sección', 'bd.resize': 'Arrastrar la esquina: tarjeta más ancha o más estrecha', 'sec.new': 'Sección {n}', 'sec.untitled': 'Sin nombre',
+  'sec.earlier': 'Mover antes', 'sec.later': 'Mover después', 'sec.edit': 'Ajustar la sección',
+  'sec.editSub': 'Nombre, símbolo y ancho. Arrastra las tarjetas con ⠿.', 'sec.del': 'Borrar la sección (las tarjetas se quedan)',
+  'sec.delAsk': '¿Borrar la sección? Sus tarjetas vuelven arriba.', 'sec.dropHere': 'Arrastra tarjetas aquí con ⠿', 'sec.title': 'Nombre',
+  'sec.titlePh': 'p. ej. Salón, Electricidad, Seguridad', 'sec.icon': 'Símbolo', 'sec.width': 'Ancho', 'sec.normal': 'Normal',
+  'sec.wide': 'Ancha (dos columnas)',
 };

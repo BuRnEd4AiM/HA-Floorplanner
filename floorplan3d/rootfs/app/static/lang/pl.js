@@ -1553,4 +1553,10 @@ export default {
   'pe.cmp.nowIs': 'teraz {v}', 'pe.cmp.sum': 'Σ wszystkie domy', 'pe.cmp.chart.day': 'Zużycie na godzinę, linia na dom', 'pe.cmp.chart': 'Zużycie, kolor na dom',
   'pe.cmp.now': 'Moc teraz', 'pe.cmp.nowNone': 'Żaden dom nie ma czujnika mocy dla „teraz” (⚡ Rachunek → zużycie domu).',
   'ce.series': 'Czujniki (do {n}, każdy własna linia, np. moc każdego domu)',
+  'bd.addSection': 'Sekcja', 'bd.resize': 'Przeciągnij róg: karta szersza lub węższa', 'sec.new': 'Sekcja {n}', 'sec.untitled': 'Bez nazwy',
+  'sec.earlier': 'Przesuń wcześniej', 'sec.later': 'Przesuń później', 'sec.edit': 'Ustaw sekcję',
+  'sec.editSub': 'Nazwa, symbol i szerokość. Przeciągnij karty za pomocą ⠿.', 'sec.del': 'Usuń sekcję (karty zostają)',
+  'sec.delAsk': 'Usunąć sekcję? Jej karty wrócą na górę.', 'sec.dropHere': 'Przeciągnij tu karty za pomocą ⠿', 'sec.title': 'Nazwa',
+  'sec.titlePh': 'np. Salon, Prąd, Bezpieczeństwo', 'sec.icon': 'Symbol', 'sec.width': 'Szerokość', 'sec.normal': 'Normalna',
+  'sec.wide': 'Szeroka (dwie kolumny)',
 };

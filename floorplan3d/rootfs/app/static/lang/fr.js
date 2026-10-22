@@ -1573,4 +1573,9 @@ export default {
   'pe.cmp.chart': 'Consommation, une couleur par maison', 'pe.cmp.now': 'Puissance actuelle',
   'pe.cmp.nowNone': 'Aucune maison n\'a de capteur de puissance pour « maintenant » (⚡ Facture → consommation de la maison).',
   'ce.series': 'Capteurs (jusqu\'à {n}, une ligne chacun, p. ex. la puissance de chaque maison)',
+  'bd.addSection': 'Section', 'bd.resize': 'Tirer le coin : carte plus large ou plus étroite', 'sec.new': 'Section {n}', 'sec.untitled': 'Sans nom',
+  'sec.earlier': 'Avancer', 'sec.later': 'Reculer', 'sec.edit': 'Régler la section', 'sec.editSub': 'Nom, symbole et largeur. Glissez les cartes avec ⠿.',
+  'sec.del': 'Supprimer la section (les cartes restent)', 'sec.delAsk': 'Supprimer la section ? Ses cartes reviennent en haut.',
+  'sec.dropHere': 'Glissez des cartes ici avec ⠿', 'sec.title': 'Nom', 'sec.titlePh': 'p. ex. Salon, Électricité, Sécurité', 'sec.icon': 'Symbole',
+  'sec.width': 'Largeur', 'sec.normal': 'Normale', 'sec.wide': 'Large (deux colonnes)',
 };

@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.11.0] - 2026-10-22
+### Added
+- **Sections on the pages, like the "Sections" of a Home Assistant dashboard** (#495, the owner: "dass ich so Kartenabschnitte frei auf dem Dashboard platzieren kann mit so Abschnitten"; picture `docs/ideen-4.9/3-abschnitte.jpg`). In ✎ the new button *＋ Abschnitt* makes a section with a name, a symbol and a width (normal: a column of cards, wide: two); ⠿ drags a card into a section, between sections and back above them; a section has ‹ › to move it, ✏️ to rename it and 🗑 to take it away (its cards stand above again). **The corner ↘** of every card in ✎ makes it wider or narrower (built-in cards: `widths`, own cards: their width). Works on every page, built-in or own, saved for everybody (`pageLayouts.<page>.sections`, `.widths`; the rules in `sections.js`, tested, the same in `boards.py`). *Wie am Anfang* removes the sections and widths too.
+
 ## [4.10.0] - 2026-10-22
 ### Added
 - **⚖ Vergleichen: the power of several houses in one chart** (#495, the owner: "wenn man mehrere Häuser hat mit unterschiedlichen Stromsensoren, dass es dann auch in einer Grafik irgendwie zu sehen ist"; picture `docs/ideen-4.9/2-strom-haeuser.jpg`). On ⚡ Energie with more than one house a chip *⚖ Vergleichen* beside *Alle zusammen*: every house with its own meters (⚡ Rechnung; the first house without its own takes those of Home Assistant's energy dashboard, a later one none, so nothing counts twice), each in its own colour: a tile per house (kWh in the period, the power now) and the sum, today a line per house through the hours, a week / month / year a bar per house and day / month, the power of each house now, the cost of each house. One question to Home Assistant's statistics for all houses (`energycompare.js`, the rules in `energyhistory.js`, tested).

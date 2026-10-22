@@ -8,7 +8,7 @@ const text = (id) => ({ id, type: 'text', text: 'x' });
 test('a layout made safe: keys once, own cards valid and once', () => {
   const l = L.cleanLayout({ order: ['clock', 'clock', 'BAD KEY', 'c_abc'], hidden: ['waste', 5], cards: [text('c_abc'), text('c_abc'), { id: 'c_def', type: 'light', entity: 'switch.x' }, null] });
   assert.deepEqual(l.order, ['clock', 'c_abc']); assert.deepEqual(l.hidden, ['waste']); assert.deepEqual(l.cards.map((c) => c.id), ['c_abc']);
-  assert.deepEqual(L.cleanLayout(null), { order: [], hidden: [], sizes: {}, cards: [] });
+  assert.deepEqual(L.cleanLayout(null), { order: [], hidden: [], sizes: {}, sections: [], widths: {}, cards: [] });
   assert.deepEqual(L.cleanLayout({ sizes: { 'room:r1': 'small', 'room:r2': 'huge', 'BAD KEY': 'small' } }).sizes, { 'room:r1': 'small' });   // #495
   assert.deepEqual(Object.keys(L.cleanLayouts({ today: { hidden: ['x'] }, nope: { hidden: ['x'] }, climate: {} }, ['today', 'climate'])), ['today']);
   assert.deepEqual(L.cleanLayouts([1], ['today']), {});
@@ -39,7 +39,7 @@ test('moving, hiding, adding, changing, taking away, starting again', () => {
   const full = { cards: Array.from({ length: L.MAX_OWN }, (_, i) => text(`c_${String(i).padStart(3, '0')}`)) };
   assert.equal(L.putCard(full, text('c_more')).cards.length, L.MAX_OWN);
   const d = L.dropCard({ order: ['a', 'c_new'], hidden: ['c_new'], cards: [text('c_new')] }, 'c_new');
-  assert.deepEqual(d, { order: ['a'], hidden: [], sizes: {}, cards: [] });
+  assert.deepEqual(d, { order: ['a'], hidden: [], sizes: {}, widths: {}, sections: [], cards: [] });
   assert.deepEqual(L.resetLayout({ order: ['b', 'a'], hidden: ['a'], cards: [text('c_kkk')] }).order, []);
   assert.equal(L.resetLayout({ cards: [text('c_kkk')] }).cards.length, 1);
   const s = L.withSize({}, 'room:r1', 'small');                       // #495: a thermostat on 🌡 Klima big or small

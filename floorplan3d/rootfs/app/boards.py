@@ -32,6 +32,9 @@ TYPE_DOMAINS = {
 BUILTINS = ("today:clock", "today:weather", "today:agenda", "today:waste", "today:people", "today:house", "today:power", "today:pinboard")
 COLORS = ("blue", "orange", "green", "red")
 HOURS = (6, 24, 168, 720)
+SECTION_ID = re.compile(r"^s_[a-z0-9]{3,16}$")
+MAX_SECTIONS = 12
+MAX_TITLE = 40
 SIZES = ("big", "small")   # a thermostat card, a built-in card that can be small (static/thermostat.js, #495)
 
 
@@ -141,7 +144,30 @@ def clean_layout(v) -> dict:
             cards.append(x)
     sizes = o.get("sizes") if isinstance(o.get("sizes"), dict) else {}
     sizes = dict([(k, v) for k, v in sizes.items() if isinstance(k, str) and KEY.match(k) and v in SIZES][:MAX_ORDER])
-    return {"order": keys(o.get("order")), "hidden": keys(o.get("hidden")), "sizes": sizes, "cards": cards}
+    widths = o.get("widths") if isinstance(o.get("widths"), dict) else {}
+    widths = dict([(k, v) for k, v in widths.items() if isinstance(k, str) and KEY.match(k) and isinstance(v, int) and not isinstance(v, bool)
+                   and 1 <= v <= 4][:MAX_ORDER])
+    return {"order": keys(o.get("order")), "hidden": keys(o.get("hidden")), "sizes": sizes, "sections": clean_sections(o.get("sections")),
+            "widths": widths, "cards": cards}
+
+
+def clean_sections(val) -> list:
+    """the sections of a page (#495): [{"id", "title", "icon", "wide", "keys"}], ids once, a key in one section only (cleanSections in
+    static/sections.js)"""
+    out, ids, seen = [], set(), set()
+    for s in val if isinstance(val, list) else []:
+        if not isinstance(s, dict) or not isinstance(s.get("id"), str) or not SECTION_ID.match(s["id"]) or s["id"] in ids or len(out) >= MAX_SECTIONS:
+            continue
+        ids.add(s["id"])
+        keys = []
+        for k in s.get("keys") if isinstance(s.get("keys"), list) else []:
+            if isinstance(k, str) and KEY.match(k) and k not in seen and len(keys) < MAX_ORDER:
+                seen.add(k)
+                keys.append(k)
+        title = re.sub(r"[\x00-\x1f\x7f]", "", s["title"]).strip()[:MAX_TITLE] if isinstance(s.get("title"), str) else ""
+        icon = re.sub(r"[\x00-\x1f\x7f]", "", s["icon"]).strip()[:8] if isinstance(s.get("icon"), str) else ""
+        out.append({"id": s["id"], "title": title, "icon": icon, "wide": s.get("wide") is True, "keys": keys})
+    return out
 
 
 def clean_page_layouts(val, custom_tabs) -> dict:
@@ -154,7 +180,7 @@ def clean_page_layouts(val, custom_tabs) -> dict:
         if page not in pages:
             continue
         lay = clean_layout(v)
-        if lay["order"] or lay["hidden"] or lay["cards"] or lay["sizes"]:
+        if lay["order"] or lay["hidden"] or lay["cards"] or lay["sizes"] or lay["sections"] or lay["widths"]:
             out[page] = lay
     return out
 

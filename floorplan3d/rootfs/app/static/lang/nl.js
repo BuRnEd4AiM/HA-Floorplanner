@@ -1552,4 +1552,10 @@ export default {
   'pe.cmp.sum': 'Σ alle huizen', 'pe.cmp.chart.day': 'Verbruik per uur, een lijn per huis', 'pe.cmp.chart': 'Verbruik, een kleur per huis',
   'pe.cmp.now': 'Vermogen nu', 'pe.cmp.nowNone': 'Geen huis heeft een vermogenssensor voor ‘nu’ (⚡ Rekening → verbruik van het huis).',
   'ce.series': 'Sensoren (tot {n}, elk een eigen lijn, bv. het vermogen van elk huis)',
+  'bd.addSection': 'Sectie', 'bd.resize': 'Hoek slepen: kaart breder of smaller', 'sec.new': 'Sectie {n}', 'sec.untitled': 'Zonder naam',
+  'sec.earlier': 'Naar voren', 'sec.later': 'Naar achteren', 'sec.edit': 'Sectie instellen',
+  'sec.editSub': 'Naam, symbool en breedte. Sleep kaarten erin met ⠿.', 'sec.del': 'Sectie verwijderen (de kaarten blijven)',
+  'sec.delAsk': 'Sectie verwijderen? De kaarten staan dan weer bovenaan.', 'sec.dropHere': 'Sleep kaarten hierheen met ⠿', 'sec.title': 'Naam',
+  'sec.titlePh': 'bv. Woonkamer, Stroom, Beveiliging', 'sec.icon': 'Symbool', 'sec.width': 'Breedte', 'sec.normal': 'Normaal',
+  'sec.wide': 'Breed (twee kolommen)',
 };

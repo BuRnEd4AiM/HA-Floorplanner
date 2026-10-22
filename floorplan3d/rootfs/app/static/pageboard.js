@@ -1,9 +1,13 @@
 /* The cards of a page of the tab bar like a Home Assistant dashboard (#484): every page hands its cards with a key, the board puts them
  * in the order an admin chose, leaves out the hidden ones, adds the own cards (cardsui.js) and lays them out as a masonry grid (cards
  * of different heights close up). In the edit mode (✎ in the tab bar, editors only) every card has ⠿ to drag it, 👁 to hide it, an
- * own card ⚙ and 🗑, at the end "＋ Karte hinzufügen", at the top a strip with ＋ Karte, 🗂 Reiter, ↺ Wie am Anfang and ✓ Fertig.
- * Stored for everybody in settings.pageLayouts; the rules are in pagelayout.js (tested). */
+ * own card ⚙ and 🗑, the corner ↘ to make it wider or narrower (#495), at the end "＋ Karte hinzufügen", at the top a strip with
+ * ＋ Karte, ＋ Abschnitt, 🗂 Reiter, ↺ Wie am Anfang and ✓ Fertig. With sections (#495, sections.js, sectionsui.js) the cards in no section
+ * stand above them and a card is dragged into a section and between them. Stored for everybody in settings.pageLayouts; the rules are in
+ * pagelayout.js and sections.js (tested). */
 import { arrange, withOrder, toggleHidden, dropCard, resetLayout, putCard, cleanLayout, emptyLayout, withSize, sizeOf, rowSpan } from './pagelayout.js';
+import { groupEntries, fromScreen, withWidth, spanAt, newSectionId, addSection, editSection, dropSection, moveSection } from './sections.js';
+import { initSectionsUi } from './sectionsui.js';
 
 const ROW = 8, GAP = 14;
 
@@ -28,6 +32,19 @@ export function initBoard(ctx) {
   }
   /** an own card added or changed (cardeditor.js) */
   const saveCard = (page, card) => setLayout(page, putCard(layoutOf(page), card));
+  /* sections (#495): moved, taken away, named */
+  const withSections = (page, fn) => { const l = layoutOf(page); setLayout(page, { ...l, sections: fn(l.sections) }); };
+  const secUi = initSectionsUi({ t, edit: {
+    move: (page, id, by) => withSections(page, (l) => moveSection(l, id, by)),
+    drop: (page, id) => withSections(page, (l) => dropSection(l, id)),
+    save: (page, id, v) => withSections(page, (l) => editSection(l, id, v)),
+  } });
+  function newSection(page) {
+    const l = layoutOf(page), id = newSectionId(l.sections.map((x) => x.id));
+    withSections(page, (secs) => addSection(secs, id, t('sec.new', { n: secs.length + 1 })));
+    const made = layoutOf(page).sections.find((x) => x.id === id);
+    if (made) secUi.open(page, made);
+  }
 
   /* ---- the masonry grid: columns from the CSS grid, each card as many 8 px rows as it is high ---- */
   function columns(box) {
@@ -73,12 +90,15 @@ export function initBoard(ctx) {
     }
     return bar;
   }
-  function item(page, entry, builtin, edit, same = null) {
+  function item(page, entry, builtin, edit, same = null, widths = {}) {
     const el = same || (entry.own ? ctx.cards.render(entry.own) : builtin.el);
     el.classList.add('bdItem'); el.classList.toggle('bdEdit', edit); el.classList.toggle('bdOff', edit && entry.hidden);
-    el.dataset.key = entry.key; el.dataset.w = String(entry.own ? entry.own.width : builtin.width || 1);
-    el.querySelectorAll(':scope > .bdTools, :scope > .bdTag').forEach((x) => x.remove());
+    el.dataset.key = entry.key; el.dataset.w = String(entry.own ? entry.own.width : widths[entry.key] || builtin.width || 1);   // a width an admin dragged (#495)
+    el.querySelectorAll(':scope > .bdTools, :scope > .bdTag, :scope > .bdResize').forEach((x) => x.remove());
     if (edit) {
+      const corner = make('span', 'bdResize'); corner.title = t('bd.resize'); corner.setAttribute('role', 'button');
+      corner.addEventListener('pointerdown', (e) => resize(e, page, el, entry.own));
+      el.append(corner);
       el.append(tools(page, entry.key, entry.own, entry.hidden, builtin?.sized));
       if (entry.hidden) el.append(make('span', 'bdTag', t('bd.hidden')));
       else if (entry.own) el.append(make('span', 'bdTag own', t('bd.own')));
@@ -89,8 +109,9 @@ export function initBoard(ctx) {
     const s = make('div', 'bdStrip');
     s.append(make('b', '', `✎ ${t('bd.editing', { page: ctx.pageName(page) })}`), make('span', 'bdSub', t('bd.help')));
     const add = btn('bdBtn', `＋ ${t('bd.addShort')}`, () => ctx.addCard(page)); add.dataset.act = 'add';
+    const sec = btn('bdBtn', `＋ ${t('bd.addSection')}`, () => newSection(page)); sec.dataset.act = 'addSection';
     const tabs = btn('bdBtn', `🗂 ${t('bd.tabs')}`, () => ctx.editTabs()); tabs.dataset.act = 'tabs';
-    s.append(add, tabs);
+    s.append(add, sec, tabs);
     if (/^p_/.test(page)) { const own = btn('bdBtn', `⚙️ ${t('bd.page')}`, () => ctx.editOwnPage(page)); own.dataset.act = 'page'; s.append(own); }
     const reset = btn('bdBtn', `↺ ${t('bd.reset')}`, () => { if (window.confirm(t('bd.resetAsk'))) setLayout(page, resetLayout(layoutOf(page))); }); reset.dataset.act = 'reset';
     const done = btn('bdBtn primary', `✓ ${t('bd.done')}`, () => setEditing(null)); done.dataset.act = 'done';
@@ -106,6 +127,7 @@ export function initBoard(ctx) {
    */
   function fill(page, box, items, { min = 300 } = {}) {
     const edit = editing === page && ctx.canEdit(), before = shown.get(page), kept = before?.box === box ? before.keep : new Map();
+    const lay = layoutOf(page);
     /* a card of the page with a sig that has not changed keeps its element (made with `make` only when it is new or changed, #494) */
     const byKey = new Map();
     items.filter(Boolean).forEach((i) => {
@@ -113,25 +135,41 @@ export function initBoard(ctx) {
       const el = old && old.sig === i.sig ? old.el : i.make ? i.make() : i.el;
       if (el) byKey.set(i.key, { ...i, el });
     });
-    const entries = arrange([...byKey.keys()], layoutOf(page)).filter((e) => e.own || byKey.has(e.key)).filter((e) => edit || !e.hidden);
-    box.classList.add('bdGrid');
+    const entries = arrange([...byKey.keys()], lay).filter((e) => e.own || byKey.has(e.key)).filter((e) => edit || !e.hidden);
     const keep = new Map();
     const els = entries.map((e) => {
       const sig = e.own ? ctx.cards.sig(e.own) : byKey.get(e.key).sig, old = e.own ? kept.get(e.key) : null;
-      const el = item(page, e, byKey.get(e.key), edit, old && old.sig === sig ? old.el : null);
+      const el = item(page, e, byKey.get(e.key), edit, old && old.sig === sig ? old.el : null, lay.widths);
       keep.set(e.key, { sig, el });
       return el;
     });
-    if (edit) { const a = btn('bdAdd', `＋ ${t('bd.add')}`, () => ctx.addCard(page)); a.dataset.w = '1'; els.push(a); }
+    const add = edit ? btn('bdAdd', `＋ ${t('bd.add')}`, () => ctx.addCard(page)) : null;
+    if (add) add.dataset.w = '1';
+    const sec = box.closest('.tabPage');
+    const showStrip = () => { sec?.querySelectorAll(':scope > .bdStrip').forEach((x) => x.remove()); if (edit && sec) sec.prepend(strip(page)); };
+    shown.set(page, { box, keep, edit });
+    if (lay.sections.length) {                       // with sections (#495): the cards in no section above, then the sections
+      box.classList.remove('bdGrid'); box.classList.add('bdSecRoot');
+      const g = groupEntries(entries, lay.sections), f = secUi.frame(page, box, lay.sections, edit, min);
+      const lists = [[f.free, [...g.free.map((e) => keep.get(e.key).el), ...(add ? [add] : [])]], ...g.sections.map((x) => [f.grids.get(x.id), x.entries.map((e) => keep.get(e.key).el)])];
+      lists.forEach(([grid, list]) => {
+        const same = !f.fresh && !edit && !before?.edit && list.length === grid.children.length && list.every((x, i) => grid.children[i] === x);
+        if (same) return;
+        const gone = [...grid.children].filter((x) => !list.includes(x));
+        place(grid, list); watch(grid, gone);
+      });
+      f.free.hidden = !f.free.children.length;
+      if (f.fresh || edit || before?.edit) showStrip();
+      return;
+    }
+    box.classList.remove('bdSecRoot'); box.classList.add('bdGrid');
+    if (add) els.push(add);
     const gone = [...box.children].filter((x) => !els.includes(x));
     const same = !edit && !before?.edit && before?.box === box && box.style.getPropertyValue('--bdMin') === `${min}px` && els.length === box.children.length && els.every((x, i) => box.children[i] === x);
-    shown.set(page, { box, keep, edit });
     if (same) return;                                // nothing new: no layout at all (a card that grows is measured by the observer)
     box.style.setProperty('--bdMin', `${min}px`);
     place(box, els);
-    const sec = box.closest('.tabPage');
-    sec?.querySelectorAll(':scope > .bdStrip').forEach((x) => x.remove());
-    if (edit && sec) sec.prepend(strip(page));
+    showStrip();
     watch(box, gone);
   }
   /** after a change of the states: own cards whose states changed are drawn again (the page itself draws only what it shows) */
@@ -139,49 +177,87 @@ export function initBoard(ctx) {
     const s = shown.get(page);
     if (!s || !s.box.isConnected) return;
     const l = layoutOf(page);
-    const gone = [];
+    const touched = new Map();                       // grid -> the elements that left it
     l.cards.forEach((c) => {
       const was = s.keep.get(c.id), sig = ctx.cards.sig(c);
       if (!was || !was.el.isConnected || was.sig === sig) return;
-      const el = item(page, { key: c.id, own: c, hidden: l.hidden.includes(c.id) }, null, s.edit);
+      const el = item(page, { key: c.id, own: c, hidden: l.hidden.includes(c.id) }, null, s.edit, null, l.widths);
       s.keep.set(c.id, { sig, el });
-      was.el.replaceWith(el); gone.push(was.el);
+      const grid = was.el.parentNode;
+      was.el.replaceWith(el);
+      touched.set(grid, [...(touched.get(grid) || []), was.el]);
     });
-    if (gone.length) watch(s.box, gone);
+    touched.forEach((gone, grid) => watch(grid, gone));
   }
 
-  /* ---- dragging a card: it follows the finger, the others make room; let go: the order is stored ---- */
+  /* ---- dragging a card: it follows the finger, the others make room (also in another section, #495); let go: the order is stored ---- */
   function drag(e, page, el) {
     if (!el || e.button > 0) return;
     e.preventDefault();
-    const box = el.parentNode, scroller = box.closest('#tabPages');
-    const b0 = box.getBoundingClientRect(), off = { x: e.clientX - b0.left - el.offsetLeft, y: e.clientY - b0.top - el.offsetTop };
+    const root = el.closest('.bdSecRoot') || el.parentNode, scroller = root.closest('#tabPages'), sectioned = root.classList.contains('bdSecRoot');
+    const r0 = el.getBoundingClientRect(), off = { x: e.clientX - r0.left, y: e.clientY - r0.top };
     el.classList.add('bdDragging');
     e.target.setPointerCapture?.(e.pointerId);
     let last = '';
     const follow = (ev) => {
-      const b = box.getBoundingClientRect();
-      el.style.transform = `translate(${ev.clientX - b.left - off.x - el.offsetLeft}px, ${ev.clientY - b.top - off.y - el.offsetTop}px)`;
+      el.style.transform = '';
+      const r = el.getBoundingClientRect();
+      el.style.transform = `translate(${ev.clientX - off.x - r.left}px, ${ev.clientY - off.y - r.top}px)`;
     };
     const move = (ev) => {
       follow(ev);
       if (scroller) { const r = scroller.getBoundingClientRect(); if (ev.clientY < r.top + 50) scroller.scrollBy(0, -12); else if (ev.clientY > r.bottom - 50) scroller.scrollBy(0, 12); }
       el.style.pointerEvents = 'none';
-      const over = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.bdItem');
+      const at = document.elementFromPoint(ev.clientX, ev.clientY);
       el.style.pointerEvents = '';
-      if (!over || over === el || over.parentNode !== box) return;
-      const r = over.getBoundingClientRect(), after = ev.clientX > r.left + r.width / 2;
-      const key = `${over.dataset.key}|${after}`;
-      if (key === last) return;
-      last = key;
-      if (after) over.after(el); else over.before(el);
-      masonry(box); follow(ev);
+      const over = at?.closest('.bdItem'), grid = at?.closest('.bdGrid');
+      const from = el.parentNode;
+      if (over && over !== el && root.contains(over)) {
+        const r = over.getBoundingClientRect(), after = ev.clientX > r.left + r.width / 2;
+        const key = `${over.dataset.key}|${after}`;
+        if (key === last) return;
+        last = key;
+        if (after) over.after(el); else over.before(el);
+      } else if (sectioned && grid && root.contains(grid) && grid !== from && !over) {   // the empty part of another section: at its end
+        const key = `grid|${grid.dataset.section || 'free'}`;
+        if (key === last) return;
+        last = key;
+        grid.insertBefore(el, grid.querySelector(':scope > .bdAdd'));
+      } else return;
+      masonry(el.parentNode); if (from !== el.parentNode) masonry(from);
+      follow(ev);
     };
     const up = () => {
       document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up);
       el.style.transform = ''; el.classList.remove('bdDragging');
-      const keys = [...box.querySelectorAll(':scope > .bdItem')].map((x) => x.dataset.key);
-      setLayout(page, withOrder(layoutOf(page), keys));
+      const keysOf = (grid) => [...grid.querySelectorAll(':scope > .bdItem')].map((x) => x.dataset.key);
+      const l = layoutOf(page);
+      if (!sectioned) { setLayout(page, withOrder(l, keysOf(root))); return; }
+      const free = keysOf(root.querySelector('.bdFree')), secs = {};
+      root.querySelectorAll('.bdSecGrid').forEach((g) => { secs[g.dataset.section] = keysOf(g); });
+      setLayout(page, { ...withOrder(l, [...free, ...Object.values(secs).flat()]), sections: fromScreen(l.sections, { free, sections: secs }) });
+    };
+    document.addEventListener('pointermove', move); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
+  }
+  /* ---- the corner ↘ of a card in the edit mode: drag it to make the card wider or narrower (#495) ---- */
+  function resize(e, page, el, own) {
+    if (e.button > 0) return;
+    e.preventDefault(); e.stopPropagation();
+    const grid = el.parentNode, cols = columns(grid), colW = (grid.clientWidth - (cols - 1) * GAP) / cols, left = el.getBoundingClientRect().left;
+    e.target.setPointerCapture?.(e.pointerId);
+    el.classList.add('bdSizing');
+    let span = Number(el.dataset.w) || 1;
+    const move = (ev) => {
+      const n = spanAt(ev.clientX - left, colW, GAP, cols);
+      if (n === span) return;
+      span = n; el.dataset.w = String(n); masonry(grid);
+    };
+    const up = () => {
+      document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up);
+      el.classList.remove('bdSizing');
+      const w = span >= cols && cols < 4 ? cols : span;
+      if (own) saveCard(page, { ...own, width: w });
+      else { const l = layoutOf(page); setLayout(page, { ...l, widths: withWidth(l.widths, el.dataset.key, w) }); }
     };
     document.addEventListener('pointermove', move); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
   }

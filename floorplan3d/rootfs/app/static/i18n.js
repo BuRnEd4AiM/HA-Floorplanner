@@ -505,6 +505,12 @@ const DICT = {
     'pe.cmp.chart': 'Verbrauch, jedes Haus eine Farbe', 'pe.cmp.now': 'Leistung jetzt',
     'pe.cmp.nowNone': 'Kein Haus hat einen Strom-Sensor für „jetzt“ (⚡ Rechnung → Verbrauch des Hauses).',
     'ce.series': 'Sensoren (bis zu {n}, jeder eine eigene Linie, z. B. der Strom jedes Hauses)',
+    'bd.addSection': 'Abschnitt', 'bd.resize': 'Ecke ziehen: Karte breiter oder schmaler', 'sec.new': 'Abschnitt {n}', 'sec.untitled': 'Ohne Namen',
+    'sec.earlier': 'Weiter nach vorne', 'sec.later': 'Weiter nach hinten', 'sec.edit': 'Abschnitt einstellen',
+    'sec.editSub': 'Name, Symbol und Breite. Karten ziehst du mit ⠿ hinein.', 'sec.del': 'Abschnitt löschen (die Karten bleiben)',
+    'sec.delAsk': 'Abschnitt löschen? Seine Karten stehen danach wieder oben.', 'sec.dropHere': 'Karten mit ⠿ hierher ziehen', 'sec.title': 'Name',
+    'sec.titlePh': 'z. B. Wohnzimmer, Strom, Sicherheit', 'sec.icon': 'Symbol', 'sec.width': 'Breite', 'sec.normal': 'Normal',
+    'sec.wide': 'Breit (zwei Spalten)',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -985,6 +991,11 @@ const DICT = {
     'pe.cmp.sum': 'Σ all houses', 'pe.cmp.chart.day': 'Use per hour, a line per house', 'pe.cmp.chart': 'Use, a colour per house', 'pe.cmp.now': 'Power now',
     'pe.cmp.nowNone': 'No house has a power sensor for "now" (⚡ Bill → use of the house).',
     'ce.series': 'Sensors (up to {n}, a line each, e.g. the power of each house)',
+    'bd.addSection': 'Section', 'bd.resize': 'Drag the corner: card wider or narrower', 'sec.new': 'Section {n}', 'sec.untitled': 'No name',
+    'sec.earlier': 'Move earlier', 'sec.later': 'Move later', 'sec.edit': 'Set up the section', 'sec.editSub': 'Name, symbol and width. Drag cards in with ⠿.',
+    'sec.del': 'Delete the section (the cards stay)', 'sec.delAsk': 'Delete the section? Its cards then stand at the top again.',
+    'sec.dropHere': 'Drag cards here with ⠿', 'sec.title': 'Name', 'sec.titlePh': 'e.g. Living room, Power, Security', 'sec.icon': 'Symbol',
+    'sec.width': 'Width', 'sec.normal': 'Normal', 'sec.wide': 'Wide (two columns)',
   },
 };
 

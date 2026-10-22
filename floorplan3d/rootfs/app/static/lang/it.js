@@ -1569,4 +1569,10 @@ export default {
   'pe.cmp.chart': 'Consumo, un colore per casa', 'pe.cmp.now': 'Potenza ora',
   'pe.cmp.nowNone': 'Nessuna casa ha un sensore di potenza per «ora» (⚡ Bolletta → consumo della casa).',
   'ce.series': 'Sensori (fino a {n}, una linea ciascuno, ad es. la potenza di ogni casa)',
+  'bd.addSection': 'Sezione', 'bd.resize': 'Trascina l\'angolo: scheda più larga o più stretta', 'sec.new': 'Sezione {n}', 'sec.untitled': 'Senza nome',
+  'sec.earlier': 'Sposta prima', 'sec.later': 'Sposta dopo', 'sec.edit': 'Imposta la sezione',
+  'sec.editSub': 'Nome, simbolo e larghezza. Trascina le schede con ⠿.', 'sec.del': 'Elimina la sezione (le schede restano)',
+  'sec.delAsk': 'Eliminare la sezione? Le sue schede tornano in alto.', 'sec.dropHere': 'Trascina qui le schede con ⠿', 'sec.title': 'Nome',
+  'sec.titlePh': 'ad es. Soggiorno, Energia, Sicurezza', 'sec.icon': 'Simbolo', 'sec.width': 'Larghezza', 'sec.normal': 'Normale',
+  'sec.wide': 'Larga (due colonne)',
 };
