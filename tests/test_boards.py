@@ -32,6 +32,22 @@ def test_the_lists_match_the_browser():
     sec_js = (STATIC / "sections.js").read_text()
     assert "s_[a-z0-9]{3,16}" in sec_js and f"MAX_SECTIONS = {boards.MAX_SECTIONS}" in sec_js and f"MAX_TITLE = {boards.MAX_TITLE}" in sec_js
     assert "p_[a-z0-9]{3,16}" in (STATIC / "tabs.js").read_text() and "c_[a-z0-9]{3,16}" in cards
+    cal = (STATIC / "calcard.js").read_text()
+    assert tuple(js_list(cal, "CAL_VIEWS")) == boards.CAL_VIEWS and tuple(js_list(cal, "CAL_COLORS")) == boards.CAL_COLORS
+    assert re.search(r"export const CAL_DAYS = \[([^\]]+)\]", cal).group(1).replace(" ", "") == ",".join(map(str, boards.CAL_DAYS))
+    assert f"MAX_CALS = {boards.MAX_CALS}" in cal and "calendar\\.[a-z0-9_]{1,200}" in cal
+
+
+def test_a_calendar_card():
+    """#495: several calendars each in a colour, the days, the view, '＋ Termin'"""
+    c = boards.clean_card({"id": "c_cal", "type": "calendar", "cals": [{"id": "calendar.familie", "color": "green"}, "calendar.arbeit",
+                                                                       {"id": "calendar.familie"}, {"id": "Calendar.X"}, 7], "days": 14, "view": "list", "add": False})
+    assert c == {"id": "c_cal", "type": "calendar", "name": "", "width": 3, "cals": [{"id": "calendar.familie", "color": "green"},
+                 {"id": "calendar.arbeit", "color": "orange"}], "days": 14, "view": "list", "add": False}
+    d = boards.clean_card({"id": "c_cal", "type": "calendar", "cals": ["calendar.a"], "days": 5, "view": "year", "width": 2})
+    assert d["days"] == 7 and d["view"] == "week" and d["add"] is True and d["width"] == 2
+    assert boards.clean_card({"id": "c_cal", "type": "calendar", "cals": []}) is None
+    assert len(boards.clean_cals([f"calendar.c{i}" for i in range(15)])) == boards.MAX_CALS
 
 
 def test_own_pages_and_the_order_of_the_bar():

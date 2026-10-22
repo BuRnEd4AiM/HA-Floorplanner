@@ -130,3 +130,22 @@ def test_music_page_stations_rooms_together_and_pictures():
     for v in ("/local/x.png", "http://insecure.example/a.jpg", "https://a.example/\"onerror", "/api/media_player_proxy/media_player.tv/../x", None):
         assert controls.picture_key(v) is None, v
     assert controls.extras({"entity_id": "media_player.s", "state": "on", "attributes": {"group_members": ["media_player.s"]}}) is None   # alone: nothing
+
+
+def test_a_new_calendar_event():
+    """#495 "＋ Termin" of the calendar card: a title and two times (with the browser's time zone) or two dates, the end after the start"""
+    p = ok("calendar", "create_event", "calendar.familie", {"summary": "  Zahnarzt ", "start_date_time": "2026-10-23T15:00:00+02:00",
+                                                             "end_date_time": "2026-10-23T16:00:00+02:00", "location": "Praxis"})
+    assert p == {"entity_id": "calendar.familie", "summary": "Zahnarzt", "start_date_time": "2026-10-23T15:00:00+02:00",
+                 "end_date_time": "2026-10-23T16:00:00+02:00", "location": "Praxis"}
+    assert ok("calendar", "create_event", data={"summary": "Ferien", "start_date": "2026-10-23", "end_date": "2026-10-28"})["end_date"] == "2026-10-28"
+    ok("calendar", "create_event", data={"summary": "Nacht", "start_date_time": "2026-10-23T22:00:00Z", "end_date_time": "2026-10-24T01:00:00+02:00",
+                                         "description": "zwei\nZeilen"})
+    bad("calendar", "create_event", data={"start_date": "2026-10-23", "end_date": "2026-10-24"})                       # no title
+    bad("calendar", "create_event", data={"summary": "x"})                                                             # no time
+    bad("calendar", "create_event", data={"summary": "x", "start_date": "2026-10-23", "end_date": "2026-10-23"})       # ends before it starts
+    bad("calendar", "create_event", data={"summary": "x", "start_date": "2026-10-23", "end_date_time": "2026-10-24T10:00:00Z"})
+    bad("calendar", "create_event", data={"summary": "x", "start_date_time": "2026-10-23T10:00:00", "end_date_time": "2026-10-23T11:00:00"})  # no zone
+    bad("calendar", "create_event", data={"summary": "a\nb", "start_date": "2026-10-23", "end_date": "2026-10-24"})
+    bad("calendar", "delete_event", data={"uid": "x"})
+    bad("calendar", "create_event", entity="light.x", data={"summary": "x", "start_date": "2026-10-23", "end_date": "2026-10-24"})

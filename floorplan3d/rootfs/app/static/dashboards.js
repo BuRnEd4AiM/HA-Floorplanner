@@ -1,9 +1,11 @@
 /* The pages of the tab bar as dashboards an admin arranges (#484): puts together the own cards (cardsui.js), the board of every page
  * (pageboard.js: order, hidden cards, the edit mode), the windows to add and set a card (cardeditor.js), the bar's edit mode with own
- * pages (tabedit.js), the own pages themselves (pagecustom.js) and the thermostat as a circle (thermostatui.js, #495). app.js only calls initDashboards and hands the result to the pages
+ * pages (tabedit.js), the own pages themselves (pagecustom.js), the thermostat as a circle (thermostatui.js, #495) and the calendar card
+ * (calcardui.js, #495). app.js only calls initDashboards and hands the result to the pages
  * and the tab bar. */
 import { initCards } from './cardsui.js';
 import { initThermostat } from './thermostatui.js';
+import { initCalendarCard } from './calcardui.js';
 import { initBoard } from './pageboard.js';
 import { initCardEditor } from './cardeditor.js';
 import { initTabEdit } from './tabedit.js';
@@ -35,11 +37,13 @@ export function initDashboards(ctx) {
   /** the thermostat as a circle (#495): the own card "Thermostat" and the page 🌡 Klima; a tap draws the open page again */
   const thermo = initThermostat({ t, lang: ctx.lang, settings: ctx.settings, states: ctx.states, callService: ctx.callService,
     changed: () => bar().update() });
+  /** the calendar card (#495): several calendars, a week / list / month, "＋ Termin" */
+  const calendar = initCalendarCard({ t, lang: ctx.lang, callService: ctx.callService, changed: () => { board.refresh(bar().open()); editor.refresh(); } });
   const cards = initCards({
     t, lang: ctx.lang, states: ctx.states, settings: ctx.settings, nameOf: ctx.nameOf, stateText: ctx.stateText, callService: ctx.callService,
     camImage: ctx.camImage, openCamera: ctx.openCamera, room,
     openRoom: (id) => { const r = room(id); if (r) ctx.openRoom(r.fi, id); },
-    builtin: ctx.builtin, thermo,
+    builtin: ctx.builtin, thermo, calendar,
     changed: () => { board.refresh(bar().open()); editor.refresh(); },
   });
   const board = initBoard({
@@ -48,7 +52,7 @@ export function initDashboards(ctx) {
     addCard: (page) => editor.add(page), editCard: (page, card) => editor.edit(page, card),
     editTabs: () => tabEdit.start(), editOwnPage: (page) => tabEdit.ownPage(page),
   });
-  const editor = initCardEditor({ t, entities: ctx.entities, rooms, cards, board });
+  const editor = initCardEditor({ t, entities: ctx.entities, rooms, cards, board, calendar });
   const tabEdit = initTabEdit({
     t, $, settings: ctx.settings, save: ctx.save, areas: ctx.areas, states: ctx.states, board,
     tabs: () => bar().tabs(), tabName: (k) => t(`tab.${k}`), changed: () => bar().redraw(), show: (k) => bar().show(k),

@@ -11,6 +11,7 @@ Pure (no aiohttp, no Home Assistant): unit tests in tests/test_controls.py.
 import hashlib
 import math
 import re
+from datetime import datetime
 
 HVAC_MODES = {"off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"}
 ON_OFF = ("turn_on", "turn_off", "toggle")
@@ -87,6 +88,42 @@ def _players(v):
     return None
 
 
+DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+DATE_TIME = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?([+-]\d{2}:\d{2}|Z)$")    # with its time zone: the browser's
+
+
+def _summary(v):
+    """the title of a new calendar event (#495 "Termin eintragen"): what was typed, up to 200 characters on one line"""
+    return v.strip()[:200] if isinstance(v, str) and v.strip() and v.isprintable() else None
+
+
+def _note(v):
+    """a calendar event's description or place: up to 500 characters, lines allowed"""
+    return v.strip()[:500] if isinstance(v, str) and v.strip() and all(c.isprintable() or c in "\n\t" for c in v) else None
+
+
+def _date(v):
+    return v if isinstance(v, str) and DATE.match(v) else None
+
+
+def _date_time(v):
+    return v if isinstance(v, str) and DATE_TIME.match(v) else None
+
+
+def event_span(payload):
+    """a new calendar event has two dates (all day, the end the day after the last) or two times, the end after the start"""
+    dates, times = ("start_date", "end_date"), ("start_date_time", "end_date_time")
+    if all(k in payload for k in dates) and not any(k in payload for k in times):
+        return payload["end_date"] > payload["start_date"]
+    if all(k in payload for k in times) and not any(k in payload for k in dates):
+        try:
+            a, b = (datetime.fromisoformat(payload[k].replace("Z", "+00:00")) for k in times)
+            return b > a
+        except ValueError:
+            return False
+    return False
+
+
 # domain -> service -> (the values it may carry: name -> check, the values it must carry)
 SERVICES = {
     "light": {"turn_on": ({"brightness_pct": _pct, "rgb_color": _rgb, "color_temp_kelvin": _kelvin, "effect": _effect}, ()),
@@ -126,6 +163,9 @@ SERVICES = {
     "input_button": {"press": ({}, ())},
     "select": {"select_option": ({"option": _text}, ("option",))},
     "input_select": {"select_option": ({"option": _text}, ("option",))},
+    # "＋ Termin" of the calendar card (#495): straight into Home Assistant's calendar (local, Google, CalDAV …)
+    "calendar": {"create_event": ({"summary": _summary, "description": _note, "location": _note, "start_date": _date, "end_date": _date,
+                                   "start_date_time": _date_time, "end_date_time": _date_time}, ("summary",))},
 }
 DOMAINS = set(SERVICES)
 
@@ -152,6 +192,8 @@ def check(body):
             payload[key] = v
     if any(k not in payload for k in needed):
         return domain, service, None, "value missing"
+    if domain == "calendar" and not event_span(payload):
+        return domain, service, None, "start and end: two dates or two times, the end after the start"
     return domain, service, payload, None
 
 

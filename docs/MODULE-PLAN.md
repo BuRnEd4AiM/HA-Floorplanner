@@ -199,6 +199,8 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `sections.js` | ~100 | Abschnitte auf den Seiten (#495), reine Logik mit Unit-Tests: Abschnitte und Breiten prüfen (`cleanSections`, `cleanWidths`, gleiche Regeln in `boards.py`), Karten den Abschnitten zuordnen (`groupEntries`), anlegen, umbenennen, verschieben, löschen, nach dem Ziehen übernehmen (`fromScreen`), Breite unter der gezogenen Ecke (`spanAt`) |
 | `sectionsui.js` | ~90 | Rahmen einer Seite mit Abschnitten (Karten ohne Abschnitt oben, dann das Raster der Abschnitte mit Überschrift und eigenem Karten-Raster; neu gebaut nur, wenn sich die Abschnitte ändern), Werkzeuge im ✎ (‹ › ✏️ 🗑), Fenster „Abschnitt einstellen“. `pageboard.js` legt die Karten hinein, zieht sie zwischen den Abschnitten und hat die Ecke ↘ für die Breite |
 | `presenceprefs.js` | ~25 | Einstellung „Wer ist zu Hause“ in ⚙ → Reiter unten (Regel ha / any / two, WLAN-Namen zu Hause; `parseSsids` getestet). Die Regel selbst steht in `family.js` (`sourceSays`, `presenceOf`, getestet) |
+| `calcard.js` | ~130 | Kalender-Karte, rein (getestet): Kalender mit Farben, Tage der Karte (auch ganze Wochen eines Monats), Termine nach Tagen, die nächsten Termine, „＋ Termin“ → Daten für `calendar.create_event` |
+| `calcardui.js` | ~230 | Kalender-Karte: Termine holen (`api/calendar/events`), Woche / Liste / Monat / nächster Termin zeichnen, Fenster „＋ Termin“, Kalender-Auswahl im Karten-Editor |
 | `mediaprefs.js` | ~90 | ⚙ → „Reiter unten“: Radiosender (halb getippte Zeilen bleiben stehen, weil der Dialog bei jeder Änderung speichert), welche Liste die Einkaufsliste ist, Maschinen von Hand (Leistung, Zustand) |
 
 ## Noch in `app.js`
