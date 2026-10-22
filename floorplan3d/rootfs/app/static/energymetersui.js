@@ -3,9 +3,10 @@
  * so a second house needs its own meters here). "Aus dem Energie-Dashboard übernehmen" copies them in. Kept with the house in
  * layout.energy.meters and layout.energy.price. The rules are in energyhistory.js (tested); energyui.js puts this part into its window. */
 import { METER_KEYS, KIND_SORT, meterKind, cleanMeters, hasMeters } from './energyhistory.js';
+import { counterPart } from './energycountersui.js';
 
 /** h: { t, el(tag, cls, text), edit(fn) (undo step, change, save, draw again), energy() (layout.energy), adder(list, room, onAdd),
- *  entities(), states() }; returns the nodes of the part */
+ *  entities(), states(), sources() (what the power editor reads: "⤵ Von oben übernehmen", energycountersui.js) }; returns the nodes of the part */
 export function meterPart(h) {
   const { t, el } = h;
   const out = [el('h3', '', t('em.title')), el('p', 'sub', t('em.hint'))];
@@ -52,7 +53,10 @@ export function meterPart(h) {
     clear.addEventListener('click', () => h.edit(() => { delete h.energy().meters; }));
     bar.append(clear);
   }
+  const fromPower = h.sources ? counterPart(h) : null;           // the counters (kWh) of the power sensors set above
+  if (fromPower) bar.prepend(fromPower.button);
   out.push(bar);
+  if (fromPower) out.push(fromPower.lines);
   METER_KEYS.forEach((k) => {
     const box = el('div', 'emKind'); box.dataset.kind = k;
     box.append(el('b', '', t(`em.${k}`)));

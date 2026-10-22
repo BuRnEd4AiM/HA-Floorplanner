@@ -1304,3 +1304,84 @@ async def test_the_events_of_a_calendar_card_and_a_new_event(client, aiohttp_ser
                                                  "data": {"summary": "Zahnarzt", "start_date": "2026-10-23", "end_date": "2026-10-24"}})
     assert r.status == 200 and made == [{"entity_id": "calendar.familie", "summary": "Zahnarzt", "start_date": "2026-10-23", "end_date": "2026-10-24"}]
     assert (await (await client.get(q)).json())["events"][0]["title"] == "calendar.familie 1"    # asked again after the new event
+
+
+async def test_counters_of_the_power_sensors_and_a_new_one(aiohttp_client, aiohttp_server, monkeypatch, tmp_path):
+    """"⤵ Von oben übernehmen" (counters.py): the kWh counter of the same device is found; "＋ Zähler anlegen" makes Home Assistant's
+    Integral helper through its config flow and answers with its sensor; only for who may edit"""
+    from aiohttp import web
+    made = []
+    states = [{"entity_id": "sensor.wr_leistung", "state": "500", "attributes": {"unit_of_measurement": "W", "friendly_name": "WR Leistung"}},
+              {"entity_id": "sensor.wr_gesamt", "state": "9000", "attributes": {"unit_of_measurement": "kWh", "friendly_name": "WR Energie gesamt"}},
+              {"entity_id": "sensor.akku_laden", "state": "0", "attributes": {"unit_of_measurement": "W", "friendly_name": "Akku Ladeleistung"}}]
+    registry = [{"entity_id": "sensor.wr_leistung", "device_id": "wr"}, {"entity_id": "sensor.wr_gesamt", "device_id": "wr"}]
+
+    async def ha_ws(request):
+        ws = web.WebSocketResponse(); await ws.prepare(request)
+        await ws.send_json({"type": "auth_required"}); await ws.receive_json(); await ws.send_json({"type": "auth_ok"})
+        async for msg in ws:
+            m = msg.json()
+            if m.get("type") == "config/entity_registry/list":
+                await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": registry})
+        return ws
+
+    async def flow(request):
+        assert (await request.json())["handler"] == "integration"
+        return web.json_response({"type": "form", "flow_id": "f1", "step_id": "user"})
+
+    async def step(request):
+        made.append(await request.json())
+        registry.append({"entity_id": "sensor.akku_ladeenergie", "device_id": None, "config_entry_id": "e1"})
+        return web.json_response({"type": "create_entry", "result": {"entry_id": "e1"}, "title": made[-1]["name"]})
+    async def all_states(request):
+        return web.json_response(states)
+    ha = web.Application()
+    ha.add_routes([web.get("/websocket", ha_ws), web.get("/api/states", all_states),
+                   web.post("/api/config/config_entries/flow", flow), web.post("/api/config/config_entries/flow/{id}", step)])
+    srv = await aiohttp_server(ha)
+    monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}/api")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "tok")
+    async def admins(): return {"u1"}
+    monkeypatch.setattr(server, "load_admin_ids", admins)
+    c = await aiohttp_client(server.make_app(tmp_path))
+    admin = {"X-Remote-User-Id": "u1"}
+    r = await c.get("/api/energy/counters?solar=sensor.wr_leistung&batIn=sensor.akku_laden", headers=admin)
+    found = (await r.json())["found"]
+    assert found["solar"][0]["counter"]["entity_id"] == "sensor.wr_gesamt" and found["batIn"][0]["counter"] is None
+    assert (await c.get("/api/energy/counters?solar=sensor.wr_leistung", headers={"X-Remote-User-Id": "u2"})).status == 403
+    assert (await c.get("/api/energy/counters", headers=admin)).status == 400
+    r = await c.post("/api/energy/counter", json={"source": "sensor.akku_laden"}, headers=admin)
+    assert await r.json() == {"entity_id": "sensor.akku_ladeenergie", "name": "Akku Ladeleistung Energie"}
+    assert made == [{"name": "Akku Ladeleistung Energie", "source": "sensor.akku_laden", "method": "left", "round": 3, "unit_prefix": "k", "unit_time": "h"}]
+    assert (await c.post("/api/energy/counter", json={"source": "sensor.wr_gesamt"}, headers=admin)).status == 400     # a counter, not a power
+    assert (await c.post("/api/energy/counter", json={"source": "light.x"}, headers=admin)).status == 400
+
+
+async def test_backup_keeps_the_pinboard_and_the_alarm_settings_without_code_and_keys(client, tmp_path):
+    """#500: the notes of the pinboard, the holiday alarm's and the alarm messages' settings are in the backup (also the automatic one);
+    the alarm's code and the CallMeBot keys are not, and a backup put back keeps the ones there are now"""
+    import json
+    note = {"id": "abcdef12", "text": "Bin um 6 da", "by": "Max", "at": "2026-10-22T10:00:00+00:00", "color": "green"}
+    (tmp_path / "pinboard.json").write_text(json.dumps({"notes": [note]}))
+    code = {"salt": "s1", "hash": "h1"}
+    (tmp_path / "guard.json").write_text(json.dumps({"cfg": {"sensors": ["binary_sensor.tuer"], "delay": 45, "code": code}, "state": {}}))
+    (tmp_path / "notify.json").write_text(json.dumps({"on": True, "via": "whatsapp", "phone": "+4917612345678", "apikey": "geheim", "tgkey": "auch"}))
+    backup = await (await client.get("/api/backup?files=0")).json()
+    ex = backup["extras"]
+    assert ex["pinboard"] == [note] and ex["guard"]["sensors"] == ["binary_sensor.tuer"] and ex["guard"]["delay"] == 45 and "code" not in ex["guard"]
+    assert ex["notify"]["phone"] == "+4917612345678" and ex["notify"]["on"] is True and "apikey" not in ex["notify"] and "tgkey" not in ex["notify"]
+    assert "geheim" not in json.dumps(backup) and '"h1"' not in json.dumps(backup)
+    # changed meanwhile: no notes, other sensors, a new code and key; the backup brings the settings back, the new code and key stay
+    (tmp_path / "pinboard.json").write_text(json.dumps({"notes": []}))
+    (tmp_path / "guard.json").write_text(json.dumps({"cfg": {"sensors": [], "code": {"salt": "s2", "hash": "h2"}}, "state": {}}))
+    (tmp_path / "notify.json").write_text(json.dumps({"on": False, "phone": "", "apikey": "neu"}))
+    client.app[server.KEY_GUARD].clear(); client.app[server.KEY_NOTIFY].clear()
+    r = await (await client.post("/api/backup", json=backup)).json()
+    assert r["extras"] == ["pinboard", "guard", "notify"]
+    assert json.loads((tmp_path / "pinboard.json").read_text())["notes"] == [note]
+    g = json.loads((tmp_path / "guard.json").read_text())["cfg"]
+    assert g["sensors"] == ["binary_sensor.tuer"] and g["delay"] == 45 and g["code"] == {"salt": "s2", "hash": "h2"}
+    n = json.loads((tmp_path / "notify.json").read_text())
+    assert n["phone"] == "+4917612345678" and n["on"] is True and n["apikey"] == "neu"
+    old = dict(backup); old.pop("extras")                      # a backup of an older version: restores as before
+    assert (await (await client.post("/api/backup", json=old)).json())["extras"] == []

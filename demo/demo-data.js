@@ -551,6 +551,12 @@ function lastChanged(id, state) {
   if (!was || was.state !== state) changedAt.set(id, { state, at: was ? Math.floor(Date.now() / 1000) : Math.floor(Date.now() / 1000) - 600 - (id.length * 397) % 7200 });
   return changedAt.get(id).at;
 }
+/** the counters (kWh) of the demo's power sensors per kind of meter (#501) */
+const DEMO_COUNTER_NAMES = { 'sensor.pv_ertrag_kwh': 'PV Ertrag gesamt', 'sensor.netz_bezug_kwh': 'Netz Bezug gesamt', 'sensor.netz_einspeisung_kwh': 'Netz Einspeisung gesamt',
+  'sensor.batterie_geladen_kwh': 'Batterie geladen gesamt', 'sensor.batterie_entladen_kwh': 'Batterie entladen gesamt' };
+const DEMO_COUNTERS = { 'solar|sensor.pv_leistung': 'sensor.pv_ertrag_kwh', 'solar|sensor.pv_dach': 'sensor.pv_ertrag_kwh', 'solar|sensor.pv_string1': 'sensor.pv_ertrag_kwh',
+  'from|sensor.netz_leistung': 'sensor.netz_bezug_kwh', 'to|sensor.netz_leistung': 'sensor.netz_einspeisung_kwh',
+  'batIn|sensor.batterie_leistung': 'sensor.batterie_geladen_kwh', 'batOut|sensor.batterie_leistung': 'sensor.batterie_entladen_kwh' };
 const ONLY_ADDON = 'In der Demo nicht verfügbar (nur im Add-on).';
 const examples = { flat: flatExample, house: houseExample, showcase: showcaseExample };
 const demoVersion = () => (typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __DEMO_VERSION__);
@@ -618,6 +624,23 @@ export function installDemoBackend() {
     }
     // the pages of the tab bar (#479): the meters of the energy dashboard, their history, the forecast, calendars (all made up, see below)
     if (path === 'api/energy/meters') return json(DEMO_METERS);
+    if (path === 'api/energy/counters') {                // "⤵ Von oben übernehmen" (#501): the demo's counters of its power sensors
+      const q = new URL(url, location.href).searchParams, found = {};
+      ['from', 'to', 'solar', 'batIn', 'batOut'].forEach((k) => {
+        const ids = (q.get(k) || '').split(',').filter(Boolean);
+        if (ids.length) found[k] = ids.map((p) => { const c = DEMO_COUNTERS[`${k}|${p}`] || Object.keys(entities).find((e) => entities[e].source === p);
+          return { power: p, power_name: entities[p]?.name || p, unit: entities[p]?.unit || null, counter: c ? { entity_id: c, name: entities[c]?.name || DEMO_COUNTER_NAMES[c] || c, how: 'device' } : null }; });
+      });
+      return json({ found });
+    }
+    if (path === 'api/energy/counter' && method === 'POST') {    // "＋ Zähler anlegen": a counter in kWh made from the power sensor
+      const { source } = JSON.parse(init.body || '{}'), p = entities[source];
+      if (!p) return json({ error: 'not a power sensor' }, 400);
+      const name = /leistung/i.test(p.name) ? p.name.replace(/\bLeistung\b/i, 'Energie') : `${p.name} Energie`;
+      const id = `sensor.${name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')}`;
+      entities[id] = { name, state: '0.0', unit: 'kWh', source };
+      return json({ entity_id: id, name });
+    }
     if (path === 'api/energy/stats' && method === 'POST') return json(demoStats(JSON.parse(init.body || '{}')));
     if (path === 'api/forecast') return json({ forecast: demoForecast() });
     if (path === 'api/calendars') return json(DEMO_CALENDARS);

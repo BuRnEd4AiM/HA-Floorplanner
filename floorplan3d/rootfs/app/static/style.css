@@ -1753,3 +1753,9 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .ctlDlg .ctlBody { display: flex; flex-direction: column; gap: 12px; margin: 10px 0; }
 .ctlDlg .ctlBody .lightctl input[type=range], .ctlDlg .ctlBody .ocRange { width: 100%; }
 .ctlDlg .ocBtns button.on { border-color: var(--accent); }
+/* "⤵ Von oben übernehmen" in "Zähler für den Verlauf" (energycountersui.js): what was found per kind, "＋ Zähler anlegen" where nothing was */
+.emCounters { display: flex; flex-direction: column; gap: 6px; margin: 6px 0 10px; }
+.emCounter { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 6px 10px; border-radius: 8px; background: var(--field); font-size: 13px; }
+.emCounter.ok { box-shadow: inset 3px 0 0 #46a758; } .emCounter.no { box-shadow: inset 3px 0 0 #f5a623; }
+.emCounter span { flex: 1; min-width: 12em; }
+.emCounter button { padding: 4px 10px; }

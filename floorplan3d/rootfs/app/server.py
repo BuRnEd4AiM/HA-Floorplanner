@@ -27,6 +27,7 @@ import boards
 import guard as gd
 import household as hh
 import controls
+import counters
 import importer
 import manifest as mf
 import pages
@@ -1394,7 +1395,7 @@ def build_backup(request, with_files: bool = True) -> dict:
     for h in houses_index(request):
         houses.append({"id": h["id"], "name": h["name"], "layout": read_json(house_file(request, h["id"]), EMPTY_LAYOUT)})
     out = {"format": BACKUP_FORMAT, "version": 1, "exported": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-           "houses": houses, "settings": read_settings(request), "backgrounds": {}, "models": {}}
+           "houses": houses, "settings": read_settings(request), "backgrounds": {}, "models": {}, "extras": backup_extras(request)}
     if with_files:
         for d, key, pat in ((bg_dir(request), "backgrounds", "*.*"), (models_dir(request), "models", "*.glb")):
             if d.is_dir():
@@ -1402,6 +1403,38 @@ def build_backup(request, with_files: bool = True) -> dict:
                     if f.is_file() and (BG_NAME.match(f.name) if key == "backgrounds" else MODEL_NAME.match(f.stem)):
                         out[key][f.name] = base64.b64encode(f.read_bytes()).decode("ascii")
     return out
+
+
+def backup_extras(request) -> dict:
+    """What else the add-on keeps (#500): the notes of the pinboard, the settings of the holiday alarm and of the alarm messages, read from
+    their files (the automatic backup runs in a thread). The alarm's code and the CallMeBot keys stay out: a backup put back keeps them."""
+    g = read_json(guard_path(request), {})
+    g = g if isinstance(g, dict) else {}
+    n = read_json(notify_path(request), {})
+    return {"pinboard": read_notes(request),
+            "guard": {k: v for k, v in gd.clean_cfg(g.get("cfg"), g.get("cfg")).items() if k != "code"},
+            "notify": {k: v for k, v in an.clean(n, n).items() if k not in an.SECRETS}}
+
+
+def apply_extras(request, extras) -> list:
+    """Put the extras of a backup back (#500); the alarm's code and the CallMeBot keys stay as they are now. -> the parts put back"""
+    done = []
+    if not isinstance(extras, dict):
+        return done
+    if isinstance(extras.get("pinboard"), list):
+        write_json_atomic(pinboard_path(request), {"notes": pages.clean_notes(extras["pinboard"])})
+        done.append("pinboard")
+    if isinstance(extras.get("guard"), dict):
+        store = guard_store(request)
+        store["cfg"] = gd.clean_cfg({k: v for k, v in extras["guard"].items() if k not in ("code", "removeCode")}, store["cfg"])
+        guard_save(request)
+        done.append("guard")
+    if isinstance(extras.get("notify"), dict):
+        cfg = an.clean({k: v for k, v in extras["notify"].items() if k not in an.SECRETS}, notify_cfg(request))
+        write_json_atomic(notify_path(request), cfg)
+        app_state(request)[KEY_NOTIFY]["cfg"] = cfg
+        done.append("notify")
+    return done
 
 
 async def get_backup(request):
@@ -1489,7 +1522,8 @@ def apply_backup(request, data) -> dict:
             d.mkdir(parents=True, exist_ok=True)
             for name, b in items.items():
                 (d / name).write_bytes(b)
-    return {"ok": True, "houses": len(houses), "pictures": len(bgs), "models": len(models)}
+    extras = apply_extras(request, data.get("extras"))         # pinboard, holiday alarm, alarm messages (#500); an older backup has none
+    return {"ok": True, "houses": len(houses), "pictures": len(bgs), "models": len(models), "extras": extras}
 
 
 # ---------- automatic backups: a folder in the add-on configuration, daily (or every n hours), cleaned up by age and number ----------
@@ -1522,7 +1556,8 @@ def backup_items(request) -> list:
 
 
 def create_backup(request, kind: str = "manual") -> str:
-    """Write a full backup (houses, settings, pictures, 3D models) into the backups folder and return its file name."""
+    """Write a full backup (houses, settings, pictures, 3D models, pinboard and alarm settings) into the backups folder and return its
+    file name."""
     d = backups_dir(request)
     d.mkdir(parents=True, exist_ok=True)
     name = f"floorplan3d-backup-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}-{'auto' if kind == 'auto' else 'manual'}.json"
@@ -1888,6 +1923,66 @@ def pages_keep(request, key, answer):
         cache.clear()
     cache[key] = (time.time(), answer)
     return answer
+
+
+async def get_energy_counters(request):
+    """The kWh counters of the power editor's sensors (?from=&to=&solar=&batIn=&batOut=, counters.py): "⤵ Von oben übernehmen" of the
+    meters of the page ⚡ Energie (#501). Editors only."""
+    if not await can_edit(request):
+        return forbidden()
+    sources = counters.clean_sources(request.query)
+    if not sources:
+        return web.json_response({"error": "no power sensors"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"found": {}})
+    try:
+        states = {x["entity_id"]: x for x in await ha_states() if isinstance(x, dict) and isinstance(x.get("entity_id"), str)}
+        async with _HaSocket() as ws:
+            registry = await rn.ask(ws, 1, {"type": "config/entity_registry/list"}, [])
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    return web.json_response({"found": counters.find_counters(sources, states, registry if isinstance(registry, list) else [])})
+
+
+async def make_energy_counter(request):
+    """"＋ Zähler anlegen": Home Assistant's "Integral" helper made from a power sensor ({"source": "sensor.…"}), W -> kWh, through its
+    config flow; -> {"entity_id", "name"}. Editors only."""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    source = body.get("source") if isinstance(body, dict) else None
+    if not isinstance(source, str) or not counters.SENSOR.match(source):
+        return web.json_response({"error": "source: a sensor"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
+    try:
+        st = next((x for x in await ha_states() if isinstance(x, dict) and x.get("entity_id") == source), None)
+        if not st or (st.get("attributes") or {}).get("unit_of_measurement") not in counters.POWER_UNITS:
+            return web.json_response({"error": "not a power sensor (W, kW)"}, status=400)
+        name = counters.helper_name((st.get("attributes") or {}).get("friendly_name") or source)
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{HA_API}/config/config_entries/flow", headers=ha_headers(), json={"handler": "integration", "show_advanced_options": False}) as r:
+                flow = await r.json() if r.status == 200 else {}
+            if flow.get("type") != "form" or not isinstance(flow.get("flow_id"), str):
+                return web.json_response({"error": "Home Assistant did not start the helper"}, status=502)
+            async with s.post(f"{HA_API}/config/config_entries/flow/{flow['flow_id']}", headers=ha_headers(), json=counters.helper_input(source, name)) as r:
+                done = await r.json() if r.status == 200 else {}
+        if done.get("type") != "create_entry":
+            return web.json_response({"error": "Home Assistant did not make the helper", "errors": done.get("errors")}, status=502)
+        entry = (done.get("result") or {}).get("entry_id")
+        for _ in range(10):                                  # the sensor of the new helper: in the entity registry by its config entry
+            async with _HaSocket() as ws:
+                registry = await rn.ask(ws, 1, {"type": "config/entity_registry/list"}, [])
+            eid = next((x.get("entity_id") for x in registry if isinstance(x, dict) and entry and x.get("config_entry_id") == entry), None)
+            if eid:
+                return web.json_response({"entity_id": eid, "name": name})
+            await asyncio.sleep(0.5)
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    return web.json_response({"error": "the new helper has no sensor yet"}, status=502)
 
 
 async def get_energy_meters(request):
@@ -2295,8 +2390,13 @@ def notify_path(request) -> Path:
     return data_dir(request) / "notify.json"      # not in the settings: every tablet reads those; the phone number and the key stay here
 
 
+def app_state(request):
+    """the add-on's state for a request: also from the backup's own small app (its upload may be larger, make_app), whose parent has it"""
+    return getattr(request, "config_dict", None) or request.app
+
+
 def notify_cfg(request) -> dict:
-    store = request.app[KEY_NOTIFY]
+    store = app_state(request)[KEY_NOTIFY]
     if "cfg" not in store:
         stored = read_json(notify_path(request), {})
         store["cfg"] = an.clean(stored, stored)
@@ -2445,7 +2545,7 @@ def guard_path(request) -> Path:
 
 
 def guard_store(request) -> dict:
-    store = request.app[KEY_GUARD]
+    store = app_state(request)[KEY_GUARD]
     if "cfg" not in store:
         stored = read_json(guard_path(request), {})
         stored = stored if isinstance(stored, dict) else {}
@@ -2849,6 +2949,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/batteries", get_batteries),
         web.get("/api/energy/prefs", get_energy_prefs),
         web.get("/api/energy/meters", get_energy_meters),
+        web.get("/api/energy/counters", get_energy_counters), web.post("/api/energy/counter", make_energy_counter),
         web.post("/api/energy/stats", post_energy_stats),
         web.get("/api/forecast", get_forecast),
         web.get("/api/calendars", get_calendars),
