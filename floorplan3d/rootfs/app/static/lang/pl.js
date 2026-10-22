@@ -1549,4 +1549,8 @@ export default {
   'hh.none': 'Na razie nic: brak pralki, robota sprzątającego i listy w Home Assistant.',
   'th.target': 'Cel', 'th.now': 'Teraz', 'th.nowIs': 'teraz {v}', 'th.inRoom': 'teraz w pokoju', 'th.size': 'Rozmiar koła',
   'th.size.big': 'Duży (wszystkie przyciski)', 'th.size.small': 'Mały', 'bd.bigger': 'Pokaż większy', 'bd.smaller': 'Pokaż mniejszy', 'cl.roomTemp': 'pokój {v}',
+  'pe.compare': 'Porównaj', 'pe.cmp.note': 'każdy dom z własnymi licznikami', 'pe.cmp.noMeters': 'brak własnych liczników (⚡ Rachunek)',
+  'pe.cmp.nowIs': 'teraz {v}', 'pe.cmp.sum': 'Σ wszystkie domy', 'pe.cmp.chart.day': 'Zużycie na godzinę, linia na dom', 'pe.cmp.chart': 'Zużycie, kolor na dom',
+  'pe.cmp.now': 'Moc teraz', 'pe.cmp.nowNone': 'Żaden dom nie ma czujnika mocy dla „teraz” (⚡ Rachunek → zużycie domu).',
+  'ce.series': 'Czujniki (do {n}, każdy własna linia, np. moc każdego domu)',
 };

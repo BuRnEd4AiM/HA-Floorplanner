@@ -71,3 +71,22 @@ test('so far, the scale and numbers', () => {
   const both = E.withPrevious('week', 0, now);
   assert.equal(+both.prev.end, +both.cur.start);
 });
+
+test('⚖ Vergleichen (#495): each house with its own meters, the energy dashboard only once, one scale', () => {
+  const ha = { from: ['sensor.ha_from'] };
+  const list = E.compareMeters([
+    { id: 'a', name: 'Haus A', energy: {} },                                         // no own meters: Home Assistant's
+    { id: 'b', name: 'Haus B', energy: { meters: { from: ['sensor.b_from'] }, price: { buy: 0.4 } } },
+    { id: 'c', name: 'Haus C', energy: {} },                                         // none: the dashboard's are taken already
+  ], ha, { buy: 0.3 });
+  assert.deepEqual(list.map((h) => h.meters.from), [['sensor.ha_from'], ['sensor.b_from'], []]);
+  assert.deepEqual(list.map((h) => h.color), E.HOUSE_COLORS.slice(0, 3));
+  assert.deepEqual(list.map((h) => h.price?.buy ?? null), [0.3, 0.4, 0.3]);
+  const p = E.periodRange('day', 0, now), at = (h) => +p.buckets[h];
+  const stats = { 'sensor.ha_from': [[at(8), 1.5], [at(9), 0.5]], 'sensor.b_from': [[at(8), 0.25]] };
+  const c = E.compareHouses(list, stats, p.buckets, p.end);
+  assert.deepEqual(c.map((h) => Math.round(h.total.use * 100) / 100), [2, 0.25, 0]);
+  assert.equal(c[0].rows[8].use, 1.5); assert.equal(c[2].empty, true); assert.equal(c[1].empty, false);
+  assert.equal(Math.round(c[1].cost.net * 100) / 100, 0.1);
+  assert.equal(E.compareMax(c), 1.5); assert.equal(E.compareMax([]), 0.1);
+});

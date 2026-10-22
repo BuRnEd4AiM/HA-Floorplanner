@@ -1568,4 +1568,9 @@ export default {
   'th.target': 'Consigne', 'th.now': 'Actuel', 'th.nowIs': 'actuel {v}', 'th.inRoom': 'dans la pièce', 'th.size': 'Taille du cercle',
   'th.size.big': 'Grand (tous les boutons)', 'th.size.small': 'Petit', 'bd.bigger': 'Afficher plus grand', 'bd.smaller': 'Afficher plus petit',
   'cl.roomTemp': 'pièce {v}',
+  'pe.compare': 'Comparer', 'pe.cmp.note': 'chaque maison avec ses propres compteurs', 'pe.cmp.noMeters': 'pas de compteurs propres (⚡ Facture)',
+  'pe.cmp.nowIs': 'maintenant {v}', 'pe.cmp.sum': 'Σ toutes les maisons', 'pe.cmp.chart.day': 'Consommation par heure, une ligne par maison',
+  'pe.cmp.chart': 'Consommation, une couleur par maison', 'pe.cmp.now': 'Puissance actuelle',
+  'pe.cmp.nowNone': 'Aucune maison n\'a de capteur de puissance pour « maintenant » (⚡ Facture → consommation de la maison).',
+  'ce.series': 'Capteurs (jusqu\'à {n}, une ligne chacun, p. ex. la puissance de chaque maison)',
 };

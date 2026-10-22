@@ -193,6 +193,8 @@ const layout = {
 // terrace of the demo house; inside a wall stair with a landing after its bend (#210).
 const neighbor = {
   version: 1,
+  // its own meters and price (⚡ Rechnung) and a sensor of what it uses now: "⚖ Vergleichen" on ⚡ Energie (#495) shows both houses
+  energy: { meters: { from: ['sensor.nachbar_netz_kwh'] }, price: { buy: 0.3 }, house: { entity: 'sensor.nachbar_leistung' } },
   floors: [{
     id: 'n_eg', name: 'Erdgeschoss',
     stairs: [{ id: 'n_st1', name: 'Wandtreppe', type: 'wall', x: 7.76, z: 0.9, rot: 0, w: 0.9, turn: 'right', dir: 'up', floors: 1, landing: 1, path: [[0, 0], [0, 5.85], [-2.4, 5.85]] }],
@@ -283,6 +285,8 @@ const entities = {
   'climate.klima_buero':     { name: 'Klimaanlage Büro',       state: 'cool', hvac: 'cooling', ct: 23.0, ch: 50, tt: 21, tmin: 16, tmax: 30, tstep: 0.5, modes: ['off', 'cool', 'heat', 'dry', 'fan_only', 'auto'], ctl: { presets: ['none', 'eco', 'boost', 'sleep'], preset: 'none', fans: ['auto', 'low', 'medium', 'high'], fan: 'auto' } },
   'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat', hvac: 'heating', ct: 21.2, ch: 48, tt: 22, tmin: 16, tmax: 26, tstep: 0.5, modes: ['off', 'heat', 'auto'], ctl: { presets: ['eco', 'comfort', 'away', 'boost'], preset: 'comfort' } },
   'sensor.netz_leistung':    { name: 'Netzbezug',              state: '450',  unit: 'W' },
+  'sensor.nachbar_leistung': { name: 'Nachbarhaus Verbrauch',  state: '840',  unit: 'W', dc: 'power' },   // #495: ⚖ Vergleichen
+  'sensor.nachbar_netz_kwh': { name: 'Nachbarhaus Netzbezug',  state: '5321.4', unit: 'kWh', dc: 'energy' },
   'sensor.pv_leistung':      { name: 'PV Wechselrichter',      state: '3.2',  unit: 'kW' },
   'sensor.pv_string1':       { name: 'PV Modul 1',             state: '1100', unit: 'W' },
   'sensor.pv_string2':       { name: 'PV Modul 2',             state: '1050', unit: 'W' },
@@ -451,12 +455,14 @@ function demoDay(day) {
     if (surplus > 0) { batIn = Math.min(surplus, 1.2, 10 - soc); soc += batIn; surplus -= batIn; } else { batOut = Math.min(-surplus, 0.8, soc - 1); batOut = Math.max(0, batOut); soc -= batOut; surplus += batOut; }
     return { from: Math.max(0, -surplus), to: Math.max(0, surplus), solar, batIn, batOut, gas: (0.03 + 0.2 * (1 - season)) * (h >= 5 && h <= 22 ? 1 : 0.3),
       water: (h === 7 || h === 19 ? 0.06 : h >= 6 && h <= 22 ? 0.008 : 0.001) * (0.7 + 0.6 * wobble(dn, h + 50)), garden: h === 20 && season > 0.6 ? 0.08 : 0,
-      wp, wm, tv, fridge, pc };
+      wp, wm, tv, fridge, pc,
+      nb: 0.12 + (h >= 6 && h <= 8 ? 0.4 : 0) + (h >= 18 && h <= 22 ? 0.55 : 0) + (h === 12 ? 0.3 : 0) + 0.08 * wobble(dn, h + 7) };   // the neighbour house (#495)
   });
 }
 const DEMO_KEY = { 'sensor.netz_bezug_kwh': 'from', 'sensor.netz_einspeisung_kwh': 'to', 'sensor.pv_ertrag_kwh': 'solar', 'sensor.batterie_geladen_kwh': 'batIn',
   'sensor.batterie_entladen_kwh': 'batOut', 'sensor.gaszaehler': 'gas', 'sensor.wasserzaehler': 'water', 'sensor.wasser_garten': 'garden',
-  'sensor.waermepumpe_kwh': 'wp', 'sensor.waschmaschine_kwh': 'wm', 'sensor.fernseher_kwh': 'tv', 'sensor.kuehlschrank_kwh': 'fridge', 'sensor.buero_pc_kwh': 'pc' };
+  'sensor.waermepumpe_kwh': 'wp', 'sensor.waschmaschine_kwh': 'wm', 'sensor.fernseher_kwh': 'tv', 'sensor.kuehlschrank_kwh': 'fridge', 'sensor.buero_pc_kwh': 'pc',
+  'sensor.nachbar_netz_kwh': 'nb' };
 /** Home Assistant's long-term statistics of the made-up house: { stats: { id: [[start ms, change]] }, units } up to now */
 function demoStats(q) {
   const start = new Date(q.start), end = new Date(q.end), now = new Date(), out = {}, ids = (q.ids || []).filter((i) => DEMO_KEY[i]);

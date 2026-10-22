@@ -1564,4 +1564,9 @@ export default {
   'th.target': 'Obiettivo', 'th.now': 'Ora', 'th.nowIs': 'ora {v}', 'th.inRoom': 'nella stanza', 'th.size': 'Dimensione del cerchio',
   'th.size.big': 'Grande (tutti i pulsanti)', 'th.size.small': 'Piccolo', 'bd.bigger': 'Mostra più grande', 'bd.smaller': 'Mostra più piccolo',
   'cl.roomTemp': 'stanza {v}',
+  'pe.compare': 'Confronta', 'pe.cmp.note': 'ogni casa con i propri contatori', 'pe.cmp.noMeters': 'nessun contatore proprio (⚡ Bolletta)',
+  'pe.cmp.nowIs': 'ora {v}', 'pe.cmp.sum': 'Σ tutte le case', 'pe.cmp.chart.day': 'Consumo orario, una linea per casa',
+  'pe.cmp.chart': 'Consumo, un colore per casa', 'pe.cmp.now': 'Potenza ora',
+  'pe.cmp.nowNone': 'Nessuna casa ha un sensore di potenza per «ora» (⚡ Bolletta → consumo della casa).',
+  'ce.series': 'Sensori (fino a {n}, una linea ciascuno, ad es. la potenza di ogni casa)',
 };

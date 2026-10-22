@@ -1548,4 +1548,8 @@ export default {
   'hh.none': 'Hier is nog niets: geen wasmachine, geen robotstofzuiger, geen lijst in Home Assistant.',
   'th.target': 'Doel', 'th.now': 'Nu', 'th.nowIs': 'nu {v}', 'th.inRoom': 'nu in de kamer', 'th.size': 'Grootte van de cirkel',
   'th.size.big': 'Groot (alle knoppen)', 'th.size.small': 'Klein', 'bd.bigger': 'Groter tonen', 'bd.smaller': 'Kleiner tonen', 'cl.roomTemp': 'kamer {v}',
+  'pe.compare': 'Vergelijken', 'pe.cmp.note': 'elk huis met zijn eigen meters', 'pe.cmp.noMeters': 'geen eigen meters (⚡ Rekening)', 'pe.cmp.nowIs': 'nu {v}',
+  'pe.cmp.sum': 'Σ alle huizen', 'pe.cmp.chart.day': 'Verbruik per uur, een lijn per huis', 'pe.cmp.chart': 'Verbruik, een kleur per huis',
+  'pe.cmp.now': 'Vermogen nu', 'pe.cmp.nowNone': 'Geen huis heeft een vermogenssensor voor ‘nu’ (⚡ Rekening → verbruik van het huis).',
+  'ce.series': 'Sensoren (tot {n}, elk een eigen lijn, bv. het vermogen van elk huis)',
 };

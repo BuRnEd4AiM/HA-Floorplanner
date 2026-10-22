@@ -709,7 +709,7 @@ const familyPage = initFamilyPage({                              // 👨‍👩�
 });
 const energyPage = initEnergyPage({                              // ⚡ Energie (pageenergy.js, energyhistory.js)
   t, el: $('#tabPages [data-page=energy]'), lang: () => currentLanguage(), layout: () => layout, houseId: () => hs.id(),
-  houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(), board,
+  houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(), board, states: () => states,
 });
 /** a tap on a row of "Im Haus" on the page ☀ Heute: to the house and what the row is about (the power: to the page ⚡ Energie) */
 function todayAct(k) {

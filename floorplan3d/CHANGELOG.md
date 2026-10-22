@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.10.0] - 2026-10-22
+### Added
+- **⚖ Vergleichen: the power of several houses in one chart** (#495, the owner: "wenn man mehrere Häuser hat mit unterschiedlichen Stromsensoren, dass es dann auch in einer Grafik irgendwie zu sehen ist"; picture `docs/ideen-4.9/2-strom-haeuser.jpg`). On ⚡ Energie with more than one house a chip *⚖ Vergleichen* beside *Alle zusammen*: every house with its own meters (⚡ Rechnung; the first house without its own takes those of Home Assistant's energy dashboard, a later one none, so nothing counts twice), each in its own colour: a tile per house (kWh in the period, the power now) and the sum, today a line per house through the hours, a week / month / year a bar per house and day / month, the power of each house now, the cost of each house. One question to Home Assistant's statistics for all houses (`energycompare.js`, the rules in `energyhistory.js`, tested).
+- **History card with several sensors** (#495): the own card *Verlauf* takes up to six sensors (`more`), a line each in its own colour on one scale, with a legend and each value now, e.g. the power sensors of every house.
+- Demo: the neighbour house has its own meter, price and power sensor, so *⚖ Vergleichen* shows both houses.
+
 ## [4.9.0] - 2026-10-22
 ### Added
 - **The thermostat as a circle like in Home Assistant** (#495, the owner: "wie in Home Assistant selbst mit so einem Kreis, wo man Plus und Minus machen kann … Heizen, Auto und Aus"; picture `docs/ideen-4.9/1-thermostat.jpg`). On 🌡 Klima every room with a thermostat shows a circle: the target in the middle, the temperature now on the ring; drag the knob (or tap the ring) or use − / + (several taps become one call); below the modes the device offers (🔥 Heizen, ❄️ Kühlen, ⟳ Auto, 💧 Entfeuchten, 🌀 Lüfter, ⏻ Aus), its presets (Komfort, Eco, Abwesend …) and fan speeds. **Big or small**: in ✎ the button ⤡ makes a room's circle small (circle, − / + and the modes as symbols beside it), ⤢ big again, for everybody (`pageLayouts.<page>.sizes`). The own card "Thermostat" draws the same circle, with *Größe des Kreises: Groß / Klein* in its settings. A water heater shows its target on the circle without setting it. The room's own temperature stands below when it differs from the thermostat's.

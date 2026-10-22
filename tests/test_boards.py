@@ -56,6 +56,9 @@ def test_cards_are_checked_by_their_kind():
     assert boards.clean_card({"id": "bad", "type": "text", "text": "x"}) is None and boards.clean_card({"id": "c_abc", "type": "nope"}) is None
     assert ok({"type": "thermostat", "entity": "climate.bad", "size": "small"})["size"] == "small"                # #495: the circle big or small
     assert ok({"type": "thermostat", "entity": "climate.bad", "size": "x"})["size"] == "big" and "size" not in ok({"type": "light", "entity": "light.a"})
+    g = ok({"type": "graph", "entity": "sensor.a", "more": ["sensor.b", "sensor.a", "sensor.b", "light.x", "sensor.c", "sensor.d", "sensor.e", "sensor.f", "sensor.g"]})
+    assert g["more"] == ["sensor.b", "sensor.c", "sensor.d", "sensor.e", "sensor.f"]                     # #495: up to 6 lines, each once
+    assert "more" not in ok({"type": "graph", "entity": "sensor.a", "more": []})
 
 
 def test_a_page_layout():

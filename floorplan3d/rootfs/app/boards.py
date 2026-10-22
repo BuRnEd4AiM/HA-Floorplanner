@@ -16,6 +16,7 @@ MAX_CUSTOM = 8
 MAX_ORDER = 120
 MAX_OWN = 40
 MAX_ENTITIES = 12
+MAX_SERIES = 6           # sensors of one history card (static/cards.js, #495)
 
 CARD_TYPES = ("button", "switch", "value", "graph", "light", "thermostat", "cover", "camera", "entities", "room", "text", "builtin")
 TYPE_DOMAINS = {
@@ -89,6 +90,12 @@ def clean_card(c):
         out["entity"] = c["entity"]
     if kind == "graph":
         out["hours"] = c["hours"] if c.get("hours") in HOURS and not isinstance(c.get("hours"), bool) else 24
+        more = []
+        for e in c.get("more") if isinstance(c.get("more"), list) else []:
+            if e != out["entity"] and e not in more and fits_type("graph", e):
+                more.append(e)
+        if more:
+            out["more"] = more[:MAX_SERIES - 1]
     if kind in ("graph", "value"):
         out["color"] = c["color"] if c.get("color") in COLORS else "blue"
     if kind == "thermostat":
