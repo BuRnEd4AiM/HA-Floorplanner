@@ -65,6 +65,13 @@ asked = json.load(urllib.request.urlopen(HA + "/_history"))
 check("cards: a history card (7 days) asks Home Assistant for the history and draws a line",
       any(a[0] == "sensor.temp" for a in asked) and until(lambda: pgD.locator("[data-page=today] .oc-graph .ocChart path").count() == 2)
       and [x.get("hours") for x in cards() if x["type"] == "graph"] == [168], (asked[-1:], cards()))
+pgD.click("[data-page=today] .bdAdd"); pgD.click(".ceDlg [data-type=thermostat]"); pgD.wait_for_timeout(300)
+pgD.click(".ceDlg .ceItem[data-entity='climate.wohnzimmer']"); pgD.click(".ceDlg .ceSeg button[data-v='small']"); pgD.wait_for_timeout(300)
+prev_db = pgD.locator(".ceDlg .cePrev .th.small").count()
+pgD.click(".ceDlg [data-act=save]"); pgD.wait_for_timeout(1000)
+check("cards (#495): a thermostat card as a small circle (the preview too), its size saved",
+      prev_db == 1 and until(lambda: [x.get("size") for x in cards() if x["type"] == "thermostat"] == ["small"])
+      and pgD.locator("[data-page=today] .oc-thermostat .th.small").count() == 1, (prev_db, cards()))
 pgD.click("[data-page=today] .bdStrip [data-act=done]"); pgD.wait_for_timeout(800)
 check("dashboards: 'Fertig' ends the edit mode: 'Im Haus' is gone, the own cards stay",
       pgD.is_hidden("[data-page=today] .bdStrip") and "house" not in keys_db(pgD, "today") and pgD.locator("[data-page=today] .oc-switch").count() == 1)
@@ -73,7 +80,7 @@ check("cards: the switch card switches", until(lambda: ["switch", "turn_on", "sw
 pgD.click("#tabBar .tbEdit"); pgD.wait_for_timeout(600)
 pgD.click("[data-page=today] .bdStrip [data-act=reset]"); pgD.wait_for_timeout(1000)
 check("dashboards: 'Wie am Anfang' shows every card in its usual order again, the own cards stay at the end",
-      until(lambda: not lay().get("hidden") and not lay().get("order")) and len(cards()) == 2 and keys_db(pgD, "today")[:len(before)] == before, (lay(), keys_db(pgD, "today")))
+      until(lambda: not lay().get("hidden") and not lay().get("order")) and len(cards()) == 3 and keys_db(pgD, "today")[:len(before)] == before, (lay(), keys_db(pgD, "today")))
 
 # --- own pages and the order of the bar
 pgD.click("[data-page=today] .bdStrip [data-act=tabs]"); pgD.wait_for_timeout(500)

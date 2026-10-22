@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.9.0] - 2026-10-22
+### Added
+- **The thermostat as a circle like in Home Assistant** (#495, the owner: "wie in Home Assistant selbst mit so einem Kreis, wo man Plus und Minus machen kann … Heizen, Auto und Aus"; picture `docs/ideen-4.9/1-thermostat.jpg`). On 🌡 Klima every room with a thermostat shows a circle: the target in the middle, the temperature now on the ring; drag the knob (or tap the ring) or use − / + (several taps become one call); below the modes the device offers (🔥 Heizen, ❄️ Kühlen, ⟳ Auto, 💧 Entfeuchten, 🌀 Lüfter, ⏻ Aus), its presets (Komfort, Eco, Abwesend …) and fan speeds. **Big or small**: in ✎ the button ⤡ makes a room's circle small (circle, − / + and the modes as symbols beside it), ⤢ big again, for everybody (`pageLayouts.<page>.sizes`). The own card "Thermostat" draws the same circle, with *Größe des Kreises: Groß / Klein* in its settings. A water heater shows its target on the circle without setting it. The room's own temperature stands below when it differs from the thermostat's.
+
 ## [4.8.2] - 2026-10-22
 ### Fixed
 - **Tablets slow since everything is in one program** (#494, the owner: "kann sein, dass irgendwie die Performance darunter gelitten hat"). Measured in the demo with sensors that change four times a second: the work per change went down from about 10 to 3 ms on ☀ Heute, from 7 to 1–2 ms on the other pages and from 8 to 6 ms on 🏠 Haus.

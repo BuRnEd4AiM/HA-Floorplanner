@@ -1565,4 +1565,7 @@ export default {
   'hh.empty.list': 'Rien sur la liste.', 'hh.newItem': 'Nouveau …', 'hh.clear': 'Effacer les cochés',
   'hh.todoFailed': 'Home Assistant n\'a pas accepté la modification.',
   'hh.none': 'Rien ici pour l\'instant : ni lave-linge, ni robot aspirateur, ni liste dans Home Assistant.',
+  'th.target': 'Consigne', 'th.now': 'Actuel', 'th.nowIs': 'actuel {v}', 'th.inRoom': 'dans la pièce', 'th.size': 'Taille du cercle',
+  'th.size.big': 'Grand (tous les boutons)', 'th.size.small': 'Petit', 'bd.bigger': 'Afficher plus grand', 'bd.smaller': 'Afficher plus petit',
+  'cl.roomTemp': 'pièce {v}',
 };

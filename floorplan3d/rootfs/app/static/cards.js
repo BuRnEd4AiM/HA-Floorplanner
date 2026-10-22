@@ -2,6 +2,7 @@
  * (an entity of a fitting kind, several entities, a room, a text or a ready card of another page), its name, width and colour. Pure
  * (unit test: tests/cards.test.mjs; server.py clean_card checks the same); cardsui.js draws a card, cardeditor.js makes and changes one. */
 import { FAV_SERVICE } from './favorites.js';
+import { SIZES } from './thermostat.js';
 
 export const CARD_TYPES = ['button', 'switch', 'value', 'graph', 'light', 'thermostat', 'cover', 'camera', 'entities', 'room', 'text', 'builtin'];
 export const TYPE_ICON = { button: '🔘', switch: '⏻', value: '🔢', graph: '📈', light: '💡', thermostat: '🌡️', cover: '🪟', camera: '📷', entities: '🧩', room: '🏠', text: '📝', builtin: '☀️' };
@@ -50,6 +51,7 @@ export function cleanCard(c) {
   }
   if (c.type === 'graph') { out.hours = HOURS.includes(c.hours) ? c.hours : 24; }
   if (c.type === 'graph' || c.type === 'value') out.color = COLORS.includes(c.color) ? c.color : 'blue';
+  if (c.type === 'thermostat') out.size = SIZES.includes(c.size) ? c.size : 'big';      // the circle big or small (#495)
   if (c.type === 'entities') {
     out.entities = [...new Set((Array.isArray(c.entities) ? c.entities : []).filter((e) => typeof e === 'string' && e.length <= 255 && ENTITY.test(e)))].slice(0, MAX_ENTITIES);
     if (!out.entities.length) return null;

@@ -1,6 +1,8 @@
-/* The page 🌡 Klima of the tab bar (#483): a card per room (temperature, target with − / +, heats / cools, humidity, air with "Lüften",
- * an open window while it heats), the thermostats and water heaters in no room, a tip. A tap on a room's name shows it in the house.
- * The rules are in climate.js (tested); this file draws. Several taps on − / + become one call (HEAT_DELAY, as in the heating panel). */
+/* The page 🌡 Klima of the tab bar (#483): a card per room (temperature, its thermostat like Home Assistant's: a circle, − / +, the modes
+ * and presets, big or small as an admin chose (#495, thermostatui.js), heats / cools, humidity, air with "Lüften", an open window while it
+ * heats), the thermostats and water heaters in no room, a tip. A tap on a room's name shows it in the house. The rules are in climate.js
+ * (tested); this file draws. Several taps on − / + become one call (HEAT_DELAY, as in the heating panel). Only a card whose content
+ * changed is drawn again; nothing is drawn while a knob is being dragged. */
 import { climateRooms, looseClimates, climateTips, filterRooms, attention, wasting, hasClimate, FILTERS } from './climate.js';
 import { heatMode } from './heating.js';
 import { clampTarget, HEAT_DELAY } from './heatpanel.js';
@@ -11,11 +13,11 @@ import { openingEntities } from './openings.js';
 
 /** ctx: t, el (the page), lang(), settings(), states(), layout() (the building shown), placed(floor) (its devices with entities),
  *  areaEntities(room), isOpen(entity), nameOf(entity), callService(entity, service, data), openRoom(floorIndex, roomId), board (pageboard.js,
- *  #484: the cards in the order an admin chose; keys room:<id>, loose, tip) */
+ *  #484: the cards in the order an admin chose; keys room:<id>, loose, tip), thermo (thermostatui.js, #495) */
 export function initClimatePage(ctx) {
   const { t, el } = ctx;
   const pending = new Map();                         // entity -> { v, timer }: a target tapped but not sent yet
-  let filter = 'all', drawn = '';
+  let filter = 'all', drawn = '', grid = null;
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
   const lang = () => ctx.lang() || 'de';
@@ -34,7 +36,7 @@ export function initClimatePage(ctx) {
     v = clampTarget(ctx.states()[e], v);
     const old = pending.get(e); if (old) clearTimeout(old.timer);
     pending.set(e, { v, timer: setTimeout(() => { pending.delete(e); ctx.callService(e, 'set_temperature', { temperature: v }); }, HEAT_DELAY) });
-    draw(true);
+    draw(false);
   }
   function badge(mode) {
     if (!mode) return null;
@@ -50,7 +52,7 @@ export function initClimatePage(ctx) {
     return box;
   }
   const target = (e) => { const s = ctx.states()[e]; return t('cl.target', { v: deg(goal(e), (s?.tstep || 0.5) < 1 ? 1 : 0) }); };
-  function roomCard(r, floors) {
+  function roomCard(r, floors, size) {
     const look = attention(r), warn = wasting(r);
     const c = make('div', `tpCard clCard${warn || r.air === 'bad' ? ' alert' : ''}`); c.dataset.room = r.id;
     const head = make('div', 'clHead'), where = make('div', 'clWhere');
@@ -58,16 +60,21 @@ export function initClimatePage(ctx) {
     if (floors > 1 && r.floorName) where.append(make('small', 'clFloor', r.floorName));
     head.append(where);
     const b = badge(r.mode); if (b) head.append(b);
-    const now = make('div', 'clNow');
-    now.append(make('b', `clTemp${look ? ` ${look}` : ''}`, deg(r.temp)));
-    if (r.climate && r.target !== null) now.append(make('span', 'tpSub clSoll', target(r.climate)));
+    const th = r.climate ? ctx.thermo.render(r.climate, size).el : null;     // the thermostat as a circle (#495)
     const row = make('div', 'clRow');
-    const st = r.climate ? stepper(r.climate) : null; if (st) row.append(st);
+    if (th) {
+      c.append(head, th);
+      if (r.temp !== null && Math.abs(r.temp - (ctx.states()[r.climate]?.ct ?? r.temp)) >= 0.3) row.append(make('span', `tpSub clRoomTemp${look ? ` ${look}` : ''}`, t('cl.roomTemp', { v: deg(r.temp) })));
+    } else {
+      const now = make('div', 'clNow');
+      now.append(make('b', `clTemp${look ? ` ${look}` : ''}`, deg(r.temp)));
+      c.append(head, now);
+    }
     const tags = make('div', 'clTags');
     if (r.co2 !== null) tags.append(make('span', `tpChip ${r.air === 'bad' ? 'alert' : 'green'}`, r.air === 'bad' ? `🪟 ${t('cl.airOut', { n: Math.round(r.co2) })}` : t('cl.airOk', { n: Math.round(r.co2) })));
     if (r.humid !== null) tags.append(make('span', 'clHumid', `💧 ${Math.round(r.humid)} %`));
     row.append(tags);
-    c.append(head, now, row);
+    if (row.querySelector('*')) c.append(row);
     if (warn) {
       const w = make('div', 'clWarn');
       w.append(make('span', '', `🪟 ${t('cl.openWarn', { names: r.open.slice(0, 3).join(', ') })}`));
@@ -100,40 +107,50 @@ export function initClimatePage(ctx) {
     return { rooms: list, loose, tips: climateTips(list), outside: st[wx]?.wx?.t ?? null };
   }
   function draw(force = false) {
+    if (ctx.thermo.busy()) return;                  // a knob is being dragged: nothing moves under the finger (#495)
     const m = model(), st = ctx.states();
-    const sig = JSON.stringify([m.rooms.map((r) => [r.id, r.name, r.temp, r.humid, r.co2, r.mode, r.target, r.open]), m.loose.map((x) => [x.entity, st[x.entity]?.state, st[x.entity]?.ct, st[x.entity]?.tt, st[x.entity]?.hvac]),
-      m.outside, filter, [...pending].map(([e, p]) => [e, p.v]), imperial(), t('tab.climate')]);
-    if (!force && sig === drawn) return;
-    drawn = sig;
-    const head = make('div', 'tpHead');
-    head.append(make('h2', '', `🌡️ ${t('tab.climate')}`));
-    if (m.outside !== null) head.append(make('span', 'tpSub', t('cl.outside', { v: deg(m.outside) })));
-    const tools = make('div', 'tpTools');
-    FILTERS.forEach((f) => { const b = btn(`tpChip${f === filter ? ' on' : ''}`, t(`cl.filter.${f}`), () => { filter = f; draw(true); }); b.dataset.filter = f; tools.append(b); });
-    head.append(tools);
     const shown = filterRooms(m.rooms, filter), floors = new Set(m.rooms.map((r) => r.floor)).size;
-    const grid = make('div', 'clGrid');
-    const items = shown.map((r) => ({ key: `room:${r.id}`, el: roomCard(r, floors), width: 1 }));
+    const headSig = JSON.stringify([m.outside, filter, imperial(), shown.length, m.rooms.length, t('tab.climate')]);
+    if (force || headSig !== drawn || !grid || !el.contains(grid)) {
+      drawn = headSig;
+      const head = make('div', 'tpHead');
+      head.append(make('h2', '', `🌡️ ${t('tab.climate')}`));
+      if (m.outside !== null) head.append(make('span', 'tpSub', t('cl.outside', { v: deg(m.outside) })));
+      const tools = make('div', 'tpTools');
+      FILTERS.forEach((f) => { const b = btn(`tpChip${f === filter ? ' on' : ''}`, t(`cl.filter.${f}`), () => { filter = f; draw(true); }); b.dataset.filter = f; tools.append(b); });
+      head.append(tools);
+      const out = [head];
+      if (!shown.length) out.push(make('p', 'tpSub', m.rooms.length ? t('cl.allFine') : t('cl.noRooms')));
+      if (force || !grid) grid = make('div', 'clGrid');
+      el.replaceChildren(...out, grid);
+    }
+    const common = [imperial(), t('tab.climate'), floors];
+    const items = shown.map((r) => {
+      const key = `room:${r.id}`, size = ctx.board.size('climate', key);
+      return { key, width: 1, sized: r.climate ? 'big' : null, make: () => roomCard(r, floors, size),
+        sig: JSON.stringify([r.id, r.name, r.floorName, r.temp, r.humid, r.co2, r.air, r.mode, r.open, r.climate ? ctx.thermo.sig(r.climate) : null, size, ...common]) };
+    });
     if (m.loose.length) {
-      const c = make('div', 'tpCard clLooseCard'); c.append(make('h3', 'peH', t('cl.loose')));
-      m.loose.forEach((x) => c.append(looseRow(x)));
-      items.push({ key: 'loose', el: c, width: 2 });
+      items.push({ key: 'loose', width: 2, make: () => {
+        const c = make('div', 'tpCard clLooseCard'); c.append(make('h3', 'peH', t('cl.loose')));
+        m.loose.forEach((x) => c.append(looseRow(x)));
+        return c;
+      }, sig: JSON.stringify([m.loose.map((x) => [x.entity, st[x.entity]?.state, st[x.entity]?.ct, st[x.entity]?.tt, st[x.entity]?.hvac, pending.get(x.entity)?.v]), ...common]) });
     }
     if (m.tips.length) {
-      const c = make('div', 'tpCard clTip'); c.append(make('h3', 'peH', t('cl.tip')));
       const tip = m.tips[0];
-      c.append(make('p', '', tip.key === 'window' ? t('cl.tip.window', { room: tip.room }) : t('cl.tip.air', { room: tip.room, n: Math.round(tip.co2) })));
-      items.push({ key: 'tip', el: c, width: 2 });
+      items.push({ key: 'tip', width: 2, make: () => {
+        const c = make('div', 'tpCard clTip'); c.append(make('h3', 'peH', t('cl.tip')));
+        c.append(make('p', '', tip.key === 'window' ? t('cl.tip.window', { room: tip.room }) : t('cl.tip.air', { room: tip.room, n: Math.round(tip.co2) })));
+        return c;
+      }, sig: JSON.stringify([tip, ...common]) });
     }
-    const out = [head];
-    if (!shown.length) out.push(make('p', 'tpSub', m.rooms.length ? t('cl.allFine') : t('cl.noRooms')));
-    el.replaceChildren(...out, grid);
     ctx.board.fill('climate', grid, items, { min: 260 });
   }
   return {
     render: () => draw(true),
     update: () => draw(false),
     has: () => hasClimate(ctx.states(), placedIds()),
-    reset: () => { filter = 'all'; drawn = ''; },
+    reset: () => { filter = 'all'; drawn = ''; grid = null; },
   };
 }

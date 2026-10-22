@@ -1561,4 +1561,7 @@ export default {
   'hh.empty.list': 'Niente nella lista.', 'hh.newItem': 'Nuovo …', 'hh.clear': 'Cancella le spuntate',
   'hh.todoFailed': 'Home Assistant non ha accettato la modifica.',
   'hh.none': 'Ancora niente: nessuna lavatrice, nessun robot aspirapolvere, nessuna lista in Home Assistant.',
+  'th.target': 'Obiettivo', 'th.now': 'Ora', 'th.nowIs': 'ora {v}', 'th.inRoom': 'nella stanza', 'th.size': 'Dimensione del cerchio',
+  'th.size.big': 'Grande (tutti i pulsanti)', 'th.size.small': 'Piccolo', 'bd.bigger': 'Mostra più grande', 'bd.smaller': 'Mostra più piccolo',
+  'cl.roomTemp': 'stanza {v}',
 };

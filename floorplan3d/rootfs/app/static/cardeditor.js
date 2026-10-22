@@ -4,6 +4,7 @@
  * The rules are in cards.js (tested). */
 import { CARD_TYPES, TYPE_ICON, BUILTINS, COLORS, COLOR_HEX, HOURS, MAX_ENTITIES, TYPE_DOMAINS, fitsType, cleanCard, defaultWidth } from './cards.js';
 import { newCardId } from './pagelayout.js';
+import { SIZES } from './thermostat.js';
 
 const SHOW = 40;
 
@@ -29,7 +30,7 @@ export function initCardEditor(ctx) {
     const d = open();
     const grid = make('div', 'ceTypes');
     CARD_TYPES.forEach((type) => {
-      const b = btn('ceType', null, () => edit(page, { id: newCardId(ctx.board.layout(page).cards.map((c) => c.id)), type, width: defaultWidth(type), hours: 24, color: 'blue' }, true));
+      const b = btn('ceType', null, () => edit(page, { id: newCardId(ctx.board.layout(page).cards.map((c) => c.id)), type, width: defaultWidth(type), hours: 24, color: 'blue', size: 'big' }, true));
       b.dataset.type = type;
       b.append(make('span', 'ceTypeIcon', TYPE_ICON[type]), make('b', '', t(`ct.type.${type}`)), make('small', '', t(`ct.typeSub.${type}`)));
       grid.append(b);
@@ -104,6 +105,7 @@ export function initCardEditor(ctx) {
       field(t('ce.text'), area);
     }
     if (card.type === 'graph') field(t('ce.hours'), seg(HOURS, (h) => t(`ce.hours.${h}`), 'hours'));
+    if (card.type === 'thermostat') { draft.size = draft.size || 'big'; field(t('th.size'), seg(SIZES, (v) => t(`th.size.${v}`), 'size')); }   // the circle big or small (#495)
     field(t('ce.width'), seg([1, 2, 3, 4], (w) => t(`ce.width.${w}`), 'width'));
     if (card.type === 'graph' || card.type === 'value') {
       const row = seg(COLORS, (c) => t(`ce.color.${c}`), 'color');

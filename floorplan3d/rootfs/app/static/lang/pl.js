@@ -1547,4 +1547,6 @@ export default {
   'hh.noList': 'Home Assistant nie ma listy. Integracja „Lista zakupów” ją tworzy.', 'hh.loading': 'Ładowanie …', 'hh.empty.list': 'Nic na liście.',
   'hh.newItem': 'Nowe …', 'hh.clear': 'Usuń odhaczone', 'hh.todoFailed': 'Home Assistant nie przyjął zmiany.',
   'hh.none': 'Na razie nic: brak pralki, robota sprzątającego i listy w Home Assistant.',
+  'th.target': 'Cel', 'th.now': 'Teraz', 'th.nowIs': 'teraz {v}', 'th.inRoom': 'teraz w pokoju', 'th.size': 'Rozmiar koła',
+  'th.size.big': 'Duży (wszystkie przyciski)', 'th.size.small': 'Mały', 'bd.bigger': 'Pokaż większy', 'bd.smaller': 'Pokaż mniejszy', 'cl.roomTemp': 'pokój {v}',
 };

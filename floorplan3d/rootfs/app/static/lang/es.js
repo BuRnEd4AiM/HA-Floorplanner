@@ -1559,4 +1559,7 @@ export default {
   'hh.shopping': 'Lista de la compra', 'hh.whichList': 'Qué lista', 'hh.noList': 'Home Assistant no tiene lista. La integración «Lista de la compra» crea una.',
   'hh.loading': 'Cargando …', 'hh.empty.list': 'Nada en la lista.', 'hh.newItem': 'Nuevo …', 'hh.clear': 'Borrar los marcados',
   'hh.todoFailed': 'Home Assistant no aceptó el cambio.', 'hh.none': 'Aún no hay nada: ni lavadora, ni robot aspirador, ni lista en Home Assistant.',
+  'th.target': 'Objetivo', 'th.now': 'Ahora', 'th.nowIs': 'ahora {v}', 'th.inRoom': 'en la habitación', 'th.size': 'Tamaño del círculo',
+  'th.size.big': 'Grande (todos los botones)', 'th.size.small': 'Pequeño', 'bd.bigger': 'Mostrar más grande', 'bd.smaller': 'Mostrar más pequeño',
+  'cl.roomTemp': 'habitación {v}',
 };

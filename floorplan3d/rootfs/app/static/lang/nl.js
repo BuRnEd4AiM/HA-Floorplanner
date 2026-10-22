@@ -1546,4 +1546,6 @@ export default {
   'hh.empty.list': 'Niets op de lijst.', 'hh.newItem': 'Nieuw …', 'hh.clear': 'Afgevinkte wissen',
   'hh.todoFailed': 'Home Assistant heeft de wijziging niet aangenomen.',
   'hh.none': 'Hier is nog niets: geen wasmachine, geen robotstofzuiger, geen lijst in Home Assistant.',
+  'th.target': 'Doel', 'th.now': 'Nu', 'th.nowIs': 'nu {v}', 'th.inRoom': 'nu in de kamer', 'th.size': 'Grootte van de cirkel',
+  'th.size.big': 'Groot (alle knoppen)', 'th.size.small': 'Klein', 'bd.bigger': 'Groter tonen', 'bd.smaller': 'Kleiner tonen', 'cl.roomTemp': 'kamer {v}',
 };

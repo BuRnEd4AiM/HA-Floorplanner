@@ -28,6 +28,7 @@ def test_the_lists_match_the_browser():
     js = {k: (None if v.strip() == "null" else tuple(re.findall(r"'([^']+)'", v))) for k, v in re.findall(r"(\w+): (\[[^\]]*\]|null)", block)}
     assert js == boards.TYPE_DOMAINS
     assert boards.TABS == server.TABS
+    assert tuple(js_list((STATIC / "thermostat.js").read_text(), "SIZES")) == boards.SIZES
     assert "p_[a-z0-9]{3,16}" in (STATIC / "tabs.js").read_text() and "c_[a-z0-9]{3,16}" in cards
 
 
@@ -53,12 +54,17 @@ def test_cards_are_checked_by_their_kind():
     assert ok({"type": "text", "text": "Hallo\x07"})["text"] == "Hallo" and ok({"type": "text"}) is None
     assert ok({"type": "builtin", "builtin": "today:weather"})["builtin"] == "today:weather" and ok({"type": "builtin", "builtin": "x"}) is None
     assert boards.clean_card({"id": "bad", "type": "text", "text": "x"}) is None and boards.clean_card({"id": "c_abc", "type": "nope"}) is None
+    assert ok({"type": "thermostat", "entity": "climate.bad", "size": "small"})["size"] == "small"                # #495: the circle big or small
+    assert ok({"type": "thermostat", "entity": "climate.bad", "size": "x"})["size"] == "big" and "size" not in ok({"type": "light", "entity": "light.a"})
 
 
 def test_a_page_layout():
     lay = boards.clean_layout({"order": ["clock", "clock", "c_abc", "BAD KEY"], "hidden": ["waste"], "cards": [
         {"id": "c_abc", "type": "text", "text": "x"}, {"id": "c_abc", "type": "text", "text": "y"}, {"id": "c_def", "type": "light", "entity": "switch.x"}]})
-    assert lay == {"order": ["clock", "c_abc"], "hidden": ["waste"], "cards": [{"id": "c_abc", "type": "text", "name": "", "width": 2, "text": "x"}]}
+    assert lay == {"order": ["clock", "c_abc"], "hidden": ["waste"], "sizes": {}, "cards": [{"id": "c_abc", "type": "text", "name": "", "width": 2, "text": "x"}]}
+    sized = boards.clean_layout({"sizes": {"room:r1": "small", "room:r2": "huge", "BAD KEY": "small", "room:r3": "big"}})   # #495: a built-in card big or small
+    assert sized["sizes"] == {"room:r1": "small", "room:r3": "big"}
+    assert set(boards.clean_page_layouts({"climate": {"sizes": {"room:r1": "small"}}}, [])) == {"climate"}
     pages = boards.clean_page_layouts({"today": {"hidden": ["waste"]}, "house": {"hidden": ["x"]}, "p_gone": {"order": ["a"]}, "p_garten": {"order": ["a"]},
                                        "climate": {}}, [{"id": "p_garten"}])
     assert set(pages) == {"today", "p_garten"}

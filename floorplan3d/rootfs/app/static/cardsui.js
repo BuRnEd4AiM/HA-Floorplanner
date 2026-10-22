@@ -3,19 +3,17 @@
  * numbers (api/history, again after 5 minutes). Switching goes through live.callService like everywhere else. */
 import { TYPE_ICON, COLOR_HEX, cardEntities, tapService, valueOf, chartPaths } from './cards.js';
 import { routineIcon } from './routines.js';
-import { clampTarget, HEAT_DELAY } from './heatpanel.js';
-import { heatMode } from './heating.js';
 
 const TOGGLE = new Set(['light', 'switch', 'input_boolean', 'fan', 'automation']);
 const ON = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only', 'unlocked', 'home']);
 
 /** ctx: t, lang(), states(), settings(), nameOf(entity), stateText(entity), callService(entity, service, data) (-> true when taken),
  *  camImage(entity) (an <img> renewed while shown), openCamera(entity), room(roomId) ({ name, floor, temp, lights, open, occupied } or
- *  null), openRoom(roomId), builtin(key) (a ready card of ☀ Heute, or null), changed() (a history arrived: draw the page again) */
+ *  null), openRoom(roomId), builtin(key) (a ready card of ☀ Heute, or null), changed() (a history arrived: draw the page again),
+ *  thermo (thermostatui.js, #495) */
 export function initCards(ctx) {
   const { t } = ctx;
   const history = new Map();                         // "entity|hours" -> { at, points, asking }
-  const pending = new Map();                         // thermostat -> { v, timer }
   const flash = new Map();                           // card id -> 'ok' | 'bad' for a moment after a tap
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', (e) => { e.stopPropagation(); on(e); }); return b; };
@@ -89,24 +87,8 @@ export function initCards(ctx) {
     box.append(wrap);
   }
   function thermostat(c, box) {
-    const e = c.entity, s = st(e), goal = pending.get(e)?.v ?? s?.tt;
-    const row = make('div', 'ocBig');
-    row.append(make('b', '', deg(s?.ct)));
-    if (typeof goal === 'number' && s?.state !== 'off') row.append(make('small', 'tpSub', t('cl.target', { v: deg(goal) })));
-    const mode = e.startsWith('climate.') ? heatMode(e, s) : null;
-    if (mode) row.append(make('span', `clBadge ${mode}`, mode === 'heating' ? `🔥 ${t('heat.heating')}` : mode === 'cooling' ? `❄ ${t('heat.cooling')}` : mode === 'off' ? t('heat.off') : t('heat.idle')));
-    box.append(row);
-    if (e.startsWith('climate.') && typeof goal === 'number' && s?.state !== 'off') {
-      const step = s.tstep || 0.5, send = (v) => {
-        v = clampTarget(s, v);
-        const old = pending.get(e); if (old) clearTimeout(old.timer);
-        pending.set(e, { v, timer: setTimeout(() => { pending.delete(e); ctx.callService(e, 'set_temperature', { temperature: v }); }, HEAT_DELAY) });
-        ctx.changed();
-      };
-      const st2 = make('div', 'clStep');
-      st2.append(btn('clMinus', '−', () => send(goal - step), t('heat.minus')), btn('clPlus', '+', () => send(goal + step), t('heat.plus')));
-      box.append(st2);
-    }
+    const { el } = ctx.thermo.render(c.entity, c.size || 'big');     // the circle like Home Assistant's (#495, thermostatui.js)
+    if (el) box.append(el);
   }
   function light(c, box) {
     const e = c.entity, s = st(e), on = isOn(e);
@@ -182,7 +164,7 @@ export function initCards(ctx) {
   }
   /** what a card shows depends on: the states of its entities, its history, a pending target, a tap (it draws again when this changed) */
   const sig = (c) => JSON.stringify([c, cardEntities(c).map((e) => { const s = st(e); return s ? [s.state, s.brightness, s.position, s.ct, s.tt, s.hvac, s.rgb, s.unit] : null; }),
-    c.type === 'graph' ? history.get(`${c.entity}|${c.hours}`)?.points?.length ?? -1 : 0, pending.get(c.entity)?.v, flash.get(c.id),
+    c.type === 'graph' ? history.get(`${c.entity}|${c.hours}`)?.points?.length ?? -1 : 0, c.type === 'thermostat' ? ctx.thermo.sig(c.entity) : 0, flash.get(c.id),
     c.type === 'room' ? ctx.room(c.room) : 0, c.type === 'builtin' ? Math.floor(Date.now() / 20000) : 0, imperial(), ctx.lang()]);   // a ready card: every 20 s
   return { render, sig };
 }
