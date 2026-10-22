@@ -5,12 +5,13 @@
 import { FAV_SERVICE } from './favorites.js';
 import { SIZES } from './thermostat.js';
 import { CAL_DAYS, CAL_VIEWS, cleanCals } from './calcard.js';
+import { cleanLook } from './buttonlook.js';
 
 export const CARD_TYPES = ['button', 'switch', 'value', 'graph', 'light', 'thermostat', 'cover', 'camera', 'calendar', 'entities', 'room', 'text', 'builtin'];
 export const TYPE_ICON = { button: '🔘', switch: '⏻', value: '🔢', graph: '📈', light: '💡', thermostat: '🌡️', cover: '🪟', camera: '📷', calendar: '📅', entities: '🧩', room: '🏠', text: '📝', builtin: '☀️' };
 /** the entities a kind of card takes, by domain (null: any entity); kinds without an entity are not listed */
 export const TYPE_DOMAINS = {
-  button: ['scene', 'script', 'button', 'input_button', 'light', 'switch', 'input_boolean', 'fan', 'cover', 'media_player'],
+  button: ['scene', 'script', 'button', 'input_button', 'light', 'switch', 'input_boolean', 'fan', 'cover', 'media_player', 'climate', 'water_heater', 'lock', 'vacuum'],
   switch: ['light', 'switch', 'input_boolean', 'fan'],
   value: null,
   graph: ['sensor', 'input_number', 'number'],
@@ -61,6 +62,7 @@ export function cleanCard(c) {
   }
   if (c.type === 'graph' || c.type === 'value') out.color = COLORS.includes(c.color) ? c.color : 'blue';
   if (c.type === 'thermostat') out.size = SIZES.includes(c.size) ? c.size : 'big';      // the circle big or small (#495)
+  if (c.type === 'button') Object.assign(out, cleanLook(c));   // symbol, colour, shape, size, what it shows, tap and long press (#495)
   if (c.type === 'calendar') {                       // several calendars, each in its colour (#495)
     out.cals = cleanCals(c.cals);
     if (!out.cals.length) return null;

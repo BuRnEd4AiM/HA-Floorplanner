@@ -393,7 +393,19 @@ let settings = {
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
   favorites: ['scene.wz_gemuetlich', 'scene.wz_aus', 'light.stehlampe', 'light.kueche'],   // 4.2: favourites and light groups (#471)
   presence: { rule: 'any', ssids: ['Zuhause-5G'] },                                           // who is really at home (#495)
-  pageLayouts: { today: {                                                                       // the calendar card on ☀ Heute after the weather (#495)
+  customTabs: [{ id: 'p_knoepfe', name: 'Knöpfe', icon: '🔘' }],                             // a page of buttons in every look (#495)
+  pageLayouts: { p_knoepfe: { cards: [
+    { id: 'c_wohnen', type: 'button', entity: 'light.wohnzimmer', name: 'Wohnzimmer', icon: '🛋', onColor: 'lamp', show: ['name', 'state', 'bar'], hold: 'more' },
+    { id: 'c_schlafen', type: 'button', entity: 'light.schlafzimmer', name: 'Schlafzimmer', icon: '🛏', show: ['name', 'state', 'since'] },
+    { id: 'c_heizung', type: 'button', entity: 'climate.wohnzimmer', name: 'Heizung', icon: '🔥', onColor: 'orange', shape: 'round' },
+    { id: 'c_kino', type: 'button', entity: 'scene.wz_gemuetlich', name: 'Kino', icon: '🎬', shape: 'round', onColor: 'purple' },
+    { id: 'c_kueche', type: 'button', entity: 'light.kueche', name: 'Küche', icon: '💡', shape: 'pill', width: 2, show: ['name', 'state', 'since'] },
+    { id: 'c_tuer', type: 'button', entity: 'lock.haustuer', name: 'Haustür', icon: '🔒', shape: 'pill', width: 2, onColor: 'red', tap: 'more' },
+    { id: 'c_nacht', type: 'button', entity: 'scene.gute_nacht', name: 'Gute Nacht', icon: '🌙', shape: 'pill', bsize: 'xl', width: 2, onColor: 'blue' },
+    { id: 'c_fernseher', type: 'button', entity: 'media_player.tv', icon: '📺', shape: 'icon' },
+    { id: 'c_musik', type: 'button', entity: 'media_player.sonos_wz', icon: '🎵', shape: 'icon', onColor: 'green' },
+    { id: 'c_robo', type: 'button', entity: 'vacuum.robo', name: 'Saugroboter', icon: '🏠', bsize: 's', tap: 'more' }] },
+  today: {                                                                       // the calendar card on ☀ Heute after the weather (#495)
     order: ['clock', 'weather', 'c_kalender', 'pinboard', 'agenda', 'waste', 'people', 'house', 'power'],
     cards: [{ id: 'c_kalender', type: 'calendar', name: 'Diese Woche', width: 4, days: 7, view: 'week', add: true,
       cals: [{ id: 'calendar.familie', color: 'blue' }, { id: 'calendar.arbeit_anna', color: 'orange' }, { id: 'calendar.schule', color: 'green' }, { id: 'calendar.geburtstage', color: 'red' }] }] } },
@@ -531,6 +543,13 @@ function demoCalendar(ids, start, end) {
     at(7, 19, 30, 'Elternsprechtag', 'calendar.schule', 2), all(12, 'Wandertag', 'calendar.schule'), all(16, 'Projektwoche', 'calendar.schule', 5), ...demoNewEvents];
   const time = (s) => new Date(/^\d{4}-\d{2}-\d{2}$/.test(s) ? `${s}T00:00:00` : s);
   return ev.filter((x) => ids.includes(x.cal) && time(x.s) < end && time(x.e || x.s) > start);
+}
+/** when a demo entity's state last changed (seconds, "seit wann" of a button card, #495): when the demo saw it change, else a made-up time */
+const changedAt = new Map();
+function lastChanged(id, state) {
+  const was = changedAt.get(id);
+  if (!was || was.state !== state) changedAt.set(id, { state, at: was ? Math.floor(Date.now() / 1000) : Math.floor(Date.now() / 1000) - 600 - (id.length * 397) % 7200 });
+  return changedAt.get(id).at;
 }
 const ONLY_ADDON = 'In der Demo nicht verfügbar (nur im Add-on).';
 const examples = { flat: flatExample, house: houseExample, showcase: showcaseExample };
@@ -678,7 +697,8 @@ export function installDemoBackend() {
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
         hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null,
-        bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null })));
+        bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null,
+        lc: lastChanged(entity_id, e.state) })));
     }
     if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
       return json({ known: true, version: demoVersion(), buildHash: 'demo', short: 'demo', server: { ok: true, files: 0, changed: [], missing: [], extra: [] }, staticFiles: {} });

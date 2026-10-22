@@ -99,6 +99,7 @@ export function initCardEditor(ctx) {
       field(t('ce.room'), sel);
     }
     if (card.type === 'calendar') ctx.calendar.fields(draft, { field, seg, preview: () => preview() });   // calendars, days, view (#495)
+    if (card.type === 'button') ctx.cards.buttonFields(draft, { field, seg, preview: () => preview() });  // symbol, colour, shape, tap (#495)
     if (card.type === 'builtin') {
       const sel = make('select', 'ceSelect');
       sel.append(new Option(t('ce.pickBuiltin'), ''), ...BUILTINS.map((k) => new Option(t(`ce.builtin.${k.replace(':', '.')}`), k)));

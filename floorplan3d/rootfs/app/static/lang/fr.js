@@ -1601,4 +1601,13 @@ export default {
   'cal.failed': "Cela n'a pas marché. Ce calendrier accepte-t-il de nouveaux événements (p. ex. calendrier local, Google, CalDAV) ?",
   'cal.color.blue': "Bleu", 'cal.color.orange': "Orange", 'cal.color.green': "Vert", 'cal.color.red': "Rouge", 'cal.color.purple': "Violet",
   'cal.color.grey': "Gris",
+  'ob.icon': "Symbole", 'ob.iconAuto': "Auto", 'ob.color': "Couleur quand allumé", 'ob.lamp': "ou la couleur de la lampe", 'ob.color.amber': "Ambre",
+  'ob.color.orange': "Orange", 'ob.color.red': "Rouge", 'ob.color.purple': "Violet", 'ob.color.blue': "Bleu", 'ob.color.green': "Vert",
+  'ob.color.grey': "Gris", 'ob.shape': "Forme et taille", 'ob.shape.tile': "▢ Tuile", 'ob.shape.round': "◯ Rond", 'ob.shape.pill': "▭ Pilule",
+  'ob.shape.icon': "Symbole seul", 'ob.show': "Afficher", 'ob.show.name': "Nom", 'ob.show.state': "État", 'ob.show.bar': "Luminosité en barre",
+  'ob.show.since': "depuis quand", 'ob.tap': "Appui", 'ob.tap.toggle': "Marche / Arrêt", 'ob.tap.more': "Fenêtre avec réglages",
+  'ob.tap.page': "Ouvrir une page", 'ob.tap.none': "rien", 'ob.hold': "Appui long", 'ob.hold.none': "rien", 'ob.hold.more': "Fenêtre avec réglages",
+  'ob.hold.details': "Fenêtre Home Assistant (historique)", 'ob.ago.now': "à l'instant", 'ob.ago.min': "depuis {n} min", 'ob.ago.h': "depuis {n} h",
+  'ob.ago.d': "depuis {n} jours", 'state.locked': 'Verrouillé', 'state.unlocked': 'Déverrouillé', 'ctl.position': "Position", 'ctl.run': "Lancer", 'ctl.close': "Fermer", 'ctl.lock': "Verrouiller",
+  'ctl.unlock': "Déverrouiller",
 };

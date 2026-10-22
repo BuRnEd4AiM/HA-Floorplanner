@@ -226,6 +226,9 @@ def test_slim_state_climate_fields():
     assert s["modes"] == ["off", "heat"] and s["ct"] == 20.5
     lamp = server.slim_state({"entity_id": "light.x", "state": "on", "attributes": {"temperature": 5}})
     assert "hvac" not in lamp and "tt" not in lamp          # only thermostats carry the heating fields
+    assert lamp["lc"] is None and s["lc"] is None
+    assert server.slim_state({"entity_id": "light.x", "state": "on", "last_changed": "2026-10-22T18:00:00.123+00:00"})["lc"] == 1792692000   # #495
+    assert server.slim_state({"entity_id": "light.x", "state": "on", "last_changed": "gestern"})["lc"] is None
 
 
 def test_slim_state_sun_and_weather():

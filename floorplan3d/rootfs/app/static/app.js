@@ -669,6 +669,7 @@ const dash = initDashboards({                                    // the pages ar
   isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), openRoom: openRoomAt,
   camImage: (e) => cams.camImage(e, 'oc-img'), openCamera: (e) => { camPage.big(e); tabsUi.show('cameras'); },
   builtin: (k) => todayPage.card(k.split(':')[1]), tabsUi: () => tabsUi,
+  live: () => live,                                              // a lamp's controls in the window of a button card (#495)
 });
 const board = dash.board;
 const camPage = initCameraPage({

@@ -1036,7 +1036,16 @@ def slim_state(st):
         "ctl": controls.extras(st),                          # what the live card needs to control it (#406): volume, fan speed, presets ...
         **_sky(st, a),                                       # sun.sun and weather.* for the sky (#418, #419)
         "since": st.get("last_changed") if st["state"] in ("unavailable", "unknown") else None,   # for the offline list
+        "lc": _epoch(st.get("last_changed")),                # when the state last changed, in seconds: "seit wann" of a button (#495)
     }
+
+
+def _epoch(v):
+    """an ISO time of Home Assistant -> whole seconds since 1970, None when it is none"""
+    try:
+        return int(datetime.datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp()) if isinstance(v, str) else None
+    except ValueError:
+        return None
 
 
 class LiveHub:

@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.14.0] - 2026-10-22
+### Added
+- **Buttons the way you want them** (#495, the owner: "mehr Möglichkeiten, Buttons anzupassen"; picture `docs/ideen-4.9/7-knoepfe.jpg`). The own card *🔘 Knopf* gets in *Karte einstellen*: a **symbol** (20 to pick, or automatic), the **colour when on** (seven, or the lamp's own colour), the **shape** (▢ Kachel, ◯ Rund, ▭ Pille, Nur Symbol) and **size** (S, M, L, XL), what it **shows** (name, state, the brightness as a bar, since when: "seit 2 Std."), what a **tap** does (on / off, the window with the controls, open a page, nothing) and a **long press** (nothing, the window with the controls, Home Assistant's own window with the history). A button can now also be a thermostat, a water heater, a lock or a vacuum (a tap opens its window).
+- **The window with the controls** of a device (`ctlwindow.js`): on / off, a lamp's brightness, colours and effects, a thermostat's circle, a roller shutter's ▲ ■ ▼ and position, a lock's 🔒 / 🔓, a player's, fan's, vacuum's or alarm's buttons, a scene or script to start, *Details* inside Home Assistant.
+- The live states carry when a state last changed (`lc`, seconds) for "since when".
+- Demo: an own page *🔘 Knöpfe* with buttons in every look.
+### Fixed
+- The device list of *Karte einstellen* no longer squeezes its rows when the window is long.
+
 ## [4.13.0] - 2026-10-22
 ### Added
 - **The calendar card: several calendars, each in its colour, and "＋ Termin"** (#495, the owner: "verschiedene Kalender … zusätzlich eine Karte einfach mit Terminkalendern"; pictures `docs/ideen-4.9/5-kalender.jpg`, `6-kalender-einstellen.jpg`). A new kind of own card *📅 Kalender* (✎ → *＋ Karte*): tick any of Home Assistant's calendars and give each a colour (blue, orange, green, red, purple, grey); the time span (today + tomorrow, 7, 14 or 31 days) and the view: **▦ Woche** (a column per day, the events as coloured blocks), **☰ Liste** (by day), **🗓 Monat** (the month with a dot per event, a tap on a day lists it) or **Nur nächster Termin** (big, the two after it below). A chip per calendar shows which colour is which. **＋ Termin** on the card puts a new event straight into one of its calendars (title, calendar, day, all day or from / to; Home Assistant's `calendar.create_event`, for calendars that take new events such as Local Calendar, Google or CalDAV); the card shows it right away. Several calendar cards are possible, e.g. one with only Anna's calendars. The events come from `api/calendar/events` (up to 10 calendars and 42 days, kept 5 minutes, fresh after a new event); the rules in `calcard.js` (tested), the same in `boards.py`; `controls.py` lets only a title, the dates or times (with the time zone) and the end after the start through.

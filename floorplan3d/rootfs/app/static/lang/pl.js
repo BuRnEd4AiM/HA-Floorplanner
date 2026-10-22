@@ -1580,4 +1580,13 @@ export default {
   'cal.failed': "Nie udało się. Czy ten kalendarz przyjmuje nowe wydarzenia (np. kalendarz lokalny, Google, CalDAV)?", 'cal.color.blue': "Niebieski",
   'cal.color.orange': "Pomarańczowy", 'cal.color.green': "Zielony", 'cal.color.red': "Czerwony", 'cal.color.purple': "Fioletowy",
   'cal.color.grey': "Szary",
+  'ob.icon': "Symbol", 'ob.iconAuto': "Auto", 'ob.color': "Kolor po włączeniu", 'ob.lamp': "lub kolor lampy", 'ob.color.amber': "Bursztynowy",
+  'ob.color.orange': "Pomarańczowy", 'ob.color.red': "Czerwony", 'ob.color.purple': "Fioletowy", 'ob.color.blue': "Niebieski",
+  'ob.color.green': "Zielony", 'ob.color.grey': "Szary", 'ob.shape': "Kształt i rozmiar", 'ob.shape.tile': "▢ Kafelek",
+  'ob.shape.round': "◯ Okrągły", 'ob.shape.pill': "▭ Pigułka", 'ob.shape.icon': "Tylko symbol", 'ob.show': "Pokaż", 'ob.show.name': "Nazwa",
+  'ob.show.state': "Stan", 'ob.show.bar': "Jasność jako pasek", 'ob.show.since': "od kiedy", 'ob.tap': "Dotknięcie", 'ob.tap.toggle': "Wł. / Wył.",
+  'ob.tap.more': "Okno z regulatorami", 'ob.tap.page': "Otwórz stronę", 'ob.tap.none': "nic", 'ob.hold': "Długie naciśnięcie", 'ob.hold.none': "nic",
+  'ob.hold.more': "Okno z regulatorami", 'ob.hold.details': "Okno Home Assistant (historia)", 'ob.ago.now': "przed chwilą",
+  'ob.ago.min': "od {n} min", 'ob.ago.h': "od {n} godz.", 'ob.ago.d': "od {n} dni", 'state.locked': 'Zamknięty', 'state.unlocked': 'Otwarty', 'ctl.position': "Pozycja", 'ctl.run': "Uruchom",
+  'ctl.close': "Zamknij", 'ctl.lock': "Zamknij zamek", 'ctl.unlock': "Otwórz zamek",
 };

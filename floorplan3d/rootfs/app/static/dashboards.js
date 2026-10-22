@@ -1,11 +1,13 @@
 /* The pages of the tab bar as dashboards an admin arranges (#484): puts together the own cards (cardsui.js), the board of every page
  * (pageboard.js: order, hidden cards, the edit mode), the windows to add and set a card (cardeditor.js), the bar's edit mode with own
  * pages (tabedit.js), the own pages themselves (pagecustom.js), the thermostat as a circle (thermostatui.js, #495) and the calendar card
- * (calcardui.js, #495). app.js only calls initDashboards and hands the result to the pages
+ * (calcardui.js, #495), the window with the controls of a button card (ctlwindow.js, #495). app.js only calls initDashboards and hands the result to the pages
  * and the tab bar. */
 import { initCards } from './cardsui.js';
 import { initThermostat } from './thermostatui.js';
 import { initCalendarCard } from './calcardui.js';
+import { initControlsWindow } from './ctlwindow.js';
+import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { initBoard } from './pageboard.js';
 import { initCardEditor } from './cardeditor.js';
 import { initTabEdit } from './tabedit.js';
@@ -16,7 +18,7 @@ import { roomSummary } from './roomtiles.js';
 /** ctx: $, t, lang(), settings(), save(), canEdit(), states(), entities(), areas(), nameOf(entity), stateText(entity),
  *  callService(entity, service, data), layout() (the building shown), placed(floor), areaEntities(room), isOn(entity), isOpen(entity),
  *  openingEntities(opening), openRoom(floorIndex, roomId), camImage(entity), openCamera(entity), builtin(key), tabsUi() (the tab bar,
- *  made after this) */
+ *  made after this), live() (livecontrols.js, made after this) */
 export function initDashboards(ctx) {
   const { $, t } = ctx;
   const bar = () => ctx.tabsUi();
@@ -39,11 +41,21 @@ export function initDashboards(ctx) {
     changed: () => bar().update() });
   /** the calendar card (#495): several calendars, a week / list / month, "＋ Termin" */
   const calendar = initCalendarCard({ t, lang: ctx.lang, callService: ctx.callService, changed: () => { board.refresh(bar().open()); editor.refresh(); } });
+  /** the window with the controls of a device: a tap or a long press on a button card (#495) */
+  const word = (e) => {                             // a state in words: the app's texts for it (open, locked, docked …), else as Home Assistant says it
+    const k = ctx.states()[e]?.state;
+    for (const key of [`dc.st.${k}`, `state.${k}`]) { const x = t(key); if (x !== key) return x; }
+    return ctx.stateText(e);
+  };
+  const controls = initControlsWindow({ t, states: ctx.states, nameOf: ctx.nameOf, word, callService: ctx.callService, thermo,
+    live: { lightControls: (ids) => ctx.live().lightControls(ids), detailsButton: (e) => ctx.live().detailsButton(e) } });
   const cards = initCards({
     t, lang: ctx.lang, states: ctx.states, settings: ctx.settings, nameOf: ctx.nameOf, stateText: ctx.stateText, callService: ctx.callService,
     camImage: ctx.camImage, openCamera: ctx.openCamera, room,
     openRoom: (id) => { const r = room(id); if (r) ctx.openRoom(r.fi, id); },
-    builtin: ctx.builtin, thermo, calendar,
+    builtin: ctx.builtin, thermo, calendar, controls: (e) => controls.open(e),
+    moreInfo: (e) => { if (!canMoreInfo()) return false; openMoreInfo(e); return true; },
+    showPage: (k) => bar().show(k), pages: () => bar().tabs().map((x) => ({ key: x.key, name: pageName(x.key) })),
     changed: () => { board.refresh(bar().open()); editor.refresh(); },
   });
   const board = initBoard({

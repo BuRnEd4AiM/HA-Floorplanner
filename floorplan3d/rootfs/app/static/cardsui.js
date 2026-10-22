@@ -2,7 +2,7 @@
  * thermostat, roller shutter, camera, calendar (calcardui.js, #495), several devices, room, text, a ready card of ☀ Heute). A history card asks the add-on for the
  * numbers (api/history, again after 5 minutes). Switching goes through live.callService like everywhere else. */
 import { TYPE_ICON, COLOR_HEX, cardEntities, tapService, valueOf, chartPaths, chartMany, seriesColor } from './cards.js';
-import { routineIcon } from './routines.js';
+import { initButtonCard } from './buttoncardui.js';
 
 const TOGGLE = new Set(['light', 'switch', 'input_boolean', 'fan', 'automation']);
 const ON = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only', 'unlocked', 'home']);
@@ -10,11 +10,11 @@ const ON = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'auto'
 /** ctx: t, lang(), states(), settings(), nameOf(entity), stateText(entity), callService(entity, service, data) (-> true when taken),
  *  camImage(entity) (an <img> renewed while shown), openCamera(entity), room(roomId) ({ name, floor, temp, lights, open, occupied } or
  *  null), openRoom(roomId), builtin(key) (a ready card of ☀ Heute, or null), changed() (a history arrived: draw the page again),
- *  thermo (thermostatui.js, #495), calendar (calcardui.js, #495) */
+ *  thermo (thermostatui.js, #495), calendar (calcardui.js, #495), controls(entity) (the window with the controls, ctlwindow.js, #495),
+ *  moreInfo(entity) (Home Assistant's own window: true when it opened), showPage(key), pages() ([{ key, name }]) */
 export function initCards(ctx) {
   const { t } = ctx;
   const history = new Map();                         // "entity|hours" -> { at, points, asking }
-  const flash = new Map();                           // card id -> 'ok' | 'bad' for a moment after a tap
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', (e) => { e.stopPropagation(); on(e); }); return b; };
   const st = (e) => ctx.states()[e];
@@ -48,13 +48,9 @@ export function initCards(ctx) {
     lab.append(cb, make('span'));
     return lab;
   }
-  async function tap(c) {
-    const svc = tapService(c.entity);
-    if (!svc) return;
-    const ok = await ctx.callService(c.entity, svc);
-    flash.set(c.id, ok ? 'ok' : 'bad'); ctx.changed();
-    setTimeout(() => { flash.delete(c.id); ctx.changed(); }, 2000);
-  }
+  /** the button card: its look, a tap and a long press (buttoncardui.js, #495) */
+  const button = initButtonCard({ t, states: ctx.states, name: (c) => nm(c), word, tapService, callService: ctx.callService, controls: ctx.controls,
+    moreInfo: ctx.moreInfo, showPage: ctx.showPage, pages: ctx.pages, changed: ctx.changed });
   function loadHistory(c, e = c.entity) {
     const key = `${e}|${c.hours}`, h = history.get(key);
     if (h && (h.asking || Date.now() - h.at < 300000)) return h;
@@ -153,14 +149,7 @@ export function initCards(ctx) {
     }
     const box = make('div', `tpCard ocCard oc-${c.type}`); box.dataset.card = c.id;
     if (!st(c.entity) && c.entity) { box.append(head(c), make('p', 'tpSub', t('ct.missing', { e: c.entity }))); return box; }
-    if (c.type === 'button') {
-      const f = flash.get(c.id);
-      const b = btn(`rtBtn ocTap${f ? ` ${f}` : ''}`, null, () => tap(c));
-      b.append(make('span', 'rtIcon', routineIcon(nm(c), c.entity)), make('b', 'rtName', nm(c)),
-        make('small', 'rtSub', f === 'ok' ? `✓ ${t('rt.started')}` : f === 'bad' ? t('rt.failed') : /^(scene|script|button|input_button)\./.test(c.entity) ? t(`rt.kind.${c.entity.split('.')[0]}`) : word(c.entity)));
-      box.classList.add('ocBare'); box.append(b);
-      return box;
-    }
+    if (c.type === 'button') { button.render(c, box); return box; }
     if (c.type !== 'text') box.append(head(c));
     if (c.type === 'switch') { const r = make('div', 'ocLine'); r.append(make('b', 'ocState', word(c.entity)), sw(c.entity)); box.append(r); }
     else if (c.type === 'value') { const v = make('div', 'ocBig ocValue', shown(c.entity)); v.style.color = c.color === 'blue' ? '' : COLOR_HEX[c.color]; box.append(v); }
@@ -180,7 +169,7 @@ export function initCards(ctx) {
   }
   /** what a card shows depends on: the states of its entities, its history, a pending target, a tap (it draws again when this changed) */
   const sig = (c) => JSON.stringify([c, cardEntities(c).map((e) => { const s = st(e); return s ? [s.state, s.brightness, s.position, s.ct, s.tt, s.hvac, s.rgb, s.unit] : null; }),
-    c.type === 'graph' ? cardEntities(c).map((e) => history.get(`${e}|${c.hours}`)?.points?.length ?? -1) : 0, c.type === 'thermostat' ? ctx.thermo.sig(c.entity) : 0, c.type === 'calendar' ? ctx.calendar.sig(c) : 0, flash.get(c.id),
+    c.type === 'graph' ? cardEntities(c).map((e) => history.get(`${e}|${c.hours}`)?.points?.length ?? -1) : 0, c.type === 'thermostat' ? ctx.thermo.sig(c.entity) : 0, c.type === 'calendar' ? ctx.calendar.sig(c) : 0, c.type === 'button' ? button.sig(c) : 0,
     c.type === 'room' ? ctx.room(c.room) : 0, c.type === 'builtin' ? Math.floor(Date.now() / 20000) : 0, imperial(), ctx.lang()]);   // a ready card: every 20 s
-  return { render, sig };
+  return { render, sig, buttonFields: button.fields };
 }

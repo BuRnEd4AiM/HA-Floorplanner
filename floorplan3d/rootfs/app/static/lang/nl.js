@@ -1577,4 +1577,13 @@ export default {
   'cal.needDay': "Kies een dag.", 'cal.needTime': "Kies een tijd.",
   'cal.failed': "Dat lukte niet. Neemt deze agenda nieuwe afspraken aan (bv. lokale agenda, Google, CalDAV)?", 'cal.color.blue': "Blauw",
   'cal.color.orange': "Oranje", 'cal.color.green': "Groen", 'cal.color.red': "Rood", 'cal.color.purple': "Paars", 'cal.color.grey': "Grijs",
+  'ob.icon': "Symbool", 'ob.iconAuto': "Auto", 'ob.color': "Kleur als aan", 'ob.lamp': "of de kleur van de lamp", 'ob.color.amber': "Amber",
+  'ob.color.orange': "Oranje", 'ob.color.red': "Rood", 'ob.color.purple': "Paars", 'ob.color.blue': "Blauw", 'ob.color.green': "Groen",
+  'ob.color.grey': "Grijs", 'ob.shape': "Vorm en grootte", 'ob.shape.tile': "▢ Tegel", 'ob.shape.round': "◯ Rond", 'ob.shape.pill': "▭ Pil",
+  'ob.shape.icon': "Alleen symbool", 'ob.show': "Tonen", 'ob.show.name': "Naam", 'ob.show.state': "Status", 'ob.show.bar': "Helderheid als balk",
+  'ob.show.since': "sinds wanneer", 'ob.tap': "Tikken", 'ob.tap.toggle': "Aan / Uit", 'ob.tap.more': "Venster met regelaars",
+  'ob.tap.page': "Pagina openen", 'ob.tap.none': "niets", 'ob.hold': "Lang drukken", 'ob.hold.none': "niets",
+  'ob.hold.more': "Venster met regelaars", 'ob.hold.details': "Home Assistant-venster (geschiedenis)", 'ob.ago.now': "zojuist",
+  'ob.ago.min': "sinds {n} min", 'ob.ago.h': "sinds {n} u", 'ob.ago.d': "sinds {n} dagen", 'state.locked': 'Vergrendeld', 'state.unlocked': 'Ontgrendeld', 'ctl.position': "Positie", 'ctl.run': "Starten",
+  'ctl.close': "Sluiten", 'ctl.lock': "Vergrendelen", 'ctl.unlock': "Ontgrendelen",
 };

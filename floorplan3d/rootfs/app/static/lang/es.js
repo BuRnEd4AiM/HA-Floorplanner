@@ -1592,4 +1592,13 @@ export default {
   'cal.save': "Añadir", 'cal.needTitle': "Escribe un título.", 'cal.needDay': "Elige un día.", 'cal.needTime': "Elige una hora.",
   'cal.failed': "No ha funcionado. ¿Acepta este calendario eventos nuevos (p. ej. calendario local, Google, CalDAV)?", 'cal.color.blue': "Azul",
   'cal.color.orange': "Naranja", 'cal.color.green': "Verde", 'cal.color.red': "Rojo", 'cal.color.purple': "Morado", 'cal.color.grey': "Gris",
+  'ob.icon': "Símbolo", 'ob.iconAuto': "Auto", 'ob.color': "Color al encender", 'ob.lamp': "o el color de la lámpara", 'ob.color.amber': "Ámbar",
+  'ob.color.orange': "Naranja", 'ob.color.red': "Rojo", 'ob.color.purple': "Morado", 'ob.color.blue': "Azul", 'ob.color.green': "Verde",
+  'ob.color.grey': "Gris", 'ob.shape': "Forma y tamaño", 'ob.shape.tile': "▢ Mosaico", 'ob.shape.round': "◯ Redondo", 'ob.shape.pill': "▭ Píldora",
+  'ob.shape.icon': "Solo símbolo", 'ob.show': "Mostrar", 'ob.show.name': "Nombre", 'ob.show.state': "Estado", 'ob.show.bar': "Brillo como barra",
+  'ob.show.since': "desde cuándo", 'ob.tap': "Tocar", 'ob.tap.toggle': "Encender / Apagar", 'ob.tap.more': "Ventana con controles",
+  'ob.tap.page': "Abrir una página", 'ob.tap.none': "nada", 'ob.hold': "Pulsación larga", 'ob.hold.none': "nada",
+  'ob.hold.more': "Ventana con controles", 'ob.hold.details': "Ventana de Home Assistant (historial)", 'ob.ago.now': "ahora mismo",
+  'ob.ago.min': "desde hace {n} min", 'ob.ago.h': "desde hace {n} h", 'ob.ago.d': "desde hace {n} días", 'state.locked': 'Bloqueado', 'state.unlocked': 'Desbloqueado', 'ctl.position': "Posición",
+  'ctl.run': "Iniciar", 'ctl.close': "Cerrar", 'ctl.lock': "Bloquear", 'ctl.unlock': "Desbloquear",
 };

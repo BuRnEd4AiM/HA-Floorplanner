@@ -1595,4 +1595,13 @@ export default {
   'cal.needTime': "Scegli un orario.",
   'cal.failed': "Non ha funzionato. Questo calendario accetta nuovi eventi (ad es. calendario locale, Google, CalDAV)?", 'cal.color.blue': "Blu",
   'cal.color.orange': "Arancione", 'cal.color.green': "Verde", 'cal.color.red': "Rosso", 'cal.color.purple': "Viola", 'cal.color.grey': "Grigio",
+  'ob.icon': "Simbolo", 'ob.iconAuto': "Auto", 'ob.color': "Colore quando acceso", 'ob.lamp': "o il colore della lampada", 'ob.color.amber': "Ambra",
+  'ob.color.orange': "Arancione", 'ob.color.red': "Rosso", 'ob.color.purple': "Viola", 'ob.color.blue': "Blu", 'ob.color.green': "Verde",
+  'ob.color.grey': "Grigio", 'ob.shape': "Forma e dimensione", 'ob.shape.tile': "▢ Riquadro", 'ob.shape.round': "◯ Rotondo",
+  'ob.shape.pill': "▭ Pillola", 'ob.shape.icon': "Solo simbolo", 'ob.show': "Mostra", 'ob.show.name': "Nome", 'ob.show.state': "Stato",
+  'ob.show.bar': "Luminosità come barra", 'ob.show.since': "da quando", 'ob.tap': "Tocco", 'ob.tap.toggle': "Acceso / Spento",
+  'ob.tap.more': "Finestra con controlli", 'ob.tap.page': "Apri una pagina", 'ob.tap.none': "niente", 'ob.hold': "Pressione lunga",
+  'ob.hold.none': "niente", 'ob.hold.more': "Finestra con controlli", 'ob.hold.details': "Finestra di Home Assistant (cronologia)",
+  'ob.ago.now': "proprio ora", 'ob.ago.min': "da {n} min", 'ob.ago.h': "da {n} h", 'ob.ago.d': "da {n} giorni", 'state.locked': 'Bloccato', 'state.unlocked': 'Sbloccato', 'ctl.position': "Posizione",
+  'ctl.run': "Avvia", 'ctl.close': "Chiudi", 'ctl.lock': "Blocca", 'ctl.unlock': "Sblocca",
 };
