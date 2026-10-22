@@ -4,6 +4,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.8.2] - 2026-10-22
+### Fixed
+- **Tablets slow since everything is in one program** (#494, the owner: "kann sein, dass irgendwie die Performance darunter gelitten hat"). Measured in the demo with sensors that change four times a second: the work per change went down from about 10 to 3 ms on ☀ Heute, from 7 to 1–2 ms on the other pages and from 8 to 6 ms on 🏠 Haus.
+  - A state from Home Assistant now draws **one** new frame of the 3D picture instead of keeping it at full speed for 15 seconds: a power sensor that reports every few seconds kept a tablet at 60 frames a second all day. Touching the picture, a door or roller shutter moving and the power flow still run smoothly.
+  - While a page of the tab bar lies over the house, the house (room tiles, labels, lamps, floor cards …) is no longer brought up to date with every change; it catches up when it is shown again. The warnings stay live.
+  - ☀ Heute draws only the card whose content changed (a new power reading: only *Strom jetzt*), and the grid of a page measures its cards all at once instead of one by one; nothing changed: nothing is measured at all.
+  - The devices of a floor are worked out once per change, not again for every room.
+
 ## [4.8.1] - 2026-10-22
 ### Fixed
 - **States in English in the device list** (#492, found while checking the demo): a robot vacuum said "docked", a presence sensor "on". The device list, the labels over the devices and the state lines now say "An der Station", "An" / "Aus", "zu Hause" / "unterwegs", a player's "läuft" / "Pause", a camera's "bereit" and an alarm panel's state in the language of the page; other states stay as Home Assistant says them.

@@ -40,6 +40,12 @@ check("today: the weather now (Regen, 12 °C) and five days of forecast from Hom
 check("today: the events of the calendars (Zahnarzt) and the waste calendar apart (Gelber Sack)",
       "Zahnarzt" in pgE.inner_text(".tdAgenda") and "Gelber Sack" in pgE.inner_text(".tdWaste") and "Gelber Sack" not in pgE.inner_text(".tdAgenda"), today)
 check("today: who is at home: Anna da, Max in Arbeit", "Anna" in pgE.inner_text(".tdPeople") and "Arbeit" in pgE.inner_text(".tdPeople"), pgE.inner_text(".tdPeople") if pgE.locator(".tdPeople").count() else "")
+pgE.evaluate("['.tdWeather', '.tdPeople'].forEach((q) => { document.querySelector(q).__kept = 1; })")
+urllib.request.urlopen(HA + "/_set?e=person.max&s=home").read(); pgE.wait_for_timeout(1500)
+kept = pgE.evaluate("['.tdWeather', '.tdPeople'].map((q) => document.querySelector(q)?.__kept === 1)")
+check("today (#494): a change draws only its card again (Max comes home: a new people card, the same weather card)",
+      kept == [True, False] and pgE.inner_text(".tdPeople").count("🏠") >= 2, (kept, pgE.inner_text(".tdPeople")))
+urllib.request.urlopen(HA + "/_set?e=person.max&s=Arbeit").read(); pgE.wait_for_timeout(800)
 rows = pgE.evaluate("[...document.querySelectorAll('.tdHouse [data-act]')].map((b) => b.dataset.act)")
 if "lights" in rows:
     pgE.click(".tdHouse [data-act=lights]"); pgE.wait_for_timeout(800)

@@ -12,7 +12,7 @@ import { energyBalance } from './energycalc.js';
  *  order an admin chose, own cards, #484) */
 export function initTodayPage(ctx) {
   const { t, el } = ctx;
-  let forecast = { at: 0, entity: '', rows: [] }, agenda = { at: 0, events: [], waste: '' }, clock = 0, drawn = '';
+  let forecast = { at: 0, entity: '', rows: [] }, agenda = { at: 0, events: [], waste: '' }, clock = 0;
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const lang = () => ctx.lang() || 'de';
   const card = (cls, title) => { const c = make('div', `tpCard ${cls}`); if (title) c.append(make('h3', 'peH', title)); return c; };
@@ -24,7 +24,7 @@ export function initTodayPage(ctx) {
     forecast = { at: Date.now(), entity, rows: forecast.entity === entity ? forecast.rows : [] };
     try {
       const r = await fetch(`api/forecast?entity=${encodeURIComponent(entity)}&type=daily`);
-      if (r.ok) { forecast.rows = (await r.json()).forecast || []; drawn = ''; draw(); }
+      if (r.ok) { forecast.rows = (await r.json()).forecast || []; draw(); }
     } catch { /* the weather stays without forecast */ }
   }
   async function loadAgenda() {
@@ -33,7 +33,7 @@ export function initTodayPage(ctx) {
     const span = agendaSpan(new Date());
     try {
       const r = await fetch(`api/agenda?start=${encodeURIComponent(isoLocal(span.start))}&end=${encodeURIComponent(isoLocal(span.end))}`);
-      if (r.ok) { const x = await r.json(); agenda = { at: agenda.at, events: x.events || [], waste: x.waste || '' }; drawn = ''; draw(); }
+      if (r.ok) { const x = await r.json(); agenda = { at: agenda.at, events: x.events || [], waste: x.waste || '' }; draw(); }
     } catch { /* no calendars */ }
   }
 
@@ -144,43 +144,43 @@ export function initTodayPage(ctx) {
     return c;
   }
 
-  /** the cards of the page in their natural order (a card that has nothing to show is left out): [{ key, el, width }] */
+  /** the cards of the page in their natural order: [{ key, sig (what it shows, as text), make (draws it; null: nothing to show), width }].
+   *  Only a card whose sig changed is drawn again (pageboard.js, #494): a power reading every second redraws the power card, not the page */
   function cards(now, only = null) {
-    const st = ctx.states(), wx = weatherEntity(ctx.settings(), st), names = ctx.names();
-    const days = () => agendaDays(agenda.events, now, agenda.waste);
-    const make1 = {
-      clock: () => clockCard(now),
-      weather: () => weatherCard(wx, now),
-      pinboard: () => pinCard(),
-      agenda: () => agendaCard(days()),
-      waste: () => wasteCard(days().waste),
-      people: () => peopleCard(people(st, names)),
-      house: () => houseCard(houseRows({ ...ctx.summary(), alarm: alarmPanel(st, names) })),
-      power: () => powerCard(),
+    const st = ctx.states(), wx = weatherEntity(ctx.settings(), st), names = ctx.names(), day = now.toDateString();
+    let d = null;
+    const days = () => d || (d = agendaDays(agenda.events, now, agenda.waste));
+    const rows = () => houseRows({ ...ctx.summary(), alarm: alarmPanel(st, names) });
+    const powerText = () => {
+      const bal = energyBalance(st, ctx.layout());
+      return [bal.prod, bal.load, bal.imp > 0 ? bal.imp : null].map((w) => (w == null ? null : fmtW(w))).concat(bal.battery?.level != null ? Math.round(bal.battery.level) : null);
+    };
+    const spec = {
+      clock: [() => [timeOf(now), day], () => clockCard(now)],
+      weather: [() => [wx, st[wx]?.state, st[wx]?.wx?.t, st[wx]?.wx?.tu, forecast.entity === wx ? forecast.rows : null, day], () => weatherCard(wx, now)],
+      pinboard: [() => [ctx.pinboard?.rev(), ctx.family?.()], () => pinCard()],
+      agenda: [() => [days().today, days().tomorrow], () => agendaCard(days())],
+      waste: [() => days().waste, () => wasteCard(days().waste)],
+      people: [() => people(st, names), () => peopleCard(people(st, names))],
+      house: [() => rows(), () => houseCard(rows())],
+      power: [powerText, () => powerCard()],
     };
     loadForecast(wx); loadAgenda(); ctx.pinboard?.load();
-    return (only ? [only] : Object.keys(make1)).map((key) => ({ key, el: make1[key]?.() || null, width: 1 }));
+    return (only ? [only] : Object.keys(spec)).filter((key) => spec[key])
+      .map((key) => ({ key, sig: JSON.stringify([lang(), spec[key][0]()]), make: spec[key][1], width: 1 }));
   }
-  /** the page (again only when what it shows changed; the clock each minute) */
+  /** the page: the cards whose content changed (a fresh grid when the page is opened); the clock each 20 s */
+  let grid = null;
   function draw(force = false) {
-    const now = new Date(), st = ctx.states(), wx = weatherEntity(ctx.settings(), st);
-    const names = ctx.names(), who = people(st, names), sum = ctx.summary();
-    const rows = houseRows({ ...sum, alarm: alarmPanel(st, names) });
-    const bal = energyBalance(st, ctx.layout());
-    const sig = JSON.stringify([timeOf(now), wx, st[wx]?.state, st[wx]?.wx?.t, forecast.rows.length, agenda.events.length, who, rows,
-      Math.round((bal.prod || 0) / 50), Math.round((bal.load || 0) / 50), bal.battery?.level, ctx.pinboard?.rev(), ctx.family?.()]);
-    if (!force && sig === drawn) return;
-    drawn = sig;
-    const grid = make('div', 'tdGrid');
-    el.replaceChildren(grid);
-    ctx.board.fill('today', grid, cards(now), { min: 340 });
+    if (force || !grid || !el.contains(grid)) { grid = make('div', 'tdGrid'); el.replaceChildren(grid); }
+    ctx.board.fill('today', grid, cards(new Date()), { min: 340 });
   }
   return {
     render: () => { draw(true); clearInterval(clock); clock = setInterval(() => draw(false), 20000); },
     update: () => draw(false),
     has: () => true,
-    reset: () => { clearInterval(clock); clock = 0; drawn = ''; },
+    reset: () => { clearInterval(clock); clock = 0; },
     /** a card of this page for another page (an own card "Fertige Karte", #484), null when it has nothing to show */
-    card: (key) => cards(new Date(), key)[0]?.el || null,
+    card: (key) => cards(new Date(), key)[0]?.make() || null,
   };
 }
