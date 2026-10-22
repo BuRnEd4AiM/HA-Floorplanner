@@ -8,7 +8,9 @@ choices ...), sent as the field `ctl` of each entity.
 
 Pure (no aiohttp, no Home Assistant): unit tests in tests/test_controls.py.
 """
+import hashlib
 import math
+import re
 
 HVAC_MODES = {"off", "heat", "cool", "heat_cool", "auto", "dry", "fan_only"}
 ON_OFF = ("turn_on", "turn_off", "toggle")
@@ -65,6 +67,26 @@ def _effect(v):
     return v if isinstance(v, str) and 0 < len(v) <= 64 else None
 
 
+STATION = re.compile(r"^(https?://|media-source://)[^\s\"'<>]{1,490}$")   # a radio station of ⚙ (#490): a stream or one of Home Assistant's media
+PLAYER = re.compile(r"^media_player\.[a-z0-9_]{1,200}$")
+MEDIA_PICTURE = re.compile(r"^/api/media_player_proxy/media_player\.[a-z0-9_]{1,200}\?[A-Za-z0-9=&_.%-]{0,400}$")
+
+
+def _station(v):
+    return v if isinstance(v, str) and STATION.match(v) else None
+
+
+def _music(v):
+    return v if v == "music" else None
+
+
+def _players(v):
+    """the players that join another one (#490): 1 to 20 media players, each once"""
+    if isinstance(v, list) and 0 < len(v) <= 20 and all(isinstance(x, str) and PLAYER.match(x) for x in v) and len(set(v)) == len(v):
+        return list(v)
+    return None
+
+
 # domain -> service -> (the values it may carry: name -> check, the values it must carry)
 SERVICES = {
     "light": {"turn_on": ({"brightness_pct": _pct, "rgb_color": _rgb, "color_temp_kelvin": _kelvin, "effect": _effect}, ()),
@@ -91,7 +113,11 @@ SERVICES = {
                                               "media_previous_track", "volume_up", "volume_down")},
                      "volume_set": ({"volume_level": _volume}, ("volume_level",)),
                      "volume_mute": ({"is_volume_muted": _flag}, ("is_volume_muted",)),
-                     "select_source": ({"source": _text}, ("source",))},
+                     "select_source": ({"source": _text}, ("source",)),
+                     # 🎵 Musik & TV (#490): a radio station of ⚙, rooms together and apart again
+                     "play_media": ({"media_content_id": _station, "media_content_type": _music}, ("media_content_id", "media_content_type")),
+                     "join": ({"group_members": _players}, ("group_members",)),
+                     "unjoin": ({}, ())},
     "vacuum": {**{s: ({}, ()) for s in ("start", "pause", "stop", "return_to_base", "locate")},
                "set_fan_speed": ({"fan_speed": _text}, ("fan_speed",))},
     "alarm_control_panel": {s: ({"code": _code}, ()) for s in ("alarm_disarm", "alarm_arm_home", "alarm_arm_away", "alarm_arm_night",
@@ -142,6 +168,22 @@ def _int(v):
     return int(v) if _num(v) else None
 
 
+def picture_key(v):
+    """what the page needs for the picture of a player (#490): Home Assistant's own (through the add-on: a short key that changes with
+    the picture), a picture on the internet (its address), None"""
+    if isinstance(v, str) and MEDIA_PICTURE.match(v):
+        return "p" + hashlib.sha1(v.encode()).hexdigest()[:12]
+    if isinstance(v, str) and v.startswith("https://") and len(v) <= 500 and not re.search(r"[\s\"'<>]", v):
+        return v
+    return None
+
+
+def _group(v):
+    """the players playing together with this one (#490), itself among them; None when it plays alone or cannot group"""
+    g = [x for x in v if isinstance(x, str) and PLAYER.match(x)][:20] if isinstance(v, list) else []
+    return g if len(g) > 1 else None
+
+
 def extras(st):
     """the attributes of state `st` the live card needs for its controls, or None for a domain without any (sent as `ctl`)"""
     eid = st.get("entity_id", "")
@@ -150,7 +192,8 @@ def extras(st):
         vol = a.get("volume_level")
         out = {"vol": round(vol * 100) if _num(vol) and 0 <= vol <= 1 else None, "muted": _flag(a.get("is_volume_muted")),
                "title": _clip(a.get("media_title")), "artist": _clip(a.get("media_artist") or a.get("media_series_title")),
-               "sources": _texts(a.get("source_list")), "source": _text(a.get("source")), "sf": _int(a.get("supported_features"))}
+               "sources": _texts(a.get("source_list")), "source": _text(a.get("source")), "sf": _int(a.get("supported_features")),
+               "pic": picture_key(a.get("entity_picture")), "grp": _group(a.get("group_members"))}
     elif domain == "vacuum":
         out = {"speeds": _texts(a.get("fan_speed_list")), "speed": _text(a.get("fan_speed")), "sf": _int(a.get("supported_features"))}
     elif domain == "fan":

@@ -6,7 +6,7 @@ import math
 import re
 from datetime import datetime
 
-TABS = ("house", "today", "energy", "climate", "cameras", "routines", "family")   # the same as server.TABS (static/tabs.js)
+TABS = ("house", "today", "energy", "climate", "cameras", "media", "household", "routines", "family")   # the same as server.TABS (static/tabs.js)
 CUSTOM_ID = re.compile(r"^p_[a-z0-9]{3,16}$")
 OWN_ID = re.compile(r"^c_[a-z0-9]{3,16}$")
 ENTITY = re.compile(r"^[a-z_]+\.[a-z0-9_]+$")

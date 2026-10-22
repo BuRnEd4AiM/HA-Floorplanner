@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.8.0] - 2026-10-22
+### Added
+- **🎵 Musik & TV** (#490, package 3 of 3 of the owner's wish "kannst du die anderen reiter auch machen", picture `docs/ideen-4.3/7-musik.jpg`): a card per player with its room, what plays, its picture (through the add-on: `api/media/<player>/picture`), ⏮ ⏯ ⏭, on / off, source and volume; **Alles stopp**; **Räume zusammen** (`media_player.join` / `unjoin`, for players that can); **radio stations** as buttons (⚙ → *🗂 Reiter unten*: a name and a stream or `media-source://` address; a tap asks on which player, `media_player.play_media`).
+- **🧺 Haushalt** (#490, `8-haushalt.jpg`): washing machine, dryer and dishwasher found by their names (or chosen in ⚙): their own state, program, end time and progress, or, with only a power plug, *läuft seit* / *fertig seit* from Home Assistant's history (the add-on decides: `household.py`, `api/household`); **✓ Ausgeräumt** for every screen and a number on the tab while one is done; the robot vacuums; the **shopping list** of Home Assistant (`todo.*` through `api/todo`: tick off, add, clear; anybody may); the waste card of ☀ Heute.
+- Tabs can carry a number (the household's machines that are done).
+
 ## [4.7.0] - 2026-10-21
 ### Added
 - **Full screen kept on for a user, only a code ends it** (#487, the owner's wish: "dass der Benutzer den Vollbildmodus sozusagen dauerhaft anhat und ihn selbst nicht deaktivieren kann … nur mit einem Code"). Users dialog → the user's ⚙ → *🔒 Gesperrt* → **Vollbild verlassen**; below the users the **code for the full screen** (4 to 8 digits, one for every screen, kept hashed by the add-on in `fullscreen.json`, `api/fullscreen`). That screen shows a sheet *Tippen für Vollbild* until it is in full screen; in full screen the button at the right reads 🔒 *Vollbild beenden* and opens a keypad: a wrong code is refused (5 wrong: everybody waits 5 minutes), the right one ends it until ⛶ is tapped again, the page is reloaded or nobody touches the screen for 10 minutes. Leaving another way (Esc, a swipe, the back key) brings the sheet back at once; Chrome also holds Esc. A browser that refuses full screen is never locked out. Works best together with screen pinning (Android), Guided Access (iPad) or a kiosk browser, since no web page can stop the home button. The demo shows it with `?vollbild=1` (code 1234).

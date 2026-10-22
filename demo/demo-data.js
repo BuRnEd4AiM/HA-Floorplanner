@@ -240,6 +240,7 @@ const neighbor = {
 const layouts = { main: layout, nachbar: neighbor };
 const houses = [{ id: 'main', name: 'Demo-Haus' }, { id: 'nachbar', name: 'Nachbarhaus' }];
 
+const SPEAKER = 1 | 4 | 8 | 16 | 32 | 128 | 256 | 512 | 2048 | 16384 | 524288;   // what the demo's speakers can do (#490: play a station, play together)
 const entities = {
   'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70, rgb: [255, 140, 110] },
   'light.stehlampe':         { name: 'Stehlampe',              state: 'on' },
@@ -264,7 +265,17 @@ const entities = {
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
   'switch.flur':             { name: 'Flur Schalter',          state: 'off' },
   'media_player.tv':         { name: 'Fernseher',              state: 'playing', app: 'Netflix', ctl: { vol: 25, muted: false, title: 'Die Serie – Folge 3', sources: ['HDMI 1', 'HDMI 2', 'Netflix', 'YouTube'], source: 'Netflix' } },
-  'media_player.sonos_wz':   { name: 'Lautsprecher Wohnzimmer', state: 'playing', ctl: { vol: 35, muted: false, title: 'Sommerregen', artist: 'Die Demo-Band', sources: ['Radio', 'Spotify', 'Line-in'], source: 'Spotify' } },
+  'media_player.sonos_wz':   { name: 'Lautsprecher Wohnzimmer', state: 'playing', ctl: { vol: 35, muted: false, title: 'Sommerregen', artist: 'Die Demo-Band', sources: ['Radio', 'Spotify', 'Line-in'], source: 'Spotify', sf: SPEAKER } },
+  // 🎵 Musik & TV (#490): a kitchen radio for the stations, a speaker in the children's room; the speakers can play together
+  'media_player.kueche_radio': { name: 'Küchenradio',          state: 'off', ctl: { vol: 30, muted: false, sf: SPEAKER } },
+  'media_player.kinderzimmer': { name: 'Lautsprecher Kinderzimmer', state: 'paused', ctl: { vol: 18, muted: false, title: 'Folge 214', artist: 'Die drei ???', sf: SPEAKER } },
+  // 🧺 Haushalt (#490): the washing machine tells its state itself (like Home Connect), dryer and dishwasher only have a plug that measures
+  'sensor.waschmaschine_status': { name: 'Waschmaschine Status', state: 'run' },
+  'sensor.waschmaschine_programm': { name: 'Waschmaschine Programm', state: 'Baumwolle 40°' },
+  'sensor.waschmaschine_leistung': { name: 'Waschmaschine Leistung', state: '412', unit: 'W', dc: 'power' },
+  'sensor.trockner_leistung': { name: 'Trockner Leistung',     state: '0.8', unit: 'W', dc: 'power' },
+  'sensor.spuelmaschine_leistung': { name: 'Spülmaschine Leistung', state: '1.2', unit: 'W', dc: 'power' },
+  'todo.einkaufsliste':      { name: 'Einkaufsliste',          state: '4' },
   'fan.ventilator_wz':       { name: 'Standventilator',        state: 'on', ctl: { pct: 67, step: 33.33, osc: true, presets: ['Normal', 'Natur', 'Nacht'], preset: 'Normal' } },
   'vacuum.robo':             { name: 'Saugroboter',            state: 'docked', bat: 92, ctl: { speeds: ['Leise', 'Standard', 'Stark', 'Turbo'], speed: 'Standard' } },
   'alarm_control_panel.haus': { name: 'Alarmanlage',           state: 'disarmed', ctl: { code: 'number', codeArm: false } },
@@ -369,6 +380,8 @@ let settings = {
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
   favorites: ['scene.wz_gemuetlich', 'scene.wz_aus', 'light.stehlampe', 'light.kueche'],   // 4.2: favourites and light groups (#471)
   lightGroups: [{ id: 'g_wohnen', name: 'Wohnen', rooms: ['r1', 'r2'] }, { id: 'g_oben', name: 'Oben', rooms: ['q1', 'q2'] }, { id: 'g_keller', name: 'Keller', rooms: ['k1', 'k2', 'k3'] }],
+  radioStations: [{ name: 'SWR3', url: 'https://radio.example/swr3.mp3' }, { name: 'Bayern 3', url: 'https://radio.example/bayern3.mp3' },   // 4.8: 🎵 (#490)
+    { name: '1LIVE', url: 'https://radio.example/1live.mp3' }, { name: 'Deutschlandfunk', url: 'https://radio.example/dlf.mp3' }, { name: 'Klassik Radio', url: 'https://radio.example/klassik.mp3' }],
   routines: [], routineLeave: '', routineNight: 'scene.gute_nacht',   // 4.5: ▶ Abläufe shows every scene and script, "Gute Nacht" then starts the night scene (#483)
 };
 // 4.5 (#483): the page 👨‍👩‍👧 Familie: the people as the add-on finds them (since when, the phone's battery; no pictures: the letters) and the pinboard
@@ -385,7 +398,21 @@ const pinboard = [
 ];
 
 const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
-let fullCode = '1234';                                  // the code that ends a kept full screen (#487), kept only in this tab
+let fullCode = '1234';
+// 🧺 Haushalt (#490): the washing machine runs (started 48 minutes ago, 42 to go), the dryer ran yesterday, the dishwasher is done
+const t0 = Date.now(), hhAck = {};
+const shopping = [{ uid: 'a1', summary: 'Milch', done: false }, { uid: 'a2', summary: 'Brot', done: false }, { uid: 'a3', summary: 'Kaffee', done: true },
+  { uid: 'a4', summary: 'Katzenfutter', done: false }];
+function demoAppliances() {
+  const iso = (ms) => new Date(ms).toISOString(), y = new Date(t0); y.setDate(y.getDate() - 1); y.setHours(19, 40, 0, 0);
+  const dishEnd = t0 - 40 * 60000, washEnd = t0 + 42 * 60000;
+  return [
+    Date.now() < washEnd ? { kind: 'washer', phase: 'running', since: iso(t0 - 48 * 60000), endsAt: iso(washEnd), progress: null, program: 'Baumwolle 40°', state: 'run', power: 412 }
+      : { kind: 'washer', phase: hhAck.washer > washEnd ? 'off' : 'done', since: iso(washEnd), endsAt: null, progress: null, program: 'Baumwolle 40°', state: 'finished', power: 1 },
+    { kind: 'dryer', phase: 'off', since: iso(y.getTime()), endsAt: null, progress: null, program: null, state: null, power: 1 },
+    { kind: 'dishwasher', phase: hhAck.dishwasher > dishEnd ? 'off' : 'done', since: iso(dishEnd), endsAt: null, progress: null, program: null, state: null, power: 1 },
+  ];
+}                                  // the code that ends a kept full screen (#487), kept only in this tab
 // the holiday alarm (#456) in the demo: set up with the code 1234; armed for 25 s, a "burglar" opens the office door (the whole flow can be seen)
 const guard = { cfg: { sensors: ['binary_sensor.tuer_buero', 'binary_sensor.fenster_kueche', 'binary_sensor.fenster_wohnzimmer'], offline: true, delay: 20, actions: [],
   notify: true, report: true, code: '1234' }, st: { phase: 'off', since: 0, due: 0, by: '', what: null }, armedAt: 0 };
@@ -556,6 +583,20 @@ export function installDemoBackend() {
       return json({ notes: pinboard, canSend: false });
     }
     // ?vollbild=1: this screen as a tablet whose full screen is kept on (#487): only the code (1234 in the demo) ends it
+    if (path === 'api/household') return json({ appliances: demoAppliances() });
+    if (path === 'api/household/ack' && method === 'POST') { hhAck[JSON.parse(init.body || '{}').kind] = Date.now(); return json({ appliances: demoAppliances() }); }
+    if (path === 'api/todo') {                              // the shopping list (#490), kept only in this tab
+      if (method === 'POST') {
+        const b = JSON.parse(init.body || '{}'), it = shopping.find((x) => x.uid === b.uid);
+        if (b.action === 'add' && String(b.item || '').trim()) shopping.push({ uid: `n${Date.now()}`, summary: String(b.item).trim().slice(0, 200), done: false });
+        if (it && (b.action === 'done' || b.action === 'undo')) it.done = b.action === 'done';
+        if (b.action === 'clear') shopping.splice(0, shopping.length, ...shopping.filter((x) => !x.done));
+        entities['todo.einkaufsliste'].state = String(shopping.filter((x) => !x.done).length);
+      }
+      return json({ lists: [{ entity: 'todo.einkaufsliste', name: 'Einkaufsliste' }], entity: 'todo.einkaufsliste',
+        items: [...shopping.filter((x) => !x.done), ...shopping.filter((x) => x.done)], ok: true });
+    }
+    if (path.startsWith('api/media/')) return json({ error: 'no picture' }, 404);   // the demo's players have no pictures: the ♪ shows
     if (path === 'api/me') return json({ user: 'demo', canEdit: true, room: null, view: 'all', locks: new URLSearchParams(location.search).has('vollbild') ? ['fullscreen'] : [] });
     if (path === 'api/fullscreen') {
       if (method === 'PUT') {
@@ -626,9 +667,24 @@ export function installDemoBackend() {
       const c = e.ctl || (e.ctl = {});                          // #406: music, vacuum, fan, alarm, choice list, presets
       if (id.startsWith('media_player.') && service === 'turn_on') e.state = 'paused';
       if (service === 'media_play_pause') e.state = e.state === 'playing' ? 'paused' : 'playing';
+      if (service === 'media_pause') e.state = 'paused';                // "Alles stopp" (#490)
+      if (service === 'media_stop') e.state = 'idle';
       if (service === 'media_next_track' || service === 'media_previous_track') {
         const songs = ['Sommerregen', 'Abendlicht', 'Nordwind', 'Kaffee am Morgen'], i = songs.indexOf(c.title);
         c.title = songs[(Math.max(0, i) + (service === 'media_next_track' ? 1 : songs.length - 1)) % songs.length]; e.state = 'playing';
+      }
+      if (service === 'play_media') {                       // a radio station of ⚙ (#490)
+        const st = (settings.radioStations || []).find((x) => x.url === data.media_content_id);
+        e.state = 'playing'; c.title = st?.name || 'Radio'; c.artist = '';
+      }
+      if (service === 'join') {                             // rooms together (#490): the others play what the leader plays
+        const grp = [id, ...data.group_members];
+        grp.forEach((m) => { const x = entities[m]; if (!x) return; x.ctl = { ...(x.ctl || {}), grp }; if (m !== id) { x.state = e.state; x.ctl.title = c.title; x.ctl.artist = c.artist; } });
+      }
+      if (service === 'unjoin' && c.grp) {
+        const rest = c.grp.filter((m) => m !== id);
+        rest.forEach((m) => { if (entities[m]?.ctl) entities[m].ctl.grp = rest.length > 1 ? rest : null; });
+        c.grp = null; e.state = 'paused';
       }
       if (service === 'volume_set') c.vol = Math.round(data.volume_level * 100);
       if (service === 'volume_mute') c.muted = data.is_volume_muted;

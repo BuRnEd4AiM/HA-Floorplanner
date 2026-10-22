@@ -14,6 +14,8 @@ ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_pr
 NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["ha_entity", "notify.a,notify.b", message] through notify.send_message (#460), ["callmebot", phone, text, apikey] through /_callmebot
 STATS_ASKED = []   # the statistics the add-on asked for (#479): [ids, period]
 EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes[, platform][, device]}}, {} takes them away; with "platform" or "device" also in the entity registry (#460, #483: a phone and its battery)
+TODO = {}          # #490: the to-do lists: {entity: [{"uid", "summary", "status"}]}, POST /_todo; changed by todo.add_item / update_item / remove_completed_items
+HIST = {}          # #490: the history of some entities (a machine's power): {entity: [[iso time, state]]}, POST /_hist; others get the hourly numbers
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
 def state_of(e):
@@ -47,6 +49,15 @@ async def service(r):
         rows = [{"datetime": (day0 + dt.timedelta(days=i)).isoformat(), "condition": ["sunny", "rainy", "cloudy", "partlycloudy", "snowy"][i % 5],
                  "temperature": 14 - i, "templow": 5 - i, "precipitation": i * 1.5, "precipitation_probability": i * 20} for i in range(5)]
         return web.json_response({"changed_states": [], "service_response": {e: {"forecast": rows}}})
+    if dom == "todo" and e in TODO:   # #490: the shopping list
+        items = TODO[e]
+        CALL_DATA.append([svc, e, {k: v for k, v in body.items() if k != "entity_id"}])
+        if svc == "add_item": items.append({"uid": f"u{len(items) + 1}_{len(CALLS)}", "summary": body["item"], "status": "needs_action"})
+        if svc == "update_item":
+            for it in items:
+                if it["uid"] == body["item"]: it["status"] = body["status"]
+        if svc == "remove_completed_items": TODO[e] = [it for it in items if it["status"] != "completed"]
+        return web.json_response([])
     if dom == "notify":           # #414: a message of the add-on; #460: notify.send_message to notify entities
         NOTIFIED.append(["ha_entity", ",".join(e), body.get("message")] if svc == "send_message" and isinstance(e, list) else ["ha", svc, body.get("message")])
         return web.json_response([])
@@ -56,7 +67,8 @@ async def service(r):
         x, a = EXTRA[e], EXTRA[e].setdefault("attributes", {})
         CALL_DATA.append([svc, e, {k: v for k, v in body.items() if k != "entity_id"}])
         flips = {"media_play_pause": "paused" if x["state"] == "playing" else "playing", "start": "cleaning", "pause": "paused", "return_to_base": "returning",
-                 "alarm_arm_home": "armed_home", "alarm_arm_away": "armed_away", "turn_on": "on", "turn_off": "off"}
+                 "alarm_arm_home": "armed_home", "alarm_arm_away": "armed_away", "turn_on": "on", "turn_off": "off",
+                 "play_media": "playing", "media_pause": "paused"}
         if svc in flips: x["state"] = flips[svc]
         if svc == "toggle": x["state"] = "off" if x["state"] == "on" else "on"      # a favourite (#471)
         if svc == "alarm_disarm":
@@ -115,6 +127,10 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
         if m.get("type") == "subscribe_events":
             (SUBS if m.get("event_type", "state_changed") == "state_changed" else REG_SUBS).append((ws, m["id"]))
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": None})
+        elif m.get("type") == "todo/item/list":     # #490: the items of a to-do list
+            ok = m.get("entity_id") in TODO
+            await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": {"items": TODO.get(m.get("entity_id"), [])} if ok else None,
+                                **({} if ok else {"error": {"code": "not_found"}})})
         elif m.get("type") == "get_states":         # the security view recorder starts with all states
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": [state_of(e) for e in STATE]})
         elif m.get("type") == "config/entity_registry/list":    # the watch for renamed entities (and the devices of the energy meters, #407)
@@ -174,6 +190,9 @@ HISTORY_ASKED = []    # #484: the histories the add-on asked for: [entity, start
 async def history(r):             # #484: Home Assistant's history of one entity (a card "Verlauf"): a value every hour, 10 to 20
     import datetime as dt
     e = r.query.get("filter_entity_id", ""); HISTORY_ASKED.append([e, r.match_info["start"]])
+    if any(x in HIST for x in e.split(",")):         # #490: several entities, those set by the test as they were set
+        return web.json_response([[{"entity_id": x, "state": HIST[x][0][1], "last_changed": HIST[x][0][0]}] + [{"state": v, "last_changed": t} for t, v in HIST[x][1:]]
+                                  for x in e.split(",") if x in HIST])
     start = dt.datetime.fromisoformat(r.match_info["start"].replace(" ", "+").replace("Z", "+00:00"))
     now = dt.datetime.now(dt.timezone.utc)
     rows, t, i = [], start, 0
@@ -182,6 +201,9 @@ async def history(r):             # #484: Home Assistant's history of one entity
     if rows: rows[0]["entity_id"] = e
     return web.json_response([rows] if rows else [])
 async def history_asked(r): return web.json_response(HISTORY_ASKED)
+async def set_todo(r): TODO.clear(); TODO.update(await r.json()); return web.json_response(TODO)
+async def set_hist(r): HIST.clear(); HIST.update(await r.json()); return web.json_response(HIST)
+async def media_proxy(r): return web.Response(body=PNG, content_type="image/png")   # #490: the picture of what a player plays
 PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000" "1f15c4890000000d49444154789c6360f8ffff3f0005fe02fea75a3c260000000049454e44ae426082")
 async def in_two(r, body, ctype):
     """an answer in two pieces with a pause between them, as pictures and video pieces come through the Supervisor (#385)"""
@@ -244,5 +266,6 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
                 web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_stats", stats_asked),
                 web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),
-                web.get("/history/period/{start}", history), web.get("/_history", history_asked)])
+                web.get("/history/period/{start}", history), web.get("/_history", history_asked),
+                web.post("/_todo", set_todo), web.post("/_hist", set_hist), web.get("/api/media_player_proxy/{e}", media_proxy)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

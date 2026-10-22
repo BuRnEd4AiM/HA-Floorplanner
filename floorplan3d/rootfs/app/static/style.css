@@ -1535,3 +1535,69 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .ocTextHead { margin: 0; font-size: 20px; text-transform: none; letter-spacing: normal; color: var(--text); }
 .ocText { margin: 0; font-size: 16px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
 .cePreviewCard { pointer-events: none; }
+/* 🎵 Musik & TV (#490, pagemedia.js): a card per player with its picture, buttons and volume, the radio stations, the small windows */
+#tabBar button .ti { position: relative; }
+#tabBar .tbBadge { position: absolute; top: -6px; right: -10px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: #e5484d; color: #fff;
+  font-size: 11px; font-weight: 700; line-height: 17px; text-align: center; }
+.mpCard { display: flex; gap: 14px; align-items: flex-start; }
+.mpCard.off { opacity: .8; }
+.mpArt { position: relative; flex: none; width: 96px; height: 96px; border-radius: 14px; overflow: hidden; display: grid; place-items: center; font-size: 40px; color: rgba(255,255,255,.85); }
+.mpArt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mpArt.t0 { background: linear-gradient(135deg, #f7a24b, #e8564f); } .mpArt.t1 { background: linear-gradient(135deg, #3fbf9a, #2b7fc7); }
+.mpArt.t2 { background: linear-gradient(135deg, #9a6ad6, #4fb3e8); } .mpArt.t3 { background: linear-gradient(135deg, #e86fa0, #8a5ad6); }
+.mpArt.t4 { background: linear-gradient(135deg, #5b6b82, #2c3a4f); }
+.mpBody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.mpWhere { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mpTitle { font-size: 20px; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.mpSub { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.mpGroup { font-size: 12.5px; color: var(--accent); }
+.mpBtns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; align-items: center; }
+.mpBtn { min-width: 48px; min-height: 44px; padding: 0 12px; border-radius: 12px; font-size: 17px; }
+.mpBtn[data-svc^=media_] { font-size: 22px; line-height: 1; }
+.mpBtn.main { background: var(--accent); border-color: var(--accent); color: var(--accent-text); min-width: 60px; }
+.mpSource { min-height: 44px; max-width: 180px; border-radius: 12px; }
+.mpVol { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.mpMute { flex: none; min-width: 40px; min-height: 36px; padding: 0 8px; border-radius: 10px; background: transparent; border-color: transparent; font-size: 18px; text-align: center; }
+.mpMute.on { color: #ffb347; }
+.mpRange { flex: 1; min-width: 80px; accent-color: var(--accent); }
+.mpVal { flex: none; min-width: 44px; text-align: right; font-weight: 700; }
+.mpStationRow { display: flex; flex-wrap: wrap; gap: 10px; }
+.mpStation { min-height: 46px; padding: 0 16px; border-radius: 12px; font-weight: 700; }
+.mpDlg { width: min(520px, calc(100vw - 32px)); padding: 18px 20px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); color: var(--text); }
+.mpDlg::backdrop { background: rgba(0, 0, 0, .55); }
+.mpPicks { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; max-height: 55vh; overflow-y: auto; }
+.mpPick, .mpTick { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; border-radius: 12px; text-align: left; font: inherit;
+  border: 1px solid var(--line); background: var(--panel2, transparent); color: var(--text); }
+.mpTick { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; cursor: pointer; }
+.mpTick input { grid-row: span 2; align-self: center; width: 20px; height: 20px; }
+.mpStationEdit { display: grid; grid-template-columns: minmax(90px, 1fr) 2fr auto; gap: 6px; }
+@media (max-width: 760px) { .mpArt { width: 72px; height: 72px; font-size: 30px; } .mpTitle { font-size: 18px; } }
+/* 🧺 Haushalt (#490, pagehousehold.js): the machines, the robot vacuums, the shopping list */
+.hhCard { display: flex; flex-direction: column; gap: 10px; }
+.hhTop { display: flex; align-items: flex-start; gap: 12px; }
+.hhIcon { flex: none; font-size: 34px; line-height: 1; }
+.hhTxt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hhName { font-size: 18px; }
+.hhRight { margin-left: auto; font-size: 20px; font-weight: 800; white-space: nowrap; }
+.hh-off .hhRight { font-size: 15px; font-weight: 600; color: var(--muted); }
+.hhBadge { margin-left: auto; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); }
+.hhBadge.done { color: #7ee2a8; background: rgba(46, 160, 67, .18); box-shadow: inset 0 0 0 1px rgba(46, 160, 67, .6); }
+.hhBadge.running { color: var(--text); background: color-mix(in srgb, var(--accent) 18%, transparent); box-shadow: inset 0 0 0 1px var(--accent); }
+.hhBadge.error { color: #ffb3a8; background: rgba(229, 72, 77, .18); box-shadow: inset 0 0 0 1px rgba(229, 72, 77, .6); }
+.hh-done { border-color: rgba(46, 160, 67, .6); }
+.hhBar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.hhBar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+.hhAck, .hhClear { align-self: flex-start; }
+.hhBtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.hhTodo { display: flex; flex-direction: column; gap: 6px; }
+.hhTodoHead { display: flex; align-items: center; gap: 10px; }
+.hhTodoHead .peH { margin: 0; }
+.hhList { margin-left: auto; max-width: 220px; }
+.hhItems { display: flex; flex-direction: column; }
+.hhItem { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 4px 2px; border-bottom: 1px solid var(--line); font-size: 17px; cursor: pointer; }
+.hhItem input { width: 22px; height: 22px; flex: none; }
+.hhItem.done span { text-decoration: line-through; color: var(--muted); }
+.hhAdd input { width: 100%; min-height: 44px; font-size: 16px; }
+.hhNote { margin: 0; color: #ffb3a8; font-weight: 600; }
+.hhPref { display: grid; grid-template-columns: 1fr; gap: 4px; margin: 8px 0; }
+.hhPref label { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; color: var(--muted); }

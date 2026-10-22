@@ -1,6 +1,6 @@
 /* Tabs (#479): a bar at the bottom of the live view so the add-on can be the only dashboard of a house (the owner's wish, docs/PLAN-4.3.md).
  * 🏠 is the house (the 3D picture as always), the other tabs are pages over it; more come step by step (4.3: the cameras, 4.4: today and
- * the energy, 4.5: the climate, the routines and the family). Which tabs a user
+ * the energy, 4.5: the climate, the routines and the family, 4.8: music & TV and the household). Which tabs a user
  * sees and which one a screen starts with is set per user in the users dialog (settings.userTabs, mirrored to users.json). Edit mode, the
  * dashboard card and a screen with only one tab have no bar. Pure rules (unit test: tests/tabs.test.mjs); tabsui.js draws the bar. */
 
@@ -11,6 +11,8 @@ export const TABS = [
   ['energy', '⚡'],
   ['climate', '🌡️'],
   ['cameras', '📷'],
+  ['media', '🎵'],
+  ['household', '🧺'],
   ['routines', '▶️'],
   ['family', '👨‍👩‍👧'],
 ];
@@ -21,8 +23,8 @@ export const CUSTOM_ID = /^p_[a-z0-9]{3,16}$/;
 export const MAX_CUSTOM = 8;
 export const isTabKey = (k) => typeof k === 'string' && (TAB_KEYS.includes(k) || CUSTOM_ID.test(k));
 /** a lock of the users dialog (userlocks.js) that takes a tab away as well: no camera page for a user who may not see the cameras, no
- *  energy page for one who may not see the energy, no climate and no routines for one who may not switch (#483) */
-export const TAB_LOCK = { cameras: 'cameras', energy: 'energy', climate: 'control', routines: 'control' };
+ *  energy page for one who may not see the energy, no climate, no routines and no music for one who may not switch (#483, #490) */
+export const TAB_LOCK = { cameras: 'cameras', energy: 'energy', climate: 'control', routines: 'control', media: 'control' };
 
 /** one user's entry { hide: [tab], start: tab } with only known tabs (built-in in the order of TABS, then own pages); the house can
  *  never be hidden; null when it says nothing */
