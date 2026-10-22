@@ -16,6 +16,7 @@ MAX_CUSTOM = 8
 MAX_ORDER = 120
 MAX_OWN = 40
 MAX_ENTITIES = 12
+MAX_SERIES = 6           # sensors of one history card (static/cards.js, #495)
 
 CARD_TYPES = ("button", "switch", "value", "graph", "light", "thermostat", "cover", "camera", "entities", "room", "text", "builtin")
 TYPE_DOMAINS = {
@@ -31,6 +32,7 @@ TYPE_DOMAINS = {
 BUILTINS = ("today:clock", "today:weather", "today:agenda", "today:waste", "today:people", "today:house", "today:power", "today:pinboard")
 COLORS = ("blue", "orange", "green", "red")
 HOURS = (6, 24, 168, 720)
+SIZES = ("big", "small")   # a thermostat card, a built-in card that can be small (static/thermostat.js, #495)
 
 
 def is_tab_key(k) -> bool:
@@ -88,8 +90,16 @@ def clean_card(c):
         out["entity"] = c["entity"]
     if kind == "graph":
         out["hours"] = c["hours"] if c.get("hours") in HOURS and not isinstance(c.get("hours"), bool) else 24
+        more = []
+        for e in c.get("more") if isinstance(c.get("more"), list) else []:
+            if e != out["entity"] and e not in more and fits_type("graph", e):
+                more.append(e)
+        if more:
+            out["more"] = more[:MAX_SERIES - 1]
     if kind in ("graph", "value"):
         out["color"] = c["color"] if c.get("color") in COLORS else "blue"
+    if kind == "thermostat":
+        out["size"] = c["size"] if c.get("size") in SIZES else "big"
     if kind == "entities":
         ents = []
         for e in c.get("entities") if isinstance(c.get("entities"), list) else []:
@@ -114,7 +124,7 @@ def clean_card(c):
 
 
 def clean_layout(v) -> dict:
-    """one page: {"order": [key], "hidden": [key], "cards": [card]} (cleanLayout in static/pagelayout.js)"""
+    """one page: {"order": [key], "hidden": [key], "sizes": {key: size}, "cards": [card]} (cleanLayout in static/pagelayout.js)"""
     o = v if isinstance(v, dict) else {}
 
     def keys(lst):
@@ -129,7 +139,9 @@ def clean_layout(v) -> dict:
         if x and x["id"] not in ids and len(cards) < MAX_OWN:
             ids.add(x["id"])
             cards.append(x)
-    return {"order": keys(o.get("order")), "hidden": keys(o.get("hidden")), "cards": cards}
+    sizes = o.get("sizes") if isinstance(o.get("sizes"), dict) else {}
+    sizes = dict([(k, v) for k, v in sizes.items() if isinstance(k, str) and KEY.match(k) and v in SIZES][:MAX_ORDER])
+    return {"order": keys(o.get("order")), "hidden": keys(o.get("hidden")), "sizes": sizes, "cards": cards}
 
 
 def clean_page_layouts(val, custom_tabs) -> dict:
@@ -142,7 +154,7 @@ def clean_page_layouts(val, custom_tabs) -> dict:
         if page not in pages:
             continue
         lay = clean_layout(v)
-        if lay["order"] or lay["hidden"] or lay["cards"]:
+        if lay["order"] or lay["hidden"] or lay["cards"] or lay["sizes"]:
             out[page] = lay
     return out
 

@@ -291,7 +291,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 83. Neu in 4.8.0: 🎵 Musik & TV und 🧺 Haushalt (#490) | 0 | 0 | 12 | 4 | 83.1 bis 83.12 |
 | 84. Neu in 4.8.1: Zustände auf Deutsch in der Geräte-Liste (#492) | 0 | 0 | 1 | 0 | 84.1 |
 | 85. Neu in 4.8.2: Tablets schneller (#494) | 0 | 0 | 4 | 0 | 85.1 bis 85.4 |
-| **Zusammen** | **492** | **5** | **128** | **54** | |
+| 86. Neu in 4.9.0: Thermostat als Kreis wie in Home Assistant (#495) | 0 | 0 | 9 | 0 | 86.1 bis 86.9 |
+| 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 0 | 0 | 6 | 0 | 87.1 bis 87.6 |
+| **Zusammen** | **492** | **5** | **143** | **54** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1398,3 +1400,28 @@ Der Besitzer merkte, dass die Tablets langsamer wurden. Das 3D-Bild lief bei jed
 | 85.2 | Im Add-on 🏠 Haus offen lassen, nichts berühren (ein Strom-Sensor meldet sich weiter) | Lampen und Werte ändern sich weiter wie gewohnt; das Tablet bleibt kühl | ❓ |
 | 85.3 | Im Add-on im 🏠 Haus eine Tür oder ein Rollo über Home Assistant bewegen | Tür bzw. Rollo bewegt sich flüssig bis zum Ende, nicht ruckelnd | ❓ |
 | 85.4 | Auf einer Seite (z. B. 🌡 Klima) ein Licht über Home Assistant einschalten, dann auf 🏠 Haus wechseln | Im Haus ist das Licht sofort an (Raum-Kachel, Schild und Lampe) | ❓ |
+
+## 86. Neu in 4.9.0: Thermostat als Kreis wie in Home Assistant (#495)
+Wunsch des Besitzers: „wie in Home Assistant selbst mit so einem Kreis, wo man Plus und Minus machen kann … Heizen, Auto und Aus“. Bild `docs/ideen-4.9/1-thermostat.jpg`.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 86.1 | Demo, „Live“, unten 🌡 Klima | Wohnzimmer und Büro haben einen Kreis: in der Mitte das Soll (groß), darunter „jetzt …“, der Ring ist orange (Heizen) bzw. blau (Kühlen) | ❓ |
+| 86.2 | Beim Wohnzimmer zweimal auf + tippen | Das Soll steigt sofort um 1,0°, kurz danach wird es an Home Assistant geschickt (bleibt stehen) | ❓ |
+| 86.3 | Den weißen Knopf am Ring mit dem Finger ziehen | Die Zahl in der Mitte folgt dem Finger; beim Loslassen wird der Wert gesendet | ❓ |
+| 86.4 | Unter dem Kreis „Auto“, dann wieder „Heizen“ antippen | Der getippte Knopf wird farbig, das Gerät wechselt den Modus | ❓ |
+| 86.5 | Beim Büro (Klimagerät) „Kühlen“, „Entfeuchten“, „Lüfter“ und die Lüfterstufen antippen | Alle Knöpfe gibt es, der gewählte ist markiert | ❓ |
+| 86.6 | Bei Wohnzimmer eine Vorwahl antippen (Eco, Komfort …) | Die Vorwahl ist markiert | ❓ |
+| 86.7 | Unten ✎ Bearbeiten, bei einer Klima-Karte ⤡ antippen, dann ✓ Fertig | Die Karte zeigt einen kleinen Kreis mit − / + und den Modi als Symbole daneben; ⤢ macht sie wieder groß | ❓ |
+| 86.8 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Thermostat“, ein Thermostat wählen, „Größe des Kreises: Klein“ | Die Vorschau und die Karte zeigen den kleinen Kreis; mit „Groß“ den großen mit allen Knöpfen | ❓ |
+| 86.9 | Am Handy 🌡 Klima öffnen und am Ring ziehen | Der Kreis passt auf den Bildschirm, beim Ziehen am Ring scrollt die Seite nicht | ❓ |
+
+## 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495)
+Wunsch des Besitzers: „wenn man mehrere Häuser hat mit unterschiedlichen Stromsensoren, dass es dann auch in einer Grafik irgendwie zu sehen ist“. Bild `docs/ideen-4.9/2-strom-haeuser.jpg`.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 87.1 | Demo, „Live“, ⚡ Energie, oben „⚖ Vergleichen“ | Je eine Kachel für Demo-Haus und Nachbarhaus (kWh heute, „jetzt …“) und „Σ alle Häuser“; die Grafik hat eine blaue und eine orange Linie bis „jetzt“ | ❓ |
+| 87.2 | „Woche“, „Monat“, „Jahr“ antippen | Pro Tag bzw. Monat ein blauer und ein oranger Balken nebeneinander; mit dem Finger auf einem Balken stehen beide Werte | ❓ |
+| 87.3 | Die Karten „Leistung jetzt“ und „Kosten“ ansehen | Jedes Haus mit seiner Farbe, Balken und Wert; bei Kosten unten die Summe | ❓ |
+| 87.4 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Verlauf“, nach „leistung“ suchen und „Netzbezug“ und „Nachbarhaus Verbrauch“ antippen | Beide sind markiert (farbiges Quadrat), die Vorschau zeigt zwei Linien mit Legende | ❓ |
+| 87.5 | Die Karte speichern und „✓ Fertig“ | Die Karte heißt „Verlauf“, zeigt zwei farbige Linien und oben beide Werte von jetzt | ❓ |
+| 87.6 | Im Add-on: bei jedem Haus in ⚡ Rechnung die eigenen Zähler eintragen, dann ⚡ Energie → „⚖ Vergleichen“ | Jedes Haus zeigt seine eigenen Werte; ein Haus ohne eigene Zähler zeigt „keine eigenen Zähler“ (außer dem ersten, das die Zähler aus dem Energie-Dashboard nimmt) | ❓ |

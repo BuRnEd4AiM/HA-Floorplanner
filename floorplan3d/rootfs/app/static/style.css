@@ -1303,6 +1303,13 @@ button.tpChip:disabled { opacity: .35; }
 .peTopName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .peTopBar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
 .peTopBar i { display: block; height: 100%; background: var(--muted); border-radius: 4px; }
+/* ⚖ Vergleichen: every house side by side (#495, energycompare.js) */
+.pcRow { display: grid; grid-template-columns: minmax(90px, auto) minmax(40px, 1fr) auto; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); }
+.pcRow:first-of-type { border-top: 0; }
+.pcName { display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.pcRow b { font-size: 17px; white-space: nowrap; }
+.pcSum { font-weight: 700; } .pcSum .pcName { color: var(--muted); }
+.pcTile .peTileSub { font-weight: 600; }
 .peEmptyCard { color: var(--muted); }
 .tdCol { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .tdTime { font-size: clamp(48px, 7vw, 84px); font-weight: 800; letter-spacing: -.03em; line-height: 1; }
@@ -1366,6 +1373,41 @@ button.tpChip:disabled { opacity: .35; }
 .clLooseVals { display: flex; align-items: center; gap: 12px; }
 .clLooseNow { font-size: 20px; }
 .clTip p { margin: 0; font-size: 17px; line-height: 1.45; }
+/* the thermostat like Home Assistant's (#495, thermostatui.js): big (the whole card) or small (circle and − / + beside it) */
+.th { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.th.small { flex-direction: row; align-items: center; gap: 12px; }
+.thDial { position: relative; width: min(100%, 230px); aspect-ratio: 220 / 196; }
+.th.small .thDial { width: 150px; flex: none; }
+.thSvg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.thSvg.thDrag { touch-action: none; cursor: pointer; }
+.thTrack { fill: none; stroke: var(--field); stroke-width: 16; stroke-linecap: round; }
+.thArc { fill: none; stroke-width: 16; stroke-linecap: round; }
+.thTick { stroke: var(--line); stroke-width: 2; }
+.thNowDot { fill: #fff; opacity: .85; }
+.thKnob { fill: #fff; stroke: rgba(0, 0, 0, .25); stroke-width: 2; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .35)); }
+.thMid { position: absolute; inset: 22% 0 0; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.thMid small { color: var(--muted); font-size: 12px; font-weight: 700; }
+.thT { font-size: 44px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; } .thT sup { font-size: 20px; }
+.th.small .thT { font-size: 30px; } .th.small .thMid { inset: 20% 0 0; }
+.thNow { color: var(--muted); font-size: 13px; font-weight: 600; }
+.th.small .thNow { font-size: 11px; }
+.thPM { display: flex; gap: 16px; margin-top: -22px; position: relative; }
+.th.small .thPM { margin: 0; gap: 8px; }
+.thPM button { width: 46px; height: 46px; padding: 0; border-radius: 50%; font-size: 24px; font-weight: 700; }
+.th.small .thPM button { width: 40px; height: 40px; font-size: 20px; }
+.thSide { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; min-width: 0; }
+.thModes { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.thMode { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 56px; padding: 6px 8px; border-radius: 12px; }
+.thModes.small .thMode { min-width: 0; padding: 6px 9px; }
+.thModeIcon { font-size: 18px; line-height: 1.1; } .thMode small { font-size: 11px; font-weight: 700; color: var(--muted); }
+.thMode.on { background: rgba(255, 140, 50, .2); border-color: #ff8c32; } .thMode.on small { color: #ffb070; }
+.thMode.on.m-cool { background: rgba(63, 169, 245, .2); border-color: #3fa9f5; } .thMode.on.m-cool small { color: #8fd0ff; }
+.thMode.on.m-auto, .thMode.on.m-heat_cool { background: rgba(126, 224, 160, .18); border-color: #46a758; } .thMode.on.m-auto small, .thMode.on.m-heat_cool small { color: #9fe0b2; }
+.thMode.on.m-off, .thMode.on.m-dry, .thMode.on.m-fan_only { background: rgba(140, 150, 160, .2); border-color: #8b98a5; } .thMode.on.m-off small { color: var(--text); }
+.thChips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.thChip { min-height: 0; padding: 4px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+.thChip.on { color: var(--text); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.clCard .th { margin: 2px 0 4px; }
 .rtGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 14px; }
 .rtBtn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 150px; padding: 16px 12px; border-radius: 16px;
   border: 1px solid var(--line); background: var(--panel); color: var(--text); font: inherit; text-align: center; cursor: pointer; }
@@ -1522,6 +1564,10 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .ocBig .clBadge { margin-left: auto; }
 .ocChartBox { position: relative; height: 130px; padding-left: 34px; }
 .ocChart { display: block; width: 100%; height: 100%; overflow: visible; }
+.ocLegend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 8px; }   /* a history card with several sensors (#495) */
+.ocSeries { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: 13px; }
+.ocSeriesName { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 14em; }
+.ocSeries b { font-size: 15px; }
 .ocGrid { stroke: var(--line); stroke-width: 1; }
 .ocAxis { position: absolute; left: 0; transform: translateY(-50%); color: var(--muted); font-size: 11px; }
 .ocLine { display: flex; align-items: center; justify-content: space-between; gap: 10px; }

@@ -1,26 +1,25 @@
 /* Own cards on the pages of the tab bar (#484): draws one card of the twelve kinds of cards.js (button, switch, value, history, light,
  * thermostat, roller shutter, camera, several devices, room, text, a ready card of ☀ Heute). A history card asks the add-on for the
  * numbers (api/history, again after 5 minutes). Switching goes through live.callService like everywhere else. */
-import { TYPE_ICON, COLOR_HEX, cardEntities, tapService, valueOf, chartPaths } from './cards.js';
+import { TYPE_ICON, COLOR_HEX, cardEntities, tapService, valueOf, chartPaths, chartMany, seriesColor } from './cards.js';
 import { routineIcon } from './routines.js';
-import { clampTarget, HEAT_DELAY } from './heatpanel.js';
-import { heatMode } from './heating.js';
 
 const TOGGLE = new Set(['light', 'switch', 'input_boolean', 'fan', 'automation']);
 const ON = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only', 'unlocked', 'home']);
 
 /** ctx: t, lang(), states(), settings(), nameOf(entity), stateText(entity), callService(entity, service, data) (-> true when taken),
  *  camImage(entity) (an <img> renewed while shown), openCamera(entity), room(roomId) ({ name, floor, temp, lights, open, occupied } or
- *  null), openRoom(roomId), builtin(key) (a ready card of ☀ Heute, or null), changed() (a history arrived: draw the page again) */
+ *  null), openRoom(roomId), builtin(key) (a ready card of ☀ Heute, or null), changed() (a history arrived: draw the page again),
+ *  thermo (thermostatui.js, #495) */
 export function initCards(ctx) {
   const { t } = ctx;
   const history = new Map();                         // "entity|hours" -> { at, points, asking }
-  const pending = new Map();                         // thermostat -> { v, timer }
   const flash = new Map();                           // card id -> 'ok' | 'bad' for a moment after a tap
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', (e) => { e.stopPropagation(); on(e); }); return b; };
   const st = (e) => ctx.states()[e];
-  const nm = (c, e = c.entity) => c.name || (c.type === 'room' ? ctx.room(c.room)?.name : null) || ctx.nameOf(e) || e || t(`ct.type.${c.type}`);
+  const nm = (c, e = c.entity) => c.name || (c.type === 'room' ? ctx.room(c.room)?.name : null) || (c.more?.length ? t('ct.type.graph') : null)   // several lines: "Verlauf"
+    || ctx.nameOf(e) || e || t(`ct.type.${c.type}`);
   /** a state in words: the texts the app has for it (open, closed, docked, armed …), on / off, else as Home Assistant says it */
   const word = (e) => {
     const s = st(e);
@@ -56,26 +55,36 @@ export function initCards(ctx) {
     flash.set(c.id, ok ? 'ok' : 'bad'); ctx.changed();
     setTimeout(() => { flash.delete(c.id); ctx.changed(); }, 2000);
   }
-  function loadHistory(c) {
-    const key = `${c.entity}|${c.hours}`, h = history.get(key);
+  function loadHistory(c, e = c.entity) {
+    const key = `${e}|${c.hours}`, h = history.get(key);
     if (h && (h.asking || Date.now() - h.at < 300000)) return h;
     const next = { at: Date.now(), points: h?.points || null, asking: true };
     history.set(key, next);
-    fetch(`api/history?entity=${encodeURIComponent(c.entity)}&hours=${c.hours}`).then((r) => (r.ok ? r.json() : null))
+    fetch(`api/history?entity=${encodeURIComponent(e)}&hours=${c.hours}`).then((r) => (r.ok ? r.json() : null))
       .then((x) => { next.points = Array.isArray(x?.points) ? x.points : next.points || []; }).catch(() => { next.points = next.points || []; })
       .finally(() => { next.asking = false; ctx.changed(); });
     return next;
   }
+  /** a history card: one sensor (its value now, min / max, the line with its area) or several in one chart (#495: a line each in its own
+   *  colour and a legend with the value now) */
   function graph(c, box) {
-    const h = loadHistory(c), s = st(c.entity), unit = s?.unit || '';
-    const W = 300, H = 120, p = chartPaths(h.points || [], W, H, { l: 0, r: 0, t: 6, b: 6 });   // stretched to the card's width, the labels beside it
-    const top = make('div', 'ocBig');
-    top.append(make('b', '', shown(c.entity)));
+    const es = cardEntities(c), hs = es.map((e) => loadHistory(c, e)), many = es.length > 1;
+    const s = st(c.entity), unit = s?.unit || '';
+    const W = 300, H = 120, pad = { l: 0, r: 0, t: 6, b: 6 };                                   // stretched to the card's width, the labels beside it
+    const p = many ? chartMany(hs.map((h) => h.points || []), W, H, pad) : chartPaths(hs[0].points || [], W, H, pad);
     const fmt = (v) => valueOf({ state: String(v), unit }, ctx.lang()).v;
-    if (p) top.append(make('small', 'tpSub', t('ct.minMax', { max: fmt(p.max), min: fmt(p.min) })));
-    box.append(top);
-    if (!p) { box.append(make('p', 'tpSub', h.points ? t('ct.noHistory') : t('tp.today.loading'))); return; }
-    const col = COLOR_HEX[c.color] || COLOR_HEX.blue, ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+    if (many) {
+      const leg = make('div', 'ocLegend');
+      es.forEach((e, i) => { const r = make('span', 'ocSeries'); const sw = make('i', 'peSwatch'); sw.style.background = seriesColor(c, i); r.append(sw, make('span', 'ocSeriesName', ctx.nameOf(e) || e), make('b', '', shown(e))); leg.append(r); });
+      box.append(leg);
+    } else {
+      const top = make('div', 'ocBig');
+      top.append(make('b', '', shown(c.entity)));
+      if (p) top.append(make('small', 'tpSub', t('ct.minMax', { max: fmt(p.max), min: fmt(p.min) })));
+      box.append(top);
+    }
+    if (!p) { box.append(make('p', 'tpSub', hs.every((h) => h.points) ? t('ct.noHistory') : t('tp.today.loading'))); return; }
+    const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('preserveAspectRatio', 'none'); svg.setAttribute('class', 'ocChart');
     const add = (tag, attrs) => { const n = document.createElementNS(ns, tag); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); svg.append(n); return n; };
     const wrap = make('div', 'ocChartBox');
@@ -83,30 +92,18 @@ export function initCards(ctx) {
       add('line', { x1: 0, x2: W, y1: p.y(v), y2: p.y(v), class: 'ocGrid', 'vector-effect': 'non-scaling-stroke' });
       const lab = make('span', 'ocAxis', fmt(v)); lab.style.top = `${(p.y(v) / H) * 100}%`; wrap.append(lab);
     });
-    add('path', { d: p.area, fill: col, 'fill-opacity': 0.18 });
-    add('path', { d: p.line, fill: 'none', stroke: col, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke' });
+    if (many) p.lines.forEach((d, i) => { if (d) add('path', { d, fill: 'none', stroke: seriesColor(c, i), 'stroke-width': 2.2, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke', 'data-series': i }); });
+    else {
+      const col = seriesColor(c, 0);
+      add('path', { d: p.area, fill: col, 'fill-opacity': 0.18 });
+      add('path', { d: p.line, fill: 'none', stroke: col, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke' });
+    }
     wrap.prepend(svg);
     box.append(wrap);
   }
   function thermostat(c, box) {
-    const e = c.entity, s = st(e), goal = pending.get(e)?.v ?? s?.tt;
-    const row = make('div', 'ocBig');
-    row.append(make('b', '', deg(s?.ct)));
-    if (typeof goal === 'number' && s?.state !== 'off') row.append(make('small', 'tpSub', t('cl.target', { v: deg(goal) })));
-    const mode = e.startsWith('climate.') ? heatMode(e, s) : null;
-    if (mode) row.append(make('span', `clBadge ${mode}`, mode === 'heating' ? `🔥 ${t('heat.heating')}` : mode === 'cooling' ? `❄ ${t('heat.cooling')}` : mode === 'off' ? t('heat.off') : t('heat.idle')));
-    box.append(row);
-    if (e.startsWith('climate.') && typeof goal === 'number' && s?.state !== 'off') {
-      const step = s.tstep || 0.5, send = (v) => {
-        v = clampTarget(s, v);
-        const old = pending.get(e); if (old) clearTimeout(old.timer);
-        pending.set(e, { v, timer: setTimeout(() => { pending.delete(e); ctx.callService(e, 'set_temperature', { temperature: v }); }, HEAT_DELAY) });
-        ctx.changed();
-      };
-      const st2 = make('div', 'clStep');
-      st2.append(btn('clMinus', '−', () => send(goal - step), t('heat.minus')), btn('clPlus', '+', () => send(goal + step), t('heat.plus')));
-      box.append(st2);
-    }
+    const { el } = ctx.thermo.render(c.entity, c.size || 'big');     // the circle like Home Assistant's (#495, thermostatui.js)
+    if (el) box.append(el);
   }
   function light(c, box) {
     const e = c.entity, s = st(e), on = isOn(e);
@@ -182,7 +179,7 @@ export function initCards(ctx) {
   }
   /** what a card shows depends on: the states of its entities, its history, a pending target, a tap (it draws again when this changed) */
   const sig = (c) => JSON.stringify([c, cardEntities(c).map((e) => { const s = st(e); return s ? [s.state, s.brightness, s.position, s.ct, s.tt, s.hvac, s.rgb, s.unit] : null; }),
-    c.type === 'graph' ? history.get(`${c.entity}|${c.hours}`)?.points?.length ?? -1 : 0, pending.get(c.entity)?.v, flash.get(c.id),
+    c.type === 'graph' ? cardEntities(c).map((e) => history.get(`${e}|${c.hours}`)?.points?.length ?? -1) : 0, c.type === 'thermostat' ? ctx.thermo.sig(c.entity) : 0, flash.get(c.id),
     c.type === 'room' ? ctx.room(c.room) : 0, c.type === 'builtin' ? Math.floor(Date.now() / 20000) : 0, imperial(), ctx.lang()]);   // a ready card: every 20 s
   return { render, sig };
 }

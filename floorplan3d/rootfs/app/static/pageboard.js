@@ -3,7 +3,7 @@
  * of different heights close up). In the edit mode (✎ in the tab bar, editors only) every card has ⠿ to drag it, 👁 to hide it, an
  * own card ⚙ and 🗑, at the end "＋ Karte hinzufügen", at the top a strip with ＋ Karte, 🗂 Reiter, ↺ Wie am Anfang and ✓ Fertig.
  * Stored for everybody in settings.pageLayouts; the rules are in pagelayout.js (tested). */
-import { arrange, withOrder, toggleHidden, dropCard, resetLayout, putCard, cleanLayout, rowSpan } from './pagelayout.js';
+import { arrange, withOrder, toggleHidden, dropCard, resetLayout, putCard, cleanLayout, emptyLayout, withSize, sizeOf, rowSpan } from './pagelayout.js';
 
 const ROW = 8, GAP = 14;
 
@@ -20,7 +20,8 @@ export function initBoard(ctx) {
 
   function setLayout(page, l) {
     const all = { ...(ctx.settings().pageLayouts || {}) };
-    if (l.order.length || l.hidden.length || l.cards.length) all[page] = cleanLayout(l); else delete all[page];
+    const c = cleanLayout(l);
+    if (!emptyLayout(c)) all[page] = c; else delete all[page];
     ctx.settings().pageLayouts = all;
     ctx.save();
     ctx.redraw(page);
@@ -54,7 +55,7 @@ export function initBoard(ctx) {
   }
 
   /* ---- a card in the grid, with its tools in the edit mode ---- */
-  function tools(page, key, own, hidden) {
+  function tools(page, key, own, hidden, sized) {
     const bar = make('div', 'bdTools');
     const grip = make('span', 'bdGrip', '⠿'); grip.title = t('bd.drag'); grip.setAttribute('role', 'button');
     grip.addEventListener('pointerdown', (e) => drag(e, page, grip.closest('.bdItem')));
@@ -62,7 +63,14 @@ export function initBoard(ctx) {
     if (own) {
       bar.append(btn('bdTool', '⚙️', () => ctx.editCard(page, own), t('bd.cardSet')));
       bar.append(btn('bdTool', '🗑', () => { if (window.confirm(t('bd.delAsk'))) setLayout(page, dropCard(layoutOf(page), key)); }, t('bd.cardDel')));
-    } else bar.append(btn(`bdTool${hidden ? ' off' : ''}`, '👁', () => setLayout(page, toggleHidden(layoutOf(page), key)), hidden ? t('bd.show') : t('bd.hide')));
+    } else {
+      if (sized) {                                   // a card that can be big or small (a thermostat, #495): ⤡ makes it small, ⤢ big again
+        const small = sizeOf(layoutOf(page), key, sized) === 'small';
+        const b = btn('bdTool', small ? '⤢' : '⤡', () => setLayout(page, withSize(layoutOf(page), key, small ? 'big' : 'small')), small ? t('bd.bigger') : t('bd.smaller'));
+        b.dataset.act = 'size'; bar.append(b);
+      }
+      bar.append(btn(`bdTool${hidden ? ' off' : ''}`, '👁', () => setLayout(page, toggleHidden(layoutOf(page), key)), hidden ? t('bd.show') : t('bd.hide')));
+    }
     return bar;
   }
   function item(page, entry, builtin, edit, same = null) {
@@ -71,7 +79,7 @@ export function initBoard(ctx) {
     el.dataset.key = entry.key; el.dataset.w = String(entry.own ? entry.own.width : builtin.width || 1);
     el.querySelectorAll(':scope > .bdTools, :scope > .bdTag').forEach((x) => x.remove());
     if (edit) {
-      el.append(tools(page, entry.key, entry.own, entry.hidden));
+      el.append(tools(page, entry.key, entry.own, entry.hidden, builtin?.sized));
       if (entry.hidden) el.append(make('span', 'bdTag', t('bd.hidden')));
       else if (entry.own) el.append(make('span', 'bdTag own', t('bd.own')));
     }
@@ -93,8 +101,8 @@ export function initBoard(ctx) {
   /**
    * Put the cards of a page into box: items [{ key, el, width }] are the page's own cards in their natural order (a missing one is not
    * there now: no camera, no waste calendar ...); instead of el an item can bring { sig, make }: make() draws it (null: nothing to show),
-   * only when its sig changed since the last fill of the same box. min: the narrowest column in px. Draws the edit mode's strip at the
-   * top of the page.
+   * only when its sig changed since the last fill of the same box; sized: the card can be big or small ('big' | 'small': its first
+   * size, #495). min: the narrowest column in px. Draws the edit mode's strip at the top of the page.
    */
   function fill(page, box, items, { min = 300 } = {}) {
     const edit = editing === page && ctx.canEdit(), before = shown.get(page), kept = before?.box === box ? before.keep : new Map();
@@ -191,5 +199,7 @@ export function initBoard(ctx) {
     editing: () => editing,
     toggle: (page) => setEditing(editing === page ? null : page),
     layout: layoutOf,
+    /** the size an admin chose for a built-in card ('big' | 'small'), dflt when none (#495) */
+    size: (page, key, dflt = 'big') => sizeOf(layoutOf(page), key, dflt),
   };
 }

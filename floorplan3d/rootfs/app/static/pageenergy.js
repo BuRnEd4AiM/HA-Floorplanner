@@ -3,18 +3,21 @@
  * and from the grid), the devices that used most, gas and water. The rules are in energyhistory.js (tested); this file asks the add-on
  * (api/energy/meters, api/energy/stats, api/layout of the other houses) and draws. */
 import { KINDS, periodRange, isoLocal, houseMeters, mergeMeters, meterIds, hasMeters, bars, totals, cost, priceOf, topDevices, elapsed,
-  fmtAmount, barMax, cleanMeters } from './energyhistory.js';
+  fmtAmount, barMax, cleanMeters, compareMeters, compareHouses } from './energyhistory.js';
+import { initEnergyCompare } from './energycompare.js';
 
 const OWN = '#cc7a00', GRID = '#488fc2';           // made itself (sun, battery) / from the grid: the colours of "Strom jetzt", checked for colour blindness
-const ALL = '*';
+const ALL = '*', CMP = 'cmp';                     // all houses added up / side by side (⚖ Vergleichen, #495)
 
 /** ctx: t, el (the page), lang(), layout() (the house shown), houseId(), houses() ([{ id, name }]), changed() (the tab bar again: the page
- *  can have something now or not), board (pageboard.js, #484: keys tiles, chart, top, more) */
+ *  can have something now or not), board (pageboard.js, #484: keys tiles, chart, top, more; in ⚖ Vergleichen cmp:tiles, cmp:chart,
+ *  cmp:now, cmp:cost), states() (the power of each house now) */
 export function initEnergyPage(ctx) {
   const { t, el } = ctx;
   let ha = null, haErr = false, asking = null, askedAt = 0;   // Home Assistant's energy dashboard: { meters, devices, price }
   let kind = 'day', offset = 0, house = null, drawn = '', run = 0, forced = false;   // forced: a forced drawing overtaken by a newer one stays forced
   const layouts = new Map();                       // other houses: id -> layout (for their meters)
+  let cmp = null, cmpGrid = null;                  // ⚖ Vergleichen: { p, stats } of the last statistics asked for, and its grid
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on) => { const b = make('button', cls, text); b.type = 'button'; b.addEventListener('click', on); return b; };
   const lang = () => ctx.lang() || 'de';
@@ -122,7 +125,7 @@ export function initEnergyPage(ctx) {
     const houses = ctx.houses();
     if (houses.length > 1) {
       const row = make('div', 'peChips');
-      [...houses.map((x) => [x.id, x.name]), [ALL, t('pe.allHouses')]].forEach(([id, name]) => {
+      [...houses.map((x) => [x.id, x.name]), [ALL, t('pe.allHouses')], [CMP, `⚖ ${t('pe.compare')}`]].forEach(([id, name]) => {
         const b = btn(`tpChip${(house || ctx.houseId()) === id ? ' on' : ''}`, name, () => { house = id; render(true); });
         b.dataset.house = id; row.append(b);
       });
@@ -150,6 +153,7 @@ export function initEnergyPage(ctx) {
     if (force) forced = true;
     if (!ha || (haErr && force)) await probe(true);
     if (me !== run) return;
+    if (house === CMP && ctx.houses().length > 1) { await renderCompare(me); return; }
     const c = await chosen();
     if (me !== run) return;
     if (!hasMeters(c.meters)) { drawn = ''; empty(haErr ? t('pe.noHa') : t('pe.noMeters')); return; }
@@ -212,13 +216,40 @@ export function initEnergyPage(ctx) {
     el.replaceChildren(...out, grid);
     ctx.board.fill('energy', grid, items, { min: 280 });
   }
+  /** ⚖ Vergleichen (#495): every house with its own meters side by side; the statistics again at most every 5 minutes, the power now with
+   *  every update (only the cards that show it are drawn again) */
+  async function renderCompare(me) {
+    const houses = ctx.houses(), lays = await Promise.all(houses.map((h) => loadHouse(h.id)));
+    if (me !== run) return;
+    const list = compareMeters(houses.map((h, i) => ({ id: h.id, name: h.name, energy: lays[i]?.energy })), ha.meters, ha.price);
+    const ids = [...new Set(list.flatMap((h) => meterIds(h.meters)))];
+    if (!ids.length) { drawn = ''; cmp = null; empty(haErr ? t('pe.noHa') : t('pe.noMeters')); return; }
+    const now = new Date(), p = periodRange(kind, offset, now);
+    const sig = `${CMP}|${kind}|${offset}|${ids.join()}|${Math.floor(+now / 300000)}`;
+    if (forced || sig !== drawn || !cmp || !cmpGrid || !el.contains(cmpGrid)) {
+      let data;
+      try {
+        const r = await fetch('api/energy/stats', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids, start: isoLocal(p.start), end: isoLocal(p.end), period: p.period }) });
+        if (!r.ok) throw new Error(String(r.status));
+        data = await r.json();
+      } catch { if (me === run) empty(t('pe.noHa')); return; }
+      if (me !== run) return;
+      drawn = sig; forced = false; cmp = { p, stats: data.stats || {} };
+      cmpGrid = make('div', 'peBoard');
+      el.replaceChildren(head(), nav(p, t('pe.cmp.note')), cmpGrid);
+    }
+    const c = compareHouses(list, cmp.stats, cmp.p.buckets, cmp.p.end);
+    ctx.board.fill('energy', cmpGrid, compare.items(cmp.p, c, Object.fromEntries(houses.map((h, i) => [h.id, lays[i]])), now), { min: 280 });
+  }
+  const compare = initEnergyCompare({ t, lang, states: () => ctx.states?.() || {}, label, barName });
   return {
     render: () => render(true), update: () => render(false),
     has: () => {
       if (!ha || (haErr && Date.now() - askedAt > 300000)) probe(true);           // Home Assistant was not there: ask again every 5 minutes
       return hasMeters(houseMeters(ctx.layout().energy, ha?.meters).meters);
     },
-    reset: () => { run++; drawn = ''; house = null; },
+    reset: () => { run++; drawn = ''; house = null; cmp = null; cmpGrid = null; },
     probe,
   };
 }

@@ -1,20 +1,26 @@
-/* The pages of the tab bar arranged by an admin like a Home Assistant dashboard (#484): per page the order of its cards, the ones hidden
- * and own cards (cards.js), the same for everybody (settings.pageLayouts, server.py clean_page_layouts); own pages are tabs.js
+/* The pages of the tab bar arranged by an admin like a Home Assistant dashboard (#484): per page the order of its cards, the ones hidden,
+ * the size of a built-in card that can be big or small (a thermostat on 🌡 Klima, #495) and own cards (cards.js), the same for everybody (settings.pageLayouts, server.py clean_page_layouts); own pages are tabs.js
  * customTabs. Pure (unit test: tests/pagelayout.test.mjs); pageboard.js draws the cards and the edit mode. */
 import { cleanCard, OWN_ID } from './cards.js';
+import { SIZES } from './thermostat.js';
 
 export const MAX_ORDER = 120;
 export const MAX_OWN = 40;
 const KEY = /^[a-z0-9_:.-]{1,80}$/;
 
-/** one page's layout made safe: { order: [key], hidden: [key], cards: [card] }; keys each once, own cards valid (cleanCard) and each id once */
+/** one page's layout made safe: { order: [key], hidden: [key], sizes: { key: 'big' | 'small' }, cards: [card] }; keys each once, own
+ *  cards valid (cleanCard) and each id once */
 export function cleanLayout(v) {
   const o = v && typeof v === 'object' && !Array.isArray(v) ? v : {};
   const keys = (list, max) => [...new Set((Array.isArray(list) ? list : []).filter((k) => typeof k === 'string' && KEY.test(k)))].slice(0, max);
   const ids = new Set(), cards = [];
   (Array.isArray(o.cards) ? o.cards : []).forEach((c) => { const x = cleanCard(c); if (x && !ids.has(x.id) && cards.length < MAX_OWN) { ids.add(x.id); cards.push(x); } });
-  return { order: keys(o.order, MAX_ORDER), hidden: keys(o.hidden, MAX_ORDER), cards };
+  const sizes = Object.fromEntries((o.sizes && typeof o.sizes === 'object' && !Array.isArray(o.sizes) ? Object.entries(o.sizes) : [])
+    .filter(([k, x]) => KEY.test(k) && SIZES.includes(x)).slice(0, MAX_ORDER));
+  return { order: keys(o.order, MAX_ORDER), hidden: keys(o.hidden, MAX_ORDER), sizes, cards };
 }
+/** a layout with nothing in it (left out of the settings) */
+export const emptyLayout = (l) => !l.order.length && !l.hidden.length && !l.cards.length && !Object.keys(l.sizes).length;
 /** every page's layout: { page: layout } for the known pages (built-in or own), empty ones left out */
 export function cleanLayouts(val, pages) {
   const out = {};
@@ -22,7 +28,7 @@ export function cleanLayouts(val, pages) {
   Object.entries(val).forEach(([page, v]) => {
     if (!pages.includes(page)) return;
     const l = cleanLayout(v);
-    if (l.order.length || l.hidden.length || l.cards.length) out[page] = l;
+    if (!emptyLayout(l)) out[page] = l;
   });
   return out;
 }
@@ -60,6 +66,13 @@ export function toggleHidden(layout, key) {
   const l = cleanLayout(layout);
   return { ...l, hidden: l.hidden.includes(key) ? l.hidden.filter((k) => k !== key) : [...l.hidden, key] };
 }
+/** the size of a built-in card ('big' | 'small') set */
+export function withSize(layout, key, size) {
+  const l = cleanLayout(layout);
+  return KEY.test(key) && SIZES.includes(size) ? { ...l, sizes: { ...l.sizes, [key]: size } } : l;
+}
+/** the size of a card in a layout, `dflt` when none is set */
+export const sizeOf = (layout, key, dflt = 'big') => cleanLayout(layout).sizes[key] || dflt;
 /** an own card added (at the end) or changed (in its place) */
 export function putCard(layout, card) {
   const l = cleanLayout(layout), c = cleanCard(card);
@@ -72,10 +85,11 @@ export function putCard(layout, card) {
 /** 🗑: an own card taken away */
 export function dropCard(layout, id) {
   const l = cleanLayout(layout);
-  return { order: l.order.filter((k) => k !== id), hidden: l.hidden.filter((k) => k !== id), cards: l.cards.filter((c) => c.id !== id) };
+  const sizes = { ...l.sizes }; delete sizes[id];
+  return { order: l.order.filter((k) => k !== id), hidden: l.hidden.filter((k) => k !== id), sizes, cards: l.cards.filter((c) => c.id !== id) };
 }
-/** "Wie am Anfang": the built-in cards in their order again, all shown; the own cards stay (at the end) */
-export const resetLayout = (layout) => ({ order: [], hidden: [], cards: cleanLayout(layout).cards });
+/** "Wie am Anfang": the built-in cards in their order again, all shown and in their first size; the own cards stay (at the end) */
+export const resetLayout = (layout) => ({ order: [], hidden: [], sizes: {}, cards: cleanLayout(layout).cards });
 
 /** a new id for an own card that none of `taken` has */
 export function newCardId(taken = [], rnd = Math.random) {

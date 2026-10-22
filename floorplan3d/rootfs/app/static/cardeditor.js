@@ -2,8 +2,9 @@
  * typing (only devices that fit the kind), several devices for "Mehrere Geräte", a room, a ready card of ☀ Heute or a text; name,
  * width, time span and colour; on the right the card as it will look. Saved through the board (pageboard.js) into settings.pageLayouts.
  * The rules are in cards.js (tested). */
-import { CARD_TYPES, TYPE_ICON, BUILTINS, COLORS, COLOR_HEX, HOURS, MAX_ENTITIES, TYPE_DOMAINS, fitsType, cleanCard, defaultWidth } from './cards.js';
+import { CARD_TYPES, TYPE_ICON, BUILTINS, COLORS, COLOR_HEX, HOURS, MAX_ENTITIES, MAX_SERIES, TYPE_DOMAINS, fitsType, cleanCard, defaultWidth, seriesColor } from './cards.js';
 import { newCardId } from './pagelayout.js';
+import { SIZES } from './thermostat.js';
 
 const SHOW = 40;
 
@@ -29,7 +30,7 @@ export function initCardEditor(ctx) {
     const d = open();
     const grid = make('div', 'ceTypes');
     CARD_TYPES.forEach((type) => {
-      const b = btn('ceType', null, () => edit(page, { id: newCardId(ctx.board.layout(page).cards.map((c) => c.id)), type, width: defaultWidth(type), hours: 24, color: 'blue' }, true));
+      const b = btn('ceType', null, () => edit(page, { id: newCardId(ctx.board.layout(page).cards.map((c) => c.id)), type, width: defaultWidth(type), hours: 24, color: 'blue', size: 'big' }, true));
       b.dataset.type = type;
       b.append(make('span', 'ceTypeIcon', TYPE_ICON[type]), make('b', '', t(`ct.type.${type}`)), make('small', '', t(`ct.typeSub.${type}`)));
       grid.append(b);
@@ -53,14 +54,19 @@ export function initCardEditor(ctx) {
     };
     /* the device(s): a search field and the matching devices */
     if (card.type in TYPE_DOMAINS || card.type === 'entities') {
-      const multi = card.type === 'entities';
+      const multi = card.type === 'entities', series = card.type === 'graph';     // a history card takes several sensors, one line each (#495)
       if (multi) draft.entities = Array.isArray(draft.entities) ? [...draft.entities] : [];
+      let picked = series ? [draft.entity, ...(draft.more || [])].filter(Boolean) : [];
+      const pickSeries = (e, on) => {
+        picked = on ? picked.filter((x) => x !== e) : [...picked, e].slice(0, MAX_SERIES);
+        draft.entity = picked[0] || ''; draft.more = picked.slice(1);
+      };
       const q = make('input', 'ceSearch'); q.type = 'search'; q.placeholder = t('ce.search'); q.setAttribute('aria-label', t('ce.search'));
       const list = make('div', 'ceList'), count = make('small', 'tpSub');
       const fits = (e) => (multi ? /^[a-z_]+\.[a-z0-9_]+$/.test(e.entity_id) : fitsType(card.type, e.entity_id));
       const draw = () => {
         const words = q.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-        const chosen = multi ? draft.entities : [draft.entity].filter(Boolean);
+        const chosen = multi ? draft.entities : series ? picked : [draft.entity].filter(Boolean);
         const all = ctx.entities().filter(fits).filter((e) => words.every((w) => `${e.name || ''} ${e.entity_id}`.toLowerCase().includes(w)))
           .sort((a, b) => Number(chosen.includes(b.entity_id)) - Number(chosen.includes(a.entity_id)) || (a.name || a.entity_id).localeCompare(b.name || b.entity_id));
         count.textContent = t('ce.found', { n: all.length });
@@ -68,17 +74,20 @@ export function initCardEditor(ctx) {
           const on = chosen.includes(e.entity_id);
           const r = btn(`ceItem${on ? ' on' : ''}`, null, () => {
             if (multi) draft.entities = on ? draft.entities.filter((x) => x !== e.entity_id) : [...draft.entities, e.entity_id].slice(0, MAX_ENTITIES);
+            else if (series) pickSeries(e.entity_id, on);
             else draft.entity = e.entity_id;
             draw(); preview();
           });
           r.dataset.entity = e.entity_id;
-          r.append(make('span', 'ceTick', multi ? (on ? '☑' : '☐') : on ? '●' : '○'), make('span', 'ceName', e.name || e.entity_id), make('small', '', e.entity_id));
+          const tick = make('span', 'ceTick', multi || series ? (on ? '☑' : '☐') : on ? '●' : '○');
+          if (series && on) { tick.style.color = seriesColor(draft, picked.indexOf(e.entity_id)); tick.textContent = '■'; }   // the colour of its line
+          r.append(tick, make('span', 'ceName', e.name || e.entity_id), make('small', '', e.entity_id));
           return r;
         }));
         if (!all.length) list.append(make('p', 'tpSub', t('ce.none')));
       };
       q.addEventListener('input', draw);
-      field(multi ? t('ce.devices', { n: MAX_ENTITIES }) : t('ce.device'), q, count, list);
+      field(multi ? t('ce.devices', { n: MAX_ENTITIES }) : series ? t('ce.series', { n: MAX_SERIES }) : t('ce.device'), q, count, list);
       draw();
     }
     if (card.type === 'room') {
@@ -104,6 +113,7 @@ export function initCardEditor(ctx) {
       field(t('ce.text'), area);
     }
     if (card.type === 'graph') field(t('ce.hours'), seg(HOURS, (h) => t(`ce.hours.${h}`), 'hours'));
+    if (card.type === 'thermostat') { draft.size = draft.size || 'big'; field(t('th.size'), seg(SIZES, (v) => t(`th.size.${v}`), 'size')); }   // the circle big or small (#495)
     field(t('ce.width'), seg([1, 2, 3, 4], (w) => t(`ce.width.${w}`), 'width'));
     if (card.type === 'graph' || card.type === 'value') {
       const row = seg(COLORS, (c) => t(`ce.color.${c}`), 'color');

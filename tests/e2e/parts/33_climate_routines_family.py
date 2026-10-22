@@ -1,4 +1,5 @@
-"""4.5.0 (#483): the pages 🌡 Klima, ▶ Abläufe and 👨‍👩‍👧 Familie of the tab bar. Klima: a card per room (temperature, − / + as one call,
+"""4.5.0 (#483): the pages 🌡 Klima, ▶ Abläufe and 👨‍👩‍👧 Familie of the tab bar. Klima: a card per room (temperature, the thermostat as a
+circle to drag (#495) and big or small, − / + as one call,
 heats, "Lüften", an open window while it heats with "Heizung aus"), the thermostats and water heaters in no room, the tip. Abläufe: a button
 per scene and script, "Ich gehe" with its check ("Alles aus": lights and players off), "Gute Nacht" with its linked routine ("Trotzdem
 starten"), automations on / off for editors, the picked routines in ⚙ → "Reiter unten". Familie: the people with picture, place and the
@@ -62,16 +63,34 @@ pgC.click("#tabBar [data-tab=climate]"); pgC.wait_for_timeout(1200)
 card = ".clCard[data-room=cl_r]"
 txt = pgC.inner_text(card) if pgC.locator(card).count() else ""
 check("climate: the room's card: 19,5°, target 21, heats, 'Lüften · 1350 ppm', the open window, a red edge",
-      "19,5°" in txt and "Soll 21" in txt and "heizt" in txt and "Lüften · 1350 ppm" in txt and "Fenster Klimaraum" in txt
+      "19,5°" in txt and "Soll" in txt and "21,0°" in txt and "heizt" in txt and "Lüften · 1350 ppm" in txt and "Fenster Klimaraum" in txt
       and "alert" in (pgC.get_attribute(card, "class") or ""), txt)
+modes_cf = pgC.evaluate(f"[...document.querySelectorAll('{card} .thMode')].map((b) => b.dataset.mode)")
+check("climate (#495): the thermostat as a circle like Home Assistant's, the knob to drag, − / + and the modes of the device (Heizen, Aus)",
+      pgC.locator(f"{card} .th.big .thSvg.thDrag").count() == 1 and pgC.locator(f"{card} .thPlus").count() == 1 and modes_cf == ["heat", "off"], modes_cf)
 page = pgC.inner_text("[data-page=climate]")
 check("climate: the thermostat and the water heater in no room, and the tip about the window", "Warmwasser" in page and "Heizung Wohnzimmer" in page
       and "Klimaraum" in pgC.inner_text(".clTip") and "Fenster offen" in pgC.inner_text(".clTip"), page[-400:])
 before = len(calldata())
-pgC.click(f"{card} .clPlus"); pgC.click(f"{card} .clPlus"); pgC.wait_for_timeout(200)
-shown = pgC.inner_text(f"{card} .clSoll")
+pgC.click(f"{card} .thPlus"); pgC.click(f"{card} .thPlus"); pgC.wait_for_timeout(200)
+shown = pgC.inner_text(f"{card} .thT")
 sets = wait_for(lambda: [c for c in calldata()[before:] if c[0] == "set_temperature" and c[1] == "climate.cl_test"])
 check("climate: + + shows 22° at once and sends one call with 22 after the pause", "22,0°" in shown and len(sets) == 1 and sets[0][2].get("temperature") == 22, (shown, sets))
+bx = pgC.locator(f"{card} .thSvg").bounding_box(); cx, cy = bx["x"] + bx["width"] * 110 / 220, bx["y"] + bx["height"] * 104 / 196
+before = len(calldata())
+pgC.mouse.move(cx + 60, cy - 40); pgC.mouse.down(); pgC.mouse.move(cx, cy - 80, steps=5)
+during = pgC.inner_text(f"{card} .thT")
+pgC.mouse.up()
+sets = wait_for(lambda: [c for c in calldata()[before:] if c[0] == "set_temperature" and c[1] == "climate.cl_test"])
+check("climate (#495): dragging the knob to the top of the circle shows and sends 18,5 (7 to 30), once after letting go",
+      "18,5" in during and len(sets) == 1 and sets[0][2].get("temperature") == 18.5, (during, sets))
+pgC.click("#tabBar .tbEdit"); pgC.wait_for_timeout(500)
+pgC.click(f"{card} .bdTools [data-act=size]"); pgC.wait_for_timeout(800)
+small_cf = pgC.locator(f"{card} .th.small").count()
+pgC.click("[data-act=done]"); pgC.wait_for_timeout(500)
+lay_cf = api("api/settings").get("pageLayouts", {}).get("climate", {})
+check("climate (#495): in ✎ the button ⤡ makes the circle small, for everybody (settings.pageLayouts)",
+      small_cf == 1 and pgC.locator(f"{card} .th.small").count() == 1 and lay_cf.get("sizes", {}).get("room:cl_r") == "small", (small_cf, lay_cf))
 pgC.click("[data-page=climate] [data-filter=notice]"); pgC.wait_for_timeout(300)
 check("climate: 'Nur mit Hinweis' keeps the room with the open window", pgC.locator(card).count() == 1)
 before = len(calldata())
@@ -159,6 +178,6 @@ check("climate/routines/family: no errors on the page", not own_cf, own_cf[:3])
 
 urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(saved_cf).encode(), method="PUT",
                                               headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
-for k, d in (("userLocks", {}), ("routines", []), ("routineNight", ""), ("routineLeave", ""), ("language", ""), ("units", "metric")):
+for k, d in (("userLocks", {}), ("routines", []), ("routineNight", ""), ("routineLeave", ""), ("language", ""), ("units", "metric"), ("pageLayouts", {})):
     set_setting(k, st_cf.get(k, d))
 post_cf("/_extra", {})

@@ -497,6 +497,14 @@ const DICT = {
     'hh.loading': 'Lädt …', 'hh.empty.list': 'Nichts auf der Liste.', 'hh.newItem': 'Neu …', 'hh.clear': 'Erledigte löschen',
     'hh.todoFailed': 'Home Assistant hat die Änderung nicht angenommen.',
     'hh.none': 'Hier ist noch nichts: keine Waschmaschine, kein Saugroboter, keine Liste in Home Assistant.',
+    'th.target': 'Soll', 'th.now': 'Jetzt', 'th.nowIs': 'jetzt {v}', 'th.inRoom': 'jetzt im Raum', 'th.size': 'Größe des Kreises',
+    'th.size.big': 'Groß (mit allen Knöpfen)', 'th.size.small': 'Klein', 'bd.bigger': 'Größer zeigen', 'bd.smaller': 'Kleiner zeigen',
+    'cl.roomTemp': 'im Raum {v}',
+    'pe.compare': 'Vergleichen', 'pe.cmp.note': 'jedes Haus mit seinen eigenen Zählern', 'pe.cmp.noMeters': 'keine eigenen Zähler (⚡ Rechnung)',
+    'pe.cmp.nowIs': 'jetzt {v}', 'pe.cmp.sum': 'Σ alle Häuser', 'pe.cmp.chart.day': 'Verbrauch pro Stunde, jedes Haus eine Linie',
+    'pe.cmp.chart': 'Verbrauch, jedes Haus eine Farbe', 'pe.cmp.now': 'Leistung jetzt',
+    'pe.cmp.nowNone': 'Kein Haus hat einen Strom-Sensor für „jetzt“ (⚡ Rechnung → Verbrauch des Hauses).',
+    'ce.series': 'Sensoren (bis zu {n}, jeder eine eigene Linie, z. B. der Strom jedes Hauses)',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -971,6 +979,12 @@ const DICT = {
     'hh.noList': 'Home Assistant has no list. The integration “Shopping list” makes one.', 'hh.loading': 'Loading …', 'hh.empty.list': 'Nothing on the list.',
     'hh.newItem': 'New …', 'hh.clear': 'Clear ticked', 'hh.todoFailed': 'Home Assistant did not take the change.',
     'hh.none': 'Nothing here yet: no washing machine, no robot vacuum, no list in Home Assistant.',
+    'th.target': 'Target', 'th.now': 'Now', 'th.nowIs': 'now {v}', 'th.inRoom': 'in the room now', 'th.size': 'Size of the circle',
+    'th.size.big': 'Big (all buttons)', 'th.size.small': 'Small', 'bd.bigger': 'Show bigger', 'bd.smaller': 'Show smaller', 'cl.roomTemp': 'room {v}',
+    'pe.compare': 'Compare', 'pe.cmp.note': 'each house with its own meters', 'pe.cmp.noMeters': 'no meters of its own (⚡ Bill)', 'pe.cmp.nowIs': 'now {v}',
+    'pe.cmp.sum': 'Σ all houses', 'pe.cmp.chart.day': 'Use per hour, a line per house', 'pe.cmp.chart': 'Use, a colour per house', 'pe.cmp.now': 'Power now',
+    'pe.cmp.nowNone': 'No house has a power sensor for "now" (⚡ Bill → use of the house).',
+    'ce.series': 'Sensors (up to {n}, a line each, e.g. the power of each house)',
   },
 };
 

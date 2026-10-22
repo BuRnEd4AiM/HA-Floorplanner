@@ -53,3 +53,15 @@ test('a history as a line: min, max, the last value, grid lines; nothing with fe
   assert.equal(C.chartPaths([[0, 1]]), null); assert.equal(C.chartPaths(null), null);
   assert.ok(C.chartPaths([[0, 2], [1, 2]]).ticks.length >= 1);                         // a flat line still has a scale
 });
+test('a history card with several sensors (#495): each once, at most six, one scale, a colour each', () => {
+  const c = C.cleanCard({ id: 'c_abc', type: 'graph', entity: 'sensor.a', more: ['sensor.b', 'sensor.a', 'sensor.b', 'light.x', 'sensor.c', 'sensor.d', 'sensor.e', 'sensor.f', 'sensor.g'] });
+  assert.deepEqual(c.more, ['sensor.b', 'sensor.c', 'sensor.d', 'sensor.e', 'sensor.f']);
+  assert.deepEqual(C.cardEntities(c), ['sensor.a', 'sensor.b', 'sensor.c', 'sensor.d', 'sensor.e', 'sensor.f']);
+  assert.equal(C.cleanCard({ id: 'c_abc', type: 'graph', entity: 'sensor.a', more: [] }).more, undefined);
+  assert.equal(C.seriesColor({ color: 'orange' }, 0), C.COLOR_HEX.orange);
+  assert.notEqual(C.seriesColor({ color: 'orange' }, 1), C.COLOR_HEX.orange);       // the others never repeat the first
+  const m = C.chartMany([[[0, 0], [10, 100]], [[5, 50], [10, 0]], [[1, 1]]], 100, 100, { l: 0, r: 0, t: 0, b: 0 });
+  assert.equal(m.lines[0], 'M0.0,100.0 L100.0,0.0'); assert.equal(m.lines[1], 'M50.0,50.0 L100.0,100.0'); assert.equal(m.lines[2], null);
+  assert.equal(m.min, 0); assert.equal(m.max, 100);
+  assert.equal(C.chartMany([[[0, 1]]]), null); assert.equal(C.chartMany(null), null);
+});

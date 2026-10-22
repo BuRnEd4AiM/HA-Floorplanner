@@ -134,3 +134,35 @@ export function meterKind(state) {
 }
 /** the kinds a meter of this sort can be: energy for the grid, sun and battery (and gas in kWh), volume for gas and water */
 export const KIND_SORT = { from: ['energy'], to: ['energy'], solar: ['energy'], batIn: ['energy'], batOut: ['energy'], gas: ['volume', 'energy'], water: ['volume'] };
+
+/* ---- "⚖ Vergleichen": several houses side by side (#495, the owner: "wenn man mehrere Häuser hat mit unterschiedlichen Stromsensoren,
+ * dass es dann auch in einer Grafik irgendwie zu sehen ist") ---- */
+
+/** the colour of each house, in the order of the list (told apart with colour blindness too: blue, orange, purple, green, red, grey) */
+export const HOUSE_COLORS = ['#3fa9f5', '#f5a623', '#c678dd', '#46a758', '#e5484d', '#8b98a5'];
+
+/**
+ * The meters each house counts with when they are compared: its own (⚡ Rechnung) or, for the first house without its own, those of
+ * Home Assistant's energy dashboard; a later house without its own gets none (it would only repeat the same numbers).
+ * houses: [{ id, name, energy (layout.energy) }] -> [{ id, name, color, meters, own, price }]
+ */
+export function compareMeters(houses, ha, haPrice) {
+  let haTaken = false;
+  return (houses || []).map((h, i) => {
+    const m = houseMeters(h.energy, ha);
+    let meters = m.meters;
+    if (!m.own) { if (haTaken) meters = cleanMeters({}); else haTaken = hasMeters(meters); }
+    return { id: h.id, name: h.name, color: HOUSE_COLORS[i % HOUSE_COLORS.length], meters, own: m.own, price: priceOf(h.energy, haPrice) };
+  });
+}
+
+/** every house's bars, sums and cost from the same statistics: [{ ...house, rows, total, cost }]; n: how many bars count for the sums */
+export function compareHouses(list, stats, buckets, end, n = buckets.length) {
+  return (list || []).map((h) => {
+    const rows = bars(stats, h.meters, buckets, end), total = totals(rows, n);
+    return { ...h, rows, total, cost: cost(total, h.price), empty: !hasMeters(h.meters) };
+  });
+}
+
+/** the highest value of all houses' bars (for one scale), at least 0.1 */
+export const compareMax = (list) => Math.max(0.1, ...(list || []).flatMap((h) => h.rows.map((r) => r.use)));

@@ -1,8 +1,9 @@
 /* The pages of the tab bar as dashboards an admin arranges (#484): puts together the own cards (cardsui.js), the board of every page
  * (pageboard.js: order, hidden cards, the edit mode), the windows to add and set a card (cardeditor.js), the bar's edit mode with own
- * pages (tabedit.js) and the own pages themselves (pagecustom.js). app.js only calls initDashboards and hands the result to the pages
+ * pages (tabedit.js), the own pages themselves (pagecustom.js) and the thermostat as a circle (thermostatui.js, #495). app.js only calls initDashboards and hands the result to the pages
  * and the tab bar. */
 import { initCards } from './cardsui.js';
+import { initThermostat } from './thermostatui.js';
 import { initBoard } from './pageboard.js';
 import { initCardEditor } from './cardeditor.js';
 import { initTabEdit } from './tabedit.js';
@@ -31,11 +32,14 @@ export function initDashboards(ctx) {
   const rooms = () => (ctx.layout().floors || []).flatMap((f) => (f.rooms || []).map((r) => ({ id: r.id, name: r.name || '?', floor: f.name || '' })));
   const pageName = (page) => cleanCustomTabs(ctx.settings().customTabs).find((x) => x.id === page)?.name || t(`tab.${page}`);
 
+  /** the thermostat as a circle (#495): the own card "Thermostat" and the page 🌡 Klima; a tap draws the open page again */
+  const thermo = initThermostat({ t, lang: ctx.lang, settings: ctx.settings, states: ctx.states, callService: ctx.callService,
+    changed: () => bar().update() });
   const cards = initCards({
     t, lang: ctx.lang, states: ctx.states, settings: ctx.settings, nameOf: ctx.nameOf, stateText: ctx.stateText, callService: ctx.callService,
     camImage: ctx.camImage, openCamera: ctx.openCamera, room,
     openRoom: (id) => { const r = room(id); if (r) ctx.openRoom(r.fi, id); },
-    builtin: ctx.builtin,
+    builtin: ctx.builtin, thermo,
     changed: () => { board.refresh(bar().open()); editor.refresh(); },
   });
   const board = initBoard({
@@ -51,7 +55,7 @@ export function initDashboards(ctx) {
   });
   const custom = initCustomPages({ t, host: $('#tabPages'), settings: ctx.settings, board, canEdit: ctx.canEdit });
   return {
-    board, tabEdit,
+    board, tabEdit, thermo,
     customPages: () => custom.all(),
     edit: { can: ctx.canEdit, editing: board.editing, toggle: board.toggle, refresh: board.refresh },
   };

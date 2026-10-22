@@ -686,7 +686,7 @@ const todayPage = initTodayPage({                                // ☀ Heute (p
 const climatePage = initClimatePage({                            // 🌡 Klima (pageclimate.js, climate.js, #483)
   t, el: $('#tabPages [data-page=climate]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => shownLayout(),
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
-  callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board,
+  callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board, thermo: dash.thermo,   // the thermostat as a circle (#495)
 });
 const routinesPage = initRoutinesPage({                          // ▶ Abläufe (pageroutines.js, routines.js, #483)
   t, el: $('#tabPages [data-page=routines]'), states: () => states, settings: () => settings, canEdit: () => me.canEdit,
@@ -709,7 +709,7 @@ const familyPage = initFamilyPage({                              // 👨‍👩�
 });
 const energyPage = initEnergyPage({                              // ⚡ Energie (pageenergy.js, energyhistory.js)
   t, el: $('#tabPages [data-page=energy]'), lang: () => currentLanguage(), layout: () => layout, houseId: () => hs.id(),
-  houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(), board,
+  houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), changed: () => tabsUi.update(), board, states: () => states,
 });
 /** a tap on a row of "Im Haus" on the page ☀ Heute: to the house and what the row is about (the power: to the page ⚡ Energie) */
 function todayAct(k) {

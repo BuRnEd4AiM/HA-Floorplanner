@@ -93,6 +93,29 @@ pgE.click("#modeSwitch [data-mode=live]"); pgE.wait_for_timeout(800)
 pgE.click("#tabBar [data-tab=energy]"); pgE.wait_for_timeout(2000)
 check("energy: now with the house's own meters (said under the period)", "Zähler dieses Hauses" in pgE.inner_text("[data-page=energy]"))
 
+# --- ⚖ Vergleichen (#495): a second house with its own meter, both side by side
+def send_te(method, path, body):
+    r = urllib.request.Request(BASE + path, data=json.dumps(body).encode(), method=method, headers={"X-Remote-User-Name": "admin", "Content-Type": "application/json"})
+    return json.load(urllib.request.urlopen(r))
+h2_te = send_te("POST", "api/houses", {"name": "Zweithaus"})["id"]
+send_te("PUT", f"api/layout?house={h2_te}", {"version": 1, "energy": {"meters": {"from": ["sensor.netz_einspeisung"]}, "price": {"buy": 0.4}},
+                                            "floors": [{"id": "z0", "name": "EG", "kind": "floor", "walls": [], "rooms": [], "devices": []}]})
+pgE.reload(); pgE.wait_for_timeout(1500)
+if pgE.is_visible("#modeSwitch [data-mode=live]"): pgE.click("#modeSwitch [data-mode=live]"); pgE.wait_for_timeout(800)
+pgE.click("#tabBar [data-tab=energy]"); pgE.wait_for_timeout(1500)
+before = len(stats_asked())
+pgE.click("[data-page=energy] [data-house=cmp]"); pgE.wait_for_timeout(2000)
+asked = stats_asked()[before:]
+tiles_te = pgE.evaluate("[...document.querySelectorAll('[data-page=energy] .pcTile')].map((x) => x.innerText.split('\\n')[0])")
+lines_te = pgE.evaluate("[...document.querySelectorAll('[data-page=energy] .pcLine')].map((x) => x.dataset.house)")
+check("energy (#495): '⚖ Vergleichen' asks once for both houses' meters and shows a tile each, the sum and a line per house",
+      asked and {"sensor.netz_bezug", "sensor.netz_einspeisung"} <= set(asked[-1][0]) and len(tiles_te) == 3 and "Zweithaus" in tiles_te[1]
+      and len(lines_te) == 2 and h2_te in lines_te and pgE.locator("[data-page=energy] .pcNow").count() == 1, (asked[-1:], tiles_te, lines_te))
+pgE.click("[data-page=energy] [data-kind=week]"); pgE.wait_for_timeout(1500)
+check("energy (#495): a week side by side: a bar per house and day, the cost of each house", pgE.locator("[data-page=energy] .pcChart g").count() == 7
+      and "Zweithaus" in pgE.inner_text("[data-page=energy] .pcCost"), pgE.inner_text("[data-page=energy]")[:300])
+urllib.request.urlopen(urllib.request.Request(BASE + f"api/houses/{h2_te}", method="DELETE", headers={"X-Remote-User-Name": "admin"})).read()
+
 # --- ⚙ → "Reiter unten": the calendars of the page ☀ Heute
 pgE.click("#tabBar [data-tab=house]"); pgE.wait_for_timeout(300)
 pgE.click("#settingsBtn"); pgE.wait_for_timeout(300)
