@@ -14,6 +14,7 @@ ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_pr
 NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["ha_entity", "notify.a,notify.b", message] through notify.send_message (#460), ["callmebot", phone, text, apikey] through /_callmebot
 STATS_ASKED = []   # the statistics the add-on asked for (#479): [ids, period]
 EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes[, platform][, device]}}, {} takes them away; with "platform" or "device" also in the entity registry (#460, #483: a phone and its battery)
+FLOWS = []         # #501: the config flows started and their steps ("＋ Zähler anlegen": Home Assistant's Integral helper), GET /_flows
 CAL_NEW = {}       # #495: the events "＋ Termin" of the calendar card made: {calendar: [event]}; GET /_calreset forgets them
 TODO = {}          # #490: the to-do lists: {entity: [{"uid", "summary", "status"}]}, POST /_todo; changed by todo.add_item / update_item / remove_completed_items
 HIST = {}          # #490: the history of some entities (a machine's power): {entity: [[iso time, state]]}, POST /_hist; others get the hourly numbers
@@ -143,7 +144,8 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
             await ws.send_json({"id": m["id"], "type": "result", "success": True,
                                 "result": [{"entity_id": e, "platform": "mock", "unique_id": u, "device_id": DEVICES.get(u)} for e, u in REGISTRY.items()]
                                 + [{"entity_id": e, "platform": "mock", "unique_id": "energy_" + e, "device_id": d} for e, d in ENERGY["registry"].items()]
-                                + [{"entity_id": e, "platform": v.get("platform", "mock"), "unique_id": "extra_" + e, "device_id": v.get("device")} for e, v in EXTRA.items() if "platform" in v or "device" in v]})
+                                + [{"entity_id": e, "platform": v.get("platform", "mock"), "unique_id": "extra_" + e, "device_id": v.get("device"), "config_entry_id": v.get("entry")}
+                                   for e, v in EXTRA.items() if "platform" in v or "device" in v or "entry" in v]})
         elif m.get("type") == "energy/get_prefs":               # the energy dashboard (#407): "not_found" while it is not set up
             ok = ENERGY["prefs"] is not None
             await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": ENERGY["prefs"] if ok else None,
@@ -186,6 +188,19 @@ async def calendar_events(r):
         return web.json_response([{"start": {"date": (day + dt.timedelta(days=1)).isoformat()}, "end": {"date": (day + dt.timedelta(days=2)).isoformat()}, "summary": "Gelber Sack"}] + new)
     at = dt.datetime.combine(day, dt.time(15, 0)).astimezone()
     return web.json_response([{"start": {"dateTime": at.isoformat()}, "end": {"dateTime": (at + dt.timedelta(hours=1)).isoformat()}, "summary": "Zahnarzt"}] + new)
+async def flow_start(r):          # #501: a config flow of Home Assistant (only the Integral helper is known here)
+    body = await r.json()
+    FLOWS.append(["start", body.get("handler")])
+    if body.get("handler") != "integration": return web.json_response({"message": "Invalid handler specified"}, status=404)
+    return web.json_response({"type": "form", "flow_id": f"f{len(FLOWS)}", "step_id": "user", "data_schema": []})
+async def flow_step(r):           # the helper made: a counter in kWh that names its power sensor as its source (like Home Assistant's)
+    import re as _re
+    body = await r.json()
+    FLOWS.append(["step", body])
+    eid = "sensor." + _re.sub(r"[^a-z0-9]+", "_", body["name"].lower()).strip("_")
+    EXTRA[eid] = {"state": "0.0", "entry": "e_" + eid, "attributes": {"friendly_name": body["name"], "unit_of_measurement": "kWh", "state_class": "total", "source": body["source"]}}
+    return web.json_response({"type": "create_entry", "result": {"entry_id": "e_" + eid}, "title": body["name"]})
+async def flows(r): return web.json_response(FLOWS)
 async def cal_reset(r):
     CAL_NEW.clear()
     return web.json_response({"ok": True})
@@ -274,7 +289,7 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
-                web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_calreset", cal_reset), web.get("/_stats", stats_asked),
+                web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_calreset", cal_reset), web.post("/config/config_entries/flow", flow_start), web.post("/config/config_entries/flow/{id}", flow_step), web.get("/_flows", flows), web.get("/_stats", stats_asked),
                 web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),
                 web.get("/history/period/{start}", history), web.get("/_history", history_asked),
                 web.post("/_todo", set_todo), web.post("/_hist", set_hist), web.get("/api/media_player_proxy/{e}", media_proxy)])

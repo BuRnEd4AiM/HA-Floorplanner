@@ -197,7 +197,8 @@ export function initEnergyUi(ctx) {
         });
       });
     }
-    if (ctx.meterPart) out.push(...ctx.meterPart({ t, el, edit, energy, adder, entities: ctx.entities, states: ctx.states }));   // the meters of the page ⚡ Energie (#481)
+    if (ctx.meterPart) out.push(...ctx.meterPart({ t, el, edit, energy, adder, entities: ctx.entities, states: ctx.states,   // the meters of the page ⚡ Energie (#481)
+      sources: () => energySources(energy(), ctx.layout().floors.flatMap((f) => f.devices || []), ctx.states()) }));       // "⤵ Von oben übernehmen"
     body.replaceChildren(...out);
     renderResult();
     ctx.setup?.render();

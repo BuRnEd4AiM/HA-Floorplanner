@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.15.0] - 2026-10-22
+### Added
+- **⤵ Von oben übernehmen: the meters of the page ⚡ Energie from the power sensors** (#501, the owner: "einen Knopf …, dass es von oben, was ich eingestellt habe, nach unten auch übernommen wird"). "Zähler für den Verlauf" needs counters in kWh (they only go up), the power editor above has sensors in W, so the list rightly did not offer them. The new button looks, for every sensor set above (grid, solar, battery charging / discharging), for its counter: an "Integral" helper of Home Assistant made from it, or a counter in kWh of the same device whose name fits (a total, not the one of the day), and takes it. Where there is none, **＋ Zähler anlegen** makes Home Assistant's "Integral" helper (W → kWh) through its config flow and takes it; it counts from then on. Per kind a line says what happened. A sensor measuring both ways (+/−) only gets a counter its device has. Server: `counters.py` (tested), `api/energy/counters`, `api/energy/counter` (editors only).
+### Fixed
+- **The backup now also keeps the pinboard and the alarm settings** (#500, the owner: "sichert das Backup auch alles … auch das, was wir nun neu gemacht haben?"). "Backup herunterladen" and the automatic backups held the houses, the settings (pages, sections, own cards, presence …), pictures and 3D models, but not the notes of the pinboard, the holiday alarm's settings and the alarm messages' settings. They are in it now (`extras`) and come back when it is put back; the alarm's code and the CallMeBot keys stay out of the file and keep their current value. Older backups restore as before.
+
 ## [4.14.0] - 2026-10-22
 ### Added
 - **Buttons the way you want them** (#495, the owner: "mehr Möglichkeiten, Buttons anzupassen"; picture `docs/ideen-4.9/7-knoepfe.jpg`). The own card *🔘 Knopf* gets in *Karte einstellen*: a **symbol** (20 to pick, or automatic), the **colour when on** (seven, or the lamp's own colour), the **shape** (▢ Kachel, ◯ Rund, ▭ Pille, Nur Symbol) and **size** (S, M, L, XL), what it **shows** (name, state, the brightness as a bar, since when: "seit 2 Std."), what a **tap** does (on / off, the window with the controls, open a page, nothing) and a **long press** (nothing, the window with the controls, Home Assistant's own window with the history). A button can now also be a thermostat, a water heater, a lock or a vacuum (a tap opens its window).

@@ -297,7 +297,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495) | 0 | 0 | 6 | 0 | 89.1 bis 89.6 |
 | 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495) | 0 | 0 | 7 | 0 | 90.1 bis 90.7 |
 | 91. Neu in 4.14.0: Knöpfe gestalten (#495) | 0 | 0 | 7 | 0 | 91.1 bis 91.7 |
-| **Zusammen** | **492** | **5** | **171** | **54** | |
+| 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500) | 0 | 0 | 6 | 0 | 92.1 bis 92.6 |
+| **Zusammen** | **492** | **5** | **177** | **54** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1477,4 +1478,15 @@ Wunsch des Besitzers: „mehr Möglichkeiten, Buttons anzupassen“. Bild `docs/
 | 91.5 | ✎ Bearbeiten, an einem Knopf ⚙️ | Symbol, „Farbe, wenn an“ (auch „oder die Farbe der Lampe“), „Form und Größe“, „Zeigen“, „Tippen“, „Lange drücken“; die Vorschau rechts ändert sich sofort | ❓ |
 | 91.6 | Bei „Tippen“ „Seite öffnen“ wählen, eine Seite aussuchen, speichern, „✓ Fertig“, dann auf den Knopf tippen | Die gewählte Seite geht auf | ❓ |
 | 91.7 | Im Add-on: einen eigenen Knopf für eine Lampe anlegen und gestalten | Sieht aus wie gewählt, Tippen und lange Drücken tun, was eingestellt ist | ❓ |
+
+## 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500)
+Wünsche des Besitzers: „einen Knopf …, dass es von oben, was ich eingestellt habe, nach unten auch übernommen wird“ und „sichert das Backup auch alles …?“
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 92.1 | Demo, Bearbeiten → Strom-Editor (⚡) → unten „Zähler für den Verlauf“ → „⤵ Von oben übernehmen“ | Für Netz, Solar und Batterie je eine grüne Zeile „… übernommen“; die Zähler stehen darunter | ❓ |
+| 92.2 | Im Add-on: dasselbe mit deinen Sensoren (SolarNet) | Wo dein Gerät einen kWh-Zähler hat, wird er übernommen; sonst steht dort „misst nur die Leistung (W) …“ mit dem Knopf „＋ Zähler anlegen“ | ❓ |
+| 92.3 | Im Add-on: bei einem Sensor ohne Zähler „＋ Zähler anlegen“ | Grüne Zeile „… angelegt und übernommen“; in Home Assistant unter Einstellungen → Geräte & Dienste → Helfer steht ein neuer Helfer „… Energie“ (Integral) | ❓ |
+| 92.4 | Noch einmal „⤵ Von oben übernehmen“ | Alles „war schon eingetragen“, nichts doppelt | ❓ |
+| 92.5 | Eine Notiz an die Pinnwand, dann „Backup herunterladen“, die Notiz löschen, das Backup einspielen | Die Notiz ist wieder da | ❓ |
+| 92.6 | Im Add-on: Urlaubs-Alarmanlage eingerichtet (Sensoren, Code), Backup einspielen | Sensoren und Einstellungen stimmen, der Code ist noch derselbe | ❓ |
 

@@ -204,6 +204,8 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `buttonlook.js` | ~65 | Aussehen eines Knopfs, rein (getestet): Symbol, Farbe wenn an (auch die der Lampe), Form, Größe, was er zeigt, Tippen / lange drücken; was er gerade zeigt (`buttonFace`), „seit wann“ |
 | `buttoncardui.js` | ~105 | Die Knopf-Karte (aus `cardsui.js` herausgezogen): zeichnen, Tippen und langes Drücken, der Teil im Karten-Editor |
 | `ctlwindow.js` | ~90 | „Fenster mit Reglern“ für ein Gerät: An/Aus, Lampe, Thermostat-Kreis, Rollladen, Schloss, Geräte-Regler, Szene starten, Details |
+| `energycounters.js` | ~40 | „⤵ Von oben übernehmen“, rein (getestet): Leistungs-Sensoren je Zählerart aus dem Strom-Editor, gefundene Zähler in die Zähler übernehmen |
+| `energycountersui.js` | ~65 | Knopf „⤵ Von oben übernehmen“, Zeilen je Zählerart, „＋ Zähler anlegen“ (Integral-Helfer in Home Assistant) |
 | `mediaprefs.js` | ~90 | ⚙ → „Reiter unten“: Radiosender (halb getippte Zeilen bleiben stehen, weil der Dialog bei jeder Änderung speichert), welche Liste die Einkaufsliste ist, Maschinen von Hand (Leistung, Zustand) |
 
 ## Noch in `app.js`
