@@ -4,6 +4,11 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.8.1] - 2026-10-22
+### Fixed
+- **States in English in the device list** (#492, found while checking the demo): a robot vacuum said "docked", a presence sensor "on". The device list, the labels over the devices and the state lines now say "An der Station", "An" / "Aus", "zu Hause" / "unterwegs", a player's "läuft" / "Pause", a camera's "bereit" and an alarm panel's state in the language of the page; other states stay as Home Assistant says them.
+- Demo: the camera stills no longer carry the camera's name, which peeked out behind the name on the camera page.
+
 ## [4.8.0] - 2026-10-22
 ### Added
 - **🎵 Musik & TV** (#490, package 3 of 3 of the owner's wish "kannst du die anderen reiter auch machen", picture `docs/ideen-4.3/7-musik.jpg`): a card per player with its room, what plays, its picture (through the add-on: `api/media/<player>/picture`), ⏮ ⏯ ⏭, on / off, source and volume; **Alles stopp**; **Räume zusammen** (`media_player.join` / `unjoin`, for players that can); **radio stations** as buttons (⚙ → *🗂 Reiter unten*: a name and a stream or `media-source://` address; a tap asks on which player, `media_player.play_media`).

@@ -1,20 +1,20 @@
 {
  "session": "session_014T6pwtdfaLFq9HcZLAKcyK",
  "start": "2026-10-21",
- "updated": "2026-10-22T03:54:33Z",
+ "updated": "2026-10-22T08:31:41Z",
  "branch": "claude/paket-2-weiterbau-odqi1b",
  "source": "counted",
- "input": 1004,
- "cache_write": 1653866,
- "cache_read": 205948402,
- "output": 603435,
+ "input": 1136,
+ "cache_write": 2423269,
+ "cache_read": 251015344,
+ "output": 658173,
  "models": {
   "claude-opus-5-5": {
-   "input": 1004,
-   "cache_write": 1653866,
-   "cache_read": 205948402,
-   "output": 603435,
-   "requests": 500
+   "input": 1136,
+   "cache_write": 2423269,
+   "cache_read": 251015344,
+   "output": 658173,
+   "requests": 565
   }
  }
 }

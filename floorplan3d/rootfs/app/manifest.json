@@ -1,6 +1,6 @@
 {
- "version": "4.8.0",
- "buildHash": "da499b33630af2901f24940ab12a2fad0d94d20e843a166482b0f013a0263348",
+ "version": "4.8.1",
+ "buildHash": "2204608dfc53cda999f5a9cda36100a6f16045824e9f159937d200b8edc36412",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "boards.py": "673b9cf399ddf1a9e10fc5be24917cf143b29382f065d618dd3f70c360bb006d",
@@ -139,7 +139,7 @@
   "server.py": "ab10c482690d7427e803ce3cc6d78fe4e4292d3b9979b7bd655efe0248366101",
   "static/alerts.js": "099108c279cdf2ea1008180d0d73dbe18b10aa4d63365a83bfde1cf7c2a4a803",
   "static/alertsui.js": "503c006f839253eb31f5e2adb4e6612d21fd657b8691956fd095546dce5177ea",
-  "static/app.js": "4d5dc99c47234fac13bf206170d2f1736f09948520f81e048bb4555f68f7f612",
+  "static/app.js": "d443fa062770e2df20a49b172dc2ae81b1ae94af144d667ace44745efecb3588",
   "static/appstate.js": "f6bd98e661de748f9c1e5db1d9e8700516d78e6ce0c5668e33dbd25ce4a09fa2",
   "static/attic.js": "1c31524de44895638c5498cce26a7aa64b092c5c713d82bf26c895a2a1715820",
   "static/atticclip.js": "3f99788b46c36ace3b01e450da69e32163103616d12f4e039a37770def0b744d",
@@ -147,7 +147,7 @@
   "static/background.js": "6ccd7fd8e2e076b02317a864f0957ebe16af4faac9c9dacda16ae11b6e86b172",
   "static/backups.js": "e2f0af27a7a4acece5d52b45a00d8ab5491238e7fbd470d6e1ffd975f8e1743c",
   "static/badges.js": "26d8a4d9b03cb0f3b97ca240e9156121680d519ecf13d513b5581ac3547bcdab",
-  "static/badgetext.js": "ac58d34bc30e824da2cd767b4f1b39783b87250e816a13c9c73e3908808f3705",
+  "static/badgetext.js": "5544426aca6f0caefbf71e661ef76cf80beb84a70770dae1403e701ae415e1d6",
   "static/blocks.js": "0cd5039f4ddd5d955e250e9ba29eb8d526040b1f3fb719b36db543942f00c22d",
   "static/bootguard.js": "83bb8ecb619e499aca757cdb3b901ea3a7d561b71f6e514a1e1e4f654be9d45e",
   "static/bridge.js": "99f87d985968852ae3426405433dc4909ab1a390ec258b24cb49162064b09671",

@@ -512,7 +512,7 @@ const ON_STATES = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool',
 
 /** texts for the value badges and state lines (badgetext.js) */
 function labelText(entityId, type) { return badgeText(states[entityId], entityId, t, type); }
-function stateText(entityId) { return plainStateText(states[entityId], t); }
+function stateText(entityId) { return plainStateText(states[entityId], t, entityId); }
 
 /* ---- power add-on (#136): cables, power editor, energy overview; the code lives in power.js and powerlogic.js ---- */
 const power = initPower({
