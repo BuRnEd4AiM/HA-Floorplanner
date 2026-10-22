@@ -296,7 +296,13 @@ const isHolo = () => settings.theme === 'holo';
 const roomLightMat = (kind, alpha = 1, ghost = false) => makeRoomLightMat(kind, alpha, ghost, HOLO.floor);
 const fillLights = (m, lights, k = 1) => fillRoomLights(m, lights, k, settings);
 /** every placed entity as its own entry: a TV's backlight, each section of an LED ring and each LED zone with its own entity (ledzones.js) */
-const entityDevices = (f) => placedEntities(f.devices, t('dev.ledring'), (d, key) => `${d.name || t(`dev.${d.type}`)} · ${t(`led.${key}`)}`);
+let placedMemo = null;                     // while the states are applied: the devices of each floor worked out once, not again for every room (#494)
+const entityDevices = (f) => {
+  if (placedMemo?.has(f)) return placedMemo.get(f);
+  const v = placedEntities(f.devices, t('dev.ledring'), (d, key) => `${d.name || t(`dev.${d.type}`)} · ${t(`led.${key}`)}`);
+  placedMemo?.set(f, v);
+  return v;
+};
 const roomMeshes = new Map();     // room id -> { mesh, room }
 
 /* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing; the code lives in earth.js ---- */
@@ -726,7 +732,7 @@ const tabsUi = initTabsUi({
     routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage },
     ...dash.customPages() }),
   edit: dash.edit, tabEdit: dash.tabEdit,
-  onShow: (tab) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } wake(); },
+  onShow: (tab, was) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
 });
 
 /* ================= Floor cards (whole-house view): the code lives in floorcards.js ================= */
@@ -753,7 +759,18 @@ function updateViewLegend() {
   // a vertical scale like a thermometer: high values on top, every colour stop labelled
   el.innerHTML = `<b>${title}</b><div class="lg"><i style="background:linear-gradient(0deg, ${grad})"></i><div class="lgv">${stops.map((s) => `<span style="bottom:${pct(s.v)}%">${s.v} ${vs[1]}</span>`).join('')}</div></div>`;
 }
+/** new states (or a new look): what shows them is brought up to date. While a page of the tab bar lies over the house only what can be
+ *  seen over it (the warnings, the page; the low batteries for ☀ Heute); the house catches up when it is shown again (onShow of the tab
+ *  bar, #494) */
 function applyStates() {
+  const own = !placedMemo;
+  if (own) placedMemo = new Map();
+  try {
+    if (tabsUi.covered()) { alertsUi.update(); deviceList.update(); tabsUi.update(); }
+    else applyHouseStates();
+  } finally { if (own) placedMemo = null; }
+}
+function applyHouseStates() {
   if (plan?.isVisible()) plan.render();
   updateViewLegend();
   power.update();
@@ -1569,7 +1586,7 @@ const renamed = initRenames({
 const liveChan = initLiveChannel({
   paused: () => !!replayBack,
   entities: () => entities, setEntities: (x) => { entities = x; }, states: () => states, setStates: (x) => { states = x; }, toState: (e) => toState(e),
-  wake: () => wake(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); },
+  wake: () => poke(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); },   // a sensor that reports every second must not keep the picture at full speed (#494)
   firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
   renamed: (d) => { persist.renamed(d.revs?.[hs.id() || 'main']); renamed(d); },   // the stored plan was rewritten too: its new version tag (#403)
 });
@@ -1666,6 +1683,7 @@ var lastActive = performance.now(), lastFrame = 0;
 var shadowDirty = true, lastShadow = 0;                           // the shadow map is drawn again only when something changed (frameloop.js, #253)
 function markShadows() { shadowDirty = true; }
 function wake() { lastActive = performance.now(); }
+function poke() { lastFrame = 0; }                                // one frame now, without waking the picture: a state from Home Assistant (#494)
 ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart', 'touchmove'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
 controls.addEventListener('change', wake);
 const perfHud = initPerfHud({ $, renderer, low: LOW, param: params.get('fps'), lang: currentLanguage, onChange: wake });   // FPS and more, chosen in the View menu (perfhud.js)
@@ -1682,7 +1700,7 @@ function animate(now = performance.now()) {
   controls.update();
   if (updateCutaway()) markShadows();                            // walls sinking or rising: their shadows change
   compass.update();
-  if (animateOpenings()) markShadows();                          // a door or window leaf moving
+  if (animateOpenings()) { markShadows(); wake(); }              // a door or window leaf moving: smoothly to its end (a state only pokes one frame, #494)
   power.animate(now);
   selHelper?.update();
   declutterLabels();

@@ -290,7 +290,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 82. Neu in 4.7.0: Vollbild fest für einen Benutzer, beenden nur mit Code (#487) | 0 | 0 | 8 | 2 | 82.1 bis 82.8 |
 | 83. Neu in 4.8.0: 🎵 Musik & TV und 🧺 Haushalt (#490) | 0 | 0 | 12 | 4 | 83.1 bis 83.12 |
 | 84. Neu in 4.8.1: Zustände auf Deutsch in der Geräte-Liste (#492) | 0 | 0 | 1 | 0 | 84.1 |
-| **Zusammen** | **492** | **5** | **124** | **54** | |
+| 85. Neu in 4.8.2: Tablets schneller (#494) | 0 | 0 | 4 | 0 | 85.1 bis 85.4 |
+| **Zusammen** | **492** | **5** | **128** | **54** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1388,3 +1389,12 @@ Beim Selbsttest der Demo gefunden: In der Geräte-Liste stand beim Saugroboter �
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 84.1 | Demo, „Live“, oben „📋 Geräte“ antippen und die Liste durchsehen | Beim Saugroboter steht „An der Station“, bei „Büro Anwesenheit“ „An“, nirgends „on“, „off“ oder „docked“ | ❓ |
+
+## 85. Neu in 4.8.2: Tablets schneller (#494)
+Der Besitzer merkte, dass die Tablets langsamer wurden. Das 3D-Bild lief bei jeder Meldung eines Sensors 15 Sekunden mit voller Bildrate, und die Seiten wurden bei jeder Änderung ganz neu gebaut.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 85.1 | Im Add-on am Wandtablet ☀ Heute offen lassen, ein paar Minuten warten, dann zwischen den Reitern wechseln | Alles reagiert flüssig, das Tablet wird nicht mehr warm; „Strom jetzt“ zeigt neue Werte, die anderen Karten flackern nicht | ❓ |
+| 85.2 | Im Add-on 🏠 Haus offen lassen, nichts berühren (ein Strom-Sensor meldet sich weiter) | Lampen und Werte ändern sich weiter wie gewohnt; das Tablet bleibt kühl | ❓ |
+| 85.3 | Im Add-on im 🏠 Haus eine Tür oder ein Rollo über Home Assistant bewegen | Tür bzw. Rollo bewegt sich flüssig bis zum Ende, nicht ruckelnd | ❓ |
+| 85.4 | Auf einer Seite (z. B. 🌡 Klima) ein Licht über Home Assistant einschalten, dann auf 🏠 Haus wechseln | Im Haus ist das Licht sofort an (Raum-Kachel, Schild und Lampe) | ❓ |

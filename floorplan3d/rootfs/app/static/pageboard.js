@@ -33,19 +33,24 @@ export function initBoard(ctx) {
     const cols = getComputedStyle(box).gridTemplateColumns.split(' ').filter(Boolean).length;
     return Math.max(1, cols || 1);
   }
+  /** all widths first, then all heights read at once, then the rows: the browser lays the page out twice, not once per card (#494) */
   function masonry(box) {
-    const cols = columns(box);
-    box.querySelectorAll(':scope > .bdItem, :scope > .bdAdd').forEach((it) => {
-      const w = Number(it.dataset.w) || 1;
-      it.style.gridColumn = w >= 4 ? '1 / -1' : `span ${Math.min(cols, w)}`;                 // 4: the whole row, however many columns
-      it.style.gridRowEnd = `span ${rowSpan(it.getBoundingClientRect().height, ROW, GAP)}`;
-    });
+    const cols = columns(box), its = [...box.querySelectorAll(':scope > .bdItem, :scope > .bdAdd')];
+    const set = (it, k, v) => { if (it.style[k] !== v) it.style[k] = v; };
+    its.forEach((it) => { const w = Number(it.dataset.w) || 1; set(it, 'gridColumn', w >= 4 ? '1 / -1' : `span ${Math.min(cols, w)}`); });   // 4: the whole row, however many columns
+    its.map((it) => rowSpan(it.getBoundingClientRect().height, ROW, GAP)).forEach((n, i) => set(its[i], 'gridRowEnd', `span ${n}`));
   }
-  function watch(box) {
+  function watch(box, gone = []) {
     let obs = ro.get(box);
     if (!obs) { obs = new ResizeObserver(() => requestAnimationFrame(() => masonry(box))); ro.set(box, obs); obs.observe(box); }
+    gone.forEach((it) => obs.unobserve(it));
     box.querySelectorAll(':scope > .bdItem, :scope > .bdAdd').forEach((it) => obs.observe(it));
     masonry(box);
+  }
+  /** the children of box become els, in this order; what is already in its place stays (no new layout for an unchanged page) */
+  function place(box, els) {
+    els.forEach((el, i) => { if (box.children[i] !== el) box.insertBefore(el, box.children[i] || null); });
+    while (box.children.length > els.length) box.lastElementChild.remove();
   }
 
   /* ---- a card in the grid, with its tools in the edit mode ---- */
@@ -60,8 +65,8 @@ export function initBoard(ctx) {
     } else bar.append(btn(`bdTool${hidden ? ' off' : ''}`, '👁', () => setLayout(page, toggleHidden(layoutOf(page), key)), hidden ? t('bd.show') : t('bd.hide')));
     return bar;
   }
-  function item(page, entry, builtin, edit) {
-    const el = entry.own ? ctx.cards.render(entry.own) : builtin.el;
+  function item(page, entry, builtin, edit, same = null) {
+    const el = same || (entry.own ? ctx.cards.render(entry.own) : builtin.el);
     el.classList.add('bdItem'); el.classList.toggle('bdEdit', edit); el.classList.toggle('bdOff', edit && entry.hidden);
     el.dataset.key = entry.key; el.dataset.w = String(entry.own ? entry.own.width : builtin.width || 1);
     el.querySelectorAll(':scope > .bdTools, :scope > .bdTag').forEach((x) => x.remove());
@@ -87,38 +92,54 @@ export function initBoard(ctx) {
 
   /**
    * Put the cards of a page into box: items [{ key, el, width }] are the page's own cards in their natural order (a missing one is not
-   * there now: no camera, no waste calendar ...); min: the narrowest column in px. Draws the edit mode's strip at the top of the page.
+   * there now: no camera, no waste calendar ...); instead of el an item can bring { sig, make }: make() draws it (null: nothing to show),
+   * only when its sig changed since the last fill of the same box. min: the narrowest column in px. Draws the edit mode's strip at the
+   * top of the page.
    */
   function fill(page, box, items, { min = 300 } = {}) {
-    const edit = editing === page && ctx.canEdit();
-    const byKey = new Map(items.filter((i) => i && i.el).map((i) => [i.key, i]));
+    const edit = editing === page && ctx.canEdit(), before = shown.get(page), kept = before?.box === box ? before.keep : new Map();
+    /* a card of the page with a sig that has not changed keeps its element (made with `make` only when it is new or changed, #494) */
+    const byKey = new Map();
+    items.filter(Boolean).forEach((i) => {
+      const old = i.sig !== undefined ? kept.get(i.key) : null;
+      const el = old && old.sig === i.sig ? old.el : i.make ? i.make() : i.el;
+      if (el) byKey.set(i.key, { ...i, el });
+    });
     const entries = arrange([...byKey.keys()], layoutOf(page)).filter((e) => e.own || byKey.has(e.key)).filter((e) => edit || !e.hidden);
-    box.classList.add('bdGrid'); box.style.setProperty('--bdMin', `${min}px`);
-    const own = new Map();
-    const els = entries.map((e) => { if (e.own) own.set(e.own.id, ctx.cards.sig(e.own)); return item(page, e, byKey.get(e.key), edit); });
+    box.classList.add('bdGrid');
+    const keep = new Map();
+    const els = entries.map((e) => {
+      const sig = e.own ? ctx.cards.sig(e.own) : byKey.get(e.key).sig, old = e.own ? kept.get(e.key) : null;
+      const el = item(page, e, byKey.get(e.key), edit, old && old.sig === sig ? old.el : null);
+      keep.set(e.key, { sig, el });
+      return el;
+    });
     if (edit) { const a = btn('bdAdd', `＋ ${t('bd.add')}`, () => ctx.addCard(page)); a.dataset.w = '1'; els.push(a); }
-    box.replaceChildren(...els);
+    const gone = [...box.children].filter((x) => !els.includes(x));
+    const same = !edit && !before?.edit && before?.box === box && box.style.getPropertyValue('--bdMin') === `${min}px` && els.length === box.children.length && els.every((x, i) => box.children[i] === x);
+    shown.set(page, { box, keep, edit });
+    if (same) return;                                // nothing new: no layout at all (a card that grows is measured by the observer)
+    box.style.setProperty('--bdMin', `${min}px`);
+    place(box, els);
     const sec = box.closest('.tabPage');
     sec?.querySelectorAll(':scope > .bdStrip').forEach((x) => x.remove());
     if (edit && sec) sec.prepend(strip(page));
-    shown.set(page, { box, own, edit });
-    watch(box);
+    watch(box, gone);
   }
   /** after a change of the states: own cards whose states changed are drawn again (the page itself draws only what it shows) */
   function refresh(page) {
     const s = shown.get(page);
     if (!s || !s.box.isConnected) return;
     const l = layoutOf(page);
-    let changed = false;
+    const gone = [];
     l.cards.forEach((c) => {
-      const old = s.box.querySelector(`:scope > [data-key="${c.id}"]`);
-      const sig = ctx.cards.sig(c);
-      if (!old || s.own.get(c.id) === sig) return;
-      s.own.set(c.id, sig);
+      const was = s.keep.get(c.id), sig = ctx.cards.sig(c);
+      if (!was || !was.el.isConnected || was.sig === sig) return;
       const el = item(page, { key: c.id, own: c, hidden: l.hidden.includes(c.id) }, null, s.edit);
-      old.replaceWith(el); changed = true;
+      s.keep.set(c.id, { sig, el });
+      was.el.replaceWith(el); gone.push(was.el);
     });
-    if (changed) watch(s.box);
+    if (gone.length) watch(s.box, gone);
   }
 
   /* ---- dragging a card: it follows the finger, the others make room; let go: the order is stored ---- */
