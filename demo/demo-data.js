@@ -255,6 +255,15 @@ const entities = {
   'person.anna':             { name: 'Anna', state: 'home' },
   'person.max':              { name: 'Max', state: 'not_home' },
   'person.lena':             { name: 'Lena', state: 'Schule' },      // 4.5: a zone of Home Assistant (the page 👨‍👩‍👧 Familie, #483)
+  // who is really at home (#495): the phones' trackers (GPS of the app, the FRITZ!Box), the app's Wi-Fi name and a Bluetooth room
+  'device_tracker.anna_handy': { name: 'Annas Handy', state: 'home' },
+  'device_tracker.anna_fritz': { name: 'Annas Handy (FRITZ!Box)', state: 'home' },
+  'sensor.anna_handy_wifi_connection': { name: 'Annas Handy WLAN', state: 'Zuhause-5G' },
+  'sensor.anna_handy_area':  { name: 'Annas Handy Raum', state: 'Wohnzimmer' },
+  'device_tracker.lena_handy': { name: 'Lenas Handy', state: 'Schule' },
+  'device_tracker.lena_fritz': { name: 'Lenas Handy (FRITZ!Box)', state: 'not_home' },
+  'device_tracker.max_handy': { name: 'Max Handy', state: 'not_home' },
+  'device_tracker.max_fritz': { name: 'Max Handy (FRITZ!Box)', state: 'not_home' },
   'binary_sensor.buero_praesenz': { name: 'Büro Anwesenheit', state: 'on' },
   'light.buero':             { name: 'Büro Licht',             state: 'on', rgb: [255, 226, 110] },
   'light.voute_bett':        { name: 'Voute Bettseite',        state: 'on', rgb: [190, 80, 255], brightness: 60 },
@@ -383,6 +392,7 @@ let settings = {
   windowFrames: 'anthracite',                               // 3.99: the demo shows the dark window frames (#428)
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
   favorites: ['scene.wz_gemuetlich', 'scene.wz_aus', 'light.stehlampe', 'light.kueche'],   // 4.2: favourites and light groups (#471)
+  presence: { rule: 'any', ssids: ['Zuhause-5G'] },                                           // who is really at home (#495)
   lightGroups: [{ id: 'g_wohnen', name: 'Wohnen', rooms: ['r1', 'r2'] }, { id: 'g_oben', name: 'Oben', rooms: ['q1', 'q2'] }, { id: 'g_keller', name: 'Keller', rooms: ['k1', 'k2', 'k3'] }],
   radioStations: [{ name: 'SWR3', url: 'https://radio.example/swr3.mp3' }, { name: 'Bayern 3', url: 'https://radio.example/bayern3.mp3' },   // 4.8: 🎵 (#490)
     { name: '1LIVE', url: 'https://radio.example/1live.mp3' }, { name: 'Deutschlandfunk', url: 'https://radio.example/dlf.mp3' }, { name: 'Klassik Radio', url: 'https://radio.example/klassik.mp3' }],
@@ -391,10 +401,15 @@ let settings = {
 // 4.5 (#483): the page 👨‍👩‍👧 Familie: the people as the add-on finds them (since when, the phone's battery; no pictures: the letters) and the pinboard
 const todayAt = (h, m) => { const d = new Date(); d.setHours(h, m, 0, 0); return d.toISOString(); };
 const family = () => ({ people: [
-  { id: 'person.anna', name: 'Anna', state: entities['person.anna'].state, since: todayAt(11, 2), picture: false, battery: 78, charging: false },
-  { id: 'person.max', name: 'Max', state: entities['person.max'].state, since: todayAt(8, 10), picture: false, battery: 45, charging: false },
-  { id: 'person.lena', name: 'Lena', state: entities['person.lena'].state, since: todayAt(7, 45), picture: false, battery: 18, charging: false },
+  { id: 'person.anna', name: 'Anna', state: entities['person.anna'].state, since: todayAt(11, 2), picture: false, battery: 78, charging: false,
+    sources: [src('gps', 'device_tracker.anna_handy', 11, 2), src('room', 'sensor.anna_handy_area', 11, 40), src('ssid', 'sensor.anna_handy_wifi_connection', 11, 2), src('wifi', 'device_tracker.anna_fritz', 11, 1)] },
+  { id: 'person.max', name: 'Max', state: entities['person.max'].state, since: todayAt(8, 10), picture: false, battery: 45, charging: false,
+    sources: [src('gps', 'device_tracker.max_handy', 8, 10), src('wifi', 'device_tracker.max_fritz', 8, 8)] },
+  { id: 'person.lena', name: 'Lena', state: entities['person.lena'].state, since: todayAt(7, 45), picture: false, battery: 18, charging: false,
+    sources: [src('gps', 'device_tracker.lena_handy', 7, 45), src('wifi', 'device_tracker.lena_fritz', 7, 41)] },
 ] });
+/** a source of a person (#495: pages.py person_sources) with its state now */
+function src(kind, entity, h, m) { return { kind, entity, state: entities[entity]?.state ?? '', since: todayAt(h, m) }; }
 const pinboard = [
   { id: 'a1b2c3d4e5f60001', text: 'Bin um 6 da 🚗', by: 'Max', at: todayAt(11, 48), color: 'yellow' },
   { id: 'a1b2c3d4e5f60002', text: 'Katze füttern! 🐱', by: 'Anna', at: todayAt(8, 10), color: 'green' },

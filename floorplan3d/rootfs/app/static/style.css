@@ -1437,7 +1437,16 @@ button.tpChip:disabled { opacity: .35; }
 .rtDlgBtns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
 .rtDlgBtn { flex: 1 1 140px; min-height: 48px; border-radius: 12px; font-weight: 700; }
 .rtDlgBtns p { margin: 0; flex: 1; text-align: center; font-size: 18px; }
-.fmPerson { display: flex; align-items: center; gap: 14px; }
+.fmPerson { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+/* who is really at home (#495): what says so per person, "n Personen zu Hause", the rooms */
+.fmSrc { flex-basis: 100%; display: flex; flex-direction: column; gap: 5px; }
+.fmSrc > div { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: 10px; background: var(--field); font-size: 13px; }
+.fmSrc > div.yes { box-shadow: inset 3px 0 0 #46a758; } .fmSrc > div.no { box-shadow: inset 3px 0 0 #8b98a5; color: var(--muted); }
+.fmSrc .fmSrcText { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fmSrc small { color: var(--muted); }
+.fmHome { display: flex; align-items: center; gap: 14px; background: rgba(70, 167, 88, .14); border-color: rgba(70, 167, 88, .55); }
+.fmHome.none { background: var(--panel); border-color: var(--line); }
+.fmHome b { font-size: 19px; } .fmHomeIcon { font-size: 32px; }
 .fmAva { position: relative; width: 58px; height: 58px; flex: none; border-radius: 50%; display: grid; place-items: center; overflow: hidden; color: #fff; font-size: 26px; font-weight: 800; }
 .fmAva img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .fmPerson.away .fmAva, .fmPerson.zone .fmAva { opacity: .85; }
@@ -1484,6 +1493,28 @@ button.tpChip:disabled { opacity: .35; }
 .bdTag { position: absolute; left: 12px; top: -12px; padding: 2px 10px; border-radius: 999px; background: #3a3f46; color: #fff; font-size: 12px; font-weight: 700; z-index: 3; }
 .bdTag.own { background: color-mix(in srgb, var(--accent) 80%, #000); }
 .bdDragging { z-index: 10; opacity: .92; box-shadow: 0 18px 40px rgba(0, 0, 0, .55); transition: none; cursor: grabbing; }
+/* the corner ↘ to make a card wider or narrower, and sections (#495, sections.js, sectionsui.js) */
+.bdResize { position: absolute; right: 2px; bottom: 2px; width: 22px; height: 22px; z-index: 3; cursor: ew-resize; touch-action: none;
+  border-right: 4px solid var(--accent); border-bottom: 4px solid var(--accent); border-radius: 0 0 10px 0; }
+.bdSizing { outline-style: solid; }
+.bdSecRoot { display: block !important; }
+.bdFree { margin-bottom: 18px; }
+.bdSecs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--secMin, 340px)), 1fr)); gap: 18px; align-items: start; }
+.bdSection { min-width: 0; }
+.bdSection.wide { grid-column: span 2; }
+@media (max-width: 900px) { .bdSection.wide { grid-column: auto; } }
+.bdSection.bdEdit { padding: 10px; border-radius: 18px; outline: 2px dashed color-mix(in srgb, var(--accent) 40%, transparent); outline-offset: 0;
+  background: color-mix(in srgb, var(--panel) 45%, transparent); }
+.bdSecHead { display: flex; align-items: center; gap: 8px; margin: 0 2px 10px; font-size: 18px; font-weight: 800; min-height: 30px; }
+.bdSecTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bdSecTools { margin-left: auto; display: flex; gap: 4px; }
+.bdSecTools .bdTool:disabled { opacity: .35; }
+.bdSecGrid { min-height: 40px; }
+.bdSecGrid[data-empty]:empty { min-height: 90px; border-radius: 14px; border: 2px dashed color-mix(in srgb, var(--accent) 45%, transparent); display: grid; place-items: center; }
+.bdSecGrid[data-empty]:empty::before { content: attr(data-empty); color: var(--muted); font-weight: 700; }
+.secIcons { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; }
+.secIcons button { height: 40px; padding: 0; font-size: 20px; border-radius: 10px; }
+.secIcons button.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 20%, transparent); }
 .bdAdd { display: grid; place-items: center; min-height: 92px; border-radius: 16px; border: 2px dashed color-mix(in srgb, var(--accent) 60%, transparent);
   color: var(--accent); font-weight: 800; font-size: 16px; background: color-mix(in srgb, var(--accent) 6%, transparent); cursor: pointer; }
 .bdStrip, #tabEditBar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; padding: 10px 14px; border-radius: 14px;

@@ -29,6 +29,8 @@ def test_the_lists_match_the_browser():
     assert js == boards.TYPE_DOMAINS
     assert boards.TABS == server.TABS
     assert tuple(js_list((STATIC / "thermostat.js").read_text(), "SIZES")) == boards.SIZES
+    sec_js = (STATIC / "sections.js").read_text()
+    assert "s_[a-z0-9]{3,16}" in sec_js and f"MAX_SECTIONS = {boards.MAX_SECTIONS}" in sec_js and f"MAX_TITLE = {boards.MAX_TITLE}" in sec_js
     assert "p_[a-z0-9]{3,16}" in (STATIC / "tabs.js").read_text() and "c_[a-z0-9]{3,16}" in cards
 
 
@@ -64,7 +66,15 @@ def test_cards_are_checked_by_their_kind():
 def test_a_page_layout():
     lay = boards.clean_layout({"order": ["clock", "clock", "c_abc", "BAD KEY"], "hidden": ["waste"], "cards": [
         {"id": "c_abc", "type": "text", "text": "x"}, {"id": "c_abc", "type": "text", "text": "y"}, {"id": "c_def", "type": "light", "entity": "switch.x"}]})
-    assert lay == {"order": ["clock", "c_abc"], "hidden": ["waste"], "sizes": {}, "cards": [{"id": "c_abc", "type": "text", "name": "", "width": 2, "text": "x"}]}
+    assert lay == {"order": ["clock", "c_abc"], "hidden": ["waste"], "sizes": {}, "sections": [], "widths": {},
+                   "cards": [{"id": "c_abc", "type": "text", "name": "", "width": 2, "text": "x"}]}
+    sec = boards.clean_layout({"sections": [{"id": "s_abc", "title": "  Wohnzimmer\x07 ", "icon": "🛋", "keys": ["clock", "c_x1", "clock", "BAD KEY"]},
+                                            {"id": "s_abc"}, {"id": "bad"}, {"id": "s_def", "wide": "yes", "keys": ["clock", "weather"]}],
+                               "widths": {"clock": 2, "weather": 7, "top": True, "BAD KEY": 1}})          # #495: sections and widths
+    assert sec["sections"] == [{"id": "s_abc", "title": "Wohnzimmer", "icon": "🛋", "wide": False, "keys": ["clock", "c_x1"]},
+                               {"id": "s_def", "title": "", "icon": "", "wide": False, "keys": ["weather"]}]
+    assert sec["widths"] == {"clock": 2}
+    assert set(boards.clean_page_layouts({"today": {"sections": [{"id": "s_abc"}]}}, [])) == {"today"}
     sized = boards.clean_layout({"sizes": {"room:r1": "small", "room:r2": "huge", "BAD KEY": "small", "room:r3": "big"}})   # #495: a built-in card big or small
     assert sized["sizes"] == {"room:r1": "small", "room:r3": "big"}
     assert set(boards.clean_page_layouts({"climate": {"sizes": {"room:r1": "small"}}}, [])) == {"climate"}

@@ -105,6 +105,7 @@ DEFAULT_SETTINGS = {
     "tabBar": True,            # the tab bar at the bottom of the live view (#479): the house and pages beside it
     "agendaCalendars": [],     # the calendars of the page ☀ Heute (#481); empty = all calendars of Home Assistant
     "wasteCalendar": "",       # the calendar of the waste collection (#481): its next dates stand apart on the page ☀ Heute
+    "presence": {"rule": "ha", "ssids": []},   # who is really at home (#495, pages.clean_presence): {rule: ha | any | two, ssids: [the home Wi-Fi]}
     "routines": [],            # the buttons of the page ▶ Abläufe (#483): scenes, scripts, buttons; empty = every scene and script
     "routineLeave": "",        # the routine "Ich gehe" starts after its check (a scene, script or button, #483); "" = only the check
     "routineNight": "",        # the same for "Gute Nacht"
@@ -587,6 +588,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = pages.clean_stations(val)
         elif key == "appliances":
             out[key] = hh.clean_chosen(val)
+        elif key == "presence":
+            out[key] = pages.clean_presence(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})

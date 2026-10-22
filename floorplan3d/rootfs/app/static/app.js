@@ -100,6 +100,7 @@ import { initRoutinePrefs } from './routineprefs.js';
 import { initDashboards } from './dashboards.js';
 import { meterPart } from './energymetersui.js';
 import { initTodayPrefs } from './todayprefs.js';
+import { initPresencePrefs } from './presenceprefs.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel, fetchAreas, fetchBatteries } from './livechannel.js';
 import { initDeviceList } from './devicelist.js';
@@ -706,6 +707,9 @@ const householdPage = initHouseholdPage({                        // 🧺 Haushal
 });
 const familyPage = initFamilyPage({                              // 👨‍👩‍👧 Familie with the pinboard (pagefamily.js, family.js, #483)
   t, el: $('#tabPages [data-page=family]'), lang: () => currentLanguage(), states: () => states, names: () => namesOf(/^person\./), pinboard, board,
+  presence: () => settings.presence,                                                            // who is really at home (#495)
+  rooms: () => shownLayout().floors.flatMap((f) => (f.rooms || []).filter((r) => r.name).map((r) => ({ name: r.name,
+    occupied: roomSummary(r, f, { placed: entityDevices(f), areaEntities: areaEntitiesOf(r), states, isOn: isLit, isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o) }).occupied }))),
 });
 const energyPage = initEnergyPage({                              // ⚡ Energie (pageenergy.js, energyhistory.js)
   t, el: $('#tabPages [data-page=energy]'), lang: () => currentLanguage(), layout: () => layout, houseId: () => hs.id(),
@@ -1528,11 +1532,12 @@ const startView = initStartView({
 const todayPrefs = initTodayPrefs({ $, t });             // ⚙ → "Reiter unten": the calendars of the page ☀ Heute (#481, todayprefs.js)
 const routinePrefs = initRoutinePrefs({ $, t, entities: () => entities });   // ... and the buttons of ▶ Abläufe (#483, routineprefs.js)
 const mediaPrefs = initMediaPrefs({ $, t, entities: () => entities });       // ... the radio stations, the shopping list and the machines (#490, mediaprefs.js)
+const presencePrefs = initPresencePrefs({ $ });                                // ... who counts as at home (#495, presenceprefs.js)
 const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
-  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs],          // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481)
+  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs],          // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones

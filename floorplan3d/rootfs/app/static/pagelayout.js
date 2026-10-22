@@ -3,13 +3,14 @@
  * customTabs. Pure (unit test: tests/pagelayout.test.mjs); pageboard.js draws the cards and the edit mode. */
 import { cleanCard, OWN_ID } from './cards.js';
 import { SIZES } from './thermostat.js';
+import { cleanSections, cleanWidths } from './sections.js';
 
 export const MAX_ORDER = 120;
 export const MAX_OWN = 40;
 const KEY = /^[a-z0-9_:.-]{1,80}$/;
 
-/** one page's layout made safe: { order: [key], hidden: [key], sizes: { key: 'big' | 'small' }, cards: [card] }; keys each once, own
- *  cards valid (cleanCard) and each id once */
+/** one page's layout made safe: { order: [key], hidden: [key], sizes: { key: 'big' | 'small' }, sections: [{ id, title, icon, wide,
+ *  keys }], widths: { key: 1..4 } (#495, sections.js), cards: [card] }; keys each once, own cards valid (cleanCard) and each id once */
 export function cleanLayout(v) {
   const o = v && typeof v === 'object' && !Array.isArray(v) ? v : {};
   const keys = (list, max) => [...new Set((Array.isArray(list) ? list : []).filter((k) => typeof k === 'string' && KEY.test(k)))].slice(0, max);
@@ -17,10 +18,11 @@ export function cleanLayout(v) {
   (Array.isArray(o.cards) ? o.cards : []).forEach((c) => { const x = cleanCard(c); if (x && !ids.has(x.id) && cards.length < MAX_OWN) { ids.add(x.id); cards.push(x); } });
   const sizes = Object.fromEntries((o.sizes && typeof o.sizes === 'object' && !Array.isArray(o.sizes) ? Object.entries(o.sizes) : [])
     .filter(([k, x]) => KEY.test(k) && SIZES.includes(x)).slice(0, MAX_ORDER));
-  return { order: keys(o.order, MAX_ORDER), hidden: keys(o.hidden, MAX_ORDER), sizes, cards };
+  return { order: keys(o.order, MAX_ORDER), hidden: keys(o.hidden, MAX_ORDER), sizes, sections: cleanSections(o.sections), widths: cleanWidths(o.widths), cards };
 }
 /** a layout with nothing in it (left out of the settings) */
-export const emptyLayout = (l) => !l.order.length && !l.hidden.length && !l.cards.length && !Object.keys(l.sizes).length;
+export const emptyLayout = (l) => !l.order.length && !l.hidden.length && !l.cards.length && !Object.keys(l.sizes).length && !l.sections.length
+  && !Object.keys(l.widths).length;
 /** every page's layout: { page: layout } for the known pages (built-in or own), empty ones left out */
 export function cleanLayouts(val, pages) {
   const out = {};
@@ -85,11 +87,13 @@ export function putCard(layout, card) {
 /** 🗑: an own card taken away */
 export function dropCard(layout, id) {
   const l = cleanLayout(layout);
-  const sizes = { ...l.sizes }; delete sizes[id];
-  return { order: l.order.filter((k) => k !== id), hidden: l.hidden.filter((k) => k !== id), sizes, cards: l.cards.filter((c) => c.id !== id) };
+  const sizes = { ...l.sizes }, widths = { ...l.widths }; delete sizes[id]; delete widths[id];
+  return { order: l.order.filter((k) => k !== id), hidden: l.hidden.filter((k) => k !== id), sizes, widths,
+    sections: l.sections.map((s) => ({ ...s, keys: s.keys.filter((k) => k !== id) })), cards: l.cards.filter((c) => c.id !== id) };
 }
-/** "Wie am Anfang": the built-in cards in their order again, all shown and in their first size; the own cards stay (at the end) */
-export const resetLayout = (layout) => ({ order: [], hidden: [], sizes: {}, cards: cleanLayout(layout).cards });
+/** "Wie am Anfang": the built-in cards in their order again, all shown, in their first size and width, no sections; the own cards stay
+ *  (at the end) */
+export const resetLayout = (layout) => ({ order: [], hidden: [], sizes: {}, sections: [], widths: {}, cards: cleanLayout(layout).cards });
 
 /** a new id for an own card that none of `taken` has */
 export function newCardId(taken = [], rnd = Math.random) {

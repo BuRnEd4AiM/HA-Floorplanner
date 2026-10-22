@@ -233,9 +233,53 @@ def phone_battery(tracker, by_id, device_of, on_device):
     return level, charging
 
 
+SOURCE_KIND = {"gps": "gps", "router": "wifi", "bluetooth": "bluetooth", "bluetooth_le": "bluetooth"}
+MAX_SOURCES = 8
+
+
+def person_sources(trackers, by_id, device_of, on_device) -> list:
+    """Where the add-on can see that a person is at home (#495, the owner: "ob jetzt wirklich eine Person im Haus ist … mit dem Handy, dass es
+    sich mit dem WLAN verbindet"): every device_tracker of the person with its kind (source_type: gps, router = wifi, bluetooth), and of
+    the phone behind it (the same device in the entity registry) the Wi-Fi it is connected to (the companion app's
+    sensor.<phone>_wifi_connection or _ssid) and its room (Bermuda / ESPresense: sensor.<phone>_area or _room).
+    [{"kind": "gps" | "wifi" | "bluetooth" | "other" | "ssid" | "room", "entity", "state", "since"}], at most MAX_SOURCES"""
+    out, seen = [], set()
+
+    def add(kind, e):
+        st = by_id.get(e)
+        if not st or e in seen:
+            return
+        seen.add(e)
+        since = st.get("last_changed") if isinstance(st.get("last_changed"), str) and _when(st.get("last_changed")) else None
+        out.append({"kind": kind, "entity": e, "state": str(st.get("state") or "")[:80], "since": since})
+    for tr in dict.fromkeys(trackers):
+        a = (by_id.get(tr) or {}).get("attributes") or {}
+        add(SOURCE_KIND.get(a.get("source_type"), "other"), tr)
+        dev = device_of.get(tr)
+        for e in sorted(on_device.get(dev, [])) if dev else []:
+            if not e.startswith("sensor."):
+                continue
+            if e.endswith("_wifi_connection") or e.endswith("_ssid"):
+                add("ssid", e)
+            elif e.endswith("_area") or e.endswith("_room"):
+                add("room", e)
+    return out[:MAX_SOURCES]
+
+
+def clean_presence(val) -> dict:
+    """the settings of "wer ist wirklich zu Hause" (#495): {"rule": "ha" (as Home Assistant's person says) | "any" (one source says home) |
+    "two" (two do), "ssids": the names of the home Wi-Fi (the phone's network counts as home), at most 6}"""
+    v = val if isinstance(val, dict) else {}
+    ssids = []
+    for x in v.get("ssids") if isinstance(v.get("ssids"), list) else []:
+        if isinstance(x, str) and x.strip() and x.strip()[:64] not in ssids:
+            ssids.append(x.strip()[:64])
+    return {"rule": v.get("rule") if v.get("rule") in ("ha", "any", "two") else "ha", "ssids": ssids[:6]}
+
+
 def family(states, registry) -> list:
     """Home Assistant's people (GET /api/states) with what the page shows: [{"id", "name", "state", "since" (last_changed), "picture"
-    (it has one), "battery", "charging"}]. The phone: the person's device_tracker in use (its "source"), else its first one; its device
+    (it has one), "battery", "charging", "sources" (person_sources: Wi-Fi, GPS, room …)}]. The phone: the person's device_tracker in use (its "source"), else its first one; its device
     from the entity registry (config/entity_registry/list)."""
     by_id = {s["entity_id"]: s for s in states if isinstance(s, dict) and isinstance(s.get("entity_id"), str)} if isinstance(states, list) else {}
     device_of, on_device = {}, {}
@@ -259,7 +303,8 @@ def family(states, registry) -> list:
         name = a.get("friendly_name") if isinstance(a.get("friendly_name"), str) and a.get("friendly_name") else eid[7:]
         out.append({"id": eid, "name": name[:80], "state": str(s.get("state") or "")[:80],
                     "since": s.get("last_changed") if isinstance(s.get("last_changed"), str) and _when(s.get("last_changed")) else None,
-                    "picture": person_picture(s) is not None, "battery": battery, "charging": charging})
+                    "picture": person_picture(s) is not None, "battery": battery, "charging": charging,
+                    "sources": person_sources(trackers, by_id, device_of, on_device)})
     return out[:MAX_PEOPLE]
 
 

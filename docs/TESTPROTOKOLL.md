@@ -293,7 +293,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 85. Neu in 4.8.2: Tablets schneller (#494) | 0 | 0 | 4 | 0 | 85.1 bis 85.4 |
 | 86. Neu in 4.9.0: Thermostat als Kreis wie in Home Assistant (#495) | 0 | 0 | 9 | 0 | 86.1 bis 86.9 |
 | 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 0 | 0 | 6 | 0 | 87.1 bis 87.6 |
-| **Zusammen** | **492** | **5** | **143** | **54** | |
+| 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495) | 0 | 0 | 8 | 0 | 88.1 bis 88.8 |
+| 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495) | 0 | 0 | 6 | 0 | 89.1 bis 89.6 |
+| **Zusammen** | **492** | **5** | **157** | **54** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1425,3 +1427,27 @@ Wunsch des Besitzers: „wenn man mehrere Häuser hat mit unterschiedlichen Stro
 | 87.4 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Verlauf“, nach „leistung“ suchen und „Netzbezug“ und „Nachbarhaus Verbrauch“ antippen | Beide sind markiert (farbiges Quadrat), die Vorschau zeigt zwei Linien mit Legende | ❓ |
 | 87.5 | Die Karte speichern und „✓ Fertig“ | Die Karte heißt „Verlauf“, zeigt zwei farbige Linien und oben beide Werte von jetzt | ❓ |
 | 87.6 | Im Add-on: bei jedem Haus in ⚡ Rechnung die eigenen Zähler eintragen, dann ⚡ Energie → „⚖ Vergleichen“ | Jedes Haus zeigt seine eigenen Werte; ein Haus ohne eigene Zähler zeigt „keine eigenen Zähler“ (außer dem ersten, das die Zähler aus dem Energie-Dashboard nimmt) | ❓ |
+
+## 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495)
+Wunsch des Besitzers: „dass ich so Kartenabschnitte frei auf dem Dashboard platzieren kann mit so Abschnitten“. Bild `docs/ideen-4.9/3-abschnitte.jpg`.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 88.1 | Demo, „Live“, ☀ Heute, unten ✎ Bearbeiten, oben „＋ Abschnitt“ | Ein Fenster „Abschnitt einstellen“ mit Name, Symbol und Breite; nach „Speichern“ steht der Abschnitt unter den Karten, leer mit „Karten mit ⠿ hierher ziehen“ | ❓ |
+| 88.2 | Eine Karte am ⠿ in den Abschnitt ziehen, eine zweite daneben | Beide stehen im Abschnitt, oben fehlen sie | ❓ |
+| 88.3 | Die blaue Ecke ↘ unten rechts einer Karte nach rechts ziehen | Die Karte wird breiter (über zwei oder drei Spalten), nach links wieder schmaler | ❓ |
+| 88.4 | Am Abschnitt ✏️: anderer Name, „Breit (zwei Spalten)“ | Der Abschnitt heißt anders und ist doppelt so breit | ❓ |
+| 88.5 | Zweiten Abschnitt anlegen, mit ‹ › die Reihenfolge ändern | Die Abschnitte tauschen den Platz | ❓ |
+| 88.6 | „✓ Fertig“ | Die Überschriften bleiben, alle Werkzeuge (⠿, ↘, ✏️) sind weg | ❓ |
+| 88.7 | Wieder ✎, am Abschnitt 🗑 | Nach der Rückfrage ist der Abschnitt weg, seine Karten stehen wieder oben | ❓ |
+| 88.8 | Dasselbe auf 🌡 Klima oder einer eigenen Seite | Geht genauso | ❓ |
+
+## 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495)
+Wunsch des Besitzers: „ob jetzt wirklich eine Person im Haus ist … mit dem Handy, dass es sich mit dem WLAN verbindet“. Bild `docs/ideen-4.9/4-anwesenheit.jpg`.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 89.1 | Demo, „Live“, unten 👨‍👩‍👧 Familie | Oben „1 Person zu Hause – Anna (Wohnzimmer)“; bei Anna „zu Hause · Wohnzimmer“ | ❓ |
+| 89.2 | Bei Anna die Liste unter dem Namen ansehen | GPS, Raum, WLAN „Zuhause-5G“ (Handy-App) und „Handy im WLAN (Router)“, jeweils mit Uhrzeit, grün markiert | ❓ |
+| 89.3 | Bei Lena und Max | „nicht im WLAN (Router)“ grau markiert, GPS sagt Schule / unterwegs | ❓ |
+| 89.4 | Karte „Wer ist wo im Haus“ | Wohnzimmer – Anna; Räume mit Bewegungsmelder stehen mit „Bewegung / Anwesenheit“ da | ❓ |
+| 89.5 | Im Add-on: ⚙ → „Reiter unten“ → „Wer ist zu Hause“: „Zu Hause, wenn“ und „WLAN-Name(n) zu Hause“ | Drei Möglichkeiten (Home Assistant / eine Quelle / zwei Quellen); der eigene WLAN-Name lässt sich eintragen | ❓ |
+| 89.6 | Im Add-on mit dem eigenen Handy (Home-Assistant-App, WLAN-Sensor an) auf 👨‍👩‍👧 Familie | Bei dir stehen dein WLAN-Name und, wenn vorhanden, das Handy im Router; mit „eine Quelle“ zählst du zu Hause, sobald das Handy im WLAN ist | ❓ |
