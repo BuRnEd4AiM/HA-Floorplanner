@@ -42,6 +42,7 @@ export const ASK_MS = 30000;
  *  Home Assistant has none). engine: the setting; can: voiceinput.js can() { has, browser, app, secure, policy, mic, assist } */
 export function whyNot(engine, can) {
   if (engine === 'off') return 'off';
+  if (engine === 'keyboard') return '';
   if (!can.secure) return 'insecure';
   if (can.policy === false) return 'policy';
   const notBrowser = () => (!can.has ? 'noBrowser' : can.app ? 'app' : 'broken');
@@ -50,6 +51,21 @@ export function whyNot(engine, can) {
   if (engine === 'assist') return can.assist ? 'noMic' : 'noAssist';
   if (can.browser) return '';
   return can.assist ? 'noMic' : notBrowser();
+}
+
+/** the errors of listening after which, with "auto", the dictation of the keyboard takes over (voicekeys.js): the page's own microphone or
+ *  recognition does not work here (not "nothing said", not a tap that ended it) */
+export const TO_KEYS = [...FALL_BACK, 'audio-capture', 'no-audio'];
+/** how long the text of the dictation must rest before it is asked (ms): a pause after the sentence */
+export const KEYS_MS = 1800;
+/** how to dictate on this kind of device: a key of vq.keys.* ('touch': the 🎤 of the screen's keyboard (Android, iPhone, iPad, also in an
+ *  app), 'windows': Windows + H, 'mac': the dictation of the Mac, 'other'); touch: the device has a touch screen and no mouse */
+export function keysHint(kind, touch) {
+  const os = kind?.os || '';
+  if (os === 'android' || os === 'ios' || kind?.app) return 'touch';
+  if (os === 'windows') return touch ? 'touch' : 'windows';
+  if (os === 'mac') return touch ? 'touch' : 'mac';    // an iPad that says it is a Mac
+  return touch ? 'touch' : 'other';
 }
 
 /** a failed getUserMedia (the name of its error) -> 'insecure' | 'denied' (this page may not: the browser's setting) | 'dismissed' (the

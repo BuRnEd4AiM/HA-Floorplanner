@@ -4,8 +4,9 @@
  * English), the names of the plans and the code words; the rest of the sentence may be free. Pure (unit test: tests/voicequery.test.mjs);
  * voiceui.js shows the answer. */
 
-/** how the engine of the settings may be chosen: auto (the browser's own recognition, else Home Assistant's Assist), browser, assist, off */
-export const ENGINES = ['auto', 'browser', 'assist', 'off'];
+/** how the engine of the settings may be chosen: auto (the browser's own recognition, else Home Assistant's Assist, else the dictation of
+ *  the keyboard), browser, assist, keyboard, off */
+export const ENGINES = ['auto', 'browser', 'assist', 'keyboard', 'off'];
 /** at most this many code words (the server keeps the same: voice.py MAX_ALIASES) */
 export const MAX_ALIASES = 60;
 /** what can be asked about, in the order of the answers' icons */
@@ -486,12 +487,14 @@ export function cleanVoice(v) {
 /** the BCP-47 language of the browser's recognition for the add-on's language */
 export const SPEECH_LANG = { de: 'de-DE', en: 'en-US', fr: 'fr-FR', es: 'es-ES', it: 'it-IT', nl: 'nl-NL', pl: 'pl-PL' };
 
-/** which recognition to use: 'browser' | 'assist' | null. engine: the setting; can: { browser (the browser has one), assist (Home Assistant
- *  has a pipeline with speech-to-text), mic (the page may use the microphone: a secure page with getUserMedia) } */
+/** which recognition to use: 'browser' | 'assist' | 'keyboard' (the 🎤 of the keyboard types into the search box: works on every page,
+ *  also over http://, voicekeys.js) | null. engine: the setting; can: { browser (the browser has one), assist (Home Assistant has a
+ *  pipeline with speech-to-text), mic (the page may use the microphone: a secure page with getUserMedia) } */
 export function pickEngine(engine, can) {
   if (engine === 'off') return null;
+  if (engine === 'keyboard') return 'keyboard';
   const browser = !!can.browser, assist = !!can.assist && !!can.mic;
   if (engine === 'browser') return browser ? 'browser' : null;
   if (engine === 'assist') return assist ? 'assist' : null;
-  return browser ? 'browser' : assist ? 'assist' : null;
+  return browser ? 'browser' : assist ? 'assist' : 'keyboard';
 }

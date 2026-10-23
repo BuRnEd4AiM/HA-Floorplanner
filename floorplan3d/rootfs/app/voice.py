@@ -5,7 +5,7 @@ sentence is understood in the browser (static/voicequery.js). Unit test: tests/t
 import asyncio
 import json
 
-ENGINES = ("auto", "browser", "assist", "off")      # the same list as ENGINES in static/voicequery.js
+ENGINES = ("auto", "browser", "assist", "keyboard", "off")      # the same list as ENGINES in static/voicequery.js
 MAX_ALIASES = 60                                    # the same as MAX_ALIASES in static/voicequery.js
 SAMPLE_RATE = 16000
 MAX_AUDIO = SAMPLE_RATE * 2 * 15                    # 15 seconds of 16-bit mono

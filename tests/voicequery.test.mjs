@@ -163,8 +163,12 @@ test('settings: code words cleaned, engine, which recognition', () => {
   assert.equal(V.cleanVoice({ aliases: Array.from({ length: 99 }, (_, i) => ({ say: `w${i}`, floor: 'eg' })) }).aliases.length, V.MAX_ALIASES);
   assert.equal(V.pickEngine('auto', { browser: true, assist: true, mic: true }), 'browser');
   assert.equal(V.pickEngine('auto', { browser: false, assist: true, mic: true }), 'assist');
-  assert.equal(V.pickEngine('auto', { browser: false, assist: true, mic: false }), null);   // Assist needs the microphone of a secure page
+  assert.equal(V.pickEngine('auto', { browser: false, assist: true, mic: false }), 'keyboard');   // Assist needs the microphone of a secure page: http:// takes the keyboard
+  assert.equal(V.pickEngine('auto', { browser: false, assist: false, mic: false }), 'keyboard');  // an app without Assist too
   assert.equal(V.pickEngine('assist', { browser: true, assist: false, mic: true }), null);
+  assert.equal(V.pickEngine('browser', { browser: false, assist: true, mic: true }), null);     // "only the browser's": no other
+  assert.equal(V.pickEngine('keyboard', { browser: true, assist: true, mic: true }), 'keyboard');
   assert.equal(V.pickEngine('off', { browser: true }), null);
+  assert.equal(V.cleanVoice({ engine: 'keyboard' }).engine, 'keyboard');
   assert.deepEqual(V.aliasesFor(env.aliases, 'lena').map((a) => a.say)[0], 'Wohnzimmer der Eltern');
 });

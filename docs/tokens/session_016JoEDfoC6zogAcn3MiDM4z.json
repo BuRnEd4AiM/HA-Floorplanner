@@ -1,0 +1,20 @@
+{
+ "session": "session_016JoEDfoC6zogAcn3MiDM4z",
+ "start": "2026-10-23",
+ "updated": "2026-10-23T20:23:25Z",
+ "branch": "claude/festive-wozniak-kyfflg",
+ "source": "counted",
+ "input": 126,
+ "cache_write": 195732,
+ "cache_read": 11248328,
+ "output": 58266,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 126,
+   "cache_write": 195732,
+   "cache_read": 11248328,
+   "output": 58266,
+   "requests": 63
+  }
+ }
+}
