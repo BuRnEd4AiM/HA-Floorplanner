@@ -57,3 +57,8 @@ test('tabs (#479): a user with only tabs is listed; hidden pages and the start t
     [{ user: 'flur', room: '', view: '3d', preset: {}, locks: [], start: null, building: '', tabs: { hide: [], start: 'cameras' } }]);
   assert.deepEqual(S.collectTablets([{ user: 'a', view: '3d', tabs: { hide: ['cameras'], start: '' } }, { user: 'b', view: '3d', tabs: { hide: [], start: '' } }]).tabs, { a: { hide: ['cameras'] } });
 });
+test('the versions of the pages a user gets (#507) go through the users dialog and come back as they were', () => {
+  const s = { userTabs: { kid: { hide: ['energy'], variants: { climate: 'v_kids01' } }, tim: { hide: [], variants: { today: 'v_kids02' } } } };
+  assert.deepEqual(S.tabletEntries(s).map((e) => e.tabs), [{ hide: ['energy'], variants: { climate: 'v_kids01' } }, { hide: [], variants: { today: 'v_kids02' } }]);
+  assert.deepEqual(S.collectTablets(S.tabletEntries(s)).tabs, s.userTabs);
+});

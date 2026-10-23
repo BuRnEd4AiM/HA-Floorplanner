@@ -1,8 +1,8 @@
 /* The pages of the tab bar as dashboards an admin arranges (#484): puts together the own cards (cardsui.js), the board of every page
  * (pageboard.js: order, hidden cards, the edit mode), the windows to add and set a card (cardeditor.js), the bar's edit mode with own
  * pages (tabedit.js), the own pages themselves (pagecustom.js), the thermostat as a circle (thermostatui.js, #495) and the calendar card
- * (calcardui.js, #495), the window with the controls of a button card (ctlwindow.js, #495). app.js only calls initDashboards and hands the result to the pages
- * and the tab bar. */
+ * (calcardui.js, #495), the window with the controls of a button card (ctlwindow.js, #495), the own versions of a page per user
+ * (variantsui.js, #507). app.js only calls initDashboards and hands the result to the pages and the tab bar. */
 import { initCards } from './cardsui.js';
 import { initThermostat } from './thermostatui.js';
 import { initCalendarCard } from './calcardui.js';
@@ -12,13 +12,14 @@ import { initBoard } from './pageboard.js';
 import { initCardEditor } from './cardeditor.js';
 import { initTabEdit } from './tabedit.js';
 import { initCustomPages } from './pagecustom.js';
+import { initVariantsUi } from './variantsui.js';
 import { cleanCustomTabs } from './tabs.js';
 import { roomSummary } from './roomtiles.js';
 
 /** ctx: $, t, lang(), settings(), save(), canEdit(), states(), entities(), areas(), nameOf(entity), stateText(entity),
  *  callService(entity, service, data), layout() (the building shown), placed(floor), areaEntities(room), isOn(entity), isOpen(entity),
  *  openingEntities(opening), openRoom(floorIndex, roomId), camImage(entity), openCamera(entity), builtin(key), tabsUi() (the tab bar,
- *  made after this), live() (livecontrols.js, made after this) */
+ *  made after this), live() (livecontrols.js, made after this), me() (api/me), refill() (the settings dialog shows the settings again) */
 export function initDashboards(ctx) {
   const { $, t } = ctx;
   const bar = () => ctx.tabsUi();
@@ -58,8 +59,13 @@ export function initDashboards(ctx) {
     showPage: (k) => bar().show(k), pages: () => bar().tabs().map((x) => ({ key: x.key, name: pageName(x.key) })),
     changed: () => { board.refresh(bar().open()); editor.refresh(); },
   });
+  /** the own versions of a page per user (#507): which one the board draws, their strip in the edit mode, "Wer sieht was" */
+  const variants = initVariantsUi({
+    t, $, settings: ctx.settings, save: ctx.save, me: ctx.me, pageName, board: () => board, open: () => bar().open(),
+    redraw: (page) => bar().render(page), changed: () => bar().redraw(), refill: ctx.refill,
+  });
   const board = initBoard({
-    t, settings: ctx.settings, canEdit: ctx.canEdit, save: ctx.save, cards, pageName,
+    t, settings: ctx.settings, canEdit: ctx.canEdit, save: ctx.save, cards, pageName, variants,
     redraw: (page) => bar().render(page), changed: () => bar().redraw(),
     addCard: (page) => editor.add(page), editCard: (page, card) => editor.edit(page, card),
     editTabs: () => tabEdit.start(), editOwnPage: (page) => tabEdit.ownPage(page),
@@ -71,8 +77,8 @@ export function initDashboards(ctx) {
   });
   const custom = initCustomPages({ t, host: $('#tabPages'), settings: ctx.settings, board, canEdit: ctx.canEdit });
   return {
-    board, tabEdit, thermo,
+    board, tabEdit, thermo, variants,
     customPages: () => custom.all(),
-    edit: { can: ctx.canEdit, editing: board.editing, toggle: board.toggle, refresh: board.refresh },
+    edit: { can: () => ctx.canEdit() && !variants.viewing(), editing: board.editing, toggle: board.toggle, refresh: board.refresh },   // "Ansehen als": no ✎
   };
 }

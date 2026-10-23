@@ -671,6 +671,7 @@ const dash = initDashboards({                                    // the pages ar
   camImage: (e) => cams.camImage(e, 'oc-img'), openCamera: (e) => { camPage.big(e); tabsUi.show('cameras'); },
   builtin: (k) => todayPage.card(k.split(':')[1]), tabsUi: () => tabsUi,
   live: () => live,                                              // a lamp's controls in the window of a button card (#495)
+  me: () => me, refill: () => settingsStore.fill(),              // the own versions of a page per user (#507)
 });
 const board = dash.board;
 const camPage = initCameraPage({
@@ -731,7 +732,7 @@ function todayAct(k) {
 }
 const full = initFullscreen({ $, t, locks: () => locks, changed: () => tabsUi.redraw() });   // ⛶, kept on for a user with the lock (#487)
 const tabsUi = initTabsUi({
-  $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => me, full,
+  $, t, settings: () => settings, isLive: () => isLive(), card: !!card && !card.tabs, me: () => dash.variants.me(me), full,   // "Ansehen als" (#507)
   pages: () => ({ today: { el: $('#tabPages [data-page=today]'), ...todayPage }, energy: { el: $('#tabPages [data-page=energy]'), ...energyPage },
     climate: { el: $('#tabPages [data-page=climate]'), ...climatePage }, cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage },
     media: { el: $('#tabPages [data-page=media]'), ...mediaPage }, household: { el: $('#tabPages [data-page=household]'), ...householdPage },

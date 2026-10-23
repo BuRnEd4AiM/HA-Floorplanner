@@ -269,6 +269,7 @@ dialog .stop.tablet .presetBox select { width: 100%; }
 dialog .presetBox .lockHead { grid-column: 1 / -1; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); font-size: 12px; font-weight: 600; }
 dialog .presetBox label.lockItem { flex-direction: row; align-items: center; justify-content: flex-start; gap: 8px; text-align: left; }
 #tabletRows .tablet .presetBox label.lockItem input { width: auto; flex: none; margin: 0; }
+#tabletRows .tablet .presetBox label.lockItem select[data-tab-variant] { width: auto; max-width: 60%; margin-left: auto; padding: 2px 6px; font-size: 12px; }   /* the version of the page (#507) */
 
 #livePopup .lightctl { margin-top: 10px; }
 #livePopup .lightctl input[type=range] { width: 100%; }
@@ -1525,6 +1526,38 @@ button.tpChip:disabled { opacity: .35; }
 .bdBtn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
 .bdBtn.danger { background: #c9363b; border-color: #e5484d; color: #fff; margin-right: auto; }
 #tabEditBar { flex: none; margin: 0; border-radius: 0; }
+/* own versions of a page per user (#507, variantsui.js): the purple strip under the edit strip, its windows, "Ansehen als" */
+.pvBar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: -6px 0 14px; padding: 10px 14px; border-radius: 14px;
+  background: color-mix(in srgb, #b07cff 13%, var(--panel)); border: 1px solid color-mix(in srgb, #b07cff 55%, transparent); }
+.pvLbl { font-size: 15px; margin-right: 2px; }
+.pvChip { min-height: 36px; padding: 0 13px; border-radius: 999px; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; }
+.pvChip small { color: var(--muted); font-weight: 600; font-size: 12px; }
+.pvChip.on { background: color-mix(in srgb, #b07cff 30%, transparent); border-color: #b07cff; box-shadow: inset 0 0 0 1px #b07cff; color: var(--text); }
+.pvChip.add { border-style: dashed; border-color: color-mix(in srgb, #b07cff 70%, transparent); background: transparent; color: #c9a8ff; }
+.pvWho { margin-left: auto; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.pvWho .pvUser { color: var(--text); padding: 3px 9px; border-radius: 999px; background: var(--field); border: 1px solid var(--line); }
+.pvWho .bdBtn { min-height: 34px; font-size: 13px; }
+.pvUsers { display: flex; flex-direction: column; gap: 6px; }
+.pvUserRow { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--field); border: 1px solid var(--line); cursor: pointer; }
+.pvUserRow.on { border-color: #b07cff; background: color-mix(in srgb, #b07cff 14%, var(--field)); }
+.pvUserRow small { margin-left: auto; color: var(--muted); font-size: 12px; }
+.pvUserRow input { accent-color: #8a5cf0; width: 18px; height: 18px; }
+.pvPick { display: flex; flex-wrap: wrap; gap: 8px; }
+.pvTableWrap { overflow-x: auto; }
+.pvTable { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 14px; }
+.pvTable th { text-align: left; font-size: 13px; color: var(--muted); font-weight: 700; padding: 0 6px 2px; white-space: nowrap; }
+.pvTable td { padding: 6px; background: var(--field); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.pvTable td:first-child { border-left: 1px solid var(--line); border-radius: 12px 0 0 12px; font-weight: 800; white-space: nowrap; padding-left: 12px; }
+.pvTable td:last-child { border-right: 1px solid var(--line); border-radius: 0 12px 12px 0; }
+.pvSel { padding: 5px 8px; border-radius: 8px; font-weight: 700; font-size: 13px; min-width: 96px; }
+.pvSel.v { border-color: #b07cff; background: color-mix(in srgb, #b07cff 20%, var(--panel)); }
+.pvSel.off { color: var(--muted); border-style: dashed; background: transparent; }
+.pvLocked { font-size: 16px; padding: 0 8px; }
+.pvAs { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 2800; display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 16px;
+  border-radius: 999px; background: #8a5cf0; color: #fff; font-size: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .45); max-width: calc(100vw - 24px); }
+.pvAs .bdBtn { min-height: 34px; background: rgba(255, 255, 255, .18); border-color: rgba(255, 255, 255, .35); color: #fff; }
+.pvDlg.wide { width: min(1180px, calc(100vw - 32px)); }
+@media (max-width: 700px) { .pvWho { margin-left: 0; } }
 #tabEditBar[hidden] { display: none; }
 #tabBar .tbRight { display: flex; gap: 4px; margin-left: auto; flex: none; }
 #tabBar .tbEdit.active { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
