@@ -1182,6 +1182,23 @@ async def test_tabs_per_user_are_cleaned_reach_that_user_and_go_into_users_json(
     assert (await (await client.put("/api/settings", json={"userTabs": ["x"]})).json())["userTabs"] == {}
 
 
+
+async def test_versions_of_a_page_per_user(client, tmp_path):
+    """#507: a page in own versions; a user gets one (userTabs.<user>.variants), a version that is gone is dropped, api/me hands it over"""
+    import json
+    body = {"pageVariants": {"climate": [{"id": "v_kids01", "name": "Kinder", "icon": "🧒", "layout": {"hidden": ["room:r2"]}}], "house": [{"id": "v_abc"}],
+                             "p_gone": [{"id": "v_abc"}]},
+            "userTabs": {"Lena": {"hide": [], "variants": {"climate": "v_kids01", "today": "v_gone01", "house": "v_kids01"}},
+                         "tim": {"hide": [], "variants": {"today": "v_gone01"}}, "anna": {"hide": ["energy"], "variants": {"climate": "v_kids01"}}}}
+    s = await (await client.put("/api/settings", json=body)).json()
+    assert list(s["pageVariants"]) == ["climate"] and s["pageVariants"]["climate"][0]["layout"]["hidden"] == ["room:r2"]
+    assert s["userTabs"] == {"Lena": {"hide": [], "variants": {"climate": "v_kids01"}}, "anna": {"hide": ["energy"], "variants": {"climate": "v_kids01"}}}
+    me = await (await client.get("/api/me", headers={"X-Remote-User-Name": "lena"})).json()
+    assert me["tabs"] == {"hide": [], "variants": {"climate": "v_kids01"}}
+    assert json.loads((tmp_path / "addon_config" / "users.json").read_text("utf-8"))["userTabs"] == s["userTabs"]
+    s = await (await client.put("/api/settings", json={"pageVariants": {}, "userTabs": s["userTabs"]})).json()   # the version deleted: nobody gets it
+    assert s["userTabs"] == {"anna": {"hide": ["energy"]}}
+
 def test_tabs_match_the_browser():
     """server.TABS and TABS in static/tabs.js list the same tabs in the same order (#479)"""
     src = (Path(server.__file__).parent / "static" / "tabs.js").read_text()

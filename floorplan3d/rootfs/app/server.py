@@ -111,7 +111,8 @@ DEFAULT_SETTINGS = {
     "userLocks": {},           # Home Assistant user name -> what that user may not use (LOCKS, static/userlocks.js)
     "startViews": {},          # Home Assistant user name or "*" (everybody) -> saved start view (static/startview.js, #315)
     "userBuildings": {},       # Home Assistant user name -> the building of a plan that user sees (several buildings in one plan, #409)
-    "userTabs": {},            # Home Assistant user name -> {"hide": [tab], "start": tab}: the tab bar of that user (TABS, static/tabs.js, #479)
+    "userTabs": {},            # Home Assistant user name -> {"hide": [tab], "start": tab, "variants": {page: version}}: the tab bar of that user
+                               # (TABS, static/tabs.js, #479) and the own version of a page he sees (#507)
     "tabBar": True,            # the tab bar at the bottom of the live view (#479): the house and pages beside it
     "agendaCalendars": [],     # the calendars of the page ☀ Heute (#481); empty = all calendars of Home Assistant
     "wasteCalendar": "",       # the calendar of the waste collection (#481): its next dates stand apart on the page ☀ Heute
@@ -120,6 +121,7 @@ DEFAULT_SETTINGS = {
     "routineLeave": "",        # the routine "Ich gehe" starts after its check (a scene, script or button, #483); "" = only the check
     "routineNight": "",        # the same for "Gute Nacht"
     "pageLayouts": {},         # the pages arranged by an admin (#484): {page: {"order", "hidden", "cards"}} (boards.py, static/pagelayout.js)
+    "pageVariants": {},        # own versions of a page for some users (#507): {page: [{"id": "v_…", "name", "icon", "layout"}]} (static/pagevariants.js)
     "customTabs": [],          # own pages of the tab bar (#484): [{"id": "p_…", "name", "icon"}]
     "tabOrder": [],            # the order of the tab bar (#484): tab keys, the house always first
     "radioStations": [],       # the radio stations of the page 🎵 Musik & TV (#490): [{"name", "url"}] (pages.clean_stations)
@@ -169,8 +171,8 @@ def clean_locks(val) -> dict:
 
 
 def clean_user_tabs(val) -> dict:
-    """{user: {"hide": [tab], "start": tab}} like cleanUserTabs in static/tabs.js: at most 50 users, only known tabs, the house never
-    hidden, a hidden or the house as start tab dropped, users with nothing left out."""
+    """{user: {"hide": [tab], "start": tab, "variants": {page: id}}} like cleanUserTabs in static/tabs.js: at most 50 users, only known
+    tabs, the house never hidden, a hidden or the house as start tab dropped, the versions of the pages (#507), users with nothing left out."""
     if not isinstance(val, dict):
         return {}
     out = {}
@@ -183,8 +185,20 @@ def clean_user_tabs(val) -> dict:
             if isinstance(k, str) and boards.CUSTOM_ID.match(k) and k not in hide:
                 hide.append(k)
         start = v.get("start") if boards.is_tab_key(v.get("start")) and v.get("start") != "house" and v.get("start") not in hide else ""
-        if hide or start:
-            out[u] = {"hide": hide, **({"start": start} if start else {})}
+        picks = boards.clean_picks(v.get("variants"))
+        if hide or start or picks:
+            out[u] = {"hide": hide, **({"start": start} if start else {}), **({"variants": picks} if picks else {})}
+    return out
+
+
+def drop_gone_picks(user_tabs: dict, variants: dict) -> dict:
+    """userTabs without the versions of pages that do not exist (any more, #507); users with nothing left out"""
+    out = {}
+    for user, e in user_tabs.items():
+        picks = {k: v for k, v in (e.get("variants") or {}).items() if any(x["id"] == v for x in variants.get(k, []))}
+        e = {k: v for k, v in e.items() if k != "variants"} | ({"variants": picks} if picks else {})
+        if e["hide"] or e.get("start") or picks:
+            out[user] = e
     return out
 
 
@@ -754,8 +768,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = boards.clean_custom_tabs(val)
         elif key == "tabOrder":
             out[key] = boards.clean_tab_order(val)
-        elif key == "pageLayouts":
-            pass                                                      # after the loop: it needs the own pages
+        elif key in ("pageLayouts", "pageVariants"):
+            pass                                                      # after the loop: they need the own pages
         elif key == "radioStations":
             out[key] = pages.clean_stations(val)
         elif key == "appliances":
@@ -816,6 +830,8 @@ def validate_settings(data: dict) -> dict:
     if out["shoppingList"] and not hh.TODO_ID.match(out["shoppingList"]):
         out["shoppingList"] = ""
     out["pageLayouts"] = boards.clean_page_layouts(data.get("pageLayouts"), out["customTabs"])
+    out["pageVariants"] = boards.clean_page_variants(data.get("pageVariants"), out["customTabs"])
+    out["userTabs"] = drop_gone_picks(out["userTabs"], out["pageVariants"])
     for key in ("routineLeave", "routineNight"):
         if out[key] and not clean_routines([out[key]]):
             out[key] = ""

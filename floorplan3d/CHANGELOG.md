@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.18.0] - 2026-10-23
+### Added
+- **A page in its own version per user** (#507, the owner: "bei unterschiedlichen Benutzern unterschiedliche Sachen anzeigen"; pictures `docs/ideen-4.18/`). Every page of the tab bar (Heute, Energie, Klima, Kameras, Musik & TV, Haushalt, Abläufe, Familie and the own pages) can have up to six own **versions** besides the normal one ("👪 Für alle"), e.g. "🧒 Kinder" with only the children's room on 🌡 Klima, or "📟 Tablet Flur". Each version has its own cards (order, hidden cards, own cards, sections, sizes, widths); each user gets one version per page, who has none sees "Für alle".
+- In ✎ *Bearbeiten* a purple strip **🗂 Fassung** under the edit strip: a chip per version (a tap edits that one), **＋ Neue Fassung** (name, symbol, start with a copy of a version or empty, who gets it), who sees the version chosen, **⚙ Einstellen** (name, symbol, users, 🗑 delete: its users see "Für alle" again).
+- **👁 Ansehen als …**: the screen as a user sees it, his versions and his tabs, until "✕ Zurück" in the bar at the top.
+- **👥 Wer sieht was**: one table of users × pages, in each cell "Für alle", a version or "aus" (the tab is not in that user's bar); also in ⚙ → 👥 Benutzer. A lock that takes a tab away shows 🔒. In the user rows of ⚙ → 👥 Benutzer a choice of the version beside every tab that has versions.
+- A version is no lock: what a user may not do the locks of ⚙ → 👥 Benutzer say, as before.
+- Stored in the settings (`pageVariants`) and per user in `userTabs.<user>.variants` (kept in `users.json` too); `api/me` hands a user his versions; deleting an own page takes its versions along. Also in the Docker version (#489).
+
 ## [4.17.0] - 2026-10-23
 ### Added
 - **Home Assistant Container (Docker, without the Supervisor)** (#489, asked for by a user: "I run Home Assistant as a Docker container … Please support Home Assistant Container"). 3D Floorplan now also runs as its own container next to Home Assistant: `container/Dockerfile`, `container/docker-compose.yml` and the steps in `container/README.md`. It talks to Home Assistant with a long-lived access token (`HA_TOKEN`) at `HA_URL`. Without Ingress, whoever opens the page logs in with their Home Assistant user on Home Assistant's own login page; the add-on keeps a signed cookie of its own (30 days, renewed while in use), Home Assistant's token of the login is given back at once. Headers that Ingress would send count for nothing then, and a user switched off or removed in Home Assistant is out at once. Administrators and the users in `EDITORS` may edit, as in the add-on. The top bar has **Abmelden** (log out). In the add-on nothing changes. The dashboard card still needs the Supervisor; a *Webpage* dashboard shows the page instead. CI builds the image and checks its login.

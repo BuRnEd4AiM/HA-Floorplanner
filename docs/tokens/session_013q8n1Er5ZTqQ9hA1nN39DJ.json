@@ -1,0 +1,20 @@
+{
+ "session": "session_013q8n1Er5ZTqQ9hA1nN39DJ",
+ "start": "2026-10-23",
+ "updated": "2026-10-23T07:04:36Z",
+ "branch": "claude/laughing-ptolemy-iqgsx6",
+ "source": "counted",
+ "input": 234,
+ "cache_write": 357488,
+ "cache_read": 29672660,
+ "output": 141267,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 234,
+   "cache_write": 357488,
+   "cache_read": 29672660,
+   "output": 141267,
+   "requests": 117
+  }
+ }
+}

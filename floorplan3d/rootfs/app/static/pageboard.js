@@ -3,16 +3,19 @@
  * of different heights close up). In the edit mode (✎ in the tab bar, editors only) every card has ⠿ to drag it, 👁 to hide it, an
  * own card ⚙ and 🗑, the corner ↘ to make it wider or narrower (#495), at the end "＋ Karte hinzufügen", at the top a strip with
  * ＋ Karte, ＋ Abschnitt, 🗂 Reiter, ↺ Wie am Anfang and ✓ Fertig. With sections (#495, sections.js, sectionsui.js) the cards in no section
- * stand above them and a card is dragged into a section and between them. Stored for everybody in settings.pageLayouts; the rules are in
- * pagelayout.js and sections.js (tested). */
-import { arrange, withOrder, toggleHidden, dropCard, resetLayout, putCard, cleanLayout, emptyLayout, withSize, sizeOf, rowSpan } from './pagelayout.js';
+ * stand above them and a card is dragged into a section and between them. Stored for everybody in settings.pageLayouts, or in an own
+ * version of the page for some users (#507, settings.pageVariants: ctx.variants says which one, variantsui.js draws its strip under the
+ * edit strip); the rules are in pagelayout.js, sections.js and pagevariants.js (tested). */
+import { arrange, withOrder, toggleHidden, dropCard, resetLayout, putCard, withSize, sizeOf, rowSpan } from './pagelayout.js';
 import { groupEntries, fromScreen, withWidth, spanAt, newSectionId, addSection, editSection, dropSection, moveSection } from './sections.js';
 import { initSectionsUi } from './sectionsui.js';
+import { layoutIn, withLayoutIn } from './pagevariants.js';
 
 const ROW = 8, GAP = 14;
 
 /** ctx: t, settings(), canEdit(), save() (store the settings), cards (cardsui.js), pageName(page), redraw(page) (the page draws itself
- *  again), addCard(page) / editCard(page, card) (cardeditor.js), editTabs() (tabedit.js), editOwnPage(page) (an own page's name, icon) */
+ *  again), addCard(page) / editCard(page, card) (cardeditor.js), editTabs() (tabedit.js), editOwnPage(page) (an own page's name, icon),
+ *  variants (variantsui.js, #507: shown(page, edit) the version of the page to show, bar(page) its strip in the edit mode, done(page)) */
 export function initBoard(ctx) {
   const { t } = ctx;
   let editing = null;
@@ -20,13 +23,12 @@ export function initBoard(ctx) {
   const ro = new WeakMap();                          // box -> its ResizeObserver
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', (e) => { e.stopPropagation(); on(e); }); return b; };
-  const layoutOf = (page) => cleanLayout((ctx.settings().pageLayouts || {})[page]);
+  /** the version of a page shown now (#507): the one edited in the edit mode, else the one of who is looking; '' = "Für alle" */
+  const versionOf = (page) => ctx.variants?.shown(page, editing === page && ctx.canEdit()) || '';
+  const layoutOf = (page) => layoutIn(ctx.settings(), page, versionOf(page));
 
   function setLayout(page, l) {
-    const all = { ...(ctx.settings().pageLayouts || {}) };
-    const c = cleanLayout(l);
-    if (!emptyLayout(c)) all[page] = c; else delete all[page];
-    ctx.settings().pageLayouts = all;
+    Object.assign(ctx.settings(), withLayoutIn(ctx.settings(), page, versionOf(page), l));
     ctx.save();
     ctx.redraw(page);
   }
@@ -146,7 +148,10 @@ export function initBoard(ctx) {
     const add = edit ? btn('bdAdd', `＋ ${t('bd.add')}`, () => ctx.addCard(page)) : null;
     if (add) add.dataset.w = '1';
     const sec = box.closest('.tabPage');
-    const showStrip = () => { sec?.querySelectorAll(':scope > .bdStrip').forEach((x) => x.remove()); if (edit && sec) sec.prepend(strip(page)); };
+    const showStrip = () => {
+      sec?.querySelectorAll(':scope > .bdStrip, :scope > .pvBar').forEach((x) => x.remove());
+      if (edit && sec) sec.prepend(strip(page), ...(ctx.variants ? [ctx.variants.bar(page)] : []));   // the versions of the page (#507)
+    };
     shown.set(page, { box, keep, edit });
     if (lay.sections.length) {                       // with sections (#495): the cards in no section above, then the sections
       box.classList.remove('bdGrid'); box.classList.add('bdSecRoot');
@@ -265,6 +270,7 @@ export function initBoard(ctx) {
   function setEditing(page) {
     const was = editing;
     editing = page && ctx.canEdit() ? page : null;
+    if (was && was !== editing) ctx.variants?.done(was);          // the next edit mode starts with the version one sees (#507)
     document.body.classList.toggle('bdEditing', !!editing);
     if (was && was !== editing) ctx.redraw(was);
     if (editing) ctx.redraw(editing);
@@ -275,6 +281,8 @@ export function initBoard(ctx) {
     editing: () => editing,
     toggle: (page) => setEditing(editing === page ? null : page),
     layout: layoutOf,
+    /** the keys of the built-in cards of a page as last drawn (a new version "Leer" hides them, #507) */
+    keys: (page) => [...(shown.get(page)?.keep.keys() || [])].filter((k) => !/^c_/.test(k)),
     /** the size an admin chose for a built-in card ('big' | 'small'), dflt when none (#495) */
     size: (page, key, dflt = 'big') => sizeOf(layoutOf(page), key, dflt),
   };

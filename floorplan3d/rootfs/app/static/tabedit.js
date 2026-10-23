@@ -139,6 +139,7 @@ export function initTabEdit(ctx) {
       s.customTabs = custom().filter((x) => x.id !== id);
       s.tabOrder = cleanTabOrder(s.tabOrder).filter((k) => k !== id);
       const lay = { ...(s.pageLayouts || {}) }; delete lay[id]; s.pageLayouts = lay;
+      const vs = { ...(s.pageVariants || {}) }; delete vs[id]; s.pageVariants = vs;   // its own versions too (#507)
       if (ctx.board.editing() === id) ctx.board.setEditing(null);
       ctx.save(); d.close(); ctx.changed(); ctx.show(HOME);
     });

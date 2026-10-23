@@ -1,5 +1,6 @@
 """The pages of the tab bar arranged by an admin like a Home Assistant dashboard (#484): own pages (customTabs), the order of the bar
-(tabOrder) and per page the order of its cards, the hidden ones and own cards (pageLayouts). The same rules as static/tabs.js,
+(tabOrder) and per page the order of its cards, the hidden ones and own cards (pageLayouts), and own versions of a page for some users
+(pageVariants, #507). The same rules as static/tabs.js,
 static/pagelayout.js and static/cards.js (unit tests: tests/test_boards.py compares the lists). Pure functions; server.py keeps them in
 the settings. Also the history of an entity for a card "Verlauf" (Home Assistant's /api/history), cut down to what the card draws."""
 import math
@@ -34,6 +35,9 @@ BUILTINS = ("today:clock", "today:weather", "today:agenda", "today:waste", "toda
 COLORS = ("blue", "orange", "green", "red")
 HOURS = (6, 24, 168, 720)
 SECTION_ID = re.compile(r"^s_[a-z0-9]{3,16}$")
+VARIANT_ID = re.compile(r"^v_[a-z0-9]{3,16}$")   # an own version of a page (#507, static/pagevariants.js)
+MAX_VARIANTS = 6         # per page, besides "Für alle"
+MAX_PICKS = 30           # the versions one user gets (static/tabs.js cleanPicks)
 MAX_SECTIONS = 12
 MAX_TITLE = 40
 SIZES = ("big", "small")   # a thermostat card, a built-in card that can be small (static/thermostat.js, #495)
@@ -235,6 +239,43 @@ def clean_page_layouts(val, custom_tabs) -> dict:
         if lay["order"] or lay["hidden"] or lay["cards"] or lay["sizes"] or lay["sections"] or lay["widths"]:
             out[page] = lay
     return out
+
+
+def clean_variant(v):
+    """one version of a page (#507): {"id", "name", "icon", "layout"}, or None (cleanVariant in static/pagevariants.js)"""
+    if not isinstance(v, dict) or not isinstance(v.get("id"), str) or not VARIANT_ID.match(v["id"]):
+        return None
+    name = re.sub(r"[\x00-\x1f\x7f]", "", v["name"]).strip() if isinstance(v.get("name"), str) else ""
+    icon = re.sub(r"[\x00-\x1f\x7f]", "", v["icon"]).strip() if isinstance(v.get("icon"), str) else ""
+    return {"id": v["id"], "name": name[:30] if name else "?", "icon": icon if icon and len(icon) <= 8 else "🗂", "layout": clean_layout(v.get("layout"))}
+
+
+def clean_page_variants(val, custom_tabs) -> dict:
+    """{page: [version]} for the built-in pages (not the house) and the own pages that exist, ids once, at most MAX_VARIANTS, empty lists
+    left out (cleanVariants in static/pagevariants.js)"""
+    if not isinstance(val, dict):
+        return {}
+    pages = [k for k in TABS if k != "house"] + [c["id"] for c in custom_tabs]
+    out = {}
+    for page, lst in list(val.items())[:40]:
+        if page not in pages or not isinstance(lst, list):
+            continue
+        ids, vs = set(), []
+        for v in lst:
+            x = clean_variant(v)
+            if x and x["id"] not in ids and len(vs) < MAX_VARIANTS:
+                ids.add(x["id"])
+                vs.append(x)
+        if vs:
+            out[page] = vs
+    return out
+
+
+def clean_picks(val) -> dict:
+    """the versions of the pages one user gets: {page: id}, pages other than the house, at most MAX_PICKS (cleanPicks in static/tabs.js)"""
+    if not isinstance(val, dict):
+        return {}
+    return dict([(k, v) for k, v in val.items() if is_tab_key(k) and k != "house" and isinstance(v, str) and VARIANT_ID.match(v)][:MAX_PICKS])
 
 
 MAX_POINTS = 240

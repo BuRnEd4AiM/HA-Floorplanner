@@ -6,6 +6,7 @@ import { LOCK_KEYS, cleanLocks, collectLocks } from './userlocks.js';
 import { ALL, cleanStartView } from './startview.js';
 import { buildingsOf } from './buildings.js';
 import { HOME, cleanTabEntry, collectUserTabs, barTabs } from './tabs.js';
+import { variantsOf } from './pagevariants.js';
 
 export const VIEW_OPTS = ['3d', '2d', 'split', 'all'];
 /** the preset fields of a user row (#250): field, its options [value, text key]; "Default" (no value) comes first */
@@ -60,7 +61,7 @@ export function collectTablets(rows) {
     if (r.building) buildings[u] = r.building;
   });
   return { rooms, views, presets: collectPresets(rows), locks: collectLocks(rows), starts, buildings,
-    tabs: collectUserTabs(rows.map((r) => ({ user: r.user || '', hide: r.tabs?.hide || [], start: r.tabs?.start || '' }))) };
+    tabs: collectUserTabs(rows.map((r) => ({ user: r.user || '', hide: r.tabs?.hide || [], start: r.tabs?.start || '', variants: r.tabs?.variants || {} }))) };
 }
 
 /** colour stops typed in the dialog [{ v, c }] (v is a number or a string): sorted by value, rows without a number dropped; fewer than two -> fallback */
@@ -109,7 +110,8 @@ export function initSettingsUi(ctx) {
     lab.append(sel);
     return lab;
   }
-  /** the tabs of a user row (#479): a tick per page of the tab bar (the house is always there) and the tab the screen starts with */
+  /** the tabs of a user row (#479): a tick per page of the tab bar (the house is always there), beside it the version of the page he
+   *  gets when the page has own ones (#507), and the tab the screen starts with */
   function tabsPart(tabs) {
     const part = document.createElement('div'); part.className = 'tabsPart';
     const head = document.createElement('div'); head.className = 'lockHead'; head.textContent = t('tab.users'); head.title = t('tab.usersTip');
@@ -119,6 +121,12 @@ export function initSettingsUi(ctx) {
       const lab = document.createElement('label'); lab.className = 'lockItem';
       const cb = document.createElement('input'); cb.type = 'checkbox'; cb.dataset.tabShow = x.key; cb.checked = !tabs.hide.includes(x.key);
       lab.append(cb, document.createTextNode(name(x))); part.append(lab);
+      const vs = variantsOf(ctx.settings(), x.key);
+      if (!vs.length) return;
+      const sel = document.createElement('select'); sel.dataset.tabVariant = x.key; sel.title = t('pv.title');
+      sel.add(new Option(t('pv.all'), '')); vs.forEach((v) => sel.add(new Option(`${v.icon} ${v.name}`, v.id)));
+      sel.value = vs.some((v) => v.id === tabs.variants?.[x.key]) ? tabs.variants[x.key] : '';
+      lab.append(sel);
     });
     const lab = document.createElement('label'); lab.textContent = t('tab.start');
     const sel = document.createElement('select'); sel.dataset.role = 'tabStart';
@@ -220,7 +228,8 @@ export function initSettingsUi(ctx) {
       preset: readPreset([...r.querySelectorAll('[data-preset]')].map((x) => ({ key: x.dataset.preset, value: x.value }))),
       building: r.querySelector('[data-role=building]')?.value || '',
       locks: [...r.querySelectorAll('[data-lock]:checked')].map((x) => x.dataset.lock),
-      tabs: { hide: [...r.querySelectorAll('[data-tab-show]:not(:checked)')].map((x) => x.dataset.tabShow), start: r.querySelector('[data-role=tabStart]')?.value || '' },
+      tabs: { hide: [...r.querySelectorAll('[data-tab-show]:not(:checked)')].map((x) => x.dataset.tabShow), start: r.querySelector('[data-role=tabStart]')?.value || '',
+        variants: Object.fromEntries([...r.querySelectorAll('[data-tab-variant]')].filter((x) => x.value).map((x) => [x.dataset.tabVariant, x.value])) },
       start: (() => { try { return r.dataset.start ? JSON.parse(r.dataset.start) : null; } catch { return null; } })() })));
   }
   $('#addTablet').addEventListener('click', () => {
