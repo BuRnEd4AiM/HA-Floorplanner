@@ -103,6 +103,7 @@ import { initTodayPrefs } from './todayprefs.js';
 import { initPresencePrefs } from './presenceprefs.js';
 import { initVoiceUi } from './voiceui.js';
 import { initVoicePrefs } from './voiceprefs.js';
+import { initVoiceCheck } from './voicecheck.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel, fetchAreas, fetchBatteries } from './livechannel.js';
 import { initDeviceList } from './devicelist.js';
@@ -1546,8 +1547,10 @@ const voiceUi = initVoiceUi({
   focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => roomPanel.open(id), isLive: () => isLive(), rows: () => deviceList.rows(), states: () => states,
   reading: (id, mode) => { const f = layout.floors.find((x) => x.rooms.some((r) => r.id === id)), r = f?.rooms.find((x) => x.id === id); return r ? roomReading(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode) : null; },
   colorMode: (m) => { const b = $(`#modeBar [data-vm=${m}]`); if (!b) return false; b.click(); return true; }, imperial: () => imperial(),
+  openCheck: () => { openSettingsAt('voice'); $('#vkBox').scrollIntoView({ block: 'start' }); },
 });
-const voicePrefs = initVoicePrefs({ $, t, voice: voiceUi, settings: () => settings, houseId: () => hs.id(), commit: () => commitSettings(),   // ⚙ → 🎤 Sprachsuche (voiceprefs.js)
+const voiceCheck = initVoiceCheck({ $, t, voice: voiceUi, version: () => $('#versionPill').textContent, changed: () => voicePrefs.status() });   // ⚙ → 🎤 → 🩺 Mikrofon-Test (#511)
+const voicePrefs = initVoicePrefs({ $, t, voice: voiceUi, check: voiceCheck, settings: () => settings, houseId: () => hs.id(), commit: () => commitSettings(),   // ⚙ → 🎤 Sprachsuche (voiceprefs.js)
   tryIt: () => { $('#settingsDialog').close(); voiceUi.listen(); } });
 const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,

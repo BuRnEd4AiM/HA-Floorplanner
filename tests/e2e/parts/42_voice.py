@@ -2,7 +2,9 @@
 offen?" lists the open window and marks it with a ring; a code word of the settings ("Gute Stube") goes to its room; ⚙ → 🎤 Sprachsuche
 shows what the device can do and adds a code word; with "Home Assistant Assist" chosen the 🎤 records (a test tone instead of a
 microphone), api/voice/stt hands it to the mock Home Assistant, and what it "heard" is answered; the lock "voice" takes the 🎤 away and the
-server refuses api/voice/stt.
+server refuses api/voice/stt. 4.19.1 (#511): ⚙ → 🎤 → 🩺 Mikrofon-Test (the facts of the device, the level of the microphone, what Assist
+heard, the result to copy); in an app's built-in browser (Android WebView) the 🎤 takes Assist; a speech recognition that never starts
+gives way to Assist after 5 s; without Assist the 🎤 there says why and opens the test.
 """
 st_vs = api("api/settings")
 set_setting("language", "de")
@@ -84,6 +86,79 @@ check("voice search: 🎤 listens (red, 'Ich höre zu …'), a second tap sends 
       listening and len(voice_now["heard"]) == heard0 + 1 and voice_now["heard"][-1] > 16000 and
       pgS.input_value("#findInput") == "Welche Fenster sind offen" and "Fenster · offen: 1" in pgS.inner_text("#findAnswer"),
       (listening, voice_now["heard"], pgS.input_value("#findInput"), pgS.inner_text("#findAnswer")))
+
+# --- 4.19.1 (#511): the microphone test in ⚙ → 🎤 Sprachsuche; an app's built-in browser; a speech recognition that never starts
+pgS.click("#settingsBtn"); open_setting(pgS, "#vkBox"); pgS.wait_for_timeout(1000)
+facts_vs = pgS.inner_text("#vcStatus")
+check("microphone test (#511): what this device is: a secure page, the browser, the 🎤 with Assist",
+      "Sichere Verbindung" in facts_vs and "Gerät: Chrome" in facts_vs and "🎤 mit Home Assistant Assist" in facts_vs, facts_vs)
+pgS.click("#vkMic"); pgS.wait_for_timeout(1500)
+bar_vs = pgS.evaluate("parseFloat(document.querySelector('#vkLevel').style.width) || 0")
+for _ in range(30):
+    pgS.wait_for_timeout(300)
+    if "hört dich" in pgS.inner_text("#vkResult"): break
+check("microphone test: '1. Mikrofon prüfen' records (a test tone), the level bar moves, after 6 s 'Das Mikrofon … hört dich', a choice of microphones",
+      bar_vs > 20 and "hört dich" in pgS.inner_text("#vkResult") and pgS.is_visible("#vkDevice") and pgS.locator("#vkDevice option").count() >= 1,
+      (bar_vs, pgS.inner_text("#vkResult")))
+heard1 = len(mock_vs("/_voice", {})["heard"])
+pgS.click("#vkRec"); pgS.wait_for_timeout(1500); pgS.click("#vkRec")
+for _ in range(20):
+    pgS.wait_for_timeout(300)
+    if "Erkannt mit" in pgS.inner_text("#vkResult"): break
+check("microphone test: '2. Erkennung prüfen' sends the sound to Home Assistant's Assist and shows what it heard",
+      "Erkannt mit Home Assistant Assist: „Welche Fenster sind offen“" in pgS.inner_text("#vkResult") and len(mock_vs("/_voice", {})["heard"]) == heard1 + 1,
+      pgS.inner_text("#vkResult"))
+pgS.click("#vkCopy"); pgS.wait_for_timeout(400)
+rep_vs = pgS.input_value("#vkReport")
+check("microphone test: '📋 Ergebnis kopieren' takes it all (version, browser, the facts, both steps)",
+      "3D Floorplan" in rep_vs and "HeadlessChrome" in rep_vs and "Sichere Verbindung" in rep_vs and "hört dich" in rep_vs and "Erkannt mit" in rep_vs, rep_vs)
+pgS.click("#settingsDialog .dlgClose"); pgS.wait_for_timeout(300)
+
+set_setting("voice", {"engine": "auto", "aliases": []})
+WEBVIEW = "Mozilla/5.0 (Linux; Android 11; Lenovo TB-X606F; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/130.0.0.0 Safari/537.36"
+DEAD = """window.webkitSpeechRecognition = window.SpeechRecognition = class { start() {} stop() {} abort() {} };   // as in an app's built-in browser: it does nothing"""
+def voice_page(no_assist=False, **kw):
+    pg = b.new_page(viewport={"width": 1400, "height": 900}, extra_http_headers={"X-Remote-User-Name": "admin"}, permissions=["microphone"], **kw)
+    pg.on("pageerror", lambda e: own_vs.append("PAGEERROR " + str(e)))
+    pg.add_init_script(TONE); pg.add_init_script(DEAD)
+    if no_assist:                                                   # Home Assistant without speech-to-text (the server keeps api/voice a minute)
+        pg.route("**/api/voice", lambda r: r.fulfill(json={"assist": False, "locked": False}))
+    pg.goto(BASE + "?debug=1"); pg.wait_for_timeout(1500)
+    return pg
+pgW = voice_page(user_agent=WEBVIEW)
+pgW.click("#settingsBtn"); open_setting(pgW, "#vkBox"); pgW.wait_for_timeout(1200)
+st_w = pgW.inner_text("#vcStatus")
+check("an app's built-in browser (Android WebView: Fully Kiosk, the Home Assistant app): its speech recognition counts as not working, the 🎤 takes Assist",
+      "App mit eingebautem Browser" in st_w and "tut darin nichts" in st_w and "🎤 mit Home Assistant Assist" in st_w, st_w)
+pgW.close()
+
+pgD = voice_page()
+heard2 = len(mock_vs("/_voice", {})["heard"])
+pgD.click("#voiceBtn"); pgD.wait_for_timeout(800)
+starting = "Mikrofon geht an" in pgD.inner_text("#findAnswer")
+for _ in range(30):
+    pgD.wait_for_timeout(300)
+    if "Ich höre zu" in pgD.inner_text("#findAnswer"): break
+pgD.wait_for_timeout(800); pgD.click("#voiceBtn")
+for _ in range(20):
+    pgD.wait_for_timeout(300)
+    if pgD.input_value("#findInput") == "Welche Fenster sind offen": break
+memo_vs = pgD.evaluate("JSON.parse(localStorage.getItem('fp.voiceDevice') || '{}').browser")
+check("a speech recognition that never starts (#511): '🎤 Das Mikrofon geht an …', after 5 s Home Assistant's Assist listens instead and its words are answered; this device remembers it",
+      starting and memo_vs == "broken" and pgD.input_value("#findInput") == "Welche Fenster sind offen" and len(mock_vs("/_voice", {})["heard"]) == heard2 + 1,
+      (starting, memo_vs, pgD.input_value("#findInput"), pgD.inner_text("#findAnswer")))
+pgD.close()
+
+pgN = voice_page(no_assist=True, user_agent=WEBVIEW)
+dim = pgN.is_visible("#voiceBtn") and pgN.evaluate("document.querySelector('#voiceBtn').classList.contains('cannot')")
+pgN.click("#voiceBtn"); pgN.wait_for_timeout(500)
+why_vs = pgN.inner_text("#findAnswer")
+pgN.click("#findList button:has-text('Mikrofon-Test')"); pgN.wait_for_timeout(800)
+check("the tablet without Assist: the 🎤 stays (pale), a tap says why ('Diese App … hat keine eigene Spracherkennung'), '🩺 Mikrofon-Test öffnen' opens ⚙ → 🎤 Sprachsuche",
+      dim and "hat keine eigene Spracherkennung" in why_vs and pgN.evaluate("document.querySelector('#settingsDialog').open")
+      and pgN.evaluate("document.querySelector('#settingsDialog details[data-group=voice]').open"), (dim, why_vs))
+pgN.close()
+set_setting("voice", {"engine": "assist", "aliases": []})
 
 # --- the lock "voice": no 🎤, the server refuses
 set_setting("userLocks", {**api("api/settings").get("userLocks", {}), "kid_vs": ["voice"]})

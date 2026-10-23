@@ -4,7 +4,8 @@
  * fill / read); the server keeps it in settings.voice (voice.clean_voice), voicequery.js cleanVoice does the same here. */
 import { cleanVoice, ENGINES } from './voicequery.js';
 
-/** ctx: $, t, voice (voiceui.js: places(), loadOthers(), status(), refresh()), houseId(), commit(), tryIt() (close the settings and listen) */
+/** ctx: $, t, voice (voiceui.js: places(), loadOthers(), status(), refresh()), check (voicecheck.js: the microphone test, #511), houseId(),
+ *  commit(), tryIt() (close the settings and listen) */
 export function initVoicePrefs(ctx) {
   const { $, t } = ctx;
   const box = $('#vcAliases'), engine = $('#setVoiceEngine'), group = $('#settingsDialog details[data-group=voice]');
@@ -84,21 +85,15 @@ export function initVoicePrefs(ctx) {
     box.replaceChildren(...list.map((a) => row(a, p)));
     $('#vcNone').hidden = list.length > 0;
   }
-  /** what this device can do: the browser's recognition, Home Assistant's Assist, the microphone */
+  /** what this device is and can do (voicecheck.js facts): https, the browser or an app, the microphone, the browser's recognition,
+   *  Home Assistant's Assist, which one the 🎤 uses or why it cannot listen and what to do */
   function status() {
-    const s = ctx.voice.status(), ul = $('#vcStatus');
-    const line = (ok, text) => { const li = el('li', ok ? 'ok' : 'no', `${ok ? '✓' : '✗'} ${text}`); return li; };
-    ul.replaceChildren(
-      line(s.browser, t(s.browser ? 'vc.st.browser' : 'vc.st.noBrowser')),
-      line(s.mic, t(s.mic ? 'vc.st.mic' : 'vc.st.noMic')),
-      line(!!s.assist?.assist, s.assist == null ? t('vc.st.asking') : s.assist.assist ? t('vc.st.assist', { name: s.assist.name || '' }) : t('vc.st.noAssist')),
-      el('li', s.engine ? 'ok now' : 'no now', s.engine ? t('vc.st.uses', { what: t(`vc.via.${s.engine}`) }) : t('vc.st.none')),
-    );
-    $('#vcGuide').hidden = !!s.assist?.assist;                 // how to set up Assist: only while it cannot listen
+    ctx.check.drawFacts($('#vcStatus'));
+    $('#vcGuide').hidden = !!ctx.voice.status().assist?.assist;   // how to set up Assist: only while it cannot listen
   }
   async function opened() {
     status();
-    await Promise.all([ctx.voice.loadOthers(), ctx.voice.refresh()]);
+    await Promise.all([ctx.voice.loadOthers(), ctx.voice.refresh(), ctx.check.refresh()]);
     status();
     edited = ''; fill(ctx.settings());                          // now with the rooms of every house
     if (!usersLoaded) {

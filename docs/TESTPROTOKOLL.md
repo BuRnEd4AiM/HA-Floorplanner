@@ -302,7 +302,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489) | 0 | 0 | 3 | 0 | 94.1 bis 94.3 |
 | 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507) | 0 | 0 | 10 | 0 | 95.1 bis 95.10 |
 | 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509) | 0 | 0 | 11 | 3 | 96.1 bis 96.10, 96.14 |
-| **Zusammen** | **492** | **5** | **205** | **57** | |
+| 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511) | 0 | 0 | 5 | 2 | 97.1 bis 97.4, 97.7 |
+| **Zusammen** | **492** | **5** | **210** | **59** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1545,3 +1546,15 @@ Wunsch des Besitzers: „Sprachsuche … welche Fenster sind offen … Codewört
 | 96.13 | Im Add-on mit der Home-Assistant-App auf dem Handy (Android) oder am Wandtablet: 🔍 → 🎤 | Ohne Assist: „Home Assistant kann noch keine Sprache erkennen …“ bzw. kein 🎤; nach der Anleitung in ⚙ → 🎤 (Whisper) geht es | ➖ |
 | 96.14 | Handy: 🔍 tippen | Das 🎤 ist im Suchfeld rechts neben dem Eingabefeld | ❓ |
 
+
+## 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511)
+Der Besitzer: „wenn ich aufs Mikrofon drauf drücke, dann hört er nichts … weder auf dem Tablet noch auf dem PC“. Ursache am Tablet: Apps mit eingebautem Browser (Fully Kiosk, die Home-Assistant-App) haben die Spracherkennung von Chrome, sie tut darin aber nichts. Über http:// gibt kein Browser das Mikrofon frei. Der Test geht auch in der Demo (dort ist es https).
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 97.1 | ⚙ → 🎤 Sprachsuche öffnen | Oben eine Liste, was dieses Gerät ist: „Sichere Verbindung (https)“ oder „Unsichere Verbindung (http://…)“, „Gerät: …“ (z. B. „Chrome 130 · Windows“), ob das Mikrofon erlaubt ist, welche Erkennung das 🎤 nimmt (oder warum keine, mit „→ was zu tun ist“) | ❓ |
+| 97.2 | Darunter „🎤 1. Mikrofon prüfen“, „Zulassen“, etwas sagen | Der Balken bewegt sich und wird grün; nach 6 Sekunden „✓ Das Mikrofon „…“ hört dich“ (oder ✗ mit dem Grund und „→ …“); darunter eine Auswahl „Mikrofon“ | ❓ |
+| 97.3 | „🗣 2. Erkennung prüfen“, „Welche Fenster sind offen?“ sagen | „✓ Erkannt mit …: „Welche Fenster sind offen““ oder ✗ mit dem Grund und was zu tun ist | ❓ |
+| 97.4 | „📋 Ergebnis kopieren“ | Unten ein Kasten mit dem ganzen Ergebnis (Version, Browser, alle Zeilen); in den Chat einfügen geht | ❓ |
+| 97.5 | Am PC (Chrome oder Edge) unten links 🎤 tippen | Über https: es hört zu. Über http://: das 🎤 ist blass, ein Tipp sagt „die Seite ist über http:// geöffnet …“ und zeigt „🩺 Mikrofon-Test öffnen“ | ➖ |
+| 97.6 | Am Wandtablet (Fully Kiosk) oder in der Home-Assistant-App 🎤 tippen | Nie mehr endlos „Ich höre zu …“. Ohne Assist: blasses 🎤, ein Tipp sagt „Diese App … hat keine eigene Spracherkennung …“; mit Assist (Whisper) hört es zu | ➖ |
+| 97.7 | Nach einer Warnung beim 🎤 die Zeile „🩺 Mikrofon-Test öffnen“ antippen | Die Einstellungen gehen bei 🎤 Sprachsuche auf, beim Mikrofon-Test | ❓ |
