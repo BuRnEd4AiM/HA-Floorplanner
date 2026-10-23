@@ -1607,4 +1607,5 @@ export default {
   'ec.power': "tomado: la página ⚡ Energía calcula los kWh a partir de los vatios, también para los días anteriores", 'ec.kept': "ya está: {names}, nada duplicado", 'ec.noStats': "no tiene historial en Home Assistant (le falta state_class) ni contador en kWh.", 'ec.make': "＋ Crear contador",
   'ec.makeTip': "Crea en Home Assistant un ayudante «Integral» que cuenta kWh a partir de los vatios (desde ahora, sin días anteriores)",
   'ec.making': "creando …", 'ec.made': "creado y tomado. Cuenta desde ahora.", 'ec.makeFail': "no se pudo crear (Home Assistant lo rechazó).",
+  'login.out': "Cerrar sesión", 'login.outTip': "Sesión iniciada con Home Assistant como {name} – cerrar sesión aquí",
 };

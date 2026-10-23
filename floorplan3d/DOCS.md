@@ -23,6 +23,10 @@ The card `custom:floorplan3d-card` shows the live 3D view of this add-on on any 
 
 With a room chosen, the option **Show** (`view`) makes a card for that one room: *Only the room in 3D* (`view: room`) shows the room and never leaves it, without the room panel over it; *Only the room's controls* (`view: panel`) shows just its room panel (lights, heating, shutters, doors and windows) filling the card, without 3D. Two cards side by side give the room and its controls at the same time.
 
+## Without the add-on store (Docker)
+
+With Home Assistant Container (Home Assistant as a plain Docker container) there is no add-on store: 3D Floorplan then runs as its own container with its own address, and whoever opens it logs in with their Home Assistant user. The steps are in [container/README.md](https://github.com/BuRnEd4AiM/HA-Floorplanner/blob/main/container/README.md).
+
 ## Custom 3D models
 
 In the device tool use **Upload GLB**. Models are scaled to fit 1 m and can be resized per device. Draco/Meshopt-compressed files are not supported yet.

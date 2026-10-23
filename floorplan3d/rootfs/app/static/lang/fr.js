@@ -1617,4 +1617,5 @@ export default {
   'ec.makeTip': "Crée dans Home Assistant une entrée « Intégrale » qui compte les kWh à partir des watts (à partir de maintenant, sans les jours passés)",
   'ec.making': "création …", 'ec.made': "créé et repris. Il compte à partir de maintenant.",
   'ec.makeFail': "n'a pas pu être créé (Home Assistant a refusé).",
+  'login.out': "Se déconnecter", 'login.outTip': "Connecté via Home Assistant en tant que {name} – se déconnecter ici",
 };

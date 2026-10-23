@@ -136,6 +136,7 @@ import { fxRgb as fxRgbOf, toState as toStateOf } from './entitystate.js';
 import { normalizeLayout as normalizeLayoutOf, localizeDefaults as localizeDefaultsOf } from './layoutnorm.js';
 import { initRenames } from './renames.js';
 import { initMeasureTool } from './measuretool.js';
+import { initLogin } from './login.js';
 window.fp3dBooted = true;           // every module is loaded: the boot guard (bootguard.js) stands down (#328)
 
 /* ================= State ================= */
@@ -1656,6 +1657,7 @@ async function init() {
   locks = applyLocks(document, me.locks);                 // and what this user may not use: hidden here, control / cameras refused by the server
   lowWalls = settings.lowWalls;
   setLanguage(settings.language);
+  initLogin(me, t);                                       // without the Supervisor: logged in with Home Assistant (#489)
   full.refresh();                                         // a full screen kept on for this user (#487), in this language
   await hs.load();
   try { layout = await persist.load(); } catch { setStatus(t('loadFailed')); }

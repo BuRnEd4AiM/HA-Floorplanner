@@ -1,20 +1,20 @@
 {
  "session": "session_01CbgqAoU7ADnHKnxsGbzmjt",
  "start": "2026-10-22",
- "updated": "2026-10-22T21:24:49Z",
+ "updated": "2026-10-23T04:01:38Z",
  "branch": "claude/sweet-edison-4obkyg",
  "source": "counted",
- "input": 1378,
- "cache_write": 1911156,
- "cache_read": 304487276,
- "output": 595611,
+ "input": 1566,
+ "cache_write": 2853575,
+ "cache_read": 332584194,
+ "output": 689526,
  "models": {
   "claude-opus-5-5": {
-   "input": 1378,
-   "cache_write": 1911156,
-   "cache_read": 304487276,
-   "output": 595611,
-   "requests": 683
+   "input": 1566,
+   "cache_write": 2853575,
+   "cache_read": 332584194,
+   "output": 689526,
+   "requests": 776
   }
  }
 }

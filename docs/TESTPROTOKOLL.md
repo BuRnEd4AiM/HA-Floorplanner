@@ -299,7 +299,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 91. Neu in 4.14.0: Knöpfe gestalten (#495) | 0 | 0 | 7 | 0 | 91.1 bis 91.7 |
 | 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500) | 0 | 0 | 6 | 0 | 92.1 bis 92.6 |
 | 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503) | 0 | 0 | 4 | 0 | 93.1 bis 93.4 |
-| **Zusammen** | **492** | **5** | **181** | **54** | |
+| 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489) | 0 | 0 | 3 | 0 | 94.1 bis 94.3 |
+| **Zusammen** | **492** | **5** | **184** | **54** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1499,4 +1500,12 @@ Nachfrage des Besitzers: „kannst du es nicht einfach so machen, dass es egal i
 | 93.2 | Unten bei „Solar erzeugt“ in „＋ Sensor hinzufügen …“ tippen | Auch Sensoren in W (z. B. SolarNet PV-Leistung) stehen in der Liste | ❓ |
 | 93.3 | Unten auf ⚡ Energie, „Woche“ oder „Monat“ | Solar und Batterie zeigen kWh, auch für die Tage vor heute | ❓ |
 | 93.4 | Zum Vergleich in Home Assistants eigenem Energie-Dashboard denselben Tag ansehen | Die Werte liegen nah beieinander (aus dem Mittelwert gerechnet, darum nicht aufs Komma gleich) | ❓ |
+
+## 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489)
+Wunsch eines Nutzers (#489): 3D Floorplan auch für Home Assistant als Docker-Container. Im Add-on ändert sich nichts; 94.2 und 94.3 kann nur prüfen, wer Home Assistant als Docker-Container hat (der Nutzer aus #489).
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 94.1 | Im Add-on wie immer öffnen, oben rechts schauen, etwas bearbeiten und speichern | Kein Knopf „Abmelden“; Bearbeiten und Speichern gehen wie vorher | ❓ |
+| 94.2 | Docker: nach `container/README.md` starten und `http://<Rechner>:8100` öffnen | Die Anmeldeseite von Home Assistant kommt; nach dem Anmelden der Grundriss, als Administrator mit Bearbeiten | ❓ |
+| 94.3 | Docker: oben rechts „Abmelden“ | „Abgemeldet.“; „Wieder anmelden“ führt wieder zur Anmeldeseite von Home Assistant | ❓ |
 

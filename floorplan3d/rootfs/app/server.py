@@ -2,12 +2,14 @@
 
 - serves the frontend (static/)
 - stores the floor plan layout, user settings and custom GLB models under DATA_DIR
-- reads entities and calls services through the Supervisor proxy
+- reads entities and calls services through the Supervisor proxy (or, without the Supervisor, Home Assistant itself: #489)
 """
 import asyncio
 import base64
 import datetime
 import hashlib
+import hmac
+import html
 import json
 import math
 import logging
@@ -28,6 +30,7 @@ import guard as gd
 import household as hh
 import controls
 import counters
+import halogin as hl
 import importer
 import manifest as mf
 import pages
@@ -35,8 +38,14 @@ import renames as rn
 import timeline as tl
 
 STATIC_DIR = Path(__file__).parent / "static"
-SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN")
-HA_API = os.environ.get("HA_API", "http://supervisor/core/api")
+# the token for Home Assistant: the Supervisor's in the add-on; without the Supervisor (Home Assistant as a Docker container, #489) a
+# long-lived access token (HA_TOKEN) and Home Assistant's address (HA_URL, e.g. http://192.168.1.10:8123)
+SUPERVISOR_TOKEN = os.environ.get("SUPERVISOR_TOKEN") or os.environ.get("HA_TOKEN")
+HA_URL = "" if os.environ.get("SUPERVISOR_TOKEN") else os.environ.get("HA_URL", "")
+HA_API = os.environ.get("HA_API") or (hl.ha_base(HA_URL) + "/api" if HA_URL else "http://supervisor/core/api")
+HA_LOGIN = bool(os.environ.get("HA_TOKEN")) and not os.environ.get("SUPERVISOR_TOKEN")   # no Ingress: who opens the page logs in with Home Assistant
+HA_PUBLIC_URL = os.environ.get("HA_PUBLIC_URL", "")   # Home Assistant's address for the browser, when it is another than HA_URL
+APP_URL = os.environ.get("APP_URL", "")               # the page's own address, when it is behind a proxy or in a folder
 PORT = int(os.environ.get("PORT", "8099"))
 OPTIONS_FILE = Path(os.environ.get("OPTIONS_FILE", "/data/options.json"))
 
@@ -240,6 +249,7 @@ EMPTY_LAYOUT = {
 log = logging.getLogger("floorplan3d")
 KEY_DATA = web.AppKey("data_dir", Path)
 KEY_CONFIG = web.AppKey("config_dir", Path)
+KEY_SESSION = "fp3d.session"                    # on a request: who logged in with Home Assistant (login_gate, #489)
 USERS_FILE = "users.json"       # in the add-on config folder of Home Assistant (addon_configs): survives updates and reinstalls
 
 
@@ -249,6 +259,13 @@ def data_dir(request) -> Path:
 
 def ha_headers():
     return {"Authorization": f"Bearer {SUPERVISOR_TOKEN}", "Content-Type": "application/json"}
+
+
+def ha_ws_url() -> str:
+    """Home Assistant's websocket: through the Supervisor at /core/websocket, Home Assistant itself (HA_URL, #489) at /api/websocket"""
+    if HA_URL:
+        return hl.ha_base(HA_URL) + "/api/websocket"
+    return (HA_API[:-4] if HA_API.endswith("/api") else HA_API).rstrip("/") + "/websocket"
 
 
 def write_json_atomic(path: Path, data) -> None:
@@ -269,21 +286,27 @@ def read_json(path: Path, default):
 
 # ---------- who is allowed to edit ----------
 def current_user(request) -> dict:
-    """Home Assistant Ingress tells us who is looking through X-Remote-User-* headers."""
+    """Home Assistant Ingress tells us who is looking through X-Remote-User-* headers; without the Supervisor (#489) the login cookie
+    does (login_gate), and such headers count for nothing: anybody could send them."""
+    if HA_LOGIN:
+        return hl.who(request.get(KEY_SESSION))
     h = request.headers
     names = {v.strip().lower() for v in (h.get("X-Remote-User-Name"), h.get("X-Remote-User-Display-Name"),
                                          h.get("X-Remote-User-Id")) if v and v.strip()}
-    return {"name": (h.get("X-Remote-User-Name") or h.get("X-Remote-User-Display-Name") or "").strip(), "ids": names}
+    return {"name": (h.get("X-Remote-User-Name") or h.get("X-Remote-User-Display-Name") or "").strip(),
+            "display": (h.get("X-Remote-User-Display-Name") or h.get("X-Remote-User-Name") or "").strip(), "ids": names}
 
 
 def editors() -> set:
-    """Add-on option `editors`: extra user names (or ids) that may edit besides the Home Assistant administrators."""
+    """Add-on option `editors`: extra user names (or ids) that may edit besides the Home Assistant administrators; in a Docker
+    container (#489) also the variable EDITORS ("anna,ben")."""
     data = read_json(OPTIONS_FILE, {})
     raw = data.get("editors") if isinstance(data, dict) else None
-    return {str(x).strip().lower() for x in raw if str(x).strip()} if isinstance(raw, list) else set()
+    out = {str(x).strip().lower() for x in raw if str(x).strip()} if isinstance(raw, list) else set()
+    return out | {x.strip().lower() for x in os.environ.get("EDITORS", "").split(",") if x.strip()}
 
 
-_admin_cache = {"at": float("-inf"), "ids": None, "users": []}
+_admin_cache = {"at": float("-inf"), "ids": None, "users": [], "active": None, "byid": {}}
 
 
 async def load_admin_ids():
@@ -293,24 +316,26 @@ async def load_admin_ids():
     if now - _admin_cache["at"] < 60:
         return _admin_cache["ids"]
     ids = None
-    base = HA_API[:-4] if HA_API.endswith("/api") else HA_API
     try:
         async with aiohttp.ClientSession() as sess:
-            async with sess.ws_connect(base.rstrip("/") + "/websocket", timeout=aiohttp.ClientWSTimeout(ws_close=5) if hasattr(aiohttp, "ClientWSTimeout") else 5) as ws:
+            async with sess.ws_connect(ha_ws_url(), timeout=aiohttp.ClientWSTimeout(ws_close=5) if hasattr(aiohttp, "ClientWSTimeout") else 5) as ws:
                 await asyncio.wait_for(ws.receive_json(), 5)                                   # auth_required
                 await ws.send_json({"type": "auth", "access_token": SUPERVISOR_TOKEN})
                 if (await asyncio.wait_for(ws.receive_json(), 5)).get("type") == "auth_ok":
                     await ws.send_json({"id": 1, "type": "config/auth/list"})
                     res = await asyncio.wait_for(ws.receive_json(), 5)
                     if res.get("success") and isinstance(res.get("result"), list):
-                        ids, users = set(), []
+                        ids, users, active, byid = set(), [], set(), {}
                         for u in res["result"]:
                             admin = bool(u.get("is_owner") or "system-admin" in (u.get("group_ids") or []))
                             if admin:
                                 ids |= {str(v).strip().lower() for v in (u.get("id"), u.get("username")) if v}
                             if u.get("is_active", True) and not u.get("system_generated") and u.get("username"):
                                 users.append({"username": u["username"], "name": u.get("name") or u["username"], "admin": admin})
-                        _admin_cache["users"] = users
+                            if u.get("is_active", True) and isinstance(u.get("id"), str):
+                                active.add(u["id"])
+                                byid[u["id"]] = u.get("username") or ""
+                        _admin_cache.update(users=users, active=active, byid=byid)
     except Exception as err:  # noqa: BLE001 - any failure means "unknown"
         log.warning("Could not read the Home Assistant administrators (%s); only users listed in `editors` may edit", err)
     _admin_cache.update(at=now, ids=ids)
@@ -325,6 +350,8 @@ async def can_edit(request) -> bool:
     if editors() & ids:
         return True
     admins = await load_admin_ids()
+    if admins is None and HA_LOGIN:     # the token is not an administrator's: what Home Assistant said at the login
+        return bool((request.get(KEY_SESSION) or {}).get("admin"))
     return bool(admins and admins & ids)
 
 
@@ -350,7 +377,7 @@ async def get_me(request):
     tabs = next((v for k, v in clean_user_tabs(read_settings(request).get("userTabs", {})).items() if k.strip().lower() in user["ids"]), {})
     return web.json_response({"user": user["name"], "canEdit": edit, "room": room, "view": view, "preset": preset, "start": start, "building": building, "tabs": tabs,
                               "locks": [k for k in LOCKS if k in user_locks(request)],
-                              "adminCheck": (not SUPERVISOR_TOKEN) or _admin_cache["ids"] is not None})
+                              "adminCheck": (not SUPERVISOR_TOKEN) or HA_LOGIN or _admin_cache["ids"] is not None, "login": HA_LOGIN})
 
 
 async def get_users(request):
@@ -360,6 +387,150 @@ async def get_users(request):
     if SUPERVISOR_TOKEN:
         await load_admin_ids()
     return web.json_response(_admin_cache["users"] if SUPERVISOR_TOKEN else [])
+
+
+# ---------- without the Supervisor (Home Assistant as a Docker container, #489): log in with Home Assistant ----------
+_login_keys: dict = {}
+
+
+def login_key(request) -> bytes:
+    """the add-on's own key for its login cookies: made once, kept in the data folder (not in a backup)"""
+    path = data_dir(request) / ".login_key"
+    if path not in _login_keys:
+        try:
+            key = bytes.fromhex(path.read_text("utf-8").strip())
+        except (OSError, ValueError):
+            key = b""
+        if len(key) < 32:
+            key = secrets.token_bytes(32)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with os.fdopen(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w", encoding="utf-8") as f:
+                f.write(key.hex())
+        _login_keys[path] = key
+    return _login_keys[path]
+
+
+def is_https(request) -> bool:
+    return APP_URL.startswith("https:") or request.scheme == "https" or \
+        request.headers.get("X-Forwarded-Proto", "").split(",")[0].strip().lower() == "https"
+
+
+def set_session(request, resp, sess: dict) -> None:
+    resp.set_cookie(hl.SESSION_COOKIE, hl.sign(sess, login_key(request)), max_age=hl.SESSION_DAYS * 86400, path="/",
+                    httponly=True, samesite="Lax", secure=is_https(request))
+
+
+@web.middleware
+async def login_gate(request, handler):
+    """Without Ingress only who logged in with Home Assistant gets the page and its data: the page itself is sent to the login, a
+    request of its data gets 401 (login.js then goes to the login). A user removed or switched off in Home Assistant is out at once.
+    A change (or the live channel) only from the page itself: another page in the same browser gets 403."""
+    if not HA_LOGIN or request.path.startswith("/auth/"):
+        return await handler(request)
+    if (request.method not in ("GET", "HEAD", "OPTIONS") or request.headers.get("Upgrade", "").lower() == "websocket") and \
+            not hl.same_origin(request.headers.get("Origin"), request.host, APP_URL):
+        return web.json_response({"error": "not from this page"}, status=403)
+    now = time.time()
+    sess = hl.unsign(request.cookies.get(hl.SESSION_COOKIE), login_key(request), now)
+    if sess:
+        await load_admin_ids()
+        if _admin_cache["active"] is not None and sess.get("id") not in _admin_cache["active"]:
+            sess = None
+    if not sess:
+        if hl.is_page(request.method, request.path):
+            query = f"?{request.rel_url.raw_query_string}" if request.rel_url.raw_query_string else ""
+            return web.Response(status=302, headers={"Location": "auth/login" + query, "Cache-Control": "no-store"})
+        return web.json_response({"error": "login required"}, status=401, headers={"X-Login": "1"})
+    request[KEY_SESSION] = sess
+    resp = await handler(request)
+    fresh = hl.renewed(sess, now)
+    if fresh and not resp.prepared:
+        set_session(request, resp, fresh)
+    return resp
+
+
+def auth_page(status: int, de: str, en: str, link: str, link_de: str, link_en: str):
+    """a small page of the login (in German and English: the language setting is only known after it)"""
+    body = (f"<p>{html.escape(de)}</p><p lang=en>{html.escape(en)}</p>"
+            f"<p><a href=\"{html.escape(link)}\">{html.escape(link_de)} / {html.escape(link_en)}</a></p>")
+    return web.Response(status=status, content_type="text/html", headers={"Cache-Control": "no-store"},
+                        text="<!doctype html><html lang=de><meta charset=utf-8><meta name=viewport content=\"width=device-width\">"
+                             "<title>3D Floorplan</title><body style=\"font-family:system-ui,sans-serif;margin:2em;line-height:1.5\">"
+                             f"<h2>3D Floorplan</h2>{body}</body></html>")
+
+
+async def auth_login(request):
+    """to Home Assistant's login page; it comes back to auth/callback (the page's address is the client id)"""
+    if not HA_LOGIN:
+        raise web.HTTPNotFound()
+    state = secrets.token_urlsafe(24)
+    cid = hl.app_base(APP_URL, "https" if is_https(request) else "http", request.host)
+    resp = web.Response(status=302, headers={"Cache-Control": "no-store",
+                                             "Location": hl.authorize_url(hl.browser_ha(HA_URL or HA_API, HA_PUBLIC_URL, request.host), cid, state)})
+    login = {"state": state, "cid": cid, "q": request.rel_url.raw_query_string[:1000], "exp": int(time.time()) + hl.LOGIN_SECONDS}
+    resp.set_cookie(hl.LOGIN_COOKIE, hl.sign(login, login_key(request)),
+                    max_age=hl.LOGIN_SECONDS, path="/", httponly=True, samesite="Lax", secure=is_https(request))
+    return resp
+
+
+async def ha_login_user(code: str, client_id: str):
+    """who logged in: Home Assistant's code for an access token, with it auth/current_user ({"id", "name", "is_admin", …}); the
+    token is given back at once (the add-on works with its own), None when it did not work"""
+    base = hl.ha_base(HA_URL or HA_API)
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
+            async with s.post(f"{base}/auth/token", data={"grant_type": "authorization_code", "code": code, "client_id": client_id}) as r:
+                tok = await r.json(content_type=None) if r.status == 200 else None
+            if not isinstance(tok, dict) or not isinstance(tok.get("access_token"), str):
+                log.warning("Login: Home Assistant did not take the code")
+                return None
+            user = None
+            async with s.ws_connect(ha_ws_url()) as ws:
+                await asyncio.wait_for(ws.receive_json(), 5)                                   # auth_required
+                await ws.send_json({"type": "auth", "access_token": tok["access_token"]})
+                if (await asyncio.wait_for(ws.receive_json(), 5)).get("type") == "auth_ok":
+                    await ws.send_json({"id": 1, "type": "auth/current_user"})
+                    res = await asyncio.wait_for(ws.receive_json(), 5)
+                    user = res.get("result") if res.get("success") else None
+            if isinstance(tok.get("refresh_token"), str):
+                try:
+                    async with s.post(f"{base}/auth/revoke", data={"token": tok["refresh_token"]}):
+                        pass
+                except (aiohttp.ClientError, asyncio.TimeoutError):
+                    pass
+            return user
+    except Exception as err:  # noqa: BLE001 - not reachable, an odd answer: no login
+        log.warning("Login with Home Assistant failed (%s)", err)
+        return None
+
+
+async def auth_callback(request):
+    """back from Home Assistant's login page: only with the state of this browser's own login (auth/login), then the cookie"""
+    if not HA_LOGIN:
+        raise web.HTTPNotFound()
+    login = hl.unsign(request.cookies.get(hl.LOGIN_COOKIE), login_key(request))
+    code, state = request.query.get("code", ""), request.query.get("state", "")
+    again = ("login", "Erneut anmelden", "Log in again")
+    if not login or not hl.STATE.match(state) or not hmac.compare_digest(str(login.get("state")), state) or not 0 < len(code) <= 512:
+        return auth_page(400, "Die Anmeldung ist abgelaufen oder kam nicht von hier.", "The login ran out or did not start here.", *again)
+    user = await ha_login_user(code, str(login.get("cid")))
+    await load_admin_ids()
+    sess = hl.new_session(user, _admin_cache["byid"].get((user or {}).get("id")), time.time())
+    if not sess:
+        return auth_page(502, "Home Assistant hat die Anmeldung nicht bestätigt.", "Home Assistant did not confirm the login.", *again)
+    resp = web.Response(status=302, headers={"Location": hl.back_to(login.get("q")), "Cache-Control": "no-store"})
+    set_session(request, resp, sess)
+    resp.del_cookie(hl.LOGIN_COOKIE, path="/")
+    log.info("%s logged in", sess["user"] or sess["name"] or sess["id"])
+    return resp
+
+
+async def auth_logout(request):
+    if not HA_LOGIN:
+        raise web.HTTPNotFound()
+    resp = auth_page(200, "Abgemeldet.", "Logged out.", "login", "Wieder anmelden", "Log in")
+    resp.del_cookie(hl.SESSION_COOKIE, path="/")
+    return resp
 
 
 # ---------- houses (several floor plans) ----------
@@ -1132,12 +1303,11 @@ class LiveHub:
             await self.broadcast({"type": "upstream", "ok": ok})
 
     async def run(self):
-        base = HA_API[:-4] if HA_API.endswith("/api") else HA_API
         delay = 1
         while not self.idle():
             try:
                 async with aiohttp.ClientSession() as sess:
-                    async with sess.ws_connect(base.rstrip("/") + "/websocket", heartbeat=30) as ws:
+                    async with sess.ws_connect(ha_ws_url(), heartbeat=30) as ws:
                         await asyncio.wait_for(ws.receive_json(), 10)                       # auth_required
                         await ws.send_json({"type": "auth", "access_token": SUPERVISOR_TOKEN})
                         if (await asyncio.wait_for(ws.receive_json(), 10)).get("type") != "auth_ok":
@@ -1726,10 +1896,9 @@ async def ha_time_zone():
 class _HaSocket:
     """async with: an authenticated websocket to Home Assistant (for the recorder)."""
     async def __aenter__(self):
-        base = HA_API[:-4] if HA_API.endswith("/api") else HA_API
         self.sess = aiohttp.ClientSession()
         try:
-            self.ws = await self.sess.ws_connect(base.rstrip("/") + "/websocket", heartbeat=30, max_msg_size=64 * 1024 * 1024)
+            self.ws = await self.sess.ws_connect(ha_ws_url(), heartbeat=30, max_msg_size=64 * 1024 * 1024)
             await asyncio.wait_for(self.ws.receive_json(), 10)                       # auth_required
             await self.ws.send_json({"type": "auth", "access_token": SUPERVISOR_TOKEN})
             if (await asyncio.wait_for(self.ws.receive_json(), 10)).get("type") != "auth_ok":
@@ -2237,8 +2406,7 @@ async def post_pinboard(request):
         body = await request.json()
     except ValueError:
         return web.json_response({"error": "invalid JSON"}, status=400)
-    h = request.headers
-    by = (h.get("X-Remote-User-Display-Name") or h.get("X-Remote-User-Name") or "").strip()
+    by = current_user(request)["display"]
     note, err = pages.new_note(body, by, datetime.datetime.now(datetime.timezone.utc), secrets.token_hex(8))
     if err:
         return web.json_response({"error": err}, status=400)
@@ -2893,7 +3061,7 @@ async def get_import_example(request):
 
 
 def make_app(data_path: Path | None = None, config_path: Path | None = None) -> web.Application:
-    app = web.Application(client_max_size=max(MAX_LAYOUT_BYTES, MAX_BG_BYTES + 1024 * 1024))
+    app = web.Application(client_max_size=max(MAX_LAYOUT_BYTES, MAX_BG_BYTES + 1024 * 1024), middlewares=[login_gate])
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
     app[KEY_CONFIG] = Path(config_path or os.environ.get("CONFIG_DIR") or ("/config" if Path("/config").is_dir() else app[KEY_DATA] / "addon_config"))
     app[KEY_LIVE] = LiveHub()
@@ -2910,6 +3078,9 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.cleanup_ctx.append(guard_watcher)
     app.add_routes([
         web.get("/", index),
+        web.get("/auth/login", auth_login),
+        web.get("/auth/callback", auth_callback),
+        web.get("/auth/logout", auth_logout),
         web.get("/api/users-file", get_users_file),
         web.post("/api/users-file/sync", sync_users_file),
         web.get("/api/layout", get_layout),

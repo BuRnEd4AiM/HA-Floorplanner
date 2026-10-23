@@ -18,6 +18,8 @@ pg3.close()
 # --- users & tablets: a group of the settings for admins (#454, before a tab of its own), saved into a file of the config folder, sync button
 pgU = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
 pgU.goto(BASE + "?debug=1&mode=edit"); pgU.wait_for_timeout(1500)
+check("in the add-on (Ingress) no login of its own: no button \"Abmelden\" (#489)", pgU.locator("#logoutBtn").count() == 1 and pgU.is_hidden("#logoutBtn")
+      and pgU.evaluate("fetch('api/me').then(r => r.json()).then(m => m.login)") is False)
 pgU.click("#settingsBtn"); pgU.wait_for_timeout(200)
 check("users & tablets (#454): a group of the settings for admins, no button of its own in the top bar",
       pgU.locator("#usersBtn").count() == 0 and pgU.locator("#usersDialog").count() == 0 and pgU.is_visible("details[data-group=users] > summary")

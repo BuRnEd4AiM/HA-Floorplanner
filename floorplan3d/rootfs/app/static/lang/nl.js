@@ -1593,4 +1593,5 @@ export default {
   'ec.makeTip': "Maakt in Home Assistant een helper „Integraal” die uit watt de kWh telt (vanaf nu, zonder eerdere dagen)",
   'ec.making': "wordt gemaakt …", 'ec.made': "gemaakt en overgenomen. Hij telt vanaf nu.",
   'ec.makeFail': "kon niet worden gemaakt (Home Assistant weigerde).",
+  'login.out': "Afmelden", 'login.outTip': "Aangemeld via Home Assistant als {name} – hier afmelden",
 };

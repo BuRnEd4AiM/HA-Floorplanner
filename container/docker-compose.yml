@@ -1,0 +1,20 @@
+# 3D Floorplan next to Home Assistant as a Docker container (#489). Steps: container/README.md.
+#   docker compose up -d --build        then open http://<this computer>:8100 and log in with your Home Assistant user
+services:
+  floorplan3d:
+    build:
+      context: https://github.com/BuRnEd4AiM/HA-Floorplanner.git#main
+      dockerfile: container/Dockerfile
+    container_name: floorplan3d
+    restart: unless-stopped
+    ports:
+      - "8100:8099"
+    environment:
+      HA_URL: "http://192.168.1.10:8123"     # the address of your Home Assistant
+      HA_TOKEN: "paste-your-token-here"       # a long-lived access token of an administrator (your profile → Security)
+      TZ: "Europe/Berlin"
+      # EDITORS: "anna,ben"                   # who may edit besides the administrators (login names)
+      # HA_PUBLIC_URL: "https://ha.example.org"   # only if the browser reaches Home Assistant at another address than HA_URL
+      # APP_URL: "https://plan.example.org/"      # only behind a reverse proxy: the address the browser opens this page with
+    volumes:
+      - ./floorplan3d-data:/data             # your plans, settings, models and backups
