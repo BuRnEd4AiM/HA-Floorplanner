@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-10-23 · 60 Sitzungen
+Stand: 2026-10-23 · 61 Sitzungen
 
-**Insgesamt: 4,34 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 4,37 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 12,3 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 48,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 4,28 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 12,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 48,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 4,31 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,13 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 47 | 2,34 Mrd. | 6,3 Mio. |
+| 2026-10 | 48 | 2,37 Mrd. | 6,5 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-10-23 | [013q8n1E…](https://claude.ai/code/session_013q8n1Er5ZTqQ9hA1nN39DJ) | claude/laughing-ptolemy-iqgsx6 | 30,2 Mio. | 141 Tsd. | gezählt |
 | 2026-10-22 | [01CbgqAo…](https://claude.ai/code/session_01CbgqAoU7ADnHKnxsGbzmjt) | claude/sweet-edison-4obkyg | 345,1 Mio. | 705 Tsd. | gezählt |
 | 2026-10-21 | [014T6pwt…](https://claude.ai/code/session_014T6pwtdfaLFq9HcZLAKcyK) | claude/paket-2-weiterbau-odqi1b | 254,1 Mio. | 658 Tsd. | gezählt |
 | 2026-10-21 | [01DDzzeJ…](https://claude.ai/code/session_01DDzzeJPv4Z2UFXQyvnyWfn) | claude/nice-shannon-mee5c5 | 145,5 Mio. | 371 Tsd. | gezählt |
