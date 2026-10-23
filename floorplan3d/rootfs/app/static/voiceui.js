@@ -3,18 +3,20 @@
  * the colours of temperature / humidity / CO₂. Understanding is voicequery.js, listening voiceinput.js. A typed question in the search box
  * is answered the same way (search.js asks question / ask). */
 import { understand, answer, flatRows, headline, isQuestion, ICONS, LANGS } from './voicequery.js';
-import { initVoiceInput, Recognizer, canMic } from './voiceinput.js';
+import { initVoiceInput, canMic } from './voiceinput.js';
 
 const PLACES_TTL = 10 * 60 * 1000;                    // the rooms of the other houses are asked for again after 10 minutes
 
 /** ctx: $, t, search (search.js), lang(), settings(), user() (Home Assistant user name), locks() (Set), layout() (the open house's plan),
  *  shown() (what of it is shown: buildings), houseId(), houses() ([{ id, name }]), switchHouse(id) (async), switchFloor(i), houseMode(),
  *  setHouseMode(on), floorIdx(), focusRoom(id), openRoomPanel(id), isLive(), rows() (devicelist.js deviceRows of what is shown), states(),
- *  reading(roomId, mode) (temp / humid / co2 of a room or null), colorMode(mode) (the colours of the rooms), imperial() */
+ *  reading(roomId, mode) (temp / humid / co2 of a room or null), colorMode(mode) (the colours of the rooms), imperial(), openCheck() (⚙ →
+ *  🎤 Sprachsuche with the microphone test, #511) */
 export function initVoiceUi(ctx) {
   const { $, t } = ctx;
   let assist = null;                                   // api/voice: { assist, pipeline, name, language, locked }; null: not asked, undefined: asking
-  const input = initVoiceInput({ lang: () => ctx.lang(), engine: () => ctx.settings().voice?.engine || 'auto', assist: () => !!assist?.assist });
+  const input = initVoiceInput({ lang: () => ctx.lang(), engine: () => ctx.settings().voice?.engine || 'auto', assist: () => !!assist?.assist,
+    askAssist: async () => { if (assist == null) await refresh(); return !!assist?.assist; } });
   const locked = (k) => ctx.locks().has(k);
 
   /* ---- the places of every house (code words may name a room of another house) ---- */
@@ -138,20 +140,26 @@ export function initVoiceUi(ctx) {
 
   /* ---- the 🎤 ---- */
   const mics = () => [$('#voiceBtn'), $('#findMic')];
-  const setMic = (state) => mics().forEach((b) => { b.classList.toggle('listening', state === 'listening'); b.classList.toggle('thinking', state === 'thinking'); });
-  const ERR = { 'no-speech': 'noSpeech', 'not-allowed': 'mic', 'service-not-allowed': 'mic', 'audio-capture': 'mic', network: 'net', no_assist: 'noAssist', none: 'none' };
+  const setMic = (state) => mics().forEach((b) => { b.classList.toggle('listening', state === 'listening' || state === 'starting'); b.classList.toggle('thinking', state === 'thinking'); });
+  const ERR = { 'no-speech': 'noSpeech', 'not-allowed': 'mic', 'service-not-allowed': 'mic', 'audio-capture': 'mic', network: 'net', no_assist: 'noAssist', none: 'none',
+    dead: 'dead', 'no-audio': 'silent' };
+  /** why the 🎤 cannot listen here (voicediag.js whyNot): the text of vq.why.* */
+  const WHY = ['insecure', 'policy', 'app', 'broken', 'noBrowser', 'noMic', 'noAssist'];
+  const checkRow = () => ({ label: `🩺 ${t('vk.open')}`, sub: t('vk.openSub'), go: () => ctx.openCheck() });
   function listen(fresh) {
     if (fresh || !ctx.search.isOpen()) ctx.search.show({ text: '' });
     input.listen({
       partial: (txt) => { $('#findInput').value = txt; },
-      final: (txt) => { setMic(''); ask(txt); },
+      final: (txt) => { setMic(''); update(); ask(txt); },
       error: (code) => {
-        setMic('');
+        setMic(''); update();                                  // the browser's recognition may count as broken now
         if (code === 'cancel') return;
-        ctx.search.show({ head: `⚠ ${t(`vq.err.${ERR[code] || 'other'}`, { code })}` });
+        const text = WHY.includes(code) ? t(`vq.why.${code}`) : t(`vq.err.${ERR[code] || 'other'}`, { code });
+        ctx.search.show({ head: `⚠ ${text}`, rows: code === 'no-speech' ? [] : [checkRow()] });   // the microphone test finds out why
       },
       state: (s) => {
         setMic(s);
+        if (s === 'starting') ctx.search.show({ head: `🎤 ${t('vq.starting')}` });
         if (s === 'listening') ctx.search.show({ head: `🎤 ${t('vq.listening')}` });
         if (s === 'thinking') ctx.search.show({ head: `⏳ ${t('vq.thinking')}` });
       },
@@ -159,13 +167,14 @@ export function initVoiceUi(ctx) {
   }
   $('#voiceBtn').addEventListener('click', () => listen(!input.busy()));
   $('#findMic').addEventListener('click', () => listen(false));
-  /** the 🎤 shows where this browser can listen (and the user may); Home Assistant is asked once whether its Assist can, when it may be
-   *  needed (no recognition in the browser, or Assist chosen) */
+  /** the 🎤 shows unless it is switched off or the user may not; where it cannot listen a tap says why (#511: before, it was missing,
+   *  or in an app's built-in browser it listened for ever). Home Assistant is asked once whether its Assist can, when it may be needed
+   *  (the browser's recognition cannot be used, or Assist chosen) */
   function update() {
-    if (assist === null && canMic() && (!Recognizer() || ctx.settings().voice?.engine === 'assist')) { assist = undefined; refresh(); }
+    if (assist === null && canMic() && (!input.can().browser || ctx.settings().voice?.engine === 'assist')) { assist = undefined; refresh(); }
     const e = input.engine();
-    const off = !e || locked('voice') || locked('search');
-    mics().forEach((b) => { b.hidden = off; b.title = t(e === 'assist' ? 'vq.micAssist' : 'vq.mic'); });
+    const off = ctx.settings().voice?.engine === 'off' || locked('voice') || locked('search');
+    mics().forEach((b) => { b.hidden = off; b.title = t(e === 'assist' ? 'vq.micAssist' : e ? 'vq.mic' : 'vq.micWhy'); b.classList.toggle('cannot', !e); });
   }
   async function refresh() {
     try { assist = await (await fetch('api/voice')).json(); } catch { assist = { assist: false }; }
@@ -180,6 +189,6 @@ export function initVoiceUi(ctx) {
     },
     ask,
   });
-  return { ask, listen: () => listen(true), update, refresh, status: () => ({ ...input.can(), engine: input.engine(), assist }), loadOthers, places: () => env(),
-    cancel: () => input.cancel() };
+  return { ask, listen: () => listen(true), update, refresh, status: () => ({ ...input.can(), engine: input.engine(), why: input.why(), assist }), loadOthers,
+    places: () => env(), cancel: () => input.cancel(), input };
 }

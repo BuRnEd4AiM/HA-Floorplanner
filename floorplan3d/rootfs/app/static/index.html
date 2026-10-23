@@ -505,6 +505,15 @@
         <div class="row"><label for="setVoiceEngine" data-i18n="vc.engine"></label>
           <select id="setVoiceEngine"><option value="auto" data-i18n="vc.engine.auto"></option><option value="browser" data-i18n="vc.engine.browser"></option><option value="assist" data-i18n="vc.engine.assist"></option><option value="off" data-i18n="vc.engine.off"></option></select></div>
         <ul id="vcStatus"></ul>
+        <div id="vkBox" class="vkBox"><b data-i18n="vk.title"></b>
+          <p class="hint" data-i18n="vk.help"></p>
+          <div class="stopTools"><button type="button" id="vkMic" data-i18n="vk.mic"></button> <button type="button" id="vkRec" data-i18n="vk.rec"></button>
+            <button type="button" id="vkCopy" data-i18n="vk.copy"></button></div>
+          <div id="vkLevelBox" hidden>
+            <div class="vkMeter" aria-hidden="true"><i id="vkLevel"></i></div>
+            <div class="row"><label for="vkDevice" data-i18n="vk.device"></label><select id="vkDevice"></select></div></div>
+          <ul id="vkResult"></ul>
+          <textarea id="vkReport" rows="7" readonly hidden></textarea></div>
         <div id="vcGuide" class="vcGuide"><b data-i18n="vc.guide"></b>
           <ol><li data-i18n="vc.guide1"></li><li data-i18n="vc.guide2"></li><li data-i18n="vc.guide3"></li><li data-i18n="vc.guide4"></li></ol>
           <a href="https://my.home-assistant.io/redirect/voice_assistants/" target="_blank" rel="noopener" data-i18n="vc.openHa"></a></div>
