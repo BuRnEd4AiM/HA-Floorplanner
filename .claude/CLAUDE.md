@@ -16,6 +16,13 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - app.js is far too big (see docs/MODULE-PLAN.md for what is already split and what is next). **Every extension goes into a NEW module or into a fitting existing module, never as another large block into app.js.** app.js only gets the import, an `init...({...})` call and the wiring.
 - Pure logic (no three.js, no DOM) is kept separate and gets a node unit test in tests/ (like kitchen.js, heatpanel.js) plus a CI step.
 - When an existing part of app.js is changed anyway, move that part into a module in the same PR if it is small and safe. Keep docs/MODULE-PLAN.md up to date (move rows from "still in app.js" to "already split").
+## Docker version (container/, #489) must keep working
+- The owner's wish (2026-10-23): every change must also work in the Docker version (Home Assistant Container, no Supervisor, see container/README.md). It runs the same files as the add-on; only these differ:
+- Who is looking: only `current_user(request)` (never the X-Remote-User-* headers yourself; in Docker the login cookie says it). Who may edit: only `can_edit(request)`.
+- Home Assistant: REST only through `HA_API` + `ha_headers()`, websocket only through `ws_connect(ha_ws_url(), …)`; never the Supervisor's own API (`http://supervisor/…`), Docker has none.
+- A new add-on option (config.yaml `options`) also needs an environment variable of the same name in capitals (read in the server) and a row in container/README.md. A new package in floorplan3d/Dockerfile also goes into container/Dockerfile; what run.sh exports is an ENV there.
+- New data only under DATA_DIR / the config dir of `make_app`, never a fixed /config or /share path.
+- tests/test_container.py checks these rules, tests/test_login.py the login, the CI job "container" builds and starts the image. When the server changes how it starts or asks Home Assistant, also run `python3 -m pytest tests/test_login.py tests/test_container.py`.
 ## Token count
 - Before every `git commit` the hook runs `tools/tokens.py --hook`: it writes this session's token use to docs/tokens/<session>.json and stages it. Commit it, it belongs in every commit. docs/TOKENS.md is written only by the workflow "Token count" after a merge, never edit or commit it in a PR.
 ## Test protocol
