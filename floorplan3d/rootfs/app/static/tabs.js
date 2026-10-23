@@ -26,14 +26,22 @@ export const isTabKey = (k) => typeof k === 'string' && (TAB_KEYS.includes(k) ||
  *  energy page for one who may not see the energy, no climate, no routines and no music for one who may not switch (#483, #490) */
 export const TAB_LOCK = { cameras: 'cameras', energy: 'energy', climate: 'control', routines: 'control', media: 'control' };
 
-/** one user's entry { hide: [tab], start: tab } with only known tabs (built-in in the order of TABS, then own pages); the house can
- *  never be hidden; null when it says nothing */
+/** the id of an own version of a page (#507, pagevariants.js) */
+export const VARIANT_ID = /^v_[a-z0-9]{3,16}$/;
+/** the versions of the pages a user gets (#507): { page: version id }, pages other than the house, at most 30 */
+export function cleanPicks(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return {};
+  return Object.fromEntries(Object.entries(v).filter(([k, id]) => isTabKey(k) && k !== HOME && typeof id === 'string' && VARIANT_ID.test(id)).slice(0, 30));
+}
+/** one user's entry { hide: [tab], start: tab, variants: { page: id } } with only known tabs (built-in in the order of TABS, then own
+ *  pages); the house can never be hidden; variants only when there are some (#507); null when it says nothing */
 export function cleanTabEntry(v) {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
   const hide = Array.isArray(v.hide) ? [...TAB_KEYS.filter((k) => k !== HOME && v.hide.includes(k)), ...new Set(v.hide.filter((k) => typeof k === 'string' && CUSTOM_ID.test(k)))] : [];
   const start = isTabKey(v.start) && v.start !== HOME && !hide.includes(v.start) ? v.start : '';
-  if (!hide.length && !start) return null;
-  return { hide, ...(start ? { start } : {}) };
+  const variants = cleanPicks(v.variants), some = Object.keys(variants).length > 0;
+  if (!hide.length && !start && !some) return null;
+  return { hide, ...(start ? { start } : {}), ...(some ? { variants } : {}) };
 }
 /** { user: entry } with at most 50 users, users with an empty entry left out (the same rules as clean_user_tabs in server.py) */
 export function cleanUserTabs(val) {
@@ -42,8 +50,8 @@ export function cleanUserTabs(val) {
   Object.entries(val).slice(0, 50).forEach(([user, v]) => { const e = cleanTabEntry(v), u = String(user).trim().slice(0, 80); if (u && e) out[u] = e; });
   return out;
 }
-/** rows of the users dialog [{ user, hide, start }] -> settings.userTabs */
-export const collectUserTabs = (rows) => cleanUserTabs(Object.fromEntries(rows.filter((r) => (r.user || '').trim()).map((r) => [r.user.trim(), { hide: r.hide, start: r.start }])));
+/** rows of the users dialog [{ user, hide, start, variants }] -> settings.userTabs */
+export const collectUserTabs = (rows) => cleanUserTabs(Object.fromEntries(rows.filter((r) => (r.user || '').trim()).map((r) => [r.user.trim(), { hide: r.hide, start: r.start, variants: r.variants }])));
 
 /** the tabs this screen shows, in the order of the bar (keys, normally TABS): the house always; a page only when it has something
  *  (has.cameras: a camera in the plan), the user does not hide it and no lock takes it away */

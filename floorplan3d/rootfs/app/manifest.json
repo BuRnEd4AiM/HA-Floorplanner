@@ -1,6 +1,6 @@
 {
  "version": "4.17.0",
- "buildHash": "1f96f503b852b9bab330c7d830b5d6548deb1469145c9b5ee4a450fb288009a0",
+ "buildHash": "d7318fa7116a5ef90117931553a5674c6dc02e2456fe7f06d1334e4c0f8ff50b",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "boards.py": "d9990eeca6e4e47faf24f2466c44e0595a744a68148133d2d5a078399a106bb9",
@@ -269,6 +269,7 @@
   "static/pagemedia.js": "8625177f7c3a4a30e796a196def1387559d6830c67551b8e4a2219f4b5d583d5",
   "static/pageroutines.js": "f89acc1cfc80fc189199e498cfaae2016829cd778db0944dc246a83ef42c1e0e",
   "static/pagetoday.js": "1a936843d6d89ddc021caafa11686e86c1010c4c88a9a14fbbf33eb7fc68f735",
+  "static/pagevariants.js": "51669718c3c390982217c93242a103a0a7cc957daeab8ac96943dc8878937142",
   "static/palettes.js": "80c0c00e500aa2b2d92b9e1d3c0fceb3bda878c6676e9eede51b77acd4dc54f4",
   "static/patterns.js": "5b7acb4b15c0ce1c74bfc69f0b8da573c5a88d9709e9ed0a960028a0a4320fb4",
   "static/perfhud.js": "e04878429782c4df00ac4f287c3433c28ff3c81a343b02dcd2b8844d4e14911d",
@@ -322,7 +323,7 @@
   "static/startview.js": "da8d6d4ce30c1a3bd866e4f95d0bfa2190f08220178c381c0b5b85b31894a634",
   "static/style.css": "46ad0cb2b769c11a58e509294d967b044dda037848b2a37d20c90251a3fe2c5d",
   "static/tabedit.js": "4b83d1a83158402f6090e388b539d01e7d05d1596c173d22b561cb0185091660",
-  "static/tabs.js": "da40ef41e0aa85997a39499be12f86724187276692c88fa4bd040aaaff9c0ce5",
+  "static/tabs.js": "7e29c5d3293e627ecd7d4ee9d41103721efb7029e5769788e0d11adae458914d",
   "static/tabsui.js": "e044810fde8213b3cb60023b3562c67d32a7657380ce0e171e87db9d1e411bea",
   "static/tapballs.js": "00ab783053a30258214ae7e8b80e60875e12c52773a5e0117943ebcd6a4c52ea",
   "static/thermostat.js": "e96faeb561a392231b2202928713fa1c30e24e5922271296e8ab0f8fb371be2e",
