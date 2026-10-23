@@ -210,6 +210,11 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `energycountersui.js` | ~65 | Knopf „⤵ Von oben übernehmen“, Zeilen je Zählerart, „＋ Zähler anlegen“ (Integral-Helfer in Home Assistant) |
 | `mediaprefs.js` | ~90 | ⚙ → „Reiter unten“: Radiosender (halb getippte Zeilen bleiben stehen, weil der Dialog bei jeder Änderung speichert), welche Liste die Einkaufsliste ist, Maschinen von Hand (Leistung, Zustand) |
 | `login.js` | ~20 | Ohne Supervisor (Home Assistant als Docker-Container, #489): Knopf „Abmelden“ oben, nach abgelaufener Anmeldung (401 mit `X-Login`) zurück zur Anmeldung. Die Anmeldung mit Home Assistant macht der Server (`halogin.py` rein mit Unit-Tests `tests/test_halogin.py`, Ablauf in `server.py` `login_gate` / `auth_*`, Test `tests/test_login.py`) |
+| `voicequery.js` | ~500 | Sprachsuche (#509), rein (getestet: `tests/voicequery.test.mjs`): einen Satz verstehen (`understand`: was, Zustand, Raum / Etage / Haus, Codewörter, 7 Sprachen, zusammengeschriebene Wörter wie „Küchenfenster“), die Antwort aus der Geräte-Übersicht (`flatRows` von `deviceRows`, `answer`, `headline`), Einstellungen säubern (`cleanVoice` = `voice.clean_voice`), welche Erkennung (`pickEngine`) |
+| `voiceaudio.js` | ~55 | Sprachsuche, rein (getestet): Mikrofon-Ton → 16 kHz 16 Bit für Assist (`toPcm16`), wann das Zuhören aufhört (`step`: Pause nach dem Sprechen, nichts gesagt, zu lang) |
+| `voiceinput.js` | ~90 | Sprachsuche: das Zuhören, entweder die Spracherkennung des Browsers oder Aufnahme und `api/voice/stt` (Home Assistant Assist, Server `voice.py` mit `tests/test_voice.py`) |
+| `voiceui.js` | ~190 | Sprachsuche am Bildschirm: 🎤 neben 🔍 und im Suchfeld, die Antwort im Suchfeld (`search.js` `show`, mehrere Ringe `mark`), Haus / Etage / Raum / ganzes Haus anspringen, Farben der Temperatur; getippte Fragen („💬 …“) |
+| `voiceprefs.js` | ~140 | ⚙ → 🎤 Sprachsuche: Erkennung wählen, was dieses Gerät kann, Anleitung für Assist, Codewörter (Räume aller Häuser, Etage, Haus, für einen Benutzer); Teil des Einstellungs-Formulars (`fill` / `read`) |
 
 ## Noch in `app.js`
 

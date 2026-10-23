@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.19.0] - 2026-10-23
+### Added
+- **Voice search** (#509, the owner: "so eine Sprachsuche … drauf drückt und dann sagen kann, welche Fenster sind offen? Und dann wird dir die Ansicht gezeigt …"). A 🎤 next to the 🔍 at the bottom left (on phones inside the search box): say "Welche Fenster sind offen?", "Ist oben noch Licht an?", "Wie warm ist es im Kinderzimmer?" or "Wie sieht es im Wohnzimmer aus?" and the view goes there: the floor or the whole house, the room, a ring on every thing of the answer, the answer as a line ("🪟 Fenster · offen: 2") and a list to tap. "Sind alle Fenster zu?" lists the ones still open or says "✓ Fenster: alle zu"; "Wie warm ist es?" colours the rooms by temperature. A question typed into the search box is answered the same way (a row "💬 …", Enter). No AI: known words in all 7 languages, the names of rooms, floors and houses of the plans, the rest of the sentence may be free (`voicequery.js`, tested). It only shows, it switches nothing.
+- **Code words** in ⚙ → 🎤 Sprachsuche: "Wenn ich sage … → meine ich …", one or more rooms, a floor or a house, also of another house ("Wohnzimmer der Eltern"), for everybody or one user ("mein Zimmer").
+- **Which recognition**: the browser's own (Chrome, Edge, Safari; the recording goes to Google or Apple) or, where there is none (the Home Assistant app on Android, Fully Kiosk, Firefox), **Home Assistant Assist** (Whisper or Home Assistant Cloud): the add-on records 16 kHz audio and lets Assist turn it into text (`api/voice`, `api/voice/stt`, `voice.py`, tested). The settings say what works on this device and how to set up Assist. Also in the Docker version (#489).
+- New lock **"Sprachsuche (🎤)"** per user; the server refuses `api/voice/stt` too.
+
 ## [4.18.0] - 2026-10-23
 ### Added
 - **A page in its own version per user** (#507, the owner: "bei unterschiedlichen Benutzern unterschiedliche Sachen anzeigen"; pictures `docs/ideen-4.18/`). Every page of the tab bar (Heute, Energie, Klima, Kameras, Musik & TV, Haushalt, Abläufe, Familie and the own pages) can have up to six own **versions** besides the normal one ("👪 Für alle"), e.g. "🧒 Kinder" with only the children's room on 🌡 Klima, or "📟 Tablet Flur". Each version has its own cards (order, hidden cards, own cards, sections, sizes, widths); each user gets one version per page, who has none sees "Für alle".

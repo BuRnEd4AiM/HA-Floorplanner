@@ -36,6 +36,7 @@ import manifest as mf
 import pages
 import renames as rn
 import timeline as tl
+import voice as vc
 
 STATIC_DIR = Path(__file__).parent / "static"
 # the token for Home Assistant: the Supervisor's in the add-on; without the Supervisor (Home Assistant as a Docker container, #489) a
@@ -129,6 +130,7 @@ DEFAULT_SETTINGS = {
     "appliances": {},          # the machines of 🧺 Haushalt an admin chose (#490): {washer|dryer|dishwasher: {"power", "status"}}; the rest by name
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
+    "voice": {"engine": "auto", "aliases": []},   # the voice search (#509, voice.clean_voice): which recognition, the code words
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
@@ -152,8 +154,8 @@ TABS = boards.TABS            # own pages of an admin (#484) are "p_…" (boards
 
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too;
 # "fullscreen" keeps the screen in full screen, only the code ends it (#487, api/fullscreen)
-LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "settings", "timeline",
-         "fullscreen")
+LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "voice", "settings",
+         "timeline", "fullscreen")
 
 
 def clean_locks(val) -> dict:
@@ -776,6 +778,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = hh.clean_chosen(val)
         elif key == "presence":
             out[key] = pages.clean_presence(val)
+        elif key == "voice":
+            out[key] = vc.clean_voice(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
@@ -2522,6 +2526,52 @@ async def post_household_ack(request):
     return await get_household(request)
 
 
+# ---------- the voice search (#509, voice.py): Home Assistant's Assist turns what was said into text ----------
+async def voice_info(request) -> dict:
+    """{"assist", "pipeline", "name", "language"}: an Assist pipeline with speech-to-text, asked at most once a minute"""
+    hit = pages_cached(request, ("voice",), 60)
+    if hit is not None:
+        return hit
+    async with _HaSocket() as ws:
+        res = await rn.ask(ws, 1, {"type": "assist_pipeline/pipeline/list"}, [])
+    return pages_keep(request, ("voice",), vc.pipeline_info(res))
+
+
+async def get_voice(request):
+    """Can Home Assistant turn speech into text (for the 🎤 of a browser without its own recognition)? And may this user use the voice
+    search at all (the lock "voice")?"""
+    locked = "voice" in user_locks(request)
+    if not SUPERVISOR_TOKEN or locked:
+        return web.json_response({"assist": False, "locked": locked})
+    try:
+        return web.json_response({**await voice_info(request), "locked": False})
+    except HA_DOWN as err:
+        return web.json_response({"assist": False, "locked": False, "error": f"Home Assistant not reachable: {err}"})
+
+
+async def post_voice_stt(request):
+    """What was said, as text: the body is 16-bit mono audio at 16 kHz (at most 15 s) -> {"text"}; Home Assistant's Assist does the work."""
+    if "voice" in user_locks(request):
+        return web.json_response({"error": "locked"}, status=403)
+    audio = await request.read()
+    if not vc.audio_ok(audio):
+        return web.json_response({"error": "16-bit mono audio at 16 kHz, 0.25 to 15 seconds"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no_assist"}, status=409)
+    try:
+        info = await voice_info(request)
+        if not info["assist"]:
+            return web.json_response({"error": "no_assist"}, status=409)
+        async with _HaSocket() as ws:
+            text = await vc.transcribe(ws, audio, info["pipeline"])
+        return web.json_response({"text": text})
+    except LookupError as err:
+        request.app[KEY_PAGES].pop(("voice",), None)          # the pipeline may have changed: ask again next time
+        return web.json_response({"error": str(err)}, status=502)
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+
+
 async def todo_answer(request, wanted=None) -> dict:
     """the to-do lists of Home Assistant and the items of the one shown"""
     lists = hh.todo_lists(await ha_states())
@@ -3153,6 +3203,8 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/household", get_household),
         web.post("/api/household/ack", post_household_ack),
         web.get("/api/todo", get_todo),
+        web.get("/api/voice", get_voice),
+        web.post("/api/voice/stt", post_voice_stt),
         web.post("/api/todo", post_todo),
         web.get("/api/notify", get_notify),
         web.put("/api/notify", put_notify),

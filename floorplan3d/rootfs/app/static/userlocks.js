@@ -1,6 +1,7 @@
 /* Locks per user / tablet: the users dialog can take things away from a user (switching devices, cameras, the settings, changing the view ...).
  * Pure rules (unit test: tests/userlocks.test.mjs) and one small DOM step (applyLocks: a <style> that hides what is locked).
- * "control", "alarm", "guard" and "cameras" are also refused by the server (api/service, api/camera), the rest is only hidden in the browser. */
+ * "control", "alarm", "guard", "cameras" and "voice" are also refused by the server (api/service, api/camera, api/voice/stt), the rest is only
+ * hidden in the browser. */
 
 /** what can be locked, in the order of the dialog, with what is hidden on the screen */
 export const LOCKS = [
@@ -16,7 +17,8 @@ export const LOCKS = [
   ['views', '#view2d, #view3d, #viewSplit'],                           // switching 2D / 3D / 2D + 3D
   ['houses', '#houseGroup'],                                           // switching to another house
   ['building', '#buildingGroup'],                                      // switching to another building of the plan (#409): stays on its own
-  ['search', '#findBtn, #findBox'],                                    // the "Where is ...?" search
+  ['search', '#findBtn, #findBox, #voiceBtn'],                         // the "Where is ...?" search (the voice search answers in it)
+  ['voice', '#voiceBtn, #findMic'],                                    // the voice search's 🎤 (#509; the server refuses api/voice/stt too)
   ['settings', '#settingsBtn'],                                        // the settings dialog (⚙)
   ['timeline', '#timelineBtn'],                                        // security view: what switched when (the server refuses it too)
   ['fullscreen', ''],                                                  // leaving the full screen (#487): hides nothing, fullscreenui.js keeps it, only the code ends it

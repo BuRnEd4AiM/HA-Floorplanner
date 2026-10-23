@@ -301,7 +301,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503) | 0 | 0 | 4 | 0 | 93.1 bis 93.4 |
 | 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489) | 0 | 0 | 3 | 0 | 94.1 bis 94.3 |
 | 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507) | 0 | 0 | 10 | 0 | 95.1 bis 95.10 |
-| **Zusammen** | **492** | **5** | **194** | **54** | |
+| 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509) | 0 | 0 | 11 | 3 | 96.1 bis 96.10, 96.14 |
+| **Zusammen** | **492** | **5** | **205** | **57** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1524,4 +1525,23 @@ Wunsch des Besitzers: „bei unterschiedlichen Benutzern unterschiedliche Sachen
 | 95.8 | ✎ auf Klima → Chip „🧒 Kinder“ → „⚙ Einstellen“ → „🗑 Fassung löschen“ → OK | Die Fassung ist weg, nur noch „👪 Für alle“; Familie sieht Klima wieder normal | ❓ |
 | 95.9 | Dasselbe auf einer anderen Seite (z. B. ☀ Heute) mit „Leer“ | Die neue Fassung startet ohne Karten (alle blass), „＋ Karte“ fügt nur dort etwas hinzu | ❓ |
 | 95.10 | Handy: ✎ auf Klima, „👥 Wer sieht was“ | Die lila Leiste bricht sauber um, die Tabelle lässt sich seitwärts schieben | ❓ |
+
+## 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509)
+Wunsch des Besitzers: „Sprachsuche … welche Fenster sind offen … Codewörter … Wohnzimmer von den Eltern … pro Benutzer einschränken“. In der Demo gibt es die Codewörter „Stube“ (Wohnzimmer), „Werkstatt“ (Hobbyraum), „Schlafräume“ (drei Räume) und „beim Nachbarn“ (Nachbarhaus). Das 🎤 geht in der Demo mit Chrome, Edge oder Safari (die Erkennung des Browsers), Home Assistant Assist nur im Add-on.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 96.1 | Unten links neben 🔍 auf 🎤 tippen, Mikrofon erlauben, „Welche Fenster sind offen?“ sagen | Das Suchfeld zeigt den Satz, darüber „🪟 Fenster · offen: …“ und die offenen Fenster; im Bild blaue Ringe an diesen Fenstern | ❓ |
+| 96.2 | 🔍 tippen und „Ist oben noch Licht an?“ eintippen (ohne Mikrofon) | Oben in der Liste eine Zeile „💬 Lichter · an · Obergeschoss“; Enter: das Obergeschoss, die Lichter, die an sind, mit Ringen | ❓ |
+| 96.3 | „Wie sieht es in der Stube aus?“ (Codewort der Demo) | Die Ansicht fliegt ins Wohnzimmer (in „Live“ geht die Raum-Karte auf) | ❓ |
+| 96.4 | „Wie warm ist es im Kinderzimmer?“ | Das Kinderzimmer, oben „🌡 Kinderzimmer: … °C“ | ❓ |
+| 96.5 | „Wie warm ist es?“ | Die Räume werden nach Temperatur gefärbt (wie „Temp.“), darunter alle Räume mit ihrer Temperatur | ❓ |
+| 96.6 | „Sind alle Fenster zu?“ | Entweder „✓ Fenster: alle zu“ oder die Fenster, die noch offen sind | ❓ |
+| 96.7 | „Wie sieht es beim Nachbarn aus?“ | Das Nachbarhaus wird geöffnet, oben „🏠 Nachbarhaus“ | ❓ |
+| 96.8 | Einen Eintrag der Antwort-Liste antippen | Die Ansicht fliegt zu diesem Fenster / Licht, ein Ring markiert es | ❓ |
+| 96.9 | ⚙ → 🎤 Sprachsuche öffnen | Was dieses Gerät kann (✓/✗ Browser, Mikrofon, Home Assistant Assist), die Anleitung für Assist, die Codewörter der Demo | ❓ |
+| 96.10 | „＋ Codewort“: „Kinder“ eintippen, bei „＋ Ort …“ Kinderzimmer und Gästezimmer wählen, dann fragen „Wie sieht es bei den Kindern aus?“ | Das Codewort hat zwei Chips; die Frage zeigt beide Räume zum Antippen | ❓ |
+| 96.11 | Bei einem Codewort ins Feld „für alle (oder Benutzer)“ einen Benutzer schreiben | Das Codewort gilt nur noch für diesen Benutzer | ➖ |
+| 96.12 | ⚙ → 👥 Benutzer & Tablets → bei einem Benutzer 🔒 „Sprachsuche (🎤)“ abhaken, als dieser Benutzer öffnen | Kein 🎤 mehr (die Suche 🔍 bleibt) | ➖ |
+| 96.13 | Im Add-on mit der Home-Assistant-App auf dem Handy (Android) oder am Wandtablet: 🔍 → 🎤 | Ohne Assist: „Home Assistant kann noch keine Sprache erkennen …“ bzw. kein 🎤; nach der Anleitung in ⚙ → 🎤 (Whisper) geht es | ➖ |
+| 96.14 | Handy: 🔍 tippen | Das 🎤 ist im Suchfeld rechts neben dem Eingabefeld | ❓ |
 
