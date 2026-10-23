@@ -103,6 +103,37 @@ def test_a_page_layout():
     assert boards.clean_page_layouts([1], []) == {}
 
 
+
+def test_versions_of_a_page():
+    """#507: own versions of a page for some users, the same rules as static/pagevariants.js"""
+    kids = {"id": "v_kids01", "name": "Kinder", "icon": "🧒", "layout": {"hidden": ["room:r2"]}}
+    v = boards.clean_variant(kids)
+    assert v["name"] == "Kinder" and v["icon"] == "🧒" and v["layout"]["hidden"] == ["room:r2"] and v["layout"]["cards"] == []
+    assert boards.clean_variant({"id": "x_kids01"}) is None and boards.clean_variant("v_kids01") is None
+    odd = boards.clean_variant({"id": "v_abc", "name": " " + "ä" * 40 + "\x07\t ", "icon": "too long an icon"})
+    assert odd["name"] == "ä" * 30 and odd["icon"] == "🗂"
+    assert boards.clean_variant({"id": "v_abc", "name": "  "})["name"] == "?"
+    many = [{"id": f"v_abc{i}", "name": f"n{i}"} for i in range(9)]
+    out = boards.clean_page_variants({"climate": [kids, kids], "house": [kids], "nope": [kids], "today": many, "energy": [], "p_garden": [kids],
+                                      "p_gone": [kids], "family": "x"}, [{"id": "p_garden"}])
+    assert list(out) == ["climate", "today", "p_garden"]
+    assert len(out["climate"]) == 1 and len(out["today"]) == boards.MAX_VARIANTS
+    assert boards.clean_page_variants([kids], []) == {}
+    assert boards.clean_picks({"climate": "v_kids01", "house": "v_kids01", "nope": "v_kids01", "today": "bad", "p_garden": "v_abc"}) == \
+        {"climate": "v_kids01", "p_garden": "v_abc"}
+    assert len(boards.clean_picks({f"p_page{i}": "v_abc" for i in range(40)})) == boards.MAX_PICKS
+    assert boards.clean_picks(["v_abc"]) == {}
+
+
+def test_versions_match_the_browser():
+    """the id, the number of versions and of picks are the same as in static/pagevariants.js and static/tabs.js"""
+    import re
+    static = Path(__file__).parent.parent / "floorplan3d" / "rootfs" / "app" / "static"
+    pv, tabs = (static / "pagevariants.js").read_text("utf-8"), (static / "tabs.js").read_text("utf-8")
+    assert int(re.search(r"MAX_VARIANTS = (\d+)", pv).group(1)) == boards.MAX_VARIANTS
+    assert re.search(r"export const VARIANT_ID = /(.+)/;", tabs).group(1) == boards.VARIANT_ID.pattern
+    assert int(re.search(r"function cleanPicks[\s\S]*?\.slice\(0, (\d+)\)", tabs).group(1)) == boards.MAX_PICKS
+
 def test_history_of_a_card():
     data = [[{"entity_id": "sensor.t", "state": "10.5", "last_changed": "2026-10-21T10:00:00+00:00"},
              {"state": "unavailable", "last_changed": "2026-10-21T10:05:00+00:00"},

@@ -11,6 +11,15 @@ test('a user entry keeps only known tabs, never hides the house, a hidden start 
   assert.equal(T.cleanTabEntry({ start: 'nope' }), null);
   for (const junk of [null, 'cameras', ['cameras'], 5]) assert.equal(T.cleanTabEntry(junk), null);
 });
+test('the versions of the pages a user gets (#507): known pages, valid ids, an entry with only versions is kept', () => {
+  assert.deepEqual(T.cleanTabEntry({ variants: { climate: 'v_kids01', house: 'v_kids01', nope: 'v_kids01', today: 'bad', p_garden: 'v_abc' } }),
+    { hide: [], variants: { climate: 'v_kids01', p_garden: 'v_abc' } });
+  assert.equal(T.cleanTabEntry({ hide: [], variants: {} }), null);
+  assert.equal(T.cleanTabEntry({ variants: ['v_kids01'] }), null);
+  const many = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`p_page${i}`, 'v_abc']));
+  assert.equal(Object.keys(T.cleanPicks(many)).length, 30);
+  assert.deepEqual(T.collectUserTabs([{ user: 'kid', hide: [], start: '', variants: { climate: 'v_kids01' } }]), { kid: { hide: [], variants: { climate: 'v_kids01' } } });
+});
 test('the entries of all users: names trimmed, empty ones left out, at most 50', () => {
   assert.deepEqual(T.cleanUserTabs({ ' kid ': { hide: ['cameras'] }, anna: { hide: [] }, '': { start: 'cameras' }, ben: 'x' }), { kid: { hide: ['cameras'] } });
   assert.deepEqual(T.cleanUserTabs(null), {}); assert.deepEqual(T.cleanUserTabs([1]), {});
