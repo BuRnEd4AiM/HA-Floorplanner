@@ -300,7 +300,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500) | 0 | 0 | 6 | 0 | 92.1 bis 92.6 |
 | 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503) | 0 | 0 | 4 | 0 | 93.1 bis 93.4 |
 | 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489) | 0 | 0 | 3 | 0 | 94.1 bis 94.3 |
-| **Zusammen** | **492** | **5** | **184** | **54** | |
+| 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507) | 0 | 0 | 10 | 0 | 95.1 bis 95.10 |
+| **Zusammen** | **492** | **5** | **194** | **54** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1508,4 +1509,19 @@ Wunsch eines Nutzers (#489): 3D Floorplan auch für Home Assistant als Docker-Co
 | 94.1 | Im Add-on wie immer öffnen, oben rechts schauen, etwas bearbeiten und speichern | Kein Knopf „Abmelden“; Bearbeiten und Speichern gehen wie vorher | ❓ |
 | 94.2 | Docker: nach `container/README.md` starten und `http://<Rechner>:8100` öffnen | Die Anmeldeseite von Home Assistant kommt; nach dem Anmelden der Grundriss, als Administrator mit Bearbeiten | ❓ |
 | 94.3 | Docker: oben rechts „Abmelden“ | „Abgemeldet.“; „Wieder anmelden“ führt wieder zur Anmeldeseite von Home Assistant | ❓ |
+
+## 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507)
+Wunsch des Besitzers: „bei unterschiedlichen Benutzern unterschiedliche Sachen anzeigen“. Beispielbilder `docs/ideen-4.18/`. In der Demo gibt es die Benutzer Admin, Tablet Wohnzimmer und Familie.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 95.1 | 🌡 Klima öffnen, unten rechts ✎ Bearbeiten | Unter der blauen Leiste eine lila Leiste „🗂 Fassung“ mit „👪 Für alle“, „＋ Neue Fassung“, „👁 Ansehen als …“, „👥 Wer sieht was“ | ❓ |
+| 95.2 | „＋ Neue Fassung“: Name „Kinder“, ein Symbol, „Kopie von „Für alle““, Haken bei „Familie“, „Anlegen und bearbeiten“ | Die Leiste zeigt „🧒 Kinder“ gewählt, daneben „Sehen diese Fassung: Familie“ | ❓ |
+| 95.3 | In „Kinder“ bei zwei Räumen 👁 tippen, dann oben „👪 Für alle“ tippen | In „Kinder“ sind die zwei Räume blass (ausgeblendet), in „Für alle“ sind sie normal da | ❓ |
+| 95.4 | „👁 Ansehen als …“ → „Familie“ | Oben lila „Du siehst alles wie Familie · ✕ Zurück“; Klima ohne die zwei Räume; kein ✎ in der Leiste | ❓ |
+| 95.5 | „✕ Zurück“ | Alles wieder wie vorher, die zwei Räume da, ✎ wieder da | ❓ |
+| 95.6 | ✎ → „👥 Wer sieht was“: bei Familie unter ⚡ Energie „aus“, „Speichern“; dann „Ansehen als …“ → Familie | Bei Familie fehlt der Reiter ⚡ Energie; „Zurück“ | ❓ |
+| 95.7 | ⚙ → 👥 Benutzer & Tablets → bei Familie ⚙ → „Reiter unten“ | Neben 🌡 Klima eine Auswahl „🧒 Kinder“; der Haken bei ⚡ Energie ist weg | ❓ |
+| 95.8 | ✎ auf Klima → Chip „🧒 Kinder“ → „⚙ Einstellen“ → „🗑 Fassung löschen“ → OK | Die Fassung ist weg, nur noch „👪 Für alle“; Familie sieht Klima wieder normal | ❓ |
+| 95.9 | Dasselbe auf einer anderen Seite (z. B. ☀ Heute) mit „Leer“ | Die neue Fassung startet ohne Karten (alle blass), „＋ Karte“ fügt nur dort etwas hinzu | ❓ |
+| 95.10 | Handy: ✎ auf Klima, „👥 Wer sieht was“ | Die lila Leiste bricht sauber um, die Tabelle lässt sich seitwärts schieben | ❓ |
 

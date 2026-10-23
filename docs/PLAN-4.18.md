@@ -1,6 +1,6 @@
 # Plan 4.18: eine Seite in eigenen Fassungen je Benutzer (#507)
 
-Dieser Plan ist die **Übergabe** an die nächste Sitzung. Erst diesen Plan lesen, dann `docs/UEBERGABE.md` und `.claude/CLAUDE.md`. Branch: **`claude/laughing-ptolemy-iqgsx6`** (schon auf GitHub, noch kein Pull Request).
+**Stand: gebaut in 4.18.0** (Branch `claude/laughing-ptolemy-iqgsx6`, alle Schritte unten erledigt; offen ist nur das Testen durch den Besitzer, Testprotokoll 95). Der Plan bleibt als Beschreibung von Datenmodell, Aufbau und Stolperfallen.
 
 ## Der Wunsch (2026-10-23, wörtlich, gekürzt)
 
@@ -31,13 +31,13 @@ Neu machen: `python3 docs/ideen-4.18/make_pictures.py /tmp/bilder` (Demo vorher 
 - **Wer welche Fassung bekommt:** `settings.userTabs.<user>.variants = { <seite>: 'v_…' }` (neben `hide` und `start`; wird mit `users.json` gesichert, `USER_KEYS` in `server.py`). Eine Fassung ist **keine Sperre** (was jemand nicht darf, regeln die Sperren `userLocks`); das so in `DOCS.md` schreiben.
 - `api/me` gibt schon `tabs` (den Eintrag des Benutzers) zurück → das Programm hat `me.tabs.variants` ohne neuen Endpunkt (geht auch in der Docker-Version: der Server sucht den Benutzer über `current_user(request)`).
 
-## Was schon gemacht ist (in diesem Branch)
+## Der erste Teil (vor der Übergabe)
 
 - Beispielbilder + Skripte (`docs/ideen-4.18/`), Issue **#507** mit Wunsch, Auswahl und Notizen.
 - **`static/tabs.js`:** `VARIANT_ID = /^v_[a-z0-9]{3,16}$/`, `cleanPicks(v)` (höchstens 30, nur Seiten ≠ house), `cleanTabEntry` behält `variants` (ein Eintrag nur mit `variants` ist nicht leer), `collectUserTabs` nimmt `variants` mit. `tests/tabs.test.mjs` läuft weiter grün; **neue Fälle für `variants` fehlen noch**.
 - **`static/pagevariants.js` (rein, noch von nichts benutzt, noch ohne Test):** `cleanVariant`, `cleanVariants(val, pages)`, `variantsOf(settings, page)`, `newVariantId`, `entryOf(userTabs, user)` (Name ohne Groß/klein), `pickedVariant(settings, entry, page)` (eigene Fassung, solange es sie gibt, sonst `ALL = ''`), `cellOf` (`OFF = 'off'` wenn der Reiter versteckt ist), `layoutIn(settings, page, id)`, `withLayoutIn(settings, page, id, layout)` (gibt `{ pageLayouts }` oder `{ pageVariants }` zurück), `emptyStart(keys)` (für „Leer“: alle eingebauten Karten ausgeblendet), `addVariant`, `renameVariant`, `dropVariant` (gibt auch `userTabs` zurück: wer sie hatte, sieht wieder „Für alle“), `setPick(userTabs, user, page, id)` (Fassung / `ALL` / `OFF`; eine Fassung oder `ALL` zeigt den Reiter wieder), `withUsers(settings, users, page, id, chosen)` (Haken im Fenster), `usersOf`, `knownUsers(haUsers, settings)`. Von Hand ausprobiert (anlegen, zwei Benutzer geben, Lena sieht sie, löschen), geht.
 
-## Was noch zu tun ist (Reihenfolge)
+## So wurde es gebaut (alle Schritte erledigt)
 
 1. **Test** `tests/pagevariants.test.mjs` (Vorbild `tests/pagelayout.test.mjs`, Aufruf `STATIC_DIR=$PWD/floorplan3d/rootfs/app/static node --test tests/pagevariants.test.mjs`), dazu Fälle für `variants` in `tests/tabs.test.mjs`. `pagevariants` in `.github/workflows/ci.yml` in die lange Zeile `for t in … ; do` eintragen.
 2. **Server:**
