@@ -23,7 +23,8 @@ test('the CSS hides what is locked, nothing when nothing is locked', () => {
 test('every lock hides something, except the kept full screen (#487: fullscreenui.js keeps it)', () => {
   for (const [k, sel] of L.LOCKS) if (k !== 'fullscreen') assert.ok(sel && L.lockCss([k]).length > 0, k);
   assert.equal(L.lockCss(['fullscreen']), '');
-  assert.equal(L.lockCss(['fullscreen', 'search']), '#findBtn, #findBox { display: none !important; }');
+  assert.equal(L.lockCss(['fullscreen', 'search']), '#findBtn, #findBox, #voiceBtn { display: none !important; }');   // the voice search answers in the box (#509)
+  assert.equal(L.lockCss(['voice']), '#voiceBtn, #findMic { display: none !important; }');
   assert.match(L.lockCss(['floorGap']), /#explodeToggle, #stackToggle/);          // the floors apart / stacked (#396): stays as preset
 });
 test('locked cameras: no camera images are fetched, the settings object stays the same otherwise', () => {

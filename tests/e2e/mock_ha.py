@@ -17,6 +17,7 @@ EXTRA = {}         # more entities with their attributes (#406: music, vacuum, f
 FLOWS = []         # #501: the config flows started and their steps ("＋ Zähler anlegen": Home Assistant's Integral helper), GET /_flows
 CAL_NEW = {}       # #495: the events "＋ Termin" of the calendar card made: {calendar: [event]}; GET /_calreset forgets them
 TODO = {}          # #490: the to-do lists: {entity: [{"uid", "summary", "status"}]}, POST /_todo; changed by todo.add_item / update_item / remove_completed_items
+VOICE = {"assist": True, "text": "Welche Fenster sind offen", "heard": []}   # #509: Assist with speech-to-text (POST /_voice {assist, text}); heard: bytes of audio per run
 HIST = {}          # #490: the history of some entities (a machine's power): {entity: [[iso time, state]]}, POST /_hist; others get the hourly numbers
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
@@ -124,8 +125,31 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
     await ws.send_json({"type": "auth_required"})
     await ws.receive_json()
     await ws.send_json({"type": "auth_ok"})
+    run = None                    # #509: the Assist run that takes audio: [id, bytes heard]
     async for msg in ws:
+        if msg.type == web.WSMsgType.BINARY:      # audio of an Assist run: the first byte is the handler id; that byte alone ends it
+            if run and msg.data[:1] == b"\x01":
+                if len(msg.data) > 1: run[1] += len(msg.data) - 1
+                else:
+                    VOICE["heard"].append(run[1])
+                    await ws.send_json({"id": run[0], "type": "event", "event": {"type": "stt-start", "data": {"engine": "stt.mock"}}})
+                    await ws.send_json({"id": run[0], "type": "event", "event": {"type": "stt-end", "data": {"stt_output": {"text": VOICE["text"] if run[1] else ""}}}})
+                    await ws.send_json({"id": run[0], "type": "event", "event": {"type": "run-end", "data": None}})
+                    run = None
+            continue
         m = json.loads(msg.data)
+        if m.get("type") == "assist_pipeline/pipeline/list":    # #509: one pipeline, with speech-to-text while VOICE["assist"]
+            p = {"id": "p1", "name": "Home Assistant", "language": "de", "stt_engine": "stt.mock" if VOICE["assist"] else None, "stt_language": "de-DE"}
+            await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": {"pipelines": [p], "preferred_pipeline": "p1"}})
+            continue
+        if m.get("type") == "assist_pipeline/run":
+            ok = VOICE["assist"] and m.get("start_stage") == "stt" and (m.get("input") or {}).get("sample_rate") == 16000
+            await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": None, **({} if ok else {"error": {"code": "stt-provider-missing"}})})
+            if ok:
+                run = [m["id"], 0]
+                await ws.send_json({"id": m["id"], "type": "event", "event": {"type": "run-start", "data": {"pipeline": "p1", "language": "de",
+                                    "runner_data": {"stt_binary_handler_id": 1, "timeout": 300}}}})
+            continue
         if m.get("type") == "camera/stream":
             ok = m.get("entity_id") == "camera.flur"
             await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": {"url": f"/api/hls/{HLS_TOKEN}/master_playlist.m3u8"} if ok else None,
@@ -288,10 +312,13 @@ async def cmb_tg_group(r):        # ... into a group with its key; "bad" is a wr
     if r.query.get("apikey") == "bad": return web.Response(text="<p>Error: wrong apikey</p>", content_type="text/html")
     return web.Response(text="<p>Message sent to the group</p>", content_type="text/html")
 async def notified(r): return web.json_response(NOTIFIED)
+async def set_voice(r):           # test helper (#509): {"assist": false} = no speech-to-text, {"text": ...} = what is heard; answers what was heard
+    VOICE.update({k: v for k, v in (await r.json()).items() if k in ("assist", "text")})
+    return web.json_response(VOICE)
 async def template(r):
     return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
-app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified),
+app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified), web.post("/_voice", set_voice),
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),

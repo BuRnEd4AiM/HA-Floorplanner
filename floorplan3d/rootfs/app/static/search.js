@@ -1,5 +1,6 @@
 /* "Where is ...?" search (#62): type a name, pick a hit, the view jumps there and a ring marks the spot for a moment.
- * The scoring of a name against the typed text is in alerts.js (matchScore, tested). */
+ * The scoring of a name against the typed text is in alerts.js (matchScore, tested). The voice search (#509, voiceui.js) answers in the
+ * same box (show) and marks every thing of its answer with a ring (mark); a typed question gets a row "💬 …" (ctx.question). */
 import * as THREE from './vendor/three.module.min.js';
 import { matchScore } from './alerts.js';
 import { wallLength } from './walls.js';
@@ -23,10 +24,12 @@ export function targetPoint(floors, tg) {
 }
 
 /** ctx: $, t, layout(), entities(), pointInPoly, houseMode(), floorIdx(), switchFloor(i), focusRoom(id), focusedRoom(), openRoomPanel(id), isLive(), liveSelect(h),
- *  elev(i), scene, camera, controls, selectLocked(sel) (select it and lock the selection), wake() */
+ *  elev(i), scene, camera, controls, selectLocked(sel) (select it and lock the selection), wake(); question(text) (the voice search: a label when
+ *  the text is a question it answers, else null) and ask(text) (answer it), set later with setVoice */
 export function initSearch(ctx) {
   const { $, t } = ctx;
-  let findMarker = null;                  // { mesh, until }: a ring that marks what was found
+  let markers = [];                       // [{ mesh, until }]: rings that mark what was found
+  let voice = { question: () => null, ask: () => {} };
   function findItems(q) {
     const out = [];
     ctx.layout().floors.forEach((f, fi) => {
@@ -49,23 +52,36 @@ export function initSearch(ctx) {
     });
     return out.sort((a, b) => b.sc - a.sc || a.label.localeCompare(b.label)).slice(0, 8);
   }
+  /** a row of the list: a button with a bold line and a small one */
+  function row(label, sub, onClick, cls = '') {
+    const li = document.createElement('li'), b = document.createElement('button'); b.type = 'button';
+    if (cls) b.className = cls;
+    const s1 = document.createElement('strong'); s1.textContent = label;
+    b.append(s1);
+    if (sub) { const s2 = document.createElement('small'); s2.textContent = sub; b.append(s2); }
+    b.addEventListener('click', onClick);
+    li.append(b); return li;
+  }
   function renderFind() {
     const q = $('#findInput').value, ul = $('#findList');
     const items = q.trim() ? findItems(q) : [];
-    ul.replaceChildren(...items.map((it) => {
-      const li = document.createElement('li'), b = document.createElement('button'); b.type = 'button';
-      const s1 = document.createElement('strong'); s1.textContent = it.label;
-      const s2 = document.createElement('small'); s2.textContent = it.sub;
-      b.append(s1, s2);
-      b.addEventListener('click', () => goToFound(it));
-      li.append(b); return li;
-    }));
-    $('#findNone').hidden = !q.trim() || !!items.length;
+    const asks = q.trim() ? voice.question(q) : null;              // a question of the voice search, typed: answered by Enter or a tap
+    ul.replaceChildren(...(asks ? [row(`💬 ${asks}`, '', () => voice.ask(q), 'findAsk')] : []), ...items.map((it) => row(it.label, it.sub, () => goToFound(it))));
+    $('#findNone').textContent = t('find.none'); $('#findNone').hidden = !q.trim() || !!items.length || !!asks;
+    $('#findAnswer').hidden = true;
   }
   function openFind(open = $('#findBox').hidden) {
     $('#findBox').hidden = !open;
     if (open) { $('#findInput').value = ''; renderFind(); $('#findInput').focus(); }
   }
+  /** a ring at target (a THREE.Vector3) */
+  function ring(target, ms) {
+    const mesh = new THREE.Mesh(new THREE.RingGeometry(0.32, 0.46, 40), new THREE.MeshBasicMaterial({ color: 0x3df2ff, transparent: true, side: THREE.DoubleSide, depthTest: false }));
+    mesh.rotation.x = -Math.PI / 2; mesh.position.copy(target); mesh.renderOrder = 10;
+    ctx.scene.add(mesh);
+    markers.push({ mesh, until: performance.now() + ms });
+  }
+  function clearMarks() { markers.forEach((m) => { ctx.scene.remove(m.mesh); m.mesh.geometry.dispose(); m.mesh.material.dispose(); }); markers = []; }
   function goToFound(it) {
     openFind(false);
     if (ctx.houseMode() || ctx.floorIdx() !== it.floor) ctx.switchFloor(it.floor);
@@ -76,11 +92,8 @@ export function initSearch(ctx) {
     ctx.controls.target.copy(target);
     ctx.camera.position.copy(target).addScaledVector(dir, 5.5);
     ctx.controls.update();
-    if (findMarker) { ctx.scene.remove(findMarker.mesh); findMarker.mesh.geometry.dispose(); }
-    const ring = new THREE.Mesh(new THREE.RingGeometry(0.32, 0.46, 40), new THREE.MeshBasicMaterial({ color: 0x3df2ff, transparent: true, side: THREE.DoubleSide, depthTest: false }));
-    ring.rotation.x = -Math.PI / 2; ring.position.copy(target); ring.renderOrder = 10;
-    ctx.scene.add(ring);
-    findMarker = { mesh: ring, until: performance.now() + 3500 };
+    clearMarks();
+    ring(target, 3500);
     if (ctx.isLive()) ctx.liveSelect({ kind: it.kind, id: it.id });
     else { ctx.selectLocked({ kind: it.kind, id: it.id }); }
     ctx.wake();
@@ -89,21 +102,51 @@ export function initSearch(ctx) {
   $('#findInput').addEventListener('input', renderFind);
   $('#findInput').addEventListener('keydown', (e) => {
     if (e.key === 'Escape') openFind(false);
-    if (e.key === 'Enter') { const first = findItems($('#findInput').value)[0]; if (first) goToFound(first); }
+    if (e.key === 'Enter') {
+      const q = $('#findInput').value;
+      if (voice.question(q)) voice.ask(q);
+      else { const first = findItems(q)[0]; if (first) goToFound(first); }
+    }
     e.stopPropagation();                                       // typing must not trigger the editor shortcuts
   });
   return {
     close: () => openFind(false),
+    isOpen: () => !$('#findBox').hidden,
     /** jump to { floor, kind, id } like a search hit (the open and offline lists, #215); false when it has no place to fly to */
     goTo(tg) { const p = targetPoint(ctx.layout().floors, tg); if (!p) return false; goToFound({ ...tg, ...p }); return true; },
     findItems,
-    /** every frame: the ring grows and fades; true while it is there (keeps the screen awake) */
+    /** the voice search (#509): question(text) -> label or null, ask(text) */
+    setVoice(v) { voice = v; },
+    /** the box open with an answer: { text (in the field), head (the line above the list), rows: [{ label, sub, go }] (go(): a tap),
+     *  none (a text when there are no rows) } */
+    show({ text, head = '', rows = [], none = '' }) {
+      $('#findBox').hidden = false;
+      if (text != null) $('#findInput').value = text;
+      $('#findAnswer').textContent = head; $('#findAnswer').hidden = !head;
+      $('#findList').replaceChildren(...rows.map((r) => row(r.label, r.sub, () => { openFind(false); r.go(); })));
+      $('#findNone').textContent = none || t('find.none'); $('#findNone').hidden = !none;
+    },
+    /** rings on the things of targets [{ floor, kind, id }] (those that have a place in the plan) for ms; the old rings go */
+    mark(targets, ms = 9000) {
+      clearMarks();
+      targets.forEach((tg) => {
+        const p = targetPoint(ctx.layout().floors, tg);
+        if (p) ring(new THREE.Vector3(p.x, ctx.elev(tg.floor) + Math.min(p.y, 2.4), p.z), ms);
+      });
+      ctx.wake();
+    },
+    marks: () => markers.length,
+    /** every frame: the rings grow and fade; true while one is there (keeps the screen awake) */
     animate(now) {
-      if (!findMarker) return false;
-      const left = findMarker.until - now;
-      if (left <= 0) { ctx.scene.remove(findMarker.mesh); findMarker.mesh.geometry.dispose(); findMarker = null; return false; }
-      const k = 1 + 0.35 * Math.sin(now / 120); findMarker.mesh.scale.set(k, k, k); findMarker.mesh.material.opacity = Math.min(1, left / 800);
-      return true;
+      if (!markers.length) return false;
+      const k = 1 + 0.35 * Math.sin(now / 120);
+      markers = markers.filter((m) => {
+        const left = m.until - now;
+        if (left <= 0) { ctx.scene.remove(m.mesh); m.mesh.geometry.dispose(); m.mesh.material.dispose(); return false; }
+        m.mesh.scale.set(k, k, k); m.mesh.material.opacity = Math.min(1, left / 800);
+        return true;
+      });
+      return markers.length > 0;
     },
   };
 }

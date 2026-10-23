@@ -1,0 +1,20 @@
+{
+ "session": "session_01CHf76Mzq478pT6HgcTDz6D",
+ "start": "2026-10-23",
+ "updated": "2026-10-23T14:20:57Z",
+ "branch": "claude/voice-search",
+ "source": "counted",
+ "input": 376,
+ "cache_write": 469243,
+ "cache_read": 63730926,
+ "output": 221381,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 376,
+   "cache_write": 469243,
+   "cache_read": 63730926,
+   "output": 221381,
+   "requests": 186
+  }
+ }
+}

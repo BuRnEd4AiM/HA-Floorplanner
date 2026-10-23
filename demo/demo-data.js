@@ -410,6 +410,9 @@ let settings = {
     cards: [{ id: 'c_kalender', type: 'calendar', name: 'Diese Woche', width: 4, days: 7, view: 'week', add: true,
       cals: [{ id: 'calendar.familie', color: 'blue' }, { id: 'calendar.arbeit_anna', color: 'orange' }, { id: 'calendar.schule', color: 'green' }, { id: 'calendar.geburtstage', color: 'red' }] }] } },
   lightGroups: [{ id: 'g_wohnen', name: 'Wohnen', rooms: ['r1', 'r2'] }, { id: 'g_oben', name: 'Oben', rooms: ['q1', 'q2'] }, { id: 'g_keller', name: 'Keller', rooms: ['k1', 'k2', 'k3'] }],
+  voice: { engine: 'auto', aliases: [                      // the voice search (#509): code words of the demo
+    { say: 'Stube', house: 'main', floor: '', rooms: ['r1'], user: '' }, { say: 'Werkstatt', house: 'main', floor: '', rooms: ['k1'], user: '' },
+    { say: 'Schlafräume', house: 'main', floor: '', rooms: ['r4', 'q1', 'q2'], user: '' }, { say: 'beim Nachbarn', house: 'nachbar', floor: '', rooms: [], user: '' }] },
   radioStations: [{ name: 'SWR3', url: 'https://radio.example/swr3.mp3' }, { name: 'Bayern 3', url: 'https://radio.example/bayern3.mp3' },   // 4.8: 🎵 (#490)
     { name: '1LIVE', url: 'https://radio.example/1live.mp3' }, { name: 'Deutschlandfunk', url: 'https://radio.example/dlf.mp3' }, { name: 'Klassik Radio', url: 'https://radio.example/klassik.mp3' }],
   routines: [], routineLeave: '', routineNight: 'scene.gute_nacht',   // 4.5: ▶ Abläufe shows every scene and script, "Gute Nacht" then starts the night scene (#483)
@@ -650,6 +653,8 @@ export function installDemoBackend() {
     }
     if (path === 'api/agenda') return json({ events: demoAgenda(), waste: 'calendar.muellabfuhr' });
     if (path === 'api/family') return json(family());
+    if (path === 'api/voice') return json({ assist: false, locked: false });    // the voice search (#509): the browser's own recognition; no Assist in the demo
+    if (path === 'api/voice/stt') return json({ error: ONLY_ADDON }, 501);
     if (path === 'api/history') {                           // #484: a card "Verlauf": made-up numbers around the value now, one per hour (more for 7 / 30 days)
       const q = new URL(url, location.href).searchParams, e = entities[q.get('entity')], hours = Number(q.get('hours')) || 24;
       const now = Date.now(), base = parseFloat(e?.state) || 10, n = Math.min(240, hours), step = (hours * 3600000) / n;

@@ -127,8 +127,10 @@
       <div id="compass" aria-hidden="true"><svg viewBox="-32 -32 64 64"><g id="compassRose"><circle r="29" class="cRing"/><text y="-19" class="cL cLn">N</text><text x="21" y="3" class="cL">O</text><text y="25" class="cL">S</text><text x="-21" y="3" class="cL">W</text></g><g id="compassNeedle"><path d="M0 -15 L4.5 0 L-4.5 0 Z" class="cN"/><path d="M0 12 L4.5 0 L-4.5 0 Z" class="cS"/><circle r="1.8" class="cHub"/></g></svg><span id="compassFrom"></span></div>
       <div id="skyLine" hidden></div>
       <button id="findBtn" type="button" class="pill" data-i18n-title="find.title" aria-label="Search">🔍</button>
+      <button id="voiceBtn" type="button" class="pill" hidden data-i18n-title="vq.mic" aria-label="Voice search">🎤</button>
       <div id="findBox" hidden>
-        <input id="findInput" type="search" autocomplete="off" data-i18n-placeholder="find.placeholder">
+        <div class="findRow"><input id="findInput" type="search" autocomplete="off" data-i18n-placeholder="find.placeholder"><button id="findMic" type="button" class="pill" hidden data-i18n-title="vq.mic" aria-label="Voice search">🎤</button></div>
+        <p id="findAnswer" role="status" hidden></p>
         <ul id="findList"></ul>
         <p id="findNone" class="sub" data-i18n="find.none" hidden></p>
       </div>
@@ -493,6 +495,25 @@
         <p class="hint" data-i18n="lg.help"></p>
         <div id="lgGroups"></div>
         <div class="stopTools"><button type="button" id="lgAdd" data-i18n="lg.add"></button></div>
+      </div>
+    </details>
+
+    <details class="setGroup" data-group="voice">
+      <summary><span class="sgIcon">🎤</span><span class="sgText"><b data-i18n="sg.voice"></b><small data-i18n="sg.voice.sub"></small></span></summary>
+      <div class="sgBody">
+        <p class="hint" data-i18n="vc.help"></p>
+        <div class="row"><label for="setVoiceEngine" data-i18n="vc.engine"></label>
+          <select id="setVoiceEngine"><option value="auto" data-i18n="vc.engine.auto"></option><option value="browser" data-i18n="vc.engine.browser"></option><option value="assist" data-i18n="vc.engine.assist"></option><option value="off" data-i18n="vc.engine.off"></option></select></div>
+        <ul id="vcStatus"></ul>
+        <div id="vcGuide" class="vcGuide"><b data-i18n="vc.guide"></b>
+          <ol><li data-i18n="vc.guide1"></li><li data-i18n="vc.guide2"></li><li data-i18n="vc.guide3"></li><li data-i18n="vc.guide4"></li></ol>
+          <a href="https://my.home-assistant.io/redirect/voice_assistants/" target="_blank" rel="noopener" data-i18n="vc.openHa"></a></div>
+        <h4 data-i18n="vc.words"></h4>
+        <p class="hint" data-i18n="vc.wordsHelp"></p>
+        <div id="vcAliases"></div>
+        <p id="vcNone" class="sub" data-i18n="vc.none"></p>
+        <div class="stopTools"><button type="button" id="vcAdd" data-i18n="vc.add"></button> <button type="button" id="vcTry" data-i18n="vc.try"></button></div>
+        <datalist id="vcUsers"></datalist>
       </div>
     </details>
 

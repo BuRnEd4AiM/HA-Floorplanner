@@ -101,6 +101,8 @@ import { initDashboards } from './dashboards.js';
 import { meterPart } from './energymetersui.js';
 import { initTodayPrefs } from './todayprefs.js';
 import { initPresencePrefs } from './presenceprefs.js';
+import { initVoiceUi } from './voiceui.js';
+import { initVoicePrefs } from './voiceprefs.js';
 import { initTapBalls } from './tapballs.js';
 import { initLiveChannel, fetchAreas, fetchBatteries } from './livechannel.js';
 import { initDeviceList } from './devicelist.js';
@@ -1536,11 +1538,22 @@ const todayPrefs = initTodayPrefs({ $, t });             // ⚙ → "Reiter unte
 const routinePrefs = initRoutinePrefs({ $, t, entities: () => entities });   // ... and the buttons of ▶ Abläufe (#483, routineprefs.js)
 const mediaPrefs = initMediaPrefs({ $, t, entities: () => entities });       // ... the radio stations, the shopping list and the machines (#490, mediaprefs.js)
 const presencePrefs = initPresencePrefs({ $ });                                // ... who counts as at home (#495, presenceprefs.js)
+/* the voice search (#509): 🎤, a sentence understood and answered in the search box (voiceui.js, voicequery.js, voiceinput.js) */
+const voiceUi = initVoiceUi({
+  $, t, search, lang: () => currentLanguage(), settings: () => settings, user: () => me.user, locks: () => locks, layout: () => layout, shown: () => shownLayout(),
+  houseId: () => hs.id(), houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), switchHouse: (id) => switchHouse(id),
+  switchFloor: (i) => switchFloor(i), houseMode: () => houseMode, setHouseMode: (on) => setHouseMode(on), floorIdx: () => floorIdx,
+  focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => roomPanel.open(id), isLive: () => isLive(), rows: () => deviceList.rows(), states: () => states,
+  reading: (id, mode) => { const f = layout.floors.find((x) => x.rooms.some((r) => r.id === id)), r = f?.rooms.find((x) => x.id === id); return r ? roomReading(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode) : null; },
+  colorMode: (m) => { const b = $(`#modeBar [data-vm=${m}]`); if (!b) return false; b.click(); return true; }, imperial: () => imperial(),
+});
+const voicePrefs = initVoicePrefs({ $, t, voice: voiceUi, settings: () => settings, houseId: () => hs.id(), commit: () => commitSettings(),   // ⚙ → 🎤 Sprachsuche (voiceprefs.js)
+  tryIt: () => { $('#settingsDialog').close(); voiceUi.listen(); } });
 const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
-  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs],          // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481)
+  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs],   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones
@@ -1551,6 +1564,7 @@ const settingsStore = initSettings({
     applySettings(prev);
     build();
     if (houseMode && floorsMode(prev, true) !== floorsMode(settings, true)) fitCamera();   // pulled apart the house is taller
+    voiceUi.update();                                                   // the 🎤 with the recognition chosen (#509)
   },
 });
 const loadSettings = () => settingsStore.load();
@@ -1660,6 +1674,7 @@ async function init() {
   setLanguage(settings.language);
   initLogin(me, t);                                       // without the Supervisor: logged in with Home Assistant (#489)
   full.refresh();                                         // a full screen kept on for this user (#487), in this language
+  voiceUi.update();                                       // the 🎤 where this browser can listen and the user may (#509)
   await hs.load();
   try { layout = await persist.load(); } catch { setStatus(t('loadFailed')); }
   normalizeLayout();
@@ -1742,7 +1757,7 @@ if (params.get('debug')) {
       const r = canvas.getBoundingClientRect();
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
-    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
+    get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => hs.id(), states: () => states,
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)

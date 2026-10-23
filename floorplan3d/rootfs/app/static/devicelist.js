@@ -57,7 +57,8 @@ function openingShown(f, w, o) {
 /**
  * The overview: [{ floor, name, rooms: [{ name, items }] }], floors in their order, rooms by name (things in no room last), items by name.
  * item: { kind: 'device' | 'opening', id, floor, name, entity, type, icon (as on its tap ball), value, battery (batteryInfo), off (why it is
- * offline, offline.js), on (it runs: isRunning of any of its entities; a door / window: open) }.
+ * offline, offline.js), on (it runs: isRunning of any of its entities; a door / window: open); a door / window also: gate (a garage door),
+ * shutter (its roller shutter's entity or ''), contact (it has a contact sensor) }. A room: { id ('' = no room), name, none, items }.
  * env: { layout (the building shown, viewOf in buildings.js), states, t, pointInPoly, distToPoly, onStates, batteryOf, offline (Map id ->
  * reason), nameOf(entity) }
  */
@@ -67,7 +68,7 @@ export function deviceRows(env) {
   return (layout?.floors || []).map((f, fi) => {
     const rooms = new Map(), add = (room, item) => {
       const k = room?.id ?? '';
-      if (!rooms.has(k)) rooms.set(k, { name: room?.name || t('dl.noRoom'), none: !room, items: [] });
+      if (!rooms.has(k)) rooms.set(k, { id: k, name: room?.name || t('dl.noRoom'), none: !room, items: [] });
       rooms.get(k).items.push(item);
     };
     f.devices.forEach((d) => {
@@ -88,7 +89,8 @@ export function deviceRows(env) {
       const bat = [...ents, sh].filter(Boolean).map((e) => batteryInfo(e, states, batteryOf)).filter(Boolean)
         .sort((p, q) => Number(q.low) - Number(p.low) || (p.level ?? 101) - (q.level ?? 101))[0] || null;   // the emptiest of its sensors
       add(roomAt(f, x, z, env, true), { kind: 'opening', id: o.id, floor: fi, name: o.name || t(`prop.${o.type}`), entity: ents[0] || sh, type: o.type,
-        icon: o.type === 'door' ? (o.style === 'garage' ? '🚗' : '🚪') : '🪟', value: vals.join(' · '), battery: bat, off: off.get(o.id) || null, on: open });
+        icon: o.type === 'door' ? (o.style === 'garage' ? '🚗' : '🚪') : '🪟', value: vals.join(' · '), battery: bat, off: off.get(o.id) || null, on: open,
+        gate: o.type === 'door' && o.style === 'garage', shutter: sh || '', contact: ents.length > 0 });
     }));
     const list = [...rooms.values()].sort((p, q) => Number(p.none) - Number(q.none) || p.name.localeCompare(q.name));
     list.forEach((r) => r.items.sort((p, q) => p.name.localeCompare(q.name)));
@@ -195,5 +197,6 @@ export function initDeviceList(ctx) {
   let low = 0;
   pill.addEventListener('click', (e) => { e.stopPropagation(); if (!isOpen()) filter = openFilter(filter, low); set(!isOpen()); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen() && !document.querySelector('dialog[open]')) set(false); });
-  return { update, open: () => set(true), close: () => set(false), isOpen, low: () => low, setFilter: (k) => { filter = FILTERS.includes(k) ? k : 'all'; sig = ''; if (isOpen()) render(); } };
+  return { update, open: () => set(true), close: () => set(false), isOpen, low: () => low, setFilter: (k) => { filter = FILTERS.includes(k) ? k : 'all'; sig = ''; if (isOpen()) render(); },
+    rows: () => deviceRows(env()) };                               // the overview as it is now (the voice search, #509)
 }

@@ -268,6 +268,19 @@ Two ways to send it:
 
 The 🔍 button at the bottom left opens **"Where is …?"**: type part of a device, window or room name. A tap (or Enter for the first hit) switches to the right floor, moves the camera there and marks the device with a ring; in live mode its controls open.
 
+### Voice search (🎤)
+
+The 🎤 next to 🔍 (on a phone inside the search box) listens: say for example *„Welche Fenster sind offen?“*, *„Ist oben noch Licht an?“*, *„Sind alle Fenster zu?“*, *„Wie warm ist es im Kinderzimmer?“* or *„Wie sieht es im Wohnzimmer aus?“*. The view goes there (the floor, the room, or the whole house when the answer is on several floors), every thing of the answer gets a ring, and the box shows a line like **🪟 Fenster · offen: 2** with the list (a tap goes to that thing). *„Wie warm ist es?“* colours the rooms by temperature and lists them. The same sentence typed into the search box gets a row **💬 …**; Enter answers it.
+
+It understands known words in the 7 languages of the add-on: windows, doors, gates, lights, roller shutters, locks, music & TV, heating, batteries, devices offline, temperature, humidity and CO₂; open / closed / on / off / low; and the names of the rooms, floors and houses of your plans. The rest of the sentence may be free. It is no AI and it only shows, it switches nothing.
+
+⚙ → **🎤 Sprachsuche**:
+- **Spracherkennung**: *Automatisch* (the browser's own, else Home Assistant Assist), *Nur die des Browsers*, *Nur Home Assistant Assist* or *Aus*. Below: what works on this device.
+- The browser's own recognition (Chrome, Edge, Safari) sends the recording to Google or Apple. Where a browser has none (the Home Assistant app on Android, Fully Kiosk Browser, Firefox) the add-on records and **Home Assistant Assist** turns it into text: install the add-on **Whisper** (or use Home Assistant Cloud), then *Settings → Voice assistants → your assistant → Speech-to-text*. Recording needs a secure page (**https**, e.g. Nabu Casa or a certificate), not `http://…`.
+- **Codewörter**: *Wenn ich sage … → meine ich …*, e.g. „Wohnzimmer“ → the room „WZ EG“, „Wohnzimmer der Eltern“ → the room of the house of the parents, „Kinderzimmer“ → both children's rooms, „oben“ → the upper floor. With a user name it only counts for that user („mein Zimmer“). *🎤 Ausprobieren* closes the settings and listens.
+
+A user can be locked out of it: ⚙ → 👥 Benutzer & Tablets → 🔒 **Sprachsuche (🎤)**.
+
 ## Wall tablet kiosk
 
 In ⚙ → *Wall tablet*, for the live view:
