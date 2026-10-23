@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-10-23 · 62 Sitzungen
+Stand: 2026-10-23 · 63 Sitzungen
 
-**Insgesamt: 4,43 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 4,45 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 12,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 49,0 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 4,37 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 12,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 49,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 4,38 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,13 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 49 | 2,43 Mrd. | 6,7 Mio. |
+| 2026-10 | 50 | 2,45 Mrd. | 6,8 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-10-23 | [01JzYNo6…](https://claude.ai/code/session_01JzYNo6b3ZemrfnFrKdBWC3) | claude/inspiring-newton-2s5ca2 | 14,9 Mio. | 127 Tsd. | gezählt |
 | 2026-10-23 | [01CHf76M…](https://claude.ai/code/session_01CHf76Mzq478pT6HgcTDz6D) | claude/voice-search | 64,4 Mio. | 221 Tsd. | gezählt |
 | 2026-10-23 | [013q8n1E…](https://claude.ai/code/session_013q8n1Er5ZTqQ9hA1nN39DJ) | claude/laughing-ptolemy-iqgsx6 | 30,2 Mio. | 141 Tsd. | gezählt |
 | 2026-10-22 | [01CbgqAo…](https://claude.ai/code/session_01CbgqAoU7ADnHKnxsGbzmjt) | claude/sweet-edison-4obkyg | 345,1 Mio. | 705 Tsd. | gezählt |
