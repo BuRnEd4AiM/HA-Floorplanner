@@ -303,7 +303,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507) | 0 | 0 | 10 | 0 | 95.1 bis 95.10 |
 | 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509) | 0 | 0 | 11 | 3 | 96.1 bis 96.10, 96.14 |
 | 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511) | 0 | 0 | 5 | 2 | 97.1 bis 97.4, 97.7 |
-| **Zusammen** | **492** | **5** | **210** | **59** | |
+| 98. Neu in 4.20.0: 🎤 ohne https mit dem Diktat der Tastatur (#513) | 0 | 0 | 3 | 2 | 98.1 bis 98.3 |
+| **Zusammen** | **492** | **5** | **213** | **61** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1555,6 +1556,16 @@ Der Besitzer: „wenn ich aufs Mikrofon drauf drücke, dann hört er nichts … 
 | 97.2 | Darunter „🎤 1. Mikrofon prüfen“, „Zulassen“, etwas sagen | Der Balken bewegt sich und wird grün; nach 6 Sekunden „✓ Das Mikrofon „…“ hört dich“ (oder ✗ mit dem Grund und „→ …“); darunter eine Auswahl „Mikrofon“ | ❓ |
 | 97.3 | „🗣 2. Erkennung prüfen“, „Welche Fenster sind offen?“ sagen | „✓ Erkannt mit …: „Welche Fenster sind offen““ oder ✗ mit dem Grund und was zu tun ist | ❓ |
 | 97.4 | „📋 Ergebnis kopieren“ | Unten ein Kasten mit dem ganzen Ergebnis (Version, Browser, alle Zeilen); in den Chat einfügen geht | ❓ |
-| 97.5 | Am PC (Chrome oder Edge) unten links 🎤 tippen | Über https: es hört zu. Über http://: das 🎤 ist blass, ein Tipp sagt „die Seite ist über http:// geöffnet …“ und zeigt „🩺 Mikrofon-Test öffnen“ | ➖ |
-| 97.6 | Am Wandtablet (Fully Kiosk) oder in der Home-Assistant-App 🎤 tippen | Nie mehr endlos „Ich höre zu …“. Ohne Assist: blasses 🎤, ein Tipp sagt „Diese App … hat keine eigene Spracherkennung …“; mit Assist (Whisper) hört es zu | ➖ |
+| 97.5 | Am PC (Chrome oder Edge) unten links 🎤 tippen | Über https: es hört zu. Über http:// seit 4.20.0: das Diktat der Tastatur (siehe 98.5) | ➖ |
+| 97.6 | Am Wandtablet (Fully Kiosk) oder in der Home-Assistant-App 🎤 tippen | Nie mehr endlos „Ich höre zu …“. Ohne Assist seit 4.20.0: das Diktat der Tastatur (siehe 98.4); mit Assist (Whisper, nur über https) hört es selbst zu | ➖ |
 | 97.7 | Nach einer Warnung beim 🎤 die Zeile „🩺 Mikrofon-Test öffnen“ antippen | Die Einstellungen gehen bei 🎤 Sprachsuche auf, beim Mikrofon-Test | ❓ |
+
+## 98. Neu in 4.20.0: 🎤 ohne https mit dem Diktat der Tastatur (#513)
+Der Besitzer: „das muss ja einfach Plug and Play funktionieren … man kann ja nicht erwarten, dass jemand, der das installiert, noch eine HTTPS-Verbindung drauf macht“. Browser geben einer Seite das Mikrofon nur über https; das 🎤 der Tastatur gehört aber dem Gerät und tippt in jedes Feld. Wo die Seite nicht selbst zuhören darf (http://, eine App ohne Assist), nimmt das 🎤 deshalb von selbst das Diktat der Tastatur. Die Demo ist https: dort mit der Einstellung „Nur das Diktat der Tastatur“ testen.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 98.1 | In der Demo ⚙ → 🎤 Sprachsuche → Spracherkennung „Nur das Diktat der Tastatur (geht auch ohne https)“ wählen, schließen, unten links 🎤 tippen | Das Suchfeld geht auf (am Tablet und Handy mit der Tastatur), darüber „🎤 Tippe ins Suchfeld, dann auf das 🎤 der Tastatur, und sprich …“ (am PC: „Drücke die Windows-Taste + H …“) | ❓ |
+| 98.2 | Auf das 🎤 der Tastatur tippen (am PC Windows-Taste + H) und „Welche Fenster sind offen?“ sagen, dann kurz still sein | Nach etwa 2 Sekunden kommt von selbst „🪟 Fenster · offen: …“ mit der Liste, ohne Enter; am Tablet geht die Tastatur weg | ❓ |
+| 98.3 | ⚙ → 🎤 Sprachsuche ansehen | In der Liste „✓ Auf diesem Gerät: 🎤 mit dem Diktat der Tastatur“ und wie man diktiert; danach wieder „Automatisch“ wählen | ❓ |
+| 98.4 | Im Add-on über http:// (z. B. http://homeassistant.local:8123) am Wandtablet (Fully Kiosk) oder in der Home-Assistant-App, Einstellung „Automatisch“: 🎤 tippen, dann das 🎤 der Tastatur, fragen | Ohne etwas einzurichten (kein https, kein Whisper) wird die Frage beantwortet | ➖ |
+| 98.5 | Im Add-on über http:// am PC (Chrome oder Edge): 🎤 tippen, dann Windows-Taste + H, fragen | Wie 98.4 | ➖ |

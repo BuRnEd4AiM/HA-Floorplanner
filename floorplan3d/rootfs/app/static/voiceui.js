@@ -1,9 +1,12 @@
 /* The voice search (#509) on the screen: the 🎤 beside the 🔍 (and in the search box), what was heard in the box, the answer as a line
  * and a list, and the view going there: another house, the floor, the room, the whole house with a ring on every thing of the answer,
- * the colours of temperature / humidity / CO₂. Understanding is voicequery.js, listening voiceinput.js. A typed question in the search box
- * is answered the same way (search.js asks question / ask). */
+ * the colours of temperature / humidity / CO₂. Understanding is voicequery.js, listening voiceinput.js; where the page may not listen
+ * (http://, an app without Assist) the dictation of the keyboard (voicekeys.js). A typed question in the search box is answered the same
+ * way (search.js asks question / ask). */
 import { understand, answer, flatRows, headline, isQuestion, ICONS, LANGS } from './voicequery.js';
 import { initVoiceInput, canMic } from './voiceinput.js';
+import { initVoiceKeys } from './voicekeys.js';
+import { TO_KEYS } from './voicediag.js';
 
 const PLACES_TTL = 10 * 60 * 1000;                    // the rooms of the other houses are asked for again after 10 minutes
 
@@ -146,14 +149,18 @@ export function initVoiceUi(ctx) {
   /** why the 🎤 cannot listen here (voicediag.js whyNot): the text of vq.why.* */
   const WHY = ['insecure', 'policy', 'app', 'broken', 'noBrowser', 'noMic', 'noAssist'];
   const checkRow = () => ({ label: `🩺 ${t('vk.open')}`, sub: t('vk.openSub'), go: () => ctx.openCheck() });
+  const keys = initVoiceKeys({ $, t, search: ctx.search, kind: input.kind, ask: (text) => ask(text), checkRow });
   function listen(fresh) {
+    if (input.engine() === 'keyboard') { keys.start(); return; }
     if (fresh || !ctx.search.isOpen()) ctx.search.show({ text: '' });
+    keys.stop();
     input.listen({
       partial: (txt) => { $('#findInput').value = txt; },
       final: (txt) => { setMic(''); update(); ask(txt); },
       error: (code) => {
         setMic(''); update();                                  // the browser's recognition may count as broken now
         if (code === 'cancel') return;
+        if (TO_KEYS.includes(code) && (ctx.settings().voice?.engine || 'auto') === 'auto') { keys.start(); return; }   // the keyboard then
         const text = WHY.includes(code) ? t(`vq.why.${code}`) : t(`vq.err.${ERR[code] || 'other'}`, { code });
         ctx.search.show({ head: `⚠ ${text}`, rows: code === 'no-speech' ? [] : [checkRow()] });   // the microphone test finds out why
       },
@@ -174,7 +181,8 @@ export function initVoiceUi(ctx) {
     if (assist === null && canMic() && (!input.can().browser || ctx.settings().voice?.engine === 'assist')) { assist = undefined; refresh(); }
     const e = input.engine();
     const off = ctx.settings().voice?.engine === 'off' || locked('voice') || locked('search');
-    mics().forEach((b) => { b.hidden = off; b.title = t(e === 'assist' ? 'vq.micAssist' : e ? 'vq.mic' : 'vq.micWhy'); b.classList.toggle('cannot', !e); });
+    const tip = e === 'assist' ? 'vq.micAssist' : e === 'keyboard' ? 'vq.micKeys' : e ? 'vq.mic' : 'vq.micWhy';
+    mics().forEach((b) => { b.hidden = off; b.dataset.i18nTitle = tip; b.title = t(tip); b.classList.toggle('cannot', !e); });
   }
   async function refresh() {
     try { assist = await (await fetch('api/voice')).json(); } catch { assist = { assist: false }; }
@@ -190,5 +198,5 @@ export function initVoiceUi(ctx) {
     ask,
   });
   return { ask, listen: () => listen(true), update, refresh, status: () => ({ ...input.can(), engine: input.engine(), why: input.why(), assist }), loadOthers,
-    places: () => env(), cancel: () => input.cancel(), input };
+    places: () => env(), cancel: () => input.cancel(), input, keys };
 }

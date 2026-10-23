@@ -4,7 +4,8 @@ shows what the device can do and adds a code word; with "Home Assistant Assist" 
 microphone), api/voice/stt hands it to the mock Home Assistant, and what it "heard" is answered; the lock "voice" takes the 🎤 away and the
 server refuses api/voice/stt. 4.19.1 (#511): ⚙ → 🎤 → 🩺 Mikrofon-Test (the facts of the device, the level of the microphone, what Assist
 heard, the result to copy); in an app's built-in browser (Android WebView) the 🎤 takes Assist; a speech recognition that never starts
-gives way to Assist after 5 s; without Assist the 🎤 there says why and opens the test.
+gives way to Assist after 5 s. 4.20.0 (#513): where the page may not listen (http://, an app without Assist) the 🎤 takes the keyboard's
+dictation: the search box with the keyboard, what is typed into it is asked by itself after a pause; the microphone test says so.
 """
 st_vs = api("api/settings")
 set_setting("language", "de")
@@ -150,13 +151,26 @@ check("a speech recognition that never starts (#511): '🎤 Das Mikrofon geht an
 pgD.close()
 
 pgN = voice_page(no_assist=True, user_agent=WEBVIEW)
-dim = pgN.is_visible("#voiceBtn") and pgN.evaluate("document.querySelector('#voiceBtn').classList.contains('cannot')")
+keys_btn = pgN.is_visible("#voiceBtn") and not pgN.evaluate("document.querySelector('#voiceBtn').classList.contains('cannot')")
 pgN.click("#voiceBtn"); pgN.wait_for_timeout(500)
-why_vs = pgN.inner_text("#findAnswer")
-pgN.click("#findList button:has-text('Mikrofon-Test')"); pgN.wait_for_timeout(800)
-check("the tablet without Assist: the 🎤 stays (pale), a tap says why ('Diese App … hat keine eigene Spracherkennung'), '🩺 Mikrofon-Test öffnen' opens ⚙ → 🎤 Sprachsuche",
-      dim and "hat keine eigene Spracherkennung" in why_vs and pgN.evaluate("document.querySelector('#settingsDialog').open")
-      and pgN.evaluate("document.querySelector('#settingsDialog details[data-group=voice]').open"), (dim, why_vs))
+hint_vs, focus_vs = pgN.inner_text("#findAnswer"), pgN.evaluate("document.activeElement && document.activeElement.id")
+pgN.keyboard.type("Welche Fenster sind offen", delay=40)          # as the keyboard's dictation types it
+typed_vs = pgN.is_hidden("#findAnswer")                             # nothing asked while it is still coming
+for _ in range(20):
+    pgN.wait_for_timeout(300)
+    if pgN.is_visible("#findAnswer"): break
+ans_n = pgN.inner_text("#findAnswer") if pgN.is_visible("#findAnswer") else ""
+check("the tablet without Assist (#513): the 🎤 takes the keyboard's dictation: a tap opens the search box with the keyboard and "
+      "'Tippe ins Suchfeld, dann auf das 🎤 der Tastatur', what is dictated is answered by itself after a pause",
+      keys_btn and "🎤 der Tastatur" in hint_vs and focus_vs == "findInput" and typed_vs and "Fenster" in ans_n and "Tastatur" not in ans_n,
+      (keys_btn, hint_vs, focus_vs, typed_vs, ans_n))
+pgN.click("#voiceBtn"); pgN.wait_for_timeout(300)
+pgN.click("#findList button:has-text('Mikrofon-Test')"); pgN.wait_for_timeout(1200)
+st_n = pgN.inner_text("#vcStatus")
+check("... '🩺 Mikrofon-Test öffnen' opens ⚙ → 🎤 Sprachsuche: why the page may not listen ('Diese App … hat keine eigene Spracherkennung'), "
+      "'🎤 mit dem Diktat der Tastatur', how to dictate",
+      pgN.evaluate("document.querySelector('#settingsDialog').open") and pgN.evaluate("document.querySelector('#settingsDialog details[data-group=voice]').open")
+      and "hat keine eigene Spracherkennung" in st_n and "🎤 mit dem Diktat der Tastatur" in st_n and "🎤 der Tastatur" in st_n, st_n)
 pgN.close()
 set_setting("voice", {"engine": "assist", "aliases": []})
 

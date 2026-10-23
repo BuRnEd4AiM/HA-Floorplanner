@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.20.0] - 2026-10-23
+### Added
+- **The 🎤 without https, plug and play** (#513, the owner: "das muss ja einfach Plug and Play funktionieren … man kann ja nicht erwarten, dass jemand, der das installiert, noch eine HTTPS-Verbindung drauf macht"). Browsers give a page the microphone only over https, and no page can get around that (Home Assistant's own Assist dialog and other floor plans have the same limit). The keyboard's own 🎤 (Gboard, Samsung, iPhone / iPad; on a PC Windows + H, on a Mac the dictation) belongs to the device and types into any field, also over http://. So where the page may not listen itself (http://, an app with a built-in browser such as Fully Kiosk or the Home Assistant app without Assist) or its listening fails, the 🎤 opens the search box with the keyboard and says how to dictate on this device; what is dictated is asked by itself after a short pause (no Enter), and on a tablet the keyboard goes away so the whole answer is seen.
+- ⚙ → 🎤 Sprachsuche: a new choice **"Nur das Diktat der Tastatur (geht auch ohne https)"**, "Automatisch" now means browser, else Home Assistant Assist, else the keyboard; a line says when the keyboard is used. The 🩺 microphone test says "🎤 mit dem Diktat der Tastatur", why the page may not listen itself and, as an option, what would let it (https).
+### Fixed
+- The tooltip of the 🎤 ("Sprachsuche über Home Assistant Assist" and so on) was put back to the plain one whenever the texts of the page were set again.
+
 ## [4.19.1] - 2026-10-23
 ### Fixed
 - **The 🎤 heard nothing** (#511, the owner: "wenn ich aufs Mikrofon drauf drücke, dann hört er nichts … weder auf dem Tablet noch auf dem PC … und alles ist freigegeben"). Apps with a built-in browser (Android WebView: Fully Kiosk, the Home Assistant app) have Chrome's speech recognition built in, but there it does nothing: no start, no error, and the 🎤 said "Ich höre zu …" for ever. Such apps are now recognised (user agent), the browser's recognition counts as not working there and the 🎤 takes **Home Assistant Assist**. A watchdog covers the rest: a recognition that has not started after 5 s (30 s while the browser asks for the microphone) counts as not working on this device (kept in the browser), and with "Automatisch" Assist listens at once instead (Home Assistant is asked then whether it can).

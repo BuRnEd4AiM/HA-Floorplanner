@@ -63,6 +63,7 @@ test('whyNot: why the 🎤 cannot listen', () => {
   assert.equal(D.whyNot('assist', { ...ok, assist: true }), '');
   assert.equal(D.whyNot('browser', { ...ok, browser: false, app: 'ha', assist: true }), 'app');
   assert.equal(D.whyNot('browser', { ...ok, has: false, browser: false }), 'noBrowser');
+  assert.equal(D.whyNot('keyboard', { ...ok, secure: false, browser: false, mic: false }), '');   // the keyboard's dictation works anywhere
 });
 
 test('micProblem: the error of getUserMedia and the permission', () => {
@@ -105,4 +106,20 @@ test('levelVerdict, meter and recProblem', () => {
   assert.equal(D.recProblem('no-audio'), 'silent');
   assert.equal(D.recProblem('no_assist'), 'noAssist');
   assert.equal(D.recProblem('http 500'), 'other');
+});
+
+test('keysHint: how to dictate with the keyboard on this device; which errors hand over to the keyboard', () => {
+  assert.equal(D.keysHint(D.browserKind(UA.webview), true), 'touch');              // the wall tablet: the 🎤 of its keyboard
+  assert.equal(D.keysHint(D.browserKind(UA.haAndroid), true), 'touch');
+  assert.equal(D.keysHint(D.browserKind(UA.haIos), true), 'touch');
+  assert.equal(D.keysHint(D.browserKind(UA.safariIphone), false), 'touch');        // a phone counts as touch whatever it says
+  assert.equal(D.keysHint(D.browserKind(UA.chromeWin), false), 'windows');         // Windows + H
+  assert.equal(D.keysHint(D.browserKind(UA.chromeWin), true), 'touch');            // a Windows tablet: its keyboard on the screen
+  assert.equal(D.keysHint(D.browserKind(UA.safariMac), false), 'mac');
+  assert.equal(D.keysHint(D.browserKind(UA.safariMac), true), 'touch');            // an iPad says it is a Mac
+  assert.equal(D.keysHint(D.browserKind(''), false), 'other');
+  assert.equal(D.keysHint(null, false), 'other');
+  for (const c of ['dead', 'not-allowed', 'audio-capture', 'no-audio', 'network']) assert.ok(D.TO_KEYS.includes(c), c);
+  for (const c of ['no-speech', 'cancel']) assert.ok(!D.TO_KEYS.includes(c), c);  // nothing said or ended by a tap: no keyboard
+  assert.ok(D.KEYS_MS >= 1000 && D.KEYS_MS <= 3000);
 });

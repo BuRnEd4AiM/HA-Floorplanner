@@ -33,7 +33,11 @@ export function initVoiceCheck(ctx) {
       [c.mic, t(c.mic ? 'vc.st.mic' : 'vc.st.noMic')],
       [s.assist?.assist ?? null, s.assist == null ? t('vc.st.asking') : s.assist.assist ? t('vc.st.assist', { name: s.assist.name || '' }) : t('vc.st.noAssist')],
     ];
-    if (s.engine) out.push([true, t('vc.st.uses', { what: t(`vc.via.${s.engine}`) }), false, 'now']);
+    if (s.engine === 'keyboard') {                      // the page may not listen itself (http://, an app without Assist): the keyboard
+      if (s.why) out.push([null, t(`vq.why.${s.why}`)]);
+      out.push([true, t('vc.st.uses', { what: t('vc.via.keyboard') }), false, 'now'], [null, ctx.voice.keys.hint(), true]);
+      if (s.why) out.push([null, t('vc.st.direct')], ...fixes(s.why));
+    } else if (s.engine) out.push([true, t('vc.st.uses', { what: t(`vc.via.${s.engine}`) }), false, 'now']);
     else {
       out.push([false, s.why && s.why !== 'off' ? t(`vq.why.${s.why}`) : t('vc.st.none'), false, 'now']);
       if (s.why) out.push(...fixes(s.why));
@@ -118,7 +122,14 @@ export function initVoiceCheck(ctx) {
     if (input.busy()) { input.listen({}); return; }
     level?.stop();
     const c = input.can();
-    const e = input.engine() || (c.has && c.secure && c.policy ? 'browser' : c.assist && c.mic ? 'assist' : null);   // the browser's once more: does it work here?
+    const keyboard = input.engine() === 'keyboard', own = keyboard ? null : input.engine();
+    const e = own || (c.has && c.secure && c.policy ? 'browser' : c.assist && c.mic ? 'assist' : null);   // the browser's once more: does it work here?
+    if (!e && keyboard) {                               // nothing of the page can listen here: the dictation of the keyboard does
+      const why = input.why();
+      show('rec', [...(why ? [[null, t(`vq.why.${why}`)]] : []), [true, t('vk.r.keys')], [null, ctx.voice.keys.hint(), true],
+        ...(why ? [[null, t('vc.st.direct')], ...fixes(why)] : [])]);
+      return;
+    }
     if (!e) { const why = input.why() || 'none'; show('rec', [[false, why === 'none' ? t('vc.st.none') : t(`vq.why.${why}`)], ...fixes(why)]); return; }
     const what = t(`vc.via.${e}`);
     const done = () => { $('#vkRec').textContent = t('vk.rec'); ctx.voice.update(); ctx.changed?.(); };
