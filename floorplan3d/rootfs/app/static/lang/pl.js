@@ -1595,4 +1595,5 @@ export default {
   'ec.power': "przejęty: strona ⚡ Energia liczy z watów kWh, także za wcześniejsze dni", 'ec.kept': "już jest: {names}, nic podwójnie", 'ec.noStats': "nie ma historii w Home Assistant (brak state_class) ani licznika w kWh.", 'ec.make': "＋ Utwórz licznik",
   'ec.makeTip': "Tworzy w Home Assistant pomocnika „Całka”, który liczy kWh z watów (od teraz, bez wcześniejszych dni)", 'ec.making': "tworzenie …",
   'ec.made': "utworzony i przejęty. Liczy od teraz.", 'ec.makeFail': "nie udało się utworzyć (Home Assistant odmówił).",
+  'login.out': "Wyloguj", 'login.outTip': "Zalogowano przez Home Assistant jako {name} – wyloguj tutaj",
 };

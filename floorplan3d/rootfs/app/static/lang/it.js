@@ -1611,4 +1611,5 @@ export default {
   'ec.makeTip': "Crea in Home Assistant un aiutante «Integrale» che conta i kWh dai watt (da adesso, senza i giorni passati)",
   'ec.making': "creazione …", 'ec.made': "creato e preso. Conta da adesso.",
   'ec.makeFail': "non è stato possibile crearlo (Home Assistant ha rifiutato).",
+  'login.out': "Esci", 'login.outTip': "Accesso tramite Home Assistant come {name} – esci qui",
 };

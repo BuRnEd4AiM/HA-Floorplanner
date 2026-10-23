@@ -547,6 +547,7 @@ const DICT = {
     'ec.makeTip': "Legt in Home Assistant einen Helfer „Integral“ an, der aus Watt die kWh zählt (ab jetzt, frühere Tage hat er nicht)",
     'ec.making': "wird angelegt …", 'ec.made': "angelegt und übernommen. Er zählt ab jetzt.",
     'ec.makeFail': "konnte nicht angelegt werden (Home Assistant hat abgelehnt).",
+    'login.out': "Abmelden", 'login.outTip': "Angemeldet über Home Assistant als {name} – hier abmelden",
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -1067,6 +1068,7 @@ const DICT = {
     'ec.power': "taken: the page ⚡ Energy works out the kWh from the watts, also for the days before", 'ec.kept': "already there: {names}, nothing added twice", 'ec.noStats': "has no history in Home Assistant (it has no state_class) and no counter in kWh.", 'ec.make': "＋ Make a counter",
     'ec.makeTip': "Makes an “Integral” helper in Home Assistant that counts kWh from the watts (from now on, it has no earlier days)",
     'ec.making': "making it …", 'ec.made': "made and taken. It counts from now on.", 'ec.makeFail': "could not be made (Home Assistant refused).",
+    'login.out': "Log out", 'login.outTip': "Logged in through Home Assistant as {name} – log out here",
   },
 };
 

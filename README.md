@@ -274,6 +274,8 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 Requires Home Assistant OS or Supervised (anything with the Add-on / App store). Details on permissions and tablet setup are in the [documentation](floorplan3d/DOCS.md).
 
+**Home Assistant Container (Docker, no add-on store):** run 3D Floorplan as a second container next to Home Assistant; you log in with your Home Assistant user. The steps are in [container/README.md](container/README.md).
+
 ## 🧩 Dashboard card
 
 Show the live 3D view on any dashboard with the card `custom:floorplan3d-card`. A tap on a device controls it, as in the add-on; editing stays in the add-on. The add-on must be installed and running.

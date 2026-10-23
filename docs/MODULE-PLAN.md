@@ -207,6 +207,7 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `energycounters.js` | ~40 | „⤵ Von oben übernehmen“, rein (getestet): Leistungs-Sensoren je Zählerart aus dem Strom-Editor, gefundene Zähler in die Zähler übernehmen |
 | `energycountersui.js` | ~65 | Knopf „⤵ Von oben übernehmen“, Zeilen je Zählerart, „＋ Zähler anlegen“ (Integral-Helfer in Home Assistant) |
 | `mediaprefs.js` | ~90 | ⚙ → „Reiter unten“: Radiosender (halb getippte Zeilen bleiben stehen, weil der Dialog bei jeder Änderung speichert), welche Liste die Einkaufsliste ist, Maschinen von Hand (Leistung, Zustand) |
+| `login.js` | ~20 | Ohne Supervisor (Home Assistant als Docker-Container, #489): Knopf „Abmelden“ oben, nach abgelaufener Anmeldung (401 mit `X-Login`) zurück zur Anmeldung. Die Anmeldung mit Home Assistant macht der Server (`halogin.py` rein mit Unit-Tests `tests/test_halogin.py`, Ablauf in `server.py` `login_gate` / `auth_*`, Test `tests/test_login.py`) |
 
 ## Noch in `app.js`
 

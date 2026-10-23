@@ -80,6 +80,25 @@ jobs:
           for f in floorplan3d/rootfs/app/static/*.js; do cp "$f" /tmp/check.mjs && node --check /tmp/check.mjs; done
           node --check dist/floorplan3d-card.js
 
+  container:
+    # the Docker version without the Supervisor (#489, container/): the image builds, starts and sends whoever is not logged in to
+    # Home Assistant's login (HA_URL is a name only the Docker network knows: the browser gets the host it opened the page with)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f container/Dockerfile -t floorplan3d .
+      - run: |
+          docker run -d --name fp -p 8100:8099 -e HA_URL=http://homeassistant:8123 -e HA_TOKEN=x floorplan3d
+          for i in $(seq 1 30); do curl -s -o /dev/null http://localhost:8100/auth/login && break; sleep 1; done
+          curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" http://localhost:8100/ | tee /tmp/page
+          grep -q "^302 http://localhost:8100/auth/login$" /tmp/page
+          curl -s -o /dev/null -w "%{redirect_url}\n" http://localhost:8100/auth/login | tee /tmp/login
+          grep -q "^http://localhost:8123/auth/authorize?response_type=code&client_id=http%3A%2F%2Flocalhost%3A8100%2F&" /tmp/login
+          test "$(curl -s -o /dev/null -w "%{http_code}" -H "X-Remote-User-Name: admin" http://localhost:8100/api/layout)" = 401
+          docker exec fp test -s /data/.login_key
+      - if: always()
+        run: docker logs fp 2>&1 | tail -n 30
+
   changes:
     # no_browser: true when the change cannot alter what the browser sees: only text (*.md in docs/ or in the top folder, e.g. a test result in
     #   docs/TESTPROTOKOLL.md), the token counts (docs/tokens/*.json), unit tests (tests/*.mjs, tests/test_*.py) or tools/.
