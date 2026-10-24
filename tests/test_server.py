@@ -1049,6 +1049,16 @@ async def test_energy_prefs_needs_home_assistant_and_an_editor(client, monkeypat
     assert (await client.get("/api/energy/prefs", headers={"X-Remote-User-Name": "tablet"})).status == 403
 
 
+async def test_battery_levels_need_home_assistant_and_a_good_question(client, monkeypatch):
+    """#515: the charge of the batteries (the card "🔋 Ladestand"): standalone there is no Home Assistant, a bad question is refused
+    before anybody asks it (the whole way through the test Home Assistant: browser test part 43_battery_levels)"""
+    q = {"ids": ["sensor.soc"], "start": "2026-10-21T00:00:00+02:00", "end": "2026-10-22T00:00:00+02:00", "period": "5minute"}
+    assert (await client.post("/api/energy/levels", json=q)).status == 503
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    assert (await client.post("/api/energy/levels", json={**q, "period": "week"})).status == 400
+    assert (await client.post("/api/energy/levels", data="junk")).status == 400
+
+
 async def test_alarm_messages_settings_stay_in_the_add_on(client, monkeypatch, tmp_path):
     """#414: the phone number and the CallMeBot key are kept in their own file, the key is never handed out; only editors see them"""
     r = await (await client.get("/api/notify")).json()

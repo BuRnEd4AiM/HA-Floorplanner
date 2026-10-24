@@ -1728,4 +1728,8 @@ export default {
   'vc.keysHelp': 'Sin https (p. ej. http://homeassistant.local:8123) y en apps sin Assist ninguna página puede usar el micrófono. Entonces el 🎤 usa el dictado del teclado: toca 🎤, luego el 🎤 del teclado (en el PC tecla Windows + H) y habla. Sin configurar nada, solo un toque más.',
   'vc.st.direct': 'Para que el 🎤 escuche él mismo (sin teclado), bastaría una de estas:',
   'vk.r.keys': 'Aquí el 🎤 no escucha él mismo, usa el dictado del teclado. No hace falta configurar nada.',
+  'pe.bat.title': 'Carga de la batería', 'pe.bat.together': 'Juntas', 'pe.bat.single': 'Por separado', 'pe.bat.toggle': 'Tocar: mostrar u ocultar',
+  'pe.bat.none': 'Todas las baterías están ocultas. Toca una arriba para mostrarla.', 'pe.bat.noData': 'Home Assistant no tiene valores para este periodo.',
+  'pe.bat.err': 'Home Assistant no pudo enviar el historial ahora.', 'pe.bat.range': 'mínimo {min} ({minAt}) · máximo {max} ({maxAt})',
+  'pe.bat.aria': 'Carga de las baterías en porcentaje a lo largo del tiempo', 'pe.bat.hint': 'Solo este dispositivo recuerda esta elección.',
 };

@@ -1730,4 +1730,8 @@ export default {
   'vc.keysHelp': 'Senza https (p. es. http://homeassistant.local:8123) e nelle app senza Assist nessuna pagina può usare il microfono. Allora il 🎤 usa la dettatura della tastiera: tocca 🎤, poi il 🎤 della tastiera (sul PC tasto Windows + H) e parla. Senza impostare niente, solo un tocco in più.',
   'vc.st.direct': 'Perché il 🎤 ascolti da solo (senza tastiera), basterebbe una di queste:',
   'vk.r.keys': 'Qui il 🎤 non ascolta da solo, usa la dettatura della tastiera. Non serve impostare niente.',
+  'pe.bat.title': 'Carica della batteria', 'pe.bat.together': 'Insieme', 'pe.bat.single': 'Singolarmente', 'pe.bat.toggle': 'Tocca: mostra o nascondi',
+  'pe.bat.none': 'Tutte le batterie sono nascoste. Tocca una qui sopra per mostrarla.', 'pe.bat.noData': 'Home Assistant non ha valori per questo periodo.',
+  'pe.bat.err': 'Home Assistant non ha potuto inviare la cronologia in questo momento.', 'pe.bat.range': 'minimo {min} ({minAt}) · massimo {max} ({maxAt})',
+  'pe.bat.aria': 'Carica delle batterie in percentuale nel tempo', 'pe.bat.hint': 'Solo questo dispositivo ricorda questa scelta.',
 };

@@ -194,7 +194,8 @@ const layout = {
 const neighbor = {
   version: 1,
   // its own meters and price (⚡ Rechnung) and a sensor of what it uses now: "⚖ Vergleichen" on ⚡ Energie (#495) shows both houses
-  energy: { meters: { from: ['sensor.nachbar_netz_kwh'] }, price: { buy: 0.3 }, house: { entity: 'sensor.nachbar_leistung' } },
+  energy: { meters: { from: ['sensor.nachbar_netz_kwh'] }, price: { buy: 0.3 }, house: { entity: 'sensor.nachbar_leistung' },
+    battery: { level: 'sensor.nachbar_batterie' } },        // #515: a battery of its own, for the card "🔋 Ladestand" of two houses
   floors: [{
     id: 'n_eg', name: 'Erdgeschoss',
     stairs: [{ id: 'n_st1', name: 'Wandtreppe', type: 'wall', x: 7.76, z: 0.9, rot: 0, w: 0.9, turn: 'right', dir: 'up', floors: 1, landing: 1, path: [[0, 0], [0, 5.85], [-2.4, 5.85]] }],
@@ -296,6 +297,7 @@ const entities = {
   'sensor.netz_leistung':    { name: 'Netzbezug',              state: '450',  unit: 'W' },
   'sensor.nachbar_leistung': { name: 'Nachbarhaus Verbrauch',  state: '840',  unit: 'W', dc: 'power' },   // #495: ⚖ Vergleichen
   'sensor.nachbar_netz_kwh': { name: 'Nachbarhaus Netzbezug',  state: '5321.4', unit: 'kWh', dc: 'energy' },
+  'sensor.nachbar_batterie': { name: 'Hausspeicher',           state: '64',   unit: '%' },          // #515: 🔋 Ladestand of two houses
   'sensor.pv_leistung':      { name: 'PV Wechselrichter',      state: '3.2',  unit: 'kW' },
   'sensor.pv_string1':       { name: 'PV Modul 1',             state: '1100', unit: 'W' },
   'sensor.pv_string2':       { name: 'PV Modul 2',             state: '1050', unit: 'W' },
@@ -473,6 +475,7 @@ const DEMO_METERS = {
   devices: [{ id: 'sensor.waermepumpe_kwh', name: 'Wärmepumpe' }, { id: 'sensor.waschmaschine_kwh', name: 'Waschmaschine' },
     { id: 'sensor.fernseher_kwh', name: 'Fernseher' }, { id: 'sensor.kuehlschrank_kwh', name: 'Kühlschrank' }, { id: 'sensor.buero_pc_kwh', name: 'Büro (PC)' }],
   price: { buy: 0.32, sell: 0.08 },
+  levels: ['sensor.batterie_ladung'],                         // the charge of the battery in the energy dashboard (stat_soc, #515)
 };
 const wobble = (a, b) => { const x = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return x - Math.floor(x); };
 /** one day of the made-up house, hour by hour: what the meters count (kWh, gas and water in m³) */
@@ -511,6 +514,43 @@ function demoStats(q) {
     ids.forEach((i) => out[i].push([+a, Math.round(sum(a, b, DEMO_KEY[i]) * 1000) / 1000]));
   }
   return { stats: out, units: { 'sensor.gaszaehler': 'm³', 'sensor.wasserzaehler': 'm³', 'sensor.wasser_garten': 'm³' } };
+}
+/* ---- the charge of the batteries (#515, the card "🔋 Ladestand"): the house battery fills with the sun from 9 to 15 o'clock (more on a
+ * sunny day) and empties in the evening and at night, the neighbour's charges at night; both go on without a jump from one day to the
+ * next and end at their state now (the last 8 hours lead there) ---- */
+const DEMO_LEVELS = { 'sensor.batterie_ladung': 'main', 'sensor.nachbar_batterie': 'nb' };
+const smooth = (x) => { const k = Math.max(0, Math.min(1, x)); return k * k * (3 - 2 * k); };
+const dayNo = (d) => Math.round(+new Date(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+const peakOf = (n) => 55 + 43 * wobble(n, 99), lowOf = (n) => 12 + 10 * wobble(n, 31);
+const endOf = (n) => peakOf(n) - (peakOf(n) - lowOf(n + 1)) * 0.55;          // at midnight: on the way down from the day's peak
+function socBase(kind, ms) {
+  const d = new Date(ms), h = d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
+  if (kind === 'nb') return 52 + 28 * Math.sin((2 * Math.PI * (h - 9)) / 24) + 7 * Math.sin((2 * Math.PI * ms) / (3.3 * 86400000));
+  const n = dayNo(d), lo = lowOf(n), hi = peakOf(n);
+  if (h < 7) return endOf(n - 1) + (lo - endOf(n - 1)) * smooth(h / 7);
+  if (h < 9) return lo;
+  if (h < 15) return lo + (hi - lo) * smooth((h - 9) / 6);
+  if (h < 18) return hi;
+  return hi + (endOf(n) - hi) * smooth((h - 18) / 6);
+}
+function socAt(id, ms, now) {
+  const kind = DEMO_LEVELS[id], live = parseFloat(entities[id]?.state), base = socBase(kind, ms);
+  const pull = Number.isFinite(live) && ms <= now ? (live - socBase(kind, now)) * Math.max(0, 1 - (now - ms) / 28800000) : 0;
+  return Math.max(0, Math.min(100, base + pull));
+}
+/** recorder/statistics_during_period (mean, min, max) of the demo's charge sensors: only rows that are over, as in Home Assistant */
+function demoLevels(q) {
+  const start = +new Date(q.start), end = +new Date(q.end), now = Date.now(), stats = {};
+  const step = q.period === '5minute' ? 300000 : q.period === 'day' ? 86400000 : 3600000;
+  (q.ids || []).filter((i) => DEMO_LEVELS[i]).forEach((id) => {
+    const rows = [];
+    for (let a = start; a < end && a + step <= now; a = q.period === 'day' ? +new Date(new Date(a).getFullYear(), new Date(a).getMonth(), new Date(a).getDate() + 1) : a + step) {
+      const vals = Array.from({ length: 7 }, (_, k) => socAt(id, a + (k / 6) * step, now)), mean = vals.reduce((x, y) => x + y, 0) / vals.length;
+      rows.push([a, Math.round(mean * 10) / 10, Math.round(Math.min(...vals) * 10) / 10, Math.round(Math.max(...vals) * 10) / 10]);
+    }
+    stats[id] = rows;
+  });
+  return { stats, hist: {} };
 }
 /** five days of weather from today */
 function demoForecast() {
@@ -645,6 +685,7 @@ export function installDemoBackend() {
       return json({ entity_id: id, name });
     }
     if (path === 'api/energy/stats' && method === 'POST') return json(demoStats(JSON.parse(init.body || '{}')));
+    if (path === 'api/energy/levels' && method === 'POST') return json(demoLevels(JSON.parse(init.body || '{}')));
     if (path === 'api/forecast') return json({ forecast: demoForecast() });
     if (path === 'api/calendars') return json(DEMO_CALENDARS);
     if (path === 'api/calendar/events') {               // the calendar card (#495)

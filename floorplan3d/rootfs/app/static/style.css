@@ -1347,6 +1347,27 @@ button.tpChip:disabled { opacity: .35; }
 .pcRow b { font-size: 17px; white-space: nowrap; }
 .pcSum { font-weight: 700; } .pcSum .pcName { color: var(--muted); }
 .pcTile .peTileSub { font-weight: 600; }
+/* 🔋 Ladestand: the charge of the batteries (#515, batterycard.js) */
+.pbHead { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 8px; }
+.pbHead .peH { margin: 0; }
+.pbModes { margin-left: auto; }
+.pbChips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.pbBat { max-width: 100%; }
+.pbBat .pbName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.pbBat.off { opacity: .45; } .pbBat.off .pbName { text-decoration: line-through; }
+.pbSwatch { width: 18px; height: 8px; flex: none; }
+.pbPlot { position: relative; touch-action: pan-y; }
+.pbChart .pbCross { stroke: var(--text); stroke-opacity: .5; stroke-width: 1; pointer-events: none; }
+.pbChart .pbBand, .pbChart .pbLine { pointer-events: none; }
+.pbTip { position: absolute; top: 4px; z-index: 2; min-width: 120px; max-width: 70%; padding: 6px 9px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--text); font-size: 12px; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); pointer-events: none; }
+.pbTipRow { display: flex; align-items: center; gap: 6px; } .pbTipRow span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pbOne { padding-top: 8px; border-top: 1px solid var(--line); margin-top: 6px; }
+.pbChips + .pbOne { border-top: 0; margin-top: 0; }
+.pbOneHead { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.pbOneHead .pbName { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pbNote, .pbRange, .pbHint { margin: 6px 0 0; }
+.pbHint { font-size: 11px; }
 .peEmptyCard { color: var(--muted); }
 .tdCol { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .tdTime { font-size: clamp(48px, 7vw, 84px); font-weight: 800; letter-spacing: -.03em; line-height: 1; }

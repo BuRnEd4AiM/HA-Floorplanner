@@ -1,20 +1,23 @@
 /* The page ⚡ Energie of the tab bar (#481): today, a week, a month or a year of a house (or all houses together) from Home Assistant's
  * long-term statistics: used, from the sun, from the grid, fed in, made itself, what it cost, a bar per hour / day / month (made itself
- * and from the grid), the devices that used most, gas and water. The rules are in energyhistory.js (tested); this file asks the add-on
- * (api/energy/meters, api/energy/stats, api/layout of the other houses) and draws. */
+ * and from the grid), the devices that used most, gas and water, the charge of the batteries (#515, batterycard.js). The rules are in
+ * energyhistory.js and batterylevels.js (tested); this file asks the add-on (api/energy/meters, api/energy/stats, api/energy/levels,
+ * api/layout of the other houses) and draws. */
 import { KINDS, periodRange, isoLocal, houseMeters, mergeMeters, meterIds, hasMeters, bars, totals, cost, priceOf, topDevices, elapsed,
   fmtAmount, barMax, cleanMeters, compareMeters, compareHouses } from './energyhistory.js';
 import { initEnergyCompare } from './energycompare.js';
+import { cardBatteries, houseBatteries, levelPeriod } from './batterylevels.js';
+import { initBatteryCard } from './batterycard.js';
 
 const OWN = '#cc7a00', GRID = '#488fc2';           // made itself (sun, battery) / from the grid: the colours of "Strom jetzt", checked for colour blindness
 const ALL = '*', CMP = 'cmp';                     // all houses added up / side by side (⚖ Vergleichen, #495)
 
 /** ctx: t, el (the page), lang(), layout() (the house shown), houseId(), houses() ([{ id, name }]), changed() (the tab bar again: the page
- *  can have something now or not), board (pageboard.js, #484: keys tiles, chart, top, more; in ⚖ Vergleichen cmp:tiles, cmp:chart,
- *  cmp:now, cmp:cost), states() (the power of each house now) */
+ *  can have something now or not), board (pageboard.js, #484: keys tiles, chart, battery, top, more; in ⚖ Vergleichen cmp:tiles,
+ *  cmp:chart, cmp:now, cmp:cost, battery), states() (the power and the charge of each house now), nameOf(entity) (its name in Home Assistant) */
 export function initEnergyPage(ctx) {
   const { t, el } = ctx;
-  let ha = null, haErr = false, asking = null, askedAt = 0;   // Home Assistant's energy dashboard: { meters, devices, price }
+  let ha = null, haErr = false, asking = null, askedAt = 0;   // Home Assistant's energy dashboard: { meters, devices, price, levels }
   let kind = 'day', offset = 0, house = null, drawn = '', run = 0, forced = false;   // forced: a forced drawing overtaken by a newer one stays forced
   const layouts = new Map();                       // other houses: id -> layout (for their meters)
   let cmp = null, cmpGrid = null;                  // ⚖ Vergleichen: { p, stats } of the last statistics asked for, and its grid
@@ -28,8 +31,8 @@ export function initEnergyPage(ctx) {
     if (asking || (ha && !force)) return asking;
     askedAt = Date.now();
     asking = fetch('api/energy/meters').then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((x) => { ha = { meters: cleanMeters(x.meters), devices: Array.isArray(x.devices) ? x.devices : [], price: x.price || {} }; haErr = false; })
-      .catch(() => { ha = { meters: cleanMeters({}), devices: [], price: {} }; haErr = true; })
+      .then((x) => { ha = { meters: cleanMeters(x.meters), devices: Array.isArray(x.devices) ? x.devices : [], price: x.price || {}, levels: Array.isArray(x.levels) ? x.levels : [] }; haErr = false; })
+      .catch(() => { ha = { meters: cleanMeters({}), devices: [], price: {}, levels: [] }; haErr = true; })
       .finally(() => { asking = null; ctx.changed(); });
     return asking;
   }
@@ -51,6 +54,32 @@ export function initEnergyPage(ctx) {
     const lay = (await loadHouse(house || ctx.houseId())) || ctx.layout(), hm = houseMeters(lay.energy, ha.meters);
     return { ...hm, devices: hm.own ? [] : ha.devices, price: priceOf(lay.energy, ha.price) };
   }
+  /** the batteries of what is chosen (#515): one house, or every house (all houses, ⚖ Vergleichen), each in the colour of its house */
+  async function batteries(all) {
+    const houses = all ? ctx.houses() : ctx.houses().filter((h) => h.id === (house && house !== ALL && house !== CMP ? house : ctx.houseId()));
+    const list = houses.length ? houses : [{ id: ctx.houseId(), name: '' }];
+    const lays = await Promise.all(list.map((h) => loadHouse(h.id)));
+    return cardBatteries(list.map((h, i) => ({ id: h.id, name: h.name, layout: lays[i], ha: !houseMeters(lays[i]?.energy, ha.meters).own })), ctx.states?.() || {}, ha.levels, ctx.nameOf);
+  }
+  /** the charge of the batteries through the period (api/energy/levels): asked again at most every 5 minutes; null when it failed */
+  let lv = { sig: '', data: null, asking: null };
+  function levels(p, list, now) {
+    if (!list.length) return Promise.resolve(null);
+    const period = levelPeriod(p.kind, p.start, now), ids = list.map((b) => b.id);
+    const sig = `${ids.join()}|${+p.start}|${period}|${Math.floor(+now / 300000)}`;
+    if (lv.sig === sig) return lv.asking || Promise.resolve(lv.data);
+    const mine = { sig, data: null, asking: null };
+    mine.asking = fetch('api/energy/levels', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, start: isoLocal(p.start), end: isoLocal(p.end), period }) })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((x) => ({ stats: x.stats || {}, hist: x.hist || {}, at: Date.now() }))
+      .catch(() => null)
+      .then((d) => { mine.data = d; mine.asking = null; if (!d && lv === mine) lv = { sig: '', data: null, asking: null }; return d; });
+    lv = mine;
+    return mine.asking;
+  }
+  const batteryCard = initBatteryCard({ t, lang, states: () => ctx.states?.() || {}, label: (p, d, i) => label(p, d, i) });
+  const batteryItem = (p, list, data, now) => batteryCard.item(p, list, data, levelPeriod(p.kind, p.start, now), now);
 
   /* ---- drawing ---- */
   function title(p) {
@@ -154,19 +183,28 @@ export function initEnergyPage(ctx) {
     if (!ha || (haErr && force)) await probe(true);
     if (me !== run) return;
     if (house === CMP && ctx.houses().length > 1) { await renderCompare(me); return; }
-    const c = await chosen();
+    const [c, bats] = await Promise.all([chosen(), batteries(house === ALL && ctx.houses().length > 1)]);
     if (me !== run) return;
-    if (!hasMeters(c.meters)) { drawn = ''; empty(haErr ? t('pe.noHa') : t('pe.noMeters')); return; }
+    if (!hasMeters(c.meters) && !bats.length) { drawn = ''; empty(haErr ? t('pe.noHa') : t('pe.noMeters')); return; }
     const now = new Date(), p = periodRange(kind, offset, now), prev = periodRange(kind, offset - 1, now);
     const ids = meterIds(c.meters, c.devices);
-    const sig = `${house}|${kind}|${offset}|${ids.join()}|${Math.floor(+now / 300000)}`;      // again at most every 5 minutes
+    const sig = `${house}|${kind}|${offset}|${ids.join()}|${bats.map((b) => b.id).join()}|${Math.floor(+now / 300000)}`;      // again at most every 5 minutes
     if (!forced && sig === drawn) return;
-    let data;
+    if (!hasMeters(c.meters)) {                    // only batteries (#515): their card alone
+      const lvData = await levels(p, bats, now);
+      if (me !== run) return;
+      drawn = sig; forced = false;
+      const grid = make('div', 'peBoard');
+      el.replaceChildren(head(), nav(p, ''), grid);
+      ctx.board.fill('energy', grid, [batteryItem(p, bats, lvData, now)], { min: 280 });
+      return;
+    }
+    let data, lvData;
     try {
-      const r = await fetch('api/energy/stats', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids, start: isoLocal(prev.start), end: isoLocal(p.end), period: p.period }) });
+      const [r, l] = await Promise.all([fetch('api/energy/stats', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, start: isoLocal(prev.start), end: isoLocal(p.end), period: p.period }) }), levels(p, bats, now)]);
       if (!r.ok) throw new Error(String(r.status));
-      data = await r.json();
+      data = await r.json(); lvData = l;
     } catch { if (me === run) empty(t('pe.noHa')); return; }
     if (me !== run) return;
     drawn = sig; forced = false;
@@ -192,6 +230,7 @@ export function initEnergyPage(ctx) {
     legend.append(make('span', 'tpSub', 'kWh'));
     card.append(legend);
     items.push({ key: 'chart', el: card, width: 3 });
+    items.push(batteryItem(p, bats, lvData, now));
     const top = topDevices(stats, c.devices, p.start, p.end);
     if (top.length) {
       const box = make('div', 'tpCard peTop');
@@ -222,34 +261,41 @@ export function initEnergyPage(ctx) {
     const houses = ctx.houses(), lays = await Promise.all(houses.map((h) => loadHouse(h.id)));
     if (me !== run) return;
     const list = compareMeters(houses.map((h, i) => ({ id: h.id, name: h.name, energy: lays[i]?.energy })), ha.meters, ha.price);
-    const ids = [...new Set(list.flatMap((h) => meterIds(h.meters)))];
-    if (!ids.length) { drawn = ''; cmp = null; empty(haErr ? t('pe.noHa') : t('pe.noMeters')); return; }
+    const ids = [...new Set(list.flatMap((h) => meterIds(h.meters)))], bats = await batteries(true);
+    if (me !== run) return;
+    if (!ids.length && !bats.length) { drawn = ''; cmp = null; empty(haErr ? t('pe.noHa') : t('pe.noMeters')); return; }
     const now = new Date(), p = periodRange(kind, offset, now);
     const sig = `${CMP}|${kind}|${offset}|${ids.join()}|${Math.floor(+now / 300000)}`;
     if (forced || sig !== drawn || !cmp || !cmpGrid || !el.contains(cmpGrid)) {
-      let data;
+      let data = { stats: {} };
       try {
-        const r = await fetch('api/energy/stats', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids, start: isoLocal(p.start), end: isoLocal(p.end), period: p.period }) });
-        if (!r.ok) throw new Error(String(r.status));
-        data = await r.json();
+        if (ids.length) {
+          const r = await fetch('api/energy/stats', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids, start: isoLocal(p.start), end: isoLocal(p.end), period: p.period }) });
+          if (!r.ok) throw new Error(String(r.status));
+          data = await r.json();
+        }
       } catch { if (me === run) empty(t('pe.noHa')); return; }
       if (me !== run) return;
       drawn = sig; forced = false; cmp = { p, stats: data.stats || {} };
       cmpGrid = make('div', 'peBoard');
       el.replaceChildren(head(), nav(p, t('pe.cmp.note')), cmpGrid);
     }
+    const lvData = await levels(cmp.p, bats, now);
+    if (me !== run) return;
     const c = compareHouses(list, cmp.stats, cmp.p.buckets, cmp.p.end);
-    ctx.board.fill('energy', cmpGrid, compare.items(cmp.p, c, Object.fromEntries(houses.map((h, i) => [h.id, lays[i]])), now), { min: 280 });
+    const items = ids.length ? compare.items(cmp.p, c, Object.fromEntries(houses.map((h, i) => [h.id, lays[i]])), now) : [];
+    ctx.board.fill('energy', cmpGrid, [...items, batteryItem(cmp.p, bats, lvData, now)], { min: 280 });
   }
   const compare = initEnergyCompare({ t, lang, states: () => ctx.states?.() || {}, label, barName });
   return {
     render: () => render(true), update: () => render(false),
     has: () => {
       if (!ha || (haErr && Date.now() - askedAt > 300000)) probe(true);           // Home Assistant was not there: ask again every 5 minutes
-      return hasMeters(houseMeters(ctx.layout().energy, ha?.meters).meters);
+      const hm = houseMeters(ctx.layout().energy, ha?.meters);
+      return hasMeters(hm.meters) || houseBatteries(ctx.layout(), ctx.states?.() || {}, hm.own ? [] : ha?.levels, ctx.nameOf).length > 0;   // or only a battery (#515)
     },
-    reset: () => { run++; drawn = ''; house = null; cmp = null; cmpGrid = null; },
+    reset: () => { run++; drawn = ''; house = null; cmp = null; cmpGrid = null; lv = { sig: '', data: null, asking: null }; },
     probe,
   };
 }
