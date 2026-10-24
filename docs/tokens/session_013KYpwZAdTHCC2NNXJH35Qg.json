@@ -1,0 +1,20 @@
+{
+ "session": "session_013KYpwZAdTHCC2NNXJH35Qg",
+ "start": "2026-10-23",
+ "updated": "2026-10-24T00:34:54Z",
+ "branch": "claude/battery-levels",
+ "source": "counted",
+ "input": 218,
+ "cache_write": 299168,
+ "cache_read": 25542718,
+ "output": 99751,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 218,
+   "cache_write": 299168,
+   "cache_read": 25542718,
+   "output": 99751,
+   "requests": 109
+  }
+ }
+}

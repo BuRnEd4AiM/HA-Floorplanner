@@ -1713,4 +1713,8 @@ export default {
   'vc.keysHelp': 'Bez https (np. http://homeassistant.local:8123) i w aplikacjach bez Assist żadna strona nie może używać mikrofonu. Wtedy 🎤 korzysta z dyktowania klawiatury: dotknij 🎤, potem 🎤 klawiatury (na PC klawisz Windows + H) i mów. Bez ustawiania, tylko jedno dotknięcie więcej.',
   'vc.st.direct': 'Żeby 🎤 słuchał sam (bez klawiatury), wystarczy jedno z tych:',
   'vk.r.keys': 'Tutaj 🎤 nie słucha sam, korzysta z dyktowania klawiatury. Nie trzeba nic ustawiać.',
+  'pe.bat.title': 'Naładowanie baterii', 'pe.bat.together': 'Razem', 'pe.bat.single': 'Osobno', 'pe.bat.toggle': 'Dotknij: pokaż lub ukryj',
+  'pe.bat.none': 'Wszystkie baterie są ukryte. Dotknij jednej powyżej, aby ją pokazać.', 'pe.bat.noData': 'Home Assistant nie ma wartości dla tego okresu.',
+  'pe.bat.err': 'Home Assistant nie mógł teraz przesłać historii.', 'pe.bat.range': 'najniżej {min} ({minAt}) · najwyżej {max} ({maxAt})',
+  'pe.bat.aria': 'Naładowanie baterii w procentach w czasie', 'pe.bat.hint': 'Tylko to urządzenie zapamiętuje ten wybór.',
 };

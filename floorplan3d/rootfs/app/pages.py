@@ -1,6 +1,6 @@
 """Data for the pages of the tab bar (#481): what the add-on asks Home Assistant for the pages ⚡ Energie (the meters of its energy
-dashboard and their long-term statistics) and ☀ Heute (the weather forecast and the calendars), checked and cut down to what the pages
-show; for 👨‍👩‍👧 Familie (#483) the people with the battery of their phone, and the notes of the pinboard the add-on keeps. Pure
+dashboard and their long-term statistics, the charge of the batteries, #515) and ☀ Heute (the weather forecast and the calendars), checked
+and cut down to what the pages show; for 👨‍👩‍👧 Familie (#483) the people with the battery of their phone, and the notes of the pinboard the add-on keeps. Pure
 functions (unit test: tests/test_pages.py); server.py does the asking and the storing."""
 import math
 import re
@@ -15,6 +15,10 @@ PERIODS = ("hour", "day", "week", "month")
 METER_KEYS = ("from", "to", "solar", "batIn", "batOut", "gas", "water")   # grid import, export, solar, into / out of the battery, gas, water
 MAX_IDS = 60
 MAX_SPAN_DAYS = {"hour": 8, "day": 70, "week": 800, "month": 800}   # the page asks for a period and the one before: 2 days, 2 months, 2 years
+ENTITY_ID = re.compile(r"^[a-z_]+\.[a-z0-9_]{1,200}$")
+LEVEL_PERIODS = {"5minute": 2, "hour": 32, "day": 370}          # the charge of the batteries (#515): a day, a week or a month, a year (days)
+MAX_LEVELS = 12
+HISTORY_DAYS = 8                                                 # a sensor without statistics: its history, for at most a week
 
 
 def _num(v):
@@ -27,10 +31,11 @@ def _stat(v):
 
 def energy_meters(prefs) -> dict:
     """What Home Assistant's energy dashboard counts with, by kind: {"meters": {from, to, solar, batIn, batOut, gas, water: [ids]},
-    "devices": [{"id", "name"}], "price": {"buy", "sell"} (fixed prices per kWh, when it has them)}. Both the flat form of the sources
-    (stat_energy_from / stat_energy_to on the grid itself) and the older one (flow_from / flow_to) are read."""
+    "devices": [{"id", "name"}], "price": {"buy", "sell"} (fixed prices per kWh, when it has them), "levels": [the charge sensors of its
+    batteries, stat_soc, #515]}. Both the flat form of the sources (stat_energy_from / stat_energy_to on the grid itself) and the older
+    one (flow_from / flow_to) are read."""
     meters = {k: [] for k in METER_KEYS}
-    price, devices = {}, []
+    price, devices, levels = {}, [], []
 
     def add(kind, v):
         s = _stat(v)
@@ -59,13 +64,16 @@ def energy_meters(prefs) -> dict:
         elif kind == "battery":
             add("batOut", src.get("stat_energy_from"))                 # out of the battery into the house
             add("batIn", src.get("stat_energy_to"))
+            soc = src.get("stat_soc")
+            if isinstance(soc, str) and ENTITY_ID.match(soc) and soc not in levels:
+                levels.append(soc)
         elif kind in ("gas", "water"):
             add(kind, src.get("stat_energy_from"))
     for d in (prefs or {}).get("device_consumption") or []:
         s = _stat(d.get("stat_consumption")) if isinstance(d, dict) else None
         if s and all(x["id"] != s for x in devices):
             devices.append({"id": s, "name": (d.get("name") or "")[:80] if isinstance(d.get("name"), str) else ""})
-    return {"meters": meters, "devices": devices[:40], "price": price}
+    return {"meters": meters, "devices": devices[:40], "price": price, "levels": levels[:MAX_LEVELS]}
 
 
 def _when(v):
@@ -147,6 +155,80 @@ def slim_stats(result, metadata=None, period: str = "hour") -> dict:
             pts.append([a, round(v, 4) if v is not None else None])
         out[sid] = pts[:800]
     return {"stats": out, "units": units}
+
+
+def clean_levels_request(body):
+    """The page's question for the charge of batteries (#515): ({ids, start, end, period, history}, None) or (None, why it is refused).
+    ids: entities (at most MAX_LEVELS), period: 5minute (a day), hour (a week, a month) or day (a year); history: whether a sensor without
+    statistics may be read from Home Assistant's history instead (a span of at most HISTORY_DAYS)."""
+    if not isinstance(body, dict):
+        return None, "invalid request"
+    ids = []
+    for v in body.get("ids") if isinstance(body.get("ids"), list) else []:
+        if isinstance(v, str) and ENTITY_ID.match(v) and v not in ids:
+            ids.append(v)
+    if not ids:
+        return None, "no sensors asked for"
+    if len(ids) > MAX_LEVELS:
+        return None, "too many sensors"
+    start, end = _when(body.get("start")), _when(body.get("end"))
+    if not start or not end or end <= start:
+        return None, "start and end must be dates with a time zone, end after start"
+    period = body.get("period")
+    if period not in LEVEL_PERIODS:
+        return None, "unknown period"
+    if (end - start).days > LEVEL_PERIODS[period]:
+        return None, "too long a span"
+    return {"ids": ids, "start": start.isoformat(), "end": end.isoformat(), "period": period,
+            "history": (end - start).total_seconds() <= HISTORY_DAYS * 86400}, None
+
+
+def slim_levels(result) -> dict:
+    """recorder/statistics_during_period (types: mean, min, max) for charge sensors -> {id: [[start ms, mean, min, max], ...]} (%, rounded
+    to 0.1; a row without a mean is left out), at most 800 rows each (a month by hours: 744)"""
+    out = {}
+    for sid, rows in (result or {}).items():
+        if not isinstance(sid, str) or not ENTITY_ID.match(sid) or not isinstance(rows, list):
+            continue
+        pts = []
+        for r in rows:
+            a = _ms(r.get("start")) if isinstance(r, dict) else None
+            mean = _num(r.get("mean")) if isinstance(r, dict) else None
+            if a is None or mean is None:
+                continue
+            lo, hi = _num(r.get("min")), _num(r.get("max"))
+            pts.append([a, round(mean, 1), round(lo if lo is not None else mean, 1), round(hi if hi is not None else mean, 1)])
+        if pts:
+            out[sid] = pts[:800]
+    return out
+
+
+def slim_level_history(data, ids, cap: int = 600) -> dict:
+    """Home Assistant's /api/history/period answer for several sensors (minimal_response: the entity only in the first row of each
+    list) -> {id: [[ms, value], ...]} of the numbers, at most `cap` each (evenly picked, the first and the last kept)"""
+    out = {}
+    for series in data if isinstance(data, list) else []:
+        if not isinstance(series, list) or not series or not isinstance(series[0], dict):
+            continue
+        sid = series[0].get("entity_id")
+        if sid not in ids or sid in out:
+            continue
+        rows = []
+        for r in series:
+            if isinstance(r, dict):
+                t = _ms(r.get("last_changed") or r.get("last_updated"))
+                try:
+                    v = float(r.get("state"))
+                except (TypeError, ValueError):
+                    continue
+                if t is not None and math.isfinite(v):
+                    rows.append([t, round(v, 1)])
+        if len(rows) > cap:
+            step = (len(rows) - 1) / (cap - 1)
+            rows = [rows[round(i * step)] for i in range(cap)]
+        if rows:
+            out[sid] = rows
+    return out
 
 
 def slim_forecast(response, entity: str) -> list:

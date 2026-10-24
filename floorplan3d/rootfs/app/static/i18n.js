@@ -667,6 +667,11 @@ const DICT = {
     'vc.keysHelp': 'Ohne https (z. B. http://homeassistant.local:8123) und in Apps ohne Assist darf keine Seite das Mikrofon benutzen. Dann nimmt das 🎤 das Diktat der Tastatur: 🎤 tippen, dann das 🎤 der Tastatur (am PC Windows-Taste + H) und sprechen. Das geht ohne Einrichtung, nur mit einem Tipp mehr.',
     'vc.st.direct': 'Damit das 🎤 selbst zuhört (ohne Tastatur), ginge eins davon:',
     'vk.r.keys': 'Hier hört das 🎤 nicht selbst zu, es nimmt das Diktat der Tastatur. Das geht ohne Einrichtung.',
+    'pe.bat.title': 'Ladestand', 'pe.bat.together': 'Zusammen', 'pe.bat.single': 'Einzeln', 'pe.bat.toggle': 'Antippen: zeigen oder ausblenden',
+    'pe.bat.none': 'Alle Batterien sind ausgeblendet. Tippe oben auf eine, um sie wieder zu zeigen.',
+    'pe.bat.noData': 'Für diesen Zeitraum hat Home Assistant keine Werte.', 'pe.bat.err': 'Den Verlauf konnte Home Assistant gerade nicht liefern.',
+    'pe.bat.range': 'tiefster Stand {min} ({minAt}) · höchster {max} ({maxAt})', 'pe.bat.aria': 'Ladestand der Batterien in Prozent über die Zeit',
+    'pe.bat.hint': 'Diese Auswahl merkt sich nur dieses Gerät.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -1305,6 +1310,10 @@ const DICT = {
     'vc.keysHelp': 'Without https (e.g. http://homeassistant.local:8123) and in apps without Assist no page may use the microphone. Then the 🎤 takes the keyboard’s dictation: tap 🎤, then the keyboard’s 🎤 (on a PC Windows key + H) and speak. It needs no setup, just one more tap.',
     'vc.st.direct': 'For the 🎤 to listen itself (without the keyboard), one of these would do:',
     'vk.r.keys': 'Here the 🎤 does not listen itself, it takes the keyboard’s dictation. That needs no setup.',
+    'pe.bat.title': 'Battery charge', 'pe.bat.together': 'Together', 'pe.bat.single': 'One by one', 'pe.bat.toggle': 'Tap: show or hide',
+    'pe.bat.none': 'All batteries are hidden. Tap one above to show it again.', 'pe.bat.noData': 'Home Assistant has no values for this period.',
+    'pe.bat.err': 'Home Assistant could not send the history just now.', 'pe.bat.range': 'lowest {min} ({minAt}) · highest {max} ({maxAt})',
+    'pe.bat.aria': 'Charge of the batteries in percent over time', 'pe.bat.hint': 'Only this device remembers this choice.',
   },
 };
 

@@ -1738,4 +1738,9 @@ export default {
   'vc.keysHelp': 'Sans https (p. ex. http://homeassistant.local:8123) et dans les applis sans Assist, aucune page ne peut utiliser le micro. Le 🎤 prend alors la dictée du clavier : touche 🎤, puis le 🎤 du clavier (sur PC touche Windows + H) et parle. Sans réglage, juste une touche de plus.',
   'vc.st.direct': 'Pour que le 🎤 écoute lui-même (sans clavier), l’un de ceux-ci suffirait :',
   'vk.r.keys': 'Ici le 🎤 n’écoute pas lui-même, il prend la dictée du clavier. Aucun réglage n’est nécessaire.',
+  'pe.bat.title': 'Charge de la batterie', 'pe.bat.together': 'Ensemble', 'pe.bat.single': 'Séparément', 'pe.bat.toggle': 'Toucher : afficher ou masquer',
+  'pe.bat.none': 'Toutes les batteries sont masquées. Touchez-en une ci-dessus pour l’afficher.',
+  'pe.bat.noData': 'Home Assistant n’a pas de valeurs pour cette période.', 'pe.bat.err': 'Home Assistant n’a pas pu fournir l’historique pour le moment.',
+  'pe.bat.range': 'plus bas {min} ({minAt}) · plus haut {max} ({maxAt})', 'pe.bat.aria': 'Charge des batteries en pour cent au fil du temps',
+  'pe.bat.hint': 'Seul cet appareil retient ce choix.',
 };

@@ -2220,6 +2220,41 @@ async def post_energy_stats(request):
     return web.json_response(pages.slim_stats(res, meta, q["period"]))
 
 
+async def post_energy_levels(request):
+    """The charge of batteries (%) through a span (#515, the card "🔋 Ladestand" of ⚡ Energie): Home Assistant's statistics (mean, min,
+    max per 5 minutes, hour or day); a sensor without statistics (no state_class) from its history, when the span is a week or less.
+    Kept 2 minutes."""
+    if "energy" in user_locks(request):
+        return web.json_response({"error": "the energy is locked for this user"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no Home Assistant (standalone mode)"}, status=503)
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    q, err = pages.clean_levels_request(body)
+    if err:
+        return web.json_response({"error": err}, status=400)
+    key = ("levels", tuple(q["ids"]), q["start"], q["end"], q["period"])
+    hit = pages_cached(request, key, 120)
+    if hit is not None:
+        return web.json_response(hit)
+    try:
+        async with _HaSocket() as ws:
+            res = await rn.ask(ws, 1, {"type": "recorder/statistics_during_period", "start_time": q["start"], "end_time": q["end"],
+                                       "statistic_ids": q["ids"], "period": q["period"], "types": ["mean", "min", "max"]}, [])
+        stats, hist = pages.slim_levels(res), {}
+        missing = [i for i in q["ids"] if i not in stats]
+        if missing and q["history"]:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=20)) as s:
+                async with s.get(f"{HA_API}/history/period/{q['start']}", headers=ha_headers(),
+                                 params={"filter_entity_id": ",".join(missing), "end_time": q["end"], "minimal_response": "", "no_attributes": ""}) as r:
+                    hist = pages.slim_level_history(await r.json(), missing) if r.status == 200 else {}
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    return web.json_response(pages_keep(request, key, {"stats": stats, "hist": hist}))
+
+
 async def get_forecast(request):
     """The forecast of a weather entity (daily or hourly), kept for 15 minutes."""
     entity, kind = request.query.get("entity", ""), request.query.get("type", "daily")
@@ -3189,6 +3224,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/energy/meters", get_energy_meters),
         web.get("/api/energy/counters", get_energy_counters), web.post("/api/energy/counter", make_energy_counter),
         web.post("/api/energy/stats", post_energy_stats),
+        web.post("/api/energy/levels", post_energy_levels),
         web.get("/api/forecast", get_forecast),
         web.get("/api/calendars", get_calendars),
         web.get("/api/agenda", get_agenda),

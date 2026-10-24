@@ -13,6 +13,7 @@ COVER_POS = {}     # covers with a position (current_position), from set_cover_p
 ENERGY = {"prefs": None, "registry": {}}   # the energy dashboard (energy/get_prefs, #407) and more registry entries (entity -> device): POST /_energy
 NOTIFIED = []      # messages sent (#414): ["ha", service, message] through notify.*, ["ha_entity", "notify.a,notify.b", message] through notify.send_message (#460), ["callmebot", phone, text, apikey] through /_callmebot
 STATS_ASKED = []   # the statistics the add-on asked for (#479): [ids, period]
+LEVELS_ASKED = []  # the charge of batteries asked for (types mean, min, max; #515): [ids, period]
 EXTRA = {}         # more entities with their attributes (#406: music, vacuum, fan, alarm ...): POST /_extra {entity: {state, attributes[, platform][, device]}}, {} takes them away; with "platform" or "device" also in the entity registry (#460, #483: a phone and its battery)
 FLOWS = []         # #501: the config flows started and their steps ("＋ Zähler anlegen": Home Assistant's Integral helper), GET /_flows
 CAL_NEW = {}       # #495: the events "＋ Termin" of the calendar card made: {calendar: [event]}; GET /_calreset forgets them
@@ -174,6 +175,9 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
             ok = ENERGY["prefs"] is not None
             await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": ENERGY["prefs"] if ok else None,
                                 **({} if ok else {"error": {"code": "not_found", "message": "No prefs"}})})
+        elif m.get("type") == "recorder/statistics_during_period" and "change" not in (m.get("types") or []):   # #515: the charge of batteries
+            LEVELS_ASKED.append([m.get("statistic_ids"), m.get("period")])
+            await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": level_rows(m)})
         elif m.get("type") == "recorder/statistics_during_period":   # #479: the history of the page "Energie": a little per period
             STATS_ASKED.append([m.get("statistic_ids"), m.get("period")])
             await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": stat_rows(m)})
@@ -207,6 +211,24 @@ def stat_rows(m):
             t += step
         out[i] = rows
     return out
+def level_rows(m):
+    """#515: the charge (%) of every sensor in every 5 minutes / hour / day between start and end (not after now): mean, min and max,
+    up and down through the rows; a sensor with "nostat" in its name has no statistics (no state_class: the add-on reads its history)"""
+    import datetime as dt
+    a, b = dt.datetime.fromisoformat(m["start_time"]), min(dt.datetime.fromisoformat(m["end_time"]), dt.datetime.now(dt.timezone.utc))
+    step = {"5minute": dt.timedelta(minutes=5), "hour": dt.timedelta(hours=1), "day": dt.timedelta(days=1)}[m["period"]]
+    out = {}
+    for i in m.get("statistic_ids") or []:
+        if "nostat" in i:
+            continue
+        rows, t, k = [], a, 0
+        while t + step <= b:
+            v = 20 + (k % 13) * 6
+            rows.append({"start": t.timestamp() * 1000, "end": (t + step).timestamp() * 1000, "mean": v, "min": v - 4, "max": v + 4})
+            t += step; k += 1
+        out[i] = rows
+    return out
+async def levels_asked(r): return web.json_response(LEVELS_ASKED)
 async def calendars(r):           # #479: Home Assistant's calendars and their events (page "Heute")
     return web.json_response([{"entity_id": "calendar.familie", "name": "Familie"}, {"entity_id": "calendar.muell", "name": "Müllabfuhr"}])
 async def calendar_events(r):
@@ -322,7 +344,7 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
-                web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_calreset", cal_reset), web.post("/config/config_entries/flow", flow_start), web.post("/config/config_entries/flow/{id}", flow_step), web.get("/_flows", flows), web.get("/_stats", stats_asked),
+                web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_calreset", cal_reset), web.post("/config/config_entries/flow", flow_start), web.post("/config/config_entries/flow/{id}", flow_step), web.get("/_flows", flows), web.get("/_stats", stats_asked), web.get("/_levels", levels_asked),
                 web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),
                 web.get("/history/period/{start}", history), web.get("/_history", history_asked),
                 web.post("/_todo", set_todo), web.post("/_hist", set_hist), web.get("/api/media_player_proxy/{e}", media_proxy)])

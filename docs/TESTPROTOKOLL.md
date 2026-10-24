@@ -304,7 +304,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509) | 0 | 0 | 11 | 3 | 96.1 bis 96.10, 96.14 |
 | 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511) | 0 | 0 | 5 | 2 | 97.1 bis 97.4, 97.7 |
 | 98. Neu in 4.20.0: 🎤 ohne https mit dem Diktat der Tastatur (#513) | 0 | 0 | 3 | 2 | 98.1 bis 98.3 |
-| **Zusammen** | **492** | **5** | **213** | **61** | |
+| 99. Neu in 4.21.0: 🔋 Ladestand der Batterien auf ⚡ Energie (#515) | 0 | 0 | 8 | 2 | 99.1 bis 99.8 |
+| **Zusammen** | **492** | **5** | **221** | **63** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1569,3 +1570,18 @@ Der Besitzer: „das muss ja einfach Plug and Play funktionieren … man kann ja
 | 98.3 | ⚙ → 🎤 Sprachsuche ansehen | In der Liste „✓ Auf diesem Gerät: 🎤 mit dem Diktat der Tastatur“ und wie man diktiert; danach wieder „Automatisch“ wählen | ❓ |
 | 98.4 | Im Add-on über http:// (z. B. http://homeassistant.local:8123) am Wandtablet (Fully Kiosk) oder in der Home-Assistant-App, Einstellung „Automatisch“: 🎤 tippen, dann das 🎤 der Tastatur, fragen | Ohne etwas einzurichten (kein https, kein Whisper) wird die Frage beantwortet | ➖ |
 | 98.5 | Im Add-on über http:// am PC (Chrome oder Edge): 🎤 tippen, dann Windows-Taste + H, fragen | Wie 98.4 | ➖ |
+
+## 99. Neu in 4.21.0: 🔋 Ladestand der Batterien auf ⚡ Energie (#515)
+Der Besitzer: „dass man den Batterieladezustand nachvollziehen kann in einer Art Diagramm … alles zusammen sehen oder nur einzeln … auch für unterschiedliche Häuser“. In der Demo hat das Demo-Haus die „Hausbatterie“, das Nachbarhaus einen „Hausspeicher“.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 99.1 | In der Demo unten „⚡ Energie“, oben „Demo-Haus“ | Eine Karte „🔋 Ladestand“ mit einer Linie durch den Tag bis „jetzt“, oben ein Knopf „Hausbatterie 82 %“, darunter „tiefster Stand … · höchster …“ | ❓ |
+| 99.2 | Oben „Alle Häuser“ | In der Karte zwei Knöpfe „Demo-Haus · Hausbatterie“ (blau) und „Nachbarhaus · Hausspeicher“ (orange), zwei Linien, rechts oben „Zusammen“ und „Einzeln“ | ❓ |
+| 99.3 | Mit der Maus über die Linien fahren (am Tablet auf die Grafik tippen) | Ein Kästchen mit der Uhrzeit und dem Ladestand jeder Batterie an dieser Stelle | ❓ |
+| 99.4 | „Einzeln“ antippen | Je Batterie ein eigenes kleines Bild mit Name, tiefstem und höchstem Stand | ❓ |
+| 99.5 | Den Knopf „Nachbarhaus · Hausspeicher“ antippen, dann noch einmal | Erst durchgestrichen und sein Bild ist weg, dann wieder da | ❓ |
+| 99.6 | „Einzeln“ lassen, die Seite neu laden (Strg+F5), wieder „⚡ Energie“ → „Alle Häuser“ | Immer noch „Einzeln“: das Gerät hat sich die Wahl gemerkt (ein anderes Gerät hat seine eigene) | ❓ |
+| 99.7 | Oben „Woche“, dann „Monat“, dann „Jahr“, mit ‹ zurück | Die Linien gehen über die Woche (Tag für Tag auf und ab), den Monat und das Jahr | ❓ |
+| 99.8 | Oben „⚖ Vergleichen“ | Unter den Karten der Häuser auch hier „🔋 Ladestand“ mit beiden Batterien | ❓ |
+| 99.9 | Im Add-on: ⚡ Energie mit deiner echten Batterie (Strom-Editor → ⚡ Rechnung → Batterie → Ladestand, oder eine Batterie im Plan) | Die Linie passt zu dem, was Home Assistant im Verlauf des Sensors zeigt | ➖ |
+| 99.10 | Im Add-on mit zwei Häusern, jedes mit seiner Batterie: „Alle Häuser“ | Beide Batterien, jede in der Farbe ihres Hauses | ➖ |

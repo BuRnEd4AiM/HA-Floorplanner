@@ -29,7 +29,15 @@ def test_meters_from_the_older_nested_form_and_nothing():
     assert m["meters"]["from"] == ["sensor.t1", "sensor.t2"] and m["meters"]["to"] == ["sensor.out"] and m["meters"]["solar"] == ["solar:external"]
     assert m["price"] == {"buy": 0.3, "sell": 0.07}
     empty = pages.energy_meters(None)
-    assert all(v == [] for v in empty["meters"].values()) and empty["devices"] == [] and empty["price"] == {}
+    assert all(v == [] for v in empty["meters"].values()) and empty["devices"] == [] and empty["price"] == {} and empty["levels"] == []
+
+
+def test_the_charge_sensors_of_the_energy_dashboard():
+    """#515: stat_soc of each battery (an entity, each once) for the card 🔋 Ladestand"""
+    prefs = {"energy_sources": [{"type": "battery", "stat_energy_from": "sensor.b1_out", "stat_soc": "sensor.b1_soc"},
+                                {"type": "battery", "stat_soc": "sensor.b1_soc"}, {"type": "battery", "stat_soc": "ext:soc"},
+                                {"type": "battery", "stat_soc": "sensor.b2_soc"}, {"type": "grid", "stat_soc": "sensor.no"}]}
+    assert pages.energy_meters(prefs)["levels"] == ["sensor.b1_soc", "sensor.b2_soc"]
 
 
 def test_a_question_for_statistics_is_checked():
@@ -75,6 +83,36 @@ def test_a_power_sensor_as_a_meter_counts_its_mean():
     assert out["stats"]["sensor.old_w"] == [[t, 36.0]]                                  # 1500 W for a day: 36 kWh
     assert out["units"] == {"sensor.pv_w": "kWh", "sensor.old_w": "kWh"}
     assert pages.slim_stats({"sensor.d": [{"start": t, "mean": 1}]}, [{"statistic_id": "sensor.d", "unit_class": "power"}], "day")["stats"]["sensor.d"] == [[t, 24.0]]
+
+
+def test_a_question_for_the_charge_of_batteries_is_checked():
+    """#515: entities only, each once, at most 12; 5 minutes for a day, hours for a month, days for a year; history only up to a week"""
+    day = {"ids": ["sensor.soc", "sensor.soc", "bad id", "x:y"], "start": "2026-10-21T00:00:00+02:00", "end": "2026-10-22T00:00:00+02:00", "period": "5minute"}
+    ok, err = pages.clean_levels_request(day)
+    assert err is None and ok["ids"] == ["sensor.soc"] and ok["period"] == "5minute" and ok["history"] is True
+    month = {**day, "start": "2026-10-01T00:00:00+02:00", "end": "2026-11-01T00:00:00+01:00", "period": "hour"}
+    assert pages.clean_levels_request(month)[0]["history"] is False
+    year = {**day, "start": "2026-01-01T00:00:00+01:00", "end": "2027-01-01T00:00:00+01:00", "period": "day"}
+    assert pages.clean_levels_request(year)[1] is None
+    for bad in [{**day, "ids": ["x:y"]}, {**day, "period": "week"}, {**day, "end": "2026-10-24T00:00:00+02:00"},          # 3 days in 5 minutes
+                {**month, "end": "2026-12-01T00:00:00+01:00"}, {**day, "start": "2026-10-21T00:00:00"}, {**day, "end": day["start"]},
+                {**day, "ids": [f"sensor.s{i}" for i in range(13)]}, "junk"]:
+        assert pages.clean_levels_request(bad)[0] is None, bad
+
+
+def test_the_charge_answer_is_cut_down():
+    t = 1761000000000
+    res = {"sensor.soc": [{"start": t, "mean": 51.234, "min": 40, "max": 60.06}, {"start": t + 300000, "mean": None}, {"start": "2026-10-21T02:00:00+00:00", "mean": 70}],
+           "sensor.empty": [{"start": t, "mean": None}], "bad id": [{"start": t, "mean": 1}], "sensor.x": "junk"}
+    assert pages.slim_levels(res) == {"sensor.soc": [[t, 51.2, 40, 60.1], [1792548000000, 70, 70, 70]]}     # without min and max: the mean; an ISO start
+    assert pages.slim_levels(None) == {}
+    hist = [[{"entity_id": "sensor.a", "state": "80", "last_changed": "2026-10-21T00:00:00+00:00"}, {"state": "unavailable", "last_changed": "2026-10-21T01:00:00+00:00"},
+             {"state": "75.55", "last_changed": "2026-10-21T02:00:00+00:00"}],
+            [{"entity_id": "sensor.other", "state": "1", "last_changed": "2026-10-21T00:00:00+00:00"}], "junk"]
+    assert pages.slim_level_history(hist, ["sensor.a"]) == {"sensor.a": [[1792540800000, 80.0], [1792548000000, 75.5]]}
+    many = [[{"entity_id": "sensor.a", "state": str(i), "last_changed": t + i * 1000} for i in range(1000)]]
+    rows = pages.slim_level_history(many, ["sensor.a"], 100)["sensor.a"]
+    assert len(rows) == 100 and rows[0][1] == 0 and rows[-1][1] == 999
 
 
 def test_forecast_and_events():

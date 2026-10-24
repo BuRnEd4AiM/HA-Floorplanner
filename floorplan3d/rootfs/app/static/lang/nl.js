@@ -1710,4 +1710,9 @@ export default {
   'vc.keysHelp': 'Zonder https (bijv. http://homeassistant.local:8123) en in apps zonder Assist mag geen pagina de microfoon gebruiken. Dan neemt de 🎤 het dicteren van het toetsenbord: tik op 🎤, dan op de 🎤 van het toetsenbord (op een pc Windows-toets + H) en spreek. Zonder instellen, alleen één tik meer.',
   'vc.st.direct': 'Om de 🎤 zelf te laten luisteren (zonder toetsenbord), volstaat een hiervan:',
   'vk.r.keys': 'Hier luistert de 🎤 niet zelf, hij neemt het dicteren van het toetsenbord. Daarvoor hoeft niets ingesteld te worden.',
+  'pe.bat.title': 'Laadtoestand', 'pe.bat.together': 'Samen', 'pe.bat.single': 'Apart', 'pe.bat.toggle': 'Tikken: tonen of verbergen',
+  'pe.bat.none': 'Alle batterijen zijn verborgen. Tik hierboven op een om hem weer te tonen.',
+  'pe.bat.noData': 'Home Assistant heeft geen waarden voor deze periode.', 'pe.bat.err': 'Home Assistant kon het verloop nu niet leveren.',
+  'pe.bat.range': 'laagste {min} ({minAt}) · hoogste {max} ({maxAt})', 'pe.bat.aria': 'Laadtoestand van de batterijen in procent door de tijd',
+  'pe.bat.hint': 'Alleen dit apparaat onthoudt deze keuze.',
 };
