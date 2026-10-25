@@ -1631,7 +1631,7 @@ export default {
   'vq.w.humid': 'Umidità', 'vq.w.co2': 'Aria (CO₂)', 'vq.w.devices': 'Dispositivi', 'vq.s.open': 'aperto', 'vq.s.closed': 'chiuso', 'vq.s.on': 'acceso',
   'vq.s.off': 'spento', 'vq.s.low': 'scariche', 'vq.none': 'nessuno', 'vq.allOk': '{what}: tutti {state}', 'vq.houseLocked': 'L’altra casa è bloccata per te.',
   'vq.noValue': 'nessun valore', 'vq.colors': 'colori nella pianta', 'vq.unknown': 'Non ho capito.',
-  'vq.examples': 'Ad esempio: «Quali finestre sono aperte?», «Luci accese di sopra?», «Temperatura del bagno?»', 'vq.listening': 'Ascolto …',
+  'vq.examples': 'Ad esempio: «Quali finestre sono aperte?», «Luci accese di sopra?», «Temperatura del bagno?», «Spegni la luce in cucina»', 'vq.listening': 'Ascolto …',
   'vq.thinking': 'Home Assistant ascolta …', 'vq.err.noSpeech': 'Non ho sentito nulla. Tocca 🎤 e parla subito.',
   'vq.err.mic': 'Il microfono è bloccato: consentilo per questa pagina nel browser (o nell’app).',
   'vq.err.net': 'Il riconoscimento vocale non è raggiungibile ora.',
@@ -1748,4 +1748,7 @@ export default {
   'hh.tell': '🔔 Avvisami', 'hh.tellOn': '✓ Ti avviso io', 'hh.tellTip': 'Un messaggio sul telefono appena ha finito (tocca di nuovo: annulla)',
   'hh.tellSetup': 'Prima imposta in ⚙ → Avvisi e allarme dove va un messaggio (WhatsApp, Telegram o l\'app del telefono).',
   'hh.tellFailed': 'Non è riuscito, riprova.', 'hh.tellAlways': '🔔 Avvisa sempre quando una macchina ha finito (con il messaggio di «Avvisi e allarme»)',
+  'vc.act.on': 'acceso', 'vc.act.off': 'spento', 'vc.act.open': 'aperto', 'vc.act.close': 'chiuso', 'vc.done': '{what} {act}: {n}',
+  'vc.already': '{what}: già {act}', 'vc.sure': '{what} {act} in tutta la casa? ({n})', 'vc.yes': 'Sì, {act}', 'vc.yesSub': 'Vengono comandati {n} dispositivi',
+  'vc.locked': 'Comandare è bloccato per te (🔒 Controllo).', 'vc.failed': '{n} non si sono potuti comandare.',
 };

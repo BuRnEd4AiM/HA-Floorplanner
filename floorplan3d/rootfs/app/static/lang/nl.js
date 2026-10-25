@@ -1614,7 +1614,7 @@ export default {
   'vq.w.humid': 'Luchtvochtigheid', 'vq.w.co2': 'Lucht (CO₂)', 'vq.w.devices': 'Apparaten', 'vq.s.open': 'open', 'vq.s.closed': 'dicht', 'vq.s.on': 'aan',
   'vq.s.off': 'uit', 'vq.s.low': 'bijna leeg', 'vq.none': 'geen', 'vq.allOk': '{what}: alle {state}',
   'vq.houseLocked': 'Het andere huis is voor jou vergrendeld.', 'vq.noValue': 'geen waarde', 'vq.colors': 'kleuren in de plattegrond',
-  'vq.unknown': 'Dat heb ik niet begrepen.', 'vq.examples': 'Bijvoorbeeld: „Welke ramen zijn open?”, „Is boven nog licht aan?”, „Temperatuur badkamer?”',
+  'vq.unknown': 'Dat heb ik niet begrepen.', 'vq.examples': 'Bijvoorbeeld: „Welke ramen zijn open?”, „Is boven nog licht aan?”, „Temperatuur badkamer?”, „Zet het licht in de keuken uit”',
   'vq.listening': 'Ik luister …', 'vq.thinking': 'Home Assistant luistert …', 'vq.err.noSpeech': 'Ik hoorde niets. Tik op 🎤 en spreek meteen.',
   'vq.err.mic': 'De microfoon is geblokkeerd: sta hem toe voor deze pagina in de browser (of de app).',
   'vq.err.net': 'De spraakherkenning is nu niet bereikbaar.', 'vq.err.noAssist': 'Home Assistant herkent nog geen spraak. Uitleg: ⚙ → 🎤 Spraakzoeken.',
@@ -1731,4 +1731,7 @@ export default {
   'hh.tellSetup': 'Stel eerst in ⚙ → Waarschuwingen & alarm in waar een bericht heen gaat (WhatsApp, Telegram of de app).',
   'hh.tellFailed': 'Dat lukte niet, probeer het opnieuw.',
   'hh.tellAlways': '🔔 Altijd laten weten als een machine klaar is (via het bericht van „Waarschuwingen & alarm”)',
+  'vc.act.on': 'aan', 'vc.act.off': 'uit', 'vc.act.open': 'open', 'vc.act.close': 'dicht', 'vc.done': '{what} {act}: {n}', 'vc.already': '{what}: al {act}',
+  'vc.sure': '{what} in het hele huis {act}? ({n})', 'vc.yes': 'Ja, {act}', 'vc.yesSub': '{n} apparaten worden geschakeld',
+  'vc.locked': 'Schakelen is voor jou vergrendeld (🔒 Bedienen).', 'vc.failed': '{n} konden niet worden geschakeld.',
 };

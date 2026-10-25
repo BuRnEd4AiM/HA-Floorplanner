@@ -1616,7 +1616,7 @@ export default {
   'vq.s.open': 'otwarte', 'vq.s.closed': 'zamknięte', 'vq.s.on': 'włączone', 'vq.s.off': 'wyłączone', 'vq.s.low': 'słabe', 'vq.none': 'brak',
   'vq.allOk': '{what}: wszystkie {state}', 'vq.houseLocked': 'Drugi dom jest dla ciebie zablokowany.', 'vq.noValue': 'brak wartości',
   'vq.colors': 'kolory na planie', 'vq.unknown': 'Nie zrozumiałem.',
-  'vq.examples': 'Na przykład: „Które okna są otwarte?”, „Czy na piętrze świecą światła?”, „Temperatura w łazience?”', 'vq.listening': 'Słucham …',
+  'vq.examples': 'Na przykład: „Które okna są otwarte?”, „Czy na piętrze świecą światła?”, „Temperatura w łazience?”, „Wyłącz światło w kuchni”', 'vq.listening': 'Słucham …',
   'vq.thinking': 'Home Assistant słucha …', 'vq.err.noSpeech': 'Nic nie słyszałem. Dotknij 🎤 i od razu mów.',
   'vq.err.mic': 'Mikrofon jest zablokowany: zezwól na niego dla tej strony w przeglądarce (lub aplikacji).',
   'vq.err.net': 'Rozpoznawanie mowy jest teraz niedostępne.',
@@ -1731,4 +1731,7 @@ export default {
   'hh.tell': '🔔 Daj mi znać', 'hh.tellOn': '✓ Dam znać', 'hh.tellTip': 'Wiadomość na telefon, gdy skończy (dotknij ponownie: anuluj)',
   'hh.tellSetup': 'Najpierw ustaw w ⚙ → Ostrzeżenia i alarm, dokąd idzie wiadomość (WhatsApp, Telegram lub aplikacja).',
   'hh.tellFailed': 'Nie udało się, spróbuj ponownie.', 'hh.tellAlways': '🔔 Zawsze daj znać, gdy maszyna skończy (wiadomością z „Ostrzeżenia i alarm”)',
+  'vc.act.on': 'włączone', 'vc.act.off': 'wyłączone', 'vc.act.open': 'otwarte', 'vc.act.close': 'zamknięte', 'vc.done': '{what} {act}: {n}',
+  'vc.already': '{what}: już {act}', 'vc.sure': '{what} {act} w całym domu? ({n})', 'vc.yes': 'Tak, {act}', 'vc.yesSub': 'Zostanie przełączonych {n} urządzeń',
+  'vc.locked': 'Przełączanie jest dla ciebie zablokowane (🔒 Sterowanie).', 'vc.failed': 'Nie udało się przełączyć: {n}.',
 };

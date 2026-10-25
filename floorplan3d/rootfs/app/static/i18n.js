@@ -568,7 +568,7 @@ const DICT = {
     'vq.w.humid': 'Luftfeuchte', 'vq.w.co2': 'Luft (CO₂)', 'vq.w.devices': 'Geräte', 'vq.s.open': 'offen', 'vq.s.closed': 'zu', 'vq.s.on': 'an',
     'vq.s.off': 'aus', 'vq.s.low': 'schwach', 'vq.none': 'keine', 'vq.allOk': '{what}: alle {state}', 'vq.houseLocked': 'Das andere Haus ist für dich gesperrt.',
     'vq.noValue': 'kein Wert', 'vq.colors': 'Farben im Plan', 'vq.unknown': 'Das habe ich nicht verstanden.',
-    'vq.examples': 'Zum Beispiel: „Welche Fenster sind offen?“, „Ist oben noch Licht an?“, „Wie warm ist es im Bad?“, „Wie sieht es im Wohnzimmer aus?“',
+    'vq.examples': 'Zum Beispiel: „Welche Fenster sind offen?“, „Ist oben noch Licht an?“, „Wie warm ist es im Bad?“, „Wie sieht es im Wohnzimmer aus?“, „Licht im Wohnzimmer aus“, „Rollläden in der Küche runter“',
     'vq.listening': 'Ich höre zu …', 'vq.thinking': 'Home Assistant hört zu …', 'vq.err.noSpeech': 'Ich habe nichts gehört. Tippe auf 🎤 und sprich gleich los.',
     'vq.err.mic': 'Das Mikrofon ist gesperrt: erlaube es im Browser (oder in der App) für diese Seite.',
     'vq.err.net': 'Die Spracherkennung ist gerade nicht erreichbar.',
@@ -689,6 +689,9 @@ const DICT = {
     'hh.tellSetup': 'Erst in ⚙ → Warnungen & Alarm einrichten, wohin eine Nachricht geht (WhatsApp, Telegram oder die Handy-App).',
     'hh.tellFailed': 'Ging nicht, bitte noch einmal.',
     'hh.tellAlways': '🔔 Immer Bescheid sagen, wenn eine Maschine fertig ist (über die Nachricht von „Warnungen & Alarm“)',
+    'vc.act.on': 'an', 'vc.act.off': 'aus', 'vc.act.open': 'auf', 'vc.act.close': 'zu', 'vc.done': '{what} {act}: {n}', 'vc.already': '{what}: schon {act}',
+    'vc.sure': '{what} im ganzen Haus {act}? ({n})', 'vc.yes': 'Ja, {act}', 'vc.yesSub': '{n} Geräte werden geschaltet',
+    'vc.locked': 'Schalten ist für dich gesperrt (🔒 Steuern).', 'vc.failed': '{n} ließen sich nicht schalten.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -1229,7 +1232,7 @@ const DICT = {
     'vq.w.humid': 'Humidity', 'vq.w.co2': 'Air (CO₂)', 'vq.w.devices': 'Devices', 'vq.s.open': 'open', 'vq.s.closed': 'closed', 'vq.s.on': 'on',
     'vq.s.off': 'off', 'vq.s.low': 'low', 'vq.none': 'none', 'vq.allOk': '{what}: all {state}', 'vq.houseLocked': 'The other house is locked for you.',
     'vq.noValue': 'no value', 'vq.colors': 'colours in the plan', 'vq.unknown': 'I did not understand that.',
-    'vq.examples': 'For example: “Which windows are open?”, “Are the lights on upstairs?”, “How warm is the bathroom?”, “Show the living room”',
+    'vq.examples': 'For example: “Which windows are open?”, “Are the lights on upstairs?”, “How warm is the bathroom?”, “Show the living room”, “Turn off the lights in the kitchen”, “Close the blinds”',
     'vq.listening': 'Listening …', 'vq.thinking': 'Home Assistant is listening …', 'vq.err.noSpeech': 'I heard nothing. Tap 🎤 and speak right away.',
     'vq.err.mic': 'The microphone is blocked: allow it for this page in the browser (or the app).',
     'vq.err.net': 'The speech recognition cannot be reached right now.',
@@ -1345,6 +1348,9 @@ const DICT = {
     'hh.tell': '🔔 Tell me', 'hh.tellOn': '✓ I will tell you', 'hh.tellTip': 'A message to your phone as soon as it is done (tap again: not after all)',
     'hh.tellSetup': 'First set up in ⚙ → Warnings & alarm where a message goes (WhatsApp, Telegram or the phone app).',
     'hh.tellFailed': 'That did not work, please try again.', 'hh.tellAlways': '🔔 Always tell when a machine is done (through the message of "Warnings & alarm")',
+    'vc.act.on': 'on', 'vc.act.off': 'off', 'vc.act.open': 'open', 'vc.act.close': 'closed', 'vc.done': '{what} {act}: {n}',
+    'vc.already': '{what}: {act} already', 'vc.sure': '{what} {act} in the whole house? ({n})', 'vc.yes': 'Yes, {act}', 'vc.yesSub': '{n} devices are switched',
+    'vc.locked': 'Switching is locked for you (🔒 Control).', 'vc.failed': '{n} could not be switched.',
   },
 };
 
