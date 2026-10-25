@@ -81,7 +81,9 @@ export function initSearch(ctx) {
     ctx.scene.add(mesh);
     markers.push({ mesh, until: performance.now() + ms });
   }
-  function clearMarks() { markers.forEach((m) => { ctx.scene.remove(m.mesh); m.mesh.geometry.dispose(); m.mesh.material.dispose(); }); markers = []; }
+  /** while rings show, the room labels fade (a ceiling lamp sits right under its room's label: its ring was hidden, style.css) */
+  const ringsShown = (on) => document.body.classList.toggle('findRings', on);
+  function clearMarks() { markers.forEach((m) => { ctx.scene.remove(m.mesh); m.mesh.geometry.dispose(); m.mesh.material.dispose(); }); markers = []; ringsShown(false); }
   function goToFound(it) {
     openFind(false);
     if (ctx.houseMode() || ctx.floorIdx() !== it.floor) ctx.switchFloor(it.floor);
@@ -93,7 +95,7 @@ export function initSearch(ctx) {
     ctx.camera.position.copy(target).addScaledVector(dir, 5.5);
     ctx.controls.update();
     clearMarks();
-    ring(target, 3500);
+    ring(target, 3500); ringsShown(true);
     if (ctx.isLive()) ctx.liveSelect({ kind: it.kind, id: it.id });
     else { ctx.selectLocked({ kind: it.kind, id: it.id }); }
     ctx.wake();
@@ -133,6 +135,7 @@ export function initSearch(ctx) {
         const p = targetPoint(ctx.layout().floors, tg);
         if (p) ring(new THREE.Vector3(p.x, ctx.elev(tg.floor) + Math.min(p.y, 2.4), p.z), ms);
       });
+      ringsShown(markers.length > 0);
       ctx.wake();
     },
     marks: () => markers.length,
@@ -146,6 +149,7 @@ export function initSearch(ctx) {
         m.mesh.scale.set(k, k, k); m.mesh.material.opacity = Math.min(1, left / 800);
         return true;
       });
+      if (!markers.length) ringsShown(false);
       return markers.length > 0;
     },
   };

@@ -8,6 +8,7 @@ import { KINDS, periodRange, isoLocal, houseMeters, mergeMeters, meterIds, hasMe
 import { initEnergyCompare } from './energycompare.js';
 import { cardBatteries, houseBatteries, levelPeriod } from './batterylevels.js';
 import { initBatteryCard } from './batterycard.js';
+import { withBarTips } from './bartip.js';
 
 const OWN = '#cc7a00', GRID = '#488fc2';           // made itself (sun, battery) / from the grid: the colours of "Strom jetzt", checked for colour blindness
 const ALL = '*', CMP = 'cmp';                     // all houses added up / side by side (⚖ Vergleichen, #495)
@@ -105,7 +106,8 @@ export function initEnergyPage(ctx) {
     if (sub) b.append(make('div', 'peTileSub', sub));
     return b;
   }
-  /** the bars: made itself at the bottom, from the grid on top, a 2 px gap between them; the name of each bar and its values as a tooltip */
+  /** the bars: made itself at the bottom, from the grid on top, a 2 px gap between them; the name of each bar and its values under the
+   *  finger or the mouse (bartip.js: a clear rectangle over the whole column) */
   function chart(p, rows, now) {
     const W = 640, H = 220, pad = 34, top = 12, bottom = 22, bw = (W - pad) / rows.length, max = barMax(rows);
     const y = (v) => H - bottom - (v / max) * (H - top - bottom);
@@ -120,9 +122,10 @@ export function initEnergyPage(ctx) {
     rows.forEach((r, i) => {
       const x = pad + i * bw + Math.min(3, bw * 0.15), w = Math.max(1, bw - 2 * Math.min(3, bw * 0.15)), g = document.createElementNS(ns, 'g');
       const grid = Math.max(0, r.use - r.own), base = H - bottom;
-      const tip = document.createElementNS(ns, 'title');
-      tip.textContent = `${barName(p, p.buckets[i])}: ${num(r.use)} kWh (${t('pe.own')} ${num(r.own)}, ${t('pe.grid')} ${num(grid)})`;
-      g.append(tip);
+      g.dataset.tip = `${barName(p, p.buckets[i])}: ${num(r.use)} kWh\n${t('pe.own')} ${num(r.own)} · ${t('pe.grid')} ${num(grid)}`;
+      const hit = document.createElementNS(ns, 'rect');
+      Object.entries({ x: pad + i * bw, y: top, width: bw, height: H - top - bottom, class: 'btHit' }).forEach(([k, v]) => hit.setAttribute(k, v));
+      g.append(hit);
       const rect = (y0, y1, fill, round) => {
         const h = y0 - y1;
         if (h <= 0.4) return;
@@ -224,7 +227,7 @@ export function initEnergyPage(ctx) {
       money.sell ? t('pe.costSub', { v: money.sell.toLocaleString(lang(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }) : ''));
     items.push({ key: 'tiles', el: tiles, width: 4 });
     const card = make('div', 'tpCard peChartCard');
-    card.append(make('h3', 'peH', t(`pe.chart.${p.kind}`)), chart(p, rows, now));
+    card.append(make('h3', 'peH', t(`pe.chart.${p.kind}`)), withBarTips(chart(p, rows, now)));
     const legend = make('div', 'peLegend');
     [[OWN, t('pe.legendOwn')], [GRID, t('pe.legendGrid')]].forEach(([col, txt]) => { const s = make('span'); const i = make('i', 'peSwatch'); i.style.background = col; s.append(i, document.createTextNode(txt)); legend.append(s); });
     legend.append(make('span', 'tpSub', 'kWh'));

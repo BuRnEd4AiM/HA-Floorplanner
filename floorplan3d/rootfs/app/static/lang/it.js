@@ -1734,4 +1734,5 @@ export default {
   'pe.bat.none': 'Tutte le batterie sono nascoste. Tocca una qui sopra per mostrarla.', 'pe.bat.noData': 'Home Assistant non ha valori per questo periodo.',
   'pe.bat.err': 'Home Assistant non ha potuto inviare la cronologia in questo momento.', 'pe.bat.range': 'minimo {min} ({minAt}) · massimo {max} ({maxAt})',
   'pe.bat.aria': 'Carica delle batterie in percentuale nel tempo', 'pe.bat.hint': 'Solo questo dispositivo ricorda questa scelta.',
+  'cl.tooWarm': 'troppo caldo', 'cl.tooCold': 'troppo freddo',
 };

@@ -341,6 +341,12 @@ const entities = {
   'sensor.gaszaehler':       { name: 'Gaszähler',              state: '845.2', unit: 'm³', dc: 'gas' },
   'sensor.waermemenge':      { name: 'Wärmemengenzähler',      state: '5321', unit: 'kWh', dc: 'energy' },
   'sensor.wasser_garten':    { name: 'Wasserzähler Garten',    state: '87.3', unit: 'm³', dc: 'water' },
+  // the total counters of the energy dashboard (⚡ Rechnung showed only their ids and "–" without them)
+  'sensor.netz_bezug_kwh':        { name: 'Netz Bezug gesamt',        state: '18342.7', unit: 'kWh', dc: 'energy' },
+  'sensor.netz_einspeisung_kwh':  { name: 'Netz Einspeisung gesamt',  state: '6120.4', unit: 'kWh', dc: 'energy' },
+  'sensor.pv_ertrag_kwh':         { name: 'PV Ertrag gesamt',         state: '21456.9', unit: 'kWh', dc: 'energy' },
+  'sensor.batterie_geladen_kwh':  { name: 'Batterie geladen gesamt',  state: '4210.3', unit: 'kWh', dc: 'energy' },
+  'sensor.batterie_entladen_kwh': { name: 'Batterie entladen gesamt', state: '3987.1', unit: 'kWh', dc: 'energy' },
   'sensor.pv_dach':          { name: 'PV Dach',                state: '4100', unit: 'W', dc: 'power' },
   'light.nachbar_wohnen':    { name: 'Nachbar Wohnen Licht',   state: 'on', rgb: [255, 200, 140] },
   // the weather in the sky (#419); ?weather=rainy (snowy, cloudy, pouring ...) shows another one. No sun.sun: the demo's sky follows the clock (#418)

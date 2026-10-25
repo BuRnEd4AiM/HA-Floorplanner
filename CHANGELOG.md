@@ -4,6 +4,17 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.21.2] - 2026-10-25
+### Fixed
+Found while Claude tested the open points of the test protocol overnight (the demo in Chromium as PC, tablet and phone, some in the add-on with a made-up Home Assistant):
+- **⚡ Energie: the values of a bar by finger** (#519): the values of a bar (one house and ⚖ Vergleichen) were only an SVG tooltip, which a mouse shows after a moment and a finger never. Now a tap or the mouse anywhere on a column shows a small box with the day (or month) and the kWh, for every house when comparing; a tap elsewhere puts it away (`bartip.js`).
+- **🌡 Klima: "zu warm" / "zu kalt" with a thermostat circle** (#520): since the circle (4.9.0) a room that is too warm or too cold showed it nowhere (the coloured big number is gone), yet it was listed under "Nur mit Hinweis". Now a chip "🌡 zu warm" (orange) or "🌡 zu kalt" (blue) says it.
+- **Device list: "▶ läuft" instead of "▶ playing"** (#521): a player without an app showed Home Assistant's raw state; now the words of #492 ("läuft", "⏸ Pause", "bereit").
+- **Search: the ring at a lamp under its room label** (#522): a ceiling lamp sits right under the label of its room, which hid the ring of an answer ("Ist oben noch Licht an?"). While rings show, the room labels fade.
+- **⚙ → 🎤 Sprachsuche** (#523): "🩺 Mikrofon-Test öffnen" (and the jump to a group of the settings) put the target under the dialog's fixed head; now it stands below it. Links in the dialogs are in the accent colour instead of the browser's dark blue.
+- **Live card: the number beside the volume slider follows it** (#524).
+- **Demo: the electricity counters of ⚡ Rechnung with name and reading** (#525).
+
 ## [4.21.1] - 2026-10-25
 ### Fixed
 - **iPhone in the Home Assistant app: no empty strip under the tab bar any more** (#517, the owner: "ganz unten da ein bisschen Abstand … dieses ganze Zeug ein bisschen weiter nach unten verschieben"). Home Assistant keeps the strip of the iPhone's home bar clear below the add-on, but iOS gives the add-on the same strip again although its frame does not reach the bottom edge, so the tab bar (🏠 Haus, ☀ Heute, ⚡ Energie …) kept it clear a second time. The add-on now measures what Home Assistant already keeps clear and leaves it out; the view buttons, the time and weather line and the room tiles above the 3D picture no longer keep the strip clear while the tab bar lies below them. Everything moves down by about 30 pt, the 3D picture gets taller. Opened on its own in Safari (or the demo) the bar keeps the strip clear as before.

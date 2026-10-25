@@ -118,7 +118,7 @@ import { initShortcuts } from './shortcuts.js';
 import { initClipboard } from './clipboard.js';
 import { initEnergySetup } from './energysetup.js';
 import { initNotifyUi } from './notifyui.js';
-import { initSetGroups } from './setgroups.js';
+import { initSetGroups, openSettingsAt as openGroup, reveal } from './setgroups.js';
 import { initGuardUi } from './guardui.js';
 import { viewOf, floorHas, roofOwner, roomOwners, pickBuilding, inheritedBuilding } from './buildings.js';
 import { initBuildingsUi } from './buildingsui.js';
@@ -652,12 +652,7 @@ function toggleMenu(menu, btn, open = menu.hidden) {
   lightGroups.update();                     // "💡 n an" stays while its list is open, also with no light on
 }
 $('#lightsPill').addEventListener('click', (e) => { e.stopPropagation(); toggleMenu($('#lightsMenu'), $('#lightsPill')); });
-/** the settings with one group open (the light list's "Set up groups") */
-function openSettingsAt(group) {
-  $('#settingsBtn').click();
-  const g = $(`#settingsDialog details[data-group="${group}"]`);
-  if (g) { g.open = true; g.scrollIntoView({ block: 'start' }); }
-}
+const openSettingsAt = (group) => openGroup($, group);   // the settings with one group open (setgroups.js)
 const toggleViewMenu = (open) => toggleMenu(viewMenu, viewMenuBtn, open);
 viewMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleViewMenu(); });
 camPillBtn.addEventListener('click', (e) => { e.stopPropagation(); if (tabsUi.has('cameras')) tabsUi.show('cameras'); else toggleMenu(camMenu, camPillBtn); });   // with the tab bar: its camera page
@@ -1550,7 +1545,7 @@ const voiceUi = initVoiceUi({
   focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => roomPanel.open(id), isLive: () => isLive(), rows: () => deviceList.rows(), states: () => states,
   reading: (id, mode) => { const f = layout.floors.find((x) => x.rooms.some((r) => r.id === id)), r = f?.rooms.find((x) => x.id === id); return r ? roomReading(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode) : null; },
   colorMode: (m) => { const b = $(`#modeBar [data-vm=${m}]`); if (!b) return false; b.click(); return true; }, imperial: () => imperial(),
-  openCheck: () => { openSettingsAt('voice'); $('#vkBox').scrollIntoView({ block: 'start' }); },
+  openCheck: () => { openSettingsAt('voice'); reveal($('#vkBox')); },
 });
 const voiceCheck = initVoiceCheck({ $, t, voice: voiceUi, version: () => $('#versionPill').textContent, changed: () => voicePrefs.status() });   // ⚙ → 🎤 → 🩺 Mikrofon-Test (#511)
 const voicePrefs = initVoicePrefs({ $, t, voice: voiceUi, check: voiceCheck, settings: () => settings, houseId: () => hs.id(), commit: () => commitSettings(),   // ⚙ → 🎤 Sprachsuche (voiceprefs.js)

@@ -54,6 +54,8 @@ check("device controls (#406): the TV's card shows the track, previous / pause /
 press("media_play_pause")
 check("device controls: pause reaches Home Assistant and the card follows (now ▶)", last("media_player.dc_tv")[0] == "media_play_pause"
       and pgD.get_attribute("#livePopup button[data-svc=media_play_pause]", "title") == "Abspielen", (last("media_player.dc_tv"), show("dc1")))
+pgD.evaluate("() => { const s = document.querySelector('#livePopup .dc-volume'); s.value = 55; s.dispatchEvent(new Event('input')); }")
+check("device controls: the number beside the volume slider follows it while it moves (it stood at the old value)", pgD.inner_text("#livePopup .dc-val") == "55 %", pgD.inner_text("#livePopup .dc-val"))
 pgD.evaluate("() => { const s = document.querySelector('#livePopup .dc-volume'); s.value = 55; s.dispatchEvent(new Event('change')); }"); pgD.wait_for_timeout(700)
 check("device controls: the volume slider sets the volume (0.55)", last("media_player.dc_tv") == ["volume_set", "media_player.dc_tv", {"volume_level": 0.55}], last("media_player.dc_tv"))
 pgD.select_option("#livePopup .dc-source", "HDMI 1"); pgD.wait_for_timeout(700)

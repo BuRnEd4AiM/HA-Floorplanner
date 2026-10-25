@@ -132,8 +132,10 @@ export function initDeviceControls(ctx) {
           r.append(row([{ text: '−', title: t('dc.volDown'), click: () => call('volume_down') }, { text: '+', title: t('dc.volUp'), click: () => call('volume_up') }]));
         } else {
           const s = el('input', 'dc-volume'); s.type = 'range'; s.min = 0; s.max = 100; s.value = plan.volume.value;
+          const val = el('span', 'dc-val', `${plan.volume.value} %`);
+          s.addEventListener('input', () => { val.textContent = `${s.value} %`; });   // the number follows the finger (it stood still)
           s.addEventListener('change', () => call('volume_set', { volume_level: +s.value / 100 }));
-          r.append(s, el('span', 'dc-val', `${plan.volume.value} %`));
+          r.append(s, val);
         }
         if (plan.mute) {
           const m = el('button', plan.volume.muted ? 'on dc-mute' : 'dc-mute', plan.volume.muted ? '🔇' : '🔈'); m.type = 'button';

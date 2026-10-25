@@ -5,6 +5,7 @@
  * the cards that show it (pageboard.js). */
 import { compareMax, fmtAmount, elapsed } from './energyhistory.js';
 import { energyBalance } from './energycalc.js';
+import { withBarTips } from './bartip.js';
 
 /** ctx: t, lang(), states(), label(period, date, i) (the axis text of a bar), barName(period, date) (its name in the tooltip) */
 export function initEnergyCompare(ctx) {
@@ -53,8 +54,9 @@ export function initEnergyCompare(ctx) {
     } else {
       const inner = bw * 0.78, w = shown.length ? inner / shown.length : inner;
       p.buckets.forEach((d, i) => {
-        const g = add('g', {});
-        add('title', {}, `${ctx.barName(p, d)}: ${shown.map((h) => `${h.name} ${num(h.rows[i].use)} kWh`).join(', ')}`, g);
+        const g = add('g', {});                                        // the values under the finger or the mouse (bartip.js)
+        g.dataset.tip = [ctx.barName(p, d), ...shown.map((h) => `${h.name} ${num(h.rows[i].use)} kWh`)].join('\n');
+        add('rect', { x: pad + i * bw, y: top, width: bw, height: H - top - bottom, class: 'btHit' }, null, g);
         shown.forEach((h, k) => {
           const v = h.rows[i].use, x0 = pad + i * bw + (bw - inner) / 2 + k * w, hh = H - bottom - y(v);
           if (hh > 0.4) add('rect', { x: x0.toFixed(1), y: y(v).toFixed(1), width: Math.max(1, w - 1.5).toFixed(1), height: hh.toFixed(1), rx: Math.min(3, w / 3), fill: h.color }, null, g);
@@ -118,7 +120,7 @@ export function initEnergyCompare(ctx) {
     } };
     const chartCard = { key: 'cmp:chart', width: 3, sig: JSON.stringify([base, list.map((h) => h.rows.map((r) => Math.round(r.use * 1000))), p.kind === 'day' ? Math.floor(+now / 3600000) : 0]), make: () => {
       const c = make('div', 'tpCard peChartCard pcChartCard');
-      c.append(make('h3', 'peH', t(p.kind === 'day' ? 'pe.cmp.chart.day' : 'pe.cmp.chart')), chart(p, list, now), legend(list));
+      c.append(make('h3', 'peH', t(p.kind === 'day' ? 'pe.cmp.chart.day' : 'pe.cmp.chart')), p.kind === 'day' ? chart(p, list, now) : withBarTips(chart(p, list, now)), legend(list));
       return c;
     } };
     const out = [tiles, chartCard, { key: 'cmp:now', width: 1, sig: JSON.stringify([base, liveText]), make: () => nowCard(list, lives) }];

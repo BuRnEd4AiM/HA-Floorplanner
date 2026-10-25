@@ -4,30 +4,25 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.8.1)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.21.2)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.8.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.21.2** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
-1. **Neu in 4.8.1: Zustände auf Deutsch** (84.1): oben „📋 Geräte“: beim Saugroboter „An der Station“, nirgends „on“ oder „docked“.
-2. **Neu in 4.8.0: 🎵 Musik & TV und 🧺 Haushalt** (83.1 bis 83.12, im Add-on 83.13 bis 83.16): unten „Musik & TV“ (Player, Radiosender, Räume zusammen, Alles stopp) und „Haushalt“ (Waschmaschine, Trockner, Spülmaschine mit „Ausgeräumt“, Saugroboter, Einkaufsliste).
-3. **Neu in 4.7.0: Vollbild fest, beenden nur mit Code** (82.1 bis 82.8, im Add-on 82.9 und 82.10): die Demo mit `?vollbild=1&mode=live` öffnen (Code 1234): erst „Tippen für Vollbild“, dann geht „🔒 Vollbild beenden“ nur mit dem Code; Esc bringt die Fläche zurück.
-4. **Neu in 4.6.0: Seiten bearbeiten wie ein Home-Assistant-Dashboard** (81.1 bis 81.12, im Add-on 81.13 bis 81.15): auf einer Seite unten rechts „✎ Bearbeiten“: Karten ziehen und ausblenden, „＋ Karte hinzufügen“ (zwölf Arten), „🗂 Reiter“ ordnen und „＋ Seite“ für eigene Seiten.
-5. **Neu in 4.5.0: 🌡 Klima, ▶ Abläufe, 👨‍👩‍👧 Familie mit Pinnwand** (80.1 bis 80.17, im Add-on 80.18 bis 80.21): unten „Klima“ (Räume, Soll mit − +, Lüften, offenes Fenster), „Abläufe“ („Ich gehe“, „Gute Nacht“, Szenen, Automationen) und „Familie“ (wer wo ist, Handy-Akku, Pinnwand, auch auf „Heute“).
-6. **Neu in 4.4.0: ☀ Heute und ⚡ Energie** (79.1 bis 79.13, im Add-on 79.14 bis 79.16): unten „Heute“ (Uhr, Wetter, Termine, Müll, wer da ist, Im Haus) und „Energie“ (Tag, Woche, Monat, Jahr, zurückblättern, Häuser); in ⚡ Rechnung die Zähler je Haus.
-7. **Neu in 4.3.0: Reiter unten** (78.1 bis 78.11, im Add-on 78.12 bis 78.14): in „Live“ unten „📷 Kameras“ antippen, eine Kamera groß, „Im Plan zeigen“; ⚙ → „📱 Wandtablet“ → „Tablet einrichten“; pro Benutzer die Reiter und „Fängt an mit“.
-8. **Neu in 4.2.0: Schnellzugriff** (76.1 bis 76.14, im Add-on 76.15): oben „💡 … an“ mit Licht-Gruppen („Aus“ zweimal tippen), unten vorne die Favoriten, „📋 Geräte“ → „💡 An / offen“, orange bei schwachen Batterien; beim Bearbeiten „Gelöscht · ↶ Rückgängig“, Taste „?“ und „🕘 Zuletzt benutzt“.
-9. **4.1.1 im Add-on: deine Dienste nach Herkunft, eigener Telegram-Bot** (72.8, 72.9, nur im Add-on; 72.1 bis 72.7 ✅): ⚙ → „Benachrichtigung bei Alarm“ → „Benachrichtigungsdienst von Home Assistant“: stehen deine Dienste in der richtigen Gruppe; eigenen Telegram-Bot nach der Anleitung einrichten und „Test senden“.
-10. **Zum Schluss: Ton** (63.1 bis 63.3; 63.5 bis 63.7 ✅; im Add-on 63.9 bis 63.11): den Lautsprecher (Wohnzimmer, an der Fernseh-Wand in der Ecke zur Küche) und den Fernseher antippen und die Knöpfe ausprobieren.
-11. **4.0 im Add-on** (66.11, 67.13, 67.14): eigenen Räumen Böden und Wände geben, neu laden; ein Tablet im Sparmodus „Schnell“; Export und Import eines Hauses.
-12. **Alles wie immer** (Abschnitt 9): Wände und Räume zeichnen, Geräte setzen und ziehen, Türen setzen, Entf, Pfeiltasten, Q/E, Strg+Z, in „Live“ eine Lampe antippen. Es soll sich **nichts** anders anfühlen.
-13. **Kein Überschreiben beim Speichern** (60.10 bis 60.12, nur im Add-on): den Plan auf zwei Geräten im Bearbeiten öffnen, auf dem einen etwas ändern, dann auf dem anderen: es kommt die Frage „Plan wurde woanders geändert“.
-14. **Energie einrichten und Strom-Rechnung** (im Add-on 62.5 bis 62.7; 50.1 bis 50.8 und 62.1 bis 62.4 ✅): „Strom-Editor“ → „⚡ Rechnung“ → „⤵ Aus dem Energie-Dashboard übernehmen“ → „✓ Übernehmen“; in der Checkliste „+ Wasserzähler in den Plan setzen“; die Rechnung geht auf, „Vorzeichen umdrehen“ ändert „lädt“ / „entlädt“.
-15. **Nochmal prüfen, war ❌** (46.3, nur im Add-on): die Dashboard-Karte findet das Add-on wieder (behoben in 3.77.1; in HACS die Karte aktualisieren, Strg+F5).
-16. **Neu: Alarm per WhatsApp** (64.1 bis 64.6, nur im Add-on): ⚙ → „Warnungen & Alarm“ → „🚨 Benachrichtigung bei Alarm (WhatsApp)“ einrichten, „Test senden“; dann einen Rauchmelder auslösen (Testknopf am Melder): die WhatsApp kommt mit Ort im Plan.
-17. **Etagen aufeinander, flüssig auf dem iPad** (56.1, 56.2, 56.6; 55 ✅): „Ganzes Haus“ → „Ansicht“ → „Aufeinander“; das Musterhaus auf dem iPad drehen und zoomen.
-18. **Benutzer sperren** (37.6, 61.10, 61.11): ⚙ → „Benutzer & Tablets“ → bei einem Benutzer ⚙ → „🔒 Gesperrt“: Haken setzen, schließen, wieder öffnen; „Gebäude“ pro Benutzer.
-19. **Musterhaus importieren** (52.12, 48.1 bis 48.5): „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Prüfen“, „Importieren“; ansehen, zum Schluss wieder löschen. Die Möbel-Abschnitte 51 bis 54, 57 und 59 sind sonst ✅.
-20. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät): Rauch, Wasser oder offenes Fenster bei Regen; ein Tipp aufs Banner springt in den Raum.
+**In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
+
+1. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
+2. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
+3. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
+4. **🔋 Ladestand mit deiner Batterie** (99.9, 99.10, nur im Add-on).
+5. **Zähler und Backup im Add-on** (92.2, 92.3, 92.6, 93.1 bis 93.4): SolarNet-Sensoren, Helfer „Energie“, Urlaubs-Alarm im Backup.
+6. **Kalender, Knöpfe, Anwesenheit, zweites Haus im Add-on** (90.7, 91.7, 89.5, 89.6, 87.6).
+7. **Wandtablet schneller** (85.1 bis 85.4) und **iPad flüssig** (56.1, 56.2).
+8. **Dashboard-Karte in Home Assistant** (46.4 bis 46.9; 46.3 war ❌, behoben in 3.77.1).
+9. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
+10. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
+11. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
+
+**Zuletzt geprüft (2026-10-25, Claude in der Nacht):** ✅ 76.1 bis 76.14, 78.1 bis 78.11, 79 (ohne 79.11), 80 (ohne 80.2), 81.1 bis 81.12, 82.1 bis 82.8, 83.1 bis 83.12, 86.1 bis 86.9, 87.1, 87.3 bis 87.5, 88.1 bis 88.8, 89.1 bis 89.4, 90.1 bis 90.6, 91.1 bis 91.6, 92.1, 92.4, 92.5, 95.1 bis 95.10, 96.2 bis 96.10, 96.14, 97.1, 97.2, 97.4, 97.7, 98.1, 98.3, 99.1 bis 99.8, 63.1 bis 63.3; im Test-Add-on 12.6a, 15.6, 23.17, 37.6, 48.1 bis 48.5, 52.12, 56.6. **❌** 79.11, 80.2, 84.1, 87.2, 96.2 (#519 bis #525, behoben in 4.21.2, neu: 101).
 
 **Zuletzt geprüft (2026-10-21, per Auswahl im Chat, nach 4.2.1):** ✅ 77.1 bis 77.4, 77.6 (Saugroboter, Hausmodus mit Knöpfen, Innenmaß, Klimaanlage), 54.6 (Klimagerät kühlt und heizt), 51.4 bis 51.8 (Abschnitt 51 fertig), 50.1 bis 50.8 (Strom-Rechnung, fertig), 49.1 bis 49.4 (Küchenzeile, fertig), 47.1, 47.2 (Durchsichtig, fertig), 46.1 (Karte in der Demo), 44.1 bis 44.6 (Dach mit Absatz, fertig). Pause vor 45.1 bis 45.3, 42 und 43 (Schleppgaube). **Davor am selben Tag:** ✅ 51.1 bis 51.3 (skandinavische Möbel), 52.1 bis 52.11 (Sauna, Fitness, Bar, Heimkino, LED-Spiegel), 53.1 bis 53.3 (Gaming-PC, große Spiegel), 54.7, 54.8 (mobiles Klimagerät, Deckenventilator). Noch nicht: 52.12 (Musterhaus importieren). ✅ 54.1 bis 54.5 (Schwenkarm-TV, Gruppe „Klima & Lüftung“), 55.1 bis 55.7 (Aufeinander), 56.3 bis 56.5, 56.7; 54.6: „Kühlen“ fehlte, weil das Klimagerät mit der Heizung verknüpft war (die kann nur heizen), jetzt hat die Demo eine Klimaanlage im Büro (77.6). Noch nicht: 56.1, 56.2 (iPad, Leistung), 56.6. ✅ 57.1 bis 57.7 (Garage, Werkstatt, Carport: alles, was in der Demo geht), 58.5 bis 58.8 (Messen: Abstand und Winkel setzen, gesperrte Wand; Abschnitt 58 damit fertig), 65.10 (Raum-Kacheln am Handy), 63.5 (Standventilator). Wunsch bei 58.5: „Lichter Abstand“ heißt jetzt „Innenmaß (Wand bis Wand)“ (77.4). ❌ 63.4: der Saugroboter war nicht zu finden (stand unter der Treppe, #473), ❌ 63.8: beim Hausmodus gab es keinen Knopf „Urlaub“, nur eine Liste (#474); beides behoben in 4.2.1 (77.1 bis 77.3). **Davor (2026-10-20 abends):** ✅ 63.6, 63.7 (Alarmanlage mit Code), 62.1 bis 62.4 (Energie aus dem Energie-Dashboard), 61.1 bis 61.9, 61.12, 61.13 (mehrere Gebäude), 60.1 bis 60.8 (Rückgängig, Kopieren, Einfügen), 59.1 bis 59.7 (Bar mit Deckenteil), 58.1 bis 58.4 (Messen). Noch nicht: 63.4, 63.5, 63.8 und 58.5; 63.1 bis 63.3 (Ton: Lautsprecher, Fernseher) will der Besitzer als Letztes prüfen. **Davor am selben Tag:** ✅ 75.1, 75.2 (Raumfarben im 2D-Plan, 4.1.4), der ganze Abschnitt 66, soweit in der Demo prüfbar (66.1 bis 66.10, 66.12 bis 66.20, 66.23 bis 66.25: Böden, Fensterrahmen, Glas, Raum-Schilder, Strom-Karte, Sterne, am Handy flüssige Raum-Kacheln, Strom-Karte und Zeile mit Uhrzeit und Wetter), 65.1 bis 65.9, 65.11 bis 65.13, 65.16 (Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste). 63.1 bis 63.4 noch nicht: die Geräte waren in „Live“ nicht zu finden (mit Raum-Schildern sind die Kugeln aus, Hinweis jetzt in der Prüfliste). **Davor am selben Tag:** ✅ 67.9 bis 67.11 (Wände für alle Räume, Akzentwand, „Temp.“ und Hologramm). ❌ 67.12: im 2D-Plan waren die Räume mit „Temp.“ schwarz (#467, behoben in 4.1.4: 75.1, 75.2). **Davor am selben Tag:** ✅ alles, was in der Demo geht, von 4.1.3 bis 4.0.1: 74.1, 74.2, 73.1 bis 73.7, 72.1 bis 72.7 (roter Streifen und Rand statt Sperrbildschirm, Wandtablet mit `?wand=1`, Dienste nach Herkunft), 71.1 bis 71.6 und 71.8 bis 71.11 (Urlaubs-Alarm mit Sperrbildschirm, Telegram, Dienste ankreuzen), 70.1 bis 70.6 (Benutzer & Tablets in ⚙, WhatsApp-Schritte), 69.1 bis 69.3 (Gebäude-Filter), 68.1 bis 68.8 (Einstellungen in Gruppen), 67.1 bis 67.8 (Wände und Böden mit Muster, Fassade). **Davor (2026-10-18):** ✅ 66.22 (am iPhone steht der angetippte Raum schön über der Raum-Karte). ❌ 66.21: die Raum-Kacheln ließen sich am Handy nur ruckelig wischen, die Leiste blieb hängen (#441, neu gebaut in 3.99.6: 66.23); dazu zeigte „Strom“ am Handy nichts an (#442, neu: 66.24), am Handy gab es keine Raum-Schilder (#444, neu: 66.10), und unten soll Uhrzeit und Wetter stehen (#445, neu: 66.25).
 
@@ -217,10 +212,10 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 9. Bearbeiten | 7 | 0 | 0 | 0 | – |
 | 10. Tablet und Bedienung | 5 | 0 | 0 | 0 | – |
 | 11. Benutzer & Tablets (3.20.0) | 7 | 0 | 0 | 0 | – |
-| 12. Dachgauben (3.21.0) | 7 | 0 | 1 | 0 | 12.6a |
+| 12. Dachgauben (3.21.0) | 8 | 0 | 0 | 0 | – |
 | 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss | 5 | 0 | 0 | 0 | – |
 | 14. Erdreich unter Anbauten ohne Keller (Fehler #93) | 4 | 0 | 0 | 0 | – |
-| 15. Dachgröße von Hand (3.22.0) | 5 | 0 | 1 | 0 | 15.6 |
+| 15. Dachgröße von Hand (3.22.0) | 6 | 0 | 0 | 0 | – |
 | 16. Wiederholung der drei Fehler (3.22.0) | 4 | 0 | 0 | 0 | – |
 | 17. Werkzeugleiste anpassen und Raumliste nach Haus (3.23.0) | 7 | 0 | 0 | 0 | – |
 | 18. Automatische Sicherung (3.24.0) | 10 | 0 | 0 | 0 | – |
@@ -228,7 +223,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 20. Erster Start (3.26.0) | 8 | 0 | 0 | 0 | – |
 | 21. Neu in 3.26.1 bis 3.27.1 | 6 | 0 | 0 | 0 | – |
 | 22. Ansicht und Live-Bedienung (3.28.0) | 9 | 0 | 0 | 0 | – |
-| 23. Demo-Rundgang für 3.29 bis 3.36 (Besitzer) | 16 | 0 | 1 | 0 | 23.17 |
+| 23. Demo-Rundgang für 3.29 bis 3.36 (Besitzer) | 17 | 0 | 0 | 0 | – |
 | 24. Treppen: mehrere Etagen, Wandtreppe, Außen-Wendeltreppe (3.40.x) | 13 | 0 | 0 | 0 | – |
 | 25. Solarpanels auf dem Dach (3.41.0) | 9 | 0 | 0 | 0 | – |
 | 26. Wasser-, Gas- und Wärmezähler (3.42.0) | 4 | 0 | 0 | 0 | – |
@@ -242,7 +237,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 34. Ausgebauter Dachstuhl (3.52.0) | 8 | 0 | 0 | 0 | – |
 | 35. Ausgebauter Dachstuhl: Gauben, mehrere Etagen, Firsthöhe (3.53.0) | 6 | 0 | 0 | 0 | – |
 | 36. Gaubenfenster, Dach über dem Raum, Handy (3.54.0 bis 3.57.0) | 15 | 0 | 0 | 0 | – |
-| 37. Neu in 3.59 bis 3.62 | 7 | 0 | 1 | 0 | 37.6 |
+| 37. Neu in 3.59 bis 3.62 | 8 | 0 | 0 | 0 | – |
 | 38. Neu in 3.66 | 8 | 0 | 0 | 0 | – |
 | 39. Neu in 3.67 | 2 | 0 | 0 | 0 | – |
 | 40. Neu in 3.69: Rollläden an den Fenstern | 6 | 0 | 0 | 0 | – |
@@ -253,22 +248,22 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen | 0 | 0 | 3 | 0 | 45.1 bis 45.3 |
 | 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 2 | 1 | 6 | 0 | ❌ 46.3, 46.4 bis 46.9 |
 | 47. Neu in 3.76: Durchsichtig nur die Wand | 2 | 0 | 0 | 0 | – |
-| 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 0 | 0 | 5 | 0 | 48.1 bis 48.5 |
+| 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 5 | 0 | 0 | 0 | – |
 | 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 4 | 0 | 0 | 0 | – |
 | 50. Neu in 3.82: Strom-Rechnung (Reiter „⚡ Rechnung“ im Strom-Editor) | 8 | 0 | 0 | 0 | – |
 | 51. Neu in 3.84: Möbel im skandinavischen Stil | 8 | 0 | 0 | 0 | – |
-| 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 11 | 0 | 1 | 0 | 52.12 |
+| 52. Neu in 3.85: Sauna, Fitness, Bar, Heimkino, PC und Spiegel mit LED-Zonen | 12 | 0 | 0 | 0 | – |
 | 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs | 3 | 0 | 0 | 0 | – |
 | 54. Neu in 3.87: Fernseher am Schwenkarm, Klimageräte und Ventilatoren | 8 | 0 | 0 | 0 | – |
 | 55. Neu in 3.88: Etagen aufeinander wie ein echtes Haus | 7 | 0 | 0 | 0 | – |
-| 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 4 | 0 | 3 | 0 | 56.1, 56.2, 56.6 |
+| 56. Neu in 3.89: flüssig auf dem iPad, „Aufeinander“ auch bei einer Etage | 5 | 0 | 2 | 0 | 56.1, 56.2 |
 | 57. Neu in 3.90: Garage, Werkstatt und Carport | 7 | 0 | 0 | 1 | – |
 | 58. Neu in 3.91: Messen, Abstand und Winkel zweier Wände | 8 | 0 | 0 | 0 | – |
 | 59. Neu in 3.92: Bar mit Deckenteil | 7 | 0 | 0 | 1 | – |
 | 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 9 | 0 | 0 | 3 | – |
 | 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 11 | 0 | 0 | 2 | – |
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 4 | 0 | 0 | 3 | – |
-| 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 3 | 2 | 3 | 3 | ❌ 63.4, ❌ 63.8, 63.1 bis 63.3 |
+| 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 6 | 2 | 0 | 3 | ❌ 63.4, ❌ 63.8 |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
 | 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 14 | 0 | 0 | 3 | – |
 | 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 23 | 1 | 0 | 1 | ❌ 66.21 |
@@ -281,32 +276,33 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 73. Neu in 4.1.2: die Demo durchgesehen, Raum-Schilder aus „Bearbeiten“ (#462) | 7 | 0 | 0 | 0 | – |
 | 74. Neu in 4.1.3: Ganzes Haus mit Raum-Schildern (#464) | 2 | 0 | 0 | 0 | – |
 | 75. Neu in 4.1.4: Raumfarben im 2D-Plan bei „Temp.“ (#467) | 2 | 0 | 0 | 0 | – |
-| 76. Neu in 4.2.0: Schnellzugriff, Licht-Gruppen, Favoriten und Hilfen beim Bearbeiten (#471) | 0 | 0 | 14 | 1 | 76.1 bis 76.14 |
+| 76. Neu in 4.2.0: Schnellzugriff, Licht-Gruppen, Favoriten und Hilfen beim Bearbeiten (#471) | 14 | 0 | 0 | 1 | – |
 | 77. Neu in 4.2.1: Saugroboter sichtbar, Hausmodus mit Knöpfen, „Innenmaß“ beim Messen (#473, #474) | 5 | 0 | 0 | 1 | – |
-| 78. Neu in 4.3.0: Reiter unten, Kamera-Seite, Reiter pro Benutzer, Tablet ohne Seitenleiste (#479) | 0 | 0 | 11 | 3 | 78.1 bis 78.11 |
-| 79. Neu in 4.4.0: ☀ Heute und ⚡ Energie (#481) | 0 | 0 | 13 | 3 | 79.1 bis 79.13 |
-| 80. Neu in 4.5.0: 🌡 Klima, ▶ Abläufe und 👨‍👩‍👧 Familie mit Pinnwand (#483) | 0 | 0 | 17 | 4 | 80.1 bis 80.17 |
-| 81. Neu in 4.6.0: Seiten bearbeiten wie ein Home-Assistant-Dashboard (#484) | 0 | 0 | 12 | 3 | 81.1 bis 81.12 |
-| 82. Neu in 4.7.0: Vollbild fest für einen Benutzer, beenden nur mit Code (#487) | 0 | 0 | 8 | 2 | 82.1 bis 82.8 |
-| 83. Neu in 4.8.0: 🎵 Musik & TV und 🧺 Haushalt (#490) | 0 | 0 | 12 | 4 | 83.1 bis 83.12 |
-| 84. Neu in 4.8.1: Zustände auf Deutsch in der Geräte-Liste (#492) | 0 | 0 | 1 | 0 | 84.1 |
+| 78. Neu in 4.3.0: Reiter unten, Kamera-Seite, Reiter pro Benutzer, Tablet ohne Seitenleiste (#479) | 11 | 0 | 0 | 3 | – |
+| 79. Neu in 4.4.0: ☀ Heute und ⚡ Energie (#481) | 12 | 1 | 0 | 3 | ❌ 79.11 |
+| 80. Neu in 4.5.0: 🌡 Klima, ▶ Abläufe und 👨‍👩‍👧 Familie mit Pinnwand (#483) | 16 | 1 | 0 | 4 | ❌ 80.2 |
+| 81. Neu in 4.6.0: Seiten bearbeiten wie ein Home-Assistant-Dashboard (#484) | 12 | 0 | 0 | 3 | – |
+| 82. Neu in 4.7.0: Vollbild fest für einen Benutzer, beenden nur mit Code (#487) | 8 | 0 | 0 | 2 | – |
+| 83. Neu in 4.8.0: 🎵 Musik & TV und 🧺 Haushalt (#490) | 12 | 0 | 0 | 4 | – |
+| 84. Neu in 4.8.1: Zustände auf Deutsch in der Geräte-Liste (#492) | 0 | 1 | 0 | 0 | ❌ 84.1 |
 | 85. Neu in 4.8.2: Tablets schneller (#494) | 0 | 0 | 4 | 0 | 85.1 bis 85.4 |
-| 86. Neu in 4.9.0: Thermostat als Kreis wie in Home Assistant (#495) | 0 | 0 | 9 | 0 | 86.1 bis 86.9 |
-| 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 0 | 0 | 6 | 0 | 87.1 bis 87.6 |
-| 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495) | 0 | 0 | 8 | 0 | 88.1 bis 88.8 |
-| 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495) | 0 | 0 | 6 | 0 | 89.1 bis 89.6 |
-| 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495) | 0 | 0 | 7 | 0 | 90.1 bis 90.7 |
-| 91. Neu in 4.14.0: Knöpfe gestalten (#495) | 0 | 0 | 7 | 0 | 91.1 bis 91.7 |
-| 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500) | 0 | 0 | 6 | 0 | 92.1 bis 92.6 |
+| 86. Neu in 4.9.0: Thermostat als Kreis wie in Home Assistant (#495) | 9 | 0 | 0 | 0 | – |
+| 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 4 | 1 | 1 | 0 | ❌ 87.2, 87.6 |
+| 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495) | 8 | 0 | 0 | 0 | – |
+| 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495) | 4 | 0 | 2 | 0 | 89.5, 89.6 |
+| 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495) | 6 | 0 | 1 | 0 | 90.7 |
+| 91. Neu in 4.14.0: Knöpfe gestalten (#495) | 6 | 0 | 1 | 0 | 91.7 |
+| 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500) | 3 | 0 | 3 | 0 | 92.2, 92.3, 92.6 |
 | 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503) | 0 | 0 | 4 | 0 | 93.1 bis 93.4 |
 | 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489) | 0 | 0 | 3 | 0 | 94.1 bis 94.3 |
-| 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507) | 0 | 0 | 10 | 0 | 95.1 bis 95.10 |
-| 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509) | 0 | 0 | 11 | 3 | 96.1 bis 96.10, 96.14 |
-| 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511) | 0 | 0 | 5 | 2 | 97.1 bis 97.4, 97.7 |
-| 98. Neu in 4.20.0: 🎤 ohne https mit dem Diktat der Tastatur (#513) | 0 | 0 | 3 | 2 | 98.1 bis 98.3 |
-| 99. Neu in 4.21.0: 🔋 Ladestand der Batterien auf ⚡ Energie (#515) | 0 | 0 | 8 | 2 | 99.1 bis 99.8 |
+| 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507) | 10 | 0 | 0 | 0 | – |
+| 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509) | 9 | 1 | 1 | 3 | ❌ 96.2, 96.1 |
+| 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511) | 4 | 0 | 1 | 2 | 97.3 |
+| 98. Neu in 4.20.0: 🎤 ohne https mit dem Diktat der Tastatur (#513) | 2 | 0 | 1 | 2 | 98.2 |
+| 99. Neu in 4.21.0: 🔋 Ladestand der Batterien auf ⚡ Energie (#515) | 8 | 0 | 0 | 2 | – |
 | 100. Neu in 4.21.1: iPhone, kein leerer Streifen unter der Reiter-Leiste (#517) | 0 | 0 | 1 | 2 | 100.3 |
-| **Zusammen** | **492** | **5** | **222** | **65** | |
+| 101. Neu in 4.21.2: Funde aus dem Nacht-Test (#519 bis #525) | 6 | 0 | 1 | 0 | 101.1 |
+| **Zusammen** | **670** | **10** | **46** | **65** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -314,7 +310,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 Das sind die Punkte, die nur der Besitzer im echten Betrieb prüfen kann. Nach Wichtigkeit geordnet, die Nummern verweisen auf die Tabellen unten. Ergebnis jeweils unten in der Tabelle eintragen (✅ / ❌).
 
 1. **Wandtablet** (8.5): das Warnbanner. Nur mit echtem Gerät möglich (10.2 und 10.3 sind seit 2026-10-17 ✅).
-2. **Import mit Dach-Angaben** (15.6, 12.6a): JSON-Import mit `roof.box` bzw. `roof.dormers` (13.3 bis 13.5 sind seit 2026-10-17 ✅).
+2. ~~**Import mit Dach-Angaben** (15.6, 12.6a)~~: ✅ seit 2026-10-25 (Claude im Test-Add-on: `roof.dormers` gibt zwei Gauben, `roof.box` das Dach des Gartenhauses).
 3. **Batterie im Strom-Bild** (65.17, neu in 3.98.2): nachts im Add-on ansehen, was unter der Batterie steht („ruht · 0 W“ oder „kein Leistungs-Sensor“).
 
 Fertig seit 2026-10-17: 21.4 (Hinweis auf neue Version) und der ganze Abschnitt 20 (erster Start).
@@ -451,7 +447,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 12.4 | Gaube mit Satteldach und mit Flachdach | ✅ (3.23.0, im Add-on) |
 | 12.5 | Gaube entfernen (×) | ✅ (3.23.0, im Add-on) |
 | 12.6 | Bei Flachdach erscheint ein Hinweis statt der Gauben | ✅ (3.23.0, im Add-on) |
-| 12.6a | JSON-Import mit `roof.dormers` (docs/examples/house.json hat zwei Gauben) zeigt Gauben auf dem Dach | ❓ |
+| 12.6a | JSON-Import mit `roof.dormers` (docs/examples/house.json hat zwei Gauben) zeigt Gauben auf dem Dach | ✅ (2026-10-25, Claude im Test-Add-on) |
 | 12.7 | Nach dem Neuladen sind die Gauben noch da (nur im Add-on, Demo speichert nicht) | ✅ (3.23.0, im Add-on) |
 
 ### 13. Import eines Hauses mit Keller, Anbau und Dachgeschoss
@@ -479,7 +475,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 15.3 | Das Dach lässt sich so verkleinern, dass der Anbau (Garage) nicht mehr darunter liegt | ✅ |
 | 15.4 | Haken entfernen: die Größe ist wieder automatisch | ✅ |
 | 15.5 | Nach dem Neuladen bleibt die Größe erhalten (nur im Add-on) | ✅ |
-| 15.6 | JSON-Import mit `roof.box` | ❓ |
+| 15.6 | JSON-Import mit `roof.box` | ✅ (2026-10-25, Claude im Test-Add-on) |
 
 ### 16. Wiederholung der drei Fehler (3.22.0)
 | Nr. | Prüfpunkt | Ergebnis |
@@ -582,7 +578,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 23.14 | Stromgerät anklicken → Eigenschaften: Verlauf „Am Boden entlang" / „Durch den Boden" / „Frei in der Luft", „×" | Kabel ändert den Weg, „×" löscht es; unten steht „Kommt von: …" | ✅ |
 | 23.15 | 2D-Ansicht im Strom-Editor | orange Linien zwischen den Geräten | ✅ |
 | 23.16 | Kamera im Wohnzimmer ansehen | Sichtkegel; rot mit „Bewegung", wenn der Bewegungsmelder an ist (in der Demo ist er an) | ✅ |
-| 23.17 | Haus → Grundriss importieren → Export | Strom-Kabel, Küchenzeile und weitere Dächer überleben Export und erneuten Import | ❓ |
+| 23.17 | Haus → Grundriss importieren → Export | Strom-Kabel, Küchenzeile und weitere Dächer überleben Export und erneuten Import | ✅ (2026-10-25, Claude im Test-Add-on) |
 
 **Hinweis zur Kamera und Bewegung:** Der Sichtkegel mit Bewegungsanzeige ist im echten Add-on genauso vorhanden wie in der Demo. Die Demo liefert nur Beispielwerte. Im echten Haus wählst du bei der Kamera in den Eigenschaften „Bewegungsmelder" aus (ein `binary_sensor`), dann färbt sich der Kegel rot.
 
@@ -782,7 +778,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 37.3 | Handy hochkant, „Ganzes Haus“ | Die Karten stehen rechts neben dem Haus, nicht davor (3.59.2, #292) | ✅ |
 | 37.4 | Handy, „Ganzes Haus“, weit hineinzoomen und wieder heraus | Die Karten bleiben neben dem Haus (dürfen aus dem Bild rutschen), beim Herauszoomen kommen sie zurück (3.60.1, #294) | ✅ |
 | 37.5 | Unten „Ansicht“ → „⏱ Leistung“: aus / FPS / alle Werte | FPS oben rechts im 3D-Bild (💤 in Ruhe); „alle Werte“ zeigt mehr Zahlen; die Anzeige stört kein Antippen; bleibt nach Neuladen so (3.60.0) | ✅ |
-| 37.6 | Oben „Benutzer“ → bei einem Benutzer „⚙“ → „🔒 Gesperrt“, Haken setzen | Die Haken bleiben gespeichert; mit diesem Benutzer angemeldet sind die Dinge weg (Wirkung nur im Add-on prüfbar, in der Demo gibt es nur einen Benutzer) (3.61.0) | ❓ |
+| 37.6 | Oben „Benutzer“ → bei einem Benutzer „⚙“ → „🔒 Gesperrt“, Haken setzen | Die Haken bleiben gespeichert; mit diesem Benutzer angemeldet sind die Dinge weg (Wirkung nur im Add-on prüfbar, in der Demo gibt es nur einen Benutzer) (3.61.0) | ✅ (2026-10-25, Claude im Test-Add-on) |
 | 37.7 | Bearbeiten, „Auswählen“, Ansicht **2D** oder **2D + 3D**: mehrere Dinge mit Strg/Shift + Klick (oder Strg/Shift + Rahmen) wählen, dann eins davon **ohne** Strg/Shift ziehen | Alle wandern zusammen und bleiben ausgewählt; angehängte Wände dehnen sich mit, Türen/Fenster wandern mit ihrer Wand; in 2D + 3D zieht das 3D-Bild mit (3.62.0) | ✅ |
 | 37.8 | Danach Strg+Z; dann nur auf eins der Ausgewählten **klicken** (nicht ziehen) | Strg+Z holt alles in einem Schritt zurück; der Klick wählt nur dieses eine | ✅ |
 
@@ -881,11 +877,11 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 48.1 | Bearbeiten, „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Prüfen“ | Grün: 4 Etagen, 23 Räume, 74 Wände, 44 Türen/Fenster, 264 Geräte (seit 3.84 mit den Möbeln im skandinavischen Stil, seit 3.85 mit Sauna, Fitness, Heimkino und Bar im neuen Kellerteil); keine Fehler und keine Hinweise (#353) | ❓ |
-| 48.2 | „Importieren“, dann „Ganzes Haus“ | Ein neues Haus „Musterhaus – alles drin“: Keller in der Erde, Erdgeschoss mit Garage, Obergeschoss mit Dachterrasse (Geländer, keine Wände), Satteldach mit drei Gauben und Solaranlage, Gartenhaus mit Walmdach, Pool mit Brücke, Einfahrt mit Auto | ❓ |
-| 48.3 | Die Etagen einzeln öffnen und die Treppen suchen | U-Treppe vom Keller bis ins Obergeschoss, L-Treppe von der Werkstatt in die Garage, Wandtreppe vom Wohnzimmer zur Galerie, Wendeltreppe außen an der Garage zur Dachterrasse, Bodentreppe im Kinderzimmer | ❓ |
-| 48.4 | Etage „Dach“: die Solaranlage anklicken; dann „Dieses Haus als JSON exportieren“ und die Datei wieder importieren | Die Solaranlage liegt auf der Dachfläche; im wieder importierten Haus ist sie noch da (vorher ging sie verloren) | ❓ |
-| 48.5 | „Häuser“ → das Musterhaus löschen | Es ist weg, das eigene Haus bleibt unverändert | ❓ |
+| 48.1 | Bearbeiten, „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Prüfen“ | Grün: 4 Etagen, 23 Räume, 74 Wände, 44 Türen/Fenster, 264 Geräte (seit 3.84 mit den Möbeln im skandinavischen Stil, seit 3.85 mit Sauna, Fitness, Heimkino und Bar im neuen Kellerteil); keine Fehler und keine Hinweise (#353) | ✅ (2026-10-25, Claude im Test-Add-on; inzwischen 329 Geräte) |
+| 48.2 | „Importieren“, dann „Ganzes Haus“ | Ein neues Haus „Musterhaus – alles drin“: Keller in der Erde, Erdgeschoss mit Garage, Obergeschoss mit Dachterrasse (Geländer, keine Wände), Satteldach mit drei Gauben und Solaranlage, Gartenhaus mit Walmdach, Pool mit Brücke, Einfahrt mit Auto | ✅ (2026-10-25, Claude im Test-Add-on) |
+| 48.3 | Die Etagen einzeln öffnen und die Treppen suchen | U-Treppe vom Keller bis ins Obergeschoss, L-Treppe von der Werkstatt in die Garage, Wandtreppe vom Wohnzimmer zur Galerie, Wendeltreppe außen an der Garage zur Dachterrasse, Bodentreppe im Kinderzimmer | ✅ (2026-10-25, Claude im Test-Add-on) |
+| 48.4 | Etage „Dach“: die Solaranlage anklicken; dann „Dieses Haus als JSON exportieren“ und die Datei wieder importieren | Die Solaranlage liegt auf der Dachfläche; im wieder importierten Haus ist sie noch da (vorher ging sie verloren) | ✅ (2026-10-25, Claude im Test-Add-on) |
+| 48.5 | „Häuser“ → das Musterhaus löschen | Es ist weg, das eigene Haus bleibt unverändert | ✅ (2026-10-25, Claude im Test-Add-on) |
 
 ## 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen
 | Nr. | Was tun | Erwartung | Ergebnis |
@@ -933,7 +929,7 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 52.9 | Zurück zu „Bearbeiten“, für „Hinten (indirekt)“ und „Unten“ je ein eigenes Licht wählen; „Live“, den Spiegel antippen | Die Karte zeigt „x von 3 LED-Zonen an“ und drei Knöpfe „Hinten (indirekt)“, „Vorne“, „Unten“; ein Knopf öffnet die Steuerung nur dieser LED, „Alle LEDs“ schaltet alle | ✅ (2026-10-21) |
 | 52.10 | Nur das Licht „Hinten“ einschalten, z. B. in Blau | In 3D leuchtet nur der Rand hinter dem Spiegel blau, die anderen LEDs bleiben aus | ✅ (2026-10-21) |
 | 52.11 | Die „Bartheke mit LED“ anklicken, „Thekenkante“ und „Sockel“ mit zwei Lichtern verknüpfen, in „Live“ beide einschalten | Die Kante der Theke und das Licht am Boden vor dem Sockel leuchten jeweils in der Farbe ihres Lichts | ✅ (2026-10-21) |
-| 52.12 | „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Importieren“, dann den „Keller“ öffnen | Rechts neben der Werkstatt ein neuer Kellerteil mit „Sauna & Wellness“, „Heimkino“, „Fitness“ und „Bar“; im Garten Fass-Sauna, Whirlpool und Poolbar | ❓ |
+| 52.12 | „Häuser“ → „Haus aus JSON importieren …“ → „Beispiel: Musterhaus (alles drin)“ → „Importieren“, dann den „Keller“ öffnen | Rechts neben der Werkstatt ein neuer Kellerteil mit „Sauna & Wellness“, „Heimkino“, „Fitness“ und „Bar“; im Garten Fass-Sauna, Whirlpool und Poolbar | ✅ (2026-10-25, Claude im Test-Add-on) |
 
 ## 53. Neu in 3.86: Bildschirme am Gaming-PC-Arbeitsplatz, große Spiegel mit zwei LEDs
 | Nr. | Was tun | Erwartung | Ergebnis |
@@ -969,11 +965,11 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 56.1 | Auf dem iPad das Musterhaus („alles drin“) öffnen, in „Live“ drehen und zoomen, auch in „Ganzes Haus“ (#394) | Es läuft flüssig, ruckelt nicht mehr | ❓ |
-| 56.2 | Unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ | Bei „Zeichenaufrufe“ stehen im ganzen Haus etwa 1.300 statt früher etwa 3.700 | ❓ |
+| 56.2 | Unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ | Bei „Zeichenaufrufe“ stehen im ganzen Haus etwa 1.300 statt früher etwa 3.700 | ❓ (Claude 2026-10-25 im Test-Add-on: im ganzen Haus 1.661 Zeichenaufrufe; flüssig ist es nur am iPad zu beurteilen) |
 | 56.3 | Möbel, Bar, Sauna, Küche, Türen, Fenster und Treppen ansehen; eine Lampe, eine LED-Zone, einen Rollladen und eine Tür mit Kontakt schalten | Alles sieht aus wie vorher; was leuchtet, leuchtet; Türen und Fenster gehen auf, Rollläden fahren | ✅ (2026-10-21) |
 | 56.4 | Eine Etage öffnen (z. B. Obergeschoss), unten „Ansicht“ öffnen (#396) | „Aufeinander“ steht da, „Auseinander“ nicht (das gibt es nur in „Ganzes Haus“) | ✅ (2026-10-21) |
 | 56.5 | „Aufeinander“ drücken, von der Seite schauen | Die Etage sitzt ohne Lücke auf der Etage darunter (Decke dazwischen); die Namen und Schilder der Etage darunter schweben nicht mehr über der offenen Etage | ✅ (2026-10-21) |
-| 56.6 | „Benutzer“ → bei einem Benutzer unter „🔒 Gesperrt“ „Abstand der Etagen (Auseinander / Aufeinander)“ abhaken, als dieser Benutzer öffnen | Die Knöpfe „Auseinander“ und „Aufeinander“ fehlen; die Ansicht bleibt so, wie sie eingestellt ist | ❓ |
+| 56.6 | „Benutzer“ → bei einem Benutzer unter „🔒 Gesperrt“ „Abstand der Etagen (Auseinander / Aufeinander)“ abhaken, als dieser Benutzer öffnen | Die Knöpfe „Auseinander“ und „Aufeinander“ fehlen; die Ansicht bleibt so, wie sie eingestellt ist | ✅ (2026-10-25, Claude im Test-Add-on) |
 | 56.7 | README auf GitHub öffnen (#395) | Das Abzeichen „release“ zeigt die Version (v3.89.0), keinen Fehlertext | ✅ (2026-10-21) |
 
 ## 57. Neu in 3.90: Garage, Werkstatt und Carport
@@ -1059,9 +1055,9 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 63.1 | In der Demo „Live“, den **Lautsprecher** im Wohnzimmer (vorne rechts) antippen | Die Karte zeigt „♪ Sommerregen – Die Demo-Band“, die Knöpfe ⏮ ⏸ ⏭, „Aus“, den Lautstärke-Schieber (35 %), 🔈 und „Quelle“ | ❓ |
-| 63.2 | ⏭ drücken, dann ⏸, den Lautstärke-Schieber ziehen, die Quelle auf „Radio“ stellen | Der Titel wechselt, ⏸ wird zu ▶, Lautstärke und Quelle bleiben so stehen | ❓ |
-| 63.3 | Den **Fernseher** antippen | Auch er hat jetzt ⏮ ⏸ ⏭, Lautstärke und die Quellen (HDMI 1, HDMI 2, Netflix, YouTube) | ❓ |
+| 63.1 | In der Demo „Live“, den **Lautsprecher** im Wohnzimmer (vorne rechts) antippen | Die Karte zeigt „♪ Sommerregen – Die Demo-Band“, die Knöpfe ⏮ ⏸ ⏭, „Aus“, den Lautstärke-Schieber (35 %), 🔈 und „Quelle“ | ✅ (2026-10-25, Claude in der Demo) |
+| 63.2 | ⏭ drücken, dann ⏸, den Lautstärke-Schieber ziehen, die Quelle auf „Radio“ stellen | Der Titel wechselt, ⏸ wird zu ▶, Lautstärke und Quelle bleiben so stehen | ✅ (2026-10-25, Claude in der Demo; die Zahl neben dem Schieber blieb stehen: #524, 101.6) |
+| 63.3 | Den **Fernseher** antippen | Auch er hat jetzt ⏮ ⏸ ⏭, Lautstärke und die Quellen (HDMI 1, HDMI 2, Netflix, YouTube) | ✅ (2026-10-25, Claude in der Demo) |
 | 63.4 | Den **Saugroboter** in der Küche antippen, „Saugen“ | Oben steht „🔌 An der Station“, nach „Saugen“ „🧹 Saugt“ und die Knöpfe „Pause“ und „Zur Station“; die Saugstufe lässt sich wählen | ❌ (2026-10-21, „es gibt dort keinen Saugroboter“: er stand in der Demo unter der Treppe, #473; neu: 77.1) |
 | 63.5 | Den **Standventilator** im Wohnzimmer antippen | An / Aus / Umschalten, der Schieber „Stufe“ (springt auf 33, 67 oder 100 %), „↔ Schwenken“ und die Modi Normal / Natur / Nacht | ✅ (2026-10-21) |
 | 63.6 | Die **Alarmanlage** (Schalter rechts im Büro an der Außenwand) antippen, „Scharf (abwesend)“ | Oben steht rot „🛡 Scharf (abwesend)“, darunter ein Feld „Code“ und „Unscharf schalten“ | ✅ (2026-10-20) |
@@ -1250,20 +1246,20 @@ Der Besitzer meldete bei 67.12 (mit Bild): Die Farbe der Räume wird im 2D-Plan 
 Der Besitzer hat aus einer Auswahl alle sieben Ideen gewählt und dazu gesagt: Gruppen aus mehreren Räumen, damit nicht aus Versehen alles ausgeht, wenn noch jemand in einem Raum ist, und nichts überladen. Die Demo hat drei Gruppen (Wohnen, Oben, Keller) und vier Favoriten eingestellt.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 76.1 | „Live“, oben „💡 … an“ antippen | Eine kleine Liste „Lichter“: „🏠 Ganzes Haus“, „Wohnen“, „Oben“, „Keller“, jede mit „… an“ und einem Knopf „Aus“; 👤, wo gerade jemand im Raum ist | ❓ |
-| 76.2 | Bei „Wohnen“ einmal „Aus“ antippen, dann ein paar Sekunden warten | Der Knopf wird rot „Sicher? Aus“, es geht noch nichts aus; nach etwa 3 Sekunden steht wieder „Aus“ da | ❓ |
-| 76.3 | Bei „Wohnen“ zweimal kurz nacheinander „Aus“ | Nur die Lichter von Wohnzimmer und Küche gehen aus (Schlafzimmer, Büro, Keller bleiben an); die Zeile sagt „alle aus“, oben die Zahl wird kleiner | ❓ |
-| 76.4 | Bei „Ganzes Haus“ zweimal „Aus“ | Alle Lichter sind aus; schließt man die Liste, ist der Knopf „💡 … an“ oben weg (er erscheint wieder, sobald ein Licht an ist) | ❓ |
-| 76.5 | Unten ganz vorne in der Leiste der Raum-Kacheln: die Favoriten „Wohnzimmer Gemütlich“, „Wohnzimmer Aus“, „Stehlampe“, „Küche Licht“. „Wohnzimmer Gemütlich“ antippen, dann „Küche Licht“ | Die Szene macht die Wohnzimmer-Lichter an; „Küche Licht“ geht an und aus, der Knopf leuchtet, solange es an ist, und sagt „An“ / „Aus“ | ❓ |
-| 76.6 | Ein Licht im Bild antippen (z. B. Bürolicht), auf seiner Karte ☆ antippen, dann noch einmal | Aus ☆ wird ★ und unten kommt ein Knopf „Büro Licht“ dazu; noch ein Tipp: wieder ☆, der Knopf ist weg | ❓ |
-| 76.7 | ⚙ → „⭐ Schnellzugriff“ → „Favoriten“: „Bad Licht“ eintippen, „+ Hinzufügen“; dann „climate.wohnzimmer“ eintippen, „+ Hinzufügen“; bei einem Favoriten ↑ und × | „Bad Licht“ steht in der Liste und unten in der Leiste; beim Thermostat steht „Das geht nicht als Favorit …“; ↑ schiebt nach vorne, × nimmt heraus | ❓ |
-| 76.8 | ⚙ → „Schnellzugriff“ → „Licht-Gruppen“: „+ Neue Gruppe“, Name „Schlafen“, Schlafzimmer und Bad ankreuzen, schließen, oben „💡 … an“ | Die neue Gruppe „Schlafen“ steht in der Liste oben, mit ihren Lichtern; „Wohnen“ hat Wohnzimmer und Küche angehakt | ❓ |
-| 76.9 | Oben „📋 Geräte · 🪫 2“ ansehen und antippen | Der Knopf ist orange; die Liste öffnet gleich bei „🔋 Batterie“, die zwei schwachen (rot) stehen oben | ❓ |
-| 76.10 | In der Geräte-Liste „💡 An / offen“ | Nur was gerade an ist (Lichter, Fernseher, Ventilator …) und offene Türen und Fenster, nach Raum; die Zahl am Knopf stimmt | ❓ |
-| 76.11 | „Bearbeiten“: ein Möbel antippen, „Entf“ (oder 🗑 im Eigenschaften-Fenster); dann „↶ Rückgängig“ im Hinweis. Noch einmal löschen und nichts tun | Unten erscheint „Gelöscht · ↶ Rückgängig“; der Knopf holt das Möbel zurück; ohne Tipp verschwindet der Hinweis nach etwa 6 Sekunden | ❓ |
-| 76.12 | „Bearbeiten“: Taste „?“ (oder rechts unter „Steuerung“ „⌨ Alle Tasten (?)“) | Eine Karte „⌨ Tasten“ mit allen Tasten: Werkzeuge (V, W, R, M …), Rückgängig, Kopieren, Schieben um 1 cm / 10 cm, Etage höher / tiefer | ❓ |
-| 76.13 | „Bearbeiten“, Werkzeug „Gerät“, ein Teil wählen (z. B. „TV“) und ins Bild setzen | In der Bibliothek oben „🕘 Zuletzt benutzt“ mit dem Teil; ein Tipp darauf wählt es wieder | ❓ |
-| 76.14 | Am Handy hochkant „Live“: oben „📊“ → „💡 … an“ | Die Liste „Lichter“ mit Haus und Gruppen wie am PC, „Aus“ zweimal tippen; unten vorne die Favoriten | ❓ |
+| 76.1 | „Live“, oben „💡 … an“ antippen | Eine kleine Liste „Lichter“: „🏠 Ganzes Haus“, „Wohnen“, „Oben“, „Keller“, jede mit „… an“ und einem Knopf „Aus“; 👤, wo gerade jemand im Raum ist | ✅ (2026-10-25, Claude in der Demo) |
+| 76.2 | Bei „Wohnen“ einmal „Aus“ antippen, dann ein paar Sekunden warten | Der Knopf wird rot „Sicher? Aus“, es geht noch nichts aus; nach etwa 3 Sekunden steht wieder „Aus“ da | ✅ (2026-10-25, Claude in der Demo) |
+| 76.3 | Bei „Wohnen“ zweimal kurz nacheinander „Aus“ | Nur die Lichter von Wohnzimmer und Küche gehen aus (Schlafzimmer, Büro, Keller bleiben an); die Zeile sagt „alle aus“, oben die Zahl wird kleiner | ✅ (2026-10-25, Claude in der Demo) |
+| 76.4 | Bei „Ganzes Haus“ zweimal „Aus“ | Alle Lichter sind aus; schließt man die Liste, ist der Knopf „💡 … an“ oben weg (er erscheint wieder, sobald ein Licht an ist) | ✅ (2026-10-25, Claude in der Demo) |
+| 76.5 | Unten ganz vorne in der Leiste der Raum-Kacheln: die Favoriten „Wohnzimmer Gemütlich“, „Wohnzimmer Aus“, „Stehlampe“, „Küche Licht“. „Wohnzimmer Gemütlich“ antippen, dann „Küche Licht“ | Die Szene macht die Wohnzimmer-Lichter an; „Küche Licht“ geht an und aus, der Knopf leuchtet, solange es an ist, und sagt „An“ / „Aus“ | ✅ (2026-10-25, Claude in der Demo) |
+| 76.6 | Ein Licht im Bild antippen (z. B. Bürolicht), auf seiner Karte ☆ antippen, dann noch einmal | Aus ☆ wird ★ und unten kommt ein Knopf „Büro Licht“ dazu; noch ein Tipp: wieder ☆, der Knopf ist weg | ✅ (2026-10-25, Claude in der Demo) |
+| 76.7 | ⚙ → „⭐ Schnellzugriff“ → „Favoriten“: „Bad Licht“ eintippen, „+ Hinzufügen“; dann „climate.wohnzimmer“ eintippen, „+ Hinzufügen“; bei einem Favoriten ↑ und × | „Bad Licht“ steht in der Liste und unten in der Leiste; beim Thermostat steht „Das geht nicht als Favorit …“; ↑ schiebt nach vorne, × nimmt heraus | ✅ (2026-10-25, Claude in der Demo) |
+| 76.8 | ⚙ → „Schnellzugriff“ → „Licht-Gruppen“: „+ Neue Gruppe“, Name „Schlafen“, Schlafzimmer und Bad ankreuzen, schließen, oben „💡 … an“ | Die neue Gruppe „Schlafen“ steht in der Liste oben, mit ihren Lichtern; „Wohnen“ hat Wohnzimmer und Küche angehakt | ✅ (2026-10-25, Claude in der Demo) |
+| 76.9 | Oben „📋 Geräte · 🪫 2“ ansehen und antippen | Der Knopf ist orange; die Liste öffnet gleich bei „🔋 Batterie“, die zwei schwachen (rot) stehen oben | ✅ (2026-10-25, Claude in der Demo) |
+| 76.10 | In der Geräte-Liste „💡 An / offen“ | Nur was gerade an ist (Lichter, Fernseher, Ventilator …) und offene Türen und Fenster, nach Raum; die Zahl am Knopf stimmt | ✅ (2026-10-25, Claude in der Demo) |
+| 76.11 | „Bearbeiten“: ein Möbel antippen, „Entf“ (oder 🗑 im Eigenschaften-Fenster); dann „↶ Rückgängig“ im Hinweis. Noch einmal löschen und nichts tun | Unten erscheint „Gelöscht · ↶ Rückgängig“; der Knopf holt das Möbel zurück; ohne Tipp verschwindet der Hinweis nach etwa 6 Sekunden | ✅ (2026-10-25, Claude in der Demo) |
+| 76.12 | „Bearbeiten“: Taste „?“ (oder rechts unter „Steuerung“ „⌨ Alle Tasten (?)“) | Eine Karte „⌨ Tasten“ mit allen Tasten: Werkzeuge (V, W, R, M …), Rückgängig, Kopieren, Schieben um 1 cm / 10 cm, Etage höher / tiefer | ✅ (2026-10-25, Claude in der Demo) |
+| 76.13 | „Bearbeiten“, Werkzeug „Gerät“, ein Teil wählen (z. B. „TV“) und ins Bild setzen | In der Bibliothek oben „🕘 Zuletzt benutzt“ mit dem Teil; ein Tipp darauf wählt es wieder | ✅ (2026-10-25, Claude in der Demo) |
+| 76.14 | Am Handy hochkant „Live“: oben „📊“ → „💡 … an“ | Die Liste „Lichter“ mit Haus und Gruppen wie am PC, „Aus“ zweimal tippen; unten vorne die Favoriten | ✅ (2026-10-25, Claude in der Demo) |
 | 76.15 | Im Add-on: eigene Licht-Gruppen anlegen (z. B. Kinderzimmer), abends eine Gruppe ausschalten | Nur die Lichter dieser Räume gehen aus; die Gruppen bleiben nach Neuladen und auf jedem Gerät gleich | ➖ |
 
 ## 77. Neu in 4.2.1: Saugroboter sichtbar, Hausmodus mit Knöpfen, „Innenmaß“ beim Messen (#473, #474)
@@ -1281,17 +1277,17 @@ Der Besitzer meldete bei 63.4: In der Küche gibt es keinen Saugroboter. Grund: 
 Der Besitzer möchte nur noch dieses Programm in Home Assistant benutzen („keine anderen Dashboards mehr“) und hat aus den Beispielbildern (`docs/ideen-4.3/`) alle acht Reiter gewählt, die Leiste unten. Schritt 1: die Leiste, 📷 Kameras als eigene Seite, pro Benutzer welche Reiter und mit welchem es anfängt („es soll ja aber auch noch administrativ verwaltet werden“), die Anleitung fürs Tablet und die Karte für HACS mit Reitern und als Wandtablet. Die übrigen Reiter kommen in den nächsten Schritten.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 78.1 | Demo am PC oder Tablet, „Live“ | Ganz unten eine Leiste mit „🏠 Haus“ (blau umrandet) und „📷 Kameras“, rechts „⛶ Vollbild“; das 3D-Bild endet über der Leiste, nichts wird verdeckt | ❓ |
-| 78.2 | „📷 Kameras“ antippen | Eine Seite über dem Haus: „📷 Kameras · 2 Kameras · 🏃 Bewegung: 2“, die Kamera Wohnzimmer rot umrandet mit „Bewegung erkannt“, darunter die Kamera Büro, unten „Bewegungsmelder“ mit „Büro Anwesenheit“ | ❓ |
-| 78.3 | Die Kamera Wohnzimmer antippen, dann „‹ Alle Kameras“ | Die Kamera groß (in der Demo ein Standbild, im Add-on das Live-Bild), oben ihr Name, „Im Plan zeigen“ und „In Home Assistant öffnen“; „‹ Alle Kameras“ geht zurück zu den Kacheln | ❓ |
-| 78.4 | Noch einmal eine Kamera groß, dann „Im Plan zeigen“ | Zurück beim Haus, die Kamera im Bild markiert, unten ist „🏠 Haus“ blau | ❓ |
-| 78.5 | Oben den Kamera-Knopf („📷 Bewegung in …“) antippen | In „Live“ öffnet er die Kamera-Seite (früher eine kleine Liste; die gibt es noch beim Bearbeiten) | ❓ |
-| 78.6 | „Bearbeiten“, dann wieder „Live“ | Beim Bearbeiten ist die Leiste weg und alles wie immer; in „Live“ ist sie wieder da, das Haus offen | ❓ |
-| 78.7 | „⛶ Vollbild“ antippen, dann noch einmal (oder Esc) | Die Seite füllt den ganzen Bildschirm, wieder antippen: zurück | ❓ |
-| 78.8 | ⚙ → „📱 Wandtablet“: den Haken „Reiter-Leiste unten“ wegnehmen, schließen; dann wieder setzen | Ohne Haken ist die Leiste weg, mit Haken wieder da | ❓ |
-| 78.9 | ⚙ → „📱 Wandtablet“ → „📱 Tablet einrichten“ aufklappen, „Text der Karte kopieren“ | Fünf Schritte und der Text der Karte (`type: custom:floorplan3d-card`, `fill`, `tabs`, `kiosk`); der Knopf sagt „Kopiert ✓“ | ❓ |
-| 78.10 | ⚙ → „👥 Benutzer & Tablets“ → „+ Benutzer“, einen Namen eintippen, sein ⚙ antippen | Unter „Reiter unten“ ein Haken „📷 Kameras“ und „Fängt an mit“ (🏠 Haus / 📷 Kameras); „Fängt an mit: 📷 Kameras“ wählen, schließen, wieder öffnen: es ist gespeichert | ❓ |
-| 78.11 | Am Handy: Demo, unten „📷 Kameras“ | Die Kameras untereinander, die Überschrift wird nicht vom ☰ verdeckt; „🏠 Haus“ geht zurück | ❓ |
+| 78.1 | Demo am PC oder Tablet, „Live“ | Ganz unten eine Leiste mit „🏠 Haus“ (blau umrandet) und „📷 Kameras“, rechts „⛶ Vollbild“; das 3D-Bild endet über der Leiste, nichts wird verdeckt | ✅ (2026-10-25, Claude in der Demo) |
+| 78.2 | „📷 Kameras“ antippen | Eine Seite über dem Haus: „📷 Kameras · 2 Kameras · 🏃 Bewegung: 2“, die Kamera Wohnzimmer rot umrandet mit „Bewegung erkannt“, darunter die Kamera Büro, unten „Bewegungsmelder“ mit „Büro Anwesenheit“ | ✅ (2026-10-25, Claude in der Demo) |
+| 78.3 | Die Kamera Wohnzimmer antippen, dann „‹ Alle Kameras“ | Die Kamera groß (in der Demo ein Standbild, im Add-on das Live-Bild), oben ihr Name, „Im Plan zeigen“ und „In Home Assistant öffnen“; „‹ Alle Kameras“ geht zurück zu den Kacheln | ✅ (2026-10-25, Claude in der Demo) |
+| 78.4 | Noch einmal eine Kamera groß, dann „Im Plan zeigen“ | Zurück beim Haus, die Kamera im Bild markiert, unten ist „🏠 Haus“ blau | ✅ (2026-10-25, Claude in der Demo) |
+| 78.5 | Oben den Kamera-Knopf („📷 Bewegung in …“) antippen | In „Live“ öffnet er die Kamera-Seite (früher eine kleine Liste; die gibt es noch beim Bearbeiten) | ✅ (2026-10-25, Claude in der Demo) |
+| 78.6 | „Bearbeiten“, dann wieder „Live“ | Beim Bearbeiten ist die Leiste weg und alles wie immer; in „Live“ ist sie wieder da, das Haus offen | ✅ (2026-10-25, Claude in der Demo) |
+| 78.7 | „⛶ Vollbild“ antippen, dann noch einmal (oder Esc) | Die Seite füllt den ganzen Bildschirm, wieder antippen: zurück | ✅ (2026-10-25, Claude in der Demo) |
+| 78.8 | ⚙ → „📱 Wandtablet“: den Haken „Reiter-Leiste unten“ wegnehmen, schließen; dann wieder setzen | Ohne Haken ist die Leiste weg, mit Haken wieder da | ✅ (2026-10-25, Claude in der Demo) |
+| 78.9 | ⚙ → „📱 Wandtablet“ → „📱 Tablet einrichten“ aufklappen, „Text der Karte kopieren“ | Fünf Schritte und der Text der Karte (`type: custom:floorplan3d-card`, `fill`, `tabs`, `kiosk`); der Knopf sagt „Kopiert ✓“ | ✅ (2026-10-25, Claude in der Demo) |
+| 78.10 | ⚙ → „👥 Benutzer & Tablets“ → „+ Benutzer“, einen Namen eintippen, sein ⚙ antippen | Unter „Reiter unten“ ein Haken „📷 Kameras“ und „Fängt an mit“ (🏠 Haus / 📷 Kameras); „Fängt an mit: 📷 Kameras“ wählen, schließen, wieder öffnen: es ist gespeichert | ✅ (2026-10-25, Claude in der Demo) |
+| 78.11 | Am Handy: Demo, unten „📷 Kameras“ | Die Kameras untereinander, die Überschrift wird nicht vom ☰ verdeckt; „🏠 Haus“ geht zurück | ✅ (2026-10-25, Claude in der Demo) |
 | 78.12 | Im Add-on: einem Tablet-Benutzer „Fängt an mit: 📷 Kameras“ geben, am Tablet neu laden; in ⚙ „Zurück zur Startansicht nach“ 1 Minute, zum Haus wechseln und warten | Das Tablet startet auf der Kamera-Seite (Live-Bilder); nach einer Minute ohne Berührung ist es wieder dort | ➖ |
 | 78.13 | Im Add-on: einem Benutzer den Haken „📷 Kameras“ wegnehmen (oder unter 🔒 „Kameras“ sperren) | Dieser Benutzer hat keine Leiste (nur das Haus) | ➖ |
 | 78.14 | Im Add-on mit HACS: die Karte aktualisieren, ein neues Dashboard mit Ansicht „Panel“ und dem Text aus 78.9, als Standard-Dashboard des Tablet-Benutzers; am Tablet anmelden | Die Karte füllt den Bildschirm mit der Leiste unten; beim Tablet-Benutzer (ohne Admin) sind die Seitenleiste und die Kopfzeile von Home Assistant weg (falls nicht: welche Home-Assistant-Version, ein Bild); als Admin sind sie da | ➖ |
@@ -1300,19 +1296,19 @@ Der Besitzer möchte nur noch dieses Programm in Home Assistant benutzen („kei
 Der Besitzer: „kannst du die anderen reiter auch machen“. Paket 1 von 3: die Startseite „Heute“ und der Strom-Verlauf „Energie“ (auch für zwei Häuser). In der Demo sind Wetter, Termine und Strom-Werte erfunden.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 79.1 | Demo, „Live“: unten die Leiste | 🏠 Haus, ☀️ Heute, ⚡ Energie, 📷 Kameras, rechts ⛶ Vollbild (seit 4.5.0 dazu Klima, Abläufe, Familie: 80.1) | ❓ |
-| 79.2 | „☀️ Heute“ antippen | Groß die Uhrzeit und das Datum; das Wetter (14 °C, Teilweise bewölkt) mit 5 Tagen (Symbol, Höchst-/Tiefstwert, Regen in %); „Termine“ heute (ganztags Herbstferien, 15:00 Zahnarzt Anna, 17:30 Fußball-Training) und morgen; „Müll“: morgen Gelber Sack, dann Restmüll und Papier; „Wer ist da“: Anna da, Max unterwegs | ❓ |
-| 79.3 | Rechts „Im Haus“ ansehen und „10 Lichter an“ antippen | Dort stehen offene Türen/Fenster, Lichter an, schwache Batterien; der Tipp geht zum Haus, die Liste „Lichter“ ist offen | ❓ |
-| 79.4 | Zurück zu „Heute“, „2 offen“ antippen; dann „2 Batterien fast leer“ | Erst die Liste der offenen Türen und Fenster, dann die Geräte-Liste bei „Batterie“ | ❓ |
-| 79.5 | „Heute“ → „Strom jetzt“ antippen | Die Seite ⚡ Energie geht auf | ❓ |
-| 79.6 | ⚡ Energie: „Tag“ | Kacheln Verbraucht (mit „gestern um die Zeit“), Vom Dach, Aus dem Netz, Selbst gemacht %, Kosten; Balken je Stunde bis „jetzt“ (orange = Sonne/Batterie, blau = Netz); rechts die größten Verbraucher (Wärmepumpe …); unten Gas und Wasser | ❓ |
-| 79.7 | Woche, Monat, Jahr nacheinander; mit der Maus über einen Balken fahren (PC) | Balken je Tag (Woche, Monat) und je Monat (Jahr); beim Darüberfahren steht der Wert des Balkens | ❓ |
-| 79.8 | „‹“ antippen, dann „›“ | Der Zeitraum davor (z. B. „Gestern“, „2025“), die Kachel sagt „Tag davor“ bzw. „Jahr davor“; „›“ geht wieder vor, beim aktuellen Zeitraum ist „›“ grau | ❓ |
-| 79.9 | Oben „Nachbarhaus“, dann „Alle zusammen“ | Ohne eigene Zähler rechnet das Nachbarhaus mit dem Energie-Dashboard (der Satz unter dem Zeitraum sagt es); „Alle zusammen“ zählt jeden Zähler einmal | ❓ |
-| 79.10 | „Bearbeiten“ → Strom-Editor → „⚡ Rechnung“, ganz nach unten | „Zähler für den Verlauf (Seite ⚡ Energie)“: je Art (Bezug, Einspeisung, Solar, Batterie rein/raus, Gas, Wasser) ein Feld, „⤵ Aus dem Energie-Dashboard übernehmen“, darunter Strompreis und Einspeisung | ❓ |
-| 79.11 | „⤵ Aus dem Energie-Dashboard übernehmen“, einen Zähler mit × entfernen, Preis 0,35 eintragen; dann „Wieder das Energie-Dashboard nehmen“ | Die Zähler stehen als Kärtchen mit ihrem Zählerstand da, der Preis bleibt; danach ist es wieder leer („Jetzt: die Zähler des Energie-Dashboards“) | ❓ |
-| 79.12 | ⚙ → „🗂 Reiter unten“ aufklappen | Der Schalter „Reiter-Leiste unten“, darunter die Kalender (Familie, Müllabfuhr) zum Ankreuzen und „Kalender der Müllabfuhr“ | ❓ |
-| 79.13 | Am Handy: Demo, unten „Heute“, dann „Energie“ | Alles untereinander, gut lesbar; die Leiste unten lässt sich zur Seite wischen, wenn sie nicht passt | ❓ |
+| 79.1 | Demo, „Live“: unten die Leiste | 🏠 Haus, ☀️ Heute, ⚡ Energie, 📷 Kameras, rechts ⛶ Vollbild (seit 4.5.0 dazu Klima, Abläufe, Familie: 80.1) | ✅ (2026-10-25, Claude in der Demo) |
+| 79.2 | „☀️ Heute“ antippen | Groß die Uhrzeit und das Datum; das Wetter (14 °C, Teilweise bewölkt) mit 5 Tagen (Symbol, Höchst-/Tiefstwert, Regen in %); „Termine“ heute (ganztags Herbstferien, 15:00 Zahnarzt Anna, 17:30 Fußball-Training) und morgen; „Müll“: morgen Gelber Sack, dann Restmüll und Papier; „Wer ist da“: Anna da, Max unterwegs | ✅ (2026-10-25, Claude in der Demo) |
+| 79.3 | Rechts „Im Haus“ ansehen und „10 Lichter an“ antippen | Dort stehen offene Türen/Fenster, Lichter an, schwache Batterien; der Tipp geht zum Haus, die Liste „Lichter“ ist offen | ✅ (2026-10-25, Claude in der Demo) |
+| 79.4 | Zurück zu „Heute“, „2 offen“ antippen; dann „2 Batterien fast leer“ | Erst die Liste der offenen Türen und Fenster, dann die Geräte-Liste bei „Batterie“ | ✅ (2026-10-25, Claude in der Demo) |
+| 79.5 | „Heute“ → „Strom jetzt“ antippen | Die Seite ⚡ Energie geht auf | ✅ (2026-10-25, Claude in der Demo) |
+| 79.6 | ⚡ Energie: „Tag“ | Kacheln Verbraucht (mit „gestern um die Zeit“), Vom Dach, Aus dem Netz, Selbst gemacht %, Kosten; Balken je Stunde bis „jetzt“ (orange = Sonne/Batterie, blau = Netz); rechts die größten Verbraucher (Wärmepumpe …); unten Gas und Wasser | ✅ (2026-10-25, Claude in der Demo) |
+| 79.7 | Woche, Monat, Jahr nacheinander; mit der Maus über einen Balken fahren (PC) | Balken je Tag (Woche, Monat) und je Monat (Jahr); beim Darüberfahren steht der Wert des Balkens | ✅ (2026-10-25, Claude in der Demo) |
+| 79.8 | „‹“ antippen, dann „›“ | Der Zeitraum davor (z. B. „Gestern“, „2025“), die Kachel sagt „Tag davor“ bzw. „Jahr davor“; „›“ geht wieder vor, beim aktuellen Zeitraum ist „›“ grau | ✅ (2026-10-25, Claude in der Demo) |
+| 79.9 | Oben „Nachbarhaus“, dann „Alle zusammen“ | Ohne eigene Zähler rechnet das Nachbarhaus mit dem Energie-Dashboard (der Satz unter dem Zeitraum sagt es); „Alle zusammen“ zählt jeden Zähler einmal | ✅ (2026-10-25, Claude in der Demo; das Nachbarhaus hat inzwischen eigene Zähler) |
+| 79.10 | „Bearbeiten“ → Strom-Editor → „⚡ Rechnung“, ganz nach unten | „Zähler für den Verlauf (Seite ⚡ Energie)“: je Art (Bezug, Einspeisung, Solar, Batterie rein/raus, Gas, Wasser) ein Feld, „⤵ Aus dem Energie-Dashboard übernehmen“, darunter Strompreis und Einspeisung | ✅ (2026-10-25, Claude in der Demo) |
+| 79.11 | „⤵ Aus dem Energie-Dashboard übernehmen“, einen Zähler mit × entfernen, Preis 0,35 eintragen; dann „Wieder das Energie-Dashboard nehmen“ | Die Zähler stehen als Kärtchen mit ihrem Zählerstand da, der Preis bleibt; danach ist es wieder leer („Jetzt: die Zähler des Energie-Dashboards“) | ❌ (2026-10-25, Claude: in der Demo die Strom-Zähler ohne Namen und Stand, #525; neu: 101.7) |
+| 79.12 | ⚙ → „🗂 Reiter unten“ aufklappen | Der Schalter „Reiter-Leiste unten“, darunter die Kalender (Familie, Müllabfuhr) zum Ankreuzen und „Kalender der Müllabfuhr“ | ✅ (2026-10-25, Claude in der Demo) |
+| 79.13 | Am Handy: Demo, unten „Heute“, dann „Energie“ | Alles untereinander, gut lesbar; die Leiste unten lässt sich zur Seite wischen, wenn sie nicht passt | ✅ (2026-10-25, Claude in der Demo) |
 | 79.14 | Im Add-on: ⚡ Energie mit deinem Energie-Dashboard | Die Zahlen von heute stimmen mit dem Energie-Dashboard von Home Assistant überein (gleicher Tag); Woche, Monat und Jahr ebenso | ➖ |
 | 79.15 | Im Add-on: dem zweiten Haus („Kinder“) eigene Zähler in ⚡ Rechnung geben | ⚡ Energie zeigt je Haus seine Werte, „Alle zusammen“ beide | ➖ |
 | 79.16 | Im Add-on: ☀ Heute mit deinen Kalendern und dem Müll-Kalender (⚙ → Reiter unten) | Deine Termine und die nächste Müllabfuhr stehen da; das Wetter mit Vorhersage | ➖ |
@@ -1321,23 +1317,23 @@ Der Besitzer: „kannst du die anderen reiter auch machen“. Paket 1 von 3: die
 Der Besitzer: „kannst du die anderen reiter auch machen“. Paket 2 von 3: die Räume mit Temperatur, Soll und Luft; große Knöpfe für Szenen und Skripte mit „Ich gehe“ und „Gute Nacht“; wer wo ist mit Handy-Akku und eine Pinnwand für alle. In der Demo sind Personen, Akkus und Zettel erfunden.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 80.1 | Demo, „Live“: unten die Leiste | 🏠 Haus, ☀️ Heute, ⚡ Energie, 🌡️ Klima, 📷 Kameras, ▶️ Abläufe, 👨‍👩‍👧 Familie, rechts ⛶ Vollbild | ❓ |
-| 80.2 | „🌡️ Klima“ antippen | Je Raum eine Karte mit Temperatur. Wohnzimmer: 21,3°, „🔥 heizt“, Soll 22,0°, „Luft gut · 920 ppm“, 💧 48 %, roter Rand und „Offen: Fenster Wohnzimmer, Tür Wohnzimmer-Küche“ mit „Heizung aus“; Schlafzimmer „🪟 Lüften · 1350 ppm“; Büro „❄ kühlt“, 23,0° in Orange (zu warm); unten „Warmwasser (Wärmepumpe)“ 48,0° und ein Tipp | ❓ |
-| 80.3 | Beim Wohnzimmer zweimal „+“ antippen | Soll springt sofort auf 23,0°; nach einem Moment bleibt es so (ein einziger Befehl an die Heizung) | ❓ |
-| 80.4 | Beim Wohnzimmer „Heizung aus“ antippen | Das Wohnzimmer zeigt „aus“, kein Soll und keine − + mehr; der rote Rand und der Tipp zum Fenster sind weg | ❓ |
-| 80.5 | Oben „Nur mit Hinweis“, dann „Alle Räume“ | Nur noch die Räume mit Hinweis (Schlafzimmer: Lüften, Büro: zu warm); dann wieder alle | ❓ |
-| 80.6 | Auf einen Raumnamen tippen (z. B. „Küche“) | Das Haus geht auf, der Raum ist ausgewählt und seine Karte offen | ❓ |
-| 80.7 | „▶️ Abläufe“ antippen | Vorne „🚪 Ich gehe“ und „🌙 Gute Nacht“ („… dann Gute Nacht“), dann Filmabend, Guten Morgen, Wohnzimmer Aus, Wohnzimmer Gemütlich; unten zugeklappt „⚙ Automationen (3)“ | ❓ |
-| 80.8 | „Filmabend“ antippen | Darunter kurz „✓ gestartet“ | ❓ |
-| 80.9 | „Ich gehe“ antippen | Fenster „Bevor du gehst …“: Offen: 2 (bleibt offen), Lichter an: 10 (gehen aus), Es läuft: 2 (geht aus), Nicht abgeschlossen: 1 Haustür (bleibt offen); Knöpfe „Zurück“ und „Alles aus“ | ❓ |
-| 80.10 | „Alles aus“ antippen | „✓ Erledigt“, das Fenster geht zu; im Haus sind alle Lichter, der Fernseher und der Lautsprecher aus | ❓ |
-| 80.11 | „Gute Nacht“ antippen, dann „Trotzdem starten“ | Das Fenster zeigt nur noch die offenen Türen/Fenster und die Haustür, „Danach startet: Gute Nacht“; „Trotzdem starten“ startet die Szene, „✓ Erledigt“ | ❓ |
-| 80.12 | „⚙ Automationen (3)“ aufklappen, einen Schalter umlegen | Drei Automationen mit Schalter; der Schalter bleibt in der neuen Stellung | ❓ |
-| 80.13 | ⚙ → „🗂️ Reiter unten“ → „▶️ Abläufe“: Haken bei „Filmabend“, „„Ich gehe“ startet danach“ auf „Wohnzimmer Aus“; dann zur Seite Abläufe | Auf der Seite nur noch Filmabend neben den zwei Prüfungen; „Ich gehe“ sagt „… dann Wohnzimmer Aus“ | ❓ |
-| 80.14 | „👨‍👩‍👧 Familie“ antippen | Anna „🏠 zu Hause“ seit 11:02, 📱 78 %; Lena „📍 Schule“, 📱 18 % in Rot; Max „🚗 unterwegs“ seit 08:10; rechts die Pinnwand mit drei Zetteln | ❓ |
-| 80.15 | Eine neue Notiz schreiben, eine Farbe wählen, „📌 Anheften“; dann bei einem Zettel ✕ | Der Zettel kommt vorne dazu (Farbe, „Demo · Uhrzeit“), das Feld ist wieder leer; ✕ nimmt den Zettel ab | ❓ |
-| 80.16 | „☀️ Heute“ antippen | Links unter dem Wetter „📌 Pinnwand“ mit den neuesten Zetteln; ein Tipp darauf öffnet „Familie“ | ❓ |
-| 80.17 | Am Handy: Klima, Abläufe, Familie | Alles untereinander und gut lesbar, bei Abläufe zwei Knöpfe nebeneinander; die Leiste unten lässt sich zur Seite wischen, die Namen sind ganz zu lesen | ❓ |
+| 80.1 | Demo, „Live“: unten die Leiste | 🏠 Haus, ☀️ Heute, ⚡ Energie, 🌡️ Klima, 📷 Kameras, ▶️ Abläufe, 👨‍👩‍👧 Familie, rechts ⛶ Vollbild | ✅ (2026-10-25, Claude in der Demo) |
+| 80.2 | „🌡️ Klima“ antippen | Je Raum eine Karte mit Temperatur. Wohnzimmer: 21,3°, „🔥 heizt“, Soll 22,0°, „Luft gut · 920 ppm“, 💧 48 %, roter Rand und „Offen: Fenster Wohnzimmer, Tür Wohnzimmer-Küche“ mit „Heizung aus“; Schlafzimmer „🪟 Lüften · 1350 ppm“; Büro „❄ kühlt“, 23,0° in Orange (zu warm); unten „Warmwasser (Wärmepumpe)“ 48,0° und ein Tipp | ❌ (2026-10-25, Claude: alles da, nur das Büro 23,0° ist nicht orange, #520; neu: 101.2) |
+| 80.3 | Beim Wohnzimmer zweimal „+“ antippen | Soll springt sofort auf 23,0°; nach einem Moment bleibt es so (ein einziger Befehl an die Heizung) | ✅ (2026-10-25, Claude in der Demo) |
+| 80.4 | Beim Wohnzimmer „Heizung aus“ antippen | Das Wohnzimmer zeigt „aus“, kein Soll und keine − + mehr; der rote Rand und der Tipp zum Fenster sind weg | ✅ (2026-10-25, Claude in der Demo) |
+| 80.5 | Oben „Nur mit Hinweis“, dann „Alle Räume“ | Nur noch die Räume mit Hinweis (Schlafzimmer: Lüften, Büro: zu warm); dann wieder alle | ✅ (2026-10-25, Claude in der Demo; warum das Büro dabei ist, sah man nicht: #520, 101.2) |
+| 80.6 | Auf einen Raumnamen tippen (z. B. „Küche“) | Das Haus geht auf, der Raum ist ausgewählt und seine Karte offen | ✅ (2026-10-25, Claude in der Demo) |
+| 80.7 | „▶️ Abläufe“ antippen | Vorne „🚪 Ich gehe“ und „🌙 Gute Nacht“ („… dann Gute Nacht“), dann Filmabend, Guten Morgen, Wohnzimmer Aus, Wohnzimmer Gemütlich; unten zugeklappt „⚙ Automationen (3)“ | ✅ (2026-10-25, Claude in der Demo) |
+| 80.8 | „Filmabend“ antippen | Darunter kurz „✓ gestartet“ | ✅ (2026-10-25, Claude in der Demo) |
+| 80.9 | „Ich gehe“ antippen | Fenster „Bevor du gehst …“: Offen: 2 (bleibt offen), Lichter an: 10 (gehen aus), Es läuft: 2 (geht aus), Nicht abgeschlossen: 1 Haustür (bleibt offen); Knöpfe „Zurück“ und „Alles aus“ | ✅ (2026-10-25, Claude in der Demo) |
+| 80.10 | „Alles aus“ antippen | „✓ Erledigt“, das Fenster geht zu; im Haus sind alle Lichter, der Fernseher und der Lautsprecher aus | ✅ (2026-10-25, Claude in der Demo) |
+| 80.11 | „Gute Nacht“ antippen, dann „Trotzdem starten“ | Das Fenster zeigt nur noch die offenen Türen/Fenster und die Haustür, „Danach startet: Gute Nacht“; „Trotzdem starten“ startet die Szene, „✓ Erledigt“ | ✅ (2026-10-25, Claude in der Demo) |
+| 80.12 | „⚙ Automationen (3)“ aufklappen, einen Schalter umlegen | Drei Automationen mit Schalter; der Schalter bleibt in der neuen Stellung | ✅ (2026-10-25, Claude in der Demo) |
+| 80.13 | ⚙ → „🗂️ Reiter unten“ → „▶️ Abläufe“: Haken bei „Filmabend“, „„Ich gehe“ startet danach“ auf „Wohnzimmer Aus“; dann zur Seite Abläufe | Auf der Seite nur noch Filmabend neben den zwei Prüfungen; „Ich gehe“ sagt „… dann Wohnzimmer Aus“ | ✅ (2026-10-25, Claude in der Demo) |
+| 80.14 | „👨‍👩‍👧 Familie“ antippen | Anna „🏠 zu Hause“ seit 11:02, 📱 78 %; Lena „📍 Schule“, 📱 18 % in Rot; Max „🚗 unterwegs“ seit 08:10; rechts die Pinnwand mit drei Zetteln | ✅ (2026-10-25, Claude in der Demo) |
+| 80.15 | Eine neue Notiz schreiben, eine Farbe wählen, „📌 Anheften“; dann bei einem Zettel ✕ | Der Zettel kommt vorne dazu (Farbe, „Demo · Uhrzeit“), das Feld ist wieder leer; ✕ nimmt den Zettel ab | ✅ (2026-10-25, Claude in der Demo; nachts steht der neue Zettel nicht vorne, weil die Demo-Zettel Uhrzeiten später am Tag haben) |
+| 80.16 | „☀️ Heute“ antippen | Links unter dem Wetter „📌 Pinnwand“ mit den neuesten Zetteln; ein Tipp darauf öffnet „Familie“ | ✅ (2026-10-25, Claude in der Demo) |
+| 80.17 | Am Handy: Klima, Abläufe, Familie | Alles untereinander und gut lesbar, bei Abläufe zwei Knöpfe nebeneinander; die Leiste unten lässt sich zur Seite wischen, die Namen sind ganz zu lesen | ✅ (2026-10-25, Claude in der Demo) |
 | 80.18 | Im Add-on: 🌡️ Klima mit deinen Thermostaten und Sensoren | Deine Räume mit Temperatur; „+“ / „−“ kommt an der Heizung an | ➖ |
 | 80.19 | Im Add-on: 👨‍👩‍👧 Familie | Deine Personen mit ihrem Bild aus Home Assistant und dem Akku des Handys (Companion-App) | ➖ |
 | 80.20 | Im Add-on: am Handy eine Notiz anheften, mit „📲 Auch aufs Handy schicken“ | Nach höchstens einer Minute auch am Tablet; die Nachricht kommt über die Benachrichtigung von „Warnungen & Alarm“ | ➖ |
@@ -1347,18 +1343,18 @@ Der Besitzer: „kannst du die anderen reiter auch machen“. Paket 2 von 3: die
 Der Besitzer: „dass ich als Admin die einzelnen Dashboards bearbeiten kann wie im HA-Dashboard“. Gewählt nach den Beispielbildern (`docs/ideen-4.6/`): Karten ordnen und ausblenden, eigene Karten (zwölf Arten), eigene Seiten, für alle gleich. In der Demo darf man immer bearbeiten.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 81.1 | Demo, „Live“, unten „☀️ Heute“, dann rechts in der Leiste „✎ Bearbeiten“ | Oben die Leiste „Seite „Heute“ bearbeiten“ mit „＋ Karte“, „🗂 Reiter“, „↺ Wie am Anfang“, „✓ Fertig“; jede Karte gestrichelt mit ⠿ und 👁; am Ende „＋ Karte hinzufügen“ | ❓ |
-| 81.2 | Bei „Müll“ 👁 antippen, dann „✓ Fertig“; dann wieder ✎ und 👁 | Erst blass mit „ausgeblendet“, nach „Fertig“ ist die Karte weg; mit 👁 kommt sie zurück | ❓ |
-| 81.3 | Die Pinnwand an ⠿ greifen und vor die Uhr ziehen, loslassen | Die anderen Karten machen Platz, die Pinnwand bleibt vorne (auch nach „Fertig“ und neu Laden) | ❓ |
-| 81.4 | „＋ Karte hinzufügen“ → „Verlauf“ → im Suchfeld „wohnzimmer temp“ → „Wohnzimmer Temperatur“ → „7 Tage“, Farbe „Orange“ → „✓ Karte hinzufügen“ | Zwölf Arten zur Auswahl; die Liste zeigt nur passende Geräte; rechts die Vorschau mit Linie; danach steht die Karte auf der Seite („eigene Karte“) | ❓ |
-| 81.5 | Bei der neuen Karte ⚙️ → Breite „ganze Zeile“ → „Speichern“; dann 🗑 | Die Karte geht über die ganze Breite; 🗑 fragt nach und nimmt sie weg | ❓ |
-| 81.6 | Weitere Arten anlegen: Schalter (Flur Schalter), Licht (Stehlampe), Thermostat (Heizung Wohnzimmer), Rollladen (Wohnzimmer), Kamera, Raum (Küche), Text, Fertige Karte (Wetter) | Jede Karte zeigt ihr Gerät und lässt sich bedienen (Schalter, Helligkeit, − +, ▲ ■ ▼; Kamera antippen: groß; Raum antippen: im Haus) | ❓ |
-| 81.7 | „↺ Wie am Anfang“ | Fragt nach; die Karten stehen wieder wie vorher und alle sichtbar, die eigenen bleiben hinten | ❓ |
-| 81.8 | Auf „Klima“, „Abläufe“, „Familie“, „Energie“, „Kameras“ jeweils „✎ Bearbeiten“ | Überall dieselbe Leiste und dieselben Werkzeuge; z. B. bei Klima die Küche ausblenden, bei Abläufe „Gute Nacht“ nach vorne ziehen | ❓ |
-| 81.9 | Im Bearbeiten „🗂 Reiter“, dann einen Reiter unten seitlich ziehen (z. B. Familie nach vorn) | Über der Leiste „Reiter bearbeiten“, die Reiter gestrichelt; die neue Reihenfolge bleibt | ❓ |
-| 81.10 | „＋ Seite“ → Name „Garten“, Symbol 🌱, „Anfangen mit: Geräten eines Bereichs“ → Wohnzimmer → „Seite anlegen“ | Unten der neue Reiter „🌱 Garten“, die Seite mit den Geräten des Wohnzimmers als Karten (Lichter, Heizung, Rollladen, Szenen …), gleich im Bearbeiten | ❓ |
-| 81.11 | Wieder „🗂 Reiter“, auf „Garten“ tippen: Namen ändern; dann „🗑 Seite löschen“ | Erst heißt der Reiter anders, dann ist er weg | ❓ |
-| 81.12 | Am Handy: eine Seite bearbeiten, eine Karte mit dem Finger am ⠿ verschieben | Die Karte folgt dem Finger, die Seite rollt mit, wenn man an den Rand kommt | ❓ |
+| 81.1 | Demo, „Live“, unten „☀️ Heute“, dann rechts in der Leiste „✎ Bearbeiten“ | Oben die Leiste „Seite „Heute“ bearbeiten“ mit „＋ Karte“, „🗂 Reiter“, „↺ Wie am Anfang“, „✓ Fertig“; jede Karte gestrichelt mit ⠿ und 👁; am Ende „＋ Karte hinzufügen“ | ✅ (2026-10-25, Claude in der Demo) |
+| 81.2 | Bei „Müll“ 👁 antippen, dann „✓ Fertig“; dann wieder ✎ und 👁 | Erst blass mit „ausgeblendet“, nach „Fertig“ ist die Karte weg; mit 👁 kommt sie zurück | ✅ (2026-10-25, Claude in der Demo) |
+| 81.3 | Die Pinnwand an ⠿ greifen und vor die Uhr ziehen, loslassen | Die anderen Karten machen Platz, die Pinnwand bleibt vorne (auch nach „Fertig“ und neu Laden) | ✅ (2026-10-25, Claude in der Demo; nach dem neu Laden fängt die Demo wieder von vorne an, im Add-on bleibt es) |
+| 81.4 | „＋ Karte hinzufügen“ → „Verlauf“ → im Suchfeld „wohnzimmer temp“ → „Wohnzimmer Temperatur“ → „7 Tage“, Farbe „Orange“ → „✓ Karte hinzufügen“ | Zwölf Arten zur Auswahl; die Liste zeigt nur passende Geräte; rechts die Vorschau mit Linie; danach steht die Karte auf der Seite („eigene Karte“) | ✅ (2026-10-25, Claude in der Demo; inzwischen 13 Arten) |
+| 81.5 | Bei der neuen Karte ⚙️ → Breite „ganze Zeile“ → „Speichern“; dann 🗑 | Die Karte geht über die ganze Breite; 🗑 fragt nach und nimmt sie weg | ✅ (2026-10-25, Claude in der Demo) |
+| 81.6 | Weitere Arten anlegen: Schalter (Flur Schalter), Licht (Stehlampe), Thermostat (Heizung Wohnzimmer), Rollladen (Wohnzimmer), Kamera, Raum (Küche), Text, Fertige Karte (Wetter) | Jede Karte zeigt ihr Gerät und lässt sich bedienen (Schalter, Helligkeit, − +, ▲ ■ ▼; Kamera antippen: groß; Raum antippen: im Haus) | ✅ (2026-10-25, Claude in der Demo) |
+| 81.7 | „↺ Wie am Anfang“ | Fragt nach; die Karten stehen wieder wie vorher und alle sichtbar, die eigenen bleiben hinten | ✅ (2026-10-25, Claude in der Demo) |
+| 81.8 | Auf „Klima“, „Abläufe“, „Familie“, „Energie“, „Kameras“ jeweils „✎ Bearbeiten“ | Überall dieselbe Leiste und dieselben Werkzeuge; z. B. bei Klima die Küche ausblenden, bei Abläufe „Gute Nacht“ nach vorne ziehen | ✅ (2026-10-25, Claude in der Demo) |
+| 81.9 | Im Bearbeiten „🗂 Reiter“, dann einen Reiter unten seitlich ziehen (z. B. Familie nach vorn) | Über der Leiste „Reiter bearbeiten“, die Reiter gestrichelt; die neue Reihenfolge bleibt | ✅ (2026-10-25, Claude in der Demo) |
+| 81.10 | „＋ Seite“ → Name „Garten“, Symbol 🌱, „Anfangen mit: Geräten eines Bereichs“ → Wohnzimmer → „Seite anlegen“ | Unten der neue Reiter „🌱 Garten“, die Seite mit den Geräten des Wohnzimmers als Karten (Lichter, Heizung, Rollladen, Szenen …), gleich im Bearbeiten | ✅ (2026-10-25, Claude in der Demo) |
+| 81.11 | Wieder „🗂 Reiter“, auf „Garten“ tippen: Namen ändern; dann „🗑 Seite löschen“ | Erst heißt der Reiter anders, dann ist er weg | ✅ (2026-10-25, Claude in der Demo) |
+| 81.12 | Am Handy: eine Seite bearbeiten, eine Karte mit dem Finger am ⠿ verschieben | Die Karte folgt dem Finger, die Seite rollt mit, wenn man an den Rand kommt | ✅ (2026-10-25, Claude in der Demo) |
 | 81.13 | Im Add-on: als Admin eine Seite einrichten, dann am Wandtablet (Benutzer ohne Bearbeiten) ansehen | Dieselbe Anordnung, aber kein „✎ Bearbeiten“ | ➖ |
 | 81.14 | Im Add-on: Verlauf-Karte mit einem echten Sensor, 24 Std. und 7 Tage | Die Linie passt zum Verlauf in Home Assistant | ➖ |
 | 81.15 | Im Add-on: eine eigene Seite einem Benutzer abwählen (⚙ → Benutzer & Tablets → ⚙ des Benutzers → Reiter unten) | Dieser Benutzer sieht die Seite nicht, alle anderen schon | ➖ |
@@ -1367,14 +1363,14 @@ Der Besitzer: „dass ich als Admin die einzelnen Dashboards bearbeiten kann wie
 Der Besitzer: „dass der Benutzer den Vollbildmodus sozusagen dauerhaft anhat und ihn selbst nicht deaktivieren kann … nur mit einem Code“. In der Demo spielt die Adresse mit `?vollbild=1` so ein Tablet (Code **1234**).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 82.1 | Demo mit der Adresse https://burned4aim.github.io/HA-Floorplanner/?vollbild=1&mode=live öffnen | Über allem eine dunkle Fläche „Tippen für Vollbild“; dahinter lässt sich nichts antippen | ❓ |
-| 82.2 | Auf die Fläche tippen | Die Seite füllt den ganzen Bildschirm; unten rechts steht „🔒 Vollbild beenden“ | ❓ |
-| 82.3 | „🔒 Vollbild beenden“ antippen, dann 1111 und „Beenden“ | Das Vollbild bleibt, es kommt ein Zahlenfeld; bei 1111 „Falscher Code“ | ❓ |
-| 82.4 | 1234 und „Beenden“; danach „⛶ Vollbild“ noch einmal | Das Vollbild ist aus, unten rechts wieder „⛶ Vollbild“; nach dem Antippen wieder Vollbild mit 🔒 | ❓ |
-| 82.5 | Im Vollbild Esc drücken (PC) oder vom Rand wischen bzw. Zurück (Tablet, Handy) | Sofort wieder die Fläche „Das Vollbild wurde verlassen“, ein Tipp: zurück ins Vollbild (Chrome am PC: Esc muss man lange halten) | ❓ |
-| 82.6 | Auf der Fläche „🔒 Mit Code beenden“ → 1234 → „Beenden“ | Die Fläche ist weg, die Seite geht ohne Vollbild | ❓ |
-| 82.7 | Nach 82.6 zehn Minuten nichts berühren | Die Fläche „Tippen für Vollbild“ kommt wieder | ❓ |
-| 82.8 | Demo ohne `?vollbild=1`: ⚙ → „👥 Benutzer & Tablets“, bei einem Benutzer ⚙ → „🔒 Gesperrt“; darunter „🔒 Code für das Vollbild“ | Neuer Haken „Vollbild verlassen (⛶ bleibt an, beenden nur mit Code)“; „✓ Ein Code ist eingerichtet.“; ein Code mit 3 Ziffern wird abgelehnt, mit 4 bis 8 Ziffern „✓ Code gespeichert.“ | ❓ |
+| 82.1 | Demo mit der Adresse https://burned4aim.github.io/HA-Floorplanner/?vollbild=1&mode=live öffnen | Über allem eine dunkle Fläche „Tippen für Vollbild“; dahinter lässt sich nichts antippen | ✅ (2026-10-25, Claude in der Demo) |
+| 82.2 | Auf die Fläche tippen | Die Seite füllt den ganzen Bildschirm; unten rechts steht „🔒 Vollbild beenden“ | ✅ (2026-10-25, Claude in der Demo) |
+| 82.3 | „🔒 Vollbild beenden“ antippen, dann 1111 und „Beenden“ | Das Vollbild bleibt, es kommt ein Zahlenfeld; bei 1111 „Falscher Code“ | ✅ (2026-10-25, Claude in der Demo) |
+| 82.4 | 1234 und „Beenden“; danach „⛶ Vollbild“ noch einmal | Das Vollbild ist aus, unten rechts wieder „⛶ Vollbild“; nach dem Antippen wieder Vollbild mit 🔒 | ✅ (2026-10-25, Claude in der Demo) |
+| 82.5 | Im Vollbild Esc drücken (PC) oder vom Rand wischen bzw. Zurück (Tablet, Handy) | Sofort wieder die Fläche „Das Vollbild wurde verlassen“, ein Tipp: zurück ins Vollbild (Chrome am PC: Esc muss man lange halten) | ✅ (2026-10-25, Claude in der Demo) |
+| 82.6 | Auf der Fläche „🔒 Mit Code beenden“ → 1234 → „Beenden“ | Die Fläche ist weg, die Seite geht ohne Vollbild | ✅ (2026-10-25, Claude in der Demo) |
+| 82.7 | Nach 82.6 zehn Minuten nichts berühren | Die Fläche „Tippen für Vollbild“ kommt wieder | ✅ (2026-10-25, Claude in der Demo; die Fläche sagt dann „Das Vollbild wurde verlassen“) |
+| 82.8 | Demo ohne `?vollbild=1`: ⚙ → „👥 Benutzer & Tablets“, bei einem Benutzer ⚙ → „🔒 Gesperrt“; darunter „🔒 Code für das Vollbild“ | Neuer Haken „Vollbild verlassen (⛶ bleibt an, beenden nur mit Code)“; „✓ Ein Code ist eingerichtet.“; ein Code mit 3 Ziffern wird abgelehnt, mit 4 bis 8 Ziffern „✓ Code gespeichert.“ | ✅ (2026-10-25, Claude in der Demo; erst mit „+“ einen Benutzer anlegen, die Demo hat keinen) |
 | 82.9 | Im Add-on: als Admin beim Tablet-Benutzer „Vollbild verlassen“ ankreuzen und einen Code setzen; am Tablet (Fully Kiosk oder Chrome) öffnen | Die Fläche, nach einem Tipp Vollbild; beenden nur mit dem Code | ➖ |
 | 82.10 | Im Add-on am Tablet fünfmal einen falschen Code | „Zu viele falsche Versuche. Bitte … Sekunden warten.“ | ➖ |
 
@@ -1382,18 +1378,18 @@ Der Besitzer: „dass der Benutzer den Vollbildmodus sozusagen dauerhaft anhat u
 Paket 3 der Reiter („kannst du die anderen Reiter auch machen“), so wie auf den Bildern `docs/ideen-4.3/7-musik.jpg` und `8-haushalt.jpg`.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 83.1 | Demo, „Live“: unten die Leiste | Nach „📷 Kameras“ stehen „🎵 Musik & TV“ und „🧺 Haushalt“; am Haushalt eine rote 1 (die Spülmaschine ist fertig) | ❓ |
-| 83.2 | „🎵 Musik & TV“ antippen | Karten: Fernseher (Netflix), Lautsprecher Wohnzimmer (Sommerregen), Kinderzimmer (Pause), Küchenradio (aus); ⏯, ⏭ und die Lautstärke gehen | ❓ |
-| 83.3 | Unten bei „Radiosender“ auf „SWR3“, dann „Küchenradio“ | Ein Fenster fragt „Wo soll der Sender laufen?“; danach spielt das Küchenradio SWR3 | ❓ |
-| 83.4 | Oben „🔗 Räume zusammen“, Häkchen setzen, „Zusammen spielen“; danach wieder öffnen, „Alle trennen“ | Die Karten zeigen „zusammen mit …“; nach dem Trennen ist das wieder weg | ❓ |
-| 83.5 | Oben „Alles stopp“ | Alles, was spielt, steht auf Pause | ❓ |
-| 83.6 | „🧺 Haushalt“ antippen | Waschmaschine: Programm, „fertig um …“, „noch … min“ und ein Balken; Trockner „zuletzt gestern 19:40“; Spülmaschine „fertig ✓“, „bitte ausräumen“ | ❓ |
-| 83.7 | Bei der Spülmaschine „✓ Ausgeräumt“ | Die Karte sagt „zuletzt …“, die rote 1 am Reiter ist weg | ❓ |
-| 83.8 | Beim Saugroboter „Saugen“, dann „Zur Station“ | Er saugt (Knopf „Pause“), dann fährt er zurück | ❓ |
-| 83.9 | Einkaufsliste: „Milch“ abhaken, unten „Butter“ eintippen und Enter, dann „Erledigte löschen“ | Milch wird durchgestrichen und rutscht nach unten, Butter kommt dazu, die abgehakten verschwinden | ❓ |
-| 83.10 | ⚙ → „🗂 Reiter unten“ → „🎵 Musik & TV: Radiosender“: „＋ Sender“, Name und Adresse eintippen, schließen; dann mit × wieder entfernen | Der neue Sender steht als Knopf auf der Seite; nach × ist er weg | ❓ |
-| 83.11 | Auf beiden Seiten „✎ Bearbeiten“ | Karten lassen sich verschieben und ausblenden wie auf den anderen Seiten | ❓ |
-| 83.12 | Am Handy beide Seiten ansehen | Alles lesbar, Knöpfe groß genug, nichts abgeschnitten | ❓ |
+| 83.1 | Demo, „Live“: unten die Leiste | Nach „📷 Kameras“ stehen „🎵 Musik & TV“ und „🧺 Haushalt“; am Haushalt eine rote 1 (die Spülmaschine ist fertig) | ✅ (2026-10-25, Claude in der Demo) |
+| 83.2 | „🎵 Musik & TV“ antippen | Karten: Fernseher (Netflix), Lautsprecher Wohnzimmer (Sommerregen), Kinderzimmer (Pause), Küchenradio (aus); ⏯, ⏭ und die Lautstärke gehen | ✅ (2026-10-25, Claude in der Demo) |
+| 83.3 | Unten bei „Radiosender“ auf „SWR3“, dann „Küchenradio“ | Ein Fenster fragt „Wo soll der Sender laufen?“; danach spielt das Küchenradio SWR3 | ✅ (2026-10-25, Claude in der Demo) |
+| 83.4 | Oben „🔗 Räume zusammen“, Häkchen setzen, „Zusammen spielen“; danach wieder öffnen, „Alle trennen“ | Die Karten zeigen „zusammen mit …“; nach dem Trennen ist das wieder weg | ✅ (2026-10-25, Claude in der Demo) |
+| 83.5 | Oben „Alles stopp“ | Alles, was spielt, steht auf Pause | ✅ (2026-10-25, Claude in der Demo) |
+| 83.6 | „🧺 Haushalt“ antippen | Waschmaschine: Programm, „fertig um …“, „noch … min“ und ein Balken; Trockner „zuletzt gestern 19:40“; Spülmaschine „fertig ✓“, „bitte ausräumen“ | ✅ (2026-10-25, Claude in der Demo) |
+| 83.7 | Bei der Spülmaschine „✓ Ausgeräumt“ | Die Karte sagt „zuletzt …“, die rote 1 am Reiter ist weg | ✅ (2026-10-25, Claude in der Demo) |
+| 83.8 | Beim Saugroboter „Saugen“, dann „Zur Station“ | Er saugt (Knopf „Pause“), dann fährt er zurück | ✅ (2026-10-25, Claude in der Demo) |
+| 83.9 | Einkaufsliste: „Milch“ abhaken, unten „Butter“ eintippen und Enter, dann „Erledigte löschen“ | Milch wird durchgestrichen und rutscht nach unten, Butter kommt dazu, die abgehakten verschwinden | ✅ (2026-10-25, Claude in der Demo) |
+| 83.10 | ⚙ → „🗂 Reiter unten“ → „🎵 Musik & TV: Radiosender“: „＋ Sender“, Name und Adresse eintippen, schließen; dann mit × wieder entfernen | Der neue Sender steht als Knopf auf der Seite; nach × ist er weg | ✅ (2026-10-25, Claude in der Demo) |
+| 83.11 | Auf beiden Seiten „✎ Bearbeiten“ | Karten lassen sich verschieben und ausblenden wie auf den anderen Seiten | ✅ (2026-10-25, Claude in der Demo) |
+| 83.12 | Am Handy beide Seiten ansehen | Alles lesbar, Knöpfe groß genug, nichts abgeschnitten | ✅ (2026-10-25, Claude in der Demo) |
 | 83.13 | Im Add-on: echte Lautsprecher und Fernseher | Bild, Titel, Knöpfe und Lautstärke stimmen; ein Sender mit echter Stream-Adresse spielt | ➖ |
 | 83.14 | Im Add-on: echte Waschmaschine (Home Connect o. Ä.) oder eine Steckdose mit Leistungsmessung | „läuft seit …“ während sie läuft, danach „fertig“ bis „Ausgeräumt“ | ➖ |
 | 83.15 | Im Add-on: die Einkaufsliste von Home Assistant | Was hier abgehakt oder eingetragen wird, steht auch in der Home-Assistant-App | ➖ |
@@ -1403,7 +1399,7 @@ Paket 3 der Reiter („kannst du die anderen Reiter auch machen“), so wie auf 
 Beim Selbsttest der Demo gefunden: In der Geräte-Liste stand beim Saugroboter „docked“ und beim Bewegungsmelder „on“.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 84.1 | Demo, „Live“, oben „📋 Geräte“ antippen und die Liste durchsehen | Beim Saugroboter steht „An der Station“, bei „Büro Anwesenheit“ „An“, nirgends „on“, „off“ oder „docked“ | ❓ |
+| 84.1 | Demo, „Live“, oben „📋 Geräte“ antippen und die Liste durchsehen | Beim Saugroboter steht „An der Station“, bei „Büro Anwesenheit“ „An“, nirgends „on“, „off“ oder „docked“ | ❌ (2026-10-25, Claude: Fernseher und Lautsprecher „▶ playing“, #521; neu: 101.3) |
 
 ## 85. Neu in 4.8.2: Tablets schneller (#494)
 Der Besitzer merkte, dass die Tablets langsamer wurden. Das 3D-Bild lief bei jeder Meldung eines Sensors 15 Sekunden mit voller Bildrate, und die Seiten wurden bei jeder Änderung ganz neu gebaut.
@@ -1418,48 +1414,48 @@ Der Besitzer merkte, dass die Tablets langsamer wurden. Das 3D-Bild lief bei jed
 Wunsch des Besitzers: „wie in Home Assistant selbst mit so einem Kreis, wo man Plus und Minus machen kann … Heizen, Auto und Aus“. Bild `docs/ideen-4.9/1-thermostat.jpg`.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 86.1 | Demo, „Live“, unten 🌡 Klima | Wohnzimmer und Büro haben einen Kreis: in der Mitte das Soll (groß), darunter „jetzt …“, der Ring ist orange (Heizen) bzw. blau (Kühlen) | ❓ |
-| 86.2 | Beim Wohnzimmer zweimal auf + tippen | Das Soll steigt sofort um 1,0°, kurz danach wird es an Home Assistant geschickt (bleibt stehen) | ❓ |
-| 86.3 | Den weißen Knopf am Ring mit dem Finger ziehen | Die Zahl in der Mitte folgt dem Finger; beim Loslassen wird der Wert gesendet | ❓ |
-| 86.4 | Unter dem Kreis „Auto“, dann wieder „Heizen“ antippen | Der getippte Knopf wird farbig, das Gerät wechselt den Modus | ❓ |
-| 86.5 | Beim Büro (Klimagerät) „Kühlen“, „Entfeuchten“, „Lüfter“ und die Lüfterstufen antippen | Alle Knöpfe gibt es, der gewählte ist markiert | ❓ |
-| 86.6 | Bei Wohnzimmer eine Vorwahl antippen (Eco, Komfort …) | Die Vorwahl ist markiert | ❓ |
-| 86.7 | Unten ✎ Bearbeiten, bei einer Klima-Karte ⤡ antippen, dann ✓ Fertig | Die Karte zeigt einen kleinen Kreis mit − / + und den Modi als Symbole daneben; ⤢ macht sie wieder groß | ❓ |
-| 86.8 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Thermostat“, ein Thermostat wählen, „Größe des Kreises: Klein“ | Die Vorschau und die Karte zeigen den kleinen Kreis; mit „Groß“ den großen mit allen Knöpfen | ❓ |
-| 86.9 | Am Handy 🌡 Klima öffnen und am Ring ziehen | Der Kreis passt auf den Bildschirm, beim Ziehen am Ring scrollt die Seite nicht | ❓ |
+| 86.1 | Demo, „Live“, unten 🌡 Klima | Wohnzimmer und Büro haben einen Kreis: in der Mitte das Soll (groß), darunter „jetzt …“, der Ring ist orange (Heizen) bzw. blau (Kühlen) | ✅ (2026-10-25, Claude in der Demo) |
+| 86.2 | Beim Wohnzimmer zweimal auf + tippen | Das Soll steigt sofort um 1,0°, kurz danach wird es an Home Assistant geschickt (bleibt stehen) | ✅ (2026-10-25, Claude in der Demo) |
+| 86.3 | Den weißen Knopf am Ring mit dem Finger ziehen | Die Zahl in der Mitte folgt dem Finger; beim Loslassen wird der Wert gesendet | ✅ (2026-10-25, Claude in der Demo) |
+| 86.4 | Unter dem Kreis „Auto“, dann wieder „Heizen“ antippen | Der getippte Knopf wird farbig, das Gerät wechselt den Modus | ✅ (2026-10-25, Claude in der Demo) |
+| 86.5 | Beim Büro (Klimagerät) „Kühlen“, „Entfeuchten“, „Lüfter“ und die Lüfterstufen antippen | Alle Knöpfe gibt es, der gewählte ist markiert | ✅ (2026-10-25, Claude in der Demo) |
+| 86.6 | Bei Wohnzimmer eine Vorwahl antippen (Eco, Komfort …) | Die Vorwahl ist markiert | ✅ (2026-10-25, Claude in der Demo) |
+| 86.7 | Unten ✎ Bearbeiten, bei einer Klima-Karte ⤡ antippen, dann ✓ Fertig | Die Karte zeigt einen kleinen Kreis mit − / + und den Modi als Symbole daneben; ⤢ macht sie wieder groß | ✅ (2026-10-25, Claude in der Demo) |
+| 86.8 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Thermostat“, ein Thermostat wählen, „Größe des Kreises: Klein“ | Die Vorschau und die Karte zeigen den kleinen Kreis; mit „Groß“ den großen mit allen Knöpfen | ✅ (2026-10-25, Claude in der Demo) |
+| 86.9 | Am Handy 🌡 Klima öffnen und am Ring ziehen | Der Kreis passt auf den Bildschirm, beim Ziehen am Ring scrollt die Seite nicht | ✅ (2026-10-25, Claude in der Demo) |
 
 ## 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495)
 Wunsch des Besitzers: „wenn man mehrere Häuser hat mit unterschiedlichen Stromsensoren, dass es dann auch in einer Grafik irgendwie zu sehen ist“. Bild `docs/ideen-4.9/2-strom-haeuser.jpg`.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 87.1 | Demo, „Live“, ⚡ Energie, oben „⚖ Vergleichen“ | Je eine Kachel für Demo-Haus und Nachbarhaus (kWh heute, „jetzt …“) und „Σ alle Häuser“; die Grafik hat eine blaue und eine orange Linie bis „jetzt“ | ❓ |
-| 87.2 | „Woche“, „Monat“, „Jahr“ antippen | Pro Tag bzw. Monat ein blauer und ein oranger Balken nebeneinander; mit dem Finger auf einem Balken stehen beide Werte | ❓ |
-| 87.3 | Die Karten „Leistung jetzt“ und „Kosten“ ansehen | Jedes Haus mit seiner Farbe, Balken und Wert; bei Kosten unten die Summe | ❓ |
-| 87.4 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Verlauf“, nach „leistung“ suchen und „Netzbezug“ und „Nachbarhaus Verbrauch“ antippen | Beide sind markiert (farbiges Quadrat), die Vorschau zeigt zwei Linien mit Legende | ❓ |
-| 87.5 | Die Karte speichern und „✓ Fertig“ | Die Karte heißt „Verlauf“, zeigt zwei farbige Linien und oben beide Werte von jetzt | ❓ |
+| 87.1 | Demo, „Live“, ⚡ Energie, oben „⚖ Vergleichen“ | Je eine Kachel für Demo-Haus und Nachbarhaus (kWh heute, „jetzt …“) und „Σ alle Häuser“; die Grafik hat eine blaue und eine orange Linie bis „jetzt“ | ✅ (2026-10-25, Claude in der Demo) |
+| 87.2 | „Woche“, „Monat“, „Jahr“ antippen | Pro Tag bzw. Monat ein blauer und ein oranger Balken nebeneinander; mit dem Finger auf einem Balken stehen beide Werte | ❌ (2026-10-25, Claude: Balken ✓, aber mit dem Finger kein Wert, nur mit der Maus, #519; neu: 101.1) |
+| 87.3 | Die Karten „Leistung jetzt“ und „Kosten“ ansehen | Jedes Haus mit seiner Farbe, Balken und Wert; bei Kosten unten die Summe | ✅ (2026-10-25, Claude in der Demo) |
+| 87.4 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Verlauf“, nach „leistung“ suchen und „Netzbezug“ und „Nachbarhaus Verbrauch“ antippen | Beide sind markiert (farbiges Quadrat), die Vorschau zeigt zwei Linien mit Legende | ✅ (2026-10-25, Claude in der Demo) |
+| 87.5 | Die Karte speichern und „✓ Fertig“ | Die Karte heißt „Verlauf“, zeigt zwei farbige Linien und oben beide Werte von jetzt | ✅ (2026-10-25, Claude in der Demo) |
 | 87.6 | Im Add-on: bei jedem Haus in ⚡ Rechnung die eigenen Zähler eintragen, dann ⚡ Energie → „⚖ Vergleichen“ | Jedes Haus zeigt seine eigenen Werte; ein Haus ohne eigene Zähler zeigt „keine eigenen Zähler“ (außer dem ersten, das die Zähler aus dem Energie-Dashboard nimmt) | ❓ |
 
 ## 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495)
 Wunsch des Besitzers: „dass ich so Kartenabschnitte frei auf dem Dashboard platzieren kann mit so Abschnitten“. Bild `docs/ideen-4.9/3-abschnitte.jpg`.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 88.1 | Demo, „Live“, ☀ Heute, unten ✎ Bearbeiten, oben „＋ Abschnitt“ | Ein Fenster „Abschnitt einstellen“ mit Name, Symbol und Breite; nach „Speichern“ steht der Abschnitt unter den Karten, leer mit „Karten mit ⠿ hierher ziehen“ | ❓ |
-| 88.2 | Eine Karte am ⠿ in den Abschnitt ziehen, eine zweite daneben | Beide stehen im Abschnitt, oben fehlen sie | ❓ |
-| 88.3 | Die blaue Ecke ↘ unten rechts einer Karte nach rechts ziehen | Die Karte wird breiter (über zwei oder drei Spalten), nach links wieder schmaler | ❓ |
-| 88.4 | Am Abschnitt ✏️: anderer Name, „Breit (zwei Spalten)“ | Der Abschnitt heißt anders und ist doppelt so breit | ❓ |
-| 88.5 | Zweiten Abschnitt anlegen, mit ‹ › die Reihenfolge ändern | Die Abschnitte tauschen den Platz | ❓ |
-| 88.6 | „✓ Fertig“ | Die Überschriften bleiben, alle Werkzeuge (⠿, ↘, ✏️) sind weg | ❓ |
-| 88.7 | Wieder ✎, am Abschnitt 🗑 | Nach der Rückfrage ist der Abschnitt weg, seine Karten stehen wieder oben | ❓ |
-| 88.8 | Dasselbe auf 🌡 Klima oder einer eigenen Seite | Geht genauso | ❓ |
+| 88.1 | Demo, „Live“, ☀ Heute, unten ✎ Bearbeiten, oben „＋ Abschnitt“ | Ein Fenster „Abschnitt einstellen“ mit Name, Symbol und Breite; nach „Speichern“ steht der Abschnitt unter den Karten, leer mit „Karten mit ⠿ hierher ziehen“ | ✅ (2026-10-25, Claude in der Demo) |
+| 88.2 | Eine Karte am ⠿ in den Abschnitt ziehen, eine zweite daneben | Beide stehen im Abschnitt, oben fehlen sie | ✅ (2026-10-25, Claude in der Demo) |
+| 88.3 | Die blaue Ecke ↘ unten rechts einer Karte nach rechts ziehen | Die Karte wird breiter (über zwei oder drei Spalten), nach links wieder schmaler | ✅ (2026-10-25, Claude in der Demo) |
+| 88.4 | Am Abschnitt ✏️: anderer Name, „Breit (zwei Spalten)“ | Der Abschnitt heißt anders und ist doppelt so breit | ✅ (2026-10-25, Claude in der Demo) |
+| 88.5 | Zweiten Abschnitt anlegen, mit ‹ › die Reihenfolge ändern | Die Abschnitte tauschen den Platz | ✅ (2026-10-25, Claude in der Demo) |
+| 88.6 | „✓ Fertig“ | Die Überschriften bleiben, alle Werkzeuge (⠿, ↘, ✏️) sind weg | ✅ (2026-10-25, Claude in der Demo) |
+| 88.7 | Wieder ✎, am Abschnitt 🗑 | Nach der Rückfrage ist der Abschnitt weg, seine Karten stehen wieder oben | ✅ (2026-10-25, Claude in der Demo) |
+| 88.8 | Dasselbe auf 🌡 Klima oder einer eigenen Seite | Geht genauso | ✅ (2026-10-25, Claude in der Demo) |
 
 ## 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495)
 Wunsch des Besitzers: „ob jetzt wirklich eine Person im Haus ist … mit dem Handy, dass es sich mit dem WLAN verbindet“. Bild `docs/ideen-4.9/4-anwesenheit.jpg`.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 89.1 | Demo, „Live“, unten 👨‍👩‍👧 Familie | Oben „1 Person zu Hause – Anna (Wohnzimmer)“; bei Anna „zu Hause · Wohnzimmer“ | ❓ |
-| 89.2 | Bei Anna die Liste unter dem Namen ansehen | GPS, Raum, WLAN „Zuhause-5G“ (Handy-App) und „Handy im WLAN (Router)“, jeweils mit Uhrzeit, grün markiert | ❓ |
-| 89.3 | Bei Lena und Max | „nicht im WLAN (Router)“ grau markiert, GPS sagt Schule / unterwegs | ❓ |
-| 89.4 | Karte „Wer ist wo im Haus“ | Wohnzimmer – Anna; Räume mit Bewegungsmelder stehen mit „Bewegung / Anwesenheit“ da | ❓ |
+| 89.1 | Demo, „Live“, unten 👨‍👩‍👧 Familie | Oben „1 Person zu Hause – Anna (Wohnzimmer)“; bei Anna „zu Hause · Wohnzimmer“ | ✅ (2026-10-25, Claude in der Demo) |
+| 89.2 | Bei Anna die Liste unter dem Namen ansehen | GPS, Raum, WLAN „Zuhause-5G“ (Handy-App) und „Handy im WLAN (Router)“, jeweils mit Uhrzeit, grün markiert | ✅ (2026-10-25, Claude in der Demo) |
+| 89.3 | Bei Lena und Max | „nicht im WLAN (Router)“ grau markiert, GPS sagt Schule / unterwegs | ✅ (2026-10-25, Claude in der Demo) |
+| 89.4 | Karte „Wer ist wo im Haus“ | Wohnzimmer – Anna; Räume mit Bewegungsmelder stehen mit „Bewegung / Anwesenheit“ da | ✅ (2026-10-25, Claude in der Demo) |
 | 89.5 | Im Add-on: ⚙ → „Reiter unten“ → „Wer ist zu Hause“: „Zu Hause, wenn“ und „WLAN-Name(n) zu Hause“ | Drei Möglichkeiten (Home Assistant / eine Quelle / zwei Quellen); der eigene WLAN-Name lässt sich eintragen | ❓ |
 | 89.6 | Im Add-on mit dem eigenen Handy (Home-Assistant-App, WLAN-Sensor an) auf 👨‍👩‍👧 Familie | Bei dir stehen dein WLAN-Name und, wenn vorhanden, das Handy im Router; mit „eine Quelle“ zählst du zu Hause, sobald das Handy im WLAN ist | ❓ |
 
@@ -1467,35 +1463,35 @@ Wunsch des Besitzers: „ob jetzt wirklich eine Person im Haus ist … mit dem H
 Wunsch des Besitzers: „verschiedene Kalender … zusätzlich eine Karte einfach mit Terminkalendern“. Bilder `docs/ideen-4.9/5-kalender.jpg` und `6-kalender-einstellen.jpg`.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 90.1 | Demo, „Live“, ☀ Heute | Unter Uhr und Wetter die Karte „Diese Woche“: oben die Kalender als farbige Punkte (Familie blau, Arbeit Anna orange, Schule grün, Geburtstage rot), darunter eine Spalte pro Tag mit farbigen Terminen, heute umrandet | ❓ |
-| 90.2 | Auf der Karte „＋ Termin“, Titel „Test“, Uhrzeit wählen, „✓ Eintragen“ | Das Fenster geht zu, der Termin steht sofort in der Karte | ❓ |
-| 90.3 | Noch einmal „＋ Termin“, „Ganztägig“ anhaken | „Von / Bis“ verschwinden, dafür „Bis (letzter Tag)“; ohne Titel sagt das Fenster „Bitte einen Titel eingeben.“ | ❓ |
-| 90.4 | ✎ Bearbeiten, an der Karte ⚙️ | Fenster „Karte ‚Kalender‘ einstellen“: alle Kalender mit Haken und sechs Farbpunkten, Zeitraum, Ansicht, „Termin eintragen“; rechts die Vorschau | ❓ |
-| 90.5 | Ansicht „☰ Liste“, dann „🗓 Monat“, dann „Nur nächster Termin“ (jeweils speichern, „✓ Fertig“) | Liste nach Tagen („Heute“, „Morgen“, …); Monat mit Punkten, Tippen auf einen Tag zeigt seine Termine darunter; nächster Termin groß, darunter „Danach“ mit zwei weiteren | ❓ |
-| 90.6 | ✎ → „＋ Karte“ → „📅 Kalender“, nur einen Kalender anhaken, Farbe ändern, „Hinzufügen“ | Eine zweite Kalender-Karte nur mit diesem Kalender in der gewählten Farbe | ❓ |
+| 90.1 | Demo, „Live“, ☀ Heute | Unter Uhr und Wetter die Karte „Diese Woche“: oben die Kalender als farbige Punkte (Familie blau, Arbeit Anna orange, Schule grün, Geburtstage rot), darunter eine Spalte pro Tag mit farbigen Terminen, heute umrandet | ✅ (2026-10-25, Claude in der Demo) |
+| 90.2 | Auf der Karte „＋ Termin“, Titel „Test“, Uhrzeit wählen, „✓ Eintragen“ | Das Fenster geht zu, der Termin steht sofort in der Karte | ✅ (2026-10-25, Claude in der Demo) |
+| 90.3 | Noch einmal „＋ Termin“, „Ganztägig“ anhaken | „Von / Bis“ verschwinden, dafür „Bis (letzter Tag)“; ohne Titel sagt das Fenster „Bitte einen Titel eingeben.“ | ✅ (2026-10-25, Claude in der Demo) |
+| 90.4 | ✎ Bearbeiten, an der Karte ⚙️ | Fenster „Karte ‚Kalender‘ einstellen“: alle Kalender mit Haken und sechs Farbpunkten, Zeitraum, Ansicht, „Termin eintragen“; rechts die Vorschau | ✅ (2026-10-25, Claude in der Demo) |
+| 90.5 | Ansicht „☰ Liste“, dann „🗓 Monat“, dann „Nur nächster Termin“ (jeweils speichern, „✓ Fertig“) | Liste nach Tagen („Heute“, „Morgen“, …); Monat mit Punkten, Tippen auf einen Tag zeigt seine Termine darunter; nächster Termin groß, darunter „Danach“ mit zwei weiteren | ✅ (2026-10-25, Claude in der Demo) |
+| 90.6 | ✎ → „＋ Karte“ → „📅 Kalender“, nur einen Kalender anhaken, Farbe ändern, „Hinzufügen“ | Eine zweite Kalender-Karte nur mit diesem Kalender in der gewählten Farbe | ✅ (2026-10-25, Claude in der Demo) |
 | 90.7 | Im Add-on: eine Kalender-Karte mit deinen Kalendern, „＋ Termin“ in einen Kalender, der Termine annimmt (z. B. Lokaler Kalender, Google) | Der Termin steht danach auch im Kalender von Home Assistant | ❓ |
 
 ## 91. Neu in 4.14.0: Knöpfe gestalten (#495)
 Wunsch des Besitzers: „mehr Möglichkeiten, Buttons anzupassen“. Bild `docs/ideen-4.9/7-knoepfe.jpg`.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 91.1 | Demo, „Live“, unten die neue Seite „🔘 Knöpfe“ | Knöpfe als Kachel, rund, als Pille und nur mit Symbol, in verschiedenen Farben; „Wohnzimmer“ in der Farbe der Lampe mit Helligkeits-Balken, „Schlafzimmer“ mit „seit … Std.“ | ❓ |
-| 91.2 | Auf „Küche“ tippen | Das Licht geht an, der Knopf wird farbig | ❓ |
-| 91.3 | „Wohnzimmer“ lange drücken (etwa eine halbe Sekunde) | Ein Fenster mit Reglern: An/Aus, Helligkeit, Farben | ❓ |
-| 91.4 | Auf „Heizung“ tippen, dann auf „Haustür“ | Heizung: Fenster mit dem Thermostat-Kreis; Haustür: Fenster mit „🔒 Abschließen“ / „🔓 Aufschließen“ | ❓ |
-| 91.5 | ✎ Bearbeiten, an einem Knopf ⚙️ | Symbol, „Farbe, wenn an“ (auch „oder die Farbe der Lampe“), „Form und Größe“, „Zeigen“, „Tippen“, „Lange drücken“; die Vorschau rechts ändert sich sofort | ❓ |
-| 91.6 | Bei „Tippen“ „Seite öffnen“ wählen, eine Seite aussuchen, speichern, „✓ Fertig“, dann auf den Knopf tippen | Die gewählte Seite geht auf | ❓ |
+| 91.1 | Demo, „Live“, unten die neue Seite „🔘 Knöpfe“ | Knöpfe als Kachel, rund, als Pille und nur mit Symbol, in verschiedenen Farben; „Wohnzimmer“ in der Farbe der Lampe mit Helligkeits-Balken, „Schlafzimmer“ mit „seit … Std.“ | ✅ (2026-10-25, Claude in der Demo) |
+| 91.2 | Auf „Küche“ tippen | Das Licht geht an, der Knopf wird farbig | ✅ (2026-10-25, Claude in der Demo) |
+| 91.3 | „Wohnzimmer“ lange drücken (etwa eine halbe Sekunde) | Ein Fenster mit Reglern: An/Aus, Helligkeit, Farben | ✅ (2026-10-25, Claude in der Demo) |
+| 91.4 | Auf „Heizung“ tippen, dann auf „Haustür“ | Heizung: Fenster mit dem Thermostat-Kreis; Haustür: Fenster mit „🔒 Abschließen“ / „🔓 Aufschließen“ | ✅ (2026-10-25, Claude in der Demo) |
+| 91.5 | ✎ Bearbeiten, an einem Knopf ⚙️ | Symbol, „Farbe, wenn an“ (auch „oder die Farbe der Lampe“), „Form und Größe“, „Zeigen“, „Tippen“, „Lange drücken“; die Vorschau rechts ändert sich sofort | ✅ (2026-10-25, Claude in der Demo) |
+| 91.6 | Bei „Tippen“ „Seite öffnen“ wählen, eine Seite aussuchen, speichern, „✓ Fertig“, dann auf den Knopf tippen | Die gewählte Seite geht auf | ✅ (2026-10-25, Claude in der Demo) |
 | 91.7 | Im Add-on: einen eigenen Knopf für eine Lampe anlegen und gestalten | Sieht aus wie gewählt, Tippen und lange Drücken tun, was eingestellt ist | ❓ |
 
 ## 92. Neu in 4.15.0: Zähler „von oben übernehmen“ und vollständigeres Backup (#501, #500)
 Wünsche des Besitzers: „einen Knopf …, dass es von oben, was ich eingestellt habe, nach unten auch übernommen wird“ und „sichert das Backup auch alles …?“
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 92.1 | Demo, Bearbeiten → Strom-Editor (⚡) → unten „Zähler für den Verlauf“ → „⤵ Von oben übernehmen“ | Für Netz, Solar und Batterie je eine grüne Zeile „… übernommen“; die Zähler stehen darunter | ❓ |
+| 92.1 | Demo, Bearbeiten → Strom-Editor (⚡) → unten „Zähler für den Verlauf“ → „⤵ Von oben übernehmen“ | Für Netz, Solar und Batterie je eine grüne Zeile „… übernommen“; die Zähler stehen darunter | ✅ (2026-10-25, Claude in der Demo) |
 | 92.2 | Im Add-on: dasselbe mit deinen Sensoren (SolarNet) | Wo dein Gerät einen kWh-Zähler hat, wird er übernommen; sonst steht dort „misst nur die Leistung (W) …“ mit dem Knopf „＋ Zähler anlegen“ | ❓ |
 | 92.3 | Im Add-on: bei einem Sensor ohne Zähler „＋ Zähler anlegen“ | Grüne Zeile „… angelegt und übernommen“; in Home Assistant unter Einstellungen → Geräte & Dienste → Helfer steht ein neuer Helfer „… Energie“ (Integral) | ❓ |
-| 92.4 | Noch einmal „⤵ Von oben übernehmen“ | Alles „war schon eingetragen“, nichts doppelt | ❓ |
-| 92.5 | Eine Notiz an die Pinnwand, dann „Backup herunterladen“, die Notiz löschen, das Backup einspielen | Die Notiz ist wieder da | ❓ |
+| 92.4 | Noch einmal „⤵ Von oben übernehmen“ | Alles „war schon eingetragen“, nichts doppelt | ✅ (2026-10-25, Claude in der Demo) |
+| 92.5 | Eine Notiz an die Pinnwand, dann „Backup herunterladen“, die Notiz löschen, das Backup einspielen | Die Notiz ist wieder da | ✅ (2026-10-25, Claude im Test-Add-on; in der Demo geht das Einspielen nicht, nur im Add-on) |
 | 92.6 | Im Add-on: Urlaubs-Alarmanlage eingerichtet (Sensoren, Code), Backup einspielen | Sensoren und Einstellungen stimmen, der Code ist noch derselbe | ❓ |
 
 ## 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503)
@@ -1519,56 +1515,56 @@ Wunsch eines Nutzers (#489): 3D Floorplan auch für Home Assistant als Docker-Co
 Wunsch des Besitzers: „bei unterschiedlichen Benutzern unterschiedliche Sachen anzeigen“. Beispielbilder `docs/ideen-4.18/`. In der Demo gibt es die Benutzer Admin, Tablet Wohnzimmer und Familie.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 95.1 | 🌡 Klima öffnen, unten rechts ✎ Bearbeiten | Unter der blauen Leiste eine lila Leiste „🗂 Fassung“ mit „👪 Für alle“, „＋ Neue Fassung“, „👁 Ansehen als …“, „👥 Wer sieht was“ | ❓ |
-| 95.2 | „＋ Neue Fassung“: Name „Kinder“, ein Symbol, „Kopie von „Für alle““, Haken bei „Familie“, „Anlegen und bearbeiten“ | Die Leiste zeigt „🧒 Kinder“ gewählt, daneben „Sehen diese Fassung: Familie“ | ❓ |
-| 95.3 | In „Kinder“ bei zwei Räumen 👁 tippen, dann oben „👪 Für alle“ tippen | In „Kinder“ sind die zwei Räume blass (ausgeblendet), in „Für alle“ sind sie normal da | ❓ |
-| 95.4 | „👁 Ansehen als …“ → „Familie“ | Oben lila „Du siehst alles wie Familie · ✕ Zurück“; Klima ohne die zwei Räume; kein ✎ in der Leiste | ❓ |
-| 95.5 | „✕ Zurück“ | Alles wieder wie vorher, die zwei Räume da, ✎ wieder da | ❓ |
-| 95.6 | ✎ → „👥 Wer sieht was“: bei Familie unter ⚡ Energie „aus“, „Speichern“; dann „Ansehen als …“ → Familie | Bei Familie fehlt der Reiter ⚡ Energie; „Zurück“ | ❓ |
-| 95.7 | ⚙ → 👥 Benutzer & Tablets → bei Familie ⚙ → „Reiter unten“ | Neben 🌡 Klima eine Auswahl „🧒 Kinder“; der Haken bei ⚡ Energie ist weg | ❓ |
-| 95.8 | ✎ auf Klima → Chip „🧒 Kinder“ → „⚙ Einstellen“ → „🗑 Fassung löschen“ → OK | Die Fassung ist weg, nur noch „👪 Für alle“; Familie sieht Klima wieder normal | ❓ |
-| 95.9 | Dasselbe auf einer anderen Seite (z. B. ☀ Heute) mit „Leer“ | Die neue Fassung startet ohne Karten (alle blass), „＋ Karte“ fügt nur dort etwas hinzu | ❓ |
-| 95.10 | Handy: ✎ auf Klima, „👥 Wer sieht was“ | Die lila Leiste bricht sauber um, die Tabelle lässt sich seitwärts schieben | ❓ |
+| 95.1 | 🌡 Klima öffnen, unten rechts ✎ Bearbeiten | Unter der blauen Leiste eine lila Leiste „🗂 Fassung“ mit „👪 Für alle“, „＋ Neue Fassung“, „👁 Ansehen als …“, „👥 Wer sieht was“ | ✅ (2026-10-25, Claude in der Demo) |
+| 95.2 | „＋ Neue Fassung“: Name „Kinder“, ein Symbol, „Kopie von „Für alle““, Haken bei „Familie“, „Anlegen und bearbeiten“ | Die Leiste zeigt „🧒 Kinder“ gewählt, daneben „Sehen diese Fassung: Familie“ | ✅ (2026-10-25, Claude in der Demo) |
+| 95.3 | In „Kinder“ bei zwei Räumen 👁 tippen, dann oben „👪 Für alle“ tippen | In „Kinder“ sind die zwei Räume blass (ausgeblendet), in „Für alle“ sind sie normal da | ✅ (2026-10-25, Claude in der Demo) |
+| 95.4 | „👁 Ansehen als …“ → „Familie“ | Oben lila „Du siehst alles wie Familie · ✕ Zurück“; Klima ohne die zwei Räume; kein ✎ in der Leiste | ✅ (2026-10-25, Claude in der Demo) |
+| 95.5 | „✕ Zurück“ | Alles wieder wie vorher, die zwei Räume da, ✎ wieder da | ✅ (2026-10-25, Claude in der Demo) |
+| 95.6 | ✎ → „👥 Wer sieht was“: bei Familie unter ⚡ Energie „aus“, „Speichern“; dann „Ansehen als …“ → Familie | Bei Familie fehlt der Reiter ⚡ Energie; „Zurück“ | ✅ (2026-10-25, Claude in der Demo) |
+| 95.7 | ⚙ → 👥 Benutzer & Tablets → bei Familie ⚙ → „Reiter unten“ | Neben 🌡 Klima eine Auswahl „🧒 Kinder“; der Haken bei ⚡ Energie ist weg | ✅ (2026-10-25, Claude in der Demo) |
+| 95.8 | ✎ auf Klima → Chip „🧒 Kinder“ → „⚙ Einstellen“ → „🗑 Fassung löschen“ → OK | Die Fassung ist weg, nur noch „👪 Für alle“; Familie sieht Klima wieder normal | ✅ (2026-10-25, Claude in der Demo) |
+| 95.9 | Dasselbe auf einer anderen Seite (z. B. ☀ Heute) mit „Leer“ | Die neue Fassung startet ohne Karten (alle blass), „＋ Karte“ fügt nur dort etwas hinzu | ✅ (2026-10-25, Claude in der Demo) |
+| 95.10 | Handy: ✎ auf Klima, „👥 Wer sieht was“ | Die lila Leiste bricht sauber um, die Tabelle lässt sich seitwärts schieben | ✅ (2026-10-25, Claude in der Demo) |
 
 ## 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509)
 Wunsch des Besitzers: „Sprachsuche … welche Fenster sind offen … Codewörter … Wohnzimmer von den Eltern … pro Benutzer einschränken“. In der Demo gibt es die Codewörter „Stube“ (Wohnzimmer), „Werkstatt“ (Hobbyraum), „Schlafräume“ (drei Räume) und „beim Nachbarn“ (Nachbarhaus). Das 🎤 geht in der Demo mit Chrome, Edge oder Safari (die Erkennung des Browsers), Home Assistant Assist nur im Add-on.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 96.1 | Unten links neben 🔍 auf 🎤 tippen, Mikrofon erlauben, „Welche Fenster sind offen?“ sagen | Das Suchfeld zeigt den Satz, darüber „🪟 Fenster · offen: …“ und die offenen Fenster; im Bild blaue Ringe an diesen Fenstern | ❓ |
-| 96.2 | 🔍 tippen und „Ist oben noch Licht an?“ eintippen (ohne Mikrofon) | Oben in der Liste eine Zeile „💬 Lichter · an · Obergeschoss“; Enter: das Obergeschoss, die Lichter, die an sind, mit Ringen | ❓ |
-| 96.3 | „Wie sieht es in der Stube aus?“ (Codewort der Demo) | Die Ansicht fliegt ins Wohnzimmer (in „Live“ geht die Raum-Karte auf) | ❓ |
-| 96.4 | „Wie warm ist es im Kinderzimmer?“ | Das Kinderzimmer, oben „🌡 Kinderzimmer: … °C“ | ❓ |
-| 96.5 | „Wie warm ist es?“ | Die Räume werden nach Temperatur gefärbt (wie „Temp.“), darunter alle Räume mit ihrer Temperatur | ❓ |
-| 96.6 | „Sind alle Fenster zu?“ | Entweder „✓ Fenster: alle zu“ oder die Fenster, die noch offen sind | ❓ |
-| 96.7 | „Wie sieht es beim Nachbarn aus?“ | Das Nachbarhaus wird geöffnet, oben „🏠 Nachbarhaus“ | ❓ |
-| 96.8 | Einen Eintrag der Antwort-Liste antippen | Die Ansicht fliegt zu diesem Fenster / Licht, ein Ring markiert es | ❓ |
-| 96.9 | ⚙ → 🎤 Sprachsuche öffnen | Was dieses Gerät kann (✓/✗ Browser, Mikrofon, Home Assistant Assist), die Anleitung für Assist, die Codewörter der Demo | ❓ |
-| 96.10 | „＋ Codewort“: „Kinder“ eintippen, bei „＋ Ort …“ Kinderzimmer und Gästezimmer wählen, dann fragen „Wie sieht es bei den Kindern aus?“ | Das Codewort hat zwei Chips; die Frage zeigt beide Räume zum Antippen | ❓ |
+| 96.2 | 🔍 tippen und „Ist oben noch Licht an?“ eintippen (ohne Mikrofon) | Oben in der Liste eine Zeile „💬 Lichter · an · Obergeschoss“; Enter: das Obergeschoss, die Lichter, die an sind, mit Ringen | ❌ (2026-10-25, Claude: der Ring an der Kinderzimmer-Lampe liegt unter dem Raum-Schild, #522; neu: 101.4) |
+| 96.3 | „Wie sieht es in der Stube aus?“ (Codewort der Demo) | Die Ansicht fliegt ins Wohnzimmer (in „Live“ geht die Raum-Karte auf) | ✅ (2026-10-25, Claude in der Demo) |
+| 96.4 | „Wie warm ist es im Kinderzimmer?“ | Das Kinderzimmer, oben „🌡 Kinderzimmer: … °C“ | ✅ (2026-10-25, Claude in der Demo) |
+| 96.5 | „Wie warm ist es?“ | Die Räume werden nach Temperatur gefärbt (wie „Temp.“), darunter alle Räume mit ihrer Temperatur | ✅ (2026-10-25, Claude in der Demo) |
+| 96.6 | „Sind alle Fenster zu?“ | Entweder „✓ Fenster: alle zu“ oder die Fenster, die noch offen sind | ✅ (2026-10-25, Claude in der Demo) |
+| 96.7 | „Wie sieht es beim Nachbarn aus?“ | Das Nachbarhaus wird geöffnet, oben „🏠 Nachbarhaus“ | ✅ (2026-10-25, Claude in der Demo) |
+| 96.8 | Einen Eintrag der Antwort-Liste antippen | Die Ansicht fliegt zu diesem Fenster / Licht, ein Ring markiert es | ✅ (2026-10-25, Claude in der Demo) |
+| 96.9 | ⚙ → 🎤 Sprachsuche öffnen | Was dieses Gerät kann (✓/✗ Browser, Mikrofon, Home Assistant Assist), die Anleitung für Assist, die Codewörter der Demo | ✅ (2026-10-25, Claude in der Demo; der Link zu Home Assistant war dunkelblau: #523, 101.5) |
+| 96.10 | „＋ Codewort“: „Kinder“ eintippen, bei „＋ Ort …“ Kinderzimmer und Gästezimmer wählen, dann fragen „Wie sieht es bei den Kindern aus?“ | Das Codewort hat zwei Chips; die Frage zeigt beide Räume zum Antippen | ✅ (2026-10-25, Claude in der Demo) |
 | 96.11 | Bei einem Codewort ins Feld „für alle (oder Benutzer)“ einen Benutzer schreiben | Das Codewort gilt nur noch für diesen Benutzer | ➖ |
 | 96.12 | ⚙ → 👥 Benutzer & Tablets → bei einem Benutzer 🔒 „Sprachsuche (🎤)“ abhaken, als dieser Benutzer öffnen | Kein 🎤 mehr (die Suche 🔍 bleibt) | ➖ |
 | 96.13 | Im Add-on mit der Home-Assistant-App auf dem Handy (Android) oder am Wandtablet: 🔍 → 🎤 | Ohne Assist: „Home Assistant kann noch keine Sprache erkennen …“ bzw. kein 🎤; nach der Anleitung in ⚙ → 🎤 (Whisper) geht es | ➖ |
-| 96.14 | Handy: 🔍 tippen | Das 🎤 ist im Suchfeld rechts neben dem Eingabefeld | ❓ |
+| 96.14 | Handy: 🔍 tippen | Das 🎤 ist im Suchfeld rechts neben dem Eingabefeld | ✅ (2026-10-25, Claude in der Demo) |
 
 
 ## 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511)
 Der Besitzer: „wenn ich aufs Mikrofon drauf drücke, dann hört er nichts … weder auf dem Tablet noch auf dem PC“. Ursache am Tablet: Apps mit eingebautem Browser (Fully Kiosk, die Home-Assistant-App) haben die Spracherkennung von Chrome, sie tut darin aber nichts. Über http:// gibt kein Browser das Mikrofon frei. Der Test geht auch in der Demo (dort ist es https).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 97.1 | ⚙ → 🎤 Sprachsuche öffnen | Oben eine Liste, was dieses Gerät ist: „Sichere Verbindung (https)“ oder „Unsichere Verbindung (http://…)“, „Gerät: …“ (z. B. „Chrome 130 · Windows“), ob das Mikrofon erlaubt ist, welche Erkennung das 🎤 nimmt (oder warum keine, mit „→ was zu tun ist“) | ❓ |
-| 97.2 | Darunter „🎤 1. Mikrofon prüfen“, „Zulassen“, etwas sagen | Der Balken bewegt sich und wird grün; nach 6 Sekunden „✓ Das Mikrofon „…“ hört dich“ (oder ✗ mit dem Grund und „→ …“); darunter eine Auswahl „Mikrofon“ | ❓ |
+| 97.1 | ⚙ → 🎤 Sprachsuche öffnen | Oben eine Liste, was dieses Gerät ist: „Sichere Verbindung (https)“ oder „Unsichere Verbindung (http://…)“, „Gerät: …“ (z. B. „Chrome 130 · Windows“), ob das Mikrofon erlaubt ist, welche Erkennung das 🎤 nimmt (oder warum keine, mit „→ was zu tun ist“) | ✅ (2026-10-25, Claude in der Demo) |
+| 97.2 | Darunter „🎤 1. Mikrofon prüfen“, „Zulassen“, etwas sagen | Der Balken bewegt sich und wird grün; nach 6 Sekunden „✓ Das Mikrofon „…“ hört dich“ (oder ✗ mit dem Grund und „→ …“); darunter eine Auswahl „Mikrofon“ | ✅ (2026-10-25, Claude in der Demo mit einem nachgemachten Mikrofon) |
 | 97.3 | „🗣 2. Erkennung prüfen“, „Welche Fenster sind offen?“ sagen | „✓ Erkannt mit …: „Welche Fenster sind offen““ oder ✗ mit dem Grund und was zu tun ist | ❓ |
-| 97.4 | „📋 Ergebnis kopieren“ | Unten ein Kasten mit dem ganzen Ergebnis (Version, Browser, alle Zeilen); in den Chat einfügen geht | ❓ |
+| 97.4 | „📋 Ergebnis kopieren“ | Unten ein Kasten mit dem ganzen Ergebnis (Version, Browser, alle Zeilen); in den Chat einfügen geht | ✅ (2026-10-25, Claude in der Demo) |
 | 97.5 | Am PC (Chrome oder Edge) unten links 🎤 tippen | Über https: es hört zu. Über http:// seit 4.20.0: das Diktat der Tastatur (siehe 98.5) | ➖ |
 | 97.6 | Am Wandtablet (Fully Kiosk) oder in der Home-Assistant-App 🎤 tippen | Nie mehr endlos „Ich höre zu …“. Ohne Assist seit 4.20.0: das Diktat der Tastatur (siehe 98.4); mit Assist (Whisper, nur über https) hört es selbst zu | ➖ |
-| 97.7 | Nach einer Warnung beim 🎤 die Zeile „🩺 Mikrofon-Test öffnen“ antippen | Die Einstellungen gehen bei 🎤 Sprachsuche auf, beim Mikrofon-Test | ❓ |
+| 97.7 | Nach einer Warnung beim 🎤 die Zeile „🩺 Mikrofon-Test öffnen“ antippen | Die Einstellungen gehen bei 🎤 Sprachsuche auf, beim Mikrofon-Test | ✅ (2026-10-25, Claude in der Demo; die Überschrift lag unter der Kopfzeile: #523, behoben in 4.21.2, 101.5) |
 
 ## 98. Neu in 4.20.0: 🎤 ohne https mit dem Diktat der Tastatur (#513)
 Der Besitzer: „das muss ja einfach Plug and Play funktionieren … man kann ja nicht erwarten, dass jemand, der das installiert, noch eine HTTPS-Verbindung drauf macht“. Browser geben einer Seite das Mikrofon nur über https; das 🎤 der Tastatur gehört aber dem Gerät und tippt in jedes Feld. Wo die Seite nicht selbst zuhören darf (http://, eine App ohne Assist), nimmt das 🎤 deshalb von selbst das Diktat der Tastatur. Die Demo ist https: dort mit der Einstellung „Nur das Diktat der Tastatur“ testen.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 98.1 | In der Demo ⚙ → 🎤 Sprachsuche → Spracherkennung „Nur das Diktat der Tastatur (geht auch ohne https)“ wählen, schließen, unten links 🎤 tippen | Das Suchfeld geht auf (am Tablet und Handy mit der Tastatur), darüber „🎤 Tippe ins Suchfeld, dann auf das 🎤 der Tastatur, und sprich …“ (am PC: „Drücke die Windows-Taste + H …“) | ❓ |
-| 98.2 | Auf das 🎤 der Tastatur tippen (am PC Windows-Taste + H) und „Welche Fenster sind offen?“ sagen, dann kurz still sein | Nach etwa 2 Sekunden kommt von selbst „🪟 Fenster · offen: …“ mit der Liste, ohne Enter; am Tablet geht die Tastatur weg | ❓ |
-| 98.3 | ⚙ → 🎤 Sprachsuche ansehen | In der Liste „✓ Auf diesem Gerät: 🎤 mit dem Diktat der Tastatur“ und wie man diktiert; danach wieder „Automatisch“ wählen | ❓ |
+| 98.1 | In der Demo ⚙ → 🎤 Sprachsuche → Spracherkennung „Nur das Diktat der Tastatur (geht auch ohne https)“ wählen, schließen, unten links 🎤 tippen | Das Suchfeld geht auf (am Tablet und Handy mit der Tastatur), darüber „🎤 Tippe ins Suchfeld, dann auf das 🎤 der Tastatur, und sprich …“ (am PC: „Drücke die Windows-Taste + H …“) | ✅ (2026-10-25, Claude in der Demo: Tablet und Handy „Tippe ins Suchfeld …“, Windows-PC „Windows-Taste + H“) |
+| 98.2 | Auf das 🎤 der Tastatur tippen (am PC Windows-Taste + H) und „Welche Fenster sind offen?“ sagen, dann kurz still sein | Nach etwa 2 Sekunden kommt von selbst „🪟 Fenster · offen: …“ mit der Liste, ohne Enter; am Tablet geht die Tastatur weg | ❓ (Claude 2026-10-25: mit nachgestelltem Diktat kommt die Antwort nach etwa 2 Sekunden ohne Enter; das echte 🎤 der Tastatur bitte selbst) |
+| 98.3 | ⚙ → 🎤 Sprachsuche ansehen | In der Liste „✓ Auf diesem Gerät: 🎤 mit dem Diktat der Tastatur“ und wie man diktiert; danach wieder „Automatisch“ wählen | ✅ (2026-10-25, Claude in der Demo) |
 | 98.4 | Im Add-on über http:// (z. B. http://homeassistant.local:8123) am Wandtablet (Fully Kiosk) oder in der Home-Assistant-App, Einstellung „Automatisch“: 🎤 tippen, dann das 🎤 der Tastatur, fragen | Ohne etwas einzurichten (kein https, kein Whisper) wird die Frage beantwortet | ➖ |
 | 98.5 | Im Add-on über http:// am PC (Chrome oder Edge): 🎤 tippen, dann Windows-Taste + H, fragen | Wie 98.4 | ➖ |
 
@@ -1576,14 +1572,14 @@ Der Besitzer: „das muss ja einfach Plug and Play funktionieren … man kann ja
 Der Besitzer: „dass man den Batterieladezustand nachvollziehen kann in einer Art Diagramm … alles zusammen sehen oder nur einzeln … auch für unterschiedliche Häuser“. In der Demo hat das Demo-Haus die „Hausbatterie“, das Nachbarhaus einen „Hausspeicher“.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 99.1 | In der Demo unten „⚡ Energie“, oben „Demo-Haus“ | Eine Karte „🔋 Ladestand“ mit einer Linie durch den Tag bis „jetzt“, oben ein Knopf „Hausbatterie 82 %“, darunter „tiefster Stand … · höchster …“ | ❓ |
-| 99.2 | Oben „Alle Häuser“ | In der Karte zwei Knöpfe „Demo-Haus · Hausbatterie“ (blau) und „Nachbarhaus · Hausspeicher“ (orange), zwei Linien, rechts oben „Zusammen“ und „Einzeln“ | ❓ |
-| 99.3 | Mit der Maus über die Linien fahren (am Tablet auf die Grafik tippen) | Ein Kästchen mit der Uhrzeit und dem Ladestand jeder Batterie an dieser Stelle | ❓ |
-| 99.4 | „Einzeln“ antippen | Je Batterie ein eigenes kleines Bild mit Name, tiefstem und höchstem Stand | ❓ |
-| 99.5 | Den Knopf „Nachbarhaus · Hausspeicher“ antippen, dann noch einmal | Erst durchgestrichen und sein Bild ist weg, dann wieder da | ❓ |
-| 99.6 | „Einzeln“ lassen, die Seite neu laden (Strg+F5), wieder „⚡ Energie“ → „Alle Häuser“ | Immer noch „Einzeln“: das Gerät hat sich die Wahl gemerkt (ein anderes Gerät hat seine eigene) | ❓ |
-| 99.7 | Oben „Woche“, dann „Monat“, dann „Jahr“, mit ‹ zurück | Die Linien gehen über die Woche (Tag für Tag auf und ab), den Monat und das Jahr | ❓ |
-| 99.8 | Oben „⚖ Vergleichen“ | Unter den Karten der Häuser auch hier „🔋 Ladestand“ mit beiden Batterien | ❓ |
+| 99.1 | In der Demo unten „⚡ Energie“, oben „Demo-Haus“ | Eine Karte „🔋 Ladestand“ mit einer Linie durch den Tag bis „jetzt“, oben ein Knopf „Hausbatterie 82 %“, darunter „tiefster Stand … · höchster …“ | ✅ (2026-10-25, Claude in der Demo; am Tag der Zeitumstellung macht die Demo-Linie am Ende einen kleinen Sprung) |
+| 99.2 | Oben „Alle Häuser“ | In der Karte zwei Knöpfe „Demo-Haus · Hausbatterie“ (blau) und „Nachbarhaus · Hausspeicher“ (orange), zwei Linien, rechts oben „Zusammen“ und „Einzeln“ | ✅ (2026-10-25, Claude in der Demo) |
+| 99.3 | Mit der Maus über die Linien fahren (am Tablet auf die Grafik tippen) | Ein Kästchen mit der Uhrzeit und dem Ladestand jeder Batterie an dieser Stelle | ✅ (2026-10-25, Claude in der Demo) |
+| 99.4 | „Einzeln“ antippen | Je Batterie ein eigenes kleines Bild mit Name, tiefstem und höchstem Stand | ✅ (2026-10-25, Claude in der Demo) |
+| 99.5 | Den Knopf „Nachbarhaus · Hausspeicher“ antippen, dann noch einmal | Erst durchgestrichen und sein Bild ist weg, dann wieder da | ✅ (2026-10-25, Claude in der Demo) |
+| 99.6 | „Einzeln“ lassen, die Seite neu laden (Strg+F5), wieder „⚡ Energie“ → „Alle Häuser“ | Immer noch „Einzeln“: das Gerät hat sich die Wahl gemerkt (ein anderes Gerät hat seine eigene) | ✅ (2026-10-25, Claude in der Demo) |
+| 99.7 | Oben „Woche“, dann „Monat“, dann „Jahr“, mit ‹ zurück | Die Linien gehen über die Woche (Tag für Tag auf und ab), den Monat und das Jahr | ✅ (2026-10-25, Claude in der Demo) |
+| 99.8 | Oben „⚖ Vergleichen“ | Unter den Karten der Häuser auch hier „🔋 Ladestand“ mit beiden Batterien | ✅ (2026-10-25, Claude in der Demo) |
 | 99.9 | Im Add-on: ⚡ Energie mit deiner echten Batterie (Strom-Editor → ⚡ Rechnung → Batterie → Ladestand, oder eine Batterie im Plan) | Die Linie passt zu dem, was Home Assistant im Verlauf des Sensors zeigt | ➖ |
 | 99.10 | Im Add-on mit zwei Häusern, jedes mit seiner Batterie: „Alle Häuser“ | Beide Batterien, jede in der Farbe ihres Hauses | ➖ |
 
@@ -1594,3 +1590,15 @@ Der Besitzer (Bildschirmfoto aus der Home-Assistant-App): „ganz unten da ein b
 | 100.1 | Im Add-on in der Home-Assistant-App am iPhone, unten „🏠 Haus“ | Unter „Haus, Heute, Energie …“ kein leerer Streifen mehr in der Farbe der Leiste; darunter nur noch der dunkle Streifen von Home Assistant mit dem Home-Strich. Die Knöpfe (Ansicht, Normal, Temp.), die Uhrzeit mit dem Wetter und die Raum-Fenster sitzen etwas tiefer, das Haus ist größer | ➖ |
 | 100.2 | Im Add-on in der Home-Assistant-App am iPhone, einen anderen Reiter (z. B. „☀ Heute“) öffnen und bis ganz nach unten wischen | Die Seite geht bis an die Leiste, nichts ist abgeschnitten, die Leiste sitzt wie bei 100.1 | ➖ |
 | 100.3 | Die Demo am iPhone in Safari öffnen (ohne Home Assistant), unten „Haus“ | Die Leiste hält wie bisher Platz für den Home-Strich frei: der Strich liegt unter den Namen, nicht auf ihnen | ❓ |
+
+## 101. Neu in 4.21.2: Funde aus dem Nacht-Test (#519 bis #525)
+In der Nacht zum 2026-10-25 hat Claude die offenen Punkte der Demo durchgetestet (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (Add-on mit nachgebautem Home Assistant). Was dabei nicht ging, ist hier repariert; Claude hat es danach noch einmal geprüft.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 101.1 | Am Tablet oder Handy: Demo, unten „⚡ Energie“, „Woche“, mit dem Finger auf einen Balken tippen; dann oben „⚖ Vergleichen“ und wieder auf einen Balken; dann daneben tippen (#519) | Ein Kästchen mit Tag und kWh (beim Vergleichen beide Häuser untereinander), die Spalte wird hell; ein Tipp daneben schließt es | ❓ (Claude 2026-10-25 mit nachgemachtem Finger: geht; bitte einmal am echten Tablet) |
+| 101.2 | Demo, „🌡 Klima“ (#520) | Beim Büro (23,0°, Soll 21) unter dem Kreis ein oranger Chip „🌡 zu warm“; bei „Nur mit Hinweis“ sieht man jetzt, warum das Büro dabei ist | ✅ (2026-10-25, Claude in der Demo) |
+| 101.3 | Demo, oben „📋 Geräte“ → „💡 An / offen“ (#521) | Fernseher und Lautsprecher Wohnzimmer „▶ läuft“, nirgends „playing“ | ✅ (2026-10-25, Claude in der Demo) |
+| 101.4 | Demo, 🔍 „Ist oben noch Licht an?“, Enter (#522) | Die Raum-Schilder werden blass, der blaue Ring an der Lampe im Kinderzimmer ist zu sehen; nach ein paar Sekunden sind die Schilder wieder normal | ✅ (2026-10-25, Claude in der Demo) |
+| 101.5 | Demo, ⚙ → 🎤 Sprachsuche → „Nur das Diktat der Tastatur“, schließen, 🎤 → „🩺 Mikrofon-Test öffnen“ (#523) | Der Mikrofon-Test steht ganz unter der Kopfzeile (Überschrift „🩺 Mikrofon-Test“ zu sehen); weiter unten der Link „Sprachassistenten in Home Assistant öffnen ↗“ hellblau statt dunkelblau. Danach wieder „Automatisch“ wählen | ✅ (2026-10-25, Claude in der Demo, PC und Handy) |
+| 101.6 | Demo, „Live“, den Lautsprecher im Wohnzimmer antippen, den Lautstärke-Schieber ziehen (#524) | Die Zahl daneben läuft beim Ziehen mit | ✅ (2026-10-25, Claude in der Demo) |
+| 101.7 | Demo, Bearbeiten → Strom-Editor → ⚡ Rechnung → „⤵ Aus dem Energie-Dashboard übernehmen“ (#525) | Auch die fünf Strom-Zähler mit Namen und Stand („Netz Bezug gesamt 18342.7 kWh“ …), nicht nur Gas und Wasser | ✅ (2026-10-25, Claude in der Demo) |

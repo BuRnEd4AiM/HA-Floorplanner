@@ -1732,4 +1732,5 @@ export default {
   'pe.bat.none': 'Todas las baterías están ocultas. Toca una arriba para mostrarla.', 'pe.bat.noData': 'Home Assistant no tiene valores para este periodo.',
   'pe.bat.err': 'Home Assistant no pudo enviar el historial ahora.', 'pe.bat.range': 'mínimo {min} ({minAt}) · máximo {max} ({maxAt})',
   'pe.bat.aria': 'Carga de las baterías en porcentaje a lo largo del tiempo', 'pe.bat.hint': 'Solo este dispositivo recuerda esta elección.',
+  'cl.tooWarm': 'demasiado calor', 'cl.tooCold': 'demasiado frío',
 };

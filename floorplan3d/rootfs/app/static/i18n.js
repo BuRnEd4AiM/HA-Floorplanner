@@ -672,6 +672,7 @@ const DICT = {
     'pe.bat.noData': 'Für diesen Zeitraum hat Home Assistant keine Werte.', 'pe.bat.err': 'Den Verlauf konnte Home Assistant gerade nicht liefern.',
     'pe.bat.range': 'tiefster Stand {min} ({minAt}) · höchster {max} ({maxAt})', 'pe.bat.aria': 'Ladestand der Batterien in Prozent über die Zeit',
     'pe.bat.hint': 'Diese Auswahl merkt sich nur dieses Gerät.',
+    'cl.tooWarm': 'zu warm', 'cl.tooCold': 'zu kalt',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -1314,6 +1315,7 @@ const DICT = {
     'pe.bat.none': 'All batteries are hidden. Tap one above to show it again.', 'pe.bat.noData': 'Home Assistant has no values for this period.',
     'pe.bat.err': 'Home Assistant could not send the history just now.', 'pe.bat.range': 'lowest {min} ({minAt}) · highest {max} ({maxAt})',
     'pe.bat.aria': 'Charge of the batteries in percent over time', 'pe.bat.hint': 'Only this device remembers this choice.',
+    'cl.tooWarm': 'too warm', 'cl.tooCold': 'too cold',
   },
 };
 

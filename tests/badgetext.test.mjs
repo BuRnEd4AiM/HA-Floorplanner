@@ -26,6 +26,10 @@ test('other domains and missing states', () => {
   assert.equal(B.badgeText({ state: 'open', position: 70 }, 'cover.x', t), '↕ 70 %');
   assert.equal(B.badgeText({ state: 'heat', ct: 20.55 }, 'climate.x', t), '🌡 20.6 °C');
   assert.equal(B.badgeText({ state: 'playing', app: 'Netflix' }, 'media_player.x', t), '▶ Netflix');
+  assert.equal(B.badgeText({ state: 'playing' }, 'media_player.sonos', t), '▶ [mp.st.playing]');   // the device list said "▶ playing"
+  assert.equal(B.badgeText({ state: 'paused' }, 'media_player.sonos', t), '⏸ [mp.st.paused]');
+  assert.equal(B.badgeText({ state: 'idle' }, 'media_player.sonos', t), '[mp.st.idle]');
+  assert.equal(B.badgeText({ state: 'off' }, 'media_player.sonos', t), '[live.off]');
   assert.equal(B.badgeText({ state: 'on' }, 'switch.x', t), '[live.on]');
 });
 test('state text: the value with its unit', () => {
