@@ -1,0 +1,20 @@
+{
+ "session": "session_01VHc3XYCH7teSWnQGdotmca",
+ "start": "2026-10-25",
+ "updated": "2026-10-25T01:09:54Z",
+ "branch": "claude/phone-bottom-gap",
+ "source": "counted",
+ "input": 124,
+ "cache_write": 158927,
+ "cache_read": 8700791,
+ "output": 48663,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 124,
+   "cache_write": 158927,
+   "cache_read": 8700791,
+   "output": 48663,
+   "requests": 62
+  }
+ }
+}

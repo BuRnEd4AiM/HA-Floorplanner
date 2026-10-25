@@ -305,7 +305,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511) | 0 | 0 | 5 | 2 | 97.1 bis 97.4, 97.7 |
 | 98. Neu in 4.20.0: 🎤 ohne https mit dem Diktat der Tastatur (#513) | 0 | 0 | 3 | 2 | 98.1 bis 98.3 |
 | 99. Neu in 4.21.0: 🔋 Ladestand der Batterien auf ⚡ Energie (#515) | 0 | 0 | 8 | 2 | 99.1 bis 99.8 |
-| **Zusammen** | **492** | **5** | **221** | **63** | |
+| 100. Neu in 4.21.1: iPhone, kein leerer Streifen unter der Reiter-Leiste (#517) | 0 | 0 | 1 | 2 | 100.3 |
+| **Zusammen** | **492** | **5** | **222** | **65** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1585,3 +1586,11 @@ Der Besitzer: „dass man den Batterieladezustand nachvollziehen kann in einer A
 | 99.8 | Oben „⚖ Vergleichen“ | Unter den Karten der Häuser auch hier „🔋 Ladestand“ mit beiden Batterien | ❓ |
 | 99.9 | Im Add-on: ⚡ Energie mit deiner echten Batterie (Strom-Editor → ⚡ Rechnung → Batterie → Ladestand, oder eine Batterie im Plan) | Die Linie passt zu dem, was Home Assistant im Verlauf des Sensors zeigt | ➖ |
 | 99.10 | Im Add-on mit zwei Häusern, jedes mit seiner Batterie: „Alle Häuser“ | Beide Batterien, jede in der Farbe ihres Hauses | ➖ |
+
+## 100. Neu in 4.21.1: iPhone, kein leerer Streifen unter der Reiter-Leiste (#517)
+Der Besitzer (Bildschirmfoto aus der Home-Assistant-App): „ganz unten da ein bisschen Abstand … dieses ganze Zeug ein bisschen weiter nach unten verschieben“. Nur auf dem iPhone (oder iPad) prüfbar.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 100.1 | Im Add-on in der Home-Assistant-App am iPhone, unten „🏠 Haus“ | Unter „Haus, Heute, Energie …“ kein leerer Streifen mehr in der Farbe der Leiste; darunter nur noch der dunkle Streifen von Home Assistant mit dem Home-Strich. Die Knöpfe (Ansicht, Normal, Temp.), die Uhrzeit mit dem Wetter und die Raum-Fenster sitzen etwas tiefer, das Haus ist größer | ➖ |
+| 100.2 | Im Add-on in der Home-Assistant-App am iPhone, einen anderen Reiter (z. B. „☀ Heute“) öffnen und bis ganz nach unten wischen | Die Seite geht bis an die Leiste, nichts ist abgeschnitten, die Leiste sitzt wie bei 100.1 | ➖ |
+| 100.3 | Die Demo am iPhone in Safari öffnen (ohne Home Assistant), unten „Haus“ | Die Leiste hält wie bisher Platz für den Home-Strich frei: der Strich liegt unter den Namen, nicht auf ihnen | ❓ |

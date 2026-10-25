@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.21.1] - 2026-10-25
+### Fixed
+- **iPhone in the Home Assistant app: no empty strip under the tab bar any more** (#517, the owner: "ganz unten da ein bisschen Abstand … dieses ganze Zeug ein bisschen weiter nach unten verschieben"). Home Assistant keeps the strip of the iPhone's home bar clear below the add-on, but iOS gives the add-on the same strip again although its frame does not reach the bottom edge, so the tab bar (🏠 Haus, ☀ Heute, ⚡ Energie …) kept it clear a second time. The add-on now measures what Home Assistant already keeps clear and leaves it out; the view buttons, the time and weather line and the room tiles above the 3D picture no longer keep the strip clear while the tab bar lies below them. Everything moves down by about 30 pt, the 3D picture gets taller. Opened on its own in Safari (or the demo) the bar keeps the strip clear as before.
+
 ## [4.21.0] - 2026-10-24
 ### Added
 - **🔋 Ladestand on ⚡ Energie** (#515, the owner: "dass man den Batterieladezustand nachvollziehen kann in einer Art Diagramm … alles zusammen sehen oder nur einzeln … auch für unterschiedliche Häuser"). A new card shows the charge of every battery through the day, week, month or year chosen at the top of the page: the charge sensor of ⚡ Rechnung, every battery of the plan whose sensor is in %, and the charge sensor of Home Assistant's energy dashboard. **"Zusammen"** draws one chart with a line per battery, **"Einzeln"** a small chart for each with the band from the lowest to the highest charge and when they were reached. A chip per battery shows its charge now and leaves it out or shows it again with a tap; a finger or the mouse on the chart shows the time and the charge of each battery there. The choice stays on this device (the wall tablet keeps its own, the phone its own). One house chosen: its batteries; **"Alle Häuser"** and **"⚖ Vergleichen"**: the batteries of all houses, each in the colour of its house, the name of the house in front. A house with only a battery and no meters now gets the page ⚡ Energie too.

@@ -13,6 +13,10 @@
   --field: #f3f5f7; --accent: #1f8de0; --accent-text: #ffffff; --ok: #2e7d4f;
   --scene: #e9edf1; --glow: none;
 }
+/* the strip kept clear of the iPhone's home bar (safearea.js): --safe-b at the screen's bottom edge, minus what Home Assistant already
+   keeps clear below the frame (--frame-gap); --stage-b for the parts of the 3D picture, 0 while the tab bar lies below them */
+:root { --frame-gap: 0px; --safe-b: max(0px, env(safe-area-inset-bottom, 0px) - var(--frame-gap)); --stage-b: var(--safe-b); }
+body.hasTabs { --stage-b: 0px; }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
   font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
@@ -232,7 +236,7 @@ body.kiosk #modeBar { bottom: 10px; }
   body.live.tbopen #toolbar .group.right { margin-left: 0; }
   input, select, textarea { font-size: 16px; }   /* smaller text makes the iPhone zoom the whole page in when a field is tapped (search) */
   #modeBar { left: 80px; right: 8px; transform: none; max-width: none; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto;
-    scrollbar-width: none; gap: 6px; padding: 2px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+    scrollbar-width: none; gap: 6px; padding: 2px; bottom: calc(14px + var(--stage-b)); }
   #modeBar::-webkit-scrollbar { display: none; }
   #modeBar > * { flex: 0 0 auto; }
   #modeBar .pill { padding: 6px 12px; }
@@ -605,7 +609,7 @@ body.v-2d #compass { display: none; }
   body #roomPanel, body.roomtablet #roomPanel { top: auto; left: 60px; right: 12px; bottom: 12px; width: auto; max-width: none; max-height: 52%; }
 }
 @media (max-width: 760px) {   /* phones: the sheet keeps clear of the iPhone's home bar (and, as before, leaves the search button free on the left) */
-  body #roomPanel, body.roomtablet #roomPanel { bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+  body #roomPanel, body.roomtablet #roomPanel { bottom: calc(12px + var(--stage-b)); }
   #roomPanel { clip-path: inset(0 round 18px); }   /* without it Chrome painted a dark box over the 3D picture above the scrolling sheet, hiding the tapped room */
 }
 
@@ -912,7 +916,7 @@ body[data-power="1"] #powerEditBtn.active { box-shadow: 0 0 0 2px #7dff9a inset;
 @media (max-width: 760px) { #perfHud.all { font-size: 10px; } }
 
 /* ---- Security view (timelineui.js): the bar at the bottom while a recorded day plays; nothing can be switched ---- */
-#tlBar { position: absolute; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 12;
+#tlBar { position: absolute; left: 50%; bottom: calc(10px + var(--stage-b)); transform: translateX(-50%); z-index: 12;
   width: calc(100% - 24px); box-sizing: border-box; padding: 10px 12px 8px; background: var(--panel); border: 1px solid var(--line);   /* the whole width: the time line is easier to read (#316) */
   border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,.4); backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 6px; }
 #tlBar[hidden] { display: none; }
@@ -999,14 +1003,14 @@ body.low .skyChip { -webkit-backdrop-filter: none; backdrop-filter: none; backgr
 #skyLine { display: none; }
 @media (max-width: 760px), (max-height: 520px) {
   body.live:not(.kiosk):not(.card):not(.roomtablet) #skyLine:not([hidden]) { display: block; position: absolute; left: 50%; transform: translateX(-50%);
-    bottom: calc(max(env(safe-area-inset-bottom, 0px), 22px) - 18px); z-index: 4; max-width: calc(100% - 24px); padding: 2px 10px; border-radius: 999px;
+    bottom: calc(max(var(--stage-b), 22px) - 18px); z-index: 4; max-width: calc(100% - 24px); padding: 2px 10px; border-radius: 999px;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 16px; color: #eef3f8; background: rgba(16, 22, 30, .55);
     pointer-events: none; }
-  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) #modeBar { bottom: calc(14px + max(env(safe-area-inset-bottom, 0px), 22px)); }
+  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) #modeBar { bottom: calc(14px + max(var(--stage-b), 22px)); }
 }
 @media (max-height: 520px) and (min-width: 761px) {   /* held sideways the tiles sit right over the view buttons: they move up with them */
-  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) #roomTiles { bottom: calc(62px + max(env(safe-area-inset-bottom, 0px), 22px)); }
-  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) .tileArrow { bottom: calc(68px + max(env(safe-area-inset-bottom, 0px), 22px)); }
+  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) #roomTiles { bottom: calc(62px + max(var(--stage-b), 22px)); }
+  body.skyline.live:not(.kiosk):not(.card):not(.roomtablet) .tileArrow { bottom: calc(68px + max(var(--stage-b), 22px)); }
 }
 #wxFall { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 #wxFall[hidden], body:not(.live) #wxFall { display: none; }
@@ -1267,7 +1271,7 @@ kbd { display: inline-block; min-width: 1.6em; padding: 1px 6px; border-radius: 
 #paletteRecent .recentRow { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
 
 /* ---------- tab bar at the bottom and its pages (#479, tabs.js / tabsui.js / pagecameras.js) ---------- */
-#tabBar { flex: none; display: flex; justify-content: center; gap: 4px; padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
+#tabBar { flex: none; display: flex; justify-content: center; gap: 4px; padding: 6px 10px calc(6px + var(--safe-b));
   background: var(--panel); border-top: 1px solid var(--line); z-index: 8; }
 #tabBar[hidden] { display: none; }
 #tabBar { overflow-x: auto; scrollbar-width: none; justify-content: safe center; }   /* more tabs than fit (a phone): the bar scrolls sideways */
