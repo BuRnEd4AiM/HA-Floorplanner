@@ -93,6 +93,27 @@ no_bar = pgC.is_hidden("#tabBar")
 pgC.goto(BASE + "?debug=1&card=1&tabs=1"); pgC.wait_for_timeout(1500)
 check("tabs: the dashboard card has the bar only with its option tabs", no_bar and pgC.is_visible("#tabBar") and tabs_of(pgC) == ["house", "today", "climate", "cameras", "household", "routines"], tabs_of(pgC))
 pgC.close()
+# the Home Assistant app on an iPhone: the panel is a frame of the same address and Home Assistant keeps the home bar strip clear below
+# it; iOS still gives the frame the strip (here 30 px, set by hand: Chromium has none), so it was kept clear twice (safearea.js)
+SIM = ":root { --safe-b: max(0px, 30px - var(--frame-gap)); }"
+pad_of = lambda f: f.evaluate("getComputedStyle(document.querySelector('#tabBar')).paddingBottom")
+pgF = watch_tb(b.new_page(viewport={"width": 375, "height": 760}, is_mobile=True, has_touch=True, extra_http_headers={"X-Remote-User-Name": "admin"}))
+pgF.route(BASE + "_ha_frame.html", lambda r: r.fulfill(content_type="text/html", body=(
+    '<!doctype html><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+    '<body style="margin:0;height:100vh;display:flex;flex-direction:column;padding-bottom:30px;box-sizing:border-box">'
+    f'<div style="height:56px">3D Floorplan</div><iframe src="{BASE}?debug=1" style="flex:1;border:0"></iframe></body>')))
+pgF.goto(BASE + "_ha_frame.html")
+fr = pgF.wait_for_selector("iframe").content_frame()
+fr.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgF.wait_for_timeout(1500)
+fr.add_style_tag(content=SIM); pgF.wait_for_timeout(200)
+gap_f = fr.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--frame-gap').trim()")
+check("tabs (iPhone, Home Assistant app): in a frame that ends 30 px above the bottom the bar does not keep the home bar strip clear a second time",
+      gap_f in ("29px", "30px", "31px") and fr.is_visible("#tabBar") and pad_of(fr) == "6px", (gap_f, pad_of(fr)))
+pgF.goto(BASE + "?debug=1"); pgF.wait_for_function("window.__fp && window.__fp.ready()", timeout=60000); pgF.wait_for_timeout(1500)
+pgF.add_style_tag(content=SIM); pgF.wait_for_timeout(200)
+check("tabs (iPhone, page on its own): the bar keeps the strip clear, the view buttons above it do not",
+      pgF.is_visible("#tabBar") and pad_of(pgF) == "36px" and pgF.evaluate("getComputedStyle(document.body).getPropertyValue('--stage-b').trim()") == "0px", pad_of(pgF))
+pgF.close()
 check("tabs: no errors on the page", not own_tb, own_tb[:3])
 
 urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(saved_tb).encode(), method="PUT",

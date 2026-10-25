@@ -20,6 +20,7 @@ import { cardOptions, initCardMode } from './cardmode.js';
 import { initPhoneMenu, phoneView } from './phonemenu.js';
 import { initPhoneNav } from './phonenav.js';
 import { initPhoneStatus, PHONE_QUERY } from './phonestatus.js';
+import { initSafeArea } from './safearea.js';
 import { initCameras } from './cameras.js';
 import { initFloorCards, columnZoom } from './floorcards.js';
 import { initFloorRail } from './floorrail.js';
@@ -896,6 +897,7 @@ const search = initSearch({
 
 /* ================= Wall tablet (#61): the code lives in kiosk.js ================= */
 const phoneMenu = initPhoneMenu({ $, onPhone: () => setMode('live') });   // phones: the tool bar folds into a ☰ menu, only live and 3D (phonemenu.js, #299)
+initSafeArea();   // the iPhone's home bar strip: not kept clear twice in the Home Assistant app (safearea.js)
 const kiosk = initKiosk({
   $, controls, settings: () => settings, states: () => states, isLive: () => isLive(),
   closeLivePopup: () => popup.close(), closeRoomPanel: () => roomPanel.close(), closeSearch: () => search.close(),
