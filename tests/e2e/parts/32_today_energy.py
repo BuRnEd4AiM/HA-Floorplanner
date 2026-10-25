@@ -66,6 +66,14 @@ check("energy: tiles (Verbraucht, Vom Dach, Aus dem Netz, Kosten), 24 bars, the 
       all(x in energy for x in ["Verbraucht", "Vom Dach", "Aus dem Netz", "Kosten", "Waschmaschine", "Wasser", "Heute"]) and bars == 24, (bars, energy[:300]))
 pgE.click("[data-page=energy] [data-kind=year]"); pgE.wait_for_timeout(2000)
 check("energy: 'Jahr' asks by months and draws 12 bars", stats_asked()[-1][1] == "month" and pgE.evaluate("document.querySelectorAll('.peChart g').length") == 12)
+# the values of a bar by mouse or finger (bartip.js): before they were an SVG <title>, which a finger never shows
+col_te = pgE.locator("[data-page=energy] .peChart g").nth(5).locator(".btHit"); col_te.scroll_into_view_if_needed(); cb_te = col_te.bounding_box()
+pgE.mouse.move(cb_te["x"] + cb_te["width"] / 2, cb_te["y"] + 5); pgE.wait_for_timeout(300)
+tip_te = pgE.inner_text("[data-page=energy] .barTip") if pgE.is_visible("[data-page=energy] .barTip") else ""
+check("energy: the mouse anywhere over a column shows its month and kWh in a box (the finger the same, bartip.js), no <title> any more",
+      "kWh" in tip_te and pgE.locator("[data-page=energy] .peChart title").count() == 0, tip_te)
+pgE.mouse.click(5, 5); pgE.wait_for_timeout(200)
+check("energy: a tap elsewhere puts the box away", pgE.is_hidden("[data-page=energy] .barTip"))
 pgE.click("[data-page=energy] [data-kind=day]"); pgE.wait_for_timeout(1500)
 fwd_off = pgE.evaluate("document.querySelector('[data-page=energy] [data-nav=fwd]').disabled")
 pgE.click("[data-page=energy] [data-nav=back]"); pgE.wait_for_timeout(1500)
@@ -114,6 +122,11 @@ check("energy (#495): '⚖ Vergleichen' asks once for both houses' meters and sh
 pgE.click("[data-page=energy] [data-kind=week]"); pgE.wait_for_timeout(1500)
 check("energy (#495): a week side by side: a bar per house and day, the cost of each house", pgE.locator("[data-page=energy] .pcChart g").count() == 7
       and "Zweithaus" in pgE.inner_text("[data-page=energy] .pcCost"), pgE.inner_text("[data-page=energy]")[:300])
+col_te = pgE.locator("[data-page=energy] .pcChart g").nth(2).locator(".btHit"); col_te.scroll_into_view_if_needed(); cb_te = col_te.bounding_box()
+pgE.mouse.move(cb_te["x"] + cb_te["width"] / 2, cb_te["y"] + 5); pgE.wait_for_timeout(300)
+tip_te = pgE.inner_text("[data-page=energy] .barTip") if pgE.is_visible("[data-page=energy] .barTip") else ""
+check("energy: ⚖ Vergleichen: over a day both houses with their kWh in the box", tip_te.count("kWh") == 2 and "Zweithaus" in tip_te, tip_te)
+pgE.mouse.move(5, 5)
 urllib.request.urlopen(urllib.request.Request(BASE + f"api/houses/{h2_te}", method="DELETE", headers={"X-Remote-User-Name": "admin"})).read()
 
 # --- ⚙ → "Reiter unten": the calendars of the page ☀ Heute

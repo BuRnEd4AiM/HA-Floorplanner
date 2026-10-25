@@ -1717,4 +1717,5 @@ export default {
   'pe.bat.none': 'Wszystkie baterie są ukryte. Dotknij jednej powyżej, aby ją pokazać.', 'pe.bat.noData': 'Home Assistant nie ma wartości dla tego okresu.',
   'pe.bat.err': 'Home Assistant nie mógł teraz przesłać historii.', 'pe.bat.range': 'najniżej {min} ({minAt}) · najwyżej {max} ({maxAt})',
   'pe.bat.aria': 'Naładowanie baterii w procentach w czasie', 'pe.bat.hint': 'Tylko to urządzenie zapamiętuje ten wybór.',
+  'cl.tooWarm': 'za ciepło', 'cl.tooCold': 'za zimno',
 };

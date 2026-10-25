@@ -441,7 +441,7 @@ dialog .dlgClose { width: 34px; height: 34px; padding: 0; border-radius: 50%; fo
 #alarmPanels { font-weight: 600; color: var(--text); }
 #alarmNotify .anSteps { margin: 4px 0 10px; padding-left: 22px; font-size: 12px; color: var(--muted); }   /* how to get the CallMeBot key (#454) */
 #alarmNotify .anSteps li { margin-bottom: 4px; }
-#alarmNotify a { color: var(--accent); }
+#alarmNotify a, dialog a:not(.btn) { color: var(--accent); }   /* the browser's dark blue is hard to read on the dark dialogs */
 /* what to send through, grouped by where it comes from (#460): the phone app, set up in Home Assistant's UI, configuration.yaml */
 #alarmNotify .anSvcs { margin: 6px 0 10px; padding: 6px 10px 4px; border: 1px solid var(--line); border-radius: 8px; border-left-width: 4px; }
 #alarmNotify .anSrc-app { border-left-color: #3fa7ff; }
@@ -1129,6 +1129,8 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
 /* ---- Labels over the rooms (#430, roomlabels.js): live mode, phones too (#444); moved with the camera every frame ---- */
 #roomLabels { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 3; }
 #roomLabels[hidden] { display: none; }
+#roomLabels { transition: opacity .3s; }
+body.findRings #roomLabels { opacity: .3; }   /* the rings of the search show through (search.js) */
 .rlPill { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; padding: 5px 11px 5px 9px; border-radius: 999px;
   white-space: nowrap; font-size: 12.5px; font-weight: 600; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); will-change: transform;
   pointer-events: auto; cursor: pointer; }   /* a tap opens the room with its devices */
@@ -1365,6 +1367,12 @@ button.tpChip:disabled { opacity: .35; }
 .pbChart .pbBand, .pbChart .pbLine { pointer-events: none; }
 .pbTip { position: absolute; top: 4px; z-index: 2; min-width: 120px; max-width: 70%; padding: 6px 9px; border-radius: 8px; border: 1px solid var(--line);
   background: var(--panel); color: var(--text); font-size: 12px; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); pointer-events: none; }
+.btWrap { position: relative; }   /* the values of a bar under the finger or the mouse (bartip.js) */
+.btWrap .btHit { fill: transparent; }
+.btWrap g.btOn .btHit { fill: var(--text); fill-opacity: .07; }
+.barTip { position: absolute; top: 4px; z-index: 2; max-width: 80%; padding: 6px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel);
+  color: var(--text); font-size: 12px; line-height: 1.45; white-space: pre-line; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); pointer-events: none; }
+.barTip[hidden] { display: none; }
 .pbTipRow { display: flex; align-items: center; gap: 6px; } .pbTipRow span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pbOne { padding-top: 8px; border-top: 1px solid var(--line); margin-top: 6px; }
 .pbChips + .pbOne { border-top: 0; margin-top: 0; }
@@ -1419,8 +1427,10 @@ button.tpChip:disabled { opacity: .35; }
 .clBadge.cooling { color: var(--text); background: rgba(72, 143, 229, .2); box-shadow: inset 0 0 0 1px rgba(72, 143, 229, .6); }
 .clNow { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .clTemp { font-size: 42px; font-weight: 800; letter-spacing: -.02em; line-height: 1; }
-.clTemp.cold { color: #6fb2ff; }
-.clTemp.warm { color: #ff9a5a; }
+.clTemp.cold, .clRoomTemp.cold { color: #6fb2ff; }
+.clTemp.warm, .clRoomTemp.warm { color: #ff9a5a; }
+.clTags .tpChip.warm { background: rgba(255, 154, 90, .16); border-color: rgba(255, 154, 90, .6); color: #ffb98a; }   /* a room with a thermostat circle too warm / too cold */
+.clTags .tpChip.cold { background: rgba(111, 178, 255, .16); border-color: rgba(111, 178, 255, .6); color: #a9d0ff; }
 .clRow { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .clStep { display: flex; align-items: center; gap: 8px; }
 .clStep button { width: 44px; height: 40px; padding: 0; border-radius: 12px; font-size: 20px; font-weight: 700; }

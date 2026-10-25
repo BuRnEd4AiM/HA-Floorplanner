@@ -44,6 +44,7 @@ ans = pgS.inner_text("#findAnswer") if pgS.is_visible("#findAnswer") else ""
 lst = pgS.inner_text("#findList")
 check("voice search: Enter answers it: '🪟 Fenster · offen: 1', the open window in the list (not the shut one), a ring on it",
       "Fenster · offen: 1" in ans and "Fenster Stube links" in lst and "rechts" not in lst and pgS.evaluate("window.__fp.findMarks()") >= 1, (ans, lst))
+check("voice search: while the rings show, the room labels fade (a lamp under its room's label: its ring was hidden)", pgS.evaluate("document.body.classList.contains('findRings')"))
 pgS.click("#findList button:has-text('Fenster Stube links')"); pgS.wait_for_timeout(500)
 check("voice search: a tap on a thing of the answer goes there (the box closes)", pgS.is_hidden("#findBox"))
 

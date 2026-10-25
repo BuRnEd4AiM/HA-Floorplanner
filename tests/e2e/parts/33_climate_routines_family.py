@@ -71,6 +71,8 @@ check("climate: the room's card: 19,5°, target 21, heats, 'Lüften · 1350 ppm'
 modes_cf = pgC.evaluate(f"[...document.querySelectorAll('{card} .thMode')].map((b) => b.dataset.mode)")
 check("climate (#495): the thermostat as a circle like Home Assistant's, the knob to drag, − / + and the modes of the device (Heizen, Aus)",
       pgC.locator(f"{card} .th.big .thSvg.thDrag").count() == 1 and pgC.locator(f"{card} .thPlus").count() == 1 and modes_cf == ["heat", "off"], modes_cf)
+check("climate: 19,5° with the target 21 is too cold: with a circle there is no coloured number, so a chip says '🌡 zu kalt'",
+      pgC.locator(f"{card} .clTags .tpChip.cold").count() == 1 and "zu kalt" in pgC.inner_text(f"{card} .clTags"), pgC.inner_text(f"{card} .clTags") if pgC.locator(f"{card} .clTags").count() else "")
 page = pgC.inner_text("[data-page=climate]")
 check("climate: the thermostat and the water heater in no room, and the tip about the window", "Warmwasser" in page and "Heizung Wohnzimmer" in page
       and "Klimaraum" in pgC.inner_text(".clTip") and "Fenster offen" in pgC.inner_text(".clTip"), page[-400:])

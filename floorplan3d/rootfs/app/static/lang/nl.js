@@ -1715,4 +1715,5 @@ export default {
   'pe.bat.noData': 'Home Assistant heeft geen waarden voor deze periode.', 'pe.bat.err': 'Home Assistant kon het verloop nu niet leveren.',
   'pe.bat.range': 'laagste {min} ({minAt}) · hoogste {max} ({maxAt})', 'pe.bat.aria': 'Laadtoestand van de batterijen in procent door de tijd',
   'pe.bat.hint': 'Alleen dit apparaat onthoudt deze keuze.',
+  'cl.tooWarm': 'te warm', 'cl.tooCold': 'te koud',
 };

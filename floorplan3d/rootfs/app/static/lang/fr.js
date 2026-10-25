@@ -1743,4 +1743,5 @@ export default {
   'pe.bat.noData': 'Home Assistant n’a pas de valeurs pour cette période.', 'pe.bat.err': 'Home Assistant n’a pas pu fournir l’historique pour le moment.',
   'pe.bat.range': 'plus bas {min} ({minAt}) · plus haut {max} ({maxAt})', 'pe.bat.aria': 'Charge des batteries en pour cent au fil du temps',
   'pe.bat.hint': 'Seul cet appareil retient ce choix.',
+  'cl.tooWarm': 'trop chaud', 'cl.tooCold': 'trop froid',
 };

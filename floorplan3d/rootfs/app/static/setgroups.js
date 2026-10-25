@@ -31,6 +31,22 @@ export function readOpen(raw) {
   } catch { return []; }
 }
 
+/** scrolls el of a dialog into view below the dialog's sticky head, which would cover its top (the 🩺 microphone test, a group) */
+export function reveal(el) {
+  const dlg = el?.closest('dialog');
+  if (!dlg) return;
+  el.scrollIntoView({ block: 'start' });
+  const head = dlg.querySelector('.dlgHead'), over = head ? head.getBoundingClientRect().bottom - el.getBoundingClientRect().top + 8 : 0;
+  if (over > 0) dlg.scrollTop -= over;
+}
+
+/** the settings with one group open and shown (the light list's "Set up groups", 🎤's "🩺 Mikrofon-Test öffnen") */
+export function openSettingsAt($, group) {
+  $('#settingsBtn').click();
+  const g = $(`#settingsDialog details[data-group="${group}"]`);
+  if (g) { g.open = true; reveal(g); }
+}
+
 /** ctx: $, t */
 export function initSetGroups(ctx) {
   const { $, t } = ctx;

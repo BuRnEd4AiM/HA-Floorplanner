@@ -71,6 +71,7 @@ export function initClimatePage(ctx) {
       c.append(head, now);
     }
     const tags = make('div', 'clTags');
+    if (th && look) tags.append(make('span', `tpChip ${look}`, `🌡 ${t(look === 'warm' ? 'cl.tooWarm' : 'cl.tooCold')}`));   // the circle has no coloured number: say it
     if (r.co2 !== null) tags.append(make('span', `tpChip ${r.air === 'bad' ? 'alert' : 'green'}`, r.air === 'bad' ? `🪟 ${t('cl.airOut', { n: Math.round(r.co2) })}` : t('cl.airOk', { n: Math.round(r.co2) })));
     if (r.humid !== null) tags.append(make('span', 'clHumid', `💧 ${Math.round(r.humid)} %`));
     row.append(tags);
