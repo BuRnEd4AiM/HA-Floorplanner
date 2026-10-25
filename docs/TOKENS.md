@@ -4,13 +4,13 @@
 
 Stand: 2026-10-25 · 67 Sitzungen
 
-**Insgesamt: 4,66 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 4,73 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 13,3 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 50,7 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 4,60 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 13,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 51,0 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 4,67 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,14 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 54 | 2,66 Mrd. | 7,3 Mio. |
+| 2026-10 | 54 | 2,73 Mrd. | 7,5 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-10-25 | [01Xcva7G…](https://claude.ai/code/session_01Xcva7GeERrW4aDeZeeiqRP) | claude/night-fixes | 30,5 Mio. | 85 Tsd. | gezählt |
+| 2026-10-25 | [01Xcva7G…](https://claude.ai/code/session_01Xcva7GeERrW4aDeZeeiqRP) | claude/doorbell | 100,6 Mio. | 204 Tsd. | gezählt |
 | 2026-10-25 | [01VHc3XY…](https://claude.ai/code/session_01VHc3XYCH7teSWnQGdotmca) | claude/overnight-tests | 150,6 Mio. | 291 Tsd. | gezählt |
 | 2026-10-23 | [013KYpwZ…](https://claude.ai/code/session_013KYpwZAdTHCC2NNXJH35Qg) | claude/battery-levels | 25,9 Mio. | 100 Tsd. | gezählt |
 | 2026-10-23 | [016JoEDf…](https://claude.ai/code/session_016JoEDfoC6zogAcn3MiDM4z) | claude/festive-wozniak-kyfflg | 11,5 Mio. | 58 Tsd. | gezählt |
