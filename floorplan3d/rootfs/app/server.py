@@ -128,6 +128,7 @@ DEFAULT_SETTINGS = {
     "radioStations": [],       # the radio stations of the page 🎵 Musik & TV (#490): [{"name", "url"}] (pages.clean_stations)
     "shoppingList": "",        # the to-do list of the page 🧺 Haushalt (#490): a todo.*; "" = a shopping list of Home Assistant
     "appliances": {},          # the machines of 🧺 Haushalt an admin chose (#490): {washer|dryer|dishwasher: {"power", "status"}}; the rest by name
+    "householdTell": False,    # 🔔 a message whenever a machine is done, not only when somebody tapped "Sag mir Bescheid" (#531)
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "voice": {"engine": "auto", "aliases": []},   # the voice search (#509, voice.clean_voice): which recognition, the code words
@@ -2539,13 +2540,84 @@ async def household_answer(request) -> dict:
     return pages_keep(request, ("household",), {"appliances": [hh.appliance(k, found[k], by_id, history, acks.get(k), now) for k in hh.KINDS if k in found]})
 
 
+def tell_ready(cfg) -> bool:
+    """a message can go out: the way of ⚙ → Warnungen & Alarm is set up (also while "Nachricht bei Alarm senden" is off)"""
+    return an.ready({**cfg, "on": True}) is None
+
+
+def household_store(request) -> dict:
+    """household.json: {"acks" (✓ Ausgeräumt), "tell" (🔔 who wants to be told, #531), "told" (the run told about last)}"""
+    stored = read_json(household_path(request), {})
+    stored = stored if isinstance(stored, dict) else {}
+    return {"acks": hh.clean_acks(stored.get("acks")), "tell": hh.clean_tell(stored.get("tell"), time.time()), "told": hh.clean_told(stored.get("told"))}
+
+
+async def household_tell(request, answer=None) -> None:
+    """🔔 "Sag mir Bescheid" (#531): a message for every machine that is done and was asked for (or with "always" on). Runs every minute
+    (household_teller) and after each look at the page; nothing without a set-up message channel."""
+    store = household_store(request)
+    always = validate_settings(read_settings(request)).get("householdTell")
+    cfg = notify_cfg(request)
+    if not (store["tell"] or always) or not tell_ready(cfg):
+        return
+    apps = (answer or await household_answer(request)).get("appliances")
+    kinds, tell, told = hh.due_tells(apps, store["tell"], store["told"], bool(always), time.time())
+    if tell == store["tell"] and told == store["told"]:
+        return
+    write_json_atomic(household_path(request), {**store, "tell": tell, "told": told})
+    for kind in kinds:
+        await send_notify(cfg, hh.tell_text(kind, notify_lang(request)))
+
+
 async def get_household(request):
     if not SUPERVISOR_TOKEN:
-        return web.json_response({"appliances": []})
+        return web.json_response({"appliances": [], "tell": {}, "canTell": False})
     try:
-        return web.json_response(await household_answer(request))
+        answer = await household_answer(request)
     except HA_DOWN as err:
         return web.json_response({"error": f"Home Assistant not reachable: {err}", "appliances": []}, status=502)
+    try:
+        await household_tell(request, answer)
+    except Exception:  # noqa: BLE001 - the page shows the machines anyway; the minute's check tries again
+        log.exception("household: telling failed")
+    return web.json_response({**answer, "tell": {k: True for k in household_store(request)["tell"]}, "canTell": tell_ready(notify_cfg(request))})
+
+
+async def post_household_tell(request):
+    """🔔 "Sag mir Bescheid" for one machine, or not any more ({"kind", "on"}); anybody may, like "✓ Ausgeräumt" (#531)"""
+    try:
+        body = await request.json()
+    except ValueError:
+        body = {}
+    kind = body.get("kind") if isinstance(body, dict) else None
+    if kind not in hh.KINDS:
+        return web.json_response({"error": "washer, dryer or dishwasher"}, status=400)
+    store = household_store(request)
+    tell = {k: v for k, v in store["tell"].items() if k != kind}
+    if body.get("on") is not False:
+        tell[kind] = {"at": time.time(), "by": current_user(request)["name"][:80]}
+    write_json_atomic(household_path(request), {**store, "tell": tell})
+    return await get_household(request)
+
+
+async def household_teller(app):
+    """Background task: 🔔 "Sag mir Bescheid" also while no screen is open (#531), every minute (only with Home Assistant)."""
+    task = None
+    if SUPERVISOR_TOKEN:
+        ctx = _AppCtx(app)
+
+        async def loop():
+            while True:
+                await asyncio.sleep(60)
+                try:
+                    await household_tell(ctx)
+                except Exception:  # noqa: BLE001 - Home Assistant away or a message that did not go: next minute again
+                    pass
+
+        task = asyncio.create_task(loop())
+    yield
+    if task:
+        task.cancel()
 
 
 async def post_household_ack(request):
@@ -2557,9 +2629,8 @@ async def post_household_ack(request):
     kind = body.get("kind") if isinstance(body, dict) else None
     if kind not in hh.KINDS:
         return web.json_response({"error": "washer, dryer or dishwasher"}, status=400)
-    stored = read_json(household_path(request), {})
-    acks = {**hh.clean_acks(stored.get("acks") if isinstance(stored, dict) else None), kind: time.time()}
-    write_json_atomic(household_path(request), {"acks": acks})
+    store = household_store(request)
+    write_json_atomic(household_path(request), {**store, "acks": {**store["acks"], kind: time.time()}})
     request.app[KEY_PAGES].pop(("household",), None)
     return await get_household(request)
 
@@ -3180,6 +3251,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.cleanup_ctx.append(rename_watcher)
     app.cleanup_ctx.append(alarm_notifier)
     app.cleanup_ctx.append(guard_watcher)
+    app.cleanup_ctx.append(household_teller)
     app.add_routes([
         web.get("/", index),
         web.get("/auth/login", auth_login),
@@ -3241,6 +3313,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/media/{entity}/picture", get_media_picture),
         web.get("/api/household", get_household),
         web.post("/api/household/ack", post_household_ack),
+        web.post("/api/household/tell", post_household_tell),
         web.get("/api/todo", get_todo),
         web.get("/api/voice", get_voice),
         web.post("/api/voice/stt", post_voice_stt),

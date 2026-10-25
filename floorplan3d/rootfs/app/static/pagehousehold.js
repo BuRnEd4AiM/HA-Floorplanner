@@ -2,7 +2,7 @@
  * does: api/household), "✓ Ausgeräumt" when one is done (for every screen), the robot vacuums (start, pause, back to the station), the
  * shopping list of Home Assistant (api/todo: tick off, add, clear the ticked ones; anybody may) and the waste card of ☀ Heute. The number
  * on the tab: machines that are done. The rules are in household.js (tested). */
-import { applianceView, doneCount, vacuums, hasHousehold, cleanItem, dayOf, KIND_ICON } from './household.js';
+import { applianceView, tellButton, doneCount, vacuums, hasHousehold, cleanItem, dayOf, KIND_ICON } from './household.js';
 import { controlPlan } from './devicecontrols.js';
 
 const POLL_OPEN = 30000, POLL_SHUT = 120000;
@@ -12,7 +12,7 @@ const POLL_OPEN = 30000, POLL_SHUT = 120000;
  *  todo, waste) */
 export function initHouseholdPage(ctx) {
   const { t, el } = ctx;
-  let open = false, drawn = '', machines = { at: 0, list: [], busy: false }, todo = { at: 0, entity: '', lists: [], items: [], busy: false, note: '' };
+  let open = false, drawn = '', machines = { at: 0, list: [], tell: {}, canTell: false, note: null, busy: false }, todo = { at: 0, entity: '', lists: [], items: [], busy: false, note: '' };
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
   const lang = () => ctx.lang() || 'de';
@@ -32,7 +32,7 @@ export function initHouseholdPage(ctx) {
     machines.busy = true;
     try {
       const r = await fetch('api/household');
-      if (r.ok) machines.list = (await r.json()).appliances || [];
+      if (r.ok) took(await r.json());
     } catch { /* stays as it was */ }
     machines.at = Date.now(); machines.busy = false;
     ctx.changed(); if (open) draw(false);
@@ -57,12 +57,27 @@ export function initHouseholdPage(ctx) {
     } catch { todo.note = t('hh.todoFailed'); }
     todo.at = Date.now(); draw(true);
   }
+  /** what the add-on said: the machines, who wants to be told (#531) and whether a message can go out */
+  function took(x) {
+    machines.list = x.appliances || machines.list;
+    machines.tell = x.tell || {}; machines.canTell = !!x.canTell;
+  }
   async function emptied(kind) {
     try {
       const r = await fetch('api/household/ack', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind }) });
-      if (r.ok) machines.list = (await r.json()).appliances || machines.list;
+      if (r.ok) took(await r.json());
     } catch { /* the next look tries again */ }
     machines.at = Date.now(); ctx.changed(); draw(true);
+  }
+  /** 🔔 "Sag mir Bescheid" (#531): a message when it is done, or not any more; without a message channel it says where to set one up */
+  async function tell(kind, on) {
+    machines.note = null;
+    if (!machines.canTell) { machines.note = { kind, key: 'hh.tellSetup' }; draw(true); return; }
+    try {
+      const r = await fetch('api/household/tell', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, on }) });
+      if (r.ok) took(await r.json()); else machines.note = { kind, key: 'hh.tellFailed' };
+    } catch { machines.note = { kind, key: 'hh.tellFailed' }; }
+    draw(true);
   }
 
   /* ---- the cards ---- */
@@ -78,6 +93,9 @@ export function initHouseholdPage(ctx) {
     c.append(top);
     if (v.bar != null) { const bar = make('div', 'hhBar'), fill = make('i'); fill.style.width = `${v.bar}%`; bar.append(fill); c.append(bar); }
     if (v.ack) { const b = btn('bdBtn hhAck', `✓ ${t('hh.ack')}`, () => emptied(a.kind)); b.dataset.act = 'ack'; c.append(b); }
+    const tb = tellButton(a, machines.tell);
+    if (tb) { const b = btn(`bdBtn hhTell${tb.on ? ' on' : ''}`, t(tb.label), () => tell(a.kind, !tb.on), t('hh.tellTip')); b.dataset.act = 'tell'; c.append(b); }
+    if (tb && machines.note?.kind === a.kind) c.append(make('p', 'hhNote', t(machines.note.key)));
     return c;
   }
   function vacuumCard(v) {
@@ -139,7 +157,7 @@ export function initHouseholdPage(ctx) {
     loadMachines(); if (open) loadTodo();
     const focus = document.activeElement, typing = focus?.closest?.('.hhAdd') && el.contains(focus);
     const vac = vacuums(ctx.states(), ctx.names()), waste = ctx.builtin('waste');   // the waste card of ☀ Heute (its calendar comes a moment later)
-    const sig = JSON.stringify([machines.list, vac, vac.map((v) => ctx.states()[v.entity]?.ctl), todo.entity, todo.lists, todo.items, todo.note, ctx.locked(),
+    const sig = JSON.stringify([machines.list, machines.tell, machines.note, vac, vac.map((v) => ctx.states()[v.entity]?.ctl), todo.entity, todo.lists, todo.items, todo.note, ctx.locked(),
       waste?.textContent || '', new Date().getMinutes(), t('tab.household')]);
     if (!force && (sig === drawn || typing)) return;
     drawn = sig;

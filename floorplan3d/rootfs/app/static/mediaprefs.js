@@ -8,7 +8,7 @@ import { KINDS } from './household.js';
 /** ctx: $, t, entities() (Home Assistant's entities [{ entity_id, name, unit, dc, state }]) */
 export function initMediaPrefs(ctx) {
   const { $, t } = ctx;
-  const box = $('#setStations'), list = $('#setShoppingList'), machines = $('#setAppliances');
+  const box = $('#setStations'), list = $('#setShoppingList'), machines = $('#setAppliances'), always = $('#setHouseholdTell');
   let cur = { radioStations: [], shoppingList: '', appliances: {} };
   let drafts = [];                                     // stations being typed (no address yet): they stay while the dialog saves the others
   const make = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
@@ -60,6 +60,7 @@ export function initMediaPrefs(ctx) {
     fill(settings) {
       cur = { radioStations: cleanStations(settings.radioStations), shoppingList: typeof settings.shoppingList === 'string' ? settings.shoppingList : '',
         appliances: settings.appliances && typeof settings.appliances === 'object' ? settings.appliances : {} };
+      always.checked = !!settings.householdTell;                 // 🔔 a message whenever a machine is done (#531)
       draw();
     },
     read(next) {
@@ -73,6 +74,7 @@ export function initMediaPrefs(ctx) {
         if (power || status) app[r.dataset.kind] = { ...(power ? { power } : {}), ...(status ? { status } : {}) };
       });
       next.appliances = app;
+      next.householdTell = always.checked;
       cur = { radioStations: next.radioStations, shoppingList: next.shoppingList, appliances: app };
     },
   };

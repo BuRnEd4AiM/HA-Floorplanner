@@ -1726,4 +1726,9 @@ export default {
   'bell.notFound': 'Geen bel gevonden. Kies er een met „+ Bel”.',
   'bell.noneToAdd': 'Home Assistant heeft geen passende entiteit (een gebeurtenis of binaire sensor).',
   'lock.doorbell': 'Deurbelvenster (🔔 verschijnt hier niet)',
+  'hh.tell': '🔔 Laat het me weten', 'hh.tellOn': '✓ Ik laat het weten',
+  'hh.tellTip': 'Een bericht op je telefoon zodra hij klaar is (nogmaals tikken: toch niet)',
+  'hh.tellSetup': 'Stel eerst in ⚙ → Waarschuwingen & alarm in waar een bericht heen gaat (WhatsApp, Telegram of de app).',
+  'hh.tellFailed': 'Dat lukte niet, probeer het opnieuw.',
+  'hh.tellAlways': '🔔 Altijd laten weten als een machine klaar is (via het bericht van „Waarschuwingen & alarm”)',
 };

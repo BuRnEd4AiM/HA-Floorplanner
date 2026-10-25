@@ -1728,4 +1728,7 @@ export default {
   'bell.auto': 'automatycznie', 'bell.none': 'brak', 'bell.remove': 'Usuń dzwonek', 'bell.found': 'Znaleziono samodzielnie:',
   'bell.notFound': 'Nie znaleziono dzwonka. Wybierz go przyciskiem „+ Dzwonek”.',
   'bell.noneToAdd': 'Home Assistant nie ma pasującej encji (zdarzenia ani czujnika binarnego).', 'lock.doorbell': 'Okno dzwonka (🔔 nie pojawia się tutaj)',
+  'hh.tell': '🔔 Daj mi znać', 'hh.tellOn': '✓ Dam znać', 'hh.tellTip': 'Wiadomość na telefon, gdy skończy (dotknij ponownie: anuluj)',
+  'hh.tellSetup': 'Najpierw ustaw w ⚙ → Ostrzeżenia i alarm, dokąd idzie wiadomość (WhatsApp, Telegram lub aplikacja).',
+  'hh.tellFailed': 'Nie udało się, spróbuj ponownie.', 'hh.tellAlways': '🔔 Zawsze daj znać, gdy maszyna skończy (wiadomością z „Ostrzeżenia i alarm”)',
 };

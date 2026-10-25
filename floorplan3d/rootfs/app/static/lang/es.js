@@ -1744,4 +1744,7 @@ export default {
   'bell.found': 'Encontrado solo:', 'bell.notFound': 'No se encontró ningún timbre. Elige uno con «+ Timbre».',
   'bell.noneToAdd': 'Home Assistant no tiene ninguna entidad adecuada (un evento o un sensor binario).',
   'lock.doorbell': 'Ventana del timbre (🔔 no aparece aquí)',
+  'hh.tell': '🔔 Avísame', 'hh.tellOn': '✓ Te avisaré', 'hh.tellTip': 'Un mensaje al móvil en cuanto termine (tocar otra vez: cancelar)',
+  'hh.tellSetup': 'Primero configura en ⚙ → Avisos y alarma adónde va un mensaje (WhatsApp, Telegram o la app del móvil).',
+  'hh.tellFailed': 'No funcionó, inténtalo de nuevo.', 'hh.tellAlways': '🔔 Avisar siempre cuando una máquina termine (con el mensaje de «Avisos y alarma»)',
 };

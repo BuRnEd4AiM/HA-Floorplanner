@@ -463,7 +463,7 @@ const pinboard = [
 const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
 let fullCode = '1234';
 // 🧺 Haushalt (#490): the washing machine runs (started 48 minutes ago, 42 to go), the dryer ran yesterday, the dishwasher is done
-const t0 = Date.now(), hhAck = {};
+const t0 = Date.now(), hhAck = {}, hhTell = {};
 const shopping = [{ uid: 'a1', summary: 'Milch', done: false }, { uid: 'a2', summary: 'Brot', done: false }, { uid: 'a3', summary: 'Kaffee', done: true },
   { uid: 'a4', summary: 'Katzenfutter', done: false }];
 function demoAppliances() {
@@ -750,8 +750,10 @@ export function installDemoBackend() {
       return json({ notes: pinboard, canSend: false });
     }
     // ?vollbild=1: this screen as a tablet whose full screen is kept on (#487): only the code (1234 in the demo) ends it
-    if (path === 'api/household') return json({ appliances: demoAppliances() });
-    if (path === 'api/household/ack' && method === 'POST') { hhAck[JSON.parse(init.body || '{}').kind] = Date.now(); return json({ appliances: demoAppliances() }); }
+    const hhAnswer = () => ({ appliances: demoAppliances(), tell: { ...hhTell }, canTell: true });   // 🔔 (#531): the demo sends nothing, it only keeps the wish
+    if (path === 'api/household') return json(hhAnswer());
+    if (path === 'api/household/ack' && method === 'POST') { hhAck[JSON.parse(init.body || '{}').kind] = Date.now(); return json(hhAnswer()); }
+    if (path === 'api/household/tell' && method === 'POST') { const b = JSON.parse(init.body || '{}'); if (b.on === false) delete hhTell[b.kind]; else hhTell[b.kind] = true; return json(hhAnswer()); }
     if (path === 'api/todo') {                              // the shopping list (#490), kept only in this tab
       if (method === 'POST') {
         const b = JSON.parse(init.body || '{}'), it = shopping.find((x) => x.uid === b.uid);

@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.23.0] - 2026-10-26
+### Added
+- **🔔 Sag mir Bescheid** (#531, chosen by the owner, picture `docs/ideen-4.3/8-haushalt.jpg`): a running washing machine, dryer or dishwasher on 🧺 Haushalt has the button "🔔 Sag mir Bescheid"; when it is done the add-on sends one message through the way of ⚙ → Warnungen & Alarm (WhatsApp, Telegram, the phone app), also with no screen open (it checks every minute). "Immer Bescheid sagen" in ⚙ → Reiter unten tells about every run. Never twice for one run; a wish is forgotten after a day.
+
 ## [4.22.0] - 2026-10-26
 ### Added
 - **🔔 The doorbell on every screen** (#530, chosen by the owner, picture `docs/ideen-4.3/6-klingel.jpg`). When somebody rings, every screen in the live view shows the camera at the door with "🔓 Tür öffnen" and "✕ Schließen", wakes up and plays a gong; it closes by itself after two minutes. Bells are found by themselves (an event of the class `doorbell`, a binary sensor named like a bell), each with its camera; ⚙ → 📱 Wandtablet → 🔔 Klingel chooses up to four with camera, door opener and name, and "🔔 Ausprobieren" shows it on this screen. Opening the door asks once more. A user or tablet can be locked out of it (🔒 Klingel-Fenster). The demo rings with `?klingel=1`.

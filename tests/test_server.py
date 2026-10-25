@@ -1288,11 +1288,17 @@ async def test_media_and_household_settings_are_cleaned_and_emptied_machines_are
     assert s["shoppingList"] == "" and s["appliances"] == {"washer": {"power": "sensor.wm_power"}}
     s = await (await client.put("/api/settings", json={**s, "shoppingList": "todo.einkauf"})).json()
     assert s["shoppingList"] == "todo.einkauf"
-    assert await (await client.get("/api/household")).json() == {"appliances": []}
+    assert await (await client.get("/api/household")).json() == {"appliances": [], "tell": {}, "canTell": False}
     assert await (await client.get("/api/todo")).json() == {"lists": [], "entity": "", "items": []}
     assert (await client.post("/api/household/ack", json={"kind": "boat"})).status == 400
     assert (await client.post("/api/household/ack", json={"kind": "dishwasher"})).status == 200
     assert json.loads(next(tmp_path.rglob("household.json")).read_text("utf-8"))["acks"]["dishwasher"] > 0
+    assert (await client.post("/api/household/tell", json={"kind": "boat"})).status == 400      # 🔔 "Sag mir Bescheid" (#531)
+    assert (await client.post("/api/household/tell", json={"kind": "washer"})).status == 200
+    stored = json.loads(next(tmp_path.rglob("household.json")).read_text("utf-8"))
+    assert stored["tell"]["washer"]["at"] > 0 and stored["acks"]["dishwasher"] > 0          # the "Ausgeräumt" stays
+    assert (await client.post("/api/household/tell", json={"kind": "washer", "on": False})).status == 200
+    assert json.loads(next(tmp_path.rglob("household.json")).read_text("utf-8"))["tell"] == {}
     assert (await client.post("/api/todo", json={"entity": "todo.e", "action": "add", "item": "Milch"})).status == 503
     assert (await client.get("/api/media/light.x/picture")).status == 400
     assert (await client.get("/api/media/media_player.tv/picture")).status == 503
