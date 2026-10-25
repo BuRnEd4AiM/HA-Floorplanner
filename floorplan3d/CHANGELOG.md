@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.21.3] - 2026-10-25
+### Changed
+- **Smoother on tablets: the furniture is drawn together in the live mode** (#138, chosen by the owner: "Tablet schneller"). In the live mode nothing changes furniture that is linked to nothing (no entity, no LED, no section), so the parts of all of it on one floor that look the same are now drawn as one, the grey of the sofa with the grey of the shelf. The show house draws its whole-house view with about 1,180 draw calls instead of 1,660, with the same picture (the same triangles). Back in the editor every piece is whole again and can be moved.
+### Fixed
+- **Numbers with the decimal comma** (#527): in German the power overview, the energy picture and the watts on the cables ("☀ 3,20 kW"), the meters ("🚰 1234,6 m³") and the value badges over the devices ("🌡 21,4 °C") now have a comma, like the pages of the tab bar; in English they keep the point.
+- **The demo at night** (#528): no times that have not come yet ("seit 11:02" at 2 o'clock in the night is yesterday now), the sun makes no power at night (the solar power follows the sun of the demo's sky, the battery gives what the house needs), and the line "🔋 Ladestand" no longer jumps at 2 o'clock on the day the clocks go back.
+
 ## [4.21.2] - 2026-10-25
 ### Fixed
 Found while Claude tested the open points of the test protocol overnight (the demo in Chromium as PC, tablet and phone, some in the add-on with a made-up Home Assistant):

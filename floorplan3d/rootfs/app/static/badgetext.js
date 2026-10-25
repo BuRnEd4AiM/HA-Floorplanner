@@ -1,5 +1,6 @@
-/* Texts for the value badges over devices and for state lines: "21.4 °C", "95 W", "70 %" (cover), the app on a TV, a meter reading with
+/* Texts for the value badges over devices and for state lines: "21,4 °C" (the decimal comma of the language), "95 W", "70 %" (cover), the app on a TV, a meter reading with
  * its own sign (water, gas, heat, #136). Pure functions: `s` is the stored state of an entity ({ state, unit, dc, ... }), `t` translates. */
+import { fmtNum } from './i18n.js';
 
 /** a sign in front of a sensor value, by its device class */
 export const DC_ICON = { temperature: '🌡 ', humidity: '💧 ', power: '⚡ ', carbon_dioxide: 'CO₂ ', illuminance: '☀ ', battery: '🔋 ', water: '🚰 ', gas: '🔥 ', energy: '⚡ ' };
@@ -34,7 +35,7 @@ export function badgeText(s, entityId, t, type) {
   if (s.state === 'unavailable') return t('off.unavailable');
   const dom = entityId.split('.')[0], num = parseFloat(s.state);
   const icon = TYPE_ICON[type] || DC_ICON[s.dc] || (s.unit === 'W' ? '⚡ ' : '');
-  if (dom === 'climate') return typeof s.ct === 'number' ? `🌡 ${Math.round(s.ct * 10) / 10} °C` : s.state;
+  if (dom === 'climate') return typeof s.ct === 'number' ? `🌡 ${fmtNum(s.ct)} °C` : s.state;
   if (dom === 'cover') return typeof s.position === 'number' ? `↕ ${s.position} %` : s.state;
   if (dom === 'light') return s.state !== 'on' ? t('live.off') : s.brightness != null ? `💡 ${s.brightness} %` : t('live.on');
   if (dom === 'media_player') {                                   // the app on a TV, else the state in words ("läuft", not "playing")
@@ -42,6 +43,6 @@ export function badgeText(s, entityId, t, type) {
     const sign = s.state === 'playing' ? '▶ ' : s.state === 'paused' ? '⏸ ' : '';
     return s.app ? `▶ ${s.app}` : `${sign}${stateText(s, t, entityId)}`;
   }
-  if (dom === 'sensor' && !isNaN(num) && /^-?[\d.]+$/.test(s.state)) return `${icon}${Math.round(num * 10) / 10}${s.unit ? ' ' + s.unit : ''}`;
+  if (dom === 'sensor' && !isNaN(num) && /^-?[\d.]+$/.test(s.state)) return `${icon}${fmtNum(num)}${s.unit ? ' ' + s.unit : ''}`;
   return stateText(s, t, entityId);
 }

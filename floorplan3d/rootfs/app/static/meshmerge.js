@@ -94,3 +94,48 @@ function dropEmpty(o, root, refs) {
   [...o.children].forEach((c) => dropEmpty(c, root, refs));
   if (o !== root && o.type === 'Group' && !o.children.length && !refs.objects.has(o) && !Object.keys(o.userData).length) o.removeFromParent();
 }
+
+/**
+ * Fewer draw calls in the live mode (#138, the show house drew 1661 times in the whole house): there nothing changes furniture that is
+ * linked to nothing (staticDevice in pickrules.js), so the parts of all of it on one floor that look the same are drawn as one mesh, the
+ * grey of the sofa with the grey of the shelf, as mergeParts does inside one model. `container` is the floor's group, `roots` the models.
+ * Only plain parts move into the merged meshes; a model keeps its pick box and every part something refers to. Left alone too: glass
+ * (transparent parts are drawn in the order of their distance) and parts cut by a plane (the earth). Returns what unbatch needs to put
+ * the parts back (the editor moves them one by one), null when nothing was merged.
+ */
+export function batchModels(container, roots) {
+  const groups = new Map();
+  container.updateMatrixWorld(true);
+  roots.forEach((root) => {
+    if (!root.visible) return;
+    const refs = referenced(root.userData);
+    root.traverse((o) => { if (o !== root && o.userData) referenced(o.userData, refs); });
+    root.traverse((o) => {
+      if (!plain(o, root, refs)) return;
+      const look = lookKey(o.material, refs.materials);
+      if (look === null || o.material.transparent || o.material.clippingPlanes?.length) return;
+      const key = `${look}#${geoKey(o.geometry)}#${o.renderOrder}#${o.castShadow ? 1 : 0}${o.receiveShadow ? 1 : 0}`;
+      (groups.get(key) || groups.set(key, { mat: o.material, list: [] }).get(key)).list.push(o);
+    });
+  });
+  const inv = container.matrixWorld.clone().invert(), rel = new THREE.Matrix4(), meshes = [], parts = [];
+  groups.forEach(({ mat, list }) => {
+    if (list.length < 2) return;
+    const geo = mergeGeometries(list.map((o) => placed(o.geometry, rel.multiplyMatrices(inv, o.matrixWorld))), false);
+    if (!geo) return;
+    const m = new THREE.Mesh(geo, mat);
+    m.castShadow = list[0].castShadow; m.receiveShadow = list[0].receiveShadow; m.renderOrder = list[0].renderOrder;
+    m.userData.batch = true;
+    container.add(m);
+    meshes.push(m);
+    list.forEach((o) => { parts.push({ o, parent: o.parent }); o.removeFromParent(); });
+  });
+  return meshes.length ? { meshes, parts } : null;
+}
+
+/** the parts of batchModels back in their models (their own places, sizes and turns never changed), the merged meshes away */
+export function unbatch(b) {
+  if (!b) return;
+  b.meshes.forEach((m) => { m.removeFromParent(); m.geometry.dispose(); });
+  b.parts.forEach(({ o, parent }) => parent.add(o));
+}

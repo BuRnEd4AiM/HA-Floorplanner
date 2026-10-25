@@ -1,8 +1,10 @@
-// Unit tests for powerlogic.js (run: cp floorplan3d/rootfs/app/static/powerlogic.js /tmp/powerlogic.mjs && POWER_MJS=/tmp/powerlogic.mjs node --test tests/powerlogic.test.mjs)
+// Unit tests for powerlogic.js (it needs i18n.js beside it; run like offline.test.mjs, see there)
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-const P = await import(process.env.POWER_MJS || '/tmp/powerlogic.mjs');
+const dir = process.env.STATIC_DIR || '/tmp/static';
+const P = await import(`${dir}/powerlogic.js`);
+const { fmtNum } = await import(`${dir}/i18n.js`);
 const st = (state, unit = '') => ({ state: String(state), unit });
 
 test('watts: kW and MW are converted, text and charge levels are no power', () => {
@@ -18,7 +20,7 @@ test('watts: kW and MW are converted, text and charge levels are no power', () =
 test('fmtWatts shows W below 1000 and kW above, always without the sign', () => {
   assert.equal(P.fmtWatts(450), '450 W');
   assert.equal(P.fmtWatts(-450), '450 W');
-  assert.equal(P.fmtWatts(3200), '3.20 kW');
+  assert.equal(P.fmtWatts(3200), '3,20 kW');
 });
 test('cable kind defaults follow the device type and can be set per cable', () => {
   assert.equal(P.cableKind({ type: 'solarpanel' }, {}), 'solar');
@@ -58,10 +60,19 @@ test('meters in the overview (#237, #245): water, gas and heat in a pill of thei
   const states = { w: { state: '1234.567', unit: 'm³' }, g: { state: '845.2', unit: 'm³' }, h: { state: 'unavailable' } };   // rounded like the badges
   const devs = [{ type: 'gasmeter', entity: 'g', name: 'Gas' }, { type: 'watermeter', entity: 'w' }, { type: 'heatmeter', entity: 'h' }, { type: 'watermeter', entity: '' }, { type: 'light', entity: 'w' }];
   const m = P.meterReadings(states, devs);
-  assert.deepEqual(m.map((x) => x.text), ['🚰 1234.6 m³', '🔥 845.2 m³']);
+  assert.deepEqual(m.map((x) => x.text), ['🚰 1234,6 m³', '🔥 845,2 m³']);
   const txt = P.meterText(m, t);
-  assert.equal(txt.text, '🚰 1234.6 m³ · 🔥 845.2 m³');
-  assert.ok(txt.title.includes('dev.gasmeter (Gas): 845.2 m³'));
+  assert.equal(txt.text, '🚰 1234,6 m³ · 🔥 845,2 m³');
+  assert.ok(txt.title.includes('dev.gasmeter (Gas): 845,2 m³'));
   assert.equal(P.meterText([], t), null);
   assert.deepEqual(P.meterReadings(states, undefined), []);
+});
+
+test('numbers in the language of the screen (German comma, English point), no thousands dots on a meter', () => {
+  assert.equal(fmtNum(3.2, 2, 2, 'de'), '3,20');
+  assert.equal(fmtNum(3.2, 2, 2, 'en'), '3.20');
+  assert.equal(fmtNum(1234.567, 1, 0, 'de'), '1234,6');
+  assert.equal(fmtNum(5321, 1, 0, 'de'), '5321');
+  assert.equal(fmtNum(-0.04, 1, 0, 'de'), '0');
+  assert.equal(fmtNum(-2.25, 1, 0, 'de'), '-2,3');
 });

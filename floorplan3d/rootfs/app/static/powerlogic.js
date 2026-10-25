@@ -1,5 +1,6 @@
 /* Power add-on, the pure part (no three.js, no DOM, so it can be tested): power device types, cables (route, kind, colour), watts of a
  * sensor and the meters' pill. The overview of the power (production, grid, consumption, battery, rooms) and its pill are energycalc.js. */
+import { fmtNum } from './i18n.js';
 export const POWER_TYPES = new Set(['solarpanel', 'inverter', 'powermeter', 'houseentry', 'fusebox', 'battery', 'wallbox']);
 /** meters of water, gas and heat: energy too, so the power editor keeps showing them (#207), but they have no cables */
 export const METER_TYPES = new Set(['watermeter', 'gasmeter', 'heatmeter']);
@@ -27,7 +28,7 @@ export function powerWatts(states, d, c) {
   const n = s ? parseFloat(s.state) : NaN;
   return Number.isFinite(n) ? n * unitFactor(s.unit) : null;
 }
-export const fmtWatts = (w) => (Math.abs(w) >= 1000 ? `${(Math.abs(w) / 1000).toFixed(2)} kW` : `${Math.round(Math.abs(w))} W`);
+export const fmtWatts = (w) => (Math.abs(w) >= 1000 ? `${fmtNum(Math.abs(w) / 1000, 2, 2)} kW` : `${Math.round(Math.abs(w))} W`);   // "3,20 kW" in German
 
 /** the points [x, y, z] of a cable: `air` hangs between the two, `floor` runs along the floor of the first and then up,
  *  `through` goes through the floors first, then along the floor of the second; fyA / fyB are the floor levels of the two ends */
@@ -48,7 +49,7 @@ export function meterReadings(states, devices) {
   return (devices || []).filter((d) => METER_TYPES.has(d.type) && d.entity)
     .map((d) => ({ d, s: states[d.entity] })).filter(({ s }) => s && s.state !== '' && s.state != null && Number.isFinite(parseFloat(s.state)))
     .sort((a, b) => Object.keys(METER_ICON).indexOf(a.d.type) - Object.keys(METER_ICON).indexOf(b.d.type))
-    .map(({ d, s }) => ({ type: d.type, name: d.name || '', text: `${METER_ICON[d.type]} ${Math.round(parseFloat(s.state) * 10) / 10}${s.unit ? ` ${s.unit}` : ''}` }));   // rounded like the badges
+    .map(({ d, s }) => ({ type: d.type, name: d.name || '', text: `${METER_ICON[d.type]} ${fmtNum(parseFloat(s.state))}${s.unit ? ` ${s.unit}` : ''}` }));   // rounded like the badges
 }
 /** the text of the meter pill beside the power overview (#245; water, gas and heat apart from the power, which lights up with the cables)
  *  and its tooltip naming each meter, null without meters. meters: from meterReadings */

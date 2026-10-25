@@ -1333,6 +1333,12 @@ export function resolveLanguage(l) {
 }
 export function setLanguage(l) { lang = resolveLanguage(l); document.documentElement.lang = lang; }
 export function currentLanguage() { return lang; }
+/** a number as text in the language of the screen, "3,2" in German and "3.2" in English, without thousands dots (a meter shows
+ *  "1234,6 m³"); between `min` and `max` decimals */
+export function fmtNum(v, max = 1, min = 0, l = lang) {
+  if (Math.abs(v) < 0.5 / 10 ** max) v = 0;                          // "0", not "-0"
+  try { return v.toLocaleString(l, { minimumFractionDigits: min, maximumFractionDigits: max, useGrouping: false }); } catch { return String(+v.toFixed(max)); }
+}
 export function t(key, vars) {
   let s = DICT[lang][key] ?? DICT.en[key] ?? DICT.de[key] ?? key;
   if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);

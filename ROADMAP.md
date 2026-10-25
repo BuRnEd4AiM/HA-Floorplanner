@@ -6,7 +6,7 @@ Progress is tracked with [milestones](https://github.com/BuRnEd4AiM/HA-Floorplan
 
 ## Open
 
-- ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138); the performance display 3.60.0 and fewer draw calls 3.89.0 are the first steps)
+- ⬜ Faster on tablets: measure first, then speed up the slow parts ([#138](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/138); the performance display 3.60.0, fewer draw calls 3.89.0 and the furniture drawn together in the live mode 4.21.3 are the first steps)
 - ⬜ Verified on real Home Assistant installs, the goal of 1.0 (the short list of what to check first is at the top of [docs/TESTPROTOKOLL.md](docs/TESTPROTOKOLL.md))
 
 Not planned: sun light and shadows through the windows by the position of the sun ([#68](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/68), closed).

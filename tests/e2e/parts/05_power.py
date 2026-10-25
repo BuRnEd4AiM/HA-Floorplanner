@@ -62,10 +62,12 @@ pgK2.evaluate("""() => { const f = window.__fp.layout.floors[window.__fp.floorId
 pgK2.wait_for_timeout(500)
 check("meters (#136): water, gas and heat meter are built in 3D", all(pgK2.evaluate(f"window.__fp.has('{i}')") for i in ("mW", "mG", "mH")))
 bw, bg, bh = (pgK2.evaluate(f"window.__fp.badge('{i}')") for i in ("mW", "mG", "mH"))
-check("meters (#136): the badges show the reading with its own sign", (bw or "").startswith("🚰 1234.6 m³") and (bg or "").startswith("🔥 845.2 m³") and (bh or "").startswith("♨ 5321 kWh"), (bw, bg, bh))
+bw, bg = (bw or "").replace(",", "."), (bg or "").replace(",", ".")     # the decimal comma of the language
+check("meters (#136): the badges show the reading with its own sign", bw.startswith("🚰 1234.6 m³") and bg.startswith("🔥 845.2 m³") and (bh or "").startswith("♨ 5321 kWh"), (bw, bg, bh))
 card = pgK2.is_visible("#energyCard")       # wide screens: the meters are in the energy picture (3.99.1), else in a pill of their own
 mp = pgK2.inner_text("#energyCard .ef-meters" if card else "#meterPill") if pgK2.is_visible("#energyCard .ef-meters" if card else "#meterPill") else "hidden"
 ep = pgK2.inner_text("#energyPill") if pgK2.is_visible("#energyPill") else ""
+mp = mp.replace(",", ".")
 check("meters (#245): water, gas and heat on their own (in the energy picture under the circles, or a pill), not in the line of power",
       "🚰 1234.6 m³" in mp and "🔥 845.2 m³" in mp and "♨ 5321 kWh" in mp and "🚰" not in ep and (not card or not pgK2.is_visible("#meterPill")), (card, mp, ep))
 pgK2.close()
@@ -89,7 +91,8 @@ for _ in range(5):                                       # a periodic refresh of
 pi = pgW.evaluate("window.__fp.powerInfo()")
 check("power: the button shows one cable with flowing dots and a watt label", pi["shown"] and len(pi["flows"]) == 1 and pi["flows"][0]["active"] and pi["flows"][0]["dir"] == 1 and pi["flows"][0]["dots"] == 8 and pi["labels"] == 1, pi)
 def overview():                                  # the picture on wide screens (#420), else the line of numbers
-    return pgW.inner_text("#energyCard") if pgW.is_visible("#energyCard") else pgW.inner_text("#energyPill") if pgW.is_visible("#energyPill") else ""
+    t = pgW.inner_text("#energyCard") if pgW.is_visible("#energyCard") else pgW.inner_text("#energyPill") if pgW.is_visible("#energyPill") else ""
+    return t.replace(",", ".")                    # the decimal comma of the language
 if "1.50 kW" not in overview():
     pgW.evaluate("window.__fp.fakeState('sensor.pv_test', '1500'); window.__fp.rebuild()"); pgW.wait_for_timeout(500)
 check("power: the overview shows the production (the picture on wide screens, #420)", "1.50 kW" in overview(), overview() or "hidden")

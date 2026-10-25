@@ -108,3 +108,46 @@ test('only geometries with the same attributes join; a model of one mesh stays a
   const one = new THREE.Group(); one.add(box(mat));
   assert.equal(M.mergeParts(one), 0);
 });
+
+test('live mode (#138): the furniture of a floor that looks the same is drawn as one mesh, each piece where it was; back in the editor every piece is whole again', () => {
+  const floor = new THREE.Group(); floor.position.set(0, 2.8, 0);
+  const grey = std('#777777'), wood = std('#8b5a2b'), glass = std('#ccddee', { transparent: true, opacity: 0.4 });
+  const sofa = new THREE.Group(), shelf = new THREE.Group();
+  sofa.position.set(1, 0, 2); sofa.rotation.y = 0.7; shelf.position.set(-2, 0, 1); shelf.scale.set(1, 1.5, 1);
+  sofa.add(box(grey, 0), box(wood, 0.5)); shelf.add(box(std('#777777'), 0, 1), box(wood, 0, 0.5), box(glass, 0, 0.8), box(glass, 0, 0.9));
+  const pick = box(std(), 0, 0, 0, 1); pick.userData.proxy = true; shelf.add(pick);   // the pick box stays in its model
+  floor.add(sofa, shelf);
+  const before = triangles(floor), sofaBox = bounds(sofa);
+  const b = M.batchModels(floor, [sofa, shelf]);
+  assert.ok(b);
+  assert.equal(b.meshes.length, 2);                              // the greys together, the woods together
+  assert.equal(b.parts.length, 4);
+  assert.deepEqual(triangles(floor), before);                    // the floor looks exactly the same
+  assert.ok(b.meshes.every((m) => m.parent === floor));
+  assert.equal(meshes(shelf).filter((m) => m.material === glass).length, 2, 'glass keeps its own meshes (drawn by distance)');
+  assert.ok(shelf.children.includes(pick));
+  M.unbatch(b);
+  assert.deepEqual(triangles(floor), before);
+  assert.equal(meshes(sofa).length, 2);
+  assert.equal(meshes(shelf).length, 5);
+  assert.ok(b.meshes.every((m) => !m.parent));
+  sofa.position.x += 1;                                          // the editor moves the sofa: all of it
+  sameBox(bounds(sofa), sofaBox.translate(new THREE.Vector3(1, 0, 0)));
+});
+
+test('live mode (#138): a hidden model, a part something refers to and a lone look are not batched; nothing to merge gives null', () => {
+  const floor = new THREE.Group(), red = std('#aa0000');
+  const hidden = new THREE.Group(), lamp = new THREE.Group(), chair = new THREE.Group();
+  hidden.visible = false; hidden.add(box(red, 0));
+  const shade = box(red, 1); lamp.add(shade); lamp.userData.glow = [shade.material];
+  chair.add(box(red, 2), box(std('#00aa00'), 3));
+  floor.add(hidden, lamp, chair);
+  assert.equal(M.batchModels(floor, [hidden, lamp, chair]), null);
+  assert.equal(meshes(chair).length, 2);
+  assert.ok(lamp.children.includes(shade));
+  const two = new THREE.Group(); two.add(box(red, 5));
+  floor.add(two);
+  const b = M.batchModels(floor, [hidden, lamp, chair, two]);
+  assert.equal(b.parts.length, 2);                               // the chair's red and the second red piece, not the lamp's
+  assert.ok(lamp.children.includes(shade) && hidden.children.length === 1);
+});

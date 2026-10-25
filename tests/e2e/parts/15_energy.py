@@ -26,7 +26,7 @@ fake()
 e = energy()
 check("#379: the consumption counts the battery: production - fed in - charging", e["load"] == 1400 and e["counted"] == 600, (e["load"], e["counted"]))
 fake()
-check("#379: the overview at the top left shows it", "⌂ 1.40 kW" in pgN.inner_text("#energyPill"), pgN.inner_text("#energyPill"))
+check("#379: the overview at the top left shows it", "⌂ 1,40 kW" in pgN.inner_text("#energyPill"), pgN.inner_text("#energyPill"))
 
 # --- the tab: in the power editor only, the calculation live at the top
 check("#378: the button '⚡ Rechnung' is hidden outside the power editor", not pgN.is_visible("#energyBtn"))
@@ -36,7 +36,7 @@ pgN.click("#energyBtn"); pgN.wait_for_timeout(500)
 fake()
 res = pgN.inner_text("#energyResult")
 check("#378: the window opens with the calculation: production, fed in, battery, = consumption, and that it adds up",
-      pgN.is_visible("#energyDialog") and "Einspeisung ins Netz" in res and "Batterie lädt" in res and "Hausverbrauch (berechnet)" in res and "1.40 kW" in res and pgN.locator("#energyResult .enOk").count() == 1, res)
+      pgN.is_visible("#energyDialog") and "Einspeisung ins Netz" in res and "Batterie lädt" in res and "Hausverbrauch (berechnet)" in res and "1,40 kW" in res and pgN.locator("#energyResult .enOk").count() == 1, res)
 check("#378: the parts that are not set come from the plan, with their device", "Automatisch aus dem Plan: en_z (sensor.e_netz)" in pgN.inner_text("#energyBody"), pgN.inner_text("#energyBody")[:600])
 
 # --- a meter that counts the other way round: a warning with a button that turns the sign round
