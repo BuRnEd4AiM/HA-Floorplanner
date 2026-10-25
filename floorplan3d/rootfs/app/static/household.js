@@ -65,6 +65,14 @@ export function applianceView(a, now) {
   return { kind: a.kind, tone, line, right, badge, bar: progressOf(a, now), ack: a.phase === 'done' };
 }
 
+/** "🔔 Sag mir Bescheid" (#531) on the card of a machine that runs or waits: { on (somebody asked already), label }; null for a machine
+ *  that does not run. tell: { kind: true } from api/household */
+export function tellButton(a, tell) {
+  if (a?.phase !== 'running' && a?.phase !== 'waiting') return null;
+  const on = !!tell?.[a.kind];
+  return { on, label: on ? 'hh.tellOn' : 'hh.tell' };
+}
+
 /** the number on the tab: machines that are done and wait to be emptied */
 export const doneCount = (appliances) => (Array.isArray(appliances) ? appliances.filter((a) => a?.phase === 'done').length : 0);
 

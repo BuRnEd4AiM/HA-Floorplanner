@@ -1768,7 +1768,8 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .hh-done { border-color: rgba(46, 160, 67, .6); }
 .hhBar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
 .hhBar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
-.hhAck, .hhClear { align-self: flex-start; }
+.hhAck, .hhClear, .hhTell { align-self: flex-start; }
+.hhTell.on { border-color: var(--accent); color: var(--accent); }
 .hhBtns { display: flex; flex-wrap: wrap; gap: 8px; }
 .hhTodo { display: flex; flex-direction: column; gap: 6px; }
 .hhTodoHead { display: flex; align-items: center; gap: 10px; }

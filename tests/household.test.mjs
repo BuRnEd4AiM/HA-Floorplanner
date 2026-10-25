@@ -46,3 +46,11 @@ test('robot vacuums, whether the page has something, a new item of the list', ()
   assert.equal(H.cleanItem('  Milch\n 2 l '), 'Milch 2 l'); assert.equal(H.cleanItem(' '), ''); assert.equal(H.cleanItem(5), '');
   assert.equal(H.cleanItem('x'.repeat(300)).length, 200);
 });
+
+test('"🔔 Sag mir Bescheid" (#531): only on a machine that runs or waits, on when somebody asked', () => {
+  assert.deepEqual(H.tellButton({ kind: 'washer', phase: 'running' }, {}), { on: false, label: 'hh.tell' });
+  assert.deepEqual(H.tellButton({ kind: 'washer', phase: 'waiting' }, { washer: true }), { on: true, label: 'hh.tellOn' });
+  assert.equal(H.tellButton({ kind: 'dryer', phase: 'done' }, { dryer: true }), null);
+  assert.equal(H.tellButton({ kind: 'dryer', phase: 'off' }, {}), null);
+  assert.equal(H.tellButton(null, {}), null);
+});

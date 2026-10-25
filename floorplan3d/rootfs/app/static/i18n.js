@@ -684,6 +684,11 @@ const DICT = {
     'bell.notFound': 'Keine Klingel gefunden. Mit „+ Klingel“ selbst wählen.',
     'bell.noneToAdd': 'Home Assistant hat keine passende Entität (ein Ereignis oder einen Binärsensor).',
     'lock.doorbell': 'Klingel-Fenster (🔔 erscheint hier nicht)',
+    'hh.tell': '🔔 Sag mir Bescheid', 'hh.tellOn': '✓ Ich sage Bescheid',
+    'hh.tellTip': 'Eine Nachricht aufs Handy, sobald sie fertig ist (noch einmal tippen: doch nicht)',
+    'hh.tellSetup': 'Erst in ⚙ → Warnungen & Alarm einrichten, wohin eine Nachricht geht (WhatsApp, Telegram oder die Handy-App).',
+    'hh.tellFailed': 'Ging nicht, bitte noch einmal.',
+    'hh.tellAlways': '🔔 Immer Bescheid sagen, wenn eine Maschine fertig ist (über die Nachricht von „Warnungen & Alarm“)',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -1337,6 +1342,9 @@ const DICT = {
     'bell.auto': 'automatic', 'bell.none': 'none', 'bell.remove': 'Remove the bell', 'bell.found': 'Found by itself:',
     'bell.notFound': 'No bell found. Choose one with "+ Bell".', 'bell.noneToAdd': 'Home Assistant has no fitting entity (an event or a binary sensor).',
     'lock.doorbell': 'Doorbell window (🔔 does not show here)',
+    'hh.tell': '🔔 Tell me', 'hh.tellOn': '✓ I will tell you', 'hh.tellTip': 'A message to your phone as soon as it is done (tap again: not after all)',
+    'hh.tellSetup': 'First set up in ⚙ → Warnings & alarm where a message goes (WhatsApp, Telegram or the phone app).',
+    'hh.tellFailed': 'That did not work, please try again.', 'hh.tellAlways': '🔔 Always tell when a machine is done (through the message of "Warnings & alarm")',
   },
 };
 

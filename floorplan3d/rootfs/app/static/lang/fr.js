@@ -1755,4 +1755,7 @@ export default {
   'bell.found': 'Trouvé automatiquement :', 'bell.notFound': 'Aucune sonnette trouvée. En choisir une avec « + Sonnette ».',
   'bell.noneToAdd': 'Home Assistant n\'a aucune entité adaptée (un événement ou un capteur binaire).',
   'lock.doorbell': 'Fenêtre de la sonnette (🔔 n\'apparaît pas ici)',
+  'hh.tell': '🔔 Préviens-moi', 'hh.tellOn': '✓ Je te préviens', 'hh.tellTip': 'Un message sur le téléphone dès qu\'elle a fini (toucher à nouveau : annuler)',
+  'hh.tellSetup': 'Configurez d\'abord dans ⚙ → Alertes et alarme où va un message (WhatsApp, Telegram ou l\'application).',
+  'hh.tellFailed': 'Échec, réessayez.', 'hh.tellAlways': '🔔 Toujours prévenir quand une machine a fini (par le message de « Alertes et alarme »)',
 };

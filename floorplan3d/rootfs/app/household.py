@@ -250,6 +250,59 @@ def clean_acks(val) -> dict:
     return {k: float(val[k]) for k in KINDS if isinstance(val, dict) and _num(val.get(k)) is not None and val[k] > 0}
 
 
+# ---------- "🔔 Sag mir Bescheid" (#531): a message when a machine is done ----------
+TELL_KEEP = 24 * 3600        # a wish to be told that never came true is forgotten after a day
+TELL_RECENT = 15 * 60        # "always tell": only a run that ended in the last 15 minutes (not an old one after a restart)
+TELL_TEXT = {
+    "de": {"washer": "🧺 Die Waschmaschine ist fertig.", "dryer": "🧺 Der Trockner ist fertig.", "dishwasher": "🧺 Die Spülmaschine ist fertig."},
+    "en": {"washer": "🧺 The washing machine is done.", "dryer": "🧺 The dryer is done.", "dishwasher": "🧺 The dishwasher is done."},
+    "fr": {"washer": "🧺 Le lave-linge a terminé.", "dryer": "🧺 Le sèche-linge a terminé.", "dishwasher": "🧺 Le lave-vaisselle a terminé."},
+    "es": {"washer": "🧺 La lavadora ha terminado.", "dryer": "🧺 La secadora ha terminado.", "dishwasher": "🧺 El lavavajillas ha terminado."},
+    "it": {"washer": "🧺 La lavatrice ha finito.", "dryer": "🧺 L'asciugatrice ha finito.", "dishwasher": "🧺 La lavastoviglie ha finito."},
+    "nl": {"washer": "🧺 De wasmachine is klaar.", "dryer": "🧺 De droger is klaar.", "dishwasher": "🧺 De vaatwasser is klaar."},
+    "pl": {"washer": "🧺 Pralka skończyła.", "dryer": "🧺 Suszarka skończyła.", "dishwasher": "🧺 Zmywarka skończyła."},
+}
+
+
+def tell_text(kind: str, lang: str) -> str:
+    """the message for a machine that is done, in Home Assistant's language (English for one not known)"""
+    return TELL_TEXT.get(str(lang or "")[:2].lower(), TELL_TEXT["en"]).get(kind, "")
+
+
+def clean_tell(val, now: float) -> dict:
+    """{kind: {"at": seconds, "by": user}}: who wants to be told when that machine is done; older than a day: forgotten"""
+    out = {}
+    for k in KINDS:
+        v = val.get(k) if isinstance(val, dict) else None
+        at = _num(v.get("at")) if isinstance(v, dict) else None
+        if at is not None and 0 < at and now - at < TELL_KEEP:
+            out[k] = {"at": at, "by": str(v.get("by") or "")[:80]}
+    return out
+
+
+def clean_told(val) -> dict:
+    """{kind: seconds}: the end of the last run a message was sent for (never twice for the same run)"""
+    return {k: float(val[k]) for k in KINDS if isinstance(val, dict) and _num(val.get(k)) is not None and val[k] > 0}
+
+
+def due_tells(apps, tell: dict, told: dict, always: bool, now: float):
+    """Which machines to tell about now: ([kind], tell left, told). A machine is done (phase "done", ended at `since`) and was not told
+    about for that run; it was asked for (the run ended after the wish, give or take a minute) or "always tell" is on and the run ended in
+    the last TELL_RECENT seconds. apps: appliance() of each machine."""
+    tell, told, out = dict(tell), dict(told), []
+    for a in apps if isinstance(apps, list) else []:
+        kind = a.get("kind") if isinstance(a, dict) else None
+        since = _ts(a.get("since")) if kind in KINDS else None
+        if a.get("phase") != "done" or since is None or since <= told.get(kind, 0) + 1:
+            continue
+        wished = kind in tell and since >= tell[kind]["at"] - 60
+        if wished or (always and now - since <= TELL_RECENT):
+            out.append(kind)
+            told[kind] = since
+            tell.pop(kind, None)
+    return out, tell, told
+
+
 # ---------- the shopping list: todo.* of Home Assistant ----------
 SHOP = ("einkauf", "shopping", "grocer", "courses", "spesa", "boodschap", "compra", "zakupy")
 

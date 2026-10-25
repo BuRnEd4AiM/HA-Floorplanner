@@ -120,3 +120,24 @@ def test_the_shopping_list_first_and_its_items_and_the_changes_allowed():
     assert hh.todo_call({"entity": "todo.e", "action": "clear"}) == ("todo.e", "remove_completed_items", {})
     assert hh.todo_call({"entity": "light.x", "action": "clear"}) is None
     assert hh.todo_call({"entity": "todo.e", "action": "rm"}) is None
+
+
+def test_tell_me_when_a_machine_is_done():
+    """🔔 "Sag mir Bescheid" (#531): told once per run, only for a run that ended after the wish (a minute's grace); "always" only for a
+    run that ended in the last 15 minutes; a wish older than a day is forgotten"""
+    t0 = 1_793_000_000.0
+    iso = lambda s: hh._iso(s)                                   # noqa: E731
+    done = [{"kind": "washer", "phase": "done", "since": iso(t0 + 600)}, {"kind": "dryer", "phase": "running", "since": iso(t0)},
+            {"kind": "dishwasher", "phase": "done", "since": iso(t0 - 7200)}]
+    tell = hh.clean_tell({"washer": {"at": t0, "by": "anna"}, "dryer": {"at": t0, "by": "max"}, "dishwasher": {"at": t0, "by": "lena"},
+                          "fridge": {"at": t0}}, t0 + 700)
+    assert set(tell) == {"washer", "dryer", "dishwasher"}
+    kinds, left, told = hh.due_tells(done, tell, {}, False, t0 + 700)
+    assert kinds == ["washer"]                                   # the dishwasher ended before the wish, the dryer still runs
+    assert set(left) == {"dryer", "dishwasher"} and told == {"washer": t0 + 600}
+    assert hh.due_tells(done, {**left, "washer": {"at": t0, "by": "anna"}}, told, False, t0 + 760)[0] == []   # never twice for one run
+    assert hh.due_tells(done, {}, {}, True, t0 + 700)[0] == ["washer"]            # always: the recent run, not the old dishwasher
+    assert hh.due_tells(done, {}, {}, True, t0 + 600 + 16 * 60)[0] == []          # ... and not when it ended long ago (a restart)
+    assert hh.clean_tell({"washer": {"at": t0, "by": "anna"}}, t0 + 25 * 3600) == {}
+    assert hh.clean_told({"washer": t0, "dryer": "x", "fridge": 5}) == {"washer": t0}
+    assert hh.tell_text("washer", "de") == "🧺 Die Waschmaschine ist fertig." and hh.tell_text("dryer", "xx") == "🧺 The dryer is done."

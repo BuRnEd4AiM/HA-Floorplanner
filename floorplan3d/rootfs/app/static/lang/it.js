@@ -1745,4 +1745,7 @@ export default {
   'bell.namePh': 'es. Porta d\'ingresso', 'bell.auto': 'automatica', 'bell.none': 'nessuno', 'bell.remove': 'Rimuovi il campanello',
   'bell.found': 'Trovato da solo:', 'bell.notFound': 'Nessun campanello trovato. Sceglierne uno con «+ Campanello».',
   'bell.noneToAdd': 'Home Assistant non ha un\'entità adatta (un evento o un sensore binario).', 'lock.doorbell': 'Finestra del campanello (🔔 non appare qui)',
+  'hh.tell': '🔔 Avvisami', 'hh.tellOn': '✓ Ti avviso io', 'hh.tellTip': 'Un messaggio sul telefono appena ha finito (tocca di nuovo: annulla)',
+  'hh.tellSetup': 'Prima imposta in ⚙ → Avvisi e allarme dove va un messaggio (WhatsApp, Telegram o l\'app del telefono).',
+  'hh.tellFailed': 'Non è riuscito, riprova.', 'hh.tellAlways': '🔔 Avvisa sempre quando una macchina ha finito (con il messaggio di «Avvisi e allarme»)',
 };
