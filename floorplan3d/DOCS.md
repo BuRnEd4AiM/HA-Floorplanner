@@ -288,6 +288,16 @@ In ⚙ → *Wall tablet*, for the live view:
 - **Screen saver**: the house then turns slowly until the next touch.
 - **Dim at night**, by the sun (`sun.sun`) or between two times (e.g. 22:00 to 06:00; the two times show when *By time* is chosen). The first touch only wakes the screen, it does not switch anything.
 
+### 🔔 Doorbell
+
+When somebody rings, every screen in the live view shows a window with the camera at the door, wakes up and plays a gong: a red head with the name and the time, the live picture, **🔓 Tür öffnen** and **✕ Schließen**. It closes by itself after two minutes.
+- Without a choice of your own the add-on finds bells by itself: an `event` entity of the class `doorbell` (a new time stamp is a ring) or a `binary_sensor` with "Klingel" or "doorbell" in its id or name (from off to on is a ring). The camera is the one whose id shares a word with the bell's (`event.haustuer_ding` → `camera.haustuer`), or the only camera.
+- ⚙ → *Wall tablet* → **🔔 Klingel**: switch it off, switch the gong off, or choose up to four bells yourself, each with its camera, its door opener (a lock is unlocked, a button pressed, a switch or script turned on) and a name. **🔔 Ausprobieren** shows the window on this screen.
+- *Tür öffnen* asks once more (**Sicher? Öffnen**) so that a door never opens by a slip of the finger; users locked out of switching (🔒 *Steuern*) do not get it, users locked out of the cameras get no picture.
+- A screen can be kept free of it: ⚙ → 👥 Benutzer & Tablets → 🔒 **Klingel-Fenster**.
+- Browsers play a sound only after the page was touched once (a wall tablet usually is). Speaking through the door is not possible in a web page; the camera's own app does that.
+- In the demo: open it with `?klingel=1`, it rings after 8 seconds.
+
 ## Tab bar: the add-on as the only dashboard
 
 In live mode a bar at the very bottom has **🏠 Haus** (the house as always) and pages beside it, step by step more of them (#479, #481, #483). A page only shows when it has something (a thermostat, a scene, a person …).

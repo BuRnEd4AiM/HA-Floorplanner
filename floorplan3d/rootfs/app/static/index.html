@@ -349,6 +349,12 @@
   </form>
 </dialog>
 
+<dialog id="bellDlg" class="bellDlg">
+  <div class="bellHead"><span class="bellIcon">🔔</span><b id="bellName"></b><span id="bellTime"></span></div>
+  <div id="bellCam" class="bellCam"></div>
+  <div class="bellBtns"><button type="button" id="bellOpen" class="bellOpen"></button><span id="bellHa"></span><button type="button" id="bellClose" class="bellClose" data-i18n="bell.close"></button></div>
+</dialog>
+
 <dialog id="openDialog">
   <form method="dialog" novalidate>
     <div class="dlgHead"><h2 data-i18n="open.title"></h2><button type="submit" class="dlgClose" formnovalidate aria-label="Close" data-i18n-title="close">✕</button></div>
@@ -651,6 +657,13 @@ kiosk: true</pre>
           <select id="setNightDim"><option value="off" data-i18n="set.nightDim.off"></option><option value="sun" data-i18n="set.nightDim.sun"></option><option value="time" data-i18n="set.nightDim.time"></option></select></div>
         <div class="row"><label for="setNightFrom" data-i18n="set.nightFrom"></label><input id="setNightFrom" type="time"></div>
         <div class="row"><label for="setNightTo" data-i18n="set.nightTo"></label><input id="setNightTo" type="time"></div>
+        <h4 data-i18n="bell.prefs"></h4>
+        <p class="sub" data-i18n="bell.prefsHelp"></p>
+        <div class="row check"><input id="setBellOn" type="checkbox"><label for="setBellOn" data-i18n="bell.on"></label></div>
+        <div class="row check"><input id="setBellSound" type="checkbox"><label for="setBellSound" data-i18n="bell.sound"></label></div>
+        <div id="setBells"></div>
+        <p id="bellFound" class="sub"></p>
+        <div class="stopTools"><button type="button" id="addBell" data-i18n="bell.add"></button> <button type="button" id="bellTest" data-i18n="bell.test"></button></div>
       </div>
     </details>
 

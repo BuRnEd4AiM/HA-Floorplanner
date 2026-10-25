@@ -380,6 +380,30 @@ def clean_presence(val) -> dict:
     return {"rule": v.get("rule") if v.get("rule") in ("ha", "any", "two") else "ha", "ssids": ssids[:6]}
 
 
+BELL_ID = re.compile(r"^(event|binary_sensor)\.[a-z0-9_]+$")
+OPENER_ID = re.compile(r"^(lock|button|input_button|switch|script)\.[a-z0-9_]+$")
+CAMERA_ID = re.compile(r"^camera\.[a-z0-9_]+$")
+MAX_BELLS = 4
+
+
+def clean_doorbell(val) -> dict:
+    """the settings of the doorbell (🔔, static/doorbell.js cleanBells): {"on", "sound", "bells": [{"entity" (an event or a binary sensor),
+    "camera", "open" (a lock, button, switch or script), "name"}], at most MAX_BELLS, each bell once}"""
+    v = val if isinstance(val, dict) else {}
+    bells = []
+    for b in v.get("bells") if isinstance(v.get("bells"), list) else []:
+        if not isinstance(b, dict) or len(bells) >= MAX_BELLS:
+            continue
+        e = b.get("entity")
+        if not isinstance(e, str) or not BELL_ID.match(e) or any(x["entity"] == e for x in bells):
+            continue
+        cam, opener, name = b.get("camera"), b.get("open"), b.get("name")
+        bells.append({"entity": e, "camera": cam if isinstance(cam, str) and CAMERA_ID.match(cam) else "",
+                      "open": opener if isinstance(opener, str) and OPENER_ID.match(opener) else "",
+                      "name": name.strip()[:40] if isinstance(name, str) else ""})
+    return {"on": v.get("on") is not False, "sound": v.get("sound") is not False, "bells": bells}
+
+
 def family(states, registry) -> list:
     """Home Assistant's people (GET /api/states) with what the page shows: [{"id", "name", "state", "since" (last_changed), "picture"
     (it has one), "battery", "charging", "sources" (person_sources: Wi-Fi, GPS, room …)}]. The phone: the person's device_tracker in use (its "source"), else its first one; its device

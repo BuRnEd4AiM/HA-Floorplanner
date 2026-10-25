@@ -102,6 +102,8 @@ import { initDashboards } from './dashboards.js';
 import { meterPart } from './energymetersui.js';
 import { initTodayPrefs } from './todayprefs.js';
 import { initPresencePrefs } from './presenceprefs.js';
+import { initDoorbellUi } from './doorbellui.js';
+import { initDoorbellPrefs } from './doorbellprefs.js';
 import { initVoiceUi } from './voiceui.js';
 import { initVoicePrefs } from './voiceprefs.js';
 import { initVoiceCheck } from './voicecheck.js';
@@ -1548,6 +1550,9 @@ const todayPrefs = initTodayPrefs({ $, t });             // ⚙ → "Reiter unte
 const routinePrefs = initRoutinePrefs({ $, t, entities: () => entities });   // ... and the buttons of ▶ Abläufe (#483, routineprefs.js)
 const mediaPrefs = initMediaPrefs({ $, t, entities: () => entities });       // ... the radio stations, the shopping list and the machines (#490, mediaprefs.js)
 const presencePrefs = initPresencePrefs({ $ });                                // ... who counts as at home (#495, presenceprefs.js)
+const doorbell = initDoorbellUi({ $, t, lang: () => currentLanguage(), settings: () => settings, entities: () => entities, states: () => states, isLive: () => isLive(),   // 🔔 the camera when somebody rings (doorbellui.js)
+  locked: (k) => locks.has(k), replaying: () => !!replayBack, callService: (e, svc) => live.callService(e, svc), cams, wake: () => kiosk.touched() });
+const doorbellPrefs = initDoorbellPrefs({ $, t, entities: () => entities, test: () => doorbell.test() });   // ... its settings in ⚙ → 📱 Wandtablet
 /* the voice search (#509): 🎤, a sentence understood and answered in the search box (voiceui.js, voicequery.js, voiceinput.js) */
 const voiceUi = initVoiceUi({
   $, t, search, lang: () => currentLanguage(), settings: () => settings, user: () => me.user, locks: () => locks, layout: () => layout, shown: () => shownLayout(),
@@ -1565,7 +1570,7 @@ const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
-  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs],   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
+  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs],   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones
@@ -1620,7 +1625,7 @@ const renamed = initRenames({
 const liveChan = initLiveChannel({
   paused: () => !!replayBack,
   entities: () => entities, setEntities: (x) => { entities = x; }, states: () => states, setStates: (x) => { states = x; }, toState: (e) => toState(e),
-  wake: () => poke(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); },   // a sensor that reports every second must not keep the picture at full speed (#494)
+  wake: () => poke(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); doorbell.update(); }, pushed: (list) => doorbell.pushed(list),   // a sensor that reports every second must not keep the picture at full speed (#494)
   firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
   renamed: (d) => { persist.renamed(d.revs?.[hs.id() || 'main']); renamed(d); },   // the stored plan was rewritten too: its new version tag (#403)
 });
@@ -1772,6 +1777,7 @@ if (params.get('debug')) {
     get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => hs.id(), states: () => states,
+    bellOpen: () => doorbell.isOpen(), bells: () => doorbell.bells(), bellTest: () => doorbell.test(), bellClose: () => doorbell.close(),   // 🔔, for tests
     batchedParts: () => batched.reduce((n, b) => n + b.parts.length, 0), unbatchAll: () => { batched.forEach(unbatch); batched = []; },   // #138, for tests
     coneScreen(id) {                                          // screen point in the middle of a camera cone (for tests)
       const v = cams.coneCenter(id);

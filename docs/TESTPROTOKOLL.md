@@ -4,13 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.21.3)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.22.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.21.3** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.22.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 und folgende): Tablet schneller (102.1 bis 102.3), Komma (102.4), Demo nachts (102.5, 102.6).
+1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 und folgende): Tablet schneller (102.1 bis 102.3), Komma (102.4), Demo nachts (102.5, 102.6), 🔔 Klingel (103.1 bis 103.4 in der Demo mit `?klingel=1`).
 2. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
 3. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
 4. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
@@ -304,7 +304,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 100. Neu in 4.21.1: iPhone, kein leerer Streifen unter der Reiter-Leiste (#517) | 0 | 0 | 1 | 2 | 100.3 |
 | 101. Neu in 4.21.2: Funde aus dem Nacht-Test (#519 bis #525) | 6 | 0 | 1 | 0 | 101.1 |
 | 102. Neu in 4.21.3: Tablet schneller, Komma, Demo nachts (#138, #527, #528) | 0 | 0 | 6 | 0 | 102.1 bis 102.6 |
-| **Zusammen** | **670** | **10** | **52** | **65** | |
+| 103. Neu in 4.22.0: 🔔 Klingel (Kamera auf jedem Tablet, #530) | 0 | 0 | 4 | 3 | 103.1 bis 103.4 |
+| **Zusammen** | **670** | **10** | **56** | **68** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1615,3 +1616,15 @@ Vom Besitzer am 2026-10-25 gewählt („Tablet schneller“, „Komma statt Punk
 | 102.4 | Demo, „Live“, unten „Strom“ drücken; oben links die Zähler ansehen (#527) | Zahlen mit Komma: „3,20 kW“ (am Tag), „🚰 1234,6 m³“; die Schilder über den Geräten „🌡 21,4 °C“ | ❓ |
 | 102.5 | Demo nachts öffnen (z. B. nach 22 Uhr), unten „👨‍👩‍👧 Familie“ und „☀ Heute“ (#528) | Keine Uhrzeit aus der Zukunft: „seit 11:02“ und der Zettel „Bin um 6 da“ sind von gestern; im Strom-Bild liefert die Sonne nachts 0 W, die Batterie entlädt | ❓ |
 | 102.6 | Demo, „⚡ Energie“, Karte „🔋 Ladestand“, „Tag“ (am 25.10. oder einem anderen Tag der Zeitumstellung) (#528) | Die Linie läuft ohne Sprung durch die Nacht | ❓ |
+
+## 103. Neu in 4.22.0: 🔔 Klingel (Kamera auf jedem Tablet, #530)
+Vom Besitzer am 2026-10-25 gewählt (Bild `docs/ideen-4.3/6-klingel.jpg`), über Nacht gebaut. In der Demo klingelt es mit `?klingel=1` (https://burned4aim.github.io/HA-Floorplanner/?klingel=1).
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 103.1 | Demo mit `?klingel=1` öffnen, 8 Sekunden warten | Die Demo geht in „Live“; ein Fenster „🔔 Es klingelt: Haustür“ mit roter Kopfzeile und Uhrzeit, darunter das Kamerabild, unten „🔓 Tür öffnen“ und „✕ Schließen“ | ❓ |
+| 103.2 | Im Fenster „🔓 Tür öffnen“ einmal tippen, dann noch einmal | Erst „Sicher? Öffnen“ (orange), erst der zweite Tipp öffnet: „✓ Tür geöffnet“ (grün) | ❓ |
+| 103.3 | „✕ Schließen“ | Das Fenster geht zu | ❓ |
+| 103.4 | ⚙ → 📱 Wandtablet → 🔔 Klingel ansehen, „🔔 Ausprobieren“ | Haken „Beim Klingeln das Kamerabild zeigen“ und „Gong spielen“, eine Zeile Haustür mit Kamera und Türöffner; „Ausprobieren“ zeigt das Fenster (mit Gong) | ❓ |
+| 103.5 | Im Add-on mit deiner echten Klingel: am Wandtablet in „Live“ klingeln lassen | Das Fenster mit dem Kamerabild der Tür erscheint sofort, das Tablet wacht auf, ein Gong (wenn das Tablet vorher einmal berührt wurde) | ➖ nur im Add-on |
+| 103.6 | Im Add-on: ⚙ → 📱 Wandtablet → 🔔 Klingel | Unter „Selbst gefunden“ steht deine Klingel mit ihrer Kamera; sonst mit „+ Klingel“ selbst wählen (Kamera, Türöffner, Name) | ➖ nur im Add-on |
+| 103.7 | Im Add-on: ⚙ → 👥 Benutzer & Tablets → bei einem Tablet 🔒 „Klingel-Fenster“ abhaken | Auf diesem Tablet erscheint beim Klingeln nichts, auf den anderen schon | ➖ nur im Add-on |

@@ -215,3 +215,19 @@ def test_the_notes_of_the_pinboard():
     mixed = pages.clean_notes([{"id": "aaaaaaaa", "text": "a", "at": "2026-10-21T13:00:00+02:00"}, {"id": "bbbbbbbb", "text": "b", "at": "2026-10-21T11:30:00+00:00"}])
     assert [n["id"] for n in mixed] == ["bbbbbbbb", "aaaaaaaa"]                  # 11:30 UTC is after 11:00 UTC
     assert pages.clean_notes(None) == [] and pages.clean_notes([{"id": "aaaaaaaa", "text": "a", "at": now.isoformat()}] * 2)[0]["id"] == "aaaaaaaa"
+
+
+def test_clean_doorbell():
+    """🔔 the doorbell's settings: a bell is an event or a binary sensor, the camera a camera, the opener a lock, button, switch or script;
+    at most four, each once; on and the gong unless switched off (static/doorbell.js cleanBells does the same)"""
+    got = pages.clean_doorbell({"on": False, "bells": [
+        {"entity": "event.haustuer_ding", "camera": "camera.haustuer", "open": "lock.haustuer", "name": " Haustür "},
+        {"entity": "event.haustuer_ding"}, {"entity": "light.flur"}, {"entity": "binary_sensor.klingel", "camera": "light.x", "open": "light.y", "name": 5},
+        "junk", {"entity": "event.a"}, {"entity": "event.b"}, {"entity": "event.c"}]})
+    assert got == {"on": False, "sound": True, "bells": [
+        {"entity": "event.haustuer_ding", "camera": "camera.haustuer", "open": "lock.haustuer", "name": "Haustür"},
+        {"entity": "binary_sensor.klingel", "camera": "", "open": "", "name": ""},
+        {"entity": "event.a", "camera": "", "open": "", "name": ""}, {"entity": "event.b", "camera": "", "open": "", "name": ""}]}
+    assert pages.clean_doorbell("junk") == {"on": True, "sound": True, "bells": []}
+    for opener in ("button.summer", "input_button.summer", "switch.tueroeffner", "script.tuer_auf"):
+        assert pages.clean_doorbell({"bells": [{"entity": "event.a", "open": opener}]})["bells"][0]["open"] == opener

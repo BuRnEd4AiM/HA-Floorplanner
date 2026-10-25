@@ -222,6 +222,9 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `voiceui.js` | ~190 | Sprachsuche am Bildschirm: 🎤 neben 🔍 und im Suchfeld, die Antwort im Suchfeld (`search.js` `show`, mehrere Ringe `mark`), Haus / Etage / Raum / ganzes Haus anspringen, Farben der Temperatur; getippte Fragen („💬 …“) |
 | `voicekeys.js` | ~40 | Sprachsuche ohne https (#513): das 🎤 nimmt das Diktat der Tastatur (Suchfeld mit Tastatur, Hinweis je Gerät, die Frage nach einer Pause von selbst); welche Wörter und wann: `keysHint`, `TO_KEYS`, `KEYS_MS` in `voicediag.js` (getestet) |
 | `voiceprefs.js` | ~140 | ⚙ → 🎤 Sprachsuche: Erkennung wählen, was dieses Gerät kann, Anleitung für Assist, Codewörter (Räume aller Häuser, Etage, Haus, für einen Benutzer); Teil des Einstellungs-Formulars (`fill` / `read`) |
+| `doorbell.js` | ~95 | 🔔 Klingel (4.22.0), reine Logik mit Unit-Tests (`tests/doorbell.test.mjs`): die Klingeln aus ⚙ (`cleanBells`, höchstens 4) oder selbst gefunden (`looksLikeBell`: `event.*` der Klasse `doorbell`, ein Binärsensor mit „Klingel“/„doorbell“ im Namen), die Kamera dazu (`bellCamera`: gemeinsames Wort im Namen, sonst die einzige), was ein Klingeln ist (`isRing`: ein Ereignis mit neuem Zeitstempel der letzten 5 Minuten, ein Sensor von off nach on), der Dienst des Türöffners (`openService`) |
+| `doorbellui.js` | ~120 | Das Fenster „🔔 Es klingelt“ (`#bellDlg`, `showModal`): Kamera (`cams.camLive`), „🔓 Tür öffnen“ mit Nachfrage, „✕ Schließen“, Gong (WebAudio), weckt den Bildschirm (`kiosk.touched`), zu nach 2 Minuten; sieht jede gepushte Änderung (`pushed` aus `livechannel.js`) und jede volle Liste (`update`); nur in „Live“, nicht bei der Sperre `doorbell` |
+| `doorbellprefs.js` | ~75 | ⚙ → 📱 Wandtablet → 🔔 Klingel (Teil des Einstellungs-Formulars: an/aus, Gong, Zeilen mit Klingel, Kamera, Türöffner, Name, „🔔 Ausprobieren“); der Server prüft `settings.doorbell` mit `pages.clean_doorbell` |
 
 ## Noch in `app.js`
 
