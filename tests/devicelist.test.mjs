@@ -76,7 +76,7 @@ test('the overview: linked devices and doors / windows with a sensor, by floor a
   assert.equal(kitchen[2].off, 'unavailable');
   const bath = rows[0].rooms[0].items;
   assert.deepEqual(bath.map((i) => [i.id, i.name, i.value, i.battery]), [
-    ['d2', 'Heizung Bad', '🌡 21.5 °C', { level: 9, low: true }],          // the name from Home Assistant, its device's battery
+    ['d2', 'Heizung Bad', '🌡 21,5 °C', { level: 9, low: true }],          // the name from Home Assistant, its device's battery
     ['o3', 'prop.window', '↕ shutter.partly:60', null]]);                  // a window with only a roller shutter: its text
   assert.equal(rows[0].rooms[2].items[0].id, 'd4');
 });

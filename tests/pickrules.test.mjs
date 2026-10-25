@@ -48,3 +48,16 @@ test('live mode: a device with a ball is tapped on its ball only, the sections o
   assert.equal(P.ballOnly({ kind: 'room', id: 'lamp' }, true, has), false);
   assert.equal(P.ballOnly(null, true, has), false);
 });
+
+test('live mode (#138): furniture linked to nothing is drawn together, anything with an entity anywhere stays on its own', () => {
+  assert.equal(P.staticDevice({ id: 'd1', type: 'sofa', name: 'Sofa', x: 1, z: 2 }), true);
+  assert.equal(P.staticDevice({ id: 'd2', type: 'sofa', name: 'Sofa', entity: '' }), true);
+  assert.equal(P.staticDevice({ id: 'd3', type: 'light', entity: 'light.wohnzimmer' }), false);
+  assert.equal(P.staticDevice({ id: 'd4', type: 'tv', entity: '', ledEntity: 'light.tv_led' }), false);
+  assert.equal(P.staticDevice({ id: 'd5', type: 'ledring', segs: [{ entity: '' }, { entity: 'light.ring_2' }] }), false);
+  assert.equal(P.staticDevice({ id: 'd6', type: 'battery', batPower: 'sensor.batterie_leistung' }), false);
+  assert.equal(P.staticDevice({ id: 'd7', type: 'sofa', hideModel: true }), false);           // hidden in the live mode
+  assert.equal(P.staticDevice({ id: 'd8', type: 'presence' }), false);
+  assert.equal(P.staticDevice({ id: 'sensor.x', type: 'sofa', name: 'light.nicht' }), true);   // its id and name are no links
+  assert.equal(P.staticDevice(null), false);
+});

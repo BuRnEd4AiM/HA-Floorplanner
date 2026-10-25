@@ -1,0 +1,20 @@
+{
+ "session": "session_01Xcva7GeERrW4aDeZeeiqRP",
+ "start": "2026-10-25",
+ "updated": "2026-10-25T22:53:03Z",
+ "branch": "claude/night-fixes",
+ "source": "counted",
+ "input": 258,
+ "cache_write": 310399,
+ "cache_read": 30143711,
+ "output": 85179,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 258,
+   "cache_write": 310399,
+   "cache_read": 30143711,
+   "output": 85179,
+   "requests": 129
+  }
+ }
+}

@@ -41,3 +41,17 @@ export function chooseHit(hits, live, openingLinked) {
   if (live) return hits.find((h) => h.data.kind === 'room') ?? null;
   return hits[0] ?? null;
 }
+
+const ENTITY_ID = /^[a-z_]+\.[a-z0-9_]+$/;
+/** anything in `v` (a device and what it holds: sections, zones ...) that names an entity of Home Assistant */
+function linksEntity(v, depth = 0) {
+  if (typeof v === 'string') return ENTITY_ID.test(v);
+  if (!v || typeof v !== 'object' || depth > 4) return false;
+  return (Array.isArray(v) ? v : Object.values(v)).some((x) => linksEntity(x, depth + 1));
+}
+/** a device nothing changes in the live mode (#138): linked to nothing at all (its entity, an LED, a section, a battery sensor ...) and
+ *  always drawn there (not hidden in live). The parts of such furniture are drawn together per floor (batchModels in meshmerge.js) */
+export function staticDevice(d) {
+  if (!d || d.hideModel || LIVE_NO_TAP.has(d.type)) return false;
+  return !Object.entries(d).some(([k, v]) => k !== 'id' && k !== 'name' && k !== 'type' && linksEntity(v));
+}

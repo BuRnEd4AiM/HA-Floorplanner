@@ -8,7 +8,7 @@ const t = (k, p = {}) => k + (Object.keys(p).length ? JSON.stringify(p) : '');
 const bal = (o) => ({ prod: null, grid: null, imp: null, exp: null, load: null, battery: null, ...o });
 const lines = (fl) => Object.fromEntries(fl.lines.map((l) => [`${l.from}>${l.to}`, l.w]));
 
-test('the demo: sun 3.2 kW, 450 W from the grid, battery charging 600 W, house 3.05 kW', () => {
+test('the demo: sun 3.2 kW, 450 W from the grid, battery charging 600 W, house 3,05 kW', () => {
   const fl = F.energyFlows(bal({ prod: 3200, grid: 450, imp: 450, exp: 0, load: 3050, battery: { v: 82, flow: 600, dir: 1 } }));
   assert.deepEqual(Object.keys(fl.nodes).sort(), ['battery', 'grid', 'home', 'solar']);
   assert.deepEqual(lines(fl), { 'solar>home': 2600, 'solar>battery': 600, 'solar>grid': 0, 'grid>home': 450, 'grid>battery': 0, 'battery>home': 0, 'battery>grid': 0 });
@@ -57,9 +57,9 @@ test('dots run faster with more power', () => {
 test('the texts of the circles', () => {
   const fl = F.energyFlows(bal({ prod: 3200, grid: 450, imp: 450, exp: 0, load: 3050, battery: { v: 82, flow: 600, dir: 1 } }));
   const tx = F.flowTexts(fl, t);
-  assert.deepEqual(tx.solar, { value: '3.20 kW', sub: 'flow.solar' });
+  assert.deepEqual(tx.solar, { value: '3,20 kW', sub: 'flow.solar' });
   assert.deepEqual(tx.grid, { value: '450 W', sub: 'flow.fromGrid' });
-  assert.deepEqual(tx.home, { value: '3.05 kW', sub: 'flow.home' });
+  assert.deepEqual(tx.home, { value: '3,05 kW', sub: 'flow.home' });
   assert.deepEqual(tx.battery, { value: '82 %', sub: 'flow.charging{"w":"600 W"}' });
   const out = F.flowTexts(F.energyFlows(bal({ prod: 2000, grid: -900, imp: 0, exp: 900, load: 1100, battery: { v: null, flow: -50, dir: -1 } })), t);
   assert.equal(out.grid.sub, 'flow.toGrid');

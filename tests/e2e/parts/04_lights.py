@@ -94,7 +94,7 @@ check("heating: the thermostat is no longer in the room panel's list (the lamp s
 check("heating: the radiator glows while it heats", pgH.evaluate("window.__fp.heatGlow('hRad')") > 0.5, pgH.evaluate("window.__fp.heatGlow('hRad')"))
 check("heating: a thermostat's whole radiator glows too, not only its little light", pgH.evaluate("window.__fp.heatGlow('hTherm')") > 0.5, pgH.evaluate("window.__fp.heatGlow('hTherm')"))
 bH = pgH.evaluate("window.__fp.badge('hRad')")
-check("heating: a heater shows only its temperature, on a red pill while it heats, and no ball", "20.5" in (bH or "") and (bH or "").endswith("|heat") and pgH.evaluate("window.__fp.ballScreen('hRad')") is None, bH)
+check("heating: a heater shows only its temperature, on a red pill while it heats, and no ball", ("20,5" in (bH or "") or "20.5" in (bH or "")) and (bH or "").endswith("|heat") and pgH.evaluate("window.__fp.ballScreen('hRad')") is None, bH)
 pgH.evaluate("window.__fp.closeRoomPanel && window.__fp.closeRoomPanel()"); pgH.evaluate("window.__fp.topDown()"); pgH.wait_for_timeout(400)
 pH = pgH.evaluate("window.__fp.badgeScreen('hRad')")
 hH = pgH.evaluate(f"window.__fp.liveHitAt({pH['x']}, {pH['y']})") if pH else None

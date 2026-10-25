@@ -122,7 +122,7 @@ test('checks: house sensor and calculation far apart, the sign that brings them 
   const r = bal(s, [dev('inverter', { entity: 'i' }), dev('powermeter', { entity: 'm' })], { house: { entity: 'h' } });
   const c = E.energyChecks(r);
   assert.equal(c.length, 1); assert.equal(c[0].code, 'differs'); assert.deepEqual(c[0].fixes, ['grid']);
-  assert.deepEqual(c[0].params, { calc: '1.50 kW', measured: '2.50 kW' });
+  assert.deepEqual(c[0].params, { calc: '1,50 kW', measured: '2,50 kW' });
 });
 test('checks: the rooms use more than the house', () => {
   const r = bal({ m: st(300, 'W'), p: st(900, 'W') }, [dev('powermeter', { entity: 'm' })], { rooms: { k: ['p'] } }, [{ id: 'k', name: 'K', points: [] }]);
@@ -159,7 +159,7 @@ test('pill: arrows up / down for charging / discharging, none at rest; a text se
   assert.ok(txt({ v: null, flow: null, dir: -1 }).title.includes('power.sum.discharging'));
   assert.equal(E.energyText({ prod: null, grid: null, load: null, battery: null }, t), null);
   const full = E.energyText({ prod: 3200, grid: -1000, load: 2200, battery: null }, t);
-  assert.equal(full.text, '☀ 3.20 kW · ⚡ 1.00 kW · ⌂ 2.20 kW');
+  assert.equal(full.text, '☀ 3,20 kW · ⚡ 1,00 kW · ⌂ 2,20 kW');
   assert.ok(full.title.includes('power.sum.feedIn') && full.title.includes('power.sum.load:'));
 });
 test('pill: a measured consumption says so; the rooms and the rest are in the tooltip, the biggest first', () => {
@@ -177,11 +177,11 @@ test('balanceRows: production, grid, battery and the sum, signs as in the calcul
   const rooms = [{ id: 'k', name: 'Küche', points: [] }];
   const r = bal({ i: st(3000, 'W'), m: st(-1000, 'W'), w: st(500, 'W'), p: st(400, 'W') }, devs, { rooms: { k: ['p'] } }, rooms);
   assert.deepEqual(E.balanceRows(r, t).map((x) => `${x.sign}|${x.label}|${x.value}|${x.cls}`), [
-    '|energy.r.prod|3.00 kW|', '−|energy.r.feedIn|1.00 kW|', '−|energy.r.charge|500 W|', '=|energy.r.calc|1.50 kW|sum',
-    '|↳ Küche|400 W|room', '|energy.r.rest|1.10 kW|room', '|energy.r.self|2.00 kW|extra', '|energy.r.autarky|100 %|extra']);
+    '|energy.r.prod|3,00 kW|', '−|energy.r.feedIn|1,00 kW|', '−|energy.r.charge|500 W|', '=|energy.r.calc|1,50 kW|sum',
+    '|↳ Küche|400 W|room', '|energy.r.rest|1,10 kW|room', '|energy.r.self|2,00 kW|extra', '|energy.r.autarky|100 %|extra']);
   const off = bal({ i: st(0, 'W'), m: st(-300, 'W'), w: st(-200, 'W') }, devs, { battery: { balance: false } });
   const lines = E.balanceRows(off, t).map((x) => `${x.sign}|${x.label}|${x.value}|${x.cls}`);
   assert.ok(lines.includes('|energy.r.batOff|−200 W|'), lines);
   assert.ok(lines.includes('=|energy.r.calc|−300 W|bad'), lines);
-  assert.equal(E.fmtSigned(-1500), '−1.50 kW');
+  assert.equal(E.fmtSigned(-1500), '−1,50 kW');
 });

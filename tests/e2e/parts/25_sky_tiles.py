@@ -57,7 +57,7 @@ check("energy picture (#434): no card while 'Strom' is not pressed, no line of n
 pgS.click("#powerBtn"); pgS.wait_for_timeout(500)
 card = pgS.inner_text("#energyCard") if pgS.is_visible("#energyCard") else ""
 check("energy picture (#420): with 'Strom' pressed the card is there with sun, grid, house and battery; the line of numbers steps aside",
-      all(x in card for x in ("3.20 kW", "450 W", "3.05 kW", "82 %")) and not pgS.is_visible("#energyPill") and "active" in (pgS.get_attribute("#powerBtn", "class") or ""), card)
+      all(x in card for x in ("3,20 kW", "450 W", "3,05 kW", "82 %")) and not pgS.is_visible("#energyPill") and "active" in (pgS.get_attribute("#powerBtn", "class") or ""), card)
 check("energy picture: dots run on the three lines that carry power (sun to house and battery, grid to house)",
       pgS.locator("#energyCard .ef-dots").count() == 3, pgS.locator("#energyCard .ef-dots").count())
 pgS.click("#energyCard"); pgS.wait_for_timeout(400)

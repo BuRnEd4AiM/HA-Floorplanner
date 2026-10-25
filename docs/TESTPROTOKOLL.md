@@ -4,23 +4,24 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.21.2)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.21.3)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.21.2** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.21.3** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
-2. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
-3. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
-4. **🔋 Ladestand mit deiner Batterie** (99.9, 99.10, nur im Add-on).
-5. **Zähler und Backup im Add-on** (92.2, 92.3, 92.6, 93.1 bis 93.4): SolarNet-Sensoren, Helfer „Energie“, Urlaubs-Alarm im Backup.
-6. **Kalender, Knöpfe, Anwesenheit, zweites Haus im Add-on** (90.7, 91.7, 89.5, 89.6, 87.6).
-7. **Wandtablet schneller** (85.1 bis 85.4) und **iPad flüssig** (56.1, 56.2).
-8. **Dashboard-Karte in Home Assistant** (46.4 bis 46.9; 46.3 war ❌, behoben in 3.77.1).
-9. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
-10. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
-11. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
+1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 und folgende): Tablet schneller (102.1 bis 102.3), Komma (102.4), Demo nachts (102.5, 102.6).
+2. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
+3. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
+4. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
+5. **🔋 Ladestand mit deiner Batterie** (99.9, 99.10, nur im Add-on).
+6. **Zähler und Backup im Add-on** (92.2, 92.3, 92.6, 93.1 bis 93.4): SolarNet-Sensoren, Helfer „Energie“, Urlaubs-Alarm im Backup.
+7. **Kalender, Knöpfe, Anwesenheit, zweites Haus im Add-on** (90.7, 91.7, 89.5, 89.6, 87.6).
+8. **Wandtablet schneller** (85.1 bis 85.4) und **iPad flüssig** (56.1, 56.2).
+9. **Dashboard-Karte in Home Assistant** (46.4 bis 46.9; 46.3 war ❌, behoben in 3.77.1).
+10. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
+11. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
+12. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
 
 **Zuletzt geprüft (2026-10-25, Claude in der Nacht):** ✅ 76.1 bis 76.14, 78.1 bis 78.11, 79 (ohne 79.11), 80 (ohne 80.2), 81.1 bis 81.12, 82.1 bis 82.8, 83.1 bis 83.12, 86.1 bis 86.9, 87.1, 87.3 bis 87.5, 88.1 bis 88.8, 89.1 bis 89.4, 90.1 bis 90.6, 91.1 bis 91.6, 92.1, 92.4, 92.5, 95.1 bis 95.10, 96.2 bis 96.10, 96.14, 97.1, 97.2, 97.4, 97.7, 98.1, 98.3, 99.1 bis 99.8, 63.1 bis 63.3; im Test-Add-on 12.6a, 15.6, 23.17, 37.6, 48.1 bis 48.5, 52.12, 56.6. **❌** 79.11, 80.2, 84.1, 87.2, 96.2 (#519 bis #525, behoben in 4.21.2, neu: 101).
 
@@ -302,7 +303,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 99. Neu in 4.21.0: 🔋 Ladestand der Batterien auf ⚡ Energie (#515) | 8 | 0 | 0 | 2 | – |
 | 100. Neu in 4.21.1: iPhone, kein leerer Streifen unter der Reiter-Leiste (#517) | 0 | 0 | 1 | 2 | 100.3 |
 | 101. Neu in 4.21.2: Funde aus dem Nacht-Test (#519 bis #525) | 6 | 0 | 1 | 0 | 101.1 |
-| **Zusammen** | **670** | **10** | **46** | **65** | |
+| 102. Neu in 4.21.3: Tablet schneller, Komma, Demo nachts (#138, #527, #528) | 0 | 0 | 6 | 0 | 102.1 bis 102.6 |
+| **Zusammen** | **670** | **10** | **52** | **65** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1602,3 +1604,14 @@ In der Nacht zum 2026-10-25 hat Claude die offenen Punkte der Demo durchgetestet
 | 101.5 | Demo, ⚙ → 🎤 Sprachsuche → „Nur das Diktat der Tastatur“, schließen, 🎤 → „🩺 Mikrofon-Test öffnen“ (#523) | Der Mikrofon-Test steht ganz unter der Kopfzeile (Überschrift „🩺 Mikrofon-Test“ zu sehen); weiter unten der Link „Sprachassistenten in Home Assistant öffnen ↗“ hellblau statt dunkelblau. Danach wieder „Automatisch“ wählen | ✅ (2026-10-25, Claude in der Demo, PC und Handy) |
 | 101.6 | Demo, „Live“, den Lautsprecher im Wohnzimmer antippen, den Lautstärke-Schieber ziehen (#524) | Die Zahl daneben läuft beim Ziehen mit | ✅ (2026-10-25, Claude in der Demo) |
 | 101.7 | Demo, Bearbeiten → Strom-Editor → ⚡ Rechnung → „⤵ Aus dem Energie-Dashboard übernehmen“ (#525) | Auch die fünf Strom-Zähler mit Namen und Stand („Netz Bezug gesamt 18342.7 kWh“ …), nicht nur Gas und Wasser | ✅ (2026-10-25, Claude in der Demo) |
+
+## 102. Neu in 4.21.3: Tablet schneller, Komma, Demo nachts (#138, #527, #528)
+Vom Besitzer am 2026-10-25 gewählt („Tablet schneller“, „Komma statt Punkt“, „Demo-Uhrzeiten“), über Nacht gebaut.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 102.1 | Auf dem Tablet oder iPad das Musterhaus („alles drin“) öffnen, „Live“, „Ganzes Haus“, drehen und zoomen (#138) | Es läuft flüssiger als vorher; alle Möbel sehen aus wie immer (Farben, Formen, nichts fehlt, nichts schwebt) | ❓ |
+| 102.2 | Wie 102.1, dann unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ (#138) | Bei „Zeichenaufrufe“ stehen im ganzen Haus etwa 1.200 (vorher etwa 1.660) | ❓ (Claude 2026-10-25 im Test-Add-on: 1.177 statt 1.661, gleich viele Dreiecke, das Bild Punkt für Punkt gleich) |
+| 102.3 | Danach „Bearbeiten“, ein Sofa oder einen Schrank anklicken und verschieben, wieder „Live“ (#138) | Das ganze Möbelstück wandert mit, nichts bleibt am alten Platz stehen; in „Live“ steht es am neuen Platz | ❓ |
+| 102.4 | Demo, „Live“, unten „Strom“ drücken; oben links die Zähler ansehen (#527) | Zahlen mit Komma: „3,20 kW“ (am Tag), „🚰 1234,6 m³“; die Schilder über den Geräten „🌡 21,4 °C“ | ❓ |
+| 102.5 | Demo nachts öffnen (z. B. nach 22 Uhr), unten „👨‍👩‍👧 Familie“ und „☀ Heute“ (#528) | Keine Uhrzeit aus der Zukunft: „seit 11:02“ und der Zettel „Bin um 6 da“ sind von gestern; im Strom-Bild liefert die Sonne nachts 0 W, die Batterie entlädt | ❓ |
+| 102.6 | Demo, „⚡ Energie“, Karte „🔋 Ladestand“, „Tag“ (am 25.10. oder einem anderen Tag der Zeitumstellung) (#528) | Die Linie läuft ohne Sprung durch die Nacht | ❓ |

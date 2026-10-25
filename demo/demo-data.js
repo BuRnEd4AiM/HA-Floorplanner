@@ -4,6 +4,7 @@ import flatExample from '../floorplan3d/rootfs/app/examples/flat.json';
 import houseExample from '../floorplan3d/rootfs/app/examples/house.json';
 import showcaseExample from '../floorplan3d/rootfs/app/examples/showcase.json';
 import propertySchema from '../floorplan3d/rootfs/app/property.schema.json';
+import { approxSun, skyTimeOf } from '../floorplan3d/rootfs/app/static/sky.js';
 
 const W = (id, a, b, thickness, openings = []) => ({ id, a, b, thickness, height: 2.6, openings });
 const D = (id, pos, extra = {}) => ({ id, type: 'door', pos, width: 0.9, height: 2.05, sill: 0, ...extra });
@@ -360,6 +361,18 @@ const entities = {
   'sensor.bad_feuchte_batterie':        { name: 'Bad Luftfeuchte Batterie',    state: '35', unit: '%', dc: 'battery' },
   'sensor.keller_feuchte_batterie':     { name: 'Keller Luftfeuchte Batterie', state: '8', unit: '%', dc: 'battery' },
 };
+// the sun makes nothing at night (4.21.3: "☀ 3,2 kW" at 23 o'clock looked wrong): the solar power of the demo follows the sun of its
+// sky (the clock, or ?skytime=21:30 like the sky), full from 25° up; the battery then gives what the house needs, the grid stays 450 W
+(function sunPower() {
+  const at = skyTimeOf(new URLSearchParams(globalThis.location?.search || '').get('skytime'), new Date()) || new Date();
+  const sin = (deg) => Math.sin((Math.max(0, deg) * Math.PI) / 180), k = Math.min(1, sin(approxSun(at).elev) / sin(25));
+  const set = (id, w) => { entities[id].state = String(Math.round(w)); };
+  if (k >= 0.999) return;                                            // the made-up numbers of a sunny day as they are
+  entities['sensor.pv_leistung'].state = String(Math.round(32 * k) / 10);   // kW
+  set('sensor.pv_string1', 1100 * k); set('sensor.pv_string2', 1050 * k); set('sensor.pv_string3', 1050 * k); set('sensor.pv_dach', 4100 * k);
+  const bat = k >= 0.35 ? 600 : -650, load = 1100 + 1950 * k;          // the house: 3,05 kW in the sun, 1,1 kW at night (heat pump, fridge)
+  set('sensor.batterie_leistung', bat); set('sensor.netz_leistung', load - Math.round(32 * k) * 100 + bat);
+})();
 // api/batteries: the battery entity of each sensor's device, as the add-on reads it from Home Assistant's registries
 const batteryOf = {
   'binary_sensor.fenster_wohnzimmer': 'sensor.fenster_wohnzimmer_batterie', 'binary_sensor.fenster_kueche': 'sensor.fenster_kueche_batterie',
@@ -426,7 +439,8 @@ let settings = {
   routines: [], routineLeave: '', routineNight: 'scene.gute_nacht',   // 4.5: ▶ Abläufe shows every scene and script, "Gute Nacht" then starts the night scene (#483)
 };
 // 4.5 (#483): the page 👨‍👩‍👧 Familie: the people as the add-on finds them (since when, the phone's battery; no pictures: the letters) and the pinboard
-const todayAt = (h, m) => { const d = new Date(); d.setHours(h, m, 0, 0); return d.toISOString(); };
+// a time of today, or of yesterday while it has not come yet (4.21.3: at night the demo said "seit 11:02" and pinned a note at 11:48)
+const todayAt = (h, m) => { const d = new Date(); d.setHours(h, m, 0, 0); if (d > new Date()) d.setDate(d.getDate() - 1); return d.toISOString(); };
 const family = () => ({ people: [
   { id: 'person.anna', name: 'Anna', state: entities['person.anna'].state, since: todayAt(11, 2), picture: false, battery: 78, charging: false,
     sources: [src('gps', 'device_tracker.anna_handy', 11, 2), src('room', 'sensor.anna_handy_area', 11, 40), src('ssid', 'sensor.anna_handy_wifi_connection', 11, 2), src('wifi', 'device_tracker.anna_fritz', 11, 1)] },
@@ -530,8 +544,10 @@ const dayNo = (d) => Math.round(+new Date(d.getFullYear(), d.getMonth(), d.getDa
 const peakOf = (n) => 55 + 43 * wobble(n, 99), lowOf = (n) => 12 + 10 * wobble(n, 31);
 const endOf = (n) => peakOf(n) - (peakOf(n) - lowOf(n + 1)) * 0.55;          // at midnight: on the way down from the day's peak
 function socBase(kind, ms) {
-  const d = new Date(ms), h = d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
-  if (kind === 'nb') return 52 + 28 * Math.sin((2 * Math.PI * (h - 9)) / 24) + 7 * Math.sin((2 * Math.PI * ms) / (3.3 * 86400000));
+  if (kind === 'nb') return 52 + 28 * Math.sin((2 * Math.PI * (ms / 3600000 + 1 - 9)) / 24) + 7 * Math.sin((2 * Math.PI * ms) / (3.3 * 86400000));   // a wave: no clock
+  // the hours since midnight that really passed: on the day of the time change in October 2 to 3 o'clock comes twice, by the clock the
+  // line jumped back (5 %) at the second 2 o'clock; that day has 25 hours, the last one stays at the day's end
+  const d = new Date(ms), h = (ms - +new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 3600000;
   const n = dayNo(d), lo = lowOf(n), hi = peakOf(n);
   if (h < 7) return endOf(n - 1) + (lo - endOf(n - 1)) * smooth(h / 7);
   if (h < 9) return lo;

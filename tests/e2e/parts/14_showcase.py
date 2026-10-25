@@ -38,6 +38,18 @@ calls = pgS.evaluate("(() => { window.__fp.frame(); window.__fp.frame(); return 
 check("show house (#394): the parts of a model are drawn together, far fewer draw calls (about 3700 before)", 0 < calls < 2000, calls)
 pv = roof_floor["devices"][0]["id"]
 check("show house: the solar panels are shown on the roof", pgS.evaluate(f"window.__fp.isShown('{pv}')"))
+# #138: in the live mode the furniture linked to nothing is drawn together per floor (batchModels in meshmerge.js), the editor has every piece whole
+sofa = next((d for f in lay["floors"] for d in f["devices"] if not d.get("entity") and d["type"] in ("sofa", "bed", "wardrobe", "shelf", "chair")), None)
+edit_calls, edit_parts = calls, pgS.evaluate("window.__fp.batchedParts()")
+pgS.click("#modeSwitch button[data-mode=live]"); pgS.wait_for_timeout(1500)
+live_calls = pgS.evaluate("(() => { window.__fp.frame(); window.__fp.frame(); return window.__fp.renderer.info.render.calls; })()")
+live_parts = pgS.evaluate("window.__fp.batchedParts()")
+check("show house (#138): live mode draws the furniture without an entity together, far fewer draw calls than the editor (about 1180 to 1660)",
+      edit_parts == 0 and live_parts > 300 and live_calls < edit_calls - 300, (edit_calls, edit_parts, live_calls, live_parts))
+pgS.click("#modeSwitch button[data-mode=edit]"); pgS.wait_for_timeout(800)
+back = pgS.evaluate("(() => { window.__fp.frame(); return window.__fp.renderer.info.render.calls; })()")
+check("show house (#138): back in the editor every piece is whole again (the same draw calls as before, the furniture has its parts)",
+      pgS.evaluate("window.__fp.batchedParts()") == 0 and abs(back - edit_calls) <= 5 and sofa is not None, (back, edit_calls, sofa and sofa["type"]))
 bad = [e for e in own if "favicon" not in e]
 check("show house: no console errors while importing and showing it", not bad, bad)
 pgS.evaluate("(id) => fetch('api/houses/' + id, {method: 'DELETE'})", new[0]["id"] if new else ""); pgS.wait_for_timeout(300)
