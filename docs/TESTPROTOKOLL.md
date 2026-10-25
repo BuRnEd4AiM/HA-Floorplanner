@@ -4,13 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.24.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.25.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.24.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.25.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 und folgende): Tablet schneller (102.1 bis 102.3), Komma (102.4), Demo nachts (102.5, 102.6), 🔔 Klingel (103.1 bis 103.4 in der Demo mit `?klingel=1`), 🔔 Sag mir Bescheid (104.1, 104.2; mit deiner Waschmaschine 104.3), 🗣 Schalten per Sprache (105.1 bis 105.6).
+1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 und folgende): Tablet schneller (102.1 bis 102.3), Komma (102.4), Demo nachts (102.5, 102.6), 🔔 Klingel (103.1 bis 103.4 in der Demo mit `?klingel=1`), 🔔 Sag mir Bescheid (104.1, 104.2; mit deiner Waschmaschine 104.3), 🗣 Schalten per Sprache (105.1 bis 105.6), 🚗 Auto und 🌱 Garten (106.1 bis 106.4).
 2. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
 3. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
 4. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
@@ -307,7 +307,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 103. Neu in 4.22.0: 🔔 Klingel (Kamera auf jedem Tablet, #530) | 0 | 0 | 4 | 3 | 103.1 bis 103.4 |
 | 104. Neu in 4.23.0: 🔔 Sag mir Bescheid (#531) | 0 | 0 | 2 | 3 | 104.1, 104.2 |
 | 105. Neu in 4.24.0: 🗣 Schalten per Sprache (#532) | 0 | 0 | 6 | 1 | 105.1 bis 105.6 |
-| **Zusammen** | **670** | **10** | **64** | **72** | |
+| 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533) | 0 | 0 | 4 | 2 | 106.1 bis 106.4 |
+| **Zusammen** | **670** | **10** | **68** | **74** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1652,3 +1653,14 @@ Vom Besitzer am 2026-10-25 gewählt, über Nacht gebaut. Geht in der Demo auch g
 | 105.5 | 🔍 „Rollläden in der Küche runter“ | Der Rollladen am Küchenfenster fährt herunter (das Garagentor nie) | ❓ |
 | 105.6 | Mit echter Sprache (🎤): „Mach das Licht im Bad an“ | Das Licht im Bad geht an | ❓ |
 | 105.7 | Im Add-on: als ein Benutzer mit 🔒 „Steuern“ „Licht im Bad an“ sagen | Die Antwort sagt, dass Schalten gesperrt ist, nichts geht an | ➖ nur im Add-on |
+
+## 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533)
+Vom Besitzer am 2026-10-25 gewählt (Bild `docs/ideen-4.3/8-haushalt.jpg`), über Nacht gebaut.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 106.1 | Demo, unten „🧺 Haushalt“ | Eine Karte „🚗 Auto“: groß „64 %“, ein grüner Balken, „lädt mit 3,2 kW · voll um …“ und „312 km Reichweite“ | ❓ |
+| 106.2 | „☀ Nur mit Sonne laden“ tippen, dann noch einmal | Der Knopf wird gelb (an), beim zweiten Tipp wieder normal | ❓ |
+| 106.3 | Die Karte „🌱 Garten“ ansehen | „Regen morgen: … mm“, „Boden 34 %“, rechts „Bewässerung aus“; zwei Knöpfe „💧 Rasen · 10 min gießen“ und „💧 Bewässerung Beet · 10 min gießen“ | ❓ |
+| 106.4 | „💧 Rasen · 10 min gießen“ tippen | Rechts „gießt noch 10 min“, der Knopf heißt jetzt „■ Rasen Stopp“; ein Tipp darauf stoppt es | ❓ |
+| 106.5 | Im Add-on mit deinem Auto (z. B. evcc): Haushalt öffnen | Die Auto-Karte zeigt deinen Ladestand und die Reichweite; sonst in ⚙ → 🗂 Reiter unten → 🚗 Auto die Sensoren wählen | ➖ nur im Add-on |
+| 106.6 | Im Add-on mit deiner Bewässerung: „💧 10 min gießen“, dann 10 Minuten warten | Das Ventil geht auf und nach 10 Minuten von selbst wieder zu | ➖ nur im Add-on |

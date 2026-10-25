@@ -4,18 +4,21 @@
  * on the tab: machines that are done. The rules are in household.js (tested). */
 import { applianceView, tellButton, doneCount, vacuums, hasHousehold, cleanItem, dayOf, KIND_ICON } from './household.js';
 import { controlPlan } from './devicecontrols.js';
+import { initOutdoorCards } from './outdoorcards.js';
 
 const POLL_OPEN = 30000, POLL_SHUT = 120000;
 
-/** ctx: t, el (the page), lang(), states(), names(), callService(entity, service, data), locked() (this user may not switch), builtin(key)
- *  (a card of ☀ Heute: waste), changed() (the tab bar: the number on the tab), board (pageboard.js, #484: keys ap:<kind>, vac:<entity>,
- *  todo, waste) */
+/** ctx: t, el (the page), lang(), states(), names(), entities(), settings(), callService(entity, service, data), locked() (this user may not
+ *  switch), builtin(key) (a card of ☀ Heute: waste), changed() (the tab bar: the number on the tab), board (pageboard.js, #484: keys
+ *  ap:<kind>, vac:<entity>, car, garden (#533, outdoorcards.js), todo, waste) */
 export function initHouseholdPage(ctx) {
   const { t, el } = ctx;
   let open = false, drawn = '', machines = { at: 0, list: [], tell: {}, canTell: false, note: null, busy: false }, todo = { at: 0, entity: '', lists: [], items: [], busy: false, note: '' };
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
   const lang = () => ctx.lang() || 'de';
+  const outdoor = initOutdoorCards({ t, lang, states: ctx.states, entities: ctx.entities, settings: ctx.settings, callService: ctx.callService, locked: ctx.locked,
+    redraw: () => { if (open) draw(false); } });   // 🚗 the car and 🌱 the garden (#533)
   const time = (iso) => new Intl.DateTimeFormat(lang(), { hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
   /** a time as "13:12", "gestern 19:40" or "Mo., 20.10. 19:40" */
   function when(iso) {
@@ -157,7 +160,7 @@ export function initHouseholdPage(ctx) {
     loadMachines(); if (open) loadTodo();
     const focus = document.activeElement, typing = focus?.closest?.('.hhAdd') && el.contains(focus);
     const vac = vacuums(ctx.states(), ctx.names()), waste = ctx.builtin('waste');   // the waste card of ☀ Heute (its calendar comes a moment later)
-    const sig = JSON.stringify([machines.list, machines.tell, machines.note, vac, vac.map((v) => ctx.states()[v.entity]?.ctl), todo.entity, todo.lists, todo.items, todo.note, ctx.locked(),
+    const sig = JSON.stringify([machines.list, machines.tell, machines.note, outdoor.sig(), vac, vac.map((v) => ctx.states()[v.entity]?.ctl), todo.entity, todo.lists, todo.items, todo.note, ctx.locked(),
       waste?.textContent || '', new Date().getMinutes(), t('tab.household')]);
     if (!force && (sig === drawn || typing)) return;
     drawn = sig;
@@ -166,6 +169,7 @@ export function initHouseholdPage(ctx) {
     const grid = make('div', 'hhGrid'), items = [];
     machines.list.forEach((a) => items.push({ key: `ap:${a.kind}`, el: machineCard(a), width: 1 }));
     vac.forEach((v) => items.push({ key: `vac:${v.entity}`, el: vacuumCard(v), width: 1 }));
+    items.push(...outdoor.items());
     if (Object.keys(ctx.states()).some((id) => id.startsWith('todo.'))) items.push({ key: 'todo', el: todoCard(), width: 2 });
     if (waste) items.push({ key: 'waste', el: waste, width: 2 });
     el.replaceChildren(head, ...(items.length ? [] : [make('p', 'tpSub', t('hh.none'))]), grid);
@@ -177,7 +181,7 @@ export function initHouseholdPage(ctx) {
   return {
     render: () => { open = true; draw(true); loadMachines(true); loadTodo(true); clearInterval(tick); tick = setInterval(() => draw(false), POLL_OPEN); },
     update: () => draw(false),
-    has: () => { loadMachines(); return hasHousehold(ctx.states(), machines.list); },
+    has: () => { loadMachines(); return hasHousehold(ctx.states(), machines.list) || outdoor.has(); },
     reset: () => { open = false; clearInterval(tick); tick = 0; drawn = ''; },
     /** the number on the tab: machines that are done */
     badge: () => doneCount(machines.list),

@@ -320,6 +320,15 @@ const entities = {
   'camera.wohnzimmer':       { name: 'Kamera Wohnzimmer',      state: 'idle' },
   'camera.buero':            { name: 'Kamera Büro',            state: 'idle' },
   'camera.haustuer':         { name: 'Kamera Haustür',         state: 'idle' },   // 🔔 the doorbell (4.22): its camera
+  'sensor.auto_ladestand':   { name: 'Auto Ladestand',         state: '64', unit: '%', dc: 'battery' },   // 🚗 the car (4.25, #533): found by its names
+  'sensor.auto_reichweite':  { name: 'Auto Reichweite',        state: '312', unit: 'km' },
+  'binary_sensor.auto_laedt': { name: 'Auto lädt',             state: 'on', dc: 'battery_charging' },
+  'sensor.wallbox_leistung': { name: 'Wallbox Leistung',       state: '3.2', unit: 'kW', dc: 'power' },
+  'sensor.auto_voll_um':     { name: 'Auto voll um',           state: new Date(Date.now() + 150 * 60000).toISOString(), dc: 'timestamp' },
+  'select.evcc_garage_mode': { name: 'Wallbox Modus',          state: 'now', ctl: { options: ['off', 'now', 'minpv', 'pv'] } },   // evcc: ☀ = pv
+  'valve.rasen':             { name: 'Rasen',                  state: 'closed' },   // 🌱 the garden (4.25, #533): two zones and the soil
+  'switch.bewaesserung_beet': { name: 'Bewässerung Beet',      state: 'off' },
+  'sensor.boden_feuchte':    { name: 'Rasen Bodenfeuchte',     state: '34', unit: '%', dc: 'moisture' },
   'event.haustuer_klingel':  { name: 'Haustür Klingel',        state: new Date(Date.now() - 3 * 3600000).toISOString(), dc: 'doorbell' },   // ... it rings: a new time (?klingel=1)
   'binary_sensor.wohnzimmer_bewegung': { name: 'Bewegung Wohnzimmer', state: 'on' },
   'cover.garagentor':        { name: 'Garagentor',             state: 'closed', position: 0 },
@@ -463,7 +472,7 @@ const pinboard = [
 const notify = { on: false, kinds: ['alarm', 'smoke', 'gas', 'co', 'water'], via: 'whatsapp', phone: '', services: [], entities: [], tgMode: 'user', tgUsers: [], clear: false, apikey: '', tgkey: '' };   // api/notify in the demo
 let fullCode = '1234';
 // 🧺 Haushalt (#490): the washing machine runs (started 48 minutes ago, 42 to go), the dryer ran yesterday, the dishwasher is done
-const t0 = Date.now(), hhAck = {}, hhTell = {};
+const t0 = Date.now(), hhAck = {}, hhTell = {}, gardenTimers = {}, gardenOff = {};
 const shopping = [{ uid: 'a1', summary: 'Milch', done: false }, { uid: 'a2', summary: 'Brot', done: false }, { uid: 'a3', summary: 'Kaffee', done: true },
   { uid: 'a4', summary: 'Katzenfutter', done: false }];
 function demoAppliances() {
@@ -753,6 +762,16 @@ export function installDemoBackend() {
     const hhAnswer = () => ({ appliances: demoAppliances(), tell: { ...hhTell }, canTell: true });   // 🔔 (#531): the demo sends nothing, it only keeps the wish
     if (path === 'api/household') return json(hhAnswer());
     if (path === 'api/household/ack' && method === 'POST') { hhAck[JSON.parse(init.body || '{}').kind] = Date.now(); return json(hhAnswer()); }
+    if (path === 'api/garden') return json({ timers: { ...gardenTimers } });   // 🌱 (#533): "💧 gießen" opens a zone, it closes again when the time is up
+    if (path === 'api/garden/water' && method === 'POST') {
+      const b = JSON.parse(init.body || '{}'), e = entities[b.entity];
+      if (!e || !/^(valve|switch)\./.test(b.entity)) return json({ error: 'not a watering zone of the garden' }, 400);
+      const on = !b.stop, valve = b.entity.startsWith('valve.');
+      e.state = on ? (valve ? 'open' : 'on') : (valve ? 'closed' : 'off');
+      clearTimeout(gardenOff[b.entity]); delete gardenTimers[b.entity];
+      if (on) { gardenTimers[b.entity] = Date.now() + b.minutes * 60000; gardenOff[b.entity] = setTimeout(() => { e.state = valve ? 'closed' : 'off'; delete gardenTimers[b.entity]; }, b.minutes * 60000); }
+      return json({ ok: true, timers: { ...gardenTimers } });
+    }
     if (path === 'api/household/tell' && method === 'POST') { const b = JSON.parse(init.body || '{}'); if (b.on === false) delete hhTell[b.kind]; else hhTell[b.kind] = true; return json(hhAnswer()); }
     if (path === 'api/todo') {                              // the shopping list (#490), kept only in this tab
       if (method === 'POST') {

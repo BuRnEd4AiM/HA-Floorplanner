@@ -1886,3 +1886,12 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .bellPref { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: end; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .bellPref label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); flex: 1 1 150px; }
 .bellPref select, .bellPref input { width: 100%; }
+
+/* 🚗 the car and 🌱 the garden on 🧺 Haushalt (outdoorcards.js, #533) */
+.hhBig { font-size: 26px; font-weight: 700; }
+.hhCar .hhCarBar i { background: #3fae5a; }
+.hhSolar, .hhStop { align-self: flex-start; }
+.hhSolar.on { background: #f3b52b; border-color: #f3b52b; color: #1b1b1b; }
+.hhGarden.hh-running .hhRight { color: var(--accent); font-weight: 600; }
+.odPrefs { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+.odPrefs .odPref { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); flex: 1 1 200px; }
