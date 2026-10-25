@@ -319,6 +319,8 @@ const entities = {
   'sensor.buero_temp':      { name: 'Büro Temperatur',         state: '23.0', unit: '°C', dc: 'temperature' },
   'camera.wohnzimmer':       { name: 'Kamera Wohnzimmer',      state: 'idle' },
   'camera.buero':            { name: 'Kamera Büro',            state: 'idle' },
+  'camera.haustuer':         { name: 'Kamera Haustür',         state: 'idle' },   // 🔔 the doorbell (4.22): its camera
+  'event.haustuer_klingel':  { name: 'Haustür Klingel',        state: new Date(Date.now() - 3 * 3600000).toISOString(), dc: 'doorbell' },   // ... it rings: a new time (?klingel=1)
   'binary_sensor.wohnzimmer_bewegung': { name: 'Bewegung Wohnzimmer', state: 'on' },
   'cover.garagentor':        { name: 'Garagentor',             state: 'closed', position: 0 },
   'cover.rollladen_kueche':  { name: 'Rollladen Küche',        state: 'closed', position: 0 },
@@ -436,6 +438,7 @@ let settings = {
     { say: 'Schlafräume', house: 'main', floor: '', rooms: ['r4', 'q1', 'q2'], user: '' }, { say: 'beim Nachbarn', house: 'nachbar', floor: '', rooms: [], user: '' }] },
   radioStations: [{ name: 'SWR3', url: 'https://radio.example/swr3.mp3' }, { name: 'Bayern 3', url: 'https://radio.example/bayern3.mp3' },   // 4.8: 🎵 (#490)
     { name: '1LIVE', url: 'https://radio.example/1live.mp3' }, { name: 'Deutschlandfunk', url: 'https://radio.example/dlf.mp3' }, { name: 'Klassik Radio', url: 'https://radio.example/klassik.mp3' }],
+  doorbell: { on: true, sound: true, bells: [{ entity: 'event.haustuer_klingel', camera: 'camera.haustuer', open: 'lock.haustuer', name: 'Haustür' }] },   // 🔔 (4.22)
   routines: [], routineLeave: '', routineNight: 'scene.gute_nacht',   // 4.5: ▶ Abläufe shows every scene and script, "Gute Nacht" then starts the night scene (#483)
 };
 // 4.5 (#483): the page 👨‍👩‍👧 Familie: the people as the add-on finds them (since when, the phone's battery; no pictures: the letters) and the pinboard
@@ -628,6 +631,11 @@ const demoVersion = () => (typeof __DEMO_VERSION__ === 'undefined' ? 'demo' : __
 
 export function installDemoBackend() {
   window.__fpNoLive = true;                                  // no add-on server behind the demo: no live channel, states change only here
+  if (new URLSearchParams(location.search).has('klingel')) {   // 🔔 (4.22): ?klingel=1 opens "Live" and rings at the front door after 8 seconds (the next poll shows it)
+    const q = new URLSearchParams(location.search);
+    if (!q.has('mode')) { q.set('mode', 'live'); history.replaceState(null, '', `${location.pathname}?${q}${location.hash}`); }
+    setTimeout(() => { entities['event.haustuer_klingel'].state = new Date().toISOString(); }, 8000);
+  }
   // links into the add-on (🗄️ Backup → "Backup herunterladen", ⬇ of a recorded day, "Als Datei exportieren"): answered here too and saved
   // as a file. Opened as a page they left the demo (a GitHub error page, an empty tab from the file)
   document.addEventListener('click', async (e) => {

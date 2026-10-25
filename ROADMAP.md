@@ -28,6 +28,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 
 ## Done in 3.59 – 4.2
 
+- ✅ 🔔 The doorbell on every wall tablet: the camera at the door, open the door (it asks once more), a gong; bells and cameras found by themselves (4.22.0)
 - ✅ Quick access: lights off for the whole house or a group of rooms (two taps), favourites in front of the room tiles, "what is still on?", low batteries stand out, undo note after deleting, all keys on one card, recently used furniture (4.2.0) ([#471](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/471))
 - ✅ Tab bar at the bottom, the add-on as the only dashboard, step 1: 🏠 the house and 📷 the cameras as a page, tabs and start tab per user, the dashboard card with tabs and as a wall tablet without Home Assistant's sidebar, ⛶ full screen (4.3.0) ([#479](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/479)), 🎵 music, 🧺 household, ▶ routines, 👨‍👩‍👧 family (docs/PLAN-4.3.md)
 - ✅ Tabs, package 1: ☀ today (time, weather and forecast, calendars, waste, who is home, what needs a look, power now) and ⚡ energy (day, week, month, year from the long-term statistics, cost, biggest users, gas and water, several houses with their own meters) (4.4.0) ([#481](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/481))

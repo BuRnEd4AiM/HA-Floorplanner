@@ -1863,3 +1863,25 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .emCounter.ok { box-shadow: inset 3px 0 0 #46a758; } .emCounter.no { box-shadow: inset 3px 0 0 #f5a623; }
 .emCounter span { flex: 1; min-width: 12em; }
 .emCounter button { padding: 4px 10px; }
+
+/* 🔔 the doorbell (doorbellui.js): a red head with the name and the time, the camera, "Tür öffnen" and "Schließen" (docs/ideen-4.3/6-klingel.jpg) */
+.bellDlg { width: min(760px, calc(100vw - 24px)); max-width: none; padding: 0; overflow: hidden; border: 0; }
+.bellDlg::backdrop { background: rgba(0, 0, 0, .6); }
+.bellHead { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: #c8323a; color: #fff; font-size: 20px; }
+.bellHead b { flex: 1; }
+.bellIcon { font-size: 28px; animation: bellSwing 1s ease-in-out 3; transform-origin: 50% 10%; }
+@keyframes bellSwing { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(18deg); } 75% { transform: rotate(-18deg); } }
+#bellTime { font-size: 15px; opacity: .9; }
+.bellCam { background: #000; min-height: 120px; }
+.bellCam .camLive { position: relative; }
+.bellCam .bell-live { display: block; width: 100%; max-height: calc(100vh - 230px); aspect-ratio: auto 16 / 9; object-fit: contain; background: #000; }
+.bellNoCam { margin: 0; padding: 40px 16px; text-align: center; color: #ccc; }
+.bellBtns { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 18px; align-items: center; }
+.bellBtns button { flex: 1 1 160px; min-height: 52px; font-size: 18px; border-radius: 12px; }
+.bellBtns #bellHa:empty { display: none; }
+.bellBtns .bellOpen { background: #2f7de1; color: #fff; border-color: #2f7de1; }
+.bellBtns .bellOpen.sure { background: #e0802a; border-color: #e0802a; }
+.bellBtns .bellOpen.done { background: #2e9d55; border-color: #2e9d55; }
+.bellPref { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: end; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.bellPref label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; color: var(--muted); flex: 1 1 150px; }
+.bellPref select, .bellPref input { width: 100%; }

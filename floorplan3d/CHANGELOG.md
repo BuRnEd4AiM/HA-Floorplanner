@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.22.0] - 2026-10-26
+### Added
+- **🔔 The doorbell on every screen** (#530, chosen by the owner, picture `docs/ideen-4.3/6-klingel.jpg`). When somebody rings, every screen in the live view shows the camera at the door with "🔓 Tür öffnen" and "✕ Schließen", wakes up and plays a gong; it closes by itself after two minutes. Bells are found by themselves (an event of the class `doorbell`, a binary sensor named like a bell), each with its camera; ⚙ → 📱 Wandtablet → 🔔 Klingel chooses up to four with camera, door opener and name, and "🔔 Ausprobieren" shows it on this screen. Opening the door asks once more. A user or tablet can be locked out of it (🔒 Klingel-Fenster). The demo rings with `?klingel=1`.
+
 ## [4.21.3] - 2026-10-25
 ### Changed
 - **Smoother on tablets: the furniture is drawn together in the live mode** (#138, chosen by the owner: "Tablet schneller"). In the live mode nothing changes furniture that is linked to nothing (no entity, no LED, no section), so the parts of all of it on one floor that look the same are now drawn as one, the grey of the sofa with the grey of the shelf. The show house draws its whole-house view with about 1,180 draw calls instead of 1,660, with the same picture (the same triangles). Back in the editor every piece is whole again and can be moved.

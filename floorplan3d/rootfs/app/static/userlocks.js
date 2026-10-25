@@ -22,6 +22,7 @@ export const LOCKS = [
   ['settings', '#settingsBtn'],                                        // the settings dialog (⚙)
   ['timeline', '#timelineBtn'],                                        // security view: what switched when (the server refuses it too)
   ['fullscreen', ''],                                                  // leaving the full screen (#487): hides nothing, fullscreenui.js keeps it, only the code ends it
+  ['doorbell', '#bellDlg'],                                          // 🔔 the camera when somebody rings: not on this screen
 ];
 export const LOCK_KEYS = LOCKS.map(([k]) => k);
 

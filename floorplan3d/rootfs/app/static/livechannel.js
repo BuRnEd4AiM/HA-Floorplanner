@@ -47,7 +47,7 @@ export async function fetchAreas() {
   } catch { return areaIndex([]); }
 }
 
-/** ctx: entities(), setEntities(list), states(), setStates(obj), toState(e), wake(), redraw() (states, room entities, entity panel),
+/** ctx: entities(), setEntities(list), states(), setStates(obj), toState(e), wake(), redraw() (states, room entities, entity panel), pushed(list) (each pushed change),
  *  firstLoad() (async: areas, entity list, properties), paused() (security view: the recorded states are shown, live ones wait),
  *  renamed({ ids, names, settings }) (entities renamed in Home Assistant, renames.js) */
 export function initLiveChannel(ctx) {
@@ -68,6 +68,7 @@ export function initLiveChannel(ctx) {
   }
   function apply(d) {
     if (!ctx.entities().length || ctx.paused?.()) return;   // the first full list is still on its way and brings these too; security view shows the past
+    ctx.pushed?.(d.list || []);                              // each change as it came (a doorbell pressed for a moment, doorbellui.js)
     const m = mergeLive(ctx.entities(), ctx.states(), d, ctx.toState);
     ctx.setEntities(m.entities); ctx.setStates(m.states);
     ctx.wake();

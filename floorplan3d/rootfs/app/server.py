@@ -131,6 +131,7 @@ DEFAULT_SETTINGS = {
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "voice": {"engine": "auto", "aliases": []},   # the voice search (#509, voice.clean_voice): which recognition, the code words
+    "doorbell": {"on": True, "sound": True, "bells": []},   # 🔔 the camera on every screen when somebody rings (pages.clean_doorbell, static/doorbell.js)
     "bgTop": "#0a3ba8",
     "bgBottom": "#031547",
     "bgGlow": "#28ebd2",
@@ -155,7 +156,7 @@ TABS = boards.TABS            # own pages of an admin (#484) are "p_…" (boards
 # what can be locked for a user (the same list as LOCKS in static/userlocks.js); "control", "alarm" and "cameras" are refused here too;
 # "fullscreen" keeps the screen in full screen, only the code ends it (#487, api/fullscreen)
 LOCKS = ("control", "alarm", "guard", "details", "cameras", "energy", "colorModes", "viewMenu", "floorGap", "views", "houses", "building", "search", "voice", "settings",
-         "timeline", "fullscreen")
+         "timeline", "fullscreen", "doorbell")
 
 
 def clean_locks(val) -> dict:
@@ -780,6 +781,8 @@ def validate_settings(data: dict) -> dict:
             out[key] = pages.clean_presence(val)
         elif key == "voice":
             out[key] = vc.clean_voice(val)
+        elif key == "doorbell":
+            out[key] = pages.clean_doorbell(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
