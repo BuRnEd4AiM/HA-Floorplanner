@@ -4,6 +4,8 @@ import { GLTFLoader } from './vendor/loaders/GLTFLoader.js';
 import { SHAPES, polyOf, DEFAULT_PANELS } from './nanoleaf.js';
 import { ringSections, piecesLocal, pointAt } from './ledring.js';
 import { kitchenLayout } from './kitchen.js';
+import { closetSize } from './closet.js';
+import { closetModel } from './closet3d.js';
 import { solarField, standParts, PANEL, STAND } from './solarroof.js';
 import { bridgeParts } from './bridge.js';
 import { LAMP_TYPES } from './lamplight.js';
@@ -103,6 +105,7 @@ export const DEVICE_TYPES = {
   strip:      { label: 'LED-Streifen', y: 0.5 },
   ledring:    { label: 'LED-Ring', y: 2.5 },
   kitchenrun: { label: 'Küchenzeile (selbst bauen)', y: 0 },
+  closet:     { label: 'Schrank (selbst bauen)', y: 0 },
   panel_tri:  { label: 'Nanoleaf Dreieck',  y: 1.4 },
   panel_hex:  { label: 'Nanoleaf Sechseck', y: 1.4 },
   panel_sq:   { label: 'Nanoleaf Quadrat',  y: 1.4 },
@@ -118,7 +121,7 @@ export const CATEGORIES = {
   living:  ['sofa', 'sofa2', 'armchair', 'pouf', 'table', 'coffeetable', 'sidetable', 'diningtable', 'chair', 'barstool', 'tv', 'tv_wall', 'tv_arm', 'tvstand', 'sideboard', 'shelf', 'bookcase', 'fireplace', 'piano', 'carpet', 'curtain', 'plant'],
   kitchen: ['kitchenrun', 'kitchen', 'island', 'sink', 'stove', 'oven', 'microwave', 'dishwasher', 'fridge', 'washer'],
   bath:    ['bathtub', 'shower', 'toilet', 'basin', 'doublebasin', 'mirror', 'towelrad'],
-  bedroom: ['bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
+  bedroom: ['closet', 'bed', 'bed_single', 'crib', 'wardrobe', 'nightstand', 'dresser'],
   kids:    [],
   office:  ['desk', 'monitor', 'officechair', 'printer'],
   entry:   [],
@@ -632,6 +635,7 @@ export function isCustom(type) { return typeof type === 'string' && type.startsW
 const sizeCache = new Map();
 export function baseSize(type, dev) {
   if (isCustom(type) || type === 'nanoleaf' || type === 'ledring') return null;
+  if (type === 'closet') return closetSize(dev?.cab);              // its own size, set in the editor
   const v = SCANDI[type] ? sizeVariant(type, dev) : null, key = v ? `${type}|${v}` : type;
   if (!sizeCache.has(key)) {
     const g = makeModel(type, undefined, v ? { variant: v } : undefined);
@@ -663,6 +667,7 @@ export function makeModel(type, onReady, dev, opts) {
   if (type === 'nanoleaf') { nanoleaf(g, dev); return g; }      // one mesh per panel / section: they light one by one
   if (type === 'ledring') { ledRing(g, dev); return g; }
   if (type === 'kitchenrun') kitchenRun(g, dev);
+  else if (type === 'closet') closetModel(g, dev);          // the cabinet built in the editor (closet.js, closet3d.js)
   else if (type === 'bridge') bridgeModel(g, dev);
   else if (type === 'solarpanel') solarPanels(g, dev, opts?.mount || 'stand', opts?.groundAt);
   else if (type === 'tv_arm') tvArmModel(g, dev);

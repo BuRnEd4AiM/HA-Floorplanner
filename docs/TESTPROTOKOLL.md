@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.26.1)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.27.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.26.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.27.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+0. **Neu: 🗄 Schrank-Editor** (Abschnitt 109): Claude hat 109.1 bis 109.10 in der Demo geprüft; probier ihn gern selbst aus (Etage „Dach“, „Schrank unter der Schräge“), und im Add-on unter deinem echten Dach 109.11.
 1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 bis 107): in der Demo hat Claude am Morgen alles geprüft (siehe unten). Für dich bleibt: **flüssiger am iPad** (102.1), **🎤 mit echter Sprache** „Mach das Licht im Bad an“ (105.6) und im Add-on mit deinen Geräten 103.5 bis 103.7, 104.3 bis 104.5, 105.7, 106.5, 106.6.
 2. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
 3. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
@@ -312,7 +313,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533) | 4 | 0 | 0 | 2 | – |
 | 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538) | 8 | 0 | 0 | 0 | – |
 | 108. Neu in 4.26.1: die 2D-Ansicht zeichnet kein verstecktes 3D-Bild mehr (#542) | 2 | 0 | 1 | 0 | 108.3 |
-| **Zusammen** | **700** | **10** | **49** | **74** | |
+| 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545) | 10 | 0 | 1 | 0 | 109.11 |
+| **Zusammen** | **710** | **10** | **50** | **74** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1688,3 +1690,19 @@ Wunsch des Besitzers vom 2026-10-26 („draußen Hof und sowas editieren, das Gr
 | 108.1 | „Bearbeiten“, oben „2D“; Werkzeug „Auswählen“, auf den Rand des Grundstücks tippen | Das Grundstück ist umrandet, an jeder Seite steht sofort ihre Länge | ✅ (2026-10-26, Claude im Test-Add-on) |
 | 108.2 | Danach oben „3D“ (oder „2D + 3D“) | Das 3D-Bild ist sofort da und zeigt den aktuellen Stand | ✅ (2026-10-26, Claude im Test-Add-on) |
 | 108.3 | Am Tablet in der 2D-Ansicht arbeiten (nur wenn du sie benutzt) | Es reagiert so flüssig wie die 3D-Ansicht oder besser | ❓ |
+
+## 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545)
+Wunsch des Besitzers vom 2026-10-26 („einen Schrank-Editor … auch mit Schrägen, dass man den in Dachschrägen einbauen kann … mit allem personalisierbar … im Nachhinein bearbeiten“).
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 109.1 | Demo, „Bearbeiten“, „Gerät“, ins Suchfeld „Schrank“; „Schrank nach Maß“ antippen und im Plan in einen Raum tippen | Der Schrank steht da, und der Schrank-Editor geht sofort auf: vorne der Schrank mit Kleiderstangen, Böden und Schubladen, daneben der Schnitt von der Seite, dazu die Einstellungen | ✅ (2026-10-26, Claude in der Demo) |
+| 109.2 | Im Editor auf das mittlere Fach tippen, „Innen“ auf „Nur Schubladen“ | Das Fach ist blau umrandet, „Fach 2 von 3“; vorne sind dort jetzt Schubladen statt einer Tür | ✅ (2026-10-26, Claude in der Demo) |
+| 109.3 | „Breite“ auf 210 ändern, dann „+ Fach“ | Alle Fächer werden zusammen breiter (je 70 cm); ein neues Fach kommt dazu | ✅ (2026-10-26, Claude in der Demo) |
+| 109.4 | Bei „Fronten“ „Eiche“ antippen, bei „Korpus“ „Anthrazit“, dann „🚪 Türen“ | Die Zeichnung zeigt die Türen in Eiche und den Korpus in Anthrazit; bei „Front: Glastür“ sieht man durch die Tür | ✅ (2026-10-26, Claude in der Demo) |
+| 109.5 | „🧊 3D“ antippen und mit dem Finger drehen | Der Schrank steht in 3D da und dreht sich | ✅ (2026-10-26, Claude in der Demo) |
+| 109.6 | „Übernehmen“, dann oben ↶ (Rückgängig) | Der Schrank im Haus sieht aus wie im Editor; ↶ holt den alten zurück | ✅ (2026-10-26, Claude in der Demo) |
+| 109.7 | Etage „Dach“, im Dachboden den „Schrank unter der Schräge“ antippen | Rechts ein Bild des Schranks, „✎ Schrank bearbeiten“ und „📐 An die Dachschräge anpassen“; im 3D-Bild ist er hinten niedriger, passt unter das Dach und hat innen Licht | ✅ (2026-10-26, Claude in der Demo) |
+| 109.8 | Einen neuen Schrank auf die Etage „Dach“ setzen, nah an die Dachkante; im Editor „📐 An die Dachschräge anpassen“ | Darunter steht z. B. „An die Dachschräge angepasst: hinten 101 cm · 35°, Höhe 143 cm“; Zeichnung und 3D zeigen die Schräge | ✅ (2026-10-26, Claude in der Demo) |
+| 109.9 | Vorlage „Dachschrägenschrank“ wählen, bei „Dachschräge“ die Höhe und die Neigung ändern | Der Schrank wird links niedriger, Türen und Böden werden schräg abgeschnitten | ✅ (2026-10-26, Claude in der Demo) |
+| 109.10 | Im 2D-Plan den Schrank auswählen und am weißen Quadrat an der Seite ziehen | Der Schrank wird breiter oder schmaler (alle Fächer zusammen); im Plan sieht man die Fächer und in Orange, wo er unter der Schräge niedriger ist | ✅ (2026-10-26, Claude in der Demo) |
+| 109.11 | Nur im Add-on, in deinem Haus: einen Schrank unter eure echte Dachschräge stellen (Dach-Etage oder ausgebautes Dach mit Kniestock), „📐 An die Dachschräge anpassen“ | Er passt unter die Schräge, nichts ragt durchs Dach | ❓ |

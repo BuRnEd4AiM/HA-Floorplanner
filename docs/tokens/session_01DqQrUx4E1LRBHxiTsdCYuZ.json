@@ -1,0 +1,20 @@
+{
+ "session": "session_01DqQrUx4E1LRBHxiTsdCYuZ",
+ "start": "2026-10-26",
+ "updated": "2026-10-26T14:40:38Z",
+ "branch": "claude/dazzling-mayer-qoapl9",
+ "source": "counted",
+ "input": 348,
+ "cache_write": 901441,
+ "cache_read": 56510355,
+ "output": 213907,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 348,
+   "cache_write": 901441,
+   "cache_read": 56510355,
+   "output": 213907,
+   "requests": 172
+  }
+ }
+}

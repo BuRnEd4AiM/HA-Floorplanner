@@ -204,8 +204,12 @@ const layout = {
       { id: 'g2', type: 'lamp', x: 1.8, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Stehlampe Studio', entity: 'light.stehlampe' },
     ],
   }, {
-    id: 'dach', name: 'Dach', kind: 'roof', walls: [], rooms: [], blocks: [], stairs: [],
-    devices: [{ id: 'pv_dach', type: 'solarpanel', x: 5, z: 5.45, y: 0, rot: 0, scale: 1, cols: 5, rows: 2, name: 'PV Dach', entity: 'sensor.pv_dach' }],
+    id: 'dach', name: 'Dach', kind: 'roof', walls: [], blocks: [], stairs: [],
+    rooms: [{ id: 'r_dachboden', name: 'Dachboden', color: '#9a8f7a', points: [[1, 0.5], [6, 0.5], [6, 3.5], [1, 3.5]] }],   // the loft over the studio, with the cabinet under the slope
+    devices: [{ id: 'pv_dach', type: 'solarpanel', x: 5, z: 5.45, y: 0, rot: 0, scale: 1, cols: 5, rows: 2, name: 'PV Dach', entity: 'sensor.pv_dach' },
+      { id: 'schrank_dach', type: 'closet', x: 4.7, z: 1.75, y: 0, rot: 0, scale: 1, name: 'Schrank unter der Schräge', entity: 'light.schrank_dach',   // the cabinet builder: fitted under the slope
+        cab: { cols: [{ w: 0.6, fill: 'drawers', n: 3 }, { w: 0.6, fill: 'shelves', n: 2, front: 'glass' }, { w: 0.6, fill: 'rail', front: 'door', hinge: 'r' }], h: 1.67, d: 0.6, plinth: 0.08,
+          slopes: [{ side: 'back', low: 1.25, deg: 35 }], body: '#f1efe9', front: '#b48a5c', handle: 'long', metal: 'black', doors: 'hinged', led: true } }],
     roof: { type: 'gable', pitch: 35, overhang: 0.4, dormers: [{ side: 'a', pos: 0.3, window: { id: 'gw1', type: 'window', style: 'double', name: 'Gaubenfenster', shutter: true, shutterEntity: 'cover.rollladen_gaube' } }, { side: 'b', pos: 0.7, w: 2.0, type: 'flat' }] },   // #331: a dormer window with a roller shutter
   }],
 };
@@ -268,6 +272,7 @@ const SPEAKER = 1 | 4 | 8 | 16 | 32 | 128 | 256 | 512 | 2048 | 16384 | 524288;  
 const entities = {
   'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70, rgb: [255, 140, 110] },
   'light.stehlampe':         { name: 'Stehlampe',              state: 'on' },
+  'light.schrank_dach':      { name: 'Schrank Licht',          state: 'on' },   // the LED light in the cabinet under the roof
   'light.kueche':            { name: 'Küche Licht',            state: 'off' },
   'light.keller':            { name: 'Hobbyraum Licht',        state: 'on', rgb: [255, 196, 120], brightness: 70 },
   'light.waschkueche':       { name: 'Waschküche Licht',       state: 'off' },

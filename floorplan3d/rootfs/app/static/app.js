@@ -4,6 +4,7 @@ import { initImport } from './import.js';
 import { initToolbar, TOOLS } from './toolbar.js';
 import { decorate as decorateTools, markGroups } from './toolicons.js';
 import { DEFAULT_LEGS } from './kitchen.js';
+import { closetPreset } from './closet.js';
 import { initAlertsUi } from './alertsui.js';
 import { initSearch } from './search.js';
 import { initBackups } from './backups.js';
@@ -1096,6 +1097,7 @@ function newDevice(x, z) {
   palettes.used(deviceType);                                     // "last used" on top of the library (#471)
   if (deviceType === 'nanoleaf') d.panels = DEFAULT_PANELS.map((p) => ({ ...p }));
   if (deviceType === 'kitchenrun') Object.assign(d, { legs: DEFAULT_LEGS(), upper: true, depth: 0.6 });
+  if (deviceType === 'closet') d.cab = closetPreset('wardrobe3');     // a cabinet to build: a three-door wardrobe to start from (closet.js)
   if (deviceType === 'ledring') Object.assign(d, ringAt(x, z));     // all around the room it is placed in, just under the ceiling
   if (WALL_TYPES.has(deviceType)) snapToWall(d, 0.8);          // wall-hung things click onto the nearest wall
   if (power.isMode() && !power.shows(deviceType)) { power.setMode(false); setTool('device'); setStatus(t('power.editorOff')); }   // the power editor would hide it at once (#207)
@@ -1132,6 +1134,8 @@ draw3d = initDraw3d({
 
 /** a device was just placed: it stays selected and can be moved at once; the next click on empty space deselects it and placing goes on */
 function holdPlaced() {
+  const placed = selection?.kind === 'device' ? floor().devices.find((v) => v.id === selection.id) : null;
+  if (placed?.type === 'closet') props.editCloset(placed);          // a new cabinet: its editor opens at once (closetui.js)
   if (tool !== 'device' || !settings.placeSelect) return;
   returnToTool = 'device'; setTool('select');
 }
@@ -1546,6 +1550,7 @@ const props = initProps({
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseSize(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
   uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
   fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
+  closetRoof: (d) => { const clip = roofsUi.wallClip(floorIdx); return clip ? { planes: clip.planes, baseY: elev(floorIdx) + (d.y || 0) } : null; },   // a cabinet fits under the roof (closet.js)
 });
 function renderObjList() { objList.render(); }
 function renderRoomEntities() { roomEnts.render(); }
@@ -1788,6 +1793,7 @@ if (params.get('debug')) {
     ledShown(id) { return !!registry.get(id)?.userData.ledParts?.[0]?.visible; },
     isShown(id) { return !!registry.get(id)?.visible; },
     editNano(id) { const d = floor().devices.find((v) => v.id === id); if (d) editNano(d); },
+    editCloset(id) { const d = floor().devices.find((v) => v.id === id); if (d) props.editCloset(d); },
     screenOf(id) {
       const obj = registry.get(id);
       if (!obj) return null;
