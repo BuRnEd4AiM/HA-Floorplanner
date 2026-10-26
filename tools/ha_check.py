@@ -1,6 +1,7 @@
 """Let a real Home Assistant check the automations haflows.py writes (#548): its own validation of every block, and a run with stand-in
 devices (a window switches the heating off after it stayed open 5 s and closing it puts it back through scene.create; motion switches a
-light on and off). Not in CI (Home Assistant is big); run it after changing haflows.py:
+light on and off); and a scene of scenes.py (#549) played with scene.turn_on and scene.apply. Not in CI (Home Assistant is big); run it
+after changing haflows.py or scenes.py:
 
     python3.13 -m venv /tmp/havenv && /tmp/havenv/bin/pip install homeassistant==2026.2.3
     /tmp/havenv/bin/python -I tools/ha_check.py
@@ -17,6 +18,7 @@ sys.path.insert(0, str(ROOT / "floorplan3d" / "rootfs" / "app"))
 sys.path.insert(0, str(ROOT / "tests"))
 import flows as fl  # noqa: E402
 import haflows as hf  # noqa: E402
+import scenes as sc  # noqa: E402
 from homeassistant import config_entries, core, loader  # noqa: E402
 from homeassistant.components.automation import config as acfg  # noqa: E402
 from homeassistant.helpers import area_registry as ar, category_registry as cr, device_registry as dr, entity_registry as er  # noqa: E402
@@ -159,13 +161,51 @@ async def run(hass) -> int:
     return 0 if calls == want else 1
 
 
+async def scene(hass) -> int:
+    calls = []
+
+    async def fake(call):
+        calls.append((call.domain, call.service, dict(call.data)))
+    for dom, svcs in {"light": ["turn_on", "turn_off"], "cover": ["set_cover_position", "open_cover", "close_cover"], "switch": ["turn_on", "turn_off"]}.items():
+        for s in svcs:
+            hass.services.async_register(dom, s, fake)
+    hass.states.async_set("light.led_tv", "off", {"supported_color_modes": ["rgb"], "effect_list": ["Rainbow", "Solid"]})
+    hass.states.async_set("light.stehlampe", "off", {"supported_color_modes": ["color_temp"]})
+    hass.states.async_set("light.decke", "on", {"brightness": 200})
+    hass.states.async_set("cover.wz", "closed", {"current_position": 0, "supported_features": 15})
+    hass.states.async_set("switch.kaffee", "off", {})
+    m = sc.clean_model({"name": "Kino", "icon": "mdi:movie", "ents": {"light.led_tv": {"on": True, "pct": 30, "rgb": [120, 0, 255], "fx": "Rainbow"},
+                        "light.decke": {"on": False}, "light.stehlampe": {"on": True, "pct": 40, "kelvin": 2700}, "cover.wz": {"pos": 20},
+                        "switch.kaffee": {"on": True}}})
+    assert await async_setup_component(hass, "homeassistant", {})
+    assert await async_setup_component(hass, "scene", {"scene": [sc.to_ha("fp3d_skino", m)]})
+    await hass.async_start()
+    await hass.async_block_till_done()
+    await hass.services.async_call("scene", "turn_on", {"entity_id": "scene.kino"}, blocking=True)
+    await hass.async_block_till_done()
+    played = sorted(calls, key=str)
+    print("scene played:", played)
+    calls.clear()
+    await hass.services.async_call("scene", "apply", sc.apply_data(m), blocking=True)
+    await hass.async_block_till_done()
+    want = sorted([("switch", "turn_on", {"entity_id": "switch.kaffee"}),
+                   ("light", "turn_on", {"entity_id": "light.led_tv", "brightness": 76, "effect": "Rainbow", "rgb_color": [120, 0, 255]}),
+                   ("light", "turn_off", {"entity_id": "light.decke"}),
+                   ("light", "turn_on", {"entity_id": "light.stehlampe", "brightness": 102, "color_temp_kelvin": 2700}),
+                   ("cover", "set_cover_position", {"entity_id": "cover.wz", "position": 20})], key=str)
+    return 0 if played == want and sorted(calls, key=str) == want else 1
+
+
 async def main():
-    with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+    with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b, tempfile.TemporaryDirectory() as c:
         hass = await make_hass(a)
         bad = await validate(hass)
         await hass.async_stop(force=True)
         hass = await make_hass(b)
         bad += await run(hass)
+        await hass.async_stop(force=True)
+        hass = await make_hass(c)
+        bad += await scene(hass)
         await hass.async_stop(force=True)
     print("ALL OK" if not bad else f"{bad} PROBLEM(S)")
     sys.exit(1 if bad else 0)

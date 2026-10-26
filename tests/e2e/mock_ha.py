@@ -21,6 +21,7 @@ TODO = {}          # #490: the to-do lists: {entity: [{"uid", "summary", "status
 VOICE = {"assist": True, "text": "Welche Fenster sind offen", "heard": []}   # #509: Assist with speech-to-text (POST /_voice {assist, text}); heard: bytes of audio per run
 HIST = {}          # #490: the history of some entities (a machine's power): {entity: [[iso time, state]]}, POST /_hist; others get the hourly numbers
 RELATED = {"related": {}, "configs": {}}   # #546: Home Assistant's search "related" ({entity: {"automation": [...], "script": [...]}}) and the configs of automations and scripts, POST /_related
+SCENES = {}        # #549: scenes written through Home Assistant's scene editor API (/config/scene/config/<id>), each also an entity in EXTRA; POST /_scenes adds one "made in Home Assistant"
 AUTOS = {}         # #548: automations written through Home Assistant's editor API (/config/automation/config/<id>), each also an entity in EXTRA
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
@@ -68,6 +69,9 @@ async def service(r):
         CALL_DATA.append([svc, e, {k: v for k, v in body.items() if k != "entity_id"}])
         when = lambda k: {"dateTime": body[k + "_date_time"]} if k + "_date_time" in body else {"date": body[k + "_date"]}
         CAL_NEW.setdefault(e, []).append({"start": when("start"), "end": when("end"), "summary": body["summary"]})
+        return web.json_response([])
+    if dom == "scene" and svc == "apply":   # #549: ▶ Ausprobieren of the scene editor
+        CALL_DATA.append(["apply", "", body])
         return web.json_response([])
     if dom == "notify":           # #414: a message of the add-on; #460: notify.send_message to notify entities
         NOTIFIED.append(["ha_entity", ",".join(e), body.get("message")] if svc == "send_message" and isinstance(e, list) else ["ha", svc, body.get("message")])
@@ -370,6 +374,32 @@ async def auto_config(r):         # #548: Home Assistant's editor of automations
     EXTRA[ent] = {"state": old["state"], "attributes": {**old["attributes"], "id": cid, "friendly_name": cfg.get("alias", cid)}}
     await push(ent)
     return web.json_response({"result": "ok"})
+async def scene_config(r):        # #549: Home Assistant's scene editor: read, write (it loads it at once), delete
+    cid = r.match_info["id"]
+    ent = next((e for e, v in EXTRA.items() if e.startswith("scene.") and (v.get("attributes") or {}).get("id") == cid), None)
+    if r.method == "GET":
+        return web.json_response(SCENES[cid]) if cid in SCENES else web.json_response({"message": "Resource not found"}, status=404)
+    if r.method == "DELETE":
+        SCENES.pop(cid, None)
+        if ent: EXTRA.pop(ent, None)
+        return web.json_response({"result": "ok"})
+    cfg = await r.json()
+    if not isinstance(cfg.get("entities"), dict) or not cfg.get("name"):
+        return web.json_response({"message": "Message malformed"}, status=400)
+    SCENES[cid] = cfg
+    import re as _re
+    ent = ent or "scene." + (_re.sub(r"[^a-z0-9]+", "_", cfg["name"].lower()).strip("_") or cid)
+    EXTRA[ent] = {"state": "unknown", "attributes": {"id": cid, "friendly_name": cfg["name"], "entity_id": list(cfg["entities"])}}
+    await push(ent)
+    return web.json_response({"result": "ok"})
+async def scenes_seen(r):         # test helper (#549): the scenes written; POST adds or changes some ({id: config}) as if made in Home Assistant
+    if r.method == "POST":
+        for cid, cfg in (await r.json()).items():
+            SCENES[cid] = cfg
+            import re as _re
+            ent = "scene." + _re.sub(r"[^a-z0-9]+", "_", cfg["name"].lower()).strip("_")
+            EXTRA[ent] = {"state": "unknown", "attributes": {"id": cid, "friendly_name": cfg["name"], "entity_id": list(cfg["entities"])}}
+    return web.json_response(SCENES)
 async def autos_seen(r):          # test helper (#548): the automations written; POST changes one "in Home Assistant" ({id: config})
     if r.method == "POST":
         AUTOS.update(await r.json())
@@ -385,5 +415,6 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),
                 web.get("/history/period/{start}", history), web.get("/_history", history_asked),
                 web.route("*", "/config/automation/config/{id}", auto_config), web.route("*", "/_autos", autos_seen),
+                web.route("*", "/config/scene/config/{id}", scene_config), web.route("*", "/_scenes", scenes_seen),
                 web.post("/_todo", set_todo), web.post("/_related", set_related), web.post("/_hist", set_hist), web.get("/api/media_player_proxy/{e}", media_proxy)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

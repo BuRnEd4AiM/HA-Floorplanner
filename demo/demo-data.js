@@ -587,6 +587,25 @@ function haSyncDemo() {
   return out;
 }
 haSyncDemo();                                          // the demo starts with two routines in Home Assistant
+/* #549: the scenes of Home Assistant's editor (scenes.yaml): one made in the dashboard (fp3d_…), one made in Home Assistant (a copy can be
+ * edited); the editor's model as scenes.py keeps it */
+const demoScenes = {
+  fp3d_stvabend: { name: 'TV-Abend', ents: { 'light.tv_led': { on: true, pct: 35, rgb: [170, 80, 255], fx: 'Kino' }, 'light.wohnzimmer': { on: false }, 'light.stehlampe': { on: true, pct: 25, kelvin: 2700 } } },
+  1700000000001: { name: 'Wohnzimmer Gemütlich', ents: { 'light.wohnzimmer': { on: true, pct: 40, kelvin: 2700 }, 'light.stehlampe': { on: true, pct: 60, kelvin: 2700 }, 'light.tv_led': { on: true, pct: 30, rgb: [255, 130, 20] } } },
+};
+entities['scene.tv_abend'] = { name: 'TV-Abend', state: 'scening', cid: 'fp3d_stvabend', members: Object.keys(demoScenes.fp3d_stvabend.ents) };
+Object.assign(entities['scene.wz_gemuetlich'], { cid: '1700000000001', members: Object.keys(demoScenes[1700000000001].ents) });
+function sceneShow(m) {                                 // ▶ Ausprobieren and ▶ of a scene: the lights take it at once
+  Object.entries(m.ents).forEach(([e, x]) => {
+    const d = entities[e]; if (!d) return;
+    d.state = e.startsWith('cover.') ? (x.on ? 'open' : 'closed') : x.on ? 'on' : 'off';
+    if (x.pct != null) d.brightness = x.pct;
+    if (x.rgb) d.rgb = x.rgb;
+    if (x.kelvin) d.rgb = [255, Math.round(170 + 75 * Math.max(0, Math.min(1, (x.kelvin - 2000) / 4500))), Math.round(80 + 175 * Math.max(0, Math.min(1, (x.kelvin - 2000) / 4500)))];
+    if (x.fx) d.fxc = x.fx;
+    if (x.pos != null) d.position = x.pos;
+  });
+}
 entities['automation.flurlicht_nachts'].at = nowS() - 17 * 60;
 function rulesAnswer() {
   return { heat: rulesDemo.heat, flows: rulesDemo.flows, status: rulesStatus(), log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS(), haLink: '' };
@@ -941,7 +960,7 @@ export function installDemoBackend() {
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
         hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null,
         bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null, at: e.at ?? null, run: e.run ?? null,
-        ...(e.cid ? { cid: e.cid } : {}), lc: lastChanged(entity_id, e.state) })));
+        ...(e.cid ? { cid: e.cid } : {}), members: e.members ?? null, lc: lastChanged(entity_id, e.state) })));
     }
     if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
       return json({ known: true, version: demoVersion(), buildHash: 'demo', short: 'demo', server: { ok: true, files: 0, changed: [], missing: [], extra: [] }, staticFiles: {} });
@@ -964,6 +983,7 @@ export function installDemoBackend() {
         e.state = 'on'; setTimeout(() => { e.state = 'off'; }, 3000);
         return json({ ok: true });
       }
+      if (id.startsWith('scene.') && demoScenes[e.cid]) { sceneShow(demoScenes[e.cid]); return json({ ok: true }); }   // a scene of the editor (#549)
       if (id.startsWith('scene.')) {                      // demo scenes: switch the living room lights
         const wz = ['light.wohnzimmer', 'light.stehlampe', 'light.shapes_wz'];
         wz.forEach((l) => { if (id.endsWith('_aus')) entities[l].state = 'off'; else { entities[l].state = 'on'; entities[l].rgb = [255, 170, 90]; } });
@@ -1088,6 +1108,25 @@ export function installDemoBackend() {
     }
     if (path === 'api/related') return json(relatedDemo(new URL(url, location.href).searchParams.get('entity') || ''));
     if (path === 'api/automations') return json(autosDemo());
+    if (path === 'api/scenes/try' && method === 'POST') { sceneShow(JSON.parse(init.body || '{}')); return json({ ok: true }); }
+    if (path.startsWith('api/scenes/')) {                     // the scene editor (#549): kept in this tab, as Home Assistant would keep it
+      let cid = decodeURIComponent(path.slice('api/scenes/'.length));
+      if (method === 'GET') return demoScenes[cid] ? json({ id: cid, ours: cid.startsWith('fp3d_'), scene: structuredClone(demoScenes[cid]) }) : json({ error: 'not found' }, 404);
+      if (method === 'DELETE') {
+        if (!cid.startsWith('fp3d_')) return json({ error: 'not ours' }, 403);
+        delete demoScenes[cid];
+        Object.keys(entities).filter((e) => entities[e].cid === cid).forEach((e) => { delete entities[e]; });
+        return json({ ok: true });
+      }
+      if (cid === 'new') cid = `fp3d_s${Math.random().toString(16).slice(2, 10)}`;
+      else if (!cid.startsWith('fp3d_')) return json({ error: 'not ours' }, 403);
+      const m = JSON.parse(init.body || '{}');
+      if (!m.name || !Object.keys(m.ents || {}).length) return json({ error: 'a name and at least one device expected' }, 400);
+      demoScenes[cid] = m;
+      const e = Object.keys(entities).find((x) => entities[x].cid === cid) || `scene.${slug(m.name)}`;
+      entities[e] = { name: m.name, state: 'scening', cid, members: Object.keys(m.ents) };
+      return json({ ok: true, id: cid, entity: e, missing: false });
+    }
     if (path === 'api/batteries') return json(batteryOf);
     if (path === 'api/timeline') {
       return json({ days: recordedDays().map((day) => ({ day, size: JSON.stringify(recordedDay(day).lines).length })), on: true, keepDays: 7, recording: true,

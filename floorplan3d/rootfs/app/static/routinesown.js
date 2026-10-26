@@ -10,7 +10,7 @@ const FILTERS = ['all', 'heat', 'light', 'cover', 'running'];
 
 /** ctx: t, lang(), states(), nameOf(entity), canEdit(), locked() (may not switch), callService(entity, service, data), rules (rulesstore.js),
  *  edit(flow) (the editor, flowedit.js: a routine of the list, or a new one), openRules() (🌡 Klima → 📋 Heiz-Regeln), details(entity) (Home
- *  Assistant's window: a button or null), changed() (draw the page again) */
+ *  Assistant's window: a button or null), scenes (scenesui.js: the card 🎨 Szenen), changed() (draw the page again) */
 export function initRoutinesOwn(ctx) {
   const { t } = ctx;
   let filter = 'all', autos = null, autosAt = 0, loading = false, allAutos = false, longLog = false, tplOpen = false;
@@ -211,7 +211,8 @@ export function initRoutinesOwn(ctx) {
       out.push({ key: 'autos', width: 2, sig, make: autoCard });
     }
     out.push({ key: 'log', width: 2, sig: JSON.stringify([data?.log?.length, data?.log?.[data.log.length - 1], longLog, Math.floor(Date.now() / 60000), t('ro.log')]), make: logCard });
+    if (ctx.scenes) out.push(...ctx.scenes.items());       // 🎨 Szenen (#549, scenesui.js)
     return out;
   }
-  return { items, sig: () => JSON.stringify([ctx.rules.get(), filter, tplOpen, autos, allAutos, longLog, Math.floor(Date.now() / 30000)]) };
+  return { items, sig: () => JSON.stringify([ctx.rules.get(), filter, tplOpen, autos, allAutos, longLog, Math.floor(Date.now() / 30000), ctx.scenes?.sig()]) };
 }
