@@ -3,9 +3,12 @@
 
     python3 tools/make_timeline.py [output folder]      (default: _site)
 
-Writes <output>/timeline.html and copies the pictures it shows next to it: docs/img/3d.jpg (the title picture) and the example
-pictures of docs/ideen-<version>/ (shown at version <version>.0). The workflow "Demo" runs it for GitHub Pages after every merge,
-so a new version in CHANGELOG.md (and a new docs/ideen-<version>/ folder) shows up on its own. Only the standard library."""
+Writes <output>/timeline.html and copies the pictures it shows next to it: docs/img/3d.jpg (the title picture), the photos of
+docs/timeline/<version>/ (what a version looks like) and the example pictures of docs/ideen-<major>.<minor>/ (made before building,
+shown at <major>.<minor>.0). The German texts come from docs/CHANGELOG.de.md (same versions, sections and bullets), the tokens
+Claude used from docs/tokens/*.json. The workflow "Demo" runs it for GitHub Pages after every merge, so a new version, photo or
+token count shows up on its own. Only the standard library."""
+import datetime
 import html
 import json
 import re
@@ -16,7 +19,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 REPO_URL = "https://github.com/BuRnEd4AiM/HA-Floorplanner"
 HERO = "docs/img/3d.jpg"
+GERMAN = "docs/CHANGELOG.de.md"
 PICTURE_TYPES = (".jpg", ".jpeg", ".png", ".gif", ".webp")
+SECTION_DE = {"Neu": "Added", "Verbessert": "Changed", "Repariert": "Fixed", "Entfernt": "Removed", "Hinweis": "Notes"}
 
 VERSION_RE = re.compile(r"^## \[(\d+)\.(\d+)\.(\d+)\] - (\d{4}-\d{2}-\d{2})\s*$")
 SECTION_RE = re.compile(r"^### (\w+)")
@@ -41,7 +46,7 @@ def parse_changelog(text):
             continue
         m = SECTION_RE.match(line)
         if m:
-            sec = {"name": m[1], "items": []}
+            sec = {"name": SECTION_DE.get(m[1], m[1]), "items": []}     # the German file says "Neu" for "Added" …
             cur["sections"].append(sec)
             continue
         if sec is None:                        # text right under the version heading
@@ -104,51 +109,113 @@ def headline(md, limit=110):
     return text if len(text) <= limit else text[:limit - 1].rstrip() + "…"
 
 
+def _natural(name):
+    return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", name)]
+
+
 def pictures(root):
-    """{"4.26.0": ["ideen/4.26/1-garten-3d.jpg", …]} from the folders docs/ideen-<major>.<minor>/."""
+    """{"4.26.0": [{"src": "photos/4.26.0/1-plot.jpg", "from": "docs/timeline/4.26.0/1-plot.jpg", "kind": "photo"}, …]}: the photos of
+    docs/timeline/<version>/ first, then the example pictures of docs/ideen-<major>.<minor>/ at <major>.<minor>.0."""
     found = {}
-    for folder in sorted((root / "docs").glob("ideen-*")):
-        m = re.fullmatch(r"ideen-(\d+)\.(\d+)", folder.name)
-        if not m or not folder.is_dir():
-            continue
-        files = sorted((f for f in folder.iterdir() if f.suffix.lower() in PICTURE_TYPES),
-                       key=lambda f: [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", f.name)])
-        if files:
-            found[f"{m[1]}.{m[2]}.0"] = [f"ideen/{m[1]}.{m[2]}/{f.name}" for f in files]
+    for kind, pattern, rx, site in (("photo", "timeline/*", r"(\d+)\.(\d+)\.(\d+)", "photos"), ("idea", "ideen-*", r"ideen-(\d+)\.(\d+)", "ideen")):
+        for folder in sorted((root / "docs").glob(pattern)):
+            m = re.fullmatch(rx, folder.name)
+            if not m or not folder.is_dir():
+                continue
+            version = f"{m[1]}.{m[2]}.{m[3] if kind == 'photo' else 0}"
+            key = version if kind == "photo" else f"{m[1]}.{m[2]}"
+            for f in sorted((f for f in folder.iterdir() if f.suffix.lower() in PICTURE_TYPES), key=lambda f: _natural(f.name)):
+                found.setdefault(version, []).append({"src": f"{site}/{key}/{f.name}", "from": f.relative_to(root).as_posix(), "kind": kind})
     return found
 
 
-def page_data(versions, pics):
-    """What the page needs, oldest version first."""
+def _days(first, last):
+    """every day from first to last (ISO dates), both included"""
+    a, b = datetime.date.fromisoformat(first), datetime.date.fromisoformat(last)
+    return [(a + datetime.timedelta(n)).isoformat() for n in range((b - a).days + 1)]
+
+
+def tokens(root, versions_per_day):
+    """The tokens Claude used, per day, from docs/tokens/*.json (written by tools/tokens.py at every commit). A session counts evenly on
+    the days from its start to its last update. The estimate for the early sessions of another account (source "estimate") is spread
+    over the days from its start to the first measured session, by how many versions came out on each day."""
+    recs = []
+    for f in sorted((root / "docs" / "tokens").glob("*.json")):
+        try:
+            r = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        n = sum(int(r.get(k) or 0) for k in ("input", "cache_write", "cache_read", "output"))
+        if n > 0 and re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(r.get("start", ""))):
+            recs.append((r, n))
+    measured = [r["start"] for r, _ in recs if r.get("source") != "estimate"]
+    days, estimated, until = {}, 0, None
+    for r, n in recs:
+        if r.get("source") == "estimate":
+            end = max(r["start"], min(measured)) if measured else r["start"]
+            span = _days(r["start"], end)
+            weights = [versions_per_day.get(d, 0) for d in span]
+            estimated += n
+            until = max(until or end, end)
+        else:
+            updated = str(r.get("updated", ""))[:10]
+            span = _days(r["start"], updated if re.fullmatch(r"\d{4}-\d{2}-\d{2}", updated) and updated > r["start"] else r["start"])
+            weights = [1] * len(span)
+        if not sum(weights):
+            weights = [1] * len(span)
+        for d, w in zip(span, weights):
+            days[d] = days.get(d, 0) + n * w / sum(weights)
+    return {"days": {d: round(v) for d, v in sorted(days.items())}, "total": sum(n for _, n in recs),
+            "written": sum(int(r.get("output") or 0) for r, _ in recs), "estimated": estimated, "estimatedUntil": until}
+
+
+def _shape(sections):
+    return [(s["name"], [len(i["subs"]) for i in s["items"]]) for s in sections]
+
+
+def _sections(sections, text):
+    out = []
+    for sec in sections:
+        items = []
+        for it in sec["items"]:
+            items.append({"h": headline(it["md"]), "html": md_inline(it["md"]), "subs": [md_inline(s) for s in it["subs"]]})
+            text += [plain(it["md"])] + [plain(s) for s in it["subs"]]
+        out.append({"name": sec["name"], "items": items})
+    return out
+
+
+def page_data(versions, pics, german=None):
+    """What the page needs, oldest version first. A version gets its German texts ("de") when docs/CHANGELOG.de.md has it with the
+    same sections and bullets, else the page shows the English ones."""
+    de = {v["version"]: v["sections"] for v in german or []}
     out = []
     for v in reversed(versions):
-        sections, text = [], [v["version"]]
-        for sec in v["sections"]:
-            items = []
-            for it in sec["items"]:
-                items.append({"h": headline(it["md"]), "html": md_inline(it["md"]),
-                              "subs": [md_inline(s) for s in it["subs"]]})
-                text += [plain(it["md"])] + [plain(s) for s in it["subs"]]
-            sections.append({"name": sec["name"], "items": items})
-        out.append({"v": v["version"], "major": v["major"], "big": v["patch"] == 0, "date": v["date"],
-                    "sections": sections, "pics": pics.get(v["version"], []), "text": " ".join(text).lower()})
+        text = [v["version"]]
+        sections = _sections(v["sections"], text)
+        g = de.get(v["version"])
+        out.append({"v": v["version"], "major": v["major"], "big": v["patch"] == 0, "date": v["date"], "sections": sections,
+                    "de": _sections(g, text) if g is not None and _shape(g) == _shape(v["sections"]) else None,
+                    "pics": [{"src": p["src"], "kind": p["kind"]} for p in pics.get(v["version"], [])], "text": " ".join(text).lower()})
     return out
 
 
 def build(root, out_dir):
     root, out_dir = Path(root), Path(out_dir)
     versions = parse_changelog((root / "CHANGELOG.md").read_text(encoding="utf-8"))
+    german = parse_changelog((root / GERMAN).read_text(encoding="utf-8")) if (root / GERMAN).exists() else []
     pics = pictures(root)
-    data = page_data(versions, pics)
+    data = page_data(versions, pics, german)
+    per_day = {}
+    for v in versions:
+        per_day[v["date"]] = per_day.get(v["date"], 0) + 1
     template = (root / "tools" / "timeline.html").read_text(encoding="utf-8")
-    payload = json.dumps({"versions": data, "repo": REPO_URL}, ensure_ascii=False, separators=(",", ":"))
+    payload = json.dumps({"versions": data, "tokens": tokens(root, per_day), "repo": REPO_URL}, ensure_ascii=False, separators=(",", ":"))
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "timeline.html").write_text(template.replace("__DATA__", payload.replace("<", "\\u003c")), encoding="utf-8")
-    for rel in [p for ps in pics.values() for p in ps]:
-        major_minor, name = rel.split("/")[1:]
-        target = out_dir / rel
+    for p in [p for ps in pics.values() for p in ps]:
+        target = out_dir / p["src"]
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(root / "docs" / f"ideen-{major_minor}" / name, target)
+        shutil.copyfile(root / p["from"], target)
     if (root / HERO).exists():
         (out_dir / "img").mkdir(exist_ok=True)
         shutil.copyfile(root / HERO, out_dir / "img" / Path(HERO).name)
@@ -158,4 +225,4 @@ def build(root, out_dir):
 if __name__ == "__main__":
     out = sys.argv[1] if len(sys.argv) > 1 else "_site"
     data = build(ROOT, out)
-    print(f"{out}/timeline.html: {len(data)} versions, {sum(len(v['pics']) for v in data)} pictures")
+    print(f"{out}/timeline.html: {len(data)} versions ({sum(1 for v in data if v['de'])} in German), {sum(len(v['pics']) for v in data)} pictures")

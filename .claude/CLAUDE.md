@@ -7,7 +7,9 @@ A knowledge graph of the code is built at session start in graphify-out/.
 ## Working with the owner
 - Continuing from an earlier chat: read docs/UEBERGABE.md first (state, open questions to the owner, how the example pictures are made, pitfalls).
 - Keep docs/UEBERGABE.md short (the owner's wish, 2026-10-26): only the last few sessions in a sentence or two, open points, the owner, pitfalls. What is built belongs in CHANGELOG.md; an old section moves to docs/archiv/.
-- The timeline page (timeline.html next to the demo on GitHub Pages, tools/make_timeline.py) builds itself from CHANGELOG.md and docs/ideen-*/ after every merge: nothing to do by hand.
+- The timeline page (timeline.html next to the demo on GitHub Pages, tools/make_timeline.py) builds itself after every merge from CHANGELOG.md, docs/CHANGELOG.de.md, the photos in docs/timeline/<version>/, docs/ideen-*/ and the token counts in docs/tokens/. It must keep growing (the owner's wish, 2026-10-26), so with every new version, checked by tests/test_make_timeline.py:
+  - Write its CHANGELOG.md entry in German in docs/CHANGELOG.de.md as well, with the same sections and bullets (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed).
+  - A new <major>.<minor>.0 gets a picture: `python3 tools/timeline_photo.py` takes a photo of the demo as it is now (more photos: `--name dach --query "mode=edit"`), or put the example pictures in docs/ideen-<major>.<minor>/.
 - Branches are deleted on their own after the merge (workflow "Clean up branches"); to go on, restart the branch from main as usual.
 - The owner is not a developer: explain everything simply in German.
 - Always say how to approve a pull request: open the link, "Merge pull request", "Confirm merge".

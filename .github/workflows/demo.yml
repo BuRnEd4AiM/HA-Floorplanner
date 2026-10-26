@@ -9,9 +9,12 @@ on:
       - "floorplan3d/rootfs/app/static/**"
       - "demo/**"
       - "CHANGELOG.md"                # the timeline page next to the demo (tools/make_timeline.py)
+      - "docs/CHANGELOG.de.md"
       - "tools/make_timeline.py"
       - "tools/timeline.html"
       - "docs/ideen-*/**"
+      - "docs/timeline/**"
+      - "docs/tokens/**"              # every merge brings its token count: the timeline adds it up to that day
       - "docs/img/3d.jpg"
       - "!demo/floorplan3d-demo.html"
   workflow_dispatch:
