@@ -1,6 +1,6 @@
 {
- "version": "4.29.0",
- "buildHash": "9ede1122ffcaccf049753507af5a83c9aaa22bbade830cb54bd89b3fee3658dd",
+ "version": "4.30.0",
+ "buildHash": "facb7290550fd41ebcfad1033a063c9a9eba54b4f325b7a3d4644738bb89d2af",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "boards.py": "e816c7d38b9babb19f0860e1a024df2fb8d2e230df2eaced41fdb9f8a1fc2d79",
