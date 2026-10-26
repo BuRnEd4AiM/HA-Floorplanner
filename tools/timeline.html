@@ -88,15 +88,22 @@ button, input { font: inherit; color: inherit; }
 .lead { margin: 16px 0 0; font-size: clamp(16px, 2.2vw, 19px); max-width: 36em; opacity: .9; }
 
 /* numbers */
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: -36px; position: relative; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-top: -36px; position: relative; }
+.stat.wide { grid-column: span 2; }
 .stat { background: var(--surface); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
 .stat .label { color: var(--text-2); font-size: 14px; display: flex; align-items: center; gap: 7px; }
 .stat .value { font-size: 34px; font-weight: 650; letter-spacing: -.02em; line-height: 1.15; margin-top: 2px; }
+.stat .small { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
 .key { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 
 /* growth chart */
 .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 20px 14px; margin-top: 16px; }
 .card h2 { margin: 0; font-size: 18px; letter-spacing: -.01em; }
+.chartHead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--surface-2); }
+.seg[hidden] { display: none; }
+.seg button { border: 0; background: none; padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--text-2); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
 .card .sub { margin: 4px 0 8px; color: var(--text-2); font-size: 14px; }
 .chart { position: relative; touch-action: pan-y; }
 .chart svg { display: block; width: 100%; overflow: visible; cursor: crosshair; }
@@ -105,6 +112,7 @@ button, input { font: inherit; color: inherit; }
 .grid line { stroke: var(--line); stroke-width: 1; shape-rendering: crispEdges; }
 .axis text { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .series { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.series.est { stroke-dasharray: 5 5; }
 .wash { fill: var(--wash); }
 .mark { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
 .markLabel { fill: var(--text-2); font-size: 12px; font-weight: 600; }
@@ -159,6 +167,7 @@ button, input { font: inherit; color: inherit; }
 .pic { flex: none; border: 0; padding: 0; background: none; cursor: zoom-in; border-radius: 10px; overflow: hidden; width: 168px; aspect-ratio: 16 / 10; box-shadow: 0 0 0 1px var(--line); }
 .pic img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s; }
 .pic:hover img { transform: scale(1.04); }
+.pics.photos .pic { width: min(100%, 400px); aspect-ratio: 16 / 9; }      /* what the version looked like: bigger than the example pictures */
 .picsLabel { font-size: 13px; color: var(--muted); margin-top: 12px; }
 details { margin-top: 8px; }
 summary { cursor: pointer; color: var(--accent); font-size: 14px; width: max-content; max-width: 100%; list-style: none; }
@@ -187,6 +196,7 @@ footer p { margin: 4px 0; }
   .stats { grid-template-columns: repeat(6, 1fr); gap: 8px; }
   .stat { padding: 12px 14px; grid-column: span 3; }
   .stat:nth-child(n+3) { grid-column: span 2; padding: 10px 10px 12px; }
+  .stat.wide { grid-column: span 6; }
   .stat .value { font-size: 26px; }
   .card { padding: 16px 14px 10px; }
   .eraNum { width: 44px; height: 44px; font-size: 22px; border-radius: 13px; }
@@ -194,6 +204,7 @@ footer p { margin: 4px 0; }
   .day::before { left: -28px; }
   .ver.big { padding: 14px; }
   .pic { width: 136px; }
+  .pics.photos .pic { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .pic img { transition: none; } }
 </style>
@@ -216,8 +227,9 @@ footer p { margin: 4px 0; }
 <main class="wrap">
   <section class="stats" id="stats"></section>
   <section class="card">
-    <h2 data-t="chartTitle"></h2>
-    <p class="sub" data-t="chartSub"></p>
+    <div class="chartHead"><h2 id="chartTitle"></h2>
+      <div class="seg" role="group" id="mode"><button type="button" data-mode="versions" data-t="versions"></button><button type="button" data-mode="tokens" data-t="tokens"></button></div></div>
+    <p class="sub" id="chartSub"></p>
     <div class="chart" id="chart"><svg id="svg" tabindex="0" role="img"></svg><div class="tip" id="tip" hidden></div></div>
   </section>
   <div class="controls">
@@ -226,7 +238,7 @@ footer p { margin: 4px 0; }
     <button type="button" class="pill" id="order"></button>
   </div>
   <p class="count" id="count"></p>
-  <p class="note" data-t="note"></p>
+  <p class="note" id="note"></p>
   <div id="timeline"></div>
 </main>
 <footer class="wrap">
@@ -246,10 +258,13 @@ footer p { margin: 4px 0; }
       versions: 'Versionen', days: 'Tage', Added: 'Neu', Changed: 'Verbessert', Fixed: 'Repariert', Removed: 'Entfernt', Notes: 'Hinweis',
       chartTitle: 'Versionen über die Zeit',
       chartSub: 'Alle Versionen zusammengezählt, Tag für Tag. Die Punkte sind die großen Sprünge. Tippen springt zum Tag.',
+      tokens: 'Tokens', tokensEst: 'davon {n} geschätzt', tokensTitle: 'Tokens über die Zeit',
+      tokensSub: 'Alle Tokens, die Claude bis dahin gebraucht hat, Tag für Tag. Gestrichelt: geschätzt (die ersten Sitzungen bis {date}). Tippen springt zum Tag.',
+      tipTokens: 'Tokens bis dahin', estimated: 'geschätzt', tipTokensDay: '+{n} an diesem Tag', dayTokens: '{n} Tokens',
       search: 'Suchen, z. B. Treppe, Strom, Klingel …', bigOnly: 'Nur große Versionen', newest: 'Neueste zuerst', oldest: 'Älteste zuerst',
       count: '{n} von {total} Versionen', none: 'Nichts gefunden.',
-      note: 'Die Einträge selbst stehen auf Englisch, so wie in der Liste aller Änderungen (CHANGELOG.md).',
-      details: 'Alle Einzelheiten', more: '+{n} weitere', pics: 'Beispielbilder, gemacht vor dem Bau',
+      note: '{n} Versionen stehen nur auf Englisch da (sie fehlen in docs/CHANGELOG.de.md).',
+      details: 'Alle Einzelheiten', more: '+{n} weitere', picsIdea: 'Beispielbilder, gemacht vor dem Bau', picsPhoto: 'Bilder von dieser Version',
       oneVersion: '1 Version', nVersions: '{n} Versionen', tipTotal: 'Versionen bis dahin', tipDay: '+{n} an diesem Tag',
       chartLabel: 'Linie: {n} Versionen vom {first} bis {last}.',
       footer: 'Diese Seite baut sich bei jeder neuen Version von selbst neu, aus der Liste aller Änderungen (CHANGELOG.md).',
@@ -269,10 +284,13 @@ footer p { margin: 4px 0; }
       versions: 'Versions', days: 'Days', Added: 'Added', Changed: 'Changed', Fixed: 'Fixed', Removed: 'Removed', Notes: 'Notes',
       chartTitle: 'Versions over time',
       chartSub: 'All versions added up, day by day. The dots are the big jumps. Tap to jump to the day.',
+      tokens: 'Tokens', tokensEst: '{n} of them estimated', tokensTitle: 'Tokens over time',
+      tokensSub: 'All tokens Claude had used by then, day by day. Dashed: estimated (the first sessions until {date}). Tap to jump to the day.',
+      tipTokens: 'tokens so far', estimated: 'estimated', tipTokensDay: '+{n} on this day', dayTokens: '{n} tokens',
       search: 'Search, e.g. stairs, power, doorbell …', bigOnly: 'Big versions only', newest: 'Newest first', oldest: 'Oldest first',
       count: '{n} of {total} versions', none: 'Nothing found.',
       note: '',
-      details: 'All details', more: '+{n} more', pics: 'Example pictures, made before building',
+      details: 'All details', more: '+{n} more', picsIdea: 'Example pictures, made before building', picsPhoto: 'Pictures of this version',
       oneVersion: '1 version', nVersions: '{n} versions', tipTotal: 'versions so far', tipDay: '+{n} on this day',
       chartLabel: 'Line: {n} versions from {first} to {last}.',
       footer: 'This page rebuilds itself with every new version, from the list of all changes (CHANGELOG.md).',
@@ -299,21 +317,27 @@ footer p { margin: 4px 0; }
   const day = iso => new Date(iso + 'T12:00:00Z');
   const fmt = (iso, opts) => new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-GB', { timeZone: 'UTC', ...opts }).format(day(iso));
   const num = n => new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-GB').format(n);
+  const big = n => new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-GB', { notation: 'compact', maximumFractionDigits: n >= 1e9 ? 2 : 1 }).format(n);
   const countOf = (v, name) => v.sections.filter(s => s.name === name).reduce((a, s) => a + s.items.length, 0);
+  const secs = v => (lang === 'de' && v.de) || v.sections;              // the German texts of docs/CHANGELOG.de.md where they are there
+  const TOK = DATA.tokens || { days: {}, total: 0, estimated: 0, estimatedUntil: null };
+  let mode = store.get('mode') === 'tokens' && TOK.total ? 'tokens' : 'versions';
   const KEYS = { Added: 'var(--added)', Changed: 'var(--changed)', Fixed: 'var(--fixed)' };
 
-  // days from the first to the last version, with the running total
+  // days from the first version to the last version or token count, with the running totals
   const DAYS = [];
   {
     const byDate = new Map();
     ALL.forEach(v => { if (!byDate.has(v.date)) byDate.set(v.date, []); byDate.get(v.date).push(v); });
-    let total = 0;
-    for (let d = day(ALL[0].date); d <= day(ALL[ALL.length - 1].date); d = new Date(d.getTime() + 864e5)) {
-      const iso = d.toISOString().slice(0, 10), list = byDate.get(iso) || [];
-      total += list.length;
-      DAYS.push({ iso, list, total });
+    const tokDays = Object.keys(TOK.days).sort(), end = [ALL[ALL.length - 1].date, tokDays[tokDays.length - 1] || ''].sort()[1];
+    let total = 0, tokTotal = Object.entries(TOK.days).filter(([d]) => d < ALL[0].date).reduce((a, [, n]) => a + n, 0);
+    for (let d = day(ALL[0].date); d <= day(end); d = new Date(d.getTime() + 864e5)) {
+      const iso = d.toISOString().slice(0, 10), list = byDate.get(iso) || [], tok = TOK.days[iso] || 0;
+      total += list.length; tokTotal += tok;
+      DAYS.push({ iso, list, total, tok, tokTotal, est: !!TOK.estimatedUntil && iso <= TOK.estimatedUntil });
     }
   }
+  const DAY = new Map(DAYS.map(d => [d.iso, d]));
 
   // ---------- text, numbers ----------
   function texts() {
@@ -327,9 +351,14 @@ footer p { margin: 4px 0; }
     $('order').textContent = '⇅ ' + (newestFirst ? t('oldest') : t('newest'));
     $('gh').href = DATA.repo;
     const sum = name => ALL.reduce((a, v) => a + countOf(v, name), 0);
-    const tiles = [['versions', ALL.length], ['days', DAYS.length], ['Added', sum('Added'), 'Added'],
-      ['Changed', sum('Changed') + sum('Removed'), 'Changed'], ['Fixed', sum('Fixed'), 'Fixed']];
-    $('stats').innerHTML = tiles.map(([k, n, key]) => `<div class="stat"><div class="label">${key ? `<span class="key" style="background:${KEYS[key]}"></span>` : ''}${esc(t(k))}</div><div class="value">${num(n)}</div></div>`).join('');
+    const tiles = [['versions', num(ALL.length)], ['days', num(DAYS.length)], ['Added', num(sum('Added')), 'Added'],
+      ['Changed', num(sum('Changed') + sum('Removed')), 'Changed'], ['Fixed', num(sum('Fixed')), 'Fixed']];
+    if (TOK.total) tiles.push(['tokens', big(TOK.total), null, TOK.estimated ? t('tokensEst', { n: big(TOK.estimated) }) : '']);
+    $('stats').innerHTML = tiles.map(([k, n, key, small]) => `<div class="stat${k === 'tokens' ? ' wide' : ''}"><div class="label">${key ? `<span class="key" style="background:${KEYS[key]}"></span>` : ''}${esc(t(k))}</div><div class="value">${esc(n)}</div>${small ? `<div class="small">${esc(small)}</div>` : ''}</div>`).join('');
+    const english = ALL.filter(v => !v.de).length;
+    $('note').textContent = lang === 'de' && english ? t('note', { n: num(english) }) : '';
+    $('mode').hidden = !TOK.total;
+    document.querySelectorAll('#mode button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
   }
 
   // ---------- chart ----------
@@ -337,23 +366,29 @@ footer p { margin: 4px 0; }
   let geo = null, hover = -1;
   function chart() {
     const W = Math.max(280, $('chart').clientWidth), H = W < 520 ? 190 : 230;
-    const m = { l: 38, r: 46, t: 26, b: 28 };
-    const max = DAYS[DAYS.length - 1].total;
-    const step = [10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000].find(s => max / s <= 4) || 10000;
+    const val = d => (mode === 'tokens' ? d.tokTotal : d.total), fv = n => (mode === 'tokens' ? big(n) : num(n));
+    const max = Math.max(1, val(DAYS[DAYS.length - 1]));
+    const p10 = 10 ** Math.floor(Math.log10(max / 4)), step = [1, 2, 2.5, 5, 10].map(k => k * p10).find(k => max / k <= 4);
     const top = Math.ceil(max / step) * step;
+    // room for the axis numbers on the left and the end number on the right ("4,98 Mrd." is longer than "288")
+    const m = { l: Math.max(38, 14 + 6.5 * fv(top).length), r: Math.max(46, 16 + 7.5 * fv(max).length), t: 26, b: 28 };
+    $('chartTitle').textContent = t(mode === 'tokens' ? 'tokensTitle' : 'chartTitle');
+    $('chartSub').textContent = mode === 'tokens' ? t('tokensSub', { date: TOK.estimatedUntil ? fmt(TOK.estimatedUntil, { day: 'numeric', month: 'long' }) : '' }) : t('chartSub');
     const x = i => m.l + (W - m.l - m.r) * (DAYS.length > 1 ? i / (DAYS.length - 1) : 0.5);
     const y = v => H - m.b - (H - m.t - m.b) * (v / top);
-    geo = { x, y, W, H, m };
-    const pts = DAYS.map((d, i) => `${x(i).toFixed(1)},${y(d.total).toFixed(1)}`);
+    geo = { x, y, W, H, m, val };
+    const pts = DAYS.map((d, i) => `${x(i).toFixed(1)},${y(val(d)).toFixed(1)}`);
     let s = '<g class="grid">';
     for (let v = 0; v <= top; v += step) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/>`;
     s += '</g><g class="axis">';
-    for (let v = 0; v <= top; v += step) s += `<text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${num(v)}</text>`;
+    for (let v = 0; v <= top; v += step) s += `<text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${fv(v)}</text>`;
     const every = W < 520 ? 14 : 7;
     for (let i = 0; i < DAYS.length; i += every) s += `<text x="${x(i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : 'middle'}">${esc(fmt(DAYS[i].iso, { day: 'numeric', month: 'short' }))}</text>`;
     s += '</g>';
     s += `<path class="wash" d="M${x(0)},${y(0)} L${pts.join(' L')} L${x(DAYS.length - 1)},${y(0)} Z"/>`;
-    s += `<path class="series" d="M${pts.join(' L')}"/>`;
+    const cut = mode === 'tokens' ? DAYS.filter(d => d.est).length : 0;   // the estimated days: dashed
+    if (cut > 1) s += `<path class="series est" d="M${pts.slice(0, cut).join(' L')}"/>`;
+    s += `<path class="series" d="M${pts.slice(Math.max(0, cut - 1)).join(' L')}"/>`;
     // the big jumps (1.0, 2.0 …), the ones of the same day share one dot
     const jumps = new Map();
     ALL.filter(v => v.major > 0 && v.v === `${v.major}.0.0`).forEach(v => {
@@ -366,8 +401,8 @@ footer p { margin: 4px 0; }
       if (g && x(i) - x(g.last) < 36) { g.last = i; g.names.push(...names); g.dots.push(i); } else groups.push({ last: i, names: [...names], dots: [i] });
     });
     groups.forEach(g => {
-      g.dots.forEach(i => { s += `<circle class="mark" cx="${x(i)}" cy="${y(DAYS[i].total)}" r="5"/>`; });
-      const label = g.names.join(' · '), cx = x(g.last), cy = y(DAYS[g.last].total);
+      g.dots.forEach(i => { s += `<circle class="mark" cx="${x(i)}" cy="${y(val(DAYS[i]))}" r="5"/>`; });
+      const label = g.names.join(' · '), cx = x(g.last), cy = y(val(DAYS[g.last]));
       if (g.dots.length > 1) {                                   // under the line, right of the last dot: the line climbs away from it
         s += `<text class="markLabel" x="${cx + 9}" y="${cy + 19}">${esc(label)}</text>`;
       } else {                                                   // above the dot, never over the numbers of the axis
@@ -375,29 +410,33 @@ footer p { margin: 4px 0; }
       }
     });
     const li = DAYS.length - 1;
-    s += `<circle class="mark" cx="${x(li)}" cy="${y(DAYS[li].total)}" r="5"/>`;
-    s += `<text class="markLabel" x="${x(li) + 9}" y="${y(DAYS[li].total) + 4}">${num(DAYS[li].total)}</text>`;
+    s += `<circle class="mark" cx="${x(li)}" cy="${y(val(DAYS[li]))}" r="5"/>`;
+    s += `<text class="markLabel" x="${x(li) + 9}" y="${y(val(DAYS[li])) + 4}">${fv(val(DAYS[li]))}</text>`;
     s += '<line class="cross" id="cross" y1="0" y2="0" visibility="hidden"/><circle class="mark" id="dot" r="5" visibility="hidden"/>';
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
     svg.setAttribute('height', H);
-    svg.setAttribute('aria-label', t('chartLabel', { n: num(max), first: fmt(DAYS[0].iso, { day: 'numeric', month: 'long' }), last: fmt(DAYS[li].iso, { day: 'numeric', month: 'long' }) }));
+    svg.setAttribute('aria-label', t('chartLabel', { n: fv(max), first: fmt(DAYS[0].iso, { day: 'numeric', month: 'long' }), last: fmt(DAYS[li].iso, { day: 'numeric', month: 'long' }) }));
     svg.innerHTML = s;
     if (hover >= 0) show(hover);
   }
   function show(i) {
     hover = i;
-    const d = DAYS[i], { x, y, m, H } = geo, cross = $('cross'), dot = $('dot');
+    const d = DAYS[i], { x, y, m, H, val } = geo, cross = $('cross'), dot = $('dot');
     cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('y1', m.t - 10); cross.setAttribute('y2', H - m.b);
     cross.setAttribute('visibility', 'visible');
-    dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(d.total)); dot.setAttribute('visibility', 'visible');
+    dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(val(d))); dot.setAttribute('visibility', 'visible');
     const range = d.list.length ? (d.list.length > 1 ? `v${d.list[0].v} – v${d.list[d.list.length - 1].v}` : `v${d.list[0].v}`) : '';
     tip.innerHTML = `<div class="muted">${esc(fmt(d.iso, { weekday: 'short', day: 'numeric', month: 'long' }))}</div>`
-      + `<strong>${num(d.total)}</strong><div><span class="lk"></span>${esc(t('tipTotal'))}</div>`
-      + `<div class="muted">${esc(t('tipDay', { n: num(d.list.length) }))}${range ? ' · ' + esc(range) : ''}</div>`;
+      + (mode === 'tokens'
+        ? `<strong>${big(d.tokTotal)}</strong><div><span class="lk"></span>${esc(t('tipTokens'))}${d.est ? ' · ' + esc(t('estimated')) : ''}</div>`
+          + `<div class="muted">${esc(t('tipTokensDay', { n: big(d.tok) }))}</div><div class="muted">${num(d.total)} ${esc(t('tipTotal'))}</div>`
+        : `<strong>${num(d.total)}</strong><div><span class="lk"></span>${esc(t('tipTotal'))}</div>`
+          + `<div class="muted">${esc(t('tipDay', { n: num(d.list.length) }))}${range ? ' · ' + esc(range) : ''}</div>`
+          + (TOK.total ? `<div class="muted">${big(d.tokTotal)} ${esc(t('tipTokens'))}</div>` : ''));
     tip.hidden = false;
     const scale = svg.getBoundingClientRect().width / geo.W, w = tip.offsetWidth, box = $('chart').clientWidth;
     tip.style.left = Math.min(box - w / 2, Math.max(w / 2, x(i) * scale)) + 'px';
-    tip.style.top = Math.max(0, y(d.total) * scale - tip.offsetHeight - 14) + 'px';
+    tip.style.top = Math.max(0, y(val(d)) * scale - tip.offsetHeight - 14) + 'px';
   }
   function hide() {
     hover = -1; tip.hidden = true;
@@ -437,7 +476,7 @@ footer p { margin: 4px 0; }
   function verHtml(v) {
     const counts = ['Added', 'Changed', 'Fixed'].map(k => [k, countOf(v, k) + (k === 'Changed' ? countOf(v, 'Removed') : 0)]).filter(([, n]) => n);
     const badges = counts.map(([k, n]) => `<span><span class="key" style="background:${KEYS[k]}"></span>${num(n)} ${esc(t(k).toLowerCase())}</span>`).join('');
-    const items = v.sections.flatMap(s => s.items);
+    const items = secs(v).flatMap(s => s.items);
     let body;
     if (v.big) {
       const shown = items.slice(0, 5);
@@ -446,15 +485,19 @@ footer p { margin: 4px 0; }
     } else {
       body = items.length ? `<p class="one">${esc(items[0].h)}${items.length > 1 ? ` <span class="more">${esc(t('more', { n: items.length - 1 }))}</span>` : ''}</p>` : '';
     }
-    const pics = v.pics.length ? `<div class="picsLabel">${esc(t('pics'))}</div><div class="pics">${v.pics.map(p => {
-      const name = p.split('/').pop().replace(/\.\w+$/, '').replace(/^\d+[a-z]?-/, '').replace(/-/g, ' ');
-      return `<button type="button" class="pic" data-src="${esc(p)}" data-name="${esc(name)}"><img loading="lazy" src="${esc(p)}" alt="${esc(name)}"></button>`;
-    }).join('')}</div>` : '';
+    const group = (kind, label) => {                                // photos of the version first, then the example pictures
+      const ps = v.pics.filter(p => p.kind === kind);
+      return ps.length ? `<div class="picsLabel">${esc(t(label))}</div><div class="pics${kind === 'photo' ? ' photos' : ''}">${ps.map(({ src }) => {
+        const name = src.split('/').pop().replace(/\.\w+$/, '').replace(/^\d+[a-z]?-/, '').replace(/-/g, ' ');
+        return `<button type="button" class="pic" data-src="${esc(src)}" data-name="${esc(name)}"><img loading="lazy" src="${esc(src)}" alt="${esc(name)}"></button>`;
+      }).join('')}</div>` : '';
+    };
+    const pics = group('photo', 'picsPhoto') + group('idea', 'picsIdea');
     return `<article class="ver${v.big ? ' big' : ''}" id="v${esc(v.v)}"><div class="vhead"><span class="vtag">v${esc(v.v)}</span><span class="badges">${badges}</span></div>`
       + body + pics + `<details data-v="${esc(v.v)}"><summary>${esc(t('details'))}</summary><div class="full"></div></details></article>`;
   }
   function fullHtml(v) {
-    return v.sections.map(s => `<h4>${KEYS[s.name] ? `<span class="key" style="background:${KEYS[s.name]}"></span>` : ''}${esc(t(s.name))}</h4><ul>${s.items.map(i =>
+    return secs(v).map(s => `<h4>${KEYS[s.name] ? `<span class="key" style="background:${KEYS[s.name]}"></span>` : ''}${esc(t(s.name))}</h4><ul>${s.items.map(i =>
       `<li>${i.html}${i.subs.length ? `<ul>${i.subs.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}</li>`).join('')}</ul>`).join('');
   }
   const BY_V = new Map(ALL.map(v => [v.v, v]));
@@ -479,7 +522,7 @@ footer p { margin: 4px 0; }
       return `<section class="era" id="era-${e.major}"><div class="eraHead"><div class="eraNum">${e.major}</div><div><h2>${esc(title)}</h2>`
         + `<div class="meta">${esc(span)} · ${esc(t('nVersions', { n: num(e.all.length) }))}</div>${gist ? `<div class="gist">${esc(gist)}</div>` : ''}</div></div>`
         + `<div class="days">${e.days.map(d => `<div class="day" id="d-${d.iso}"><div class="dayHead"><time datetime="${d.iso}">${esc(fmt(d.iso, { weekday: 'short', day: 'numeric', month: 'long' }))}</time>`
-          + `<span>${esc(d.list.length === 1 ? t('oneVersion') : t('nVersions', { n: num(d.list.length) }))}</span></div>${d.list.map(verHtml).join('')}</div>`).join('')}</div></section>`;
+          + `<span>${esc(d.list.length === 1 ? t('oneVersion') : t('nVersions', { n: num(d.list.length) }))}${DAY.get(d.iso)?.tok ? ' · ' + esc(t('dayTokens', { n: big(DAY.get(d.iso).tok) })) : ''}</span></div>${d.list.map(verHtml).join('')}</div>`).join('')}</div></section>`;
     }).join('');
   }
   $('timeline').addEventListener('toggle', ev => {
@@ -504,6 +547,9 @@ footer p { margin: 4px 0; }
   let timer;
   $('q').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(render, 150); });
   $('bigOnly').addEventListener('change', render);
+  document.querySelectorAll('#mode button').forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.mode; store.set('mode', mode); texts(); chart();
+  }));
   $('order').addEventListener('click', () => { newestFirst = !newestFirst; store.set('order', newestFirst ? 'newest' : 'oldest'); texts(); render(); });
   document.querySelectorAll('.langs button').forEach(b => b.addEventListener('click', () => {
     lang = b.dataset.lang; store.set('lang', lang); texts(); chart(); render();
