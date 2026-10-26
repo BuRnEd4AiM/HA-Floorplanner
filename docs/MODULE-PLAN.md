@@ -42,6 +42,10 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `alertsui.js` | ~75 | Warnungen: Banner, roter Raum, Sprung in den Raum (Schritt 3 von #137) |
 | `search.js` | ~70 | „Wo ist …?“-Suche mit Ring (Schritt 3) |
 | `kitchenui.js` | ~65 | Küchenzeile: Eigenschaften im Panel (Schritt 3), Haken „Oberschrank“ in jeder Zeile (#372) |
+| `closet.js` | ~390 | Schrank nach Maß (Schrank-Editor), reine Logik mit Unit-Tests (`tests/closet.test.mjs`): Fächer, Vorlagen, Breite/Tiefe ändern, Schrägen (`slopePlane`, `topAt`, `topLine`), wo alles hingehört (`closetLayout`), die Teile als Kästen, an den Schrägen abgeschnitten (`clipSolid`, `closetSolids`), Anpassen ans Dach (`fitToRoof` mit den Ebenen aus `attic.js`) |
+| `closetview.js` | ~140 | Schrank-Editor: die Zeichnungen als SVG-Text (Vorderansicht mit antippbaren Fächern, Schnitt von der Seite, Marken im 2D-Plan), getestet mit `closet.js` |
+| `closet3d.js` | ~50 | Schrank-Editor: das 3D-Modell (ein Netz je Material) für `models.js` und die 3D-Ansicht im Editor |
+| `closetui.js` | ~250 | Schrank-Editor: Teil im Eigenschaften-Panel (Bild, Größe, „✎ Schrank bearbeiten“, „📐 An die Dachschräge anpassen“) und das Editor-Fenster (Arbeitskopie, ↶, Vorlage, Maße, Fach, Schrägen, Aussehen, 3D zum Drehen) |
 | `power.js` | ~250 | Strom: Kabel in 3D, Strom-Editor, Energie-Übersicht, Eigenschaften (Schritt 2 von #137) |
 | `powerlogic.js` | ~60 | Strom: Rechenteil der Kabel (Watt, Kabelarten, Verlauf) und der Zähler, mit Unit-Tests |
 | `energycalc.js` | ~230 | Strom-Rechnung (#378, #379): welcher Sensor was ist (`energySources`: Einstellung des Reiters „⚡ Rechnung“, sonst die Stromgeräte des Plans), die Rechnung (`energyBalance`: Erzeugung, Netz, Batterie, Hausverbrauch, Räume, Rest), was nicht aufgeht (`energyChecks`, `signFixes`), Vorschlag für die Räume (`suggestRooms`), die Zeilen im Fenster (`balanceRows`) und der Text der Strom-Anzeige (`energyText`); reine Logik mit Unit-Tests |

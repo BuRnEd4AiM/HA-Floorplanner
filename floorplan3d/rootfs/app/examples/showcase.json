@@ -505,7 +505,10 @@
         },
         "devices": [
           { "type": "solarpanel", "id": "pv", "x": 8.5, "z": 7.6, "cols": 5, "rows": 2, "name": "Solaranlage Dach", "entity": "sensor.pv_leistung",
-            "cables": [{ "to": "wr", "route": "through", "kind": "solar", "entity": "sensor.pv_leistung" }] }
+            "cables": [{ "to": "wr", "route": "through", "kind": "solar", "entity": "sensor.pv_leistung" }] },
+          { "type": "closet", "x": 3.0, "z": 1.6, "name": "Schrank unter der Schräge",
+            "cab": { "h": 1.6, "d": 0.6, "slopes": [{ "side": "back", "low": 0.9, "deg": 38 }], "body": "#f1efe9", "front": "#b48a5c", "handle": "long", "led": true,
+                     "cols": [{ "w": 0.6, "fill": "drawers", "n": 3 }, { "w": 0.6, "fill": "shelves", "n": 2, "front": "glass" }, { "w": 0.6, "fill": "shelves", "n": 2, "hinge": "r" }] } }
         ]
       }
     ]

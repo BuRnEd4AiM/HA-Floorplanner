@@ -753,7 +753,7 @@
       "chair_wing",
       "cinema_row",
       "cinema_seat",
-      "clothesrack",
+      "closet", "clothesrack",
       "coatstand",
       "coffeetable",
       "coffeetable_lo",
@@ -1206,6 +1206,46 @@
     "mount": {
      "enum": ["auto", "flat", "stand"],
      "description": "Only for type solarpanel: on the roof floor the panels follow the roof; auto = flat on a sloped roof, on a rack on a flat roof (default auto)."
+    },
+    "cab": {
+     "type": "object",
+     "description": "Only for type closet: the cabinet built in its editor (static/closet.js). Its width is the sum of its columns; slopes lower its top towards one side (for a sloped ceiling): the height at that edge and the pitch in degrees. Anything left out gets its default (a three-door wardrobe, 2.2 m high, 0.6 m deep).",
+     "properties": {
+      "cols": {
+       "type": "array", "maxItems": 12,
+       "items": {
+        "type": "object",
+        "properties": {
+         "w": { "type": "number", "minimum": 0.15, "maximum": 2, "description": "width of the column in metres" },
+         "fill": { "enum": ["rail", "rail2", "shelves", "drawers", "empty"], "description": "inside: a clothes rail (under a shelf), two rails, shelves, only drawers, empty" },
+         "n": { "type": "integer", "minimum": 0, "maximum": 12, "description": "how many shelves (fill shelves) or drawers (fill drawers)" },
+         "low": { "type": "integer", "minimum": 0, "maximum": 6, "description": "drawers at the bottom under the door" },
+         "front": { "enum": ["door", "glass", "mirror", "open"] },
+         "hinge": { "enum": ["l", "r"], "description": "the side of the door's hinges (default: in pairs)" }
+        }
+       }
+      },
+      "h": { "type": "number", "minimum": 0.3, "maximum": 3.5 },
+      "d": { "type": "number", "minimum": 0.2, "maximum": 1.2 },
+      "plinth": { "type": "number", "minimum": 0, "maximum": 0.25 },
+      "slopes": {
+       "type": "array", "maxItems": 2,
+       "items": {
+        "type": "object", "required": ["side"],
+        "properties": {
+         "side": { "enum": ["left", "right", "back", "front"], "description": "the low side" },
+         "low": { "type": "number", "minimum": 0.1, "maximum": 3.5, "description": "height at the low side in metres" },
+         "deg": { "type": "number", "minimum": 5, "maximum": 75, "description": "pitch of the slope in degrees" }
+        }
+       }
+      },
+      "body": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+      "front": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+      "handle": { "enum": ["bar", "knob", "long", "none"] },
+      "metal": { "enum": ["steel", "black", "brass"] },
+      "doors": { "enum": ["hinged", "sliding"] },
+      "led": { "type": "boolean", "description": "an LED light inside that lights with the entity" }
+     }
     }
    }
   },

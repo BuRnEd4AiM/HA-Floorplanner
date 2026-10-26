@@ -119,6 +119,12 @@ YARD_MAX_AREAS = 60                                               # MAX_AREAS in
 MAX_PER_FLOOR = 100                                               # stairs, blocks and floor openings per floor
 MAX_LED_ZONES = 8                                                 # LED zones of a piece (leds in static/leisure.js, ledzones.js)
 KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap")   # same as MOD_W in static/kitchen.js (checked by a test)
+CLOSET_FILLS = ("rail", "rail2", "shelves", "drawers", "empty")   # the cabinet builder: same as FILLS, FRONTS, SIDES ... in static/closet.js (checked by a test)
+CLOSET_FRONTS = ("door", "glass", "mirror", "open")
+CLOSET_SIDES = ("left", "right", "back", "front")
+CLOSET_HANDLES = ("bar", "knob", "long", "none")
+CLOSET_METALS = ("steel", "black", "brass")
+CLOSET_DOORS = ("hinged", "sliding")
 
 
 def _load_device_types() -> dict:
@@ -158,6 +164,43 @@ class Report:
 # ---------------------------------------------------------------- small geometry helpers
 def _num(v, lo=-math.inf, hi=math.inf):
     return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and lo <= v <= hi
+
+
+def _closet(src: dict) -> dict:
+    """a cabinet built in the editor ("cab" of type closet), cleaned like cleanCloset in static/closet.js: columns (width, inside, front,
+    hinge), height, depth, plinth, up to two roof slopes (one per side) and the look; anything unknown back to its default"""
+    def num(v, lo, hi, default):
+        return round(min(hi, max(lo, float(v))), 3) if _num(v) else default
+    cols = []
+    for c in (src.get("cols") if isinstance(src.get("cols"), list) else [])[:12]:
+        c = c if isinstance(c, dict) else {}
+        fill = c.get("fill") if c.get("fill") in CLOSET_FILLS else "shelves"
+        o = {"w": num(c.get("w"), 0.15, 2, 0.5), "fill": fill}
+        if fill == "shelves":
+            o["n"] = int(round(num(c.get("n"), 0, 12, 4)))
+        if fill == "drawers":
+            o["n"] = int(round(num(c.get("n"), 1, 10, 4)))
+        else:
+            low = int(round(num(c.get("low"), 0, 6, 0)))
+            if low:
+                o["low"] = low
+            o["front"] = c.get("front") if c.get("front") in CLOSET_FRONTS else "door"
+        if c.get("hinge") in ("l", "r"):
+            o["hinge"] = c["hinge"]
+        cols.append(o)
+    if not cols:                                         # the three-door wardrobe a new cabinet starts as
+        cols = [{"w": 0.5, "fill": "rail", "front": "door"}, {"w": 0.5, "fill": "shelves", "n": 3, "low": 2, "front": "door"}, {"w": 0.5, "fill": "rail", "front": "door"}]
+    h = num(src.get("h"), 0.3, 3.5, 2.2)
+    slopes, seen = [], set()
+    for q in src.get("slopes") if isinstance(src.get("slopes"), list) else []:
+        if isinstance(q, dict) and q.get("side") in CLOSET_SIDES and q["side"] not in seen and len(slopes) < 2:
+            seen.add(q["side"])
+            slopes.append({"side": q["side"], "low": min(num(q.get("low"), 0.1, 3.5, 1), h), "deg": num(q.get("deg"), 5, 75, 35)})
+    colour = lambda v: v.lower() if isinstance(v, str) and re.fullmatch(r"#[0-9a-fA-F]{6}", v) else "#f1efe9"
+    pick = lambda v, opts: v if v in opts else opts[0]
+    return {"cols": cols, "h": h, "d": num(src.get("d"), 0.2, 1.2, 0.6), "plinth": min(num(src.get("plinth"), 0, 0.25, 0.08), round(h / 3, 3)),
+            "slopes": slopes, "body": colour(src.get("body")), "front": colour(src.get("front")), "handle": pick(src.get("handle"), CLOSET_HANDLES),
+            "metal": pick(src.get("metal"), CLOSET_METALS), "doors": pick(src.get("doors"), CLOSET_DOORS), "led": src.get("led") is True}
 
 
 def _pt(p) -> bool:
@@ -398,6 +441,8 @@ def _device(rep: Report, path: str, spec, ids):
         d["upper"] = spec.get("upper") is not False
         if _num(spec.get("depth"), 0.4, 1.2):
             d["depth"] = float(spec["depth"])
+    if typ == "closet":                                  # a cabinet built in the editor (static/closet.js)
+        d["cab"] = _closet(spec.get("cab") if isinstance(spec.get("cab"), dict) else {})
     if typ == "solarpanel":                              # a field of panels (#176), same limits as static/solarroof.js
         for k in ("cols", "rows"):
             if k in spec:
@@ -1015,7 +1060,7 @@ def layout_to_property(layout, name="Haus"):
             item["walls"].append(ow)
         item["devices"] = []
         for d in f.get("devices", []):
-            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "variant", "tvSize", "leds", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount") if k in d and d[k] not in (None, "")}
+            od = {k: d[k] for k in ("type", "x", "z") + DEVICE_NUMBERS + DEVICE_STRINGS + DEVICE_FLAGS + ("lightColor", "finish", "variant", "tvSize", "leds", "panels", "pts", "closed", "segs", "inset", "legs", "upper", "depth", "cols", "rows", "mount", "cab") if k in d and d[k] not in (None, "")}
             cs = cables_of(d)
             if cs or d["id"] in feeding:
                 od["id"] = d["id"]

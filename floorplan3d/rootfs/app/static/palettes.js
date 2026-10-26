@@ -8,6 +8,7 @@ import { SCANDI, SCANDI_TYPES } from './scandi.js';
 export const SEARCH_ALIASES = {
   tv_led: 'led licht ambilight hintergrundlicht fernseher tv indirekt backlight',
   kitchenrun: 'küchenzeile küche kitchen spüle sink schrank cabinet unterschrank oberschrank',
+  closet: 'schrank kleiderschrank selbst bauen nach maß mass dachschräge dachschraege schräge kniestock regal kommode garderobe editor wardrobe cabinet closet attic custom',
   ledring: 'led ring streifen strip indirekt indirect voute cove decke ceiling rundum ringsum abschnitte sections',
   tv: 'fernseher fernsehen television tele glotze', tv_wall: 'fernseher wandfernseher wand tv fernsehen flachbild', tv_arm: 'fernseher wandhalterung schwenkarm wandarm schwenkbar neigbar halterung tv-halterung swivel mount', tvstand: 'fernsehtisch lowboard tv-board fernseher', monitor: 'bildschirm pc display', sofa: 'couch', sofa2: 'couch ecksofa wohnlandschaft',
   fridge: 'kühlschrank kuehlschrank', washer: 'waschmaschine', boiler: 'warmwasser', speaker: 'lautsprecher box', vacuum: 'saugroboter staubsauger', router: 'wlan fritzbox internet',
