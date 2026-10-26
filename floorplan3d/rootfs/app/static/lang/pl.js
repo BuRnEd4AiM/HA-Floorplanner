@@ -1833,7 +1833,7 @@ export default {
   'hr.mini.work': 'pn–pt', 'hr.mini.home': 'sb–nd', 'hr.night.less': 'mniej', 'hr.night.reset': 'jak wszystkie',
   'hr.night.rooms': 'Niektóre pokoje inaczej ({n})', 'hr.night.same': 'jak wszystkie',
   'hr.noHa': 'Bez Home Assistant reguły nie działają (tu tylko do ustawienia).', 'hr.notRunning': 'Reguły czekają na Home Assistant …', 'hr.onOff': 'wł. / wył.',
-  'hr.own': 'Własna reguła', 'hr.ownSub': '„Gdy … wtedy …” z klocków', 'hr.plan.edit': 'Edytuj harmonogram', 'hr.plan.pre': 'Wstępne grzanie',
+  'hr.own': 'Własna reguła', 'hr.ownSub': '„Gdy … wtedy …” z klocków', 'hr.plan.edit': 'Edytuj harmonogram', 'hr.plan.pre': 'Wstępne grzanie', 'hr.plan.hand': 'Ręcznie przekręcony: powrót po', 'hr.plan.handNext': 'dopiero w następnym bloku', 'hr.line.hand': 'Ręcznie przekręcony · o {at} znów {level} {v}',
   'hr.plan.rooms': 'Pokoje z harmonogramem', 'hr.readOnly': 'Tylko podgląd: zmieniać mogą tylko admini.', 'hr.saved': 'zapisano',
   'hr.summer.above': 'Ogrzewanie wył., gdy na zewnątrz powyżej', 'hr.summer.hours': 'od co najmniej', 'hr.temp': 'Temperatura', 'hr.window.after': 'potem',
   'hr.window.delay': 'gdy otwarte dłużej niż', 'hr.window.doors': 'Drzwi na zewnątrz też', 'hr.window.rooms': 'Pokoje (dotknij, aby wyłączyć / włączyć):',

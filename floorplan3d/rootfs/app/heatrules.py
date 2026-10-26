@@ -8,7 +8,8 @@ Two kinds of rules decide what a thermostat should do:
   night / eco / comfort per day, warmer a little earlier with "Vorheizen") or else the night setback (🌙 between two times).
 - an *override* for a while: a window of the room open for some minutes (🪟: off), or 🚀 boost (warm for some minutes).
 A level is set when it changes (a new block of the schedule, everybody left), not again and again: a thermostat turned by hand keeps its
-value until the next change. An override remembers the thermostat as it was and puts it back when it ends ("wie vorher"); if the level
+value until the next change; under the schedule only for some minutes ("hand", the owner: "wenn man von Hand dreht nach 10 min wieder
+zurück, aber das kann eingestellt werden"; 0: until the next block), then the schedule's temperature comes back. An override remembers the thermostat as it was and puts it back when it ends ("wie vorher"); if the level
 changed meanwhile (the schedule moved on while the window was open), the new level is set instead. When a passing level (away, holiday,
 summer, night) ends without another one, the thermostat goes back to how it was before.
 
@@ -32,7 +33,7 @@ DEFAULT = {
     "window": {"on": False, "delay": 2, "doors": True, "skip": []},
     "away": {"on": False, "delay": 30, "temp": 17.0},
     "night": {"on": False, "from": "22:30", "to": "06:00", "temp": 17.0, "rooms": {}},
-    "schedule": {"on": False, "levels": {"night": 17.0, "eco": 19.0, "comfort": 21.0}, "pre": 0, "rooms": {}},
+    "schedule": {"on": False, "levels": {"night": 17.0, "eco": 19.0, "comfort": 21.0}, "pre": 0, "hand": 10, "rooms": {}},
     "summer": {"on": False, "above": 18.0, "hours": 6},
     "boost": {"on": True, "minutes": 30, "temp": 24.0},
     "holiday": {"on": False, "temp": 15.0, "until": "", "back": "14:00", "guard": False},
@@ -99,7 +100,7 @@ def clean_rules(data) -> dict:
         "night": {"on": _bool(n.get("on"), False), "from": _time(n.get("from"), D["night"]["from"]), "to": _time(n.get("to"), D["night"]["to"]),
                   "temp": _temp(n.get("temp"), D["night"]["temp"]), "rooms": dict(list(night_rooms.items())[:MAX_ROOMS])},
         "schedule": {"on": _bool(s.get("on"), False), "levels": {k: _temp(levels.get(k), D["schedule"]["levels"][k]) for k in LEVELS},
-                     "pre": _int(s.get("pre"), 0, 120, 0), "rooms": plans},
+                     "pre": _int(s.get("pre"), 0, 120, 0), "hand": _int(s.get("hand"), 0, 240, D["schedule"]["hand"]), "rooms": plans},
         "summer": {"on": _bool(su.get("on"), False), "above": _temp(su.get("above"), D["summer"]["above"]), "hours": _int(su.get("hours"), 0, 72, D["summer"]["hours"])},
         "boost": {"on": _bool(b.get("on"), True), "minutes": _int(b.get("minutes"), 5, 240, D["boost"]["minutes"]), "temp": _temp(b.get("temp"), D["boost"]["temp"])},
         "holiday": {"on": _bool(h.get("on"), False), "temp": _temp(h.get("temp"), D["holiday"]["temp"]),
@@ -231,6 +232,22 @@ def apply_override(states, e, ov, rules) -> list:
     if ov == "window":
         return _set(states, e, "off")
     return _set(states, e, _heat_mode(states, e, "heat"), rules["boost"]["temp"])     # boost
+
+
+def by_hand(states, e, level) -> list:
+    """the calls that bring thermostat e back to level when only its temperature was turned (by hand, at the device or on a page); []
+    when it is as the level wants, or when its mode was changed (off, auto: chosen on purpose, left alone). A thermostat that rounds
+    (whole degrees) does not count as turned."""
+    if not level or level.get("off"):
+        return []
+    calls = apply_level(states, e, level)
+    if not calls or any(c[1] != "set_temperature" for c in calls):
+        return []
+    cur, step = _attr(states, e, "temperature"), _attr(states, e, "target_temp_step")
+    step = step if isinstance(step, (int, float)) and not isinstance(step, bool) and step > 0 else 0.5
+    if isinstance(cur, (int, float)) and not isinstance(cur, bool) and abs(cur - calls[0][2]["temperature"]) <= step / 2:
+        return []
+    return calls
 
 
 def restore(states, e, s) -> list:
@@ -366,6 +383,18 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                     if old_level.get("why") in PASSING:
                         out = restore(states, e, t.get("before"))
                     t.pop("before", None)
+            hand, cur = rules["schedule"]["hand"], _attr(states, e, "temperature")
+            if not out and not ov_e and (level or {}).get("why") == "schedule" and hand and by_hand(states, e, level):
+                h0 = t.get("hand")                             # turned by hand under the schedule: back some minutes after the last turn
+                if not isinstance(h0, (int, float)) or isinstance(h0, bool) or t.get("handT") != cur:
+                    t["hand"], t["handT"] = now, cur
+                if now - t["hand"] >= hand * 60:
+                    out = by_hand(states, e, level)
+                    t.pop("hand", None)
+                    t.pop("handT", None)
+            else:
+                t.pop("hand", None)
+                t.pop("handT", None)
             t["level"], t["ov"] = level, ov_e
             mem["t"][e] = t
             for c in out:
@@ -378,6 +407,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                        "since": mem["open"].get(key) if ov1 == "window" else None, "until": mem["boost"].get(key) if ov1 == "boost" else None,
                        "back": (first.get("under") or {}).get("temp") if ov1 else None, "open": opened,
                        "waiting": bool(watched and opened and ov != "window" and not mem["skip"].get(key)), "skip": bool(mem["skip"].get(key)),
+                       "hand": first["hand"] + rules["schedule"]["hand"] * 60 if first.get("hand") else None,
                        "climates": climates}
     for e in list(mem["t"]):                                # thermostats no longer in a room: forgotten
         if e not in seen and e not in placed:

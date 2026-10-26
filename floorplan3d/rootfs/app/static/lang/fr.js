@@ -1863,7 +1863,7 @@ export default {
   'hr.mini.home': 'sam–dim', 'hr.night.less': 'moins', 'hr.night.reset': 'comme les autres', 'hr.night.rooms': 'Certaines pièces autrement ({n})',
   'hr.night.same': 'comme les autres', 'hr.noHa': 'Sans Home Assistant les règles ne tournent pas (ici seulement pour les régler).',
   'hr.notRunning': 'Les règles attendent Home Assistant …', 'hr.onOff': 'marche / arrêt', 'hr.own': 'Règle à vous',
-  'hr.ownSub': '« Quand … alors … » avec des blocs', 'hr.plan.edit': 'Modifier le programme', 'hr.plan.pre': 'Préchauffer',
+  'hr.ownSub': '« Quand … alors … » avec des blocs', 'hr.plan.edit': 'Modifier le programme', 'hr.plan.pre': 'Préchauffer', 'hr.plan.hand': 'Tourné à la main : retour après', 'hr.plan.handNext': 'seulement au bloc suivant', 'hr.line.hand': 'Tourné à la main · retour à {level} {v} à {at}',
   'hr.plan.rooms': 'Pièces avec programme', 'hr.readOnly': 'Lecture seule : seuls les admins peuvent modifier.', 'hr.saved': 'enregistré',
   'hr.summer.above': 'Chauffage coupé si dehors au-dessus de', 'hr.summer.hours': 'depuis au moins', 'hr.temp': 'Température', 'hr.window.after': 'ensuite',
   'hr.window.delay': 'si ouverte plus de', 'hr.window.doors': 'Portes vers l’extérieur aussi', 'hr.window.rooms': 'Pièces (touchez pour désactiver / activer) :',

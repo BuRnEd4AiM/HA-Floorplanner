@@ -1,6 +1,6 @@
 """4.28.0 (#546): the add-on's own heating rules and routines. 📋 Heiz-Regeln on 🌡 Klima switched on in the page; a window opens: the add-on
 switches the thermostat off by itself (no screen needed) and puts it back when it shuts, "Trotzdem heizen", 🚀 Boost; the room's line and
-its label "⏸️ pausiert"; 📅 Heizplan for a room; 🔎 Wird benutzt (own rules, an automation of Home Assistant with what it does); ▶ Abläufe:
+its label "⏸️ pausiert"; 📅 Heizplan for a room, a thermostat turned by hand goes back to it after 10 minutes (4.32.0); 🔎 Wird benutzt (own rules, an automation of Home Assistant with what it does); ▶ Abläufe:
 a new routine "Wenn … dann …" in the editor, saved, its button starts it, "Was ist passiert"; read-only for a user who may not edit.
 """
 saved_rl = api_admin("api/layout")              # put back at the end
@@ -107,6 +107,23 @@ blocks_rl = pgR.locator("[data-page=climate] .hpBar[data-day='0'] .hpBlock").cou
 pgR.click("[data-page=climate] [data-act=savePlan]")
 plan_rl = wait_rl(lambda: key_rl in api("api/rules")["heat"]["schedule"]["rooms"] and api("api/rules")["heat"]["schedule"]["on"])
 check("schedule: '＋ Plan anlegen' draws a week (Monday in 5 blocks), '✓ Speichern' keeps it in the add-on", blocks_rl == 5 and plan_rl, (blocks_rl, api("api/rules")["heat"]["schedule"]))
+# --- turned by hand under the plan: back after 10 minutes (the owner, 4.32.0); the room says when, the minutes set in the plan's card
+lv_rl = wait_rl(lambda: (lambda x: x if x.get("why") == "schedule" and x.get("temp") else None)(api("api/rules")["status"]["rooms"].get(key_rl) or {}), n=60)
+wait_rl(lambda: [c for c in calls_for("climate.rl_th") if c[0] == "set_temperature" and c[2].get("temperature") == (lv_rl or {}).get("temp")], n=30)
+post_rl("/services/climate/set_temperature", {"entity_id": "climate.rl_th", "temperature": (lv_rl or {}).get("temp", 20) + 3})
+hand_rl = wait_rl(lambda: (api("api/rules")["status"]["rooms"].get(key_rl) or {}).get("hand"), n=60)
+check("schedule: a thermostat turned by hand goes back to the plan in 10 minutes (api/rules says when)",
+      hand_rl and abs(hand_rl - time.time() - 600) < 60, (lv_rl, api("api/rules")["status"]["rooms"].get(key_rl)))
+pgR.click("[data-page=climate] [data-view=rules]"); pgR.wait_for_timeout(300)
+pgR.click("[data-page=climate] .tpTools .tpChip:not([data-view])"); pgR.wait_for_timeout(800)
+hand_line = wait_rl(lambda: pgR.locator("[data-page=climate] [data-room=rl_r] .hrLine[data-line=hand]").count() == 1
+                    and pgR.inner_text("[data-page=climate] [data-room=rl_r] .hrLine[data-line=hand]"))
+check("schedule: the room's card says '✋ Von Hand gedreht · ab … wieder …'", hand_line and "Von Hand gedreht" in hand_line and "wieder" in hand_line, hand_line)
+pgR.click("[data-page=climate] [data-view=rules]"); pgR.wait_for_timeout(500)
+hand_txt = pgR.inner_text("[data-heat-rule=schedule] [data-field='schedule.hand']")
+pgR.click("[data-heat-rule=schedule] [data-field='schedule.hand'] button:last-child")
+check("schedule: the plan's card has 'Von Hand gedreht: zurück nach 10 Min', + makes it 15 and the add-on keeps it",
+      "10 Min" in hand_txt and wait_rl(lambda: api("api/rules")["heat"]["schedule"]["hand"] == 15), (hand_txt, api("api/rules")["heat"]["schedule"].get("hand")))
 put_rules({"heat": {}})                          # the rules off: the routines below on their own
 
 # --- ▶ Abläufe: a new routine in the editor, saved, its button starts it

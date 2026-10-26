@@ -1830,7 +1830,7 @@ export default {
   'hr.mini.work': 'ma–vr', 'hr.mini.home': 'za–zo', 'hr.night.less': 'minder', 'hr.night.reset': 'zoals alle', 'hr.night.rooms': 'Sommige kamers anders ({n})',
   'hr.night.same': 'zoals alle', 'hr.noHa': 'Zonder Home Assistant draaien de regels niet (hier alleen om in te stellen).',
   'hr.notRunning': 'De regels wachten op Home Assistant …', 'hr.onOff': 'aan / uit', 'hr.own': 'Eigen regel', 'hr.ownSub': '„Als … dan …” met blokken',
-  'hr.plan.edit': 'Schema bewerken', 'hr.plan.pre': 'Voorverwarmen', 'hr.plan.rooms': 'Kamers met schema',
+  'hr.plan.edit': 'Schema bewerken', 'hr.plan.pre': 'Voorverwarmen', 'hr.plan.hand': 'Met de hand gedraaid: terug na', 'hr.plan.handNext': 'pas bij het volgende blok', 'hr.line.hand': 'Met de hand gedraaid · om {at} weer {level} {v}', 'hr.plan.rooms': 'Kamers met schema',
   'hr.readOnly': 'Alleen bekijken: alleen admins mogen ze wijzigen.', 'hr.saved': 'opgeslagen', 'hr.summer.above': 'Verwarming uit als het buiten boven',
   'hr.summer.hours': 'sinds minstens', 'hr.temp': 'Temperatuur', 'hr.window.after': 'daarna', 'hr.window.delay': 'als langer open dan',
   'hr.window.doors': 'Deuren naar buiten ook', 'hr.window.rooms': 'Kamers (tik om uit en aan te zetten):', 'hr.level.night': 'Nacht', 'hr.level.eco': 'Eco',

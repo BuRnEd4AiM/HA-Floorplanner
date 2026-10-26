@@ -544,7 +544,7 @@ const json = (data, status = 200) => new Response(JSON.stringify(data), { status
 const workDay = [[0, 'night'], [360, 'comfort'], [480, 'eco'], [930, 'comfort'], [1350, 'night']], homeDay = [[0, 'night'], [480, 'comfort'], [1350, 'night']];
 const rulesDemo = {
   heat: { window: { on: true, delay: 2, doors: true, skip: [] }, away: { on: false, delay: 30, temp: 17 }, night: { on: true, from: '22:30', to: '06:00', temp: 17, rooms: { 'main/r4': 16 } },
-    schedule: { on: true, levels: { night: 17, eco: 19, comfort: 21 }, pre: 30, rooms: { 'main/r1': { days: [workDay, workDay, workDay, workDay, workDay, homeDay, homeDay] } } },
+    schedule: { on: true, levels: { night: 17, eco: 19, comfort: 21 }, pre: 30, hand: 10, rooms: { 'main/r1': { days: [workDay, workDay, workDay, workDay, workDay, homeDay, homeDay] } } },
     summer: { on: false, above: 18, hours: 6 }, boost: { on: true, minutes: 30, temp: 24 }, holiday: { on: false, temp: 15, until: '', back: '14:00', guard: false } },
   flows: [
     { id: 'f_flur', name: 'Flurlicht nachts', on: true, ha: true, lanes: [{ id: 'l1', blocks: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on' }, { k: 'if_sun', is: 'dark' },
