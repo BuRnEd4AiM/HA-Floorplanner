@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Floorplan Zeitstrahl</title>
+<meta name="description" content="Wie der 3D-Grundriss für Home Assistant gewachsen ist, Version für Version. How 3D Floorplan for Home Assistant grew, version by version.">
+<!-- Template of tools/make_timeline.py: it puts the versions of CHANGELOG.md in place of the data marker below. -->
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #f0eee9;
+  --text: #16161a;
+  --text-2: #4f4e4a;
+  --muted: #7d7b74;
+  --line: #e3e0d9;
+  --accent: #2a78d6;
+  --wash: rgba(42, 120, 214, .10);
+  --added: #2a78d6;
+  --changed: #6250d6;
+  --fixed: #1baf7a;
+  --shadow: 0 1px 2px rgba(20, 20, 30, .05), 0 8px 24px rgba(20, 20, 30, .06);
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111112;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --text: #f0efec;
+    --text-2: #c3c2b7;
+    --muted: #8f8d86;
+    --line: #2f2e2b;
+    --accent: #3987e5;
+    --wash: rgba(57, 135, 229, .14);
+    --added: #3987e5;
+    --changed: #9085e9;
+    --fixed: #199e70;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111112;
+  --surface: #1a1a19;
+  --surface-2: #232321;
+  --text: #f0efec;
+  --text-2: #c3c2b7;
+  --muted: #8f8d86;
+  --line: #2f2e2b;
+  --accent: #3987e5;
+  --wash: rgba(57, 135, 229, .14);
+  --added: #3987e5;
+  --changed: #9085e9;
+  --fixed: #199e70;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code { font: .86em/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--surface-2); padding: .12em .35em; border-radius: 5px; overflow-wrap: anywhere; }
+button, input { font: inherit; color: inherit; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+
+/* title */
+.hero { position: relative; color: #fff; background: #0d1420; isolation: isolate; overflow: hidden; }
+.heroBg { position: absolute; inset: -16px; z-index: -2; background: center 45% / cover no-repeat; filter: blur(3px) saturate(1.15) brightness(.8); }
+.hero::before { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(90deg, rgba(8, 12, 20, .55) 0%, rgba(8, 12, 20, .15) 70%),
+    linear-gradient(180deg, rgba(8, 12, 20, .45) 0%, rgba(8, 12, 20, .5) 50%, rgba(8, 12, 20, .95) 100%); }
+.hero .wrap { padding-top: 22px; padding-bottom: 64px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { color: #fff; font-weight: 600; letter-spacing: .01em; opacity: .92; }
+.langs { display: flex; gap: 4px; background: rgba(255, 255, 255, .12); padding: 3px; border-radius: 999px; backdrop-filter: blur(6px); }
+.langs button { border: 0; background: none; color: #fff; padding: 4px 11px; border-radius: 999px; cursor: pointer; font-size: 13px; font-weight: 600; opacity: .75; }
+.langs button[aria-pressed="true"] { background: rgba(255, 255, 255, .9); color: #111; opacity: 1; }
+.kicker { margin: 110px 0 8px; font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+.hero h1 { margin: 0; font-size: clamp(32px, 6vw, 56px); line-height: 1.05; letter-spacing: -.02em; font-weight: 700; max-width: 14em; }
+.lead { margin: 16px 0 0; font-size: clamp(16px, 2.2vw, 19px); max-width: 36em; opacity: .9; }
+
+/* numbers */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: -36px; position: relative; }
+.stat { background: var(--surface); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); }
+.stat .label { color: var(--text-2); font-size: 14px; display: flex; align-items: center; gap: 7px; }
+.stat .value { font-size: 34px; font-weight: 650; letter-spacing: -.02em; line-height: 1.15; margin-top: 2px; }
+.key { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+
+/* growth chart */
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 20px 14px; margin-top: 16px; }
+.card h2 { margin: 0; font-size: 18px; letter-spacing: -.01em; }
+.card .sub { margin: 4px 0 8px; color: var(--text-2); font-size: 14px; }
+.chart { position: relative; touch-action: pan-y; }
+.chart svg { display: block; width: 100%; overflow: visible; cursor: crosshair; }
+.chart svg:focus { outline: none; }
+.chart svg:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.grid line { stroke: var(--line); stroke-width: 1; shape-rendering: crispEdges; }
+.axis text { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.series { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.wash { fill: var(--wash); }
+.mark { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.markLabel { fill: var(--text-2); font-size: 12px; font-weight: 600; }
+.cross { stroke: var(--muted); stroke-width: 1; shape-rendering: crispEdges; }
+.tip { position: absolute; top: 0; pointer-events: none; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+  border-radius: 10px; padding: 8px 11px; font-size: 13px; line-height: 1.4; white-space: nowrap; transform: translateX(-50%); }
+.tip strong { display: block; font-size: 16px; }
+.tip .muted { color: var(--muted); }
+.tip .lk { display: inline-block; width: 12px; height: 2px; background: var(--accent); vertical-align: middle; margin-right: 6px; border-radius: 1px; }
+
+/* filters */
+.controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 28px 0 6px; }
+.controls input[type=search] { flex: 1 1 240px; min-width: 0; padding: 10px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); outline: none; }
+.controls input[type=search]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--wash); }
+.pill { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 14px; user-select: none; }
+.pill:hover { border-color: var(--muted); }
+.pill input { margin: 0; accent-color: var(--accent); }
+.count { color: var(--muted); font-size: 14px; margin: 0 0 4px; }
+.note { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+
+/* timeline */
+.era { position: relative; margin-top: 40px; }
+.eraHead { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 8px; }
+.eraNum { flex: none; width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; font-size: 28px; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--changed)); box-shadow: var(--shadow); }
+.eraHead h2 { margin: 2px 0 0; font-size: clamp(21px, 3vw, 26px); letter-spacing: -.015em; line-height: 1.2; }
+.eraHead .meta { color: var(--muted); font-size: 14px; margin-top: 2px; }
+.eraHead .gist { color: var(--text-2); font-size: 15px; margin-top: 6px; }
+.days { position: relative; margin-left: 27px; padding-left: 29px; border-left: 2px solid var(--line); }
+.day { position: relative; padding-top: 22px; scroll-margin-top: 16px; }
+.day::before { content: ""; position: absolute; left: -37px; top: 27px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--muted); }
+.day.flash::before { background: var(--accent); border-color: var(--accent); }
+.dayHead { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.dayHead time { font-weight: 650; }
+.dayHead span { color: var(--muted); font-size: 14px; }
+.ver { background: var(--surface); border-radius: 12px; border: 1px solid var(--line); padding: 10px 14px; margin-bottom: 8px; scroll-margin-top: 16px; }
+.ver.big { border: 0; box-shadow: var(--shadow); padding: 16px 18px; margin-bottom: 12px; }
+.ver.target { box-shadow: 0 0 0 2px var(--accent), var(--shadow); }
+.vhead { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.vtag { font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--text); }
+.ver.big .vtag { background: var(--accent); color: #fff; font-size: 15px; }
+.badges { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--text-2); }
+.badges span { display: inline-flex; align-items: center; gap: 5px; }
+.badges .key { width: 7px; height: 7px; }
+.one { margin: 6px 0 0; color: var(--text); overflow-wrap: anywhere; }
+.one .more { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.heads { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.heads li { position: relative; padding-left: 16px; overflow-wrap: anywhere; }
+.heads li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+.ver.big .heads li:first-child { font-weight: 600; }
+.pics { display: flex; gap: 8px; overflow-x: auto; margin: 12px 0 2px; padding-bottom: 4px; scrollbar-width: thin; }
+.pic { flex: none; border: 0; padding: 0; background: none; cursor: zoom-in; border-radius: 10px; overflow: hidden; width: 168px; aspect-ratio: 16 / 10; box-shadow: 0 0 0 1px var(--line); }
+.pic img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s; }
+.pic:hover img { transform: scale(1.04); }
+.picsLabel { font-size: 13px; color: var(--muted); margin-top: 12px; }
+details { margin-top: 8px; }
+summary { cursor: pointer; color: var(--accent); font-size: 14px; width: max-content; max-width: 100%; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "▸ "; }
+details[open] summary::before { content: "▾ "; }
+.full h4 { margin: 12px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.full ul { margin: 0; padding-left: 20px; }
+.full li { margin: 4px 0; color: var(--text-2); overflow-wrap: anywhere; }
+.full li strong { color: var(--text); }
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+
+footer { margin: 56px 0 0; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+footer p { margin: 4px 0; }
+
+/* big picture */
+.lightbox { position: fixed; inset: 0; z-index: 10; background: rgba(5, 8, 14, .9); display: grid; place-items: center; padding: 16px; cursor: zoom-out; }
+.lightbox[hidden] { display: none; }
+.lightbox figure { margin: 0; max-width: 1200px; width: 100%; text-align: center; }
+.lightbox img { max-width: 100%; max-height: 82vh; border-radius: 10px; box-shadow: 0 10px 40px rgba(0, 0, 0, .5); }
+.lightbox figcaption { color: #e6e6e6; font-size: 14px; margin-top: 10px; }
+
+@media (max-width: 600px) {
+  .kicker { margin-top: 70px; }
+  .hero .wrap { padding-bottom: 56px; }
+  .stats { grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .stat { padding: 12px 14px; grid-column: span 3; }
+  .stat:nth-child(n+3) { grid-column: span 2; padding: 10px 10px 12px; }
+  .stat .value { font-size: 26px; }
+  .card { padding: 16px 14px 10px; }
+  .eraNum { width: 44px; height: 44px; font-size: 22px; border-radius: 13px; }
+  .days { margin-left: 21px; padding-left: 20px; }
+  .day::before { left: -28px; }
+  .ver.big { padding: 14px; }
+  .pic { width: 136px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .pic img { transition: none; } }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="heroBg" id="heroBg"></div>
+  <div class="wrap">
+    <div class="top">
+      <a class="brand" href="./">🏠 3D Floorplan</a>
+      <div class="langs" role="group" aria-label="Sprache / Language">
+        <button type="button" data-lang="de">DE</button><button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+    <p class="kicker" data-t="kicker"></p>
+    <h1 data-t="title"></h1>
+    <p class="lead" id="lead"></p>
+  </div>
+</header>
+<main class="wrap">
+  <section class="stats" id="stats"></section>
+  <section class="card">
+    <h2 data-t="chartTitle"></h2>
+    <p class="sub" data-t="chartSub"></p>
+    <div class="chart" id="chart"><svg id="svg" tabindex="0" role="img"></svg><div class="tip" id="tip" hidden></div></div>
+  </section>
+  <div class="controls">
+    <input type="search" id="q" autocomplete="off">
+    <label class="pill"><input type="checkbox" id="bigOnly"><span data-t="bigOnly"></span></label>
+    <button type="button" class="pill" id="order"></button>
+  </div>
+  <p class="count" id="count"></p>
+  <p class="note" data-t="note"></p>
+  <div id="timeline"></div>
+</main>
+<footer class="wrap">
+  <p data-t="footer"></p>
+  <p><a href="./" data-t="demo"></a> · <a id="gh" data-t="github"></a></p>
+</footer>
+<div class="lightbox" id="lb" hidden><figure><img alt=""><figcaption></figcaption></figure></div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(() => {
+  const DATA = JSON.parse(document.getElementById('data').textContent);
+  const ALL = DATA.versions;                                     // oldest first
+  const T = {
+    de: {
+      kicker: '3D Floorplan für Home Assistant', title: 'Wie das Projekt gewachsen ist',
+      lead: 'Vom ersten Strich am {first} bis zur Version {last} am {lastDate}: {n} Versionen in {days} Tagen.',
+      versions: 'Versionen', days: 'Tage', Added: 'Neu', Changed: 'Verbessert', Fixed: 'Repariert', Removed: 'Entfernt', Notes: 'Hinweis',
+      chartTitle: 'Versionen über die Zeit',
+      chartSub: 'Alle Versionen zusammengezählt, Tag für Tag. Die Punkte sind die großen Sprünge. Tippen springt zum Tag.',
+      search: 'Suchen, z. B. Treppe, Strom, Klingel …', bigOnly: 'Nur große Versionen', newest: 'Neueste zuerst', oldest: 'Älteste zuerst',
+      count: '{n} von {total} Versionen', none: 'Nichts gefunden.',
+      note: 'Die Einträge selbst stehen auf Englisch, so wie in der Liste aller Änderungen (CHANGELOG.md).',
+      details: 'Alle Einzelheiten', more: '+{n} weitere', pics: 'Beispielbilder, gemacht vor dem Bau',
+      oneVersion: '1 Version', nVersions: '{n} Versionen', tipTotal: 'Versionen bis dahin', tipDay: '+{n} an diesem Tag',
+      chartLabel: 'Linie: {n} Versionen vom {first} bis {last}.',
+      footer: 'Diese Seite baut sich bei jeder neuen Version von selbst neu, aus der Liste aller Änderungen (CHANGELOG.md).',
+      demo: 'Zur Demo', github: 'Auf GitHub',
+      eras: {
+        0: ['Die Anfänge', 'Wände, Räume und Etagen zeichnen, das 3D-Bild, die ersten Geräte'],
+        1: ['Möbel und mehrere Häuser', 'Möbel-Bibliothek, Gruppen, Drehen in alle Richtungen, mehrere Häuser, Wand-TV'],
+        2: ['Licht und Nanoleaf', 'Nanoleaf-Editor, Farben der Effekte, LED hinter dem Fernseher, Dächer machen Platz'],
+        3: ['Das große Wachstum', 'Grundriss-Import, sieben Sprachen, Dächer und Gauben, Treppen, Strom und Solar, Heizung, Sicherheit, Himmel und Wetter'],
+        4: ['Das ganze Zuhause', 'Wände und Böden mit Oberfläche, die Reiter als Dashboard, Thermostat, Kalender, Sprache, Klingel, Garten'],
+      },
+      era: 'Version {n}',
+    },
+    en: {
+      kicker: '3D Floorplan for Home Assistant', title: 'How the project grew',
+      lead: 'From the first line on {first} to version {last} on {lastDate}: {n} versions in {days} days.',
+      versions: 'Versions', days: 'Days', Added: 'Added', Changed: 'Changed', Fixed: 'Fixed', Removed: 'Removed', Notes: 'Notes',
+      chartTitle: 'Versions over time',
+      chartSub: 'All versions added up, day by day. The dots are the big jumps. Tap to jump to the day.',
+      search: 'Search, e.g. stairs, power, doorbell …', bigOnly: 'Big versions only', newest: 'Newest first', oldest: 'Oldest first',
+      count: '{n} of {total} versions', none: 'Nothing found.',
+      note: '',
+      details: 'All details', more: '+{n} more', pics: 'Example pictures, made before building',
+      oneVersion: '1 version', nVersions: '{n} versions', tipTotal: 'versions so far', tipDay: '+{n} on this day',
+      chartLabel: 'Line: {n} versions from {first} to {last}.',
+      footer: 'This page rebuilds itself with every new version, from the list of all changes (CHANGELOG.md).',
+      demo: 'Open the demo', github: 'On GitHub',
+      eras: {
+        0: ['The beginning', 'Drawing walls, rooms and floors, the 3D view, the first devices'],
+        1: ['Furniture and several houses', 'Furniture library, groups, turning on every axis, several houses, wall TV'],
+        2: ['Light and Nanoleaf', 'Nanoleaf editor, effect colours, LED behind the TV, roofs make room'],
+        3: ['The big growth', 'Property import, seven languages, roofs and dormers, stairs, power and solar, heating, security, sky and weather'],
+        4: ['The whole home', 'Walls and floors with a finish, the tab bar as a dashboard, thermostat, calendar, voice, doorbell, garden'],
+      },
+      era: 'Version {n}',
+    },
+  };
+  const store = {
+    get(k) { try { return localStorage.getItem('timeline.' + k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem('timeline.' + k, v); } catch (e) { /* private window */ } },
+  };
+  let lang = store.get('lang') || ((navigator.language || 'de').toLowerCase().startsWith('de') ? 'de' : 'en');
+  let newestFirst = store.get('order') === 'newest';
+  const $ = id => document.getElementById(id);
+  const t = (key, vars) => String(T[lang][key] ?? T.en[key] ?? key).replace(/\{(\w+)\}/g, (_, k) => vars?.[k] ?? '');
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const day = iso => new Date(iso + 'T12:00:00Z');
+  const fmt = (iso, opts) => new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-GB', { timeZone: 'UTC', ...opts }).format(day(iso));
+  const num = n => new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-GB').format(n);
+  const countOf = (v, name) => v.sections.filter(s => s.name === name).reduce((a, s) => a + s.items.length, 0);
+  const KEYS = { Added: 'var(--added)', Changed: 'var(--changed)', Fixed: 'var(--fixed)' };
+
+  // days from the first to the last version, with the running total
+  const DAYS = [];
+  {
+    const byDate = new Map();
+    ALL.forEach(v => { if (!byDate.has(v.date)) byDate.set(v.date, []); byDate.get(v.date).push(v); });
+    let total = 0;
+    for (let d = day(ALL[0].date); d <= day(ALL[ALL.length - 1].date); d = new Date(d.getTime() + 864e5)) {
+      const iso = d.toISOString().slice(0, 10), list = byDate.get(iso) || [];
+      total += list.length;
+      DAYS.push({ iso, list, total });
+    }
+  }
+
+  // ---------- text, numbers ----------
+  function texts() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
+    document.querySelectorAll('.langs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+    const first = ALL[0], last = ALL[ALL.length - 1];
+    $('lead').textContent = t('lead', { first: fmt(first.date, { day: 'numeric', month: 'long', year: 'numeric' }), last: last.v,
+      lastDate: fmt(last.date, { day: 'numeric', month: 'long' }), n: num(ALL.length), days: num(DAYS.length) });
+    $('q').placeholder = t('search');
+    $('order').textContent = '⇅ ' + (newestFirst ? t('oldest') : t('newest'));
+    $('gh').href = DATA.repo;
+    const sum = name => ALL.reduce((a, v) => a + countOf(v, name), 0);
+    const tiles = [['versions', ALL.length], ['days', DAYS.length], ['Added', sum('Added'), 'Added'],
+      ['Changed', sum('Changed') + sum('Removed'), 'Changed'], ['Fixed', sum('Fixed'), 'Fixed']];
+    $('stats').innerHTML = tiles.map(([k, n, key]) => `<div class="stat"><div class="label">${key ? `<span class="key" style="background:${KEYS[key]}"></span>` : ''}${esc(t(k))}</div><div class="value">${num(n)}</div></div>`).join('');
+  }
+
+  // ---------- chart ----------
+  const svg = $('svg'), tip = $('tip');
+  let geo = null, hover = -1;
+  function chart() {
+    const W = Math.max(280, $('chart').clientWidth), H = W < 520 ? 190 : 230;
+    const m = { l: 38, r: 46, t: 26, b: 28 };
+    const max = DAYS[DAYS.length - 1].total;
+    const step = [10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000].find(s => max / s <= 4) || 10000;
+    const top = Math.ceil(max / step) * step;
+    const x = i => m.l + (W - m.l - m.r) * (DAYS.length > 1 ? i / (DAYS.length - 1) : 0.5);
+    const y = v => H - m.b - (H - m.t - m.b) * (v / top);
+    geo = { x, y, W, H, m };
+    const pts = DAYS.map((d, i) => `${x(i).toFixed(1)},${y(d.total).toFixed(1)}`);
+    let s = '<g class="grid">';
+    for (let v = 0; v <= top; v += step) s += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/>`;
+    s += '</g><g class="axis">';
+    for (let v = 0; v <= top; v += step) s += `<text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${num(v)}</text>`;
+    const every = W < 520 ? 14 : 7;
+    for (let i = 0; i < DAYS.length; i += every) s += `<text x="${x(i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : 'middle'}">${esc(fmt(DAYS[i].iso, { day: 'numeric', month: 'short' }))}</text>`;
+    s += '</g>';
+    s += `<path class="wash" d="M${x(0)},${y(0)} L${pts.join(' L')} L${x(DAYS.length - 1)},${y(0)} Z"/>`;
+    s += `<path class="series" d="M${pts.join(' L')}"/>`;
+    // the big jumps (1.0, 2.0 …), the ones of the same day share one dot
+    const jumps = new Map();
+    ALL.filter(v => v.major > 0 && v.v === `${v.major}.0.0`).forEach(v => {
+      const i = DAYS.findIndex(d => d.iso === v.date);
+      jumps.set(i, [...(jumps.get(i) || []), `${v.major}.0`]);
+    });
+    const groups = [];                                           // jumps close together share one label
+    [...jumps].sort((a, b) => a[0] - b[0]).forEach(([i, names]) => {
+      const g = groups[groups.length - 1];
+      if (g && x(i) - x(g.last) < 36) { g.last = i; g.names.push(...names); g.dots.push(i); } else groups.push({ last: i, names: [...names], dots: [i] });
+    });
+    groups.forEach(g => {
+      g.dots.forEach(i => { s += `<circle class="mark" cx="${x(i)}" cy="${y(DAYS[i].total)}" r="5"/>`; });
+      const label = g.names.join(' · '), cx = x(g.last), cy = y(DAYS[g.last].total);
+      if (g.dots.length > 1) {                                   // under the line, right of the last dot: the line climbs away from it
+        s += `<text class="markLabel" x="${cx + 9}" y="${cy + 19}">${esc(label)}</text>`;
+      } else {                                                   // above the dot, never over the numbers of the axis
+        s += `<text class="markLabel" x="${Math.max(cx, m.l + label.length * 3.6 + 4)}" y="${cy - 11}" text-anchor="middle">${esc(label)}</text>`;
+      }
+    });
+    const li = DAYS.length - 1;
+    s += `<circle class="mark" cx="${x(li)}" cy="${y(DAYS[li].total)}" r="5"/>`;
+    s += `<text class="markLabel" x="${x(li) + 9}" y="${y(DAYS[li].total) + 4}">${num(DAYS[li].total)}</text>`;
+    s += '<line class="cross" id="cross" y1="0" y2="0" visibility="hidden"/><circle class="mark" id="dot" r="5" visibility="hidden"/>';
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('height', H);
+    svg.setAttribute('aria-label', t('chartLabel', { n: num(max), first: fmt(DAYS[0].iso, { day: 'numeric', month: 'long' }), last: fmt(DAYS[li].iso, { day: 'numeric', month: 'long' }) }));
+    svg.innerHTML = s;
+    if (hover >= 0) show(hover);
+  }
+  function show(i) {
+    hover = i;
+    const d = DAYS[i], { x, y, m, H } = geo, cross = $('cross'), dot = $('dot');
+    cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('y1', m.t - 10); cross.setAttribute('y2', H - m.b);
+    cross.setAttribute('visibility', 'visible');
+    dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(d.total)); dot.setAttribute('visibility', 'visible');
+    const range = d.list.length ? (d.list.length > 1 ? `v${d.list[0].v} – v${d.list[d.list.length - 1].v}` : `v${d.list[0].v}`) : '';
+    tip.innerHTML = `<div class="muted">${esc(fmt(d.iso, { weekday: 'short', day: 'numeric', month: 'long' }))}</div>`
+      + `<strong>${num(d.total)}</strong><div><span class="lk"></span>${esc(t('tipTotal'))}</div>`
+      + `<div class="muted">${esc(t('tipDay', { n: num(d.list.length) }))}${range ? ' · ' + esc(range) : ''}</div>`;
+    tip.hidden = false;
+    const scale = svg.getBoundingClientRect().width / geo.W, w = tip.offsetWidth, box = $('chart').clientWidth;
+    tip.style.left = Math.min(box - w / 2, Math.max(w / 2, x(i) * scale)) + 'px';
+    tip.style.top = Math.max(0, y(d.total) * scale - tip.offsetHeight - 14) + 'px';
+  }
+  function hide() {
+    hover = -1; tip.hidden = true;
+    ['cross', 'dot'].forEach(id => $(id)?.setAttribute('visibility', 'hidden'));
+  }
+  const nearest = ev => {
+    const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * geo.W / r.width;
+    const f = (px - geo.m.l) / (geo.W - geo.m.l - geo.m.r);
+    return Math.max(0, Math.min(DAYS.length - 1, Math.round(f * (DAYS.length - 1))));
+  };
+  svg.addEventListener('pointermove', ev => show(nearest(ev)));
+  svg.addEventListener('pointerleave', ev => { if (ev.pointerType === 'mouse') hide(); });
+  svg.addEventListener('click', ev => jumpTo(DAYS[nearest(ev)]));
+  svg.addEventListener('focus', () => show(hover >= 0 ? hover : DAYS.length - 1));
+  svg.addEventListener('blur', hide);
+  svg.addEventListener('keydown', ev => {
+    if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') {
+      show(Math.max(0, Math.min(DAYS.length - 1, (hover < 0 ? DAYS.length - 1 : hover) + (ev.key === 'ArrowLeft' ? -1 : 1))));
+      ev.preventDefault();
+    } else if (ev.key === 'Enter' && hover >= 0) jumpTo(DAYS[hover]);
+  });
+  function jumpTo(d) {
+    hide();
+    let el = $('d-' + d.iso);
+    if (!el && d.list.length) { $('q').value = ''; $('bigOnly').checked = false; render(); el = $('d-' + d.iso); }
+    if (!el) {                                                   // a day without a version: the next day that has one
+      const next = DAYS.find(o => o.iso > d.iso && o.list.length);
+      if (next) el = $('d-' + next.iso);
+    }
+    if (!el) return;
+    el.scrollIntoView({ block: 'start' });
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 1600);
+  }
+
+  // ---------- timeline ----------
+  function verHtml(v) {
+    const counts = ['Added', 'Changed', 'Fixed'].map(k => [k, countOf(v, k) + (k === 'Changed' ? countOf(v, 'Removed') : 0)]).filter(([, n]) => n);
+    const badges = counts.map(([k, n]) => `<span><span class="key" style="background:${KEYS[k]}"></span>${num(n)} ${esc(t(k).toLowerCase())}</span>`).join('');
+    const items = v.sections.flatMap(s => s.items);
+    let body;
+    if (v.big) {
+      const shown = items.slice(0, 5);
+      body = `<ul class="heads">${shown.map(i => `<li>${esc(i.h)}</li>`).join('')}</ul>`
+        + (items.length > shown.length ? `<p class="one"><span class="more">${esc(t('more', { n: items.length - shown.length }))}</span></p>` : '');
+    } else {
+      body = items.length ? `<p class="one">${esc(items[0].h)}${items.length > 1 ? ` <span class="more">${esc(t('more', { n: items.length - 1 }))}</span>` : ''}</p>` : '';
+    }
+    const pics = v.pics.length ? `<div class="picsLabel">${esc(t('pics'))}</div><div class="pics">${v.pics.map(p => {
+      const name = p.split('/').pop().replace(/\.\w+$/, '').replace(/^\d+[a-z]?-/, '').replace(/-/g, ' ');
+      return `<button type="button" class="pic" data-src="${esc(p)}" data-name="${esc(name)}"><img loading="lazy" src="${esc(p)}" alt="${esc(name)}"></button>`;
+    }).join('')}</div>` : '';
+    return `<article class="ver${v.big ? ' big' : ''}" id="v${esc(v.v)}"><div class="vhead"><span class="vtag">v${esc(v.v)}</span><span class="badges">${badges}</span></div>`
+      + body + pics + `<details data-v="${esc(v.v)}"><summary>${esc(t('details'))}</summary><div class="full"></div></details></article>`;
+  }
+  function fullHtml(v) {
+    return v.sections.map(s => `<h4>${KEYS[s.name] ? `<span class="key" style="background:${KEYS[s.name]}"></span>` : ''}${esc(t(s.name))}</h4><ul>${s.items.map(i =>
+      `<li>${i.html}${i.subs.length ? `<ul>${i.subs.map(x => `<li>${x}</li>`).join('')}</ul>` : ''}</li>`).join('')}</ul>`).join('');
+  }
+  const BY_V = new Map(ALL.map(v => [v.v, v]));
+  function render() {
+    const words = $('q').value.trim().toLowerCase().split(/\s+/).filter(Boolean), bigOnly = $('bigOnly').checked;
+    const shown = ALL.filter(v => (!bigOnly || v.big) && words.every(w => v.text.includes(w)));
+    $('count').textContent = t('count', { n: num(shown.length), total: num(ALL.length) });
+    if (!shown.length) { $('timeline').innerHTML = `<p class="empty">${esc(t('none'))}</p>`; return; }
+    const eras = [];
+    for (const v of shown) {
+      let era = eras[eras.length - 1];
+      if (!era || era.major !== v.major) eras.push(era = { major: v.major, days: [], all: ALL.filter(o => o.major === v.major) });
+      let d = era.days[era.days.length - 1];
+      if (!d || d.iso !== v.date) era.days.push(d = { iso: v.date, list: [] });
+      d.list.push(v);
+    }
+    if (newestFirst) { eras.reverse(); eras.forEach(e => { e.days.reverse(); e.days.forEach(d => d.list.reverse()); }); }
+    $('timeline').innerHTML = eras.map(e => {
+      const [title, gist] = T[lang].eras[e.major] || [t('era', { n: e.major }), ''];
+      const a = e.all[0].date, b = e.all[e.all.length - 1].date;
+      const span = a === b ? fmt(a, { day: 'numeric', month: 'long' }) : `${fmt(a, { day: 'numeric', month: 'short' })} – ${fmt(b, { day: 'numeric', month: 'short' })}`;
+      return `<section class="era" id="era-${e.major}"><div class="eraHead"><div class="eraNum">${e.major}</div><div><h2>${esc(title)}</h2>`
+        + `<div class="meta">${esc(span)} · ${esc(t('nVersions', { n: num(e.all.length) }))}</div>${gist ? `<div class="gist">${esc(gist)}</div>` : ''}</div></div>`
+        + `<div class="days">${e.days.map(d => `<div class="day" id="d-${d.iso}"><div class="dayHead"><time datetime="${d.iso}">${esc(fmt(d.iso, { weekday: 'short', day: 'numeric', month: 'long' }))}</time>`
+          + `<span>${esc(d.list.length === 1 ? t('oneVersion') : t('nVersions', { n: num(d.list.length) }))}</span></div>${d.list.map(verHtml).join('')}</div>`).join('')}</div></section>`;
+    }).join('');
+  }
+  $('timeline').addEventListener('toggle', ev => {
+    const det = ev.target;
+    if (det.open && det.dataset.v && !det.lastElementChild.innerHTML) det.lastElementChild.innerHTML = fullHtml(BY_V.get(det.dataset.v));
+  }, true);
+
+  // big picture
+  const lb = $('lb');
+  $('timeline').addEventListener('click', ev => {
+    const b = ev.target.closest('.pic');
+    if (!b) return;
+    lb.querySelector('img').src = b.dataset.src;
+    lb.querySelector('img').alt = b.dataset.name;
+    lb.querySelector('figcaption').textContent = b.dataset.name;
+    lb.hidden = false;
+  });
+  lb.addEventListener('click', () => { lb.hidden = true; });
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape') lb.hidden = true; });
+
+  // controls
+  let timer;
+  $('q').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(render, 150); });
+  $('bigOnly').addEventListener('change', render);
+  $('order').addEventListener('click', () => { newestFirst = !newestFirst; store.set('order', newestFirst ? 'newest' : 'oldest'); texts(); render(); });
+  document.querySelectorAll('.langs button').forEach(b => b.addEventListener('click', () => {
+    lang = b.dataset.lang; store.set('lang', lang); texts(); chart(); render();
+  }));
+  let lastW = 0;
+  new ResizeObserver(() => { const w = $('chart').clientWidth; if (w !== lastW) { lastW = w; chart(); } }).observe($('chart'));
+
+  $('heroBg').style.backgroundImage = 'url("img/3d.jpg")';
+  texts(); chart(); render();
+  const target = decodeURIComponent(location.hash.slice(1));
+  if (target && $(target)) {
+    const el = $(target);
+    el.classList.add('target');
+    const det = el.querySelector('details');
+    if (det) det.open = true;
+    el.scrollIntoView({ block: 'start' });
+  }
+})();
+</script>
+</body>
+</html>

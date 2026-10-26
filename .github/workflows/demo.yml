@@ -8,6 +8,11 @@ on:
     paths:
       - "floorplan3d/rootfs/app/static/**"
       - "demo/**"
+      - "CHANGELOG.md"                # the timeline page next to the demo (tools/make_timeline.py)
+      - "tools/make_timeline.py"
+      - "tools/timeline.html"
+      - "docs/ideen-*/**"
+      - "docs/img/3d.jpg"
       - "!demo/floorplan3d-demo.html"
   workflow_dispatch:
 
@@ -45,8 +50,10 @@ jobs:
             echo "push failed (attempt $i), retrying"; sleep $((i * 10))
           done
           exit 1
-      - name: Collect the demo for GitHub Pages
-        run: mkdir _site && cp demo/floorplan3d-demo.html _site/index.html
+      - name: Collect the demo and the timeline for GitHub Pages
+        run: |
+          mkdir _site && cp demo/floorplan3d-demo.html _site/index.html
+          python3 tools/make_timeline.py _site
       - name: Upload the Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
