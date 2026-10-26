@@ -313,7 +313,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533) | 4 | 0 | 0 | 2 | – |
 | 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538) | 8 | 0 | 0 | 0 | – |
 | 108. Neu in 4.26.1: die 2D-Ansicht zeichnet kein verstecktes 3D-Bild mehr (#542) | 2 | 0 | 1 | 0 | 108.3 |
-| 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge | 10 | 0 | 1 | 0 | 109.11 |
+| 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545) | 10 | 0 | 1 | 0 | 109.11 |
 | **Zusammen** | **710** | **10** | **50** | **74** | |
 <!-- AUTO-UEBERSICHT-END -->
 
@@ -1691,7 +1691,7 @@ Wunsch des Besitzers vom 2026-10-26 („draußen Hof und sowas editieren, das Gr
 | 108.2 | Danach oben „3D“ (oder „2D + 3D“) | Das 3D-Bild ist sofort da und zeigt den aktuellen Stand | ✅ (2026-10-26, Claude im Test-Add-on) |
 | 108.3 | Am Tablet in der 2D-Ansicht arbeiten (nur wenn du sie benutzt) | Es reagiert so flüssig wie die 3D-Ansicht oder besser | ❓ |
 
-## 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge
+## 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545)
 Wunsch des Besitzers vom 2026-10-26 („einen Schrank-Editor … auch mit Schrägen, dass man den in Dachschrägen einbauen kann … mit allem personalisierbar … im Nachhinein bearbeiten“).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
