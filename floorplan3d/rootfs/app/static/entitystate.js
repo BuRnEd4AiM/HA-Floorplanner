@@ -21,4 +21,6 @@ export const toState = (e, effectColors) => ({ since: e.since, state: e.state, u
   dc: e.dc, ct: e.ct, hvac: e.hvac, tt: e.tt, tmin: e.tmin, tmax: e.tmax, tstep: e.tstep, modes: e.modes, ch: e.ch, fx: e.fx, fxc: e.fxc, members: e.members, bat: e.bat,
   ctl: e.ctl,      // ctl: what the live card controls (volume, fan speed, presets ..., #406)
   lc: e.lc,        // when the state last changed (seconds): "seit wann" of a button card (#495)
+  at: e.at, run: e.run,   // an automation's or script's last run (seconds) and its runs now: ▶ Abläufe, 🔎 Wird benutzt (#546)
+  cid: e.cid,      // the id of an automation or scene of Home Assistant's editor: fp3d_… are the add-on's own routines (#548)
   sun: e.sun, wx: e.wx });   // sun.sun's elevation and next sunrise / sunset, a weather entity's temperature and wind (the sky, #418, #419)

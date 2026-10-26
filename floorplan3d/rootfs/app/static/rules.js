@@ -306,3 +306,39 @@ export function roomMark(s, t) {
   if (s?.why === 'boost') return `🚀 ${t('hr.boost')}`;
   return '';
 }
+
+/* ---- own routines as automations of Home Assistant (#548, haflows.py) ---- */
+/** the id of a lane's automation in Home Assistant (f_abc, l1 -> fp3d_abc_l1) */
+export const autoId = (fid, lid) => `fp3d_${String(fid).slice(2)}_${lid}`;
+/** an automation or scene the add-on made (the only ones it changes) */
+export const ours = (cid) => typeof cid === 'string' && /^fp3d_[a-z0-9_]{1,80}$/.test(cid);
+
+/** what a routine does now: { running, last (seconds), lanes: [{ lane, entity (its automation, or null) }] }; one in Home Assistant
+ *  from its automations' states (cid, run, at), one of the add-on from laneOf(key) (rulesstore.lane) */
+export function flowLive(flow, states, laneOf) {
+  if (flow.ha) {
+    const byCid = new Map(Object.entries(states || {}).filter(([, s]) => s?.cid).map(([e, s]) => [s.cid, e]));
+    const lanes = flow.lanes.map((l) => ({ lane: l, entity: byCid.get(autoId(flow.id, l.id)) || null }));
+    const sts = lanes.map((x) => (x.entity ? states[x.entity] : null)).filter(Boolean);
+    return { running: sts.some((s) => (s.run || 0) > 0), last: Math.max(0, ...sts.map((s) => s.at || 0)), lanes };
+  }
+  const ls = flow.lanes.map((l) => ({ lane: l, s: laneOf(`${flow.id}/${l.id}`) || {} }));
+  return { running: ls.some((x) => x.s.running), last: Math.max(0, ...ls.map((x) => x.s.end || x.s.t0 || 0)), lanes: ls.map((x) => ({ lane: x.lane, entity: null })) };
+}
+
+/** Home Assistant's page of an automation (base: Home Assistant's address for the browser, '' when the page runs inside it) */
+export const haEditUrl = (base, cid) => `${base || ''}/config/automation/edit/${encodeURIComponent(cid)}`;
+
+/** what saving a routine in Home Assistant came to (haSync of api/rules for one routine): { kind: ok | warn | bad | ask, text }; ask:
+ *  it was changed in Home Assistant and the page asks before it overwrites it */
+export function syncWords(res, t) {
+  if (!res) return null;
+  if (res.conflict) return { kind: 'ask', text: t('fe.ha.conflict') };
+  if (res.error) return { kind: 'bad', text: res.error === 'nohass' ? t('fe.ha.nohass') : t('fe.ha.error', { why: res.error }) };
+  const hard = (res.problems || []).filter((p) => !p.soft);
+  if (hard.length || !res.ok) return { kind: 'bad', text: t('fe.ha.cannot', { why: hard.map((p) => t(`fe.ha.why.${p.why}`)).join(' · ') || '?' }) };
+  if (res.missing) return { kind: 'bad', text: t('fe.ha.missing') };
+  const soft = (res.problems || []).filter((p) => p.soft);
+  if (soft.length) return { kind: 'warn', text: `${t('fe.ha.saved')} · ${soft.map((p) => t(`fe.ha.why.${p.why}`)).join(' · ')}` };
+  return { kind: 'ok', text: t('fe.ha.saved') };
+}

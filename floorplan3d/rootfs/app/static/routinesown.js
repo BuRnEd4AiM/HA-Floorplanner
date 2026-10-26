@@ -1,8 +1,10 @@
 /* ▶ Abläufe (#546; picture docs/ideen-4.28/2-ablaeufe.jpg): the add-on's own routines "Wenn … dann …" as chains to read (on / off, "läuft
  * gerade", when they last ran, ▶ for a routine with a button, ✏ to change it, ＋ Neuer Ablauf, 📋 Aus Vorlage), the automations of Home
  * Assistant with the devices they use, what they do, "läuft gerade" and when they last ran (editors, as before only on / off), and
- * "📜 Was ist passiert": what the rules and routines did. pageroutines.js puts these cards on its board; the words come from rules.js. */
-import { blockWords, ago, sumWords, templates, entIcon, groupOf } from './rules.js';
+ * "📜 Was ist passiert": what the rules and routines did. A routine that is an automation of Home Assistant (#548) says so ("🏠 Home
+ * Assistant", ↗ opens it there), its "läuft" and "zuletzt" come from its automations; those automations are not listed a second time
+ * among Home Assistant's. pageroutines.js puts these cards on its board; the words come from rules.js. */
+import { blockWords, ago, sumWords, templates, entIcon, groupOf, flowLive, ours, autoId, haEditUrl } from './rules.js';
 
 const FILTERS = ['all', 'heat', 'light', 'cover', 'running'];
 
@@ -30,12 +32,13 @@ export function initRoutinesOwn(ctx) {
   /* ---- own routines ---- */
   const flowsOf = () => ctx.rules.get()?.flows || [];
   const laneState = (f, l) => ctx.rules.lane(`${f.id}/${l.id}`) || {};
+  const live = (f) => flowLive(f, ctx.states(), ctx.rules.lane);
   const touches = (f, re) => f.lanes.some((l) => l.blocks.some((b) => (b.ents || []).some((e) => re.test(e)) || (b.k === 'heat' && re.test('climate.')) || (b.k === 'cover' && re.test('cover.'))));
   function shown(f) {
     if (filter === 'heat') return touches(f, /^climate\./);
     if (filter === 'light') return touches(f, /^light\./);
     if (filter === 'cover') return touches(f, /^cover\./);
-    if (filter === 'running') return f.lanes.some((l) => laneState(f, l).running);
+    if (filter === 'running') return live(f).running;
     return true;
   }
   function chain(lane) {
@@ -51,15 +54,22 @@ export function initRoutinesOwn(ctx) {
     await ctx.rules.save({ flows: flowsOf().map((x) => (x.id === f.id ? { ...x, on } : x)) });
   }
   function flowRow(f) {
-    const lanes = f.lanes.map((l) => ({ l, s: laneState(f, l) }));
-    const running = lanes.find((x) => x.s.running), last = Math.max(0, ...lanes.map((x) => x.s.end || x.s.t0 || 0));
+    const lv = live(f), lanes = f.lanes.map((l) => ({ l, s: laneState(f, l) }));
+    const running = f.ha ? (lv.running ? { s: {}, l: f.lanes[0] } : null) : lanes.find((x) => x.s.running), last = lv.last;
     const r = make('div', `roRow${running ? ' live' : ''}${f.on ? '' : ' dim'}`); r.dataset.flow = f.id;
     const sw = make('label', 'sw'); sw.title = t('ro.onOff');
     const cb = make('input'); cb.type = 'checkbox'; cb.checked = f.on; cb.disabled = !ctx.canEdit(); cb.dataset.flowOn = f.id;
     cb.addEventListener('change', () => toggle(f, cb.checked));
     sw.append(cb, make('span'));
     const tx = make('div', 'roTx');
-    tx.append(make('b', '', f.name), chain(f.lanes[0]));
+    const title = make('div', 'roName'); title.append(make('b', '', f.name));
+    if (ctx.rules.get()?.ha) {                           // where it runs (#548)
+      const where = make('span', `roWhere${f.ha ? ' ha' : ''}`, f.ha ? `🏠 ${t('fe.ha.where.ha')}` : `⚙️ ${t('fe.ha.where.addon')}`);
+      where.title = f.ha ? (lv.lanes.every((x) => x.entity) ? t('ro.inHa') : t('ro.notInHa')) : t('ro.inAddon'); where.dataset.where = f.ha ? 'ha' : 'addon';
+      if (f.ha && !lv.lanes.every((x) => x.entity)) where.classList.add('bad');
+      title.append(where);
+    }
+    tx.append(title, chain(f.lanes[0]));
     if (f.lanes.length > 1) tx.append(make('small', 'tpSub', t('ro.moreLanes', { n: f.lanes.length - 1 })));
     const st = make('div', 'roSt');
     if (running) {
@@ -68,8 +78,13 @@ export function initRoutinesOwn(ctx) {
     } else if (!f.on) st.append(make('span', 'ubChip off', t('ub.off')));
     else st.append(make('small', '', last ? t('ro.last', { when: ago(last, now(), t) }) : t('ro.never')));
     r.append(sw, tx, st);
-    const button = f.on && f.lanes.find((l) => l.blocks[0].k === 'button');
+    const button = f.on && f.lanes.find((l) => l.blocks[0].k === 'button' && (!f.ha || lv.lanes.find((x) => x.lane === l)?.entity));
     if (button && !ctx.locked()) { const b = btn('roIcon', '▶', () => ctx.rules.run(f.id, button.id), t('ro.run')); b.dataset.runFlow = f.id; r.append(b); }
+    if (f.ha && ctx.canEdit() && lv.lanes[0]?.entity) {
+      const base = ctx.rules.get()?.haLink || '', a = make('a', 'roIcon', '↗');
+      a.href = haEditUrl(base, autoId(f.id, f.lanes[0].id)); a.target = base ? '_blank' : '_top'; a.rel = 'noopener'; a.title = t('fe.ha.open'); a.dataset.haOpen = f.id;
+      r.append(a);
+    }
     if (ctx.canEdit()) { const b = btn('roIcon', '✏️', () => ctx.edit(f), t('ro.edit')); b.dataset.editFlow = f.id; r.append(b); }
     return r;
   }
@@ -113,7 +128,8 @@ export function initRoutinesOwn(ctx) {
   /* ---- automations of Home Assistant ---- */
   function autoRows() {
     const st = ctx.states(), known = new Map((autos || []).map((a) => [a.entity, a]));
-    const ids = Object.keys(st).filter((e) => e.startsWith('automation.')).sort((a, b) => (ctx.nameOf(a) || a).localeCompare(ctx.nameOf(b) || b));
+    const ids = Object.keys(st).filter((e) => e.startsWith('automation.') && !ours(st[e]?.cid))     // the add-on's own: its routines above
+      .sort((a, b) => (ctx.nameOf(a) || a).localeCompare(ctx.nameOf(b) || b));
     return ids.map((e) => ({ e, a: known.get(e) || null, s: st[e] }));
   }
   function autoCard() {
@@ -186,10 +202,11 @@ export function initRoutinesOwn(ctx) {
   function items() {
     const data = ctx.rules.get(), st = ctx.states();
     const out = [];
-    const ownSig = JSON.stringify([data?.flows, data?.heat, data?.status?.lanes, filter, tplOpen, ctx.canEdit(), ctx.locked(), Math.floor(Date.now() / 30000), t('ro.own')]);
+    const haAutos = Object.keys(st).filter((e) => ours(st[e]?.cid)).map((e) => [e, st[e].cid, st[e].state, st[e].run, st[e].at]);
+    const ownSig = JSON.stringify([data?.flows, data?.heat, data?.status?.lanes, haAutos, filter, tplOpen, ctx.canEdit(), ctx.locked(), Math.floor(Date.now() / 30000), t('ro.own')]);
     out.push({ key: 'own', width: 4, sig: ownSig, make: ownCard });
     if (ctx.canEdit()) {
-      const ids = Object.keys(st).filter((e) => e.startsWith('automation.'));
+      const ids = Object.keys(st).filter((e) => e.startsWith('automation.') && !ours(st[e]?.cid));
       const sig = JSON.stringify([ids.map((e) => [e, st[e]?.state, st[e]?.run, st[e]?.at, ctx.nameOf(e)]), autos, allAutos, Math.floor(Date.now() / 30000), t('ro.own')]);
       out.push({ key: 'autos', width: 2, sig, make: autoCard });
     }

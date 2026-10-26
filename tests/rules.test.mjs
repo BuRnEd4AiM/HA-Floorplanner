@@ -99,3 +99,24 @@ test('what a room\'s heating does now', () => {
   assert.equal(R.roomLine(null, now, t, deg), null);
   assert.equal(R.roomKey('h1', 'r1'), 'h1/r1');
 });
+
+test('a routine in Home Assistant (#548): its automations, their state, what saving it there came to', () => {
+  assert.equal(R.autoId('f_window', 'l2'), 'fp3d_window_l2');
+  assert.ok(R.ours('fp3d_window_l2') && !R.ours('heizung_morgens') && !R.ours(undefined));
+  const flow = { id: 'f_flur', ha: true, lanes: [{ id: 'l1', blocks: [] }, { id: 'l2', blocks: [] }] };
+  const states = { 'automation.flur': { cid: 'fp3d_flur_l1', run: 0, at: 100 }, 'automation.flur_2': { cid: 'fp3d_flur_l2', run: 1, at: 300 }, 'automation.x': { cid: 'x' } };
+  const live = R.flowLive(flow, states, () => null);
+  assert.deepEqual(live.lanes.map((x) => x.entity), ['automation.flur', 'automation.flur_2']);
+  assert.ok(live.running) && assert.equal(live.last, 300);
+  assert.deepEqual(R.flowLive({ ...flow, ha: false }, states, (k) => (k === 'f_flur/l1' ? { running: true, t0: 50 } : null)), {
+    running: true, last: 50, lanes: [{ lane: flow.lanes[0], entity: null }, { lane: flow.lanes[1], entity: null }] });
+  assert.equal(R.haEditUrl('', 'fp3d_flur_l1'), '/config/automation/edit/fp3d_flur_l1');
+  assert.equal(R.haEditUrl('http://192.168.1.10:8123', 'fp3d_a_l1'), 'http://192.168.1.10:8123/config/automation/edit/fp3d_a_l1');
+  assert.equal(R.syncWords(null, t), null);
+  assert.deepEqual(R.syncWords({ ok: true, ids: ['fp3d_a_l1'], problems: [] }, t), { kind: 'ok', text: 'fe.ha.saved' });
+  assert.equal(R.syncWords({ ok: true, problems: [{ why: 'room', soft: true }] }, t).kind, 'warn');
+  assert.deepEqual(R.syncWords({ problems: [{ why: 'weather' }] }, t), { kind: 'bad', text: 'fe.ha.cannot{"why":"fe.ha.why.weather"}' });
+  assert.equal(R.syncWords({ conflict: ['fp3d_a_l1'] }, t).kind, 'ask');
+  assert.equal(R.syncWords({ ok: true, problems: [], missing: true }, t).text, 'fe.ha.missing');
+  assert.equal(R.syncWords({ error: 'nohass' }, t).text, 'fe.ha.nohass');
+});

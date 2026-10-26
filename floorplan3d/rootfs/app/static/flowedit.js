@@ -3,9 +3,11 @@
  * blocks joined by lines like a Node-RED flow (actions that follow each other stand under each other: they happen at once), on the right
  * what the chosen block does (its devices, its times, its values), below the routine in words. Green ticks on the blocks show what ran last
  * and when, a purple one what is waiting now. "▶ Jetzt ausprobieren" does every action at once; "✓ Speichern" only when every block has
- * what it needs. Where the blocks stand, the words and whether a block is complete come from rules.js (tested); the add-on runs the
- * routine (flows.py). */
-import { blockWords, laneWords, laneLayout, newBlock, newId, flowReady, blockReady, groupOf, TRIGGERS, duration, hhmm } from './rules.js';
+ * what it needs. Where the blocks stand, the words and whether a block is complete come from rules.js (tested). "🏠 Home Assistant" (#548,
+ * the owner: "es soll dann auch eine echte Home Assistant Automatisierung … daraus werden"): saving writes it as automations of Home
+ * Assistant (haflows.py), which runs it; "⚙️ Add-on": the add-on runs it (flows.py). What became of it in Home Assistant is said under the
+ * top bar (saved, cannot be done there, changed in Home Assistant: overwrite?). */
+import { blockWords, laneWords, laneLayout, newBlock, newId, flowReady, blockReady, groupOf, TRIGGERS, duration, hhmm, autoId, syncWords, haEditUrl } from './rules.js';
 
 const PALETTE = [
   ['when', [['state', { to: 'open' }, '🪟', 'fe.p.open'], ['state', { to: 'on' }, '🏃', 'fe.p.on'], ['time', null, '🕐', 'fe.p.time'], ['sun', null, '🌇', 'fe.p.sun'],
@@ -30,6 +32,7 @@ const MAX_LANES = 4, MAX_BLOCKS = 12;
 export function initFlowEdit(ctx) {
   const { t } = ctx;
   let dlg = null, draft = null, sel = null, dirty = false, flash = '', timer = 0, drawnSig = '', search = '';   // sel: { l (lane), i (block) }
+  let sync = null;                                     // what saving it in Home Assistant came to (rules.js syncWords)
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
   const wctx = () => ({ t, lang: ctx.lang(), nameOf: ctx.nameOf, states: ctx.states() });
@@ -304,6 +307,14 @@ export function initFlowEdit(ctx) {
     const onLab = make('label', 'feOn'); const sw = make('span', 'sw'); const cb = make('input'); cb.type = 'checkbox'; cb.checked = draft.on; cb.dataset.field = 'on';
     cb.addEventListener('change', () => change(() => { draft.on = cb.checked; })); sw.append(cb, make('span')); onLab.append(sw, make('span', '', draft.on ? t('fe.on') : t('fe.off')));
     top.append(back, name, onLab);
+    if (ctx.rules.get()?.ha) {                           // where it runs: Home Assistant (an automation there) or the add-on
+      const where = make('div', 'feWhere'); where.dataset.field = 'where'; where.title = t('fe.ha.whereHelp');
+      [[true, `🏠 ${t('fe.ha.where.ha')}`], [false, `⚙️ ${t('fe.ha.where.addon')}`]].forEach(([v, text]) => {
+        const b = btn(`tpChip${!!draft.ha === v ? ' on' : ''}`, text, () => change(() => { draft.ha = v; sync = null; })); b.dataset.value = String(v);
+        where.append(b);
+      });
+      top.append(where);
+    }
     const right = make('div', 'feTopR');
     if (flash) right.append(make('span', 'feFlash', flash));
     const tryIt = btn('bdBtn', `▶ ${t('fe.try')}`, tryNow, t('fe.tryHelp')); tryIt.dataset.act = 'feTry'; tryIt.disabled = !flowReady(draft);
@@ -313,25 +324,49 @@ export function initFlowEdit(ctx) {
     top.append(right);
     const body = make('div', 'feBody');
     body.append(palette(), canvas(), panel());
+    const line = syncLine();
     const words = make('div', 'feWords');
     words.append(make('small', '', t('fe.words')));
     draft.lanes.forEach((l) => words.append(make('p', '', laneWords(l, wctx()))));
     if (!draft.lanes.length) words.append(make('p', 'tpSub', t('fe.empty')));
-    dlg.replaceChildren(top, body, words);
+    if (draft.ha) words.append(make('p', 'feHaNote', `🏠 ${t('fe.ha.note')}`));
+    dlg.replaceChildren(...[top, line, body, words].filter(Boolean));
     if (keep) { const i = dlg.querySelector(`input[type=search][data-field="${keep.field}"]`); if (i) { i.focus(); try { i.setSelectionRange(keep.pos, keep.pos); } catch { /* not every input */ } } }
     drawnSig = sig();
   }
   const sig = () => JSON.stringify([draft?.id ? (draft.lanes || []).map((l) => ctx.rules.lane(`${draft.id}/${l.id}`)) : null, Math.floor(Date.now() / 20000)]);
 
-  async function store() {
+  /** the line under the top bar: what became of it in Home Assistant, with "In Home Assistant öffnen" or, when it was changed there,
+   *  "Überschreiben" */
+  function syncLine() {
+    const savedHa = saved()?.ha && draft.ha;
+    if (!sync && !savedHa) return null;
+    const box = make('div', `feSync ${sync?.kind || 'ok'}`); box.dataset.sync = sync?.kind || 'ok';
+    box.append(make('span', '', sync ? sync.text : `🏠 ${t('fe.ha.lives')}`));
+    if (sync?.kind === 'ask') {
+      const over = btn('bdBtn primary', t('fe.ha.overwrite'), () => store(true)); over.dataset.act = 'feOverwrite';
+      const keep = btn('bdBtn', t('fe.ha.keep'), () => { sync = null; draw(); }); keep.dataset.act = 'feKeep';
+      box.append(over, keep);
+    } else if (savedHa && draft.lanes[0]) {
+      const a = make('a', 'feHaLink', `↗ ${t('fe.ha.open')}`);
+      const base = ctx.rules.get()?.haLink || '';
+      a.href = haEditUrl(base, autoId(draft.id, draft.lanes[0].id)); a.target = base ? '_blank' : '_top'; a.rel = 'noopener';
+      box.append(a);
+    }
+    return box;
+  }
+
+  async function store(force = false) {
     if (!flowReady(draft)) return false;
     const list = (ctx.rules.get()?.flows || []).filter((f) => f.id !== draft.id);
-    const ok = await ctx.rules.save({ flows: [...list, draft] });
+    const res = await ctx.rules.save({ flows: [...list, draft], ...(force ? { force: [draft.id] } : {}) });
+    const ok = !!res;
+    sync = ok && draft.ha ? syncWords(res.haSync?.[draft.id], t) : null;
     flash = ok ? `✓ ${t('fe.saved')}` : t('fe.notSaved');
     if (ok) dirty = false;
     draw();
     setTimeout(() => { flash = ''; draw(); }, 2500);
-    return ok;
+    return ok && (!sync || ['ok', 'warn'].includes(sync.kind));
   }
   async function tryNow() {
     if (dirty && !(await store())) return;
@@ -362,8 +397,9 @@ export function initFlowEdit(ctx) {
       document.body.append(dlg);
     }
     const base = flow ? JSON.parse(JSON.stringify(flow)) : { id: null, name: t('fl.newName'), on: true, lanes: [] };
-    draft = { ...base, id: base.id || newId(), on: base.on !== false };
-    dirty = !flow?.id; sel = draft.lanes.length ? { l: 0, i: 0 } : null; flash = ''; search = '';
+    const ha = ctx.rules.get()?.ha === true;               // a new one becomes an automation of Home Assistant (the owner's choice)
+    draft = { ...base, id: base.id || newId(), on: base.on !== false, ha: ha && (base.id ? base.ha === true : base.ha !== false) };
+    dirty = !flow?.id; sel = draft.lanes.length ? { l: 0, i: 0 } : null; flash = ''; search = ''; sync = null;
     if (!dlg.open) dlg.showModal();
     draw();
     clearInterval(timer);

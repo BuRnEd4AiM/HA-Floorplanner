@@ -533,10 +533,10 @@ const rulesDemo = {
     schedule: { on: true, levels: { night: 17, eco: 19, comfort: 21 }, pre: 30, rooms: { 'main/r1': { days: [workDay, workDay, workDay, workDay, workDay, homeDay, homeDay] } } },
     summer: { on: false, above: 18, hours: 6 }, boost: { on: true, minutes: 30, temp: 24 }, holiday: { on: false, temp: 15, until: '', back: '14:00', guard: false } },
   flows: [
-    { id: 'f_flur', name: 'Flurlicht nachts', on: true, lanes: [{ id: 'l1', blocks: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on' }, { k: 'if_sun', is: 'dark' },
+    { id: 'f_flur', name: 'Flurlicht nachts', on: true, ha: true, lanes: [{ id: 'l1', blocks: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on' }, { k: 'if_sun', is: 'dark' },
       { k: 'switch', ents: ['light.stehlampe'], same: false, do: 'on', pct: 20 }, { k: 'wait', s: 120 }, { k: 'switch', ents: ['light.stehlampe'], same: false, do: 'off' }] }] },
-    { id: 'f_abend', name: 'Rollläden am Abend', on: true, lanes: [{ id: 'l1', blocks: [{ k: 'sun', ev: 'set', off: 0 }, { k: 'cover', ents: ['cover.wohnzimmer'], same: false, do: 'close' }] }] },
-    { id: 'f_kino', name: 'Kinoabend', on: true, lanes: [{ id: 'l1', blocks: [{ k: 'button' }, { k: 'switch', ents: ['light.wohnzimmer'], same: false, do: 'off' },
+    { id: 'f_abend', name: 'Rollläden am Abend', on: true, ha: false, lanes: [{ id: 'l1', blocks: [{ k: 'sun', ev: 'set', off: 0 }, { k: 'cover', ents: ['cover.wohnzimmer'], same: false, do: 'close' }] }] },
+    { id: 'f_kino', name: 'Kinoabend', on: true, ha: true, lanes: [{ id: 'l1', blocks: [{ k: 'button' }, { k: 'switch', ents: ['light.wohnzimmer'], same: false, do: 'off' },
       { k: 'cover', ents: ['cover.wohnzimmer'], same: false, do: 'close' }, { k: 'switch', ents: ['light.tv_led'], same: false, do: 'on', pct: 40 }] }] },
   ],
   boost: {}, skip: {}, log: [],
@@ -562,12 +562,34 @@ function rulesStatus() {
     until: wz === 'boost' ? rulesDemo.boost['main/r1'] : null, back: wz === 'window' || wz === 'boost' ? 22 : null, open: open ? ['binary_sensor.fenster_wohnzimmer'] : [],
     waiting: false, skip: !!rulesDemo.skip['main/r1'], climates: ['climate.wohnzimmer'] };
   const lanes = {};
-  rulesDemo.flows.forEach((f) => f.lanes.forEach((l) => { lanes[`${f.id}/${l.id}`] = { running: false, wait: null, until: null, passed: {}, stop: null, end: null, t0: null, test: false }; }));
-  lanes['f_flur/l1'] = { running: false, wait: null, until: null, passed: { 0: t - 19 * 60, 1: t - 19 * 60, 2: t - 19 * 60, 3: t - 17 * 60, 4: t - 17 * 60 }, stop: null, end: t - 17 * 60, t0: t - 19 * 60, test: false };
+  rulesDemo.flows.filter((f) => !f.ha).forEach((f) => f.lanes.forEach((l) => { lanes[`${f.id}/${l.id}`] = { running: false, wait: null, until: null, passed: {}, stop: null, end: null, t0: null, test: false }; }));
+  if (!rulesDemo.flows.find((f) => f.id === 'f_flur')?.ha) lanes['f_flur/l1'] = { running: false, wait: null, until: null, passed: { 0: t - 19 * 60, 1: t - 19 * 60, 2: t - 19 * 60, 3: t - 17 * 60, 4: t - 17 * 60 }, stop: null, end: t - 17 * 60, t0: t - 19 * 60, test: false };
   return { rooms, lanes };
 }
+/* #548: a routine with ha: true is an automation of Home Assistant; here the demo makes the automation's entity (automation.<name>, cid
+ * fp3d_<routine>_<lane>) as Home Assistant would, and deletes it with the routine */
+const slug = (x) => x.toLowerCase().replace(/[äöüß]/g, (c) => ({ ä: 'ae', ö: 'oe', ü: 'ue', ß: 'ss' }[c])).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'ablauf';
+function haSyncDemo() {
+  const want = {}, out = {};
+  rulesDemo.flows.filter((f) => f.ha).forEach((f) => {
+    out[f.id] = { ok: true, ids: [], problems: [] };
+    f.lanes.forEach((l, n) => {
+      const cid = `fp3d_${f.id.slice(2)}_${l.id}`, name = f.lanes.length > 1 ? `${f.name} · ${n + 1}` : f.name;
+      want[cid] = { name, on: f.on };
+      out[f.id].ids.push(cid);
+    });
+  });
+  Object.keys(entities).filter((e) => /^fp3d_/.test(entities[e].cid || '') && !want[entities[e].cid]).forEach((e) => { delete entities[e]; });
+  Object.entries(want).forEach(([cid, w]) => {
+    const e = Object.keys(entities).find((x) => entities[x].cid === cid) || `automation.${slug(w.name)}`;
+    entities[e] = { ...(entities[e] || { at: null, run: 0 }), name: w.name, state: w.on ? 'on' : 'off', cid };
+  });
+  return out;
+}
+haSyncDemo();                                          // the demo starts with two routines in Home Assistant
+entities['automation.flurlicht_nachts'].at = nowS() - 17 * 60;
 function rulesAnswer() {
-  return { heat: rulesDemo.heat, flows: rulesDemo.flows, status: rulesStatus(), log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS() };
+  return { heat: rulesDemo.heat, flows: rulesDemo.flows, status: rulesStatus(), log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS(), haLink: '' };
 }
 /** who uses a device in the demo (#546): the thermostat of the living room is used by an automation of Home Assistant too */
 function relatedDemo(e) {
@@ -919,7 +941,7 @@ export function installDemoBackend() {
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
         hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null,
         bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null, at: e.at ?? null, run: e.run ?? null,
-        lc: lastChanged(entity_id, e.state) })));
+        ...(e.cid ? { cid: e.cid } : {}), lc: lastChanged(entity_id, e.state) })));
     }
     if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
       return json({ known: true, version: demoVersion(), buildHash: 'demo', short: 'demo', server: { ok: true, files: 0, changed: [], missing: [], extra: [] }, staticFiles: {} });
@@ -1040,7 +1062,7 @@ export function installDemoBackend() {
       if (method === 'PUT') {
         const b = JSON.parse(init.body || '{}');
         if (b.heat) rulesDemo.heat = b.heat;
-        if (Array.isArray(b.flows)) rulesDemo.flows = b.flows;
+        if (Array.isArray(b.flows)) return json({ ...rulesAnswer(), flows: (rulesDemo.flows = b.flows), haSync: haSyncDemo() });
       }
       return json(rulesAnswer());
     }
@@ -1056,6 +1078,11 @@ export function installDemoBackend() {
     if (path === 'api/rules/run' && method === 'POST') {
       const b = JSON.parse(init.body || '{}'), f = rulesDemo.flows.find((x) => x.id === b.flow), t = nowS();
       if (!f) return json({ error: 'no such routine' }, 404);
+      if (f.ha && !b.test) {                                 // Home Assistant runs it: its automation ran just now
+        const e = Object.keys(entities).find((x) => entities[x].cid === `fp3d_${f.id.slice(2)}_${b.lane}`);
+        if (e) entities[e].at = t;
+        return json({ ok: !!e });
+      }
       rulesDemo.log.push({ t, src: 'flow', id: f.id, name: f.name, lane: b.lane, act: 'start', ent: '', test: !!b.test });
       return json({ ok: true });
     }

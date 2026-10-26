@@ -20,6 +20,7 @@ MAX_LOG = 200
 CHECK = 15.0           # seconds between two looks at the clock
 SAVE_EVERY = 5.0       # the memory is written at most this often
 HEAT_DOMAINS = ("person.", "weather.", "climate.")
+NOTIFY_EVENT = "fp3d_notify"   # an automation of the add-on (#548) asks it to send a message its own way
 
 
 class Rules:
@@ -46,10 +47,18 @@ class Rules:
         self.queue.put_nowait(req)
         self.wake.set()
 
+    def local(self) -> list:
+        """the routines the add-on runs itself; one with ha: true is an automation of Home Assistant (#548), Home Assistant runs it"""
+        return [f for f in self.cfg["flows"] if not f["ha"]]
+
+    def listen(self) -> bool:
+        """an automation of the add-on sends a message the add-on's own way (WhatsApp, Telegram): it fires fp3d_notify (haflows.py)"""
+        return any(f["ha"] and f["on"] and any(b["k"] == "notify" for x in f["lanes"] for b in x["blocks"]) for f in self.cfg["flows"])
+
     def active(self) -> bool:
         """is there anything to do: a rule or routine on, a boost or routine running, a thermostat still to put back, a wish waiting"""
         h, f = self.mem["heat"], self.mem["flows"]
-        return (hr.any_on(self.cfg["heat"]) or any(x["on"] for x in self.cfg["flows"]) or bool(h["boost"]) or bool(f["runs"])
+        return (hr.any_on(self.cfg["heat"]) or any(x["on"] for x in self.local()) or self.listen() or bool(h["boost"]) or bool(f["runs"])
                 or any(t.get("ov") or t.get("level") for t in h["t"].values()) or bool(self.queue and not self.queue.empty()))
 
     def note(self, entries, now):
@@ -96,6 +105,7 @@ async def run_rules(rules: Rules, *, connect, env, check: float = CHECK, idle: f
                 pending = []
                 states = {s["entity_id"]: s for s in (await _ask_ws(ws, 1, {"type": "get_states"}, pending) or []) if isinstance(s, dict) and s.get("entity_id")}
                 await _ask_ws(ws, 2, {"type": "subscribe_events", "event_type": "state_changed"}, pending)
+                await _ask_ws(ws, 3, {"type": "subscribe_events", "event_type": NOTIFY_EVENT}, pending)
                 rules.connected, delay = True, 1
                 await _loop(rules, ws, states, pending, env, check)
         except asyncio.CancelledError:
@@ -184,14 +194,14 @@ async def _look(rules, states, cache, env, clock=False, changed=None):
     ctx = _ctx(states, cache, env, now, local)
     if changed:
         eid, old, new = changed
-        rules.mem["flows"], calls, lines = fl.changed(rules.cfg["flows"], rules.mem["flows"], eid, old, new, ctx)
+        rules.mem["flows"], calls, lines = fl.changed(rules.local(), rules.mem["flows"], eid, old, new, ctx)
         await _do(rules, calls, lines, now, env)
     if clock:
-        rules.mem["flows"], calls, lines = fl.tick(rules.cfg["flows"], rules.mem["flows"], ctx)
+        rules.mem["flows"], calls, lines = fl.tick(rules.local(), rules.mem["flows"], ctx)
         await _do(rules, calls, lines, now, env)
     if clock or changed and _heat_cares(changed[0], cache["rooms"]):
         await _heat(rules, states, cache, env, now, local)
-    rules.status["lanes"] = fl.view(rules.cfg["flows"], rules.mem["flows"], now)
+    rules.status["lanes"] = fl.view(rules.local(), rules.mem["flows"], now)
 
 
 def _heat_cares(eid, rooms) -> bool:
@@ -207,6 +217,11 @@ async def _wish(rules, req, states, cache, env):
         data = json.loads(msg.data)
         ev = (data.get("event") or {}) if data.get("type") == "event" else {}
         d = ev.get("data") or {}
+        if ev.get("event_type") == NOTIFY_EVENT and isinstance(d.get("message"), str) and d["message"].strip():
+            text = d["message"].strip()[:300]
+            rules.note([{"src": "flow", "act": "notify", "name": "Home Assistant", "v": text}], time.time())
+            await env.notify(text)
+            return
         eid = d.get("entity_id")
         if ev.get("event_type") != "state_changed" or not isinstance(eid, str):
             return
@@ -233,6 +248,6 @@ async def _wish(rules, req, states, cache, env):
         if out:
             rules.mem["flows"], calls, lines = out
             await _do(rules, calls, lines, now, env)
-            rules.status["lanes"] = fl.view(rules.cfg["flows"], rules.mem["flows"], now)
+            rules.status["lanes"] = fl.view(rules.local(), rules.mem["flows"], now)
     elif kind == "cfg":
         await _look(rules, states, cache, env, clock=True)

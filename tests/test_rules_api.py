@@ -89,3 +89,84 @@ async def test_rules_go_into_the_backup_and_come_back(client):
     assert (await client.post("/api/backup", json=data)).status == 200
     r = await (await client.get("/api/rules")).json()
     assert r["heat"]["night"]["on"] is True and [f["id"] for f in r["flows"]] == ["f_kino", "f_fenster"]
+
+
+async def test_routines_become_automations_of_home_assistant(client, monkeypatch, aiohttp_server, tmp_path):
+    """#548: a routine with ha: true is written through Home Assistant's own editor (fp3d_… ids only), not again when unchanged, not over
+    a change made in Home Assistant unless the page says so (the old one kept), switched off with the routine and deleted with it"""
+    import json as js
+    import re
+    from aiohttp import web
+    autos = {"heizung_morgens": {"id": "heizung_morgens", "alias": "Heizung morgens"}}
+    states = {"automation.heizung_morgens": {"entity_id": "automation.heizung_morgens", "state": "on", "attributes": {"id": "heizung_morgens"}},
+              "light.flur": {"entity_id": "light.flur", "state": "off", "attributes": {}}}
+    asked, services = [], []
+
+    async def ws(request):
+        w = web.WebSocketResponse(); await w.prepare(request)
+        await w.send_json({"type": "auth_required"}); await w.receive_json(); await w.send_json({"type": "auth_ok"})
+        async for msg in w:
+            m = js.loads(msg.data)
+            await w.send_json({"id": m["id"], "type": "result", "success": True, "result": list(states.values()) if m["type"] == "get_states" else None})
+        return w
+
+    async def config(request):
+        cid = request.match_info["id"]
+        asked.append((request.method, cid))
+        if request.method == "GET":
+            return web.json_response(autos[cid]) if cid in autos else web.json_response({"message": "Resource not found"}, status=404)
+        if request.method == "DELETE":
+            autos.pop(cid, None)
+            states.pop(next((e for e, s in states.items() if s["attributes"].get("id") == cid), ""), None)
+            return web.json_response({"result": "ok"})
+        autos[cid] = await request.json()
+        e = "automation." + re.sub(r"[^a-z0-9]+", "_", autos[cid]["alias"].lower()).strip("_")
+        states[e] = {"entity_id": e, "state": "on", "attributes": {"id": cid, "friendly_name": autos[cid]["alias"]}}
+        return web.json_response({"result": "ok"})
+
+    async def service(request):
+        data = await request.json()
+        services.append((request.match_info["svc"], data))
+        if request.match_info["svc"] in ("turn_on", "turn_off"):
+            states[data["entity_id"]]["state"] = request.match_info["svc"][5:]
+        return web.json_response([])
+
+    async def template(request):
+        return web.Response(text="[]")
+    fake = web.Application()
+    fake.router.add_get("/websocket", ws)
+    fake.router.add_route("*", "/config/automation/config/{id}", config)
+    fake.router.add_post("/services/automation/{svc}", service)
+    fake.router.add_post("/template", template)
+    srv = await aiohttp_server(fake)
+    monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+
+    async def editor(request):
+        return True
+    monkeypatch.setattr(server, "can_edit", editor)
+    flow = {"id": "f_licht", "name": "Flurlicht", "ha": True, "lanes": [{"id": "l1", "blocks": [{"k": "button"}, {"k": "switch", "ents": ["light.flur"], "do": "on"}]}]}
+    local = {"id": "f_hier", "name": "Im Add-on", "lanes": [{"id": "l1", "blocks": [{"k": "button"}, {"k": "switch", "ents": ["light.flur"], "do": "off"}]}]}
+    r = await (await client.put("/api/rules", json={"flows": [flow, local]})).json()
+    assert r["haSync"] == {"f_licht": {"ok": True, "ids": ["fp3d_licht_l1"], "problems": []}}
+    assert autos["fp3d_licht_l1"]["alias"] == "Flurlicht" and autos["fp3d_licht_l1"]["actions"][0]["action"] == "light.turn_on"
+    assert "fp3d_hier_l1" not in autos and ("POST", "heizung_morgens") not in asked                 # the add-on's own stays the add-on's
+    assert (await client.post("/api/rules/run", json={"flow": "f_licht", "lane": "l1"})).status == 200
+    assert services[-1] == ("trigger", {"entity_id": "automation.flurlicht"})                         # its button: Home Assistant runs it
+    n = len([a for a in asked if a[0] == "POST"])
+    await client.put("/api/rules", json={"flows": [flow, local]})
+    assert len([a for a in asked if a[0] == "POST"]) == n                                            # unchanged: not written again
+    autos["fp3d_licht_l1"] = {**autos["fp3d_licht_l1"], "alias": "Im Home Assistant geändert"}       # somebody changes it there
+    renamed = {**flow, "name": "Flur"}
+    r = await (await client.put("/api/rules", json={"flows": [renamed]})).json()
+    assert r["haSync"] == {"f_licht": {"conflict": ["fp3d_licht_l1"]}} and autos["fp3d_licht_l1"]["alias"] == "Im Home Assistant geändert"
+    r = await (await client.put("/api/rules", json={"flows": [{**renamed, "on": False}], "force": ["f_licht"]})).json()
+    assert r["haSync"]["f_licht"]["ok"] and autos["fp3d_licht_l1"]["alias"] == "Flur"
+    assert any("Im Home Assistant geändert" in p.read_text() for p in (tmp_path / "ha-backup").glob("*.json"))   # the old one kept
+    assert ("turn_off", {"entity_id": "automation.flur"}) in services                               # off as the routine says
+    r = await (await client.put("/api/rules", json={"flows": [{**flow, "lanes": [{"id": "l1", "blocks": [{"k": "button"}, {"k": "if_outside", "v": 3}, {"k": "notify", "text": "kalt"}]}]}]})).json()
+    assert r["haSync"] == {"f_licht": {"problems": [{"lane": "l1", "block": 1, "why": "weather"}]}} and autos["fp3d_licht_l1"]["alias"] == "Flur"
+    await client.put("/api/rules", json={"flows": [local]})
+    assert "fp3d_licht_l1" not in autos and "heizung_morgens" in autos and ("DELETE", "fp3d_licht_l1") in asked
+    assert not any(a[1] == "heizung_morgens" and a[0] != "GET" for a in asked)                      # never touched
+    assert js.loads((tmp_path / "ha-sync.json").read_text()) == {}

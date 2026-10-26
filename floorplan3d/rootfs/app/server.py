@@ -29,6 +29,7 @@ import boards
 import flows as fl
 import garden as gn
 import guard as gd
+import haflows as hf
 import heatrules as hr
 import household as hh
 import controls
@@ -1221,11 +1222,14 @@ def _sky(st, a):
 
 
 def _runs(st, a):
-    """an automation's or script's last run (seconds) and how many runs go on now (▶ Abläufe, "Wird benutzt", #546)"""
-    if not st["entity_id"].startswith(("automation.", "script.")):
-        return {}
+    """an automation's or script's last run (seconds) and how many runs go on now (▶ Abläufe, "Wird benutzt", #546); the id of an
+    automation or scene made in Home Assistant's editor ("cid": fp3d_… are the add-on's own, #548)"""
+    e = st["entity_id"]
+    cid = {"cid": a["id"]} if e.startswith(("automation.", "scene.")) and isinstance(a.get("id"), str) else {}
+    if not e.startswith(("automation.", "script.")):
+        return cid
     cur = a.get("current")
-    return {"at": _epoch(a.get("last_triggered")), "run": cur if isinstance(cur, int) and not isinstance(cur, bool) else 0}
+    return {"at": _epoch(a.get("last_triggered")), "run": cur if isinstance(cur, int) and not isinstance(cur, bool) else 0, **cid}
 
 
 def slim_state(st):
@@ -3241,7 +3245,8 @@ def rules_store(request) -> rr.Rules:
 
 async def rules_answer(request, r: rr.Rules) -> dict:
     return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "status": r.status, "log": r.mem["log"][-100:], "running": r.connected,
-            "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time())}
+            "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time()),
+            "haLink": hl.browser_ha(HA_URL, HA_PUBLIC_URL, request.host) if HA_URL else ""}   # where the browser opens Home Assistant (#548)
 
 
 async def get_rules(request):
@@ -3268,7 +3273,11 @@ async def put_rules(request):
         r.cfg["flows"] = fl.clean_flows(body["flows"])
     write_json_atomic(rules_path(request), r.cfg)
     r.ask("cfg")
-    return web.json_response(await rules_answer(request, r))
+    out = await rules_answer(request, r)
+    if "flows" in body:                                  # the routines with ha: true become automations of Home Assistant (#548)
+        force = [x for x in body.get("force") or [] if isinstance(x, str)] if isinstance(body.get("force"), list) else []
+        out["haSync"] = await ha_sync_flows(request, r.cfg["flows"], force)
+    return web.json_response(out)
 
 
 async def post_rules_room(request):
@@ -3303,6 +3312,11 @@ async def post_rules_run(request):
             return forbidden()
     elif "control" in user_locks(request):
         return web.json_response({"error": "locked"}, status=403)
+    if flow["ha"] and not test:                         # an automation of Home Assistant (#548): Home Assistant runs it
+        e = await ha_auto_entity(request.app, hf.auto_id(flow["id"], lane["id"]))
+        if not e:
+            return web.json_response({"error": "not in Home Assistant"}, status=404)
+        return web.json_response({"ok": await ha_call("automation", "trigger", {"entity_id": e})})
     r.ask("run", flow["id"], lane["id"], test)
     return web.json_response({"ok": True})
 
@@ -3460,7 +3474,9 @@ async def get_related(request):
         out["error"] = str(err)[:120]
         return web.json_response(out)
     cfgs = iter(configs)
-    out["rows"] = [ub.row(x, states.get(x), None if x.startswith("scene.") else _cfg_of(next(cfgs, None))) for x in ids]
+    rows = [ub.row(x, states.get(x), None if x.startswith("scene.") else _cfg_of(next(cfgs, None))) for x in ids]
+    mine = {x for x in ids if hf.ours(((states.get(x) or {}).get("attributes") or {}).get("id"))}
+    out["rows"] = [x for x in rows if x["entity"] not in mine]        # the add-on's own automations are its routines (#548): once
     parts = request.app[KEY_RENAMES].get("parts") or {}
     out["parts"] = [{"entity": p, "name": ((states.get(p) or {}).get("attributes") or {}).get("friendly_name") or p, "state": (states.get(p) or {}).get("state")}
                     for p, head in parts.items() if head == e and re.search(r"window|fenster", p)]
@@ -3486,9 +3502,151 @@ async def get_automations(request):
         rows = []
         for x, res in zip(ids, configs):
             cfg = _cfg_of(res)
+            if hf.ours((cfg or {}).get("id")):            # the add-on's own (#548) show as its routines
+                continue
             rows.append({**ub.row(x, states.get(x), cfg), "uses": [u for u in ub.entities_in(cfg) if u != x][:12] if cfg else []})
         store["autos"] = (time.time(), rows)
     return web.json_response({"rows": rows})
+
+
+# ---------- own routines as real automations of Home Assistant (#548): haflows.py; the add-on only ever touches ids fp3d_… ----------
+KEEP_BACKUPS = 20
+
+
+def ha_sync_path(request) -> Path:
+    return data_dir(request) / "ha-sync.json"          # what the add-on wrote last: {id: {flow, sent, seen}}
+
+
+def ha_backup(request, kind: str, cid: str, cfg) -> None:
+    """the old version of an automation or scene before it is overwritten or deleted (the last few kept)"""
+    folder = data_dir(request) / "ha-backup"
+    folder.mkdir(parents=True, exist_ok=True)
+    write_json_atomic(folder / f"{time.strftime('%Y%m%d-%H%M%S')}-{kind}-{cid}.json", cfg)
+    for old in sorted(folder.glob("*.json"))[:-KEEP_BACKUPS]:
+        old.unlink(missing_ok=True)
+
+
+async def ha_config(method: str, kind: str, cid: str, body=None):
+    """Home Assistant's editor of automations or scenes (REST, as its own pages use it): (status, answer); 0 when there was no answer"""
+    if not hf.ours(cid) and method != "GET":
+        return 403, {"message": "not ours"}           # never write or delete what somebody else made
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=20)) as s:
+            async with s.request(method, f"{HA_API}/config/{kind}/config/{cid}", headers=ha_headers(), json=body) as r:
+                text = await r.text()
+                try:
+                    data = json.loads(text) if text else None
+                except ValueError:
+                    data = {"message": text[:200]}
+                return r.status, data
+    except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+        return 0, {"message": str(err)[:200] or type(err).__name__}
+
+
+async def ha_call(domain: str, service: str, data: dict) -> bool:
+    """one call of a service with its data (an automation triggered, switched on or off, a scene applied); ha_service above is the
+    garden's (#533), with an entity only"""
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
+            async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(), json=data) as r:
+                return r.status < 400
+    except (aiohttp.ClientError, asyncio.TimeoutError):
+        return False
+
+
+def _fresh_states(app):
+    app[KEY_RULES].pop("states", None)
+
+
+async def ha_auto_entity(app, cid: str, fresh: bool = False) -> str | None:
+    """the entity of the automation (or scene) with this id in Home Assistant's editor"""
+    if fresh:
+        _fresh_states(app)
+    states = await ha_states_cached(app)
+    return next((e for e, s in states.items() if (s.get("attributes") or {}).get("id") == cid and e.startswith(("automation.", "scene."))), None)
+
+
+def ha_notify_targets(request):
+    """where an automation's message goes: Home Assistant's notify services and entities the settings tick, or None: the add-on sends it
+    itself (WhatsApp, Telegram; the automation fires the event fp3d_notify)"""
+    cfg = notify_cfg(request)
+    if cfg.get("via") != "ha" or an.ready({**cfg, "on": True}):
+        return None
+    return {"services": list(cfg.get("services") or []), "entities": list(cfg.get("entities") or [])}
+
+
+async def ha_sync_flows(request, flows: list, force=()) -> dict:
+    """the routines with ha: true written as automations of Home Assistant, the ones no longer wanted deleted, each set on or off:
+    {routine id: {ok, ids, problems, missing} | {problems} (cannot be done there) | {conflict: [ids]} (changed in Home Assistant since the
+    add-on wrote it: written only when the page says so, force) | {error}}"""
+    mine = [f for f in flows if f["ha"]]
+    path = ha_sync_path(request)
+    record = read_json(path, {})
+    record = record if isinstance(record, dict) else {}
+    if not SUPERVISOR_TOKEN:
+        return {f["id"]: {"error": "nohass"} for f in mine}
+    try:
+        ctx = hf.context(await rules_rooms(request.app), await ha_states_cached(request.app),
+                         weather=rules_weather(request.app, await ha_states_cached(request.app)), notify=ha_notify_targets(request),
+                         lang=notify_lang(request))
+    except (aiohttp.ClientError, asyncio.TimeoutError, RuntimeError, OSError) as err:
+        return {f["id"]: {"error": str(err)[:120] or "nohass"} for f in mine}
+    out, desired, owner, keep = {}, {}, {}, set()
+    for f in mine:
+        c = hf.compile_flow(f, ctx)
+        if not c["ok"]:                                  # nothing of it written; what it had in Home Assistant stays as it was
+            out[f["id"]] = {"problems": c["problems"]}
+            keep |= {cid for cid, v in record.items() if isinstance(v, dict) and v.get("flow") == f["id"]}
+            continue
+        out[f["id"]] = {"ok": True, "ids": [a["id"] for a in c["autos"]], "problems": c["problems"]}
+        for a in c["autos"]:
+            desired[a["id"]], owner[a["id"]] = a, f["id"]
+    plan = hf.sync_plan(desired, {k: v for k, v in record.items() if k not in keep and isinstance(v, dict)})
+    written = []
+    for cid in plan["write"]:
+        fid = owner[cid]
+        if not out[fid].get("ok"):
+            continue
+        status, cur = await ha_config("GET", "automation", cid)
+        if status == 200 and isinstance(cur, dict):
+            seen = (record.get(cid) or {}).get("seen")
+            if seen and hf.sig(cur) != seen and fid not in force:
+                out[fid] = {"conflict": [*out[fid].get("conflict", []), cid]}
+                continue
+            ha_backup(request, "automation", cid, cur)
+        status, res = await ha_config("POST", "automation", cid, desired[cid])
+        if status != 200:
+            out[fid] = {"error": ((res or {}).get("message") if isinstance(res, dict) else None) or f"Home Assistant: {status or 'no answer'}"}
+            continue
+        status, cur = await ha_config("GET", "automation", cid)
+        record[cid] = {"flow": fid, "sent": hf.sig(desired[cid]), "seen": hf.sig(cur if status == 200 and isinstance(cur, dict) else desired[cid])}
+        written.append(cid)
+    for cid in plan["delete"]:
+        status, cur = await ha_config("GET", "automation", cid)
+        if status == 200 and isinstance(cur, dict):
+            ha_backup(request, "automation", cid, cur)
+            status, _ = await ha_config("DELETE", "automation", cid)
+        if status in (200, 404):
+            record.pop(cid, None)
+    write_json_atomic(path, record)
+    if desired:                                        # Home Assistant loads them a moment after: then on or off as the routine says
+        for _ in range(12):
+            _fresh_states(request.app)
+            states = await ha_states_cached(request.app)
+            ents = {(s.get("attributes") or {}).get("id"): e for e, s in states.items() if e.startswith("automation.")}
+            if all(cid in ents for cid in written):
+                break
+            await asyncio.sleep(0.5)
+        for f in mine:
+            res = out[f["id"]]
+            for cid in res.get("ids") or []:
+                e = ents.get(cid)
+                if not e:
+                    res["missing"] = True               # Home Assistant does not load automations.yaml (configuration.yaml)
+                elif (states[e].get("state") == "on") != f["on"]:
+                    await ha_call("automation", "turn_on" if f["on"] else "turn_off", {"entity_id": e})
+        _fresh_states(request.app)
+    return out
 
 
 async def timeline_allowed(request) -> bool:

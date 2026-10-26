@@ -21,6 +21,7 @@ TODO = {}          # #490: the to-do lists: {entity: [{"uid", "summary", "status
 VOICE = {"assist": True, "text": "Welche Fenster sind offen", "heard": []}   # #509: Assist with speech-to-text (POST /_voice {assist, text}); heard: bytes of audio per run
 HIST = {}          # #490: the history of some entities (a machine's power): {entity: [[iso time, state]]}, POST /_hist; others get the hourly numbers
 RELATED = {"related": {}, "configs": {}}   # #546: Home Assistant's search "related" ({entity: {"automation": [...], "script": [...]}}) and the configs of automations and scripts, POST /_related
+AUTOS = {}         # #548: automations written through Home Assistant's editor API (/config/automation/config/<id>), each also an entity in EXTRA
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
 def state_of(e):
@@ -88,6 +89,9 @@ async def service(r):
                           ("percentage", "percentage"), ("oscillating", "oscillating"), ("preset_mode", "preset_mode"), ("fan_mode", "fan_mode")):
             if key in body: a[attr] = body[key]
         if svc == "select_option": x["state"] = body["option"]
+        if dom == "automation" and svc == "trigger":      # #548: an automation of the add-on's routines started from its button
+            import datetime as dt
+            a["last_triggered"] = dt.datetime.now(dt.timezone.utc).isoformat()
         if svc == "set_hvac_mode": x["state"] = body["hvac_mode"]; a["hvac_action"] = "off" if body["hvac_mode"] == "off" else "heating"   # #546: a thermostat added for the heating rules
         if svc == "set_temperature": a["temperature"] = body["temperature"]
         await push(e)
@@ -347,6 +351,29 @@ async def notified(r): return web.json_response(NOTIFIED)
 async def set_voice(r):           # test helper (#509): {"assist": false} = no speech-to-text, {"text": ...} = what is heard; answers what was heard
     VOICE.update({k: v for k, v in (await r.json()).items() if k in ("assist", "text")})
     return web.json_response(VOICE)
+async def auto_config(r):         # #548: Home Assistant's editor of automations: read, write (it loads it at once), delete
+    cid = r.match_info["id"]
+    ent = next((e for e, v in EXTRA.items() if (v.get("attributes") or {}).get("id") == cid), None)
+    if r.method == "GET":
+        return web.json_response(AUTOS[cid]) if cid in AUTOS else web.json_response({"message": "Resource not found"}, status=404)
+    if r.method == "DELETE":
+        AUTOS.pop(cid, None)
+        if ent: EXTRA.pop(ent, None)
+        return web.json_response({"result": "ok"})
+    cfg = await r.json()
+    if not isinstance(cfg.get("triggers"), list) or not isinstance(cfg.get("actions"), list):
+        return web.json_response({"message": "Message malformed: required key not provided @ data['triggers']"}, status=400)
+    AUTOS[cid] = cfg
+    import re as _re
+    ent = ent or "automation." + (_re.sub(r"[^a-z0-9]+", "_", cfg.get("alias", cid).lower()).strip("_") or cid)
+    old = EXTRA.get(ent) or {"state": "on", "attributes": {"current": 0, "last_triggered": None}}
+    EXTRA[ent] = {"state": old["state"], "attributes": {**old["attributes"], "id": cid, "friendly_name": cfg.get("alias", cid)}}
+    await push(ent)
+    return web.json_response({"result": "ok"})
+async def autos_seen(r):          # test helper (#548): the automations written; POST changes one "in Home Assistant" ({id: config})
+    if r.method == "POST":
+        AUTOS.update(await r.json())
+    return web.json_response(AUTOS)
 async def template(r):
     return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
@@ -357,5 +384,6 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_calreset", cal_reset), web.post("/config/config_entries/flow", flow_start), web.post("/config/config_entries/flow/{id}", flow_step), web.get("/_flows", flows), web.get("/_stats", stats_asked), web.get("/_levels", levels_asked),
                 web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),
                 web.get("/history/period/{start}", history), web.get("/_history", history_asked),
+                web.route("*", "/config/automation/config/{id}", auto_config), web.route("*", "/_autos", autos_seen),
                 web.post("/_todo", set_todo), web.post("/_related", set_related), web.post("/_hist", set_hist), web.get("/api/media_player_proxy/{e}", media_proxy)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

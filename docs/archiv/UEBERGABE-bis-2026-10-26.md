@@ -212,3 +212,7 @@ Technische Hinweise für den Bau: Thermostat-Modi aus `hvac_modes` / `preset_mod
 ## Später aus „Zuletzt“ hierher verschoben
 
 - **2026-10-25 nachts (Branch `claude/overnight-tests`, #519 bis #525):** Auf „kannst du über die Nacht ein paar Tests für mich machen“ hat Claude die offenen Punkte des Testprotokolls in der Demo und im Test-Add-on durchgespielt (wie: Stolperfalle „Nacht-Test“ unten), Funde in 4.21.2 repariert.
+
+## Aus „Zuletzt“ verschoben (2026-10-26 abends)
+
+- **2026-10-25 abends bis 2026-10-26 (Branches `claude/night-fixes` und folgende, #527 bis #540):** Auf „Was könnte man noch verbessern oder hinzufügen“ wählte der Besitzer: reparieren Tablet schneller (#138), Komma statt Punkt, Demo-Uhrzeiten (4.21.3); neu 🔔 Klingel (4.22.0), 🔔 Sag mir Bescheid (4.23.0), 🗣 Schalten per Sprache (4.24.0), 🚗 Auto und 🌱 Garten (4.25.0); danach „draußen Hof … das Grundstück bemessen … Deko-Sachen ums Haus … freier“ → 🏡 Grundstück und Flächen (4.26.0, #538). Nicht gewählt: 🤖 Saugroboter je Raum, Weg zu 1.0. Claude hat danach 102 bis 107 in der Demo geprüft (#540).

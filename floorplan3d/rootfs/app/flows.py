@@ -137,8 +137,8 @@ def clean_lane(lane, n: int) -> dict | None:
 
 
 def clean_flows(data) -> list:
-    """the routines as they are kept: [{id, name, on, lanes}]; a lane without a trigger at its start is dropped, a routine without lanes
-    too"""
+    """the routines as they are kept: [{id, name, on, ha, lanes}] (ha: it is an automation of Home Assistant, haflows.py, and the add-on
+    does not run it itself); a lane without a trigger at its start is dropped, a routine without lanes too"""
     out, ids = [], set()
     for f in (data if isinstance(data, list) else [])[:MAX_FLOWS]:
         if not isinstance(f, dict) or not isinstance(f.get("id"), str) or not FLOW_ID.match(f["id"]) or f["id"] in ids:
@@ -153,7 +153,7 @@ def clean_flows(data) -> list:
             continue
         ids.add(f["id"])
         name = f.get("name").strip()[:60] if isinstance(f.get("name"), str) and f["name"].strip() else "Ablauf"
-        out.append({"id": f["id"], "name": name, "on": f.get("on") is not False, "lanes": lanes})
+        out.append({"id": f["id"], "name": name, "on": f.get("on") is not False, "ha": f.get("ha") is True, "lanes": lanes})
     return out
 
 
