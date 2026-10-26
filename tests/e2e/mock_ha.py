@@ -400,6 +400,20 @@ async def scenes_seen(r):         # test helper (#549): the scenes written; POST
             ent = "scene." + _re.sub(r"[^a-z0-9]+", "_", cfg["name"].lower()).strip("_")
             EXTRA[ent] = {"state": "unknown", "attributes": {"id": cid, "friendly_name": cfg["name"], "entity_id": list(cfg["entities"])}}
     return web.json_response(SCENES)
+async def dbf(r):                 # #550: the departures service of DB Infoscreen (dbf.finalrewind.org): four trains from now on, "Nirgendwo" unknown
+    import datetime as dt
+    st = r.match_info["station"]
+    if st == "Nirgendwo":
+        return web.json_response({"error": "Unknown station 'Nirgendwo'"}, status=300)
+    now = dt.datetime.now()
+    base = now.replace(second=0, microsecond=0) + dt.timedelta(minutes=5 - now.minute % 5)
+    at = lambda m: (base + dt.timedelta(minutes=m)).strftime("%H:%M")
+    return web.json_response({"departures": [
+        {"scheduledDeparture": at(5), "delayDeparture": 0, "platform": "2", "scheduledPlatform": "2", "train": "RB 15", "destination": "Gelnhausen"},
+        {"scheduledDeparture": at(15), "delayDeparture": 5, "platform": "4", "scheduledPlatform": "3", "train": "RE 4711", "destination": "Frankfurt (Main) Hbf",
+         "messages": {"delay": [{"text": "Verspätung eines vorausfahrenden Zuges"}]}, "via": [r.query.get("via", "")]},
+        {"scheduledDeparture": at(25), "delayDeparture": None, "platform": "1", "train": "ICE 1576", "destination": "Hamburg", "isCancelled": 1},
+        {"scheduledDeparture": at(35), "delayDeparture": 8, "platform": "3", "scheduledPlatform": "3", "train": "RE 50", "destination": "Frankfurt (Main) Hbf"}]})
 async def autos_seen(r):          # test helper (#548): the automations written; POST changes one "in Home Assistant" ({id: config})
     if r.method == "POST":
         AUTOS.update(await r.json())
@@ -415,6 +429,6 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),
                 web.get("/history/period/{start}", history), web.get("/_history", history_asked),
                 web.route("*", "/config/automation/config/{id}", auto_config), web.route("*", "/_autos", autos_seen),
-                web.route("*", "/config/scene/config/{id}", scene_config), web.route("*", "/_scenes", scenes_seen),
+                web.route("*", "/config/scene/config/{id}", scene_config), web.route("*", "/_scenes", scenes_seen), web.get("/_dbf/{station}.json", dbf),
                 web.post("/_todo", set_todo), web.post("/_related", set_related), web.post("/_hist", set_hist), web.get("/api/media_player_proxy/{e}", media_proxy)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

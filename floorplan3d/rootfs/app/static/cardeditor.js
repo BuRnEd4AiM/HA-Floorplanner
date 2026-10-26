@@ -9,7 +9,8 @@ import { SIZES } from './thermostat.js';
 
 const SHOW = 40;
 
-/** ctx: t, entities() ([{ entity_id, name }]), rooms() ([{ id, name, floor }]), cards (cardsui.js), board (pageboard.js), calendar (calcardui.js) */
+/** ctx: t, entities() ([{ entity_id, name }]), rooms() ([{ id, name, floor }]), cards (cardsui.js), board (pageboard.js), calendar (calcardui.js),
+ *  train (traincard.js, #550) */
 export function initCardEditor(ctx) {
   const { t } = ctx;
   let dlg = null, current = null;                   // current: the preview of the card being set (drawn again when its history came)
@@ -99,6 +100,7 @@ export function initCardEditor(ctx) {
       field(t('ce.room'), sel);
     }
     if (card.type === 'calendar') ctx.calendar.fields(draft, { field, seg, preview: () => preview() });   // calendars, days, view (#495)
+    if (card.type === 'train') ctx.train.fields(draft, { field, seg, preview: () => preview() });         // station, direction, mein Zug (#550)
     if (card.type === 'button') ctx.cards.buttonFields(draft, { field, seg, preview: () => preview() });  // symbol, colour, shape, tap (#495)
     if (card.type === 'builtin') {
       const sel = make('select', 'ceSelect');
@@ -134,7 +136,7 @@ export function initCardEditor(ctx) {
       const c = cleanCard(draft);
       save.disabled = !c;
       prev.replaceChildren(make('small', 'cePrevHead', t('ce.preview')));
-      if (!c) { prev.append(make('p', 'tpSub', card.type === 'text' ? t('ce.needText') : card.type === 'room' ? t('ce.pickRoom') : card.type === 'builtin' ? t('ce.pickBuiltin') : card.type === 'calendar' ? t('ce.needCal') : t('ce.needDevice'))); return; }
+      if (!c) { prev.append(make('p', 'tpSub', card.type === 'text' ? t('ce.needText') : card.type === 'room' ? t('ce.pickRoom') : card.type === 'builtin' ? t('ce.pickBuiltin') : card.type === 'calendar' ? t('ce.needCal') : card.type === 'train' ? t('tr.needStation') : t('ce.needDevice'))); return; }
       const el = ctx.cards.render(c);
       el.classList.add('cePreviewCard');
       prev.append(el);

@@ -248,10 +248,13 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `scenes.js` | ~80 | Szenen-Editor: das Modell, „📸 Wie jetzt“, Worte, die Liste der Szenen (rein, `tests/scenes.test.mjs`, #549) |
 | `sceneedit.js` | ~200 | Der Szenen-Editor (Geräte, Helligkeit, Farbe, Weiß, Effekt, Position; Ausprobieren, Speichern) |
 | `scenesui.js` | ~60 | Die Karte „🎨 Szenen“ auf ▶ Abläufe |
+| `trains.js` | ~60 | 🚆 Zug-Karte: „mein Zug“, pünktlich / verspätet / fällt aus, Minuten bis zur Abfahrt (rein, `tests/trains.test.mjs`, #550) |
+| `traincard.js` | ~140 | Die Zug-Karte und ihre Felder in „Karte einstellen“ |
 | `flowedit.js` | ~380 | Editor „Wenn … dann …“ wie Node-RED: Bausteine links, Wege mit Linien (SVG) in der Mitte, Einstellungen rechts, „In Worten“ |
 | Server: `heatrules.py`, `flows.py`, `roommap.py`, `usedby.py`, `rulesrun.py` | | Die Regeln selbst (rein, mit Tests: `test_heatrules.py`, `test_flows.py`, `test_roommap.py`, `test_usedby.py`), ausgeführt von `rulesrun.py` (`test_rulesrun.py`); `server.py` hat nur die Adressen und `rules_runner` |
 | Server: `haflows.py` | | Eigene Abläufe als Automationen von Home Assistant (#548): rein, mit Tests (`test_haflows.py`); `server.py` schreibt sie (`ha_sync_flows`, nur Kennungen `fp3d_…`), `tools/ha_check.py` lässt ein echtes Home Assistant sie prüfen |
 | Server: `scenes.py` | | Szenen des Dashboards als Szenen von Home Assistant (#549): rein, mit Tests (`test_scenes.py`); `server.py` hat nur `api/scenes/…` |
+| Server: `trains.py` | | 🚆 Die Abfahrten eines Bahnhofs (#550): rein, mit Tests (`test_trains.py`); `server.py` hat nur `api/train` (fragt höchstens einmal pro Minute) |
 
 ## Noch in `app.js`
 
