@@ -1,6 +1,6 @@
 {
  "version": "4.26.1",
- "buildHash": "682c36691e227e866b739accfe0f66ea00c6ee34b13541cde6f05fc74e2873f0",
+ "buildHash": "a1556133faee715f58373ba31f57d9a7fa17a64de989740ac363568d2e37a557",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "boards.py": "e816c7d38b9babb19f0860e1a024df2fb8d2e230df2eaced41fdb9f8a1fc2d79",
@@ -9,9 +9,11 @@
   "examples/flat.json": "e215d79bfaa8810d889eca75b31b42d8edfa94c8e1f21208c25da1ea7c07dfa6",
   "examples/house.json": "218ab76a3f98a89993062bca66b7dbb27b04543b2c48fa8d7fde5b876da20fba",
   "examples/showcase.json": "e06f794eeb9a711fdcade0302a638949a66226142df5d5c12c492ab0590c6804",
+  "flows.py": "b9ac45e7d3ea0e8a3f35dda514cc54116172c6d57c6fb4037595623664e81142",
   "garden.py": "477414a411aad9c7450d83f9835f79a0beb7e7dbb4d870cdaf9ee599caea253d",
   "guard.py": "0f52be94144054699bd6ff6e33fe93b7f9efdbd812b616180e7de1803fd3de1d",
   "halogin.py": "35436a0cf32daecb73ee31877f2a0d87855a64601cee17bca9bbb3295be6d6a5",
+  "heatrules.py": "106fdb8f816f6798e3f34994e4ae0067e3e2bccda8a0a565dcf1545bdc8a89fd",
   "household.py": "ee85f19ed52b9691f44f305d5c523d25b952cdd8390414e263af1b1ba4d1298f",
   "importer.py": "315430fab3b366f3138c2b78ec089c966f94054cc09b6b6621ae76b728d5cac4",
   "library/CREDITS.md": "3ad03351505152dfa6c5f0fe1cee45fc44be9b5a34cf1b91a239140f7fecf9cc",
@@ -139,6 +141,7 @@
   "pages.py": "1fa6421df9c8a825dee3308e09c307766de90e0fcfbe7b391986b67c49892dba",
   "property.schema.json": "6eb96247f92bb473f62635becd85d21ae53d04040646879736e6cc53c81aa43c",
   "renames.py": "342f85f2ac5a8bd785fbf7f365afec38f61bef76647ae629a02dc53f4db4d777",
+  "roommap.py": "ae7822f300002f07d3d1f67c9a1e9ee9e34103baf8adec352d8468fd810f7793",
   "server.py": "4fe330d7ddfd38d493edd7a3a3d0387b771a0da83499e85b8ab62e1fa5dfa9d8",
   "static/alerts.js": "099108c279cdf2ea1008180d0d73dbe18b10aa4d63365a83bfde1cf7c2a4a803",
   "static/alertsui.js": "503c006f839253eb31f5e2adb4e6612d21fd657b8691956fd095546dce5177ea",
