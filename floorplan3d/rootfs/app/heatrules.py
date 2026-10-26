@@ -178,6 +178,13 @@ def heats(states, e) -> bool:
     return st.get("state") not in (None, "unavailable", "unknown") and isinstance(modes, list) and any(m in modes for m in ("heat", "auto", "heat_cool"))
 
 
+def cools(states, e) -> bool:
+    """an air conditioner (it can cool too): only the window rule switches it (off while the window is open); levels and boost would
+    turn it to heating, in summer too"""
+    modes = _attr(states, e, "hvac_modes")
+    return isinstance(modes, list) and "cool" in modes
+
+
 def _clamp(states, e, t):
     lo, hi = _attr(states, e, "min_temp"), _attr(states, e, "max_temp")
     if isinstance(lo, (int, float)):
@@ -323,17 +330,19 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
             ov = "window"
         elif key in mem["boost"]:
             ov = "boost"
-        level = room_level(rules, room, local, ctx)
+        room_lv = room_level(rules, room, local, ctx)
         for e in climates:
+            ac = cools(states, e)
+            level, ov_e = (None, ov if ov == "window" else None) if ac else (room_lv, ov)
             t = mem["t"].get(e) or {}
             old_level, old_ov = t.get("level"), t.get("ov")
             out = []
-            if ov != old_ov:
-                if ov and not old_ov:                      # an override starts: remember the thermostat as it is
+            if ov_e != old_ov:
+                if ov_e and not old_ov:                      # an override starts: remember the thermostat as it is
                     t["under"], t["lvAtOv"] = snap(states, e), old_level
-                    out = apply_override(states, e, ov, rules)
-                elif ov:                                   # one override follows another (the window opened during a boost)
-                    out = apply_override(states, e, ov, rules)
+                    out = apply_override(states, e, ov_e, rules)
+                elif ov_e:                                   # one override follows another (the window opened during a boost)
+                    out = apply_override(states, e, ov_e, rules)
                 else:                                      # it ends: as it was, or the level that came meanwhile
                     at = t.get("lvAtOv")
                     if _same(level, at) and (level or {}).get("why") == (at or {}).get("why"):
@@ -347,7 +356,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                         t.pop("before", None)
                     t.pop("under", None)
                     t.pop("lvAtOv", None)
-            elif not ov and not (_same(level, old_level) and (level or {}).get("why") == (old_level or {}).get("why")):
+            elif not ov_e and not (_same(level, old_level) and (level or {}).get("why") == (old_level or {}).get("why")):
                 if level and not old_level:                # rules take over: remember how it was
                     t["before"] = snap(states, e)
                     out = apply_level(states, e, level)
@@ -357,17 +366,17 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                     if old_level.get("why") in PASSING:
                         out = restore(states, e, t.get("before"))
                     t.pop("before", None)
-            t["level"], t["ov"] = level, ov
+            t["level"], t["ov"] = level, ov_e
             mem["t"][e] = t
             for c in out:
                 calls.append(c)
                 log.append({"ent": e, "act": "off" if c[2].get("hvac_mode") == "off" else "temp" if c[1] == "set_temperature" else "mode",
-                            "v": c[2].get("temperature", c[2].get("hvac_mode")), "why": ov or (level or {}).get("why") or "back", "room": key})
-        why = ov or (level or {}).get("why")
-        first = mem["t"].get(climates[0]) or {}
-        status[key] = {"why": why, "temp": (level or {}).get("temp"), "level": (level or {}).get("level"),
-                       "since": mem["open"].get(key) if ov == "window" else None, "until": mem["boost"].get(key) if ov == "boost" else None,
-                       "back": (first.get("under") or {}).get("temp") if ov else None, "open": opened,
+                            "v": c[2].get("temperature", c[2].get("hvac_mode")), "why": ov_e or (level or {}).get("why") or "back", "room": key})
+        first = mem["t"].get(climates[0]) or {}                # what its (first) thermostat does: an air conditioner only the window
+        lv, ov1 = first.get("level") or {}, first.get("ov")
+        status[key] = {"why": ov1 or lv.get("why"), "temp": lv.get("temp"), "level": lv.get("level"),
+                       "since": mem["open"].get(key) if ov1 == "window" else None, "until": mem["boost"].get(key) if ov1 == "boost" else None,
+                       "back": (first.get("under") or {}).get("temp") if ov1 else None, "open": opened,
                        "waiting": bool(watched and opened and ov != "window" and not mem["skip"].get(key)), "skip": bool(mem["skip"].get(key)),
                        "climates": climates}
     for e in list(mem["t"]):                                # thermostats no longer in a room: forgotten

@@ -208,3 +208,16 @@ def test_a_thermostat_without_off_and_one_that_is_gone():
     run = Run({"window": {"on": True, "delay": 0}}, st)
     assert run.look() == [("climate.wz", "set_temperature", {"temperature": 7})]   # as cold as it goes
     assert "h/bad" not in run.status and "climate.bad" not in run.mem["t"]
+
+
+def test_an_air_conditioner_only_gets_the_window_rule():
+    st = house(**{"climate.wz": thermostat(mode="cool", temp=22.0, modes=("off", "cool", "heat", "dry"))})
+    run = Run({"window": {"on": True, "delay": 0}, "night": {"on": True, "from": "00:00", "to": "23:59", "temp": 17}}, st)
+    assert run.look() == [("climate.bad", "set_temperature", {"temperature": 17.0})]   # the night: only the heating thermostat
+    assert run.status["h/wz"]["why"] is None
+    run.mem = hr.boost(run.mem, "h/wz", run.now, run.rules)
+    assert run.look() == []                                                    # no boost: it would heat
+    st["binary_sensor.fenster"]["state"] = "on"
+    assert run.look() == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})] and run.status["h/wz"]["why"] == "window"
+    st["binary_sensor.fenster"]["state"] = "off"
+    assert run.look()[0] == ("climate.wz", "set_hvac_mode", {"hvac_mode": "cool"})   # back to cooling

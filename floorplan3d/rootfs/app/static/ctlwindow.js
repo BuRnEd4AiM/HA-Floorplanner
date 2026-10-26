@@ -10,7 +10,7 @@ const TOGGLE = new Set(['light', 'switch', 'input_boolean', 'fan', 'automation',
 const RUN = new Set(['scene', 'script']);
 
 /** ctx: t, states(), nameOf(entity), word(entity) (its state in words), callService(entity, service, data), live (lightControls(ids),
- *  detailsButton(entity)), thermo (thermostatui.js) */
+ *  detailsButton(entity)), thermo (thermostatui.js), usedBy(entity) (🔎 Wird benutzt, #546: a button) */
 export function initControlsWindow(ctx) {
   const { t } = ctx;
   const devCtl = initDeviceControls({ t, states: ctx.states, callService: ctx.callService });
@@ -63,6 +63,8 @@ export function initControlsWindow(ctx) {
     const bar = make('div', 'ceBtns');
     const det = ctx.live.detailsButton?.(e);
     if (det) bar.append(det);
+    const used = ctx.usedBy?.(e);                                // 🔎 Wird benutzt (#546)
+    if (used) bar.append(used);
     const close = btn('bdBtn', t('ctl.close'), () => dlg.close()); close.dataset.act = 'ctlClose';
     bar.append(close);
     const box = make('div', 'ctlBody'); box.append(...body(e));

@@ -19,7 +19,8 @@ import { roomSummary } from './roomtiles.js';
 /** ctx: $, t, lang(), settings(), save(), canEdit(), states(), entities(), areas(), nameOf(entity), stateText(entity),
  *  callService(entity, service, data), layout() (the building shown), placed(floor), areaEntities(room), isOn(entity), isOpen(entity),
  *  openingEntities(opening), openRoom(floorIndex, roomId), camImage(entity), openCamera(entity), builtin(key), tabsUi() (the tab bar,
- *  made after this), live() (livecontrols.js, made after this), me() (api/me), refill() (the settings dialog shows the settings again) */
+ *  made after this), live() (livecontrols.js, made after this), me() (api/me), refill() (the settings dialog shows the settings again),
+ *  usedBy(entity) (🔎 Wird benutzt, #546: a button) */
 export function initDashboards(ctx) {
   const { $, t } = ctx;
   const bar = () => ctx.tabsUi();
@@ -49,7 +50,7 @@ export function initDashboards(ctx) {
     return ctx.stateText(e);
   };
   const controls = initControlsWindow({ t, states: ctx.states, nameOf: ctx.nameOf, word, callService: ctx.callService, thermo,
-    live: { lightControls: (ids) => ctx.live().lightControls(ids), detailsButton: (e) => ctx.live().detailsButton(e) } });
+    live: { lightControls: (ids) => ctx.live().lightControls(ids), detailsButton: (e) => ctx.live().detailsButton(e) }, usedBy: (e) => ctx.usedBy?.(e) });
   const cards = initCards({
     t, lang: ctx.lang, states: ctx.states, settings: ctx.settings, nameOf: ctx.nameOf, stateText: ctx.stateText, callService: ctx.callService,
     camImage: ctx.camImage, openCamera: ctx.openCamera, room,

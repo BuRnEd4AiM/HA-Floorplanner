@@ -1,7 +1,7 @@
 /* The page ▶ Abläufe of the tab bar (#483): "Ich gehe" and "Gute Nacht" first (a window shows what is still open or on before they
  * start: "Alles aus" switches lights and players off, then the routine linked to it in ⚙; "Trotzdem" only starts that), then a big
- * button per scene, script or button (a tap starts it, ✓ when Home Assistant took it), and for editors the automations with a switch.
- * The rules are in routines.js (tested); this file draws. */
+ * button per scene, script or button (a tap starts it, ✓ when Home Assistant took it), then the add-on's own routines, the automations
+ * of Home Assistant (editors) and what happened (routinesown.js, #546). The rules are in routines.js (tested); this file draws. */
 import { routineButtons, checkRows, checkButtons, offCalls, playingMedia, openLocks, automations, cleanRoutine, routineIcon, hasRoutines, START, CHECKS } from './routines.js';
 
 const CHECK_ICON = { leave: '🚪', night: '🌙' };
@@ -9,11 +9,11 @@ const ROW_ICON = { open: '🪟', lights: '💡', media: '📺', locks: '🔓' };
 
 /** ctx: t, el (the page), states(), settings(), names() ({ entity: name }), openNames() (the names of the open windows and doors),
  *  litLights() (the lights on in the house), callService(entity, service, data) (-> true when Home Assistant took it), canEdit(), board
- *  (pageboard.js, #484: keys leave, night, r:<entity>, autos) */
+ *  (pageboard.js, #484: keys leave, night, r:<entity>, own, autos, log), own (routinesown.js: the cards of the own routines, #546) */
 export function initRoutinesPage(ctx) {
   const { t, el } = ctx;
   const flash = new Map();                           // button (entity or check) -> 'ok' | 'bad' for a moment after a tap
-  let drawn = '', dlg = null, check = null, checkSig = '', busy = false, done = '', autosOpen = false;   // done: 'ok' | 'bad' after the check's buttons
+  let drawn = '', dlg = null, check = null, checkSig = '', busy = false, done = '';   // done: 'ok' | 'bad' after the check's buttons
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, on) => { const b = make('button', cls); b.type = 'button'; b.addEventListener('click', on); return b; };
   const domainOf = (e) => e.split('.')[0];
@@ -97,8 +97,8 @@ export function initRoutinesPage(ctx) {
   }
   function draw(force = false) {
     const st = ctx.states(), names = ctx.names(), s = ctx.settings();
-    const buttons = routineButtons(st, names, s.routines, CHECKS.map(linkedOf)), autos = ctx.canEdit() ? automations(st, names) : [];
-    const sig = JSON.stringify([buttons, autos, linkedOf('leave'), linkedOf('night'), [...flash], t('tab.routines')]);
+    const buttons = routineButtons(st, names, s.routines, CHECKS.map(linkedOf));
+    const sig = JSON.stringify([buttons, ctx.canEdit() ? automations(st, names) : [], ctx.own.sig(), linkedOf('leave'), linkedOf('night'), [...flash], t('tab.routines')]);
     if (!force && sig === drawn) { drawCheck(); return; }
     drawn = sig;
     const head = make('div', 'tpHead');
@@ -118,21 +118,7 @@ export function initRoutinesPage(ctx) {
     });
     const out = [head];
     if (!buttons.length) out.push(make('p', 'tpSub', t('rt.none')));
-    if (autos.length) {
-      const d = make('details', 'tpCard rtAutos'); d.open = autosOpen;
-      d.addEventListener('toggle', () => { autosOpen = d.open; });
-      d.append(make('summary', 'peH', t('rt.autos', { n: autos.length })), make('p', 'tpSub', t('rt.autosHelp')));
-      autos.forEach((a) => {
-        const row = make('div', 'rtAuto');
-        const sw = make('label', 'sw'); sw.title = t('live.toggle');
-        const cb = make('input'); cb.type = 'checkbox'; cb.checked = a.on; cb.dataset.auto = a.entity;
-        cb.addEventListener('change', () => ctx.callService(a.entity, cb.checked ? 'turn_on' : 'turn_off'));
-        sw.append(cb, make('span'));
-        row.append(make('span', 'tdWhat', a.name), sw);
-        d.append(row);
-      });
-      items.push({ key: 'autos', el: d, width: 4 });
-    }
+    items.push(...ctx.own.items());                // the own routines, the automations (editors) and what happened (#546)
     el.replaceChildren(...out, grid);
     ctx.board.fill('routines', grid, items, { min: 220 });
     drawCheck();

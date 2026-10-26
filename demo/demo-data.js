@@ -314,7 +314,7 @@ const entities = {
   'alarm_control_panel.haus': { name: 'Alarmanlage',           state: 'disarmed', ctl: { code: 'number', codeArm: false } },
   'input_select.hausmodus':  { name: 'Hausmodus',              state: 'Zu Hause', ctl: { options: ['Zu Hause', 'Abwesend', 'Urlaub', 'Nacht'] } },
   'climate.klima_buero':     { name: 'Klimaanlage Büro',       state: 'cool', hvac: 'cooling', ct: 23.0, ch: 50, tt: 21, tmin: 16, tmax: 30, tstep: 0.5, modes: ['off', 'cool', 'heat', 'dry', 'fan_only', 'auto'], ctl: { presets: ['none', 'eco', 'boost', 'sleep'], preset: 'none', fans: ['auto', 'low', 'medium', 'high'], fan: 'auto' } },
-  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'heat', hvac: 'heating', ct: 21.2, ch: 48, tt: 22, tmin: 16, tmax: 26, tstep: 0.5, modes: ['off', 'heat', 'auto'], ctl: { presets: ['eco', 'comfort', 'away', 'boost'], preset: 'comfort' } },
+  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'off', hvac: 'off', ct: 21.2, ch: 48, tt: 22, tmin: 16, tmax: 26, tstep: 0.5, modes: ['off', 'heat', 'auto'], ctl: { presets: ['eco', 'comfort', 'away', 'boost'], preset: 'comfort' } },   // off: paused by the window rule, its window is open (#546)
   'sensor.netz_leistung':    { name: 'Netzbezug',              state: '450',  unit: 'W' },
   'sensor.nachbar_leistung': { name: 'Nachbarhaus Verbrauch',  state: '840',  unit: 'W', dc: 'power' },   // #495: ⚖ Vergleichen
   'sensor.nachbar_netz_kwh': { name: 'Nachbarhaus Netzbezug',  state: '5321.4', unit: 'kWh', dc: 'energy' },
@@ -360,9 +360,10 @@ const entities = {
   // 4.5 (#483): more for the page ▶ Abläufe: a morning script, the night scene that "Gute Nacht" starts, automations to switch, the front door lock
   'script.guten_morgen':     { name: 'Guten Morgen',           state: 'off' },
   'scene.gute_nacht':        { name: 'Gute Nacht',             state: 'scening' },
-  'automation.flurlicht_bewegung': { name: 'Flurlicht bei Bewegung', state: 'on' },
-  'automation.rollladen_abends': { name: 'Rollläden bei Sonnenuntergang', state: 'on' },
-  'automation.urlaub_licht': { name: 'Urlaub: Licht zufällig',  state: 'off' },
+  'automation.flurlicht_bewegung': { name: 'Flurlicht bei Bewegung', state: 'on', at: Math.round(Date.now() / 1000) - 12 * 60, run: 1 },
+  'automation.rollladen_abends': { name: 'Rollläden bei Sonnenuntergang', state: 'on', at: Math.round(Date.now() / 1000) - 15 * 3600 },
+  'automation.urlaub_licht': { name: 'Urlaub: Licht zufällig',  state: 'off', at: Math.round(Date.now() / 1000) - 21 * 86400 },
+  'automation.heizung_morgens': { name: 'Heizung morgens hoch', state: 'on', at: Math.round(Date.now() / 1000) - 2 * 3600 },
   'lock.haustuer':           { name: 'Haustür',                state: 'unlocked' },
   'water_heater.warmwasser': { name: 'Warmwasser (Wärmepumpe)', state: 'heat_pump', ct: 48, tt: 50 },   // the page 🌡 Klima: in no room
   'sensor.bad_feuchte':      { name: 'Bad Luftfeuchte',        state: '64', unit: '%' },
@@ -519,6 +520,81 @@ function guardView() {
   return { phase: g.st.phase, left: ['arming', 'entry'].includes(g.st.phase) ? Math.max(0, Math.round(g.st.due - now)) : 0, since: g.st.since, by: g.st.by, what: g.st.what };
 }
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+/* ---- the add-on's own heating rules and routines (#546): in the demo the window rule paused the living room (its window is open), the
+ * schedule runs there, two own routines; nothing runs by itself here (the add-on does that), a boost or "Trotzdem heizen" shows at once ---- */
+const workDay = [[0, 'night'], [360, 'comfort'], [480, 'eco'], [930, 'comfort'], [1350, 'night']], homeDay = [[0, 'night'], [480, 'comfort'], [1350, 'night']];
+const rulesDemo = {
+  heat: { window: { on: true, delay: 2, doors: true, skip: [] }, away: { on: false, delay: 30, temp: 17 }, night: { on: true, from: '22:30', to: '06:00', temp: 17, rooms: { 'main/r4': 16 } },
+    schedule: { on: true, levels: { night: 17, eco: 19, comfort: 21 }, pre: 30, rooms: { 'main/r1': { days: [workDay, workDay, workDay, workDay, workDay, homeDay, homeDay] } } },
+    summer: { on: false, above: 18, hours: 6 }, boost: { on: true, minutes: 30, temp: 24 }, holiday: { on: false, temp: 15, until: '', back: '14:00', guard: false } },
+  flows: [
+    { id: 'f_flur', name: 'Flurlicht nachts', on: true, lanes: [{ id: 'l1', blocks: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on' }, { k: 'if_sun', is: 'dark' },
+      { k: 'switch', ents: ['light.stehlampe'], same: false, do: 'on', pct: 20 }, { k: 'wait', s: 120 }, { k: 'switch', ents: ['light.stehlampe'], same: false, do: 'off' }] }] },
+    { id: 'f_abend', name: 'Rollläden am Abend', on: true, lanes: [{ id: 'l1', blocks: [{ k: 'sun', ev: 'set', off: 0 }, { k: 'cover', ents: ['cover.wohnzimmer'], same: false, do: 'close' }] }] },
+    { id: 'f_kino', name: 'Kinoabend', on: true, lanes: [{ id: 'l1', blocks: [{ k: 'button' }, { k: 'switch', ents: ['light.wohnzimmer'], same: false, do: 'off' },
+      { k: 'cover', ents: ['cover.wohnzimmer'], same: false, do: 'close' }, { k: 'switch', ents: ['light.tv_led'], same: false, do: 'on', pct: 40 }] }] },
+  ],
+  boost: {}, skip: {}, log: [],
+};
+const nowS = () => Math.round(Date.now() / 1000);
+(() => {                                               // what happened today, as the add-on would have written it
+  const t0 = nowS();
+  rulesDemo.log = [
+    { t: t0 - 7 * 3600, src: 'heat', ent: 'climate.wohnzimmer', act: 'temp', v: 21, why: 'schedule', room: 'main/r1' },
+    { t: t0 - 19 * 60, src: 'flow', id: 'f_flur', name: 'Flurlicht nachts', lane: 'l1', act: 'start', ent: 'binary_sensor.wohnzimmer_bewegung' },
+    { t: t0 - 19 * 60, src: 'flow', id: 'f_flur', name: 'Flurlicht nachts', lane: 'l1', act: 'switch', ent: 'light.stehlampe', do: 'turn_on', v: 20 },
+    { t: t0 - 17 * 60, src: 'flow', id: 'f_flur', name: 'Flurlicht nachts', lane: 'l1', act: 'switch', ent: 'light.stehlampe', do: 'turn_off', v: null },
+    { t: t0 - 3 * 60, src: 'heat', ent: 'climate.wohnzimmer', act: 'off', v: 'off', why: 'window', room: 'main/r1' },
+  ];
+})();
+const pausedSince = nowS() - 3 * 60;
+function rulesStatus() {
+  const t = nowS(), open = entities['binary_sensor.fenster_wohnzimmer']?.state === 'on', h = rulesDemo.heat;
+  const rooms = {};
+  const boost = rulesDemo.boost['main/r1'] > t;
+  const wz = h.window.on && open && !rulesDemo.skip['main/r1'] ? 'window' : boost ? 'boost' : h.schedule.on ? 'schedule' : null;
+  rooms['main/r1'] = { why: wz, temp: wz === 'schedule' ? 21 : null, level: wz === 'schedule' ? 'comfort' : null, since: wz === 'window' ? pausedSince : null,
+    until: wz === 'boost' ? rulesDemo.boost['main/r1'] : null, back: wz === 'window' || wz === 'boost' ? 22 : null, open: open ? ['binary_sensor.fenster_wohnzimmer'] : [],
+    waiting: false, skip: !!rulesDemo.skip['main/r1'], climates: ['climate.wohnzimmer'] };
+  const lanes = {};
+  rulesDemo.flows.forEach((f) => f.lanes.forEach((l) => { lanes[`${f.id}/${l.id}`] = { running: false, wait: null, until: null, passed: {}, stop: null, end: null, t0: null, test: false }; }));
+  lanes['f_flur/l1'] = { running: false, wait: null, until: null, passed: { 0: t - 19 * 60, 1: t - 19 * 60, 2: t - 19 * 60, 3: t - 17 * 60, 4: t - 17 * 60 }, stop: null, end: t - 17 * 60, t0: t - 19 * 60, test: false };
+  return { rooms, lanes };
+}
+function rulesAnswer() {
+  return { heat: rulesDemo.heat, flows: rulesDemo.flows, status: rulesStatus(), log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS() };
+}
+/** who uses a device in the demo (#546): the thermostat of the living room is used by an automation of Home Assistant too */
+function relatedDemo(e) {
+  const own = [];
+  if (e === 'climate.wohnzimmer' || e === 'binary_sensor.fenster_wohnzimmer') {
+    if (rulesDemo.heat.window.on) own.push({ kind: 'heat', rule: 'window', room: 'main/r1' });
+    if (e === 'climate.wohnzimmer') {
+      if (rulesDemo.heat.schedule.on) own.push({ kind: 'heat', rule: 'schedule', room: 'main/r1' });
+      if (rulesDemo.heat.night.on) own.push({ kind: 'heat', rule: 'night', room: 'main/r1' });
+    }
+  }
+  rulesDemo.flows.forEach((f) => { if (f.lanes.some((l) => l.blocks.some((b) => (b.ents || []).includes(e)))) own.push({ kind: 'flow', id: f.id, name: f.name, on: f.on }); });
+  const rows = [];
+  const auto = (id, sum) => ({ entity: id, kind: 'automation', name: entities[id].name, on: entities[id].state === 'on', running: (entities[id].run || 0) > 0, last: entities[id].at, gone: false, sum });
+  if (e === 'climate.wohnzimmer') {
+    rows.push(auto('automation.heizung_morgens', { when: [{ k: 'time', at: ['06:00'] }], more: 0, checks: 1, do: [{ k: 'call', svc: 'climate.set_temperature', ents: ['climate.wohnzimmer'], temperature: 22 }] }));
+    rows.push({ entity: 'script.guten_morgen', kind: 'script', name: entities['script.guten_morgen'].name, on: null, running: false, last: nowS() - 90 * 60, gone: false,
+      sum: { when: [], more: 0, checks: 0, do: [{ k: 'call', svc: 'cover.open_cover', ents: ['cover.wohnzimmer'] }, { k: 'call', svc: 'climate.set_temperature', ents: ['climate.wohnzimmer'], temperature: 22 }] } });
+    rows.push({ entity: 'scene.gute_nacht', kind: 'scene', name: entities['scene.gute_nacht'].name, on: null, running: false, last: nowS() - 13 * 3600, gone: false, sum: null });
+  }
+  if (e === 'light.stehlampe' || e === 'binary_sensor.wohnzimmer_bewegung') {
+    rows.push(auto('automation.flurlicht_bewegung', { when: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on', for: false }], more: 0, checks: 0, do: [{ k: 'call', svc: 'light.turn_on', ents: ['light.stehlampe'], brightness_pct: 30 }] }));
+  }
+  if (e === 'cover.wohnzimmer') rows.push(auto('automation.rollladen_abends', { when: [{ k: 'sun', ev: 'sunset' }], more: 0, checks: 0, do: [{ k: 'call', svc: 'cover.close_cover', ents: ['cover.wohnzimmer'] }] }));
+  return { entity: e, rows, own, parts: e === 'climate.wohnzimmer' ? [{ entity: 'switch.heizung_wohnzimmer_fenster', name: 'Fenster-Erkennung Heizung Wohnzimmer', state: 'off' }] : [], ha: true };
+}
+const autosDemo = () => ({ rows: [
+  { entity: 'automation.flurlicht_bewegung', uses: ['binary_sensor.wohnzimmer_bewegung', 'light.stehlampe'], sum: { when: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on', for: false }], more: 0, checks: 0, do: [{ k: 'call', svc: 'light.turn_on', ents: ['light.stehlampe'], brightness_pct: 30 }] } },
+  { entity: 'automation.heizung_morgens', uses: ['climate.wohnzimmer'], sum: { when: [{ k: 'time', at: ['06:00'] }], more: 0, checks: 1, do: [{ k: 'call', svc: 'climate.set_temperature', ents: ['climate.wohnzimmer'], temperature: 22 }] } },
+  { entity: 'automation.rollladen_abends', uses: ['cover.wohnzimmer'], sum: { when: [{ k: 'sun', ev: 'sunset' }], more: 0, checks: 0, do: [{ k: 'call', svc: 'cover.close_cover', ents: ['cover.wohnzimmer'] }] } },
+  { entity: 'automation.urlaub_licht', uses: ['light.wohnzimmer', 'light.schlafzimmer'], sum: { when: [{ k: 'pattern' }], more: 0, checks: 1, do: [{ k: 'call', svc: 'light.toggle', ents: ['light.wohnzimmer', 'light.schlafzimmer'] }] } },
+].map((r) => ({ ...r, kind: 'automation', name: entities[r.entity].name, on: entities[r.entity].state === 'on', running: (entities[r.entity].run || 0) > 0, last: entities[r.entity].at, gone: false })) });
 const file = (text, name, type) => new Response(text, { status: 200, headers: { 'Content-Type': type, 'Content-Disposition': `attachment; filename="${name}"` } });
 /* ---- the pages of the tab bar (#479): a made-up but plausible house for ⚡ Energie and ☀ Heute ---- */
 const DEMO_METERS = {
@@ -837,7 +913,7 @@ export function installDemoBackend() {
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
         hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null,
-        bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null,
+        bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null, at: e.at ?? null, run: e.run ?? null,
         lc: lastChanged(entity_id, e.state) })));
     }
     if (path === 'api/version') {                       // so that the version pill shows in the demo too; the file checks do not apply to a single file
@@ -955,6 +1031,31 @@ export function installDemoBackend() {
       if (guard.st.phase === 'armed') guard.armedAt = now;
       return json({ view: guardView() });
     }
+    if (path === 'api/rules') {                              // the heating rules and routines (#546): kept in this tab
+      if (method === 'PUT') {
+        const b = JSON.parse(init.body || '{}');
+        if (b.heat) rulesDemo.heat = b.heat;
+        if (Array.isArray(b.flows)) rulesDemo.flows = b.flows;
+      }
+      return json(rulesAnswer());
+    }
+    if (path === 'api/rules/room' && method === 'POST') {
+      const b = JSON.parse(init.body || '{}'), t = nowS();
+      if (b.act === 'boost') rulesDemo.boost[b.room] = rulesDemo.boost[b.room] > t ? 0 : t + rulesDemo.heat.boost.minutes * 60;
+      if (b.act === 'skip') rulesDemo.skip[b.room] = true;
+      const heatOn = b.act === 'skip' || rulesDemo.boost[b.room] > t;
+      if (b.room === 'main/r1') { entities['climate.wohnzimmer'].state = heatOn || !entities['binary_sensor.fenster_wohnzimmer'] || entities['binary_sensor.fenster_wohnzimmer'].state !== 'on' ? 'heat' : 'off'; entities['climate.wohnzimmer'].hvac = entities['climate.wohnzimmer'].state === 'heat' ? 'heating' : 'off'; }
+      rulesDemo.log.push({ t, src: 'heat', ent: 'climate.wohnzimmer', act: b.act === 'boost' && heatOn ? 'temp' : 'mode', v: b.act === 'boost' && heatOn ? rulesDemo.heat.boost.temp : 'heat', why: b.act === 'boost' ? 'boost' : 'back', room: b.room });
+      return json({ ok: true });
+    }
+    if (path === 'api/rules/run' && method === 'POST') {
+      const b = JSON.parse(init.body || '{}'), f = rulesDemo.flows.find((x) => x.id === b.flow), t = nowS();
+      if (!f) return json({ error: 'no such routine' }, 404);
+      rulesDemo.log.push({ t, src: 'flow', id: f.id, name: f.name, lane: b.lane, act: 'start', ent: '', test: !!b.test });
+      return json({ ok: true });
+    }
+    if (path === 'api/related') return json(relatedDemo(new URL(url, location.href).searchParams.get('entity') || ''));
+    if (path === 'api/automations') return json(autosDemo());
     if (path === 'api/batteries') return json(batteryOf);
     if (path === 'api/timeline') {
       return json({ days: recordedDays().map((day) => ({ day, size: JSON.stringify(recordedDay(day).lines).length })), on: true, keepDays: 7, recording: true,
