@@ -1,6 +1,6 @@
 {
- "version": "4.26.0",
- "buildHash": "74dc9f3ef6f8114c11d848c0b3187452ad3cb6cd8d34b7a5d2b599070710387b",
+ "version": "4.26.1",
+ "buildHash": "682c36691e227e866b739accfe0f66ea00c6ee34b13541cde6f05fc74e2873f0",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "boards.py": "e816c7d38b9babb19f0860e1a024df2fb8d2e230df2eaced41fdb9f8a1fc2d79",
@@ -142,7 +142,7 @@
   "server.py": "4fe330d7ddfd38d493edd7a3a3d0387b771a0da83499e85b8ab62e1fa5dfa9d8",
   "static/alerts.js": "099108c279cdf2ea1008180d0d73dbe18b10aa4d63365a83bfde1cf7c2a4a803",
   "static/alertsui.js": "503c006f839253eb31f5e2adb4e6612d21fd657b8691956fd095546dce5177ea",
-  "static/app.js": "29ebe8d6a9ada900508694b2eea14a5f4b5be636d551b9ad2b0a68880aeda130",
+  "static/app.js": "229d8f613512b8566b0e861f1de6ab4fb666adfcedfb0e1aaa588316911ecccc",
   "static/appstate.js": "f6359ebeba145092d9257498c408e81cd39399f817ee3f0608bd0264838e2721",
   "static/attic.js": "1c31524de44895638c5498cce26a7aa64b092c5c713d82bf26c895a2a1715820",
   "static/atticclip.js": "3f99788b46c36ace3b01e450da69e32163103616d12f4e039a37770def0b744d",

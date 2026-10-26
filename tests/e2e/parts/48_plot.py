@@ -2,6 +2,7 @@
 an area of a surface drawn as a rectangle of two clicks or corner by corner, lying on the ground in 3D; its name, surface and the length of a
 side in the side panel; picked, its corner dragged, a corner added and removed by a double click, moved with the arrow keys, deleted with
 Entf and back with Ctrl+Z, wiped with the eraser; the plot picked by its edge with the length of every side; the garden things in the library.
+4.26.1 (#542): the 2D view does not draw the hidden 3D picture, back in 3D it is drawn again.
 """
 import json
 st_pl = api("api/settings")
@@ -15,6 +16,9 @@ pgP.goto(BASE + "?debug=1&mode=edit"); pgP.wait_for_timeout(1800)
 pgP.evaluate("""(() => { const fp = window.__fp, L = fp.layout; delete L.plot; fp.switchFloor(Math.max(0, L.floors.findIndex((f) => f.kind !== 'basement'))); fp.rebuild(); })()""")
 pgP.wait_for_timeout(600)
 pgP.click("#view2d"); pgP.wait_for_timeout(900)
+frames = lambda: pgP.evaluate("window.__fp.renderer.info.render.frame")
+f0 = frames(); pgP.wait_for_timeout(700)
+check("2D view: the hidden 3D picture is not drawn (#542)", frames() == f0, (f0, frames()))
 pgP.click("button[data-tool=plot]"); pgP.wait_for_timeout(700)
 plot = lambda: pgP.evaluate("window.__fp.layout.plot || null")
 check("plot: without a plot the palette starts with the plot and says there is none", pgP.get_attribute("#plotMode [data-v=plot]", "aria-pressed") == "true"
@@ -96,7 +100,11 @@ bd3 = plot()["boundary"]
 spot = pgP.evaluate(f"""(() => {{ const b = {json.dumps(bd3)}, pl = window.__fp.plan();         // a spot of its left, bottom or right side with nothing else on it
   for (let k = 1; k < 10; k++) for (const [a, c] of [[b[3], b[0]], [b[2], b[3]], [b[1], b[2]]]) {{ const x = a[0] + (c[0] - a[0]) * k / 10, z = a[1] + (c[1] - a[1]) * k / 10;
     if (pl.pickAt(x, z)?.kind === 'plot') return [x, z]; }} return null; }})()""")
-click(*spot); pgP.wait_for_timeout(500)
+click(*spot)
+try:                                              # the plan redraws on the next frame: in CI the 3D view, drawn without a GPU, can hold that back over a second
+    pgP.wait_for_function("document.querySelectorAll('#plan2d text.plotSide').length === 4", timeout=10000)
+except Exception:
+    pass                                          # the check below says what is missing
 sides = pgP.locator("#plan2d text.plotSide").count()
 check("plot: a click on its edge selects the plot, the plan shows the length of its 4 sides, the panel its size", pgP.evaluate("window.__fp.selection()") == {"kind": "plot", "id": "plot"}
       and sides == 4 and "Umfang" in pgP.inner_text("#propsBody"), (pgP.evaluate("window.__fp.selection()"), sides,
@@ -124,6 +132,12 @@ on = pgP.evaluate("window.__fp.glowColors('plLamp')")
 check("plot: a garden lamp is dark while off and glows while on", off == [None] and len(on) == 1 and on[0] is not None, (off, on))
 pgP.evaluate("() => { const f = window.__fp.layout.floors[window.__fp.floorIdx()]; f.devices = f.devices.filter((v) => v.id !== 'plLamp'); delete window.__fp.layout.plot; window.__fp.rebuild(); }")
 pgP.wait_for_timeout(300)
+pgP.click("#view3d"); f1 = frames()
+try:
+    pgP.wait_for_function(f"window.__fp.renderer.info.render.frame > {f1}", timeout=5000)
+except Exception:
+    pass
+check("back in the 3D view the picture is drawn again (#542)", frames() > f1, (f1, frames()))
 check("plot: no errors on the page", not own_pl, own_pl[:3])
 pgP.close()
 for k in ("language", "units"):

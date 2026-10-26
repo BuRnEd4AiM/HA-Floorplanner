@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.26.1] - 2026-10-26
+### Fixed
+- **The 2D view no longer draws the hidden 3D picture** (#542): with only the plan on the screen, the 3D view behind it was still drawn on every frame. Now it is drawn only when it can be seen: the 2D view is lighter for tablets and PCs (part of #138), and the plan answers at once where a slow 3D frame held its redraw back (the browser test part `48_plot` failed now and then because of it; its check now also waits for the redraw). Back in the 3D or split view the picture is drawn at once.
+
 ## [4.26.0] - 2026-10-26
 ### Added
 - **🏡 The plot and the areas on it** (#538, the owner's wish of 2026-10-26: "draußen Hof und sowas editieren, das Grundstück bemessen, Deko ums Haus, freier und nicht so krampfig"). The tool "Grundstück" now draws the plot or an **area** (Außenfläche) of a surface: a yard of cobblestones, a drive of paving, a wooden deck, stone slabs, flagstones, gravel, a flower bed, concrete, asphalt, sand, lawn or a pond, each lying on the ground in 3D with the pattern of its surface (the textures of the floors) and in its colour in the 2D plan with its name and size. Corner by corner or as a **rectangle of two clicks** (its size shown while moving).
