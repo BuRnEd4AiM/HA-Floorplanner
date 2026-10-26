@@ -1,0 +1,20 @@
+{
+ "session": "session_016jmtCrzuXWmNUwQWWyP6N3",
+ "start": "2026-10-26",
+ "updated": "2026-10-26T16:04:37Z",
+ "branch": "claude/heizung-regeln",
+ "source": "counted",
+ "input": 114,
+ "cache_write": 313604,
+ "cache_read": 10662673,
+ "output": 64755,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 114,
+   "cache_write": 313604,
+   "cache_read": 10662673,
+   "output": 64755,
+   "requests": 57
+  }
+ }
+}
