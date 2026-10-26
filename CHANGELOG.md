@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.31.1] - 2026-10-26
+### Changed
+- **🚆 The card "Zug" always shows your train, also tomorrow's** (#550, the owner: "mache es so, dass ich auch immer den auch morgen sehe"). The railway lists only the next 3 hours, so in the evening the card said "Dein Zug um 06:05 ist nicht unter den nächsten Abfahrten". Now it shows the train still hours away: its time big with "morgen" or "heute", "in 8 Std 31 Min", the train, its destination and its platform as the railway listed it last time (the add-on remembers them, `trains-seen.json`), and "Ob er pünktlich ist, zeigt die Bahn ab etwa 03:05"; from then on it shows the delay as before. `api/train?mine=06:05` answers with `seen`; new in `trains.py` (`mine_of`, `remember`) and `trains.js` (`aheadOf`, `liveFrom`), with their unit tests; the browser test part `53_train` checks a train 5 hours away.
+
 ## [4.31.0] - 2026-10-26
 ### Added
 - **🚆 The card "Zug": is my train on time?** (#550, the owner: "dass man sich so seine Verbindung reinmacht, um zu schauen, ob morgens der Zug richtig kommt oder nicht … nicht als eigenes Dashboard, sondern als Karte dazu"). A new kind of card for every page (✎ → "＋ Karte" → 🚆 Zug): the station, the direction ("über") and **mein Zug** (its planned departure). On top it shows your train big: on time in green, "+5 Min" in yellow, from 6 minutes late in red, "fällt aus", the platform (a changed one in yellow, "statt 3"), "in 11 Min" and the railway's note; below the next 3 to 8 departures. The demo has one on ☀ Heute.

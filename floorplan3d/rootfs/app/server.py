@@ -3740,9 +3740,23 @@ _TRAINS: dict = {}       # (station, via) -> (time, answer): asked at most once 
 TRAIN_KEEP = 60
 
 
+def train_reply(request, answer: dict, key: str):
+    """the answer, with ?mine=07:12 also what the railway said of "mein Zug" when it was last listed (seen: {at, train, dest, platform}):
+    the card shows it while it is still hours away (tomorrow morning). Kept in trains-seen.json."""
+    mine = request.query.get("mine", "")
+    if not tr.HHMM.match(mine):
+        return web.json_response(answer)
+    path, k = data_dir(request) / "trains-seen.json", f"{key}|{mine}"
+    seen = read_json(path, {})
+    seen = seen if isinstance(seen, dict) else {}
+    if tr.remember(seen, k, tr.mine_of(answer.get("rows"), mine), time.time()):
+        write_json_atomic(path, seen)
+    return web.json_response({**answer, "seen": seen.get(k)})
+
+
 async def get_train(request):
     """the next departures of a station towards via (asked from the add-on, not the browser), or of a sensor of DB Infoscreen:
-    {rows: [...], at (seconds), source: "dbf" | "sensor", error}"""
+    {rows: [...], at (seconds), source: "dbf" | "sensor", error, seen (with ?mine, train_reply)}"""
     sensor = request.query.get("sensor", "")
     if sensor:
         if not ub.ENTITY.match(sensor) or not sensor.startswith("sensor."):
@@ -3756,7 +3770,7 @@ async def get_train(request):
         except (aiohttp.ClientError, asyncio.TimeoutError, ValueError):
             st = None
         rows = tr.from_sensor((st or {}).get("attributes"))
-        return web.json_response({"rows": rows, "source": "sensor", "error": "" if st else "sensor", "at": round(time.time())})
+        return train_reply(request, {"rows": rows, "source": "sensor", "error": "" if st else "sensor", "at": round(time.time())}, f"s|{sensor}")
     station, via = tr.clean_text(request.query.get("station")), tr.clean_text(request.query.get("via"))
     if not station:
         return web.json_response({"error": "station expected"}, status=400)
@@ -3778,7 +3792,7 @@ async def get_train(request):
         _TRAINS[key] = (time.time(), answer)
         for old in sorted(_TRAINS, key=lambda k: _TRAINS[k][0])[:-30]:      # a few stations kept, not every one ever typed
             _TRAINS.pop(old, None)
-    return web.json_response(answer)
+    return train_reply(request, answer, "|".join(key))
 
 
 async def timeline_allowed(request) -> bool:

@@ -4,13 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.31.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.31.1)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.31.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.31.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in 4.31.0: 🚆 Zug-Karte** (Abschnitt 113): Claude hat 113.1 bis 113.3 in der Demo geprüft; für dich im Add-on mit deinem Bahnhof 113.4 bis 113.6.
+1. **Neu in 4.31.0 und 4.31.1: 🚆 Zug-Karte** (Abschnitt 113 und 114): Claude hat 113.1 bis 113.3 in der Demo und 114.1 im Test-Add-on geprüft; für dich im Add-on mit deinem Bahnhof 113.4 bis 113.6 und 114.2 bis 114.4 (abends dein Zug von morgen).
 2. **Neu in 4.30.0: 🎨 Szenen für Lampen und LED-Streifen** (Abschnitt 112): Claude hat 112.1 bis 112.5 in der Demo geprüft; für dich im Add-on 112.6 bis 112.8.
 3. **Neu in 4.29.0: Abläufe werden echte Automationen in Home Assistant** (Abschnitt 111): Claude hat 111.1 bis 111.4 in der Demo geprüft; für dich im Add-on mit deinem Home Assistant 111.5 bis 111.8.
 4. **Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe** (Abschnitt 110): in der Demo 110.6, 110.12, 110.13; im Add-on mit deinem echten Fenster und Thermostat 110.14, 110.15.
@@ -322,7 +322,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 111. Neu in 4.29.0: Abläufe werden echte Automationen in Home Assistant (#548) | 4 | 0 | 0 | 4 | – |
 | 112. Neu in 4.30.0: 🎨 Szenen für Lampen und LED-Streifen als echte Szenen in Home Assistant (#549) | 5 | 0 | 0 | 3 | – |
 | 113. Neu in 4.31.0: 🚆 Zug-Karte: Kommt mein Zug pünktlich? (#550) | 3 | 0 | 0 | 3 | – |
-| **Zusammen** | **732** | **10** | **53** | **86** | |
+| 114. Neu in 4.31.1: 🚆 Zug-Karte zeigt deinen Zug auch morgen (#550) | 1 | 0 | 0 | 3 | – |
+| **Zusammen** | **733** | **10** | **53** | **89** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1771,3 +1772,12 @@ Wunsch des Besitzers vom 2026-10-26 („dass man sich so seine Verbindung reinma
 | 113.4 | Nur im Add-on: eine Zug-Karte mit deinem Bahnhof und deiner Richtung (z. B. „Frankfurt (Main) Hbf“) und deinem Zug | Die echten Abfahrten der Bahn erscheinen, dein Zug steht oben | ➖ |
 | 113.5 | Nur im Add-on: an einem Morgen mit Verspätung draufschauen | „+… Min“ in Gelb oder Rot, wie in der DB-App | ➖ |
 | 113.6 | Nur im Add-on: einen falsch geschriebenen Bahnhof eintragen | Die Karte sagt, dass die Bahn den Bahnhof so nicht kennt | ➖ |
+
+## 114. Neu in 4.31.1: 🚆 Zug-Karte zeigt deinen Zug auch morgen (#550)
+Wunsch des Besitzers vom 2026-10-26 („mache es so, dass ich auch immer den auch morgen sehe“): Die Bahn zeigt nur die nächsten 3 Stunden; abends stand darum „Dein Zug um 06:05 ist nicht unter den nächsten Abfahrten“.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 114.1 | Test-Add-on: eine Zug-Karte, deren Zug in 5 Stunden fährt | Oben „Dein Zug“ mit der Zeit groß, „heute“ oder „morgen“, „in 5 Std …“ und „Ob er pünktlich ist, zeigt die Bahn ab etwa …“; darunter die nächsten Züge | ✅ (2026-10-26, Claude im Test-Add-on) |
+| 114.2 | Nur im Add-on, am Abend: deine Karte „Oftersheim“ → „Mannheim Hbf“ mit deinem Zug (z. B. 06:05) | Statt „ist nicht unter den nächsten Abfahrten“ steht „06:05“, „morgen“, „in … Std … Min“ | ➖ |
+| 114.3 | Nur im Add-on, am Morgen ab etwa 3 Stunden vor deinem Zug | Dein Zug mit Zug, Ziel, Gleis und „pünktlich“ oder „+… Min“ wie bisher | ➖ |
+| 114.4 | Nur im Add-on, am Abend danach | Oben zusätzlich dein Zug (z. B. „S S9 → Mannheim Hbf“) und sein Gleis, wie die Bahn sie am Morgen gemeldet hat | ➖ |

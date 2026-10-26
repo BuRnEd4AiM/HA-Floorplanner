@@ -5,7 +5,11 @@ The add-on asks the free service the Home Assistant integration "DB Infoscreen" 
 key): GET <base>/<station>.json?via=<station> -> {"departures": [{scheduledDeparture "07:12", delayDeparture (minutes), platform,
 scheduledPlatform, train "RE 4711", destination, isCancelled, messages, via}]}. With "DB Infoscreen" in Home Assistant the card reads its
 sensor instead (attribute next_departures, the same fields). rows makes one list out of either; pure (unit test: tests/test_trains.py),
-server.py fetches and keeps an answer a minute."""
+server.py fetches and keeps an answer a minute.
+
+The service lists only the next 3 hours: in the evening "mein Zug" of tomorrow morning is not among them (the owner: "mache es so, dass ich
+auch immer den auch morgen sehe"). remember keeps what the railway said of it when it was (train, destination, platform), so the card shows
+it while it is still hours away."""
 import datetime
 import re
 from urllib.parse import quote, urlencode
@@ -13,6 +17,7 @@ from urllib.parse import quote, urlencode
 DBF = "https://dbf.finalrewind.org"
 HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 MAX_ROWS = 20
+SEEN_MAX = 40            # "mein Zug" of this many cards remembered (trains-seen.json), the oldest go
 
 
 def clean_text(v, n=60) -> str:
@@ -101,3 +106,33 @@ def error_of(data) -> str:
     if isinstance(data, dict) and data.get("error"):
         return _str(data["error"], 200)
     return ""
+
+
+def _min(v):
+    return int(v[:2]) * 60 + int(v[3:]) if isinstance(v, str) and HHMM.match(v) else None
+
+
+def mine_of(rows, mine: str):
+    """"mein Zug": the departure planned at mine ("07:12"), else the first planned up to 10 minutes later (as mineOf in trains.js); None"""
+    m = _min(mine)
+    if m is None or not isinstance(rows, list):
+        return None
+    rows = [r for r in rows if isinstance(r, dict)]
+    return next((r for r in rows if r.get("at") == mine), None) or next(
+        (r for r in rows if _min(r.get("at")) is not None and 0 < _min(r.get("at")) - m <= 10), None)
+
+
+def remember(seen: dict, key: str, row, now: float) -> bool:
+    """keeps "mein Zug" of key as the railway listed it ({key: {at, train, dest, platform (the planned one), t}}); True when seen changed.
+    The same train again is written once a day only (t keeps the oldest last)."""
+    if not isinstance(row, dict) or not row.get("at"):
+        return False
+    e = {"at": row["at"], "train": _str(row.get("train"), 30), "dest": _str(row.get("dest"), 60),
+         "platform": _str(row.get("planned") or row.get("platform"), 8)}
+    old = seen.get(key) if isinstance(seen.get(key), dict) else {}
+    if all(old.get(k) == v for k, v in e.items()) and now - (old.get("t") or 0) < 86400:
+        return False
+    seen[key] = {**e, "t": round(now)}
+    for k in sorted(seen, key=lambda k: seen[k].get("t") or 0 if isinstance(seen[k], dict) else 0)[:-SEEN_MAX]:
+        seen.pop(k, None)
+    return True

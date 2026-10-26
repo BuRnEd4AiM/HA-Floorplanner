@@ -1,9 +1,11 @@
 /* 🚆 The card "Zug" (#550; trains.js has the rules): asks the add-on for the departures of the card's station towards "via" (api/train:
  * Deutsche Bahn through the service of DB Infoscreen, or a sensor of the integration "DB Infoscreen"), again after a minute; on top "mein
  * Zug" big (pünktlich in green, "+5 Min" in yellow, from 6 minutes in red, "fällt aus", the platform and a changed one, "in 11 Min", what
- * the railway says), below the next departures. Also the part of the window "Karte einstellen" for this kind (cardeditor.js): station,
- * direction, mein Zug, how many departures, a sensor of DB Infoscreen instead. */
-import { statusOf, minutesTo, platformChanged, mineOf, nextRows, inWords } from './trains.js';
+ * the railway says), below the next departures. Is it still hours away (tonight for tomorrow morning: the railway lists the next 3
+ * hours), it shows "06:05 morgen · in 8 Std 31 Min" with the train, destination and platform the add-on remembered of it (seen). Also the
+ * part of the window "Karte einstellen" for this kind (cardeditor.js): station, direction, mein Zug, how many departures, a sensor of DB
+ * Infoscreen instead. */
+import { statusOf, minutesTo, platformChanged, mineOf, nextRows, inWords, aheadOf, liveFrom, FAR } from './trains.js';
 
 const KEEP = 60000;                                   // the departures of a card are asked again after a minute
 const SENSOR = /(^|_)(db|bahn|zug|train|departure|abfahrt|infoscreen)/;
@@ -11,18 +13,18 @@ const SENSOR = /(^|_)(db|bahn|zug|train|departure|abfahrt|infoscreen)/;
 /** ctx: t, entities() ([{ entity_id, name }]), changed() (departures arrived: draw the open page again) */
 export function initTrainCard(ctx) {
   const { t } = ctx;
-  const got = new Map();                              // "station|via" or "s|sensor" -> { at, rows, error, asking, stamp }
+  const got = new Map();                              // "station|via|mine" or "s|sensor|mine" -> { at, rows, error, asking, stamp, seen }
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-  const keyOf = (c) => (c.sensor ? `s|${c.sensor}` : `${c.station}|${c.via || ''}`);
+  const keyOf = (c) => `${c.sensor ? `s|${c.sensor}` : `${c.station}|${c.via || ''}`}|${c.mine || ''}`;
   function load(c) {
     const key = keyOf(c), h = got.get(key);
     if (h && (h.asking || Date.now() - h.at < KEEP)) return h;
-    const next = { at: Date.now(), rows: h?.rows || null, error: h?.error || '', asking: true, stamp: h?.stamp || 0, source: h?.source || '' };
+    const next = { at: Date.now(), rows: h?.rows || null, error: h?.error || '', asking: true, stamp: h?.stamp || 0, source: h?.source || '', seen: h?.seen || null };
     got.set(key, next);
-    const q = new URLSearchParams(c.sensor ? { sensor: c.sensor } : { station: c.station, ...(c.via ? { via: c.via } : {}) });
+    const q = new URLSearchParams({ ...(c.sensor ? { sensor: c.sensor } : { station: c.station, ...(c.via ? { via: c.via } : {}) }), ...(c.mine ? { mine: c.mine } : {}) });
     fetch(`api/train?${q}`).then((r) => r.json().catch(() => ({}))).then((x) => {
       next.rows = Array.isArray(x.rows) ? x.rows : next.rows || [];
-      next.error = x.error || ''; next.stamp = x.at || 0; next.source = x.source || '';
+      next.error = x.error || ''; next.stamp = x.at || 0; next.source = x.source || ''; next.seen = x.seen || next.seen;
     }).catch(() => { next.rows = next.rows || []; next.error = 'offline'; })
       .finally(() => { next.asking = false; next.at = Date.now(); ctx.changed(); });
     return next;
@@ -56,6 +58,21 @@ export function initTrainCard(ctx) {
     return box;
   }
 
+  /** "mein Zug" still hours away: its planned time, today or tomorrow, the countdown, what the railway said of it last time (seen: train,
+   *  destination, platform); whether it is on time shows from 3 hours before */
+  function planBlock(c, seen, at, ahead) {
+    const box = make('div', 'trMine trK-plan'); box.dataset.mine = c.mine; box.dataset.kind = 'plan';
+    const head = make('div', 'trMineH'); head.append(make('span', '', `🚆 ${t('tr.mine')}`));
+    if (seen?.train) head.append(make('b', '', `${seen.train}${seen.dest ? ` → ${seen.dest}` : ''}`));
+    const big = make('div', 'trBig');
+    big.append(make('span', 'trTime', at), make('span', 'trChip plan', t(ahead.tomorrow ? 'tr.tomorrow' : 'tr.today')));
+    const facts = make('div', 'trFacts');
+    if (seen?.platform) facts.append(make('span', 'trPlat', `${t('tr.platform')} ${seen.platform}`));
+    facts.append(make('span', 'trIn', inWords(ahead.min, t)));
+    box.append(head, big, facts, make('p', 'trNote', `🕒 ${t('tr.liveFrom', { at: liveFrom(at) })}`));
+    return box;
+  }
+
   /** the card's body into box (cardsui.js put its heading above) */
   function render(c, box) {
     const now = new Date(), h = load(c);
@@ -65,7 +82,10 @@ export function initTrainCard(ctx) {
       return;
     }
     const mine = c.mine ? mineOf(h.rows, c.mine) : null;
-    if (c.mine) box.append(mineBlock(c, mine, now));
+    if (c.mine) {
+      const at = (!mine && h.seen?.at) || c.mine, ahead = mine ? null : aheadOf(at, now);
+      box.append(ahead && ahead.min > FAR ? planBlock(c, h.seen, at, ahead) : mineBlock(c, mine, now));
+    }
     const list = make('div', 'trList');
     nextRows(h.rows, now, c.count, mine).forEach((row) => {
       const s = statusOf(row), r = make('div', `trRow trK-${s.kind}`); r.dataset.train = row.train;

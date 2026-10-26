@@ -2,6 +2,10 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.31.1] - 2026-10-26
+### Verbessert
+- **🚆 Die Karte „Zug“ zeigt deinen Zug immer, auch den von morgen** (#550, der Besitzer: „mache es so, dass ich auch immer den auch morgen sehe“). Die Bahn zeigt nur die nächsten 3 Stunden, darum stand abends „Dein Zug um 06:05 ist nicht unter den nächsten Abfahrten“. Jetzt zeigt die Karte den Zug auch, wenn er noch Stunden entfernt ist: seine Zeit groß mit „morgen“ oder „heute“, „in 8 Std 31 Min“, den Zug, sein Ziel und sein Gleis, wie die Bahn sie beim letzten Mal gemeldet hat (das Add-on merkt sie sich, `trains-seen.json`), und „Ob er pünktlich ist, zeigt die Bahn ab etwa 03:05“; ab dann zeigt sie die Verspätung wie bisher. `api/train?mine=06:05` antwortet mit `seen`; neu in `trains.py` (`mine_of`, `remember`) und `trains.js` (`aheadOf`, `liveFrom`), mit ihren Unit-Tests; der Teil `53_train` des Browser-Tests prüft einen Zug in 5 Stunden.
+
 ## [4.31.0] - 2026-10-26
 ### Neu
 - **🚆 Die Karte „Zug“: Kommt mein Zug pünktlich?** (#550, der Besitzer: „dass man sich so seine Verbindung reinmacht, um zu schauen, ob morgens der Zug richtig kommt oder nicht … nicht als eigenes Dashboard, sondern als Karte dazu“). Eine neue Kartenart für jede Seite (✎ → „＋ Karte“ → 🚆 Zug): der Bahnhof, die Richtung („über“) und **mein Zug** (seine geplante Abfahrt). Oben steht dein Zug groß: pünktlich in Grün, „+5 Min“ in Gelb, ab 6 Minuten Verspätung in Rot, „fällt aus“, das Gleis (ein geändertes in Gelb, „statt 3“), „in 11 Min“ und der Hinweis der Bahn; darunter die nächsten 3 bis 8 Abfahrten. Die Demo hat eine auf ☀ Heute.

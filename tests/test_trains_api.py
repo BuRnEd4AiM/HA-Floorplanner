@@ -47,3 +47,10 @@ async def test_departures_of_a_station_and_of_a_sensor(client, monkeypatch, aioh
     assert s["source"] == "sensor" and s["rows"][0]["cancelled"] is True
     assert (await client.get("/api/train")).status == 400 and (await client.get("/api/train?sensor=light.x")).status == 400
     assert json.dumps(r)                                                       # plain JSON for the page
+    mine = await (await client.get("/api/train?station=Fulda%20Test&via=Hanau&mine=07:10")).json()     # "mein Zug": remembered for later
+    assert mine["seen"] == {"at": "07:12", "train": "RE 4711", "dest": "Frankfurt", "platform": "3", "t": mine["seen"]["t"]} and len(asked) == 2
+    assert json.loads((client.server.app[server.KEY_DATA] / "trains-seen.json").read_text())["fulda test|hanau|07:10"]["train"] == "RE 4711"
+    later = await (await client.get("/api/train?station=Fulda%20Test&via=Hanau&mine=05:00")).json()    # not listed (tomorrow morning)
+    assert later["seen"] is None and "seen" not in r
+    s2 = await (await client.get("/api/train?sensor=sensor.fulda&mine=07:20")).json()
+    assert s2["seen"]["train"] == "ICE 1576"

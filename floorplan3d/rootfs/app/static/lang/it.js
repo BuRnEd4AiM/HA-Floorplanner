@@ -1949,7 +1949,7 @@ export default {
   'tr.mineHelp': 'La partenza prevista del tuo treno: compare grande in alto, con ritardo, binario e «tra … min».', 'tr.count': 'Quante partenze',
   'tr.sensor': 'Oppure da Home Assistant', 'tr.sensorHelp': 'Un sensore dell’integrazione «DB Infoscreen» invece di stazione e direzione',
   'tr.noSensor': 'nessun sensore: l’add-on chiede da sé', 'tr.needStation': 'Inserisci una stazione.', 'tr.mine': 'Il tuo treno',
-  'tr.mineGone': 'Il tuo treno delle {at} non è tra le prossime partenze.', 'tr.onTime': 'puntuale', 'tr.gone': 'soppresso',
+  'tr.mineGone': 'Il tuo treno delle {at} non è tra le prossime partenze.', 'tr.today': 'oggi', 'tr.tomorrow': 'domani', 'tr.liveFrom': 'Se è puntuale si vede da circa le {at}.', 'tr.onTime': 'puntuale', 'tr.gone': 'soppresso',
   'tr.unknown': 'orario non ancora noto', 'tr.min': 'min', 'tr.platform': 'Binario', 'tr.pl': 'Bin.', 'tr.instead': 'invece di {p}', 'tr.now': 'adesso',
   'tr.inMin': 'tra {n} min', 'tr.inHour': 'tra {h} h {m} min', 'tr.none': 'Nessuna partenza al momento.', 'tr.fromSensor': 'da DB Infoscreen',
   'tr.stamp': 'alle {at}', 'tr.nohass': 'Senza Home Assistant il sensore non si può leggere.',
