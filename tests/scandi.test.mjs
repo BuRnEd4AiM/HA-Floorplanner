@@ -7,14 +7,15 @@ const S = await import(`${dir}/scandi.js`);
 const { LAMP_TYPES } = await import(`${dir}/lamplight.js`);
 const { LEISURE } = await import(`${dir}/leisure.js`);
 const { GARAGE } = await import(`${dir}/garage.js`);
-const OWN = S.SCANDI_TYPES.filter((k) => !LEISURE[k] && !GARAGE[k]);     // the pieces of leisure.js and garage.js are in SCANDI too: their own tests check them
+const { YARD } = await import(`${dir}/yarddeco.js`);
+const OWN = S.SCANDI_TYPES.filter((k) => !LEISURE[k] && !GARAGE[k] && !YARD[k]);     // the pieces of leisure.js, garage.js and yarddeco.js are in SCANDI too: their own tests check them
 const near = (a, b, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} != ${b}`);
 const HEX = /^#[0-9a-f]{6}$/;
 const CATS = ['living', 'kitchen', 'bath', 'bedroom', 'kids', 'office', 'entry', 'lighting', 'decor'];
 
 test('more than 50 pieces, each with a group, a German name, search words and parts', () => {
   assert.ok(OWN.length >= 50, OWN.length);
-  assert.ok(Object.keys(LEISURE).every((k) => S.SCANDI[k] === LEISURE[k]) && Object.keys(GARAGE).every((k) => S.SCANDI[k] === GARAGE[k]));
+  assert.ok([LEISURE, GARAGE, YARD].every((lib) => Object.keys(lib).every((k) => S.SCANDI[k] === lib[k])));
   for (const k of OWN) {
     const d = S.SCANDI[k];
     assert.ok(CATS.includes(d.cat), k);

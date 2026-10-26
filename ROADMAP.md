@@ -29,6 +29,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 ## Done in 3.59 – 4.2
 
 - ✅ 🚗 The car (charge, range, "charge with the sun only") and 🌱 the garden (rain, soil, "💧 water 10 min" that stops by itself) on 🧺 Haushalt (4.25.0)
+- ✅ 🏡 The plot and the areas on it: a yard, a drive, a deck, beds, a pond ... with their pattern in 3D; the plot measured (size, perimeter, every side), width and depth typed in, a rectangle round the house in one tap; 26 garden things (4.26.0)
 - ✅ 🗣 Switching by voice: "Licht im Wohnzimmer aus", the whole house asks first (4.24.0)
 - ✅ 🔔 "Sag mir Bescheid": a message to the phone when the washing machine, dryer or dishwasher is done (4.23.0)
 - ✅ 🔔 The doorbell on every wall tablet: the camera at the door, open the door (it asks once more), a gong; bells and cameras found by themselves (4.22.0)

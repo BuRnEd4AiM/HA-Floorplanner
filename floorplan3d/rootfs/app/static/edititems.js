@@ -65,13 +65,17 @@ export function keyCommand(k, mods, s) {
 
 /** ctx: t, floor(), floorIdx(), floors() (how many), settings(), selection(), setSelection(sel), isLive(), tool(), snapshot(), changed(),
  *  setStatus(txt), undo(), redo(), clip ({ copy(), paste(), duplicate() }, clipboard.js), moveDeviceTo(d, x, z), power ({ deleteCable(id), dropCablesTo(id) }), multi ({ items(), deleteAll() }),
- *  switchFloor(i), setTool(name), moveRoof(id, dx, dz) (#255), escape() (stop drawing, close popups ...), finishDraft() (true when Enter closed an outline),
+ *  switchFloor(i), setTool(name), moveRoof(id, dx, dz) (#255), yard ({ remove(kind, id), pointsOf(kind, id) }: the plot and its areas, plotui.js #538), escape() (stop drawing, close popups ...), finishDraft() (true when Enter closed an outline),
  *  deleted() (something was deleted: the note "Gelöscht · Rückgängig", undotoast.js #471), help() (the card with every key, shortcuts.js #471) */
 export function initEditItems(ctx) {
   /** delete one thing; batch: several in a row (#211), the caller rebuilds once */
   function deleteItem({ kind, id }, batch = false) {
     if (kind === 'cable') {
       if (ctx.power.deleteCable(id)) { if (ctx.selection()?.id === id) ctx.setSelection(null); ctx.changed(); ctx.deleted?.(); }
+      return;
+    }
+    if (kind === 'yard' || kind === 'plot') {                 // the plot and its areas (#538, plotui.js) belong to the whole house
+      if (ctx.yard?.remove(kind, id)) { if (ctx.selection()?.id === id) ctx.setSelection(null); if (!batch) ctx.changed(); ctx.deleted?.(); }
       return;
     }
     const f = ctx.floor();
@@ -110,7 +114,8 @@ export function initEditItems(ctx) {
       return;
     }
     // like dragging in the 2D editor: walls joined at the corners stretch along
-    const pts = sel.kind === 'wall' ? (item ? jointPoints(f, item) : null) : ['room', 'block', 'hole'].includes(sel.kind) ? item?.points || null : null;
+    const pts = sel.kind === 'wall' ? (item ? jointPoints(f, item) : null) : ['room', 'block', 'hole'].includes(sel.kind) ? item?.points || null
+      : ctx.yard?.pointsOf(sel.kind, sel.id) || null;                   // the plot or one of its areas (#538)
     if (pts?.length) { ctx.snapshot(); pts.forEach((q) => { q[0] = +(q[0] + dx).toFixed(4); q[1] = +(q[1] + dz).toFixed(4); }); ctx.changed(); }
   }
   window.addEventListener('keydown', (e) => {

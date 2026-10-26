@@ -18,6 +18,8 @@ import { hasShutter, shutterEntity, linkedEntities, shutterSide, shutterText } f
 import { SCANDI, SCANDI_TYPES, footOf as scandiFoot, variantOf } from './scandi.js';
 import { LEISURE_FLAT } from './leisure.js';
 import { GARAGE_FLAT } from './garage.js';
+import { YARD_FLAT } from './yarddeco.js';
+import { areaAt, nearEdge, edgeList, rectFrom, surfaceColor } from './yard.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const C = {
@@ -25,9 +27,9 @@ const C = {
   grid1: 'rgba(160,215,255,.10)', grid2: 'rgba(160,215,255,.22)', text: '#eaf7ff', warn: '#ff4a3d',
 };
 
-const POLY_KINDS = new Set(['room', 'block', 'hole']);                     // shapes edited by their corners
+const POLY_KINDS = new Set(['room', 'block', 'hole', 'yard', 'plot']);     // shapes edited by their corners (the plot and its areas: #538)
 const polyList = (f, kind) => (kind === 'room' ? f.rooms : kind === 'block' ? f.blocks || [] : f.holes || []);
-const FLAT = new Set(['carpet', 'rug_round', 'lawn', 'terrace', 'path', 'pool', ...LEISURE_FLAT, ...GARAGE_FLAT]);   // lie on the ground (or on the ceiling: the star sky): drawn below, picked last
+const FLAT = new Set(['carpet', 'rug_round', 'lawn', 'terrace', 'path', 'pool', ...LEISURE_FLAT, ...GARAGE_FLAT, ...YARD_FLAT]);   // lie on the ground (or on the ceiling: the star sky): drawn below, picked last
 /* footprint (m) of every device type: [w, d] or radius for round ones */
 const FOOT = {
   light: { r: 0.2 }, lamp: { r: 0.2 }, orb: { r: 0.11 }, strip: { w: 1, d: 0.06 }, panel_tri: { w: 0.24, d: 0.24 }, panel_hex: { w: 0.26, d: 0.26 }, panel_sq: { w: 0.24, d: 0.24 }, panel_bar: { w: 0.9, d: 0.06 }, nanoleaf: { w: 0.5, d: 0.06 }, tv_led: { w: 1.3, d: 0.06 }, switch: { w: 0.14, d: 0.14 }, sensor: { r: 0.09 }, thermostat: { w: 0.9, d: 0.16 },
@@ -78,6 +80,12 @@ export function createPlan(ctx) {
 
   const floor = () => ctx.floor();
   const shown = () => ctx.shownFloor?.() || floor();             // what is drawn and can be picked: one building of several (#409)
+  /* the plot (Grundstück) and the areas on it (#538, plotui.js): they belong to the whole house, drawn and edited on the ground floor
+   * and with the tool "Grundstück" */
+  const yardsHere = () => !!ctx.yardShown?.();
+  const yardList = () => (yardsHere() ? ctx.yards?.() || [] : []);
+  const plotPoly = () => { const b = ctx.layout().plot?.boundary; return b?.length >= 3 ? { id: 'plot', points: b } : null; };
+  const polyOf = (f, kind) => (kind === 'yard' ? yardList() : kind === 'plot' ? (yardsHere() && plotPoly() ? [plotPoly()] : []) : polyList(f, kind));
   const sx = (x) => x * s + tx, sy = (z) => z * s + ty;
   const wx = (px) => (px - tx) / s, wz = (py) => (py - ty) / s;
   const grid = () => ctx.settings().grid || 0.25;
@@ -240,12 +248,45 @@ export function createPlan(ctx) {
     if (rooms.length) return { kind: 'room', id: rooms[rooms.length - 1].id };
     const blk = (f.blocks || []).filter((r) => ctx.pointInPoly(x, z, r.points));
     if (blk.length) return { kind: 'block', id: blk[blk.length - 1].id };
+    if (!isLive()) {                                                   // an area of the plot by its inside, the plot by its edge (#538)
+      const yd = areaAt(yardList(), x, z, ctx.pointInPoly);
+      if (yd) return { kind: 'yard', id: yd.id };
+      const pl = yardsHere() && plotPoly();
+      if (pl && nearEdge(pl.points, x, z, Math.max(0.12, 8 / s))) return { kind: 'plot', id: 'plot' };
+    }
     if (f.kind === 'roof' && !isLive()) {                             // a roof of the open roof floor (#255): anything else on it comes first
       const rr = roofAt(ctx.roofRects?.() || [], x, z);
       if (rr) return { kind: 'roof', id: rr.id };
     }
     return null;
   }
+  /** the areas of the plot (#538) in the colour of their surface with name and size; the length of every side of the plot (with the tool
+   *  "Grundstück" or the plot selected) and of the selected area */
+  function yardSvg(sel, live) {
+    if (!yardsHere()) return '';
+    let o = '';
+    const lab = (x, y, text, size, fill) => `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" font-size="${size}" fill="${fill}" stroke="rgba(3,21,71,.85)" stroke-width="3" paint-order="stroke" pointer-events="none">${esc(text)}</text>`;
+    const sides = (points, fill, cls) => edgeList(points).forEach((e) => {
+      if (e.len * s < 34) return;                                // too short on the screen for its number
+      const off = 13 / s;
+      o += lab(sx(e.mid[0] + e.out[0] * off), sy(e.mid[1] + e.out[1] * off) + 4, ctx.fmtLen(e.len), 11, fill).replace('<text ', `<text class="${cls}" `);
+    });
+    yardList().forEach((a) => {
+      const on = sel?.kind === 'yard' && sel.id === a.id;
+      o += `<polygon points="${pts(a.points)}" fill="${surfaceColor(a.surface)}" fill-opacity="${live ? 0.4 : 0.55}" stroke="${on ? C.sel : 'rgba(255,255,255,.4)'}" stroke-width="${on ? 2.2 : 1}"${on ? '' : ' stroke-dasharray="5 4"'} data-yard="${esc(a.id)}"/>`;
+    });
+    if (!live && s >= 14) yardList().forEach((a) => {
+      const c = a.points.reduce((q, p) => [q[0] + p[0] / a.points.length, q[1] + p[1] / a.points.length], [0, 0]);
+      o += lab(sx(c[0]), sy(c[1]), a.name || ctx.t(`yard.s.${a.surface}`), 12, C.text) + lab(sx(c[0]), sy(c[1]) + 14, ctx.area(a.points), 10, 'rgba(210,235,255,.85)');
+    });
+    const pl = plotPoly();
+    if (!live && pl && (ctx.getTool() === 'plot' || sel?.kind === 'plot')) sides(pl.points, '#7dffc4', 'plotSide');
+    const ya = !live && sel?.kind === 'yard' && yardList().find((q) => q.id === sel.id);
+    if (ya) sides(ya.points, C.sel, 'yardSide');
+    return o;
+  }
+  /** the rectangle being drawn with the tool "Grundstück" (#538): from the first click to the pointer, or null */
+  const rectDraft = () => (ctx.getTool() === 'plot' && ctx.plotRect?.() && drawPts.length === 1 && cursor ? rectFrom(drawPts[0], cursor) : null);
   /** the roofs of the open roof floor as dashed outlines with their name (#255); the selected one stands out */
   function roofOutlines(f, sel) {
     if (f.kind !== 'roof') return '';
@@ -295,7 +336,7 @@ export function createPlan(ctx) {
       const w = f.walls.find((q) => q.id === sel.id);
       if (w) { if (near(w.a)) return { type: 'wall-end', wall: w, end: 'a' }; if (near(w.b)) return { type: 'wall-end', wall: w, end: 'b' }; }
     } else if (POLY_KINDS.has(sel.kind)) {
-      const r = polyList(f, sel.kind).find((q) => q.id === sel.id);
+      const r = polyOf(f, sel.kind).find((q) => q.id === sel.id);
       if (r) { const i = r.points.findIndex(near); if (i >= 0) return { type: 'room-pt', room: r, i }; }
     }
     return null;
@@ -376,7 +417,11 @@ export function createPlan(ctx) {
     o += g;
 
     const plotB = ctx.layout().plot?.boundary;                 // the plot (Grundstück), dashed
-    if (plotB?.length >= 3) o += `<polygon points="${pts(plotB)}" fill="rgba(60,255,176,.05)" stroke="rgba(60,255,176,.7)" stroke-width="1.5" stroke-dasharray="8 5"/>`;
+    if (plotB?.length >= 3) {
+      const on = sel?.kind === 'plot' && yardsHere();
+      o += `<polygon points="${pts(plotB)}" fill="rgba(60,255,176,.05)" stroke="${on ? C.sel : 'rgba(60,255,176,.7)'}" stroke-width="${on ? 2.5 : 1.5}" stroke-dasharray="8 5"/>`;
+    }
+    o += yardSvg(sel, live);
 
     /* placeholder blocks: solid masses that stand in for floors you do not draw */
     const idxB = ctx.getFloorIdx(), H3 = ctx.floorH(), view = ctx.shownLayout?.() || ctx.layout();   // one building of several (#409)
@@ -604,7 +649,7 @@ export function createPlan(ctx) {
         const st = (f.stairs || []).find((q) => q.id === sel.id), hs = st && stairHandles(st, H3);
         if (st) ['len', 'wid'].forEach((k) => { if (hs[k]) { const p = toWorld(st, hs[k][0], hs[k][1]); o += `<rect x="${sx(p[0]) - 6}" y="${sy(p[1]) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.sel}" stroke-width="2"/>`; } });
       }
-      if (POLY_KINDS.has(sel.kind)) { const rm = polyList(f, sel.kind).find((q) => q.id === sel.id); if (rm) rm.points.forEach((p) => { o += hnd(p); }); }
+      if (POLY_KINDS.has(sel.kind)) { const rm = polyOf(f, sel.kind).find((q) => q.id === sel.id); if (rm) rm.points.forEach((p) => { o += hnd(p); }); }
       if (sel.kind === 'roof') {                                 // the size handles of a roof (#259)
         const r = (ctx.roofRects?.() || []).find((q) => q.id === sel.id);
         if (r) roofHandles(r.box).forEach((q) => { o += `<rect x="${sx(q.x) - 6}" y="${sy(q.z) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${C.accent}" stroke-width="2" data-roofh="${q.which}"/>`; });
@@ -655,11 +700,13 @@ export function createPlan(ctx) {
       o += drawStair(tpl, false, true) + (tpl.dir === 'down' ? holeOf(tpl) : '');
     }
     if (!live && (tool === 'wall' || tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') && drawPts.length) {
-      const pl = cursor ? [...drawPts, cursor] : drawPts;
+      const box = rectDraft();                                     // the tool "Grundstück" as a rectangle (#538): two clicks
+      if (box) o += `<text x="${sx(cursor[0]) + 12}" y="${sy(cursor[1]) - 10}" font-size="12" font-weight="700" fill="${C.accent}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(`${ctx.fmtLen(box[1][0] - box[0][0])} × ${ctx.fmtLen(box[2][1] - box[1][1])}`)}</text>`;
+      const pl = box || (cursor ? [...drawPts, cursor] : drawPts);
       o += `<polyline points="${pts(pl)}" fill="none" stroke="${C.accent}" stroke-width="2.5" stroke-dasharray="6 4"/>`;
       if ((tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') && drawPts.length >= 2) o += `<polygon points="${pts(pl)}" fill="rgba(35,224,255,.12)" stroke="none"/>`;
       drawPts.forEach((p) => { o += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="4" fill="${C.accent}"/>`; });
-      if (cursor) {
+      if (cursor && !box) {
         const last = drawPts[drawPts.length - 1], L = Math.hypot(cursor[0] - last[0], cursor[1] - last[1]);
         o += `<text x="${sx((cursor[0] + last[0]) / 2)}" y="${sy((cursor[1] + last[1]) / 2) - 8}" text-anchor="middle" font-size="12" font-weight="700" fill="${C.accent}" stroke="rgba(3,21,71,.9)" stroke-width="3" paint-order="stroke">${esc(ctx.fmtLen(L))}</text>`;
       }
@@ -724,6 +771,7 @@ export function createPlan(ctx) {
     if (!f || !W || !H) return;
     const p = [...f.walls.flatMap((w) => [w.a, w.b]), ...f.rooms.flatMap((q) => q.points), ...(f.blocks || []).flatMap((q) => q.points), ...(f.holes || []).flatMap((q) => q.points), ...f.devices.map((d) => [d.x, d.z]), ...(f.stairs || []).map((d) => [d.x, d.z]),
       ...(f.kind === 'roof' ? (ctx.roofRects?.() || []).flatMap(({ box: b, outline: o }) => [[b.x0, b.z0], [b.x1, b.z1], ...(o || [])]) : [])];   // a roof floor: its roofs (#255), with steps (#342)
+    if (ctx.getTool() === 'plot') p.push(...polyOf(f, 'plot').flatMap((q) => q.points), ...yardList().flatMap((q) => q.points));   // the tool "Grundstück": the whole plot (#538)
     if (!p.length && f.bg?.img && !f.bg.hidden && !isLive()) p.push([f.bg.x, f.bg.z], [f.bg.x + f.bg.w, f.bg.z + f.bg.w * (f.bg.ar || 1)]);   // empty floor: frame the template
     if (!p.length) { s = 60; tx = W / 2 - 3 * s; ty = H / 2 - 2 * s; render(); return; }
     const xs = p.map((q) => q[0]), zs = p.map((q) => q[1]);
@@ -875,7 +923,7 @@ export function createPlan(ctx) {
       return st ? { type: 'stair', st, dx: st.x - x, dz: st.z - z, moved: false, px, py } : null;
     }
     if (POLY_KINDS.has(h.kind)) {
-      const r = polyList(f, h.kind).find((q) => q.id === h.id);
+      const r = polyOf(f, h.kind).find((q) => q.id === h.id);
       return r ? { type: 'points', refs: r.points.map((q) => ({ q, ox: q[0], oz: q[1] })), start: [x, z], moved: false, whole: true, px, py } : null;
     }
     return null;
@@ -885,7 +933,7 @@ export function createPlan(ctx) {
   function startGroupDrag(h, many, x, z, px, py) {
     const f = floor(), g = groupTargets(f, many, (k, id) => !!ctx.isItemLocked?.(k, id));
     const own = h.kind === 'device' ? g.devices.find((v) => v.d.id === h.id) : h.kind === 'stair' ? g.stairs.find((v) => v.st.id === h.id) : null;
-    const w = h.kind === 'wall' ? f.walls.find((q) => q.id === h.id) : null, r = POLY_KINDS.has(h.kind) ? polyList(f, h.kind).find((q) => q.id === h.id) : null;
+    const w = h.kind === 'wall' ? f.walls.find((q) => q.id === h.id) : null, r = POLY_KINDS.has(h.kind) ? polyOf(f, h.kind).find((q) => q.id === h.id) : null;
     const first = own ? [own.ox, own.oz] : w ? [...w.a] : r?.points?.length ? [...r.points[0]] : g.points[0] ? [g.points[0].ox, g.points[0].oz] : g.devices[0] ? [g.devices[0].ox, g.devices[0].oz] : [x, z];
     return { type: 'group', g, hit: h, anchor: first, fine: !!own || (!w && !r), start: [x, z], moved: false, px, py };
   }
@@ -1108,7 +1156,7 @@ export function createPlan(ctx) {
     }
     if (d.type === 'multi') {                                         // a click toggles the thing under it, a frame adds what lies inside (#247)
       if (d.b) ctx.addMulti(boxItems(shown(), d.a, d.b, (kind, v) => kind !== 'device' || !ctx.powerMode?.() || ctx.isPowerType(v.type)));
-      else if (d.hit) ctx.toggleMulti(d.hit);
+      else if (d.hit && d.hit.kind !== 'yard' && d.hit.kind !== 'plot') ctx.toggleMulti(d.hit);   // the plot and its areas are not part of a floor
       render();
       return;
     }
@@ -1157,6 +1205,11 @@ export function createPlan(ctx) {
       } else ctx.placeStair(px2, pz2);
     } else if (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') {
       const p = snapPt(x, z, { free: e.altKey });
+      if (tool === 'plot' && ctx.plotRect?.() && drawPts.length === 1) {          // a rectangle: the second click is the opposite corner (#538)
+        const r = rectFrom(drawPts[0], p);
+        if (r) { drawPts = r; finishRoom(); }
+        return;
+      }
       if (drawPts.length >= 3 && Math.hypot(p[0] - drawPts[0][0], p[1] - drawPts[0][1]) < 0.01) { finishRoom(); return; }
       drawPts.push(p);
       render();
@@ -1269,7 +1322,8 @@ export function createPlan(ctx) {
   /* nearest edge of a room / block (the selected one wins) under the pointer, with the point on that edge */
   function edgeAt(x, z) {
     const f = shown(), sel = ctx.getSelection(), tol = Math.max(0.08, 10 / s);
-    const polys = [...f.rooms.map((p) => ({ kind: 'room', poly: p })), ...(f.blocks || []).map((p) => ({ kind: 'block', poly: p })), ...(f.holes || []).map((p) => ({ kind: 'hole', poly: p }))];
+    const polys = [...f.rooms.map((p) => ({ kind: 'room', poly: p })), ...(f.blocks || []).map((p) => ({ kind: 'block', poly: p })), ...(f.holes || []).map((p) => ({ kind: 'hole', poly: p })),
+      ...yardList().map((p) => ({ kind: 'yard', poly: p })), ...polyOf(f, 'plot').map((p) => ({ kind: 'plot', poly: p }))];   // the plot and its areas too (#538)
     let best = null;
     polys.forEach(({ kind, poly }) => {
       const pts2 = poly.points, n = pts2.length;

@@ -6,11 +6,11 @@ Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Dem
 
 ## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.25.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.25.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.26.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 und folgende): Tablet schneller (102.1 bis 102.3), Komma (102.4), Demo nachts (102.5, 102.6), 🔔 Klingel (103.1 bis 103.4 in der Demo mit `?klingel=1`), 🔔 Sag mir Bescheid (104.1, 104.2; mit deiner Waschmaschine 104.3), 🗣 Schalten per Sprache (105.1 bis 105.6), 🚗 Auto und 🌱 Garten (106.1 bis 106.4).
+1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 und folgende): Tablet schneller (102.1 bis 102.3), Komma (102.4), Demo nachts (102.5, 102.6), 🔔 Klingel (103.1 bis 103.4 in der Demo mit `?klingel=1`), 🔔 Sag mir Bescheid (104.1, 104.2; mit deiner Waschmaschine 104.3), 🗣 Schalten per Sprache (105.1 bis 105.6), 🚗 Auto und 🌱 Garten (106.1 bis 106.4), 🏡 Grundstück mit Außenflächen und Garten-Deko (107.1 bis 107.8, in der Demo erst nach dem Mergen von 4.26.0).
 2. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
 3. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
 4. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
@@ -308,7 +308,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 104. Neu in 4.23.0: 🔔 Sag mir Bescheid (#531) | 0 | 0 | 2 | 3 | 104.1, 104.2 |
 | 105. Neu in 4.24.0: 🗣 Schalten per Sprache (#532) | 0 | 0 | 6 | 1 | 105.1 bis 105.6 |
 | 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533) | 0 | 0 | 4 | 2 | 106.1 bis 106.4 |
-| **Zusammen** | **670** | **10** | **68** | **74** | |
+| 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538) | 0 | 0 | 8 | 0 | 107.1 bis 107.8 |
+| **Zusammen** | **670** | **10** | **76** | **74** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1664,3 +1665,16 @@ Vom Besitzer am 2026-10-25 gewählt (Bild `docs/ideen-4.3/8-haushalt.jpg`), übe
 | 106.4 | „💧 Rasen · 10 min gießen“ tippen | Rechts „gießt noch 10 min“, der Knopf heißt jetzt „■ Rasen Stopp“; ein Tipp darauf stoppt es | ❓ |
 | 106.5 | Im Add-on mit deinem Auto (z. B. evcc): Haushalt öffnen | Die Auto-Karte zeigt deinen Ladestand und die Reichweite; sonst in ⚙ → 🗂 Reiter unten → 🚗 Auto die Sensoren wählen | ➖ nur im Add-on |
 | 106.6 | Im Add-on mit deiner Bewässerung: „💧 10 min gießen“, dann 10 Minuten warten | Das Ventil geht auf und nach 10 Minuten von selbst wieder zu | ➖ nur im Add-on |
+
+## 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538)
+Wunsch des Besitzers vom 2026-10-26 („draußen Hof und sowas editieren, das Grundstück bemessen, Deko ums Haus, nicht so krampfig“).
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 107.1 | Demo, „Bearbeiten“, Erdgeschoss, Werkzeug „Grundstück“ | Der 2D-Plan zeigt das ganze Grundstück; rechts „Fläche“ ist gewählt, darunter die Beläge (Rasen, Pflaster …), „Ecken klicken / Rechteck“, die Größe des Grundstücks und die Liste der Flächen (Einfahrt, Hof, Beet, Teich, Kiesweg) | ❓ |
+| 107.2 | „Holzterrasse“ und „▭ Rechteck“ wählen, im Plan zwei Ecken klicken | Beim Bewegen stehen die Maße (z. B. „4.00 m × 3.00 m“) dran; nach dem zweiten Klick liegt eine Holzterrasse da, im 3D-Bild mit Holzdielen | ❓ |
+| 107.3 | Rechts im Seitenfeld der neuen Fläche einen Namen eintippen und „Seite 1“ ändern | Der Name steht im Plan auf der Fläche; die Seite wird so lang wie getippt, es bleibt ein Rechteck | ❓ |
+| 107.4 | Werkzeug „Auswählen“, in die Fläche tippen und ziehen; eine Ecke ziehen; Doppelklick auf eine Seite | Die Fläche wandert mit; die Ecke bewegt sich; der Doppelklick macht eine neue Ecke (Doppelklick darauf nimmt sie wieder weg) | ❓ |
+| 107.5 | Auf den Rand des Grundstücks tippen | Das Grundstück ist orange umrandet, an jeder Seite steht ihre Länge; rechts Fläche, Umfang, Breite und Tiefe zum Eintippen | ❓ |
+| 107.6 | Werkzeug „Grundstück“: „▭ Rechteck ums Haus“ mit Abstand 5 | Das Grundstück liegt 5 m rings ums Haus; der Rasen im 3D-Bild hat diese Form | ❓ |
+| 107.7 | „Gerät“, Gruppe „Außen“ | Viele Gartendinge mit Bild: Gartenzwerg, Trampolin, Gartenhaus, Hochbeet, Sonnenschirm, Grill … ; eins in den Garten setzen | ❓ |
+| 107.8 | Live, „Ganzes Haus“, um das Haus drehen | Einfahrt, Hof, Beet, Teich und Kiesweg liegen mit ihrem Muster auf dem Rasen, dazu Trampolin, Gartenhaus, Gartenzwerg & Co. | ❓ |

@@ -12,6 +12,7 @@
 import { B, C, S, prism, rod, bar, knob, hline, vline, legs, books, tiltX, glassDoor } from './shapes.js';     // the building blocks
 import { LEISURE, LEISURE_MATS, LEISURE_FINISHES } from './leisure.js';                                         // sauna, fitness, bar, cinema, PC, LED mirrors
 import { GARAGE, GARAGE_MATS, GARAGE_FINISHES } from './garage.js';                                              // vehicles, workshop, carport
+import { YARD, YARD_MATS, YARD_FINISHES } from './yarddeco.js';                                                // the garden round the house (#538)
 
 /** the finishes a piece can have (side panel: "Ausführung"); rough / metal: how the surface looks */
 export const FINISHES = {
@@ -22,6 +23,7 @@ export const FINISHES = {
   blue: { c: '#4d6a8f', rough: 0.9 }, green: { c: '#62795d', rough: 0.9 }, rust: { c: '#a65a3c', rough: 0.95 }, yellow: { c: '#d9a93b', rough: 0.9 },
   ...LEISURE_FINISHES,
   ...GARAGE_FINISHES,
+  ...YARD_FINISHES,
 };
 /** the fixed materials (glow: the shade of a lamp, lights up with its entity) */
 export const MATS = {
@@ -37,6 +39,7 @@ export const MATS = {
   glow: { c: '#fff2cc', glow: true },
   ...LEISURE_MATS,
   ...GARAGE_MATS,
+  ...YARD_MATS,
 };
 
 /** '#rrggbb' times k (darker below 1) */
@@ -406,6 +409,7 @@ export const SCANDI = {
   plant_palm: { cat: 'decor', label: 'Zimmerpalme', fin: ['white', 'terracotta', 'black'], search: 'pflanze palme fejka zimmerpflanze', parts: palm },
   ...LEISURE,                                                    // the pieces of leisure.js are built, drawn and offered the same way
   ...GARAGE,                                                     // and those of garage.js (vehicles, workshop, carport)
+  ...YARD,                                                       // and the garden things of yarddeco.js (#538)
 };
 export const SCANDI_TYPES = Object.keys(SCANDI);
 

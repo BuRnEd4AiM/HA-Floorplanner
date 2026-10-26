@@ -12,7 +12,14 @@ const Win = (id, pos, extra = {}) => ({ id, type: 'window', pos, width: 1.2, hei
 
 const layout = {
   version: 1,
-  plot: { boundary: [[-7, -6], [29, -6], [29, 14], [-7, 14]] },   // the plot (Grundstück): the house stands in the lawn, the basement in the earth; the neighbour house too
+  plot: { boundary: [[-7, -6], [29, -6], [29, 14], [-7, 14]],    // the plot (Grundstück): the house stands in the lawn, the basement in the earth; the neighbour house too
+    areas: [                                                       // the areas on it (#538): the drive, the yard, a bed, a pond, a path of gravel
+      { id: 'ya1', name: 'Einfahrt', surface: 'paving', points: [[10.5, -6], [14.5, -6], [14.5, 0], [10.5, 0]] },
+      { id: 'ya2', name: 'Hof', surface: 'cobble', points: [[1, -2.6], [10.5, -2.6], [10.5, 0], [1, 0]] },
+      { id: 'ya3', name: 'Beet', surface: 'bed', points: [[1, -5.1], [9, -5.1], [9, -3.6], [1, -3.6]] },
+      { id: 'ya4', name: 'Teich', surface: 'water', points: [[-6, 9], [-3, 8.5], [-2.4, 11], [-5, 12.6], [-6.5, 11.2]] },
+      { id: 'ya5', name: 'Kiesweg', surface: 'gravel', points: [[4, 7], [5, 7], [5, 13.6], [4, 13.6]] },
+    ] },
   neighbors: [{ house: 'nachbar', x: 19, z: 0, rot: 0, y: 0.4 }],   // #220/#222: the second demo house stands next to this one, its upper floor 0.4 m higher
   floors: [{
     id: 'kg', name: 'Keller', kind: 'basement',
@@ -139,6 +146,19 @@ const layout = {
       { id: 'gt5', type: 'car',     x: 12.2, z: 3.0,  y: 0, rot: 90, scale: 1,   name: 'Auto', entity: '' },
       { id: 'gg1', type: 'light',   x: 12.5, z: 3.0,  y: 2.55, rot: 0, scale: 1.2, name: 'Garagenlicht', entity: 'light.garage' },
       { id: 'gt6', type: 'fence',   x: 5,    z: -5.6, y: 0, rot: 0,  scale: 1, sx: 7.8, name: 'Zaun', entity: '' },
+      { id: 'gd1', type: 'parasol', x: -1.4, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Sonnenschirm', entity: '' },   // garden things (#538, yarddeco.js)
+      { id: 'gd2', type: 'grill_kettle', x: -4.6, z: 1.2, y: 0, rot: 0, scale: 1, name: 'Grill', entity: '' },
+      { id: 'gd3', type: 'trampoline', x: 1.2, z: 10.8, y: 0, rot: 0, scale: 1, name: 'Trampolin', entity: '' },
+      { id: 'gd4', type: 'garden_shed', x: 8.4, z: 12.2, y: 0, rot: 180, scale: 1, name: 'Gartenhaus', entity: '' },
+      { id: 'gd5', type: 'raised_bed', x: 11.6, z: 9, y: 0, rot: 0, scale: 1, name: 'Hochbeet', entity: '' },
+      { id: 'gd6', type: 'garden_gnome', x: -3.1, z: 9.9, y: 0, rot: 230, scale: 1, name: 'Gartenzwerg', entity: '' },
+      { id: 'gd7', type: 'garden_lamp', x: 10.1, z: -1.5, y: 0, rot: 0, scale: 1, name: 'Wegeleuchte', entity: '' },
+      { id: 'gd8', type: 'garden_lamp', x: 10.1, z: -4.2, y: 0, rot: 0, scale: 1, name: 'Wegeleuchte', entity: '' },
+      { id: 'gd9', type: 'mailbox', x: 9.7, z: -5.6, y: 0, rot: 0, scale: 1, name: 'Briefkasten', entity: '' },
+      { id: 'gd10', type: 'bird_bath', x: 6.6, z: 10.4, y: 0, rot: 0, scale: 1, name: 'Vogeltränke', entity: '' },
+      { id: 'gd11', type: 'flowers', x: 2.4, z: -4.4, y: 0, rot: 0, scale: 1, name: 'Blumen', entity: '' },
+      { id: 'gd12', type: 'flowers', x: 6.2, z: -4.3, y: 0, rot: 40, scale: 1, name: 'Blumen', entity: '' },
+      { id: 'gd13', type: 'sun_lounger', x: -1, z: 10.6, y: 0, rot: 200, scale: 1, name: 'Liege', entity: '' },
     ],
   }, {
     id: 'og', name: 'Obergeschoss',

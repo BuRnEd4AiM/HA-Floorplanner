@@ -4,6 +4,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import { floorShapes } from './blocks.js';
 import { polyArea } from './rooms.js';
+import { fmtArea } from './i18n.js';
 import { stairLocal, polyToWorld, stairFloors, storeysShown } from './stairs.js';
 import { inIso, deviceInIso, clipWallToRoom, wallPieces } from './roomclip.js';
 import { buildWall, wallLength } from './walls.js';
@@ -36,8 +37,7 @@ export function wantsLabel(d, mode) {
 /** the label of a room: its name, in the (legacy) top view with the area */
 export function roomLabel(r, topView, imperial) {
   if (!topView) return r.name;
-  const a = polyArea(r.points);
-  return `${r.name} · ${imperial ? `${(a * 10.7639).toFixed(0)} ft²` : `${a.toFixed(1)} m²`}`;
+  return `${r.name} · ${fmtArea(polyArea(r.points), imperial)}`;
 }
 /** the middle of a room (mean of its corners), where its name floats */
 export const roomCenter = (points) => points.reduce((a, p) => [a[0] + p[0] / points.length, a[1] + p[1] / points.length], [0, 0]);

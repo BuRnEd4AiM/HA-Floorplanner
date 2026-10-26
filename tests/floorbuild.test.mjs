@@ -10,7 +10,7 @@ test('a room name floats in the middle of its corners', () => {
 });
 test('room label: the name, in the top view with the area in m² or ft²', () => {
   assert.equal(F.roomLabel(room, false, false), 'Küche');
-  assert.equal(F.roomLabel(room, true, false), 'Küche · 12.0 m²');
+  assert.equal(F.roomLabel(room, true, false), 'Küche · 12,0 m²');
   assert.equal(F.roomLabel(room, true, true), 'Küche · 129 ft²');
 });
 test('value labels: none, the important ones (sensors, climate, covers) or every device with an entity', () => {

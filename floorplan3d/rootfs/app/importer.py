@@ -114,6 +114,8 @@ STAIR_MAX_LANDING = 3                                             # MAX_LANDING 
 MAX_STAIR_POINTS = 30
 SOLAR_MAX_FIELD = 12                                              # MAX_FIELD in static/solarroof.js
 SOLAR_MOUNTS = ("auto", "flat", "stand")                          # MOUNTS in static/solarroof.js
+YARD_SURFACES = ("lawn", "paving", "cobble", "slabs", "flagstone", "deck", "gravel", "bed", "concrete", "asphalt", "sand", "water")   # SURFACE_KEYS in static/yard.js (#538)
+YARD_MAX_AREAS = 60                                               # MAX_AREAS in static/yard.js
 MAX_PER_FLOOR = 100                                               # stairs, blocks and floor openings per floor
 MAX_LED_ZONES = 8                                                 # LED zones of a piece (leds in static/leisure.js, ledzones.js)
 KITCHEN_MODULES = ("base", "drawers", "sink", "stove", "dish", "fridge", "tall", "gap")   # same as MOD_W in static/kitchen.js (checked by a test)
@@ -711,8 +713,28 @@ def build_layout(data):
         if not isinstance(pl, dict):
             rep.error("plot", "\"plot\" must be an object")
         else:
-            boundary = _polygon(rep, "plot.boundary", pl.get("boundary"), "plot boundary", 4)
-            plot = {"boundary": boundary} if boundary else None
+            boundary = _polygon(rep, "plot.boundary", pl.get("boundary"), "plot boundary", 4) if pl.get("boundary") is not None else None
+            plot = {"boundary": boundary} if boundary else {}
+            areas, raw = [], pl.get("areas")
+            if raw is not None and not isinstance(raw, list):
+                rep.error("plot.areas", "\"areas\" must be a list of areas")
+                raw = []
+            for ai, a in enumerate(raw or []):
+                if not isinstance(a, dict) or len(areas) >= YARD_MAX_AREAS:
+                    rep.warn(f"plot.areas[{ai}]", "skipped: an area is an object, at most %d of them" % YARD_MAX_AREAS)
+                    continue
+                pts = _polygon(rep, f"plot.areas[{ai}].points", a.get("points"), "area", 0.05)
+                if not pts:
+                    continue
+                surface = a.get("surface")
+                if surface not in YARD_SURFACES:
+                    rep.warn(f"plot.areas[{ai}].surface", f"unknown surface {surface!r}, paving used (known: {', '.join(YARD_SURFACES)})")
+                    surface = "paving"
+                area = {"id": ids("y"), "name": str(a.get("name") or "").strip()[:40], "surface": surface, "points": pts}
+                areas.append(area)
+            if areas:
+                plot["areas"] = areas
+            plot = plot or None
             ground = next((x for x in floors if x["kind"] == "floor"), None)
             for oi, spec in enumerate(pl.get("objects") or []):
                 d = _device(rep, f"plot.objects[{oi}]", spec, ids)
@@ -1022,6 +1044,12 @@ def layout_to_property(layout, name="Haus"):
                 item[key] = [{k: b[k] for k in keys if k in b} for b in f[key] if isinstance(b.get("points"), list)]
         floors.append(item)
     out = {"schemaVersion": SCHEMA_VERSION, "name": name, "building": {"floors": floors}}
-    if layout.get("plot", {}).get("boundary"):
-        out["plot"] = {"boundary": layout["plot"]["boundary"]}
+    pl = layout.get("plot") or {}
+    out_plot = {"boundary": pl["boundary"]} if pl.get("boundary") else {}
+    areas = [{k: a[k] for k in ("name", "surface", "points") if a.get(k) not in (None, "")}
+             for a in pl.get("areas") or [] if isinstance(a, dict) and isinstance(a.get("points"), list)]
+    if areas:
+        out_plot["areas"] = areas
+    if out_plot:
+        out["plot"] = out_plot
     return out

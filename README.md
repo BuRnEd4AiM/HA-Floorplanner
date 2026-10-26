@@ -114,8 +114,8 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 | **Trace your plan** | Load a scan or photo of your floor plan as a template, calibrate its scale and trace over it |
 | **Stairs** | Straight, L-shaped, U-shaped and spiral stairs with real floor openings |
 | **Doors and windows** | 14 presets: front door, glass door, double door, sliding door, single / double / triple window, balcony door, fixed glazing ... they cut real openings into the wall and open when the contact sensor reports *open*; every window (also in a dormer) can get a **roller shutter** with its own cover entity, shown in 3D and controllable in live mode |
-| **Garden and surroundings** | Trees, bushes, lawn, terrace, pool, paths, fences and cars around the house, in natural colours |
-| **Plot and ground** | Draw your **plot** (Grundstück) in the 2D plan, or set how far the lawn reaches around the house. The house stands in solid ground, a basement is shown as a section with soil layers |
+| **Garden and surroundings** | Trees, bushes, lawn, terrace, pool, paths, fences and cars around the house, in natural colours; 26 garden things: bench, table and chairs, parasol, grills, fire bowl, raised bed, garden lamps, trampoline, swing, greenhouse, garden shed, garden gnome ... |
+| **Plot and ground** | Draw your **plot** (Grundstück) in the 2D plan, or set how far the lawn reaches around the house; measure it (size, perimeter, every side), type in its width and depth or lay a rectangle round the house in one tap. Draw **areas** on it: a yard of cobblestones, a drive, a wooden deck, gravel, beds, a pond ... with their pattern in 3D. The house stands in solid ground, a basement is shown as a section with soil layers |
 | **Whole-house view** | See all floors, basement and roof stacked as one building |
 | **Clear object list** | Everything grouped by room (the room, its doors / windows and furniture), with a search field; the side panel can be dragged wider |
 | **Detect rooms** | Draw the walls, press *Räume erkennen*: every closed loop of walls becomes a room |

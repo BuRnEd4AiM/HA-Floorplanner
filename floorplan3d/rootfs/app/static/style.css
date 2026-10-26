@@ -362,6 +362,25 @@ body.readonly #bgPanel { display: none; }
 #stairPalette .sub, #blockPalette .sub { margin: 8px 0 0; }
 
 /* measuring (measuretool.js) */
+/* the tool "Grundstück": the plot and the areas on it (#538, plotui.js) */
+.plotSeg { display: flex; gap: 0; margin: 8px 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.plotSeg button { flex: 1; border: 0; border-radius: 0; padding: 7px 6px; background: transparent; }
+.plotSeg button + button { border-left: 1px solid var(--line); }
+.plotSeg button.active { background: var(--accent); color: var(--accent-text); }
+.plotHead { margin: 10px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.yardGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+.yardGrid button { display: flex; align-items: center; gap: 6px; padding: 5px 6px; text-align: left; font-size: 12px; min-width: 0; }
+.yardGrid button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yardGrid button.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.yardSw { flex: none; width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(255, 255, 255, .35); }
+.plotSize { margin: 2px 0 6px; font-weight: 700; }
+.plotAround, .plotWD { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0; }
+.plotAround label { display: flex; align-items: center; gap: 4px; margin: 0; }
+.plotAround input { width: 74px; }
+.yardList button { display: flex; align-items: center; gap: 6px; width: 100%; margin: 2px 0; padding: 5px 6px; text-align: left; }
+.yardList button.active { border-color: var(--accent); }
+.yardList .yardName { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yardList .yardM2 { color: var(--muted); font-size: 12px; }
 #measureBody .msBig { font-size: 22px; font-weight: 700; color: #ffd84a; margin: 6px 0 2px; }
 #measureBody .msParts { margin: 0 0 8px; }
 #measureBody h4 { margin: 12px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }

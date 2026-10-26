@@ -703,6 +703,28 @@ const DICT = {
     'garden.water': '{n} min gießen', 'garden.failed': 'Ging nicht, bitte noch einmal.', 'garden.prefs': '🌱 Garten',
     'garden.prefsHelp': 'Die Bewässerung: Ventile und Schalter abhaken, die gießen (keiner abgehakt: jedes Ventil und jeder Schalter mit Bewässerung, Rasen, Garten … im Namen). „💧 gießen“ schaltet nach der Zeit von selbst wieder aus, auch nach einem Neustart.',
     'garden.minutesLabel': '„💧 gießen“ dauert', 'garden.minutes': '{n} Minuten', 'garden.noZones': 'Home Assistant hat keine Ventile und keine Schalter.',
+    'plot.mode.plot': '🏡 Grundstück', 'plot.mode.area': '▦ Fläche', 'plot.shape.free': '✏ Ecken klicken', 'plot.shape.rect': '▭ Rechteck',
+    'plot.howFree': 'Klicke die Ecken nacheinander in den Plan. Doppelklick, Enter oder ein Klick auf die erste Ecke schließt die Form.',
+    'plot.howRect': 'Zwei Klicks: eine Ecke, dann die gegenüber. Die Maße siehst du beim Bewegen.', 'plot.surface': 'Belag',
+    'plot.size': '{area} · Umfang {len}', 'plot.none': 'Noch kein Grundstück: zeichne es oder lege ein Rechteck ums Haus.', 'plot.around': 'Rechteck ums Haus',
+    'plot.margin': 'Abstand', 'plot.noHouse': 'Erst das Haus zeichnen: dann passt das Rechteck drumherum.', 'plot.width': 'Breite', 'plot.depth': 'Tiefe',
+    'plot.side': 'Seite {n}', 'plot.sides': 'Seitenlängen', 'plot.areas': 'Flächen ({n})',
+    'plot.noAreas': 'Noch keine Flächen. Wähle oben „▦ Fläche“ und einen Belag, dann zeichne sie wie einen Raum: Hof, Terrasse, Einfahrt, Beet, Teich …',
+    'plot.total': 'Zusammen: {list}',
+    'plot.editHint': 'Ecken ziehen · Doppelklick auf eine Seite: neue Ecke · Doppelklick auf eine Ecke: weg · Pfeiltasten: verschieben · Entf: löschen',
+    'yard.added': '{name} angelegt: {area}', 'yard.tooMany': 'Höchstens {n} Flächen', 'yard.s.lawn': 'Rasen', 'yard.s.paving': 'Pflaster',
+    'yard.s.cobble': 'Kopfsteinpflaster', 'yard.s.slabs': 'Steinplatten', 'yard.s.flagstone': 'Natursteinplatten', 'yard.s.deck': 'Holzterrasse',
+    'yard.s.gravel': 'Kies', 'yard.s.bed': 'Beet', 'yard.s.concrete': 'Beton', 'yard.s.asphalt': 'Asphalt', 'yard.s.sand': 'Sand',
+    'yard.s.water': 'Wasser / Teich', 'hint.yard': 'Klicke die Ecken der Fläche. Doppelklick oder Enter schließt sie.',
+    'hint.yardRect': 'Klicke eine Ecke der Fläche, dann die gegenüber.', 'hint.plotRect': 'Klicke eine Ecke des Grundstücks, dann die gegenüber.',
+    'dev.hedge': 'Hecke (2 m)', 'dev.garden_bench': 'Gartenbank', 'dev.garden_set': 'Gartentisch mit 4 Stühlen', 'dev.sun_lounger': 'Sonnenliege',
+    'dev.parasol': 'Sonnenschirm', 'dev.grill_kettle': 'Kugelgrill', 'dev.grill_gas': 'Gasgrill', 'dev.fire_bowl': 'Feuerschale', 'dev.raised_bed': 'Hochbeet',
+    'dev.planter': 'Pflanzkübel mit Buchskugel', 'dev.flowers': 'Blumen (Staude)', 'dev.garden_lamp': 'Pollerleuchte', 'dev.lamp_post': 'Gartenlaterne',
+    'dev.trampoline': 'Trampolin (Ø 3 m)', 'dev.sandbox': 'Sandkasten', 'dev.swing': 'Doppelschaukel', 'dev.pergola': 'Pergola (3 × 3 m)',
+    'dev.greenhouse': 'Gewächshaus', 'dev.garden_shed': 'Gartenhaus', 'dev.mailbox': 'Briefkasten mit Pfosten', 'dev.bird_bath': 'Vogeltränke',
+    'dev.rotary_dryer': 'Wäschespinne', 'dev.stepping_stones': 'Trittsteine (5 Stück)', 'dev.composter': 'Komposter', 'dev.lounge_set': 'Lounge-Ecke',
+    'dev.garden_gnome': 'Gartenzwerg', 'fin.teak': 'Teak', 'fin.rattan': 'Rattan', 'fin.hedge': 'Heckengrün', 'fin.conifer': 'Thuja (dunkel)',
+    'fin.boxwood': 'Buchs', 'fin.sandstone': 'Sandstein', 'fin.granite': 'Granit',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -1373,6 +1395,27 @@ const DICT = {
     'garden.failed': 'That did not work, please try again.', 'garden.prefs': '🌱 Garden',
     'garden.prefsHelp': 'The watering: tick the valves and switches that water (none ticked: every valve and every switch with watering, lawn, garden … in its name). "💧 water" switches off again by itself after the time, also after a restart.',
     'garden.minutesLabel': '"💧 water" lasts', 'garden.minutes': '{n} minutes', 'garden.noZones': 'Home Assistant has no valves and no switches.',
+    'plot.mode.plot': '🏡 Plot', 'plot.mode.area': '▦ Area', 'plot.shape.free': '✏ Click corners', 'plot.shape.rect': '▭ Rectangle',
+    'plot.howFree': 'Click the corners one after another in the plan. A double-click, Enter or a click on the first corner closes the shape.',
+    'plot.howRect': 'Two clicks: one corner, then the opposite one. You see the size while you move.', 'plot.surface': 'Surface',
+    'plot.size': '{area} · perimeter {len}', 'plot.none': 'No plot yet: draw it or put a rectangle round the house.', 'plot.around': 'Rectangle round the house',
+    'plot.margin': 'Margin', 'plot.noHouse': 'Draw the house first: then the rectangle fits round it.', 'plot.width': 'Width', 'plot.depth': 'Depth',
+    'plot.side': 'Side {n}', 'plot.sides': 'Side lengths', 'plot.areas': 'Areas ({n})',
+    'plot.noAreas': 'No areas yet. Choose “▦ Area” and a surface above, then draw it like a room: yard, terrace, drive, bed, pond …',
+    'plot.total': 'In all: {list}',
+    'plot.editHint': 'Drag the corners · double-click a side: new corner · double-click a corner: remove it · arrow keys: move · Del: delete',
+    'yard.added': '{name} added: {area}', 'yard.tooMany': 'At most {n} areas', 'yard.s.lawn': 'Lawn', 'yard.s.paving': 'Paving', 'yard.s.cobble': 'Cobblestones',
+    'yard.s.slabs': 'Stone slabs', 'yard.s.flagstone': 'Flagstones', 'yard.s.deck': 'Wooden deck', 'yard.s.gravel': 'Gravel', 'yard.s.bed': 'Flower bed',
+    'yard.s.concrete': 'Concrete', 'yard.s.asphalt': 'Asphalt', 'yard.s.sand': 'Sand', 'yard.s.water': 'Water / pond',
+    'hint.yard': 'Click the corners of the area. Double-click or Enter closes it.', 'hint.yardRect': 'Click one corner of the area, then the opposite one.',
+    'hint.plotRect': 'Click one corner of the plot, then the opposite one.', 'dev.hedge': 'Hedge (2 m)', 'dev.garden_bench': 'Garden bench',
+    'dev.garden_set': 'Garden table with 4 chairs', 'dev.sun_lounger': 'Sun lounger', 'dev.parasol': 'Parasol', 'dev.grill_kettle': 'Kettle grill',
+    'dev.grill_gas': 'Gas grill', 'dev.fire_bowl': 'Fire bowl', 'dev.raised_bed': 'Raised bed', 'dev.planter': 'Planter with box ball',
+    'dev.flowers': 'Flowers (perennial)', 'dev.garden_lamp': 'Bollard light', 'dev.lamp_post': 'Garden lantern', 'dev.trampoline': 'Trampoline (Ø 3 m)',
+    'dev.sandbox': 'Sandpit', 'dev.swing': 'Double swing', 'dev.pergola': 'Pergola (3 × 3 m)', 'dev.greenhouse': 'Greenhouse', 'dev.garden_shed': 'Garden shed',
+    'dev.mailbox': 'Mailbox on a post', 'dev.bird_bath': 'Bird bath', 'dev.rotary_dryer': 'Rotary dryer', 'dev.stepping_stones': 'Stepping stones (5)',
+    'dev.composter': 'Composter', 'dev.lounge_set': 'Lounge corner', 'dev.garden_gnome': 'Garden gnome', 'fin.teak': 'Teak', 'fin.rattan': 'Rattan',
+    'fin.hedge': 'Hedge green', 'fin.conifer': 'Thuja (dark)', 'fin.boxwood': 'Box', 'fin.sandstone': 'Sandstone', 'fin.granite': 'Granite',
   },
 };
 
@@ -1396,6 +1439,8 @@ export function fmtNum(v, max = 1, min = 0, l = lang) {
   if (Math.abs(v) < 0.5 / 10 ** max) v = 0;                          // "0", not "-0"
   try { return v.toLocaleString(l, { minimumFractionDigits: min, maximumFractionDigits: max, useGrouping: false }); } catch { return String(+v.toFixed(max)); }
 }
+/** a size in m² as shown: one decimal with the comma of the language ("12,5 m²", #527), whole square feet in imperial units */
+export const fmtArea = (m2, imperial = false) => (imperial ? `${fmtNum(m2 * 10.7639, 0)} ft²` : `${fmtNum(m2, 1, 1)} m²`);
 export function t(key, vars) {
   let s = DICT[lang][key] ?? DICT.en[key] ?? DICT.de[key] ?? key;
   if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, v);

@@ -1,5 +1,6 @@
-/* Floor cut-outs and placeholder blocks: the shape of a floor minus its stairwells and floor openings, and adding a plot (Grundstück), a floor opening
- * (Bodenöffnung) or a placeholder block (a house part you do not draw in detail). floorShapes and blockTarget are pure (tested). */
+/* Floor cut-outs and placeholder blocks: the shape of a floor minus its stairwells and floor openings, and adding a floor opening (Bodenöffnung)
+ * or a placeholder block (a house part you do not draw in detail); the plot (Grundstück) is drawn with plotui.js (#538). floorShapes and
+ * blockTarget are pure (tested). */
 import * as THREE from './vendor/three.module.min.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { holesForFloor } from './stairs.js';
@@ -34,22 +35,6 @@ export function blockTarget(choice, floorIdx) {
 /** ctx: $, t, layout(), floor(), floorIdx(), setFloorIdx(i), snapshot(), changed(), setStatus(txt), select(sel), uid(), plan(), fillFloorSelect() */
 export function initBlocks(ctx) {
   const { $, t } = ctx;
-  /** the plot drawn in the 2D plan: the lawn and the earth take its shape; replaces an earlier one */
-  function setPlot(points) {
-    ctx.snapshot();
-    const layout = ctx.layout();
-    layout.plot = { ...(layout.plot || {}), boundary: points };
-    ctx.changed();
-    ctx.setStatus(t('plot.set'));
-  }
-  $('#plotClear').addEventListener('click', () => {
-    const layout = ctx.layout();
-    if (!layout.plot?.boundary) return;
-    ctx.snapshot();
-    delete layout.plot.boundary;
-    if (!Object.keys(layout.plot).length) delete layout.plot;
-    ctx.changed(); ctx.plan()?.render();
-  });
   function addHole(points) {
     ctx.snapshot();
     const f = ctx.floor();
@@ -77,5 +62,5 @@ export function initBlocks(ctx) {
     ctx.fillFloorSelect();
     return 0;
   }
-  return { setPlot, addHole, addBlock };
+  return { addHole, addBlock };
 }

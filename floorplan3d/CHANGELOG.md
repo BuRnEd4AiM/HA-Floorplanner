@@ -4,6 +4,17 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.26.0] - 2026-10-26
+### Added
+- **🏡 The plot and the areas on it** (#538, the owner's wish of 2026-10-26: "draußen Hof und sowas editieren, das Grundstück bemessen, Deko ums Haus, freier und nicht so krampfig"). The tool "Grundstück" now draws the plot or an **area** (Außenfläche) of a surface: a yard of cobblestones, a drive of paving, a wooden deck, stone slabs, flagstones, gravel, a flower bed, concrete, asphalt, sand, lawn or a pond, each lying on the ground in 3D with the pattern of its surface (the textures of the floors) and in its colour in the 2D plan with its name and size. Corner by corner or as a **rectangle of two clicks** (its size shown while moving).
+- **Measuring the plot**: its size in m², its perimeter, the length of every side in the plan (with the tool or the plot selected), width and depth of a rectangular plot typed in, **"▭ Rechteck ums Haus"** with a margin in one tap; the length of each side of the plot or an area typed in (the next corner moves along, a rectangle stays a rectangle); the list of the areas in the palette with their sizes and how much of each surface there is.
+- **Editing like a room**: the plot (by its edge) and the areas (by their inside) are picked with the select tool, moved, their corners dragged, a corner added with a double click on a side and removed with a double click on it, moved with the arrow keys, deleted with Entf (Ctrl+Z brings them back) or the eraser; the side panel of an area has its name, surface, size and sides. The whole plot comes into view when the tool is chosen.
+- **26 things for the garden** in the library group "Außen" (`yarddeco.js`): hedge, garden bench, garden table with 4 chairs, sun lounger, parasol, kettle grill, gas grill, fire bowl (its embers glow with its entity), raised bed, planter, flowers, bollard light and garden lantern (glow with their entity), trampoline, sandpit, double swing, pergola, greenhouse, garden shed, mailbox, bird bath, rotary dryer, stepping stones, composter, lounge corner and a garden gnome; cut open with the earth like the trees.
+- Import and export of a property description carry the areas (`plot.areas`: name, surface, points; `property.schema.json`).
+### Changed
+- The areas of rooms in the plan and the room panel have the decimal comma too ("12,5 m²", #527).
+- The plot moved from `blocks.js` to the new `plotui.js`; pure logic in `yard.js` (`tests/yard.test.mjs`), the 3D areas in `yard3d.js`.
+
 ## [4.25.0] - 2026-10-26
 ### Added
 - **🚗 Auto and 🌱 Garten on 🧺 Haushalt** (#533, chosen by the owner, picture `docs/ideen-4.3/8-haushalt.jpg`). The car: its charge with a bar, "lädt mit 3,2 kW · voll um 17:30", the range, "☀ Nur mit Sonne laden" (evcc's mode pv / now, or a switch). The garden: the rain of today or tomorrow, when it last watered, the soil moisture, "💧 10 min gießen" per watering zone (the add-on closes it again when the time is up, also after a restart) and "■ Stopp". Both found by their names or chosen in ⚙ → Reiter unten. Valves can now be switched from the plan too (`valve.open_valve` / `close_valve`).
