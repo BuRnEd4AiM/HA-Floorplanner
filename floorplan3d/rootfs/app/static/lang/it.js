@@ -1852,7 +1852,7 @@ export default {
   'hr.mini.home': 'sab–dom', 'hr.night.less': 'meno', 'hr.night.reset': 'come tutte', 'hr.night.rooms': 'Alcune stanze diversamente ({n})',
   'hr.night.same': 'come tutte', 'hr.noHa': 'Senza Home Assistant le regole non funzionano (qui solo per impostarle).',
   'hr.notRunning': 'Le regole aspettano Home Assistant …', 'hr.onOff': 'attiva / disattiva', 'hr.own': 'Regola propria',
-  'hr.ownSub': '«Quando … allora …» con blocchi', 'hr.plan.edit': 'Modifica il programma', 'hr.plan.pre': 'Preriscalda', 'hr.plan.rooms': 'Stanze con programma',
+  'hr.ownSub': '«Quando … allora …» con blocchi', 'hr.plan.edit': 'Modifica il programma', 'hr.plan.pre': 'Preriscalda', 'hr.plan.hand': 'Girato a mano: ritorno dopo', 'hr.plan.handNext': 'solo al blocco successivo', 'hr.line.hand': 'Girato a mano · torna a {level} {v} alle {at}', 'hr.plan.rooms': 'Stanze con programma',
   'hr.readOnly': 'Solo visualizzazione: solo gli admin possono modificarle.', 'hr.saved': 'salvato', 'hr.summer.above': 'Riscaldamento spento se fuori sopra',
   'hr.summer.hours': 'da almeno', 'hr.temp': 'Temperatura', 'hr.window.after': 'dopo', 'hr.window.delay': 'se aperta più di',
   'hr.window.doors': 'Anche le porte verso l’esterno', 'hr.window.rooms': 'Stanze (tocca per escludere / includere):', 'hr.level.night': 'Notte',

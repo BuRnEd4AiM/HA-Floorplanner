@@ -1853,7 +1853,7 @@ export default {
   'hr.night.rooms': 'Algunas habitaciones distinto ({n})', 'hr.night.same': 'como todas',
   'hr.noHa': 'Sin Home Assistant las reglas no funcionan (aquí solo para ajustarlas).', 'hr.notRunning': 'Las reglas esperan a Home Assistant …',
   'hr.onOff': 'activar / desactivar', 'hr.own': 'Regla propia', 'hr.ownSub': '«Cuando … entonces …» con bloques', 'hr.plan.edit': 'Editar el horario',
-  'hr.plan.pre': 'Precalentar', 'hr.plan.rooms': 'Habitaciones con horario', 'hr.readOnly': 'Solo ver: solo los admins pueden cambiarlas.',
+  'hr.plan.pre': 'Precalentar', 'hr.plan.hand': 'Girado a mano: volver tras', 'hr.plan.handNext': 'solo en el siguiente bloque', 'hr.line.hand': 'Girado a mano · vuelve a {level} {v} a las {at}', 'hr.plan.rooms': 'Habitaciones con horario', 'hr.readOnly': 'Solo ver: solo los admins pueden cambiarlas.',
   'hr.saved': 'guardado', 'hr.summer.above': 'Calefacción apagada si fuera hay más de', 'hr.summer.hours': 'durante al menos', 'hr.temp': 'Temperatura',
   'hr.window.after': 'después', 'hr.window.delay': 'si está abierta más de', 'hr.window.doors': 'Puertas al exterior también',
   'hr.window.rooms': 'Habitaciones (toca para quitar / poner):', 'hr.level.night': 'Noche', 'hr.level.eco': 'Eco', 'hr.level.comfort': 'Confort',

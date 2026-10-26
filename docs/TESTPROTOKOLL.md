@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.31.1)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.32.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.31.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.32.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.32.0: 📅 Heizplan, von Hand gedreht** (Abschnitt 115): Claude hat 115.1 und 115.2 im Test-Add-on geprüft; für dich im Add-on mit deinem Thermostat 115.3 und 115.4.
 1. **Neu in 4.31.0 und 4.31.1: 🚆 Zug-Karte** (Abschnitt 113 und 114): Claude hat 113.1 bis 113.3 in der Demo und 114.1 im Test-Add-on geprüft; für dich im Add-on mit deinem Bahnhof 113.4 bis 113.6 und 114.2 bis 114.4 (abends dein Zug von morgen).
 2. **Neu in 4.30.0: 🎨 Szenen für Lampen und LED-Streifen** (Abschnitt 112): Claude hat 112.1 bis 112.5 in der Demo geprüft; für dich im Add-on 112.6 bis 112.8.
 3. **Neu in 4.29.0: Abläufe werden echte Automationen in Home Assistant** (Abschnitt 111): Claude hat 111.1 bis 111.4 in der Demo geprüft; für dich im Add-on mit deinem Home Assistant 111.5 bis 111.8.
@@ -323,7 +324,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 112. Neu in 4.30.0: 🎨 Szenen für Lampen und LED-Streifen als echte Szenen in Home Assistant (#549) | 5 | 0 | 0 | 3 | – |
 | 113. Neu in 4.31.0: 🚆 Zug-Karte: Kommt mein Zug pünktlich? (#550) | 3 | 0 | 0 | 3 | – |
 | 114. Neu in 4.31.1: 🚆 Zug-Karte zeigt deinen Zug auch morgen (#550) | 1 | 0 | 0 | 3 | – |
-| **Zusammen** | **733** | **10** | **53** | **89** | |
+| 115. Neu in 4.32.0: 📅 Heizplan: von Hand gedreht, nach 10 Minuten zurück (#546) | 2 | 0 | 0 | 2 | – |
+| **Zusammen** | **735** | **10** | **53** | **91** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1781,3 +1783,12 @@ Wunsch des Besitzers vom 2026-10-26 („mache es so, dass ich auch immer den auc
 | 114.2 | Nur im Add-on, am Abend: deine Karte „Oftersheim“ → „Mannheim Hbf“ mit deinem Zug (z. B. 06:05) | Statt „ist nicht unter den nächsten Abfahrten“ steht „06:05“, „morgen“, „in … Std … Min“ | ➖ |
 | 114.3 | Nur im Add-on, am Morgen ab etwa 3 Stunden vor deinem Zug | Dein Zug mit Zug, Ziel, Gleis und „pünktlich“ oder „+… Min“ wie bisher | ➖ |
 | 114.4 | Nur im Add-on, am Abend danach | Oben zusätzlich dein Zug (z. B. „S S9 → Mannheim Hbf“) und sein Gleis, wie die Bahn sie am Morgen gemeldet hat | ➖ |
+
+## 115. Neu in 4.32.0: 📅 Heizplan: von Hand gedreht, nach 10 Minuten zurück (#546)
+Wunsch des Besitzers vom 2026-10-26 („gerne wenn man von Hand dreht nach 10 min wieder zurück, aber das kann eingestellt werden“).
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 115.1 | Test-Add-on: ein Raum mit Heizplan, das Thermostat von Hand 3° wärmer drehen | Am Raum im 🌡 Klima „✋ Von Hand gedreht · ab … wieder …“ (10 Minuten später) | ✅ (2026-10-26, Claude im Test-Add-on) |
+| 115.2 | 🌡 Klima → 📋 Heiz-Regeln, Karte „Heizplan“ | „Von Hand gedreht: zurück nach 10 Min“, mit − / + änderbar; ganz unten „erst beim nächsten Abschnitt“ | ✅ (2026-10-26, Claude im Test-Add-on) |
+| 115.3 | Nur im Add-on: dein Thermostat (z. B. WZFL) bei eingeschaltetem Heizplan von Hand drehen, 10 Minuten warten | Danach steht wieder die Temperatur des Heizplans (z. B. „Nacht 17°“) | ➖ |
+| 115.4 | Nur im Add-on: das Thermostat von Hand auf „Aus“ stellen | Es bleibt aus, bis der nächste Abschnitt des Plans beginnt | ➖ |

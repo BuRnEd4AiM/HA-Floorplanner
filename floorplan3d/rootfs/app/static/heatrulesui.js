@@ -124,7 +124,9 @@ export function initHeatRulesUi(ctx) {
     });
     const go = btn('bdBtn', `📅 ${t('hr.plan.edit')}`, () => ctx.showPlan()); go.dataset.act = 'openPlan';
     out.push(card('schedule', h, [kv(t('hr.plan.rooms'), make('b', '', String(plans.length))),
-      kv(t('hr.plan.pre'), mins(h.schedule.pre, (v) => change((x) => { x.schedule.pre = v; }), 'schedule.pre', 120, 15))], (() => { const d = make('div', 'hrPlanBox'); if (first) d.append(mini); d.append(go); const a = activeChips('schedule'); if (a) d.append(a); return d; })()));
+      kv(t('hr.plan.pre'), mins(h.schedule.pre, (v) => change((x) => { x.schedule.pre = v; }), 'schedule.pre', 120, 15)),
+      kv(t('hr.plan.hand'), stepper(h.schedule.hand ?? 10, { step: 5, min: 0, max: 240, text: (x) => (x ? t('fl.min', { n: x }) : t('hr.plan.handNext')),
+        set: (v) => change((x) => { x.schedule.hand = v; }), data: 'schedule.hand' }))], (() => { const d = make('div', 'hrPlanBox'); if (first) d.append(mini); d.append(go); const a = activeChips('schedule'); if (a) d.append(a); return d; })()));
     out.push(card('summer', h, [kv(t('hr.summer.above'), temp(h.summer.above, (v) => change((x) => { x.summer.above = v; }), 'summer.above')),
       kv(t('hr.summer.hours'), stepper(h.summer.hours, { step: 1, min: 0, max: 72, text: (x) => t('fl.hour', { n: x }), set: (v) => change((x) => { x.summer.hours = v; }), data: 'summer.hours' }))], activeChips('summer')));
     out.push(card('boost', h, [kv(t('hr.boost.minutes'), mins(h.boost.minutes, (v) => change((x) => { x.boost.minutes = v; }), 'boost.minutes', 240, 5)),
@@ -148,7 +150,7 @@ export function initHeatRulesUi(ctx) {
     const st = ctx.rules.get()?.status?.rooms || {}, out = [];
     ctx.rooms().forEach((r) => {
       const s = st[key(r.id)], line = roomLine(s, now(), t, ctx.deg);
-      if (!line || !s.why || ['schedule', 'night'].includes(s.why)) return;
+      if (!line || !s.why || (['schedule', 'night'].includes(s.why) && line.tone !== 'hand')) return;   // the plan as usual: no line; turned by hand: one
       const b = make('div', `hrBanner ${line.tone}`); b.dataset.room = r.id;
       const tx = make('div', ''); tx.append(make('b', '', `${line.icon} ${r.name}`), make('span', '', line.text));
       b.append(tx);
@@ -180,7 +182,7 @@ export function initHeatRulesUi(ctx) {
     const k = key(r.id), s = ctx.rules.status(k), h = ctx.rules.get()?.heat, line = roomLine(s, now(), t, ctx.deg);
     const box = make('div', 'hrRoom');
     if (line) {
-      const p = make('div', `hrLine ${line.tone}`); p.dataset.line = s.why || (s.waiting ? 'waiting' : '');
+      const p = make('div', `hrLine ${line.tone}`); p.dataset.line = line.tone === 'hand' ? 'hand' : s.why || (s.waiting ? 'waiting' : '');
       p.append(make('span', '', `${line.icon} ${line.text}`));
       if (s.why === 'window' && !ctx.locked()) p.append(btn('tpChip', `🔥 ${t('hr.anyway')}`, () => ctx.rules.room(k, 'skip')));
       box.append(p);

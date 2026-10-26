@@ -296,6 +296,10 @@ export function roomLine(s, now, t, deg) {
   if (s.skip) return { icon: '🔥', tone: '', text: t('hr.line.skip') };
   if (s.why === 'boost') { const d = new Date((s.until || now) * 1000); return { icon: '🚀', tone: 'boost', text: t('hr.line.boost', { at: hhmm(d.getHours() * 60 + d.getMinutes()) }) }; }
   if (!s.why) return null;
+  if (s.hand && s.why === 'schedule') {                          // turned by hand: the schedule's temperature comes back at s.hand (#546)
+    const d = new Date(s.hand * 1000);
+    return { icon: '✋', tone: 'hand', text: t('hr.line.hand', { at: hhmm(d.getHours() * 60 + d.getMinutes()), level: s.level ? t(`hr.level.${s.level}`) : '', v: s.temp != null ? deg(s.temp) : '' }) };
+  }
   return { icon: { holiday: '✈️', summer: '☀️', away: '🚶', schedule: LEVEL_ICON[s.level] || '📅', night: '🌙' }[s.why] || '📋', tone: '',
     text: t(`hr.line.${s.why}`, { v: s.temp != null ? deg(s.temp) : '', level: s.level ? t(`hr.level.${s.level}`) : '' }) };
 }

@@ -138,13 +138,46 @@ def test_the_schedule_moves_on_while_the_window_is_open():
 def test_a_turn_by_hand_stays_until_the_next_block():
     plan = {"days": [[[0, "night"], [360, "comfort"], [480, "eco"]]] * 7}
     st = house(**{"climate.wz": thermostat(temp=18.0)})
-    run = Run({"schedule": {"on": True, "rooms": {"h/wz": plan}}}, st, at=MON.replace(hour=6, minute=30))
+    run = Run({"schedule": {"on": True, "hand": 0, "rooms": {"h/wz": plan}}}, st, at=MON.replace(hour=6, minute=30))
     assert run.look() == [("climate.wz", "set_temperature", {"temperature": 21.0})]
     st["climate.wz"]["attributes"]["temperature"] = 23.0                        # by hand
     assert run.look(10) == [] and st["climate.wz"]["attributes"]["temperature"] == 23.0
     assert run.look(80) == [("climate.wz", "set_temperature", {"temperature": 19.0})]   # 8:00
     run.rules = hr.clean_rules({})                                              # switched off: left as it is
     assert run.look(1) == []
+
+
+def test_a_turn_by_hand_goes_back_to_the_schedule_after_some_minutes():
+    """the owner: "wenn man von Hand dreht nach 10 min wieder zurück, aber das kann eingestellt werden" (10 minutes unless set)"""
+    plan = {"days": [[[0, "night"], [360, "comfort"], [480, "eco"]]] * 7}
+    st = house(**{"climate.wz": thermostat(temp=18.0)})
+    run = Run({"schedule": {"on": True, "rooms": {"h/wz": plan}}}, st, at=MON.replace(hour=6, minute=30))
+    assert run.rules["schedule"]["hand"] == 10 and hr.clean_rules({"schedule": {"hand": 999}})["schedule"]["hand"] == 240
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 21.0})]
+    assert run.look(1) == [] and run.status["h/wz"]["hand"] is None
+    st["climate.wz"]["attributes"]["temperature"] = 23.0                        # by hand
+    assert run.look() == [] and run.status["h/wz"]["hand"] == run.now + 600       # the page says when it goes back
+    assert run.look(9) == [] and st["climate.wz"]["attributes"]["temperature"] == 23.0
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 21.0})] and run.status["h/wz"]["hand"] is None
+    st["climate.wz"]["attributes"]["temperature"] = 22.5                        # turned, and again 8 minutes later: 10 from the last turn
+    run.look()
+    run.look(8)
+    st["climate.wz"]["attributes"]["temperature"] = 23.5
+    assert run.look(1) == [] and run.status["h/wz"]["hand"] == run.now + 600
+    assert run.look(9) == [] and run.look(1) == [("climate.wz", "set_temperature", {"temperature": 21.0})]
+    assert run.log[-1]["why"] == "schedule"
+    st["climate.wz"]["attributes"]["temperature"] = 22.0                        # turned again, and back to 21 by hand before the time
+    run.look(5)
+    st["climate.wz"]["attributes"]["temperature"] = 21.0
+    assert run.look(1) == [] and run.status["h/wz"]["hand"] is None
+    assert run.look(20) == []                                                   # nothing pending any more
+    st["climate.wz"]["state"] = "off"                                           # switched off on purpose: left alone
+    assert run.look(30) == [] and st["climate.wz"]["state"] == "off"
+    st["climate.wz"].update(state="heat", attributes={**st["climate.wz"]["attributes"], "temperature": 21.0, "target_temp_step": 1})
+    run.rules = hr.clean_rules({"schedule": {"on": True, "levels": {"comfort": 20.5}, "rooms": {"h/wz": plan}}})
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 20.5})]
+    st["climate.wz"]["attributes"]["temperature"] = 21.0                        # a thermostat of whole degrees rounds: not by hand
+    assert run.look(2) == [] and run.status["h/wz"]["hand"] is None                  # (7:59: the plan moves on at 8:00)
 
 
 def test_nobody_at_home_then_back_as_before():

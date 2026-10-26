@@ -2,6 +2,12 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.32.0] - 2026-10-26
+### Neu
+- **📅 Heizplan: Ein von Hand gedrehtes Thermostat geht nach 10 Minuten zurück auf den Plan** (#546, der Besitzer: „gerne wenn man von Hand dreht nach 10 min wieder zurück, aber das kann eingestellt werden“). Bisher blieb von Hand Gedrehtes (am Gerät, in Home Assistant oder auf der Seite) bis zum nächsten Abschnitt des Plans. Jetzt kommt die Temperatur des Plans **10 Minuten** nach der letzten Drehung zurück; die Karte Heizplan in 📋 Heiz-Regeln hat **„Von Hand gedreht: zurück nach“** mit − / + (5 bis 240 Minuten, oder 0: „erst beim nächsten Abschnitt“, wie bisher). Der Raum im 🌡 Klima sagt **„✋ Von Hand gedreht · ab 22:40 wieder Nacht 17°“** (auch als Zeile in 📋 Heiz-Regeln). Ein von Hand ausgeschaltetes oder auf „Auto“ gestelltes Thermostat bleibt so (das ist Absicht), eines, das nur rundet (ganze Grad), zählt nicht als gedreht; 🚀 Boost und offene Fenster gehen wie bisher.
+### Verbessert
+- `heatrules.py`: `by_hand` und die Einstellung `schedule.hand` (Vorgabe 10); der Zustand des Raums hat `hand` (wann der Plan zurückkommt); `roomLine` in `rules.js` sagt es. Unit-Tests in `tests/test_heatrules.py` und `tests/rules.test.mjs`, der Teil `50_rules` des Browser-Tests dreht ein Thermostat unter einem Plan von Hand.
+
 ## [4.31.1] - 2026-10-26
 ### Verbessert
 - **🚆 Die Karte „Zug“ zeigt deinen Zug immer, auch den von morgen** (#550, der Besitzer: „mache es so, dass ich auch immer den auch morgen sehe“). Die Bahn zeigt nur die nächsten 3 Stunden, darum stand abends „Dein Zug um 06:05 ist nicht unter den nächsten Abfahrten“. Jetzt zeigt die Karte den Zug auch, wenn er noch Stunden entfernt ist: seine Zeit groß mit „morgen“ oder „heute“, „in 8 Std 31 Min“, den Zug, sein Ziel und sein Gleis, wie die Bahn sie beim letzten Mal gemeldet hat (das Add-on merkt sie sich, `trains-seen.json`), und „Ob er pünktlich ist, zeigt die Bahn ab etwa 03:05“; ab dann zeigt sie die Verspätung wie bisher. `api/train?mine=06:05` antwortet mit `seen`; neu in `trains.py` (`mine_of`, `remember`) und `trains.js` (`aheadOf`, `liveFrom`), mit ihren Unit-Tests; der Teil `53_train` des Browser-Tests prüft einen Zug in 5 Stunden.

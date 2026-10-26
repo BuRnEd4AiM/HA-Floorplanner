@@ -96,6 +96,8 @@ test('what a room\'s heating does now', () => {
   assert.equal(R.roomLine({ why: null, waiting: true }, now, t, deg).tone, 'warn');
   assert.equal(R.roomLine({ why: 'schedule', level: 'comfort', temp: 21 }, now, t, deg).text, 'hr.line.schedule{"v":"21°","level":"hr.level.comfort"}');
   assert.equal(R.roomLine({ why: null }, now, t, deg), null);
+  const back = R.roomLine({ why: 'schedule', level: 'night', temp: 17, hand: Math.floor(new Date(2026, 9, 26, 22, 40).getTime() / 1000) }, now, t, deg);
+  assert.deepEqual(back, { icon: '✋', tone: 'hand', text: 'hr.line.hand{"at":"22:40","level":"hr.level.night","v":"17°"}' });   // turned by hand: back at 22:40
   assert.equal(R.roomLine(null, now, t, deg), null);
   assert.equal(R.roomKey('h1', 'r1'), 'h1/r1');
 });
