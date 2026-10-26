@@ -11,6 +11,7 @@
 ![Ingress](https://img.shields.io/badge/Ingress-yes-success)
 ![No build step](https://img.shields.io/badge/frontend-no%20build%20step-lightgrey)
 ![Made with love](https://img.shields.io/badge/made%20with-%E2%9D%A4-e0245e)
+[![Timeline: how the project grew](https://img.shields.io/badge/timeline-%F0%9F%93%88%20version%20by%20version-6250d6)](https://burned4aim.github.io/HA-Floorplanner/timeline.html)
 
 [![Add repository to my Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FBuRnEd4AiM%2FHA-Floorplanner)
 
