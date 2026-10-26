@@ -26,6 +26,7 @@ from aiohttp import web
 
 import alarmnotify as an
 import boards
+import garden as gn
 import guard as gd
 import household as hh
 import controls
@@ -129,6 +130,8 @@ DEFAULT_SETTINGS = {
     "shoppingList": "",        # the to-do list of the page 🧺 Haushalt (#490): a todo.*; "" = a shopping list of Home Assistant
     "appliances": {},          # the machines of 🧺 Haushalt an admin chose (#490): {washer|dryer|dishwasher: {"power", "status"}}; the rest by name
     "householdTell": False,    # 🔔 a message whenever a machine is done, not only when somebody tapped "Sag mir Bescheid" (#531)
+    "car": {},                 # 🚗 the car's entities an admin chose (#533, garden.clean_car): battery, range, charging, power, ends, mode, name
+    "garden": {"zones": [], "minutes": 10},   # 🌱 the watering zones an admin chose and how long "💧 gießen" waters (#533, garden.clean_garden)
     "favorites": [],           # entity ids of the favourites in front of the room tiles (#471, static/favorites.js)
     "lightGroups": [],         # groups of rooms for "lights off" (#471): [{"id", "name", "rooms": [room id]}] (static/lightgroups.js)
     "voice": {"engine": "auto", "aliases": []},   # the voice search (#509, voice.clean_voice): which recognition, the code words
@@ -784,6 +787,10 @@ def validate_settings(data: dict) -> dict:
             out[key] = vc.clean_voice(val)
         elif key == "doorbell":
             out[key] = pages.clean_doorbell(val)
+        elif key == "car":
+            out[key] = gn.clean_car(val)
+        elif key == "garden":
+            out[key] = gn.clean_garden(val)
         elif isinstance(default, dict):
             out[key] = ({str(k)[:80]: v[:80] for k, v in list(val.items())[:50] if isinstance(v, str) and v and str(k)}
                         if isinstance(val, dict) else {})
@@ -2600,6 +2607,96 @@ async def post_household_tell(request):
     return await get_household(request)
 
 
+# ---------- 🌱 the garden (#533, garden.py): "💧 10 min gießen" opens a zone, the add-on closes it again when the time is up ----------
+def garden_path(request) -> Path:
+    return data_dir(request) / "garden.json"
+
+
+async def ha_service(domain: str, service: str, entity: str) -> bool:
+    """one service of Home Assistant for one entity (the add-on itself: the garden's timers)"""
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
+        async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(), json={"entity_id": entity}) as r:
+            return r.status == 200
+
+
+async def garden_close_due(request) -> None:
+    """close every zone whose time is up and forget its timer (a zone that does not answer is tried again next time)"""
+    stored = read_json(garden_path(request), {})
+    timers = gn.clean_timers(stored.get("timers") if isinstance(stored, dict) else None, time.time())
+    left = dict(timers)
+    for e in gn.due(timers, time.time()):
+        try:
+            if await ha_service(*gn.service(e, False), e):
+                left.pop(e, None)
+        except HA_DOWN:
+            pass
+    if left != timers:
+        write_json_atomic(garden_path(request), {"timers": left})
+
+
+def garden_timers(request) -> dict:
+    """{zone: until in ms} for the page"""
+    stored = read_json(garden_path(request), {})
+    return {k: v * 1000 for k, v in gn.clean_timers(stored.get("timers") if isinstance(stored, dict) else None, time.time()).items()}
+
+
+async def get_garden(request):
+    return web.json_response({"timers": garden_timers(request)})
+
+
+async def post_garden_water(request):
+    """{"entity", "minutes"}: open a watering zone for that long; {"entity", "stop": true}: close it now. Only zones of the garden; not for
+    a user locked out of switching."""
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "no supervisor token"}, status=503)
+    if "control" in user_locks(request):
+        return web.json_response({"error": "switching is locked for this user"}, status=403)
+    try:
+        body = await request.json()
+    except ValueError:
+        body = None
+    try:
+        zones = gn.find_zones(await ha_states(), validate_settings(read_settings(request))["garden"]["zones"])
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    entity, minutes, err = gn.water_request(body, zones)
+    if err:
+        return web.json_response({"error": err}, status=400)
+    try:
+        ok = await ha_service(*gn.service(entity, minutes > 0), entity)
+    except HA_DOWN as err:
+        return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
+    stored = read_json(garden_path(request), {})
+    timers = gn.clean_timers(stored.get("timers") if isinstance(stored, dict) else None, time.time())
+    if ok:
+        if minutes:
+            timers[entity] = time.time() + minutes * 60
+        else:
+            timers.pop(entity, None)
+        write_json_atomic(garden_path(request), {"timers": timers})
+    return web.json_response({"ok": ok, "timers": garden_timers(request)}, status=200 if ok else 502)
+
+
+async def garden_timer(app):
+    """Background task: closes the zones whose time is up (#533), also those left open by a restart (only with Home Assistant)."""
+    task = None
+    if SUPERVISOR_TOKEN:
+        ctx = _AppCtx(app)
+
+        async def loop():
+            while True:
+                try:
+                    await garden_close_due(ctx)
+                except Exception:  # noqa: BLE001 - Home Assistant away: next time again
+                    pass
+                await asyncio.sleep(20)
+
+        task = asyncio.create_task(loop())
+    yield
+    if task:
+        task.cancel()
+
+
 async def household_teller(app):
     """Background task: 🔔 "Sag mir Bescheid" also while no screen is open (#531), every minute (only with Home Assistant)."""
     task = None
@@ -3252,6 +3349,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.cleanup_ctx.append(alarm_notifier)
     app.cleanup_ctx.append(guard_watcher)
     app.cleanup_ctx.append(household_teller)
+    app.cleanup_ctx.append(garden_timer)
     app.add_routes([
         web.get("/", index),
         web.get("/auth/login", auth_login),
@@ -3314,6 +3412,8 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/household", get_household),
         web.post("/api/household/ack", post_household_ack),
         web.post("/api/household/tell", post_household_tell),
+        web.get("/api/garden", get_garden),
+        web.post("/api/garden/water", post_garden_water),
         web.get("/api/todo", get_todo),
         web.get("/api/voice", get_voice),
         web.post("/api/voice/stt", post_voice_stt),

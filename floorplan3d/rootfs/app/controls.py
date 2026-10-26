@@ -133,6 +133,7 @@ SERVICES = {
     "cover": {"open_cover": ({}, ()), "close_cover": ({}, ()), "stop_cover": ({}, ()), "toggle": ({}, ()),
               "set_cover_position": ({"position": _pct}, ("position",))},
     "lock": {"lock": ({}, ()), "unlock": ({}, ())},
+    "valve": {"open_valve": ({}, ()), "close_valve": ({}, ()), "toggle": ({}, ())},     # a watering valve (🌱 Garten, #533)
     "scene": {"turn_on": ({}, ())},
     "script": {s: ({}, ()) for s in ON_OFF},
     "automation": {"turn_on": ({}, ()), "turn_off": ({}, ())},     # on / off on the page ▶ Abläufe (#483), only for editors (server.py)

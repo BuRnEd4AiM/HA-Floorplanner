@@ -240,6 +240,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Warnings** for smoke, gas, CO, water, alarm and windows open in the rain (red banner, the room flashes), a **"Where is …?" search**, and a **kiosk mode**: back to the start view when idle, screen-saver turn, night dimming
 - **Voice search 🎤**: ask "Which windows are open?" or "How does the living room look?" and the view goes there with a ring on every window, light … of the answer; own code words for rooms ("the parents' living room"), the browser's recognition or Home Assistant Assist (Whisper), lockable per user
 - **Switching by voice 🗣**: "Lights in the living room off", "Blinds in the kitchen down": an order switches, the whole house asks first
+- **Car 🚗 and garden 🌱**: the car's charge, its range and "charge with the sun only" (evcc); the garden's rain, its soil and "💧 water 10 min" that switches off again by itself
 - **Tell me when it is done 🔔**: a tap on the running washing machine, dryer or dishwasher, and a message comes to your phone (WhatsApp, Telegram or the Home Assistant app) when it has finished
 - **Doorbell 🔔**: when somebody rings, every wall tablet shows the camera at the door with *Open the door* (it asks once more) and plays a gong; bells and their cameras are found by themselves
 - **Renamed in Home Assistant, renamed in the plan**: change an entity id or a device name in Home Assistant or Zigbee2MQTT and every linked device in every house follows by itself, also in an open view

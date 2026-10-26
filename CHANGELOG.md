@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.25.0] - 2026-10-26
+### Added
+- **🚗 Auto and 🌱 Garten on 🧺 Haushalt** (#533, chosen by the owner, picture `docs/ideen-4.3/8-haushalt.jpg`). The car: its charge with a bar, "lädt mit 3,2 kW · voll um 17:30", the range, "☀ Nur mit Sonne laden" (evcc's mode pv / now, or a switch). The garden: the rain of today or tomorrow, when it last watered, the soil moisture, "💧 10 min gießen" per watering zone (the add-on closes it again when the time is up, also after a restart) and "■ Stopp". Both found by their names or chosen in ⚙ → Reiter unten. Valves can now be switched from the plan too (`valve.open_valve` / `close_valve`).
+
 ## [4.24.0] - 2026-10-26
 ### Added
 - **🗣 Switching by voice** (#532, chosen by the owner): an order in the voice search (or typed into the search box) switches: "Licht im Wohnzimmer aus", "Mach oben alle Lichter an", "Rollläden in der Küche runter", "Fernseher aus", in all 7 languages. Lights and players on and off, roller shutters up and down (never a garage door), only what is not so already, with a ring on each. The whole house asks first ("✓ Ja, aus"); a question stays a question; the lock "Steuern" is respected.

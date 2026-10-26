@@ -104,6 +104,7 @@ import { initTodayPrefs } from './todayprefs.js';
 import { initPresencePrefs } from './presenceprefs.js';
 import { initDoorbellUi } from './doorbellui.js';
 import { initDoorbellPrefs } from './doorbellprefs.js';
+import { initOutdoorPrefs } from './outdoorprefs.js';
 import { initVoiceUi } from './voiceui.js';
 import { initVoicePrefs } from './voiceprefs.js';
 import { initVoiceCheck } from './voicecheck.js';
@@ -716,6 +717,7 @@ const mediaPage = initMediaPage({                                // 🎵 Musik &
 });
 const householdPage = initHouseholdPage({                        // 🧺 Haushalt (pagehousehold.js, household.js, #490)
   t, el: $('#tabPages [data-page=household]'), lang: () => currentLanguage(), states: () => states, names: () => namesOf(/^vacuum\./),
+  entities: () => entities, settings: () => settings,   // 🚗 the car and 🌱 the garden (#533)
   callService: (e, svc, data) => live.callService(e, svc, data), locked: () => locks.has('control'), builtin: (k) => todayPage.card(k),
   changed: () => tabsUi.update(), board,
 });
@@ -1552,6 +1554,7 @@ const mediaPrefs = initMediaPrefs({ $, t, entities: () => entities });       // 
 const presencePrefs = initPresencePrefs({ $ });                                // ... who counts as at home (#495, presenceprefs.js)
 const doorbell = initDoorbellUi({ $, t, lang: () => currentLanguage(), settings: () => settings, entities: () => entities, states: () => states, isLive: () => isLive(),   // 🔔 the camera when somebody rings (doorbellui.js)
   locked: (k) => locks.has(k), replaying: () => !!replayBack, callService: (e, svc) => live.callService(e, svc), cams, wake: () => kiosk.touched() });
+const outdoorPrefs = initOutdoorPrefs({ $, t, entities: () => entities });   // ... 🚗 the car and 🌱 the garden (#533, outdoorprefs.js)
 const doorbellPrefs = initDoorbellPrefs({ $, t, entities: () => entities, test: () => doorbell.test() });   // ... its settings in ⚙ → 📱 Wandtablet
 /* the voice search (#509): 🎤, a sentence understood and answered in the search box (voiceui.js, voicequery.js, voiceinput.js) */
 const voiceUi = initVoiceUi({
@@ -1571,7 +1574,7 @@ const settingsStore = initSettings({
   $, t, get: () => settings, set: (next) => { settings = next; }, ui: settingsUi, toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), layout: () => layout,
   entities: () => entities, perfStored, perfKey: PERF_KEY, setStatus: (x) => setStatus(x), alert: (x) => alert(x), reload: () => location.reload(),
   facadeUi: initFacadeUi({ $, t }),                    // the facade (#448)
-  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs],   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
+  parts: [favorites, lightGroups, todayPrefs, routinePrefs, mediaPrefs, presencePrefs, voicePrefs, doorbellPrefs, outdoorPrefs],   // ⚙ → "Quick access": favourites and light groups (#471); ⚙ → "Reiter unten": the calendars of ☀ Heute (#481); ⚙ → 🎤 (#509)
   committed: (prev) => {
     if (prev.lowWalls !== settings.lowWalls) lowWalls = settings.lowWalls;
     if (Math.abs(settings.wallHeight - prev.wallHeight) > 1e-6) {        // the wall height applies to every wall, not only to new ones

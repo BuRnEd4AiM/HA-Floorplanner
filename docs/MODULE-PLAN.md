@@ -226,6 +226,10 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `doorbellui.js` | ~120 | Das Fenster „🔔 Es klingelt“ (`#bellDlg`, `showModal`): Kamera (`cams.camLive`), „🔓 Tür öffnen“ mit Nachfrage, „✕ Schließen“, Gong (WebAudio), weckt den Bildschirm (`kiosk.touched`), zu nach 2 Minuten; sieht jede gepushte Änderung (`pushed` aus `livechannel.js`) und jede volle Liste (`update`); nur in „Live“, nicht bei der Sperre `doorbell` |
 | `doorbellprefs.js` | ~75 | ⚙ → 📱 Wandtablet → 🔔 Klingel (Teil des Einstellungs-Formulars: an/aus, Gong, Zeilen mit Klingel, Kamera, Türöffner, Name, „🔔 Ausprobieren“); der Server prüft `settings.doorbell` mit `pages.clean_doorbell` |
 | `voicecommand.js` | ~85 | 🗣 Schalten per Sprache (#532), rein (getestet: `tests/voicecommand.test.mjs`): ein Befehl statt einer Frage (`command`, Wörter je Sprache), welche Entitäten welchen Dienst bekommen (`targets`: Licht, Rollläden der Fenster, Player; nur was nicht schon so ist, nie ein Tor), ob erst gefragt wird (`needsConfirm`: ganzes Haus) |
+| `car.js` | ~95 | 🚗 Auto auf 🧺 Haushalt (#533), rein (getestet: `tests/car.test.mjs`): die Entitäten des Autos über ihre Namen oder aus ⚙ (`findCar`), die Karte (`carView`), „☀ Nur mit Sonne laden“ (`solarMode`, `solarCall`: evcc pv/now oder ein Schalter), `cleanCar` |
+| `garden.js` | ~75 | 🌱 Garten auf 🧺 Haushalt (#533), rein (getestet: `tests/garden.test.mjs`): Zonen (`findZones`), Bodenfeuchte, Regen heute/morgen (`rainOf`), die Karte (`gardenView`), `cleanGarden`; der Server hält die Zeitgeber (`garden.py`) |
+| `outdoorcards.js` | ~135 | Die Karten 🚗 Auto und 🌱 Garten für `pagehousehold.js` (holt `api/garden`, `api/forecast`; „💧 … gießen“, „■ Stopp“, „☀ Nur mit Sonne laden“) |
+| `outdoorprefs.js` | ~85 | ⚙ → Reiter unten → 🚗 Auto (Rollen, Name) und 🌱 Garten (Zonen, Minuten); Teil des Einstellungs-Formulars |
 
 ## Noch in `app.js`
 
