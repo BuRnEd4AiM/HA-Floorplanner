@@ -841,3 +841,30 @@ def test_the_tv_on_its_swivel_arm_keeps_its_size_swing_distance_and_tilt():
     assert [w for w in rep.warnings if "armSwing" in w["path"]]
     again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["devices"]
     assert (again[0]["tvSize"], again[0]["armSwing"], again[0]["armReach"], again[0]["armTilt"]) == ("65", 30, 0.25, -8)
+
+
+# ---------- the areas of the plot (#538)
+def test_plot_areas_survive_import_and_export_and_match_yard_js():
+    spec = {"schemaVersion": 1, "building": {"floors": [{"rooms": [{"name": "A", "points": [[0, 0], [8, 0], [8, 6], [0, 6]]}]}]},
+            "plot": {"boundary": [[-5, -5], [13, -5], [13, 11], [-5, 11]],
+                     "areas": [{"name": "Hof", "surface": "cobble", "points": [[8, 0], [12, 0], [12, 6], [8, 6]]},
+                               {"surface": "lava", "points": [[0, 7], [3, 7], [3, 9]]}, {"points": [[0, 0], [1, 0]]}]}}
+    layout, plot, rep, _ = importer.build_layout(spec)
+    assert layout is None and any(e["path"] == "plot.areas[2].points" for e in rep.errors)          # an area without a shape is an error
+    spec["plot"]["areas"].pop()
+    layout, plot, rep, _ = importer.build_layout(spec)
+    assert layout is not None and not rep.errors
+    a = layout["plot"]["areas"]
+    assert [x["surface"] for x in a] == ["cobble", "paving"] and a[0]["name"] == "Hof" and a[1]["name"] == "" and a[0]["id"] != a[1]["id"]
+    assert any(w["path"] == "plot.areas[1].surface" for w in rep.warnings)
+    back = importer.layout_to_property(layout, "x")
+    assert back["plot"]["areas"][0] == {"name": "Hof", "surface": "cobble", "points": [[8, 0], [12, 0], [12, 6], [8, 6]]}
+    assert "id" not in back["plot"]["areas"][1] and back["plot"]["boundary"] == spec["plot"]["boundary"]
+    only, _, rep2, _ = importer.build_layout({**spec, "plot": {"areas": spec["plot"]["areas"][:1]}})    # areas without a boundary
+    assert only["plot"] == {"areas": [{**a[0], "id": only["plot"]["areas"][0]["id"]}]} and not rep2.errors
+    js = (APP / "static" / "yard.js").read_text(encoding="utf-8")
+    assert re.findall(r"^  (\w+): \{ icon", js, re.M) == list(importer.YARD_SURFACES)
+    assert int(re.search(r"MAX_AREAS = (\d+)", js).group(1)) == importer.YARD_MAX_AREAS
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    areas = schema["properties"]["plot"]["properties"]["areas"]
+    assert areas["items"]["properties"]["surface"]["enum"] == list(importer.YARD_SURFACES) and areas["maxItems"] == importer.YARD_MAX_AREAS

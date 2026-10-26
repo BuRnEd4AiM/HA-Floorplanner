@@ -30,6 +30,9 @@ import { initStartView } from './startview.js';
 import { initBackground } from './background.js';
 import { initPalettes } from './palettes.js';
 import { floorOpenings as floorOpeningsOf, initBlocks } from './blocks.js';
+import { initPlotUi } from './plotui.js';
+import { buildYards } from './yard3d.js';
+import { YARD } from './yarddeco.js';
 import { initStairTool } from './stairtool.js';
 import { initLiveControls } from './livecontrols.js';
 import { initLivePopup } from './livepopup.js';
@@ -67,7 +70,7 @@ import { DEVICE_TYPES, catOf, makeModel, isCustom, baseSize } from './models.js'
 import {
   OPENING_DEFAULTS, wallLength, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth,
 } from './walls.js';
-import { t, setLanguage, applyI18n, currentLanguage } from './i18n.js';
+import { t, setLanguage, applyI18n, currentLanguage, fmtArea } from './i18n.js';
 import { createPlan } from './plan2d.js';
 import polygonClipping from './vendor/polygon-clipping.js';
 import { detectRooms, distToPoly, polyArea } from './rooms.js';
@@ -479,6 +482,10 @@ function build() {
     plotLoop = loop;
     world.add(loop);
   }
+  if ((houseMode || floorIdx >= groundIdx()) && !iso && plotUi.areas().length) {   // the areas of the plot (#538): yard, terrace, drive ... on the ground
+    buildYards(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null });
+  }
+  if (tool === 'plot') plotUi.render();
   const stacked = floorsMode(settings, houseMode) === 'stacked' && !iso;   // like a real house: ceilings between the floors (housefloors.js)
   const drawn = drawnFloors(layout.floors.length, floorIdx, houseMode, settings.belowMode === 'hidden');
   layout.floors.forEach((_, i) => {
@@ -519,7 +526,7 @@ function build() {
   if (!iso) neighbors.build(world, { upTo: houseMode ? Infinity : elev(floorIdx), holo });   // the neighbour house next to this one (#220)
   if (earth.cut()) {                              // garden things at ground level are cut open with the earth, so nothing lies over the basement
     layout.floors.slice(0, groundIdx() + 1).forEach((f) => f.devices.forEach((d) => {
-      if (!OUTDOOR.has(d.type) || d.type === 'picture') return;
+      if (!(OUTDOOR.has(d.type) || YARD[d.type]) || d.type === 'picture') return;   // the garden things of yarddeco.js too (#538)
       registry.get(d.id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { m.clippingPlanes = [earth.plane]; m.needsUpdate = true; }); });
     }));
   }
@@ -935,7 +942,7 @@ function refreshSelection() {
   // keep the selection even when the object is not drawn (e.g. hidden by a focused room or off screen), so it can still be found, moved to view or deleted
   if (selection && !registry.get(selection.id)) {
     const f = floor();
-    const exists = (selection.kind === 'cable' && power.findCable(selection.id)) || f && [openingWalls(f), f.rooms, f.devices, f.blocks, f.stairs, f.holes].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
+    const exists = (selection.kind === 'cable' && power.findCable(selection.id)) || plotUi.pointsOf(selection.kind, selection.id) || f && [openingWalls(f), f.rooms, f.devices, f.blocks, f.stairs, f.holes].some((l) => (l || []).some((q) => q.id === selection.id || (q.openings || []).some((o) => o.id === selection.id)));
     if (!exists) selection = null;
   }
   if (!selection) lockedSel = false;
@@ -943,6 +950,7 @@ function refreshSelection() {
   document.body.classList.toggle('locksel', lockedSel);
   refreshSelHelper();
   renderProps();
+  if (tool === 'plot') plotUi.render();                               // the list of the areas marks the selected one (#538)
 }
 
 
@@ -1142,7 +1150,7 @@ const editItems = initEditItems({
   snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), undo: () => undo(), redo: () => redo(), clip: clipboard,
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), deleted: () => undoToast.deleted(), help: () => keysHelp.open(),
   power: { deleteCable: (id) => power.deleteCable(id), dropCablesTo: (id) => power.dropCablesTo(id) }, multi: { items: () => multiSel.items(), deleteAll: () => multiSel.deleteAll() },
-  switchFloor: (i) => switchFloor(i), setTool: (x) => setTool(x),
+  switchFloor: (i) => switchFloor(i), setTool: (x) => setTool(x), yard: { remove: (k, id) => plotUi.remove(k, id), pointsOf: (k, id) => plotUi.pointsOf(k, id) },
   finishDraft: () => { if (!plan?.hasDraft()) return false; plan.finishRoom(); return true; }, moveRoof: (id, dx, dz) => moveRoofBy(id, dx, dz),
   escape: () => { plan?.cancel(); endDrawing(); popup.close(); setStatus(''); if (bgUi.mode()) bgUi.setMode(null); if (lockedSel) releaseLock(); if (multiSel.items().length) { multiSel.clear(); selection = null; refreshSelection(); } },
 });
@@ -1231,6 +1239,7 @@ function setTool(next) {
   $('#stairPalette').hidden = next !== 'stairs';
   $('#blockPalette').hidden = next !== 'block';
   $('#plotPalette').hidden = next !== 'plot';
+  if (next === 'plot') { plotUi.open(); plan?.fit(); }                // the whole plot in view (#538)
   $('#measurePanel').hidden = next !== 'measure';
   if ((next === 'block' || next === 'stairs' || next === 'plot' || next === 'hole' || next === 'measure') && !isLive() && plan && !plan.isVisible()) $('#viewSplit').click();   // drawn (measured) in the 2D plan
   canvas.style.cursor = next === 'select' ? 'default' : 'crosshair';
@@ -1470,6 +1479,13 @@ const blocks = initBlocks({
   $, t, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, setFloorIdx: (i) => { floorIdx = i; }, snapshot: () => snapshot(), changed: (...a) => changed(...a),
   setStatus: (x) => setStatus(x), select: (sel) => { selection = sel; }, uid: () => uid(), plan: () => plan, fillFloorSelect: () => fillFloorSelect(),
 });
+/* ---- The plot (Grundstück) and the areas on it (#538): the palette of the tool and their side panel live in plotui.js ---- */
+const plotUi = initPlotUi({
+  $, t, layout: () => layout, snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), uid: () => uid(),
+  select: (sel) => { multiSel.clear(); selection = sel; refreshSelection(); }, selection: () => selection, fmtLen: (m) => fmtLen(m), imperial: () => imperial(),
+  toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), fields: { field, inp, lenInput }, deleteItem: (sel) => deleteItem(sel),
+  hint: (x) => { $('#hintText').textContent = x; }, cancelDraft: () => plan?.cancel(),
+});
 const stairTool = initStairTool({
   $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH: FLOOR_H, snapshot: () => snapshot(), changed: (...a) => changed(...a),
   select: (sel) => { selection = sel; }, setTool: (x) => setTool(x), plan: () => plan, uid: () => uid(), mat: (...a) => mat(...a), isLive: () => isLive(),
@@ -1529,7 +1545,7 @@ const props = initProps({
   renderRoomEntities: () => renderRoomEntities(), stateText: (id) => stateText(id), roomAt: (x, z) => roomAt(x, z), pointInPoly, controlsTarget: () => controls.target,
   wallTypes: WALL_TYPES, ledLike: LED_LIKE, catOf, baseDims: (type, dev) => baseSize(type, dev), snapToWall: (...a) => snapToWall(...a), editNano: (d) => editNano(d),
   uploadPicture: (f, d) => uploadPicture(f, d), floorH: FLOOR_H, power: () => power, stairTool: () => stairTool, fmtLen: (m) => fmtLen(m), toDisp: (m) => toDisp(m), imperial: () => imperial(),
-  fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor,
+  fromDisp: (v) => fromDisp(v), uid: () => uid(), defaultLightColor: () => settings.defaultLightColor, yardProps: (...a) => plotUi.props(...a),
 });
 function renderObjList() { objList.render(); }
 function renderRoomEntities() { roomEnts.render(); }
@@ -1661,7 +1677,7 @@ plan = createPlan({
   holdPlaced,
   setSelection: (h) => { multiSel.clear(); selection = h ? { kind: h.kind, id: h.id } : null; refreshSelection(); }, toggleMulti: (h) => multiSel.toggle(h), addMulti: (items) => multiSel.addAll(items), multiItems: () => multiSel.items(),
   snapshot, commit: () => changed(), deleteItem, rebuild3d: () => build(), calibrate: (a, b) => bgUi.calibrate(a, b),
-  bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, neighborOutlines: () => neighbors.outlines(elev(floorIdx)), ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: blocks.setPlot, placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
+  bgChanged: () => bgUi.render(), floorH: () => FLOOR_H, neighborOutlines: () => neighbors.outlines(elev(floorIdx)), ghostFloors: () => ghostFloors(), addBlock: blocks.addBlock, addHole: blocks.addHole, setPlot: (p) => plotUi.drawn(p), placeStair: (x, z) => stairTool.place(x, z), getStairTemplate: () => ({ id: 'tpl', ...stairTool.template() }), placeWallStair: (pts) => stairTool.placeWall(pts), wallStairDraft: (pts) => stairTool.wallDraft(pts),
   moveDeviceTo: (d, x, z) => moveDeviceTo(d, x, z), isItemLocked: (k, id) => !!itemOf(k, id)?.locked,
  
   liveMoveDevice: (d) => liveMove(d),
@@ -1675,7 +1691,8 @@ plan = createPlan({
   newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, OPENING_DEFAULTS, uid, pointInPoly,
   roomHeat: (room, f) => (viewMode === 'normal' ? null : roomHeat(room, f)),
   states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, fmtLen, t, setStatus, measure: measureTool,
-  area: (p) => (imperial() ? `${(polyArea(p) * 10.7639).toFixed(0)} ft²` : `${polyArea(p).toFixed(1)} m²`),
+  area: (p) => fmtArea(polyArea(p), imperial()),
+  yards: () => plotUi.areas(), yardShown: () => tool === 'plot' || floorIdx === groundIdx(), plotRect: () => plotUi.rect(),   // the plot and its areas (#538)
 });
 
 var booted = false;                                       // init() is through: layout, models and first scene are there (test hook ready())

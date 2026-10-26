@@ -3,6 +3,7 @@
  * it. Which doors and windows belong to a room and how the rows are grouped are pure functions (tested); initRoomPanel draws. */
 import { wallLength } from './walls.js';
 import { distToPoly, polyArea, pointInPoly } from './rooms.js';
+import { fmtArea } from './i18n.js';
 import { openingWalls } from './dormerwin.js';
 import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
 import { initHeatPanel, splitHeatParts } from './heatpanel.js';
@@ -41,7 +42,7 @@ export function roomShutters(room, f, seen, nameOf, fallback) {
     .filter((d) => d.entity && !seen.has(d.entity) && seen.add(d.entity));
 }
 /** the area of a room as text: m² with one decimal, or whole ft² */
-export const areaText = (points, imperial) => (imperial ? `${(polyArea(points) * 10.7639).toFixed(0)} ft²` : `${polyArea(points).toFixed(1)} m²`);
+export const areaText = (points, imperial) => fmtArea(polyArea(points), imperial);
 
 /** phones: the room panel is a bottom sheet over the narrow screen and the heating goes inside it (style.css uses the same width) */
 export const SHEET_MEDIA = '(max-width: 760px)';

@@ -32,7 +32,7 @@ export function stretchValue(n) {
  *  entities(), areas(), findOpening(id), snapshot(), changed(), build(), refreshSelection(), deleteItem(sel), applyStates(), setStatus(txt),
  *  renderObjList(), renderRoomEntities(), stateText(id), roomAt(x, z), pointInPoly, controlsTarget() ({x, z}), wallTypes, ledLike, catOf, baseDims(type, dev),
  *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH, power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
- *  defaultLightColor() (settings: the colour of a lamp that reports none) */
+ *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js) */
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
@@ -75,6 +75,7 @@ export function initProps(ctx) {
     const f = ctx.floor();
     if (selection.kind === 'cable') { ctx.power().cableProps(body, box); return; }
     if (selection.kind === 'roof') { roofCard(body, box, ctx.roofInfo?.(selection.id)); return; }
+    if (selection.kind === 'yard' || selection.kind === 'plot') { ctx.yardProps(body, box, selection); return; }   // the plot and its areas: plotui.js (#538)
     let it = null;
     if (selection.kind === 'wall') it = f.walls.find((x) => x.id === selection.id);
     else if (selection.kind === 'room') it = f.rooms.find((x) => x.id === selection.id);

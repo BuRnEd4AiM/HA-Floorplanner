@@ -81,7 +81,7 @@ test('room opening spans: from - to along the wall, with type and sensor', () =>
   assert.ok(Math.abs(s[1].a[1] - 0.9) < 1e-9 && Math.abs(s[1].b[1] - 2.1) < 1e-9);
 });
 test('area text: m² with one decimal, whole square feet in imperial units', () => {
-  assert.equal(R.areaText(room.points, false), '12.0 m²');
+  assert.equal(R.areaText(room.points, false), '12,0 m²');
   assert.equal(R.areaText(room.points, true), '129 ft²');
 });
 test('geometry: polygon area in either direction and distance to the outline', () => {

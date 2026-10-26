@@ -230,6 +230,10 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `garden.js` | ~75 | 🌱 Garten auf 🧺 Haushalt (#533), rein (getestet: `tests/garden.test.mjs`): Zonen (`findZones`), Bodenfeuchte, Regen heute/morgen (`rainOf`), die Karte (`gardenView`), `cleanGarden`; der Server hält die Zeitgeber (`garden.py`) |
 | `outdoorcards.js` | ~135 | Die Karten 🚗 Auto und 🌱 Garten für `pagehousehold.js` (holt `api/garden`, `api/forecast`; „💧 … gießen“, „■ Stopp“, „☀ Nur mit Sonne laden“) |
 | `outdoorprefs.js` | ~85 | ⚙ → Reiter unten → 🚗 Auto (Rollen, Name) und 🌱 Garten (Zonen, Minuten); Teil des Einstellungs-Formulars |
+| `yard.js` | ~150 | 🏡 Grundstück und Außenflächen (#538), rein (Test: `tests/yard.test.mjs`): die Beläge (`SURFACES`: Rasen, Pflaster, Kopfsteinpflaster, Steinplatten, Natursteinplatten, Holzterrasse, Kies, Beet, Beton, Asphalt, Sand, Wasser mit dem Muster der Böden), Fläche, Umfang, Seiten mit Länge, Rechteck erkennen, eine Seite auf eine Länge setzen (`setEdgeLength`, ein Rechteck bleibt eins), Rechteck aus zwei Klicks und ums Haus, Fläche unter dem Zeiger, Summen je Belag, Speicherformat (`cleanAreas`) |
+| `yard3d.js` | ~35 | Die Außenflächen in 3D: flach auf dem Boden mit dem Muster ihres Belags (`finishtex.js`), Teich glänzt, mit der Erde aufgeschnitten |
+| `plotui.js` | ~200 | Werkzeug „Grundstück“: die Palette (Grundstück / Fläche, Belag, Ecken / Rechteck, Größe und Breite × Tiefe, „Rechteck ums Haus“, Liste der Flächen) und das Seitenfeld einer Fläche bzw. des Grundstücks (Name, Belag, Seitenlängen); Löschen und Pfeiltasten über `edititems.js`; aus `blocks.js` hierher gezogen |
+| `yarddeco.js` | ~230 | 26 Gartendinge für die Bibliotheksgruppe „Außen“ (Hecke, Bank, Sitzgruppe, Sonnenschirm, Grills, Feuerschale, Hochbeet, Leuchten, Trampolin, Schaukel, Gewächshaus, Gartenhaus, Gartenzwerg …), aus Teilen wie `garage.js` (Test: `tests/yarddeco.test.mjs`) |
 
 ## Noch in `app.js`
 

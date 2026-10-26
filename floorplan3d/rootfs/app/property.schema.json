@@ -29,6 +29,45 @@
       "$ref": "#/$defs/device"
      },
      "description": "Garden objects: lawn, terrace, path, tree, bush, fence, pool, car ... Coordinates are plot coordinates."
+    },
+    "areas": {
+     "type": "array",
+     "maxItems": 60,
+     "description": "Areas on the plot (#538): a yard of paving, a terrace, the drive, a bed, a pond ... Plot coordinates, like the boundary.",
+     "items": {
+      "type": "object",
+      "required": [
+       "points"
+      ],
+      "properties": {
+       "name": {
+        "type": "string",
+        "maxLength": 40,
+        "description": "Its name (Hof, Einfahrt ...); empty: the name of its surface."
+       },
+       "surface": {
+        "type": "string",
+        "enum": [
+         "lawn",
+         "paving",
+         "cobble",
+         "slabs",
+         "flagstone",
+         "deck",
+         "gravel",
+         "bed",
+         "concrete",
+         "asphalt",
+         "sand",
+         "water"
+        ],
+        "description": "What lies on it."
+       },
+       "points": {
+        "$ref": "#/$defs/polygon"
+       }
+      }
+     }
     }
    }
   },
