@@ -135,8 +135,7 @@ check("routines: with the window still open: 'Zurück' and 'Trotzdem starten'", 
 pgC.click(".rtDlg [data-act=anyway]")
 check("routines: 'Trotzdem starten' starts the linked script", wait_for(lambda: ["script", "turn_on", "script.cl_kaffee"] in ha_calls()))
 pgC.wait_for_timeout(1800)
-pgC.click(".rtAutos summary"); pgC.wait_for_timeout(300)
-pgC.click(".rtAutos [data-auto='automation.cl_flur']")
+pgC.click("[data-page=routines] input[data-auto='automation.cl_flur']")       # the card of the automations (#546)
 check("routines: an editor switches an automation off", wait_for(lambda: ["automation", "turn_off", "automation.cl_flur"] in ha_calls()))
 
 # --- ⚙ → "Reiter unten": the picked routines

@@ -178,7 +178,7 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `climate.js` | ~75 | Seite 🌡 Klima (#483), reine Logik mit Unit-Tests: was die Karte eines Raums zeigt (`roomClimate`: Temperatur, Feuchte, CO₂ mit `roomReading`, das erste Thermostat, was es tut, Soll), ab wann gelüftet wird (`airLimit`), zu kalt / zu warm (`attention`), offenes Fenster beim Heizen (`wasting`), Thermostate und Warmwasser ohne Raum, Tipps, Filter |
 | `pageclimate.js` | ~140 | Seite 🌡 Klima: sammelt die Räume aller Etagen (`roomEntityIds`, `roomOpenings`), zeichnet die Karten mit − / + (`clampTarget`, `HEAT_DELAY` aus `heatpanel.js`), „Heizung aus“, Geräte ohne Raum, Tipp |
 | `routines.js` | ~90 | Seite ▶ Abläufe (#483), reine Logik mit Unit-Tests: was ein Knopf sein darf (`START`, gleiche Liste wie `ROUTINE_DOMAINS` in `server.py`), die Knöpfe (gewählt oder alle Szenen und Skripte), Symbol nach Name, was „Ich gehe“ / „Gute Nacht“ prüfen (`checkRows`) und welche Knöpfe ihr Fenster hat (`checkButtons`), „Alles aus“ (`offCalls`), Automationen |
-| `pageroutines.js` | ~145 | Seite ▶ Abläufe: Knöpfe mit „✓ gestartet“, das Prüf-Fenster (`<dialog class="rtDlg">`), Automationen mit Schalter (nur Bearbeiter) |
+| `pageroutines.js` | ~125 | Seite ▶ Abläufe: Knöpfe mit „✓ gestartet“, das Prüf-Fenster (`<dialog class="rtDlg">`); die Karten der eigenen Abläufe, Automationen und „Was ist passiert“ kommen aus `routinesown.js` (#546) |
 | `routineprefs.js` | ~45 | ⚙ → „Reiter unten“ → „Abläufe“: welche Knöpfe, was „Ich gehe“ / „Gute Nacht“ danach starten (`routines`, `routineLeave`, `routineNight`), ein Teil des Einstellungs-Formulars |
 | `family.js` | ~70 | Seite 👨‍👩‍👧 Familie und Pinnwand (#483), reine Logik mit Unit-Tests: wo jemand ist, die Personen aus `api/family` mit den Live-Zuständen, Farbe des Buchstabens, „seit …“, Text und Farbe einer Notiz |
 | `pagefamily.js` | ~80 | Seite 👨‍👩‍👧 Familie: fragt `api/family` (alle 5 min, eher wenn jemand umzieht), Personen-Karten mit Bild (`api/family/<person>/picture`), daneben die Pinnwand |
@@ -238,6 +238,15 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `yard3d.js` | ~35 | Die Außenflächen in 3D: flach auf dem Boden mit dem Muster ihres Belags (`finishtex.js`), Teich glänzt, mit der Erde aufgeschnitten |
 | `plotui.js` | ~200 | Werkzeug „Grundstück“: die Palette (Grundstück / Fläche, Belag, Ecken / Rechteck, Größe und Breite × Tiefe, „Rechteck ums Haus“, Liste der Flächen) und das Seitenfeld einer Fläche bzw. des Grundstücks (Name, Belag, Seitenlängen); Löschen und Pfeiltasten über `edititems.js`; aus `blocks.js` hierher gezogen |
 | `yarddeco.js` | ~230 | 26 Gartendinge für die Bibliotheksgruppe „Außen“ (Hecke, Bank, Sitzgruppe, Sonnenschirm, Grills, Feuerschale, Hochbeet, Leuchten, Trampolin, Schaukel, Gewächshaus, Gartenhaus, Gartenzwerg …), aus Teilen wie `garage.js` (Test: `tests/yarddeco.test.mjs`) |
+| `rules.js` | ~250 | Eigene Heiz-Regeln und Abläufe (#546), reine Logik mit Unit-Tests: was ein Baustein sagt (`blockWords`), ein Weg in Worten (`laneWords`), was eine Automation tut (`sumWords`), zwei Regeln für ein Thermostat (`clashes`), wann etwas lief (`ago`), die Blöcke des Heizplans und was ein Tipp / Ziehen tut (`dayBlocks`, `cycleBlock`, `moveStart`, `splitBlock`), wo die Bausteine stehen (`laneLayout`), Vorlagen, die Zeile eines Raums (`roomLine`, `roomMark`) |
+| `rulesstore.js` | ~60 | Eine Kopie von `api/rules` für alle Seiten; was das Add-on über den Live-Kanal schickt (`{type: rules}`), speichern, Boost, „Trotzdem heizen“, Knopf / Ausprobieren |
+| `rulesui.js` | ~65 | Setzt die Teile der Regeln zusammen; `app.js` ruft nur `initRulesUi` |
+| `usedbyui.js` | ~170 | 🔎 Wird benutzt: Fenster mit den eigenen Regeln und den Automationen, Skripten, Szenen von Home Assistant (`api/related`) |
+| `heatrulesui.js` | ~200 | 🌡 Klima → 📋 Heiz-Regeln (die sieben Karten, speichert kurz nach der letzten Änderung) und die Zeile jedes Raums mit 🔥 Trotzdem heizen, 🚀 Boost, 🔎 |
+| `heatplanui.js` | ~170 | 🌡 Klima → 📅 Heizplan: Woche je Raum, Block antippen / Rand ziehen, Entwurf bis „Speichern“ |
+| `routinesown.js` | ~200 | ▶ Abläufe: eigene Abläufe als Kette, Automationen von Home Assistant (`api/automations`), „Was ist passiert“ |
+| `flowedit.js` | ~380 | Editor „Wenn … dann …“ wie Node-RED: Bausteine links, Wege mit Linien (SVG) in der Mitte, Einstellungen rechts, „In Worten“ |
+| Server: `heatrules.py`, `flows.py`, `roommap.py`, `usedby.py`, `rulesrun.py` | | Die Regeln selbst (rein, mit Tests: `test_heatrules.py`, `test_flows.py`, `test_roommap.py`, `test_usedby.py`), ausgeführt von `rulesrun.py` (`test_rulesrun.py`); `server.py` hat nur die Adressen und `rules_runner` |
 
 ## Noch in `app.js`
 

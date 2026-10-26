@@ -23,7 +23,7 @@ export function popupKey({ dev = null, seg = null, lang = '', extra = null, ids 
 }
 
 /** ctx: $, t, lang(), live (initLiveControls), floor(), findOpening(id), stateText(id), openText(id), cams, settings(), pointInPoly, states(), onStates,
- *  star(entity) (☆ / ★ favourite, favoritesui.js #471: a button or null) */
+ *  star(entity) (☆ / ★ favourite, favoritesui.js #471: a button or null), usedBy(entity) (🔎 Wird benutzt, #546: a button) */
 export function initLivePopup(ctx) {
   const { $, t, live } = ctx;
   const box = $('#livePopup');
@@ -96,6 +96,8 @@ export function initLivePopup(ctx) {
     if (mi) title.append(mi);
     const fav = d.isOpening ? null : ctx.star?.(d.entity);
     if (fav) title.append(fav);
+    const used = d.entity ? ctx.usedBy?.(d.entity) : null;        // 🔎 Wird benutzt (#546)
+    if (used) title.append(used);
     box.append(title, sub);
     if (d.type === 'camera') {                                  // #69, #381, #383: the live video (still images when there is none), a tap on it opens Home Assistant's live view
       if (d.motionEntity) { const mo = document.createElement('div'); mo.className = 'sub'; mo.textContent = ctx.cams.motion(d) ? t('cam.motionOn') : t('cam.motionOff'); box.append(mo); }

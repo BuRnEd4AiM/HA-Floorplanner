@@ -95,6 +95,7 @@ import { initEnergyPage } from './pageenergy.js';
 import { initTodayPage } from './pagetoday.js';
 import { initClimatePage } from './pageclimate.js';
 import { initRoutinesPage } from './pageroutines.js';
+import { initRulesUi } from './rulesui.js';
 import { initFamilyPage } from './pagefamily.js';
 import { initMediaPage } from './pagemedia.js';
 import { initHouseholdPage } from './pagehousehold.js';
@@ -592,16 +593,24 @@ const lightGroups = initLightGroups({ $, t, layout: () => shownLayout(), plan: (
   areaEntities: areaEntitiesOf, isOn: isLit, callService: (e, svc) => live.callService(e, svc), canEdit: () => me.canEdit, setStatus: (x) => setStatus(x),
   occupied: (r, f) => roomSummary(r, f, { placed: entityDevices(f), areaEntities: areaEntitiesOf(r), states, isOn: isLit, isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o) }).occupied,
   openSettings: () => openSettingsAt('quick'), commit: () => commitSettings(), isOpen: () => !$('#lightsMenu').hidden, close: () => toggleMenu($('#lightsMenu'), $('#lightsPill'), false) });
+const rulesUi = initRulesUi({                                    // the add-on's own heating rules and routines, 🔎 Wird benutzt (#546, rulesui.js)
+  t, lang: () => currentLanguage(), settings: () => settings, states: () => states, entities: () => entities, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
+  canEdit: () => me.canEdit, locked: () => locks.has('control'), callService: (e, svc, data) => live.callService(e, svc, data), houseId: () => hs.id(),
+  layout: () => shownLayout(), details: (e) => live.detailsButton(e, true), tabs: () => tabsUi, climate: () => climatePage, routines: () => routinesPage,
+  redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); },
+});
 const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
   settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf,
   isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(),
   lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
-  openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); }, goLive: () => setMode('live'), favorites });
+  openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); }, goLive: () => setMode('live'), favorites,
+  mark: (id) => rulesUi.mark(id) });                              // "⏸️ pausiert" of the heating rules (#546)
 const roomLabels = initRoomLabels({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // labels over the rooms (#430), roomlabels.js
   settings: () => settings, states: () => states, isLive: () => isLive(), view3d: () => layoutMode !== '2d', elev: (i) => elev(i), camera, canvas,
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e),
   openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(), lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
-  quiet: (q) => tapBalls.quiet(q), changed: () => applyStates(), openRoom: (id) => liveSelect({ kind: 'room', id }), goLive: () => setMode('live') });
+  quiet: (q) => tapBalls.quiet(q), changed: () => applyStates(), openRoom: (id) => liveSelect({ kind: 'room', id }), goLive: () => setMode('live'),
+  mark: (id) => rulesUi.mark(id) });
 
 /* ---- Doors, gates and windows with a contact sensor: the code lives in openings.js ---- */
 const openings = initOpenings({
@@ -691,6 +700,7 @@ const dash = initDashboards({                                    // the pages ar
   camImage: (e) => cams.camImage(e, 'oc-img'), openCamera: (e) => { camPage.big(e); tabsUi.show('cameras'); },
   builtin: (k) => todayPage.card(k.split(':')[1]), tabsUi: () => tabsUi,
   live: () => live,                                              // a lamp's controls in the window of a button card (#495)
+  usedBy: (e) => rulesUi.usedBy.button(e),                       // 🔎 Wird benutzt in that window (#546)
   me: () => me, refill: () => settingsStore.fill(),              // the own versions of a page per user (#507)
 });
 const board = dash.board;
@@ -711,12 +721,13 @@ const climatePage = initClimatePage({                            // 🌡 Klima (
   t, el: $('#tabPages [data-page=climate]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => shownLayout(),
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
   callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board, thermo: dash.thermo,   // the thermostat as a circle (#495)
+  heat: rulesUi.heat, plan: rulesUi.plan,                        // 📋 Heiz-Regeln and 📅 Heizplan (#546)
 });
 const routinesPage = initRoutinesPage({                          // ▶ Abläufe (pageroutines.js, routines.js, #483)
   t, el: $('#tabPages [data-page=routines]'), states: () => states, settings: () => settings, canEdit: () => me.canEdit,
   names: () => namesOf(/^(scene|script|button|input_button|media_player|lock|automation)\./),
   openNames: () => openings.items().map((x) => x.name), litLights: () => lightGroups.lit(),
-  callService: (e, svc, data) => live.callService(e, svc, data), board,
+  callService: (e, svc, data) => live.callService(e, svc, data), board, own: rulesUi.own,   // the own routines (#546)
 });
 const roomOf = (e) => placeOf(layout, e)?.room || areas.find((a) => a.id === areaOf[e])?.name || '';   // the room of a device: in the plan, else its area
 const mediaPage = initMediaPage({                                // 🎵 Musik & TV (pagemedia.js, media.js, #490)
@@ -1173,6 +1184,7 @@ const live = initLiveControls({
 const popup = initLivePopup({
   $, t, lang: () => currentLanguage(), live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), cams,
   settings: () => settings, pointInPoly, states: () => states, onStates: ON_STATES, star: (e) => favorites.star(e),   // ☆ favourite (#471)
+  usedBy: (e) => rulesUi.usedBy.button(e, true),                // 🔎 Wird benutzt (#546)
 });
 const roomPanel = initRoomPanel({
   $, t, live, floor: () => floor(), states: () => states, entities: () => entities, areas: () => areas, entityDevices: (f) => entityDevices(f), pointInPoly,
@@ -1653,6 +1665,7 @@ const liveChan = initLiveChannel({
   wake: () => poke(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); doorbell.update(); }, pushed: (list) => doorbell.pushed(list),   // a sensor that reports every second must not keep the picture at full speed (#494)
   firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
   renamed: (d) => { persist.renamed(d.revs?.[hs.id() || 'main']); renamed(d); },   // the stored plan was rewritten too: its new version tag (#403)
+  rules: (d) => rulesUi.pushed(d),                               // what the heating rules and routines do now (#546)
 });
 /* ---- Security view: a recorded day played back in the same view, nothing can be switched (timelineui.js, timeline.js) ---- */
 const timeline = initTimeline({

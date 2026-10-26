@@ -20,6 +20,7 @@ CAL_NEW = {}       # #495: the events "＋ Termin" of the calendar card made: {c
 TODO = {}          # #490: the to-do lists: {entity: [{"uid", "summary", "status"}]}, POST /_todo; changed by todo.add_item / update_item / remove_completed_items
 VOICE = {"assist": True, "text": "Welche Fenster sind offen", "heard": []}   # #509: Assist with speech-to-text (POST /_voice {assist, text}); heard: bytes of audio per run
 HIST = {}          # #490: the history of some entities (a machine's power): {entity: [[iso time, state]]}, POST /_hist; others get the hourly numbers
+RELATED = {"related": {}, "configs": {}}   # #546: Home Assistant's search "related" ({entity: {"automation": [...], "script": [...]}}) and the configs of automations and scripts, POST /_related
 def cur(e): return ALIAS.get(e, e)
 NAMES = {"climate.wohnzimmer": "Heizung Wohnzimmer", "light.wohnzimmer": "Wohnzimmer Licht", "sensor.temp": "Temperatur", "cover.rollo": "Rollo", "switch.garage": "Garage", "binary_sensor.rauch": "Rauchmelder", "sensor.co2": "CO2 Wohnzimmer", "sensor.leistung": "Leistung Waschmaschine", "camera.flur": "Kamera Flur", "sensor.rauch_battery": "Rauchmelder Batterie"}
 def state_of(e):
@@ -87,6 +88,8 @@ async def service(r):
                           ("percentage", "percentage"), ("oscillating", "oscillating"), ("preset_mode", "preset_mode"), ("fan_mode", "fan_mode")):
             if key in body: a[attr] = body[key]
         if svc == "select_option": x["state"] = body["option"]
+        if svc == "set_hvac_mode": x["state"] = body["hvac_mode"]; a["hvac_action"] = "off" if body["hvac_mode"] == "off" else "heating"   # #546: a thermostat added for the heating rules
+        if svc == "set_temperature": a["temperature"] = body["temperature"]
         await push(e)
         return web.json_response([])
     if svc == "toggle": STATE[e] = "off" if STATE[e] == "on" else "on"
@@ -163,8 +166,14 @@ async def websocket(r):          # Home Assistant's websocket API: auth, then st
             ok = m.get("entity_id") in TODO
             await ws.send_json({"id": m["id"], "type": "result", "success": ok, "result": {"items": TODO.get(m.get("entity_id"), [])} if ok else None,
                                 **({} if ok else {"error": {"code": "not_found"}})})
-        elif m.get("type") == "get_states":         # the security view recorder starts with all states
-            await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": [state_of(e) for e in STATE]})
+        elif m.get("type") == "get_states":         # the security view recorder starts with all states (#546: the added ones too)
+            await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": [state_of(e) for e in STATE] + [{"entity_id": e, **v} for e, v in EXTRA.items()]})
+        elif m.get("type") == "search/related":     # #546: who uses an entity
+            await ws.send_json({"id": m["id"], "type": "result", "success": True, "result": RELATED["related"].get(m.get("item_id"), {})})
+        elif m.get("type") in ("automation/config", "script/config"):   # #546: what an automation or script does
+            cfg = RELATED["configs"].get(m.get("entity_id"))
+            await ws.send_json({"id": m["id"], "type": "result", "success": cfg is not None, "result": {"config": cfg} if cfg is not None else None,
+                                **({} if cfg is not None else {"error": {"code": "not_found"}})})
         elif m.get("type") == "config/entity_registry/list":    # the watch for renamed entities (and the devices of the energy meters, #407)
             await ws.send_json({"id": m["id"], "type": "result", "success": True,
                                 "result": [{"entity_id": e, "platform": "mock", "unique_id": u, "device_id": DEVICES.get(u)} for e, u in REGISTRY.items()]
@@ -279,6 +288,7 @@ async def history(r):             # #484: Home Assistant's history of one entity
     return web.json_response([rows] if rows else [])
 async def history_asked(r): return web.json_response(HISTORY_ASKED)
 async def set_todo(r): TODO.clear(); TODO.update(await r.json()); return web.json_response(TODO)
+async def set_related(r): RELATED.update(await r.json()); return web.json_response({"ok": True})
 async def set_hist(r): HIST.clear(); HIST.update(await r.json()); return web.json_response(HIST)
 async def media_proxy(r): return web.Response(body=PNG, content_type="image/png")   # #490: the picture of what a player plays
 PNG = bytes.fromhex("89504e470d0a1a0a0000000d4948445200000001000000010806000000" "1f15c4890000000d49444154789c6360f8ffff3f0005fe02fea75a3c260000000049454e44ae426082")
@@ -347,5 +357,5 @@ app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", servic
                 web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_calreset", cal_reset), web.post("/config/config_entries/flow", flow_start), web.post("/config/config_entries/flow/{id}", flow_step), web.get("/_flows", flows), web.get("/_stats", stats_asked), web.get("/_levels", levels_asked),
                 web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),
                 web.get("/history/period/{start}", history), web.get("/_history", history_asked),
-                web.post("/_todo", set_todo), web.post("/_hist", set_hist), web.get("/api/media_player_proxy/{e}", media_proxy)])
+                web.post("/_todo", set_todo), web.post("/_related", set_related), web.post("/_hist", set_hist), web.get("/api/media_player_proxy/{e}", media_proxy)])
 web.run_app(app, port=int(os.environ.get("MOCK_PORT", "8123")), print=None)

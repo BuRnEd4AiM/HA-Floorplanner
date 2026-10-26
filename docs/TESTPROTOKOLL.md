@@ -4,25 +4,26 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.27.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.28.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.27.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.28.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-0. **Neu: 🗄 Schrank-Editor** (Abschnitt 109): Claude hat 109.1 bis 109.10 in der Demo geprüft; probier ihn gern selbst aus (Etage „Dach“, „Schrank unter der Schräge“), und im Add-on unter deinem echten Dach 109.11.
-1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 bis 107): in der Demo hat Claude am Morgen alles geprüft (siehe unten). Für dich bleibt: **flüssiger am iPad** (102.1), **🎤 mit echter Sprache** „Mach das Licht im Bad an“ (105.6) und im Add-on mit deinen Geräten 103.5 bis 103.7, 104.3 bis 104.5, 105.7, 106.5, 106.6.
-2. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
-3. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
-4. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
-5. **🔋 Ladestand mit deiner Batterie** (99.9, 99.10, nur im Add-on).
-6. **Zähler und Backup im Add-on** (92.2, 92.3, 92.6, 93.1 bis 93.4): SolarNet-Sensoren, Helfer „Energie“, Urlaubs-Alarm im Backup.
-7. **Kalender, Knöpfe, Anwesenheit, zweites Haus im Add-on** (90.7, 91.7, 89.5, 89.6, 87.6).
-8. **Wandtablet schneller** (85.1 bis 85.4; in der 2D-Ansicht 108.3) und **iPad flüssig** (56.1, 56.2).
-9. **Dashboard-Karte in Home Assistant** (46.4 bis 46.9; 46.3 war ❌, behoben in 3.77.1).
-10. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
-11. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
-12. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
+1. **Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe** (Abschnitt 110): in der Demo 110.6, 110.12, 110.13; im Add-on mit deinem echten Fenster und Thermostat 110.14, 110.15.
+2. **Neu: 🗄 Schrank-Editor** (Abschnitt 109): Claude hat 109.1 bis 109.10 in der Demo geprüft; probier ihn gern selbst aus (Etage „Dach“, „Schrank unter der Schräge“), und im Add-on unter deinem echten Dach 109.11.
+3. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 bis 107): in der Demo hat Claude am Morgen alles geprüft (siehe unten). Für dich bleibt: **flüssiger am iPad** (102.1), **🎤 mit echter Sprache** „Mach das Licht im Bad an“ (105.6) und im Add-on mit deinen Geräten 103.5 bis 103.7, 104.3 bis 104.5, 105.7, 106.5, 106.6.
+4. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
+5. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
+6. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
+7. **🔋 Ladestand mit deiner Batterie** (99.9, 99.10, nur im Add-on).
+8. **Zähler und Backup im Add-on** (92.2, 92.3, 92.6, 93.1 bis 93.4): SolarNet-Sensoren, Helfer „Energie“, Urlaubs-Alarm im Backup.
+9. **Kalender, Knöpfe, Anwesenheit, zweites Haus im Add-on** (90.7, 91.7, 89.5, 89.6, 87.6).
+10. **Wandtablet schneller** (85.1 bis 85.4; in der 2D-Ansicht 108.3) und **iPad flüssig** (56.1, 56.2).
+11. **Dashboard-Karte in Home Assistant** (46.4 bis 46.9; 46.3 war ❌, behoben in 3.77.1).
+12. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
+13. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
+14. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
 
 **Zuletzt geprüft (2026-10-26 morgens, Claude in der Demo 4.26.0):** ✅ 102.2 bis 102.6, 103.1 bis 103.4, 104.1, 104.2, 105.1 bis 105.5, 106.1 bis 106.4, 107.1 bis 107.8 (Chromium als PC und als Tablet, nachts und am Tag der Zeitumstellung mit gestellter Uhr). Kein ❌.
 
@@ -314,7 +315,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538) | 8 | 0 | 0 | 0 | – |
 | 108. Neu in 4.26.1: die 2D-Ansicht zeichnet kein verstecktes 3D-Bild mehr (#542) | 2 | 0 | 1 | 0 | 108.3 |
 | 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545) | 10 | 0 | 1 | 0 | 109.11 |
-| **Zusammen** | **710** | **10** | **50** | **74** | |
+| 110. Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe „Wenn … dann …“ (#546) | 10 | 0 | 3 | 2 | 110.6, 110.12, 110.13 |
+| **Zusammen** | **720** | **10** | **53** | **76** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1706,3 +1708,23 @@ Wunsch des Besitzers vom 2026-10-26 („einen Schrank-Editor … auch mit Schrä
 | 109.9 | Vorlage „Dachschrägenschrank“ wählen, bei „Dachschräge“ die Höhe und die Neigung ändern | Der Schrank wird links niedriger, Türen und Böden werden schräg abgeschnitten | ✅ (2026-10-26, Claude in der Demo) |
 | 109.10 | Im 2D-Plan den Schrank auswählen und am weißen Quadrat an der Seite ziehen | Der Schrank wird breiter oder schmaler (alle Fächer zusammen); im Plan sieht man die Fächer und in Orange, wo er unter der Schräge niedriger ist | ✅ (2026-10-26, Claude in der Demo) |
 | 109.11 | Nur im Add-on, in deinem Haus: einen Schrank unter eure echte Dachschräge stellen (Dach-Etage oder ausgebautes Dach mit Kniestock), „📐 An die Dachschräge anpassen“ | Er passt unter die Schräge, nichts ragt durchs Dach | ❓ |
+
+## 110. Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe „Wenn … dann …“ (#546)
+In der Demo ist die Fenster-Regel an: Das Fenster im Wohnzimmer ist offen, darum ist seine Heizung pausiert. Bilder vorher: `docs/ideen-4.28/`.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 110.1 | Unten „Klima“, oben „📋 Heiz-Regeln“ | Sieben Karten (Fenster offen → Heizung aus, Keiner zu Hause, Nachtabsenkung, Heizplan, Sommerpause, Boost-Knopf, Urlaub) und „＋ Eigene Regel“; oben „Wohnzimmer: Heizung pausiert …“ mit „🔥 Trotzdem heizen“ | ✅ (2026-10-26, Claude in der Demo) |
+| 110.2 | Bei „Fenster offen → Heizung aus“ die Minuten mit − / + ändern; eine Regel mit dem Schalter an- oder ausmachen | Die Zahl ändert sich, kurz „✓ gespeichert“; die Karte wird hell oder blass | ✅ (2026-10-26, Claude im Test-Add-on) |
+| 110.3 | Oben „Räume“: die Karte „Wohnzimmer“ | Darunter die Zeile „⏸️ Heizung pausiert · Fenster offen seit … Min · danach wieder 22°“, dazu „🔥 Trotzdem heizen“, „🚀 Boost“ und „🔎 Wird benutzt“ | ✅ (2026-10-26, Claude in der Demo) |
+| 110.4 | „🔥 Trotzdem heizen“ antippen, danach „🚀 Boost“ und noch einmal „Boost aus“ | Die Heizung heizt trotz offenem Fenster; Boost: „Boost bis …“, noch einmal: wieder wie vorher | ✅ (2026-10-26, Claude im Test-Add-on) |
+| 110.5 | „🔎 Wird benutzt“ an der Wohnzimmer-Karte | „Im Dashboard“: Fenster offen (läuft gerade), Heizplan, Nachtabsenkung; „In Home Assistant“: „Heizung morgens hoch“ mit „06:00 → Heizung Wohnzimmer 22°“, Schalter, „zuletzt …“, dazu oben die Warnung „Zwei Regeln stellen die Temperatur …“ | ✅ (2026-10-26, Claude in der Demo) |
+| 110.6 | Oben „📅 Heizplan“, Raum „Wohnzimmer“: einen Block antippen, noch einmal antippen; den linken Rand eines Blocks ziehen | Der Block ist weiß umrandet, darunter seine Zeit und die Stufen; beim zweiten Tipp eine andere Stufe; der Rand wandert mit dem Finger; „✓ Speichern“ wird blau | ❓ |
+| 110.7 | Im Heizplan einen Raum ohne Plan wählen, „＋ Plan anlegen“, „✓ Speichern“ | Eine Woche mit Blöcken erscheint und bleibt nach dem Speichern | ✅ (2026-10-26, Claude im Test-Add-on) |
+| 110.8 | Unten „Haus“ (Live) | Das Schild über dem Wohnzimmer zeigt „⏸️ pausiert“ | ✅ (2026-10-26, Claude in der Demo) |
+| 110.9 | Unten „Abläufe“ | „🏠 Eigene Abläufe“: Flurlicht nachts, Rollläden am Abend, Kinoabend als Kette; „⚙️ Automationen in Home Assistant“ mit „benutzt: …“ und „läuft gerade“; „📜 Was ist passiert“ | ✅ (2026-10-26, Claude in der Demo) |
+| 110.10 | Bei „Flurlicht nachts“ auf ✏️ tippen | Der Editor: links die Bausteine, in der Mitte die Kette mit Linien und grünen Häkchen, rechts die Einstellungen des gewählten Bausteins, unten „In Worten“ | ✅ (2026-10-26, Claude in der Demo) |
+| 110.11 | „＋ Neuer Ablauf“: links „Knopf im Dashboard“, dann „Schalten, dimmen“, rechts eine Lampe ankreuzen, oben einen Namen, „✓ Speichern“, „‹ Abläufe“ | Ohne Lampe ist „Speichern“ grau; danach steht der Ablauf in der Liste mit ▶ | ✅ (2026-10-26, Claude im Test-Add-on) |
+| 110.12 | „📋 Aus Vorlage“ | Sechs fertige Abläufe (Fenster offen → Heizung aus, Licht bei Bewegung, Rollläden …); einer öffnet sich im Editor | ❓ |
+| 110.13 | Am Handy oder Tablet: den Editor öffnen | Die Bausteine stehen oben in einer Reihe zum Wischen, darunter die Kette, darunter die Einstellungen | ❓ |
+| 110.14 | Nur im Add-on: die Fenster-Regel an, ein echtes Fenster öffnen und warten | Nach den eingestellten Minuten geht die Heizung des Raums aus, beim Schließen wieder an, auch wenn kein Bildschirm offen ist | ➖ (im Test-Add-on ✅ 2026-10-26, Claude) |
+| 110.15 | Nur im Add-on: „🔎 Wird benutzt“ an einem echten Thermostat | Deine Automationen, die es benutzen, mit „läuft gerade“ und „zuletzt …“ | ➖ |

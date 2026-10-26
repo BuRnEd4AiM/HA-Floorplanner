@@ -14,7 +14,8 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), focusedRoom(), settings(), states(), isLive(), placed(floor) (its devices with entities),
  *  areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), openRoom(floorIndex, roomId), commitSettings(), lang(), imperial(),
- *  goLive() (a tap on "Raum-Kacheln" in edit mode), favorites ({ html(), tap(entity, button) }, favoritesui.js) */
+ *  goLive() (a tap on "Raum-Kacheln" in edit mode), favorites ({ html(), tap(entity, button) }, favoritesui.js), mark(roomId) (what the
+ *  heating rules do there: "⏸️ pausiert", '' for nothing, #546) */
 export function initRoomTiles(ctx) {
   const { $, t } = ctx;
   const box = $('#roomTiles');
@@ -54,7 +55,8 @@ export function initRoomTiles(ctx) {
       + `<span class="rtHead"><b>${esc(r.name)}</b>${s.occupied ? `<i title="${esc(t('nav.occupied'))}">👤</i>` : ''}</span>`
       + (house ? `<span class="rtFloor">${esc(fl.name || '')}</span>` : '')
       + `<span class="rtTemp">${esc(tx.temp)}</span>`
-      + `<span class="rtTags"><span class="rtLight">${esc(tx.lights)}</span>${tx.open ? `<span class="rtOpen">${esc(tx.open)}</span>` : ''}</span></button>`;
+      + `<span class="rtTags"><span class="rtLight">${esc(tx.lights)}</span>${tx.open ? `<span class="rtOpen">${esc(tx.open)}</span>` : ''}`
+      + `${ctx.mark?.(r.id) ? `<span class="rtRule">${esc(ctx.mark(r.id))}</span>` : ''}</span></button>`;   // the heating rules: paused, boost (#546)
   }
   function update() {
     const on = ctx.settings().roomTiles !== false;

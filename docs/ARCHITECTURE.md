@@ -17,7 +17,9 @@ server.py  (aiohttp, port 8099)
  ├─ /api/live         websocket: state changes pushed live ← Home Assistant websocket (state_changed)
  ├─ /api/areas        HA areas with their entities       ← template API
  ├─ /api/users, /api/me   who is looking, may they edit   ← ingress headers + HA auth list
- └─ /api/service      whitelisted service calls          → Home Assistant REST API
+ ├─ /api/service      whitelisted service calls          → Home Assistant REST API
+ ├─ /api/rules        own heating rules and routines     → /data/rules.json (+ rules-state.json), run by rulesrun.py (#546)
+ └─ /api/related      who uses a device                  ← Home Assistant websocket (search/related, automation/config)
 ```
 
 ## Frontend
@@ -56,3 +58,8 @@ The layout is plain JSON: floors → walls (with openings), rooms, devices. A pl
 ## Live updates
 
 `server.py` (`LiveHub`) opens one websocket to Home Assistant while at least one view is open (and for a minute after), subscribes to `state_changed` and forwards each change, in the same slim shape as `/api/entities`, to every browser connected to `/api/live` (batched per 50 ms). It also tells the browsers whether Home Assistant is reachable (`{type: upstream, ok}`). The browser (`connectLive` in `app.js`) applies the changes at once; while the channel is down it polls `/api/entities` every 4 s, while it is up only once a minute.
+
+
+## Own heating rules and routines (#546)
+
+`heatrules.py` (window open → off, nobody home, night, schedule, summer pause, boost, holidays) and `flows.py` (routines "Wenn … dann …" made of blocks) are pure: they get the states, the clock and the rooms (`roommap.py`, worked out from the saved plans like the page does) and return the calls. `rulesrun.py` runs them in the add-on while a rule is on: one websocket to Home Assistant (all states, then every change), a look every 15 s, the wishes of the pages (boost, "Trotzdem heizen", a routine's button); the calls go through `HA_API`, what the rules do goes to the pages over the live channel (`{type: rules}`). The pages: `rulesui.js` puts `rulesstore.js`, `heatrulesui.js`, `heatplanui.js`, `usedbyui.js`, `routinesown.js` and `flowedit.js` together.
