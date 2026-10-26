@@ -40,6 +40,7 @@ import manifest as mf
 import pages
 import renames as rn
 import roommap as rm
+import scenes as sc
 import rulesrun as rr
 import timeline as tl
 import usedby as ub
@@ -3647,6 +3648,89 @@ async def ha_sync_flows(request, flows: list, force=()) -> dict:
     return out
 
 
+# ---------- scenes made in the dashboard as real scenes of Home Assistant (#549): scenes.py; written and deleted only when fp3d_… ----------
+SCENE_ID = re.compile(r"^[A-Za-z0-9_]{1,80}$")
+
+
+async def get_scene(request):
+    """one scene of Home Assistant's editor as the scene editor shows it (editors): one of the add-on's own to change, another to copy"""
+    if not await can_edit(request):
+        return forbidden()
+    cid = request.match_info["id"]
+    if not SCENE_ID.match(cid):
+        return web.json_response({"error": "bad id"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "nohass"}, status=503)
+    status, cfg = await ha_config("GET", "scene", cid)
+    model = sc.from_ha(cfg) if status == 200 else None
+    if not model:
+        return web.json_response({"error": "not found"}, status=404)
+    return web.json_response({"id": cid, "ours": hf.ours(cid), "scene": model})
+
+
+async def put_scene(request):
+    """a scene saved in Home Assistant (editors): a new one (id "new") or one of the add-on's own (the old version kept first)"""
+    if not await can_edit(request):
+        return forbidden()
+    cid = request.match_info["id"]
+    if cid == "new":
+        cid = sc.new_id()
+    elif not hf.ours(cid):
+        return web.json_response({"error": "not ours"}, status=403)        # somebody else's scene: the page saves a copy ("new")
+    try:
+        model = sc.clean_model(await request.json())
+    except ValueError:
+        model = None
+    if not model:
+        return web.json_response({"error": "a name and at least one device expected"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "nohass"}, status=503)
+    status, cur = await ha_config("GET", "scene", cid)
+    if status == 200 and isinstance(cur, dict):
+        ha_backup(request, "scene", cid, cur)
+    status, res = await ha_config("POST", "scene", cid, sc.to_ha(cid, model))
+    if status != 200:
+        return web.json_response({"error": ((res or {}).get("message") if isinstance(res, dict) else None) or f"Home Assistant: {status or 'no answer'}"}, status=502)
+    e = None
+    for _ in range(10):                                  # Home Assistant loads it a moment after
+        e = await ha_auto_entity(request.app, cid, fresh=True)
+        if e:
+            break
+        await asyncio.sleep(0.5)
+    return web.json_response({"ok": True, "id": cid, "entity": e, "missing": e is None})
+
+
+async def delete_scene(request):
+    """one of the add-on's own scenes deleted in Home Assistant (editors; the old version kept)"""
+    if not await can_edit(request):
+        return forbidden()
+    cid = request.match_info["id"]
+    if not hf.ours(cid):
+        return web.json_response({"error": "not ours"}, status=403)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "nohass"}, status=503)
+    status, cur = await ha_config("GET", "scene", cid)
+    if status == 200 and isinstance(cur, dict):
+        ha_backup(request, "scene", cid, cur)
+        status, _ = await ha_config("DELETE", "scene", cid)
+    return web.json_response({"ok": status in (200, 404)}, status=200 if status in (200, 404) else 502)
+
+
+async def post_scene_try(request):
+    """▶ Ausprobieren: the scene shown at once without saving it (scene.apply); not for a user who may not switch"""
+    if "control" in user_locks(request):
+        return web.json_response({"error": "locked"}, status=403)
+    try:
+        model = sc.clean_model(await request.json())
+    except ValueError:
+        model = None
+    if not model:
+        return web.json_response({"error": "a name and at least one device expected"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "nohass"}, status=503)
+    return web.json_response({"ok": await ha_service("scene", "apply", sc.apply_data(model))})
+
+
 async def timeline_allowed(request) -> bool:
     return "timeline" not in user_locks(request)
 
@@ -3890,6 +3974,10 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.post("/api/rules/run", post_rules_run),
         web.get("/api/related", get_related),
         web.get("/api/automations", get_automations),
+        web.post("/api/scenes/try", post_scene_try),
+        web.get("/api/scenes/{id}", get_scene),
+        web.put("/api/scenes/{id}", put_scene),
+        web.delete("/api/scenes/{id}", delete_scene),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
         web.get("/api/camera/{entity}/hls", get_camera_hls),
