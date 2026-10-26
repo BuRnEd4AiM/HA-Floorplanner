@@ -1,20 +1,20 @@
 {
  "session": "session_016jmtCrzuXWmNUwQWWyP6N3",
  "start": "2026-10-26",
- "updated": "2026-10-26T19:16:02Z",
- "branch": "claude/ha-szenen",
+ "updated": "2026-10-26T19:41:54Z",
+ "branch": "claude/zug-karte",
  "source": "counted",
- "input": 858,
- "cache_write": 1323049,
- "cache_read": 162563687,
- "output": 617692,
+ "input": 984,
+ "cache_write": 1475431,
+ "cache_read": 200884620,
+ "output": 676890,
  "models": {
   "claude-opus-5-5": {
-   "input": 858,
-   "cache_write": 1323049,
-   "cache_read": 162563687,
-   "output": 617692,
-   "requests": 429
+   "input": 984,
+   "cache_write": 1475431,
+   "cache_read": 200884620,
+   "output": 676890,
+   "requests": 490
   }
  }
 }

@@ -10,6 +10,7 @@ import { initControlsWindow } from './ctlwindow.js';
 import { canMoreInfo, openMoreInfo } from './moreinfo.js';
 import { initBoard } from './pageboard.js';
 import { initCardEditor } from './cardeditor.js';
+import { initTrainCard } from './traincard.js';
 import { initTabEdit } from './tabedit.js';
 import { initCustomPages } from './pagecustom.js';
 import { initVariantsUi } from './variantsui.js';
@@ -43,6 +44,8 @@ export function initDashboards(ctx) {
     changed: () => bar().update() });
   /** the calendar card (#495): several calendars, a week / list / month, "＋ Termin" */
   const calendar = initCalendarCard({ t, lang: ctx.lang, callService: ctx.callService, changed: () => { board.refresh(bar().open()); editor.refresh(); } });
+  /** 🚆 the train card (#550): the departures of a station, "mein Zug" */
+  const train = initTrainCard({ t, entities: ctx.entities, changed: () => { board.refresh(bar().open()); editor.refresh(); } });
   /** the window with the controls of a device: a tap or a long press on a button card (#495) */
   const word = (e) => {                             // a state in words: the app's texts for it (open, locked, docked …), else as Home Assistant says it
     const k = ctx.states()[e]?.state;
@@ -55,7 +58,7 @@ export function initDashboards(ctx) {
     t, lang: ctx.lang, states: ctx.states, settings: ctx.settings, nameOf: ctx.nameOf, stateText: ctx.stateText, callService: ctx.callService,
     camImage: ctx.camImage, openCamera: ctx.openCamera, room,
     openRoom: (id) => { const r = room(id); if (r) ctx.openRoom(r.fi, id); },
-    builtin: ctx.builtin, thermo, calendar, controls: (e) => controls.open(e),
+    builtin: ctx.builtin, thermo, calendar, train, controls: (e) => controls.open(e),
     moreInfo: (e) => { if (!canMoreInfo()) return false; openMoreInfo(e); return true; },
     showPage: (k) => bar().show(k), pages: () => bar().tabs().map((x) => ({ key: x.key, name: pageName(x.key) })),
     changed: () => { board.refresh(bar().open()); editor.refresh(); },
@@ -71,7 +74,7 @@ export function initDashboards(ctx) {
     addCard: (page) => editor.add(page), editCard: (page, card) => editor.edit(page, card),
     editTabs: () => tabEdit.start(), editOwnPage: (page) => tabEdit.ownPage(page),
   });
-  const editor = initCardEditor({ t, entities: ctx.entities, rooms, cards, board, calendar });
+  const editor = initCardEditor({ t, entities: ctx.entities, rooms, cards, board, calendar, train });
   const tabEdit = initTabEdit({
     t, $, settings: ctx.settings, save: ctx.save, areas: ctx.areas, states: ctx.states, board,
     tabs: () => bar().tabs(), tabName: (k) => t(`tab.${k}`), changed: () => bar().redraw(), show: (k) => bar().show(k),

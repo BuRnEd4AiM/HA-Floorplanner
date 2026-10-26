@@ -41,6 +41,7 @@ import pages
 import renames as rn
 import roommap as rm
 import scenes as sc
+import trains as tr
 import rulesrun as rr
 import timeline as tl
 import usedby as ub
@@ -2854,6 +2855,7 @@ async def post_todo(request):
 
 # ---------- a message when something goes off: alarm panel, smoke, gas, CO, water (#414, alarmnotify.py) ----------
 CALLMEBOT_URL = os.environ.get("CALLMEBOT_URL", "https://api.callmebot.com/whatsapp.php")
+DBF_URL = os.environ.get("DBF_URL", tr.DBF)          # 🚆 the departures of Deutsche Bahn for the card "Zug" (#550; the browser test's stand-in)
 CALLMEBOT_TG = os.environ.get("CALLMEBOT_TG", "https://api.callmebot.com")   # Telegram: text.php (users), telegram/group.php (a group, #456)
 KEY_NOTIFY = web.AppKey("notify", dict)         # {"cfg": the settings of the messages, "lang": Home Assistant's language}
 
@@ -3733,6 +3735,52 @@ async def post_scene_try(request):
     return web.json_response({"ok": await ha_call("scene", "apply", sc.apply_data(model))})
 
 
+# ---------- 🚆 the card "Zug" (#550): the departures of a station (trains.py), or of a sensor of "DB Infoscreen" ----------
+_TRAINS: dict = {}       # (station, via) -> (time, answer): asked at most once a minute, for every screen together
+TRAIN_KEEP = 60
+
+
+async def get_train(request):
+    """the next departures of a station towards via (asked from the add-on, not the browser), or of a sensor of DB Infoscreen:
+    {rows: [...], at (seconds), source: "dbf" | "sensor", error}"""
+    sensor = request.query.get("sensor", "")
+    if sensor:
+        if not ub.ENTITY.match(sensor) or not sensor.startswith("sensor."):
+            return web.json_response({"error": "sensor expected"}, status=400)
+        if not SUPERVISOR_TOKEN:
+            return web.json_response({"rows": [], "source": "sensor", "error": "nohass", "at": round(time.time())})
+        try:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
+                async with s.get(f"{HA_API}/states/{sensor}", headers=ha_headers()) as r:
+                    st = await r.json() if r.status == 200 else None
+        except (aiohttp.ClientError, asyncio.TimeoutError, ValueError):
+            st = None
+        rows = tr.from_sensor((st or {}).get("attributes"))
+        return web.json_response({"rows": rows, "source": "sensor", "error": "" if st else "sensor", "at": round(time.time())})
+    station, via = tr.clean_text(request.query.get("station")), tr.clean_text(request.query.get("via"))
+    if not station:
+        return web.json_response({"error": "station expected"}, status=400)
+    key = (station.lower(), via.lower())
+    at, answer = _TRAINS.get(key, (0, None))
+    if answer is None or time.time() - at > TRAIN_KEEP:
+        try:
+            async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
+                async with s.get(tr.url(DBF_URL, station, via), headers={"Accept": "application/json", "User-Agent": "3D-Floorplan Home Assistant add-on"}) as r:
+                    text = await r.text()
+            try:
+                data = json.loads(text)
+            except ValueError:
+                data = None
+            err = tr.error_of(data) or ("" if r.status == 200 and isinstance(data, dict) else f"{r.status}")
+            answer = {"rows": tr.rows(data), "source": "dbf", "error": err, "at": round(time.time())}
+        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+            answer = {"rows": (answer or {}).get("rows", []), "source": "dbf", "error": str(e)[:120] or "offline", "at": round(time.time())}
+        _TRAINS[key] = (time.time(), answer)
+        for old in sorted(_TRAINS, key=lambda k: _TRAINS[k][0])[:-30]:      # a few stations kept, not every one ever typed
+            _TRAINS.pop(old, None)
+    return web.json_response(answer)
+
+
 async def timeline_allowed(request) -> bool:
     return "timeline" not in user_locks(request)
 
@@ -3977,6 +4025,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/related", get_related),
         web.get("/api/automations", get_automations),
         web.post("/api/scenes/try", post_scene_try),
+        web.get("/api/train", get_train),
         web.get("/api/scenes/{id}", get_scene),
         web.put("/api/scenes/{id}", put_scene),
         web.delete("/api/scenes/{id}", delete_scene),

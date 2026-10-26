@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.31.0] - 2026-10-26
+### Added
+- **🚆 The card "Zug": is my train on time?** (#550, the owner: "dass man sich so seine Verbindung reinmacht, um zu schauen, ob morgens der Zug richtig kommt oder nicht … nicht als eigenes Dashboard, sondern als Karte dazu"). A new kind of card for every page (✎ → "＋ Karte" → 🚆 Zug): the station, the direction ("über") and **mein Zug** (its planned departure). On top it shows your train big: on time in green, "+5 Min" in yellow, from 6 minutes late in red, "fällt aus", the platform (a changed one in yellow, "statt 3"), "in 11 Min" and the railway's note; below the next 3 to 8 departures. The demo has one on ☀ Heute.
+- The add-on asks the free service the Home Assistant integration "DB Infoscreen" uses (dbf.finalrewind.org, data of Deutsche Bahn, no key, nothing to install), at most once a minute per station for every screen together (`api/train`, `trains.py`); who has "DB Infoscreen" can pick its sensor instead. Home Assistant's old integration "Deutsche Bahn" stopped working in December 2024.
+### Changed
+- New modules `trains.py` (pure, `tests/test_trains.py`), `trains.js` (pure, `tests/trains.test.mjs`), `traincard.js`; the card kind `train` in `cards.js` and `boards.py` (the same rules on both sides); the browser test part `53_train` with a stand-in of the departures service (`DBF_URL`).
+
 ## [4.30.0] - 2026-10-26
 ### Added
 - **🎨 Scenes for lights and LED strips as real scenes of Home Assistant** (#549, the owner: "dass auch die Szenen von LED-Streifen und LEDs auch verwaltbar sind über unsere App, aber dann wirkliche … Szenen in Home Assistant … nicht, dass es dann irgendwie Sachen gegenseitig kaputt macht"). ▶ Abläufe has the card **🎨 Szenen**: every scene of Home Assistant with ▶; "＋ Neue Szene" opens the scene editor: the devices of the scene (lights and LED strips first, switches, fans, roller shutters), each on or off, its brightness, a colour (swatches or a colour picker), a white tone (warm, neutral, cold), an effect of the light's own list (WLED, Nanoleaf …), a roller shutter's position. **📸 Wie jetzt übernehmen** takes every device as it is now, **▶ Ausprobieren** shows the scene at once without saving it (`scene.apply`), **✓ Speichern** writes it through Home Assistant's own scene editor (`fp3d_s…`), so it is a real scene there, for automations, voice and Home Assistant's own dashboards. A real Home Assistant played such a scene exactly as built (`tools/ha_check.py`).

@@ -10,7 +10,7 @@ const ON = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'auto'
 /** ctx: t, lang(), states(), settings(), nameOf(entity), stateText(entity), callService(entity, service, data) (-> true when taken),
  *  camImage(entity) (an <img> renewed while shown), openCamera(entity), room(roomId) ({ name, floor, temp, lights, open, occupied } or
  *  null), openRoom(roomId), builtin(key) (a ready card of ☀ Heute, or null), changed() (a history arrived: draw the page again),
- *  thermo (thermostatui.js, #495), calendar (calcardui.js, #495), controls(entity) (the window with the controls, ctlwindow.js, #495),
+ *  thermo (thermostatui.js, #495), calendar (calcardui.js, #495), train (traincard.js, #550), controls(entity) (the window with the controls, ctlwindow.js, #495),
  *  moreInfo(entity) (Home Assistant's own window: true when it opened), showPage(key), pages() ([{ key, name }]) */
 export function initCards(ctx) {
   const { t } = ctx;
@@ -158,6 +158,7 @@ export function initCards(ctx) {
     else if (c.type === 'thermostat') thermostat(c, box);
     else if (c.type === 'cover') cover(c, box);
     else if (c.type === 'calendar') ctx.calendar.render(c, box);
+    else if (c.type === 'train') ctx.train.render(c, box);              // 🚆 (#550, traincard.js)
     else if (c.type === 'camera') {
       const img = ctx.camImage(c.entity); img.classList.add('ocCam');
       box.append(img); box.classList.add('tdOpen'); box.addEventListener('click', () => ctx.openCamera(c.entity));
@@ -169,7 +170,7 @@ export function initCards(ctx) {
   }
   /** what a card shows depends on: the states of its entities, its history, a pending target, a tap (it draws again when this changed) */
   const sig = (c) => JSON.stringify([c, cardEntities(c).map((e) => { const s = st(e); return s ? [s.state, s.brightness, s.position, s.ct, s.tt, s.hvac, s.rgb, s.unit] : null; }),
-    c.type === 'graph' ? cardEntities(c).map((e) => history.get(`${e}|${c.hours}`)?.points?.length ?? -1) : 0, c.type === 'thermostat' ? ctx.thermo.sig(c.entity) : 0, c.type === 'calendar' ? ctx.calendar.sig(c) : 0, c.type === 'button' ? button.sig(c) : 0,
+    c.type === 'graph' ? cardEntities(c).map((e) => history.get(`${e}|${c.hours}`)?.points?.length ?? -1) : 0, c.type === 'thermostat' ? ctx.thermo.sig(c.entity) : 0, c.type === 'calendar' ? ctx.calendar.sig(c) : 0, c.type === 'train' ? ctx.train.sig(c) : 0, c.type === 'button' ? button.sig(c) : 0,
     c.type === 'room' ? ctx.room(c.room) : 0, c.type === 'builtin' ? Math.floor(Date.now() / 20000) : 0, imperial(), ctx.lang()]);   // a ready card: every 20 s
   return { render, sig, buttonFields: button.fields };
 }

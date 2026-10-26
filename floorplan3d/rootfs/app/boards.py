@@ -19,7 +19,8 @@ MAX_OWN = 40
 MAX_ENTITIES = 12
 MAX_SERIES = 6           # sensors of one history card (static/cards.js, #495)
 
-CARD_TYPES = ("button", "switch", "value", "graph", "light", "thermostat", "cover", "camera", "calendar", "entities", "room", "text", "builtin")
+CARD_TYPES = ("button", "switch", "value", "graph", "light", "thermostat", "cover", "camera", "calendar", "entities", "room", "text", "builtin", "train")
+HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 TYPE_DOMAINS = {
     "button": ("scene", "script", "button", "input_button", "light", "switch", "input_boolean", "fan", "cover", "media_player", "climate", "water_heater",
                "lock", "vacuum"),   # #495: a thermostat, a lock or a vacuum opens the window with its controls
@@ -133,7 +134,7 @@ def clean_card(c):
         return None
     kind = c["type"]
     out = {"id": c["id"], "type": kind, "name": _text(c.get("name"), 60),
-           "width": _int(c.get("width"), 1, 4, 3 if kind == "calendar" else 2 if kind in ("graph", "text") else 1)}
+           "width": _int(c.get("width"), 1, 4, 3 if kind == "calendar" else 2 if kind in ("graph", "text", "train") else 1)}
     if kind in TYPE_DOMAINS:
         if not fits_type(kind, c.get("entity")):
             return None
@@ -179,6 +180,15 @@ def clean_card(c):
         if c.get("builtin") not in BUILTINS:
             return None
         out["builtin"] = c["builtin"]
+    if kind == "train":                                 # 🚆 the departures of a station, "mein Zug" (#550)
+        out["station"] = _text(c.get("station"), 60)
+        out["via"] = _text(c.get("via"), 60)
+        out["mine"] = c["mine"] if isinstance(c.get("mine"), str) and HHMM.match(c["mine"]) else ""
+        out["count"] = _int(c.get("count"), 2, 8, 4)
+        sensor = c.get("sensor")
+        out["sensor"] = sensor if isinstance(sensor, str) and len(sensor) <= 255 and ENTITY.match(sensor) and sensor.startswith("sensor.") else ""
+        if not out["station"] and not out["sensor"]:
+            return None
     return out
 
 

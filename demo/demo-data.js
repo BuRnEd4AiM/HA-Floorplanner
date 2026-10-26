@@ -444,6 +444,19 @@ function recordedDay(iso) {
 }
 const recordedDays = () => { const d = new Date(); const today = isoDay(d); d.setDate(d.getDate() - 1); return [today, isoDay(d)]; };
 
+/* 🚆 the card "Zug" (#550): made-up departures of Fulda towards Frankfurt from the moment the demo opened, every 8 to 12 minutes for four
+ * hours; "mein Zug" leaves about a quarter of an hour after opening, 4 minutes late and from another platform */
+const DEMO_TRAIN = (() => {
+  const d = new Date(), start = Math.ceil((d.getHours() * 60 + d.getMinutes()) / 5) * 5, hm = (m) => `${String(Math.floor((m % 1440) / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+  const kinds = [['RB 15', 'Gelnhausen', '2'], ['RE 50', 'Frankfurt (Main) Hbf', '3'], ['ICE 1576', 'Frankfurt (Main) Hbf', '1'], ['RE 4711', 'Frankfurt (Main) Hbf', '3']];
+  const rows = [];
+  for (let m = start + 3, i = 0; m < start + 240; m += [8, 12, 10][i % 3], i++) {
+    const [train, dest, platform] = kinds[i % kinds.length];
+    rows.push({ at: hm(m), delay: i === 1 ? 4 : i === 3 ? 8 : 0, platform: i === 1 ? '4' : platform, planned: platform, train, dest,
+      cancelled: i === 2, notes: i === 1 ? ['Verspätung eines vorausfahrenden Zuges'] : i === 2 ? ['Fahrt fällt aus'] : [], via: ['Hanau Hbf'] });
+  }
+  return { rows, mine: rows[1].at };
+})();
 let settings = {
   language: 'auto', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
   shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', belowMode: 'dim', cameraImages: true, cutaway: true,
@@ -463,9 +476,10 @@ let settings = {
     { id: 'c_fernseher', type: 'button', entity: 'media_player.tv', icon: '📺', shape: 'icon' },
     { id: 'c_musik', type: 'button', entity: 'media_player.sonos_wz', icon: '🎵', shape: 'icon', onColor: 'green' },
     { id: 'c_robo', type: 'button', entity: 'vacuum.robo', name: 'Saugroboter', icon: '🏠', bsize: 's', tap: 'more' }] },
-  today: {                                                                       // the calendar card on ☀ Heute after the weather (#495)
-    order: ['clock', 'weather', 'c_kalender', 'pinboard', 'agenda', 'waste', 'people', 'house', 'power'],
-    cards: [{ id: 'c_kalender', type: 'calendar', name: 'Diese Woche', width: 4, days: 7, view: 'week', add: true,
+  today: {                                                                       // the calendar card on ☀ Heute after the weather (#495), the train card (#550)
+    order: ['clock', 'weather', 'c_zug', 'c_kalender', 'pinboard', 'agenda', 'waste', 'people', 'house', 'power'],
+    cards: [{ id: 'c_zug', type: 'train', name: 'Mein Zug zur Arbeit', width: 2, station: 'Fulda', via: 'Frankfurt (Main) Hbf', mine: DEMO_TRAIN.mine, count: 4, sensor: '' },
+      { id: 'c_kalender', type: 'calendar', name: 'Diese Woche', width: 4, days: 7, view: 'week', add: true,
       cals: [{ id: 'calendar.familie', color: 'blue' }, { id: 'calendar.arbeit_anna', color: 'orange' }, { id: 'calendar.schule', color: 'green' }, { id: 'calendar.geburtstage', color: 'red' }] }] } },
   lightGroups: [{ id: 'g_wohnen', name: 'Wohnen', rooms: ['r1', 'r2'] }, { id: 'g_oben', name: 'Oben', rooms: ['q1', 'q2'] }, { id: 'g_keller', name: 'Keller', rooms: ['k1', 'k2', 'k3'] }],
   voice: { engine: 'auto', aliases: [                      // the voice search (#509): code words of the demo
@@ -1108,6 +1122,7 @@ export function installDemoBackend() {
     }
     if (path === 'api/related') return json(relatedDemo(new URL(url, location.href).searchParams.get('entity') || ''));
     if (path === 'api/automations') return json(autosDemo());
+    if (path === 'api/train') return json({ rows: DEMO_TRAIN.rows, source: 'dbf', error: '', at: Math.round(Date.now() / 1000) });   // 🚆 (#550)
     if (path === 'api/scenes/try' && method === 'POST') { sceneShow(JSON.parse(init.body || '{}')); return json({ ok: true }); }
     if (path.startsWith('api/scenes/')) {                     // the scene editor (#549): kept in this tab, as Home Assistant would keep it
       let cid = decodeURIComponent(path.slice('api/scenes/'.length));
