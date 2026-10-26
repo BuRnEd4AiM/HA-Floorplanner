@@ -4,13 +4,13 @@
 
 Stand: 2026-10-26 · 71 Sitzungen
 
-**Insgesamt: 5,29 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 5,30 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 15,2 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 55,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 5,22 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Neu gelesen | 55,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 5,23 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,14 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 58 | 3,29 Mrd. | 9,2 Mio. |
+| 2026-10 | 58 | 3,30 Mrd. | 9,2 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
-| 2026-10-26 | [01Kb43R9…](https://claude.ai/code/session_01Kb43R9XdRKwsU4xXkgGbH1) | claude/relaxed-dirac-33z1ry | 8,7 Mio. | 55 Tsd. | gezählt |
+| 2026-10-26 | [01Kb43R9…](https://claude.ai/code/session_01Kb43R9XdRKwsU4xXkgGbH1) | claude/relaxed-dirac-33z1ry | 23,7 Mio. | 99 Tsd. | gezählt |
 | 2026-10-26 | [016jmtCr…](https://claude.ai/code/session_016jmtCrzuXWmNUwQWWyP6N3) | claude/zug-karte | 203,0 Mio. | 677 Tsd. | gezählt |
 | 2026-10-26 | [01DqQrUx…](https://claude.ai/code/session_01DqQrUx4E1LRBHxiTsdCYuZ) | claude/dazzling-mayer-qoapl9 | 57,6 Mio. | 214 Tsd. | gezählt |
 | 2026-10-26 | [01GiYJyk…](https://claude.ai/code/session_01GiYJykTb4kkK6SJZ99EtwZ) | claude/friendly-goldberg-30ll7l | 96,3 Mio. | 392 Tsd. | gezählt |
