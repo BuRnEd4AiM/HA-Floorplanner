@@ -4,13 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.25.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.26.0)
 
 Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.26.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 und folgende): Tablet schneller (102.1 bis 102.3), Komma (102.4), Demo nachts (102.5, 102.6), 🔔 Klingel (103.1 bis 103.4 in der Demo mit `?klingel=1`), 🔔 Sag mir Bescheid (104.1, 104.2; mit deiner Waschmaschine 104.3), 🗣 Schalten per Sprache (105.1 bis 105.6), 🚗 Auto und 🌱 Garten (106.1 bis 106.4), 🏡 Grundstück mit Außenflächen und Garten-Deko (107.1 bis 107.8, in der Demo erst nach dem Mergen von 4.26.0).
+1. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 bis 107): in der Demo hat Claude am Morgen alles geprüft (siehe unten). Für dich bleibt: **flüssiger am iPad** (102.1), **🎤 mit echter Sprache** „Mach das Licht im Bad an“ (105.6) und im Add-on mit deinen Geräten 103.5 bis 103.7, 104.3 bis 104.5, 105.7, 106.5, 106.6.
 2. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
 3. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
 4. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
@@ -22,6 +22,8 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 10. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
 11. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
 12. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
+
+**Zuletzt geprüft (2026-10-26 morgens, Claude in der Demo 4.26.0):** ✅ 102.2 bis 102.6, 103.1 bis 103.4, 104.1, 104.2, 105.1 bis 105.5, 106.1 bis 106.4, 107.1 bis 107.8 (Chromium als PC und als Tablet, nachts und am Tag der Zeitumstellung mit gestellter Uhr). Kein ❌.
 
 **Zuletzt geprüft (2026-10-25, Claude in der Nacht):** ✅ 76.1 bis 76.14, 78.1 bis 78.11, 79 (ohne 79.11), 80 (ohne 80.2), 81.1 bis 81.12, 82.1 bis 82.8, 83.1 bis 83.12, 86.1 bis 86.9, 87.1, 87.3 bis 87.5, 88.1 bis 88.8, 89.1 bis 89.4, 90.1 bis 90.6, 91.1 bis 91.6, 92.1, 92.4, 92.5, 95.1 bis 95.10, 96.2 bis 96.10, 96.14, 97.1, 97.2, 97.4, 97.7, 98.1, 98.3, 99.1 bis 99.8, 63.1 bis 63.3; im Test-Add-on 12.6a, 15.6, 23.17, 37.6, 48.1 bis 48.5, 52.12, 56.6. **❌** 79.11, 80.2, 84.1, 87.2, 96.2 (#519 bis #525, behoben in 4.21.2, neu: 101).
 
@@ -303,13 +305,13 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 99. Neu in 4.21.0: 🔋 Ladestand der Batterien auf ⚡ Energie (#515) | 8 | 0 | 0 | 2 | – |
 | 100. Neu in 4.21.1: iPhone, kein leerer Streifen unter der Reiter-Leiste (#517) | 0 | 0 | 1 | 2 | 100.3 |
 | 101. Neu in 4.21.2: Funde aus dem Nacht-Test (#519 bis #525) | 6 | 0 | 1 | 0 | 101.1 |
-| 102. Neu in 4.21.3: Tablet schneller, Komma, Demo nachts (#138, #527, #528) | 0 | 0 | 6 | 0 | 102.1 bis 102.6 |
-| 103. Neu in 4.22.0: 🔔 Klingel (Kamera auf jedem Tablet, #530) | 0 | 0 | 4 | 3 | 103.1 bis 103.4 |
-| 104. Neu in 4.23.0: 🔔 Sag mir Bescheid (#531) | 0 | 0 | 2 | 3 | 104.1, 104.2 |
-| 105. Neu in 4.24.0: 🗣 Schalten per Sprache (#532) | 0 | 0 | 6 | 1 | 105.1 bis 105.6 |
-| 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533) | 0 | 0 | 4 | 2 | 106.1 bis 106.4 |
-| 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538) | 0 | 0 | 8 | 0 | 107.1 bis 107.8 |
-| **Zusammen** | **670** | **10** | **76** | **74** | |
+| 102. Neu in 4.21.3: Tablet schneller, Komma, Demo nachts (#138, #527, #528) | 5 | 0 | 1 | 0 | 102.1 |
+| 103. Neu in 4.22.0: 🔔 Klingel (Kamera auf jedem Tablet, #530) | 4 | 0 | 0 | 3 | – |
+| 104. Neu in 4.23.0: 🔔 Sag mir Bescheid (#531) | 2 | 0 | 0 | 3 | – |
+| 105. Neu in 4.24.0: 🗣 Schalten per Sprache (#532) | 5 | 0 | 1 | 1 | 105.6 |
+| 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533) | 4 | 0 | 0 | 2 | – |
+| 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538) | 8 | 0 | 0 | 0 | – |
+| **Zusammen** | **698** | **10** | **48** | **74** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1615,20 +1617,20 @@ Vom Besitzer am 2026-10-25 gewählt („Tablet schneller“, „Komma statt Punk
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 102.1 | Auf dem Tablet oder iPad das Musterhaus („alles drin“) öffnen, „Live“, „Ganzes Haus“, drehen und zoomen (#138) | Es läuft flüssiger als vorher; alle Möbel sehen aus wie immer (Farben, Formen, nichts fehlt, nichts schwebt) | ❓ |
-| 102.2 | Wie 102.1, dann unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ (#138) | Bei „Zeichenaufrufe“ stehen im ganzen Haus etwa 1.200 (vorher etwa 1.660) | ❓ (Claude 2026-10-25 im Test-Add-on: 1.177 statt 1.661, gleich viele Dreiecke, das Bild Punkt für Punkt gleich) |
-| 102.3 | Danach „Bearbeiten“, ein Sofa oder einen Schrank anklicken und verschieben, wieder „Live“ (#138) | Das ganze Möbelstück wandert mit, nichts bleibt am alten Platz stehen; in „Live“ steht es am neuen Platz | ❓ |
-| 102.4 | Demo, „Live“, unten „Strom“ drücken; oben links die Zähler ansehen (#527) | Zahlen mit Komma: „3,20 kW“ (am Tag), „🚰 1234,6 m³“; die Schilder über den Geräten „🌡 21,4 °C“ | ❓ |
-| 102.5 | Demo nachts öffnen (z. B. nach 22 Uhr), unten „👨‍👩‍👧 Familie“ und „☀ Heute“ (#528) | Keine Uhrzeit aus der Zukunft: „seit 11:02“ und der Zettel „Bin um 6 da“ sind von gestern; im Strom-Bild liefert die Sonne nachts 0 W, die Batterie entlädt | ❓ |
-| 102.6 | Demo, „⚡ Energie“, Karte „🔋 Ladestand“, „Tag“ (am 25.10. oder einem anderen Tag der Zeitumstellung) (#528) | Die Linie läuft ohne Sprung durch die Nacht | ❓ |
+| 102.2 | Wie 102.1, dann unten „Ansicht“ → „⏱ Leistung“ auf „alle Werte“ (#138) | Bei „Zeichenaufrufe“ stehen im ganzen Haus etwa 1.200 (vorher etwa 1.660) | ✅ (2026-10-25, Claude im Test-Add-on: 1.177 statt 1.661 Zeichenaufrufe, gleich viele Dreiecke, das Bild Punkt für Punkt gleich) |
+| 102.3 | Danach „Bearbeiten“, ein Sofa oder einen Schrank anklicken und verschieben, wieder „Live“ (#138) | Das ganze Möbelstück wandert mit, nichts bleibt am alten Platz stehen; in „Live“ steht es am neuen Platz | ✅ (2026-10-26, Claude in der Demo als Tablet: Sofa verschoben, in „Live“ am neuen Platz, die übrigen Möbel weiter gebündelt) |
+| 102.4 | Demo, „Live“, unten „Strom“ drücken; oben links die Zähler ansehen (#527) | Zahlen mit Komma: „3,20 kW“ (am Tag), „🚰 1234,6 m³“; die Schilder über den Geräten „🌡 21,4 °C“ | ✅ (2026-10-26, Claude in der Demo: „1,20 kW“, „🚰 1234,6 m³“, Schilder „🌡 21,2 °C“) |
+| 102.5 | Demo nachts öffnen (z. B. nach 22 Uhr), unten „👨‍👩‍👧 Familie“ und „☀ Heute“ (#528) | Keine Uhrzeit aus der Zukunft: „seit 11:02“ und der Zettel „Bin um 6 da“ sind von gestern; im Strom-Bild liefert die Sonne nachts 0 W, die Batterie entlädt | ✅ (2026-10-26, Claude in der Demo um 2 Uhr nachts: „seit gestern 11:02“, Sonne 0 W, die Batterie entlädt) |
+| 102.6 | Demo, „⚡ Energie“, Karte „🔋 Ladestand“, „Tag“ (am 25.10. oder einem anderen Tag der Zeitumstellung) (#528) | Die Linie läuft ohne Sprung durch die Nacht | ✅ (2026-10-26, Claude in der Demo am 25.10.: die Linie läuft ohne Sprung) |
 
 ## 103. Neu in 4.22.0: 🔔 Klingel (Kamera auf jedem Tablet, #530)
 Vom Besitzer am 2026-10-25 gewählt (Bild `docs/ideen-4.3/6-klingel.jpg`), über Nacht gebaut. In der Demo klingelt es mit `?klingel=1` (https://burned4aim.github.io/HA-Floorplanner/?klingel=1).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 103.1 | Demo mit `?klingel=1` öffnen, 8 Sekunden warten | Die Demo geht in „Live“; ein Fenster „🔔 Es klingelt: Haustür“ mit roter Kopfzeile und Uhrzeit, darunter das Kamerabild, unten „🔓 Tür öffnen“ und „✕ Schließen“ | ❓ |
-| 103.2 | Im Fenster „🔓 Tür öffnen“ einmal tippen, dann noch einmal | Erst „Sicher? Öffnen“ (orange), erst der zweite Tipp öffnet: „✓ Tür geöffnet“ (grün) | ❓ |
-| 103.3 | „✕ Schließen“ | Das Fenster geht zu | ❓ |
-| 103.4 | ⚙ → 📱 Wandtablet → 🔔 Klingel ansehen, „🔔 Ausprobieren“ | Haken „Beim Klingeln das Kamerabild zeigen“ und „Gong spielen“, eine Zeile Haustür mit Kamera und Türöffner; „Ausprobieren“ zeigt das Fenster (mit Gong) | ❓ |
+| 103.1 | Demo mit `?klingel=1` öffnen, 8 Sekunden warten | Die Demo geht in „Live“; ein Fenster „🔔 Es klingelt: Haustür“ mit roter Kopfzeile und Uhrzeit, darunter das Kamerabild, unten „🔓 Tür öffnen“ und „✕ Schließen“ | ✅ (2026-10-26, Claude in der Demo) |
+| 103.2 | Im Fenster „🔓 Tür öffnen“ einmal tippen, dann noch einmal | Erst „Sicher? Öffnen“ (orange), erst der zweite Tipp öffnet: „✓ Tür geöffnet“ (grün) | ✅ (2026-10-26, Claude in der Demo) |
+| 103.3 | „✕ Schließen“ | Das Fenster geht zu | ✅ (2026-10-26, Claude in der Demo) |
+| 103.4 | ⚙ → 📱 Wandtablet → 🔔 Klingel ansehen, „🔔 Ausprobieren“ | Haken „Beim Klingeln das Kamerabild zeigen“ und „Gong spielen“, eine Zeile Haustür mit Kamera und Türöffner; „Ausprobieren“ zeigt das Fenster (mit Gong) | ✅ (2026-10-26, Claude in der Demo) |
 | 103.5 | Im Add-on mit deiner echten Klingel: am Wandtablet in „Live“ klingeln lassen | Das Fenster mit dem Kamerabild der Tür erscheint sofort, das Tablet wacht auf, ein Gong (wenn das Tablet vorher einmal berührt wurde) | ➖ nur im Add-on |
 | 103.6 | Im Add-on: ⚙ → 📱 Wandtablet → 🔔 Klingel | Unter „Selbst gefunden“ steht deine Klingel mit ihrer Kamera; sonst mit „+ Klingel“ selbst wählen (Kamera, Türöffner, Name) | ➖ nur im Add-on |
 | 103.7 | Im Add-on: ⚙ → 👥 Benutzer & Tablets → bei einem Tablet 🔒 „Klingel-Fenster“ abhaken | Auf diesem Tablet erscheint beim Klingeln nichts, auf den anderen schon | ➖ nur im Add-on |
@@ -1637,8 +1639,8 @@ Vom Besitzer am 2026-10-25 gewählt (Bild `docs/ideen-4.3/6-klingel.jpg`), über
 Vom Besitzer am 2026-10-25 gewählt (Bild `docs/ideen-4.3/8-haushalt.jpg`), über Nacht gebaut.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 104.1 | Demo, unten „🧺 Haushalt“ | Bei der Waschmaschine (läuft) der Knopf „🔔 Sag mir Bescheid“; beim Trockner und der Spülmaschine keiner | ❓ |
-| 104.2 | „🔔 Sag mir Bescheid“ tippen, dann noch einmal | Erst „✓ Ich sage Bescheid“ (blau umrandet), dann wieder „🔔 Sag mir Bescheid“ (in der Demo wird nichts gesendet) | ❓ |
+| 104.1 | Demo, unten „🧺 Haushalt“ | Bei der Waschmaschine (läuft) der Knopf „🔔 Sag mir Bescheid“; beim Trockner und der Spülmaschine keiner | ✅ (2026-10-26, Claude in der Demo) |
+| 104.2 | „🔔 Sag mir Bescheid“ tippen, dann noch einmal | Erst „✓ Ich sage Bescheid“ (blau umrandet), dann wieder „🔔 Sag mir Bescheid“ (in der Demo wird nichts gesendet) | ✅ (2026-10-26, Claude in der Demo) |
 | 104.3 | Im Add-on: ⚙ → Warnungen & Alarm muss eine Nachricht eingerichtet sein (WhatsApp, Telegram oder Handy-App). Waschmaschine starten, „🔔 Sag mir Bescheid“ tippen | Wenn sie fertig ist, kommt **eine** Nachricht „🧺 Die Waschmaschine ist fertig.“ aufs Handy (spätestens eine Minute danach), auch wenn kein Bildschirm offen ist | ➖ nur im Add-on |
 | 104.4 | Im Add-on: ⚙ → 🗂 Reiter unten → Haushalt: „🔔 Immer Bescheid sagen …“ abhaken | Bei jeder Maschine, die fertig wird, kommt eine Nachricht, auch ohne Tipp | ➖ nur im Add-on |
 | 104.5 | Im Add-on ohne eingerichtete Nachricht „🔔 Sag mir Bescheid“ tippen | Die Karte sagt, dass zuerst in ⚙ → Warnungen & Alarm eingerichtet werden muss, wohin die Nachricht geht | ➖ nur im Add-on |
@@ -1647,11 +1649,11 @@ Vom Besitzer am 2026-10-25 gewählt (Bild `docs/ideen-4.3/8-haushalt.jpg`), übe
 Vom Besitzer am 2026-10-25 gewählt, über Nacht gebaut. Geht in der Demo auch getippt: 🔍, den Satz eintippen, Enter.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 105.1 | Demo, „Live“, 🔍 „Licht im Wohnzimmer aus“ und Enter | Die Lichter im Wohnzimmer gehen aus; oben steht „✓ 💡 Lichter aus: …“ mit dem Raum, die Lampen haben einen Ring | ❓ |
-| 105.2 | 🔍 „Licht im Wohnzimmer an“ | Die Lichter gehen wieder an | ❓ |
-| 105.3 | 🔍 „Ist das Licht im Wohnzimmer an?“ | Nur eine Antwort (Liste), nichts wird geschaltet | ❓ |
-| 105.4 | 🔍 „Alle Lichter aus“ | Erst die Frage „Lichter im ganzen Haus aus? (n)“ mit „✓ Ja, aus“; erst der Tipp darauf schaltet alles aus | ❓ |
-| 105.5 | 🔍 „Rollläden in der Küche runter“ | Der Rollladen am Küchenfenster fährt herunter (das Garagentor nie) | ❓ |
+| 105.1 | Demo, „Live“, 🔍 „Licht im Wohnzimmer aus“ und Enter | Die Lichter im Wohnzimmer gehen aus; oben steht „✓ 💡 Lichter aus: …“ mit dem Raum, die Lampen haben einen Ring | ✅ (2026-10-26, Claude in der Demo: „✓ 💡 Lichter aus: 4 (Wohnzimmer)“) |
+| 105.2 | 🔍 „Licht im Wohnzimmer an“ | Die Lichter gehen wieder an | ✅ (2026-10-26, Claude in der Demo) |
+| 105.3 | 🔍 „Ist das Licht im Wohnzimmer an?“ | Nur eine Antwort (Liste), nichts wird geschaltet | ✅ (2026-10-26, Claude in der Demo) |
+| 105.4 | 🔍 „Alle Lichter aus“ | Erst die Frage „Lichter im ganzen Haus aus? (n)“ mit „✓ Ja, aus“; erst der Tipp darauf schaltet alles aus | ✅ (2026-10-26, Claude in der Demo: „Lichter im ganzen Haus aus? (8)“) |
+| 105.5 | 🔍 „Rollläden in der Küche runter“ | Der Rollladen am Küchenfenster fährt herunter (das Garagentor nie) | ✅ (2026-10-26, Claude in der Demo; der Küchen-Rollladen ist in der Demo schon zu: erst „hoch“, dann „runter“; das Garagentor bleibt zu) |
 | 105.6 | Mit echter Sprache (🎤): „Mach das Licht im Bad an“ | Das Licht im Bad geht an | ❓ |
 | 105.7 | Im Add-on: als ein Benutzer mit 🔒 „Steuern“ „Licht im Bad an“ sagen | Die Antwort sagt, dass Schalten gesperrt ist, nichts geht an | ➖ nur im Add-on |
 
@@ -1659,10 +1661,10 @@ Vom Besitzer am 2026-10-25 gewählt, über Nacht gebaut. Geht in der Demo auch g
 Vom Besitzer am 2026-10-25 gewählt (Bild `docs/ideen-4.3/8-haushalt.jpg`), über Nacht gebaut.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 106.1 | Demo, unten „🧺 Haushalt“ | Eine Karte „🚗 Auto“: groß „64 %“, ein grüner Balken, „lädt mit 3,2 kW · voll um …“ und „312 km Reichweite“ | ❓ |
-| 106.2 | „☀ Nur mit Sonne laden“ tippen, dann noch einmal | Der Knopf wird gelb (an), beim zweiten Tipp wieder normal | ❓ |
-| 106.3 | Die Karte „🌱 Garten“ ansehen | „Regen morgen: … mm“, „Boden 34 %“, rechts „Bewässerung aus“; zwei Knöpfe „💧 Rasen · 10 min gießen“ und „💧 Bewässerung Beet · 10 min gießen“ | ❓ |
-| 106.4 | „💧 Rasen · 10 min gießen“ tippen | Rechts „gießt noch 10 min“, der Knopf heißt jetzt „■ Rasen Stopp“; ein Tipp darauf stoppt es | ❓ |
+| 106.1 | Demo, unten „🧺 Haushalt“ | Eine Karte „🚗 Auto“: groß „64 %“, ein grüner Balken, „lädt mit 3,2 kW · voll um …“ und „312 km Reichweite“ | ✅ (2026-10-26, Claude in der Demo) |
+| 106.2 | „☀ Nur mit Sonne laden“ tippen, dann noch einmal | Der Knopf wird gelb (an), beim zweiten Tipp wieder normal | ✅ (2026-10-26, Claude in der Demo) |
+| 106.3 | Die Karte „🌱 Garten“ ansehen | „Regen morgen: … mm“, „Boden 34 %“, rechts „Bewässerung aus“; zwei Knöpfe „💧 Rasen · 10 min gießen“ und „💧 Bewässerung Beet · 10 min gießen“ | ✅ (2026-10-26, Claude in der Demo) |
+| 106.4 | „💧 Rasen · 10 min gießen“ tippen | Rechts „gießt noch 10 min“, der Knopf heißt jetzt „■ Rasen Stopp“; ein Tipp darauf stoppt es | ✅ (2026-10-26, Claude in der Demo) |
 | 106.5 | Im Add-on mit deinem Auto (z. B. evcc): Haushalt öffnen | Die Auto-Karte zeigt deinen Ladestand und die Reichweite; sonst in ⚙ → 🗂 Reiter unten → 🚗 Auto die Sensoren wählen | ➖ nur im Add-on |
 | 106.6 | Im Add-on mit deiner Bewässerung: „💧 10 min gießen“, dann 10 Minuten warten | Das Ventil geht auf und nach 10 Minuten von selbst wieder zu | ➖ nur im Add-on |
 
@@ -1670,11 +1672,11 @@ Vom Besitzer am 2026-10-25 gewählt (Bild `docs/ideen-4.3/8-haushalt.jpg`), übe
 Wunsch des Besitzers vom 2026-10-26 („draußen Hof und sowas editieren, das Grundstück bemessen, Deko ums Haus, nicht so krampfig“).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 107.1 | Demo, „Bearbeiten“, Erdgeschoss, Werkzeug „Grundstück“ | Der 2D-Plan zeigt das ganze Grundstück; rechts „Fläche“ ist gewählt, darunter die Beläge (Rasen, Pflaster …), „Ecken klicken / Rechteck“, die Größe des Grundstücks und die Liste der Flächen (Einfahrt, Hof, Beet, Teich, Kiesweg) | ❓ |
-| 107.2 | „Holzterrasse“ und „▭ Rechteck“ wählen, im Plan zwei Ecken klicken | Beim Bewegen stehen die Maße (z. B. „4.00 m × 3.00 m“) dran; nach dem zweiten Klick liegt eine Holzterrasse da, im 3D-Bild mit Holzdielen | ❓ |
-| 107.3 | Rechts im Seitenfeld der neuen Fläche einen Namen eintippen und „Seite 1“ ändern | Der Name steht im Plan auf der Fläche; die Seite wird so lang wie getippt, es bleibt ein Rechteck | ❓ |
-| 107.4 | Werkzeug „Auswählen“, in die Fläche tippen und ziehen; eine Ecke ziehen; Doppelklick auf eine Seite | Die Fläche wandert mit; die Ecke bewegt sich; der Doppelklick macht eine neue Ecke (Doppelklick darauf nimmt sie wieder weg) | ❓ |
-| 107.5 | Auf den Rand des Grundstücks tippen | Das Grundstück ist orange umrandet, an jeder Seite steht ihre Länge; rechts Fläche, Umfang, Breite und Tiefe zum Eintippen | ❓ |
-| 107.6 | Werkzeug „Grundstück“: „▭ Rechteck ums Haus“ mit Abstand 5 | Das Grundstück liegt 5 m rings ums Haus; der Rasen im 3D-Bild hat diese Form | ❓ |
-| 107.7 | „Gerät“, Gruppe „Außen“ | Viele Gartendinge mit Bild: Gartenzwerg, Trampolin, Gartenhaus, Hochbeet, Sonnenschirm, Grill … ; eins in den Garten setzen | ❓ |
-| 107.8 | Live, „Ganzes Haus“, um das Haus drehen | Einfahrt, Hof, Beet, Teich und Kiesweg liegen mit ihrem Muster auf dem Rasen, dazu Trampolin, Gartenhaus, Gartenzwerg & Co. | ❓ |
+| 107.1 | Demo, „Bearbeiten“, Erdgeschoss, Werkzeug „Grundstück“ | Der 2D-Plan zeigt das ganze Grundstück; rechts „Fläche“ ist gewählt, darunter die Beläge (Rasen, Pflaster …), „Ecken klicken / Rechteck“, die Größe des Grundstücks und die Liste der Flächen (Einfahrt, Hof, Beet, Teich, Kiesweg) | ✅ (2026-10-26, Claude in der Demo) |
+| 107.2 | „Holzterrasse“ und „▭ Rechteck“ wählen, im Plan zwei Ecken klicken | Beim Bewegen stehen die Maße (z. B. „4.00 m × 3.00 m“) dran; nach dem zweiten Klick liegt eine Holzterrasse da, im 3D-Bild mit Holzdielen | ✅ (2026-10-26, Claude in der Demo) |
+| 107.3 | Rechts im Seitenfeld der neuen Fläche einen Namen eintippen und „Seite 1“ ändern | Der Name steht im Plan auf der Fläche; die Seite wird so lang wie getippt, es bleibt ein Rechteck | ✅ (2026-10-26, Claude in der Demo) |
+| 107.4 | Werkzeug „Auswählen“, in die Fläche tippen und ziehen; eine Ecke ziehen; Doppelklick auf eine Seite | Die Fläche wandert mit; die Ecke bewegt sich; der Doppelklick macht eine neue Ecke (Doppelklick darauf nimmt sie wieder weg) | ✅ (2026-10-26, Claude in der Demo) |
+| 107.5 | Auf den Rand des Grundstücks tippen | Das Grundstück ist orange umrandet, an jeder Seite steht ihre Länge; rechts Fläche, Umfang, Breite und Tiefe zum Eintippen | ✅ (2026-10-26, Claude in der Demo) |
+| 107.6 | Werkzeug „Grundstück“: „▭ Rechteck ums Haus“ mit Abstand 5 | Das Grundstück liegt 5 m rings ums Haus; der Rasen im 3D-Bild hat diese Form | ✅ (2026-10-26, Claude in der Demo) |
+| 107.7 | „Gerät“, Gruppe „Außen“ | Viele Gartendinge mit Bild: Gartenzwerg, Trampolin, Gartenhaus, Hochbeet, Sonnenschirm, Grill … ; eins in den Garten setzen | ✅ (2026-10-26, Claude in der Demo) |
+| 107.8 | Live, „Ganzes Haus“, um das Haus drehen | Einfahrt, Hof, Beet, Teich und Kiesweg liegen mit ihrem Muster auf dem Rasen, dazu Trampolin, Gartenhaus, Gartenzwerg & Co. | ✅ (2026-10-26, Claude in der Demo) |
