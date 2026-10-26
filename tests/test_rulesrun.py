@@ -137,3 +137,28 @@ async def test_a_routines_button_and_a_message():
     task.cancel()
     with contextlib.suppress(asyncio.CancelledError):
         await task
+
+
+async def test_a_routine_in_home_assistant_is_left_to_it_but_its_message_is_sent():
+    ha = FakeHa()
+
+    @contextlib.asynccontextmanager
+    async def connect():
+        yield ha
+
+    rules = rr.Rules({"flows": [{"id": "f_licht", "name": "Licht", "ha": True, "lanes": [{"id": "l1", "blocks": [
+        {"k": "state", "ents": ["binary_sensor.fenster"], "to": "open"}, {"k": "switch", "ents": ["light.wz"], "do": "on"},
+        {"k": "notify", "text": "Fenster offen"}]}]}]})
+    assert rules.local() == [] and rules.listen() and rules.active()       # Home Assistant runs it; the add-on listens for its message
+    env = Env(ha)
+    task = asyncio.create_task(rr.run_rules(rules, connect=connect, env=env, check=0.2, idle=0.05))
+    assert await until(lambda: rules.connected)
+    await ha.set("binary_sensor.fenster", "on")
+    await asyncio.sleep(0.3)
+    assert env.calls == [] and "f_licht/l1" not in rules.status["lanes"]   # not switched a second time by the add-on
+    await ha.queue.put({"type": "event", "event": {"event_type": "fp3d_notify", "data": {"message": "  Fenster offen  "}}})
+    assert await until(lambda: env.told == ["Fenster offen"])
+    assert rules.mem["log"][-1] == {"t": rules.mem["log"][-1]["t"], "src": "flow", "act": "notify", "name": "Home Assistant", "v": "Fenster offen"}
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task

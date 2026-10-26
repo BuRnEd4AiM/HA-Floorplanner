@@ -75,7 +75,7 @@ def test_blocks_are_checked_and_bad_lanes_dropped():
         {"id": "bad id", "lanes": [{"blocks": [{"k": "button"}]}]},
         {"id": "f_b", "on": False, "lanes": [{"blocks": [{"k": "state", "ents": []}]}]},                          # no lane left
         "junk"])
-    assert out == [{"id": "f_a", "name": "A", "on": True, "lanes": [{"id": "l1", "blocks": [
+    assert out == [{"id": "f_a", "name": "A", "on": True, "ha": False, "lanes": [{"id": "l1", "blocks": [
         {"k": "time", "at": "07:00", "days": [1]}, {"k": "wait", "s": 1}, {"k": "switch", "ents": ["light.a"], "same": False, "do": "on"},
         {"k": "heat", "ents": ["climate.x"], "same": False, "do": "temp", "v": 30.0}]}]}]
     assert fl.clean_flows(None) == [] and fl.clean_block({"k": "restore"}) == {"k": "restore", "ents": [], "same": False}
