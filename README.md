@@ -364,7 +364,7 @@ To build it yourself: `cd demo && npm install && npm run build`.
 - [User guide](floorplan3d/DOCS.md): permissions, tablets and views, areas, whole-room control, Nanoleaf, 2D editor, houses, backup
 - [Import a house by JSON / AI / GeoJSON](docs/IMPORT.en.md) ([Deutsch](docs/IMPORT.md); with screenshots, format reference, API, prompt tips; examples in [docs/examples](docs/examples))
 - [Architecture](docs/ARCHITECTURE.md): how the add-on is built
-- [Changelog](CHANGELOG.md) · [Roadmap](ROADMAP.md) · [Security policy](SECURITY.md)
+- [Changelog](CHANGELOG.md) · [Timeline: how the project grew, version by version](https://burned4aim.github.io/HA-Floorplanner/timeline.html) · [Roadmap](ROADMAP.md) · [Security policy](SECURITY.md)
 
 ## 🩺 Troubleshooting / FAQ
 
@@ -390,7 +390,7 @@ pytest -q                                                   # backend tests
 DATA_DIR=./data python floorplan3d/rootfs/app/server.py     # http://localhost:8099 (standalone mode)
 ```
 
-The browser end-to-end tests are described in [tests/e2e/README.md](tests/e2e/README.md). New to Git? Start with the [beginner guide (German)](docs/GIT-EINSTIEG.md). Every push to `main` that raises the version in `floorplan3d/config.yaml` creates a GitHub release automatically.
+The browser end-to-end tests are described in [tests/e2e/README.md](tests/e2e/README.md). Every push to `main` that raises the version in `floorplan3d/config.yaml` creates a GitHub release automatically.
 
 ## 🤝 Contributing
 

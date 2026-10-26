@@ -1,0 +1,85 @@
+name: Clean up branches
+
+# Deletes the branch of a pull request as soon as it is merged, so old branches do not pile up (the owner's wish, 2026-10-26).
+# It keeps a branch that got commits after the merge, the default branch, protected branches and a branch an open pull
+# request is based on.
+# By hand (Actions -> Clean up branches -> Run workflow): with no branches typed in it deletes every branch whose pull request
+# is merged (and that got nothing after the merge); otherwise exactly the branches typed in. It can also close milestones.
+
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      branches:
+        description: "Branches to delete, separated by spaces (empty = every branch whose pull request is merged)"
+        required: false
+        default: ""
+      milestones:
+        description: "Milestones to close, titles separated by ; (empty = none)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write                   # delete branches
+  pull-requests: read
+  issues: write                     # close milestones
+
+jobs:
+  clean:
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          R: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+          BRANCHES: ${{ inputs.branches }}
+          MILESTONES: ${{ inputs.milestones }}
+        run: |
+          set -euo pipefail -f            # -f: a branch name is never a file pattern
+          default=$(gh api "repos/$R" --jq .default_branch)
+          enc() { jq -rn --arg s "$1" '$s | split("/") | map(@uri) | join("/")'; }
+          tip() {                   # the last commit of a branch, empty when there is no such branch
+            local sha; sha=$(gh api "repos/$R/branches/$(enc "$1")" --jq .commit.sha 2>/dev/null || true)
+            [[ "$sha" =~ ^[0-9a-f]{40}$ ]] && echo "$sha" || true
+          }
+          remove() {                # branch [sha it must still point at]
+            local b="$1" want="${2:-}" now
+            if [ "$b" = "$default" ]; then echo "keep $b: the default branch"; return; fi
+            now=$(tip "$b")
+            if [ -z "$now" ]; then echo "gone already: $b"; return; fi
+            if [ -n "$want" ] && [ "$now" != "$want" ]; then echo "keep $b: it got commits after the merge"; return; fi
+            if [ "$(gh api "repos/$R/branches/$(enc "$b")" --jq .protected)" = true ]; then echo "keep $b: protected"; return; fi
+            if [ "$(gh pr list -R "$R" --base "$b" --state open --json number --jq length)" != 0 ]; then echo "keep $b: an open pull request is based on it"; return; fi
+            gh api -X DELETE "repos/$R/git/refs/heads/$(enc "$b")" && echo "deleted $b"
+          }
+
+          if [ "$EVENT" = pull_request ]; then
+            remove "$PR_BRANCH" "$PR_SHA"
+          elif [ -n "$BRANCHES" ]; then
+            for b in $BRANCHES; do remove "$b"; done
+          else
+            gh api --paginate "repos/$R/branches?per_page=100" --jq '.[].name' | while IFS= read -r b; do
+              [ "$b" = "$default" ] && continue
+              now=$(tip "$b")
+              if gh pr list -R "$R" --head "$b" --state merged --json headRefOid --jq '.[].headRefOid' | grep -qx "$now"; then
+                remove "$b" "$now"
+              else
+                echo "keep $b: no merged pull request ends at its last commit"
+              fi
+            done
+          fi
+
+          if [ -n "$MILESTONES" ]; then
+            open=$(gh api "repos/$R/milestones?state=open&per_page=100")
+            IFS=';' read -ra titles <<< "$MILESTONES"
+            for t in "${titles[@]}"; do
+              t="${t#"${t%%[![:space:]]*}"}"; t="${t%"${t##*[![:space:]]}"}"     # trim spaces
+              n=$(jq -r --arg t "$t" '.[] | select(.title == $t) | .number' <<< "$open")
+              if [ -z "$n" ]; then echo "no open milestone \"$t\""; continue; fi
+              gh api -X PATCH "repos/$R/milestones/$n" -f state=closed >/dev/null && echo "closed milestone \"$t\""
+            done
+          fi

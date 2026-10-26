@@ -4,9 +4,9 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.26.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.26.1)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.26.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.26.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
@@ -17,7 +17,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 5. **🔋 Ladestand mit deiner Batterie** (99.9, 99.10, nur im Add-on).
 6. **Zähler und Backup im Add-on** (92.2, 92.3, 92.6, 93.1 bis 93.4): SolarNet-Sensoren, Helfer „Energie“, Urlaubs-Alarm im Backup.
 7. **Kalender, Knöpfe, Anwesenheit, zweites Haus im Add-on** (90.7, 91.7, 89.5, 89.6, 87.6).
-8. **Wandtablet schneller** (85.1 bis 85.4) und **iPad flüssig** (56.1, 56.2).
+8. **Wandtablet schneller** (85.1 bis 85.4; in der 2D-Ansicht 108.3) und **iPad flüssig** (56.1, 56.2).
 9. **Dashboard-Karte in Home Assistant** (46.4 bis 46.9; 46.3 war ❌, behoben in 3.77.1).
 10. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
 11. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
@@ -311,7 +311,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 105. Neu in 4.24.0: 🗣 Schalten per Sprache (#532) | 5 | 0 | 1 | 1 | 105.6 |
 | 106. Neu in 4.25.0: 🚗 Auto und 🌱 Garten auf 🧺 Haushalt (#533) | 4 | 0 | 0 | 2 | – |
 | 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538) | 8 | 0 | 0 | 0 | – |
-| **Zusammen** | **698** | **10** | **48** | **74** | |
+| 108. Neu in 4.26.1: die 2D-Ansicht zeichnet kein verstecktes 3D-Bild mehr (#542) | 2 | 0 | 1 | 0 | 108.3 |
+| **Zusammen** | **700** | **10** | **49** | **74** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1680,3 +1681,10 @@ Wunsch des Besitzers vom 2026-10-26 („draußen Hof und sowas editieren, das Gr
 | 107.6 | Werkzeug „Grundstück“: „▭ Rechteck ums Haus“ mit Abstand 5 | Das Grundstück liegt 5 m rings ums Haus; der Rasen im 3D-Bild hat diese Form | ✅ (2026-10-26, Claude in der Demo) |
 | 107.7 | „Gerät“, Gruppe „Außen“ | Viele Gartendinge mit Bild: Gartenzwerg, Trampolin, Gartenhaus, Hochbeet, Sonnenschirm, Grill … ; eins in den Garten setzen | ✅ (2026-10-26, Claude in der Demo) |
 | 107.8 | Live, „Ganzes Haus“, um das Haus drehen | Einfahrt, Hof, Beet, Teich und Kiesweg liegen mit ihrem Muster auf dem Rasen, dazu Trampolin, Gartenhaus, Gartenzwerg & Co. | ✅ (2026-10-26, Claude in der Demo) |
+
+## 108. Neu in 4.26.1: die 2D-Ansicht zeichnet kein verstecktes 3D-Bild mehr (#542)
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 108.1 | „Bearbeiten“, oben „2D“; Werkzeug „Auswählen“, auf den Rand des Grundstücks tippen | Das Grundstück ist umrandet, an jeder Seite steht sofort ihre Länge | ✅ (2026-10-26, Claude im Test-Add-on) |
+| 108.2 | Danach oben „3D“ (oder „2D + 3D“) | Das 3D-Bild ist sofort da und zeigt den aktuellen Stand | ✅ (2026-10-26, Claude im Test-Add-on) |
+| 108.3 | Am Tablet in der 2D-Ansicht arbeiten (nur wenn du sie benutzt) | Es reagiert so flüssig wie die 3D-Ansicht oder besser | ❓ |

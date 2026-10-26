@@ -1770,7 +1770,7 @@ function animate(now = performance.now()) {
   floorCards.place();
   roomLabels.place();                                            // the labels over the rooms follow the camera (#430)
   if (shadowDue(shadowDirty, now, lastShadow)) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; lastShadow = now; }   // shadows only when something changed (#253)
-  renderer.render(scene, camera);
+  if (layoutMode !== '2d') renderer.render(scene, camera);     // only the 2D plan shows: the hidden 3D picture is not drawn (#542)
   perfHud.frame(now, due, frameStart);
 }
 init();

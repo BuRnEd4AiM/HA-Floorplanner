@@ -6,6 +6,9 @@ A knowledge graph of the code is built at session start in graphify-out/.
 - After changing code run `graphify update .` (no API cost).
 ## Working with the owner
 - Continuing from an earlier chat: read docs/UEBERGABE.md first (state, open questions to the owner, how the example pictures are made, pitfalls).
+- Keep docs/UEBERGABE.md short (the owner's wish, 2026-10-26): only the last few sessions in a sentence or two, open points, the owner, pitfalls. What is built belongs in CHANGELOG.md; an old section moves to docs/archiv/.
+- The timeline page (timeline.html next to the demo on GitHub Pages, tools/make_timeline.py) builds itself from CHANGELOG.md and docs/ideen-*/ after every merge: nothing to do by hand.
+- Branches are deleted on their own after the merge (workflow "Clean up branches"); to go on, restart the branch from main as usual.
 - The owner is not a developer: explain everything simply in German.
 - Always say how to approve a pull request: open the link, "Merge pull request", "Confirm merge".
 - Document bugs as GitHub issues and close them when fixed (use "Fixes #n" in the PR).
