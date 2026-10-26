@@ -3316,7 +3316,7 @@ async def post_rules_run(request):
         e = await ha_auto_entity(request.app, hf.auto_id(flow["id"], lane["id"]))
         if not e:
             return web.json_response({"error": "not in Home Assistant"}, status=404)
-        return web.json_response({"ok": await ha_service("automation", "trigger", {"entity_id": e})})
+        return web.json_response({"ok": await ha_call("automation", "trigger", {"entity_id": e})})
     r.ask("run", flow["id"], lane["id"], test)
     return web.json_response({"ok": True})
 
@@ -3543,7 +3543,9 @@ async def ha_config(method: str, kind: str, cid: str, body=None):
         return 0, {"message": str(err)[:200] or type(err).__name__}
 
 
-async def ha_service(domain: str, service: str, data: dict) -> bool:
+async def ha_call(domain: str, service: str, data: dict) -> bool:
+    """one call of a service with its data (an automation triggered, switched on or off, a scene applied); ha_service above is the
+    garden's (#533), with an entity only"""
     try:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
             async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(), json=data) as r:
@@ -3642,7 +3644,7 @@ async def ha_sync_flows(request, flows: list, force=()) -> dict:
                 if not e:
                     res["missing"] = True               # Home Assistant does not load automations.yaml (configuration.yaml)
                 elif (states[e].get("state") == "on") != f["on"]:
-                    await ha_service("automation", "turn_on" if f["on"] else "turn_off", {"entity_id": e})
+                    await ha_call("automation", "turn_on" if f["on"] else "turn_off", {"entity_id": e})
         _fresh_states(request.app)
     return out
 
