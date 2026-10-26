@@ -484,6 +484,42 @@ dialog .row[hidden] { display: none; }
 .nanoBar .sep, .nanoFoot .grow { flex: 1; }
 .nanoBar .sep { flex: 0 0 10px; }
 .nanoBar button.on { background: var(--accent); color: #001; }
+/* the cabinet builder: its editor window and its picture in the panel (closetui.js, closetview.js) */
+#closetDialog { width: min(1100px, calc(100% - 24px)); }
+.closetBody { display: flex; gap: 16px; align-items: flex-start; }
+.closetViews { flex: 1.5; min-width: 0; position: sticky; top: 62px; }
+.closetForm { flex: 1; min-width: 270px; }
+.closetBar, .closetFoot, .closetBtns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
+.closetBar .grow, .closetFoot .grow { flex: 1; }
+.closetBar button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.closetDraw { display: flex; gap: 8px; min-height: 280px; background: var(--field); border-radius: 10px; padding: 6px; }
+.closetFrontBox { flex: 3; min-width: 0; }
+.closetSideBox { flex: 1.15; min-width: 0; }
+.closetDraw svg, .closetThumb svg { width: 100%; height: auto; display: block; color: var(--text); }
+.closet3dCanvas { width: 100%; height: 420px; display: block; touch-action: none; }
+.closetForm .crow { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; }
+.closetForm .crow > span { flex: 1; font-size: 13px; }
+.closetForm .crow input[type=number] { width: 84px; }
+.closetForm .crow select { width: 180px; max-width: 60%; }
+.closetForm .crow em { width: 22px; font-style: normal; color: var(--muted); font-size: 12px; }
+.closetForm .crow.stack { flex-direction: column; align-items: stretch; }
+.closetForm .crow.check { justify-content: flex-start; }
+.closetForm .crow.check input { width: auto; }
+.closetSwatches { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.closetSwatches button { width: 26px; height: 26px; min-width: 0; padding: 0; border-radius: 50%; border: 2px solid var(--line); }
+.closetSwatches button.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.closetSwatches input[type=color] { width: 36px; height: 28px; padding: 0; }
+.closetSlope { border-left: 3px solid rgba(255, 170, 70, .75); padding-left: 8px; margin: 6px 0; }
+.closetMsg { background: var(--field); border-radius: 8px; padding: 6px 8px; font-size: 13px; }
+.closetThumb { background: var(--field); border-radius: 8px; padding: 4px; margin: 4px 0; cursor: pointer; }
+#closetEdit, #closetFit { margin: 0 6px 6px 0; }
+@media (max-width: 760px) {
+  .closetBody { flex-direction: column; }
+  .closetViews { position: static; width: 100%; }
+  .closetDraw { min-height: 0; }
+  .closetForm { width: 100%; min-width: 0; }
+  .closet3dCanvas { height: 300px; }
+}
 #nanoCanvas { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; touch-action: none; cursor: crosshair; }
 #roomPanel .row .rp-more { padding: 4px 8px; }
 #roomPanel .row .rp-more.on { border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }

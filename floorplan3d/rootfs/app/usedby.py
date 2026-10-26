@@ -1,5 +1,5 @@
 """Who uses a device (#546, the owner: "dass man sieht, wenn das Thermostat in irgendeiner Automatisierung benutzt wird und ob diese gerade
-verwendet wird"; picture docs/ideen-4.27/1-wird-benutzt.jpg): the automations, scripts and scenes of Home Assistant that name it (its
+verwendet wird"; picture docs/ideen-4.28/1-wird-benutzt.jpg): the automations, scripts and scenes of Home Assistant that name it (its
 search "related", the same as the tab "Related" of an entity there), each with whether it is on, runs right now, when it last ran and
 what it does in a few words; the add-on's own heating rules and routines that use it; and every automation with the devices it uses
 (page ▶ Abläufe, picture 2-ablaeufe.jpg).

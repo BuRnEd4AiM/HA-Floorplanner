@@ -1,5 +1,5 @@
 /* The editor of an own routine "Wenn … dann …" (#546, the owner: "so ähnlich wie Node-RED, bloß halt in unserem Dashboard"; picture
- * docs/ideen-4.27/5-wenn-dann.jpg): on the left the blocks to tap (Wenn, Nur wenn, Warten, Dann), in the middle the routine's lanes as
+ * docs/ideen-4.28/5-wenn-dann.jpg): on the left the blocks to tap (Wenn, Nur wenn, Warten, Dann), in the middle the routine's lanes as
  * blocks joined by lines like a Node-RED flow (actions that follow each other stand under each other: they happen at once), on the right
  * what the chosen block does (its devices, its times, its values), below the routine in words. Green ticks on the blocks show what ran last
  * and when, a purple one what is waiting now. "▶ Jetzt ausprobieren" does every action at once; "✓ Speichern" only when every block has

@@ -1,4 +1,4 @@
-/* ▶ Abläufe (#546; picture docs/ideen-4.27/2-ablaeufe.jpg): the add-on's own routines "Wenn … dann …" as chains to read (on / off, "läuft
+/* ▶ Abläufe (#546; picture docs/ideen-4.28/2-ablaeufe.jpg): the add-on's own routines "Wenn … dann …" as chains to read (on / off, "läuft
  * gerade", when they last ran, ▶ for a routine with a button, ✏ to change it, ＋ Neuer Ablauf, 📋 Aus Vorlage), the automations of Home
  * Assistant with the devices they use, what they do, "läuft gerade" and when they last ran (editors, as before only on / off), and
  * "📜 Was ist passiert": what the rules and routines did. pageroutines.js puts these cards on its board; the words come from rules.js. */

@@ -1,5 +1,5 @@
 /* 🌡 Klima → 📋 Heiz-Regeln (#546, the owner: "Heizungssteuerung … wenn Fenster offen, dann wird Heizung deaktiviert"; picture
- * docs/ideen-4.27/3-heiz-regeln.jpg): the ready-made heating rules of the add-on as cards to switch on, their numbers changed with − / +
+ * docs/ideen-4.28/3-heiz-regeln.jpg): the ready-made heating rules of the add-on as cards to switch on, their numbers changed with − / +
  * (Fenster offen → Heizung aus, Keiner zu Hause → kühler, Nachtabsenkung, Heizplan, Sommerpause, Boost-Knopf, Urlaub), what is active
  * now on top, and "＋ Eigene Regel" (a routine "Wenn … dann …"). Also what a room's card on the page shows of them: the line "⏸ Heizung
  * pausiert …" with "🔥 Trotzdem heizen", 🚀 Boost and 🔎 Wird benutzt. The add-on runs the rules (heatrules.py); saved a moment after the

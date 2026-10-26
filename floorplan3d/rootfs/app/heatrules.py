@@ -1,5 +1,5 @@
 """The add-on's own heating rules (#546, the owner: "Heizungssteuerung … wenn Fenster offen, dann wird Heizung deaktiviert"; pictures
-docs/ideen-4.27/3-heiz-regeln.jpg, 4-heizplan.jpg): ready-made rules an admin switches on in 🌡 Klima → 📋 Heiz-Regeln, run by the add-on
+docs/ideen-4.28/3-heiz-regeln.jpg, 4-heizplan.jpg): ready-made rules an admin switches on in 🌡 Klima → 📋 Heiz-Regeln, run by the add-on
 itself (also with no screen open), so no automation in Home Assistant is needed.
 
 Two kinds of rules decide what a thermostat should do:

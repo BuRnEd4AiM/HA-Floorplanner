@@ -466,6 +466,29 @@ def test_kitchen_modules_match_kitchen_js():
     assert tuple(re.findall(r"(\w+):", mods)) == importer.KITCHEN_MODULES
 
 
+def test_closet_lists_match_closet_js():
+    js = (APP / "static" / "closet.js").read_text(encoding="utf-8")
+    for name, value in (("FILLS", importer.CLOSET_FILLS), ("FRONTS", importer.CLOSET_FRONTS), ("SIDES", importer.CLOSET_SIDES),
+                        ("HANDLES", importer.CLOSET_HANDLES), ("METALS", importer.CLOSET_METALS), ("DOORS", importer.CLOSET_DOORS)):
+        assert tuple(re.findall(r"'(\w+)'", re.search(rf"export const {name} = \[(.*?)\]", js).group(1))) == value, name
+
+
+def test_closet_is_cleaned_and_survives_the_round_trip():
+    cab = {"cols": [{"w": 0.6, "fill": "rail", "front": "mirror", "hinge": "r"}, {"w": 9, "fill": "drawers", "n": 3, "front": "glass"},
+                    {"fill": "nonsense", "low": 2}, "junk"],
+           "h": 2.2, "d": 0.6, "slopes": [{"side": "left", "low": 1.1, "deg": 38}, {"side": "left", "low": 2}, {"side": "up"}, {"side": "back", "low": 9, "deg": 99}],
+           "body": "#3D4045", "front": "red", "handle": "knob", "metal": "gold", "doors": "sliding", "led": True}
+    layout, _, rep, _ = importer.build_layout(_prop([{"type": "closet", "x": 3, "z": 3, "cab": cab}, {"type": "closet", "x": 1, "z": 1}]))
+    c, plain = (d["cab"] for d in layout["floors"][0]["devices"])
+    assert c["cols"] == [{"w": 0.6, "fill": "rail", "front": "mirror", "hinge": "r"}, {"w": 2, "fill": "drawers", "n": 3},
+                         {"w": 0.5, "fill": "shelves", "n": 4, "low": 2, "front": "door"}, {"w": 0.5, "fill": "shelves", "n": 4, "front": "door"}]
+    assert c["slopes"] == [{"side": "left", "low": 1.1, "deg": 38}, {"side": "back", "low": 2.2, "deg": 75}]
+    assert (c["body"], c["front"], c["handle"], c["metal"], c["doors"], c["led"]) == ("#3d4045", "#f1efe9", "knob", "steel", "sliding", True)
+    assert len(plain["cols"]) == 3 and plain["slopes"] == [] and plain["h"] == 2.2
+    again, _, _, _ = importer.build_layout(importer.layout_to_property(layout))      # export and import again: the cabinet is the same
+    assert again["floors"][0]["devices"][0]["cab"] == c
+
+
 def test_several_cables_with_routes_and_a_cable_to_another_floor():
     spec = {"schemaVersion": 1, "building": {"floors": [
         {"name": "EG", "kind": "floor", "rooms": [{"name": "R", "points": [[0, 0], [5, 0], [5, 4], [0, 4]]}], "devices": [

@@ -1,11 +1,12 @@
 /* Properties panel (edit mode): the fields of the selected object: wall, room (with its entity list), placeholder block, floor opening, stair
  * (stairtool.js), door / window (with a window's roller shutter, #331), device (position, size, tilt, picture, LED ring sections, kitchen
- * run, power cables, entity, a lamp's light colour, camera, TV backlight, the LED zones of a piece), and a power cable (power.js). Which fields a device gets is decided by pure functions
+ * run, a cabinet built in its editor (closetui.js), power cables, entity, a lamp's light colour, camera, TV backlight, the LED zones of a piece), and a power cable (power.js). Which fields a device gets is decided by pure functions
  * (tested); initProps draws the panel. */
 import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange, sectionHex } from './ledring.js';
 import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
 import { roomOpenings } from './roompanel.js';
 import { initKitchenUi } from './kitchenui.js';
+import { initClosetUi } from './closetui.js';
 import { MOUNTS, MAX_FIELD } from './solarroof.js';
 import { BRIDGE, bridgeSize } from './bridge.js';
 import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
@@ -32,7 +33,8 @@ export function stretchValue(n) {
  *  entities(), areas(), findOpening(id), snapshot(), changed(), build(), refreshSelection(), deleteItem(sel), applyStates(), setStatus(txt),
  *  renderObjList(), renderRoomEntities(), stateText(id), roomAt(x, z), pointInPoly, controlsTarget() ({x, z}), wallTypes, ledLike, catOf, baseDims(type, dev),
  *  snapToWall(d, max, flat), editNano(d), uploadPicture(file, d), floorH, power(), stairTool(), fmtLen(m), toDisp(m), imperial(),
- *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js) */
+ *  defaultLightColor() (settings: the colour of a lamp that reports none), yardProps(body, box, sel) (the plot and its areas, plotui.js),
+ *  closetRoof(d) (the roof slopes over a cabinet's floor and the height of its bottom: { planes, baseY } or null) */
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
@@ -43,6 +45,11 @@ export function initProps(ctx) {
   const kitchenProps = initKitchenUi({
     t, changed: () => ctx.changed(), snapshot: () => ctx.snapshot(), renderProps: () => render(),
     field, lenInput, toDisp: (m) => ctx.toDisp(m), imperial: () => ctx.imperial(),
+  });
+
+  const closetUi = initClosetUi({   // the cabinet builder: its part of the panel and the editor window
+    t, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), renderProps: () => render(), imperial: () => ctx.imperial(),
+    setStatus: (x) => ctx.setStatus(x), roof: (d) => ctx.closetRoof?.(d) ?? null,
   });
 
   /** the live state of the selected device's entity, under its fields */
@@ -251,13 +258,14 @@ export function initProps(ctx) {
       eb.addEventListener('click', () => { if (!it.locked) ctx.editNano(it); else ctx.setStatus(t('prop.lockedHint')); });
       body.append(eb);
     }
+    if (it.type === 'closet') closetUi.props(body, it);
     body.append(field(t('prop.name'), inp('text', it.name || '', (v) => (it.name = v))));
     body.append(field('X', lenInput(() => it.x, (v) => (it.x = v), { min: -1000 })));
     body.append(field('Z', lenInput(() => it.z, (v) => (it.z = v), { min: -1000 })));
     body.append(field(t('prop.rotation'), inp('number', it.rot || 0, (v) => { it.rot = ((+v % 360) + 360) % 360; }, { step: 15 })));
     body.append(field(t('prop.elev'), lenInput(() => it.y ?? 0, (v) => (it.y = v), { min: -5, step: 0.1 })));
-    body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
-    if (it.type !== 'picture' && it.type !== 'tv_arm') {         // the TV on its arm: its size is chosen below (tvArmProps)
+    if (it.type !== 'closet') body.append(field(t('prop.size'), inp('number', it.scale || 1, (v) => (it.scale = Math.max(0.2, +v)), { step: 0.1, min: 0.2 })));
+    if (it.type !== 'picture' && it.type !== 'tv_arm' && it.type !== 'closet') {   // the TV on its arm: its size is chosen below (tvArmProps), a cabinet in its editor
       const base = ctx.baseDims(it.type, it);
       if (base) {                                                     // real dimensions in metres, type them in directly
         const dim = (key, axis, label) => field(label, lenInput(() => base[axis] * (it.scale || 1) * (it[key] || 1), (v) => {
@@ -454,5 +462,5 @@ export function initProps(ctx) {
     });
     const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('ring.help'); body.append(hp);
   }
-  return { render, renderEntState };
+  return { render, renderEntState, editCloset: (d) => closetUi.open(d) };
 }

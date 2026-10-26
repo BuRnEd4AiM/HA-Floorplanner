@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-10-26 · 68 Sitzungen
+Stand: 2026-10-26 · 69 Sitzungen
 
-**Insgesamt: 5,02 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 5,08 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 14,2 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 52,7 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 4,95 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 14,4 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 53,6 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 5,01 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,13 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 55 | 3,02 Mrd. | 8,2 Mio. |
+| 2026-10 | 56 | 3,08 Mrd. | 8,4 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-10-26 | [01DqQrUx…](https://claude.ai/code/session_01DqQrUx4E1LRBHxiTsdCYuZ) | claude/dazzling-mayer-qoapl9 | 57,6 Mio. | 214 Tsd. | gezählt |
 | 2026-10-26 | [01GiYJyk…](https://claude.ai/code/session_01GiYJykTb4kkK6SJZ99EtwZ) | claude/friendly-goldberg-30ll7l | 96,3 Mio. | 392 Tsd. | gezählt |
 | 2026-10-25 | [01Xcva7G…](https://claude.ai/code/session_01Xcva7GeERrW4aDeZeeiqRP) | claude/test-results-4-26 | 290,1 Mio. | 574 Tsd. | gezählt |
 | 2026-10-25 | [01VHc3XY…](https://claude.ai/code/session_01VHc3XYCH7teSWnQGdotmca) | claude/overnight-tests | 150,6 Mio. | 291 Tsd. | gezählt |

@@ -22,7 +22,10 @@ lay = pgS.evaluate("window.__fp.layout")
 check("show house: basement, two storeys and the roof", [f["kind"] for f in lay["floors"]] == ["basement", "floor", "floor", "roof"])
 check("show house: all five kinds of stairs", sorted(s["type"] for f in lay["floors"] for s in f.get("stairs", [])) == ["L", "U", "spiral", "straight", "wall"])
 roof_floor = lay["floors"][3]
-check("show house: the solar panels on the roof floor came through the import", [d["type"] for d in roof_floor["devices"]] == ["solarpanel"] and roof_floor["devices"][0]["cols"] == 5)
+roof_devs = {d["type"]: d for d in roof_floor["devices"]}
+check("show house: the solar panels and the cabinet under the slope (4.27.0) on the roof floor came through the import",
+      sorted(d["type"] for d in roof_floor["devices"]) == ["closet", "solarpanel"] and roof_devs["solarpanel"]["cols"] == 5 and roof_devs["closet"]["cab"]["slopes"][0]["side"] == "back",
+      [d["type"] for d in roof_floor["devices"]])
 og = lay["floors"][2]
 terrace = next(r for r in og["rooms"] if r.get("terrace"))
 tx0 = min(p[0] for p in terrace["points"])

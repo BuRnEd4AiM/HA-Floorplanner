@@ -1,5 +1,5 @@
 """Own routines "Wenn … dann …" (#546, the owner: "dass man sich dann da selbst diese Abläufe machen kann, so ähnlich wie Node-RED, bloß
-halt in unserem Dashboard"; picture docs/ideen-4.27/5-wenn-dann.jpg), run by the add-on itself (also with no screen open).
+halt in unserem Dashboard"; picture docs/ideen-4.28/5-wenn-dann.jpg), run by the add-on itself (also with no screen open).
 
 A routine has one to four lanes. A lane is a chain of blocks: first a trigger ("Wenn": a window opens, motion, a time, sunset, somebody
 comes or goes, a value over or under a limit, a button on the page), then in any order conditions ("Nur wenn": between two times, on

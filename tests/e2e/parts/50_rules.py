@@ -1,4 +1,4 @@
-"""4.27.0 (#546): the add-on's own heating rules and routines. 📋 Heiz-Regeln on 🌡 Klima switched on in the page; a window opens: the add-on
+"""4.28.0 (#546): the add-on's own heating rules and routines. 📋 Heiz-Regeln on 🌡 Klima switched on in the page; a window opens: the add-on
 switches the thermostat off by itself (no screen needed) and puts it back when it shuts, "Trotzdem heizen", 🚀 Boost; the room's line and
 its label "⏸️ pausiert"; 📅 Heizplan for a room; 🔎 Wird benutzt (own rules, an automation of Home Assistant with what it does); ▶ Abläufe:
 a new routine "Wenn … dann …" in the editor, saved, its button starts it, "Was ist passiert"; read-only for a user who may not edit.

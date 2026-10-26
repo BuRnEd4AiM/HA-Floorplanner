@@ -1,5 +1,5 @@
 /* 🔎 Wird benutzt (#546, the owner: "dass man sieht, wenn das Thermostat in irgendeiner Automatisierung benutzt wird und ob diese gerade
- * verwendet wird"; picture docs/ideen-4.27/1-wird-benutzt.jpg): a window for one device with everything that uses it: the add-on's own
+ * verwendet wird"; picture docs/ideen-4.28/1-wird-benutzt.jpg): a window for one device with everything that uses it: the add-on's own
  * heating rules and routines (what they do now, ✏ to change them) and the automations, scripts and scenes of Home Assistant (on / off,
  * "läuft gerade", when they last ran, what they do in words), a warning when one of them sets the same thermostat as an own heating rule,
  * and whether the thermostat sees an open window itself. The add-on asks Home Assistant (api/related); the words come from rules.js. */

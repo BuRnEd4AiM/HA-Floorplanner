@@ -1,7 +1,7 @@
 """The example pictures of this folder (#546: heating rules in the dashboard, which automations use a thermostat and whether they run,
 own routines "Wenn … dann …" from blocks like Node-RED): the demo (built locally: cd demo && node build.mjs) with mockup.js injected,
 at tablet size.
-    python3 docs/ideen-4.27/make_pictures.py <output folder> [picture names]      (Playwright, see docs/UEBERGABE.md)"""
+    python3 docs/ideen-4.28/make_pictures.py <output folder> [picture names]      (Playwright, see docs/UEBERGABE.md)"""
 import asyncio, sys
 from pathlib import Path
 from playwright.async_api import async_playwright

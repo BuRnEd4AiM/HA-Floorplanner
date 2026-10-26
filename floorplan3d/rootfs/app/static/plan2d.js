@@ -3,6 +3,8 @@
 
 import { nanoBounds } from './nanoleaf.js';
 import { kitchenLayout } from './kitchen.js';
+import { closetSize, resizeTo } from './closet.js';
+import { planMarks } from './closetview.js';
 import { solarField } from './solarroof.js';
 import { rotPoint, readableAngle } from './planview.js';
 import { bridgeSize } from './bridge.js';
@@ -108,6 +110,7 @@ export function createPlan(ctx) {
     if (d.type === 'picture') return { w: (d.w || 0.6) * k, d: 0.06 };
     if (d.type === 'tv_arm') return { w: armPose(d).w * k * (d.sx || 1), d: 0.08 };   // the TV on its arm: as wide as its size
     if (d.type === 'kitchenrun') { const l = kitchenLayout(d); return { w: l.w * k, d: l.d * k }; }
+    if (d.type === 'closet') { const c = closetSize(d.cab); return { w: c.x * k, d: c.z * k }; }   // a cabinet built in its editor (closet.js)
     if (d.type === 'bridge') { const b = bridgeSize(d); return { w: b.len * k * (d.sx || 1), d: b.width * k * (d.sz || 1) }; }   // metal bridge (#189)
     if (d.type === 'solarpanel' && ((d.cols || 1) > 1 || (d.rows || 1) > 1)) { const l = solarField(d); return { w: l.w * k * (d.sx || 1), d: l.d * k * (d.sz || 1) }; }   // a field of panels (#176)
     if (d.type === 'nanoleaf') return { w: nanoBounds(d.panels).w * k * (d.sx || 1), d: 0.06 };
@@ -605,6 +608,7 @@ export function createPlan(ctx) {
         const w = fo.w * s, h = fo.d * s;
         o += `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="${Math.min(4, h / 4)}" fill="${fill}" stroke="${stroke}" stroke-width="${isSel ? 2.2 : 1.4}"/>`;
         if (h > 8 && !FLAT.has(d.type)) o += `<line x1="${-w / 2 + 3}" y1="${h / 2 - 3}" x2="${w / 2 - 3}" y2="${h / 2 - 3}" stroke="${stroke}" stroke-width="1" opacity=".55"/>`;   // front edge
+        if (d.type === 'closet') o += planMarks(d.cab, s * (d.scale || 1), d.mirror, stroke);   // its columns, and where it is lower under a slope
       }
       o += '</g>';
       if (d.type === 'bridge') {                                       // which end is the far one (#222): an arrow towards it, the height difference next to it
@@ -963,6 +967,7 @@ export function createPlan(ctx) {
         snapshotOnce();
         const d = drag.d, [lx, lz] = devLocal(d, x, z), b = baseFoot(d), k = d.scale || 1;
         const ext = Math.max(0.05, Math.round(2 * Math.abs(drag.which === 'x' ? lx : lz) * 20) / 20);   // 5 cm steps
+        if (d.type === 'closet') { d.cab = resizeTo(d.cab, drag.which, ext / k); drag.moved = true; scheduleRebuild(); render(); return; }   // its own width (all columns) or depth
         const v = Math.max(0.1, Math.min(10, ext / ((drag.which === 'x' ? b.w : b.d) * k)));
         const key = drag.which === 'x' ? 'sx' : 'sz';
         if (Math.abs(v - 1) < 0.01) delete d[key]; else d[key] = +v.toFixed(3);

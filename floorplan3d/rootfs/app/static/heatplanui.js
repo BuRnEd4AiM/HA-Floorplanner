@@ -1,4 +1,4 @@
-/* 🌡 Klima → 📅 Heizplan (#546; picture docs/ideen-4.27/4-heizplan.jpg): a week plan per room with three levels (💤 Nacht, 🌙 Eco, ☀️
+/* 🌡 Klima → 📅 Heizplan (#546; picture docs/ideen-4.28/4-heizplan.jpg): a week plan per room with three levels (💤 Nacht, 🌙 Eco, ☀️
  * Komfort) and their temperatures. A tap on a block chooses it: its level, "✂ Teilen", "🗑 Weg" and its start time; its left edge can be
  * dragged (on 15 minutes). "Mo–Fr wie Montag", "Sa–So wie Samstag", "Für alle Räume übernehmen"; what the room does now and next. Kept
  * as a draft until "✓ Speichern". The blocks and what a tap or drag does are pure (rules.js, tested); the add-on runs the plan
