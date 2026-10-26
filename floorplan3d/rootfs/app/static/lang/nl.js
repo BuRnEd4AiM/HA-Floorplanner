@@ -1926,7 +1926,7 @@ export default {
   'tr.mineHelp': 'Het geplande vertrek van je trein: hij staat groot bovenaan, met vertraging, spoor en „over … min”.', 'tr.count': 'Hoeveel vertrektijden',
   'tr.sensor': 'Of uit Home Assistant', 'tr.sensorHelp': 'Een sensor van de integratie „DB Infoscreen” in plaats van station en richting',
   'tr.noSensor': 'geen sensor: de add-on vraagt het zelf', 'tr.needStation': 'Vul een station in.', 'tr.mine': 'Je trein',
-  'tr.mineGone': 'Je trein van {at} staat niet bij de volgende vertrektijden.', 'tr.onTime': 'op tijd', 'tr.gone': 'rijdt niet',
+  'tr.mineGone': 'Je trein van {at} staat niet bij de volgende vertrektijden.', 'tr.today': 'vandaag', 'tr.tomorrow': 'morgen', 'tr.liveFrom': 'Of hij op tijd is, zie je vanaf ongeveer {at}.', 'tr.onTime': 'op tijd', 'tr.gone': 'rijdt niet',
   'tr.unknown': 'tijd nog niet bekend', 'tr.min': 'min', 'tr.platform': 'Spoor', 'tr.pl': 'Sp.', 'tr.instead': 'in plaats van {p}', 'tr.now': 'nu',
   'tr.inMin': 'over {n} min', 'tr.inHour': 'over {h} u {m} min', 'tr.none': 'Nu geen vertrektijden.', 'tr.fromSensor': 'uit DB Infoscreen',
   'tr.stamp': 'stand {at}', 'tr.nohass': 'Zonder Home Assistant kan de sensor niet gelezen worden.',

@@ -36,3 +36,15 @@ test('"mein Zug", the minutes until it leaves and the rows to list', () => {
   assert.equal(T.inWords(70, t), 'tr.inHour{"h":1,"m":10}');
   assert.equal(T.inWords(0, t), 'tr.now');
 });
+
+test('"mein Zug" hours away: later today or tomorrow, from when the railway lists it', () => {
+  assert.deepEqual(T.aheadOf('06:05', new Date(2026, 9, 26, 21, 34)), { min: 511, tomorrow: true });     // the owner's evening: 8 h 31 min
+  assert.deepEqual(T.aheadOf('17:30', new Date(2026, 9, 27, 13, 0)), { min: 270, tomorrow: false });
+  assert.deepEqual(T.aheadOf('07:12', new Date(2026, 9, 27, 7, 12)), { min: 1440, tomorrow: true });     // leaving now and not listed: tomorrow's
+  assert.equal(T.aheadOf('', new Date()), null);
+  assert.ok(T.aheadOf('06:05', new Date(2026, 9, 26, 21, 34)).min > T.FAR && T.FAR < 180);
+  assert.equal(T.liveFrom('06:05'), '03:05');
+  assert.equal(T.liveFrom('01:30'), '22:30');
+  assert.equal(T.liveFrom('x'), '');
+  assert.equal(T.inWords(511, t), 'tr.inHour{"h":8,"m":31}');
+});

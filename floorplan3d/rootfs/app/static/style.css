@@ -2175,6 +2175,7 @@ a.roIcon { text-decoration: none; color: inherit; border: 1px solid var(--line);
 .trMine { border-radius: 14px; padding: 10px 12px; background: var(--field); border: 2px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
 .trMine.trK-ok { border-color: rgba(70, 167, 88, .8); } .trMine.trK-late { border-color: rgba(245, 166, 35, .85); }
 .trMine.trK-bad, .trMine.trK-gone { border-color: rgba(229, 72, 77, .85); }
+.trMine.trK-plan { border-color: rgba(77, 163, 255, .6); }            /* still hours away: tomorrow morning, as planned */
 .trMineH { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; font-size: 13.5px; color: var(--muted); } .trMineH b { color: var(--text); font-size: 15px; }
 .trBig { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .trTime, .trReal { font-size: 34px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -2185,6 +2186,7 @@ a.roIcon { text-decoration: none; color: inherit; border: 1px solid var(--line);
 .trChip.ok { background: rgba(70, 167, 88, .2); color: #8be09c; border-color: rgba(70, 167, 88, .7); }
 .trChip.late { background: rgba(245, 166, 35, .18); color: #ffc46b; border-color: rgba(245, 166, 35, .6); }
 .trChip.bad, .trChip.gone { background: rgba(229, 72, 77, .18); color: #ff8f8f; border-color: rgba(229, 72, 77, .6); }
+.trChip.plan { background: rgba(77, 163, 255, .16); color: #9cc9ff; border-color: rgba(77, 163, 255, .55); }
 .trFacts { display: flex; gap: 14px; flex-wrap: wrap; font-weight: 700; }
 .trPlat.moved, .trP.moved { color: #ffc46b; } .trPlat small { font-weight: 600; color: var(--muted); }
 .trIn { color: var(--muted); }
@@ -2197,6 +2199,6 @@ a.roIcon { text-decoration: none; color: inherit; border: 1px solid var(--line);
 .trRow.trK-gone .trT, .trRow.trK-gone .trN { text-decoration: line-through; opacity: .6; } .trRow.trK-gone .trP { color: #ff8f8f; }
 .trFoot { color: var(--muted); font-size: 11.5px; }
 .trErr { color: #ffc46b; }
-[data-theme="light"] .trChip.ok { color: #1d6b2e; } [data-theme="light"] .trChip.late, [data-theme="light"] .trMine.trK-late .trReal, [data-theme="light"] .trPlat.moved,
+[data-theme="light"] .trChip.plan { color: #1d5fa8; } [data-theme="light"] .trChip.ok { color: #1d6b2e; } [data-theme="light"] .trChip.late, [data-theme="light"] .trMine.trK-late .trReal, [data-theme="light"] .trPlat.moved,
 [data-theme="light"] .trP.moved, [data-theme="light"] .trD.late, [data-theme="light"] .trErr { color: #8a5300; }
 [data-theme="light"] .trChip.bad, [data-theme="light"] .trChip.gone, [data-theme="light"] .trMine.trK-bad .trReal, [data-theme="light"] .trD.bad { color: #a8272b; }

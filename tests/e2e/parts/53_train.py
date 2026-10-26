@@ -1,6 +1,8 @@
 """4.31.0 (#550): the card "🚆 Zug". In ✎ "＋ Karte" → 🚆 Zug: station, direction, "mein Zug"; the add-on asks the departures service of
 DB Infoscreen (here the stand-in /_dbf) at most once a minute; the card shows "mein Zug" big (+5 Min in yellow, Gleis 4 statt 3, "in … Min",
 the railway's note) and the next departures (a cancelled one struck through); an unknown station is said in words.
+4.31.1: "mein Zug" hours away (the railway lists the next 3 hours) still shows: "heute"/"morgen", "in … Std", from when it is listed; the
+add-on remembers what the railway said of it (api/train?mine=, trains-seen.json).
 """
 st_tr = api("api/settings")
 set_setting("language", "de"); set_setting("pageLayouts", {})
@@ -41,6 +43,22 @@ check("train card: 'mein Zug' big: RE 4711, +5 Min, Gleis 4 statt 3, in … Min,
 rows_tr = pgZ.evaluate(f"[...document.querySelectorAll('{card_tr} .trRow')].map((r) => r.dataset.train + ':' + r.className)")
 check("train card: the next departures below, the cancelled one struck through, mein Zug not twice",
       [r.split(":")[0] for r in rows_tr] == ["RB 15", "ICE 1576", "RE 50"] and "trK-gone" in rows_tr[1], rows_tr)
+seen_tr = json.load(urllib.request.urlopen(BASE + "api/train?" + urllib.parse.urlencode({"station": "Testbahnhof", "via": "Frankfurt (Main) Hbf", "mine": mine_tr})))
+check("train card: the add-on remembers 'mein Zug' as the railway listed it (train, destination, planned platform)",
+      (seen_tr.get("seen") or {}).get("train") == "RE 4711" and seen_tr["seen"]["platform"] == "3", seen_tr.get("seen"))
+import datetime as _dt_tr
+far_tr = (_dt_tr.datetime.now() + _dt_tr.timedelta(hours=5, minutes=2)).strftime("%H:%M")
+lay_tr = api("api/settings").get("pageLayouts", {})
+for c in lay_tr.get("today", {}).get("cards", []):
+    if c.get("type") == "train": c["mine"] = far_tr
+set_setting("pageLayouts", lay_tr)
+pgZ.goto(BASE + "?debug=1"); pgZ.wait_for_timeout(1500)
+if pgZ.is_visible("#modeSwitch [data-mode=live]"): pgZ.click("#modeSwitch [data-mode=live]"); pgZ.wait_for_timeout(1000)
+pgZ.click("#tabBar [data-tab=today]"); pgZ.wait_for_timeout(1200)
+plan_tr = wait_tr(lambda: pgZ.locator(f"{card_tr} .trMine[data-kind=plan]").count() == 1 and pgZ.inner_text(f"{card_tr} .trMine"))
+check("train card: 'mein Zug' 5 hours away still shows, with heute/morgen, 'in 5 Std', from when the railway lists it",
+      plan_tr and far_tr in plan_tr and ("heute" in plan_tr or "morgen" in plan_tr) and "in 5 Std" in plan_tr and "ab etwa" in plan_tr, plan_tr)
+check("train card: below it still the next departures", pgZ.locator(f"{card_tr} .trRow").count() == 4)
 r_bad = json.load(urllib.request.urlopen(BASE + "api/train?station=Nirgendwo"))
 check("train card: an unknown station comes back as an error the card says in words", r_bad["rows"] == [] and "Unknown station" in r_bad["error"], r_bad)
 check("train card: no errors on the page", not errs_tr, errs_tr[:3])

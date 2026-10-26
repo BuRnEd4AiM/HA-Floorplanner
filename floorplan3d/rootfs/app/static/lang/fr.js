@@ -1964,7 +1964,7 @@ export default {
   'tr.mineHelp': 'Le départ prévu de ton train : il est affiché en grand en haut, avec retard, voie et « dans … min ».', 'tr.count': 'Combien de départs',
   'tr.sensor': 'Ou depuis Home Assistant', 'tr.sensorHelp': 'Un capteur de l’intégration « DB Infoscreen » au lieu de la gare et de la direction',
   'tr.noSensor': 'pas de capteur : le module demande lui-même', 'tr.needStation': 'Indique une gare.', 'tr.mine': 'Ton train',
-  'tr.mineGone': 'Ton train de {at} n’est pas parmi les prochains départs.', 'tr.onTime': 'à l’heure', 'tr.gone': 'supprimé',
+  'tr.mineGone': 'Ton train de {at} n’est pas parmi les prochains départs.', 'tr.today': 'aujourd’hui', 'tr.tomorrow': 'demain', 'tr.liveFrom': 'La ponctualité s’affiche à partir d’environ {at}.', 'tr.onTime': 'à l’heure', 'tr.gone': 'supprimé',
   'tr.unknown': 'heure pas encore connue', 'tr.min': 'min', 'tr.platform': 'Voie', 'tr.pl': 'V.', 'tr.instead': 'au lieu de {p}', 'tr.now': 'maintenant',
   'tr.inMin': 'dans {n} min', 'tr.inHour': 'dans {h} h {m} min', 'tr.none': 'Pas de départ pour l’instant.', 'tr.fromSensor': 'de DB Infoscreen',
   'tr.stamp': 'à {at}', 'tr.nohass': 'Sans Home Assistant le capteur ne peut pas être lu.',

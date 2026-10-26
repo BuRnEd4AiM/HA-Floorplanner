@@ -1948,7 +1948,7 @@ export default {
   'tr.mineHelp': 'La salida prevista de tu tren: aparece grande arriba, con retraso, andén y «en … min».', 'tr.count': 'Cuántas salidas',
   'tr.sensor': 'O desde Home Assistant', 'tr.sensorHelp': 'Un sensor de la integración «DB Infoscreen» en lugar de estación y dirección',
   'tr.noSensor': 'sin sensor: el complemento pregunta él mismo', 'tr.needStation': 'Introduce una estación.', 'tr.mine': 'Tu tren',
-  'tr.mineGone': 'Tu tren de las {at} no está entre las próximas salidas.', 'tr.onTime': 'puntual', 'tr.gone': 'cancelado',
+  'tr.mineGone': 'Tu tren de las {at} no está entre las próximas salidas.', 'tr.today': 'hoy', 'tr.tomorrow': 'mañana', 'tr.liveFrom': 'Si va puntual se ve a partir de las {at} aprox.', 'tr.onTime': 'puntual', 'tr.gone': 'cancelado',
   'tr.unknown': 'hora aún no conocida', 'tr.min': 'min', 'tr.platform': 'Andén', 'tr.pl': 'And.', 'tr.instead': 'en vez de {p}', 'tr.now': 'ahora',
   'tr.inMin': 'en {n} min', 'tr.inHour': 'en {h} h {m} min', 'tr.none': 'Ahora no hay salidas.', 'tr.fromSensor': 'de DB Infoscreen', 'tr.stamp': 'a las {at}',
   'tr.nohass': 'Sin Home Assistant no se puede leer el sensor.',

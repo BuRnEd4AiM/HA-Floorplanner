@@ -1925,7 +1925,7 @@ export default {
   'tr.mineHelp': 'Planowany odjazd twojego pociągu: jest duży u góry, z opóźnieniem, peronem i „za … min”.', 'tr.count': 'Ile odjazdów',
   'tr.sensor': 'Albo z Home Assistant', 'tr.sensorHelp': 'Czujnik integracji „DB Infoscreen” zamiast stacji i kierunku',
   'tr.noSensor': 'bez czujnika: dodatek pyta sam', 'tr.needStation': 'Wpisz stację.', 'tr.mine': 'Twój pociąg',
-  'tr.mineGone': 'Twojego pociągu o {at} nie ma wśród najbliższych odjazdów.', 'tr.onTime': 'punktualny', 'tr.gone': 'odwołany',
+  'tr.mineGone': 'Twojego pociągu o {at} nie ma wśród najbliższych odjazdów.', 'tr.today': 'dziś', 'tr.tomorrow': 'jutro', 'tr.liveFrom': 'Czy jest punktualny, widać od ok. {at}.', 'tr.onTime': 'punktualny', 'tr.gone': 'odwołany',
   'tr.unknown': 'czas jeszcze nieznany', 'tr.min': 'min', 'tr.platform': 'Peron', 'tr.pl': 'Per.', 'tr.instead': 'zamiast {p}', 'tr.now': 'teraz',
   'tr.inMin': 'za {n} min', 'tr.inHour': 'za {h} godz. {m} min', 'tr.none': 'Teraz brak odjazdów.', 'tr.fromSensor': 'z DB Infoscreen',
   'tr.stamp': 'stan {at}', 'tr.nohass': 'Bez Home Assistant nie można odczytać czujnika.',

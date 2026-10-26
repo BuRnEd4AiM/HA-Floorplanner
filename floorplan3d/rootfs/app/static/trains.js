@@ -35,6 +35,20 @@ export function mineOf(rows, mine) {
   return (rows || []).find((r) => r.at === mine) || (rows || []).find((r) => { const d = toMin(r.at) - m; return d > 0 && d <= 10; }) || null;
 }
 
+/** "mein Zug" not among the departures (the railway lists the next 3 hours): when it leaves next, later today or tomorrow;
+ *  { min (from now), tomorrow } or null */
+export function aheadOf(mine, now) {
+  const m = toMin(mine), n = now.getHours() * 60 + now.getMinutes();
+  if (m == null) return null;
+  return m > n ? { min: m - n, tomorrow: false } : { min: m + 1440 - n, tomorrow: true };
+}
+
+/** a train further away than this is not listed yet: the card shows it as planned (FAR minutes; the service looks 180 ahead) */
+export const FAR = 170;
+
+/** from when the railway lists a train leaving at "06:05" (with its delay): "03:05" */
+export const liveFrom = (at) => (toMin(at) == null ? '' : hhmm(toMin(at) - 180));
+
 /** the departures to list: not those that left more than a minute ago, at most count, "mein Zug" not a second time */
 export function nextRows(rows, now, count, mine) {
   return (rows || []).filter((r) => r !== mine && (minutesTo(r, now) ?? 0) >= -1).slice(0, count);
