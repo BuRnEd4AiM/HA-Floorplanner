@@ -176,3 +176,12 @@ def test_the_look_of_a_button():
     assert boards.clean_look({"shape": "icon", "show": ["name"]})["show"] == []
     assert boards.clean_look({"icon": ["x"], "onColor": "pink"})["icon"] == "" and boards.clean_look({"onColor": "pink"})["onColor"] == "amber"
     assert boards.clean_card({"id": "c_knopf", "type": "button", "entity": "climate.x"}) and not boards.clean_card({"id": "c_knopf", "type": "button", "entity": "sensor.x"})
+
+
+def test_a_train_card_is_cleaned_like_on_the_page():
+    """#550: the same rules as cleanCard in static/cards.js (tests/cards.test.mjs has the same cards)"""
+    assert boards.clean_card({"id": "c_zug1", "type": "train", "station": " Fulda ", "via": "Hanau Hbf", "mine": "07:12", "count": 6}) == {
+        "id": "c_zug1", "type": "train", "name": "", "width": 2, "station": "Fulda", "via": "Hanau Hbf", "mine": "07:12", "count": 6, "sensor": ""}
+    assert boards.clean_card({"id": "c_zug2", "type": "train", "sensor": "sensor.fulda_departures", "mine": "7:12", "count": 40}) == {
+        "id": "c_zug2", "type": "train", "name": "", "width": 2, "station": "", "via": "", "mine": "", "count": 4, "sensor": "sensor.fulda_departures"}
+    assert boards.clean_card({"id": "c_zug3", "type": "train", "sensor": "light.x"}) is None

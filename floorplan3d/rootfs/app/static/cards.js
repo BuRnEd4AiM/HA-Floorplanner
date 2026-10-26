@@ -1,5 +1,6 @@
 /* Own cards on the pages of the tab bar (#484, like the cards of a Home Assistant dashboard): thirteen kinds, each with what it needs
- * (an entity of a fitting kind, several entities, a room, a text, calendars (calcard.js, #495) or a ready card of another page), its
+ * (an entity of a fitting kind, several entities, a room, a text, calendars (calcard.js, #495), a train station (traincard.js, #550) or a
+ * ready card of another page), its
  * name, width and colour. Pure
  * (unit test: tests/cards.test.mjs; server.py clean_card checks the same); cardsui.js draws a card, cardeditor.js makes and changes one. */
 import { FAV_SERVICE } from './favorites.js';
@@ -7,8 +8,8 @@ import { SIZES } from './thermostat.js';
 import { CAL_DAYS, CAL_VIEWS, cleanCals } from './calcard.js';
 import { cleanLook } from './buttonlook.js';
 
-export const CARD_TYPES = ['button', 'switch', 'value', 'graph', 'light', 'thermostat', 'cover', 'camera', 'calendar', 'entities', 'room', 'text', 'builtin'];
-export const TYPE_ICON = { button: '🔘', switch: '⏻', value: '🔢', graph: '📈', light: '💡', thermostat: '🌡️', cover: '🪟', camera: '📷', calendar: '📅', entities: '🧩', room: '🏠', text: '📝', builtin: '☀️' };
+export const CARD_TYPES = ['button', 'switch', 'value', 'graph', 'light', 'thermostat', 'cover', 'camera', 'calendar', 'entities', 'room', 'text', 'builtin', 'train'];
+export const TYPE_ICON = { button: '🔘', switch: '⏻', value: '🔢', graph: '📈', light: '💡', thermostat: '🌡️', cover: '🪟', camera: '📷', calendar: '📅', entities: '🧩', room: '🏠', text: '📝', builtin: '☀️', train: '🚆' };
 /** the entities a kind of card takes, by domain (null: any entity); kinds without an entity are not listed */
 export const TYPE_DOMAINS = {
   button: ['scene', 'script', 'button', 'input_button', 'light', 'switch', 'input_boolean', 'fan', 'cover', 'media_player', 'climate', 'water_heater', 'lock', 'vacuum'],
@@ -44,7 +45,7 @@ const text = (v, max) => (typeof v === 'string' ? v.replace(/[\u0000-\u0008\u000
 const int = (v, lo, hi, dflt) => (Number.isInteger(v) && v >= lo && v <= hi ? v : dflt);
 
 /** how wide a new card of a kind is (columns of the page) */
-export const defaultWidth = (type) => (type === 'calendar' ? 3 : type === 'graph' || type === 'text' ? 2 : 1);
+export const defaultWidth = (type) => (type === 'calendar' ? 3 : type === 'graph' || type === 'text' || type === 'train' ? 2 : 1);
 
 /** a card made safe: { id, type, name, width, ...what its kind needs } or null when it cannot be one (the same rules as clean_card in
  *  server.py) */
@@ -85,6 +86,14 @@ export function cleanCard(c) {
   if (c.type === 'builtin') {
     if (!BUILTINS.includes(c.builtin)) return null;
     out.builtin = c.builtin;
+  }
+  if (c.type === 'train') {                          // 🚆 the departures of a station, "mein Zug" (#550, traincard.js)
+    out.station = text(c.station, 60);
+    out.via = text(c.via, 60);
+    out.mine = typeof c.mine === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(c.mine) ? c.mine : '';
+    out.count = int(c.count, 2, 8, 4);
+    out.sensor = typeof c.sensor === 'string' && c.sensor.length <= 255 && ENTITY.test(c.sensor) && c.sensor.startsWith('sensor.') ? c.sensor : '';
+    if (!out.station && !out.sensor) return null;
   }
   return out;
 }

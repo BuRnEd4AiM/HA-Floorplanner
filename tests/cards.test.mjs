@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 const C = await import(`${process.env.STATIC_DIR || '/tmp/static'}/cards.js`);
 const card = (c) => C.cleanCard({ id: 'c_abc123', ...c });
 
-test('thirteen kinds (the calendar since #495), each with an icon', () => {
-  assert.equal(C.CARD_TYPES.length, 13);
+test('fourteen kinds (the calendar since #495, the train since #550), each with an icon', () => {
+  assert.equal(C.CARD_TYPES.length, 14);
   for (const t of C.CARD_TYPES) assert.ok(C.TYPE_ICON[t], t);
 });
 test('a card takes only an entity of a fitting kind', () => {
@@ -64,4 +64,12 @@ test('a history card with several sensors (#495): each once, at most six, one sc
   assert.equal(m.lines[0], 'M0.0,100.0 L100.0,0.0'); assert.equal(m.lines[1], 'M50.0,50.0 L100.0,100.0'); assert.equal(m.lines[2], null);
   assert.equal(m.min, 0); assert.equal(m.max, 100);
   assert.equal(C.chartMany([[[0, 1]]]), null); assert.equal(C.chartMany(null), null);
+});
+
+test('a train card: a station or a sensor of DB Infoscreen, "mein Zug" as HH:MM, 2 to 8 departures (#550)', () => {
+  assert.deepEqual(C.cleanCard({ id: 'c_zug1', type: 'train', station: ' Fulda ', via: 'Hanau Hbf', mine: '07:12', count: 6 }),
+    { id: 'c_zug1', type: 'train', name: '', width: 2, station: 'Fulda', via: 'Hanau Hbf', mine: '07:12', count: 6, sensor: '' });
+  assert.deepEqual(C.cleanCard({ id: 'c_zug2', type: 'train', sensor: 'sensor.fulda_departures', mine: '7:12', count: 40 }),
+    { id: 'c_zug2', type: 'train', name: '', width: 2, station: '', via: '', mine: '', count: 4, sensor: 'sensor.fulda_departures' });
+  assert.equal(C.cleanCard({ id: 'c_zug3', type: 'train', sensor: 'light.x' }), null);
 });
