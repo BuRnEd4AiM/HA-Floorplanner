@@ -1,20 +1,20 @@
 {
  "session": "session_016jmtCrzuXWmNUwQWWyP6N3",
  "start": "2026-10-26",
- "updated": "2026-10-26T18:57:39Z",
+ "updated": "2026-10-26T19:04:56Z",
  "branch": "claude/ha-szenen",
  "source": "counted",
- "input": 784,
- "cache_write": 1235352,
- "cache_read": 143011473,
- "output": 569927,
+ "input": 830,
+ "cache_write": 1305695,
+ "cache_read": 154773810,
+ "output": 603676,
  "models": {
   "claude-opus-5-5": {
-   "input": 784,
-   "cache_write": 1235352,
-   "cache_read": 143011473,
-   "output": 569927,
-   "requests": 392
+   "input": 830,
+   "cache_write": 1305695,
+   "cache_read": 154773810,
+   "output": 603676,
+   "requests": 415
   }
  }
 }

@@ -2141,3 +2141,32 @@ a.roIcon { text-decoration: none; color: inherit; border: 1px solid var(--line);
 [data-theme="light"] .feSync, [data-theme="light"] .feHaNote, [data-theme="light"] .roWhere.ha { color: #1565a8; }
 [data-theme="light"] .feSync.warn, [data-theme="light"] .feSync.ask, [data-theme="light"] .roWhere.bad { color: #8a5300; }
 [data-theme="light"] .feSync.bad { color: #a8272b; }
+
+/* the scene editor (#549, sceneedit.js): the devices of the scene on the left, devices to add on the right */
+.scDlg { max-width: 1200px; }
+.scBody { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; }
+.scDevs { overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; align-content: start; padding-right: 4px; }
+.scDev { border-radius: 14px; background: var(--panel); border: 1px solid var(--line); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.scDev.off { opacity: .8; }
+.scDevH { display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto; gap: 0 10px; align-items: center; }
+.scDevH b { font-size: 15px; } .scDevH small { grid-column: 2; } .scDevH .scRm { grid-row: 1 / span 2; grid-column: 3; width: 30px; height: 30px; }
+.scDot { grid-row: 1 / span 2; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); background: transparent; box-shadow: 0 0 12px rgba(255, 255, 255, .15); }
+.scDevB { display: flex; flex-direction: column; gap: 6px; }
+.scDevB > label { font-size: 12px; font-weight: 800; color: var(--muted); }
+.scDevB input[type=range] { width: 100%; }
+.scColors { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.scSw { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .25); padding: 0; cursor: pointer; }
+.scSw.on { outline: 3px solid var(--accent); outline-offset: 2px; }
+.scPick { width: 34px; height: 30px; padding: 0; border: none; background: none; cursor: pointer; }
+.scFx { padding: 6px 8px; border-radius: 8px; background: var(--field); color: inherit; border: 1px solid var(--line); }
+.scPicker { display: flex; flex-direction: column; gap: 6px; min-height: 0; border-radius: 14px; background: var(--panel); border: 1px solid var(--line); padding: 10px; }
+.scPickH { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.scSearch { padding: 7px 10px; border-radius: 8px; background: var(--field); color: inherit; border: 1px solid var(--line); }
+.scPickList { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+.scPickRow { display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: 6px 9px; border-radius: 8px; background: var(--field); border: none; color: inherit; font-size: 13.5px; cursor: pointer; }
+.scPickRow small { color: var(--muted); font-size: 11px; }
+@media (max-width: 760px) {
+  .scBody { grid-template-columns: 1fr; grid-template-rows: auto auto; overflow-y: auto; }
+  .scDevs { overflow: visible; grid-template-columns: 1fr; }
+  .scPicker { max-height: 45vh; }
+}
