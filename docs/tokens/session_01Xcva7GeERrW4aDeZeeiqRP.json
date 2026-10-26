@@ -1,20 +1,20 @@
 {
  "session": "session_01Xcva7GeERrW4aDeZeeiqRP",
  "start": "2026-10-25",
- "updated": "2026-10-26T05:47:36Z",
- "branch": "claude/doorbell",
+ "updated": "2026-10-26T06:59:14Z",
+ "branch": "claude/test-results-4-26",
  "source": "counted",
- "input": 1170,
- "cache_write": 1270831,
- "cache_read": 247881691,
- "output": 526649,
+ "input": 1308,
+ "cache_write": 1397872,
+ "cache_read": 288156479,
+ "output": 573628,
  "models": {
   "claude-opus-5-5": {
-   "input": 1170,
-   "cache_write": 1270831,
-   "cache_read": 247881691,
-   "output": 526649,
-   "requests": 584
+   "input": 1308,
+   "cache_write": 1397872,
+   "cache_read": 288156479,
+   "output": 573628,
+   "requests": 648
   }
  }
 }
