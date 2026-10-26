@@ -1628,7 +1628,7 @@ export default {
   'vq.w.devices': 'Dispositivos', 'vq.s.open': 'abierto', 'vq.s.closed': 'cerrado', 'vq.s.on': 'encendido', 'vq.s.off': 'apagado', 'vq.s.low': 'bajas',
   'vq.none': 'ninguno', 'vq.allOk': '{what}: todos {state}', 'vq.houseLocked': 'La otra casa está bloqueada para ti.', 'vq.noValue': 'sin valor',
   'vq.colors': 'colores en el plano', 'vq.unknown': 'No lo he entendido.',
-  'vq.examples': 'Por ejemplo: «¿Qué ventanas están abiertas?», «¿Hay luces encendidas arriba?», «¿Temperatura del baño?»', 'vq.listening': 'Escuchando …',
+  'vq.examples': 'Por ejemplo: «¿Qué ventanas están abiertas?», «¿Hay luces encendidas arriba?», «¿Temperatura del baño?», «Apaga la luz de la cocina»', 'vq.listening': 'Escuchando …',
   'vq.thinking': 'Home Assistant escucha …', 'vq.err.noSpeech': 'No he oído nada. Toca 🎤 y habla enseguida.',
   'vq.err.mic': 'El micrófono está bloqueado: permítelo para esta página en el navegador (o la app).',
   'vq.err.net': 'El reconocimiento de voz no está disponible ahora.', 'vq.err.noAssist': 'Home Assistant aún no reconoce la voz. Guía: ⚙ → 🎤 Búsqueda por voz.',
@@ -1747,4 +1747,7 @@ export default {
   'hh.tell': '🔔 Avísame', 'hh.tellOn': '✓ Te avisaré', 'hh.tellTip': 'Un mensaje al móvil en cuanto termine (tocar otra vez: cancelar)',
   'hh.tellSetup': 'Primero configura en ⚙ → Avisos y alarma adónde va un mensaje (WhatsApp, Telegram o la app del móvil).',
   'hh.tellFailed': 'No funcionó, inténtalo de nuevo.', 'hh.tellAlways': '🔔 Avisar siempre cuando una máquina termine (con el mensaje de «Avisos y alarma»)',
+  'vc.act.on': 'encendido', 'vc.act.off': 'apagado', 'vc.act.open': 'abierto', 'vc.act.close': 'cerrado', 'vc.done': '{what} {act}: {n}',
+  'vc.already': '{what}: ya {act}', 'vc.sure': '¿{what} {act} en toda la casa? ({n})', 'vc.yes': 'Sí, {act}', 'vc.yesSub': 'Se cambian {n} dispositivos',
+  'vc.locked': 'No puedes accionar nada (🔒 Controlar).', 'vc.failed': '{n} no se pudieron accionar.',
 };

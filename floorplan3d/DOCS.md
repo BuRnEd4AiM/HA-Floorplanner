@@ -281,6 +281,8 @@ It understands known words in the 7 languages of the add-on: windows, doors, gat
 
 A user can be locked out of it: ⚙ → 👥 Benutzer & Tablets → 🔒 **Sprachsuche (🎤)**.
 
+**🗣 Switching by voice** (4.24.0): an order instead of a question switches: *„Licht im Wohnzimmer aus“*, *„Mach oben alle Lichter an“*, *„Rollläden in der Küche runter“*, *„Fernseher aus“* (also typed into the search box, and in the other languages: *“Turn off the lights in the kitchen”*, *« Éteins la lumière »* …). Lights and players go on and off, roller shutters up and down (never a garage door). It switches only what is not so already and says what it did (*„✓ 💡 Lichter aus: 3 (Wohnzimmer)“*), with a ring on each. The whole house asks first (*„Lichter im ganzen Haus aus? (12)“* → **✓ Ja, aus**). A question stays a question (*„Ist das Licht im Bad an?“*). Who is locked out of switching (🔒 *Steuern*) is told so.
+
 ## Wall tablet kiosk
 
 In ⚙ → *Wall tablet*, for the live view:

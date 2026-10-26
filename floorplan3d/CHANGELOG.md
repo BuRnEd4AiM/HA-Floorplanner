@@ -4,6 +4,10 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.24.0] - 2026-10-26
+### Added
+- **🗣 Switching by voice** (#532, chosen by the owner): an order in the voice search (or typed into the search box) switches: "Licht im Wohnzimmer aus", "Mach oben alle Lichter an", "Rollläden in der Küche runter", "Fernseher aus", in all 7 languages. Lights and players on and off, roller shutters up and down (never a garage door), only what is not so already, with a ring on each. The whole house asks first ("✓ Ja, aus"); a question stays a question; the lock "Steuern" is respected.
+
 ## [4.23.0] - 2026-10-26
 ### Added
 - **🔔 Sag mir Bescheid** (#531, chosen by the owner, picture `docs/ideen-4.3/8-haushalt.jpg`): a running washing machine, dryer or dishwasher on 🧺 Haushalt has the button "🔔 Sag mir Bescheid"; when it is done the add-on sends one message through the way of ⚙ → Warnungen & Alarm (WhatsApp, Telegram, the phone app), also with no screen open (it checks every minute). "Immer Bescheid sagen" in ⚙ → Reiter unten tells about every run. Never twice for one run; a wish is forgotten after a day.

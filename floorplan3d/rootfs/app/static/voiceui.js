@@ -4,6 +4,7 @@
  * (http://, an app without Assist) the dictation of the keyboard (voicekeys.js). A typed question in the search box is answered the same
  * way (search.js asks question / ask). */
 import { understand, answer, flatRows, headline, isQuestion, ICONS, LANGS } from './voicequery.js';
+import { command, targets, needsConfirm } from './voicecommand.js';
 import { initVoiceInput, canMic } from './voiceinput.js';
 import { initVoiceKeys } from './voicekeys.js';
 import { TO_KEYS } from './voicediag.js';
@@ -14,7 +15,8 @@ const PLACES_TTL = 10 * 60 * 1000;                    // the rooms of the other 
  *  shown() (what of it is shown: buildings), houseId(), houses() ([{ id, name }]), switchHouse(id) (async), switchFloor(i), houseMode(),
  *  setHouseMode(on), floorIdx(), focusRoom(id), openRoomPanel(id), isLive(), rows() (devicelist.js deviceRows of what is shown), states(),
  *  reading(roomId, mode) (temp / humid / co2 of a room or null), colorMode(mode) (the colours of the rooms), imperial(), openCheck() (⚙ →
- *  🎤 Sprachsuche with the microphone test, #511) */
+ *  🎤 Sprachsuche with the microphone test, #511), callService(entity, service) (🗣 switching by voice, #532), replaying() (the security
+ *  view: nothing is switched) */
 export function initVoiceUi(ctx) {
   const { $, t } = ctx;
   let assist = null;                                   // api/voice: { assist, pipeline, name, language, locked }; null: not asked, undefined: asking
@@ -81,6 +83,37 @@ export function initVoiceUi(ctx) {
   const itemRow = (it) => ({ label: `${it.icon || '•'} ${it.name}`, sub: [floorName(it.floor), it.roomName, it.value].filter(Boolean).join(' · '),
     go: () => ctx.search.goTo({ floor: it.floor, kind: it.kind, id: it.id }) });
 
+  /** 🗣 an order (#532): "Licht im Wohnzimmer aus" switches; the whole house with many things asks first; locked: says so */
+  async function order(text, q, cmd, place) {
+    const icon = ICONS[cmd.what] || '💡', what = t(`vq.w.${cmd.what}`), act = t(`vc.act.${cmd.act}`), where = q.place ? ` (${q.place})` : '';
+    if (locked('control') || ctx.replaying()) { ctx.search.show({ text, head: `🔒 ${t('vc.locked')}` }); return; }
+    if (q.rooms.length === 1) toRoom(q.rooms[0], false);
+    else if (place.floor != null) toFloor(place.floor);
+    const tg = targets(cmd, q, flatRows(ctx.rows()), ctx.states(), place);
+    if (!tg.n) { ctx.search.show({ text, head: `✓ ${icon} ${t('vc.already', { what, act })}${where}` }); return; }
+    const rows = tg.calls.slice(0, 30).map((c) => itemRow(c.item));
+    const run = async () => {
+      const ok = await Promise.all(tg.calls.map((c) => ctx.callService(c.entity, c.service)));
+      const bad = ok.filter((x) => x === false).length;
+      ctx.search.show({ text, head: bad ? `⚠ ${t('vc.failed', { n: bad })}` : `✓ ${icon} ${t('vc.done', { what, act, n: tg.n })}${where}`, rows });
+      ctx.search.mark(tg.calls.slice(0, 24).map((c) => ({ floor: c.item.floor, kind: c.item.kind, id: c.item.id })));
+    };
+    if (needsConfirm(tg)) {
+      ctx.search.show({ text, head: `${icon} ${t('vc.sure', { what, act, n: tg.n })}`, rows: [{ label: `✓ ${t('vc.yes', { act })}`, sub: t('vc.yesSub', { n: tg.n }), go: run }, ...rows] });
+      return;
+    }
+    await run();
+  }
+  /** an order in the add-on's language, the browser's or another one (like understandAny) */
+  function orderOf(text, q) {
+    const nav = String(navigator.language || '').slice(0, 2);
+    for (const l of [ctx.lang(), nav, ...LANGS].filter((x, i, a) => x && LANGS.includes(x) && a.indexOf(x) === i)) {
+      const c = command(text, q, l);
+      if (c) return c;
+    }
+    return null;
+  }
+
   /** answer a sentence (spoken or typed) */
   async function ask(text) {
     if (!String(text || '').trim()) return;
@@ -91,6 +124,8 @@ export function initVoiceUi(ctx) {
       await ctx.switchHouse(q.house);
     }
     const L = ctx.layout(), fi = q.floor ? L.floors.findIndex((f, i) => (f.id || `#${i}`) === q.floor) : -1;
+    const cmd = orderOf(text, q);
+    if (cmd) { await order(text, q, cmd, { floor: fi >= 0 ? fi : null, rooms: q.rooms }); return; }
     const a = answer(q, flatRows(ctx.rows()), ctx.states(), { floor: fi >= 0 ? fi : null, rooms: q.rooms });
     const house = ctx.houses().find((h) => h.id === ctx.houseId())?.name || '';
     if (a.mode === 'list') {

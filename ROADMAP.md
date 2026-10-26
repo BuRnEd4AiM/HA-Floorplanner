@@ -28,6 +28,7 @@ Not planned: sun light and shadows through the windows by the position of the su
 
 ## Done in 3.59 – 4.2
 
+- ✅ 🗣 Switching by voice: "Licht im Wohnzimmer aus", the whole house asks first (4.24.0)
 - ✅ 🔔 "Sag mir Bescheid": a message to the phone when the washing machine, dryer or dishwasher is done (4.23.0)
 - ✅ 🔔 The doorbell on every wall tablet: the camera at the door, open the door (it asks once more), a gong; bells and cameras found by themselves (4.22.0)
 - ✅ Quick access: lights off for the whole house or a group of rooms (two taps), favourites in front of the room tiles, "what is still on?", low batteries stand out, undo note after deleting, all keys on one card, recently used furniture (4.2.0) ([#471](https://github.com/BuRnEd4AiM/HA-Floorplanner/issues/471))
