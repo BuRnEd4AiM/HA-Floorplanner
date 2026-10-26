@@ -26,8 +26,10 @@ from aiohttp import web
 
 import alarmnotify as an
 import boards
+import flows as fl
 import garden as gn
 import guard as gd
+import heatrules as hr
 import household as hh
 import controls
 import counters
@@ -36,7 +38,10 @@ import importer
 import manifest as mf
 import pages
 import renames as rn
+import roommap as rm
+import rulesrun as rr
 import timeline as tl
+import usedby as ub
 import voice as vc
 
 STATIC_DIR = Path(__file__).parent / "static"
@@ -1215,6 +1220,14 @@ def _sky(st, a):
     return {}
 
 
+def _runs(st, a):
+    """an automation's or script's last run (seconds) and how many runs go on now (▶ Abläufe, "Wird benutzt", #546)"""
+    if not st["entity_id"].startswith(("automation.", "script.")):
+        return {}
+    cur = a.get("current")
+    return {"at": _epoch(a.get("last_triggered")), "run": cur if isinstance(cur, int) and not isinstance(cur, bool) else 0}
+
+
 def slim_state(st):
     """The few fields of a Home Assistant state the floor plan uses (same shape for /api/entities and the live channel)."""
     a = st.get("attributes") or {}
@@ -1238,6 +1251,7 @@ def slim_state(st):
         "members": _members(st),
         "ctl": controls.extras(st),                          # what the live card needs to control it (#406): volume, fan speed, presets ...
         **_sky(st, a),                                       # sun.sun and weather.* for the sky (#418, #419)
+        **_runs(st, a),                                      # automations and scripts: when they last ran, running now (#546)
         "since": st.get("last_changed") if st["state"] in ("unavailable", "unknown") else None,   # for the offline list
         "lc": _epoch(st.get("last_changed")),                # when the state last changed, in seconds: "seit wann" of a button (#495)
     }
@@ -1607,14 +1621,18 @@ def build_backup(request, with_files: bool = True) -> dict:
 
 
 def backup_extras(request) -> dict:
-    """What else the add-on keeps (#500): the notes of the pinboard, the settings of the holiday alarm and of the alarm messages, read from
+    """What else the add-on keeps (#500): the notes of the pinboard, the settings of the holiday alarm and of the alarm messages, the
+    heating rules and routines (#546), read from
     their files (the automatic backup runs in a thread). The alarm's code and the CallMeBot keys stay out: a backup put back keeps them."""
     g = read_json(guard_path(request), {})
     g = g if isinstance(g, dict) else {}
     n = read_json(notify_path(request), {})
+    rules = read_json(rules_path(request), {})
+    rules = rules if isinstance(rules, dict) else {}
     return {"pinboard": read_notes(request),
             "guard": {k: v for k, v in gd.clean_cfg(g.get("cfg"), g.get("cfg")).items() if k != "code"},
-            "notify": {k: v for k, v in an.clean(n, n).items() if k not in an.SECRETS}}
+            "notify": {k: v for k, v in an.clean(n, n).items() if k not in an.SECRETS},
+            "rules": {"heat": hr.clean_rules(rules.get("heat")), "flows": fl.clean_flows(rules.get("flows"))}}   # heating rules, routines (#546)
 
 
 def apply_extras(request, extras) -> list:
@@ -1635,6 +1653,14 @@ def apply_extras(request, extras) -> list:
         write_json_atomic(notify_path(request), cfg)
         app_state(request)[KEY_NOTIFY]["cfg"] = cfg
         done.append("notify")
+    if isinstance(extras.get("rules"), dict):
+        cfg = {"heat": hr.clean_rules(extras["rules"].get("heat")), "flows": fl.clean_flows(extras["rules"].get("flows"))}
+        write_json_atomic(rules_path(request), cfg)
+        store = app_state(request).get(KEY_RULES)
+        if store is not None and "rules" in store:
+            store["rules"].cfg = cfg
+            store["rules"].ask("cfg")
+        done.append("rules")
     return done
 
 
@@ -3192,6 +3218,279 @@ async def guard_watcher(app):
         task.cancel()
 
 
+# ---------- the add-on's own heating rules and routines (#546): heatrules.py, flows.py, run by rulesrun.py; who uses a device (usedby.py) ----------
+KEY_RULES = web.AppKey("rules", dict)           # {"rules": rulesrun.Rules, "areas": (time, {area: [entities]}), "states": (time, states), "autos": (time, rows)}
+RULE_DOMAINS = ("climate", "light", "switch", "fan", "input_boolean", "media_player", "cover", "scene", "script")   # what a rule may switch
+RULE_ACTS = ("boost", "skip")
+
+
+def rules_path(request) -> Path:
+    return data_dir(request) / "rules.json"            # the rules as an admin set them
+
+
+def rules_state_path(request) -> Path:
+    return data_dir(request) / "rules-state.json"      # what the engines remember (thermostats as they were, running lanes) and the log
+
+
+def rules_store(request) -> rr.Rules:
+    store = app_state(request)[KEY_RULES]
+    if "rules" not in store:
+        store["rules"] = rr.Rules(read_json(rules_path(request), {}), read_json(rules_state_path(request), {}))
+    return store["rules"]
+
+
+async def rules_answer(request, r: rr.Rules) -> dict:
+    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "status": r.status, "log": r.mem["log"][-100:], "running": r.connected,
+            "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time())}
+
+
+async def get_rules(request):
+    """the heating rules, the routines, what they do now (every room, every lane) and the log; every screen may look"""
+    return web.json_response(await rules_answer(request, rules_store(request)))
+
+
+async def put_rules(request):
+    """editors change the heating rules or the routines (each given part replaces the old one)"""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        return web.json_response({"error": "invalid JSON"}, status=400)
+    if not isinstance(body, dict):
+        return web.json_response({"error": "object expected"}, status=400)
+    r = rules_store(request)
+    if "heat" in body:
+        r.cfg["heat"] = hr.clean_rules(body["heat"])
+    if "flows" in body:
+        if not isinstance(body["flows"], list):
+            return web.json_response({"error": "flows: a list expected"}, status=400)
+        r.cfg["flows"] = fl.clean_flows(body["flows"])
+    write_json_atomic(rules_path(request), r.cfg)
+    r.ask("cfg")
+    return web.json_response(await rules_answer(request, r))
+
+
+async def post_rules_room(request):
+    """🚀 boost a room, or "Trotzdem heizen" while its window is open; not for a user who may not switch (lock "control")"""
+    if "control" in user_locks(request):
+        return web.json_response({"error": "locked"}, status=403)
+    try:
+        body = await request.json()
+    except ValueError:
+        body = None
+    key, act = (body.get("room"), body.get("act")) if isinstance(body, dict) else (None, None)
+    if not isinstance(key, str) or not hr.ROOM_KEY.match(key) or act not in RULE_ACTS:
+        return web.json_response({"error": "room and act (boost | skip) expected"}, status=400)
+    rules_store(request).ask("room", key, act)
+    return web.json_response({"ok": True})
+
+
+async def post_rules_run(request):
+    """a routine's lane started from the page: its button (everybody who may switch), or "Jetzt ausprobieren" (test, only editors)"""
+    try:
+        body = await request.json()
+    except ValueError:
+        body = None
+    body = body if isinstance(body, dict) else {}
+    test, r = body.get("test") is True, rules_store(request)
+    flow = next((f for f in r.cfg["flows"] if f["id"] == body.get("flow")), None)
+    lane = next((x for x in (flow or {}).get("lanes", []) if x["id"] == body.get("lane")), None)
+    if not lane:
+        return web.json_response({"error": "no such routine"}, status=404)
+    if test or lane["blocks"][0]["k"] != "button" or not flow["on"]:
+        if not await can_edit(request):
+            return forbidden()
+    elif "control" in user_locks(request):
+        return web.json_response({"error": "locked"}, status=403)
+    r.ask("run", flow["id"], lane["id"], test)
+    return web.json_response({"ok": True})
+
+
+async def rules_areas(app) -> dict:
+    """{area: [entities]} of Home Assistant, asked again every 10 minutes (the rooms linked to an area)"""
+    store = app[KEY_RULES]
+    at, areas = store.get("areas", (0, {}))
+    if time.time() - at < 600:
+        return areas
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
+            async with s.post(f"{HA_API}/template", headers=ha_headers(), json={"template": AREA_TEMPLATE}) as resp:
+                data = json.loads(await resp.text()) if resp.status == 200 else None
+        if isinstance(data, list):
+            areas = {a["id"]: a["entities"] for a in area_list(data)}
+    except (aiohttp.ClientError, ValueError, asyncio.TimeoutError):
+        pass
+    store["areas"] = (time.time(), areas)
+    return areas
+
+
+async def rules_rooms(app) -> list:
+    """the rooms of every house with their thermostats, windows and devices (roommap.py)"""
+    ctx = _AppCtx(app)
+    houses = [(h["id"], read_json(house_file(ctx, h["id"]), {})) for h in houses_index(ctx)]
+    return rm.rooms_of(houses, await rules_areas(app))
+
+
+def rules_weather(app, states) -> str | None:
+    """the weather entity of the settings, else the first one"""
+    chosen = validate_settings(read_settings(_AppCtx(app))).get("weatherEntity")
+    if chosen and chosen in states:
+        return chosen
+    return next((e for e in sorted(states) if e.startswith("weather.")), None)
+
+
+def own_window(app, states) -> set:
+    """thermostats whose device sees an open window itself (a switch "window detection" of the same device that is on, #370's parts)"""
+    parts = app[KEY_RENAMES].get("parts") or {}
+    return {head for e, head in parts.items() if re.search(r"window|fenster", e) and (states.get(e) or {}).get("state") == "on"}
+
+
+async def rules_call(domain: str, service: str, data: dict) -> bool:
+    """one call of a rule to Home Assistant (only the domains rules may switch)"""
+    if domain not in RULE_DOMAINS:
+        return False
+    try:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
+            async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(), json=data) as r:
+                if r.status >= 400:
+                    log.info("rule: %s.%s %s -> %s", domain, service, data.get("entity_id"), r.status)
+                return r.status < 400
+    except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+        log.info("rule: %s.%s failed (%s)", domain, service, err)
+        return False
+
+
+async def rules_runner(app):
+    """Background task: the heating rules and routines (also with no browser open). Only with Home Assistant."""
+    app[KEY_RULES] = {}
+    task = None
+    if SUPERVISOR_TOKEN:
+        ctx = _AppCtx(app)
+
+        class Env:
+            async def rooms(self):
+                return await rules_rooms(app)
+
+            def local(self):
+                return datetime.datetime.now(app[KEY_RULES].get("tz")).replace(tzinfo=None)
+
+            async def call(self, domain, service, data):
+                return await rules_call(domain, service, data)
+
+            async def notify(self, text):
+                ok, err = await send_notify(notify_cfg(ctx), text)
+                log.info("routine message %s", "sent" if ok else f"not sent: {err}")
+
+            def save(self, mem):
+                write_json_atomic(rules_state_path(ctx), mem)
+
+            async def publish(self, st):
+                await app[KEY_LIVE].broadcast({"type": "rules", **st})
+
+            def guard_armed(self):
+                return guard_store(ctx)["state"]["phase"] != "off"
+
+            def weather(self, states):
+                return rules_weather(app, states)
+
+            def own_window(self, states):
+                return own_window(app, states)
+
+        async def start():
+            await asyncio.sleep(4)
+            app[KEY_RULES]["tz"] = await ha_time_zone()
+            await rr.run_rules(rules_store(ctx), connect=_HaSocket, env=Env())
+
+        task = asyncio.create_task(start())
+    yield
+    if task:
+        task.cancel()
+
+
+async def ha_ask(msgs: list) -> list:
+    """a few commands over one websocket to Home Assistant: their results in order (None for one that failed)"""
+    out = []
+    async with _HaSocket() as ws:
+        for i, m in enumerate(msgs, start=1):
+            await ws.send_json({"id": i, **m})
+            while True:
+                r = await asyncio.wait_for(ws.receive_json(), 20)
+                if r.get("id") == i and r.get("type") == "result":
+                    out.append(r.get("result") if r.get("success") else None)
+                    break
+    return out
+
+
+async def ha_states_cached(app) -> dict:
+    """every state of Home Assistant, kept 20 seconds (who uses a device asks for names and on / off)"""
+    store = app[KEY_RULES]
+    at, states = store.get("states", (0, {}))
+    if time.time() - at > 20:
+        res = await ha_ask([{"type": "get_states"}])
+        states = {s["entity_id"]: s for s in res[0] or [] if isinstance(s, dict) and s.get("entity_id")}
+        store["states"] = (time.time(), states)
+    return states
+
+
+def _config_cmd(e: str) -> dict:
+    return {"type": "automation/config" if e.startswith("automation.") else "script/config", "entity_id": e}
+
+
+def _cfg_of(res):
+    return res.get("config") if isinstance(res, dict) else None
+
+
+async def get_related(request):
+    """who uses a device: the automations, scripts and scenes of Home Assistant (each on / running / last / what it does), the add-on's
+    own rules, and whether its thermostat sees an open window itself"""
+    e = request.query.get("entity", "")
+    if not ub.ENTITY.match(e):
+        return web.json_response({"error": "entity expected"}, status=400)
+    r = rules_store(request)
+    rooms = await rules_rooms(request.app) if SUPERVISOR_TOKEN else rm.rooms_of([(h["id"], read_json(house_file(request, h["id"]), {})) for h in houses_index(request)])
+    out = {"entity": e, "rows": [], "own": ub.own_uses(e, r.cfg["heat"], r.cfg["flows"], rooms), "parts": [], "ha": bool(SUPERVISOR_TOKEN)}
+    if not SUPERVISOR_TOKEN:
+        return web.json_response(out)
+    try:
+        ids = ub.related_ids((await ha_ask([{"type": "search/related", "item_type": "entity", "item_id": e}]))[0])
+        configs = await ha_ask([_config_cmd(x) for x in ids if not x.startswith("scene.")]) if any(not x.startswith("scene.") for x in ids) else []
+        states = await ha_states_cached(request.app)
+    except (aiohttp.ClientError, asyncio.TimeoutError, RuntimeError, OSError) as err:
+        out["error"] = str(err)[:120]
+        return web.json_response(out)
+    cfgs = iter(configs)
+    out["rows"] = [ub.row(x, states.get(x), None if x.startswith("scene.") else _cfg_of(next(cfgs, None))) for x in ids]
+    parts = request.app[KEY_RENAMES].get("parts") or {}
+    out["parts"] = [{"entity": p, "name": ((states.get(p) or {}).get("attributes") or {}).get("friendly_name") or p, "state": (states.get(p) or {}).get("state")}
+                    for p, head in parts.items() if head == e and re.search(r"window|fenster", p)]
+    return web.json_response(out)
+
+
+async def get_automations(request):
+    """every automation of Home Assistant with on / running / last, what it does and the devices it uses (page ▶ Abläufe, editors);
+    kept a minute"""
+    if not await can_edit(request):
+        return forbidden()
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"rows": []})
+    store = request.app[KEY_RULES]
+    at, rows = store.get("autos", (0, None))
+    if rows is None or time.time() - at > 60 or request.query.get("fresh"):
+        try:
+            states = await ha_states_cached(request.app)
+            ids = sorted(e for e in states if e.startswith("automation."))[:150]
+            configs = await ha_ask([_config_cmd(x) for x in ids]) if ids else []
+        except (aiohttp.ClientError, asyncio.TimeoutError, RuntimeError, OSError) as err:
+            return web.json_response({"rows": [], "error": str(err)[:120]})
+        rows = []
+        for x, res in zip(ids, configs):
+            cfg = _cfg_of(res)
+            rows.append({**ub.row(x, states.get(x), cfg), "uses": [u for u in ub.entities_in(cfg) if u != x][:12] if cfg else []})
+        store["autos"] = (time.time(), rows)
+    return web.json_response({"rows": rows})
+
+
 async def timeline_allowed(request) -> bool:
     return "timeline" not in user_locks(request)
 
@@ -3350,6 +3649,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app.cleanup_ctx.append(guard_watcher)
     app.cleanup_ctx.append(household_teller)
     app.cleanup_ctx.append(garden_timer)
+    app.cleanup_ctx.append(rules_runner)
     app.add_routes([
         web.get("/", index),
         web.get("/auth/login", auth_login),
@@ -3428,6 +3728,12 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/fullscreen", get_fullscreen),
         web.put("/api/fullscreen", put_fullscreen),
         web.post("/api/fullscreen/unlock", unlock_fullscreen),
+        web.get("/api/rules", get_rules),
+        web.put("/api/rules", put_rules),
+        web.post("/api/rules/room", post_rules_room),
+        web.post("/api/rules/run", post_rules_run),
+        web.get("/api/related", get_related),
+        web.get("/api/automations", get_automations),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
         web.get("/api/camera/{entity}/hls", get_camera_hls),

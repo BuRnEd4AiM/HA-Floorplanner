@@ -1410,7 +1410,7 @@ async def test_backup_keeps_the_pinboard_and_the_alarm_settings_without_code_and
     (tmp_path / "notify.json").write_text(json.dumps({"on": False, "phone": "", "apikey": "neu"}))
     client.app[server.KEY_GUARD].clear(); client.app[server.KEY_NOTIFY].clear()
     r = await (await client.post("/api/backup", json=backup)).json()
-    assert r["extras"] == ["pinboard", "guard", "notify"]
+    assert r["extras"] == ["pinboard", "guard", "notify", "rules"]          # the heating rules and routines too (#546)
     assert json.loads((tmp_path / "pinboard.json").read_text())["notes"] == [note]
     g = json.loads((tmp_path / "guard.json").read_text())["cfg"]
     assert g["sensors"] == ["binary_sensor.tuer"] and g["delay"] == 45 and g["code"] == {"salt": "s2", "hash": "h2"}

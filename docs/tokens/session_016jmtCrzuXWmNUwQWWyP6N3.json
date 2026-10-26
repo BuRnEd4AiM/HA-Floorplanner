@@ -1,20 +1,20 @@
 {
  "session": "session_016jmtCrzuXWmNUwQWWyP6N3",
  "start": "2026-10-26",
- "updated": "2026-10-26T16:18:48Z",
+ "updated": "2026-10-26T16:25:24Z",
  "branch": "claude/heizung-regeln",
  "source": "counted",
- "input": 182,
- "cache_write": 461929,
- "cache_read": 22803278,
- "output": 138932,
+ "input": 232,
+ "cache_write": 516446,
+ "cache_read": 34374524,
+ "output": 177327,
  "models": {
   "claude-opus-5-5": {
-   "input": 182,
-   "cache_write": 461929,
-   "cache_read": 22803278,
-   "output": 138932,
-   "requests": 91
+   "input": 232,
+   "cache_write": 516446,
+   "cache_read": 34374524,
+   "output": 177327,
+   "requests": 116
   }
  }
 }
