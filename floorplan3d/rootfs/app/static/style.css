@@ -2123,3 +2123,21 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
   .fePal .g { display: none; } .fePal .it { width: auto; white-space: nowrap; margin: 0; }
   .feProps { overflow: visible; }
 }
+
+/* own routines as automations of Home Assistant (#548): where a routine runs, what saving it there came to */
+.feWhere { display: inline-flex; gap: 6px; }
+.feSync { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 14px; border-radius: 12px; font-weight: 700; font-size: 14px;
+  border: 1px solid rgba(63, 169, 245, .5); background: rgba(63, 169, 245, .1); color: #8fd0ff; }
+.feSync.warn, .feSync.ask { border-color: rgba(245, 166, 35, .6); background: rgba(245, 166, 35, .14); color: #ffc46b; }
+.feSync.bad { border-color: rgba(229, 72, 77, .6); background: rgba(229, 72, 77, .14); color: #ff8f8f; }
+.feSync > span { flex: 1 1 260px; }
+.feHaLink { color: inherit; font-weight: 800; text-decoration: none; padding: 4px 10px; border-radius: 999px; border: 1px solid currentColor; }
+.feHaNote { color: #8fd0ff; }
+.roName { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.roWhere { font-size: 11.5px; font-weight: 800; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.roWhere.ha { color: #8fd0ff; border-color: rgba(63, 169, 245, .5); background: rgba(63, 169, 245, .1); }
+.roWhere.bad { color: #ffc46b; border-color: rgba(245, 166, 35, .6); background: rgba(245, 166, 35, .14); }
+a.roIcon { text-decoration: none; color: inherit; border: 1px solid var(--line); background: var(--panel); }
+[data-theme="light"] .feSync, [data-theme="light"] .feHaNote, [data-theme="light"] .roWhere.ha { color: #1565a8; }
+[data-theme="light"] .feSync.warn, [data-theme="light"] .feSync.ask, [data-theme="light"] .roWhere.bad { color: #8a5300; }
+[data-theme="light"] .feSync.bad { color: #a8272b; }

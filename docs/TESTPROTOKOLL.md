@@ -4,26 +4,27 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.28.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.29.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.28.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.29.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe** (Abschnitt 110): in der Demo 110.6, 110.12, 110.13; im Add-on mit deinem echten Fenster und Thermostat 110.14, 110.15.
-2. **Neu: 🗄 Schrank-Editor** (Abschnitt 109): Claude hat 109.1 bis 109.10 in der Demo geprüft; probier ihn gern selbst aus (Etage „Dach“, „Schrank unter der Schräge“), und im Add-on unter deinem echten Dach 109.11.
-3. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 bis 107): in der Demo hat Claude am Morgen alles geprüft (siehe unten). Für dich bleibt: **flüssiger am iPad** (102.1), **🎤 mit echter Sprache** „Mach das Licht im Bad an“ (105.6) und im Add-on mit deinen Geräten 103.5 bis 103.7, 104.3 bis 104.5, 105.7, 106.5, 106.6.
-4. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
-5. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
-6. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
-7. **🔋 Ladestand mit deiner Batterie** (99.9, 99.10, nur im Add-on).
-8. **Zähler und Backup im Add-on** (92.2, 92.3, 92.6, 93.1 bis 93.4): SolarNet-Sensoren, Helfer „Energie“, Urlaubs-Alarm im Backup.
-9. **Kalender, Knöpfe, Anwesenheit, zweites Haus im Add-on** (90.7, 91.7, 89.5, 89.6, 87.6).
-10. **Wandtablet schneller** (85.1 bis 85.4; in der 2D-Ansicht 108.3) und **iPad flüssig** (56.1, 56.2).
-11. **Dashboard-Karte in Home Assistant** (46.4 bis 46.9; 46.3 war ❌, behoben in 3.77.1).
-12. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
-13. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
-14. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
+1. **Neu in 4.29.0: Abläufe werden echte Automationen in Home Assistant** (Abschnitt 111): Claude hat 111.1 bis 111.4 in der Demo geprüft; für dich im Add-on mit deinem Home Assistant 111.5 bis 111.8.
+2. **Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe** (Abschnitt 110): in der Demo 110.6, 110.12, 110.13; im Add-on mit deinem echten Fenster und Thermostat 110.14, 110.15.
+3. **Neu: 🗄 Schrank-Editor** (Abschnitt 109): Claude hat 109.1 bis 109.10 in der Demo geprüft; probier ihn gern selbst aus (Etage „Dach“, „Schrank unter der Schräge“), und im Add-on unter deinem echten Dach 109.11.
+4. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 bis 107): in der Demo hat Claude am Morgen alles geprüft (siehe unten). Für dich bleibt: **flüssiger am iPad** (102.1), **🎤 mit echter Sprache** „Mach das Licht im Bad an“ (105.6) und im Add-on mit deinen Geräten 103.5 bis 103.7, 104.3 bis 104.5, 105.7, 106.5, 106.6.
+5. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
+6. **Werte der Energie-Balken mit dem Finger** (101.1): am Tablet oder Handy auf einen Balken tippen.
+7. **🎤 mit echter Sprache** (96.1, 97.3, 98.2; im Add-on über http:// 98.4, 98.5): sprechen statt tippen.
+8. **🔋 Ladestand mit deiner Batterie** (99.9, 99.10, nur im Add-on).
+9. **Zähler und Backup im Add-on** (92.2, 92.3, 92.6, 93.1 bis 93.4): SolarNet-Sensoren, Helfer „Energie“, Urlaubs-Alarm im Backup.
+10. **Kalender, Knöpfe, Anwesenheit, zweites Haus im Add-on** (90.7, 91.7, 89.5, 89.6, 87.6).
+11. **Wandtablet schneller** (85.1 bis 85.4; in der 2D-Ansicht 108.3) und **iPad flüssig** (56.1, 56.2).
+12. **Dashboard-Karte in Home Assistant** (46.4 bis 46.9; 46.3 war ❌, behoben in 3.77.1).
+13. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
+14. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
+15. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
 
 **Zuletzt geprüft (2026-10-26 morgens, Claude in der Demo 4.26.0):** ✅ 102.2 bis 102.6, 103.1 bis 103.4, 104.1, 104.2, 105.1 bis 105.5, 106.1 bis 106.4, 107.1 bis 107.8 (Chromium als PC und als Tablet, nachts und am Tag der Zeitumstellung mit gestellter Uhr). Kein ❌.
 
@@ -316,7 +317,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 108. Neu in 4.26.1: die 2D-Ansicht zeichnet kein verstecktes 3D-Bild mehr (#542) | 2 | 0 | 1 | 0 | 108.3 |
 | 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545) | 10 | 0 | 1 | 0 | 109.11 |
 | 110. Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe „Wenn … dann …“ (#546) | 10 | 0 | 3 | 2 | 110.6, 110.12, 110.13 |
-| **Zusammen** | **720** | **10** | **53** | **76** | |
+| 111. Neu in 4.29.0: Abläufe werden echte Automationen in Home Assistant (#548) | 4 | 0 | 0 | 4 | – |
+| **Zusammen** | **724** | **10** | **53** | **80** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1728,3 +1730,16 @@ In der Demo ist die Fenster-Regel an: Das Fenster im Wohnzimmer ist offen, darum
 | 110.13 | Am Handy oder Tablet: den Editor öffnen | Die Bausteine stehen oben in einer Reihe zum Wischen, darunter die Kette, darunter die Einstellungen | ❓ |
 | 110.14 | Nur im Add-on: die Fenster-Regel an, ein echtes Fenster öffnen und warten | Nach den eingestellten Minuten geht die Heizung des Raums aus, beim Schließen wieder an, auch wenn kein Bildschirm offen ist | ➖ (im Test-Add-on ✅ 2026-10-26, Claude) |
 | 110.15 | Nur im Add-on: „🔎 Wird benutzt“ an einem echten Thermostat | Deine Automationen, die es benutzen, mit „läuft gerade“ und „zuletzt …“ | ➖ |
+
+## 111. Neu in 4.29.0: Abläufe werden echte Automationen in Home Assistant (#548)
+Wunsch des Besitzers vom 2026-10-26 („der Editor soll in unserer App sein … aber es soll dann auch eine echte Home Assistant Automatisierung … daraus werden … nicht, dass wir dann irgendwas kaputt machen“). In der Demo spielt die Seite Home Assistant nur nach.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 111.1 | Unten „Abläufe“ | „Flurlicht nachts“ und „Kinoabend“ zeigen „🏠 Home Assistant“ und ↗, „Rollläden am Abend“ zeigt „⚙️ Add-on“; bei „Automationen in Home Assistant“ stehen die beiden nicht noch einmal | ✅ (2026-10-26, Claude in der Demo) |
+| 111.2 | Bei „Flurlicht nachts“ auf ✏️, oben „⚙️ Add-on“ und wieder „🏠 Home Assistant“ antippen, „✓ Speichern“ | Darunter steht „🏠 In Home Assistant gespeichert“ mit „↗ In Home Assistant öffnen“; unten „Läuft als echte Automation in Home Assistant …“ | ✅ (2026-10-26, Claude in der Demo) |
+| 111.3 | „＋ Neuer Ablauf“ | Oben ist „🏠 Home Assistant“ schon gewählt | ✅ (2026-10-26, Claude in der Demo) |
+| 111.4 | Einen Ablauf auf „⚙️ Add-on“ stellen und speichern, „‹ Abläufe“ | In der Liste steht bei ihm „⚙️ Add-on“ | ✅ (2026-10-26, Claude in der Demo) |
+| 111.5 | Nur im Add-on: einen Ablauf mit „🏠 Home Assistant“ speichern, dann in Home Assistant unter Einstellungen → Automationen schauen | Dort steht er mit demselben Namen und „Erstellt mit 3D Floorplan …“; er tut, was im Editor steht | ➖ |
+| 111.6 | Nur im Add-on: die Automation in Home Assistant ein wenig ändern und speichern, dann im Dashboard den Ablauf ändern und speichern | Das Dashboard fragt „⚠️ … in Home Assistant geändert. Überschreiben?“; „Nicht überschreiben“ lässt sie, „Überschreiben“ schreibt sie | ➖ |
+| 111.7 | Nur im Add-on: einen Ablauf mit „Knopf im Dashboard“ in Home Assistant speichern, dann ▶ | Die Automation läuft (in Home Assistant „zuletzt ausgelöst“: gerade eben) | ➖ |
+| 111.8 | Nur im Add-on: den Ablauf löschen | Seine Automation ist in Home Assistant weg, deine anderen Automationen sind alle noch da | ➖ |

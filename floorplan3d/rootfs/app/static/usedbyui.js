@@ -3,7 +3,7 @@
  * heating rules and routines (what they do now, ✏ to change them) and the automations, scripts and scenes of Home Assistant (on / off,
  * "läuft gerade", when they last ran, what they do in words), a warning when one of them sets the same thermostat as an own heating rule,
  * and whether the thermostat sees an open window itself. The add-on asks Home Assistant (api/related); the words come from rules.js. */
-import { sumWords, ago, clashes, roomLine } from './rules.js';
+import { sumWords, ago, clashes, roomLine, flowLive } from './rules.js';
 
 const RULE_ICON = { window: '🪟', schedule: '📅', night: '🌙', away: '🚶', summer: '☀️', holiday: '✈️' };
 const KIND_ICON = { automation: '⚙️', script: '📜', scene: '🎨' };
@@ -58,9 +58,9 @@ export function initUsedBy(ctx) {
           ctl: btn('bdBtn small', '✏️', () => { close(); ctx.openRules(); }, t('ub.change')) }));
       } else {
         const flow = (ctx.rules.get()?.flows || []).find((f) => f.id === o.id);
-        const lanes = (flow?.lanes || []).map((l) => ctx.rules.lane(`${o.id}/${l.id}`)).filter(Boolean);
-        const running = lanes.some((l) => l.running), last = Math.max(0, ...lanes.map((l) => l.end || l.t0 || 0));
-        out.push(row({ cls: running ? 'live' : o.on ? '' : 'dim', icon: '⚙️', name: o.name, kind: chip('fp', t('ub.own')), what: t('ub.flow'),
+        const { running, last } = flow ? flowLive(flow, ctx.states(), ctx.rules.lane) : { running: false, last: 0 };
+        out.push(row({ cls: running ? 'live' : o.on ? '' : 'dim', icon: '⚙️', name: o.name, kind: chip('fp', t('ub.own')),
+          what: flow?.ha ? `${t('ub.flow')} · 🏠 ${t('fe.ha.where.ha')}` : t('ub.flow'),
           chips: running ? [chip('run', t('ub.running'))] : o.on ? [] : [chip('off', t('ub.off'))], when: last ? ago(last, now(), t) : '', key: `flow:${o.id}`,
           ctl: btn('bdBtn small', '✏️', () => { close(); ctx.openFlow(o.id); }, t('ub.change')) }));
       }

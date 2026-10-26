@@ -114,6 +114,9 @@ pgR.click("#tabBar [data-tab=routines]"); pgR.wait_for_timeout(800)
 pgR.click("[data-page=routines] [data-act=newFlow]"); pgR.wait_for_timeout(500)
 check("routines: '＋ Neuer Ablauf' opens the editor", pgR.is_visible(".feDlg"))
 pgR.fill(".feDlg .feName", "Testlicht"); pgR.press(".feDlg .feName", "Tab")
+check("editor: a new routine becomes an automation of Home Assistant unless '⚙️ Add-on' is chosen (#548)",
+      pgR.locator(".feDlg [data-field=where] [data-value=true].on").count() == 1)
+pgR.click(".feDlg [data-field=where] [data-value=false]"); pgR.wait_for_timeout(200)   # this one the add-on runs (51_ha_routines: Home Assistant)
 pgR.click(".feDlg [data-add=button]"); pgR.wait_for_timeout(200)
 pgR.click(".feDlg [data-add=switch]"); pgR.wait_for_timeout(200)
 check("editor: an action without a device cannot be saved yet", pgR.locator(".feDlg .feBlk.bad").count() == 1 and pgR.is_disabled(".feDlg [data-act=feSave]"))
@@ -122,7 +125,7 @@ words_rl = pgR.inner_text(".feDlg .feWords")
 check("editor: the lines join the blocks and the routine stands there in words", pgR.locator(".feDlg .feWires path").count() == 1 and "Wohnzimmer Licht" in words_rl, words_rl)
 pgR.click(".feDlg [data-act=feSave]")
 flows_rl = wait_rl(lambda: api("api/rules")["flows"])
-check("editor: '✓ Speichern' keeps the routine in the add-on", flows_rl and flows_rl[0]["name"] == "Testlicht"
+check("editor: '✓ Speichern' keeps the routine in the add-on", flows_rl and flows_rl[0]["name"] == "Testlicht" and flows_rl[0]["ha"] is False
       and [x["k"] for x in flows_rl[0]["lanes"][0]["blocks"]] == ["button", "switch"], flows_rl)
 pgR.click(".feDlg [data-act=feBack]"); pgR.wait_for_timeout(500)
 fid_rl = flows_rl[0]["id"] if flows_rl else ""

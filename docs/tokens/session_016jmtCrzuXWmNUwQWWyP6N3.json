@@ -1,20 +1,20 @@
 {
  "session": "session_016jmtCrzuXWmNUwQWWyP6N3",
  "start": "2026-10-26",
- "updated": "2026-10-26T17:36:30Z",
+ "updated": "2026-10-26T18:53:56Z",
  "branch": "claude/ha-automationen",
  "source": "counted",
- "input": 614,
- "cache_write": 1060155,
- "cache_read": 109530031,
- "output": 489795,
+ "input": 764,
+ "cache_write": 1214977,
+ "cache_read": 138353101,
+ "output": 550848,
  "models": {
   "claude-opus-5-5": {
-   "input": 614,
-   "cache_write": 1060155,
-   "cache_read": 109530031,
-   "output": 489795,
-   "requests": 307
+   "input": 764,
+   "cache_write": 1214977,
+   "cache_read": 138353101,
+   "output": 550848,
+   "requests": 382
   }
  }
 }

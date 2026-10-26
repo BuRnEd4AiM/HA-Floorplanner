@@ -32,11 +32,12 @@ export function initRulesStore(ctx) {
       return r.ok ? await r.json().catch(() => ({})) : null;
     } catch { return null; }
   }
-  /** the heating rules ({heat}) or the routines ({flows}) saved; true when the add-on took them */
+  /** the heating rules ({heat}) or the routines ({flows}, force: [routine ids] to write over a change made in Home Assistant) saved: the
+   *  add-on's answer (haSync: what became of the routines in Home Assistant, #548), null when it did not take them */
   async function save(part) {
     const r = await send('PUT', 'api/rules', part);
     if (r) { data = r; ctx.changed(); }
-    return !!r;
+    return r;
   }
   const later = () => { clearTimeout(again); again = setTimeout(load, 1200); };
   return {

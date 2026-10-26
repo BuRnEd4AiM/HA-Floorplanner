@@ -3245,7 +3245,8 @@ def rules_store(request) -> rr.Rules:
 
 async def rules_answer(request, r: rr.Rules) -> dict:
     return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "status": r.status, "log": r.mem["log"][-100:], "running": r.connected,
-            "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time())}
+            "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time()),
+            "haLink": hl.browser_ha(HA_URL, HA_PUBLIC_URL, request.host) if HA_URL else ""}   # where the browser opens Home Assistant (#548)
 
 
 async def get_rules(request):
