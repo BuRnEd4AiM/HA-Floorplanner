@@ -1931,4 +1931,9 @@ export default {
   'tr.stamp': 'stan {at}', 'tr.nohass': 'Bez Home Assistant nie można odczytać czujnika.',
   'tr.noStation': 'Deutsche Bahn nie zna tak stacji „{s}”: wpisz dokładną nazwę (np. „Frankfurt (Main) Hbf”).',
   'tr.error': 'Odjazdy teraz nie dotarły ({why}).',
+  'set.edges': 'Wygładzanie krawędzi na tym urządzeniu', 'set.edges.default': 'Jak „Wydajność” (wł., wył. w trybie „Szybko”)',
+  'set.edges.msaa': 'Zawsze (najładniej, wymaga najwięcej mocy)', 'set.edges.still': 'Gładko, gdy obraz stoi',
+  'set.edges.fxaa': 'Wygładzaj potem (oszczędza moc, nieco miękko)', 'set.edges.auto': 'Automatycznie: przy słabej grafice tylko w bezruchu',
+  'set.edges.off': 'Wył. (najszybciej)',
+  'set.edgesHint': 'Dotyczy tylko tego urządzenia/przeglądarki. Wygładzanie krawędzi kosztuje grafikę najwięcej mocy. „Gładko, gdy obraz stoi”: podczas obracania bez wygładzania (płynnie), gładkie krawędzie, gdy tylko obraz stanie. „Wygładzaj potem” zmiękcza schodki na krawędziach, kosztuje mało, cienkie linie i tekst są nieco miękkie. „Automatycznie” mierzy podczas obracania, czy grafika nadąża, a jeśli nie, wygładza tylko w bezruchu. Widok → ⏱ Wydajność → „wszystkie wartości” pokazuje, co obowiązuje. Strona przeładuje się.',
 };

@@ -1,20 +1,20 @@
 {
  "session": "session_012p9z3MaHwyjf7hJG4tdSBQ",
  "start": "2026-10-27",
- "updated": "2026-10-27T08:38:07Z",
+ "updated": "2026-10-27T08:58:25Z",
  "branch": "claude/great-curie-521hrr",
  "source": "counted",
- "input": 162,
- "cache_write": 437499,
- "cache_read": 13436432,
- "output": 88021,
+ "input": 250,
+ "cache_write": 527446,
+ "cache_read": 27259738,
+ "output": 148703,
  "models": {
   "claude-opus-5-5": {
-   "input": 162,
-   "cache_write": 437499,
-   "cache_read": 13436432,
-   "output": 88021,
-   "requests": 80
+   "input": 250,
+   "cache_write": 527446,
+   "cache_read": 27259738,
+   "output": 148703,
+   "requests": 124
   }
  }
 }

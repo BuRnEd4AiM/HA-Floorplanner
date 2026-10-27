@@ -1932,4 +1932,9 @@ export default {
   'tr.stamp': 'stand {at}', 'tr.nohass': 'Zonder Home Assistant kan de sensor niet gelezen worden.',
   'tr.noStation': 'Deutsche Bahn kent het station „{s}” zo niet: vul de precieze naam in (bijv. „Frankfurt (Main) Hbf”).',
   'tr.error': 'De vertrektijden kwamen nu niet ({why}).',
+  'set.edges': 'Randen gladmaken op dit apparaat', 'set.edges.default': 'Zoals bij „Prestaties” (aan, uit bij „Snel”)',
+  'set.edges.msaa': 'Altijd (het mooist, vraagt de meeste kracht)', 'set.edges.still': 'Glad als het beeld stilstaat',
+  'set.edges.fxaa': 'Achteraf gladmaken (spaart kracht, iets zachter)', 'set.edges.auto': 'Automatisch: bij zwakke grafiek alleen bij stilstand',
+  'set.edges.off': 'Uit (het snelst)',
+  'set.edgesHint': 'Geldt alleen voor dit apparaat/deze browser. Randen gladmaken kost de grafiek de meeste kracht. „Glad als het beeld stilstaat”: tijdens het draaien niet gladgemaakt (vloeiend), gladde randen zodra het beeld stilstaat. „Achteraf gladmaken” maakt de trapjes aan de randen zacht, kost weinig, fijne lijnen en tekst worden iets zachter. „Automatisch” meet tijdens het draaien of de grafiek het bijhoudt en maakt anders alleen bij stilstand glad. Weergave → ⏱ Prestaties → „alle waarden” toont wat geldt. De pagina laadt opnieuw.',
 };

@@ -13,10 +13,14 @@ export const REFRESH = 500;
 const TEXT = {
   de: { btn: 'Leistung', off: 'aus', fps: 'FPS', all: 'alle Werte', tip: 'Bilder pro Sekunde und weitere Leistungswerte oben rechts im 3D-Bild einblenden (nur auf diesem Gerät)',
     frame: 'Bild', work: 'Arbeit', calls: 'Zeichenaufrufe', tris: 'Dreiecke', geo: 'Geometrien', tex: 'Texturen', prog: 'Shader',
-    res: 'Auflösung', mode: 'Modus', low: 'Sparmodus', normal: 'Normal', idle: 'Leerlauf', busy: 'aktiv', gpu: 'Grafik', mem: 'Speicher', screen: 'Bildschirm' },
+    res: 'Auflösung', mode: 'Modus', low: 'Sparmodus', normal: 'Normal', idle: 'Leerlauf', busy: 'aktiv', gpu: 'Grafik', mem: 'Speicher', screen: 'Bildschirm',
+    edges: 'Kanten', e_msaa: 'immer glatt', e_still: 'glatt im Stillstand', e_fxaa: 'nachträglich geglättet', e_auto: 'automatisch', e_off: 'nicht geglättet',
+    p_smooth: 'jetzt glatt', p_direct: 'jetzt schnell', w_null: 'misst noch', w_true: 'Grafik zu langsam', w_false: 'Grafik reicht' },
   en: { btn: 'Performance', off: 'off', fps: 'FPS', all: 'all values', tip: 'Show the frames per second and more performance values at the top right of the 3D picture (on this device only)',
     frame: 'Frame', work: 'Work', calls: 'Draw calls', tris: 'Triangles', geo: 'Geometries', tex: 'Textures', prog: 'Shaders',
-    res: 'Resolution', mode: 'Mode', low: 'low power', normal: 'normal', idle: 'idle', busy: 'busy', gpu: 'GPU', mem: 'Memory', screen: 'Screen' },
+    res: 'Resolution', mode: 'Mode', low: 'low power', normal: 'normal', idle: 'idle', busy: 'busy', gpu: 'GPU', mem: 'Memory', screen: 'Screen',
+    edges: 'Edges', e_msaa: 'always smooth', e_still: 'smooth when still', e_fxaa: 'smoothed afterwards', e_auto: 'automatic', e_off: 'not smoothed',
+    p_smooth: 'smooth now', p_direct: 'fast now', w_null: 'still measuring', w_true: 'graphics too slow', w_false: 'graphics keeps up' },
   fr: { btn: 'Performances', off: 'non', fps: 'FPS', all: 'toutes les valeurs', tip: 'Afficher les images par seconde et d’autres valeurs en haut à droite (sur cet appareil)' },
   es: { btn: 'Rendimiento', off: 'no', fps: 'FPS', all: 'todos los valores', tip: 'Mostrar las imágenes por segundo y otros valores arriba a la derecha (solo en este dispositivo)' },
   it: { btn: 'Prestazioni', off: 'no', fps: 'FPS', all: 'tutti i valori', tip: 'Mostra i fotogrammi al secondo e altri valori in alto a destra (solo su questo dispositivo)' },
@@ -55,7 +59,15 @@ export function frameStats(times, works, now) {
 const num = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)} M` : n >= 1e4 ? `${Math.round(n / 1e3)} k` : String(Math.round(n)));
 const ms = (x) => `${x.toFixed(1)} ms`;
 
-/** the lines of the box. s: frameStats, info: { calls, tris, geo, tex, prog, w, h, ratio, low, idle, gpu, mem (MB or null), screen } */
+/** how the edges are smoothed (#560): e = { mode, path, weak } of smoothedges.js, e.g. "Kanten: automatisch · jetzt schnell · Grafik zu langsam" */
+export function edgesLine(e, l) {
+  const T = (k) => tx(l, k), parts = [T(`e_${e.mode}`)];
+  if (e.mode === 'still' || e.mode === 'auto') parts.push(T(e.path === 'smooth' ? 'p_smooth' : 'p_direct'));
+  if (e.mode === 'auto') parts.push(T(`w_${e.weak}`));
+  return `${T('edges')}: ${parts.join(' · ')}`;
+}
+
+/** the lines of the box. s: frameStats, info: { calls, tris, geo, tex, prog, w, h, ratio, low, idle, gpu, mem (MB or null), screen, edges } */
 export function hudLines(mode, s, info, l) {
   if (mode === 'off') return [];
   const first = `${s.fps} FPS`;
@@ -70,12 +82,13 @@ export function hudLines(mode, s, info, l) {
     `${T('res')}: ${info.w}×${info.h} @${info.ratio.toFixed(2)}`,
     `${T('screen')}: ${info.screen}`,
   ];
+  if (info.edges) lines.push(edgesLine(info.edges, l));
   if (info.gpu) lines.push(`${T('gpu')}: ${info.gpu}`);
   if (info.mem != null) lines.push(`${T('mem')}: ${info.mem} MB`);
   return lines;
 }
 
-/** ctx: $, renderer, low (low-power mode), param (?fps=…), lang() (current language), onChange() (e.g. wake the picture).
+/** ctx: $, renderer, low (low-power mode), param (?fps=…), lang() (current language), onChange() (e.g. wake the picture), edges() (smoothedges.js info).
  *  Returns { frame(now, due, t0) }: call it after each frame drawn (due: from frameDue, t0: performance.now() when the frame began). */
 export function initPerfHud(ctx) {
   const { $, renderer } = ctx;
@@ -132,7 +145,7 @@ export function initPerfHud(ctx) {
     const info = {
       calls: r.render.calls, tris: r.render.triangles, geo: r.memory.geometries, tex: r.memory.textures, prog: r.programs?.length ?? 0,
       w: size.width, h: size.height, ratio: renderer.getPixelRatio(), low: !!ctx.low, idle: !!due?.idle,
-      gpu: mode === 'all' ? gpuName() : '', mem, screen: `${screen.width}×${screen.height} @${devicePixelRatio}`,
+      gpu: mode === 'all' ? gpuName() : '', mem, screen: `${screen.width}×${screen.height} @${devicePixelRatio}`, edges: ctx.edges?.(),
     };
     box.textContent = hudLines(mode, frameStats(times, works, now), info, ctx.lang()).join('\n');
   }
