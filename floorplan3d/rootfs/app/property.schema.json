@@ -65,6 +65,20 @@
        },
        "points": {
         "$ref": "#/$defs/polygon"
+       },
+       "rise": {
+        "type": "number",
+        "minimum": 0.01,
+        "maximum": 5,
+        "description": "A plateau (#566): the area lies this many metres over the lawn. Everything of the house that stands on it (rooms, walls, doors, windows, devices, stairs, the roof over it) goes up with it, on every floor. Without it the area lies on the lawn."
+       },
+       "edge": {
+        "enum": ["wall", "slope"],
+        "description": "Only with rise: its edge, a retaining wall (default) or a bank of lawn that runs down to the lawn (2 : 3)."
+       },
+       "wall": {
+        "enum": ["stone", "concrete", "brick", "gabion"],
+        "description": "Only with rise and edge wall: what the wall is of, natural stone (default), concrete, clinker or gabions."
        }
       }
      }
@@ -487,6 +501,16 @@
        "terrace": {
         "type": "boolean",
         "description": "Roof terrace / open area: no roof above it, a railing along every edge without a wall. Its edges that no other room shares get no wall."
+       },
+       "raise": {
+        "type": "number",
+        "minimum": -3,
+        "maximum": 3,
+        "description": "Its floor lies this many metres higher (minus: lower) than the storey (#566): its furniture and devices go up with it, the ceiling and what hangs from it stay; doors and windows in its walls go up with the higher side, a door to a floor of another height gets steps on the lower side."
+       },
+       "steps": {
+        "type": "boolean",
+        "description": "Only with raise: false = no steps at its doors (default: steps)."
        },
        "covering": {
         "enum": ["parquet", "parquetLight", "parquetDark", "plankWide", "herringbone", "chevron", "basket", "laminate", "deck", "cork", "tiles", "tilesSmall", "tilesDark", "tilesLarge", "tilesWood", "checker", "hexFloor", "mosaic", "cement", "terrazzo", "marble", "slate", "stoneSlabs", "flagstone", "paving", "cobble", "concrete", "carpet", "carpetTiles"],
@@ -915,6 +939,7 @@
       "speaker_floor",
       "spot",
       "starsky",
+      "steps",
       "stepstool",
       "stove",
       "strip",
@@ -1201,7 +1226,19 @@
     },
     "noRail": {
      "type": "boolean",
-     "description": "Only for type bridge: no railing."
+     "description": "Only for type bridge or steps: no railing (no hand rail)."
+    },
+    "h": {
+     "type": "number",
+     "minimum": 0.1,
+     "maximum": 5,
+     "description": "Only for type steps (outdoor steps, #566): the height they lead up to in metres, from the lawn to the top of their landing (default 0.54); the steps are at most 18 cm high each. They stand on the ground, a plateau does not lift them; rot turns them, their landing (top) towards -z of their own frame."
+    },
+    "land": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 4,
+     "description": "Only for type steps: how deep the landing on top is in metres (default 1). w: their width (default 1.4)."
     },
     "mount": {
      "enum": ["auto", "flat", "stand"],

@@ -4,6 +4,7 @@
  * house in one tap. Pure (unit test: tests/yard.test.mjs): the surfaces, measuring, changing a side, cleaning what is stored.
  * plotui.js is the palette and the side panel, yard3d.js lays the areas on the ground, plan2d.js draws and edits them. */
 import { resolve, isPattern } from './finishes.js';
+import { cleanPlateau } from './levels.js';
 
 /** the surfaces an area can have: icon, the finish it is drawn with (finishes.js: a pattern with its colours and size), water: a pond
  *  (no pattern, it shines); the order is the order of the palette */
@@ -119,7 +120,7 @@ export function surfaceTotals(areas) {
   return [...by.values()].sort((p, q) => q.m2 - p.m2);
 }
 
-/* ---------- what is stored: layout.plot = { boundary, areas: [{ id, name, surface, points }] } ---------- */
+/* ---------- what is stored: layout.plot = { boundary, areas: [{ id, name, surface, points, rise?, edge?, wall? }] } ---------- */
 const okPt = (p) => Array.isArray(p) && p.length >= 2 && [p[0], p[1]].every((v) => typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= LIMIT);
 /** a list of corners as stored: 3 to 200 points [x, z] with an area, else null */
 export function cleanPoints(v) {
@@ -127,13 +128,13 @@ export function cleanPoints(v) {
   const pts = v.map((p) => [r3(p[0]), r3(p[1])]);
   return polyArea(pts) >= 0.01 ? pts : null;
 }
-/** an area as stored: { id, name, surface, points }, null when its corners are not usable */
+/** an area as stored: { id, name, surface, points } (a plateau also { rise, edge, wall }), null when its corners are not usable */
 export function cleanArea(v, uid = () => `y${Math.random().toString(36).slice(2, 9)}`) {
   const points = cleanPoints(v?.points);
   if (!points) return null;
   const id = typeof v.id === 'string' && /^[\w-]{1,40}$/.test(v.id) ? v.id : uid();
   const name = typeof v.name === 'string' ? v.name.trim().slice(0, 40) : '';
-  return { id, name, surface: SURFACE_KEYS.includes(v.surface) ? v.surface : DEFAULT_SURFACE, points };
+  return { id, name, surface: SURFACE_KEYS.includes(v.surface) ? v.surface : DEFAULT_SURFACE, points, ...cleanPlateau(v) };   // a plateau: rise, edge, wall (levels.js, #566)
 }
 /** the areas as stored: each one usable once (by its id), at most MAX_AREAS */
 export function cleanAreas(list, uid) {

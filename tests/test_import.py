@@ -891,3 +891,40 @@ def test_plot_areas_survive_import_and_export_and_match_yard_js():
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     areas = schema["properties"]["plot"]["properties"]["areas"]
     assert areas["items"]["properties"]["surface"]["enum"] == list(importer.YARD_SURFACES) and areas["maxItems"] == importer.YARD_MAX_AREAS
+
+
+def test_a_plateau_and_a_raised_room_survive_import_and_export_and_match_levels_js():
+    """#566: an area with a height (a plateau), a room whose floor lies higher or lower, the outdoor steps"""
+    spec = {"schemaVersion": 1, "building": {"floors": [{"rooms": [
+                {"name": "A", "points": [[0, 0], [4, 0], [4, 6], [0, 6]], "raise": 0.456},
+                {"name": "B", "points": [[4, 0], [8, 0], [8, 6], [4, 6]], "raise": -0.3, "steps": False},
+                {"name": "C", "points": [[8, 0], [10, 0], [10, 6], [8, 6]], "raise": 9},
+                {"name": "D", "points": [[10, 0], [12, 0], [12, 6], [10, 6]], "raise": 0}],
+            "devices": [{"type": "steps", "x": 5, "z": -1, "rot": 180, "h": 0.9, "w": 1.5, "land": 1.2, "noRail": True}]}]},
+            "plot": {"areas": [{"name": "Plateau", "surface": "slabs", "points": [[-1, -1], [13, -1], [13, 7], [-1, 7]], "rise": 0.9},
+                               {"surface": "lawn", "points": [[20, 0], [24, 0], [24, 4]], "rise": 0.5, "edge": "slope", "wall": "brick"},
+                               {"surface": "paving", "points": [[30, 0], [34, 0], [34, 4]], "rise": 0, "edge": "slope"}]}}
+    layout, plot, rep, _ = importer.build_layout(spec)
+    assert layout is not None and not rep.errors
+    rooms = layout["floors"][0]["rooms"]
+    assert [r.get("raise") for r in rooms] == [0.46, -0.3, None, None] and rooms[1]["steps"] is False and "steps" not in rooms[0]
+    assert any(w["path"].endswith("rooms[2].raise") for w in rep.warnings)                          # 9 m: too high
+    a = layout["plot"]["areas"]
+    assert [(x.get("rise"), x.get("edge"), x.get("wall")) for x in a] == [(0.9, "wall", "stone"), (0.5, "slope", "brick"), (None, None, None)]
+    assert any(w["path"] == "plot.areas[2].rise" for w in rep.warnings)
+    st = layout["floors"][0]["devices"][0]
+    assert (st["type"], st["h"], st["w"], st["land"], st["noRail"]) == ("steps", 0.9, 1.5, 1.2, True)
+    back = importer.layout_to_property(layout, "x")
+    assert back["plot"]["areas"][0] == {"name": "Plateau", "surface": "slabs", "points": spec["plot"]["areas"][0]["points"], "rise": 0.9, "edge": "wall", "wall": "stone"}
+    br = back["building"]["floors"][0]["rooms"]
+    assert br[0]["raise"] == 0.46 and br[1]["raise"] == -0.3 and br[1]["steps"] is False
+    bd = back["building"]["floors"][0]["devices"][0]
+    assert (bd["h"], bd["land"], bd["noRail"]) == (0.9, 1.2, True)
+    js = (APP / "static" / "levels.js").read_text(encoding="utf-8")                              # the limits are those of levels.js
+    assert re.search(r"maxRise: (\d+)", js).group(1) == str(importer.PLATEAU_MAX_RISE)
+    assert re.search(r"maxRaise: (\d+)", js).group(1) == str(importer.ROOM_MAX_RAISE)
+    assert re.search(r"EDGES = \[([^\]]*)\]", js).group(1).replace("'", "").split(", ") == list(importer.PLATEAU_EDGES)
+    assert re.findall(r"^  (\w+): \{ icon", js, re.M) == list(importer.PLATEAU_WALLS)
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    ap = schema["properties"]["plot"]["properties"]["areas"]["items"]["properties"]
+    assert ap["edge"]["enum"] == list(importer.PLATEAU_EDGES) and ap["wall"]["enum"] == list(importer.PLATEAU_WALLS) and ap["rise"]["maximum"] == importer.PLATEAU_MAX_RISE

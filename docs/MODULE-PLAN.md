@@ -253,6 +253,9 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `scenesui.js` | ~60 | Die Karte „🎨 Szenen“ auf ▶ Abläufe (▶, ✏, 🗑) |
 | `kelvin.js` | ~50 | Weißton in Kelvin (#564): Bereich einer oder mehrerer Lampen, in Worten, Farbe, Verlauf des Schiebers (rein, `tests/kelvin.test.mjs`) |
 | `kelvinui.js` | ~25 | Der Schieber „Weißton  2700 K · Warmweiß“ (Szenen-Editor, Lampen-Karte) |
+| `levels.js` | ~270 | Höhen in einer Etage (#566): Plateau im Gelände (`groundAt`), Boden eines Raums höher oder tiefer (`raiseAt`), was um wie viel nach oben geht (`lifter`), Türen und Fenster neben einem höheren Raum, Stufen an den Türen, das Plateau unter einem Gebäude (`plateauRing`), die Außentreppe (`stepsAtDoor`, `stepsParts`) (rein, `tests/levels.test.mjs`) |
+| `plateau3d.js` | ~110 | Der Rand eines Plateaus in 3D: Stützmauer (Naturstein, Beton, Klinker, Gabionen) mit Abdecksteinen oder Böschung aus Rasen |
+| `plateauui.js` | ~140 | Die Felder: „▲ Plateau unter [Gebäude]“ im Werkzeug „Grundstück“, Höhe, Rand und Mauer eines Plateaus, „＋ Außentreppe an die Haustür“, die Felder der Außentreppe, „Boden höher als die Etage“ bei einem Raum |
 | `hamanage.js` | ~55 | Szenen und Automationen von Home Assistant löschen, mit Frage und „↶ Wiederherstellen“ (`api/ha-restore`, #564) |
 | `trains.js` | ~60 | 🚆 Zug-Karte: „mein Zug“, pünktlich / verspätet / fällt aus, Minuten bis zur Abfahrt (rein, `tests/trains.test.mjs`, #550) |
 | `traincard.js` | ~140 | Die Zug-Karte und ihre Felder in „Karte einstellen“ |

@@ -3,7 +3,11 @@
   "name": "Musterhaus – alles drin",
   "plot": {
     "boundary": [[0, 0], [48, 0], [48, 24], [34, 24], [34, 40], [30, 44], [0, 44]],
+    "areas": [
+      { "name": "Plateau Gartenhaus", "surface": "slabs", "points": [[2.8, 29.8], [7.2, 29.8], [7.2, 34.2], [2.8, 34.2]], "rise": 0.45, "edge": "wall", "wall": "gabion" }
+    ],
     "objects": [
+      { "type": "steps", "x": 5, "z": 29.22, "rot": 180, "h": 0.45, "w": 1.2, "land": 0.6, "name": "Stufen zum Gartenhaus" },
       { "type": "path",    "x": 9.75, "z": 6,    "sx": 1.4, "sz": 3, "name": "Weg zur Haustür" },
       { "type": "path",    "x": 22.5, "z": 7.5,  "sx": 3, "sz": 3.75, "name": "Einfahrt" },
       { "type": "car",     "x": 22.5, "z": 4.5,  "name": "Zweitwagen" },
@@ -276,7 +280,7 @@
           { "name": "Flur",           "points": [[0, 0], [3.5, 0], [3.5, 7], [0, 7]], "area": "flur" },
           { "name": "Gäste-WC",       "points": [[0, 7], [3.5, 7], [3.5, 10], [0, 10]] },
           { "name": "Küche",          "points": [[3.5, 0], [7, 0], [7, 4], [3.5, 4]], "area": "kueche" },
-          { "name": "Bibliothek",     "points": [[7, 0], [12, 0], [12, 4], [7, 4]], "area": "buero" },
+          { "name": "Bibliothek",     "points": [[7, 0], [12, 0], [12, 4], [7, 4]], "area": "buero", "raise": 0.32 },
           { "name": "Wohnen & Essen", "points": [[3.5, 4], [12, 4], [12, 10], [3.5, 10]], "area": "wohnzimmer", "color": "#c2a58f" },
           { "name": "Garage",         "points": [[12, 3], [17, 3], [17, 10], [12, 10]], "color": "#a9a9a9" }
         ],

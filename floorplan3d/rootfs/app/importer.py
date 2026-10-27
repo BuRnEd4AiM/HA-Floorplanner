@@ -102,10 +102,14 @@ def clean_faces(v):
     o = {k: f for k in ("left", "right") if (f := clean_finish(v.get(k), "side"))}
     return o or None
 # optional device fields that are copied when they have the right type
-DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len", "rise", "armSwing", "armReach", "armTilt")
+DEVICE_NUMBERS = ("y", "rot", "scale", "sx", "sy", "sz", "tiltX", "tiltZ", "w", "ar", "fov", "range", "len", "rise", "armSwing", "armReach", "armTilt", "h", "land")
 DEVICE_STRINGS = ("name", "entity", "ledEntity", "motionEntity", "img", "batPower")
 DEVICE_FLAGS = ("mirror", "locked", "hideModel", "batInvert", "noRail")
 CABLE_ROUTES = ("floor", "through", "air")
+ROOM_MAX_RAISE = 3                                                # LEVELS.maxRaise in static/levels.js (#566)
+PLATEAU_MAX_RISE = 5                                              # LEVELS.maxRise
+PLATEAU_EDGES = ("wall", "slope")                                 # EDGES
+PLATEAU_WALLS = ("stone", "concrete", "brick", "gabion")          # WALL_KEYS
 CABLE_KINDS = ("grid", "solar", "battery", "load")
 STAIR_TYPES = ("straight", "L", "U", "spiral", "wall")           # same as STAIR_TYPES in static/stairs.js
 STAIR_MAX_FLOORS = 6                                              # MAX_FLOORS in static/stairs.js
@@ -674,6 +678,12 @@ def build_layout(data):
             if r.get("terrace") is True:
                 room["terrace"] = True                          # roof terrace: open area with a railing
                 open_rooms.add(len(rooms))
+            if _num(r.get("raise"), -ROOM_MAX_RAISE, ROOM_MAX_RAISE) and abs(float(r["raise"])) >= 0.01:
+                room["raise"] = round(float(r["raise"]), 2)     # its floor higher (or lower) than the storey (#566)
+                if r.get("steps") is False:
+                    room["steps"] = False                       # ... without steps at its doors
+            elif "raise" in r:
+                rep.warn(f"{rp}.raise", "raise must be a number from -%g to %g (m): ignored" % (ROOM_MAX_RAISE, ROOM_MAX_RAISE))
             if r.get("covering") in COVERINGS:
                 room["covering"] = r["covering"]                # the floor: parquet, tiles, stone ... instead of one colour (#427)
                 if (look := clean_look(r.get("floorLook"))):
@@ -776,6 +786,13 @@ def build_layout(data):
                     rep.warn(f"plot.areas[{ai}].surface", f"unknown surface {surface!r}, paving used (known: {', '.join(YARD_SURFACES)})")
                     surface = "paving"
                 area = {"id": ids("y"), "name": str(a.get("name") or "").strip()[:40], "surface": surface, "points": pts}
+                if "rise" in a:                                 # a plateau (#566): its height over the lawn, its edge, the wall's look
+                    if _num(a.get("rise"), 0.01, PLATEAU_MAX_RISE):
+                        area["rise"] = round(float(a["rise"]), 2)
+                        area["edge"] = a.get("edge") if a.get("edge") in PLATEAU_EDGES else "wall"
+                        area["wall"] = a.get("wall") if a.get("wall") in PLATEAU_WALLS else "stone"
+                    else:
+                        rep.warn(f"plot.areas[{ai}].rise", "rise must be a number from 0.01 to %g (m): ignored" % PLATEAU_MAX_RISE)
                 areas.append(area)
             if areas:
                 plot["areas"] = areas
@@ -1050,7 +1067,7 @@ def layout_to_property(layout, name="Haus"):
             if not (f.get("rooms") or f.get("walls") or f.get("devices")):      # a plain roof; otherwise also its solar panels, a loft's rooms
                 floors.append(item)
                 continue
-        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
+        item["rooms"] = [{k: r[k] for k in ("name", "points", "color", "area", "terrace", "raise", "steps", "covering", "floorLook", "wallLook", "wallBelow") if k in r} for r in f.get("rooms", [])]
         item["walls"] = []
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
@@ -1091,7 +1108,7 @@ def layout_to_property(layout, name="Haus"):
     out = {"schemaVersion": SCHEMA_VERSION, "name": name, "building": {"floors": floors}}
     pl = layout.get("plot") or {}
     out_plot = {"boundary": pl["boundary"]} if pl.get("boundary") else {}
-    areas = [{k: a[k] for k in ("name", "surface", "points") if a.get(k) not in (None, "")}
+    areas = [{k: a[k] for k in ("name", "surface", "points", "rise", "edge", "wall") if a.get(k) not in (None, "")}
              for a in pl.get("areas") or [] if isinstance(a, dict) and isinstance(a.get("points"), list)]
     if areas:
         out_plot["areas"] = areas

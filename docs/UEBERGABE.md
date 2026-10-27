@@ -1,12 +1,12 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-10-27, Version **4.36.0**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-10-27, Version **4.37.0**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Diese Datei kurz halten** (Wunsch des Besitzers beim Aufräumen am 2026-10-26): unter „Zuletzt“ stehen nur die letzten Sitzungen mit ein, zwei Sätzen; was gebaut ist, steht in `CHANGELOG.md` und im Zeitstrahl. Wird ein Abschnitt alt, kommt er ins Archiv `docs/archiv/`. Die ganze alte Fassung bis 4.26.0 (alle früheren Wünsche und Entscheidungen, die Tabelle „Was fertig ist“, die technischen Notizen zu 4.0 bis 4.2, zu den Reitern, den Seiten und #495) liegt in **`docs/archiv/UEBERGABE-bis-2026-10-26.md`**.
 
 ## Zuletzt
 
-- **2026-10-27 spät abends: ⛰ Plateau und höherer Boden je Raum, nur Beispielbilder (#566, Branch `claude/loving-cray-ym4z59`):** Der Besitzer: zwei Häuser in einem Plan, „das andere Haus steht aber auf einem leichten, erhöhten Plateau … erst eine Treppe hoch“, „ich möchte das zweite Haus einfach da drin zusätzlich zeichnen“. Drei Wege vorgeschlagen (Höhe je Gebäude, je Raum, Plateau im Gelände); seine Wahl per Auswahl: **Höhe je Raum und Plateau im Gelände**, Plateau **so groß wie das Haus**, Rand **Mauer**, **erst Bilder**. Bilder in `docs/ideen-4.37/` (Nachbarhaus der Demo als zweites Gebäude hereingeholt, dann angehoben). Noch nichts gebaut.
+- **2026-10-27 spät abends, 4.37.0: ▲ Plateau im Gelände, Boden je Raum höher, Außentreppe (#566, Branch `claude/loving-cray-ym4z59`):** Der Besitzer: zwei Häuser in einem Plan, „das andere Haus steht aber auf einem leichten, erhöhten Plateau … erst eine Treppe hoch“, „ich möchte das zweite Haus einfach da drin zusätzlich zeichnen“. Drei Wege vorgeschlagen; seine Wahl per Auswahl: **Höhe je Raum und Plateau im Gelände**, Plateau **so groß wie das Haus**, Rand **Mauer**, erst Bilder (`docs/ideen-4.37/`), dann **„so bauen“, beides zusammen**. Gebaut: siehe CHANGELOG 4.37.0 und unten „Plateau und Boden je Raum“.
 - **2026-10-27 abends, 4.36.0: Szenen „Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant verwalten (#564, Branch `claude/friendly-cerf-ydliez`):** Der Besitzer: „den Knopf … für egal welches Gerät auf alle anwenden in der Szene“, „bei Lampen … so eine Kelvin-Anzeige“, dann „Szenen dort löschen …, die von Home Assistant sind … verwalten … und die Automatisierungen auch“. Gleich gebaut (ohne Beispielbilder, die Fotos danach in `docs/timeline/4.36.0/`). **Neu ist der Grundsatz:** das Add-on schreibt und löscht jetzt auch Szenen und Automationen, die nicht `fp3d_…` sind, aber nur, wenn ein Bearbeiter genau diese ändert oder löscht (`ha_config(..., theirs=True)`), immer erst nach einer Sicherung in `ha-backup/`, mit „↶ Wiederherstellen“ (`api/ha-restore`). Siehe „Szenen“ unten.
 - **2026-10-27, 4.35.0: Einstellungen fast über den ganzen Bildschirm (#562, Branch `claude/great-curie-521hrr`):** 4.34.0 getestet: „geht alles“, am liebsten „Automatisch“ (118 ✅). Dann: „Einstellung … fast über den ganzen Bildschirm … nicht ewig scrollen … professionelle Einstellung“. Beispielbilder `docs/ideen-4.35/` (A Seitenleiste, B Kacheln), seine Wahl: **A**. Gebaut in `setgroups.js` (siehe CHANGELOG 4.35.0). Für Tests: auf breitem Bildschirm steht rechts nur **eine** Gruppe; `open_setting` vor jedem Feld einer anderen Gruppe aufrufen.
 - **2026-10-27, 4.34.0: Kantenglättung zum Auswählen (#560, Branch `claude/great-curie-521hrr`):** 4.33.1 hat er getestet („aktuell ist es sehr flüssig“, 117 alles ✅). Dann zu den drei Ideen ohne teure Kantenglättung: „kannst du das einbauen, so dass ich es anschalten kann jeweils“. Gebaut: ⚙ „Kantenglättung auf diesem Gerät“ (`edges.js`, `smoothedges.js`), siehe CHANGELOG 4.34.0. Wichtig: das eigene Bild ist ein Render-Target mit `isXRRenderTarget = true`, sRGB-Textur und `internalFormat = 'RGBA8'`, sonst schreibt three.js lineare Farben hinein und Glas/Leuchten sehen anders aus (`__fp.edgesCompare()` muss `diff: 0` geben).
@@ -21,7 +21,7 @@ Stand: 2026-10-27, Version **4.36.0**. Diese Datei ist für den nächsten Chat (
 
 ## Offen
 
-- **#566 Plateau und Boden je Raum:** auf seine Rückmeldung zu den Bildern in `docs/ideen-4.37/` warten, dann bauen (was er wählt, steht im Issue). Heute gilt `elev(i)` für die ganze Etage; beides braucht eine Höhe je Ort.
+- **#566 Plateau und Boden je Raum (4.37.0):** Testen durch den Besitzer im Add-on mit seinem zweiten Haus: 121.8. Ideen, nicht gebaut: ein Plateau, das nicht nur waagrecht ist (Hang), eine Rampe statt Stufen, ein Raum mit eigener Deckenhöhe.
 - **Szenen, Kelvin, verwalten (4.36.0, #564):** Testen durch den Besitzer im Add-on: 120.7 bis 120.9.
 - **Einstellungen breit (4.35.0, #562):** Testen durch den Besitzer im Add-on: 119.5 (PC), 119.6 (Tablet quer).
 - **Kantenglättung (4.34.0, #560):** getestet ✅, ihm gefällt „Automatisch“ am besten. Offen: fragen, ob „Automatisch“ für alle die Voreinstellung werden soll (heute „Wie bei „Leistung““ = wie vor 4.34.0).
@@ -106,6 +106,13 @@ Die Karte soll in den offiziellen HACS-Store (heute nur als benutzerdefiniertes 
 - `rulesrun.py` führt Abläufe mit `ha: true` nicht aus (`Rules.local()`); er hört auf das Ereignis `fp3d_notify` (Nachrichten über WhatsApp/Telegram). „Jetzt ausprobieren“ macht weiter das Add-on.
 - Die Seite erkennt die Automationen am Feld `cid` der Zustände (`entitystate.js`, `_runs` in `server.py`).
 - **Prüfen mit echtem Home Assistant** nach Änderungen an `haflows.py`: `python3.13 -m venv /tmp/havenv && /tmp/havenv/bin/pip install homeassistant==2026.2.3`, dann `/tmp/havenv/bin/python -I tools/ha_check.py` (endet mit „ALL OK“). „bleibt so“ dauert mindestens 5 s (flows.py).
+
+## Plateau und Boden je Raum (seit 4.37.0, #566)
+
+- Ein Plateau ist eine Fläche in `layout.plot.areas` mit `rise` (m), `edge` (`wall` | `slope`), `wall` (`stone` | `concrete` | `brick` | `gabion`). Ein Raum hat `raise` (m, minus = tiefer) und `steps: false` (keine Stufen). Die Außentreppe ist das Gerät `steps` (`h`, `w`, `land`, `noRail`), ihr Mittelpunkt ist die Lage des Geräts.
+- Alles Rechnen in `levels.js` (rein, `tests/levels.test.mjs`): `lifter(f, areas)` sagt je Raum, Wand, Gerät, wie weit es hoch geht. **`elev(i)` bleibt die Höhe der Etage**; die Höhe je Ort kommt in `floorbuild.js` dazu (Raumboden, Wandgruppe `wg.position.y`, Geräte-Modell, Schilder, Kegel der Kameras, Treppen, Blöcke, Decken) und in `roofs.js` (`groundAt` in `initRoofs`, `liftOf(R)` nach der Mitte der Dachfläche). `roofList` bleibt ungehoben (Gauben-Fenster rechnen damit), nur das Zeichnen und `wallClip` heben.
+- Was an der Decke hängt (Gerät ab `LEVELS.ceilingFrom` = 1,9 m), bleibt bei einem höheren Raum oben; Wände bleiben, Türen und Fenster gehen mit der höheren Seite mit (`wallWithShift`, nur beim Zeichnen, die Daten bleiben).
+- Im Browser-Test `55_levels`; beim Ziehen eines Geräts bleibt seine Höhe bis zum Loslassen die alte (dann baut die Seite neu).
 
 ## Szenen (seit 4.30.0, #549)
 

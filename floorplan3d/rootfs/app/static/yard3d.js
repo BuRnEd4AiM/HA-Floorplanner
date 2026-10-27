@@ -21,7 +21,7 @@ export function buildYards(parent, areas, { y = 0, holo = false, low = false, cl
     m.polygonOffset = true; m.polygonOffsetFactor = -1; m.polygonOffsetUnits = -1 - i;
     if (clip) m.clippingPlanes = [clip];
     const mesh = new THREE.Mesh(geo, m);
-    mesh.position.y = y + i * STEP;
+    mesh.position.y = y + i * STEP + (a.rise || 0);              // a plateau: its surface lies on top (plateau3d.js, #566)
     mesh.renderOrder = i;
     mesh.receiveShadow = true;
     mesh.userData.yard = a.id;

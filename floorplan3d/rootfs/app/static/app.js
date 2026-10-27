@@ -33,6 +33,8 @@ import { initPalettes } from './palettes.js';
 import { floorOpenings as floorOpeningsOf, initBlocks } from './blocks.js';
 import { initPlotUi } from './plotui.js';
 import { buildYards } from './yard3d.js';
+import { buildPlateaus } from './plateau3d.js';
+import { groundAt, plateausOf } from './levels.js';
 import { YARD } from './yarddeco.js';
 import { initStairTool } from './stairtool.js';
 import { initLiveControls } from './livecontrols.js';
@@ -413,6 +415,7 @@ function makeOpeningHandle(w, o, group) {
 
 /* ---- Roofs: roof box, roof surfaces with dormers and further roofs, terrace railing, solar panels on the roof, fading; the code lives in roofs.js ---- */
 const roofsUi = initRoofs({
+  groundAt: (x, z) => groundAt(plateausOf(plotUi.areas()), x, z),   // a roof over a house on a plateau goes up with it (#566)
   layout: () => layout, elev: (i) => elev(i), mat: (...a) => mat(...a), HOLO, camera: () => camera, settings: () => settings, wallSee: WALL_SEE,
   roofShown: (i, R) => roofShown(i, R), roofFloors: (i) => roofFloors(i),
   editingRoof: () => !houseMode && floor()?.kind === 'roof',     // the roof floor is open: the roof (and its dormers) must stay clearly visible
@@ -444,6 +447,7 @@ const neighbors = initNeighbors({
 
 /* a floor in 3D: room floors, floor opening rims, blocks, stairs, walls and devices; the code lives in floorbuild.js */
 const floorBuild = initFloorBuild({
+  plotAreas: () => plotUi.areas(),                                // a plateau lifts what stands on it (levels.js, #566)
   settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(), fast: () => LOW,
   mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
   lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
@@ -489,6 +493,7 @@ function build() {
   }
   if ((houseMode || floorIdx >= groundIdx()) && !iso && plotUi.areas().length) {   // the areas of the plot (#538): yard, terrace, drive ... on the ground
     buildYards(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null });
+    buildPlateaus(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, clip: earth.cut() ? earth.plane : null });   // their walls or banks (#566)
   }
   if (tool === 'plot') plotUi.render();
   const stacked = floorsMode(settings, houseMode) === 'stacked' && !iso;   // like a real house: ceilings between the floors (housefloors.js)
@@ -1503,7 +1508,7 @@ const plotUi = initPlotUi({
   $, t, layout: () => layout, snapshot: () => snapshot(), changed: () => changed(), setStatus: (x) => setStatus(x), uid: () => uid(),
   select: (sel) => { multiSel.clear(); selection = sel; refreshSelection(); }, selection: () => selection, fmtLen: (m) => fmtLen(m), imperial: () => imperial(),
   toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), fields: { field, inp, lenInput }, deleteItem: (sel) => deleteItem(sel),
-  hint: (x) => { $('#hintText').textContent = x; }, cancelDraft: () => plan?.cancel(),
+  hint: (x) => { $('#hintText').textContent = x; }, cancelDraft: () => plan?.cancel(), floorIdx: () => floorIdx,
 });
 const stairTool = initStairTool({
   $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH: FLOOR_H, snapshot: () => snapshot(), changed: (...a) => changed(...a),
