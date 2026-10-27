@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-10-27 · 72 Sitzungen
+Stand: 2026-10-27 · 73 Sitzungen
 
-**Insgesamt: 5,39 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 5,43 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 15,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 56,8 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 5,32 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 15,6 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 57,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 5,35 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,13 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 59 | 3,39 Mrd. | 9,5 Mio. |
+| 2026-10 | 60 | 3,43 Mrd. | 9,6 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-10-27 | [018pwcmv…](https://claude.ai/code/session_018pwcmvwtPozKLhotJq1rE4) | claude/friendly-cerf-ydliez | 35,8 Mio. | 138 Tsd. | gezählt |
 | 2026-10-27 | [012p9z3M…](https://claude.ai/code/session_012p9z3MaHwyjf7hJG4tdSBQ) | claude/great-curie-521hrr | 67,2 Mio. | 237 Tsd. | gezählt |
 | 2026-10-26 | [01Kb43R9…](https://claude.ai/code/session_01Kb43R9XdRKwsU4xXkgGbH1) | claude/relaxed-dirac-33z1ry | 42,9 Mio. | 152 Tsd. | gezählt |
 | 2026-10-26 | [016jmtCr…](https://claude.ai/code/session_016jmtCrzuXWmNUwQWWyP6N3) | claude/zug-karte | 203,0 Mio. | 677 Tsd. | gezählt |
