@@ -51,3 +51,27 @@ def test_a_scene_made_in_home_assistant_is_read():
     assert sc.from_ha(cfg) == {"name": "Abend", "ents": {"light.wz": {"on": True, "pct": 100, "rgb": [255, 191, 127]}, "light.flur": {"on": False},
                                                          "cover.rollo": {"on": False, "pos": 0}}}
     assert sc.from_ha({"name": "x"}) is None
+
+
+def test_a_scene_of_home_assistant_changed_in_place():
+    """#564: what the editor cannot show stays (another kind of device, the exact values of a device left as it was, the scene's other
+    fields); a changed device is written anew, one taken out is gone, a new one comes last"""
+    old = {"id": "1700", "name": "Abend", "icon": "mdi:sofa", "metadata": {"light.wz": {"entity_only": True}}, "entities": {
+        "light.wz": {"state": "on", "brightness": 255, "color_mode": "hs", "hs_color": [30, 50], "rgb_color": [255, 191, 127], "transition": 2},
+        "media_player.tv": {"state": "on", "source": "HDMI 1"}, "light.flur": "off", "light.bad": {"state": "on"}}}
+    assert sc.hidden(old) == 1 and sc.hidden({"entities": {}}) == 0
+    m = sc.from_ha(old)
+    m["ents"]["light.flur"] = {"on": True, "pct": 50}
+    del m["ents"]["light.bad"]
+    m["ents"]["switch.kaffee"] = {"on": True}
+    out = sc.merge_ha("1700", sc.clean_model(m), old)
+    assert out == {"id": "1700", "name": "Abend", "icon": "mdi:sofa", "metadata": {"light.wz": {"entity_only": True}}, "entities": {
+        "light.wz": old["entities"]["light.wz"], "media_player.tv": {"state": "on", "source": "HDMI 1"},
+        "light.flur": {"state": "on", "brightness": 128, "color_mode": "brightness"}, "switch.kaffee": {"state": "on"}}}
+    assert sc.merge_ha("1700", sc.clean_model(m), None) == sc.to_ha("1700", sc.clean_model(m))       # nothing to keep
+
+
+def test_a_scene_for_everything():
+    """#564: a scene may hold up to 100 devices"""
+    many = {"name": "Alles aus", "ents": {f"light.l{i}": {"on": False} for i in range(120)}}
+    assert len(sc.clean_model(many)["ents"]) == sc.MAX_ENTS == 100

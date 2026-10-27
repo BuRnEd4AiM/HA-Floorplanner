@@ -13,8 +13,9 @@ import { initDeviceControls } from './devicecontrols.js';
 import { initHeatPanel } from './heatpanel.js';
 
 /** what the card shows of an entity's state: the state and its unit, brightness, colour, effects, a cover's position, a thermostat's target and
- *  what it is doing, the values of the device controls (volume, track, fan speed, presets ..., #406) (not: since, other attributes) */
-export const shownState = (s) => (s ? [s.state, s.unit, s.brightness, s.rgb, s.fx, s.fxc, s.position, s.tt ?? null, s.hvac ?? null, s.ctl ?? null] : null);
+ *  what it is doing, the values of the device controls (volume, track, fan speed, presets ..., #406), a light's white tone (#564) (not: since,
+ *  other attributes) */
+export const shownState = (s) => (s ? [s.state, s.unit, s.brightness, s.rgb, s.fx, s.fxc, s.position, s.tt ?? null, s.hvac ?? null, s.ctl ?? null, s.kel ?? null] : null);
 /** the key of the card: the device (or window) as stored, the tapped LED ring section, the language, what else the card depends on (extra), and
  *  for each entity it shows (ids, any order) its name and the shown part of its state. The same key: the card would look the same. */
 export function popupKey({ dev = null, seg = null, lang = '', extra = null, ids = [], states = {}, name = (e) => e }) {

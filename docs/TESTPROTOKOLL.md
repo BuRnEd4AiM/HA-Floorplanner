@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.35.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.36.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.35.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.36.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.36.0: Szenen „⇉ Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant ändern und löschen** (Abschnitt 120): Claude hat 120.1 bis 120.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on 120.7 bis 120.9.
 1. **Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm** (Abschnitt 119): Claude hat 119.1 bis 119.4 in der Demo geprüft; für dich im Add-on am PC 119.5 und am Tablet quer 119.6.
 1. **Neu in 4.33.0: 🌙 Der Mond im Himmel** (Abschnitt 116): Claude hat 116.1 bis 116.4 in der Demo geprüft; schau heute Abend im Add-on, ob er dort steht, wo du ihn draußen siehst (116.5).
 1. **Neu in 4.32.0: 📅 Heizplan, von Hand gedreht** (Abschnitt 115): Claude hat 115.1 und 115.2 im Test-Add-on geprüft; für dich im Add-on mit deinem Thermostat 115.3 und 115.4.
@@ -335,7 +336,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 117. Neu in 4.33.1: Das Haus dreht sich flüssig (#557) | 4 | 0 | 0 | 0 | – |
 | 118. Neu in 4.34.0: Kantenglättung zum Auswählen (#560) | 6 | 0 | 0 | 0 | – |
 | 119. Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm (#562) | 4 | 0 | 2 | 0 | 119.5, 119.6 |
-| **Zusammen** | **753** | **10** | **55** | **92** | |
+| 120. Neu in 4.36.0: Szenen „Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant verwalten (#564) | 6 | 0 | 3 | 0 | 120.7 bis 120.9 |
+| **Zusammen** | **759** | **10** | **58** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1843,3 +1845,16 @@ Wunsch des Besitzers vom 2026-10-27 („dass diese fast über den ganzen Bildsch
 | 119.4 | Am Handy (oder in einem schmalen Fenster) ⚙ öffnen | Wie bisher: die Gruppen zum Aufklappen untereinander | ✅ (2026-10-27, Claude in der Demo) |
 | 119.5 | Im Add-on am PC durch alle Gruppen klicken und etwas umstellen (z. B. Raster, Fassade) | Alles ist erreichbar, die Änderung bleibt gespeichert; gefällt es dir? | ❓ |
 | 119.6 | Am Tablet quer im Add-on ⚙ öffnen | Ebenfalls die Liste links, alles gut lesbar und antippbar | ❓ |
+## 120. Neu in 4.36.0: Szenen „Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant verwalten (#564)
+Wünsche des Besitzers vom 2026-10-27: „den Knopf … für egal welches Gerät auf alle anwenden in der Szene“, „bei Lampen … so eine Kelvin-Anzeige“, „Szenen dort löschen …, die von Home Assistant sind … verwalten … und die Automatisierungen auch“.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 120.1 | ▶ Abläufe → 🎨 Szenen → ✏ bei „Wohnzimmer Gemütlich“, bei der Stehlampe „⇉ Auf alle anwenden“ | Alle Lampen der Szene bekommen Helligkeit und Weißton der Stehlampe, oben „✓ Für alle übernommen (2)“ und „↶ Rückgängig“; Rückgängig stellt es zurück | ✅ (2026-10-27, Claude in der Demo) |
+| 120.2 | Im Szenen-Editor rechts „💡 Lampen“ antippen, dann „＋ Alle … dazunehmen“ | Nur Lampen in der Liste; der Knopf nimmt alle auf einmal in die Szene | ✅ (2026-10-27, Claude in der Demo) |
+| 120.3 | Im Szenen-Editor bei einer Lampe den Schieber „Weißton“ ziehen | Der Schieber ist von warm (orange) nach kalt (weiß) gefärbt, daneben steht z. B. „4000 K · Neutralweiß“ | ✅ (2026-10-27, Claude in der Demo) |
+| 120.4 | Im 3D-Bild die Stehlampe antippen und den Schieber „Weißton“ ziehen | Statt „Warmweiß / Kaltweiß“ ein Schieber mit „2700 K · Warmweiß“; losgelassen ändert die Lampe ihren Weißton | ✅ (2026-10-27, Claude in der Demo) |
+| 120.5 | 🎨 Szenen → 🗑 bei „Wohnzimmer Gemütlich“, die Frage mit OK bestätigen, dann „↶ Wiederherstellen“ | Die Szene verschwindet, oben steht „🗑 „Wohnzimmer Gemütlich“ gelöscht · ↶ Wiederherstellen“; danach ist sie wieder da | ✅ (2026-10-27, Claude in der Demo) |
+| 120.6 | Automationen in Home Assistant → 🗑 bei einer Automation, dann „↶ Wiederherstellen“; ▶ bei einer anderen | Sie verschwindet und kommt zurück; ▶ startet sie (kurz ✓, „zuletzt“ springt auf „gerade eben“) | ✅ (2026-10-27, Claude in der Demo) |
+| 120.7 | Im Add-on eine Szene aus Home Assistant mit ✏ öffnen, etwas ändern, „Speichern“; dann in Home Assistant (Einstellungen → Automationen & Szenen → Szenen) nachsehen | Die Szene ist dort geändert, alles andere darin (z. B. ein Fernseher) ist geblieben | ❓ |
+| 120.8 | Im Add-on bei einer Lampe, die Weißtöne kann (z. B. Hue), den Schieber „Weißton“ ziehen | Der Bereich passt zur Lampe (z. B. 2200 bis 6500 K), die Lampe wird wärmer oder kälter | ❓ |
+| 120.9 | Im Add-on eine Automation (oder Szene) aus Home Assistant löschen und mit „↶ Wiederherstellen“ zurückholen | Sie ist in Home Assistant weg und danach wieder da, mit allem, was darin war | ❓ |

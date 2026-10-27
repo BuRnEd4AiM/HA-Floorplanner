@@ -31,3 +31,51 @@ test('colours, the list of scenes and what can be picked', () => {
   assert.deepEqual(S.pickable(ents, { 'light.bad': {} }, '').map((e) => e.entity_id), ['light.led', 'switch.kaffee']);
   assert.deepEqual(S.pickable(ents, {}, 'kaf').map((e) => e.entity_id), ['switch.kaffee']);
 });
+
+test('a light in its white mode is taken with its white tone (#564)', () => {
+  assert.deepEqual(S.deviceNow('light.steh', { state: 'on', brightness: 60, rgbRaw: [255, 167, 87], kel: 2700 }), { on: true, pct: 60, kelvin: 2700 });
+  assert.deepEqual(S.deviceNow('light.led', { state: 'on', rgbRaw: [255, 0, 0], kel: null }), { on: true, rgb: [255, 0, 0] });
+});
+
+test('"⇉ Auf alle anwenden" (#564)', () => {
+  const ents = {
+    'light.a': { on: true, pct: 40, kelvin: 2700 }, 'light.b': { on: true, pct: 90, rgb: [255, 0, 0], fx: 'Rainbow' }, 'light.c': { on: false },
+    'switch.k': { on: false }, 'cover.r1': { on: true, pos: 20 }, 'cover.r2': { on: false, pos: 0 },
+  };
+  const fxOf = (e) => ({ 'light.b': ['Rainbow', 'Kino'], 'light.c': ['Kino'] }[e]);
+  let r = S.applyToAll(ents, 'light.a', fxOf);              // a light: the other lights its brightness and white tone, switches on
+  assert.equal(r.n, 3);
+  assert.deepEqual(r.ents['light.b'], { on: true, pct: 40, kelvin: 2700 });
+  assert.deepEqual(r.ents['light.c'], { on: true, pct: 40, kelvin: 2700 });
+  assert.deepEqual(r.ents['switch.k'], { on: true });
+  assert.deepEqual(r.ents['cover.r1'], ents['cover.r1']);   // roller shutters stay
+  assert.deepEqual(ents['light.b'], { on: true, pct: 90, rgb: [255, 0, 0], fx: 'Rainbow' });   // the old ones are left as they were
+  r = S.applyToAll({ ...ents, 'light.b': { on: true, pct: 50, rgb: [0, 0, 255], fx: 'Kino' } }, 'light.b', fxOf);   // an effect only where the light has it
+  assert.deepEqual(r.ents['light.c'], { on: true, pct: 50, rgb: [0, 0, 255], fx: 'Kino' });
+  assert.deepEqual(r.ents['light.a'], { on: true, pct: 50, rgb: [0, 0, 255] });
+  r = S.applyToAll(ents, 'light.c');                         // off: everything off
+  assert.deepEqual([r.ents['light.a'], r.ents['light.b'], r.ents['switch.k']], [{ on: false }, { on: false }, { on: false }]);
+  r = S.applyToAll(ents, 'switch.k');                        // a switch: on / off
+  assert.equal(r.n, 2);
+  r = S.applyToAll({ ...ents, 'switch.k': { on: true } }, 'switch.k');   // on: a light that is on keeps its colour, one that is off goes on
+  assert.equal(r.ents['light.b'], ents['light.b']);
+  assert.deepEqual(r.ents['light.c'], { on: true });
+  r = S.applyToAll(ents, 'cover.r1');                        // a roller shutter: the others its position, nothing else
+  assert.equal(r.n, 1);
+  assert.deepEqual(r.ents['cover.r2'], { on: true, pos: 20 });
+  assert.equal(S.applyToAll(r.ents, 'cover.r1').n, 0);       // all alike already
+  assert.equal(S.applyToAll(ents, 'light.nix').n, 0);
+  assert.equal(S.allTargets(ents, 'light.a'), 3);
+  assert.equal(S.allTargets(ents, 'cover.r1'), 1);
+  assert.equal(S.allTargets({ 'light.a': {} }, 'light.a'), 0);
+});
+
+test('the picker by kind (#564)', () => {
+  const ents = [{ entity_id: 'switch.kaffee', name: 'Kaffee' }, { entity_id: 'light.led', name: 'LED' }, { entity_id: 'fan.bad', name: 'Lüfter' },
+    { entity_id: 'cover.wz', name: 'Rollo' }, { entity_id: 'input_boolean.gast', name: 'Gast' }];
+  assert.deepEqual(S.pickable(ents, {}, '', 'light').map((e) => e.entity_id), ['light.led']);
+  assert.deepEqual(S.pickable(ents, {}, '', 'switch').map((e) => e.entity_id), ['switch.kaffee', 'fan.bad', 'input_boolean.gast']);
+  assert.deepEqual(S.pickable(ents, {}, '', 'cover').map((e) => e.entity_id), ['cover.wz']);
+  assert.equal(S.pickable(ents, {}, '', 'all').length, 5);
+  assert.equal(S.MAX_ENTS, 100);
+});

@@ -231,6 +231,18 @@ def test_slim_state_climate_fields():
     assert server.slim_state({"entity_id": "light.x", "state": "on", "last_changed": "gestern"})["lc"] is None
 
 
+def test_slim_state_white_tone_of_a_light():
+    """#564: the white tone now (only in the white mode) and the white tones a light can do, in Kelvin"""
+    a = {"color_mode": "color_temp", "color_temp_kelvin": 2702.6, "min_color_temp_kelvin": 2202, "max_color_temp_kelvin": 6535, "rgb_color": [255, 167, 87]}
+    s = server.slim_state({"entity_id": "light.stehlampe", "state": "on", "attributes": a})
+    assert (s["kel"], s["kmin"], s["kmax"]) == (2703, 2202, 6535)
+    s = server.slim_state({"entity_id": "light.led", "state": "on", "attributes": {**a, "color_mode": "hs"}})
+    assert s["kel"] is None and s["kmin"] == 2202                  # a colour now: Home Assistant's white tone is only worked out
+    s = server.slim_state({"entity_id": "light.rgb", "state": "on", "attributes": {"color_mode": "rgb", "rgb_color": [1, 2, 3]}})
+    assert (s["kel"], s["kmin"], s["kmax"]) == (None, None, None)  # no white tones
+    assert "kel" not in server.slim_state({"entity_id": "switch.k", "state": "on", "attributes": a})
+
+
 def test_slim_state_sun_and_weather():
     """the sky (#418, #419): sun.sun with its elevation and next sunrise / sunset, a weather entity with temperature and wind"""
     sun = server.slim_state({"entity_id": "sun.sun", "state": "above_horizon", "attributes": {
@@ -1240,7 +1252,7 @@ def test_routine_domains_match_the_browser():
 
 
 async def test_an_automation_is_switched_only_by_an_editor(client, monkeypatch):
-    """#483: automation.turn_on / turn_off go through, but only for who may edit"""
+    """#483: automation.turn_on / turn_off (and since #564 ▶ trigger: run it now) go through, but only for who may edit"""
     monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "x")
     async def no_admins():
         return set()
@@ -1248,7 +1260,10 @@ async def test_an_automation_is_switched_only_by_an_editor(client, monkeypatch):
     r = await client.post("/api/service", json={"domain": "automation", "service": "turn_off", "entity_id": "automation.flur"}, headers={"X-Remote-User-Name": "kid"})
     assert r.status == 403
     assert server.controls.check({"domain": "automation", "service": "turn_off", "entity_id": "automation.flur"})[3] is None
-    assert server.controls.check({"domain": "automation", "service": "trigger", "entity_id": "automation.flur"})[3] is not None
+    assert server.controls.check({"domain": "automation", "service": "trigger", "entity_id": "automation.flur"})[3] is None
+    r = await client.post("/api/service", json={"domain": "automation", "service": "trigger", "entity_id": "automation.flur"}, headers={"X-Remote-User-Name": "kid"})
+    assert r.status == 403
+    assert server.controls.check({"domain": "automation", "service": "reload", "entity_id": "automation.flur"})[3] is not None
 
 
 async def test_the_pinboard(client):

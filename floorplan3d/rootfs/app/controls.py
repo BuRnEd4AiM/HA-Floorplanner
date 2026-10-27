@@ -136,7 +136,7 @@ SERVICES = {
     "valve": {"open_valve": ({}, ()), "close_valve": ({}, ()), "toggle": ({}, ())},     # a watering valve (🌱 Garten, #533)
     "scene": {"turn_on": ({}, ())},
     "script": {s: ({}, ()) for s in ON_OFF},
-    "automation": {"turn_on": ({}, ()), "turn_off": ({}, ())},     # on / off on the page ▶ Abläufe (#483), only for editors (server.py)
+    "automation": {"turn_on": ({}, ()), "turn_off": ({}, ()), "trigger": ({}, ())},   # on / off and ▶ run now on ▶ Abläufe (#483, #564), editors only (server.py)
     "climate": {**{s: ({}, ()) for s in ON_OFF},
                 "set_temperature": ({"temperature": _temp}, ("temperature",)),
                 "set_hvac_mode": ({"hvac_mode": _hvac}, ("hvac_mode",)),

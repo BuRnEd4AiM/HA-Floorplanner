@@ -242,5 +242,21 @@ if rng.count() == 1:
     calls = [c for c in ha_calls() if c[:2] == ["light", "turn_on"]]
     pgC.evaluate("document.activeElement.blur()"); pgC.wait_for_timeout(400)
     check("live card (#336): let go, the brightness is set and the card is drawn anew", len(calls) > n_on and not kept(), (n_on, calls[-1:], sub()))
+# #564: a lamp that can do white tones (Home Assistant says which) gets a slider with its value in Kelvin instead of "Warmweiß / Kaltweiß"
+pgC.evaluate("(() => { Object.assign(window.__fp.states()['light.wohnzimmer'], { kel: 3000, kmin: 2200, kmax: 6500 }); window.__fp.applyStates(); })()"); pgC.wait_for_timeout(400)
+kel_lc = pgC.locator("#livePopup .lightctl .kelSlider").first
+check("live card (#564): the lamp's white tone is a slider with its value in Kelvin",
+      kel_lc.count() == 1 and kel_lc.locator(".kelVal").text_content() in ("3000 K · Warmweiß", "3000 K · warm white") and kel_lc.locator("input").get_attribute("min") == "2200",
+      pgC.inner_text("#livePopup") if pgC.is_visible("#livePopup") else "no card")
+if kel_lc.count() == 1:
+    sent_lc = []                                                 # what the page asks the add-on (the mock lamp keeps no data)
+    pgC.on("request", lambda r: sent_lc.append(json.loads(r.post_data or "{}")) if r.url.endswith("/api/service") and r.method == "POST" else None)
+    kel_lc.locator("input").evaluate("el => { el.value = 5000; el.dispatchEvent(new Event('input')); el.dispatchEvent(new Event('change')); }")
+    for _ in range(20):
+        if any(x.get("entity_id") == "light.wohnzimmer" and (x.get("data") or {}).get("color_temp_kelvin") == 5000 for x in sent_lc): break
+        pgC.wait_for_timeout(100)
+    check("live card (#564): let go, the white tone is set in Kelvin",
+          any(x.get("service") == "turn_on" and x.get("entity_id") == "light.wohnzimmer" and (x.get("data") or {}).get("color_temp_kelvin") == 5000 for x in sent_lc)
+          and ["light", "turn_on", "light.wohnzimmer"] in ha_calls()[-3:], sent_lc)
 pgC.close()
 urllib.request.urlopen(HA + "/_set?e=sensor.temp&s=21.5").read(); urllib.request.urlopen(HA + "/_set?e=light.wohnzimmer&s=on").read()

@@ -270,14 +270,14 @@ const houses = [{ id: 'main', name: 'Demo-Haus' }, { id: 'nachbar', name: 'Nachb
 
 const SPEAKER = 1 | 4 | 8 | 16 | 32 | 128 | 256 | 512 | 2048 | 16384 | 524288;   // what the demo's speakers can do (#490: play a station, play together)
 const entities = {
-  'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70, rgb: [255, 140, 110] },
-  'light.stehlampe':         { name: 'Stehlampe',              state: 'on' },
+  'light.wohnzimmer':        { name: 'Wohnzimmer Deckenlicht', state: 'on', brightness: 70, rgb: [255, 140, 110], kmin: 2000, kmax: 6500 },
+  'light.stehlampe':         { name: 'Stehlampe',              state: 'on', kel: 2700, kmin: 2200, kmax: 6500 },   // #564: in its white mode
   'light.schrank_dach':      { name: 'Schrank Licht',          state: 'on' },   // the LED light in the cabinet under the roof
   'light.kueche':            { name: 'Küche Licht',            state: 'off' },
   'light.keller':            { name: 'Hobbyraum Licht',        state: 'on', rgb: [255, 196, 120], brightness: 70 },
   'light.waschkueche':       { name: 'Waschküche Licht',       state: 'off' },
   'sensor.keller_feuchte':   { name: 'Keller Luftfeuchte',     state: '58', unit: '%' },
-  'light.schlafzimmer':      { name: 'Schlafzimmer Licht',     state: 'on', rgb: [130, 170, 255] },
+  'light.schlafzimmer':      { name: 'Schlafzimmer Licht',     state: 'on', rgb: [130, 170, 255], kmin: 2700, kmax: 6500 },
   'light.bad':               { name: 'Bad Licht',              state: 'off' },
   'person.anna':             { name: 'Anna', state: 'home' },
   'person.max':              { name: 'Max', state: 'not_home' },
@@ -292,7 +292,7 @@ const entities = {
   'device_tracker.max_handy': { name: 'Max Handy', state: 'not_home' },
   'device_tracker.max_fritz': { name: 'Max Handy (FRITZ!Box)', state: 'not_home' },
   'binary_sensor.buero_praesenz': { name: 'Büro Anwesenheit', state: 'on' },
-  'light.buero':             { name: 'Büro Licht',             state: 'on', rgb: [255, 226, 110] },
+  'light.buero':             { name: 'Büro Licht',             state: 'on', rgb: [255, 226, 110], kmin: 2700, kmax: 6500 },
   'light.voute_bett':        { name: 'Voute Bettseite',        state: 'on', rgb: [190, 80, 255], brightness: 60 },
   'light.voute_fenster':     { name: 'Voute Fensterseite',     state: 'on', rgb: [60, 160, 255], brightness: 60 },
   'light.shapes_wz':         { name: 'Nanoleaf Shapes',        state: 'on', rgb: [120, 90, 255], brightness: 80, fx: ['Nordlicht', 'Sonnenuntergang', 'Wald', 'Pulsierend', 'Regenbogen'], fxc: 'Nordlicht' },
@@ -365,10 +365,10 @@ const entities = {
   // 4.5 (#483): more for the page ▶ Abläufe: a morning script, the night scene that "Gute Nacht" starts, automations to switch, the front door lock
   'script.guten_morgen':     { name: 'Guten Morgen',           state: 'off' },
   'scene.gute_nacht':        { name: 'Gute Nacht',             state: 'scening' },
-  'automation.flurlicht_bewegung': { name: 'Flurlicht bei Bewegung', state: 'on', at: Math.round(Date.now() / 1000) - 12 * 60, run: 1 },
-  'automation.rollladen_abends': { name: 'Rollläden bei Sonnenuntergang', state: 'on', at: Math.round(Date.now() / 1000) - 15 * 3600 },
-  'automation.urlaub_licht': { name: 'Urlaub: Licht zufällig',  state: 'off', at: Math.round(Date.now() / 1000) - 21 * 86400 },
-  'automation.heizung_morgens': { name: 'Heizung morgens hoch', state: 'on', at: Math.round(Date.now() / 1000) - 2 * 3600 },
+  'automation.flurlicht_bewegung': { cid: '1700000000101', name: 'Flurlicht bei Bewegung', state: 'on', at: Math.round(Date.now() / 1000) - 12 * 60, run: 1 },
+  'automation.rollladen_abends': { cid: '1700000000102', name: 'Rollläden bei Sonnenuntergang', state: 'on', at: Math.round(Date.now() / 1000) - 15 * 3600 },
+  'automation.urlaub_licht': { cid: '1700000000103', name: 'Urlaub: Licht zufällig',  state: 'off', at: Math.round(Date.now() / 1000) - 21 * 86400 },
+  'automation.heizung_morgens': { cid: '1700000000104', name: 'Heizung morgens hoch', state: 'on', at: Math.round(Date.now() / 1000) - 2 * 3600 },
   'lock.haustuer':           { name: 'Haustür',                state: 'unlocked' },
   'water_heater.warmwasser': { name: 'Warmwasser (Wärmepumpe)', state: 'heat_pump', ct: 48, tt: 50 },   // the page 🌡 Klima: in no room
   'sensor.bad_feuchte':      { name: 'Bad Luftfeuchte',        state: '64', unit: '%' },
@@ -610,13 +610,15 @@ const demoScenes = {
 };
 entities['scene.tv_abend'] = { name: 'TV-Abend', state: 'scening', cid: 'fp3d_stvabend', members: Object.keys(demoScenes.fp3d_stvabend.ents) };
 Object.assign(entities['scene.wz_gemuetlich'], { cid: '1700000000001', members: Object.keys(demoScenes[1700000000001].ents) });
+const kelvinRgbDemo = (k) => [255, Math.round(170 + 75 * Math.max(0, Math.min(1, (k - 2000) / 4500))), Math.round(80 + 175 * Math.max(0, Math.min(1, (k - 2000) / 4500)))];
+const demoBackups = {};                                 // #564: what was deleted, for "↶ Wiederherstellen" ({ 'scene/<id>' | 'automation/<id>': { … } })
 function sceneShow(m) {                                 // ▶ Ausprobieren and ▶ of a scene: the lights take it at once
   Object.entries(m.ents).forEach(([e, x]) => {
     const d = entities[e]; if (!d) return;
     d.state = e.startsWith('cover.') ? (x.on ? 'open' : 'closed') : x.on ? 'on' : 'off';
     if (x.pct != null) d.brightness = x.pct;
-    if (x.rgb) d.rgb = x.rgb;
-    if (x.kelvin) d.rgb = [255, Math.round(170 + 75 * Math.max(0, Math.min(1, (x.kelvin - 2000) / 4500))), Math.round(80 + 175 * Math.max(0, Math.min(1, (x.kelvin - 2000) / 4500)))];
+    if (x.rgb) { d.rgb = x.rgb; d.kel = null; }
+    if (x.kelvin) { d.rgb = kelvinRgbDemo(x.kelvin); d.kel = x.kelvin; }
     if (x.fx) d.fxc = x.fx;
     if (x.pos != null) d.position = x.pos;
   });
@@ -637,7 +639,7 @@ function relatedDemo(e) {
   }
   rulesDemo.flows.forEach((f) => { if (f.lanes.some((l) => l.blocks.some((b) => (b.ents || []).includes(e)))) own.push({ kind: 'flow', id: f.id, name: f.name, on: f.on }); });
   const rows = [];
-  const auto = (id, sum) => ({ entity: id, kind: 'automation', name: entities[id].name, on: entities[id].state === 'on', running: (entities[id].run || 0) > 0, last: entities[id].at, gone: false, sum });
+  const auto = (id, sum) => (entities[id] ? { entity: id, kind: 'automation', name: entities[id].name, on: entities[id].state === 'on', running: (entities[id].run || 0) > 0, last: entities[id].at, gone: false, sum } : null);   // null: deleted (#564)
   if (e === 'climate.wohnzimmer') {
     rows.push(auto('automation.heizung_morgens', { when: [{ k: 'time', at: ['06:00'] }], more: 0, checks: 1, do: [{ k: 'call', svc: 'climate.set_temperature', ents: ['climate.wohnzimmer'], temperature: 22 }] }));
     rows.push({ entity: 'script.guten_morgen', kind: 'script', name: entities['script.guten_morgen'].name, on: null, running: false, last: nowS() - 90 * 60, gone: false,
@@ -648,14 +650,15 @@ function relatedDemo(e) {
     rows.push(auto('automation.flurlicht_bewegung', { when: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on', for: false }], more: 0, checks: 0, do: [{ k: 'call', svc: 'light.turn_on', ents: ['light.stehlampe'], brightness_pct: 30 }] }));
   }
   if (e === 'cover.wohnzimmer') rows.push(auto('automation.rollladen_abends', { when: [{ k: 'sun', ev: 'sunset' }], more: 0, checks: 0, do: [{ k: 'call', svc: 'cover.close_cover', ents: ['cover.wohnzimmer'] }] }));
-  return { entity: e, rows, own, parts: e === 'climate.wohnzimmer' ? [{ entity: 'switch.heizung_wohnzimmer_fenster', name: 'Fenster-Erkennung Heizung Wohnzimmer', state: 'off' }] : [], ha: true };
+  return { entity: e, rows: rows.filter(Boolean), own, parts: e === 'climate.wohnzimmer' ? [{ entity: 'switch.heizung_wohnzimmer_fenster', name: 'Fenster-Erkennung Heizung Wohnzimmer', state: 'off' }] : [], ha: true };
 }
 const autosDemo = () => ({ rows: [
   { entity: 'automation.flurlicht_bewegung', uses: ['binary_sensor.wohnzimmer_bewegung', 'light.stehlampe'], sum: { when: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on', for: false }], more: 0, checks: 0, do: [{ k: 'call', svc: 'light.turn_on', ents: ['light.stehlampe'], brightness_pct: 30 }] } },
   { entity: 'automation.heizung_morgens', uses: ['climate.wohnzimmer'], sum: { when: [{ k: 'time', at: ['06:00'] }], more: 0, checks: 1, do: [{ k: 'call', svc: 'climate.set_temperature', ents: ['climate.wohnzimmer'], temperature: 22 }] } },
   { entity: 'automation.rollladen_abends', uses: ['cover.wohnzimmer'], sum: { when: [{ k: 'sun', ev: 'sunset' }], more: 0, checks: 0, do: [{ k: 'call', svc: 'cover.close_cover', ents: ['cover.wohnzimmer'] }] } },
   { entity: 'automation.urlaub_licht', uses: ['light.wohnzimmer', 'light.schlafzimmer'], sum: { when: [{ k: 'pattern' }], more: 0, checks: 1, do: [{ k: 'call', svc: 'light.toggle', ents: ['light.wohnzimmer', 'light.schlafzimmer'] }] } },
-].map((r) => ({ ...r, kind: 'automation', name: entities[r.entity].name, on: entities[r.entity].state === 'on', running: (entities[r.entity].run || 0) > 0, last: entities[r.entity].at, gone: false })) });
+].filter((r) => entities[r.entity])                    // #564: deleted ones are gone
+  .map((r) => ({ ...r, kind: 'automation', name: entities[r.entity].name, on: entities[r.entity].state === 'on', running: (entities[r.entity].run || 0) > 0, last: entities[r.entity].at, gone: false })) });
 const file = (text, name, type) => new Response(text, { status: 200, headers: { 'Content-Type': type, 'Content-Disposition': `attachment; filename="${name}"` } });
 /* ---- the pages of the tab bar (#479): a made-up but plausible house for ⚡ Energie and ☀ Heute ---- */
 const DEMO_METERS = {
@@ -973,6 +976,7 @@ export function installDemoBackend() {
       return json(Object.entries(entities).map(([entity_id, e]) => ({
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
+        kel: e.kel ?? null, kmin: e.kmin ?? null, kmax: e.kmax ?? null,
         hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null,
         bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null, at: e.at ?? null, run: e.run ?? null,
         ...(e.cid ? { cid: e.cid } : {}), members: e.members ?? null, lc: lastChanged(entity_id, e.state) })));
@@ -1007,7 +1011,12 @@ export function installDemoBackend() {
       if (service === 'turn_on' && data?.effect) e.fxc = data.effect;
       if (service === 'toggle') e.state = id.startsWith('cover.') ? (e.state === 'open' ? 'closed' : 'open') : e.state === 'on' ? 'off' : 'on';   // a favourite (#471)
       if (service === 'toggle' && id.startsWith('cover.')) e.position = e.state === 'open' ? 100 : 0;
-      if (service === 'turn_on') { e.state = 'on'; if (data?.brightness_pct != null) e.brightness = data.brightness_pct; if (data?.rgb_color) e.rgb = data.rgb_color; if (data?.color_temp_kelvin) e.rgb = data.color_temp_kelvin < 4500 ? [255, 190, 120] : [200, 220, 255]; }
+      if (service === 'turn_on') {
+        e.state = 'on'; if (data?.brightness_pct != null) e.brightness = data.brightness_pct;
+        if (data?.rgb_color) { e.rgb = data.rgb_color; e.kel = null; }
+        if (data?.color_temp_kelvin) { e.rgb = kelvinRgbDemo(data.color_temp_kelvin); e.kel = data.color_temp_kelvin; }   // the white tone in Kelvin (#564)
+      }
+      if (service === 'trigger' && id.startsWith('automation.')) { e.at = nowS(); return json({ ok: true }); }   // ▶ run it now (#564)
       if (service === 'set_cover_position') { e.position = data.position; e.state = data.position > 0 ? 'open' : 'closed'; }
       if (service === 'open_cover') { e.state = 'open'; e.position = 100; }
       if (service === 'close_cover') { e.state = 'closed'; e.position = 0; }
@@ -1127,21 +1136,38 @@ export function installDemoBackend() {
     if (path === 'api/scenes/try' && method === 'POST') { sceneShow(JSON.parse(init.body || '{}')); return json({ ok: true }); }
     if (path.startsWith('api/scenes/')) {                     // the scene editor (#549): kept in this tab, as Home Assistant would keep it
       let cid = decodeURIComponent(path.slice('api/scenes/'.length));
-      if (method === 'GET') return demoScenes[cid] ? json({ id: cid, ours: cid.startsWith('fp3d_'), scene: structuredClone(demoScenes[cid]) }) : json({ error: 'not found' }, 404);
-      if (method === 'DELETE') {
-        if (!cid.startsWith('fp3d_')) return json({ error: 'not ours' }, 403);
+      if (method === 'GET') return demoScenes[cid] ? json({ id: cid, ours: cid.startsWith('fp3d_'), scene: structuredClone(demoScenes[cid]), kept: 0 }) : json({ error: 'not found' }, 404);
+      if (method === 'DELETE') {                              // also one made in Home Assistant (#564), kept for "↶ Wiederherstellen"
+        if (!demoScenes[cid]) return json({ error: 'yaml' }, 404);
+        const ent = Object.keys(entities).find((e) => entities[e].cid === cid);
+        demoBackups[`scene/${cid}`] = { m: demoScenes[cid], ent, e: ent && entities[ent] };
         delete demoScenes[cid];
-        Object.keys(entities).filter((e) => entities[e].cid === cid).forEach((e) => { delete entities[e]; });
+        if (ent) delete entities[ent];
         return json({ ok: true });
       }
       if (cid === 'new') cid = `fp3d_s${Math.random().toString(16).slice(2, 10)}`;
-      else if (!cid.startsWith('fp3d_')) return json({ error: 'not ours' }, 403);
+      else if (!demoScenes[cid]) return json({ error: 'yaml' }, 404);
       const m = JSON.parse(init.body || '{}');
       if (!m.name || !Object.keys(m.ents || {}).length) return json({ error: 'a name and at least one device expected' }, 400);
       demoScenes[cid] = m;
       const e = Object.keys(entities).find((x) => entities[x].cid === cid) || `scene.${slug(m.name)}`;
       entities[e] = { name: m.name, state: 'scening', cid, members: Object.keys(m.ents) };
       return json({ ok: true, id: cid, entity: e, missing: false });
+    }
+    if (path.startsWith('api/automations/') && method === 'DELETE') {   // an automation of Home Assistant deleted (#564)
+      const cid = decodeURIComponent(path.slice('api/automations/'.length)), ent = Object.keys(entities).find((e) => e.startsWith('automation.') && entities[e].cid === cid);
+      if (!ent || cid.startsWith('fp3d_')) return json({ error: ent ? 'routine' : 'yaml' }, ent ? 403 : 404);
+      demoBackups[`automation/${cid}`] = { ent, e: entities[ent] };
+      delete entities[ent];
+      return json({ ok: true });
+    }
+    if (path === 'api/ha-restore' && method === 'POST') {    // "↶ Wiederherstellen" (#564)
+      const b = JSON.parse(init.body || '{}'), kept = demoBackups[`${b.kind}/${b.id}`];
+      if (!kept) return json({ error: 'no backup' }, 404);
+      if (b.kind === 'scene') demoScenes[b.id] = kept.m;
+      if (kept.ent) entities[kept.ent] = kept.e;
+      delete demoBackups[`${b.kind}/${b.id}`];
+      return json({ ok: true });
     }
     if (path === 'api/batteries') return json(batteryOf);
     if (path === 'api/timeline') {

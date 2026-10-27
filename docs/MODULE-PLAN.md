@@ -247,10 +247,13 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `usedbyui.js` | ~170 | 🔎 Wird benutzt: Fenster mit den eigenen Regeln und den Automationen, Skripten, Szenen von Home Assistant (`api/related`) |
 | `heatrulesui.js` | ~200 | 🌡 Klima → 📋 Heiz-Regeln (die sieben Karten, speichert kurz nach der letzten Änderung) und die Zeile jedes Raums mit 🔥 Trotzdem heizen, 🚀 Boost, 🔎 |
 | `heatplanui.js` | ~170 | 🌡 Klima → 📅 Heizplan: Woche je Raum, Block antippen / Rand ziehen, Entwurf bis „Speichern“ |
-| `routinesown.js` | ~210 | ▶ Abläufe: eigene Abläufe als Kette (🏠 Home Assistant / ⚙️ Add-on, #548), Automationen von Home Assistant (`api/automations`, ohne die eigenen `fp3d_…`), „Was ist passiert“ |
-| `scenes.js` | ~80 | Szenen-Editor: das Modell, „📸 Wie jetzt“, Worte, die Liste der Szenen (rein, `tests/scenes.test.mjs`, #549) |
-| `sceneedit.js` | ~200 | Der Szenen-Editor (Geräte, Helligkeit, Farbe, Weiß, Effekt, Position; Ausprobieren, Speichern) |
-| `scenesui.js` | ~60 | Die Karte „🎨 Szenen“ auf ▶ Abläufe |
+| `routinesown.js` | ~230 | ▶ Abläufe: eigene Abläufe als Kette (🏠 Home Assistant / ⚙️ Add-on, #548), Automationen von Home Assistant (`api/automations`, ohne die eigenen `fp3d_…`; an / aus, ▶, ↗, 🗑, #564), „Was ist passiert“ |
+| `scenes.js` | ~110 | Szenen-Editor: das Modell, „📸 Wie jetzt“, Worte, die Liste der Szenen, „⇉ Auf alle anwenden“ (`applyToAll`), die Arten der Auswahl (rein, `tests/scenes.test.mjs`, #549, #564) |
+| `sceneedit.js` | ~210 | Der Szenen-Editor (Geräte, Helligkeit, Farbe, Weißton, Effekt, Position; Auf alle anwenden, Rückgängig, Alle dazunehmen; Ausprobieren, Speichern, auch Szenen aus Home Assistant an Ort und Stelle, Als Kopie) |
+| `scenesui.js` | ~60 | Die Karte „🎨 Szenen“ auf ▶ Abläufe (▶, ✏, 🗑) |
+| `kelvin.js` | ~50 | Weißton in Kelvin (#564): Bereich einer oder mehrerer Lampen, in Worten, Farbe, Verlauf des Schiebers (rein, `tests/kelvin.test.mjs`) |
+| `kelvinui.js` | ~25 | Der Schieber „Weißton  2700 K · Warmweiß“ (Szenen-Editor, Lampen-Karte) |
+| `hamanage.js` | ~55 | Szenen und Automationen von Home Assistant löschen, mit Frage und „↶ Wiederherstellen“ (`api/ha-restore`, #564) |
 | `trains.js` | ~60 | 🚆 Zug-Karte: „mein Zug“, pünktlich / verspätet / fällt aus, Minuten bis zur Abfahrt (rein, `tests/trains.test.mjs`, #550) |
 | `traincard.js` | ~140 | Die Zug-Karte und ihre Felder in „Karte einstellen“ |
 | `flowedit.js` | ~380 | Editor „Wenn … dann …“ wie Node-RED: Bausteine links, Wege mit Linien (SVG) in der Mitte, Einstellungen rechts, „In Worten“ |

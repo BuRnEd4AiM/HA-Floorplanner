@@ -1,5 +1,7 @@
 """The scene editor's addresses (#549) against a stand-in Home Assistant: a new scene is written as fp3d_…, read back, changed (the old one
-kept), tried without saving, deleted; another scene is only read (to copy), never written or deleted; only editors save."""
+kept), tried without saving, deleted; only editors save. Since #564 one made in Home Assistant is changed in place (what the editor cannot
+show stays) and deleted, each time after a backup, and "↶ Wiederherstellen" writes it back; so are automations made in Home Assistant
+(never the add-on's own, never one that is not in Home Assistant's editor)."""
 import json
 import re
 import sys
@@ -18,7 +20,9 @@ async def client(aiohttp_client, tmp_path):
 
 
 async def test_scenes_are_written_only_when_ours(client, monkeypatch, aiohttp_server, tmp_path):
-    scenes = {"1700000000": {"id": "1700000000", "name": "Abend", "entities": {"light.wz": {"state": "on", "brightness": 128}}}}
+    scenes = {"1700000000": {"id": "1700000000", "name": "Abend", "entities": {"light.wz": {"state": "on", "brightness": 128},
+                                                                               "media_player.tv": {"state": "on", "source": "HDMI 1"}}}}
+    autos = {"1600000000": {"id": "1600000000", "alias": "Flurlicht", "triggers": [], "actions": []}}
     states = {"scene.abend": {"entity_id": "scene.abend", "state": "unknown", "attributes": {"id": "1700000000", "friendly_name": "Abend"}}}
     asked, applied = [], []
 
@@ -43,12 +47,24 @@ async def test_scenes_are_written_only_when_ours(client, monkeypatch, aiohttp_se
         states[e] = {"entity_id": e, "state": "unknown", "attributes": {"id": cid, "friendly_name": scenes[cid]["name"]}}
         return web.json_response({"result": "ok"})
 
+    async def auto_config(request):
+        cid = request.match_info["id"]
+        asked.append((request.method, cid))
+        if request.method == "GET":
+            return web.json_response(autos[cid]) if cid in autos else web.json_response({"message": "Resource not found"}, status=404)
+        if request.method == "DELETE":
+            autos.pop(cid, None)
+            return web.json_response({"result": "ok"})
+        autos[cid] = await request.json()
+        return web.json_response({"result": "ok"})
+
     async def apply(request):
         applied.append(await request.json())
         return web.json_response([])
     fake = web.Application()
     fake.router.add_get("/websocket", ws)
     fake.router.add_route("*", "/config/scene/config/{id}", config)
+    fake.router.add_route("*", "/config/automation/config/{id}", auto_config)
     fake.router.add_post("/services/scene/apply", apply)
     srv = await aiohttp_server(fake)
     monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
@@ -68,14 +84,35 @@ async def test_scenes_are_written_only_when_ours(client, monkeypatch, aiohttp_se
     assert (await (await client.put(f"/api/scenes/{cid}", json={**kino, "name": "Kino 2"})).json())["ok"] and scenes[cid]["name"] == "Kino 2"
     assert any('"Kino"' in p.read_text() for p in (tmp_path / "ha-backup").glob("*-scene-*.json"))     # the old one kept
     other = await (await client.get("/api/scenes/1700000000")).json()
-    assert other["ours"] is False and other["scene"]["ents"]["light.wz"] == {"on": True, "pct": 50}       # to copy
-    assert (await client.put("/api/scenes/1700000000", json=kino)).status == 403
-    assert (await client.delete("/api/scenes/1700000000")).status == 403
-    assert not any(a[0] != "GET" and a[1] == "1700000000" for a in asked)                               # never written or deleted
+    assert other["ours"] is False and other["scene"]["ents"]["light.wz"] == {"on": True, "pct": 50} and other["kept"] == 1
+    # #564: one made in Home Assistant changed in place: the TV the editor cannot show stays, the old version is kept first
+    changed = {**other["scene"], "ents": {**other["scene"]["ents"], "switch.kaffee": {"on": True}}}
+    r = await (await client.put("/api/scenes/1700000000", json=changed)).json()
+    assert r["ok"] and r["id"] == "1700000000" and scenes["1700000000"]["entities"] == {
+        "light.wz": {"state": "on", "brightness": 128}, "media_player.tv": {"state": "on", "source": "HDMI 1"}, "switch.kaffee": {"state": "on"}}
+    assert any("HDMI 1" in p.read_text() and "kaffee" not in p.read_text() for p in (tmp_path / "ha-backup").glob("*-scene-1700000000.json"))
+    # deleted, then "↶ Wiederherstellen" writes the newest backup back
+    assert (await (await client.delete("/api/scenes/1700000000")).json())["ok"] and "1700000000" not in scenes
+    assert (await (await client.post("/api/ha-restore", json={"kind": "scene", "id": "1700000000"})).json())["ok"]
+    assert "switch.kaffee" in scenes["1700000000"]["entities"] and scenes["1700000000"]["name"] == "Abend"
+    # a scene that is not in Home Assistant's editor (its own YAML file) is never written anew or deleted
+    assert (await client.put("/api/scenes/1500000000", json=kino)).status == 404 and (await client.delete("/api/scenes/1500000000")).status == 404
+    assert not any(a[0] != "GET" and a[1] == "1500000000" for a in asked)
+    # automations: one made in Home Assistant deleted (backup first) and restored; the add-on's own and bad ids are refused
+    assert (await (await client.delete("/api/automations/1600000000")).json())["ok"] and not autos
+    assert list((tmp_path / "ha-backup").glob("*-automation-1600000000.json"))
+    assert (await (await client.post("/api/ha-restore", json={"kind": "automation", "id": "1600000000"})).json())["ok"] and autos["1600000000"]["alias"] == "Flurlicht"
+    assert (await client.delete("/api/automations/fp3d_abc_l1")).status == 403 and (await client.delete("/api/automations/x.y")).status in (400, 404)
+    assert (await client.delete("/api/automations/1400000000")).status == 404                          # not in the editor
+    assert (await client.post("/api/ha-restore", json={"kind": "automation", "id": "fp3d_abc_l1"})).status == 400
+    assert (await client.post("/api/ha-restore", json={"kind": "script", "id": "1600000000"})).status == 400
+    assert (await client.post("/api/ha-restore", json={"kind": "scene", "id": "1300000000"})).status == 404  # nothing kept of it
     assert (await client.put("/api/scenes/new", json={"name": "", "ents": {}})).status == 400
     assert (await (await client.post("/api/scenes/try", json=kino)).json())["ok"] and applied[-1]["entities"]["cover.wz"]["current_position"] == 20
     assert (await (await client.delete(f"/api/scenes/{cid}")).json())["ok"] and cid not in scenes
     editor["ok"] = False
     assert (await client.put("/api/scenes/new", json=kino)).status == 403 and (await client.get(f"/api/scenes/{cid}")).status == 403
+    assert (await client.delete("/api/scenes/1700000000")).status == 403 and (await client.delete("/api/automations/1600000000")).status == 403
+    assert (await client.post("/api/ha-restore", json={"kind": "scene", "id": "1700000000"})).status == 403
     monkeypatch.setattr(server, "user_locks", lambda request: {"control"})
     assert (await client.post("/api/scenes/try", json=kino)).status == 403

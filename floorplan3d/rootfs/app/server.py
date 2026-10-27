@@ -1209,6 +1209,17 @@ def _num(v):
     return v if isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) else None
 
 
+def _light(st, a):
+    """a light's white tone in Kelvin (#564): the one now (only in its white mode; in a colour mode Home Assistant works one out) and the
+    ones it can do (only a light that can do white tones has them)"""
+    if not st["entity_id"].startswith("light."):
+        return {}
+    k = _num(a.get("color_temp_kelvin"))
+    lo, hi = _num(a.get("min_color_temp_kelvin")), _num(a.get("max_color_temp_kelvin"))
+    return {"kel": round(k) if k and a.get("color_mode") == "color_temp" else None,
+            "kmin": round(lo) if lo and hi and hi > lo else None, "kmax": round(hi) if lo and hi and hi > lo else None}
+
+
 def _sky(st, a):
     """What the sky needs (#418, #419): of sun.sun its elevation and the next sunrise / sunset, of a weather entity temperature and wind;
     of zone.home where home is, rounded to a tenth of a degree (about 10 km: where the moon stands in the sky, moon.js)."""
@@ -1254,6 +1265,7 @@ def slim_state(st):
         "ct": a.get("current_temperature"),
         "bat": a.get("battery_level") if isinstance(a.get("battery_level"), (int, float)) and not isinstance(a.get("battery_level"), bool) else None,   # a vacuum ... reports its battery itself (#376)
         **_climate(st, a),
+        **_light(st, a),                                     # the white tone in Kelvin (#564)
         "ch": a.get("current_humidity"),
         "app": a.get("app_name") if st["entity_id"].startswith("media_player.") else None,
         "fx": _effects(a),
@@ -3533,10 +3545,12 @@ def ha_backup(request, kind: str, cid: str, cfg) -> None:
         old.unlink(missing_ok=True)
 
 
-async def ha_config(method: str, kind: str, cid: str, body=None):
-    """Home Assistant's editor of automations or scenes (REST, as its own pages use it): (status, answer); 0 when there was no answer"""
-    if not hf.ours(cid) and method != "GET":
-        return 403, {"message": "not ours"}           # never write or delete what somebody else made
+async def ha_config(method: str, kind: str, cid: str, body=None, theirs=False):
+    """Home Assistant's editor of automations or scenes (REST, as its own pages use it): (status, answer); 0 when there was no answer.
+    theirs: one made in Home Assistant may be written or deleted too; only when an editor asked for exactly that one (#564), the old
+    version kept first (ha_backup)"""
+    if not hf.ours(cid) and method != "GET" and not theirs:
+        return 403, {"message": "not ours"}           # never write or delete what somebody else made, unless asked for
     try:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=20)) as s:
             async with s.request(method, f"{HA_API}/config/{kind}/config/{cid}", headers=ha_headers(), json=body) as r:
@@ -3656,12 +3670,13 @@ async def ha_sync_flows(request, flows: list, force=()) -> dict:
     return out
 
 
-# ---------- scenes made in the dashboard as real scenes of Home Assistant (#549): scenes.py; written and deleted only when fp3d_… ----------
+# ---------- scenes made in the dashboard as real scenes of Home Assistant (#549): scenes.py; since #564 an editor may also change or delete
+# one made in Home Assistant (asked for that one, the old version kept first, "↶ Wiederherstellen": api/ha-restore) ----------
 SCENE_ID = re.compile(r"^[A-Za-z0-9_]{1,80}$")
 
 
 async def get_scene(request):
-    """one scene of Home Assistant's editor as the scene editor shows it (editors): one of the add-on's own to change, another to copy"""
+    """one scene of Home Assistant's editor as the scene editor shows it (editors); kept: how many of its devices the editor cannot show"""
     if not await can_edit(request):
         return forbidden()
     cid = request.match_info["id"]
@@ -3673,18 +3688,20 @@ async def get_scene(request):
     model = sc.from_ha(cfg) if status == 200 else None
     if not model:
         return web.json_response({"error": "not found"}, status=404)
-    return web.json_response({"id": cid, "ours": hf.ours(cid), "scene": model})
+    return web.json_response({"id": cid, "ours": hf.ours(cid), "scene": model, "kept": sc.hidden(cfg)})
 
 
 async def put_scene(request):
-    """a scene saved in Home Assistant (editors): a new one (id "new") or one of the add-on's own (the old version kept first)"""
+    """a scene saved in Home Assistant (editors): a new one (id "new"), one of the add-on's own, or one made in Home Assistant (#564: in
+    place, what the editor cannot show stays, scenes.merge_ha); the old version kept first"""
     if not await can_edit(request):
         return forbidden()
     cid = request.match_info["id"]
     if cid == "new":
         cid = sc.new_id()
-    elif not hf.ours(cid):
-        return web.json_response({"error": "not ours"}, status=403)        # somebody else's scene: the page saves a copy ("new")
+    elif not SCENE_ID.match(cid):
+        return web.json_response({"error": "bad id"}, status=400)
+    theirs = not hf.ours(cid)
     try:
         model = sc.clean_model(await request.json())
     except ValueError:
@@ -3696,7 +3713,10 @@ async def put_scene(request):
     status, cur = await ha_config("GET", "scene", cid)
     if status == 200 and isinstance(cur, dict):
         ha_backup(request, "scene", cid, cur)
-    status, res = await ha_config("POST", "scene", cid, sc.to_ha(cid, model))
+    elif theirs:
+        return web.json_response({"error": "yaml"}, status=404)          # not in Home Assistant's editor (scenes.yaml): never made anew
+    body = sc.merge_ha(cid, model, cur) if theirs else sc.to_ha(cid, model)
+    status, res = await ha_config("POST", "scene", cid, body, theirs=theirs)
     if status != 200:
         return web.json_response({"error": ((res or {}).get("message") if isinstance(res, dict) else None) or f"Home Assistant: {status or 'no answer'}"}, status=502)
     e = None
@@ -3709,19 +3729,69 @@ async def put_scene(request):
 
 
 async def delete_scene(request):
-    """one of the add-on's own scenes deleted in Home Assistant (editors; the old version kept)"""
+    """a scene deleted in Home Assistant (editors; the old version kept for "↶ Wiederherstellen"): the add-on's own, or since #564 one made
+    in Home Assistant's editor"""
+    return await _ha_delete(request, "scene")
+
+
+async def delete_automation(request):
+    """an automation made in Home Assistant's editor deleted there (editors, #564; the old version kept for "↶ Wiederherstellen"); the
+    add-on's own (fp3d_…) belong to its routines and are deleted with them"""
+    if hf.ours(request.match_info["id"]):
+        return web.json_response({"error": "routine"}, status=403)
+    return await _ha_delete(request, "automation")
+
+
+async def _ha_delete(request, kind: str):
     if not await can_edit(request):
         return forbidden()
     cid = request.match_info["id"]
-    if not hf.ours(cid):
-        return web.json_response({"error": "not ours"}, status=403)
+    if not SCENE_ID.match(cid):
+        return web.json_response({"error": "bad id"}, status=400)
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "nohass"}, status=503)
-    status, cur = await ha_config("GET", "scene", cid)
+    status, cur = await ha_config("GET", kind, cid)
+    if status == 404 and not hf.ours(cid):
+        return web.json_response({"error": "yaml"}, status=404)          # in a file of its own: only Home Assistant's YAML can change it
     if status == 200 and isinstance(cur, dict):
-        ha_backup(request, "scene", cid, cur)
-        status, _ = await ha_config("DELETE", "scene", cid)
+        ha_backup(request, kind, cid, cur)
+        status, _ = await ha_config("DELETE", kind, cid, theirs=True)
+    if kind == "automation":
+        request.app[KEY_RULES].pop("autos", None)                       # the list of automations asks Home Assistant again
+    _fresh_states(request.app)
     return web.json_response({"ok": status in (200, 404)}, status=200 if status in (200, 404) else 502)
+
+
+def ha_backup_latest(request, kind: str, cid: str):
+    """the newest kept old version of an automation or scene (ha_backup), or None"""
+    files = sorted((data_dir(request) / "ha-backup").glob(f"*-{kind}-{cid}.json"))
+    return read_json(files[-1], None) if files else None
+
+
+async def post_ha_restore(request):
+    """"↶ Wiederherstellen" (#564): a scene or an automation deleted from the dashboard written back to Home Assistant from the add-on's
+    newest backup of it (editors)"""
+    if not await can_edit(request):
+        return forbidden()
+    try:
+        body = await request.json()
+    except ValueError:
+        body = None
+    kind, cid = (body or {}).get("kind"), (body or {}).get("id")
+    if kind not in ("scene", "automation") or not isinstance(cid, str) or not SCENE_ID.match(cid) or (kind == "automation" and hf.ours(cid)):
+        return web.json_response({"error": "bad request"}, status=400)
+    if not SUPERVISOR_TOKEN:
+        return web.json_response({"error": "nohass"}, status=503)
+    cfg = ha_backup_latest(request, kind, cid)
+    if not isinstance(cfg, dict):
+        return web.json_response({"error": "no backup"}, status=404)
+    status, res = await ha_config("POST", kind, cid, cfg, theirs=True)
+    if status != 200:
+        return web.json_response({"error": ((res or {}).get("message") if isinstance(res, dict) else None) or f"Home Assistant: {status or 'no answer'}"}, status=502)
+    if kind == "automation":
+        request.app[KEY_RULES].pop("autos", None)
+    _fresh_states(request.app)
+    return web.json_response({"ok": True})
 
 
 async def post_scene_try(request):
@@ -4047,6 +4117,8 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/scenes/{id}", get_scene),
         web.put("/api/scenes/{id}", put_scene),
         web.delete("/api/scenes/{id}", delete_scene),
+        web.delete("/api/automations/{id}", delete_automation),
+        web.post("/api/ha-restore", post_ha_restore),
         web.post("/api/service", call_service),
         web.get("/api/camera/{entity}", get_camera),
         web.get("/api/camera/{entity}/hls", get_camera_hls),

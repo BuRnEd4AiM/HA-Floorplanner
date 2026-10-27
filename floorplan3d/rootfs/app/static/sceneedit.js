@@ -3,17 +3,24 @@
  * on or off, its brightness, a colour (swatches and a colour picker), a white tone, an effect of the light's own list (WLED, Nanoleaf …),
  * a roller shutter's position. "📸 Wie jetzt übernehmen" takes every device as it is now, "▶ Ausprobieren" shows the scene at once without
  * saving it (scene.apply), "✓ Speichern" writes it as a real scene of Home Assistant (api/scenes, only the dashboard's own scenes fp3d_…
- * are changed; one of Home Assistant's is saved as a copy). The model and its words come from scenes.js (tested). */
-import { SWATCHES, WHITES, hex, fromHex, kelvinRgb, fromStates, deviceNow, deviceWords, sceneReady, pickable } from './scenes.js';
+ * are written straight; one of Home Assistant's is changed in place (#564: what the editor cannot show stays as it was, the add-on keeps
+ * the old version) or saved as a copy ("📋 Als Kopie"). #564 also: "⇉ Auf alle anwenden" on every device (its settings for all the others,
+ * "↶ Rückgängig"), the white tone as a slider in Kelvin (kelvinui.js), the picker by kind with "＋ Alle hinzufügen". The model and its words
+ * come from scenes.js (tested). */
+import { SWATCHES, WHITES, KINDS, MAX_ENTS, hex, fromHex, kelvinRgb, fromStates, deviceNow, deviceWords, sceneReady, pickable, applyToAll, allTargets } from './scenes.js';
+import { lightRange } from './kelvin.js';
+import { kelvinSlider } from './kelvinui.js';
 
 /** ctx: t, entities() ([{ entity_id, name }]), states(), nameOf(entity), canEdit(), locked(), saved() (a scene was saved or deleted:
- *  draw the cards again) */
+ *  draw the cards again), manage (hamanage.js: deleting with "↶ Wiederherstellen") */
 export function initSceneEdit(ctx) {
   const { t } = ctx;
-  let dlg = null, draft = null, cid = null, copyOf = null, dirty = false, flash = '', search = '', busy = false;
+  let dlg = null, draft = null, cid = null, theirs = false, kept = 0, dirty = false, flash = '', search = '', kind = 'all', busy = false, undo = null;
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
-  const change = (fn) => { fn(); dirty = true; draw(); };
+  const change = (fn) => { undo = null; fn(); dirty = true; draw(); };
+  /** a change of many devices at once that "↶ Rückgängig" can take back */
+  const many = (fn) => { const before = structuredClone(draft.ents); change(fn); undo = before; draw(); };
   const say = (text) => { flash = text; draw(); setTimeout(() => { if (flash === text) { flash = ''; draw(); } }, 3000); };
   async function send(method, url, body) {
     try {
@@ -58,9 +65,11 @@ export function initSceneEdit(ctx) {
       pick.addEventListener('change', () => change(() => { x.rgb = fromHex(pick.value) || x.rgb; delete x.kelvin; }));
       colors.append(pick);
       body.append(make('label', '', t('sc.color')), colors);
+      const kel = kelvinSlider({ t, range: lightRange(st), value: x.kelvin ?? null, onChange: (k) => change(() => { x.kelvin = k; delete x.rgb; }) });
+      kel.dataset.field = 'kelvinSlider';
       const whites = make('div', 'feChips'); whites.dataset.field = 'kelvin';
       WHITES.forEach(([k, v]) => { const b = btn(`tpChip${x.kelvin === v ? ' on' : ''}`, t(`sc.${k}`), () => change(() => { x.kelvin = v; delete x.rgb; })); b.dataset.value = String(v); whites.append(b); });
-      body.append(make('label', '', t('sc.white')), whites);
+      body.append(kel, whites);
       if (Array.isArray(st.fx) && st.fx.length) {
         const sel = make('select', 'scFx'); sel.dataset.field = 'fx';
         sel.append(new Option(t('sc.noFx'), ''));
@@ -70,26 +79,47 @@ export function initSceneEdit(ctx) {
         body.append(make('label', '', t('sc.fx')), sel);
       }
     }
+    if (allTargets(draft.ents, e)) {                // #564: these settings for every other device of the scene
+      const all = btn('tpChip scAll', `⇉ ${t('sc.toAll')}`, () => toAll(e), t('sc.toAllHint')); all.dataset.act = 'scAll';
+      body.append(all);
+    }
     row.append(body);
     return row;
+  }
+  function toAll(from) {
+    const r = applyToAll(draft.ents, from, (e) => ctx.states()[e]?.fx);
+    if (!r.n) { say(t('sc.allSame')); return; }
+    many(() => { draft.ents = r.ents; });
+    say(t('sc.allDone', { n: r.n }));
   }
 
   function picker() {
     const box = make('div', 'scPicker');
     box.append(make('div', 'scPickH', t('sc.pick')));
+    const kinds = make('div', 'feChips scKinds');                  // #564: lights, switches, roller shutters
+    Object.keys(KINDS).forEach((k) => { const b = btn(`tpChip${kind === k ? ' on' : ''}`, t(`sc.kind.${k}`), () => { kind = k; draw(); }); b.dataset.kind = k; kinds.append(b); });
     const q = make('input', 'scSearch'); q.type = 'search'; q.placeholder = t('sc.search'); q.value = search; q.dataset.field = 'search';
     q.addEventListener('input', () => { search = q.value; drawList(); });
+    const addAll = make('div', 'scAddAll');
     const list = make('div', 'scPickList');
+    const add = (ids) => ids.forEach((e) => { draft.ents[e] = deviceNow(e, ctx.states()[e]); });
     function drawList() {
-      list.replaceChildren(...pickable(ctx.entities(), draft.ents, search).slice(0, 60).map((e) => {
-        const b = btn('scPickRow', '', () => change(() => { draft.ents[e.entity_id] = deviceNow(e.entity_id, ctx.states()[e.entity_id]); }));
-        b.dataset.entity = e.entity_id;
+      const found = pickable(ctx.entities(), draft.ents, search, kind), room = Math.max(0, MAX_ENTS - Object.keys(draft.ents).length);
+      addAll.replaceChildren();
+      if (found.length > 1 && room) {                  // "Szene für alles": every device found at once
+        const ids = found.slice(0, room).map((e) => e.entity_id);
+        const b = btn('bdBtn', `＋ ${t('sc.addAll', { n: ids.length })}`, () => many(() => add(ids)), t('sc.addAllHint')); b.dataset.act = 'scAddAll';
+        addAll.append(b);
+      }
+      list.replaceChildren(...found.slice(0, 60).map((e) => {
+        const b = btn('scPickRow', '', () => { if (room) change(() => add([e.entity_id])); });
+        b.dataset.entity = e.entity_id; b.disabled = !room;
         b.append(make('span', '', `＋ ${e.name || e.entity_id}`), make('small', '', e.entity_id));
         return b;
       }));
     }
     drawList();
-    box.append(q, list);
+    box.append(kinds, q, addAll, list);
     return box;
   }
 
@@ -103,15 +133,20 @@ export function initSceneEdit(ctx) {
     top.append(back, name);
     const right = make('div', 'feTopR');
     if (flash) right.append(make('span', 'feFlash', flash));
-    if (cid && !copyOf) { const del = btn('bdBtn', `🗑 ${t('sc.delete')}`, drop); del.dataset.act = 'scDelete'; right.append(del); }
-    const now = btn('bdBtn', t('sc.now'), () => change(() => { draft.ents = fromStates(draft.ents, ctx.states()); }), t('sc.nowHelp')); now.dataset.act = 'scNow';
+    if (undo) { const u = btn('bdBtn', `↶ ${t('sc.undo')}`, () => { draft.ents = undo; undo = null; dirty = true; draw(); }); u.dataset.act = 'scUndo'; right.append(u); }
+    if (cid) { const del = btn('bdBtn', `🗑 ${t('sc.delete')}`, drop); del.dataset.act = 'scDelete'; right.append(del); }
+    if (theirs) {
+      const cp = btn('bdBtn', `📋 ${t('sc.asCopy')}`, () => store(true), t('sc.asCopyHint')); cp.dataset.act = 'scCopy'; cp.disabled = !sceneReady(draft) || busy;
+      right.append(cp);
+    }
+    const now = btn('bdBtn', t('sc.now'), () => many(() => { draft.ents = fromStates(draft.ents, ctx.states()); }), t('sc.nowHelp')); now.dataset.act = 'scNow';
     now.disabled = !Object.keys(draft.ents).length;
     const tryIt = btn('bdBtn', `▶ ${t('sc.try')}`, tryNow); tryIt.dataset.act = 'scTry'; tryIt.disabled = !sceneReady(draft) || ctx.locked() || busy;
-    const save = btn('bdBtn primary', `✓ ${t('sc.save')}`, store); save.dataset.act = 'scSave'; save.disabled = !sceneReady(draft) || !dirty || busy;
+    const save = btn('bdBtn primary', `✓ ${t('sc.save')}`, () => store()); save.dataset.act = 'scSave'; save.disabled = !sceneReady(draft) || !dirty || busy;
     right.append(now, tryIt, save);
     top.append(right);
     const parts = [top];
-    if (copyOf) parts.push(make('div', 'feSync warn', t('sc.copyNote', { name: copyOf })));
+    if (theirs) parts.push(make('div', 'feSync warn', t('sc.theirsNote') + (kept ? ` ${t('sc.keptNote', { n: kept })}` : '')));
     const body = make('div', 'scBody');
     const devs = make('div', 'scDevs');
     const keys = Object.keys(draft.ents);
@@ -123,14 +158,17 @@ export function initSceneEdit(ctx) {
     if (keep != null) { const i = dlg.querySelector('input[type=search]'); if (i) { i.focus(); try { i.setSelectionRange(keep, keep); } catch { /* not every input */ } } }
   }
 
-  async function store() {
+  /** saved in Home Assistant: a new one, the one opened (also one of Home Assistant's, #564), or asCopy: a copy of it */
+  async function store(asCopy = false) {
     if (!sceneReady(draft)) return;
     busy = true; draw();
-    const r = await send('PUT', `api/scenes/${encodeURIComponent(cid && !copyOf ? cid : 'new')}`, draft);
+    const body = asCopy ? { ...draft, name: t('sc.copyName', { name: draft.name }) } : draft;
+    const r = await send('PUT', `api/scenes/${encodeURIComponent(cid && !asCopy ? cid : 'new')}`, body);
     busy = false;
     if (r.ok) {
-      cid = r.id; copyOf = null; dirty = false;
-      say(r.missing ? t('sc.missing') : t('sc.saved'));
+      if (asCopy) { draft.name = body.name; theirs = false; kept = 0; }
+      cid = r.id; dirty = false; undo = null;
+      say(r.missing ? t('sc.missing') : asCopy ? t('sc.copied') : t('sc.saved'));
       ctx.saved();
     } else say(t('sc.notSaved', { why: r.error === 'nohass' ? t('sc.nohass') : r.error || '…' }));
   }
@@ -139,9 +177,7 @@ export function initSceneEdit(ctx) {
     say(r.ok ? `✓ ${t('sc.tried')}` : t('sc.notSaved', { why: r.error || '…' }));
   }
   async function drop() {
-    if (!window.confirm(t('sc.deleteAsk', { name: draft.name }))) return;
-    const r = await send('DELETE', `api/scenes/${encodeURIComponent(cid)}`);
-    if (r.ok) { dirty = false; ctx.saved(); dlg.close(); } else say(t('sc.notSaved', { why: r.error || '…' }));
+    if (await ctx.manage.remove('scene', cid, draft.name)) { dirty = false; ctx.saved(); dlg.close(); }
   }
   function close() {
     if (dirty && !window.confirm(t('sc.leaveAsk'))) return;
@@ -149,8 +185,7 @@ export function initSceneEdit(ctx) {
     dlg?.close();
   }
 
-  /** the editor: scene = { entity, cid, ours, name } of the list (its config is read from Home Assistant; another's becomes a copy), or
-   *  null for a new one */
+  /** the editor: scene = { entity, cid, ours, name } of the list (its config is read from Home Assistant), or null for a new one */
   async function open(scene) {
     if (!ctx.canEdit()) return;
     if (!dlg) {
@@ -159,14 +194,13 @@ export function initSceneEdit(ctx) {
       dlg.addEventListener('close', () => { draft = null; });
       document.body.append(dlg);
     }
-    flash = ''; search = ''; dirty = false; cid = null; copyOf = null;
+    flash = ''; search = ''; kind = 'all'; dirty = false; cid = null; theirs = false; kept = 0; undo = null;
     draft = { name: t('sc.newName'), ents: {} };
     if (scene?.cid) {
       const r = await send('GET', `api/scenes/${encodeURIComponent(scene.cid)}`);
       if (!r.ok || !r.scene) { window.alert(t('sc.notSaved', { why: r.error || '…' })); return; }
       draft = r.scene;
-      cid = scene.cid;
-      if (!r.ours) { copyOf = draft.name; draft.name = t('sc.copyName', { name: draft.name }); dirty = true; }
+      cid = scene.cid; theirs = !r.ours; kept = r.kept || 0;
     } else dirty = true;
     if (!dlg.open) dlg.showModal();
     draw();
