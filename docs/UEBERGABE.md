@@ -1,11 +1,12 @@
 # Übergabe: so geht es in einem neuen Chat weiter
 
-Stand: 2026-10-27, Version **4.34.0**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`.
+Stand: 2026-10-27, Version **4.35.0**. Diese Datei ist für den nächsten Chat (auch auf einem anderen Zugang) geschrieben: erst diese Datei lesen, dann `.claude/CLAUDE.md`.
 
 **Diese Datei kurz halten** (Wunsch des Besitzers beim Aufräumen am 2026-10-26): unter „Zuletzt“ stehen nur die letzten Sitzungen mit ein, zwei Sätzen; was gebaut ist, steht in `CHANGELOG.md` und im Zeitstrahl. Wird ein Abschnitt alt, kommt er ins Archiv `docs/archiv/`. Die ganze alte Fassung bis 4.26.0 (alle früheren Wünsche und Entscheidungen, die Tabelle „Was fertig ist“, die technischen Notizen zu 4.0 bis 4.2, zu den Reitern, den Seiten und #495) liegt in **`docs/archiv/UEBERGABE-bis-2026-10-26.md`**.
 
 ## Zuletzt
 
+- **2026-10-27, 4.35.0: Einstellungen fast über den ganzen Bildschirm (#562, Branch `claude/great-curie-521hrr`):** 4.34.0 getestet: „geht alles“, am liebsten „Automatisch“ (118 ✅). Dann: „Einstellung … fast über den ganzen Bildschirm … nicht ewig scrollen … professionelle Einstellung“. Beispielbilder `docs/ideen-4.35/` (A Seitenleiste, B Kacheln), seine Wahl: **A**. Gebaut in `setgroups.js` (siehe CHANGELOG 4.35.0). Für Tests: auf breitem Bildschirm steht rechts nur **eine** Gruppe; `open_setting` vor jedem Feld einer anderen Gruppe aufrufen.
 - **2026-10-27, 4.34.0: Kantenglättung zum Auswählen (#560, Branch `claude/great-curie-521hrr`):** 4.33.1 hat er getestet („aktuell ist es sehr flüssig“, 117 alles ✅). Dann zu den drei Ideen ohne teure Kantenglättung: „kannst du das einbauen, so dass ich es anschalten kann jeweils“. Gebaut: ⚙ „Kantenglättung auf diesem Gerät“ (`edges.js`, `smoothedges.js`), siehe CHANGELOG 4.34.0. Wichtig: das eigene Bild ist ein Render-Target mit `isXRRenderTarget = true`, sRGB-Textur und `internalFormat = 'RGBA8'`, sonst schreibt three.js lineare Farben hinein und Glas/Leuchten sehen anders aus (`__fp.edgesCompare()` muss `diff: 0` geben).
 - **2026-10-27, 4.33.1: flüssiges Drehen (#557, Branch `claude/great-curie-521hrr`):** Der Besitzer: „auf dem Sparmodus nicht flüssig … nicht mehr als 30 fps am PC“, dann „es erfüllt zwar die 30 fps, aber es fühlt sich trotzdem ruckelig an“. Seine Werte per Auswahl: Chrome, fester PC, **Intel-Grafik**, @1, Arbeit unter 10 ms (die Grafik ist zu langsam für 60). Gebaut: keine neuen Schatten mitten im Drehen, die Kamera gleitet pro Sekunde statt pro Bild, der Sparmodus zeichnet beim Drehen mit der Hand jedes Bild (`frameloop.js`). Gemessen (SwiftShader): die Kantenglättung kostet am meisten (ohne sie etwa 40 % schneller), Schatten etwa 15 %, die verschwommenen Knöpfe kaum etwas. Idee, nicht gebaut, ihn fragen: eine Stufe „Flüssig“ (wie Schön, aber ohne Kantenglättung) oder „Automatisch“ schaltet sie bei langsamer Grafik selbst ab.
 - **2026-10-27 morgens, 4.33.0: 🌙 Mond im Himmel (Branch `claude/relaxed-dirac-33z1ry`):** Der Besitzer: „den Mondzyklus reinmachen … ob Vollmond oder Halbmond abnehmend … dass da irgendwo der Mond ist“. Gleich gebaut (ohne Beispielbilder vorher, die Fotos danach): `moon.js` (Phase, Stand für `zone.home`), gemalt in `skyui.js`, Anzeige „🌖 Abnehmender Mond · 96 %“. Zum Ausprobieren `?skydate=` und `?skytime=`.
@@ -18,7 +19,8 @@ Stand: 2026-10-27, Version **4.34.0**. Diese Datei ist für den nächsten Chat (
 
 ## Offen
 
-- **Kantenglättung (4.34.0, #560):** Testen durch den Besitzer am PC: 118.4 (Automatisch) und 118.5 (welche Art gefällt ihm). Danach fragen, ob eine davon für alle die Voreinstellung werden soll (heute „Wie bei „Leistung““ = wie vor 4.34.0).
+- **Einstellungen breit (4.35.0, #562):** Testen durch den Besitzer im Add-on: 119.5 (PC), 119.6 (Tablet quer).
+- **Kantenglättung (4.34.0, #560):** getestet ✅, ihm gefällt „Automatisch“ am besten. Offen: fragen, ob „Automatisch“ für alle die Voreinstellung werden soll (heute „Wie bei „Leistung““ = wie vor 4.34.0).
 - **🌙 Mond (4.33.0):** Testen durch den Besitzer im Add-on: 116.5 (steht er dort, wo er draußen steht?).
 - **#550 Zug-Karte (4.31.0, 4.31.1):** Testen durch den Besitzer im Add-on: Abschnitt 113 (113.4 bis 113.6) und 114 (114.2 bis 114.4). Seine Abfahrten „Oftersheim“ → „Mannheim Hbf“ kommen (2026-10-26). Ein Name mit Tippfehler („Ofterhseim“) findet die Bahn selbst; mit Zusatz („Oftersheim Bahnhof“) blieb die Liste ohne Hinweis leer. Daten: `https://dbf.finalrewind.org/<Bahnhof>.json` (hier im Container gesperrt, nur über WebFetch lesbar; im Add-on geht es; im Browser-Test der Nachbau `/_dbf` über `DBF_URL`).
 - **#549 Szenen (4.30.0):** Testen durch den Besitzer im Add-on: Abschnitt 112 (112.6 bis 112.8).

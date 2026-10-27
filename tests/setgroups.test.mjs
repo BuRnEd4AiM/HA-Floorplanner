@@ -83,3 +83,16 @@ test('users & tablets are a group of the settings for admins only, no dialog of 
   assert.match(dlg, /<details class="setGroup admin-only" data-group="users">/);
   assert.ok(!html.includes('id="usersDialog"') && !html.includes('id="usersBtn"'));
 });
+
+test('wide screens (4.35.0): the group on the right is the remembered one while it is there, else the first', () => {
+  assert.equal(G.pickGroup('view', ['general', 'view']), 'view');
+  assert.equal(G.pickGroup('users', ['general', 'view']), 'general');   // e.g. a read-only user does not see users & tablets
+  assert.equal(G.pickGroup(null, ['general']), 'general');
+  assert.equal(G.pickGroup('x', []), null);
+});
+test('wide screens: a row with the hints right after it is one tile, headings and boxes are not', () => {
+  assert.deepEqual(G.tileRuns(['row', 'hint', 'other', 'row', 'row', 'hint', 'hint']), [[0, 1], [3, 3], [4, 6]]);
+  assert.deepEqual(G.tileRuns(['hint', 'row', 'other', 'hint']), [[1, 1]]);   // an intro before the first row, a hint after a box: no tile
+  assert.deepEqual(G.tileRuns([]), []);
+});
+

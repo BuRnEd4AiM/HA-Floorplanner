@@ -38,8 +38,11 @@ def status_open(pg):
         pg.click("#phoneStatusBtn"); pg.wait_for_timeout(200)
 
 def open_setting(pg, sel):
-    """the settings dialog folds its groups shut (setgroups.js): open the group that holds this field"""
-    pg.evaluate("(s) => { const d = document.querySelector(s)?.closest('details'); if (d) d.open = true; }", sel)
+    """the settings dialog folds its groups shut (setgroups.js): open the group that holds this field (on a wide screen: show that group on
+    the right, 4.35.0; only one group shows there at a time, so open the group again before using a field of another one)"""
+    pg.evaluate("""(s) => { const el = document.querySelector(s), d = el?.closest('details'), g = el?.closest('details.setGroup');
+        if (d) d.open = true;
+        if (g) { g.open = true; g.closest('dialog')?.dispatchEvent(new CustomEvent('sg-show', { detail: g.dataset.group })); } }""", sel)
 
 def open_users(pg):
     """users & tablets are a group of the settings (#454): open the settings and that group (it loads the users, the file state and the rooms)"""

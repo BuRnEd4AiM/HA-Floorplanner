@@ -49,7 +49,7 @@ test('the lines of the box', () => {
 test('the line about the edges (#560)', () => {
   assert.equal(P.edgesLine({ mode: 'msaa', path: 'direct', weak: null }, 'de'), 'Kanten: immer glatt');
   assert.equal(P.edgesLine({ mode: 'still', path: 'smooth', weak: null }, 'de'), 'Kanten: glatt im Stillstand · jetzt glatt');
-  assert.equal(P.edgesLine({ mode: 'auto', path: 'direct', weak: true }, 'de'), 'Kanten: automatisch · jetzt schnell · Grafik zu langsam');
+  assert.equal(P.edgesLine({ mode: 'auto', path: 'direct', weak: true }, 'de'), 'Kanten: automatisch · jetzt schnell · beim Drehen ohne Glättung');
   assert.equal(P.edgesLine({ mode: 'auto', path: 'smooth', weak: null }, 'en'), 'Edges: automatic · smooth now · still measuring');
   assert.equal(P.edgesLine({ mode: 'fxaa', path: 'fxaa', weak: null }, 'fr'), 'Edges: smoothed afterwards');
   const s = { fps: 60, avg: 16.7, max: 20, work: 3, workMax: 5 };

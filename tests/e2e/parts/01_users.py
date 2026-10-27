@@ -13,7 +13,8 @@ check("low-power mode: on for ?kiosk, ?perf=high overrides", pg4.evaluate("windo
 pg4.close(); pg5.close()
 code = pg3.evaluate("fetch('api/layout', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({version:1,floors:[]})}).then(r => r.status)")
 check("non-editor cannot save (403)", code == 403, code)
-check("users & tablets: hidden for a read-only user", pg3.evaluate("getComputedStyle(document.querySelector('details[data-group=users]')).display") == "none")
+check("users & tablets: hidden for a read-only user (also in the list of groups of a wide screen)", pg3.evaluate("getComputedStyle(document.querySelector('details[data-group=users]')).display") == "none"
+      and pg3.evaluate("getComputedStyle(document.querySelector('#sgNav button[data-group=users]')).display") == "none")
 pg3.close()
 # --- users & tablets: a group of the settings for admins (#454, before a tab of its own), saved into a file of the config folder, sync button
 pgU = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
@@ -22,8 +23,8 @@ check("in the add-on (Ingress) no login of its own: no button \"Abmelden\" (#489
       and pgU.evaluate("fetch('api/me').then(r => r.json()).then(m => m.login)") is False)
 pgU.click("#settingsBtn"); pgU.wait_for_timeout(200)
 check("users & tablets (#454): a group of the settings for admins, no button of its own in the top bar",
-      pgU.locator("#usersBtn").count() == 0 and pgU.locator("#usersDialog").count() == 0 and pgU.is_visible("details[data-group=users] > summary")
-      and "👥" in pgU.inner_text("details[data-group=users] > summary"))
+      pgU.locator("#usersBtn").count() == 0 and pgU.locator("#usersDialog").count() == 0 and pgU.is_visible("#sgNav button[data-group=users]")
+      and "👥" in pgU.inner_text("#sgNav button[data-group=users]"))      # a wide screen: the groups are a list on the left (4.35.0)
 open_users(pgU)
 check("users & tablets (#454): opening the group shows the rows and the file state", pgU.is_visible("#addTablet") and pgU.inner_text("#usersFileStatus") != "")
 pgU.click("#addTablet"); pgU.fill("#tabletRows .tablet input", "tablet_flur"); pgU.press("#tabletRows .tablet input", "Tab"); pgU.wait_for_timeout(700)
