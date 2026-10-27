@@ -1,7 +1,7 @@
 /* The add-on's own heating rules and routines on the page (#546): puts together the copy of api/rules every page shares (rulesstore.js),
  * 🔎 Wird benutzt (usedbyui.js), 🌡 Klima → 📋 Heiz-Regeln (heatrulesui.js) and 📅 Heizplan (heatplanui.js), the cards of ▶ Abläufe
  * (routinesown.js), the editor of a routine (flowedit.js) and the scenes of Home Assistant with the scene editor (scenesui.js,
- * sceneedit.js, #549). app.js only calls initRulesUi and hands the parts to the pages, the room
+ * sceneedit.js, #549) and deleting scenes and automations of Home Assistant with "↶ Wiederherstellen" (hamanage.js, #564). app.js only calls initRulesUi and hands the parts to the pages, the room
  * labels and tiles ("⏸️ pausiert") and the live channel. */
 import { initRulesStore } from './rulesstore.js';
 import { initUsedBy } from './usedbyui.js';
@@ -11,6 +11,7 @@ import { initFlowEdit } from './flowedit.js';
 import { initRoutinesOwn } from './routinesown.js';
 import { initSceneEdit } from './sceneedit.js';
 import { initScenesCard } from './scenesui.js';
+import { initHaManage } from './hamanage.js';
 import { roomMark, roomKey } from './rules.js';
 
 /** ctx: t, lang(), settings(), states(), entities(), nameOf(entity), canEdit(), locked() (may not switch), callService(entity, service, data),
@@ -39,11 +40,12 @@ export function initRulesUi(ctx) {
   const heat = initHeatRulesUi({ ...base, rules, locked: ctx.locked, houseId, rooms, deg, usedBy, editFlow, showPlan: () => ctx.climate().show('plan'),
     changed: () => ctx.climate()?.update() });
   const plan = initHeatPlanUi({ ...base, rules, houseId, rooms, deg, changed: () => ctx.climate()?.update(), back: () => ctx.climate().show('rules') });
-  const sceneEdit = initSceneEdit({ ...base, entities: ctx.entities, locked: ctx.locked, saved: () => ctx.routines()?.update() });   // #549
+  const manage = initHaManage({ t, changed: () => ctx.routines()?.update() });                                                     // #564
+  const sceneEdit = initSceneEdit({ ...base, entities: ctx.entities, locked: ctx.locked, manage, saved: () => ctx.routines()?.update() });   // #549
   const scenes = initScenesCard({ ...base, locked: ctx.locked, callService: ctx.callService, ha: () => rules.get()?.ha === true, edit: (s) => sceneEdit.open(s),
-    changed: () => ctx.routines()?.update() });
+    manage, changed: () => ctx.routines()?.update() });
   const own = initRoutinesOwn({ ...base, locked: ctx.locked, callService: ctx.callService, rules, edit: (f) => flowEdit.open(f), openRules, details: ctx.details,
-    scenes, changed: () => ctx.routines()?.update() });
+    scenes, manage, changed: () => ctx.routines()?.update() });
   rules.load();
   return {
     rules, usedBy, heat, plan, own, flowEdit, sceneEdit,

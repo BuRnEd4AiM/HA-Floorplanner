@@ -1,4 +1,5 @@
-/* Live control: switching Home Assistant entities from the plan. Service calls, the light controls (brightness, colour, warm / cold, effects),
+/* Live control: switching Home Assistant entities from the plan. Service calls, the light controls (brightness, colour, the white tone in
+ * Kelvin as a slider when the lights can do it (#564, kelvinui.js) or else warm / cold, effects),
  * scene buttons, the "details" button (Home Assistant's own dialog) and the "whole room" block (all lights, the room's scenes).
  * The decisions are pure functions (tested); initLiveControls builds the DOM pieces the live popup and the room panel use. */
 
@@ -13,6 +14,9 @@ export const ACTION_LABEL = {
   turn_on: 'live.on', turn_off: 'live.off', toggle: 'live.toggle', open_cover: 'live.open',
   close_cover: 'live.close', stop_cover: 'live.stop', lock: 'live.lock', unlock: 'live.unlock',
 };
+import { kelvinRange, kelvinNow } from './kelvin.js';
+import { kelvinSlider } from './kelvinui.js';
+
 export const COLOR_PRESETS = ['#ff3b30', '#ff9500', '#ffd60a', '#34c759', '#23e0ff', '#0a84ff', '#bf5af2', '#ff2d92'];
 export const hexToRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 export const rgbToHex = (c) => '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
@@ -86,7 +90,7 @@ export function initLiveControls(ctx) {
     const wrap = document.createElement('div'); wrap.className = 'lightctl';
     const lbl = (k) => { const s = document.createElement('div'); s.className = 'sub'; s.textContent = t(k); return s; };
     if (sts.some((x) => x.brightness != null)) {
-      const r = document.createElement('input'); r.type = 'range'; r.min = 1; r.max = 100; r.value = st.brightness ?? 100;
+      const r = document.createElement('input'); r.type = 'range'; r.className = 'briRange'; r.min = 1; r.max = 100; r.value = st.brightness ?? 100;
       r.addEventListener('change', () => all('turn_on', { brightness_pct: +r.value }));
       wrap.append(lbl('live.brightness'), r);
     }
@@ -103,13 +107,17 @@ export function initLiveControls(ctx) {
     pick.addEventListener('change', () => setRgb(hexToRgb(pick.value)));
     sw.append(pick);
     wrap.append(sw);
-    const wr = document.createElement('div'); wr.className = 'actions';
-    [['live.warm', 2700], ['live.cold', 6500]].forEach(([k, kel]) => {
-      const b = document.createElement('button'); b.textContent = t(k);
-      b.addEventListener('click', () => all('turn_on', { color_temp_kelvin: kel }));
-      wr.append(b);
-    });
-    wrap.append(wr);
+    const range = kelvinRange(sts);                    // the lights say which white tones they can do (#564): a slider with its value in Kelvin
+    if (range) wrap.append(kelvinSlider({ t, range, value: kelvinNow(st), onChange: (k) => all('turn_on', { color_temp_kelvin: k }) }));
+    else {
+      const wr = document.createElement('div'); wr.className = 'actions';
+      [['live.warm', 2700], ['live.cold', 6500]].forEach(([k, kel]) => {
+        const b = document.createElement('button'); b.textContent = t(k);
+        b.addEventListener('click', () => all('turn_on', { color_temp_kelvin: kel }));
+        wr.append(b);
+      });
+      wrap.append(wr);
+    }
     const fx = commonEffects(sts);
     if (fx.length) {
       const sel = document.createElement('select'); sel.className = 'fxsel';

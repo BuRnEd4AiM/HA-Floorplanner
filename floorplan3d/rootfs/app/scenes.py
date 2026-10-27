@@ -4,14 +4,16 @@
 The page edits a scene as a small model: {name, icon, ents: {entity: {on, pct (brightness 1–100), rgb [r, g, b], kelvin, fx (effect),
 pos (0–100)}}}; to_ha turns it into what Home Assistant's scene editor keeps (scenes.yaml: {id, name, icon, entities: {entity: {state,
 brightness, color_mode, rgb_color | color_temp_kelvin, effect, current_position}}}), from_ha reads such a scene back for the editor.
-server.py writes it through Home Assistant's editor API and only ever touches ids fp3d_… (haflows.ours). Pure (tests/test_scenes.py)."""
+server.py writes it through Home Assistant's editor API. Since #564 a scene made in Home Assistant can be changed in place too (the
+owner: "Szenen … die von Home Assistant sind … dass ich die auch verwalten kann"): merge_ha keeps what the editor cannot show. Pure
+(tests/test_scenes.py)."""
 import re
 import secrets
 
 ENTITY = re.compile(r"^[a-z_]{1,32}\.[a-z0-9_]{1,100}$")
 ICON = re.compile(r"^mdi:[a-z0-9-]{1,60}$")
 DOMAINS = ("light", "switch", "fan", "input_boolean", "cover")
-MAX_ENTS = 40
+MAX_ENTS = 100                                      # a scene "for everything" (#564)
 
 
 def new_id() -> str:
@@ -123,3 +125,31 @@ def from_ha(cfg) -> dict | None:
 def apply_data(model: dict) -> dict:
     """what scene.apply needs to show the scene at once without saving it (▶ Ausprobieren)"""
     return {"entities": to_ha("x", model)["entities"]}
+
+
+def hidden(cfg) -> int:
+    """how many devices of a scene of Home Assistant the editor cannot show (other kinds of devices): they stay as they are"""
+    shown = from_ha(cfg)
+    return len(cfg["entities"]) - len(shown["ents"]) if shown else 0
+
+
+def merge_ha(cid: str, model: dict, old) -> dict:
+    """a scene of Home Assistant saved in place (#564): the model (clean_model) over the old config. What the editor did not show stays as
+    it was (devices of other kinds, the scene's other fields), so does every device left unchanged (with values the editor cannot show,
+    such as a transition or an hs colour); a device taken out of the scene is gone, a new one comes last"""
+    new = to_ha(cid, model)
+    shown = from_ha(old)
+    if not shown:
+        return new
+    ents = {}
+    for e, st in old["entities"].items():
+        if e not in shown["ents"]:
+            ents[e] = st                                # the editor did not show it
+        elif e in new["entities"]:
+            ents[e] = st if shown["ents"][e] == model["ents"][e] else new["entities"][e]
+    for e, st in new["entities"].items():
+        ents.setdefault(e, st)
+    out = {k: v for k, v in old.items() if k not in ("id", "name", "entities")}
+    out.update(new)
+    out["entities"] = ents
+    return out

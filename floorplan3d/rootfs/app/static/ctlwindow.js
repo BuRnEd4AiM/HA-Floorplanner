@@ -17,7 +17,7 @@ export function initControlsWindow(ctx) {
   let dlg = null, forId = null, drawn = '', timer = 0, held = false;
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
-  const sig = () => { const s = ctx.states()[forId]; return JSON.stringify(s ? [s.state, s.brightness, s.rgb, s.position, s.tt, s.ct, s.hvac, s.fxc, s.ctl] : null); };
+  const sig = () => { const s = ctx.states()[forId]; return JSON.stringify(s ? [s.state, s.brightness, s.rgb, s.position, s.tt, s.ct, s.hvac, s.fxc, s.ctl, s.kel] : null); };
   const busy = () => held || !!document.activeElement?.matches?.('.ctlDlg input:not([type=checkbox]), .ctlDlg select') || ctx.thermo?.busy?.();   // the switch: drawn at once
 
   function body(e) {

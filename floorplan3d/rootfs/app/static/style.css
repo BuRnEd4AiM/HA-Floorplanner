@@ -2211,6 +2211,13 @@ a.roIcon { text-decoration: none; color: inherit; border: 1px solid var(--line);
 .scPickList { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
 .scPickRow { display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: 6px 9px; border-radius: 8px; background: var(--field); border: none; color: inherit; font-size: 13.5px; cursor: pointer; }
 .scPickRow small { color: var(--muted); font-size: 11px; }
+/* #564: "⇉ Auf alle anwenden" at the foot of a device, the picker by kind with "＋ Alle dazunehmen" */
+.scDevB .scAll { align-self: flex-start; margin-top: 4px; font-size: 13px; }
+.scKinds { display: flex; flex-wrap: wrap; gap: 5px; }
+.scKinds .tpChip { font-size: 12.5px; padding: 3px 9px; }
+.scAddAll:empty { display: none; }
+.scAddAll .bdBtn { width: 100%; }
+.scPickRow:disabled { opacity: .5; cursor: default; }
 @media (max-width: 760px) {
   .scBody { grid-template-columns: 1fr; grid-template-rows: auto auto; overflow-y: auto; }
   .scDevs { overflow: visible; grid-template-columns: 1fr; }
@@ -2248,3 +2255,24 @@ a.roIcon { text-decoration: none; color: inherit; border: 1px solid var(--line);
 [data-theme="light"] .trChip.plan { color: #1d5fa8; } [data-theme="light"] .trChip.ok { color: #1d6b2e; } [data-theme="light"] .trChip.late, [data-theme="light"] .trMine.trK-late .trReal, [data-theme="light"] .trPlat.moved,
 [data-theme="light"] .trP.moved, [data-theme="light"] .trD.late, [data-theme="light"] .trErr { color: #8a5300; }
 [data-theme="light"] .trChip.bad, [data-theme="light"] .trChip.gone, [data-theme="light"] .trMine.trK-bad .trReal, [data-theme="light"] .trD.bad { color: #a8272b; }
+
+/* the white tone slider in Kelvin (#564, kelvinui.js): "Weißton  2700 K · Warmweiß" over a slider coloured from warm to cold; in the scene
+ * editor and the light controls */
+.kelSlider { display: flex; flex-direction: column; gap: 4px; width: 100%; margin: 4px 0 6px; }
+.kelHead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 12px; font-weight: 800; color: var(--muted); }
+.kelVal { color: var(--text); font-size: 13px; font-variant-numeric: tabular-nums; }
+input[type=range].kelRange { -webkit-appearance: none; appearance: none; width: 100%; height: 14px; margin: 4px 0; border-radius: 7px; border: 1px solid rgba(255, 255, 255, .3); cursor: pointer; }
+input[type=range].kelRange::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 2px solid rgba(0, 0, 0, .45); box-shadow: 0 1px 4px rgba(0, 0, 0, .45); }
+input[type=range].kelRange::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid rgba(0, 0, 0, .45); box-shadow: 0 1px 4px rgba(0, 0, 0, .45); }
+input[type=range].kelRange::-moz-range-track { background: transparent; }
+[data-theme="light"] input[type=range].kelRange { border-color: rgba(0, 0, 0, .18); }
+
+/* the automations of Home Assistant (#564): on / off, ▶, ↗, 🗑 and ⓘ; in a narrow card the buttons go below the words */
+.roAutos .roRow { flex-wrap: wrap; }
+.roAutos .roTx { flex: 1 1 200px; }
+.roActs { display: flex; gap: 6px; flex: none; margin-left: auto; align-items: center; }
+.roActs .roIcon { width: 32px; height: 32px; }
+.roActs .roIcon.ok { color: #46a758; border-color: rgba(70, 167, 88, .7); } .roActs .roIcon.bad { color: #e5484d; }
+/* a scene or automation of Home Assistant deleted from the dashboard (#564, hamanage.js): "↶ Wiederherstellen" for a few minutes */
+.hmUndo { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 10px; margin: 4px 0; border-radius: 10px;
+  border: 1px dashed var(--line); font-size: 13.5px; }

@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmvwtPozKLhotJq1rE4",
+ "start": "2026-10-27",
+ "updated": "2026-10-27T20:00:35Z",
+ "branch": "claude/friendly-cerf-ydliez",
+ "source": "counted",
+ "input": 274,
+ "cache_write": 342770,
+ "cache_read": 35357761,
+ "output": 137975,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 274,
+   "cache_write": 342770,
+   "cache_read": 35357761,
+   "output": 137975,
+   "requests": 137
+  }
+ }
+}
