@@ -4,6 +4,19 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.34.0] - 2026-10-27
+### Added
+- **Edge smoothing to choose: smooth when the picture stands, smoothed afterwards, automatic** (#560, the owner after #557: "kannst du das einbauen, so dass ich es anschalten kann jeweils, das wäre praktisch"). Smoothing the edges (the browser's own antialiasing) costs the graphics the most, about 40 % of a frame. ⚙ has a new choice next to "Leistung auf diesem Gerät": **"Kantenglättung auf diesem Gerät"**, kept per browser like the performance, the page reloads:
+  - **Wie bei „Leistung“** (the default): as before, smooth, off in the low-power mode "Schnell".
+  - **Immer**: always smooth (the nicest, needs the most power).
+  - **Glatt, wenn das Bild steht**: while you turn or move the house the picture is drawn without smoothing (fluid, the steps are hardly seen in motion); as soon as it stands (it moves less than half a pixel per frame) it is drawn smooth.
+  - **Nachträglich glätten**: drawn without smoothing, then a small program (FXAA) softens the steps along the edges; costs little, fine lines and text in the 3D picture get a little softer.
+  - **Automatisch**: smooth like "Immer"; when the graphics cannot keep up while you turn the house (fewer than 45 frames a second) it smooths only when the picture stands, until the page is opened again.
+  - **Aus**: no smoothing (the fastest).
+- The performance display ("alle Werte") has a line **"Kanten: …"**, e.g. "Kanten: automatisch · jetzt schnell · Grafik zu langsam", so you see what applies right now.
+### Changed
+- New modules `edges.js` (pure, `tests/edges.test.mjs`) and `smoothedges.js`; the FXAA shader of three.js in `vendor/shaders/FXAAShader.js`. The picture of its own is filled exactly like the screen (an sRGB render target marked like WebXR's, stored as RGBA8): a frame through it has the same colours to the last bit, glass, glow and see-through walls included (checked by the browser test). `?edges=msaa|still|fxaa|auto|off` in the address tries a mode. The browser test part `54_edges` checks the colours, the switching while turning, the shader, the choice in ⚙ and the display.
+
 ## [4.33.1] - 2026-10-27
 ### Fixed
 - **Turning the house is smooth again, on a PC with weak graphics and in the low-power mode** (#557, the owner: "die Performance fühlt sich auf dem Sparmodus nicht flüssig an … trotzdem nicht mehr als 30 fps am PC" and "es erfüllt zwar die 30 fps, aber es fühlt sich trotzdem ruckelig dafür an"). On his PC (Chrome, Intel graphics) a frame takes the graphics longer than 1/60 s, so Chrome shows 30 frames a second; three things made those 30 frames feel jerky, and they are gone: (1) **no new shadows in the middle of turning**: the safety refresh of the shadows came every second and a wall sinking while the camera turns drew them in every frame of its way down; a frame with new shadows takes about a third longer and came too late. Now the refresh waits until the picture stands (at most 5 s), sinking walls get new shadows every 0.3 s and once when they stand. (2) **The camera glides the same per second at any frame rate**: it took 5 % of the rest of a move in every frame, made for 60 frames; at 30 frames it followed the mouse half as fast, and with uneven frames it jumped and stood in turn. (3) **Low-power mode ("Schnell")**: while you turn or move the house by hand (finger, mouse, wheel) every frame is drawn, not at most 30; as soon as the picture stands it rests again as before (30 frames, a few when nothing happens; the screen saver stays at 30). Its 30 frames now come evenly (a frame 0.1 ms early waited a whole frame more: 16, 33, 50 ms).

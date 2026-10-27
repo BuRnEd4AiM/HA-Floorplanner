@@ -1954,4 +1954,9 @@ export default {
   'tr.nohass': 'Sin Home Assistant no se puede leer el sensor.',
   'tr.noStation': 'Deutsche Bahn no conoce así la estación «{s}»: introduce su nombre exacto (p. ej. «Frankfurt (Main) Hbf»).',
   'tr.error': 'Las salidas no llegaron ahora ({why}).',
+  'set.edges': 'Suavizado de bordes en este dispositivo', 'set.edges.default': 'Según «Rendimiento» (activado, desactivado en «Rápido»)',
+  'set.edges.msaa': 'Siempre (lo más bonito, necesita más potencia)', 'set.edges.still': 'Suave cuando la imagen está quieta',
+  'set.edges.fxaa': 'Suavizar después (ahorra potencia, algo más suave)', 'set.edges.auto': 'Automático: con gráficos débiles solo en reposo',
+  'set.edges.off': 'Desactivado (lo más rápido)',
+  'set.edgesHint': 'Solo para este dispositivo/navegador. Suavizar los bordes es lo que más potencia gráfica cuesta. «Suave cuando la imagen está quieta»: sin suavizado al girar (fluido), bordes suaves en cuanto la imagen se detiene. «Suavizar después» suaviza los escalones de los bordes, cuesta poco, las líneas finas y el texto quedan algo más suaves. «Automático» mide al girar si los gráficos dan abasto y si no, suaviza solo en reposo. Vista → ⏱ Rendimiento → «todos los valores» muestra lo que se aplica. La página se recarga.',
 };

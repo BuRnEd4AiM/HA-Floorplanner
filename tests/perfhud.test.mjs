@@ -46,6 +46,18 @@ test('the lines of the box', () => {
   assert.ok(!noMem.some((l) => l.startsWith('Memory') || l.startsWith('GPU')));
 });
 
+test('the line about the edges (#560)', () => {
+  assert.equal(P.edgesLine({ mode: 'msaa', path: 'direct', weak: null }, 'de'), 'Kanten: immer glatt');
+  assert.equal(P.edgesLine({ mode: 'still', path: 'smooth', weak: null }, 'de'), 'Kanten: glatt im Stillstand · jetzt glatt');
+  assert.equal(P.edgesLine({ mode: 'auto', path: 'direct', weak: true }, 'de'), 'Kanten: automatisch · jetzt schnell · Grafik zu langsam');
+  assert.equal(P.edgesLine({ mode: 'auto', path: 'smooth', weak: null }, 'en'), 'Edges: automatic · smooth now · still measuring');
+  assert.equal(P.edgesLine({ mode: 'fxaa', path: 'fxaa', weak: null }, 'fr'), 'Edges: smoothed afterwards');
+  const s = { fps: 60, avg: 16.7, max: 20, work: 3, workMax: 5 };
+  const info = { calls: 1, tris: 1, geo: 1, tex: 1, prog: 1, w: 10, h: 10, ratio: 1, low: false, idle: false, gpu: '', mem: null, screen: '10×10 @1' };
+  assert.ok(P.hudLines('all', s, { ...info, edges: { mode: 'off', path: 'direct', weak: null } }, 'de').includes('Kanten: nicht geglättet'));
+  assert.ok(!P.hudLines('all', s, info, 'de').some((x) => x.startsWith('Kanten')));
+});
+
 test('every language has the button texts; missing line labels fall back to English', () => {
   for (const l of ['de', 'en', 'fr', 'es', 'it', 'nl', 'pl']) for (const k of ['btn', 'off', 'fps', 'all', 'tip']) assert.ok(P.tx(l, k), `${l}.${k}`);
   assert.equal(P.tx('fr', 'calls'), 'Draw calls');

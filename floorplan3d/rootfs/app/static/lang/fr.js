@@ -1970,4 +1970,9 @@ export default {
   'tr.stamp': 'à {at}', 'tr.nohass': 'Sans Home Assistant le capteur ne peut pas être lu.',
   'tr.noStation': 'La Deutsche Bahn ne connaît pas la gare « {s} » ainsi : indique son nom exact (p. ex. « Frankfurt (Main) Hbf »).',
   'tr.error': 'Les départs ne sont pas arrivés ({why}).',
+  'set.edges': 'Lissage des bords sur cet appareil', 'set.edges.default': 'Selon « Performances » (activé, désactivé en « Rapide »)',
+  'set.edges.msaa': 'Toujours (le plus beau, demande le plus de puissance)', 'set.edges.still': 'Lisse quand l’image est immobile',
+  'set.edges.fxaa': 'Lisser après coup (économise, un peu plus doux)', 'set.edges.auto': 'Automatique : graphisme faible, seulement à l’arrêt',
+  'set.edges.off': 'Désactivé (le plus rapide)',
+  'set.edgesHint': 'Uniquement pour cet appareil/ce navigateur. Lisser les bords demande le plus de puissance graphique. « Lisse quand l’image est immobile » : pas de lissage en tournant (fluide), bords lisses dès que l’image s’arrête. « Lisser après coup » adoucit les marches des bords, coûte peu, les traits fins et le texte deviennent un peu plus doux. « Automatique » mesure en tournant si le graphisme suit et sinon ne lisse qu’à l’arrêt. Affichage → ⏱ Performances → « toutes les valeurs » montre ce qui s’applique. La page se recharge.',
 };

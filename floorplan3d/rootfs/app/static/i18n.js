@@ -892,6 +892,11 @@ const DICT = {
     'tr.stamp': 'Stand {at}', 'tr.nohass': 'Ohne Home Assistant kann der Sensor nicht gelesen werden.',
     'tr.noStation': 'Den Bahnhof „{s}“ kennt die Bahn so nicht: bitte den genauen Namen eintragen (z. B. „Frankfurt (Main) Hbf“).',
     'tr.error': 'Die Abfahrten kamen gerade nicht ({why}).',
+    'set.edges': 'Kantenglättung auf diesem Gerät', 'set.edges.default': 'Wie bei „Leistung“ (an, im Modus „Schnell“ aus)',
+    'set.edges.msaa': 'Immer (am schönsten, braucht die meiste Kraft)', 'set.edges.still': 'Glatt, wenn das Bild steht',
+    'set.edges.fxaa': 'Nachträglich glätten (spart Kraft, etwas weicher)', 'set.edges.auto': 'Automatisch: bei schwacher Grafik nur im Stillstand',
+    'set.edges.off': 'Aus (am schnellsten)',
+    'set.edgesHint': 'Gilt nur für dieses Gerät/diesen Browser. Die Kantenglättung kostet die Grafik am meisten Kraft. „Glatt, wenn das Bild steht“: beim Drehen ohne Glättung (flüssig), sobald das Bild still steht, mit glatten Kanten. „Nachträglich glätten“ macht die Treppchen an den Kanten weich, kostet wenig, feine Linien und Schrift werden etwas weicher. „Automatisch“ misst beim Drehen, ob die Grafik mithält, und glättet sonst nur im Stillstand. Was gerade gilt, zeigt Ansicht → ⏱ Leistung → „alle Werte“. Die Seite lädt dabei neu.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -1744,6 +1749,11 @@ const DICT = {
     'tr.nohass': 'Without Home Assistant the sensor cannot be read.',
     'tr.noStation': 'Deutsche Bahn does not know the station “{s}” like this: please enter its exact name (e.g. “Frankfurt (Main) Hbf”).',
     'tr.error': 'The departures did not come just now ({why}).',
+    'set.edges': 'Edge smoothing on this device', 'set.edges.default': 'As “Performance” has it (on, off in “Fast”)',
+    'set.edges.msaa': 'Always (nicest, needs the most power)', 'set.edges.still': 'Smooth when the picture stands still',
+    'set.edges.fxaa': 'Smooth afterwards (saves power, a little softer)', 'set.edges.auto': 'Automatic: with weak graphics only when still',
+    'set.edges.off': 'Off (fastest)',
+    'set.edgesHint': 'Applies to this device/browser only. Smoothing the edges costs the graphics the most power. “Smooth when the picture stands still”: no smoothing while turning (fluid), smooth edges as soon as the picture stands. “Smooth afterwards” softens the steps along the edges, costs little, fine lines and text get a little softer. “Automatic” measures while turning whether the graphics keeps up and otherwise smooths only when still. View → ⏱ Performance → “all values” shows what applies. The page reloads.',
   },
 };
 

@@ -137,6 +137,8 @@ import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
 import { frameDue, shadowDue, dampingFor, MAX_STEP } from './frameloop.js';
 import { initPerfHud } from './perfhud.js';
+import { canvasSmooth } from './edges.js';
+import { startEdges, initSmoothEdges } from './smoothedges.js';
 import { floorsMode, floorElev, hasSlab, isCovered, underRoof, drawnFloors, liveFloors, initHouseFloors } from './housefloors.js';
 import { initHouseLoad } from './houseload.js';
 import { roofRects, moveRoof, tagRoofMeshes, panelsOn, setRoofBox, stepTarget } from './roofmove.js';
@@ -222,7 +224,8 @@ try { perfStored = localStorage.getItem(PERF_KEY) || 'auto'; } catch { /* no sto
 const perfParam = params.get('perf') || (perfStored !== 'auto' ? perfStored : null);
 const LOW = perfParam ? perfParam === 'low' : !!(params.get('kiosk') || params.get('room') || matchMedia('(pointer: coarse)').matches);
 document.body.classList.toggle('low', LOW);
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: !LOW, alpha: true, powerPreference: 'high-performance' });
+const EDGES = startEdges(params.get('edges'), LOW);              // how the edges are smoothed, ⚙ per device (#560, edges.js)
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: canvasSmooth(EDGES), alpha: true, powerPreference: 'high-performance' });
 renderer.localClippingEnabled = true;                      // the ground is cut open on the camera's side
 renderer.setPixelRatio(perfParam === 'low' ? 1 : LOW ? Math.min(devicePixelRatio, 1.25) : Math.min(devicePixelRatio, 3));
 renderer.shadowMap.enabled = true;
@@ -1768,7 +1771,8 @@ function poke() { lastFrame = 0; }                                // one frame n
 ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart', 'touchmove'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
 controls.addEventListener('start', moved);
 controls.addEventListener('change', () => (controls.autoRotate ? wake() : moved()));   // the screen saver turning the house stays at 30 frames on a tablet
-const perfHud = initPerfHud({ $, renderer, low: LOW, param: params.get('fps'), lang: currentLanguage, onChange: wake });   // FPS and more, chosen in the View menu (perfhud.js)
+const edges = initSmoothEdges({ $, renderer, mode: EDGES, target: () => controls.target, reload: () => location.reload() });   // smooth edges (smoothedges.js)
+const perfHud = initPerfHud({ $, renderer, low: LOW, param: params.get('fps'), lang: currentLanguage, onChange: wake, edges: edges.info });   // FPS and more, chosen in the View menu (perfhud.js)
 function animate(now = performance.now()) {
   requestAnimationFrame(animate);
   if (document.hidden || cardUi?.panelOnly() || tabsUi.covered()) return;   // screen off / tab in background / a card with only the room panel / a page of the tab bar: draw nothing
@@ -1796,7 +1800,7 @@ function animate(now = performance.now()) {
   if (shadowDue(shadowDirty, now, lastShadow, { sinking, sank: wallsSank, lastMove })) {   // shadows only when something changed (#253)
     renderer.shadowMap.needsUpdate = true; shadowDirty = wallsSank = false; lastShadow = now;
   }
-  if (layoutMode !== '2d') renderer.render(scene, camera);     // only the 2D plan shows: the hidden 3D picture is not drawn (#542)
+  if (layoutMode !== '2d') edges.render(scene, camera, now);  // only the 2D plan shows: the hidden 3D picture is not drawn (#542); edges: #560
   perfHud.frame(now, due, frameStart);
 }
 init();
@@ -1823,6 +1827,7 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     get layout() { return layout; }, settings: () => settings, offline: () => offline.devices(), alerts: () => alertsUi.list(), alertPulsing: () => alertsUi.pulses.length, kioskTick: () => kiosk.tick(), kioskIdle: (ms) => kiosk.idle(ms), autoRotate: () => controls.autoRotate, findItems: (q) => search.findItems(q), findMarks: () => search.marks(), voiceAsk: (x) => voiceUi.ask(x), navArrows: () => [!$('#navLeft').hidden, !$('#navRight').hidden], navBar: () => $('#navBar'),
+    edges: () => edges.info(), edgesCompare: () => edges.compare(scene, camera),   // #560, for tests
     renderer, scene, frame: () => { const t0 = performance.now(); controls.update(); updateCutaway(); animateOpenings(); selHelper?.update(); const t1 = performance.now(); renderer.render(scene, camera); return [t1 - t0, performance.now() - t1]; },
     houseId: () => hs.id(), states: () => states,
     bellOpen: () => doorbell.isOpen(), bells: () => doorbell.bells(), bellTest: () => doorbell.test(), bellClose: () => doorbell.close(),   // 🔔, for tests

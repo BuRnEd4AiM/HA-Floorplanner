@@ -1955,4 +1955,9 @@ export default {
   'tr.stamp': 'alle {at}', 'tr.nohass': 'Senza Home Assistant il sensore non si può leggere.',
   'tr.noStation': 'La Deutsche Bahn non conosce così la stazione «{s}»: inserisci il nome esatto (es. «Frankfurt (Main) Hbf»).',
   'tr.error': 'Le partenze non sono arrivate ({why}).',
+  'set.edges': 'Smussatura dei bordi su questo dispositivo', 'set.edges.default': 'Come «Prestazioni» (attivo, disattivo in «Veloce»)',
+  'set.edges.msaa': 'Sempre (il più bello, richiede più potenza)', 'set.edges.still': 'Liscio quando l’immagine è ferma',
+  'set.edges.fxaa': 'Smussare dopo (risparmia, un po’ più morbido)', 'set.edges.auto': 'Automatico: con grafica debole solo da fermo',
+  'set.edges.off': 'Disattivo (il più veloce)',
+  'set.edgesHint': 'Vale solo per questo dispositivo/browser. Smussare i bordi è ciò che costa più potenza grafica. «Liscio quando l’immagine è ferma»: niente smussatura mentre si ruota (fluido), bordi lisci appena l’immagine si ferma. «Smussare dopo» ammorbidisce i gradini dei bordi, costa poco, linee sottili e testo diventano un po’ più morbidi. «Automatico» misura ruotando se la grafica regge e altrimenti smussa solo da fermo. Vista → ⏱ Prestazioni → «tutti i valori» mostra cosa vale. La pagina si ricarica.',
 };
