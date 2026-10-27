@@ -17,7 +17,7 @@ Stand: 2026-10-27, Version **4.33.1**. Diese Datei ist für den nächsten Chat (
 
 ## Offen
 
-- **Flüssiges Drehen (4.33.1, #557):** Testen durch den Besitzer am PC und am Tablet: Abschnitt 117 (117.1 bis 117.4). Danach fragen, ob er die Stufe „Flüssig“ (ohne Kantenglättung) will.
+- **Flüssiges Drehen (4.33.1, #557):** vom Besitzer getestet, alles ✅ (117.1 bis 117.4, „aktuell ist es sehr flüssig“). Kantenglättung bleibt an; falls es später ruckelt, sein Favorit wäre zu fragen: „glatt, wenn das Bild steht“ (ohne Glättung beim Drehen), nachträglich glätten (FXAA/SMAA) oder automatisch nur bei schwacher Grafik.
 - **🌙 Mond (4.33.0):** Testen durch den Besitzer im Add-on: 116.5 (steht er dort, wo er draußen steht?).
 - **#550 Zug-Karte (4.31.0, 4.31.1):** Testen durch den Besitzer im Add-on: Abschnitt 113 (113.4 bis 113.6) und 114 (114.2 bis 114.4). Seine Abfahrten „Oftersheim“ → „Mannheim Hbf“ kommen (2026-10-26). Ein Name mit Tippfehler („Ofterhseim“) findet die Bahn selbst; mit Zusatz („Oftersheim Bahnhof“) blieb die Liste ohne Hinweis leer. Daten: `https://dbf.finalrewind.org/<Bahnhof>.json` (hier im Container gesperrt, nur über WebFetch lesbar; im Add-on geht es; im Browser-Test der Nachbau `/_dbf` über `DBF_URL`).
 - **#549 Szenen (4.30.0):** Testen durch den Besitzer im Add-on: Abschnitt 112 (112.6 bis 112.8).

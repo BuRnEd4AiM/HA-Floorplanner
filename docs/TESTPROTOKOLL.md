@@ -10,7 +10,6 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in 4.33.1: Das Haus dreht sich flüssig** (Abschnitt 117): am PC mit „Automatisch“ und mit „Schnell“ drehen (117.1 bis 117.3), am Tablet mit dem Finger (117.4).
 1. **Neu in 4.33.0: 🌙 Der Mond im Himmel** (Abschnitt 116): Claude hat 116.1 bis 116.4 in der Demo geprüft; schau heute Abend im Add-on, ob er dort steht, wo du ihn draußen siehst (116.5).
 1. **Neu in 4.32.0: 📅 Heizplan, von Hand gedreht** (Abschnitt 115): Claude hat 115.1 und 115.2 im Test-Add-on geprüft; für dich im Add-on mit deinem Thermostat 115.3 und 115.4.
 1. **Neu in 4.31.0 und 4.31.1: 🚆 Zug-Karte** (Abschnitt 113 und 114): Claude hat 113.1 bis 113.3 in der Demo und 114.1 im Test-Add-on geprüft; für dich im Add-on mit deinem Bahnhof 113.4 bis 113.6 und 114.2 bis 114.4 (abends dein Zug von morgen).
@@ -30,6 +29,8 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 15. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
 16. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
 17. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
+
+**Zuletzt geprüft (2026-10-27, per Auswahl im Chat, 4.33.1):** ✅ 117.1 bis 117.4 (das Haus dreht sich flüssig, am PC mit Intel-Grafik in „Schön“ und „Schnell“, am Tablet mit dem Finger; Abschnitt 117 fertig).
 
 **Zuletzt geprüft (2026-10-26 morgens, Claude in der Demo 4.26.0):** ✅ 102.2 bis 102.6, 103.1 bis 103.4, 104.1, 104.2, 105.1 bis 105.5, 106.1 bis 106.4, 107.1 bis 107.8 (Chromium als PC und als Tablet, nachts und am Tag der Zeitumstellung mit gestellter Uhr). Kein ❌.
 
@@ -328,8 +329,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 114. Neu in 4.31.1: 🚆 Zug-Karte zeigt deinen Zug auch morgen (#550) | 1 | 0 | 0 | 3 | – |
 | 115. Neu in 4.32.0: 📅 Heizplan: von Hand gedreht, nach 10 Minuten zurück (#546) | 2 | 0 | 0 | 2 | – |
 | 116. Neu in 4.33.0: 🌙 Der Mond im Himmel | 4 | 0 | 0 | 1 | – |
-| 117. Neu in 4.33.1: Das Haus dreht sich flüssig (#557) | 0 | 0 | 4 | 0 | 117.1 bis 117.4 |
-| **Zusammen** | **739** | **10** | **57** | **92** | |
+| 117. Neu in 4.33.1: Das Haus dreht sich flüssig (#557) | 4 | 0 | 0 | 0 | – |
+| **Zusammen** | **743** | **10** | **53** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1811,7 +1812,7 @@ Wunsch des Besitzers vom 2026-10-27 („den Mondzyklus reinmachen, dass man sieh
 Wunsch des Besitzers vom 2026-10-27 („es erfüllt zwar die 30 fps, aber es fühlt sich trotzdem ruckelig dafür an“). Am besten mit Ansicht → ⏱ Leistung → „alle Werte“: die Zeile „Bild“ zeigt ⌀ (der Durchschnitt) und max (das längste Warten auf ein Bild).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 117.1 | Am PC, Leistung „Automatisch“ oder „Schön“: das Haus mit der Maus langsam einmal ganz herumdrehen | Es dreht sich gleichmäßig, ohne Hänger jede Sekunde; „max“ bei „Bild“ bleibt nah am ⌀ | ❓ |
-| 117.2 | Wie 117.1, aber schnell drehen und loslassen | Das Haus gleitet weich aus; Wände, die absinken, ruckeln nicht | ❓ |
-| 117.3 | Am PC ⚙ → „Leistung auf diesem Gerät“: „Schnell (für Tablets)“, das Haus drehen | Beim Drehen mehr als 30 FPS (so viele, wie die Grafik schafft); steht das Bild, wieder 30 und nach 4 s nur noch wenige | ❓ |
-| 117.4 | Am Tablet oder Handy (Sparmodus von selbst) das Haus mit dem Finger drehen | Flüssiger als vorher, der Finger und das Haus bleiben zusammen | ❓ |
+| 117.1 | Am PC, Leistung „Automatisch“ oder „Schön“: das Haus mit der Maus langsam einmal ganz herumdrehen | Es dreht sich gleichmäßig, ohne Hänger jede Sekunde; „max“ bei „Bild“ bleibt nah am ⌀ | ✅ (2026-10-27) |
+| 117.2 | Wie 117.1, aber schnell drehen und loslassen | Das Haus gleitet weich aus; Wände, die absinken, ruckeln nicht | ✅ (2026-10-27) |
+| 117.3 | Am PC ⚙ → „Leistung auf diesem Gerät“: „Schnell (für Tablets)“, das Haus drehen | Beim Drehen mehr als 30 FPS (so viele, wie die Grafik schafft); steht das Bild, wieder 30 und nach 4 s nur noch wenige | ✅ (2026-10-27) |
+| 117.4 | Am Tablet oder Handy (Sparmodus von selbst) das Haus mit dem Finger drehen | Flüssiger als vorher, der Finger und das Haus bleiben zusammen | ✅ (2026-10-27) |
