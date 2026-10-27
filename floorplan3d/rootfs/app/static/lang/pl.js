@@ -1275,7 +1275,7 @@ export default {
   'heat.fan.on': 'Wł.',
   'heat.fan.off': 'Wył.',
   'heat.fan.quiet': 'Cichy',
-  'sky.night': 'Noc', 'sky.dawn': 'Świt', 'sky.morning': 'Poranek', 'sky.day': 'Dzień', 'sky.evening': 'Wieczór', 'sky.dusk': 'Zmierzch',
+  'sky.night': 'Noc', 'moon.new': 'Nów', 'moon.waxingCrescent': 'Sierp przybywający', 'moon.firstQuarter': 'Pierwsza kwadra', 'moon.waxingGibbous': 'Przybywający garb', 'moon.full': 'Pełnia', 'moon.waningGibbous': 'Ubywający garb', 'moon.lastQuarter': 'Ostatnia kwadra', 'moon.waningCrescent': 'Sierp ubywający', 'sky.dawn': 'Świt', 'sky.morning': 'Poranek', 'sky.day': 'Dzień', 'sky.evening': 'Wieczór', 'sky.dusk': 'Zmierzch',
   'sky.set': 'Zachód słońca {t}', 'sky.rise': 'Wschód słońca {t}', 'set.sky': 'Niebo',
   'set.skyHint': 'Tło za domem podąża za słońcem (sun.sun) i pogodą: rano różowe, w dzień niebieskie, wieczorem pomarańczowe, w nocy z gwiazdami.',
   'set.sky.time': 'Według pory dnia i pogody', 'set.sky.off': 'Jednolity kolor', 'wx.wind': 'Wiatr {v}', 'wx.clear-night': 'Pogodna noc',

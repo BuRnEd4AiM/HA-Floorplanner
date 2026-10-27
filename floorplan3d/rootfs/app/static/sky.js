@@ -154,10 +154,11 @@ export function weatherText(s, t) {
 }
 
 const hhmm = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-/** the line of the time chip: "🌇 Abend · 18:45 · Sonnenuntergang 18:52" (the next sunset while the sun is up, else the next sunrise) */
-export function sunText(sun, date, t) {
+/** the line of the time chip: "🌇 Abend · 18:45 · Sonnenuntergang 18:52" (the next sunset while the sun is up, else the next sunrise);
+ *  `night`: the symbol at night instead of 🌙 (the moon as it is now, moon.js) */
+export function sunText(sun, date, t, night = '') {
   const ph = skyPhase(sun.elev, sun.rising);
-  const parts = [`${PHASE_ICON[ph]} ${t(`sky.${ph}`)}`, hhmm(date)];
+  const parts = [`${(ph === 'night' && night) || PHASE_ICON[ph]} ${t(`sky.${ph}`)}`, hhmm(date)];
   const up = sun.elev > -0.833;
   const next = up ? sun.set : sun.rise;
   if (next) parts.push(t(up ? 'sky.set' : 'sky.rise', { t: hhmm(next) }));
@@ -165,9 +166,10 @@ export function sunText(sun, date, t) {
 }
 
 /** the one short line at the bottom of a phone (#445): "☀️ 12:24 · ⛅ Teilweise bewölkt · 14 °C" (s: the weather entity's state as in
- *  weatherText); without known weather the next sunset (sunrise) instead: "☀️ 12:24 · Sonnenuntergang 17:58" */
-export function shortSkyText(sun, date, s, t) {
-  const parts = [`${PHASE_ICON[skyPhase(sun.elev, sun.rising)]} ${hhmm(date)}`];
+ *  weatherText); without known weather the next sunset (sunrise) instead: "☀️ 12:24 · Sonnenuntergang 17:58"; `night` as in sunText */
+export function shortSkyText(sun, date, s, t, night = '') {
+  const ph = skyPhase(sun.elev, sun.rising);
+  const parts = [`${(ph === 'night' && night) || PHASE_ICON[ph]} ${hhmm(date)}`];
   const look = s && weatherLook(s.state);
   if (look) {
     parts.push(`${look.icon} ${t(`wx.${look.key}`)}`);
@@ -178,6 +180,14 @@ export function shortSkyText(sun, date, s, t) {
     if (next) parts.push(t(up ? 'sky.set' : 'sky.rise', { t: hhmm(next) }));
   }
   return parts.join(' · ');
+}
+
+/** "YYYY-MM-DD" of the address (?skydate=2026-11-01) as that day at the time of `now`, for trying the moon out; null for anything else */
+export function skyDateOf(text, now) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(text || '').trim());
+  if (!m) return null;
+  const d = new Date(now); d.setFullYear(+m[1], +m[2] - 1, +m[3]);
+  return d.getMonth() === +m[2] - 1 && d.getDate() === +m[3] ? d : null;
 }
 
 /** "HH:MM" of the address (?skytime=21:30) as that time today, for trying the sky out; null for anything else */

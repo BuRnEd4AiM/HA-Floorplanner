@@ -113,6 +113,8 @@ test('the line of the time chip: the sunset while the sun is up, else the sunris
   assert.equal(S.sunText(up, now, t), '🌇 sky.evening · 18:45 · sky.set{"t":"18:52"}');
   assert.equal(S.sunText({ ...up, elev: -20 }, now, t), '🌙 sky.night · 18:45 · sky.rise{"t":"07:12"}');
   assert.equal(S.sunText({ elev: 30, rising: true, rise: null, set: null }, now, t), '☀️ sky.day · 18:45');
+  assert.equal(S.sunText({ ...up, elev: -20 }, now, t, '🌖'), '🌖 sky.night · 18:45 · sky.rise{"t":"07:12"}', 'at night the moon as it is');
+  assert.equal(S.sunText(up, now, t, '🌖'), '🌇 sky.evening · 18:45 · sky.set{"t":"18:52"}', 'by day not');
 });
 
 test('the short line on phones (#445): the time and the weather, without weather the sunset', () => {
@@ -123,6 +125,7 @@ test('the short line on phones (#445): the time and the weather, without weather
   assert.equal(S.shortSkyText(day, now, null, t), '☀️ 12:24 · sky.set{"t":"17:58"}', 'no weather entity: the sunset');
   assert.equal(S.shortSkyText({ ...day, elev: -20 }, now, { state: 'unknown' }, t), '🌙 12:24 · sky.rise{"t":"07:12"}', 'at night: the sunrise');
   assert.equal(S.shortSkyText({ elev: 30, rising: true, rise: null, set: null }, now, null, t), '☀️ 12:24');
+  assert.equal(S.shortSkyText({ ...day, elev: -20 }, now, null, t, '🌒'), '🌒 12:24 · sky.rise{"t":"07:12"}', 'the moon at night');
 });
 
 test('?skytime=HH:MM sets the clock of the sky for trying it out', () => {
@@ -133,5 +136,9 @@ test('?skytime=HH:MM sets the clock of the sky for trying it out', () => {
   assert.equal(d.getDate(), 17);
   assert.equal(S.skyTimeOf('25:00', today), null);
   assert.equal(S.skyTimeOf('', today), null);
+  const day = S.skyDateOf('2026-11-01', new Date(2026, 9, 27, 21, 30));       // ?skydate= to try the moon out: that day, the same time
+  assert.ok(day.getFullYear() === 2026 && day.getMonth() === 10 && day.getDate() === 1 && day.getHours() === 21);
+  assert.equal(S.skyDateOf('2026-02-31', today), null);
+  assert.equal(S.skyDateOf('morgen', today), null);
   assert.equal(S.skyTimeOf('abends', today), null);
 });

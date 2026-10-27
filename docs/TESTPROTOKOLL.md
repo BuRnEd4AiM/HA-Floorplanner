@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.32.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.33.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.32.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.33.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.33.0: 🌙 Der Mond im Himmel** (Abschnitt 116): Claude hat 116.1 bis 116.4 in der Demo geprüft; schau heute Abend im Add-on, ob er dort steht, wo du ihn draußen siehst (116.5).
 1. **Neu in 4.32.0: 📅 Heizplan, von Hand gedreht** (Abschnitt 115): Claude hat 115.1 und 115.2 im Test-Add-on geprüft; für dich im Add-on mit deinem Thermostat 115.3 und 115.4.
 1. **Neu in 4.31.0 und 4.31.1: 🚆 Zug-Karte** (Abschnitt 113 und 114): Claude hat 113.1 bis 113.3 in der Demo und 114.1 im Test-Add-on geprüft; für dich im Add-on mit deinem Bahnhof 113.4 bis 113.6 und 114.2 bis 114.4 (abends dein Zug von morgen).
 2. **Neu in 4.30.0: 🎨 Szenen für Lampen und LED-Streifen** (Abschnitt 112): Claude hat 112.1 bis 112.5 in der Demo geprüft; für dich im Add-on 112.6 bis 112.8.
@@ -325,7 +326,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 113. Neu in 4.31.0: 🚆 Zug-Karte: Kommt mein Zug pünktlich? (#550) | 3 | 0 | 0 | 3 | – |
 | 114. Neu in 4.31.1: 🚆 Zug-Karte zeigt deinen Zug auch morgen (#550) | 1 | 0 | 0 | 3 | – |
 | 115. Neu in 4.32.0: 📅 Heizplan: von Hand gedreht, nach 10 Minuten zurück (#546) | 2 | 0 | 0 | 2 | – |
-| **Zusammen** | **735** | **10** | **53** | **91** | |
+| 116. Neu in 4.33.0: 🌙 Der Mond im Himmel | 4 | 0 | 0 | 1 | – |
+| **Zusammen** | **739** | **10** | **53** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1792,3 +1794,13 @@ Wunsch des Besitzers vom 2026-10-26 („gerne wenn man von Hand dreht nach 10 mi
 | 115.2 | 🌡 Klima → 📋 Heiz-Regeln, Karte „Heizplan“ | „Von Hand gedreht: zurück nach 10 Min“, mit − / + änderbar; ganz unten „erst beim nächsten Abschnitt“ | ✅ (2026-10-26, Claude im Test-Add-on) |
 | 115.3 | Nur im Add-on: dein Thermostat (z. B. WZFL) bei eingeschaltetem Heizplan von Hand drehen, 10 Minuten warten | Danach steht wieder die Temperatur des Heizplans (z. B. „Nacht 17°“) | ➖ |
 | 115.4 | Nur im Add-on: das Thermostat von Hand auf „Aus“ stellen | Es bleibt aus, bis der nächste Abschnitt des Plans beginnt | ➖ |
+
+## 116. Neu in 4.33.0: 🌙 Der Mond im Himmel
+Wunsch des Besitzers vom 2026-10-27 („den Mondzyklus reinmachen, dass man sieht, was gerade für ein Mondzyklus ist, ob Vollmond oder Halbmond abnehmend“). Ausprobieren in der Demo: hinten an die Adresse `?skydate=2026-11-01&skytime=05:00` (Halbmond) oder `?skydate=2026-11-12&skytime=17:45` (Sichel am Abend).
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 116.1 | Demo, Live, `?skytime=21:30&weather=clear-night` | Links oben (Osten) der fast volle Mond mit grauen Meeren und weichem Schein; oben rechts „🌖 Abnehmender Mond · 96 %“ zwischen Uhrzeit und Wetter | ✅ (2026-10-27, Claude in der Demo) |
+| 116.2 | Demo, `?skydate=2026-11-01&skytime=05:00`, dann `?skydate=2026-11-12&skytime=17:45` | Ein Halbmond links beleuchtet hoch am Himmel; am Abend eine schmale Sichel rechts beleuchtet tief im Südwesten | ✅ (2026-10-27, Claude in der Demo) |
+| 116.3 | Demo, `?skydate=2026-11-01&skytime=11:00&weather=sunny` | Tagsüber ein blasser Halbmond rechts (Westen), ohne graue dunkle Hälfte | ✅ (2026-10-27, Claude in der Demo) |
+| 116.4 | Am Handy, Live, nachts | Unten in der kurzen Zeile der Mond, wie er ist (z. B. 🌖), statt 🌙; der Mond im Himmel | ✅ (2026-10-27, Claude in der Demo) |
+| 116.5 | Nur im Add-on, heute Abend | Der Mond steht ungefähr dort, wo du ihn draußen siehst (links Osten, rechts Westen), und die Phase stimmt | ➖ |

@@ -243,6 +243,10 @@ def test_slim_state_sun_and_weather():
     assert wx["wx"] == {"t": 11.4, "tu": "°C", "w": 23.6, "wu": "km/h"}
     lamp = server.slim_state({"entity_id": "light.x", "state": "on", "attributes": {"elevation": 3, "temperature": 5}})
     assert "sun" not in lamp and "wx" not in lamp
+    home = server.slim_state({"entity_id": "zone.home", "state": "2", "attributes": {"latitude": 50.55312, "longitude": 9.67543, "radius": 100}})
+    assert home["geo"] == {"lat": 50.6, "lon": 9.7}                             # the moon (moon.js): where home is, to about 10 km
+    assert "geo" not in server.slim_state({"entity_id": "zone.home", "state": "0", "attributes": {"latitude": "x"}})
+    assert "geo" not in server.slim_state({"entity_id": "zone.work", "state": "0", "attributes": {"latitude": 50.1, "longitude": 8.7}})
 
 
 async def test_settings_sky_cards_tiles(client):
