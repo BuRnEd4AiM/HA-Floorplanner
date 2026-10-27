@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.35.0] - 2026-10-27
+### Added
+- **The settings over almost the whole screen, with a list of groups on the left** (#562, the owner: "dass diese fast über den ganzen Bildschirm geht, so muss man nicht ewig scrollen … eine professionelle Einstellung … einfach schön und übersichtlich"; his choice from the example pictures in `docs/ideen-4.35/`: the side list). On a PC or a tablet held across, ⚙ fills the screen instead of a narrow column of 440 pixels: on the left the 14 groups (symbol, name and what is in it), like the settings of Home Assistant or Windows; on the right the chosen group with its settings as tiles in two or three columns (a setting with its grey hint is one tile, lists and longer explanations take the full width). A tap in the list shows another group; the group comes back the next time (per browser); ↑ / ↓ walk through the list. The search at the top shows every group it finds on the right, one under the other, the list only those, the tile with a hit is marked; a tap on a found group's name goes there. Phones and narrow windows keep the groups that fold, as before.
+### Changed
+- The performance display for edge smoothing "Automatisch" says **"beim Drehen ohne Glättung"** or **"glättet auch beim Drehen"** instead of "Grafik zu langsam" / "Grafik reicht" (#560, the owner: "grafik sagt er zu langsam, aber ich spüre nix davon, es läuft flüssig": that is how it should be).
+- `setgroups.js`: the list (`#sgNav`), the place on the right (`#sgPane`) and the tiles (`.sgTile`, `display: contents` on a narrow screen, so the folding groups look as before); `pickGroup` and `tileRuns` with unit tests; the event `sg-show` shows a group at once (`openSettingsAt`). The browser test part `28_settings` checks both layouts (narrow at 820 pixels, wide at 1400); the test helper `open_setting` shows the group on a wide screen.
+
 ## [4.34.0] - 2026-10-27
 ### Added
 - **Edge smoothing to choose: smooth when the picture stands, smoothed afterwards, automatic** (#560, the owner after #557: "kannst du das einbauen, so dass ich es anschalten kann jeweils, das wäre praktisch"). Smoothing the edges (the browser's own antialiasing) costs the graphics the most, about 40 % of a frame. ⚙ has a new choice next to "Leistung auf diesem Gerät": **"Kantenglättung auf diesem Gerät"**, kept per browser like the performance, the page reloads:

@@ -4,13 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.34.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.35.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.34.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.35.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in 4.34.0: Kantenglättung zum Auswählen** (Abschnitt 118): Claude hat 118.1 bis 118.3 und 118.6 in der Demo geprüft; für dich am PC 118.4 (Automatisch) und 118.5 (welche gefällt dir am besten?).
+1. **Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm** (Abschnitt 119): Claude hat 119.1 bis 119.4 in der Demo geprüft; für dich im Add-on am PC 119.5 und am Tablet quer 119.6.
 1. **Neu in 4.33.0: 🌙 Der Mond im Himmel** (Abschnitt 116): Claude hat 116.1 bis 116.4 in der Demo geprüft; schau heute Abend im Add-on, ob er dort steht, wo du ihn draußen siehst (116.5).
 1. **Neu in 4.32.0: 📅 Heizplan, von Hand gedreht** (Abschnitt 115): Claude hat 115.1 und 115.2 im Test-Add-on geprüft; für dich im Add-on mit deinem Thermostat 115.3 und 115.4.
 1. **Neu in 4.31.0 und 4.31.1: 🚆 Zug-Karte** (Abschnitt 113 und 114): Claude hat 113.1 bis 113.3 in der Demo und 114.1 im Test-Add-on geprüft; für dich im Add-on mit deinem Bahnhof 113.4 bis 113.6 und 114.2 bis 114.4 (abends dein Zug von morgen).
@@ -30,6 +30,8 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 15. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
 16. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
 17. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
+
+**Zuletzt geprüft (2026-10-27, per Auswahl im Chat, 4.34.0):** ✅ 118.4, 118.5 (Kantenglättung „Automatisch“ läuft flüssig und gefällt am besten; Abschnitt 118 fertig).
 
 **Zuletzt geprüft (2026-10-27, per Auswahl im Chat, 4.33.1):** ✅ 117.1 bis 117.4 (das Haus dreht sich flüssig, am PC mit Intel-Grafik in „Schön“ und „Schnell“, am Tablet mit dem Finger; Abschnitt 117 fertig).
 
@@ -331,8 +333,9 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 115. Neu in 4.32.0: 📅 Heizplan: von Hand gedreht, nach 10 Minuten zurück (#546) | 2 | 0 | 0 | 2 | – |
 | 116. Neu in 4.33.0: 🌙 Der Mond im Himmel | 4 | 0 | 0 | 1 | – |
 | 117. Neu in 4.33.1: Das Haus dreht sich flüssig (#557) | 4 | 0 | 0 | 0 | – |
-| 118. Neu in 4.34.0: Kantenglättung zum Auswählen (#560) | 4 | 0 | 2 | 0 | 118.4, 118.5 |
-| **Zusammen** | **747** | **10** | **55** | **92** | |
+| 118. Neu in 4.34.0: Kantenglättung zum Auswählen (#560) | 6 | 0 | 0 | 0 | – |
+| 119. Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm (#562) | 4 | 0 | 2 | 0 | 119.5, 119.6 |
+| **Zusammen** | **753** | **10** | **55** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1826,6 +1829,17 @@ Wunsch des Besitzers vom 2026-10-27 („kannst du das einbauen, so dass ich es a
 | 118.1 | ⚙ öffnen, bei „Leistung auf diesem Gerät“ | Darunter „Kantenglättung auf diesem Gerät“ mit „Wie bei „Leistung““, „Immer“, „Glatt, wenn das Bild steht“, „Nachträglich glätten“, „Automatisch“, „Aus“ | ✅ (2026-10-27, Claude in der Demo) |
 | 118.2 | „Glatt, wenn das Bild steht“ wählen (die Seite lädt neu), das Haus drehen und loslassen | Beim Drehen flüssig, „Kanten: glatt im Stillstand · jetzt schnell“; steht das Bild, werden die Kanten glatt („jetzt glatt“) | ✅ (2026-10-27, Claude in der Demo) |
 | 118.3 | „Nachträglich glätten“ wählen | Die Kanten sind weich, auch beim Drehen; feine Linien etwas weicher | ✅ (2026-10-27, Claude in der Demo) |
-| 118.4 | „Automatisch“ wählen und am PC mit der Intel-Grafik das Haus einige Sekunden drehen | „Kanten: automatisch · … · Grafik zu langsam“ oder „Grafik reicht“; ist sie zu langsam, flüssig beim Drehen und glatt im Stillstand | ❓ |
-| 118.5 | Am PC jede Art einmal ausprobieren, das Haus drehen | Welche gefällt dir am besten? Die Farben sind bei allen gleich, nur die Kanten unterscheiden sich | ❓ |
+| 118.4 | „Automatisch“ wählen und am PC mit der Intel-Grafik das Haus einige Sekunden drehen | „Kanten: automatisch · … · Grafik zu langsam“ oder „Grafik reicht“; ist sie zu langsam, flüssig beim Drehen und glatt im Stillstand | ✅ (2026-10-27, „schnell beim Drehen, danach glatt … läuft flüssig“; der Text „Grafik zu langsam“ klang nach einem Fehler, heißt jetzt „beim Drehen ohne Glättung“, 4.35.0) |
+| 118.5 | Am PC jede Art einmal ausprobieren, das Haus drehen | Welche gefällt dir am besten? Die Farben sind bei allen gleich, nur die Kanten unterscheiden sich | ✅ (2026-10-27, am liebsten „Automatisch“) |
 | 118.6 | „Wie bei „Leistung““ wählen | Wieder wie vor 4.34.0 („Kanten: immer glatt“, im Sparmodus „nicht geglättet“) | ✅ (2026-10-27, Claude in der Demo) |
+
+## 119. Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm (#562)
+Wunsch des Besitzers vom 2026-10-27 („dass diese fast über den ganzen Bildschirm geht, so muss man nicht ewig scrollen … professionelle Einstellung … schön und übersichtlich“), seine Wahl aus den Beispielbildern `docs/ideen-4.35/`: die Seitenleiste.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 119.1 | Am PC ⚙ öffnen | Das Fenster füllt fast den ganzen Bildschirm: links die Liste der Gruppen, rechts eine Gruppe, ihre Einstellungen als Kacheln nebeneinander | ✅ (2026-10-27, Claude in der Demo) |
+| 119.2 | Links eine andere Gruppe antippen (oder mit ↑ / ↓), schließen, ⚙ wieder öffnen | Rechts steht diese Gruppe, links ist sie markiert; beim nächsten Öffnen ist sie wieder da | ✅ (2026-10-27, Claude in der Demo) |
+| 119.3 | Oben „Sonne“ suchen, dann „Wand“ und auf „3D-Bild & Leistung“ tippen | Rechts die Gruppen mit Treffern untereinander, die Kachel „Himmel“ markiert, links nur diese Gruppen; der Tipp springt in die Gruppe | ✅ (2026-10-27, Claude in der Demo) |
+| 119.4 | Am Handy (oder in einem schmalen Fenster) ⚙ öffnen | Wie bisher: die Gruppen zum Aufklappen untereinander | ✅ (2026-10-27, Claude in der Demo) |
+| 119.5 | Im Add-on am PC durch alle Gruppen klicken und etwas umstellen (z. B. Raster, Fassade) | Alles ist erreichbar, die Änderung bleibt gespeichert; gefällt es dir? | ❓ |
+| 119.6 | Am Tablet quer im Add-on ⚙ öffnen | Ebenfalls die Liste links, alles gut lesbar und antippbar | ❓ |

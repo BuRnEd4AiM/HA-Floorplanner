@@ -15,12 +15,12 @@ const TEXT = {
     frame: 'Bild', work: 'Arbeit', calls: 'Zeichenaufrufe', tris: 'Dreiecke', geo: 'Geometrien', tex: 'Texturen', prog: 'Shader',
     res: 'Auflösung', mode: 'Modus', low: 'Sparmodus', normal: 'Normal', idle: 'Leerlauf', busy: 'aktiv', gpu: 'Grafik', mem: 'Speicher', screen: 'Bildschirm',
     edges: 'Kanten', e_msaa: 'immer glatt', e_still: 'glatt im Stillstand', e_fxaa: 'nachträglich geglättet', e_auto: 'automatisch', e_off: 'nicht geglättet',
-    p_smooth: 'jetzt glatt', p_direct: 'jetzt schnell', w_null: 'misst noch', w_true: 'Grafik zu langsam', w_false: 'Grafik reicht' },
+    p_smooth: 'jetzt glatt', p_direct: 'jetzt schnell', w_null: 'misst noch', w_true: 'beim Drehen ohne Glättung', w_false: 'glättet auch beim Drehen' },
   en: { btn: 'Performance', off: 'off', fps: 'FPS', all: 'all values', tip: 'Show the frames per second and more performance values at the top right of the 3D picture (on this device only)',
     frame: 'Frame', work: 'Work', calls: 'Draw calls', tris: 'Triangles', geo: 'Geometries', tex: 'Textures', prog: 'Shaders',
     res: 'Resolution', mode: 'Mode', low: 'low power', normal: 'normal', idle: 'idle', busy: 'busy', gpu: 'GPU', mem: 'Memory', screen: 'Screen',
     edges: 'Edges', e_msaa: 'always smooth', e_still: 'smooth when still', e_fxaa: 'smoothed afterwards', e_auto: 'automatic', e_off: 'not smoothed',
-    p_smooth: 'smooth now', p_direct: 'fast now', w_null: 'still measuring', w_true: 'graphics too slow', w_false: 'graphics keeps up' },
+    p_smooth: 'smooth now', p_direct: 'fast now', w_null: 'still measuring', w_true: 'no smoothing while turning', w_false: 'smooth while turning too' },
   fr: { btn: 'Performances', off: 'non', fps: 'FPS', all: 'toutes les valeurs', tip: 'Afficher les images par seconde et d’autres valeurs en haut à droite (sur cet appareil)' },
   es: { btn: 'Rendimiento', off: 'no', fps: 'FPS', all: 'todos los valores', tip: 'Mostrar las imágenes por segundo y otros valores arriba a la derecha (solo en este dispositivo)' },
   it: { btn: 'Prestazioni', off: 'no', fps: 'FPS', all: 'tutti i valori', tip: 'Mostra i fotogrammi al secondo e altri valori in alto a destra (solo su questo dispositivo)' },
@@ -59,7 +59,7 @@ export function frameStats(times, works, now) {
 const num = (n) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)} M` : n >= 1e4 ? `${Math.round(n / 1e3)} k` : String(Math.round(n)));
 const ms = (x) => `${x.toFixed(1)} ms`;
 
-/** how the edges are smoothed (#560): e = { mode, path, weak } of smoothedges.js, e.g. "Kanten: automatisch · jetzt schnell · Grafik zu langsam" */
+/** how the edges are smoothed (#560): e = { mode, path, weak } of smoothedges.js, e.g. "Kanten: automatisch · jetzt schnell · beim Drehen ohne Glättung" */
 export function edgesLine(e, l) {
   const T = (k) => tx(l, k), parts = [T(`e_${e.mode}`)];
   if (e.mode === 'still' || e.mode === 'auto') parts.push(T(e.path === 'smooth' ? 'p_smooth' : 'p_direct'));
