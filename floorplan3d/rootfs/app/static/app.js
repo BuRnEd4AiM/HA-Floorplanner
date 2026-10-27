@@ -135,7 +135,7 @@ import { batchModels, unbatch } from './meshmerge.js';
 import { staticDevice } from './pickrules.js';
 import { initPictures } from './picture.js';
 import { initDraw3d } from './draw3d.js';
-import { frameDue, shadowDue } from './frameloop.js';
+import { frameDue, shadowDue, dampingFor, MAX_STEP } from './frameloop.js';
 import { initPerfHud } from './perfhud.js';
 import { floorsMode, floorElev, hasSlab, isCovered, underRoof, drawnFloors, liveFloors, initHouseFloors } from './housefloors.js';
 import { initHouseLoad } from './houseload.js';
@@ -213,9 +213,9 @@ const { entityPicker, addEntityOptions } = initEntityPicker({ t, areas: () => ar
 
 /* ================= Three.js setup ================= */
 const canvas = $('#view');
-/* Low-power mode for tablets / kiosk screens (Fire tablets ...): lower resolution, no antialiasing or shadows, 30 fps and only ~4 fps
-   while nothing happens. Automatic for ?kiosk, ?room and touch screens; ⚙ "Performance on this device" (kept in this
-   browser) or ?perf=high / ?perf=low overrides. */
+/* Low-power mode for tablets / kiosk screens (Fire tablets ...): lower resolution, no antialiasing or shadows, 30 fps (every frame while
+   the camera is moved by hand) and only ~2 fps while nothing happens (frameloop.js). Automatic for ?kiosk, ?room and touch screens;
+   ⚙ "Performance on this device" (kept in this browser) or ?perf=high / ?perf=low overrides. */
 const PERF_KEY = 'fp.perf';
 let perfStored = 'auto';
 try { perfStored = localStorage.getItem(PERF_KEY) || 'auto'; } catch { /* no storage */ }
@@ -1759,26 +1759,32 @@ async function init() {
   booted = true;
 }
 
-var lastActive = performance.now(), lastFrame = 0;
-var shadowDirty = true, lastShadow = 0;                           // the shadow map is drawn again only when something changed (frameloop.js, #253)
+var lastActive = performance.now(), lastFrame = 0, lastMove = -Infinity, lastDrawn = 0;
+var shadowDirty = true, wallsSank = false, lastShadow = 0;       // the shadow map is drawn again only when something changed (frameloop.js, #253)
 function markShadows() { shadowDirty = true; }
 function wake() { lastActive = performance.now(); }
+function moved() { lastActive = lastMove = performance.now(); }  // the camera is moved: every frame, also in the low-power mode (frameloop.js)
 function poke() { lastFrame = 0; }                                // one frame now, without waking the picture: a state from Home Assistant (#494)
 ['pointerdown', 'pointermove', 'wheel', 'keydown', 'touchstart', 'touchmove'].forEach((ev) => addEventListener(ev, wake, { passive: true }));
-controls.addEventListener('change', wake);
+controls.addEventListener('start', moved);
+controls.addEventListener('change', () => (controls.autoRotate ? wake() : moved()));   // the screen saver turning the house stays at 30 frames on a tablet
 const perfHud = initPerfHud({ $, renderer, low: LOW, param: params.get('fps'), lang: currentLanguage, onChange: wake });   // FPS and more, chosen in the View menu (perfhud.js)
 function animate(now = performance.now()) {
   requestAnimationFrame(animate);
   if (document.hidden || cardUi?.panelOnly() || tabsUi.covered()) return;   // screen off / tab in background / a card with only the room panel / a page of the tab bar: draw nothing
-  const due = frameDue(now, lastActive, lastFrame, LOW);          // nothing happens or a weak tablet: a few frames a second are enough (frameloop.js)
+  const due = frameDue(now, lastActive, lastFrame, LOW, lastMove);   // nothing happens or a weak tablet: a few frames a second are enough (frameloop.js)
   if (!due.draw) return;
   if (due.throttled) lastFrame = now;
+  const dt = Math.min(now - lastDrawn, MAX_STEP);
+  lastDrawn = now;
   const frameStart = performance.now();
   if (cams.pulse(now)) wake();   // a camera sees movement
   const pulsing = alertsUi.animate(now), finding = search.animate(now);       // pulsing warnings and the search ring move
   if (pulsing || finding || controls.autoRotate) wake();
-  controls.update();
-  if (updateCutaway()) markShadows();                            // walls sinking or rising: their shadows change
+  controls.dampingFactor = dampingFor(dt);                       // the camera glides the same per second at 60 or 30 frames, even or uneven
+  controls.update(dt / 1000);                                    // (and the screen saver turns at the same speed)
+  const sinking = updateCutaway();                               // walls sinking or rising: their shadows change, now and then and when they stand
+  wallsSank ||= sinking;
   compass.update();
   if (animateOpenings()) { markShadows(); wake(); }              // a door or window leaf moving: smoothly to its end (a state only pokes one frame, #494)
   power.animate(now);
@@ -1787,7 +1793,9 @@ function animate(now = performance.now()) {
   tapBalls.declutter(camera, canvas.clientWidth, canvas.clientHeight);   // tap balls that land on each other on the screen move apart (#314)
   floorCards.place();
   roomLabels.place();                                            // the labels over the rooms follow the camera (#430)
-  if (shadowDue(shadowDirty, now, lastShadow)) { renderer.shadowMap.needsUpdate = true; shadowDirty = false; lastShadow = now; }   // shadows only when something changed (#253)
+  if (shadowDue(shadowDirty, now, lastShadow, { sinking, sank: wallsSank, lastMove })) {   // shadows only when something changed (#253)
+    renderer.shadowMap.needsUpdate = true; shadowDirty = wallsSank = false; lastShadow = now;
+  }
   if (layoutMode !== '2d') renderer.render(scene, camera);     // only the 2D plan shows: the hidden 3D picture is not drawn (#542)
   perfHud.frame(now, due, frameStart);
 }
