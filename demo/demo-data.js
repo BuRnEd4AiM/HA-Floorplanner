@@ -389,6 +389,7 @@ const entities = {
   'light.nachbar_wohnen':    { name: 'Nachbar Wohnen Licht',   state: 'on', rgb: [255, 200, 140] },
   // the weather in the sky (#419); ?weather=rainy (snowy, cloudy, pouring ...) shows another one. No sun.sun: the demo's sky follows the clock (#418)
   'weather.zuhause':         { name: 'Zuhause', state: new URLSearchParams(location.search).get('weather') || 'partlycloudy', wx: { t: 14, tu: '°C', w: 12, wu: 'km/h' } },
+  'zone.home':               { name: 'Zuhause', state: '2', geo: { lat: 50.6, lon: 9.7 } },   // where the demo house is (Fulda): the moon's place in the sky (moon.js)
   // the batteries of the sensors' devices (#376: "Geräte" → "Batterie"); the kitchen window contact and the basement sensor are nearly empty
   'sensor.fenster_wohnzimmer_batterie': { name: 'Fenster Wohnzimmer Batterie', state: '84', unit: '%', dc: 'battery' },
   'sensor.fenster_kueche_batterie':     { name: 'Fenster Küche Batterie',      state: '12', unit: '%', dc: 'battery' },

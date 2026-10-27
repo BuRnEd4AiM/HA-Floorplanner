@@ -1269,7 +1269,7 @@ export default {
   'heat.fan.on': 'Aan',
   'heat.fan.off': 'Uit',
   'heat.fan.quiet': 'Stil',
-  'sky.night': 'Nacht', 'sky.dawn': 'Dageraad', 'sky.morning': 'Ochtend', 'sky.day': 'Dag', 'sky.evening': 'Avond', 'sky.dusk': 'Schemering',
+  'sky.night': 'Nacht', 'moon.new': 'Nieuwe maan', 'moon.waxingCrescent': 'Wassende maansikkel', 'moon.firstQuarter': 'Eerste kwartier', 'moon.waxingGibbous': 'Wassende maan', 'moon.full': 'Volle maan', 'moon.waningGibbous': 'Afnemende maan', 'moon.lastQuarter': 'Laatste kwartier', 'moon.waningCrescent': 'Afnemende maansikkel', 'sky.dawn': 'Dageraad', 'sky.morning': 'Ochtend', 'sky.day': 'Dag', 'sky.evening': 'Avond', 'sky.dusk': 'Schemering',
   'sky.set': 'Zonsondergang {t}', 'sky.rise': 'Zonsopgang {t}', 'set.sky': 'Lucht',
   'set.skyHint': 'De achtergrond achter het huis volgt de zon (sun.sun) en het weer: \'s ochtends roze, overdag blauw, \'s avonds oranje, \'s nachts met sterren.',
   'set.sky.time': 'Naar tijd en weer', 'set.sky.off': 'Effen kleur', 'wx.wind': 'Wind {v}', 'wx.clear-night': 'Heldere nacht', 'wx.sunny': 'Zonnig',

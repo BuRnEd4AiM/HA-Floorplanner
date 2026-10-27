@@ -1210,8 +1210,12 @@ def _num(v):
 
 
 def _sky(st, a):
-    """What the sky needs (#418, #419): of sun.sun its elevation and the next sunrise / sunset, of a weather entity temperature and wind."""
+    """What the sky needs (#418, #419): of sun.sun its elevation and the next sunrise / sunset, of a weather entity temperature and wind;
+    of zone.home where home is, rounded to a tenth of a degree (about 10 km: where the moon stands in the sky, moon.js)."""
     eid = st["entity_id"]
+    if eid == "zone.home":
+        lat, lon = _num(a.get("latitude")), _num(a.get("longitude"))
+        return {"geo": {"lat": round(lat, 1), "lon": round(lon, 1)}} if lat is not None and lon is not None else {}
     if eid == "sun.sun":
         return {"sun": {"elev": _num(a.get("elevation")), "rising": a.get("rising") if isinstance(a.get("rising"), bool) else None,
                         "rise": a.get("next_rising") if isinstance(a.get("next_rising"), str) else None,

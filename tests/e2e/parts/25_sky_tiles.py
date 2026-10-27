@@ -1,5 +1,5 @@
 """3.98.0: the sky of the hour and the weather (#418, #419), the rain warning per window (#419), the energy flow as a picture (#420), the
-room tiles in live mode (#421) and the tool bar with icons and groups (#422).
+room tiles in live mode (#421) and the tool bar with icons and groups (#422). 4.33.0: the moon in the sky, its phase in a chip.
 """
 saved_st = api_admin("api/layout")              # put back at the end
 theme_st, lang_st, units_st = api("api/settings")["theme"], api("api/settings")["language"], api("api/settings")["units"]
@@ -48,6 +48,15 @@ check("sky (#418): a gradient with stars behind the 3D view instead of one colou
 check("sky: the chip at the top right says night and the next sunrise", "Nacht" in chips and "Sonnenaufgang" in chips, chips)
 check("weather (#419): the second chip has the weather, its temperature and the wind", "Regen · 11 °C · Wind 24 km/h" in chips, chips)
 check("sky: on wide screens no short line at the bottom (that is for phones, #445)", not pgS.is_visible("#skyLine"))
+lines_s = [x.strip() for x in chips.split("\n") if x.strip()]
+check("moon (4.33.0): a chip between the two says the moon's phase and how much of it is lit", len(lines_s) == 3 and lines_s[1].endswith("%"), lines_s)
+pgM = b.new_page(viewport={"width": 1440, "height": 900}, timezone_id="Europe/Berlin", extra_http_headers={"X-Remote-User-Name": "admin"})
+pgM.goto(BASE + "?debug=1&mode=live&skydate=2026-10-26&skytime=23:00"); pgM.wait_for_timeout(2500)
+bg_m = pgM.evaluate("document.querySelector('#view').style.background")
+chips_m = pgM.inner_text("#skyChips") if pgM.is_visible("#skyChips") else ""
+check("moon: the night after the full moon of 26 October it stands in the sky (a picture of its own) and the chip says 'Vollmond'",
+      "no-repeat" in bg_m and bg_m.count("url(") >= 2 and "Vollmond" in chips_m, (bg_m[:90], chips_m))
+pgM.close()
 check("weather: rain falls over the picture in live mode", pgS.is_visible("#wxFall") and "rain" in pgS.get_attribute("#wxFall", "class"), pgS.get_attribute("#wxFall", "class"))
 
 # --- the energy flow as a picture (#420), only while the button "Strom" is pressed (#434)
@@ -129,7 +138,8 @@ sky = pgP.evaluate("""() => { const r = (s) => document.querySelector(s).getBoun
   return { text: document.querySelector('#skyLine').textContent, l: Math.round(l.left), r: Math.round(l.right), t: Math.round(l.top), b: Math.round(l.bottom),
     bar: Math.round(m.top), barB: Math.round(m.bottom), tiles: Math.round(t.bottom), h: innerHeight }; }""")
 check("phone (#445): one short line at the very bottom with the time and the weather, under the view buttons; they stay clear of the tiles",
-      pgP.is_visible("#skyLine") and sky["text"].startswith("🌙 ") and sky["text"].endswith(" · 🌧️ Regen · 11 °C") and sky["t"] >= sky["barB"]
+      pgP.is_visible("#skyLine") and sky["text"][0] in "🌑🌒🌓🌔🌕🌖🌗🌘" and sky["text"][1] == " "                  # at night the moon as it is (4.33.0)
+      and sky["text"].endswith(" · 🌧️ Regen · 11 °C") and sky["t"] >= sky["barB"]
       and sky["b"] <= sky["h"] and sky["l"] >= 0 and sky["r"] <= 390 and sky["bar"] >= sky["tiles"], sky)
 pgP.tap("#powerBtn"); pgP.wait_for_timeout(600)
 ecard = pgP.evaluate("""() => { const r = (s) => document.querySelector(s).getBoundingClientRect(), c = r('#energyCard');

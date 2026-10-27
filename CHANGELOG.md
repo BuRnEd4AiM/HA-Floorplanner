@@ -4,6 +4,13 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.33.0] - 2026-10-27
+### Added
+- **🌙 The moon in the sky** (the owner: "den Mondzyklus reinmachen, dass man sieht, was gerade für ein Mondzyklus ist, ob Vollmond oder Halbmond abnehmend … dass da irgendwo der Mond ist"). The sky behind the house now has the moon as it is now: full, half, a thin crescent or gibbous, lit on the right while it waxes and on the left while it wanes (the other way round on the southern half of the earth), with its grey seas, at night with a soft glow and the dark part faint, by day pale. It stands where it really is for your home: it rises on the left (east), is highest in the middle and sets on the right (west); under the horizon it is not there, behind clouds it is fainter, behind an overcast sky hidden. It stays in the background when you tap a room. The chips at the top right have a new one between time and weather: **"🌖 Abnehmender Mond · 96 %"** (Neumond, Zunehmende Sichel, Zunehmender Halbmond, Zunehmender Mond, Vollmond, Abnehmender Mond, Abnehmender Halbmond, Abnehmende Sichel); at night the time chip and the short line of a phone show the moon as it is instead of 🌙.
+- Where home is comes from `zone.home` of Home Assistant (rounded to about 10 km); without it latitude 50° and the time zone. To try it out: `?skydate=2026-11-01&skytime=05:00` in the address shows the sky of that day and time.
+### Changed
+- New module `moon.js` (pure, `tests/moon.test.mjs`, compared with PyEphem: the phase to 1 %, the place in the sky to 1 to 2 degrees); `sky.js` gets `skyDateOf`; the server sends `geo` of `zone.home`; the browser test part `25_sky_tiles` checks the chip and the full moon of 26 October.
+
 ## [4.32.0] - 2026-10-26
 ### Added
 - **📅 Heizplan: a thermostat turned by hand goes back to the plan after 10 minutes** (#546, the owner: "gerne wenn man von Hand dreht nach 10 min wieder zurück, aber das kann eingestellt werden"). Until now a turn by hand (at the device, in Home Assistant or on the page) stayed until the next block of the plan. Now the plan's temperature comes back **10 minutes** after the last turn; the Heizplan card of 📋 Heiz-Regeln has **"Von Hand gedreht: zurück nach"** with − / + (5 to 240 minutes, or 0: "erst beim nächsten Abschnitt", as before). The room on 🌡 Klima says **"✋ Von Hand gedreht · ab 22:40 wieder Nacht 17°"** (also as a line in 📋 Heiz-Regeln). A thermostat switched off or to "Auto" by hand is left alone (chosen on purpose), one that only rounds (whole degrees) does not count as turned; 🚀 Boost and an open window work as before.

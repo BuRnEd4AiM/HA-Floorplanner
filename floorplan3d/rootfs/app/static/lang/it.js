@@ -1276,7 +1276,7 @@ export default {
   'heat.fan.on': 'Acceso',
   'heat.fan.off': 'Spento',
   'heat.fan.quiet': 'Silenzioso',
-  'sky.night': 'Notte', 'sky.dawn': 'Aurora', 'sky.morning': 'Mattina', 'sky.day': 'Giorno', 'sky.evening': 'Sera', 'sky.dusk': 'Crepuscolo',
+  'sky.night': 'Notte', 'moon.new': 'Luna nuova', 'moon.waxingCrescent': 'Luna crescente', 'moon.firstQuarter': 'Primo quarto', 'moon.waxingGibbous': 'Gibbosa crescente', 'moon.full': 'Luna piena', 'moon.waningGibbous': 'Gibbosa calante', 'moon.lastQuarter': 'Ultimo quarto', 'moon.waningCrescent': 'Luna calante', 'sky.dawn': 'Aurora', 'sky.morning': 'Mattina', 'sky.day': 'Giorno', 'sky.evening': 'Sera', 'sky.dusk': 'Crepuscolo',
   'sky.set': 'Tramonto {t}', 'sky.rise': 'Alba {t}', 'set.sky': 'Cielo',
   'set.skyHint': 'Lo sfondo dietro la casa segue il sole (sun.sun) e il meteo: rosa al mattino, blu di giorno, arancione la sera, stellato di notte.',
   'set.sky.time': 'In base all\'ora e al meteo', 'set.sky.off': 'Tinta unita', 'wx.wind': 'Vento {v}', 'wx.clear-night': 'Notte serena',
