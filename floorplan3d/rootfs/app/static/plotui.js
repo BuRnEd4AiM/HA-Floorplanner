@@ -7,6 +7,7 @@
 import { SURFACES, SURFACE_KEYS, DEFAULT_SURFACE, MAX_AREAS, polyArea, perimeter, edgeList, rectSize, setEdgeLength, setRectSize, rectAround, houseBox,
   surfaceTotals, surfaceColor } from './yard.js';
 import { fmtNum, fmtArea } from './i18n.js';
+import { initPlateauUi } from './plateauui.js';
 
 /** ctx: $, t, layout(), snapshot(), changed(), setStatus(txt), select(sel), selection(), uid(), fmtLen(m), imperial(), toDisp(m), fromDisp(v),
  *  fields ({ field, inp, lenInput } of propfields.js), deleteItem(sel), hint(txt) (the line under the tools) */
@@ -24,6 +25,7 @@ export function initPlotUi(ctx) {
   const surfName = (k) => t(`yard.s.${k}`);
   const nameOf = (a) => a.name || surfName(a.surface);
   const curMode = () => mode || (boundary() ? 'area' : 'plot');
+  const plateau = initPlateauUi({ ...ctx, maxAreas: MAX_AREAS, render: () => render() });   // a plateau under a building, its fields (#566)
   /** a segmented choice: [[value, text]]; mark(el, value) marks the one chosen */
   function seg(id, items, on) {
     const w = make('div', 'plotSeg'); w.id = id;
@@ -61,8 +63,9 @@ export function initPlotUi(ctx) {
     row.append(go, lab);
     info.append(make('p', 'plotHead', t('plot.title')), size, none, wd.row, row);
     const list = make('div', 'yardList'); list.id = 'yardList';
-    body.replaceChildren(modeSeg, surfHead, grid, shapeSeg, how, info, list);
-    ui = { modeSeg, surfHead, grid, shapeSeg, how, size, none, wd, list };
+    const plat = make('div', 'plateauPal'); plat.id = 'plateauPal';
+    body.replaceChildren(modeSeg, surfHead, grid, shapeSeg, how, info, plat, list);
+    ui = { modeSeg, surfHead, grid, shapeSeg, how, size, none, wd, list, plat, platKey: null };
   }
   function render() {
     if (!body || body.closest('[hidden]')) return;
@@ -76,6 +79,9 @@ export function initPlotUi(ctx) {
     ui.wd.row.hidden = !rs;
     if (rs) ui.wd.set(rs);
     ui.list.replaceChildren(...areaList());
+    const key = JSON.stringify((ctx.layout().buildings || []).map((x) => [x.id, x.name]));   // built again only when the buildings change
+    if (key !== ui.platKey) { ui.platKey = key; ui.plat.replaceChildren(...plateau.palette()); }
+    ui.plat.hidden = m !== 'area';
     $('#plotHelp').hidden = m !== 'plot';
   }
   /** a number field for a length in the unit shown; set(m) shows a new value (not while it is being typed in) */
@@ -165,6 +171,7 @@ export function initPlotUi(ctx) {
       s.value = a.surface;
       s.addEventListener('change', () => { ctx.snapshot(); a.surface = s.value; ctx.changed(); });
       pbody.append(field(t('plot.surface'), s));
+      plateau.areaFields(pbody, a);                             // a plateau: its height, its edge, the steps up (#566)
     }
     const size = make('p', 'plotSize', t('plot.size', { area: m2(pts), len: ctx.fmtLen(perimeter(pts)) })); size.id = 'yardSize';
     pbody.append(size);

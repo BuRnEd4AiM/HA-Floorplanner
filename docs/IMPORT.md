@@ -64,7 +64,9 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
   "name": "Mein Haus",
   "plot": {                                  // optional: Grundstück
     "boundary": [[0,0],[22,0],[22,30],[0,30]],
-    "objects": [{ "type": "tree", "x": 3, "z": 4 }]     // Garten, Terrasse, Pool, Zaun …
+    "objects": [{ "type": "tree", "x": 3, "z": 4 }],    // Garten, Terrasse, Pool, Zaun …
+    // Flächen; mit "rise" ein Plateau: alles darauf steht so viel höher, Rand "wall" (Mauer: stone|concrete|brick|gabion) oder "slope" (Böschung)
+    "areas": [{ "name": "Plateau", "surface": "slabs", "points": [[14,2],[20,2],[20,8],[14,8]], "rise": 0.9, "edge": "wall", "wall": "stone" }]
   },
   "building": {
     "origin": [5.5, 8],                      // optional
@@ -169,6 +171,8 @@ Unbekannte Treppentypen werden mit Warnung übersprungen, ungültige Zahlen (z. 
 
 Reihenfolge ist egal: Keller zuerst, Dachgeschoss/Dach zuletzt. **Dachterrasse:** ein Raum mit `"terrace": true` ist offen (kein Dach darüber, ein Geländer statt Wänden); nur Kanten, die er mit einem normalen Raum teilt, werden Wände. Ein eigener `footprint` in einer Etage gilt nur für diese Etage (z. B. Erdgeschoss mit Garage). Die Dachform steht in `building.roof` (oder in einer Etage mit `"kind": "roof"`). **Weitere Dächer** (z. B. Anbau mit Flachdach): `"roof": { "type": "gable", "parts": [{ "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "type": "flat", "level": 0, "name": "Anbau" }] }`, bis zu 8; `level` ist der Index der Etage in `building.floors`, auf der das Dach sitzt (ohne `level`: oben auf dem Haus), außerdem `pitch`, `overhang`, `dormers`. Gartenobjekte aus `plot.objects` landen auf der ersten Nicht-Keller-Etage.
 
+
+**Plateau und höherer Boden (4.37.0).** Eine Fläche in `plot.areas` mit `"rise": 0.9` ist ein Plateau: alles vom Haus, was darauf steht (Räume, Wände, Türen, Fenster, Geräte, Treppen, das Dach darüber), steht auf jeder Etage 90 cm höher; `"edge": "wall"` (Mauer, Standard) oder `"slope"` (Böschung aus Rasen), `"wall": "stone" | "concrete" | "brick" | "gabion"`. Ein Raum mit `"raise": 0.45` hat seinen Boden 45 cm über der Etage (Minus: tiefer); die Decke bleibt, an Türen zu einem Boden anderer Höhe kommen Stufen dazu (`"steps": false`: keine). Die Außentreppe ist das Gerät `{ "type": "steps", "x": 17, "z": 1, "rot": 180, "h": 0.9, "w": 1.4, "land": 1 }` (Höhe bis oben, Breite, Podest oben; `noRail`: ohne Geländer); sie steht auf dem Rasen, ihr Podest zeigt nach −z ihres eigenen Rahmens, mit `rot` gedreht.
 ## API
 
 > [!IMPORTANT]

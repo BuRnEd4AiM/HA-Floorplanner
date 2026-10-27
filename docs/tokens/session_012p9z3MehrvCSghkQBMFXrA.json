@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3MehrvCSghkQBMFXrA",
+ "start": "2026-10-27",
+ "updated": "2026-10-27T22:15:07Z",
+ "branch": "claude/loving-cray-ym4z59",
+ "source": "counted",
+ "input": 420,
+ "cache_write": 496148,
+ "cache_read": 69988592,
+ "output": 219830,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 420,
+   "cache_write": 496148,
+   "cache_read": 69988592,
+   "output": 219830,
+   "requests": 210
+  }
+ }
+}

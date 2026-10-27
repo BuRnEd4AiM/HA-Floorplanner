@@ -8,6 +8,7 @@ import { planMarks } from './closetview.js';
 import { solarField } from './solarroof.js';
 import { rotPoint, readableAngle } from './planview.js';
 import { bridgeSize } from './bridge.js';
+import { stepsSize, stepsDepth, stepsLocal, lifter, cleanRise, offsetPoly, LEVELS } from './levels.js';
 import { armPose } from './tvmount.js';
 import { pathWorld, ringSectionsWorld, segEntity, projectOnPath, setRange, sectionHex } from './ledring.js';
 import { stairLocal, stairHit, polyToWorld, toWorld, toLocal, stairHandles, stairCounts, wallStairWidthAt, arrivingStairs, MIN_TREAD, MAX_TREAD } from './stairs.js';
@@ -112,6 +113,7 @@ export function createPlan(ctx) {
     if (d.type === 'kitchenrun') { const l = kitchenLayout(d); return { w: l.w * k, d: l.d * k }; }
     if (d.type === 'closet') { const c = closetSize(d.cab); return { w: c.x * k, d: c.z * k }; }   // a cabinet built in its editor (closet.js)
     if (d.type === 'bridge') { const b = bridgeSize(d); return { w: b.len * k * (d.sx || 1), d: b.width * k * (d.sz || 1) }; }   // metal bridge (#189)
+    if (d.type === 'steps') return { w: stepsSize(d).w * k * (d.sx || 1), d: stepsDepth(d) * k * (d.sz || 1) };   // outdoor steps (#566)
     if (d.type === 'solarpanel' && ((d.cols || 1) > 1 || (d.rows || 1) > 1)) { const l = solarField(d); return { w: l.w * k * (d.sx || 1), d: l.d * k * (d.sz || 1) }; }   // a field of panels (#176)
     if (d.type === 'nanoleaf') return { w: nanoBounds(d.panels).w * k * (d.sx || 1), d: 0.06 };
     if (d.type === 'ledring') {                                   // not used for hits (those follow the line), only for sizes and labels
@@ -275,12 +277,21 @@ export function createPlan(ctx) {
       o += lab(sx(e.mid[0] + e.out[0] * off), sy(e.mid[1] + e.out[1] * off) + 4, ctx.fmtLen(e.len), 11, fill).replace('<text ', `<text class="${cls}" `);
     });
     yardList().forEach((a) => {
-      const on = sel?.kind === 'yard' && sel.id === a.id;
+      const on = sel?.kind === 'yard' && sel.id === a.id, rise = cleanRise(a.rise);
+      if (rise && a.edge === 'slope') o += `<polygon points="${pts(offsetPoly(a.points, rise * LEVELS.slopeRun))}" fill="#6fa858" fill-opacity=".35" stroke="#9fd38a" stroke-width="1" stroke-dasharray="3 3" pointer-events="none"/>`;   // a plateau's bank (#566)
       o += `<polygon points="${pts(a.points)}" fill="${surfaceColor(a.surface)}" fill-opacity="${live ? 0.4 : 0.55}" stroke="${on ? C.sel : 'rgba(255,255,255,.4)'}" stroke-width="${on ? 2.2 : 1}"${on ? '' : ' stroke-dasharray="5 4"'} data-yard="${esc(a.id)}"/>`;
+      if (rise && a.edge !== 'slope') o += `<polygon points="${pts(a.points)}" fill="none" stroke="#8a7d6b" stroke-width="${Math.max(3, Math.min(9, 0.25 * s)).toFixed(1)}" stroke-opacity=".9" stroke-linejoin="miter" pointer-events="none"/>`;   // its retaining wall
     });
     if (!live && s >= 14) yardList().forEach((a) => {
+      if (cleanRise(a.rise)) return;                              // a plateau: its name and height at its edge (below), not over the house on it
       const c = a.points.reduce((q, p) => [q[0] + p[0] / a.points.length, q[1] + p[1] / a.points.length], [0, 0]);
       o += lab(sx(c[0]), sy(c[1]), a.name || ctx.t(`yard.s.${a.surface}`), 12, C.text) + lab(sx(c[0]), sy(c[1]) + 14, ctx.area(a.points), 10, 'rgba(210,235,255,.85)');
+    });
+    if (!live) yardList().forEach((a) => {                        // a plateau (#566): its height beside its longest side, outside
+      const rise = cleanRise(a.rise);
+      if (!rise) return;
+      const e = edgeList(a.points).reduce((m, q) => (q.len > m.len ? q : m)), off = 16 / s;
+      o += lab(sx(e.mid[0] + e.out[0] * off), sy(e.mid[1] + e.out[1] * off) + 4, `▲ ${a.name ? `${a.name} · ${ctx.fmtLen(rise)}` : ctx.t('plat.label', { h: ctx.fmtLen(rise) })}`, 12, '#9fe0a0').replace('<text ', '<text class="plateauLabel" ');
     });
     const pl = plotPoly();
     if (!live && pl && (ctx.getTool() === 'plot' || sel?.kind === 'plot')) sides(pl.points, '#7dffc4', 'plotSide');
@@ -609,6 +620,10 @@ export function createPlan(ctx) {
         o += `<rect x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" rx="${Math.min(4, h / 4)}" fill="${fill}" stroke="${stroke}" stroke-width="${isSel ? 2.2 : 1.4}"/>`;
         if (h > 8 && !FLAT.has(d.type)) o += `<line x1="${-w / 2 + 3}" y1="${h / 2 - 3}" x2="${w / 2 - 3}" y2="${h / 2 - 3}" stroke="${stroke}" stroke-width="1" opacity=".55"/>`;   // front edge
         if (d.type === 'closet') o += planMarks(d.cab, s * (d.scale || 1), d.mirror, stroke);   // its columns, and where it is lower under a slope
+        if (d.type === 'steps') {                                      // outdoor steps (#566): a line at the front of every tread, the landing at the top
+          const k = s * (d.scale || 1), off = -stepsDepth(d) / 2;
+          stepsLocal(d).filter((p) => p.kind === 'step').forEach((p) => { o += `<line x1="${(-w / 2).toFixed(1)}" y1="${((p.z0 + off) * k).toFixed(1)}" x2="${(w / 2).toFixed(1)}" y2="${((p.z0 + off) * k).toFixed(1)}" stroke="${stroke}" stroke-width="1"/>`; });
+        }
       }
       o += '</g>';
       if (d.type === 'bridge') {                                       // which end is the far one (#222): an arrow towards it, the height difference next to it
@@ -633,12 +648,15 @@ export function createPlan(ctx) {
     });
 
     /* room labels on top */
+    const up = lifter(f, ctx.yards?.() || []);                    // a room on a plateau or with a higher floor shows how high it lies (#566)
     f.rooms.forEach((rm) => {
       if (!rm.name) return;
       const c = rm.points.reduce((a, p) => [a[0] + p[0] / rm.points.length, a[1] + p[1] / rm.points.length], [0, 0]);
       const area = ctx.area(rm.points);
       o += `<text x="${sx(c[0])}" y="${sy(c[1])}" text-anchor="middle" font-size="14" font-weight="700" fill="${C.text}" stroke="rgba(3,21,71,.85)" stroke-width="4" paint-order="stroke">${esc(rm.name)}</text>`;
       o += `<text x="${sx(c[0])}" y="${sy(c[1]) + 15}" text-anchor="middle" font-size="11" fill="rgba(210,235,255,.85)" stroke="rgba(3,21,71,.85)" stroke-width="3" paint-order="stroke">${esc(area)}</text>`;
+      const h = up.any ? Math.round(up.room(rm) * 100) / 100 : 0;
+      if (h) o += `<text class="roomLift" x="${sx(c[0])}" y="${sy(c[1]) + 30}" text-anchor="middle" font-size="11" font-weight="700" fill="#9fe0a0" stroke="rgba(3,21,71,.85)" stroke-width="3" paint-order="stroke">${h > 0 ? '▲ +' : '▼ −'}${esc(ctx.fmtLen(Math.abs(h)))}</text>`;
     });
 
     /* selection handles */

@@ -16,6 +16,7 @@ import { finishChoices, finishOf, variantChoices, variantOf, variantLabel, varia
 import { zoneKeys, setZone, fitZones } from './ledzones.js';
 import { TV_SIZES, ARM, armPose } from './tvmount.js';
 import { initFinishUi } from './finishui.js';
+import { roomLevelFields, stepsFields } from './plateauui.js';
 
 /** the title of the panel for a selection: the opening's type, the stair's type or the kind of object */
 export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type}` : kind === 'stair' ? `stair.${it.type}` : `prop.${kind}`);
@@ -38,6 +39,8 @@ export function stretchValue(n) {
 export function initProps(ctx) {
   const { $, t } = ctx;
   const { field, inp, lenInput, pickerField } = ctx.fields;
+  /** what the fields of plateauui.js need: a floor higher than its storey, the outdoor steps (#566) */
+  const levelUi = { t, field, lenInput, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), fmtLen: (m) => ctx.fmtLen(m) };
   const finishUi = initFinishUi({   // floors, walls and accent walls (#448)
     t, snapshot: () => ctx.snapshot(), changed: () => ctx.changed(), render: () => render(), floor: () => ctx.floor(), imperial: () => ctx.imperial(),
     setStatus: (x) => ctx.setStatus(x),
@@ -165,6 +168,7 @@ export function initProps(ctx) {
       const tl = document.createElement('label'); tl.className = 'chk'; tl.title = t('prop.terraceHint'); tl.append(tc, document.createTextNode(' ' + t('prop.terrace')));
       body.append(tl);
     }
+    roomLevelFields(body, it, levelUi);                         // its floor higher or lower than the storey (#566)
     const asel = document.createElement('select');
     asel.add(new Option(t('area.none'), ''));
     areas.forEach((x) => asel.add(new Option(x.name, x.id)));
@@ -303,6 +307,7 @@ export function initProps(ctx) {
     if (it.type === 'kitchenrun') kitchenProps(body, it);
     if (it.type === 'solarpanel') solarProps(body, it);
     if (it.type === 'bridge') bridgeProps(body, it);
+    if (it.type === 'steps') stepsFields(body, it, levelUi);    // outdoor steps (#566)
     if (it.type === 'tv_arm') tvArmProps(body, it);
     if (ctx.power().isType(it.type)) ctx.power().deviceProps(body, it);
     body.append(pickerField(t(it.type === 'ledring' ? 'ring.main' : 'prop.entity'), ctx.entityPicker(pickFrom(entities), ctx.roomAt(it.x, it.z), it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));

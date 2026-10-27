@@ -63,7 +63,9 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
   "name": "My house",
   "plot": {                                  // optional: the property
     "boundary": [[0,0],[22,0],[22,30],[0,30]],
-    "objects": [{ "type": "tree", "x": 3, "z": 4 }]     // garden, terrace, pool, fence ...
+    "objects": [{ "type": "tree", "x": 3, "z": 4 }],    // garden, terrace, pool, fence ...
+    // areas; with "rise" a plateau: everything on it stands that much higher, edge "wall" (stone|concrete|brick|gabion) or "slope" (a bank)
+    "areas": [{ "name": "Plateau", "surface": "slabs", "points": [[14,2],[20,2],[20,8],[14,8]], "rise": 0.9, "edge": "wall", "wall": "stone" }]
   },
   "building": {
     "origin": [5.5, 8],                      // optional
@@ -166,6 +168,8 @@ Unknown stair types are skipped with a warning, invalid numbers (e.g. `floors` 9
 ### Floors
 
 The order does not matter: basements come first, attic / roof last. **Roof terrace:** a room with `"terrace": true` is open (no roof above it, a railing instead of walls); only edges it shares with an ordinary room become walls. A `footprint` of its own in a floor counts for that floor only (e.g. a ground floor with a garage). The roof shape is set in `building.roof` (or in a floor with `"kind": "roof"`). **Further roofs** (e.g. an annex with a flat roof): `"roof": { "type": "gable", "parts": [{ "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "type": "flat", "level": 0, "name": "Annex" }] }`, up to 8; `level` is the index of the floor in `building.floors` the roof sits on (without it: on top of the house), plus `pitch`, `overhang`, `dormers`. Garden objects from `plot.objects` are placed on the first floor that is not a basement.
+
+**Plateau and raised floor (4.37.0).** An area in `plot.areas` with `"rise": 0.9` is a plateau: everything of the house that stands on it (rooms, walls, doors, windows, devices, stairs, the roof over it) stands 90 cm higher on every floor; `"edge": "wall"` (a retaining wall, default) or `"slope"` (a bank of lawn), `"wall": "stone" | "concrete" | "brick" | "gabion"`. A room with `"raise": 0.45` has its floor 45 cm over the storey (minus: lower); the ceiling stays, doors to a floor of another height get steps (`"steps": false`: none). The outdoor steps are the device `{ "type": "steps", "x": 17, "z": 1, "rot": 180, "h": 0.9, "w": 1.4, "land": 1 }` (height to the top, width, landing on top; `noRail`: no hand rail); they stand on the lawn, their landing towards −z of their own frame, turned by `rot`.
 
 ## API
 
