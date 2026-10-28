@@ -246,6 +246,8 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `rulesui.js` | ~65 | Setzt die Teile der Regeln zusammen; `app.js` ruft nur `initRulesUi` |
 | `usedbyui.js` | ~170 | 🔎 Wird benutzt: Fenster mit den eigenen Regeln und den Automationen, Skripten, Szenen von Home Assistant (`api/related`) |
 | `heatrulesui.js` | ~200 | 🌡 Klima → 📋 Heiz-Regeln (die sieben Karten, speichert kurz nach der letzten Änderung) und die Zeile jedes Raums mit 🔥 Trotzdem heizen, 🚀 Boost, 🔎 |
+| `roomsensors.js` | ~150 | 🌡 Raumfühler (#573), reine Logik mit Unit-Tests: die Zustände der Seite mit den Temperaturen der Fühler (`applySensors`), welche Sensoren für ein Thermostat angeboten werden (`sensorChoices`), was die Karte, die Zeile auf 🌡 Klima und das Protokoll sagen |
+| `roomsensorsui.js` | ~200 | Die Karte „🌡 Raumfühler“ in 📋 Heiz-Regeln, das Fenster „Fühler für …“, die Zeile unter dem Thermostat auf 🌡 Klima |
 | `heatplanui.js` | ~170 | 🌡 Klima → 📅 Heizplan: Woche je Raum, Block antippen / Rand ziehen, Entwurf bis „Speichern“ |
 | `routinesown.js` | ~230 | ▶ Abläufe: eigene Abläufe als Kette (🏠 Home Assistant / ⚙️ Add-on, #548), Automationen von Home Assistant (`api/automations`, ohne die eigenen `fp3d_…`; an / aus, ▶, ↗, 🗑, #564), „Was ist passiert“ |
 | `scenes.js` | ~110 | Szenen-Editor: das Modell, „📸 Wie jetzt“, Worte, die Liste der Szenen, „⇉ Auf alle anwenden“ (`applyToAll`), die Arten der Auswahl (rein, `tests/scenes.test.mjs`, #549, #564) |
@@ -260,7 +262,7 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `trains.js` | ~60 | 🚆 Zug-Karte: „mein Zug“, pünktlich / verspätet / fällt aus, Minuten bis zur Abfahrt (rein, `tests/trains.test.mjs`, #550) |
 | `traincard.js` | ~140 | Die Zug-Karte und ihre Felder in „Karte einstellen“ |
 | `flowedit.js` | ~380 | Editor „Wenn … dann …“ wie Node-RED: Bausteine links, Wege mit Linien (SVG) in der Mitte, Einstellungen rechts, „In Worten“ |
-| Server: `heatrules.py`, `flows.py`, `roommap.py`, `usedby.py`, `rulesrun.py` | | Die Regeln selbst (rein, mit Tests: `test_heatrules.py`, `test_flows.py`, `test_roommap.py`, `test_usedby.py`), ausgeführt von `rulesrun.py` (`test_rulesrun.py`); `server.py` hat nur die Adressen und `rules_runner` |
+| Server: `heatrules.py`, `flows.py`, `roommap.py`, `usedby.py`, `roomsensors.py`, `rulesrun.py` | | Die Regeln selbst (rein, mit Tests: `test_heatrules.py`, `test_flows.py`, `test_roommap.py`, `test_usedby.py`, `test_roomsensors.py` für 🌡 Raumfühler, #573), ausgeführt von `rulesrun.py` (`test_rulesrun.py`); `server.py` hat nur die Adressen und `rules_runner` |
 | Server: `haflows.py` | | Eigene Abläufe als Automationen von Home Assistant (#548): rein, mit Tests (`test_haflows.py`); `server.py` schreibt sie (`ha_sync_flows`, nur Kennungen `fp3d_…`), `tools/ha_check.py` lässt ein echtes Home Assistant sie prüfen |
 | Server: `scenes.py` | | Szenen des Dashboards als Szenen von Home Assistant (#549): rein, mit Tests (`test_scenes.py`); `server.py` hat nur `api/scenes/…` |
 | Server: `trains.py` | | 🚆 Die Abfahrten eines Bahnhofs (#550): rein, mit Tests (`test_trains.py`); `server.py` hat nur `api/train` (fragt höchstens einmal pro Minute) |

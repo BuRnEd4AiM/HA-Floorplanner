@@ -1,0 +1,217 @@
+"""Room sensors for the thermostats (roomsensors.py, #573): the card's settings, finding the calibration of a thermostat's device (Zigbee2MQTT,
+ZHA, Matter, an external input with its select, Danfoss in hundredths), and what the add-on does: 🎯 the offset or the external input set
+from the sensor, ↕ the target moved while the wish stays, a target set by somebody else as the new wish, the heating rules' targets as
+wishes, back as before when the sensor is taken away, the thermostat on its own while the sensor does not report."""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "floorplan3d" / "rootfs" / "app"))
+import roomsensors as rs  # noqa: E402
+
+
+def trv(target=21.0, meas=25.1, mode="heat", step=0.5):
+    return {"state": mode, "attributes": {"temperature": target, "current_temperature": meas, "hvac_modes": ["off", "heat"], "min_temp": 5,
+                                          "max_temp": 30, "target_temp_step": step, "friendly_name": "Heizung Wohnzimmer"}}
+
+
+def number(v, lo=-9, hi=9, step=0.1, name=""):
+    return {"state": str(v), "attributes": {"min": lo, "max": hi, "step": step, "unit_of_measurement": "°C", "friendly_name": name}}
+
+
+def sensor(v):
+    return {"state": str(v), "attributes": {"unit_of_measurement": "°C", "device_class": "temperature"}}
+
+
+def done(states, calls):
+    """Home Assistant does what the calls say"""
+    for dom, svc, data in calls:
+        e = data["entity_id"]
+        if svc == "set_value":
+            states[e]["state"] = str(data["value"])
+        elif svc == "select_option":
+            states[e]["state"] = data["option"]
+        elif svc == "set_temperature":
+            states[e]["attributes"]["temperature"] = data["temperature"]
+
+
+class Run:
+    def __init__(self, cfg, states, parts):
+        self.cfg, self.states, self.parts, self.mem, self.now = rs.clean(cfg), states, parts, {}, 1_000_000.0
+
+    def look(self, minutes=0, apply=True):
+        self.now += minutes * 60
+        self.mem, calls, self.status, self.log = rs.step(self.cfg, self.states, self.parts, self.mem, self.now)
+        if apply:
+            done(self.states, calls)
+        return calls
+
+
+def wz(way="auto"):
+    return {"map": {"climate.wz": {"s": "sensor.wz", "way": way}}}
+
+
+def test_settings_are_cleaned():
+    assert rs.clean(None) == {"on": True, "every": 10, "min": 0.5, "map": {}}
+    c = rs.clean({"on": False, "every": 999, "min": 0.04, "map": {"climate.a": {"s": "sensor.t", "way": "cal"}, "climate.b": {"s": "sensor.t", "way": "x"},
+                                                                  "light.c": {"s": "sensor.t"}, "climate.d": {"s": "binary_sensor.x"}, "climate.e": "sensor.t"}})
+    assert c == {"on": False, "every": 60, "min": 0.1, "map": {"climate.a": {"s": "sensor.t", "way": "cal"}, "climate.b": {"s": "sensor.t", "way": "auto"}}}
+    assert rs.clean({"every": 1, "min": 9})["every"] == 2 and rs.clean({"min": 9})["min"] == 3.0
+    assert not rs.any_on(rs.clean({})) and rs.any_on(rs.clean(wz())) and not rs.any_on(rs.clean({**wz(), "on": False}))
+
+
+def test_finds_the_calibration_of_every_kind_of_thermostat():
+    st = {"number.wz_local_temperature_calibration": number(0), "number.wz_valve_opening_degree": number(50, 0, 100, 1),
+          "switch.wz_child_lock": {"state": "off"}}
+    assert rs.find_cal(list(st), st) == {"ent": "number.wz_local_temperature_calibration", "kind": "off", "sel": None, "opt": None}     # Zigbee2MQTT
+    st = {"number.bad_local_temperature_offset": number(0, -2.5, 2.5, 0.1)}
+    assert rs.find_cal(list(st), st)["kind"] == "off"                                                                                    # ZHA
+    st = {"number.kinderzimmer_heizung": number(0, -5, 5, 0.5, "Heizung Kinderzimmer Temperaturversatz")}
+    assert rs.find_cal(list(st), st)["ent"] == "number.kinderzimmer_heizung"                                                             # Matter, by its (German) name
+    st = {"number.trv_external_temperature_input": number(0, 0, 99.9), "select.trv_temperature_sensor_select":
+          {"state": "internal", "attributes": {"options": ["internal", "external", "external_2"]}}}
+    assert rs.find_cal(list(st), st) == {"ent": "number.trv_external_temperature_input", "kind": "ext", "sel": "select.trv_temperature_sensor_select", "opt": "external"}   # Sonoff TRVZB
+    st["number.trv_local_temperature_calibration"] = number(0, -7, 7, 0.2)
+    assert rs.find_cal(list(st), st)["kind"] == "off"                                                                                    # an offset first
+    st = {"number.ally_external_measured_room_sensor": number(-8000, -8000, 3500, 1)}
+    assert rs.find_cal(list(st), st)["kind"] == "ext"                                                                                    # Danfoss Ally
+    st = {"number.x_valve_offset": number(0), "number.x_window_open_temperature_offset": number(0), "number.x_boost_time": number(300, 0, 900, 1),
+          "number.x_regulation_setpoint_offset": number(0)}
+    assert rs.find_cal(list(st), st) is None                                                                                              # not a temperature
+    assert rs.find_cal(["number.gone_local_temperature_calibration"], {}) is None and rs.find_cal(None, {}) is None                      # Homematic IP, tado …
+    assert rs.caps({"climate.wz": trv(), "climate.hm": trv(), "number.wz_cal": number(0, name="Temperature calibration")},
+                   {"climate.wz": ["number.wz_cal"]}) == {"climate.wz": "number.wz_cal"}
+
+
+def test_offset_follows_the_room_sensor_and_waits_for_the_thermostat():
+    st = {"climate.wz": trv(meas=25.1), "sensor.wz": sensor(20.5), "number.wz_local_temperature_calibration": number(0)}
+    r = Run(wz(), st, {"climate.wz": ["number.wz_local_temperature_calibration"]})
+    assert r.look() == [("number", "set_value", {"entity_id": "number.wz_local_temperature_calibration", "value": -4.6})]
+    s = r.status["climate.wz"]
+    assert s["way"] == "cal" and s["kind"] == "off" and s["v"] == 20.5 and s["meas"] == 25.1 and s["wait"] and s["want"] == -4.6 and s["raw"] == 25.1
+    assert r.look(minutes=15) == []                       # the thermostat has not measured with the new offset yet: no second write
+    assert r.status["climate.wz"]["wait"]
+    st["climate.wz"]["attributes"]["current_temperature"] = 20.6
+    assert r.look(minutes=1) == [] and not r.status["climate.wz"]["wait"]      # now the thermostat says the room's temperature
+    assert r.status["climate.wz"]["raw"] == 25.2                                 # at the radiator: without the offset
+    st["sensor.wz"] = sensor(21.5)                       # the room warms up: a whole degree
+    assert r.look(minutes=1) == [("number", "set_value", {"entity_id": "number.wz_local_temperature_calibration", "value": -3.7})]
+    st["climate.wz"]["attributes"]["current_temperature"] = 21.4
+    st["sensor.wz"] = sensor(20.4)
+    assert r.look(minutes=2) == []                        # at most every 10 minutes (battery)
+    assert r.look(minutes=8)[0][2]["value"] == -4.7
+    st["climate.wz"]["attributes"]["current_temperature"] = 20.6
+    st["sensor.wz"] = sensor(20.4)
+    assert r.look(minutes=20) == []                       # less than half a degree apart: left alone
+
+
+def test_offset_at_its_limit_and_while_the_thermostat_is_off():
+    st = {"climate.wz": trv(meas=28.0, mode="off"), "sensor.wz": sensor(20.0), "number.wz_temperature_offset": number(0, -5, 5, 0.5)}
+    r = Run(wz(), st, {"climate.wz": ["number.wz_temperature_offset"]})
+    assert r.look() == [] and r.status["climate.wz"]["want"] == -5     # off: nothing written
+    st["climate.wz"]["state"] = "heat"
+    assert r.look()[0][2]["value"] == -5 and r.status["climate.wz"]["edge"]
+
+
+def test_external_input_with_its_select_and_without_sensor():
+    st = {"climate.wz": trv(meas=24.0), "sensor.wz": sensor(20.5), "number.trv_external_temperature_input": number(0, 0, 99.9),
+          "select.trv_temperature_sensor_select": {"state": "internal", "attributes": {"options": ["internal", "external"]}}}
+    r = Run(wz(), st, {"climate.wz": ["number.trv_external_temperature_input", "select.trv_temperature_sensor_select"]})
+    calls = r.look()
+    assert ("select", "select_option", {"entity_id": "select.trv_temperature_sensor_select", "option": "external"}) in calls
+    assert ("number", "set_value", {"entity_id": "number.trv_external_temperature_input", "value": 20.5}) in calls
+    st["sensor.wz"] = sensor(20.7)
+    assert r.look(minutes=11) == [("number", "set_value", {"entity_id": "number.trv_external_temperature_input", "value": 20.7})]
+    assert r.look(minutes=11) == []                       # nothing new
+    assert r.look(minutes=25) != []                       # sent again after half an hour, some thermostats forget it
+    st["sensor.wz"] = {"state": "unavailable"}
+    assert r.look(minutes=1) == [("select", "select_option", {"entity_id": "select.trv_temperature_sensor_select", "option": "internal"})]
+    assert r.status["climate.wz"]["lost"]
+    st["sensor.wz"] = sensor(20.9)
+    assert ("select", "select_option", {"entity_id": "select.trv_temperature_sensor_select", "option": "external"}) in r.look(minutes=4)
+
+
+def test_danfoss_counts_in_hundredths():
+    st = {"climate.wz": trv(meas=24.0), "sensor.wz": sensor(20.53), "number.ally_external_measured_room_sensor": number(-8000, -8000, 3500, 1)}
+    r = Run(wz(), st, {"climate.wz": ["number.ally_external_measured_room_sensor"]})
+    assert r.look() == [("number", "set_value", {"entity_id": "number.ally_external_measured_room_sensor", "value": 2053})]
+    assert r.status["climate.wz"]["sent"] == 20.53
+
+
+def test_target_moved_for_a_thermostat_without_calibration():
+    st = {"climate.wz": trv(target=21.0, meas=25.0), "sensor.wz": sensor(21.0)}
+    r = Run(wz(), st, {})
+    assert r.look() == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 25.0})]
+    s = r.status["climate.wz"]
+    assert s["way"] == "shift" and s["wish"] == 21.0 and s["want"] == 25.0
+    assert rs.virtual(st, r.mem)["climate.wz"]["attributes"]["temperature"] == 21.0   # the rules see the wish
+    assert st["climate.wz"]["attributes"]["temperature"] == 25.0                     # the states themselves stay
+    st["climate.wz"]["attributes"]["current_temperature"] = 25.2
+    assert r.look(minutes=12) == []                       # 0,2° more: not worth a write
+    st["sensor.wz"] = sensor(22.5)                        # warmer than wished
+    assert r.look(minutes=1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 23.5})]
+    # somebody sets 23° in Home Assistant: that is what the room should get
+    st["climate.wz"]["attributes"]["temperature"] = 23.0
+    assert r.look(minutes=1) == []                        # just sent: the thermostat may not have reported yet
+    calls = r.look(minutes=3)
+    assert r.mem["t"]["climate.wz"]["wish"] == 23.0 and calls == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 25.5})]
+
+
+def test_target_set_by_hand_before_the_add_on_sent_anything():
+    st = {"climate.wz": trv(target=21.0, meas=21.0), "sensor.wz": sensor(21.0)}
+    r = Run(wz(), st, {})
+    assert r.look() == []
+    st["climate.wz"]["attributes"]["temperature"] = 22.0
+    st["sensor.wz"] = sensor(20.0)
+    assert r.look(minutes=1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 23.0})]
+    assert r.mem["t"]["climate.wz"]["wish"] == 22.0
+
+
+def test_heating_rules_and_pages_set_the_wish():
+    st = {"climate.wz": trv(target=21.0, meas=24.0), "sensor.wz": sensor(21.0), "climate.bad": trv()}
+    r = Run(wz(), st, {})
+    r.look()
+    rest = rs.route([("climate.wz", "set_temperature", {"temperature": 17.0}), ("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"}),
+                     ("climate.bad", "set_temperature", {"temperature": 17.0})], r.mem)
+    assert rest == [("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"}), ("climate.bad", "set_temperature", {"temperature": 17.0})]
+    assert r.look(minutes=1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 20.0})]   # at once, not after 10 min
+    assert rs.set_wish(r.mem, "climate.wz", 22) and not rs.set_wish(r.mem, "climate.bad", 22) and not rs.set_wish(r.mem, "climate.wz", "x")
+    assert r.look(minutes=1)[0][2]["temperature"] == 25.0
+    # the window rule: as cold as it goes stays as cold as it goes
+    rs.route([("climate.wz", "set_temperature", {"temperature": 5.0})], r.mem)
+    assert r.look()[0][2]["temperature"] == 5.0
+
+
+def test_sensor_lost_the_thermostat_on_its_own():
+    st = {"climate.wz": trv(target=21.0, meas=24.0), "sensor.wz": sensor(21.0)}
+    r = Run(wz(), st, {})
+    assert r.look()[0][2]["temperature"] == 24.0
+    st["sensor.wz"] = {"state": "unavailable"}
+    assert r.look(minutes=11) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 21.0})]
+    assert r.status["climate.wz"]["lost"]
+
+
+def test_auto_cal_show_and_nocal():
+    st = {"climate.wz": trv(), "sensor.wz": sensor(20.0)}
+    r = Run(wz("cal"), st, {})
+    assert r.look() == [] and r.status["climate.wz"]["way"] == "show" and r.status["climate.wz"]["nocal"]
+    r = Run(wz("show"), st, {"climate.wz": []})
+    assert r.look() == [] and r.status["climate.wz"] == {"s": "sensor.wz", "v": 20.0, "meas": 25.1, "way": "show", "lost": False}
+    st["climate.wz"]["state"] = "unavailable"
+    r = Run(wz(), st, {})
+    assert r.look() == [] and r.status["climate.wz"]["gone"]
+
+
+def test_taken_away_puts_it_back():
+    st = {"climate.wz": trv(meas=25.1), "sensor.wz": sensor(20.5), "number.wz_local_temperature_calibration": number(-1.0),
+          "climate.hm": trv(target=20.0, meas=23.0), "sensor.hm": sensor(20.0)}
+    cfg = {"map": {"climate.wz": {"s": "sensor.wz", "way": "auto"}, "climate.hm": {"s": "sensor.hm", "way": "auto"}}}
+    r = Run(cfg, st, {"climate.wz": ["number.wz_local_temperature_calibration"]})
+    r.look()
+    assert st["number.wz_local_temperature_calibration"]["state"] == "-5.6" and st["climate.hm"]["attributes"]["temperature"] == 23.0
+    r.cfg = rs.clean({**cfg, "map": {"climate.hm": {"s": "sensor.wz", "way": "auto"}}})    # wz without sensor, hm with another one
+    calls = r.look(minutes=1)
+    assert ("number", "set_value", {"entity_id": "number.wz_local_temperature_calibration", "value": -1.0}) in calls    # the offset as before
+    assert "climate.wz" not in r.mem["t"] and r.mem["t"]["climate.hm"]["wish"] == 20.0                                 # the wish stays
+    r.cfg = rs.clean({**cfg, "on": False})
+    assert r.look(minutes=1) == [("climate", "set_temperature", {"entity_id": "climate.hm", "temperature": 20.0})]     # switched off: the wish
+    assert r.mem == {"t": {}} and r.status == {}

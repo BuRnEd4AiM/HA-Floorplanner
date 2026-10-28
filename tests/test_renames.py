@@ -156,6 +156,13 @@ def test_climate_parts_are_the_other_entities_of_a_thermostats_device():
     assert rn.look({}, entries, [], T)[2]["parts"] == rn.climate_parts(entries)          # kept with the state (#370)
 
 
+def test_climate_platforms_say_where_a_thermostat_comes_from():
+    entries = [{**entry("climate.wz", "a"), "platform": "mqtt"}, {**entry("climate.hm", "b"), "platform": "homematicip_cloud"},
+               {**entry("switch.x", "c"), "platform": "mqtt"}, {**entry("climate.none", "d"), "platform": None}]
+    assert rn.climate_platforms(entries) == {"climate.wz": "mqtt", "climate.hm": "homematicip_cloud"}     # 🌡 Raumfühler (#573)
+    assert rn.look({}, entries, [], T)[2]["plat"] == rn.climate_platforms(entries)
+
+
 def test_battery_of_is_the_battery_sensor_of_each_entitys_device():
     def ent(eid, dev):
         return {**entry(eid, eid), "device_id": dev}

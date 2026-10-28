@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.37.2)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.38.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.37.2** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.38.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.38.0: 🌡 Raumfühler für die Thermostate** (Abschnitt 124): Claude hat 124.1 bis 124.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deinen Thermostaten 124.5 bis 124.9.
 1. **Repariert in 4.37.2: bei offenem Fenster geht das Thermostat wirklich aus** (Abschnitt 123): im Add-on mit deinem Wohnzimmer FL 123.1 bis 123.3.
 1. **Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum** (Abschnitt 122): in der Demo 122.1; 122.2 und 122.4 ✅ im Add-on (122.3 ging nicht ganz, repariert in 4.37.2).
 1. **Neu in 4.37.0: ▲ Plateau im Gelände, Boden je Raum höher, Außentreppe** (Abschnitt 121): Claude hat 121.1 bis 121.7 in der Demo und im Test-Add-on geprüft (probier es gern selbst in der Demo, 121.1 bis 121.6); für dich im Add-on mit deinem zweiten Haus 121.8.
@@ -343,7 +344,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 121. Neu in 4.37.0: Plateau im Gelände, Boden je Raum höher, Außentreppe (#566) | 7 | 0 | 1 | 0 | 121.8 |
 | 122. Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum (#568, #569) | 2 | 1 | 1 | 0 | ❌ 122.3, 122.1 |
 | 123. Repariert in 4.37.2: bei offenem Fenster geht das Thermostat wirklich aus (#571) | 0 | 0 | 3 | 0 | 123.1 bis 123.3 |
-| **Zusammen** | **768** | **11** | **63** | **92** | |
+| 124. Neu in 4.38.0: 🌡 Raumfühler für die Thermostate (#573) | 4 | 0 | 5 | 0 | 124.5 bis 124.9 |
+| **Zusammen** | **772** | **11** | **68** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1894,3 +1896,17 @@ Meldung des Besitzers vom 2026-10-28 (zu 122.3): „Aber aus wird das Thermostat
 | 123.1 | Im Add-on (4.37.2): im Wohnzimmer FL das Fenster öffnen und warten (die eingestellten Minuten, dann noch bis zu 6 Minuten) | Das Thermostat steht auf „Aus“ oder auf seiner kleinsten Temperatur (5° oder 7°) und heizt nicht mehr; die Zeile sagt „Heizung pausiert · Fenster offen seit … Min · danach wieder …°“ | ❓ |
 | 123.2 | Das Fenster wieder schließen | Das Thermostat heizt wieder mit der Temperatur von vorher (oder der des Heizplans, die jetzt gilt) | ❓ |
 | 123.3 | Nur falls es trotzdem weiter heizt: nach etwa 15 Minuten auf 🌡 Klima schauen | Die Zeile sagt ehrlich „⚠️ … das Thermostat geht nicht aus, es heizt weiter“ (dann bitte melden, welches Thermostat es ist) | ❓ |
+
+## 124. Neu in 4.38.0: 🌡 Raumfühler für die Thermostate (#573)
+Wunsch des Besitzers vom 2026-10-28: „jedem Thermostat einfach einen Temperatursensor gebe … wie bei Better Thermostat“. Beispielbilder: `docs/ideen-4.38/`.
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 124.1 | In der Demo: „Live“, unten 🌡 Klima, oben „📋 Heiz-Regeln“ | Ganz oben die Karte „🌡 Raumfühler für die Thermostate“: „Heizung Wohnzimmer · Wohnzimmer · Zigbee2MQTT / MQTT“, Fühler „Wohnzimmer Temperatur 21,4°“, misst selbst 24,6°, „🎯 Ausgleich am Thermostat ✓ eingestellt: −3,2°“ | ✅ (2026-10-28, Claude in der Demo) |
+| 124.2 | In derselben Karte bei „Klimaanlage Büro“ auf „＋ Übernehmen“ tippen | Der Vorschlag „Büro Temperatur“ steht jetzt als Fühler da, daneben „↕ Wunsch verschieben“ (die Klimaanlage hat keinen Ausgleich) | ✅ (2026-10-28, Claude in der Demo) |
+| 124.3 | Bei „Heizung Wohnzimmer“ auf den Fühler tippen, im Fenster „Küche Temperatur“ wählen, „✓ Übernehmen“ | Im Fenster stehen oben die Sensoren des Raums („Im selben Raum“), darunter die anderen; danach zeigt die Zeile „Küche Temperatur 22,1°“ und einen neuen Ausgleich (−2,5°) | ✅ (2026-10-28, Claude in der Demo) |
+| 124.4 | „Räume“ antippen, Karte Wohnzimmer ansehen | Im Kreis die Temperatur vom Fühler; darunter „🌡 Raumfühler 21,4° · am Heizkörper 24,6°“ und „🎯 Ausgleich −3,2°“ | ✅ (2026-10-28, Claude in der Demo) |
+| 124.5 | Im Add-on: 📋 Heiz-Regeln → „🌡 Raumfühler“ | Alle deine Thermostate mit Raum und Art (z. B. Zigbee2MQTT, ZHA, Matter, Homematic IP); wo im selben Raum ein Temperatursensor liegt, steht „💡 Vorschlag … ＋ Übernehmen“ | ❓ |
+| 124.6 | Dem Thermostat im Wohnzimmer FL den Sensor des Raums geben („＋ Übernehmen“) und 1 bis 2 Minuten warten | Die Zeile sagt „🎯 Ausgleich am Thermostat ✓ eingestellt: …“ (oder „↕ Wunsch verschieben“, wenn das Gerät keinen Ausgleich hat); in Home Assistant zeigt das Thermostat nach ein paar Minuten ungefähr die Temperatur des Sensors | ❓ |
+| 124.7 | Im 🌡 Klima beim Wohnzimmer FL die Wunschtemperatur einstellen (z. B. 21°) und eine Weile warten | Der Heizkörper heizt, bis der Sensor im Raum etwa 21° zeigt (nicht mehr nur bis das Thermostat am Heizkörper 21° misst) | ❓ |
+| 124.8 | Nur wenn du eins hast: einem Thermostat ohne Ausgleich (z. B. Homematic IP) einen Fühler geben, 21° einstellen | „↕ Wunsch verschieben · du willst 21° → am Thermostat …“; am Gerät steht eine höhere Zahl, im Raum werden es etwa 21° | ❓ |
+| 124.9 | Beim Wohnzimmer FL auf den Fühler tippen, „✕ Fühler entfernen“ | Das Thermostat bekommt seinen alten Ausgleich zurück (bei „Wunsch verschieben“: die Wunschtemperatur), die Zeile zeigt wieder „💡 Vorschlag …“ | ❓ |

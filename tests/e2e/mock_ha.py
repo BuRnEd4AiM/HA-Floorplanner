@@ -98,6 +98,7 @@ async def service(r):
             a["last_triggered"] = dt.datetime.now(dt.timezone.utc).isoformat()
         if svc == "set_hvac_mode": x["state"] = body["hvac_mode"]; a["hvac_action"] = "off" if body["hvac_mode"] == "off" else "heating"   # #546: a thermostat added for the heating rules
         if svc == "set_temperature": a["temperature"] = body["temperature"]
+        if svc == "set_value": x["state"] = str(body["value"])     # #573: the offset of a radiator thermostat
         await push(e)
         return web.json_response([])
     if svc == "toggle": STATE[e] = "off" if STATE[e] == "on" else "on"
@@ -337,6 +338,11 @@ async def set_energy(r):          # test helper (#407): the energy dashboard's s
 async def set_extra(r):           # test helper (#406): more entities with their attributes; {} takes them away
     EXTRA.clear(); EXTRA.update(await r.json())
     return web.json_response({"ok": True})
+async def reg_event(r):           # test helper (#573): the entity registry changed (new entities of a device): the add-on looks again
+    for ws, sid in list(REG_SUBS):
+        try: await ws.send_json({"id": sid, "type": "event", "event": {"event_type": "entity_registry_updated", "data": {"action": "create", "entity_id": "x.y"}}})
+        except Exception: REG_SUBS.remove((ws, sid))
+    return web.json_response({"ok": True, "watchers": len(REG_SUBS)})
 async def services_list(r):       # Home Assistant's services: the notify ones the alarm message can use (#414)
     return web.json_response([{"domain": "light", "services": {"turn_on": {}}}, {"domain": "notify", "services": {"mobile_app_test": {}, "whatsapp": {}, "send_message": {}}}])
 async def callmebot(r):           # the free WhatsApp gateway (#414): "bad" is a wrong key
@@ -421,7 +427,7 @@ async def autos_seen(r):          # test helper (#548): the automations written;
 async def template(r):
     return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
 app = web.Application()
-app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified), web.post("/_voice", set_voice),
+app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.post("/_regevent", reg_event), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified), web.post("/_voice", set_voice),
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
                 web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),

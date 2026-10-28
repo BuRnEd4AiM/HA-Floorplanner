@@ -319,7 +319,7 @@ const entities = {
   'alarm_control_panel.haus': { name: 'Alarmanlage',           state: 'disarmed', ctl: { code: 'number', codeArm: false } },
   'input_select.hausmodus':  { name: 'Hausmodus',              state: 'Zu Hause', ctl: { options: ['Zu Hause', 'Abwesend', 'Urlaub', 'Nacht'] } },
   'climate.klima_buero':     { name: 'Klimaanlage Büro',       state: 'cool', hvac: 'cooling', ct: 23.0, ch: 50, tt: 21, tmin: 16, tmax: 30, tstep: 0.5, modes: ['off', 'cool', 'heat', 'dry', 'fan_only', 'auto'], ctl: { presets: ['none', 'eco', 'boost', 'sleep'], preset: 'none', fans: ['auto', 'low', 'medium', 'high'], fan: 'auto' } },
-  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'off', hvac: 'off', ct: 21.2, ch: 48, tt: 22, tmin: 16, tmax: 26, tstep: 0.5, modes: ['off', 'heat', 'auto'], ctl: { presets: ['eco', 'comfort', 'away', 'boost'], preset: 'comfort' } },   // off: paused by the window rule, its window is open (#546)
+  'climate.wohnzimmer':      { name: 'Heizung Wohnzimmer',     state: 'off', hvac: 'off', ct: 21.4, ch: 48, tt: 22, tmin: 16, tmax: 26, tstep: 0.5, modes: ['off', 'heat', 'auto'], ctl: { presets: ['eco', 'comfort', 'away', 'boost'], preset: 'comfort' } },   // off: paused by the window rule, its window is open (#546)
   'sensor.netz_leistung':    { name: 'Netzbezug',              state: '450',  unit: 'W' },
   'sensor.nachbar_leistung': { name: 'Nachbarhaus Verbrauch',  state: '840',  unit: 'W', dc: 'power' },   // #495: ⚖ Vergleichen
   'sensor.nachbar_netz_kwh': { name: 'Nachbarhaus Netzbezug',  state: '5321.4', unit: 'kWh', dc: 'energy' },
@@ -331,6 +331,7 @@ const entities = {
   'sensor.batterie_ladung':  { name: 'Hausbatterie',           state: '82',   unit: '%' },
   'sensor.batterie_leistung': { name: 'Batterie Leistung',     state: '600', unit: 'W' },
   'sensor.wohnzimmer_temp':  { name: 'Wohnzimmer Temperatur',  state: '21.4', unit: '°C' },
+  'number.heizung_wohnzimmer_local_temperature_calibration': { name: 'Heizung Wohnzimmer Local temperature calibration', state: '-3.2', unit: '°C' },   // #573: its offset, set by 🌡 Raumfühler
   'sensor.kueche_temp':      { name: 'Küche Temperatur',       state: '22.1', unit: '°C' },
   'sensor.schlafzimmer_temp':{ name: 'Schlafzimmer Temperatur', state: '18.6', unit: '°C' },
   'sensor.wohnzimmer_leistung': { name: 'Wohnzimmer Leistung',   state: '168', unit: 'W' },
@@ -546,7 +547,8 @@ const workDay = [[0, 'night'], [360, 'comfort'], [480, 'eco'], [930, 'comfort'],
 const rulesDemo = {
   heat: { window: { on: true, delay: 2, doors: true, skip: [] }, away: { on: false, delay: 30, temp: 17 }, night: { on: true, from: '22:30', to: '06:00', temp: 17, rooms: { 'main/r4': 16 } },
     schedule: { on: true, levels: { night: 17, eco: 19, comfort: 21 }, pre: 30, hand: 10, rooms: { 'main/r1': { days: [workDay, workDay, workDay, workDay, workDay, homeDay, homeDay] } } },
-    summer: { on: false, above: 18, hours: 6 }, boost: { on: true, minutes: 30, temp: 24 }, holiday: { on: false, temp: 15, until: '', back: '14:00', guard: false } },
+    summer: { on: false, above: 18, hours: 6 }, boost: { on: true, minutes: 30, temp: 24 }, holiday: { on: false, temp: 15, until: '', back: '14:00', guard: false },
+    sensors: { on: true, every: 10, min: 0.5, map: { 'climate.wohnzimmer': { s: 'sensor.wohnzimmer_temp', way: 'auto' } } } },   // 🌡 Raumfühler (#573)
   flows: [
     { id: 'f_flur', name: 'Flurlicht nachts', on: true, ha: true, lanes: [{ id: 'l1', blocks: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on' }, { k: 'if_sun', is: 'dark' },
       { k: 'switch', ents: ['light.stehlampe'], same: false, do: 'on', pct: 20 }, { k: 'wait', s: 120 }, { k: 'switch', ents: ['light.stehlampe'], same: false, do: 'off' }] }] },
@@ -579,7 +581,34 @@ function rulesStatus() {
   const lanes = {};
   rulesDemo.flows.filter((f) => !f.ha).forEach((f) => f.lanes.forEach((l) => { lanes[`${f.id}/${l.id}`] = { running: false, wait: null, until: null, passed: {}, stop: null, end: null, t0: null, test: false }; }));
   if (!rulesDemo.flows.find((f) => f.id === 'f_flur')?.ha) lanes['f_flur/l1'] = { running: false, wait: null, until: null, passed: { 0: t - 19 * 60, 1: t - 19 * 60, 2: t - 19 * 60, 3: t - 17 * 60, 4: t - 17 * 60 }, stop: null, end: t - 17 * 60, t0: t - 19 * 60, test: false };
-  return { rooms, lanes };
+  return { rooms, lanes, ...sensorsDemo() };
+}
+/* 🌡 Raumfühler (#573): what the add-on would do. The living room's thermostat measures 24,6° at the radiator and has an offset (Zigbee2MQTT):
+ * the offset follows its sensor at once (the add-on: at most every 10 minutes), the thermostat then reports the room's temperature; the air
+ * conditioner of the office has none, its target would be moved. */
+const DEMO_CAL = { 'climate.wohnzimmer': 'number.heizung_wohnzimmer_local_temperature_calibration' };
+const DEMO_RAW = { 'climate.wohnzimmer': 24.6 };
+const DEMO_PLAT = { 'climate.wohnzimmer': 'mqtt', 'climate.klima_buero': 'tuya' };
+const r1 = (v) => Math.round(v * 10) / 10;
+function sensorsDemo() {
+  const c = rulesDemo.heat.sensors || {}, out = {}, map = c.on === false ? {} : c.map || {};
+  Object.entries(DEMO_CAL).forEach(([e, cal]) => {
+    if (!map[e] || (map[e].way !== 'auto' && map[e].way !== 'cal')) { entities[cal].state = '0'; entities[e].ct = DEMO_RAW[e]; }   // taken away: as before
+  });
+  Object.entries(map).forEach(([e, x]) => {
+    const th = entities[e], s = entities[x.s];
+    if (!th) return;
+    const v = s && Number.isFinite(parseFloat(s.state)) ? parseFloat(s.state) : null, cal = DEMO_CAL[e];
+    const way = x.way === 'auto' ? (cal ? 'cal' : 'shift') : x.way === 'cal' && !cal ? 'show' : x.way;
+    const st = out[e] = { s: x.s, v, meas: th.ct ?? null, way, lost: v === null, ...(x.way === 'cal' && !cal ? { nocal: true } : {}) };
+    if (way === 'cal') {
+      const off = v === null ? parseFloat(entities[cal].state) : r1(v - DEMO_RAW[e]);
+      entities[cal].state = String(off); th.ct = r1(DEMO_RAW[e] + off);
+      Object.assign(st, { kind: 'off', ent: cal, name: entities[cal].name, off, raw: DEMO_RAW[e], want: off, meas: th.ct, wait: false, edge: false });
+    }
+    if (way === 'shift') Object.assign(st, { wish: th.tt, set: th.tt, want: v === null ? th.tt : Math.round((th.tt + Math.max(-8, Math.min(8, th.ct - v))) * 2) / 2, wait: false });
+  });
+  return { sensors: out, cal: DEMO_CAL, plat: DEMO_PLAT };
 }
 /* #548: a routine with ha: true is an automation of Home Assistant; here the demo makes the automation's entity (automation.<name>, cid
  * fp3d_<routine>_<lane>) as Home Assistant would, and deletes it with the routine */

@@ -67,6 +67,7 @@ export function thermoModel(s, wanted = null) {
   const c = s.ctl || {};
   return {
     now: typeof s.ct === 'number' ? s.ct : null,
+    rs: !!s.rs,                                     // the temperature now is the one of a sensor in the room (🌡 Raumfühler, #573)
     target: !off && typeof t === 'number' ? t : null,
     off, tone: tone(s), action: off ? 'off' : s.hvac || 'idle', modes,
     presets: Array.isArray(c.presets) && c.presets.length ? { list: c.presets, value: c.preset || '' } : null,

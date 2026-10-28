@@ -608,7 +608,7 @@ const rulesUi = initRulesUi({                                    // the add-on's
   t, lang: () => currentLanguage(), settings: () => settings, states: () => states, entities: () => entities, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
   canEdit: () => me.canEdit, locked: () => locks.has('control'), callService: (e, svc, data) => live.callService(e, svc, data), houseId: () => hs.id(),
   layout: () => shownLayout(), details: (e) => live.detailsButton(e, true), tabs: () => tabsUi, climate: () => climatePage, routines: () => routinesPage,
-  redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); },
+  redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); }, partOf,
 });
 const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
   settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf,
@@ -1673,7 +1673,7 @@ const renamed = initRenames({
 const liveChan = initLiveChannel({
   paused: () => !!replayBack,
   entities: () => entities, setEntities: (x) => { entities = x; }, states: () => states, setStates: (x) => { states = x; }, toState: (e) => toState(e),
-  wake: () => poke(), redraw: () => { applyStates(); renderRoomEntities(); renderEntState(); doorbell.update(); }, pushed: (list) => doorbell.pushed(list),   // a sensor that reports every second must not keep the picture at full speed (#494)
+  wake: () => poke(), redraw: () => { rulesUi.applySensors(); applyStates(); renderRoomEntities(); renderEntState(); doorbell.update(); }, pushed: (list) => doorbell.pushed(list),   // a sensor that reports every second must not keep the picture at full speed (#494); the sensors in the rooms (#573)
   firstLoad: async () => { await loadAreas(); fillEntities(); renderProps(); },
   renamed: (d) => { persist.renamed(d.revs?.[hs.id() || 'main']); renamed(d); },   // the stored plan was rewritten too: its new version tag (#403)
   rules: (d) => rulesUi.pushed(d),                               // what the heating rules and routines do now (#546)

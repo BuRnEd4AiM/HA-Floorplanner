@@ -12,15 +12,21 @@ import { initRoutinesOwn } from './routinesown.js';
 import { initSceneEdit } from './sceneedit.js';
 import { initScenesCard } from './scenesui.js';
 import { initHaManage } from './hamanage.js';
+import { initRoomSensorsUi } from './roomsensorsui.js';
 import { roomMark, roomKey } from './rules.js';
 
 /** ctx: t, lang(), settings(), states(), entities(), nameOf(entity), canEdit(), locked() (may not switch), callService(entity, service, data),
  *  houseId(), layout() (the building shown), details(entity) (Home Assistant's window: a button or null), tabs() (the tab bar), climate()
- *  (the page 🌡 Klima), routines() (the page ▶ Abläufe), redraw() (the room tiles, labels and the open page) */
+ *  (the page 🌡 Klima), routines() (the page ▶ Abläufe), redraw() (the room tiles, labels and the open page), partOf() (the entities of
+ *  thermostats' devices, roomtiles.thermostatParts) */
 export function initRulesUi(ctx) {
   const { t } = ctx;
   const deg = (c) => {                                  // a temperature as the house shows it (°F only shown, the rules keep °C)
     const v = ctx.settings().units === 'imperial' ? c * 9 / 5 + 32 : c;
+    try { return `${v.toLocaleString(ctx.lang(), { maximumFractionDigits: 1 })}°`; } catch { return `${v}°`; }
+  };
+  const delta = (c) => {                                // a difference of temperature (°F: only the scale, not the 32)
+    const v = ctx.settings().units === 'imperial' ? c * 9 / 5 : c;
     try { return `${v.toLocaleString(ctx.lang(), { maximumFractionDigits: 1 })}°`; } catch { return `${v}°`; }
   };
   const houseId = () => ctx.houseId() || 'main';
@@ -31,13 +37,15 @@ export function initRulesUi(ctx) {
   };
   const rooms = () => ctx.climate()?.heatRooms() || [];
   const base = { t, lang: ctx.lang, states: ctx.states, nameOf: ctx.nameOf, canEdit: ctx.canEdit };
-  const rules = initRulesStore({ changed: () => { ctx.redraw(); usedBy.redraw(); } });
+  const rules = initRulesStore({ changed: () => { sensors.apply(ctx.states()); ctx.redraw(); usedBy.redraw(); } });
+  const sensors = initRoomSensorsUi({ ...base, rules, deg, delta, rooms: () => ctx.climate()?.sensorRooms() || [], partOf: () => ctx.partOf?.() || {},   // 🌡 Raumfühler (#573)
+    changed: () => ctx.climate()?.update() });
   const flowEdit = initFlowEdit({ ...base, entities: ctx.entities, rules });
   const openRules = () => { ctx.tabs().show('climate'); ctx.climate().show('rules'); };
   const editFlow = (f) => { ctx.tabs().show('routines'); flowEdit.open(f); };
   const openFlow = (id) => { const f = (rules.get()?.flows || []).find((x) => x.id === id); if (f) editFlow(f); else ctx.tabs().show('routines'); };
   const usedBy = initUsedBy({ ...base, locked: ctx.locked, callService: ctx.callService, rules, roomName, deg, openRules, openFlow });
-  const heat = initHeatRulesUi({ ...base, rules, locked: ctx.locked, houseId, rooms, deg, usedBy, editFlow, showPlan: () => ctx.climate().show('plan'),
+  const heat = initHeatRulesUi({ ...base, rules, locked: ctx.locked, houseId, rooms, deg, usedBy, editFlow, sensors, showPlan: () => ctx.climate().show('plan'),
     changed: () => ctx.climate()?.update() });
   const plan = initHeatPlanUi({ ...base, rules, houseId, rooms, deg, changed: () => ctx.climate()?.update(), back: () => ctx.climate().show('rules') });
   const manage = initHaManage({ t, changed: () => ctx.routines()?.update() });                                                     // #564
@@ -45,10 +53,12 @@ export function initRulesUi(ctx) {
   const scenes = initScenesCard({ ...base, locked: ctx.locked, callService: ctx.callService, ha: () => rules.get()?.ha === true, edit: (s) => sceneEdit.open(s),
     manage, changed: () => ctx.routines()?.update() });
   const own = initRoutinesOwn({ ...base, locked: ctx.locked, callService: ctx.callService, rules, edit: (f) => flowEdit.open(f), openRules, details: ctx.details,
-    scenes, manage, changed: () => ctx.routines()?.update() });
+    scenes, manage, sensorLog: (x) => sensors.log(x), changed: () => ctx.routines()?.update() });
   rules.load();
   return {
-    rules, usedBy, heat, plan, own, flowEdit, sceneEdit,
+    rules, usedBy, heat, plan, own, flowEdit, sceneEdit, sensors,
+    /** the page's states with the temperatures of the sensors in the rooms (🌡 Raumfühler, #573): after every change of the states */
+    applySensors: () => sensors.apply(ctx.states()),
     /** the mark of a room's label and tile: "⏸️ pausiert", "🚀 Boost" or '' */
     mark: (roomId) => roomMark(rules.status(roomKey(houseId(), roomId)), t),
     /** what the add-on pushed over the live channel ({type: "rules", rooms, lanes}) */

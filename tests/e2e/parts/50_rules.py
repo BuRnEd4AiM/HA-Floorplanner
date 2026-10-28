@@ -55,7 +55,7 @@ if pgR.is_visible("#modeSwitch [data-mode=live]"): pgR.click("#modeSwitch [data-
 pgR.click("#tabBar [data-tab=climate]"); pgR.wait_for_timeout(800)
 pgR.click("[data-page=climate] [data-view=rules]"); pgR.wait_for_timeout(800)
 cards_rl = pgR.evaluate("[...document.querySelectorAll('[data-page=climate] [data-heat-rule]')].map((c) => c.dataset.heatRule)")
-check("rules: 📋 Heiz-Regeln shows the seven rules as cards", cards_rl == ["window", "away", "night", "schedule", "summer", "boost", "holiday"], cards_rl)
+check("rules: 📋 Heiz-Regeln shows the seven rules as cards (after 🌡 Raumfühler, #573)", cards_rl == ["sensors", "window", "away", "night", "schedule", "summer", "boost", "holiday"], cards_rl)
 pgR.click("[data-heat-rule=window] input[data-rule=window]")
 for _ in range(2):
     pgR.click("[data-heat-rule=window] [data-field='window.delay'] button:first-child"); pgR.wait_for_timeout(150)

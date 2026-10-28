@@ -11,7 +11,7 @@ const ICON = { window: '🪟', away: '🚶', night: '🌙', schedule: '📅', su
 
 /** ctx: t, lang(), rules (rulesstore.js), canEdit(), locked() (may not switch), houseId(), rooms() (the rooms of the house shown with a
  *  thermostat: [{ id, name, climate }]), deg(v), states(), usedBy (usedbyui.js), editFlow(flow) (the editor of a routine), showPlan()
- *  (the view 📅 Heizplan), changed() (draw the page again) */
+ *  (the view 📅 Heizplan), changed() (draw the page again), sensors (roomsensorsui.js: the card 🌡 Raumfühler and its line, #573) */
 export function initHeatRulesUi(ctx) {
   const { t } = ctx;
   let draft = null, timer = 0, saved = 0, openNight = false;
@@ -87,6 +87,7 @@ export function initHeatRulesUi(ctx) {
   function cards(h) {
     const rooms = ctx.rooms();
     const out = [];
+    if (ctx.sensors) out.push(ctx.sensors.card(h, { change, toggle, stepper, kv }));   // 🌡 Raumfühler (#573)
     const skip = new Set(h.window.skip);
     const roomChips = make('div', 'hrRooms');
     rooms.forEach((r) => {
@@ -181,6 +182,8 @@ export function initHeatRulesUi(ctx) {
   function roomExtras(r) {
     const k = key(r.id), s = ctx.rules.status(k), h = ctx.rules.get()?.heat, line = roomLine(s, now(), t, ctx.deg);
     const box = make('div', 'hrRoom');
+    const sensor = r.climate ? ctx.sensors?.line(r.climate) : null;     // "🌡 Raumfühler 20,5° · am Heizkörper 25,1°" (#573)
+    if (sensor) box.append(sensor);
     if (line) {
       const p = make('div', `hrLine ${line.tone}`); p.dataset.line = line.tone === 'hand' ? 'hand' : s.why || (s.waiting ? 'waiting' : '');
       p.append(make('span', '', `${line.icon} ${line.text}`));
@@ -198,8 +201,10 @@ export function initHeatRulesUi(ctx) {
     if (bar.children.length) box.append(bar);
     return box.children.length ? box : null;
   }
-  const sig = (r) => JSON.stringify([ctx.rules.status(key(r.id)), ctx.rules.get()?.heat?.boost?.on, ctx.locked(), Math.floor(Date.now() / 60000)]);
+  const sig = (r) => JSON.stringify([ctx.rules.status(key(r.id)), ctx.rules.get()?.heat?.boost?.on, ctx.locked(), Math.floor(Date.now() / 60000),
+    r.climate ? [ctx.rules.get()?.status?.sensors?.[r.climate], ctx.states()[r.climate]?.ct0, ctx.states()[r.climate]?.rs] : null]);
   /** the window rule takes care of the room's open window (paused, or about to): the page's own warning is not needed */
   const paused = (r) => { const s = ctx.rules.status(key(r.id)); return !!s && (s.why === 'window' || !!s.waiting); };
-  return { view, roomExtras, sig, paused, viewSig: () => JSON.stringify([heat(), ctx.rules.get()?.status?.rooms, ctx.rules.get()?.running, saved && Date.now() - saved < 2000, openNight, ctx.canEdit(), Math.floor(Date.now() / 60000)]) };
+  return { view, roomExtras, sig, paused, viewSig: () => JSON.stringify([heat(), ctx.rules.get()?.status?.rooms, ctx.rules.get()?.running, saved && Date.now() - saved < 2000, openNight, ctx.canEdit(), Math.floor(Date.now() / 60000),
+    ctx.sensors?.sig()]) };
 }
