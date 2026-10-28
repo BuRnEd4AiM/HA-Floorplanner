@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-10-28 · 75 Sitzungen
+Stand: 2026-10-28 · 76 Sitzungen
 
-**Insgesamt: 5,52 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 5,57 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 15,9 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 57,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 5,45 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 16,1 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 58,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 5,49 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,13 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 62 | 3,52 Mrd. | 9,9 Mio. |
+| 2026-10 | 63 | 3,57 Mrd. | 10,1 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-10-28 | [018pwcmv…](https://claude.ai/code/session_018pwcmvXw11BqT9e5qmkBLs) | claude/eager-dijkstra-xazuo3 | 46,9 Mio. | 194 Tsd. | gezählt |
 | 2026-10-28 | [018pwcmy…](https://claude.ai/code/session_018pwcmyCw5SigrgcGVDbhna) | claude/fenster-regel-raumtemp | 23,2 Mio. | 80 Tsd. | gezählt |
 | 2026-10-27 | [012p9z3M…](https://claude.ai/code/session_012p9z3MehrvCSghkQBMFXrA) | claude/loving-cray-ym4z59 | 70,7 Mio. | 220 Tsd. | gezählt |
 | 2026-10-27 | [018pwcmv…](https://claude.ai/code/session_018pwcmvwtPozKLhotJq1rE4) | claude/friendly-cerf-ydliez | 35,8 Mio. | 138 Tsd. | gezählt |
