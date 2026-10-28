@@ -2,6 +2,14 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.38.1] - 2026-10-28
+### Repariert
+- **Die Neigung einer Schleppgaube folgt ihrer Wand sofort** (Test 42.4, gefunden von Claude beim Prüfen in der Demo): bei einer hohen „Höhe der Wand“ wird das Dach der Gaube von selbst flacher; das Feld „Neigung der Gaube“ zeigte den neuen Wert erst, wenn man das Fenster neu öffnete. Jetzt sofort.
+- **Die Raum-Kacheln unten behalten ihre Plaketten drinnen**: mit Licht an, offenem Fenster und „⏸ pausiert“ der Heiz-Regeln zugleich rutschte die dritte Plakette unter die nächste Kachel (zu sehen auf dem neuen Bild der README); jetzt kommt sie in eine neue Zeile ihrer Kachel.
+### Verbessert
+- **Die README zeigt, was seit 4.4 neu ist**: die Seiten der Reiter-Leiste (☀ Heute, ⚡ Energie, 🌡 Klima, 📷 Kameras, 🎵 Musik & TV, 🧺 Haushalt, ▶ Abläufe, 👨‍👩‍👧 Familie), Heiz-Regeln, Heizplan, die Raumfühler der Thermostate, eigene Abläufe als Automationen von Home Assistant, Szenen, die Zug-Karte, der Mond, das Plateau und der Schrank-Editor; alle Bilder neu gemacht (8 neue: `today`, `energy`, `climate`, `heatrules`, `heatplan`, `routines`, `flowedit`, `closet` in `tools/make_screenshots.py`).
+- Testprotokoll: Claude hat jeden offenen Punkt geprüft, der in der Demo geht (8.5, 42.1 bis 45.3, 110.6, 110.12, 110.13, 122.1); die früheren ❌, die repariert und unter neuen Nummern geprüft waren, stehen jetzt auf ✅. Offen sind nur noch Punkte für echte Geräte.
+
 ## [4.38.0] - 2026-10-28
 ### Neu
 - **🌡 Raumfühler für die Thermostate, wie bei Better Thermostat** (#573, der Besitzer: „Ich hätte gerne so etwas, wo ich einfach jedem Thermostat einfach einen Temperatursensor gebe … wie bei Better Thermostat“; seine Wahl aus den Beispielbildern in `docs/ideen-4.38/`: das Add-on regelt selbst, mit allen Thermostat-Arten, der Sensor des Raums wird nur vorgeschlagen). Ein Thermostat am Heizkörper misst die warme Luft direkt am Heizkörper (sein Wohnzimmer: dort 25,1°, im Raum 20,5°) und hört zu früh auf. 🌡 Klima → 📋 Heiz-Regeln hat eine neue Karte **„🌡 Raumfühler für die Thermostate“**: jedes Thermostat mit dem Fühler in seinem Raum, den ein Admin ihm gegeben hat, was es selbst misst und was das Add-on tut. Ein Sensor im selben Raum steht als **„💡 Vorschlag … ＋ Übernehmen“** da; das Fenster **„Fühler für …“** zeigt zuerst die Sensoren des Raums, dann die anderen (mit Suche), nie einen vom eigenen Gerät eines Thermostats. Das Add-on regelt nach dem Fühler, auch wenn kein Bildschirm offen ist:

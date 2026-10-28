@@ -257,7 +257,7 @@ export function initFloorPanel(ctx) {
       const wd = lenInput(() => d.w ?? DORMER_DEFAULT.w, (v) => { setDormerWidth(bb, r, d, v); queueMicrotask(render); }, { min: 0.6 });
       wd.className = 'dormerWidth';
       card.append(field(t('dormer.width'), wd));
-      card.append(field(t('dormer.height'), lenInput(() => d.hw ?? DORMER_DEFAULT.hw, (v) => { d.hw = v; }, { min: 0.4 })));
+      card.append(field(t('dormer.height'), lenInput(() => d.hw ?? DORMER_DEFAULT.hw, (v) => { d.hw = v; if (d.type === 'shed') queueMicrotask(render); }, { min: 0.4 })));   // a shed dormer's pitch shown follows its wall (42.4)
       card.append(field(t('dormer.eave'), lenInput(() => d.eave ?? DORMER_DEFAULT.eave, (v) => { d.eave = v; }, { min: 0.2 })));
       const ty = select(DORMER_TYPES.map((v) => [v, t(`dormer.${v}`)]), d.type || 'gable', (v) => setDormerType(d, v, r));
       ty.className = 'dormerType';

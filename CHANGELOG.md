@@ -4,6 +4,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.38.1] - 2026-10-28
+### Fixed
+- **A shed dormer's pitch follows its wall at once** (test 42.4, found by Claude while testing in the demo): with a high "Höhe der Wand" the dormer's roof gets flatter by itself; the field "Neigung der Gaube" showed the new value only after the panel was opened again. Now it shows it at once.
+- **The room tiles at the bottom keep their chips inside**: with lights on, a window open and "⏸ pausiert" of the heating rules at once, the third chip ran under the next tile (seen on the new picture of the README); now it goes to a new line of its tile.
+### Changed
+- **The README shows what is new since 4.4**: the pages of the tab bar (☀ Today, ⚡ Energy, 🌡 Climate, 📷 Cameras, 🎵 Music & TV, 🧺 Household, ▶ Routines, 👨‍👩‍👧 Family), heating rules, schedule, the room sensors of the thermostats, own routines as automations of Home Assistant, scenes, the train card, the moon, the plateau and the cabinet editor; every picture taken again (8 new ones: `today`, `energy`, `climate`, `heatrules`, `heatplan`, `routines`, `flowedit`, `closet` in `tools/make_screenshots.py`).
+- Test protocol: Claude checked every open point that can be checked in the demo (8.5, 42.1 to 45.3, 110.6, 110.12, 110.13, 122.1); the earlier ❌ that were repaired and checked under new numbers are ✅ now. Open are only points for real devices.
+
 ## [4.38.0] - 2026-10-28
 ### Added
 - **🌡 Room sensors for the thermostats, like Better Thermostat** (#573, the owner: "Ich hätte gerne so etwas, wo ich einfach jedem Thermostat einfach einen Temperatursensor gebe … wie bei Better Thermostat"; his choice from the example pictures in `docs/ideen-4.38/`: the add-on regulates itself, with every kind of thermostat, the room's sensor only suggested). A thermostat on the radiator measures the warm air right at the radiator (his living room: 25,1° there, 20,5° in the room) and stops too early. 🌡 Klima → 📋 Heiz-Regeln has a new card **"🌡 Raumfühler für die Thermostate"**: every thermostat with the sensor in its room an admin gave it, what it measures itself and what the add-on does. A sensor of the same room is shown as **"💡 Vorschlag … ＋ Übernehmen"**; the window **"Fühler für …"** lists the sensors of the room first, then the others (with search), never one of a thermostat's own device. The add-on regulates by the sensor, also with no screen open:
