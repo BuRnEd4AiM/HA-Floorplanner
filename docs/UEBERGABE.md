@@ -23,7 +23,7 @@ Stand: 2026-10-28, Version **4.37.2**. Diese Datei ist für den nächsten Chat (
 
 ## Offen
 
-- **#568, #569, #571 Fenster-Regel und Raumtemperatur (4.37.1, 4.37.2):** Testen durch den Besitzer im Add-on mit seinem Wohnzimmer FL: 122.2, 122.4, 123.1 bis 123.3 (seine 25,1° im Bild waren das Thermostat, „im Raum 20,5°“ stimmte schon). Bleibt der Heizplan trotzdem, fragen: ist das Fenster im Plan mit seinem Kontakt verbunden (Fenster anklicken, „Kontakt“) und liegt es an der Wand dieses Raums; ist der Raum unter „Räume (antippen …)“ der Fenster-Regel ausgenommen?
+- **#568, #569, #571 Fenster-Regel und Raumtemperatur (4.37.1, 4.37.2):** 122.2 und 122.4 ✅ (2026-10-28). Testen durch den Besitzer im Add-on mit seinem Wohnzimmer FL: 123.1 bis 123.3 (4.37.2). Bleibt der Heizplan trotzdem, fragen: ist das Fenster im Plan mit seinem Kontakt verbunden (Fenster anklicken, „Kontakt“) und liegt es an der Wand dieses Raums; ist der Raum unter „Räume (antippen …)“ der Fenster-Regel ausgenommen?
 - **#566 Plateau und Boden je Raum (4.37.0):** Testen durch den Besitzer im Add-on mit seinem zweiten Haus: 121.8. Ideen, nicht gebaut: ein Plateau, das nicht nur waagrecht ist (Hang), eine Rampe statt Stufen, ein Raum mit eigener Deckenhöhe.
 - **Szenen, Kelvin, verwalten (4.36.0, #564):** Testen durch den Besitzer im Add-on: 120.7 bis 120.9.
 - **Einstellungen breit (4.35.0, #562):** Testen durch den Besitzer im Add-on: 119.5 (PC), 119.6 (Tablet quer).
