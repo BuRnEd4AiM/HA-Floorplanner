@@ -192,3 +192,44 @@ async def test_a_sensor_in_the_room_moves_the_target_and_takes_the_pages_wish():
     with contextlib.suppress(asyncio.CancelledError):
         await task
     assert env.saved[-1]["sensors"]["t"]["climate.wz"]["wish"] == 22.0
+
+
+async def test_the_journal_says_what_was_seen_and_done_and_who_turned_the_thermostat():
+    """🩺 Wer steuert was (#579): the window opens, the rule switches the thermostat off and Home Assistant takes it, the thermostat
+    reports off (the add-on's own), then somebody turns it at the device; the connection and the start are there too"""
+    ha = FakeHa()
+
+    @contextlib.asynccontextmanager
+    async def connect():
+        yield ha
+
+    class Env2(Env):
+        version = "4.39.0"
+        traces = []
+
+        def save_trace(self, trace):
+            self.traces.append(list(trace))
+
+    rules, env = rr.Rules({"heat": {"window": {"on": True, "delay": 0}}}), Env2(ha)
+    task = asyncio.create_task(rr.run_rules(rules, connect=connect, env=env, check=0.2, idle=0.05))
+    assert await until(lambda: rules.connected and rules.rooms == [ROOM])
+    await ha.set("binary_sensor.fenster", "on")
+    assert await until(lambda: any(x["k"] == "climate" for x in rules.trace))
+    kinds = [x["k"] for x in rules.trace]
+    assert kinds[:3] == ["start", "link", "room"] and rules.trace[0]["v"] == "4.39.0" and rules.trace[2]["first"]
+    c = next(x for x in rules.trace if x["k"] == "contact")
+    assert c["ent"] == "binary_sensor.fenster" and c["s"] == "on" and c["rooms"] == [["h/wz", "window", None]]
+    assert next(x for x in rules.trace if x["k"] == "room" and x["why"] == "window")["was"] is None
+    assert next(x for x in rules.trace if x["k"] == "rule")["why"] == "window"
+    call = next(x for x in rules.trace if x["k"] == "call")
+    assert call["ent"] == "climate.wz" and call["svc"] == "set_hvac_mode" and call["v"] == "off" and call["ok"] and call["src"] == "heat"
+    th = next(x for x in rules.trace if x["k"] == "climate")
+    assert th["mode"] == ["heat", "off"] and th["by"] == "addon" and th["room"] == "h/wz"
+    new = {**ha.states["climate.wz"], "attributes": {**ha.states["climate.wz"]["attributes"], "temperature": 25.0}}
+    ha.states["climate.wz"] = new
+    await ha.queue.put({"type": "event", "event": {"event_type": "state_changed", "data": {"entity_id": "climate.wz", "new_state": new}}})
+    assert await until(lambda: rules.trace[-1]["k"] == "climate" and rules.trace[-1]["by"] == "device" and rules.trace[-1]["temp"] == [21.0, 25.0])
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task
+    assert env.traces and env.traces[-1] == rules.trace and not rules.dirty

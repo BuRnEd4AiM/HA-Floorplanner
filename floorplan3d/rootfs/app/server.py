@@ -30,6 +30,7 @@ import flows as fl
 import garden as gn
 import guard as gd
 import haflows as hf
+import heatlog as hlog
 import heatrules as hr
 import roomsensors as rsens
 import household as hh
@@ -3273,10 +3274,14 @@ def rules_state_path(request) -> Path:
     return data_dir(request) / "rules-state.json"      # what the engines remember (thermostats as they were, running lanes) and the log
 
 
+def rules_trace_path(request) -> Path:
+    return data_dir(request) / "rules-trace.json"      # 🩺 the journal of the heating (heatlog.py, #579)
+
+
 def rules_store(request) -> rr.Rules:
     store = app_state(request)[KEY_RULES]
     if "rules" not in store:
-        store["rules"] = rr.Rules(read_json(rules_path(request), {}), read_json(rules_state_path(request), {}))
+        store["rules"] = rr.Rules(read_json(rules_path(request), {}), read_json(rules_state_path(request), {}), read_json(rules_trace_path(request), []))
     return store["rules"]
 
 
@@ -3302,6 +3307,25 @@ async def rules_answer(request, r: rr.Rules) -> dict:
 async def get_rules(request):
     """the heating rules, the routines, what they do now (every room, every lane) and the log; every screen may look"""
     return web.json_response(await rules_answer(request, rules_store(request)))
+
+
+async def get_rules_trace(request):
+    """🩺 Wer steuert was (#579): every room as the add-on sees it (its thermostats, windows, doors to the outside and between rooms), the
+    states of those entities and the journal of the heating; every screen may look"""
+    r = rules_store(request)
+    if r.connected and r.rooms is not None:
+        rooms, states = r.rooms, r.states
+    elif SUPERVISOR_TOKEN:
+        rooms = await rules_rooms(request.app)
+        try:
+            states = await asyncio.wait_for(ha_states_cached(request.app), 5)
+        except Exception:  # noqa: BLE001 - Home Assistant not reachable: the rooms and the journal still
+            states = {}
+    else:
+        rooms, states = rm.rooms_of([(h["id"], read_json(house_file(request, h["id"]), {})) for h in houses_index(request)]), {}
+    out = hlog.view(rooms, states, r.trace, r.cfg["heat"]["sensors"]["map"])
+    return web.json_response({**out, "houses": {h["id"]: h["name"] for h in houses_index(request)}, "running": r.connected, "since": round(r.since) if r.since else None,
+                              "ha": bool(SUPERVISOR_TOKEN), "now": round(time.time()), "version": (mf.load_manifest(Path(__file__).parent) or {}).get("version")})
 
 
 async def put_rules(request):
@@ -3440,8 +3464,13 @@ async def rules_runner(app):
                 ok, err = await send_notify(notify_cfg(ctx), text)
                 log.info("routine message %s", "sent" if ok else f"not sent: {err}")
 
+            version = (mf.load_manifest(Path(__file__).parent) or {}).get("version")
+
             def save(self, mem):
                 write_json_atomic(rules_state_path(ctx), mem)
+
+            def save_trace(self, trace):
+                write_json_atomic(rules_trace_path(ctx), trace)
 
             async def publish(self, st):
                 await app[KEY_LIVE].broadcast({"type": "rules", **st})
@@ -4135,6 +4164,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.put("/api/fullscreen", put_fullscreen),
         web.post("/api/fullscreen/unlock", unlock_fullscreen),
         web.get("/api/rules", get_rules),
+        web.get("/api/rules/trace", get_rules_trace),
         web.put("/api/rules", put_rules),
         web.post("/api/rules/room", post_rules_room),
         web.post("/api/rules/run", post_rules_run),

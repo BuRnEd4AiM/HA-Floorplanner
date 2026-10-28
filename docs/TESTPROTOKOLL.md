@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.38.2)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.39.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.38.2** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.39.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“** (Abschnitt 126): Claude hat 126.1 bis 126.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on 126.6 bis 126.9. Und wenn dir wieder etwas auffällt: „📋 Bericht kopieren“ und im Chat einfügen.
 1. **Repariert in 4.38.2: Raumfühler und Fenster-Regel zusammen** (Abschnitt 125): im Add-on mit deinem Wohnzimmer FL 125.1 bis 125.3.
 1. **Neu in 4.38.0: 🌡 Raumfühler für die Thermostate** (Abschnitt 124): Claude hat 124.1 bis 124.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deinen Thermostaten 124.5 bis 124.9.
 1. **Repariert in 4.37.2: bei offenem Fenster geht das Thermostat wirklich aus** (Abschnitt 123): im Add-on mit deinem Wohnzimmer FL 123.1 bis 123.3.
@@ -349,7 +350,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 123. Repariert in 4.37.2: bei offenem Fenster geht das Thermostat wirklich aus (#571) | 0 | 0 | 3 | 0 | 123.1 bis 123.3 |
 | 124. Neu in 4.38.0: 🌡 Raumfühler für die Thermostate (#573) | 4 | 0 | 5 | 0 | 124.5 bis 124.9 |
 | 125. Repariert in 4.38.2: Raumfühler und Fenster-Regel zusammen (#577) | 0 | 0 | 3 | 0 | 125.1 bis 125.3 |
-| **Zusammen** | **798** | **1** | **55** | **92** | |
+| 126. Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“ (#579) | 5 | 0 | 4 | 0 | 126.6 bis 126.9 |
+| **Zusammen** | **803** | **1** | **59** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1923,3 +1925,18 @@ Meldung des Besitzers vom 2026-10-28: „seitdem du das geändert hast, reagiert
 | 125.1 | Im Add-on (4.38.2): 🌡 Klima, Wohnzimmer FL (mit Raumfühler, Heizplan an) eine halbe Stunde nicht anfassen | Im Kreis steht als Soll die Temperatur des Heizplans (z. B. Komfort), nicht mehr 29,5° oder 30°; kein „✋ Von Hand gedreht“, wenn niemand gedreht hat. Unter „↕ am Thermostat“ darf eine höhere Zahl stehen (das ist der Ausgleich) | ❓ |
 | 125.2 | Die Tür nach draußen im Wohnzimmer FL öffnen (die von deinem Bild; eine Tür zu einem anderen Raum zählt nicht) und die Minuten der Fenster-Regel warten, dann noch bis zu 6 Minuten. Danach dasselbe mit einem Fenster | Das Thermostat ist aus oder auf seiner kleinsten Temperatur und bleibt so; die Zeile sagt „⏸️ Heizung pausiert · Fenster offen seit … Min“, beim Raumfühler „⏸️ pausiert, das Fenster ist offen · danach wieder …°“ | ❓ |
 | 125.3 | Tür und Fenster wieder schließen | Das Thermostat heizt wieder: Soll = die Temperatur des Heizplans, am Thermostat etwas mehr (verschoben) | ❓ |
+
+## 126. Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“ (#579)
+Wunsch des Besitzers vom 2026-10-28: „Wäre es nicht sinnvoll, noch irgendwo so ein Log … hinzuzufügen, wo man so auch auslesen kann, was gerade wen steuert?“ Dazu seine Meldung: ein offenes Fenster oder eine offene Tür wird nicht immer erkannt, und manchmal steht „von Hand gedreht“, obwohl es das Add-on selbst war. Repariert: „✋ Von Hand gedreht“ gleich nach dem eigenen Befehl (das Thermostat meldet spät), und ein Fenster-Kontakt, der sich kurz nicht meldet.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 126.1 | In der Demo: 🌡 Klima → „🩺 Protokoll“ | Oben „Wer steuert was?“ mit „Verbunden mit Home Assistant seit …“, Fenster-Regel und Heizplan; darunter je Raum eine Karte (Wohnzimmer: „⏸️ Heizung pausiert …“, das Thermostat, „Fenster Wohnzimmer: offen“ mit „Fenster · zählt für die Fenster-Regel“, „Tür Wohnzimmer-Küche: offen“ mit „… zählt nicht: Tür zwischen zwei Räumen“); ganz unten das Protokoll, neueste zuerst | ✅ (2026-10-28, Claude in der Demo) |
+| 126.2 | Im Protokoll lesen | z. B. „✋ Wohnzimmer: Heizung Wohnzimmer Soll 21° → 23°“ mit „am Thermostat selbst …“, „🤖 … Soll 23° → 21°“ mit „vom Add-on (vor 52 s geschickt)“, „📋 Wohnzimmer: Fenster offen → Heizung Wohnzimmer aus“ mit „✓ Home Assistant hat es angenommen“ | ✅ (2026-10-28, Claude in der Demo) |
+| 126.3 | Oben „Wohnzimmer“ antippen, dann „Alle Räume“ | Nur noch die Karte und die Zeilen des Wohnzimmers; „Alle Räume“ zeigt wieder alles | ✅ (2026-10-28, Claude in der Demo) |
+| 126.4 | „📋 Bericht kopieren“ und in eine Notiz einfügen; dann „⬇ Als Datei“ | Der Knopf sagt „✓ Kopiert: jetzt im Chat einfügen“; der Text hat oben die Version, je Raum „== Wohnzimmer (main/r1) ==“ mit den Entitäten in Klammern, unten das Protokoll; die Datei ist dasselbe mit dem ganzen Protokoll | ✅ (2026-10-28, Claude in der Demo) |
+| 126.5 | „Räume“ antippen, beim Wohnzimmer „🩺 Protokoll“ | Das Protokoll öffnet sich nur für das Wohnzimmer | ✅ (2026-10-28, Claude in der Demo) |
+| 126.6 | Im Add-on: 🌡 Klima → „🩺 Protokoll“, dein Wohnzimmer FL ansehen | Die Karte zeigt dein Thermostat, deinen Raumfühler, deine Fenster und die Tür nach draußen, jeweils mit „zählt für die Fenster-Regel“. Steht dort „zählt nicht: …“ oder fehlt ein Fenster: sag es, das ist dann der Grund, warum es nicht erkannt wird | ❓ |
+| 126.7 | Ein Fenster im Wohnzimmer FL öffnen, die Minuten der Fenster-Regel warten, wieder schließen, dann 🩺 Protokoll | Im Protokoll (neueste oben) stehen „Fenster … offen“, „Fenster offen, die Wartezeit läuft“, „⏸️ Heizung pausiert“, „Fenster offen → … aus“ mit ✓ und das Thermostat „heizen → aus“ mit „vom Add-on“; danach „… zu“ und das Zurückstellen | ❓ |
+| 126.8 | Mit Heizplan: einen neuen Abschnitt des Plans abwarten | Kein „✋ Von Hand gedreht“ nur, weil das Thermostat die neue Temperatur spät meldet; im 🩺 Protokoll vielleicht kurz „⏳ … geschickt, das Thermostat hat es noch nicht gemeldet“, dann „🤖 … vom Add-on (vor … s geschickt)“ | ❓ |
+| 126.9 | Fällt dir wieder etwas auf (ein Fenster nicht erkannt, „✋ Von Hand gedreht“ ohne Drehen): „📋 Bericht kopieren“ und im Chat einfügen | Claude sieht darin, was das Add-on gesehen und getan hat, und findet den Grund | ❓ |

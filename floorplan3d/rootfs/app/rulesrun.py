@@ -1,7 +1,9 @@
 """The add-on running its own heating rules (heatrules.py) and routines (flows.py) (#546), also with no screen open: one websocket to Home
 Assistant while a rule is on (all states, then every change), a look every few seconds for the clock, and what the pages ask (🚀 boost,
 "Trotzdem heizen", a routine's button, "Jetzt ausprobieren"). The calls go to Home Assistant through env.call (REST, server.py); what was
-done goes into a log the page ▶ Abläufe shows; the state of every room and lane goes to the open pages (env.publish).
+done goes into a log the page ▶ Abläufe shows; the state of every room and lane goes to the open pages (env.publish). What the heating
+rules saw and did (a window opened, a thermostat changed and by whom, the calls and whether Home Assistant took them, the connection) goes
+into a journal of its own (heatlog.py, #579), the page 🌡 Klima → 🩺 Protokoll shows it.
 
 server.py makes one Rules and runs run_rules as a background task; the rules themselves stay pure and are tested on their own. The loop
 is tested with a stand-in websocket (tests/test_rulesrun.py)."""
@@ -11,6 +13,7 @@ import logging
 import time
 
 import flows as fl
+import heatlog as hl
 import heatrules as hr
 import roommap as rm
 import roomsensors as rs
@@ -20,13 +23,14 @@ log = logging.getLogger("floorplan3d.rules")
 MAX_LOG = 200
 CHECK = 15.0           # seconds between two looks at the clock
 SAVE_EVERY = 5.0       # the memory is written at most this often
+TRACE_EVERY = 60.0     # the journal of the heating (🩺 Protokoll, #579) at most this often (it is bigger)
 HEAT_DOMAINS = ("person.", "weather.", "climate.")
 NOTIFY_EVENT = "fp3d_notify"   # an automation of the add-on (#548) asks it to send a message its own way
 
 
 class Rules:
     """what the server and the loop share: the rules as an admin set them, the memory of both engines and the log, what the pages see"""
-    def __init__(self, cfg=None, mem=None):
+    def __init__(self, cfg=None, mem=None, trace=None):
         cfg = cfg if isinstance(cfg, dict) else {}
         mem = mem if isinstance(mem, dict) else {}
         self.cfg = {"heat": hr.clean_rules(cfg.get("heat")), "flows": fl.clean_flows(cfg.get("flows"))}
@@ -34,6 +38,11 @@ class Rules:
                     "sensors": rs.clean_mem(mem.get("sensors")),             # 🌡 Raumfühler (roomsensors.py, #573)
                     "log": [x for x in mem.get("log") or [] if isinstance(x, dict)][-MAX_LOG:]}
         self.status = {"rooms": {}, "lanes": {}, "sensors": {}, "cal": {}, "plat": {}}
+        self.trace = [x for x in trace if isinstance(x, dict) and x.get("k")][-hl.MAX:] if isinstance(trace, list) else []   # 🩺 (#579)
+        self.dirty = False                 # the journal has something not written yet
+        self.sent = {}                     # {thermostat: what the add-on sent it lately} (heatlog.remember)
+        self.me = None                     # the add-on's own user id in Home Assistant, once seen
+        self.states, self.rooms, self.since = {}, None, None   # what the running loop sees (the page 🩺 asks), connected since
         self.connected = False
         self.queue: asyncio.Queue | None = None
         self.wake: asyncio.Event | None = None
@@ -70,6 +79,16 @@ class Rules:
             self.mem["log"].append({"t": round(now), **x})
         del self.mem["log"][:-MAX_LOG]
 
+    def journal(self, entries):
+        """entries for the journal of the heating (heatlog.py)"""
+        if hl.add(self.trace, entries):
+            self.dirty = True
+
+    def link(self, on, err=None):
+        now = time.time()
+        if hl.link(self.trace, on, now, err, quick=self.since is not None and now - self.since < 120):
+            self.dirty = True
+
 
 class _Msg:
     """a text message of the websocket, kept for later"""
@@ -94,6 +113,7 @@ async def run_rules(rules: Rules, *, connect, env, check: float = CHECK, idle: f
     Assistant's zone), call(domain, service, data) -> bool, notify(text), save(mem), publish(status), guard_armed(), weather(states) (the
     weather entity)"""
     rules.bind()
+    rules.journal([{"t": round(time.time()), "k": "start", "v": getattr(env, "version", None)}])
     delay = 1
     while True:
         try:
@@ -110,7 +130,8 @@ async def run_rules(rules: Rules, *, connect, env, check: float = CHECK, idle: f
                 states = {s["entity_id"]: s for s in (await _ask_ws(ws, 1, {"type": "get_states"}, pending) or []) if isinstance(s, dict) and s.get("entity_id")}
                 await _ask_ws(ws, 2, {"type": "subscribe_events", "event_type": "state_changed"}, pending)
                 await _ask_ws(ws, 3, {"type": "subscribe_events", "event_type": NOTIFY_EVENT}, pending)
-                rules.connected, delay = True, 1
+                rules.connected, delay, rules.since = True, 1, time.time()
+                rules.link(True)
                 await _loop(rules, ws, states, pending, env, check)
         except asyncio.CancelledError:
             rules.connected = False
@@ -118,8 +139,17 @@ async def run_rules(rules: Rules, *, connect, env, check: float = CHECK, idle: f
         except Exception as err:  # noqa: BLE001 - must never stop the add-on
             rules.connected = False
             log.info("heating rules and routines interrupted (%s), again in %ss", err, delay)
+            rules.link(False, f"{type(err).__name__}: {err}")
+            _save_trace(rules, env)
+            rules.since = None
             await asyncio.sleep(delay)
             delay = min(60, delay * 2)
+
+
+def _save_trace(rules, env):
+    if rules.dirty and hasattr(env, "save_trace"):
+        rules.dirty = False
+        env.save_trace(rules.trace)
 
 
 async def _loop(rules: Rules, ws, states: dict, pending: list, env, check: float):
@@ -135,9 +165,11 @@ async def _loop(rules: Rules, ws, states: dict, pending: list, env, check: float
     for m in pending:                                       # events that came while the states were asked for
         q.put_nowait(("ws", _Msg(json.dumps(m))))
     task = asyncio.create_task(reader())
-    saved, sig = 0.0, ""
+    saved, sig, traced = 0.0, "", time.time()
+    rules.states = states
     try:
         cache = {"rooms": await env.rooms(), "at": time.time()}
+        cache["idx"], rules.rooms = hl.index(cache["rooms"]), cache["rooms"]
         await _look(rules, states, cache, env, clock=True)
         last_tick = time.time()
         while rules.active() or not q.empty():
@@ -148,6 +180,7 @@ async def _loop(rules: Rules, ws, states: dict, pending: list, env, check: float
             now = time.time()
             if now - cache["at"] > 60:                     # the plans change rarely: their rooms anew every minute
                 cache.update(rooms=await env.rooms(), at=now)
+                cache["idx"], rules.rooms = hl.index(cache["rooms"]), cache["rooms"]
             if req is None or now - last_tick >= check:
                 last_tick = now
                 await _look(rules, states, cache, env, clock=True)
@@ -161,9 +194,13 @@ async def _loop(rules: Rules, ws, states: dict, pending: list, env, check: float
             if time.time() - saved > SAVE_EVERY:
                 saved = time.time()
                 env.save(rules.mem)
+            if time.time() - traced > TRACE_EVERY:
+                traced = time.time()
+                _save_trace(rules, env)
     finally:
         task.cancel()
         env.save(rules.mem)
+        _save_trace(rules, env)
 
 
 def _ctx(states, cache, env, now, local):
@@ -181,12 +218,24 @@ async def _heat(rules, states, cache, env, now, local):
     smem = rules.mem["sensors"]
     mem, calls, status, lines = hr.step(rules.cfg["heat"], cache["rooms"], rs.virtual(states, smem, hr.held(rules.mem["heat"])), now, local,
                                         rules.mem["heat"], guard_armed=env.guard_armed(), weather=env.weather(states))
+    rules.journal(hl.rooms(rules.status["rooms"], status, now) + [{"t": round(now), "k": "rule", **x} for x in lines])
     rules.mem["heat"], rules.status["rooms"] = mem, status
     rules.note([{"src": "heat", **x} for x in lines], now)
     hold = hr.held(mem)
     for e, svc, data in rs.route(calls, smem, hold):
-        await env.call("climate", svc, {"entity_id": e, **data})
+        await _call(rules, env, "climate", svc, {"entity_id": e, **data}, "heat", now)
     await _sensors(rules, states, env, now, hold)
+
+
+async def _call(rules, env, dom, svc, data, src, now):
+    """a call of the heating rules or the room sensors to Home Assistant, kept in the journal with whether it was taken"""
+    e = data.get("entity_id")
+    if dom == "climate":
+        hl.remember(rules.sent, e, svc, data, now)
+    ok = await env.call(dom, svc, data)
+    v = next((data[k] for k in ("temperature", "hvac_mode", "value", "option") if k in data), None)
+    rules.journal([{"t": round(now), "k": "call", "ent": e, "dom": dom, "svc": svc, "v": v, "ok": ok is not False, "src": src}])
+    return ok
 
 
 async def _sensors(rules, states, env, now, hold=()):
@@ -196,8 +245,10 @@ async def _sensors(rules, states, env, now, hold=()):
     plat = env.platforms() if hasattr(env, "platforms") else {}
     rules.status.update(sensors=status, cal=rs.caps(states, parts), plat={e: p for e, p in plat.items() if e in states})
     rules.note([{"src": "sensor", **x} for x in lines], now)
+    rules.journal([{"t": round(now), "k": "sensor", "ent": x.get("ent"), "act": x["act"], "v": x.get("v"), "why": x.get("why")}
+                   for x in lines if x.get("act") in ("wish", "back")])
     for dom, svc, data in calls:
-        await env.call(dom, svc, data)
+        await _call(rules, env, dom, svc, data, "sensor", now)
 
 
 async def _do(rules, calls, lines, now, env):
@@ -224,6 +275,20 @@ async def _look(rules, states, cache, env, clock=False, changed=None):
     rules.status["lanes"] = fl.view(rules.local(), rules.mem["flows"], now)
 
 
+def _journal(rules, cache, eid, old, new, states):
+    """🩺 (#579): a contact or thermostat of a room changed"""
+    now, uses = time.time(), cache["idx"][eid]
+    x = hl.contact(eid, old, new, uses, now, {r["key"]: r for r in cache["rooms"]}, rules.cfg["heat"]["window"])
+    room = next((u[0] for u in uses if u[1] == "climate"), None)
+    if x is None and room:
+        x = hl.climate(eid, old, new, rules.sent, now, room, lambda: hl.users(states), rules.me)
+        uid = ((new or {}).get("context") or {}).get("user_id")
+        if x and x["by"] == "addon" and x.get("ago") is not None and x["ago"] <= 5 and uid:
+            rules.me = uid                                  # its own call came back at once: this is the add-on's user
+    if x:
+        rules.journal([x])
+
+
 def _heat_cares(eid, rooms, rules) -> bool:
     sens = rules.cfg["heat"]["sensors"]["map"]
     return (eid.startswith(HEAT_DOMAINS) or any(eid in r["windows"] or eid in r["outer"] for r in rooms)
@@ -247,13 +312,16 @@ async def _wish(rules, req, states, cache, env):
         eid = d.get("entity_id")
         if ev.get("event_type") != "state_changed" or not isinstance(eid, str):
             return
-        old = (states.get(eid) or {}).get("state")
+        old_state = states.get(eid)
+        old = (old_state or {}).get("state")
         new_state = d.get("new_state")
         if new_state:
             states[eid] = new_state
         else:
             states.pop(eid, None)
         new = (new_state or {}).get("state")
+        if eid in cache["idx"]:
+            _journal(rules, cache, eid, old_state, new_state, states)
         await _look(rules, states, cache, env, changed=(eid, old, new))
     elif kind == "room":
         _, key, act = req
