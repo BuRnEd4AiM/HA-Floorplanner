@@ -137,6 +137,53 @@ def test_the_window_counts_also_when_the_thermostat_has_a_window_detection_of_it
     assert st["climate.wz"]["state"] == "heat" and st["climate.wz"]["attributes"]["temperature"] == 21.0
 
 
+def test_a_thermostat_that_stays_on_with_the_window_open_gets_the_call_again():
+    """the owner (#571): "Heizung pausiert · Fenster offen seit 25 Min", but the thermostat still heated at 17°: it took no "off" (or went
+    back to heating by itself) and the rule sent it only once"""
+    plan = {"days": [[[0, "night"]]] * 7}
+    st = house(**{"climate.wz": thermostat(temp=17.0)})
+    run = Run({"window": {"on": True, "delay": 2}, "schedule": {"on": True, "rooms": {"h/wz": plan}}}, st)
+    run.look()
+    st["binary_sensor.fenster"]["state"] = "on"
+    run.look()
+    assert run.look(2) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})]
+    st["climate.wz"]["state"] = "heat"                                          # it does not stay off
+    assert run.look(1) == [] and run.look(1) == []                              # a sleepy thermostat gets time to say so
+    assert run.look(1) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})]   # 3 minutes: once more
+    st["climate.wz"]["state"] = "heat"
+    assert run.look(3) == [("climate.wz", "set_temperature", {"temperature": 7})]   # then as cold as it goes (its minimum 7°)
+    assert st["climate.wz"]["attributes"]["temperature"] == 7 and run.look(3) == [] and not run.status["h/wz"]["stuck"]
+    assert run.status["h/wz"]["why"] == "window" and run.status["h/wz"]["back"] == 17.0
+    st["binary_sensor.fenster"]["state"] = "off"
+    run.look()
+    assert st["climate.wz"]["state"] == "heat" and st["climate.wz"]["attributes"]["temperature"] == 17.0   # shut: as before
+
+
+def test_a_thermostat_that_takes_nothing_shows_it_and_is_not_asked_for_ever():
+    st = house()
+    run = Run({"window": {"on": True, "delay": 0}}, st)
+    st["binary_sensor.fenster"]["state"] = "on"
+    calls = []
+    for _ in range(12):
+        calls += run.look(3)
+        st["climate.wz"]["state"], st["climate.wz"]["attributes"]["temperature"] = "heat", 21.0   # back to heating, always
+    assert len(calls) == 1 + hr.TRIES and run.status["h/wz"]["stuck"] and run.status["h/wz"]["why"] == "window"
+    st["climate.wz"]["state"] = "off"                                              # off by hand: fine again
+    run.look()
+    assert not run.status["h/wz"]["stuck"]
+
+
+def test_an_air_conditioner_with_the_window_open_only_gets_off_never_cold():
+    st = house(**{"climate.wz": thermostat(mode="cool", temp=22.0, modes=("off", "cool", "heat"))})
+    run = Run({"window": {"on": True, "delay": 0}}, st)
+    st["binary_sensor.fenster"]["state"] = "on"
+    calls = []
+    for _ in range(4):
+        calls += run.look(3)
+        st["climate.wz"]["state"] = "cool"
+    assert calls and all(c == ("climate.wz", "set_hvac_mode", {"hvac_mode": "off"}) for c in calls)
+
+
 def test_the_schedule_moves_on_while_the_window_is_open():
     plan = {"days": [[[0, "night"], [360, "comfort"], [480, "eco"]]] * 7}
     st = house()

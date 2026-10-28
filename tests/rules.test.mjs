@@ -93,6 +93,7 @@ test('where the blocks stand, whether a routine is complete, new blocks and the 
 test('what a room\'s heating does now', () => {
   const deg = (v) => `${v}°`, now = 1000000;
   assert.deepEqual(R.roomLine({ why: 'window', since: now - 180, back: 22 }, now, t, deg), { icon: '⏸️', tone: 'pause', text: 'hr.line.window{"n":3,"v":"22°"}' });
+  assert.deepEqual(R.roomLine({ why: 'window', since: now - 1500, back: 17, stuck: true }, now, t, deg), { icon: '⚠️', tone: 'warn', text: 'hr.line.stuck{"n":25}' });   // it takes no "off" (#571)
   assert.equal(R.roomLine({ why: null, waiting: true }, now, t, deg).tone, 'warn');
   assert.equal(R.roomLine({ why: 'schedule', level: 'comfort', temp: 21 }, now, t, deg).text, 'hr.line.schedule{"v":"21°","level":"hr.level.comfort"}');
   assert.equal(R.roomLine({ why: null }, now, t, deg), null);

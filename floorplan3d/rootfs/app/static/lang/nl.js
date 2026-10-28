@@ -1984,4 +1984,5 @@ export default {
     'room.raise': 'Vloer hoger dan de verdieping',
     'room.steps': 'Treden bij de deuren vanzelf',
     'room.raiseHint': 'Min = lager, bijv. een verzonken woonkamer. Meubels en apparaten gaan mee omhoog, het plafond blijft (en wat eraan hangt). Deuren en ramen gaan mee met de hogere kant.',
+  'hr.line.stuck': 'Raam {n} min open · de thermostaat gaat niet uit, hij blijft verwarmen',
 };

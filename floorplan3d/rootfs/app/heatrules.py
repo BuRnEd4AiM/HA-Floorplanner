@@ -28,6 +28,9 @@ PASSING = ("away", "holiday", "summer", "night")   # levels of a passing situati
                                                   # never ends by itself: switched off, it leaves the thermostats as they are)
 MAX_ROOMS = 200
 MAX_POINTS = 12                                  # blocks of a day in the schedule
+RETRY = 180                                      # s: a thermostat still heating while its window is open gets the call again (a sleepy
+                                                 # radiator thermostat may take a minute or two to say it is off)
+TRIES = 5                                        # then the page says that it does not go off
 
 DEFAULT = {
     "window": {"on": False, "delay": 2, "doors": True, "skip": []},
@@ -234,6 +237,29 @@ def apply_override(states, e, ov, rules) -> list:
     return _set(states, e, _heat_mode(states, e, "heat"), rules["boost"]["temp"])     # boost
 
 
+def paused(states, e, ac=False) -> bool:
+    """is thermostat e off, or (one that only heats) set as cold as it goes: what the window rule wants"""
+    t = _attr(states, e, "temperature")
+    return (states.get(e) or {}).get("state") == "off" or (not ac and isinstance(t, (int, float)) and not isinstance(t, bool)
+                                                           and t <= _clamp(states, e, 5.0) + 0.01)
+
+
+def keep_off(states, e, t, now, ac=False) -> list:
+    """While its window is open: a thermostat that is not off (it took no "off", or went back to heating by itself, the owner: "aber aus
+    wird das Thermostat dann nicht") gets the call again after RETRY seconds; from the second try as cold as it goes instead, which every
+    thermostat takes (an air conditioner only "off": cold would make it cool), at most TRIES times (t["offN"]), then the page says so.
+    t: what the rules remember of the thermostat."""
+    if paused(states, e, ac):
+        t["offT"], t["offN"] = now, 0
+        return []
+    if now - t.setdefault("offT", now) < RETRY or t.get("offN", 0) >= TRIES:   # offT: the last call (unset: a boost before, an older add-on)
+        return []
+    t["offT"], t["offN"] = now, t.get("offN", 0) + 1
+    if t["offN"] == 1 or ac:
+        return _set(states, e, "off")
+    return [(e, "set_temperature", {"temperature": _clamp(states, e, 5.0)})]
+
+
 def by_hand(states, e, level) -> list:
     """the calls that bring thermostat e back to level when only its temperature was turned (by hand, at the device or on a page); []
     when it is as the level wants, or when its mode was changed (off, auto: chosen on purpose, left alone). A thermostat that rounds
@@ -308,7 +334,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
     state with attributes}; now: seconds; local: the time of day in Home Assistant's zone; mem: what the last look remembered (clean_mem).
     A window contact of the plan counts even when the thermostat has a window detection of its own: that one only guesses from a quick
     drop of the temperature, and its switch is on by default (the owner: the window open, the rule on, the schedule stayed).
-    calls: [(thermostat, service, data)]; status: {room key: {why, since, until, back, open}} for the pages; log: [{ent, act, v, why}]."""
+    calls: [(thermostat, service, data)]; status: {room key: {why, since, until, back, open, stuck …}} for the pages; log: [{ent, act, v, why}]."""
     mem = clean_mem(mem)
     calls, status, log = [], {}, []
     persons = [e for e in states if e.startswith("person.")]
@@ -358,6 +384,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
             if ov_e != old_ov:
                 if ov_e and not old_ov:                      # an override starts: remember the thermostat as it is
                     t["under"], t["lvAtOv"] = snap(states, e), old_level
+                    t["offT"], t["offN"] = now, 0
                     out = apply_override(states, e, ov_e, rules)
                 elif ov_e:                                   # one override follows another (the window opened during a boost)
                     out = apply_override(states, e, ov_e, rules)
@@ -384,6 +411,11 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                     if old_level.get("why") in PASSING:
                         out = restore(states, e, t.get("before"))
                     t.pop("before", None)
+            if ov_e == "window":
+                out = out or keep_off(states, e, t, now, ac)
+            else:
+                t.pop("offT", None)
+                t.pop("offN", None)
             hand, cur = rules["schedule"]["hand"], _attr(states, e, "temperature")
             if not out and not ov_e and (level or {}).get("why") == "schedule" and hand and by_hand(states, e, level):
                 h0 = t.get("hand")                             # turned by hand under the schedule: back some minutes after the last turn
@@ -409,6 +441,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                        "back": (first.get("under") or {}).get("temp") if ov1 else None, "open": opened,
                        "waiting": bool(watched and opened and ov != "window" and not mem["skip"].get(key)), "skip": bool(mem["skip"].get(key)),
                        "hand": first["hand"] + rules["schedule"]["hand"] * 60 if first.get("hand") else None,
+                       "stuck": ov1 == "window" and not paused(states, climates[0], cools(states, climates[0])) and first.get("offN", 0) >= TRIES,
                        "climates": climates}
     for e in list(mem["t"]):                                # thermostats no longer in a room: forgotten
         if e not in seen and e not in placed:

@@ -2006,4 +2006,5 @@ export default {
     'room.raise': 'Pavimento più alto del piano',
     'room.steps': 'Gradini alle porte da soli',
     'room.raiseHint': 'Meno = più basso, p. es. un soggiorno ribassato. Mobili e dispositivi salgono con esso, il soffitto resta (e ciò che vi è appeso). Porte e finestre salgono con il lato più alto.',
+  'hr.line.stuck': 'Finestra aperta da {n} min · il termostato non si spegne, continua a riscaldare',
 };

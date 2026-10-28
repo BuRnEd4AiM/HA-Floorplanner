@@ -2022,4 +2022,5 @@ export default {
     'room.raise': 'Sol plus haut que l’étage',
     'room.steps': 'Marches aux portes automatiquement',
     'room.raiseHint': 'Moins = plus bas, p. ex. un salon en contrebas. Meubles et appareils montent avec lui, le plafond reste (et ce qui y est suspendu). Portes et fenêtres suivent le côté le plus haut.',
+  'hr.line.stuck': 'Fenêtre ouverte depuis {n} min · le thermostat ne s\'éteint pas, il continue de chauffer',
 };

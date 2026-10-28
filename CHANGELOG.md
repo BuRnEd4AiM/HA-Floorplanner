@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.37.2] - 2026-10-28
+### Fixed
+- **With the window open the thermostat really goes off, and stays off** (#571, the owner after 4.37.1: "Aber aus wird das Thermostat dann nicht, soll das so?"; 🌡 Klima said "Heizung pausiert · Fenster offen seit 25 Min", his thermostat still heated at 17°). The window rule sent "off" once and from then on believed it. A thermostat that does not take it, or goes back to heating by itself, now gets the call again: as long as the window is open the rule looks at it every time; still heating after 3 minutes, it gets "off" once more, then "as cold as it goes" (5° or its own minimum, which every thermostat takes; an air conditioner only "off"), at most 5 times. If it still heats after that, the line says so: "⚠️ Fenster offen seit … Min · das Thermostat geht nicht aus, es heizt weiter" instead of "pausiert". Shut, it goes back to its temperature from before as until now.
+### Changed
+- `heatrules.py`: `paused`, `keep_off` (`RETRY` 180 s, `TRIES` 5), the room's status has `stuck`; `rules.js` `roomLine` shows it (text `hr.line.stuck` in all languages). Unit tests in `tests/test_heatrules.py` and `tests/rules.test.mjs`.
+
 ## [4.37.1] - 2026-10-28
 ### Fixed
 - **The window rule switches the heating off again when a window is open, also under the schedule** (#568, the owner: "bei mir ist das Fenster offen, die Steuerung ist an, aber er überschreibt nicht den Heizplan, sondern der Heizplan ist noch immer drin"). The rule left a room alone when its thermostat has a window detection of its own; it took that from a switch "window detection" of the thermostat's device being on. On nearly every radiator thermostat (Zigbee, Tuya, Sonoff, Aqara, Bosch …) that switch only allows the detection and is on from the factory; the thermostat itself guesses an open window only from a quick drop of the temperature, which often does not come. Now the window contact in the plan always counts: open longer than the minutes set, the heating goes off, shut again, it comes back as before (or the schedule's block of now). "🔎 Wird benutzt" still shows the thermostat's own detection.
