@@ -2006,4 +2006,5 @@ export default {
     'room.raise': 'Suelo más alto que la planta',
     'room.steps': 'Peldaños en las puertas automáticamente',
     'room.raiseHint': 'Menos = más bajo, p. ej. un salón hundido. Muebles y dispositivos suben con él, el techo se queda (y lo que cuelga de él). Puertas y ventanas suben con el lado más alto.',
+  'hr.line.stuck': 'Ventana abierta desde hace {n} min · el termostato no se apaga, sigue calentando',
 };

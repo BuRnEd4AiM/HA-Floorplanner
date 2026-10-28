@@ -1982,4 +1982,5 @@ export default {
     'room.raise': 'Podłoga wyżej niż kondygnacja',
     'room.steps': 'Stopnie przy drzwiach samoczynnie',
     'room.raiseHint': 'Minus = niżej, np. obniżony salon. Meble i urządzenia idą z nią w górę, sufit zostaje (i to, co na nim wisi). Drzwi i okna idą w górę z wyższą stroną.',
+  'hr.line.stuck': 'Okno otwarte od {n} min · termostat się nie wyłącza, nadal grzeje',
 };

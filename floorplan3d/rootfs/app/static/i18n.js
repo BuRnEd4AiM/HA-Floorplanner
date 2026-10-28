@@ -944,6 +944,7 @@ const DICT = {
     'room.raise': 'Boden höher als die Etage',
     'room.steps': 'Stufen an den Türen von selbst',
     'room.raiseHint': 'Minus = tiefer, z. B. ein abgesenktes Wohnzimmer. Möbel und Geräte stehen mit oben, die Decke bleibt (was an der Decke hängt, auch). Türen und Fenster gehen mit der höheren Seite mit.',
+    'hr.line.stuck': 'Fenster offen seit {n} Min · das Thermostat geht nicht aus, es heizt weiter',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -1847,6 +1848,7 @@ const DICT = {
     'room.raise': 'Floor higher than the storey',
     'room.steps': 'Steps at the doors by themselves',
     'room.raiseHint': 'Minus = lower, e.g. a sunken living room. Furniture and devices go up with it, the ceiling stays (and what hangs from it). Doors and windows go up with the higher side.',
+    'hr.line.stuck': 'Window open for {n} min · the thermostat does not switch off, it keeps heating',
   },
 };
 

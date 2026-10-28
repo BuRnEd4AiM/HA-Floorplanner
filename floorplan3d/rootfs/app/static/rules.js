@@ -291,6 +291,7 @@ export function templates(states, t) {
 /** a room's line: { icon, text, tone } or null; s: status of the room, now (seconds), deg(v): a temperature as text */
 export function roomLine(s, now, t, deg) {
   if (!s) return null;
+  if (s.why === 'window' && s.stuck) return { icon: '⚠️', tone: 'warn', text: t('hr.line.stuck', { n: Math.max(1, Math.round((now - (s.since || now)) / 60)) }) };   // it takes no "off" (#571)
   if (s.why === 'window') return { icon: '⏸️', tone: 'pause', text: t('hr.line.window', { n: Math.max(1, Math.round((now - (s.since || now)) / 60)), v: s.back != null ? deg(s.back) : '–' }) };
   if (s.waiting) return { icon: '🪟', tone: 'warn', text: t('hr.line.waiting') };
   if (s.skip) return { icon: '🔥', tone: '', text: t('hr.line.skip') };

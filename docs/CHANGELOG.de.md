@@ -2,6 +2,12 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.37.2] - 2026-10-28
+### Repariert
+- **Bei offenem Fenster geht das Thermostat wirklich aus und bleibt aus** (#571, der Besitzer nach 4.37.1: „Aber aus wird das Thermostat dann nicht, soll das so?“; 🌡 Klima sagte „Heizung pausiert · Fenster offen seit 25 Min“, sein Thermostat heizte weiter auf 17°). Die Fenster-Regel schickte einmal „Aus“ und glaubte es danach. Ein Thermostat, das es nicht annimmt oder sich selbst wieder auf Heizen stellt, bekommt den Befehl jetzt noch einmal: solange das Fenster offen ist, schaut die Regel jedes Mal nach; heizt es nach 3 Minuten noch, kommt noch einmal „Aus“, danach „so kalt wie es geht“ (5° oder sein eigenes Minimum, das nimmt jedes Thermostat; eine Klimaanlage nur „Aus“), höchstens 5 Mal. Heizt es dann immer noch, sagt die Zeile das: „⚠️ Fenster offen seit … Min · das Thermostat geht nicht aus, es heizt weiter“ statt „pausiert“. Wieder zu, kommt seine Temperatur von vorher zurück wie bisher.
+### Verbessert
+- `heatrules.py`: `paused`, `keep_off` (`RETRY` 180 s, `TRIES` 5), der Zustand des Raums hat `stuck`; `rules.js` `roomLine` zeigt ihn (Text `hr.line.stuck` in allen Sprachen). Unit-Tests in `tests/test_heatrules.py` und `tests/rules.test.mjs`.
+
 ## [4.37.1] - 2026-10-28
 ### Repariert
 - **Die Fenster-Regel schaltet die Heizung bei offenem Fenster wieder aus, auch unter dem Heizplan** (#568, der Besitzer: „bei mir ist das Fenster offen, die Steuerung ist an, aber er überschreibt nicht den Heizplan, sondern der Heizplan ist noch immer drin“). Die Regel ließ einen Raum aus, wenn sein Thermostat selbst ein offenes Fenster erkennen kann; das las sie an einem Schalter „Fenster-Erkennung“ des Thermostat-Geräts, der an war. Bei fast allen Heizkörper-Thermostaten (Zigbee, Tuya, Sonoff, Aqara, Bosch …) erlaubt dieser Schalter die Erkennung nur und ist ab Werk an; das Thermostat selbst rät ein offenes Fenster nur aus einem schnellen Temperatursturz, und der kommt oft nicht. Jetzt zählt immer der Fensterkontakt aus dem Plan: länger offen als die eingestellten Minuten, geht die Heizung aus, wieder zu, kommt sie zurück wie vorher (oder mit dem Block des Heizplans, der jetzt gilt). „🔎 Wird benutzt“ zeigt die eigene Erkennung des Thermostats weiter an.
