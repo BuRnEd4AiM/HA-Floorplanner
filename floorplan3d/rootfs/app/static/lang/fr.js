@@ -2038,7 +2038,7 @@ export default {
   'rs.nocal': 'aucune calibration trouvée sur l\'appareil · seulement affiché', 'rs.lost': 'la sonde ne répond pas · le thermostat régule seul',
   'rs.lostShort': 'la sonde ne répond pas', 'rs.sent': 'valeur de la sonde envoyée au thermostat : {v}', 'rs.sending': 'en cours de réglage',
   'rs.calWait': 'en cours de réglage : {v}', 'rs.calOk': 'réglé : {v}', 'rs.edge': 'l\'appareil ne permet pas plus', 'rs.off': 'thermostat éteint',
-  'rs.shiftText': 'vous voulez {wish} → sur le thermostat {at}', 'rs.showText': 'seulement affiché, le thermostat régule seul',
+  'rs.shiftText': 'vous voulez {wish} → sur le thermostat {at}', 'rs.hold': 'en pause, la fenêtre est ouverte · ensuite de nouveau {wish}', 'rs.showText': 'seulement affiché, le thermostat régule seul',
   'rs.chipSensor': 'sonde de pièce {v}', 'rs.chipOwn': 'au radiateur {v}', 'rs.chipAt': 'sur le thermostat {v}', 'rs.chipCal': 'calibration {v}',
   'rs.chipExt': 'valeur de la sonde sur le thermostat', 'rs.log.cal': '{name} : calibration à {v}', 'rs.log.sel': '{name} : sonde de l\'appareil « {v} »',
   'rs.log.temp': '{name} : sur le thermostat {v}', 'rs.log.wish': '{name} : nouvelle consigne {v}',

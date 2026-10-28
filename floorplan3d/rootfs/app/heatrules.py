@@ -251,9 +251,10 @@ def keep_off(states, e, t, now, ac=False) -> list:
     """While its window is open: a thermostat that is not off (it took no "off", or went back to heating by itself, the owner: "aber aus
     wird das Thermostat dann nicht") gets the call again after RETRY seconds; from the second try as cold as it goes instead, which every
     thermostat takes (an air conditioner only "off": cold would make it cool), at most TRIES times (t["offN"]), then the page says so.
-    t: what the rules remember of the thermostat."""
+    The tries count while the window is open: one that was off a moment and heats again by itself gets as cold as it goes next, not
+    "off" again and again (#577). t: what the rules remember of the thermostat."""
     if paused(states, e, ac):
-        t["offT"], t["offN"] = now, 0
+        t["offT"] = now
         return []
     if now - t.setdefault("offT", now) < RETRY or t.get("offN", 0) >= TRIES:   # offT: the last call (unset: a boost before, an older add-on)
         return []
@@ -450,6 +451,11 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
         if e not in seen and e not in placed:
             mem["t"].pop(e)
     return mem, calls, status, log
+
+
+def held(mem) -> set:
+    """the thermostats the window rule holds now (off, or as cold as it goes): a sensor in the room moves nothing there (roomsensors, #577)"""
+    return {e for e, t in (mem.get("t") or {}).items() if isinstance(t, dict) and t.get("ov") == "window"}
 
 
 def boost(mem, key: str, now: float, rules) -> dict:

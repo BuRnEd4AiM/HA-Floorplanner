@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmyrfwzDmvZ9srfrVEn",
+ "start": "2026-10-28",
+ "updated": "2026-10-28T16:41:37Z",
+ "branch": "claude/raumfuehler-fenster",
+ "source": "counted",
+ "input": 176,
+ "cache_write": 265753,
+ "cache_read": 19349472,
+ "output": 100543,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 176,
+   "cache_write": 265753,
+   "cache_read": 19349472,
+   "output": 100543,
+   "requests": 88
+  }
+ }
+}

@@ -177,21 +177,22 @@ def _ctx(states, cache, env, now, local):
 
 async def _heat(rules, states, cache, env, now, local):
     """the heating rules, then the sensors in the rooms: a thermostat whose target is moved by its sensor shows the rules its wish, and a
-    target of the rules for it becomes the wish (roomsensors.virtual, route)"""
+    target of the rules for it becomes the wish (roomsensors.virtual, route); one the window rule holds is the rules' alone (#577)"""
     smem = rules.mem["sensors"]
-    mem, calls, status, lines = hr.step(rules.cfg["heat"], cache["rooms"], rs.virtual(states, smem), now, local, rules.mem["heat"],
-                                        guard_armed=env.guard_armed(), weather=env.weather(states))
+    mem, calls, status, lines = hr.step(rules.cfg["heat"], cache["rooms"], rs.virtual(states, smem, hr.held(rules.mem["heat"])), now, local,
+                                        rules.mem["heat"], guard_armed=env.guard_armed(), weather=env.weather(states))
     rules.mem["heat"], rules.status["rooms"] = mem, status
     rules.note([{"src": "heat", **x} for x in lines], now)
-    for e, svc, data in rs.route(calls, smem):
+    hold = hr.held(mem)
+    for e, svc, data in rs.route(calls, smem, hold):
         await env.call("climate", svc, {"entity_id": e, **data})
-    await _sensors(rules, states, env, now)
+    await _sensors(rules, states, env, now, hold)
 
 
-async def _sensors(rules, states, env, now):
-    """🌡 Raumfühler (#573): the thermostats with a sensor in the room"""
+async def _sensors(rules, states, env, now, hold=()):
+    """🌡 Raumfühler (#573): the thermostats with a sensor in the room (hold: those the window rule holds, #577)"""
     parts = rs.parts_of(env.parts() if hasattr(env, "parts") else {})
-    rules.mem["sensors"], calls, status, lines = rs.step(rules.cfg["heat"]["sensors"], states, parts, rules.mem["sensors"], now)
+    rules.mem["sensors"], calls, status, lines = rs.step(rules.cfg["heat"]["sensors"], states, parts, rules.mem["sensors"], now, hold)
     plat = env.platforms() if hasattr(env, "platforms") else {}
     rules.status.update(sensors=status, cal=rs.caps(states, parts), plat={e: p for e, p in plat.items() if e in states})
     rules.note([{"src": "sensor", **x} for x in lines], now)

@@ -1997,7 +1997,7 @@ export default {
   'rs.gone': 'termostat niedostępny', 'rs.nocal': 'nie znaleziono kalibracji w urządzeniu · tylko pokazywane',
   'rs.lost': 'czujnik nie odpowiada · termostat reguluje sam', 'rs.lostShort': 'czujnik nie odpowiada', 'rs.sent': 'wartość czujnika wysłana do termostatu: {v}',
   'rs.sending': 'trwa ustawianie', 'rs.calWait': 'trwa ustawianie: {v}', 'rs.calOk': 'ustawiono: {v}', 'rs.edge': 'urządzenie nie pozwala na więcej',
-  'rs.off': 'termostat wyłączony', 'rs.shiftText': 'chcesz {wish} → na termostacie {at}', 'rs.showText': 'tylko pokazywane, termostat reguluje sam',
+  'rs.off': 'termostat wyłączony', 'rs.shiftText': 'chcesz {wish} → na termostacie {at}', 'rs.hold': 'wstrzymane, okno jest otwarte · potem znów {wish}', 'rs.showText': 'tylko pokazywane, termostat reguluje sam',
   'rs.chipSensor': 'czujnik pokojowy {v}', 'rs.chipOwn': 'przy grzejniku {v}', 'rs.chipAt': 'na termostacie {v}', 'rs.chipCal': 'kalibracja {v}',
   'rs.chipExt': 'wartość czujnika na termostacie', 'rs.log.cal': '{name}: kalibracja na {v}', 'rs.log.sel': '{name}: czujnik urządzenia „{v}”',
   'rs.log.temp': '{name}: na termostacie {v}', 'rs.log.wish': '{name}: nowa zadana {v}',

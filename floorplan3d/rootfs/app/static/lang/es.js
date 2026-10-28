@@ -2022,7 +2022,7 @@ export default {
   'rs.nocal': 'no se encontró calibración en el aparato · solo se muestra', 'rs.lost': 'el sensor no informa · el termostato regula solo',
   'rs.lostShort': 'el sensor no informa', 'rs.sent': 'valor del sensor enviado al termostato: {v}', 'rs.sending': 'ajustándose',
   'rs.calWait': 'ajustándose: {v}', 'rs.calOk': 'ajustado: {v}', 'rs.edge': 'el aparato no permite más', 'rs.off': 'termostato apagado',
-  'rs.shiftText': 'quieres {wish} → en el termostato {at}', 'rs.showText': 'solo se muestra, el termostato regula solo',
+  'rs.shiftText': 'quieres {wish} → en el termostato {at}', 'rs.hold': 'en pausa, la ventana está abierta · después otra vez {wish}', 'rs.showText': 'solo se muestra, el termostato regula solo',
   'rs.chipSensor': 'sensor de habitación {v}', 'rs.chipOwn': 'en el radiador {v}', 'rs.chipAt': 'en el termostato {v}', 'rs.chipCal': 'calibración {v}',
   'rs.chipExt': 'valor del sensor en el termostato', 'rs.log.cal': '{name}: calibración a {v}', 'rs.log.sel': '{name}: sensor del aparato «{v}»',
   'rs.log.temp': '{name}: en el termostato {v}', 'rs.log.wish': '{name}: nueva consigna {v}',

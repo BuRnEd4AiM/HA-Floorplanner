@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.38.2] - 2026-10-28
+### Fixed
+- **Room sensor "↕ Wunsch verschieben": the wish no longer climbs by itself** (#577, the owner: "seitdem … reagiert die Heizungssteuerung irgendwie nicht mehr so, wie sie soll. Der Heizplan überschreibt irgendwie alles, selbst wenn die Fenster aufgehen"; his picture: Soll 29,5°, "↕ am Thermostat 30°", "✋ Von Hand gedreht · ab 17:23 wieder Komfort 27,5°"). A target at the thermostat that still differed 3 minutes after the add-on sent one became the new wish. A sleepy thermostat that reported the add-on's earlier, already moved target late so turned it into the wish, and the difference came on top once more (27,5° → 29° → 30°); the heating rules took that for "turned by hand" and set the schedule's temperature again after 10 minutes, over and over. A target the add-on itself sent in the last 30 minutes now never counts as a wish; one really set in Home Assistant or at the device still does.
+- **With the window open the room sensor leaves the thermostat to the window rule** (#577): while the window rule holds a thermostat, its sensor moves nothing. Before, a thermostat that went back to heating by itself got a warm target from the sensor again, and the window rule's "as cold as it goes" became a wish that was moved up. The card 🌡 Raumfühler says "⏸️ pausiert, das Fenster ist offen · danach wieder 21°" meanwhile, the circle on 🌡 Klima shows the thermostat's own target. Shut, the wish of before comes back, moved.
+- **A thermostat that is off for a moment and then heats again by itself gets "as cold as it goes"** (#577, since 4.37.2): the window rule counted its tries from zero each time it saw the thermostat off, so such a thermostat only got "off" every 3 minutes and heated in between. The tries now count as long as the window is open.
+- **A door to the outside switches the heating off even when something drawn as a room lies beyond it** (#577, the owner's door of the living room FL goes outside, but the rule did not even say "Fenster offen"): the window rule took a door for one to the outside only when it lay on the edge of exactly one room; with a terrace or another area drawn as a room beyond it, it counted as a door between two rooms. Now a door leads outside also when one of its sides (just beyond the wall) lies in no room or only in an open area (a room with "Dachterrasse / offener Bereich"), as the plateau's outdoor steps already decide it (`levels.js`). A door between two closed rooms still does not count.
+### Changed
+- Test protocol: new section 125 for the owner's living room.
+
 ## [4.38.1] - 2026-10-28
 ### Fixed
 - **A shed dormer's pitch follows its wall at once** (test 42.4, found by Claude while testing in the demo): with a high "Höhe der Wand" the dormer's roof gets flatter by itself; the field "Neigung der Gaube" showed the new value only after the panel was opened again. Now it shows it at once.
