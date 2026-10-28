@@ -101,3 +101,12 @@ def test_what_the_page_gets():
     assert v["states"]["climate.wz"] == {"s": "heat", "n": "Heizung WZ", "t": 21.0, "m": ["off", "heat"], "lc": round(lc.timestamp())}
     assert v["states"]["binary_sensor.fenster"] == {"s": "on", "n": "Fenster"} and v["states"]["binary_sensor.terrasse"] is None
     assert v["states"]["sensor.wz"]["s"] == "20.5" and v["trace"] == [{"t": 1, "k": "rule"}]
+
+
+def test_a_door_with_the_switch_is_counted_not_inner():
+    room = {"key": "h/bad", "house": "h", "name": "Bad", "floor": 0, "climates": ["climate.bad"], "windows": [], "doors": ["binary_sensor.badtuer"],
+            "outer": [], "counted": ["binary_sensor.badtuer"]}
+    assert hl.index([room])["binary_sensor.badtuer"] == [["h/bad", "counted"]] and hl.inner(room) == []
+    on = {"on": True, "doors": False, "skip": []}
+    assert hl.why_not("h/bad", "counted", {"h/bad": room}, on) is None                 # counts, also with doors to the outside off
+    assert hl.view([room], {}, [])["rooms"][0]["counted"] == ["binary_sensor.badtuer"]

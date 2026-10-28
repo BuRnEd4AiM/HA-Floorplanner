@@ -294,24 +294,28 @@ def by_hand(states, e, level) -> list:
 
 
 def pending(states, e, t, now) -> tuple:
-    """(calls, waiting) for a target the rules sent a moment ago (t["sent"]: [target, when, the target before, tries]). Reported: done.
+    """(calls, waiting) for a target the rules sent a moment ago (t["sent"]: [target, when, the target before, tries, mode]; mode: it went
+    with a change of the mode, off → heating). Reported: done. Switched on, but with a target of its own (the owner's bathroom, 2026-10-28:
+    "aus → heizen", then 24° instead of the 17° sent: the thermostat took the one it remembered): the target once more at once.
     Not yet: waiting, it is no turn by hand (the owner, #579: "von selbst gedreht … er selbst und er weiß es nicht": a sleepy radiator
     thermostat reports the new target some minutes later, until then Home Assistant shows the old one). After PENDING seconds still the
     old one: sent once more (at most TRIES times). Another one: turned by somebody, the rules go on as usual. t: what the rules remember
     of the thermostat."""
     s = t.get("sent")
-    if not (isinstance(s, list) and len(s) == 4 and all(_num(x) is not None for x in (s[0], s[1], s[3]))):
+    if not (isinstance(s, list) and len(s) in (4, 5) and all(_num(x) is not None for x in (s[0], s[1], s[3]))):
         t.pop("sent", None)
         return [], False
     cur, step = _num(_attr(states, e, "temperature")), _tstep(states, e)
     if cur is not None and abs(cur - s[0]) <= step / 2 + 0.001:
         t.pop("sent")
         return [], False
+    old, on = _num(s[2]), (states.get(e) or {}).get("state") not in ("off", *GONE)
+    if len(s) == 5 and s[4] and on and cur is not None and (old is None or abs(cur - old) > step / 2 + 0.001) and s[3] < TRIES:
+        s[1], s[2], s[3], s[4] = now, cur, s[3] + 1, False       # its own target came with the mode: from now on that is the old one
+        return [(e, "set_temperature", {"temperature": s[0]})], True
     if now - s[1] < PENDING:
         return [], True
-    old = _num(s[2])
-    if (cur is not None and old is not None and abs(cur - old) <= step / 2 + 0.001 and (states.get(e) or {}).get("state") not in ("off", *GONE)
-            and s[3] < TRIES):
+    if cur is not None and old is not None and abs(cur - old) <= step / 2 + 0.001 and on and s[3] < TRIES:
         s[1], s[3] = now, s[3] + 1
         return [(e, "set_temperature", {"temperature": s[0]})], True
     t.pop("sent")
@@ -375,10 +379,11 @@ def _since(st):
 
 
 def window_open(states, room, rules, was=False, now=None) -> list:
-    """the open windows (and doors to the outside) of a room the window rule watches. was: the room was open at the last look; then a
+    """the open windows (and doors to the outside, and doors with the switch "Zählt für die Heizung": counted) of a room the window rule
+    watches. was: the room was open at the last look; then a
     contact that does not report for a moment (unavailable or unknown: Home Assistant or Zigbee2MQTT starting again) still counts as open
     for GRACE seconds, the pause goes on (#579: it ended, the heating went on, and paused again after the delay)"""
-    ents = room["windows"] + (room["outer"] if rules["window"]["doors"] else [])
+    ents = list(dict.fromkeys(room["windows"] + room.get("counted", []) + (room["outer"] if rules["window"]["doors"] else [])))
     out = [e for e in ents if (states.get(e) or {}).get("state") in OPEN]
     if out or not was or now is None:
         return out
@@ -492,7 +497,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                 t.pop("handT", None)
             sets = [c[2]["temperature"] for c in out if c[1] == "set_temperature"]
             if sets and ov_e != "window" and not again:      # what was sent, to know it when the thermostat reports it late
-                t["sent"] = [sets[-1], now, _num(cur), 0]
+                t["sent"] = [sets[-1], now, _num(cur), 0, any(c[1] == "set_hvac_mode" for c in out)]
             t["level"], t["ov"] = level, ov_e
             mem["t"][e] = t
             for c in out:

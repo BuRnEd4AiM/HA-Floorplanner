@@ -2032,7 +2032,7 @@ export default {
   'hd.th.show': '🌡 Kamersensor {v} (alleen tonen)', 'hd.th.last': 'Laatst gewijzigd {at}: {by}', 'hd.use.window': 'Raam', 'hd.use.outer': 'Deur naar buiten',
   'hd.use.inner': 'Deur naar een andere kamer', 'hd.s.open': 'open', 'hd.s.closed': 'dicht', 'hd.s.gone': 'meldt zich niet (niet beschikbaar)',
   'hd.s.unknown': 'onbekend', 'hd.s.none': 'bestaat niet in Home Assistant', 'hd.counts': 'telt voor de raamregel',
-  'hd.not.inner': 'telt niet: deur tussen twee kamers', 'hd.not.off': 'telt niet: de raamregel staat uit',
+  'hd.not.inner': 'telt niet: deur tussen twee kamers (laten tellen: „Telt voor de verwarming” aanzetten bij de deur)', 'hd.not.off': 'telt niet: de raamregel staat uit',
   'hd.not.doors': 'telt niet: „deuren naar buiten” staat uit in de raamregel', 'hd.not.skip': 'telt niet: de kamer is uitgezonderd van de raamregel',
   'hd.not.noclimate': 'telt niet: geen thermostaat in deze kamer', 'hd.loose': 'Thermostaten in geen kamer van het plan: {list}',
   'hd.looseSub': 'De verwarmingsregels sturen ze niet. Zet ze in het plan in de kamer (of koppel de kamer aan de ruimte in Home Assistant).',
@@ -2084,4 +2084,9 @@ export default {
   'log.copyDevice': 'Alleen dit apparaat kopiëren', 'log.rep.days': 'Dagen',
   'log.rep.count': '{n} wijzigingen aan {d} apparaten · {c} opdrachten van de add-on, {ok} aangenomen · {err} fouten of offline',
   'log.who.place': 'Locatie', 'log.placeSub': 'van de telefoon-app of de router', 'log.who.sensor': 'Sensor', 'log.sensorSub': 'heeft het zelf gemeld',
+  'prop.heatDoor': 'Telt voor de verwarming',
+  'prop.heatDoorHint': 'Blijft de deur open, dan gaat de verwarming van de kamers ernaast uit, zoals bij een open raam (🌡 Klimaat → 📋 Verwarmingsregels → Raam open). Zonder vinkje telt een deur tussen twee kamers niet; een deur naar buiten telt als „Deuren naar buiten ook” aan staat in de raamregel (met het vinkje altijd).',
+  'hd.use.counted': 'Deur (telt: ingesteld bij de deur)',
+  'hr.window.inner': 'Een deur tussen twee kamers telt alleen met „Telt voor de verwarming” aan bij de deur (Bewerken → op de deur tikken).',
+  'prop.heatDoorSub': 'Open → de verwarming van de kamers ernaast gaat uit, zoals bij een raam.',
 };

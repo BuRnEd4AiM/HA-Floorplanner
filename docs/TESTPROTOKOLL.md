@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.40.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.41.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.40.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.41.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.41.0: eine Tür zwischen zwei Räumen kann für die Heizung zählen** (Abschnitt 128): Claude hat 128.1 in der Demo geprüft; für dich im Add-on 128.2 bis 128.6 (zuerst an der Bad-Tür den Haken „Zählt für die Heizung“ einschalten).
 1. **Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte** (Abschnitt 127): Claude hat 127.1 bis 127.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on 127.5 bis 127.9.
 1. **Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“** (Abschnitt 126): Claude hat 126.1 bis 126.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on 126.6 bis 126.9. Und wenn dir wieder etwas auffällt: „📋 Bericht kopieren“ und im Chat einfügen.
 1. **Repariert in 4.38.2: Raumfühler und Fenster-Regel zusammen** (Abschnitt 125): im Add-on mit deinem Wohnzimmer FL 125.1 bis 125.3.
@@ -353,7 +354,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 125. Repariert in 4.38.2: Raumfühler und Fenster-Regel zusammen (#577) | 0 | 0 | 3 | 0 | 125.1 bis 125.3 |
 | 126. Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“ (#579) | 5 | 0 | 4 | 0 | 126.6 bis 126.9 |
 | 127. Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte (#581) | 4 | 0 | 5 | 0 | 127.5 bis 127.9 |
-| **Zusammen** | **807** | **1** | **64** | **92** | |
+| 128. Neu in 4.41.0: Tür zwischen zwei Räumen zählt für die Heizung, Bad nicht mehr „von Hand gedreht“ (#583) | 1 | 0 | 5 | 0 | 128.2 bis 128.6 |
+| **Zusammen** | **808** | **1** | **69** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1957,3 +1959,15 @@ Wunsch des Besitzers vom 2026-10-28: „eine eigene Seite, wo alles quasi passie
 | 127.7 | Im Add-on: ein Fenster im Wohnzimmer FL öffnen, warten bis die Heizung aus ist | „🪟 Fenster … zu → offen“, „📤 Befehl an … „aus“ ✓“ mit „📋 Fenster offen“, dann das Thermostat „heizen → aus“ mit „🤖 Add-on … s nach dem Befehl“ | ❓ |
 | 127.8 | Im Add-on: als Benutzer, der nicht bearbeiten darf (z. B. ein Wandtablet) | Kein Reiter „📜 Protokoll“ | ❓ |
 | 127.9 | Fällt dir etwas auf: „⬇ Exportieren“ → „Text“ (oder „Letzte 7 Tage“) und im Chat einfügen | Claude sieht darin, was wann von wem geschaltet wurde | ❓ |
+
+## 128. Neu in 4.41.0: Tür zwischen zwei Räumen zählt für die Heizung, Bad nicht mehr „von Hand gedreht“ (#583)
+Gemeldet vom Besitzer am 2026-10-28 mit dem Bericht aus 🩺 Protokoll: „wen zwei räume anneinander sind wie wird dann die tür zugeordnet weil evtl soll sie auch für das andere zimmer zählen und das andere ist ein gang … warum geht das addon nicht richtig wenn türen und so aufgehen“. Seine Wahl: ein Schalter je Tür.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 128.1 | In der Demo: „Bearbeiten“, Erdgeschoss, die Tür Wohnzimmer-Küche antippen | Rechts unter „Aufschlag umkehren“ der Haken „Zählt für die Heizung“ mit „Offen → die Heizung der Räume daneben geht aus, wie bei einem Fenster.“ | ✅ (2026-10-28, Claude in der Demo) |
+| 128.2 | Im Add-on: „Bearbeiten“, die Tür BAD ↔ Gang antippen, „Zählt für die Heizung“ einschalten, „Speichern“. Dann 🌡 Klima → 🩺 Protokoll, Raum BAD | Die Tür steht als „Tür (zählt: an der Tür eingestellt)“ und „zählt für die Fenster-Regel“ | ❓ |
+| 128.3 | Im Add-on: die Bad-Tür offen lassen, länger als die Minuten der Fenster-Regel (bei dir 2 Min) | Die Heizung im Bad geht aus, die Karte sagt „🪟 Fenster offen“; Tür zu → die Heizung kommt wieder wie vorher | ❓ |
+| 128.4 | Im Add-on: genauso an der Tür SZFA ↔ Gang (und an anderen Türen, die zählen sollen) | Wie 128.3 im Schlafzimmer FA | ❓ |
+| 128.5 | Im Add-on: eine Tür ohne den Haken (z. B. WZFL ↔ SZFL) offen lassen | Die Heizung bleibt an; 🩺 Protokoll sagt „zählt nicht: Tür zwischen zwei Räumen (soll sie zählen: …)“ | ❓ |
+| 128.6 | Im Add-on: wenn der Heizplan im Bad das nächste Mal umschaltet (abends oder morgens) | Kein „✋ Von Hand gedreht“ mehr im Bad; das Thermostat hat die Temperatur des Heizplans (nicht seine eigenen 24°) | ❓ |

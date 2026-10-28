@@ -2056,7 +2056,7 @@ export default {
   'hd.th.show': '🌡 Sensor {v} (solo mostrar)', 'hd.th.last': 'Último cambio {at}: {by}', 'hd.use.window': 'Ventana', 'hd.use.outer': 'Puerta al exterior',
   'hd.use.inner': 'Puerta a otra habitación', 'hd.s.open': 'abierta', 'hd.s.closed': 'cerrada', 'hd.s.gone': 'no responde (no disponible)',
   'hd.s.unknown': 'desconocido', 'hd.s.none': 'no existe en Home Assistant', 'hd.counts': 'cuenta para la regla de ventana',
-  'hd.not.inner': 'no cuenta: puerta entre dos habitaciones', 'hd.not.off': 'no cuenta: la regla de ventana está desactivada',
+  'hd.not.inner': 'no cuenta: puerta entre dos habitaciones (para contarla: activar «Cuenta para la calefacción» en la puerta)', 'hd.not.off': 'no cuenta: la regla de ventana está desactivada',
   'hd.not.doors': 'no cuenta: «puertas al exterior» está desactivado en la regla de ventana',
   'hd.not.skip': 'no cuenta: la habitación está excluida de la regla de ventana', 'hd.not.noclimate': 'no cuenta: no hay termostato en esta habitación',
   'hd.loose': 'Termostatos en ninguna habitación del plano: {list}',
@@ -2108,4 +2108,9 @@ export default {
   'log.copyDevice': 'Copiar solo este dispositivo', 'log.rep.days': 'Días',
   'log.rep.count': '{n} cambios en {d} dispositivos · {c} órdenes del add-on, {ok} aceptadas · {err} errores o sin conexión',
   'log.who.place': 'Ubicación', 'log.placeSub': 'de la app del móvil o del router', 'log.who.sensor': 'Sensor', 'log.sensorSub': 'lo ha informado él mismo',
+  'prop.heatDoor': 'Cuenta para la calefacción',
+  'prop.heatDoorHint': 'Si la puerta queda abierta, la calefacción de las habitaciones contiguas se apaga, como con una ventana abierta (🌡 Clima → 📋 Reglas de calefacción → Ventana abierta). Sin la marca, una puerta entre dos habitaciones no cuenta; una puerta al exterior cuenta con «Puertas al exterior también» activado en la regla de ventana (con la marca, siempre).',
+  'hd.use.counted': 'Puerta (cuenta: ajustado en la puerta)',
+  'hr.window.inner': 'Una puerta entre dos habitaciones solo cuenta con «Cuenta para la calefacción» activado en la puerta (Editar → tocar la puerta).',
+  'prop.heatDoorSub': 'Abierta → la calefacción de las habitaciones contiguas se apaga, como con una ventana.',
 };

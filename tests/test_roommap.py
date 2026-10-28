@@ -64,3 +64,15 @@ def test_a_door_to_a_terrace_drawn_as_a_room_leads_outside():
     assert wz["doors"] == ["binary_sensor.tuer", "binary_sensor.ecke"] and wz["outer"] == ["binary_sensor.tuer", "binary_sensor.ecke"]
     wz = rm.rooms_of([("h1", plan(False))])[0]                  # a closed room beyond it (a winter garden): a door between two rooms
     assert wz["outer"] == ["binary_sensor.ecke"]                # the door near the corner of the other room still leads outside
+
+
+def test_a_door_with_the_switch_counts_for_both_rooms():
+    """the owner (2026-10-28): his rooms' doors lead to the corridor, which has no heating; a door with "Zählt für die Heizung" (heat)
+    counts for every room beside it like a window, one without it stays a door between two rooms"""
+    import json
+    lay = json.loads(json.dumps(LAYOUT))
+    lay["floors"][0]["walls"][1]["openings"][0]["heat"] = True
+    wz, k = rm.rooms_of([("h1", lay)])
+    assert wz["counted"] == ["binary_sensor.tuer_wz_kueche"] and k["counted"] == ["binary_sensor.tuer_wz_kueche"]
+    assert wz["outer"] == [] and k["outer"] == ["binary_sensor.terrasse"]           # still not a door to the outside
+    assert rm.rooms_of([("h1", LAYOUT)])[0]["counted"] == []

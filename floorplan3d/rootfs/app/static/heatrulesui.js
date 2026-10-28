@@ -100,7 +100,7 @@ export function initHeatRulesUi(ctx) {
     });
     out.push(card('window', h, [kv(t('hr.window.delay'), mins(h.window.delay, (v) => change((x) => { x.window.delay = v; }), 'window.delay', 60)),
       kv(t('hr.window.doors'), toggle(h.window.doors, (v) => change((x) => { x.window.doors = v; }), 'window.doors')),
-      kv(t('hr.window.after'), make('b', '', t('hr.back')))], (() => { const d = make('div', ''); d.append(make('small', 'tpSub', t('hr.window.rooms')), roomChips); const a = activeChips('window'); if (a) d.append(a); return d; })()));
+      kv(t('hr.window.after'), make('b', '', t('hr.back')))], (() => { const d = make('div', ''); d.append(make('p', 'tpSub hrInner', t('hr.window.inner')), make('small', 'tpSub', t('hr.window.rooms')), roomChips); const a = activeChips('window'); if (a) d.append(a); return d; })()));
     out.push(card('away', h, [kv(t('hr.away.delay'), mins(h.away.delay, (v) => change((x) => { x.away.delay = v; }), 'away.delay', 240, 5)),
       kv(t('hr.temp'), temp(h.away.temp, (v) => change((x) => { x.away.temp = v; }), 'away.temp')), kv(t('hr.away.back'), make('b', '', t('hr.away.backWhen')))], activeChips('away')));
     const nightRooms = make('div', 'hrNightRooms');

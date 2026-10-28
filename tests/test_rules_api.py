@@ -180,6 +180,6 @@ async def test_the_journal_of_the_heating_and_every_room_as_the_add_on_sees_it(c
                                                             "rooms": [["main/r1", "window"]]}, {"t": 6, "x": 1}]))
     r = await (await client.get("/api/rules/trace")).json()
     assert r["rooms"] == [{"key": "main/r1", "house": "main", "name": "Wohnzimmer", "floor": 0, "climates": ["climate.wz"],
-                           "windows": ["binary_sensor.fenster"], "outer": [], "inner": []}]
+                           "windows": ["binary_sensor.fenster"], "outer": [], "counted": [], "inner": []}]
     assert [x["k"] for x in r["trace"]] == ["contact"] and r["running"] is False and r["ha"] is False and r["houses"] == {"main": "Haus"}
     assert r["states"] == {"binary_sensor.fenster": None, "climate.wz": None} and r["loose"] == []

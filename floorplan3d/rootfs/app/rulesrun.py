@@ -53,7 +53,8 @@ class Rules:
             self.queue, self.wake = asyncio.Queue(), asyncio.Event()
 
     def ask(self, *req):
-        """a wish of a page for the loop ("room", key, act) | ("run", flow, lane, test) | ("cfg",) | ("wish", thermostat, temperature)"""
+        """a wish of a page for the loop ("room", key, act) | ("run", flow, lane, test) | ("cfg",) | ("plan",) (a plan was saved) |
+        ("wish", thermostat, temperature)"""
         self.bind()
         self.queue.put_nowait(req)
         self.wake.set()
@@ -308,7 +309,7 @@ def _journal(rules, cache, eid, old, new, states):
 
 def _heat_cares(eid, rooms, rules) -> bool:
     sens = rules.cfg["heat"]["sensors"]["map"]
-    return (eid.startswith(HEAT_DOMAINS) or any(eid in r["windows"] or eid in r["outer"] for r in rooms)
+    return (eid.startswith(HEAT_DOMAINS) or any(eid in r["windows"] or eid in r["outer"] or eid in r.get("counted", ()) for r in rooms)
             or any(eid == x["s"] for x in sens.values()) or any(eid in (t.get("ent"), t.get("sel")) for t in rules.mem["sensors"]["t"].values()))
 
 
@@ -357,6 +358,10 @@ async def _wish(rules, req, states, cache, env):
             await _do(rules, calls, lines, now, env)
             rules.status["lanes"] = fl.view(rules.local(), rules.mem["flows"], now)
     elif kind == "cfg":
+        await _look(rules, states, cache, env, clock=True)
+    elif kind == "plan":                                    # a plan was saved: its rooms anew at once (not only every minute)
+        cache.update(rooms=await env.rooms(), at=time.time())
+        cache["idx"], rules.rooms = hl.index(cache["rooms"]), cache["rooms"]
         await _look(rules, states, cache, env, clock=True)
     elif kind == "wish":                                    # a page set a thermostat whose target is moved by its sensor (#573)
         _, e, temp = req

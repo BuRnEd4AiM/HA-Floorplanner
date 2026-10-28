@@ -233,3 +233,31 @@ async def test_the_journal_says_what_was_seen_and_done_and_who_turned_the_thermo
     with contextlib.suppress(asyncio.CancelledError):
         await task
     assert env.traces and env.traces[-1] == rules.trace and not rules.dirty
+
+
+async def test_a_saved_plan_is_read_again_at_once():
+    """a door's "Zählt für die Heizung" set in the plan counts at once, not only when the rooms are read again a minute later"""
+    ha = FakeHa()
+    ha.states["binary_sensor.flur"] = {"entity_id": "binary_sensor.flur", "state": "on", "attributes": {}}
+
+    @contextlib.asynccontextmanager
+    async def connect():
+        yield ha
+
+    room = dict(ROOM)
+
+    class Env2(Env):
+        async def rooms(self):
+            return [room]
+
+    rules, env = rr.Rules({"heat": {"window": {"on": True, "delay": 0}}}), Env2(ha)
+    task = asyncio.create_task(rr.run_rules(rules, connect=connect, env=env, check=0.2, idle=0.05))
+    assert await until(lambda: rules.connected)
+    await asyncio.sleep(0.3)
+    assert not any(c[1] == "set_hvac_mode" for c in env.calls)                        # a door between two rooms: nothing
+    room.update(doors=["binary_sensor.flur"], counted=["binary_sensor.flur"])
+    rules.ask("plan")
+    assert await until(lambda: ("climate", "set_hvac_mode", {"entity_id": "climate.wz", "hvac_mode": "off"}) in env.calls)
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task

@@ -2,6 +2,14 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.41.0] - 2026-10-28
+### Neu
+- **🚪 Eine Tür zwischen zwei Räumen kann für die Heizung zählen** (#583, der Besitzer: „wen zwei räume anneinander sind wie wird dann die tür zugeordnet weil evtl soll sie auch für das andere zimmer zählen und das andere ist ein gang … warum geht das addon nicht richtig wenn türen und so aufgehen“; seine Wahl: ein Schalter je Tür). Bisher zählte die Fenster-Regel (🪟 Fenster offen) nur Fenster und Türen nach draußen; eine Tür zwischen zwei Räumen (das Bad zum Gang) hat die Heizung nie pausiert. Bearbeiten → eine Tür mit Kontakt antippen: der neue Haken **„Zählt für die Heizung“**. Damit pausiert die Tür, wenn sie länger offen ist als die Minuten der Fenster-Regel, die Heizung beider Räume daneben, wie ein offenes Fenster (ein Raum ohne Thermostat, wie ein Gang, hat nichts zu pausieren). Das Add-on liest die Räume neu, sobald der Plan gespeichert ist, nicht erst eine Minute später. 🩺 Protokoll zeigt so eine Tür als „Tür (zählt: an der Tür eingestellt)“, eine ohne Haken als „zählt nicht: Tür zwischen zwei Räumen (soll sie zählen: an der Tür „Zählt für die Heizung“ einschalten)“; die Karte der Fenster-Regel sagt es auch.
+### Repariert
+- **Kein „✋ Von Hand gedreht“, wenn ein eingeschaltetes Thermostat eine eigene Temperatur nimmt** (#583, sein Bad: der Heizplan schaltete es von aus auf heizen mit 17°, es kam mit seinen gespeicherten 24°). Schaltet das Add-on ein Thermostat ein und schickt eine Temperatur mit, und das Thermostat meldet danach eine andere, schickt das Add-on seine Temperatur noch einmal, statt die andere für „von Hand gedreht“ zu halten.
+### Verbessert
+- Testprotokoll: neuer Abschnitt 128.
+
 ## [4.40.0] - 2026-10-28
 ### Neu
 - **📜 Protokoll: ein eigener Reiter mit allem, was mit den Geräten der Pläne passiert** (#581, der Besitzer: „eine eigene Seite, wo alles quasi passiert, … wo man dann auch sozusagen exportieren kann für eine Fehleranalyse … dass man dann alle Geräte drin hat, die in den Plänen verwendet werden“; seine Wahl aus den Beispielbildern in `docs/ideen-4.40/`: Bild 2 und 3, nur für Admins, Export als Text, .txt und .csv, so lange behalten wie 🛡 Sicherheit). Der neue Reiter **📜 Protokoll** (nur für wer bearbeiten darf):

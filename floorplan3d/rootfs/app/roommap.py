@@ -75,12 +75,13 @@ def _openings(floor):
 
 
 def rooms_of(houses, area_entities=None) -> list:
-    """The rooms of every house: [{key: "<house>/<room id>", house, id, name, floor, climates, windows, doors, outer, entities}].
+    """The rooms of every house: [{key: "<house>/<room id>", house, id, name, floor, climates, windows, doors, outer, counted, entities}].
     houses: [(house id, layout)]; area_entities: {area id: [entity ids]} (rooms linked to an area of Home Assistant).
     windows: the sensors of its windows; doors: of its doors; outer: of the doors that belong to this room only (to the outside, a
     terrace door), not a door between two rooms; a door with a side in no room, or only in an open area (a terrace drawn as a room), is
-    one to the outside too (#577: the owner's door to the outside did not switch the heating off); entities: every entity of the room
-    (devices inside it and its area)."""
+    one to the outside too (#577: the owner's door to the outside did not switch the heating off); counted: of the doors with the switch
+    "Zählt für die Heizung" (o.heat), which the window rule counts for every room beside them like a window (the owner, 2026-10-28: his
+    rooms' doors lead to the corridor, which has no heating); entities: every entity of the room (devices inside it and its area)."""
     areas = area_entities or {}
     out = []
     for hid, layout in houses:
@@ -103,7 +104,7 @@ def rooms_of(houses, area_entities=None) -> list:
                         ents.append(d["entity"])
                 if r.get("area"):
                     ents += [e for e in areas.get(r["area"], []) if isinstance(e, str) and e not in ents]
-                windows, doors, outer = [], [], []
+                windows, doors, outer, counted = [], [], [], []
                 for _x, _z, _s, o in ops:
                     if r["id"] not in near[id(o)]:
                         continue
@@ -114,8 +115,10 @@ def rooms_of(houses, area_entities=None) -> list:
                         doors += [e for e in sensors if e not in doors]
                         if len(near[id(o)]) == 1 or out_side[id(o)]:
                             outer += [e for e in sensors if e not in outer]
+                        if o.get("heat") is True:
+                            counted += [e for e in sensors if e not in counted]
                 out.append({"key": f"{hid}/{r['id']}", "house": hid, "id": r["id"], "name": str(r.get("name") or "")[:60], "floor": fi,
-                            "climates": sorted(e for e in ents if e.startswith("climate.")), "windows": windows, "doors": doors, "outer": outer,
+                            "climates": sorted(e for e in ents if e.startswith("climate.")), "windows": windows, "doors": doors, "outer": outer, "counted": counted,
                             "entities": ents})
     return out
 
