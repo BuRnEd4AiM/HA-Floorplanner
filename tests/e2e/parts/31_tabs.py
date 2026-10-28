@@ -25,8 +25,8 @@ pgT.goto(BASE + "?debug=1"); pgT.wait_for_timeout(1500)
 if pgT.is_visible("#modeSwitch [data-mode=edit]"): pgT.click("#modeSwitch [data-mode=edit]"); pgT.wait_for_timeout(500)
 check("tabs (#479): no tab bar while editing", pgT.is_hidden("#tabBar"))
 pgT.click("#modeSwitch [data-mode=live]"); pgT.wait_for_timeout(800)
-check("tabs: in live mode the bar at the bottom has 🏠 Haus, ☀ Heute, 🌡 Klima (a thermostat), 📷 Kameras, 🧺 Haushalt (the power of the washing machine, #490) and ▶ Abläufe (a scene), the house open, under the 3D picture (not over it)",
-      pgT.is_visible("#tabBar") and tabs_of(pgT) == ["house", "today", "climate", "cameras", "household", "routines"] and active_of(pgT) == "house" and pgT.is_hidden("#tabPages")
+check("tabs: in live mode the bar at the bottom has 🏠 Haus, ☀ Heute, 🌡 Klima (a thermostat), 📷 Kameras, 🧺 Haushalt (the power of the washing machine, #490), ▶ Abläufe (a scene) and for an admin 📜 Protokoll (4.40.0), the house open, under the 3D picture (not over it)",
+      pgT.is_visible("#tabBar") and tabs_of(pgT) == ["house", "today", "climate", "cameras", "household", "routines", "log"] and active_of(pgT) == "house" and pgT.is_hidden("#tabPages")
       and pgT.evaluate("document.querySelector('#tabBar').getBoundingClientRect().top >= document.querySelector('#view').getBoundingClientRect().bottom - 1"),
       (tabs_of(pgT), active_of(pgT)))
 pgT.click("#tabBar [data-tab=cameras]"); pgT.wait_for_timeout(1500)

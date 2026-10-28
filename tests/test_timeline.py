@@ -45,8 +45,8 @@ def test_snapshot_then_changes_in_one_day_file(tmp_path):
     assert rec.flush() == 3
     got = lines(tmp_path, "2026-10-07")
     assert got[0] == {"t": T0, "snap": {"light.a": {"state": "off"}, "light.b": {"state": "on"}}}
-    assert got[1] == {"t": T0 + 5, "e": "light.a", "s": {"state": "on", "brightness": 80}}
-    assert got[2] == {"t": T0 + 8, "e": "light.b", "s": {"state": "unavailable"}}
+    assert got[1] == {"t": T0 + 5, "e": "light.a", "s": {"state": "on", "brightness": 80}, "w": {"k": "dev"}}   # who it was (📜, devlog.py)
+    assert got[2] == {"t": T0 + 8, "e": "light.b", "s": {"state": "unavailable"}, "w": {"k": "off"}}
 
 
 def test_midnight_starts_a_new_file_with_the_states_at_midnight(tmp_path):

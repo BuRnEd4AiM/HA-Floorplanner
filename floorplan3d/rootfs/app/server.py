@@ -30,6 +30,7 @@ import flows as fl
 import garden as gn
 import guard as gd
 import haflows as hf
+import devlog as dl
 import heatlog as hlog
 import heatrules as hr
 import roomsensors as rsens
@@ -1494,12 +1495,17 @@ async def call_service(request):
         return web.json_response({"error": "the alarm panel is locked for this user"}, status=403)
     if domain == "automation" and not await can_edit(request):      # an automation on / off (▶ Abläufe, #483): only who may edit
         return forbidden()
+    user = current_user(request)["name"]
     if moved_target(request, domain, service, payload):            # 🌡 Raumfühler (#573): the add-on moves this thermostat's target itself
+        cmd_log(request, "page", "wish", domain, service, payload, True, user=user)
         return web.json_response({"ok": True})
+    cmd_before(request, "page", None, service, payload, user)
     async with aiohttp.ClientSession() as s:
         async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(),
                           json=payload) as r:
             ok = r.status == 200
+            err = None if ok else f"{r.status} {(await r.text())[:120]}".strip()
+    cmd_log(request, "page", None, domain, service, payload, ok, err, user)     # 📜 Protokoll
     if ok and domain == "calendar":                                 # a new event (#495): the calendar pages ask Home Assistant again
         cache = request.app[KEY_PAGES]
         for k in [k for k in cache if isinstance(k, tuple) and k and k[0] in ("calendar", "agenda")]:
@@ -2047,6 +2053,27 @@ async def timeline_recorder(app):
 
 
 KEY_TIMELINE = web.AppKey("timeline", dict)     # {"rec": the running Recorder}
+
+
+def _recording(request):
+    rec = (app_state(request).get(KEY_TIMELINE) or {}).get("rec")
+    return rec if rec is not None and rec.day else None
+
+
+def cmd_before(request, src, name, service, data, user=None) -> None:
+    """📜 Protokoll: the recorder hears of a command of the add-on before it goes out (src: page, heat, sensor, flow, scene, garden, guard;
+    name: the rule, routine or scene; user: who tapped), so a device that changes before Home Assistant answers is the add-on's"""
+    rec = _recording(request)
+    if rec is not None and isinstance(data, dict):
+        rec.who.own(data.get("entity_id"), service, data, src, name or user, time.time())
+
+
+def cmd_log(request, src, name, domain, service, data, ok, err=None, user=None) -> None:
+    """📜 Protokoll: the command, with Home Assistant's answer, goes into the day file of the recording (devlog.command). Nothing while
+    the recording is off (🛡 Sicherheit)."""
+    rec = _recording(request)
+    if rec is not None:
+        rec.command(time.time(), dl.command(src, name, domain, service, data, ok, err, user))
 
 
 # ---------- entities renamed in Home Assistant: the plans follow (renames.py) ----------
@@ -2678,11 +2705,16 @@ def garden_path(request) -> Path:
     return data_dir(request) / "garden.json"
 
 
-async def ha_service(domain: str, service: str, entity: str) -> bool:
-    """one service of Home Assistant for one entity (the add-on itself: the garden's timers)"""
+async def ha_service(domain: str, service: str, entity: str, request=None) -> bool:
+    """one service of Home Assistant for one entity (the add-on itself: the garden's timers; request: kept in 📜 Protokoll)"""
+    if request is not None:
+        cmd_before(request, "garden", None, service, {"entity_id": entity})
     async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
         async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(), json={"entity_id": entity}) as r:
-            return r.status == 200
+            ok = r.status == 200
+    if request is not None:
+        cmd_log(request, "garden", None, domain, service, {"entity_id": entity}, ok, None if ok else str(r.status))
+    return ok
 
 
 async def garden_close_due(request) -> None:
@@ -2692,7 +2724,7 @@ async def garden_close_due(request) -> None:
     left = dict(timers)
     for e in gn.due(timers, time.time()):
         try:
-            if await ha_service(*gn.service(e, False), e):
+            if await ha_service(*gn.service(e, False), e, request):
                 left.pop(e, None)
         except HA_DOWN:
             pass
@@ -2729,7 +2761,7 @@ async def post_garden_water(request):
     if err:
         return web.json_response({"error": err}, status=400)
     try:
-        ok = await ha_service(*gn.service(entity, minutes > 0), entity)
+        ok = await ha_service(*gn.service(entity, minutes > 0), entity, request)
     except HA_DOWN as err:
         return web.json_response({"error": f"Home Assistant not reachable: {err}"}, status=502)
     stored = read_json(garden_path(request), {})
@@ -3075,11 +3107,11 @@ async def guard_act(request, events) -> None:
     when = datetime.datetime.now(store.get("tz")).strftime("%d.%m. %H:%M")
     for ev, data in events:
         if ev == "alarm" and cfg["actions"] and SUPERVISOR_TOKEN:
-            await guard_switch(cfg["actions"], "turn_on")
+            await guard_switch(cfg["actions"], "turn_on", request)
         if ev == "disarmed" and data.get("alarm") and SUPERVISOR_TOKEN:
             off = [e for e in cfg["actions"] if e.split(".")[0] in gd.OFF_DOMAINS]
             if off:
-                await guard_switch(off, "turn_off")
+                await guard_switch(off, "turn_off", request)
         where = an.where_of(await asyncio.to_thread(notify_places, request, store.setdefault("places", {})), data["entity"]) if ev == "alarm" else ""
         msg = gd.message(ev, data, cfg, notify_lang(request), where, when)
         if msg and cfg["notify"]:
@@ -3087,13 +3119,20 @@ async def guard_act(request, events) -> None:
             log.info("holiday alarm message (%s): %s", ev, "sent" if ok else f"not sent: {err}")
 
 
-async def guard_switch(entities, service) -> None:
+async def guard_switch(entities, service, request=None) -> None:
+    ok, why = False, None
+    if request is not None:
+        cmd_before(request, "guard", None, service, {"entity_id": list(entities)})
     try:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
             async with s.post(f"{HA_API}/services/homeassistant/{service}", headers=ha_headers(), json={"entity_id": entities}) as r:
                 log.info("holiday alarm: %s %s -> %s", service, ", ".join(entities), r.status)
+                ok, why = r.status < 400, str(r.status)
     except Exception as err:  # noqa: BLE001 - said in the log, the message still goes out
         log.warning("holiday alarm: %s failed (%s)", service, err)
+        why = f"{type(err).__name__}: {err}"
+    if request is not None:
+        cmd_log(request, "guard", None, "homeassistant", service, {"entity_id": list(entities)}, ok, why)
 
 
 def guard_tick(request):
@@ -3390,7 +3429,7 @@ async def post_rules_run(request):
         e = await ha_auto_entity(request.app, hf.auto_id(flow["id"], lane["id"]))
         if not e:
             return web.json_response({"error": "not in Home Assistant"}, status=404)
-        return web.json_response({"ok": await ha_call("automation", "trigger", {"entity_id": e})})
+        return web.json_response({"ok": await ha_call("automation", "trigger", {"entity_id": e}, request, "flow", flow["name"])})
     r.ask("run", flow["id"], lane["id"], test)
     return web.json_response({"ok": True})
 
@@ -3428,19 +3467,20 @@ def rules_weather(app, states) -> str | None:
     return next((e for e in sorted(states) if e.startswith("weather.")), None)
 
 
-async def rules_call(domain: str, service: str, data: dict) -> bool:
-    """one call of a rule to Home Assistant (only the domains rules may switch)"""
+async def rules_call(domain: str, service: str, data: dict) -> tuple:
+    """one call of a rule to Home Assistant (only the domains rules may switch): (taken, why not)"""
     if domain not in RULE_DOMAINS:
-        return False
+        return False, "domain"
     try:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
             async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(), json=data) as r:
                 if r.status >= 400:
                     log.info("rule: %s.%s %s -> %s", domain, service, data.get("entity_id"), r.status)
-                return r.status < 400
+                    return False, f"{r.status} {(await r.text())[:120]}".strip()
+                return True, None
     except (aiohttp.ClientError, asyncio.TimeoutError) as err:
         log.info("rule: %s.%s failed (%s)", domain, service, err)
-        return False
+        return False, f"{type(err).__name__}: {err}"[:160]
 
 
 async def rules_runner(app):
@@ -3457,8 +3497,17 @@ async def rules_runner(app):
             def local(self):
                 return datetime.datetime.now(app[KEY_RULES].get("tz")).replace(tzinfo=None)
 
+            err = None
+
             async def call(self, domain, service, data):
-                return await rules_call(domain, service, data)
+                ok, self.err = await rules_call(domain, service, data)
+                return ok
+
+            def before(self, src, name, domain, service, data):
+                cmd_before(ctx, src, name, service, data)                         # 📜 Protokoll
+
+            def command(self, src, name, domain, service, data, ok):
+                cmd_log(ctx, src, name, domain, service, data, ok, self.err)
 
             async def notify(self, text):
                 ok, err = await send_notify(notify_cfg(ctx), text)
@@ -3621,15 +3670,22 @@ async def ha_config(method: str, kind: str, cid: str, body=None, theirs=False):
         return 0, {"message": str(err)[:200] or type(err).__name__}
 
 
-async def ha_call(domain: str, service: str, data: dict) -> bool:
+async def ha_call(domain: str, service: str, data: dict, request=None, src=None, name=None, ents=None) -> bool:
     """one call of a service with its data (an automation triggered, switched on or off, a scene applied); ha_service above is the
-    garden's (#533), with an entity only"""
+    garden's (#533), with an entity only. request and src: kept in 📜 Protokoll (name: the routine or scene; ents: the devices it is
+    about when the data does not name them, a scene tried)"""
+    ok, why = False, None
+    if request is not None and src:
+        cmd_before(request, src, name, service, {**data, "entity_id": ents} if ents else data, current_user(request)["name"])
     try:
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as s:
             async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(), json=data) as r:
-                return r.status < 400
-    except (aiohttp.ClientError, asyncio.TimeoutError):
-        return False
+                ok, why = r.status < 400, str(r.status)
+    except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+        why = f"{type(err).__name__}: {err}"
+    if request is not None and src:
+        cmd_log(request, src, name, domain, service, {**data, "entity_id": ents} if ents else data, ok, why, current_user(request)["name"])
+    return ok
 
 
 def _fresh_states(app):
@@ -3863,7 +3919,8 @@ async def post_scene_try(request):
         return web.json_response({"error": "a name and at least one device expected"}, status=400)
     if not SUPERVISOR_TOKEN:
         return web.json_response({"error": "nohass"}, status=503)
-    return web.json_response({"ok": await ha_call("scene", "apply", sc.apply_data(model))})
+    data = sc.apply_data(model)
+    return web.json_response({"ok": await ha_call("scene", "apply", data, request, "scene", model.get("name"), list(data["entities"]))})
 
 
 # ---------- 🚆 the card "Zug" (#550): the departures of a station (trains.py), or of a sensor of "DB Infoscreen" ----------
@@ -3939,6 +3996,36 @@ async def get_timeline(request):
     return web.json_response({"days": await asyncio.to_thread(tl.list_days, timeline_dir(request)), "on": s["timelineOn"],
                               "keepDays": s["timelineKeepDays"], "recording": bool(rec and rec.day), "ha": bool(SUPERVISOR_TOKEN),
                               "folder": "addon_configs/…_floorplan3d/timeline"})
+
+
+async def get_log(request):
+    """📜 Protokoll (devlog.py): the events of a day (?day=YYYY-MM-DD, today when none), or of the last recorded days up to it (?days=2…31),
+    from the files of the recording, the newest last; only who may edit (it says when somebody was at home and what was switched)"""
+    if not await can_edit(request):
+        return forbidden()
+    s = validate_settings(read_settings(request))
+    rec = request.app[KEY_TIMELINE].get("rec")
+    tz = rec.tz if rec else None
+    folder = timeline_dir(request)
+    want = request.query.get("day") or tl.day_of(time.time(), tz)
+    if not tl.DAY.match(want):
+        return web.json_response({"error": "bad day"}, status=400)
+    try:
+        n = max(1, min(31, int(request.query.get("days") or 1)))
+    except ValueError:
+        n = 1
+    days = await asyncio.to_thread(tl.list_days, folder)
+    pick = [d["day"] for d in days if d["day"] <= want and (n > 1 or d["day"] == want)][:n][::-1]      # the oldest first
+    if rec:
+        await asyncio.to_thread(rec.flush)              # what happened in the last seconds is in the file too
+    lines = []
+    for d in pick:
+        lines += await asyncio.to_thread(tl.read_day, folder, d)
+    resp = web.json_response({"days": days, "day": want, "n": n, "from": pick[0] if pick else want, "events": dl.events(lines), "on": s["timelineOn"],
+                              "keepDays": s["timelineKeepDays"], "recording": bool(rec and rec.day), "ha": bool(SUPERVISOR_TOKEN), "now": time.time(),
+                              "version": (mf.load_manifest(Path(__file__).parent) or {}).get("version")})
+    resp.enable_compression()
+    return resp
 
 
 async def get_timeline_day(request):
@@ -4106,6 +4193,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.post("/api/backups/test", post_backups_test),
         web.post("/api/backups/restore", post_backups_restore),
         web.get("/api/timeline", get_timeline),
+        web.get("/api/log", get_log),                       # 📜 Protokoll (devlog.py)
         web.get("/api/timeline/{day}", get_timeline_day),
         web.get("/api/backups/{name}", get_backup_file),
         web.delete("/api/backups/{name}", delete_backup_file),

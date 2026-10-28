@@ -97,6 +97,7 @@ import { initEnergyPage } from './pageenergy.js';
 import { initTodayPage } from './pagetoday.js';
 import { initClimatePage } from './pageclimate.js';
 import { initRoutinesPage } from './pageroutines.js';
+import { initLogPage } from './pagelog.js';
 import { initRulesUi } from './rulesui.js';
 import { initFamilyPage } from './pagefamily.js';
 import { initMediaPage } from './pagemedia.js';
@@ -741,6 +742,13 @@ const routinesPage = initRoutinesPage({                          // ▶ Abläufe
   callService: (e, svc, data) => live.callService(e, svc, data), board, own: rulesUi.own,   // the own routines (#546)
 });
 const roomOf = (e) => placeOf(layout, e)?.room || areas.find((a) => a.id === areaOf[e])?.name || '';   // the room of a device: in the plan, else its area
+const logPage = initLogPage({                                    // 📜 Protokoll (pagelog.js, devlog.js): who switched what, for who may edit
+  t, el: $('#tabPages [data-page=log]'), states: () => states, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, roomOf,
+  rooms: () => [...new Set(shownLayout().floors.flatMap((f) => (f.rooms || []).map((r) => r.name).filter(Boolean)))],
+  openings: () => new Set(shownLayout().floors.flatMap((f) => openingWalls(f).flatMap((w) => (w.openings || []).flatMap((o) => openingEntities(o))))),
+  canEdit: () => me.canEdit, deg: (c) => { const v = settings.units === 'imperial' ? c * 9 / 5 + 32 : c; return `${v.toLocaleString(currentLanguage(), { maximumFractionDigits: 1 })}°`; },
+  usedBy: () => rulesUi.usedBy,
+});
 const mediaPage = initMediaPage({                                // 🎵 Musik & TV (pagemedia.js, media.js, #490)
   t, el: $('#tabPages [data-page=media]'), states: () => states, names: () => namesOf(/^media_player\./), roomOf, settings: () => settings,
   canEdit: () => me.canEdit, callService: (e, svc, data) => live.callService(e, svc, data), board,
@@ -781,6 +789,7 @@ const tabsUi = initTabsUi({
     climate: { el: $('#tabPages [data-page=climate]'), ...climatePage }, cameras: { el: $('#tabPages [data-page=cameras]'), ...camPage },
     media: { el: $('#tabPages [data-page=media]'), ...mediaPage }, household: { el: $('#tabPages [data-page=household]'), ...householdPage },
     routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage },
+    log: { el: $('#tabPages [data-page=log]'), ...logPage },
     ...dash.customPages() }),
   edit: dash.edit, tabEdit: dash.tabEdit,
   onShow: (tab, was) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)

@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.39.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.40.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.39.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.40.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte** (Abschnitt 127): Claude hat 127.1 bis 127.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on 127.5 bis 127.9.
 1. **Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“** (Abschnitt 126): Claude hat 126.1 bis 126.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on 126.6 bis 126.9. Und wenn dir wieder etwas auffällt: „📋 Bericht kopieren“ und im Chat einfügen.
 1. **Repariert in 4.38.2: Raumfühler und Fenster-Regel zusammen** (Abschnitt 125): im Add-on mit deinem Wohnzimmer FL 125.1 bis 125.3.
 1. **Neu in 4.38.0: 🌡 Raumfühler für die Thermostate** (Abschnitt 124): Claude hat 124.1 bis 124.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deinen Thermostaten 124.5 bis 124.9.
@@ -351,7 +352,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 124. Neu in 4.38.0: 🌡 Raumfühler für die Thermostate (#573) | 4 | 0 | 5 | 0 | 124.5 bis 124.9 |
 | 125. Repariert in 4.38.2: Raumfühler und Fenster-Regel zusammen (#577) | 0 | 0 | 3 | 0 | 125.1 bis 125.3 |
 | 126. Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“ (#579) | 5 | 0 | 4 | 0 | 126.6 bis 126.9 |
-| **Zusammen** | **803** | **1** | **59** | **92** | |
+| 127. Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte (#581) | 4 | 0 | 5 | 0 | 127.5 bis 127.9 |
+| **Zusammen** | **807** | **1** | **64** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1940,3 +1942,18 @@ Wunsch des Besitzers vom 2026-10-28: „Wäre es nicht sinnvoll, noch irgendwo s
 | 126.7 | Ein Fenster im Wohnzimmer FL öffnen, die Minuten der Fenster-Regel warten, wieder schließen, dann 🩺 Protokoll | Im Protokoll (neueste oben) stehen „Fenster … offen“, „Fenster offen, die Wartezeit läuft“, „⏸️ Heizung pausiert“, „Fenster offen → … aus“ mit ✓ und das Thermostat „heizen → aus“ mit „vom Add-on“; danach „… zu“ und das Zurückstellen | ❓ |
 | 126.8 | Mit Heizplan: einen neuen Abschnitt des Plans abwarten | Kein „✋ Von Hand gedreht“ nur, weil das Thermostat die neue Temperatur spät meldet; im 🩺 Protokoll vielleicht kurz „⏳ … geschickt, das Thermostat hat es noch nicht gemeldet“, dann „🤖 … vom Add-on (vor … s geschickt)“ | ❓ |
 | 126.9 | Fällt dir wieder etwas auf (ein Fenster nicht erkannt, „✋ Von Hand gedreht“ ohne Drehen): „📋 Bericht kopieren“ und im Chat einfügen | Claude sieht darin, was das Add-on gesehen und getan hat, und findet den Grund | ❓ |
+
+## 127. Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte (#581)
+Wunsch des Besitzers vom 2026-10-28: „eine eigene Seite, wo alles quasi passiert … exportieren … für eine Fehleranalyse … alle Geräte drin hat, die in den Plänen verwendet werden“. Seine Wahl aus `docs/ideen-4.40/`: Bild 2 und 3, nur für Admins, Export als Text, .txt und .csv, so lange wie 🛡 Sicherheit.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 127.1 | In der Demo: unten „📜 Protokoll“ antippen | Oben die Zahlen (Änderungen, Befehle, Fehler, „zeichnet auf“), darunter die Liste, neueste oben: Zeit, Gerät mit Raum, was sich geändert hat, wer es war (🤖 Add-on, ⚙️ Automation, 👤 Anna, ✋ am Gerät, 📶 Sensor) | ✅ (2026-10-28, Claude in der Demo) |
+| 127.2 | Oben „⚠️ Fehler & offline“ antippen, dann „Alle“; „Wer“ auf „⚙️ Automationen“; einen Raum wählen; „küche“ suchen | Jedes Mal nur die passenden Zeilen (z. B. „Befehl an Rollladen Wohnzimmer ✗ nicht angenommen“, „Bewegungsmelder meldet sich nicht“) | ✅ (2026-10-28, Claude in der Demo) |
+| 127.3 | Auf die Zeile „Heizung Wohnzimmer“ tippen | Rechts der Tag dieses Geräts: jetzt, Änderungen und Befehle, ein Balken über den Tag, die letzten Ereignisse, „📋 Nur dieses Gerät kopieren“, „🔎 Wird benutzt“; die Liste bleibt ganz, die Zeile ist markiert | ✅ (2026-10-28, Claude in der Demo) |
+| 127.4 | „⬇ Exportieren“: einmal „Tabelle (.csv)“, einmal „Letzte 7 Tage“ als „Datei (.txt)“, einmal „Text“ | Die .csv öffnet sich in Excel mit Spalten (Datum, Zeit, Gerät, Entität, Raum, Was, Wer, Genauer); die .txt hat beide Tage; „Text“ sagt „✓ Kopiert“ | ✅ (2026-10-28, Claude in der Demo) |
+| 127.5 | Im Add-on: als Admin „📜 Protokoll“, dann zu Hause ein Licht am Schalter an- und ausmachen, eins auf einer Seite des Add-ons | Beim Schalter steht „✋ am Gerät“, beim Tippen „🤖 Add-on · 👆 dein Name“ und dazu eine Zeile „📤 Befehl an … ✓ angenommen“ | ❓ |
+| 127.6 | Im Add-on: eine deiner Automationen in Home Assistant laufen lassen, die ein Licht oder Thermostat schaltet | Die Zeile sagt „⚙️ Automation“ mit ihrem Namen (bei Geräten, die spät melden, vielleicht „✋ am Gerät“: dann sag es mir) | ❓ |
+| 127.7 | Im Add-on: ein Fenster im Wohnzimmer FL öffnen, warten bis die Heizung aus ist | „🪟 Fenster … zu → offen“, „📤 Befehl an … „aus“ ✓“ mit „📋 Fenster offen“, dann das Thermostat „heizen → aus“ mit „🤖 Add-on … s nach dem Befehl“ | ❓ |
+| 127.8 | Im Add-on: als Benutzer, der nicht bearbeiten darf (z. B. ein Wandtablet) | Kein Reiter „📜 Protokoll“ | ❓ |
+| 127.9 | Fällt dir etwas auf: „⬇ Exportieren“ → „Text“ (oder „Letzte 7 Tage“) und im Chat einfügen | Claude sieht darin, was wann von wem geschaltet wurde | ❓ |

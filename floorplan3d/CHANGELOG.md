@@ -4,6 +4,16 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.40.0] - 2026-10-28
+### Added
+- **📜 Protokoll: a tab of its own with everything that happens with the devices of the plans** (#581, the owner: "eine eigene Seite, wo alles quasi passiert, … wo man dann auch sozusagen exportieren kann für eine Fehleranalyse … dass man dann alle Geräte drin hat, die in den Plänen verwendet werden"; his choice from the example pictures in `docs/ideen-4.40/`: pictures 2 and 3, only for admins, export as text, .txt and .csv, kept as long as 🛡 Sicherheit). The new tab **📜 Protokoll** (only for who may edit):
+  - Every change of a device in the plans (on / off, open / closed, brightness, position, target temperature, stops reporting), each with **who it was**: 🤖 the add-on (which heating rule, routine, scene, which user on which page, the room sensor, the garden, the holiday alarm, and how many seconds after its command), ⚙️ an automation or a script of Home Assistant (with its name), 👤 a person in Home Assistant, ✋ at the device itself (or its remote or integration), 📶 a sensor, 📍 the phone app or the router.
+  - Every **command of the add-on** with whether Home Assistant took it (and why not), devices that stop reporting and a **lost connection**.
+  - Filters: the day (today, yesterday, the days before, the last 7 days), the kind (lights, windows & doors, heating, shutters, plugs, commands, errors & offline), who, the room, a search; the numbers on top (changes, devices, commands, errors).
+  - A tap on a row shows **that device's day** on the side: now, its changes and commands, a bar of the day (on / off), its last events, "📋 Nur dieses Gerät kopieren" and "🔎 Wird benutzt".
+  - **"📋 Bericht kopieren"** puts what is shown as text with the entity ids on the clipboard (to paste into the chat); **"⬇ Exportieren"**: the last hour, the day or the last 7 days; everything shown, only the faults or one device; as text to copy, a .txt file or a .csv table for Excel.
+  - The add-on keeps it in the files of the 🛡 Sicherheit recording (as many days as set there; with the recording off nothing new is added), new address `api/log`. Who it was comes from Home Assistant's `call_service`, `automation_triggered` and `script_started` events and the context of the state (new `devlog.py`); a change counts as a command's only when it is what the command asked for (a light switched off at the wall right after the add-on switched it on is not the add-on's). The demo shows a made-up day.
+
 ## [4.39.0] - 2026-10-28
 ### Added
 - **🩺 Protokoll: who controls what** (#579, the owner: "Wäre es nicht sinnvoll, noch irgendwo so ein Log … hinzuzufügen, wo man so auch auslesen kann, was gerade wen steuert? Das wäre ja dann noch praktisch für dich, dass du so Fehler … auswerten kannst"). 🌡 Klima has a new view **🩺 Protokoll**, also as a button on every room card with a thermostat (it opens on that room):
