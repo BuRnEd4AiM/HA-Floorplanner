@@ -175,7 +175,7 @@ def _way(x, cal) -> tuple:
     return x["way"], False
 
 
-def _sensor(states, s):
+def sensor_temp(states, s):
     """the sensor's temperature, None while it does not report"""
     st = states.get(s) or {}
     v = _num(st.get("state")) if st.get("state") not in GONE else None
@@ -331,7 +331,7 @@ def step(cfg, states, parts_of, mem, now: float, hold=()):
             mem["t"].pop(e)
     for e, (x, cal, way, nocal) in plan.items():
         st = states.get(e) or {}
-        room, meas = _sensor(states, x["s"]), _num(_attrs(states, e).get("current_temperature"))
+        room, meas = sensor_temp(states, x["s"]), _num(_attrs(states, e).get("current_temperature"))
         s = status[e] = {"s": x["s"], "v": room, "meas": meas, "way": way, "lost": room is None}
         if nocal:
             s["nocal"] = True

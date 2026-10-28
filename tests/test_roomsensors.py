@@ -273,3 +273,31 @@ def test_taken_away_puts_it_back():
     r.cfg = rs.clean({**cfg, "on": False})
     assert r.look(minutes=1) == [("climate", "set_temperature", {"entity_id": "climate.hm", "temperature": 20.0})]     # switched off: the wish
     assert r.mem == {"t": {}} and r.status == {}
+
+
+def test_too_warm_lowers_the_wish_of_a_moved_thermostat():
+    """🔥 Zu warm with a room sensor that moves the target (the owner's thermostats): the room 1,5° warmer than the comfort 21° → the wish
+    16°, moved by what the thermostat measures too much at the radiator; back at 21° in the room the wish 21° again. Run as rulesrun._heat does."""
+    rules = hr.clean_rules({"warm": {"on": True}, "schedule": {"on": True, "levels": {"comfort": 21.0}, "rooms": {"h/wz": {"days": [[[0, "comfort"]]] * 7}}},
+                            "sensors": wz("shift")})
+    rooms = [{"key": "h/wz", "name": "Wohnzimmer", "climates": ["climate.wz"], "windows": [], "doors": [], "outer": []}]
+    st = {"climate.wz": trv(target=21.0, meas=24.0), "sensor.wz": sensor(20.0)}
+    run = {"heat": {}, "sensors": rs.clean_mem({}), "now": 1_000_000.0}
+
+    def look(minutes=0):
+        run["now"] += minutes * 60
+        heat, calls, run["hs"], _ = hr.step(rules, rooms, rs.virtual(st, run["sensors"], hr.held(run["heat"])), run["now"], datetime.datetime(2026, 10, 28, 12), run["heat"])
+        run["heat"], hold = heat, hr.held(heat)
+        out = [("climate", svc, {"entity_id": e, **data}) for e, svc, data in rs.route(calls, run["sensors"], hold)]
+        run["sensors"], more, _, _ = rs.step(rules["sensors"], st, {}, run["sensors"], run["now"], hold)
+        out += more
+        done(st, out)
+        return out
+
+    assert look() == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 25.0})]   # 21 + (24 − 20)
+    st["sensor.wz"] = sensor(22.0)
+    assert look(11) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 18.0})]  # too warm: 16 + (24 − 22)
+    assert run["sensors"]["t"]["climate.wz"]["wish"] == 16.0 and run["hs"]["h/wz"]["warm"] == {"wish": 21.0, "room": 22.0, "to": 16.0}
+    st["sensor.wz"] = sensor(21.0)
+    assert look(11) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 24.0})]  # back: 21 + (24 − 21)
+    assert run["sensors"]["t"]["climate.wz"]["wish"] == 21.0 and run["hs"]["h/wz"]["why"] == "schedule"

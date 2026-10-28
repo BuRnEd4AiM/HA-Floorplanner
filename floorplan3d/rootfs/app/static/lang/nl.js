@@ -2089,4 +2089,11 @@ export default {
   'hd.use.counted': 'Deur (telt: ingesteld bij de deur)',
   'hr.window.inner': 'Een deur tussen twee kamers telt alleen met „Telt voor de verwarming” aan bij de deur (Bewerken → op de deur tikken).',
   'prop.heatDoorSub': 'Open → de verwarming van de kamers ernaast gaat uit, zoals bij een raam.',
+  'hr.rule.warm': 'Te warm → verwarming lager', 'hr.sub.warm': 'gemeten met de kamersensor, anders met de thermostaat',
+  'hr.warm.above': 'als de kamer warmer is met', 'hr.warm.down': 'thermostaat lager met', 'hr.warm.back': 'terug',
+  'hr.warm.backWhen': 'kamer weer op de wens',
+  'hr.warm.how': 'Voorbeeld: wens {wish}, vanaf {at} in de kamer gaat de thermostaat naar {to} tot de kamer weer {back} is. Een open raam en 🚀 Boost gaan voor.',
+  'hr.line.warm': 'Te warm ({room} in de kamer) · thermostaat {to} tot weer {wish}', 'hr.why.warm': 'Te warm', 'hr.prio': 'Wat gaat voor?',
+  'hr.prio.text': '🪟 Raam open → 🚀 Boost → 🔥 Te warm → ✈️ Vakantie → ☀️ Zomerpauze → 🚶 Niemand thuis → 📅 Schema → 🌙 Nachtverlaging. Eindigt een regel, dan komt terug wat ervoor gold; met de hand gedraaid blijft tot de volgende wissel (bij het schema tot de ingestelde minuten).',
+  'hd.cfg.warm': 'Te warm: {on} · vanaf {above} warmer · thermostaat {down} lager',
 };

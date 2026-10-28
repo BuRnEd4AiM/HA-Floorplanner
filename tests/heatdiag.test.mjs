@@ -76,6 +76,9 @@ test('what a room does in a line of the journal', () => {
   assert.match(D.roomWords({ why: 'schedule', level: 'comfort', temp: 21, hand: at(18, 10) }, t, deg), /^✋ hr\.line\.hand\{"at":"18:10"/);
   assert.equal(D.roomWords({ why: 'schedule', level: 'eco', temp: 19, sent: 19 }, t, deg), 'hr.line.schedule{"v":"19°","level":"hr.level.eco"} · ⏳ hd.sent{"v":"19°"}');
   assert.equal(D.roomWords({ why: null }, t, deg), 'hd.r.none');
+  assert.equal(D.roomWords({ why: 'warm', level: 'night', temp: 17, warm: { wish: 17, room: 18.4, to: 12 } }, t, deg),   // 🔥 too warm
+    '🔥 hr.line.warm{"room":"18,4°","to":"12°","wish":"17°"}');
+  assert.equal(D.roomWords({ why: 'warm' }, t, deg), '🔥 hr.line.warm{"room":"–","to":"–","wish":"–"}');
   assert.equal(D.nowWords(null, now, t, deg).text, 'hd.noClimate');
   assert.equal(D.nowWords(null, now, t, deg, true).text, 'hd.noStatus');
   assert.equal(D.nowWords({ why: null }, now, t, deg).text, 'hd.nobody');
@@ -138,6 +141,8 @@ test('contacts in no room, the head and the report', () => {
   assert.deepEqual(D.loneContacts(floors, diag), ['binary_sensor.garage', 'binary_sensor.g2', 'binary_sensor.dach']);
   assert.deepEqual(D.headLines(diag, rules, ctx), ['🔗 hd.link.on{"at":"17:02:00"}', '🪟 hd.cfg.window{"on":"hd.on","n":2,"doors":"hd.yes"}',
     '📅 hd.cfg.plan{"on":"hd.on","hand":"fl.min{\\"n\\":10}"}']);
+  const warm = { ...rules, heat: { ...rules.heat, warm: { on: true, above: 1, down: 5, skip: ['main/flur'] } } };
+  assert.deepEqual(D.headLines(diag, warm, ctx).slice(2, 4), ['🔥 hd.cfg.warm{"on":"hd.on","above":"1°","down":"5°"}', '   hd.cfg.skip{"rooms":"Flur"}']);
   assert.equal(D.headLines({ ...diag, running: false }, rules, ctx)[0], '⚠️ hd.link.off');
   assert.equal(D.headLines({ ...diag, running: false }, { ...rules, active: false }, ctx)[0], 'hd.link.idle');
   assert.equal(D.headLines({ ...diag, ha: false }, rules, ctx)[0], 'hd.noHa');

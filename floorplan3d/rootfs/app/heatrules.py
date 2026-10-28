@@ -6,7 +6,11 @@ Two kinds of rules decide what a thermostat should do:
 - a *level* (the normal temperature of the moment), the first that applies: holiday (🏖 Urlaub, or while the holiday alarm is armed),
   summer pause (☀ warm outside for some hours: off), nobody at home (🚶 after some minutes: cooler), the schedule of the room (📅 Heizplan:
   night / eco / comfort per day, warmer a little earlier with "Vorheizen") or else the night setback (🌙 between two times).
-- an *override* for a while: a window of the room open for some minutes (🪟: off), or 🚀 boost (warm for some minutes).
+- an *override* for a while: a window of the room open for some minutes (🪟: off), or 🚀 boost (warm for some minutes), or the room
+  too warm (🔥 Zu warm, the owner: "wenn es zu warm ist das dann die heizung runter geht ka so 5 grad das es nicht die ganze zeit heizt";
+  his choice: 5° below the wish from 1° too warm, measured by the thermostat's room sensor, else by the thermostat; back at the wish).
+  Who goes first (the owner: "beachte die Prio von den ganzen Karten das die sich nicht gegenseitig überschreiben"): the window, then
+  the boost, then too warm, then the level; a level that changes meanwhile is the new wish, an override that ends puts back what was.
 A level is set when it changes (a new block of the schedule, everybody left), not again and again: a thermostat turned by hand keeps its
 value until the next change; under the schedule only for some minutes ("hand", the owner: "wenn man von Hand dreht nach 10 min wieder
 zurück, aber das kann eingestellt werden"; 0: until the next block), then the schedule's temperature comes back. An override remembers the thermostat as it was and puts it back when it ends ("wie vorher"); if the level
@@ -46,6 +50,7 @@ DEFAULT = {
     "summer": {"on": False, "above": 18.0, "hours": 6},
     "boost": {"on": True, "minutes": 30, "temp": 24.0},
     "holiday": {"on": False, "temp": 15.0, "until": "", "back": "14:00", "guard": False},
+    "warm": {"on": False, "above": 1.0, "down": 5.0, "skip": []},
 }
 
 
@@ -55,6 +60,11 @@ def _int(v, lo, hi, default):
 
 def _temp(v, default):
     return max(5.0, min(30.0, round(float(v) * 2) / 2)) if isinstance(v, (int, float)) and not isinstance(v, bool) and v == v else default
+
+
+def _deg(v, lo, hi, default):
+    """a number of degrees in half steps from lo to hi"""
+    return max(lo, min(hi, round(float(v) * 2) / 2)) if isinstance(v, (int, float)) and not isinstance(v, bool) and v == v else default
 
 
 def _bool(v, default):
@@ -92,7 +102,7 @@ def clean_rules(data) -> dict:
     """the heating rules as an admin set them, every value checked; what is missing or wrong takes its default"""
     d = data if isinstance(data, dict) else {}
     g = lambda k: d.get(k) if isinstance(d.get(k), dict) else {}   # noqa: E731
-    w, a, n, s, su, b, h = g("window"), g("away"), g("night"), g("schedule"), g("summer"), g("boost"), g("holiday")
+    w, a, n, s, su, b, h, wa = g("window"), g("away"), g("night"), g("schedule"), g("summer"), g("boost"), g("holiday"), g("warm")
     D = DEFAULT
     levels = s.get("levels") if isinstance(s.get("levels"), dict) else {}
     plans = {}
@@ -115,13 +125,15 @@ def clean_rules(data) -> dict:
         "holiday": {"on": _bool(h.get("on"), False), "temp": _temp(h.get("temp"), D["holiday"]["temp"]),
                     "until": h.get("until") if isinstance(h.get("until"), str) and DATE.match(h["until"]) else "",
                     "back": _time(h.get("back"), D["holiday"]["back"]), "guard": _bool(h.get("guard"), False)},
+        "warm": {"on": _bool(wa.get("on"), False), "above": _deg(wa.get("above"), 0.5, 5.0, D["warm"]["above"]),
+                 "down": _deg(wa.get("down"), 1.0, 15.0, D["warm"]["down"]), "skip": _rooms(wa.get("skip"))},
         "sensors": rs.clean(d.get("sensors")),            # 🌡 Raumfühler: a sensor in the room for each thermostat (roomsensors.py, #573)
     }
 
 
 def any_on(rules: dict) -> bool:
     """does any rule do something (the boost only does something when somebody taps it)"""
-    return any(rules[k]["on"] for k in ("window", "away", "night", "schedule", "summer", "holiday")) or rules["holiday"]["guard"]
+    return any(rules[k]["on"] for k in ("window", "away", "night", "schedule", "summer", "holiday", "warm")) or rules["holiday"]["guard"]
 
 
 def _mins(hhmm: str) -> int:
@@ -238,9 +250,11 @@ def apply_level(states, e, level) -> list:
     return _set(states, e, _heat_mode(states, e, "heat"), level["temp"])
 
 
-def apply_override(states, e, ov, rules) -> list:
+def apply_override(states, e, ov, rules, warm_to=None) -> list:
     if ov == "window":
         return _set(states, e, "off")
+    if ov == "warm":                                   # too warm: lower, in the mode it has (auto stays auto)
+        return _set(states, e, _heat_mode(states, e, (states.get(e) or {}).get("state")), warm_to)
     return _set(states, e, _heat_mode(states, e, "heat"), rules["boost"]["temp"])     # boost
 
 
@@ -320,6 +334,46 @@ def pending(states, e, t, now) -> tuple:
         return [(e, "set_temperature", {"temperature": s[0]})], True
     t.pop("sent")
     return [], False
+
+
+def _with_target(states, e, temp) -> dict:
+    """the states with thermostat e at target temp (one sent that it has not reported yet)"""
+    st = states.get(e) or {}
+    return {**states, e: {**st, "attributes": {**(st.get("attributes") or {}), "temperature": temp}}}
+
+
+def room_temp(rules, states, e):
+    """the temperature of the room of thermostat e: its room sensor (🌡 Raumfühler) when it has one, else what the thermostat measures;
+    None while that does not report (a thermostat with a sensor that does not report: None too, at the radiator it measures too warm)"""
+    cfg = rules.get("sensors") or {}
+    x = (cfg.get("map") or {}).get(e) if cfg.get("on") else None
+    if x:
+        return rs.sensor_temp(states, x["s"])
+    v = _num(_attr(states, e, "current_temperature"))
+    return v if v is not None and -40 <= v <= 80 else None
+
+
+def too_warm(rules, states, e, level, t, key):
+    """(wish, target) when the room of thermostat e is too warm (🔥 Zu warm): from wish + above on, until the room is back at the wish;
+    wish: the level's temperature, without one the thermostat's own target (while it is lowered: the one before); target: wish − down.
+    None when the rule is off for the room, the level is off, the thermostat is off, or nothing measures (lowered already, it stays so
+    while the sensor does not report). t: what the rules remember."""
+    w = rules.get("warm") or {}
+    if not w.get("on") or key in (w.get("skip") or []) or (level or {}).get("off"):
+        return None
+    was = t.get("ov") == "warm"
+    if level:
+        wish = _num(level.get("temp"))
+    elif was:
+        wish = _num((t.get("under") or {}).get("temp"))
+    else:
+        wish = snap(states, e)["temp"] if (states.get(e) or {}).get("state") not in ("off", None, *GONE) else None
+    meas = room_temp(rules, states, e)
+    if wish is None or (meas is None and not was):
+        return None
+    if meas is None or (meas > wish + 0.001 if was else meas >= wish + w["above"] - 0.001):   # a sensor gone for a moment: stays lowered
+        return wish, _clamp(states, e, wish - w["down"])
+    return None
 
 
 def restore(states, e, s) -> list:
@@ -441,24 +495,35 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
             level, ov_e = (None, ov if ov == "window" else None) if ac else (room_lv, ov)
             t = mem["t"].get(e) or {}
             old_level, old_ov = t.get("level"), t.get("ov")
-            out = []
+            warm = None if ov_e or ac else too_warm(rules, states, e, level, t, key)    # after the window and the boost (they go first)
+            if warm:
+                ov_e = "warm"
+            cur0, out, half = _num(_attr(states, e, "temperature")), [], _tstep(states, e) / 2 + 0.001
+            low = _num(t.get("warmTo")) if old_ov == "warm" else None      # what too warm set; still on its way (not reported yet)?
+            sent = t.get("sent") if isinstance(t.get("sent"), list) and len(t["sent"]) >= 3 else [None, None, None]
+            on_way = (low is not None and _num(sent[0]) is not None and abs(sent[0] - low) <= half      # it still shows the target before
+                      and (cur0 is None or (_num(sent[2]) is not None and abs(cur0 - sent[2]) <= half)))
             if ov_e != old_ov:
                 if ov_e and not old_ov:                      # an override starts: remember the thermostat as it is
                     t["under"], t["lvAtOv"] = snap(states, e), old_level
                     t["offT"], t["offN"] = now, 0
-                    out = apply_override(states, e, ov_e, rules)
+                    out = apply_override(states, e, ov_e, rules, warm and warm[1])
                 elif ov_e:                                   # one override follows another (the window opened during a boost)
-                    out = apply_override(states, e, ov_e, rules)
+                    out = apply_override(states, e, ov_e, rules, warm and warm[1])
+                elif low is not None and not on_way and cur0 is not None and abs(cur0 - low) > half:
+                    t.pop("under", None)                     # turned by somebody while it was too warm: stays as turned
+                    t.pop("lvAtOv", None)
+                    t.pop("sent", None)
                 else:                                      # it ends: as it was, or the level that came meanwhile
-                    at = t.get("lvAtOv")
+                    at, sts = t.get("lvAtOv"), _with_target(states, e, low) if on_way else states   # lowered, not reported yet: as if
                     if _same(level, at) and (level or {}).get("why") == (at or {}).get("why"):
-                        out = restore(states, e, t.get("under"))
+                        out = restore(sts, e, t.get("under"))
                     elif level:
                         if at is None:
                             t["before"] = t.get("under")
-                        out = apply_level(states, e, level)
+                        out = apply_level(sts, e, level)
                     else:
-                        out = restore(states, e, t.get("before") if (at or {}).get("why") in PASSING else t.get("under"))
+                        out = restore(sts, e, t.get("before") if (at or {}).get("why") in PASSING else t.get("under"))
                         t.pop("before", None)
                     t.pop("under", None)
                     t.pop("lvAtOv", None)
@@ -472,6 +537,13 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                     if old_level.get("why") in PASSING:
                         out = restore(states, e, t.get("before"))
                     t.pop("before", None)
+            if ov_e == "warm" and old_ov == "warm" and not out and t.get("warmTo") != warm[1]:
+                out = apply_override(states, e, "warm", rules, warm[1])   # still too warm, but the wish changed (the schedule moved on)
+            if ov_e == "warm":
+                t["warmTo"], t["warm"] = warm[1], [warm[0], room_temp(rules, states, e)]
+            else:
+                t.pop("warmTo", None)
+                t.pop("warm", None)
             if ov_e == "window":
                 out = out or keep_off(states, e, t, now, ac)
             else:
@@ -513,7 +585,8 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                        "waiting": bool(watched and opened and ov != "window" and not mem["skip"].get(key)), "skip": bool(mem["skip"].get(key)),
                        "hand": first["hand"] + rules["schedule"]["hand"] * 60 if first.get("hand") else None,
                        "stuck": ov1 == "window" and not paused(states, climates[0], cools(states, climates[0])) and first.get("offN", 0) >= TRIES,
-                       "sent": (first.get("sent") or [None])[0], "climates": climates}
+                       "sent": (first.get("sent") or [None])[0], "climates": climates,
+                       "warm": {"wish": first["warm"][0], "room": first["warm"][1], "to": first.get("warmTo")} if ov1 == "warm" and first.get("warm") else None}
     for e in list(mem["t"]):                                # thermostats no longer in a room: forgotten
         if e not in seen and e not in placed:
             mem["t"].pop(e)

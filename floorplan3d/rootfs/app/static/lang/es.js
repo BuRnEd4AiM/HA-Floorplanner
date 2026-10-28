@@ -2113,4 +2113,12 @@ export default {
   'hd.use.counted': 'Puerta (cuenta: ajustado en la puerta)',
   'hr.window.inner': 'Una puerta entre dos habitaciones solo cuenta con «Cuenta para la calefacción» activado en la puerta (Editar → tocar la puerta).',
   'prop.heatDoorSub': 'Abierta → la calefacción de las habitaciones contiguas se apaga, como con una ventana.',
+  'hr.rule.warm': 'Demasiado calor → calefacción más baja', 'hr.sub.warm': 'medido con el sensor de la habitación, si no con el termostato',
+  'hr.warm.above': 'cuando la habitación tiene más', 'hr.warm.down': 'termostato más bajo en', 'hr.warm.back': 'vuelta',
+  'hr.warm.backWhen': 'de nuevo en lo deseado',
+  'hr.warm.how': 'Ejemplo: deseo {wish}, desde {at} en la habitación el termostato pasa a {to} hasta que la habitación vuelva a {back}. Una ventana abierta y 🚀 Boost van primero.',
+  'hr.line.warm': 'Demasiado calor ({room} en la habitación) · termostato {to} hasta volver a {wish}', 'hr.why.warm': 'Demasiado calor',
+  'hr.prio': '¿Quién tiene prioridad?',
+  'hr.prio.text': '🪟 Ventana abierta → 🚀 Boost → 🔥 Demasiado calor → ✈️ Vacaciones → ☀️ Pausa de verano → 🚶 Nadie en casa → 📅 Horario → 🌙 Reducción nocturna. Cuando termina una regla, vuelve lo de antes; girado a mano se queda hasta el próximo cambio (con el horario durante los minutos ajustados).',
+  'hd.cfg.warm': 'Demasiado calor: {on} · desde {above} más · termostato {down} más bajo',
 };

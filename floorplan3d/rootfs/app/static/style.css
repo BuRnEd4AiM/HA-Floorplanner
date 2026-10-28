@@ -2022,6 +2022,7 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .ubPause, .hrBanner { background: rgba(63, 169, 245, .12); border: 1px solid rgba(63, 169, 245, .55); }
 .ubPause.warn, .hrBanner.warn { background: rgba(245, 166, 35, .12); border-color: rgba(245, 166, 35, .55); }
 .ubPause.boost, .hrBanner.boost { background: rgba(255, 140, 50, .12); border-color: rgba(255, 140, 50, .6); }
+.hrBanner.warm { background: rgba(240, 90, 70, .1); border-color: rgba(240, 90, 70, .55); }
 .ubPause.hand, .hrBanner.hand { background: rgba(180, 140, 255, .1); border-color: rgba(180, 140, 255, .55); }
 .ubWarn { background: rgba(245, 166, 35, .13); border: 1px solid rgba(245, 166, 35, .6); }
 .ubWarn .big { font-size: 22px; } .ubWarn > span:nth-child(2) { flex: 1; min-width: 200px; }
@@ -2064,6 +2065,8 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .hrLine.pause { background: rgba(63, 169, 245, .14); box-shadow: inset 3px 0 0 #3fa9f5; }
 .hrLine.warn { background: rgba(245, 166, 35, .14); box-shadow: inset 3px 0 0 #f5a623; }
 .hrLine.boost { background: rgba(255, 140, 50, .14); box-shadow: inset 3px 0 0 #ff8c32; }
+.hrLine.warm { background: rgba(240, 90, 70, .12); box-shadow: inset 3px 0 0 #f05a46; }
+.hrPrio { margin: 0 0 10px; font-size: 13px; } .hrPrio summary { cursor: pointer; color: var(--muted); } .hrPrio p { margin: 6px 0 0; line-height: 1.5; }
 .hrLine.hand { background: rgba(180, 140, 255, .14); box-shadow: inset 3px 0 0 #b48cff; }      /* turned by hand: back to the plan soon */
 .hrLine > span { flex: 1; min-width: 150px; }
 .hrRoomBtns { display: flex; gap: 6px; flex-wrap: wrap; }

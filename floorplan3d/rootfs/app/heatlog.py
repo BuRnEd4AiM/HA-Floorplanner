@@ -10,7 +10,8 @@ Entries (each with t, the time in seconds, and k, the kind):
 - climate: a thermostat's mode or target changed {ent, room, mode: [before, now] | None, temp: [before, now] | None, by, who, ago}; by:
   addon (it reports what the add-on sent ago seconds before), auto (an automation or script of Home Assistant), user (somebody in Home
   Assistant, who: the person), device (at the thermostat itself or by its integration: Home Assistant does not say who)
-- room: what a room's rules do changed {room, why, was, level, temp, waiting, hand, skip, stuck, sent, first}
+- room: what a room's rules do changed {room, why, was, level, temp, waiting, hand, skip, stuck, sent, first, warm (too warm: wish,
+  room, to)}
 - rule: what a heating rule decided (a line of heatrules.step) {ent, act, v, why, room, again}
 - call: a call the add-on made {ent, dom, svc, v, ok (Home Assistant took it), src: heat | sensor}
 - sensor: the room sensor took a target somebody else set as the wish, or put a thermostat back {ent, act, v}
@@ -154,6 +155,8 @@ def rooms(old: dict, new: dict, now) -> list:
         if o is not None and _room_sig(o) == _room_sig(s):
             continue
         x = {"t": round(now), "k": "room", "room": key, **{k: s.get(k) for k in ROOM_KEYS}, "hand": s.get("hand"), "sent": s.get("sent")}
+        if s.get("warm"):
+            x["warm"] = s["warm"]                            # 🔥 too warm: {wish, room, to}
         if o is None:
             x["first"] = True
         elif o.get("why") != s.get("why"):

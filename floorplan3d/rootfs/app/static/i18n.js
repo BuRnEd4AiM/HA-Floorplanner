@@ -1050,6 +1050,13 @@ const DICT = {
     'hd.use.counted': 'Tür (zählt: an der Tür eingestellt)',
     'hr.window.inner': 'Eine Tür zwischen zwei Räumen zählt nur, wenn an der Tür „Zählt für die Heizung“ an ist (Bearbeiten → Tür antippen).',
     'prop.heatDoorSub': 'Offen → die Heizung der Räume daneben geht aus, wie bei einem Fenster.',
+    'hr.rule.warm': 'Zu warm → Heizung runter', 'hr.sub.warm': 'gemessen mit dem Raumfühler, sonst mit dem Thermostat',
+    'hr.warm.above': 'wenn der Raum wärmer ist um', 'hr.warm.down': 'Thermostat tiefer um', 'hr.warm.back': 'zurück',
+    'hr.warm.backWhen': 'Raum wieder beim Wunsch',
+    'hr.warm.how': 'Beispiel: Wunsch {wish}, ab {at} im Raum geht das Thermostat auf {to}, bis der Raum wieder {back} hat. Ein offenes Fenster und 🚀 Boost gehen vor.',
+    'hr.line.warm': 'Zu warm ({room} im Raum) · Thermostat {to}, bis wieder {wish}', 'hr.why.warm': 'Zu warm', 'hr.prio': 'Wer hat Vorrang?',
+    'hr.prio.text': '🪟 Fenster offen → 🚀 Boost → 🔥 Zu warm → ✈️ Urlaub → ☀️ Sommerpause → 🚶 Keiner zu Hause → 📅 Heizplan → 🌙 Nachtabsenkung. Endet eine Regel, kommt zurück, was vorher galt; von Hand gedreht bleibt bis zum nächsten Wechsel (beim Heizplan bis zu den eingestellten Minuten).',
+    'hd.cfg.warm': 'Zu warm: {on} · ab {above} wärmer · Thermostat {down} tiefer',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2054,6 +2061,13 @@ const DICT = {
     'hd.use.counted': 'Door (counts: set at the door)',
     'hr.window.inner': 'A door between two rooms only counts with “Counts for the heating” on at the door (Edit → tap the door).',
     'prop.heatDoorSub': 'Open → the heating of the rooms beside it goes off, as with a window.',
+    'hr.rule.warm': 'Too warm → heating down', 'hr.sub.warm': 'measured by the room sensor, else by the thermostat',
+    'hr.warm.above': 'when the room is warmer by', 'hr.warm.down': 'thermostat lower by', 'hr.warm.back': 'back',
+    'hr.warm.backWhen': 'room back at the wish',
+    'hr.warm.how': 'Example: wish {wish}, from {at} in the room the thermostat goes to {to} until the room is back at {back}. An open window and 🚀 boost go first.',
+    'hr.line.warm': 'Too warm ({room} in the room) · thermostat {to} until back at {wish}', 'hr.why.warm': 'Too warm', 'hr.prio': 'Which goes first?',
+    'hr.prio.text': '🪟 Window open → 🚀 Boost → 🔥 Too warm → ✈️ Holiday → ☀️ Summer pause → 🚶 Nobody at home → 📅 Schedule → 🌙 Night setback. When a rule ends, what was before comes back; turned by hand stays until the next change (under the schedule for the minutes set).',
+    'hd.cfg.warm': 'Too warm: {on} · from {above} warmer · thermostat {down} lower',
   },
 };
 

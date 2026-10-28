@@ -2084,4 +2084,11 @@ export default {
   'hd.use.counted': 'Drzwi (liczą się: ustawione przy drzwiach)',
   'hr.window.inner': 'Drzwi między dwoma pokojami liczą się tylko z włączonym „Liczy się dla ogrzewania” przy drzwiach (Edycja → dotknij drzwi).',
   'prop.heatDoorSub': 'Otwarte → ogrzewanie sąsiednich pokoi się wyłącza, jak przy oknie.',
+  'hr.rule.warm': 'Za ciepło → ogrzewanie niżej', 'hr.sub.warm': 'mierzone czujnikiem w pokoju, inaczej termostatem',
+  'hr.warm.above': 'gdy w pokoju jest cieplej o', 'hr.warm.down': 'termostat niżej o', 'hr.warm.back': 'powrót',
+  'hr.warm.backWhen': 'pokój znowu przy życzeniu',
+  'hr.warm.how': 'Przykład: życzenie {wish}, od {at} w pokoju termostat idzie na {to}, aż pokój znowu ma {back}. Otwarte okno i 🚀 Boost mają pierwszeństwo.',
+  'hr.line.warm': 'Za ciepło ({room} w pokoju) · termostat {to}, aż znowu {wish}', 'hr.why.warm': 'Za ciepło', 'hr.prio': 'Co ma pierwszeństwo?',
+  'hr.prio.text': '🪟 Okno otwarte → 🚀 Boost → 🔥 Za ciepło → ✈️ Urlop → ☀️ Przerwa letnia → 🚶 Nikogo w domu → 📅 Harmonogram → 🌙 Obniżenie nocne. Gdy reguła się kończy, wraca to, co było wcześniej; przekręcone ręcznie zostaje do następnej zmiany (przy harmonogramie przez ustawione minuty).',
+  'hd.cfg.warm': 'Za ciepło: {on} · od {above} cieplej · termostat {down} niżej',
 };

@@ -288,6 +288,12 @@ export function templates(states, t) {
 }
 
 /* ---- what a room's heating does now (the status of api/rules) ---- */
+/** "Zu warm (18,4° im Raum) · Thermostat 12°, bis wieder 17°" (s.warm: { wish, room, to } of heatrules.step) */
+export function warmText(s, t, deg) {
+  const w = s?.warm || {}, d = (v) => (typeof v === 'number' ? deg(v) : '–');
+  return t('hr.line.warm', { room: d(w.room), to: d(w.to), wish: d(w.wish) });
+}
+
 /** a room's line: { icon, text, tone } or null; s: status of the room, now (seconds), deg(v): a temperature as text */
 export function roomLine(s, now, t, deg) {
   if (!s) return null;
@@ -296,6 +302,7 @@ export function roomLine(s, now, t, deg) {
   if (s.waiting) return { icon: '🪟', tone: 'warn', text: t('hr.line.waiting') };
   if (s.skip) return { icon: '🔥', tone: '', text: t('hr.line.skip') };
   if (s.why === 'boost') { const d = new Date((s.until || now) * 1000); return { icon: '🚀', tone: 'boost', text: t('hr.line.boost', { at: hhmm(d.getHours() * 60 + d.getMinutes()) }) }; }
+  if (s.why === 'warm') return { icon: '🔥', tone: 'warm', text: warmText(s, t, deg) };   // too warm: lowered until the room is back at the wish
   if (!s.why) return null;
   if (s.hand && s.why === 'schedule') {                          // turned by hand: the schedule's temperature comes back at s.hand (#546)
     const d = new Date(s.hand * 1000);
