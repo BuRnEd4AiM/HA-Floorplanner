@@ -3,14 +3,15 @@
  * (Fenster offen → Heizung aus, Keiner zu Hause → kühler, Nachtabsenkung, Heizplan, Sommerpause, Boost-Knopf, Urlaub), what is active
  * now on top, and "＋ Eigene Regel" (a routine "Wenn … dann …"). Also what a room's card on the page shows of them: the line "⏸ Heizung
  * pausiert …" with "🔥 Trotzdem heizen", 🚀 Boost and 🔎 Wird benutzt. The add-on runs the rules (heatrules.py); saved a moment after the
- * last change. */
+ * last change. The card 🔥 Zu warm (the owner: "wenn es zu warm ist das dann die heizung runter geht ka so 5 grad") and on top "Wer hat
+ * Vorrang?" (his "beachte die Prio von den ganzen Karten das die sich nicht gegenseitig überschreiben"). */
 import { roomLine, roomKey, LEVEL_COLOR, dayBlocks, dayStart, templates } from './rules.js';
 
-const RULES = ['window', 'away', 'night', 'schedule', 'summer', 'boost', 'holiday'];
-const ICON = { window: '🪟', away: '🚶', night: '🌙', schedule: '📅', summer: '☀️', boost: '🚀', holiday: '✈️' };
+const RULES = ['window', 'warm', 'away', 'night', 'schedule', 'summer', 'boost', 'holiday'];
+const ICON = { window: '🪟', warm: '🔥', away: '🚶', night: '🌙', schedule: '📅', summer: '☀️', boost: '🚀', holiday: '✈️' };
 
 /** ctx: t, lang(), rules (rulesstore.js), canEdit(), locked() (may not switch), houseId(), rooms() (the rooms of the house shown with a
- *  thermostat: [{ id, name, climate }]), deg(v), states(), usedBy (usedbyui.js), editFlow(flow) (the editor of a routine), showPlan()
+ *  thermostat: [{ id, name, climate }]), deg(v), delta(v) (a difference of degrees), states(), usedBy (usedbyui.js), editFlow(flow) (the editor of a routine), showPlan()
  *  (the view 📅 Heizplan), showDiag(room key) (the view 🩺 Protokoll of a room, #579), changed() (draw the page again), sensors
  *  (roomsensorsui.js: the card 🌡 Raumfühler and its line, #573) */
 export function initHeatRulesUi(ctx) {
@@ -69,7 +70,7 @@ export function initHeatRulesUi(ctx) {
     const head = make('div', 'hrHead');
     const tx = make('div', '');
     tx.append(make('b', '', t(`hr.rule.${rule}`)), make('small', 'tpSub', t(`hr.sub.${rule}`)));
-    head.append(make('span', 'hrIc', ICON[rule]), tx, toggle(rule === 'holiday' ? h.holiday.on : h[rule].on, (v) => change((x) => { x[rule].on = v; }), rule));
+    head.append(make('span', 'hrIc', ICON[rule]), tx, toggle(rule === 'holiday' ? h.holiday.on : h[rule].on, (v) => change((x) => { x[rule] = { ...h[rule], ...x[rule], on: v }; }), rule));
     c.append(head);
     const kvs = make('div', 'hrKvs'); kvs.append(...body);
     c.append(kvs);
@@ -85,22 +86,42 @@ export function initHeatRulesUi(ctx) {
     return box;
   }
 
+  /** the rooms of a rule to tap off and on (its skip list) */
+  function roomChips(h, rule) {
+    const skip = new Set(h[rule].skip), box = make('div', 'hrRooms');
+    ctx.rooms().forEach((r) => {
+      const b = btn(`tpChip${skip.has(key(r.id)) ? '' : ' on'}`, r.name, () => change((x) => {
+        const k = key(r.id), was = (x[rule] = { ...h[rule], ...x[rule] }).skip || [];
+        x[rule].skip = was.includes(k) ? was.filter((y) => y !== k) : [...was, k];
+      }));
+      b.disabled = !ctx.canEdit(); b.dataset.room = r.id;
+      box.append(b);
+    });
+    return box;
+  }
+
+  /** 🔥 Zu warm: from "above" degrees warmer than wished the thermostat goes "down" degrees lower, back at the wish */
+  function warmCard(h) {
+    const w = h.warm || { on: false, above: 1, down: 5, skip: [] };
+    const delta = ctx.delta || ctx.deg;
+    const d = make('div', '');
+    d.append(make('p', 'tpSub hrInner', t('hr.warm.how', { wish: ctx.deg(17), at: ctx.deg(17 + w.above), to: ctx.deg(17 - w.down), back: ctx.deg(17) })),
+      make('small', 'tpSub', t('hr.window.rooms')), roomChips({ warm: w }, 'warm'));
+    const a = activeChips('warm'); if (a) d.append(a);
+    return card('warm', { ...h, warm: w }, [
+      kv(t('hr.warm.above'), stepper(w.above, { step: 0.5, min: 0.5, max: 5, text: delta, set: (v) => change((x) => { x.warm = { ...w, ...x.warm, above: v }; }), data: 'warm.above' })),
+      kv(t('hr.warm.down'), stepper(w.down, { step: 0.5, min: 1, max: 15, text: delta, set: (v) => change((x) => { x.warm = { ...w, ...x.warm, down: v }; }), data: 'warm.down' })),
+      kv(t('hr.warm.back'), make('b', '', t('hr.warm.backWhen')))], d);
+  }
+
   function cards(h) {
     const rooms = ctx.rooms();
     const out = [];
     if (ctx.sensors) out.push(ctx.sensors.card(h, { change, toggle, stepper, kv }));   // 🌡 Raumfühler (#573)
-    const skip = new Set(h.window.skip);
-    const roomChips = make('div', 'hrRooms');
-    rooms.forEach((r) => {
-      const b = btn(`tpChip${skip.has(key(r.id)) ? '' : ' on'}`, r.name, () => change((x) => {
-        const k = key(r.id); x.window.skip = x.window.skip.includes(k) ? x.window.skip.filter((y) => y !== k) : [...x.window.skip, k];
-      }));
-      b.disabled = !ctx.canEdit(); b.dataset.room = r.id;
-      roomChips.append(b);
-    });
     out.push(card('window', h, [kv(t('hr.window.delay'), mins(h.window.delay, (v) => change((x) => { x.window.delay = v; }), 'window.delay', 60)),
       kv(t('hr.window.doors'), toggle(h.window.doors, (v) => change((x) => { x.window.doors = v; }), 'window.doors')),
-      kv(t('hr.window.after'), make('b', '', t('hr.back')))], (() => { const d = make('div', ''); d.append(make('p', 'tpSub hrInner', t('hr.window.inner')), make('small', 'tpSub', t('hr.window.rooms')), roomChips); const a = activeChips('window'); if (a) d.append(a); return d; })()));
+      kv(t('hr.window.after'), make('b', '', t('hr.back')))], (() => { const d = make('div', ''); d.append(make('p', 'tpSub hrInner', t('hr.window.inner')), make('small', 'tpSub', t('hr.window.rooms')), roomChips(h, 'window')); const a = activeChips('window'); if (a) d.append(a); return d; })()));
+    out.push(warmCard(h));
     out.push(card('away', h, [kv(t('hr.away.delay'), mins(h.away.delay, (v) => change((x) => { x.away.delay = v; }), 'away.delay', 240, 5)),
       kv(t('hr.temp'), temp(h.away.temp, (v) => change((x) => { x.away.temp = v; }), 'away.temp')), kv(t('hr.away.back'), make('b', '', t('hr.away.backWhen')))], activeChips('away')));
     const nightRooms = make('div', 'hrNightRooms');
@@ -173,6 +194,9 @@ export function initHeatRulesUi(ctx) {
     box.append(...banner());
     if (!ctx.canEdit()) box.append(make('p', 'tpSub hrNote', t('hr.readOnly')));
     if (saved && Date.now() - saved < 2000) box.append(make('p', 'hrSaved', `✓ ${t('hr.saved')}`));
+    const prio = make('details', 'hrPrio'); prio.dataset.part = 'prio';            // who goes first (the owner: "beachte die Prio")
+    prio.append(make('summary', '', `ℹ️ ${t('hr.prio')}`), make('p', 'tpSub', t('hr.prio.text')));
+    box.append(prio);
     const grid = make('div', 'hrGrid');
     grid.append(...cards(heat()));
     box.append(grid);

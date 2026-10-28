@@ -8,7 +8,7 @@ import { roomViews, journalRows, headLines, loneContacts, contactSub, report, cl
 const FRESH = 5000;                // ms: the journal is asked again after this while the view is shown
 const SHOW = 25;                   // lines of the journal shown first
 
-/** ctx: t, rules (rulesstore.js), deg(°C), nameOf(entity), layout() (the building shown), houseId(), sensorLog(entry) (🌡 Raumfühler's
+/** ctx: t, rules (rulesstore.js), deg(°C), delta(°C) (a difference), nameOf(entity), layout() (the building shown), houseId(), sensorLog(entry) (🌡 Raumfühler's
  *  lines, roomsensorsui.js), changed() (draw the page again) */
 export function initHeatDiagUi(ctx) {
   const { t } = ctx;
@@ -35,7 +35,7 @@ export function initHeatDiagUi(ctx) {
   const name = (e) => data?.states?.[e]?.n || ctx.nameOf(e) || e;
   const roomName = (k) => (data?.rooms || []).find((r) => r.key === k)?.name || String(k || '').split('/')[1] || '';
   const roomOf = (e) => (data?.rooms || []).find((r) => r.climates.includes(e))?.key || '';
-  const words = () => ({ t, deg: ctx.deg, name, roomName, roomOf, now: now(), sensorLog: ctx.sensorLog, version: data?.version,
+  const words = () => ({ t, deg: ctx.deg, delta: ctx.delta, name, roomName, roomOf, now: now(), sensorLog: ctx.sensorLog, version: data?.version,
     lone: loneContacts(ctx.layout()?.floors, data) });
   const house = () => ctx.houseId() || 'main';
   /** asked again every few seconds while the view is shown */

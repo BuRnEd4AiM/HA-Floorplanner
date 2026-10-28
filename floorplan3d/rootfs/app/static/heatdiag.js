@@ -3,7 +3,7 @@
  * du so Fehler … auswerten kannst"): what the page makes of api/rules/trace (heatlog.py): every room as the add-on sees it (who controls
  * it now, its thermostats and who changed them last, its windows and doors and whether the window rule counts them), the journal as lines,
  * and the whole as a text to copy into a chat. Pure (unit test: tests/heatdiag.test.mjs); the page is heatdiagui.js. */
-import { roomLine, hhmm } from './rules.js';
+import { roomLine, warmText, hhmm } from './rules.js';
 
 const OPEN = new Set(['on', 'open', 'opening']);
 const USES = ['window', 'outer', 'counted', 'inner'];
@@ -70,6 +70,7 @@ export function roomWords(s, t, deg) {
   else if (s.waiting) out = `🪟 ${t('hd.r.waiting')}`;
   else if (s.skip) out = `🔥 ${t('hr.line.skip')}`;
   else if (s.why === 'boost') out = `🚀 ${t('hr.boost')}`;
+  else if (s.why === 'warm') out = `🔥 ${warmText(s, t, deg)}`;
   else if (s.why === 'schedule' && s.hand) { const d = new Date(s.hand * 1000); out = `✋ ${t('hr.line.hand', { at: hhmm(d.getHours() * 60 + d.getMinutes()), level, v })}`; }
   else if (s.why) out = t(`hr.line.${s.why}`, { v, level });
   else out = t('hd.r.none');
@@ -193,6 +194,10 @@ export function headLines(diag, rules, ctx) {
   if (h.window) {
     out.push(`🪟 ${t('hd.cfg.window', { on: on(h.window.on), n: h.window.delay, doors: yes(h.window.doors !== false) })}`);
     if ((h.window.skip || []).length) out.push(`   ${t('hd.cfg.skip', { rooms: h.window.skip.map((k) => ctx.roomName(k)).join(', ') })}`);
+  }
+  if (h.warm) {
+    out.push(`🔥 ${t('hd.cfg.warm', { on: on(h.warm.on), above: ctx.delta ? ctx.delta(h.warm.above) : `${h.warm.above}°`, down: ctx.delta ? ctx.delta(h.warm.down) : `${h.warm.down}°` })}`);
+    if (h.warm.on && (h.warm.skip || []).length) out.push(`   ${t('hd.cfg.skip', { rooms: h.warm.skip.map((k) => ctx.roomName(k)).join(', ') })}`);
   }
   if (h.schedule) out.push(`📅 ${t('hd.cfg.plan', { on: on(h.schedule.on), hand: h.schedule.hand ? t('fl.min', { n: h.schedule.hand }) : t('hr.plan.handNext') })}`);
   return out;

@@ -427,3 +427,122 @@ def test_a_thermostat_switched_on_with_a_target_of_its_own_gets_the_plans():
     assert look(1) == [] and run.status["h/wz"]["hand"] is None                       # waiting for the 17°
     st["climate.wz"]["attributes"]["temperature"] = 17.0
     assert look(0.25) == [] and run.status["h/wz"]["sent"] is None and run.status["h/wz"]["hand"] is None
+
+
+# ---- 🔥 Zu warm (the owner: "wenn es zu warm ist das dann die heizung runter geht ka so 5 grad das es nicht die ganze zeit heizt";
+# his choice: 5° below the wish from 1° too warm, back at the wish; "beachte die Prio von den ganzen Karten")
+NIGHT = {"days": [[[0, "night"]]] * 7}
+
+
+def warm_house(room=20.5, **more):
+    st = house(**more)
+    st["climate.wz"]["attributes"]["current_temperature"] = room
+    return st
+
+
+def measure(st, v, e="climate.wz"):
+    st[e]["attributes"]["current_temperature"] = v
+
+
+def test_the_too_warm_settings_are_cleaned():
+    r = hr.clean_rules({"warm": {"on": True, "above": 0.7, "down": 40, "skip": ["h/bad", "bad key"]}})
+    assert r["warm"] == {"on": True, "above": 0.5, "down": 15.0, "skip": ["h/bad"]}
+    assert hr.clean_rules({})["warm"] == {"on": False, "above": 1.0, "down": 5.0, "skip": []} and hr.any_on(hr.clean_rules({"warm": {"on": True}}))
+
+
+def test_a_room_too_warm_gets_5_degrees_less_until_it_is_back_at_the_wish():
+    st = warm_house(room=17.5)
+    run = Run({"warm": {"on": True}, "schedule": {"on": True, "rooms": {"h/wz": NIGHT}}}, st)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 17.0})]           # the schedule: night 17°
+    measure(st, 17.9)
+    assert run.look(1) == []                                                                  # not yet 1° too warm
+    measure(st, 18.0)
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 12.0})] and run.log[-1]["why"] == "warm"
+    s = run.status["h/wz"]
+    assert s["why"] == "warm" and s["warm"] == {"wish": 17.0, "room": 18.0, "to": 12.0} and s["back"] == 17.0 and s["temp"] == 17.0
+    measure(st, 17.4)
+    assert run.look(5) == [] and run.status["h/wz"]["why"] == "warm"                            # still warmer than wished
+    measure(st, 17.0)
+    assert run.look(5) == [("climate.wz", "set_temperature", {"temperature": 17.0})] and run.status["h/wz"]["why"] == "schedule"
+    assert run.look(5) == [] and run.status["h/wz"]["hand"] is None                            # no turn by hand
+
+
+def test_too_warm_without_a_rule_takes_the_thermostats_own_target_and_keeps_its_mode():
+    st = warm_house(room=22.5, **{"climate.wz": thermostat(mode="auto", temp=21.0)})
+    st["climate.wz"]["attributes"]["current_temperature"] = 22.5
+    run = Run({"warm": {"on": True}}, st)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 16.0})]            # 21° − 5°, auto stays auto
+    assert st["climate.wz"]["state"] == "auto" and run.status["h/wz"]["warm"]["wish"] == 21.0
+    measure(st, 21.0)
+    assert run.look(10) == [("climate.wz", "set_temperature", {"temperature": 21.0})] and run.status["h/wz"]["why"] is None
+
+
+def test_too_warm_measures_with_the_room_sensor_and_waits_while_it_is_gone():
+    st = warm_house(room=25.0, **{"sensor.wz": {"state": "17.2"}})                            # at the radiator 25°, in the room 17,2°
+    run = Run({"warm": {"on": True}, "sensors": {"map": {"climate.wz": {"s": "sensor.wz", "way": "show"}}},
+               "schedule": {"on": True, "rooms": {"h/wz": NIGHT}}}, st)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 17.0})] and run.status["h/wz"]["why"] == "schedule"
+    st["sensor.wz"]["state"] = "unavailable"
+    assert run.look(1) == []                                                                  # nothing measures the room: nothing
+    st["sensor.wz"]["state"] = "18.4"
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 12.0})]
+    st["sensor.wz"]["state"] = "unavailable"
+    assert run.look(1) == [] and run.status["h/wz"]["why"] == "warm"                            # gone for a moment: stays lowered
+    st["sensor.wz"]["state"] = "16.9"
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 17.0})]
+
+
+def test_the_window_and_the_boost_go_before_too_warm():
+    st = warm_house(room=19.0)
+    run = Run({"warm": {"on": True}, "window": {"on": True, "delay": 0}, "schedule": {"on": True, "rooms": {"h/wz": NIGHT}}}, st)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 12.0})]            # warm at once: 17° − 5°
+    st["binary_sensor.fenster"]["state"] = "on"
+    assert run.look(1) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})] and run.status["h/wz"]["why"] == "window"
+    st["binary_sensor.fenster"]["state"] = "off"
+    calls = run.look(1)                                                                       # shut, still too warm: lowered again
+    assert ("climate.wz", "set_temperature", {"temperature": 12.0}) in calls and st["climate.wz"]["state"] == "heat" and run.status["h/wz"]["why"] == "warm"
+    run.mem = hr.boost(run.mem, "h/wz", run.now, run.rules)
+    assert run.look(0) == [("climate.wz", "set_temperature", {"temperature": 24.0})] and run.status["h/wz"]["why"] == "boost"
+    run.mem = hr.boost(run.mem, "h/wz", run.now, run.rules)                                      # boost off again: still too warm
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 12.0})] and run.status["h/wz"]["why"] == "warm"
+    measure(st, 16.5)
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 17.0})] and run.status["h/wz"]["why"] == "schedule"
+
+
+def test_too_warm_follows_the_schedule_and_ends_when_the_wish_is_warmer():
+    plan = {"days": [[[0, "night"], [480, "comfort"]]] * 7}                                    # comfort 21° from 8:00
+    st = warm_house(room=23.0)
+    run = Run({"warm": {"on": True}, "schedule": {"on": True, "rooms": {"h/wz": plan}}}, st)   # 7:00: night 17°, the room 23°
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 12.0})]
+    assert run.look(60) == [("climate.wz", "set_temperature", {"temperature": 16.0})]          # 8:00 comfort: 21° − 5°
+    assert run.status["h/wz"]["warm"]["wish"] == 21.0 and run.status["h/wz"]["level"] == "comfort"
+    measure(st, 20.0)
+    assert run.look(10) == [("climate.wz", "set_temperature", {"temperature": 21.0})] and run.status["h/wz"]["why"] == "schedule"
+
+
+def test_turned_by_hand_while_too_warm_stays_and_a_late_report_is_waited_for():
+    st = warm_house(room=22.5)
+    run = Run({"warm": {"on": True}}, st)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 16.0})]
+    st["climate.wz"]["attributes"]["temperature"] = 23.0                                      # somebody wants it warmer
+    measure(st, 20.0)
+    assert run.look(5) == [] and st["climate.wz"]["attributes"]["temperature"] == 23.0        # stays as turned
+    # lowered, but the thermostat did not report it yet when the room is cool again: the wish goes again
+    st2 = warm_house(room=22.5)
+    run2 = Run({"warm": {"on": True}}, st2)
+    run2.mem, calls, run2.status, _ = hr.step(run2.rules, ROOMS, st2, run2.now, run2.local, run2.mem)
+    assert calls == [("climate.wz", "set_temperature", {"temperature": 16.0})]                 # sent, not reported (21° still)
+    measure(st2, 20.5)
+    run2.mem, calls, run2.status, _ = hr.step(run2.rules, ROOMS, st2, run2.now + 30, run2.local, run2.mem)
+    assert calls == [("climate.wz", "set_temperature", {"temperature": 21.0})] and run2.status["h/wz"]["why"] is None
+
+
+def test_too_warm_leaves_alone_a_thermostat_that_is_off_a_room_left_out_and_an_air_conditioner():
+    st = warm_house(room=25.0, **{"climate.wz": thermostat(mode="off")})
+    st["climate.wz"]["attributes"]["current_temperature"] = 25.0
+    st["climate.bad"]["attributes"]["current_temperature"] = 26.0
+    run = Run({"warm": {"on": True, "skip": ["h/bad"]}}, st)
+    assert run.look() == []
+    ac = warm_house(room=25.0, **{"climate.wz": thermostat(modes=("off", "heat", "cool"))})
+    ac["climate.wz"]["attributes"]["current_temperature"] = 25.0
+    assert Run({"warm": {"on": True}, "summer": {"on": True}}, ac).look() == []

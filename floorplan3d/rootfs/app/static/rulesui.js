@@ -47,9 +47,9 @@ export function initRulesUi(ctx) {
   const editFlow = (f) => { ctx.tabs().show('routines'); flowEdit.open(f); };
   const openFlow = (id) => { const f = (rules.get()?.flows || []).find((x) => x.id === id); if (f) editFlow(f); else ctx.tabs().show('routines'); };
   const usedBy = initUsedBy({ ...base, locked: ctx.locked, callService: ctx.callService, rules, roomName, deg, openRules, openFlow });
-  const diag = initHeatDiagUi({ t, rules, deg, nameOf: ctx.nameOf, layout: ctx.layout, houseId, sensorLog: (x) => sensors.log(x),   // 🩺 (#579)
+  const diag = initHeatDiagUi({ t, rules, deg, delta, nameOf: ctx.nameOf, layout: ctx.layout, houseId, sensorLog: (x) => sensors.log(x),   // 🩺 (#579)
     changed: () => ctx.climate()?.update() });
-  const heat = initHeatRulesUi({ ...base, rules, locked: ctx.locked, houseId, rooms, deg, usedBy, editFlow, sensors, showPlan: () => ctx.climate().show('plan'),
+  const heat = initHeatRulesUi({ ...base, rules, locked: ctx.locked, houseId, rooms, deg, delta, usedBy, editFlow, sensors, showPlan: () => ctx.climate().show('plan'),
     showDiag: (key) => { diag.room(key); ctx.climate().show('diag'); }, changed: () => ctx.climate()?.update() });
   const plan = initHeatPlanUi({ ...base, rules, houseId, rooms, deg, changed: () => ctx.climate()?.update(), back: () => ctx.climate().show('rules') });
   const manage = initHaManage({ t, changed: () => ctx.routines()?.update() });                                                     // #564

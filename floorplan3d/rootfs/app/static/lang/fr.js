@@ -2130,4 +2130,11 @@ export default {
   'hd.use.counted': 'Porte (compte : réglé sur la porte)',
   'hr.window.inner': 'Une porte entre deux pièces ne compte qu’avec « Compte pour le chauffage » activé sur la porte (Modifier → toucher la porte).',
   'prop.heatDoorSub': 'Ouverte → le chauffage des pièces voisines s’arrête, comme pour une fenêtre.',
+  'hr.rule.warm': 'Trop chaud → chauffage baissé', 'hr.sub.warm': 'mesuré par la sonde de la pièce, sinon par le thermostat',
+  'hr.warm.above': 'quand la pièce a de plus', 'hr.warm.down': 'thermostat plus bas de', 'hr.warm.back': 'retour',
+  'hr.warm.backWhen': 'pièce revenue au souhait',
+  'hr.warm.how': 'Exemple : souhait {wish}, à partir de {at} dans la pièce le thermostat passe à {to}, jusqu’à ce que la pièce soit revenue à {back}. Une fenêtre ouverte et 🚀 Boost passent avant.',
+  'hr.line.warm': 'Trop chaud ({room} dans la pièce) · thermostat {to} jusqu’au retour à {wish}', 'hr.why.warm': 'Trop chaud', 'hr.prio': 'Qui a la priorité ?',
+  'hr.prio.text': '🪟 Fenêtre ouverte → 🚀 Boost → 🔥 Trop chaud → ✈️ Vacances → ☀️ Pause d’été → 🚶 Personne à la maison → 📅 Programme → 🌙 Réduit de nuit. Quand une règle se termine, ce qui valait avant revient ; tourné à la main reste jusqu’au prochain changement (avec le programme pendant les minutes réglées).',
+  'hd.cfg.warm': 'Trop chaud : {on} · dès {above} de plus · thermostat {down} plus bas',
 };

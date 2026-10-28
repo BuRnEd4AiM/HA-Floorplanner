@@ -1,20 +1,20 @@
 {
  "session": "session_018pwcmwDVGARHBTGbLFTYfd",
  "start": "2026-10-28",
- "updated": "2026-10-28T20:57:50Z",
- "branch": "claude/tuer-heizung",
+ "updated": "2026-10-28T21:13:05Z",
+ "branch": "claude/zu-warm",
  "source": "counted",
- "input": 656,
- "cache_write": 828854,
- "cache_read": 141025941,
- "output": 388854,
+ "input": 812,
+ "cache_write": 983295,
+ "cache_read": 159632312,
+ "output": 458274,
  "models": {
   "claude-opus-5-5": {
-   "input": 656,
-   "cache_write": 828854,
-   "cache_read": 141025941,
-   "output": 388854,
-   "requests": 326
+   "input": 812,
+   "cache_write": 983295,
+   "cache_read": 159632312,
+   "output": 458274,
+   "requests": 404
   }
  }
 }

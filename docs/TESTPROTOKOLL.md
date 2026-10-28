@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.41.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.42.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.41.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.42.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.42.0: 🔥 Zu warm → Heizung runter** (Abschnitt 129): Claude hat 129.1 und 129.2 in der Demo geprüft (probier es gern selbst); für dich im Add-on 129.3 bis 129.6.
 1. **Neu in 4.41.0: eine Tür zwischen zwei Räumen kann für die Heizung zählen** (Abschnitt 128): Claude hat 128.1 in der Demo geprüft; für dich im Add-on 128.2 bis 128.6 (zuerst an der Bad-Tür den Haken „Zählt für die Heizung“ einschalten).
 1. **Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte** (Abschnitt 127): Claude hat 127.1 bis 127.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on 127.5 bis 127.9.
 1. **Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“** (Abschnitt 126): Claude hat 126.1 bis 126.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on 126.6 bis 126.9. Und wenn dir wieder etwas auffällt: „📋 Bericht kopieren“ und im Chat einfügen.
@@ -355,7 +356,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 126. Neu in 4.39.0: 🩺 Protokoll „Wer steuert was?“ (#579) | 5 | 0 | 4 | 0 | 126.6 bis 126.9 |
 | 127. Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte (#581) | 4 | 0 | 5 | 0 | 127.5 bis 127.9 |
 | 128. Neu in 4.41.0: Tür zwischen zwei Räumen zählt für die Heizung, Bad nicht mehr „von Hand gedreht“ (#583) | 1 | 0 | 5 | 0 | 128.2 bis 128.6 |
-| **Zusammen** | **808** | **1** | **69** | **92** | |
+| 129. Neu in 4.42.0: 🔥 Zu warm → Heizung runter, „Wer hat Vorrang?“ (#585) | 2 | 0 | 4 | 0 | 129.3 bis 129.6 |
+| **Zusammen** | **810** | **1** | **73** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1971,3 +1973,15 @@ Gemeldet vom Besitzer am 2026-10-28 mit dem Bericht aus 🩺 Protokoll: „wen z
 | 128.4 | Im Add-on: genauso an der Tür SZFA ↔ Gang (und an anderen Türen, die zählen sollen) | Wie 128.3 im Schlafzimmer FA | ❓ |
 | 128.5 | Im Add-on: eine Tür ohne den Haken (z. B. WZFL ↔ SZFL) offen lassen | Die Heizung bleibt an; 🩺 Protokoll sagt „zählt nicht: Tür zwischen zwei Räumen (soll sie zählen: …)“ | ❓ |
 | 128.6 | Im Add-on: wenn der Heizplan im Bad das nächste Mal umschaltet (abends oder morgens) | Kein „✋ Von Hand gedreht“ mehr im Bad; das Thermostat hat die Temperatur des Heizplans (nicht seine eigenen 24°) | ❓ |
+
+## 129. Neu in 4.42.0: 🔥 Zu warm → Heizung runter, „Wer hat Vorrang?“ (#585)
+Wunsch des Besitzers vom 2026-10-28: „wenn es zu warm ist das dann die heizung runter geht ka so 5 grad das es nicht die ganze zeit heizt wenn die temperatur im raum an ist“. Seine Wahl: 5° unter den Wunsch, ab 1° zu warm (Raumfühler, sonst das Thermostat), eigene Karte, „beachte die Prio von den ganzen Karten“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 129.1 | In der Demo: 🌡 Klima → 📋 Heiz-Regeln, die Karte „🔥 Zu warm → Heizung runter“ (gleich nach „Fenster offen“); bei „wenn der Raum wärmer ist um“ und „Thermostat tiefer um“ − und + tippen | Die Zahlen ändern sich, das Beispiel darunter auch (z. B. „Wunsch 17°, ab 18° im Raum geht das Thermostat auf 12° …“) | ✅ (2026-10-28, Claude in der Demo) |
+| 129.2 | In der Demo: oben „ℹ️ Wer hat Vorrang?“ antippen | „🪟 Fenster offen → 🚀 Boost → 🔥 Zu warm → ✈️ Urlaub → ☀️ Sommerpause → 🚶 Keiner zu Hause → 📅 Heizplan → 🌙 Nachtabsenkung …“ | ✅ (2026-10-28, Claude in der Demo) |
+| 129.3 | Im Add-on: die Karte „🔥 Zu warm“ einschalten. Ein Raum mit 🌡 Raumfühler, der 1° oder mehr wärmer ist als gewünscht (z. B. Wunsch 17°, Raum 18°) | Nach höchstens einer Minute steht das Thermostat 5° tiefer (12°); die Raum-Karte sagt „🔥 Zu warm (18° im Raum) · Thermostat 12°, bis wieder 17°“ | ❓ |
+| 129.4 | Im Add-on: warten, bis der Raum wieder den Wunsch hat (17°) | Das Thermostat bekommt wieder 17°, die Zeile „Zu warm“ ist weg, kein „✋ Von Hand gedreht“ | ❓ |
+| 129.5 | Im Add-on: während „Zu warm“ ein Fenster des Raums öffnen (länger als die Minuten der Fenster-Regel), dann wieder zu | Offen: die Heizung geht aus („Fenster offen“ geht vor); zu und noch zu warm: wieder 5° tiefer; zu und nicht mehr zu warm: wieder der Wunsch | ❓ |
+| 129.6 | Im Add-on: 🌡 Klima → 🩺 Protokoll | Oben „🔥 Zu warm: an · ab 1° wärmer · Thermostat 5° tiefer“, im Protokoll beim Raum „🔥 Zu warm …“, wenn es anfängt, und der Heizplan, wenn es aufhört | ❓ |

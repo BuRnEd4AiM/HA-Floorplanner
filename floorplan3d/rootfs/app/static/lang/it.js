@@ -2111,4 +2111,12 @@ export default {
   'hd.use.counted': 'Porta (conta: impostato sulla porta)',
   'hr.window.inner': 'Una porta tra due stanze conta solo con «Conta per il riscaldamento» attivo sulla porta (Modifica → tocca la porta).',
   'prop.heatDoorSub': 'Aperta → il riscaldamento delle stanze accanto si spegne, come con una finestra.',
+  'hr.rule.warm': 'Troppo caldo → riscaldamento giù', 'hr.sub.warm': 'misurato dal sensore della stanza, altrimenti dal termostato',
+  'hr.warm.above': 'quando la stanza ha in più', 'hr.warm.down': 'termostato più basso di', 'hr.warm.back': 'ritorno',
+  'hr.warm.backWhen': 'di nuovo al desiderato',
+  'hr.warm.how': 'Esempio: desiderio {wish}, da {at} nella stanza il termostato va a {to} finché la stanza torna a {back}. Una finestra aperta e 🚀 Boost hanno la precedenza.',
+  'hr.line.warm': 'Troppo caldo ({room} nella stanza) · termostato {to} fino a tornare a {wish}', 'hr.why.warm': 'Troppo caldo',
+  'hr.prio': 'Chi ha la precedenza?',
+  'hr.prio.text': '🪟 Finestra aperta → 🚀 Boost → 🔥 Troppo caldo → ✈️ Vacanze → ☀️ Pausa estiva → 🚶 Nessuno a casa → 📅 Programma → 🌙 Riduzione notturna. Quando una regola finisce, torna ciò che valeva prima; girato a mano resta fino al prossimo cambio (con il programma per i minuti impostati).',
+  'hd.cfg.warm': 'Troppo caldo: {on} · da {above} in più · termostato {down} più basso',
 };

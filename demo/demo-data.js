@@ -581,6 +581,7 @@ const rulesDemo = {
   heat: { window: { on: true, delay: 2, doors: true, skip: [] }, away: { on: false, delay: 30, temp: 17 }, night: { on: true, from: '22:30', to: '06:00', temp: 17, rooms: { 'main/r4': 16 } },
     schedule: { on: true, levels: { night: 17, eco: 19, comfort: 21 }, pre: 30, hand: 10, rooms: { 'main/r1': { days: [workDay, workDay, workDay, workDay, workDay, homeDay, homeDay] } } },
     summer: { on: false, above: 18, hours: 6 }, boost: { on: true, minutes: 30, temp: 24 }, holiday: { on: false, temp: 15, until: '', back: '14:00', guard: false },
+    warm: { on: true, above: 1, down: 5, skip: [] },                                                            // 🔥 Zu warm
     sensors: { on: true, every: 10, min: 0.5, map: { 'climate.wohnzimmer': { s: 'sensor.wohnzimmer_temp', way: 'auto' } } } },   // 🌡 Raumfühler (#573)
   flows: [
     { id: 'f_flur', name: 'Flurlicht nachts', on: true, ha: true, lanes: [{ id: 'l1', blocks: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on' }, { k: 'if_sun', is: 'dark' },
@@ -607,10 +608,12 @@ function rulesStatus() {
   const t = nowS(), open = entities['binary_sensor.fenster_wohnzimmer']?.state === 'on', h = rulesDemo.heat;
   const rooms = {};
   const boost = rulesDemo.boost['main/r1'] > t;
-  const wz = h.window.on && open && !rulesDemo.skip['main/r1'] ? 'window' : boost ? 'boost' : h.schedule.on ? 'schedule' : null;
-  rooms['main/r1'] = { why: wz, temp: wz === 'schedule' ? 21 : null, level: wz === 'schedule' ? 'comfort' : null, since: wz === 'window' ? pausedSince : null,
-    until: wz === 'boost' ? rulesDemo.boost['main/r1'] : null, back: wz === 'window' || wz === 'boost' ? 22 : null, open: open ? ['binary_sensor.fenster_wohnzimmer'] : [],
-    waiting: false, skip: !!rulesDemo.skip['main/r1'], climates: ['climate.wohnzimmer'] };
+  const room = Number(entities['sensor.wohnzimmer_temp']?.state), w = h.warm || {};
+  const hot = w.on && !(w.skip || []).includes('main/r1') && room >= 21 + (w.above || 1);                    // 🔥 too warm: after window and boost
+  const wz = h.window.on && open && !rulesDemo.skip['main/r1'] ? 'window' : boost ? 'boost' : hot ? 'warm' : h.schedule.on ? 'schedule' : null;
+  rooms['main/r1'] = { why: wz, temp: wz === 'schedule' || wz === 'warm' ? 21 : null, level: wz === 'schedule' || wz === 'warm' ? 'comfort' : null, since: wz === 'window' ? pausedSince : null,
+    until: wz === 'boost' ? rulesDemo.boost['main/r1'] : null, back: wz === 'window' || wz === 'boost' ? 22 : wz === 'warm' ? 21 : null, open: open ? ['binary_sensor.fenster_wohnzimmer'] : [],
+    waiting: false, skip: !!rulesDemo.skip['main/r1'], climates: ['climate.wohnzimmer'], warm: wz === 'warm' ? { wish: 21, room, to: 21 - (w.down || 5) } : null };
   rooms['main/r5'] = { why: null, temp: null, level: null, open: [], waiting: false, skip: false, climates: ['climate.klima_buero'] };   // an air conditioner: only the window rule
   const lanes = {};
   rulesDemo.flows.filter((f) => !f.ha).forEach((f) => f.lanes.forEach((l) => { lanes[`${f.id}/${l.id}`] = { running: false, wait: null, until: null, passed: {}, stop: null, end: null, t0: null, test: false }; }));
