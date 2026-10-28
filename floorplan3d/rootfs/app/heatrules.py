@@ -18,6 +18,8 @@ rulesrun.py) feeds it the states and the clock and makes the calls it returns.""
 import datetime
 import re
 
+import roomsensors as rs
+
 LEVELS = ("night", "eco", "comfort")
 ROOM_KEY = re.compile(r"^[A-Za-z0-9_-]{1,40}/[A-Za-z0-9_-]{1,40}$")
 HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
@@ -109,6 +111,7 @@ def clean_rules(data) -> dict:
         "holiday": {"on": _bool(h.get("on"), False), "temp": _temp(h.get("temp"), D["holiday"]["temp"]),
                     "until": h.get("until") if isinstance(h.get("until"), str) and DATE.match(h["until"]) else "",
                     "back": _time(h.get("back"), D["holiday"]["back"]), "guard": _bool(h.get("guard"), False)},
+        "sensors": rs.clean(d.get("sensors")),            # 🌡 Raumfühler: a sensor in the room for each thermostat (roomsensors.py, #573)
     }
 
 

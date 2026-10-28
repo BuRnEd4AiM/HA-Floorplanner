@@ -2091,6 +2091,56 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .hrMini .bar { height: 12px; border-radius: 4px; display: flex; overflow: hidden; }
 .hrMini .bar i { display: block; height: 100%; }
 .hrOwn { display: grid; place-items: center; text-align: center; gap: 6px; min-height: 160px; border: 2px dashed color-mix(in srgb, var(--accent) 55%, transparent); color: var(--accent); background: transparent; font-size: 16px; }
+/* 🌡 Raumfühler (#573): the card in 📋 Heiz-Regeln, the window to choose a sensor, the line on 🌡 Klima */
+.rsCard { grid-column: 1 / -1; }
+.rsIntro { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.45; max-width: 980px; }
+.rsTable { display: grid; grid-template-columns: minmax(170px, 1.1fr) minmax(210px, 1.2fr) 110px minmax(250px, 1.6fr); gap: 6px 12px; align-items: stretch; }
+.rsTh { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: 0 4px; font-weight: 700; }
+.rsTh.num { text-align: right; }
+.rsRow { display: contents; }
+.rsRow > div { background: var(--field); border-radius: 10px; padding: 8px 12px; min-height: 44px; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.rsRow > .rsName { flex-direction: column; align-items: flex-start; justify-content: center; gap: 1px; }
+.rsName b { font-size: 14.5px; } .rsName small { color: var(--muted); font-size: 12px; }
+.rsPick { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 6px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font: inherit; font-size: 13.5px; text-align: left; cursor: pointer; }
+.rsPick span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.rsPick b { font-variant-numeric: tabular-nums; }
+.rsPick.none { color: var(--muted); border-style: dashed; }
+.rsPick::after { content: '▾'; color: var(--muted); }
+.rsPick:disabled { cursor: default; } .rsPick:disabled::after { content: none; }
+.rsRow > .rsMeas { justify-content: flex-end; font-variant-numeric: tabular-nums; }
+.rsRow > .rsHow { flex-wrap: wrap; }
+.rsWay { border-radius: 999px; padding: 3px 10px; font-size: 12.5px; font-weight: 700; white-space: nowrap; background: rgba(140, 150, 160, .2); }
+.rsWay.cal { background: rgba(63, 185, 80, .22); } .rsWay.shift { background: rgba(255, 140, 50, .24); } .rsWay.warn { background: rgba(245, 166, 35, .24); }
+.rsText { font-size: 12.5px; } .rsText.warn { color: #e0951c; font-weight: 600; }
+.rsSug { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.rsSug b { color: var(--text); } .rsSug .bdBtn { padding: 4px 10px; font-size: 12.5px; }
+.rsFoot { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 6px 8px; }
+.rsLegend { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 8px 22px; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.rsRoom { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.rsRoom .rsWay { font-size: 11.5px; color: var(--text); }
+.rsDlg { width: min(680px, calc(100vw - 32px)); }
+.rsSearch { width: 100%; box-sizing: border-box; margin: 4px 0 2px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--text); font: inherit; }
+.rsList { display: flex; flex-direction: column; gap: 3px; max-height: min(42vh, 380px); overflow-y: auto; }
+.rsSec { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; margin: 10px 0 4px; }
+.rsOpt { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.rsOpt:hover { background: var(--field); }
+.rsOpt.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.rsIc { width: 24px; text-align: center; flex: none; }
+.rsTxt { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.rsTxt small { color: var(--muted); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; }
+.rsOpt b.v { font-variant-numeric: tabular-nums; }
+.rsTag { font-size: 11px; border-radius: 999px; padding: 2px 8px; background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.rsWays { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 6px; }
+.rsWays .rsOpt { border-color: var(--line); } .rsWays .rsOpt.on { border-color: var(--accent); }
+.rsNote { margin: 8px 0 4px; font-size: 12.5px; color: var(--muted); line-height: 1.45; padding: 8px 10px; border-radius: 10px; background: var(--field); }
+@media (max-width: 900px) {
+  .rsTable { display: flex; flex-direction: column; gap: 8px; }
+  .rsTh { display: none; }
+  .rsRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; padding: 8px; border-radius: 12px; background: var(--field); }
+  .rsRow > div { background: none; padding: 2px; min-height: 0; }
+  .rsRow > .rsName { grid-area: 1 / 1; } .rsRow > .rsMeas { grid-area: 1 / 2; }
+  .rsRow > .rsSensor { grid-area: 2 / 1 / 3 / 3; } .rsRow > .rsHow { grid-area: 3 / 1 / 4 / 3; }
+}
 /* 📅 Heizplan */
 .hpView { display: flex; flex-direction: column; gap: 12px; }
 .hpTop { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }

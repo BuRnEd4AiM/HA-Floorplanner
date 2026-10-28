@@ -31,6 +31,7 @@ import garden as gn
 import guard as gd
 import haflows as hf
 import heatrules as hr
+import roomsensors as rsens
 import household as hh
 import controls
 import counters
@@ -1492,6 +1493,8 @@ async def call_service(request):
         return web.json_response({"error": "the alarm panel is locked for this user"}, status=403)
     if domain == "automation" and not await can_edit(request):      # an automation on / off (▶ Abläufe, #483): only who may edit
         return forbidden()
+    if moved_target(request, domain, service, payload):            # 🌡 Raumfühler (#573): the add-on moves this thermostat's target itself
+        return web.json_response({"ok": True})
     async with aiohttp.ClientSession() as s:
         async with s.post(f"{HA_API}/services/{domain}/{service}", headers=ha_headers(),
                           json=payload) as r:
@@ -1501,6 +1504,19 @@ async def call_service(request):
         for k in [k for k in cache if isinstance(k, tuple) and k and k[0] in ("calendar", "agenda")]:
             cache.pop(k, None)
     return web.json_response({"ok": ok}, status=200 if ok else 502)
+
+
+def moved_target(request, domain, service, payload) -> bool:
+    """A page sets the temperature of a thermostat whose target the add-on moves by a sensor in the room (🌡 Raumfühler, #573): that is
+    the temperature wanted in the room, the add-on's heating rules take it as the wish and set the thermostat themselves. True when so."""
+    e, temp = payload.get("entity_id"), payload.get("temperature")
+    if domain != "climate" or service != "set_temperature" or not isinstance(e, str) or set(payload) != {"entity_id", "temperature"}:
+        return False
+    store = app_state(request).get(KEY_RULES, {}).get("rules")
+    if store is None or not store.connected or (store.mem["sensors"]["t"].get(e) or {}).get("way") != "shift":
+        return False
+    store.ask("wish", e, temp)
+    return True
 
 
 CAMERA_ID = re.compile(r"^camera\.[a-z0-9_]{1,64}$")
@@ -2033,7 +2049,7 @@ KEY_TIMELINE = web.AppKey("timeline", dict)     # {"rec": the running Recorder}
 
 
 # ---------- entities renamed in Home Assistant: the plans follow (renames.py) ----------
-KEY_RENAMES = web.AppKey("renames", dict)       # {"history": {old: [new, when]}, "current": set of entity ids} for put_layout, "side": set of ids get_areas leaves out, "parts": {id: its thermostat}, "battery": {id: the battery entity of its device}
+KEY_RENAMES = web.AppKey("renames", dict)       # {"history": {old: [new, when]}, "current": set of entity ids} for put_layout, "side": set of ids get_areas leaves out, "parts": {id: its thermostat}, "battery": {id: the battery entity of its device}, "plat": {thermostat: its integration}
 
 
 def apply_renames(app, ids: dict, names: dict) -> dict:
@@ -2073,7 +2089,8 @@ async def rename_watcher(app):
             app[KEY_RENAMES].update(history=state.get("history") or {}, current=set(state.get("current") or ()),
                                     side=set(state.get("side") or ()),      # kept off the area lists (#368)
                                     parts=dict(state.get("parts") or {}),   # the entities of a thermostat's device (#370)
-                                    battery=dict(state.get("battery") or {}))   # the battery entity of each entity's device (#376)
+                                    battery=dict(state.get("battery") or {}),   # the battery entity of each entity's device (#376)
+                                    plat=dict(state.get("plat") or {}))         # the integration of each thermostat (🌡 Raumfühler, #573)
 
         def load():
             state = read_json(path, {})
@@ -3243,7 +3260,8 @@ async def guard_watcher(app):
 
 # ---------- the add-on's own heating rules and routines (#546): heatrules.py, flows.py, run by rulesrun.py; who uses a device (usedby.py) ----------
 KEY_RULES = web.AppKey("rules", dict)           # {"rules": rulesrun.Rules, "areas": (time, {area: [entities]}), "states": (time, states), "autos": (time, rows)}
-RULE_DOMAINS = ("climate", "light", "switch", "fan", "input_boolean", "media_player", "cover", "scene", "script")   # what a rule may switch
+RULE_DOMAINS = ("climate", "light", "switch", "fan", "input_boolean", "media_player", "cover", "scene", "script",   # what a rule may switch
+                "number", "select")             # 🌡 Raumfühler: the offset or external input of a thermostat's device (#573)
 RULE_ACTS = ("boost", "skip")
 
 
@@ -3262,8 +3280,21 @@ def rules_store(request) -> rr.Rules:
     return store["rules"]
 
 
+async def sensor_caps(app) -> dict:
+    """what the card 🌡 Raumfühler shows of every thermostat while the rules sleep (nothing on, #573): its integration and the offset of its
+    device (the running rules say it themselves)"""
+    ren = app[KEY_RENAMES] if KEY_RENAMES in app else {}
+    try:
+        states = await asyncio.wait_for(ha_states_cached(app), 5)
+    except Exception:  # noqa: BLE001 - Home Assistant not reachable (or slow): the page shows the rest
+        states = {}
+    return {"plat": {e: p for e, p in (ren.get("plat") or {}).items() if e in states},
+            "cal": rsens.caps(states, rsens.parts_of(ren.get("parts")))}
+
+
 async def rules_answer(request, r: rr.Rules) -> dict:
-    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "status": r.status, "log": r.mem["log"][-100:], "running": r.connected,
+    status = r.status if r.connected or not SUPERVISOR_TOKEN else {**r.status, **await sensor_caps(app_state(request))}
+    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "status": status, "log": r.mem["log"][-100:], "running": r.connected,
             "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time()),
             "haLink": hl.browser_ha(HA_URL, HA_PUBLIC_URL, request.host) if HA_URL else ""}   # where the browser opens Home Assistant (#548)
 
@@ -3420,6 +3451,12 @@ async def rules_runner(app):
 
             def weather(self, states):
                 return rules_weather(app, states)
+
+            def parts(self):
+                return app[KEY_RENAMES].get("parts") or {}     # {entity: the thermostat of its device} (🌡 Raumfühler, #573)
+
+            def platforms(self):
+                return app[KEY_RENAMES].get("plat") or {}
 
         async def start():
             await asyncio.sleep(4)

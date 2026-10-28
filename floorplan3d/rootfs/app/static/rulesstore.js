@@ -21,7 +21,8 @@ export function initRulesStore(ctx) {
   /** what the add-on pushed: the rooms and lanes now, the log a moment later */
   function pushed(d) {
     if (!data) { load(); return; }
-    data = { ...data, status: { rooms: d.rooms || {}, lanes: d.lanes || {} }, now: Math.round(Date.now() / 1000) };
+    data = { ...data, status: { rooms: d.rooms || {}, lanes: d.lanes || {}, sensors: d.sensors || {}, cal: d.cal || {}, plat: d.plat || {} },   // sensors, cal, plat: 🌡 Raumfühler (#573)
+      now: Math.round(Date.now() / 1000) };
     ctx.changed();
     clearTimeout(again);
     again = setTimeout(load, 1500);

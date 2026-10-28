@@ -177,6 +177,8 @@ export function initClimatePage(ctx) {
     has: () => hasClimate(ctx.states(), placedIds()),
     reset: () => { filter = 'all'; drawn = ''; grid = null; if (!ctx.plan.dirty()) view = 'rooms'; },
     show,                                           // a view of the page: rooms | rules | plan (#546)
+    /** every room of the house shown with its entities ({ id, name, floorName, ids }): the sensors in a thermostat's room (#573) */
+    sensorRooms: () => rooms().map((r) => ({ id: r.id, name: r.name, floorName: r.floorName, ids: r.ids })),
     /** the rooms of the house shown with their thermostat, for the heating rules and the schedule (#546) */
     heatRooms: () => climateRooms(rooms(), ctx.states(), ctx.settings().co2Stops, ctx.partOf?.()).filter((r) => r.climate).map((r) => ({ id: r.id, name: r.name, climate: r.climate })),
   };

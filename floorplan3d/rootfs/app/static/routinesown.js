@@ -11,7 +11,8 @@ const FILTERS = ['all', 'heat', 'light', 'cover', 'running'];
 
 /** ctx: t, lang(), states(), nameOf(entity), canEdit(), locked() (may not switch), callService(entity, service, data), rules (rulesstore.js),
  *  edit(flow) (the editor, flowedit.js: a routine of the list, or a new one), openRules() (🌡 Klima → 📋 Heiz-Regeln), details(entity) (Home
- *  Assistant's window: a button or null), scenes (scenesui.js: the card 🎨 Szenen), manage (hamanage.js), changed() (draw the page again) */
+ *  Assistant's window: a button or null), scenes (scenesui.js: the card 🎨 Szenen), manage (hamanage.js), sensorLog(entry) (a line of the log
+ *  of 🌡 Raumfühler, #573), changed() (draw the page again) */
 export function initRoutinesOwn(ctx) {
   const { t } = ctx;
   let filter = 'all', autos = null, autosAt = 0, loading = false, allAutos = false, longLog = false, tplOpen = false;
@@ -185,6 +186,7 @@ export function initRoutinesOwn(ctx) {
   /* ---- what happened ---- */
   function logText(x) {
     const name = x.ent ? ctx.nameOf(x.ent) || x.ent : '';
+    if (x.src === 'sensor' && ctx.sensorLog) return ctx.sensorLog(x);   // 🌡 Raumfühler (#573)
     if (x.src === 'heat') {
       const what = x.act === 'off' ? t('fl.heat.off') : x.act === 'temp' ? `${String(x.v).replace('.', ',')}°` : t(`fl.heat.${x.v}`) === `fl.heat.${x.v}` ? x.v : t(`fl.heat.${x.v}`);
       return { icon: '🔥', text: `${name} ${what}`, sub: t(`hr.why.${x.why}`) };

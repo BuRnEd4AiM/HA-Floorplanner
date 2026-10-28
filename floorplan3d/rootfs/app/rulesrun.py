@@ -13,6 +13,7 @@ import time
 import flows as fl
 import heatrules as hr
 import roommap as rm
+import roomsensors as rs
 
 log = logging.getLogger("floorplan3d.rules")
 
@@ -30,8 +31,9 @@ class Rules:
         mem = mem if isinstance(mem, dict) else {}
         self.cfg = {"heat": hr.clean_rules(cfg.get("heat")), "flows": fl.clean_flows(cfg.get("flows"))}
         self.mem = {"heat": hr.clean_mem(mem.get("heat")), "flows": fl.clean_mem(mem.get("flows")),
+                    "sensors": rs.clean_mem(mem.get("sensors")),             # 🌡 Raumfühler (roomsensors.py, #573)
                     "log": [x for x in mem.get("log") or [] if isinstance(x, dict)][-MAX_LOG:]}
-        self.status = {"rooms": {}, "lanes": {}}
+        self.status = {"rooms": {}, "lanes": {}, "sensors": {}, "cal": {}, "plat": {}}
         self.connected = False
         self.queue: asyncio.Queue | None = None
         self.wake: asyncio.Event | None = None
@@ -42,7 +44,7 @@ class Rules:
             self.queue, self.wake = asyncio.Queue(), asyncio.Event()
 
     def ask(self, *req):
-        """a wish of a page for the loop ("room", key, act) | ("run", flow, lane, test) | ("cfg",)"""
+        """a wish of a page for the loop ("room", key, act) | ("run", flow, lane, test) | ("cfg",) | ("wish", thermostat, temperature)"""
         self.bind()
         self.queue.put_nowait(req)
         self.wake.set()
@@ -56,9 +58,11 @@ class Rules:
         return any(f["ha"] and f["on"] and any(b["k"] == "notify" for x in f["lanes"] for b in x["blocks"]) for f in self.cfg["flows"])
 
     def active(self) -> bool:
-        """is there anything to do: a rule or routine on, a boost or routine running, a thermostat still to put back, a wish waiting"""
+        """is there anything to do: a rule or routine on, a sensor in a room, a boost or routine running, a thermostat still to put back, a
+        wish waiting"""
         h, f = self.mem["heat"], self.mem["flows"]
-        return (hr.any_on(self.cfg["heat"]) or any(x["on"] for x in self.local()) or self.listen() or bool(h["boost"]) or bool(f["runs"])
+        return (hr.any_on(self.cfg["heat"]) or rs.any_on(self.cfg["heat"]["sensors"]) or bool(self.mem["sensors"]["t"])
+                or any(x["on"] for x in self.local()) or self.listen() or bool(h["boost"]) or bool(f["runs"])
                 or any(t.get("ov") or t.get("level") for t in h["t"].values()) or bool(self.queue and not self.queue.empty()))
 
     def note(self, entries, now):
@@ -149,7 +153,7 @@ async def _loop(rules: Rules, ws, states: dict, pending: list, env, check: float
                 await _look(rules, states, cache, env, clock=True)
             if req is not None:
                 await _wish(rules, req, states, cache, env)
-            st = {"rooms": rules.status["rooms"], "lanes": rules.status["lanes"]}
+            st = {k: rules.status[k] for k in ("rooms", "lanes", "sensors", "cal", "plat")}
             s = json.dumps(st, sort_keys=True, default=str)
             if s != sig:
                 sig = s
@@ -172,12 +176,27 @@ def _ctx(states, cache, env, now, local):
 
 
 async def _heat(rules, states, cache, env, now, local):
-    mem, calls, status, lines = hr.step(rules.cfg["heat"], cache["rooms"], states, now, local, rules.mem["heat"],
+    """the heating rules, then the sensors in the rooms: a thermostat whose target is moved by its sensor shows the rules its wish, and a
+    target of the rules for it becomes the wish (roomsensors.virtual, route)"""
+    smem = rules.mem["sensors"]
+    mem, calls, status, lines = hr.step(rules.cfg["heat"], cache["rooms"], rs.virtual(states, smem), now, local, rules.mem["heat"],
                                         guard_armed=env.guard_armed(), weather=env.weather(states))
     rules.mem["heat"], rules.status["rooms"] = mem, status
     rules.note([{"src": "heat", **x} for x in lines], now)
-    for e, svc, data in calls:
+    for e, svc, data in rs.route(calls, smem):
         await env.call("climate", svc, {"entity_id": e, **data})
+    await _sensors(rules, states, env, now)
+
+
+async def _sensors(rules, states, env, now):
+    """🌡 Raumfühler (#573): the thermostats with a sensor in the room"""
+    parts = rs.parts_of(env.parts() if hasattr(env, "parts") else {})
+    rules.mem["sensors"], calls, status, lines = rs.step(rules.cfg["heat"]["sensors"], states, parts, rules.mem["sensors"], now)
+    plat = env.platforms() if hasattr(env, "platforms") else {}
+    rules.status.update(sensors=status, cal=rs.caps(states, parts), plat={e: p for e, p in plat.items() if e in states})
+    rules.note([{"src": "sensor", **x} for x in lines], now)
+    for dom, svc, data in calls:
+        await env.call(dom, svc, data)
 
 
 async def _do(rules, calls, lines, now, env):
@@ -199,13 +218,15 @@ async def _look(rules, states, cache, env, clock=False, changed=None):
     if clock:
         rules.mem["flows"], calls, lines = fl.tick(rules.local(), rules.mem["flows"], ctx)
         await _do(rules, calls, lines, now, env)
-    if clock or changed and _heat_cares(changed[0], cache["rooms"]):
+    if clock or changed and _heat_cares(changed[0], cache["rooms"], rules):
         await _heat(rules, states, cache, env, now, local)
     rules.status["lanes"] = fl.view(rules.local(), rules.mem["flows"], now)
 
 
-def _heat_cares(eid, rooms) -> bool:
-    return eid.startswith(HEAT_DOMAINS) or any(eid in r["windows"] or eid in r["outer"] for r in rooms)
+def _heat_cares(eid, rooms, rules) -> bool:
+    sens = rules.cfg["heat"]["sensors"]["map"]
+    return (eid.startswith(HEAT_DOMAINS) or any(eid in r["windows"] or eid in r["outer"] for r in rooms)
+            or any(eid == x["s"] for x in sens.values()) or any(eid in (t.get("ent"), t.get("sel")) for t in rules.mem["sensors"]["t"].values()))
 
 
 async def _wish(rules, req, states, cache, env):
@@ -251,3 +272,7 @@ async def _wish(rules, req, states, cache, env):
             rules.status["lanes"] = fl.view(rules.local(), rules.mem["flows"], now)
     elif kind == "cfg":
         await _look(rules, states, cache, env, clock=True)
+    elif kind == "wish":                                    # a page set a thermostat whose target is moved by its sensor (#573)
+        _, e, temp = req
+        if rs.set_wish(rules.mem["sensors"], e, temp):
+            await _heat(rules, states, cache, env, time.time(), env.local())

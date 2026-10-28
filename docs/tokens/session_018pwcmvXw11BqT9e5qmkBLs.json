@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmvXw11BqT9e5qmkBLs",
+ "start": "2026-10-28",
+ "updated": "2026-10-28T11:08:58Z",
+ "branch": "claude/eager-dijkstra-xazuo3",
+ "source": "counted",
+ "input": 304,
+ "cache_write": 433956,
+ "cache_read": 46250282,
+ "output": 194278,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 304,
+   "cache_write": 433956,
+   "cache_read": 46250282,
+   "output": 194278,
+   "requests": 152
+  }
+ }
+}

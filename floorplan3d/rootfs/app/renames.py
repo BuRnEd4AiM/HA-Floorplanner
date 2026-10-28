@@ -150,7 +150,7 @@ def look(state: dict, entries: list, states: list, now: float) -> tuple[dict, di
     current = {x.get("entity_id") for x in (*entries, *states) if isinstance(x.get("entity_id"), str)}
     new_state = {"known": known, "names": {k: v for k, v in names.items() if k in current},
                  "history": remember(state.get("history") or {}, renames, now), "current": sorted(current), "side": side_entities(entries),
-                 "parts": climate_parts(entries), "battery": battery_of(entries, states)}
+                 "parts": climate_parts(entries), "battery": battery_of(entries, states), "plat": climate_platforms(entries)}
     return renames, changes, new_state
 
 
@@ -175,6 +175,13 @@ def climate_parts(entries: list) -> dict:
         heads = sorted(i for i in ids if i.startswith("climate."))
         out.update({i: heads[0] for i in ids if heads and not i.startswith("climate.")})
     return out
+
+
+def climate_platforms(entries: list) -> dict:
+    """{climate entity: the integration it comes from} ("mqtt", "zha", "matter", "homematicip_cloud", "tado" …): the card 🌡 Raumfühler
+    says what kind of thermostat it is (#573)"""
+    return {e["entity_id"]: e["platform"] for e in entries if isinstance(e.get("entity_id"), str) and e["entity_id"].startswith("climate.")
+            and isinstance(e.get("platform"), str) and e["platform"]}
 
 
 def battery_of(entries: list, states: list) -> dict:

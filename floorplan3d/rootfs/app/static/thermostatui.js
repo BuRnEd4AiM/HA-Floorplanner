@@ -70,7 +70,7 @@ export function initThermostat(ctx) {
       if (m.now !== null) { const [x, y] = pointAt(CX, CY, R, angleOf(m.now, m.lo, m.hi)); nowDot.setAttribute('cx', x.toFixed(1)); nowDot.setAttribute('cy', y.toFixed(1)); }
       lab.textContent = on ? t('th.target') : m.off ? t('heat.off') : t('th.now');
       big.replaceChildren(document.createTextNode(deg(on ? target : m.now)), make('sup', '', '°'));
-      sub.textContent = on ? (m.now !== null ? t('th.nowIs', { v: `${deg(m.now)}°` }) : '') : t('th.inRoom');
+      sub.textContent = on ? (m.now !== null ? `${t('th.nowIs', { v: `${deg(m.now)}°` })}${m.rs ? ' 🌡' : ''}` : '') : t('th.inRoom');   // 🌡: a sensor in the room (#573)
       s.setAttribute('aria-valuenow', on ? target : '');
     };
     show(m.target);

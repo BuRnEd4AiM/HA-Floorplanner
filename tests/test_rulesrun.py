@@ -159,3 +159,36 @@ async def test_a_routine_in_home_assistant_is_left_to_it_but_its_message_is_sent
     task.cancel()
     with contextlib.suppress(asyncio.CancelledError):
         await task
+
+
+async def test_a_sensor_in_the_room_moves_the_target_and_takes_the_pages_wish():
+    """🌡 Raumfühler (#573): a thermostat without calibration measures 24° at the radiator, the room 21°: its target goes 3° up; the
+    page's 22° is the wish (22 + 3), and its sensor changing is seen at once"""
+    ha = FakeHa()
+    ha.states["climate.wz"]["attributes"].update(current_temperature=24.0, target_temp_step=0.5, min_temp=5, max_temp=30)
+    ha.states["sensor.wz"] = {"entity_id": "sensor.wz", "state": "21.0", "attributes": {}}
+
+    @contextlib.asynccontextmanager
+    async def connect():
+        yield ha
+
+    class Env2(Env):
+        def parts(self):
+            return {}
+
+        def platforms(self):
+            return {"climate.wz": "homematicip_cloud"}
+
+    rules = rr.Rules({"heat": {"sensors": {"map": {"climate.wz": {"s": "sensor.wz", "way": "auto"}}}}})
+    assert rules.active()
+    env = Env2(ha)
+    task = asyncio.create_task(rr.run_rules(rules, connect=connect, env=env, check=0.2, idle=0.05))
+    assert await until(lambda: ("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 24.0}) in env.calls)
+    assert await until(lambda: env.published and env.published[-1]["sensors"]["climate.wz"]["way"] == "shift")
+    assert env.published[-1]["plat"] == {"climate.wz": "homematicip_cloud"} and rules.mem["log"][-1]["src"] == "sensor"
+    rules.ask("wish", "climate.wz", 22.0)
+    assert await until(lambda: env.calls[-1] == ("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 25.0}))
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task
+    assert env.saved[-1]["sensors"]["t"]["climate.wz"]["wish"] == 22.0

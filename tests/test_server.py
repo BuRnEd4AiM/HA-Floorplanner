@@ -568,6 +568,32 @@ async def test_light_effect_is_whitelisted(client, monkeypatch, aiohttp_server):
     assert bad2.status == 400
 
 
+async def test_a_target_the_add_on_moves_by_a_room_sensor_becomes_the_wish(client, monkeypatch, aiohttp_server):
+    """🌡 Raumfühler (#573): a page setting 22° on a thermostat whose target the add-on moves does not reach Home Assistant; the add-on's
+    rules take it as the wish. Any other thermostat, or the rules not connected: straight to Home Assistant."""
+    import rulesrun
+    from aiohttp import web
+    seen = []
+
+    async def svc(request):
+        seen.append(await request.json()); return web.json_response([])
+    app = web.Application(); app.add_routes([web.post("/services/{d}/{s}", svc)])
+    srv = await aiohttp_server(app)
+    monkeypatch.setattr(server, "HA_API", f"http://localhost:{srv.port}")
+    monkeypatch.setattr(server, "SUPERVISOR_TOKEN", "t")
+    rules = rulesrun.Rules({}, {"sensors": {"t": {"climate.wz": {"way": "shift", "wish": 21.0}, "climate.bad": {"way": "cal"}}}})
+    client.server.app[server.KEY_RULES]["rules"] = rules
+    body = {"domain": "climate", "service": "set_temperature", "entity_id": "climate.wz", "data": {"temperature": 22}}
+    assert (await client.post("/api/service", json=body)).status == 200            # the rules not connected: Home Assistant
+    assert [x["entity_id"] for x in seen] == ["climate.wz"]
+    rules.connected = True
+    assert (await client.post("/api/service", json=body)).status == 200
+    assert len(seen) == 1 and rules.queue.get_nowait() == ("wish", "climate.wz", 22.0)
+    for e in ("climate.bad", "climate.kueche"):
+        assert (await client.post("/api/service", json={**body, "entity_id": e})).status == 200
+    assert [x["entity_id"] for x in seen] == ["climate.wz", "climate.bad", "climate.kueche"] and rules.queue.empty()
+
+
 # ---------- background images ----------
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 32
 JPG = b"\xff\xd8\xff\xe0" + b"\x00" * 32
