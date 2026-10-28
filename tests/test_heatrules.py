@@ -159,6 +159,22 @@ def test_a_thermostat_that_stays_on_with_the_window_open_gets_the_call_again():
     assert st["climate.wz"]["state"] == "heat" and st["climate.wz"]["attributes"]["temperature"] == 17.0   # shut: as before
 
 
+def test_a_thermostat_off_a_moment_that_heats_again_by_itself_gets_cold_next():
+    """#577: it took "off", then went back to heating by itself, again and again: the tries count on (before: "off" every 3 minutes for
+    ever, heating in between), so the next one is as cold as it goes"""
+    st = house()
+    run = Run({"window": {"on": True, "delay": 0}}, st)
+    st["binary_sensor.fenster"]["state"] = "on"
+    assert run.look() == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})]
+    assert run.look(1) == [] and st["climate.wz"]["state"] == "off"                # off a moment
+    st["climate.wz"]["state"] = "heat"                                             # then heating again by itself
+    assert run.look(3) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})]
+    assert run.look(1) == []
+    st["climate.wz"]["state"] = "heat"
+    assert run.look(3) == [("climate.wz", "set_temperature", {"temperature": 7})]
+    assert run.look(10) == [] and not run.status["h/wz"]["stuck"] and run.status["h/wz"]["back"] == 21.0
+
+
 def test_a_thermostat_that_takes_nothing_shows_it_and_is_not_asked_for_ever():
     st = house()
     run = Run({"window": {"on": True, "delay": 0}}, st)

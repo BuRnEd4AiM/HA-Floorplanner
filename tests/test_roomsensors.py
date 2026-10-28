@@ -1,11 +1,14 @@
 """Room sensors for the thermostats (roomsensors.py, #573): the card's settings, finding the calibration of a thermostat's device (Zigbee2MQTT,
 ZHA, Matter, an external input with its select, Danfoss in hundredths), and what the add-on does: 🎯 the offset or the external input set
 from the sensor, ↕ the target moved while the wish stays, a target set by somebody else as the new wish, the heating rules' targets as
-wishes, back as before when the sensor is taken away, the thermostat on its own while the sensor does not report."""
+wishes, back as before when the sensor is taken away, the thermostat on its own while the sensor does not report; a target it sent
+itself and a sleepy thermostat reports late is no wish, and the window rule holds a moved thermostat alone (#577)."""
+import datetime
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "floorplan3d" / "rootfs" / "app"))
+import heatrules as hr  # noqa: E402
 import roomsensors as rs  # noqa: E402
 
 
@@ -164,6 +167,61 @@ def test_target_set_by_hand_before_the_add_on_sent_anything():
     st["sensor.wz"] = sensor(20.0)
     assert r.look(minutes=1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 23.0})]
     assert r.mem["t"]["climate.wz"]["wish"] == 22.0
+
+
+def test_a_target_it_sent_reported_late_is_no_wish():
+    """the owner (#577): "Soll 29,5°", "↕ am Thermostat 30°", "Von Hand gedreht · ab 17:23 wieder Komfort 27,5°": the moved target, reported
+    by a sleepy thermostat more than 3 minutes later, became the wish, and the difference came on top again (27,5 → 29 → 30)"""
+    st = {"climate.wz": trv(target=27.5, meas=26.5), "sensor.wz": sensor(24.8)}
+    r = Run(wz(), st, {})
+    assert r.look(apply=False) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 29.0})]
+    assert r.look(minutes=4) == [] and r.mem["t"]["climate.wz"]["wish"] == 27.5      # no answer yet: still 27,5 at the thermostat
+    st["climate.wz"]["attributes"]["current_temperature"] = 27.2                     # the radiator warmer: 30° now
+    assert r.look(minutes=7, apply=False) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 30.0})]
+    st["climate.wz"]["attributes"]["temperature"] = 29.0                             # the 29° of before comes now
+    assert r.look(minutes=4) == [] and r.mem["t"]["climate.wz"]["wish"] == 27.5
+    assert r.status["climate.wz"]["wish"] == 27.5 and not r.log
+    st["climate.wz"]["attributes"]["temperature"] = 22.0                             # somebody turns it at the device: that is a wish
+    assert r.look(minutes=1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 24.5})]
+    assert r.mem["t"]["climate.wz"]["wish"] == 22.0
+
+
+def test_the_window_rule_holds_a_moved_thermostat_alone():
+    """#577 (the owner: "der Heizplan überschreibt irgendwie alles, selbst wenn die Fenster aufgehen"): while the window is open nothing
+    moves the thermostat (a warm target to one that went back to heating by itself), as cold as it goes stays that; shut, the wish of
+    before comes back, moved. Run as rulesrun._heat does it."""
+    rules = hr.clean_rules({"window": {"on": True, "delay": 0}, "schedule": {"on": True, "levels": {"comfort": 21.0}, "rooms": {"h/wz": {"days": [[[0, "comfort"]]] * 7}}},
+                            "sensors": wz()})
+    rooms = [{"key": "h/wz", "name": "Wohnzimmer", "climates": ["climate.wz"], "windows": ["binary_sensor.fenster"], "doors": [], "outer": []}]
+    st = {"climate.wz": trv(target=21.0, meas=24.0), "sensor.wz": sensor(21.0), "binary_sensor.fenster": {"state": "off"}}
+    run = {"heat": {}, "sensors": rs.clean_mem({}), "now": 1_000_000.0}
+
+    def look(minutes=0):
+        run["now"] += minutes * 60
+        heat, calls, _, _ = hr.step(rules, rooms, rs.virtual(st, run["sensors"], hr.held(run["heat"])), run["now"], datetime.datetime(2026, 10, 28, 12), run["heat"])
+        run["heat"], hold = heat, hr.held(heat)
+        out = [("climate", svc, {"entity_id": e, **data}) for e, svc, data in rs.route(calls, run["sensors"], hold)]
+        run["sensors"], more, run["status"], _ = rs.step(rules["sensors"], st, {}, run["sensors"], run["now"], hold)
+        out += more
+        done(st, out)
+        for _, svc, data in out:
+            if svc == "set_hvac_mode":
+                st["climate.wz"]["state"] = data["hvac_mode"]
+        return out
+
+    assert look() == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 24.0})]
+    st["binary_sensor.fenster"]["state"] = "on"
+    assert look() == [("climate", "set_hvac_mode", {"entity_id": "climate.wz", "hvac_mode": "off"})]
+    st["climate.wz"]["state"], st["sensor.wz"] = "heat", sensor(18.0)                  # it heats again by itself, the room gets cold
+    assert look(11) == [("climate", "set_hvac_mode", {"entity_id": "climate.wz", "hvac_mode": "off"})]   # not 27° (21 + 6)
+    assert look(1) == [] and run["status"]["climate.wz"]["hold"]
+    st["climate.wz"]["state"] = "heat"                                                 # and again: now as cold as it goes
+    assert look(3) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 5})]
+    assert look(5) == [] and run["sensors"]["t"]["climate.wz"]["wish"] == 21.0
+    assert rs.virtual(st, run["sensors"], hr.held(run["heat"]))["climate.wz"]["attributes"]["temperature"] == 5   # the rules see it is cold
+    st["binary_sensor.fenster"]["state"], st["sensor.wz"] = "off", sensor(20.0)
+    assert look(1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 25.0})]   # the wish 21 + (24 − 20)
+    assert not run["status"]["climate.wz"].get("hold") and run["sensors"]["t"]["climate.wz"]["wish"] == 21.0
 
 
 def test_heating_rules_and_pages_set_the_wish():

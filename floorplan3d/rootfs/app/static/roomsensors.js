@@ -43,7 +43,8 @@ export function sensorCfg(heat) {
 /**
  * The states as the page shows them, changed in place: a thermostat with a sensor has the sensor's temperature as its own (ct; its own
  * one kept in ct0, its target in tt0, rs = the sensor) and, while the add-on moves its target (↕), the wish as its target. A thermostat
- * whose sensor was taken away gets its own values back. Called after every change of the states and of what the add-on says.
+ * whose sensor was taken away gets its own values back; one the window rule holds (st.hold, #577) shows its own target. Called after
+ * every change of the states and of what the add-on says.
  * cfg: sensorCfg; status: { thermostat: what the add-on says } (api/rules status.sensors). Returns how many thermostats have a sensor.
  */
 export function applySensors(states, cfg, status) {
@@ -60,7 +61,7 @@ export function applySensors(states, cfg, status) {
     const v = sensorValue(states, x.s), st = status?.[e];
     s.rs = x.s;
     s.ct = v ?? s.ct0;
-    s.tt = st?.way === 'shift' && typeof st.wish === 'number' && s.state !== 'off' ? st.wish : s.tt0;
+    s.tt = st?.way === 'shift' && typeof st.wish === 'number' && s.state !== 'off' && !st.hold ? st.wish : s.tt0;   // hold: the window rule has it (#577)
     n += 1;
   });
   return n;
@@ -105,6 +106,7 @@ export function sensorLine(st, way, t, deg, delta) {
   }
   if (st.way === 'shift') {
     if (typeof st.wish !== 'number') return { way: 'shift', tone: 'off', text: t('rs.off') };
+    if (st.hold) return { way: 'shift', tone: 'wait', text: `⏸️ ${t('rs.hold', { wish: deg(st.wish) })}` };   // the window rule has it (#577)
     const at = typeof st.want === 'number' ? st.want : st.set;
     if (typeof at !== 'number') return { way: 'shift', tone: 'off', text: t('rs.off') };
     return { way: 'shift', tone: st.wait ? 'wait' : 'ok', text: `${st.wait ? '⏳ ' : ''}${t('rs.shiftText', { wish: deg(st.wish), at: deg(at) })}` };

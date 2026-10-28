@@ -2022,7 +2022,7 @@ export default {
   'rs.nocal': 'nessuna calibrazione trovata sul dispositivo · solo mostrato', 'rs.lost': 'il sensore non risponde · il termostato regola da solo',
   'rs.lostShort': 'il sensore non risponde', 'rs.sent': 'valore del sensore inviato al termostato: {v}', 'rs.sending': 'in impostazione',
   'rs.calWait': 'in impostazione: {v}', 'rs.calOk': 'impostato: {v}', 'rs.edge': 'il dispositivo non permette di più', 'rs.off': 'termostato spento',
-  'rs.shiftText': 'vuoi {wish} → sul termostato {at}', 'rs.showText': 'solo mostrato, il termostato regola da solo', 'rs.chipSensor': 'sensore di stanza {v}',
+  'rs.shiftText': 'vuoi {wish} → sul termostato {at}', 'rs.hold': 'in pausa, la finestra è aperta · poi di nuovo {wish}', 'rs.showText': 'solo mostrato, il termostato regola da solo', 'rs.chipSensor': 'sensore di stanza {v}',
   'rs.chipOwn': 'al radiatore {v}', 'rs.chipAt': 'sul termostato {v}', 'rs.chipCal': 'calibrazione {v}', 'rs.chipExt': 'valore del sensore sul termostato',
   'rs.log.cal': '{name}: calibrazione a {v}', 'rs.log.sel': '{name}: sensore del dispositivo «{v}»', 'rs.log.temp': '{name}: sul termostato {v}',
   'rs.log.wish': '{name}: nuova temperatura voluta {v}', 'rs.log.wishSub': 'impostata altrove (Home Assistant, un\'automazione o sul dispositivo)',

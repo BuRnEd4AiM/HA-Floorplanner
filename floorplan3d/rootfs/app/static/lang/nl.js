@@ -1999,7 +1999,7 @@ export default {
   'rs.gone': 'thermostaat niet bereikbaar', 'rs.nocal': 'geen kalibratie op het apparaat gevonden · alleen getoond',
   'rs.lost': 'sensor meldt zich niet · thermostaat regelt zelf', 'rs.lostShort': 'sensor meldt zich niet', 'rs.sent': 'sensorwaarde naar de thermostaat: {v}',
   'rs.sending': 'wordt ingesteld', 'rs.calWait': 'wordt ingesteld: {v}', 'rs.calOk': 'ingesteld: {v}', 'rs.edge': 'meer kan het apparaat niet',
-  'rs.off': 'thermostaat uit', 'rs.shiftText': 'je wilt {wish} → op de thermostaat {at}', 'rs.showText': 'alleen getoond, de thermostaat regelt zelf',
+  'rs.off': 'thermostaat uit', 'rs.shiftText': 'je wilt {wish} → op de thermostaat {at}', 'rs.hold': 'gepauzeerd, het raam is open · daarna weer {wish}', 'rs.showText': 'alleen getoond, de thermostaat regelt zelf',
   'rs.chipSensor': 'ruimtesensor {v}', 'rs.chipOwn': 'bij de radiator {v}', 'rs.chipAt': 'op de thermostaat {v}', 'rs.chipCal': 'kalibratie {v}',
   'rs.chipExt': 'sensorwaarde op de thermostaat', 'rs.log.cal': '{name}: kalibratie op {v}', 'rs.log.sel': '{name}: sensor van het apparaat „{v}“',
   'rs.log.temp': '{name}: op de thermostaat {v}', 'rs.log.wish': '{name}: nieuwe wens {v}',
