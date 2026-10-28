@@ -11,7 +11,8 @@ const ICON = { window: '🪟', away: '🚶', night: '🌙', schedule: '📅', su
 
 /** ctx: t, lang(), rules (rulesstore.js), canEdit(), locked() (may not switch), houseId(), rooms() (the rooms of the house shown with a
  *  thermostat: [{ id, name, climate }]), deg(v), states(), usedBy (usedbyui.js), editFlow(flow) (the editor of a routine), showPlan()
- *  (the view 📅 Heizplan), changed() (draw the page again), sensors (roomsensorsui.js: the card 🌡 Raumfühler and its line, #573) */
+ *  (the view 📅 Heizplan), showDiag(room key) (the view 🩺 Protokoll of a room, #579), changed() (draw the page again), sensors
+ *  (roomsensorsui.js: the card 🌡 Raumfühler and its line, #573) */
 export function initHeatRulesUi(ctx) {
   const { t } = ctx;
   let draft = null, timer = 0, saved = 0, openNight = false;
@@ -198,6 +199,10 @@ export function initHeatRulesUi(ctx) {
       bar.append(b);
     }
     if (r.climate) { const u = ctx.usedBy.button(r.climate); if (u) { u.classList.add('tpChip'); bar.append(u); } }
+    if (r.climate && ctx.showDiag && ctx.rules.get()?.ha) {           // 🩺 who controls what here (#579)
+      const d = btn('tpChip', `🩺 ${t('cl.view.diag')}`, () => ctx.showDiag(k)); d.dataset.act = 'diag';
+      bar.append(d);
+    }
     if (bar.children.length) box.append(bar);
     return box.children.length ? box : null;
   }

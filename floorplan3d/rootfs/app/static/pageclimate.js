@@ -15,11 +15,11 @@ import { openingEntities } from './openings.js';
 /** ctx: t, el (the page), lang(), settings(), states(), layout() (the building shown), placed(floor) (its devices with entities),
  *  areaEntities(room), partOf() (the sensors of thermostats, roomReading), isOpen(entity), nameOf(entity), callService(entity, service, data), openRoom(floorIndex, roomId), board (pageboard.js,
  *  #484: the cards in the order an admin chose; keys room:<id>, loose, tip), thermo (thermostatui.js, #495), heat (heatrulesui.js), plan
- *  (heatplanui.js) (#546) */
+ *  (heatplanui.js) (#546), diag (heatdiagui.js, 🩺 Protokoll, #579) */
 export function initClimatePage(ctx) {
   const { t, el } = ctx;
   const pending = new Map();                         // entity -> { v, timer }: a target tapped but not sent yet
-  let filter = 'all', drawn = '', grid = null, view = 'rooms', viewDrawn = '';   // view: rooms | rules | plan (#546)
+  let filter = 'all', drawn = '', grid = null, view = 'rooms', viewDrawn = '';   // view: rooms | rules | plan (#546) | diag (#579)
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
   const lang = () => ctx.lang() || 'de';
@@ -119,7 +119,7 @@ export function initClimatePage(ctx) {
     const tools = make('div', 'tpTools');
     if (view === 'rooms') FILTERS.forEach((f) => { const b = btn(`tpChip${f === filter ? ' on' : ''}`, t(`cl.filter.${f}`), () => { filter = f; draw(true); }); b.dataset.filter = f; tools.append(b); });
     else tools.append(btn('tpChip', t('cl.view.rooms'), () => show('rooms')));
-    [['rules', `📋 ${t('cl.view.rules')}`], ['plan', `📅 ${t('cl.view.plan')}`]].forEach(([v, text]) => {
+    [['rules', `📋 ${t('cl.view.rules')}`], ['plan', `📅 ${t('cl.view.plan')}`], ...(ctx.diag ? [['diag', `🩺 ${t('cl.view.diag')}`]] : [])].forEach(([v, text]) => {
       const b = btn(`tpChip${view === v ? ' on' : ''}`, text, () => show(v)); b.dataset.view = v; tools.append(b);
     });
     h.append(tools);
@@ -127,7 +127,7 @@ export function initClimatePage(ctx) {
   }
   function show(v) { view = v; drawn = ''; viewDrawn = ''; grid = null; draw(true); el.scrollTop = 0; }
   function drawView(force) {
-    const ui = view === 'plan' ? ctx.plan : ctx.heat;
+    const ui = view === 'plan' ? ctx.plan : view === 'diag' ? ctx.diag : ctx.heat;
     if (!force && (ui.busy?.() || el.contains(document.activeElement) && document.activeElement.matches('input'))) return;   // a drag or a field being typed in
     const m = model(), sig = JSON.stringify([view, ui.viewSig(), m.outside, imperial(), t('tab.climate')]);
     if (!force && sig === viewDrawn) return;

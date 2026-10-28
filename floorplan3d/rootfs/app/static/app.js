@@ -732,7 +732,7 @@ const climatePage = initClimatePage({                            // 🌡 Klima (
   t, el: $('#tabPages [data-page=climate]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => shownLayout(),
   placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
   callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board, thermo: dash.thermo,   // the thermostat as a circle (#495)
-  heat: rulesUi.heat, plan: rulesUi.plan,                        // 📋 Heiz-Regeln and 📅 Heizplan (#546)
+  heat: rulesUi.heat, plan: rulesUi.plan, diag: rulesUi.diag,     // 📋 Heiz-Regeln, 📅 Heizplan (#546), 🩺 Protokoll (#579)
 });
 const routinesPage = initRoutinesPage({                          // ▶ Abläufe (pageroutines.js, routines.js, #483)
   t, el: $('#tabPages [data-page=routines]'), states: () => states, settings: () => settings, canEdit: () => me.canEdit,

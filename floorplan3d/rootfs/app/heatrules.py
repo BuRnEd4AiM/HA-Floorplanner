@@ -33,6 +33,10 @@ MAX_POINTS = 12                                  # blocks of a day in the schedu
 RETRY = 180                                      # s: a thermostat still heating while its window is open gets the call again (a sleepy
                                                  # radiator thermostat may take a minute or two to say it is off)
 TRIES = 5                                        # then the page says that it does not go off
+PENDING = 180                                    # s: a target the rules sent that the thermostat has not reported yet is no turn by hand
+                                                 # (a sleepy radiator thermostat reports some minutes later, #579)
+GONE = ("unavailable", "unknown")
+GRACE = 15 * 60                                  # s: an open window's contact that does not report for a moment still counts as open
 
 DEFAULT = {
     "window": {"on": False, "delay": 2, "doors": True, "skip": []},
@@ -264,6 +268,16 @@ def keep_off(states, e, t, now, ac=False) -> list:
     return [(e, "set_temperature", {"temperature": _clamp(states, e, 5.0)})]
 
 
+def _num(v):
+    return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+
+def _tstep(states, e) -> float:
+    """the steps a thermostat's target goes in (0.5° unless it says)"""
+    s = _num(_attr(states, e, "target_temp_step"))
+    return s if s and s > 0 else 0.5
+
+
 def by_hand(states, e, level) -> list:
     """the calls that bring thermostat e back to level when only its temperature was turned (by hand, at the device or on a page); []
     when it is as the level wants, or when its mode was changed (off, auto: chosen on purpose, left alone). A thermostat that rounds
@@ -273,11 +287,35 @@ def by_hand(states, e, level) -> list:
     calls = apply_level(states, e, level)
     if not calls or any(c[1] != "set_temperature" for c in calls):
         return []
-    cur, step = _attr(states, e, "temperature"), _attr(states, e, "target_temp_step")
-    step = step if isinstance(step, (int, float)) and not isinstance(step, bool) and step > 0 else 0.5
-    if isinstance(cur, (int, float)) and not isinstance(cur, bool) and abs(cur - calls[0][2]["temperature"]) <= step / 2:
+    cur = _num(_attr(states, e, "temperature"))
+    if cur is not None and abs(cur - calls[0][2]["temperature"]) <= _tstep(states, e) / 2:
         return []
     return calls
+
+
+def pending(states, e, t, now) -> tuple:
+    """(calls, waiting) for a target the rules sent a moment ago (t["sent"]: [target, when, the target before, tries]). Reported: done.
+    Not yet: waiting, it is no turn by hand (the owner, #579: "von selbst gedreht … er selbst und er weiß es nicht": a sleepy radiator
+    thermostat reports the new target some minutes later, until then Home Assistant shows the old one). After PENDING seconds still the
+    old one: sent once more (at most TRIES times). Another one: turned by somebody, the rules go on as usual. t: what the rules remember
+    of the thermostat."""
+    s = t.get("sent")
+    if not (isinstance(s, list) and len(s) == 4 and all(_num(x) is not None for x in (s[0], s[1], s[3]))):
+        t.pop("sent", None)
+        return [], False
+    cur, step = _num(_attr(states, e, "temperature")), _tstep(states, e)
+    if cur is not None and abs(cur - s[0]) <= step / 2 + 0.001:
+        t.pop("sent")
+        return [], False
+    if now - s[1] < PENDING:
+        return [], True
+    old = _num(s[2])
+    if (cur is not None and old is not None and abs(cur - old) <= step / 2 + 0.001 and (states.get(e) or {}).get("state") not in ("off", *GONE)
+            and s[3] < TRIES):
+        s[1], s[3] = now, s[3] + 1
+        return [(e, "set_temperature", {"temperature": s[0]})], True
+    t.pop("sent")
+    return [], False
 
 
 def restore(states, e, s) -> list:
@@ -327,10 +365,24 @@ def clean_mem(m) -> dict:
             "away": t("away"), "warm": t("warm")}
 
 
-def window_open(states, room, rules) -> list:
-    """the open windows (and doors to the outside) of a room the window rule watches"""
+def _since(st):
+    """when a state began (its last_changed) in seconds, None when it does not say"""
+    v = st.get("last_changed") if isinstance(st, dict) else None
+    try:
+        return datetime.datetime.fromisoformat(v).timestamp() if isinstance(v, str) else None
+    except ValueError:
+        return None
+
+
+def window_open(states, room, rules, was=False, now=None) -> list:
+    """the open windows (and doors to the outside) of a room the window rule watches. was: the room was open at the last look; then a
+    contact that does not report for a moment (unavailable or unknown: Home Assistant or Zigbee2MQTT starting again) still counts as open
+    for GRACE seconds, the pause goes on (#579: it ended, the heating went on, and paused again after the delay)"""
     ents = room["windows"] + (room["outer"] if rules["window"]["doors"] else [])
-    return [e for e in ents if (states.get(e) or {}).get("state") in OPEN]
+    out = [e for e in ents if (states.get(e) or {}).get("state") in OPEN]
+    if out or not was or now is None:
+        return out
+    return [e for e in ents if (states.get(e) or {}).get("state") in GONE and (_since(states.get(e)) or -1e12) > now - GRACE]
 
 
 def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, guard_armed=False, weather=None):
@@ -362,7 +414,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
         key = room["key"]
         climates = [e for e in room["climates"] if heats(states, e) and e not in seen]
         seen.update(climates)
-        opened = window_open(states, room, rules)
+        opened = window_open(states, room, rules, key in mem["open"], now)
         if opened:
             mem["open"][key] = mem["open"].get(key) or now
         else:
@@ -420,8 +472,14 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
             else:
                 t.pop("offT", None)
                 t.pop("offN", None)
-            hand, cur = rules["schedule"]["hand"], _attr(states, e, "temperature")
-            if not out and not ov_e and (level or {}).get("why") == "schedule" and hand and by_hand(states, e, level):
+            waiting, again, cur = False, False, _attr(states, e, "temperature")
+            if ov_e == "window":
+                t.pop("sent", None)
+            elif not out:                                  # a target sent a moment ago, not reported yet: no turn by hand (#579)
+                out, waiting = pending(states, e, t, now)
+                again = bool(out)
+            hand = rules["schedule"]["hand"]
+            if not out and not waiting and not ov_e and (level or {}).get("why") == "schedule" and hand and by_hand(states, e, level):
                 h0 = t.get("hand")                             # turned by hand under the schedule: back some minutes after the last turn
                 if not isinstance(h0, (int, float)) or isinstance(h0, bool) or t.get("handT") != cur:
                     t["hand"], t["handT"] = now, cur
@@ -432,12 +490,16 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
             else:
                 t.pop("hand", None)
                 t.pop("handT", None)
+            sets = [c[2]["temperature"] for c in out if c[1] == "set_temperature"]
+            if sets and ov_e != "window" and not again:      # what was sent, to know it when the thermostat reports it late
+                t["sent"] = [sets[-1], now, _num(cur), 0]
             t["level"], t["ov"] = level, ov_e
             mem["t"][e] = t
             for c in out:
                 calls.append(c)
                 log.append({"ent": e, "act": "off" if c[2].get("hvac_mode") == "off" else "temp" if c[1] == "set_temperature" else "mode",
-                            "v": c[2].get("temperature", c[2].get("hvac_mode")), "why": ov_e or (level or {}).get("why") or "back", "room": key})
+                            "v": c[2].get("temperature", c[2].get("hvac_mode")), "why": ov_e or (level or {}).get("why") or "back", "room": key,
+                            **({"again": True} if again else {})})
         first = mem["t"].get(climates[0]) or {}                # what its (first) thermostat does: an air conditioner only the window
         lv, ov1 = first.get("level") or {}, first.get("ov")
         status[key] = {"why": ov1 or lv.get("why"), "temp": lv.get("temp"), "level": lv.get("level"),
@@ -446,7 +508,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
                        "waiting": bool(watched and opened and ov != "window" and not mem["skip"].get(key)), "skip": bool(mem["skip"].get(key)),
                        "hand": first["hand"] + rules["schedule"]["hand"] * 60 if first.get("hand") else None,
                        "stuck": ov1 == "window" and not paused(states, climates[0], cools(states, climates[0])) and first.get("offN", 0) >= TRIES,
-                       "climates": climates}
+                       "sent": (first.get("sent") or [None])[0], "climates": climates}
     for e in list(mem["t"]):                                # thermostats no longer in a room: forgotten
         if e not in seen and e not in placed:
             mem["t"].pop(e)

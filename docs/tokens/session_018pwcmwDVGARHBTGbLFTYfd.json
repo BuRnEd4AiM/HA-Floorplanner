@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmwDVGARHBTGbLFTYfd",
+ "start": "2026-10-28",
+ "updated": "2026-10-28T19:05:42Z",
+ "branch": "claude/heiz-protokoll",
+ "source": "counted",
+ "input": 258,
+ "cache_write": 391531,
+ "cache_read": 37448818,
+ "output": 176030,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 258,
+   "cache_write": 391531,
+   "cache_read": 37448818,
+   "output": 176030,
+   "requests": 129
+  }
+ }
+}

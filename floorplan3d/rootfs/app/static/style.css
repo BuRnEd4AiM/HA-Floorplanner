@@ -2068,6 +2068,28 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .hrLine > span { flex: 1; min-width: 150px; }
 .hrRoomBtns { display: flex; gap: 6px; flex-wrap: wrap; }
 .hrView { display: flex; flex-direction: column; gap: 12px; }
+/* 🩺 Protokoll: who controls what (#579, heatdiagui.js) */
+.hdHead { display: flex; flex-direction: column; gap: 6px; }
+.hdHead .tpSub { margin: 0 0 4px; }
+.hdCfg { font-size: 13.5px; line-height: 1.4; white-space: pre-wrap; }
+.hdWarn { padding: 8px 12px; border-radius: 10px; background: rgba(245, 166, 35, .12); border: 1px solid rgba(245, 166, 35, .55); font-size: 13.5px; }
+.hdWarn small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.hdBtns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.hdText { width: 100%; box-sizing: border-box; font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; background: var(--field); color: inherit; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+.hdChips { display: flex; gap: 6px; flex-wrap: wrap; }
+.hdGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 12px; align-items: start; }
+.hdRoom { display: flex; flex-direction: column; gap: 6px; }
+.hdRoom .peH { margin: 0; }
+.hdNow { padding: 7px 10px; border-radius: 10px; background: var(--field); font-size: 13.5px; font-weight: 600; }
+.hdNow.none { background: transparent; color: var(--muted); font-weight: 400; padding-left: 0; }
+.hdLine { font-size: 13.5px; line-height: 1.35; border-top: 1px solid var(--line); padding-top: 6px; }
+.hdLine b { display: block; font-weight: 600; } .hdLine small { display: block; color: var(--muted); font-size: 12.5px; }
+.hdContact.open:not(.not) { color: #f5a623; font-weight: 600; }
+.hdContact.not, .hdContact.closed { color: var(--muted); }
+.hdContact.gone, .hdContact.unknown, .hdContact.none { color: #e0a030; }
+.hdLog .roLogRow .at { width: 62px; font-variant-numeric: tabular-nums; }
+.hdLog .roLogRow.warn span, .hdLog .roLogRow.open span { color: #f5a623; }
+.hdLog .roLogRow.other span { color: #b48cff; }
 .hrNote { margin: 0; } .hrSaved { margin: 0; color: #5fd37a; font-weight: 700; }
 .hrGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 14px; align-items: start; }
 .hrCard { display: flex; flex-direction: column; gap: 10px; }

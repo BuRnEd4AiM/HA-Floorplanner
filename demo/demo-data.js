@@ -578,6 +578,7 @@ function rulesStatus() {
   rooms['main/r1'] = { why: wz, temp: wz === 'schedule' ? 21 : null, level: wz === 'schedule' ? 'comfort' : null, since: wz === 'window' ? pausedSince : null,
     until: wz === 'boost' ? rulesDemo.boost['main/r1'] : null, back: wz === 'window' || wz === 'boost' ? 22 : null, open: open ? ['binary_sensor.fenster_wohnzimmer'] : [],
     waiting: false, skip: !!rulesDemo.skip['main/r1'], climates: ['climate.wohnzimmer'] };
+  rooms['main/r5'] = { why: null, temp: null, level: null, open: [], waiting: false, skip: false, climates: ['climate.klima_buero'] };   // an air conditioner: only the window rule
   const lanes = {};
   rulesDemo.flows.filter((f) => !f.ha).forEach((f) => f.lanes.forEach((l) => { lanes[`${f.id}/${l.id}`] = { running: false, wait: null, until: null, passed: {}, stop: null, end: null, t0: null, test: false }; }));
   if (!rulesDemo.flows.find((f) => f.id === 'f_flur')?.ha) lanes['f_flur/l1'] = { running: false, wait: null, until: null, passed: { 0: t - 19 * 60, 1: t - 19 * 60, 2: t - 19 * 60, 3: t - 17 * 60, 4: t - 17 * 60 }, stop: null, end: t - 17 * 60, t0: t - 19 * 60, test: false };
@@ -655,6 +656,54 @@ function sceneShow(m) {                                 // ▶ Ausprobieren and 
 entities['automation.flurlicht_nachts'].at = nowS() - 17 * 60;
 function rulesAnswer() {
   return { heat: rulesDemo.heat, flows: rulesDemo.flows, status: rulesStatus(), log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS(), haLink: '' };
+}
+/* 🩺 Protokoll (#579): every room as the add-on sees it (roommap.py) and the journal of today, as the add-on would have written it: the
+ * schedule, a turn at the thermostat and back, Home Assistant starting again, the kitchen door (between two rooms: it does not count), the
+ * window opening and the pause */
+const traceRooms = [
+  { key: 'main/r1', house: 'main', name: 'Wohnzimmer', floor: 0, climates: ['climate.wohnzimmer'], windows: ['binary_sensor.fenster_wohnzimmer'], outer: [], inner: ['binary_sensor.tuer_wohnzimmer_kueche'] },
+  { key: 'main/r2', house: 'main', name: 'Küche', floor: 0, climates: [], windows: ['binary_sensor.fenster_kueche'], outer: [], inner: ['binary_sensor.tuer_wohnzimmer_kueche'] },
+  { key: 'main/r5', house: 'main', name: 'Büro', floor: 0, climates: ['climate.klima_buero'], windows: [], outer: ['binary_sensor.tuer_buero'], inner: [] },
+];
+let traceDemo = null;
+function traceList() {                                 // made at the first look (demoVersion is defined further down)
+  if (traceDemo) return traceDemo;
+  const t0 = nowS(), m = (n) => t0 - n * 60, wz = 'climate.wohnzimmer';
+  traceDemo = [
+    { t: m(420), k: 'start', v: demoVersion() }, { t: m(420), k: 'link', on: true },
+    { t: m(420), k: 'room', room: 'main/r1', why: 'schedule', level: 'night', temp: 17, first: true }, { t: m(420), k: 'room', room: 'main/r5', why: null, first: true },
+    { t: m(400), k: 'room', room: 'main/r1', why: 'schedule', level: 'comfort', temp: 21 },
+    { t: m(400), k: 'rule', ent: wz, act: 'temp', v: 21, why: 'schedule', room: 'main/r1' },
+    { t: m(400), k: 'call', ent: wz, dom: 'climate', svc: 'set_temperature', v: 21, ok: true, src: 'heat' },
+    { t: m(400) + 38, k: 'climate', ent: wz, room: 'main/r1', mode: null, temp: [17, 21], by: 'addon', ago: 38 },
+    { t: m(240), k: 'link', on: false, err: "WSServerHandshakeError: 502, message='Invalid response status'", n: 3, t2: m(238) },
+    { t: m(238), k: 'link', on: true },
+    { t: m(238), k: 'contact', ent: 'binary_sensor.fenster_kueche', s: 'unavailable', was: 'off', rooms: [['main/r2', 'window', 'noclimate']] },
+    { t: m(237), k: 'contact', ent: 'binary_sensor.fenster_kueche', s: 'off', was: 'unavailable', rooms: [['main/r2', 'window', 'noclimate']] },
+    { t: m(55), k: 'climate', ent: wz, room: 'main/r1', mode: null, temp: [21, 23], by: 'device' },
+    { t: m(55), k: 'room', room: 'main/r1', why: 'schedule', level: 'comfort', temp: 21, hand: m(45) },
+    { t: m(45), k: 'rule', ent: wz, act: 'temp', v: 21, why: 'schedule', room: 'main/r1' },
+    { t: m(45), k: 'call', ent: wz, dom: 'climate', svc: 'set_temperature', v: 21, ok: true, src: 'heat' },
+    { t: m(45), k: 'room', room: 'main/r1', why: 'schedule', level: 'comfort', temp: 21, sent: 21 },
+    { t: m(44), k: 'climate', ent: wz, room: 'main/r1', mode: null, temp: [23, 21], by: 'addon', ago: 52 },
+    { t: m(44), k: 'room', room: 'main/r1', why: 'schedule', level: 'comfort', temp: 21 },
+    { t: m(30), k: 'call', ent: 'number.heizung_wohnzimmer_local_temperature_calibration', dom: 'number', svc: 'set_value', v: -3.2, ok: true, src: 'sensor' },
+    { t: m(25), k: 'contact', ent: 'binary_sensor.tuer_wohnzimmer_kueche', s: 'on', was: 'off', rooms: [['main/r1', 'inner', 'inner'], ['main/r2', 'inner', 'inner']] },
+    { t: m(5), k: 'contact', ent: 'binary_sensor.fenster_wohnzimmer', s: 'on', was: 'off', rooms: [['main/r1', 'window', null]] },
+    { t: m(5), k: 'room', room: 'main/r1', why: 'schedule', level: 'comfort', temp: 21, waiting: true },
+    { t: m(3), k: 'room', room: 'main/r1', why: 'window', was: 'schedule' },
+    { t: m(3), k: 'rule', ent: wz, act: 'off', v: 'off', why: 'window', room: 'main/r1' },
+    { t: m(3), k: 'call', ent: wz, dom: 'climate', svc: 'set_hvac_mode', v: 'off', ok: true, src: 'heat' },
+    { t: m(3) + 12, k: 'climate', ent: wz, room: 'main/r1', mode: ['heat', 'off'], temp: null, by: 'addon', ago: 12 },
+  ];
+  return traceDemo;
+}
+function traceAnswer() {
+  const ents = [...new Set(traceRooms.flatMap((r) => [...r.climates, ...r.windows, ...r.outer, ...r.inner]).concat(['sensor.wohnzimmer_temp']))];
+  const states = Object.fromEntries(ents.map((e) => { const x = entities[e]; return [e, x ? { s: x.state, n: x.name, t: x.tt, c: x.ct, m: x.modes } : null]; }));
+  const trace = traceList();
+  return { rooms: traceRooms, loose: [], states, trace, houses: { main: 'Haus' }, running: true, since: [...trace].reverse().find((x) => x.k === 'link' && x.on).t, ha: true, now: nowS(),
+    version: demoVersion() };
 }
 /** who uses a device in the demo (#546): the thermostat of the living room is used by an automation of Home Assistant too */
 function relatedDemo(e) {
@@ -1139,6 +1188,7 @@ export function installDemoBackend() {
       }
       return json(rulesAnswer());
     }
+    if (path === 'api/rules/trace') return json(traceAnswer());   // 🩺 Protokoll (#579)
     if (path === 'api/rules/room' && method === 'POST') {
       const b = JSON.parse(init.body || '{}'), t = nowS();
       if (b.act === 'boost') rulesDemo.boost[b.room] = rulesDemo.boost[b.room] > t ? 0 : t + rulesDemo.heat.boost.minutes * 60;

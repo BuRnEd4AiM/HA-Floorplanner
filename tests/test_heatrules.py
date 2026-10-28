@@ -335,3 +335,57 @@ def test_an_air_conditioner_only_gets_the_window_rule():
     assert run.look() == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})] and run.status["h/wz"]["why"] == "window"
     st["binary_sensor.fenster"]["state"] = "off"
     assert run.look()[0] == ("climate.wz", "set_hvac_mode", {"hvac_mode": "cool"})   # back to cooling
+
+
+def test_a_target_reported_late_is_no_turn_by_hand_and_is_sent_again_when_not_taken():
+    """#579, the owner: "von selbst gedreht … er selbst und er weiß es nicht": the schedule sends 21° at 6:00, a sleepy radiator
+    thermostat reports it some minutes later; until then Home Assistant shows the old 18°, which is no turn by hand"""
+    plan = {"days": [[[0, "night"], [360, "comfort"], [480, "eco"]]] * 7}
+    st = house(**{"climate.wz": thermostat(temp=18.0)})
+    run = Run({"schedule": {"on": True, "rooms": {"h/wz": plan}}}, st, at=MON.replace(hour=5, minute=59))
+    run.look()
+    late = []                                                               # the thermostat does nothing yet
+
+    def look(minutes=0):
+        run.now += minutes * 60
+        run.local += datetime.timedelta(minutes=minutes)
+        run.mem, calls, run.status, run.log = hr.step(run.rules, ROOMS, st, run.now, run.local, run.mem)
+        late.extend(calls)
+        return calls
+
+    assert look(1) == [("climate.wz", "set_temperature", {"temperature": 21.0})]
+    assert look(0.25) == [] and run.status["h/wz"]["hand"] is None and run.status["h/wz"]["sent"] == 21.0   # waiting, not "✋"
+    assert look(2) == [] and run.status["h/wz"]["hand"] is None
+    assert look(1) == [("climate.wz", "set_temperature", {"temperature": 21.0})] and run.log[-1]["again"]    # 3 minutes: not taken
+    st["climate.wz"]["attributes"]["temperature"] = 21.0                    # now it reports it
+    assert look(0.25) == [] and run.status["h/wz"]["sent"] is None and run.status["h/wz"]["hand"] is None
+    st["climate.wz"]["attributes"]["temperature"] = 23.0                    # turned by hand later: that counts
+    assert look(1) == [] and run.status["h/wz"]["hand"] == run.now + 600
+    assert look(10) == [("climate.wz", "set_temperature", {"temperature": 21.0})]
+    st["climate.wz"]["attributes"]["temperature"] = 22.0                    # turned again before the 21° came: by hand after 3 minutes
+    assert look(1) == [] and run.status["h/wz"]["hand"] is None
+    assert look(3) == [] and run.status["h/wz"]["hand"] == run.now + 600 and run.status["h/wz"]["sent"] is None
+    sent = len(late)
+    for _ in range(12):                                                     # a thermostat that never takes it: not asked for ever
+        st["climate.wz"]["attributes"]["temperature"] = 18.0
+        run.mem["t"]["climate.wz"]["sent"] = [21.0, run.now, 18.0, hr.TRIES]
+        look(4)
+    assert all(c[2]["temperature"] == 21.0 for c in late[sent:]) and len(late) - sent <= 3
+
+
+def test_an_open_window_whose_contact_does_not_report_for_a_moment_stays_open():
+    """#579: Home Assistant or Zigbee2MQTT starting again: the contact is unavailable a moment; the pause goes on, not the heating"""
+    st = house()
+    run = Run({"window": {"on": True, "delay": 0}}, st)
+    st["binary_sensor.fenster"] = {"state": "on"}
+    assert run.look() == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})]
+    at = datetime.datetime.fromtimestamp(run.now, datetime.timezone.utc).isoformat()
+    st["binary_sensor.fenster"] = {"state": "unavailable", "last_changed": at}
+    assert run.look(1) == [] and run.status["h/wz"]["why"] == "window"
+    st["binary_sensor.fenster"] = {"state": "on"}
+    assert run.look(1) == [] and run.status["h/wz"]["why"] == "window"
+    st["binary_sensor.fenster"] = {"state": "unknown", "last_changed": datetime.datetime.fromtimestamp(run.now, datetime.timezone.utc).isoformat()}
+    assert run.look(14) == [] and run.status["h/wz"]["why"] == "window"
+    assert run.look(2)[0] == ("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"})    # 16 minutes without a word: closed
+    st["binary_sensor.fenster"] = {"state": "unavailable", "last_changed": datetime.datetime.fromtimestamp(run.now, datetime.timezone.utc).isoformat()}
+    assert run.look(1) == [] and run.status["h/wz"]["why"] is None          # one that was shut stays shut

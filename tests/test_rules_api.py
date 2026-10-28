@@ -170,3 +170,16 @@ async def test_routines_become_automations_of_home_assistant(client, monkeypatch
     assert "fp3d_licht_l1" not in autos and "heizung_morgens" in autos and ("DELETE", "fp3d_licht_l1") in asked
     assert not any(a[1] == "heizung_morgens" and a[0] != "GET" for a in asked)                      # never touched
     assert js.loads((tmp_path / "ha-sync.json").read_text()) == {}
+
+
+async def test_the_journal_of_the_heating_and_every_room_as_the_add_on_sees_it(client, tmp_path):
+    """🩺 Wer steuert was (#579): without Home Assistant the rooms of the plans and the journal kept before"""
+    import json
+    (tmp_path / "layout.json").write_text(json.dumps(LAYOUT))
+    (tmp_path / "rules-trace.json").write_text(json.dumps([{"t": 5, "k": "contact", "ent": "binary_sensor.fenster", "s": "on", "was": "off",
+                                                            "rooms": [["main/r1", "window"]]}, {"t": 6, "x": 1}]))
+    r = await (await client.get("/api/rules/trace")).json()
+    assert r["rooms"] == [{"key": "main/r1", "house": "main", "name": "Wohnzimmer", "floor": 0, "climates": ["climate.wz"],
+                           "windows": ["binary_sensor.fenster"], "outer": [], "inner": []}]
+    assert [x["k"] for x in r["trace"]] == ["contact"] and r["running"] is False and r["ha"] is False and r["houses"] == {"main": "Haus"}
+    assert r["states"] == {"binary_sensor.fenster": None, "climate.wz": None} and r["loose"] == []
