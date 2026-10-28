@@ -303,10 +303,11 @@ def window_open(states, room, rules) -> list:
     return [e for e in ents if (states.get(e) or {}).get("state") in OPEN]
 
 
-def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, guard_armed=False, weather=None, own_window=()):
+def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, guard_armed=False, weather=None):
     """One look at every room: (mem, calls, status, log). rules: clean_rules; rooms: roommap.rooms_of; states: {entity: Home Assistant's
-    state with attributes}; now: seconds; local: the time of day in Home Assistant's zone; mem: what the last look remembered (clean_mem);
-    own_window: thermostats that see an open window themselves (the window rule leaves rooms alone where every thermostat does).
+    state with attributes}; now: seconds; local: the time of day in Home Assistant's zone; mem: what the last look remembered (clean_mem).
+    A window contact of the plan counts even when the thermostat has a window detection of its own: that one only guesses from a quick
+    drop of the temperature, and its switch is on by default (the owner: the window open, the rule on, the schedule stayed).
     calls: [(thermostat, service, data)]; status: {room key: {why, since, until, back, open}} for the pages; log: [{ent, act, v, why}]."""
     mem = clean_mem(mem)
     calls, status, log = [], {}, []
@@ -341,7 +342,7 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
             mem["boost"].pop(key, None)
         if not climates:
             continue
-        watched = rules["window"]["on"] and key not in rules["window"]["skip"] and not all(e in own_window for e in climates)
+        watched = rules["window"]["on"] and key not in rules["window"]["skip"]
         ov = None
         if watched and opened and not mem["skip"].get(key) and now - mem["open"][key] >= rules["window"]["delay"] * 60:
             ov = "window"

@@ -88,7 +88,7 @@ async def _ask_ws(ws, msg_id, msg, pending):
 async def run_rules(rules: Rules, *, connect, env, check: float = CHECK, idle: float = 5.0):
     """Runs while the add-on runs; never raises. env: async rooms() (roommap.rooms_of of every house), local() (the time of day in Home
     Assistant's zone), call(domain, service, data) -> bool, notify(text), save(mem), publish(status), guard_armed(), weather(states) (the
-    weather entity), own_window(states) (thermostats that see an open window themselves)"""
+    weather entity)"""
     rules.bind()
     delay = 1
     while True:
@@ -173,7 +173,7 @@ def _ctx(states, cache, env, now, local):
 
 async def _heat(rules, states, cache, env, now, local):
     mem, calls, status, lines = hr.step(rules.cfg["heat"], cache["rooms"], states, now, local, rules.mem["heat"],
-                                        guard_armed=env.guard_armed(), weather=env.weather(states), own_window=env.own_window(states))
+                                        guard_armed=env.guard_armed(), weather=env.weather(states))
     rules.mem["heat"], rules.status["rooms"] = mem, status
     rules.note([{"src": "heat", **x} for x in lines], now)
     for e, svc, data in calls:

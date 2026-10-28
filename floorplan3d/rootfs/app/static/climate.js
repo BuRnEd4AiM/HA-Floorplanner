@@ -13,10 +13,10 @@ export function airLimit(stops) {
 
 /** what the card of a room shows: { temp, humid, co2 (or null each), air: 'good' | 'bad' | null, climate (the room's first thermostat or
  *  air conditioner, or null), mode (heatMode: heating | cooling | idle | off, null), target (its target temperature, null) }.
- *  ids: the room's entities (roomEntityIds), stops: settings.co2Stops */
-export function roomClimate(ids, states, stops) {
+ *  ids: the room's entities (roomEntityIds), stops: settings.co2Stops, partOf: the sensors of thermostats (roomReading) */
+export function roomClimate(ids, states, stops, partOf = {}) {
   const list = [...ids];
-  const temp = roomReading(list, states, 'temp'), humid = roomReading(list, states, 'humid'), co2 = roomReading(list, states, 'co2');
+  const temp = roomReading(list, states, 'temp', partOf), humid = roomReading(list, states, 'humid', partOf), co2 = roomReading(list, states, 'co2', partOf);
   const climate = list.filter((e) => e.startsWith('climate.') && states[e]).sort()[0] || null;
   const s = climate ? states[climate] : null;
   return {
@@ -31,8 +31,8 @@ export function roomClimate(ids, states, stops) {
  * The rooms of the page: rooms [{ id, name, floor, ids, open: [names of its open windows and doors] }] with what roomClimate says, only
  * those with a temperature or a thermostat; in the order given (floor by floor).
  */
-export function climateRooms(rooms, states, stops) {
-  return (rooms || []).map((r) => ({ ...r, open: r.open || [], ...roomClimate(r.ids || [], states || {}, stops) }))
+export function climateRooms(rooms, states, stops, partOf = {}) {
+  return (rooms || []).map((r) => ({ ...r, open: r.open || [], ...roomClimate(r.ids || [], states || {}, stops, partOf) }))
     .filter((r) => r.temp !== null || r.climate);
 }
 

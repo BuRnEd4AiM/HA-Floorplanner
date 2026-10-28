@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.37.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.37.1)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.37.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.37.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum** (Abschnitt 122): in der Demo 122.1; im Add-on mit deinem Wohnzimmer FL 122.2 bis 122.4.
 1. **Neu in 4.37.0: ▲ Plateau im Gelände, Boden je Raum höher, Außentreppe** (Abschnitt 121): Claude hat 121.1 bis 121.7 in der Demo und im Test-Add-on geprüft (probier es gern selbst in der Demo, 121.1 bis 121.6); für dich im Add-on mit deinem zweiten Haus 121.8.
 1. **Neu in 4.36.0: Szenen „⇉ Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant ändern und löschen** (Abschnitt 120): Claude hat 120.1 bis 120.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on 120.7 bis 120.9.
 1. **Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm** (Abschnitt 119): Claude hat 119.1 bis 119.4 in der Demo geprüft; für dich im Add-on am PC 119.5 und am Tablet quer 119.6.
@@ -339,7 +340,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 119. Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm (#562) | 4 | 0 | 2 | 0 | 119.5, 119.6 |
 | 120. Neu in 4.36.0: Szenen „Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant verwalten (#564) | 6 | 0 | 3 | 0 | 120.7 bis 120.9 |
 | 121. Neu in 4.37.0: Plateau im Gelände, Boden je Raum höher, Außentreppe (#566) | 7 | 0 | 1 | 0 | 121.8 |
-| **Zusammen** | **766** | **10** | **59** | **92** | |
+| 122. Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum (#568, #569) | 0 | 0 | 4 | 0 | 122.1 bis 122.4 |
+| **Zusammen** | **766** | **10** | **63** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1873,3 +1875,12 @@ Wunsch des Besitzers vom 2026-10-27: „das andere Haus steht aber auf einem lei
 | 121.6 | Einen Raum anklicken (z. B. Wohnzimmer), rechts „Boden höher als die Etage“ 0.45 | Boden und Möbel 45 cm höher, die Deckenlampe bleibt oben; an der Tür zur Küche 2 Stufen (3 × 15 cm); im 2D-Plan „▲ +0.45 m“ | ✅ (2026-10-27, Claude im Test-Add-on) |
 | 121.7 | Beim selben Raum den Haken „Stufen an den Türen von selbst“ wegnehmen | Die Stufen verschwinden | ✅ (2026-10-27, Claude im Test-Add-on) |
 | 121.8 | Im Add-on: dein zweites Haus in den Plan zeichnen, rechts bei „🏘 Gebäude in diesem Plan“ seine Räume dem zweiten Gebäude zuordnen, dann Grundstück → „▲ Plateau unter <dein Haus>“, Höhe wie bei euch, „＋ Außentreppe an die Haustür“ | Nur dieses Haus steht höher, das andere bleibt auf dem Rasen; die Treppe führt zu eurer Haustür; Lampen, Fenster und Kugeln sitzen in der Live-Ansicht am richtigen Ort | ❓ |
+
+## 122. Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum (#568, #569)
+Meldung des Besitzers vom 2026-10-28: „bei mir ist das Fenster offen, die Steuerung ist an, aber er überschreibt nicht den Heizplan“ und „über den einzelnen Zimmern … schwebt ja immer eine Temperatur … keine von den Temperaturen, die da drin ist“ (Wohnzimmer FL: 22,8° oben, Sensor 20,5°, Thermostat 25,1°).
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 122.1 | In der Demo: „Live“, Schild über dem Wohnzimmer ansehen | Es zeigt 21,4° wie der Sensor „Wohnzimmer Temperatur“, nicht mehr 21,3° (der Mittelwert mit der Heizung, 21,2°) | ❓ |
+| 122.2 | Im Add-on: Schild und Kachel über deinem Wohnzimmer FL ansehen | Dieselbe Temperatur wie dein Sensor im Raum (bei deinem Bild 20,5°), nicht mehr der Mittelwert mit dem Thermostat am Heizkörper | ❓ |
+| 122.3 | Im Add-on: 🌡 Klima → 📋 Heiz-Regeln, „Fenster offen → Heizung aus“ und den Heizplan an, im Wohnzimmer FL das Fenster öffnen | Erst „Fenster offen: die Heizung geht gleich aus“, nach den eingestellten Minuten geht das Thermostat aus und die Zeile sagt „Heizung pausiert · Fenster offen seit … Min“ | ❓ |
+| 122.4 | Danach das Fenster wieder schließen | Die Heizung kommt zurück mit der Temperatur des Heizplans, die gerade gilt | ❓ |

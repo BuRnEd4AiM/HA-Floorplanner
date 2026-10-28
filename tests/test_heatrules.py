@@ -115,8 +115,26 @@ def test_heat_anyway_until_the_window_shuts_and_rooms_left_alone():
     st["binary_sensor.fenster"]["state"] = "on"
     assert run.look()[0][2] == {"hvac_mode": "off"}                            # the next airing is watched again
     st2 = house(**{"binary_sensor.fenster": {"state": "on"}, "binary_sensor.bad_fenster": {"state": "on"}})
-    run2 = Run({"window": {"on": True, "delay": 0, "skip": ["h/wz"]}}, st2, own_window={"climate.bad"})
-    assert run2.look() == []                                                   # one room switched off, the other's thermostat does it itself
+    run2 = Run({"window": {"on": True, "delay": 0, "skip": ["h/wz"]}}, st2)
+    assert run2.look() == [("climate.bad", "set_hvac_mode", {"hvac_mode": "off"})]   # the room switched off at the rule stays as it is
+
+
+def test_the_window_counts_also_when_the_thermostat_has_a_window_detection_of_its_own():
+    """the owner: the window open, the rule on, but the schedule stayed: his thermostat's switch "window detection" is on (its default),
+    which only says it may guess an open window from a drop of the temperature; the contact in the plan knows"""
+    plan = {"days": [[[0, "comfort"]]] * 7}
+    st = house(**{"switch.wz_window_detection": {"state": "on"}})
+    run = Run({"window": {"on": True, "delay": 2}, "schedule": {"on": True, "rooms": {"h/wz": plan}}}, st)
+    run.look()
+    assert run.status["h/wz"]["why"] == "schedule"
+    st["binary_sensor.fenster"]["state"] = "on"
+    run.look()
+    assert run.status["h/wz"]["waiting"] and st["climate.wz"]["state"] == "heat"
+    run.look(2)
+    assert st["climate.wz"]["state"] == "off" and run.status["h/wz"]["why"] == "window"
+    st["binary_sensor.fenster"]["state"] = "off"
+    run.look()
+    assert st["climate.wz"]["state"] == "heat" and st["climate.wz"]["attributes"]["temperature"] == 21.0
 
 
 def test_the_schedule_moves_on_while_the_window_is_open():

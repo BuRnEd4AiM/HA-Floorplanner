@@ -59,7 +59,7 @@ import { initRoomLabels } from './roomlabels.js';
 import { lampLights, lampRgb } from './lamplight.js';
 import { initEarth } from './earth.js';
 import { initSky } from './skyui.js';
-import { roomReading, roomEntityIds, roomSummary } from './roomtiles.js';
+import { roomReading, roomEntityIds, roomSummary, thermostatParts } from './roomtiles.js';
 import { initRoomTiles } from './roomtilesui.js';
 import { initLightGroups } from './lightgroupsui.js';
 import { initFavorites } from './favoritesui.js';
@@ -585,12 +585,15 @@ const energyUi = initEnergyUi({
 
 let viewMode = 'normal';           // normal | temp | humid | co2 (room colouring by sensor values)
 const VIEW_STOPS = { temp: ['tempStops', '°C'], humid: ['humidStops', '%'], co2: ['co2Stops', 'ppm'] };
-/* Temperature / humidity / CO₂ of a room: average of every matching sensor placed in it or assigned to its HA area (roomtiles.js) */
+/* Temperature / humidity / CO₂ of a room: average of every matching sensor placed in it or assigned to its HA area, a thermostat only
+ * without one (roomtiles.js) */
 function roomHeat(room, f) {
-  const v = roomReading(roomEntityIds(room, entityDevices(f), areaEntitiesOf(room)), states, viewMode);
+  const v = roomReading(roomEntityIds(room, entityDevices(f), areaEntitiesOf(room)), states, viewMode, partOf());
   return v === null ? null : colorFromStops(settings[VIEW_STOPS[viewMode][0]], v);
 }
 const areaEntitiesOf = (room) => (room.area ? areas.find((x) => x.id === room.area)?.entities || [] : []);
+let partsOf = [null, {}];                                        // the sensors of thermostats' devices, worked out once per list of areas
+const partOf = () => (partsOf[0] === areas ? partsOf[1] : (partsOf = [areas, thermostatParts(areas)])[1]);
 /* favourites (#471): buttons in front of the room tiles, ☆ on a device's card, the list in ⚙ → "Quick access"; favoritesui.js */
 const favorites = initFavorites({ $, t, settings: () => settings, states: () => states, ready: () => entities.length > 0, entities: () => entities,
   nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, callService: (e, svc) => live.callService(e, svc),
@@ -608,14 +611,14 @@ const rulesUi = initRulesUi({                                    // the add-on's
   redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); },
 });
 const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
-  settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf,
+  settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf,
   isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(),
   lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
   openRoom: (fi, id) => { if (houseMode) { switchFloor(fi); focusRoom(id); roomPanel.open(id); } else liveSelect({ kind: 'room', id }); }, goLive: () => setMode('live'), favorites,
   mark: (id) => rulesUi.mark(id) });                              // "⏸️ pausiert" of the heating rules (#546)
 const roomLabels = initRoomLabels({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // labels over the rooms (#430), roomlabels.js
   settings: () => settings, states: () => states, isLive: () => isLive(), view3d: () => layoutMode !== '2d', elev: (i) => elev(i), camera, canvas,
-  placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e),
+  placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf, isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e),
   openingEntities: (o) => openingEntities(o), commitSettings: () => commitSettings(), lang: () => currentLanguage(), imperial: () => settings.units === 'imperial',
   quiet: (q) => tapBalls.quiet(q), changed: () => applyStates(), openRoom: (id) => liveSelect({ kind: 'room', id }), goLive: () => setMode('live'),
   mark: (id) => rulesUi.mark(id) });
@@ -703,7 +706,7 @@ const openRoomAt = (fi, id) => { tabsUi.show('house'); if (houseMode || fi !== f
 const dash = initDashboards({                                    // the pages arranged by an admin, own cards and pages (#484, dashboards.js)
   $, t, lang: () => currentLanguage(), settings: () => settings, save: () => settingsStore.save(), canEdit: () => me.canEdit,
   states: () => states, entities: () => entities, areas: () => areas, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name, stateText: (e) => stateText(e),
-  callService: (e, svc, data) => live.callService(e, svc, data), layout: () => shownLayout(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf,
+  callService: (e, svc, data) => live.callService(e, svc, data), layout: () => shownLayout(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf,
   isOn: (e) => ON_STATES.has(states[e]?.state), isOpen: (e) => isOpen(e), openingEntities: (o) => openingEntities(o), openRoom: openRoomAt,
   camImage: (e) => cams.camImage(e, 'oc-img'), openCamera: (e) => { camPage.big(e); tabsUi.show('cameras'); },
   builtin: (k) => todayPage.card(k.split(':')[1]), tabsUi: () => tabsUi,
@@ -727,7 +730,7 @@ const todayPage = initTodayPage({                                // ☀ Heute (p
 });
 const climatePage = initClimatePage({                            // 🌡 Klima (pageclimate.js, climate.js, #483)
   t, el: $('#tabPages [data-page=climate]'), lang: () => currentLanguage(), settings: () => settings, states: () => states, layout: () => shownLayout(),
-  placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
+  placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf, isOpen: (e) => isOpen(e), nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
   callService: (e, svc, data) => live.callService(e, svc, data), openRoom: openRoomAt, board, thermo: dash.thermo,   // the thermostat as a circle (#495)
   heat: rulesUi.heat, plan: rulesUi.plan,                        // 📋 Heiz-Regeln and 📅 Heizplan (#546)
 });
@@ -1603,7 +1606,7 @@ const voiceUi = initVoiceUi({
   houseId: () => hs.id(), houses: () => hs.list().map((h) => ({ id: h.id, name: hs.label(h) })), switchHouse: (id) => switchHouse(id),
   switchFloor: (i) => switchFloor(i), houseMode: () => houseMode, setHouseMode: (on) => setHouseMode(on), floorIdx: () => floorIdx,
   focusRoom: (id) => focusRoom(id), openRoomPanel: (id) => roomPanel.open(id), isLive: () => isLive(), rows: () => deviceList.rows(), states: () => states,
-  reading: (id, mode) => { const f = layout.floors.find((x) => x.rooms.some((r) => r.id === id)), r = f?.rooms.find((x) => x.id === id); return r ? roomReading(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode) : null; },
+  reading: (id, mode) => { const f = layout.floors.find((x) => x.rooms.some((r) => r.id === id)), r = f?.rooms.find((x) => x.id === id); return r ? roomReading(roomEntityIds(r, entityDevices(f), areaEntitiesOf(r)), states, mode, partOf()) : null; },
   colorMode: (m) => { const b = $(`#modeBar [data-vm=${m}]`); if (!b) return false; b.click(); return true; }, imperial: () => imperial(),
   callService: (e, svc) => live.callService(e, svc), replaying: () => !!replayBack,   // 🗣 switching by voice (#532)
   openCheck: () => { openSettingsAt('voice'); reveal($('#vkBox')); },

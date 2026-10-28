@@ -22,9 +22,11 @@ test('the air: aired from the third stop of the CO₂ scale on (normally 1200 pp
   assert.equal(C.airLimit([{ v: 2000 }, { v: 500 }, { v: 1000 }]), 2000);       // sorted first
   assert.equal(C.airLimit([]), 1200); assert.equal(C.airLimit(null), 1200);
 });
-test('a room: the average temperature (thermostat and sensor, °F turned into °C), humidity, air, its thermostat and what it does', () => {
+test('a room: the temperature (its sensor before the thermostat, °F turned into °C), humidity, air, its thermostat and what it does', () => {
   const wz = C.roomClimate(['climate.wz', 'sensor.wz_temp', 'sensor.wz_co2', 'light.x'], states, STOPS);
-  assert.equal(wz.temp, (21.2 + 21.6) / 2); assert.equal(wz.humid, 48); assert.equal(wz.co2, 920); assert.equal(wz.air, 'good');
+  assert.equal(wz.temp, 21.6); assert.equal(wz.humid, 48);                       // the humidity of the thermostat: the room has no sensor for it
+  assert.equal(C.roomClimate(['climate.wz', 'sensor.wz_co2'], states, STOPS).temp, 21.2);
+  assert.equal(C.roomClimate(['climate.wz', 'sensor.wz_temp'], states, STOPS, { 'sensor.wz_temp': 'climate.wz' }).temp, (21.2 + 21.6) / 2);   // both of the thermostat assert.equal(wz.co2, 920); assert.equal(wz.air, 'good');
   assert.equal(wz.climate, 'climate.wz'); assert.equal(wz.mode, 'heating'); assert.equal(wz.target, 22);
   const sz = C.roomClimate(new Set(['sensor.sz_co2', 'sensor.sz_temp']), states, STOPS);
   assert.equal(sz.air, 'bad'); assert.ok(Math.abs(sz.temp - 18.611) < 0.01); assert.equal(sz.climate, null); assert.equal(sz.mode, null); assert.equal(sz.target, null);

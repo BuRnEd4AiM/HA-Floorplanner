@@ -3373,12 +3373,6 @@ def rules_weather(app, states) -> str | None:
     return next((e for e in sorted(states) if e.startswith("weather.")), None)
 
 
-def own_window(app, states) -> set:
-    """thermostats whose device sees an open window itself (a switch "window detection" of the same device that is on, #370's parts)"""
-    parts = app[KEY_RENAMES].get("parts") or {}
-    return {head for e, head in parts.items() if re.search(r"window|fenster", e) and (states.get(e) or {}).get("state") == "on"}
-
-
 async def rules_call(domain: str, service: str, data: dict) -> bool:
     """one call of a rule to Home Assistant (only the domains rules may switch)"""
     if domain not in RULE_DOMAINS:
@@ -3426,9 +3420,6 @@ async def rules_runner(app):
 
             def weather(self, states):
                 return rules_weather(app, states)
-
-            def own_window(self, states):
-                return own_window(app, states)
 
         async def start():
             await asyncio.sleep(4)

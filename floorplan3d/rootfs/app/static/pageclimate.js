@@ -13,7 +13,7 @@ import { roomOpenings } from './roompanel.js';
 import { openingEntities } from './openings.js';
 
 /** ctx: t, el (the page), lang(), settings(), states(), layout() (the building shown), placed(floor) (its devices with entities),
- *  areaEntities(room), isOpen(entity), nameOf(entity), callService(entity, service, data), openRoom(floorIndex, roomId), board (pageboard.js,
+ *  areaEntities(room), partOf() (the sensors of thermostats, roomReading), isOpen(entity), nameOf(entity), callService(entity, service, data), openRoom(floorIndex, roomId), board (pageboard.js,
  *  #484: the cards in the order an admin chose; keys room:<id>, loose, tip), thermo (thermostatui.js, #495), heat (heatrulesui.js), plan
  *  (heatplanui.js) (#546) */
 export function initClimatePage(ctx) {
@@ -106,7 +106,7 @@ export function initClimatePage(ctx) {
   }
 
   function model() {
-    const st = ctx.states(), list = climateRooms(rooms(), st, ctx.settings().co2Stops);
+    const st = ctx.states(), list = climateRooms(rooms(), st, ctx.settings().co2Stops, ctx.partOf?.());
     const loose = looseClimates(st, list.flatMap((r) => r.ids.filter((e) => e.startsWith('climate.') || e.startsWith('water_heater.'))));
     const wx = weatherEntity(ctx.settings(), st);
     return { rooms: list, loose, tips: climateTips(list), outside: st[wx]?.wx?.t ?? null };
@@ -178,6 +178,6 @@ export function initClimatePage(ctx) {
     reset: () => { filter = 'all'; drawn = ''; grid = null; if (!ctx.plan.dirty()) view = 'rooms'; },
     show,                                           // a view of the page: rooms | rules | plan (#546)
     /** the rooms of the house shown with their thermostat, for the heating rules and the schedule (#546) */
-    heatRooms: () => climateRooms(rooms(), ctx.states(), ctx.settings().co2Stops).filter((r) => r.climate).map((r) => ({ id: r.id, name: r.name, climate: r.climate })),
+    heatRooms: () => climateRooms(rooms(), ctx.states(), ctx.settings().co2Stops, ctx.partOf?.()).filter((r) => r.climate).map((r) => ({ id: r.id, name: r.name, climate: r.climate })),
   };
 }
