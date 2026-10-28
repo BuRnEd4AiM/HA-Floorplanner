@@ -2348,3 +2348,60 @@ input[type=range].kelRange::-moz-range-track { background: transparent; }
 /* a scene or automation of Home Assistant deleted from the dashboard (#564, hamanage.js): "↶ Wiederherstellen" for a few minutes */
 .hmUndo { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 10px; margin: 4px 0; border-radius: 10px;
   border: 1px dashed var(--line); font-size: 13.5px; }
+
+/* 📜 Protokoll: who switched what (pagelog.js, devlog.js; the owner's choice from docs/ideen-4.40/) */
+.lgHead { flex-wrap: wrap; } .lgHead .tpSub { flex: 1; min-width: 200px; }
+.lgBtns { display: flex; gap: 8px; flex-wrap: wrap; }
+.lgTools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.lgSep { width: 1px; height: 26px; background: var(--line); margin: 0 2px; }
+.lgSearch { flex: 1; min-width: 220px; max-width: 360px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--text); font: inherit; font-size: 14px; }
+.lgSel { padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--text); font: inherit; font-size: 14px; }
+.lgTiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+.lgTile { padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--field) 70%, transparent); border: 1px solid var(--line); min-width: 0; }
+.lgTile b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; } .lgTile span { color: var(--muted); font-size: 13px; }
+.lgTile.bad b { color: #ff8a7a; }
+.lgMain { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; }
+.lgMain.side { grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); }
+.lgTable { border-radius: 14px; border: 1px solid var(--line); overflow: hidden; background: color-mix(in srgb, var(--panel) 80%, transparent); }
+.lgRow { display: grid; grid-template-columns: 76px minmax(160px, 1.2fr) minmax(160px, 1.1fr) minmax(200px, 1.5fr); gap: 12px; padding: 8px 14px;
+  border-top: 1px solid var(--line); font-size: 13.5px; align-items: center; }
+.lgRow[data-entity] { cursor: pointer; } .lgRow[data-entity]:hover { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.lgRow.th { border-top: 0; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; background: color-mix(in srgb, var(--field) 45%, transparent); cursor: default; }
+.lgRow .at { color: var(--muted); font-variant-numeric: tabular-nums; }
+.lgRow .dev b { font-weight: 600; } .lgRow small { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+.lgRow.err { background: color-mix(in srgb, #ff5a4a 9%, transparent); }
+.lgRow.sel { background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: inset 3px 0 0 var(--accent); }
+.lgDay { padding: 6px 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); background: color-mix(in srgb, var(--field) 30%, transparent); }
+.lgEmpty { padding: 14px; margin: 0; } .lgTable .roMore { margin: 10px 14px; }
+.lgWho { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 10px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.lgWho.addon { background: color-mix(in srgb, #3fa9f5 20%, transparent); color: #9fd3ff; }
+.lgWho.auto { background: color-mix(in srgb, #b48cff 20%, transparent); color: #d4bfff; }
+.lgWho.user { background: color-mix(in srgb, #3fb950 20%, transparent); color: #9fe6b4; }
+.lgWho.dev { background: color-mix(in srgb, #ff8c32 20%, transparent); color: #ffc08a; }
+.lgWho.err { background: color-mix(in srgb, #ff5a4a 22%, transparent); color: #ffb0a6; }
+.lgSide { border-radius: 14px; border: 1px solid var(--line); padding: 14px 16px; background: color-mix(in srgb, var(--panel) 85%, transparent); display: flex; flex-direction: column; gap: 9px; position: sticky; top: 8px; }
+.lgSideHead { display: flex; align-items: center; gap: 8px; } .lgSideHead h3 { margin: 0; font-size: 18px; flex: 1; }
+.lgSide .kv { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; } .lgSide .kv span { color: var(--muted); } .lgSide .kv b { text-align: right; }
+.lgBar { position: relative; height: 16px; border-radius: 6px; overflow: hidden; background: var(--field); }
+.lgBar i { position: absolute; top: 0; height: 100%; } .lgBar i.on { background: #ff8c32; } .lgBar i.off { background: #2e5f8f; } .lgBar i.gone { background: repeating-linear-gradient(45deg, #ff5a4a55 0 4px, transparent 4px 8px); }
+.lgAxis { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: -4px; }
+.lgMini { font-size: 13px; display: flex; flex-direction: column; gap: 5px; }
+.lgMini div { display: flex; gap: 8px; } .lgMini div.err { color: #ffb0a6; } .lgMini .at { color: var(--muted); width: 42px; flex: none; font-variant-numeric: tabular-nums; }
+.lgDlg { width: min(580px, calc(100vw - 32px)); }
+.lgSec { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 10px 0 4px; }
+.lgOpts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.lgOpt { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font: inherit; font-size: 13.5px; display: flex; flex-direction: column; gap: 2px; text-align: left;
+  background: transparent; color: var(--text); cursor: pointer; }
+.lgOpt small { color: var(--muted); font-size: 11.5px; } .lgOpt:disabled { opacity: .45; cursor: default; }
+.lgOpt.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.lgNote { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+.lgOut { margin-top: 8px; }
+@media (max-width: 760px) {
+  .lgTiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lgMain.side { grid-template-columns: minmax(0, 1fr); }
+  .lgSide { position: static; order: -1; }
+  .lgRow, .lgRow.th { grid-template-columns: 62px minmax(0, 1fr); gap: 4px 10px; }
+  .lgRow.th span:nth-child(n+3) { display: none; }
+  .lgRow .what, .lgRow > span:last-child { grid-column: 2; }
+  .lgOpts { grid-template-columns: minmax(0, 1fr); }
+}

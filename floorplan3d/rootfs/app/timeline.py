@@ -6,6 +6,10 @@ every change of the entities placed in the floor plans into <addon config>/timel
     {"t": 1700000000.0, "snap": {"light.kitchen": {"state": "on", "brightness": 80}, ...}}   all states at that moment
     {"t": 1700000012.3, "e": "light.kitchen", "s": {"state": "off"}}                             one change
 
+Since 4.40.0 (📜 Protokoll, devlog.py) a change says who it was ("w": the add-on, an automation, a person, the device …, from Home
+Assistant's call_service, automation_triggered and script_started events and the context of the state), the add-on's own commands go in
+as {"t", "c": {…}} and a lost connection as {"t", "x": "off", "err"}; the playback reads only the snapshots and the changes.
+
 A day file starts with a snapshot (at midnight, or when the add-on started), so a day can be played back on its own. After a
 lost connection a new snapshot is written. Only the fields the 3D view draws are kept (state, brightness, colour, position ...),
 sensors (temperature, power ...) at most every few minutes, so a day stays small (typically well under a megabyte). Days older
@@ -21,6 +25,8 @@ import threading
 import time
 from pathlib import Path
 
+import devlog as dl
+
 log = logging.getLogger("floorplan3d.timeline")
 
 DAY_NAME = re.compile(r"^(\d{4}-\d{2}-\d{2})\.jsonl$")
@@ -31,6 +37,7 @@ EVENT_DOMAINS = {"light", "switch", "binary_sensor", "cover", "fan", "media_play
 # domains whose value changes all the time (temperature, power ...): kept at most every THROTTLE seconds
 SLOW_DOMAINS = {"sensor"}
 THROTTLE = 300.0
+WHO_EVENTS = ("call_service", "automation_triggered", "script_started")   # who asked for a switch (devlog.Who)
 ENTITY = re.compile(r"^([a-z_]+)\.[a-z0-9_]+$")
 KEEP = ("state", "unit", "brightness", "position", "rgb", "dc", "ct", "ch", "hvac", "tt", "fxc", "since")
 MAX_DAY_BYTES = 30 * 1024 * 1024          # a day file never grows beyond this (a runaway sensor must not fill the disk)
@@ -128,6 +135,8 @@ class Recorder:
         self.day = None                # the day the last snapshot was written for
         self.full: set = set()         # days that reached MAX_DAY_BYTES
         self.lock = threading.Lock()   # flush runs in a worker thread (also for a browser asking for today)
+        self.who = dl.Who()            # who switched a device (📜 Protokoll)
+        self.by: dict = {}             # entity_id -> who it was, for its next line
 
     def set_tracked(self, ids: set) -> bool:
         """The entities of the floor plans; True when some are new (their states must be fetched: a fresh snapshot)."""
@@ -156,14 +165,27 @@ class Recorder:
         self.last_write = {k: t for k in snap}
         self.day = day_of(t, self.tz)
 
-    def change(self, entity_id: str, slim: dict | None, t: float) -> None:
-        """One state_changed event of Home Assistant (slim: server.slim_state of the new state, None = removed)."""
+    def change(self, entity_id: str, slim: dict | None, t: float, raw: dict | None = None) -> None:
+        """One state_changed event of Home Assistant (slim: server.slim_state of the new state, None = removed; raw: the new state as
+        Home Assistant sent it, to say who it was)."""
         if entity_id not in self.tracked:
             return
         if self.day != day_of(t, self.tz):
             self.roll(t)               # first the states at midnight, then this change
-        self.current[entity_id] = compact(slim)
+        self.current[entity_id] = c = compact(slim)
+        if entity_id.split(".")[0] not in SLOW_DOMAINS and self.written.get(entity_id) != c:
+            self.by[entity_id] = self.who.who(entity_id, raw if raw is not None else slim, t)
         self._maybe_write(entity_id, t)
+
+    def command(self, t: float, cmd: dict) -> None:
+        """a command of the add-on (devlog.command); only while recording"""
+        if self.day:
+            self._line(t, {"c": cmd})
+
+    def gap(self, t: float, err: str) -> None:
+        """the connection to Home Assistant was lost"""
+        if self.day:
+            self._line(t, {"x": "off", "err": str(err)[:200]})
 
     def _maybe_write(self, entity_id: str, t: float, force: bool = False) -> None:
         c = self.current.get(entity_id)
@@ -172,7 +194,8 @@ class Recorder:
         slow = entity_id.split(".")[0] in SLOW_DOMAINS
         if slow and not force and t - self.last_write.get(entity_id, 0) < THROTTLE:
             return                     # tick() writes it once the time is up
-        self._line(t, {"e": entity_id, "s": c})
+        w = self.by.pop(entity_id, None)
+        self._line(t, {"e": entity_id, "s": c, **({"w": w} if w else {})})
         self.written[entity_id] = c
         self.last_write[entity_id] = t
 
@@ -228,7 +251,9 @@ async def run_recorder(rec: Recorder, *, connect, slim_state, tracked, settings,
             async with connect() as ws:
                 await ws.send_json({"id": 1, "type": "subscribe_events", "event_type": "state_changed"})
                 await ws.send_json({"id": 2, "type": "get_states"})
-                asks, next_id = {2}, 3             # get_states requests on their way (the answer is the snapshot)
+                for i, ev in enumerate(WHO_EVENTS, start=3):          # who asked for a switch (📜 Protokoll)
+                    await ws.send_json({"id": i, "type": "subscribe_events", "event_type": ev})
+                asks, next_id = {2}, 3 + len(WHO_EVENTS)   # get_states requests on their way (the answer is the snapshot)
                 delay = 1
                 last_look = time.monotonic()
                 while True:
@@ -243,11 +268,17 @@ async def run_recorder(rec: Recorder, *, connect, slim_state, tracked, settings,
                         data = json.loads(msg.data)
                         if data.get("id") in asks and data.get("type") == "result" and isinstance(data.get("result"), list):
                             asks.discard(data["id"])
+                            rec.who.set_people(data["result"])
                             rec.snapshot([slim_state(s) for s in data["result"] if isinstance(s, dict) and s.get("entity_id")], now)
                         elif data.get("type") == "event" and rec.day:
-                            d = (data.get("event") or {}).get("data") or {}
-                            if d.get("entity_id"):
-                                rec.change(d["entity_id"], slim_state(d["new_state"]) if d.get("new_state") else None, now)
+                            ev = data.get("event") or {}
+                            kind, d = ev.get("event_type", "state_changed"), ev.get("data") or {}
+                            if kind == "call_service":
+                                rec.who.service(ev, now)
+                            elif kind in WHO_EVENTS:
+                                rec.who.started(ev)
+                            elif kind == "state_changed" and d.get("entity_id"):
+                                rec.change(d["entity_id"], slim_state(d["new_state"]) if d.get("new_state") else None, now, d.get("new_state"))
                     if time.monotonic() - last_look >= check:
                         last_look = time.monotonic()
                         if rec.day:
@@ -271,6 +302,7 @@ async def run_recorder(rec: Recorder, *, connect, slim_state, tracked, settings,
             raise
         except Exception as err:  # noqa: BLE001 - the recorder must never stop the add-on
             log.info("security view recorder interrupted (%s), retrying in %ss", err, delay)
+            rec.gap(time.time(), f"{type(err).__name__}: {err}")
         try:
             await asyncio.to_thread(rec.flush)
         except OSError:

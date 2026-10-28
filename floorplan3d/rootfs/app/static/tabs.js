@@ -1,6 +1,6 @@
 /* Tabs (#479): a bar at the bottom of the live view so the add-on can be the only dashboard of a house (the owner's wish, docs/PLAN-4.3.md).
  * 🏠 is the house (the 3D picture as always), the other tabs are pages over it; more come step by step (4.3: the cameras, 4.4: today and
- * the energy, 4.5: the climate, the routines and the family, 4.8: music & TV and the household). Which tabs a user
+ * the energy, 4.5: the climate, the routines and the family, 4.8: music & TV and the household, 4.40: 📜 Protokoll). Which tabs a user
  * sees and which one a screen starts with is set per user in the users dialog (settings.userTabs, mirrored to users.json). Edit mode, the
  * dashboard card and a screen with only one tab have no bar. Pure rules (unit test: tests/tabs.test.mjs); tabsui.js draws the bar. */
 
@@ -15,6 +15,7 @@ export const TABS = [
   ['household', '🧺'],
   ['routines', '▶️'],
   ['family', '👨‍👩‍👧'],
+  ['log', '📜'],                 // 📜 Protokoll (pagelog.js): only for who may edit
 ];
 export const TAB_KEYS = TABS.map(([k]) => k);
 export const HOME = 'house';

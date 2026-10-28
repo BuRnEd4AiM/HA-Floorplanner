@@ -445,6 +445,39 @@ function recordedDay(iso) {
   return { day: iso, start, end, now, lines };
 }
 const recordedDays = () => { const d = new Date(); const today = isoDay(d); d.setDate(d.getDate() - 1); return [today, isoDay(d)]; };
+/* 📜 Protokoll (devlog.py): the made-up day of 🛡 Sicherheit as the events of api/log, each with who it was, and the add-on's commands
+ * (the window rule, the schedule, a routine, a button of a page; one Home Assistant did not take, a motion sensor that stopped reporting) */
+const LOG_WHO = { 'light.bad': { k: 'dev' }, 'light.kueche': { k: 'user', n: 'Anna' }, 'cover.garagentor': { k: 'auto', n: 'Garage mit dem Auto' },
+  'binary_sensor.fenster_kueche': { k: 'dev' }, 'binary_sensor.fenster_wohnzimmer': { k: 'dev' }, 'light.wohnzimmer': { k: 'auto', n: 'Licht am Abend' },
+  'light.stehlampe': { k: 'addon', src: 'flow', n: 'Flurlicht nachts', ago: 1 }, 'light.tv_led': { k: 'addon', src: 'page', n: 'Anna', ago: 1 },
+  'light.shapes_wz': { k: 'addon', src: 'scene', n: 'Gemütlich', ago: 2 }, 'light.buero': { k: 'user', n: 'Max' }, 'binary_sensor.buero_praesenz': { k: 'dev' },
+  'light.voute_bett': { k: 'dev' }, 'person.anna': { k: 'dev' }, 'person.max': { k: 'dev' } };
+const shownOf = (x) => Object.fromEntries(['state', 'brightness', 'position', 'tt'].filter((k) => x && x[k] != null).map((k) => [k, x[k]]));
+function logDay(iso) {
+  const r = recordedDay(iso), cur = { ...r.lines[0].snap }, at = (hh, mm, ss = 0) => r.start + hh * 3600 + mm * 60 + ss, out = [];
+  r.lines.slice(1).forEach((l) => {
+    const a = cur[l.e]; cur[l.e] = l.s;
+    out.push({ t: l.t, k: 's', e: l.e, a: a ? shownOf(a) : null, b: shownOf(l.s), w: LOG_WHO[l.e] || { k: 'dev' } });
+  });
+  const cmd = (t, src, n, e, sv, v, ok = true, err = null, u = null) => ({ t, k: 'c', src, n, e, sv, v, ok, err, u });
+  out.push(cmd(at(6, 0), 'heat', 'schedule', ['climate.wohnzimmer'], 'climate.set_temperature', { temperature: 21 }),
+    { t: at(6, 0, 38), k: 's', e: 'climate.wohnzimmer', a: { state: 'heat', tt: 17 }, b: { state: 'heat', tt: 21 }, w: { k: 'addon', src: 'heat', n: 'schedule', ago: 38 } },
+    cmd(at(18, 30, 1), 'page', null, ['light.tv_led'], 'light.turn_on', { brightness_pct: 40 }, true, null, 'Anna'),
+    cmd(at(18, 31), 'flow', 'Flurlicht nachts', ['light.stehlampe'], 'light.turn_on', { brightness_pct: 20 }),
+    cmd(at(19, 6), 'scene', 'Gemütlich', ['light.shapes_wz', 'light.tv_led'], 'scene.apply', {}, true, null, 'Anna'),
+    cmd(at(19, 15), 'flow', 'Rollläden am Abend', ['cover.wohnzimmer'], 'cover.close_cover', {}, false, '500 Gerät nicht verfügbar'),
+    { t: at(19, 20), k: 's', e: 'binary_sensor.wohnzimmer_bewegung', a: { state: 'off' }, b: { state: 'unavailable' }, w: { k: 'off' } },
+    cmd(at(17, 47), 'heat', 'window', ['climate.wohnzimmer'], 'climate.set_hvac_mode', { hvac_mode: 'off' }),
+    { t: at(17, 47, 12), k: 's', e: 'climate.wohnzimmer', a: { state: 'heat', tt: 21 }, b: { state: 'off', tt: 21 }, w: { k: 'addon', src: 'heat', n: 'window', ago: 12 } },
+    { t: at(14, 57), k: 'x', err: "WSServerHandshakeError: 502, message='Invalid response status'" });
+  return out.filter((x) => x.t <= r.now).sort((a, b) => a.t - b.t);
+}
+function logAnswer(q) {
+  const days = recordedDays(), want = q.get('day') || days[0], n = Math.max(1, Math.min(31, Number(q.get('days')) || 1));
+  const pick = days.filter((d) => d <= want && (n > 1 || d === want)).slice(0, n).reverse();
+  return { days: days.map((day) => ({ day, size: 40000 })), day: want, n, from: pick[0] || want, events: pick.flatMap(logDay), on: true, keepDays: 7, recording: true, ha: true,
+    now: Date.now() / 1000, version: demoVersion() };
+}
 
 /* 🚆 the card "Zug" (#550): made-up departures of Fulda towards Frankfurt from the moment the demo opened, every 8 to 12 minutes for four
  * hours; "mein Zug" leaves about a quarter of an hour after opening, 4 minutes late and from another platform */
@@ -1249,6 +1282,7 @@ export function installDemoBackend() {
       return json({ ok: true });
     }
     if (path === 'api/batteries') return json(batteryOf);
+    if (path === 'api/log') return json(logAnswer(new URL(url, location.href).searchParams));   // 📜 Protokoll
     if (path === 'api/timeline') {
       return json({ days: recordedDays().map((day) => ({ day, size: JSON.stringify(recordedDay(day).lines).length })), on: true, keepDays: 7, recording: true,
         ha: true, folder: 'addon_configs/…_floorplan3d/timeline' });

@@ -221,21 +221,36 @@ async def _heat(rules, states, cache, env, now, local):
     rules.journal(hl.rooms(rules.status["rooms"], status, now) + [{"t": round(now), "k": "rule", **x} for x in lines])
     rules.mem["heat"], rules.status["rooms"] = mem, status
     rules.note([{"src": "heat", **x} for x in lines], now)
-    hold = hr.held(mem)
+    hold, why = hr.held(mem), {x["ent"]: x["why"] for x in lines}
     for e, svc, data in rs.route(calls, smem, hold):
-        await _call(rules, env, "climate", svc, {"entity_id": e, **data}, "heat", now)
+        await _call(rules, env, "climate", svc, {"entity_id": e, **data}, "heat", now, why.get(e))
     await _sensors(rules, states, env, now, hold)
 
 
-async def _call(rules, env, dom, svc, data, src, now):
-    """a call of the heating rules or the room sensors to Home Assistant, kept in the journal with whether it was taken"""
+async def _call(rules, env, dom, svc, data, src, now, name=None):
+    """a call of the heating rules or the room sensors to Home Assistant, kept in the journal with whether it was taken (and in 📜
+    Protokoll: env.command)"""
     e = data.get("entity_id")
     if dom == "climate":
         hl.remember(rules.sent, e, svc, data, now)
+    _before(env, src, name, dom, svc, data)
     ok = await env.call(dom, svc, data)
     v = next((data[k] for k in ("temperature", "hvac_mode", "value", "option") if k in data), None)
     rules.journal([{"t": round(now), "k": "call", "ent": e, "dom": dom, "svc": svc, "v": v, "ok": ok is not False, "src": src}])
+    _command(env, src, name, dom, svc, data, ok)
     return ok
+
+
+def _before(env, src, name, dom, svc, data):
+    """📜 Protokoll (server.cmd_before): a rule or routine is about to send this (the device may change before Home Assistant answers)"""
+    if hasattr(env, "before"):
+        env.before(src, name, dom, svc, data)
+
+
+def _command(env, src, name, dom, svc, data, ok):
+    """📜 Protokoll (server.cmd_log): what a rule or routine sent and whether Home Assistant took it"""
+    if hasattr(env, "command"):
+        env.command(src, name, dom, svc, data, ok is not False)
 
 
 async def _sensors(rules, states, env, now, hold=()):
@@ -253,11 +268,13 @@ async def _sensors(rules, states, env, now, hold=()):
 
 async def _do(rules, calls, lines, now, env):
     rules.note(lines, now)
+    name = next((x["name"] for x in lines if x.get("name")), None)          # the routine
     for dom, svc, data in calls:
         if dom == "notify":
             await env.notify(data.get("message", ""))
         else:
-            await env.call(dom, svc, data)
+            _before(env, "flow", name, dom, svc, data)
+            _command(env, "flow", name, dom, svc, data, await env.call(dom, svc, data))
 
 
 async def _look(rules, states, cache, env, clock=False, changed=None):
