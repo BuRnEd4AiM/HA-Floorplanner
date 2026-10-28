@@ -7,7 +7,7 @@ Heute findet man die Karte „3D Floorplan Card“ in HACS nur, wenn man dieses 
 | Was | Stand |
 |---|---|
 | Öffentliches Repository auf GitHub, nicht archiviert, Issues eingeschaltet | ✅ |
-| Beschreibung des Repositorys (HACS zeigt sie im Store an) | ✅ vorhanden, aber nur „HA-Floor plan Addon“: **bitte verbessern** (Schritt 1) |
+| Beschreibung des Repositorys (HACS zeigt sie im Store an) | ✅ seit 2026-10-28 die neue Beschreibung (Schritt 1) |
 | Stichwörter (Topics) | ✅ (addons, dashboard, floorplan, home-assistant, json-api, kioskbrowser) |
 | README mit Anleitung und Bildern | ✅ |
 | `hacs.json` mit Name und Datei der Karte | ✅ (`3D Floorplan Card`, `floorplan3d-card.js`) |
@@ -15,8 +15,8 @@ Heute findet man die Karte „3D Floorplan Card“ in HACS nur, wenn man dieses 
 | Richtige Releases (nicht nur Tags), mit der Karte als Anhang | ✅ macht der Workflow „Release“ bei jeder neuen Version |
 | Lizenz | ✅ MIT |
 | Die Prüfung von HACS (`hacs/action`) läuft im eigenen Repository, **ohne** abgeschaltete Prüfungen | ✅ neu: Workflow „Validate“ (`.github/workflows/validate.yml`), täglich, bei jedem Push nach `main` und bei jedem Pull Request |
-| Ein neues Release, **nachdem** „Validate“ grün war | kommt mit der nächsten Version nach dem Merge |
-| Den Antrag stellt der **Besitzer** selbst (ein Pull Request an `hacs/default`) | Schritt 3, nur du kannst das |
+| Ein neues Release, **nachdem** „Validate“ grün war | ✅ (z. B. 4.38.1 nach dem grünen Lauf https://github.com/BuRnEd4AiM/HA-Floorplanner/actions/runs/40679623292) |
+| Den Antrag stellt der **Besitzer** selbst (ein Pull Request an `hacs/default`) | ✅ gestellt am 2026-10-28, alle Prüfungen grün; wartet auf die Freigabe durch das HACS-Team |
 
 ## Schritt 1: die Beschreibung verbessern (2 Minuten)
 
