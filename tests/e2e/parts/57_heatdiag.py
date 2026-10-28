@@ -89,6 +89,18 @@ check("diagnosis: '📋 Bericht kopieren' copies it (or shows it to copy by hand
       "Kopiert" in pgH.inner_text("[data-page=climate] [data-act=copy]") or pgH.locator("[data-page=climate] .hdText").count() == 1)
 check("diagnosis: no errors on the page", not own_hd, own_hd[:3])
 
+# the owner (2026-10-28): his rooms' doors lead to the corridor; with "Zählt für die Heizung" at the door it pauses the heating like a window
+urllib.request.urlopen(HA + "/_set?e=binary_sensor.hd_fenster&s=off").read()
+wait_hd(lambda: (api("api/rules")["status"]["rooms"].get(key_hd) or {}).get("why") != "window", n=60)
+lay_hd["floors"][0]["walls"][-1]["openings"][0]["heat"] = True
+urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(lay_hd).encode(), method="PUT",
+                                              headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()
+counted_hd = wait_hd(lambda: (next((r for r in trace_hd()["rooms"] if r["key"] == key_hd), None) or {}).get("counted") == ["binary_sensor.hd_tuer"], n=40)
+check("door switch: a door with 'Zählt für die Heizung' counts for the room (no longer a door between two rooms)", counted_hd,
+      next((r for r in trace_hd()["rooms"] if r["key"] == key_hd), None))
+paused_hd = wait_hd(lambda: (api("api/rules")["status"]["rooms"].get(key_hd) or {}).get("why") == "window", n=80)
+check("door switch: the open door (it stayed open) now pauses the heating like a window", paused_hd, api("api/rules")["status"]["rooms"].get(key_hd))
+
 put_rules_hd({"heat": {}, "flows": []})
 urllib.request.urlopen(urllib.request.Request(BASE + "api/layout", data=json.dumps(saved_hd).encode(), method="PUT",
                                               headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"})).read()

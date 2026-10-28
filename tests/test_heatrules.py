@@ -389,3 +389,41 @@ def test_an_open_window_whose_contact_does_not_report_for_a_moment_stays_open():
     assert run.look(2)[0] == ("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"})    # 16 minutes without a word: closed
     st["binary_sensor.fenster"] = {"state": "unavailable", "last_changed": datetime.datetime.fromtimestamp(run.now, datetime.timezone.utc).isoformat()}
     assert run.look(1) == [] and run.status["h/wz"]["why"] is None          # one that was shut stays shut
+
+
+def test_a_door_between_two_rooms_counts_with_its_switch():
+    """the owner: the bathroom's door to the corridor is open, the heating stayed on; with "Zählt für die Heizung" it pauses like a
+    window, also with "Türen nach draußen" off"""
+    rooms = [{**ROOMS[0], "doors": ["binary_sensor.flur"], "counted": ["binary_sensor.flur"]}]
+    st = house(**{"binary_sensor.flur": {"state": "on"}})
+    run = Run({"window": {"on": True, "delay": 0, "doors": False}}, st)
+    run.mem, calls, run.status, _ = hr.step(run.rules, rooms, st, run.now, run.local, run.mem)
+    assert calls == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})] and run.status["h/wz"]["open"] == ["binary_sensor.flur"]
+    plain = [{**ROOMS[0], "doors": ["binary_sensor.flur"]}]                           # without the switch: a door between two rooms
+    _, calls, status, _ = hr.step(run.rules, plain, house(**{"binary_sensor.flur": {"state": "on"}}), run.now, run.local, {})
+    assert calls == [] and status["h/wz"]["open"] == []
+
+
+def test_a_thermostat_switched_on_with_a_target_of_its_own_gets_the_plans():
+    """the owner's bathroom (2026-10-28, 🩺 Protokoll): the schedule switched it on ("aus → heizen") and sent 17°, the thermostat took
+    heating and then its own 24° it remembered; that was no turn by hand, the 17° goes again at once"""
+    plan = {"days": [[[0, "night"], [360, "comfort"], [1290, "night"]]] * 7}
+    st = house(**{"climate.wz": thermostat(mode="off", temp=5.0)})
+    run = Run({"schedule": {"on": True, "hand": 5, "rooms": {"h/wz": plan}}}, st, at=MON.replace(hour=21, minute=29))
+    run.mem, calls, run.status, _ = hr.step(run.rules, ROOMS, st, run.now, run.local, run.mem)
+
+    def look(minutes):
+        run.now += minutes * 60
+        run.local += datetime.timedelta(minutes=minutes)
+        run.mem, calls, run.status, run.log = hr.step(run.rules, ROOMS, st, run.now, run.local, run.mem)
+        return calls
+
+    assert look(1) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"}), ("climate.wz", "set_temperature", {"temperature": 17.0})]
+    assert look(0.1) == [] and run.status["h/wz"]["sent"] == 17.0                     # nothing reported yet: waiting
+    st["climate.wz"]["state"] = "heat"                                                 # it took heating ...
+    st["climate.wz"]["attributes"]["temperature"] = 24.0                               # ... with the 24° it remembered
+    assert look(0.1) == [("climate.wz", "set_temperature", {"temperature": 17.0})] and run.log[-1]["again"]
+    assert run.status["h/wz"]["hand"] is None
+    assert look(1) == [] and run.status["h/wz"]["hand"] is None                       # waiting for the 17°
+    st["climate.wz"]["attributes"]["temperature"] = 17.0
+    assert look(0.25) == [] and run.status["h/wz"]["sent"] is None and run.status["h/wz"]["hand"] is None

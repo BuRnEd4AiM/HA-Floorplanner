@@ -5,7 +5,8 @@ and every room as the add-on sees it. The page 🌡 Klima → 🩺 Protokoll sho
 
 Entries (each with t, the time in seconds, and k, the kind):
 - contact: a window's or door's contact of a room changed {ent, s, was, rooms: [[room, use, why not]]}; use: window | outer (a door to
-  the outside) | inner (a door between two rooms); why not: why the window rule does not count it there (why_not), None when it does
+  the outside) | counted (a door with the switch "Zählt für die Heizung") | inner (a door between two rooms); why not: why the window rule
+  does not count it there (why_not), None when it does
 - climate: a thermostat's mode or target changed {ent, room, mode: [before, now] | None, temp: [before, now] | None, by, who, ago}; by:
   addon (it reports what the add-on sent ago seconds before), auto (an automation or script of Home Assistant), user (somebody in Home
   Assistant, who: the person), device (at the thermostat itself or by its integration: Home Assistant does not say who)
@@ -21,7 +22,7 @@ import datetime
 
 MAX = 500                  # entries kept
 OWN = 30 * 60              # s: a target the thermostat reports this long after the add-on sent it is the add-on's own
-KINDS = ("window", "outer", "inner")
+KINDS = ("window", "outer", "counted", "inner")
 
 
 def _num(v):
@@ -40,15 +41,20 @@ def _since(v):
 
 
 def inner(room) -> list:
-    """the door contacts of a room the window rule leaves out: doors between two rooms"""
-    return [e for e in room.get("doors") or [] if e not in (room.get("outer") or [])]
+    """the door contacts of a room the window rule leaves out: doors between two rooms (without the switch "Zählt für die Heizung")"""
+    return [e for e in room.get("doors") or [] if e not in (room.get("outer") or []) and e not in (room.get("counted") or [])]
+
+
+def counted(room) -> list:
+    """the doors of a room with the switch "Zählt für die Heizung" that are not doors to the outside anyway"""
+    return [e for e in room.get("counted") or [] if e not in (room.get("outer") or [])]
 
 
 def index(rooms) -> dict:
     """{entity: [[room key, use]]} for the contacts (use: window, outer, inner) and thermostats (use: climate) of every room"""
     idx = {}
     for r in rooms:
-        for use, ents in (("window", r.get("windows")), ("outer", r.get("outer")), ("inner", inner(r)), ("climate", r.get("climates"))):
+        for use, ents in (("window", r.get("windows")), ("outer", r.get("outer")), ("counted", counted(r)), ("inner", inner(r)), ("climate", r.get("climates"))):
             for e in ents or []:
                 if [r["key"], use] not in idx.setdefault(e, []):
                     idx[e].append([r["key"], use])
@@ -211,14 +217,15 @@ def compact(st) -> dict | None:
 
 def view(rooms_, states, trace, sensors=None) -> dict:
     """what the page 🩺 Protokoll gets: every room with a thermostat or a contact as the add-on sees it {key, house, name, floor, climates,
-    windows, outer, inner}, the states of those entities and of the room sensors (sensors: {thermostat: {s: sensor}}), the journal"""
+    windows, outer, counted, inner}, the states of those entities and of the room sensors (sensors: {thermostat: {s: sensor}}), the journal"""
     out, ents = [], set()
     for r in rooms_:
         row = {"key": r["key"], "house": r.get("house"), "name": r.get("name") or r.get("id"), "floor": r.get("floor"),
-               "climates": list(r.get("climates") or []), "windows": list(r.get("windows") or []), "outer": list(r.get("outer") or []), "inner": inner(r)}
-        if row["climates"] or row["windows"] or row["outer"] or row["inner"]:
+               "climates": list(r.get("climates") or []), "windows": list(r.get("windows") or []), "outer": list(r.get("outer") or []), "counted": counted(r),
+               "inner": inner(r)}
+        if row["climates"] or row["windows"] or row["outer"] or row["counted"] or row["inner"]:
             out.append(row)
-            ents.update(row["climates"], row["windows"], row["outer"], row["inner"])
+            ents.update(row["climates"], row["windows"], row["outer"], row["counted"], row["inner"])
     for e, x in (sensors or {}).items():
         ents.update([e, x.get("s")] if isinstance(x, dict) else [e])
     loose = sorted(e for e in states if e.startswith("climate.") and e not in ents)    # thermostats in no room of the plans

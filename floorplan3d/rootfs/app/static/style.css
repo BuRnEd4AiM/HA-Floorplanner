@@ -2405,3 +2405,6 @@ input[type=range].kelRange::-moz-range-track { background: transparent; }
   .lgRow .what, .lgRow > span:last-child { grid-column: 2; }
   .lgOpts { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* a short grey line under a tick of the properties ("Zählt für die Heizung" of a door) */
+.propHint { color: var(--muted); font-size: 12px; line-height: 1.4; margin: 2px 0 10px 24px; }

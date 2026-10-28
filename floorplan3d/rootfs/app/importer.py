@@ -1072,7 +1072,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "rainWarn") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "rainWarn", "heat") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []

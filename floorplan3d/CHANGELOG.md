@@ -4,6 +4,14 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.41.0] - 2026-10-28
+### Added
+- **🚪 A door between two rooms can count for the heating** (#583, the owner: "wen zwei räume anneinander sind wie wird dann die tür zugeordnet weil evtl soll sie auch für das andere zimmer zählen und das andere ist ein gang … warum geht das addon nicht richtig wenn türen und so aufgehen"; his choice: a switch per door). Until now the window rule (🪟 Fenster offen) counted only windows and doors to the outside; a door between two rooms (the bathroom to the corridor) never paused the heating. Edit → tap a door with a contact: the new tick **"Zählt für die Heizung"**. With it, the door open longer than the minutes of the window rule pauses the heating of both rooms beside it, as an open window does (a room without a thermostat, like a corridor, has nothing to pause). The add-on reads the rooms again as soon as the plan is saved, not only a minute later. 🩺 Protokoll shows such a door as "Tür (zählt: an der Tür eingestellt)", one without the tick as "zählt nicht: Tür zwischen zwei Räumen (soll sie zählen: an der Tür „Zählt für die Heizung“ einschalten)"; the card of the window rule says so too.
+### Fixed
+- **No "✋ Von Hand gedreht" when a thermostat switched on takes a temperature of its own** (#583, his bathroom: the schedule switched it from off to heat with 17°, it came on with its own stored 24°). When the add-on switches a thermostat on and sends a temperature with it, and the thermostat then reports another one, the add-on sends its temperature once more instead of taking the other for a turn by hand.
+### Changed
+- Test protocol: new section 128.
+
 ## [4.40.0] - 2026-10-28
 ### Added
 - **📜 Protokoll: a tab of its own with everything that happens with the devices of the plans** (#581, the owner: "eine eigene Seite, wo alles quasi passiert, … wo man dann auch sozusagen exportieren kann für eine Fehleranalyse … dass man dann alle Geräte drin hat, die in den Plänen verwendet werden"; his choice from the example pictures in `docs/ideen-4.40/`: pictures 2 and 3, only for admins, export as text, .txt and .csv, kept as long as 🛡 Sicherheit). The new tab **📜 Protokoll** (only for who may edit):

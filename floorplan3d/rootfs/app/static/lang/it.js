@@ -2054,7 +2054,7 @@ export default {
   'hd.th.show': '🌡 Sensore {v} (solo mostrato)', 'hd.th.last': 'Ultima modifica {at}: {by}', 'hd.use.window': 'Finestra',
   'hd.use.outer': 'Porta verso l’esterno', 'hd.use.inner': 'Porta verso un’altra stanza', 'hd.s.open': 'aperta', 'hd.s.closed': 'chiusa',
   'hd.s.gone': 'non risponde (non disponibile)', 'hd.s.unknown': 'sconosciuto', 'hd.s.none': 'non esiste in Home Assistant',
-  'hd.counts': 'conta per la regola finestra', 'hd.not.inner': 'non conta: porta tra due stanze', 'hd.not.off': 'non conta: la regola finestra è spenta',
+  'hd.counts': 'conta per la regola finestra', 'hd.not.inner': 'non conta: porta tra due stanze (per contarla: attivare «Conta per il riscaldamento» sulla porta)', 'hd.not.off': 'non conta: la regola finestra è spenta',
   'hd.not.doors': 'non conta: «porte verso l’esterno» è spento nella regola finestra', 'hd.not.skip': 'non conta: la stanza è esclusa dalla regola finestra',
   'hd.not.noclimate': 'non conta: nessun termostato in questa stanza', 'hd.loose': 'Termostati in nessuna stanza della planimetria: {list}',
   'hd.looseSub': 'Le regole di riscaldamento non li controllano. Mettili nella stanza nella planimetria (o collega la stanza all’area in Home Assistant).',
@@ -2106,4 +2106,9 @@ export default {
   'log.copyDevice': 'Copia solo questo dispositivo', 'log.rep.days': 'Giorni',
   'log.rep.count': '{n} modifiche su {d} dispositivi · {c} comandi dell’add-on, {ok} accettati · {err} errori o offline',
   'log.who.place': 'Posizione', 'log.placeSub': 'dall’app del telefono o dal router', 'log.who.sensor': 'Sensore', 'log.sensorSub': 'l’ha segnalato da solo',
+  'prop.heatDoor': 'Conta per il riscaldamento',
+  'prop.heatDoorHint': 'Se la porta resta aperta, il riscaldamento delle stanze accanto si spegne, come con una finestra aperta (🌡 Clima → 📋 Regole di riscaldamento → Finestra aperta). Senza la spunta una porta tra due stanze non conta; una porta verso l’esterno conta con «Anche le porte verso l’esterno» attivo nella regola finestra (con la spunta sempre).',
+  'hd.use.counted': 'Porta (conta: impostato sulla porta)',
+  'hr.window.inner': 'Una porta tra due stanze conta solo con «Conta per il riscaldamento» attivo sulla porta (Modifica → tocca la porta).',
+  'prop.heatDoorSub': 'Aperta → il riscaldamento delle stanze accanto si spegne, come con una finestra.',
 };

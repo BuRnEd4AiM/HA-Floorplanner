@@ -2029,7 +2029,7 @@ export default {
   'hd.th.show': '🌡 Czujnik {v} (tylko pokazuje)', 'hd.th.last': 'Ostatnia zmiana {at}: {by}', 'hd.use.window': 'Okno', 'hd.use.outer': 'Drzwi na zewnątrz',
   'hd.use.inner': 'Drzwi do innego pokoju', 'hd.s.open': 'otwarte', 'hd.s.closed': 'zamknięte', 'hd.s.gone': 'nie zgłasza się (niedostępne)',
   'hd.s.unknown': 'nieznany', 'hd.s.none': 'nie ma w Home Assistant', 'hd.counts': 'liczy się dla reguły okna',
-  'hd.not.inner': 'nie liczy się: drzwi między dwoma pokojami', 'hd.not.off': 'nie liczy się: reguła okna jest wyłączona',
+  'hd.not.inner': 'nie liczy się: drzwi między dwoma pokojami (aby liczyły się: włącz „Liczy się dla ogrzewania” przy drzwiach)', 'hd.not.off': 'nie liczy się: reguła okna jest wyłączona',
   'hd.not.doors': 'nie liczy się: „drzwi na zewnątrz” są wyłączone w regule okna', 'hd.not.skip': 'nie liczy się: pokój jest pominięty w regule okna',
   'hd.not.noclimate': 'nie liczy się: brak termostatu w tym pokoju', 'hd.loose': 'Termostaty w żadnym pokoju planu: {list}',
   'hd.looseSub': 'Reguły ogrzewania nimi nie sterują. Umieść je w pokoju na planie (albo połącz pokój z obszarem w Home Assistant).',
@@ -2079,4 +2079,9 @@ export default {
   'log.copyDevice': 'Kopiuj tylko to urządzenie', 'log.rep.days': 'Dni',
   'log.rep.count': '{n} zmian w {d} urządzeniach · {c} poleceń dodatku, {ok} przyjętych · {err} błędów lub offline',
   'log.who.place': 'Lokalizacja', 'log.placeSub': 'z aplikacji w telefonie lub z routera', 'log.who.sensor': 'Czujnik', 'log.sensorSub': 'sam to zgłosił',
+  'prop.heatDoor': 'Liczy się dla ogrzewania',
+  'prop.heatDoorHint': 'Gdy drzwi zostają otwarte, ogrzewanie sąsiednich pokoi się wyłącza, jak przy otwartym oknie (🌡 Klimat → 📋 Reguły ogrzewania → Okno otwarte). Bez zaznaczenia drzwi między dwoma pokojami się nie liczą; drzwi na zewnątrz liczą się, gdy w regule okna włączone są „Drzwi na zewnątrz też” (z zaznaczeniem zawsze).',
+  'hd.use.counted': 'Drzwi (liczą się: ustawione przy drzwiach)',
+  'hr.window.inner': 'Drzwi między dwoma pokojami liczą się tylko z włączonym „Liczy się dla ogrzewania” przy drzwiach (Edycja → dotknij drzwi).',
+  'prop.heatDoorSub': 'Otwarte → ogrzewanie sąsiednich pokoi się wyłącza, jak przy oknie.',
 };

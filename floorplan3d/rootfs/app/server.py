@@ -698,6 +698,9 @@ async def put_layout(request):
     write_json_atomic(p, data)
     if hid == DEFAULT_HOUSE and not (data_dir(request) / "houses.json").exists():
         save_houses(request, houses_index(request))
+    rules = app_state(request).get(KEY_RULES, {}).get("rules")
+    if rules is not None and rules.connected:
+        rules.ask("plan")                                # the heating rules read the rooms again at once (a door's "Zählt für die Heizung")
     return web.json_response({"ok": True}, headers={"ETag": layout_rev(p)})
 
 

@@ -2072,7 +2072,7 @@ export default {
   'hd.th.show': '🌡 Sonde {v} (affichage seul)', 'hd.th.last': 'Dernière modification {at} : {by}', 'hd.use.window': 'Fenêtre',
   'hd.use.outer': 'Porte vers l’extérieur', 'hd.use.inner': 'Porte vers une autre pièce', 'hd.s.open': 'ouverte', 'hd.s.closed': 'fermée',
   'hd.s.gone': 'ne répond pas (indisponible)', 'hd.s.unknown': 'inconnu', 'hd.s.none': 'absent de Home Assistant', 'hd.counts': 'compte pour la règle fenêtre',
-  'hd.not.inner': 'ne compte pas : porte entre deux pièces', 'hd.not.off': 'ne compte pas : la règle fenêtre est inactive',
+  'hd.not.inner': 'ne compte pas : porte entre deux pièces (pour la compter : activer « Compte pour le chauffage » sur la porte)', 'hd.not.off': 'ne compte pas : la règle fenêtre est inactive',
   'hd.not.doors': 'ne compte pas : « portes vers l’extérieur » est désactivé dans la règle fenêtre',
   'hd.not.skip': 'ne compte pas : la pièce est exclue de la règle fenêtre', 'hd.not.noclimate': 'ne compte pas : aucun thermostat dans cette pièce',
   'hd.loose': 'Thermostats dans aucune pièce du plan : {list}',
@@ -2125,4 +2125,9 @@ export default {
   'log.copyDevice': 'Copier cet appareil seulement', 'log.rep.days': 'Jours',
   'log.rep.count': '{n} changements sur {d} appareils · {c} commandes de l’add-on, {ok} acceptées · {err} erreurs ou hors ligne',
   'log.who.place': 'Lieu', 'log.placeSub': 'de l’appli du téléphone ou du routeur', 'log.who.sensor': 'Capteur', 'log.sensorSub': 'l’a signalé lui-même',
+  'prop.heatDoor': 'Compte pour le chauffage',
+  'prop.heatDoorHint': 'Si la porte reste ouverte, le chauffage des pièces voisines s’arrête, comme pour une fenêtre ouverte (🌡 Climat → 📋 Règles de chauffage → Fenêtre ouverte). Sans la coche, une porte entre deux pièces ne compte pas ; une porte vers l’extérieur compte si « Portes vers l’extérieur aussi » est activé dans la règle fenêtre (avec la coche, toujours).',
+  'hd.use.counted': 'Porte (compte : réglé sur la porte)',
+  'hr.window.inner': 'Une porte entre deux pièces ne compte qu’avec « Compte pour le chauffage » activé sur la porte (Modifier → toucher la porte).',
+  'prop.heatDoorSub': 'Ouverte → le chauffage des pièces voisines s’arrête, comme pour une fenêtre.',
 };

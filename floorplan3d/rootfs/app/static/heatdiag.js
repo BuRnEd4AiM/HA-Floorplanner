@@ -6,7 +6,7 @@
 import { roomLine, hhmm } from './rules.js';
 
 const OPEN = new Set(['on', 'open', 'opening']);
-const USES = ['window', 'outer', 'inner'];
+const USES = ['window', 'outer', 'counted', 'inner'];
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 
 /** why the window rule does not count a contact of room key (as heatlog.why_not): inner, off, doors, skip, noclimate; null: it counts.
@@ -14,7 +14,7 @@ const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 export function whyNot(key, use, rooms, window) {
   if (use === 'inner') return 'inner';
   if (!window?.on) return 'off';
-  if (use === 'outer' && window.doors === false) return 'doors';
+  if (use === 'outer' && window.doors === false) return 'doors';             // a door with "Zählt für die Heizung" (counted) counts anyway
   if ((window.skip || []).includes(key)) return 'skip';
   if (!(rooms[key]?.climates || []).length) return 'noclimate';
   return null;
@@ -108,7 +108,7 @@ export function roomViews(diag, rules, ctx) {
       return { e, name: ctx.name(e), text: parts.join(' · '), sensor, last: last ? t('hd.th.last', { at: clock(last.t, ctx.now), by: byWords(last, t) }) : null };
     });
     const contacts = [];
-    USES.forEach((use) => (r[use === 'window' ? 'windows' : use] || []).forEach((e) => {
+    USES.forEach((use) => (r[use === 'window' ? 'windows' : use] || []).forEach((e) => {   // counted: a door with "Zählt für die Heizung"
       contacts.push({ e, name: ctx.name(e), use, state: contactState(st[e]), why: whyNot(r.key, use, byKey, window) });
     }));
     return { key: r.key, name: many && diag.houses?.[r.house] ? `${r.name} (${diag.houses[r.house]})` : r.name, now: nowWords(r.climates.length ? status.rooms?.[r.key] || null : null, ctx.now, t, deg, r.climates.length > 0),
@@ -173,7 +173,7 @@ export function journalRows(trace, ctx) {
 /** contacts of windows and doors in the plan (floors of the house shown) that the add-on puts in no room (a garage door does not matter
  *  for the heating) */
 export function loneContacts(floors, diag) {
-  const known = new Set((diag?.rooms || []).flatMap((r) => [...r.windows, ...r.outer, ...r.inner]));
+  const known = new Set((diag?.rooms || []).flatMap((r) => [...r.windows, ...r.outer, ...(r.counted || []), ...r.inner]));
   const out = [];
   (floors || []).forEach((f) => [...(f.walls || []), ...(f.dormerWalls || [])].forEach((w) => (w.openings || []).forEach((o) => {
     if (o.type === 'door' && o.style === 'garage') return;

@@ -50,6 +50,7 @@ test('whether the window rule counts a contact, and its state in a word', () => 
   assert.equal(D.whyNot('main/wz', 'window', byKey, { ...w, on: false }), 'off');
   assert.equal(D.whyNot('main/wz', 'window', byKey, { ...w, skip: ['main/wz'] }), 'skip');
   assert.equal(D.whyNot('main/flur', 'window', byKey, w), 'noclimate');
+  assert.equal(D.whyNot('main/wz', 'counted', byKey, { ...w, doors: false }), null);   // a door with "Zählt für die Heizung"
   assert.deepEqual(['on', 'off', 'unavailable', 'unknown', 'open'].map((s) => D.contactState({ s })), ['open', 'closed', 'gone', 'unknown', 'open']);
   assert.equal(D.contactState(null), 'none');
   assert.equal(D.clock(at(17, 2, 5), now), '17:02:05');

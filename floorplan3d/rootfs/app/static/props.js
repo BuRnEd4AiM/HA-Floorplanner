@@ -219,7 +219,19 @@ export function initProps(ctx) {
       const ci = document.createElement('input'); ci.type = 'checkbox'; ci.checked = !!it.inv; ci.id = 'doorInv';
       ci.addEventListener('change', () => { ctx.snapshot(); it.inv = ci.checked; ctx.changed(); });
       body.append(field(t('prop.inv'), ci));
+      if (it.entity || (it.paneEntities || []).some(Boolean)) heatProps(body, it);
     }
+  }
+
+  /** a door with a contact: "Zählt für die Heizung" (the owner, 2026-10-28: the rooms' doors lead to the corridor, which has no heating):
+   *  the window rule of the add-on (heatrules.py) counts it for every room beside it like a window; off, a door between two rooms does
+   *  not count (a door to the outside counts anyway, with "Türen nach draußen") */
+  function heatProps(body, it) {
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.heat === true; cb.id = 'doorHeat';
+    cb.addEventListener('change', () => { ctx.snapshot(); if (cb.checked) it.heat = true; else delete it.heat; ctx.changed(); });
+    const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t('prop.heatDoorHint'); lb.append(cb, document.createTextNode(' ' + t('prop.heatDoor')));
+    const p = document.createElement('p'); p.className = 'propHint'; p.id = 'doorHeatHint'; p.textContent = t('prop.heatDoorSub');
+    body.append(lb, p);
   }
 
   /** a window with a contact warns when it is open in the rain; one that may stay open then is taken out by the tick (#419) */
