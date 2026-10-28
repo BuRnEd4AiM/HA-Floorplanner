@@ -49,3 +49,18 @@ def test_broken_layouts_give_nothing():
     walls = {"floors": [{"walls": [{"a": [0, 0]}, {"a": [0, 0], "b": [1, 0], "openings": [{"type": "window"}, "x"]}],
                          "rooms": [{"id": "r", "points": [[0, 0], [1, 0], [1, 1]]}]}]}
     assert rm.rooms_of([("h", walls)])[0]["windows"] == []
+
+
+def test_a_door_to_a_terrace_drawn_as_a_room_leads_outside():
+    """#577: the owner's door to the outside did not switch the heating off: beyond it lies a room too (a terrace, an open area), so the
+    door was "between two rooms". Now a door with a side in no room, or only in an open area, leads outside; one to a closed room not."""
+    def plan(terrace):
+        return {"floors": [{
+            "walls": [{"a": [0, 4], "b": [6, 4], "thickness": 0.3, "openings": [{"type": "door", "pos": 3, "width": 1, "entity": "binary_sensor.tuer"}]},
+                      {"a": [6, 0], "b": [6, 4], "openings": [{"type": "door", "pos": 3.75, "width": 0.4, "entity": "binary_sensor.ecke"}]}],
+            "rooms": [{"id": "wz", "name": "Wohnzimmer", "points": [[0, 0], [6, 0], [6, 4], [0, 4]]},
+                      {"id": "t", "name": "Terrasse", "points": [[0, 4], [6, 4], [6, 7], [0, 7]], "terrace": terrace}]}]}
+    wz = rm.rooms_of([("h1", plan(True))])[0]
+    assert wz["doors"] == ["binary_sensor.tuer", "binary_sensor.ecke"] and wz["outer"] == ["binary_sensor.tuer", "binary_sensor.ecke"]
+    wz = rm.rooms_of([("h1", plan(False))])[0]                  # a closed room beyond it (a winter garden): a door between two rooms
+    assert wz["outer"] == ["binary_sensor.ecke"]                # the door near the corner of the other room still leads outside

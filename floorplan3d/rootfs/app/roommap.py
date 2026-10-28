@@ -1,9 +1,11 @@
 """Which thermostats, windows and other devices belong to which room of the plans (#546): the add-on's own heating rules and
 routines run without a browser, so the server works it out from the saved layouts the same way the page does (roomEntityIds in
 static/roomtiles.js: a device inside the room's outline, and the entities of the room's Home Assistant area; roomOpenings in
-static/roompanel.js: a door or window within 35 cm of the outline). Pure (unit test: tests/test_roommap.py)."""
+static/roompanel.js: a door or window within 35 cm of the outline; a door to the outside as levels.js outerDoors sees it, a side of it in
+no room). Pure (unit test: tests/test_roommap.py)."""
 
 EDGE = 0.35          # a door or window this close to a room's outline belongs to it (roompanel.js)
+SIDE = 0.25          # m beyond the wall's face where a door's side is looked at (more than levels.js: an outline a little inside the wall)
 ROOM_DOMAINS = ("climate", "light", "cover", "switch", "fan", "media_player")
 
 
@@ -51,7 +53,8 @@ def opening_entities(o) -> list:
 
 
 def _openings(floor):
-    """(x, z, opening) of every door and window of a floor, on its walls and dormer walls"""
+    """(x, z, sides, opening) of every door and window of a floor, on its walls and dormer walls; sides: the two points just beside it,
+    across the wall (as levels.js besideOpening)"""
     out = []
     for w in [*(floor.get("walls") or []), *(floor.get("dormerWalls") or [])]:
         try:
@@ -59,12 +62,15 @@ def _openings(floor):
         except (KeyError, TypeError, ValueError, IndexError):
             continue
         length = ((bx - ax) ** 2 + (bz - az) ** 2) ** 0.5 or 1.0
+        nx, nz = -(bz - az) / length, (bx - ax) / length
+        t = (_num(w.get("thickness")) or 0.2) / 2 + SIDE
         for o in w.get("openings") or []:
             pos = _num(o.get("pos")) if isinstance(o, dict) else None
             if pos is None:
                 continue
             k = pos / length
-            out.append((ax + (bx - ax) * k, az + (bz - az) * k, o))
+            x, z = ax + (bx - ax) * k, az + (bz - az) * k
+            out.append((x, z, ((x + nx * t, z + nz * t), (x - nx * t, z - nz * t)), o))
     return out
 
 
@@ -72,7 +78,9 @@ def rooms_of(houses, area_entities=None) -> list:
     """The rooms of every house: [{key: "<house>/<room id>", house, id, name, floor, climates, windows, doors, outer, entities}].
     houses: [(house id, layout)]; area_entities: {area id: [entity ids]} (rooms linked to an area of Home Assistant).
     windows: the sensors of its windows; doors: of its doors; outer: of the doors that belong to this room only (to the outside, a
-    terrace door), not a door between two rooms; entities: every entity of the room (devices inside it and its area)."""
+    terrace door), not a door between two rooms; a door with a side in no room, or only in an open area (a terrace drawn as a room), is
+    one to the outside too (#577: the owner's door to the outside did not switch the heating off); entities: every entity of the room
+    (devices inside it and its area)."""
     areas = area_entities or {}
     out = []
     for hid, layout in houses:
@@ -83,7 +91,9 @@ def rooms_of(houses, area_entities=None) -> list:
             rooms = [(r, _pts(r)) for r in f.get("rooms") or [] if isinstance(r, dict) and r.get("id")]
             rooms = [(r, p) for r, p in rooms if p]
             ops = _openings(f)
-            near = {id(o): [r["id"] for r, p in rooms if dist_to_poly(x, z, p) < EDGE or point_in_poly(x, z, p)] for x, z, o in ops}
+            near = {id(o): [r["id"] for r, p in rooms if dist_to_poly(x, z, p) < EDGE or point_in_poly(x, z, p)] for x, z, _s, o in ops}
+            indoor = [p for r, p in rooms if not r.get("terrace")]
+            out_side = {id(o): any(not any(point_in_poly(sx, sz, p) for p in indoor) for sx, sz in sides) for _x, _z, sides, o in ops}
             devices = [d for d in f.get("devices") or [] if isinstance(d, dict) and isinstance(d.get("entity"), str) and d["entity"]]
             for r, p in rooms:
                 ents = []
@@ -94,7 +104,7 @@ def rooms_of(houses, area_entities=None) -> list:
                 if r.get("area"):
                     ents += [e for e in areas.get(r["area"], []) if isinstance(e, str) and e not in ents]
                 windows, doors, outer = [], [], []
-                for _x, _z, o in ops:
+                for _x, _z, _s, o in ops:
                     if r["id"] not in near[id(o)]:
                         continue
                     sensors = opening_entities(o)
@@ -102,7 +112,7 @@ def rooms_of(houses, area_entities=None) -> list:
                         windows += [e for e in sensors if e not in windows]
                     elif o.get("type") == "door":
                         doors += [e for e in sensors if e not in doors]
-                        if len(near[id(o)]) == 1:
+                        if len(near[id(o)]) == 1 or out_side[id(o)]:
                             outer += [e for e in sensors if e not in outer]
                 out.append({"key": f"{hid}/{r['id']}", "house": hid, "id": r["id"], "name": str(r.get("name") or "")[:60], "floor": fi,
                             "climates": sorted(e for e in ents if e.startswith("climate.")), "windows": windows, "doors": doors, "outer": outer,
