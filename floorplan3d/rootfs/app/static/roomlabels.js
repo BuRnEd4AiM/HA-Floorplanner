@@ -16,7 +16,7 @@ const NAME_Y = 0.45;                               // where floorbuild.js puts t
 const STEM = 8;                                    // px: the line from a label down to its room (longer when the label was pushed up)
 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), focusedRoom(), settings(), states(), isLive(), view3d() (the 3D view is shown), elev(i),
- *  camera, canvas, placed(floor), areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), commitSettings(), lang(), imperial(),
+ *  camera, canvas, placed(floor), areaEntities(room), partOf() (the sensors of thermostats, roomReading), isOn(entity), isOpen(entity), openingEntities(opening), commitSettings(), lang(), imperial(),
  *  quiet(on) (the devices' balls off while the labels show), changed() (draw the states again: the balls and value labels come or go),
  *  openRoom(id) (what a tap on a label does: the room opens with its devices), goLive() (a tap on the switch in edit mode), mark(roomId) (what
  *  the heating rules do there: "⏸️ pausiert", '' for nothing, #546) */
@@ -57,7 +57,7 @@ export function initRoomLabels(ctx) {
     try { fmt = new Intl.NumberFormat(ctx.lang(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }); } catch { fmt = new Intl.NumberFormat('en', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
     const rooms = f.rooms.filter((r) => r.name && r.points.length >= 3), ranks = [];
     const html = rooms.map((r) => {
-      const s = roomSummary(r, f, { placed: ctx.placed(f), areaEntities: ctx.areaEntities(r), states: ctx.states(), isOn: ctx.isOn, isOpen: ctx.isOpen, openingEntities: ctx.openingEntities });
+      const s = roomSummary(r, f, { placed: ctx.placed(f), areaEntities: ctx.areaEntities(r), states: ctx.states(), isOn: ctx.isOn, isOpen: ctx.isOpen, openingEntities: ctx.openingEntities, partOf: ctx.partOf?.() });
       const tx = labelTexts(s, (x) => fmt.format(x), ctx.imperial());
       const col = s.lights ? (s.rgb ? hex(s.rgb) : '#ffcf70') : '';
       ranks.push(labelRank(s));

@@ -28,10 +28,20 @@ const ON = new Set(['on', 'home', 'open']);
 const ctx = (over = {}) => ({ placed, areaEntities: ['light.area_led'], states, isOn: (e) => ON.has(states[e]?.state), isOpen: (e) => states[e]?.state === 'on',
   openingEntities: (o) => [o.entity].filter(Boolean), ...over });
 
-test('the reading of a room: the average of its sensors and thermostats, °F turned into °C', () => {
+test('the reading of a room: the average of its sensors (a thermostat only without one), °F turned into °C', () => {
   const ids = R.roomEntityIds(room, placed, []);
   assert.deepEqual([...ids].sort(), ['climate.wz', 'light.decke', 'light.stehlampe', 'sensor.wz_temp']);
-  assert.equal(R.roomReading(ids, states, 'temp'), 21.5);
+  assert.equal(R.roomReading(ids, states, 'temp'), 21);                        // the sensor, not the thermostat at the radiator (22°)
+  assert.equal(R.roomReading(['climate.wz'], states, 'temp'), 22);             // no sensor: the thermostat
+  // the owner's living room: a sensor 20,49°, the thermostat 25,1° (it heats): 22,8° over the room was neither
+  const fl = { 'sensor.fl': { state: '20.49', unit: '°C' }, 'sensor.fl2': { state: '21.51', unit: '°C' }, 'climate.fl': { state: 'heat', ct: 25.1 },
+    'sensor.fl_heizung_temp': { state: '25.3', unit: '°C', dc: 'temperature' } };
+  const parts = R.thermostatParts([{ id: 'wz', parts: { 'sensor.fl_heizung_temp': 'climate.fl' } }, { id: 'bad' }, null]);
+  assert.deepEqual(parts, { 'sensor.fl_heizung_temp': 'climate.fl' });
+  assert.equal(R.roomReading(['sensor.fl', 'climate.fl'], fl, 'temp'), 20.49);
+  assert.equal(R.roomReading(['sensor.fl', 'sensor.fl2', 'climate.fl', 'sensor.fl_heizung_temp'], fl, 'temp', parts), 21);   // two room sensors
+  assert.equal(R.roomReading(['climate.fl', 'sensor.fl_heizung_temp'], fl, 'temp', parts), (25.1 + 25.3) / 2);   // only the thermostat's own
+  assert.equal(R.roomReading(['sensor.fl_heizung_temp', 'sensor.fl'], fl, 'temp'), (25.3 + 20.49) / 2);   // not known as a thermostat's: a sensor
   assert.equal(R.roomReading(['sensor.f'], { 'sensor.f': { state: '68', unit: '°F' } }, 'temp'), 20);
   assert.equal(R.roomReading(['sensor.h'], { 'sensor.h': { state: '55', unit: '%', dc: 'humidity' } }, 'humid'), 55);
   assert.equal(R.roomReading(['sensor.c'], { 'sensor.c': { state: '900', unit: 'ppm', dc: 'carbon_dioxide' } }, 'co2'), 900);
@@ -43,7 +53,8 @@ test('the reading of a room: the average of its sensors and thermostats, °F tur
 
 test('the summary of a room: temperature, lights on with their colour, open windows, somebody there', () => {
   const s = R.roomSummary(room, floor, ctx());
-  assert.equal(s.temp, 21.5);
+  assert.equal(s.temp, 21);                                                     // its sensor; the thermostat only without one
+  assert.equal(R.roomSummary(room, floor, ctx({ partOf: { 'sensor.wz_temp': 'climate.wz' } })).temp, 21.5);   // the sensor of the thermostat
   assert.equal(s.lights, 2, 'the ceiling light and the LED of its area; the hall light is outside');
   assert.deepEqual(s.rgb, [255, 140, 110]);
   assert.equal(s.open, 1, 'only the open window on its own wall');

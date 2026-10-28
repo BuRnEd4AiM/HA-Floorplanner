@@ -13,7 +13,7 @@ const hex = (c) => '#' + c.map((v) => Math.round(Math.min(255, Math.max(0, v))).
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 /** ctx: $, t, layout(), floorIdx(), houseMode(), focusedRoom(), settings(), states(), isLive(), placed(floor) (its devices with entities),
- *  areaEntities(room), isOn(entity), isOpen(entity), openingEntities(opening), openRoom(floorIndex, roomId), commitSettings(), lang(), imperial(),
+ *  areaEntities(room), partOf() (the sensors of thermostats, roomReading), isOn(entity), isOpen(entity), openingEntities(opening), openRoom(floorIndex, roomId), commitSettings(), lang(), imperial(),
  *  goLive() (a tap on "Raum-Kacheln" in edit mode), favorites ({ html(), tap(entity, button) }, favoritesui.js), mark(roomId) (what the
  *  heating rules do there: "⏸️ pausiert", '' for nothing, #546) */
 export function initRoomTiles(ctx) {
@@ -48,7 +48,7 @@ export function initRoomTiles(ctx) {
   }, { passive: false });
   initDragScroll(box);                                             // a finger (dragscroll.js)
   function tile({ r, fl, fi }, fmt, house) {
-    const s = roomSummary(r, fl, { placed: ctx.placed(fl), areaEntities: ctx.areaEntities(r), states: ctx.states(), isOn: ctx.isOn, isOpen: ctx.isOpen, openingEntities: ctx.openingEntities });
+    const s = roomSummary(r, fl, { placed: ctx.placed(fl), areaEntities: ctx.areaEntities(r), states: ctx.states(), isOn: ctx.isOn, isOpen: ctx.isOpen, openingEntities: ctx.openingEntities, partOf: ctx.partOf?.() });
     const tx = tileTexts(s, t, (v) => fmt.format(v), ctx.imperial());
     const col = s.lights ? (s.rgb ? hex(s.rgb) : '#ffcf70') : '';
     return `<button type="button" class="rtTile${col ? ' lit' : ''}${r.id === ctx.focusedRoom() ? ' active' : ''}" data-room="${esc(r.id)}" data-floor="${fi}"${col ? ` style="--lc:${col}"` : ''}>`

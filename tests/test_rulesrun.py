@@ -76,9 +76,6 @@ class Env:
     def weather(self, states):
         return None
 
-    def own_window(self, states):
-        return set()
-
 
 async def until(cond, seconds=2.0):
     for _ in range(int(seconds / 0.02)):

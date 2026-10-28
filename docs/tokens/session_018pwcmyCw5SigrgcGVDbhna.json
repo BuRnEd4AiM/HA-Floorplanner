@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmyCw5SigrgcGVDbhna",
+ "start": "2026-10-28",
+ "updated": "2026-10-28T09:15:20Z",
+ "branch": "claude/fenster-regel-raumtemp",
+ "source": "counted",
+ "input": 158,
+ "cache_write": 194786,
+ "cache_read": 13681045,
+ "output": 50175,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 158,
+   "cache_write": 194786,
+   "cache_read": 13681045,
+   "output": 50175,
+   "requests": 79
+  }
+ }
+}

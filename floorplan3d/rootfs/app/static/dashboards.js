@@ -18,7 +18,7 @@ import { cleanCustomTabs } from './tabs.js';
 import { roomSummary } from './roomtiles.js';
 
 /** ctx: $, t, lang(), settings(), save(), canEdit(), states(), entities(), areas(), nameOf(entity), stateText(entity),
- *  callService(entity, service, data), layout() (the building shown), placed(floor), areaEntities(room), isOn(entity), isOpen(entity),
+ *  callService(entity, service, data), layout() (the building shown), placed(floor), areaEntities(room), partOf() (the sensors of thermostats, roomReading), isOn(entity), isOpen(entity),
  *  openingEntities(opening), openRoom(floorIndex, roomId), camImage(entity), openCamera(entity), builtin(key), tabsUi() (the tab bar,
  *  made after this), live() (livecontrols.js, made after this), me() (api/me), refill() (the settings dialog shows the settings again),
  *  usedBy(entity) (🔎 Wird benutzt, #546: a button) */
@@ -31,7 +31,7 @@ export function initDashboards(ctx) {
     for (let fi = 0; fi < floors.length; fi++) {
       const f = floors[fi], r = (f.rooms || []).find((x) => x.id === id);
       if (!r) continue;
-      const s = roomSummary(r, f, { placed: ctx.placed(f), areaEntities: ctx.areaEntities(r), states: ctx.states(), isOn: ctx.isOn, isOpen: ctx.isOpen, openingEntities: ctx.openingEntities });
+      const s = roomSummary(r, f, { placed: ctx.placed(f), areaEntities: ctx.areaEntities(r), states: ctx.states(), isOn: ctx.isOn, isOpen: ctx.isOpen, openingEntities: ctx.openingEntities, partOf: ctx.partOf?.() });
       return { name: r.name || '?', floor: f.name || '', fi, temp: s.temp, lights: s.lights, open: s.open, occupied: s.occupied };
     }
     return null;
