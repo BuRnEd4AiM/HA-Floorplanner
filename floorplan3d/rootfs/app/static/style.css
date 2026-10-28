@@ -1194,7 +1194,7 @@ body.low .rtTile { -webkit-backdrop-filter: none; backdrop-filter: none; backgro
 .rtHead i { font-style: normal; }
 .rtFloor { font-size: 11px; color: #9aa6b2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rtTemp { font-size: 24px; font-weight: 300; line-height: 1.2; }
-.rtTags { display: flex; gap: 6px; font-size: 12px; white-space: nowrap; }
+.rtTags { display: flex; flex-wrap: wrap; gap: 3px 6px; font-size: 12px; white-space: nowrap; }   /* lights, open and "⏸ paused" side by side: the third goes to a new line instead of under the next tile */
 .rtTags > span { padding: 2px 7px; border-radius: 999px; background: rgba(255, 255, 255, .08); color: #9aa6b2; }
 .rtTile.lit .rtLight { background: color-mix(in srgb, var(--lc) 28%, transparent); color: #fff; }
 .rtTags > .rtOpen { background: rgba(229, 72, 77, .22); color: #ffb4b4; }

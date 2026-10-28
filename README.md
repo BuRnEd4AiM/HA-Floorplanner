@@ -52,7 +52,9 @@ What that means for you: the code is automatically tested (backend and browser t
 | 🏗️ **Build it** | Draw walls, rooms, stairs, doors and windows in a 2D blueprint that is linked live with the 3D view |
 | 🤖 **Or describe it** | Paste a **JSON description** (written by hand, by an AI, or from GeoJSON) and get the whole house, plot and garden included. Also available as a **REST API** |
 | 💡 **Control it** | Every device is a Home Assistant entity: lights, scenes, effects, Nanoleaf layouts, TV backlight, windows, heat and humidity |
-| 🌅 **See it at a glance** | Labels over the rooms and room tiles, power as a picture, the sky of the time of day with the weather, real floors |
+| 🌅 **See it at a glance** | Labels over the rooms and room tiles, power as a picture, the sky of the time of day with the weather and the moon, real floors |
+| 🗂️ **Your only dashboard** | Pages at the bottom for every day: ☀ Today, ⚡ Energy, 🌡 Climate, 📷 Cameras, 🎵 Music & TV, 🧺 Household, ▶ Routines, 👨‍👩‍👧 Family, arranged like a Home Assistant dashboard |
+| 🔥 **Heating that thinks** | Heating rules (window open → off, nobody home, night, schedule, boost, holidays), a **room sensor per thermostat** like Better Thermostat, own routines that become real Home Assistant automations |
 | 📱 **Everywhere** | Phone, desktop and wall tablets (kiosk mode, per-user rooms), 7 languages, offline and private |
 
 ## 🤖 Describe it instead of drawing it
@@ -107,6 +109,53 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 
 ## 🎯 Features
 
+### 🗂️ Pages for every day
+
+In the live view a tab bar at the bottom turns the add-on into the only dashboard you need (on a wall tablet too). Which pages a user or tablet sees, and which one it starts with, is set per user.
+
+| Page | What is on it |
+| --- | --- |
+| ☀ **Today** | Time and date, the weather of the next days, a week calendar of several calendars with *＋ Event*, the pinboard, waste collection, who is home and **🚆 your train** (is it on time? delays, platform, also tomorrow's) |
+| ⚡ **Energy** | Today by the hour, a week, month or year: used, from the sun, from the grid, what the house made itself and what it cost; the battery, the biggest users, several houses compared |
+| 🌡 **Climate** | A card per room with its thermostat as a circle like in Home Assistant, humidity and air (*air out*), open windows while it heats, **📋 heating rules** and **📅 the schedule** |
+| 📷 **Cameras** | Every camera by room, motion first |
+| 🎵 **Music & TV** | Every player with what plays, its picture and its buttons |
+| 🧺 **Household** | Washing machine, dryer, dishwasher (with **🔔 tell me when it is done**), the shopping list, the car (charge, range, *charge with the sun only*) and the garden (rain, soil, *water 10 min*) |
+| ▶ **Routines** | Scenes and scripts with one tap, *I'm leaving* and *Good night* checks, own routines, the automations and scenes of Home Assistant |
+| 👨‍👩‍👧 **Family** | Who is home (Home Assistant, Wi-Fi and router), the pinboard |
+
+Admins arrange every page like a Home Assistant dashboard: drag cards, hide them, sections, twelve kinds of own cards (button, switch, value, history, light, thermostat, cover, camera, calendar …) and own pages.
+
+<table>
+<tr>
+<td width="50%"><img src="docs/img/today.jpg" alt="The page Today: clock, weather, train card, week calendar, pinboard, waste, who is home"><br><sub><b>☀ Today</b>: the day at a glance, with your train</sub></td>
+<td width="50%"><img src="docs/img/energy.jpg" alt="The page Energy: today's power by the hour, battery charge, biggest users"><br><sub><b>⚡ Energy</b>: the day, week, month or year</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/img/climate.jpg" alt="The page Climate: a card per room, thermostats as circles, air quality, a tip"><br><sub><b>🌡 Climate</b>: every room, the thermostat as a circle</sub></td>
+<td width="50%"><img src="docs/img/routines.jpg" alt="The page Routines: scenes and scripts as big buttons, own routines as chains, automations of Home Assistant"><br><sub><b>▶ Routines</b>: one tap, and your own routines</sub></td>
+</tr>
+</table>
+
+### 🔥 Heating and routines
+
+- **Heating rules, ready to switch on** (🌡 Climate → 📋): window open → heating off (and back as before when it is shut), nobody at home → cooler, night setback, summer pause by the weather, 🚀 boost, holidays (also with the holiday alarm). They run in the add-on itself, also with no screen open
+- **📅 Schedule** per room: night, eco and comfort as coloured blocks of the week, preheating; a thermostat turned by hand goes back to the plan after a while (you set how long)
+- **🌡 Room sensors for the thermostats, like Better Thermostat**: a thermostat on the radiator measures the warm air right at the radiator and stops too early. Give it a temperature sensor in the room and the add-on regulates by that sensor: it sets the thermostat's **calibration / external sensor** when the device has one (most Zigbee2MQTT, ZHA and Matter thermostats, Sonoff TRVZB, Aqara, Bosch, Danfoss Ally), or else **moves its target** until the room is as warm as you want (Homematic IP, tado …). Everywhere the add-on shows the room sensor's temperature
+- **🔎 Used by**: which automations, scripts and rules use a thermostat (or any device), whether they run right now, and a warning when two of them fight
+- **Own routines "When … then …"** built from blocks like Node-RED (a device changes, time, sun, somebody comes home, a button on the page … → switch, dim, covers, heating, wait, a message to your phone). They become **real automations of Home Assistant**; *Try it now* runs one at once
+- **🎨 Scenes** for lights, LED strips, switches and covers as real scenes of Home Assistant: take the lights as they are now, *⇉ apply to all*, white tone in **Kelvin**; scenes and automations made in Home Assistant can be changed and deleted here too, with **↶ restore** (the old version is kept first)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/img/heatrules.jpg" alt="Heating rules with the card Room sensors for the thermostats on top"><br><sub><b>📋 Heating rules</b> with the room sensors of the thermostats</sub></td>
+<td width="50%"><img src="docs/img/heatplan.jpg" alt="The heating schedule of the living room as coloured blocks of a week"><br><sub><b>📅 Schedule</b>: tap a block for another level, drag its edge</sub></td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/img/flowedit.jpg" alt="The routine editor: blocks on the left, the chain in the middle, the settings on the right, the routine in words below"><br><sub><b>Routine editor</b>: blocks, a chain, in words below; saved as a real automation of Home Assistant</sub></td>
+</tr>
+</table>
+
 ### 🏗️ Build your home
 
 | | |
@@ -118,6 +167,8 @@ Format reference, screenshots, prompt tips and examples: **[English](docs/IMPORT
 | **Garden and surroundings** | Trees, bushes, lawn, terrace, pool, paths, fences and cars around the house, in natural colours; 26 garden things: bench, table and chairs, parasol, grills, fire bowl, raised bed, garden lamps, trampoline, swing, greenhouse, garden shed, garden gnome ... |
 | **Plot and ground** | Draw your **plot** (Grundstück) in the 2D plan, or set how far the lawn reaches around the house; measure it (size, perimeter, every side), type in its width and depth or lay a rectangle round the house in one tap. Draw **areas** on it: a yard of cobblestones, a drive, a wooden deck, gravel, beds, a pond ... with their pattern in 3D. The house stands in solid ground, a basement is shown as a section with soil layers |
 | **Whole-house view** | See all floors, basement and roof stacked as one building |
+| **Plateau and raised rooms** | A second house on a raised **plateau** in the plot (retaining wall of stone, concrete, clinker or gabions, or a bank of lawn) with **outdoor steps** up to the front door; a room's floor higher or lower than its storey, with steps at the doors |
+| **Cabinets made to measure** | A **cabinet editor**: columns, rails, shelves, drawers, doors, handles and finishes, also **under a sloping roof** (*fit under the slope* reads the roof above it) |
 | **Clear object list** | Everything grouped by room (the room, its doors / windows and furniture), with a search field; the side panel can be dragged wider |
 | **Detect rooms** | Draw the walls, press *Räume erkennen*: every closed loop of walls becomes a room |
 | **Cameras** | The field of view as a cone on the floor, red with movement; a tap shows the camera live, a second tap opens Home Assistant's live view |
@@ -257,6 +308,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 ### 🎨 Look
 
 - **Sky by the time of day**: morning, midday, dusk and night, the sun where Home Assistant's `sun.sun` has it, at night stars and a faint Milky Way; a chip shows the time and the next sunset or sunrise
+- **🌙 The moon** as it is now (full, waxing, waning …) where it stands in your sky, with its phase in a chip
 - **Weather in the sky**: clouds, rain and snow from your weather entity, and a **rain warning per window** when one is open while it rains
 - **Labels over the rooms**: name, temperature, lights on and open windows, a green dot when somebody is there; a tap opens the room. Or the devices instead (*View → In the picture*)
 - **Room tiles** at the bottom: every room with its temperature, lights and open windows, swipe sideways when there are many
@@ -269,6 +321,9 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 <tr>
 <td width="50%"><img src="docs/img/sky.jpg" alt="The same house four times: sunny morning, rain with a rain warning, dusk, clear night with stars"><br><sub><b>Sky and weather</b>: sunny morning, rain (with the rain warning), dusk, starry night</sub></td>
 <td width="50%"><img src="docs/img/floors.jpg" alt="Close-up of the ground floor with parquet, tiles and concrete floors and anthracite window frames"><br><sub><b>Real floors</b> per room and anthracite window frames</sub></td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/img/closet.jpg" alt="The cabinet editor: a cabinet made to measure with columns, drawers and a slope under the roof"><br><sub><b>Cabinet editor</b>: made to measure, also under the slope of the roof</sub></td>
 </tr>
 </table>
 

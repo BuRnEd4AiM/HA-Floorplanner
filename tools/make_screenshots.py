@@ -228,6 +228,61 @@ def shot_devices(b):
     save(pg, "devices.jpg", 1200)
 
 
+def tab_page(b, tab, view=None, sky="13:00", w=1600, h=1000):
+    """a page of the tab bar (#479 …): live mode, the tab tapped, maybe one of its views (🌡 Klima → 📋 Heiz-Regeln …)"""
+    pg = demo_page(b, sky=sky, w=w, h=h)
+    pg.click(f"#tabBar [data-tab={tab}]"); pg.wait_for_timeout(1500)
+    if view:
+        pg.click(f"[data-page={tab}] [data-view={view}]"); pg.wait_for_timeout(1200)
+    return pg
+
+
+def shot_today(b):
+    """☀ Today: weather, the day, power now, waste, pinboard, the train"""
+    save(tab_page(b, "today"), "today.jpg", 1500)
+
+
+def shot_energy(b):
+    """⚡ Energy: the day as bars, the meters, the bill"""
+    save(tab_page(b, "energy"), "energy.jpg", 1500)
+
+
+def shot_climate(b):
+    """🌡 Climate: a card per room, the thermostat as a circle with the room sensor's temperature (#573)"""
+    save(tab_page(b, "climate"), "climate.jpg", 1500)
+
+
+def shot_heatrules(b):
+    """🌡 Climate → 📋 Heating rules: the room sensors of the thermostats (#573) on top, the ready-made rules below"""
+    save(tab_page(b, "climate", "rules"), "heatrules.jpg", 1500)
+
+
+def shot_heatplan(b):
+    """🌡 Climate → 📅 Schedule: the week of the living room as coloured blocks"""
+    pg = tab_page(b, "climate", "plan")
+    pg.evaluate("[...document.querySelectorAll('[data-page=climate] .hpRooms [data-room]')].find((x) => /Living|Wohn/.test(x.textContent))?.click()")
+    save(pg, "heatplan.jpg", 1200)
+
+
+def shot_routines(b):
+    """▶ Routines: own routines as a chain, automations of Home Assistant with what they do, scenes, what happened"""
+    save(tab_page(b, "routines"), "routines.jpg", 1500)
+
+
+def shot_flowedit(b):
+    """the editor of a routine: blocks on the left, the chain in the middle, the settings on the right"""
+    pg = tab_page(b, "routines")
+    pg.evaluate("[...document.querySelectorAll('[data-page=routines] button')].find((x) => x.textContent.includes('✏'))?.click()")
+    save(pg, "flowedit.jpg", 1500)
+
+
+def shot_closet(b):
+    """the closet editor: a closet made to measure under the slope of the roof (#545)"""
+    pg = demo_page(b, "mode=edit", sky="13:00")
+    pg.evaluate("() => { const L = __fp.layout.floors, i = L.findIndex((f) => f.devices.some((d) => d.id === 'schrank_dach')); __fp.switchFloor(i); __fp.editCloset('schrank_dach'); }")
+    save(pg, "closet.jpg", 2000)
+
+
 def timeline_day():
     """a recorded day for the security picture: the evening of yesterday in the demo house"""
     tz = ZoneInfo(TZ)
@@ -431,7 +486,9 @@ def shot_import(b):
 
 SHOTS = {"hero": shot_hero, "house": shot_house, "ground": shot_ground, "ledring": shot_ledring, "room": shot_room, "light": shot_light,
          "split": shot_split, "plan": shot_plan, "library": shot_library, "toolbar": shot_toolbar, "power": shot_power, "heat": shot_heat,
-         "floors": shot_floors, "sky": shot_sky, "devices": shot_devices, "security": shot_security, "phone": shot_phone, "tour": shot_tour}
+         "floors": shot_floors, "sky": shot_sky, "devices": shot_devices, "security": shot_security, "phone": shot_phone, "tour": shot_tour,
+         "today": shot_today, "energy": shot_energy, "climate": shot_climate, "heatrules": shot_heatrules, "heatplan": shot_heatplan,
+         "routines": shot_routines, "flowedit": shot_flowedit, "closet": shot_closet}
 SERVER_SHOTS = {"welcome": shot_welcome, "backup": shot_backup, "version": shot_version}
 OWN_SERVER = {"import": shot_import}                                       # starts its own add-on (a fresh one per language)
 

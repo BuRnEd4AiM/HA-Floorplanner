@@ -4,15 +4,15 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.38.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.38.1)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.38.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.38.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
 1. **Neu in 4.38.0: 🌡 Raumfühler für die Thermostate** (Abschnitt 124): Claude hat 124.1 bis 124.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deinen Thermostaten 124.5 bis 124.9.
 1. **Repariert in 4.37.2: bei offenem Fenster geht das Thermostat wirklich aus** (Abschnitt 123): im Add-on mit deinem Wohnzimmer FL 123.1 bis 123.3.
-1. **Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum** (Abschnitt 122): in der Demo 122.1; 122.2 und 122.4 ✅ im Add-on (122.3 ging nicht ganz, repariert in 4.37.2).
+1. **Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum** (Abschnitt 122): 122.1 ✅ (Claude in der Demo), 122.2 und 122.4 ✅ im Add-on (122.3 ging nicht ganz, repariert in 4.37.2).
 1. **Neu in 4.37.0: ▲ Plateau im Gelände, Boden je Raum höher, Außentreppe** (Abschnitt 121): Claude hat 121.1 bis 121.7 in der Demo und im Test-Add-on geprüft (probier es gern selbst in der Demo, 121.1 bis 121.6); für dich im Add-on mit deinem zweiten Haus 121.8.
 1. **Neu in 4.36.0: Szenen „⇉ Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant ändern und löschen** (Abschnitt 120): Claude hat 120.1 bis 120.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on 120.7 bis 120.9.
 1. **Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm** (Abschnitt 119): Claude hat 119.1 bis 119.4 in der Demo geprüft; für dich im Add-on am PC 119.5 und am Tablet quer 119.6.
@@ -21,7 +21,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 1. **Neu in 4.31.0 und 4.31.1: 🚆 Zug-Karte** (Abschnitt 113 und 114): Claude hat 113.1 bis 113.3 in der Demo und 114.1 im Test-Add-on geprüft; für dich im Add-on mit deinem Bahnhof 113.4 bis 113.6 und 114.2 bis 114.4 (abends dein Zug von morgen).
 2. **Neu in 4.30.0: 🎨 Szenen für Lampen und LED-Streifen** (Abschnitt 112): Claude hat 112.1 bis 112.5 in der Demo geprüft; für dich im Add-on 112.6 bis 112.8.
 3. **Neu in 4.29.0: Abläufe werden echte Automationen in Home Assistant** (Abschnitt 111): Claude hat 111.1 bis 111.4 in der Demo geprüft; für dich im Add-on mit deinem Home Assistant 111.5 bis 111.8.
-4. **Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe** (Abschnitt 110): in der Demo 110.6, 110.12, 110.13; im Add-on mit deinem echten Fenster und Thermostat 110.14, 110.15.
+4. **Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe** (Abschnitt 110): 110.6, 110.12, 110.13 ✅ (Claude in der Demo, 2026-10-28); im Add-on mit deinem echten Fenster und Thermostat 110.14, 110.15.
 5. **Neu: 🗄 Schrank-Editor** (Abschnitt 109): Claude hat 109.1 bis 109.10 in der Demo geprüft; probier ihn gern selbst aus (Etage „Dach“, „Schrank unter der Schräge“), und im Add-on unter deinem echten Dach 109.11.
 6. **Neu in der Nacht zum 2026-10-26** (Abschnitt 102 bis 107): in der Demo hat Claude am Morgen alles geprüft (siehe unten). Für dich bleibt: **flüssiger am iPad** (102.1), **🎤 mit echter Sprache** „Mach das Licht im Bad an“ (105.6) und im Add-on mit deinen Geräten 103.5 bis 103.7, 104.3 bis 104.5, 105.7, 106.5, 106.6.
 7. **iPhone in der Home-Assistant-App** (100.1, 100.2; die Demo in Safari: 100.3): kein leerer Streifen mehr unter „Haus, Heute, Energie …“.
@@ -31,10 +31,12 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 11. **Zähler und Backup im Add-on** (92.2, 92.3, 92.6, 93.1 bis 93.4): SolarNet-Sensoren, Helfer „Energie“, Urlaubs-Alarm im Backup.
 12. **Kalender, Knöpfe, Anwesenheit, zweites Haus im Add-on** (90.7, 91.7, 89.5, 89.6, 87.6).
 13. **Wandtablet schneller** (85.1 bis 85.4; in der 2D-Ansicht 108.3) und **iPad flüssig** (56.1, 56.2).
-14. **Dashboard-Karte in Home Assistant** (46.4 bis 46.9; 46.3 war ❌, behoben in 3.77.1).
+14. **Dashboard-Karte in Home Assistant** (46.3 bis 46.9; 46.3 war ❌, behoben in 3.77.1, bitte noch einmal).
 15. **Docker-Version** (94.1 bis 94.3), nur wenn du sie benutzt.
-16. **Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3): von Claude nicht geprüft (das 3D-Bild genau ansehen).
-17. **Warnbanner am Wandtablet** (8.5, nur mit echtem Gerät).
+16. ~~**Schleppgaube in der Demo** (42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3)~~: ✅ seit 2026-10-28 (Claude in der Demo; bei 42.4 zeigte das Feld die neue Neigung erst nach dem Neuöffnen, repariert in 4.38.1).
+17. ~~**Warnbanner am Wandtablet** (8.5)~~: ✅ seit 2026-10-28 (Claude in der Demo: Regen-Warnung, Tippen springt in den Raum).
+
+**Zuletzt geprüft (2026-10-28, Claude in der Demo 4.38.0):** ✅ 8.5, 42.1 bis 42.6, 43.1 bis 43.4, 45.1 bis 45.3, 110.6, 110.12, 110.13, 122.1, 124.1 bis 124.4. Die früheren ❌ 63.4, 63.8, 66.21, 67.12, 79.11, 80.2, 84.1, 96.2 waren schon repariert und unter neuen Nummern geprüft (77.x, 66.23, 75.x, 101.x): jetzt ✅; 46.3 und 87.2 sind repariert, aber nur mit echtem Gerät zu bestätigen (wieder ❓). Übrig sind nur noch Punkte für deine echten Geräte.
 
 **Zuletzt geprüft (2026-10-27, per Auswahl im Chat, 4.34.0):** ✅ 118.4, 118.5 (Kantenglättung „Automatisch“ läuft flüssig und gefällt am besten; Abschnitt 118 fertig).
 
@@ -228,7 +230,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 5. Farbansichten und Messwerte | 3 | 0 | 0 | 0 | – |
 | 6. Kameras | 3 | 0 | 0 | 0 | – |
 | 7. Türen, Fenster, Garage | 6 | 0 | 0 | 0 | – |
-| 8. Live-Ansicht (echte Geräte) | 6 | 0 | 1 | 0 | 8.5 |
+| 8. Live-Ansicht (echte Geräte) | 7 | 0 | 0 | 0 | – |
 | 9. Bearbeiten | 7 | 0 | 0 | 0 | – |
 | 10. Tablet und Bedienung | 5 | 0 | 0 | 0 | – |
 | 11. Benutzer & Tablets (3.20.0) | 7 | 0 | 0 | 0 | – |
@@ -262,11 +264,11 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 39. Neu in 3.67 | 2 | 0 | 0 | 0 | – |
 | 40. Neu in 3.69: Rollläden an den Fenstern | 6 | 0 | 0 | 0 | – |
 | 41. Neu in 3.70: Rollladen-Karte | 5 | 0 | 0 | 0 | – |
-| 42. Neu in 3.71: lange Schleppgaube | 0 | 0 | 6 | 0 | 42.1 bis 42.6 |
-| 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube | 0 | 0 | 4 | 0 | 43.1 bis 43.4 |
+| 42. Neu in 3.71: lange Schleppgaube | 6 | 0 | 0 | 0 | – |
+| 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube | 4 | 0 | 0 | 0 | – |
 | 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter) | 6 | 0 | 0 | 0 | – |
-| 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen | 0 | 0 | 3 | 0 | 45.1 bis 45.3 |
-| 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 2 | 1 | 6 | 0 | ❌ 46.3, 46.4 bis 46.9 |
+| 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen | 3 | 0 | 0 | 0 | – |
+| 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant) | 2 | 0 | 7 | 0 | 46.3 bis 46.9 |
 | 47. Neu in 3.76: Durchsichtig nur die Wand | 2 | 0 | 0 | 0 | – |
 | 48. Neu in 3.77: Musterhaus mit allem drin (nur im Add-on, die Demo hat keinen Import) | 5 | 0 | 0 | 0 | – |
 | 49. Neu in 3.80: Küchenzeile ohne Oberschrank über einzelnen Modulen | 4 | 0 | 0 | 0 | – |
@@ -283,11 +285,11 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 60. Neu in 3.93: Wiederholen, Kopieren und Einfügen, Schutz beim Speichern, Geländer der Wendeltreppe | 9 | 0 | 0 | 3 | – |
 | 61. Neu in 3.94: mehrere Gebäude in einem Plan (#409) | 11 | 0 | 0 | 2 | – |
 | 62. Neu in 3.95: Energie leichter einrichten (#407) | 4 | 0 | 0 | 3 | – |
-| 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 6 | 2 | 0 | 3 | ❌ 63.4, ❌ 63.8 |
+| 63. Neu in 3.96: mehr Geräte direkt im Plan steuern (#406) | 8 | 0 | 0 | 3 | – |
 | 64. Neu in 3.97: Alarm per WhatsApp (#414) | 0 | 0 | 0 | 6 | – |
 | 65. Neu in 3.98: Himmel, Wetter, Strom als Bild, Raum-Kacheln, Werkzeugleiste (#418 bis #422) | 14 | 0 | 0 | 3 | – |
-| 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 23 | 1 | 0 | 1 | ❌ 66.21 |
-| 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448) | 11 | 1 | 0 | 2 | ❌ 67.12 |
+| 66. Neu in 3.99: echte Böden, dunkle Fensterrahmen, Glas-Optik, Raum-Schilder (#427 bis #430) | 24 | 0 | 0 | 1 | – |
+| 67. Neu in 4.0: Wände mit Oberfläche, viel mehr Böden, Muster anpassen, Fassade (#448) | 12 | 0 | 0 | 2 | – |
 | 68. Neu in 4.0.1: Einstellungen in Gruppen, Suche, was die Alarmanlage ist (#450) | 8 | 0 | 0 | 1 | – |
 | 69. Neu in 4.0.2: Gebäude-Filter richtig (#451) | 3 | 0 | 0 | 1 | – |
 | 70. Neu in 4.0.3: Benutzer & Tablets in den Einstellungen, WhatsApp leichter einrichten (#454) | 7 | 0 | 0 | 0 | – |
@@ -299,15 +301,15 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 76. Neu in 4.2.0: Schnellzugriff, Licht-Gruppen, Favoriten und Hilfen beim Bearbeiten (#471) | 14 | 0 | 0 | 1 | – |
 | 77. Neu in 4.2.1: Saugroboter sichtbar, Hausmodus mit Knöpfen, „Innenmaß“ beim Messen (#473, #474) | 5 | 0 | 0 | 1 | – |
 | 78. Neu in 4.3.0: Reiter unten, Kamera-Seite, Reiter pro Benutzer, Tablet ohne Seitenleiste (#479) | 11 | 0 | 0 | 3 | – |
-| 79. Neu in 4.4.0: ☀ Heute und ⚡ Energie (#481) | 12 | 1 | 0 | 3 | ❌ 79.11 |
-| 80. Neu in 4.5.0: 🌡 Klima, ▶ Abläufe und 👨‍👩‍👧 Familie mit Pinnwand (#483) | 16 | 1 | 0 | 4 | ❌ 80.2 |
+| 79. Neu in 4.4.0: ☀ Heute und ⚡ Energie (#481) | 13 | 0 | 0 | 3 | – |
+| 80. Neu in 4.5.0: 🌡 Klima, ▶ Abläufe und 👨‍👩‍👧 Familie mit Pinnwand (#483) | 17 | 0 | 0 | 4 | – |
 | 81. Neu in 4.6.0: Seiten bearbeiten wie ein Home-Assistant-Dashboard (#484) | 12 | 0 | 0 | 3 | – |
 | 82. Neu in 4.7.0: Vollbild fest für einen Benutzer, beenden nur mit Code (#487) | 8 | 0 | 0 | 2 | – |
 | 83. Neu in 4.8.0: 🎵 Musik & TV und 🧺 Haushalt (#490) | 12 | 0 | 0 | 4 | – |
-| 84. Neu in 4.8.1: Zustände auf Deutsch in der Geräte-Liste (#492) | 0 | 1 | 0 | 0 | ❌ 84.1 |
+| 84. Neu in 4.8.1: Zustände auf Deutsch in der Geräte-Liste (#492) | 1 | 0 | 0 | 0 | – |
 | 85. Neu in 4.8.2: Tablets schneller (#494) | 0 | 0 | 4 | 0 | 85.1 bis 85.4 |
 | 86. Neu in 4.9.0: Thermostat als Kreis wie in Home Assistant (#495) | 9 | 0 | 0 | 0 | – |
-| 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 4 | 1 | 1 | 0 | ❌ 87.2, 87.6 |
+| 87. Neu in 4.10.0: Strom mehrerer Häuser in einer Grafik (#495) | 4 | 0 | 2 | 0 | 87.2, 87.6 |
 | 88. Neu in 4.11.0: Abschnitte auf den Seiten wie in Home Assistant (#495) | 8 | 0 | 0 | 0 | – |
 | 89. Neu in 4.12.0: Wer ist wirklich zu Hause (#495) | 4 | 0 | 2 | 0 | 89.5, 89.6 |
 | 90. Neu in 4.13.0: Kalender-Karte mit mehreren Kalendern und „＋ Termin“ (#495) | 6 | 0 | 1 | 0 | 90.7 |
@@ -316,7 +318,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 93. Neu in 4.16.0: Leistungs-Sensoren (W) als Zähler (#503) | 0 | 0 | 4 | 0 | 93.1 bis 93.4 |
 | 94. Neu in 4.17.0: Docker-Version ohne Supervisor (#489) | 0 | 0 | 3 | 0 | 94.1 bis 94.3 |
 | 95. Neu in 4.18.0: eine Seite in eigener Fassung je Benutzer (#507) | 10 | 0 | 0 | 0 | – |
-| 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509) | 9 | 1 | 1 | 3 | ❌ 96.2, 96.1 |
+| 96. Neu in 4.19.0: Sprachsuche mit 🎤 und Codewörtern (#509) | 10 | 0 | 1 | 3 | 96.1 |
 | 97. Neu in 4.19.1: 🩺 Mikrofon-Test, 🎤 am Tablet und ohne https (#511) | 4 | 0 | 1 | 2 | 97.3 |
 | 98. Neu in 4.20.0: 🎤 ohne https mit dem Diktat der Tastatur (#513) | 2 | 0 | 1 | 2 | 98.2 |
 | 99. Neu in 4.21.0: 🔋 Ladestand der Batterien auf ⚡ Energie (#515) | 8 | 0 | 0 | 2 | – |
@@ -330,7 +332,7 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 107. Neu in 4.26.0: 🏡 Grundstück, Außenflächen, Maße und Garten-Deko (#538) | 8 | 0 | 0 | 0 | – |
 | 108. Neu in 4.26.1: die 2D-Ansicht zeichnet kein verstecktes 3D-Bild mehr (#542) | 2 | 0 | 1 | 0 | 108.3 |
 | 109. Neu in 4.27.0: 🗄 Schrank-Editor, Schrank nach Maß, auch unter der Dachschräge (#545) | 10 | 0 | 1 | 0 | 109.11 |
-| 110. Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe „Wenn … dann …“ (#546) | 10 | 0 | 3 | 2 | 110.6, 110.12, 110.13 |
+| 110. Neu in 4.28.0: Heiz-Regeln, Heizplan, „Wird benutzt“ und eigene Abläufe „Wenn … dann …“ (#546) | 13 | 0 | 0 | 2 | – |
 | 111. Neu in 4.29.0: Abläufe werden echte Automationen in Home Assistant (#548) | 4 | 0 | 0 | 4 | – |
 | 112. Neu in 4.30.0: 🎨 Szenen für Lampen und LED-Streifen als echte Szenen in Home Assistant (#549) | 5 | 0 | 0 | 3 | – |
 | 113. Neu in 4.31.0: 🚆 Zug-Karte: Kommt mein Zug pünktlich? (#550) | 3 | 0 | 0 | 3 | – |
@@ -342,17 +344,17 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 119. Neu in 4.35.0: Die Einstellungen fast über den ganzen Bildschirm (#562) | 4 | 0 | 2 | 0 | 119.5, 119.6 |
 | 120. Neu in 4.36.0: Szenen „Auf alle anwenden“, Weißton in Kelvin, Szenen und Automationen aus Home Assistant verwalten (#564) | 6 | 0 | 3 | 0 | 120.7 bis 120.9 |
 | 121. Neu in 4.37.0: Plateau im Gelände, Boden je Raum höher, Außentreppe (#566) | 7 | 0 | 1 | 0 | 121.8 |
-| 122. Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum (#568, #569) | 2 | 1 | 1 | 0 | ❌ 122.3, 122.1 |
+| 122. Repariert in 4.37.1: Fenster-Regel unter dem Heizplan, Temperatur über dem Raum (#568, #569) | 3 | 1 | 0 | 0 | ❌ 122.3 |
 | 123. Repariert in 4.37.2: bei offenem Fenster geht das Thermostat wirklich aus (#571) | 0 | 0 | 3 | 0 | 123.1 bis 123.3 |
 | 124. Neu in 4.38.0: 🌡 Raumfühler für die Thermostate (#573) | 4 | 0 | 5 | 0 | 124.5 bis 124.9 |
-| **Zusammen** | **772** | **11** | **68** | **92** | |
+| **Zusammen** | **798** | **1** | **52** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
 
 Das sind die Punkte, die nur der Besitzer im echten Betrieb prüfen kann. Nach Wichtigkeit geordnet, die Nummern verweisen auf die Tabellen unten. Ergebnis jeweils unten in der Tabelle eintragen (✅ / ❌).
 
-1. **Wandtablet** (8.5): das Warnbanner. Nur mit echtem Gerät möglich (10.2 und 10.3 sind seit 2026-10-17 ✅).
+1. ~~**Wandtablet** (8.5): das Warnbanner~~: ✅ seit 2026-10-28 (Claude in der Demo; 10.2 und 10.3 sind seit 2026-10-17 ✅).
 2. ~~**Import mit Dach-Angaben** (15.6, 12.6a)~~: ✅ seit 2026-10-25 (Claude im Test-Add-on: `roof.dormers` gibt zwei Gauben, `roof.box` das Dach des Gartenhauses).
 3. **Batterie im Strom-Bild** (65.17, neu in 3.98.2): nachts im Add-on ansehen, was unter der Batterie steht („ruht · 0 W“ oder „kein Leistungs-Sensor“).
 
@@ -446,7 +448,7 @@ E2E-Ergebnis 3.21.0: alle 208 Prüfungen bestanden (frischer Server, Headless-Ch
 | 8.2 | Raumblock „Ganzer Raum“: alle Lichter schalten, Szenen starten | ✅ im Add-on (2026-10-03) |
 | 8.3 | Sensorwerte neben den Geräten | ✅ im Add-on (2026-10-03) |
 | 8.4 | Änderungen in Home Assistant erscheinen live ohne Neuladen | ✅ im Add-on (2026-10-03) |
-| 8.5 | Warnbanner (Rauch, Wasser, offenes Fenster bei Regen), Tippen springt in den Raum | ❓ |
+| 8.5 | Warnbanner (Rauch, Wasser, offenes Fenster bei Regen), Tippen springt in den Raum | ✅ (2026-10-28, Claude in der Demo: Regen-Warnung „Fenster offen bei Regen“, Tippen springt ins Wohnzimmer; Rauch und Wasser prüft der Browser-Test 07_tablet) |
 | 8.6 | Plakette „offline“ zeigt nicht erreichbare Geräte und springt zum Gerät | ✅ im Add-on (2026-10-03) |
 | 8.7 | Suche 🔍 „Wo ist …?“ springt zum Gerät | ✅ im Add-on (2026-10-03) |
 
@@ -866,20 +868,20 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 42. Neu in 3.71: lange Schleppgaube
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 42.1 | Bearbeiten, Etage „Dach“, „Etage verwalten“: bei einer Gaube „Dachform der Gaube“ auf „Schleppgaube“ stellen | Neue Felder „Neigung der Gaube (°)“ (15) und ein Hinweis erscheinen; „Abstand zur Traufe“ springt auf den Überstand (0,4 m). In 3D: die Vorderwand steht auf der Außenwand und geht senkrecht hoch, das Dach der Gaube läuft flacher nach oben ins Hauptdach, unter dem First (#339) | ❓ |
-| 42.2 | „Breite“ auf 6 m (oder mehr als 5 m) stellen | Die Gaube wird so lang, sie bleibt auf dem Dach und unter dem First; eine Sattelgaube bliebe höchstens 5 m breit | ❓ |
-| 42.3 | „Abstand vom Giebel“ auf 3 m stellen, danach die „Breite“ ändern | Die Gaube beginnt 3 m vom Giebel links (bzw. oben) im Plan; beim Ändern der Breite bleibt ihr Anfang stehen, der Schieber „Position am First“ wandert mit | ❓ |
-| 42.4 | „Neigung der Gaube“ auf 8 und dann auf 25 stellen, danach „Höhe der Wand“ sehr hoch (z. B. 3 m) | Das Gaubendach wird flacher bzw. steiler. Ist die Wand zu hoch für die Neigung, wird zuerst das Gaubendach flacher (das Feld zeigt den benutzten Wert), erst dann die Wand niedriger; nichts ragt über den First | ❓ |
-| 42.5 | Haken „Ausgebauter Dachstuhl“ setzen (Kniestock), dann die Etage darunter öffnen | Unter der Schleppgaube gehen die Wände gerade hoch bis unter ihr schräges Dach; daneben werden sie an der Dachschräge abgeschnitten | ❓ |
-| 42.6 | Mit der Kamera nah an eine Gaube (auch eine normale) heran, oder einen Raum unter einer Gaube öffnen | Die Schräge des Hauptdachs läuft **nicht** mehr quer durch den Raum unter der Gaube: dort hat das Dach ein Loch, das Gaube und Gaubendach schließen | ❓ |
+| 42.1 | Bearbeiten, Etage „Dach“, „Etage verwalten“: bei einer Gaube „Dachform der Gaube“ auf „Schleppgaube“ stellen | Neue Felder „Neigung der Gaube (°)“ (15) und ein Hinweis erscheinen; „Abstand zur Traufe“ springt auf den Überstand (0,4 m). In 3D: die Vorderwand steht auf der Außenwand und geht senkrecht hoch, das Dach der Gaube läuft flacher nach oben ins Hauptdach, unter dem First (#339) | ✅ (2026-10-28, Claude in der Demo) |
+| 42.2 | „Breite“ auf 6 m (oder mehr als 5 m) stellen | Die Gaube wird so lang, sie bleibt auf dem Dach und unter dem First; eine Sattelgaube bliebe höchstens 5 m breit | ✅ (2026-10-28, Claude in der Demo) |
+| 42.3 | „Abstand vom Giebel“ auf 3 m stellen, danach die „Breite“ ändern | Die Gaube beginnt 3 m vom Giebel links (bzw. oben) im Plan; beim Ändern der Breite bleibt ihr Anfang stehen, der Schieber „Position am First“ wandert mit | ✅ (2026-10-28, Claude in der Demo) |
+| 42.4 | „Neigung der Gaube“ auf 8 und dann auf 25 stellen, danach „Höhe der Wand“ sehr hoch (z. B. 3 m) | Das Gaubendach wird flacher bzw. steiler. Ist die Wand zu hoch für die Neigung, wird zuerst das Gaubendach flacher (das Feld zeigt den benutzten Wert), erst dann die Wand niedriger; nichts ragt über den First | ✅ (2026-10-28, Claude in der Demo: 25° wird zu 19,3°, mit 3 m Wand 2°; das Feld zeigte die neue Neigung erst nach dem Neuöffnen, repariert in 4.38.1) |
+| 42.5 | Haken „Ausgebauter Dachstuhl“ setzen (Kniestock), dann die Etage darunter öffnen | Unter der Schleppgaube gehen die Wände gerade hoch bis unter ihr schräges Dach; daneben werden sie an der Dachschräge abgeschnitten | ✅ (2026-10-28, Claude in der Demo) |
+| 42.6 | Mit der Kamera nah an eine Gaube (auch eine normale) heran, oder einen Raum unter einer Gaube öffnen | Die Schräge des Hauptdachs läuft **nicht** mehr quer durch den Raum unter der Gaube: dort hat das Dach ein Loch, das Gaube und Gaubendach schließen | ✅ (2026-10-28, Claude in der Demo) |
 
 ## 43. Neu in 3.72: Fenster der Räume durch die Schleppgaube
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 43.1 | Schleppgaube auf der Außenwand (42.1), Haken „Fenster“ aus. Etage darunter öffnen, Werkzeug „Tür/Fenster“: in die Wand unter der Gaube zwei Fenster setzen (z. B. eines pro Raum), Sims etwa 1,2 m | Von außen (Ganzes Haus oder Live) sind beide Fenster **durch die Gaube** zu sehen, mit Rahmen und Glas; die Gaube hat dort keine geschlossene Wand mehr (#341) | ❓ |
-| 43.2 | Eines der Fenster anklicken, Kontakt und Haken „Rollladen“ mit Entität setzen | Es ist ein normales Fenster: Kontakt, offen = rot, Rollladen fährt außen vor dem Glas, Kugel 🪟 im Live-Modus | ❓ |
-| 43.3 | Live: in den Raum tippen (Raum-Karte), oben auf „n offen“ schauen | Das Fenster steht beim richtigen Raum, ein offenes Fenster zählt bei „n offen“ | ❓ |
-| 43.4 | Ein Fenster in der Wand verschieben oder löschen | Das Loch in der Gaube wandert mit bzw. ist wieder zu | ❓ |
+| 43.1 | Schleppgaube auf der Außenwand (42.1), Haken „Fenster“ aus. Etage darunter öffnen, Werkzeug „Tür/Fenster“: in die Wand unter der Gaube zwei Fenster setzen (z. B. eines pro Raum), Sims etwa 1,2 m | Von außen (Ganzes Haus oder Live) sind beide Fenster **durch die Gaube** zu sehen, mit Rahmen und Glas; die Gaube hat dort keine geschlossene Wand mehr (#341) | ✅ (2026-10-28, Claude in der Demo) |
+| 43.2 | Eines der Fenster anklicken, Kontakt und Haken „Rollladen“ mit Entität setzen | Es ist ein normales Fenster: Kontakt, offen = rot, Rollladen fährt außen vor dem Glas, Kugel 🪟 im Live-Modus | ✅ (2026-10-28, Claude in der Demo) |
+| 43.3 | Live: in den Raum tippen (Raum-Karte), oben auf „n offen“ schauen | Das Fenster steht beim richtigen Raum, ein offenes Fenster zählt bei „n offen“ | ✅ (2026-10-28, Claude in der Demo) |
+| 43.4 | Ein Fenster in der Wand verschieben oder löschen | Das Loch in der Gaube wandert mit bzw. ist wieder zu | ✅ (2026-10-28, Claude in der Demo) |
 
 ## 44. Neu in 3.73: Dach mit Absatz (Haus vorne schmaler, hinten breiter)
 | Nr. | Was tun | Erwartung | Ergebnis |
@@ -894,16 +896,16 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 ## 45. Neu in 3.74: Schleppgaube bis zur Kante, Ecken einzeln ziehen
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 45.1 | Bei einer Schleppgaube „Abstand vom Giebel“ auf 0 stellen (oder den Schieber ganz an den Rand), dann von der Giebelseite schauen | Vorderwand, Seitenwand und Dach der Gaube enden genau an der Dachkante, kein Abstand; Giebel und Gaubenseite sind eine Fläche (#345) | ❓ |
-| 45.2 | Die Gaube so breit machen, dass sie bis zum anderen Giebel reicht | Auch dort bündig bis an die Kante | ❓ |
-| 45.3 | Dach mit Absatz (44.1), Ansicht 2D: das Dach anklicken und einen **Kreis** an einem Absatz ziehen, längs und quer | Der Absatz wandert längs mit, die Kante dieses Stücks quer (5-cm-Schritte); beim Loslassen folgt das Dach in 3D; Strg+Z nimmt es zurück | ❓ |
+| 45.1 | Bei einer Schleppgaube „Abstand vom Giebel“ auf 0 stellen (oder den Schieber ganz an den Rand), dann von der Giebelseite schauen | Vorderwand, Seitenwand und Dach der Gaube enden genau an der Dachkante, kein Abstand; Giebel und Gaubenseite sind eine Fläche (#345) | ✅ (2026-10-28, Claude in der Demo) |
+| 45.2 | Die Gaube so breit machen, dass sie bis zum anderen Giebel reicht | Auch dort bündig bis an die Kante | ✅ (2026-10-28, Claude in der Demo: Breite = Länge des Hauses, 10 m; bündig an beiden Giebeln) |
+| 45.3 | Dach mit Absatz (44.1), Ansicht 2D: das Dach anklicken und einen **Kreis** an einem Absatz ziehen, längs und quer | Der Absatz wandert längs mit, die Kante dieses Stücks quer (5-cm-Schritte); beim Loslassen folgt das Dach in 3D; Strg+Z nimmt es zurück | ✅ (2026-10-28, Claude in der Demo) |
 
 ## 46. Neu in 3.75: Karte für das Dashboard (46.1 in der Demo, der Rest nur in Home Assistant)
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 46.1 | Demo mit der Adresse `https://burned4aim.github.io/HA-Floorplanner/?card=1&floor=house&heatmap=temp&theme=light` öffnen, Fenster schmal und niedrig ziehen; danach `…/?card=1&floor=1&show_bar=0&show_nav=0` | So sieht das Haus später in der Karte aus: ganzes Haus, hell, Temperaturfarben, keine Werkzeugleiste, die Farbskala verdeckt den Kompass nicht; die zweite Adresse zeigt das Obergeschoss ohne Knöpfe oben und unten | ✅ (2026-10-21) |
 | 46.2 | HACS → ⋮ → Benutzerdefinierte Repositories: `https://github.com/BuRnEd4AiM/HA-Floorplanner`, Typ „Dashboard“; „3D Floorplan Card“ herunterladen, Browser neu laden | HACS lädt die Karte und trägt sie selbst als Ressource ein (#13) | ✅ (2026-10-11) mit 3.75.1: die Karte ist geladen, ihr Editor öffnet sich (mit 3.75.0 fehlte sie, #348) |
-| 46.3 | Dashboard bearbeiten → „Karte hinzufügen“, nach „3D Floorplan“ suchen | Die Karte steht in der Liste; nach dem Hinzufügen zeigt sie das Haus live, ohne Werkzeugleiste | ❌ (2026-10-11) die Karte steht in der Liste, sagt aber „Das Add-on 3D Floorplan wurde nicht gefunden“ (#352, Home Assistant 2026.2 und neuer). Behoben in 3.77.1: in HACS die Karte auf 3.77.1 aktualisieren, Strg+F5, noch einmal prüfen |
+| 46.3 | Dashboard bearbeiten → „Karte hinzufügen“, nach „3D Floorplan“ suchen | Die Karte steht in der Liste; nach dem Hinzufügen zeigt sie das Haus live, ohne Werkzeugleiste | ❓ (repariert in 3.77.1, #352: bitte in Home Assistant noch einmal prüfen. Damals ❌ 2026-10-11: „Das Add-on 3D Floorplan wurde nicht gefunden“) |
 | 46.4 | Im Editor der Karte „Etage“ aufklappen | Die Etagen und Räume des eigenen Plans stehen zur Auswahl, dazu „Ganzes Haus“; die Vorschau wechselt auf die gewählte Etage | ❓ |
 | 46.5 | In der Karte eine Lampen-Kugel antippen, schalten; in einen Raum tippen | Die Live-Karte öffnet sich und schaltet die Lampe; der Raum öffnet sein Raum-Fenster (mit „Raum-Fenster“ aus: nur hineinzoomen) | ❓ |
 | 46.6 | „Design“ auf „Wie Home Assistant“, dann im Profil von Home Assistant zwischen dunkel und hell wechseln | Die Karte wechselt mit (dunkel / hell); das Add-on selbst behält sein Design | ❓ |
@@ -1101,11 +1103,11 @@ Alles lässt sich in der Demo im Browser prüfen: https://burned4aim.github.io/H
 | 63.1 | In der Demo „Live“, den **Lautsprecher** im Wohnzimmer (vorne rechts) antippen | Die Karte zeigt „♪ Sommerregen – Die Demo-Band“, die Knöpfe ⏮ ⏸ ⏭, „Aus“, den Lautstärke-Schieber (35 %), 🔈 und „Quelle“ | ✅ (2026-10-25, Claude in der Demo) |
 | 63.2 | ⏭ drücken, dann ⏸, den Lautstärke-Schieber ziehen, die Quelle auf „Radio“ stellen | Der Titel wechselt, ⏸ wird zu ▶, Lautstärke und Quelle bleiben so stehen | ✅ (2026-10-25, Claude in der Demo; die Zahl neben dem Schieber blieb stehen: #524, 101.6) |
 | 63.3 | Den **Fernseher** antippen | Auch er hat jetzt ⏮ ⏸ ⏭, Lautstärke und die Quellen (HDMI 1, HDMI 2, Netflix, YouTube) | ✅ (2026-10-25, Claude in der Demo) |
-| 63.4 | Den **Saugroboter** in der Küche antippen, „Saugen“ | Oben steht „🔌 An der Station“, nach „Saugen“ „🧹 Saugt“ und die Knöpfe „Pause“ und „Zur Station“; die Saugstufe lässt sich wählen | ❌ (2026-10-21, „es gibt dort keinen Saugroboter“: er stand in der Demo unter der Treppe, #473; neu: 77.1) |
+| 63.4 | Den **Saugroboter** in der Küche antippen, „Saugen“ | Oben steht „🔌 An der Station“, nach „Saugen“ „🧹 Saugt“ und die Knöpfe „Pause“ und „Zur Station“; die Saugstufe lässt sich wählen | ✅ (2026-10-28, Claude in der Demo: „An der Station“, nach „Saugen“ „🧹 Saugt“ mit Pause, Zur Station und Saugstufe; repariert in #473, geprüft als 77.1. Damals ❌ 2026-10-21: „es gibt dort keinen Saugroboter“) |
 | 63.5 | Den **Standventilator** im Wohnzimmer antippen | An / Aus / Umschalten, der Schieber „Stufe“ (springt auf 33, 67 oder 100 %), „↔ Schwenken“ und die Modi Normal / Natur / Nacht | ✅ (2026-10-21) |
 | 63.6 | Die **Alarmanlage** (Schalter rechts im Büro an der Außenwand) antippen, „Scharf (abwesend)“ | Oben steht rot „🛡 Scharf (abwesend)“, darunter ein Feld „Code“ und „Unscharf schalten“ | ✅ (2026-10-20) |
 | 63.7 | Einen falschen Code eingeben und „Unscharf schalten“, dann 1234 | Mit dem falschen Code bleibt sie scharf und unten steht „Aktion fehlgeschlagen“; mit 1234 ist sie wieder „Unscharf“ | ✅ (2026-10-20) |
-| 63.8 | Den **Hausmodus** antippen und „Urlaub“ wählen; die **Heizung** im Wohnzimmer antippen | Der Hausmodus steht auf „Urlaub“; die Heizungskarte hat − / +, die Modi und neu „Vorwahl“ (Eco, Komfort, Abwesend, Boost) | ❌ (2026-10-21, „den Knopf Urlaub finde ich nicht, aber die Heizung hat die Auswahl“: der Hausmodus hatte nur eine Liste, #474; neu: 77.2, 77.3) |
+| 63.8 | Den **Hausmodus** antippen und „Urlaub“ wählen; die **Heizung** im Wohnzimmer antippen | Der Hausmodus steht auf „Urlaub“; die Heizungskarte hat − / +, die Modi und neu „Vorwahl“ (Eco, Komfort, Abwesend, Boost) | ✅ (2026-10-28, Claude in der Demo: Hausmodus „Urlaub“ antippbar und gesetzt; repariert in #474, geprüft als 77.2, 77.3. Damals ❌ 2026-10-21: „den Knopf Urlaub finde ich nicht“) |
 | 63.9 | Im Add-on einen echten Lautsprecher / Fernseher, Saugroboter oder Ventilator mit einem Gerät im Plan verknüpfen und in „Live“ bedienen | Die Knöpfe tun, was sie sagen; Geräte, die etwas nicht können (z. B. kein „Weiter“), zeigen den Knopf nicht | ➖ |
 | 63.10 | Im Add-on die echte Alarmanlage verknüpfen, scharf und mit Code unscharf schalten | Wie in Home Assistant; ein falscher Code wird abgelehnt | ➖ |
 | 63.11 | „Benutzer“ → bei einem Tablet ⚙ → „🔒 Gesperrt“: „Alarmanlage bedienen“ abhaken, auf dem Tablet die Alarmanlage antippen | Die Knöpfe der Alarmanlage fehlen, alles andere lässt sich weiter schalten | ➖ |
@@ -1166,7 +1168,7 @@ Vorlage: die Beispielbilder in `docs/ideen-3.99/` (1, 2, 4 und 5). Die Demo hat 
 | 66.18 | Neu in 3.99.4 (#436): auf dem Tablet „Live“, unten eine Raum-Kachel antippen | Die Kachel des Raums bleibt lesbar: Name, Temperatur und Licht stehen hell auf blau getöntem Grund (vorher war sie leer) | ✅ (2026-10-20) |
 | 66.19 | Nachts „Live“ ansehen (in der Demo `?skytime=23:30` an die Adresse hängen) | Viel mehr Sterne, verschieden hell, ein paar leuchten sanft, eine schwache Milchstraße; bei „bewölkt“ scheinen noch einige Sterne durch, die Wolken liegen davor | ✅ (2026-10-20) |
 | 66.20 | „Live“ mit vielen Räumen, das Bild flach von der Seite ansehen (wie auf dem Foto mit den langen Strichen) | Keine Türme aus Schildern mit langen Strichen: höchstens zwei Reihen; Räume ohne Platz zeigen einen kleinen Punkt, ein Tipp darauf öffnet den Raum; beim Heranzoomen werden aus den Punkten wieder Schilder | ✅ (2026-10-20) |
-| 66.21 | Neu in 3.99.5 (#438): am iPhone (auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten nach links und rechts wischen | Die Leiste folgt dem Finger, ein schneller Wisch gleitet nach; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ❌ (2026-10-18, ruckelt und bleibt hängen, #441; neu: 66.23) |
+| 66.21 | Neu in 3.99.5 (#438): am iPhone (auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten nach links und rechts wischen | Die Leiste folgt dem Finger, ein schneller Wisch gleitet nach; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ✅ (repariert in #441, von dir geprüft als 66.23 ✅ 2026-10-20. Damals ❌ 2026-10-18: ruckelt und bleibt hängen) |
 | 66.22 | Neu in 3.99.5 (#440): am iPhone „Live“, einen Raum antippen (Kachel unten oder im Bild) | Unten öffnet sich die Raum-Karte, der Raum selbst steht darüber gut sichtbar (nicht dahinter) | ✅ (2026-10-18) |
 | 66.23 | Neu in 3.99.6 (#441): am Handy (iPhone, auch in der Home-Assistant-App) „Live“, die Raum-Kacheln unten langsam, schnell und etwas schräg nach links und rechts wischen | Die Leiste läuft flüssig mit dem Finger und bleibt nicht hängen, nach einem schnellen Wisch gleitet sie weich aus; alle Räume sind erreichbar. Ein Wisch öffnet keinen Raum, ein Tipp auf eine Kachel öffnet ihn | ✅ (2026-10-20) |
 | 66.24 | Neu in 3.99.6 (#442): am Handy „Live“, unten „Strom“ drücken, dann auf die Karte „Strom jetzt“ tippen | Oben in der Mitte erscheint die Karte „Strom jetzt“ klein (Sonne, Netz, Haus, Batterie, darunter Wasser, Gas, Wärme), ganz zu sehen; das Haus und die Raum-Kacheln bleiben frei; ein Tipp auf die Karte schaltet „Strom“ aus, die Karte verschwindet | ✅ (2026-10-20) |
@@ -1187,7 +1189,7 @@ Die Demo hat schon Beispiele eingestellt: Wohnzimmer Fischgrät und Raufaser, K�
 | 67.9 | „Wände für alle Räume der Etage übernehmen“ | Alle Räume der Etage bekommen dieselben Wände (unten steht, wie viele); Strg+Z macht es rückgängig | ✅ (2026-10-20) |
 | 67.10 | Eine einzelne Wand anklicken, rechts „Oberfläche dieser Wand“: auf einer Seite eine Tapete wählen | Nur diese Seite dieser Wand hat die Tapete, über die ganze Höhe (Akzentwand); die Seiten stehen mit dem Namen des Raums („Zu Wohnzimmer“) oder „Außen“; „Wie der Raum“ nimmt es zurück | ✅ (2026-10-20) |
 | 67.11 | Unten „Temp.“, dann „Normal“; das Design „Hologramm“ | Bei „Temp.“ färben sich die Böden wie bisher (die Wände behalten ihr Muster); im Hologramm keine Muster, alles wie bisher | ✅ (2026-10-20) |
-| 67.12 | „2D“ ansehen | Die Räume haben die Farbe ihres Bodens, auch mit eigener Farbe (z. B. Nussbaum dunkel) | ❌ (2026-10-20, „die Farbe des Raums wird in 2D nicht richtig angezeigt“: mit „Temp.“ waren die Räume schwarz, #467; neu: 75.1, 75.2) |
+| 67.12 | „2D“ ansehen | Die Räume haben die Farbe ihres Bodens, auch mit eigener Farbe (z. B. Nussbaum dunkel) | ✅ (repariert in #467, von dir geprüft als 75.1, 75.2 ✅ 2026-10-20. Damals ❌: mit „Temp.“ waren die Räume schwarz) |
 | 67.13 | Im Add-on: eigenen Räumen Böden und Wände geben, neu laden; ein Tablet im Sparmodus „Schnell“ | Bleibt nach dem Neuladen so; im Sparmodus sind Böden und Wände einfarbig in ihrer Farbe (ohne Muster), das Bild bleibt flüssig | ➖ |
 | 67.14 | Im Add-on: Export (Haus als JSON) und wieder Import | Böden, Farben, Größen, Drehungen, Wände, „Unten anders“ und Akzentwände kommen wieder mit | ➖ |
 
@@ -1349,7 +1351,7 @@ Der Besitzer: „kannst du die anderen reiter auch machen“. Paket 1 von 3: die
 | 79.8 | „‹“ antippen, dann „›“ | Der Zeitraum davor (z. B. „Gestern“, „2025“), die Kachel sagt „Tag davor“ bzw. „Jahr davor“; „›“ geht wieder vor, beim aktuellen Zeitraum ist „›“ grau | ✅ (2026-10-25, Claude in der Demo) |
 | 79.9 | Oben „Nachbarhaus“, dann „Alle zusammen“ | Ohne eigene Zähler rechnet das Nachbarhaus mit dem Energie-Dashboard (der Satz unter dem Zeitraum sagt es); „Alle zusammen“ zählt jeden Zähler einmal | ✅ (2026-10-25, Claude in der Demo; das Nachbarhaus hat inzwischen eigene Zähler) |
 | 79.10 | „Bearbeiten“ → Strom-Editor → „⚡ Rechnung“, ganz nach unten | „Zähler für den Verlauf (Seite ⚡ Energie)“: je Art (Bezug, Einspeisung, Solar, Batterie rein/raus, Gas, Wasser) ein Feld, „⤵ Aus dem Energie-Dashboard übernehmen“, darunter Strompreis und Einspeisung | ✅ (2026-10-25, Claude in der Demo) |
-| 79.11 | „⤵ Aus dem Energie-Dashboard übernehmen“, einen Zähler mit × entfernen, Preis 0,35 eintragen; dann „Wieder das Energie-Dashboard nehmen“ | Die Zähler stehen als Kärtchen mit ihrem Zählerstand da, der Preis bleibt; danach ist es wieder leer („Jetzt: die Zähler des Energie-Dashboards“) | ❌ (2026-10-25, Claude: in der Demo die Strom-Zähler ohne Namen und Stand, #525; neu: 101.7) |
+| 79.11 | „⤵ Aus dem Energie-Dashboard übernehmen“, einen Zähler mit × entfernen, Preis 0,35 eintragen; dann „Wieder das Energie-Dashboard nehmen“ | Die Zähler stehen als Kärtchen mit ihrem Zählerstand da, der Preis bleibt; danach ist es wieder leer („Jetzt: die Zähler des Energie-Dashboards“) | ✅ (repariert in #525, geprüft als 101.7 ✅ 2026-10-25. Damals ❌ 2026-10-25: Strom-Zähler ohne Namen und Stand) |
 | 79.12 | ⚙ → „🗂 Reiter unten“ aufklappen | Der Schalter „Reiter-Leiste unten“, darunter die Kalender (Familie, Müllabfuhr) zum Ankreuzen und „Kalender der Müllabfuhr“ | ✅ (2026-10-25, Claude in der Demo) |
 | 79.13 | Am Handy: Demo, unten „Heute“, dann „Energie“ | Alles untereinander, gut lesbar; die Leiste unten lässt sich zur Seite wischen, wenn sie nicht passt | ✅ (2026-10-25, Claude in der Demo) |
 | 79.14 | Im Add-on: ⚡ Energie mit deinem Energie-Dashboard | Die Zahlen von heute stimmen mit dem Energie-Dashboard von Home Assistant überein (gleicher Tag); Woche, Monat und Jahr ebenso | ➖ |
@@ -1361,7 +1363,7 @@ Der Besitzer: „kannst du die anderen reiter auch machen“. Paket 2 von 3: die
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 80.1 | Demo, „Live“: unten die Leiste | 🏠 Haus, ☀️ Heute, ⚡ Energie, 🌡️ Klima, 📷 Kameras, ▶️ Abläufe, 👨‍👩‍👧 Familie, rechts ⛶ Vollbild | ✅ (2026-10-25, Claude in der Demo) |
-| 80.2 | „🌡️ Klima“ antippen | Je Raum eine Karte mit Temperatur. Wohnzimmer: 21,3°, „🔥 heizt“, Soll 22,0°, „Luft gut · 920 ppm“, 💧 48 %, roter Rand und „Offen: Fenster Wohnzimmer, Tür Wohnzimmer-Küche“ mit „Heizung aus“; Schlafzimmer „🪟 Lüften · 1350 ppm“; Büro „❄ kühlt“, 23,0° in Orange (zu warm); unten „Warmwasser (Wärmepumpe)“ 48,0° und ein Tipp | ❌ (2026-10-25, Claude: alles da, nur das Büro 23,0° ist nicht orange, #520; neu: 101.2) |
+| 80.2 | „🌡️ Klima“ antippen | Je Raum eine Karte mit Temperatur. Wohnzimmer: 21,3°, „🔥 heizt“, Soll 22,0°, „Luft gut · 920 ppm“, 💧 48 %, roter Rand und „Offen: Fenster Wohnzimmer, Tür Wohnzimmer-Küche“ mit „Heizung aus“; Schlafzimmer „🪟 Lüften · 1350 ppm“; Büro „❄ kühlt“, 23,0° in Orange (zu warm); unten „Warmwasser (Wärmepumpe)“ 48,0° und ein Tipp | ✅ (2026-10-28, Claude in der Demo: Büro „🌡 zu warm“ in Orange; repariert in #520, geprüft als 101.2. Wohnzimmer zeigt seit 4.38.0 den Raumfühler, 21,4°) |
 | 80.3 | Beim Wohnzimmer zweimal „+“ antippen | Soll springt sofort auf 23,0°; nach einem Moment bleibt es so (ein einziger Befehl an die Heizung) | ✅ (2026-10-25, Claude in der Demo) |
 | 80.4 | Beim Wohnzimmer „Heizung aus“ antippen | Das Wohnzimmer zeigt „aus“, kein Soll und keine − + mehr; der rote Rand und der Tipp zum Fenster sind weg | ✅ (2026-10-25, Claude in der Demo) |
 | 80.5 | Oben „Nur mit Hinweis“, dann „Alle Räume“ | Nur noch die Räume mit Hinweis (Schlafzimmer: Lüften, Büro: zu warm); dann wieder alle | ✅ (2026-10-25, Claude in der Demo; warum das Büro dabei ist, sah man nicht: #520, 101.2) |
@@ -1442,7 +1444,7 @@ Paket 3 der Reiter („kannst du die anderen Reiter auch machen“), so wie auf 
 Beim Selbsttest der Demo gefunden: In der Geräte-Liste stand beim Saugroboter „docked“ und beim Bewegungsmelder „on“.
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 84.1 | Demo, „Live“, oben „📋 Geräte“ antippen und die Liste durchsehen | Beim Saugroboter steht „An der Station“, bei „Büro Anwesenheit“ „An“, nirgends „on“, „off“ oder „docked“ | ❌ (2026-10-25, Claude: Fernseher und Lautsprecher „▶ playing“, #521; neu: 101.3) |
+| 84.1 | Demo, „Live“, oben „📋 Geräte“ antippen und die Liste durchsehen | Beim Saugroboter steht „An der Station“, bei „Büro Anwesenheit“ „An“, nirgends „on“, „off“ oder „docked“ | ✅ (2026-10-28, Claude in der Demo: nirgends on/off/docked/playing; repariert in #521, geprüft als 101.3) |
 
 ## 85. Neu in 4.8.2: Tablets schneller (#494)
 Der Besitzer merkte, dass die Tablets langsamer wurden. Das 3D-Bild lief bei jeder Meldung eines Sensors 15 Sekunden mit voller Bildrate, und die Seiten wurden bei jeder Änderung ganz neu gebaut.
@@ -1472,7 +1474,7 @@ Wunsch des Besitzers: „wenn man mehrere Häuser hat mit unterschiedlichen Stro
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 87.1 | Demo, „Live“, ⚡ Energie, oben „⚖ Vergleichen“ | Je eine Kachel für Demo-Haus und Nachbarhaus (kWh heute, „jetzt …“) und „Σ alle Häuser“; die Grafik hat eine blaue und eine orange Linie bis „jetzt“ | ✅ (2026-10-25, Claude in der Demo) |
-| 87.2 | „Woche“, „Monat“, „Jahr“ antippen | Pro Tag bzw. Monat ein blauer und ein oranger Balken nebeneinander; mit dem Finger auf einem Balken stehen beide Werte | ❌ (2026-10-25, Claude: Balken ✓, aber mit dem Finger kein Wert, nur mit der Maus, #519; neu: 101.1) |
+| 87.2 | „Woche“, „Monat“, „Jahr“ antippen | Pro Tag bzw. Monat ein blauer und ein oranger Balken nebeneinander; mit dem Finger auf einem Balken stehen beide Werte | ❓ (repariert in #519; mit nachgemachtem Finger geht es, am echten Tablet noch offen, siehe 101.1. Damals ❌ 2026-10-25: mit dem Finger kein Wert) |
 | 87.3 | Die Karten „Leistung jetzt“ und „Kosten“ ansehen | Jedes Haus mit seiner Farbe, Balken und Wert; bei Kosten unten die Summe | ✅ (2026-10-25, Claude in der Demo) |
 | 87.4 | ☀ Heute, ✎, „＋ Karte hinzufügen“, „Verlauf“, nach „leistung“ suchen und „Netzbezug“ und „Nachbarhaus Verbrauch“ antippen | Beide sind markiert (farbiges Quadrat), die Vorschau zeigt zwei Linien mit Legende | ✅ (2026-10-25, Claude in der Demo) |
 | 87.5 | Die Karte speichern und „✓ Fertig“ | Die Karte heißt „Verlauf“, zeigt zwei farbige Linien und oben beide Werte von jetzt | ✅ (2026-10-25, Claude in der Demo) |
@@ -1574,7 +1576,7 @@ Wunsch des Besitzers: „Sprachsuche … welche Fenster sind offen … Codewört
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
 | 96.1 | Unten links neben 🔍 auf 🎤 tippen, Mikrofon erlauben, „Welche Fenster sind offen?“ sagen | Das Suchfeld zeigt den Satz, darüber „🪟 Fenster · offen: …“ und die offenen Fenster; im Bild blaue Ringe an diesen Fenstern | ❓ |
-| 96.2 | 🔍 tippen und „Ist oben noch Licht an?“ eintippen (ohne Mikrofon) | Oben in der Liste eine Zeile „💬 Lichter · an · Obergeschoss“; Enter: das Obergeschoss, die Lichter, die an sind, mit Ringen | ❌ (2026-10-25, Claude: der Ring an der Kinderzimmer-Lampe liegt unter dem Raum-Schild, #522; neu: 101.4) |
+| 96.2 | 🔍 tippen und „Ist oben noch Licht an?“ eintippen (ohne Mikrofon) | Oben in der Liste eine Zeile „💬 Lichter · an · Obergeschoss“; Enter: das Obergeschoss, die Lichter, die an sind, mit Ringen | ✅ (repariert in #522, geprüft als 101.4 ✅ 2026-10-25, Claude in der Demo. Damals ❌: der Ring lag unter dem Raum-Schild) |
 | 96.3 | „Wie sieht es in der Stube aus?“ (Codewort der Demo) | Die Ansicht fliegt ins Wohnzimmer (in „Live“ geht die Raum-Karte auf) | ✅ (2026-10-25, Claude in der Demo) |
 | 96.4 | „Wie warm ist es im Kinderzimmer?“ | Das Kinderzimmer, oben „🌡 Kinderzimmer: … °C“ | ✅ (2026-10-25, Claude in der Demo) |
 | 96.5 | „Wie warm ist es?“ | Die Räume werden nach Temperatur gefärbt (wie „Temp.“), darunter alle Räume mit ihrer Temperatur | ✅ (2026-10-25, Claude in der Demo) |
@@ -1747,14 +1749,14 @@ In der Demo ist die Fenster-Regel an: Das Fenster im Wohnzimmer ist offen, darum
 | 110.3 | Oben „Räume“: die Karte „Wohnzimmer“ | Darunter die Zeile „⏸️ Heizung pausiert · Fenster offen seit … Min · danach wieder 22°“, dazu „🔥 Trotzdem heizen“, „🚀 Boost“ und „🔎 Wird benutzt“ | ✅ (2026-10-26, Claude in der Demo) |
 | 110.4 | „🔥 Trotzdem heizen“ antippen, danach „🚀 Boost“ und noch einmal „Boost aus“ | Die Heizung heizt trotz offenem Fenster; Boost: „Boost bis …“, noch einmal: wieder wie vorher | ✅ (2026-10-26, Claude im Test-Add-on) |
 | 110.5 | „🔎 Wird benutzt“ an der Wohnzimmer-Karte | „Im Dashboard“: Fenster offen (läuft gerade), Heizplan, Nachtabsenkung; „In Home Assistant“: „Heizung morgens hoch“ mit „06:00 → Heizung Wohnzimmer 22°“, Schalter, „zuletzt …“, dazu oben die Warnung „Zwei Regeln stellen die Temperatur …“ | ✅ (2026-10-26, Claude in der Demo) |
-| 110.6 | Oben „📅 Heizplan“, Raum „Wohnzimmer“: einen Block antippen, noch einmal antippen; den linken Rand eines Blocks ziehen | Der Block ist weiß umrandet, darunter seine Zeit und die Stufen; beim zweiten Tipp eine andere Stufe; der Rand wandert mit dem Finger; „✓ Speichern“ wird blau | ❓ |
+| 110.6 | Oben „📅 Heizplan“, Raum „Wohnzimmer“: einen Block antippen, noch einmal antippen; den linken Rand eines Blocks ziehen | Der Block ist weiß umrandet, darunter seine Zeit und die Stufen; beim zweiten Tipp eine andere Stufe; der Rand wandert mit dem Finger; „✓ Speichern“ wird blau | ✅ (2026-10-28, Claude in der Demo) |
 | 110.7 | Im Heizplan einen Raum ohne Plan wählen, „＋ Plan anlegen“, „✓ Speichern“ | Eine Woche mit Blöcken erscheint und bleibt nach dem Speichern | ✅ (2026-10-26, Claude im Test-Add-on) |
 | 110.8 | Unten „Haus“ (Live) | Das Schild über dem Wohnzimmer zeigt „⏸️ pausiert“ | ✅ (2026-10-26, Claude in der Demo) |
 | 110.9 | Unten „Abläufe“ | „🏠 Eigene Abläufe“: Flurlicht nachts, Rollläden am Abend, Kinoabend als Kette; „⚙️ Automationen in Home Assistant“ mit „benutzt: …“ und „läuft gerade“; „📜 Was ist passiert“ | ✅ (2026-10-26, Claude in der Demo) |
 | 110.10 | Bei „Flurlicht nachts“ auf ✏️ tippen | Der Editor: links die Bausteine, in der Mitte die Kette mit Linien und grünen Häkchen, rechts die Einstellungen des gewählten Bausteins, unten „In Worten“ | ✅ (2026-10-26, Claude in der Demo) |
 | 110.11 | „＋ Neuer Ablauf“: links „Knopf im Dashboard“, dann „Schalten, dimmen“, rechts eine Lampe ankreuzen, oben einen Namen, „✓ Speichern“, „‹ Abläufe“ | Ohne Lampe ist „Speichern“ grau; danach steht der Ablauf in der Liste mit ▶ | ✅ (2026-10-26, Claude im Test-Add-on) |
-| 110.12 | „📋 Aus Vorlage“ | Sechs fertige Abläufe (Fenster offen → Heizung aus, Licht bei Bewegung, Rollläden …); einer öffnet sich im Editor | ❓ |
-| 110.13 | Am Handy oder Tablet: den Editor öffnen | Die Bausteine stehen oben in einer Reihe zum Wischen, darunter die Kette, darunter die Einstellungen | ❓ |
+| 110.12 | „📋 Aus Vorlage“ | Sechs fertige Abläufe (Fenster offen → Heizung aus, Licht bei Bewegung, Rollläden …); einer öffnet sich im Editor | ✅ (2026-10-28, Claude in der Demo) |
+| 110.13 | Am Handy oder Tablet: den Editor öffnen | Die Bausteine stehen oben in einer Reihe zum Wischen, darunter die Kette, darunter die Einstellungen | ✅ (2026-10-28, Claude in der Demo) |
 | 110.14 | Nur im Add-on: die Fenster-Regel an, ein echtes Fenster öffnen und warten | Nach den eingestellten Minuten geht die Heizung des Raums aus, beim Schließen wieder an, auch wenn kein Bildschirm offen ist | ➖ (im Test-Add-on ✅ 2026-10-26, Claude) |
 | 110.15 | Nur im Add-on: „🔎 Wird benutzt“ an einem echten Thermostat | Deine Automationen, die es benutzen, mit „läuft gerade“ und „zuletzt …“ | ➖ |
 
@@ -1884,7 +1886,7 @@ Wunsch des Besitzers vom 2026-10-27: „das andere Haus steht aber auf einem lei
 Meldung des Besitzers vom 2026-10-28: „bei mir ist das Fenster offen, die Steuerung ist an, aber er überschreibt nicht den Heizplan“ und „über den einzelnen Zimmern … schwebt ja immer eine Temperatur … keine von den Temperaturen, die da drin ist“ (Wohnzimmer FL: 22,8° oben, Sensor 20,5°, Thermostat 25,1°).
 | Nr. | Was tun | Erwartung | Ergebnis |
 |---|---|---|---|
-| 122.1 | In der Demo: „Live“, Schild über dem Wohnzimmer ansehen | Es zeigt 21,4° wie der Sensor „Wohnzimmer Temperatur“, nicht mehr 21,3° (der Mittelwert mit der Heizung, 21,2°) | ❓ |
+| 122.1 | In der Demo: „Live“, Schild über dem Wohnzimmer ansehen | Es zeigt 21,4° wie der Sensor „Wohnzimmer Temperatur“, nicht mehr 21,3° (der Mittelwert mit der Heizung, 21,2°) | ✅ (2026-10-28, Claude in der Demo) |
 | 122.2 | Im Add-on: Schild und Kachel über deinem Wohnzimmer FL ansehen | Dieselbe Temperatur wie dein Sensor im Raum (bei deinem Bild 20,5°), nicht mehr der Mittelwert mit dem Thermostat am Heizkörper | ✅ (2026-10-28) |
 | 122.3 | Im Add-on: 🌡 Klima → 📋 Heiz-Regeln, „Fenster offen → Heizung aus“ und den Heizplan an, im Wohnzimmer FL das Fenster öffnen | Erst „Fenster offen: die Heizung geht gleich aus“, nach den eingestellten Minuten geht das Thermostat aus und die Zeile sagt „Heizung pausiert · Fenster offen seit … Min“ | ❌ (2026-10-28: „Heizung pausiert · Fenster offen seit 25 Min“ steht da, „aber aus wird das Thermostat dann nicht“, es heizt weiter auf 17° → #571, repariert in 4.37.2, siehe 123) |
 | 122.4 | Danach das Fenster wieder schließen | Die Heizung kommt zurück mit der Temperatur des Heizplans, die gerade gilt | ✅ (2026-10-28) |
