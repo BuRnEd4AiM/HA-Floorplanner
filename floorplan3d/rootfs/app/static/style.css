@@ -2052,6 +2052,26 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .roSt { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 12.5px; color: var(--muted); font-weight: 600; white-space: nowrap; }
 .roIcon { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; padding: 0; flex: none; }
 .roMore { align-self: flex-start; }
+/* ▶ Abläufe by room (#590, roomgroupsui.js): the switch, "Alle auf-/zuklappen", a room's line and, opened, what is in it */
+.rgView { display: flex; gap: 6px; margin-left: auto; }
+.rgAll { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.rgAll .tpSub { margin-left: auto; }
+.rgRoom { border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--text) 3%, var(--panel)); }
+.rgHead { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: 0; border-radius: 12px; background: none; color: var(--text);
+  font: inherit; text-align: left; cursor: pointer; min-width: 0; }
+.rgHead .chev { width: 14px; flex: none; color: var(--muted); font-weight: 800; transition: transform .15s; }
+.rgRoom.open > .rgHead .chev { transform: rotate(90deg); }
+.rgHead .ic { font-size: 20px; flex: none; }
+.rgHead b { font-size: 15px; flex: none; }
+.rgHead .n { flex: none; padding: 1px 9px; border-radius: 999px; background: var(--field); color: var(--muted); font-size: 12.5px; font-weight: 700; }
+.rgHead .pre { flex: 1; min-width: 0; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rgBody { display: flex; flex-direction: column; gap: 8px; padding: 0 10px 10px; }
+.rgTiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 10px; }
+.rgTiles .rtBtn { min-height: 104px; padding: 10px 8px; }
+.rgTiles .rtBtn .rtIcon { font-size: 32px; }
+.rgTiles .rtBtn .rtName { font-size: 16px; }
+.rgSub { margin: 4px 2px 0; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+@media (max-width: 640px) { .rgHead { flex-wrap: wrap; row-gap: 6px; } .rgHead .pre { display: none; } .rgView { margin-left: 0; } .rgTiles { grid-template-columns: repeat(2, 1fr); } }
 .roHeat { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13.5px; }
 .roHeat > span { flex: 1; min-width: 180px; }
 .roLogRow { display: flex; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.35; }

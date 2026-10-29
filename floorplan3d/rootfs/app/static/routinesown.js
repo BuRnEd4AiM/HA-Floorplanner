@@ -6,13 +6,15 @@
  * Assistant", ↗ opens it there), its "läuft" and "zuletzt" come from its automations; those automations are not listed a second time
  * among Home Assistant's. pageroutines.js puts these cards on its board; the words come from rules.js. */
 import { blockWords, ago, sumWords, templates, entIcon, groupOf, flowLive, ours, autoId, haEditUrl } from './rules.js';
+import { roomsOf, flowEnts } from './roomgroups.js';
 
 const FILTERS = ['all', 'heat', 'light', 'cover', 'running'];
 
 /** ctx: t, lang(), states(), nameOf(entity), canEdit(), locked() (may not switch), callService(entity, service, data), rules (rulesstore.js),
  *  edit(flow) (the editor, flowedit.js: a routine of the list, or a new one), openRules() (🌡 Klima → 📋 Heiz-Regeln), details(entity) (Home
  *  Assistant's window: a button or null), scenes (scenesui.js: the card 🎨 Szenen), manage (hamanage.js), sensorLog(entry) (a line of the log
- *  of 🌡 Raumfühler, #573), changed() (draw the page again) */
+ *  of 🌡 Raumfühler, #573), groups (roomgroupsui.js: the lists by room or the card of the rooms, #590), areaOf() ({entity: area id}),
+ *  changed() (draw the page again) */
 export function initRoutinesOwn(ctx) {
   const { t } = ctx;
   let filter = 'all', autos = null, autosAt = 0, loading = false, allAutos = false, longLog = false, tplOpen = false;
@@ -97,35 +99,46 @@ export function initRoutinesOwn(ctx) {
     c.append(h);
     if (ctx.canEdit()) {
       const bar = make('div', 'roBar');
-      const add = btn('bdBtn primary', `＋ ${t('ro.new')}`, () => ctx.edit(null)); add.dataset.act = 'newFlow';
-      const tpl = btn('bdBtn', `📋 ${t('ro.fromTpl')}`, () => { tplOpen = !tplOpen; ctx.changed(); }); tpl.dataset.act = 'tplFlow';
-      bar.append(add, tpl);
+      bar.append(...addButtons());
       const chips = make('div', 'roFilters');
       FILTERS.forEach((k) => { const b = btn(`tpChip${filter === k ? ' on' : ''}`, t(`ro.filter.${k}`), () => { filter = k; ctx.changed(); }); b.dataset.filter = k; chips.append(b); });
       bar.append(chips);
       c.append(bar);
-      if (tplOpen) {
-        const menu = make('div', 'roTpls');
-        templates(ctx.states(), t).forEach((x) => {
-          const b = btn('roTpl', '', () => { tplOpen = false; ctx.edit({ id: null, name: x.name, on: true, lanes: x.lanes }); });
-          b.append(make('span', 'ic', x.icon), make('b', '', x.name)); b.dataset.tpl = x.key;
-          menu.append(b);
-        });
-        c.append(menu);
-      }
+      if (tplOpen) c.append(tplMenu());
     }
     const list = flowsOf().filter(shown);
     if (!flowsOf().length) c.append(make('p', 'tpSub', ctx.canEdit() ? t('ro.noneEdit') : t('ro.none')));
     else if (!list.length) c.append(make('p', 'tpSub', t('ro.noneHere')));
-    list.forEach((f) => c.append(flowRow(f)));
+    else if (ctx.groups?.on()) c.append(...ctx.groups.list('own', { ...flowSpec(), items: list }).els);   // by room (#590)
+    else list.forEach((f) => c.append(flowRow(f)));
+    c.append(heatLink());
+    return c;
+  }
+  function heatLink() {
     const heat = ctx.rules.get()?.heat;
     const on = heat ? ['window', 'away', 'night', 'schedule', 'summer', 'holiday'].filter((k) => heat[k]?.on) : [];
     const link = make('div', 'roHeat');
     link.append(make('span', '', on.length ? t('ro.heatOn', { names: on.map((k) => t(`hr.rule.${k}`)).join(', ') }) : t('ro.heatOff')));
     const go = btn('tpChip', `🌡 ${t('ro.heatGo')}`, () => ctx.openRules()); go.dataset.act = 'openHeatRules';
     link.append(go);
-    c.append(link);
-    return c;
+    return link;
+  }
+  /** the own routines as a list for roomgroupsui.js: in every area of what they use */
+  const flowSpec = () => ({ items: flowsOf(), roomsFor: (f) => roomsOf('', flowEnts(f), ctx.areaOf?.() || {}), row: flowRow, nameOf: (f) => f.name, unit: 'flow',
+    title: `🏠 ${t('ro.own')}` });
+  function addButtons() {                            // "＋ Neuer Ablauf", "📋 Aus Vorlage" (and its menu below the bar)
+    const add = btn('bdBtn primary', `＋ ${t('ro.new')}`, () => ctx.edit(null)); add.dataset.act = 'newFlow';
+    const tpl = btn('bdBtn', `📋 ${t('ro.fromTpl')}`, () => { tplOpen = !tplOpen; ctx.changed(); }); tpl.dataset.act = 'tplFlow';
+    return [add, tpl];
+  }
+  function tplMenu() {
+    const menu = make('div', 'roTpls');
+    templates(ctx.states(), t).forEach((x) => {
+      const b = btn('roTpl', '', () => { tplOpen = false; ctx.edit({ id: null, name: x.name, on: true, lanes: x.lanes }); });
+      b.append(make('span', 'ic', x.icon), make('b', '', x.name)); b.dataset.tpl = x.key;
+      menu.append(b);
+    });
+    return menu;
   }
 
   /* ---- automations of Home Assistant ---- */
@@ -135,6 +148,45 @@ export function initRoutinesOwn(ctx) {
       .sort((a, b) => (ctx.nameOf(a) || a).localeCompare(ctx.nameOf(b) || b));
     return ids.map((e) => ({ e, a: known.get(e) || null, s: st[e] }));
   }
+  /** an automation's line: on / off, what it uses and does, ▶, ↗, 🗑 */
+  function autoRow({ e, a, s }) {
+    const running = (s?.run ?? 0) > 0, on = s?.state === 'on';
+    const r = make('div', `roRow small${running ? ' live' : ''}${on ? '' : ' dim'}`); r.dataset.auto = e;
+    const sw = make('label', 'sw'); sw.title = t('live.toggle');
+    const cb = make('input'); cb.type = 'checkbox'; cb.checked = on; cb.dataset.auto = e;
+    cb.addEventListener('change', () => ctx.callService(e, cb.checked ? 'turn_on' : 'turn_off'));
+    sw.append(cb, make('span'));
+    const tx = make('div', 'roTx');
+    tx.append(make('b', '', ctx.nameOf(e) || a?.name || e));
+    const uses = (a?.uses || []).filter((u) => !u.startsWith('automation.')).slice(0, 3);
+    if (uses.length) tx.append(make('small', 'roUses', `${t('ro.uses')} ${uses.map((u) => `${entIcon(u, ctx.states())} ${ctx.nameOf(u) || u}`).join(' · ')}`));
+    if (a?.sum) tx.append(make('small', 'roWhat', sumWords(a.sum, wctx())));
+    const stc = make('div', 'roSt');
+    if (running) stc.append(make('span', 'ubChip run', t('ub.running')));
+    if (s?.at) stc.append(make('small', '', ago(s.at, now(), t)));
+    const acts = make('div', 'roActs');                // the buttons go below the words when the card is narrow (#564)
+    r.append(sw, tx, stc, acts);
+    if (!ctx.locked()) {
+      const p = btn(`roIcon${ran.has(e) ? ` ${ran.get(e)}` : ''}`, ran.get(e) === 'ok' ? '✓' : '▶', async () => {
+        ran.set(e, (await ctx.callService(e, 'trigger')) ? 'ok' : 'bad'); ctx.changed();
+        setTimeout(() => { ran.delete(e); ctx.changed(); }, 2500);
+      }, t('ro.runAuto'));
+      p.dataset.runAuto = e; acts.append(p);
+    }
+    if (s?.cid) {                                     // made in Home Assistant's editor (#564): change it there, or delete it here
+      const base = ctx.rules.get()?.haLink || '', go = make('a', 'roIcon', '↗');
+      go.href = haEditUrl(base, s.cid); go.target = base ? '_blank' : '_top'; go.rel = 'noopener'; go.title = t('ro.editInHa'); go.dataset.haAuto = e;
+      const del = btn('roIcon', '🗑', async () => { if (await ctx.manage.remove('automation', s.cid, ctx.nameOf(e) || a?.name || e)) loadAutos(true); }, t('ro.deleteAuto'));
+      del.dataset.delAuto = e;
+      acts.append(go, del);
+    }
+    const det = ctx.details(e);
+    if (det) acts.append(det);
+    return r;
+  }
+  /** the automations as a list for roomgroupsui.js: in the automation's own area, else in every area of the devices it uses */
+  const autoSpec = () => ({ items: autoRows(), roomsFor: (x) => roomsOf(x.e, x.a?.uses || [], ctx.areaOf?.() || {}), row: autoRow,
+    nameOf: (x) => ctx.nameOf(x.e) || x.a?.name || x.e, unit: 'auto', title: `⚙️ ${t('ro.autosShort')}` });
   function autoCard() {
     loadAutos();
     const rows = autoRows();
@@ -144,42 +196,13 @@ export function initRoutinesOwn(ctx) {
     const undo = ctx.manage.undoRow('automation');
     if (undo) c.append(undo);
     if (!rows.length) c.append(make('p', 'tpSub', t('ro.noAutos')));
-    rows.slice(0, allAutos ? 150 : 8).forEach(({ e, a, s }) => {
-      const running = (s?.run ?? 0) > 0, on = s?.state === 'on';
-      const r = make('div', `roRow small${running ? ' live' : ''}${on ? '' : ' dim'}`); r.dataset.auto = e;
-      const sw = make('label', 'sw'); sw.title = t('live.toggle');
-      const cb = make('input'); cb.type = 'checkbox'; cb.checked = on; cb.dataset.auto = e;
-      cb.addEventListener('change', () => ctx.callService(e, cb.checked ? 'turn_on' : 'turn_off'));
-      sw.append(cb, make('span'));
-      const tx = make('div', 'roTx');
-      tx.append(make('b', '', ctx.nameOf(e) || a?.name || e));
-      const uses = (a?.uses || []).filter((u) => !u.startsWith('automation.')).slice(0, 3);
-      if (uses.length) tx.append(make('small', 'roUses', `${t('ro.uses')} ${uses.map((u) => `${entIcon(u, ctx.states())} ${ctx.nameOf(u) || u}`).join(' · ')}`));
-      if (a?.sum) tx.append(make('small', 'roWhat', sumWords(a.sum, wctx())));
-      const stc = make('div', 'roSt');
-      if (running) stc.append(make('span', 'ubChip run', t('ub.running')));
-      if (s?.at) stc.append(make('small', '', ago(s.at, now(), t)));
-      const acts = make('div', 'roActs');                // the buttons go below the words when the card is narrow (#564)
-      r.append(sw, tx, stc, acts);
-      if (!ctx.locked()) {
-        const p = btn(`roIcon${ran.has(e) ? ` ${ran.get(e)}` : ''}`, ran.get(e) === 'ok' ? '✓' : '▶', async () => {
-          ran.set(e, (await ctx.callService(e, 'trigger')) ? 'ok' : 'bad'); ctx.changed();
-          setTimeout(() => { ran.delete(e); ctx.changed(); }, 2500);
-        }, t('ro.runAuto'));
-        p.dataset.runAuto = e; acts.append(p);
-      }
-      if (s?.cid) {                                     // made in Home Assistant's editor (#564): change it there, or delete it here
-        const base = ctx.rules.get()?.haLink || '', go = make('a', 'roIcon', '↗');
-        go.href = haEditUrl(base, s.cid); go.target = base ? '_blank' : '_top'; go.rel = 'noopener'; go.title = t('ro.editInHa'); go.dataset.haAuto = e;
-        const del = btn('roIcon', '🗑', async () => { if (await ctx.manage.remove('automation', s.cid, ctx.nameOf(e) || a?.name || e)) loadAutos(true); }, t('ro.deleteAuto'));
-        del.dataset.delAuto = e;
-        acts.append(go, del);
-      }
-      const det = ctx.details(e);
-      if (det) acts.append(det);
-      c.append(r);
-    });
-    if (rows.length > 8) { const more = btn('tpChip roMore', allAutos ? t('ro.less') : t('ro.all', { n: rows.length }), () => { allAutos = !allAutos; ctx.changed(); }); c.append(more); }
+    const more = (n) => btn('tpChip roMore', allAutos ? t('ro.less') : t('ro.all', { n }), () => { allAutos = !allAutos; ctx.changed(); });
+    if (ctx.groups?.on() && rows.length) {               // by room (#590): what has no room on top, the rooms closed
+      c.append(...ctx.groups.list('autos', { ...autoSpec(), max: 8, all: allAutos, more }).els);
+      return c;
+    }
+    rows.slice(0, allAutos ? 150 : 8).forEach((x) => c.append(autoRow(x)));
+    if (rows.length > 8) c.append(more(rows.length));
     return c;
   }
 
@@ -219,22 +242,56 @@ export function initRoutinesOwn(ctx) {
     return c;
   }
 
-  /** the cards for the board of ▶ Abläufe */
-  function items() {
-    const data = ctx.rules.get(), st = ctx.states();
-    const out = [];
-    const haAutos = Object.keys(st).filter((e) => ours(st[e]?.cid)).map((e) => [e, st[e].cid, st[e].state, st[e].run, st[e].at]);
-    const ownSig = JSON.stringify([data?.flows, data?.heat, data?.status?.lanes, haAutos, filter, tplOpen, ctx.canEdit(), ctx.locked(), Math.floor(Date.now() / 30000), t('ro.own')]);
-    out.push({ key: 'own', width: 4, sig: ownSig, make: ownCard });
+  /** the big buttons that have a room, by room (#590; the others stay on top of the page). tiles: as in roomgroupsui.list */
+  function tilesCard(tiles) {
+    const c = make('div', 'tpCard roCard roTiles');
+    const h = make('h3', 'peH roHead'); h.append(make('span', '', `▶️ ${t('rg.tiles')}`), make('span', 'tpSub roHint', t('rg.tilesHint')));
+    c.append(h, ...ctx.groups.list('tiles', tiles).els);
+    return c;
+  }
+  /** 🏠 Nach Räumen (#590): one card, a room opened shows its buttons, own routines, automations and scenes together */
+  function roomsCard(tiles) {
+    if (ctx.canEdit()) loadAutos();
+    const c = make('div', 'tpCard roCard roRooms');
+    const h = make('h3', 'peH roHead'); h.append(make('span', '', `🏠 ${t('rg.title')}`), make('span', 'tpSub roHint', t('rg.hint')));
+    c.append(h);
     if (ctx.canEdit()) {
-      const ids = Object.keys(st).filter((e) => e.startsWith('automation.') && !ours(st[e]?.cid));
-      const sig = JSON.stringify([ids.map((e) => [e, st[e]?.state, st[e]?.run, st[e]?.at, st[e]?.cid, ctx.nameOf(e)]), autos, allAutos, ctx.locked(), ctx.manage.sig(), [...ran],
-        Math.floor(Date.now() / 30000), t('ro.own')]);
-      out.push({ key: 'autos', width: 2, sig, make: autoCard });
+      const bar = make('div', 'roBar');
+      bar.append(...addButtons());
+      const sc = ctx.scenes?.newBtn();
+      if (sc) { sc.classList.remove('primary'); bar.append(sc); }
+      c.append(bar);
+      if (tplOpen) c.append(tplMenu());
     }
-    out.push({ key: 'log', width: 2, sig: JSON.stringify([data?.log?.length, data?.log?.[data.log.length - 1], longLog, Math.floor(Date.now() / 60000), t('ro.log')]), make: logCard });
+    ['automation', 'scene'].forEach((k) => { const u = ctx.manage.undoRow(k); if (u) c.append(u); });
+    const kinds = [tiles, flowSpec(), ctx.canEdit() ? autoSpec() : null, ctx.scenes?.spec()].filter((k) => k?.items.length);
+    if (!kinds.length) c.append(make('p', 'tpSub', ctx.canEdit() ? t('ro.noneEdit') : t('ro.none')));
+    c.append(...ctx.groups.rooms(kinds), heatLink());
+    return c;
+  }
+
+  /** the cards for the board of ▶ Abläufe; tiles: the big buttons that have a room (pageroutines.js), {items, roomsFor, row, nameOf, unit,
+   *  tiles, title, sig} or null */
+  function items(tiles) {
+    const data = ctx.rules.get(), st = ctx.states();
+    const out = [], gsig = ctx.groups?.sig() || '';
+    const haAutos = Object.keys(st).filter((e) => ours(st[e]?.cid)).map((e) => [e, st[e].cid, st[e].state, st[e].run, st[e].at]);
+    const ownSig = JSON.stringify([data?.flows, data?.heat, data?.status?.lanes, haAutos, filter, tplOpen, ctx.canEdit(), ctx.locked(), Math.floor(Date.now() / 30000), gsig, t('ro.own')]);
+    const ids = ctx.canEdit() ? Object.keys(st).filter((e) => e.startsWith('automation.') && !ours(st[e]?.cid)) : [];
+    const autoSig = JSON.stringify([ids.map((e) => [e, st[e]?.state, st[e]?.run, st[e]?.at, st[e]?.cid, ctx.nameOf(e)]), autos, allAutos, ctx.locked(), ctx.manage.sig(), [...ran],
+      Math.floor(Date.now() / 30000), gsig, t('ro.own')]);
+    const log = { key: 'log', width: 2, sig: JSON.stringify([data?.log?.length, data?.log?.[data.log.length - 1], longLog, Math.floor(Date.now() / 60000), t('ro.log')]), make: logCard };
+    if (ctx.groups?.view() === 'rooms') {                 // 🏠 Nach Räumen (#590)
+      out.push({ key: 'rooms', width: 4, sig: JSON.stringify([ownSig, autoSig, ctx.scenes?.sig(), tiles?.sig]), make: () => roomsCard(tiles) }, log);
+      return out;
+    }
+    if (tiles?.items.length) out.push({ key: 'rtiles', width: 4, sig: JSON.stringify([tiles.sig, gsig]), make: () => tilesCard(tiles) });
+    out.push({ key: 'own', width: 4, sig: ownSig, make: ownCard });
+    if (ctx.canEdit()) out.push({ key: 'autos', width: 2, sig: autoSig, make: autoCard });
+    out.push(log);
     if (ctx.scenes) out.push(...ctx.scenes.items());       // 🎨 Szenen (#549, scenesui.js)
     return out;
   }
-  return { items, sig: () => JSON.stringify([ctx.rules.get(), filter, tplOpen, autos, allAutos, longLog, Math.floor(Date.now() / 30000), ctx.scenes?.sig(), ctx.manage.sig(), [...ran]]) };
+  return { items, sig: () => JSON.stringify([ctx.rules.get(), filter, tplOpen, autos, allAutos, longLog, Math.floor(Date.now() / 30000), ctx.scenes?.sig(), ctx.manage.sig(), [...ran],
+    ctx.groups?.sig()]) };
 }

@@ -7,6 +7,7 @@ st_ha = api("api/settings")
 set_setting("language", "de")
 def post_ha(path, body):
     return json.load(urllib.request.urlopen(urllib.request.Request(HA + path, data=json.dumps(body).encode(), method="POST", headers={"Content-Type": "application/json"})))
+post_ha("/_areas", [{"id": "rg_keller", "name": "Keller", "entities": []}])   # #590: an area with nothing of this part in it: its lists stay as they were (by room: 60_roomgroups.py)
 def rules_ha(body):
     r = urllib.request.urlopen(urllib.request.Request(BASE + "api/rules", data=json.dumps(body).encode(), method="PUT",
                                                       headers={"Content-Type": "application/json", "X-Remote-User-Name": "admin"}))
@@ -74,3 +75,4 @@ pgH.close()
 rules_ha({"heat": {}, "flows": []})
 post_ha("/_extra", {})
 set_setting("language", st_ha.get("language", ""))
+post_ha("/_areas", [])

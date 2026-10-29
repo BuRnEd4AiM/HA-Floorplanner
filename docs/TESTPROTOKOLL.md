@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.42.1)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.43.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.42.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.43.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen** (Abschnitt 131): Claude hat 131.1 bis 131.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deinen Bereichen 131.7 und 131.8.
 1. **Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet** (Abschnitt 130): Claude hat 130.1 mit tausenden zufälligen Tagen geprüft; für dich im Add-on 130.2 bis 130.5.
 1. **Neu in 4.42.0: 🔥 Zu warm → Heizung runter** (Abschnitt 129): Claude hat 129.1 und 129.2 in der Demo geprüft (probier es gern selbst); für dich im Add-on 129.3 bis 129.6.
 1. **Neu in 4.41.0: eine Tür zwischen zwei Räumen kann für die Heizung zählen** (Abschnitt 128): Claude hat 128.1 in der Demo geprüft; für dich im Add-on 128.2 bis 128.6 (zuerst an der Bad-Tür den Haken „Zählt für die Heizung“ einschalten).
@@ -359,7 +360,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 128. Neu in 4.41.0: Tür zwischen zwei Räumen zählt für die Heizung, Bad nicht mehr „von Hand gedreht“ (#583) | 1 | 0 | 5 | 0 | 128.2 bis 128.6 |
 | 129. Neu in 4.42.0: 🔥 Zu warm → Heizung runter, „Wer hat Vorrang?“ (#585) | 2 | 0 | 4 | 0 | 129.3 bis 129.6 |
 | 130. Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet (#588) | 1 | 0 | 4 | 0 | 130.2 bis 130.5 |
-| **Zusammen** | **811** | **1** | **77** | **92** | |
+| 131. Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen (#590) | 6 | 0 | 2 | 0 | 131.7, 131.8 |
+| **Zusammen** | **817** | **1** | **79** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1998,3 +2000,17 @@ Wunsch des Besitzers vom 2026-10-29: „die Reihenfolge der heizungsteureung mus
 | 130.3 | Im Add-on: in einem Raum 🚀 Boost antippen und nach ein paar Sekunden noch einmal (aus) | Das Thermostat geht wieder auf die Temperatur von vorher (oder vom Heizplan); es bleibt nicht auf der Boost-Temperatur | ❓ |
 | 130.4 | Im Add-on mit Heizplan und „Keiner zu Hause“: ein Thermostat von Hand drehen, dann ein Fenster öffnen; während es offen ist, gehen alle weg und kommen wieder; Fenster zu | Das Thermostat bekommt die Temperatur des Heizplans, nicht die von Hand gedrehte von vorher | ❓ |
 | 130.5 | Im Add-on: ein paar Tage normal heizen lassen, dann 🌡 Klima → 🩺 Protokoll | Keine Thermostate, die nach „Fenster offen“ oder „Boost“ aus bleiben oder auf der falschen Temperatur stehen; wenn doch: „📋 Bericht kopieren“ und im Chat einfügen | ❓ |
+
+## 131. Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen (#590)
+Wunsch des Besitzers vom 2026-10-29: „ich hätte gerne hier eine gruppierung nach räumen in HA das man das direkt sieht ein und aus klappen kann … wenn man viele hat das das nicht so viel auf einmal ist“. Seine Wahl (Bilder in `docs/ideen-4.43/`): alle vier Listen, jedes in jedem Raum, den es benutzt, am Anfang alle zu, beide Ansichten umschaltbar, ohne Raum offen oben, „Alle auf- / zuklappen“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 131.1 | In der Demo: ▶ Abläufe öffnen | Oben rechts „☰ Nach Listen“ (gewählt) und „🏠 Nach Räumen“; in „Knöpfe nach Räumen“, „Eigene Abläufe“, „Automationen in Home Assistant“ und „Szenen“ die Räume als Zeilen (Symbol, Name, Anzahl, die Namen dahinter), alle zu; „Filmabend“, „Guten Morgen“ und die Szene „Gute Nacht“ (ohne Raum) stehen offen oben | ✅ (2026-10-29, Claude in der Demo) |
+| 131.2 | In der Demo: bei „Automationen in Home Assistant“ auf „Wohnzimmer“ tippen, dann noch einmal | Der Raum klappt auf (die vier Automationen), dann wieder zu; die anderen Räume bleiben zu | ✅ (2026-10-29, Claude in der Demo) |
+| 131.3 | In der Demo: bei den Automationen auf die Räume schauen | „Urlaub: Licht zufällig“ (Lampen im Wohnzimmer und im Schlafzimmer) steht in beiden Räumen | ✅ (2026-10-29, Claude in der Demo) |
+| 131.4 | In der Demo: über einer Liste „▾ Alle aufklappen“, dann „▸ Alle zuklappen“ | Alle Räume dieser Liste gehen auf, dann alle wieder zu | ✅ (2026-10-29, Claude in der Demo) |
+| 131.5 | In der Demo: oben „🏠 Nach Räumen“, dann „Wohnzimmer“ antippen | Eine Karte „Nach Räumen“; das Wohnzimmer zeigt seine Knöpfe, eigenen Abläufe, Automationen und Szenen zusammen; oben „＋ Neuer Ablauf“, „📋 Aus Vorlage“, „＋ Neue Szene“ | ✅ (2026-10-29, Claude in der Demo) |
+| 131.6 | In der Demo: die Seite neu laden | Die Ansicht „Nach Räumen“ bleibt, die Räume sind wieder zu | ✅ (2026-10-29, Claude in der Demo) |
+| 131.7 | Im Add-on mit deinen Bereichen aus Home Assistant: ▶ Abläufe, beide Ansichten | Jede Automation und Szene steht im richtigen Raum (in jedem Raum, dessen Geräte sie benutzt); was keinen Raum hat, steht offen oben | ❓ |
+| 131.8 | Im Add-on am Tablet und am Handy: umschalten, Räume auf- und zuklappen | Alles gut zu tippen, nichts ragt über den Rand, die Wahl bleibt auf dem Gerät | ❓ |

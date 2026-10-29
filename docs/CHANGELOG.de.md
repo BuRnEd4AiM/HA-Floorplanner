@@ -2,6 +2,15 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.43.0] - 2026-10-29
+### Neu
+- **▶ Abläufe nach Räumen, zum Auf- und Zuklappen** (#590, der Besitzer: „ich hätte gerne hier eine gruppierung nach räumen in HA das man das direkt sieht ein und aus klappen kann … das würde das übersichtlicher machen und wenn man viele hat das das nicht so viel auf einmal ist“; seine Wahl aus den Beispielbildern in `docs/ideen-4.43/`: alle vier Listen, jedes in jedem Raum, den es benutzt, am Anfang alle zu, beide Ansichten zum Umschalten, was keinen Raum hat, offen oben, „alle auf- / zuklappen“). Mit Bereichen in Home Assistant hat die Seite ▶ Abläufe oben **„☰ Nach Listen / 🏠 Nach Räumen“** (dieses Gerät merkt sich die Wahl):
+  - **Nach Listen:** die großen Knöpfe, die eigenen Abläufe, die Automationen von Home Assistant und die Szenen bleiben, wo sie sind; in jeder Liste die Räume (die Bereiche von Home Assistant) als Zeilen mit Symbol, Anzahl und den Namen, zugeklappt. Ein Tipp klappt einen Raum auf, ein zweiter wieder zu; über jeder Liste „▾ Alle aufklappen“ / „▸ Alle zuklappen“. Die großen Knöpfe mit Raum kommen in die neue Karte „▶️ Knöpfe nach Räumen“.
+  - **Nach Räumen:** eine Karte „🏠 Nach Räumen“ mit allen Räumen; ein aufgeklappter Raum zeigt seine Knöpfe, eigenen Abläufe, Automationen und Szenen zusammen, oben „＋ Neuer Ablauf“, „📋 Aus Vorlage“ und „＋ Neue Szene“.
+  - Der Raum eines Dings: sein eigener Bereich in Home Assistant (eine Automation oder Szene kann einen haben), sonst jeder Bereich der Geräte, die es benutzt; eine Automation mit Lampen im Wohnzimmer und im Büro steht also in beiden. Was keinen Raum hat, bleibt wie bisher offen oben („Ich gehe“ und „Gute Nacht“ auch). Wird die Seite neu geladen, sind die Räume wieder zu. Ohne Bereiche in Home Assistant bleibt die Seite, wie sie war.
+### Verbessert
+- Testprotokoll: neuer Abschnitt 131.
+
 ## [4.42.1] - 2026-10-29
 ### Repariert
 - **Die Heiz-Regeln halten ihre Reihenfolge auch mit einem Thermostat, das spät meldet** (#588, der Besitzer: „die Reihenfolge der heizungsteureung muss stabiler sein und auch so das es da keine fehler gibt“). Ein langsames Heizkörper-Thermostat zeigt noch ein paar Minuten den alten Modus oder die alte Temperatur, nachdem das Add-on ihm eine neue geschickt hat; die Regeln haben nach dem entschieden, was es noch zeigte. Jetzt entscheiden sie nach dem, wie es sein wird, wenn es gemeldet hat (was Home Assistant zeigt, plus was das Add-on geschickt hat und noch unterwegs ist). Damit repariert:

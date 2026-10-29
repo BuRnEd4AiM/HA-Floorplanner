@@ -2119,4 +2119,11 @@ export default {
   'hr.prio': 'Chi ha la precedenza?',
   'hr.prio.text': '🪟 Finestra aperta → 🚀 Boost → 🔥 Troppo caldo → ✈️ Vacanze → ☀️ Pausa estiva → 🚶 Nessuno a casa → 📅 Programma → 🌙 Riduzione notturna. Quando una regola finisce, torna ciò che valeva prima; girato a mano resta fino al prossimo cambio (con il programma per i minuti impostati).',
   'hd.cfg.warm': 'Troppo caldo: {on} · da {above} in più · termostato {down} più basso',
+  'rg.lists': 'Per elenco', 'rg.rooms': 'Per stanza',
+  'rg.viewHint': 'Mostrare le routine per elenco o per le stanze (aree) di Home Assistant; questo dispositivo lo ricorda', 'rg.openAll': 'Apri tutti',
+  'rg.closeAll': 'Chiudi tutti', 'rg.one.room': '1 stanza', 'rg.n.room': '{n} stanze', 'rg.one.tile': '1 pulsante', 'rg.n.tile': '{n} pulsanti',
+  'rg.one.flow': '1 routine', 'rg.n.flow': '{n} routine', 'rg.one.auto': '1 automazione', 'rg.n.auto': '{n} automazioni', 'rg.one.scene': '1 scena',
+  'rg.n.scene': '{n} scene', 'rg.tiles': 'Pulsanti per stanza', 'rg.tilesHint': 'tocca una stanza per aprirla', 'rg.tilesShort': 'Pulsanti',
+  'rg.title': 'Per stanza', 'rg.hint': 'pulsanti, routine proprie, automazioni e scene di una stanza insieme', 'sc.short': 'Scene',
+  'ro.autosShort': 'Automazioni in Home Assistant',
 };

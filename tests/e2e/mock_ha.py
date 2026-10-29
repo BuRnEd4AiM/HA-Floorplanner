@@ -424,12 +424,17 @@ async def autos_seen(r):          # test helper (#548): the automations written;
     if r.method == "POST":
         AUTOS.update(await r.json())
     return web.json_response(AUTOS)
+AREAS_DEFAULT = [{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]
+AREAS = list(AREAS_DEFAULT)   # #590: Home Assistant's areas (the template the add-on asks), POST /_areas [areas]; [] puts back the default
 async def template(r):
-    return web.Response(text=json.dumps([{"id": "wz", "name": "Wohnzimmer", "entities": ["light.wohnzimmer", "cover.rollo"]}]))
+    return web.Response(text=json.dumps(AREAS))
+async def set_areas(r):          # test helper (#590)
+    AREAS[:] = (await r.json()) or AREAS_DEFAULT
+    return web.json_response({"ok": True})
 app = web.Application()
 app.add_routes([web.get("/states", states), web.post("/services/{d}/{s}", service), web.get("/_calls", calls), web.get("/_calldata", call_data), web.get("/_set", set_state), web.get("/_rename", rename), web.post("/_energy", set_energy), web.post("/_extra", set_extra), web.post("/_regevent", reg_event), web.get("/services", services_list), web.get("/_callmebot", callmebot), web.get("/_notified", notified), web.post("/_voice", set_voice),
                 web.get("/_cmb/text.php", cmb_tg_user), web.get("/_cmb/telegram/group.php", cmb_tg_group),
-                web.get("/websocket", websocket), web.post("/template", template), web.get("/camera_proxy/{e}", camera_proxy),
+                web.get("/websocket", websocket), web.post("/template", template), web.post("/_areas", set_areas), web.get("/camera_proxy/{e}", camera_proxy),
                 web.get("/hls/{token}/{name:.+}", hls), web.get("/_hls", hls_seen),
                 web.get("/calendars", calendars), web.get("/calendars/{id}", calendar_events), web.get("/_calreset", cal_reset), web.post("/config/config_entries/flow", flow_start), web.post("/config/config_entries/flow/{id}", flow_step), web.get("/_flows", flows), web.get("/_stats", stats_asked), web.get("/_levels", levels_asked),
                 web.get("/states/{e}", one_state), web.get("/api/image/serve/{id}/{size}", image_serve),

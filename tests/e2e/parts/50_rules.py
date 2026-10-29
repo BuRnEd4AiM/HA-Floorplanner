@@ -8,6 +8,7 @@ st_rl = api("api/settings")
 set_setting("language", "de"); set_setting("units", "metric")
 def post_rl(path, body):
     urllib.request.urlopen(urllib.request.Request(HA + path, data=json.dumps(body).encode(), method="POST", headers={"Content-Type": "application/json"})).read()
+post_rl("/_areas", [{"id": "rg_keller", "name": "Keller", "entities": []}])   # #590: an area with nothing of this part in it: its lists stay as they were (by room: 60_roomgroups.py)
 def put_rules(body, user="admin"):
     r = urllib.request.urlopen(urllib.request.Request(BASE + "api/rules", data=json.dumps(body).encode(), method="PUT",
                                                       headers={"Content-Type": "application/json", "X-Remote-User-Name": user}))
@@ -173,3 +174,4 @@ for k, d in (("language", ""), ("units", "metric")):
 post_rl("/_extra", {})
 post_rl("/_related", {"related": {}, "configs": {}})
 pgR.close()
+post_rl("/_areas", [])
