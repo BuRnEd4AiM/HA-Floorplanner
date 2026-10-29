@@ -37,7 +37,7 @@ h1{position:absolute;left:68px;top:140px;margin:0;font-size:104px;line-height:.9
 </style>
 <div class="k">HOME ASSISTANT ADD-ON</div><h1>3D<br>Floorplan</h1>
 <div class="s">Draw your home, see it in 3D and control it right where things are.</div>
-<div class="chips"><span class="chip">Live control</span><span class="chip">JSON &amp; AI import</span><span class="chip">7 languages</span></div>
+<div class="chips"><span class="chip">Live control</span><span class="chip">JSON &amp; AI import</span><span class="chip">8 languages</span></div>
 <img class="house" src="data:image/png;base64,@@SHOT@@">
 <div class="tag" style="left:700px;top:40px">Living room<b><span class="dot"></span>5 lights on</b></div>
 <div class="tag" style="left:1090px;top:300px">Kitchen<b>21.4 °C</b></div>

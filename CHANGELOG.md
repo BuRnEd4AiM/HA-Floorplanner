@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.46.0] - 2026-10-29
+### Added
+- **简体中文: Simplified Chinese as the eighth language** (#587, thanks to @aixmoyu, who translated all texts of the add-on and the options page of Home Assistant): ⚙ → *Sprache* → *简体中文*, or *Auto* on a device whose browser is set to Chinese. The contribution came from version 4.42.0; the 83 texts added since then (▶ Abläufe by room, the row "👁 Ausgeblendet", the scene bar and the light card of 4.45.0) are translated too, and `tools/add_i18n.py` now asks for Chinese with every new text, so it stays complete. The voice search does not understand Chinese yet (with Chinese it uses the German words).
+### Changed
+- Test protocol: new section 135.
+
 ## [4.45.0] - 2026-10-29
 ### Added
 - **🎬 A scene bar over the tab bar** (#597, the owner with a picture of ☀ Heute on his iPad: "über dieser Leiste, die wir da unten haben, … Szenen reinmachen, die man auch, wenn es mehrere Szenen sind, … scrollen kann, von links nach rechts … dass man das direkt auch pro Dashboard theoretisch verknüpfen kann"). Right above the tabs (🏠 Haus, ☀ Heute, ⚡ Energie …) a row of tiles with a symbol and a name, e.g. "🛋 Wohnzimmer an":

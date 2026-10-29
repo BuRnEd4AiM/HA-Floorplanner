@@ -1,20 +1,20 @@
 {
  "session": "session_012p9z3MJ39jRYCv55o46a3L",
  "start": "2026-10-29",
- "updated": "2026-10-29T21:28:08Z",
+ "updated": "2026-10-29T22:01:59Z",
  "branch": "claude/dashboard-scenes-light-control-pqpgty",
  "source": "counted",
- "input": 266,
- "cache_write": 469325,
- "cache_read": 45753309,
- "output": 167772,
+ "input": 384,
+ "cache_write": 567001,
+ "cache_read": 78010545,
+ "output": 203039,
  "models": {
   "claude-opus-5-5": {
-   "input": 266,
-   "cache_write": 469325,
-   "cache_read": 45753309,
-   "output": 167772,
-   "requests": 133
+   "input": 384,
+   "cache_write": 567001,
+   "cache_read": 78010545,
+   "output": 203039,
+   "requests": 190
   }
  }
 }

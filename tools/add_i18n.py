@@ -1,8 +1,8 @@
-"""Add UI texts to all 7 languages at once.
+"""Add UI texts to all 8 languages at once.
 
     python3 tools/add_i18n.py texts.json
 
-texts.json maps each new key to its text in every language: {"tile.on": {"de": "{n} an", "en": "{n} on", "fr": ..., "es": ..., "it": ..., "nl": ..., "pl": ...}}.
+texts.json maps each new key to its text in every language: {"tile.on": {"de": "{n} an", "en": "{n} on", "fr": ..., "es": ..., "it": ..., "nl": ..., "pl": ..., "zh": ...}} (zh: Simplified Chinese since 4.46.0).
 German and English go at the end of their tables in static/i18n.js, the others at the end of static/lang/<code>.js. A key that exists
 already is refused. tests/test_i18n.py checks afterwards that every language has the same keys and placeholders.
 """
@@ -10,7 +10,7 @@ import json, sys
 from pathlib import Path
 ST = Path(__file__).resolve().parent.parent / "floorplan3d" / "rootfs" / "app" / "static"
 data = json.loads(Path(sys.argv[1]).read_text())
-LANGS = ["de", "en", "fr", "es", "it", "nl", "pl"]
+LANGS = ["de", "en", "fr", "es", "it", "nl", "pl", "zh"]
 for k, v in data.items():
     assert set(v) == set(LANGS), (k, set(LANGS) ^ set(v))
 q = lambda s: "'" + s.replace("\\", "\\\\").replace("'", "\\'") + "'"

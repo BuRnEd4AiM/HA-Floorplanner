@@ -55,7 +55,7 @@ What that means for you: the code is automatically tested (backend and browser t
 | 🌅 **See it at a glance** | Labels over the rooms and room tiles, power as a picture, the sky of the time of day with the weather and the moon, real floors |
 | 🗂️ **Your only dashboard** | Pages at the bottom for every day: ☀ Today, ⚡ Energy, 🌡 Climate, 📷 Cameras, 🎵 Music & TV, 🧺 Household, ▶ Routines, 👨‍👩‍👧 Family, arranged like a Home Assistant dashboard |
 | 🔥 **Heating that thinks** | Heating rules (window open → off, nobody home, night, schedule, boost, holidays), a **room sensor per thermostat** like Better Thermostat, own routines that become real Home Assistant automations |
-| 📱 **Everywhere** | Phone, desktop and wall tablets (kiosk mode, per-user rooms), 7 languages, offline and private |
+| 📱 **Everywhere** | Phone, desktop and wall tablets (kiosk mode, per-user rooms), 8 languages, offline and private |
 
 ## 🤖 Describe it instead of drawing it
 
@@ -272,7 +272,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Permissions**: only chosen users edit, everyone else gets a read-only live view, enforced in the backend
 - **Offline and private**: three.js is bundled, no CDN, no cloud, no account; it opens through Ingress in the Home Assistant sidebar
 - **Import by JSON / AI / GeoJSON**: describe plot, rooms, windows and devices and get a new house; includes examples, schema, API and an AI prompt ([guide](docs/IMPORT.en.md))
-- **7 languages**: Deutsch, English, Français, Español, Italiano, Nederlands, Polski (⚙ → Language, or *Auto*). Adding another one is a single file, see [CONTRIBUTING](CONTRIBUTING.md)
+- **8 languages**: Deutsch, English, Français, Español, Italiano, Nederlands, Polski, 简体中文 (⚙ → Language, or *Auto*). Adding another one is a single file, see [CONTRIBUTING](CONTRIBUTING.md)
 - **Security (Sicherheit)**: every switch in the house is recorded (one file per day, the last 7 days kept). Pick a day and play it back in the 3D view with a time line: play, pause, jump from event to event, see when which light went on, which door opened. Read-only, on phone, tablet and PC
 
 <div align="center"><img src="docs/img/security.jpg" alt="Security: a recorded evening played back in 3D, the time line with its events at the bottom" width="760"><br><sub><b>Security</b>: yesterday evening played back, every event as an icon on the time line</sub></div>
@@ -315,7 +315,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 - **Real floors** per room: parquet, herringbone, chevron, wide planks, tiles, hexagons, cement tiles, terrazzo, marble, stone, paving, carpet ... (about 30), each with its own **colour, joint colour, size and angle**
 - **Walls with a finish** per room: paint, woodchip, plaster, wallpapers, tiles (also only **up to a height**, e.g. 1.20 m in the bathroom), brick, stone, wood; an **accent wall** on its own; the **facade** outside (plaster, brick, wood, slate ...)
 - **Window frames** white or anthracite; floor cards and buttons in a **glass look**
-- Dark theme by default (light theme and a hologram look as a gimmick are one click away), metric or imperial units, and 7 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski)
+- Dark theme by default (light theme and a hologram look as a gimmick are one click away), metric or imperial units, and 8 languages (Deutsch, English, Français, Español, Italiano, Nederlands, Polski, 简体中文)
 
 <table>
 <tr>

@@ -18,7 +18,7 @@ const body = head.replace(/^import .*$/gm, '').replace(/export /g, '').replace('
 const out = {};
 const DICT = new Function(body + ';return DICT;')();
 out.de = DICT.de; out.en = DICT.en;
-for (const l of ['fr', 'es', 'it', 'nl', 'pl']) out[l] = (await import(process.argv[1] + '/lang/' + l + '.js')).default;
+for (const l of ['fr', 'es', 'it', 'nl', 'pl', 'zh']) out[l] = (await import(process.argv[1] + '/lang/' + l + '.js')).default;
 console.log(JSON.stringify(out));
 """
 
@@ -45,5 +45,5 @@ def test_values_are_filled_and_keep_placeholders(dicts):
 
 def test_index_html_offers_every_language():
     html = (STATIC / "index.html").read_text(encoding="utf-8")
-    for code in ("auto", "de", "en", "fr", "es", "it", "nl", "pl"):
+    for code in ("auto", "de", "en", "fr", "es", "it", "nl", "pl", "zh"):
         assert f'<option value="{code}">' in html

@@ -29,3 +29,4 @@ The single-file demo is rebuilt automatically by the *Demo* workflow whenever th
 1. Copy `floorplan3d/rootfs/app/static/lang/fr.js` to `lang/<code>.js` and translate the values (keep the keys and every `{placeholder}`).
 2. Register it in `static/i18n.js` (`import`, `DICT.<code> = ...`, `LANGUAGES`), in the `<select id="setLanguage">` of `static/index.html` and in `LANGUAGES` in `server.py`.
 3. Add the code to `tests/test_i18n.py`. The tests fail if a key or placeholder is missing.
+4. Add the code to `LANGS` in `tools/add_i18n.py`: new texts are added to every language at once, so the new language keeps up with every later version.

@@ -274,7 +274,7 @@ The 🔍 button at the bottom left opens **"Where is …?"**: type part of a dev
 
 The 🎤 next to 🔍 (on a phone inside the search box) listens: say for example *„Welche Fenster sind offen?“*, *„Ist oben noch Licht an?“*, *„Sind alle Fenster zu?“*, *„Wie warm ist es im Kinderzimmer?“* or *„Wie sieht es im Wohnzimmer aus?“*. The view goes there (the floor, the room, or the whole house when the answer is on several floors), every thing of the answer gets a ring, and the box shows a line like **🪟 Fenster · offen: 2** with the list (a tap goes to that thing). *„Wie warm ist es?“* colours the rooms by temperature and lists them. The same sentence typed into the search box gets a row **💬 …**; Enter answers it.
 
-It understands known words in the 7 languages of the add-on: windows, doors, gates, lights, roller shutters, locks, music & TV, heating, batteries, devices offline, temperature, humidity and CO₂; open / closed / on / off / low; and the names of the rooms, floors and houses of your plans. The rest of the sentence may be free. It is no AI and it only shows, it switches nothing.
+It understands known words in 7 of the add-on's languages (not yet in 简体中文, there it uses the German words): windows, doors, gates, lights, roller shutters, locks, music & TV, heating, batteries, devices offline, temperature, humidity and CO₂; open / closed / on / off / low; and the names of the rooms, floors and houses of your plans. The rest of the sentence may be free. It is no AI and it only shows, it switches nothing.
 
 ⚙ → **🎤 Sprachsuche**:
 - **Spracherkennung**: *Automatisch* (the browser's own, else Home Assistant Assist), *Nur die des Browsers*, *Nur Home Assistant Assist* or *Aus*. Below: what works on this device.
@@ -436,4 +436,4 @@ Unter **Häuser → Grundriss importieren (JSON)** legst du aus einer JSON-Besch
 
 ## Language
 
-⚙ → *Language*: Deutsch, English, Français, Español, Italiano, Nederlands, Polski, or *Auto* (follows the browser language of the device, so a tablet and a phone can differ if you set it per device in the browser; the saved setting is shared by all). Names you typed yourself (floors, rooms, devices) are never translated.
+⚙ → *Language*: Deutsch, English, Français, Español, Italiano, Nederlands, Polski, 简体中文, or *Auto* (follows the browser language of the device, so a tablet and a phone can differ if you set it per device in the browser; the saved setting is shared by all). Names you typed yourself (floors, rooms, devices) are never translated.

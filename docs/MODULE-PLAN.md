@@ -16,7 +16,7 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `walls.js` | 226 | Wandgeometrie mit Türen und Fenstern |
 | `models.js` | 715 | Eingebaute 3D-Modelle (Möbel, Geräte, Küchenzeile, Strom), GLB laden; Größe eines Modells für die Maß-Felder (`baseSize`, aus `app.js` geholt; eine Bartheke ohne ihr Deckenteil, #401) |
 | `plan2d.js` | 1.111 | 2D-Editor (SVG) |
-| `i18n.js` und `lang/*.js` | 213 + je Sprache | Übersetzungen (7 Sprachen) |
+| `i18n.js` und `lang/*.js` | 213 + je Sprache | Übersetzungen (8 Sprachen, Chinesisch seit 4.46.0, #587) |
 | `stairs.js` | ~410 | Treppengeometrie (gerade, L, U, Wendel, Wandtreppe mit Podesten, mehrere Etagen; `splitStoreys`: Teil über der offenen Etage, #246) |
 | `rooms.js` | 146 | Automatische Raumerkennung |
 | `dormer.js` | ~150 | Dachgauben (Geometrie, Größe des Fensters): Sattel-, Flach- und lange Schleppgaube (#339), bündig bis zur Dachkante (#345), Anfang in Metern vom Giebel (`dormerStart`, `posForStart`), Hauptdach mit Loch unter jeder Gaube (`roofSurface`); mit Unit-Tests |

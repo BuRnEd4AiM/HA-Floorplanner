@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.45.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.46.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.45.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.46.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache** (Abschnitt 135): Claude hat 135.1 bis 135.3 in der Demo geprüft; für dich nur 135.4 (die Sprache wieder auf Deutsch stellen geht?).
 1. **Neu in 4.45.0: 🎬 Szenen-Leiste über der Reiter-Leiste und die Karte 🎚️ „Lichtsteuerung“** (Abschnitt 134): Claude hat 134.1 bis 134.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad 134.7 bis 134.9 und am Handy 134.10.
 1. **Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten sind ganz weg, die Zeile „👁 Ausgeblendet“ holt sie zurück** (Abschnitt 133): Claude hat 133.1 bis 133.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deiner Fassung „Eltern“ 133.5 und am Handy oder iPad 133.6.
 1. **Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“** (Abschnitt 132): Claude hat 132.1 und 132.2 automatisch geprüft; 132.3 hast du im Add-on geprüft ✅; für dich noch 132.4 bis 132.6 (132.4: morgen früh im 🩺 Protokoll kein „✋ Von Hand gedreht“, das du nicht warst).
@@ -367,7 +368,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 132. Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“ (#592) | 3 | 0 | 3 | 0 | 132.4 bis 132.6 |
 | 133. Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten ganz weg, die Zeile „👁 Ausgeblendet“ (#595) | 4 | 0 | 2 | 0 | 133.5, 133.6 |
 | 134. Neu in 4.45.0: 🎬 Szenen-Leiste und Karte 🎚️ „Lichtsteuerung“ (#597) | 6 | 0 | 4 | 0 | 134.7 bis 134.10 |
-| **Zusammen** | **830** | **1** | **88** | **92** | |
+| 135. Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache (#587) | 3 | 0 | 1 | 0 | 135.4 |
+| **Zusammen** | **833** | **1** | **89** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2060,3 +2062,13 @@ Wunsch des Besitzers vom 2026-10-29 (Bild von ☀ Heute auf dem iPad und Bild de
 | 134.8 | Im Add-on am iPad: ✎, „＋ Karte hinzufügen“ → „Lichtsteuerung“, deine Lampen und eine Lichtgruppe dazu (auch eine Zigbee2MQTT-Gruppe), speichern; dann ziehen, tippen, halten | Balken in der Farbe der Lampe; ziehen stellt die Helligkeit erst beim Loslassen; eine Gruppe von Home Assistant hat ▸ mit ihren Lampen (eine Zigbee2MQTT-Gruppe bleibt ein Balken); eine Lampe, die nur schaltet, hat keinen Schieber | ❓ |
 | 134.9 | Im Add-on am iPad: in der Karte „Als Fenster (Popup)“ und den Haken „Öffnet sich über „💡 … Lichter an““ setzen, speichern, „Fertig“; dann in „Im Haus“ auf „12 Lichter an“ tippen | Das Fenster „Lichtsteuerung“ geht auf; die Karte selbst steht nur beim Bearbeiten (mit „↗ Fenster“) auf der Seite | ❓ |
 | 134.10 | Im Add-on am Handy: die Szenen-Leiste wischen, im Lichtfenster ziehen und die Seite hoch und runter scrollen | Wischen geht flüssig, ziehen seitwärts stellt die Helligkeit, hoch und runter scrollt die Seite (ohne eine Lampe zu ändern) | ❓ |
+
+## 135. Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache (#587)
+Beitrag von aixmoyu (Pull Request #587, vom Stand 4.42.0); der Besitzer am 2026-10-29: „checke mal diesen pull request“, seine Wahl per Auswahl: „Ich übernehme ihn“. Claude hat ihn auf den heutigen Stand gebracht und die 83 neueren Texte übersetzt.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 135.1 | In der Demo: ⚙ → Allgemein → Sprache: „简体中文“ | Die ganze Oberfläche ist auf Chinesisch (Leisten, Reiter „今天“, Karten, Einstellungen), nirgends ein Schlüssel wie „sb.title“ | ✅ (2026-10-29, Claude in der Demo) |
+| 135.2 | In der Demo, auf Chinesisch: ☀ 今天, die Szenen-Leiste und „💡 … 盏灯亮着“ (das Lichtfenster) | Auch die neuen Teile aus 4.43 bis 4.45 sind übersetzt („灯光控制“, „全部关闭“, „不可用“) | ✅ (2026-10-29, Claude in der Demo) |
+| 135.3 | Ein Browser auf Chinesisch, Sprache „Auto“ | Die Seite kommt gleich auf Chinesisch | ✅ (2026-10-29, Claude in der Demo mit einem chinesischen Browser) |
+| 135.4 | Im Add-on: ⚙ → Sprache auf „简体中文“ und gleich wieder auf „Deutsch“ | Alles wieder auf Deutsch, nichts bleibt chinesisch | ❓ |
