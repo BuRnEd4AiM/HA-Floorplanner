@@ -56,6 +56,20 @@ export function arrange(builtin, layout) {
 
 /** the layout after a card was moved: keys (the page's cards in their new order, from arrange or the screen) become the order */
 export const withOrder = (layout, keys) => ({ ...cleanLayout(layout), order: [...new Set(keys)].slice(0, MAX_ORDER) });
+/**
+ * The keys after a drag when some were not on the screen (hidden cards are not drawn in the edit mode either, #595): screen (the keys
+ * in their new order) with every key of before (the order before the drag) that the screen does not have put back after the key it
+ * came after (at the start when none of those is left)
+ */
+export function keepUnseen(before, screen) {
+  const out = [...new Set(screen)];
+  (before || []).forEach((k, i) => {
+    if (out.includes(k)) return;
+    const prev = before.slice(0, i).reverse().find((p) => out.includes(p));
+    out.splice(prev ? out.indexOf(prev) + 1 : 0, 0, k);
+  });
+  return out;
+}
 /** key moved in keys before `before` (null: to the end) */
 export function moveKey(keys, key, before) {
   const rest = keys.filter((k) => k !== key);

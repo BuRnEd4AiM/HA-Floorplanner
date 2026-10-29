@@ -124,9 +124,9 @@ export function initRoutinesPage(ctx) {
       const linked = linkedOf(k), b = tile({ key: k, icon: CHECK_ICON[k], name: t(`rt.${k}`), cls: `rtCheck ${k}`,
         sub: linked ? t('rt.checkThen', { name: nameOf(linked) }) : t('rt.checkOnly'), on: () => openCheck(k) });
       b.dataset.check = k;
-      items.push({ key: k, el: b, width: 1 });
+      items.push({ key: k, name: t(`rt.${k}`), el: b, width: 1 });
     });
-    buttons.forEach((r) => items.push({ key: `r:${r.entity}`, el: routineTile(r), width: 1 }));
+    buttons.forEach((r) => items.push({ key: `r:${r.entity}`, name: r.name, el: routineTile(r), width: 1 }));
     const out = [head];
     if (!all.length) out.push(make('p', 'tpSub', t('rt.none')));
     items.push(...ctx.own.items(tiles));           // the own routines, the automations (editors) and what happened (#546), by room (#590)

@@ -2131,4 +2131,7 @@ export default {
   'hr.line.warmHand': '✋ girado a mano, de nuevo {to} a las {at}',
   'hr.warm.hand': 'Girado a mano', 'hr.warm.handBack': 'baja de nuevo tras {n} (como en el 📅 horario)',
   'hr.warm.handStay': 'se queda hasta el siguiente tramo (como en el 📅 horario)',
+  'bd.hiddenList': 'Ocultas', 'bd.hiddenNone': 'ninguna. 👁 en una tarjeta la oculta y aparece aquí.', 'bd.showAll': 'Mostrar todas', 'bd.k.clock': '🕐 Reloj',
+  'bd.k.weather': '⛅ Tiempo', 'bd.k.tiles': 'Cifras de arriba (consumo, producción …)', 'bd.k.more': '🔥 Gas y 💧 agua', 'bd.k.home': '🏠 Quién está en casa',
+  'bd.k.nobody': 'Nota: ninguna persona',
 };

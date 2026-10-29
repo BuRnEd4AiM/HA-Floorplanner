@@ -122,7 +122,7 @@ export function initFamilyPage(ctx) {
     if (document.activeElement?.tagName === 'TEXTAREA' && board.contains(document.activeElement) && !force) { later = true; return; }   // typing a note: the cards move after it
     drawn = sig;
     const items = rows.length ? [{ key: 'home', el: homeCard(rows), width: 4 }] : [];
-    items.push(...rows.map((p) => ({ key: `p:${p.id}`, el: personCard(p), width: 1 })));
+    items.push(...rows.map((p) => ({ key: `p:${p.id}`, name: p.name, el: personCard(p), width: 1 })));
     const where = roomsCard(rows, rooms);
     if (where) items.push({ key: 'rooms', el: where, width: 2 });
     if (!rows.length) items.push({ key: 'nobody', el: make('p', 'tpSub', t('fm.nobody')), width: 2 });

@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.44.0] - 2026-10-29
+### Changed
+- **✎ Bearbeiten: a hidden card is really gone, the row "👁 Ausgeblendet" brings it back** (#595, the owner with a picture of ☀ Heute in his version "Eltern": "wenn ich eine Karte ausblende, dass sie dann auch für mich wirklich weg ist und ich dann einfach sozusagen irgendwo eine Liste habe mit ausgeblendeten Elementen und dann wieder anhaken kann … weil sonst wird es echt schwierig, die richtig anzuordnen"). Until now a card hidden with 👁 stayed in its place while editing, faded and marked "ausgeblendet", so the page in the edit mode did not look like the page later. Now:
+  - 👁 takes the card off the page in the edit mode too: what one arranges is what one sees afterwards;
+  - under the edit strip (and the purple strip of the versions) the row **"👁 Ausgeblendet"** lists every hidden card of the page by name, each with a box (☐ Termine, ☐ Wer ist da, a room's name on 🌡 Klima …); a tap on one shows it again at its old place, **"Alle zeigen"** shows all of them; without hidden cards the row says how to hide one;
+  - it works in every version of a page (#507): each version has its own hidden cards and its own row;
+  - dragging the other cards keeps a hidden card's place in the order and in its section, so it comes back where it was.
+- Test protocol: new section 133.
+
 ## [4.43.1] - 2026-10-29
 ### Fixed
 - **🌡 Room sensor: a target the thermostat did not take is no "new wish" any more** (#592, the owner with a picture of his WZFL: "Ich glaube da ist noch immer was nicht so ganz richtig oder?": the card said "🔥 Zu warm · Thermostat 12°", but 27° was wished and the thermostat stood at 29,5° and heated). A radiator thermostat now and then loses a target the add-on sends; it then simply goes on showing its old one. With "↕ Wunsch verschieben" the add-on took such an old target as a wish somebody else had set, 3 minutes after sending, as soon as it was more than 30 minutes old. In his report of the night: too warm wanted 12°, the thermostat kept its 24,5° for half an hour, then the 24,5° and later 27° became the wish and the room was heated to 26°; in the night the wish went from 12° down to 8° (WZFL) and up to 19,5° (TOI) step by step; in the morning the schedule's comfort 24° became a wish of 8,5° ("✋ Von Hand gedreht"). Now:

@@ -1,5 +1,5 @@
 """4.11.0 (#495): sections on the pages of the tab bar like the "Sections" of a Home Assistant dashboard: in ✎ "＋ Abschnitt" makes one
-(name, symbol, wide), ⠿ drags a card into it, the corner ↘ makes a card wider, ✏️ renames a section, 🗑 takes it away (its cards stand
+(name, symbol, wide), ⠿ drags a card into it (a hidden one keeps its place there, #595), the corner ↘ makes a card wider, ✏️ renames a section, 🗑 takes it away (its cards stand
 above again). Saved for everybody in settings.pageLayouts (sections, widths).
 """
 st_sc = api("api/settings")
@@ -42,6 +42,14 @@ c = pgS.locator("[data-page=today] .bdFree [data-key=clock] .bdResize").bounding
 pgS.mouse.move(c["x"] + 10, c["y"] + 10); pgS.mouse.down(); pgS.mouse.move(c["x"] + 520, c["y"] + 10, steps=8); pgS.mouse.up(); pgS.wait_for_timeout(800)
 check("sections: the corner ↘ makes a card wider, saved as its width", until_sc(lambda: (lay_sc().get("widths") or {}).get("clock", 1) >= 2)
       and int(pgS.get_attribute("[data-page=today] [data-key=clock]", "data-w")) >= 2, lay_sc().get("widths"))
+pgS.click(f"[data-page=today] .bdSecGrid[data-section={sid}] [data-key=agenda] .bdTool[data-act=hide]"); pgS.wait_for_timeout(800)
+drag_sc("[data-page=today] .bdFree [data-key=clock] .bdGrip", f"[data-page=today] .bdSecGrid[data-section={sid}] [data-key=house]", dx=40)
+check("sections (#595): a hidden card is gone from its section while editing; a card dropped there keeps it in the section at its place",
+      until_sc(lambda: (lay_sc().get("sections") or [{}])[0].get("keys") == ["agenda", "house", "clock"]) and lay_sc().get("hidden") == ["agenda"]
+      and pgS.locator(f"[data-page=today] .bdSecGrid[data-section={sid}] [data-key=agenda]").count() == 0, lay_sc())
+pgS.click("[data-page=today] .bdHidden .bdHidChip[data-key=agenda]"); pgS.wait_for_timeout(800)
+check("sections (#595): a tap in the row 'Ausgeblendet' shows it again, first in its section",
+      until_sc(lambda: not lay_sc().get("hidden")) and pgS.evaluate(f"[...document.querySelectorAll('[data-page=today] .bdSecGrid[data-section={sid}] .bdItem')].map((x) => x.dataset.key)") == ["agenda", "house", "clock"], lay_sc())
 pgS.click(f"[data-page=today] .bdSection[data-section={sid}] [data-act=secEdit]"); pgS.wait_for_timeout(400)
 pgS.fill(".secDlg [data-act=secTitle]", "Draußen"); pgS.click(".secDlg .ceSeg [data-v=true]"); pgS.click(".secDlg [data-act=save]"); pgS.wait_for_timeout(800)
 check("sections: ✏️ renames it and makes it wide", until_sc(lambda: (lay_sc().get("sections") or [{}])[0].get("title") == "Draußen")

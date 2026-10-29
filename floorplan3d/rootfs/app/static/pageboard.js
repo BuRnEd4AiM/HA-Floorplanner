@@ -2,14 +2,16 @@
  * in the order an admin chose, leaves out the hidden ones, adds the own cards (cardsui.js) and lays them out as a masonry grid (cards
  * of different heights close up). In the edit mode (✎ in the tab bar, editors only) every card has ⠿ to drag it, 👁 to hide it, an
  * own card ⚙ and 🗑, the corner ↘ to make it wider or narrower (#495), at the end "＋ Karte hinzufügen", at the top a strip with
- * ＋ Karte, ＋ Abschnitt, 🗂 Reiter, ↺ Wie am Anfang and ✓ Fertig. With sections (#495, sections.js, sectionsui.js) the cards in no section
+ * ＋ Karte, ＋ Abschnitt, 🗂 Reiter, ↺ Wie am Anfang and ✓ Fertig. A hidden card is gone in the edit mode too: it stands in the row
+ * "👁 Ausgeblendet" under the strip, a tap shows it again (#595, boardhidden.js). With sections (#495, sections.js, sectionsui.js) the cards in no section
  * stand above them and a card is dragged into a section and between them. Stored for everybody in settings.pageLayouts, or in an own
  * version of the page for some users (#507, settings.pageVariants: ctx.variants says which one, variantsui.js draws its strip under the
  * edit strip); the rules are in pagelayout.js, sections.js and pagevariants.js (tested). */
-import { arrange, withOrder, toggleHidden, dropCard, resetLayout, putCard, withSize, sizeOf, rowSpan } from './pagelayout.js';
+import { arrange, withOrder, keepUnseen, toggleHidden, dropCard, resetLayout, putCard, withSize, sizeOf, rowSpan } from './pagelayout.js';
 import { groupEntries, fromScreen, withWidth, spanAt, newSectionId, addSection, editSection, dropSection, moveSection } from './sections.js';
 import { initSectionsUi } from './sectionsui.js';
 import { layoutIn, withLayoutIn } from './pagevariants.js';
+import { cardName, hiddenRow } from './boardhidden.js';
 
 const ROW = 8, GAP = 14;
 
@@ -19,7 +21,7 @@ const ROW = 8, GAP = 14;
 export function initBoard(ctx) {
   const { t } = ctx;
   let editing = null;
-  const shown = new Map();                           // page -> { box, own: Map(card id -> sig) }
+  const shown = new Map();                           // page -> { box, keep: Map(key -> { sig, el }), edit, all: [every key there now, hidden too] }
   const ro = new WeakMap();                          // box -> its ResizeObserver
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', (e) => { e.stopPropagation(); on(e); }); return b; };
@@ -74,7 +76,7 @@ export function initBoard(ctx) {
   }
 
   /* ---- a card in the grid, with its tools in the edit mode ---- */
-  function tools(page, key, own, hidden, sized) {
+  function tools(page, key, own, sized) {
     const bar = make('div', 'bdTools');
     const grip = make('span', 'bdGrip', '⠿'); grip.title = t('bd.drag'); grip.setAttribute('role', 'button');
     grip.addEventListener('pointerdown', (e) => drag(e, page, grip.closest('.bdItem')));
@@ -88,22 +90,22 @@ export function initBoard(ctx) {
         const b = btn('bdTool', small ? '⤢' : '⤡', () => setLayout(page, withSize(layoutOf(page), key, small ? 'big' : 'small')), small ? t('bd.bigger') : t('bd.smaller'));
         b.dataset.act = 'size'; bar.append(b);
       }
-      bar.append(btn(`bdTool${hidden ? ' off' : ''}`, '👁', () => setLayout(page, toggleHidden(layoutOf(page), key)), hidden ? t('bd.show') : t('bd.hide')));
+      const hide = btn('bdTool', '👁', () => setLayout(page, toggleHidden(layoutOf(page), key)), t('bd.hide')); hide.dataset.act = 'hide';
+      bar.append(hide);
     }
     return bar;
   }
   function item(page, entry, builtin, edit, same = null, widths = {}) {
     const el = same || (entry.own ? ctx.cards.render(entry.own) : builtin.el);
-    el.classList.add('bdItem'); el.classList.toggle('bdEdit', edit); el.classList.toggle('bdOff', edit && entry.hidden);
+    el.classList.add('bdItem'); el.classList.toggle('bdEdit', edit);
     el.dataset.key = entry.key; el.dataset.w = String(entry.own ? entry.own.width : widths[entry.key] || builtin.width || 1);   // a width an admin dragged (#495)
     el.querySelectorAll(':scope > .bdTools, :scope > .bdTag, :scope > .bdResize').forEach((x) => x.remove());
     if (edit) {
       const corner = make('span', 'bdResize'); corner.title = t('bd.resize'); corner.setAttribute('role', 'button');
       corner.addEventListener('pointerdown', (e) => resize(e, page, el, entry.own));
       el.append(corner);
-      el.append(tools(page, entry.key, entry.own, entry.hidden, builtin?.sized));
-      if (entry.hidden) el.append(make('span', 'bdTag', t('bd.hidden')));
-      else if (entry.own) el.append(make('span', 'bdTag own', t('bd.own')));
+      el.append(tools(page, entry.key, entry.own, builtin?.sized));
+      if (entry.own) el.append(make('span', 'bdTag own', t('bd.own')));
     }
     return el;
   }
@@ -122,8 +124,9 @@ export function initBoard(ctx) {
   }
 
   /**
-   * Put the cards of a page into box: items [{ key, el, width }] are the page's own cards in their natural order (a missing one is not
-   * there now: no camera, no waste calendar ...); instead of el an item can bring { sig, make }: make() draws it (null: nothing to show),
+   * Put the cards of a page into box: items [{ key, el, width, name }] are the page's own cards in their natural order (a missing one is
+   * not there now: no camera, no waste calendar ...; name: what the row "Ausgeblendet" calls it when the card has no heading, #595);
+   * instead of el an item can bring { sig, make }: make() draws it (null: nothing to show),
    * only when its sig changed since the last fill of the same box; sized: the card can be big or small ('big' | 'small': its first
    * size, #495). min: the narrowest column in px. Draws the edit mode's strip at the top of the page.
    */
@@ -137,7 +140,8 @@ export function initBoard(ctx) {
       const el = old && old.sig === i.sig ? old.el : i.make ? i.make() : i.el;
       if (el) byKey.set(i.key, { ...i, el });
     });
-    const entries = arrange([...byKey.keys()], lay).filter((e) => e.own || byKey.has(e.key)).filter((e) => edit || !e.hidden);
+    const all = arrange([...byKey.keys()], lay).filter((e) => e.own || byKey.has(e.key));
+    const entries = all.filter((e) => !e.hidden);   // a hidden card is gone in the edit mode too, it is in the row "Ausgeblendet" (#595)
     const keep = new Map();
     const els = entries.map((e) => {
       const sig = e.own ? ctx.cards.sig(e.own) : byKey.get(e.key).sig, old = e.own ? kept.get(e.key) : null;
@@ -145,14 +149,16 @@ export function initBoard(ctx) {
       keep.set(e.key, { sig, el });
       return el;
     });
+    all.forEach((e) => { if (e.hidden && !e.own) keep.set(e.key, { sig: byKey.get(e.key).sig, el: byKey.get(e.key).el }); });   // not made again while unchanged
     const add = edit ? btn('bdAdd', `＋ ${t('bd.add')}`, () => ctx.addCard(page)) : null;
     if (add) add.dataset.w = '1';
     const sec = box.closest('.tabPage');
     const showStrip = () => {
-      sec?.querySelectorAll(':scope > .bdStrip, :scope > .pvBar').forEach((x) => x.remove());
-      if (edit && sec) sec.prepend(strip(page), ...(ctx.variants ? [ctx.variants.bar(page)] : []));   // the versions of the page (#507)
+      sec?.querySelectorAll(':scope > .bdStrip, :scope > .pvBar, :scope > .bdHidden').forEach((x) => x.remove());
+      /* under the strip the versions of the page (#507) and the hidden cards (#595) */
+      if (edit && sec) sec.prepend(strip(page), ...(ctx.variants ? [ctx.variants.bar(page)] : []), hiddenOf(page, all.filter((e) => e.hidden), byKey));
     };
-    shown.set(page, { box, keep, edit });
+    shown.set(page, { box, keep, edit, all: all.map((e) => e.key) });
     if (lay.sections.length) {                       // with sections (#495): the cards in no section above, then the sections
       box.classList.remove('bdGrid'); box.classList.add('bdSecRoot');
       const g = groupEntries(entries, lay.sections), f = secUi.frame(page, box, lay.sections, edit, min);
@@ -177,6 +183,13 @@ export function initBoard(ctx) {
     showStrip();
     watch(box, gone);
   }
+  /** the row "👁 Ausgeblendet" (#595): the hidden cards there now by name, a tap shows one again */
+  function hiddenOf(page, off, byKey) {
+    const list = off.map((e) => ({ key: e.key, name: cardName(t, e.key, byKey.get(e.key), e.own) }));
+    return hiddenRow({ t, list,
+      show: (key) => { const l = layoutOf(page); if (l.hidden.includes(key)) setLayout(page, toggleHidden(l, key)); },
+      showAll: () => { const keys = new Set(list.map((x) => x.key)), l = layoutOf(page); setLayout(page, { ...l, hidden: l.hidden.filter((k) => !keys.has(k)) }); } });
+  }
   /** after a change of the states: own cards whose states changed are drawn again (the page itself draws only what it shows) */
   function refresh(page) {
     const s = shown.get(page);
@@ -186,7 +199,7 @@ export function initBoard(ctx) {
     l.cards.forEach((c) => {
       const was = s.keep.get(c.id), sig = ctx.cards.sig(c);
       if (!was || !was.el.isConnected || was.sig === sig) return;
-      const el = item(page, { key: c.id, own: c, hidden: l.hidden.includes(c.id) }, null, s.edit, null, l.widths);
+      const el = item(page, { key: c.id, own: c }, null, s.edit, null, l.widths);
       s.keep.set(c.id, { sig, el });
       const grid = was.el.parentNode;
       was.el.replaceWith(el);
@@ -236,11 +249,15 @@ export function initBoard(ctx) {
       document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); document.removeEventListener('pointercancel', up);
       el.style.transform = ''; el.classList.remove('bdDragging');
       const keysOf = (grid) => [...grid.querySelectorAll(':scope > .bdItem')].map((x) => x.dataset.key);
-      const l = layoutOf(page);
-      if (!sectioned) { setLayout(page, withOrder(l, keysOf(root))); return; }
+      const l = layoutOf(page), before = shown.get(page)?.all || [], off = new Set(l.hidden);
+      /* the hidden cards are not on the screen (#595): they keep their place in the order and in their section */
+      if (!sectioned) { setLayout(page, withOrder(l, keepUnseen(before, keysOf(root)))); return; }
       const free = keysOf(root.querySelector('.bdFree')), secs = {};
-      root.querySelectorAll('.bdSecGrid').forEach((g) => { secs[g.dataset.section] = keysOf(g); });
-      setLayout(page, { ...withOrder(l, [...free, ...Object.values(secs).flat()]), sections: fromScreen(l.sections, { free, sections: secs }) });
+      root.querySelectorAll('.bdSecGrid').forEach((g) => {
+        const here = keysOf(g), was = l.sections.find((x) => x.id === g.dataset.section)?.keys || [];
+        secs[g.dataset.section] = keepUnseen(was.filter((k) => off.has(k) || here.includes(k)), here);
+      });
+      setLayout(page, { ...withOrder(l, keepUnseen(before, [...free, ...Object.values(secs).flat()])), sections: fromScreen(l.sections, { free, sections: secs }) });
     };
     document.addEventListener('pointermove', move); document.addEventListener('pointerup', up); document.addEventListener('pointercancel', up);
   }
@@ -282,7 +299,7 @@ export function initBoard(ctx) {
     toggle: (page) => setEditing(editing === page ? null : page),
     layout: layoutOf,
     /** the keys of the built-in cards of a page as last drawn (a new version "Leer" hides them, #507) */
-    keys: (page) => [...(shown.get(page)?.keep.keys() || [])].filter((k) => !/^c_/.test(k)),
+    keys: (page) => (shown.get(page)?.all || []).filter((k) => !/^c_/.test(k)),
     /** the size an admin chose for a built-in card ('big' | 'small'), dflt when none (#495) */
     size: (page, key, dflt = 'big') => sizeOf(layoutOf(page), key, dflt),
   };

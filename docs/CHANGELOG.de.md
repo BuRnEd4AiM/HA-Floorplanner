@@ -2,6 +2,15 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.44.0] - 2026-10-29
+### Verbessert
+- **✎ Bearbeiten: eine ausgeblendete Karte ist wirklich weg, die Zeile „👁 Ausgeblendet“ holt sie zurück** (#595, der Besitzer mit einem Bild von ☀ Heute in seiner Fassung „Eltern“: „wenn ich eine Karte ausblende, dass sie dann auch für mich wirklich weg ist und ich dann einfach sozusagen irgendwo eine Liste habe mit ausgeblendeten Elementen und dann wieder anhaken kann … weil sonst wird es echt schwierig, die richtig anzuordnen“). Bisher blieb eine mit 👁 ausgeblendete Karte beim Bearbeiten an ihrem Platz, blass und mit dem Schild „ausgeblendet“; die Seite sah beim Bearbeiten also anders aus als danach. Jetzt:
+  - 👁 nimmt die Karte auch beim Bearbeiten von der Seite: was man anordnet, sieht man hinterher genau so;
+  - unter der Leiste zum Bearbeiten (und der lila Leiste der Fassungen) steht die Zeile **„👁 Ausgeblendet“** mit jeder ausgeblendeten Karte der Seite beim Namen, jede mit einem Kästchen (☐ Termine, ☐ Wer ist da, auf 🌡 Klima der Name des Raums …); ein Tipp zeigt sie wieder an ihrem alten Platz, **„Alle zeigen“** zeigt alle; ohne ausgeblendete Karten sagt die Zeile, wie man eine ausblendet;
+  - das geht in jeder Fassung einer Seite (#507): jede Fassung hat ihre eigenen ausgeblendeten Karten und ihre eigene Zeile;
+  - wer die anderen Karten verschiebt, nimmt einer ausgeblendeten Karte ihren Platz in der Reihenfolge und in ihrem Abschnitt nicht weg; sie kommt dort wieder, wo sie war.
+- Testprotokoll: neuer Abschnitt 133.
+
 ## [4.43.1] - 2026-10-29
 ### Repariert
 - **🌡 Raumfühler: ein Wert, den das Thermostat nicht übernommen hat, ist kein „neuer Wunsch“ mehr** (#592, der Besitzer mit einem Bild seines WZFL: „Ich glaube da ist noch immer was nicht so ganz richtig oder?“: die Karte sagte „🔥 Zu warm · Thermostat 12°“, aber gewünscht waren 27°, das Thermostat stand auf 29,5° und heizte). Ein Heizkörper-Thermostat verliert ab und zu einen Wert, den das Add-on schickt; es zeigt dann einfach weiter seinen alten. Mit „↕ Wunsch verschieben“ hat das Add-on so einen alten Wert für einen Wunsch von jemand anderem gehalten, 3 Minuten nach dem Schicken, sobald er älter als 30 Minuten war. In seinem Bericht der Nacht: Zu warm wollte 12°, das Thermostat behielt eine halbe Stunde seine 24,5°, dann wurden die 24,5° und später 27° der Wunsch, und der Raum wurde auf 26° geheizt; in der Nacht ging der Wunsch Schritt für Schritt von 12° auf 8° (WZFL) und auf 19,5° (TOI); am Morgen wurde aus Komfort 24° vom Heizplan ein Wunsch von 8,5° („✋ Von Hand gedreht“). Jetzt:

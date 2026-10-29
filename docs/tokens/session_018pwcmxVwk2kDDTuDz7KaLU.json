@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmxVwk2kDDTuDz7KaLU",
+ "start": "2026-10-29",
+ "updated": "2026-10-29T20:01:13Z",
+ "branch": "claude/ausgeblendet-liste",
+ "source": "counted",
+ "input": 154,
+ "cache_write": 216514,
+ "cache_read": 14157133,
+ "output": 58456,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 154,
+   "cache_write": 216514,
+   "cache_read": 14157133,
+   "output": 58456,
+   "requests": 77
+  }
+ }
+}
