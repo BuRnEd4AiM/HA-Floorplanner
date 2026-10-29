@@ -20,6 +20,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "floorplan3d" / "rootfs" / "app"))
 import heatrules as hr  # noqa: E402
+import roomsensors as rs  # noqa: E402
 
 ROOMS = [{"key": "h/wz", "name": "Wohnzimmer", "climates": ["climate.wz"], "windows": ["binary_sensor.wz"], "doors": [], "outer": [], "entities": []},
          {"key": "h/bad", "name": "Bad", "climates": ["climate.bad"], "windows": ["binary_sensor.bad"], "doors": [], "outer": [], "entities": []}]
@@ -117,17 +118,41 @@ class Day:
         self.local += datetime.timedelta(minutes=minutes)
         self.report()
         mem = json.loads(json.dumps(self.mem))                         # kept in rules-state.json between two looks
-        before = {e: (mem.get("t") or {}).get(e) or {} for e in CLIMATE.values()}
-        self.mem, calls, self.status, _ = hr.step(self.rules, ROOMS, self.states, self.now, self.local, mem, guard_armed=self.guard, weather="weather.home")
+        before = {e: json.loads(json.dumps((mem.get("t") or {}).get(e) or {})) for e in CLIMATE.values()}   # step changes mem in place
+        rule_calls, calls = self.step(mem)
         for e, svc, data in calls:
-            self.queue.append((self.now + (0 if at_once else self.delay[e]), e, svc, data))
-        self.follow(before)
+            if at_once or not self.lost(e, svc):
+                self.queue.append((self.now + (0 if at_once else self.delay[e]), e, svc, data))
+        self.follow(before, rule_calls)
         self.report()
         return calls
 
-    def follow(self, before):
+    def step(self, mem):
+        """one look of the add-on: (the calls of the heating rules, the calls that go to the thermostats)"""
+        self.mem, calls, self.status, _ = hr.step(self.rules, ROOMS, self.states, self.now, self.local, mem, guard_armed=self.guard, weather="weather.home")
+        return calls, calls
+
+    def seen(self):
+        """the thermostats as the heating rules see them"""
+        return self.states
+
+    def lost(self, e, svc):
+        """a call the thermostat never gets"""
+        return False
+
+    def wants(self, t):
+        """the temperature the winning rule wants of a thermostat, None when it wants none (off, the window, no rule)"""
+        ov, lv = t.get("ov"), t.get("level") or {}
+        if ov == "warm":
+            return t.get("warmTo")
+        if ov == "boost":
+            return self.rules["boost"]["temp"]
+        return lv["temp"] if not ov and lv and not lv.get("off") else None
+
+    def follow(self, before, calls=()):
         """keeps track of whether a turn by hand still counts (the add-on keeps it until what the winner wants changes, and puts it back
-        with "as it was" after an override, or after too warm when it was turned meanwhile)"""
+        with "as it was" after an override, or after too warm when it was turned meanwhile; under the schedule and while too warm it sets
+        the winner's temperature again after the minutes of "hand", #592)"""
         for e, t0 in before.items():
             t = self.mem["t"].get(e) or {}
             ov, ov0, lv, lv0 = t.get("ov"), t0.get("ov"), t.get("level"), t0.get("level")
@@ -141,6 +166,8 @@ class Day:
                 self.turned[e] = self.under[e][0]                      # as it was
             elif aim(t) != aim(t0):
                 self.turned[e] = False
+            elif self.wants(t) is not None and any(c[0] == e and c[1] == "set_temperature" and c[2]["temperature"] == self.wants(t) for c in calls):
+                self.turned[e] = False                                 # the winner's temperature again (back after "hand", sent once more)
 
     def happen(self):
         r, k = self.r, self.r.choice(list(CLIMATE))
@@ -172,8 +199,9 @@ class Day:
                 break
             self.report(everything=True)
         wrong = [f"calls again and again: {c}" for c in [self.look(0, at_once=True)] if c]
+        seen = self.seen()
         for k, e in CLIMATE.items():
-            t, st = self.mem["t"].get(e) or {}, self.states[e]
+            t, st = self.mem["t"].get(e) or {}, seen[e]
             ov, lv, temp, mode = t.get("ov"), t.get("level"), st["attributes"]["temperature"], st["state"]
             w = self.rules["window"]
             due = (w["on"] and k not in w["skip"] and self.states[WINDOW[k]]["state"] == "on" and k in self.mem["open"]
@@ -187,13 +215,13 @@ class Day:
                 wrong.append(f"{e}: {self.room[k]}° in the room for {lv['temp']}°, not lowered")
             if self.turned[e]:
                 continue
-            if ov == "window" and not hr.paused(self.states, e):
+            if ov == "window" and not hr.paused(seen, e):
                 wrong.append(f"{e}: window open, but {mode} {temp}")
             elif ov == "boost" and (mode == "off" or temp != self.rules["boost"]["temp"]):
                 wrong.append(f"{e}: boost, but {mode} {temp}")
             elif ov == "warm" and (mode == "off" or temp != t.get("warmTo") or (lv and t["warmTo"] != max(5, lv["temp"] - 5))):
                 wrong.append(f"{e}: too warm to {t.get('warmTo')} ({lv}), but {mode} {temp}")
-            elif not ov and lv and (not hr.paused(self.states, e) if lv.get("off") else (mode == "off" or temp != lv["temp"])):
+            elif not ov and lv and (not hr.paused(seen, e) if lv.get("off") else (mode == "off" or temp != lv["temp"])):
                 wrong.append(f"{e}: {lv['why']} {lv.get('temp', 'off')}, but {mode} {temp}")
             elif not ov and mode == "off" and not (lv or {}).get("off"):
                 wrong.append(f"{e}: left off without a reason")
@@ -211,6 +239,60 @@ class Day:
         return []
 
 
+class SensorDay(Day):
+    """a day with a room sensor that moves the target of the living room's thermostat (↕ Wunsch verschieben, roomsensors.py): the
+    thermostat measures too warm at the radiator and loses some of the targets sent to it (the owner's, #592: a target it did not take
+    became the wish, the room was heated to 26° while too warm said 12°); run as rulesrun._heat does. The rules see the wish as its
+    target, so that is what must be as the winner wants it."""
+
+    def __init__(self, seed, delays):
+        super().__init__(seed, delays)
+        r = self.r
+        self.rules["sensors"] = rs.clean({"map": {"climate.wz": {"s": "sensor.wz", "way": "shift"}}})
+        self.smem, self.radiator, self.loss = rs.clean_mem({}), r.choice([0.0, 1.5, 3.0]), r.choice([0.0, 0.3, 0.6])
+        self.states["sensor.wz"] = {"state": "20.0", "attributes": {"unit_of_measurement": "°C"}}
+        self.user, self.wished, self.false = None, [], []           # the last target somebody set at the device, wishes taken, wrong ones
+        self.sync()
+
+    def sync(self):
+        self.states["sensor.wz"]["state"] = str(self.room["h/wz"])
+        self.states["climate.wz"]["attributes"]["current_temperature"] = self.room["h/wz"] + self.radiator
+
+    def happen(self):
+        was = self.states["climate.wz"]["attributes"]["temperature"]
+        super().happen()
+        if self.states["climate.wz"]["attributes"]["temperature"] != was:
+            self.user = self.states["climate.wz"]["attributes"]["temperature"]
+        self.sync()
+
+    def follow(self, before, calls=()):
+        super().follow(before, calls)
+        for v in self.wished:                                          # a target set elsewhere taken as the wish: only one somebody set
+            if v == self.user:
+                self.turned["climate.wz"] = True                       # (seen by the rules one look later than the thermostat reports it)
+            else:
+                self.false.append(f"climate.wz: {v}° taken as a wish, nobody set it (last set {self.user}°)")
+
+    def step(self, mem):
+        smem = json.loads(json.dumps(self.smem))                       # kept in rules-state.json too
+        self.mem, calls, self.status, _ = hr.step(self.rules, ROOMS, rs.virtual(self.states, smem, hr.held(mem)), self.now, self.local, mem,
+                                                  guard_armed=self.guard, weather="weather.home")
+        hold = hr.held(self.mem)
+        out = rs.route(calls, smem, hold, rs.moved(self.rules["sensors"], self.states, {}))
+        self.smem, more, self.sstatus, log = rs.step(self.rules["sensors"], self.states, {}, smem, self.now, hold)
+        self.wished = [x["v"] for x in log if x["act"] == "wish"]
+        return calls, out + [(d["entity_id"], svc, {k: v for k, v in d.items() if k != "entity_id"}) for _, svc, d in more]
+
+    def seen(self):
+        return rs.virtual(self.states, self.smem, hr.held(self.mem))
+
+    def lost(self, e, svc):
+        return e == "climate.wz" and svc == "set_temperature" and self.r.random() < self.loss
+
+    def check(self):
+        return self.false + super().check()
+
+
 def test_thousands_of_random_days_keep_the_order():
     bad = {}
     for delays, seeds in (((0, 5, 30), range(0, 120)), ((0, 0, 10, 60, 150, 300), range(1000, 1120)), ((120, 300, 600), range(2000, 2060))):
@@ -219,3 +301,13 @@ def test_thousands_of_random_days_keep_the_order():
             if wrong:
                 bad[seed] = wrong
     assert not bad, f"{len(bad)} days went wrong, e.g. {next(iter(bad.items()))} (Day(seed, delays).run() shows it again)"
+
+
+def test_random_days_with_a_room_sensor_and_a_thermostat_that_loses_targets():
+    bad = {}
+    for delays, seeds in (((0, 5, 30), range(0, 150)), ((0, 10, 60, 150), range(1000, 1150))):
+        for seed in seeds:
+            wrong = SensorDay(seed, delays).run()
+            if wrong:
+                bad[seed] = wrong
+    assert not bad, f"{len(bad)} days went wrong, e.g. {next(iter(bad.items()))} (SensorDay(seed, delays).run() shows it again)"

@@ -79,6 +79,8 @@ test('what a room does in a line of the journal', () => {
   assert.equal(D.roomWords({ why: 'warm', level: 'night', temp: 17, warm: { wish: 17, room: 18.4, to: 12 } }, t, deg),   // 🔥 too warm
     '🔥 hr.line.warm{"room":"18,4°","to":"12°","wish":"17°"}');
   assert.equal(D.roomWords({ why: 'warm' }, t, deg), '🔥 hr.line.warm{"room":"–","to":"–","wish":"–"}');
+  assert.equal(D.roomWords({ why: 'warm', warm: { wish: 17, room: 26.1, to: 12 }, hand: at(11, 5) }, t, deg),   // turned meanwhile (#592)
+    '🔥 hr.line.warm{"room":"26,1°","to":"12°","wish":"17°"} · hr.line.warmHand{"at":"11:05","to":"12°"}');
   assert.equal(D.nowWords(null, now, t, deg).text, 'hd.noClimate');
   assert.equal(D.nowWords(null, now, t, deg, true).text, 'hd.noStatus');
   assert.equal(D.nowWords({ why: null }, now, t, deg).text, 'hd.nobody');

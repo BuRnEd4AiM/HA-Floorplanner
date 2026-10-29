@@ -4,6 +4,18 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.43.1] - 2026-10-29
+### Fixed
+- **🌡 Room sensor: a target the thermostat did not take is no "new wish" any more** (#592, the owner with a picture of his WZFL: "Ich glaube da ist noch immer was nicht so ganz richtig oder?": the card said "🔥 Zu warm · Thermostat 12°", but 27° was wished and the thermostat stood at 29,5° and heated). A radiator thermostat now and then loses a target the add-on sends; it then simply goes on showing its old one. With "↕ Wunsch verschieben" the add-on took such an old target as a wish somebody else had set, 3 minutes after sending, as soon as it was more than 30 minutes old. In his report of the night: too warm wanted 12°, the thermostat kept its 24,5° for half an hour, then the 24,5° and later 27° became the wish and the room was heated to 26°; in the night the wish went from 12° down to 8° (WZFL) and up to 19,5° (TOI) step by step; in the morning the schedule's comfort 24° became a wish of 8,5° ("✋ Von Hand gedreht"). Now:
+  - only a target that changes is somebody's wish; one that stays is sent again after 3 minutes, at most 5 times, then every 10 minutes as before (🩺 Protokoll: "noch einmal: das Thermostat hatte es nicht übernommen");
+  - a thermostat that is off, was switched on a moment ago or reports again after a while shows a target it remembered: no wish, the add-on's target again;
+  - a target of the heating rules for a thermostat with a room sensor is its wish also when the add-on looks at it the first time (his TOI at 23:18, back after not reporting: the rules' 12° went straight to the thermostat, then its own 22° became the wish);
+  - "↕ neuer Wunsch" stands in the 🩺 Protokoll once, not every 15 seconds.
+- **🔥 Zu warm notices a turn by hand** (#592): turned up while the room was still too warm, the thermostat heated on, the card still said "Thermostat 12°" and too warm never ended. Now it goes down again after the minutes of "📅 Von Hand gedreht: zurück nach" (his 5 minutes), as under the schedule; the room's card says "✋ von Hand gedreht, ab 11:05 wieder 12°", the card 🔥 Zu warm in 📋 Heiz-Regeln says how it is set. With "erst beim nächsten Abschnitt" it stays as turned. His WZFL goes back to 12° by itself 5 minutes after the update.
+### Changed
+- **The random days of the heating also with a room sensor** (`tests/test_heatorder.py`): 300 more days with a thermostat whose target its room sensor moves, that measures up to 3° too warm at the radiator and loses up to 60 % of the targets sent to it; a wish nobody set counts as a mistake. 4.43.0 went wrong on 211 of these 300 days, now on none. The random days of 4.42.1 check more now too: they compared a thermostat with itself after each look and so missed every turn by hand that ended (none goes wrong in the test now; in 2500 more days 4, all very rare: the summer pause of a thermostat that cannot be switched off with an open window and a turn by hand, or a thermostat that needs 2 to 10 minutes for every report).
+- Test protocol: new section 132.
+
 ## [4.43.0] - 2026-10-29
 ### Added
 - **▶ Abläufe by room, to open and close** (#590, the owner: "ich hätte gerne hier eine gruppierung nach räumen in HA das man das direkt sieht ein und aus klappen kann … das würde das übersichtlicher machen und wenn man viele hat das das nicht so viel auf einmal ist"; his choice from the example pictures in `docs/ideen-4.43/`: all four lists, each thing in every room it uses, all closed at first, both views to switch, what has no room open on top, "open all / close all"). With areas in Home Assistant the page ▶ Abläufe has on top **"☰ Nach Listen / 🏠 Nach Räumen"** (this device remembers the choice):

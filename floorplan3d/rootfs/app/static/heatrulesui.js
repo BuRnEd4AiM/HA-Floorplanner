@@ -100,10 +100,11 @@ export function initHeatRulesUi(ctx) {
     return box;
   }
 
-  /** 🔥 Zu warm: from "above" degrees warmer than wished the thermostat goes "down" degrees lower, back at the wish */
+  /** 🔥 Zu warm: from "above" degrees warmer than wished the thermostat goes "down" degrees lower, back at the wish; turned by hand
+   *  meanwhile: lowered again after the minutes of the schedule's "Von Hand gedreht" (#592) */
   function warmCard(h) {
     const w = h.warm || { on: false, above: 1, down: 5, skip: [] };
-    const delta = ctx.delta || ctx.deg;
+    const delta = ctx.delta || ctx.deg, hand = h.schedule?.hand ?? 10;
     const d = make('div', '');
     d.append(make('p', 'tpSub hrInner', t('hr.warm.how', { wish: ctx.deg(17), at: ctx.deg(17 + w.above), to: ctx.deg(17 - w.down), back: ctx.deg(17) })),
       make('small', 'tpSub', t('hr.window.rooms')), roomChips({ warm: w }, 'warm'));
@@ -111,7 +112,8 @@ export function initHeatRulesUi(ctx) {
     return card('warm', { ...h, warm: w }, [
       kv(t('hr.warm.above'), stepper(w.above, { step: 0.5, min: 0.5, max: 5, text: delta, set: (v) => change((x) => { x.warm = { ...w, ...x.warm, above: v }; }), data: 'warm.above' })),
       kv(t('hr.warm.down'), stepper(w.down, { step: 0.5, min: 1, max: 15, text: delta, set: (v) => change((x) => { x.warm = { ...w, ...x.warm, down: v }; }), data: 'warm.down' })),
-      kv(t('hr.warm.back'), make('b', '', t('hr.warm.backWhen')))], d);
+      kv(t('hr.warm.back'), make('b', '', t('hr.warm.backWhen'))),
+      kv(t('hr.warm.hand'), make('b', '', hand ? t('hr.warm.handBack', { n: t('fl.min', { n: hand }) }) : t('hr.warm.handStay')))], d);
   }
 
   function cards(h) {

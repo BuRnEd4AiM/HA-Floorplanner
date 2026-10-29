@@ -537,6 +537,30 @@ def test_turned_by_hand_while_too_warm_stays_and_a_late_report_is_waited_for():
     assert calls == [("climate.wz", "set_temperature", {"temperature": 21.0})] and run2.status["h/wz"]["why"] is None
 
 
+def test_turned_while_still_too_warm_goes_down_again_after_the_minutes_of_hand():
+    """the owner's report (#592): the card said "🔥 Zu warm · Thermostat 12°", the thermostat stood at 27° and heated, so the room never
+    got cool enough for too warm to end. Turned while the room is still too warm: lowered again after the minutes of "Von Hand gedreht:
+    zurück nach" (as under the schedule; the minutes count from the last turn), the card says when; with "erst beim nächsten
+    Abschnitt" (0) it stays as turned."""
+    st = warm_house(room=23.0)
+    run = Run({"warm": {"on": True}, "schedule": {"on": True, "hand": 5, "rooms": {"h/wz": NIGHT}}}, st)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 12.0})]
+    st["climate.wz"]["attributes"]["temperature"] = 27.0                         # somebody turns it up
+    assert run.look(1) == [] and run.status["h/wz"]["why"] == "warm"           # a late report of the 12° is waited for (#579)
+    assert run.look(3) == [] and run.status["h/wz"]["hand"] == run.now + 300
+    st["climate.wz"]["attributes"]["temperature"] = 26.0                         # and again
+    assert run.look(1) == [] and run.look(4) == [] and run.status["h/wz"]["hand"] == run.now + 60
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 12.0})] and run.log[-1]["why"] == "warm"
+    assert run.look(10) == [] and run.status["h/wz"]["hand"] is None and run.status["h/wz"]["warm"]["to"] == 12.0
+    st["climate.wz"]["state"] = "auto"                                            # another mode chosen at the device: left alone
+    assert run.look(10) == [] and run.status["h/wz"]["hand"] is None
+    st2 = warm_house(room=23.0)
+    run2 = Run({"warm": {"on": True}, "schedule": {"on": True, "hand": 0, "rooms": {"h/wz": NIGHT}}}, st2)
+    assert run2.look() == [("climate.wz", "set_temperature", {"temperature": 12.0})]
+    st2["climate.wz"]["attributes"]["temperature"] = 27.0
+    assert run2.look(1) == [] and run2.look(60) == [] and run2.status["h/wz"]["hand"] is None
+
+
 def test_too_warm_leaves_alone_a_thermostat_that_is_off_a_room_left_out_and_an_air_conditioner():
     st = warm_house(room=25.0, **{"climate.wz": thermostat(mode="off")})
     st["climate.wz"]["attributes"]["current_temperature"] = 25.0

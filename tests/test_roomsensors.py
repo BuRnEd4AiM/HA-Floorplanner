@@ -175,15 +175,74 @@ def test_a_target_it_sent_reported_late_is_no_wish():
     st = {"climate.wz": trv(target=27.5, meas=26.5), "sensor.wz": sensor(24.8)}
     r = Run(wz(), st, {})
     assert r.look(apply=False) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 29.0})]
-    assert r.look(minutes=4) == [] and r.mem["t"]["climate.wz"]["wish"] == 27.5      # no answer yet: still 27,5 at the thermostat
+    assert r.look(minutes=4, apply=False) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 29.0})]   # once more (#592)
+    assert r.mem["t"]["climate.wz"]["wish"] == 27.5 and r.log[0]["why"] == "again"   # no answer yet: still 27,5 at the thermostat
     st["climate.wz"]["attributes"]["current_temperature"] = 27.2                     # the radiator warmer: 30° now
     assert r.look(minutes=7, apply=False) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 30.0})]
     st["climate.wz"]["attributes"]["temperature"] = 29.0                             # the 29° of before comes now
-    assert r.look(minutes=4) == [] and r.mem["t"]["climate.wz"]["wish"] == 27.5
+    assert r.look(minutes=1) == [] and r.mem["t"]["climate.wz"]["wish"] == 27.5
     assert r.status["climate.wz"]["wish"] == 27.5 and not r.log
+    assert r.look(minutes=3) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 30.0})]   # the 30° once more
     st["climate.wz"]["attributes"]["temperature"] = 22.0                             # somebody turns it at the device: that is a wish
-    assert r.look(minutes=1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 24.5})]
+    assert r.look(minutes=4) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 24.5})]
     assert r.mem["t"]["climate.wz"]["wish"] == 22.0
+
+
+def test_a_target_the_thermostat_did_not_take_is_no_wish():
+    """the owner's report (#592, his WZFL on 2026-10-29): 🔥 Zu warm set the wish 12°, the add-on sent 13,5°, the thermostat did not take
+    it and went on showing the 24,5° the add-on itself had sent before; 30 minutes later these 24,5° counted as "neuer Wunsch von außen",
+    the room was heated to 26° while the card said "Thermostat 12°". A target that stays is no wish: it is sent again after 3 minutes (at
+    most 5 times, then every 10 minutes as usual), the wish stays 12°."""
+    st = {"climate.wz": trv(target=23.0, meas=25.0), "sensor.wz": sensor(23.5)}
+    r = Run(wz("shift"), st, {})
+    assert r.look() == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 24.5})]   # 23 + (25 − 23,5), taken
+    assert rs.set_wish(r.mem, "climate.wz", 12.0)                                    # 🔥 Zu warm
+    sent = []
+    for minutes in [1] + [3] * 15:                                                   # 46 minutes: the thermostat takes nothing
+        sent += [c[2]["temperature"] for c in r.look(minutes, apply=False)]
+        assert r.mem["t"]["climate.wz"]["wish"] == 12.0 and not [x for x in r.log if x["act"] == "wish"]
+    assert sent == [13.5] * 8 and r.status["climate.wz"]["wait"]                    # at once, 5 times again, then every 10 minutes
+    assert r.look(10) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 13.5})]  # and now it takes it
+    assert r.look(3) == [] and r.look(10) == [] and not r.status["climate.wz"]["wait"]
+    st["climate.wz"]["attributes"]["temperature"] = 22.0                             # somebody turns it: that is a wish
+    assert r.look(1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 23.5})]
+    assert r.mem["t"]["climate.wz"]["wish"] == 22.0
+
+
+def test_a_wish_set_somewhere_else_is_said_once():
+    """the owner's report (#592): "↕ neuer Wunsch 23°" every 15 seconds for four minutes: the wish was taken, nothing had to be sent (the
+    thermostat measured what the room had), and at the next look it was taken again"""
+    st = {"climate.wz": trv(target=21.0, meas=21.0), "sensor.wz": sensor(21.0)}
+    r = Run(wz("shift"), st, {})
+    assert r.look() == []
+    st["climate.wz"]["attributes"]["temperature"] = 23.0
+    wishes = []
+    for _ in range(6):
+        assert r.look(0.25) == []
+        wishes += [x for x in r.log if x["act"] == "wish"]
+    assert [x["v"] for x in wishes] == [23.0] and r.mem["t"]["climate.wz"]["wish"] == 23.0
+
+
+def test_a_thermostat_switched_on_shows_a_target_it_remembered():
+    """off (not by the window rule) or not reporting, then on again: a Zigbee radiator thermostat shows the target it had (the owner's
+    bathroom, #583: 24° instead of the 17° sent): no wish, the add-on's target once more"""
+    st = {"climate.wz": trv(target=21.0, meas=22.0), "sensor.wz": sensor(21.0)}
+    r = Run(wz("shift"), st, {})
+    assert r.look() == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 22.0})]
+    st["climate.wz"]["state"], st["climate.wz"]["attributes"]["temperature"] = "off", 5.0
+    assert r.look(20) == [] and r.mem["t"]["climate.wz"]["wish"] == 21.0          # off: its 5° are no wish
+    assert rs.set_wish(r.mem, "climate.wz", 17.0)                                    # a rule turns it on to 17°
+    assert r.look(apply=False) == []                                                 # still off: nothing to send yet
+    st["climate.wz"]["state"] = "heat"
+    assert r.look(0.25, apply=False) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 18.0})]
+    st["climate.wz"]["attributes"]["temperature"] = 24.0                             # on with the target it remembered
+    assert r.look(1) == [] and r.look(2.5) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 18.0})]
+    assert r.mem["t"]["climate.wz"]["wish"] == 17.0
+    st["climate.wz"]["state"] = "unavailable"                                        # gone a while, back with a target of its own
+    assert r.look(30) == [] and r.status["climate.wz"]["gone"]
+    st["climate.wz"]["state"], st["climate.wz"]["attributes"]["temperature"] = "heat", 20.0
+    assert r.look(1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 18.0})]   # sent long ago: at once
+    assert r.mem["t"]["climate.wz"]["wish"] == 17.0 and not [x for x in r.log if x["act"] == "wish"]
 
 
 def test_the_window_rule_holds_a_moved_thermostat_alone():
@@ -301,3 +360,33 @@ def test_too_warm_lowers_the_wish_of_a_moved_thermostat():
     st["sensor.wz"] = sensor(21.0)
     assert look(11) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 24.0})]  # back: 21 + (24 − 21)
     assert run["sensors"]["t"]["climate.wz"]["wish"] == 21.0 and run["hs"]["h/wz"]["why"] == "schedule"
+
+
+def test_the_owners_wish_of_27_while_too_warm_goes_back_to_12():
+    """the owner's report (#592, 10:57): what 4.43.0 left in rules-state.json: too warm wants 12° (17° − 5°), but the wish of the moved
+    thermostat is 27° (a target it had not taken) and the room 26,1° is heated on. After the update: seen as turned by hand, after his 5
+    minutes the wish is 12° again, the thermostat 12° + (28,5° − 26,1°)."""
+    rules = hr.clean_rules({"warm": {"on": True, "above": 2}, "schedule": {"on": True, "hand": 5, "levels": {"night": 17.0},
+                                                                            "rooms": {"h/wz": {"days": [[[0, "night"]]] * 7}}}, "sensors": wz("shift")})
+    rooms = [{"key": "h/wz", "name": "WZFL", "climates": ["climate.wz"], "windows": [], "doors": [], "outer": []}]
+    st = {"climate.wz": trv(target=28.5, meas=28.5), "sensor.wz": sensor(26.1)}
+    run = {"heat": {}, "sensors": rs.clean_mem({}), "now": 1_000_000.0}
+
+    def look(minutes=0):
+        run["now"] += minutes * 60
+        heat, calls, run["hs"], _ = hr.step(rules, rooms, rs.virtual(st, run["sensors"], hr.held(run["heat"])), run["now"], datetime.datetime(2026, 10, 29, 11), run["heat"])
+        run["heat"], hold = heat, hr.held(heat)
+        out = [("climate", svc, {"entity_id": e, **data}) for e, svc, data in rs.route(calls, run["sensors"], hold, rs.moved(rules["sensors"], st, {}))]
+        run["sensors"], more, _, _ = rs.step(rules["sensors"], st, {}, run["sensors"], run["now"], hold)
+        out += more
+        done(st, out)
+        return out
+
+    assert look() == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 14.5})]   # too warm: 12 + 2,4, rounded
+    t = run["sensors"]["t"]["climate.wz"]
+    t["wish"], t["sentT"] = 27.0, t["sentT"] - 3600                              # as 4.43.0 left it
+    assert look(1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 29.5})]   # the sensor moves to its wish
+    assert run["hs"]["h/wz"]["why"] == "warm" and look(3) == [] and run["hs"]["h/wz"]["hand"] == run["now"] + 300   # the card: turned
+    assert look(4) == []                                                         # by hand, back at … (after a late report of the 12°)
+    assert look(1) == [("climate", "set_temperature", {"entity_id": "climate.wz", "temperature": 14.5})]
+    assert run["sensors"]["t"]["climate.wz"]["wish"] == 12.0 and not run["hs"]["h/wz"]["hand"]

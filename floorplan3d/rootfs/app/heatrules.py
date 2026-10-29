@@ -8,7 +8,8 @@ Two kinds of rules decide what a thermostat should do:
   night / eco / comfort per day, warmer a little earlier with "Vorheizen") or else the night setback (🌙 between two times).
 - an *override* for a while: a window of the room open for some minutes (🪟: off), or 🚀 boost (warm for some minutes), or the room
   too warm (🔥 Zu warm, the owner: "wenn es zu warm ist das dann die heizung runter geht ka so 5 grad das es nicht die ganze zeit heizt";
-  his choice: 5° below the wish from 1° too warm, measured by the thermostat's room sensor, else by the thermostat; back at the wish).
+  his choice: 5° below the wish from 1° too warm, measured by the thermostat's room sensor, else by the thermostat; back at the wish;
+  turned by hand meanwhile: lowered again after the minutes of "hand", like the schedule, #592).
   Who goes first (the owner: "beachte die Prio von den ganzen Karten das die sich nicht gegenseitig überschreiben"): the window, then
   the boost, then too warm, then the level, as the list ORDER says; a level that changes meanwhile is the new wish, an override that
   ends puts back what was. Every rule decides on how a thermostat will be once it has reported what it was sent (expect, #588).
@@ -301,13 +302,13 @@ def _tstep(states, e) -> float:
     return s if s and s > 0 else 0.5
 
 
-def by_hand(states, e, level) -> list:
+def by_hand(states, e, level, keep=False) -> list:
     """the calls that bring thermostat e back to level when only its temperature was turned (by hand, at the device or on a page); []
     when it is as the level wants, or when its mode was changed (off, auto: chosen on purpose, left alone). A thermostat that rounds
-    (whole degrees) does not count as turned."""
+    (whole degrees) does not count as turned. keep: in the mode it has (too warm: auto stays auto)."""
     if not level or level.get("off"):
         return []
-    calls = apply_level(states, e, level)
+    calls = _set(states, e, _heat_mode(states, e, (states.get(e) or {}).get("state")), level["temp"]) if keep else apply_level(states, e, level)
     if not calls or any(c[1] != "set_temperature" for c in calls):
         return []
     cur = _num(_attr(states, e, "temperature"))
@@ -636,13 +637,18 @@ def step(rules, rooms, states, now: float, local: datetime.datetime, mem, *, gua
             elif not out:                                  # a target sent a moment ago, not reported yet: no turn by hand (#579)
                 out, waiting = pending(states, e, t, now)
                 again = bool(out)
-            hand = rules["schedule"]["hand"]
-            if not out and not waiting and not ov_e and (level or {}).get("why") == "schedule" and hand and by_hand(states, e, level):
+            hand, back = rules["schedule"]["hand"], []
+            if not out and not waiting and hand:
+                if not ov_e and (level or {}).get("why") == "schedule":
+                    back = by_hand(states, e, level)
+                elif ov_e == "warm" and old_ov == "warm":     # turned while too warm (#592: it heated on, the card said "Thermostat
+                    back = by_hand(states, e, {"temp": warm[1]}, keep=True)   # 12°" and too warm never ended): lowered again the same way
+            if back:
                 h0 = t.get("hand")                             # turned by hand under the schedule: back some minutes after the last turn
                 if not isinstance(h0, (int, float)) or isinstance(h0, bool) or t.get("handT") != cur:
                     t["hand"], t["handT"] = now, cur
                 if now - t["hand"] >= hand * 60:
-                    out = by_hand(states, e, level)
+                    out = back
                     t.pop("hand", None)
                     t.pop("handT", None)
             else:

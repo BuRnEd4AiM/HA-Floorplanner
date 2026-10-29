@@ -12,14 +12,19 @@ the warm radiator and stops too early (his living room: the thermostat 25,1°, t
   somebody else (Home Assistant, an automation, the device) becomes the new wish; the add-on's heating rules and pages set the wish
   directly (route, set_wish), and the rules see the wish as the thermostat's target (virtual). A target the add-on itself sent a while
   ago that a sleepy thermostat reports late is no wish (the owner, #577: "der Heizplan überschreibt alles", the moved 29,5° became the
-  wish, then 30°). While the window rule holds a thermostat (off, or as cold as it goes) nothing is moved: the rules set it themselves
-  (hold).
+  wish, then 30°). Nor is a target the thermostat still shows because it did not take the new one (the owner's report, #592: 🔥 Zu
+  warm set the wish 12°, the thermostat kept its 24,5° for half an hour, then the 24,5° counted as a wish and the room was heated to
+  26°; in the night the wish went from 12° down to 8° the same way): only a target that changes is somebody's wish; one that stays is
+  sent again after PENDING seconds, at most TRIES times. Nor is the target of a thermostat that is off or was switched on a moment ago
+  (it shows one it remembered). While the window rule holds a thermostat (off, or as cold as it goes) nothing is moved: the rules set
+  it themselves (hold).
 - "show" (Nur anzeigen): the pages show the sensor, nothing is regulated.  "auto": cal when the device has one, else shift.
 Writing to a thermostat costs battery: at most every "every" minutes, and only from a difference of "min" degrees. A sensor taken away (or
 the card switched off) puts the thermostat back as it was: its offset as before, its select as before, its target the wish. While the
 sensor does not report, the thermostat regulates itself (the target is the wish; an external input goes back to its own sensor).
 
-Pure (unit test: tests/test_roomsensors.py): clean, find_cal, step, virtual, route, set_wish; rulesrun.py runs it with the heating rules."""
+Pure (unit test: tests/test_roomsensors.py, with the heating rules: tests/test_heatorder.py SensorDay): clean, find_cal, step, virtual, moved,
+route, set_wish; rulesrun.py runs it with the heating rules."""
 import math
 import re
 
@@ -28,6 +33,7 @@ CLIMATE = re.compile(r"^climate\.[a-z0-9_]{1,120}$")
 SENSOR = re.compile(r"^sensor\.[a-z0-9_]{1,120}$")
 MAX = 100                  # thermostats with a sensor
 PENDING = 180              # s: a target or offset just sent, not reported back yet (a sleepy radiator thermostat)
+TRIES = 5                  # a target the thermostat did not take is sent again after PENDING seconds this often, then every "every" minutes
 OWN = 30 * 60              # s: a target the add-on sent within it and reported late is still its own, not a wish of somebody else
 KEEP = 30 * 60             # s: an external temperature input is sent again at least this often (some forget it after a while)
 MAX_SHIFT = 8.0            # ° a target is moved at most
@@ -275,36 +281,60 @@ def _shift(cfg, states, e, t, room, meas, now, calls, log, st, hold=False):
     tgt, step = _num(a.get("temperature")), _step_of(states, e, "target_temp_step", 0.5)
     lo, hi = _num(a.get("min_temp")), _num(a.get("max_temp"))
     on = (states.get(e) or {}).get("state") not in ("off", *GONE)
+    half = step / 2 + 0.001
+    if on and t.get("off"):
+        t["onT"] = now                                      # just switched on (or back): the next minutes it shows a target it remembered
+    t["off"] = not on
     if _num(t.get("wish")) is None:                         # the first look: the target now is the wish
-        t["wish"], t["sent"], t["sentT"] = tgt, tgt, -1e12
+        t["wish"] = tgt
+    if "sent" not in t:
+        t["sent"], t["sentT"] = tgt, -1e12
         if tgt is not None:
             _own(t, tgt, now)
     if hold:                                                # off or as cold as it goes by the window rule: what it shows is nobody's wish
         if tgt is not None:
             t["sent"] = tgt
             _own(t, tgt, now)
+        t.pop("was", None)
+        t.pop("again", None)
         st.update(wish=_num(t.get("wish")), set=tgt, hold=True)
         return
-    sent = _num(t.get("sent"))                              # the target the thermostat should have: what was sent (or found)
-    if (tgt is not None and sent is not None and abs(tgt - sent) > step / 2 + 0.001 and now - t.get("sentT", 0) >= PENDING
-            and not _is_own(t, tgt, step, now)):              # not one it sent itself, reported late (#577)
-        t["wish"], t["new"] = tgt, True                       # set by somebody else (Home Assistant, an automation, the device)
-        log.append(_log(e, "wish", tgt, "other"))
+    sent, was = _num(t.get("sent")), _num(t.get("was"))    # sent: the target it should have (what was sent, or found); was: what it
+    if tgt is not None and sent is not None:                # showed when the add-on sent it, until it has it
+        if abs(tgt - sent) <= half:                         # it has it
+            t.pop("was", None)
+            t.pop("again", None)
+        elif (was is not None and abs(tgt - was) <= half) or _is_own(t, tgt, step, now):
+            pass                                            # not taken (yet), or an older one it sent reported late (#577): no wish (#592)
+        elif not on or now - t.get("onT", -1e12) < PENDING:
+            t["was"] = tgt                                  # off, or switched on a moment ago: one it remembered, nobody's wish
+        elif now - t.get("sentT", 0) >= PENDING:            # changed by somebody else (Home Assistant, an automation, the device)
+            t["wish"], t["new"], t["sent"] = tgt, True, tgt   # it has it now: not taken again at every look
+            t.pop("was", None)
+            t.pop("again", None)
+            log.append(_log(e, "wish", tgt, "other"))
     wish = _num(t.get("wish"))
     st.update(wish=wish, set=tgt)
     if wish is None or tgt is None or not on:
         return
     want = shifted(wish, meas, room, lo, hi, step)
     st["want"] = want
-    st["wait"] = sent is not None and abs(tgt - sent) > step / 2 + 0.001
+    sent = _num(t.get("sent"))
+    st["wait"] = sent is not None and abs(tgt - sent) > half
     new = t.pop("new", False)
-    if abs(want - tgt) > step / 2 + 0.001 and (new or (now - t.get("sentT", -1e12) >= cfg["every"] * 60
-                                                       and abs(want - tgt) >= max(step, cfg["min"]) - 0.001)):
+    again = st["wait"] and now - t.get("sentT", -1e12) >= PENDING and t.get("again", 0) < TRIES   # it did not take it: once more
+    if abs(want - tgt) > half and (new or again or (now - t.get("sentT", -1e12) >= cfg["every"] * 60
+                                                    and abs(want - tgt) >= max(step, cfg["min"]) - 0.001)):
         calls.append(("climate", "set_temperature", {"entity_id": e, "temperature": want}))
-        t["sent"], t["sentT"] = want, now
+        t["again"] = t.get("again", 0) + 1 if st["wait"] and not new else 0
+        t["sent"], t["sentT"], t["was"] = want, now, tgt
         _own(t, want, now)
-        log.append(_log(e, "temp", want))
+        log.append(_log(e, "temp", want, "again" if st["wait"] and not new else "sensor"))
         st["wait"] = True
+    elif st["wait"] and abs(want - tgt) <= half:            # it shows what is wanted now anyway
+        t["sent"] = tgt
+        t.pop("was", None)
+        t.pop("again", None)
 
 
 def step(cfg, states, parts_of, mem, now: float, hold=()):
@@ -312,7 +342,7 @@ def step(cfg, states, parts_of, mem, now: float, hold=()):
     parts_of: {thermostat: [the entities of its device]}; mem: clean_mem; hold: the thermostats the window rule holds (heatrules.held).
     calls: [(domain, service, data)]; status: {thermostat: {s, v (the sensor now), meas (what the thermostat reports), raw (… without its
     offset), way, kind, ent, name, off, want, wait, edge, sent, wish, set, hold, lost, nocal, gone}};
-    log: [{ent, act: cal | sel | temp | wish | back, v, why}]."""
+    log: [{ent, act: cal | sel | temp | wish | back, v, why}]; why "again": a target sent once more, the thermostat had not taken it."""
     mem = clean_mem(mem)
     calls, status, log = [], {}, []
     active = cfg["map"] if cfg["on"] else {}
@@ -337,6 +367,8 @@ def step(cfg, states, parts_of, mem, now: float, hold=()):
             s["nocal"] = True
         if st.get("state") in GONE:
             s["gone"] = True
+            if way == "shift":                                # back later, it shows a target it remembered (_shift): nobody's wish
+                mem["t"].setdefault(e, {}).update(s=x["s"], way=way, off=True)
             continue
         t = mem["t"].setdefault(e, {})
         t.update(s=x["s"], way=way)
@@ -376,7 +408,17 @@ def set_wish(mem, e: str, temp) -> bool:
     return True
 
 
-def route(calls, mem, hold=()) -> list:
+def moved(cfg, states, parts_of) -> set:
+    """the thermostats whose target their sensor moves now (↕): what the heating rules send one is its wish, also before step looked at
+    it the first time (the owner's TOI, #592: back after a while, the rules' 12° went to the thermostat, then its own 23° became the wish)"""
+    return {e for e, x in (cfg["map"] if cfg["on"] else {}).items() if _way(x, find_cal(parts_of.get(e), states))[0] == "shift"}
+
+
+def route(calls, mem, hold=(), shift=()) -> list:
     """the calls of the heating rules [(thermostat, service, data)]: a target for a thermostat whose target is moved becomes its wish
-    (step sends the moved one); the others as they are, and those of the window rule too (hold: as cold as it goes is no wish)"""
+    (step sends the moved one; shift: moved, also those step has not looked at yet); the others as they are, and those of the window rule
+    too (hold: as cold as it goes is no wish)"""
+    for c in calls:
+        if c[0] in shift and c[0] not in mem["t"] and c[0] not in hold and c[1] == "set_temperature":
+            mem["t"][c[0]] = {"way": "shift"}
     return [c for c in calls if c[0] in hold or not (c[1] == "set_temperature" and set_wish(mem, c[0], c[2].get("temperature")))]

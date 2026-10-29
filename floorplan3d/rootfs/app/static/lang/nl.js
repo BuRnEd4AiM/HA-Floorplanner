@@ -2103,4 +2103,7 @@ export default {
   'rg.n.scene': '{n} scènes', 'rg.tiles': 'Knoppen per ruimte', 'rg.tilesHint': 'tik op een ruimte om hem open te klappen', 'rg.tilesShort': 'Knoppen',
   'rg.title': 'Per ruimte', 'rg.hint': 'knoppen, eigen routines, automatiseringen en scènes van een ruimte samen', 'sc.short': 'Scènes',
   'ro.autosShort': 'Automatiseringen in Home Assistant',
+  'hr.line.warmHand': '✋ met de hand gedraaid, om {at} weer {to}',
+  'hr.warm.hand': 'Met de hand gedraaid', 'hr.warm.handBack': 'na {n} weer omlaag (zoals in het 📅 schema)',
+  'hr.warm.handStay': 'blijft tot het volgende blok (zoals in het 📅 schema)',
 };

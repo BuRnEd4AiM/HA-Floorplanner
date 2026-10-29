@@ -161,7 +161,8 @@ export function journalRows(trace, ctx) {
         rooms: [x.room], tone: j >= 0 && !list[j].ok ? 'warn' : '' };
     } else if (x.k === 'call') {
       row = { icon: x.src === 'sensor' ? '🌡' : '📤', text: t('hd.e.call', { name: ctx.name(x.ent), v: valueWords(x, t, deg) }),
-        sub: [x.src === 'sensor' ? t('rs.log.sub') : '', x.ok ? `✓ ${t('hd.ok')}` : `✗ ${t('hd.fail')}`].filter(Boolean).join(' · '), rooms: [ctx.roomOf?.(x.ent) || ''], tone: x.ok ? '' : 'warn' };
+        sub: [x.src === 'sensor' ? t('rs.log.sub') : '', x.again ? t('hd.again') : '', x.ok ? `✓ ${t('hd.ok')}` : `✗ ${t('hd.fail')}`].filter(Boolean).join(' · '),
+        rooms: [ctx.roomOf?.(x.ent) || ''], tone: x.ok ? '' : 'warn' };
     } else if (x.k === 'sensor' && ctx.sensorLog) {
       const w = ctx.sensorLog(x);
       row = { icon: w.icon, text: w.text, sub: w.sub, rooms: [ctx.roomOf?.(x.ent) || ''] };

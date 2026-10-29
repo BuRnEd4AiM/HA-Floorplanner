@@ -2,7 +2,7 @@
 his choice: 5° below the wish from 1° too warm, measured by the room sensor, back at the wish; "beachte die Prio von den ganzen Karten").
 A room with a thermostat (its own target 20°) and a room sensor: the room gets 1,5° warmer, the add-on sets the thermostat 5° lower; the
 room's card on 🌡 Klima says so; back at 20° in the room, the thermostat gets its 20° again. 📋 Heiz-Regeln has the card after the window
-rule, its numbers saved, and "Wer hat Vorrang?".
+rule, its numbers saved, and "Wer hat Vorrang?". Turned up while still too warm (#592): the card says when it goes down again.
 """
 saved_zw = api_admin("api/layout")              # put back at the end
 st_zw = api("api/settings")
@@ -54,6 +54,13 @@ line_zw = pgW.locator("[data-page=climate] [data-room=zw_r] [data-line=warm]")
 txt_zw = line_zw.inner_text() if line_zw.count() else ""
 check("too warm: the room's card says it (🔥 Zu warm, the room, the thermostat, until when)",
       "Zu warm" in txt_zw and "21,5°" in txt_zw and "15°" in txt_zw and "20°" in txt_zw, txt_zw or pgW.inner_text("[data-page=climate]")[:500])
+# #592: turned up while the room is still too warm: the card says so and when it goes down again (the minutes of "Von Hand gedreht")
+urllib.request.urlopen(urllib.request.Request(HA + "/services/climate/set_temperature", data=json.dumps({"entity_id": "climate.zw_th", "temperature": 25.0}).encode(),
+                                              method="POST", headers={"Content-Type": "application/json"})).read()
+hand_zw = wait_zw(lambda: room_st().get("why") == "warm" and room_st().get("hand"), n=60)
+hand_txt = wait_zw(lambda: (lambda x: x if "von Hand gedreht" in x else "")(line_zw.inner_text() if line_zw.count() else ""), n=30)
+check("too warm: turned up meanwhile, the card says it goes down to 15° again after the minutes of 'Von Hand gedreht' (#592)",
+      hand_zw and "von Hand gedreht" in hand_txt and "wieder 15°" in hand_txt, (room_st(), hand_txt))
 pgW.click("[data-page=climate] [data-view=rules]"); pgW.wait_for_timeout(800)
 cards_zw = pgW.evaluate("[...document.querySelectorAll('[data-page=climate] [data-heat-rule]')].map((c) => c.dataset.heatRule)")
 prio_zw = pgW.locator("[data-page=climate] [data-part=prio]")
@@ -64,8 +71,8 @@ active_zw = pgW.inner_text("[data-heat-rule=warm]")
 pgW.click("[data-heat-rule=warm] [data-field='warm.above'] button:last-child"); pgW.wait_for_timeout(150)
 pgW.click("[data-heat-rule=warm] [data-field='warm.down'] button:first-child"); pgW.wait_for_timeout(150)
 saved_w = wait_zw(lambda: (lambda w: w if w["above"] == 1.5 and w["down"] == 4.5 and w["on"] else None)(api("api/rules")["heat"]["warm"]))
-check("too warm: the card shows where it is on, its numbers changed in the page are saved by the add-on",
-      "Warmer Raum" in active_zw and saved_w, (active_zw[:300], api("api/rules")["heat"]["warm"]))
+check("too warm: the card shows where it is on, its numbers changed in the page are saved by the add-on, turned by hand as in the schedule",
+      "Warmer Raum" in active_zw and saved_w and "nach 10 Min wieder runter" in active_zw, (active_zw[:400], api("api/rules")["heat"]["warm"]))
 
 urllib.request.urlopen(HA + "/_set?e=sensor.zw_temp&s=20.0").read()       # back at the wish
 back_zw = wait_zw(lambda: room_st().get("why") is None and calls_zw(20.0), n=60)

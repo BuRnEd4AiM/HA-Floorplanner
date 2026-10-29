@@ -2126,4 +2126,7 @@ export default {
   'rg.n.scene': '{n} scene', 'rg.tiles': 'Pulsanti per stanza', 'rg.tilesHint': 'tocca una stanza per aprirla', 'rg.tilesShort': 'Pulsanti',
   'rg.title': 'Per stanza', 'rg.hint': 'pulsanti, routine proprie, automazioni e scene di una stanza insieme', 'sc.short': 'Scene',
   'ro.autosShort': 'Automazioni in Home Assistant',
+  'hr.line.warmHand': '✋ girato a mano, di nuovo {to} alle {at}',
+  'hr.warm.hand': 'Girato a mano', 'hr.warm.handBack': 'di nuovo giù dopo {n} (come nel 📅 programma)',
+  'hr.warm.handStay': 'resta fino alla prossima fascia (come nel 📅 programma)',
 };
