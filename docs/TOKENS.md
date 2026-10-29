@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-10-29 · 81 Sitzungen
+Stand: 2026-10-29 · 82 Sitzungen
 
-**Insgesamt: 5,96 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 5,97 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 17,2 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 61,5 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 5,88 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Neu gelesen | 61,7 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 5,89 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,13 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 68 | 3,96 Mrd. | 11,2 Mio. |
+| 2026-10 | 69 | 3,97 Mrd. | 11,2 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-10-29 | [018pwcmx…](https://claude.ai/code/session_018pwcmxVwk2kDDTuDz7KaLU) | claude/ausgeblendet-liste | 14,4 Mio. | 58 Tsd. | gezählt |
 | 2026-10-29 | [018pwcmx…](https://claude.ai/code/session_018pwcmxfdeofPfhGXgwoJZH) | claude/test-132-3 | 6,1 Mio. | 55 Tsd. | gezählt |
 | 2026-10-29 | [018pwcmx…](https://claude.ai/code/session_018pwcmxaS7azgUF14TYCs1J) | claude/raumfuehler-wunsch | 27,3 Mio. | 127 Tsd. | gezählt |
 | 2026-10-29 | [018pwcmy…](https://claude.ai/code/session_018pwcmycA5eEFzYTvBa4D12) | claude/vibrant-planck-5xczbv | 86,2 Mio. | 227 Tsd. | gezählt |
