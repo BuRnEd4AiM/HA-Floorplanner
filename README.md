@@ -55,7 +55,7 @@ What that means for you: the code is automatically tested (backend and browser t
 | 🌅 **See it at a glance** | Labels over the rooms and room tiles, power as a picture, the sky of the time of day with the weather and the moon, real floors |
 | 🗂️ **Your only dashboard** | Pages at the bottom for every day: ☀ Today, ⚡ Energy, 🌡 Climate, 📷 Cameras, 🎵 Music & TV, 🧺 Household, ▶ Routines, 👨‍👩‍👧 Family, arranged like a Home Assistant dashboard |
 | 🔥 **Heating that thinks** | Heating rules (window open → off, nobody home, night, schedule, boost, holidays), a **room sensor per thermostat** like Better Thermostat, own routines that become real Home Assistant automations |
-| 📱 **Everywhere** | Phone, desktop and wall tablets (kiosk mode, per-user rooms), 7 languages, offline and private |
+| 📱 **Everywhere** | Phone, desktop and wall tablets (kiosk mode, per-user rooms), 8 languages, offline and private |
 
 ## 🤖 Describe it instead of drawing it
 

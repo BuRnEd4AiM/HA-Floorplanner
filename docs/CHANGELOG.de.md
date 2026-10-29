@@ -2,6 +2,12 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.46.0] - 2026-10-29
+### Neu
+- **简体中文: Chinesisch (vereinfacht) als achte Sprache** (#587, danke an @aixmoyu, der alle Texte des Add-ons und der Einstellungsseite in Home Assistant übersetzt hat): ⚙ → *Sprache* → *简体中文*, oder *Auto* auf einem Gerät, dessen Browser auf Chinesisch steht. Der Beitrag stammte von Version 4.42.0; die 83 Texte, die seitdem dazukamen (▶ Abläufe nach Räumen, die Zeile „👁 Ausgeblendet“, die Szenen-Leiste und die Lichtkarte aus 4.45.0), sind auch übersetzt, und `tools/add_i18n.py` verlangt jetzt bei jedem neuen Text auch Chinesisch, damit es vollständig bleibt. Die Sprachsuche versteht noch kein Chinesisch (mit Chinesisch nimmt sie die deutschen Wörter).
+### Verbessert
+- Testprotokoll: neuer Abschnitt 135.
+
 ## [4.45.0] - 2026-10-29
 ### Neu
 - **🎬 Eine Szenen-Leiste über der Reiter-Leiste** (#597, der Besitzer mit einem Bild von ☀ Heute auf seinem iPad: „über dieser Leiste, die wir da unten haben, … Szenen reinmachen, die man auch, wenn es mehrere Szenen sind, … scrollen kann, von links nach rechts … dass man das direkt auch pro Dashboard theoretisch verknüpfen kann“). Direkt über den Reitern (🏠 Haus, ☀ Heute, ⚡ Energie …) eine Reihe Kacheln mit Symbol und Namen, z. B. „🛋 Wohnzimmer an“:

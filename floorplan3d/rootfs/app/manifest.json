@@ -1,6 +1,6 @@
 {
- "version": "4.45.0",
- "buildHash": "2671c732a826ea36abe43dbd510decc581f4a4562fdf694fd488251b4c8fb892",
+ "version": "4.46.0",
+ "buildHash": "59064f803036bb164e987c9defc2a4c36a0b25b81d985a49a5397db59de9bf72",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "boards.py": "077c4b71384955ab498da8f3224139b4c8cce86bf00db2aa0ea55b9d3d97d6ae",
@@ -265,7 +265,7 @@
   "static/lang/it.js": "15c7b7a693473dcc4d3fbd9b146f1aa529fc91e844560e82ba46e406daeb1137",
   "static/lang/nl.js": "8a9fca089d282d287915840fff3cca22990f8e027644b5191ad2f6b073a3bf04",
   "static/lang/pl.js": "0fba6683474414b17e19ffd2e1fd95d8e11bdeb4042cf54a103771ca1a6dbcb7",
-  "static/lang/zh.js": "d5ec61cf56fc38382d126ef05eba67b80c17d86851b88ba04bdecd2d709f4023",
+  "static/lang/zh.js": "3cd1895bb56e0790e822007b8309ebfb1112e0a636fac11b31547baafa19385d",
   "static/layoutnorm.js": "4d97bc7ab7697ae6d9bedaa492f3752aad91b70f1d82f94f835b607b47c21729",
   "static/ledring.js": "a1b6854d31b2f45fc7ae99f90b2fe409410de93217f3e1c90d7db2add98c8135",
   "static/ledzones.js": "46fe98428015ba0c74f98bddeff7f6acbd04822b2a01c8c24054e38f79a0a46f",
