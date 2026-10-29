@@ -418,7 +418,7 @@ def test_a_thermostat_switched_on_with_a_target_of_its_own_gets_the_plans():
         run.mem, calls, run.status, run.log = hr.step(run.rules, ROOMS, st, run.now, run.local, run.mem)
         return calls
 
-    assert look(1) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"}), ("climate.wz", "set_temperature", {"temperature": 17.0})]
+    assert look(1) == [("climate.wz", "set_temperature", {"temperature": 17.0})]          # "heizen" from 21:29 is still on its way
     assert look(0.1) == [] and run.status["h/wz"]["sent"] == 17.0                     # nothing reported yet: waiting
     st["climate.wz"]["state"] = "heat"                                                 # it took heating ...
     st["climate.wz"]["attributes"]["temperature"] = 24.0                               # ... with the 24° it remembered
@@ -546,3 +546,109 @@ def test_too_warm_leaves_alone_a_thermostat_that_is_off_a_room_left_out_and_an_a
     ac = warm_house(room=25.0, **{"climate.wz": thermostat(modes=("off", "heat", "cool"))})
     ac["climate.wz"]["attributes"]["current_temperature"] = 25.0
     assert Run({"warm": {"on": True}, "summer": {"on": True}}, ac).look() == []
+
+
+# ---- #588 (the owner: "die Reihenfolge der heizungsteureung muss stabiler sein und auch so das es da keine fehler gibt"): a sleepy
+# radiator thermostat reports what it was sent some minutes later; the rules decide on what it will be, not on what it still shows
+class Slow(Run):
+    """a thermostat that reports what it was sent only when told (done(run.states, run.waiting))"""
+    def look(self, minutes=0):
+        self.now += minutes * 60
+        self.local += datetime.timedelta(minutes=minutes)
+        self.mem, calls, self.status, self.log = hr.step(self.rules, ROOMS, self.states, self.now, self.local, self.mem, weather="weather.home", **self.kw)
+        self.waiting = getattr(self, "waiting", []) + calls
+        return calls
+
+    def reported(self, n=None):
+        """the first n calls (all) come, in the order they were sent"""
+        n = len(self.waiting) if n is None else n
+        done(self.states, self.waiting[:n])
+        self.waiting = self.waiting[n:]
+
+
+def test_the_window_shut_before_the_thermostat_said_off_heats_again():
+    st = house()
+    run = Slow({"window": {"on": True, "delay": 0}}, st)
+    st["binary_sensor.fenster"]["state"] = "on"
+    assert run.look() == [("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})]
+    st["binary_sensor.fenster"]["state"] = "off"                                  # shut again: it still shows heating, "off" is on its way
+    assert run.look(1) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"}), ("climate.wz", "set_temperature", {"temperature": 21.0})]
+    run.reported()                                                                # "off", then heating at 21°
+    assert st["climate.wz"]["state"] == "heat" and st["climate.wz"]["attributes"]["temperature"] == 21.0 and run.look(1) == []
+
+
+def test_a_boost_that_ends_before_its_temperature_was_reported_goes_back():
+    st = house(**{"climate.wz": thermostat(temp=17.0)})
+    run = Slow({"schedule": {"on": True, "rooms": {"h/wz": NIGHT}}}, st)
+    assert run.look() == [] and run.status["h/wz"]["why"] == "schedule"
+    run.mem = hr.boost(run.mem, "h/wz", run.now, run.rules)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 24.0})]
+    run.mem = hr.boost(run.mem, "h/wz", run.now, run.rules)                     # tapped again at once: it still shows 17°, 24° on its way
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 17.0})]
+    run.reported()
+    assert st["climate.wz"]["attributes"]["temperature"] == 17.0 and run.look(5) == []
+
+
+def test_a_boost_while_heating_is_on_its_way_comes_back_to_heating():
+    st = house(**{"climate.wz": thermostat(mode="off", temp=5.0)})
+    run = Slow({"schedule": {"on": True, "rooms": {"h/wz": {"days": [[[0, "comfort"]]] * 7}}}}, st)
+    assert run.look() == [("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"}), ("climate.wz", "set_temperature", {"temperature": 21.0})]
+    run.mem = hr.boost(run.mem, "h/wz", run.now, run.rules)                     # boost before the thermostat said "heizen"
+    assert run.look(0.5) == [("climate.wz", "set_temperature", {"temperature": 24.0})]
+    run.reported()
+    assert run.look(30) == [("climate.wz", "set_temperature", {"temperature": 21.0})]   # as it was: heating at 21°, not off
+    run.reported()
+    assert st["climate.wz"]["state"] == "heat" and st["climate.wz"]["attributes"]["temperature"] == 21.0
+
+
+def test_a_turn_by_hand_does_not_come_back_when_the_level_changed_meanwhile():
+    st = house()
+    run = Run({"window": {"on": True, "delay": 0}, "away": {"on": True, "delay": 0, "temp": 17},
+               "schedule": {"on": True, "hand": 0, "rooms": {"h/wz": {"days": [[[0, "comfort"]]] * 7}}}}, st)
+    run.look()
+    st["climate.wz"]["attributes"]["temperature"] = 25.0                         # by hand: stays until the next change
+    st["binary_sensor.fenster"]["state"] = "on"
+    assert run.look(1)[0] == ("climate.wz", "set_hvac_mode", {"hvac_mode": "off"})
+    st["person.anna"]["state"] = "not_home"                                       # nobody at home and back, while the window is open
+    run.look(30)
+    st["person.anna"]["state"] = "home"
+    run.look(30)
+    st["binary_sensor.fenster"]["state"] = "off"
+    assert run.look(1) == [("climate.wz", "set_hvac_mode", {"hvac_mode": "heat"}), ("climate.wz", "set_temperature", {"temperature": 21.0})]
+
+
+def test_a_turn_while_too_warm_gives_way_to_a_block_that_starts():
+    st = warm_house(room=23.0)
+    run = Run({"warm": {"on": True}, "schedule": {"on": True, "rooms": {"h/wz": {"days": [[[0, "night"], [480, "comfort"]]] * 7}}}}, st,
+              at=MON.replace(hour=7, minute=50))
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 12.0})]
+    st["climate.wz"]["attributes"]["temperature"] = 20.0                         # somebody turns it while it is too warm
+    measure(st, 20.5)
+    assert run.look(10) == [("climate.wz", "set_temperature", {"temperature": 21.0})]   # 8:00 comfort, not cool enough for too warm
+
+
+def test_a_turn_while_too_warm_keeps_how_it_was_before_the_rules():
+    st = warm_house(room=23.0)
+    run = Run({"warm": {"on": True}, "away": {"on": True, "delay": 0, "temp": 17}}, st)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 16.0})]   # its own 21° − 5°
+    st["person.anna"]["state"] = "not_home"
+    assert ("climate.wz", "set_temperature", {"temperature": 12.0}) in run.look(1)   # nobody at home: 17° − 5°
+    st["climate.wz"]["attributes"]["temperature"] = 19.0                         # turned, and the room cools down
+    measure(st, 17.0)
+    assert run.look(1) == []
+    st["person.anna"]["state"] = "home"                                           # back home: as it was before nobody was home
+    assert ("climate.wz", "set_temperature", {"temperature": 21.0}) in run.look(1)
+
+
+def test_an_older_call_that_comes_late_is_no_turn_by_hand():
+    st = warm_house(room=23.0)
+    run = Slow({"warm": {"on": True}, "schedule": {"on": True, "rooms": {"h/wz": NIGHT}}}, st)
+    assert run.look() == [("climate.wz", "set_temperature", {"temperature": 12.0})]   # too warm: 17° − 5°, on its way
+    run.mem = hr.boost(run.mem, "h/wz", run.now, run.rules)
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 24.0})]
+    run.reported(1)                                                               # the 12° comes now, the 24° is still on its way
+    assert run.look(1) == [] and run.status["h/wz"]["hand"] is None and run.status["h/wz"]["why"] == "boost"
+    run.mem = hr.boost(run.mem, "h/wz", run.now, run.rules)                     # boost off: too warm again
+    assert run.look(1) == [("climate.wz", "set_temperature", {"temperature": 12.0})]
+    run.reported()
+    assert st["climate.wz"]["attributes"]["temperature"] == 12.0 and run.look(5) == []

@@ -4,6 +4,22 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.42.1] - 2026-10-29
+### Fixed
+- **The heating rules keep their order also with a thermostat that reports late** (#588, the owner: "die Reihenfolge der heizungsteureung muss stabiler sein und auch so das es da keine fehler gibt"). A sleepy radiator thermostat shows the old mode or target for some minutes after the add-on sent it a new one; the rules decided on what it still showed. Now they decide on what it will be once it has reported (what Home Assistant shows, plus what the add-on sent and is still on its way). Repaired with it:
+  - the window shut before the thermostat said "off": the heating stayed off;
+  - a boost that ended (or was tapped off) before its 24° was reported: the 24° stayed;
+  - a boost or an open window while "heizen" from the schedule was still on its way: afterwards the thermostat went back to off;
+  - a temperature turned by hand came back after an open window or a boost although the level had changed meanwhile (nobody at home and back): now the level of the moment comes;
+  - turned by hand while the room was too warm, and a block of the schedule began at that very moment: the block was lost;
+  - turned while too warm, then nobody at home and an open window: afterwards the heating stayed off (nothing to go back to);
+  - a target sent with "heizen" was given up after 3 minutes while the thermostat still showed off;
+  - an older call that the thermostat reported while the newest was still on its way (it reports them in their order) counted as turned by hand, so the newest was lost.
+### Changed
+- **One list decides who goes first** (`heatrules.ORDER`): 🪟 window open → 🚀 boost → 🔥 too warm → ✈️ holiday → ☀️ summer pause → 🚶 nobody at home → 📅 schedule → 🌙 night setback. The add-on goes through this list only, and a test checks that "Wer hat Vorrang?" in 📋 Heiz-Regeln says the same.
+- **Thousands of random days as a test** (`tests/test_heatorder.py`, runs with every change): windows open and shut, boost, too warm, schedule, nobody at home, the holiday alarm, the summer pause, turns by hand, thermostats that report after seconds or up to 10 minutes; each time it checks that the right rule wins, the thermostat is as that rule wants, it is never left off without a reason and nothing goes back and forth. Before the repair 87 to 208 of 800 such days went wrong; now none in the test, and in 9000 more days only 2, both with thermostats that need 2 to 10 minutes for every report (then the window rule still sends "off" again after 3 minutes).
+- Test protocol: new section 130.
+
 ## [4.42.0] - 2026-10-28
 ### Added
 - **🔥 Zu warm: a room too warm gets its heating turned down** (#585, the owner: "wenn es zu warm ist das dann die heizung runter geht ka so 5 grad das es nicht die ganze zeit heizt wenn die temperatur im raum an ist"; his choice: 5° below the wish, from 1° too warm, a card of its own, mind the priority of the cards). 🌡 Klima → 📋 Heiz-Regeln has the new card **🔥 Zu warm → Heizung runter** after the window rule: when the room is warmer than wished by "wenn der Raum wärmer ist um" (1° unless set, 0,5° to 5°), the add-on sets the thermostat lower by "Thermostat tiefer um" (5° unless set, 1° to 15°), so its valve shuts; back at the wish in the room, the thermostat gets the wish again. The room is measured by the thermostat's 🌡 Raumfühler, else by the thermostat itself (a sensor that does not report for a moment keeps it lowered). The wish is what the heating rules want now (schedule, night, away, holiday), else the thermostat's own target; when the schedule moves on meanwhile, the new wish counts. Rooms can be left out like with the window rule. The room's card says "🔥 Zu warm (18,4° im Raum) · Thermostat 12°, bis wieder 17°"; 🩺 Protokoll shows the setting and each time it starts and ends. Works with the room sensor's "↕ Wunsch verschieben" (the lowered wish is moved too).
