@@ -4,6 +4,7 @@ import es from './lang/es.js';
 import it from './lang/it.js';
 import nl from './lang/nl.js';
 import pl from './lang/pl.js';
+import zh from './lang/zh.js';
 
 const DICT = {
   de: {
@@ -2129,8 +2130,8 @@ const DICT = {
   },
 };
 
-DICT.fr = fr; DICT.es = es; DICT.it = it; DICT.nl = nl; DICT.pl = pl;
-export const LANGUAGES = { de: 'Deutsch', en: 'English', fr: 'Français', es: 'Español', it: 'Italiano', nl: 'Nederlands', pl: 'Polski' };
+DICT.fr = fr; DICT.es = es; DICT.it = it; DICT.nl = nl; DICT.pl = pl; DICT.zh = zh;
+export const LANGUAGES = { de: 'Deutsch', en: 'English', fr: 'Français', es: 'Español', it: 'Italiano', nl: 'Nederlands', pl: 'Polski', zh: '简体中文' };
 
 let lang = 'de';
 /** 'auto' follows the browser / Home Assistant language, unknown codes fall back to German. */

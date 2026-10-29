@@ -436,4 +436,4 @@ Unter **Häuser → Grundriss importieren (JSON)** legst du aus einer JSON-Besch
 
 ## Language
 
-⚙ → *Language*: Deutsch, English, Français, Español, Italiano, Nederlands, Polski, or *Auto* (follows the browser language of the device, so a tablet and a phone can differ if you set it per device in the browser; the saved setting is shared by all). Names you typed yourself (floors, rooms, devices) are never translated.
+⚙ → *Language*: Deutsch, English, Français, Español, Italiano, Nederlands, Polski, 简体中文, or *Auto* (follows the browser language of the device, so a tablet and a phone can differ if you set it per device in the browser; the saved setting is shared by all). Names you typed yourself (floors, rooms, devices) are never translated.

@@ -67,7 +67,7 @@ test('what lights up follows the entity: the lamps and the embers of the fire bo
 });
 test('every piece has its name in every language', async () => {
   globalThis.document ??= { documentElement: {} };                 // setLanguage marks the page's language
-  for (const l of ['de', 'en', 'fr', 'es', 'it', 'nl', 'pl']) {
+  for (const l of ['de', 'en', 'fr', 'es', 'it', 'nl', 'pl', 'zh']) {
     setLanguage(l);
     for (const k of KEYS) assert.notEqual(t(`dev.${k}`), `dev.${k}`, `${l}: ${k}`);
     for (const f of Object.keys(Y.YARD_FINISHES)) assert.notEqual(t(`fin.${f}`), `fin.${f}`, `${l}: ${f}`);
