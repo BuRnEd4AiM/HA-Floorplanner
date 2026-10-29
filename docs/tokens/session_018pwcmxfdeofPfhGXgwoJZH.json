@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmxfdeofPfhGXgwoJZH",
+ "start": "2026-10-29",
+ "updated": "2026-10-29T17:22:15Z",
+ "branch": "claude/test-132-3",
+ "source": "counted",
+ "input": 66,
+ "cache_write": 184678,
+ "cache_read": 5907208,
+ "output": 54501,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 66,
+   "cache_write": 184678,
+   "cache_read": 5907208,
+   "output": 54501,
+   "requests": 33
+  }
+ }
+}
