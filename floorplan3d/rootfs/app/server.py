@@ -66,9 +66,9 @@ MAX_MODEL_BYTES = 20 * 1024 * 1024
 MAX_LAYOUT_BYTES = 10 * 1024 * 1024
 MAX_BG_BYTES = 8 * 1024 * 1024
 
-LANGUAGES = ("auto", "de", "en", "fr", "es", "it", "nl", "pl")
+LANGUAGES = ("auto", "de", "en", "fr", "es", "it", "nl", "pl", "zh")
 DEFAULT_SETTINGS = {
-    "language": "auto",        # auto (language of the browser) | de | en | fr | es | it | nl | pl
+    "language": "auto",        # auto (language of the browser) | de | en | fr | es | it | nl | pl | zh
     "langChosen": False,       # true once somebody picked a language; until then every start follows the browser (older installs had "de" stored by default)
     "theme": "dark",           # holo | dark | light
     "units": "metric",         # metric | imperial
