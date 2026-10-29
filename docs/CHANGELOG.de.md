@@ -2,6 +2,25 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.45.0] - 2026-10-29
+### Neu
+- **🎬 Eine Szenen-Leiste über der Reiter-Leiste** (#597, der Besitzer mit einem Bild von ☀ Heute auf seinem iPad: „über dieser Leiste, die wir da unten haben, … Szenen reinmachen, die man auch, wenn es mehrere Szenen sind, … scrollen kann, von links nach rechts … dass man das direkt auch pro Dashboard theoretisch verknüpfen kann“). Direkt über den Reitern (🏠 Haus, ☀ Heute, ⚡ Energie …) eine Reihe Kacheln mit Symbol und Namen, z. B. „🛋 Wohnzimmer an“:
+  - ein Tipp startet die Szene (`scene.turn_on`) oder das Skript (`script.turn_on`), die Kachel zeigt kurz ✓, über der Leiste ein Hinweis, wenn es nicht geklappt hat; gedrückt halten öffnet das Fenster von Home Assistant dazu (außerhalb von Home Assistant das Fenster des Add-ons);
+  - die zuletzt ausgelöste Szene hat einen kleinen Punkt (der Zustand einer Szene in Home Assistant ist die Zeit, zu der sie zuletzt lief, ein Skript hat seinen letzten Lauf);
+  - mehr Kacheln als Platz: mit dem Finger seitwärts wischen oder mit dem Mausrad scrollen, sie bleibt an einer Kachel stehen, kein Scrollbalken, die abgeschnittene Seite läuft blass aus; auf dem iPad (hoch und quer) und auf dem Handy;
+  - die Seite endet über ihr, nichts wird verdeckt; keine Szenen für eine Seite: gar keine Leiste;
+  - eingestellt beim Bearbeiten (✎ Bearbeiten, dann „🎬 Szenen-Leiste“ in der Leiste oben oder die Kachel ✎ am Ende der Szenen-Leiste): „Szenen-Leiste anzeigen“ an oder aus, **eine Liste für alle Seiten** und **je Seite** (auch je Fassung einer Seite, #507, z. B. „☀ Heute · 🧒 Kinder“) „Wie alle Seiten“, „Eigene Szenen“ oder „Keine Leiste“; Szenen und Skripte kommen über eine Suche dazu, jede Kachel bekommt ihren eigenen Namen, ihr Symbol und ihre Farbe, die Reihenfolge wird mit ⠿ gezogen, ✕ entfernt eine. Gespeichert in den Einstellungen (`sceneBar`, `boards.clean_scene_bar`); ohne sie bleibt alles wie bisher.
+- **🎚️ Eine neue Karte „Lichtsteuerung“** (#597, der Besitzer: „diese Lichtkarte … mit diesem Schieberegler von links und rechts diesen Ausknopf, dass man da Gruppen oder auch nur einzelne Lampen hinzufügen kann“; sein Bild: die slider-button-card „Light Control“). Ein breiter Balken je Lampe, Lichtgruppe (von Home Assistant oder Zigbee2MQTT) oder Schalter:
+  - so weit gefüllt, wie die Lampe hell ist, in ihrer Farbe (ein Weißton als Warm- oder Kaltweiß, sonst ein warmes Gelb); links Symbol, Name und „75 %“, „Aus“ oder „Nicht verfügbar“, rechts ein Schalter;
+  - den Balken seitwärts ziehen stellt die Helligkeit: die Zahl folgt sofort dem Finger, der Befehl geht erst beim Loslassen raus (das Zigbee-Netz wird nicht überflutet); hoch und runter scrollt die Seite wie immer;
+  - kurz tippen schaltet an oder aus, gedrückt halten öffnet das Fenster von Home Assistant; eine Lampe, die nicht dimmen kann, und ein Schalter schalten nur, eine nicht verfügbare Lampe ist grau und nimmt keinen Tipp;
+  - eine Lichtgruppe von Home Assistant klappt mit ▸ ihre Lampen auf, jede mit eigenem Balken (eine Zigbee2MQTT-Gruppe sagt Home Assistant ihre Lampen nicht: sie bleibt ein Balken);
+  - in „Karte einstellen“: der Titel, die Lampen aus einer Suche (jede mit eigenem Namen und Symbol, ⠿ zum Ziehen, ✕ zum Entfernen), „Alle aus“ oben in der Karte, Gruppen zum Aufklappen und **„Als Karte auf der Seite“ oder „Als Fenster (Popup)“**: als Fenster öffnet sich die Karte über **„💡 n Lichter an“** in „Im Haus“ auf ☀ Heute (ein Haken) oder über eine Knopf-Karte mit dem neuen Tippen **„🎚️ Lichtsteuerung“**; beim Bearbeiten steht sie mit dem Schild „↗ Fenster“ auf der Seite.
+  - Das Add-on sagt der Seite jetzt auch, welche Lampen eine Lichtgruppe von Home Assistant hat und ob eine Lampe dimmen kann (`slim_state`: `members`, `dim`).
+### Verbessert
+- Die Demo hat die Szenen-Leiste, die Lichtkarte auf der Seite 🔘 Knöpfe, das Fenster hinter „💡 n Lichter an“ und den Knopf „Alle Lichter“; ihre Szenen sagen, wann sie zuletzt liefen.
+- Testprotokoll: neuer Abschnitt 134.
+
 ## [4.44.0] - 2026-10-29
 ### Verbessert
 - **✎ Bearbeiten: eine ausgeblendete Karte ist wirklich weg, die Zeile „👁 Ausgeblendet“ holt sie zurück** (#595, der Besitzer mit einem Bild von ☀ Heute in seiner Fassung „Eltern“: „wenn ich eine Karte ausblende, dass sie dann auch für mich wirklich weg ist und ich dann einfach sozusagen irgendwo eine Liste habe mit ausgeblendeten Elementen und dann wieder anhaken kann … weil sonst wird es echt schwierig, die richtig anzuordnen“). Bisher blieb eine mit 👁 ausgeblendete Karte beim Bearbeiten an ihrem Platz, blass und mit dem Schild „ausgeblendet“; die Seite sah beim Bearbeiten also anders aus als danach. Jetzt:

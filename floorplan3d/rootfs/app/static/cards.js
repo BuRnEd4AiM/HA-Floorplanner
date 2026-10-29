@@ -1,15 +1,16 @@
-/* Own cards on the pages of the tab bar (#484, like the cards of a Home Assistant dashboard): thirteen kinds, each with what it needs
- * (an entity of a fitting kind, several entities, a room, a text, calendars (calcard.js, #495), a train station (traincard.js, #550) or a
- * ready card of another page), its
+/* Own cards on the pages of the tab bar (#484, like the cards of a Home Assistant dashboard): fifteen kinds, each with what it needs
+ * (an entity of a fitting kind, several entities, a room, a text, calendars (calcard.js, #495), a train station (traincard.js, #550), the
+ * lamps of a light card (lightslider.js, #597) or a ready card of another page), its
  * name, width and colour. Pure
  * (unit test: tests/cards.test.mjs; server.py clean_card checks the same); cardsui.js draws a card, cardeditor.js makes and changes one. */
 import { FAV_SERVICE } from './favorites.js';
 import { SIZES } from './thermostat.js';
 import { CAL_DAYS, CAL_VIEWS, cleanCals } from './calcard.js';
 import { cleanLook } from './buttonlook.js';
+import { cleanRows } from './lightslider.js';
 
-export const CARD_TYPES = ['button', 'switch', 'value', 'graph', 'light', 'thermostat', 'cover', 'camera', 'calendar', 'entities', 'room', 'text', 'builtin', 'train'];
-export const TYPE_ICON = { button: '🔘', switch: '⏻', value: '🔢', graph: '📈', light: '💡', thermostat: '🌡️', cover: '🪟', camera: '📷', calendar: '📅', entities: '🧩', room: '🏠', text: '📝', builtin: '☀️', train: '🚆' };
+export const CARD_TYPES = ['button', 'switch', 'value', 'graph', 'light', 'lights', 'thermostat', 'cover', 'camera', 'calendar', 'entities', 'room', 'text', 'builtin', 'train'];
+export const TYPE_ICON = { button: '🔘', switch: '⏻', value: '🔢', graph: '📈', light: '💡', lights: '🎚️', thermostat: '🌡️', cover: '🪟', camera: '📷', calendar: '📅', entities: '🧩', room: '🏠', text: '📝', builtin: '☀️', train: '🚆' };
 /** the entities a kind of card takes, by domain (null: any entity); kinds without an entity are not listed */
 export const TYPE_DOMAINS = {
   button: ['scene', 'script', 'button', 'input_button', 'light', 'switch', 'input_boolean', 'fan', 'cover', 'media_player', 'climate', 'water_heater', 'lock', 'vacuum'],
@@ -87,6 +88,11 @@ export function cleanCard(c) {
     if (!BUILTINS.includes(c.builtin)) return null;
     out.builtin = c.builtin;
   }
+  if (c.type === 'lights') {                         // 🎚 a bar per lamp (#597, lightslider.js): "Alle aus", groups open, as a window
+    out.rows = cleanRows(c.rows);
+    if (!out.rows.length) return null;
+    Object.assign(out, { allOff: c.allOff === true, expand: c.expand !== false, popup: c.popup === true, hook: c.popup === true && c.hook === true });
+  }
   if (c.type === 'train') {                          // 🚆 the departures of a station, "mein Zug" (#550, traincard.js)
     out.station = text(c.station, 60);
     out.via = text(c.via, 60);
@@ -99,7 +105,7 @@ export function cleanCard(c) {
 }
 
 /** the entities a card shows (its states make it draw again) */
-export const cardEntities = (c) => (c?.entities ? c.entities : c?.entity ? [c.entity, ...(c.more || [])] : []);
+export const cardEntities = (c) => (c?.entities ? c.entities : c?.rows ? c.rows.map((r) => r.e) : c?.entity ? [c.entity, ...(c.more || [])] : []);
 /** the colour of the n-th line of a history card: the card's own colour first, then the others in the order of SERIES_COLORS */
 export function seriesColor(c, n) {
   const first = COLOR_HEX[c?.color] || COLOR_HEX.blue;

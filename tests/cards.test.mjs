@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 const C = await import(`${process.env.STATIC_DIR || '/tmp/static'}/cards.js`);
 const card = (c) => C.cleanCard({ id: 'c_abc123', ...c });
 
-test('fourteen kinds (the calendar since #495, the train since #550), each with an icon', () => {
-  assert.equal(C.CARD_TYPES.length, 14);
+test('fifteen kinds (the calendar since #495, the train since #550, the light card since #597), each with an icon', () => {
+  assert.equal(C.CARD_TYPES.length, 15);
   for (const t of C.CARD_TYPES) assert.ok(C.TYPE_ICON[t], t);
 });
 test('a card takes only an entity of a fitting kind', () => {

@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.44.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.45.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.44.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.45.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.45.0: 🎬 Szenen-Leiste über der Reiter-Leiste und die Karte 🎚️ „Lichtsteuerung“** (Abschnitt 134): Claude hat 134.1 bis 134.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad 134.7 bis 134.9 und am Handy 134.10.
 1. **Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten sind ganz weg, die Zeile „👁 Ausgeblendet“ holt sie zurück** (Abschnitt 133): Claude hat 133.1 bis 133.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deiner Fassung „Eltern“ 133.5 und am Handy oder iPad 133.6.
 1. **Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“** (Abschnitt 132): Claude hat 132.1 und 132.2 automatisch geprüft; 132.3 hast du im Add-on geprüft ✅; für dich noch 132.4 bis 132.6 (132.4: morgen früh im 🩺 Protokoll kein „✋ Von Hand gedreht“, das du nicht warst).
 1. **Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen** (Abschnitt 131): Claude hat 131.1 bis 131.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deinen Bereichen 131.7 und 131.8.
@@ -365,7 +366,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 131. Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen (#590) | 6 | 0 | 2 | 0 | 131.7, 131.8 |
 | 132. Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“ (#592) | 3 | 0 | 3 | 0 | 132.4 bis 132.6 |
 | 133. Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten ganz weg, die Zeile „👁 Ausgeblendet“ (#595) | 4 | 0 | 2 | 0 | 133.5, 133.6 |
-| **Zusammen** | **824** | **1** | **84** | **92** | |
+| 134. Neu in 4.45.0: 🎬 Szenen-Leiste und Karte 🎚️ „Lichtsteuerung“ (#597) | 6 | 0 | 4 | 0 | 134.7 bis 134.10 |
+| **Zusammen** | **830** | **1** | **88** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2042,3 +2044,19 @@ Wunsch des Besitzers vom 2026-10-29 (Bild von ☀ Heute in seiner Fassung „Elt
 | 133.4 | In der Demo: 🌡 Klima, ✎ Bearbeiten, „＋ Neue Fassung“ (Kopie von „Für alle“), darin zwei Räume ausblenden, dann oben „👪 Für alle“ antippen | In der neuen Fassung sind die zwei Räume weg und stehen mit ihrem Namen in der Zeile; in „Für alle“ sind sie da und die Zeile ist leer | ✅ (2026-10-29, Claude in der Demo) |
 | 133.5 | Im Add-on am Tablet: ☀ Heute, ✎, deine Fassung „Eltern“: Termine, Wer ist da und Pinnwand ausblenden, die übrigen Karten anordnen, „✓ Fertig“ | Beim Bearbeiten sieht die Seite schon so aus wie danach; nach „Fertig“ und am Tablet tablet_S2_WE (Fassung „Eltern“) steht alles genau so | ❓ |
 | 133.6 | Im Add-on am Handy oder iPad: die Zeile „👁 Ausgeblendet“ mit mehreren Karten | Die Zeile bricht um, alles gut zu tippen, nichts ragt über den Rand | ❓ |
+
+## 134. Neu in 4.45.0: 🎬 Szenen-Leiste und Karte 🎚️ „Lichtsteuerung“ (#597)
+Wunsch des Besitzers vom 2026-10-29 (Bild von ☀ Heute auf dem iPad und Bild der slider-button-card „Light Control“): „über dieser Leiste, die wir da unten haben, … Szenen reinmachen, die man auch, wenn es mehrere Szenen sind, … scrollen kann“ und „diese Lichtkarte … mit diesem Schieberegler … dass man da Gruppen oder auch nur einzelne Lampen hinzufügen kann“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 134.1 | In der Demo (Live): unten über „Haus, Heute, Energie …“ schauen, am Handy die Leiste mit dem Finger seitwärts wischen | Eine Reihe Kacheln (Wohnzimmer gemütlich, TV-Abend, Filmabend …); „Wohnzimmer gemütlich“ hat einen kleinen Punkt (lief zuletzt); am Handy wischt sie seitwärts, der Rand läuft blass aus; die Seite darüber wird nicht verdeckt | ✅ (2026-10-29, Claude in der Demo, iPad und Handy) |
+| 134.2 | In der Demo: „Wohnzimmer aus“ antippen | Die Kachel zeigt kurz ✓ grün, danach hat „Wohnzimmer aus“ den Punkt | ✅ (2026-10-29, Claude in der Demo) |
+| 134.3 | In der Demo: ☀ Heute, in „Im Haus“ auf „💡 … Lichter an“ tippen | Das Fenster „Lichtsteuerung“ geht auf: je Lampe ein Balken in ihrer Farbe mit „45 %“, „Aus“, „Nicht verfügbar“ (Terrasse, grau), rechts Schalter, oben „Alle aus“ | ✅ (2026-10-29, Claude in der Demo) |
+| 134.4 | In der Demo, im Fenster: „Küche Licht“ (aus) mit dem Finger oder der Maus nach rechts bis zur Mitte ziehen, loslassen; dann „TV“ kurz antippen | Beim Ziehen läuft die Zahl mit (z. B. „60 %“), nach dem Loslassen bleibt die Küche bei 60 % an; „TV“ geht aus | ✅ (2026-10-29, Claude in der Demo) |
+| 134.5 | In der Demo, im Fenster: bei „Wohnzimmer“ das ▸ antippen | Darunter klappen die drei Lampen der Gruppe auf (Deckenlicht, Stehlampe, LED Sofa), jede mit eigenem Balken | ✅ (2026-10-29, Claude in der Demo) |
+| 134.6 | In der Demo: Seite 🔘 Knöpfe, ✎ Bearbeiten: oben „🎬 Szenen-Leiste“, dann bei der Karte „Lichter“ das ⚙ | Fenster „Szenen-Leiste“: Haken „anzeigen“, „Gilt für“ (Alle Seiten oder eine Seite: Wie alle Seiten / Eigene Szenen / Keine Leiste), Kacheln mit Symbol, Name, Farbe, ⠿, ✕, Suche. Karte „Lichtsteuerung“: Lampen mit ⠿ und Suche, „Alle aus“, Gruppen aufklappbar, „Als Karte auf der Seite“ oder „Als Fenster (Popup)“ | ✅ (2026-10-29, Claude in der Demo) |
+| 134.7 | Im Add-on am iPad: ✎ Bearbeiten auf ☀ Heute, „🎬 Szenen-Leiste“, deine Szenen (z. B. TV schauen, Wohnzimmer Hell, Esszimmer, Couch) hinzufügen, Namen und Symbole geben, „Speichern“; dann eine Szene antippen und eine gedrückt halten | Die Leiste steht über den Reitern, in der Reihenfolge, die du gezogen hast; der Tipp startet die Szene (✓), gedrückt halten öffnet das Fenster von Home Assistant; die zuletzt gestartete hat den Punkt | ❓ |
+| 134.8 | Im Add-on am iPad: ✎, „＋ Karte hinzufügen“ → „Lichtsteuerung“, deine Lampen und eine Lichtgruppe dazu (auch eine Zigbee2MQTT-Gruppe), speichern; dann ziehen, tippen, halten | Balken in der Farbe der Lampe; ziehen stellt die Helligkeit erst beim Loslassen; eine Gruppe von Home Assistant hat ▸ mit ihren Lampen (eine Zigbee2MQTT-Gruppe bleibt ein Balken); eine Lampe, die nur schaltet, hat keinen Schieber | ❓ |
+| 134.9 | Im Add-on am iPad: in der Karte „Als Fenster (Popup)“ und den Haken „Öffnet sich über „💡 … Lichter an““ setzen, speichern, „Fertig“; dann in „Im Haus“ auf „12 Lichter an“ tippen | Das Fenster „Lichtsteuerung“ geht auf; die Karte selbst steht nur beim Bearbeiten (mit „↗ Fenster“) auf der Seite | ❓ |
+| 134.10 | Im Add-on am Handy: die Szenen-Leiste wischen, im Lichtfenster ziehen und die Seite hoch und runter scrollen | Wischen geht flüssig, ziehen seitwärts stellt die Helligkeit, hoch und runter scrollt die Seite (ohne eine Lampe zu ändern) | ❓ |

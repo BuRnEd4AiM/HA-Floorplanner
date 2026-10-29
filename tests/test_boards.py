@@ -185,3 +185,56 @@ def test_a_train_card_is_cleaned_like_on_the_page():
     assert boards.clean_card({"id": "c_zug2", "type": "train", "sensor": "sensor.fulda_departures", "mine": "7:12", "count": 40}) == {
         "id": "c_zug2", "type": "train", "name": "", "width": 2, "station": "", "via": "", "mine": "", "count": 4, "sensor": "sensor.fulda_departures"}
     assert boards.clean_card({"id": "c_zug3", "type": "train", "sensor": "light.x"}) is None
+
+
+def test_the_scene_bar_is_cleaned_like_on_the_page():
+    """#597: the same rules as cleanSceneBar in static/scenebar.js (tests/scenebar.test.mjs has the same bars)"""
+    js = (STATIC / "scenebar.js").read_text()
+    for name in ("BAR_DOMAINS", "BAR_COLORS", "MODES"):
+        assert tuple(js_list(js, name)) == getattr(boards, "BAR_MODES" if name == "MODES" else name), name
+    assert f"MAX_ITEMS = {boards.MAX_BAR_ITEMS}" in js and f"MAX_PAGES = {boards.MAX_BAR_PAGES}" in js
+    assert boards.clean_scene_bar(None) == {"on": True, "items": [], "pages": {}}
+    assert boards.clean_scene_bar({"on": False})["on"] is False
+    item = boards.clean_bar_items([{"e": "scene.wz", "name": " Wohnzimmer an\x07 ", "icon": "🛋", "color": "purple"}, {"e": "scene.wz"}, {"e": "light.x"},
+                                   {"e": "script.b", "name": "ä" * 40, "icon": "x" * 20, "color": "pink"}, "scene.c"])
+    assert item == [{"e": "scene.wz", "name": "Wohnzimmer an", "icon": "🛋", "color": "purple"}, {"e": "script.b", "name": "ä" * 30, "icon": "x" * 8, "color": ""}]
+    assert len(boards.clean_bar_items([{"e": f"scene.s{i}"} for i in range(30)])) == boards.MAX_BAR_ITEMS
+    b = boards.clean_scene_bar({"items": [{"e": "scene.a"}], "pages": {"today": {"mode": "own", "items": [{"e": "script.b"}, {"e": "light.x"}]}, "energy": {"mode": "off"},
+                                "climate": {"mode": "weird"}, "nope": {"mode": "off"}, "today@v_kids01": {"mode": "off"}, "house": {"mode": "own", "items": [{"e": "scene.h"}]},
+                                "house@v_kids01": {"mode": "off"}, "family": "x"}})
+    assert list(b["pages"]) == ["today", "energy", "today@v_kids01", "house"]
+    assert [x["e"] for x in b["pages"]["today"]["items"]] == ["script.b"] and b["pages"]["energy"]["items"] == []
+    known = boards.clean_scene_bar({"pages": {"p_gone": {"mode": "off"}, "p_garten": {"mode": "off"}, "today@v_gone01": {"mode": "off"}, "today@v_kids01": {"mode": "off"}}},
+                                   [{"id": "p_garten"}], {"today": [{"id": "v_kids01"}]})
+    assert list(known["pages"]) == ["p_garten", "today@v_kids01"]
+
+
+async def test_settings_keep_the_scene_bar(aiohttp_client, tmp_path):
+    """#597: stored with the settings; old settings without it get an empty bar; a version that is gone takes its key along"""
+    client = await aiohttp_client(server.make_app(tmp_path))
+    s = await (await client.put("/api/settings", json={"tabBar": True})).json()
+    assert s["sceneBar"] == {"on": True, "items": [], "pages": {}}
+    body = {"pageVariants": {"today": [{"id": "v_kids01", "name": "Kinder"}]},
+            "sceneBar": {"on": False, "items": [{"e": "scene.wz_an", "name": "Wohnzimmer an", "icon": "🛋", "color": "amber"}],
+                         "pages": {"house": {"mode": "off"}, "today@v_kids01": {"mode": "own", "items": [{"e": "script.gute_nacht"}]}, "today@v_gone01": {"mode": "off"}}}}
+    s = await (await client.put("/api/settings", json=body)).json()
+    assert s["sceneBar"]["on"] is False and s["sceneBar"]["items"][0]["name"] == "Wohnzimmer an"
+    assert list(s["sceneBar"]["pages"]) == ["house", "today@v_kids01"]
+
+
+def test_a_light_card_is_cleaned_like_on_the_page():
+    """#597: the same rules as cleanCard in static/cards.js and cleanRows in static/lightslider.js (tests/cards.test.mjs has the same cards)"""
+    js = (STATIC / "lightslider.js").read_text()
+    assert tuple(js_list(js, "ROW_DOMAINS")) == boards.ROW_DOMAINS and f"MAX_ROWS = {boards.MAX_ROWS}" in js
+    c = boards.clean_card({"id": "c_licht", "type": "lights", "name": "Licht", "rows": [{"e": "light.wz", "name": " Woonkamer ", "icon": "🛋"}, {"e": "light.wz"},
+                           {"e": "switch.gang"}, {"e": "sensor.x"}, "light.y", {"e": "light.k", "name": "ä" * 40, "icon": "x" * 20}], "allOff": True, "popup": True, "hook": True})
+    assert c == {"id": "c_licht", "type": "lights", "name": "Licht", "width": 1, "rows": [{"e": "light.wz", "name": "Woonkamer", "icon": "🛋"},
+                 {"e": "switch.gang", "name": "", "icon": ""}, {"e": "light.k", "name": "ä" * 30, "icon": "x" * 8}],
+                 "allOff": True, "expand": True, "popup": True, "hook": True}
+    d = boards.clean_card({"id": "c_licht", "type": "lights", "rows": [{"e": "light.a"}], "expand": False, "hook": True})
+    assert (d["allOff"], d["expand"], d["popup"], d["hook"]) == (False, False, False, False)          # "Lichter an" opens only a window
+    assert boards.clean_card({"id": "c_licht", "type": "lights", "rows": []}) is None
+    assert len(boards.clean_card({"id": "c_licht", "type": "lights", "rows": [{"e": f"light.l{i}"} for i in range(20)]})["rows"]) == boards.MAX_ROWS
+    b = boards.clean_card({"id": "c_knopf", "type": "button", "entity": "light.a", "tap": "lights", "card": "c_licht"})
+    assert b["tap"] == "lights" and b["card"] == "c_licht"                                              # a button that opens a light card
+    assert boards.clean_look({"tap": "lights", "card": "nope"})["tap"] == "toggle" and "card" not in boards.clean_look({"tap": "more", "card": "c_licht"})

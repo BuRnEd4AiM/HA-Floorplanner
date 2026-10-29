@@ -1,13 +1,14 @@
 /* The button card (#484; its look since #495, buttonlook.js has the rules): a symbol, the name, the state, the brightness as a bar and
  * since when, as a tile, round, a pill or only the symbol in four sizes, in its colour (or the lamp's) while on. A tap switches or starts
- * it (or opens the window with the controls, ctlwindow.js, or a page), a long press opens the window or Home Assistant's own one.
+ * it (or opens the window with the controls, ctlwindow.js, a page or a light card as a window, #597), a long press opens the window or
+ * Home Assistant's own one.
  * Also the part of the window "Karte einstellen" for a button (cardeditor.js). */
 import { BTN_ICONS, BTN_COLORS, BTN_HEX, BTN_SHAPES, BTN_SIZES, BTN_SHOW, BTN_TAP, BTN_HOLD, HOLD_MS, cleanLook, buttonFace, agoOf } from './buttonlook.js';
 import { routineIcon } from './routines.js';
 
 /** ctx: t, states(), name(card) (its name), word(entity) (its state in words), tapService(entity), callService(entity, service, data),
  *  controls(entity) (the window with the controls), moreInfo(entity) (Home Assistant's own window: true when it opened), showPage(key),
- *  pages() ([{ key, name }]: the pages a tap can open), changed() (draw the page again) */
+ *  pages() ([{ key, name }]: the pages a tap can open), changed() (draw the page again), lightCards() ([{ id, name }]), openLights(id) (#597) */
 export function initButtonCard(ctx) {
   const { t } = ctx;
   const flash = new Map();                           // card id -> 'ok' | 'bad' for a moment after a tap
@@ -18,6 +19,7 @@ export function initButtonCard(ctx) {
     if (what === 'more') { ctx.controls(c.entity); return; }
     if (what === 'details') { if (!ctx.moreInfo(c.entity)) ctx.controls(c.entity); return; }      // outside Home Assistant: the window
     if (what === 'page') { ctx.showPage(c.page); return; }
+    if (what === 'lights') { if (!ctx.openLights?.(c.card)) ctx.controls(c.entity); return; }   // a light card as a window (#597)
     const svc = ctx.tapService(c.entity);
     if (!svc) { ctx.controls(c.entity); return; }
     const ok = await ctx.callService(c.entity, svc);
@@ -97,9 +99,14 @@ export function initButtonCard(ctx) {
     page.value = draft.page || ctx.pages()[0]?.key || '';
     const showPage = () => { page.hidden = draft.tap !== 'page'; if (draft.tap === 'page') draft.page = page.value; };
     page.addEventListener('change', () => { draft.page = page.value; ui.preview(); });
-    const tap = chips(BTN_TAP, (v) => t(`ob.tap.${v}`), 'obTap', (v) => draft.tap === v, (v) => { draft.tap = v; showPage(); });
-    showPage();
-    ui.field(t('ob.tap'), tap, page);
+    const cards = ctx.lightCards?.() || [], lc = make('select', 'ceSelect'); lc.dataset.act = 'obLights';   // a light card as a window (#597)
+    lc.append(...(cards.length ? cards.map((x) => new Option(`🎚️ ${x.name || t('lc.title')}`, x.id)) : [new Option(t('lc.noCard'), '')]));
+    lc.value = draft.card || cards[0]?.id || '';
+    const showCard = () => { lc.hidden = draft.tap !== 'lights'; if (draft.tap === 'lights') draft.card = lc.value; };
+    lc.addEventListener('change', () => { draft.card = lc.value; ui.preview(); });
+    const tap = chips(BTN_TAP, (v) => t(`ob.tap.${v}`), 'obTap', (v) => draft.tap === v, (v) => { draft.tap = v; showPage(); showCard(); });
+    showPage(); showCard();
+    ui.field(t('ob.tap'), tap, page, lc);
     ui.field(t('ob.hold'), ui.seg(BTN_HOLD, (v) => t(`ob.hold.${v}`), 'hold'));
   }
   return { render, sig, fields };

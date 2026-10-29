@@ -17,7 +17,8 @@ const ROW = 8, GAP = 14;
 
 /** ctx: t, settings(), canEdit(), save() (store the settings), cards (cardsui.js), pageName(page), redraw(page) (the page draws itself
  *  again), addCard(page) / editCard(page, card) (cardeditor.js), editTabs() (tabedit.js), editOwnPage(page) (an own page's name, icon),
- *  variants (variantsui.js, #507: shown(page, edit) the version of the page to show, bar(page) its strip in the edit mode, done(page)) */
+ *  variants (variantsui.js, #507: shown(page, edit) the version of the page to show, bar(page) its strip in the edit mode, done(page)),
+ *  editBar(page) (the window of the scene bar, #597) */
 export function initBoard(ctx) {
   const { t } = ctx;
   let editing = null;
@@ -105,7 +106,7 @@ export function initBoard(ctx) {
       corner.addEventListener('pointerdown', (e) => resize(e, page, el, entry.own));
       el.append(corner);
       el.append(tools(page, entry.key, entry.own, builtin?.sized));
-      if (entry.own) el.append(make('span', 'bdTag own', t('bd.own')));
+      if (entry.own) el.append(make('span', 'bdTag own', entry.own.popup ? `${t('bd.own')} · ↗ ${t('lc.windowTag')}` : t('bd.own')));   // a window (#597)
     }
     return el;
   }
@@ -116,6 +117,7 @@ export function initBoard(ctx) {
     const sec = btn('bdBtn', `＋ ${t('bd.addSection')}`, () => newSection(page)); sec.dataset.act = 'addSection';
     const tabs = btn('bdBtn', `🗂 ${t('bd.tabs')}`, () => ctx.editTabs()); tabs.dataset.act = 'tabs';
     s.append(add, sec, tabs);
+    if (ctx.editBar) { const bar = btn('bdBtn', `🎬 ${t('sb.title')}`, () => ctx.editBar(page)); bar.dataset.act = 'sceneBar'; s.append(bar); }   // the scene bar (#597)
     if (/^p_/.test(page)) { const own = btn('bdBtn', `⚙️ ${t('bd.page')}`, () => ctx.editOwnPage(page)); own.dataset.act = 'page'; s.append(own); }
     const reset = btn('bdBtn', `↺ ${t('bd.reset')}`, () => { if (window.confirm(t('bd.resetAsk'))) setLayout(page, resetLayout(layoutOf(page))); }); reset.dataset.act = 'reset';
     const done = btn('bdBtn primary', `✓ ${t('bd.done')}`, () => setEditing(null)); done.dataset.act = 'done';
@@ -141,7 +143,8 @@ export function initBoard(ctx) {
       if (el) byKey.set(i.key, { ...i, el });
     });
     const all = arrange([...byKey.keys()], lay).filter((e) => e.own || byKey.has(e.key));
-    const entries = all.filter((e) => !e.hidden);   // a hidden card is gone in the edit mode too, it is in the row "Ausgeblendet" (#595)
+    const entries = all.filter((e) => !e.hidden && (edit || !e.own?.popup));   // a hidden card is gone in the edit mode too, it is in the row "Ausgeblendet" (#595);
+                                                     // a light card shown as a window only in the edit mode (#597)
     const keep = new Map();
     const els = entries.map((e) => {
       const sig = e.own ? ctx.cards.sig(e.own) : byKey.get(e.key).sig, old = e.own ? kept.get(e.key) : null;

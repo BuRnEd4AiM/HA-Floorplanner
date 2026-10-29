@@ -2,7 +2,8 @@
  * (pageboard.js: order, hidden cards, the edit mode), the windows to add and set a card (cardeditor.js), the bar's edit mode with own
  * pages (tabedit.js), the own pages themselves (pagecustom.js), the thermostat as a circle (thermostatui.js, #495) and the calendar card
  * (calcardui.js, #495), the window with the controls of a button card (ctlwindow.js, #495), the own versions of a page per user
- * (variantsui.js, #507). app.js only calls initDashboards and hands the result to the pages and the tab bar. */
+ * (variantsui.js, #507), the scene bar over the tab bar (scenebarui.js, #597) and the light card with a bar per lamp, also as a window
+ * (lightcardui.js, #597). app.js only calls initDashboards and hands the result to the pages and the tab bar. */
 import { initCards } from './cardsui.js';
 import { initThermostat } from './thermostatui.js';
 import { initCalendarCard } from './calcardui.js';
@@ -14,6 +15,11 @@ import { initTrainCard } from './traincard.js';
 import { initTabEdit } from './tabedit.js';
 import { initCustomPages } from './pagecustom.js';
 import { initVariantsUi } from './variantsui.js';
+import { initSceneBar } from './scenebarui.js';
+import { initLightCard } from './lightcardui.js';
+import { lightCards, pickLightCard } from './lightslider.js';
+import { cleanCard } from './cards.js';
+import { variantsOf } from './pagevariants.js';
 import { cleanCustomTabs } from './tabs.js';
 import { roomSummary } from './roomtiles.js';
 
@@ -21,7 +27,7 @@ import { roomSummary } from './roomtiles.js';
  *  callService(entity, service, data), layout() (the building shown), placed(floor), areaEntities(room), partOf() (the sensors of thermostats, roomReading), isOn(entity), isOpen(entity),
  *  openingEntities(opening), openRoom(floorIndex, roomId), camImage(entity), openCamera(entity), builtin(key), tabsUi() (the tab bar,
  *  made after this), live() (livecontrols.js, made after this), me() (api/me), refill() (the settings dialog shows the settings again),
- *  usedBy(entity) (🔎 Wird benutzt, #546: a button) */
+ *  usedBy(entity) (🔎 Wird benutzt, #546: a button), locked() (this user may not switch: no scene bar, #597) */
 export function initDashboards(ctx) {
   const { $, t } = ctx;
   const bar = () => ctx.tabsUi();
@@ -54,6 +60,14 @@ export function initDashboards(ctx) {
   };
   const controls = initControlsWindow({ t, states: ctx.states, nameOf: ctx.nameOf, word, callService: ctx.callService, thermo,
     live: { lightControls: (ids) => ctx.live().lightControls(ids), detailsButton: (e) => ctx.live().detailsButton(e) }, usedBy: (e) => ctx.usedBy?.(e) });
+  /** 🎚 the light card (#597): a bar per lamp; as a window from "💡 n Lichter an" or a button card, in the version of its page one sees */
+  const lights = initLightCard({ t, states: ctx.states, nameOf: ctx.nameOf, entities: ctx.entities, callService: ctx.callService,
+    moreInfo: (e) => canMoreInfo() && openMoreInfo(e), controls: (e) => controls.open(e),
+    changed: () => { board.refresh(bar().open()); editor.refresh(); lights.refresh(); } });
+  const openLights = (how) => {
+    const c = pickLightCard(lightCards(ctx.settings()), { ...how, seen: (p) => variants.shown(p, false) || '' });
+    return lights.open(c && cleanCard(c));
+  };
   const cards = initCards({
     t, lang: ctx.lang, states: ctx.states, settings: ctx.settings, nameOf: ctx.nameOf, stateText: ctx.stateText, callService: ctx.callService,
     camImage: ctx.camImage, openCamera: ctx.openCamera, room,
@@ -62,6 +76,8 @@ export function initDashboards(ctx) {
     moreInfo: (e) => { if (!canMoreInfo()) return false; openMoreInfo(e); return true; },
     showPage: (k) => bar().show(k), pages: () => bar().tabs().map((x) => ({ key: x.key, name: pageName(x.key) })),
     changed: () => { board.refresh(bar().open()); editor.refresh(); },
+    lights, openLights: (id) => openLights({ id }),
+    lightCards: () => [...new Map(lightCards(ctx.settings()).map((x) => [x.id, { id: x.id, name: x.name }])).values()],
   });
   /** the own versions of a page per user (#507): which one the board draws, their strip in the edit mode, "Wer sieht was" */
   const variants = initVariantsUi({
@@ -72,16 +88,27 @@ export function initDashboards(ctx) {
     t, settings: ctx.settings, canEdit: ctx.canEdit, save: ctx.save, cards, pageName, variants,
     redraw: (page) => bar().render(page), changed: () => bar().redraw(),
     addCard: (page) => editor.add(page), editCard: (page, card) => editor.edit(page, card),
-    editTabs: () => tabEdit.start(), editOwnPage: (page) => tabEdit.ownPage(page),
+    editTabs: () => tabEdit.start(), editOwnPage: (page) => tabEdit.ownPage(page), editBar: (page) => sceneBar.open(page),
   });
-  const editor = initCardEditor({ t, entities: ctx.entities, rooms, cards, board, calendar, train });
+  /** the scene bar over the tab bar (#597): the version of a page it follows is the one the board draws */
+  const sceneBar = initSceneBar({
+    $, t, settings: ctx.settings, save: ctx.save, canEdit: ctx.canEdit, states: ctx.states, entities: ctx.entities, callService: ctx.callService,
+    moreInfo: (e) => canMoreInfo() && openMoreInfo(e), controls: (e) => controls.open(e), locked: () => !!ctx.locked?.(),
+    version: (page) => variants.shown(page, board.editing() === page && ctx.canEdit()) || '', editing: () => board.editing(),
+    pages: () => bar().tabs().map((x) => ({ key: x.key, name: pageName(x.key), icon: x.icon })), versions: (page) => variantsOf(ctx.settings(), page),
+  });
+  const editor = initCardEditor({ t, entities: ctx.entities, rooms, cards, board, calendar, train, lights });
   const tabEdit = initTabEdit({
     t, $, settings: ctx.settings, save: ctx.save, areas: ctx.areas, states: ctx.states, board,
     tabs: () => bar().tabs(), tabName: (k) => t(`tab.${k}`), changed: () => bar().redraw(), show: (k) => bar().show(k),
   });
   const custom = initCustomPages({ t, host: $('#tabPages'), settings: ctx.settings, board, canEdit: ctx.canEdit });
   return {
-    board, tabEdit, thermo, variants,
+    board, tabEdit, thermo, variants, sceneBar,
+    /** after every change of the tab bar (states, tab, edit mode): the scene bar and an open light window follow (#597) */
+    after: (tab, shown) => { sceneBar.update(tab, shown); lights.refresh(); },
+    /** "💡 n Lichter an" on ☀ Heute: the light card set to open from there, as a window (false: there is none) */
+    openLightsWindow: () => openLights({ hook: true }),
     customPages: () => custom.all(),
     edit: { can: () => ctx.canEdit() && !variants.viewing(), editing: board.editing, toggle: board.toggle, refresh: board.refresh },   // "Ansehen als": no ✎
   };

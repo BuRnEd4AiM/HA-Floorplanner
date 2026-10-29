@@ -243,6 +243,16 @@ def test_slim_state_white_tone_of_a_light():
     assert "kel" not in server.slim_state({"entity_id": "switch.k", "state": "on", "attributes": a})
 
 
+def test_slim_state_light_groups_and_lamps_that_only_switch():
+    """#597: a light group of Home Assistant names its lamps (the light card opens them), a lamp says whether it can dim"""
+    g = server.slim_state({"entity_id": "light.wohnzimmer", "state": "on", "attributes": {"entity_id": ["light.a", "light.b"], "supported_color_modes": ["brightness"]}})
+    assert g["members"] == ["light.a", "light.b"] and g["dim"] is True
+    assert server.slim_state({"entity_id": "light.relais", "state": "on", "attributes": {"supported_color_modes": ["onoff"]}})["dim"] is False
+    assert server.slim_state({"entity_id": "light.alt", "state": "on", "attributes": {}})["dim"] is None          # an old lamp that says nothing
+    assert server.slim_state({"entity_id": "light.z2m_gruppe", "state": "on", "attributes": {}})["members"] is None
+    assert server.slim_state({"entity_id": "switch.x", "state": "on", "attributes": {"entity_id": ["switch.y"]}})["members"] is None
+
+
 def test_slim_state_sun_and_weather():
     """the sky (#418, #419): sun.sun with its elevation and next sunrise / sunset, a weather entity with temperature and wind"""
     sun = server.slim_state({"entity_id": "sun.sun", "state": "above_horizon", "attributes": {

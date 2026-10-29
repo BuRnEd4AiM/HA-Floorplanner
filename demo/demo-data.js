@@ -298,8 +298,13 @@ const entities = {
   'light.shapes_wz':         { name: 'Nanoleaf Shapes',        state: 'on', rgb: [120, 90, 255], brightness: 80, fx: ['Nordlicht', 'Sonnenuntergang', 'Wald', 'Pulsierend', 'Regenbogen'], fxc: 'Nordlicht' },
   'light.tv_led':            { name: 'TV Hintergrundlicht',    state: 'on', rgb: [255, 60, 160], brightness: 60, fx: ['Kino', 'Gaming', 'Sonnenuntergang', 'Aus'], fxc: 'Gaming' },
   'light.sofa_led':          { name: 'LED Sofa',               state: 'on', rgb: [255, 170, 80], brightness: 45 },
-  'scene.wz_gemuetlich':     { name: 'Wohnzimmer Gemütlich',   state: 'scening' },
-  'scene.wz_aus':            { name: 'Wohnzimmer Aus',         state: 'scening' },
+  // a scene's state is the time it was last turned on (4.45: the scene bar marks the one that ran last, #597)
+  'scene.wz_gemuetlich':     { name: 'Wohnzimmer Gemütlich',   state: new Date(Date.now() - 2 * 3600000).toISOString() },
+  'scene.wz_aus':            { name: 'Wohnzimmer Aus',         state: new Date(Date.now() - 26 * 3600000).toISOString() },
+  // 4.45 (#597): a light group of Home Assistant (its lamps open below it on a light card), a lamp that only switches, one that is gone
+  'light.wohnzimmer_alle':   { name: 'Wohnzimmer (alle)',      group: ['light.wohnzimmer', 'light.stehlampe', 'light.sofa_led'] },
+  'light.flur_decke':        { name: 'Flur Deckenlicht',       state: 'on', dim: false },
+  'light.terrasse':          { name: 'Terrasse',               state: 'unavailable' },
   'cover.wohnzimmer':        { name: 'Rollladen Wohnzimmer',   state: 'open', position: 60 },
   'switch.flur':             { name: 'Flur Schalter',          state: 'off' },
   'media_player.tv':         { name: 'Fernseher',              state: 'playing', app: 'Netflix', ctl: { vol: 25, muted: false, title: 'Die Serie – Folge 3', sources: ['HDMI 1', 'HDMI 2', 'Netflix', 'YouTube'], source: 'Netflix' } },
@@ -365,7 +370,7 @@ const entities = {
   'script.filmabend':        { name: 'Filmabend',              state: 'off' },
   // 4.5 (#483): more for the page ▶ Abläufe: a morning script, the night scene that "Gute Nacht" starts, automations to switch, the front door lock
   'script.guten_morgen':     { name: 'Guten Morgen',           state: 'off' },
-  'scene.gute_nacht':        { name: 'Gute Nacht',             state: 'scening' },
+  'scene.gute_nacht':        { name: 'Gute Nacht',             state: new Date(Date.now() - 20 * 3600000).toISOString() },
   'automation.flurlicht_bewegung': { cid: '1700000000101', name: 'Flurlicht bei Bewegung', state: 'on', at: Math.round(Date.now() / 1000) - 12 * 60, run: 1 },
   'automation.rollladen_abends': { cid: '1700000000102', name: 'Rollläden bei Sonnenuntergang', state: 'on', at: Math.round(Date.now() / 1000) - 15 * 3600 },
   'automation.urlaub_licht': { cid: '1700000000103', name: 'Urlaub: Licht zufällig',  state: 'off', at: Math.round(Date.now() / 1000) - 21 * 86400 },
@@ -510,10 +515,16 @@ let settings = {
     { id: 'c_nacht', type: 'button', entity: 'scene.gute_nacht', name: 'Gute Nacht', icon: '🌙', shape: 'pill', bsize: 'xl', width: 2, onColor: 'blue' },
     { id: 'c_fernseher', type: 'button', entity: 'media_player.tv', icon: '📺', shape: 'icon' },
     { id: 'c_musik', type: 'button', entity: 'media_player.sonos_wz', icon: '🎵', shape: 'icon', onColor: 'green' },
-    { id: 'c_robo', type: 'button', entity: 'vacuum.robo', name: 'Saugroboter', icon: '🏠', bsize: 's', tap: 'more' }] },
+    { id: 'c_robo', type: 'button', entity: 'vacuum.robo', name: 'Saugroboter', icon: '🏠', bsize: 's', tap: 'more' },
+    { id: 'c_lichtknopf', type: 'button', entity: 'light.wohnzimmer_alle', name: 'Alle Lichter', icon: '💡', onColor: 'lamp', tap: 'lights', card: 'c_licht' },   // 4.45: opens the light window (#597)
+    { id: 'c_lichter', type: 'lights', name: 'Lichter', width: 2, allOff: true, rows: [{ e: 'light.wohnzimmer_alle', name: 'Wohnzimmer' },
+      { e: 'light.kueche', icon: '🍳' }, { e: 'light.schlafzimmer', icon: '🛏' }, { e: 'light.flur_decke', name: 'Flur' }, { e: 'light.terrasse' }, { e: 'light.tv_led', name: 'TV' }] }] },
   today: {                                                                       // the calendar card on ☀ Heute after the weather (#495), the train card (#550)
     order: ['clock', 'weather', 'c_zug', 'c_kalender', 'pinboard', 'agenda', 'waste', 'people', 'house', 'power'],
-    cards: [{ id: 'c_zug', type: 'train', name: 'Mein Zug zur Arbeit', width: 2, station: 'Fulda', via: 'Frankfurt (Main) Hbf', mine: DEMO_TRAIN.mine, count: 4, sensor: '' },
+    cards: [{ id: 'c_licht', type: 'lights', name: 'Lichtsteuerung', allOff: true, popup: true, hook: true,   // 4.45: "💡 n Lichter an" opens it (#597)
+      rows: [{ e: 'light.wohnzimmer_alle', name: 'Wohnzimmer' }, { e: 'light.kueche', icon: '🍳' }, { e: 'light.schlafzimmer', icon: '🛏' }, { e: 'light.buero', icon: '🖥' },
+        { e: 'light.flur_decke', name: 'Flur' }, { e: 'light.terrasse' }, { e: 'light.tv_led', name: 'TV' }] },
+      { id: 'c_zug', type: 'train', name: 'Mein Zug zur Arbeit', width: 2, station: 'Fulda', via: 'Frankfurt (Main) Hbf', mine: DEMO_TRAIN.mine, count: 4, sensor: '' },
       { id: 'c_kalender', type: 'calendar', name: 'Diese Woche', width: 4, days: 7, view: 'week', add: true,
       cals: [{ id: 'calendar.familie', color: 'blue' }, { id: 'calendar.arbeit_anna', color: 'orange' }, { id: 'calendar.schule', color: 'green' }, { id: 'calendar.geburtstage', color: 'red' }] }] } },
   lightGroups: [{ id: 'g_wohnen', name: 'Wohnen', rooms: ['r1', 'r2'] }, { id: 'g_oben', name: 'Oben', rooms: ['q1', 'q2'] }, { id: 'g_keller', name: 'Keller', rooms: ['k1', 'k2', 'k3'] }],
@@ -524,6 +535,10 @@ let settings = {
     { name: '1LIVE', url: 'https://radio.example/1live.mp3' }, { name: 'Deutschlandfunk', url: 'https://radio.example/dlf.mp3' }, { name: 'Klassik Radio', url: 'https://radio.example/klassik.mp3' }],
   doorbell: { on: true, sound: true, bells: [{ entity: 'event.haustuer_klingel', camera: 'camera.haustuer', open: 'lock.haustuer', name: 'Haustür' }] },   // 🔔 (4.22)
   routines: [], routineLeave: '', routineNight: 'scene.gute_nacht',   // 4.5: ▶ Abläufe shows every scene and script, "Gute Nacht" then starts the night scene (#483)
+  sceneBar: { on: true, pages: {}, items: [                 // 4.45: the scene bar over the tab bar (#597)
+    { e: 'scene.wz_gemuetlich', name: 'Wohnzimmer gemütlich', icon: '🛋', color: 'amber' }, { e: 'scene.tv_abend', icon: '📺', color: 'purple' },
+    { e: 'script.filmabend', icon: '🎬' }, { e: 'script.guten_morgen', icon: '☀️', color: 'orange' }, { e: 'scene.wz_aus', name: 'Wohnzimmer aus', icon: '🌙' },
+    { e: 'scene.gute_nacht', icon: '🛏', color: 'blue' }] },
 };
 // 4.5 (#483): the page 👨‍👩‍👧 Familie: the people as the add-on finds them (since when, the phone's battery; no pictures: the letters) and the pinboard
 // a time of today, or of yesterday while it has not come yet (4.21.3: at night the demo said "seit 11:02" and pinned a note at 11:48)
@@ -674,7 +689,7 @@ const demoScenes = {
   fp3d_stvabend: { name: 'TV-Abend', ents: { 'light.tv_led': { on: true, pct: 35, rgb: [170, 80, 255], fx: 'Kino' }, 'light.wohnzimmer': { on: false }, 'light.stehlampe': { on: true, pct: 25, kelvin: 2700 } } },
   1700000000001: { name: 'Wohnzimmer Gemütlich', ents: { 'light.wohnzimmer': { on: true, pct: 40, kelvin: 2700 }, 'light.stehlampe': { on: true, pct: 60, kelvin: 2700 }, 'light.tv_led': { on: true, pct: 30, rgb: [255, 130, 20] } } },
 };
-entities['scene.tv_abend'] = { name: 'TV-Abend', state: 'scening', cid: 'fp3d_stvabend', members: Object.keys(demoScenes.fp3d_stvabend.ents) };
+entities['scene.tv_abend'] = { name: 'TV-Abend', state: new Date(Date.now() - 3 * 86400000).toISOString(), cid: 'fp3d_stvabend', members: Object.keys(demoScenes.fp3d_stvabend.ents) };
 Object.assign(entities['scene.wz_gemuetlich'], { cid: '1700000000001', members: Object.keys(demoScenes[1700000000001].ents) });
 const kelvinRgbDemo = (k) => [255, Math.round(170 + 75 * Math.max(0, Math.min(1, (k - 2000) / 4500))), Math.round(80 + 175 * Math.max(0, Math.min(1, (k - 2000) / 4500)))];
 const demoBackups = {};                                 // #564: what was deleted, for "↶ Wiederherstellen" ({ 'scene/<id>' | 'automation/<id>': { … } })
@@ -1087,10 +1102,15 @@ export function installDemoBackend() {
       ]);
     }
     if (path === 'api/entities') {
+      Object.values(entities).filter((e) => e.group).forEach((g) => {     // a light group (#597): on while one of its lamps is, their mean brightness
+        const on = g.group.map((m) => entities[m]).filter((m) => m?.state === 'on');
+        Object.assign(g, { state: on.length ? 'on' : 'off', members: g.group, brightness: on.length ? Math.round(on.reduce((a, m) => a + (m.brightness ?? 100), 0) / on.length) : null,
+          rgb: on[0]?.rgb ?? null, kel: on[0]?.kel ?? null });
+      });
       return json(Object.entries(entities).map(([entity_id, e]) => ({
         entity_id, name: e.name, domain: entity_id.split('.')[0], state: e.state, unit: e.unit ?? null,
         dc: e.dc ?? null, brightness: e.brightness ?? null, rgb: e.rgb ?? null, position: e.position ?? null, fx: e.fx ?? null, fxc: e.fxc ?? null, ct: e.ct ?? null, ch: e.ch ?? null, app: e.app ?? null,
-        kel: e.kel ?? null, kmin: e.kmin ?? null, kmax: e.kmax ?? null,
+        kel: e.kel ?? null, kmin: e.kmin ?? null, kmax: e.kmax ?? null, dim: e.dim ?? (entity_id.startsWith('light.') ? true : null),
         hvac: e.hvac ?? null, tt: e.tt ?? null, tmin: e.tmin ?? null, tmax: e.tmax ?? null, tstep: e.tstep ?? null, modes: e.modes ?? null,
         bat: e.bat ?? null, ctl: e.ctl ? structuredClone(e.ctl) : null, wx: e.wx ?? null, sun: e.sun ?? null, at: e.at ?? null, run: e.run ?? null,
         ...(e.cid ? { cid: e.cid } : {}), members: e.members ?? null, lc: lastChanged(entity_id, e.state) })));
@@ -1107,13 +1127,18 @@ export function installDemoBackend() {
         return json({ ok: true });
       }
       const e = entities[id];
-      if (!e) return json({ ok: false }, 502);
+      if (!e || e.state === 'unavailable') return json({ ok: false }, 502);
+      if (e.group) {                                        // a light group (#597): the call goes to its lamps
+        e.group.forEach((m) => { const x = entities[m]; if (!x) return; if (service === 'toggle') x.state = e.state === 'on' ? 'off' : 'on'; else x.state = service === 'turn_off' ? 'off' : 'on'; if (data?.brightness_pct != null) x.brightness = data.brightness_pct; });
+        return json({ ok: true });
+      }
+      if (id.startsWith('scene.')) e.state = new Date().toISOString();   // a scene's state is when it was last turned on (#597)
       if (id === 'scene.gute_nacht') {                     // the night scene (#483): every light and the TV off
-        Object.keys(entities).filter((k) => k.startsWith('light.') || k === 'media_player.tv').forEach((k) => { entities[k].state = 'off'; });
+        Object.keys(entities).filter((k) => (k.startsWith('light.') || k === 'media_player.tv') && entities[k].state !== 'unavailable').forEach((k) => { entities[k].state = 'off'; });
         return json({ ok: true });
       }
       if (id.startsWith('script.') && service === 'turn_on') {  // a script runs a moment (▶ Abläufe shows "läuft …")
-        e.state = 'on'; setTimeout(() => { e.state = 'off'; }, 3000);
+        e.state = 'on'; e.at = nowS(); setTimeout(() => { e.state = 'off'; }, 3000);
         return json({ ok: true });
       }
       if (id.startsWith('scene.') && demoScenes[e.cid]) { sceneShow(demoScenes[e.cid]); return json({ ok: true }); }   // a scene of the editor (#549)
@@ -1266,7 +1291,7 @@ export function installDemoBackend() {
       if (!m.name || !Object.keys(m.ents || {}).length) return json({ error: 'a name and at least one device expected' }, 400);
       demoScenes[cid] = m;
       const e = Object.keys(entities).find((x) => entities[x].cid === cid) || `scene.${slug(m.name)}`;
-      entities[e] = { name: m.name, state: 'scening', cid, members: Object.keys(m.ents) };
+      entities[e] = { name: m.name, state: 'unknown', cid, members: Object.keys(m.ents) };
       return json({ ok: true, id: cid, entity: e, missing: false });
     }
     if (path.startsWith('api/automations/') && method === 'DELETE') {   // an automation of Home Assistant deleted (#564)

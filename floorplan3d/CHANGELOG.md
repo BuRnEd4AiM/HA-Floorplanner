@@ -4,6 +4,25 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.45.0] - 2026-10-29
+### Added
+- **🎬 A scene bar over the tab bar** (#597, the owner with a picture of ☀ Heute on his iPad: "über dieser Leiste, die wir da unten haben, … Szenen reinmachen, die man auch, wenn es mehrere Szenen sind, … scrollen kann, von links nach rechts … dass man das direkt auch pro Dashboard theoretisch verknüpfen kann"). Right above the tabs (🏠 Haus, ☀ Heute, ⚡ Energie …) a row of tiles with a symbol and a name, e.g. "🛋 Wohnzimmer an":
+  - a tap starts the scene (`scene.turn_on`) or the script (`script.turn_on`), the tile shows ✓ for a moment, a note above the bar when it did not work; a long press opens Home Assistant's own window of it (outside Home Assistant the add-on's window);
+  - the scene that ran last has a small dot (a scene's state in Home Assistant is the time it was last turned on, a script has its last run);
+  - more tiles than fit: swiped with a finger or scrolled with the mouse wheel sideways, it stops at a tile, no scroll bar, the cut side fades out; on the iPad (upright and lying) and on the phone;
+  - the page ends above it, nothing is covered; no scenes for a page: no bar at all;
+  - set in the edit mode (✎ Bearbeiten, then "🎬 Szenen-Leiste" in the strip or the tile ✎ at the end of the bar): "Szenen-Leiste anzeigen" on or off, **one list for every page**, and **per page** (also per version of a page, #507, e.g. "☀ Heute · 🧒 Kinder") "Wie alle Seiten", "Eigene Szenen" or "Keine Leiste"; scenes and scripts are added from a search, each tile gets its own name, symbol and colour, the order is dragged with ⠿, ✕ removes one. Stored in the settings (`sceneBar`, `boards.clean_scene_bar`); without it everything stays as before.
+- **🎚️ A new card "Lichtsteuerung"** (#597, the owner: "diese Lichtkarte … mit diesem Schieberegler von links und rechts diesen Ausknopf, dass man da Gruppen oder auch nur einzelne Lampen hinzufügen kann"; his picture: the slider-button-card "Light Control"). A wide bar per lamp, light group (of Home Assistant or Zigbee2MQTT) or switch:
+  - filled as far as the lamp is bright, in its colour (a white tone as warm or cold white, else a warm yellow); left the symbol, the name and "75 %", "Aus" or "Nicht verfügbar", right a switch;
+  - dragging the bar sideways sets the brightness: the number follows the finger at once, the command goes out only when the finger lets go (a Zigbee net is not flooded); up and down the page scrolls as always;
+  - a short tap switches on or off, a long press opens Home Assistant's own window; a lamp that cannot dim and a switch only switch, a lamp that is not available is grey and takes no tap;
+  - a light group of Home Assistant opens with ▸ to its lamps, each with its own bar (a Zigbee2MQTT group does not tell Home Assistant its lamps: it stays one bar);
+  - in "Karte einstellen": the title, the lamps from a search (each with its own name and symbol, ⠿ to drag, ✕ to remove), "Alle aus" in the head of the card, groups to open, and **"Als Karte auf der Seite" or "Als Fenster (Popup)"**: as a window the card opens from **"💡 n Lichter an"** in "Im Haus" on ☀ Heute (a tick) or from a button card with the new tap **"🎚️ Lichtsteuerung"**; while editing it stays on the page with the tag "↗ Fenster".
+  - The add-on now also tells the page which lamps a light group of Home Assistant has and whether a lamp can dim (`slim_state`: `members`, `dim`).
+### Changed
+- The demo has the scene bar, the light card on the page 🔘 Knöpfe, the window behind "💡 n Lichter an" and the button "Alle Lichter"; its scenes say when they last ran.
+- Test protocol: new section 134.
+
 ## [4.44.0] - 2026-10-29
 ### Changed
 - **✎ Bearbeiten: a hidden card is really gone, the row "👁 Ausgeblendet" brings it back** (#595, the owner with a picture of ☀ Heute in his version "Eltern": "wenn ich eine Karte ausblende, dass sie dann auch für mich wirklich weg ist und ich dann einfach sozusagen irgendwo eine Liste habe mit ausgeblendeten Elementen und dann wieder anhaken kann … weil sonst wird es echt schwierig, die richtig anzuordnen"). Until now a card hidden with 👁 stayed in its place while editing, faded and marked "ausgeblendet", so the page in the edit mode did not look like the page later. Now:
