@@ -108,9 +108,10 @@ check("climate: a tap on the room's name shows it in the house", pgC.is_hidden("
 # --- ▶ Abläufe
 pgC.click("#tabBar [data-tab=routines]"); pgC.wait_for_timeout(1000)
 names = pgC.evaluate("[...document.querySelectorAll('[data-page=routines] [data-routine]')].map((b) => b.dataset.routine)")
-check("routines: 'Ich gehe' and 'Gute Nacht' first, then every scene and script (none picked)",
+gaming_room = pgC.locator("[data-page=routines] .roTiles .rgRoom[data-room=wz]")       # its lights are in the Wohnzimmer: in that room, closed (#590)
+check("routines: 'Ich gehe' and 'Gute Nacht' first, then every scene and script (none picked); one with a room in its room",
       pgC.locator("[data-page=routines] [data-check=leave]").count() == 1 and pgC.locator("[data-page=routines] [data-check=night]").count() == 1
-      and {"scene.cl_filmabend", "script.cl_kaffee", "scene.gaming"} <= set(names), names)
+      and {"scene.cl_filmabend", "script.cl_kaffee"} <= set(names) and gaming_room.count() == 1 and "Gaming" in gaming_room.inner_text(), names)
 pgC.click("[data-page=routines] [data-routine='scene.cl_filmabend']")
 started = wait_for(lambda: ["scene", "turn_on", "scene.cl_filmabend"] in ha_calls())
 pgC.wait_for_timeout(300)

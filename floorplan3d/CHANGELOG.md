@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.43.0] - 2026-10-29
+### Added
+- **▶ Abläufe by room, to open and close** (#590, the owner: "ich hätte gerne hier eine gruppierung nach räumen in HA das man das direkt sieht ein und aus klappen kann … das würde das übersichtlicher machen und wenn man viele hat das das nicht so viel auf einmal ist"; his choice from the example pictures in `docs/ideen-4.43/`: all four lists, each thing in every room it uses, all closed at first, both views to switch, what has no room open on top, "open all / close all"). With areas in Home Assistant the page ▶ Abläufe has on top **"☰ Nach Listen / 🏠 Nach Räumen"** (this device remembers the choice):
+  - **Nach Listen:** the big buttons, the own routines, the automations of Home Assistant and the scenes stay where they are; inside each, the rooms (the areas of Home Assistant) as lines with their icon, how many and the names, closed. A tap opens a room, a second one closes it; "▾ Alle aufklappen" / "▸ Alle zuklappen" above each list. The big buttons that have a room go into the new card "▶️ Knöpfe nach Räumen".
+  - **Nach Räumen:** one card "🏠 Nach Räumen" with every room; a room opened shows its buttons, own routines, automations and scenes together, with "＋ Neuer Ablauf", "📋 Aus Vorlage" and "＋ Neue Szene" on top.
+  - The room of a thing: its own area in Home Assistant (an automation or scene can have one), else every area of the devices it uses, so an automation with lights in the living room and the office stands in both. What has no room stays open on top as before ("Ich gehe" and "Gute Nacht" too). The rooms are closed again when the page is loaded anew. Without areas in Home Assistant the page stays as it was.
+### Changed
+- Test protocol: new section 131.
+
 ## [4.42.1] - 2026-10-29
 ### Fixed
 - **The heating rules keep their order also with a thermostat that reports late** (#588, the owner: "die Reihenfolge der heizungsteureung muss stabiler sein und auch so das es da keine fehler gibt"). A sleepy radiator thermostat shows the old mode or target for some minutes after the add-on sent it a new one; the rules decided on what it still showed. Now they decide on what it will be once it has reported (what Home Assistant shows, plus what the add-on sent and is still on its way). Repaired with it:

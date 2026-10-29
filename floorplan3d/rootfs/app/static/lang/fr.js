@@ -2137,4 +2137,11 @@ export default {
   'hr.line.warm': 'Trop chaud ({room} dans la pièce) · thermostat {to} jusqu’au retour à {wish}', 'hr.why.warm': 'Trop chaud', 'hr.prio': 'Qui a la priorité ?',
   'hr.prio.text': '🪟 Fenêtre ouverte → 🚀 Boost → 🔥 Trop chaud → ✈️ Vacances → ☀️ Pause d’été → 🚶 Personne à la maison → 📅 Programme → 🌙 Réduit de nuit. Quand une règle se termine, ce qui valait avant revient ; tourné à la main reste jusqu’au prochain changement (avec le programme pendant les minutes réglées).',
   'hd.cfg.warm': 'Trop chaud : {on} · dès {above} de plus · thermostat {down} plus bas',
+  'rg.lists': 'Par liste', 'rg.rooms': 'Par pièce',
+  'rg.viewHint': 'Afficher les routines par liste ou par les pièces (zones) de Home Assistant ; cet appareil s’en souvient', 'rg.openAll': 'Tout déplier',
+  'rg.closeAll': 'Tout replier', 'rg.one.room': '1 pièce', 'rg.n.room': '{n} pièces', 'rg.one.tile': '1 bouton', 'rg.n.tile': '{n} boutons',
+  'rg.one.flow': '1 routine', 'rg.n.flow': '{n} routines', 'rg.one.auto': '1 automatisation', 'rg.n.auto': '{n} automatisations', 'rg.one.scene': '1 scène',
+  'rg.n.scene': '{n} scènes', 'rg.tiles': 'Boutons par pièce', 'rg.tilesHint': 'touchez une pièce pour la déplier', 'rg.tilesShort': 'Boutons',
+  'rg.title': 'Par pièce', 'rg.hint': 'boutons, routines, automatisations et scènes d’une pièce ensemble', 'sc.short': 'Scènes',
+  'ro.autosShort': 'Automatisations dans Home Assistant',
 };

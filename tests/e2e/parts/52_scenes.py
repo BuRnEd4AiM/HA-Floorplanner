@@ -9,6 +9,7 @@ st_sc = api("api/settings")
 set_setting("language", "de")
 def post_sc(path, body):
     return json.load(urllib.request.urlopen(urllib.request.Request(HA + path, data=json.dumps(body).encode(), method="POST", headers={"Content-Type": "application/json"})))
+post_sc("/_areas", [{"id": "rg_keller", "name": "Keller", "entities": []}])   # #590: an area with nothing of this part in it: its lists stay as they were (by room: 60_roomgroups.py)
 scenes_sc = lambda: json.load(urllib.request.urlopen(HA + "/_scenes"))
 calldata_sc = lambda: json.load(urllib.request.urlopen(HA + "/_calldata"))
 calls_sc = lambda: json.load(urllib.request.urlopen(HA + "/_calls"))
@@ -122,3 +123,4 @@ for k in [k for k in scenes_sc() if k.startswith("fp3d_")]:
     urllib.request.urlopen(urllib.request.Request(BASE + f"api/scenes/{k}", method="DELETE", headers={"X-Remote-User-Name": "admin"})).read()
 urllib.request.urlopen(urllib.request.Request(HA + "/config/automation/config/1600000000", method="DELETE")).read()
 set_setting("language", st_sc.get("language", ""))
+post_sc("/_areas", [])

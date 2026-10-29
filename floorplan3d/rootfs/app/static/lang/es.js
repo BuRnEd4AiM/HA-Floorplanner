@@ -2121,4 +2121,11 @@ export default {
   'hr.prio': '¿Quién tiene prioridad?',
   'hr.prio.text': '🪟 Ventana abierta → 🚀 Boost → 🔥 Demasiado calor → ✈️ Vacaciones → ☀️ Pausa de verano → 🚶 Nadie en casa → 📅 Horario → 🌙 Reducción nocturna. Cuando termina una regla, vuelve lo de antes; girado a mano se queda hasta el próximo cambio (con el horario durante los minutos ajustados).',
   'hd.cfg.warm': 'Demasiado calor: {on} · desde {above} más · termostato {down} más bajo',
+  'rg.lists': 'Por lista', 'rg.rooms': 'Por estancia',
+  'rg.viewHint': 'Mostrar las rutinas por lista o por las estancias (áreas) de Home Assistant; este dispositivo lo recuerda', 'rg.openAll': 'Abrir todo',
+  'rg.closeAll': 'Cerrar todo', 'rg.one.room': '1 estancia', 'rg.n.room': '{n} estancias', 'rg.one.tile': '1 botón', 'rg.n.tile': '{n} botones',
+  'rg.one.flow': '1 rutina', 'rg.n.flow': '{n} rutinas', 'rg.one.auto': '1 automatización', 'rg.n.auto': '{n} automatizaciones', 'rg.one.scene': '1 escena',
+  'rg.n.scene': '{n} escenas', 'rg.tiles': 'Botones por estancia', 'rg.tilesHint': 'toca una estancia para abrirla', 'rg.tilesShort': 'Botones',
+  'rg.title': 'Por estancia', 'rg.hint': 'botones, rutinas propias, automatizaciones y escenas de una estancia juntos', 'sc.short': 'Escenas',
+  'ro.autosShort': 'Automatizaciones en Home Assistant',
 };

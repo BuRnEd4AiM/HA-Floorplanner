@@ -2091,4 +2091,11 @@ export default {
   'hr.line.warm': 'Za ciepło ({room} w pokoju) · termostat {to}, aż znowu {wish}', 'hr.why.warm': 'Za ciepło', 'hr.prio': 'Co ma pierwszeństwo?',
   'hr.prio.text': '🪟 Okno otwarte → 🚀 Boost → 🔥 Za ciepło → ✈️ Urlop → ☀️ Przerwa letnia → 🚶 Nikogo w domu → 📅 Harmonogram → 🌙 Obniżenie nocne. Gdy reguła się kończy, wraca to, co było wcześniej; przekręcone ręcznie zostaje do następnej zmiany (przy harmonogramie przez ustawione minuty).',
   'hd.cfg.warm': 'Za ciepło: {on} · od {above} cieplej · termostat {down} niżej',
+  'rg.lists': 'Według list', 'rg.rooms': 'Według pomieszczeń',
+  'rg.viewHint': 'Pokazuj rutyny według list lub pomieszczeń (obszarów) z Home Assistant; to urządzenie to zapamięta', 'rg.openAll': 'Rozwiń wszystkie',
+  'rg.closeAll': 'Zwiń wszystkie', 'rg.one.room': '1 pomieszczenie', 'rg.n.room': 'Pomieszczenia: {n}', 'rg.one.tile': '1 przycisk',
+  'rg.n.tile': 'Przyciski: {n}', 'rg.one.flow': '1 rutyna', 'rg.n.flow': 'Rutyny: {n}', 'rg.one.auto': '1 automatyzacja', 'rg.n.auto': 'Automatyzacje: {n}',
+  'rg.one.scene': '1 scena', 'rg.n.scene': 'Sceny: {n}', 'rg.tiles': 'Przyciski według pomieszczeń', 'rg.tilesHint': 'dotknij pomieszczenia, aby je rozwinąć',
+  'rg.tilesShort': 'Przyciski', 'rg.title': 'Według pomieszczeń', 'rg.hint': 'przyciski, własne rutyny, automatyzacje i sceny pomieszczenia razem',
+  'sc.short': 'Sceny', 'ro.autosShort': 'Automatyzacje w Home Assistant',
 };

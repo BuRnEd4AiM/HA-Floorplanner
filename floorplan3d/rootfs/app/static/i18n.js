@@ -1057,6 +1057,13 @@ const DICT = {
     'hr.line.warm': 'Zu warm ({room} im Raum) · Thermostat {to}, bis wieder {wish}', 'hr.why.warm': 'Zu warm', 'hr.prio': 'Wer hat Vorrang?',
     'hr.prio.text': '🪟 Fenster offen → 🚀 Boost → 🔥 Zu warm → ✈️ Urlaub → ☀️ Sommerpause → 🚶 Keiner zu Hause → 📅 Heizplan → 🌙 Nachtabsenkung. Endet eine Regel, kommt zurück, was vorher galt; von Hand gedreht bleibt bis zum nächsten Wechsel (beim Heizplan bis zu den eingestellten Minuten).',
     'hd.cfg.warm': 'Zu warm: {on} · ab {above} wärmer · Thermostat {down} tiefer',
+    'rg.lists': 'Nach Listen', 'rg.rooms': 'Nach Räumen',
+    'rg.viewHint': 'Die Abläufe nach Listen oder nach den Räumen (Bereichen) aus Home Assistant zeigen; dieses Gerät merkt es sich',
+    'rg.openAll': 'Alle aufklappen', 'rg.closeAll': 'Alle zuklappen', 'rg.one.room': '1 Raum', 'rg.n.room': '{n} Räume', 'rg.one.tile': '1 Knopf',
+    'rg.n.tile': '{n} Knöpfe', 'rg.one.flow': '1 Ablauf', 'rg.n.flow': '{n} Abläufe', 'rg.one.auto': '1 Automation', 'rg.n.auto': '{n} Automationen',
+    'rg.one.scene': '1 Szene', 'rg.n.scene': '{n} Szenen', 'rg.tiles': 'Knöpfe nach Räumen', 'rg.tilesHint': 'ein Tipp auf den Raum klappt ihn auf',
+    'rg.tilesShort': 'Knöpfe', 'rg.title': 'Nach Räumen', 'rg.hint': 'Knöpfe, eigene Abläufe, Automationen und Szenen eines Raums zusammen',
+    'sc.short': 'Szenen', 'ro.autosShort': 'Automationen in Home Assistant',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2068,6 +2075,12 @@ const DICT = {
     'hr.line.warm': 'Too warm ({room} in the room) · thermostat {to} until back at {wish}', 'hr.why.warm': 'Too warm', 'hr.prio': 'Which goes first?',
     'hr.prio.text': '🪟 Window open → 🚀 Boost → 🔥 Too warm → ✈️ Holiday → ☀️ Summer pause → 🚶 Nobody at home → 📅 Schedule → 🌙 Night setback. When a rule ends, what was before comes back; turned by hand stays until the next change (under the schedule for the minutes set).',
     'hd.cfg.warm': 'Too warm: {on} · from {above} warmer · thermostat {down} lower',
+    'rg.lists': 'By list', 'rg.rooms': 'By room', 'rg.viewHint': 'Show the routines by list or by the rooms (areas) of Home Assistant; this device remembers it',
+    'rg.openAll': 'Open all', 'rg.closeAll': 'Close all', 'rg.one.room': '1 room', 'rg.n.room': '{n} rooms', 'rg.one.tile': '1 button',
+    'rg.n.tile': '{n} buttons', 'rg.one.flow': '1 routine', 'rg.n.flow': '{n} routines', 'rg.one.auto': '1 automation', 'rg.n.auto': '{n} automations',
+    'rg.one.scene': '1 scene', 'rg.n.scene': '{n} scenes', 'rg.tiles': 'Buttons by room', 'rg.tilesHint': 'a tap on the room opens it',
+    'rg.tilesShort': 'Buttons', 'rg.title': 'By room', 'rg.hint': 'the buttons, own routines, automations and scenes of a room together', 'sc.short': 'Scenes',
+    'ro.autosShort': 'Automations in Home Assistant',
   },
 };
 

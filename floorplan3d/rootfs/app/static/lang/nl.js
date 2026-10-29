@@ -2096,4 +2096,11 @@ export default {
   'hr.line.warm': 'Te warm ({room} in de kamer) · thermostaat {to} tot weer {wish}', 'hr.why.warm': 'Te warm', 'hr.prio': 'Wat gaat voor?',
   'hr.prio.text': '🪟 Raam open → 🚀 Boost → 🔥 Te warm → ✈️ Vakantie → ☀️ Zomerpauze → 🚶 Niemand thuis → 📅 Schema → 🌙 Nachtverlaging. Eindigt een regel, dan komt terug wat ervoor gold; met de hand gedraaid blijft tot de volgende wissel (bij het schema tot de ingestelde minuten).',
   'hd.cfg.warm': 'Te warm: {on} · vanaf {above} warmer · thermostaat {down} lager',
+  'rg.lists': 'Per lijst', 'rg.rooms': 'Per ruimte',
+  'rg.viewHint': 'De routines per lijst of per ruimte (gebied) van Home Assistant tonen; dit apparaat onthoudt het', 'rg.openAll': 'Alles openklappen',
+  'rg.closeAll': 'Alles dichtklappen', 'rg.one.room': '1 ruimte', 'rg.n.room': '{n} ruimtes', 'rg.one.tile': '1 knop', 'rg.n.tile': '{n} knoppen',
+  'rg.one.flow': '1 routine', 'rg.n.flow': '{n} routines', 'rg.one.auto': '1 automatisering', 'rg.n.auto': '{n} automatiseringen', 'rg.one.scene': '1 scène',
+  'rg.n.scene': '{n} scènes', 'rg.tiles': 'Knoppen per ruimte', 'rg.tilesHint': 'tik op een ruimte om hem open te klappen', 'rg.tilesShort': 'Knoppen',
+  'rg.title': 'Per ruimte', 'rg.hint': 'knoppen, eigen routines, automatiseringen en scènes van een ruimte samen', 'sc.short': 'Scènes',
+  'ro.autosShort': 'Automatiseringen in Home Assistant',
 };

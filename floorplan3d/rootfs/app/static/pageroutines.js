@@ -1,15 +1,19 @@
 /* The page ▶ Abläufe of the tab bar (#483): "Ich gehe" and "Gute Nacht" first (a window shows what is still open or on before they
  * start: "Alles aus" switches lights and players off, then the routine linked to it in ⚙; "Trotzdem" only starts that), then a big
  * button per scene, script or button (a tap starts it, ✓ when Home Assistant took it), then the add-on's own routines, the automations
- * of Home Assistant (editors) and what happened (routinesown.js, #546). The rules are in routines.js (tested); this file draws. */
+ * of Home Assistant (editors) and what happened (routinesown.js, #546). With areas in Home Assistant, by room (#590): the switch "☰ Nach
+ * Listen / 🏠 Nach Räumen" on top, the buttons without a room stay here, those with one go into routinesown.js's cards
+ * (roomgroupsui.js). The rules are in routines.js (tested); this file draws. */
 import { routineButtons, checkRows, checkButtons, offCalls, playingMedia, openLocks, automations, cleanRoutine, routineIcon, hasRoutines, START, CHECKS } from './routines.js';
+import { roomsOf } from './roomgroups.js';
 
 const CHECK_ICON = { leave: '🚪', night: '🌙' };
 const ROW_ICON = { open: '🪟', lights: '💡', media: '📺', locks: '🔓' };
 
 /** ctx: t, el (the page), states(), settings(), names() ({ entity: name }), openNames() (the names of the open windows and doors),
  *  litLights() (the lights on in the house), callService(entity, service, data) (-> true when Home Assistant took it), canEdit(), board
- *  (pageboard.js, #484: keys leave, night, r:<entity>, own, autos, log), own (routinesown.js: the cards of the own routines, #546) */
+ *  (pageboard.js, #484: keys leave, night, r:<entity>, own, autos, log, rtiles, rooms), own (routinesown.js: the cards of the own routines,
+ *  #546), groups (roomgroupsui.js, #590), areaOf() ({entity: area id}) */
 export function initRoutinesPage(ctx) {
   const { t, el } = ctx;
   const flash = new Map();                           // button (entity or check) -> 'ok' | 'bad' for a moment after a tap
@@ -95,14 +99,26 @@ export function initRoutinesPage(ctx) {
     b.append(make('span', 'rtIcon', icon), make('b', 'rtName', name), make('small', 'rtSub', f === 'ok' ? `✓ ${t('rt.started')}` : f === 'bad' ? t('rt.failed') : sub));
     return b;
   }
+  function routineTile(r) {
+    const b = tile({ key: r.entity, icon: r.icon || routineIcon(r.name, r.entity), name: r.name, cls: r.running ? 'running' : '',
+      sub: r.running ? t('rt.running') : t(`rt.kind.${domainOf(r.entity)}`), on: async () => mark(r.entity, await start(r.entity)) });
+    b.dataset.routine = r.entity;
+    return b;
+  }
   function draw(force = false) {
     const st = ctx.states(), names = ctx.names(), s = ctx.settings();
-    const buttons = routineButtons(st, names, s.routines, CHECKS.map(linkedOf));
-    const sig = JSON.stringify([buttons, ctx.canEdit() ? automations(st, names) : [], ctx.own.sig(), linkedOf('leave'), linkedOf('night'), [...flash], t('tab.routines')]);
+    const all = routineButtons(st, names, s.routines, CHECKS.map(linkedOf));
+    const grouped = !!ctx.groups?.on(), roomsFor = (r) => roomsOf(r.entity, st[r.entity]?.members || [], ctx.areaOf?.() || {});
+    const buttons = grouped ? all.filter((r) => !roomsFor(r).length) : all;       // without a room: here on top, as before (#590)
+    const inRooms = grouped ? all.filter((r) => roomsFor(r).length) : [];
+    const tiles = inRooms.length ? { items: inRooms, roomsFor, row: routineTile, nameOf: (r) => r.name, unit: 'tile', tiles: true, title: `▶️ ${t('rg.tilesShort')}`,
+      sig: JSON.stringify([inRooms, [...flash]]) } : null;
+    const sig = JSON.stringify([all, ctx.canEdit() ? automations(st, names) : [], ctx.own.sig(), linkedOf('leave'), linkedOf('night'), [...flash], ctx.groups?.sig(), t('tab.routines')]);
     if (!force && sig === drawn) { drawCheck(); return; }
     drawn = sig;
     const head = make('div', 'tpHead');
     head.append(make('h2', '', `▶️ ${t('tab.routines')}`), make('span', 'tpSub', t('rt.sub')));
+    if (grouped) head.append(ctx.groups.switcher());
     const grid = make('div', 'rtGrid'), items = [];
     CHECKS.forEach((k) => {
       const linked = linkedOf(k), b = tile({ key: k, icon: CHECK_ICON[k], name: t(`rt.${k}`), cls: `rtCheck ${k}`,
@@ -110,15 +126,10 @@ export function initRoutinesPage(ctx) {
       b.dataset.check = k;
       items.push({ key: k, el: b, width: 1 });
     });
-    buttons.forEach((r) => {
-      const b = tile({ key: r.entity, icon: r.icon || routineIcon(r.name, r.entity), name: r.name, cls: r.running ? 'running' : '',
-        sub: r.running ? t('rt.running') : t(`rt.kind.${domainOf(r.entity)}`), on: async () => mark(r.entity, await start(r.entity)) });
-      b.dataset.routine = r.entity;
-      items.push({ key: `r:${r.entity}`, el: b, width: 1 });
-    });
+    buttons.forEach((r) => items.push({ key: `r:${r.entity}`, el: routineTile(r), width: 1 }));
     const out = [head];
-    if (!buttons.length) out.push(make('p', 'tpSub', t('rt.none')));
-    items.push(...ctx.own.items());                // the own routines, the automations (editors) and what happened (#546)
+    if (!all.length) out.push(make('p', 'tpSub', t('rt.none')));
+    items.push(...ctx.own.items(tiles));           // the own routines, the automations (editors) and what happened (#546), by room (#590)
     el.replaceChildren(...out, grid);
     ctx.board.fill('routines', grid, items, { min: 220 });
     drawCheck();

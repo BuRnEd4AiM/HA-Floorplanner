@@ -609,7 +609,7 @@ const rulesUi = initRulesUi({                                    // the add-on's
   t, lang: () => currentLanguage(), settings: () => settings, states: () => states, entities: () => entities, nameOf: (e) => entities.find((x) => x.entity_id === e)?.name,
   canEdit: () => me.canEdit, locked: () => locks.has('control'), callService: (e, svc, data) => live.callService(e, svc, data), houseId: () => hs.id(),
   layout: () => shownLayout(), details: (e) => live.detailsButton(e, true), tabs: () => tabsUi, climate: () => climatePage, routines: () => routinesPage,
-  redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); }, partOf,
+  redraw: () => { roomTiles.update(); roomLabels.update(); tabsUi.update(); }, partOf, areas: () => areas, areaOf: () => areaOf,   // ▶ Abläufe by room (#590)
 });
 const roomTiles = initRoomTiles({ $, t, layout: () => shownLayout(), floorIdx: () => floorIdx, houseMode: () => houseMode, focusedRoom: () => focusedRoom,   // room tiles (#421), roomtilesui.js
   settings: () => settings, states: () => states, isLive: () => isLive(), placed: (f) => entityDevices(f), areaEntities: areaEntitiesOf, partOf,
@@ -740,6 +740,7 @@ const routinesPage = initRoutinesPage({                          // ▶ Abläufe
   names: () => namesOf(/^(scene|script|button|input_button|media_player|lock|automation)\./),
   openNames: () => openings.items().map((x) => x.name), litLights: () => lightGroups.lit(),
   callService: (e, svc, data) => live.callService(e, svc, data), board, own: rulesUi.own,   // the own routines (#546)
+  groups: rulesUi.groups, areaOf: () => areaOf,                   // by room (#590)
 });
 const roomOf = (e) => placeOf(layout, e)?.room || areas.find((a) => a.id === areaOf[e])?.name || '';   // the room of a device: in the plan, else its area
 const logPage = initLogPage({                                    // 📜 Protokoll (pagelog.js, devlog.js): who switched what, for who may edit
