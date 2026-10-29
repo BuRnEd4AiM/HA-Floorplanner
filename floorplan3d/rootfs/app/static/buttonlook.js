@@ -1,7 +1,7 @@
 /* How a button card looks and what it does (#495, the owner: "mehr Möglichkeiten, Buttons anzupassen"; picture
  * docs/ideen-4.9/7-knoepfe.jpg): its symbol, its colour when on (or the colour of the lamp), its shape (tile, round, pill, only the
  * symbol) and size, what it shows (name, state, brightness as a bar, since when) and what a tap and a long press do (switch, the window
- * with the controls, open a page, Home Assistant's own window). Pure (unit test: tests/buttonlook.test.mjs; boards.py checks the card the
+ * with the controls, open a page, open a light card as a window (#597), Home Assistant's own window). Pure (unit test: tests/buttonlook.test.mjs; boards.py checks the card the
  * same way); buttoncardui.js draws it. */
 import { TAB_KEYS, CUSTOM_ID } from './tabs.js';
 
@@ -11,7 +11,7 @@ export const BTN_HEX = { amber: '#ffb547', orange: '#ff7a3d', red: '#e5484d', pu
 export const BTN_SHAPES = ['tile', 'round', 'pill', 'icon'];
 export const BTN_SIZES = ['s', 'm', 'l', 'xl'];
 export const BTN_SHOW = ['name', 'state', 'bar', 'since'];
-export const BTN_TAP = ['toggle', 'more', 'page', 'none'];
+export const BTN_TAP = ['toggle', 'more', 'page', 'lights', 'none'];
 export const BTN_HOLD = ['none', 'more', 'details'];
 /** a press at least this long is a long press */
 export const HOLD_MS = 500;
@@ -19,19 +19,21 @@ const ON = new Set(['on', 'open', 'opening', 'playing', 'heat', 'cool', 'heat_co
 
 /**
  * The look of a button card made safe: { icon ('' = chosen by its name and entity), onColor, shape, bsize, show: [what it shows], tap,
- * hold, page (the page a tap opens) }. Missing or wrong values take the usual ones: amber, tile, m, name and state, switch on tap, the
- * window with the controls on a long press.
+ * hold, page (the page a tap opens), card (only with the tap 'lights': the light card it opens, #597) }. Missing or wrong values take the
+ * usual ones: amber, tile, m, name and state, switch on tap, the window with the controls on a long press.
  */
 export function cleanLook(c) {
   const v = c && typeof c === 'object' ? c : {};
   const show = Array.isArray(v.show) ? BTN_SHOW.filter((k) => v.show.includes(k)) : ['name', 'state'];
   const page = typeof v.page === 'string' && (TAB_KEYS.includes(v.page) || CUSTOM_ID.test(v.page)) ? v.page : '';
+  const card = typeof v.card === 'string' && /^c_[a-z0-9]{3,16}$/.test(v.card) ? v.card : '';
   let tap = BTN_TAP.includes(v.tap) ? v.tap : 'toggle';
-  if (tap === 'page' && !page) tap = 'toggle';
+  if ((tap === 'page' && !page) || (tap === 'lights' && !card)) tap = 'toggle';
   return {
     icon: BTN_ICONS.includes(v.icon) ? v.icon : '', onColor: BTN_COLORS.includes(v.onColor) ? v.onColor : 'amber',
     shape: BTN_SHAPES.includes(v.shape) ? v.shape : 'tile', bsize: BTN_SIZES.includes(v.bsize) ? v.bsize : 'm',
     show: v.shape === 'icon' ? [] : show, tap, hold: BTN_HOLD.includes(v.hold) ? v.hold : 'more', page: tap === 'page' ? page : '',
+    ...(tap === 'lights' ? { card } : {}),
   };
 }
 

@@ -24,4 +24,5 @@ export const toState = (e, effectColors) => ({ since: e.since, state: e.state, u
   at: e.at, run: e.run,   // an automation's or script's last run (seconds) and its runs now: ▶ Abläufe, 🔎 Wird benutzt (#546)
   cid: e.cid,      // the id of an automation or scene of Home Assistant's editor: fp3d_… are the add-on's own routines (#548)
   kel: e.kel, kmin: e.kmin, kmax: e.kmax,   // a light's white tone now (in its white mode) and the white tones it can do, in Kelvin (#564)
+  dim: e.dim,      // false: a lamp that only switches, no slider on a light card (#597)
   sun: e.sun, wx: e.wx });   // sun.sun's elevation and next sunrise / sunset, a weather entity's temperature and wind (the sky, #418, #419)

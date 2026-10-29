@@ -38,3 +38,9 @@ test('since when in words', () => {
   assert.deepEqual(L.agoOf(new Date(+now - 3 * 86400000), now), { key: 'd', n: 3 });
   assert.deepEqual(L.agoOf(new Date(+now + 60000), now), { key: 'now', n: 0 });       // a clock a little ahead
 });
+
+test('a tap that opens a light card (#597): only with the id of a card', () => {
+  assert.deepEqual([L.cleanLook({ tap: 'lights', card: 'c_licht' }).tap, L.cleanLook({ tap: 'lights', card: 'c_licht' }).card], ['lights', 'c_licht']);
+  assert.equal(L.cleanLook({ tap: 'lights', card: 'nope' }).tap, 'toggle');
+  assert.equal('card' in L.cleanLook({ tap: 'more', card: 'c_licht' }), false);
+});

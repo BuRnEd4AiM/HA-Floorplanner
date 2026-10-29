@@ -2437,3 +2437,97 @@ input[type=range].kelRange::-moz-range-track { background: transparent; }
 
 /* a short grey line under a tick of the properties ("Zählt für die Heizung" of a door) */
 .propHint { color: var(--muted); font-size: 12px; line-height: 1.4; margin: 2px 0 10px 24px; }
+
+/* ---- the scene bar over the tab bar (#597, scenebarui.js): a row of tiles, swiped or scrolled sideways, it snaps to a tile ---- */
+#sceneBar { flex: none; position: relative; z-index: 8; padding: 8px 10px 6px; background: var(--bg); }
+#sceneBar[hidden] { display: none; }
+.sbStrip { display: flex; gap: 10px; overflow-x: auto; padding: 2px; scroll-snap-type: x proximity; scrollbar-width: none; touch-action: pan-x; overscroll-behavior-x: contain; }
+.sbStrip::-webkit-scrollbar { display: none; }
+.sbStrip > :first-child { margin-left: auto; }
+.sbStrip > :last-child { margin-right: auto; }
+.sbStrip.moreR { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent); }
+.sbStrip.moreL { -webkit-mask-image: linear-gradient(90deg, transparent, #000 48px); mask-image: linear-gradient(90deg, transparent, #000 48px); }
+.sbStrip.moreL.moreR { -webkit-mask-image: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(90deg, transparent, #000 48px, #000 calc(100% - 48px), transparent); }
+.sbTile { position: relative; flex: 0 0 auto; width: 164px; height: 56px; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 16px;
+  background: var(--panel); border: 1px solid var(--line); color: var(--text); text-align: left; font-weight: 600; scroll-snap-align: start;
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; transition: transform .12s, background .2s, border-color .2s; }
+.sbTile:active { transform: scale(.96); }
+.sbIcon { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; font-size: 20px; line-height: 1;
+  background: color-mix(in srgb, var(--sbc, var(--accent)) 18%, transparent); }
+.sbName { min-width: 0; font-size: 14px; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: break-word; hyphens: auto; }
+.sbTile.tinted { border-color: color-mix(in srgb, var(--sbc) 55%, var(--line)); }
+.sbTile.last { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sbc, var(--accent)) 70%, transparent); }
+.sbTile.last::after { content: ''; position: absolute; top: 7px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--sbc, var(--accent)); }
+.sbTile.ok { background: color-mix(in srgb, #46a758 26%, var(--panel)); border-color: #46a758; }
+.sbTile.bad { background: color-mix(in srgb, #e5484d 26%, var(--panel)); border-color: #e5484d; }
+.sbTile.ok .sbIcon, .sbTile.bad .sbIcon { background: transparent; font-weight: 800; }
+.sbTile.sbEdit { border-style: dashed; color: var(--muted); background: transparent; }
+.sbToast { position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); max-width: calc(100% - 24px); padding: 6px 14px; border-radius: 999px;
+  background: rgba(201, 54, 59, .95); color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 8px 22px rgba(0, 0, 0, .4); }
+.sbToast[hidden] { display: none; }
+body.hasScenes #status { bottom: 156px; }
+@media (max-width: 760px) {
+  #sceneBar { padding: 6px 8px 4px; }
+  .sbStrip { gap: 8px; }
+  .sbTile { width: 148px; height: 50px; padding: 6px 10px; gap: 8px; border-radius: 14px; }
+  .sbIcon { width: 30px; height: 30px; font-size: 18px; }
+  .sbName { font-size: 13px; }
+}
+/* its window: on or off, which list, the tiles (⠿ symbol name colour ✕) and the search to add */
+.sbDlg { width: min(680px, calc(100vw - 32px)); }
+.sbOn { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-weight: 600; }
+.sbOn input { width: 20px; height: 20px; }
+.sbRows { display: flex; flex-direction: column; gap: 6px; }
+.sbRow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--field); }
+.sbIconSel { width: auto; min-width: 64px; padding: 6px 8px; }
+.sbNameIn { flex: 1 1 150px; min-width: 0; }
+.sbColors { display: flex; gap: 5px; }
+.sbDot { width: 24px; height: 24px; min-height: 0; padding: 0; border-radius: 50%; background: var(--dot, transparent); border: 2px solid rgba(255, 255, 255, .25); }
+.sbDot[data-color=""] { background: linear-gradient(135deg, transparent 44%, var(--muted) 44%, var(--muted) 56%, transparent 56%); }
+.sbDot.on { outline: 2px solid var(--text); outline-offset: 1px; }
+.sbDel { min-height: 0; padding: 4px 10px; border-radius: 8px; }
+.sbId { flex-basis: 100%; padding-left: 30px; color: var(--muted); font-size: 11px; }
+.sbMissing { color: #ff8a8a; font-weight: 600; }
+/* dragging a row by its ⠿ (dragsort.js) */
+.dsGrip { cursor: grab; touch-action: none; color: var(--muted); font-size: 18px; line-height: 1; padding: 4px 6px; -webkit-user-select: none; user-select: none; }
+.dsDragging { position: relative; z-index: 2; box-shadow: 0 8px 22px rgba(0, 0, 0, .45); cursor: grabbing; }
+
+/* ---- the light card (#597, lightcardui.js): a wide bar per lamp, filled as far as it is bright in its colour, a switch on the right ---- */
+.lcCard { gap: 10px; }
+.lcHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.lcHead .peH { margin: 0; }
+.lcAllOff { min-height: 0; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+.lcRows, .lcKids, .lcBox { display: flex; flex-direction: column; gap: 10px; }
+.lcKids { gap: 6px; }
+.lcRow { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 0 14px; border-radius: 16px; overflow: hidden; cursor: pointer;
+  background: rgba(var(--lc), .2); color: var(--text); touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.lcRow > :not(.lcFill) { position: relative; z-index: 1; }
+.lcFill { position: absolute; left: 0; top: 0; bottom: 0; width: var(--pct); background: linear-gradient(90deg, rgba(var(--lc), .5), rgba(var(--lc), .95)); transition: width .25s ease; }
+.lcRow.dragging .lcFill { transition: none; }
+.lcRow.lc-on { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .55); }
+.lcRow.lc-off { background: rgba(128, 136, 146, .16); }
+.lcRow.lc-na, .lcRow.lc-missing { background: rgba(128, 136, 146, .12); opacity: .5; filter: grayscale(1); cursor: default; }
+.lcRow:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.lcIcon { flex: none; width: 30px; font-size: 24px; text-align: center; }
+.lcRow.lc-off .lcIcon { filter: grayscale(1); opacity: .75; }
+.lcText { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; white-space: nowrap; overflow: hidden; }
+.lcName { min-width: 0; font-size: 17px; overflow: hidden; text-overflow: ellipsis; }
+.lcState { flex: none; font-size: 16px; font-weight: 700; }
+.lcRow.lc-off .lcState, .lcRow.lc-na .lcState { color: var(--muted); font-weight: 600; }
+.lcMore { flex: none; min-height: 0; padding: 4px 10px; border: 0; border-radius: 10px; background: rgba(0, 0, 0, .28); color: #fff; font-size: 15px; }
+.lcSw input:checked + span { background: #46a758; border-color: #46a758; }
+.lcRow.sub { min-height: 46px; margin-left: 24px; border-radius: 12px; }
+.lcRow.sub .lcName { font-size: 15px; }
+.lcRow.sub .lcState { font-size: 14px; }
+.lcGroupTag { color: var(--muted); }
+/* as a window (popup): "✕ Lichtsteuerung" over the bars */
+.lcDlg { width: min(560px, calc(100vw - 24px)); }
+.lcDlgHead { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.lcDlgHead h3 { flex: 1; min-width: 0; margin: 0; font-size: 24px; text-transform: none; letter-spacing: normal; color: var(--text); }
+.lcClose { min-height: 0; padding: 2px 10px; border: 0; background: transparent; font-size: 24px; line-height: 1; }
+@media (max-width: 760px) {
+  .lcRow { min-height: 54px; padding: 0 12px; gap: 10px; }
+  .lcName { font-size: 15px; }
+  .lcState { font-size: 14px; }
+  .lcIcon { font-size: 21px; width: 26px; }
+}

@@ -714,6 +714,7 @@ const dash = initDashboards({                                    // the pages ar
   live: () => live,                                              // a lamp's controls in the window of a button card (#495)
   usedBy: (e) => rulesUi.usedBy.button(e),                       // 🔎 Wird benutzt in that window (#546)
   me: () => me, refill: () => settingsStore.fill(),              // the own versions of a page per user (#507)
+  locked: () => locks.has('control'),                            // no scene bar for who may not switch (#597)
 });
 const board = dash.board;
 const camPage = initCameraPage({
@@ -773,6 +774,7 @@ const energyPage = initEnergyPage({                              // ⚡ Energie 
 });
 /** a tap on a row of "Im Haus" on the page ☀ Heute: to the house and what the row is about (the power: to the page ⚡ Energie) */
 function todayAct(k) {
+  if (k === 'lights' && dash.openLightsWindow()) return;          // a light card set to open from here (#597)
   if (k === 'power' && tabsUi.has('energy')) { tabsUi.show('energy'); return; }
   if (k === 'family') { tabsUi.show('family'); return; }                       // the pinboard card (#483)
   tabsUi.show('house');
@@ -792,7 +794,7 @@ const tabsUi = initTabsUi({
     routines: { el: $('#tabPages [data-page=routines]'), ...routinesPage }, family: { el: $('#tabPages [data-page=family]'), ...familyPage },
     log: { el: $('#tabPages [data-page=log]'), ...logPage },
     ...dash.customPages() }),
-  edit: dash.edit, tabEdit: dash.tabEdit,
+  edit: dash.edit, tabEdit: dash.tabEdit, after: dash.after,      // the scene bar, an open light window (#597)
   onShow: (tab, was) => { if (tab !== 'house') { popup.close(); roomPanel.close(); search.close(); toggleViewMenu(false); } else if (was !== 'house') applyStates(); wake(); },   // back to the house: it catches up on the states (#494)
 });
 

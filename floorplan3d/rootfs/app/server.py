@@ -135,6 +135,8 @@ DEFAULT_SETTINGS = {
     "routineNight": "",        # the same for "Gute Nacht"
     "pageLayouts": {},         # the pages arranged by an admin (#484): {page: {"order", "hidden", "cards"}} (boards.py, static/pagelayout.js)
     "pageVariants": {},        # own versions of a page for some users (#507): {page: [{"id": "v_…", "name", "icon", "layout"}]} (static/pagevariants.js)
+    "sceneBar": {"on": True, "items": [], "pages": {}},   # the scene bar over the tab bar (#597): one list for every page, a page or a version
+                               # of it with its own list or none: {"pages": {page or page@version: {"mode": own | off, "items"}}} (boards.clean_scene_bar)
     "customTabs": [],          # own pages of the tab bar (#484): [{"id": "p_…", "name", "icon"}]
     "tabOrder": [],            # the order of the tab bar (#484): tab keys, the house always first
     "radioStations": [],       # the radio stations of the page 🎵 Musik & TV (#490): [{"name", "url"}] (pages.clean_stations)
@@ -789,7 +791,7 @@ def validate_settings(data: dict) -> dict:
             out[key] = boards.clean_custom_tabs(val)
         elif key == "tabOrder":
             out[key] = boards.clean_tab_order(val)
-        elif key in ("pageLayouts", "pageVariants"):
+        elif key in ("pageLayouts", "pageVariants", "sceneBar"):
             pass                                                      # after the loop: they need the own pages
         elif key == "radioStations":
             out[key] = pages.clean_stations(val)
@@ -861,6 +863,7 @@ def validate_settings(data: dict) -> dict:
     out["pageLayouts"] = boards.clean_page_layouts(data.get("pageLayouts"), out["customTabs"])
     out["pageVariants"] = boards.clean_page_variants(data.get("pageVariants"), out["customTabs"])
     out["userTabs"] = drop_gone_picks(out["userTabs"], out["pageVariants"])
+    out["sceneBar"] = boards.clean_scene_bar(data.get("sceneBar"), out["customTabs"], out["pageVariants"])
     for key in ("routineLeave", "routineNight"):
         if out[key] and not clean_routines([out[key]]):
             out[key] = ""
@@ -1177,8 +1180,9 @@ def _effects(attrs):
 
 
 def _members(st):
-    """Entities a scene sets (its `entity_id` attribute), so the UI can offer the scenes a light belongs to."""
-    if not st["entity_id"].startswith("scene."):
+    """Entities a scene sets (its `entity_id` attribute), so the UI can offer the scenes a light belongs to; the lamps of a light group of
+    Home Assistant (the same attribute), opened below the group on a light card (#597)."""
+    if not st["entity_id"].startswith(("scene.", "light.")):
         return None
     ids = st.get("attributes", {}).get("entity_id")
     return [str(x) for x in ids[:200]] if isinstance(ids, list) else None
@@ -1217,13 +1221,15 @@ def _num(v):
 
 def _light(st, a):
     """a light's white tone in Kelvin (#564): the one now (only in its white mode; in a colour mode Home Assistant works one out) and the
-    ones it can do (only a light that can do white tones has them)"""
+    ones it can do (only a light that can do white tones has them); whether it can dim at all (#597: False for one that only switches)"""
     if not st["entity_id"].startswith("light."):
         return {}
+    modes = a.get("supported_color_modes")
+    dim = any(m != "onoff" for m in modes) if isinstance(modes, list) and modes else None   # a lamp that only switches: no slider (#597)
     k = _num(a.get("color_temp_kelvin"))
     lo, hi = _num(a.get("min_color_temp_kelvin")), _num(a.get("max_color_temp_kelvin"))
     return {"kel": round(k) if k and a.get("color_mode") == "color_temp" else None,
-            "kmin": round(lo) if lo and hi and hi > lo else None, "kmax": round(hi) if lo and hi and hi > lo else None}
+            "kmin": round(lo) if lo and hi and hi > lo else None, "kmax": round(hi) if lo and hi and hi > lo else None, "dim": dim}
 
 
 def _sky(st, a):

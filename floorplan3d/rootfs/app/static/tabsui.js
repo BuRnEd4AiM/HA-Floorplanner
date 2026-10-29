@@ -8,7 +8,8 @@ import { HOME, shownTabs, barShown, startTab, keepTab, barTabs } from './tabs.js
 /** ctx: $, t, settings(), isLive(), card (true in the dashboard card without its option "tabs"), me() ({ tabs: { hide, start }, locks }),
  *  pages() ({ <tab>: { el, render(), update(), has(), reset(), badge() (optional: a number on the tab) } }, own pages too),
  *  onShow(tab) (close what lies over the house, wake the drawing), edit ({ can() (editors), editing() (the page in the edit mode),
- *  toggle(tab) }), tabEdit ({ on(), newPage() }), full (fullscreenui.js: { can(), isFull(), state(), click() }) */
+ *  toggle(tab) }), tabEdit ({ on(), newPage() }), full (fullscreenui.js: { can(), isFull(), state(), click() }), after(tab, shown) (the
+ *  scene bar over the bar follows the tab, #597) */
 export function initTabsUi(ctx) {
   const { $, t } = ctx;
   const bar = $('#tabBar'), host = $('#tabPages');
@@ -81,6 +82,7 @@ export function initTabsUi(ctx) {
     if (tab !== HOME) ps[tab].render();
     mark();
     ctx.onShow(tab, was);
+    ctx.after?.(open, shown);
   }
   /** after a change (states, the plan, live / edit, the settings): which tabs, the bar, the open page up to date */
   function update() {
@@ -92,6 +94,7 @@ export function initTabsUi(ctx) {
     const next = keepTab(open, tabs, shown);
     if (next !== open) show(next);
     else if (open !== HOME) { ps[open].update(); ctx.edit?.refresh(open); }   // the page, then its own cards (#484)
+    ctx.after?.(open, shown);
   }
   return {
     update, show,

@@ -19,7 +19,7 @@ MAX_OWN = 40
 MAX_ENTITIES = 12
 MAX_SERIES = 6           # sensors of one history card (static/cards.js, #495)
 
-CARD_TYPES = ("button", "switch", "value", "graph", "light", "thermostat", "cover", "camera", "calendar", "entities", "room", "text", "builtin", "train")
+CARD_TYPES = ("button", "switch", "value", "graph", "light", "lights", "thermostat", "cover", "camera", "calendar", "entities", "room", "text", "builtin", "train")
 HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 TYPE_DOMAINS = {
     "button": ("scene", "script", "button", "input_button", "light", "switch", "input_boolean", "fan", "cover", "media_player", "climate", "water_heater",
@@ -48,13 +48,16 @@ CAL_DAYS = (2, 7, 14, 31)
 CAL_COLORS = ("blue", "orange", "green", "red", "purple", "grey")
 CALENDAR_ID = re.compile(r"^calendar\.[a-z0-9_]{1,200}$")
 MAX_CALS = 10
+# the card "Lichtsteuerung" (static/lightslider.js, #597): a bar per lamp, light group or switch
+ROW_DOMAINS = ("light", "switch")
+MAX_ROWS = 16
 # how a button card looks and what it does (static/buttonlook.js, #495)
 BTN_ICONS = ("💡", "🛋", "🛏", "📺", "🎵", "🔥", "❄️", "🪟", "🚪", "🔒", "🌙", "☀️", "🍳", "🧺", "🚗", "🌱", "🎮", "🎬", "⚡", "🏠")
 BTN_COLORS = ("amber", "orange", "red", "purple", "blue", "green", "grey", "lamp")
 BTN_SHAPES = ("tile", "round", "pill", "icon")
 BTN_SIZES = ("s", "m", "l", "xl")
 BTN_SHOW = ("name", "state", "bar", "since")
-BTN_TAP = ("toggle", "more", "page", "none")
+BTN_TAP = ("toggle", "more", "page", "lights", "none")
 BTN_HOLD = ("none", "more", "details")
 
 
@@ -90,6 +93,11 @@ def _text(v, n) -> str:
     return CONTROL.sub("", v).strip()[:n] if isinstance(v, str) else ""
 
 
+def _chars(v, n) -> str:
+    """a text without control characters, at most n characters (code points, like [...v] in the browser)"""
+    return re.sub(r"[\x00-\x1f\x7f]", "", v).strip()[:n] if isinstance(v, str) else ""
+
+
 def _int(v, lo, hi, dflt):
     return v if isinstance(v, int) and not isinstance(v, bool) and lo <= v <= hi else dflt
 
@@ -119,13 +127,14 @@ def clean_look(v) -> dict:
     v = v if isinstance(v, dict) else {}
     show = [k for k in BTN_SHOW if k in v["show"]] if isinstance(v.get("show"), list) else ["name", "state"]
     page = v["page"] if isinstance(v.get("page"), str) and is_tab_key(v["page"]) else ""
+    card = v["card"] if isinstance(v.get("card"), str) and OWN_ID.match(v["card"]) else ""
     tap = v["tap"] if v.get("tap") in BTN_TAP else "toggle"
-    if tap == "page" and not page:
+    if (tap == "page" and not page) or (tap == "lights" and not card):     # a tap that opens a light card (#597)
         tap = "toggle"
     pick = lambda k, allowed, dflt: v[k] if v.get(k) in allowed else dflt
     return {"icon": pick("icon", BTN_ICONS, ""), "onColor": pick("onColor", BTN_COLORS, "amber"), "shape": pick("shape", BTN_SHAPES, "tile"),
             "bsize": pick("bsize", BTN_SIZES, "m"), "show": [] if v.get("shape") == "icon" else show, "tap": tap,
-            "hold": pick("hold", BTN_HOLD, "more"), "page": page if tap == "page" else ""}
+            "hold": pick("hold", BTN_HOLD, "more"), "page": page if tap == "page" else "", **({"card": card} if tap == "lights" else {})}
 
 
 def clean_card(c):
@@ -180,6 +189,18 @@ def clean_card(c):
         if c.get("builtin") not in BUILTINS:
             return None
         out["builtin"] = c["builtin"]
+    if kind == "lights":                                # 🎚 a bar per lamp (#597): the rows, "Alle aus", groups open, as a window
+        rows, seen = [], set()
+        for r in c.get("rows") if isinstance(c.get("rows"), list) else []:
+            e = r.get("e") if isinstance(r, dict) else None
+            if not isinstance(e, str) or len(e) > 255 or not ENTITY.match(e) or e.split(".")[0] not in ROW_DOMAINS or e in seen or len(rows) >= MAX_ROWS:
+                continue
+            seen.add(e)
+            rows.append({"e": e, "name": _chars(r.get("name"), 30), "icon": _chars(r.get("icon"), 8)})
+        if not rows:
+            return None
+        out.update({"rows": rows, "allOff": c.get("allOff") is True, "expand": c.get("expand") is not False, "popup": c.get("popup") is True,
+                    "hook": c.get("popup") is True and c.get("hook") is True})
     if kind == "train":                                 # 🚆 the departures of a station, "mein Zug" (#550)
         out["station"] = _text(c.get("station"), 60)
         out["via"] = _text(c.get("via"), 60)
@@ -286,6 +307,55 @@ def clean_picks(val) -> dict:
     if not isinstance(val, dict):
         return {}
     return dict([(k, v) for k, v in val.items() if is_tab_key(k) and k != "house" and isinstance(v, str) and VARIANT_ID.match(v)][:MAX_PICKS])
+
+
+# the scene bar over the tab bar (#597, static/scenebar.js): one list for every page, a page or a version of it with its own list or none
+BAR_DOMAINS = ("scene", "script")
+BAR_COLORS = ("amber", "orange", "red", "purple", "blue", "green", "grey")
+BAR_MODES = ("own", "off")
+MAX_BAR_ITEMS = 24
+MAX_BAR_PAGES = 40
+
+
+def clean_bar_items(val) -> list:
+    """the tiles of the scene bar: [{"e", "name", "icon", "color"}], each entity once, at most MAX_BAR_ITEMS (cleanItems in static/scenebar.js)"""
+    out, seen = [], set()
+    for v in val if isinstance(val, list) else []:
+        e = v.get("e") if isinstance(v, dict) else None
+        if not isinstance(e, str) or len(e) > 255 or not ENTITY.match(e) or e.split(".")[0] not in BAR_DOMAINS or e in seen:
+            continue
+        seen.add(e)
+        out.append({"e": e, "name": _chars(v.get("name"), 30), "icon": _chars(v.get("icon"), 8), "color": v["color"] if v.get("color") in BAR_COLORS else ""})
+        if len(out) >= MAX_BAR_ITEMS:
+            break
+    return out
+
+
+def bar_key(k):
+    """'today' or 'today@v_kids01' -> (page, version) or None (splitKey in static/scenebar.js)"""
+    if not isinstance(k, str):
+        return None
+    parts = k.split("@")
+    page, version = parts[0], parts[1] if len(parts) == 2 else ""
+    if len(parts) > 2 or not is_tab_key(page) or (version and (page == "house" or not VARIANT_ID.match(version))):
+        return None
+    return page, version
+
+
+def clean_scene_bar(val, custom_tabs=None, variants=None) -> dict:
+    """the scene bar: {"on", "items", "pages": {key: {"mode", "items"}}} (cleanSceneBar in static/scenebar.js); with the own pages and the
+    versions (clean_page_variants) a key of a page or a version that is gone is left out"""
+    o = val if isinstance(val, dict) else {}
+    pages = {}
+    known = None if custom_tabs is None else list(TABS) + [c["id"] for c in custom_tabs]
+    for k, p in list(o["pages"].items())[:MAX_BAR_PAGES] if isinstance(o.get("pages"), dict) else []:
+        at = bar_key(k)
+        if not at or not isinstance(p, dict) or p.get("mode") not in BAR_MODES:
+            continue
+        if known is not None and (at[0] not in known or (at[1] and at[1] not in [v["id"] for v in (variants or {}).get(at[0], [])])):
+            continue
+        pages[k] = {"mode": p["mode"], "items": clean_bar_items(p.get("items"))}
+    return {"on": o.get("on") is not False, "items": clean_bar_items(o.get("items")), "pages": pages}
 
 
 MAX_POINTS = 240
