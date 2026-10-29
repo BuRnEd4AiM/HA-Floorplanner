@@ -2,6 +2,22 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.42.1] - 2026-10-29
+### Repariert
+- **Die Heiz-Regeln halten ihre Reihenfolge auch mit einem Thermostat, das spät meldet** (#588, der Besitzer: „die Reihenfolge der heizungsteureung muss stabiler sein und auch so das es da keine fehler gibt“). Ein langsames Heizkörper-Thermostat zeigt noch ein paar Minuten den alten Modus oder die alte Temperatur, nachdem das Add-on ihm eine neue geschickt hat; die Regeln haben nach dem entschieden, was es noch zeigte. Jetzt entscheiden sie nach dem, wie es sein wird, wenn es gemeldet hat (was Home Assistant zeigt, plus was das Add-on geschickt hat und noch unterwegs ist). Damit repariert:
+  - Fenster zu, bevor das Thermostat „aus“ gemeldet hat: die Heizung blieb aus;
+  - ein Boost, der endet (oder weggetippt wird), bevor seine 24° gemeldet sind: die 24° blieben;
+  - ein Boost oder ein offenes Fenster, während „heizen“ vom Heizplan noch unterwegs war: danach ging das Thermostat wieder auf aus;
+  - eine von Hand gedrehte Temperatur kam nach einem offenen Fenster oder einem Boost wieder, obwohl sich die Stufe inzwischen geändert hatte (keiner zu Hause und zurück): jetzt kommt die Stufe, die gerade gilt;
+  - von Hand gedreht, während der Raum zu warm war, und genau dann begann ein Block des Heizplans: der Block ging verloren;
+  - gedreht, während es zu warm war, dann keiner zu Hause und ein offenes Fenster: danach blieb die Heizung aus (nichts gemerkt, wohin zurück);
+  - eine Temperatur, die mit „heizen“ geschickt wurde, wurde nach 3 Minuten aufgegeben, solange das Thermostat noch „aus“ zeigte;
+  - ein älterer Befehl, den das Thermostat meldete, während der neueste noch unterwegs war (es meldet sie der Reihe nach), galt als „von Hand gedreht“, und der neueste ging verloren.
+### Verbessert
+- **Eine Liste entscheidet, wer Vorrang hat** (`heatrules.ORDER`): 🪟 Fenster offen → 🚀 Boost → 🔥 Zu warm → ✈️ Urlaub → ☀️ Sommerpause → 🚶 Keiner zu Hause → 📅 Heizplan → 🌙 Nachtabsenkung. Das Add-on geht nur nach dieser Liste, und ein Test prüft, dass „Wer hat Vorrang?“ in 📋 Heiz-Regeln dasselbe sagt.
+- **Tausende zufällige Tage als Test** (`tests/test_heatorder.py`, läuft bei jeder Änderung mit): Fenster auf und zu, Boost, zu warm, Heizplan, keiner zu Hause, der Urlaubs-Alarm, die Sommerpause, von Hand gedreht, Thermostate, die nach Sekunden oder bis zu 10 Minuten melden; jedes Mal wird geprüft, dass die richtige Regel gewinnt, das Thermostat so steht, wie diese Regel es will, nie ohne Grund aus bleibt und nichts hin und her geht. Vor der Reparatur gingen 87 bis 208 von 800 solchen Tagen schief; jetzt im Test keiner, und in 9000 weiteren Tagen nur 2, beide mit Thermostaten, die für jede Meldung 2 bis 10 Minuten brauchen (dann schickt die Fenster-Regel nach 3 Minuten trotzdem noch einmal „aus“).
+- Testprotokoll: neuer Abschnitt 130.
+
 ## [4.42.0] - 2026-10-28
 ### Neu
 - **🔥 Zu warm: ein zu warmer Raum bekommt die Heizung runtergedreht** (#585, der Besitzer: „wenn es zu warm ist das dann die heizung runter geht ka so 5 grad das es nicht die ganze zeit heizt wenn die temperatur im raum an ist“; seine Wahl: 5° unter den Wunsch, ab 1° zu warm, eine eigene Karte, auf den Vorrang der Karten achten). 🌡 Klima → 📋 Heiz-Regeln hat nach der Fenster-Regel die neue Karte **🔥 Zu warm → Heizung runter**: Ist der Raum um „wenn der Raum wärmer ist um“ (ohne Einstellung 1°, 0,5° bis 5°) wärmer als gewünscht, stellt das Add-on das Thermostat um „Thermostat tiefer um“ tiefer (ohne Einstellung 5°, 1° bis 15°), damit sein Ventil zugeht; hat der Raum wieder den Wunsch, bekommt das Thermostat wieder den Wunsch. Gemessen wird mit dem 🌡 Raumfühler des Thermostats, sonst mit dem Thermostat selbst (meldet sich ein Fühler kurz nicht, bleibt es tiefer). Der Wunsch ist, was die Heiz-Regeln gerade wollen (Heizplan, Nacht, Keiner zu Hause, Urlaub), sonst die eigene Soll-Temperatur des Thermostats; schaltet der Heizplan inzwischen um, zählt der neue Wunsch. Räume lassen sich wie bei der Fenster-Regel ausnehmen. Die Raum-Karte sagt „🔥 Zu warm (18,4° im Raum) · Thermostat 12°, bis wieder 17°“; 🩺 Protokoll zeigt die Einstellung und jedes Mal, wenn es anfängt und aufhört. Geht auch mit „↕ Wunsch verschieben“ des Raumfühlers (der tiefere Wunsch wird mit verschoben).

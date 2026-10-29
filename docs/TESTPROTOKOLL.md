@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.42.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.42.1)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.42.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.42.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet** (Abschnitt 130): Claude hat 130.1 mit tausenden zufälligen Tagen geprüft; für dich im Add-on 130.2 bis 130.5.
 1. **Neu in 4.42.0: 🔥 Zu warm → Heizung runter** (Abschnitt 129): Claude hat 129.1 und 129.2 in der Demo geprüft (probier es gern selbst); für dich im Add-on 129.3 bis 129.6.
 1. **Neu in 4.41.0: eine Tür zwischen zwei Räumen kann für die Heizung zählen** (Abschnitt 128): Claude hat 128.1 in der Demo geprüft; für dich im Add-on 128.2 bis 128.6 (zuerst an der Bad-Tür den Haken „Zählt für die Heizung“ einschalten).
 1. **Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte** (Abschnitt 127): Claude hat 127.1 bis 127.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on 127.5 bis 127.9.
@@ -357,7 +358,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 127. Neu in 4.40.0: 📜 Protokoll, ein eigener Reiter für alle Geräte (#581) | 4 | 0 | 5 | 0 | 127.5 bis 127.9 |
 | 128. Neu in 4.41.0: Tür zwischen zwei Räumen zählt für die Heizung, Bad nicht mehr „von Hand gedreht“ (#583) | 1 | 0 | 5 | 0 | 128.2 bis 128.6 |
 | 129. Neu in 4.42.0: 🔥 Zu warm → Heizung runter, „Wer hat Vorrang?“ (#585) | 2 | 0 | 4 | 0 | 129.3 bis 129.6 |
-| **Zusammen** | **810** | **1** | **73** | **92** | |
+| 130. Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet (#588) | 1 | 0 | 4 | 0 | 130.2 bis 130.5 |
+| **Zusammen** | **811** | **1** | **77** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -1985,3 +1987,14 @@ Wunsch des Besitzers vom 2026-10-28: „wenn es zu warm ist das dann die heizung
 | 129.4 | Im Add-on: warten, bis der Raum wieder den Wunsch hat (17°) | Das Thermostat bekommt wieder 17°, die Zeile „Zu warm“ ist weg, kein „✋ Von Hand gedreht“ | ❓ |
 | 129.5 | Im Add-on: während „Zu warm“ ein Fenster des Raums öffnen (länger als die Minuten der Fenster-Regel), dann wieder zu | Offen: die Heizung geht aus („Fenster offen“ geht vor); zu und noch zu warm: wieder 5° tiefer; zu und nicht mehr zu warm: wieder der Wunsch | ❓ |
 | 129.6 | Im Add-on: 🌡 Klima → 🩺 Protokoll | Oben „🔥 Zu warm: an · ab 1° wärmer · Thermostat 5° tiefer“, im Protokoll beim Raum „🔥 Zu warm …“, wenn es anfängt, und der Heizplan, wenn es aufhört | ❓ |
+
+## 130. Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet (#588)
+Wunsch des Besitzers vom 2026-10-29: „die Reihenfolge der heizungsteureung muss stabiler sein und auch so das es da keine fehler gibt“. Ein langsames Thermostat zeigt nach einem Befehl noch ein paar Minuten den alten Wert; das Add-on hat danach entschieden. Jetzt rechnet es mit dem, was es geschickt hat.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 130.1 | Automatischer Test `tests/test_heatorder.py`: 300 zufällige Tage mit Fenster, Boost, zu warm, Heizplan, keiner zu Hause, Urlaubs-Alarm, Sommerpause, von Hand gedreht und Thermostaten, die nach Sekunden bis 10 Minuten melden | Jedes Mal gewinnt die richtige Regel, das Thermostat steht so, wie sie es will, bleibt nie ohne Grund aus, nichts geht hin und her (vorher gingen 87 bis 208 von 800 Tagen schief; in 9000 weiteren Tagen nur noch 2, mit Thermostaten, die für jede Meldung 2 bis 10 Minuten brauchen) | ✅ (2026-10-29, Claude, automatisch) |
+| 130.2 | Im Add-on: ein Fenster öffnen, bis die Heizung „⏸️ pausiert“ zeigt, und gleich wieder schließen (am besten bei einem Thermostat, das langsam meldet) | Die Heizung kommt wieder (Modus heizen, die Temperatur von vorher oder vom Heizplan); sie bleibt nicht aus | ❓ |
+| 130.3 | Im Add-on: in einem Raum 🚀 Boost antippen und nach ein paar Sekunden noch einmal (aus) | Das Thermostat geht wieder auf die Temperatur von vorher (oder vom Heizplan); es bleibt nicht auf der Boost-Temperatur | ❓ |
+| 130.4 | Im Add-on mit Heizplan und „Keiner zu Hause“: ein Thermostat von Hand drehen, dann ein Fenster öffnen; während es offen ist, gehen alle weg und kommen wieder; Fenster zu | Das Thermostat bekommt die Temperatur des Heizplans, nicht die von Hand gedrehte von vorher | ❓ |
+| 130.5 | Im Add-on: ein paar Tage normal heizen lassen, dann 🌡 Klima → 🩺 Protokoll | Keine Thermostate, die nach „Fenster offen“ oder „Boost“ aus bleiben oder auf der falschen Temperatur stehen; wenn doch: „📋 Bericht kopieren“ und im Chat einfügen | ❓ |

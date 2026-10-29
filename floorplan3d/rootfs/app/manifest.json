@@ -1,6 +1,6 @@
 {
- "version": "4.42.0",
- "buildHash": "278ba60d55958723c54706531277ea42de29f853c143b0bf5a3eaae6a290a54a",
+ "version": "4.42.1",
+ "buildHash": "af4335749aa8ce570a675bdf75708ce6e52e547e67991625f145b079acf786fd",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "boards.py": "93f9689ec835ea2068afa850fe05c2b666f9a23775afd275895f3fd68eec4b92",
@@ -16,7 +16,7 @@
   "haflows.py": "3c74d841bc4f1ed95adfddd8a6a59d676210b2eba82f4efb84a4d24ad3aee188",
   "halogin.py": "35436a0cf32daecb73ee31877f2a0d87855a64601cee17bca9bbb3295be6d6a5",
   "heatlog.py": "74fba2e0eba68165f85676caa83791947d247a3f92161b9132115b73edda8954",
-  "heatrules.py": "7751e702d7f5251c01c94ad05e78dcc16aa9d30f8d01cc321784bd00e398c459",
+  "heatrules.py": "aa079d907845c0a96731e9505b96469937fdf3221469bd2116d81464f2e44c2e",
   "household.py": "ee85f19ed52b9691f44f305d5c523d25b952cdd8390414e263af1b1ba4d1298f",
   "importer.py": "ceb04c098378aa887edaf5e57d4dea66a769a227c23d468f1860dbbe267e6af9",
   "library/CREDITS.md": "3ad03351505152dfa6c5f0fe1cee45fc44be9b5a34cf1b91a239140f7fecf9cc",
