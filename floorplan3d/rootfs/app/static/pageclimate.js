@@ -151,7 +151,7 @@ export function initClimatePage(ctx) {
     const common = [imperial(), t('tab.climate'), floors];
     const items = shown.map((r) => {
       const key = `room:${r.id}`, size = ctx.board.size('climate', key);
-      return { key, width: 1, sized: r.climate ? 'big' : null, make: () => roomCard(r, floors, size),
+      return { key, name: r.name, width: 1, sized: r.climate ? 'big' : null, make: () => roomCard(r, floors, size),
         sig: JSON.stringify([r.id, r.name, r.floorName, r.temp, r.humid, r.co2, r.air, r.mode, r.open, r.climate ? ctx.thermo.sig(r.climate) : null, size, ctx.heat.sig(r), ...common]) };
     });
     if (m.loose.length) {

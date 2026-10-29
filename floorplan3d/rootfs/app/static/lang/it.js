@@ -2129,4 +2129,7 @@ export default {
   'hr.line.warmHand': '✋ girato a mano, di nuovo {to} alle {at}',
   'hr.warm.hand': 'Girato a mano', 'hr.warm.handBack': 'di nuovo giù dopo {n} (come nel 📅 programma)',
   'hr.warm.handStay': 'resta fino alla prossima fascia (come nel 📅 programma)',
+  'bd.hiddenList': 'Nascoste', 'bd.hiddenNone': 'nessuna. 👁 su una scheda la nasconde, poi compare qui.', 'bd.showAll': 'Mostra tutte',
+  'bd.k.clock': '🕐 Orologio', 'bd.k.weather': '⛅ Meteo', 'bd.k.tiles': 'Numeri in alto (consumo, produzione …)', 'bd.k.more': '🔥 Gas e 💧 acqua',
+  'bd.k.home': '🏠 Chi è a casa', 'bd.k.nobody': 'Nota: nessuna persona',
 };

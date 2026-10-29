@@ -2106,4 +2106,7 @@ export default {
   'hr.line.warmHand': '✋ met de hand gedraaid, om {at} weer {to}',
   'hr.warm.hand': 'Met de hand gedraaid', 'hr.warm.handBack': 'na {n} weer omlaag (zoals in het 📅 schema)',
   'hr.warm.handStay': 'blijft tot het volgende blok (zoals in het 📅 schema)',
+  'bd.hiddenList': 'Verborgen', 'bd.hiddenNone': 'geen. 👁 op een kaart verbergt die, dan staat ze hier.', 'bd.showAll': 'Alles tonen', 'bd.k.clock': '🕐 Klok',
+  'bd.k.weather': '⛅ Weer', 'bd.k.tiles': 'Getallen bovenaan (verbruik, opwek …)', 'bd.k.more': '🔥 Gas en 💧 water', 'bd.k.home': '🏠 Wie is thuis',
+  'bd.k.nobody': 'Opmerking: geen personen',
 };

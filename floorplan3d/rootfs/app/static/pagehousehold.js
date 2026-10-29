@@ -167,8 +167,8 @@ export function initHouseholdPage(ctx) {
     const head = make('div', 'tpHead');
     head.append(make('h2', '', `🧺 ${t('tab.household')}`));
     const grid = make('div', 'hhGrid'), items = [];
-    machines.list.forEach((a) => items.push({ key: `ap:${a.kind}`, el: machineCard(a), width: 1 }));
-    vac.forEach((v) => items.push({ key: `vac:${v.entity}`, el: vacuumCard(v), width: 1 }));
+    machines.list.forEach((a) => items.push({ key: `ap:${a.kind}`, name: t(`hh.kind.${a.kind}`), el: machineCard(a), width: 1 }));
+    vac.forEach((v) => items.push({ key: `vac:${v.entity}`, name: v.name, el: vacuumCard(v), width: 1 }));
     items.push(...outdoor.items());
     if (Object.keys(ctx.states()).some((id) => id.startsWith('todo.'))) items.push({ key: 'todo', el: todoCard(), width: 2 });
     if (waste) items.push({ key: 'waste', el: waste, width: 2 });

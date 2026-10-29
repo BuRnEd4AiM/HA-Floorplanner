@@ -2101,4 +2101,7 @@ export default {
   'hr.line.warmHand': '✋ przekręcone ręcznie, od {at} znów {to}',
   'hr.warm.hand': 'Przekręcone ręcznie', 'hr.warm.handBack': 'po {n} znów w dół (jak w 📅 harmonogramie)',
   'hr.warm.handStay': 'zostaje do następnego odcinka (jak w 📅 harmonogramie)',
+  'bd.hiddenList': 'Ukryte', 'bd.hiddenNone': 'brak. 👁 na karcie ukrywa ją, wtedy pojawia się tutaj.', 'bd.showAll': 'Pokaż wszystkie', 'bd.k.clock': '🕐 Zegar',
+  'bd.k.weather': '⛅ Pogoda', 'bd.k.tiles': 'Liczby u góry (zużycie, produkcja …)', 'bd.k.more': '🔥 Gaz i 💧 woda', 'bd.k.home': '🏠 Kto jest w domu',
+  'bd.k.nobody': 'Uwaga: brak osób',
 };

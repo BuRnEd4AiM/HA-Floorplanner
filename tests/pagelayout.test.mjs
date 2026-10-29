@@ -48,6 +48,13 @@ test('moving, hiding, adding, changing, taking away, starting again', () => {
   assert.equal(L.emptyLayout(L.cleanLayout(s)), false); assert.equal(L.emptyLayout(L.cleanLayout({})), true);
   assert.deepEqual(L.resetLayout(s).sizes, {}); assert.deepEqual(L.dropCard(s, 'room:r1').sizes, {});
 });
+test('after a drag the cards that were not on the screen keep their place (hidden ones, #595)', () => {
+  assert.deepEqual(L.keepUnseen(['a', 'h', 'b', 'c'], ['b', 'a', 'c']), ['b', 'a', 'h', 'c']);     // h after a, wherever a went
+  assert.deepEqual(L.keepUnseen(['h', 'a', 'b'], ['b', 'a']), ['h', 'b', 'a']);                   // nothing before it: first
+  assert.deepEqual(L.keepUnseen(['a', 'h1', 'h2', 'b'], ['b', 'a']), ['b', 'a', 'h1', 'h2']);     // two in a row stay in a row
+  assert.deepEqual(L.keepUnseen([], ['a', 'a']), ['a']); assert.deepEqual(L.keepUnseen(null, ['a']), ['a']);
+  assert.deepEqual(L.keepUnseen(['a', 'h'], []), ['a', 'h']);                                     // a section with only hidden cards
+});
 test('a new card id, the rows of the masonry grid', () => {
   let i = 0; const seq = [0.5, 0.5, 0.25];
   const a = L.newCardId([], () => seq[i++ % 3]), b = L.newCardId([a], () => 0.5);

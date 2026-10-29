@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.43.1)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.44.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.43.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.44.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten sind ganz weg, die Zeile „👁 Ausgeblendet“ holt sie zurück** (Abschnitt 133): Claude hat 133.1 bis 133.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deiner Fassung „Eltern“ 133.5 und am Handy oder iPad 133.6.
 1. **Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“** (Abschnitt 132): Claude hat 132.1 und 132.2 automatisch geprüft; 132.3 hast du im Add-on geprüft ✅; für dich noch 132.4 bis 132.6 (132.4: morgen früh im 🩺 Protokoll kein „✋ Von Hand gedreht“, das du nicht warst).
 1. **Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen** (Abschnitt 131): Claude hat 131.1 bis 131.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deinen Bereichen 131.7 und 131.8.
 1. **Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet** (Abschnitt 130): Claude hat 130.1 mit tausenden zufälligen Tagen geprüft; für dich im Add-on 130.2 bis 130.5.
@@ -363,7 +364,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 130. Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet (#588) | 1 | 0 | 4 | 0 | 130.2 bis 130.5 |
 | 131. Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen (#590) | 6 | 0 | 2 | 0 | 131.7, 131.8 |
 | 132. Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“ (#592) | 3 | 0 | 3 | 0 | 132.4 bis 132.6 |
-| **Zusammen** | **820** | **1** | **82** | **92** | |
+| 133. Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten ganz weg, die Zeile „👁 Ausgeblendet“ (#595) | 4 | 0 | 2 | 0 | 133.5, 133.6 |
+| **Zusammen** | **824** | **1** | **84** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2028,3 +2030,15 @@ Bericht des Besitzers vom 2026-10-29 (Bild der Karte WZFL und 🩺 Bericht): „
 | 132.4 | Im Add-on am nächsten Morgen: 🌡 Klima → 🩺 Protokoll | Kein „↕ neuer Wunsch … von außen gestellt“, wenn niemand gedreht hat; höchstens „🌡 … noch einmal: das Thermostat hatte es nicht übernommen“; kein „✋ Von Hand gedreht“, das du nicht warst | ❓ |
 | 132.5 | Im Add-on: während ein Raum „🔥 Zu warm“ zeigt, sein Thermostat am Gerät höher drehen | Die Karte zeigt „✋ von Hand gedreht, ab … wieder …“; nach deinen 5 Minuten geht es wieder runter | ❓ |
 | 132.6 | Im Add-on: 📋 Heiz-Regeln, Karte 🔥 Zu warm | Eine Zeile „Von Hand gedreht: nach 5 Min wieder runter (wie im 📅 Heizplan)“ | ❓ |
+
+## 133. Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten ganz weg, die Zeile „👁 Ausgeblendet“ (#595)
+Wunsch des Besitzers vom 2026-10-29 (Bild von ☀ Heute in seiner Fassung „Eltern“): „wenn ich eine Karte ausblende, dass sie dann auch für mich wirklich weg ist und ich dann einfach sozusagen irgendwo eine Liste habe mit ausgeblendeten Elementen und dann wieder anhaken kann … weil sonst wird es echt schwierig, die richtig anzuordnen“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 133.1 | In der Demo: ☀ Heute, unten ✎ Bearbeiten, bei „Termine“ das 👁 antippen | Die Karte ist sofort weg (nicht mehr blass); oben unter den Leisten die Zeile „👁 Ausgeblendet“ mit „☐ Termine“ | ✅ (2026-10-29, Claude in der Demo) |
+| 133.2 | In der Demo: noch „Uhr“ und „Pinnwand“ ausblenden, dann eine andere Karte mit ⠿ an einen neuen Platz ziehen, dann in der Zeile „Termine“ antippen | Die Zeile zeigt die drei Karten beim Namen; nach dem Tipp ist „Termine“ wieder da, an seinem alten Platz, und steht nicht mehr in der Zeile | ✅ (2026-10-29, Claude in der Demo) |
+| 133.3 | In der Demo: in der Zeile „Alle zeigen“ antippen | Alle Karten sind wieder da; die Zeile sagt „keine. 👁 an einer Karte blendet sie aus, dann steht sie hier.“ | ✅ (2026-10-29, Claude in der Demo) |
+| 133.4 | In der Demo: 🌡 Klima, ✎ Bearbeiten, „＋ Neue Fassung“ (Kopie von „Für alle“), darin zwei Räume ausblenden, dann oben „👪 Für alle“ antippen | In der neuen Fassung sind die zwei Räume weg und stehen mit ihrem Namen in der Zeile; in „Für alle“ sind sie da und die Zeile ist leer | ✅ (2026-10-29, Claude in der Demo) |
+| 133.5 | Im Add-on am Tablet: ☀ Heute, ✎, deine Fassung „Eltern“: Termine, Wer ist da und Pinnwand ausblenden, die übrigen Karten anordnen, „✓ Fertig“ | Beim Bearbeiten sieht die Seite schon so aus wie danach; nach „Fertig“ und am Tablet tablet_S2_WE (Fassung „Eltern“) steht alles genau so | ❓ |
+| 133.6 | Im Add-on am Handy oder iPad: die Zeile „👁 Ausgeblendet“ mit mehreren Karten | Die Zeile bricht um, alles gut zu tippen, nichts ragt über den Rand | ❓ |

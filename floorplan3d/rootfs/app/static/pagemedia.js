@@ -157,7 +157,7 @@ export function initMediaPage(ctx) {
       s.dataset.act = 'stopAll'; s.disabled = waiting; tools.append(s);
     }
     head.append(tools);
-    const grid = make('div', 'mpGrid'), items = all.map((p) => ({ key: `mp:${p.entity}`, el: card(p), width: 1 }));
+    const grid = make('div', 'mpGrid'), items = all.map((p) => ({ key: `mp:${p.entity}`, name: nameOf(p), el: card(p), width: 1 }));
     if (st.length || ctx.canEdit()) items.push({ key: 'stations', el: stationsCard(st), width: 4 });
     el.replaceChildren(head, ...(all.length ? [] : [make('p', 'tpSub', t('mp.none'))]), grid);
     ctx.board.fill('media', grid, items, { min: 380 });

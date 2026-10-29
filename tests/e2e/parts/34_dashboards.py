@@ -1,5 +1,5 @@
 """4.6.0 (#484): the pages of the tab bar arranged like a Home Assistant dashboard. ✎ in the bar (editors only) starts the edit mode of
-the open page: 👁 hides a card, ⠿ drags it to another place, "＋ Karte" adds an own card (a switch, a history with Home Assistant's
+the open page: 👁 hides a card (gone while editing too, in the row "👁 Ausgeblendet", a tap there shows it again, #595), ⠿ drags it to another place, "＋ Karte" adds an own card (a switch, a history with Home Assistant's
 history), "Wie am Anfang" puts the cards back; "🗂 Reiter" edits the bar: "＋ Seite" makes an own page (with the cards of ☀ Heute),
 a tap on it deletes it again. Everything for everybody in the settings (pageLayouts, customTabs, tabOrder); a user may have an own
 page hidden like any other; who may not edit has no ✎.
@@ -33,16 +33,19 @@ check("dashboards (#484): ☀ Heute's cards are keyed (clock, agenda, house …)
 pgD.click("#tabBar .tbEdit"); pgD.wait_for_timeout(800)
 check("dashboards: the edit mode: the strip at the top, every card with ⠿ and 👁, '＋ Karte hinzufügen' at the end",
       pgD.is_visible("[data-page=today] .bdStrip") and pgD.locator("[data-page=today] .bdItem .bdGrip").count() == len(before) and pgD.is_visible("[data-page=today] .bdAdd"))
-pgD.click("[data-page=today] .bdItem[data-key=house] .bdTool"); pgD.wait_for_timeout(800)
+pgD.click("[data-page=today] .bdItem[data-key=house] .bdTool[data-act=hide]"); pgD.wait_for_timeout(800)
 lay = lambda: api("api/settings").get("pageLayouts", {}).get("today", {})
-check("dashboards: 👁 hides 'Im Haus' (saved for everybody, still to be seen faded while editing)",
-      until(lambda: lay().get("hidden") == ["house"]) and pgD.locator("[data-page=today] .bdItem.bdOff[data-key=house]").count() == 1, lay())
+hid_db = lambda: pgD.evaluate("[...document.querySelectorAll('[data-page=today] .bdHidden .bdHidChip')].map((x) => [x.dataset.key, x.textContent])")
+check("dashboards: 👁 hides 'Im Haus' (saved for everybody); gone while editing too, by name in the row '👁 Ausgeblendet' under the strip (#595)",
+      until(lambda: lay().get("hidden") == ["house"]) and "house" not in keys_db(pgD, "today") and hid_db() == [["house", "Im Haus"]]
+      and "Ausgeblendet" in pgD.inner_text("[data-page=today] .bdHidden"), (lay(), hid_db()))
 g = pgD.locator("[data-page=today] .bdItem[data-key=agenda] .bdGrip").bounding_box()
 c = pgD.locator("[data-page=today] .bdItem[data-key=clock]").bounding_box()
 pgD.mouse.move(g["x"] + 12, g["y"] + 12); pgD.mouse.down()
 pgD.mouse.move(c["x"] + 20, c["y"] + 30, steps=12); pgD.mouse.up(); pgD.wait_for_timeout(1000)
-check("dashboards: ⠿ dragged 'Termine' in front of the clock: the order is saved", until(lambda: (lay().get("order") or [""])[0] == "agenda")
-      and keys_db(pgD, "today")[0] == "agenda", lay())
+check("dashboards: ⠿ dragged 'Termine' in front of the clock: the order is saved, the hidden 'Im Haus' keeps its place in it (#595)",
+      until(lambda: (lay().get("order") or [""])[0] == "agenda") and keys_db(pgD, "today")[0] == "agenda"
+      and lay()["order"].index("house") == lay()["order"].index(before[before.index("house") - 1]) + 1, lay())
 
 # --- own cards: a switch and a history
 pgD.click("[data-page=today] .bdAdd"); pgD.wait_for_timeout(500)
@@ -78,6 +81,10 @@ check("dashboards: 'Fertig' ends the edit mode: 'Im Haus' is gone, the own cards
 pgD.click("[data-page=today] .oc-switch .sw input")
 check("cards: the switch card switches", until(lambda: ["switch", "turn_on", "switch.garage"] in ha_calls()))
 pgD.click("#tabBar .tbEdit"); pgD.wait_for_timeout(600)
+pgD.click("[data-page=today] .bdHidden .bdHidChip[data-key=house]"); pgD.wait_for_timeout(800)
+check("dashboards: a tap on 'Im Haus' in the row 'Ausgeblendet' shows it again at its place, the row says there is none (#595)",
+      until(lambda: not lay().get("hidden")) and "house" in keys_db(pgD, "today") and hid_db() == []
+      and keys_db(pgD, "today").index("house") == keys_db(pgD, "today").index(before[before.index("house") - 1]) + 1, (lay(), keys_db(pgD, "today")))
 pgD.click("[data-page=today] .bdStrip [data-act=reset]"); pgD.wait_for_timeout(1000)
 check("dashboards: 'Wie am Anfang' shows every card in its usual order again, the own cards stay at the end",
       until(lambda: not lay().get("hidden") and not lay().get("order")) and len(cards()) == 3 and keys_db(pgD, "today")[:len(before)] == before, (lay(), keys_db(pgD, "today")))

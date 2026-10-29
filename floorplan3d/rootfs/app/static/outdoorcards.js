@@ -107,8 +107,8 @@ export function initOutdoorCards(ctx) {
     /** the cards for the page grid (keys car, garden) */
     items() {
       const out = [], car = carCard(), garden = gardenCard();
-      if (car) out.push({ key: 'car', el: car, width: 1 });
-      if (garden) out.push({ key: 'garden', el: garden, width: 1 });
+      if (car) out.push({ key: 'car', name: found().name || t('car.title'), el: car, width: 1 });
+      if (garden) out.push({ key: 'garden', name: t('garden.title'), el: garden, width: 1 });
       return out;
     },
     /** is there anything to show (the page then exists without machines too) */

@@ -2147,4 +2147,7 @@ export default {
   'hr.line.warmHand': '✋ tourné à la main, de nouveau {to} à {at}',
   'hr.warm.hand': 'Tourné à la main', 'hr.warm.handBack': 'redescend après {n} (comme dans le 📅 planning)',
   'hr.warm.handStay': 'reste jusqu\'au prochain créneau (comme dans le 📅 planning)',
+  'bd.hiddenList': 'Masquées', 'bd.hiddenNone': 'aucune. 👁 sur une carte la masque, elle apparaît alors ici.', 'bd.showAll': 'Tout afficher',
+  'bd.k.clock': '🕐 Horloge', 'bd.k.weather': '⛅ Météo', 'bd.k.tiles': 'Chiffres en haut (consommation, production …)', 'bd.k.more': '🔥 Gaz et 💧 eau',
+  'bd.k.home': '🏠 Qui est à la maison', 'bd.k.nobody': 'Note : aucune personne',
 };

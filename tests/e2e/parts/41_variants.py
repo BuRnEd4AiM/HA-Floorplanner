@@ -13,7 +13,7 @@ def watch_pv(pg_):
     pg_.on("pageerror", lambda e: own_pv.append("PAGEERROR " + str(e)))
     return pg_
 keys_pv = lambda: pgV.evaluate("[...document.querySelectorAll('[data-page=climate] .bdItem')].map((x) => x.dataset.key)")
-off_pv = lambda: pgV.evaluate("[...document.querySelectorAll('[data-page=climate] .bdItem.bdOff')].map((x) => x.dataset.key)")
+off_pv = lambda: pgV.evaluate("[...document.querySelectorAll('[data-page=climate] .bdHidden .bdHidChip')].map((x) => x.dataset.key)")   # hidden: in the row (#595)
 def until_pv(fn, n=20, ms=300):
     for _ in range(n):
         v = fn()
@@ -47,9 +47,9 @@ check("versions: 'Anlegen und bearbeiten' stores 'Kinder' (a copy of 'Für alle'
       and "kid_pv" in pgV.inner_text("[data-page=climate] .pvWho"), (vs(), api("api/settings")["userTabs"]))
 key = all_keys[0]
 pgV.click(f"[data-page=climate] .bdItem[data-key='{key}'] .bdTools .bdTool:not([data-act=size])"); pgV.wait_for_timeout(800)
-check("versions: 👁 in 'Kinder' hides a card only there; 'Für alle' keeps it",
+check("versions: 👁 in 'Kinder' hides a card only there (gone from the page, in the row 'Ausgeblendet', #595); 'Für alle' keeps it",
       until_pv(lambda: (vs() or [{}])[0].get("layout", {}).get("hidden") == [key]) and not api("api/settings").get("pageLayouts", {}).get("climate")
-      and off_pv() == [key], (vs(), off_pv()))
+      and off_pv() == [key] and key not in keys_pv(), (vs(), off_pv()))
 pgV.click("[data-page=climate] .pvChip[data-variant=all]"); pgV.wait_for_timeout(600)
 check("versions: a tap on the chip 'Für alle' edits that one: the card is there", off_pv() == [] and key in keys_pv(), off_pv())
 
