@@ -223,21 +223,23 @@ async def _heat(rules, states, cache, env, now, local):
     rules.mem["heat"], rules.status["rooms"] = mem, status
     rules.note([{"src": "heat", **x} for x in lines], now)
     hold, why = hr.held(mem), {x["ent"]: x["why"] for x in lines}
-    for e, svc, data in rs.route(calls, smem, hold):
+    parts = rs.parts_of(env.parts() if hasattr(env, "parts") else {})
+    for e, svc, data in rs.route(calls, smem, hold, rs.moved(rules.cfg["heat"]["sensors"], states, parts)):
         await _call(rules, env, "climate", svc, {"entity_id": e, **data}, "heat", now, why.get(e))
-    await _sensors(rules, states, env, now, hold)
+    await _sensors(rules, states, env, now, hold, parts)
 
 
-async def _call(rules, env, dom, svc, data, src, now, name=None):
+async def _call(rules, env, dom, svc, data, src, now, name=None, again=False):
     """a call of the heating rules or the room sensors to Home Assistant, kept in the journal with whether it was taken (and in 📜
-    Protokoll: env.command)"""
+    Protokoll: env.command); again: sent once more, the thermostat had not taken it (#592)"""
     e = data.get("entity_id")
     if dom == "climate":
         hl.remember(rules.sent, e, svc, data, now)
     _before(env, src, name, dom, svc, data)
     ok = await env.call(dom, svc, data)
     v = next((data[k] for k in ("temperature", "hvac_mode", "value", "option") if k in data), None)
-    rules.journal([{"t": round(now), "k": "call", "ent": e, "dom": dom, "svc": svc, "v": v, "ok": ok is not False, "src": src}])
+    rules.journal([{"t": round(now), "k": "call", "ent": e, "dom": dom, "svc": svc, "v": v, "ok": ok is not False, "src": src,
+                    **({"again": True} if again else {})}])
     _command(env, src, name, dom, svc, data, ok)
     return ok
 
@@ -254,17 +256,18 @@ def _command(env, src, name, dom, svc, data, ok):
         env.command(src, name, dom, svc, data, ok is not False)
 
 
-async def _sensors(rules, states, env, now, hold=()):
-    """🌡 Raumfühler (#573): the thermostats with a sensor in the room (hold: those the window rule holds, #577)"""
-    parts = rs.parts_of(env.parts() if hasattr(env, "parts") else {})
+async def _sensors(rules, states, env, now, hold=(), parts=None):
+    """🌡 Raumfühler (#573): the thermostats with a sensor in the room (hold: those the window rule holds, #577; parts: rs.parts_of)"""
+    parts = parts if parts is not None else rs.parts_of(env.parts() if hasattr(env, "parts") else {})
     rules.mem["sensors"], calls, status, lines = rs.step(rules.cfg["heat"]["sensors"], states, parts, rules.mem["sensors"], now, hold)
     plat = env.platforms() if hasattr(env, "platforms") else {}
     rules.status.update(sensors=status, cal=rs.caps(states, parts), plat={e: p for e, p in plat.items() if e in states})
     rules.note([{"src": "sensor", **x} for x in lines], now)
     rules.journal([{"t": round(now), "k": "sensor", "ent": x.get("ent"), "act": x["act"], "v": x.get("v"), "why": x.get("why")}
                    for x in lines if x.get("act") in ("wish", "back")])
+    again = {x.get("ent") for x in lines if x.get("act") == "temp" and x.get("why") == "again"}
     for dom, svc, data in calls:
-        await _call(rules, env, dom, svc, data, "sensor", now)
+        await _call(rules, env, dom, svc, data, "sensor", now, again=svc == "set_temperature" and data.get("entity_id") in again)
 
 
 async def _do(rules, calls, lines, now, env):

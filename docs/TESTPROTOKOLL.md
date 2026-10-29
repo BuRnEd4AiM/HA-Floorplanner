@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.43.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.43.1)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.43.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.43.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“** (Abschnitt 132): Claude hat 132.1 und 132.2 automatisch geprüft; für dich im Add-on 132.3 bis 132.6 (zuerst 132.3: dein WZFL sollte nach dem Update von selbst wieder auf 12° gehen).
 1. **Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen** (Abschnitt 131): Claude hat 131.1 bis 131.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deinen Bereichen 131.7 und 131.8.
 1. **Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet** (Abschnitt 130): Claude hat 130.1 mit tausenden zufälligen Tagen geprüft; für dich im Add-on 130.2 bis 130.5.
 1. **Neu in 4.42.0: 🔥 Zu warm → Heizung runter** (Abschnitt 129): Claude hat 129.1 und 129.2 in der Demo geprüft (probier es gern selbst); für dich im Add-on 129.3 bis 129.6.
@@ -361,7 +362,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 129. Neu in 4.42.0: 🔥 Zu warm → Heizung runter, „Wer hat Vorrang?“ (#585) | 2 | 0 | 4 | 0 | 129.3 bis 129.6 |
 | 130. Repariert in 4.42.1: die Reihenfolge der Heizung bleibt, auch wenn ein Thermostat spät meldet (#588) | 1 | 0 | 4 | 0 | 130.2 bis 130.5 |
 | 131. Neu in 4.43.0: ▶ Abläufe nach Räumen, zum Auf- und Zuklappen (#590) | 6 | 0 | 2 | 0 | 131.7, 131.8 |
-| **Zusammen** | **817** | **1** | **79** | **92** | |
+| 132. Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“ (#592) | 2 | 0 | 4 | 0 | 132.3 bis 132.6 |
+| **Zusammen** | **819** | **1** | **83** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2014,3 +2016,15 @@ Wunsch des Besitzers vom 2026-10-29: „ich hätte gerne hier eine gruppierung n
 | 131.6 | In der Demo: die Seite neu laden | Die Ansicht „Nach Räumen“ bleibt, die Räume sind wieder zu | ✅ (2026-10-29, Claude in der Demo) |
 | 131.7 | Im Add-on mit deinen Bereichen aus Home Assistant: ▶ Abläufe, beide Ansichten | Jede Automation und Szene steht im richtigen Raum (in jedem Raum, dessen Geräte sie benutzt); was keinen Raum hat, steht offen oben | ❓ |
 | 131.8 | Im Add-on am Tablet und am Handy: umschalten, Räume auf- und zuklappen | Alles gut zu tippen, nichts ragt über den Rand, die Wahl bleibt auf dem Gerät | ❓ |
+
+## 132. Repariert in 4.43.1: der Raumfühler nimmt keinen alten Wert mehr als Wunsch, 🔥 Zu warm merkt „von Hand gedreht“ (#592)
+Bericht des Besitzers vom 2026-10-29 (Bild der Karte WZFL und 🩺 Bericht): „Ich glaube da ist noch immer was nicht so ganz richtig oder?“. Die Karte sagte „🔥 Zu warm · Thermostat 12°“, gewünscht waren aber 27°, und das Thermostat heizte auf 29,5°. Grund: das Thermostat hatte einen Wert nicht übernommen und zeigte seinen alten; den hielt das Add-on nach einer halben Stunde für einen Wunsch von jemand anderem.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 132.1 | Automatischer Test `tests/test_roomsensors.py`: deine Nacht nachgestellt (Zu warm 12°, das Thermostat übernimmt 46 Minuten lang nichts und zeigt weiter seinen alten Wert) | Der Wunsch bleibt 12°, das Add-on schickt nach 3 Minuten noch einmal (5 Mal), dann alle 10 Minuten; kein „neuer Wunsch“; dazu: ein Thermostat, das gerade eingeschaltet wurde oder wieder da ist, und dein gespeicherter Wunsch 27° (nach 5 Minuten wieder 12°) | ✅ (2026-10-29, Claude, automatisch) |
+| 132.2 | Automatischer Test `tests/test_heatorder.py`: 300 zufällige Tage mit Raumfühler und einem Thermostat, das bis 60 % der Werte verliert | Kein Wunsch, den niemand gestellt hat, jede Regel wie sie soll (4.43.0: 211 von 300 Tagen falsch, jetzt keiner) | ✅ (2026-10-29, Claude, automatisch) |
+| 132.3 | Im Add-on nach dem Update: 🌡 Klima, die Karte WZFL (ein paar Minuten warten) | Erst „🔥 Zu warm … · ✋ von Hand gedreht, ab … wieder 12°“, nach 5 Minuten Soll 12° (am Thermostat etwas mehr, z. B. 14,5°), die Heizung hört auf zu heizen | ❓ |
+| 132.4 | Im Add-on am nächsten Morgen: 🌡 Klima → 🩺 Protokoll | Kein „↕ neuer Wunsch … von außen gestellt“, wenn niemand gedreht hat; höchstens „🌡 … noch einmal: das Thermostat hatte es nicht übernommen“; kein „✋ Von Hand gedreht“, das du nicht warst | ❓ |
+| 132.5 | Im Add-on: während ein Raum „🔥 Zu warm“ zeigt, sein Thermostat am Gerät höher drehen | Die Karte zeigt „✋ von Hand gedreht, ab … wieder …“; nach deinen 5 Minuten geht es wieder runter | ❓ |
+| 132.6 | Im Add-on: 📋 Heiz-Regeln, Karte 🔥 Zu warm | Eine Zeile „Von Hand gedreht: nach 5 Min wieder runter (wie im 📅 Heizplan)“ | ❓ |

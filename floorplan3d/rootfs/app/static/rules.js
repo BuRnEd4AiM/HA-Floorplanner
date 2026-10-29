@@ -291,7 +291,10 @@ export function templates(states, t) {
 /** "Zu warm (18,4° im Raum) · Thermostat 12°, bis wieder 17°" (s.warm: { wish, room, to } of heatrules.step) */
 export function warmText(s, t, deg) {
   const w = s?.warm || {}, d = (v) => (typeof v === 'number' ? deg(v) : '–');
-  return t('hr.line.warm', { room: d(w.room), to: d(w.to), wish: d(w.wish) });
+  const text = t('hr.line.warm', { room: d(w.room), to: d(w.to), wish: d(w.wish) });
+  if (!s?.hand) return text;                                     // turned by hand meanwhile: lowered again at s.hand (#592)
+  const at = new Date(s.hand * 1000);
+  return `${text} · ${t('hr.line.warmHand', { at: hhmm(at.getHours() * 60 + at.getMinutes()), to: d(w.to) })}`;
 }
 
 /** a room's line: { icon, text, tone } or null; s: status of the room, now (seconds), deg(v): a temperature as text */

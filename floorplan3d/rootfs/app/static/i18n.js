@@ -1064,6 +1064,9 @@ const DICT = {
     'rg.one.scene': '1 Szene', 'rg.n.scene': '{n} Szenen', 'rg.tiles': 'Knöpfe nach Räumen', 'rg.tilesHint': 'ein Tipp auf den Raum klappt ihn auf',
     'rg.tilesShort': 'Knöpfe', 'rg.title': 'Nach Räumen', 'rg.hint': 'Knöpfe, eigene Abläufe, Automationen und Szenen eines Raums zusammen',
     'sc.short': 'Szenen', 'ro.autosShort': 'Automationen in Home Assistant',
+    'hr.line.warmHand': '✋ von Hand gedreht, ab {at} wieder {to}',
+    'hr.warm.hand': 'Von Hand gedreht', 'hr.warm.handBack': 'nach {n} wieder runter (wie im 📅 Heizplan)',
+    'hr.warm.handStay': 'bleibt bis zum nächsten Abschnitt (wie im 📅 Heizplan)',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2081,6 +2084,9 @@ const DICT = {
     'rg.one.scene': '1 scene', 'rg.n.scene': '{n} scenes', 'rg.tiles': 'Buttons by room', 'rg.tilesHint': 'a tap on the room opens it',
     'rg.tilesShort': 'Buttons', 'rg.title': 'By room', 'rg.hint': 'the buttons, own routines, automations and scenes of a room together', 'sc.short': 'Scenes',
     'ro.autosShort': 'Automations in Home Assistant',
+    'hr.line.warmHand': '✋ turned by hand, back to {to} at {at}',
+    'hr.warm.hand': 'Turned by hand', 'hr.warm.handBack': 'down again after {n} (as in the 📅 schedule)',
+    'hr.warm.handStay': 'stays until the next block (as in the 📅 schedule)',
   },
 };
 

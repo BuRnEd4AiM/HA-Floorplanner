@@ -2128,4 +2128,7 @@ export default {
   'rg.n.scene': '{n} escenas', 'rg.tiles': 'Botones por estancia', 'rg.tilesHint': 'toca una estancia para abrirla', 'rg.tilesShort': 'Botones',
   'rg.title': 'Por estancia', 'rg.hint': 'botones, rutinas propias, automatizaciones y escenas de una estancia juntos', 'sc.short': 'Escenas',
   'ro.autosShort': 'Automatizaciones en Home Assistant',
+  'hr.line.warmHand': '✋ girado a mano, de nuevo {to} a las {at}',
+  'hr.warm.hand': 'Girado a mano', 'hr.warm.handBack': 'baja de nuevo tras {n} (como en el 📅 horario)',
+  'hr.warm.handStay': 'se queda hasta el siguiente tramo (como en el 📅 horario)',
 };

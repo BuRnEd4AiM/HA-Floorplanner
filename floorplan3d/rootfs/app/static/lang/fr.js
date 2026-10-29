@@ -2144,4 +2144,7 @@ export default {
   'rg.n.scene': '{n} scènes', 'rg.tiles': 'Boutons par pièce', 'rg.tilesHint': 'touchez une pièce pour la déplier', 'rg.tilesShort': 'Boutons',
   'rg.title': 'Par pièce', 'rg.hint': 'boutons, routines, automatisations et scènes d’une pièce ensemble', 'sc.short': 'Scènes',
   'ro.autosShort': 'Automatisations dans Home Assistant',
+  'hr.line.warmHand': '✋ tourné à la main, de nouveau {to} à {at}',
+  'hr.warm.hand': 'Tourné à la main', 'hr.warm.handBack': 'redescend après {n} (comme dans le 📅 planning)',
+  'hr.warm.handStay': 'reste jusqu\'au prochain créneau (comme dans le 📅 planning)',
 };

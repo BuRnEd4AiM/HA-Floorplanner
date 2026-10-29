@@ -2098,4 +2098,7 @@ export default {
   'rg.one.scene': '1 scena', 'rg.n.scene': 'Sceny: {n}', 'rg.tiles': 'Przyciski według pomieszczeń', 'rg.tilesHint': 'dotknij pomieszczenia, aby je rozwinąć',
   'rg.tilesShort': 'Przyciski', 'rg.title': 'Według pomieszczeń', 'rg.hint': 'przyciski, własne rutyny, automatyzacje i sceny pomieszczenia razem',
   'sc.short': 'Sceny', 'ro.autosShort': 'Automatyzacje w Home Assistant',
+  'hr.line.warmHand': '✋ przekręcone ręcznie, od {at} znów {to}',
+  'hr.warm.hand': 'Przekręcone ręcznie', 'hr.warm.handBack': 'po {n} znów w dół (jak w 📅 harmonogramie)',
+  'hr.warm.handStay': 'zostaje do następnego odcinka (jak w 📅 harmonogramie)',
 };
