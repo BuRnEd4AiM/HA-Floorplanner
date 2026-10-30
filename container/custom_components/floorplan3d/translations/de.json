@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "3D Floorplan (Container)",
+        "description": "Die Adresse des floorplan3d-Containers, wie Home Assistant ihn erreicht – meist seine IP-Adresse und der Port, zum Beispiel http://192.168.1.10:8100. Der Grundriss liegt danach unter /floorplan/ auf der Adresse von Home Assistant.",
+        "data": {
+          "address": "Adresse"
+        }
+      },
+      "reconfigure": {
+        "title": "3D Floorplan (Container)",
+        "description": "Die Adresse des floorplan3d-Containers, wie Home Assistant ihn erreicht.",
+        "data": {
+          "address": "Adresse"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unter dieser Adresse antwortet nichts. Läuft der Container, und ist es die Adresse, die Home Assistant erreicht?",
+      "cannot_start_login": "Der Container bietet die Anmeldung über Home Assistant nicht an. Die Container-Version braucht HA_URL und HA_TOKEN (nicht SUPERVISOR_TOKEN).",
+      "login_incomplete": "Der Container hat geantwortet, aber nicht so, wie diese Integration es erwartet. Ist es dieses Programm (floorplan3d)?",
+      "invalid_address": "Das ist keine http://- oder https://-Adresse."
+    },
+    "abort": {
+      "single_instance_allowed": "Unter /floorplan/ kann nur ein Grundriss liegen.",
+      "reconfigure_successful": "Die Adresse wurde geändert.",
+      "entry_not_found": "Der Eintrag der Integration existiert nicht mehr."
+    }
+  }
+}
