@@ -51,6 +51,7 @@ MAX_CALS = 10
 # the card "Lichtsteuerung" (static/lightslider.js, #597): a bar per lamp, light group or switch
 ROW_DOMAINS = ("light", "switch")
 MAX_ROWS = 16
+MAX_LAMPS = 16                                          # lamps in one bar (a bar can hold several: a group of the card)
 # how a button card looks and what it does (static/buttonlook.js, #495)
 BTN_ICONS = ("💡", "🛋", "🛏", "📺", "🎵", "🔥", "❄️", "🪟", "🚪", "🔒", "🌙", "☀️", "🍳", "🧺", "🚗", "🌱", "🎮", "🎬", "⚡", "🏠")
 BTN_COLORS = ("amber", "orange", "red", "purple", "blue", "green", "grey", "lamp")
@@ -190,13 +191,17 @@ def clean_card(c):
             return None
         out["builtin"] = c["builtin"]
     if kind == "lights":                                # 🎚 a bar per lamp (#597): the rows, "Alle aus", groups open, as a window
+        def fits(e):
+            return isinstance(e, str) and len(e) <= 255 and bool(ENTITY.match(e)) and e.split(".")[0] in ROW_DOMAINS
         rows, seen = [], set()
         for r in c.get("rows") if isinstance(c.get("rows"), list) else []:
-            e = r.get("e") if isinstance(r, dict) else None
-            if not isinstance(e, str) or len(e) > 255 or not ENTITY.match(e) or e.split(".")[0] not in ROW_DOMAINS or e in seen or len(rows) >= MAX_ROWS:
+            if not isinstance(r, dict) or not fits(r.get("e")) or len(rows) >= MAX_ROWS:
                 continue
-            seen.add(e)
-            rows.append({"e": e, "name": _chars(r.get("name"), 30), "icon": _chars(r.get("icon"), 8)})
+            lamps = list(dict.fromkeys(e for e in [r["e"], *(r.get("more") if isinstance(r.get("more"), list) else [])] if fits(e)))[:MAX_LAMPS]
+            if ",".join(lamps) in seen:                 # a bar with the same lamps once; a lamp may be in several bars
+                continue
+            seen.add(",".join(lamps))
+            rows.append({"e": lamps[0], **({"more": lamps[1:]} if len(lamps) > 1 else {}), "name": _chars(r.get("name"), 30), "icon": _chars(r.get("icon"), 8)})
         if not rows:
             return None
         out.update({"rows": rows, "allOff": c.get("allOff") is True, "expand": c.get("expand") is not False, "popup": c.get("popup") is True,

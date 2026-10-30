@@ -3801,4 +3801,5 @@ export default {
   'lc.optAllOff': '卡片顶部的“全部关闭”按钮', 'lc.optExpand': '灯组可展开（▸ 显示其中的灯）', 'lc.display': '显示方式', 'lc.inGrid': '作为页面上的卡片', 'lc.asWindow': '作为窗口（弹出）',
   'lc.optHook': '从 ☀ 今天 的“💡 … 盏灯亮着”打开', 'lc.popupHint': '作为窗口时，卡片只在编辑时显示在页面上。可从“💡 … 盏灯亮着”（勾选上方选项）或从点按设为“🎚️ 灯光控制”的按钮卡片打开。', 'lc.needRow': '请至少选择一盏灯。',
   'lc.windowTag': '窗口', 'lc.noCard': '– 还没有“灯光控制”卡片 –', 'ct.type.lights': '灯光控制', 'ct.typeSub.lights': '每盏灯或每个灯组一个滑块', 'ob.tap.lights': '🎚️ 灯光控制',
+  'lc.addLamp': '添加灯', 'lc.addLampHint': '一个条中的多盏灯：一起开关，一起调光', 'lc.findLamp': '搜索要添加到“{name}”的灯 …', 'lc.lampOut': '从此条中移除{name}',
 };

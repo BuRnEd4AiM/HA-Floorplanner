@@ -7,7 +7,7 @@ import { FAV_SERVICE } from './favorites.js';
 import { SIZES } from './thermostat.js';
 import { CAL_DAYS, CAL_VIEWS, cleanCals } from './calcard.js';
 import { cleanLook } from './buttonlook.js';
-import { cleanRows } from './lightslider.js';
+import { cleanRows, rowLamps } from './lightslider.js';
 
 export const CARD_TYPES = ['button', 'switch', 'value', 'graph', 'light', 'lights', 'thermostat', 'cover', 'camera', 'calendar', 'entities', 'room', 'text', 'builtin', 'train'];
 export const TYPE_ICON = { button: '🔘', switch: '⏻', value: '🔢', graph: '📈', light: '💡', lights: '🎚️', thermostat: '🌡️', cover: '🪟', camera: '📷', calendar: '📅', entities: '🧩', room: '🏠', text: '📝', builtin: '☀️', train: '🚆' };
@@ -105,7 +105,7 @@ export function cleanCard(c) {
 }
 
 /** the entities a card shows (its states make it draw again) */
-export const cardEntities = (c) => (c?.entities ? c.entities : c?.rows ? c.rows.map((r) => r.e) : c?.entity ? [c.entity, ...(c.more || [])] : []);
+export const cardEntities = (c) => (c?.entities ? c.entities : c?.rows ? [...new Set(c.rows.flatMap(rowLamps))] : c?.entity ? [c.entity, ...(c.more || [])] : []);
 /** the colour of the n-th line of a history card: the card's own colour first, then the others in the order of SERIES_COLORS */
 export function seriesColor(c, n) {
   const first = COLOR_HEX[c?.color] || COLOR_HEX.blue;

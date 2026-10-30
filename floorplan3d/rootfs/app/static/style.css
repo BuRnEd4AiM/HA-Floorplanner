@@ -2520,6 +2520,20 @@ body.hasScenes #status { bottom: 156px; }
 .lcRow.sub .lcName { font-size: 15px; }
 .lcRow.sub .lcState { font-size: 14px; }
 .lcGroupTag { color: var(--muted); }
+/* "Karte einstellen" (lightcardedit.js): the lamps of a bar with several lamps, "＋ Lampe dazu" and its own search */
+.lcLamps, .lcEdFoot, .lcLampFind { flex-basis: 100%; box-sizing: border-box; min-width: 0; padding-left: 30px; }
+.lcLamps { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.lcEdFoot { display: flex; align-items: center; gap: 8px; }
+.lcEdFoot .sbId { flex: 1; min-width: 0; padding: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lcLamp { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 2px 4px 2px 10px; border: 1px solid var(--line); border-radius: 999px;
+  font-size: 13px; background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.lcLamp > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lcLampDel { flex: none; min-height: 0; padding: 0 6px; border: 0; background: transparent; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.lcLampAdd { flex: none; min-height: 0; padding: 3px 10px; border-radius: 999px; font-size: 13px; }
+.lcLampAdd.on { border-color: var(--accent); }
+.lcLampFind { display: flex; flex-direction: column; gap: 6px; }
+.lcLampFind .ceList { max-height: 180px; }
+.lcLampDone { align-self: flex-end; min-height: 0; padding: 4px 14px; border-radius: 999px; }
 /* as a window (popup): "✕ Lichtsteuerung" over the bars */
 .lcDlg { width: min(560px, calc(100vw - 24px)); }
 .lcDlgHead { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }

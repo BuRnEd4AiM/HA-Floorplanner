@@ -2151,4 +2151,6 @@ export default {
   'lc.popupHint': 'Come finestra la scheda è nella pagina solo durante la modifica. Si apre da «💡 … luci accese» (spunta sopra) o da una scheda pulsante con «Tocco: 🎚️ Controllo luci».',
   'lc.needRow': 'Scegli almeno una lampada.', 'lc.windowTag': 'finestra', 'lc.noCard': '– ancora nessuna scheda «Controllo luci» –',
   'ct.type.lights': 'Controllo luci', 'ct.typeSub.lights': 'Un cursore per lampada o gruppo', 'ob.tap.lights': '🎚️ Controllo luci',
+  'lc.addLamp': 'Aggiungi lampada', 'lc.addLampHint': 'Più lampade in una barra: si accendono, si spengono e si regolano insieme',
+  'lc.findLamp': 'Cerca una lampada da aggiungere a «{name}» …', 'lc.lampOut': 'Togli {name} da questa barra',
 };

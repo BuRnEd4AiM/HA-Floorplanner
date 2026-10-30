@@ -4,6 +4,19 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.47.0] - 2026-10-30
+### Added
+- **🎚️ Several lamps in one bar of the card "Lichtsteuerung"** (the owner with a picture of "Karte „Lichtsteuerung“ einstellen": "ich kann nicht pro Karte mehrere Lampen hinzufügen … pro Kachel einfach mehrere Lampen verknüpfen"). Until now a bar was one lamp, one light group of Home Assistant or one switch; now a bar can hold up to 16 lamps of its own, like a group made in the card (no group in Home Assistant or Zigbee2MQTT needed):
+  - in "Karte einstellen" each bar has **"＋ Lampe dazu"**: a search just for this bar, a tap on a lamp adds it, the search stays open for the next one ("Fertig" closes it); the lamps of a bar show below its name, each with ✕; the bar keeps its own name and symbol (without a name: the first lamp "+2");
+  - on the card the bar is on when one of its lamps is on, filled as bright as they are on average (like a group of Home Assistant), in the colour of the first one on;
+  - a tap or the switch switches all its lamps (off: the ones that are on), dragging sends the new brightness to every lamp of it (a lamp that only switches and a switch go on), a lamp that is not available is left out;
+  - ▸ (and a long press) opens the bar to its lamps, each with its own bar; "Alle aus" switches off every lamp that is on;
+  - a lamp may also be in several bars (e.g. "Wohnzimmer" with all three and "Stehlampe" alone).
+### Changed
+- The part of "Karte einstellen" for the light card is its own file (`lightcardedit.js`, from `lightcardui.js`).
+- The demo has a bar "Voute" with two lamps on the light cards.
+- Test protocol: new section 136.
+
 ## [4.46.0] - 2026-10-29
 ### Added
 - **简体中文: Simplified Chinese as the eighth language** (#587, thanks to @aixmoyu, who translated all texts of the add-on and the options page of Home Assistant): ⚙ → *Sprache* → *简体中文*, or *Auto* on a device whose browser is set to Chinese. The contribution came from version 4.42.0; the 83 texts added since then (▶ Abläufe by room, the row "👁 Ausgeblendet", the scene bar and the light card of 4.45.0) are translated too, and `tools/add_i18n.py` now asks for Chinese with every new text, so it stays complete. The voice search does not understand Chinese yet (with Chinese it uses the German words).

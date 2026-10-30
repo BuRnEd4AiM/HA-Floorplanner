@@ -2125,4 +2125,6 @@ export default {
   'lc.popupHint': 'Als venster staat de kaart alleen tijdens bewerken op de pagina. Ze opent via „💡 … lampen aan” (vinkje hierboven) of een knopkaart met „Tikken: 🎚️ Lichtbediening”.',
   'lc.needRow': 'Kies minstens één lamp.', 'lc.windowTag': 'venster', 'lc.noCard': '– nog geen kaart „Lichtbediening” –', 'ct.type.lights': 'Lichtbediening',
   'ct.typeSub.lights': 'Een schuifregelaar per lamp of groep', 'ob.tap.lights': '🎚️ Lichtbediening',
+  'lc.addLamp': 'Lamp erbij', 'lc.addLampHint': 'Meerdere lampen in één balk: ze gaan samen aan en uit en worden samen gedimd',
+  'lc.findLamp': 'Zoek een lamp voor „{name}” …', 'lc.lampOut': '{name} uit deze balk halen',
 };

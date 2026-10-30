@@ -2153,4 +2153,6 @@ export default {
   'lc.popupHint': 'Como ventana, la tarjeta solo está en la página al editar. Se abre desde «💡 … luces encendidas» (casilla de arriba) o desde una tarjeta de botón con «Tocar: 🎚️ Control de luces».',
   'lc.needRow': 'Elige al menos una lámpara.', 'lc.windowTag': 'ventana', 'lc.noCard': '– aún no hay tarjeta «Control de luces» –',
   'ct.type.lights': 'Control de luces', 'ct.typeSub.lights': 'Un deslizador por lámpara o grupo', 'ob.tap.lights': '🎚️ Control de luces',
+  'lc.addLamp': 'Añadir lámpara', 'lc.addLampHint': 'Varias lámparas en una barra: se encienden, se apagan y se regulan juntas',
+  'lc.findLamp': 'Buscar una lámpara para añadir a «{name}» …', 'lc.lampOut': 'Quitar {name} de esta barra',
 };

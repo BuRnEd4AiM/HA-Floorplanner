@@ -1089,6 +1089,8 @@ const DICT = {
     'lc.popupHint': 'Als Fenster steht die Karte nur beim Bearbeiten auf der Seite. Sie öffnet sich über „💡 … Lichter an“ (Haken oben) oder über eine Knopf-Karte mit „Tippen: 🎚️ Lichtsteuerung“.',
     'lc.needRow': 'Mindestens eine Lampe wählen.', 'lc.windowTag': 'Fenster', 'lc.noCard': '– noch keine Karte „Lichtsteuerung“ –',
     'ct.type.lights': 'Lichtsteuerung', 'ct.typeSub.lights': 'Schieberegler je Lampe oder Gruppe', 'ob.tap.lights': '🎚️ Lichtsteuerung',
+    'lc.addLamp': 'Lampe dazu', 'lc.addLampHint': 'Mehrere Lampen in einem Balken: sie gehen zusammen an und aus und werden zusammen gedimmt',
+    'lc.findLamp': 'Lampe zu „{name}“ dazu suchen …', 'lc.lampOut': '{name} aus diesem Balken nehmen',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2127,6 +2129,8 @@ const DICT = {
     'lc.popupHint': 'As a window the card is on the page only while editing. It opens from “💡 … lights on” (tick above) or from a button card with “Tap: 🎚️ Light control”.',
     'lc.needRow': 'Choose at least one lamp.', 'lc.windowTag': 'window', 'lc.noCard': '– no “Light control” card yet –', 'ct.type.lights': 'Light control',
     'ct.typeSub.lights': 'A slider per lamp or group', 'ob.tap.lights': '🎚️ Light control',
+    'lc.addLamp': 'Add a lamp', 'lc.addLampHint': 'Several lamps in one bar: they go on and off together and dim together',
+    'lc.findLamp': 'Search a lamp to add to “{name}” …', 'lc.lampOut': 'Take {name} out of this bar',
   },
 };
 

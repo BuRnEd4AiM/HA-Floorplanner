@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.46.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.47.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.46.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.47.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung** (Abschnitt 136): Claude hat 136.1 bis 136.3 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad 136.4 bis 136.6.
 1. **Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache** (Abschnitt 135): Claude hat 135.1 bis 135.3 in der Demo geprüft; für dich nur 135.4 (die Sprache wieder auf Deutsch stellen geht?).
 1. **Neu in 4.45.0: 🎬 Szenen-Leiste über der Reiter-Leiste und die Karte 🎚️ „Lichtsteuerung“** (Abschnitt 134): Claude hat 134.1 bis 134.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad 134.7 bis 134.9 und am Handy 134.10.
 1. **Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten sind ganz weg, die Zeile „👁 Ausgeblendet“ holt sie zurück** (Abschnitt 133): Claude hat 133.1 bis 133.4 in der Demo geprüft (probier es gern selbst); für dich im Add-on mit deiner Fassung „Eltern“ 133.5 und am Handy oder iPad 133.6.
@@ -369,7 +370,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 133. Neu in 4.44.0: ✎ Bearbeiten: ausgeblendete Karten ganz weg, die Zeile „👁 Ausgeblendet“ (#595) | 4 | 0 | 2 | 0 | 133.5, 133.6 |
 | 134. Neu in 4.45.0: 🎬 Szenen-Leiste und Karte 🎚️ „Lichtsteuerung“ (#597) | 6 | 0 | 4 | 0 | 134.7 bis 134.10 |
 | 135. Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache (#587) | 3 | 0 | 1 | 0 | 135.4 |
-| **Zusammen** | **833** | **1** | **89** | **92** | |
+| 136. Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung | 3 | 0 | 3 | 0 | 136.4 bis 136.6 |
+| **Zusammen** | **836** | **1** | **92** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2072,3 +2074,15 @@ Beitrag von aixmoyu (Pull Request #587, vom Stand 4.42.0); der Besitzer am 2026-
 | 135.2 | In der Demo, auf Chinesisch: ☀ 今天, die Szenen-Leiste und „💡 … 盏灯亮着“ (das Lichtfenster) | Auch die neuen Teile aus 4.43 bis 4.45 sind übersetzt („灯光控制“, „全部关闭“, „不可用“) | ✅ (2026-10-29, Claude in der Demo) |
 | 135.3 | Ein Browser auf Chinesisch, Sprache „Auto“ | Die Seite kommt gleich auf Chinesisch | ✅ (2026-10-29, Claude in der Demo mit einem chinesischen Browser) |
 | 135.4 | Im Add-on: ⚙ → Sprache auf „简体中文“ und gleich wieder auf „Deutsch“ | Alles wieder auf Deutsch, nichts bleibt chinesisch | ❓ |
+
+## 136. Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung
+Der Besitzer am 2026-10-30 mit einem Bild von „Karte „Lichtsteuerung“ einstellen“: „ich kann nicht pro Karte mehrere Lampen hinzufügen … pro Kachel einfach mehrere Lampen verknüpfen“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 136.1 | In der Demo (Live): Seite 🔘 Knöpfe, Karte „Lichter“, ganz unten der Balken „✨ Voute“ | „Voute 60 %“ in Lila; ▸ klappt die zwei Lampen auf (Voute Bettseite, Voute Fensterseite, je 60 %) | ✅ (2026-10-30, Claude in der Demo) |
+| 136.2 | In der Demo: „Voute“ kurz antippen, dann noch einmal | Erst gehen beide Lampen aus (der Balken grau, „Aus“), dann beide wieder an | ✅ (2026-10-30, Claude in der Demo) |
+| 136.3 | In der Demo: ✎ Bearbeiten, bei der Karte „Lichter“ das ⚙; bei „Küche Licht“ auf „＋ Lampe dazu“, „wohn“ tippen, „Wohnzimmer Deckenlicht“ antippen, „Fertig“, Namen „Unten“ geben; dann bei einer Lampe des Balkens das ✕ | Unter „Küche Licht“ stehen die Lampen mit ✕, die Vorschau rechts zeigt „Unten“ mit ▸; nach dem ✕ ist die Lampe weg, der Name „Unten“ bleibt | ✅ (2026-10-30, Claude in der Demo) |
+| 136.4 | Im Add-on am iPad: ✎ Bearbeiten, deine Karte „Lichtsteuerung“ ⚙, bei einem Balken „＋ Lampe dazu“ und zwei, drei Lampen eines Raums dazu, Namen geben, „Speichern“, „Fertig“ | Der Balken steht mit deinem Namen auf der Karte; an, wenn eine der Lampen an ist; ▸ zeigt die Lampen einzeln | ❓ |
+| 136.5 | Im Add-on: den Balken aus 136.4 antippen, dann seitwärts auf etwa die Hälfte ziehen und loslassen | Der Tipp schaltet alle seine Lampen aus (bzw. an); nach dem Ziehen gehen alle auf etwa 50 % (eine Lampe, die nur schaltet, geht an) | ❓ |
+| 136.6 | Im Add-on: oben in der Karte „Alle aus“ | Alle Lampen gehen aus, auch die in einem Balken mit mehreren Lampen | ❓ |

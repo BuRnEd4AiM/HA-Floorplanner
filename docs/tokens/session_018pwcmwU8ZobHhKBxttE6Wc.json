@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmwU8ZobHhKBxttE6Wc",
+ "start": "2026-10-30",
+ "updated": "2026-10-30T10:31:39Z",
+ "branch": "claude/exciting-ride-totxku",
+ "source": "counted",
+ "input": 146,
+ "cache_write": 190013,
+ "cache_read": 13363972,
+ "output": 67946,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 146,
+   "cache_write": 190013,
+   "cache_read": 13363972,
+   "output": 67946,
+   "requests": 78
+  }
+ }
+}

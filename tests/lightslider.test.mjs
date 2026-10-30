@@ -60,6 +60,41 @@ test('a light group opens to its lamps, "Alle aus" takes the rows that are on', 
   assert.deepEqual(L.onRows([{ e: 'light.a' }, { e: 'light.b' }, { e: 'switch.c' }], { 'light.a': { state: 'on' }, 'light.b': { state: 'off' }, 'switch.c': { state: 'on' } }), ['light.a', 'switch.c']);
 });
 
+test('a bar with several lamps of its own (the owner: "pro Kachel mehrere Lampen"): cleaned, its lamps, what it opens to', () => {
+  const rows = L.cleanRows([{ e: 'light.a', more: ['light.b', 'light.a', 'sensor.x', 'light.b', 'switch.c', 7], name: 'Küche' }, { e: 'light.a', more: ['light.b', 'switch.c'] },
+    { e: 'light.a' }, { e: 'light.b', more: [] }, { e: 'sensor.x', more: ['light.d'] }, { e: 'light.e', more: 'light.f' }]);
+  assert.deepEqual(rows, [{ e: 'light.a', more: ['light.b', 'switch.c'], name: 'Küche', icon: '' }, { e: 'light.a', name: '', icon: '' },
+    { e: 'light.b', name: '', icon: '' }, { e: 'light.e', name: '', icon: '' }]);                     // a lamp may be in several bars, the same bar once
+  assert.equal(L.cleanRows([{ e: 'light.x', more: Array.from({ length: 30 }, (_, i) => `light.l${i}`) }])[0].more.length, L.MAX_LAMPS - 1);
+  assert.deepEqual(L.rowLamps(rows[0]), ['light.a', 'light.b', 'switch.c']); assert.equal(L.rowKey(rows[0]), 'light.a,light.b,switch.c'); assert.equal(L.rowKey(rows[1]), 'light.a');
+  assert.deepEqual(L.rowMembers(rows[0], { 'light.a': { members: ['light.z'] } }), ['light.a', 'light.b', 'switch.c']);   // its own lamps, not those of a group
+  assert.deepEqual(L.rowMembers(rows[1], { 'light.a': { members: ['light.z'] } }), ['light.z']);
+  assert.deepEqual(C.cardEntities({ type: 'lights', rows }), ['light.a', 'light.b', 'switch.c', 'light.e']);
+  assert.deepEqual(L.onRows(rows, { 'light.a': { state: 'off' }, 'light.b': { state: 'on' }, 'switch.c': { state: 'on' }, 'light.e': { state: 'on' } }), ['light.b', 'switch.c', 'light.e']);
+});
+
+test('how a bar of several lamps looks: on when one is, as bright as they are on average, grey when none can be used', () => {
+  const s = { 'light.a': { state: 'on', brightness: 80, rgb: [255, 0, 0] }, 'light.b': { state: 'on', brightness: 40 }, 'switch.c': { state: 'on' }, 'light.d': { state: 'off' },
+    'light.na': { state: 'unavailable' }, 'light.relais': { state: 'on', dim: false } };
+  assert.deepEqual(L.lampsLook(['light.a', 'light.b', 'switch.c'], s), { kind: 'on', dim: true, pct: 60, rgb: [255, 0, 0] });   // the switch has no brightness
+  assert.deepEqual(L.lampsLook(['light.d', 'light.b'], s), { kind: 'on', dim: true, pct: 40, rgb: L.WARM });
+  assert.deepEqual(L.lampsLook(['light.d', 'light.na'], s), { kind: 'off', dim: true, pct: 0, rgb: L.WARM });
+  assert.deepEqual(L.lampsLook(['switch.c', 'light.relais'], s), { kind: 'on', dim: false, pct: 100, rgb: L.WARM });
+  assert.equal(L.lampsLook(['light.na', 'light.gone'], s).kind, 'na'); assert.equal(L.lampsLook(['light.gone', 'light.weg'], s).kind, 'missing');
+  assert.deepEqual(L.lampsLook(['light.a'], s), L.rowLook('light.a', s['light.a']));                   // one lamp: as before
+});
+
+test('what a bar of several lamps sends: off to those on, on to all that can be used, a brightness to those that dim', () => {
+  const s = { 'light.a': { state: 'on', brightness: 80 }, 'light.b': { state: 'off' }, 'switch.c': { state: 'off' }, 'light.na': { state: 'unavailable' } };
+  const lamps = ['light.a', 'light.b', 'switch.c', 'light.na'];
+  assert.deepEqual(L.rowCalls(lamps, s, { on: false }), [['light.a', 'turn_off', null]]);
+  assert.deepEqual(L.rowCalls(lamps, s, { on: true }), [['light.a', 'turn_on', null], ['light.b', 'turn_on', null], ['switch.c', 'turn_on', null]]);
+  assert.deepEqual(L.rowCalls(lamps, s, { pct: 35 }), [['light.a', 'turn_on', { brightness_pct: 35 }], ['light.b', 'turn_on', { brightness_pct: 35 }], ['switch.c', 'turn_on', null]]);
+  assert.deepEqual(L.rowCalls(lamps, s, { pct: 0 }), [['light.a', 'turn_off', null]]);
+  assert.deepEqual(L.rowCalls(['light.b'], s, { on: false }), [['light.b', 'turn_off', null]]);      // one lamp: as before, whatever it says
+  assert.deepEqual(L.rowCalls(['light.b'], s, { pct: 50 }), [['light.b', 'turn_on', { brightness_pct: 50 }]]);
+});
+
 test('the light card a tap opens: by its id, else the window of "Lichter an", the version one sees first', () => {
   const card = (id, more) => ({ id, type: 'lights', rows: [{ e: 'light.a' }], ...more });
   const settings = { pageLayouts: { today: { cards: [card('c_alle', { popup: true, hook: true }), { id: 'c_txt', type: 'text' }] }, p_licht: { cards: [card('c_grid')] } },

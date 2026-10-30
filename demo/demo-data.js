@@ -518,12 +518,14 @@ let settings = {
     { id: 'c_robo', type: 'button', entity: 'vacuum.robo', name: 'Saugroboter', icon: '🏠', bsize: 's', tap: 'more' },
     { id: 'c_lichtknopf', type: 'button', entity: 'light.wohnzimmer_alle', name: 'Alle Lichter', icon: '💡', onColor: 'lamp', tap: 'lights', card: 'c_licht' },   // 4.45: opens the light window (#597)
     { id: 'c_lichter', type: 'lights', name: 'Lichter', width: 2, allOff: true, rows: [{ e: 'light.wohnzimmer_alle', name: 'Wohnzimmer' },
-      { e: 'light.kueche', icon: '🍳' }, { e: 'light.schlafzimmer', icon: '🛏' }, { e: 'light.flur_decke', name: 'Flur' }, { e: 'light.terrasse' }, { e: 'light.tv_led', name: 'TV' }] }] },
+      { e: 'light.kueche', icon: '🍳' }, { e: 'light.schlafzimmer', icon: '🛏' }, { e: 'light.flur_decke', name: 'Flur' }, { e: 'light.terrasse' }, { e: 'light.tv_led', name: 'TV' },
+      { e: 'light.voute_bett', more: ['light.voute_fenster'], name: 'Voute', icon: '✨' }] }] },   // 4.47: two lamps in one bar
   today: {                                                                       // the calendar card on ☀ Heute after the weather (#495), the train card (#550)
     order: ['clock', 'weather', 'c_zug', 'c_kalender', 'pinboard', 'agenda', 'waste', 'people', 'house', 'power'],
     cards: [{ id: 'c_licht', type: 'lights', name: 'Lichtsteuerung', allOff: true, popup: true, hook: true,   // 4.45: "💡 n Lichter an" opens it (#597)
       rows: [{ e: 'light.wohnzimmer_alle', name: 'Wohnzimmer' }, { e: 'light.kueche', icon: '🍳' }, { e: 'light.schlafzimmer', icon: '🛏' }, { e: 'light.buero', icon: '🖥' },
-        { e: 'light.flur_decke', name: 'Flur' }, { e: 'light.terrasse' }, { e: 'light.tv_led', name: 'TV' }] },
+        { e: 'light.flur_decke', name: 'Flur' }, { e: 'light.terrasse' }, { e: 'light.tv_led', name: 'TV' },
+        { e: 'light.voute_bett', more: ['light.voute_fenster'], name: 'Voute', icon: '✨' }] },          // 4.47: two lamps in one bar
       { id: 'c_zug', type: 'train', name: 'Mein Zug zur Arbeit', width: 2, station: 'Fulda', via: 'Frankfurt (Main) Hbf', mine: DEMO_TRAIN.mine, count: 4, sensor: '' },
       { id: 'c_kalender', type: 'calendar', name: 'Diese Woche', width: 4, days: 7, view: 'week', add: true,
       cals: [{ id: 'calendar.familie', color: 'blue' }, { id: 'calendar.arbeit_anna', color: 'orange' }, { id: 'calendar.schule', color: 'green' }, { id: 'calendar.geburtstage', color: 'red' }] }] } },
