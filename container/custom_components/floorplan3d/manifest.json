@@ -1,0 +1,14 @@
+{
+  "domain": "floorplan3d",
+  "name": "3D Floorplan (Container)",
+  "codeowners": ["@aixmoyu"],
+  "config_flow": true,
+  "dependencies": ["auth", "http"],
+  "after_dependencies": ["frontend"],
+  "documentation": "https://github.com/BuRnEd4AiM/HA-Floorplanner/blob/main/container/custom_components/floorplan3d/README.md",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/BuRnEd4AiM/HA-Floorplanner/issues",
+  "loggers": ["custom_components.floorplan3d"],
+  "version": "1.2.0"
+}
