@@ -4,7 +4,7 @@ Home Assistant OS and Supervised install 3D Floorplan from the add-on (app) stor
 
 - It has **its own address** (for example `http://192.168.1.10:8100`) instead of a page in Home Assistant's sidebar. You can add it to the sidebar as a *Webpage* dashboard (see below).
 - Whoever opens it **logs in with their Home Assistant user** (Home Assistant's own login page). Home Assistant administrators may edit, plus the users named in `EDITORS`; everybody else gets the live view, as in the add-on. The login lasts 30 days, and every visit extends it, so a wall tablet stays logged in.
-- The dashboard card `custom:floorplan3d-card` needs the Supervisor and does not work with this version. Use a *Webpage* dashboard or a *Webpage* card with the page's address instead (`?kiosk=1` at the end hides the editing tools).
+- The dashboard card `custom:floorplan3d-card` needs the Supervisor and does not work with this version. Instead, use the optional integration **3D Floorplan (Container)** ([`custom_components/floorplan3d`](custom_components/floorplan3d/README.md), #601): it serves the page on Home Assistant's own address (`http://<Home Assistant>:8123/floorplan/`) without a second login and brings its own card `custom:floorplan3d-container-card`. Or use a *Webpage* dashboard or a *Webpage* card with the page's address (`?kiosk=1` at the end hides the editing tools).
 
 ## Set it up
 
@@ -18,6 +18,7 @@ Home Assistant OS and Supervised install 3D Floorplan from the add-on (app) stor
    Docker builds the image from this repository (a minute or two the first time).
 4. **Open it.** Go to `http://<this computer>:8100`. Home Assistant's login page opens. Log in, and you are back at the floor plan.
 5. **In the sidebar (optional).** In Home Assistant go to **Settings → Dashboards → Add dashboard → Webpage**. Enter the same address (`http://<this computer>:8100`).
+6. **On Home Assistant's own address and as a dashboard card (optional).** Install the integration in [`custom_components/floorplan3d`](custom_components/floorplan3d/README.md) (copy the folder, restart once, add it under Settings → Devices & services). Then the page is at `http://<Home Assistant>:8123/floorplan/`, and as a Webpage dashboard use that address.
 
 Without compose:
 

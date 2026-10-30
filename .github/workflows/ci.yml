@@ -76,6 +76,8 @@ jobs:
           WELCOME_MJS=/tmp/welcome.mjs node --test tests/welcome.test.mjs
       - name: Dashboard card unit tests
         run: node --test tests/card.test.mjs
+      - name: Container card unit tests (#601)
+        run: node --test tests/containercard.test.mjs
       - name: Check frontend syntax
         run: |
           for f in floorplan3d/rootfs/app/static/*.js; do cp "$f" /tmp/check.mjs && node --check /tmp/check.mjs; done

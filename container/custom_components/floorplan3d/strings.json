@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "3D Floorplan (Container)",
+        "description": "The address of the floorplan3d container, as Home Assistant reaches it — usually its IP address and port, for example http://192.168.1.10:8100. The plan is then served at /floorplan/ on Home Assistant's own address.",
+        "data": {
+          "address": "Address"
+        }
+      },
+      "reconfigure": {
+        "title": "3D Floorplan (Container)",
+        "description": "The address of the floorplan3d container, as Home Assistant reaches it.",
+        "data": {
+          "address": "Address"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nothing answers at this address. Is the container running, and is the address the one Home Assistant can reach?",
+      "cannot_start_login": "The container does not offer the Home Assistant login. The container version needs HA_URL and HA_TOKEN (not SUPERVISOR_TOKEN).",
+      "login_incomplete": "The container answered, but not the way this integration expects. Is it this program (floorplan3d)?",
+      "invalid_address": "That is not an http:// or https:// address."
+    },
+    "abort": {
+      "single_instance_allowed": "Only one floor plan can be served at /floorplan/.",
+      "reconfigure_successful": "The address was changed.",
+      "entry_not_found": "The integration entry no longer exists."
+    }
+  }
+}
