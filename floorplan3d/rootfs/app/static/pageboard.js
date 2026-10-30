@@ -6,12 +6,14 @@
  * "👁 Ausgeblendet" under the strip, a tap shows it again (#595, boardhidden.js). With sections (#495, sections.js, sectionsui.js) the cards in no section
  * stand above them and a card is dragged into a section and between them. Stored for everybody in settings.pageLayouts, or in an own
  * version of the page for some users (#507, settings.pageVariants: ctx.variants says which one, variantsui.js draws its strip under the
- * edit strip); the rules are in pagelayout.js, sections.js and pagevariants.js (tested). */
+ * edit strip). "▦ Frei anordnen" in the strip puts the cards of the page on a grid where an admin wants them, gaps stay (freegridui.js;
+ * sections are not shown then). The rules are in pagelayout.js, sections.js, freegrid.js and pagevariants.js (tested). */
 import { arrange, withOrder, keepUnseen, toggleHidden, dropCard, resetLayout, putCard, withSize, sizeOf, rowSpan } from './pagelayout.js';
 import { groupEntries, fromScreen, withWidth, spanAt, newSectionId, addSection, editSection, dropSection, moveSection } from './sections.js';
 import { initSectionsUi } from './sectionsui.js';
 import { layoutIn, withLayoutIn } from './pagevariants.js';
 import { cardName, hiddenRow } from './boardhidden.js';
+import { initFreeGrid } from './freegridui.js';
 
 const ROW = 8, GAP = 14;
 
@@ -34,6 +36,13 @@ export function initBoard(ctx) {
     Object.assign(ctx.settings(), withLayoutIn(ctx.settings(), page, versionOf(page), l));
     ctx.save();
     ctx.redraw(page);
+  }
+  /* "▦ Frei anordnen": the cards on a grid where an admin put them (freegridui.js); switched on, they start where they stand now */
+  const free = initFreeGrid({ save: (page, places) => setLayout(page, { ...layoutOf(page), places }) });
+  function toggleFree(page) {
+    const l = layoutOf(page), box = shown.get(page)?.box;
+    if (l.free) { setLayout(page, { ...l, free: false }); return; }
+    setLayout(page, { ...l, free: true, places: Object.keys(l.places || {}).length || !box ? l.places : free.measure(box) });
   }
   /** an own card added or changed (cardeditor.js) */
   const saveCard = (page, card) => setLayout(page, putCard(layoutOf(page), card));
@@ -58,6 +67,7 @@ export function initBoard(ctx) {
   }
   /** all widths first, then all heights read at once, then the rows: the browser lays the page out twice, not once per card (#494) */
   function masonry(box) {
+    if (box.classList.contains('fgGrid')) { free.layout(box); return; }
     const cols = columns(box), its = [...box.querySelectorAll(':scope > .bdItem, :scope > .bdAdd')];
     const set = (it, k, v) => { if (it.style[k] !== v) it.style[k] = v; };
     its.forEach((it) => { const w = Number(it.dataset.w) || 1; set(it, 'gridColumn', w >= 4 ? '1 / -1' : `span ${Math.min(cols, w)}`); });   // 4: the whole row, however many columns
@@ -80,7 +90,7 @@ export function initBoard(ctx) {
   function tools(page, key, own, sized) {
     const bar = make('div', 'bdTools');
     const grip = make('span', 'bdGrip', '⠿'); grip.title = t('bd.drag'); grip.setAttribute('role', 'button');
-    grip.addEventListener('pointerdown', (e) => drag(e, page, grip.closest('.bdItem')));
+    grip.addEventListener('pointerdown', (e) => { if (!free.drag(e, grip.closest('.bdItem'))) drag(e, page, grip.closest('.bdItem')); });
     bar.append(grip);
     if (own) {
       bar.append(btn('bdTool', '⚙️', () => ctx.editCard(page, own), t('bd.cardSet')));
@@ -103,10 +113,10 @@ export function initBoard(ctx) {
     el.querySelectorAll(':scope > .bdTools, :scope > .bdTag, :scope > .bdResize').forEach((x) => x.remove());
     if (edit) {
       const corner = make('span', 'bdResize'); corner.title = t('bd.resize'); corner.setAttribute('role', 'button');
-      corner.addEventListener('pointerdown', (e) => resize(e, page, el, entry.own));
+      corner.addEventListener('pointerdown', (e) => { if (!free.resize(e, el)) resize(e, page, el, entry.own); });
       el.append(corner);
       el.append(tools(page, entry.key, entry.own, builtin?.sized));
-      if (entry.own) el.append(make('span', 'bdTag own', entry.own.popup ? `${t('bd.own')} · ↗ ${t('lc.windowTag')}` : t('bd.own')));   // a window (#597)
+      if (entry.own) el.append(make('span', `bdTag own${entry.own.popup ? ' win' : ''}`, entry.own.popup ? `${t('bd.own')} · ↗ ${t('lc.windowTag')}` : t('bd.own')));   // a window (#597)
     }
     return el;
   }
@@ -115,8 +125,12 @@ export function initBoard(ctx) {
     s.append(make('b', '', `✎ ${t('bd.editing', { page: ctx.pageName(page) })}`), make('span', 'bdSub', t('bd.help')));
     const add = btn('bdBtn', `＋ ${t('bd.addShort')}`, () => ctx.addCard(page)); add.dataset.act = 'add';
     const sec = btn('bdBtn', `＋ ${t('bd.addSection')}`, () => newSection(page)); sec.dataset.act = 'addSection';
+    const isFree = layoutOf(page).free === true;
+    const grid = btn(`bdBtn${isFree ? ' on' : ''}`, `▦ ${t('fg.free')}`, () => toggleFree(page), t(isFree ? 'fg.offHint' : 'fg.onHint')); grid.dataset.act = 'free';
+    grid.setAttribute('aria-pressed', String(isFree));
+    if (isFree) { sec.hidden = true; s.querySelector('.bdSub').textContent = t('fg.help'); }      // no sections on a free page
     const tabs = btn('bdBtn', `🗂 ${t('bd.tabs')}`, () => ctx.editTabs()); tabs.dataset.act = 'tabs';
-    s.append(add, sec, tabs);
+    s.append(add, sec, grid, tabs);
     if (ctx.editBar) { const bar = btn('bdBtn', `🎬 ${t('sb.title')}`, () => ctx.editBar(page)); bar.dataset.act = 'sceneBar'; s.append(bar); }   // the scene bar (#597)
     if (/^p_/.test(page)) { const own = btn('bdBtn', `⚙️ ${t('bd.page')}`, () => ctx.editOwnPage(page)); own.dataset.act = 'page'; s.append(own); }
     const reset = btn('bdBtn', `↺ ${t('bd.reset')}`, () => { if (window.confirm(t('bd.resetAsk'))) setLayout(page, resetLayout(layoutOf(page))); }); reset.dataset.act = 'reset';
@@ -162,6 +176,19 @@ export function initBoard(ctx) {
       if (edit && sec) sec.prepend(strip(page), ...(ctx.variants ? [ctx.variants.bar(page)] : []), hiddenOf(page, all.filter((e) => e.hidden), byKey));
     };
     shown.set(page, { box, keep, edit, all: all.map((e) => e.key) });
+    if (lay.free) {                                  // ▦ Frei anordnen: one grid, the cards where an admin put them, no sections
+      box.classList.remove('bdSecRoot', 'bdGrid'); box.classList.add('fgGrid');
+      if (add) els.push(add);
+      const cards = [...box.children].filter((x) => !x.classList.contains('fgTarget'));
+      const moved = els.length !== cards.length || els.some((x, i) => cards[i] !== x);
+      const gone = cards.filter((x) => !els.includes(x));
+      if (moved) place(box, els);
+      if (!free.apply(box, page, edit, entries.map((e) => e.key), lay.places || {}, moved) && !moved) return;   // nothing new: no layout
+      if (edit || before?.edit || before?.box !== box) showStrip();
+      watch(box, gone);
+      return;
+    }
+    free.leave(box);
     if (lay.sections.length) {                       // with sections (#495): the cards in no section above, then the sections
       box.classList.remove('bdGrid'); box.classList.add('bdSecRoot');
       const g = groupEntries(entries, lay.sections), f = secUi.frame(page, box, lay.sections, edit, min);

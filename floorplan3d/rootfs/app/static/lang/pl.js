@@ -2122,4 +2122,7 @@ export default {
   'ct.type.lights': 'Sterowanie światłem', 'ct.typeSub.lights': 'Suwak dla każdej lampy lub grupy', 'ob.tap.lights': '🎚️ Sterowanie światłem',
   'lc.addLamp': 'Dodaj lampę', 'lc.addLampHint': 'Kilka lamp w jednym pasku: włączają się, wyłączają i ściemniają razem',
   'lc.findLamp': 'Szukaj lampy do dodania do „{name}” …', 'lc.lampOut': 'Usuń {name} z tego paska',
+  'fg.free': 'Dowolny układ', 'fg.onHint': 'Ustaw karty dowolnie na siatce: każda zostaje tam, gdzie ją przeciągniesz, luki zostają wolne',
+  'fg.offHint': 'Znowu automatycznie: karty się zsuwają (dowolne miejsca zostają zapisane na później)',
+  'fg.help': 'Dowolny układ: przeciągnij ⠿, aby postawić kartę w miejscu siatki (to, co tam stoi, przesuwa się w dół), róg ↘ robi ją szerszą, węższą, wyższą lub niższą. Na telefonie karty są jedna pod drugą.',
 };

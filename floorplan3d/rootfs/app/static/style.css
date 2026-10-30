@@ -1684,6 +1684,28 @@ button.tpChip:disabled { opacity: .35; }
 .secIcons { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; }
 .secIcons button { height: 40px; padding: 0; font-size: 20px; border-radius: 10px; }
 .secIcons button.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 20%, transparent); }
+/* ▦ Frei anordnen (freegridui.js): 12 columns, rows of 30 px, each card on its place; in the edit mode the cells show faintly (a conic
+   gradient paints the top left of every column × row tile), the blue field where a dragged card lands; a phone: one under the other */
+.fgGrid { display: grid !important; grid-template-columns: repeat(12, minmax(0, 1fr)) !important; grid-auto-rows: 30px !important; gap: 14px !important;
+  align-items: stretch !important; position: relative; }
+.fgGrid > * { min-width: 0; min-height: 0; margin: 0; }
+.fgGrid > .bdItem { height: auto !important; overflow: auto; scrollbar-width: thin; }
+.fgGrid > .bdItem.bdEdit { overflow: hidden; }
+.fgGrid > .bdEdit > .bdTools { top: 6px; right: 8px; }
+.fgGrid > .bdEdit > .bdTag { top: 6px; left: 8px; }
+.fgGrid > .bdEdit > .bdTag:not(.win) { display: none; }                     /* "eigene Karte" would cover the name; "↗ Fenster" stays */
+.fgGrid > .ocCard.ocBare { display: flex; flex-direction: column; justify-content: center; }  /* a button fills its place */
+.fgGrid > .ocCard.ocBare:not(.ob-round) > .obBtn { flex: 1 1 auto; }
+.fgGrid > .bdAdd { min-height: 0; }
+.fgGrid.fgCells { background-image: conic-gradient(at var(--fgCol, 80px) 30px, transparent 0 75%, color-mix(in srgb, var(--accent) 7%, transparent) 75% 100%);
+  background-size: calc(var(--fgCol, 80px) + 14px) 44px; }
+.fgTarget { z-index: 0; border: 2px dashed var(--accent); border-radius: 16px; background: color-mix(in srgb, var(--accent) 22%, transparent); pointer-events: none; }
+.fgGrid > .bdDragging, .fgGrid > .bdSizing { z-index: 10; }
+.fgGrid.fgNarrow { display: flex !important; flex-direction: column; gap: 14px; }
+.fgGrid.fgNarrow > .bdItem { overflow: visible; }
+.fgGrid .bdResize { cursor: nwse-resize; }
+.fgGrid.fgNarrow .bdGrip, .fgGrid.fgNarrow .bdResize { display: none; }
+.bdBtn.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 28%, var(--panel)); }
 .bdAdd { display: grid; place-items: center; min-height: 92px; border-radius: 16px; border: 2px dashed color-mix(in srgb, var(--accent) 60%, transparent);
   color: var(--accent); font-weight: 800; font-size: 16px; background: color-mix(in srgb, var(--accent) 6%, transparent); cursor: pointer; }
 .bdStrip, #tabEditBar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; padding: 10px 14px; border-radius: 14px;

@@ -246,3 +246,19 @@ def test_a_light_card_is_cleaned_like_on_the_page():
     b = boards.clean_card({"id": "c_knopf", "type": "button", "entity": "light.a", "tap": "lights", "card": "c_licht"})
     assert b["tap"] == "lights" and b["card"] == "c_licht"                                              # a button that opens a light card
     assert boards.clean_look({"tap": "lights", "card": "nope"})["tap"] == "toggle" and "card" not in boards.clean_look({"tap": "more", "card": "c_licht"})
+
+
+def test_free_places_are_cleaned_like_on_the_page():
+    """"Frei anordnen": free and places only when there are, places inside the grid (the same as cleanPlaces in static/freegrid.js and
+    tests/freegrid.test.mjs)"""
+    js = (STATIC / "freegrid.js").read_text()
+    assert f"COLS = {boards.FREE_COLS};" in js and f"MAX_Y = {boards.FREE_MAX_Y};" in js and f"MAX_H = {boards.FREE_MAX_H};" in js
+    assert f"MAX_PLACES = {boards.MAX_PLACES};" in js
+    assert boards.clean_layout({}) == {"order": [], "hidden": [], "sizes": {}, "sections": [], "widths": {}, "cards": []}
+    lay = boards.clean_layout({"free": True, "places": {"clock": [0, 0, 6, 4], "Bad Key": [0, 0, 1, 1], "c_x": [11, 0, 2, 1], "room": "x",
+                                                         "a": [0, 0, 2.5, 2], "b": [True, 0, 2, 2], "c": [9, 40, 3, 60], "d": [0, 401, 2, 2]}})
+    assert lay["free"] is True and lay["places"] == {"clock": [0, 0, 6, 4], "c": [9, 40, 3, 60]}
+    assert "free" not in boards.clean_layout({"free": "yes"})
+    assert len(boards.clean_places({f"k{i}": [0, i % 300, 1, 1] for i in range(200)})) == boards.MAX_PLACES
+    assert boards.clean_page_layouts({"today": {"free": True}}, []) == {"today": {"order": [], "hidden": [], "sizes": {}, "sections": [],
+                                                                              "widths": {}, "cards": [], "free": True}}

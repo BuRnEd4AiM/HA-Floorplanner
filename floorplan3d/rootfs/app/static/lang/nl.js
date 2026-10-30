@@ -2127,4 +2127,7 @@ export default {
   'ct.typeSub.lights': 'Een schuifregelaar per lamp of groep', 'ob.tap.lights': '🎚️ Lichtbediening',
   'lc.addLamp': 'Lamp erbij', 'lc.addLampHint': 'Meerdere lampen in één balk: ze gaan samen aan en uit en worden samen gedimd',
   'lc.findLamp': 'Zoek een lamp voor „{name}” …', 'lc.lampOut': '{name} uit deze balk halen',
+  'fg.free': 'Vrij indelen', 'fg.onHint': 'De kaarten vrij op een raster zetten: elke kaart blijft waar je hem neerzet, gaten blijven vrij',
+  'fg.offHint': 'Weer automatisch indelen: de kaarten schuiven aan (de vrije plaatsen blijven bewaard)',
+  'fg.help': 'Vrij indelen: sleep ⠿ om een kaart op een plek in het raster te zetten (wat daar staat schuift omlaag), de hoek ↘ maakt hem breder, smaller, hoger of lager. Op een telefoon staan de kaarten onder elkaar.',
 };
