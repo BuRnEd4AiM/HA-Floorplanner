@@ -4,6 +4,20 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.48.0] - 2026-10-30
+### Added
+- **▦ "Frei anordnen": the cards of a page where you want them** (the owner with a picture of 🔘 Knöpfe in the edit mode: "das man die karte platzieren kann wo man will … ein unsichtbares gitter im hintergrund … wo den abstand und das einrasten gewährt … wenn ich will das eine karte unten rechts ist"; his choice after two example pictures, `docs/ideen-4.48/`). Until now the cards of a page flowed from the top left and closed every gap; now a page can put them on an invisible grid of 12 columns:
+  - switched on per page (also per version of a page) in the edit mode with **"▦ Frei anordnen"** in the strip at the top; the cards start where they stand now, nothing jumps; the other pages stay as they are;
+  - **⠿ drags a card to any place of the grid**, also far down on the right; while dragging a blue field shows where it snaps in; gaps stay free, nothing moves up by itself;
+  - dropped on another card, **that one moves down** just as far as needed (and the ones below it, if needed);
+  - **the corner ↘ makes a card wider, narrower, higher or lower**, in steps of the grid; a card lower than its content scrolls inside; a button fills its place;
+  - in the edit mode the grid shows as faint cells (with a few empty rows below the cards, to put one lower), otherwise it is invisible;
+  - **on a phone** the cards stand one under the other, from top left to bottom right (moved on the iPad or PC);
+  - switched off, the cards close up again as before; the places are kept and come back when it is switched on again; "↺ Wie am Anfang" forgets them;
+  - a page with sections shows no sections while it is placed freely ("＋ Abschnitt" is hidden then), they come back when it is switched off.
+### Changed
+- Test protocol: new section 137.
+
 ## [4.47.0] - 2026-10-30
 ### Added
 - **🎚️ Several lamps in one bar of the card "Lichtsteuerung"** (the owner with a picture of "Karte „Lichtsteuerung“ einstellen": "ich kann nicht pro Karte mehrere Lampen hinzufügen … pro Kachel einfach mehrere Lampen verknüpfen"). Until now a bar was one lamp, one light group of Home Assistant or one switch; now a bar can hold up to 16 lamps of its own, like a group made in the card (no group in Home Assistant or Zigbee2MQTT needed):

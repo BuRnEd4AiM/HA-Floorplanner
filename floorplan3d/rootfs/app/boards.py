@@ -52,6 +52,11 @@ MAX_CALS = 10
 ROW_DOMAINS = ("light", "switch")
 MAX_ROWS = 16
 MAX_LAMPS = 16                                          # lamps in one bar (a bar can hold several: a group of the card)
+# the cards of a page on a grid where an admin put them ("Frei anordnen", static/freegrid.js): [x, y, w, h] in cells
+FREE_COLS = 12
+FREE_MAX_Y = 400
+FREE_MAX_H = 60
+MAX_PLACES = 120
 # how a button card looks and what it does (static/buttonlook.js, #495)
 BTN_ICONS = ("💡", "🛋", "🛏", "📺", "🎵", "🔥", "❄️", "🪟", "🚪", "🔒", "🌙", "☀️", "🍳", "🧺", "🚗", "🌱", "🎮", "🎬", "⚡", "🏠")
 BTN_COLORS = ("amber", "orange", "red", "purple", "blue", "green", "grey", "lamp")
@@ -219,7 +224,8 @@ def clean_card(c):
 
 
 def clean_layout(v) -> dict:
-    """one page: {"order": [key], "hidden": [key], "sizes": {key: size}, "cards": [card]} (cleanLayout in static/pagelayout.js)"""
+    """one page: {"order": [key], "hidden": [key], "sizes": {key: size}, "sections", "widths", "cards": [card], "free": True and "places" only
+    when there are} (cleanLayout in static/pagelayout.js)"""
     o = v if isinstance(v, dict) else {}
 
     def keys(lst):
@@ -239,8 +245,24 @@ def clean_layout(v) -> dict:
     widths = o.get("widths") if isinstance(o.get("widths"), dict) else {}
     widths = dict([(k, v) for k, v in widths.items() if isinstance(k, str) and KEY.match(k) and isinstance(v, int) and not isinstance(v, bool)
                    and 1 <= v <= 4][:MAX_ORDER])
+    places = clean_places(o.get("places"))
     return {"order": keys(o.get("order")), "hidden": keys(o.get("hidden")), "sizes": sizes, "sections": clean_sections(o.get("sections")),
-            "widths": widths, "cards": cards}
+            "widths": widths, "cards": cards, **({"free": True} if o.get("free") is True else {}), **({"places": places} if places else {})}
+
+
+def clean_places(val) -> dict:
+    """the places of the cards of a page on the grid: {key: [x, y, w, h]} inside the grid, at most MAX_PLACES (cleanPlaces in
+    static/freegrid.js)"""
+    out = {}
+    for k, p in (val.items() if isinstance(val, dict) else []):
+        if not isinstance(k, str) or not KEY.match(k) or not isinstance(p, list) or len(p) != 4 or len(out) >= MAX_PLACES:
+            continue
+        if not all(isinstance(n, int) and not isinstance(n, bool) for n in p):
+            continue
+        x, y, w, h = p
+        if x >= 0 and w >= 1 and x + w <= FREE_COLS and 0 <= y <= FREE_MAX_Y and 1 <= h <= FREE_MAX_H:
+            out[k] = [x, y, w, h]
+    return out
 
 
 def clean_sections(val) -> list:
@@ -272,7 +294,7 @@ def clean_page_layouts(val, custom_tabs) -> dict:
         if page not in pages:
             continue
         lay = clean_layout(v)
-        if lay["order"] or lay["hidden"] or lay["cards"] or lay["sizes"] or lay["sections"] or lay["widths"]:
+        if lay["order"] or lay["hidden"] or lay["cards"] or lay["sizes"] or lay["sections"] or lay["widths"] or lay.get("free") or lay.get("places"):
             out[page] = lay
     return out
 

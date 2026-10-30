@@ -2155,4 +2155,8 @@ export default {
   'ct.type.lights': 'Control de luces', 'ct.typeSub.lights': 'Un deslizador por lámpara o grupo', 'ob.tap.lights': '🎚️ Control de luces',
   'lc.addLamp': 'Añadir lámpara', 'lc.addLampHint': 'Varias lámparas en una barra: se encienden, se apagan y se regulan juntas',
   'lc.findLamp': 'Buscar una lámpara para añadir a «{name}» …', 'lc.lampOut': 'Quitar {name} de esta barra',
+  'fg.free': 'Colocación libre',
+  'fg.onHint': 'Colocar las tarjetas libremente en una cuadrícula: cada una se queda donde la arrastras, los huecos quedan libres',
+  'fg.offHint': 'Ordenar de nuevo automáticamente: las tarjetas se juntan (las posiciones libres se guardan para después)',
+  'fg.help': 'Colocación libre: arrastra ⠿ para poner una tarjeta en un lugar de la cuadrícula (lo que haya allí baja), la esquina ↘ la hace más ancha, más estrecha, más alta o más baja. En el móvil las tarjetas van una debajo de otra.',
 };

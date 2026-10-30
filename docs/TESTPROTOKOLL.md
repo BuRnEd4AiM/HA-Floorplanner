@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.47.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.48.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.47.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.48.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite dort, wo du sie willst** (Abschnitt 137): Claude hat 137.1 bis 137.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad und Handy 137.6 bis 137.8.
 1. **Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung** (Abschnitt 136): Claude hat 136.1 bis 136.3 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad 136.4 bis 136.6.
 1. **Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache** (Abschnitt 135): Claude hat 135.1 bis 135.3 in der Demo geprüft; für dich nur 135.4 (die Sprache wieder auf Deutsch stellen geht?).
 1. **Neu in 4.45.0: 🎬 Szenen-Leiste über der Reiter-Leiste und die Karte 🎚️ „Lichtsteuerung“** (Abschnitt 134): Claude hat 134.1 bis 134.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad 134.7 bis 134.9 und am Handy 134.10.
@@ -371,7 +372,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 134. Neu in 4.45.0: 🎬 Szenen-Leiste und Karte 🎚️ „Lichtsteuerung“ (#597) | 6 | 0 | 4 | 0 | 134.7 bis 134.10 |
 | 135. Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache (#587) | 3 | 0 | 1 | 0 | 135.4 |
 | 136. Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung | 3 | 0 | 3 | 0 | 136.4 bis 136.6 |
-| **Zusammen** | **836** | **1** | **92** | **92** | |
+| 137. Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite auf einem Gitter | 5 | 0 | 3 | 0 | 137.6 bis 137.8 |
+| **Zusammen** | **841** | **1** | **95** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2086,3 +2088,17 @@ Der Besitzer am 2026-10-30 mit einem Bild von „Karte „Lichtsteuerung“ eins
 | 136.4 | Im Add-on am iPad: ✎ Bearbeiten, deine Karte „Lichtsteuerung“ ⚙, bei einem Balken „＋ Lampe dazu“ und zwei, drei Lampen eines Raums dazu, Namen geben, „Speichern“, „Fertig“ | Der Balken steht mit deinem Namen auf der Karte; an, wenn eine der Lampen an ist; ▸ zeigt die Lampen einzeln | ❓ |
 | 136.5 | Im Add-on: den Balken aus 136.4 antippen, dann seitwärts auf etwa die Hälfte ziehen und loslassen | Der Tipp schaltet alle seine Lampen aus (bzw. an); nach dem Ziehen gehen alle auf etwa 50 % (eine Lampe, die nur schaltet, geht an) | ❓ |
 | 136.6 | Im Add-on: oben in der Karte „Alle aus“ | Alle Lampen gehen aus, auch die in einem Balken mit mehreren Lampen | ❓ |
+
+## 137. Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite auf einem Gitter
+Der Besitzer am 2026-10-30 mit einem Bild von 🔘 Knöpfe: „das man die karte platzieren kann wo man will … ein unsichtbares gitter im hintergrund … wenn ich will das eine karte unten rechts ist“. Seine Wahl nach den Beispielbildern `docs/ideen-4.48/`: je Seite einschaltbar, Breite und Höhe, eine andere Karte rutscht nach unten, am Handy untereinander.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 137.1 | In der Demo: Seite 🔘 Knöpfe, ✎ Bearbeiten, oben „▦ Frei anordnen“ | Der Knopf leuchtet, hinter den Karten zeigen sich blasse Felder (12 Spalten), die Karten stehen noch genau dort, wo sie vorher waren; „＋ Abschnitt“ ist weg | ✅ (2026-10-30, Claude in der Demo) |
+| 137.2 | In der Demo: „Haustür“ am ⠿ ganz nach unten rechts ziehen und loslassen | Beim Ziehen leuchtet ein blaues Feld, wo sie einrastet; danach steht sie unten rechts, darüber bleibt die Lücke frei | ✅ (2026-10-30, Claude in der Demo) |
+| 137.3 | In der Demo: bei „Küche“ die Ecke ↘ nach unten ziehen | Die Karte wird höher (der Knopf füllt sie), „Gute Nacht“ und die Karten darunter rutschen nach unten | ✅ (2026-10-30, Claude in der Demo) |
+| 137.4 | In der Demo: „✓ Fertig“, dann die Seite am Handy (oder das Fenster ganz schmal) | Am PC/iPad stehen die Karten auf ihren Plätzen, das Gitter ist unsichtbar; am Handy untereinander, von oben links nach unten rechts | ✅ (2026-10-30, Claude in der Demo, PC, iPad hochkant, Handy) |
+| 137.5 | In der Demo: ✎ Bearbeiten, „▦ Frei anordnen“ wieder antippen (aus), dann noch einmal (an) | Aus: die Karten rücken zusammen wie vorher; an: sie stehen wieder auf den Plätzen von eben | ✅ (2026-10-30, Claude in der Demo) |
+| 137.6 | Im Add-on am iPad: ✎ auf deiner Seite 🔘 Knöpfe, „▦ Frei anordnen“, ein paar Karten verschieben (auch unten rechts) und größer/kleiner ziehen, „✓ Fertig“ | Alles bleibt dort, wo du es hingesetzt hast, auch nach dem Neuladen und auf einem anderen Gerät | ❓ |
+| 137.7 | Im Add-on: eine Karte auf eine andere ziehen | Die andere rutscht nach unten, sonst bewegt sich nichts | ❓ |
+| 137.8 | Im Add-on am Handy: dieselbe Seite ansehen | Die Karten stehen untereinander, nichts ist abgeschnitten oder überlappt | ❓ |

@@ -2153,4 +2153,7 @@ export default {
   'ct.type.lights': 'Controllo luci', 'ct.typeSub.lights': 'Un cursore per lampada o gruppo', 'ob.tap.lights': '🎚️ Controllo luci',
   'lc.addLamp': 'Aggiungi lampada', 'lc.addLampHint': 'Più lampade in una barra: si accendono, si spengono e si regolano insieme',
   'lc.findLamp': 'Cerca una lampada da aggiungere a «{name}» …', 'lc.lampOut': 'Togli {name} da questa barra',
+  'fg.free': 'Disposizione libera', 'fg.onHint': 'Posiziona le schede liberamente su una griglia: ognuna resta dove la trascini, gli spazi restano liberi',
+  'fg.offHint': 'Disponi di nuovo automaticamente: le schede si avvicinano (le posizioni libere restano salvate)',
+  'fg.help': 'Disposizione libera: trascina ⠿ per mettere una scheda in un punto della griglia (ciò che c’è scende), l’angolo ↘ la rende più larga, più stretta, più alta o più bassa. Sul telefono le schede stanno una sotto l’altra.',
 };

@@ -2,6 +2,20 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.48.0] - 2026-10-30
+### Neu
+- **▦ „Frei anordnen“: die Karten einer Seite dort, wo du sie willst** (der Besitzer mit einem Bild von 🔘 Knöpfe beim Bearbeiten: „das man die karte platzieren kann wo man will … ein unsichtbares gitter im hintergrund … wo den abstand und das einrasten gewährt … wenn ich will das eine karte unten rechts ist“; seine Wahl nach zwei Beispielbildern, `docs/ideen-4.48/`). Bisher flossen die Karten einer Seite von oben links und schlossen jede Lücke; jetzt kann eine Seite sie auf ein unsichtbares Gitter mit 12 Spalten setzen:
+  - je Seite einschaltbar (auch je Fassung einer Seite) beim Bearbeiten mit **„▦ Frei anordnen“** in der Leiste oben; die Karten fangen dort an, wo sie gerade stehen, nichts springt; die anderen Seiten bleiben, wie sie sind;
+  - **⠿ zieht eine Karte an jeden Platz des Gitters**, auch weit unten rechts; beim Ziehen zeigt ein blaues Feld, wo sie einrastet; Lücken bleiben frei, nichts rückt von selbst nach oben;
+  - auf eine andere Karte gezogen, **rutscht diese nach unten**, nur so weit wie nötig (und die darunter, wenn nötig);
+  - **die Ecke ↘ macht eine Karte breiter, schmaler, höher oder niedriger**, in Schritten des Gitters; ist eine Karte niedriger als ihr Inhalt, scrollt man darin; ein Knopf füllt seinen Platz;
+  - beim Bearbeiten zeigt sich das Gitter als blasse Felder (mit ein paar leeren Reihen unter den Karten, um eine tiefer zu setzen), sonst ist es unsichtbar;
+  - **am Handy** stehen die Karten untereinander, von oben links nach unten rechts (verschoben wird am iPad oder PC);
+  - ausgeschaltet rücken die Karten wieder zusammen wie vorher; die Plätze bleiben gespeichert und kommen beim Einschalten zurück; „↺ Wie am Anfang“ vergisst sie;
+  - eine Seite mit Abschnitten zeigt keine Abschnitte, solange sie frei angeordnet ist („＋ Abschnitt“ ist dann weg), ausgeschaltet kommen sie zurück.
+### Verbessert
+- Testprotokoll: neuer Abschnitt 137.
+
 ## [4.47.0] - 2026-10-30
 ### Neu
 - **🎚️ Mehrere Lampen in einem Balken der Karte „Lichtsteuerung“** (der Besitzer mit einem Bild von „Karte „Lichtsteuerung“ einstellen“: „ich kann nicht pro Karte mehrere Lampen hinzufügen … pro Kachel einfach mehrere Lampen verknüpfen“). Bisher war ein Balken eine Lampe, eine Lichtgruppe von Home Assistant oder ein Schalter; jetzt kann ein Balken bis zu 16 eigene Lampen haben, wie eine Gruppe, die man in der Karte macht (ohne Gruppe in Home Assistant oder Zigbee2MQTT):

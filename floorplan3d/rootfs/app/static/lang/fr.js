@@ -2171,4 +2171,7 @@ export default {
   'ct.type.lights': 'Commande des lumières', 'ct.typeSub.lights': 'Un curseur par lampe ou groupe', 'ob.tap.lights': '🎚️ Commande des lumières',
   'lc.addLamp': 'Ajouter une lampe', 'lc.addLampHint': 'Plusieurs lampes dans une barre : elles s’allument, s’éteignent et varient ensemble',
   'lc.findLamp': 'Chercher une lampe à ajouter à « {name} » …', 'lc.lampOut': 'Retirer {name} de cette barre',
+  'fg.free': 'Placement libre', 'fg.onHint': 'Placer les cartes librement sur une grille : chacune reste là où vous la déposez, les espaces restent libres',
+  'fg.offHint': 'Disposer à nouveau automatiquement : les cartes se resserrent (les places libres restent enregistrées)',
+  'fg.help': 'Placement libre : faites glisser ⠿ pour poser une carte sur une case de la grille (ce qui s’y trouve descend), le coin ↘ la rend plus large, plus étroite, plus haute ou plus basse. Sur un téléphone, les cartes sont les unes sous les autres.',
 };

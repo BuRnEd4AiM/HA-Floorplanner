@@ -1091,6 +1091,9 @@ const DICT = {
     'ct.type.lights': 'Lichtsteuerung', 'ct.typeSub.lights': 'Schieberegler je Lampe oder Gruppe', 'ob.tap.lights': '🎚️ Lichtsteuerung',
     'lc.addLamp': 'Lampe dazu', 'lc.addLampHint': 'Mehrere Lampen in einem Balken: sie gehen zusammen an und aus und werden zusammen gedimmt',
     'lc.findLamp': 'Lampe zu „{name}“ dazu suchen …', 'lc.lampOut': '{name} aus diesem Balken nehmen',
+    'fg.free': 'Frei anordnen', 'fg.onHint': 'Die Karten frei auf ein Gitter setzen: jede bleibt dort, wo du sie hinziehst, Lücken bleiben frei',
+    'fg.offHint': 'Wieder automatisch anordnen: die Karten rücken zusammen (die freien Plätze bleiben für später gespeichert)',
+    'fg.help': 'Frei angeordnet: ⠿ ziehen setzt eine Karte auf einen Platz im Gitter (was dort steht, rutscht nach unten), die Ecke ↘ macht sie breiter, schmaler, höher oder niedriger. Am Handy stehen die Karten untereinander.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2131,6 +2134,9 @@ const DICT = {
     'ct.typeSub.lights': 'A slider per lamp or group', 'ob.tap.lights': '🎚️ Light control',
     'lc.addLamp': 'Add a lamp', 'lc.addLampHint': 'Several lamps in one bar: they go on and off together and dim together',
     'lc.findLamp': 'Search a lamp to add to “{name}” …', 'lc.lampOut': 'Take {name} out of this bar',
+    'fg.free': 'Free layout', 'fg.onHint': 'Put the cards freely on a grid: each stays where you drag it, gaps stay free',
+    'fg.offHint': 'Arrange automatically again: the cards close up (the free places are kept for later)',
+    'fg.help': 'Free layout: drag ⠿ to put a card on a place of the grid (what is there moves down), the corner ↘ makes it wider, narrower, higher or lower. On a phone the cards stand one under the other.',
   },
 };
 
