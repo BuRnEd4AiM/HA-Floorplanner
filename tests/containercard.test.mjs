@@ -8,7 +8,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 const FILE = new URL("../container/custom_components/floorplan3d/frontend/floorplan3d-container-card.js", import.meta.url);
-const SOURCE = readFileSync(FILE, "utf8");
+const IMPL_FILE = new URL("../container/custom_components/floorplan3d/frontend/floorplan3d-container-card-impl.js", import.meta.url);
+const LOADER_SOURCE = readFileSync(FILE, "utf8");
+const SOURCE = readFileSync(IMPL_FILE, "utf8");
 const DIST_SOURCE = readFileSync(new URL("../dist/floorplan3d-card.js", import.meta.url), "utf8");
 const TAG = "floorplan3d-container-card";
 
@@ -43,8 +45,8 @@ function scope(shared = { defined: new Map(), window: {} }) {
     setTimeout: () => 0,
   });
   vm.runInContext(SOURCE, context, { filename: "floorplan3d-container-card.js" });
-  shared.Card = shared.defined.get(TAG);
-  shared.Editor = shared.defined.get(`${TAG}-editor`);
+  shared.Card = shared.window.__floorplan3dContainerCard?.Card || shared.defined.get(TAG);
+  shared.Editor = shared.window.__floorplan3dContainerCard?.Editor || shared.defined.get(`${TAG}-editor`);
   return { ...shared, context };
 }
 
@@ -191,6 +193,13 @@ test("the retry button has a label", () => {
   assert.match(SOURCE, /button\.textContent = texts\(this\._hass\)\("retry"\)/);
 });
 
+test("the loader registers the element before the full card is fetched", () => {
+  assert.match(LOADER_SOURCE, /customElements\.define\(TAG, Floorplan3dContainerCardLoader\)/);
+  assert.match(LOADER_SOURCE, /import\(IMPL\)/);
+  assert.match(LOADER_SOURCE, /getStubConfig\(\) \{ return \{\}; \}/);
+  assert.ok(LOADER_SOURCE.length * 2 < SOURCE.length, "the bootstrap stays much smaller than the card");
+});
+
 test("the copied card's options do not drift away from the add-on card", () => {
   /** the literal after `const NAME =`, with quote style and whitespace made comparable */
   const literal = (source, name, end) => {
@@ -210,9 +219,9 @@ test("the card is in the card picker, needs no url, and a second copy of the fil
   const first = scope(shared);
   assert.equal(JSON.stringify(shared.window.customCards.map((c) => c.type)), JSON.stringify([TAG]));
   scope(shared);                                         // e.g. ?v=1 next to ?v=2 while the browser still has both
-  assert.equal(shared.defined.size, 2);                  // the card and its editor, defined once
+  assert.equal(shared.defined.size, 2);                  // the inner card and its inner editor, defined once
   assert.equal(shared.window.customCards.length, 1);
-  const c = new (shared.defined.get(TAG))();
+  const c = new shared.Card();
   c.setConfig({});                                       // nothing to configure
   assert.equal(c._config.url, undefined);
   assert.equal(shared.Card.frameUrl(null, {}, false), "/floorplan/?card=1");

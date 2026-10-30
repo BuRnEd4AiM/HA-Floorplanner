@@ -101,6 +101,52 @@ def _load_card(hass: HomeAssistant) -> None:
     store["card_added"] = url
 
 
+async def _register_lovelace_resource(hass: HomeAssistant, url: str):
+    """Also keep the card in Lovelace's resource list. add_extra_js_url() is added to the index HTML only while the integration sets
+    up; a dashboard opened during startup can otherwise render before the module is listed. A resource is persisted and fetched with
+    the dashboard, so the loader is there on the first render too. YAML resource mode keeps the extra-JS fallback."""
+    try:
+        from homeassistant.components.lovelace.const import LOVELACE_DATA  # noqa: PLC0415
+    except ImportError:                  # older Home Assistant / lovelace not installed
+        return None
+    data = hass.data.get(LOVELACE_DATA)
+    resources = getattr(data, "resources", None)
+    if resources is None or not hasattr(resources, "async_create_item"):
+        return None                      # YAML mode: only add_extra_js_url is available
+    try:
+        await resources.async_get_info()  # loads the storage collection
+        path = url.split("?", 1)[0]
+        existing = None
+        for item in list(resources.async_items() or []):
+            item_url = str(item.get("url", ""))
+            if item_url.split("?", 1)[0] != path:
+                continue
+            if item_url == url:
+                existing = item.get("id")
+            else:
+                await resources.async_delete_item(item["id"])  # an older ?v=...
+        if existing:
+            return existing
+        created = await resources.async_create_item({"res_type": "module", "url": url})
+        return created.get("id")
+    except Exception:  # noqa: BLE001 - the extra-JS fallback still loads the card
+        _LOGGER.exception("3D Floorplan: could not register the card as a Lovelace resource")
+        return None
+
+
+async def _remove_lovelace_resource(hass: HomeAssistant, resource_id) -> None:
+    if not resource_id:
+        return
+    try:
+        from homeassistant.components.lovelace.const import LOVELACE_DATA  # noqa: PLC0415
+        data = hass.data.get(LOVELACE_DATA)
+        resources = getattr(data, "resources", None)
+        if resources is not None and hasattr(resources, "async_delete_item"):
+            await resources.async_delete_item(resource_id)
+    except Exception:  # noqa: BLE001 - a resource the user removed meanwhile is not an error
+        _LOGGER.debug("3D Floorplan: could not remove the Lovelace resource", exc_info=True)
+
+
 async def _handle(request: web.Request) -> web.StreamResponse:
     """/floorplan/ and everything under it, or a page saying that the integration has no entry yet"""
     plan = request.app[KEY_HASS].data.get(const.DOMAIN, {}).get("plan")
@@ -208,6 +254,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if await _serve_card(hass):
         store["card_url"] = await _card_url(hass)
         _load_card(hass)
+        store["resource_id"] = await _register_lovelace_resource(hass, store["card_url"])
+        if store["resource_id"] is None:
+            # Lovelace (and its resource storage) can be set up after the config entry. Register then too; a dashboard opened
+            # before this still has the extra-JS URL, and the resource covers the next start.
+            async def _when_lovelace_ready(_hass, _component) -> None:
+                url = store.get("card_url")
+                if url and store.get("resource_id") is None and store.get("plan") is not None:
+                    store["resource_id"] = await _register_lovelace_resource(hass, url)
+
+            try:
+                from homeassistant.setup import async_when_setup  # noqa: PLC0415
+                async_when_setup(hass, "lovelace", _when_lovelace_ready)
+            except ImportError:
+                pass
     return True
 
 
@@ -222,5 +282,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             frontend.remove_extra_js_url(hass, url)
         except KeyError:
             pass
+    await _remove_lovelace_resource(hass, store.pop("resource_id", None))
     store.pop("card_url", None)
     return True

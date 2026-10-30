@@ -31,6 +31,7 @@ handshake = importlib.import_module("floorplan3d.handshake")
 pages = importlib.import_module("floorplan3d.pages")
 web_proxy = importlib.import_module("floorplan3d.web_proxy")
 CARD = PKG / "frontend" / const.CARD_FILE
+CARD_IMPL = PKG / "frontend" / const.CARD_IMPL_FILE
 
 
 def free_port() -> int:
@@ -635,8 +636,8 @@ def test_the_pure_parts_stay_pure():
 def test_the_card_a_dashboard_loads_twice_still_works():
     """a resource URL with ?v=N next to the old one loads this file twice: defining the element twice throws, and without
     getCardSize()/customCards the card is sized wrong and missing from the card picker"""
-    js = CARD.read_text("utf-8")
-    assert "if (!customElements.get(TAG)) customElements.define(TAG" in js
+    js = CARD_IMPL.read_text("utf-8")
+    assert "customElements.define(INNER, Floorplan3dContainerCard)" in js
     assert "getCardSize()" in js
     assert "window.customCards" in js
     assert f'callApi("POST", "{const.DOMAIN}/session")' in js          # the same endpoint the integration registers
@@ -652,12 +653,16 @@ def test_the_integration_brings_its_own_card():
     assert "frontend.add_extra_js_url(" in init and "frontend.remove_extra_js_url(" in init
     assert "frontend" in manifest["after_dependencies"]              # the frontend is set up before the card is loaded
     assert const.FRONTEND_PATH == "/floorplan3d-card"
-    assert CARD.is_file()
+    assert CARD.is_file() and CARD_IMPL.is_file()
+    loader = CARD.read_text("utf-8")
+    assert "customElements.define(TAG, Floorplan3dContainerCardLoader)" in loader
+    assert "import(IMPL)" in loader
+    assert 'const IMPL = `./floorplan3d-container-card-impl.js${new URL(import.meta.url).search}`;' in loader
 
 
 def test_the_card_and_the_integration_carry_one_name():
     """the tag and the picker entry are what a user sees: they follow the integration's domain"""
-    js = CARD.read_text("utf-8")
+    js = CARD_IMPL.read_text("utf-8")
     manifest = json.loads((PKG / "manifest.json").read_text("utf-8"))
     assert f'const TAG = "{const.DOMAIN}-container-card";' in js
     assert f'const DEFAULT_BASE = "{const.PATH}/";' in js                # the plan this integration serves
