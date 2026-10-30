@@ -117,6 +117,15 @@ def plan_cookies(cookie_header: str) -> str:
     return "; ".join(keep)
 
 
+def needs_session(path: str, cookie_header: str) -> bool:
+    """a request of the plan without the plan's session cookie (its own login pages under /auth/ aside): the integration answers it
+    itself, so a plan that runs without its login (no HA_TOKEN) is never open to everybody who can reach Home Assistant"""
+    if plan_path(path).startswith("/auth/"):
+        return False
+    names = {part.split("=", 1)[0].strip() for part in str(cookie_header or "").split(";")}
+    return const.SESSION_COOKIE not in names
+
+
 def headers_to_plan(headers, scheme: str = "http", host: str = "") -> dict:
     """what goes to the plan: its own cookies, the address the browser used, and nothing that says who asks in Home Assistant"""
     out = {}

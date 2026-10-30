@@ -7,9 +7,9 @@ import vm from "node:vm";
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const FILE = new URL("../frontend/floorplan3d-container-card.js", import.meta.url);
+const FILE = new URL("../container/custom_components/floorplan3d/frontend/floorplan3d-container-card.js", import.meta.url);
 const SOURCE = readFileSync(FILE, "utf8");
-const DIST_SOURCE = readFileSync(new URL("../../../../dist/floorplan3d-card.js", import.meta.url), "utf8");
+const DIST_SOURCE = readFileSync(new URL("../dist/floorplan3d-card.js", import.meta.url), "utf8");
 const TAG = "floorplan3d-container-card";
 
 /** a stand-in for a DOM element: the card builds its shadow DOM, the tests only look at what it decides */

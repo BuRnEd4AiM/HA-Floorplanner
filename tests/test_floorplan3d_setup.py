@@ -15,7 +15,7 @@ from types import SimpleNamespace
 from aiohttp import web
 import pytest
 
-PKG = Path(__file__).parent.parent
+PKG = Path(__file__).parent.parent / "container" / "custom_components" / "floorplan3d"
 
 
 def _module(name, **attrs):

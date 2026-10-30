@@ -4,6 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.49.0] - 2026-10-30
+### Added
+- **3D Floorplan on Home Assistant's own address for Home Assistant Container, without a second login** (#601 by @aixmoyu; the owner: "check das mal ob wir das mergen können", then "übernehme es"). An optional Home Assistant integration in `container/custom_components/floorplan3d/` (copy it to `config/custom_components/`, restart once, add "3D Floorplan (Container)" under Settings → Devices & services):
+  - the container is served at `http://<Home Assistant>:8123/floorplan/` (also its live channel, uploads and downloads up to 200 MB), at every address Home Assistant is reachable at and on the same origin as the dashboard;
+  - it signs the browser in with the Home Assistant user who is logged in: the container's own login runs on the server, the browser's Home Assistant token never goes to the container, only the container's own cookies cross;
+  - its own dashboard card `custom:floorplan3d-container-card` with the options of `custom:floorplan3d-card` and a visual editor (English, German, Chinese), loaded by the integration itself;
+  - a second lock besides the container's login: without the container's session cookie nothing is passed on (a container started without `HA_TOKEN` is not open through Home Assistant);
+  - instructions in `container/custom_components/floorplan3d/README.md` and `container/README.md`; its tests are `tests/test_container_dashboard.py`, `tests/test_floorplan3d_setup.py` and `tests/containercard.test.mjs` (a new CI step).
+
 ## [4.48.0] - 2026-10-30
 ### Added
 - **▦ "Frei anordnen": the cards of a page where you want them** (the owner with a picture of 🔘 Knöpfe in the edit mode: "das man die karte platzieren kann wo man will … ein unsichtbares gitter im hintergrund … wo den abstand und das einrasten gewährt … wenn ich will das eine karte unten rechts ist"; his choice after two example pictures, `docs/ideen-4.48/`). Until now the cards of a page flowed from the top left and closed every gap; now a page can put them on an invisible grid of 12 columns:

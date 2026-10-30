@@ -18,9 +18,8 @@ import aiohttp
 import pytest
 from aiohttp import web
 
-TEST_DIR = Path(__file__).parent
-PKG = TEST_DIR.parent
-ROOT = PKG.parents[2]
+ROOT = Path(__file__).parent.parent
+PKG = ROOT / "container" / "custom_components" / "floorplan3d"
 
 if "floorplan3d" not in sys.modules:
     package = types.ModuleType("floorplan3d")
@@ -237,8 +236,8 @@ def plan_app(*routes):
     return app
 
 
-async def serve(aiohttp_client, address):
-    """the proxy as a browser sees it, pointed at `address` (a fake plan)"""
+async def serve(aiohttp_client, address, session=True):
+    """the proxy as a browser sees it, pointed at `address` (a fake plan); session: the browser has the plan's session cookie"""
     app = web.Application()
     plan = web_proxy.Proxy(address)
     app.router.add_route("*", f"{const.PATH}/{{path:.*}}", plan.handle)
@@ -248,7 +247,7 @@ async def serve(aiohttp_client, address):
         await plan.close()
 
     app.on_cleanup.append(close)
-    return await aiohttp_client(app)
+    return await aiohttp_client(app, headers={"Cookie": "fp3d_session=browser"} if session else None)
 
 
 async def test_a_request_reaches_the_plan_as_a_request_of_this_address(aiohttp_client):
@@ -373,7 +372,7 @@ async def test_the_proxy_forwards_the_resolved_host(aiohttp_client):
 
     app.on_cleanup.append(close)
     client = await aiohttp_client(app)
-    answer = await client.get("/floorplan/x", headers={"Host": "internal.example.org:8123"})
+    answer = await client.get("/floorplan/x", headers={"Host": "internal.example.org:8123", "Cookie": "fp3d_session=s"})
     assert answer.status == 200
     assert seen["host"] == "ha.example.org"
 
@@ -415,7 +414,8 @@ async def test_only_web_methods_are_forwarded(aiohttp_client):
 
 
 async def test_a_browser_without_a_session_does_not_end_on_a_page_home_assistant_does_not_serve(aiohttp_client):
-    """the plan redirects to auth/login for every page request; following that ends on Home Assistant's /auth/callback (404)"""
+    """the plan redirects to auth/login for every page request (here: its session ran out); following that ends on Home Assistant's
+    /auth/callback (404)"""
     asked = []
 
     async def root(request):
@@ -436,6 +436,35 @@ async def test_a_browser_without_a_session_does_not_end_on_a_page_home_assistant
     login = await plan.get("/floorplan/auth/login?card=1", headers={"Accept": "text/html"}, allow_redirects=False)
     assert login.status == 200 and 'const target = "/floorplan/?card=1"' in await login.text()
     assert asked == []
+
+
+async def test_nothing_reaches_the_plan_without_its_session(aiohttp_client):
+    """a second lock besides the plan's own login: a plan started without HA_TOKEN (no login) is still not open to everybody who
+    can reach Home Assistant"""
+    asked = []
+
+    async def anything(request):
+        asked.append(request.path)
+        return web.Response(text="open")
+
+    upstream = await aiohttp_client(plan_app(web.get("/{path:.*}", anything)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"), session=False)
+    page = await plan.get("/floorplan/", headers={"Accept": "text/html"})
+    assert page.status == 200 and 'const target = "/floorplan/"' in await page.text()
+    data = await plan.get("/floorplan/api/layout", headers={"Cookie": "fp3d_login=x; hassio_session=y"})
+    assert data.status == 401 and data.headers["X-Login"] == "1"
+    with pytest.raises(aiohttp.WSServerHandshakeError) as refused:
+        await plan.ws_connect("/floorplan/api/live")
+    assert refused.value.status == 401
+    assert await (await plan.get("/floorplan/auth/logout")).text() == "open"      # the plan's own login pages stay reachable
+    assert asked == ["/auth/logout"]
+
+
+def test_only_the_plans_login_pages_go_without_its_session():
+    assert boundary.needs_session("/floorplan/api/layout", "")
+    assert boundary.needs_session("/floorplan/", "fp3d_login=x; fp3d_session_old=y")
+    assert not boundary.needs_session("/floorplan/api/layout", "a=1; fp3d_session=s")
+    assert not boundary.needs_session("/floorplan/auth/callback", "")
 
 
 async def test_a_dead_plan_is_a_502(aiohttp_client):

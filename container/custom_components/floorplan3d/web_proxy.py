@@ -72,6 +72,12 @@ class Proxy:
         if request.path == const.PATH:
             query = f"?{request.query_string}" if request.query_string else ""
             raise web.HTTPFound(const.PATH + "/" + query)
+        if boundary.needs_session(request.path, request.headers.get("Cookie", "")):
+            # Second lock besides the plan's own login: without its session nothing reaches the plan (#601).
+            if is_page_request(request):
+                return self._sign_in(request)
+            return web.json_response({"error": "login required"}, status=401,
+                                     headers={"X-Login": "1", "Cache-Control": "no-store"})
         if request.headers.get("Upgrade", "").lower() == "websocket":
             return await self._live_channel(request)
         if is_page_request(request) and request.path == const.PATH + "/auth/login":

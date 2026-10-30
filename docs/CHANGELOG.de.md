@@ -2,6 +2,15 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.49.0] - 2026-10-30
+### Neu
+- **3D Floorplan unter der Adresse von Home Assistant für Home Assistant Container, ohne zweite Anmeldung** (#601 von @aixmoyu; der Besitzer: „check das mal ob wir das mergen können“, dann „übernehme es“). Eine freiwillige Integration für Home Assistant in `container/custom_components/floorplan3d/` (nach `config/custom_components/` kopieren, einmal neu starten, unter Einstellungen → Geräte & Dienste „3D Floorplan (Container)“ hinzufügen):
+  - der Container erscheint unter `http://<Home Assistant>:8123/floorplan/` (auch sein Live-Kanal, Hoch- und Herunterladen bis 200 MB), unter jeder Adresse, unter der Home Assistant erreichbar ist, und auf demselben Ursprung wie das Dashboard;
+  - sie meldet den Browser mit dem Benutzer an, der in Home Assistant angemeldet ist: die eigene Anmeldung des Containers läuft auf dem Server, der Schlüssel von Home Assistant im Browser geht nie an den Container, nur die eigenen Cookies des Containers gehen hin und her;
+  - eine eigene Dashboard-Karte `custom:floorplan3d-container-card` mit den Optionen von `custom:floorplan3d-card` und einem Editor (Englisch, Deutsch, Chinesisch), von der Integration selbst geladen;
+  - eine zweite Sperre neben der Anmeldung des Containers: ohne sein Sitzungs-Cookie geht nichts weiter (ein Container ohne `HA_TOKEN` ist über Home Assistant nicht offen);
+  - Anleitung in `container/custom_components/floorplan3d/README.md` und `container/README.md`; ihre Tests sind `tests/test_container_dashboard.py`, `tests/test_floorplan3d_setup.py` und `tests/containercard.test.mjs` (ein neuer CI-Schritt).
+
 ## [4.48.0] - 2026-10-30
 ### Neu
 - **▦ „Frei anordnen“: die Karten einer Seite dort, wo du sie willst** (der Besitzer mit einem Bild von 🔘 Knöpfe beim Bearbeiten: „das man die karte platzieren kann wo man will … ein unsichtbares gitter im hintergrund … wo den abstand und das einrasten gewährt … wenn ich will das eine karte unten rechts ist“; seine Wahl nach zwei Beispielbildern, `docs/ideen-4.48/`). Bisher flossen die Karten einer Seite von oben links und schlossen jede Lücke; jetzt kann eine Seite sie auf ein unsichtbares Gitter mit 12 Spalten setzen:

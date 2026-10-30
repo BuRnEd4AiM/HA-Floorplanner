@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmxZAxkAymAbButeKpY",
+ "start": "2026-10-30",
+ "updated": "2026-10-30T12:16:08Z",
+ "branch": "claude/affectionate-cray-4wiii6",
+ "source": "counted",
+ "input": 94,
+ "cache_write": 148644,
+ "cache_read": 7095451,
+ "output": 42122,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 94,
+   "cache_write": 148644,
+   "cache_read": 7095451,
+   "output": 42122,
+   "requests": 48
+  }
+ }
+}
