@@ -75,6 +75,9 @@ def _install_home_assistant():
         return func
 
     _module("homeassistant.core", HomeAssistant=type("HomeAssistant", (), {}), callback=callback)
+    lovelace = _module("homeassistant.components.lovelace")
+    lovelace.__path__ = []
+    _module("homeassistant.components.lovelace.const", LOVELACE_DATA="lovelace")
     helpers = _module("homeassistant.helpers")
     helpers.__path__ = []
     _module("homeassistant.helpers.typing", ConfigType=dict)
@@ -136,6 +139,38 @@ class Hass:
 
 def entry(address="http://127.0.0.1:1"):
     return SimpleNamespace(data={const.CONF_ADDRESS: address})
+
+
+class FakeResources:
+    def __init__(self):
+        self.items = [{"id": "old", "url": f"{const.FRONTEND_PATH}/{const.CARD_FILE}?v=1.0.0", "type": "module"}]
+
+    async def async_get_info(self):
+        return {"resources": len(self.items)}
+
+    def async_items(self):
+        return list(self.items)
+
+    async def async_create_item(self, data):
+        item = {"id": "new", **data}
+        self.items.append(item)
+        return item
+
+    async def async_delete_item(self, item_id):
+        self.items = [item for item in self.items if item["id"] != item_id]
+
+
+async def test_the_card_is_kept_as_a_lovelace_resource():
+    hass = Hass()
+    resources = FakeResources()
+    hass.data["lovelace"] = SimpleNamespace(resources=resources)
+    url = f"{const.FRONTEND_PATH}/{const.CARD_FILE}?v=1.3.0"
+
+    resource_id = await integration._register_lovelace_resource(hass, url)
+    assert resource_id == "new"
+    assert [item["id"] for item in resources.items] == ["new"]          # the older ?v= is gone
+    await integration._remove_lovelace_resource(hass, resource_id)
+    assert resources.items == []
 
 
 async def test_setup_entry_registers_everything_without_a_restart():

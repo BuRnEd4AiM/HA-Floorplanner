@@ -12,6 +12,7 @@ SESSION_PATH = f"/api/{DOMAIN}/session"
 # after Home Assistant has started once with the integration.)
 FRONTEND_PATH = f"/{DOMAIN}-card"
 CARD_FILE = f"{DOMAIN}-container-card.js"
+CARD_IMPL_FILE = f"{DOMAIN}-container-card-impl.js"
 
 CONF_ADDRESS = "address"
 # Only the prefill of the dialog: the container normally runs on another computer, so this is a hint, not a default.
