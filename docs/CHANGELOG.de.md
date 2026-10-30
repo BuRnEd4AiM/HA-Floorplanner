@@ -2,6 +2,19 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.47.0] - 2026-10-30
+### Neu
+- **🎚️ Mehrere Lampen in einem Balken der Karte „Lichtsteuerung“** (der Besitzer mit einem Bild von „Karte „Lichtsteuerung“ einstellen“: „ich kann nicht pro Karte mehrere Lampen hinzufügen … pro Kachel einfach mehrere Lampen verknüpfen“). Bisher war ein Balken eine Lampe, eine Lichtgruppe von Home Assistant oder ein Schalter; jetzt kann ein Balken bis zu 16 eigene Lampen haben, wie eine Gruppe, die man in der Karte macht (ohne Gruppe in Home Assistant oder Zigbee2MQTT):
+  - in „Karte einstellen“ hat jeder Balken **„＋ Lampe dazu“**: eine Suche nur für diesen Balken, ein Tipp auf eine Lampe nimmt sie dazu, die Suche bleibt für die nächste offen („Fertig“ schließt sie); die Lampen eines Balkens stehen unter seinem Namen, jede mit ✕; der Balken behält seinen eigenen Namen und sein Symbol (ohne Namen: die erste Lampe „+2“);
+  - auf der Karte ist der Balken an, wenn eine seiner Lampen an ist, so weit gefüllt, wie sie im Schnitt hell sind (wie eine Gruppe von Home Assistant), in der Farbe der ersten, die an ist;
+  - ein Tipp oder der Schalter schaltet alle seine Lampen (aus: die, die an sind), ziehen schickt die neue Helligkeit an jede seiner Lampen (eine Lampe, die nur schaltet, und ein Schalter gehen an), eine Lampe, die nicht verfügbar ist, bleibt außen vor;
+  - ▸ (und gedrückt halten) klappt den Balken zu seinen Lampen auf, jede mit eigenem Balken; „Alle aus“ schaltet jede Lampe aus, die an ist;
+  - eine Lampe darf auch in mehreren Balken sein (z. B. „Wohnzimmer“ mit allen dreien und „Stehlampe“ allein).
+### Verbessert
+- Der Teil von „Karte einstellen“ für die Lichtkarte ist eine eigene Datei (`lightcardedit.js`, aus `lightcardui.js`).
+- Die Demo hat auf den Lichtkarten einen Balken „Voute“ mit zwei Lampen.
+- Testprotokoll: neuer Abschnitt 136.
+
 ## [4.46.0] - 2026-10-29
 ### Neu
 - **简体中文: Chinesisch (vereinfacht) als achte Sprache** (#587, danke an @aixmoyu, der alle Texte des Add-ons und der Einstellungsseite in Home Assistant übersetzt hat): ⚙ → *Sprache* → *简体中文*, oder *Auto* auf einem Gerät, dessen Browser auf Chinesisch steht. Der Beitrag stammte von Version 4.42.0; die 83 Texte, die seitdem dazukamen (▶ Abläufe nach Räumen, die Zeile „👁 Ausgeblendet“, die Szenen-Leiste und die Lichtkarte aus 4.45.0), sind auch übersetzt, und `tools/add_i18n.py` verlangt jetzt bei jedem neuen Text auch Chinesisch, damit es vollständig bleibt. Die Sprachsuche versteht noch kein Chinesisch (mit Chinesisch nimmt sie die deutschen Wörter).

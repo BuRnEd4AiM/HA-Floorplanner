@@ -2120,4 +2120,6 @@ export default {
   'lc.popupHint': 'Jako okno karta jest na stronie tylko podczas edycji. Otwiera się z „💡 … świateł włączonych” (zaznaczenie wyżej) lub z karty przycisku z „Dotknięcie: 🎚️ Sterowanie światłem”.',
   'lc.needRow': 'Wybierz co najmniej jedną lampę.', 'lc.windowTag': 'okno', 'lc.noCard': '– brak karty „Sterowanie światłem” –',
   'ct.type.lights': 'Sterowanie światłem', 'ct.typeSub.lights': 'Suwak dla każdej lampy lub grupy', 'ob.tap.lights': '🎚️ Sterowanie światłem',
+  'lc.addLamp': 'Dodaj lampę', 'lc.addLampHint': 'Kilka lamp w jednym pasku: włączają się, wyłączają i ściemniają razem',
+  'lc.findLamp': 'Szukaj lampy do dodania do „{name}” …', 'lc.lampOut': 'Usuń {name} z tego paska',
 };

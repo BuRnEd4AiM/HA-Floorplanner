@@ -235,6 +235,14 @@ def test_a_light_card_is_cleaned_like_on_the_page():
     assert (d["allOff"], d["expand"], d["popup"], d["hook"]) == (False, False, False, False)          # "Lichter an" opens only a window
     assert boards.clean_card({"id": "c_licht", "type": "lights", "rows": []}) is None
     assert len(boards.clean_card({"id": "c_licht", "type": "lights", "rows": [{"e": f"light.l{i}"} for i in range(20)]})["rows"]) == boards.MAX_ROWS
+    assert f"MAX_LAMPS = {boards.MAX_LAMPS}" in js                                                     # a bar with several lamps (the same as in lightslider.test.mjs)
+    m = boards.clean_card({"id": "c_licht", "type": "lights", "rows": [{"e": "light.a", "more": ["light.b", "light.a", "sensor.x", "light.b", "switch.c", 7], "name": "Küche"},
+                           {"e": "light.a", "more": ["light.b", "switch.c"]}, {"e": "light.a"}, {"e": "light.b", "more": []}, {"e": "sensor.x", "more": ["light.d"]},
+                           {"e": "light.e", "more": "light.f"}]})
+    assert m["rows"] == [{"e": "light.a", "more": ["light.b", "switch.c"], "name": "Küche", "icon": ""}, {"e": "light.a", "name": "", "icon": ""},
+                         {"e": "light.b", "name": "", "icon": ""}, {"e": "light.e", "name": "", "icon": ""}]
+    many = boards.clean_card({"id": "c_licht", "type": "lights", "rows": [{"e": "light.x", "more": [f"light.l{i}" for i in range(30)]}]})
+    assert len(many["rows"][0]["more"]) == boards.MAX_LAMPS - 1
     b = boards.clean_card({"id": "c_knopf", "type": "button", "entity": "light.a", "tap": "lights", "card": "c_licht"})
     assert b["tap"] == "lights" and b["card"] == "c_licht"                                              # a button that opens a light card
     assert boards.clean_look({"tap": "lights", "card": "nope"})["tap"] == "toggle" and "card" not in boards.clean_look({"tap": "more", "card": "c_licht"})

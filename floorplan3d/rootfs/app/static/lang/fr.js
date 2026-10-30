@@ -2169,4 +2169,6 @@ export default {
   'lc.popupHint': 'En fenêtre, la carte n\'est sur la page qu\'en modification. Elle s\'ouvre depuis « 💡 … lumières allumées » (case ci-dessus) ou une carte bouton avec « Appui : 🎚️ Commande des lumières ».',
   'lc.needRow': 'Choisir au moins une lampe.', 'lc.windowTag': 'fenêtre', 'lc.noCard': '– pas encore de carte « Commande des lumières » –',
   'ct.type.lights': 'Commande des lumières', 'ct.typeSub.lights': 'Un curseur par lampe ou groupe', 'ob.tap.lights': '🎚️ Commande des lumières',
+  'lc.addLamp': 'Ajouter une lampe', 'lc.addLampHint': 'Plusieurs lampes dans une barre : elles s’allument, s’éteignent et varient ensemble',
+  'lc.findLamp': 'Chercher une lampe à ajouter à « {name} » …', 'lc.lampOut': 'Retirer {name} de cette barre',
 };
