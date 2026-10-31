@@ -4,6 +4,18 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.50.1] - 2026-10-31
+### Added
+- **A window pane can be "Fest (öffnet nicht)"** (the revised #606 by @aixmoyu, pushed shortly before 4.50.0 was merged; the owner: "Ja, als 4.50.1"): with several panes, the field "Fenster öffnet" of each pane also offers *Fest*; such a pane has no contact field of its own and never opens (e.g. the middle of a triple window).
+### Changed
+- **A pane without a contact of its own follows the window's main contact again**, as before 4.50.0 (4.50.0 kept it closed); a fixed pane is now set explicitly with *Fest*. Older windows behave as they did before 4.50.0.
+- The card of a roller shutter is called "Rollladen" again; only a curtain's card says "Vorhang / Rollladen".
+- The 2D plan shows ⇔ for every curtain (the plan can be turned, so ← / → would often point the wrong way there); the 3D label still shows the side.
+- The room panel shows "Öffnet" / "Schließt" for a curtain on its way, and the curtain hint in the side panel only shows for a curtain.
+- The JSON import warns about wrong values of `shutterStyle`, `panes`, `hinge` and `paneHinges` instead of dropping them silently, accepts `4.0` as four panes, and drops the contact of a fixed pane and contacts of panes a window does not have.
+- More unit tests (the card's buttons, fixed panes, 3D build of curtains and panes, the importer); browser test part 03 checks "Fest" and the main contact.
+- Test protocol: new section 139, 138.5 follows 4.50.1.
+
 ## [4.50.0] - 2026-10-31
 ### Added
 - **🪟 Curtains that open to the side, and every pane of a window on its own** (#606 by @aixmoyu; the owner: "Schau dir mal #606 an", then "Ich übernehme ihn"):

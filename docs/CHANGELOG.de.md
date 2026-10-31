@@ -2,6 +2,18 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.50.1] - 2026-10-31
+### Neu
+- **Ein Fensterflügel kann „Fest (öffnet nicht)“ sein** (die überarbeitete Fassung von #606 von @aixmoyu, kurz vor dem Merge von 4.50.0 hochgeladen; der Besitzer: „Ja, als 4.50.1“): bei mehreren Flügeln bietet das Feld „Fenster öffnet“ jedes Flügels auch *Fest*; so ein Flügel hat kein eigenes Kontaktfeld und geht nie auf (z. B. die Mitte eines Dreifachfensters).
+### Verbessert
+- **Ein Flügel ohne eigenen Kontakt folgt wieder dem Hauptkontakt des Fensters**, wie vor 4.50.0 (in 4.50.0 blieb er zu); einen festen Flügel stellt man jetzt ausdrücklich mit *Fest* ein. Ältere Fenster verhalten sich wie vor 4.50.0.
+- Die Karte eines Rollladens heißt wieder „Rollladen“; nur die Karte eines Vorhangs heißt „Vorhang / Rollladen“.
+- Der 2D-Plan zeigt bei jedem Vorhang ⇔ (der Plan lässt sich drehen, ← / → würde dort oft in die falsche Richtung zeigen); die Beschriftung in 3D nennt weiter die Seite.
+- Das Raum-Fenster zeigt bei einem fahrenden Vorhang „Öffnet“ / „Schließt“, und der Hinweis zum Vorhang im Seitenfenster steht nur bei einem Vorhang.
+- Der Import als JSON warnt bei falschen Werten von `shutterStyle`, `panes`, `hinge` und `paneHinges`, statt sie still wegzulassen, nimmt `4.0` als vier Flügel und lässt den Kontakt eines festen Flügels und Kontakte von Flügeln weg, die ein Fenster nicht hat.
+- Mehr Unit-Tests (die Knöpfe der Karte, feste Flügel, der 3D-Aufbau von Vorhängen und Flügeln, der Import); der Browser-Test Teil 03 prüft „Fest“ und den Hauptkontakt.
+- Testprotokoll: neuer Abschnitt 139, 138.5 folgt 4.50.1.
+
 ## [4.50.0] - 2026-10-31
 ### Neu
 - **🪟 Vorhänge, die zur Seite aufgehen, und jeder Fensterflügel für sich** (#606 von @aixmoyu; der Besitzer: „Schau dir mal #606 an“, dann „Ich übernehme ihn“):

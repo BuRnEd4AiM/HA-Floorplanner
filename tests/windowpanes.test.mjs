@@ -18,8 +18,10 @@ test('the panes of a window: its style, or a number set in its properties (1 .. 
   assert.equal(W.windowPanes({ type: 'window', panes: 2.6 }), 3, 'whole panes');
   assert.equal(W.windowPanes({ type: 'door', panes: 3 }), 0);
   assert.equal(W.windowPanes(null), 0);
-  assert.equal(W.stylePanes({ style: 'triple' }), 3);
-  assert.equal(W.stylePanes({}), 2);
+  assert.equal(W.stylePanes('triple'), 3);
+  assert.equal(W.stylePanes(undefined), 2);
+  assert.equal(W.windowPanes({ type: 'window', style: 'double', panes: '4' }), 2, 'a text is no number of panes');
+  assert.equal(W.windowPanes({ type: 'window', style: 'double', panes: true }), 2);
 });
 
 test('every pane of a window can swing around its own edge, with the window setting as the default', () => {
@@ -32,7 +34,10 @@ test('every pane of a window can swing around its own edge, with the window sett
   assert.equal(W.paneHinge({ type: 'window', paneHinges: ['left'], hinge: 'top' }, 1), 'top', 'a missing entry: the default');
   assert.equal(W.paneHinge({ type: 'window', paneHinges: ['nope'], hinge: 'top' }, 0), 'top', 'an invalid entry: the default');
   assert.equal(W.paneHinge({ type: 'window', paneHinges: 'left' }, 0), 'bottom', 'not an array');
+  assert.equal(W.paneHinge({ type: 'window', paneHinges: ['left', 'fixed', 'right'] }, 1), 'fixed', 'one pane can be fixed');
+  assert.equal(W.paneHinge({ type: 'window', hinge: 'fixed' }, 0), 'bottom', 'the whole window is never fixed this way (that is the style)');
   assert.deepEqual(W.WINDOW_HINGES, ['bottom', 'top', 'left', 'right']);
+  assert.deepEqual(W.PANE_HINGES, ['bottom', 'top', 'left', 'right', 'fixed']);
 });
 
 test('the room panel lists every pane with contacts of its own, also more than three (#606)', () => {
@@ -43,4 +48,5 @@ test('the room panel lists every pane with contacts of its own, also more than t
   assert.equal(W.contactRows({ type: 'window', panes: 8, paneEntities: ['binary_sensor.a'] }), 8);
   assert.equal(W.contactRows({ type: 'window', style: 'fixed', paneEntities: ['binary_sensor.a'] }), 1);
   assert.equal(W.contactRows({ type: 'door', entity: 'binary_sensor.d' }), 1);
+  assert.equal(W.contactRows({ type: 'window', style: 'triple', paneEntities: 'bad' }), 1, 'broken data: one row');
 });

@@ -2178,8 +2178,9 @@ export default {
   'prop.shutterStyleHint': 'Le rideau pend à l\'intérieur et suit la position de l\'entité : 100 % = entièrement ouvert. Gauche / droite / au centre se voit depuis la pièce.',
   'sh.roller': 'Store (haut / bas)', 'sh.left': 'Tirer vers la gauche', 'sh.right': 'Tirer vers la droite', 'sh.split': 'S\'ouvrir au centre des deux côtés',
   'prop.panes': 'Vantaux', 'prop.hinge': 'Ouverture de la fenêtre',
-  'prop.hingeHint': 'Le vitrage s\'ouvre vers l\'intérieur autour de ce bord. Avec plusieurs vantaux, réglez-le pour chacun séparément. Un vantail sans capteur reste fermé (comme une vitre fixe).',
+  'prop.hingeHint': 'Le vitrage s\'ouvre vers l\'intérieur autour de ce bord. Avec plusieurs vantaux, réglez-le pour chacun séparément ; « Fixe » ne s\'ouvre pas. Sans capteur propre, un vantail suit le capteur principal.',
   'hinge.bottom': 'Charnière en bas (le haut s\'ouvre)', 'hinge.top': 'Charnière en haut (le bas s\'ouvre)', 'hinge.left': 'Charnière à gauche',
   'hinge.right': 'Charnière à droite', 'curtain.title': 'Rideau / store', 'curtain.opening': 'S\'ouvre', 'curtain.closing': 'Se ferme',
   'sh.closeLeft': 'Fermer vers la gauche', 'sh.closeRight': 'Fermer vers la droite', 'sh.closeSplit': 'Fermer au centre',
+  'hinge.fixed': 'Fixe (ne s\'ouvre pas)',
 };

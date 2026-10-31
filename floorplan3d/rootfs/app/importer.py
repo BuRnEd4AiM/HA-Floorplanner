@@ -40,6 +40,8 @@ OPENING_PRESETS = {                 # same table as OPENING_DEFAULTS in static/w
 DOOR_STYLES = {"single", "glass", "double", "sliding", "open", "gap", "garage"}
 WINDOW_STYLES = {"single", "double", "triple", "fixed"}
 WINDOW_HINGES = {"bottom", "top", "left", "right"}
+PANE_HINGES = WINDOW_HINGES | {"fixed"}
+PANE_COUNTS = {"single": 1, "double": 2, "triple": 3, "fixed": 1}
 SHUTTER_STYLES = {"roller", "left", "right", "split"}
 MAX_PANES = 8
 ROOF_TYPES = {"gable", "hip", "flat"}
@@ -331,26 +333,77 @@ def _opening_from(rep: Report, path: str, spec: dict):
     if isinstance(spec.get("paneEntities"), list):
         o["paneEntities"] = [str(x)[:120] if isinstance(x, str) else "" for x in spec["paneEntities"][:MAX_PANES]]
     shutter_entity = spec.get("shutterEntity") if isinstance(spec.get("shutterEntity"), str) else ""
-    if spec.get("shutter") is True or shutter_entity:            # cover of a window (#331), with its own entity
+    cover = spec.get("shutter") is True or bool(shutter_entity)
+    if cover:                                                     # cover of a window (#331), with its own entity
         if o["type"] != "window":
             rep.warn(f"{path}.shutter", "only windows have a cover, ignored")
         else:
             o["shutter"] = True
             if shutter_entity:
                 o["shutterEntity"] = shutter_entity[:120]
-            if spec.get("shutterStyle") in SHUTTER_STYLES and spec["shutterStyle"] != "roller":
-                o["shutterStyle"] = spec["shutterStyle"]         # roller is the default and is not stored
+    if "shutterStyle" in spec:
+        style = spec["shutterStyle"]
+        if o["type"] != "window":
+            rep.warn(f"{path}.shutterStyle", "only windows have a curtain type, ignored")
+        elif not cover:
+            rep.warn(f"{path}.shutterStyle", "a curtain type needs a cover (shutter / shutterEntity), ignored")
+        elif not isinstance(style, str) or style not in SHUTTER_STYLES:
+            rep.warn(f"{path}.shutterStyle", f"unknown curtain type '{style}', using 'roller'")
+        elif style != "roller":                                   # roller is the default and is not stored
+            o["shutterStyle"] = style
     if o["type"] == "window":
-        if spec.get("hinge") in WINDOW_HINGES and spec["hinge"] != "bottom":
-            o["hinge"] = spec["hinge"]                           # bottom is the default and is not stored
-        if isinstance(spec.get("paneHinges"), list):             # every pane its own edge, where that differs from bottom
-            hs = [h if h in WINDOW_HINGES else "bottom" for h in spec["paneHinges"][:MAX_PANES]]
-            if any(h != "bottom" for h in hs):
-                o["paneHinges"] = hs
-        panes = spec.get("panes")
-        if isinstance(panes, int) and not isinstance(panes, bool) and 1 <= panes <= MAX_PANES and o.get("style") != "fixed":
-            o["panes"] = panes                                   # overrides the style's pane count
-        if spec.get("rainWarn") is False:                        # this window may stay open in the rain: no warning for it (#419)
+        base_panes = PANE_COUNTS.get(o.get("style"), 2)
+        pane_count = base_panes
+        if o.get("style") == "fixed":
+            o.pop("paneEntities", None)                           # fixed glazing has no contact per pane
+        if "panes" in spec:
+            panes = spec["panes"]
+            whole = isinstance(panes, (int, float)) and not isinstance(panes, bool) and float(panes).is_integer()
+            if not whole or not 1 <= int(panes) <= MAX_PANES:
+                rep.warn(f"{path}.panes", f"panes must be a whole number between 1 and {MAX_PANES}, ignored")
+            elif o.get("style") == "fixed":
+                rep.warn(f"{path}.panes", "fixed glazing has one pane, panes ignored")
+            else:
+                pane_count = int(panes)
+                if pane_count != base_panes:
+                    o["panes"] = pane_count                       # the style's own count is the default and is not stored
+        if "hinge" in spec:
+            hinge = spec["hinge"]
+            if not isinstance(hinge, str) or hinge not in WINDOW_HINGES:
+                rep.warn(f"{path}.hinge", f"unknown hinge '{hinge}', using 'bottom'")
+            elif hinge != "bottom":                               # bottom is the default and is not stored
+                o["hinge"] = hinge
+        if "paneHinges" in spec:
+            hs = spec["paneHinges"]
+            if not isinstance(hs, list):
+                rep.warn(f"{path}.paneHinges", "paneHinges must be an array, ignored")
+            elif o.get("style") == "fixed":
+                rep.warn(f"{path}.paneHinges", "fixed glazing does not open, paneHinges ignored")
+            elif pane_count <= 1:
+                rep.warn(f"{path}.paneHinges", "a single-pane window has no per-pane hinges, ignored")
+            else:
+                if len(hs) > pane_count:
+                    rep.warn(f"{path}.paneHinges", f"more entries than panes ({pane_count}), extra entries ignored")
+                clean = []
+                for i, h in enumerate(hs[:pane_count]):
+                    if isinstance(h, str) and h in PANE_HINGES:
+                        clean.append(h)
+                    else:
+                        rep.warn(f"{path}.paneHinges[{i}]", f"unknown hinge '{h}', using 'bottom'")
+                        clean.append("bottom")
+                if "paneEntities" in o:                           # a fixed pane has no contact of its own
+                    for i, h in enumerate(clean):
+                        if h == "fixed" and i < len(o["paneEntities"]):
+                            o["paneEntities"][i] = ""
+                    if not any(o["paneEntities"]):
+                        del o["paneEntities"]
+                if any(h != "bottom" for h in clean):
+                    o["paneHinges"] = clean
+        if "paneEntities" in o and len(o["paneEntities"]) > pane_count:   # no contacts of panes that do not exist
+            o["paneEntities"] = o["paneEntities"][:pane_count]
+            if not any(o["paneEntities"]):
+                del o["paneEntities"]
+        if spec.get("rainWarn") is False:                         # this window may stay open in the rain: no warning for it (#419)
             o["rainWarn"] = False
     return o
 

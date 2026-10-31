@@ -74,11 +74,13 @@ pg6.close()
 pg7 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
 pg7.goto(BASE + "?debug=1"); pg7.wait_for_timeout(1500)
 fi = pg7.evaluate("""() => { const f = window.__fp.layout.floors.find(x => x.walls.length); const w = f.walls[0];
-  w.openings = w.openings || []; w.openings.push({id:'wnd3', type:'window', style:'triple', pos: 1.0, width: 1.2, height:1.2, sill:0.9, paneEntities:['binary_sensor.p1','','binary_sensor.p3']}); return window.__fp.layout.floors.indexOf(f); }""")
+  w.openings = w.openings || []; w.openings.push({id:'wnd3', type:'window', style:'triple', panes:4, pos: 1.0, width: 1.2, height:1.2, sill:0.9,
+    paneEntities:['binary_sensor.p1','','binary_sensor.p3','binary_sensor.p4'], paneHinges:['left','fixed','right','bottom']}); return window.__fp.layout.floors.indexOf(f); }""")
 pg7.click(f"#floorRail [data-floor=\"{fi}\"]"); pg7.evaluate("window.__fp.rebuild()"); pg7.wait_for_timeout(500)
 pg7.evaluate("window.__fp.fakeState('binary_sensor.p3', 'on'); window.__fp.fakeState('binary_sensor.p1', 'off')")
 tg = pg7.evaluate("window.__fp.paneTargets('wnd3')")
-check("each pane follows its own sensor", len(tg) == 3 and tg[0] == 0 and tg[1] == 0 and tg[2] < 0, tg)
+# four panes: the first is shut, the second is fixed, the third opens (its sign depends on the room side of the wall), the fourth has no sensor
+check("each pane follows its own sensor and the custom pane count", len(tg) == 4 and tg[0] == 0 and tg[1] == 0 and abs(tg[2]) > 0.3 and tg[3] == 0, tg)
 pg7.close()
 # --- roller shutter on a window (#331): a tick in the properties, its own cover entity, the curtain follows the cover, a ball in the live mode
 pgR = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
@@ -116,6 +118,7 @@ if bs:
 pop = pgR.inner_text("#livePopup") if pgR.is_visible("#livePopup") else "no popup"
 check("shutter (#331): a tap opens up / stop / down", pgR.is_visible("#livePopup") and pgR.locator("#livePopup .shutterActs button").count() == 3, pop)
 check("shutter (#335): the card shows only the shutter, not the window's contact", "cover.rollo" in pop and "binary_sensor.rauch" not in pop, pop)
+check("shutter (#606): a roller shutter's card keeps its own name (no curtain)", not any(w in pop for w in ("Vorhang", "Curtain", "curtain")), pop)
 check("shutter (#335): the card has the tall slider at 40 % and the quick positions at once", pgR.locator("#livePopup #shutterPos").is_visible()
       and pgR.get_attribute("#livePopup #shutterPos", "aria-valuenow") == "40" and pgR.locator("#livePopup .shutterPresets button").count() == 5, pop)
 if pgR.locator("#livePopup .shutterPresets button").count() == 5:
@@ -161,10 +164,14 @@ check("curtain (#606): 4 panes: the window stores it and every pane gets its own
 pgC.select_option("#winHinge1", "left"); pgC.wait_for_timeout(400)
 check("curtain (#606): pane 1 hinged on the left, the others stay at the bottom", pgC.evaluate(f"JSON.stringify({opC}.paneHinges)") == '["left","bottom","bottom","bottom"]',
       pgC.evaluate(f"JSON.stringify({opC})"))
-pgC.evaluate(f"() => {{ const o = {opC}; o.paneEntities = ['binary_sensor.c1', '', '', 'binary_sensor.c4']; window.__fp.rebuild(); }}"); pgC.wait_for_timeout(400)
-pgC.evaluate("window.__fp.fakeState('binary_sensor.c1', 'on'); window.__fp.fakeState('binary_sensor.c4', 'on')")
+check("curtain (#606): with several panes every pane can also be \"Fest\"", pgC.locator("#winHinge2 option[value=fixed]").count() == 1, pgC.locator("#winHinge2 option").count())
+pgC.select_option("#winHinge2", "fixed"); pgC.wait_for_timeout(400)
+check("curtain (#606): pane 2 \"Fest\" is stored", pgC.evaluate(f"JSON.stringify({opC}.paneHinges)") == '["left","fixed","bottom","bottom"]', pgC.evaluate(f"JSON.stringify({opC})"))
+pgC.evaluate(f"() => {{ const o = {opC}; o.entity = 'binary_sensor.c0'; o.paneEntities = ['binary_sensor.c1', '', '', 'binary_sensor.c4']; window.__fp.rebuild(); }}"); pgC.wait_for_timeout(400)
+pgC.evaluate("window.__fp.fakeState('binary_sensor.c0', 'on'); window.__fp.fakeState('binary_sensor.c1', 'on'); window.__fp.fakeState('binary_sensor.c4', 'off')")
 tgC = pgC.evaluate("window.__fp.paneTargets('wcur')")
-check("curtain (#606): the panes with their own contact open, a pane without one stays closed", len(tgC) == 4 and tgC[0] != 0 and tgC[1] == 0 and tgC[2] == 0 and tgC[3] != 0, tgC)
+check("curtain (#606): a pane follows its own contact, a pane without one the main contact, a fixed pane never opens",
+      len(tgC) == 4 and tgC[0] != 0 and tgC[1] == 0 and tgC[2] != 0 and tgC[3] == 0, tgC)
 pgC.close()
 # --- backup export / import
 pg8 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})

@@ -61,7 +61,7 @@ export function shutterClosed(st) {
 export function shutterText(st, t, o) {
   if (!st) return '—';
   if (st.state === 'unavailable' || st.state === 'unknown') return t('off.unavailable');
-  const roller = !o || curtainStyle(o) === 'roller';     // a cloth curtain opens / closes, it does not go up / down
+  const roller = !hasShutter(o) || curtainStyle(o) === 'roller';   // a cloth curtain opens / closes, it does not go up / down
   if (st.state === 'opening') return t(roller ? 'shutter.opening' : 'curtain.opening');
   if (st.state === 'closing') return t(roller ? 'shutter.closing' : 'curtain.closing');
   const p = typeof st.position === 'number' && Number.isFinite(st.position) ? Math.round(st.position) : null;
@@ -108,7 +108,15 @@ export function shutterCardText(st, pos, t, o) {
   const moving = st?.state === 'opening' || st?.state === 'closing';
   if (pos == null || st?.state === 'unavailable' || st?.state === 'unknown') return shutterText(st, t, o);
   if (moving) return `${shutterText(st, t, o)} · ${pos} %`;
-  return shutterText({ state: pos > 0 ? 'open' : 'closed', position: pos }, t);
+  return shutterText({ state: pos > 0 ? 'open' : 'closed', position: pos }, t, o);
+}
+/** the three buttons of a cover card: [service, label key, icon, position] for open, stop, close. Roller shutters go up / down; a cloth
+ *  curtain is pulled to the side it opens and closed the other way (pure: unit test). */
+export function coverActions(style) {
+  if (style === 'left') return [['open_cover', 'sh.left', 'left', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'sh.closeRight', 'right', 0]];
+  if (style === 'right') return [['open_cover', 'sh.right', 'right', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'sh.closeLeft', 'left', 0]];
+  if (style === 'split') return [['open_cover', 'sh.split', 'split-open', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'sh.closeSplit', 'split-close', 0]];
+  return [['open_cover', 'shutter.up', 'up', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'shutter.down', 'down', 0]];
 }
 /** the height of a roller shutter as a share of the window (the scale of its pivot): the rolled-up rest at least, all of it when closed;
  *  not known: rolled up, the window stays visible */

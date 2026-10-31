@@ -2160,8 +2160,9 @@ export default {
   'prop.shutterStyleHint': 'La tenda pende all\'interno e segue la posizione dell\'entità: 100 % = completamente aperta. Sinistra / destra / al centro si intende visto dalla stanza.',
   'sh.roller': 'Tapparella (su / giù)', 'sh.left': 'Aprire verso sinistra', 'sh.right': 'Aprire verso destra', 'sh.split': 'Aprire al centro verso i due lati',
   'prop.panes': 'Ante', 'prop.hinge': 'Apertura della finestra',
-  'prop.hingeHint': 'Il vetro ruota verso l\'interno attorno a questo bordo. Con più ante si imposta per ogni anta separatamente. Un\'anta senza sensore resta chiusa (come un vetro fisso).',
+  'prop.hingeHint': 'Il vetro ruota verso l\'interno attorno a questo bordo. Con più ante si imposta per ogni anta separatamente; « Fissa » non si apre. Senza un sensore proprio, un\'anta segue il sensore principale.',
   'hinge.bottom': 'Cerniera in basso (si apre in alto)', 'hinge.top': 'Cerniera in alto (si apre in basso)', 'hinge.left': 'Cerniera a sinistra',
   'hinge.right': 'Cerniera a destra', 'curtain.title': 'Tenda / tapparella', 'curtain.opening': 'Si apre', 'curtain.closing': 'Si chiude',
   'sh.closeLeft': 'Chiudere verso sinistra', 'sh.closeRight': 'Chiudere verso destra', 'sh.closeSplit': 'Chiudere al centro',
+  'hinge.fixed': 'Fissa (non si apre)',
 };

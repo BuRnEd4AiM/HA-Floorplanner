@@ -2163,8 +2163,9 @@ export default {
   'prop.shutterStyleHint': 'La cortina cuelga por dentro y sigue la posición de la entidad: 100 % = totalmente abierta. Izquierda / derecha / centro se ve desde la habitación.',
   'sh.roller': 'Persiana (subir / bajar)', 'sh.left': 'Abrir hacia la izquierda', 'sh.right': 'Abrir hacia la derecha',
   'sh.split': 'Abrir por el centro a ambos lados', 'prop.panes': 'Hojas', 'prop.hinge': 'Apertura de la ventana',
-  'prop.hingeHint': 'El cristal gira hacia dentro alrededor de este borde. Con varios batientes se ajusta para cada uno por separado. Una hoja sin sensor permanece cerrada (como un cristal fijo).',
+  'prop.hingeHint': 'El cristal gira hacia dentro alrededor de este borde. Con varios batientes se ajusta para cada uno por separado; «Fija» no se abre. Sin sensor propio, una hoja sigue el sensor principal.',
   'hinge.bottom': 'Bisagra abajo (se abre arriba)', 'hinge.top': 'Bisagra arriba (se abre abajo)', 'hinge.left': 'Bisagra a la izquierda',
   'hinge.right': 'Bisagra a la derecha', 'curtain.title': 'Cortina / persiana', 'curtain.opening': 'Abriendo', 'curtain.closing': 'Cerrando',
   'sh.closeLeft': 'Cerrar hacia la izquierda', 'sh.closeRight': 'Cerrar hacia la derecha', 'sh.closeSplit': 'Cerrar hacia el centro',
+  'hinge.fixed': 'Fija (no se abre)',
 };

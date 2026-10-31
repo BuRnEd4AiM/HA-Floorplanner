@@ -3,7 +3,7 @@
  * beside it and quick positions under it, all at once without another tap. Only the shutter, not the window's contact. The rules (the
  * position under the finger, what shows while the cover is on its way) are in shutters.js (unit tests). */
 import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
-import { sliderPosition, shownPosition, shutterCardText, curtainStyle, SHUTTER_PRESETS, PENDING_MS } from './shutters.js';
+import { sliderPosition, shownPosition, shutterCardText, curtainStyle, coverActions, SHUTTER_PRESETS, PENDING_MS } from './shutters.js';
 
 const REST = 22;   // px of the curtain that always show at the top of the slider (rolled up, like the rest of the curtain in 3D)
 
@@ -37,7 +37,8 @@ export function initShutterCard(ctx) {
     const st = ctx.states()[e], dom = e.split('.')[0], style = curtainStyle(opening);
     const pend = pending?.e === e ? pending : null, pos = dom === 'cover' ? shownPosition(st, pend, Date.now()) : null;
     if (pend && (pos !== pend.pos || st?.position === pend.pos)) pending = null;   // the cover is there, or it did not answer in time
-    const key = JSON.stringify([e, name, style, st?.state, st?.position, pos, t('curtain.title'), !!live.detailsButton(e)]);
+    const titleKey = style === 'roller' || !style ? 'shutter.title' : 'curtain.title';   // a roller shutter keeps its own name
+    const key = JSON.stringify([e, name, style, st?.state, st?.position, pos, t(titleKey), !!live.detailsButton(e)]);
     if (key === drawn && box.querySelector('.shutterMain')) return;
     drawn = key;
     const focused = box.contains(document.activeElement) ? document.activeElement.id : '';   // the slider keeps the focus (keys)
@@ -46,18 +47,15 @@ export function initShutterCard(ctx) {
     if (focused) document.getElementById(focused)?.focus();
   }
   function build(box, e, name, st, dom, pos, style, opening) {
-    const head = el('div', 'title', `🪟 ${t('curtain.title')}${name ? ` · ${name}` : ''}`), mi = live.detailsButton(e);
+    const titleKey = style === 'roller' || !style ? 'shutter.title' : 'curtain.title';
+    const head = el('div', 'title', `${t(titleKey)}${name ? ` · ${name}` : ''}`), mi = live.detailsButton(e);
     if (mi) head.append(mi);
     const big = el('div', 'shutterBig', shutterCardText(st, pos, t, opening));
     box.append(head, el('div', 'sub', e), big);
     const main = el('div', 'shutterMain');
     if (pos != null) main.append(slider(e, pos, big, st, opening));
     // a cloth curtain is pulled aside instead of going up and down: its buttons say which way it opens and which way it closes
-    const acts = dom === 'cover'
-      ? (style === 'left' ? [['open_cover', 'sh.left', 'left', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'sh.closeRight', 'right', 0]]
-        : style === 'right' ? [['open_cover', 'sh.right', 'right', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'sh.closeLeft', 'left', 0]]
-        : style === 'split' ? [['open_cover', 'sh.split', 'split-open', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'sh.closeSplit', 'split-close', 0]]
-        : [['open_cover', 'shutter.up', 'up', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'shutter.down', 'down', 0]])
+    const acts = dom === 'cover' ? coverActions(style)
       : (ACTIONS[dom] || []).map((a) => [a, ACTION_LABEL[a], '', null]);
     const row = el('div', 'actions shutterActs');
     acts.forEach(([a, k, icon, to]) => {

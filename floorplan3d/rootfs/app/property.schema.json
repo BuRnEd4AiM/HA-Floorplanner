@@ -680,7 +680,7 @@
      "type": "integer",
      "minimum": 1,
      "maximum": 8,
-     "description": "Windows only: how many panes (overrides the style's count, e.g. 4 for a wide floor-to-ceiling window)"
+     "description": "Windows only, not with style fixed: how many panes (overrides the style's count, e.g. 4 for a wide floor-to-ceiling window)"
     },
     "hinge": {
      "enum": [
@@ -699,10 +699,11 @@
        "bottom",
        "top",
        "left",
-       "right"
+       "right",
+       "fixed"
       ]
      },
-     "description": "Windows only: the edge each pane swings around; an entry overrides hinge for that pane"
+     "description": "Windows only: the edge each pane swings around; an entry overrides hinge for that pane, 'fixed' means it does not open"
     },
     "entity": {
      "type": "string",
@@ -716,7 +717,8 @@
      "items": {
       "type": "string"
      },
-     "maxItems": 8
+     "maxItems": 8,
+     "description": "Windows only: one contact sensor per pane; a fixed pane has none"
     },
     "shutter": {
      "type": "boolean",
