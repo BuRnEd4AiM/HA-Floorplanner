@@ -89,3 +89,12 @@ test('entity search: every word must match id, name or area, case does not matte
   assert.equal(E.searchEntities(ents, '', areaName).length, 3);
   assert.equal(E.searchEntities(ents, '', areaName, 2).length, 2);
 });
+
+test('a window can override its style\'s pane count (1 .. 8), fixed glazing keeps one pane and no contacts', () => {
+  assert.equal(P.paneCount({ type: 'window', panes: 4 }), 4);
+  assert.equal(P.paneCount({ type: 'window', style: 'single', panes: 3 }), 3);
+  assert.equal(P.paneCount({ type: 'window', style: 'double', panes: 1 }), 0, 'one pane: the main contact is the pane contact');
+  assert.equal(P.paneCount({ type: 'window', style: 'fixed', panes: 4 }), 0, 'fixed glazing: no contact per pane');
+  assert.equal(P.paneCount({ type: 'window', panes: 99 }), 2, 'out of range: the style counts');
+  assert.equal(P.paneCount({ type: 'window', panes: 2.6 }), 3, 'whole panes');
+});

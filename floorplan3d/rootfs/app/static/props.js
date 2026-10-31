@@ -3,14 +3,14 @@
  * run, a cabinet built in its editor (closetui.js), power cables, entity, a lamp's light colour, camera, TV backlight, the LED zones of a piece), and a power cable (power.js). Which fields a device gets is decided by pure functions
  * (tested); initProps draws the panel. */
 import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange, sectionHex } from './ledring.js';
-import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
+import { DOOR_STYLES, WINDOW_STYLES, WINDOW_HINGES, windowPanes, paneHinge, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
 import { roomOpenings } from './roompanel.js';
 import { initKitchenUi } from './kitchenui.js';
 import { initClosetUi } from './closetui.js';
 import { MOUNTS, MAX_FIELD } from './solarroof.js';
 import { BRIDGE, bridgeSize } from './bridge.js';
 import { wallLength, canSplitAt, splitWall, splitEqual } from './wallsplit.js';
-import { hasShutter, setShutter, setShutterEntity, shutterChoices } from './shutters.js';
+import { hasShutter, setShutter, setShutterEntity, setShutterStyle, curtainStyle, shutterChoices, SHUTTER_STYLES } from './shutters.js';
 import { wantsLightColor } from './lamplight.js';
 import { finishChoices, finishOf, variantChoices, variantOf, variantLabel, variantHint } from './scandi.js';
 import { zoneKeys, setZone, fitZones } from './ledzones.js';
@@ -23,7 +23,11 @@ export const propsTitleKey = (kind, it) => (kind === 'opening' ? `prop.${it.type
 /** can the model of a device be hidden (a lamp keeps its light, a presence sensor its dot)? */
 export const canHideModel = (d, { ledLike, catOf }) => d.type in ledLike || catOf(d.type) === 'lighting' || /^light\./.test(d.entity || '') || d.type === 'presence';
 /** windows with more than one pane can have one contact per pane: how many (0 = none) */
-export const paneCount = (o) => (o.type === 'window' && (o.style === 'double' || o.style === 'triple' || !o.style) ? (o.style === 'triple' ? 3 : 2) : 0);
+export const paneCount = (o) => {
+  if (o.type !== 'window' || o.style === 'fixed') return 0;
+  const n = windowPanes(o);
+  return n > 1 ? n : 0;
+};
 /** a stretch factor typed by the user: limited to 0.1 .. 10, 1 (no stretch) is dropped (null) */
 export function stretchValue(n) {
   const v = Math.max(0.1, Math.min(10, n));
@@ -191,8 +195,53 @@ export function initProps(ctx) {
     const ssel = document.createElement('select'); ssel.id = 'openStyle';
     (it.type === 'door' ? DOOR_STYLES : WINDOW_STYLES).forEach((v) => ssel.add(new Option(t(`st.${v}`), v)));
     ssel.value = it.style || (it.type === 'door' ? 'single' : 'double');
-    ssel.addEventListener('change', () => { ctx.snapshot(); it.style = ssel.value; ctx.changed(); });
+    ssel.addEventListener('change', () => {
+      ctx.snapshot(); it.style = ssel.value; delete it.panes;
+      const n = paneCount(it), arr = (it.paneEntities || []).slice(0, n);    // no sensors or hinges of panes that are gone
+      it.paneEntities = arr.some(Boolean) ? arr : undefined;
+      if (n <= 1) delete it.paneHinges; else if (Array.isArray(it.paneHinges)) it.paneHinges = it.paneHinges.slice(0, n);
+      ctx.changed(); render();
+    });
     body.append(field(t('prop.style'), ssel));
+    if (it.type === 'window' && (it.style || 'double') !== 'fixed') {
+      const pin = document.createElement('input'); pin.type = 'number'; pin.id = 'winPanes'; pin.min = '1'; pin.max = '8'; pin.step = '1';
+      pin.value = String(windowPanes(it));
+      pin.addEventListener('change', () => {
+        ctx.snapshot();
+        const n = Math.max(1, Math.min(8, Math.round(+pin.value || 1)));
+        const base = it.style === 'triple' ? 3 : it.style === 'single' ? 1 : 2;
+        if (n === base) delete it.panes; else it.panes = n;                  // the style stays the look, the number overrides its panes
+        const arr = (it.paneEntities || []).slice(0, Math.max(0, n > 1 ? n : 0));
+        it.paneEntities = arr.some(Boolean) ? arr : undefined;
+        if (n <= 1) delete it.paneHinges; else if (Array.isArray(it.paneHinges)) it.paneHinges = it.paneHinges.slice(0, n);
+        ctx.changed(); render();
+      });
+      body.append(field(t('prop.panes'), pin));
+      const nPanes = windowPanes(it);
+      const hingeSelect = (i) => {
+        const sel = document.createElement('select');
+        sel.id = nPanes > 1 ? `winHinge${i + 1}` : 'winHinge';
+        WINDOW_HINGES.forEach((v) => sel.add(new Option(t(`hinge.${v}`), v)));
+        sel.value = paneHinge(it, i);
+        sel.addEventListener('change', () => {
+          ctx.snapshot();
+          if (nPanes <= 1) {                                   // one pane: the window's own hinge
+            if (sel.value === 'bottom') delete it.hinge; else it.hinge = sel.value;
+            delete it.paneHinges;
+          } else {                                             // every pane its own edge
+            const base = WINDOW_HINGES.includes(it.hinge) ? it.hinge : 'bottom';
+            const arr = Array.from({ length: nPanes }, (_, k) => paneHinge(it, k));
+            arr[i] = sel.value;
+            it.paneHinges = arr.some((h) => h !== base) ? arr : undefined;
+          }
+          ctx.changed();
+        });
+        return sel;
+      };
+      if (nPanes <= 1) body.append(field(t('prop.hinge'), hingeSelect(0)));
+      else for (let i = 0; i < nPanes; i++) body.append(field(`${t('pane.n', { n: i + 1 })} · ${t('prop.hinge')}`, hingeSelect(i)));
+      const hp = document.createElement('p'); hp.className = 'sub'; hp.textContent = t('prop.hingeHint'); body.append(hp);
+    }
     if (!dormer) body.append(field(t('prop.position'), lenInput(() => it.pos, (v) => {
       const p = clampOpeningPos(wall, it.width, v);
       if (p !== null && !openingOverlaps(wall, p, it.width, it.id)) it.pos = p;
@@ -251,6 +300,12 @@ export function initProps(ctx) {
     const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t('prop.shutterHint'); lb.append(cb, document.createTextNode(' ' + t('prop.shutter')));
     body.append(lb);
     if (!hasShutter(it)) return;
+    const ssel = document.createElement('select'); ssel.id = 'curtainStyle';
+    SHUTTER_STYLES.forEach((v) => ssel.add(new Option(t(`sh.${v}`), v)));
+    ssel.value = curtainStyle(it);
+    ssel.addEventListener('change', () => { ctx.snapshot(); setShutterStyle(it, ssel.value); ctx.changed(); render(); });
+    body.append(field(t('prop.shutterStyle'), ssel));
+    const sh = document.createElement('p'); sh.className = 'sub'; sh.textContent = t('prop.shutterStyleHint'); body.append(sh);
     body.append(pickerField(t('prop.shutterEntity'), ctx.entityPicker(pickFrom(shutterChoices(entities)), room, it.shutterEntity || '', (v) => { ctx.snapshot(); setShutterEntity(it, v); ctx.changed(); })));
   }
 

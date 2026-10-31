@@ -39,6 +39,9 @@ OPENING_PRESETS = {                 # same table as OPENING_DEFAULTS in static/w
 }
 DOOR_STYLES = {"single", "glass", "double", "sliding", "open", "gap", "garage"}
 WINDOW_STYLES = {"single", "double", "triple", "fixed"}
+WINDOW_HINGES = {"bottom", "top", "left", "right"}
+SHUTTER_STYLES = {"roller", "left", "right", "split"}
+MAX_PANES = 8
 ROOF_TYPES = {"gable", "hip", "flat"}
 FLOOR_KINDS = {"floor", "basement", "roof"}
 ROOM_COLORS = ["#b89b74", "#c9c2b4", "#8fb1c2", "#a99bb8", "#9db39a", "#c2a58f", "#9fb0c9", "#b7b08f"]
@@ -326,17 +329,29 @@ def _opening_from(rep: Report, path: str, spec: dict):
         if isinstance(spec.get(k), str) and spec[k]:
             o[k] = spec[k][:120]
     if isinstance(spec.get("paneEntities"), list):
-        o["paneEntities"] = [str(x)[:120] if isinstance(x, str) else "" for x in spec["paneEntities"][:4]]
+        o["paneEntities"] = [str(x)[:120] if isinstance(x, str) else "" for x in spec["paneEntities"][:MAX_PANES]]
     shutter_entity = spec.get("shutterEntity") if isinstance(spec.get("shutterEntity"), str) else ""
-    if spec.get("shutter") is True or shutter_entity:            # roller shutter of a window (#331), with its own cover entity
+    if spec.get("shutter") is True or shutter_entity:            # cover of a window (#331), with its own entity
         if o["type"] != "window":
-            rep.warn(f"{path}.shutter", "only windows have a roller shutter, ignored")
+            rep.warn(f"{path}.shutter", "only windows have a cover, ignored")
         else:
             o["shutter"] = True
             if shutter_entity:
                 o["shutterEntity"] = shutter_entity[:120]
-    if spec.get("rainWarn") is False and o["type"] == "window":   # this window may stay open in the rain: no warning for it (#419)
-        o["rainWarn"] = False
+            if spec.get("shutterStyle") in SHUTTER_STYLES and spec["shutterStyle"] != "roller":
+                o["shutterStyle"] = spec["shutterStyle"]         # roller is the default and is not stored
+    if o["type"] == "window":
+        if spec.get("hinge") in WINDOW_HINGES and spec["hinge"] != "bottom":
+            o["hinge"] = spec["hinge"]                           # bottom is the default and is not stored
+        if isinstance(spec.get("paneHinges"), list):             # every pane its own edge, where that differs from bottom
+            hs = [h if h in WINDOW_HINGES else "bottom" for h in spec["paneHinges"][:MAX_PANES]]
+            if any(h != "bottom" for h in hs):
+                o["paneHinges"] = hs
+        panes = spec.get("panes")
+        if isinstance(panes, int) and not isinstance(panes, bool) and 1 <= panes <= MAX_PANES and o.get("style") != "fixed":
+            o["panes"] = panes                                   # overrides the style's pane count
+        if spec.get("rainWarn") is False:                        # this window may stay open in the rain: no warning for it (#419)
+            o["rainWarn"] = False
     return o
 
 
@@ -1072,7 +1087,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "rainWarn", "heat") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "shutterStyle", "rainWarn", "heat") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []
