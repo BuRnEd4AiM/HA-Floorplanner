@@ -2,6 +2,20 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.50.0] - 2026-10-31
+### Neu
+- **🪟 Vorhänge, die zur Seite aufgehen, und jeder Fensterflügel für sich** (#606 von @aixmoyu; der Besitzer: „Schau dir mal #606 an“, dann „Ich übernehme ihn“):
+  - die Abdeckung eines Fensters kann jetzt ein Rollladen sein (wie bisher), ein Vorhang, der nach links oder nach rechts aufgezogen wird, oder ein Vorhang, der in der Mitte aufgeht (Feld **„Vorhangart“** unter dem Haken **„Vorhang / Rollladen“**); eine Cover-Entität steuert ihn wie bisher (100 % = offen);
+  - in 3D hängt der Stoff innen im Raum an einer Stange und schiebt sich zu seiner Seite oder zu beiden Seiten zusammen; die Beschriftung über dem Fenster, der 2D-Plan und die Geräteliste zeigen ← / → / ⇔ statt ↕;
+  - die Knöpfe der Live-Karte sagen, wohin er auf- und zugeht („Nach links aufziehen“ / „Nach rechts schließen“, „Mittig nach beiden Seiten“ / „Zur Mitte schließen“), mit gezeichneten Pfeilen; während er fährt, steht dort „Öffnet“ / „Schließt“;
+  - ein Fenster kann **1 bis 8 Flügel** haben (Feld **„Anzahl Flügel“**) und **jeder Flügel seinen eigenen Anschlag**: unten (oben kippt nach innen, wie bisher), oben, links oder rechts (er dreht sich wie eine Tür nach innen); bei mehreren Flügeln gibt es ein Feld je Flügel; jeder Flügel kann einen eigenen Kontakt haben (jetzt bis zu 8), und das Raum-Fenster zeigt alle;
+  - Import und Export als JSON und das Schema kennen `shutterStyle`, `panes`, `hinge` und `paneHinges`.
+### Verbessert
+- Die Flügel eines Fensters kippen jetzt immer in den Raum hinein; bisher konnte ein Fenster ohne Rollladen nach außen kippen, je nachdem, in welche Richtung seine Wand gezeichnet war.
+- Haben manche Flügel eines Fensters einen eigenen Kontakt, bleibt ein Flügel ohne Kontakt zu (so entsteht ein fester Flügel); bisher folgte er dem Hauptkontakt des Fensters. Fenster ohne Kontakte je Flügel gehen wie bisher.
+- Die Logik der Flügel ist ein eigenes Modul, `windowpanes.js`, mit einem Unit-Test (`tests/windowpanes.test.mjs`, ein neuer CI-Schritt); der Browser-Test prüft die neuen Felder (Teil 03).
+- Testprotokoll: neuer Abschnitt 138.
+
 ## [4.49.0] - 2026-10-30
 ### Neu
 - **3D Floorplan unter der Adresse von Home Assistant für Home Assistant Container, ohne zweite Anmeldung** (#601 von @aixmoyu; der Besitzer: „check das mal ob wir das mergen können“, dann „übernehme es“). Eine freiwillige Integration für Home Assistant in `container/custom_components/floorplan3d/` (nach `config/custom_components/` kopieren, einmal neu starten, unter Einstellungen → Geräte & Dienste „3D Floorplan (Container)“ hinzufügen):

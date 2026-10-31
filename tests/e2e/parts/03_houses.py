@@ -136,6 +136,36 @@ if pgR.locator("#livePopup .shutterActs button").count() == 3:
     pgR.locator("#livePopup .shutterActs button").nth(2).click(); pgR.wait_for_timeout(900)
 check("shutter (#331): down closes the cover in Home Assistant", ["cover", "close_cover", "cover.rollo"] in ha_calls(), ha_calls()[-3:])
 pgR.close()
+# --- curtains and the panes of a window one by one (#606): the curtain type, the number of panes, the edge of every pane
+pgC = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
+pgC.on("pageerror", lambda e: errors.append("PAGEERROR " + str(e)))
+pgC.goto(BASE + "?debug=1&mode=edit"); pgC.wait_for_timeout(1500)
+fiC = pgC.evaluate("""() => { const fs = window.__fp.layout.floors; const len = (w) => Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+  const f = fs.find(x => x.walls.some(w => len(w) > 2.4 && !(w.openings || []).length)); const w = f.walls.find(w => len(w) > 2.4 && !(w.openings || []).length);
+  w.openings = [{id: 'wcur', type: 'window', style: 'double', pos: len(w) / 2, width: 2.0, height: 1.2, sill: 0.9, shutter: true, shutterEntity: 'cover.rollo'}]; return fs.indexOf(f); }""")
+pgC.click(f"#floorRail [data-floor=\"{fiC}\"]"); pgC.evaluate("window.__fp.rebuild()"); pgC.wait_for_timeout(500)
+pgC.evaluate("window.__fp.select('opening', 'wcur')"); pgC.wait_for_timeout(300)
+opC = "window.__fp.layout.floors[window.__fp.floorIdx()].walls.flatMap(w => w.openings || []).find(o => o.id === 'wcur')"
+check("curtain (#606): a window with a cover has the field \"Vorhangart\" with 4 types, a roller shutter at first",
+      pgC.locator("#curtainStyle option").count() == 4 and pgC.input_value("#curtainStyle") == "roller", pgC.locator("#curtainStyle option").count())
+pgC.select_option("#curtainStyle", "split"); pgC.wait_for_timeout(400)
+check("curtain (#606): \"Mittig nach beiden Seiten\" is stored with the window", pgC.evaluate(f"{opC}.shutterStyle") == "split", pgC.evaluate(f"JSON.stringify({opC})"))
+pgC.evaluate("() => { window.__fp.states()['cover.rollo'] = { ...(window.__fp.states()['cover.rollo'] || {}), state: 'open', position: 60 }; window.__fp.applyStates(); }")
+labC = pgC.evaluate("window.__fp.badge('wcur')")
+check("curtain (#606): the label over the window shows ⇔ and how far it is open", bool(labC) and labC.startswith("⇔") and "60" in labC, labC)
+check("curtain (#606): a double window has a field \"Fenster öffnet\" for each of its 2 panes",
+      pgC.locator("#winHinge1").count() == 1 and pgC.locator("#winHinge2").count() == 1 and pgC.locator("#winHinge3").count() == 0, pgC.locator("#propsBody select").count())
+pgC.fill("#winPanes", "4"); pgC.locator("#winPanes").dispatch_event("change"); pgC.wait_for_timeout(500)
+check("curtain (#606): 4 panes: the window stores it and every pane gets its own field", pgC.evaluate(f"{opC}.panes") == 4 and pgC.locator("#winHinge4").count() == 1
+      and pgC.evaluate("window.__fp.paneTargets('wcur').length") == 4, (pgC.evaluate(f"JSON.stringify({opC})"), pgC.evaluate("window.__fp.paneTargets('wcur')")))
+pgC.select_option("#winHinge1", "left"); pgC.wait_for_timeout(400)
+check("curtain (#606): pane 1 hinged on the left, the others stay at the bottom", pgC.evaluate(f"JSON.stringify({opC}.paneHinges)") == '["left","bottom","bottom","bottom"]',
+      pgC.evaluate(f"JSON.stringify({opC})"))
+pgC.evaluate(f"() => {{ const o = {opC}; o.paneEntities = ['binary_sensor.c1', '', '', 'binary_sensor.c4']; window.__fp.rebuild(); }}"); pgC.wait_for_timeout(400)
+pgC.evaluate("window.__fp.fakeState('binary_sensor.c1', 'on'); window.__fp.fakeState('binary_sensor.c4', 'on')")
+tgC = pgC.evaluate("window.__fp.paneTargets('wcur')")
+check("curtain (#606): the panes with their own contact open, a pane without one stays closed", len(tgC) == 4 and tgC[0] != 0 and tgC[1] == 0 and tgC[2] == 0 and tgC[3] != 0, tgC)
+pgC.close()
 # --- backup export / import
 pg8 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
 pg8.on("dialog", lambda d: d.accept())

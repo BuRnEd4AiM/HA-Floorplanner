@@ -2,6 +2,7 @@ import * as THREE from './vendor/three.module.min.js';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
 import { hasShutter, curtainStyle, shutterSlats, curtainDepth, curtainHangDepth, SHUTTER_UP, SHUTTER_SPEED, CURTAIN_GATHER, CURTAIN_SPEED } from './shutters.js';
 import { mergeParts } from './meshmerge.js';
+import { windowPanes, paneHinge } from './windowpanes.js';
 
 /* Wall geometry with real openings (doors/windows).
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
@@ -26,23 +27,7 @@ export const OPENING_DEFAULTS = {
 };
 export const DOOR_STYLES = ['single', 'glass', 'double', 'sliding', 'open', 'gap', 'garage'];
 export const WINDOW_STYLES = ['single', 'double', 'triple', 'fixed'];
-export const WINDOW_HINGES = ['bottom', 'top', 'left', 'right'];   // which edge a window pane swings around (default bottom)
 const EDGE = 0.05;   // minimum solid wall left next to an opening
-
-/** how many panes a window has: a number the user set (o.panes, 1 .. 8) overrides the style (single 1, double 2, triple 3, fixed 1) */
-export function windowPanes(o) {
-  if (o?.type !== 'window') return 0;
-  const n = Math.round(Number(o.panes));
-  if (o.style !== 'fixed' && n >= 1 && n <= 8) return n;
-  return o.style === 'fixed' ? 1 : o.style === 'triple' ? 3 : o.style === 'single' ? 1 : 2;
-}
-/** the edge pane i of window o swings around: its own (o.paneHinges[i]), else the window's (o.hinge, older layouts), else the bottom;
- *  a pane without a contact sensor never opens (that is how a fixed pane is made) */
-export function paneHinge(o, i = 0) {
-  const own = Array.isArray(o?.paneHinges) ? o.paneHinges[i] : null;
-  if (WINDOW_HINGES.includes(own)) return own;
-  return WINDOW_HINGES.includes(o?.hinge) ? o.hinge : 'bottom';
-}
 
 export const wallLength = (w) => Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
 

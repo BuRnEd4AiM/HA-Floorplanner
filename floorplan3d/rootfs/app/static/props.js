@@ -3,7 +3,8 @@
  * run, a cabinet built in its editor (closetui.js), power cables, entity, a lamp's light colour, camera, TV backlight, the LED zones of a piece), and a power cable (power.js). Which fields a device gets is decided by pure functions
  * (tested); initProps draws the panel. */
 import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange, sectionHex } from './ledring.js';
-import { DOOR_STYLES, WINDOW_STYLES, WINDOW_HINGES, windowPanes, paneHinge, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
+import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
+import { WINDOW_HINGES, MAX_PANES, windowPanes, stylePanes, paneHinge } from './windowpanes.js';
 import { roomOpenings } from './roompanel.js';
 import { initKitchenUi } from './kitchenui.js';
 import { initClosetUi } from './closetui.js';
@@ -204,12 +205,12 @@ export function initProps(ctx) {
     });
     body.append(field(t('prop.style'), ssel));
     if (it.type === 'window' && (it.style || 'double') !== 'fixed') {
-      const pin = document.createElement('input'); pin.type = 'number'; pin.id = 'winPanes'; pin.min = '1'; pin.max = '8'; pin.step = '1';
+      const pin = document.createElement('input'); pin.type = 'number'; pin.id = 'winPanes'; pin.min = '1'; pin.max = String(MAX_PANES); pin.step = '1';
       pin.value = String(windowPanes(it));
       pin.addEventListener('change', () => {
         ctx.snapshot();
-        const n = Math.max(1, Math.min(8, Math.round(+pin.value || 1)));
-        const base = it.style === 'triple' ? 3 : it.style === 'single' ? 1 : 2;
+        const n = Math.max(1, Math.min(MAX_PANES, Math.round(+pin.value || 1)));
+        const base = stylePanes(it);
         if (n === base) delete it.panes; else it.panes = n;                  // the style stays the look, the number overrides its panes
         const arr = (it.paneEntities || []).slice(0, Math.max(0, n > 1 ? n : 0));
         it.paneEntities = arr.some(Boolean) ? arr : undefined;

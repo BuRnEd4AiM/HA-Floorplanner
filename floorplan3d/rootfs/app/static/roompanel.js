@@ -8,6 +8,7 @@ import { openingWalls } from './dormerwin.js';
 import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
 import { initHeatPanel, splitHeatParts } from './heatpanel.js';
 import { shutterEntity, floorShutters, shutterText } from './shutters.js';
+import { contactRows } from './windowpanes.js';
 
 export const RP_GROUPS = [['light', 'rp.light'], ['cover', 'rp.cover'], ['climate', 'rp.climate'], ['media_player', 'rp.media'], ['switch', 'rp.switch'], ['camera', 'rp.camera'], ['sensor', 'rp.sensor'], ['scene', 'rp.scene']];
 /** the group of the room panel a domain is listed under */
@@ -171,10 +172,9 @@ export function initRoomPanel(ctx) {
       if (!list.length) return;
       const h = document.createElement('h4'); h.textContent = t(`rp.${kind}`); box.append(h);
       list.forEach((o) => {
-        const multi = o.paneEntities?.some(Boolean);
-        const count = multi ? (o.style === 'triple' ? 3 : 2) : 1;
+        const count = contactRows(o), multi = count > 1;                // one row per pane with contacts of their own (up to 8, #606)
         for (let i = 0; i < count; i++) {
-          const e = multi ? op.pane(o, i) : o.entity;
+          const e = multi ? op.pane(o, i) : o.entity || op.pane(o, 0);
           if (!e) continue;
           const row = document.createElement('div');
           row.className = 'row' + (op.isOpen(e) ? ' alert' : '');

@@ -4,7 +4,6 @@ import assert from 'node:assert/strict';
 
 const dir = process.env.STATIC_DIR || '/tmp/static';
 const S = await import(`${dir}/shutters.js`);
-const WA = await import(`${dir}/walls.js`);
 const W = await import(`${dir}/dormerwin.js`);
 const { roofY0 } = await import(`${dir}/attic.js`);
 const { roomOpenings, roomShutters } = await import(`${dir}/roompanel.js`);
@@ -281,17 +280,4 @@ test('the label arrow says which way the cover opens', () => {
   assert.equal(S.shutterText({ state: 'opening' }, t, { type: 'window', shutter: true }), 'shutter.opening', 'a roller shutter goes up');
   assert.equal(S.shutterText({ state: 'opening' }, t, { type: 'window', shutter: true, shutterStyle: 'split' }), 'curtain.opening', 'a cloth curtain opens');
   assert.equal(S.shutterText({ state: 'closing' }, t, { type: 'window', shutter: true, shutterStyle: 'right' }), 'curtain.closing');
-});
-
-test('every pane of a window can swing around its own edge, with the window setting as the default', () => {
-  const o = { type: 'window', paneHinges: ['left', 'right', 'top'] };
-  assert.equal(WA.paneHinge(o, 0), 'left');
-  assert.equal(WA.paneHinge(o, 1), 'right');
-  assert.equal(WA.paneHinge(o, 2), 'top');
-  assert.equal(WA.paneHinge({ type: 'window', hinge: 'right' }, 1), 'right', 'the window default');
-  assert.equal(WA.paneHinge({ type: 'window' }, 0), 'bottom');
-  assert.equal(WA.paneHinge({ type: 'window', paneHinges: ['left'], hinge: 'top' }, 1), 'top', 'a missing entry: the default');
-  assert.equal(WA.paneHinge({ type: 'window', paneHinges: ['nope'], hinge: 'top' }, 0), 'top', 'an invalid entry: the default');
-  assert.equal(WA.paneHinge({ type: 'window', paneHinges: 'left' }, 0), 'bottom', 'not an array');
-  assert.equal(WA.windowPanes({ type: 'window', panes: 5 }), 5);
 });

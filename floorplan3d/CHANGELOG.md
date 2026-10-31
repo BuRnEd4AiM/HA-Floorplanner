@@ -4,6 +4,20 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.50.0] - 2026-10-31
+### Added
+- **🪟 Curtains that open to the side, and every pane of a window on its own** (#606 by @aixmoyu; the owner: "Schau dir mal #606 an", then "Ich übernehme ihn"):
+  - the cover of a window can now be a roller shutter (as before), a curtain pulled open to the left or to the right, or a curtain that parts in the middle (field **"Vorhangart"** under the tick **"Vorhang / Rollladen"**); one cover entity drives it as before (100 % = open);
+  - in 3D the cloth hangs inside the room on a rod and gathers to its side or to both sides; the label over the window, the 2D plan and the device list show ← / → / ⇔ instead of ↕;
+  - the live card's buttons say which way it opens and closes ("Nach links aufziehen" / "Nach rechts schließen", "Mittig nach beiden Seiten" / "Zur Mitte schließen"), with drawn arrows; while it moves it says "Öffnet" / "Schließt";
+  - a window can have **1 to 8 panes** (field **"Anzahl Flügel"**), and **every pane its own hinge**: bottom (the top tilts in, as before), top, left or right (it turns in like a door); with several panes there is one field per pane; every pane can have its own contact (now up to 8), and the room panel lists all of them;
+  - JSON import and export and the schema know `shutterStyle`, `panes`, `hinge` and `paneHinges`.
+### Changed
+- A window's panes always tilt into the room now; before, a window without a roller shutter could tilt outwards, depending on the direction its wall was drawn in.
+- Once some panes of a window have a contact of their own, a pane without one stays closed (that is how a fixed pane is made); before it followed the window's main contact. Windows without pane contacts work as before.
+- The logic of the panes is a module of its own, `windowpanes.js`, with a unit test (`tests/windowpanes.test.mjs`, a new CI step); the browser test checks the new fields (part 03).
+- Test protocol: new section 138.
+
 ## [4.49.0] - 2026-10-30
 ### Added
 - **3D Floorplan on Home Assistant's own address for Home Assistant Container, without a second login** (#601 by @aixmoyu; the owner: "check das mal ob wir das mergen können", then "übernehme es"). An optional Home Assistant integration in `container/custom_components/floorplan3d/` (copy it to `config/custom_components/`, restart once, add "3D Floorplan (Container)" under Settings → Devices & services):
