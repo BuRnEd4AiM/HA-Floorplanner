@@ -85,7 +85,7 @@ export function deviceRows(env) {
       if ((!ents.length && !sh) || !openingShown(f, w, o)) return;
       const [x, z] = openingPoint(w, o), vals = [], open = ents.some((e) => isOpenState(states[e], env.onStates));
       if (ents.length) vals.push(open ? t('state.open') : ents.some((e) => states[e]) ? t('state.closed') : '—');
-      if (sh) vals.push(shutterLabel(states[sh], t));
+      if (sh) vals.push(shutterLabel(states[sh], t, o));
       const bat = [...ents, sh].filter(Boolean).map((e) => batteryInfo(e, states, batteryOf)).filter(Boolean)
         .sort((p, q) => Number(q.low) - Number(p.low) || (p.level ?? 101) - (q.level ?? 101))[0] || null;   // the emptiest of its sensors
       add(roomAt(f, x, z, env, true), { kind: 'opening', id: o.id, floor: fi, name: o.name || t(`prop.${o.type}`), entity: ents[0] || sh, type: o.type,

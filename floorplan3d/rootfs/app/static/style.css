@@ -124,6 +124,18 @@ main { flex: 1; display: flex; min-height: 0; }
   background-image: repeating-linear-gradient(to bottom, transparent 0 11px, rgba(0, 0, 0, .14) 11px 12px); }
 #livePopup .shutterSlider.drag .curtain { transition: none; }
 #livePopup .shutterSlider .grip { position: absolute; left: 50%; bottom: 8px; width: 44px; height: 5px; margin-left: -22px; border-radius: 3px; background: #fff; }
+/* the buttons' symbols are drawn, not font glyphs: same 14 px box and baseline for roller shutters, curtains and the stop square */
+#livePopup .coverIco { position: relative; display: inline-block; width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; color: currentColor; }
+#livePopup .coverIco::before, #livePopup .coverIco::after { content: ''; position: absolute; width: 0; height: 0; border: 0 solid; }
+#livePopup .coverIco.up::before { left: 3px; top: 3px; border-width: 0 4px 7px; border-color: transparent transparent currentColor; }
+#livePopup .coverIco.down::before { left: 3px; top: 3px; border-width: 7px 4px 0; border-color: currentColor transparent transparent; }
+#livePopup .coverIco.left::before { left: 2px; top: 3px; border-width: 4px 7px 4px 0; border-color: transparent currentColor transparent transparent; }
+#livePopup .coverIco.right::before { right: 2px; top: 3px; border-width: 4px 0 4px 7px; border-color: transparent transparent transparent currentColor; }
+#livePopup .coverIco.stop::before { left: 3px; top: 3px; width: 8px; height: 8px; background: currentColor; border: 0; }
+#livePopup .coverIco.split-open::before { left: 0; top: 3px; border-width: 4px 6px 4px 0; border-color: transparent currentColor transparent transparent; }
+#livePopup .coverIco.split-open::after { right: 0; top: 3px; border-width: 4px 0 4px 6px; border-color: transparent transparent transparent currentColor; }
+#livePopup .coverIco.split-close::before { left: 0; top: 3px; border-width: 4px 0 4px 6px; border-color: transparent transparent transparent currentColor; }
+#livePopup .coverIco.split-close::after { right: 0; top: 3px; border-width: 4px 6px 4px 0; border-color: transparent currentColor transparent transparent; }
 #livePopup .shutterActs { flex-direction: column; flex-wrap: nowrap; flex: 1; max-width: 160px; }
 #livePopup .shutterPresets { margin-top: 12px; flex-wrap: nowrap; }
 #livePopup .shutterPresets button { min-width: 0; padding-left: 2px; padding-right: 2px; white-space: nowrap; }

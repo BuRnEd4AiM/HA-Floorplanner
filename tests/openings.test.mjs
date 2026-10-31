@@ -13,11 +13,14 @@ test('kind of an opening: a garage door is a gate, other doors are doors, the re
   assert.equal(O.openKind({ type: 'door', style: 'double' }), 'doors');
   assert.equal(O.openKind({ type: 'window' }), 'windows');
 });
-test('sensors of an opening: main and per pane, each once, a pane falls back to the main sensor', () => {
+test('sensors of an opening: main and per pane, each once; a blank pane of a window with per-pane sensors stays fixed', () => {
   const o = { entity: 'binary_sensor.a', paneEntities: ['binary_sensor.a', '', 'binary_sensor.c'] };
   assert.deepEqual(O.openingEntities(o), ['binary_sensor.a', 'binary_sensor.c']);
-  assert.equal(O.paneEntity(o, 1), 'binary_sensor.a');
+  assert.equal(O.paneEntity(o, 1), '', 'no sensor of its own: it does not open');
   assert.equal(O.paneEntity(o, 2), 'binary_sensor.c');
+  assert.equal(O.paneEntity({ entity: 'binary_sensor.main' }, 0), 'binary_sensor.main', 'no per-pane sensors: the main one');
+  assert.equal(O.paneEntity({ entity: 'binary_sensor.main', paneEntities: [] }, 1), 'binary_sensor.main');
+  assert.equal(O.paneEntity({ entity: 'binary_sensor.main', paneEntities: ['', ''] }, 0), 'binary_sensor.main', 'none set: the main one');
   assert.equal(O.paneEntity({}, 0), '');
 });
 test('open: on / open count, a garage door on its way too, closed and missing do not', () => {

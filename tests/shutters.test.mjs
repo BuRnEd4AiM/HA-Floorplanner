@@ -143,6 +143,8 @@ test('the card (#335): the big line says how far it is open, and that it moves',
   assert.equal(S.shutterCardText({ state: 'closing', position: 35 }, 25, t), 'shutter.closing · 25 %');
   assert.equal(S.shutterCardText({ state: 'open' }, null, t), 'state.open', 'no position: open / closed');
   assert.equal(S.shutterCardText({ state: 'unavailable', position: 40 }, 40, t), 'off.unavailable');
+  assert.equal(S.shutterCardText({ state: 'opening', position: 40 }, 40, t, { type: 'window', shutter: true, shutterStyle: 'left' }), 'curtain.opening · 40 %', 'a cloth curtain opens, it does not go up');
+  assert.equal(S.shutterCardText({ state: 'closing', position: 40 }, 40, t, { type: 'window', shutter: true, shutterStyle: 'split' }), 'curtain.closing · 40 %');
 });
 
 test('the curtain: rolled up a small rest, all of it when closed; unknown rolled up; slats of about 7 cm', () => {
@@ -231,4 +233,51 @@ test('live mode: a window takes no tap, the ball of its shutter does, and it cou
   const linked = (id) => S.linkedEntities({ type: 'window', shutter: true, shutterEntity: id === 'w' ? 'cover.r' : '' }).length > 0;
   assert.equal(chooseHit([ball, { data: { kind: 'room', id: 'r' }, distance: 4 }], true, linked)?.data.id, 'w');
   assert.equal(chooseHit([{ data: { kind: 'opening', id: 'x', tapBall: true }, distance: 3 }, { data: { kind: 'room', id: 'r' }, distance: 4 }], true, linked)?.data.kind, 'room');
+});
+
+test('a cover opens as a roller shutter (default) or as a cloth curtain to the left, right or both sides', () => {
+  assert.equal(S.curtainStyle({ type: 'window' }), null);
+  assert.equal(S.curtainStyle({ type: 'door', shutter: true }), null);
+  assert.equal(S.curtainStyle({ type: 'window', shutter: true }), 'roller');
+  assert.equal(S.curtainStyle({ type: 'window', shutter: true, shutterStyle: 'left' }), 'left');
+  assert.equal(S.curtainStyle({ type: 'window', shutter: true, shutterStyle: 'nowhere' }), 'roller', 'an unknown style is a roller shutter');
+  const o = { type: 'window', shutter: true, shutterEntity: 'cover.a' };
+  assert.equal(S.setShutterStyle(o, 'split'), o);
+  assert.equal(o.shutterStyle, 'split');
+  assert.equal(o.shutterEntity, 'cover.a', 'the style keeps the entity');
+  S.setShutterStyle(o, 'roller');
+  assert.ok(!('shutterStyle' in o), 'the default is not stored');
+  S.setShutterStyle(o, 'left');
+  S.setShutter(o, false);
+  assert.deepEqual(o, { type: 'window' }, 'no cover: no style left');
+});
+
+test('a cloth curtain gathers sideways: all of it when closed, a rest when open, gathered when unknown', () => {
+  near(S.curtainWidth(0), S.CURTAIN_GATHER);
+  near(S.curtainWidth(1), 1);
+  near(S.curtainWidth(0.5), S.CURTAIN_GATHER + (1 - S.CURTAIN_GATHER) / 2);
+  near(S.curtainWidth(null), S.CURTAIN_GATHER);
+  near(S.curtainWidth(3), 1);
+  near(S.curtainTarget('roller', 0.5), S.curtainScale(0.5));
+  near(S.curtainTarget('left', 0.5), S.curtainWidth(0.5));
+  near(S.curtainTarget('split', 0), S.CURTAIN_GATHER);
+});
+
+test('a cloth curtain hangs in the room, past the face of the wall', () => {
+  for (const t of [0.1, 0.12, 0.24, 0.36]) assert.ok(S.curtainHangDepth(t) > t / 2, `${t}: in the room`);
+  near(S.curtainHangDepth(0.24), 0.18);
+  near(S.curtainHangDepth(0.1), 0.11);
+});
+
+test('the label arrow says which way the cover opens', () => {
+  assert.equal(S.shutterIcon({ type: 'window' }), '↕');
+  assert.equal(S.shutterIcon({ type: 'window', shutter: true }), '↕');
+  assert.equal(S.shutterIcon({ type: 'window', shutter: true, shutterStyle: 'left' }), '←');
+  assert.equal(S.shutterIcon({ type: 'window', shutter: true, shutterStyle: 'right' }), '→');
+  assert.equal(S.shutterIcon({ type: 'window', shutter: true, shutterStyle: 'split' }), '⇔');
+  const t = (k, p) => (p ? `${k}:${p.n}` : k);
+  assert.equal(S.shutterLabel({ state: 'open', position: 60 }, t, { type: 'window', shutter: true, shutterStyle: 'left' }), '← shutter.partly:60');
+  assert.equal(S.shutterText({ state: 'opening' }, t, { type: 'window', shutter: true }), 'shutter.opening', 'a roller shutter goes up');
+  assert.equal(S.shutterText({ state: 'opening' }, t, { type: 'window', shutter: true, shutterStyle: 'split' }), 'curtain.opening', 'a cloth curtain opens');
+  assert.equal(S.shutterText({ state: 'closing' }, t, { type: 'window', shutter: true, shutterStyle: 'right' }), 'curtain.closing');
 });
