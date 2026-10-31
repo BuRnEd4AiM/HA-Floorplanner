@@ -330,13 +330,49 @@ test('3D: a split cloth has two pivots, a fixed pane gets no pivot data, a rolle
   assert.equal(split.userData.shutter[0].userData.axis, 'x');
   assert.ok(split.userData.shutter[0].position.z < 0, 'cloth hangs on the room side by default (opposite the roller)');
   const outside = open(wall({ id: 'so', type: 'window', style: 'double', panes: 3, pos: 2, width: 2.4, height: 1.6, sill: 0.9,
-    shutter: true, shutterEntity: 'cover.s', shutterStyle: 'split', curtainOutside: true, paneHinges: ['left', 'fixed', 'right'] }));
+    shutter: true, shutterEntity: 'cover.s', shutterStyle: 'split', curtainSide: 'out', paneHinges: ['left', 'fixed', 'right'] }));
   assert.equal(outside.userData.shutter.length, 2);
-  assert.ok(outside.userData.shutter[0].position.z > 0, 'curtainOutside: on the roller shutter side');
+  assert.ok(outside.userData.shutter[0].position.z > 0, 'curtainSide out: on the roller shutter side');
   const roller = open(wall({ id: 'r', type: 'window', style: 'single', pos: 2, width: 1, height: 1.2, sill: 0.9,
     shutter: true, shutterEntity: 'cover.r', shutterStyle: 'roller' }));
   assert.ok(!Array.isArray(roller.userData.shutter), 'one roller pivot');
   assert.equal(roller.userData.shutter.userData.axis, 'y');
   assert.equal(Math.sign(roller.userData.shutter.position.z), Math.sign(outside.userData.shutter[0].position.z),
-    'curtainOutside hangs on the same side as the roller shutter');
+    'curtainSide out hangs on the same side as the roller shutter');
+  const rollerIn = open(wall({ id: 'ri', type: 'window', style: 'single', pos: 2, width: 1, height: 1.2, sill: 0.9,
+    shutter: true, shutterEntity: 'cover.r', shutterStyle: 'roller', curtainSide: 'in' }));
+  assert.ok(rollerIn.userData.shutter.position.z < 0, 'curtainSide in: the roller shutter hangs in the room');
+});
+
+test('3D: every hinge opens inward, on both wall orientations', async () => {
+  const THREE = await import(`${dir}/vendor/three.module.min.js`);
+  const WP = await import(`${dir}/windowpanes.js`);
+  const mat = (c, ghost, extra) => new THREE.MeshStandardMaterial({ color: c, ...extra });
+  const insideZ = async (side, hinge, outward = false) => {           // sign of the swung pane centre towards the wall's local z
+    const g = WA.buildWall({ a: [0, 0], b: [4, 0], thickness: 0.24, height: 2.6, openings: [{ id: 'w', type: 'window', style: 'single', pos: 2, width: 1, height: 1.2, sill: 0.9, hinge, openOutward: outward }] },
+      { material: mat('#ffffff'), makeMat: mat, shutterSide: () => side, windowFrame: '#ffffff' });
+    const open = g.children.find((c) => c.userData?.kind === 'opening');
+    const pv = open.userData.panePivots[0];
+    pv.rotation[pv.userData.axis] = pv.userData.dir * pv.userData.max;   // open all the way
+    g.updateMatrixWorld(true);
+    const op = new THREE.Vector3(); open.getWorldPosition(op);
+    const pane = new THREE.Vector3(); pv.children[0].getWorldPosition(pane);
+    return Math.sign(pane.z - op.z);                 // the stub puts the outside on +z, so inside is -side
+  };
+  for (const side of [1, -1]) for (const hinge of WP.WINDOW_HINGES) {
+    assert.equal(await insideZ(side, hinge), -side, `${hinge}, side ${side}: the pane must open inward`);
+  }
+  assert.equal(await insideZ(1, 'left', true), 1, 'openOutward flips the swing to the outside');
+  assert.equal(await insideZ(-1, 'bottom', true), -1, 'openOutward on a flipped wall: facade side');
+});
+
+test('the cover side: curtains in the room, roller shutters on the facade, per window overridable', () => {
+  assert.equal(S.curtainSide({ type: 'window', shutter: true, shutterStyle: 'split' }), 'in');
+  assert.equal(S.curtainSide({ type: 'window', shutter: true }), 'out', 'a roller shutter hangs on the facade');
+  const o = { type: 'window', shutter: true, shutterStyle: 'roller' };
+  assert.equal(S.curtainSide(o), 'out');
+  o.curtainSide = 'in';
+  assert.equal(S.curtainSide(o), 'in', 'the window setting wins');
+  o.curtainSide = 'balcony';
+  assert.equal(S.curtainSide(o), 'out', 'an unknown side falls back to the default');
 });

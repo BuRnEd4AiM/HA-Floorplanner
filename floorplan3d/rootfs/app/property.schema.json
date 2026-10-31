@@ -737,9 +737,16 @@
      ],
      "description": "How the cover opens (default roller): a roller shutter up and down, a cloth curtain pulled to the left or right, or two panels that part in the middle"
     },
-    "curtainOutside": {
+    "curtainSide": {
+     "enum": [
+      "in",
+      "out"
+     ],
+     "description": "Windows only: which side of the window the cover hangs on ('in' = room side, the default for a cloth curtain, 'out' = facade, the default for a roller shutter)"
+    },
+    "openOutward": {
      "type": "boolean",
-     "description": "Windows only: the cloth curtain hangs on the facade side instead of the room side"
+     "description": "Windows only: the panes open outward (to the facade) instead of inward (into the room)"
     },
     "rainWarn": {
      "type": "boolean",
