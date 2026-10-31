@@ -2,8 +2,9 @@
 boundary between Home Assistant and the plan, the reverse proxy against a fake plan, the plan's own login driven server side, the
 pages the integration serves itself, and the contract with the container it drives.
 
-const.py, boundary.py and pages.py are pure, handshake.py and web_proxy.py need aiohttp only, so all of them run here; __init__.py and
-config_flow.py need Home Assistant and cannot. The package is put into sys.modules without its __init__.py for that reason.
+const.py, boundary.py, pages.py and splash.py are pure, handshake.py and web_proxy.py need aiohttp only, so all of them run here;
+__init__.py and config_flow.py need Home Assistant and cannot. The package is put into sys.modules without its __init__.py for that
+reason.
 """
 import importlib
 import json
@@ -29,6 +30,7 @@ boundary = importlib.import_module("floorplan3d.boundary")
 const = importlib.import_module("floorplan3d.const")
 handshake = importlib.import_module("floorplan3d.handshake")
 pages = importlib.import_module("floorplan3d.pages")
+splash = importlib.import_module("floorplan3d.splash")
 web_proxy = importlib.import_module("floorplan3d.web_proxy")
 CARD = PKG / "frontend" / const.CARD_FILE
 CARD_IMPL = PKG / "frontend" / const.CARD_IMPL_FILE
@@ -48,6 +50,53 @@ def test_the_prefix_goes_and_the_rest_stays():
     assert boundary.plan_path("/floorplan/app.js") == "/app.js"
     assert boundary.plan_path("/floorplan/api/layout") == "/api/layout"
     assert boundary.plan_path("/floorplan/a%20b.glb") == "/a%20b.glb"      # encoded stays encoded
+
+
+def test_only_the_plans_interface_files_count_as_static():
+    """these get a short browser cache: a page and the API stay uncacheable, and a download must not be kept"""
+    assert boundary.is_static("/floorplan/style.css") and boundary.is_static("/style.css")
+    assert boundary.is_static("/floorplan/models/house.glb") and boundary.is_static("/floorplan/fonts/a.woff2")
+    assert not boundary.is_static("/floorplan/") and not boundary.is_static("/floorplan")
+    assert not boundary.is_static("/floorplan/api/version")
+    assert not boundary.is_static("/floorplan/api/backups/2026.f3d")       # a download is not an interface file
+    assert not boundary.is_static("/floorplan/house/main")                 # a page of the plan has no extension
+
+
+def test_the_splash_is_injected_once_before_anything_of_the_plan_is_painted():
+    html = '<!doctype html><html lang="de"><head><title>x</title></head><body><p>hallo</p></body></html>'
+    once = splash.inject(html, 60000)
+    assert splash.inject(once, 20000) == once                  # a page fetched twice must not get two splashes
+    assert once.count('id="fp3d-splash"') == 1
+    assert once.index("fp3d-splash") < once.index("</head>")   # its style is in place before the plan's markup is painted
+    assert "window.fp3dBooted" in once and "window.fp3dReady" in once   # modules are not enough: the plan being built ends it
+    assert "bootError" in once                                 # or bootguard says why not
+    assert "inflight" in once                                  # a plan that is still fetching keeps the splash up
+    assert "modulepreload" in once and "api/version" in once   # ~250 module files are asked for at once, not one import at a time
+    assert "setTimeout(finish, 45000)" not in once and "__TIMEOUT__" not in once
+    assert "60000" in once and "150000" in once                # no network progress, and never longer than the hard cap
+    assert "fp3d-watch" in once                                # the stylesheet hides it even when a CSP blocks the script
+    assert "fp3d-slide" in once                                # and the bar moves before the script may run
+    assert "fp3dReadySupported" in once and "XMLHttpRequest" in once   # XHR models count as loading; old plans keep a fallback
+    assert "function track(link)" in once                      # a module still on its way keeps the idle fallback quiet
+    assert splash.inject("<html><body>kein head</body></html>").count('id="fp3d-splash"') == 1
+    assert once.isascii()                                      # it lands before <meta charset>: only ASCII survives that
+    assert once.index('charset="utf-8"') < 1024                # the browser only sniffs the first 1024 bytes for a charset
+    # the block element must not land in <head>: that would make the parser close the head and move the plan's own meta,
+    # title and stylesheet into the body
+    assert once.index("<style") < once.index("</head>")
+    assert once.index('<div id="fp3d-splash"') > once.index("<body")
+    # <header> is no <head>
+    header_page = splash.inject('<html><header class="x">H</header><body><p>x</p></body></html>')
+    assert header_page.index("<style") < header_page.index("<header")
+
+
+def test_the_app_signals_when_the_plan_is_really_on_screen():
+    """fp3dBooted only says the modules are loaded; the splash (splash.py) ends on the plan being built, so no half-built UI shows
+    between the two"""
+    app = (ROOT / "floorplan3d" / "rootfs" / "app" / "static" / "app.js").read_text("utf-8")
+    assert "window.fp3dReady = true;" in app
+    assert app.index("window.fp3dReady = true;") > app.index("window.fp3dBooted = true;")   # first the modules, then the plan
+    assert "window.fp3dReadySupported = true;" in app      # the splash then waits for it instead of guessing with a timeout
 
 
 def test_the_address_of_the_plan():
@@ -309,6 +358,202 @@ async def test_head_and_not_modified_pass_through(aiohttp_client):
     assert head.status == 200 and head.headers["Content-Length"] == "4096" and await head.read() == b""
     fresh_answer = await plan.get("/floorplan/fresh")
     assert fresh_answer.status == 304 and fresh_answer.headers["ETag"] == '"v1"' and await fresh_answer.read() == b""
+
+
+async def test_a_page_gets_a_boot_splash_instead_of_the_plain_markup(aiohttp_client):
+    """while style.css and app.js are still on their way, the plan's markup renders without style (buttons without text, no
+    house): the proxy injects a dark splash with a progress bar into the page, which ends when app.js has booted"""
+    html = '<!doctype html><html lang="de"><head><title>t</title></head><body><p>hallo</p></body></html>'
+
+    async def index(request):
+        return web.Response(text=html, headers={"Content-Type": "text/html", "ETag": '"idx"',
+                                                "Cache-Control": "no-cache"})
+
+    upstream = await aiohttp_client(plan_app(web.get("/", index)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/?card=1", headers={"Accept": "text/html", "Accept-Encoding": "gzip"})
+    assert answer.headers["Content-Encoding"] == "gzip"
+    text = (await answer.read()).decode()               # the test client un-gzips
+    assert text.count("fp3d-splash") >= 3               # style, element and script
+    assert text.index("fp3d-splash") < text.index("</head>")   # in place before anything of the plan is painted
+    assert "fp3dBooted" in text                         # it ends when the plan's app.js says it is up
+    assert "Etag" not in answer.headers                 # the page is the proxy's now, not the plan's bytes
+    assert answer.headers["Cache-Control"] == "no-cache"
+
+
+async def test_a_call_of_the_plans_scripts_gets_no_splash(aiohttp_client):
+    """fetch() of an HTML fragment is no navigation: the plan's bytes must arrive exactly as they are"""
+    html = "<html><head></head><body>hallo</body></html>"
+
+    async def index(request):
+        return web.Response(text=html, headers={"Content-Type": "text/html", "ETag": '"idx"'})
+
+    upstream = await aiohttp_client(plan_app(web.get("/", index)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/", headers={"Accept": "*/*"})
+    assert await answer.read() == html.encode()
+    assert answer.headers["Etag"] == '"idx"'
+
+
+async def test_interface_files_are_gzipped_and_kept_for_a_short_while(aiohttp_client):
+    """style.css and app.js are around 380 KB of text and change only with an update of the container: gzip on the way out and a
+    short browser cache keep a visit from reloading the whole interface across CDN, Home Assistant and plan"""
+    async def css(request):
+        return web.Response(text="body{color:#333}\n" * 60, headers={"Content-Type": "text/css", "ETag": '"c1"'})
+
+    async def version(request):
+        return web.json_response({"version": 1}, headers={"ETag": '"v1"'})
+
+    async def download(request):
+        return web.Response(body=b"backup", headers={"Content-Type": "application/octet-stream",
+                                                     "Content-Disposition": 'attachment; filename="b.f3d"'})
+
+    upstream = await aiohttp_client(plan_app(web.get("/style.css", css), web.get("/api/version", version),
+                                             web.get("/api/backups/b.f3d", download)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    sheet = await plan.get("/floorplan/style.css", headers={"Accept-Encoding": "gzip"})
+    assert sheet.headers["Content-Encoding"] == "gzip"
+    assert sheet.headers["Cache-Control"] == (f"public, max-age={const.STATIC_MAX_AGE}, "
+                                              f"s-maxage={const.STATIC_EDGE_MAX_AGE}")
+    assert await sheet.read() == b"body{color:#333}\n" * 60   # the test client un-gzips
+    assert sheet.headers["Etag"] == '"c1"'              # the plan's validator still matches on revalidation
+    plain = await plan.get("/floorplan/style.css", headers={"Accept-Encoding": "identity"})
+    assert "Content-Encoding" not in plain.headers
+    api = await plan.get("/floorplan/api/version", headers={"Accept-Encoding": "gzip"})
+    assert "Cache-Control" not in api.headers           # the API stays uncacheable
+    assert await api.read() == b'{"version": 1}'
+    blob = await plan.get("/floorplan/api/backups/b.f3d")
+    assert "Content-Encoding" not in blob.headers and await blob.read() == b"backup"
+
+
+async def test_a_big_page_is_gzipped_but_not_splashed(aiohttp_client):
+    """only small pages are buffered for the splash; a bigger HTML answer is still text and gets gzip"""
+    body = b"<html><head></head><body>" + b"x" * 600_000 + b"</body></html>"
+
+    async def huge(request):
+        return web.Response(body=body, headers={"Content-Type": "text/html", "ETag": '"big"'})
+
+    upstream = await aiohttp_client(plan_app(web.get("/huge", huge)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/huge", headers={"Accept": "text/html", "Accept-Encoding": "gzip"})
+    assert b"fp3d-splash" not in await answer.read()
+    assert answer.headers["Content-Encoding"] == "gzip"
+    assert int(answer.headers["Content-Length"]) < len(body)
+    assert answer.headers["Etag"] == '"big"'
+
+
+async def test_a_renewed_session_cookie_is_never_cached_publicly(aiohttp_client):
+    """the plan renews its session cookie on any request, static files included. A shared cache that stored such an answer would
+    hand one user's session to the next visitor, so public/s-maxage must never be written for it"""
+    async def css(request):
+        return web.Response(text="body{color:#333}\n" * 60,
+                            headers={"Content-Type": "text/css", "ETag": '"c1"',
+                                     "Set-Cookie": "fp3d_session=renewed; Path=/; HttpOnly"})
+
+    upstream = await aiohttp_client(plan_app(web.get("/style.css", css)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/style.css", headers={"Accept-Encoding": "gzip"})
+    cache = answer.headers["Cache-Control"]
+    assert "public" not in cache and "s-maxage" not in cache and cache.startswith("private")
+    assert answer.headers["Set-Cookie"].startswith("fp3d_session=renewed")   # the browser still gets its session
+
+
+async def test_a_304_keeps_the_static_cache_policy(aiohttp_client):
+    """a cache updates the headers of its entry from a 304: the plan's own no-cache there would throw the policy away after the
+    first revalidation, so the proxy writes it again"""
+    async def css(request):
+        return web.Response(status=304, headers={"ETag": '"c1"', "Cache-Control": "no-cache"})
+
+    async def renewed(request):
+        return web.Response(status=304, headers={"ETag": '"c2"', "Set-Cookie": "fp3d_session=new; Path=/"})
+
+    upstream = await aiohttp_client(plan_app(web.get("/style.css", css), web.get("/app.js", renewed)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/style.css")
+    assert answer.status == 304
+    assert answer.headers["Cache-Control"] == (f"public, max-age={const.STATIC_MAX_AGE}, "
+                                              f"s-maxage={const.STATIC_EDGE_MAX_AGE}")
+    assert answer.headers["Etag"] == '"c1"'
+    private = await plan.get("/floorplan/app.js")
+    assert private.status == 304 and "public" not in private.headers["Cache-Control"]
+
+    async def asked_private(request):
+        return web.Response(status=304, headers={"ETag": '"c3"', "Cache-Control": "private, max-age=0"})
+
+    upstream2 = await aiohttp_client(plan_app(web.get("/style.css", asked_private)))
+    plan2 = await serve(aiohttp_client, str(upstream2.make_url("")).rstrip("/"))
+    kept = await plan2.get("/floorplan/style.css")
+    assert kept.headers["Cache-Control"] == "private, no-cache"   # the plan asked for private: not widened to public
+
+
+async def test_gzip_quality_zero_is_no_gzip(aiohttp_client):
+    async def css(request):
+        return web.Response(text="body{color:#333}\n" * 60, headers={"Content-Type": "text/css"})
+
+    upstream = await aiohttp_client(plan_app(web.get("/style.css", css)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/style.css", headers={"Accept-Encoding": "gzip;q=0, identity"})
+    assert "Content-Encoding" not in answer.headers
+
+
+async def test_vary_keeps_what_the_plan_sent(aiohttp_client):
+    async def css(request):
+        return web.Response(text="body{color:#333}\n" * 60,
+                            headers={"Content-Type": "text/css", "Vary": "Origin"})
+
+    upstream = await aiohttp_client(plan_app(web.get("/style.css", css)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/style.css", headers={"Accept-Encoding": "gzip"})
+    vary = ", ".join(answer.headers.getall("Vary", []))
+    assert "Origin" in vary and "Accept-Encoding" in vary
+
+
+async def test_a_binary_static_file_is_cached_without_gzip(aiohttp_client):
+    """textures and models cannot be compressed usefully, but they are interface files all the same: the cache header must not
+    depend on whether the body is text"""
+    async def model(request):
+        return web.Response(body=b"glTF" + b"\0" * 4096, headers={"Content-Type": "model/gltf-binary"})
+
+    upstream = await aiohttp_client(plan_app(web.get("/models/house.glb", model)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/models/house.glb", headers={"Accept-Encoding": "gzip"})
+    assert "Content-Encoding" not in answer.headers
+    assert answer.headers["Cache-Control"].startswith("public")
+
+
+async def test_a_big_module_is_gzipped_and_cached(aiohttp_client):
+    """three.module.min.js is around 690 KB: bigger than the splash limit, but still text that must be compressed and cached"""
+    body = b"const x = 1;\n" * 60_000            # ~780 KB
+
+    async def vendor(request):
+        return web.Response(body=body, headers={"Content-Type": "text/javascript", "ETag": '"three"'})
+
+    upstream = await aiohttp_client(plan_app(web.get("/vendor/three.module.min.js", vendor)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/vendor/three.module.min.js", headers={"Accept-Encoding": "gzip"})
+    assert answer.headers["Content-Encoding"] == "gzip"
+    assert answer.headers["Cache-Control"].startswith("public")
+    assert await answer.read() == body
+
+
+async def test_a_tiny_answer_is_not_gzipped(aiohttp_client):
+    async def icon(request):
+        return web.Response(body=b"x" * 20, headers={"Content-Type": "text/css"})
+
+    upstream = await aiohttp_client(plan_app(web.get("/tiny.css", icon)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    answer = await plan.get("/floorplan/tiny.css", headers={"Accept-Encoding": "gzip"})
+    assert "Content-Encoding" not in answer.headers
+
+
+async def test_a_head_of_a_static_file_gets_the_cache_policy_too(aiohttp_client):
+    async def css(request):
+        return web.Response(text="body{}", headers={"Content-Type": "text/css"})
+
+    upstream = await aiohttp_client(plan_app(web.get("/style.css", css)))
+    plan = await serve(aiohttp_client, str(upstream.make_url("")).rstrip("/"))
+    head = await plan.head("/floorplan/style.css")
+    assert head.headers["Cache-Control"].startswith("public")
 
 
 async def test_an_upload_goes_through_without_being_buffered(aiohttp_client):
@@ -593,7 +838,8 @@ def test_the_integration_is_a_plain_home_assistant_custom_component():
     assert manifest["config_flow"] is True                            # added in the UI, not configured in YAML
     assert manifest["dependencies"] == ["auth", "http"]               # both before the first request is served
     assert manifest["version"]
-    for name in ("__init__.py", "config_flow.py", "const.py", "boundary.py", "handshake.py", "web_proxy.py", "pages.py"):
+    for name in ("__init__.py", "config_flow.py", "const.py", "boundary.py", "handshake.py", "web_proxy.py", "pages.py",
+                 "splash.py"):
         assert (PKG / name).is_file()
 
 
@@ -626,8 +872,8 @@ def test_the_dialog_texts_exist_and_say_the_same_in_english():
 
 
 def test_the_pure_parts_stay_pure():
-    """const, boundary and pages run in the tests without aiohttp and Home Assistant, like halogin.py"""
-    for name in ("const.py", "boundary.py", "pages.py"):
+    """const, boundary, pages and splash run in the tests without aiohttp and Home Assistant, like halogin.py"""
+    for name in ("const.py", "boundary.py", "pages.py", "splash.py"):
         text = (PKG / name).read_text("utf-8")
         assert "import aiohttp" not in text and "from aiohttp" not in text, name
         assert "from homeassistant" not in text and "import homeassistant" not in text, name
@@ -650,6 +896,7 @@ def test_the_integration_brings_its_own_card():
     init = (PKG / "__init__.py").read_text("utf-8")
     manifest = json.loads((PKG / "manifest.json").read_text("utf-8"))
     assert "await hass.http.async_register_static_paths(" in init and "StaticPathConfig" in init
+    assert "cache_headers=True" in init                    # the ?v= address is versioned: never revalidate it (2 s boot window)
     assert "frontend.add_extra_js_url(" in init and "frontend.remove_extra_js_url(" in init
     assert "frontend" in manifest["after_dependencies"]              # the frontend is set up before the card is loaded
     assert const.FRONTEND_PATH == "/floorplan3d-card"

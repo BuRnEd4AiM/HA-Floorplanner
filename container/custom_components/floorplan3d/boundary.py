@@ -34,6 +34,13 @@ RESPONSE_SKIP = {
 
 _COOKIE_NAME = re.compile(r"^\s*([A-Za-z0-9_.-]+)\s*=")
 
+# File types of the plan's interface a browser may keep for a short while (app.js, style.css, textures, fonts, models).
+# Downloads (.zip, .f3d) and everything under /api/ stay uncacheable, and pages are always revalidated.
+STATIC_EXTENSIONS = frozenset({
+    "css", "js", "mjs", "map", "png", "jpg", "jpeg", "gif", "svg", "webp", "avif", "ico",
+    "woff", "woff2", "ttf", "otf", "glb", "gltf", "bin", "hdr", "ktx2",
+})
+
 
 def plan_path(path: str) -> str:
     """the plan's path for a request this integration got: '/floorplan/api/layout' -> '/api/layout', '/floorplan/' -> '/'"""
@@ -124,6 +131,35 @@ def needs_session(path: str, cookie_header: str) -> bool:
         return False
     names = {part.split("=", 1)[0].strip() for part in str(cookie_header or "").split(";")}
     return const.SESSION_COOKIE not in names
+
+
+def is_static(path: str) -> bool:
+    """a file of the plan's interface (style.css, app.js, a model), not its API and not a page: only these may the browser keep
+    for a short while instead of revalidating across CDN, Home Assistant and plan on every visit"""
+    rest = plan_path(path)
+    if rest.startswith("/api/"):
+        return False
+    dot, slash = rest.rfind("."), rest.rfind("/")
+    return dot > slash and rest[dot + 1:].lower() in STATIC_EXTENSIONS
+
+
+def gzip_acceptable(accept_encoding: str) -> bool:
+    """whether the browser accepts gzip: a q value above zero (gzip;q=0 or *;q=0 is a no)"""
+    for part in str(accept_encoding or "").split(","):
+        name, _, params = part.partition(";")
+        if name.strip().lower() not in ("gzip", "x-gzip", "*"):
+            continue
+        quality = 1.0
+        for param in params.split(";"):
+            key, _, value = param.partition("=")
+            if key.strip().lower() == "q":
+                try:
+                    quality = float(value)
+                except ValueError:
+                    quality = 0.0
+        if quality > 0:
+            return True
+    return False
 
 
 def headers_to_plan(headers, scheme: str = "http", host: str = "") -> dict:
