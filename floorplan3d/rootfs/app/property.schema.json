@@ -737,6 +737,10 @@
      ],
      "description": "How the cover opens (default roller): a roller shutter up and down, a cloth curtain pulled to the left or right, or two panels that part in the middle"
     },
+    "curtainOutside": {
+     "type": "boolean",
+     "description": "Windows only: the cloth curtain hangs on the facade side instead of the room side"
+    },
     "rainWarn": {
      "type": "boolean",
      "description": "false: no warning when this window is open in the rain (windows only; default true)"

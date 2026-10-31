@@ -245,7 +245,7 @@ def test_window_roller_shutter_is_imported_and_exported():
 def test_window_curtains_panes_and_per_pane_hinges_are_imported_and_exported():
     room = [{"points": [[0, 0], [10, 0], [10, 3], [0, 3]]}]
     f = square_flat(rooms=room, openings=[
-        {"preset": "window", "at": [1.5, 0], "shutterEntity": "cover.c", "shutterStyle": "split", "panes": 4, "hinge": "top",
+        {"preset": "window", "at": [1.5, 0], "shutterEntity": "cover.c", "shutterStyle": "split", "curtainOutside": True, "panes": 4, "hinge": "top",
          "paneHinges": ["left", "fixed", "right", "bottom"], "paneEntities": ["binary_sensor.p1", "binary_sensor.p2", "binary_sensor.p3", "binary_sensor.p4"]},
         {"preset": "window2", "at": [3.5, 0], "panes": 4.0, "paneEntities": ["binary_sensor.q1", "binary_sensor.q2", "binary_sensor.q3", "binary_sensor.q4"]},
         {"preset": "window2", "at": [5.8, 0], "hinge": "sideways", "shutterStyle": "left", "paneHinges": ["left", "sideways"]},
@@ -255,11 +255,11 @@ def test_window_curtains_panes_and_per_pane_hinges_are_imported_and_exported():
     assert not rep.errors
     wins = sorted((o for w in layout["floors"][0]["walls"] for o in w["openings"] if o["type"] == "window"), key=lambda o: o["pos"])
     a, b, c, d = wins
-    assert a["shutterStyle"] == "split" and a["panes"] == 4 and a["hinge"] == "top"
+    assert a["shutterStyle"] == "split" and a["panes"] == 4 and a["hinge"] == "top" and a["curtainOutside"] is True
     assert a["paneHinges"] == ["left", "fixed", "right", "bottom"]
     assert a["paneEntities"] == ["binary_sensor.p1", "", "binary_sensor.p3", "binary_sensor.p4"], "a fixed pane loses its contact"
     assert b["panes"] == 4 and "hinge" not in b and "paneHinges" not in b, "4.0 is a whole number"
-    assert "panes" not in c and "hinge" not in c and "shutterStyle" not in c and c["paneHinges"] == ["left", "bottom"]
+    assert "panes" not in c and "hinge" not in c and "shutterStyle" not in c and "curtainOutside" not in c and c["paneHinges"] == ["left", "bottom"]
     assert any(w["path"].endswith(".hinge") for w in rep.warnings) and any(w["path"].endswith(".shutterStyle") for w in rep.warnings)
     assert any(w["path"].endswith(".paneHinges[1]") for w in rep.warnings)
     assert "panes" not in d and "paneEntities" not in d, "fixed glazing has one pane and no pane contacts"
@@ -267,6 +267,7 @@ def test_window_curtains_panes_and_per_pane_hinges_are_imported_and_exported():
     again = importer.build_layout(importer.layout_to_property(layout, "x"))[0]
     ops = sorted((o for w in again["floors"][0]["walls"] for o in w["openings"] if o["type"] == "window"), key=lambda o: o["pos"])
     assert ops[0]["paneHinges"] == ["left", "fixed", "right", "bottom"] and ops[0]["shutterStyle"] == "split" and ops[0]["hinge"] == "top"
+    assert ops[0]["curtainOutside"] is True and "curtainOutside" not in ops[1] and "curtainOutside" not in ops[2]
 
 
 def test_window_without_rain_warning_survives_export():
@@ -289,7 +290,7 @@ def test_window_without_rain_warning_survives_export():
 def test_schema_describes_covers_and_per_pane_hinges():
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     props = next(d["properties"] for d in schema["$defs"].values() if "paneEntities" in d.get("properties", {}))
-    assert {"shutter", "shutterEntity", "rainWarn", "shutterStyle", "panes", "hinge", "paneHinges"} <= set(props)
+    assert {"shutter", "shutterEntity", "rainWarn", "shutterStyle", "curtainOutside", "panes", "hinge", "paneHinges"} <= set(props)
     assert "fixed" in props["paneHinges"]["items"]["enum"] and props["panes"]["maximum"] == importer.MAX_PANES
 
 

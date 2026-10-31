@@ -2131,7 +2131,7 @@ export default {
   'fg.offHint': 'Weer automatisch indelen: de kaarten schuiven aan (de vrije plaatsen blijven bewaard)',
   'fg.help': 'Vrij indelen: sleep ⠿ om een kaart op een plek in het raster te zetten (wat daar staat schuift omlaag), de hoek ↘ maakt hem breder, smaller, hoger of lager. Op een telefoon staan de kaarten onder elkaar.',
   'prop.shutterStyle': 'Soort gordijn',
-  'prop.shutterStyleHint': 'Het gordijn hangt binnen en volgt de positie van de entiteit: 100 % = helemaal open. Links / rechts / in het midden gezien vanuit de kamer.',
+  'prop.shutterStyleHint': 'Het gordijn volgt de positie van de entiteit: 100 % = helemaal open. Links / rechts / in het midden gezien vanuit de kamer.',
   'sh.roller': 'Rolluik (omhoog / omlaag)', 'sh.left': 'Naar links opentrekken', 'sh.right': 'Naar rechts opentrekken',
   'sh.split': 'In het midden naar beide kanten', 'prop.panes': 'Ramen', 'prop.hinge': 'Raam opent',
   'prop.hingeHint': 'De ruit draait naar binnen om deze rand. Bij meerdere ramen stel je het per raam apart in; „Vast” opent niet. Zonder eigen contact volgt een raam het hoofdcontact.', 'hinge.bottom': 'Onder scharnier (boven opent)',
@@ -2139,4 +2139,5 @@ export default {
   'curtain.opening': 'Gaat open', 'curtain.closing': 'Gaat dicht',
   'sh.closeLeft': 'Naar links sluiten', 'sh.closeRight': 'Naar rechts sluiten', 'sh.closeSplit': 'Naar het midden sluiten',
   'hinge.fixed': 'Vast (opent niet)',
+  'prop.curtainSide': 'Positie van het gordijn', 'curtain.inside': 'Binnen (kamierzijde)', 'curtain.outside': 'Buiten (gevel)',
 };

@@ -88,10 +88,10 @@ function addShutter(g, x0, x1, yB, yT, t, ft, mat, side) {
 }
 
 /** a cloth curtain of a window (shutters.js: 'left', 'right' or 'split'): one panel that gathers to one side or two that part in the
- *  middle, hanging inside the room on a rod. Its pivot is scaled sideways by openings.js with the cover's position (curtainWidth).
- *  Returns the pivot, or both pivots of a split curtain, in one array. */
-function addCurtain(g, x0, x1, yB, yT, t, ft, mat, side, style) {
-  const z = -side * curtainHangDepth(t), h = yT - yB, cw = x1 - x0 - 2 * ft;
+ *  middle, hanging on a rod on the room side (or on the facade side with `outside`). Its pivot is scaled sideways by openings.js with
+ *  the cover's position (curtainWidth). Returns the pivot, or both pivots of a split curtain, in one array. */
+function addCurtain(g, x0, x1, yB, yT, t, ft, mat, side, style, outside) {
+  const z = (outside ? side : -side) * curtainHangDepth(t), h = yT - yB, cw = x1 - x0 - 2 * ft;
   const leftEdge = side > 0 ? x1 - ft : x0 + ft;     // seen from inside the room (the plan's left, whichever way the wall was drawn)
   const rightEdge = side > 0 ? x0 + ft : x1 - ft;
   const panel = (gx, d, w) => {
@@ -234,7 +234,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
     if (st !== 'fixed') { pivot = pvs[0]; g.userData.panePivots = pvs; }
     if (o.sill > 0.2) g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
     if (shade === 'roller' && shutterMat) g.userData.shutter = addShutter(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, shutterMat, side);
-    else if (shade && curtainMat) g.userData.shutter = addCurtain(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, curtainMat, side, shade);
+    else if (shade && curtainMat) g.userData.shutter = addCurtain(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, curtainMat, side, shade, !!o.curtainOutside);
   }
   // invisible, slightly padded hit box: doors and windows stay easy to select even with a lamp or sensor in front of them
   const proxy = new THREE.Mesh(new THREE.BoxGeometry(w, h, t + 0.1), new THREE.MeshBasicMaterial({ visible: false }));

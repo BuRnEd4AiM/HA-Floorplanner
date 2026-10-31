@@ -266,7 +266,7 @@ test('a cloth curtain gathers sideways: all of it when closed, a rest when open,
   near(S.curtainTarget('split', 0), S.CURTAIN_GATHER);
 });
 
-test('a cloth curtain hangs in the room, past the face of the wall', () => {
+test('a cloth curtain hangs past the face of the wall, on the side chosen for the window', () => {
   for (const t of [0.1, 0.12, 0.24, 0.36]) assert.ok(S.curtainHangDepth(t) > t / 2, `${t}: in the room`);
   near(S.curtainHangDepth(0.24), 0.18);
   near(S.curtainHangDepth(0.1), 0.11);
@@ -328,8 +328,15 @@ test('3D: a split cloth has two pivots, a fixed pane gets no pivot data, a rolle
   assert.equal(split.userData.panePivots[2].userData.axis, 'y');
   assert.equal(split.userData.shutter.length, 2, 'two cloth panels');
   assert.equal(split.userData.shutter[0].userData.axis, 'x');
+  assert.ok(split.userData.shutter[0].position.z < 0, 'cloth hangs on the room side by default (opposite the roller)');
+  const outside = open(wall({ id: 'so', type: 'window', style: 'double', panes: 3, pos: 2, width: 2.4, height: 1.6, sill: 0.9,
+    shutter: true, shutterEntity: 'cover.s', shutterStyle: 'split', curtainOutside: true, paneHinges: ['left', 'fixed', 'right'] }));
+  assert.equal(outside.userData.shutter.length, 2);
+  assert.ok(outside.userData.shutter[0].position.z > 0, 'curtainOutside: on the roller shutter side');
   const roller = open(wall({ id: 'r', type: 'window', style: 'single', pos: 2, width: 1, height: 1.2, sill: 0.9,
     shutter: true, shutterEntity: 'cover.r', shutterStyle: 'roller' }));
   assert.ok(!Array.isArray(roller.userData.shutter), 'one roller pivot');
   assert.equal(roller.userData.shutter.userData.axis, 'y');
+  assert.equal(Math.sign(roller.userData.shutter.position.z), Math.sign(outside.userData.shutter[0].position.z),
+    'curtainOutside hangs on the same side as the roller shutter');
 });

@@ -314,8 +314,13 @@ export function initProps(ctx) {
     ssel.value = curtainStyle(it);
     ssel.addEventListener('change', () => { ctx.snapshot(); setShutterStyle(it, ssel.value); ctx.changed(); render(); });
     body.append(field(t('prop.shutterStyle'), ssel));
-    if (curtainStyle(it) !== 'roller') {                       // the hint is about a cloth curtain, not a roller shutter
+    if (curtainStyle(it) !== 'roller') {                       // the hint and the side setting are about a cloth curtain
       const sh = document.createElement('p'); sh.className = 'sub'; sh.textContent = t('prop.shutterStyleHint'); body.append(sh);
+      const side = document.createElement('select'); side.id = 'curtainSide';
+      [['inside', 'curtain.inside'], ['outside', 'curtain.outside']].forEach(([v, k]) => side.add(new Option(t(k), v)));
+      side.value = it.curtainOutside ? 'outside' : 'inside';
+      side.addEventListener('change', () => { ctx.snapshot(); if (side.value === 'outside') it.curtainOutside = true; else delete it.curtainOutside; ctx.changed(); });
+      body.append(field(t('prop.curtainSide'), side));
     }
     body.append(pickerField(t('prop.shutterEntity'), ctx.entityPicker(pickFrom(shutterChoices(entities)), room, it.shutterEntity || '', (v) => { ctx.snapshot(); setShutterEntity(it, v); ctx.changed(); })));
   }

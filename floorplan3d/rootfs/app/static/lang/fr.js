@@ -2175,7 +2175,7 @@ export default {
   'fg.offHint': 'Disposer à nouveau automatiquement : les cartes se resserrent (les places libres restent enregistrées)',
   'fg.help': 'Placement libre : faites glisser ⠿ pour poser une carte sur une case de la grille (ce qui s’y trouve descend), le coin ↘ la rend plus large, plus étroite, plus haute ou plus basse. Sur un téléphone, les cartes sont les unes sous les autres.',
   'prop.shutterStyle': 'Type de rideau',
-  'prop.shutterStyleHint': 'Le rideau pend à l\'intérieur et suit la position de l\'entité : 100 % = entièrement ouvert. Gauche / droite / au centre se voit depuis la pièce.',
+  'prop.shutterStyleHint': 'Le rideau suit la position de l\'entité : 100 % = entièrement ouvert. Gauche / droite / au centre se voit depuis la pièce.',
   'sh.roller': 'Store (haut / bas)', 'sh.left': 'Tirer vers la gauche', 'sh.right': 'Tirer vers la droite', 'sh.split': 'S\'ouvrir au centre des deux côtés',
   'prop.panes': 'Vantaux', 'prop.hinge': 'Ouverture de la fenêtre',
   'prop.hingeHint': 'Le vitrage s\'ouvre vers l\'intérieur autour de ce bord. Avec plusieurs vantaux, réglez-le pour chacun séparément ; « Fixe » ne s\'ouvre pas. Sans capteur propre, un vantail suit le capteur principal.',
@@ -2183,4 +2183,5 @@ export default {
   'hinge.right': 'Charnière à droite', 'curtain.title': 'Rideau / store', 'curtain.opening': 'S\'ouvre', 'curtain.closing': 'Se ferme',
   'sh.closeLeft': 'Fermer vers la gauche', 'sh.closeRight': 'Fermer vers la droite', 'sh.closeSplit': 'Fermer au centre',
   'hinge.fixed': 'Fixe (ne s\'ouvre pas)',
+  'prop.curtainSide': 'Position du rideau', 'curtain.inside': 'à l\'intérieur (côté pièce)', 'curtain.outside': 'à l\'extérieur (façade)',
 };

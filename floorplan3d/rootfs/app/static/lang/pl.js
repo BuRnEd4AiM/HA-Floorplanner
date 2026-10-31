@@ -2126,7 +2126,7 @@ export default {
   'fg.offHint': 'Znowu automatycznie: karty się zsuwają (dowolne miejsca zostają zapisane na później)',
   'fg.help': 'Dowolny układ: przeciągnij ⠿, aby postawić kartę w miejscu siatki (to, co tam stoi, przesuwa się w dół), róg ↘ robi ją szerszą, węższą, wyższą lub niższą. Na telefonie karty są jedna pod drugą.',
   'prop.shutterStyle': 'Rodzaj zasłony',
-  'prop.shutterStyleHint': 'Zasłona wisi wewnątrz i podąża za pozycją encji: 100 % = całkowicie otwarta. Lewo / prawo / środek widziane od strony pomieszczenia.',
+  'prop.shutterStyleHint': 'Zasłona podąża za pozycją encji: 100 % = całkowicie otwarta. Lewo / prawo / środek widziane od strony pomieszczenia.',
   'sh.roller': 'Roleta (góra / dół)', 'sh.left': 'Odsunąć w lewo', 'sh.right': 'Odsunąć w prawo', 'sh.split': 'Rozsunąć od środka na boki',
   'prop.panes': 'Skrzydła', 'prop.hinge': 'Otwieranie okna',
   'prop.hingeHint': 'Szyba obraca się do wewnątrz wokół tej krawędzi. Przy wielu skrzydłach ustawia się to osobno dla każdego skrzydła; „Stała” nie otwiera się. Bez własnego czujnika skrzydło korzysta z czujnika głównego.',
@@ -2134,4 +2134,5 @@ export default {
   'hinge.right': 'Zawias po prawej', 'curtain.title': 'Zasłona / roleta', 'curtain.opening': 'Otwiera się', 'curtain.closing': 'Zamyka się',
   'sh.closeLeft': 'Zamknąć w lewo', 'sh.closeRight': 'Zamknąć w prawo', 'sh.closeSplit': 'Zamknąć do środka',
   'hinge.fixed': 'Stała (nie otwiera się)',
+  'prop.curtainSide': 'Pozycja zasłony', 'curtain.inside': 'Wewnątrz (strona pomieszczenia)', 'curtain.outside': 'Na zewnątrz (elewacja)',
 };

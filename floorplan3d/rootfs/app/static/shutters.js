@@ -142,7 +142,7 @@ export function shutterSlats(h, pitch = 0.07) {
 }
 /** how far from the middle of the wall a roller shutter hangs: between the glass and the face of a wall of thickness t, never outside it */
 export const curtainDepth = (t) => Math.max(0.015, Math.min(0.06, t / 2 - 0.015));
-/** how far from the middle of the wall a cloth curtain hangs on the inside: past the face of the wall, into the room */
+/** how far from the middle of the wall a cloth curtain hangs: past the face of the wall, on the same side as the roller shutter */
 export const curtainHangDepth = (t) => Math.max(0.06, t / 2 + 0.06);
 /** which side of wall w the roller shutter of window o hangs on, in the wall's local z (+1: the side of the normal (-dz, dx), as in the
  *  2D plan; -1: the other one): outside, where there is no room of the floor (rooms) while there is one on the other side; the front wall

@@ -1095,7 +1095,7 @@ const DICT = {
     'fg.offHint': 'Wieder automatisch anordnen: die Karten rücken zusammen (die freien Plätze bleiben für später gespeichert)',
     'fg.help': 'Frei angeordnet: ⠿ ziehen setzt eine Karte auf einen Platz im Gitter (was dort steht, rutscht nach unten), die Ecke ↘ macht sie breiter, schmaler, höher oder niedriger. Am Handy stehen die Karten untereinander.',
     'prop.shutterStyle': 'Vorhangart',
-    'prop.shutterStyleHint': 'Der Vorhang hängt innen und folgt der Position der Entität: 100 % = ganz offen. Links / rechts / mittig bezieht sich auf die Sicht aus dem Raum.',
+    'prop.shutterStyleHint': 'Der Vorhang folgt der Position der Entität: 100 % = ganz offen. Links / rechts / mittig bezieht sich auf die Sicht aus dem Raum.',
     'sh.roller': 'Rollladen (hoch / runter)', 'sh.left': 'Nach links aufziehen', 'sh.right': 'Nach rechts aufziehen', 'sh.split': 'Mittig nach beiden Seiten',
     'prop.panes': 'Anzahl Flügel', 'prop.hinge': 'Fenster öffnet',
     'prop.hingeHint': 'Die Scheibe schwingt um diese Kante nach innen. Bei mehreren Flügeln stellst du es für jeden Flügel einzeln ein; „Fest“ öffnet nicht. Ohne eigenen Kontakt folgt ein Flügel dem Hauptkontakt.',
@@ -1103,6 +1103,7 @@ const DICT = {
     'hinge.right': 'Rechts angeschlagen', 'curtain.title': 'Vorhang / Rollladen', 'curtain.opening': 'Öffnet', 'curtain.closing': 'Schließt',
     'sh.closeLeft': 'Nach links schließen', 'sh.closeRight': 'Nach rechts schließen', 'sh.closeSplit': 'Zur Mitte schließen',
     'hinge.fixed': 'Fest (öffnet nicht)',
+    'prop.curtainSide': 'Position des Vorhangs', 'curtain.inside': 'innen (Raumseite)', 'curtain.outside': 'außen (Fassade)',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2147,7 +2148,7 @@ const DICT = {
     'fg.offHint': 'Arrange automatically again: the cards close up (the free places are kept for later)',
     'fg.help': 'Free layout: drag ⠿ to put a card on a place of the grid (what is there moves down), the corner ↘ makes it wider, narrower, higher or lower. On a phone the cards stand one under the other.',
     'prop.shutterStyle': 'Curtain type',
-    'prop.shutterStyleHint': 'The curtain hangs inside and follows the entity\'s position: 100 % = fully open. Left / right / split is seen from inside the room.',
+    'prop.shutterStyleHint': 'The curtain follows the entity\'s position: 100 % = fully open. Left / right / split is seen from inside the room.',
     'sh.roller': 'Roller shutter (up / down)', 'sh.left': 'Pull open to the left', 'sh.right': 'Pull open to the right', 'sh.split': 'Split to both sides',
     'prop.panes': 'Panes', 'prop.hinge': 'Window opens',
     'prop.hingeHint': 'The pane swings inward around this edge. With several panes you set it for each pane separately; "Fixed" does not open. Without a contact of its own a pane follows the main contact.', 'hinge.bottom': 'Bottom hinged (top opens)',
@@ -2155,6 +2156,7 @@ const DICT = {
     'curtain.opening': 'Opening', 'curtain.closing': 'Closing',
     'sh.closeLeft': 'Close to the left', 'sh.closeRight': 'Close to the right', 'sh.closeSplit': 'Close to the middle',
     'hinge.fixed': 'Fixed (does not open)',
+    'prop.curtainSide': 'Curtain position', 'curtain.inside': 'Inside (room side)', 'curtain.outside': 'Outside (facade)',
   },
 };
 
