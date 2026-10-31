@@ -351,6 +351,16 @@ def _opening_from(rep: Report, path: str, spec: dict):
             rep.warn(f"{path}.shutterStyle", f"unknown curtain type '{style}', using 'roller'")
         elif style != "roller":                                   # roller is the default and is not stored
             o["shutterStyle"] = style
+    if "curtainOutside" in spec:
+        outside = spec["curtainOutside"]
+        if o["type"] != "window":
+            rep.warn(f"{path}.curtainOutside", "only windows have a curtain position, ignored")
+        elif not cover:
+            rep.warn(f"{path}.curtainOutside", "a curtain position needs a cover (shutter / shutterEntity), ignored")
+        elif outside is True:
+            o["curtainOutside"] = True                            # default is the room side and is not stored
+        elif outside is not False:
+            rep.warn(f"{path}.curtainOutside", "curtainOutside must be true or false, ignored")
     if o["type"] == "window":
         base_panes = PANE_COUNTS.get(o.get("style"), 2)
         pane_count = base_panes
@@ -1140,7 +1150,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "shutterStyle", "rainWarn", "heat") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "shutterStyle", "curtainOutside", "rainWarn", "heat") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []
