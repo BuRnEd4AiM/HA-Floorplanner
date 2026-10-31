@@ -48,7 +48,7 @@ export function offlineDevices(env) {
     });
     openingWalls(f).forEach((w) => (w.openings || []).forEach((o) => {
       add(o.entity, fi, 'opening', o.id, o.name || t(`prop.${o.type}`), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);
-      add(shutterEntity(o), fi, 'opening', o.id, o.name || t('shutter.title'), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);   // its roller shutter (#331)
+      add(shutterEntity(o), fi, 'opening', o.id, o.name || t('curtain.title'), (w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2, f);   // its cover (#331)
     }));
   });
   return out.sort((a, b) => a.floor - b.floor || a.room.localeCompare(b.room) || a.name.localeCompare(b.name));

@@ -2,7 +2,7 @@
  * opening leaf in 3D (shut: a green frame, so you see which ones have a sensor; a sensor that does not report: an amber frame, #375), the
  * pill "n open" with its list, and the animation of the leaves. The decisions are pure functions (tested). */
 import { openingWalls } from './dormerwin.js';
-import { shutterEntity, shutterClosed, curtainScale, shutterLabel, curtainStep } from './shutters.js';
+import { shutterEntity, shutterClosed, curtainStyle, curtainTarget, shutterLabel, curtainStep } from './shutters.js';
 
 export const OPEN_HEX = 0xff4a3d;
 export const SENSOR_HEX = 0x2fcf6a;              // the frame of a shut door / window with a sensor
@@ -10,8 +10,13 @@ export const OFFLINE_HEX = 0xffa21f;             // the frame of one whose senso
 /** which group an opening belongs to in the lists */
 export const openKind = (o) => (o.type === 'door' ? (o.style === 'garage' ? 'gates' : 'doors') : 'windows');
 export const OPEN_KINDS = ['doors', 'gates', 'windows'];
-/** entity of pane i: multi-pane windows may have one contact sensor per pane (o.paneEntities), falling back to the main sensor */
-export const paneEntity = (o, i) => (o.paneEntities && o.paneEntities[i]) || o.entity || '';
+/** entity of pane i: multi-pane windows may have one contact sensor per pane (o.paneEntities). Once per-pane sensors are used, a blank
+ *  pane has none and stays closed (that is how a fixed pane is made); without any per-pane sensor the window's main sensor drives all
+ *  panes. */
+export const paneEntity = (o, i) => {
+  const panes = o.paneEntities || [];
+  return panes.some(Boolean) ? panes[i] || '' : o.entity || '';
+};
 /** every sensor of an opening, once */
 export const openingEntities = (o) => [...new Set([o.entity, ...(o.paneEntities || [])].filter(Boolean))];
 /** is a state "open"? on / open / ..., and a garage door on its way (opening, closing) is not closed */
@@ -50,8 +55,10 @@ export function openItems(floors, env) {
   return out.sort((p, q) => OPEN_KINDS.indexOf(p.kind) - OPEN_KINDS.indexOf(q.kind) || q.floor - p.floor || p.room.localeCompare(q.room) || p.name.localeCompare(q.name));
 }
 
-/** the moving parts of an opening's 3D object: its leaf or panes, and the curtain of its roller shutter (#331) */
-const movers = (obj) => [...(obj.userData.panePivots || (obj.userData.pivot ? [obj.userData.pivot] : [])), ...(obj.userData.shutter ? [obj.userData.shutter] : [])];
+/** the curtains of an opening's 3D object: one pivot for a roller shutter or a one-sided curtain, two for a split curtain */
+const curtainsOf = (obj) => { const sh = obj?.userData.shutter; return !sh ? [] : Array.isArray(sh) ? sh : [sh]; };
+/** the moving parts of an opening's 3D object: its leaf or panes, and the curtain of its cover (#331) */
+const movers = (obj) => [...(obj.userData.panePivots || (obj.userData.pivot ? [obj.userData.pivot] : [])), ...curtainsOf(obj)];
 
 /** ctx: $, t, layout(), states(), onStates, registry, pointInPoly, distToPoly, show(target) (jump to an object: { floor, kind, id }),
  *  tapBalls (the shutters' balls, #331), isLive(), floorIdx() (balls show up to the floor shown, like the devices' balls), labelSprites
@@ -65,14 +72,14 @@ export function initOpenings(ctx) {
    *  says how far it is open, its ball is lit while the cover is open; fi: the floor of the window */
   function applyShutter(o, obj, fi) {
     const e = shutterEntity(o), st = e ? ctx.states()[e] : null;
-    const sh = obj?.userData.shutter;
-    if (sh) {
-      sh.userData.target = curtainScale(shutterClosed(st));
-      if (sh.userData.fresh) { sh.scale.y = sh.userData.target; sh.userData.fresh = false; }
-    }
+    const curtains = curtainsOf(obj), target = curtainTarget(curtainStyle(o), shutterClosed(st));
+    curtains.forEach((sh) => {
+      sh.userData.target = target;
+      if (sh.userData.fresh) { sh.scale[sh.userData.axis] = target; sh.userData.fresh = false; }
+    });
     if (!e) return;
     const sp = ctx.labelSprites?.get(o.id);
-    if (sp) { sp.visible = ctx.labelsOn?.() ?? true; sp.userData.setText(shutterLabel(st, t)); }
+    if (sp) { sp.visible = ctx.labelsOn?.() ?? true; sp.userData.setText(shutterLabel(st, t, o)); }
     ctx.tapBalls?.update(o.id, ctx.onStates.has(st?.state), null, !!ctx.isLive?.(), fi <= (ctx.floorIdx?.() ?? Infinity));
   }
   /** tint and leaf targets of every opening, and the pill */
@@ -86,7 +93,8 @@ export function initOpenings(ctx) {
       if (!obj?.userData.tint) return;                            // a bare gap in the wall
       const pps = obj.userData.panePivots;
       const opens = pps ? pps.map((_, i) => isOpen(paneEntity(o, i))) : [isOpen(o.entity)];
-      const open = opens.some(Boolean);
+      // a fixed pane has no sensor of its own; the window's main contact still says that something is open (red frame and the list)
+      const open = opens.some(Boolean) || (pps ? openingEntities(o).some(isOpen) : false);
       obj.userData.open = open;
       const look = contactLook(openingEntities(o), open, stateOf);
       obj.userData.look = look;

@@ -90,7 +90,7 @@ export function initRoomPanel(ctx) {
     const seen = new Set();                                    // one row per entity (an LED ring's sections may share one light)
     const devs = ctx.entityDevices(f).filter((d) => d.entity && ctx.pointInPoly(d.x, d.z, room.points) && !seen.has(d.entity) && seen.add(d.entity));
     const nameOf = (id) => ctx.entities().find((e) => e.entity_id === id)?.name;
-    devs.push(...roomShutters(room, f, seen, nameOf, t('shutter.title')));                    // the roller shutters of its windows (#331)
+    devs.push(...roomShutters(room, f, seen, nameOf, t('curtain.title')));                    // the roller shutters of its windows (#331)
     const placedIds = new Set([...ctx.entityDevices(f).map((d) => d.entity), ...floorShutters(f)]);
     const extra = (room.area ? ctx.areas().find((a) => a.id === room.area)?.entities || [] : [])
       .filter((id) => !placedIds.has(id) && states[id] && inRoomPanel(id))
