@@ -2157,7 +2157,6 @@ export default {
   'fg.offHint': 'Disponi di nuovo automaticamente: le schede si avvicinano (le posizioni libere restano salvate)',
   'fg.help': 'Disposizione libera: trascina ⠿ per mettere una scheda in un punto della griglia (ciò che c’è scende), l’angolo ↘ la rende più larga, più stretta, più alta o più bassa. Sul telefono le schede stanno una sotto l’altra.',
   'prop.shutterStyle': 'Tipo di tenda',
-  'prop.shutterStyleHint': 'La tenda segue la posizione dell\'entità: 100 % = completamente aperta. Sinistra / destra / al centro si intende visto dalla stanza.',
   'sh.roller': 'Tapparella (su / giù)', 'sh.left': 'Aprire verso sinistra', 'sh.right': 'Aprire verso destra', 'sh.split': 'Aprire al centro verso i due lati',
   'prop.panes': 'Ante', 'prop.hinge': 'Apertura della finestra',
   'prop.hingeHint': 'Il vetro ruota verso l\'interno attorno a questo bordo. Con più ante si imposta per ogni anta separatamente; « Fissa » non si apre. Senza un sensore proprio, un\'anta segue il sensore principale.',
@@ -2166,4 +2165,5 @@ export default {
   'sh.closeLeft': 'Chiudere verso sinistra', 'sh.closeRight': 'Chiudere verso destra', 'sh.closeSplit': 'Chiudere al centro',
   'hinge.fixed': 'Fissa (non si apre)',
   'prop.curtainSide': 'Posizione della tenda', 'curtain.inside': 'All\'interno (lato stanza)', 'curtain.outside': 'All\'esterno (facciata)',
+  'prop.openDir': 'Senso di apertura', 'opendir.in': 'Verso l\'interno (nella stanza)', 'opendir.out': 'Verso l\'esterno (alla facciata)',
 };

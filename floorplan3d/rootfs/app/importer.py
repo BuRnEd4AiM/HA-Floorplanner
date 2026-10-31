@@ -351,16 +351,31 @@ def _opening_from(rep: Report, path: str, spec: dict):
             rep.warn(f"{path}.shutterStyle", f"unknown curtain type '{style}', using 'roller'")
         elif style != "roller":                                   # roller is the default and is not stored
             o["shutterStyle"] = style
-    if "curtainOutside" in spec:
-        outside = spec["curtainOutside"]
+    if "curtainSide" in spec or "curtainOutside" in spec:
+        wanted = spec.get("curtainSide")
+        legacy = spec.get("curtainOutside")
+        default_side = "out" if o.get("shutterStyle") == "roller" else "in"   # roller shutters facade, cloth curtains room side
         if o["type"] != "window":
-            rep.warn(f"{path}.curtainOutside", "only windows have a curtain position, ignored")
+            rep.warn(f"{path}.curtainSide", "only windows have a curtain position, ignored")
         elif not cover:
-            rep.warn(f"{path}.curtainOutside", "a curtain position needs a cover (shutter / shutterEntity), ignored")
-        elif outside is True:
-            o["curtainOutside"] = True                            # default is the room side and is not stored
-        elif outside is not False:
+            rep.warn(f"{path}.curtainSide", "a curtain position needs a cover (shutter / shutterEntity), ignored")
+        elif wanted is not None and (not isinstance(wanted, str) or wanted not in ("in", "out")):
+            rep.warn(f"{path}.curtainSide", f"unknown curtain side '{wanted}', using the default")
+        elif legacy is not None and not isinstance(legacy, bool):
             rep.warn(f"{path}.curtainOutside", "curtainOutside must be true or false, ignored")
+        else:
+            if wanted is None and isinstance(legacy, bool):
+                wanted = "out" if legacy else "in"                # the old curtainOutside flag (4.50.1): true = facade side
+            if wanted != default_side:
+                o["curtainSide"] = wanted                         # the style's default side is not stored
+    if "openOutward" in spec:
+        outward = spec["openOutward"]
+        if o["type"] != "window":
+            rep.warn(f"{path}.openOutward", "only windows have an opening direction, ignored")
+        elif outward is True:
+            o["openOutward"] = True                            # inward is the default and is not stored
+        elif outward is not False:
+            rep.warn(f"{path}.openOutward", "openOutward must be true or false, ignored")
     if o["type"] == "window":
         base_panes = PANE_COUNTS.get(o.get("style"), 2)
         pane_count = base_panes
@@ -1150,7 +1165,7 @@ def layout_to_property(layout, name="Haus"):
         for w in f.get("walls", []):
             ow = {"a": w["a"], "b": w["b"], "thickness": w.get("thickness", 0.2), "height": w.get("height", 2.6), "openings": [], **({"faces": w["faces"]} if w.get("faces") else {})}
             for o in w.get("openings", []):
-                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "shutterStyle", "curtainOutside", "rainWarn", "heat") if k in o}
+                oo = {k: o[k] for k in ("type", "style", "panes", "hinge", "paneHinges", "openOutward", "width", "height", "sill", "pos", "entity", "name", "paneEntities", "shutter", "shutterEntity", "shutterStyle", "curtainSide", "rainWarn", "heat") if k in o}
                 ow["openings"].append(oo)
             item["walls"].append(ow)
         item["devices"] = []

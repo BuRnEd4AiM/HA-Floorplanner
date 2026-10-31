@@ -17,6 +17,13 @@ export const SHUTTER_STYLES = ['roller', 'left', 'right', 'split'];
 export const hasShutter = (o) => o?.type === 'window' && !!o.shutter;
 /** how the cover of o opens: 'roller' (up/down, also the default of older windows), 'left', 'right' or 'split'; null without one */
 export const curtainStyle = (o) => (hasShutter(o) ? (SHUTTER_STYLES.includes(o.shutterStyle) ? o.shutterStyle : 'roller') : null);
+/** which side of the window the cover hangs on: 'in' (room side, the default for a cloth curtain) or 'out' (facade, the default for a
+ *  roller shutter), unless the window sets it (o.curtainSide: 'in' / 'out') */
+export function curtainSide(o) {
+  const own = o?.curtainSide;
+  if (own === 'in' || own === 'out') return own;
+  return curtainStyle(o) === 'roller' ? 'out' : 'in';
+}
 /** the style of a cover: 'roller' is the default and is not stored (older layouts stay as they are) */
 export function setShutterStyle(o, s) {
   if (!hasShutter(o)) return o;
