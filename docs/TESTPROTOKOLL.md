@@ -4,13 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.50.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.50.1)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.50.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.50.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in 4.50.0: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich** (Abschnitt 138, ein Beitrag von aixmoyu): Claude hat 138.1 bis 138.3 in der Demo geprüft (probier es gern selbst); für dich im Add-on 138.4 bis 138.6, und 138.7, wenn du einen Vorhang mit Motor hast.
+1. **Neu in 4.50.0 und 4.50.1: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich, auch „Fest“** (Abschnitt 138 und 139, ein Beitrag von aixmoyu): Claude hat 138.1 bis 138.3, 139.1 und 139.2 geprüft (probier es gern selbst in der Demo); für dich im Add-on 138.4 bis 138.6 und 139.3, und 138.7, wenn du einen Vorhang mit Motor hast.
 1. **Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite dort, wo du sie willst** (Abschnitt 137): Claude hat 137.1 bis 137.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad und Handy 137.6 bis 137.8.
 1. **Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung** (Abschnitt 136): Claude hat 136.1 bis 136.3 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad 136.4 bis 136.6.
 1. **Neu in 4.46.0: 简体中文 Chinesisch als achte Sprache** (Abschnitt 135): Claude hat 135.1 bis 135.3 in der Demo geprüft; für dich nur 135.4 (die Sprache wieder auf Deutsch stellen geht?).
@@ -375,7 +375,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 136. Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung | 3 | 0 | 3 | 0 | 136.4 bis 136.6 |
 | 137. Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite auf einem Gitter | 5 | 0 | 3 | 0 | 137.6 bis 137.8 |
 | 138. Neu in 4.50.0: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich (#606) | 3 | 0 | 4 | 0 | 138.4 bis 138.7 |
-| **Zusammen** | **844** | **1** | **99** | **92** | |
+| 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606) | 2 | 0 | 1 | 0 | 139.3 |
+| **Zusammen** | **846** | **1** | **100** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2114,6 +2115,15 @@ Ein Beitrag von aixmoyu (#606). Der Besitzer am 2026-10-31: „Schau dir mal #60
 | 138.2 | In der Demo: beim selben Fenster „Vorhangart“: „Mittig nach beiden Seiten“ | Zwei Vorhanghälften: offen an beiden Seiten zusammengeschoben, zu treffen sie sich in der Mitte; über dem Fenster „⇔“; die Karte hat „Mittig nach beiden Seiten“ und „Zur Mitte schließen“ | ✅ (2026-10-31, Claude in der Demo) |
 | 138.3 | In der Demo: beim selben Fenster „Anzahl Flügel“ 3, bei „Flügel 1 · Fenster öffnet“ „Links angeschlagen“, bei Flügel 3 „Rechts angeschlagen“; unter „Einzelne Flügel“ jedem Flügel `binary_sensor.fenster_wohnzimmer` geben (meldet in der Demo „offen“) | Drei Felder, eins je Flügel; die offenen Flügel: Flügel 1 dreht sich um seine linke Kante, Flügel 3 um seine rechte Kante wie eine Tür in den Raum, Flügel 2 kippt oben nach innen | ✅ (2026-10-31, Claude in der Demo, mit ausgedachten Kontakten) |
 | 138.4 | Im Add-on: ein Fenster mit deinem Rollladen ansehen und in Live bedienen | Alles wie vorher: der Rollladen fährt außen hoch und runter, über dem Fenster „↕ … % offen“, die Karte hat „Hoch“, „Stopp“, „Runter“ | ❓ |
-| 138.5 | Im Add-on: ein Fenster, bei dem nur manche Flügel einen eigenen Kontakt haben (falls du so eins hast), Fenster öffnen | Ein Flügel mit eigenem Kontakt geht in 3D auf, ein Flügel ohne Kontakt bleibt zu; der Rahmen wird rot, und das Raum-Fenster zeigt jeden Flügel mit Kontakt | ❓ |
+| 138.5 | Im Add-on: ein Fenster, bei dem nur manche Flügel einen eigenen Kontakt haben (falls du so eins hast), Fenster öffnen | (seit 4.50.1) Ein Flügel mit eigenem Kontakt folgt diesem, ein Flügel ohne Kontakt dem Hauptkontakt des Fensters, wie vor 4.50.0; der Rahmen wird rot, und das Raum-Fenster zeigt jeden Flügel mit Kontakt | ❓ |
 | 138.6 | Im Add-on: ein gekipptes Fenster in 3D ansehen (Kontakt meldet „offen“) | Der Flügel kippt in den Raum hinein, nicht nach außen | ❓ |
 | 138.7 | Im Add-on, nur wenn du einen Vorhang mit Motor hast: ihm die passende „Vorhangart“ geben und in Live auf- und zufahren | Der Vorhang in 3D geht zur richtigen Seite auf (links und rechts so, wie man im Raum steht und hinausschaut) | ❓ |
+
+## 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606)
+aixmoyu hat #606 kurz vor dem Merge von 4.50.0 noch verbessert. Der Besitzer am 2026-10-31: „Ja, als 4.50.1“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 139.1 | In der Demo: ✎ Bearbeiten, ein Fenster mit „Anzahl Flügel“ 3, bei „Flügel 2 · Fenster öffnet“ „Fest (öffnet nicht)“ | Flügel 2 hat unter „Einzelne Flügel“ kein Kontaktfeld mehr (dort steht „Flügel 2 · Fest (öffnet nicht)“); meldet der Hauptkontakt „offen“, gehen Flügel 1 und 3 auf, Flügel 2 bleibt zu | ✅ (2026-10-31, Claude im Test-Add-on) |
+| 139.2 | In der Demo: Live, das 🪟 an einem Fenster mit Rollladen (ohne Vorhangart) antippen | Die Karte heißt „Rollladen“ (nicht „Vorhang / Rollladen“), mit „Hoch“, „Stopp“, „Runter“ | ✅ (2026-10-31, Claude im Test-Add-on) |
+| 139.3 | Im Add-on: dein Dreifachfenster (falls du eins hast) mit festem Mittelteil: Flügel 2 auf „Fest“, dann das Fenster öffnen | Nur die Flügel, die wirklich aufgehen, drehen sich in 3D; der Mittelteil bleibt zu | ❓ |
