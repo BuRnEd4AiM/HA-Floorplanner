@@ -1,6 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
 import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
-import { hasShutter, curtainStyle, shutterSlats, curtainDepth, curtainHangDepth, SHUTTER_UP, SHUTTER_SPEED, CURTAIN_GATHER, CURTAIN_SPEED } from './shutters.js';
+import { hasShutter, curtainStyle, curtainSide, shutterSlats, curtainDepth, curtainHangDepth, SHUTTER_UP, SHUTTER_SPEED, CURTAIN_GATHER, CURTAIN_SPEED } from './shutters.js';
 import { mergeParts } from './meshmerge.js';
 import { windowPanes, paneHinge } from './windowpanes.js';
 
@@ -65,10 +65,10 @@ function boxMesh(x0, x1, y0, y1, depth, material) {
 }
 
 /** the roller shutter of a window (#331): a curtain of slats that hangs under the lintel between the glass and the face of the wall on
- *  side `side` (local z, the outside), in a rail on either side. Its pivot is scaled in height by openings.js as far as the cover is
- *  closed (shutters.js: curtainScale); it starts rolled up. Returns the pivot. */
-function addShutter(g, x0, x1, yB, yT, t, ft, mat, side) {
-  const z = side * curtainDepth(t), ch = yT - yB, { n, sh } = shutterSlats(ch);
+ *  side `hangSide` (local z, the facade by default), in a rail on either side. Its pivot is scaled in height by openings.js as far as
+ *  the cover is closed (shutters.js: curtainScale); it starts rolled up. Returns the pivot. */
+function addShutter(g, x0, x1, yB, yT, t, ft, mat, hangSide) {
+  const z = hangSide * curtainDepth(t), ch = yT - yB, { n, sh } = shutterSlats(ch);
   const slats = [];
   for (let k = 0; k < n; k++) {
     const b = new THREE.BoxGeometry(x1 - x0 - 2 * ft, sh - 0.008, 0.012);
@@ -88,10 +88,10 @@ function addShutter(g, x0, x1, yB, yT, t, ft, mat, side) {
 }
 
 /** a cloth curtain of a window (shutters.js: 'left', 'right' or 'split'): one panel that gathers to one side or two that part in the
- *  middle, hanging on a rod on the room side (or on the facade side with `outside`). Its pivot is scaled sideways by openings.js with
- *  the cover's position (curtainWidth). Returns the pivot, or both pivots of a split curtain, in one array. */
-function addCurtain(g, x0, x1, yB, yT, t, ft, mat, side, style, outside) {
-  const z = (outside ? side : -side) * curtainHangDepth(t), h = yT - yB, cw = x1 - x0 - 2 * ft;
+ *  middle, hanging on a rod on side `hangSide` (the room side by default). Its pivot is scaled sideways by openings.js with the cover's
+ *  position (curtainWidth). Returns the pivot, or both pivots of a split curtain, in one array. */
+function addCurtain(g, x0, x1, yB, yT, t, ft, mat, side, hangSide, style) {
+  const z = hangSide * curtainHangDepth(t), h = yT - yB, cw = x1 - x0 - 2 * ft;
   const leftEdge = side > 0 ? x1 - ft : x0 + ft;     // seen from inside the room (the plan's left, whichever way the wall was drawn)
   const rightEdge = side > 0 ? x0 + ft : x1 - ft;
   const panel = (gx, d, w) => {
@@ -205,18 +205,19 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
     // (paneHinge); multi-pane windows get one pivot per pane so every pane can follow its own sensor
     const mkPane = (u0, u1, i) => {
       const pv = new THREE.Group(), pw = u1 - u0, hinge = paneHinge(o, i);
-      let pane, dir = -side, axis = 'x', max = 0.4;
+      const flip = o.openOutward ? -1 : 1;                 // the pane opens inward by default, outward on request
+      let pane, dir = flip * -side, axis = 'x', max = 0.4;
       if (hinge === 'left' || hinge === 'right') {
-        const atLeft = hinge === 'left' ? side > 0 : side < 0;   // the hinge on the left seen from inside the room
-        pv.position.set(atLeft ? u1 : u0, s + ft, 0);
-        pane = atLeft ? boxMesh(-pw, 0, 0, inner, 0.015, mats.glass) : boxMesh(0, pw, 0, inner, 0.015, mats.glass);
+        const atU1 = hinge === 'left' ? side > 0 : side < 0;   // the hinge on the left seen from inside the room
+        pv.position.set(atU1 ? u1 : u0, s + ft, 0);
+        pane = atU1 ? boxMesh(-pw, 0, 0, inner, 0.015, mats.glass) : boxMesh(0, pw, 0, inner, 0.015, mats.glass);
         pane.position.y = inner / 2;
-        dir = hinge === 'left' ? -1 : 1; axis = 'y'; max = 1.15;
+        dir = flip * (atU1 ? -side : side); axis = 'y'; max = 1.15;     // whatever the side: the pane swings inward unless 开向 says outward
       } else {
         const top = hinge === 'top';
         pv.position.set(0, s + ft + (top ? inner : 0), 0);
         pane = top ? boxMesh(u0, u1, -inner, 0, 0.015, mats.glass) : boxMesh(u0, u1, 0, inner, 0.015, mats.glass);
-        dir = top ? side : -side;
+        dir = flip * (top ? side : -side);
       }
       pv.add(pane);
       g.add(pv);
@@ -233,8 +234,9 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
     }
     if (st !== 'fixed') { pivot = pvs[0]; g.userData.panePivots = pvs; }
     if (o.sill > 0.2) g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
-    if (shade === 'roller' && shutterMat) g.userData.shutter = addShutter(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, shutterMat, side);
-    else if (shade && curtainMat) g.userData.shutter = addCurtain(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, curtainMat, side, shade, !!o.curtainOutside);
+    const hangSide = curtainSide(o) === 'out' ? side : -side;   // the room side by default (cloth curtain), the facade for a roller shutter
+    if (shade === 'roller' && shutterMat) g.userData.shutter = addShutter(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, shutterMat, hangSide);
+    else if (shade && curtainMat) g.userData.shutter = addCurtain(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, curtainMat, side, hangSide, shade);
   }
   // invisible, slightly padded hit box: doors and windows stay easy to select even with a lamp or sensor in front of them
   const proxy = new THREE.Mesh(new THREE.BoxGeometry(w, h, t + 0.1), new THREE.MeshBasicMaterial({ visible: false }));

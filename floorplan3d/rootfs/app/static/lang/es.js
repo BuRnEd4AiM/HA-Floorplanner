@@ -2160,7 +2160,6 @@ export default {
   'fg.offHint': 'Ordenar de nuevo automáticamente: las tarjetas se juntan (las posiciones libres se guardan para después)',
   'fg.help': 'Colocación libre: arrastra ⠿ para poner una tarjeta en un lugar de la cuadrícula (lo que haya allí baja), la esquina ↘ la hace más ancha, más estrecha, más alta o más baja. En el móvil las tarjetas van una debajo de otra.',
   'prop.shutterStyle': 'Tipo de cortina',
-  'prop.shutterStyleHint': 'La cortina sigue la posición de la entidad: 100 % = totalmente abierta. Izquierda / derecha / centro se ve desde la habitación.',
   'sh.roller': 'Persiana (subir / bajar)', 'sh.left': 'Abrir hacia la izquierda', 'sh.right': 'Abrir hacia la derecha',
   'sh.split': 'Abrir por el centro a ambos lados', 'prop.panes': 'Hojas', 'prop.hinge': 'Apertura de la ventana',
   'prop.hingeHint': 'El cristal gira hacia dentro alrededor de este borde. Con varios batientes se ajusta para cada uno por separado; «Fija» no se abre. Sin sensor propio, una hoja sigue el sensor principal.',
@@ -2169,4 +2168,5 @@ export default {
   'sh.closeLeft': 'Cerrar hacia la izquierda', 'sh.closeRight': 'Cerrar hacia la derecha', 'sh.closeSplit': 'Cerrar hacia el centro',
   'hinge.fixed': 'Fija (no se abre)',
   'prop.curtainSide': 'Posición de la cortina', 'curtain.inside': 'Dentro (lado de la habitación)', 'curtain.outside': 'Fuera (fachada)',
+  'prop.openDir': 'Sentido de apertura', 'opendir.in': 'Hacia dentro (a la habitación)', 'opendir.out': 'Hacia fuera (a la fachada)',
 };

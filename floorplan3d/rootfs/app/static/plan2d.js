@@ -17,7 +17,7 @@ import { planFill } from './floorcover.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
 import { addStepAt, moveSection, moveCorner, removeStep } from './roofsteps.js';
 import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
-import { hasShutter, curtainStyle, shutterEntity, linkedEntities, shutterSide, shutterText } from './shutters.js';
+import { hasShutter, curtainStyle, curtainSide, shutterEntity, linkedEntities, shutterSide, shutterText } from './shutters.js';
 import { SCANDI, SCANDI_TYPES, footOf as scandiFoot, variantOf } from './scandi.js';
 import { LEISURE_FLAT } from './leisure.js';
 import { GARAGE_FLAT } from './garage.js';
@@ -545,14 +545,14 @@ export function createPlan(ctx) {
         } else {
           const a = P(-hw, 0), b = P(hw, 0), a1 = P(-hw, -t * .5), b1 = P(hw, -t * .5), a2 = P(-hw, t * .5), b2 = P(hw, t * .5);
           o += `<path d="M${a1}L${b1}M${a2}L${b2}" stroke="${col}" stroke-width="1.6" fill="none"/><path d="M${a}L${b}" stroke="${col}" stroke-width="1" opacity=".7"/>`;
-          if (hasShutter(op)) {                                  // the cover (#331): slats outside, a cloth curtain inside, its position in the live mode
-            const k = shutterSide(w, op, f.rooms), cloth = curtainStyle(op) !== 'roller' ? -k : k;
-            o += `<path class="shutter2d" d="M${P(-hw, cloth * t * .8)}L${P(hw, cloth * t * .8)}" stroke="${isSel ? C.sel : C.accent}" stroke-width="3" stroke-dasharray="2 2" fill="none"/>`;
+          if (hasShutter(op)) {                                  // the cover (#331): slats/curtain on its side, its position in the live mode
+            const k = shutterSide(w, op, f.rooms), hang = curtainSide(op) === 'out' ? k : -k;
+            o += `<path class="shutter2d" d="M${P(-hw, hang * t * .8)}L${P(hw, hang * t * .8)}" stroke="${isSel ? C.sel : C.accent}" stroke-width="3" stroke-dasharray="2 2" fill="none"/>`;
             const se = shutterEntity(op);
-            const off = t + 0.35 + (cloth < 0 && op.entity ? 0.3 : 0);  // the contact's state stands on the -1 side: one line further out
+            const off = t + 0.35 + (hang < 0 && op.entity ? 0.3 : 0);  // the contact's state stands on the -1 side: one line further out
             // the plan is a top view and can be turned with the camera: a left/right arrow there would often point the other way,
             // so a cloth curtain only shows the generic ⇔ (text arrow, no emoji); the 3D label still names its side
-            if (live && se) { const p = P(0, cloth * off), icon = curtainStyle(op) === 'roller' ? '↕' : '⇔'; o += `<text class="shutterText" x="${p[0]}" y="${p[1]}" fill="${C.text}" font-size="10" text-anchor="middle">${icon} ${esc(shutterText(ctx.states()[se], ctx.t, op))}</text>`; }
+            if (live && se) { const p = P(0, hang * off), icon = curtainStyle(op) === 'roller' ? '↕' : '⇔'; o += `<text class="shutterText" x="${p[0]}" y="${p[1]}" fill="${C.text}" font-size="10" text-anchor="middle">${icon} ${esc(shutterText(ctx.states()[se], ctx.t, op))}</text>`; }
           }
         }
         const hit = `M${P(-hw, -t - 0.15)}L${P(hw, -t - 0.15)}L${P(hw, t + 0.15)}L${P(-hw, t + 0.15)}Z`;
