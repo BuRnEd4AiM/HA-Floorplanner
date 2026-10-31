@@ -17,7 +17,7 @@ import { planFill } from './floorcover.js';
 import { roofAt, dragStep, roofHandles, resizeBox } from './roofmove.js';
 import { addStepAt, moveSection, moveCorner, removeStep } from './roofsteps.js';
 import { distAlong, canSplitAt, splitWall } from './wallsplit.js';
-import { hasShutter, curtainStyle, shutterEntity, shutterIcon, linkedEntities, shutterSide, shutterText } from './shutters.js';
+import { hasShutter, curtainStyle, shutterEntity, linkedEntities, shutterSide, shutterText } from './shutters.js';
 import { SCANDI, SCANDI_TYPES, footOf as scandiFoot, variantOf } from './scandi.js';
 import { LEISURE_FLAT } from './leisure.js';
 import { GARAGE_FLAT } from './garage.js';
@@ -550,7 +550,9 @@ export function createPlan(ctx) {
             o += `<path class="shutter2d" d="M${P(-hw, cloth * t * .8)}L${P(hw, cloth * t * .8)}" stroke="${isSel ? C.sel : C.accent}" stroke-width="3" stroke-dasharray="2 2" fill="none"/>`;
             const se = shutterEntity(op);
             const off = t + 0.35 + (cloth < 0 && op.entity ? 0.3 : 0);  // the contact's state stands on the -1 side: one line further out
-            if (live && se) { const p = P(0, cloth * off); o += `<text class="shutterText" x="${p[0]}" y="${p[1]}" fill="${C.text}" font-size="10" text-anchor="middle">${shutterIcon(op)} ${esc(shutterText(ctx.states()[se], ctx.t, op))}</text>`; }
+            // the plan is a top view and can be turned with the camera: a left/right arrow there would often point the other way,
+            // so a cloth curtain only shows the generic ⇔ (text arrow, no emoji); the 3D label still names its side
+            if (live && se) { const p = P(0, cloth * off), icon = curtainStyle(op) === 'roller' ? '↕' : '⇔'; o += `<text class="shutterText" x="${p[0]}" y="${p[1]}" fill="${C.text}" font-size="10" text-anchor="middle">${icon} ${esc(shutterText(ctx.states()[se], ctx.t, op))}</text>`; }
           }
         }
         const hit = `M${P(-hw, -t - 0.15)}L${P(hw, -t - 0.15)}L${P(hw, t + 0.15)}L${P(-hw, t + 0.15)}Z`;

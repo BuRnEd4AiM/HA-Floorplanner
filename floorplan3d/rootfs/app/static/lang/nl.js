@@ -2134,8 +2134,9 @@ export default {
   'prop.shutterStyleHint': 'Het gordijn hangt binnen en volgt de positie van de entiteit: 100 % = helemaal open. Links / rechts / in het midden gezien vanuit de kamer.',
   'sh.roller': 'Rolluik (omhoog / omlaag)', 'sh.left': 'Naar links opentrekken', 'sh.right': 'Naar rechts opentrekken',
   'sh.split': 'In het midden naar beide kanten', 'prop.panes': 'Ramen', 'prop.hinge': 'Raam opent',
-  'prop.hingeHint': 'De ruit draait naar binnen om deze rand. Bij meerdere ramen stel je het per raam apart in. Een raam zonder contact blijft dicht (zoals vast glas).', 'hinge.bottom': 'Onder scharnier (boven opent)',
+  'prop.hingeHint': 'De ruit draait naar binnen om deze rand. Bij meerdere ramen stel je het per raam apart in; „Vast” opent niet. Zonder eigen contact volgt een raam het hoofdcontact.', 'hinge.bottom': 'Onder scharnier (boven opent)',
   'hinge.top': 'Boven scharnier (onder opent)', 'hinge.left': 'Links scharnier', 'hinge.right': 'Rechts scharnier', 'curtain.title': 'Gordijn / rolluik',
   'curtain.opening': 'Gaat open', 'curtain.closing': 'Gaat dicht',
   'sh.closeLeft': 'Naar links sluiten', 'sh.closeRight': 'Naar rechts sluiten', 'sh.closeSplit': 'Naar het midden sluiten',
+  'hinge.fixed': 'Vast (opent niet)',
 };

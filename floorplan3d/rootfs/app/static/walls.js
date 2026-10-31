@@ -27,6 +27,8 @@ export const OPENING_DEFAULTS = {
 };
 export const DOOR_STYLES = ['single', 'glass', 'double', 'sliding', 'open', 'gap', 'garage'];
 export const WINDOW_STYLES = ['single', 'double', 'triple', 'fixed'];
+// the panes of a window live in windowpanes.js (pure, unit test); exported here too, as before
+export { WINDOW_HINGES, PANE_HINGES, stylePanes, windowPanes, paneHinge } from './windowpanes.js';
 const EDGE = 0.05;   // minimum solid wall left next to an opening
 
 export const wallLength = (w) => Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
@@ -218,7 +220,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
       }
       pv.add(pane);
       g.add(pv);
-      if (st !== 'fixed') { pv.userData.dir = dir; pv.userData.axis = axis; pv.userData.max = max; }
+      if (st !== 'fixed' && hinge !== 'fixed') { pv.userData.dir = dir; pv.userData.axis = axis; pv.userData.max = max; }
       return pv;
     };
     const pvs = [];
@@ -272,8 +274,9 @@ export function buildWall(w, { material, ghost = false, low = false, cut = 0, ma
   };
   const winMats = windowFrame && !holo ? { ...mats, frame: makeMat(windowFrame, ghost) } : mats;   // anthracite window frames (#428)
   // the roller shutters of the windows (#331): one material of their own, not tinted red with an open window
-  const shutterMat = (w.openings || []).some((o) => curtainStyle(o) === 'roller') ? (holo ? basic(0x8fb4ff, 0.8) : makeMat('#a7adb4', ghost)) : null;
-  const curtainMat = (w.openings || []).some((o) => curtainStyle(o) && curtainStyle(o) !== 'roller') ? (holo ? basic(0x8fb4ff, 0.8) : makeMat('#d9d0c2', ghost, { roughness: 0.92 })) : null;
+  const shades = (w.openings || []).map(curtainStyle);
+  const shutterMat = shades.includes('roller') ? (holo ? basic(0x8fb4ff, 0.8) : makeMat('#a7adb4', ghost)) : null;
+  const curtainMat = shades.some((s) => s && s !== 'roller') ? (holo ? basic(0x8fb4ff, 0.8) : makeMat('#d9d0c2', ghost, { roughness: 0.92 })) : null;
   const pieces = [];
   const solid = (x0, x1, y0, y1) => {
     if (bare) return;

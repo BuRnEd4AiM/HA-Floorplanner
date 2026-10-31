@@ -10,15 +10,20 @@ export const OFFLINE_HEX = 0xffa21f;             // the frame of one whose senso
 /** which group an opening belongs to in the lists */
 export const openKind = (o) => (o.type === 'door' ? (o.style === 'garage' ? 'gates' : 'doors') : 'windows');
 export const OPEN_KINDS = ['doors', 'gates', 'windows'];
-/** entity of pane i: multi-pane windows may have one contact sensor per pane (o.paneEntities). Once per-pane sensors are used, a blank
- *  pane has none and stays closed (that is how a fixed pane is made); without any per-pane sensor the window's main sensor drives all
- *  panes. */
+/** is pane i fixed (explicitly, o.paneHinges[i] = 'fixed')? A fixed pane has no contact of its own and never opens. */
+export const paneFixed = (o, i) => Array.isArray(o?.paneHinges) && o.paneHinges[i] === 'fixed';
+/** entity of pane i: multi-pane windows may have one contact sensor per pane (o.paneEntities), falling back to the window's main sensor;
+ *  a fixed pane has none. */
 export const paneEntity = (o, i) => {
-  const panes = o.paneEntities || [];
-  return panes.some(Boolean) ? panes[i] || '' : o.entity || '';
+  if (paneFixed(o, i)) return '';
+  const panes = Array.isArray(o.paneEntities) ? o.paneEntities : [];
+  return panes[i] || o.entity || '';
 };
-/** every sensor of an opening, once */
-export const openingEntities = (o) => [...new Set([o.entity, ...(o.paneEntities || [])].filter(Boolean))];
+/** every sensor of an opening, once: the main one and per-pane ones, but none of a fixed pane */
+export const openingEntities = (o) => [...new Set([
+  o.entity,
+  ...(Array.isArray(o.paneEntities) ? o.paneEntities.filter((e, i) => e && !paneFixed(o, i)) : []),
+].filter(Boolean))];
 /** is a state "open"? on / open / ..., and a garage door on its way (opening, closing) is not closed */
 export const isOpenState = (st, onStates) => !!st && (onStates.has(st.state) || ['opening', 'closing'].includes(st.state));
 /** how a door / window looks by its sensors ents (openingEntities): 'open' (red), 'closed' (green frame), 'offline' (a sensor is
@@ -57,8 +62,8 @@ export function openItems(floors, env) {
 
 /** the curtains of an opening's 3D object: one pivot for a roller shutter or a one-sided curtain, two for a split curtain */
 const curtainsOf = (obj) => { const sh = obj?.userData.shutter; return !sh ? [] : Array.isArray(sh) ? sh : [sh]; };
-/** the moving parts of an opening's 3D object: its leaf or panes, and the curtain of its cover (#331) */
-const movers = (obj) => [...(obj.userData.panePivots || (obj.userData.pivot ? [obj.userData.pivot] : [])), ...curtainsOf(obj)];
+/** the moving parts of an opening's 3D object: its leaf or panes, and the curtain of its cover (#331); a fixed pane has no axis */
+const movers = (obj) => [...(obj.userData.panePivots || (obj.userData.pivot ? [obj.userData.pivot] : [])).filter((p) => p.userData?.axis), ...curtainsOf(obj)];
 
 /** ctx: $, t, layout(), states(), onStates, registry, pointInPoly, distToPoly, show(target) (jump to an object: { floor, kind, id }),
  *  tapBalls (the shutters' balls, #331), isLive(), floorIdx() (balls show up to the floor shown, like the devices' balls), labelSprites
@@ -99,7 +104,10 @@ export function initOpenings(ctx) {
       const look = contactLook(openingEntities(o), open, stateOf);
       obj.userData.look = look;
       obj.userData.tint.forEach(({ k, m, base }) => m.color.setHex(partHex(k, look, base)));
-      if (obj.userData.pivot) (pps || [obj.userData.pivot]).forEach((pv, i) => { pv.userData.target = opens[i] ? pv.userData.dir * pv.userData.max : 0; });
+      if (obj.userData.pivot) (pps || [obj.userData.pivot]).forEach((pv, i) => {
+        if (pv.userData?.dir == null) return;                         // a fixed pane does not move
+        pv.userData.target = opens[i] ? pv.userData.dir * pv.userData.max : 0;
+      });
     })));
     const pill = $('#openPill');
     pill.hidden = !any;

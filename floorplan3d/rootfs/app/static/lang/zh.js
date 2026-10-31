@@ -3805,8 +3805,9 @@ export default {
   'fg.free': '自由排列', 'fg.onHint': '将卡片自由放在网格上：每张卡片停在你拖到的位置，空位保持空白', 'fg.offHint': '恢复自动排列：卡片会靠拢（自由位置会保存以备后用）',
   'fg.help': '自由排列：拖动 ⠿ 把卡片放到网格中的位置（原来的卡片会下移），拖动角 ↘ 可调整宽度和高度。在手机上卡片上下排列。',
   'prop.shutterStyle': '窗帘类型', 'prop.shutterStyleHint': '窗帘挂在室内，跟随实体位置：100 % = 完全打开。左 / 右 / 中间以室内视角为准。', 'sh.roller': '卷帘（上下）', 'sh.left': '向左拉开',
-  'sh.right': '向右拉开', 'sh.split': '中间向两边拉开', 'prop.panes': '窗扇数', 'prop.hinge': '开窗方式', 'prop.hingeHint': '窗扇绕这条边向室内打开；多扇窗时每一扇可以单独设置。没有绑定传感器的窗扇会保持关闭（相当于固定扇）。',
+  'sh.right': '向右拉开', 'sh.split': '中间向两边拉开', 'prop.panes': '窗扇数', 'prop.hinge': '开窗方式', 'prop.hingeHint': '窗扇绕这条边向室内打开；多扇窗时每一扇可以单独设置，“固定”不打开；没有单独传感器的窗扇跟随主传感器。',
   'hinge.bottom': '下铰链（上部推开）', 'hinge.top': '上铰链（下部推开）', 'hinge.left': '左铰链（向左开）', 'hinge.right': '右铰链（向右开）', 'curtain.title': '窗帘 / 卷帘',
   'curtain.opening': '正在打开', 'curtain.closing': '正在关闭',
   'sh.closeLeft': '向左关闭', 'sh.closeRight': '向右关闭', 'sh.closeSplit': '向中间关闭',
+  'hinge.fixed': '固定（不打开）',
 };

@@ -4,7 +4,7 @@
  * (tested); initProps draws the panel. */
 import { RING_DEFAULT_INSET, ringCount, ringSectionsWorld, ringFromRoom, fitSegs, hasRanges, pathLength, splitEven, perWall, splitSection, removeSection, setRange, sectionHex } from './ledring.js';
 import { DOOR_STYLES, WINDOW_STYLES, MIN_OPENING, clampOpeningPos, openingOverlaps } from './walls.js';
-import { WINDOW_HINGES, MAX_PANES, windowPanes, stylePanes, paneHinge } from './windowpanes.js';
+import { WINDOW_HINGES, PANE_HINGES, MAX_PANES, windowPanes, stylePanes, paneHinge } from './windowpanes.js';
 import { roomOpenings } from './roompanel.js';
 import { initKitchenUi } from './kitchenui.js';
 import { initClosetUi } from './closetui.js';
@@ -210,7 +210,7 @@ export function initProps(ctx) {
       pin.addEventListener('change', () => {
         ctx.snapshot();
         const n = Math.max(1, Math.min(MAX_PANES, Math.round(+pin.value || 1)));
-        const base = stylePanes(it);
+        const base = stylePanes(it.style);
         if (n === base) delete it.panes; else it.panes = n;                  // the style stays the look, the number overrides its panes
         const arr = (it.paneEntities || []).slice(0, Math.max(0, n > 1 ? n : 0));
         it.paneEntities = arr.some(Boolean) ? arr : undefined;
@@ -222,7 +222,7 @@ export function initProps(ctx) {
       const hingeSelect = (i) => {
         const sel = document.createElement('select');
         sel.id = nPanes > 1 ? `winHinge${i + 1}` : 'winHinge';
-        WINDOW_HINGES.forEach((v) => sel.add(new Option(t(`hinge.${v}`), v)));
+        (nPanes > 1 ? PANE_HINGES : WINDOW_HINGES).forEach((v) => sel.add(new Option(t(`hinge.${v}`), v)));
         sel.value = paneHinge(it, i);
         sel.addEventListener('change', () => {
           ctx.snapshot();
@@ -233,7 +233,11 @@ export function initProps(ctx) {
             const base = WINDOW_HINGES.includes(it.hinge) ? it.hinge : 'bottom';
             const arr = Array.from({ length: nPanes }, (_, k) => paneHinge(it, k));
             arr[i] = sel.value;
-            it.paneHinges = arr.some((h) => h !== base) ? arr : undefined;
+            if (sel.value === 'fixed') {                       // a fixed pane cannot have a contact of its own
+              const pe = Array.isArray(it.paneEntities) ? it.paneEntities.slice() : [];
+              pe[i] = ''; it.paneEntities = pe.some(Boolean) ? pe : undefined;
+            }
+            if (arr.some((h) => h !== base)) it.paneHinges = arr; else delete it.paneHinges;
           }
           ctx.changed();
         });
@@ -256,8 +260,12 @@ export function initProps(ctx) {
     if (count) {
       const h = document.createElement('h4'); h.textContent = t('pane.title'); body.append(h);
       for (let i = 0; i < count; i++) {
+        if (paneHinge(it, i) === 'fixed') {                    // fixed pane: no contact field, it never opens
+          const p = document.createElement('p'); p.className = 'sub'; p.textContent = `${t('pane.n', { n: i + 1 })} · ${t('hinge.fixed')}`; body.append(p);
+          continue;
+        }
         body.append(pickerField(t('pane.n', { n: i + 1 }), ctx.entityPicker(pickFrom(contact.length ? contact : entities), room, (it.paneEntities || [])[i] || '', (v) => {
-          ctx.snapshot(); const arr = it.paneEntities || []; while (arr.length < count) arr.push(''); arr[i] = v;
+          ctx.snapshot(); const arr = Array.isArray(it.paneEntities) ? it.paneEntities.slice() : []; while (arr.length < count) arr.push(''); arr[i] = v;
           it.paneEntities = arr.some(Boolean) ? arr : undefined; ctx.changed();
         })));
       }
@@ -306,7 +314,9 @@ export function initProps(ctx) {
     ssel.value = curtainStyle(it);
     ssel.addEventListener('change', () => { ctx.snapshot(); setShutterStyle(it, ssel.value); ctx.changed(); render(); });
     body.append(field(t('prop.shutterStyle'), ssel));
-    const sh = document.createElement('p'); sh.className = 'sub'; sh.textContent = t('prop.shutterStyleHint'); body.append(sh);
+    if (curtainStyle(it) !== 'roller') {                       // the hint is about a cloth curtain, not a roller shutter
+      const sh = document.createElement('p'); sh.className = 'sub'; sh.textContent = t('prop.shutterStyleHint'); body.append(sh);
+    }
     body.append(pickerField(t('prop.shutterEntity'), ctx.entityPicker(pickFrom(shutterChoices(entities)), room, it.shutterEntity || '', (v) => { ctx.snapshot(); setShutterEntity(it, v); ctx.changed(); })));
   }
 

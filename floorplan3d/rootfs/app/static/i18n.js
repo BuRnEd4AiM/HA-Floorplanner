@@ -1098,10 +1098,11 @@ const DICT = {
     'prop.shutterStyleHint': 'Der Vorhang hängt innen und folgt der Position der Entität: 100 % = ganz offen. Links / rechts / mittig bezieht sich auf die Sicht aus dem Raum.',
     'sh.roller': 'Rollladen (hoch / runter)', 'sh.left': 'Nach links aufziehen', 'sh.right': 'Nach rechts aufziehen', 'sh.split': 'Mittig nach beiden Seiten',
     'prop.panes': 'Anzahl Flügel', 'prop.hinge': 'Fenster öffnet',
-    'prop.hingeHint': 'Die Scheibe schwingt um diese Kante nach innen. Bei mehreren Flügeln stellst du es für jeden Flügel einzeln ein. Ein Flügel ohne Kontakt bleibt zu (wie fest).',
+    'prop.hingeHint': 'Die Scheibe schwingt um diese Kante nach innen. Bei mehreren Flügeln stellst du es für jeden Flügel einzeln ein; „Fest“ öffnet nicht. Ohne eigenen Kontakt folgt ein Flügel dem Hauptkontakt.',
     'hinge.bottom': 'Unten angeschlagen (oben auf)', 'hinge.top': 'Oben angeschlagen (unten auf)', 'hinge.left': 'Links angeschlagen',
     'hinge.right': 'Rechts angeschlagen', 'curtain.title': 'Vorhang / Rollladen', 'curtain.opening': 'Öffnet', 'curtain.closing': 'Schließt',
     'sh.closeLeft': 'Nach links schließen', 'sh.closeRight': 'Nach rechts schließen', 'sh.closeSplit': 'Zur Mitte schließen',
+    'hinge.fixed': 'Fest (öffnet nicht)',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2149,10 +2150,11 @@ const DICT = {
     'prop.shutterStyleHint': 'The curtain hangs inside and follows the entity\'s position: 100 % = fully open. Left / right / split is seen from inside the room.',
     'sh.roller': 'Roller shutter (up / down)', 'sh.left': 'Pull open to the left', 'sh.right': 'Pull open to the right', 'sh.split': 'Split to both sides',
     'prop.panes': 'Panes', 'prop.hinge': 'Window opens',
-    'prop.hingeHint': 'The pane swings inward around this edge. With several panes you set it for each pane separately. A pane without a contact stays closed (like fixed glazing).', 'hinge.bottom': 'Bottom hinged (top opens)',
+    'prop.hingeHint': 'The pane swings inward around this edge. With several panes you set it for each pane separately; "Fixed" does not open. Without a contact of its own a pane follows the main contact.', 'hinge.bottom': 'Bottom hinged (top opens)',
     'hinge.top': 'Top hinged (bottom opens)', 'hinge.left': 'Left hinged', 'hinge.right': 'Right hinged', 'curtain.title': 'Curtain / shutter',
     'curtain.opening': 'Opening', 'curtain.closing': 'Closing',
     'sh.closeLeft': 'Close to the left', 'sh.closeRight': 'Close to the right', 'sh.closeSplit': 'Close to the middle',
+    'hinge.fixed': 'Fixed (does not open)',
   },
 };
 
