@@ -74,11 +74,13 @@ pg6.close()
 pg7 = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})
 pg7.goto(BASE + "?debug=1"); pg7.wait_for_timeout(1500)
 fi = pg7.evaluate("""() => { const f = window.__fp.layout.floors.find(x => x.walls.length); const w = f.walls[0];
-  w.openings = w.openings || []; w.openings.push({id:'wnd3', type:'window', style:'triple', pos: 1.0, width: 1.2, height:1.2, sill:0.9, paneEntities:['binary_sensor.p1','','binary_sensor.p3']}); return window.__fp.layout.floors.indexOf(f); }""")
+  w.openings = w.openings || []; w.openings.push({id:'wnd3', type:'window', style:'triple', panes:4, pos: 1.0, width: 1.2, height:1.2, sill:0.9,
+    paneEntities:['binary_sensor.p1','','binary_sensor.p3','binary_sensor.p4'], paneHinges:['left','fixed','right','bottom']}); return window.__fp.layout.floors.indexOf(f); }""")
 pg7.click(f"#floorRail [data-floor=\"{fi}\"]"); pg7.evaluate("window.__fp.rebuild()"); pg7.wait_for_timeout(500)
 pg7.evaluate("window.__fp.fakeState('binary_sensor.p3', 'on'); window.__fp.fakeState('binary_sensor.p1', 'off')")
 tg = pg7.evaluate("window.__fp.paneTargets('wnd3')")
-check("each pane follows its own sensor", len(tg) == 3 and tg[0] == 0 and tg[1] == 0 and tg[2] < 0, tg)
+# four panes: the first is shut, the second is fixed, the third opens (its sign depends on the room side of the wall), the fourth has no sensor
+check("each pane follows its own sensor and the custom pane count", len(tg) == 4 and tg[0] == 0 and tg[1] == 0 and abs(tg[2]) > 0.3 and tg[3] == 0, tg)
 pg7.close()
 # --- roller shutter on a window (#331): a tick in the properties, its own cover entity, the curtain follows the cover, a ball in the live mode
 pgR = b.new_page(viewport={"width": 1400, "height": 850}, extra_http_headers={"X-Remote-User-Name": "admin"})

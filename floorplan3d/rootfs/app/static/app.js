@@ -1872,8 +1872,8 @@ if (params.get('debug')) {
     houseCards: () => [...document.querySelectorAll('.floorCard')].map((e) => e.innerText),
     rebuild: () => build(), applyStates: () => applyStates(),
     switchHouse,
-    paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData.target),
-    shutterScale: (id) => registry.get(id)?.userData.shutter?.userData.target ?? null,   // how far a window's roller shutter goes down (#331)
+    paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData?.target ?? 0),   // a fixed pane has no target: 0
+    shutterScale: (id) => { const sh = registry.get(id)?.userData.shutter; const p = Array.isArray(sh) ? sh[0] : sh; return p?.userData.target ?? null; },   // how far a window's cover closes (#331)
     liveOk: () => liveChan.ok(),
     underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },
     bounds: () => floorBounds(), roofBox: (i) => roofBox(i),

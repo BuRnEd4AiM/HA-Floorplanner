@@ -4,9 +4,10 @@ import assert from 'node:assert/strict';
 
 const dir = process.env.STATIC_DIR || '/tmp/static';
 const S = await import(`${dir}/shutters.js`);
+const WA = await import(`${dir}/walls.js`);
 const W = await import(`${dir}/dormerwin.js`);
 const { roofY0 } = await import(`${dir}/attic.js`);
-const { roomOpenings, roomShutters } = await import(`${dir}/roompanel.js`);
+const { roomOpenings, roomShutters, paneRowCount } = await import(`${dir}/roompanel.js`);
 const { openItems, isOpenState } = await import(`${dir}/openings.js`);
 const { openingBallAt, wantsBall, ballIcon, BALL } = await import(`${dir}/tapballs.js`);
 const { skipInLive, chooseHit } = await import(`${dir}/pickrules.js`);
@@ -143,6 +144,8 @@ test('the card (#335): the big line says how far it is open, and that it moves',
   assert.equal(S.shutterCardText({ state: 'closing', position: 35 }, 25, t), 'shutter.closing · 25 %');
   assert.equal(S.shutterCardText({ state: 'open' }, null, t), 'state.open', 'no position: open / closed');
   assert.equal(S.shutterCardText({ state: 'unavailable', position: 40 }, 40, t), 'off.unavailable');
+  assert.equal(S.shutterCardText({ state: 'opening', position: 40 }, 40, t, { type: 'window', shutter: true, shutterStyle: 'left' }), 'curtain.opening · 40 %', 'a cloth curtain opens, it does not go up');
+  assert.equal(S.shutterCardText({ state: 'closing', position: 40 }, 40, t, { type: 'window', shutter: true, shutterStyle: 'split' }), 'curtain.closing · 40 %');
 });
 
 test('the curtain: rolled up a small rest, all of it when closed; unknown rolled up; slats of about 7 cm', () => {
@@ -205,7 +208,9 @@ test('the shutters of a floor, also of a window in a dormer; a dormer window kee
   const room = floors[1].rooms[0];
   assert.equal(roomOpenings(room, floors[1]).length, 1);
   const seen = new Set();
-  assert.deepEqual(roomShutters(room, floors[1], seen, (id) => (id === 'cover.gaube' ? 'Rollladen Gaube' : undefined), 'Rollladen'), [{ entity: 'cover.gaube', name: 'Rollladen Gaube' }]);
+  const rows = roomShutters(room, floors[1], seen, (id) => (id === 'cover.gaube' ? 'Rollladen Gaube' : undefined), 'Rollladen');
+  assert.deepEqual(rows.map(({ entity, name }) => ({ entity, name })), [{ entity: 'cover.gaube', name: 'Rollladen Gaube' }]);
+  assert.equal(rows[0].opening, win, 'the row knows the window, so its curtain type can be used');
   assert.deepEqual(roomShutters(room, floors[1], seen, () => undefined, 'Rollladen'), [], 'already listed');
   win.name = 'Gaube Süd';
   assert.equal(roomShutters(room, floors[1], new Set(), () => 'HA', 'Rollladen')[0].name, 'Gaube Süd', 'the window\'s own name first');
@@ -231,4 +236,113 @@ test('live mode: a window takes no tap, the ball of its shutter does, and it cou
   const linked = (id) => S.linkedEntities({ type: 'window', shutter: true, shutterEntity: id === 'w' ? 'cover.r' : '' }).length > 0;
   assert.equal(chooseHit([ball, { data: { kind: 'room', id: 'r' }, distance: 4 }], true, linked)?.data.id, 'w');
   assert.equal(chooseHit([{ data: { kind: 'opening', id: 'x', tapBall: true }, distance: 3 }, { data: { kind: 'room', id: 'r' }, distance: 4 }], true, linked)?.data.kind, 'room');
+});
+
+test('a cover opens as a roller shutter (default) or as a cloth curtain to the left, right or both sides', () => {
+  assert.equal(S.curtainStyle({ type: 'window' }), null);
+  assert.equal(S.curtainStyle({ type: 'door', shutter: true }), null);
+  assert.equal(S.curtainStyle({ type: 'window', shutter: true }), 'roller');
+  assert.equal(S.curtainStyle({ type: 'window', shutter: true, shutterStyle: 'left' }), 'left');
+  assert.equal(S.curtainStyle({ type: 'window', shutter: true, shutterStyle: 'nowhere' }), 'roller', 'an unknown style is a roller shutter');
+  const o = { type: 'window', shutter: true, shutterEntity: 'cover.a' };
+  assert.equal(S.setShutterStyle(o, 'split'), o);
+  assert.equal(o.shutterStyle, 'split');
+  assert.equal(o.shutterEntity, 'cover.a', 'the style keeps the entity');
+  S.setShutterStyle(o, 'roller');
+  assert.ok(!('shutterStyle' in o), 'the default is not stored');
+  S.setShutterStyle(o, 'left');
+  S.setShutter(o, false);
+  assert.deepEqual(o, { type: 'window' }, 'no cover: no style left');
+});
+
+test('a cloth curtain gathers sideways: all of it when closed, a rest when open, gathered when unknown', () => {
+  near(S.curtainWidth(0), S.CURTAIN_GATHER);
+  near(S.curtainWidth(1), 1);
+  near(S.curtainWidth(0.5), S.CURTAIN_GATHER + (1 - S.CURTAIN_GATHER) / 2);
+  near(S.curtainWidth(null), S.CURTAIN_GATHER);
+  near(S.curtainWidth(3), 1);
+  near(S.curtainTarget('roller', 0.5), S.curtainScale(0.5));
+  near(S.curtainTarget('left', 0.5), S.curtainWidth(0.5));
+  near(S.curtainTarget('split', 0), S.CURTAIN_GATHER);
+});
+
+test('a cloth curtain hangs in the room, past the face of the wall', () => {
+  for (const t of [0.1, 0.12, 0.24, 0.36]) assert.ok(S.curtainHangDepth(t) > t / 2, `${t}: in the room`);
+  near(S.curtainHangDepth(0.24), 0.18);
+  near(S.curtainHangDepth(0.1), 0.11);
+});
+
+test('the label arrow says which way the cover opens', () => {
+  assert.equal(S.shutterIcon({ type: 'window' }), '↕');
+  assert.equal(S.shutterIcon({ type: 'window', shutter: true }), '↕');
+  assert.equal(S.shutterIcon({ type: 'window', shutter: true, shutterStyle: 'left' }), '←');
+  assert.equal(S.shutterIcon({ type: 'window', shutter: true, shutterStyle: 'right' }), '→');
+  assert.equal(S.shutterIcon({ type: 'window', shutter: true, shutterStyle: 'split' }), '⇔');
+  const t = (k, p) => (p ? `${k}:${p.n}` : k);
+  assert.equal(S.shutterLabel({ state: 'open', position: 60 }, t, { type: 'window', shutter: true, shutterStyle: 'left' }), '← shutter.partly:60');
+  assert.equal(S.shutterText({ state: 'opening' }, t, { type: 'window', shutter: true }), 'shutter.opening', 'a roller shutter goes up');
+  assert.equal(S.shutterText({ state: 'opening' }, t, { type: 'window', shutter: true, shutterStyle: 'split' }), 'curtain.opening', 'a cloth curtain opens');
+  assert.equal(S.shutterText({ state: 'closing' }, t, { type: 'window', shutter: true, shutterStyle: 'right' }), 'curtain.closing');
+});
+
+test('every pane of a window can swing around its own edge, with the window setting as the default', () => {
+  const o = { type: 'window', paneHinges: ['left', 'right', 'top'] };
+  assert.equal(WA.paneHinge(o, 0), 'left');
+  assert.equal(WA.paneHinge(o, 1), 'right');
+  assert.equal(WA.paneHinge(o, 2), 'top');
+  assert.equal(WA.paneHinge({ type: 'window', hinge: 'right' }, 1), 'right', 'the window default');
+  assert.equal(WA.paneHinge({ type: 'window' }, 0), 'bottom');
+  assert.equal(WA.paneHinge({ type: 'window', paneHinges: ['left'], hinge: 'top' }, 1), 'top', 'a missing entry: the default');
+  assert.equal(WA.paneHinge({ type: 'window', paneHinges: ['nope'], hinge: 'top' }, 0), 'top', 'an invalid entry: the default');
+  assert.equal(WA.paneHinge({ type: 'window', paneHinges: 'left' }, 0), 'bottom', 'not an array');
+  assert.equal(WA.windowPanes({ type: 'window', panes: 5 }), 5);
+});
+
+test('the card actions follow the cover type', () => {
+  const acts = (style) => S.coverActions(style).map(([svc, key, icon, pos]) => [svc, key, icon, pos]);
+  assert.deepEqual(acts('roller'), [['open_cover', 'shutter.up', 'up', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'shutter.down', 'down', 0]]);
+  assert.deepEqual(acts('left'), [['open_cover', 'sh.left', 'left', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'sh.closeRight', 'right', 0]]);
+  assert.deepEqual(acts('right'), [['open_cover', 'sh.right', 'right', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'sh.closeLeft', 'left', 0]]);
+  assert.deepEqual(acts('split'), [['open_cover', 'sh.split', 'split-open', 100], ['stop_cover', 'live.stop', 'stop', null], ['close_cover', 'sh.closeSplit', 'split-close', 0]]);
+});
+
+test('a boolean or non-number pane count is not a custom count; a fixed pane has no opening edge', () => {
+  assert.equal(WA.windowPanes({ type: 'window', style: 'double', panes: true }), 2);
+  assert.equal(WA.windowPanes({ type: 'window', style: 'double', panes: '4' }), 2);
+  assert.equal(WA.windowPanes({ type: 'window', style: 'double', panes: 4.6 }), 5);
+  assert.equal(WA.paneHinge({ type: 'window', paneHinges: ['left', 'fixed', 'right'] }, 1), 'fixed');
+  assert.equal(WA.paneHinge({ type: 'window', paneHinges: ['nope'], hinge: 'top' }, 0), 'top');
+});
+
+test('a cover-less window still says "going up / down" for its default roller state', () => {
+  const t = (k, p) => (p ? `${k}:${p.n}` : k);
+  assert.equal(S.shutterText({ state: 'opening' }, t, { type: 'window' }), 'shutter.opening');
+  assert.equal(S.shutterText({ state: 'opening' }, t, { type: 'window', shutter: true, shutterStyle: 'split' }), 'curtain.opening');
+});
+
+test('the room panel counts the panes the window really has, not the style default', () => {
+  assert.equal(paneRowCount({ type: 'window', style: 'double', panes: 4, paneEntities: ['', '', 'a', 'b'] }), 4);
+  assert.equal(paneRowCount({ type: 'window', style: 'double', paneEntities: ['a', ''] }), 2);
+  assert.equal(paneRowCount({ type: 'window', style: 'triple' }), 1);
+  assert.equal(paneRowCount({ type: 'window', style: 'triple', paneEntities: 'bad' }), 1);
+});
+
+test('3D: a split cloth has two pivots, a fixed pane gets no pivot data, a roller shutter has one', async () => {
+  const THREE = await import(`${dir}/vendor/three.module.min.js`);
+  const mat = (c, ghost, extra) => new THREE.MeshStandardMaterial({ color: c, ...extra });
+  const wall = (opening) => WA.buildWall({ a: [0, 0], b: [4, 0], thickness: 0.24, height: 2.6, openings: [opening] },
+    { material: mat('#ffffff'), makeMat: mat, shutterSide: () => 1, windowFrame: '#ffffff' });
+  const open = (g) => g.children.find((c) => c.userData?.kind === 'opening');
+  const split = open(wall({ id: 's', type: 'window', style: 'double', panes: 3, pos: 2, width: 2.4, height: 1.6, sill: 0.9,
+    shutter: true, shutterEntity: 'cover.s', shutterStyle: 'split', paneHinges: ['left', 'fixed', 'right'] }));
+  assert.equal(split.userData.panePivots.length, 3);
+  assert.equal(split.userData.panePivots[0].userData.axis, 'y');
+  assert.ok(split.userData.panePivots[1].userData.dir == null, 'fixed: no pivot data');
+  assert.equal(split.userData.panePivots[2].userData.axis, 'y');
+  assert.equal(split.userData.shutter.length, 2, 'two cloth panels');
+  assert.equal(split.userData.shutter[0].userData.axis, 'x');
+  const roller = open(wall({ id: 'r', type: 'window', style: 'single', pos: 2, width: 1, height: 1.2, sill: 0.9,
+    shutter: true, shutterEntity: 'cover.r', shutterStyle: 'roller' }));
+  assert.ok(!Array.isArray(roller.userData.shutter), 'one roller pivot');
+  assert.equal(roller.userData.shutter.userData.axis, 'y');
 });

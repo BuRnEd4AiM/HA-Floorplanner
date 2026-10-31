@@ -83,7 +83,7 @@ export function initLivePopup(ctx) {
     box.hidden = false;
     box.classList.toggle('shutterCard', !!shutterOf);
     keepAboveBar(box);
-    if (shutterOf) { key = ''; shutter.render(box, shutterEntity(shutterOf), shutterOf.name || ''); return; }   // only the shutter, not the window's contact (#335); it has its own key
+    if (shutterOf) { key = ''; shutter.render(box, shutterEntity(shutterOf), shutterOf.name || '', shutterOf); return; }   // only the shutter, not the window's contact (#335); it has its own key
     const k = keyOf(d);
     if (k === key && !wasHidden && box.firstElementChild) return;      // nothing on the card has changed: its buttons stay under the finger
     key = k;

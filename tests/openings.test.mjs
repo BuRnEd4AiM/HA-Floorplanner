@@ -13,12 +13,20 @@ test('kind of an opening: a garage door is a gate, other doors are doors, the re
   assert.equal(O.openKind({ type: 'door', style: 'double' }), 'doors');
   assert.equal(O.openKind({ type: 'window' }), 'windows');
 });
-test('sensors of an opening: main and per pane, each once, a pane falls back to the main sensor', () => {
+test('sensors of an opening: main and per pane, each once; a blank pane falls back to the main sensor, a fixed pane has none', () => {
   const o = { entity: 'binary_sensor.a', paneEntities: ['binary_sensor.a', '', 'binary_sensor.c'] };
   assert.deepEqual(O.openingEntities(o), ['binary_sensor.a', 'binary_sensor.c']);
-  assert.equal(O.paneEntity(o, 1), 'binary_sensor.a');
+  assert.equal(O.paneEntity(o, 1), 'binary_sensor.a', 'a blank pane still follows the main sensor (old layouts)');
   assert.equal(O.paneEntity(o, 2), 'binary_sensor.c');
+  assert.equal(O.paneEntity({ entity: 'binary_sensor.main' }, 0), 'binary_sensor.main', 'no per-pane sensors: the main one');
+  assert.equal(O.paneEntity({ entity: 'binary_sensor.main', paneEntities: [] }, 1), 'binary_sensor.main');
+  assert.equal(O.paneEntity({ entity: 'binary_sensor.main', paneEntities: ['', ''] }, 0), 'binary_sensor.main', 'none set: the main one');
   assert.equal(O.paneEntity({}, 0), '');
+  const fixed = { entity: 'binary_sensor.main', paneEntities: ['binary_sensor.p1', 'binary_sensor.p2', 'binary_sensor.p3'], paneHinges: ['bottom', 'fixed', 'left'] };
+  assert.equal(O.paneEntity(fixed, 1), '', 'an explicit fixed pane has no sensor');
+  assert.deepEqual(O.openingEntities(fixed), ['binary_sensor.main', 'binary_sensor.p1', 'binary_sensor.p3'], 'its sensor is ignored');
+  assert.equal(O.paneEntity({ entity: 'binary_sensor.main', paneEntities: 'binary_sensor.p1' }, 0), 'binary_sensor.main', 'broken data does not throw');
+  assert.deepEqual(O.openingEntities({ entity: 'binary_sensor.main', paneEntities: 'binary_sensor.p1' }), ['binary_sensor.main']);
 });
 test('open: on / open count, a garage door on its way too, closed and missing do not', () => {
   assert.ok(O.isOpenState({ state: 'on' }, on));

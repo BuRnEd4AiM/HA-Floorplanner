@@ -1,7 +1,7 @@
 /* Room panel (live mode): all entities of a tapped room, grouped (lights, covers with the roller shutters of its windows, switches, cameras,
  * sensors, scenes), with switches, sliders and the light controls; doors, gates and windows with their state; the heating panel next to
  * it. Which doors and windows belong to a room and how the rows are grouped are pure functions (tested); initRoomPanel draws. */
-import { wallLength } from './walls.js';
+import { wallLength, windowPanes } from './walls.js';
 import { distToPoly, polyArea, pointInPoly } from './rooms.js';
 import { fmtArea } from './i18n.js';
 import { openingWalls } from './dormerwin.js';
@@ -35,12 +35,15 @@ export function roomOpeningSpans(room, f) {
     }));
   });
 }
-/** the roller shutters of the windows of a room (#331) as rows of the room panel ({ entity, name }), each entity once (seen: the entities
+/** the covers of the windows of a room (#331) as rows of the room panel ({ entity, name, opening }), each entity once (seen: the entities
  *  listed already); name: the window's name, else Home Assistant's name of the cover, else `fallback` */
 export function roomShutters(room, f, seen, nameOf, fallback) {
-  return roomOpenings(room, f).map((o) => ({ entity: shutterEntity(o), name: o.name || nameOf(shutterEntity(o)) || fallback }))
+  return roomOpenings(room, f).map((o) => ({ entity: shutterEntity(o), name: o.name || nameOf(shutterEntity(o)) || fallback, opening: o }))
     .filter((d) => d.entity && !seen.has(d.entity) && seen.add(d.entity));
 }
+/** how many sensor rows a window shows in the room panel: one per pane when it has per-pane sensors (also the panes the custom count
+ *  added), else the main contact only */
+export const paneRowCount = (o) => (Array.isArray(o.paneEntities) && o.paneEntities.some(Boolean) ? windowPanes(o) : 1);
 /** the area of a room as text: m² with one decimal, or whole ft² */
 export const areaText = (points, imperial) => fmtArea(polyArea(points), imperial);
 
@@ -60,10 +63,10 @@ export function initRoomPanel(ctx) {
   const heat = initHeatPanel({ box: heatBox, t, states: () => ctx.states(), callService: (...a) => live.callService(...a), open: () => !!forId,
     stateText: (id) => ctx.stateText(id), isOn: (id) => ctx.onStates.has(ctx.states()[id]?.state), details: (id) => live.detailsButton(id, false, t('cam.openHa')) });
   /** the text on a row of the room panel */
-  function rowValue(id) {
+  function rowValue(id, opening = null) {
     const s = ctx.states()[id], dom = id.split('.')[0];
     if (dom === 'climate' && s && typeof s.ct === 'number') return `🌡 ${Math.round(s.ct * 10) / 10} °C · ${s.state}`;
-    if (dom === 'cover') return shutterText(s, t);                     // "60 % open" instead of Home Assistant's raw state
+    if (dom === 'cover') return shutterText(s, t, opening);            // "60 % open" (and opening / closing for a cloth curtain)
     return ctx.stateText(id);
   }
   function hide() { forId = null; $('#roomPanel').hidden = true; heatBox.hidden = true; }
@@ -90,7 +93,7 @@ export function initRoomPanel(ctx) {
     const seen = new Set();                                    // one row per entity (an LED ring's sections may share one light)
     const devs = ctx.entityDevices(f).filter((d) => d.entity && ctx.pointInPoly(d.x, d.z, room.points) && !seen.has(d.entity) && seen.add(d.entity));
     const nameOf = (id) => ctx.entities().find((e) => e.entity_id === id)?.name;
-    devs.push(...roomShutters(room, f, seen, nameOf, t('shutter.title')));                    // the roller shutters of its windows (#331)
+    devs.push(...roomShutters(room, f, seen, nameOf, t('curtain.title')));                    // the roller shutters of its windows (#331)
     const placedIds = new Set([...ctx.entityDevices(f).map((d) => d.entity), ...floorShutters(f)]);
     const extra = (room.area ? ctx.areas().find((a) => a.id === room.area)?.entities || [] : [])
       .filter((id) => !placedIds.has(id) && states[id] && inRoomPanel(id))
@@ -118,7 +121,7 @@ export function initRoomPanel(ctx) {
         const row = document.createElement('div');
         row.className = 'row' + (st && ctx.onStates.has(st.state) ? ' on' : '');
         const n = document.createElement('span'); n.className = 'n'; n.textContent = d.name || d.entity;
-        const v = document.createElement('span'); v.className = 'v'; v.textContent = rowValue(d.entity);
+        const v = document.createElement('span'); v.className = 'v'; v.textContent = rowValue(d.entity, d.opening);
         row.append(n, v);
         if (ACTIONS[dom] && dom !== 'cover') {
           if (ACTIONS[dom].includes('toggle') && dom !== 'scene' && dom !== 'script') {          // a slide switch like on a phone
@@ -171,8 +174,8 @@ export function initRoomPanel(ctx) {
       if (!list.length) return;
       const h = document.createElement('h4'); h.textContent = t(`rp.${kind}`); box.append(h);
       list.forEach((o) => {
-        const multi = o.paneEntities?.some(Boolean);
-        const count = multi ? (o.style === 'triple' ? 3 : 2) : 1;
+        const multi = Array.isArray(o.paneEntities) && o.paneEntities.some(Boolean);
+        const count = paneRowCount(o);
         for (let i = 0; i < count; i++) {
           const e = multi ? op.pane(o, i) : o.entity;
           if (!e) continue;

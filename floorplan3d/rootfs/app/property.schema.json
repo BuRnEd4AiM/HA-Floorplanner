@@ -676,6 +676,35 @@
       "fixed"
      ]
     },
+    "panes": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 8,
+     "description": "Windows only, not with style fixed: how many panes (overrides the style's count, e.g. 4 for a wide floor-to-ceiling window)"
+    },
+    "hinge": {
+     "enum": [
+      "bottom",
+      "top",
+      "left",
+      "right"
+     ],
+     "description": "Windows only: the edge the panes swing around by default, inward (default bottom: the top opens)"
+    },
+    "paneHinges": {
+     "type": "array",
+     "maxItems": 8,
+     "items": {
+      "enum": [
+       "bottom",
+       "top",
+       "left",
+       "right",
+       "fixed"
+      ]
+     },
+     "description": "Windows only: the edge each pane swings around; an entry overrides hinge for that pane, 'fixed' means it does not open"
+    },
     "entity": {
      "type": "string",
      "description": "Contact sensor, e.g. binary_sensor.fenster_wohnzimmer"
@@ -688,15 +717,25 @@
      "items": {
       "type": "string"
      },
-     "maxItems": 4
+     "maxItems": 8,
+     "description": "Windows only: one contact sensor per pane; a fixed pane has none"
     },
     "shutter": {
      "type": "boolean",
-     "description": "The window has a roller shutter (windows only)"
+     "description": "The window has a cover (windows only)"
     },
     "shutterEntity": {
      "type": "string",
-     "description": "Cover entity of the roller shutter, e.g. cover.rollladen_wohnzimmer (implies shutter: true)"
+     "description": "Cover entity of the window's curtain or roller shutter, e.g. cover.rollladen_wohnzimmer (implies shutter: true)"
+    },
+    "shutterStyle": {
+     "enum": [
+      "roller",
+      "left",
+      "right",
+      "split"
+     ],
+     "description": "How the cover opens (default roller): a roller shutter up and down, a cloth curtain pulled to the left or right, or two panels that part in the middle"
     },
     "rainWarn": {
      "type": "boolean",
