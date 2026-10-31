@@ -11,8 +11,20 @@ Pure: no aiohttp, no Home Assistant (tests/test_container_dashboard.py).
 """
 import json
 
-_STYLE = """  body { font-family: system-ui, sans-serif; margin: 2em; line-height: 1.5; text-align: center; }
-  p { margin: .5em 0; }"""
+_STYLE = """  html, body { height: 100%; }
+  body { margin: 0; display: flex; align-items: center; justify-content: center; background: #10151d; color: #e6edf3;
+         font: 15px/1.5 system-ui, sans-serif; text-align: center; }
+  main { max-width: 34em; padding: 2em; }
+  h2 { font-size: 20px; font-weight: 600; margin: 0; }
+  p { margin: .5em 0; opacity: .85; }
+  a { color: #7ab3ff; }
+  .fp3d-bar { width: min(320px, 70vw); height: 6px; border-radius: 999px; background: #232c3a; overflow: hidden;
+              margin: 18px auto 10px; }
+  .fp3d-fill { width: 40%; height: 100%; border-radius: 999px; background: #4c8dff;
+               animation: fp3d-slide 1.2s ease-in-out infinite; }
+  @keyframes fp3d-slide { from { transform: translateX(-100%); } to { transform: translateX(350%); } }
+  body.fp3d-failed .fp3d-bar { display: none; }
+  @media (prefers-reduced-motion: reduce) { .fp3d-fill { animation: none; width: 100%; } }"""
 
 
 def _quoted(value) -> str:
@@ -30,7 +42,9 @@ def _page(body: str, script: str = "") -> str:
 {_STYLE}
 </style>
 <body>
+<main>
 {body}
+</main>
 {script}
 </body>
 """
@@ -39,6 +53,7 @@ def _page(body: str, script: str = "") -> str:
 def sign_in_page(target: str, session_path: str) -> str:
     """the page a browser without a session gets, going on to `target` once Home Assistant said who asks"""
     body = """<h2>3D Floorplan</h2>
+<div class="fp3d-bar"><div class="fp3d-fill"></div></div>
 <p id="de">Am Grundriss anmelden …</p>
 <p id="en" lang="en">Signing in to the floor plan …</p>
 <p id="home" hidden><a href="/">Home Assistant</a></p>"""
@@ -50,6 +65,7 @@ def sign_in_page(target: str, session_path: str) -> str:
     de.textContent = german;
     en.textContent = english;
     document.getElementById("home").hidden = false;
+    document.body.classList.add("fp3d-failed");   // the bar stops pretending something is still on its way
   }}
   async function token() {{
     let tokens = null;

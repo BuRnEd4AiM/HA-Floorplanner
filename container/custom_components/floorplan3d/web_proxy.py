@@ -8,13 +8,15 @@ in boundary.py.
 from __future__ import annotations
 
 import asyncio
+import gzip
 import logging
+import re
 
 import aiohttp
 from aiohttp import web
 from multidict import CIMultiDict
 
-from . import boundary, const, pages
+from . import boundary, const, pages, splash
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,6 +34,20 @@ def is_page_request(request: web.Request) -> bool:
 def starts_login(answer: aiohttp.ClientResponse) -> bool:
     """the plan's answer for a browser without its session: its login_gate sends it to auth/login"""
     return answer.status in REDIRECTS and "auth/login" in answer.headers.get("Location", "")
+
+
+def _is_utf8(headers) -> bool:
+    """the page is UTF-8 or says nothing: injecting a UTF-8 snippet into another encoding would mojibake both"""
+    match = re.search(r"charset\s*=\s*([\w-]+)", headers.get("Content-Type", ""), re.IGNORECASE)
+    return match is None or match.group(1).lower().replace("_", "-") in ("utf-8", "utf8")
+
+
+def _add_vary(headers: CIMultiDict, token: str) -> None:
+    """add a Vary token without dropping the ones the plan sent (a gzip body must never be handed to a client that cannot read
+    it, and an identity body of the same address is a different representation)"""
+    values = ", ".join(headers.getall("Vary", ())) if "Vary" in headers else ""
+    if token.lower() not in values.lower():
+        headers["Vary"] = f"{values}, {token}" if values else token
 
 
 class Proxy:
@@ -101,11 +117,15 @@ class Proxy:
             if is_page_request(request) and starts_login(answer):
                 answer.release()
                 return self._sign_in(request)
-            # Identity encoding was asked for, so a forwarded length is the length of the bytes that follow.
+            page, text = self._shape_kind(request, answer)
+            buffered = page or text
+            # Identity encoding was asked for, so a forwarded length is the length of the bytes that follow — unless the proxy
+            # takes the body over (splash, gzip) and sets its own length with the body it hands out.
             headers = CIMultiDict()
             for name, value in boundary.headers_to_browser(
                     answer.headers.items(),
-                    keep_length=answer.status not in NO_BODY and "content-encoding" not in answer.headers):
+                    keep_length=answer.status not in NO_BODY and "content-encoding" not in answer.headers
+                    and not buffered):
                 if name.lower() == "location":
                     value = boundary.proxy_location(value, self.address)
                 headers.add(name, value)
@@ -113,6 +133,27 @@ class Proxy:
             answer.close()
             _LOGGER.exception("3D Floorplan: the plan sent an answer the proxy could not read")
             return web.json_response({"error": "plan answer unreadable"}, status=502)
+
+        # Every answer of the interface gets the same cache policy — also a 304: a cache updates the headers of its stored entry
+        # from a 304, and the plan's own no-cache there would otherwise throw the policy away after the first revalidation.
+        if boundary.is_static(request.path):
+            headers["Cache-Control"] = self._static_cache(headers)
+
+        if buffered:
+            try:
+                body = await answer.read()
+            except (aiohttp.ClientError, asyncio.TimeoutError, OSError) as err:
+                answer.close()
+                self._unreachable("3D Floorplan: the plan's answer broke off (%s)", err)
+                return web.json_response({"error": "plan unreachable"}, status=502)
+            finally:
+                answer.close()
+            try:
+                body = await self._shape(request, headers, body, page)
+            except Exception:  # noqa: BLE001 - a broken body must not become a traceback in Home Assistant
+                _LOGGER.exception("3D Floorplan: the proxy could not shape the plan's answer")
+                return web.json_response({"error": "plan answer unreadable"}, status=502)
+            return web.Response(status=answer.status, body=body, headers=headers)
 
         response = web.StreamResponse(status=answer.status, headers=headers)
         try:
@@ -130,6 +171,55 @@ class Proxy:
         finally:
             answer.close()
         return response
+
+    @staticmethod
+    def _shape_kind(request: web.Request, answer: aiohttp.ClientResponse):
+        """(page, text): a page is buffered for the splash, text to gzip; everything else — a model, a backup, an answer that is
+        already encoded or of unknown length — is streamed on untouched"""
+        if request.method != "GET" or answer.status != 200 or "content-encoding" in answer.headers:
+            return False, False
+        length = answer.content_length
+        if not length or length <= 0:
+            return False, False
+        ctype = answer.headers.get("Content-Type", "").split(";")[0].strip().lower()
+        page = (ctype == "text/html" and is_page_request(request) and _is_utf8(answer.headers)
+                and length <= const.INJECT_MAX_BYTES)
+        text = not page and ctype in const.COMPRESSIBLE and length <= const.COMPRESS_MAX_BYTES
+        return page, text
+
+    @staticmethod
+    def _static_cache(headers: CIMultiDict) -> str:
+        """what a browser and a CDN may keep of the interface's files. An answer that renews the session cookie belongs to one
+        user: a shared cache must never store it and hand it to the next visitor, so such answers are private and revalidated.
+        A plan that asked for no-store keeps it."""
+        origin = (headers.get("Cache-Control") or "").lower()
+        if "no-store" in origin:
+            return "no-store"
+        if "private" in origin or "Set-Cookie" in headers:
+            return "private, no-cache"
+        return f"public, max-age={const.STATIC_MAX_AGE}, s-maxage={const.STATIC_EDGE_MAX_AGE}"
+
+    @staticmethod
+    async def _shape(request: web.Request, headers: CIMultiDict, body: bytes, page: bool) -> bytes:
+        """the page gets the boot splash; a body every browser that asks for it gets gzipped. The interface is around 2 MB of
+        text, gzip brings it to around 600 KB — and it runs off the event loop, so a Pi compressing a cold load does not stall
+        the rest of Home Assistant."""
+        if page:
+            # the page is now the proxy's, not the plan's bytes: no validator may point at them, and the browser must come back
+            body = splash.inject(body.decode("utf-8", "replace"), const.SPLASH_TIMEOUT_MS, const.SPLASH_HARD_CAP_MS,
+                                 f"{const.PATH}/").encode("utf-8")
+            headers.pop("Etag", None)
+            headers.pop("Last-Modified", None)
+            if "no-store" not in (headers.get("Cache-Control") or "").lower():
+                headers["Cache-Control"] = "no-cache"
+        _add_vary(headers, "Accept-Encoding")
+        if boundary.gzip_acceptable(request.headers.get("Accept-Encoding", "")):
+            packed = await asyncio.to_thread(gzip.compress, body, 6)
+            if len(packed) < len(body):                     # tiny answers only grow
+                body = packed
+                headers["Content-Encoding"] = "gzip"
+                headers.pop("Accept-Ranges", None)          # ranges name the identity bytes, not these
+        return body
 
     def _sign_in(self, request: web.Request) -> web.Response:
         """the browser has no session yet: sign in with Home Assistant's token, then load the page it asked for again"""

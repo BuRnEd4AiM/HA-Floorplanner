@@ -186,13 +186,14 @@ async def test_setup_entry_registers_everything_without_a_restart():
     store = hass.data[const.DOMAIN]
     assert store["card_url"] == f"{const.FRONTEND_PATH}/{const.CARD_FILE}?v=1.2.3"
     assert store["card_url"] in hass.data["frontend_extra_module_url"]
+    assert f'{store["card_url"]}&f=1' in hass.data["frontend_extra_module_url"]   # a second, independent attempt
 
     # a second setup (e.g. the entry is reloaded) must not register duplicate routes or card URLs
     await integration.async_setup_entry(hass, entry())
     assert len(hass.http.app.router.routes) == 2
     assert len(hass.http.views) == 1
     assert len(hass.http.static) == 1
-    assert len(hass.data["frontend_extra_module_url"]) == 1
+    assert len(hass.data["frontend_extra_module_url"]) == 2      # the card and its second address, no duplicates
 
     assert await integration.async_unload_entry(hass, entry()) is True
     assert store.get("plan") is None

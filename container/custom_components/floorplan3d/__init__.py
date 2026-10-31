@@ -67,12 +67,16 @@ def _store(hass: HomeAssistant) -> dict:
 
 
 async def _serve_card(hass: HomeAssistant) -> bool:
-    """the card comes with the integration: served from here, nothing to copy into /config/www"""
+    """the card comes with the integration: served from here, nothing to copy into /config/www.
+
+    Immutable caching on purpose: the address carries the version (``?v=``), so a browser that has the card once never has to ask
+    again — and Home Assistant only waits about two seconds for a custom element before it shows “Custom element doesn't exist”.
+    With a forced revalidation every load, an unstable connection alone could push the card past that window."""
     store = _store(hass)
     if store.get("card_served"):
         return True
     await hass.http.async_register_static_paths(
-        [StaticPathConfig(const.FRONTEND_PATH, str(CARD_DIR), cache_headers=False)])
+        [StaticPathConfig(const.FRONTEND_PATH, str(CARD_DIR), cache_headers=True)])
     store["card_served"] = True
     return True
 
@@ -85,7 +89,11 @@ async def _card_url(hass: HomeAssistant) -> str:
 
 
 def _load_card(hass: HomeAssistant) -> None:
-    """load the card on every Home Assistant page, so it is in the card picker without a dashboard resource"""
+    """load the card on every Home Assistant page, so it is in the card picker without a dashboard resource.
+
+    Twice, under two addresses: Home Assistant imports these with a plain import() and only logs a failure — the browser then
+    keeps the failed module for this page, and the dashboard shows “Custom element doesn't exist” until a reload. The second
+    address is an independent request (and an independent module), so one bad answer on an unstable connection costs nothing."""
     store = _store(hass)
     url = store.get("card_url")
     if url is None:
@@ -95,10 +103,11 @@ def _load_card(hass: HomeAssistant) -> None:
         return
     try:
         frontend.add_extra_js_url(hass, url)
+        frontend.add_extra_js_url(hass, f"{url}&f=1")
     except KeyError:                    # frontend is listed but its extra-module store did not come up
         _LOGGER.warning("3D Floorplan: Home Assistant's frontend is not ready, so the card is not loaded")
         return
-    store["card_added"] = url
+    store["card_added"] = [url, f"{url}&f=1"]
 
 
 async def _register_lovelace_resource(hass: HomeAssistant, url: str):
@@ -254,14 +263,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if await _serve_card(hass):
         store["card_url"] = await _card_url(hass)
         _load_card(hass)
-        store["resource_id"] = await _register_lovelace_resource(hass, store["card_url"])
+        # a third, independent address for Lovelace's own resource loader — Home Assistant also rebuilds the card as soon as the
+        # element appears, so any one of the three attempts is enough
+        store["resource_id"] = await _register_lovelace_resource(hass, f"{store['card_url']}&r=1")
         if store["resource_id"] is None:
             # Lovelace (and its resource storage) can be set up after the config entry. Register then too; a dashboard opened
             # before this still has the extra-JS URL, and the resource covers the next start.
             async def _when_lovelace_ready(_hass, _component) -> None:
                 url = store.get("card_url")
                 if url and store.get("resource_id") is None and store.get("plan") is not None:
-                    store["resource_id"] = await _register_lovelace_resource(hass, url)
+                    store["resource_id"] = await _register_lovelace_resource(hass, f"{url}&r=1")
 
             try:
                 from homeassistant.setup import async_when_setup  # noqa: PLC0415
@@ -276,8 +287,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     plan = store.pop("plan", None)
     if plan is not None:
         await plan.close()
-    url = store.pop("card_added", None)
-    if url is not None:
+    urls = store.pop("card_added", None) or []
+    if isinstance(urls, str):               # an older unload left one address
+        urls = [urls]
+    for url in urls:
         try:
             frontend.remove_extra_js_url(hass, url)
         except KeyError:

@@ -157,6 +157,7 @@ import { initRenames } from './renames.js';
 import { initMeasureTool } from './measuretool.js';
 import { initLogin } from './login.js';
 window.fp3dBooted = true;           // every module is loaded: the boot guard (bootguard.js) stands down (#328)
+window.fp3dReadySupported = true;   // init() will report fp3dReady: the integration's boot splash can wait for it instead of guessing
 
 /* ================= State ================= */
 const FLOOR_H = 3.0;
@@ -1780,6 +1781,8 @@ async function init() {
   tabsUi.update(); tabsUi.home();                         // the tab bar (#479): this user's / tablet's start tab
   liveChan.start();                                         // first full list, the live channel, polling while it is down
   booted = true;
+  window.fp3dReady = true;      // the plan is built and on screen: the integration's boot splash
+                                // (container/custom_components/floorplan3d/splash.py) ends on this, not on the modules alone
 }
 
 var lastActive = performance.now(), lastFrame = 0, lastMove = -Infinity, lastDrawn = 0;
