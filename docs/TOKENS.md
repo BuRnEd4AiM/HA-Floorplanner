@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-10-30 · 85 Sitzungen
+Stand: 2026-10-31 · 86 Sitzungen
 
-**Insgesamt: 6,10 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 6,12 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
 | Geschrieben | 17,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 62,8 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 6,02 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Neu gelesen | 63,0 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 6,03 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,13 +18,14 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-10 | 72 | 4,10 Mrd. | 11,7 Mio. |
+| 2026-10 | 73 | 4,12 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
 ## Pro Sitzung (neueste zuerst)
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-10-31 | [012p9z3P…](https://claude.ai/code/session_012p9z3PwGpSQUTnQwfP7meT) | claude/fenster-vorhaenge | 17,7 Mio. | 66 Tsd. | gezählt |
 | 2026-10-30 | [018pwcmx…](https://claude.ai/code/session_018pwcmxZAxkAymAbButeKpY) | claude/affectionate-cray-4wiii6 | 7,3 Mio. | 42 Tsd. | gezählt |
 | 2026-10-30 | [018pwcmw…](https://claude.ai/code/session_018pwcmwU8ZobHhKBxttE6Wc) | claude/exciting-ride-totxku | 41,4 Mio. | 164 Tsd. | gezählt |
 | 2026-10-29 | [012p9z3M…](https://claude.ai/code/session_012p9z3MJ39jRYCv55o46a3L) | claude/dashboard-scenes-light-control-pqpgty | 78,8 Mio. | 203 Tsd. | gezählt |
