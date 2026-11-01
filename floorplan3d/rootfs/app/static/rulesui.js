@@ -2,13 +2,14 @@
  * 🔎 Wird benutzt (usedbyui.js), 🌡 Klima → 📋 Heiz-Regeln (heatrulesui.js) and 📅 Heizplan (heatplanui.js), the cards of ▶ Abläufe
  * (routinesown.js), the editor of a routine (flowedit.js) and the scenes of Home Assistant with the scene editor (scenesui.js,
  * sceneedit.js, #549), deleting scenes and automations of Home Assistant with "↶ Wiederherstellen" (hamanage.js, #564) and 🩺 Protokoll
- * (heatdiagui.js, #579). app.js only calls initRulesUi and hands the parts to the pages, the room
+ * (heatdiagui.js, #579) and the window 📅 Besondere Tage of the routines (specialdaysui.js). app.js only calls initRulesUi and hands the parts to the pages, the room
  * labels and tiles ("⏸️ pausiert") and the live channel. */
 import { initRulesStore } from './rulesstore.js';
 import { initUsedBy } from './usedbyui.js';
 import { initHeatRulesUi } from './heatrulesui.js';
 import { initHeatPlanUi } from './heatplanui.js';
 import { initFlowEdit } from './flowedit.js';
+import { initSpecialDaysUi } from './specialdaysui.js';
 import { initRoutinesOwn } from './routinesown.js';
 import { initSceneEdit } from './sceneedit.js';
 import { initScenesCard } from './scenesui.js';
@@ -43,7 +44,8 @@ export function initRulesUi(ctx) {
   const rules = initRulesStore({ changed: () => { sensors.apply(ctx.states()); ctx.redraw(); usedBy.redraw(); } });
   const sensors = initRoomSensorsUi({ ...base, rules, deg, delta, rooms: () => ctx.climate()?.sensorRooms() || [], partOf: () => ctx.partOf?.() || {},   // 🌡 Raumfühler (#573)
     changed: () => ctx.climate()?.update() });
-  const flowEdit = initFlowEdit({ ...base, entities: ctx.entities, rules });
+  const days = initSpecialDaysUi({ ...base, entities: ctx.entities, rules });                                                     // 📅 Besondere Tage
+  const flowEdit = initFlowEdit({ ...base, entities: ctx.entities, rules, days });
   const openRules = () => { ctx.tabs().show('climate'); ctx.climate().show('rules'); };
   const editFlow = (f) => { ctx.tabs().show('routines'); flowEdit.open(f); };
   const openFlow = (id) => { const f = (rules.get()?.flows || []).find((x) => x.id === id); if (f) editFlow(f); else ctx.tabs().show('routines'); };
@@ -59,11 +61,11 @@ export function initRulesUi(ctx) {
   const sceneEdit = initSceneEdit({ ...base, entities: ctx.entities, locked: ctx.locked, manage, saved: () => ctx.routines()?.update() });   // #549
   const scenes = initScenesCard({ ...base, locked: ctx.locked, callService: ctx.callService, ha: () => rules.get()?.ha === true, edit: (s) => sceneEdit.open(s),
     manage, groups, areaOf, changed: () => ctx.routines()?.update() });
-  const own = initRoutinesOwn({ ...base, locked: ctx.locked, callService: ctx.callService, rules, edit: (f) => flowEdit.open(f), openRules, details: ctx.details,
+  const own = initRoutinesOwn({ ...base, locked: ctx.locked, callService: ctx.callService, rules, edit: (f) => flowEdit.open(f), openRules, details: ctx.details, days,
     scenes, manage, groups, areaOf, sensorLog: (x) => sensors.log(x), changed: () => ctx.routines()?.update() });
   rules.load();
   return {
-    rules, usedBy, heat, plan, own, flowEdit, sceneEdit, sensors, diag, groups,
+    rules, usedBy, heat, plan, own, flowEdit, sceneEdit, sensors, diag, groups, days,
     /** the page's states with the temperatures of the sensors in the rooms (🌡 Raumfühler, #573): after every change of the states */
     applySensors: () => sensors.apply(ctx.states()),
     /** the mark of a room's label and tile: "⏸️ pausiert", "🚀 Boost" or '' */

@@ -6,6 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "floorplan3d" / "rootfs" / "app"))
 import flows as fl  # noqa: E402
+import specialdays as sd  # noqa: E402
 
 WINDOW = {"id": "f_window", "name": "Fenster offen → Heizung aus", "lanes": [
     {"id": "l1", "blocks": [{"k": "state", "ents": ["binary_sensor.fenster_wz", "binary_sensor.fenster_bad"], "to": "open"},
@@ -32,7 +33,8 @@ class House:
         self.flows, self.states, self.local, self.now, self.mem, self.calls, self.log = fl.clean_flows(flows), house(), at, at.timestamp(), {}, [], []
 
     def ctx(self):
-        return {"states": self.states, "now": self.now, "local": self.local, "weather": "weather.home", "names": {"binary_sensor.fenster_wz": "Fenster Wohnzimmer"},
+        return {"states": self.states, "now": self.now, "local": self.local, "weather": "weather.home", "days": getattr(self, "days", []),
+                "names": {"binary_sensor.fenster_wz": "Fenster Wohnzimmer"},
                 "room_of": lambda e: ROOMS.get(e, ""), "room_names": {"h/wz": "Wohnzimmer", "h/bad": "Bad"},
                 "in_room": lambda room, dom: [e for e, r in ROOMS.items() if r == room and e.startswith(dom + ".")]}
 
@@ -166,3 +168,31 @@ def test_removed_lanes_are_forgotten():
     h.flows = []
     h.wait(1)
     assert h.mem["runs"] == {} and h.mem["last"] == {} and h.mem["saved"] == {}
+
+
+def test_special_days_make_a_routine_different():
+    """the owner, 2026-11-01: "an Heiligabend soll zum Beispiel der Rollladen nicht ganz hochfahren, obwohl die Rollladensteuerung sagt,
+    dass jeden Tag 7 Uhr etwas gesteuert wird": one lane every day but not on the special days, its copy only on them"""
+    morning = {"id": "f_m", "name": "Rollladen morgens", "lanes": [
+        {"id": "l1", "blocks": [{"k": "time", "at": "07:00", "days": []}, {"k": "if_special", "is": "no", "days": ["d_xmas", "d_ft"]},
+                                {"k": "cover", "ents": ["cover.wz"], "do": "open"}]},
+        {"id": "l2", "blocks": [{"k": "time", "at": "07:00", "days": []}, {"k": "if_special", "is": "yes", "days": ["d_xmas", "d_ft"]},
+                                {"k": "cover", "ents": ["cover.wz"], "do": "pos", "v": 50}]},
+        {"id": "l3", "blocks": [{"k": "time", "at": "09:00", "days": []}, {"k": "if_special", "days": []}, {"k": "notify", "text": "Frohes Fest"}]}]}
+    assert fl.clean_flows([morning])[0]["lanes"][2]["blocks"][1] == {"k": "if_special", "is": "yes", "days": []}
+    assert fl.clean_block({"k": "if_special", "is": "x", "days": ["d_a", "bad", "d_a"]}) == {"k": "if_special", "is": "yes", "days": ["d_a"]}
+    h = House([morning], at=datetime.datetime(2026, 12, 23, 6, 59, 30))
+    h.days = sd.clean_days([{"id": "d_xmas", "kind": "date", "name": "Heiligabend", "md": "12-24"}, {"id": "d_ft", "kind": "holidays", "region": "BW"},
+                            {"id": "d_nye", "kind": "date", "md": "12-31"}])
+    h.states["cover.wz"] = {"state": "closed", "attributes": {"current_position": 0}}
+    assert h.wait(30) == [("cover", "open_cover", {"entity_id": "cover.wz"})]                       # 23 December: all the way up
+    h.wait(3600 * 24 - 30)
+    assert h.wait(30) == [("cover", "set_cover_position", {"entity_id": "cover.wz", "position": 50})]   # Heiligabend: only half
+    assert h.wait(2 * 3600) == [("notify", "", {"message": "Frohes Fest"})]                          # any special day
+    h.wait(3600 * 22 - 30)
+    assert h.wait(30) == [("cover", "set_cover_position", {"entity_id": "cover.wz", "position": 50})]   # 25 December: a public holiday
+    h.wait(3600 * 24 * 6 - 30)                                                                       # 31 December: special, but not one of these
+    assert h.wait(30) == [("cover", "open_cover", {"entity_id": "cover.wz"})]
+    h.days = []                                                                                      # the days deleted: every day the same
+    h.wait(3600 * 24 - 30)
+    assert h.wait(30) == [("cover", "open_cover", {"entity_id": "cover.wz"})]

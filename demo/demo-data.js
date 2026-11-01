@@ -604,9 +604,14 @@ const rulesDemo = {
     { id: 'f_flur', name: 'Flurlicht nachts', on: true, ha: true, lanes: [{ id: 'l1', blocks: [{ k: 'state', ents: ['binary_sensor.wohnzimmer_bewegung'], to: 'on' }, { k: 'if_sun', is: 'dark' },
       { k: 'switch', ents: ['light.stehlampe'], same: false, do: 'on', pct: 20 }, { k: 'wait', s: 120 }, { k: 'switch', ents: ['light.stehlampe'], same: false, do: 'off' }] }] },
     { id: 'f_abend', name: 'Rollläden am Abend', on: true, ha: false, lanes: [{ id: 'l1', blocks: [{ k: 'sun', ev: 'set', off: 0 }, { k: 'cover', ents: ['cover.wohnzimmer'], same: false, do: 'close' }] }] },
+    { id: 'f_morgen', name: 'Rollläden am Morgen', on: true, ha: false, lanes: [                       // 📅 an besonderen Tagen nur halb hoch
+      { id: 'l1', blocks: [{ k: 'time', at: '07:00', days: [] }, { k: 'if_special', is: 'no', days: ['d_xmas', 'd_ft'] }, { k: 'cover', ents: ['cover.wohnzimmer', 'cover.rollladen_schlafzimmer'], same: false, do: 'open' }] },
+      { id: 'l2', blocks: [{ k: 'time', at: '07:00', days: [] }, { k: 'if_special', is: 'yes', days: ['d_xmas', 'd_ft'] }, { k: 'cover', ents: ['cover.wohnzimmer', 'cover.rollladen_schlafzimmer'], same: false, do: 'pos', v: 50 }] }] },
     { id: 'f_kino', name: 'Kinoabend', on: true, ha: true, lanes: [{ id: 'l1', blocks: [{ k: 'button' }, { k: 'switch', ents: ['light.wohnzimmer'], same: false, do: 'off' },
       { k: 'cover', ents: ['cover.wohnzimmer'], same: false, do: 'close' }, { k: 'switch', ents: ['light.tv_led'], same: false, do: 'on', pct: 40 }] }] },
   ],
+  days: [{ id: 'd_ft', kind: 'holidays', name: '', icon: '🎉', region: 'BW' }, { id: 'd_xmas', kind: 'date', name: 'Heiligabend', icon: '🎄', md: '12-24' },   // 📅 Besondere Tage
+    { id: 'd_hw', kind: 'date', name: 'Halloween', icon: '🎃', md: '10-31' }],
   boost: {}, skip: {}, log: [],
 };
 const nowS = () => Math.round(Date.now() / 1000);
@@ -708,7 +713,7 @@ function sceneShow(m) {                                 // ▶ Ausprobieren and 
 }
 entities['automation.flurlicht_nachts'].at = nowS() - 17 * 60;
 function rulesAnswer() {
-  return { heat: rulesDemo.heat, flows: rulesDemo.flows, status: rulesStatus(), log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS(), haLink: '' };
+  return { heat: rulesDemo.heat, flows: rulesDemo.flows, days: rulesDemo.days, status: rulesStatus(), log: rulesDemo.log.slice(-100), running: true, active: true, ha: true, canEdit: true, now: nowS(), haLink: '' };
 }
 /* 🩺 Protokoll (#579): every room as the add-on sees it (roommap.py) and the journal of today, as the add-on would have written it: the
  * schedule, a turn at the thermostat and back, Home Assistant starting again, the kitchen door (between two rooms: it does not count), the
@@ -1247,6 +1252,7 @@ export function installDemoBackend() {
       if (method === 'PUT') {
         const b = JSON.parse(init.body || '{}');
         if (b.heat) rulesDemo.heat = b.heat;
+        if (Array.isArray(b.days)) rulesDemo.days = b.days;                    // 📅 Besondere Tage (the add-on cleans them, specialdays.py)
         if (Array.isArray(b.flows)) return json({ ...rulesAnswer(), flows: (rulesDemo.flows = b.flows), haSync: haSyncDemo() });
       }
       return json(rulesAnswer());

@@ -3,12 +3,13 @@
  * the blocks of a day of the schedule and how a tap or a drag changes them, where the blocks of a routine stand on its canvas, and the
  * ready-made routines of "Aus Vorlage". Pure (unit test: tests/rules.test.mjs); heatrulesui.js, heatplanui.js, usedbyui.js,
  * routinesown.js and flowedit.js draw. The engines themselves run in the add-on (heatrules.py, flows.py). */
+import { idsText, isSpecial, nextOf, shortDate } from './specialdays.js';
 
 export const LEVELS = ['night', 'eco', 'comfort'];
 export const LEVEL_ICON = { night: '💤', eco: '🌙', comfort: '☀️' };
 export const LEVEL_COLOR = { night: '#2e5f8f', eco: '#3fa9f5', comfort: '#ff8c32' };
 export const TRIGGERS = ['state', 'num', 'time', 'sun', 'presence', 'button'];
-export const CONDS = ['if_time', 'if_days', 'if_home', 'if_state', 'if_num', 'if_outside', 'if_sun'];
+export const CONDS = ['if_time', 'if_days', 'if_home', 'if_state', 'if_num', 'if_outside', 'if_sun', 'if_special'];
 export const WAITS = ['hold', 'wait'];
 export const ACTIONS = ['switch', 'heat', 'cover', 'run', 'notify', 'restore'];
 export const groupOf = (k) => (TRIGGERS.includes(k) ? 'when' : CONDS.includes(k) ? 'and' : WAITS.includes(k) ? 'wait' : 'then');
@@ -74,7 +75,25 @@ export function namesText(ents, nameOf) {
 
 const deg = (v) => `${String(v).replace('.', ',')}°`;
 
-/** what a block says: { icon, text, sub }. ctx: t, lang, nameOf(entity), states */
+/** "Nur wenn: besonderer Tag" (📅 specialdays.js): { text: "Heute ist Heiligabend" | "Heute ist kein besonderer Tag" …, sub: when the one
+ *  day comes next, or "heute ✓" when today is one of them } */
+function specialWords(b, ctx) {
+  const { t } = ctx, days = ctx.days || [], any = !(b.days || []).length;
+  const names = idsText(days, b.days, t, ctx.lang, ctx.nameOf);
+  const text = any ? t(b.is === 'no' ? 'fl.b.special.noAny' : 'fl.b.special.yesAny') : t(b.is === 'no' ? 'fl.b.special.no' : 'fl.b.special.yes', { days: names });
+  let sub = '';
+  if (ctx.today && days.length) {
+    if (isSpecial(days, b.days, ctx.today, ctx.states)) sub = t('fl.b.special.today');
+    else if (!any && b.days.length === 1) {
+      const d = days.find((x) => x.id === b.days[0]), n = d ? nextOf(d, ctx.today) : null;
+      if (n) sub = t('sd.next', { date: shortDate(n.date, ctx.lang) });
+    }
+  }
+  return { icon: '🎉', text, sub };
+}
+
+/** what a block says: { icon, text, sub }. ctx: t, lang, nameOf(entity), states, days (the special days, specialdays.js), today (a Date:
+ *  when a special day comes next) */
 export function blockWords(b, ctx) {
   const { t } = ctx, nm = (ents) => namesText(ents, ctx.nameOf), one = (e) => (e ? ctx.nameOf(e) || e : '');
   const same = (k) => t(`fl.same.${k}`);
@@ -92,6 +111,7 @@ export function blockWords(b, ctx) {
     case 'if_num': return { icon: '🌡', text: t(`fl.b.num.${b.op}`, { name: one(b.ent), v: b.v }), sub: '' };
     case 'if_outside': return { icon: '🌡', text: t(`fl.b.outside.${b.op}`, { v: deg(b.v) }), sub: '' };
     case 'if_sun': return { icon: b.is === 'dark' ? '🌙' : '☀️', text: t(`fl.b.sun.${b.is}`), sub: '' };
+    case 'if_special': return specialWords(b, ctx);
     case 'hold': return { icon: '⏱', text: t('fl.b.hold'), sub: duration(b.s, t) };
     case 'wait': return { icon: '⏱', text: t('fl.b.wait'), sub: duration(b.s, t) };
     case 'switch': return { icon: b.ents[0]?.startsWith('light.') || b.same ? '💡' : entIcon(b.ents[0], ctx.states), text: b.same ? same('switch') : nm(b.ents), sub: t(`fl.do.${b.do}`) + (b.pct ? ` · ${b.pct} %` : '') };
@@ -107,7 +127,7 @@ export function blockWords(b, ctx) {
 /** a lane in words: "Wenn …, und es 2 Min so bleibt, nur wenn …: dann …, …" */
 export function laneWords(lane, ctx) {
   const { t } = ctx, parts = [], acts = [];
-  const w = (b) => { const x = blockWords(b, ctx); return x.sub && !['time'].includes(b.k) ? `${x.text} (${x.sub})` : x.text + (b.k === 'time' && x.sub !== t('fl.everyDay') ? ` (${x.sub})` : ''); };
+  const w = (b) => { const x = blockWords(b, ctx); return x.sub && !['time', 'if_special'].includes(b.k) ? `${x.text} (${x.sub})` : x.text + (b.k === 'time' && x.sub !== t('fl.everyDay') ? ` (${x.sub})` : ''); };
   (lane.blocks || []).forEach((b, i) => {
     const g = groupOf(b.k);
     if (i === 0) parts.push(`${t('fl.w.when')} ${w(b)}`);
@@ -259,7 +279,7 @@ export function newBlock(k) {
     state: { ents: [], to: 'open' }, num: { ent: '', op: 'above', v: 25 }, time: { at: '07:00', days: [] }, sun: { ev: 'set', off: 0 },
     presence: { ev: 'arrive', who: '' }, button: {}, if_time: { from: '22:00', to: '06:00' }, if_days: { days: [0, 1, 2, 3, 4] },
     if_home: { who: '' }, if_state: { ent: '', is: 'on' }, if_num: { ent: '', op: 'above', v: 25 }, if_outside: { op: 'below', v: 15 },
-    if_sun: { is: 'dark' }, hold: { s: 120 }, wait: { s: 60 }, switch: { ents: [], same: false, do: 'on' }, heat: { ents: [], same: true, do: 'off' },
+    if_sun: { is: 'dark' }, if_special: { is: 'yes', days: [] }, hold: { s: 120 }, wait: { s: 60 }, switch: { ents: [], same: false, do: 'on' }, heat: { ents: [], same: true, do: 'off' },
     cover: { ents: [], same: false, do: 'close' }, run: { ent: '' }, notify: { text: '' }, restore: { ents: [], same: true },
   }[k];
   return d ? { k, ...JSON.parse(JSON.stringify(d)) } : null;

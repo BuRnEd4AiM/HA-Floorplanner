@@ -1849,6 +1849,10 @@ body.tabEditing #tabBar [data-tab]:not([data-tab=house])::before { content: '⠿
 .ocRange { width: 100%; }
 .ocBtns { display: flex; gap: 8px; }
 .ocBtns button { flex: 1; min-height: 44px; font-size: 18px; border-radius: 12px; }
+/* the quick positions of a roller shutter card under ▲ ■ ▼ (coverrow.js): smaller, the one it stands at marked */
+.ocPresets { margin-top: 8px; flex-wrap: wrap; }
+.ocPresets button { min-height: 40px; min-width: 52px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.ocPresets button.on { border-color: var(--accent); color: var(--accent); font-weight: 600; }
 .ocRow { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
 .ocRow:first-of-type { border-top: 0; }
 .ocCam { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; background: #000; }
@@ -2579,3 +2583,28 @@ body.hasScenes #status { bottom: 156px; }
   .lcState { font-size: 14px; }
   .lcIcon { font-size: 21px; width: 26px; }
 }
+/* 📅 Besondere Tage (specialdaysui.js) and "An besonderen Tagen anders" in the editor of a routine (flowedit.js) */
+.sdDlg { width: min(640px, calc(100vw - 32px)); }
+.sdBody { display: flex; flex-direction: column; gap: 12px; max-height: min(66vh, 720px); overflow: auto; padding: 2px 2px 6px; }
+.sdToday { margin: 0; padding: 8px 12px; border-radius: 10px; background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.sdToday.on { background: color-mix(in srgb, var(--accent) 18%, transparent); font-weight: 700; }
+.sdList { display: flex; flex-direction: column; gap: 8px; }
+.sdEmpty { margin: 0; }
+.sdRow { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.sdRow.fresh { border-color: var(--accent); }
+.sdRow.bad { border-color: #e5484d; }
+.sdHead { display: flex; gap: 8px; align-items: center; }
+.sdIcon, .sdName { padding: 7px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--field); color: var(--text); font: inherit; box-sizing: border-box; }
+.sdIcon { width: 3.2em; text-align: center; font-size: 18px; padding: 4px; }
+.sdName { flex: 1; min-width: 0; font-weight: 700; }
+.sdKind { color: var(--muted); font-size: 13px; }
+.sdFields { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: flex-end; }
+.sdFields .ceSelect { width: auto; max-width: 100%; }
+.sdFields .feNum { width: 7em; }
+.sdField { display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; color: var(--muted); font-weight: 800; min-width: 0; max-width: 100%; }
+.sdDate { padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font: inherit; }
+.sdFields .tpSub { flex-basis: 100%; margin: 0; }
+.sdAdd { display: flex; flex-direction: column; gap: 6px; } .sdAdd > small { color: var(--muted); font-weight: 800; }
+.feSplit { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.feSplit h6 { margin: 0; font-size: 14px; }
+.feSplit .tpSub { margin: 0; }

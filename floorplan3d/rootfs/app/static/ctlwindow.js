@@ -5,6 +5,7 @@
  * window (its history) where the page runs inside Home Assistant. Drawn again when the device's state changes, not while a slider is
  * held or a field has the focus. */
 import { initDeviceControls } from './devicecontrols.js';
+import { presetRow } from './coverrow.js';
 
 const TOGGLE = new Set(['light', 'switch', 'input_boolean', 'fan', 'automation', 'media_player', 'humidifier']);
 const RUN = new Set(['scene', 'script']);
@@ -44,6 +45,8 @@ export function initControlsWindow(ctx) {
         const r = make('input', 'ocRange'); r.type = 'range'; r.min = 0; r.max = 100; r.value = Math.round(s.position);
         r.addEventListener('change', () => ctx.callService(e, 'set_cover_position', { position: Number(r.value) }));
         out.push(make('div', 'sub', `${t('ctl.position')} ${Math.round(s.position)} %`), r);
+        const pre = presetRow(e, s, undefined, { t, callService: ctx.callService });   // 0 % · 50 % · 75 % · 100 % (coverrow.js)
+        if (pre) out.push(pre);
       }
     }
     if (dom === 'lock') {

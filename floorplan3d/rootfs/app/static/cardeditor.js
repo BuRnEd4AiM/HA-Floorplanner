@@ -3,7 +3,7 @@
  * #495), a ready card of ☀ Heute or a text; name,
  * width, time span and colour; on the right the card as it will look. Saved through the board (pageboard.js) into settings.pageLayouts.
  * The rules are in cards.js (tested). */
-import { CARD_TYPES, TYPE_ICON, BUILTINS, COLORS, COLOR_HEX, HOURS, MAX_ENTITIES, MAX_SERIES, TYPE_DOMAINS, fitsType, cleanCard, defaultWidth, seriesColor } from './cards.js';
+import { CARD_TYPES, TYPE_ICON, BUILTINS, COLORS, COLOR_HEX, HOURS, MAX_ENTITIES, MAX_SERIES, TYPE_DOMAINS, COVER_STEPS, MAX_PRESETS, fitsType, cleanCard, cleanPresets, defaultWidth, seriesColor } from './cards.js';
 import { newCardId } from './pagelayout.js';
 import { SIZES } from './thermostat.js';
 
@@ -121,6 +121,22 @@ export function initCardEditor(ctx) {
     }
     if (card.type === 'graph') field(t('ce.hours'), seg(HOURS, (h) => t(`ce.hours.${h}`), 'hours'));
     if (card.type === 'thermostat') { draft.size = draft.size || 'big'; field(t('th.size'), seg(SIZES, (v) => t(`th.size.${v}`), 'size')); }   // the circle big or small (#495)
+    if (card.type === 'cover') {                     // the quick positions under ▲ ■ ▼ (coverrow.js): tap to take one in or out, at most six
+      draft.presets = cleanPresets(draft.presets);
+      const row = make('div', 'ceSeg'); row.dataset.field = 'presets';
+      const mark = () => row.querySelectorAll('button').forEach((b) => b.classList.toggle('on', draft.presets.includes(Number(b.dataset.v))));
+      COVER_STEPS.forEach((p) => {
+        const b = btn('', `${p} %`, () => {
+          const on = draft.presets.includes(p);
+          if (!on && draft.presets.length >= MAX_PRESETS) return;
+          draft.presets = cleanPresets(on ? draft.presets.filter((x) => x !== p) : [...draft.presets, p]);
+          mark(); preview();
+        });
+        b.dataset.v = String(p); row.append(b);
+      });
+      mark();
+      field(t('ce.presets', { n: MAX_PRESETS }), row, make('small', 'tpSub', t('ce.presetsHelp')));
+    }
     field(t('ce.width'), seg([1, 2, 3, 4], (w) => t(`ce.width.${w}`), 'width'));
     if (card.type === 'graph' || card.type === 'value') {
       const row = seg(COLORS, (c) => t(`ce.color.${c}`), 'color');

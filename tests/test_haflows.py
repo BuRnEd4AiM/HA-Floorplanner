@@ -149,3 +149,26 @@ def test_sync_plan():
     plan = hf.sync_plan({"fp3d_a_l1": a, "fp3d_b_l1": b, "nicht_unsere": {"alias": "N"}}, record)
     assert plan == {"write": ["fp3d_b_l1"], "delete": ["fp3d_old_l1"]}                # unchanged a not sent again, others never touched
     assert hf.sync_plan({"fp3d_a_l1": {**a, "alias": "A2"}}, record)["write"] == ["fp3d_a_l1"]
+
+
+def test_special_days_as_a_template():
+    """📅 "Nur wenn: besonderer Tag" (specialdays.py): one template condition with the dates written out; a deleted day or none: never
+    (not: always)"""
+    import specialdays as sd
+    days = sd.clean_days([{"id": "d_xmas", "kind": "date", "md": "12-24"}, {"id": "d_ft", "kind": "holidays", "region": "BW"},
+                          {"id": "d_cal", "kind": "calendar", "ent": "calendar.urlaub"}])
+    flow = fl.clean_flows([{"id": "f_m", "name": "Rollladen", "ha": True, "lanes": [
+        {"id": "l1", "blocks": [{"k": "time", "at": "07:00", "days": []}, {"k": "if_special", "is": "no", "days": ["d_xmas"]}, {"k": "cover", "ents": ["cover.wz"], "do": "open"}]},
+        {"id": "l2", "blocks": [{"k": "time", "at": "07:00", "days": []}, {"k": "if_special", "is": "yes", "days": ["d_xmas", "d_cal"]},
+                                {"k": "cover", "ents": ["cover.wz"], "do": "pos", "v": 50}]},
+        {"id": "l3", "blocks": [{"k": "button"}, {"k": "if_special", "days": ["d_gone"]}, {"k": "cover", "ents": ["cover.wz"], "do": "close"}]},
+        {"id": "l4", "blocks": [{"k": "button"}, {"k": "if_special", "days": []}, {"k": "cover", "ents": ["cover.wz"], "do": "close"}]}]}])[0]
+    out = hf.compile_flow(flow, ctx(days=days, year=2026))
+    assert out["ok"] and not out["problems"]
+    a, b, c, d = (x["actions"][0] for x in out["autos"])
+    assert a == {"condition": "template", "value_template": "{{ not (now().strftime('%m-%d') == '12-24') }}"}
+    assert b == {"condition": "template", "value_template": "{{ (now().strftime('%m-%d') == '12-24' or is_state('calendar.urlaub', 'on')) }}"}
+    assert c == {"condition": "template", "value_template": "{{ (false) }}"}
+    assert d["value_template"].startswith("{{ (now().strftime('%Y-%m-%d') in ['2026-01-01', ") and "'2035-12-26'" in d["value_template"]
+    assert hf.compile_flow(flow, ctx(days=days, year=2027)) != out                     # another year: other dates (written anew when saved)
+    assert ctx()["days"] == [] and ctx()["year"] >= 2026

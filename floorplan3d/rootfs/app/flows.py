@@ -3,7 +3,8 @@ halt in unserem Dashboard"; picture docs/ideen-4.28/5-wenn-dann.jpg), run by the
 
 A routine has one to four lanes. A lane is a chain of blocks: first a trigger ("Wenn": a window opens, motion, a time, sunset, somebody
 comes or goes, a value over or under a limit, a button on the page), then in any order conditions ("Nur wenn": between two times, on
-some days, somebody at home, a device is on, colder outside than …), waits ("Warten": a while, or "bleibt so" — the trigger must stay
+some days, somebody at home, a device is on, colder outside than …, a special day like Heiligabend or a public holiday: specialdays.py),
+waits ("Warten": a while, or "bleibt so" — the trigger must stay
 true that long, else the lane stops) and actions ("Dann": switch, dim, heating, roller shutters, a scene or script, a message, "wie
 vorher" — back to how the devices were before this routine changed them). A trigger while its lane still runs starts it again (a new
 motion: the light stays on 2 more minutes).
@@ -14,6 +15,8 @@ calls."""
 import datetime
 import re
 
+import specialdays as sd
+
 ENTITY = re.compile(r"^[a-z_]{1,32}\.[a-z0-9_]{1,100}$")
 FLOW_ID = re.compile(r"^f_[a-z0-9]{1,16}$")
 LANE_ID = re.compile(r"^l[a-z0-9]{1,8}$")
@@ -22,7 +25,7 @@ MAX_FLOWS, MAX_LANES, MAX_BLOCKS, MAX_ENTS = 40, 4, 12, 20
 OPEN, CLOSED, GONE = {"on", "open", "opening"}, {"off", "closed"}, {None, "unavailable", "unknown"}
 
 TRIGGERS = ("state", "num", "time", "sun", "presence", "button")
-CONDS = ("if_time", "if_days", "if_home", "if_state", "if_num", "if_outside", "if_sun")
+CONDS = ("if_time", "if_days", "if_home", "if_state", "if_num", "if_outside", "if_sun", "if_special")
 WAITS = ("hold", "wait")
 ACTIONS = ("switch", "heat", "cover", "run", "notify", "restore")
 SWITCHABLE = ("light", "switch", "fan", "input_boolean", "media_player")
@@ -95,6 +98,8 @@ def clean_block(b) -> dict | None:
         return {"k": k, "op": _pick(b.get("op"), ("above", "below"), "below"), "v": _num(b.get("v"), -50, 60, 15)}
     if k == "if_sun":
         return {"k": k, "is": _pick(b.get("is"), ("dark", "light"), "dark")}
+    if k == "if_special":                                # 📅 today is (not) a special day (specialdays.py); days: which ones, [] any
+        return {"k": k, "is": _pick(b.get("is"), ("yes", "no"), "yes"), "days": sd.clean_ids(b.get("days"))}
     if k in WAITS:
         return {"k": k, "s": int(_num(b.get("s"), 1 if k == "wait" else 5, 86400, 120))}
     if k in ("switch", "heat", "cover", "restore"):
@@ -268,6 +273,9 @@ def check(cond: dict, run: dict, ctx) -> bool:
     if k == "if_sun":
         dark = _state(ctx, "sun.sun") == "below_horizon"
         return dark if cond["is"] == "dark" else not dark
+    if k == "if_special":
+        hit = sd.is_special(ctx.get("days") or [], cond["days"], local.date(), ctx["states"])
+        return hit if cond["is"] == "yes" else not hit
     return True
 
 

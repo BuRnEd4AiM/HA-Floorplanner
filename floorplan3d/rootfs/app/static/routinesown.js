@@ -14,7 +14,7 @@ const FILTERS = ['all', 'heat', 'light', 'cover', 'running'];
  *  edit(flow) (the editor, flowedit.js: a routine of the list, or a new one), openRules() (🌡 Klima → 📋 Heiz-Regeln), details(entity) (Home
  *  Assistant's window: a button or null), scenes (scenesui.js: the card 🎨 Szenen), manage (hamanage.js), sensorLog(entry) (a line of the log
  *  of 🌡 Raumfühler, #573), groups (roomgroupsui.js: the lists by room or the card of the rooms, #590), areaOf() ({entity: area id}),
- *  changed() (draw the page again) */
+ *  days (specialdaysui.js: the window 📅 Besondere Tage), changed() (draw the page again) */
 export function initRoutinesOwn(ctx) {
   const { t } = ctx;
   let filter = 'all', autos = null, autosAt = 0, loading = false, allAutos = false, longLog = false, tplOpen = false;
@@ -22,7 +22,7 @@ export function initRoutinesOwn(ctx) {
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
   const now = () => Math.round(Date.now() / 1000);
-  const wctx = () => ({ t, lang: ctx.lang(), nameOf: ctx.nameOf, states: ctx.states() });
+  const wctx = () => ({ t, lang: ctx.lang(), nameOf: ctx.nameOf, states: ctx.states(), days: ctx.rules.get()?.days || [], today: new Date() });
 
   async function loadAutos(fresh = false) {
     if (loading || !ctx.canEdit() || (!fresh && autos && Date.now() - autosAt < 60000)) return;
@@ -126,10 +126,13 @@ export function initRoutinesOwn(ctx) {
   /** the own routines as a list for roomgroupsui.js: in every area of what they use */
   const flowSpec = () => ({ items: flowsOf(), roomsFor: (f) => roomsOf('', flowEnts(f), ctx.areaOf?.() || {}), row: flowRow, nameOf: (f) => f.name, unit: 'flow',
     title: `🏠 ${t('ro.own')}` });
-  function addButtons() {                            // "＋ Neuer Ablauf", "📋 Aus Vorlage" (and its menu below the bar)
+  function addButtons() {                            // "＋ Neuer Ablauf", "📋 Aus Vorlage" (and its menu below the bar), "📅 Besondere Tage"
     const add = btn('bdBtn primary', `＋ ${t('ro.new')}`, () => ctx.edit(null)); add.dataset.act = 'newFlow';
     const tpl = btn('bdBtn', `📋 ${t('ro.fromTpl')}`, () => { tplOpen = !tplOpen; ctx.changed(); }); tpl.dataset.act = 'tplFlow';
-    return [add, tpl];
+    if (!ctx.days) return [add, tpl];
+    const n = (ctx.rules.get()?.days || []).length;
+    const days = btn('bdBtn', `📅 ${t('sd.title')}${n ? ` (${n})` : ''}`, () => ctx.days.open(), t('sd.sub')); days.dataset.act = 'specialDays';
+    return [add, tpl, days];
   }
   function tplMenu() {
     const menu = make('div', 'roTpls');

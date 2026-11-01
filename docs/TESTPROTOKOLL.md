@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.50.1)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.51.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.50.1** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.51.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.51.0: 📅 besondere Tage in Abläufen (z. B. an Heiligabend und Feiertagen den Rollladen nur auf 50 %) und feste Stufen 0 / 50 / 75 / 100 % auf der Rollladen-Karte** (Abschnitt 140): Claude hat 140.1 bis 140.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on 140.7 bis 140.10.
 1. **Neu in 4.50.0 und 4.50.1: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich, auch „Fest“** (Abschnitt 138 und 139, ein Beitrag von aixmoyu): Claude hat 138.1 bis 138.3, 139.1 und 139.2 geprüft (probier es gern selbst in der Demo); für dich im Add-on 138.4 bis 138.6 und 139.3, und 138.7, wenn du einen Vorhang mit Motor hast.
 1. **Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite dort, wo du sie willst** (Abschnitt 137): Claude hat 137.1 bis 137.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad und Handy 137.6 bis 137.8.
 1. **Neu in 4.47.0: 🎚️ mehrere Lampen in einem Balken der Lichtsteuerung** (Abschnitt 136): Claude hat 136.1 bis 136.3 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad 136.4 bis 136.6.
@@ -376,7 +377,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 137. Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite auf einem Gitter | 5 | 0 | 3 | 0 | 137.6 bis 137.8 |
 | 138. Neu in 4.50.0: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich (#606) | 3 | 0 | 4 | 0 | 138.4 bis 138.7 |
 | 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606) | 2 | 0 | 1 | 0 | 139.3 |
-| **Zusammen** | **846** | **1** | **100** | **92** | |
+| 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte | 6 | 0 | 4 | 0 | 140.7 bis 140.10 |
+| **Zusammen** | **852** | **1** | **104** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2127,3 +2129,19 @@ aixmoyu hat #606 kurz vor dem Merge von 4.50.0 noch verbessert. Der Besitzer am 
 | 139.1 | In der Demo: ✎ Bearbeiten, ein Fenster mit „Anzahl Flügel“ 3, bei „Flügel 2 · Fenster öffnet“ „Fest (öffnet nicht)“ | Flügel 2 hat unter „Einzelne Flügel“ kein Kontaktfeld mehr (dort steht „Flügel 2 · Fest (öffnet nicht)“); meldet der Hauptkontakt „offen“, gehen Flügel 1 und 3 auf, Flügel 2 bleibt zu | ✅ (2026-10-31, Claude im Test-Add-on) |
 | 139.2 | In der Demo: Live, das 🪟 an einem Fenster mit Rollladen (ohne Vorhangart) antippen | Die Karte heißt „Rollladen“ (nicht „Vorhang / Rollladen“), mit „Hoch“, „Stopp“, „Runter“ | ✅ (2026-10-31, Claude im Test-Add-on) |
 | 139.3 | Im Add-on: dein Dreifachfenster (falls du eins hast) mit festem Mittelteil: Flügel 2 auf „Fest“, dann das Fenster öffnen | Nur die Flügel, die wirklich aufgehen, drehen sich in 3D; der Mittelteil bleibt zu | ❓ |
+
+## 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte
+Der Besitzer am 2026-11-01: „an Heiligabend soll zum Beispiel der Rollladen nicht ganz hochfahren, obwohl die Rollladensteuerung sagt, dass jeden Tag 7 Uhr etwas gesteuert wird“ und „bei der Rollladensteuerungskarte … eine Voreinstellung mit 50 %, 75 %, 100 % und 0 %“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 140.1 | In der Demo: ▶ Abläufe, bei „Eigene Abläufe“ auf „📅 Besondere Tage“ tippen | Ein Fenster mit drei Tagen: „Feiertage Baden-Württemberg“ (mit dem nächsten Feiertag und Bundesland-Auswahl), „🎄 Heiligabend“, „🎃 Halloween“; oben „Heute: …“ oder „Heute ist kein besonderer Tag“; unten Vorschläge zum Antippen (Heiligabend und Halloween sind schon da und darum blass) | ✅ (2026-11-02, Claude in der Demo) |
+| 140.2 | Im selben Fenster „🏖️ Urlaub“ und „🗓️ Kalender“ antippen, beim Kalender einen wählen, dann „✓ Speichern“ | Urlaub hat „Von“ und „Bis“ (heute bis in 13 Tagen) und sagt „nächstes Mal heute“; „Speichern“ geht erst, wenn beim Kalender einer gewählt ist; danach steht „📅 Besondere Tage (5)“ auf dem Knopf | ✅ (2026-11-02, Claude in der Demo) |
+| 140.3 | In der Demo: den Ablauf „Rollläden am Morgen“ öffnen (✏️), den blauen Baustein „heute ist nicht …“ antippen | Zwei Wege um 07:00: Weg 1 „heute ist nicht Heiligabend, Feiertage …“ → Rollläden hoch, Weg 2 „heute ist Heiligabend, Feiertage …“ → 50 %; rechts „Nur wenn heute …“, die Tage zum Antippen und „📅 Tage verwalten …“ | ✅ (2026-11-02, Claude in der Demo) |
+| 140.4 | In der Demo: „＋ Neuer Ablauf“, links „Uhrzeit“ und „Rollladen“ (ein Rollladen, „hoch“), dann den gelben Baustein 07:00 antippen, rechts unter „An besonderen Tagen anders“ „Heiligabend“ und „＋ Weg für diese Tage anlegen“; beim neuen Rollladen-Baustein „Position“ 50 | Aus einem Weg werden zwei: „heute ist nicht Heiligabend“ → hoch, „heute ist Heiligabend“ → 50 %; unten „In Worten“ steht genau das | ✅ (2026-11-02, Claude in der Demo) |
+| 140.5 | In der Demo: ☀ Heute, ✎ Bearbeiten, „＋ Karte hinzufügen“, „Rollladen“, „Rollladen Wohnzimmer“ | Unter „Feste Stufen“ sind 0 %, 50 %, 75 %, 100 % markiert; die Vorschau zeigt unter ▲ ■ ▼ die Knöpfe 0 % · 50 % · 75 % · 100 %; antippen nimmt eine Stufe dazu oder weg (höchstens 6) | ✅ (2026-11-02, Claude in der Demo) |
+| 140.6 | Die Karte speichern, „Fertig“, auf der Karte „75 %“ antippen | Der Rollladen fährt auf 75 %, die Karte zeigt groß „75 %“, der Knopf „75 %“ ist blau umrandet | ✅ (2026-11-02, Claude in der Demo) |
+| 140.7 | Im Add-on: auf einer Seite eine Rollladen-Karte mit deinem Rollladen, die Stufen antippen | Dein Rollladen fährt auf 0 %, 50 %, 75 % und 100 %; die Karte zeigt, wo er steht | ❓ |
+| 140.8 | Im Add-on: ▶ Abläufe → „📅 Besondere Tage“ → „Feiertage“, Bundesland Baden-Württemberg, und „📌 Morgen (einmal)“, speichern | Bei den Feiertagen steht der nächste Feiertag (z. B. „1. Weihnachtstag“); morgen steht mit Datum da | ❓ |
+| 140.9 | Im Add-on: deinen Ablauf für die Rollläden am Morgen öffnen, den Auslöser (Uhrzeit) antippen, „An besonderen Tagen anders“ mit „Morgen“ und „Feiertage“, im neuen Weg den Rollladen auf „Position“ 50, speichern (🏠 Home Assistant) | Gespeichert ohne Fehler; in Home Assistant (↗) haben die Automationen eine Bedingung „Vorlage“ mit den Daten; am nächsten Morgen fährt der Rollladen nur auf 50 % | ❓ |
+| 140.10 | Im Add-on: dasselbe mit einem Ablauf „⚙️ Add-on“ (läuft im Add-on statt in Home Assistant) | Am besonderen Tag läuft der Weg mit 50 %, an den anderen Tagen der normale; im 📜 Protokoll von ▶ Abläufe steht, welcher Weg lief | ❓ |

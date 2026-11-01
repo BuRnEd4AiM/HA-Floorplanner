@@ -123,3 +123,20 @@ test('a routine in Home Assistant (#548): its automations, their state, what sav
   assert.equal(R.syncWords({ ok: true, problems: [], missing: true }, t).text, 'fe.ha.missing');
   assert.equal(R.syncWords({ error: 'nohass' }, t).text, 'fe.ha.nohass');
 });
+
+test('"Nur wenn: besonderer Tag" (📅 specialdays.js) in words: the days by name, "heute ✓" on one of them, else when the one day comes next', () => {
+  const days = [{ id: 'd_xmas', kind: 'date', name: 'Heiligabend', md: '12-24' }, { id: 'd_ft', kind: 'holidays', name: '', region: 'BW' }];
+  const c = { ...ctx, days, today: new Date(2026, 11, 1) };
+  assert.ok(R.CONDS.includes('if_special') && R.groupOf('if_special') === 'and');
+  assert.deepEqual(R.newBlock('if_special'), { k: 'if_special', is: 'yes', days: [] });
+  assert.equal(R.blockReady(R.newBlock('if_special')), true);
+  assert.deepEqual(R.blockWords({ k: 'if_special', is: 'yes', days: [] }, c), { icon: '🎉', text: 'fl.b.special.yesAny', sub: '' });
+  assert.equal(R.blockWords({ k: 'if_special', is: 'no', days: [] }, c).text, 'fl.b.special.noAny');
+  const one = R.blockWords({ k: 'if_special', is: 'no', days: ['d_xmas'] }, c);
+  assert.equal(one.text, 'fl.b.special.no{"days":"Heiligabend"}');
+  assert.match(one.sub, /^sd\.next\{"date":"24\. Dez\.?"\}$/);
+  assert.equal(R.blockWords({ k: 'if_special', is: 'yes', days: ['d_xmas'] }, { ...c, today: new Date(2026, 11, 24) }).sub, 'fl.b.special.today');
+  assert.equal(R.blockWords({ k: 'if_special', is: 'yes', days: ['d_xmas', 'd_ft'] }, c).text, 'fl.b.special.yes{"days":"Heiligabend, sd.holidaysOf{\\"region\\":\\"Baden-Württemberg\\"}"}');
+  const lane = { blocks: [{ k: 'time', at: '07:00', days: [] }, { k: 'if_special', is: 'yes', days: ['d_xmas'] }, { k: 'cover', ents: ['cover.wz'], same: false, do: 'pos', v: 50 }] };
+  assert.equal(R.laneWords(lane, c), 'fl.w.when 07:00 · fl.w.onlyIf fl.b.special.yes{"days":"Heiligabend"} · fl.w.then cover.wz (50 %)');
+});

@@ -8,14 +8,19 @@ API and only ever touches ids that start with fp3d_ (ours). "Wie vorher": before
 scene.create (one scene fp3d_<routine>_<device> per device, only if there is none yet), "wie vorher" plays it back and deletes it.
 "Im selben Raum" is looked up when saving: which trigger device is in which room of the plan.
 
+"Nur wenn: besonderer Tag" (📅, specialdays.py) becomes one template condition with the dates of the next ten years; it is written anew
+when the routine or the list of days is saved.
+
 Pure (unit test: tests/test_haflows.py): compile_flow (one routine -> its automations and what cannot be done), sync_plan (what to write
 and what to delete), sig (to see whether somebody changed an automation in Home Assistant)."""
+import datetime
 import hashlib
 import json
 import re
 
 import flows as fl
 import roommap as rm
+import specialdays as sd
 
 PREFIX = "fp3d_"
 OURS = re.compile(r"^fp3d_[a-z0-9_]{1,80}$")
@@ -46,13 +51,13 @@ def sig(cfg) -> str:
     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False, default=str).encode()).hexdigest()[:16]
 
 
-def context(rooms: list, states: dict, *, weather=None, notify=None, lang: str = "de") -> dict:
+def context(rooms: list, states: dict, *, weather=None, notify=None, lang: str = "de", days=None, year=None) -> dict:
     """what compile_flow needs to know of the house: the rooms of the plan (roommap.rooms_of), the persons, the weather entity, where
-    messages go ({services, entities} of Home Assistant's notify; None: the add-on sends them itself, see fp3d_notify) and the language
-    of the description"""
+    messages go ({services, entities} of Home Assistant's notify; None: the add-on sends them itself, see fp3d_notify), the language
+    of the description, the special days (specialdays.clean_days) and the year their dates start with (now)"""
     return {"rooms": rooms, "idx": rm.room_index(rooms), "room_names": {r["key"]: r["name"] for r in rooms},
             "persons": sorted(e for e in states if e.startswith("person.")), "weather": weather, "notify": notify,
-            "lang": lang if lang in NOTE else "en"}
+            "lang": lang if lang in NOTE else "en", "days": days or [], "year": year or datetime.date.today().year}
 
 
 # ---------- small pieces ----------
@@ -192,6 +197,9 @@ def _cond(b: dict, ctx, problems: list, lane: str, i: int) -> list:
                  ("above" if b["op"] == "above" else "below"): b["v"]}]
     if k == "if_sun":
         return [{"condition": "state", "entity_id": "sun.sun", "state": "below_horizon" if b["is"] == "dark" else "above_horizon"}]
+    if k == "if_special":                                # 📅 the dates of the next ten years written out (specialdays.ha_template)
+        hit = sd.ha_template(ctx.get("days") or [], b["days"], ctx.get("year") or datetime.date.today().year)
+        return [_tpl(f"({hit})" if b["is"] == "yes" else f"not ({hit})")]
     return []
 
 
