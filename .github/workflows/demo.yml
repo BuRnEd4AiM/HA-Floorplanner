@@ -58,7 +58,7 @@ jobs:
           mkdir _site && cp demo/floorplan3d-demo.html _site/index.html
           python3 tools/make_timeline.py _site
       - name: Upload the Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
       - name: Update the latest release
