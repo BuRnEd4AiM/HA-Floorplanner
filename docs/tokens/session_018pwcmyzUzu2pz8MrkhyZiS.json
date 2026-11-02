@@ -1,0 +1,20 @@
+{
+ "session": "session_018pwcmyzUzu2pz8MrkhyZiS",
+ "start": "2026-11-02",
+ "updated": "2026-11-02T21:33:33Z",
+ "branch": "claude/busy-mendel-19uyc6",
+ "source": "counted",
+ "input": 55,
+ "cache_write": 90250,
+ "cache_read": 3345862,
+ "output": 14383,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 55,
+   "cache_write": 90250,
+   "cache_read": 3345862,
+   "output": 14383,
+   "requests": 28
+  }
+ }
+}
