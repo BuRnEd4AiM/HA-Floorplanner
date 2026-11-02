@@ -3841,4 +3841,5 @@ export default {
   'roof.highH': '高侧高度（高于墙或矮墙）', 'roof.gableOver': '山墙处挑檐', 'roof.sideOver': '两侧挑檐', 'roof.gableWall': '山墙（墙一直砌到屋顶下）', 'roof.gableWallShed': '墙砌到屋顶下（两侧和高侧）',
   'roof.stepsShed': '单坡屋顶没有错台（只有双坡和平屋顶有）。', 'dormer.noShed': '单坡屋顶没有老虎窗。', 'roof.partDy': '抬高（负数：降低）', 'roof.canopy': '雨棚', 'roof.canopyAdd': '+ 雨棚（房前单坡屋顶）',
   'roof.canopyHelp': '“+ 雨棚”会在房子长边前、屋檐下方放一个单坡屋顶。在它的卡片里设置大小、高侧、坡度和“抬高”；“位于”选择楼层。',
+  'car.add': '＋ 添加车辆', 'car.remove': '移除车辆', 'car.moreHelp': '更多车辆：点“＋ 添加车辆”，在那里自行选择各项数值。',
 };

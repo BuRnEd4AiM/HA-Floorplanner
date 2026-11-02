@@ -2237,4 +2237,6 @@ export default {
   'dormer.noShed': 'Un toit en appentis n\'a pas de lucarnes.', 'roof.partDy': 'Monter (moins : descendre)', 'roof.canopy': 'Auvent',
   'roof.canopyAdd': '+ Auvent (toit en appentis devant la maison)',
   'roof.canopyHelp': '« + Auvent » place un toit en appentis devant le long côté de la maison, juste sous l\'avant-toit. Dans sa carte, réglez la taille, le côté haut, la pente et « Monter » ; « Repose sur » choisit l\'étage.',
+  'car.add': '＋ Autre voiture', 'car.remove': 'Retirer la voiture',
+  'car.moreHelp': 'Plus de voitures : « ＋ Autre voiture », où vous choisissez les valeurs vous-même.',
 };

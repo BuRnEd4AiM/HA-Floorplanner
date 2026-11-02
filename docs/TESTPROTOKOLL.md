@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.56.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.57.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.56.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.57.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.57.0: 🚗 mehrere Autos im Haushalt** (Abschnitt 146, gefragt von Zelos001 in #631): Claude hat 146.1 bis 146.3 im Browser-Test geprüft; für dich in der Demo 146.4 und 146.5, im Add-on 146.6, nach dem Update das Video 146.7.
 1. **Neu in 4.56.0: 📱 Bearbeiten am Handy** (Abschnitt 145, gefragt von biggilottecassi in #624): ☰ → „Bearbeiten“; Claude hat 145.1 bis 145.6 im Browser-Test geprüft; für dich in der Demo an deinem Handy 145.7, im Add-on 145.8, nach dem Update das Video 145.9.
 1. **Neu in 4.55.0: 🏠 Giebelwand, Überstand am Giebel, Pultdach und „+ Vordach“** (Abschnitt 144, gefragt von christinloehner in #628): Claude hat 144.1 bis 144.5 im Browser-Test geprüft; für dich in der Demo 144.6 bis 144.8, im Add-on mit deinem Haus 144.9, nach dem Update das Video 144.10.
 1. **Neu in 4.54.0: 🏠 ein L-förmiges Dach: ein weiteres Dach „wie das Hauptdach“, auch auf dem Kniestock** (Abschnitt 143, gefragt von Mario in der Q&A-Diskussion #621): Claude hat 143.1 und 143.2 im Browser-Test geprüft; für dich in der Demo 143.3 bis 143.5, nach dem Update das Video 143.6.
@@ -388,7 +389,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 143. Neu in 4.54.0: 🏠 ein L-förmiges Dach, ein weiteres Dach wie das Hauptdach | 2 | 0 | 4 | 0 | 143.3 bis 143.6 |
 | 144. Neu in 4.55.0: 🏠 Giebelwand, Überstand am Giebel, Pultdach und Vordach | 5 | 0 | 5 | 0 | 144.6 bis 144.10 |
 | 145. Neu in 4.56.0: 📱 Bearbeiten am Handy | 6 | 0 | 3 | 0 | 145.7 bis 145.9 |
-| **Zusammen** | **871** | **2** | **127** | **92** | |
+| 146. Neu in 4.57.0: 🚗 mehrere Autos im Haushalt | 3 | 0 | 4 | 0 | 146.4 bis 146.7 |
+| **Zusammen** | **874** | **2** | **131** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2228,3 +2230,16 @@ biggilottecassi in #624: „Was auch noch schön wäre, wenn man am Handy auch w
 | 145.7 | Demo an deinem Handy: ☰ → „Bearbeiten“, ein paar Werkzeuge ausprobieren (Wand zeichnen, ein Gerät setzen, ein Fenster antippen und seinen Kontakt sehen) | Geht mit dem Finger, nichts ist verdeckt oder zu klein | ❓ |
 | 145.8 | Im Add-on am Handy (Home-Assistant-App): ☰ → „Bearbeiten“, etwas ändern, „Speichern“, dann am PC ansehen | Die Änderung ist auch am PC da | ❓ |
 | 145.9 | Nach dem Update auf der Seite der Anleitung das Video „Am Handy bearbeiten“ ansehen | ☰ → Bearbeiten, die Leiste wird gewischt, eine Wand mit dem Finger, ein Fenster mit seinem Kontakt, zurück zu Live | ❓ |
+
+## 146. Neu in 4.57.0: 🚗 mehrere Autos im Haushalt
+Zelos001 in #631: Im Haushalt ging nur ein Auto, er hat zwei Elektroautos. Jetzt gibt es in ⚙ → Reiter unten → Haushalt den Knopf „＋ Weiteres Auto“, und jedes Auto hat seine eigene Karte.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 146.1 | ⚙ → Reiter unten → „＋ Weiteres Auto“, beim Ladestand einen Sensor wählen, einen Namen tippen | Ein Kasten „🚗 Auto 2“, die Wahl wird gleich gespeichert | ✅ (2026-11-02, Claude im Browser-Test 47_car_garden) |
+| 146.2 | Danach den Reiter „Haushalt“ öffnen | Zwei Auto-Karten: das erste Auto wie bisher, das zweite mit seinem Namen und seinem Ladestand (ohne die Reichweite des ersten) | ✅ (2026-11-02, Claude im Browser-Test 47_car_garden) |
+| 146.3 | In ⚙ beim zweiten Auto auf × tippen | Der Kasten ist weg, im Haushalt nur noch ein Auto | ✅ (2026-11-02, Claude im Browser-Test 47_car_garden) |
+| 146.4 | Demo: ⚙ → „Reiter unten“ → „＋ Weiteres Auto“, bei „Ladestand“ „Zweitwagen Ladestand“ wählen, Name „Zweitwagen“; dann den Reiter „Haushalt“ | Eine zweite Karte „Zweitwagen“ mit 82 % neben „Auto“ mit 64 % | ❓ |
+| 146.5 | Demo: im Haushalt „✎ Bearbeiten“, die Karte „Zweitwagen“ verschieben oder ausblenden | Sie lässt sich wie jede andere Karte verschieben und ausblenden | ❓ |
+| 146.6 | Im Add-on mit deinem Auto (oder einem zweiten, falls du eins hast): „＋ Weiteres Auto“ mit seinen Sensoren | Jedes Auto hat im Haushalt seine Karte mit Ladestand, Reichweite, „lädt“ | ❓ |
+| 146.7 | Nach dem Update auf der Seite der Anleitung das Video „Mehrere Autos im Haushalt“ ansehen | „＋ Weiteres Auto“, Ladestand und Name wählen, danach zwei Auto-Karten | ❓ |

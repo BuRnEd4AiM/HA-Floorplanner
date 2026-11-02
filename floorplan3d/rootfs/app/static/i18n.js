@@ -1153,6 +1153,7 @@ const DICT = {
     'dormer.noShed': 'Ein Pultdach hat keine Gauben.', 'roof.partDy': 'Höher setzen (minus: tiefer)', 'roof.canopy': 'Vordach',
     'roof.canopyAdd': '+ Vordach (Pultdach vor dem Haus)',
     'roof.canopyHelp': '„+ Vordach“ setzt ein Pultdach vor die lange Seite des Hauses, gleich unter die Traufe. In seiner Karte stellst du Größe, hohe Seite, Neigung und „Höher setzen“ ein; „Sitzt auf“ wählt das Geschoss.',
+    'car.add': '＋ Weiteres Auto', 'car.remove': 'Auto entfernen', 'car.moreHelp': 'Mehr Autos: „＋ Weiteres Auto“, dort wählst du die Werte selbst.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2256,6 +2257,7 @@ const DICT = {
     'roof.stepsShed': 'A shed roof has no steps (only gable and flat roofs).', 'dormer.noShed': 'A shed roof has no dormers.',
     'roof.partDy': 'Move up (minus: down)', 'roof.canopy': 'Canopy', 'roof.canopyAdd': '+ Canopy (a shed roof in front of the house)',
     'roof.canopyHelp': '“+ Canopy” puts a shed roof in front of the long side of the house, just under the eave. In its card you set its size, high side, pitch and “Move up”; “Sits on” picks the storey.',
+    'car.add': '＋ Another car', 'car.remove': 'Remove car', 'car.moreHelp': 'More cars: “＋ Another car”, there you choose the values yourself.',
   },
 };
 

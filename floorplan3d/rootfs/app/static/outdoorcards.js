@@ -1,8 +1,8 @@
 /* 🚗 The car and 🌱 the garden on the page 🧺 Haushalt (#533, picture docs/ideen-4.3/8-haushalt.jpg). The car: its charge as a big number
  * and a bar, "lädt mit 3,2 kW · voll um 17:30", the range, "☀ Nur mit Sonne laden". The garden: the rain of today and tomorrow, when it
  * last watered, the soil, "💧 10 min gießen" per zone (the add-on closes it again by itself: api/garden) and "■ Stopp". The rules are in
- * car.js and garden.js (tested); this file asks the add-on (api/garden, api/forecast) and draws the two cards for pagehousehold.js. */
-import { findCar, hasCar, carView, solarCall } from './car.js';
+ * car.js and garden.js (tested); one card per car (#631: settings.car and settings.cars); this file asks the add-on (api/garden, api/forecast) and draws the two cards for pagehousehold.js. */
+import { findCars, carView, solarCall } from './car.js';
 import { findZones, findMoisture, hasGarden, gardenView } from './garden.js';
 import { weatherId } from './sky.js';
 import { fmtNum } from './i18n.js';
@@ -19,7 +19,10 @@ export function initOutdoorCards(ctx) {
   const time = (ms) => new Intl.DateTimeFormat(ctx.lang() || 'de', { hour: '2-digit', minute: '2-digit' }).format(new Date(ms));
   /** found again only when the entities or the choices in ⚙ changed (the page draws at every change of a state) */
   const memo = (fn, key) => { let k = null, v = null; return () => { const n = key(); if (n !== k) { k = n; v = fn(); } return v; }; };
-  const found = memo(() => findCar(ctx.entities(), ctx.settings().car), () => `${ctx.entities().length}|${JSON.stringify(ctx.settings().car || {})}`);
+  const cars = memo(() => findCars(ctx.entities(), ctx.settings().car, ctx.settings().cars),
+    () => `${ctx.entities().length}|${JSON.stringify(ctx.settings().car || {})}|${JSON.stringify(ctx.settings().cars || [])}`);
+  /** a car's name: its own, else "Auto", "Auto 2" … */
+  const carName = (f) => f.name || (f.key === 'car' ? t('car.title') : `${t('car.title')} ${f.key.slice(4)}`);
   const zones = memo(() => findZones(ctx.entities(), ctx.settings().garden?.zones), () => `${ctx.entities().length}|${JSON.stringify(ctx.settings().garden || {})}`);
   const names = () => Object.fromEntries(ctx.entities().map((e) => [e.entity_id, e.name || e.entity_id]));
 
@@ -49,12 +52,11 @@ export function initOutdoorCards(ctx) {
   }
 
   /* ---- the cards ---- */
-  function carCard() {
-    const f = found();
-    if (!hasCar(f)) return null;
+  function carCard(f) {
     const v = carView(f, ctx.states(), Date.now()), c = make('div', `tpCard hhCard hhCar${v.charging ? ' hh-running' : ''}`);
+    c.dataset.car = f.key;
     const top = make('div', 'hhTop'), txt = make('div', 'hhTxt'), line = [];
-    txt.append(make('b', 'hhName', f.name || t('car.title')));
+    txt.append(make('b', 'hhName', carName(f)));
     if (v.charging) line.push(v.watts ? t('car.chargingKw', { kw: fmtNum(v.watts / 1000, 1, 1) }) : t('car.charging'));
     if (v.ends) line.push(t('car.fullAt', { at: time(v.ends) }));
     if (!v.charging) line.push(t('car.notCharging'));
@@ -104,17 +106,16 @@ export function initOutdoorCards(ctx) {
   }
 
   return {
-    /** the cards for the page grid (keys car, garden) */
+    /** the cards for the page grid (keys car, car:2 …, garden) */
     items() {
-      const out = [], car = carCard(), garden = gardenCard();
-      if (car) out.push({ key: 'car', name: found().name || t('car.title'), el: car, width: 1 });
+      const out = cars().map((f) => ({ key: f.key, name: carName(f), el: carCard(f), width: 1 })), garden = gardenCard();
       if (garden) out.push({ key: 'garden', name: t('garden.title'), el: garden, width: 1 });
       return out;
     },
     /** is there anything to show (the page then exists without machines too) */
-    has: () => hasCar(found()) || hasGarden(zones()),
+    has: () => cars().length > 0 || hasGarden(zones()),
     /** what the cards show depends on (the page draws again when it changed) */
-    sig: () => { const st = ctx.states(), f = found(), z = zones(), ids = [...Object.values(f), ...z].filter((x) => typeof x === 'string' && x.includes('.'));
+    sig: () => { const st = ctx.states(), f = cars(), z = zones(), ids = [...f.flatMap(Object.values), ...z].filter((x) => typeof x === 'string' && x.includes('.'));
       return JSON.stringify([f, z, ids.map((id) => [st[id]?.state, st[id]?.lc]), timers.map, timers.note, wx.rows.length, ctx.locked(), Math.floor(Date.now() / 60000)]); },
     refresh: () => { timers.at = 0; loadTimers(true); },
   };
