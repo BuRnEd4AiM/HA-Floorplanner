@@ -72,6 +72,8 @@ f("buttons", "pages", "🔘 Eigene Seiten mit Knöpfen", "🔘 Own pages with bu
 f("walls", "edit", "Wände zeichnen", "Draw walls", ["walls"])
 f("rooms", "edit", "Räume erkennen und benennen", "Find and name rooms", ["rooms"])
 f("openings", "edit", "Türen und Fenster", "Doors and windows", ["openings"])
+f("windowsetup", "edit", "Fenster einstellen: Flügel, Anschlag, Kontakt, Rollladen, Vorhang", "Set up a window: panes, hinges, contact, shutter, curtain",
+  ["window-setup"])
 f("devicesplace", "edit", "Lampen und Geräte platzieren, mit Home Assistant verbinden", "Place lamps and devices, link them to Home Assistant", ["devices-place"])
 f("move", "edit", "Verschieben, drehen, löschen, rückgängig", "Move, turn, delete, undo", ["move"])
 f("measure", "edit", "Messen, Wände genau verschieben und drehen (Abstand, Winkel)", "Measure, move and turn walls exactly (distance, angle)", ["measure"])

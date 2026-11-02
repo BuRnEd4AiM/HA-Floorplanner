@@ -4,6 +4,9 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+### Changed
+- **Video guide: a video "Set up a window: panes, shutter, curtain"** (the owner, 2026-11-02: "bei Fenster ein Video … wo man das mit den Flügeln einstellt und Rollladen und Vorhänge"): a window clicked in 3D, two panes, the left one hinged on the left and the right one on the right ("Fixed" for a pane that never opens), the contact from Home Assistant opens it in the picture, the tick "Curtain / roller shutter" with the curtain types, the cover from Home Assistant (a curtain parted in the middle, 60 % open), a contact of its own for every pane. Only the guide changed, not the add-on.
+
 ## [4.54.0] - 2026-11-02
 ### Added
 - **An L-shaped roof: a further roof like the main roof** (#625, asked by LoggieXC81 in the Q&A discussion #621: "if I add a second roof, the Kniestock is not carried over from the main roof"; he asked how to get both roofs to the same height): "Sits on" of a further roof has a new first choice **like the main roof (same height, on its knee wall too)**. When the main roof has its own size and part of the house lies outside it, **+ Further roof** now puts such a roof over that wing right away: the same shape, pitch and overhang as the main roof, reaching up to the main ridge so that the two roofs meet in a valley, its ridge across. Video "An L-shaped roof (the second wing)" in the guide.

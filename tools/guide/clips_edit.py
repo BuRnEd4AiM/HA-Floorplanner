@@ -143,6 +143,79 @@ def _(r):
     r.wait(2600)
 
 
+FRONT_WALL = "(f) => f.walls.reduce((a, b) => (a.a[1] + a.b[1] >= b.a[1] + b.b[1] ? a : b))"   # the wall at the bottom of the 2D plan
+
+
+def window_room(r):
+    """prep: an empty house with one window of one pane in its front wall, seen in 3D from inside the room"""
+    empty_house(walls=True, rooms=True)(r)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f), len = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+      w.openings.push({ id: 'guideWin', type: 'window', style: 'single', pos: len / 2, width: 1.8, height: 1.4, sill: 0.8 });
+      fp.rebuild();
+    }""" % FRONT_WALL)
+    r.pg.click("#view3d")
+    r.pg.wait_for_timeout(900)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f);
+      const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2, zs = f.walls.flatMap((x) => [x.a[1], x.b[1]]);
+      const cz = (Math.min(...zs) + Math.max(...zs)) / 2, back = Math.max(3, Math.min(5, (mz - cz) * 1.6));
+      fp.camAt(mx, 1.75, mz - back, mx, mz + 12);                 // inside the room at eye height, looking out through the window
+    }""" % FRONT_WALL)
+    r.pg.wait_for_timeout(900)
+
+
+@clip("window-setup", "edit",
+      {"de": "Ein Fenster einstellen: Flügel, Rollladen, Vorhang", "en": "Set up a window: panes, shutter, curtain"},
+      {"de": "Ein Fenster anklicken: wie viele Flügel, wo jeder Flügel angeschlagen ist (kippen, links, rechts oder fest), der Kontakt aus Home Assistant, dazu ein Rollladen oder ein Vorhang, der nach links, rechts oder zur Mitte aufgeht.",
+       "en": "Click a window: how many panes, where each pane is hinged (tilt, left, right or fixed), the contact from Home Assistant, and a roller shutter or a curtain that opens to the left, the right or from the middle."},
+      "Fenster Flügel Fensterflügel Anschlag kippen Drehflügel fest Kontakt Fensterkontakt Rollladen Rolladen Vorhang Gardine aufziehen mittig window pane sash hinge tilt turn fixed contact sensor shutter blind curtain",
+      query="mode=edit", prep=window_room)
+def _(r):
+    r.say("Klicke das Fenster an: rechts stehen seine Einstellungen.", "Click the window: its settings are on the right.")
+    p = r.js("window.__fp.openingCenter('guideWin')")
+    r.click(p["x"], p["y"])
+    r.wait(1200)
+    r.say("„Anzahl Flügel“: 2 macht zwei Flügel daraus.", "“Panes”: 2 makes two panes of it.")
+    r.click("#winPanes")
+    r.pg.keyboard.press("Control+A")
+    r.type("2")
+    r.key("Tab")
+    r.wait(1400)
+    r.say("Jeder Flügel hat seinen Anschlag: der linke geht links auf …", "Each pane has its hinge: the left one opens on the left …")
+    r.click("#winHinge1")
+    r.loc("#winHinge1").select_option("left")
+    r.wait(900)
+    r.say("… der rechte rechts. „Fest“ wäre ein Flügel, der nie aufgeht.", "… the right one on the right. “Fixed” would be a pane that never opens.")
+    r.click("#winHinge2")
+    r.loc("#winHinge2").select_option("right")
+    r.wait(1200)
+    r.say("Der Kontakt aus Home Assistant: ist er offen, steht das Fenster auch im Bild offen.", "The contact from Home Assistant: when it is open, the window is open in the picture too.")
+    r.click("#propsBody .entPicker input[type=search]", nth=0)
+    r.type("fenster wohn" if r.lang == "de" else "fenster wohn")
+    r.wait(500)
+    r.click("#propsBody .entItem[data-id='binary_sensor.fenster_wohnzimmer']")
+    r.wait(2200)
+    r.say("„Vorhang / Rollladen“ anhaken.", "Tick “Curtain / roller shutter”.")
+    r.click("#openShutter")
+    r.wait(1200)
+    r.say("„Vorhangart“: ein Rollladen, ein Vorhang nach links oder rechts, oder einer, der sich in der Mitte teilt.",
+          "“Curtain type”: a roller shutter, a curtain to the left or the right, or one that parts in the middle.")
+    r.click("#curtainStyle")
+    r.loc("#curtainStyle").select_option("split")
+    r.wait(1800)
+    r.say("Darunter der Rollladen oder Vorhang aus Home Assistant: er steht im Bild, wie er wirklich steht.", "Below it the cover from Home Assistant: it stands in the picture as it really does.")
+    r.click("#propsBody .entPicker input[type=search]", nth=1)
+    r.type("rollladen wohn")
+    r.wait(500)
+    r.click("#propsBody .entItem[data-id='cover.wohnzimmer']")
+    r.wait(2400)
+    r.poster()
+    r.say("Unter „Einzelne Flügel“ bekommt auf Wunsch jeder Flügel seinen eigenen Kontakt.", "Under “Individual panes” each pane can get a contact of its own.")
+    r.move("#propsBody .entPicker input[type=search]", nth=2)
+    r.wait(2200)
+
+
 @clip("devices-place", "edit",
       {"de": "Lampen und Geräte platzieren", "en": "Place lamps and devices"},
       {"de": "„Gerät“ wählen, eine Lampe oder einen Sensor aussuchen, mit Home Assistant verbinden und in den Raum klicken.",

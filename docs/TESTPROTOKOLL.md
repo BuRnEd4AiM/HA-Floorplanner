@@ -12,7 +12,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 
 1. **Neu in 4.54.0: 🏠 ein L-förmiges Dach: ein weiteres Dach „wie das Hauptdach“, auch auf dem Kniestock** (Abschnitt 143, gefragt von Mario in der Q&A-Diskussion #621): Claude hat 143.1 und 143.2 im Browser-Test geprüft; für dich in der Demo 143.3 bis 143.5, nach dem Update das Video 143.6.
 1. **Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes (nur als Fingerabdruck) und auf Wunsch die Aufzeichnungen und die CallMeBot-Schlüssel** (Abschnitt 142): Claude hat 142.1 geprüft; für dich im Add-on 142.2 bis 142.5, nach dem Update die Videos 142.6 (Backup) und 142.7 (Messen: Wände verschieben und Winkel).
-1. **Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video zum Durchsuchen** (Abschnitt 141): 141.1 bis 141.5 ✅; 141.6 am Handy war abgeschnitten (#619), ist repariert: bitte noch einmal am Handy ein Video öffnen; im Add-on 141.7 und 141.8; neu: 141.9 (Liste aller Funktionen) und 141.10 (die neuen Videos).
+1. **Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video zum Durchsuchen** (Abschnitt 141): 141.1 bis 141.5 ✅; 141.6 am Handy war abgeschnitten (#619), ist repariert: bitte noch einmal am Handy ein Video öffnen; im Add-on 141.7 und 141.8; neu: 141.9 (Liste aller Funktionen) und 141.10 (die neuen Videos), 141.11 (Video „Ein Fenster einstellen“).
 1. **Neu in 4.51.0: 📅 besondere Tage in Abläufen (z. B. an Heiligabend und Feiertagen den Rollladen nur auf 50 %) und feste Stufen 0 / 50 / 75 / 100 % auf der Rollladen-Karte** (Abschnitt 140): Claude hat 140.1 bis 140.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on 140.7 bis 140.10.
 1. **Neu in 4.50.0 und 4.50.1: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich, auch „Fest“** (Abschnitt 138 und 139, ein Beitrag von aixmoyu): Claude hat 138.1 bis 138.3, 139.1 und 139.2 geprüft (probier es gern selbst in der Demo); für dich im Add-on 138.4 bis 138.6 und 139.3, und 138.7, wenn du einen Vorhang mit Motor hast.
 1. **Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite dort, wo du sie willst** (Abschnitt 137): Claude hat 137.1 bis 137.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad und Handy 137.6 bis 137.8.
@@ -381,10 +381,10 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 138. Neu in 4.50.0: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich (#606) | 3 | 0 | 4 | 0 | 138.4 bis 138.7 |
 | 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606) | 2 | 0 | 1 | 0 | 139.3 |
 | 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte | 6 | 0 | 4 | 0 | 140.7 bis 140.10 |
-| 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 5 | 1 | 4 | 0 | ❌ 141.6, 141.7 bis 141.10 |
+| 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 5 | 1 | 5 | 0 | ❌ 141.6, 141.7 bis 141.11 |
 | 142. Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes und die Aufzeichnungen | 1 | 0 | 6 | 0 | 142.2 bis 142.7 |
 | 143. Neu in 4.54.0: 🏠 ein L-förmiges Dach, ein weiteres Dach wie das Hauptdach | 2 | 0 | 4 | 0 | 143.3 bis 143.6 |
-| **Zusammen** | **860** | **2** | **118** | **92** | |
+| **Zusammen** | **860** | **2** | **119** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2167,6 +2167,7 @@ Der Besitzer am 2026-11-02: „ein Programm …, das mir automatisch jede Funkti
 | 141.8 | Im Add-on: „🗑 Gespeicherte löschen“, bestätigen | Wieder „Die Videos kommen aus dem Internet (GitHub)“; das Add-on hat die Kopie nicht mehr | ❓ |
 | 141.9 | Auf der Seite der Anleitung ganz nach unten | „📋 Alle Funktionen von A bis Z“: jede Funktion mit ▶ zu ihrem Video, ein paar mit „📄 ohne Video“ und dem Grund; ein Tipp auf ▶ spielt das Video ab | ❓ |
 | 141.10 | Ein paar der neuen Videos anschauen, z. B. „Einen Grundriss nachzeichnen“, „Dach und Gauben“, „Schrank nach Maß“, „Türklingel mit Kamera“ | Jedes zeigt die Funktion von Anfang bis Ende, mit Untertiteln und Schritten | ❓ |
+| 141.11 | Nach dem Update auf der Seite der Anleitung das Video „Ein Fenster einstellen: Flügel, Rollladen, Vorhang“ ansehen | Ein Fenster wird angeklickt, bekommt zwei Flügel (links und rechts angeschlagen), mit dem Kontakt gehen sie im Bild auf; dann „Vorhang / Rollladen“, ein Vorhang, der sich in der Mitte teilt und zu 60 % offen steht | ❓ |
 
 ## 142. Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes und die Aufzeichnungen
 Der Besitzer am 2026-11-02: „ein Backup sollte ja immer alles sein“; seine Wahl: die Codes immer (nur als Fingerabdruck), die CallMeBot-Schlüssel und die Aufzeichnungen mit je einem Häkchen. Die Videos der Anleitung werden ab jetzt bei jeder Änderung mit geprüft.
