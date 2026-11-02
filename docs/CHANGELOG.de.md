@@ -3,6 +3,9 @@
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
 ## [Unreleased]
+### Neu
+- **28 weitere Videos in der Video-Anleitung, zusammen 74** (der Besitzer, 2026-11-02: „für manche speziellen Sachen … das Programm hat echt viele Funktionen … nicht dass man da was vergisst“): Fragen per Sprache, das Ansicht-Menü, Himmel und Wetter, Warnungen, LED-Ring, Effekte, Türklingel, 🔎 Wird benutzt, das Heiz-Protokoll, besondere Tage, eine neue Szene, einen Grundriss nachzeichnen, Dach und Gauben, Treppen, Grundstück und Garten, Etagen und Keller, Böden und Wände je Raum, die Möbel-Bibliothek, der Schrank-Editor, mehrere Häuser, die Objektliste, die Werkzeugleiste, der Import, die Szenen-Leiste, Fassungen je Person, Wandtablet, Nachricht bei Alarm, Version und Prüfsumme.
+- **Alle Funktionen von A bis Z** unten auf der Seite der Anleitung: alle 83 Funktionen des Add-ons, jede mit ▶ zu ihrem Video oder mit dem Grund, warum es keins gibt (`tools/guide/features.py`); ein Test schlägt an, wenn eine Funktion beides nicht hat, und wenn eine neue Version etwas dazubringt, ohne dort eine Zeile.
 ### Repariert
 - **Video-Anleitung am Handy** (#619, Test 141.6, der Besitzer: „links und rechts … abgeschnitten … nicht rauszoomen“): das Fenster eines Videos war breiter als der Bildschirm und links und rechts abgeschnitten; jetzt passt es in die Breite (nur die Seite auf GitHub Pages, nicht das Add-on).
 

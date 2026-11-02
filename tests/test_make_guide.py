@@ -58,3 +58,30 @@ def test_the_player_fits_a_phone():
     narrow = page.split("@media (max-width: 900px) {")[1].split("}")[0]
     assert re.search(r"\.pIn\s*\{\s*grid-template-columns:\s*minmax\(0,\s*1fr\)", narrow), narrow
     assert re.search(r"\.pIn\s*>\s*\*\s*\{\s*min-width:\s*0", page)
+
+
+def test_every_feature_has_a_clip_or_a_reason():
+    """the owner, 2026-11-02: "das Programm hat echt viele Funktionen … nicht dass man da was vergisst": tools/guide/features.py lists
+    every feature; each has clips (that exist) or says why it cannot be filmed, and every clip shows at least one feature"""
+    clips, feats = mg.load_clips(), mg.load_features()
+    ids = [x["id"] for x in feats]
+    assert len(ids) == len(set(ids)), "two features with the same id"
+    groups = {c["id"] for c in mg.CATS}
+    used = set()
+    for x in feats:
+        assert x["group"] in groups and x["de"] and x["en"], x["id"]
+        assert x["clips"] or x["why"], f"feature {x['id']}: no clip and no reason (write a clip or say why it cannot be filmed)"
+        for c in x["clips"]:
+            assert c in clips, f"feature {x['id']}: no clip {c}"
+        used.update(x["clips"])
+    assert set(clips) <= used, f"clips no feature names: {sorted(set(clips) - used)}"
+
+
+def test_every_new_version_adds_its_features_to_the_list():
+    """from 4.52.0 on, a version that adds something (### Added in CHANGELOG.md) has a line in features.py with since=<version>:
+    so a new feature cannot be forgotten in the guide"""
+    text = (ROOT / "CHANGELOG.md").read_text()
+    since = {x["since"] for x in mg.load_features() if x["since"]}
+    for v, body in re.findall(r"^## \[(\d+\.\d+\.\d+)\][^\n]*\n(.*?)(?=^## \[|\Z)", text, re.M | re.S):
+        if tuple(map(int, v.split("."))) >= (4, 52, 0) and "### Added" in body:
+            assert v in since, f"{v} adds features: put them into tools/guide/features.py with since=\"{v}\" (and a clip)"

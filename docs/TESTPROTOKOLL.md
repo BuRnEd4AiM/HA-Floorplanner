@@ -10,7 +10,7 @@ Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu lade
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
-1. **Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video zum Durchsuchen** (Abschnitt 141): 141.1 bis 141.5 ✅; 141.6 am Handy war abgeschnitten (#619), ist repariert: bitte noch einmal am Handy ein Video öffnen; im Add-on 141.7 und 141.8.
+1. **Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video zum Durchsuchen** (Abschnitt 141): 141.1 bis 141.5 ✅; 141.6 am Handy war abgeschnitten (#619), ist repariert: bitte noch einmal am Handy ein Video öffnen; im Add-on 141.7 und 141.8; neu: 141.9 (Liste aller Funktionen) und 141.10 (die neuen Videos).
 1. **Neu in 4.51.0: 📅 besondere Tage in Abläufen (z. B. an Heiligabend und Feiertagen den Rollladen nur auf 50 %) und feste Stufen 0 / 50 / 75 / 100 % auf der Rollladen-Karte** (Abschnitt 140): Claude hat 140.1 bis 140.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on 140.7 bis 140.10.
 1. **Neu in 4.50.0 und 4.50.1: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich, auch „Fest“** (Abschnitt 138 und 139, ein Beitrag von aixmoyu): Claude hat 138.1 bis 138.3, 139.1 und 139.2 geprüft (probier es gern selbst in der Demo); für dich im Add-on 138.4 bis 138.6 und 139.3, und 138.7, wenn du einen Vorhang mit Motor hast.
 1. **Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite dort, wo du sie willst** (Abschnitt 137): Claude hat 137.1 bis 137.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad und Handy 137.6 bis 137.8.
@@ -379,8 +379,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 138. Neu in 4.50.0: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich (#606) | 3 | 0 | 4 | 0 | 138.4 bis 138.7 |
 | 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606) | 2 | 0 | 1 | 0 | 139.3 |
 | 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte | 6 | 0 | 4 | 0 | 140.7 bis 140.10 |
-| 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 5 | 1 | 2 | 0 | ❌ 141.6, 141.7, 141.8 |
-| **Zusammen** | **857** | **2** | **106** | **92** | |
+| 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 5 | 1 | 4 | 0 | ❌ 141.6, 141.7 bis 141.10 |
+| **Zusammen** | **857** | **2** | **108** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2161,3 +2161,5 @@ Der Besitzer am 2026-11-02: „ein Programm …, das mir automatisch jede Funkti
 | 141.6 | Die Seite am Handy öffnen | Eine Spalte, die Suche passt, das Video füllt die Breite, die Schritte stehen darunter | ❌ (2026-11-02: „links und rechts … abgeschnitten, … nicht rauszoomen“: das Fenster eines Videos war breiter als der Bildschirm → #619, repariert, neu testen) |
 | 141.7 | Im Add-on: „🎬 Anleitung“, dann „📥 Für ohne Internet speichern“ | Oben „Wird gespeichert … x von y Dateien“, nach ein paar Minuten „Im Add-on gespeichert (… MB, Datum), geht auch ohne Internet“; die Videos spielen weiter (jetzt aus dem Add-on), der Knopf heißt „↻ Gespeicherte Videos erneuern“ | ❓ |
 | 141.8 | Im Add-on: „🗑 Gespeicherte löschen“, bestätigen | Wieder „Die Videos kommen aus dem Internet (GitHub)“; das Add-on hat die Kopie nicht mehr | ❓ |
+| 141.9 | Auf der Seite der Anleitung ganz nach unten | „📋 Alle Funktionen von A bis Z“: jede Funktion mit ▶ zu ihrem Video, ein paar mit „📄 ohne Video“ und dem Grund; ein Tipp auf ▶ spielt das Video ab | ❓ |
+| 141.10 | Ein paar der neuen Videos anschauen, z. B. „Einen Grundriss nachzeichnen“, „Dach und Gauben“, „Schrank nach Maß“, „Türklingel mit Kamera“ | Jedes zeigt die Funktion von Anfang bis Ende, mit Untertiteln und Schritten | ❓ |

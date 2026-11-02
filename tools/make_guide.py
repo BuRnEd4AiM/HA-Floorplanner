@@ -60,6 +60,12 @@ def load_clips():
     return recorder.CLIPS
 
 
+def load_features():
+    """every feature of the add-on and its clips (tools/guide/features.py)"""
+    import features
+    return features.F
+
+
 def version():
     m = re.search(r'^version:\s*"?([\d.]+)', (ROOT / "floorplan3d" / "config.yaml").read_text(), re.M)
     return m.group(1) if m else "?"
@@ -128,7 +134,11 @@ def build_site(site, videos):
                         shutil.copyfile(src, site / lang / f"{c.id}{ext}")
         if it["v"]:
             items.append(it)
-    data = {"cats": CATS, "clips": items, "built": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="minutes"), "version": version()}
+    have = {it["id"] for it in items}
+    feats = [{"id": x["id"], "group": x["group"], "de": x["de"], "en": x["en"], "clips": [c for c in x["clips"] if c in have], "why": x["why"]}
+             for x in load_features()]
+    data = {"cats": CATS, "clips": items, "features": feats,
+            "built": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="minutes"), "version": version()}
     (site / "guide.json").write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
     shutil.copyfile(PAGE, site / "index.html")
     print(f"{site}: {len(items)} of {len(clips)} clips have a video")

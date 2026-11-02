@@ -113,6 +113,12 @@ main { padding: 26px 0 70px; }
 .found a b { color: var(--accent); font-variant-numeric: tabular-nums; flex: none; }
 .empty { text-align: center; padding: 60px 16px; color: var(--muted); }
 .empty b { display: block; font-size: 20px; color: var(--text); margin-bottom: 6px; }
+.azList { list-style: none; margin: 0; padding: 0; columns: 3 300px; column-gap: 28px; }
+.azList li { break-inside: avoid; padding: 8px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 3px; font-size: 15px; }
+.azLinks { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.azLinks a { font-size: 13px; text-decoration: none; }
+.azLinks a:hover { text-decoration: underline; }
+.azWhy { font-size: 13px; color: var(--muted); }
 footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; padding: 22px 0 40px; }
 footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: space-between; }
 
@@ -256,6 +262,7 @@ const T = {
     copy: '🔗 Link kopieren', copied: 'Link kopiert', dl: '⬇ Herunterladen', recorded: (v, d) => `Aufgenommen mit Version ${v} am ${d}.`,
     onlyOther: 'Dieses Video gibt es nur mit englischer Oberfläche.', phone: '📱 Handy', at: 'bei', foot: (d, v) => `Automatisch aufgenommen in der Demo · Version ${v} · ${d}`,
     tries: ['Licht', 'Etage', 'Wand zeichnen', 'Heizung', 'Szene', 'Handy'], loadErr: 'Die Liste der Videos konnte nicht geladen werden.',
+    azTitle: 'Alle Funktionen von A bis Z', azSub: (n, m) => `${n} Funktionen, ${m} davon mit Video. Ein Tipp auf ▶ spielt es ab.`, noVideo: 'ohne Video',
   },
   en: {
     kicker: 'Video guide', h1: 'Everything your 3D floorplan can do, in short videos',
@@ -267,6 +274,7 @@ const T = {
     copy: '🔗 Copy link', copied: 'Link copied', dl: '⬇ Download', recorded: (v, d) => `Recorded with version ${v} on ${d}.`,
     onlyOther: 'This video only exists with the German interface.', phone: '📱 Phone', at: 'at', foot: (d, v) => `Recorded automatically in the demo · version ${v} · ${d}`,
     tries: ['light', 'floor', 'draw a wall', 'heating', 'scene', 'phone'], loadErr: 'The list of videos could not be loaded.',
+    azTitle: 'Every feature from A to Z', azSub: (n, m) => `${n} features, ${m} of them with a video. Tap ▶ to play it.`, noVideo: 'no video',
   },
 };
 const $ = (s) => document.querySelector(s);
@@ -358,7 +366,22 @@ function render() {
       return `<section class="sec" id="g-${g.id}"><div class="secHead"><h2>${g.icon} ${esc(g[lang])}</h2><span class="n">${L.videos(items.length)}</span></div>
         <div class="grid">${items.map((x) => card(x.c, x.r, ws)).join('')}</div></section>`;
     }).join('');
+    main.innerHTML += features();
   }
+}
+// every feature of the add-on (tools/guide/features.py) with ▶ links to its clips, or why it has none: nothing is forgotten
+function features() {
+  const F = DATA.features || [], L = T[lang];
+  if (!F.length) return '';
+  const byId = Object.fromEntries(DATA.clips.map((c) => [c.id, c]));
+  const key = (x) => x[lang].replace(/^[^\p{L}\p{N}]+/u, '');          // sorted by the first letter, not by the emoji in front
+  const items = F.slice().sort((a, b) => key(a).localeCompare(key(b), lang)).map((x) => {
+    const links = x.clips.filter((id) => byId[id]).map((id) => `<a href="#${id}" data-clip="${id}">▶ ${esc(byId[id].title[lang])}</a>`).join('');
+    const note = !links ? `<span class="azWhy">📄 ${esc(L.noVideo)}${x.why && lang === 'de' ? `: ${esc(x.why)}` : ''}</span>` : '';
+    return `<li><b>${esc(x[lang])}</b>${links ? `<span class="azLinks">${links}</span>` : note}</li>`;
+  }).join('');
+  const withVideo = F.filter((x) => x.clips.some((id) => byId[id])).length;
+  return `<section class="sec az" id="az"><div class="secHead"><h2>📋 ${esc(L.azTitle)}</h2></div><p class="hits">${esc(L.azSub(F.length, withVideo))}</p><ul class="azList">${items}</ul></section>`;
 }
 function renderChips() {
   const L = T[lang];
@@ -417,6 +440,8 @@ $('#main').addEventListener('mouseout', (e) => {
   clearTimeout(prevTimer); c.classList.remove('prev'); c.querySelector('video')?.pause();
 });
 $('#main').addEventListener('click', (e) => {
+  const z = e.target.closest('.azList a');
+  if (z) { e.preventDefault(); openClip(z.dataset.clip, 0); return; }
   const a = e.target.closest('.found a');
   const c = e.target.closest('.card'); if (!c) return;
   e.preventDefault();

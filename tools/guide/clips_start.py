@@ -155,3 +155,48 @@ def _(r):
     r.wait(2200)
     r.click("#powerBtn")
     r.wait(1000)
+
+
+@clip("viewmenu", "start",
+      {"de": "Ansicht: durchsichtig, aufeinander, halb aufgeschnitten", "en": "View: see-through, stacked, half cut"},
+      {"de": "„Ansicht“ unten hat mehr Arten, das Haus zu zeigen: durchsichtige Wände, alle Etagen aufeinander, ein Halbschnitt, Schilder und Kacheln an oder aus.",
+       "en": "“View” at the bottom has more ways to show the house: see-through walls, all floors stacked, a half cut, labels and tiles on or off."},
+      "Ansicht durchsichtig Wände aufeinander Etagen Halbschnitt Schilder Kacheln Auto drehen view see-through walls stacked floors half cut labels tiles rotate")
+def _(r):
+    r.say("Unten rechts: „Ansicht“.", "Bottom right: “View”.")
+    r.click("#viewMenuBtn")
+    r.wait(900)
+    r.say("„Durchsichtig“: die Wände werden zu Glas.", "“See-through”: the walls turn to glass.")
+    r.click("#seeToggle")
+    r.wait(1800)
+    r.poster()
+    r.click("#seeToggle")
+    r.wait(700)
+    r.say("„Halbschnitt“: die Wände nur halb hoch, man sieht hinein.", "“Half cut”: the walls only half high, you see inside.")
+    r.click("#halfToggle")
+    r.wait(1800)
+    r.click("#halfToggle")
+    r.wait(700)
+    r.say("„Auto“ dreht das Haus langsam von selbst, schön für ein Wandtablet.", "“Auto” turns the house slowly by itself, nice for a wall tablet.")
+    r.click("#autoToggle")
+    r.wait(2600)
+    r.click("#autoToggle")
+    r.wait(800)
+
+
+@clip("sky", "start",
+      {"de": "Himmel, Mond und Wetter", "en": "Sky, moon and weather"},
+      {"de": "Der Himmel zeigt die echte Tageszeit: die Sonne, wo sie steht, nachts Sterne und den Mond, dazu Wolken, Regen oder Schnee aus deinem Wetter.",
+       "en": "The sky shows the real time of day: the sun where it is, at night the stars and the moon, plus clouds, rain or snow from your weather."},
+      "Himmel Sonne Mond Sterne Nacht Wetter Regen Wolken Tageszeit Sonnenuntergang sky sun moon stars night weather rain clouds time of day sunset",
+      sky="21:40", query="mode=live&weather=rainy")
+def _(r):
+    r.say("Der Himmel hinter dem Haus ist wie draußen: hier um 21:40 Uhr, mit Regen.", "The sky behind the house is as it is outside: here at 9:40 pm, with rain.")
+    r.wait(1800)
+    r.say("Oben rechts: Tageszeit, Sonnenaufgang, der Mond und das Wetter.", "Top right: the time of day, sunrise, the moon and the weather.")
+    r.move("#skyChips")
+    r.wait(1800)
+    r.poster()
+    r.say("Dreh das Haus: der Mond steht da, wo er wirklich steht.", "Turn the house: the moon is where it really is.")
+    r.drag(1060, 430, 820, 450, ms=1800)
+    r.wait(1500)

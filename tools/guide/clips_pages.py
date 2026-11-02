@@ -300,3 +300,81 @@ def _(r):
     r.say("Die Lichter-Karte dimmt mehrere Lampen mit einem Balken.", "The lights card dims several lamps with one bar.")
     scroll(r, 500, at=(1100, 500))
     r.wait(1800)
+
+
+@clip("heatdiag", "pages",
+      {"de": "🩺 Protokoll der Heizung: wer steuert was?", "en": "🩺 Heating log: who controls what?"},
+      {"de": "Unter „Klima“ zeigt 🩺 je Raum Thermostat, Fenster und Türen, wer zuletzt gedreht hat und was die Regeln gemacht haben, als Bericht zum Kopieren.",
+       "en": "Under “Climate”, 🩺 shows per room the thermostat, windows and doors, who turned it last and what the rules did, as a report to copy."},
+      "Protokoll Heizung Diagnose wer hat gedreht Thermostat Fenster Bericht kopieren Fehler heating log diagnosis who turned thermostat window report copy")
+def _(r):
+    tab(r, "climate")
+    r.say("Unter „Klima“ oben: „🩺 Protokoll“.", "Under “Climate” at the top: “🩺 Log”.")
+    r.click("[data-page=climate] [data-view=diag]")
+    r.wait(1500)
+    r.say("Je Raum: das Thermostat, wer zuletzt gedreht hat, jedes Fenster und jede Tür.", "Per room: the thermostat, who turned it last, every window and every door.")
+    r.wait(1800)
+    r.poster()
+    r.say("Ein Raum für sich: oben antippen.", "One room on its own: tap it at the top.")
+    r.click("[data-page=climate] .tpChip", text="Wohnzimmer|Living")
+    r.wait(1600)
+    r.say("Weiter unten: was die Regeln wann gemacht haben.", "Further down: what the rules did and when.")
+    scroll(r, 700)
+    r.wait(1500)
+    r.say("„📋 Bericht kopieren“ gibt alles als Text, zum Beispiel für eine Frage.", "“📋 Copy report” gives everything as text, for example for a question.")
+    scroll(r, -1400)
+    r.move("[data-page=climate] .bdBtn", text="Bericht|report")
+    r.wait(1600)
+
+
+@clip("specialdays", "pages",
+      {"de": "📅 Besondere Tage: an Feiertagen anders", "en": "📅 Special days: different on holidays"},
+      {"de": "Eine Liste besonderer Tage für alle Abläufe: Feiertage, Heiligabend, Urlaub, ein Kalender. Ein Ablauf kann an diesen Tagen etwas anderes tun.",
+       "en": "One list of special days for all routines: public holidays, Christmas Eve, holidays, a calendar. A routine can do something else on those days."},
+      "besondere Tage Feiertag Heiligabend Weihnachten Urlaub Ferien Kalender Ablauf anders special days public holiday christmas vacation calendar routine")
+def _(r):
+    tab(r, "routines")
+    r.say("Unter „Abläufe“: „📅 Besondere Tage“.", "Under “Routines”: “📅 Special days”.")
+    r.click("[data-page=routines] .bdBtn", text="Besondere|Special")
+    r.wait(1300)
+    r.say("Hier stehen deine Tage, mit dem nächsten Termin.", "Your days are listed here, with the next date.")
+    r.wait(1600)
+    r.say("Unten kommen neue dazu, zum Beispiel die Feiertage.", "New ones are added at the bottom, for example the public holidays.")
+    r.click("dialog[open] [data-add=holidays]")
+    r.wait(1500)
+    r.poster()
+    r.click("dialog[open] [data-add=vacation]")
+    r.wait(1300)
+    r.say("In einem Ablauf sagt dann der Baustein „🎉 Besonderer Tag“, was an diesen Tagen anders ist.", "In a routine the block “🎉 Special day” then says what is different on those days.")
+    r.wait(2000)
+    r.click("dialog[open] [data-act=sdClose]")
+    r.wait(800)
+
+
+@clip("sceneedit", "pages",
+      {"de": "Eine Szene anlegen", "en": "Create a scene"},
+      {"de": "„＋ Neue Szene“: die Lampen nehmen, wie sie gerade sind, oder jede einstellen (an, Helligkeit, Farbe), dann speichern; sie ist eine echte Szene in Home Assistant.",
+       "en": "“＋ New scene”: take the lamps as they are now or set each (on, brightness, colour), then save; it is a real scene in Home Assistant."},
+      "Szene anlegen neu erstellen Lampen Helligkeit Farbe speichern Stimmung scene create new lamps brightness colour save mood")
+def _(r):
+    tab(r, "routines")
+    r.say("Unter „Abläufe“: „＋ Neue Szene“.", "Under “Routines”: “＋ New scene”.")
+    r.click("[data-page=routines] .bdBtn", text="Neue Szene|New scene")
+    r.wait(1500)
+    r.say("Oben bekommt sie einen Namen.", "At the top it gets a name.")
+    name = r.loc("dialog[open] input[type=text]")
+    if name.count():
+        r.click(name)
+        r.type("Leseabend" if r.lang == "de" else "Reading night")
+    r.wait(700)
+    r.say("Rechts eine Lampe antippen: sie kommt in die Szene, so wie sie gerade ist.", "Tap a lamp on the right: it joins the scene as it is right now.")
+    r.click("dialog[open] button", text="Stehlampe")
+    r.wait(1200)
+    r.say("Dann für jede Lampe: an oder aus, wie hell, welche Farbe.", "Then for every lamp: on or off, how bright, which colour.")
+    r.wait(1800)
+    r.poster()
+    r.say("„Speichern“, und die Szene steht in der Leiste und in Home Assistant.", "“Save”, and the scene is in the bar and in Home Assistant.")
+    r.move("dialog[open] button", text="Speichern|Save")
+    r.wait(1800)
+    r.key("Escape")
+    r.wait(600)

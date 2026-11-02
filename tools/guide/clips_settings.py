@@ -104,3 +104,65 @@ def _(r):
     r.wait(1800)
     r.key("Escape")
     r.wait(900)
+
+
+@clip("kiosk", "settings",
+      {"de": "Wandtablet: Startansicht und Bildschirmschoner", "en": "Wall tablet: start view and screen saver"},
+      {"de": "⚙ → Wandtablet: wohin das Tablet nach einer Weile zurückgeht, wann es dunkel wird, sparsamer Modus für schwache Tablets.",
+       "en": "⚙ → Wall tablet: where the tablet goes back to after a while, when it dims, a saving mode for weak tablets."},
+      "Wandtablet Tablet Kiosk Startansicht zurück Bildschirmschoner dunkel Nacht sparsam Fire Tablet wall tablet kiosk start view screen saver dim night")
+def _(r):
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.say("In den Einstellungen: „Wandtablet“.", "In the settings: “Wall tablet”.")
+    r.click("#sgNav button[data-group=tablet]")
+    r.wait(1300)
+    r.poster()
+    r.say("Die Startansicht: dorthin geht das Tablet nach einer Weile zurück.", "The start view: the tablet goes back there after a while.")
+    r.wait(2000)
+    r.say("Weiter unten: dunkler in der Nacht und ein sparsamer Modus.", "Further down: darker at night and a saving mode.")
+    r.move(1000, 520)
+    for _ in range(3):
+        r.pg.mouse.wheel(0, 300)
+        r.wait(450)
+    r.wait(1500)
+
+
+@clip("notify", "settings",
+      {"de": "Nachricht aufs Handy bei Alarm", "en": "A message to your phone on an alarm"},
+      {"de": "⚙ → Warnungen & Alarm: bei Rauch, Gas, Wasser oder Alarm kommt eine Nachricht per WhatsApp, Telegram oder die Home-Assistant-App.",
+       "en": "⚙ → Warnings & alarm: on smoke, gas, water or an alarm a message comes by WhatsApp, Telegram or the Home Assistant app."},
+      "Nachricht Handy WhatsApp Telegram Benachrichtigung Alarm Rauch Wasser Gas schicken message phone notification alarm smoke water gas send")
+def _(r):
+    r.click("#settingsBtn")
+    r.wait(900)
+    r.say("In den Einstellungen: „Warnungen & Alarm“.", "In the settings: “Warnings & alarm”.")
+    r.click("#sgNav button[data-group=alarm]")
+    r.wait(1300)
+    r.say("Wähle, wobei eine Nachricht kommen soll, und wohin: WhatsApp, Telegram oder die App.", "Choose what sends a message and where to: WhatsApp, Telegram or the app.")
+    r.move(1000, 420)
+    r.wait(1800)
+    r.poster()
+    for _ in range(3):
+        r.pg.mouse.wheel(0, 300)
+        r.wait(450)
+    r.say("Mit „Testen“ kommt sofort eine Probe-Nachricht.", "“Test” sends a sample message at once.")
+    r.wait(2000)
+
+
+@clip("version", "settings",
+      {"de": "Version und Prüfsumme: ist alles aktuell?", "en": "Version and checksum: is everything up to date?"},
+      {"de": "Oben das grüne Schild mit der Version: ein Tipp zeigt, ob Add-on, Browser und GitHub denselben Stand haben.",
+       "en": "The green badge with the version at the top: a tap shows whether the add-on, the browser and GitHub are the same."},
+      "Version Prüfsumme Update aktuell neu laden Stand GitHub Cache version checksum update current reload cache")
+def _(r):
+    r.say("Oben rechts: das Schild mit der Version.", "Top right: the badge with the version.")
+    r.click("#versionPill")
+    r.wait(1500)
+    r.poster()
+    r.say("Grün heißt: Add-on, Browser und GitHub sind gleich.", "Green means: the add-on, the browser and GitHub are the same.")
+    r.wait(2200)
+    r.say("Sonst lädt „Neu laden“ die neuesten Dateien.", "Otherwise “Reload” loads the newest files.")
+    r.wait(1800)
+    r.key("Escape")
+    r.wait(600)
