@@ -140,16 +140,21 @@ function oldRoof(bb, r) {
   return tris;
 }
 
-test('roof surface: without dormers the same roof as before (gable and hip, ridge along x or z)', () => {
-  for (const r of [roof, { ...roof, type: 'hip' }, { ...roof, ridge: 'z' }]) {
+test('roof surface: without dormers the same roof as before (gable and hip, ridge along x or z; the gable wall switched off)', () => {
+  for (const r of [{ ...roof, gableWall: false }, { ...roof, type: 'hip' }, { ...roof, ridge: 'z', gableWall: false }]) {
     const s = D.roofSurface(bb, r);
     assert.ok(Math.abs(area(s) - area(oldRoof(bb, r))) < 1e-9, r.type);
     assert.equal(s.length % 3, 0);
   }
 });
+test('roof surface: with the gable wall (#628, on unless switched off) a gable roof has no triangles at its ends, a hip roof keeps them', () => {
+  const F = D.roofFrame(bb, roof), ends = 2 * (F.b1 - F.b0) * F.h / 2;               // two upright triangles: base across, height h
+  assert.ok(Math.abs(area(oldRoof(bb, roof)) - area(D.roofSurface(bb, roof)) - ends) < 1e-9);
+  assert.ok(Math.abs(area(D.roofSurface(bb, { ...roof, type: 'hip' })) - area(oldRoof(bb, { ...roof, type: 'hip' }))) < 1e-9);
+});
 
 test('roof surface: a hole under every dormer, as big as the dormer where it meets the slope', () => {
-  for (const r0 of [roof, { ...roof, type: 'hip' }]) {
+  for (const r0 of [{ ...roof, gableWall: false }, { ...roof, type: 'hip' }]) {
     const r = { ...r0, dormers: [{ type: 'shed', side: 0, pos: 0.3, w: 2.5, hw: 1.5, eave: 0.4 }, { type: 'gable', side: 1, pos: 0.6 }] };
     const s = D.roofSurface(bb, r), ns = r.dormers.map((d) => D.fitDormer(bb, r, d));
     const hole = ns.reduce((sum, n) => sum + (n.w * (n.eT - n.eave)) / Math.cos((35 * Math.PI) / 180), 0);

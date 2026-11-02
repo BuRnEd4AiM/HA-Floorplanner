@@ -77,9 +77,12 @@ const CUT = `
     }
   }`;
 
-/** cut material m at the roof (uniforms from atticUniforms, shared by all materials of one floor); m.userData.attic: how many planes */
+/** cut material m at the roof (uniforms from atticUniforms, shared by all materials of one floor); m.userData.attic: how many planes.
+ *  Both sides are drawn (#628): where the cut opens a wall at the top, its inside shows in its colour, so the wall looks solid up to
+ *  the slope instead of hollow */
 export function cutAtRoof(m, uniforms) {
   m.userData.attic = uniforms.atticNP.value; m.userData.atticU = uniforms;
+  m.side = THREE.DoubleSide;
   m.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
     shader.vertexShader = shader.vertexShader

@@ -97,3 +97,21 @@ test('the second wing of an L-shaped house (#621): the rooms outside the main ro
   const apart = { walls: [], rooms: [room([[0, 0], [12, 0], [12, 8], [0, 8]]), room([[2, 10], [6, 10], [6, 14], [2, 14]])] };
   assert.deepEqual(F.wingBox(apart, mb, true), { x0: 2, x1: 6, z0: 10, z1: 14 }, 'a building standing apart: not joined to the main roof');
 });
+test('a new roof shape (#628): a shed roof loses dormers and steps, gets a shed pitch and leans against the main roof', () => {
+  const mb = { x0: 0, x1: 10, z0: 0, z1: 6 };
+  const p = { type: 'gable', pitch: 35, overhang: 0.4, dormers: [{}], steps: [{ side: 0, at: 1, out: 1 }], box: { x0: 0, x1: 10, z0: 6, z1: 9 } };
+  F.setRoofType(p, 'shed', mb);
+  assert.deepEqual([p.type, p.pitch, p.high, p.dormers, p.steps], ['shed', 10, 'z0', undefined, undefined]);
+  const q = { type: 'gable', pitch: 22, box: { x0: -3, x1: 0, z0: 0, z1: 6 } };
+  F.setRoofType(q, 'shed', mb);
+  assert.deepEqual([q.pitch, q.high], [22, 'x1'], 'a pitch a shed roof can have stays; it lies left of the house');
+  assert.equal(F.setRoofType({ type: 'gable', pitch: 40 }, 'shed').pitch, 10, 'a gable roof\'s 40° is too steep');
+  const m = { type: 'gable', pitch: 35, dormers: [{}] };
+  F.setRoofType(m, 'shed');
+  assert.equal(m.high, 'z0', 'the main roof: high at the top unless chosen');
+  F.setRoofType(m, 'hip');
+  assert.equal(m.type, 'hip');
+  assert.equal(F.setRoofType({}, 'nonsense').type, 'gable');
+  const f = F.setRoofType({ type: 'gable', dormers: [{}] }, 'flat');
+  assert.equal(f.dormers, undefined);
+});

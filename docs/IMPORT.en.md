@@ -71,7 +71,10 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
     "origin": [5.5, 8],                      // optional
     "wallHeight": 2.6, "outerWall": 0.3, "innerWall": 0.12,
     "footprint": [[0,0],[11,0],[11,9],[0,9]],           // optional: outline, gives thick outer walls
-    "roof": { "type": "gable", "pitch": 38 },           // gable | hip | flat
+    "roof": { "type": "gable", "pitch": 38 },           // gable | hip | flat | shed (one slope)
+    // gables (gable, shed): gableOver = overhang at the gables in m (else as overhang), gableWall: false = no gable wall;
+    // shed roof: high = its high side "z0" | "z1" | "x0" | "x1" (top, bottom, left, right in the plan), no overhang there
+    // a canopy as a further roof: "parts": [ { "type": "shed", "pitch": 10, "high": "z0", "gableWall": false, "level": "main", "dy": -0.6, "box": { "x0": 0, "x1": 11, "z0": 9, "z1": 11.5 } } ]
     // steps in the eaves (optional, not on hip; house narrower at the front): side 0|1 or "a"|"b", at = m from the gable, out = m further out (minus: in)
     // "roof": { "type": "gable", "steps": [ { "side": "a", "at": 0, "out": -0.5 }, { "side": "a", "at": 6, "out": 0 } ] },
     // roof dormers (optional, not on flat): side 0|1 or "a"|"b", pos 0..1 along the ridge, w/hw/eave in m, type gable|flat|shed (shed dormer, with sp = its pitch in degrees, up to 30 m long), win true|false

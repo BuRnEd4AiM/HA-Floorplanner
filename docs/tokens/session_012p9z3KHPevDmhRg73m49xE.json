@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3KHPevDmhRg73m49xE",
+ "start": "2026-11-02",
+ "updated": "2026-11-02T18:02:56Z",
+ "branch": "claude/github-issue-628-p6mfc1",
+ "source": "counted",
+ "input": 418,
+ "cache_write": 430194,
+ "cache_read": 60888774,
+ "output": 188555,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 418,
+   "cache_write": 430194,
+   "cache_read": 60888774,
+   "output": 188555,
+   "requests": 207
+  }
+ }
+}

@@ -260,7 +260,8 @@ export function mergePlan(dst, src, at, bid, name, uid, H = 3) {
       const ownTop = [...s.floors].slice(0, si).reverse().find((x) => x.kind !== 'roof');
       const list = [];
       const box = sf.roof.box && Number.isFinite(sf.roof.box.x0) ? sf.roof.box : at?.autoBox?.(s.floors, si);
-      if (box) list.push({ id: `rp${uid()}`, name, type: sf.roof.type || 'gable', pitch: sf.roof.pitch ?? 35, overhang: sf.roof.overhang ?? 0.4, box: turnBox(box), building: bid, ...(ownTop ? { level: floorIds.get(ownTop.id) } : {}) });
+      const gables = Object.fromEntries(['gableOver', 'gableWall', 'high'].filter((k) => sf.roof[k] != null).map((k) => [k, sf.roof[k]]));   // #628
+      if (box) list.push({ id: `rp${uid()}`, name, type: sf.roof.type || 'gable', pitch: sf.roof.pitch ?? 35, overhang: sf.roof.overhang ?? 0.4, ...gables, box: turnBox(box), building: bid, ...(ownTop ? { level: floorIds.get(ownTop.id) } : {}) });
       (sf.roof.parts || []).forEach((p) => {
         if (!p.box) return;
         const { level, ...rest } = p;                               // a wing like the main roof (#621) sits where the main roof goes now

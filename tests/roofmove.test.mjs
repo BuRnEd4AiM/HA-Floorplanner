@@ -84,3 +84,12 @@ test('steps (#342): the main roof brings its outline and step handles; a click o
   assert.deepEqual(R.stepTarget(f, 'dach:roof', auto), { bb: auto, r: f.roof });
   assert.equal(R.stepTarget(f, 'rp1', auto), null, 'only the main roof');
 });
+test('a shed roof (#628) says which edge of it is high (the plan draws it solid); other roofs do not', () => {
+  const f = roofFloor();
+  f.roof.parts[0] = { ...f.roof.parts[0], type: 'shed', high: 'x0' };
+  f.roof.parts[1] = { ...f.roof.parts[1], type: 'shed' };
+  const rs = R.roofRects(f, auto);
+  assert.deepEqual(rs.map((r) => r.high), [undefined, 'x0', 'z0']);
+  f.roof.type = 'shed'; f.roof.high = 'z1';
+  assert.equal(R.roofRects(f, auto)[0].high, 'z1');
+});

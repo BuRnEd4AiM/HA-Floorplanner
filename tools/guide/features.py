@@ -123,3 +123,5 @@ f("guide", "settings", "🎬 Video-Anleitung im Add-on, für ohne Internet speic
   why="das ist diese Anleitung selbst", since="4.52.0")
 f("roofwing", "edit", "L-förmiges Dach: ein weiteres Dach wie das Hauptdach, auch auf dem Kniestock", "L-shaped roof: a further roof like the main roof, on the knee wall too",
   ["roof-wing"], since="4.54.0")
+f("roofgable", "edit", "Giebelwand, Überstand am Giebel, Pultdach und Vordach", "Gable wall, overhang at the gables, shed roof and canopy",
+  ["roof-gable"], since="4.55.0")

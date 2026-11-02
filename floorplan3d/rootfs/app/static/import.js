@@ -20,7 +20,7 @@ REGELN
   Presets: ${presets.join(', ')}
 - Möbel, Lampen, Sensoren: pro Etage "devices": [{ "type", "x", "z", "rot" (Grad), "y" (Höhe in m, optional), "name", "entity" }]. Nur diese Typen: ${types.join(', ')}
 - Treppen (optional): pro Etage "stairs": [{ "type": "straight|L|U|spiral|wall", "x", "z", "rot" (Grad), "w" (Breite m), "floors" (1-6 Etagen), "dir": "up|down" }]. Wandtreppe ("wall") zusätzlich "path": [[0,0],[x,z],...] entlang der Wand (jeder Knick ein Podest).
-- Dach: "building.roof": { "type": "gable" | "hip" | "flat", "pitch": 35, "overhang": 0.4 }.
+- Dach: "building.roof": { "type": "gable" | "hip" | "flat" | "shed", "pitch": 35, "overhang": 0.4 } (shed = Pultdach mit "high": "z0" | "z1" | "x0" | "x1", der hohen Seite; "gableOver": Überstand am Giebel).
 - Grundstück (optional): "plot": { "boundary": [[x,z],...], "objects": [{ "type": "lawn|terrace|path|tree|bush|fence|pool|car", "x", "z", "scale" }] } und "building.origin": [x,z] = Position der Gebäude-Ecke (0,0) auf dem Grundstück.
 - "entity" nur eintragen, wenn ich eine Home-Assistant-Entität nenne (z. B. light.wohnzimmer). Sonst leer lassen.
 - Fehlen Angaben, triff vernünftige Annahmen und nenne sie nach dem Codeblock in einem kurzen Satz.
@@ -40,7 +40,7 @@ RULES
   Presets: ${presets.join(', ')}
 - Furniture, lamps, sensors: per floor "devices": [{ "type", "x", "z", "rot" (degrees), "y" (height in m, optional), "name", "entity" }]. Only these types: ${types.join(', ')}
 - Stairs (optional): per floor "stairs": [{ "type": "straight|L|U|spiral|wall", "x", "z", "rot" (degrees), "w" (width m), "floors" (1-6 floors), "dir": "up|down" }]. A wall stair ("wall") also needs "path": [[0,0],[x,z],...] along the wall (every bend is a landing).
-- Roof: "building.roof": { "type": "gable" | "hip" | "flat", "pitch": 35, "overhang": 0.4 }.
+- Roof: "building.roof": { "type": "gable" | "hip" | "flat" | "shed", "pitch": 35, "overhang": 0.4 } (shed = one slope with "high": "z0" | "z1" | "x0" | "x1", its high side; "gableOver": the overhang at the gables).
 - Plot (optional): "plot": { "boundary": [[x,z],...], "objects": [{ "type": "lawn|terrace|path|tree|bush|fence|pool|car", "x", "z", "scale" }] } and "building.origin": [x,z] = position of the building corner (0,0) on the plot.
 - Only set "entity" if I give you a Home Assistant entity (e.g. light.wohnzimmer). Otherwise leave it empty.
 - If information is missing make sensible assumptions and name them in one short sentence after the code block.

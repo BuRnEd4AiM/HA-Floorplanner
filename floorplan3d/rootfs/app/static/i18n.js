@@ -1146,6 +1146,13 @@ const DICT = {
     'backup.recording': 'Aufzeichnungen mitsichern: Sicherheit, 📜 Protokoll und das 🩺 Protokoll der Heizung (die Datei wird größer; beim Einspielen kommen nur fehlende Tage dazu)',
     'backup.secrets': 'CallMeBot-Schlüssel mitsichern (sie stehen lesbar in der Datei: die Datei dann nicht weitergeben)',
     'ab.testRec': 'Dazu {days} Tage Aufzeichnung.', 'ab.testKeys': 'Mit den CallMeBot-Schlüsseln.',
+    'roof.shed': 'Pultdach', 'roof.high': 'Hohe Seite', 'roof.high.z0': 'oben im Plan', 'roof.high.z1': 'unten im Plan', 'roof.high.x0': 'links im Plan',
+    'roof.high.x1': 'rechts im Plan', 'roof.highH': 'Höhe der hohen Seite (über Wand bzw. Kniestock)', 'roof.gableOver': 'Überstand am Giebel (Ortgang)',
+    'roof.sideOver': 'Überstand an den Seiten', 'roof.gableWall': 'Giebelwand (die Wand geht bis unters Dach)',
+    'roof.gableWallShed': 'Wände bis unters Dach (Seiten und hohe Seite)', 'roof.stepsShed': 'Ein Pultdach hat keine Absätze (nur Sattel- und Flachdach).',
+    'dormer.noShed': 'Ein Pultdach hat keine Gauben.', 'roof.partDy': 'Höher setzen (minus: tiefer)', 'roof.canopy': 'Vordach',
+    'roof.canopyAdd': '+ Vordach (Pultdach vor dem Haus)',
+    'roof.canopyHelp': '„+ Vordach“ setzt ein Pultdach vor die lange Seite des Hauses, gleich unter die Traufe. In seiner Karte stellst du Größe, hohe Seite, Neigung und „Höher setzen“ ein; „Sitzt auf“ wählt das Geschoss.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2242,6 +2249,13 @@ const DICT = {
     'backup.recording': 'Include the recordings: security, the 📜 log and the 🩺 heating log (the file gets bigger; restoring only adds the days that are missing)',
     'backup.secrets': 'Include the CallMeBot keys (they are readable in the file: then do not pass the file on)',
     'ab.testRec': 'Plus {days} days of recordings.', 'ab.testKeys': 'With the CallMeBot keys.',
+    'roof.shed': 'Shed roof (one slope)', 'roof.high': 'High side', 'roof.high.z0': 'top of the plan', 'roof.high.z1': 'bottom of the plan',
+    'roof.high.x0': 'left of the plan', 'roof.high.x1': 'right of the plan', 'roof.highH': 'Height of the high side (over the walls or knee wall)',
+    'roof.gableOver': 'Overhang at the gables (verge)', 'roof.sideOver': 'Overhang at the sides',
+    'roof.gableWall': 'Gable wall (the wall goes on up to the roof)', 'roof.gableWallShed': 'Walls up to the roof (sides and high side)',
+    'roof.stepsShed': 'A shed roof has no steps (only gable and flat roofs).', 'dormer.noShed': 'A shed roof has no dormers.',
+    'roof.partDy': 'Move up (minus: down)', 'roof.canopy': 'Canopy', 'roof.canopyAdd': '+ Canopy (a shed roof in front of the house)',
+    'roof.canopyHelp': '“+ Canopy” puts a shed roof in front of the long side of the house, just under the eave. In its card you set its size, high side, pitch and “Move up”; “Sits on” picks the storey.',
   },
 };
 

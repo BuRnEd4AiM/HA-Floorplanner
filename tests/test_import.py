@@ -454,6 +454,38 @@ def test_further_roofs_bad_level_and_limit():
     assert len(parts) == 8 and "level" not in parts[0] and any("not a floor" in w["message"] for w in rep.warnings)
 
 
+def test_shed_roof_gables_and_a_canopy_are_imported_and_exported():
+    """#628: a shed roof (Pultdach) with its high side, the overhang at the gables, the gable wall switched off, a further roof as high
+    as the main roof and moved down (a canopy); nonsense is dropped with a warning"""
+    layout, _, rep, _ = importer.build_layout(two_roofs([
+        {"name": "Vordach", "type": "shed", "pitch": 10, "high": "z0", "gableWall": False, "gableOver": 0.1, "level": "main", "dy": -0.6,
+         "box": {"x0": 0, "x1": 8, "z0": 5, "z1": 7.5}, "dormers": [{"side": 0}], "ridge": "x"},
+        {"type": "shed", "high": "up", "gableOver": 7, "dy": 99, "box": {"x0": 0, "x1": 2, "z0": 7.5, "z1": 9}}]))
+    main, (can, bad) = roof_of(layout), roof_of(layout)["parts"]
+    assert main["type"] == "gable" and "gableWall" not in main and "gableOver" not in main
+    assert (can["type"], can["high"], can["gableWall"], can["gableOver"], can["level"], can["dy"]) == ("shed", "z0", False, 0.1, "main", -0.6)
+    assert "dormers" not in can and "ridge" not in can
+    assert bad["high"] == "z0" and "gableOver" not in bad and "dy" not in bad
+    msgs = " | ".join(w["message"] for w in rep.warnings)
+    assert "shed roof has no dormers" in msgs and "high must be one of" in msgs and "gableOver must be" in msgs and "dy must be" in msgs
+    back = importer.layout_to_property(layout)["building"]["floors"][-1]["roof"]["parts"][0]
+    assert back["level"] == "main" and back["dy"] == -0.6 and back["high"] == "z0" and back["gableWall"] is False
+    again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout))
+    assert not rep2.errors and roof_of(again)["parts"][0]["level"] == "main"
+    steps, _, rep4, _ = importer.build_layout({"schemaVersion": 1, "building": {"roof": {"type": "shed", "steps": [{"side": 0, "at": 1, "out": 1}]},
+                                                                                   "floors": [{"name": "EG", "kind": "floor", "rooms": [{"points": [[0, 0], [4, 0], [4, 4], [0, 4]]}]}]}})
+    assert "steps" not in roof_of(steps) and any("shed roof has no steps" in w["message"] for w in rep4.warnings)
+
+
+def test_schema_describes_shed_roofs_and_gables():
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    roof = schema["$defs"]["roof"]["properties"]
+    assert set(roof["type"]["enum"]) == importer.ROOF_TYPES and roof["high"]["enum"] == list(importer.SHED_HIGH)
+    assert {"gableOver", "gableWall"} <= set(roof) and {"dy", "level"} <= set(schema["$defs"]["roofPart"]["properties"])
+    js = (APP / "static" / "roofshape.js").read_text(encoding="utf-8")
+    assert "export const SHED_HIGH = ['z0', 'z1', 'x0', 'x1'];" in js and "export const ROOF_TYPES = ['gable', 'hip', 'flat', 'shed'];" in js
+
+
 async def test_further_roofs_survive_import_and_export(client):
     r = await client.post("/api/import?name=Dach2", json=two_roofs([{"name": "Anbau", "type": "flat", "box": {"x0": 8, "x1": 11, "z0": 0, "z1": 4}, "level": 1}]))
     assert r.status == 200, await r.text()

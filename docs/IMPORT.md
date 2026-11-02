@@ -72,7 +72,10 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
     "origin": [5.5, 8],                      // optional
     "wallHeight": 2.6, "outerWall": 0.3, "innerWall": 0.12,
     "footprint": [[0,0],[11,0],[11,9],[0,9]],           // optional: Außenumriss → dicke Außenwände
-    "roof": { "type": "gable", "pitch": 38 },           // gable | hip | flat
+    "roof": { "type": "gable", "pitch": 38 },           // gable | hip | flat | shed (Pultdach)
+    // Giebel (gable, shed): gableOver = Überstand am Giebel in m (sonst wie overhang), gableWall: false = keine Giebelwand;
+    // Pultdach: high = hohe Seite "z0" | "z1" | "x0" | "x1" (oben, unten, links, rechts im Plan), dort ohne Überstand
+    // Vordach als weiteres Dach: "parts": [ { "type": "shed", "pitch": 10, "high": "z0", "gableWall": false, "level": "main", "dy": -0.6, "box": { "x0": 0, "x1": 11, "z0": 9, "z1": 11.5 } } ]
     // Absätze (optional, nicht bei hip; Haus vorne schmaler): side 0|1 oder "a"|"b", at = m vom Giebel, out = m weiter außen (minus: innen)
     // "roof": { "type": "gable", "steps": [ { "side": "a", "at": 0, "out": -0.5 }, { "side": "a", "at": 6, "out": 0 } ] },
     // Dachgauben (optional, nicht bei flat): side 0|1 oder "a"|"b", pos 0..1 am First, w/hw/eave in m, type gable|flat|shed (Schleppgaube, mit sp = Neigung in Grad, bis 30 m lang), win true|false

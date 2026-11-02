@@ -2213,4 +2213,12 @@ export default {
   'backup.recording': 'Incluir las grabaciones: seguridad, el 📜 registro y el 🩺 registro de la calefacción (el archivo es más grande; al restaurar solo se añaden los días que faltan)',
   'backup.secrets': 'Incluir las claves de CallMeBot (se pueden leer en el archivo: entonces no lo compartas)',
   'ab.testRec': 'Además {days} días de grabaciones.', 'ab.testKeys': 'Con las claves de CallMeBot.',
+  'roof.shed': 'Tejado a un agua', 'roof.high': 'Lado alto', 'roof.high.z0': 'arriba en el plano', 'roof.high.z1': 'abajo en el plano',
+  'roof.high.x0': 'a la izquierda del plano', 'roof.high.x1': 'a la derecha del plano', 'roof.highH': 'Altura del lado alto (sobre el muro o el murete)',
+  'roof.gableOver': 'Vuelo en el hastial', 'roof.sideOver': 'Vuelo en los lados', 'roof.gableWall': 'Muro hastial (el muro sube hasta el tejado)',
+  'roof.gableWallShed': 'Muros hasta el tejado (lados y lado alto)',
+  'roof.stepsShed': 'Un tejado a un agua no tiene escalones (solo los tejados a dos aguas y planos).',
+  'dormer.noShed': 'Un tejado a un agua no tiene buhardillas.', 'roof.partDy': 'Subir (menos: bajar)', 'roof.canopy': 'Marquesina',
+  'roof.canopyAdd': '+ Marquesina (tejado a un agua delante de la casa)',
+  'roof.canopyHelp': '«+ Marquesina» pone un tejado a un agua delante del lado largo de la casa, justo bajo el alero. En su tarjeta ajustas tamaño, lado alto, pendiente y «Subir»; «Se apoya en» elige la planta.',
 };

@@ -294,8 +294,10 @@
      "enum": [
       "gable",
       "hip",
-      "flat"
-     ]
+      "flat",
+      "shed"
+     ],
+     "description": "gable (Satteldach), hip (Walmdach), flat (Flachdach) or shed (Pultdach: one slope up to its high side)."
     },
     "pitch": {
      "type": "number",
@@ -309,11 +311,32 @@
      "maximum": 3,
      "default": 0.4
     },
+    "gableOver": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 3,
+     "description": "Gable and shed roofs: the overhang at the gables (Ortgang; a shed roof: at its sides) in metres. Default: the same as overhang."
+    },
+    "gableWall": {
+     "type": "boolean",
+     "default": true,
+     "description": "Gable and shed roofs: the wall under each gable (a shed roof: its sides and its high side) goes on up to the roof in the colour of the walls. false: no wall there (an open carport, a canopy)."
+    },
     "ridge": {
      "enum": [
       "x",
       "z"
      ]
+    },
+    "high": {
+     "enum": [
+      "z0",
+      "z1",
+      "x0",
+      "x1"
+     ],
+     "default": "z0",
+     "description": "Only for a shed roof: the edge of its base that is high (z0 top, z1 bottom, x0 left, x1 right in the plan). The high side has no overhang."
     },
     "box": {
      "type": "object",
@@ -342,7 +365,7 @@
     "dormers": {
      "type": "array",
      "maxItems": 20,
-     "description": "Roof dormers (Gauben). Ignored on a flat roof.",
+     "description": "Roof dormers (Gauben). Ignored on a flat or shed roof.",
      "items": {
       "type": "object",
       "properties": {
@@ -413,7 +436,7 @@
     "steps": {
      "type": "array",
      "maxItems": 20,
-     "description": "Steps in the eaves (main roof only, not on a hip roof): from 'at' on, the eave of one side lies 'out' metres further out (negative: in), e.g. a house narrower at the front.",
+     "description": "Steps in the eaves (main roof only, not on a hip or shed roof): from 'at' on, the eave of one side lies 'out' metres further out (negative: in), e.g. a house narrower at the front.",
      "items": {
       "type": "object",
       "required": [
@@ -1351,9 +1374,22 @@
      "maxLength": 40
     },
     "level": {
-     "type": "integer",
-     "minimum": 0,
-     "description": "index of a floor in building.floors the roof sits on (default: on top of the building)"
+     "oneOf": [
+      {
+       "type": "integer",
+       "minimum": 0
+      },
+      {
+       "const": "main"
+      }
+     ],
+     "description": "index of a floor in building.floors the roof sits on (default: on top of the building); \"main\": as high as the main roof (the second wing of an L-shaped house, a canopy under its eave)"
+    },
+    "dy": {
+     "type": "number",
+     "minimum": -10,
+     "maximum": 10,
+     "description": "Moves the roof up (negative: down) by this many metres, e.g. a canopy just under the eave."
     }
    }
   }

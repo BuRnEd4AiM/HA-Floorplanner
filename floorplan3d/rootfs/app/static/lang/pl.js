@@ -2177,4 +2177,11 @@ export default {
   'backup.recording': 'Dołącz nagrania: bezpieczeństwo, 📜 dziennik i 🩺 dziennik ogrzewania (plik będzie większy; przy przywracaniu dodawane są tylko brakujące dni)',
   'backup.secrets': 'Dołącz klucze CallMeBot (są czytelne w pliku: wtedy nie przekazuj go dalej)', 'ab.testRec': 'Do tego {days} dni nagrań.',
   'ab.testKeys': 'Z kluczami CallMeBot.',
+  'roof.shed': 'Dach jednospadowy', 'roof.high': 'Wysoka strona', 'roof.high.z0': 'u góry planu', 'roof.high.z1': 'u dołu planu',
+  'roof.high.x0': 'po lewej na planie', 'roof.high.x1': 'po prawej na planie', 'roof.highH': 'Wysokość wysokiej strony (nad ścianą lub ścianką kolankową)',
+  'roof.gableOver': 'Okap przy szczycie', 'roof.sideOver': 'Okap po bokach', 'roof.gableWall': 'Ściana szczytowa (ściana sięga pod dach)',
+  'roof.gableWallShed': 'Ściany pod dach (boki i wysoka strona)', 'roof.stepsShed': 'Dach jednospadowy nie ma uskoków (tylko dwuspadowy i płaski).',
+  'dormer.noShed': 'Dach jednospadowy nie ma lukarn.', 'roof.partDy': 'Podnieś (minus: obniż)', 'roof.canopy': 'Daszek',
+  'roof.canopyAdd': '+ Daszek (dach jednospadowy przed domem)',
+  'roof.canopyHelp': '„+ Daszek” stawia dach jednospadowy przed dłuższą stroną domu, tuż pod okapem. W jego karcie ustawiasz rozmiar, wysoką stronę, nachylenie i „Podnieś”; „Spoczywa na” wybiera kondygnację.',
 };

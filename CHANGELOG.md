@@ -4,10 +4,22 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.55.0] - 2026-11-02
+### Added
+- **Gable walls** (#628, asked by christinloehner: "Mein Haus hat an den Stirnseiten jeweils eine Giebelwand … das Satteldach … auch an der Giebelseite die Wand überdeckt"): the gable of a gable roof was a triangle in the roof's colour out at the edge of the overhang, in front of the wall. Now the wall under each gable goes on up to the roof, on the wall and as thick as the walls under it, in their colour (or the facade's finish), down to the top of the walls under it (on a knee wall from the walls of the attic storey up). The roof panel has the box **Gable wall (the wall goes on up to the roof)** (on; off: the triangle as before, e.g. for an open carport). Where the gable of a roof stands inside another roof (the inner end of the second wing of an L-shaped house) it has none.
+- **Overhang at the gables (Ortgang)**: a field of its own in the roof panel, for the main roof and every further gable or shed roof; until it is set the roof sticks out as far as at the eaves, as before.
+- **Shed roof (Pultdach)**: a new roof shape for the main roof and further roofs: one slope from its low eave up to its high side. **High side** (top, bottom, left or right in the plan) takes the place of the ridge direction; the high side has no overhang (it often leans against the house); its two sides and its high side get walls up to the roof too. "Ridge height" becomes "Height of the high side". A roof changed to a shed roof gets 10° when it was steeper than 25°, a further one leans against the main roof (its high side faces it). No dormers and no steps on a shed roof. The 2D plan draws its high side as a solid line; solar panels lie on it; the walls under it are cut at its slope.
+- **"+ Canopy" (Vordach)**: a new button under the further roofs: a shed roof 2.5 m deep in front of the long side of the house, as long as the house, as high as the main roof and moved down so its high side is just under the eave, without walls under it. Its card has its size, high side, pitch and the new field **Move up (minus: down)**, which every further roof has now (`dy`).
+- **JSON import and export**: `"type": "shed"` with `"high"`, `"gableOver"`, `"gableWall": false`, and for further roofs `"dy"` and `"level": "main"`; the schema and "Copy AI prompt" describe them.
+- New module `roofshape.js` (pure, unit test `tests/roofshape.test.mjs`, a new CI step): the frame of a roof (before in `solarroof.js` and `dormer.js`), the gable walls, the shed roof, the canopy. New browser test part `66_gables`.
 ### Changed
+- **Video guide: a new video "Gable wall, shed roof and canopy"** (the owner, 2026-11-02: "auch gleich mit verfilmen"); the video "Roof and dormers" names the shed roof.
 - **Video guide: a video "Set up a window: panes, shutter, curtain"** (the owner, 2026-11-02: "bei Fenster ein Video … wo man das mit den Flügeln einstellt und Rollladen und Vorhänge"): a window clicked in 3D, two panes, the left one hinged on the left and the right one on the right ("Fixed" for a pane that never opens), the contact from Home Assistant opens it in the picture, the tick "Curtain / roller shutter" with the curtain types, the cover from Home Assistant (a curtain parted in the middle, 60 % open), a contact of its own for every pane. Only the guide changed, not the add-on.
 - **The demo starts with see-through walls** (the owner, 2026-11-02: "wenn man die Demo startet … immer im durchsichtigen Modus … anstatt dass man die Wände absenkt, das sieht geiler aus"): in the demo the walls facing the camera and the roof turn see-through ("View" → "See-through") instead of sinking ("Auto"); the add-on keeps its own setting.
 - **Video guide "View"**: it said "Auto" turns the house by itself; "Auto" lowers the walls facing the camera. The video now shows "See-through" (on in the demo), "Auto" and back.
+### Fixed
+- **Walls cut at the roof are closed** (#628: "die Wände, die durch das Dach abgeschnitten werden, nicht sauber abgeschnitten"): a wall cut at the slopes (on a knee wall, or on the roof floor) was open along its cut, you looked into it; now its inside shows in its colour, so it looks solid up to the slope.
+- **"Like the main roof" survives the JSON export** (#621): the export dropped it, a re-imported wing sat on top of the house.
 
 ## [4.54.0] - 2026-11-02
 ### Added
