@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Floorplan Video-Anleitung</title>
+<meta name="description" content="Jede Funktion des 3D-Grundrisses für Home Assistant als kurzes Video, zum Durchsuchen. Every feature of 3D Floorplan for Home Assistant as a short video, searchable.">
+<!-- The page of the video guide. tools/make_guide.py --site copies it next to guide.json and the videos (<lang>/<id>.mp4). -->
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f5f8; --surface: #ffffff; --surface-2: #eceef3; --text: #12141a; --text-2: #454a57; --muted: #767c8a;
+  --line: #dfe2ea; --accent: #2a78d6; --accent-2: #5b4fd6; --wash: rgba(42, 120, 214, .10); --mark: rgba(255, 196, 0, .38);
+  --shadow: 0 1px 2px rgba(16, 20, 30, .05), 0 10px 30px rgba(16, 20, 30, .08); --radius: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0d1016; --surface: #161a22; --surface-2: #1f2430; --text: #eef0f5; --text-2: #b9bfcc; --muted: #868d9c;
+    --line: #272d3a; --accent: #4b95ee; --accent-2: #8d84f0; --wash: rgba(75, 149, 238, .14); --mark: rgba(255, 196, 0, .28);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 10px 30px rgba(0, 0, 0, .3);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1016; --surface: #161a22; --surface-2: #1f2430; --text: #eef0f5; --text-2: #b9bfcc; --muted: #868d9c;
+  --line: #272d3a; --accent: #4b95ee; --accent-2: #8d84f0; --wash: rgba(75, 149, 238, .14); --mark: rgba(255, 196, 0, .28);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 10px 30px rgba(0, 0, 0, .3);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--accent); }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1px; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* top */
+.hero { position: relative; color: #fff; background: radial-gradient(120% 140% at 15% 0%, #23407a 0%, #121a2e 45%, #0a0e17 100%); isolation: isolate; overflow: hidden; }
+.hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 80px; background: linear-gradient(180deg, transparent, var(--bg)); z-index: -1; }
+.heroGlow { position: absolute; width: 620px; height: 620px; right: -140px; top: -260px; border-radius: 50%; z-index: -1;
+  background: radial-gradient(circle, rgba(120, 104, 255, .35), transparent 65%); }
+.bar { display: flex; align-items: center; gap: 10px; padding: 14px 0; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .01em; color: #fff; text-decoration: none; }
+.brand .logo { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: linear-gradient(135deg, #4b95ee, #7a6cf0); font-size: 16px; }
+.bar .grow { flex: 1; }
+.seg { display: inline-flex; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px; padding: 3px; }
+.seg button { border: 0; background: none; color: rgba(255, 255, 255, .78); padding: 4px 11px; border-radius: 999px; font-size: 14px; font-weight: 600; }
+.seg button[aria-pressed="true"] { background: #fff; color: #121a2e; }
+.iconBtn { border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .08); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; }
+.iconBtn:hover { background: rgba(255, 255, 255, .16); }
+.pillLink { color: #fff; text-decoration: none; font-size: 14px; font-weight: 600; padding: 7px 13px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .08); white-space: nowrap; }
+.pillLink:hover { background: rgba(255, 255, 255, .16); }
+.heroIn { padding: 28px 0 54px; max-width: 760px; }
+.kicker { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #a9c6ff; }
+h1 { font-size: clamp(30px, 4.6vw, 50px); line-height: 1.08; margin: 10px 0 12px; letter-spacing: -.02em; }
+.lead { color: rgba(255, 255, 255, .78); font-size: 18px; margin: 0 0 24px; }
+.search { position: relative; }
+.search input { width: 100%; height: 58px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, .2); background: rgba(255, 255, 255, .96); color: #12141a;
+  padding: 0 52px 0 54px; font-size: 18px; box-shadow: 0 12px 40px rgba(0, 0, 0, .35); outline: none; }
+.search input:focus { border-color: #4b95ee; box-shadow: 0 0 0 4px rgba(75, 149, 238, .35), 0 12px 40px rgba(0, 0, 0, .35); }
+.search svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #6a7183; }
+.search input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+.search .clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: 0; width: 36px; height: 36px; border-radius: 50%; background: #eceef3; color: #454a57; }
+.search kbd { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font: 600 12px/1 ui-monospace, Menlo, monospace; color: #767c8a; border: 1px solid #d5d9e2; border-radius: 6px; padding: 4px 7px; background: #fff; }
+.stats { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 18px; color: rgba(255, 255, 255, .72); font-size: 14px; }
+.stats b { color: #fff; }
+.tryList { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.tryList button { border: 1px solid rgba(255, 255, 255, .18); background: rgba(255, 255, 255, .07); color: rgba(255, 255, 255, .88); border-radius: 999px; padding: 5px 12px; font-size: 14px; }
+.tryList button:hover { background: rgba(255, 255, 255, .15); }
+
+/* groups */
+.chips { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.chips .wrap { display: flex; gap: 8px; overflow-x: auto; padding-top: 12px; padding-bottom: 12px; scrollbar-width: none; }
+.chips .wrap::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; display: inline-flex; gap: 6px; align-items: center; }
+.chip span.n { color: var(--muted); font-weight: 500; }
+.chip[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.chip[aria-pressed="true"] span.n { color: inherit; opacity: .7; }
+
+main { padding: 26px 0 70px; }
+.sec { margin: 0 0 40px; }
+.secHead { display: flex; align-items: baseline; gap: 10px; margin: 0 0 14px; }
+.secHead h2 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+.secHead .n { color: var(--muted); font-size: 14px; }
+.hits { color: var(--muted); margin: 0 0 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; text-align: left; padding: 0; color: inherit; }
+.card:hover, .card:focus-visible { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); outline: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .08), 0 18px 40px rgba(16, 20, 30, .16); }
+.thumb { position: relative; aspect-ratio: 16 / 9; background: #0d1016; overflow: hidden; }
+.thumb img, .thumb video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.thumb video { opacity: 0; transition: opacity .25s; }
+.card.prev .thumb video { opacity: 1; }
+.dur { position: absolute; right: 8px; bottom: 8px; background: rgba(8, 10, 16, .78); color: #fff; font: 600 12px/1 Inter, system-ui, sans-serif; padding: 5px 7px; border-radius: 6px; }
+.dev { position: absolute; left: 8px; bottom: 8px; background: rgba(8, 10, 16, .78); color: #fff; font-size: 12px; padding: 4px 7px; border-radius: 6px; }
+.play { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; transition: opacity .2s; }
+.play i { width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, .92); display: grid; place-items: center; box-shadow: 0 8px 26px rgba(0, 0, 0, .35); }
+.play i::before { content: ""; margin-left: 5px; border-style: solid; border-width: 11px 0 11px 18px; border-color: transparent transparent transparent #121a2e; }
+.card:hover .play, .card:focus-visible .play { opacity: 1; }
+.card.prev .play { opacity: 0; }
+.body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.cat { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.card h3 { margin: 0; font-size: 17px; line-height: 1.3; }
+.card p { margin: 0; color: var(--text-2); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.found { margin-top: 4px; display: flex; flex-direction: column; gap: 4px; }
+.found a { display: flex; gap: 8px; align-items: baseline; font-size: 13px; color: var(--text-2); text-decoration: none; padding: 5px 8px; border-radius: 8px; background: var(--surface-2); }
+.found a:hover { background: var(--wash); color: var(--text); }
+.found a b { color: var(--accent); font-variant-numeric: tabular-nums; flex: none; }
+.empty { text-align: center; padding: 60px 16px; color: var(--muted); }
+.empty b { display: block; font-size: 20px; color: var(--text); margin-bottom: 6px; }
+footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; padding: 22px 0 40px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: space-between; }
+
+/* the player */
+.player { position: fixed; inset: 0; z-index: 50; display: none; background: rgba(5, 7, 12, .86); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); overflow-y: auto; }
+.player.open { display: block; animation: fade .2s ease; }
+@keyframes fade { from { opacity: 0; } }
+.pIn { max-width: 1400px; margin: 0 auto; padding: 18px 16px 30px; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; }
+.pTop { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; color: #fff; }
+.pTop .t { flex: 1; min-width: 0; }
+.pTop .t small { display: block; color: #a9c6ff; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.pTop .t h2 { margin: 0; font-size: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stageBox { position: relative; border-radius: 14px; overflow: hidden; background: #000; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); aspect-ratio: 16 / 9; }
+.stageBox video { width: 100%; height: 100%; display: block; background: #000; }
+.cap { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); max-width: 86%; text-align: center; pointer-events: none;
+  background: rgba(10, 13, 20, .82); color: #fff; padding: 10px 18px; border-radius: 12px; font-size: clamp(14px, 1.9vw, 21px); font-weight: 600; line-height: 1.35;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, .35); transition: opacity .25s ease, transform .25s ease; }
+.cap.hide { opacity: 0; transform: translate(-50%, 6px); }
+.stageBox.ctl .cap { bottom: 15%; }
+.endCard { position: absolute; inset: 0; display: none; place-items: center; background: rgba(5, 7, 12, .72); color: #fff; text-align: center; }
+.endCard.on { display: grid; }
+.endCard .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+.btn { border: 1px solid rgba(255, 255, 255, .2); background: rgba(255, 255, 255, .1); color: #fff; border-radius: 999px; padding: 9px 16px; font-weight: 600; font-size: 15px; }
+.btn:hover { background: rgba(255, 255, 255, .2); }
+.btn.primary { background: #fff; color: #121a2e; border-color: #fff; }
+.pMeta { color: rgba(255, 255, 255, .8); margin-top: 14px; }
+.pMeta p { margin: 0 0 12px; }
+.pBtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.pBtns .btn { font-size: 14px; padding: 7px 13px; }
+.pNote { font-size: 13px; color: rgba(255, 255, 255, .55); margin-top: 10px; }
+.steps { background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .1); border-radius: 14px; padding: 14px; color: #fff; align-self: start; }
+.steps h3 { margin: 2px 4px 10px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255, 255, 255, .6); }
+.steps ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; counter-reset: s; }
+.steps li button { width: 100%; text-align: left; border: 0; background: none; color: rgba(255, 255, 255, .78); padding: 9px 10px; border-radius: 10px; display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; align-items: start; font-size: 14px; line-height: 1.4; }
+.steps li button::before { counter-increment: s; content: counter(s); width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .12); font-size: 12px; font-weight: 700; }
+.steps li button:hover { background: rgba(255, 255, 255, .08); color: #fff; }
+.steps li.cur button { background: rgba(75, 149, 238, .22); color: #fff; }
+.steps li.cur button::before { background: #4b95ee; }
+.steps li.done button::before { background: rgba(75, 149, 238, .5); }
+.steps time { color: rgba(255, 255, 255, .5); font-variant-numeric: tabular-nums; font-size: 12px; padding-top: 2px; }
+.prog { height: 3px; background: rgba(255, 255, 255, .12); border-radius: 3px; margin: 12px 4px 2px; overflow: hidden; }
+.prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #4b95ee, #8d84f0); }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #121a2e; color: #fff; padding: 10px 16px; border-radius: 10px; z-index: 60; box-shadow: var(--shadow); font-size: 14px; }
+@media (max-width: 900px) {
+  .pIn { grid-template-columns: 1fr; }
+  .pTop .t h2 { font-size: 18px; }
+}
+@media (max-width: 560px) {
+  .bar .pillLink.demo { display: none; }
+  .search kbd { display: none; }
+  .lead { font-size: 16px; }
+  .grid { grid-template-columns: 1fr; }
+}
+/* opened from inside the add-on (?embed=1): no big title */
+body.embed .heroIn { padding: 6px 0 30px; }
+body.embed h1, body.embed .lead, body.embed .kicker { display: none; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="heroGlow"></div>
+  <div class="wrap">
+    <div class="bar">
+      <a class="brand" href="../"><span class="logo">⌂</span><span>3D Floorplan</span></a>
+      <span class="grow"></span>
+      <a class="pillLink demo" href="../" data-t="demo"></a>
+      <div class="seg" role="group" aria-label="Sprache / Language">
+        <button type="button" data-lang="de">DE</button><button type="button" data-lang="en">EN</button>
+      </div>
+      <button class="iconBtn" type="button" id="themeBtn" aria-label="Theme">◐</button>
+    </div>
+    <div class="heroIn">
+      <div class="kicker">▶ <span data-t="kicker"></span></div>
+      <h1 data-t="h1"></h1>
+      <p class="lead" data-t="lead"></p>
+      <div class="search">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <label class="vh" for="q" data-t="searchLabel"></label>
+        <input id="q" type="search" autocomplete="off" spellcheck="false">
+        <kbd>/</kbd>
+        <button class="clear" type="button" id="clearQ" hidden aria-label="✕">✕</button>
+      </div>
+      <div class="tryList" id="tryList"></div>
+      <div class="stats" id="stats"></div>
+    </div>
+  </div>
+</header>
+<nav class="chips" aria-label="Groups"><div class="wrap" id="chips"></div></nav>
+<main class="wrap" id="main" aria-live="polite"></main>
+<footer><div class="wrap"><span id="foot"></span><a href="https://github.com/BuRnEd4AiM/HA-Floorplanner" rel="noopener">GitHub</a></div></footer>
+
+<div class="player" id="player" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+  <div class="pIn">
+    <div class="pTop">
+      <button class="iconBtn" type="button" id="pClose" aria-label="✕">✕</button>
+      <div class="t"><small id="pCat"></small><h2 id="pTitle"></h2></div>
+      <button class="iconBtn" type="button" id="pPrev" aria-label="‹">‹</button>
+      <button class="iconBtn" type="button" id="pNext" aria-label="›">›</button>
+    </div>
+    <div>
+      <div class="stageBox" id="stageBox">
+        <video id="vid" controls playsinline preload="auto"></video>
+        <div class="cap hide" id="cap"></div>
+        <div class="endCard" id="endCard"><div><div id="endText"></div><div class="row"><button class="btn" type="button" id="again"></button><button class="btn primary" type="button" id="goNext"></button></div></div></div>
+      </div>
+      <div class="pMeta">
+        <p id="pDesc"></p>
+        <div class="pBtns">
+          <button class="btn" type="button" id="speed">1×</button>
+          <button class="btn" type="button" id="capBtn"></button>
+          <button class="btn" type="button" id="copyBtn"></button>
+          <a class="btn" id="dlBtn" download></a>
+        </div>
+        <div class="pNote" id="pNote"></div>
+      </div>
+    </div>
+    <aside class="steps">
+      <h3 data-t="steps"></h3>
+      <ol id="stepList"></ol>
+      <div class="prog"><i id="prog"></i></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+'use strict';
+const T = {
+  de: {
+    kicker: 'Video-Anleitung', h1: 'Alles, was dein 3D-Grundriss kann, in kurzen Videos',
+    lead: 'Jede Funktion einmal vorgemacht: suchen, ansehen, nachmachen. Die Videos entstehen automatisch in der Demo und sind immer auf dem neuesten Stand.',
+    searchLabel: 'Suchen', ph: 'Was möchtest du tun? z. B. Licht dimmen, Wand zeichnen …', demo: 'Demo ausprobieren',
+    all: 'Alle', videos: (n) => n === 1 ? '1 Video' : `${n} Videos`, minutes: (m) => m === 1 ? '1 Minute zum Zuschauen' : `${m} Minuten zum Zuschauen`, groups: (n) => `${n} Bereiche`,
+    hits: (n, q) => n ? `${n === 1 ? '1 Video' : n + ' Videos'} zu „${q}“` : '', none: 'Dazu gibt es noch kein Video', noneSub: 'Versuch ein anderes Wort, z. B. „Licht“, „Etage“ oder „Heizung“.',
+    steps: 'Schritte', again: '↻ Nochmal', next: 'Weiter', nextTo: (t) => `Weiter: ${t}`, endText: 'Fertig!', capOn: 'Untertitel an', capOff: 'Untertitel aus',
+    copy: '🔗 Link kopieren', copied: 'Link kopiert', dl: '⬇ Herunterladen', recorded: (v, d) => `Aufgenommen mit Version ${v} am ${d}.`,
+    onlyOther: 'Dieses Video gibt es nur mit englischer Oberfläche.', phone: '📱 Handy', at: 'bei', foot: (d, v) => `Automatisch aufgenommen in der Demo · Version ${v} · ${d}`,
+    tries: ['Licht', 'Etage', 'Wand zeichnen', 'Heizung', 'Szene', 'Handy'], loadErr: 'Die Liste der Videos konnte nicht geladen werden.',
+  },
+  en: {
+    kicker: 'Video guide', h1: 'Everything your 3D floorplan can do, in short videos',
+    lead: 'Every feature shown once: search, watch, do it yourself. The videos are recorded automatically in the demo and always up to date.',
+    searchLabel: 'Search', ph: 'What do you want to do? e.g. dim a light, draw a wall …', demo: 'Try the demo',
+    all: 'All', videos: (n) => n === 1 ? '1 video' : `${n} videos`, minutes: (m) => m === 1 ? '1 minute to watch' : `${m} minutes to watch`, groups: (n) => `${n} groups`,
+    hits: (n, q) => n ? `${n === 1 ? '1 video' : n + ' videos'} for “${q}”` : '', none: 'No video for that yet', noneSub: 'Try another word, e.g. “light”, “floor” or “heating”.',
+    steps: 'Steps', again: '↻ Again', next: 'Next', nextTo: (t) => `Next: ${t}`, endText: 'Done!', capOn: 'Subtitles on', capOff: 'Subtitles off',
+    copy: '🔗 Copy link', copied: 'Link copied', dl: '⬇ Download', recorded: (v, d) => `Recorded with version ${v} on ${d}.`,
+    onlyOther: 'This video only exists with the German interface.', phone: '📱 Phone', at: 'at', foot: (d, v) => `Recorded automatically in the demo · version ${v} · ${d}`,
+    tries: ['light', 'floor', 'draw a wall', 'heating', 'scene', 'phone'], loadErr: 'The list of videos could not be loaded.',
+  },
+};
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fold = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ß/g, 'ss');
+const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+const params = new URLSearchParams(location.search);
+const store = { get(k) { try { return localStorage.getItem('fp3dGuide.' + k); } catch { return null; } }, set(k, v) { try { localStorage.setItem('fp3dGuide.' + k, v); } catch { /* private window */ } } };
+
+const SITE = 'https://burned4aim.github.io/HA-Floorplanner/';
+const file = (v, id) => `${v.lang}/${id}${DATA.local ? '.small' : ''}.mp4`;
+let DATA = null, lang = params.get('lang') || store.get('lang') || ((navigator.language || 'de').startsWith('de') ? 'de' : 'en');
+if (!T[lang]) lang = 'en';
+let cat = 'all', query = params.get('q') || '', shown = [], cur = -1, caps = store.get('caps') !== 'off', speedIx = 1;
+const SPEEDS = [0.75, 1, 1.25, 1.5, 2];
+if (params.get('embed')) document.body.classList.add('embed');
+
+// ---------- theme ----------
+const theme = store.get('theme');
+if (theme) document.documentElement.dataset.theme = theme;
+$('#themeBtn').addEventListener('click', () => {
+  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+  store.set('theme', document.documentElement.dataset.theme);
+});
+
+// ---------- search ----------
+// every word of the query must be found somewhere in the clip (title, search words, text, steps; both languages, without accents);
+// a word in the title counts most. Steps that contain a word are listed under the clip with their second.
+function words(q) { return fold(q).split(/[\s,;.!?]+/).filter((w) => w.length > 0); }
+function textOf(c, l) { return { title: c.title[l], keys: c.keys, desc: c.desc[l], steps: (c.vid?.steps || []).map((s) => s[l] || '') }; }
+function score(c, ws) {
+  if (!ws.length) return { s: 1, steps: [] };
+  let total = 0;
+  const other = lang === 'de' ? 'en' : 'de', a = textOf(c, lang), b = textOf(c, other);
+  const found = new Set();
+  for (const w of ws) {
+    let s = 0;
+    const has = (x) => fold(x).includes(w);
+    const starts = (x) => fold(x).split(/[^a-z0-9äöü]+/).some((p) => p.startsWith(w));
+    if (has(a.title)) s += starts(a.title) ? 12 : 8;
+    if (has(a.keys)) s += starts(a.keys) ? 6 : 4;
+    if (has(a.desc)) s += 3;
+    a.steps.forEach((st, i) => { if (has(st)) { s += 2; found.add(i); } });
+    if (!s && (has(b.title) || has(b.desc) || b.steps.some(has))) s += 1;
+    if (!s) return null;
+    total += s;
+  }
+  return { s: total, steps: [...found].sort((x, y) => x - y) };
+}
+function mark(text, ws) {
+  if (!ws.length) return esc(text);
+  const f = fold(text);
+  const hit = new Array(text.length).fill(false);
+  for (const w of ws) { let i = f.indexOf(w); while (i >= 0) { for (let k = i; k < i + w.length && k < hit.length; k++) hit[k] = true; i = f.indexOf(w, i + 1); } }
+  let out = '', open = false;
+  for (let i = 0; i < text.length; i++) {
+    if (hit[i] && !open) { out += '<mark>'; open = true; }
+    if (!hit[i] && open) { out += '</mark>'; open = false; }
+    out += esc(text[i]);
+  }
+  return out + (open ? '</mark>' : '');
+}
+
+// ---------- the list ----------
+function vidOf(c) { return c.v[lang] ? { ...c.v[lang], lang } : (c.v.de ? { ...c.v.de, lang: 'de' } : { ...c.v.en, lang: 'en' }); }
+function card(c, r, ws) {
+  const v = c.vid, catName = DATA.cats.find((x) => x.id === c.cat)?.[lang] || '';
+  const steps = ws.length ? r.steps.slice(0, 2).map((i) => `<a href="#${c.id}@${v.steps[i].t}" data-t="${v.steps[i].t}"><b>${mmss(v.steps[i].t)}</b><span>${mark(v.steps[i][lang], ws)}</span></a>`).join('') : '';
+  return `<article class="card" tabindex="0" role="button" data-id="${c.id}" aria-label="${esc(c.title[lang])}">
+    <div class="thumb"><img loading="lazy" src="${v.lang}/${c.id}.jpg" alt=""><div class="play"><i></i></div>
+      ${c.device === 'phone' ? `<span class="dev">${T[lang].phone}</span>` : ''}<span class="dur">${mmss(v.duration)}</span></div>
+    <div class="body"><span class="cat">${esc(catName)}</span><h3>${mark(c.title[lang], ws)}</h3><p>${mark(c.desc[lang], ws)}</p>
+      ${steps ? `<div class="found">${steps}</div>` : ''}</div></article>`;
+}
+function render() {
+  const ws = words(query), L = T[lang], main = $('#main');
+  let list = DATA.clips.map((c) => ({ c, r: score(c, ws) })).filter((x) => x.r && (cat === 'all' || x.c.cat === cat));
+  if (ws.length) list.sort((a, b) => b.r.s - a.r.s);
+  shown = list.map((x) => x.c);
+  $('#clearQ').hidden = !query; document.querySelector('.search kbd').hidden = !!query;
+  if (!list.length) { main.innerHTML = `<div class="empty"><b>${L.none}</b>${L.noneSub}</div>`; return; }
+  if (ws.length || cat !== 'all') {
+    main.innerHTML = (ws.length ? `<p class="hits">${esc(L.hits(list.length, query))}</p>` : '') + `<div class="grid">${list.map((x) => card(x.c, x.r, ws)).join('')}</div>`;
+  } else {
+    main.innerHTML = DATA.cats.map((g) => {
+      const items = list.filter((x) => x.c.cat === g.id);
+      if (!items.length) return '';
+      return `<section class="sec" id="g-${g.id}"><div class="secHead"><h2>${g.icon} ${esc(g[lang])}</h2><span class="n">${L.videos(items.length)}</span></div>
+        <div class="grid">${items.map((x) => card(x.c, x.r, ws)).join('')}</div></section>`;
+    }).join('');
+  }
+}
+function renderChips() {
+  const L = T[lang];
+  const n = (id) => DATA.clips.filter((c) => id === 'all' || c.cat === id).length;
+  $('#chips').innerHTML = [{ id: 'all', icon: '', [lang]: L.all }, ...DATA.cats].filter((g) => n(g.id))
+    .map((g) => `<button class="chip" type="button" data-cat="${g.id}" aria-pressed="${cat === g.id}">${g.icon} ${esc(g[lang])} <span class="n">${n(g.id)}</span></button>`).join('');
+}
+function texts() {
+  const L = T[lang];
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-t]').forEach((e) => { const v = L[e.dataset.t]; if (typeof v === 'string') e.textContent = v; });
+  $('#q').placeholder = L.ph;
+  document.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  $('#tryList').innerHTML = L.tries.map((w) => `<button type="button">${esc(w)}</button>`).join('');
+  if (DATA) {
+    DATA.clips.forEach((c) => { c.vid = vidOf(c); });
+    const secs = DATA.clips.reduce((s, c) => s + c.vid.duration, 0);
+    $('#stats').innerHTML = `<span><b>${L.videos(DATA.clips.length)}</b></span><span>${L.minutes(Math.max(1, Math.round(secs / 60)))}</span><span>${L.groups(new Set(DATA.clips.map((c) => c.cat)).size)}</span>`;
+    $('#foot').textContent = L.foot(new Date(DATA.built).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB'), DATA.version);
+    renderChips(); render();
+    if (cur >= 0) fillPlayer(false);
+  }
+}
+function setLang(l) { lang = l; store.set('lang', l); texts(); }
+document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+let qTimer = 0;
+$('#q').addEventListener('input', (e) => { query = e.target.value; clearTimeout(qTimer); qTimer = setTimeout(() => { render(); syncUrl(); }, 90); });
+$('#clearQ').addEventListener('click', () => { query = ''; $('#q').value = ''; render(); syncUrl(); $('#q').focus(); });
+$('#tryList').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; query = b.textContent; $('#q').value = query; cat = 'all'; renderChips(); render(); syncUrl(); });
+$('#chips').addEventListener('click', (e) => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  cat = b.dataset.cat; renderChips(); render();
+  window.scrollTo({ top: $('.chips').offsetTop - 0, behavior: 'smooth' });
+});
+function syncUrl() {
+  const p = new URLSearchParams(location.search);
+  if (query) p.set('q', query); else p.delete('q');
+  history.replaceState(null, '', `${location.pathname}${p.toString() ? '?' + p : ''}${location.hash}`);
+}
+
+// hover: the small fast preview plays in the card
+let prevTimer = 0;
+$('#main').addEventListener('mouseover', (e) => {
+  const c = e.target.closest('.card'); if (!c || c.classList.contains('prev') || DATA.local || matchMedia('(hover: none)').matches) return;
+  clearTimeout(prevTimer);
+  prevTimer = setTimeout(() => {
+    const clip = DATA.clips.find((x) => x.id === c.dataset.id); if (!clip) return;
+    let v = c.querySelector('video');
+    if (!v) { v = document.createElement('video'); v.muted = true; v.loop = true; v.playsInline = true; v.src = `${clip.vid.lang}/${clip.id}.prev.mp4`; c.querySelector('.thumb').insertBefore(v, c.querySelector('.play')); }
+    v.play().then(() => c.classList.add('prev')).catch(() => {});
+  }, 220);
+});
+$('#main').addEventListener('mouseout', (e) => {
+  const c = e.target.closest('.card'); if (!c || c.contains(e.relatedTarget)) return;
+  clearTimeout(prevTimer); c.classList.remove('prev'); c.querySelector('video')?.pause();
+});
+$('#main').addEventListener('click', (e) => {
+  const a = e.target.closest('.found a');
+  const c = e.target.closest('.card'); if (!c) return;
+  e.preventDefault();
+  openClip(c.dataset.id, a ? +a.dataset.t : 0);
+});
+$('#main').addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('card')) { e.preventDefault(); openClip(e.target.dataset.id, 0); } });
+
+// ---------- the player ----------
+const vid = $('#vid'), cap = $('#cap');
+function clipAt(i) { return shown[i] || DATA.clips[i]; }
+function openClip(id, t = 0) {
+  if (!shown.some((c) => c.id === id)) shown = DATA.clips.slice();
+  cur = shown.findIndex((c) => c.id === id);
+  if (cur < 0) return;
+  fillPlayer(true, t);
+  $('#player').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (location.hash !== '#' + id) history.pushState({ clip: id }, '', `${location.pathname}${location.search}#${id}`);
+  $('#pClose').focus({ preventScroll: true });
+}
+function fillPlayer(load, t = 0) {
+  const c = shown[cur], L = T[lang], v = c.vid;
+  $('#pCat').textContent = DATA.cats.find((x) => x.id === c.cat)?.[lang] || '';
+  $('#pTitle').textContent = c.title[lang];
+  $('#pDesc').textContent = c.desc[lang];
+  const src = file(v, c.id);
+  if (load || !vid.src.endsWith(src)) {
+    const wasPaused = vid.paused && !load;
+    vid.poster = `${v.lang}/${c.id}.jpg`; vid.src = src; vid.playbackRate = SPEEDS[speedIx];
+    vid.addEventListener('loadedmetadata', () => { if (t) vid.currentTime = t; vid.playbackRate = SPEEDS[speedIx]; if (!wasPaused) vid.play().catch(() => {}); }, { once: true });
+  }
+  $('#dlBtn').href = src; $('#dlBtn').textContent = L.dl; $('#dlBtn').setAttribute('download', `3d-floorplan-${c.id}-${v.lang}.mp4`);
+  $('#copyBtn').textContent = L.copy;
+  $('#capBtn').textContent = caps ? L.capOff : L.capOn;
+  $('#again').textContent = L.again;
+  const nx = shown[cur + 1];
+  $('#goNext').textContent = nx ? L.nextTo(nx.title[lang]) : L.next; $('#goNext').hidden = !nx; $('#pNext').disabled = !nx; $('#pPrev').disabled = cur <= 0;
+  $('#endText').textContent = L.endText;
+  $('#endCard').classList.remove('on');
+  $('#pNote').textContent = (v.lang !== lang ? L.onlyOther + ' ' : '') + (v.version ? L.recorded(v.version, new Date(v.date).toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB')) : '');
+  $('#stepList').innerHTML = v.steps.map((s, i) => `<li data-i="${i}"><button type="button"><span>${esc(s[lang])}</span><time>${mmss(s.t)}</time></button></li>`).join('');
+  lastStep = -2; tick();
+}
+function closePlayer(back = true) {
+  $('#player').classList.remove('open'); vid.pause(); document.body.style.overflow = '';
+  cur = -1;
+  if (back && location.hash) history.pushState(null, '', location.pathname + location.search);
+}
+let lastStep = -2;
+function tick() {
+  if (cur < 0) return;
+  const v = shown[cur].vid, t = vid.currentTime || 0;
+  let i = -1; v.steps.forEach((s, k) => { if (t + 0.05 >= s.t) i = k; });
+  if (i !== lastStep) {
+    lastStep = i;
+    document.querySelectorAll('#stepList li').forEach((li, k) => { li.classList.toggle('cur', k === i); li.classList.toggle('done', k < i); });
+    if (i >= 0) { cap.textContent = v.steps[i][lang]; document.querySelector(`#stepList li[data-i="${i}"]`)?.scrollIntoView({ block: 'nearest' }); }
+  }
+  cap.classList.toggle('hide', !caps || i < 0 || $('#endCard').classList.contains('on'));
+  $('#prog').style.width = `${Math.min(100, (t / (vid.duration || v.duration)) * 100)}%`;
+}
+(function loop() { tick(); requestAnimationFrame(loop); })();
+vid.addEventListener('ended', () => { $('#endCard').classList.add('on'); tick(); });
+vid.addEventListener('play', () => $('#endCard').classList.remove('on'));
+// the caption moves up while the video's own controls are visible
+let ctlTimer = 0;
+$('#stageBox').addEventListener('pointermove', () => { $('#stageBox').classList.add('ctl'); clearTimeout(ctlTimer); ctlTimer = setTimeout(() => $('#stageBox').classList.remove('ctl'), 2200); });
+vid.addEventListener('pause', () => $('#stageBox').classList.add('ctl'));
+vid.addEventListener('playing', () => { clearTimeout(ctlTimer); ctlTimer = setTimeout(() => $('#stageBox').classList.remove('ctl'), 1500); });
+$('#stepList').addEventListener('click', (e) => {
+  const li = e.target.closest('li'); if (!li) return;
+  vid.currentTime = shown[cur].vid.steps[+li.dataset.i].t; vid.play().catch(() => {});
+});
+$('#pClose').addEventListener('click', () => closePlayer());
+$('#player').addEventListener('click', (e) => { if (e.target === $('#player') || e.target.classList.contains('pIn')) closePlayer(); });
+const go = (d) => { const n = cur + d; if (n < 0 || n >= shown.length) return; cur = n; fillPlayer(true); history.replaceState({ clip: shown[cur].id }, '', `${location.pathname}${location.search}#${shown[cur].id}`); };
+$('#pPrev').addEventListener('click', () => go(-1));
+$('#pNext').addEventListener('click', () => go(1));
+$('#goNext').addEventListener('click', () => go(1));
+$('#again').addEventListener('click', () => { vid.currentTime = 0; vid.play().catch(() => {}); });
+$('#speed').addEventListener('click', () => { speedIx = (speedIx + 1) % SPEEDS.length; vid.playbackRate = SPEEDS[speedIx]; $('#speed').textContent = `${SPEEDS[speedIx]}×`.replace('.', lang === 'de' ? ',' : '.'); });
+$('#capBtn').addEventListener('click', () => { caps = !caps; store.set('caps', caps ? 'on' : 'off'); $('#capBtn').textContent = caps ? T[lang].capOff : T[lang].capOn; tick(); });
+function toast(s) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = s; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
+$('#copyBtn').addEventListener('click', () => {
+  const u = new URL(location.href); u.search = ''; u.searchParams.set('lang', lang); u.hash = shown[cur].id;
+  (navigator.clipboard ? navigator.clipboard.writeText(u.toString()) : Promise.reject()).then(() => toast(T[lang].copied)).catch(() => prompt('', u.toString()));
+});
+document.addEventListener('keydown', (e) => {
+  const open = $('#player').classList.contains('open');
+  if (e.key === 'Escape' && open) { closePlayer(); return; }
+  if (open && !e.target.closest('input')) {
+    if (e.key === 'ArrowRight' && e.shiftKey) go(1);
+    if (e.key === 'ArrowLeft' && e.shiftKey) go(-1);
+    return;
+  }
+  if (e.key === '/' && document.activeElement !== $('#q')) { e.preventDefault(); $('#q').focus(); }
+});
+function fromHash() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!h) { if ($('#player').classList.contains('open')) closePlayer(false); return; }
+  const [id, t] = h.split('@');
+  if (DATA.clips.some((c) => c.id === id)) openClip(id, +t || 0);
+}
+window.addEventListener('popstate', fromHash);
+
+// ---------- start ----------
+texts();
+$('#q').value = query;
+fetch('guide.json', { cache: 'no-cache' }).then((r) => r.json()).then((d) => {
+  DATA = d;
+  if (d.local || params.get('embed')) document.querySelectorAll('a.brand, a.pillLink.demo').forEach((a) => { a.href = SITE; a.target = '_blank'; a.rel = 'noopener'; });
+  texts();
+  if (location.hash) fromHash();
+}).catch(() => { $('#main').innerHTML = `<div class="empty"><b>${T[lang].loadErr}</b></div>`; });
+</script>
+</body>
+</html>

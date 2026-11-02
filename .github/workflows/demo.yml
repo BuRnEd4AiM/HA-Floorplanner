@@ -16,6 +16,8 @@ on:
       - "docs/timeline/**"
       - "docs/tokens/**"              # every merge brings its token count: the timeline adds it up to that day
       - "docs/img/3d.jpg"
+      - "tools/guide/page.html"         # the page of the video guide (its videos come from the branch guide-videos, workflow "Video guide")
+      - "tools/make_guide.py"
       - "!demo/floorplan3d-demo.html"
   workflow_dispatch:
 
@@ -57,6 +59,11 @@ jobs:
         run: |
           mkdir _site && cp demo/floorplan3d-demo.html _site/index.html
           python3 tools/make_timeline.py _site
+      - name: The video guide next to the demo (guide/, videos from the branch guide-videos)
+        run: |
+          mkdir -p /tmp/guide-videos
+          if git fetch -q --depth 1 origin guide-videos; then git archive FETCH_HEAD | tar -x -C /tmp/guide-videos; fi
+          python3 tools/make_guide.py --site _site/guide --videos /tmp/guide-videos
       - name: Upload the Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:

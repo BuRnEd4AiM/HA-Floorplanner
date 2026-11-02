@@ -2200,4 +2200,13 @@ export default {
   'sd.h.whitmonday': 'Lunes de Pentecostés', 'sd.h.corpuschristi': 'Corpus Christi', 'sd.h.assumption': 'Asunción', 'sd.h.childrensday': 'Día Mundial del Niño',
   'sd.h.unity': 'Día de la Unidad Alemana', 'sd.h.reformation': 'Día de la Reforma', 'sd.h.allsaints': 'Todos los Santos',
   'sd.h.repentance': 'Día de Penitencia', 'sd.h.xmas1': 'Navidad', 'sd.h.xmas2': 'San Esteban',
+  'vg.btn': '🎬 Guía', 'vg.tip': 'Guía en vídeo: cada función en un vídeo corto, con búsqueda', 'vg.title': 'Guía en vídeo',
+  'vg.save': '📥 Guardar para usar sin internet ({mb} MB)', 'vg.saveNoSize': '📥 Guardar para usar sin internet',
+  'vg.saveTip': 'Carga una vez los vídeos en tamaño reducido en el complemento. Después también funcionan sin internet.',
+  'vg.update': '↻ Renovar los vídeos guardados', 'vg.del': '🗑 Borrar la copia',
+  'vg.delAsk': '¿Borrar los vídeos guardados? Después vuelven a cargarse desde internet.', 'vg.checking': 'Un momento …',
+  'vg.loading': 'Guardando … {done} de {total} archivos', 'vg.error': 'No se pudo guardar: {msg}',
+  'vg.saved': 'Guardado en el complemento ({mb} MB, {date}), funciona también sin internet', 'vg.online': 'Los vídeos vienen de internet (GitHub)',
+  'vg.offline': 'Sin conexión a internet. Guarda los vídeos una vez con internet y después funcionarán sin él.',
+  'vg.demo': 'En la demo los vídeos siempre vienen de internet.', 'vg.out': 'Abrir en una ventana aparte',
 };
