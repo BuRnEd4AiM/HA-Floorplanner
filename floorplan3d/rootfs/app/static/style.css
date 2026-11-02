@@ -394,6 +394,19 @@ body.readonly #bgPanel { display: none; }
 .yardList button.active { border-color: var(--accent); }
 .yardList .yardName { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .yardList .yardM2 { color: var(--muted); font-size: 12px; }
+/* ⛰ the mode "Gelände" of the tool "Grundstück" (#629, terrainui.js): a slope in one step, the spot heights with their heights */
+#plotBody [hidden] { display: none !important; }       /* what the mode chosen does not use (.plotSeg and .yardGrid set their own display) */
+.terrainSlope { margin: 6px 0 10px; padding: 8px 10px 2px; border: 1px solid var(--line); border-radius: 10px; }
+.terrainSlope > button { width: 100%; margin: 2px 0 6px; }
+.terrainSlope > button.active { background: var(--accent); color: var(--accent-text); }
+.terrainList { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 8px; }
+.terrainRow { display: flex; align-items: center; gap: 6px; padding: 3px 4px; border: 1px solid transparent; border-radius: 8px; }
+.terrainRow.active { border-color: #ffb04a; }
+.terrainRow input { flex: 1; min-width: 0; }
+.terrainRow .terrainNo { flex: none; min-width: 34px; padding: 4px 6px; font-size: 16px; color: #fff; background: #e0582c; border-color: #e0582c; border-radius: 999px; }
+.terrainRow .terrainUnit { color: var(--muted); font-size: 12px; }
+.terrainRow .terrainDel { flex: none; padding: 4px 8px; }
+#terrainClear { width: 100%; margin: 4px 0; }
 #measureBody .msBig { font-size: 22px; font-weight: 700; color: #ffd84a; margin: 6px 0 2px; }
 #measureBody .msParts { margin: 0 0 8px; }
 #measureBody h4 { margin: 12px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }

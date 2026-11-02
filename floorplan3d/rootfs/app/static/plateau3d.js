@@ -3,6 +3,7 @@
  * down to the lawn. Its surface lies on top (yard3d.js lifts it). Cut open with the earth (clip: the plane of earth.js) like the areas. */
 import * as THREE from './vendor/three.module.min.js';
 import { plateausOf, cleanRise, offsetPoly, WALL_LOOKS, LEVELS } from './levels.js';
+import { plateauWall } from './terrain3d.js';
 
 const TEX_M = 1.2;                         // one picture of the wall covers 1.2 x 1.2 m
 const textures = new Map();
@@ -59,9 +60,27 @@ function band(a, ya, b, yb) {
   return g;
 }
 
+/** the corners of a ring with points between them every metre (a bank on a slope follows the ground) */
+function densify(pts) {
+  const out = [];
+  pts.forEach((p, i) => { const q = pts[(i + 1) % pts.length], n = Math.max(1, Math.ceil(Math.hypot(q[0] - p[0], q[1] - p[1]))); for (let k = 0; k < n; k++) out.push([p[0] + ((q[0] - p[0]) * k) / n, p[1] + ((q[1] - p[1]) * k) / n]); });
+  return out;
+}
+/** like band, with a height for every point of the second ring */
+function bandTo(a, ya, b, yb) {
+  const g = band(a, ya, b, 0), pos = g.attributes.position, n = a.length;
+  for (let i = 0; i < n; i++) {                              // band lays 6 corners per side: a[i], a[j], b[j], a[i], b[j], b[i]
+    const j = (i + 1) % n, k = i * 6;
+    pos.setY(k + 2, yb[j]); pos.setY(k + 4, yb[j]); pos.setY(k + 5, yb[i]);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+
 /** lay the edges of the plateaus into parent. y: the height of the lawn; holo: the hologram theme; clip: the plane that cuts the earth open,
- *  or null. Returns the meshes */
-export function buildPlateaus(parent, areas, { y = 0, holo = false, clip = null } = {}) {
+ *  or null; hf: on a slope the height of the ground (x, z) => h (#629): the top stays level, the wall reaches down to the ground (or up to
+ *  it where the slope lies higher), a bank runs down to the ground. Returns the meshes */
+export function buildPlateaus(parent, areas, { y = 0, holo = false, clip = null, hf = null } = {}) {
   const out = [];
   const add = (geo, mat, extra = {}) => {
     if (clip) [].concat(mat).forEach((m) => { m.clippingPlanes = [clip]; });
@@ -73,6 +92,15 @@ export function buildPlateaus(parent, areas, { y = 0, holo = false, clip = null 
   };
   plateausOf(areas).forEach((a) => {
     const h = cleanRise(a.rise), pts = a.points, top = y + h, look = WALL_LOOKS[a.wall] || WALL_LOOKS.stone;
+    if (a.edge === 'slope' && hf) {                           // on a slope: a bank down to the ground at every point of its edge, a step of lawn where the ground lies higher
+      const ring = densify(pts), out = offsetPoly(ring, 1);
+      const foot = ring.map((p, i) => { const d = Math.max(0, top - hf(p[0], p[1])) * LEVELS.slopeRun; return [p[0] + (out[i][0] - p[0]) * d, p[1] + (out[i][1] - p[1]) * d]; });
+      const mat = holo ? new THREE.MeshBasicMaterial({ color: 0x1d6b4a, transparent: true, opacity: 0.45, side: THREE.DoubleSide, depthWrite: false })
+        : new THREE.MeshStandardMaterial({ color: 0x6fa858, roughness: 0.95, side: THREE.DoubleSide });
+      add(bandTo(ring, top, foot, foot.map(([x, z]) => hf(x, z) - 0.03)), mat, { plateau: a.id, edge: 'slope' });
+      add(plateauWall(pts, hf, top, true), mat.clone(), { plateau: a.id, edge: 'hill' });
+      return;
+    }
     if (a.edge === 'slope') {                                 // a bank of lawn: from the edge of the plateau down to the lawn, 2 : 3
       const foot = offsetPoly(pts, h * LEVELS.slopeRun);
       const mat = holo ? new THREE.MeshBasicMaterial({ color: 0x1d6b4a, transparent: true, opacity: 0.45, side: THREE.DoubleSide, depthWrite: false })
@@ -82,7 +110,11 @@ export function buildPlateaus(parent, areas, { y = 0, holo = false, clip = null 
     }
     const wall = holo ? new THREE.MeshBasicMaterial({ color: 0x1a5fcf, transparent: true, opacity: 0.4, side: THREE.DoubleSide, depthWrite: false })
       : new THREE.MeshStandardMaterial({ map: wallTexture(a.wall), roughness: 0.92, side: THREE.DoubleSide });
-    add(band(pts, y - 0.02, pts, top - 0.05), wall, { plateau: a.id, edge: 'wall' });
+    if (hf) {                                                 // on a slope: from the ground up to the top, or up to the ground where it lies higher
+      const g = plateauWall(pts, hf, top - 0.05), uv = g.attributes.uv;
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) / TEX_M, uv.getY(i) / TEX_M);
+      add(g, wall, { plateau: a.id, edge: 'wall' });
+    } else add(band(pts, y - 0.02, pts, top - 0.05), wall, { plateau: a.id, edge: 'wall' });
     // the cover stones on top: a slab 5 cm thick, 3 cm over the face of the wall (the surface of the plateau lies on it)
     const capPts = offsetPoly(pts, 0.03), shape = new THREE.Shape(capPts.map(([x, z]) => new THREE.Vector2(x, -z)));
     const cap = new THREE.ExtrudeGeometry(shape, { depth: 0.05, bevelEnabled: false, curveSegments: 1 }).rotateX(-Math.PI / 2);

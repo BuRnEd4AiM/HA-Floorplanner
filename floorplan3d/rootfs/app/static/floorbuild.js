@@ -48,12 +48,13 @@ export const roomCenter = (points) => points.reduce((a, p) => [a[0] + p[0] / poi
  *  houseMode(), halfCut(), elev(i), stairMesh(st, holo, ghost, edge, upTo) (stairtool.js), cutawayInfo(w, group), openingHandle(w, o, g),
  *  cutawayWalls() (the list of the open floor's walls for the cutaway), makeModel(type, onLoad, d, pose) (models.js), setPicture(model, d),
  *  placeSolar(model, d, roofs), tapBalls, cams, labelSprites (Map), modelLoaded(), roomName(f, id, sprite) (the name of a room on a floor
- *  that is not dimmed, roomlabels.js), plotAreas() (the areas of the plot: a plateau lifts what stands on it, #566); textSprite takes (text, opts).
+ *  that is not dimmed, roomlabels.js), plotAreas() (the areas of the plot: a plateau lifts what stands on it, #566), terrainFor(f) (on a slope:
+ *  the ground under the garden things of floor f, levels.js lifter, #629); textSprite takes (text, opts).
  *  The floors stacked like a real house (housefloors.js): o.stack = { covered (a floor with rooms lies over this one), slab (this floor stands
  *  on a ceiling), upTo (the roof box over this storey: its walls reach up to the roof) }, null otherwise */
 export function initFloorBuild(ctx) {
   /** how much the things of floor f go up: a plateau under them, a room with a higher floor (levels.js, #566) */
-  const upOf = (f) => lifter(f, ctx.plotAreas?.() || []);
+  const upOf = (f) => lifter(f, ctx.plotAreas?.() || [], ctx.terrainFor?.(f) || null);   // on a slope the garden things stand on the ground (#629)
   /** a group in g lifted by h (g itself when nothing is lifted) */
   const liftGroup = (g, h) => { if (!h) return g; const lg = new THREE.Group(); lg.position.y = h; g.add(lg); return lg; };
   /** stacked (housefloors.js): the ceiling floor f stands on, from the top of the walls below up to its floor, in the outline of the floor

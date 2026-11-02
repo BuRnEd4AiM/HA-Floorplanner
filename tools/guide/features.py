@@ -125,3 +125,5 @@ f("roofwing", "edit", "L-förmiges Dach: ein weiteres Dach wie das Hauptdach, au
   ["roof-wing"], since="4.54.0")
 f("roofgable", "edit", "Giebelwand, Überstand am Giebel, Pultdach und Vordach", "Gable wall, overhang at the gables, shed roof and canopy",
   ["roof-gable"], since="4.55.0")
+f("terrain", "edit", "Gelände am Hang: Höhenpunkte, Hang in einem Schritt, Höhenlinien, Keller frei", "Terrain on a slope: spot heights, a slope in one step, contour lines, basement free",
+  ["plot-terrain"], since="4.56.0")

@@ -1,6 +1,6 @@
 # Plan 4.56: Gelände am Hang (#629)
 
-**Stand: Vorschlag, noch nicht gebaut** (2026-11-02, Branch `claude/laughing-johnson-ywzr01`). Beispielbilder: `docs/ideen-4.56/` (`make_pictures.py`, `mockup.js`). Wartet auf die Wahl des Besitzers.
+**Stand: gebaut in 4.56.0** (2026-11-02, Branch `claude/laughing-johnson-ywzr01`; die Wahl des Besitzers: „1 und 3“ = so bauen, mit Höhenpunkten, und die Antwort im Issue posten). Beispielbilder vorher: `docs/ideen-4.56/` (`make_pictures.py`, `mockup.js`). Der Plan bleibt als Beschreibung; was anders kam, steht unter „So gebaut“.
 
 ## Der Wunsch (#629 von christinloehner, gekürzt)
 
@@ -39,3 +39,11 @@
 
 - An den Besitzer: so bauen (Höhenpunkte) oder nur „ein gleichmäßiger Hang“? Antwort an christinloehner im Issue posten?
 - An christinloehner: wie viele Meter es ungefähr fällt und in welche Richtung; gleichmäßig oder in Stufen (Mauern)? Ist der Balkon im Plan des Erdgeschosses gezeichnet? Hat der Weg Stufen?
+
+## So gebaut (4.56.0)
+
+- Wie oben, mit diesen Abweichungen: ein Plateau behält seine Bedeutung (`rise` über 0 = Erdgeschoss, mindestens 1 cm, nach unten geht es noch nicht); eine Terrasse auf Höhe des Erdgeschosses ist ein Plateau mit 0,05 m. Der Rasen hat am Hang ein Loch unter jedem Plateau und unter dem ganzen Haus (nicht nur unter dem Keller).
+- „Hang in einem Schritt“ läuft rechtwinklig zum Haus (`mainAxis`: die längste Hauswand), auch wenn man etwas schräg tippt.
+- Der Schnitt durch die Erde (Ganzes Haus) lässt eine Seite aus, vor der der Boden nirgends höher als der Kellerboden liegt (`cutShows` in `earth.js`), sonst verschwand der Vorgarten vor dem freien Keller. Dabei gefunden: die Ebene „nichts schneiden“ schnitt alles weg (Normal nach unten), jetzt nach oben.
+- Nebenbei: `#plotBody [hidden]` blendet jetzt wirklich aus (`.plotSeg`, `.yardGrid` hatten ein eigenes `display`).
+- Nicht gebaut (später): Außentreppe den Hang hinunter, Stufen im Weg, Rampe, Plateau unter 0 (eine Einfahrt, die tiefer liegt), das Nachbarhaus am Hang (es steht weiter auf seiner Höhe), Höhenpunkte im JSON-Import, Höhenlinien in 3D.

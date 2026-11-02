@@ -5,14 +5,18 @@ import * as THREE from './vendor/three.module.min.js';
 import { SURFACES, cleanAreas, surfaceFinish, surfaceColor } from './yard.js';
 import { finishMaterial } from './finishtex.js';
 import { floorUVs } from './floortex.js';
+import { cleanRise } from './levels.js';
+import { drapeGeometry } from './terrain3d.js';
 
 const STEP = 0.0015;                       // each later area this much higher (and drawn after): it lies on top
 
 /** lay the areas into parent. y: the height of the ground; holo: the hologram theme (only a faint colour); low: the "fast" mode (no
- *  pattern); clip: the plane that cuts the earth open, or null. Returns the meshes */
-export function buildYards(parent, areas, { y = 0, holo = false, low = false, clip = null } = {}) {
+ *  pattern); clip: the plane that cuts the earth open, or null; hf: on a slope the height of the ground (x, z) => h (terrain.js, #629): an
+ *  area follows it, a plateau stays level. Returns the meshes */
+export function buildYards(parent, areas, { y = 0, holo = false, low = false, clip = null, hf = null } = {}) {
   return cleanAreas(areas).map((a, i) => {
-    const geo = new THREE.ShapeGeometry(new THREE.Shape(a.points.map(([x, z]) => new THREE.Vector2(x, -z)))).rotateX(-Math.PI / 2);
+    let geo = new THREE.ShapeGeometry(new THREE.Shape(a.points.map(([x, z]) => new THREE.Vector2(x, -z)))).rotateX(-Math.PI / 2);
+    if (hf && !cleanRise(a.rise)) { const flat = geo; geo = drapeGeometry(flat, hf); flat.dispose(); }
     const s = SURFACES[a.surface], fin = holo ? null : surfaceFinish(a.surface);
     let m;
     if (holo) m = new THREE.MeshBasicMaterial({ color: surfaceColor(a.surface), transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide });

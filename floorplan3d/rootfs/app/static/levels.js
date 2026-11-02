@@ -61,10 +61,12 @@ export function innerPoint(pts) {
 export const hasLevels = (layout) => plateausOf(layout?.plot?.areas).length > 0 || (layout?.floors || []).some((f) => (f.rooms || []).some((r) => cleanRaise(r.raise)));
 
 /** how much the things of floor f go up: { any, ground(x, z), room(r) (its floor), device(d), wall(w), at(x, z) (ground + room) };
- *  `areas`: the areas of the plot */
-export function lifter(f, areas) {
+ *  `areas`: the areas of the plot; `ter`: on a slope (#629, terrain.js) and the ground floor { at(x, z) (the height of the ground),
+ *  stands(d) (the device stands on the ground: a garden thing, outside the house) }: such a device goes up or down with the ground (on a
+ *  plateau: with the plateau). The house itself never moves with the ground */
+export function lifter(f, areas, ter = null) {
   const pl = plateausOf(areas), rooms = f?.rooms || [], raised = rooms.some((r) => cleanRaise(r.raise));
-  const any = pl.length > 0 || raised;
+  const any = pl.length > 0 || raised || !!ter;
   const ground = (x, z) => (pl.length ? groundAt(pl, x, z) : 0);
   const at = (x, z) => ground(x, z) + (raised ? raiseAt(rooms, x, z) : 0);
   return {
@@ -75,6 +77,7 @@ export function lifter(f, areas) {
     device: (d) => {
       if (!any || NO_LIFT.has(d?.type)) return 0;
       const x = +d.x || 0, z = +d.z || 0;
+      if (ter?.stands(d)) return ground(x, z) || ter.at(x, z);      // on a slope: on the ground, on a plateau with the plateau
       return ground(x, z) + ((+d.y || 0) >= LEVELS.ceilingFrom ? 0 : (raised ? raiseAt(rooms, x, z) : 0));   // what hangs from the ceiling stays
     },
     wall: (w) => (any ? ground((w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2) : 0),

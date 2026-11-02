@@ -120,3 +120,15 @@ test('the outdoor steps: a landing on top, steps of at most 18 cm down to the la
   assert.equal(L.stepsLocal({ h: 0.9, noRail: true }).filter((x) => x.kind === 'post' || x.kind === 'rail').length, 0);
   assert.equal(L.stepsLocal({ h: 0.5, land: 0 }).filter((x) => x.kind === 'land').length, 0);
 });
+
+test('on a slope (#629): a device that stands on the ground goes with it, on a plateau with the plateau, the house stays', () => {
+  const f = { rooms: [{ points: rect(0, 0, 10, 7) }], walls: [] };
+  const ter = { at: (x, z) => (z < 0 ? -3 : 0), stands: (d) => d.type === 'tree' };
+  const up = L.lifter(f, [{ points: rect(20, 20, 24, 24), rise: 0.5 }], ter);
+  assert.equal(up.any, true);
+  assert.equal(up.device({ type: 'tree', x: 5, z: -4 }), -3);
+  assert.equal(up.device({ type: 'tree', x: 22, z: 22 }), 0.5);       // on the plateau
+  assert.equal(up.device({ type: 'light', x: 5, z: -4, y: 2 }), 0);   // not standing on the ground: stays
+  assert.equal(up.room(f.rooms[0]), 0);
+  assert.equal(up.wall({ a: [0, -1], b: [10, -1] }), 0);
+});

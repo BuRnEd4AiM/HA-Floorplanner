@@ -611,6 +611,53 @@ def _(r):
     r.wait(2400)
 
 
+def slope_view(r):
+    """prep: the demo house (it has a basement, here with a garage door in front) on its ground floor in the 2D plan (#629)"""
+    pg = r.pg
+    pg.evaluate("""() => { const fp = window.__fp, L = fp.layout, kg = L.floors.find((f) => f.kind === 'basement'), w = kg && kg.walls[0];
+      if (w) w.openings.push({ id: 'clipGate', type: 'door', style: 'garage', pos: 7, width: 2.5, height: 2.1, sill: 0 });   // a garage door in front
+      fp.rebuild(); fp.switchFloor(L.floors.findIndex((f) => f.kind !== 'basement')); }""")
+    pg.click("#view2d")
+    pg.wait_for_timeout(1200)
+
+
+@clip("plot-terrain", "edit",
+      {"de": "Gelände am Hang", "en": "Terrain on a slope"},
+      {"de": "Ist das Grundstück schräg? „Grundstück“ → „⛰ Gelände“: Höhenpunkte setzen oder „Hang in einem Schritt“. Rasen, Wege und Bäume folgen dem Boden, wo er tiefer liegt, steht der Keller frei; Höhenlinien zeigen es im Plan.",
+       "en": "Is the plot on a slope? “Plot” → “⛰ Terrain”: set spot heights or “A slope in one step”. Lawn, paths and trees follow the ground, where it lies lower the basement stands free; contour lines show it in the plan."},
+      "Gelände Hang schräg abfallend Gefälle Hanglage Höhenpunkt Höhe Höhenlinien Keller frei Garagentor Böschung Sockel terrain slope sloping hillside spot height contour lines basement free garage door bank plinth",
+      query="mode=edit", prep=slope_view)
+def _(r):
+    r.say("Ist das Grundstück schräg? Oben „Grundstück“, dann „⛰ Gelände“.", "Is the plot on a slope? At the top “Plot”, then “⛰ Terrain”.")
+    r.click("#tools [data-tool=plot]")
+    r.wait(800)
+    r.click("#plotMode [data-v=terrain]")
+    r.wait(1200)
+    r.say("„Hang in einem Schritt“: der Boden fällt um ein Geschoss, 3 m.", "“A slope in one step”: the ground falls by one storey, 3 m.")
+    r.move("#terrainDrop")
+    r.wait(900)
+    r.click("#terrainSlopeGo")
+    r.wait(900)
+    r.say("Dann in den Plan tippen, wo der Boden tiefer liegt: hier die Straße.", "Then tap the plan where the ground lies lower: the street here.")
+    x, y = r.pg.evaluate("window.__fp.plan().toClient(5, -4.5)")
+    r.click(x, y)
+    r.wait(2200)
+    r.say("Im Plan zeigen Höhenlinien alle 50 cm, wie der Boden fällt.", "In the plan contour lines every 50 cm show how the ground falls.")
+    r.wait(2400)
+    r.say("Jeder Höhenpunkt hat seine Höhe zum Eintippen; ein Tipp in den Plan setzt einen weiteren, ziehen verschiebt ihn.", "Every spot height has its height to type in; a tap in the plan sets another one, dragging moves it.")
+    r.loc("#terrainList").scroll_into_view_if_needed()
+    r.move("#terrainList .terrainRow:nth-child(2) input")
+    r.wait(2600)
+    r.say("Im 3D-Bild: vorne steht der Keller frei, mit dem Garagentor auf Straßenhöhe; Rasen, Wege und Bäume folgen dem Hang.", "In 3D: in front the basement stands free, its garage door at street level; lawn, paths and trees follow the slope.")
+    r.js("(() => { const s = window.__fp.settings(); s.houseFloors = 'stacked'; s.seeThrough = false; })()")
+    r.click("#view3d")
+    r.js("window.__fp.setHouseMode(true)")
+    r.wait(1600)
+    r.js("window.__fp.camAt(-13, 4, -21, 6, 2.5)")
+    r.wait(3800)
+    r.poster()
+
+
 @clip("floors-add", "edit",
       {"de": "Etagen und Keller anlegen", "en": "Add floors and a basement"},
       {"de": "„＋ Etage“ legt eine neue Etage oben drauf, „Etage verwalten“ einen Keller darunter; links stehen sie alle.",
