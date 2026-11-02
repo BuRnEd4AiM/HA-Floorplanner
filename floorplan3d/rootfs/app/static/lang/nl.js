@@ -2204,4 +2204,7 @@ export default {
   'terrain.heightHelp': '{list}. Twee punten: een gelijkmatige helling, ervoor en erachter vlak. Vanaf drie: driehoeken ertussen.', 'terrain.off': 'uit',
   'terrain.lines': 'Hoogtelijnen', 'terrain.clear': 'Terrein verwijderen',
   'terrain.houseStays': 'Het huis blijft waar het is. Gazon, paden, borders en tuinspullen volgen de grond; waar die lager ligt staat de kelder vrij, delen zonder kelder staan op een sokkel. Een plateau blijft vlak (bijv. een terras).',
+  'state.tilted': 'Op kiep', 'prop.tiltContact': 'Contact op kiep',
+  'prop.tiltContactHint': 'Een tweede contact voor een draaikiepraam: het meldt „op kiep”. Het contact erboven meldt dan „open”.',
+  'prop.tiltContactSub': 'Optioneel, voor een raam dat op kiep en open kan: op kiep wordt het raam geel en kantelt het in 3D, open wordt het rood.',
 };

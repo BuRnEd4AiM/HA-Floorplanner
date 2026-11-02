@@ -2198,4 +2198,7 @@ export default {
   'terrain.remove': 'Usuń punkt wysokościowy', 'terrain.heightHelp': '{list}. Dwa punkty: równe zbocze, przed i za nim płasko. Od trzech: trójkąty między nimi.',
   'terrain.off': 'wył.', 'terrain.lines': 'Poziomice', 'terrain.clear': 'Usuń teren',
   'terrain.houseStays': 'Dom zostaje na miejscu. Trawnik, ścieżki, rabaty i rzeczy ogrodowe podążają za terenem; gdzie jest niżej, piwnica stoi odsłonięta, części bez piwnicy stoją na cokole. Plateau pozostaje płaskie (np. taras).',
+  'state.tilted': 'Uchylone', 'prop.tiltContact': 'Kontakt uchylenia',
+  'prop.tiltContactHint': 'Drugi kontakt dla okna rozwierno-uchylnego: zgłasza „uchylone”. Kontakt powyżej zgłasza wtedy „otwarte”.',
+  'prop.tiltContactSub': 'Opcjonalnie, dla okna, które można uchylić i otworzyć: uchylone robi się żółte i uchyla się w 3D, otwarte robi się czerwone.',
 };

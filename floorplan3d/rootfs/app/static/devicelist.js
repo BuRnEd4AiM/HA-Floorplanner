@@ -9,6 +9,7 @@ import { badgeText } from './badgetext.js';
 import { ringEntities } from './ledring.js';
 import { openingWalls } from './dormerwin.js';
 import { openingEntities, openingPoint, isOpenState } from './openings.js';
+import { windowWord } from './windowtilt.js';
 import { shutterEntity, shutterLabel } from './shutters.js';
 import { ballIcon, SWITCH_ICON } from './tapballs.js';
 
@@ -84,7 +85,8 @@ export function deviceRows(env) {
       const ents = openingEntities(o), sh = shutterEntity(o);
       if ((!ents.length && !sh) || !openingShown(f, w, o)) return;
       const [x, z] = openingPoint(w, o), vals = [], open = ents.some((e) => isOpenState(states[e], env.onStates));
-      if (ents.length) vals.push(open ? t('state.open') : ents.some((e) => states[e]) ? t('state.closed') : '—');
+      const tilted = open && windowWord(o, ents, (e) => isOpenState(states[e], env.onStates), (e) => states[e]) === 'tilted';   // #624
+      if (ents.length) vals.push(open ? t(tilted ? 'state.tilted' : 'state.open') : ents.some((e) => states[e]) ? t('state.closed') : '—');
       if (sh) vals.push(shutterLabel(states[sh], t, o));
       const bat = [...ents, sh].filter(Boolean).map((e) => batteryInfo(e, states, batteryOf)).filter(Boolean)
         .sort((p, q) => Number(q.low) - Number(p.low) || (p.level ?? 101) - (q.level ?? 101))[0] || null;   // the emptiest of its sensors

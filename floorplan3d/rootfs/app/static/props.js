@@ -198,7 +198,7 @@ export function initProps(ctx) {
       fixed.checked = (it.style || 'double') === 'fixed';
       fixed.addEventListener('change', () => {
         ctx.snapshot();
-        if (fixed.checked) { it.style = 'fixed'; delete it.panes; delete it.paneHinges; delete it.paneEntities; }
+        if (fixed.checked) { it.style = 'fixed'; delete it.panes; delete it.paneHinges; delete it.paneEntities; delete it.tiltEntity; }
         else it.style = 'single';
         ctx.changed(); render();
       });
@@ -265,6 +265,14 @@ export function initProps(ctx) {
     const contact = entities.filter((e) => ['binary_sensor', 'cover', 'lock'].includes(e.domain));
     const room = rc ? f.rooms.find((r) => r.id === rc) : null;
     body.append(pickerField(t('prop.contact'), ctx.entityPicker(pickFrom(contact.length ? contact : entities), room, it.entity || '', (v) => { ctx.snapshot(); it.entity = v; ctx.changed(); })));
+    if (it.type === 'window' && (it.style || 'double') !== 'fixed') {   // a second contact that says "gekippt" (#624, windowtilt.js)
+      const tf = pickerField(t('prop.tiltContact'), ctx.entityPicker(pickFrom(contact.length ? contact : entities), room, it.tiltEntity || '', (v) => {
+        ctx.snapshot(); if (v) it.tiltEntity = v; else delete it.tiltEntity; ctx.changed(); render();
+      }));
+      tf.id = 'tiltContact'; tf.title = t('prop.tiltContactHint');
+      const hint = document.createElement('p'); hint.className = 'sub'; hint.id = 'tiltContactHint'; hint.textContent = t('prop.tiltContactSub');
+      body.append(tf, hint);
+    }
     if (it.type === 'window') { rainProps(body, it); shutterProps(body, it, entities, room); }   // right under the contact: the rain warning (#419), the roller shutter (#331)
     const count = paneCount(it);
     if (count) {
@@ -304,7 +312,7 @@ export function initProps(ctx) {
 
   /** a window with a contact warns when it is open in the rain; one that may stay open then is taken out by the tick (#419) */
   function rainProps(body, it) {
-    if (!it.entity && !(it.paneEntities || []).some(Boolean)) return;
+    if (!it.entity && !it.tiltEntity && !(it.paneEntities || []).some(Boolean)) return;
     const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.rainWarn !== false; cb.id = 'openRainWarn';
     cb.addEventListener('change', () => { ctx.snapshot(); if (cb.checked) delete it.rainWarn; else it.rainWarn = false; ctx.changed(); ctx.applyStates(); });
     const lb = document.createElement('label'); lb.className = 'chk'; lb.title = t('prop.rainWarnHint'); lb.append(cb, document.createTextNode(' ' + t('prop.rainWarn')));

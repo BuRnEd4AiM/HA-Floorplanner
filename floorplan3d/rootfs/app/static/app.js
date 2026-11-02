@@ -50,6 +50,7 @@ import { initObjList } from './objlist.js';
 import { initRoomEntities } from './roomentities.js';
 import { initProps } from './props.js';
 import { initOpenings, openKind, OPEN_KINDS, paneEntity, openingEntities } from './openings.js';
+import { tiltEntity } from './windowtilt.js';
 import { linkedEntities } from './shutters.js';
 import { initCutaway } from './cutaway.js';
 import { initSettings } from './settings.js';
@@ -1217,14 +1218,15 @@ const live = initLiveControls({
   locked: (k) => locks.has(k) || (k === 'control' && !!replayBack),   // security view only shows the past
 });
 const popup = initLivePopup({
-  $, t, lang: () => currentLanguage(), live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), cams,
+  $, t, lang: () => currentLanguage(), live, floor: () => floor(), findOpening: (id) => findOpening(id), stateText: (id) => stateText(id), openText: (e) => openText(e), windowText: (o) => openings.windowText(o), cams,
   settings: () => settings, pointInPoly, states: () => states, onStates: ON_STATES, star: (e) => favorites.star(e),   // ☆ favourite (#471)
   usedBy: (e) => rulesUi.usedBy.button(e, true),                // 🔎 Wird benutzt (#546)
 });
 const roomPanel = initRoomPanel({
   $, t, live, floor: () => floor(), states: () => states, entities: () => entities, areas: () => areas, entityDevices: (f) => entityDevices(f), pointInPoly,
   onStates: ON_STATES, imperial: () => imperial(), stateText: (id) => stateText(id), cams, settings: () => settings,
-  openings: { entities: (o) => openingEntities(o), kind: (o) => openKind(o), KINDS: OPEN_KINDS, pane: (o, i) => paneEntity(o, i), isOpen: (e) => isOpen(e), text: (e) => openText(e) },
+  openings: { entities: (o) => openingEntities(o), kind: (o) => openKind(o), KINDS: OPEN_KINDS, pane: (o, i) => paneEntity(o, i), isOpen: (e) => isOpen(e), text: (e) => openText(e),
+    tilt: (o) => tiltEntity(o), contactText: (o, e) => openings.contactText(o, e), windowText: (o) => openings.windowText(o) },   // #624
   closeLivePopup: () => popup.close(), leaveFocus: () => { if (focusedRoom) focusRoom(null); },
   off: () => cardUi?.roomPanel() === false,                                  // a dashboard card without the room panel (#13)
   alone: () => !!cardUi?.panelOnly(),                                        // a dashboard card with nothing but the room panel (#356)
@@ -1745,7 +1747,7 @@ plan = createPlan({
   powerMode: () => power.isMode(), showCables: () => power.cablesShown(), isPowerType: (type) => power.isType(type), cablesOf: (d) => power.cablesOf(d), cableColor: (d, c) => power.cableColor(d, c), cableClick: (id) => power.cableClick(id),
   newDevice, findOpening, projectOnWall, clampOpeningPos, openingOverlaps, fitOpeningWidth, OPENING_DEFAULTS, uid, pointInPoly,
   roomHeat: (room, f) => (viewMode === 'normal' ? null : roomHeat(room, f)),
-  states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, fmtLen, t, setStatus, measure: measureTool,
+  states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, windowText: (o) => openings.windowText(o), fmtLen, t, setStatus, measure: measureTool,
   area: (p) => fmtArea(polyArea(p), imperial()),
   yards: () => plotUi.areas(), yardShown: () => tool === 'plot' || floorIdx === groundIdx(), plotRect: () => plotUi.rect(),   // the plot and its areas (#538)
   terrainMode: () => tool === 'plot' && plotUi.mode() === 'terrain', terrainSvg: (o) => plotUi.terrain.svg(o), terrainHit: (x, z, tol) => plotUi.terrain.hit(x, z, tol),   // ⛰ spot heights (#629, terrainui.js)
@@ -1891,6 +1893,8 @@ if (params.get('debug')) {
     rebuild: () => build(), applyStates: () => applyStates(),
     switchHouse,
     paneTargets: (id) => (registry.get(id)?.userData.panePivots || []).map((p) => p.userData?.target ?? 0),   // a fixed pane has no target: 0
+    tiltTargets: (id) => (registry.get(id)?.userData.tiltPivots || []).map((p) => p?.userData?.target ?? 0),   // a tilted pane (#624), its angle
+    openLook: (id) => registry.get(id)?.userData.look ?? null,                                                 // 'open', 'tilted', 'closed' …
     shutterScale: (id) => { const sh = registry.get(id)?.userData.shutter; const p = Array.isArray(sh) ? sh[0] : sh; return p?.userData.target ?? null; },   // how far a window's cover closes (#331)
     liveOk: () => liveChan.ok(),
     underFloors: (id) => { let ok = false; registry.get(id)?.traverse((o) => { if (o.isMesh) ok = o.renderOrder < 0 && [].concat(o.material).every((m) => !m.depthWrite); }); return ok; },

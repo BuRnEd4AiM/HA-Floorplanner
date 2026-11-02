@@ -8,6 +8,7 @@ import { ACTIONS, ACTION_LABEL } from './livecontrols.js';
 import { ringCount, segEntity, ringEntities } from './ledring.js';
 import { zoneKeys, zoneEntity, hasOwnZones, pieceEntities } from './ledzones.js';
 import { shutterEntity } from './shutters.js';
+import { tiltEntity } from './windowtilt.js';
 import { initShutterCard } from './shuttercard.js';
 import { initDeviceControls } from './devicecontrols.js';
 import { initHeatPanel } from './heatpanel.js';
@@ -23,7 +24,7 @@ export function popupKey({ dev = null, seg = null, lang = '', extra = null, ids 
   return JSON.stringify([dev, seg, lang, extra, list.map((e) => [e, name(e), shownState(states[e])])]);
 }
 
-/** ctx: $, t, lang(), live (initLiveControls), floor(), findOpening(id), stateText(id), openText(id), cams, settings(), pointInPoly, states(), onStates,
+/** ctx: $, t, lang(), live (initLiveControls), floor(), findOpening(id), stateText(id), openText(id), windowText(opening) (#624), cams, settings(), pointInPoly, states(), onStates,
  *  star(entity) (☆ / ★ favourite, favoritesui.js #471: a button or null), usedBy(entity) (🔎 Wird benutzt, #546: a button) */
 export function initLivePopup(ctx) {
   const { $, t, live } = ctx;
@@ -56,14 +57,15 @@ export function initLivePopup(ctx) {
     if (d) return { d, shutterOf: null };
     const fo = ctx.findOpening(forId);
     if (!fo) return null;
-    return { d: { name: fo.opening.name || t(`prop.${fo.opening.type}`), entity: fo.opening.entity, isOpening: true }, shutterOf: shutterEntity(fo.opening) ? fo.opening : null };
+    const o = fo.opening, tilt = tiltEntity(o);                 // a window with a tilt contact (#624): its word is "Gekippt" when only that one is open
+    return { d: { name: o.name || t(`prop.${o.type}`), entity: o.entity || tilt, isOpening: true, opening: o, tilt }, shutterOf: shutterEntity(o) ? o : null };
   }
   const roomOf = (d) => ctx.floor().rooms.find((r) => ctx.pointInPoly(d.x, d.z, r.points));
   const withRoom = (d) => !!d.entity && /^(light|scene)\./.test(d.entity) && !d.isOpening;     // a lamp or a scene: the whole room is on the card
   /** what the card shows: the entities whose state it reads (the device's, the camera's motion, the ring's sections, the room's lights),
    *  the room, and the scene buttons (only their names: a scene's state is the time it was last used) */
   function keyOf(d) {
-    const ids = [d.entity, d.motionEntity], scenes = [];
+    const ids = [d.entity, d.motionEntity, d.tilt], scenes = [];
     let room = null;
     if (d.type === 'ledring') ids.push(...ringEntities(d));
     else if (hasOwnZones(d)) ids.push(...pieceEntities(d));
@@ -92,7 +94,8 @@ export function initLivePopup(ctx) {
     if (hasOwnZones(d)) { zonePopup(box, d); return; }
     const title = document.createElement('div'); title.className = 'title'; title.textContent = d.name || '';
     const sub = document.createElement('div'); sub.className = 'sub';
-    sub.textContent = d.entity ? `${d.isOpening ? ctx.openText(d.entity) : ctx.stateText(d.entity)} · ${d.entity}` : t('live.noEntity');
+    const word = d.isOpening ? (d.opening && ctx.windowText ? ctx.windowText(d.opening) : ctx.openText(d.entity)) : ctx.stateText(d.entity);
+    sub.textContent = d.entity ? `${word} · ${[d.entity, d.tilt].filter((e, i, a) => e && a.indexOf(e) === i).join(' · ')}` : t('live.noEntity');
     const mi = live.detailsButton(d.entity);
     if (mi) title.append(mi);
     const fav = d.isOpening ? null : ctx.star?.(d.entity);

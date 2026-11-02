@@ -2253,4 +2253,7 @@ export default {
   'terrain.heightHelp': '{list}. Deux points : une pente régulière, plate avant et après. À partir de trois : des triangles entre eux.', 'terrain.off': 'aucune',
   'terrain.lines': 'Courbes de niveau', 'terrain.clear': 'Supprimer le terrain',
   'terrain.houseStays': 'La maison reste où elle est. Pelouse, allées, massifs et objets de jardin suivent le sol ; là où il est plus bas, le sous-sol est dégagé, les parties sans sous-sol reposent sur un socle. Un plateau reste plat (p. ex. une terrasse).',
+  'state.tilted': 'Basculé', 'prop.tiltContact': 'Contact basculé',
+  'prop.tiltContactHint': 'Un second contact pour une fenêtre oscillo-battante : il signale « basculé ». Le contact au-dessus signale alors « ouvert ».',
+  'prop.tiltContactSub': 'Facultatif, pour une fenêtre que l’on peut basculer et ouvrir : basculée, elle devient jaune et bascule en 3D ; ouverte, elle devient rouge.',
 };

@@ -2232,4 +2232,7 @@ export default {
   'terrain.heightHelp': '{list}. Due punti: un pendio uniforme, piano prima e dopo. Da tre punti: triangoli tra di loro.', 'terrain.off': 'no',
   'terrain.lines': 'Curve di livello', 'terrain.clear': 'Rimuovi terreno',
   'terrain.houseStays': 'La casa resta dov\'è. Prato, vialetti, aiuole e oggetti da giardino seguono il terreno; dove è più basso il seminterrato è libero, le parti senza seminterrato poggiano su uno zoccolo. Un altopiano resta piano (p. es. una terrazza).',
+  'state.tilted': 'A ribalta', 'prop.tiltContact': 'Contatto a ribalta',
+  'prop.tiltContactHint': 'Un secondo contatto per una finestra anta-ribalta: segnala «a ribalta». Il contatto sopra segnala allora «aperta».',
+  'prop.tiltContactSub': 'Facoltativo, per una finestra che si può aprire a ribalta e ad anta: a ribalta diventa gialla e si inclina in 3D; aperta diventa rossa.',
 };

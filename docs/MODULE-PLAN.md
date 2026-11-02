@@ -284,6 +284,7 @@ Stand: Version 4.2.0. Hintergrund: Issue #137 (geschlossen; die Aufteilung geht 
 | `terrain3d.js` | ~110 | Der Boden am Hang in 3D: Rasen, Seiten der Erde und Schnitt dem Boden nach, Sockel unter Teilen ohne Keller, Flächen und Plateaumauern am Hang |
 | `terrain2d.js` | ~60 | Höhenlinien und Höhenpunkte im 2D-Plan, das Treffen eines Höhenpunkts |
 | `terrainui.js` | ~150 | Der Modus „⛰ Gelände“ im Werkzeug „Grundstück“: Höhenpunkte setzen, eintippen, ziehen, entfernen, „Hang in einem Schritt“, Höhenlinien, „Gelände entfernen“ |
+| `windowtilt.js` | ~55 | 🪟 Gekippt und offen (#624): der Kontakt gekippt eines Fensters (`tiltEntity`), ob ein Fenstergriff-Sensor selbst „gekippt“ meldet (`saysTilted`), das Wort eines Kontakts, des ganzen Fensters und eines Flügels (`contactWord`, `windowWord`, `paneWord`: offen gewinnt), welche Flügel kippen (`tiltPanes`); `openings.js` färbt und kippt, `walls.js` baut das Kipp-Gelenk, `props.js` zeigt das Feld (rein, `tests/windowtilt.test.mjs`) |
 | `hamanage.js` | ~55 | Szenen und Automationen von Home Assistant löschen, mit Frage und „↶ Wiederherstellen“ (`api/ha-restore`, #564) |
 | `trains.js` | ~60 | 🚆 Zug-Karte: „mein Zug“, pünktlich / verspätet / fällt aus, Minuten bis zur Abfahrt (rein, `tests/trains.test.mjs`, #550) |
 | `traincard.js` | ~140 | Die Zug-Karte und ihre Felder in „Karte einstellen“ |

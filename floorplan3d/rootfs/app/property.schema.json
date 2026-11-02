@@ -735,6 +735,10 @@
     "name": {
      "type": "string"
     },
+    "tiltEntity": {
+     "type": "string",
+     "description": "Windows only: a second contact that reports the pane tilted (\"gekippt\"); the entity then reports it turned open"
+    },
     "paneEntities": {
      "type": "array",
      "items": {

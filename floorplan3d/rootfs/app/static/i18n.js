@@ -1167,6 +1167,9 @@ const DICT = {
     'terrain.heightHelp': '{list}. Zwei Punkte: ein gleichmäßiger Hang, davor und dahinter eben. Ab drei Punkten: Dreiecke zwischen ihnen.',
     'terrain.off': 'aus', 'terrain.lines': 'Höhenlinien', 'terrain.clear': 'Gelände entfernen',
     'terrain.houseStays': 'Das Haus bleibt, wo es ist. Rasen, Wege, Beete und Gartendinge folgen dem Boden; wo er tiefer liegt, steht der Keller frei, Teile ohne Keller stehen auf einem Sockel. Ein Plateau bleibt eben (z. B. eine Terrasse).',
+    'state.tilted': 'Gekippt', 'prop.tiltContact': 'Kontakt gekippt',
+    'prop.tiltContactHint': 'Ein zweiter Kontakt für ein Dreh-Kipp-Fenster: er meldet „gekippt“. Der Kontakt darüber meldet dann „offen“.',
+    'prop.tiltContactSub': 'Optional, für ein Fenster, das man kippen und öffnen kann: gekippt wird das Fenster gelb und kippt im 3D-Bild, offen wird es rot.',
   },
   en: {
     'prop.barCeiling': 'From the ceiling', 'prop.barCeilingHint': 'Hangs from the ceiling over the counter (made for a 2.6 m high room) and follows its shape, straight or round the corner. Its light can get a light of its own below under “Link the LEDs one by one” as “Ceiling part”.', 'var.none': 'Nothing', 'var.rack': 'Glass rack with hanging glasses', 'var.canopy': 'Ceiling panel with LED', 'var.pendants': 'Pendant lamps', 'led.ceiling': 'Ceiling part',
@@ -2284,6 +2287,9 @@ const DICT = {
     'terrain.heightHelp': '{list}. Two points: an even slope, level before and behind. Three and more: triangles between them.', 'terrain.off': 'off',
     'terrain.lines': 'Contour lines', 'terrain.clear': 'Remove terrain',
     'terrain.houseStays': 'The house stays where it is. Lawn, paths, beds and garden things follow the ground; where it lies lower the basement stands free, parts without a basement stand on a plinth. A plateau stays level (e.g. a terrace).',
+    'state.tilted': 'Tilted', 'prop.tiltContact': 'Tilt contact',
+    'prop.tiltContactHint': 'A second contact for a tilt-and-turn window: it reports “tilted”. The contact above then reports “open”.',
+    'prop.tiltContactSub': 'Optional, for a window you can tilt and open: tilted, the window turns yellow and tilts in 3D; open, it turns red.',
   },
 };
 

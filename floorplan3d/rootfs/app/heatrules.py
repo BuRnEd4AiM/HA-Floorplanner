@@ -36,7 +36,7 @@ ORDER = OVERRIDES + LEVEL_ORDER
 ROOM_KEY = re.compile(r"^[A-Za-z0-9_-]{1,40}/[A-Za-z0-9_-]{1,40}$")
 HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-OPEN = {"on", "open", "opening"}
+OPEN = {"on", "open", "opening", "tilted"}          # tilted: a handle sensor that says it (#624), the window is not shut
 HOME = "home"
 PASSING = ("away", "holiday", "summer", "night")   # levels of a passing situation: when they end, the thermostat goes back (the schedule
                                                   # never ends by itself: switched off, it leaves the thermostats as they are)

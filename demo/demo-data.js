@@ -64,7 +64,7 @@ const layout = {
       { id: 'gr1', name: 'Garage',       covering: 'concrete', color: '#8d9096', points: [[10, 0], [15, 0], [15, 6], [10, 6]] },
     ],
     walls: [
-      W('w1', [0, 0], [6, 0], 0.24, [Win('o1', 1.6, { entity: 'binary_sensor.fenster_wohnzimmer', name: 'Fenster Wohnzimmer' }), Win('o2', 4.4)]),
+      W('w1', [0, 0], [6, 0], 0.24, [Win('o1', 1.6, { entity: 'binary_sensor.fenster_wohnzimmer', name: 'Fenster Wohnzimmer' }), Win('o2', 4.4, { style: 'single', hinge: 'left', entity: 'binary_sensor.fenster_wz_offen', tiltEntity: 'binary_sensor.fenster_wz_gekippt', name: 'Fenster Terrasse' })]),   // #624: open and tilted
       W('w2', [6, 0], [10, 0], 0.24, [Win('o3', 2, { entity: 'binary_sensor.fenster_kueche', name: 'Fenster Küche', shutter: true, shutterEntity: 'cover.rollladen_kueche' })]),   // #331: window with a contact and a roller shutter
       W('w3', [10, 0], [10, 4.5], 0.24, [D('o4', 2.25, { name: 'Tür zur Garage' })]),
       W('w4', [10, 4.5], [10, 7], 0.24, []),
@@ -342,6 +342,8 @@ const entities = {
   'sensor.wohnzimmer_leistung': { name: 'Wohnzimmer Leistung',   state: '168', unit: 'W' },
   'binary_sensor.fenster_wohnzimmer': { name: 'Fenster Wohnzimmer', state: 'on' },
   'binary_sensor.fenster_kueche': { name: 'Fenster Küche', state: 'off' },
+  'binary_sensor.fenster_wz_offen': { name: 'Fenster Terrasse offen', state: 'off' },       // #624: one pane, two contacts: it is tilted
+  'binary_sensor.fenster_wz_gekippt': { name: 'Fenster Terrasse gekippt', state: 'on' },
   'binary_sensor.tuer_buero': { name: 'Bürotür', state: 'off' },
   'binary_sensor.tuer_wohnzimmer_kueche': { name: 'Tür Wohnzimmer-Küche', state: 'on' },
   'sensor.kinder_temp':     { name: 'Kinderzimmer Temperatur', state: '20.2', unit: '°C' },

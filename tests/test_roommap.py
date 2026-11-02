@@ -76,3 +76,16 @@ def test_a_door_with_the_switch_counts_for_both_rooms():
     assert wz["counted"] == ["binary_sensor.tuer_wz_kueche"] and k["counted"] == ["binary_sensor.tuer_wz_kueche"]
     assert wz["outer"] == [] and k["outer"] == ["binary_sensor.terrasse"]           # still not a door to the outside
     assert rm.rooms_of([("h1", LAYOUT)])[0]["counted"] == []
+
+
+def test_a_tilt_contact_counts_for_the_window_rule():
+    """#624: a window with a contact "offen" and a contact "gekippt": both are its sensors (a tilted window is not shut); fixed glazing
+    and a door have no tilt contact"""
+    o = {"type": "window", "entity": "binary_sensor.offen", "tiltEntity": "binary_sensor.kipp"}
+    assert rm.opening_entities(o) == ["binary_sensor.offen", "binary_sensor.kipp"]
+    assert rm.opening_entities({**o, "entity": ""}) == ["binary_sensor.kipp"]
+    assert rm.opening_entities({**o, "style": "fixed"}) == ["binary_sensor.offen"]
+    assert rm.opening_entities({**o, "type": "door"}) == ["binary_sensor.offen"]
+    lay = {"floors": [{"walls": [{"a": [0, 0], "b": [6, 0], "openings": [{"pos": 3, "width": 1.2, **o}]}],
+                       "rooms": [{"id": "r1", "name": "Wohnzimmer", "points": [[0, 0], [6, 0], [6, 4], [0, 4]]}], "devices": []}]}
+    assert rm.rooms_of([("h1", lay)], {})[0]["windows"] == ["binary_sensor.offen", "binary_sensor.kipp"]
