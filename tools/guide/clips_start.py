@@ -158,29 +158,28 @@ def _(r):
 
 
 @clip("viewmenu", "start",
-      {"de": "Ansicht: durchsichtig, aufeinander, halb aufgeschnitten", "en": "View: see-through, stacked, half cut"},
-      {"de": "„Ansicht“ unten hat mehr Arten, das Haus zu zeigen: durchsichtige Wände, alle Etagen aufeinander, ein Halbschnitt, Schilder und Kacheln an oder aus.",
-       "en": "“View” at the bottom has more ways to show the house: see-through walls, all floors stacked, a half cut, labels and tiles on or off."},
-      "Ansicht durchsichtig Wände aufeinander Etagen Halbschnitt Schilder Kacheln Auto drehen view see-through walls stacked floors half cut labels tiles rotate")
+      {"de": "Ansicht: durchsichtig, Wände absenken, halb aufgeschnitten", "en": "View: see-through, lowered walls, half cut"},
+      {"de": "„Ansicht“ unten hat mehr Arten, das Haus zu zeigen: Wände zur Kamera durchsichtig oder abgesenkt („Auto“), alle Etagen aufeinander, ein Halbschnitt, Schilder und Kacheln an oder aus.",
+       "en": "“View” at the bottom has more ways to show the house: walls facing the camera see-through or lowered (“Auto”), all floors stacked, a half cut, labels and tiles on or off."},
+      "Ansicht durchsichtig Wände absenken Auto aufeinander Etagen Halbschnitt Schilder Kacheln view see-through walls lower sink auto stacked floors half cut labels tiles")
 def _(r):
     r.say("Unten rechts: „Ansicht“.", "Bottom right: “View”.")
     r.click("#viewMenuBtn")
     r.wait(900)
-    r.say("„Durchsichtig“: die Wände werden zu Glas.", "“See-through”: the walls turn to glass.")
-    r.click("#seeToggle")
+    r.say("„Durchsichtig“ ist an: die Wände zur Kamera und das Dach sind wie Glas.", "“See-through” is on: the walls facing the camera and the roof are like glass.")
+    r.move("#seeToggle")
     r.wait(1800)
     r.poster()
+    r.say("„Auto“ senkt diese Wände stattdessen ab.", "“Auto” lowers these walls instead.")
+    r.click("#autoToggle")
+    r.wait(2600)
+    r.say("Zurück zu „Durchsichtig“.", "Back to “See-through”.")
     r.click("#seeToggle")
-    r.wait(700)
+    r.wait(1600)
     r.say("„Halbschnitt“: die Wände nur halb hoch, man sieht hinein.", "“Half cut”: the walls only half high, you see inside.")
     r.click("#halfToggle")
     r.wait(1800)
     r.click("#halfToggle")
-    r.wait(700)
-    r.say("„Auto“ dreht das Haus langsam von selbst, schön für ein Wandtablet.", "“Auto” turns the house slowly by itself, nice for a wall tablet.")
-    r.click("#autoToggle")
-    r.wait(2600)
-    r.click("#autoToggle")
     r.wait(800)
 
 

@@ -20,7 +20,7 @@ def f(fid, group, de, en, clips=(), why=None, since=None):
 f("orbit", "start", "3D-Bild drehen, schieben, zoomen, einpassen", "Turn, move, zoom and fit the 3D view", ["orbit"])
 f("floors", "start", "Etagen wechseln, ganzes Haus", "Switch floors, the whole house", ["floors"])
 f("views", "start", "2D-Plan, 3D, beides nebeneinander", "2D plan, 3D, both side by side", ["views"])
-f("viewmenu", "start", "Ansicht: durchsichtig, Halbschnitt, aufeinander, Auto-Drehen", "View: see-through, half cut, stacked, auto rotate", ["viewmenu"])
+f("viewmenu", "start", "Ansicht: durchsichtig, Wände absenken (Auto), Halbschnitt, aufeinander", "View: see-through, lowered walls (Auto), half cut, stacked", ["viewmenu"])
 f("room", "start", "Raum öffnen, ganzer Raum auf einmal", "Open a room, the whole room at once", ["room"])
 f("search", "start", "Suche („Wo ist …?“)", "Search (“Where is …?”)", ["search"])
 f("voice", "start", "Sprachsuche und Schalten per Sprache 🎤", "Voice search and switching by voice 🎤", ["voice"])

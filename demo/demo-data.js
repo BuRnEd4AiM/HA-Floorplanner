@@ -499,7 +499,8 @@ const DEMO_TRAIN = (() => {
 })();
 let settings = {
   language: 'auto', theme: 'dark', units: 'metric', grid: 0.25, wallHeight: 2.6, wallThickness: 0.2,
-  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', belowMode: 'dim', cameraImages: true, cutaway: true,
+  shadows: true, autosaveSeconds: 1.5, lowWalls: false, labelMode: 'important', belowMode: 'dim', cameraImages: true,
+  cutaway: false, seeThrough: true,                         // 4.54: walls facing the camera turn see-through instead of sinking (the owner: "sieht geiler aus")
   windowFrames: 'anthracite',                               // 3.99: the demo shows the dark window frames (#428)
   facade: 'plaster',                                        // 4.0: plaster outside, finishes on the walls inside (#448)
   favorites: ['scene.wz_gemuetlich', 'scene.wz_aus', 'light.stehlampe', 'light.kueche'],   // 4.2: favourites and light groups (#471)

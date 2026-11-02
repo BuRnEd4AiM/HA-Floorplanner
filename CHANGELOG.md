@@ -6,6 +6,8 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ### Changed
 - **Video guide: a video "Set up a window: panes, shutter, curtain"** (the owner, 2026-11-02: "bei Fenster ein Video … wo man das mit den Flügeln einstellt und Rollladen und Vorhänge"): a window clicked in 3D, two panes, the left one hinged on the left and the right one on the right ("Fixed" for a pane that never opens), the contact from Home Assistant opens it in the picture, the tick "Curtain / roller shutter" with the curtain types, the cover from Home Assistant (a curtain parted in the middle, 60 % open), a contact of its own for every pane. Only the guide changed, not the add-on.
+- **The demo starts with see-through walls** (the owner, 2026-11-02: "wenn man die Demo startet … immer im durchsichtigen Modus … anstatt dass man die Wände absenkt, das sieht geiler aus"): in the demo the walls facing the camera and the roof turn see-through ("View" → "See-through") instead of sinking ("Auto"); the add-on keeps its own setting.
+- **Video guide "View"**: it said "Auto" turns the house by itself; "Auto" lowers the walls facing the camera. The video now shows "See-through" (on in the demo), "Auto" and back.
 
 ## [4.54.0] - 2026-11-02
 ### Added

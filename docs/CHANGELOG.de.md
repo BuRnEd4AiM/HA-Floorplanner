@@ -6,6 +6,8 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
 
 ### Verbessert
 - **Video-Anleitung: ein Video „Ein Fenster einstellen: Flügel, Rollladen, Vorhang“** (der Besitzer, 2026-11-02: „bei Fenster ein Video … wo man das mit den Flügeln einstellt und Rollladen und Vorhänge“): ein Fenster im 3D-Bild anklicken, zwei Flügel, der linke links angeschlagen, der rechte rechts („Fest“ für einen Flügel, der nie aufgeht), der Kontakt aus Home Assistant öffnet es im Bild, das Häkchen „Vorhang / Rollladen“ mit den Vorhangarten, der Vorhang aus Home Assistant (ein Vorhang, der sich in der Mitte teilt, 60 % offen), ein eigener Kontakt je Flügel. Nur die Anleitung hat sich geändert, nicht das Add-on.
+- **Die Demo startet mit durchsichtigen Wänden** (der Besitzer, 2026-11-02: „wenn man die Demo startet … immer im durchsichtigen Modus … anstatt dass man die Wände absenkt, das sieht geiler aus“): in der Demo werden die Wände zur Kamera und das Dach durchsichtig („Ansicht“ → „Durchsichtig“) statt abgesenkt („Auto“); das Add-on behält seine eigene Einstellung.
+- **Video „Ansicht“**: Es sagte, „Auto“ drehe das Haus von selbst; „Auto“ senkt aber die Wände zur Kamera ab. Das Video zeigt jetzt „Durchsichtig“ (in der Demo an), „Auto“ und zurück.
 
 ## [4.54.0] - 2026-11-02
 ### Neu
