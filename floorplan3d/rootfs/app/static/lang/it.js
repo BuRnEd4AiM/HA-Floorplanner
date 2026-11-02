@@ -141,7 +141,7 @@ export default {
   'shutter.closing': 'Scende',
   'house.panel': 'Case',
   'backup.title': 'Backup',
-  'backup.hint': 'Salva in un unico file tutte le case, le impostazioni (pagine, schede, sezioni …), le immagini, i modelli 3D, la bacheca e le impostazioni dell\'allarme e dei suoi messaggi. Codici e chiavi restano fuori e non cambiano al ripristino.',
+  'backup.hint': 'Salva tutto in un unico file: tutte le case, le impostazioni (pagine, schede, sezioni …), le immagini, i modelli 3D, la bacheca, l’allarme e i suoi messaggi, le regole del riscaldamento e le routine, e i codici dell’allarme e dello schermo intero (solo come impronta illeggibile, mai il codice stesso). Il ripristino li riporta; un backup senza di essi lascia quelli attuali.',
   'backup.export': 'Scarica backup',
   'backup.import': 'Ripristina backup…',
   'backup.confirm': 'Ripristinare il backup? Tutte le case e le impostazioni vengono sostituite dal file (lo stato attuale viene prima copiato in un backup di sicurezza sul server).',
@@ -2206,4 +2206,7 @@ export default {
   'vg.saved': 'Salvato nell\'add-on ({mb} MB, {date}), funziona anche senza internet', 'vg.online': 'I video arrivano da internet (GitHub)',
   'vg.offline': 'Nessuna connessione a internet. Salva i video una volta online, poi funzionano anche senza.',
   'vg.demo': 'Nella demo i video arrivano sempre da internet.', 'vg.out': 'Apri in una finestra a parte',
+  'backup.recording': 'Includi le registrazioni: sicurezza, il 📜 registro e il 🩺 registro del riscaldamento (il file diventa più grande; il ripristino aggiunge solo i giorni mancanti)',
+  'backup.secrets': 'Includi le chiavi CallMeBot (sono leggibili nel file: in quel caso non condividerlo)', 'ab.testRec': 'Più {days} giorni di registrazioni.',
+  'ab.testKeys': 'Con le chiavi CallMeBot.',
 };

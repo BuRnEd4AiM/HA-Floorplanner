@@ -1445,31 +1445,92 @@ async def test_counters_of_the_power_sensors_and_a_new_one(aiohttp_client, aioht
     assert (await c.post("/api/energy/counter", json={"source": "light.x"}, headers=admin)).status == 400
 
 
-async def test_backup_keeps_the_pinboard_and_the_alarm_settings_without_code_and_keys(client, tmp_path):
-    """#500: the notes of the pinboard, the holiday alarm's and the alarm messages' settings are in the backup (also the automatic one);
-    the alarm's code and the CallMeBot keys are not, and a backup put back keeps the ones there are now"""
+async def test_backup_holds_everything_the_codes_as_fingerprints_and_the_keys_when_asked(client, tmp_path):
+    """#500 and the owner (2026-11-02: "ein Backup sollte ja immer alles sein"): the notes of the pinboard, the settings of the holiday
+    alarm and of the alarm messages are in the backup, and the alarm's code and the code of a kept full screen too, only as they are
+    stored (salt and hash); the CallMeBot keys only with ⚙ backupSecrets or ?secrets=1. A backup put back brings its codes and keys back;
+    one without them (older, or made without the keys) keeps the ones there are now"""
     import json
     note = {"id": "abcdef12", "text": "Bin um 6 da", "by": "Max", "at": "2026-10-22T10:00:00+00:00", "color": "green"}
     (tmp_path / "pinboard.json").write_text(json.dumps({"notes": [note]}))
-    code = {"salt": "s1", "hash": "h1"}
+    code, full = server.gd.make_code("1234"), server.gd.make_code("8765")
     (tmp_path / "guard.json").write_text(json.dumps({"cfg": {"sensors": ["binary_sensor.tuer"], "delay": 45, "code": code}, "state": {}}))
+    (tmp_path / "fullscreen.json").write_text(json.dumps({"code": full}))
     (tmp_path / "notify.json").write_text(json.dumps({"on": True, "via": "whatsapp", "phone": "+4917612345678", "apikey": "geheim", "tgkey": "auch"}))
     backup = await (await client.get("/api/backup?files=0")).json()
     ex = backup["extras"]
-    assert ex["pinboard"] == [note] and ex["guard"]["sensors"] == ["binary_sensor.tuer"] and ex["guard"]["delay"] == 45 and "code" not in ex["guard"]
+    assert ex["pinboard"] == [note] and ex["guard"]["sensors"] == ["binary_sensor.tuer"] and ex["guard"]["delay"] == 45
+    assert ex["guard"]["code"] == code and ex["fullscreen"]["code"] == full and set(code) == {"salt", "hash"}      # the fingerprint only
     assert ex["notify"]["phone"] == "+4917612345678" and ex["notify"]["on"] is True and "apikey" not in ex["notify"] and "tgkey" not in ex["notify"]
-    assert "geheim" not in json.dumps(backup) and '"h1"' not in json.dumps(backup)
-    # changed meanwhile: no notes, other sensors, a new code and key; the backup brings the settings back, the new code and key stay
+    assert "geheim" not in json.dumps(backup)
+    keys = await (await client.get("/api/backup?files=0&secrets=1")).json()
+    assert keys["extras"]["notify"]["apikey"] == "geheim" and keys["extras"]["notify"]["tgkey"] == "auch"
+    # changed meanwhile: no notes, other sensors, new codes and a new key
     (tmp_path / "pinboard.json").write_text(json.dumps({"notes": []}))
-    (tmp_path / "guard.json").write_text(json.dumps({"cfg": {"sensors": [], "code": {"salt": "s2", "hash": "h2"}}, "state": {}}))
+    (tmp_path / "guard.json").write_text(json.dumps({"cfg": {"sensors": [], "code": server.gd.make_code("5555")}, "state": {}}))
+    (tmp_path / "fullscreen.json").write_text(json.dumps({"code": server.gd.make_code("6666")}))
     (tmp_path / "notify.json").write_text(json.dumps({"on": False, "phone": "", "apikey": "neu"}))
-    client.app[server.KEY_GUARD].clear(); client.app[server.KEY_NOTIFY].clear()
-    r = await (await client.post("/api/backup", json=backup)).json()
-    assert r["extras"] == ["pinboard", "guard", "notify", "rules"]          # the heating rules and routines too (#546)
+    client.app[server.KEY_GUARD].clear(); client.app[server.KEY_NOTIFY].clear(); client.app[server.KEY_FULL].clear()
+    r = await (await client.post("/api/backup", json=backup)).json()          # without the keys: the codes come back, the key stays
+    assert r["extras"] == ["pinboard", "guard", "fullscreen", "notify", "rules"]
     assert json.loads((tmp_path / "pinboard.json").read_text())["notes"] == [note]
     g = json.loads((tmp_path / "guard.json").read_text())["cfg"]
-    assert g["sensors"] == ["binary_sensor.tuer"] and g["delay"] == 45 and g["code"] == {"salt": "s2", "hash": "h2"}
+    assert g["sensors"] == ["binary_sensor.tuer"] and g["delay"] == 45 and g["code"] == code
+    assert server.gd.check_code(server.guard_store(server._AppCtx(client.app))["cfg"], "1234")       # the old code works again
+    assert json.loads((tmp_path / "fullscreen.json").read_text())["code"] == full
+    assert (await client.post("/api/fullscreen/unlock", json={"code": "8765"})).status == 200
     n = json.loads((tmp_path / "notify.json").read_text())
     assert n["phone"] == "+4917612345678" and n["on"] is True and n["apikey"] == "neu"
-    old = dict(backup); old.pop("extras")                      # a backup of an older version: restores as before
-    assert (await (await client.post("/api/backup", json=old)).json())["extras"] == []
+    await client.post("/api/backup", json=keys)                               # with the keys: they come back too
+    assert json.loads((tmp_path / "notify.json").read_text())["apikey"] == "geheim"
+    assert (await client.get("/api/settings")).status == 200
+    s = await (await client.get("/api/settings")).json()
+    await client.put("/api/settings", json={**s, "backupSecrets": True})       # ⚙: always with the keys
+    assert (await (await client.get("/api/backup?files=0")).json())["extras"]["notify"]["apikey"] == "geheim"
+    # an older backup (no codes, no full screen) or a code that is not one: the codes there are now stay
+    old = json.loads(json.dumps(backup)); old["extras"]["guard"].pop("code"); old["extras"].pop("fullscreen")
+    bad = json.loads(json.dumps(backup)); bad["extras"]["guard"]["code"] = {"salt": "zz", "hash": "1234"}; bad["extras"]["fullscreen"]["code"] = None
+    (tmp_path / "guard.json").write_text(json.dumps({"cfg": {"sensors": [], "code": server.gd.make_code("5555")}, "state": {}}))
+    client.app[server.KEY_GUARD].clear()
+    for b in (old, bad):
+        r = await (await client.post("/api/backup", json=b)).json()
+        assert "fullscreen" not in r["extras"]
+        assert server.gd.check_code(server.guard_store(server._AppCtx(client.app))["cfg"], "5555")
+    assert json.loads((tmp_path / "fullscreen.json").read_text())["code"] == full
+    none = dict(backup); none.pop("extras")                    # a backup of a version before #500: restores as before
+    assert (await (await client.post("/api/backup", json=none)).json())["extras"] == []
+
+
+async def test_backup_holds_the_recordings_and_only_adds_to_them(client, tmp_path):
+    """the recordings are in the backup with the files (⚙ backupRecording, on unless switched off; ?recording=0 leaves them out): the days
+    of the security recording with 📜 Protokoll, and the 🩺 heating journal. Put back, they are only added to: a day recorded here already
+    stays as it is"""
+    import json
+    folder = server.timeline_dir(server._AppCtx(client.app))
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "2026-10-30.jsonl").write_text('{"t": 1, "snap": {}}\n')
+    (folder / "2026-10-31.jsonl").write_text('{"t": 2, "snap": {}}\n{"t": 3, "e": "light.a", "s": {"state": "on"}}\n')
+    old = [{"t": 10, "k": "start", "v": "4.52.0"}, {"t": 11, "k": "link", "on": True}]
+    (tmp_path / "rules-trace.json").write_text(json.dumps(old))
+    backup = await (await client.get("/api/backup")).json()
+    assert sorted(backup["recording"]["days"]) == ["2026-10-30", "2026-10-31"] and backup["recording"]["heat"] == old
+    assert "recording" not in await (await client.get("/api/backup?recording=0")).json()
+    assert "recording" not in await (await client.get("/api/backup?files=0")).json()
+    (folder / "2026-10-30.jsonl").unlink()
+    (folder / "2026-10-31.jsonl").write_text('{"t": 2, "snap": {}}\n{"t": 9, "e": "light.a", "s": {"state": "off"}}\n')   # here: different
+    (tmp_path / "rules-trace.json").write_text(json.dumps([{"t": 12, "k": "link", "on": False, "err": "x"}]))
+    r = await (await client.post("/api/backup", json=backup)).json()
+    assert r["days"] == 1
+    assert (folder / "2026-10-30.jsonl").read_text() == '{"t": 1, "snap": {}}\n'                       # missing: back
+    assert '"off"' in (folder / "2026-10-31.jsonl").read_text()                                    # there: stays
+    assert [x["t"] for x in json.loads((tmp_path / "rules-trace.json").read_text())] == [10, 11, 12]  # both, by time
+    evil = {**backup, "recording": {"days": {"../../x": "boom", "2026-13-99x": "no"}, "heat": "no"}}
+    assert (await (await client.post("/api/backup", json=evil)).json())["days"] == 0
+    assert not (folder.parent.parent / "x.jsonl").exists() and not list(folder.parent.glob("x*"))
+    name = (await (await client.post("/api/backups")).json())["name"]           # the backups folder: with the recordings, the check says so
+    t = await (await client.post("/api/backups/test", json={"name": name})).json()
+    assert t["ok"] and t["days"] == 2 and t["heat"] == 3 and t["keys"] is False
+    s = await (await client.get("/api/settings")).json()
+    await client.put("/api/settings", json={**s, "backupRecording": False})   # ⚙ switched off: without them
+    assert "recording" not in await (await client.get("/api/backup")).json()
+    assert (await (await client.get("/api/backup?recording=1")).json())["recording"]["days"]

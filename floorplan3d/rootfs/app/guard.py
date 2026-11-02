@@ -81,6 +81,17 @@ def make_code(v):
     return {"salt": salt, "hash": hash_code(v.strip(), salt)}
 
 
+SALT, HASH = re.compile(r"^(?:[0-9a-f]{2}){1,64}$"), re.compile(r"^[0-9a-f]{64}$")
+
+
+def stored_code(v):
+    """a code as it is stored ({"salt", "hash"}, hex: the fingerprint, never the code itself), checked; None for anything else. What a
+    backup carries and brings back (the alarm's code and the code of a kept full screen)"""
+    if isinstance(v, dict) and isinstance(v.get("salt"), str) and isinstance(v.get("hash"), str) and SALT.match(v["salt"]) and HASH.match(v["hash"]):
+        return {"salt": v["salt"], "hash": v["hash"]}
+    return None
+
+
 def clean_cfg(data, old=None) -> dict:
     """The settings of the alarm, checked. A new code (4 to 8 digits) is stored salted and hashed; without one the old code stays (""
     or null removes it, then it cannot be armed). Never raises."""

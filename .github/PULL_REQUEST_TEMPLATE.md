@@ -12,3 +12,4 @@
 
 - [ ] `CHANGELOG.md` updated under `[Unreleased]`
 - [ ] Docs / README updated if behaviour changed
+- [ ] Video guide checked (`tools/guide/`): the clips that show this changed too, or nothing to change

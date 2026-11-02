@@ -3,9 +3,18 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [4.53.0] - 2026-11-02
 ### Added
+- **The backup holds everything** (the owner, 2026-11-02: "ein Backup sollte ja immer alles sein"): besides the houses, settings, pictures, 3D models, the pinboard, the holiday alarm, the alarm messages, heating rules, routines and special days it now also has:
+  - the codes of the holiday alarm and of a kept full screen, only as they are stored (salted and hashed, a fingerprint: nobody can read a code from the file);
+  - with the new box **Include the recordings** (on): the days of the security recording with the 📜 log, and the 🩺 heating log; put back, they are only added to (a day recorded here already stays as it is);
+  - with the new box **Include the CallMeBot keys** (off): the keys for WhatsApp and Telegram (readable in the file, so do not pass such a file on);
+  - both boxes count for the download and for the automatic backups; "Check" also says how many days of recordings and whether the keys are in it. A restore brings the codes and keys of the file back; a file without them keeps the current ones, a restore never takes a code or a key away.
 - **28 more videos in the video guide, 74 in all** (the owner, 2026-11-02: "für manche speziellen Sachen … das Programm hat echt viele Funktionen … nicht dass man da was vergisst"): voice questions, the view menu, sky and weather, warnings, LED ring, effects, doorbell, 🔎 used by, the heating log, special days, a new scene, tracing a floor plan, roof and dormers, stairs, plot and garden, floors and basement, floors and walls per room, the furniture library, the closet editor, several houses, the object list, the tool bar, the import, the scene bar, versions per person, wall tablet, messages on an alarm, version and checksum.
 - **Every feature from A to Z** at the bottom of the guide page: all 83 features of the add-on, each with ▶ to its video, or why it has none (`tools/guide/features.py`); a test fails when a feature has neither, and when a new version adds something without a line there.
+### Changed
+- **Video guide**: the video "Backup" shows the two new boxes and what the file holds; the video "Measure" now also shows what the owner missed in it ("dass man auch damit Wände verschieben kann, wenn man diese anklickt, und Winkel definieren kann"): two walls clicked, the inside distance typed and the wall moves, two walls at a corner turned to an angle. From now on every change, not only a new feature, is checked against the guide and its videos are changed with it (the owner: "dass das dann auch immer geprüft werden soll, ob sich was geändert hat und dann halt auch dort abändert"; a rule for Claude in `.claude/CLAUDE.md` and `tools/guide/README.md`, a line in the pull request template).
 ### Fixed
 - **Video guide on a phone** (#619, test 141.6, the owner: "links und rechts … abgeschnitten … nicht rauszoomen"): the player of a video was wider than the screen and cut off on both sides; now it fits the width (only the page on GitHub Pages changed, not the add-on).
 

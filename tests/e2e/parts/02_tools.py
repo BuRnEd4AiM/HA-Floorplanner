@@ -66,6 +66,16 @@ check("backups: the automatic backup section is shown", pgB.locator("#autoBackup
 check("security (#317): the recorded days are listed in the backup dialog", pgB.locator("#tlSetDays .abRow, #tlSetDays p").count() >= 1, pgB.inner_text("#tlSetDays"))
 pgB.fill("#setTimelineKeep", "9"); pgB.press("#setTimelineKeep", "Tab"); pgB.wait_for_timeout(800)
 check("security: 'days to keep' is stored", api("api/settings")["timelineKeepDays"] == 9.0, api("api/settings")["timelineKeepDays"])
+href = lambda: pgB.get_attribute("#backupExport", "href")
+check("backup (4.53.0): a box for the recordings (on) and one for the CallMeBot keys (off)", pgB.locator("#setBackupSecrets").is_visible()
+      and pgB.locator("#setBackupRecording").is_checked() and not pgB.locator("#setBackupSecrets").is_checked())
+check("backup: the download link says what the boxes say", href() == "api/backup?recording=1&secrets=0", href())
+pgB.check("#setBackupSecrets"); pgB.wait_for_timeout(800)
+check("backup: ticking the keys changes the link and is stored", href() == "api/backup?recording=1&secrets=1" and api("api/settings")["backupSecrets"] is True,
+      (href(), api("api/settings")["backupSecrets"]))
+check("backup: the file of the link has the codes as fingerprints", "fullscreen" in api_admin("api/backup?files=0&secrets=1")["extras"])
+pgB.uncheck("#setBackupSecrets"); pgB.wait_for_timeout(800)
+check("backup: unticked again", api("api/settings")["backupSecrets"] is False and href().endswith("secrets=0"), href())
 pgB.click("#abNow"); pgB.wait_for_timeout(1200)
 items = api_admin("api/backups")["items"]
 check("backups: 'back up now' writes a file into the backups folder", len(items) == 1 and items[0]["kind"] == "manual", items)

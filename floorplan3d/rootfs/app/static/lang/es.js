@@ -141,7 +141,7 @@ export default {
   'shutter.closing': 'Bajando',
   'house.panel': 'Casas',
   'backup.title': 'Copia de seguridad',
-  'backup.hint': 'Guarda todas las casas, ajustes (páginas, tarjetas, secciones …), imágenes, modelos 3D, el tablón y los ajustes de la alarma y de sus mensajes en un solo archivo. Los códigos y claves quedan fuera y no cambian al restaurar.',
+  'backup.hint': 'Guarda todo en un solo archivo: todas las casas, ajustes (páginas, tarjetas, secciones …), imágenes, modelos 3D, el tablón, la alarma y sus mensajes, las reglas de calefacción y las rutinas, y los códigos de la alarma y de la pantalla completa (solo como huella ilegible, nunca el código en sí). Al restaurar vuelven; una copia sin ellos deja los actuales.',
   'backup.export': 'Descargar copia',
   'backup.import': 'Restaurar copia…',
   'backup.confirm': '¿Restaurar la copia? Todas las casas y ajustes se reemplazan por el archivo (antes, el estado actual se copia en el servidor como copia de seguridad).',
@@ -2209,4 +2209,7 @@ export default {
   'vg.saved': 'Guardado en el complemento ({mb} MB, {date}), funciona también sin internet', 'vg.online': 'Los vídeos vienen de internet (GitHub)',
   'vg.offline': 'Sin conexión a internet. Guarda los vídeos una vez con internet y después funcionarán sin él.',
   'vg.demo': 'En la demo los vídeos siempre vienen de internet.', 'vg.out': 'Abrir en una ventana aparte',
+  'backup.recording': 'Incluir las grabaciones: seguridad, el 📜 registro y el 🩺 registro de la calefacción (el archivo es más grande; al restaurar solo se añaden los días que faltan)',
+  'backup.secrets': 'Incluir las claves de CallMeBot (se pueden leer en el archivo: entonces no lo compartas)',
+  'ab.testRec': 'Además {days} días de grabaciones.', 'ab.testKeys': 'Con las claves de CallMeBot.',
 };

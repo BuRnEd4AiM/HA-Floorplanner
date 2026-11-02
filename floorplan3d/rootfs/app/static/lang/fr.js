@@ -141,7 +141,7 @@ export default {
   'shutter.closing': 'Descend',
   'house.panel': 'Maisons',
   'backup.title': 'Sauvegarde',
-  'backup.hint': 'Enregistre toutes les maisons, réglages (pages, cartes, sections …), images, modèles 3D, le tableau d\'affichage et les réglages de l\'alarme et de ses messages dans un seul fichier. Les codes et clés restent dehors et ne changent pas à la restauration.',
+  'backup.hint': 'Enregistre tout dans un seul fichier : toutes les maisons, les réglages (pages, cartes, sections …), les images, les modèles 3D, le tableau d’affichage, l’alarme et ses messages, les règles de chauffage et les routines, ainsi que les codes de l’alarme et du plein écran (seulement comme empreinte illisible, jamais le code lui-même). La restauration les remet ; une sauvegarde sans eux garde ceux d’aujourd’hui.',
   'backup.export': 'Télécharger la sauvegarde',
   'backup.import': 'Restaurer la sauvegarde…',
   'backup.confirm': 'Restaurer la sauvegarde ? Toutes les maisons et tous les réglages sont remplacés par le fichier (l\'état actuel est d\'abord copié dans une sauvegarde de secours sur le serveur).',
@@ -2225,4 +2225,7 @@ export default {
   'vg.saved': 'Enregistré dans l\'add-on ({mb} Mo, {date}), fonctionne aussi sans internet', 'vg.online': 'Les vidéos viennent d\'internet (GitHub)',
   'vg.offline': 'Pas de connexion à internet. Enregistrez les vidéos une fois en ligne, ensuite elles fonctionnent sans.',
   'vg.demo': 'Dans la démo, les vidéos viennent toujours d\'internet.', 'vg.out': 'Ouvrir dans une fenêtre à part',
+  'backup.recording': 'Inclure les enregistrements : sécurité, le 📜 journal et le 🩺 journal du chauffage (le fichier est plus gros ; la restauration n’ajoute que les jours manquants)',
+  'backup.secrets': 'Inclure les clés CallMeBot (elles sont lisibles dans le fichier : ne le transmettez alors à personne)',
+  'ab.testRec': 'Plus {days} jours d’enregistrement.', 'ab.testKeys': 'Avec les clés CallMeBot.',
 };

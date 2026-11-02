@@ -94,6 +94,8 @@ DEFAULT_SETTINGS = {
     "backupEveryHours": 24.0,  # ... one backup this many hours after the last one (24 = daily)
     "backupKeepDays": 14.0,    # automatic backups older than this many days are deleted (the newest one always stays)
     "backupKeepCount": 30.0,   # ... and never more than this many automatic backups are kept
+    "backupRecording": True,   # a backup (also the automatic one) holds the recordings too: security / 📜 Protokoll days and the 🩺 heating journal
+    "backupSecrets": False,    # ... and the CallMeBot keys (readable in the file); the codes are always in it, only as their fingerprint
     "timelineOn": True,        # security view: record what switched in the house (timeline.py), one file per day in addon_configs/<...>/timeline
     "timelineKeepDays": 7.0,   # ... days kept before today (older ones are deleted)
     "alerts": True,            # smoke, gas, CO, water, alarm and windows open in the rain: banner + red room
@@ -1656,18 +1658,28 @@ async def no_stale_files(request, response):
         response.headers["Cache-Control"] = "no-cache"
 
 
-# ---------- backup: export / import everything (houses, settings, models, pictures) ----------
+# ---------- backup: export / import everything (houses, settings, models, pictures, the add-on's other settings with their codes, the recordings) ----------
 BACKUP_FORMAT = "floorplan3d-backup"
 MAX_BACKUP_BYTES = 200 * 1024 * 1024
 MAX_HOUSES = 20
 
 
-def build_backup(request, with_files: bool = True) -> dict:
+def build_backup(request, with_files: bool = True, secrets: bool | None = None, recording: bool | None = None) -> dict:
+    """Everything the add-on keeps (the owner, 2026-11-02: "ein Backup sollte ja immer alles sein"). with_files: the pictures, the 3D
+    models and the recordings too; secrets / recording: the CallMeBot keys, the recordings (None: as ⚙ backupSecrets / backupRecording
+    say). Left out: only what lasts a moment (whether the alarm is armed now, a running garden timer, what the rules remember right now)
+    and the add-on's own login key."""
     houses = []
     for h in houses_index(request):
         houses.append({"id": h["id"], "name": h["name"], "layout": read_json(house_file(request, h["id"]), EMPTY_LAYOUT)})
+    stored = read_settings(request)
+    s = validate_settings(stored if isinstance(stored, dict) else {})
+    secrets = s["backupSecrets"] if secrets is None else secrets
+    recording = s["backupRecording"] if recording is None else recording
     out = {"format": BACKUP_FORMAT, "version": 1, "exported": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-           "houses": houses, "settings": read_settings(request), "backgrounds": {}, "models": {}, "extras": backup_extras(request)}
+           "houses": houses, "settings": stored, "backgrounds": {}, "models": {}, "extras": backup_extras(request, bool(secrets))}
+    if with_files and recording:
+        out["recording"] = backup_recording(request)
     if with_files:
         for d, key, pat in ((bg_dir(request), "backgrounds", "*.*"), (models_dir(request), "models", "*.glb")):
             if d.is_dir():
@@ -1677,24 +1689,29 @@ def build_backup(request, with_files: bool = True) -> dict:
     return out
 
 
-def backup_extras(request) -> dict:
+def backup_extras(request, secrets: bool = False) -> dict:
     """What else the add-on keeps (#500): the notes of the pinboard, the settings of the holiday alarm and of the alarm messages, the
-    heating rules and routines (#546), read from
-    their files (the automatic backup runs in a thread). The alarm's code and the CallMeBot keys stay out: a backup put back keeps them."""
+    heating rules and routines (#546), read from their files (the automatic backup runs in a thread). The alarm's code and the code of
+    a kept full screen go in as they are stored (salt and hash: nobody can read the code from it); the CallMeBot keys only with
+    secrets (they are readable in the file)."""
     g = read_json(guard_path(request), {})
     g = g if isinstance(g, dict) else {}
+    guard = gd.clean_cfg(g.get("cfg"), g.get("cfg"))
     n = read_json(notify_path(request), {})
     rules = read_json(rules_path(request), {})
     rules = rules if isinstance(rules, dict) else {}
+    full = read_json(full_path(request), {})
     return {"pinboard": read_notes(request),
-            "guard": {k: v for k, v in gd.clean_cfg(g.get("cfg"), g.get("cfg")).items() if k != "code"},
-            "notify": {k: v for k, v in an.clean(n, n).items() if k not in an.SECRETS},
+            "guard": {**{k: v for k, v in guard.items() if k != "code"}, "code": gd.stored_code(guard.get("code"))},
+            "fullscreen": {"code": gd.stored_code(full.get("code") if isinstance(full, dict) else None)},
+            "notify": {k: v for k, v in an.clean(n, n).items() if secrets or k not in an.SECRETS},
             "rules": {"heat": hr.clean_rules(rules.get("heat")), "flows": fl.clean_flows(rules.get("flows")),   # heating rules, routines (#546)
                       "days": sdays.clean_days(rules.get("days"))}}                                        # 📅 Besondere Tage
 
 
 def apply_extras(request, extras) -> list:
-    """Put the extras of a backup back (#500); the alarm's code and the CallMeBot keys stay as they are now. -> the parts put back"""
+    """Put the extras of a backup back (#500). A code or key the backup has comes back; one it has not (an older backup, or one without
+    the keys) stays as it is now: a restore never takes a code or a key away. -> the parts put back"""
     done = []
     if not isinstance(extras, dict):
         return done
@@ -1704,10 +1721,19 @@ def apply_extras(request, extras) -> list:
     if isinstance(extras.get("guard"), dict):
         store = guard_store(request)
         store["cfg"] = gd.clean_cfg({k: v for k, v in extras["guard"].items() if k not in ("code", "removeCode")}, store["cfg"])
+        code = gd.stored_code(extras["guard"].get("code"))
+        if code:
+            store["cfg"] = {**store["cfg"], "code": code}
         guard_save(request)
         done.append("guard")
+    code = gd.stored_code(extras["fullscreen"].get("code")) if isinstance(extras.get("fullscreen"), dict) else None
+    if code:
+        full_store(request)["code"] = code
+        write_json_atomic(full_path(request), {"code": code})
+        done.append("fullscreen")
     if isinstance(extras.get("notify"), dict):
-        cfg = an.clean({k: v for k, v in extras["notify"].items() if k not in an.SECRETS}, notify_cfg(request))
+        keys = {k: extras["notify"][k] for k in an.SECRETS if isinstance(extras["notify"].get(k), str) and extras["notify"][k].strip()}
+        cfg = an.clean({**{k: v for k, v in extras["notify"].items() if k not in an.SECRETS}, **keys}, notify_cfg(request))
         write_json_atomic(notify_path(request), cfg)
         app_state(request)[KEY_NOTIFY]["cfg"] = cfg
         done.append("notify")
@@ -1723,10 +1749,48 @@ def apply_extras(request, extras) -> list:
     return done
 
 
+def backup_recording(request) -> dict:
+    """the recordings for a backup: the days of the security recording (with 📜 Protokoll, timeline.py) and the 🩺 heating journal"""
+    rec = app_state(request).get(KEY_TIMELINE, {}).get("rec")
+    if rec:
+        rec.flush()                                    # what happened in the last seconds is in the file too
+    trace = read_json(rules_trace_path(request), [])
+    return {"days": tl.backup_days(timeline_dir(request)), "heat": trace if isinstance(trace, list) else []}
+
+
+def restore_recording(request, rec) -> dict:
+    """the recordings of a backup put back: days not recorded here yet are added (none is overwritten), the heating journal gets the
+    entries it has not got -> {"days": [the days added], "heat": entries added}"""
+    if not isinstance(rec, dict):
+        return {"days": [], "heat": 0}
+    days = tl.restore_days(timeline_dir(request), rec.get("days"))
+    heat = 0
+    if isinstance(rec.get("heat"), list) and rec["heat"]:
+        store = app_state(request).get(KEY_RULES)
+        rules = store.get("rules") if store is not None else None
+        now = rules.trace if rules is not None else read_json(rules_trace_path(request), [])
+        now = now if isinstance(now, list) else []
+        merged = hlog.merge(now, rec["heat"])
+        heat = max(0, len(merged) - len(now))
+        if rules is not None:
+            rules.trace = merged
+        write_json_atomic(rules_trace_path(request), merged)
+    return {"days": days, "heat": heat}
+
+
+def query_flag(request, name: str):
+    """?name=1 / ?name=0 of a download; None when not given (then the setting decides)"""
+    v = request.query.get(name)
+    return None if v is None else v not in ("0", "false", "")
+
+
 async def get_backup(request):
     if not await can_edit(request):
         return forbidden()
-    data = build_backup(request, request.query.get("files", "1") != "0")
+    recording = query_flag(request, "recording")
+    if not await timeline_allowed(request):
+        recording = False                              # the recordings say who was at home: not for somebody without 🛡 Sicherheit
+    data = await asyncio.to_thread(build_backup, request, request.query.get("files", "1") != "0", query_flag(request, "secrets"), recording)
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M")
     return web.Response(text=json.dumps(data), content_type="application/json",
                         headers={"Content-Disposition": f'attachment; filename="floorplan3d-backup-{stamp}.json"'})
@@ -1809,7 +1873,8 @@ def apply_backup(request, data) -> dict:
             for name, b in items.items():
                 (d / name).write_bytes(b)
     extras = apply_extras(request, data.get("extras"))         # pinboard, holiday alarm, alarm messages (#500); an older backup has none
-    return {"ok": True, "houses": len(houses), "pictures": len(bgs), "models": len(models), "extras": extras}
+    rec = restore_recording(request, data.get("recording"))     # days and the heating journal, only added to
+    return {"ok": True, "houses": len(houses), "pictures": len(bgs), "models": len(models), "extras": extras, "days": len(rec["days"])}
 
 
 # ---------- automatic backups: a folder in the add-on configuration, daily (or every n hours), cleaned up by age and number ----------
@@ -1841,14 +1906,13 @@ def backup_items(request) -> list:
     return sorted(items, key=lambda i: (i["mtime"], i["name"]), reverse=True)
 
 
-def create_backup(request, kind: str = "manual") -> str:
-    """Write a full backup (houses, settings, pictures, 3D models, pinboard and alarm settings) into the backups folder and return its
-    file name."""
+def create_backup(request, kind: str = "manual", recording: bool | None = None) -> str:
+    """Write a full backup (everything build_backup holds) into the backups folder and return its file name."""
     d = backups_dir(request)
     d.mkdir(parents=True, exist_ok=True)
     name = f"floorplan3d-backup-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}-{'auto' if kind == 'auto' else 'manual'}.json"
     tmp = d / (name + ".tmp")
-    tmp.write_text(json.dumps(build_backup(request, True)), "utf-8")
+    tmp.write_text(json.dumps(build_backup(request, True, recording=recording)), "utf-8")
     tmp.replace(d / name)
     return name
 
@@ -1924,8 +1988,13 @@ def check_backup_file(request, name: str | None = None) -> dict:
     except (ValueError, OSError):
         raise ValueError("the file is not readable or not valid JSON")
     houses, settings, bgs, models = validate_backup(data)
+    ex = data.get("extras") if isinstance(data.get("extras"), dict) else {}
+    rec = data.get("recording") if isinstance(data.get("recording"), dict) else {}
+    notify = ex.get("notify") if isinstance(ex.get("notify"), dict) else {}
     return {"ok": True, "name": name, "size": f.stat().st_size, "exported": data.get("exported", ""),
-            "houses": [h["name"] for h in houses], "pictures": len(bgs), "models": len(models), "hasSettings": bool(settings)}
+            "houses": [h["name"] for h in houses], "pictures": len(bgs), "models": len(models), "hasSettings": bool(settings),
+            "days": len(tl.clean_backup_days(rec.get("days"))), "heat": len(rec["heat"]) if isinstance(rec.get("heat"), list) else 0,
+            "keys": any(isinstance(notify.get(k), str) and notify[k].strip() for k in an.SECRETS)}
 
 
 async def get_backups(request):
@@ -1940,7 +2009,7 @@ async def post_backups(request):
     if not await can_edit(request):
         return forbidden()
     try:
-        name = await asyncio.to_thread(create_backup, request, "manual")
+        name = await asyncio.to_thread(create_backup, request, "manual", None if await timeline_allowed(request) else False)
     except OSError as err:
         return web.json_response({"error": f"could not write the backup: {err}"}, status=500)
     return web.json_response({"ok": True, "name": name})
@@ -3236,7 +3305,7 @@ def full_path(request) -> Path:
 
 
 def full_store(request) -> dict:
-    store = request.app[KEY_FULL]
+    store = app_state(request)[KEY_FULL]                # also from a restore (the backup's own small app)
     if "code" not in store:
         stored = read_json(full_path(request), {})
         c = stored.get("code") if isinstance(stored, dict) else None

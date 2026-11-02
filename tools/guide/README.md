@@ -23,6 +23,14 @@ Every feature as a short video, recorded automatically in the demo. The page: ht
 a version from 4.52.0 on adds something (`### Added` in CHANGELOG.md) without a line `since="<version>"` here. So a new feature
 cannot be forgotten in the guide.
 
+## A changed feature
+
+Every change, not only a new feature, is checked against the guide (`.claude/CLAUDE.md`, the owner's wish): find the clips that show
+the changed part (`features.py`, and search the `clips_*.py` for its buttons, ids and words), and when a step, a subtitle, the
+description or the search words no longer say the truth, change the clip in the same pull request and try it. The pull request says
+what changed in the guide, or "Video guide: checked, nothing to change". Example: 4.53.0 put the codes and the recordings into the
+backup, so the clip `backup` shows the two new boxes and says what the file holds.
+
 ## A new clip
 
 Every new feature gets a clip (`.claude/CLAUDE.md`). Put it in the `clips_<group>.py` that fits:

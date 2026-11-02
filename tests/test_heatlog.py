@@ -110,3 +110,14 @@ def test_a_door_with_the_switch_is_counted_not_inner():
     on = {"on": True, "doors": False, "skip": []}
     assert hl.why_not("h/bad", "counted", {"h/bad": room}, on) is None                 # counts, also with doors to the outside off
     assert hl.view([room], {}, [])["rooms"][0]["counted"] == ["binary_sensor.badtuer"]
+
+
+def test_merge_puts_the_entries_of_a_backup_back_once_and_by_time():
+    now = [{"t": 10, "k": "start", "v": "4.53.0"}, {"t": 30, "k": "link", "on": True}]
+    more = [{"t": 5, "k": "start", "v": "4.52.0"}, {"t": 10, "k": "start", "v": "4.53.0"}, {"t": 20, "k": "call", "ent": "climate.wz"},
+            "kaputt", {"k": "link"}, {"t": 1, "x": 1}]
+    assert [x["t"] for x in hl.merge(now, more)] == [5, 10, 20, 30]
+    assert hl.merge(now, "no") == now and hl.merge([], None) == []
+    many = [{"t": i, "k": "rule"} for i in range(hl.MAX + 50)]
+    out = hl.merge(many[:300], many[300:])
+    assert len(out) == hl.MAX and out[-1]["t"] == hl.MAX + 49                      # the newest are kept

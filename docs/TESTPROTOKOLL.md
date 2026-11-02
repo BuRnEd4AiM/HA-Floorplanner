@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.52.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.53.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.52.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.53.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes (nur als Fingerabdruck) und auf Wunsch die Aufzeichnungen und die CallMeBot-Schlüssel** (Abschnitt 142): Claude hat 142.1 geprüft; für dich im Add-on 142.2 bis 142.5, nach dem Update die Videos 142.6 (Backup) und 142.7 (Messen: Wände verschieben und Winkel).
 1. **Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video zum Durchsuchen** (Abschnitt 141): 141.1 bis 141.5 ✅; 141.6 am Handy war abgeschnitten (#619), ist repariert: bitte noch einmal am Handy ein Video öffnen; im Add-on 141.7 und 141.8; neu: 141.9 (Liste aller Funktionen) und 141.10 (die neuen Videos).
 1. **Neu in 4.51.0: 📅 besondere Tage in Abläufen (z. B. an Heiligabend und Feiertagen den Rollladen nur auf 50 %) und feste Stufen 0 / 50 / 75 / 100 % auf der Rollladen-Karte** (Abschnitt 140): Claude hat 140.1 bis 140.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on 140.7 bis 140.10.
 1. **Neu in 4.50.0 und 4.50.1: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich, auch „Fest“** (Abschnitt 138 und 139, ein Beitrag von aixmoyu): Claude hat 138.1 bis 138.3, 139.1 und 139.2 geprüft (probier es gern selbst in der Demo); für dich im Add-on 138.4 bis 138.6 und 139.3, und 138.7, wenn du einen Vorhang mit Motor hast.
@@ -380,7 +381,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606) | 2 | 0 | 1 | 0 | 139.3 |
 | 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte | 6 | 0 | 4 | 0 | 140.7 bis 140.10 |
 | 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 5 | 1 | 4 | 0 | ❌ 141.6, 141.7 bis 141.10 |
-| **Zusammen** | **857** | **2** | **108** | **92** | |
+| 142. Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes und die Aufzeichnungen | 1 | 0 | 6 | 0 | 142.2 bis 142.7 |
+| **Zusammen** | **858** | **2** | **114** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2163,3 +2165,16 @@ Der Besitzer am 2026-11-02: „ein Programm …, das mir automatisch jede Funkti
 | 141.8 | Im Add-on: „🗑 Gespeicherte löschen“, bestätigen | Wieder „Die Videos kommen aus dem Internet (GitHub)“; das Add-on hat die Kopie nicht mehr | ❓ |
 | 141.9 | Auf der Seite der Anleitung ganz nach unten | „📋 Alle Funktionen von A bis Z“: jede Funktion mit ▶ zu ihrem Video, ein paar mit „📄 ohne Video“ und dem Grund; ein Tipp auf ▶ spielt das Video ab | ❓ |
 | 141.10 | Ein paar der neuen Videos anschauen, z. B. „Einen Grundriss nachzeichnen“, „Dach und Gauben“, „Schrank nach Maß“, „Türklingel mit Kamera“ | Jedes zeigt die Funktion von Anfang bis Ende, mit Untertiteln und Schritten | ❓ |
+
+## 142. Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes und die Aufzeichnungen
+Der Besitzer am 2026-11-02: „ein Backup sollte ja immer alles sein“; seine Wahl: die Codes immer (nur als Fingerabdruck), die CallMeBot-Schlüssel und die Aufzeichnungen mit je einem Häkchen. Die Videos der Anleitung werden ab jetzt bei jeder Änderung mit geprüft.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 142.1 | Oben „🗄️ Backup“ öffnen | Der Text oben sagt „Sichert alles …“ mit den Codes „nur als unlesbarer Fingerabdruck“; unter den Knöpfen zwei Häkchen: „Aufzeichnungen mitsichern …“ (an) und „CallMeBot-Schlüssel mitsichern …“ (aus) | ✅ (2026-11-02, Claude im Browser-Test 02_tools) |
+| 142.2 | Im Add-on: im Backup-Fenster „Jetzt sichern“, dann „Neueste prüfen“ | „Sicherung in Ordnung: … Häuser, … Bilder, … Modelle (… MB). Dazu … Tage Aufzeichnung.“ | ❓ |
+| 142.3 | Im Add-on: das Häkchen „CallMeBot-Schlüssel mitsichern“ setzen, „Jetzt sichern“, „Neueste prüfen“; danach das Häkchen wieder raus | Die Meldung endet mit „Mit den CallMeBot-Schlüsseln.“ (nur wenn du WhatsApp oder Telegram über CallMeBot eingerichtet hast) | ❓ |
+| 142.4 | Im Add-on: „Backup herunterladen“. Dann in ⚙ → Urlaubs-Alarmanlage einen neuen Code setzen. Danach „Backup einspielen…“ mit der Datei | Der alte Code gilt wieder (die Alarmanlage lässt sich mit dem alten Code scharf und wieder aus schalten, nicht mit dem neuen) | ❓ |
+| 142.5 | Im Add-on: nach 142.4 oben „🛡️ Sicherheit“ öffnen | Alle aufgezeichneten Tage sind noch da, auch der heutige läuft weiter | ❓ |
+| 142.6 | Nach dem Update auf der Seite der Anleitung das Video „Backup: alles sichern und zurückholen“ ansehen | Es zeigt die zwei Häkchen und sagt, was in der Datei steht | ❓ |
+| 142.7 | Nach dem Update das Video „Messen, Wände genau verschieben und drehen“ ansehen | Erst zwei Punkte gemessen; dann zwei Wände angeklickt, das Innenmaß 5 m eingetippt: die Wand rückt, die Küche wird größer; dann zwei Wände an einer Ecke auf 75° gedreht, Strg+Z nimmt es zurück | ❓ |

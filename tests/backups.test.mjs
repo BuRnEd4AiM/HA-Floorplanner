@@ -15,3 +15,8 @@ test('garbage sizes do not break the list', () => {
   assert.equal(B.fmtSize(undefined), '0 B');
   assert.equal(B.fmtSize('x'), '0 B');
 });
+test('the download link says what the two boxes say (recordings, CallMeBot keys)', () => {
+  assert.equal(B.exportHref(true, false), 'api/backup?recording=1&secrets=0');
+  assert.equal(B.exportHref(false, true), 'api/backup?recording=0&secrets=1');
+  assert.equal(B.exportHref(undefined, undefined), 'api/backup?recording=0&secrets=0');
+});
