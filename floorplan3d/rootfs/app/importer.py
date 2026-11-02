@@ -121,6 +121,7 @@ STAIR_TYPES = ("straight", "L", "U", "spiral", "wall")           # same as STAIR
 STAIR_MAX_FLOORS = 6                                              # MAX_FLOORS in static/stairs.js
 STAIR_TREAD = (0.1, 0.45)                                         # MIN_TREAD / MAX_TREAD in static/stairs.js
 STAIR_MAX_LANDING = 3                                             # MAX_LANDING in static/stairs.js
+STAIR_WINDERS = {"L": (2, 6), "U": (3, 10)}                       # WINDER_RANGE in static/winders.js (#623)
 MAX_STAIR_POINTS = 30
 SOLAR_MAX_FIELD = 12                                              # MAX_FIELD in static/solarroof.js
 SOLAR_MOUNTS = ("auto", "flat", "stand")                          # MOUNTS in static/solarroof.js
@@ -651,6 +652,31 @@ def _stair(rep: Report, path: str, spec, ids, ox, oz):
                 st["landing"] = round(float(spec["landing"]), 2)
         else:
             rep.warn(f"{path}.landing", f"landing must be between 0 and {STAIR_MAX_LANDING} m: ignored")
+    if typ in ("L", "U"):                                   # the corner: a landing or winder steps, and the treads of flight 1 (#623)
+        if "corner" in spec:
+            if spec["corner"] == "winder":
+                st["corner"] = "winder"
+                st.pop("landing", None)
+            elif spec["corner"] != "landing":
+                rep.warn(f"{path}.corner", "corner must be \"landing\" or \"winder\": ignored")
+        lo, hi = STAIR_WINDERS[typ]
+        if "winders" in spec:
+            v = spec["winders"]
+            if isinstance(v, int) and not isinstance(v, bool) and lo <= v <= hi:
+                if st.get("corner") == "winder":
+                    st["winders"] = v
+            else:
+                rep.warn(f"{path}.winders", f"winders must be a whole number from {lo} to {hi} on {'an' if typ == 'L' else 'a'} {typ} stair: ignored")
+        if "split" in spec:
+            v = spec["split"]
+            if isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 40:
+                st["split"] = v
+            else:
+                rep.warn(f"{path}.split", "split (treads in the first flight) must be a whole number from 1: ignored")
+    elif any(k in spec for k in ("corner", "winders", "split")):
+        rep.warn(path, "corner, winders and split are for L and U stairs: ignored")
+    if spec.get("solid") is True and typ == "wall":         # a wall stair with solid steps instead of thin plates (#623)
+        st["solid"] = True
     st["x"], st["z"] = round(st["x"] + ox, 3), round(st["z"] + oz, 3)
     return st
 
@@ -1219,6 +1245,10 @@ def layout_to_property(layout, name="Haus"):
                 os_["path"] = st["path"]
             if st["type"] in ("wall", "L", "U") and _num(st.get("landing")) and st["landing"] > 0:
                 os_["landing"] = st["landing"]
+            if st["type"] in ("L", "U"):                                    # #623
+                os_.update({k: st[k] for k in ("corner", "winders", "split") if st.get(k) not in (None, "", 0)})
+            if st["type"] == "wall" and st.get("solid") is True:
+                os_["solid"] = True
             stairs.append(os_)
         if stairs:
             item["stairs"] = stairs

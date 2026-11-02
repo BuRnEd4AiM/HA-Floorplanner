@@ -3851,4 +3851,6 @@ export default {
   'terrain.houseStays': '房屋保持原位。草坪、小路、花坛和花园物品随地面变化；地面较低处地下室露出，没有地下室的部分立在基座上。平台保持水平（例如露台）。',
   'state.tilted': '内倒', 'prop.tiltContact': '内倒触点', 'prop.tiltContactHint': '内开内倒窗的第二个触点：它报告“内倒”。上面的触点则报告“打开”。',
   'prop.tiltContactSub': '可选，用于可内倒也可打开的窗户：内倒时窗户变黄并在 3D 中倾斜，打开时变红。',
+  'stair.corner': '转角', 'stair.cornerLanding': '平台', 'stair.cornerWinder': '扇形踏步', 'stair.winders': '扇形踏步数', 'stair.split': '第一段踏步数',
+  'stair.splitHint': '转角前有多少级：越多，第一段越长、第二段越短。', 'stair.solid': '实心（踏步到地面）',
 };

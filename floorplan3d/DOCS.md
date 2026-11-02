@@ -208,6 +208,7 @@ Tool **Treppe** (T): pick *Gerade*, *L*, *U* (with landing) or *Wendel*, set the
 
 - **Leads up**: the stair belongs to this floor and climbs to the next one. The floor above gets an opening over the whole stair automatically (dashed orange in 2D, only where the opening lies completely inside a room).
 - **Comes from below**: the stair starts one floor lower (for example in a block) and ends on this floor; the opening is cut into this floor.
+- **Ecke** (4.60.0, #623): an L or U stair turns at a *Podest* (landing) or **Gewendelt (Keilstufen)**: wedge steps round the inner corner instead of the landing (a quarter turn for L, a half turn for U). **Wendelstufen** sets how many (L 2 to 6, U 3 to 10; empty: about as deep as the straight steps on the walking line). **Stufen im 1. Lauf** sets how many steps lie before the corner, for a long first and a short second flight. A wall stair can be **Massiv** (solid steps down to the floor instead of thin plates).
 - **Treppenhaus**: one click places a U stair with four walls, a room, a flat door and, for stairs leading up, the same shell on the next floor. Everything stays editable as normal walls, rooms and doors.
 
 ### Trace a floor plan (background image)

@@ -4,6 +4,17 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.60.0] - 2026-11-02
+### Added
+- **Winder stairs** (#623, asked by Miicki: "Ich möchte meine Kellertreppe nachbilden. Sie ist **viertelgewendelt**: ein langer gerader Lauf an der Wand entlang, in der Ecke drehen die Stufen als **Keilstufen** … danach folgt nur noch ein kurzer Lauf"): an **L** or **U** stair has the new field **Ecke** (corner): *Podest* (landing, as before) or **Gewendelt (Keilstufen)**: the corner square (L, a quarter turn) or the half turn (U) is cut into wedge steps round the inner corner, at even heights with the rest of the stair. **Wendelstufen** sets how many (L 2 to 6, U 3 to 10); without it as many as make them about as deep as the straight steps on the walking line (a 1 m wide L stair: 3). The tool panel offers *Ecke* before an L or U stair (and the stairwell) is placed.
+- **Steps in flight 1** (*Stufen im 1. Lauf*): an L or U stair no longer always splits its steps in half; a long first and a short second flight (e.g. 10 steps along the wall, the turn, 1 step) with a landing or with winders.
+- **A solid wall stair**: the wall stair has the tick **Massiv (Stufen bis zum Boden)**: solid steps instead of thin plates.
+- **JSON import and export**: `"corner": "winder"`, `"winders"`, `"split"` (L and U) and `"solid": true` (wall); the schema and "Copy AI prompt" describe them.
+- New module `winders.js` (pure: how many winders, how the steps are shared out, the wedges; unit test `tests/winders.test.mjs`, a new CI step). New browser test part `70_stair_winders`.
+### Changed
+- **Video guide: a new video "Winder stairs: wedge steps in the corner"** (clip `stairs-winder`).
+### Fixed
+- **Fields of the tool panel that do not belong to the chosen kind** were shown anyway (e.g. *Podest tiefer* for a straight stair or a spiral): a hidden field of the side panel now stays hidden.
 ## [4.59.0] - 2026-11-02
 ### Added
 - **A window with two contacts: tilted and open** (#624, asked by biggilottecassi: "Kontakt für ein normales Fenster mit 1 Flügel … Ja gekippt und offen"): a window that opens has the new field **Kontakt gekippt** (tilt contact) under its contact. With two sensors on one tilt-and-turn pane, the contact reports "open" (turned open) and the tilt contact reports "tilted". The window is **open** as soon as the contact is open (also when both report, e.g. a sensor at the top that opens in both cases), **tilted** when only the tilt contact is, else **closed**. Tilted, the window is **yellow** and its pane **leans into the room round its bottom edge** in 3D, whatever its hinge; open it is red and swings round its hinge as before; shut it keeps its green frame. The room panel, the list behind "n offen", the 2D plan in the live view, the device list and the card of the window say **Gekippt**; the pill counts the pane once, also with both contacts open. A tilted window counts like an open one for the **window rule of the heating**, the **alarm** (its sensors) and the **rain warning**: it is not shut. With several panes the tilt contact tilts the panes without a contact of their own (else the first one). A **handle sensor** that reports "tilted" itself (state `tilted`, or the attribute `window_state` `TILTED`, e.g. Homematic IP HmIP-SRH) makes its window tilted without a second contact. Fixed glazing has no tilt contact.

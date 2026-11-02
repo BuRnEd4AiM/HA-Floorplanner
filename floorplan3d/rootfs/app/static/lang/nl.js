@@ -2207,4 +2207,7 @@ export default {
   'state.tilted': 'Op kiep', 'prop.tiltContact': 'Contact op kiep',
   'prop.tiltContactHint': 'Een tweede contact voor een draaikiepraam: het meldt „op kiep”. Het contact erboven meldt dan „open”.',
   'prop.tiltContactSub': 'Optioneel, voor een raam dat op kiep en open kan: op kiep wordt het raam geel en kantelt het in 3D, open wordt het rood.',
+  'stair.corner': 'Hoek', 'stair.cornerLanding': 'Bordes', 'stair.cornerWinder': 'Verdreven (wigtreden)', 'stair.winders': 'Wigtreden',
+  'stair.split': 'Treden in de 1e trap', 'stair.splitHint': 'Hoeveel treden vóór de hoek liggen: meer geeft een lange eerste en een korte tweede trap.',
+  'stair.solid': 'Massief (treden tot op de vloer)',
 };

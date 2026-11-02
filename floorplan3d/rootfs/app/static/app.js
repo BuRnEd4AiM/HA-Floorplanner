@@ -91,7 +91,7 @@ import { WALL_TYPES, LED_LIKE, snapPoint, snapToWall as snapOnWall, ringAround }
 import { initNav, floorBoundsOf, houseBoundsOf, wallsCenterOf, findRoomByName as findRoomIn } from './nav.js';
 import { stopMove as stopAtWalls, STOP_EXEMPT_BASE } from './collide.js';
 import { badgeText, stateText as plainStateText } from './badgetext.js';
-import { toWorld, stairHandles } from './stairs.js';
+import { toWorld, stairHandles, stairLocal } from './stairs.js';
 import { floorLabels, CARD_FIELDS } from './viewprefs.js';
 import { applyLocks, lockedSettings } from './userlocks.js';
 import { initTabsUi } from './tabsui.js';
@@ -1912,6 +1912,8 @@ if (params.get('debug')) {
     fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),
     upper: (id) => { const u = registry.get(id)?.userData.upper; return u ? u.visible : null; },   // the storeys of a stair above the open floor (#246)
+    stairGeo: (id) => { const st = layout.floors.flatMap((f) => f.stairs || []).find((s) => s.id === id); if (!st) return null;   // #623: its steps
+      const g = stairLocal(st, FLOOR_H); return { treads: g.treads.length, winders: g.treads.filter((x) => x.winder).length, thin: g.treads.filter((x) => x.thin).length }; },
     badge: (id) => labelSprites.get(id)?.userData.text ?? null,
     badgePill: (id) => !!labelSprites.get(id)?.userData.pill,
     badgeScreen: (id) => {                                           // the value badge of a device on the screen, null while it does not show

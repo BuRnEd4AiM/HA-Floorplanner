@@ -130,4 +130,6 @@ f("phoneedit", "phone", "Am Handy bearbeiten: Werkzeuge als Leiste, Plan mit dem
 f("cars", "pages", "🚗 Mehrere Autos im Haushalt", "🚗 Several cars on Household", ["cars"], since="4.57.0")
 f("terrain", "edit", "Gelände am Hang: Höhenpunkte, Hang in einem Schritt, Höhenlinien, Keller frei", "Terrain on a slope: spot heights, a slope in one step, contour lines, basement free",
   ["plot-terrain"], since="4.58.0")
+f("stairwinder", "edit", "Gewendelte Treppe: Keilstufen statt Podest, Stufen im 1. Lauf, massive Wandtreppe", "Winder stairs: wedge steps instead of a landing, steps in flight 1, solid wall stair",
+  ["stairs-winder"], since="4.60.0")
 f("windowtilt", "edit", "Fenster mit zwei Kontakten: gekippt und offen", "A window with two contacts: tilted and open", ["window-tilt"], since="4.59.0")

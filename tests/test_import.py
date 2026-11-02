@@ -688,6 +688,26 @@ def test_stair_bad_values_are_ignored_with_warnings_and_unknown_types_skipped():
         assert key in paths, key
 
 
+def test_winder_stairs_and_a_solid_wall_stair_are_imported_and_exported():
+    """#623: an L / U stair that turns with winder steps, its first flight as long as set; a wall stair with solid steps"""
+    layout, _, rep, _ = importer.build_layout(_stairs_spec([
+        {"type": "L", "x": 1, "z": 1, "corner": "winder", "winders": 3, "split": 10, "landing": 0.5},
+        {"type": "U", "x": 5, "z": 1, "corner": "winder", "winders": 1},
+        {"type": "straight", "x": 1, "z": 5, "corner": "winder"},
+        {"type": "wall", "x": 8, "z": 1, "path": [[0, 0], [3, 0]], "solid": True}]))
+    assert not rep.errors
+    l, u, s, w = layout["floors"][0]["stairs"]
+    assert (l["corner"], l["winders"], l["split"]) == ("winder", 3, 10) and "landing" not in l, "winders: no deeper landing"
+    assert u["corner"] == "winder" and "winders" not in u, "1 winder on a half turn is too few: by itself"
+    assert "corner" not in s and w["solid"] is True
+    paths = " ".join(x["path"] for x in rep.warnings)
+    assert "stairs[1].winders" in paths and "stairs[2]" in paths
+    st2 = importer.build_layout(importer.layout_to_property(layout, "x"))[0]["floors"][0]["stairs"]
+    assert (st2[0]["corner"], st2[0]["winders"], st2[0]["split"]) == ("winder", 3, 10) and st2[3]["solid"] is True
+    js = (Path(__file__).parent.parent / "floorplan3d" / "rootfs" / "app" / "static" / "winders.js").read_text(encoding="utf-8")
+    assert "L: [2, 6], U: [3, 10]" in js and importer.STAIR_WINDERS == {"L": (2, 6), "U": (3, 10)}
+
+
 def test_stair_needs_a_position_and_floors_is_a_whole_number():
     _, _, rep, _ = importer.build_layout(_stairs_spec([{"type": "straight", "x": "a", "z": 1}]))
     assert rep.errors and "stairs[0]" in rep.errors[0]["path"]

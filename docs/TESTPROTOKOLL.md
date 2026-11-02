@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.59.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.60.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.59.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.60.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen statt Podest, Stufen im 1. Lauf, massive Wandtreppe** (Abschnitt 149, gefragt von Miicki in #623): Claude hat 149.1 bis 149.5 im Browser-Test geprüft; für dich in der Demo 149.6 und 149.7, im Add-on 149.8, nach dem Merge das Video 149.9.
 1. **Neu in 4.59.0: 🪟 Fenster mit zwei Kontakten: gekippt und offen** (Abschnitt 148, gefragt von biggilottecassi in #624): Claude hat 148.1 bis 148.5 im Browser-Test geprüft; für dich in der Demo 148.6, im Add-on mit deinem Fenster 148.7, nach dem Merge das Video 148.8.
 1. **Neu in 4.58.0: ⛰ Gelände am Hang: Höhenpunkte, „Hang in einem Schritt“, Höhenlinien, der Keller steht frei** (Abschnitt 147, gefragt von christinloehner in #629): Claude hat 147.1 bis 147.4 im Browser-Test geprüft; für dich in der Demo 147.5 und 147.6, im Add-on 147.7, nach dem Update das Video 147.8.
 1. **Neu in 4.57.0: 🚗 mehrere Autos im Haushalt** (Abschnitt 146, gefragt von Zelos001 in #631): Claude hat 146.1 bis 146.3 im Browser-Test geprüft; für dich in der Demo 146.4 und 146.5, im Add-on 146.6, nach dem Update das Video 146.7.
@@ -394,7 +395,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 146. Neu in 4.57.0: 🚗 mehrere Autos im Haushalt | 3 | 0 | 4 | 0 | 146.4 bis 146.7 |
 | 147. Neu in 4.58.0: ⛰ Gelände am Hang | 4 | 0 | 4 | 0 | 147.5 bis 147.8 |
 | 148. Neu in 4.59.0: 🪟 Fenster mit zwei Kontakten: gekippt und offen | 5 | 0 | 3 | 0 | 148.6 bis 148.8 |
-| **Zusammen** | **883** | **2** | **138** | **92** | |
+| 149. Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen in der Ecke, Stufen im 1. Lauf | 5 | 0 | 4 | 0 | 149.6 bis 149.9 |
+| **Zusammen** | **888** | **2** | **142** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2275,3 +2277,18 @@ biggilottecassi in #624: ein normales Fenster mit einem Flügel soll zwei Kontak
 | 148.6 | Demo: Live, Erdgeschoss, das rechte Fenster im Wohnzimmer („Fenster Terrasse“) ansehen und antippen | Es ist gelb und gekippt; die Karte sagt „Gekippt“, oben in der Liste „offen“ steht es als „Gekippt“ | ❓ |
 | 148.7 | Im Add-on mit deinem Fenster (oder biggilottecassi mit seinem): „Kontakt“ = der Sensor für offen, „Kontakt gekippt“ = der für gekippt; das Fenster kippen, öffnen, schließen | Gelb und gekippt, rot und offen, grün und zu, wie das echte Fenster | ❓ |
 | 148.8 | Nach dem Update auf der Seite der Anleitung das Video „Fenster mit zwei Kontakten: gekippt und offen“ ansehen | Kontakt und Kontakt gekippt wählen, das Fenster gekippt (gelb), offen (rot), zu (grün) | ❓ |
+
+## 149. Neu in 4.60.0: 🪜 gewendelte Treppe: Keilstufen in der Ecke, Stufen im 1. Lauf
+Miicki in #623: seine Kellertreppe ist viertelgewendelt, ein langer Lauf an der Wand, in der Ecke Keilstufen, danach ein kurzer Lauf. Die L-Treppe hatte immer ein Podest und teilte die Stufen immer zur Hälfte. Jetzt hat die L- und U-Treppe „Ecke: Podest / Gewendelt“, „Wendelstufen“ und „Stufen im 1. Lauf“; die Wandtreppe „Massiv“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 149.1 | Eine L-Treppe anklicken, „Ecke“ auf „Gewendelt (Keilstufen)“ | Statt des Podests 3 Keilstufen um die innere Ecke (bei 1 m Breite), die Treppe steigt weiter gleichmäßig eine Etage | ✅ (2026-11-02, Claude im Browser-Test 70_stair_winders) |
+| 149.2 | „Wendelstufen“ 5, „Stufen im 1. Lauf“ 9 | 5 Keilstufen; ein langer erster und ein kurzer zweiter Lauf | ✅ (2026-11-02, Claude im Browser-Test 70_stair_winders) |
+| 149.3 | „Ecke“ zurück auf „Podest“ | Wieder das Podest, das Feld „Podest tiefer“ ist wieder da | ✅ (2026-11-02, Claude im Browser-Test 70_stair_winders) |
+| 149.4 | Eine Wandtreppe anklicken, „Massiv“ anhaken | Volle Stufen bis zum Boden statt dünner Platten | ✅ (2026-11-02, Claude im Browser-Test 70_stair_winders) |
+| 149.5 | Werkzeug „Treppe“: „Gerade“, dann „L-Treppe“ | Bei „Gerade“ kein Feld „Ecke“ und kein „Podest tiefer“; bei „L-Treppe“ das Feld „Ecke“; mit „Gewendelt“ gesetzt hat die neue Treppe Keilstufen | ✅ (2026-11-02, Claude im Browser-Test 70_stair_winders) |
+| 149.6 | Demo: „Bearbeiten“, „Treppe“ → „L-Treppe“, „Ecke“ „Gewendelt“, in einen Raum klicken, dann „3D“ | Die Treppe dreht sich mit Keilstufen; „Stufen im 1. Lauf“ verschiebt die Ecke | ❓ |
+| 149.7 | Eine U-Treppe mit „Gewendelt“ | Die halbe Drehung mit Keilstufen statt Podest | ❓ |
+| 149.8 | Im Add-on (oder Miicki mit seiner Kellertreppe: 1,0 m breit, „Stufen im 1. Lauf“ 10, 3 Wendelstufen) | Sieht aus wie die echte Treppe | ❓ |
+| 149.9 | Nach dem Update auf der Seite der Anleitung das Video „Gewendelte Treppe: Keilstufen in der Ecke“ ansehen | L-Treppe, „Gewendelt“, Stufen im 1. Lauf 9, Wendelstufen 4, das 3D-Bild | ❓ |

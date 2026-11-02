@@ -635,6 +635,47 @@ def _(r):
     r.wait(2400)
 
 
+@clip("stairs-winder", "edit",
+      {"de": "Gewendelte Treppe: Keilstufen in der Ecke", "en": "Winder stairs: wedge steps in the corner"},
+      {"de": "Eine L- oder U-Treppe dreht sich mit Keilstufen statt mit einem Podest („Ecke: Gewendelt“), wie viele „Wendelstufen“, und „Stufen im 1. Lauf“ für einen langen ersten und einen kurzen zweiten Lauf. Eine Wandtreppe kann „Massiv“ sein.",
+       "en": "An L or U stair turns with wedge steps instead of a landing (“Corner: Winders”), how many “Winder steps”, and “Steps in flight 1” for a long first and a short second flight. A wall stair can be “Solid”."},
+      "Treppe gewendelt viertelgewendelt halbgewendelt Wendelstufen Keilstufen Ecke Podest Kellertreppe L-Treppe U-Treppe Lauf Stufen massiv winder stairs quarter turn half turn wedge steps corner landing cellar stair flight solid",
+      query="mode=edit", prep=empty_house(walls=True, rooms=True))
+def _(r):
+    cx, cy = centre(r)
+    r.say("Oben: „Treppe“, rechts „L-Treppe“.", "At the top: “Stairs”, on the right “L stair”.")
+    r.click("#tools [data-tool=stairs]")
+    r.wait(600)
+    r.click("#stairTypes button[data-stair=L]")
+    r.wait(600)
+    r.say("„Ecke“: „Gewendelt (Keilstufen)“ statt „Podest“.", "“Corner”: “Winders (wedge steps)” instead of “Landing”.")
+    r.click("#stairCorner")
+    r.loc("#stairCorner").select_option("winder")
+    r.wait(1000)
+    r.say("In den Raum klicken: die Treppe dreht sich in der Ecke mit Keilstufen.", "Click into the room: the stair turns in the corner with wedge steps.")
+    r.click(cx - 190, cy - 95)
+    r.wait(1400)
+    r.say("„Stufen im 1. Lauf“: 9 gibt einen langen ersten und einen kurzen zweiten Lauf.", "“Steps in flight 1”: 9 gives a long first and a short second flight.")
+    r.click("#stairSplit")
+    r.pg.keyboard.press("Control+A")
+    r.type("9")
+    r.key("Tab")
+    r.wait(1400)
+    r.say("„Wendelstufen“: wie viele Keilstufen die Ecke dreht.", "“Winder steps”: how many wedge steps turn the corner.")
+    r.click("#stairWinders")
+    r.pg.keyboard.press("Control+A")
+    r.type("4")
+    r.key("Tab")
+    r.wait(1400)
+    r.poster()
+    r.say("Im 3D-Bild: ein langer Lauf an der Wand, die Keilstufen, ein kurzer Lauf.", "In 3D: a long run along the wall, the wedge steps, a short run.")
+    r.click("#view3d")
+    r.wait(600)
+    r.js("""(() => { const fp = window.__fp, st = fp.layout.floors[fp.floorIdx()].stairs.at(-1);
+      fp.camAt(st.x + 0.6, 6.8, st.z + 3.6, st.x + 2.6, st.z + 0.3); })()""")          # from above: the wedges in the corner
+    r.wait(3000)
+
+
 @clip("plot", "edit",
       {"de": "Grundstück und Garten", "en": "Plot and garden"},
       {"de": "„Grundstück“: Rasen um das Haus, dazu Flächen wie Terrasse, Weg, Beet oder Teich, als Rechteck oder frei gezeichnet.",
