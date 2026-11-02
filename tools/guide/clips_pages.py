@@ -79,8 +79,8 @@ def _(r):
     r.wait(1100)
     r.click("[data-page=climate] .thChip", text="^Eco$")
     r.wait(1300)
-    r.say("„Nur mit Hinweis“ zeigt nur Räume, um die du dich kümmern solltest.", "“Only with a hint” shows only rooms that need you.")
-    r.click("[data-page=climate] .tpChip", text="Hinweis|hint")
+    r.say("„Nur mit Hinweis“ zeigt nur Räume, um die du dich kümmern solltest.", "“Only those to look at” shows only rooms that need you.")
+    r.click("[data-page=climate] .tpChip", text="Hinweis|look at")
     r.wait(1800)
 
 

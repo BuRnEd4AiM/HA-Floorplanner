@@ -112,7 +112,7 @@ def _(r):
     r.wait(900)
     r.poster()
     r.say("Ein Tipp auf einen Treffer zeigt das Gerät im Haus.", "Tap a result to see the device in the house.")
-    r.click("#findList li >> nth=0")
+    r.click("#findList li", text="Stehlampe.*Wohnzimmer")      # the lamp itself (the first row sums up all lights)
     r.wait(2400)
 
 
