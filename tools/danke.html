@@ -1,0 +1,286 @@
+<!doctype html>
+<!-- Hidden thank-you page for donations (the owner's wish, 2026-11-02): not linked anywhere, only used as the
+     return URL in PayPal. The workflow "Demo" copies it next to the demo: https://burned4aim.github.io/HA-Floorplanner/danke.html
+     PayPal may append ?amt=5.00&cc=EUR (auto return): then the amount is shown. ?lang=en / ?lang=de forces the language. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Danke! · 3D Floorplan</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%9B%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --sky-top: #0b1026;
+    --sky-mid: #1b2252;
+    --sky-low: #3b2a5c;
+    --glow: #ffcf6b;
+    --glow-soft: rgba(255, 207, 107, .35);
+    --wall: #e9e4f2;
+    --wall-side: #c8c0da;
+    --roof: #c2456b;
+    --roof-dark: #93304f;
+    --ground: #1a1838;
+    --text: #fff8ec;
+    --muted: #c9c3e6;
+    --card: rgba(255, 255, 255, .07);
+    --card-line: rgba(255, 255, 255, .14);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    min-height: 100svh;
+    background: radial-gradient(120% 80% at 50% 110%, var(--sky-low) 0%, var(--sky-mid) 45%, var(--sky-top) 100%) fixed;
+    background-color: var(--sky-top);
+    color: var(--text);
+    font-family: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px 16px 40px;
+  }
+  #stars, #confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #confetti { z-index: 5; }
+  main {
+    position: relative; z-index: 2;
+    width: 100%; max-width: 560px;
+    text-align: center;
+  }
+  .scene { width: min(320px, 78vw); margin: 0 auto -6px; display: block; overflow: visible; }
+  .moon { filter: drop-shadow(0 0 18px rgba(255, 240, 200, .55)); }
+  .win { fill: #2c2a4a; transition: fill .6s ease, filter .6s ease; }
+  .win.on { fill: var(--glow); filter: drop-shadow(0 0 8px var(--glow)); }
+  .smoke circle { fill: rgba(255, 255, 255, .25); animation: smoke 4.5s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  .smoke circle:nth-child(2) { animation-delay: 1.5s; }
+  .smoke circle:nth-child(3) { animation-delay: 3s; }
+  @keyframes smoke {
+    0% { transform: translate(0, 0) scale(.4); opacity: 0; }
+    20% { opacity: .9; }
+    100% { transform: translate(14px, -46px) scale(1.6); opacity: 0; }
+  }
+  .heart { transform-box: fill-box; transform-origin: center; animation: beat 1.6s ease-in-out infinite; }
+  @keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.18); } 30% { transform: scale(1); } 45% { transform: scale(1.1); } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 28px;
+    padding: 34px 26px 28px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .08);
+    animation: rise .9s cubic-bezier(.2, .8, .2, 1) both .2s;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(24px) scale(.98); } to { opacity: 1; transform: none; } }
+  h1 {
+    margin: 0 0 6px;
+    font-size: clamp(44px, 12vw, 72px); line-height: 1; letter-spacing: -.02em;
+    background: linear-gradient(100deg, #ffe29a 0%, #ffb37a 35%, #ff7aa8 70%, #c79bff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    background-size: 200% 100%;
+    animation: shimmer 6s ease-in-out infinite alternate;
+  }
+  @keyframes shimmer { to { background-position: 100% 0; } }
+  .sub { margin: 0 0 18px; font-size: clamp(17px, 4.4vw, 20px); color: var(--text); font-weight: 600; }
+  .amount {
+    display: none; margin: 0 auto 18px; padding: 8px 16px; width: fit-content;
+    border-radius: 999px; background: rgba(255, 207, 107, .14); border: 1px solid rgba(255, 207, 107, .4);
+    color: #ffe2a3; font-weight: 700; font-size: 15px;
+  }
+  .amount.show { display: block; }
+  p.text { margin: 0 auto 12px; max-width: 42ch; color: var(--muted); font-size: 16px; line-height: 1.6; }
+  .sign { margin: 18px 0 24px; color: var(--text); font-size: 16px; }
+  .sign b { font-weight: 700; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .btn {
+    appearance: none; border: 0; cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 18px; border-radius: 14px; font: inherit; font-weight: 700; font-size: 15px;
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn.primary { background: linear-gradient(135deg, #ffcf6b, #ff8f70); color: #2a1630; box-shadow: 0 8px 24px rgba(255, 143, 112, .35); }
+  .btn.primary:hover { box-shadow: 0 10px 30px rgba(255, 143, 112, .5); }
+  .btn.ghost { background: rgba(255, 255, 255, .08); color: var(--text); border: 1px solid var(--card-line); }
+  .btn.ghost:hover { background: rgba(255, 255, 255, .14); }
+  .btn:focus-visible { outline: 3px solid #ffe29a; outline-offset: 3px; }
+  footer { margin-top: 18px; font-size: 13px; color: rgba(201, 195, 230, .7); }
+  .lang { background: none; border: 0; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; padding: 4px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<main>
+  <!-- the little house: its windows light up one after the other -->
+  <svg class="scene" viewBox="0 0 320 210" role="img" aria-label="Ein kleines Haus mit leuchtenden Fenstern und einem Herz">
+    <defs>
+      <radialGradient id="halo" cx="50%" cy="60%" r="60%">
+        <stop offset="0%" stop-color="#ffcf6b" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="#ffcf6b" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <circle class="moon" cx="270" cy="38" r="17" fill="#fff4d6"/>
+    <circle cx="277" cy="33" r="15" fill="#1b2252" opacity=".9"/>
+    <ellipse cx="160" cy="150" rx="150" ry="70" fill="url(#halo)"/>
+    <ellipse cx="160" cy="200" rx="150" ry="12" fill="#14122e"/>
+    <!-- chimney + smoke -->
+    <g class="smoke"><circle cx="205" cy="52" r="6"/><circle cx="205" cy="52" r="6"/><circle cx="205" cy="52" r="6"/></g>
+    <!-- house -->
+    <polygon points="90,110 230,110 230,198 90,198" fill="var(--wall)"/>
+    <polygon points="230,110 252,98 252,186 230,198" fill="var(--wall-side)"/>
+    <polygon points="76,114 160,46 244,114" fill="var(--roof)"/>
+    <polygon points="160,46 244,114 266,102 182,36" fill="var(--roof-dark)"/>
+    <rect x="196" y="56" width="18" height="30" fill="#7a2a45"/>
+    <!-- windows -->
+    <rect class="win" data-i="0" x="106" y="126" width="30" height="26" rx="3"/>
+    <rect class="win" data-i="1" x="184" y="126" width="30" height="26" rx="3"/>
+    <rect class="win" data-i="2" x="146" y="70" width="28" height="24" rx="12"/>
+    <rect class="win" data-i="3" x="236" y="128" width="10" height="22" rx="2"/>
+    <!-- door with a heart -->
+    <rect x="146" y="150" width="28" height="48" rx="4" fill="#5b3a6e"/>
+    <path class="heart" d="M160 177 c-6-5-10-8-10-12 a5 5 0 0 1 10-2 a5 5 0 0 1 10 2 c0 4-4 7-10 12z" fill="#ff6f9a"/>
+    <!-- window crosses -->
+    <g stroke="#e9e4f2" stroke-width="2" opacity=".85">
+      <line x1="121" y1="126" x2="121" y2="152"/><line x1="106" y1="139" x2="136" y2="139"/>
+      <line x1="199" y1="126" x2="199" y2="152"/><line x1="184" y1="139" x2="214" y2="139"/>
+    </g>
+  </svg>
+
+  <section class="card">
+    <h1 data-t="title">Danke!</h1>
+    <p class="sub" data-t="sub">Du hast gerade ein Licht angemacht. 💛</p>
+    <div class="amount" id="amount"></div>
+    <p class="text" data-t="p1">Deine Spende ist angekommen – und sie bedeutet mir wirklich viel.</p>
+    <p class="text" data-t="p2">3D Floorplan ist ein Projekt aus Leidenschaft, gebaut in vielen Abenden. Dass du es unterstützt, gibt mir Rückenwind für die nächsten Räume, Dächer und Ideen.</p>
+    <p class="sign"><span data-t="sign">Von Herzen danke,</span><br><b>BuRnEd4AiM</b> · 3D Floorplan</p>
+    <div class="actions">
+      <button class="btn primary" id="again" type="button" data-t="again">🎉 Nochmal feiern</button>
+      <a class="btn ghost" href="./" data-t="demo">🏠 Zur Demo</a>
+      <a class="btn ghost" href="https://github.com/BuRnEd4AiM/HA-Floorplanner" data-t="gh">⭐ GitHub</a>
+    </div>
+  </section>
+  <footer><button class="lang" id="lang" type="button">English</button></footer>
+</main>
+
+<script>
+(() => {
+  const T = {
+    de: {
+      title: 'Danke!',
+      sub: 'Du hast gerade ein Licht angemacht. 💛',
+      p1: 'Deine Spende ist angekommen – und sie bedeutet mir wirklich viel.',
+      p2: '3D Floorplan ist ein Projekt aus Leidenschaft, gebaut in vielen Abenden. Dass du es unterstützt, gibt mir Rückenwind für die nächsten Räume, Dächer und Ideen.',
+      sign: 'Von Herzen danke,',
+      again: '🎉 Nochmal feiern', demo: '🏠 Zur Demo', gh: '⭐ GitHub',
+      amount: a => `Deine Spende: ${a}`, other: 'English', doc: 'Danke! · 3D Floorplan',
+    },
+    en: {
+      title: 'Thank you!',
+      sub: 'You just switched on a light. 💛',
+      p1: 'Your donation has arrived – and it truly means a lot to me.',
+      p2: '3D Floorplan is a passion project, built over many evenings. Your support is a tailwind for the next rooms, roofs and ideas.',
+      sign: 'With all my heart, thank you,',
+      again: '🎉 Celebrate again', demo: '🏠 Open the demo', gh: '⭐ GitHub',
+      amount: a => `Your donation: ${a}`, other: 'Deutsch', doc: 'Thank you! · 3D Floorplan',
+    },
+  };
+  const q = new URLSearchParams(location.search);
+  let lang = q.get('lang') || ((navigator.language || 'de').toLowerCase().startsWith('de') ? 'de' : 'en');
+  if (!T[lang]) lang = 'de';
+
+  // PayPal's auto return may add the amount (amt / payment_gross / mc_gross) and the currency (cc / mc_currency)
+  const rawAmt = q.get('amt') || q.get('mc_gross') || q.get('payment_gross');
+  const cur = (q.get('cc') || q.get('mc_currency') || 'EUR').toUpperCase();
+  function amountText() {
+    const n = parseFloat(String(rawAmt || '').replace(',', '.'));
+    if (!isFinite(n) || n <= 0) return '';
+    try { return new Intl.NumberFormat(lang === 'de' ? 'de-DE' : 'en-US', { style: 'currency', currency: /^[A-Z]{3}$/.test(cur) ? cur : 'EUR' }).format(n); }
+    catch (e) { return n.toFixed(2) + ' ' + cur; }
+  }
+
+  function apply() {
+    const t = T[lang];
+    document.documentElement.lang = lang;
+    document.title = t.doc;
+    document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t[el.dataset.t]; });
+    const a = amountText(), box = document.getElementById('amount');
+    box.textContent = a ? t.amount(a) : '';
+    box.classList.toggle('show', !!a);
+    document.getElementById('lang').textContent = t.other;
+  }
+  document.getElementById('lang').onclick = () => { lang = lang === 'de' ? 'en' : 'de'; apply(); };
+  apply();
+
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // the windows light up one by one
+  const wins = [...document.querySelectorAll('.win')];
+  wins.forEach((w, i) => setTimeout(() => w.classList.add('on'), still ? 0 : 500 + i * 380));
+
+  // twinkling stars
+  const sc = document.getElementById('stars'), sx = sc.getContext('2d');
+  let stars = [];
+  function sizeStars() {
+    const d = devicePixelRatio || 1;
+    sc.width = innerWidth * d; sc.height = innerHeight * d; sx.setTransform(d, 0, 0, d, 0, 0);
+    stars = Array.from({ length: Math.round(innerWidth * innerHeight / 5000) }, () => ({
+      x: Math.random() * innerWidth, y: Math.random() * innerHeight * .85,
+      r: Math.random() * 1.3 + .3, p: Math.random() * Math.PI * 2, s: .6 + Math.random() * 1.6,
+    }));
+  }
+  function drawStars(t) {
+    sx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const s of stars) {
+      sx.globalAlpha = still ? .7 : .35 + .65 * (0.5 + 0.5 * Math.sin(t / 1000 * s.s + s.p));
+      sx.fillStyle = '#fff';
+      sx.beginPath(); sx.arc(s.x, s.y, s.r, 0, Math.PI * 2); sx.fill();
+    }
+    if (!still) requestAnimationFrame(drawStars);
+  }
+  sizeStars(); requestAnimationFrame(drawStars);
+  addEventListener('resize', sizeStars);
+
+  // confetti: hearts, stars and little paper strips
+  const cc = document.getElementById('confetti'), cx = cc.getContext('2d');
+  const colors = ['#ffcf6b', '#ff8f70', '#ff6f9a', '#c79bff', '#7fd8ff', '#9df2c0'];
+  const shapes = ['💛', '✨', '🏠', '❤️'];
+  let bits = [], running = false;
+  function sizeConfetti() { const d = devicePixelRatio || 1; cc.width = innerWidth * d; cc.height = innerHeight * d; cx.setTransform(d, 0, 0, d, 0, 0); }
+  sizeConfetti(); addEventListener('resize', sizeConfetti);
+  function burst(n = 160) {
+    if (still) return;
+    for (let i = 0; i < n; i++) {
+      const fromLeft = i % 2 === 0;
+      bits.push({
+        x: fromLeft ? -10 : innerWidth + 10, y: innerHeight * (.55 + Math.random() * .35),
+        vx: (fromLeft ? 1 : -1) * (4 + Math.random() * 7), vy: -(9 + Math.random() * 9),
+        rot: Math.random() * 6, vr: (Math.random() - .5) * .3,
+        w: 6 + Math.random() * 6, h: 10 + Math.random() * 8,
+        c: colors[i % colors.length], e: Math.random() < .14 ? shapes[i % shapes.length] : null,
+        life: 0,
+      });
+    }
+    if (!running) { running = true; requestAnimationFrame(step); }
+  }
+  function step() {
+    cx.clearRect(0, 0, innerWidth, innerHeight);
+    for (const b of bits) {
+      b.vy += .28; b.vx *= .99; b.vy *= .99; b.x += b.vx; b.y += b.vy; b.rot += b.vr; b.life++;
+      cx.save(); cx.translate(b.x, b.y); cx.rotate(b.rot);
+      if (b.e) { cx.font = '18px serif'; cx.textAlign = 'center'; cx.fillText(b.e, 0, 6); }
+      else { cx.fillStyle = b.c; cx.scale(1, Math.cos(b.life / 6)); cx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h); }
+      cx.restore();
+    }
+    bits = bits.filter(b => b.y < innerHeight + 40);
+    if (bits.length) requestAnimationFrame(step); else { running = false; cx.clearRect(0, 0, innerWidth, innerHeight); }
+  }
+  setTimeout(() => burst(), 650);
+  document.getElementById('again').onclick = () => burst(120);
+})();
+</script>
+</body>
+</html>
