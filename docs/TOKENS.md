@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-02 · 93 Sitzungen
+Stand: 2026-11-02 · 94 Sitzungen
 
-**Insgesamt: 6,52 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 6,58 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 18,8 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 65,7 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 6,44 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 19,0 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 66,2 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 6,49 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 7 | 394,5 Mio. | 1,0 Mio. |
+| 2026-11 | 8 | 451,7 Mio. | 1,3 Mio. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-02 | [018pwcmz…](https://claude.ai/code/session_018pwcmzDhExLRrCtejBrUkM) | claude/laughing-johnson-ywzr01 | 57,2 Mio. | 211 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3N…](https://claude.ai/code/session_012p9z3NNfVZMCshSxFvk3am) | claude/friendly-volta-zr81od | 12,8 Mio. | 38 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3L…](https://claude.ai/code/session_012p9z3LHsTF7PVeeqgiY9eQ) | claude/focused-bohr-hqiye4 | 25,0 Mio. | 86 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3K…](https://claude.ai/code/session_012p9z3KHPevDmhRg73m49xE) | claude/github-issue-628-p6mfc1 | 61,5 Mio. | 189 Tsd. | gezählt |
