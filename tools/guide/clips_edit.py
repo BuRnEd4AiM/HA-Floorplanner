@@ -415,9 +415,9 @@ def _(r):
 
 @clip("roof", "edit",
       {"de": "Dach und Gauben", "en": "Roof and dormers"},
-      {"de": "„Dach“ legt ein Dach über das Haus: Satteldach, Walmdach oder Flachdach, die Neigung, dazu Gauben.",
-       "en": "“Roof” puts a roof over the house: gable, hip or flat, the pitch, and dormers."},
-      "Dach Satteldach Walmdach Flachdach Neigung Gaube Dachgeschoss Dachfenster roof gable hip flat pitch dormer attic roof window",
+      {"de": "„Dach“ legt ein Dach über das Haus: Satteldach, Walmdach, Flachdach oder Pultdach, die Neigung, dazu Gauben.",
+       "en": "“Roof” puts a roof over the house: gable, hip, flat or shed roof, the pitch, and dormers."},
+      "Dach Satteldach Walmdach Flachdach Pultdach Neigung Gaube Dachgeschoss Dachfenster roof gable hip flat shed pitch dormer attic roof window",
       query="mode=edit", prep=empty_house(walls=True, rooms=True))
 def _(r):
     r.click("#viewSplit")
@@ -494,6 +494,71 @@ def _(r):
     r.say("„Ganzes Haus“: beide Dächer auf gleicher Höhe.", "“Whole house”: both roofs at the same height.")
     r.click("#floorRail .railHouse")
     r.wait(2600)
+
+
+def gable_house(r):
+    """prep: an empty house made into a house of two storeys with a gable roof, seen in 3D from the front left (#628)"""
+    empty_house()(r)
+    r.pg.evaluate("""() => {
+      const fp = window.__fp, L = fp.layout, de = document.documentElement.lang !== 'en';
+      const wall = (id, a, b, ops = []) => ({ id, a, b, thickness: 0.3, height: 2.6, openings: ops });
+      const win = (id, pos) => ({ id, type: 'window', style: 'double', pos, width: 1.2, height: 1.1, sill: 0.9 });
+      const ring = (p) => [wall(p + 1, [0, 0], [11, 0], [win(p + 'a', 3), win(p + 'b', 8)]), wall(p + 2, [11, 0], [11, 7], [win(p + 'c', 3.5)]),
+        wall(p + 3, [11, 7], [0, 7], [win(p + 'd', 3), win(p + 'e', 8)]), wall(p + 4, [0, 7], [0, 0], [win(p + 'g', 3.5)])];
+      const room = (id, name) => [{ id, name, color: '#d8c3a5', points: [[0, 0], [11, 0], [11, 7], [0, 7]] }];
+      const fl = (id, name, kind, walls, rs) => ({ id, name, kind, holes: [], rooms: rs, walls, devices: [], blocks: [], stairs: [] });
+      L.floors.splice(0, L.floors.length,
+        fl('gEG', de ? 'Erdgeschoss' : 'Ground floor', 'floor', ring('ge'), room('gr1', de ? 'Wohnen' : 'Living')),
+        fl('gOG', de ? 'Obergeschoss' : 'Upper floor', 'floor', ring('go'), room('gr2', de ? 'Schlafen' : 'Bedroom')),
+        Object.assign(fl('gDach', de ? 'Dach' : 'Roof', 'roof', [], []), { roof: { type: 'gable', pitch: 40, overhang: 0.5 } }));
+      fp.rebuild(); fp.switchFloor(2);
+    }""")
+    r.pg.click("#view3d")
+    r.pg.wait_for_timeout(800)
+    r.pg.evaluate("window.__fp.camAt(-9, 9, 21, 5.5, 4)")            # from the front left: a gable and the long side
+    if r.pg.locator("#roofType").count() == 0 or not r.pg.locator("#roofType").is_visible():
+        r.pg.click("#floorPanel > summary")
+    r.pg.locator("#floorBody .roofGableOver").scroll_into_view_if_needed()
+    r.pg.wait_for_timeout(800)
+
+
+@clip("roof-gable", "edit",
+      {"de": "Giebelwand, Pultdach und Vordach", "en": "Gable wall, shed roof and canopy"},
+      {"de": "Unter dem Giebel geht die Wand bis unters Dach; „Überstand am Giebel“ sagt, wie weit das Dach dort übersteht. „＋ Vordach“ setzt ein Pultdach vor das Haus, und auch das ganze Dach kann ein Pultdach sein, mit seiner hohen Seite.",
+       "en": "Under the gable the wall goes on up to the roof; “Overhang at the gables” says how far the roof sticks out there. “+ Canopy” puts a shed roof in front of the house, and the whole roof can be a shed roof too, with its high side."},
+      "Giebel Giebelwand Ortgang Überstand Pultdach Vordach Terrassendach Überdachung schräges Flachdach Anbau gable gable wall verge overhang shed roof lean-to canopy porch roof terrace roof one slope annex",
+      query="mode=edit", prep=gable_house)
+def _(r):
+    r.say("Die Giebelwand: die Wand geht bis unters Dach, in der Farbe der Wände.", "The gable wall: the wall goes on up to the roof, in the colour of the walls.")
+    r.wait(2200)
+    r.say("„Überstand am Giebel“: wie weit das Dach dort übersteht, hier 15 cm.", "“Overhang at the gables”: how far the roof sticks out there, 15 cm here.")
+    r.click("#floorBody .roofGableOver")
+    r.pg.keyboard.press("Control+A")
+    r.type("0.15")
+    r.key("Tab")
+    r.wait(1800)
+    r.say("„＋ Vordach“ setzt ein Pultdach vor die lange Seite, gleich unter die Traufe.", "“+ Canopy” puts a shed roof in front of the long side, just under the eave.")
+    r.loc("#addCanopy").scroll_into_view_if_needed()
+    r.click("#addCanopy")
+    r.wait(2400)
+    r.poster()
+    r.say("In seiner Karte: hohe Seite, Neigung, „Höher setzen“ und die Größe.", "In its card: the high side, the pitch, “Move up” and the size.")
+    r.loc(".roofPartCard .roofPartDy").scroll_into_view_if_needed()
+    r.move(".roofPartCard .roofPartDy")
+    r.wait(2200)
+    r.say("Auch das ganze Dach kann ein Pultdach sein: „Dachform“ → „Pultdach“.", "The whole roof can be a shed roof too: “Roof shape” → “Shed roof”.")
+    r.loc("#roofType").scroll_into_view_if_needed()
+    r.click("#roofType")
+    r.loc("#roofType").select_option("shed")
+    r.wait(2200)
+    r.say("„Hohe Seite“: hier hinten, die Wände gehen bis unters Dach.", "“High side”: at the back here, the walls go up under the roof.")
+    r.click("#roofHigh")
+    r.loc("#roofHigh").select_option("z0")
+    r.wait(1600)
+    r.say("… und wieder ein Satteldach.", "… and a gable roof again.")
+    r.click("#roofType")
+    r.loc("#roofType").select_option("gable")
+    r.wait(1800)
 
 
 @clip("stairs", "edit",

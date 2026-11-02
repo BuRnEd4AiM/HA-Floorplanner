@@ -5,23 +5,26 @@
  * (unit test: tests/roofmove.test.mjs). */
 
 import { outline, stepHandles, cornerHandles } from './roofsteps.js';
+import { shedHigh } from './roofshape.js';
 
 /** the selection id of the main roof of floor f (a further roof uses its own id) */
 export const mainRoofId = (f) => `${f.id}:roof`;
 
 const okBox = (b) => !!b && [b.x0, b.x1, b.z0, b.z1].every(Number.isFinite) && b.x1 > b.x0 && b.z1 > b.z0;
 
-/** the roofs of roof floor f as rectangles: [{ id, main, name, box }]; autoBox: the box the main roof takes from the house below (or null).
+/** the roofs of roof floor f as rectangles: [{ id, main, name, box, high (a shed roof, #628) }]; autoBox: the box the main roof takes from the house below (or null).
  *  The main roof also has its outline with the steps of its eaves and their handles (#342, roofsteps.js) */
+/** a shed roof (#628): which edge of its box is high ('x0', 'x1', 'z0' or 'z1'; the plan draws it solid) */
+const highOf = (r) => (r?.type === 'shed' ? { high: shedHigh(r) } : {});
 export function roofRects(f, autoBox) {
   if (f?.kind !== 'roof') return [];
   const r = f.roof || {}, out = [];
   const main = okBox(r.box) ? r.box : autoBox;
   if (okBox(main)) {
     const box = { x0: main.x0, x1: main.x1, z0: main.z0, z1: main.z1 };
-    out.push({ id: mainRoofId(f), main: true, name: '', box, outline: outline(box, r), steps: stepHandles(box, r), corners: cornerHandles(box, r) });
+    out.push({ id: mainRoofId(f), main: true, name: '', box, outline: outline(box, r), steps: stepHandles(box, r), corners: cornerHandles(box, r), ...highOf(r) });
   }
-  (r.parts || []).forEach((p, i) => { if (okBox(p.box)) out.push({ id: p.id || `part${i}`, main: false, name: p.name || '', box: { ...p.box } }); });
+  (r.parts || []).forEach((p, i) => { if (okBox(p.box)) out.push({ id: p.id || `part${i}`, main: false, name: p.name || '', box: { ...p.box }, ...highOf(p) }); });
   return out;
 }
 

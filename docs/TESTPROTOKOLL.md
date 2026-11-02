@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.54.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.55.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.54.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.55.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.55.0: 🏠 Giebelwand, Überstand am Giebel, Pultdach und „+ Vordach“** (Abschnitt 144, gefragt von christinloehner in #628): Claude hat 144.1 bis 144.5 im Browser-Test geprüft; für dich in der Demo 144.6 bis 144.8, im Add-on mit deinem Haus 144.9, nach dem Update das Video 144.10.
 1. **Neu in 4.54.0: 🏠 ein L-förmiges Dach: ein weiteres Dach „wie das Hauptdach“, auch auf dem Kniestock** (Abschnitt 143, gefragt von Mario in der Q&A-Diskussion #621): Claude hat 143.1 und 143.2 im Browser-Test geprüft; für dich in der Demo 143.3 bis 143.5, nach dem Update das Video 143.6.
 1. **Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes (nur als Fingerabdruck) und auf Wunsch die Aufzeichnungen und die CallMeBot-Schlüssel** (Abschnitt 142): Claude hat 142.1 geprüft; für dich im Add-on 142.2 bis 142.5, nach dem Update die Videos 142.6 (Backup) und 142.7 (Messen: Wände verschieben und Winkel).
 1. **Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video zum Durchsuchen** (Abschnitt 141): 141.1 bis 141.5 ✅; 141.6 am Handy war abgeschnitten (#619), ist repariert: bitte noch einmal am Handy ein Video öffnen; im Add-on 141.7 und 141.8; neu: 141.9 (Liste aller Funktionen) und 141.10 (die neuen Videos), 141.11 (Video „Ein Fenster einstellen“).
@@ -384,7 +385,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 5 | 1 | 5 | 0 | ❌ 141.6, 141.7 bis 141.11 |
 | 142. Neu in 4.53.0: 🗄️ das Backup hat alles, auch die Codes und die Aufzeichnungen | 1 | 0 | 6 | 0 | 142.2 bis 142.7 |
 | 143. Neu in 4.54.0: 🏠 ein L-förmiges Dach, ein weiteres Dach wie das Hauptdach | 2 | 0 | 4 | 0 | 143.3 bis 143.6 |
-| **Zusammen** | **860** | **2** | **119** | **92** | |
+| 144. Neu in 4.55.0: 🏠 Giebelwand, Überstand am Giebel, Pultdach und Vordach | 5 | 0 | 5 | 0 | 144.6 bis 144.10 |
+| **Zusammen** | **865** | **2** | **124** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2193,3 +2195,19 @@ Mario (LoggieXC81) in der Q&A-Diskussion #621: Fügt er ein zweites Dach hinzu, 
 | 143.4 | Nach 143.3 die Etage unter dem Dach (z. B. Dachgeschoss) antippen | Die Wände unter dem zweiten Flügel sind da: niedrig (Kniestock) an den langen Seiten, ein Giebel am Ende; nicht mehr ganz weg | ❓ |
 | 143.5 | Nach 143.3 bei „Dach 1“ „Sitzt auf“ auf „ganz oben (auf dem Haus)“ und zurück auf „wie das Hauptdach“ stellen | „ganz oben“: das zweite Dach springt höher; „wie das Hauptdach“: wieder gleich hoch | ❓ |
 | 143.6 | Nach dem Update auf der Seite der Anleitung das Video „Ein L-förmiges Dach (zweiter Flügel)“ ansehen | Ein L-Haus, das Dach nur über einem Flügel; „+ Weiteres Dach“ legt das zweite darüber; „wie das Hauptdach“; im Dachgeschoss folgen die Wände beiden Schrägen | ❓ |
+
+## 144. Neu in 4.55.0: 🏠 Giebelwand, Überstand am Giebel, Pultdach und Vordach
+christinloehner in #628: Das Satteldach lag an der Giebelseite als rotes Dreieck vor der Wand, abgeschnittene Wände waren oben offen, und ein schräges Vordach an einer Seite ging nicht. Jetzt geht die Wand unter dem Giebel bis unters Dach (in der Farbe der Wände), der Überstand am Giebel hat ein eigenes Feld, es gibt die Dachform „Pultdach“ und den Knopf „+ Vordach“.
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 144.1 | Ein Haus mit Satteldach ansehen | Unter jedem Giebel eine Wand in der Farbe der Wände, auf der Hauswand (nicht mehr ein rotes Dreieck außen am Überstand) | ✅ (2026-11-02, Claude im Browser-Test 66_gables) |
+| 144.2 | Dach-Etage, „Etage verwalten“: „Überstand am Giebel (Ortgang)“ auf 0,1 m | Das Dach steht am Giebel nur noch 10 cm über, an der Traufe weiter 40 cm | ✅ (2026-11-02, Claude im Browser-Test 66_gables) |
+| 144.3 | Das Häkchen „Giebelwand (die Wand geht bis unters Dach)“ weg und wieder an | Ohne Häkchen: wieder das Dreieck in Dachfarbe; mit: die Wand | ✅ (2026-11-02, Claude im Browser-Test 66_gables) |
+| 144.4 | „Dachform“ → „Pultdach“, dann „Hohe Seite“ auf „rechts im Plan“ | 10° Neigung, „Hohe Seite“ statt „Firstrichtung“, keine Gauben; rechts kein Überstand, die Wände gehen an den Seiten und rechts bis unters Dach; im 2D-Plan ist die hohe Seite eine durchgezogene Linie | ✅ (2026-11-02, Claude im Browser-Test 66_gables) |
+| 144.5 | Unten bei „Weitere Dächer“ „+ Vordach“ | Ein Pultdach vor der langen Seite, so lang wie das Haus, 2,5 m tief, gleich unter der Traufe, ohne Wände darunter | ✅ (2026-11-02, Claude im Browser-Test 66_gables) |
+| 144.6 | Demo: „Bearbeiten“, links die Etage „Dach“, das Haus von der Giebelseite ansehen; rechts in „Etage verwalten“ „Überstand am Giebel“ auf 0,1 stellen | Am Giebel eine Wand in Wandfarbe, kein rotes Dreieck mehr; mit 0,1 endet das Dach dort kurz hinter der Wand | ❓ |
+| 144.7 | Demo: nach 144.6 unten „+ Vordach“, dann in seiner Karte „Höher setzen“ auf -1 und „Neigung“ auf 15 | Ein schräges Vordach vor dem Haus unter der Traufe; mit -1 sitzt es 1 m tiefer, mit 15° ist es steiler | ❓ |
+| 144.8 | Demo: „Dachform“ des Hauptdachs auf „Pultdach“ und „Hohe Seite“ durchprobieren, dann zurück auf „Satteldach“ | Das ganze Dach hat eine Schräge, die hohe Seite wechselt; zurück: wieder das Satteldach mit den Gauben | ❓ |
+| 144.9 | Im Add-on mit deinem Haus: die Giebel ansehen und die Etage unter dem Dach (Dachgeschoss) | Die Giebel sind Wände (in deiner Fassade), die Wände unter den Schrägen sind oben geschlossen, nicht hohl | ❓ |
+| 144.10 | Nach dem Update auf der Seite der Anleitung das Video „Giebelwand, Pultdach und Vordach“ ansehen | Die Giebelwand, der Überstand am Giebel (15 cm), „+ Vordach“, das ganze Dach als Pultdach und zurück | ❓ |

@@ -2183,4 +2183,11 @@ export default {
   'backup.recording': 'Opnames meenemen: beveiliging, het 📜 logboek en het 🩺 logboek van de verwarming (het bestand wordt groter; terugzetten voegt alleen ontbrekende dagen toe)',
   'backup.secrets': 'CallMeBot-sleutels meenemen (ze staan leesbaar in het bestand: geef het bestand dan niet door)', 'ab.testRec': 'Plus {days} dagen opnames.',
   'ab.testKeys': 'Met de CallMeBot-sleutels.',
+  'roof.shed': 'Lessenaarsdak', 'roof.high': 'Hoge zijde', 'roof.high.z0': 'boven in de plattegrond', 'roof.high.z1': 'onder in de plattegrond',
+  'roof.high.x0': 'links in de plattegrond', 'roof.high.x1': 'rechts in de plattegrond', 'roof.highH': 'Hoogte van de hoge zijde (boven de muur of knieschot)',
+  'roof.gableOver': 'Overstek bij de gevel', 'roof.sideOver': 'Overstek aan de zijkanten', 'roof.gableWall': 'Gevelmuur (de muur loopt door tot onder het dak)',
+  'roof.gableWallShed': 'Muren tot onder het dak (zijkanten en hoge zijde)',
+  'roof.stepsShed': 'Een lessenaarsdak heeft geen verspringingen (alleen zadel- en platte daken).', 'dormer.noShed': 'Een lessenaarsdak heeft geen dakkapellen.',
+  'roof.partDy': 'Hoger zetten (min: lager)', 'roof.canopy': 'Luifel', 'roof.canopyAdd': '+ Luifel (lessenaarsdak voor het huis)',
+  'roof.canopyHelp': '„+ Luifel” zet een lessenaarsdak voor de lange zijde van het huis, net onder de dakgoot. In de kaart stel je de grootte, hoge zijde, helling en „Hoger zetten” in; „Rust op” kiest de verdieping.',
 };

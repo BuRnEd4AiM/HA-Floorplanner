@@ -9,6 +9,7 @@
  * (0 = the base of the roof). On a slope with the pitch angle p the surface is at y = e * tan(p). */
 
 import { sectionsOf, outAt, intervals, sectionFrame } from './roofsteps.js';
+import { roofFrame, gableWallOn, shedSurface } from './roofshape.js';
 
 export const DORMER_DEFAULT = { side: 0, pos: 0.5, w: 1.6, hw: 1.2, eave: 0.8, type: 'gable', win: true };
 export const DORMER_TYPES = ['gable', 'flat', 'shed'];
@@ -18,16 +19,8 @@ const SHED_WIN = 1.2;                                              // the window
 const GABLE_PITCH = Math.tan((28 * Math.PI) / 180);               // the little roof of a gable dormer
 const OVER = 0.1;                                                  // overhang of the dormer roof (m)
 
-/** the frame of the main roof, same maths as roofFrame in solarroof.js (used by roofGeometry in roofs.js) */
-export function roofFrame(bb, r) {
-  const o = r.overhang ?? 0.4, x0 = bb.x0 - o, x1 = bb.x1 + o, z0 = bb.z0 - o, z1 = bb.z1 + o;
-  const alongX = r.ridge ? r.ridge === 'x' : (x1 - x0) >= (z1 - z0);
-  const [a0, a1, b0, b1] = alongX ? [x0, x1, z0, z1] : [z0, z1, x0, x1];
-  const half = (b1 - b0) / 2;
-  const tan = Math.tan(((r.pitch ?? 35) * Math.PI) / 180);
-  const ins = r.type === 'hip' ? Math.min(half, (a1 - a0) / 2) : 0;
-  return { alongX, a0, a1, b0, b1, half, tan, ins, bc: (b0 + b1) / 2 };
-}
+/** the frame of the main roof (roofshape.js, also used by roofGeometry in roofs.js) */
+export { roofFrame };
 
 /** can a dormer of this type go right up to the edge of the roof at a gable (#345): a shed or flat dormer on a gable roof */
 const flushable = (type, F) => (type === 'shed' || type === 'flat') && !F.ins;
@@ -42,7 +35,7 @@ const span = (F, w, bb, type) => {
 
 /** the dormer with every value clamped so it really fits on the slope; null when there is no room for it (flat roof, tiny roof) */
 export function fitDormer(bb, r, d) {
-  if (!bb || !r || r.type === 'flat') return null;
+  if (!bb || !r || r.type === 'flat' || r.type === 'shed') return null;   // a shed roof (#628) has no dormers
   let F = roofFrame(bb, r);
   const n = { ...DORMER_DEFAULT, ...d };
   n.side = n.side === 1 ? 1 : 0;
@@ -142,12 +135,14 @@ export function dormerParts(bb, r, d, holes = []) {
   return { wall, roof, glass, fit: n };
 }
 
-/** the main roof (gable or hip, not flat) as triangles ([x, y, z] points, 3 per triangle), as roofGeometry in roofs.js draws it: the two
- *  long slopes with a hole where a dormer stands (from its front back to where it meets the slope; its walls and roof close the hole, so
- *  the slope does not run through the room under a dormer), and the two ends (gable triangles or hip ends). The slopes are cut into a grid
+/** the main roof (gable, hip or shed, not flat) as triangles ([x, y, z] points, 3 per triangle), as roofGeometry in roofs.js draws it: the
+ *  two long slopes with a hole where a dormer stands (from its front back to where it meets the slope; its walls and roof close the hole,
+ *  so the slope does not run through the room under a dormer), and the two ends (hip ends; gable triangles in the roof's colour only when
+ *  the gable wall is switched off, #628). A shed roof is its one slope (roofshape.js). The slopes are cut into a grid
  *  at the dormers' edges, so neighbouring pieces share their corners. On a roof with steps (#342) every piece of a slope has its own eave
  *  and pitch up to the same ridge, and an upright triangle closes each step. */
 export function roofSurface(bb, r) {
+  if (r.type === 'shed') return shedSurface(bb, r);                                  // one slope (#628)
   const F = roofFrame(bb, r), h = F.half * F.tan, bc = F.bc, k = F.half > 0 ? F.ins / F.half : 0;
   const tris = [];
   const quad = (p, q, u, v) => tris.push(p, q, u, p, u, v);
@@ -178,6 +173,7 @@ export function roofSurface(bb, r) {
       }
     });
   }
+  if (gableWallOn(r)) return tris;                                                    // the gables are walls on the house (#628, roofshape.js)
   const iv = intervals(bb, r, F.a0, F.a1), f0 = iv[0], fl = iv[iv.length - 1];
   tris.push(XYZ(F.a0, F.b1 + f0.out1, 0), XYZ(F.a0, F.b0 - f0.out0, 0), XYZ(F.a0 + F.ins, bc, h));
   tris.push(XYZ(F.a1, F.b0 - fl.out0, 0), XYZ(F.a1, F.b1 + fl.out1, 0), XYZ(F.a1 - F.ins, bc, h));

@@ -2210,4 +2210,11 @@ export default {
   'backup.recording': 'Includi le registrazioni: sicurezza, il 📜 registro e il 🩺 registro del riscaldamento (il file diventa più grande; il ripristino aggiunge solo i giorni mancanti)',
   'backup.secrets': 'Includi le chiavi CallMeBot (sono leggibili nel file: in quel caso non condividerlo)', 'ab.testRec': 'Più {days} giorni di registrazioni.',
   'ab.testKeys': 'Con le chiavi CallMeBot.',
+  'roof.shed': 'Tetto a una falda', 'roof.high': 'Lato alto', 'roof.high.z0': 'in alto nella pianta', 'roof.high.z1': 'in basso nella pianta',
+  'roof.high.x0': 'a sinistra nella pianta', 'roof.high.x1': 'a destra nella pianta', 'roof.highH': 'Altezza del lato alto (sopra il muro o il muretto)',
+  'roof.gableOver': 'Sporgenza al timpano', 'roof.sideOver': 'Sporgenza ai lati', 'roof.gableWall': 'Muro del timpano (il muro sale fino al tetto)',
+  'roof.gableWallShed': 'Muri fino al tetto (lati e lato alto)', 'roof.stepsShed': 'Un tetto a una falda non ha gradini (solo i tetti a capanna e piani).',
+  'dormer.noShed': 'Un tetto a una falda non ha abbaini.', 'roof.partDy': 'Alzare (meno: abbassare)', 'roof.canopy': 'Pensilina',
+  'roof.canopyAdd': '+ Pensilina (tetto a una falda davanti alla casa)',
+  'roof.canopyHelp': '«+ Pensilina» mette un tetto a una falda davanti al lato lungo della casa, subito sotto la gronda. Nella sua scheda imposti dimensioni, lato alto, pendenza e «Alzare»; «Poggia su» sceglie il piano.',
 };

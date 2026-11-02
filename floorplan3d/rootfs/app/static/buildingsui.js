@@ -130,8 +130,9 @@ export function initBuildingsUi(ctx) {
             edit(() => {
               f.roof.building = plan.main;
               const keep = (f.roof.parts || []).filter((p) => !plan.parts.some((q) => q.building === p.building));   // a building gets one roof
+              const gables = Object.fromEntries(['gableOver', 'gableWall', 'high'].filter((k) => f.roof[k] != null).map((k) => [k, f.roof[k]]));   // #628
               f.roof.parts = [...keep, ...plan.parts.map((q) => ({ id: `rp${ctx.uid()}`, name: q.name, type: f.roof.type || 'gable', pitch: f.roof.pitch ?? 35,
-                overhang: f.roof.overhang ?? 0.4, box: q.box, level: q.level, building: q.building }))];
+                overhang: f.roof.overhang ?? 0.4, ...gables, box: q.box, level: q.level, building: q.building }))];
             });
             ctx.setStatus(t('bld.eachRoofDone', { n: plan.parts.length + 1 }));
           });

@@ -308,8 +308,14 @@ export function createPlan(ctx) {
       const b = r.box, on = sel?.kind === 'roof' && sel.id === r.id;
       const poly = r.outline?.length > 2 ? r.outline : [[b.x0, b.z0], [b.x1, b.z0], [b.x1, b.z1], [b.x0, b.z1]];   // with the steps of its eaves (#342)
       return `<polygon points="${pts(poly)}" fill="${on ? 'rgba(232,120,90,.18)' : 'rgba(200,90,60,.06)'}" stroke="${on ? C.accent : '#e0785a'}" stroke-width="${on ? 3 : 2}" stroke-dasharray="9 5" pointer-events="none" data-roof="${r.id}"/>`
-        + `<text x="${sx((b.x0 + b.x1) / 2)}" y="${sy(b.z0) + 16}" text-anchor="middle" font-size="12" fill="#e0785a" pointer-events="none">${esc(r.name || ctx.t('prop.roof'))}</text>`;
+        + `<text x="${sx((b.x0 + b.x1) / 2)}" y="${sy(b.z0) + 16}" text-anchor="middle" font-size="12" fill="#e0785a" pointer-events="none">${esc(r.name || ctx.t('prop.roof'))}</text>`
+        + (r.high ? highEdge(b, r.high, on) : '');
     }).join('');
+  }
+  /** the high side of a shed roof (#628): a solid line on that edge */
+  function highEdge(b, high, on) {
+    const [x0, z0, x1, z1] = { z0: [b.x0, b.z0, b.x1, b.z0], z1: [b.x0, b.z1, b.x1, b.z1], x0: [b.x0, b.z0, b.x0, b.z1], x1: [b.x1, b.z0, b.x1, b.z1] }[high];
+    return `<line x1="${sx(x0)}" y1="${sy(z0)}" x2="${sx(x1)}" y2="${sy(z1)}" stroke="${on ? C.accent : '#e0785a'}" stroke-width="5" stroke-linecap="round" pointer-events="none" data-roofhigh="${high}"/>`;
   }
   /* handles of the selected wall (end points) or room (corners) */
   function handleAt(px, py) {

@@ -1,24 +1,15 @@
 // Solar panels on the roof (#176): where a point lies on a roof surface, how a panel has to be tilted to lie on it,
 // and how a field of panels (rows x columns) is laid out. Pure maths, no three.js, no DOM (unit test: tests/solarroof.test.mjs).
 import { outAt } from './roofsteps.js';
+import { roofFrame } from './roofshape.js';
 
 /** one panel: width (local x), depth (local z, the long side), the gap between panels in a field */
 export const PANEL = { w: 1.0, d: 1.65, gap: 0.02 };
 export const MOUNTS = ['auto', 'flat', 'stand'];
 export const MAX_FIELD = 12;
 
-/** The frame of a roof as roofGeometry draws it: the outline with overhang, the ridge axis a, the axis b across it,
- *  ridge height h, hip inset ins. `bb` is the base box, `r` the roof spec (type / pitch / overhang / ridge). */
-export function roofFrame(bb, r) {
-  const o = r.overhang ?? 0.4, x0 = bb.x0 - o, x1 = bb.x1 + o, z0 = bb.z0 - o, z1 = bb.z1 + o;
-  const alongX = r.ridge ? r.ridge === 'x' : (x1 - x0) >= (z1 - z0);
-  const [a0, a1, b0, b1] = alongX ? [x0, x1, z0, z1] : [z0, z1, x0, x1];   // a = ridge axis, b = across
-  const half = (b1 - b0) / 2, bc = (b0 + b1) / 2;
-  const flat = r.type === 'flat';
-  const h = flat ? 0.15 : half * Math.tan(((r.pitch ?? 35) * Math.PI) / 180);
-  const ins = r.type === 'hip' ? Math.min(half, (a1 - a0) / 2) : 0;
-  return { x0, x1, z0, z1, alongX, a0, a1, b0, b1, half, bc, h, ins, flat };
-}
+/** The frame of a roof as roofGeometry draws it (roofshape.js, #628: own overhang at the gables, the shed roof) */
+export { roofFrame };
 
 /** The roof surface above (x, z): height over the roof base, the surface normal and the slope (radians).
  *  null when the point is not under this roof. A flat roof is its top plate (0.1 m). */

@@ -422,6 +422,7 @@ const roofsUi = initRoofs({
   layout: () => layout, elev: (i) => elev(i), mat: (...a) => mat(...a), HOLO, camera: () => camera, settings: () => settings, wallSee: WALL_SEE,
   roofShown: (i, R) => roofShown(i, R), roofFloors: (i) => roofFloors(i),
   editingRoof: () => !houseMode && floor()?.kind === 'roof',     // the roof floor is open: the roof (and its dormers) must stay clearly visible
+  fast: () => LOW, floorH: FLOOR_H,                              // the facade on a gable wall (#628): one colour, no pictures; the gap under it
 });
 const roofBox = (i) => roofsUi.box(i), autoRoofBox = (i) => roofsUi.autoBox(i), roofList = (i) => roofsUi.list(i);
 /* moving roofs on the open roof floor (#255); the code lives in roofmove.js */
@@ -1865,7 +1866,7 @@ if (params.get('debug')) {
       return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height };
     },
     elev: (i) => elev(i),
-    roofMeshes: () => { const out = []; scene.traverse((o) => { if (o.userData?.roofPart) { const w = new THREE.Vector3(); o.getWorldPosition(w); out.push({ tag: o.userData.roofPart, y: +w.y.toFixed(3), tris: (o.geometry?.attributes?.position?.count || 0) / 3, part: o.userData.dormerPart || null, box: ((b3) => [b3.min.x, b3.max.x, b3.min.z, b3.max.z].map((v) => +v.toFixed(3)))(new THREE.Box3().setFromObject(o)) }); } }); return out; },
+    roofMeshes: () => { const out = []; scene.traverse((o) => { if (o.userData?.roofPart) { const w = new THREE.Vector3(); o.getWorldPosition(w); out.push({ tag: o.userData.roofPart, y: +w.y.toFixed(3), tris: (o.geometry?.attributes?.position?.count || 0) / 3, part: o.userData.dormerPart || (o.userData.gableWall ? 'gablewall' : null), box: ((b3) => [b3.min.x, b3.max.x, b3.min.z, b3.max.z].map((v) => +v.toFixed(3)))(new THREE.Box3().setFromObject(o)) }); } }); return out; },
     heatGlow: (id) => registry.get(id)?.userData.heat?.[0]?.emissiveIntensity ?? -1,
     cutInfo: () => cutawayWalls.map((c) => ({ id: c.group.userData.id, n: c.n, fade: c.fade ?? 1, low: c.low })), camAt: (x, y, z, tx = controls.target.x, tz = controls.target.z) => { controls.target.set(tx, controls.target.y, tz); camera.position.set(x, y, z); controls.update(); },   // for tests
     liveHitAt: (x, y) => { const h = pickHit({ clientX: x, clientY: y }); return h ? { kind: h.data.kind, id: h.data.id, ball: !!h.data.tapBall } : null; },   // ball: a tap ball or a heater's temperature was hit

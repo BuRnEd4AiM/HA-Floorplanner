@@ -15,8 +15,8 @@ const sideOf = (s) => (s?.side === 1 || s?.side === 'b' ? 1 : 0);
 
 /** does the ridge run along x: the longer side unless set (the same rule as roofFrame) */
 export const alongXOf = (bb, r) => (r?.ridge ? r.ridge === 'x' : bb.x1 - bb.x0 >= bb.z1 - bb.z0);
-/** can roof r have steps (gable and flat roofs) */
-export const stepsAllowed = (r) => !!r && r.type !== 'hip';
+/** can roof r have steps (gable and flat roofs; not a hip or a shed roof, #628) */
+export const stepsAllowed = (r) => !!r && r.type !== 'hip' && r.type !== 'shed';
 /** the base box along the ridge (a0, a1) and across it (b0, b1) */
 const axes = (bb, alongX) => (alongX ? { a0: bb.x0, a1: bb.x1, b0: bb.z0, b1: bb.z1 } : { a0: bb.z0, a1: bb.z1, b0: bb.x0, b1: bb.x1 });
 /** an eave moves in at most to 30 cm before the ridge, out at most MAX_OUT */

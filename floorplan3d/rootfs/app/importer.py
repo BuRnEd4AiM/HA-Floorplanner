@@ -44,7 +44,8 @@ PANE_HINGES = WINDOW_HINGES | {"fixed"}
 PANE_COUNTS = {"single": 1, "double": 2, "triple": 3, "fixed": 1}
 SHUTTER_STYLES = {"roller", "left", "right", "split"}
 MAX_PANES = 8
-ROOF_TYPES = {"gable", "hip", "flat"}
+ROOF_TYPES = {"gable", "hip", "flat", "shed"}                  # shed: Pultdach (#628)
+SHED_HIGH = ("z0", "z1", "x0", "x1")                            # SHED_HIGH in static/roofshape.js
 FLOOR_KINDS = {"floor", "basement", "roof"}
 ROOM_COLORS = ["#b89b74", "#c9c2b4", "#8fb1c2", "#a99bb8", "#9db39a", "#c2a58f", "#9fb0c9", "#b7b08f"]
 # the finishes of floors, walls and the facade (#448): the same patterns as PATTERNS in static/finishes.js, with the places they go
@@ -946,8 +947,22 @@ def _roof(rep, path, spec, part=False):
         typ = "gable"
     roof = {"type": typ, "pitch": float(spec["pitch"]) if _num(spec.get("pitch"), 5, 70) else 35.0,
             "overhang": float(spec["overhang"]) if _num(spec.get("overhang"), 0, 3) else 0.4}
-    if spec.get("ridge") in ("x", "z"):
+    if spec.get("ridge") in ("x", "z") and typ != "shed":
         roof["ridge"] = spec["ridge"]
+    if typ == "shed":                                     # a shed roof (#628): the edge of its base box that is high
+        high = spec.get("high", "z0")
+        if high not in SHED_HIGH:
+            rep.warn(f"{path}.high", f"high must be one of {', '.join(SHED_HIGH)}, using z0")
+            high = "z0"
+        roof["high"] = high
+    if typ in ("gable", "shed"):                          # the gables (#628): their own overhang, the gable wall on unless false
+        if spec.get("gableOver") is not None:
+            if _num(spec.get("gableOver"), 0, 3):
+                roof["gableOver"] = float(spec["gableOver"])
+            else:
+                rep.warn(f"{path}.gableOver", "gableOver must be 0 to 3 metres, ignored (the overhang counts)")
+        if spec.get("gableWall") is False:
+            roof["gableWall"] = False
     box = spec.get("box")
     if isinstance(box, dict) and all(_num(box.get(k), -1000, 1000) for k in ("x0", "x1", "z0", "z1")):
         if box["x1"] > box["x0"] and box["z1"] > box["z0"]:
@@ -956,9 +971,9 @@ def _roof(rep, path, spec, part=False):
             rep.warn(f"{path}.box", "roof box must have x1 > x0 and z1 > z0, ignored")
     elif box is not None:
         rep.warn(f"{path}.box", "roof box needs numbers x0, x1, z0, z1 (metres), ignored")
-    dormers = _dormers(rep, f"{path}.dormers", spec.get("dormers")) if typ != "flat" else []
-    if spec.get("dormers") and typ == "flat":
-        rep.warn(f"{path}.dormers", "a flat roof has no dormers, ignored")
+    dormers = _dormers(rep, f"{path}.dormers", spec.get("dormers")) if typ not in ("flat", "shed") else []
+    if spec.get("dormers") and typ in ("flat", "shed"):
+        rep.warn(f"{path}.dormers", f"a {typ} roof has no dormers, ignored")
     if dormers:
         roof["dormers"] = dormers
     if not part:
@@ -970,7 +985,13 @@ def _roof(rep, path, spec, part=False):
         if isinstance(name, str) and name.strip():
             roof["name"] = name.strip()[:40]
         lvl = spec.get("level")
-        if lvl is not None:
+        if _num(spec.get("dy"), -10, 10) and float(spec["dy"]) != 0:
+            roof["dy"] = float(spec["dy"])               # moved up (down: negative) by hand (#628)
+        elif spec.get("dy") is not None and not _num(spec.get("dy"), -10, 10):
+            rep.warn(f"{path}.dy", "dy must be -10 to 10 metres, ignored")
+        if lvl == "main":
+            roof["level"] = "main"                        # as high as the main roof, on its knee wall too (#621)
+        elif lvl is not None:
             if isinstance(lvl, int) and not isinstance(lvl, bool) and 0 <= lvl < MAX_FLOORS:
                 roof["levelIndex"] = lvl                          # an index into building.floors, turned into a floor id at the end
             else:
@@ -1007,8 +1028,8 @@ def _steps(rep, path, raw, typ):
     if not isinstance(raw, list):
         rep.warn(path, "steps must be a list, ignored")
         return []
-    if typ == "hip":
-        rep.warn(path, "a hip roof has no steps, ignored")
+    if typ in ("hip", "shed"):
+        rep.warn(path, f"a {typ} roof has no steps, ignored")
         return []
     out = []
     for i, st in enumerate(raw[:MAX_STEPS]):
@@ -1156,7 +1177,8 @@ def layout_to_property(layout, name="Haus"):
             item["roof"] = dict(f.get("roof") or {"type": "gable", "pitch": 35, "overhang": 0.4})
             if item["roof"].get("parts"):
                 item["roof"]["parts"] = [{**{k: v for k, v in p.items() if k not in ("id", "level")},
-                                          **({"level": index_of[p["level"]]} if p.get("level") in index_of else {})} for p in item["roof"]["parts"]]
+                                          **({"level": index_of[p["level"]]} if p.get("level") in index_of else {"level": "main"} if p.get("level") == "main" else {})}
+                                         for p in item["roof"]["parts"]]
             if not (f.get("rooms") or f.get("walls") or f.get("devices")):      # a plain roof; otherwise also its solar panels, a loft's rooms
                 floors.append(item)
                 continue

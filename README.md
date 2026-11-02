@@ -209,6 +209,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 - **Customisable toolbar**: ✎ lets you show, hide and re-order the tools; rarely used ones fold into a *More ▾* menu
 - **Dormers and roof size**: add dormers (gabled, flat, or a long shed dormer that raises part of one roof side) from the toolbar, and set the roof size by hand if the automatic one does not fit; steps in the eaves for a house that is narrower at the front (drag them in the 2D plan)
+- **Gable walls, shed roofs and canopies**: the wall under each gable goes on up to the roof, with its own overhang at the gables; a shed roof (one slope, its high side chosen) for the house or an annex, and **+ Canopy** for a sloped canopy in front of the house just under the eave
 - **Double-click a wall** to add a corner exactly there
 - **Measure** (tool *Messen*, key `M`, in the 2D plan and in 2D + 3D): click two points for their distance (corners and wall faces snap), or click two walls and type their exact distance (face to face or centre to centre) or the angle between them: the wall moves, the walls joined to it and the rooms follow
 - **Placed devices stay selected** so you can fine-tune them right away (switchable in the settings)

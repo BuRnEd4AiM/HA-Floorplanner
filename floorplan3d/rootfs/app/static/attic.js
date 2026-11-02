@@ -3,7 +3,7 @@
  * meet the roof, except where a dormer stands out of it (there they reach up under the dormer). The roof floor is the loft (Spitzboden).
  * Walls on the roof floor itself are cut at the roof too. The ridge height can be typed in instead of the pitch. Pure maths, no
  * three.js, no DOM (unit test: tests/attic.test.mjs); atticclip.js cuts the wall materials with it. */
-import { roofFrame } from './solarroof.js';
+import { roofFrame, dyOf } from './roofshape.js';
 import { fitDormer } from './dormer.js';
 import { sectionsOf } from './roofsteps.js';
 
@@ -34,8 +34,12 @@ export function roofY0(floors, r, elev) {
  *  its knee wall too: the second wing of an L-shaped house, #621), the id of a storey: on top of that storey (an annex), else on top of
  *  the house (0) */
 export function partY0(floors, r, part, elev) {
-  if (part?.level === 'main') return roofY0(floors, r, elev);
-  const lv = part?.level ? floors.findIndex((x) => x.id === part.level) : -1;
+  return wallTopOf(floors, r, part, elev) + (part?.level === 'main' ? roofY0(floors, r, elev) : 0) + dyOf(part);   // moved up or down by hand (dy, #628)
+}
+/** where the walls a further roof stands on end, over the floor of roof floor r: on top of the storey it sits on (an annex), else at the
+ *  roof floor (0). The gable walls of the roof (#628) reach down to there */
+export function wallTopOf(floors, r, part, elev) {
+  const lv = part?.level && part.level !== 'main' ? floors.findIndex((x) => x.id === part.level) : -1;
   return lv >= 0 && floors[lv].kind !== 'roof' ? elev(lv + 1) - elev(r) : 0;
 }
 
@@ -85,6 +89,10 @@ export function roofPlanes(bb, spec, y0 = 0) {
     out.push([n[0], n[1], n[2], (c + y0 - GAP) / len, ...(range || [])]);
   };
   const m = F.h / F.half;
+  if (F.shed) {                                                             // a shed roof (#628): one slope, up to its high side bc
+    if (F.hi) plane('b', m, F.h - m * F.bc); else plane('b', -m, F.h + m * F.bc);
+    return out;
+  }
   for (const side of [1, 0]) {                                              // the long sides towards b1 and towards b0
     const secs = sectionsOf(bb, spec, side);
     secs.forEach((q, i) => {
@@ -177,11 +185,11 @@ export function planesAt(clip, x, z) {
 export function ridgeHeight(bb, spec) {
   if (!bb || spec?.type === 'flat') return 0;
   const F = roofFrame(bb, spec), o = spec?.overhang ?? 0.4;
-  return F.h * (1 - o / F.half);
+  return F.h * (1 - o / F.half);                                            // a shed roof (#628): its high side
 }
 /** the pitch (degrees, 5 to 70) that gives the ridge height h over the top of the walls */
 export function pitchFor(bb, spec, h) {
-  const F = roofFrame(bb, { ...spec, type: 'gable' }), o = spec?.overhang ?? 0.4;
+  const F = roofFrame(bb, spec?.type === 'shed' ? spec : { ...spec, type: 'gable' }), o = spec?.overhang ?? 0.4;
   const deg = (Math.atan(Math.max(0, h) / (F.half - o)) * 180) / Math.PI;
   return Math.max(5, Math.min(70, +deg.toFixed(1)));
 }

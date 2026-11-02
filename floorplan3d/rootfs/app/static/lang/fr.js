@@ -2229,4 +2229,12 @@ export default {
   'backup.recording': 'Inclure les enregistrements : sécurité, le 📜 journal et le 🩺 journal du chauffage (le fichier est plus gros ; la restauration n’ajoute que les jours manquants)',
   'backup.secrets': 'Inclure les clés CallMeBot (elles sont lisibles dans le fichier : ne le transmettez alors à personne)',
   'ab.testRec': 'Plus {days} jours d’enregistrement.', 'ab.testKeys': 'Avec les clés CallMeBot.',
+  'roof.shed': 'Toit en appentis', 'roof.high': 'Côté haut', 'roof.high.z0': 'en haut du plan', 'roof.high.z1': 'en bas du plan',
+  'roof.high.x0': 'à gauche du plan', 'roof.high.x1': 'à droite du plan', 'roof.highH': 'Hauteur du côté haut (au-dessus du mur ou du jambage)',
+  'roof.gableOver': 'Débord au pignon (rive)', 'roof.sideOver': 'Débord sur les côtés', 'roof.gableWall': 'Mur pignon (le mur monte jusqu\'au toit)',
+  'roof.gableWallShed': 'Murs jusqu\'au toit (côtés et côté haut)',
+  'roof.stepsShed': 'Un toit en appentis n\'a pas de décrochements (seulement les toits à deux pans et plats).',
+  'dormer.noShed': 'Un toit en appentis n\'a pas de lucarnes.', 'roof.partDy': 'Monter (moins : descendre)', 'roof.canopy': 'Auvent',
+  'roof.canopyAdd': '+ Auvent (toit en appentis devant la maison)',
+  'roof.canopyHelp': '« + Auvent » place un toit en appentis devant le long côté de la maison, juste sous l\'avant-toit. Dans sa carte, réglez la taille, le côté haut, la pente et « Monter » ; « Repose sur » choisit l\'étage.',
 };

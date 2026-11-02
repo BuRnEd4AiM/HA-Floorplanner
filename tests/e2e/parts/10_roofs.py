@@ -121,7 +121,7 @@ shed_from = len(sol_errs)                                     # only the errors 
 pgSol.evaluate("""() => { const fp = window.__fp, L = fp.layout.floors, ri = L.length - 1; Object.assign(L[ri].roof, { type: 'gable', pitch: 35, overhang: 0.4, knee: 1 });
   delete L[ri].roof.dormers; delete L[ri].roof.ridge; delete L[ri].roof.box; /* dragged above: back on the walls */ fp.rebuild(); fp.switchFloor(ri - 1); fp.switchFloor(ri); document.querySelector('#floorPanel').open = true; }""")
 pgSol.wait_for_timeout(500)
-main_tris = lambda: pgSol.evaluate("window.__fp.roofMeshes().filter((m) => m.tag === 'main').map((m) => m.tris)")
+main_tris = lambda: pgSol.evaluate("window.__fp.roofMeshes().filter((m) => m.tag === 'main' && m.part !== 'gablewall').map((m) => m.tris)")   # not the gable walls (#628)
 t0 = main_tris()
 pgSol.click("#addDormer"); pgSol.wait_for_timeout(300)
 pgSol.locator(".dormerCard .dormerType").last.select_option("shed"); pgSol.wait_for_timeout(400)

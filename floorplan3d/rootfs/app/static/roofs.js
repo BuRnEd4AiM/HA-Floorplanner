@@ -1,5 +1,5 @@
 /* Roofs (#137, step 19): the roof box of a roof floor, the roof surfaces with dormers (gable, flat, shed; a hole in the slope under each,
- * #339), steps in the eaves (#342) and further roofs, the railing round a roof terrace,
+ * #339), steps in the eaves (#342) and further roofs, the gable walls in the colour of the walls and the shed roof (#628, roofshape.js), the railing round a roof terrace,
  * solar panels lying on the roof (#176) and the fading of the roofs when the camera comes close. The boxes are pure (unit test:
  * tests/roofs.test.mjs), the rest draws with three.js. */
 import * as THREE from './vendor/three.module.min.js';
@@ -8,7 +8,11 @@ import { frontHoles } from './dormerwin.js';
 import { intervals } from './roofsteps.js';
 import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
-import { roofY0, partY0, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom, roofReach, joinCuts, planesAt } from './attic.js';
+import { roofY0, partY0, wallTopOf, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom, roofReach, joinCuts, planesAt } from './attic.js';
+import { gableWalls, wallTris, wallThickness, wallHeightOf } from './roofshape.js';
+import { facadeOf, facadeFinish } from './facade.js';
+import { finishMaterial } from './finishtex.js';
+import { wallUV, resolve } from './finishes.js';
 import { polyUniforms, clipToPoly } from './atticclip.js';
 import { wallPieces } from './roomclip.js';
 
@@ -109,7 +113,7 @@ export function initRoofs(ctx) {
     return geo;
   }
   /** one roof (the main one, or a further one of the house): `spec` has type / pitch / overhang / dormers, `bb` is its base, `y0` lifts it onto the floor it sits on */
-  function drawRoof(g, bb, spec, y0, tag, holo, ghost, holesOf = () => []) {
+  function drawRoof(g, bb, spec, y0, tag, holo, ghost, holesOf = () => [], gable = null) {
     const geo = roofGeometry(bb, spec);
     const m = new THREE.Mesh(geo, holo
       ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : 0.45, side: THREE.DoubleSide, depthWrite: false })
@@ -120,6 +124,21 @@ export function initRoofs(ctx) {
     g.add(m);
     const fade = (mesh, ms) => { if (!ghost) roofs.push({ mesh, mats: ms.map((x) => ({ x, base: x.opacity, transparent: x.transparent, depthWrite: x.depthWrite })), box: null }); };
     fade(m, mats);
+    const walls = gable ? gableWalls(bb, spec, gable) : [];               // the gables are walls on the house (#628), in the walls' colour or the facade's finish
+    if (walls.length) {
+      const fin = !holo && !ghost ? resolve(facadeFinish(ctx.settings())) : null, pos = [], uv = [];
+      walls.forEach((w) => { const t = wallTris(w); pos.push(...t.pos.flat()); uv.push(...t.uv.flatMap(([u, v]) => (fin ? wallUV(fin, 1, u, v) : [u, v]))); });
+      const wgeo = new THREE.BufferGeometry();
+      wgeo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+      wgeo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+      wgeo.computeVertexNormals();
+      const wm = new THREE.Mesh(wgeo, holo ? new THREE.MeshBasicMaterial({ color: 0x123f96, transparent: true, opacity: ghost ? 0.15 : 0.5, depthWrite: false })
+        : fin ? finishMaterial(fin, ctx.fast?.()) : mat(facadeOf(ctx.settings()).wall, ghost));
+      const wms = [wm.material];
+      if (holo) { const em = new THREE.LineBasicMaterial({ color: HOLO.edge, transparent: true, opacity: 0.9 }); wm.add(new THREE.LineSegments(new THREE.EdgesGeometry(wgeo, 20), em)); wms.push(em); }
+      wm.position.y = y0; wm.userData.roofPart = tag; wm.userData.gableWall = true;
+      g.add(wm); fade(wm, wms);
+    }
     (spec.dormers || []).forEach((d) => {                                 // dormers (Gauben): wall, little roof and window out of one slope
       const parts = dormerParts(bb, spec, d, holesOf(d));
       if (!parts) return;
@@ -144,12 +163,17 @@ export function initRoofs(ctx) {
     const f = ctx.layout().floors[i], out = [];
     if (f?.kind !== 'roof') return out;
     const bb = roofBoxOf(ctx.roofFloors?.(i) || ctx.layout().floors, i);   // the main roof of one building of several follows that one (#409)
-    const spec = f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 });
-    if (bb) out.push({ bb, spec, y0: roofY0(ctx.layout().floors, i, ctx.elev), tag: 'main' });   // on a knee wall it starts lower down (#260, #265)
+    const spec = f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 }), floors = ctx.layout().floors;
+    const under = floors.slice(0, i).reverse().find((x) => x.kind !== 'roof' && x.kind !== 'basement'), t = wallThickness(under);
+    // from: where the walls under it end, over the base of the roof (a knee wall: up at the roof floor; the walls are lower than a storey:
+    // the gap down to them is closed too), for its gable walls (#628); t: their thickness
+    const gap = (fl) => Math.max(0, (ctx.floorH || 0) - wallHeightOf(fl, ctx.settings().wallHeight));
+    if (bb) { const y0 = roofY0(floors, i, ctx.elev); out.push({ bb, spec, y0, tag: 'main', from: -y0 - gap(under), t }); }   // on a knee wall it starts lower down (#260, #265)
     (f.roof?.parts || []).forEach((p, pi) => {                              // further roofs: an annex on the floor it stands on, or a wing like the main roof (#621)
       const pb = partBox(p);
       if (!pb) return;
-      out.push({ bb: pb, spec: p, y0: partY0(ctx.layout().floors, i, p, ctx.elev), tag: p.id || `part${pi}` });   // the same id as roofmove.js uses
+      const y0 = partY0(floors, i, p, ctx.elev), lv = floors.find((x) => x.id === p.level && x.kind !== 'roof') || under;
+      out.push({ bb: pb, spec: p, y0, tag: p.id || `part${pi}`, from: wallTopOf(floors, i, p, ctx.elev) - gap(lv) - y0, t: wallThickness(lv) });   // the same id as roofmove.js uses
     });
     return out;
   }
@@ -182,12 +206,18 @@ export function initRoofs(ctx) {
   };
   /** the roofs that are drawn: not those of a building that is not shown (#409) */
   const drawn = (i) => roofList(i).filter((R) => ctx.roofShown?.(i, R) ?? true);
-  function buildRoof(g, i, f, holo, ghost) { drawn(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0 + liftOf(R), R.tag, holo, ghost, holesFor(i, R))); }
+  /** the gable walls of roof R of roof floor i (#628): down to the walls under it, as thick as they are; none where a gable stands inside
+   *  another roof of the floor (the inner end of the second wing of an L-shaped house) */
+  const gableOf = (i, R) => {
+    const others = roofList(i).filter((q) => q.tag !== R.tag).map((q) => q.bb);
+    return { from: R.from, t: R.t, skip: (x, z) => others.some((b) => x > b.x0 + 0.05 && x < b.x1 - 0.05 && z > b.z0 + 0.05 && z < b.z1 - 0.05) };
+  };
+  function buildRoof(g, i, f, holo, ghost) { drawn(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0 + liftOf(R), R.tag, holo, ghost, holesFor(i, R), gableOf(i, R))); }
   /** the roofs of roof floor i (slopes and dormers) see-through over the floor shown: only the part over the room's outline pts (a
    *  focused room), or all of it (pts null: a whole floor under the roof, #275) */
   function buildOver(g, i, pts, holo) {
     const n0 = g.children.length, u = pts ? polyUniforms(pts) : null;
-    drawn(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0 + liftOf(R), R.tag, holo, true, holesFor(i, R)));
+    drawn(i).forEach((R) => drawRoof(g, R.bb, R.spec, R.y0 + liftOf(R), R.tag, holo, true, holesFor(i, R), gableOf(i, R)));
     g.children.slice(n0).forEach((m) => m.traverse((x) => {
       if (!x.material) return;
       [].concat(x.material).forEach((mm) => { mm.transparent = true; mm.opacity = Math.min(mm.opacity, holo ? 0.2 : 0.3); mm.depthWrite = false; if (u) clipToPoly(mm, u); });
