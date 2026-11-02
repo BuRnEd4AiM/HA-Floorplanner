@@ -408,6 +408,7 @@ export default {
   'roof.partAdd': '+ Dodatkowy dach',
   'roof.partName': 'Nazwa',
   'roof.partLevel': 'Spoczywa na',
+  'roof.partMain': 'jak dach główny (ta sama wysokość, także na ściance kolankowej)',
   'roof.partTop': 'na samej górze (na domu)',
   'roof.partRemove': 'Usuń dach',
   'heat.title': 'OGRZEWANIE',

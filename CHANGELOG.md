@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.54.0] - 2026-11-02
+### Added
+- **An L-shaped roof: a further roof like the main roof** (#625, asked by LoggieXC81 in the Q&A discussion #621: "if I add a second roof, the Kniestock is not carried over from the main roof"; he asked how to get both roofs to the same height): "Sits on" of a further roof has a new first choice **like the main roof (same height, on its knee wall too)**. When the main roof has its own size and part of the house lies outside it, **+ Further roof** now puts such a roof over that wing right away: the same shape, pitch and overhang as the main roof, reaching up to the main ridge so that the two roofs meet in a valley, its ridge across. Video "An L-shaped roof (the second wing)" in the guide.
+### Fixed
+- **The walls under a further roof** (#625): on a knee wall the walls of the storey under the slopes were cut only at the main roof; under the second wing of an L-shaped house they disappeared completely. Now every roof of the roof floor cuts the walls under it (each further roof over its own size), so the walls under the second wing end at its slopes: knee walls at the eaves, a gable at the end. A made-to-measure closet there fits under the roof over its place, not under the main roof.
+
 ## [4.53.0] - 2026-11-02
 ### Added
 - **The backup holds everything** (the owner, 2026-11-02: "ein Backup sollte ja immer alles sein"): besides the houses, settings, pictures, 3D models, the pinboard, the holiday alarm, the alarm messages, heating rules, routines and special days it now also has:

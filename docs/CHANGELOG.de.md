@@ -4,6 +4,12 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
 
 ## [Unreleased]
 
+## [4.54.0] - 2026-11-02
+### Neu
+- **Ein L-förmiges Dach: ein weiteres Dach wie das Hauptdach** (#625, gefragt von LoggieXC81 in der Q&A-Diskussion #621: „if I add a second roof, the Kniestock is not carried over from the main roof“; er fragte, wie beide Dächer auf die gleiche Höhe kommen): „Sitzt auf“ eines weiteren Dachs hat als erste Wahl neu **wie das Hauptdach (gleiche Höhe, auch auf dem Kniestock)**. Hat das Hauptdach eine eigene Größe und liegt ein Teil des Hauses außerhalb, legt **+ Weiteres Dach** so ein Dach gleich über diesen Flügel: dieselbe Form, Neigung und derselbe Überstand wie beim Hauptdach, bis zum First des Hauptdachs, damit sich beide Dächer in einer Kehle treffen, sein First quer dazu. Video „Ein L-förmiges Dach (zweiter Flügel)“ in der Anleitung.
+### Repariert
+- **Die Wände unter einem weiteren Dach** (#625): Auf einem Kniestock wurden die Wände des Geschosses unter den Schrägen nur am Hauptdach abgeschnitten; unter dem zweiten Flügel eines L-Hauses verschwanden sie ganz. Jetzt schneidet jedes Dach der Dach-Etage die Wände darunter (jedes weitere Dach über seiner eigenen Größe), die Wände unter dem zweiten Flügel enden also an seinen Schrägen: Kniestock an der Traufe, ein Giebel am Ende. Ein Schrank nach Maß dort passt sich dem Dach über seinem Platz an, nicht dem Hauptdach.
+
 ## [4.53.0] - 2026-11-02
 ### Neu
 - **Das Backup hat jetzt alles** (der Besitzer, 2026-11-02: „ein Backup sollte ja immer alles sein“): außer den Häusern, Einstellungen, Bildern, 3D-Modellen, der Pinnwand, der Urlaubs-Alarmanlage, den Alarm-Nachrichten, Heizregeln, Abläufen und besonderen Tagen jetzt auch:

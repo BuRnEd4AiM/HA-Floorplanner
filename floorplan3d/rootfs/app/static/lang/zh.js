@@ -485,6 +485,7 @@ export default {
   'roof.partAdd': '+ 更多屋顶',
   'roof.partName': '名称',
   'roof.partLevel': '位于',
+  'roof.partMain': '与主屋顶相同（同一高度，也在矮墙上）',
   'roof.partTop': '房屋顶部',
   'roof.partRemove': '移除屋顶',
   'heat.title': '暖通',

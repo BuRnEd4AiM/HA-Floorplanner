@@ -119,3 +119,5 @@ f("phonepages", "phone", "Am Handy: die Seiten", "On the phone: the pages", ["ph
 # ---------- added by a version (since=) ----------
 f("guide", "settings", "🎬 Video-Anleitung im Add-on, für ohne Internet speichern", "🎬 Video guide in the add-on, saved for without internet",
   why="das ist diese Anleitung selbst", since="4.52.0")
+f("roofwing", "edit", "L-förmiges Dach: ein weiteres Dach wie das Hauptdach, auch auf dem Kniestock", "L-shaped roof: a further roof like the main roof, on the knee wall too",
+  ["roof-wing"], since="4.54.0")

@@ -135,3 +135,50 @@ test('roof with steps (#342): every slope piece cuts only along its own stretch'
   const plain = A.roofPlanes(bb, { ...spec, steps: [] }, 0), before = A.roofPlanes(bb, { type: 'gable', pitch: 45, overhang: 0, ridge: 'x' }, 0);
   assert.deepEqual(plain, before, 'without steps the planes are the same as before');
 });
+
+test('a further roof (#621): like the main roof (on its knee wall too), on top of a storey, or on top of the house', () => {
+  const fl = [{ id: 'eg', kind: 'floor' }, { id: 'dg', kind: 'floor' }, { id: 'd', kind: 'roof', roof: { knee: 1 } }];
+  assert.equal(A.partY0(fl, 2, { level: 'main' }, elev), -2, 'the same height as the main roof: 1 m above the floor of the Dachgeschoss');
+  assert.equal(A.partY0(fl, 2, { level: 'main' }, elev), A.roofY0(fl, 2, elev));
+  assert.equal(A.partY0(fl, 2, {}, elev), 0, 'on top of the house, as before');
+  assert.equal(A.partY0(fl, 2, { level: 'eg' }, elev), -3, 'on top of the Erdgeschoss (an annex), as before');
+  assert.equal(A.partY0(fl, 2, { level: 'd' }, elev), 0, 'a roof floor is no storey to sit on');
+  assert.equal(A.partY0(fl, 2, { level: 'gone' }, elev), 0);
+  delete fl[2].roof.knee;
+  assert.equal(A.partY0(fl, 2, { level: 'main' }, elev), 0, 'without a knee wall the main roof sits on top of the house');
+});
+
+test('an L-shaped house (#621): the walls are cut at the roof over them, the main roof or the wing, not at the main roof everywhere', () => {
+  // wing A 0..12 x 0..8 (ridge along x), wing B 0..7 x 4..15 (ridge along z), both 45°, no overhang, on the same knee wall (y 0)
+  const main = { type: 'gable', pitch: 45, overhang: 0, ridge: 'x' }, wing = { type: 'gable', pitch: 45, overhang: 0, ridge: 'z' };
+  const bA = { x0: 0, x1: 12, z0: 0, z1: 8 }, bB = { x0: 0, x1: 7, z0: 4, z1: 15 };
+  const clip = A.joinCuts([{ planes: A.roofPlanes(bA, main), rooms: [], box: null }, { planes: A.roofPlanes(bB, wing), rooms: [], box: A.roofReach(bB, wing) }]);
+  assert.deepEqual(clip.groups.map((g) => g.n), [2, 2]);
+  const kept = (x, y, z) => A.keptAt(clip.planes, clip.rooms, x, y, z, clip.groups);
+  assert.ok(kept(3.5, 3.4, 12) && !kept(3.5, 3.6, 12), 'in wing B: up to its ridge (3.5 m over the knee wall)');
+  assert.ok(!A.keptAt(A.roofPlanes(bA, main), [], 3.5, 0.5, 12), 'before: the main roof alone cut wing B down to nothing');
+  assert.ok(kept(0.1, 0.05, 12) && !kept(0.1, 0.2, 12), 'its eave side: only the knee wall');
+  assert.ok(kept(10, 3.9, 4) && !kept(10, 4.1, 4), 'in wing A: up to the main ridge (4 m)');
+  assert.ok(kept(10, 0.3, 7.6) && !kept(10, 0.5, 7.6), 'the eave of wing A away from wing B (walls end 3 cm under the roof)');
+  assert.ok(kept(0, 3.9, 4), 'the gable wall of wing A where wing B joins: the higher of the two roofs');
+  assert.ok(!kept(20, 0.5, 12), 'outside both roofs: cut (as with one roof)');
+  assert.equal(A.keptAt(clip.planes, [], 3.5, 3.4, 12), false, 'without the groups: every plane counts, as before');
+  const P = A.planesAt(clip, 3.5, 12);
+  assert.deepEqual(P, A.roofPlanes(bB, wing), 'a cabinet in wing B fits under the slopes of wing B');
+  assert.deepEqual(A.planesAt(clip, 10, 4), A.roofPlanes(bA, main), 'one in wing A under the main roof');
+  assert.deepEqual(A.planesAt({ planes: A.roofPlanes(bA, main), rooms: [] }, 10, 4), A.roofPlanes(bA, main), 'one roof, no groups: its planes');
+  assert.equal(A.planesAt(null, 1, 1), null);
+});
+
+test('joining cuts: nothing is cut when a roof without slopes counts everywhere (a flat main roof), as before', () => {
+  const gable = A.roofPlanes(bb, { type: 'gable', pitch: 45, overhang: 0 });
+  assert.equal(A.joinCuts([]), null);
+  assert.equal(A.joinCuts([{ planes: [], rooms: [], box: null }, { planes: gable, rooms: [], box: bb }]), null);
+  assert.equal(A.joinCuts([{ planes: [], rooms: [], box: bb }]), null);
+  const one = A.joinCuts([{ planes: gable, rooms: [], box: null }]);
+  assert.deepEqual(one.planes, gable);
+  assert.deepEqual(one.groups, [{ n: gable.length, box: null }]);
+  const flatWing = A.joinCuts([{ planes: gable, rooms: [], box: null }, { planes: [], rooms: [], box: { x0: 20, x1: 30, z0: 0, z1: 8 } }]);
+  assert.ok(A.keptAt(flatWing.planes, [], 25, 9, 4, flatWing.groups), 'under a flat further roof nothing is cut');
+  assert.deepEqual(A.roofReach(bb, { overhang: 0.5 }), { x0: -0.5, x1: 10.5, z0: -0.5, z1: 8.5 });
+});

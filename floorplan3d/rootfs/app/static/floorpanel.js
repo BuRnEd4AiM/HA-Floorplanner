@@ -37,6 +37,38 @@ export function boxOf(floor) {
   const xs = pts.map((q) => q[0]), zs = pts.map((q) => q[1]);
   return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) };
 }
+/** the base of the second wing of an L-shaped house (#621) for a further roof next to the main roof (base box mb, ridge along x or not):
+ *  the part of floor (its walls and room outlines) that lies beyond one edge of mb, the side with the most of it, inside `limit` (the box
+ *  the main roof would have on its own: no terraces and what lies under them). Beside the main roof's long side it reaches into mb up to
+ *  the main ridge, so that the two roofs meet in a valley, and its ridge (ridge: 'x' or 'z') runs across the main ridge; beyond its gable
+ *  end it gets no ridge (along its longer side). null when nothing of the floor lies beyond mb */
+export function wingBox(floor, mb, alongX, limit = null) {
+  const segs = [...(floor?.walls || []).map((w) => [w.a, w.b]),
+    ...(floor?.rooms || []).flatMap((r) => (r.points?.length >= 3 ? r.points.map((q, i, ps) => [q, ps[(i + 1) % ps.length]]) : []))];
+  let best = null;
+  for (const [k, sg, edge] of [[1, 1, mb.z1], [1, -1, mb.z0], [0, 1, mb.x1], [0, -1, mb.x0]]) {   // behind, in front, right, left
+    const beyond = (q) => sg * (q[k] - edge) > 0.05, pts = [];
+    segs.forEach(([a, c]) => {
+      const ia = beyond(a), ic = beyond(c);
+      if (ia) pts.push(a);
+      if (ic) pts.push(c);
+      if (ia !== ic) { const u = (edge - a[k]) / (c[k] - a[k]); pts.push([a[0] + u * (c[0] - a[0]), a[1] + u * (c[1] - a[1])]); }   // where it crosses the edge
+    });
+    if (!pts.length) continue;
+    const xs = pts.map((q) => q[0]), zs = pts.map((q) => q[1]);
+    const b = { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs) };
+    if (limit) Object.assign(b, { x0: Math.max(b.x0, limit.x0), x1: Math.min(b.x1, limit.x1), z0: Math.max(b.z0, limit.z0), z1: Math.min(b.z1, limit.z1) });
+    if (b.x1 - b.x0 < 0.5 || b.z1 - b.z0 < 0.5) continue;
+    const area = (b.x1 - b.x0) * (b.z1 - b.z0);
+    if (!best || area > best.area) best = { b, k, sg, edge, area };
+  }
+  if (!best) return null;
+  const { b, k, sg, edge } = best, near = k === 1 ? (sg > 0 ? b.z0 : b.z1) : (sg > 0 ? b.x0 : b.x1);
+  if ((k === 1) !== alongX || Math.abs(near - edge) > 0.3) return b;         // beyond its gable end, or standing apart: its own ridge
+  const mid = k === 1 ? (mb.z0 + mb.z1) / 2 : (mb.x0 + mb.x1) / 2;          // beside its long side: up to the main ridge
+  if (k === 1) { if (sg > 0) b.z0 = mid; else b.z1 = mid; } else if (sg > 0) b.x0 = mid; else b.x1 = mid;
+  return { ...b, ridge: alongX ? 'z' : 'x' };
+}
 /** where the n-th new dormer goes: alternating sides, the middle first, then a quarter and three quarters along */
 export const nextDormerSpot = (n) => ({ side: n % 2, pos: [0.5, 0.25, 0.75][Math.floor(n / 2) % 3] });
 /** a new width for dormer d on the roof r (base box bb): its start (distance from the gable) stays where it is (#339) */
@@ -221,7 +253,9 @@ export function initFloorPanel(ctx) {
       card.append(field(t('roof.partName'), inp('text', p.name || '', (v) => { p.name = String(v).slice(0, 40); }, {})));
       card.append(field(t('roof.type'), select(['gable', 'hip', 'flat'].map((v) => [v, t(`roof.${v}`)]), p.type || 'gable', (v) => { p.type = v; if (v === 'flat') delete p.dormers; })));
       card.append(field(t('roof.pitch'), inp('number', p.pitch ?? 35, (v) => (p.pitch = clampPitch(v)), { step: 1 })));
-      card.append(field(t('roof.partLevel'), select([['', t('roof.partTop')], ...levels.map((x) => [x.id, x.name])], p.level || '', (v) => { if (v) p.level = v; else delete p.level; })));
+      const lsel = select([['main', t('roof.partMain')], ['', t('roof.partTop')], ...levels.map((x) => [x.id, x.name])], p.level || '', (v) => { if (v) p.level = v; else delete p.level; });
+      lsel.className = 'roofPartLevel';                            // 'main': as high as the main roof, on its knee wall too (an L-shaped house, #621)
+      card.append(field(t('roof.partLevel'), lsel));
       boxFields(card, (p.box ||= { x0: 0, x1: 4, z0: 0, z1: 4 }));
       card.append(field(t('roof.overhang'), lenInput(() => p.overhang ?? 0.4, (v) => (p.overhang = v), { min: 0 })));
       const del = document.createElement('button'); del.type = 'button'; del.className = 'roofPartDel'; del.textContent = '×'; del.title = t('roof.partRemove');
@@ -233,7 +267,12 @@ export function initFloorPanel(ctx) {
     add.addEventListener('click', () => {
       ctx.snapshot();
       const lv = layout.floors[ctx.groundIdx()];
-      r.parts.push({ id: `rp${ctx.uid()}`, type: 'flat', pitch: 35, overhang: 0.4, box: boxOf(lv), ...(lv ? { level: lv.id } : {}) });
+      const ri = layout.floors.indexOf(ctx.floor()), mb = ctx.roofBox(ri);
+      const wing = r.box && mb ? wingBox(lv, mb, alongXOf(mb, r), ctx.autoRoofBox(ri)) : null;   // the main roof covers only a part of the house: the other wing of an L (#621)
+      if (wing) {
+        const { ridge, ...box } = wing;
+        r.parts.push({ id: `rp${ctx.uid()}`, type: r.type === 'flat' ? 'gable' : r.type || 'gable', pitch: r.pitch ?? 35, overhang: r.overhang ?? 0.4, box, ...(ridge ? { ridge } : {}), level: 'main' });
+      } else r.parts.push({ id: `rp${ctx.uid()}`, type: 'flat', pitch: 35, overhang: 0.4, box: boxOf(lv), ...(lv ? { level: lv.id } : {}) });   // an annex
       redo();
     });
     box.append(add);

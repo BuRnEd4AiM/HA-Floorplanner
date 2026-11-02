@@ -8,7 +8,7 @@ import { frontHoles } from './dormerwin.js';
 import { intervals } from './roofsteps.js';
 import { onBridge } from './bridge.js';
 import { roofFrame, solarPose } from './solarroof.js';
-import { roofY0, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom } from './attic.js';
+import { roofY0, partY0, clipRoofFloor, roofPlanes, dormerRooms, roofOverRoom, roofReach, joinCuts, planesAt } from './attic.js';
 import { polyUniforms, clipToPoly } from './atticclip.js';
 import { wallPieces } from './roomclip.js';
 
@@ -146,24 +146,28 @@ export function initRoofs(ctx) {
     const bb = roofBoxOf(ctx.roofFloors?.(i) || ctx.layout().floors, i);   // the main roof of one building of several follows that one (#409)
     const spec = f.roof || (f.roof = { type: 'gable', pitch: 35, overhang: 0.4 });
     if (bb) out.push({ bb, spec, y0: roofY0(ctx.layout().floors, i, ctx.elev), tag: 'main' });   // on a knee wall it starts lower down (#260, #265)
-    (f.roof?.parts || []).forEach((p, pi) => {                              // further roofs: an annex with its own roof, on the floor it stands on
+    (f.roof?.parts || []).forEach((p, pi) => {                              // further roofs: an annex on the floor it stands on, or a wing like the main roof (#621)
       const pb = partBox(p);
       if (!pb) return;
-      const lv = ctx.layout().floors.findIndex((x) => x.id === p.level);
-      out.push({ bb: pb, spec: p, y0: lv >= 0 && ctx.layout().floors[lv].kind !== 'roof' ? ctx.elev(lv + 1) - ctx.elev(i) : 0, tag: p.id || `part${pi}` });   // the same id as roofmove.js uses
+      out.push({ bb: pb, spec: p, y0: partY0(ctx.layout().floors, i, p, ctx.elev), tag: p.id || `part${pi}` });   // the same id as roofmove.js uses
     });
     return out;
   }
   /** where the walls of floor i are cut at the roof over them (#260, #265), in the world frame: { planes (the slopes), rooms (inside the
-   *  dormers, kept) }; for the walls of the roof floor itself, and of the storeys under the slopes when the roof starts on a knee wall
-   *  lower down; null when nothing cuts them */
+   *  dormers, kept), groups (one per roof, see joinCuts) }; for the walls of the roof floor itself, and of the storeys under the slopes
+   *  when the roof starts on a knee wall lower down; null when nothing cuts them. The further roofs cut too, each over its own box: under
+   *  the second wing of an L-shaped house the walls follow its slopes, not those of the main roof (#621) */
   function wallClip(i) {
-    const ri = clipRoofFloor(ctx.layout().floors, i);
-    const R = ri < 0 ? null : roofList(ri).find((r) => r.tag === 'main');
-    if (!R) return null;
-    const E = ctx.elev(ri) + liftOf(R);
-    const planes = roofPlanes(R.bb, R.spec, R.y0).map(([x, y, z, d, ...range]) => [x, y, z, d - y * E, ...range]);
-    return planes.length ? { planes, rooms: dormerRooms(R.bb, R.spec, R.y0).map((q) => ({ ...q, top: q.top + E })) } : null;
+    const ri = clipRoofFloor(ctx.layout().floors, i), list = ri < 0 ? [] : roofList(ri);
+    const main = list.find((r) => r.tag === 'main');
+    if (!main) return null;
+    const cut = (R, box) => {
+      const E = ctx.elev(ri) + liftOf(R);
+      return { planes: roofPlanes(R.bb, R.spec, R.y0).map(([x, y, z, d, ...range]) => [x, y, z, d - y * E, ...range]),
+        rooms: dormerRooms(R.bb, R.spec, R.y0).map((q) => ({ ...q, top: q.top + E })), box };
+    };
+    const rank = (R) => (R.spec.level === 'main' ? 0 : R.spec.level ? 2 : 1);   // when not all fit into the shader: the wings first
+    return joinCuts([cut(main, null), ...list.filter((R) => R !== main).sort((a, b) => rank(a) - rank(b)).map((R) => cut(R, roofReach(R.bb, R.spec)))]);
   }
   /** is the roof of roof floor ri drawn over a focused room of floor i (outline pts): only when it cuts that floor or has a dormer over the room */
   function overRoom(ri, i, pts) {
@@ -209,6 +213,6 @@ export function initRoofs(ctx) {
   }
   return {
     box: (i) => roofBoxOf(ctx.layout().floors, i), autoBox: (i) => autoRoofBox(ctx.layout().floors, i), list: roofList,
-    build: buildRoof, over: buildOver, overRoom, railing: buildRailing, wallClip, placeSolar, updateFade: updateRoofFade, reset: () => { roofs.length = 0; }, faded: roofs,
+    build: buildRoof, over: buildOver, overRoom, railing: buildRailing, wallClip, slopesAt: (i, x, z) => planesAt(wallClip(i), x, z), placeSolar, updateFade: updateRoofFade, reset: () => { roofs.length = 0; }, faded: roofs,
   };
 }

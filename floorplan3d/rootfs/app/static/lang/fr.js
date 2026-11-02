@@ -408,6 +408,7 @@ export default {
   'roof.partAdd': '+ Autre toit',
   'roof.partName': 'Nom',
   'roof.partLevel': 'Repose sur',
+  'roof.partMain': 'comme le toit principal (même hauteur, aussi sur la jambette)',
   'roof.partTop': 'tout en haut (sur la maison)',
   'roof.partRemove': 'Supprimer le toit',
   'heat.title': 'CHAUFFAGE',
