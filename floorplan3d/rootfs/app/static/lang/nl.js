@@ -2170,4 +2170,13 @@ export default {
   'sd.h.whitmonday': 'Tweede pinksterdag', 'sd.h.corpuschristi': 'Sacramentsdag', 'sd.h.assumption': 'Maria-Tenhemelopneming',
   'sd.h.childrensday': 'Wereldkinderdag', 'sd.h.unity': 'Dag van de Duitse Eenheid', 'sd.h.reformation': 'Hervormingsdag', 'sd.h.allsaints': 'Allerheiligen',
   'sd.h.repentance': 'Boete- en Biddag', 'sd.h.xmas1': 'Eerste kerstdag', 'sd.h.xmas2': 'Tweede kerstdag',
+  'vg.btn': '🎬 Handleiding', 'vg.tip': 'Videohandleiding: elke functie als korte video, doorzoekbaar', 'vg.title': 'Videohandleiding',
+  'vg.save': '📥 Opslaan voor zonder internet ({mb} MB)', 'vg.saveNoSize': '📥 Opslaan voor zonder internet',
+  'vg.saveTip': 'Laadt de video\'s eenmalig in kleiner formaat in de add-on. Daarna werken ze ook zonder internet.',
+  'vg.update': '↻ Opgeslagen video\'s vernieuwen', 'vg.del': '🗑 Kopie verwijderen',
+  'vg.delAsk': 'De opgeslagen video\'s verwijderen? Daarna komen ze weer van internet.', 'vg.checking': 'Een moment …',
+  'vg.loading': 'Opslaan … {done} van {total} bestanden', 'vg.error': 'Opslaan mislukt: {msg}',
+  'vg.saved': 'Opgeslagen in de add-on ({mb} MB, {date}), werkt ook zonder internet', 'vg.online': 'De video\'s komen van internet (GitHub)',
+  'vg.offline': 'Geen verbinding met internet. Sla de video\'s één keer online op, dan werken ze ook zonder.',
+  'vg.demo': 'In de demo komen de video\'s altijd van internet.', 'vg.out': 'In een eigen venster openen',
 };

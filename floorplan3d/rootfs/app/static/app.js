@@ -8,6 +8,7 @@ import { closetPreset } from './closet.js';
 import { initAlertsUi } from './alertsui.js';
 import { initSearch } from './search.js';
 import { initBackups } from './backups.js';
+import { initGuide } from './guideui.js';
 import { initVersion } from './version.js';
 import { initPower } from './power.js';
 import { initEnergyUi } from './energyui.js';
@@ -1671,6 +1672,7 @@ function applySettings(prev = {}) {
 initBackups({ t, commitSettings, prepare: async () => { if (!settingsStore.loaded()) await loadSettings(); settingsStore.fill(); },
   onOpen: () => timeline.renderSetDays() });                       // 🗄️ backup dialog in the top bar (backups.js, #321)
 initVersion({ t, active: () => !isLive() && !!settings.updateCheck });
+initGuide({ $, t, lang: () => currentLanguage() });                 // 🎬 video guide in the top bar (guideui.js, only for editors)
 
 /* ================= Data loading ================= */
 async function loadAreas() { let a; [a, batteryOf] = await Promise.all([fetchAreas(), fetchBatteries()]); ({ areas, areaOf } = a); }   // Home Assistant's areas and which entity is in which (livechannel.js)

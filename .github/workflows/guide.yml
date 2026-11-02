@@ -1,0 +1,123 @@
+name: Video guide
+
+# Records the video guide (tools/make_guide.py, the owner's wish 2026-11-02: "jede Funktion in einem kleinen Kurzvideo … durchsuchen …
+# wie eine riesige Anleitung … hochwertig"): every clip of tools/guide/clips_*.py is played in the demo and filmed, once with the German
+# and once with the English interface. Runs whenever the app, the demo or the clips change on main (and by hand, maybe only some clips).
+# The videos go to the branch "guide-videos" (one commit, replaced every time, so the history does not grow); a clip that fails keeps its
+# last video. Then the workflow "Demo" puts them on GitHub Pages next to the demo: https://burned4aim.github.io/HA-Floorplanner/guide/
+on:
+  push:
+    branches: [main]
+    paths:
+      - "floorplan3d/rootfs/app/static/**"
+      - "demo/**"
+      - "tools/guide/**"
+      - "tools/make_guide.py"
+      - "!demo/floorplan3d-demo.html"
+      - "!tools/guide/page.html"              # only the page: the workflow "Demo" puts it on GitHub Pages, no new videos needed
+  workflow_dispatch:
+    inputs:
+      clips:
+        description: "Only these clips (ids with spaces, see python3 tools/make_guide.py --list); empty: all"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: guide
+  cancel-in-progress: true
+
+jobs:
+  record:
+    name: record ${{ matrix.lang }} ${{ matrix.shard }}/4
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [de, en]
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the demo
+        run: cd demo && npm ci && npm run build
+      - name: Install Chromium, ffmpeg and the fonts (emoji, Inter)
+        timeout-minutes: 20
+        run: |
+          printf 'Acquire::http::Timeout "30";\nAcquire::https::Timeout "30";\nAcquire::Retries "3";\n' | sudo tee /etc/apt/apt.conf.d/99timeouts
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          pip install playwright pillow
+          for i in 1 2 3; do timeout --kill-after=15 300 playwright install chromium && break; echo "Chromium download attempt $i failed, trying again"; done
+          for i in 1 2 3; do
+            timeout --kill-after=15 600 sudo apt-get update -q && timeout --kill-after=15 600 sudo apt-get install -y -q ffmpeg fonts-noto-color-emoji fonts-inter && break
+            echo "apt attempt $i failed, trying again"; sudo pkill -f "apt-get" || true; sleep 20
+          done
+          python -c "from playwright.sync_api import sync_playwright as s; p = s().start(); p.chromium.launch().close(); p.stop()" || timeout 600 playwright install-deps chromium
+          ffmpeg -hide_banner -encoders 2>/dev/null | grep -q libx264
+      - name: Record (${{ matrix.lang }}, part ${{ matrix.shard }} of 4)
+        env:
+          CLIPS: ${{ github.event.inputs.clips }}
+        run: |
+          set -o pipefail
+          python -u tools/make_guide.py --lang ${{ matrix.lang }} --shard ${{ matrix.shard }}/4 --out guide-out --keep-going $CLIPS 2>&1 | tee record.log || true
+          grep -q "^FAILED" record.log && { echo "::warning::$(grep '^FAILED' record.log) (they keep their last video)"; grep "^FAILED" record.log >> "$GITHUB_STEP_SUMMARY"; } || true
+          ls guide-out/${{ matrix.lang }} 2>/dev/null | wc -l
+      - uses: actions/upload-artifact@v4
+        with:
+          name: guide-${{ matrix.lang }}-${{ matrix.shard }}
+          path: guide-out
+          if-no-files-found: ignore
+          retention-days: 3
+
+  publish:
+    needs: record
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: guide-*
+          path: new
+          merge-multiple: true
+      - name: The new videos over the last ones (branch guide-videos)
+        run: |
+          mkdir -p vids
+          if git fetch -q --depth 1 origin guide-videos; then git archive FETCH_HEAD | tar -x -C vids; fi
+          [ -d new ] && cp -r new/. vids/ || echo "nothing new recorded"
+          # clips that were removed from tools/guide: their videos go too
+          python3 - <<'EOF'
+          import sys; from pathlib import Path
+          sys.path.insert(0, "tools")
+          import make_guide as mg
+          ids = set(mg.load_clips())
+          for f in Path("vids").glob("*/*"):
+              cid = f.name.split(".")[0]
+              if cid not in ids:
+                  f.unlink(); print("removed", f)
+          EOF
+          python3 tools/make_guide.py --site /tmp/check --videos vids
+          du -sh vids
+      - name: Push the branch guide-videos (one commit)
+        run: |
+          cd vids
+          git init -q -b guide-videos
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          printf '# Videos of the video guide\n\nMade by the workflow "Video guide" (tools/make_guide.py) from the demo; replaced at every run. The page: https://burned4aim.github.io/HA-Floorplanner/guide/\n' > README.md
+          git add -A
+          git commit -q -m "Video guide: videos of ${GITHUB_SHA::7}"
+          git push -q --force "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" guide-videos
+      - name: Put them on GitHub Pages (workflow "Demo")
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run demo.yml --ref main --repo "${{ github.repository }}"

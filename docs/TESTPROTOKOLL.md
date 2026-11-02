@@ -4,12 +4,13 @@ Hier steht, was getestet wurde, wann und von wem. Der Besitzer testet in der **D
 
 Legende: ✅ geht · ❌ geht nicht · ❓ noch nicht getestet · ➖ in der Demo nicht prüfbar (nur im Add-on)
 
-## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.51.0)
+## Kurze Prüfliste: das Wichtigste zuerst (Stand 4.52.0)
 
-Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.51.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
+Die **Demo** öffnen: https://burned4aim.github.io/HA-Floorplanner/ und neu laden (am PC Strg+F5). Oben in der Leiste muss **v4.52.0** stehen. Punkte mit „nur im Add-on“ gehen nur in Home Assistant. Ergebnis gern hier oder im Chat: Nummer + „geht“ oder „geht nicht, weil …“ (ein Bild hilft). Die Nummern in Klammern führen zu den Tabellen unten, dort steht jeder Schritt genau.
 
 **In der Nacht zum 2026-10-25 hat Claude fast alle offenen Punkte der Demo selbst geprüft** (Chromium als PC, Tablet und Handy) und einige im Test-Add-on (das Add-on mit einem nachgebauten Home Assistant); eingetragen als „Claude“. Die Fehler dabei sind in 4.21.2 repariert (Abschnitt 101). Übrig bleibt, was nur mit deinen echten Geräten geht:
 
+1. **Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video zum Durchsuchen** (Abschnitt 141): erst nach dem Merge, wenn die Videos aufgenommen sind (etwa eine halbe Stunde): 141.2 bis 141.6 auf der Seite der Anleitung (auch am Handy), im Add-on 141.7 und 141.8 (141.1 hat Claude geprüft).
 1. **Neu in 4.51.0: 📅 besondere Tage in Abläufen (z. B. an Heiligabend und Feiertagen den Rollladen nur auf 50 %) und feste Stufen 0 / 50 / 75 / 100 % auf der Rollladen-Karte** (Abschnitt 140): Claude hat 140.1 bis 140.6 in der Demo geprüft (probier es gern selbst); für dich im Add-on 140.7 bis 140.10.
 1. **Neu in 4.50.0 und 4.50.1: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich, auch „Fest“** (Abschnitt 138 und 139, ein Beitrag von aixmoyu): Claude hat 138.1 bis 138.3, 139.1 und 139.2 geprüft (probier es gern selbst in der Demo); für dich im Add-on 138.4 bis 138.6 und 139.3, und 138.7, wenn du einen Vorhang mit Motor hast.
 1. **Neu in 4.48.0: ▦ „Frei anordnen“, die Karten einer Seite dort, wo du sie willst** (Abschnitt 137): Claude hat 137.1 bis 137.5 in der Demo geprüft (probier es gern selbst); für dich im Add-on am iPad und Handy 137.6 bis 137.8.
@@ -378,7 +379,8 @@ Diese Tabelle **rechnet sich selbst aus** den Tabellen unten aus (`python3 tools
 | 138. Neu in 4.50.0: 🪟 Vorhänge zur Seite und jeder Fensterflügel für sich (#606) | 3 | 0 | 4 | 0 | 138.4 bis 138.7 |
 | 139. Neu in 4.50.1: ein Fensterflügel kann „Fest“ sein, ein Flügel ohne Kontakt folgt wieder dem Hauptkontakt (#606) | 2 | 0 | 1 | 0 | 139.3 |
 | 140. Neu in 4.51.0: 📅 besondere Tage in Abläufen, feste Stufen auf der Rollladen-Karte | 6 | 0 | 4 | 0 | 140.7 bis 140.10 |
-| **Zusammen** | **852** | **1** | **104** | **92** | |
+| 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video | 1 | 0 | 7 | 0 | 141.2 bis 141.8 |
+| **Zusammen** | **853** | **1** | **111** | **92** | |
 <!-- AUTO-UEBERSICHT-END -->
 
 ## Ältere offene Punkte (nur im echten Betrieb prüfbar)
@@ -2145,3 +2147,17 @@ Der Besitzer am 2026-11-01: „an Heiligabend soll zum Beispiel der Rollladen ni
 | 140.8 | Im Add-on: ▶ Abläufe → „📅 Besondere Tage“ → „Feiertage“, Bundesland Baden-Württemberg, und „📌 Morgen (einmal)“, speichern | Bei den Feiertagen steht der nächste Feiertag (z. B. „1. Weihnachtstag“); morgen steht mit Datum da | ❓ |
 | 140.9 | Im Add-on: deinen Ablauf für die Rollläden am Morgen öffnen, den Auslöser (Uhrzeit) antippen, „An besonderen Tagen anders“ mit „Morgen“ und „Feiertage“, im neuen Weg den Rollladen auf „Position“ 50, speichern (🏠 Home Assistant) | Gespeichert ohne Fehler; in Home Assistant (↗) haben die Automationen eine Bedingung „Vorlage“ mit den Daten; am nächsten Morgen fährt der Rollladen nur auf 50 % | ❓ |
 | 140.10 | Im Add-on: dasselbe mit einem Ablauf „⚙️ Add-on“ (läuft im Add-on statt in Home Assistant) | Am besonderen Tag läuft der Weg mit 50 %, an den anderen Tagen der normale; im 📜 Protokoll von ▶ Abläufe steht, welcher Weg lief | ❓ |
+
+## 141. Neu in 4.52.0: 🎬 Video-Anleitung, jede Funktion als kurzes Video
+Der Besitzer am 2026-11-02: „ein Programm …, das mir automatisch jede Funktion in einem kleinen Kurzvideo aufnimmt, so dass man es durchsuchen kann … wie eine riesige Anleitung … hochwertig“; dazu: der Knopf nur für Admins, das Add-on nicht groß machen, für ein Haus ohne Internet die Videos auf Knopfdruck speichern. Die Videos gibt es erst nach dem Merge (der Workflow „Video guide“ nimmt sie auf, etwa eine halbe Stunde).
+
+| Nr. | Was tun | Erwartung | Ergebnis |
+|---|---|---|---|
+| 141.1 | Im Test-Add-on als Admin und als Tablet ohne Bearbeiten | Als Admin steht oben „🎬 Anleitung“; ein Tipp öffnet ein großes Fenster mit der Seite der Anleitung, „📥 Für ohne Internet speichern (… MB)“ und „Die Videos kommen aus dem Internet (GitHub)“; das Tablet hat keinen Knopf | ✅ (2026-11-02, Claude im Browser-Test 65_guide, mit einer nachgebauten Seite) |
+| 141.2 | Die Seite https://burned4aim.github.io/HA-Floorplanner/guide/ öffnen | Oben „Alles, was dein 3D-Grundriss kann, in kurzen Videos“, eine große Suche, darunter die Bereiche (Erste Schritte, Bedienen, Seiten, Plan zeichnen, Seiten gestalten, Einstellungen, Handy und Tablet) mit je einem Bild pro Video; mit der Maus über einem Bild spielt eine kleine Vorschau | ❓ |
+| 141.3 | In die Suche „Rollladen“ schreiben | Nur passende Videos, das Wort gelb markiert; unter einem Video die Schritte mit Sekunde (z. B. „0:07 … Rollladen …“); ein Tipp darauf spielt das Video genau ab dort | ❓ |
+| 141.4 | Ein Video abspielen | Scharfes Bild, ein weicher Mauszeiger mit blauem Kreis bei jedem Klick; unten der Untertitel zum Schritt, rechts alle Schritte (der aktuelle blau, antippen springt); „Untertitel aus“, „1×“ (Tempo), „‹ ›“ zum nächsten Video, am Ende „Weiter: …“ | ❓ |
+| 141.5 | Oben rechts „EN“ antippen | Alles auf Englisch, auch die Untertitel; die Videos zeigen die englische Oberfläche | ❓ |
+| 141.6 | Die Seite am Handy öffnen | Eine Spalte, die Suche passt, das Video füllt die Breite, die Schritte stehen darunter | ❓ |
+| 141.7 | Im Add-on: „🎬 Anleitung“, dann „📥 Für ohne Internet speichern“ | Oben „Wird gespeichert … x von y Dateien“, nach ein paar Minuten „Im Add-on gespeichert (… MB, Datum), geht auch ohne Internet“; die Videos spielen weiter (jetzt aus dem Add-on), der Knopf heißt „↻ Gespeicherte Videos erneuern“ | ❓ |
+| 141.8 | Im Add-on: „🗑 Gespeicherte löschen“, bestätigen | Wieder „Die Videos kommen aus dem Internet (GitHub)“; das Add-on hat die Kopie nicht mehr | ❓ |

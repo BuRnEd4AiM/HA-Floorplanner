@@ -2165,4 +2165,12 @@ export default {
   'sd.h.whitmonday': 'Poniedziałek Zielonoświątkowy', 'sd.h.corpuschristi': 'Boże Ciało', 'sd.h.assumption': 'Wniebowzięcie NMP',
   'sd.h.childrensday': 'Światowy Dzień Dziecka', 'sd.h.unity': 'Dzień Jedności Niemiec', 'sd.h.reformation': 'Dzień Reformacji',
   'sd.h.allsaints': 'Wszystkich Świętych', 'sd.h.repentance': 'Dzień Pokuty', 'sd.h.xmas1': 'Boże Narodzenie', 'sd.h.xmas2': 'Drugi dzień świąt',
+  'vg.btn': '🎬 Poradnik', 'vg.tip': 'Poradnik wideo: każda funkcja jako krótki film, z wyszukiwaniem', 'vg.title': 'Poradnik wideo',
+  'vg.save': '📥 Zapisz do użytku bez internetu ({mb} MB)', 'vg.saveNoSize': '📥 Zapisz do użytku bez internetu',
+  'vg.saveTip': 'Jednorazowo wczytuje filmy w mniejszym rozmiarze do dodatku. Potem działają też bez internetu.', 'vg.update': '↻ Odśwież zapisane filmy',
+  'vg.del': '🗑 Usuń kopię', 'vg.delAsk': 'Usunąć zapisane filmy? Potem znów będą pobierane z internetu.', 'vg.checking': 'Chwileczkę …',
+  'vg.loading': 'Zapisywanie … {done} z {total} plików', 'vg.error': 'Zapis nie powiódł się: {msg}',
+  'vg.saved': 'Zapisano w dodatku ({mb} MB, {date}), działa też bez internetu', 'vg.online': 'Filmy pochodzą z internetu (GitHub)',
+  'vg.offline': 'Brak połączenia z internetem. Zapisz filmy raz online, potem zadziałają bez niego.',
+  'vg.demo': 'W wersji demo filmy zawsze pochodzą z internetu.', 'vg.out': 'Otwórz w osobnym oknie',
 };

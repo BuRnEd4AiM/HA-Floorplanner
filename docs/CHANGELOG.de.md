@@ -2,6 +2,17 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.52.0] - 2026-11-02
+### Neu
+- **🎬 Video-Anleitung: jede Funktion als kurzes Video, zum Durchsuchen** (der Besitzer, 2026-11-02: „ein Programm …, das mir automatisch jede Funktion in einem kleinen Kurzvideo aufnimmt, so dass man es durchsuchen kann und dann sehen kann, was man alles machen kann, wie eine riesige Anleitung … und ich meine, dass das auch hochwertig sein soll“):
+  - 46 kurze Videos in 7 Bereichen (Erste Schritte, Bedienen, Seiten, Plan zeichnen, Seiten gestalten, Einstellungen, Handy und Tablet), jedes mit deutscher und mit englischer Oberfläche;
+  - automatisch in der Demo aufgenommen, nach jedem Update (Workflow „Video guide“, `tools/make_guide.py`): Full HD mit 30 Bildern in der Sekunde, ein weicher Mauszeiger mit einem Kreis bei jedem Klick, ⏩ für Wartezeiten, die Handy-Videos in einem Handy;
+  - eine Seite zum Durchsuchen neben der Demo (https://burned4aim.github.io/HA-Floorplanner/guide/): die Suche findet Titel, Beschreibungen und jeden Schritt (ein Treffer springt an seine Sekunde), Bereiche, eine kleine Vorschau unter der Maus, Untertitel (an oder aus, Deutsch oder Englisch), die Schritte als Kapitel, Tempo, Link und Herunterladen;
+  - im Add-on öffnet der Knopf **🎬 Anleitung** oben (nur für alle, die bearbeiten dürfen) sie in einem Fenster; **📥 Für ohne Internet speichern** lädt die Videos einer Sprache einmal in kleinerer Größe ins Add-on (etwa 40 MB, im Datenordner des Add-ons), danach laufen sie auch ohne Internet; das Add-on selbst wird nicht größer.
+### Verbessert
+- Neue Module `guide.js` (rein, Unit-Test `tests/guide.test.mjs`, ein neuer CI-Schritt) und `guideui.js` in der Seite, `guide.py` im Add-on (`tests/test_guide.py`); die Videos stehen in `tools/guide/clips_*.py` (`tests/test_make_guide.py` prüft, dass jedes vollständig ist), Browser-Test Teil `65_guide`. Jede neue Funktion bekommt dort ein Video.
+- Testprotokoll: neuer Abschnitt 141.
+
 ## [4.51.0] - 2026-11-02
 ### Neu
 - **📅 Besondere Tage für eigene Abläufe** (der Besitzer, 2026-11-01: „dass man jetzt zum Beispiel sagen kann, diese Automatisierung soll aber am folgenden Tag … Feiertag … oder einen vordefinierten Tag … anders sein, wie zum Beispiel an Halloween, an Heiligabend soll zum Beispiel der Rollladen nicht ganz hochfahren, obwohl die Rollladensteuerung sagt, dass jeden Tag 7 Uhr etwas gesteuert wird“):

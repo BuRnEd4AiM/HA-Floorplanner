@@ -39,6 +39,14 @@ In the device tool use **Upload GLB**. Models are scaled to fit 1 m and can be r
 
 All other settings (language, theme, units, grid ...) live in the ⚙ dialog inside the app. It has ten groups that fold open and shut (*General*, *Drawing & editing*, *3D view & performance*, *What the picture shows*, *Floors*, *Outside & surroundings*, *Light & background*, *Warnings & alarm*, *Wall tablet*, *Colours for temperature, humidity, CO₂*); each says in a small line what is in it, and the browser remembers which ones were left open. The search at the top (*🔍 Search …*) keeps only the groups with that word, opened, and marks the matching rows; the tooltips count too, so *sun* finds the sky.
 
+## Video guide
+
+**🎬 Every feature as a short video** (4.52.0): https://burned4aim.github.io/HA-Floorplanner/guide/ (next to the demo). About 50 videos in groups (first steps, control, pages, drawing the plan, designing pages, settings, phone and tablet), each with a German and an English interface, recorded automatically in the demo after every update. The search finds titles, descriptions and every single step (a hit jumps to its second); the steps are subtitles (on or off) and chapters beside the video.
+
+In the add-on, **🎬 Anleitung** at the top (only for those who may edit) opens the guide in a window. The videos come from the internet, so the add-on does not get bigger. For a home without internet: **📥 Für ohne Internet speichern** in that window loads the videos of your language once in a smaller size (about 40 MB) into the add-on's data folder; from then on the window plays them from the add-on, also without internet (**↻** renews them after an update, **🗑** deletes the copy). In the Docker version the copy goes into its data folder as well.
+
+How the videos are made (for developers): `tools/make_guide.py` and `tools/guide/README.md`.
+
 ## Support
 
 Please open an issue in the project repository and include the add-on version and browser console output.

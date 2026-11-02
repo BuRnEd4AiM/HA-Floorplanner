@@ -4,6 +4,17 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.52.0] - 2026-11-02
+### Added
+- **🎬 Video guide: every feature as a short video, searchable** (the owner, 2026-11-02: "ein Programm …, das mir automatisch jede Funktion in einem kleinen Kurzvideo aufnimmt, so dass man es durchsuchen kann und dann sehen kann, was man alles machen kann, wie eine riesige Anleitung … und ich meine, dass das auch hochwertig sein soll"):
+  - 46 short videos in 7 groups (first steps, control, pages, drawing the plan, designing pages, settings, phone and tablet), each with a German and an English interface;
+  - recorded automatically in the demo after every update (workflow "Video guide", `tools/make_guide.py`): Full HD at 30 pictures a second, a smooth mouse pointer with a ring at every click, ⏩ for waiting times, the phone clips in a phone;
+  - a page to search them next to the demo (https://burned4aim.github.io/HA-Floorplanner/guide/): the search finds titles, descriptions and every step (a hit jumps to its second), groups, a small preview under the mouse, subtitles (on or off, German or English), the steps as chapters, speed, link and download;
+  - in the add-on the button **🎬 Anleitung** at the top (only for those who may edit) opens it in a window; **📥 Für ohne Internet speichern** loads the videos of one language in a smaller size into the add-on once (about 40 MB, in the add-on's data folder), after that they also play without internet; the add-on itself does not get bigger.
+### Changed
+- New modules `guide.js` (pure, unit test `tests/guide.test.mjs`, a new CI step) and `guideui.js` in the page, `guide.py` in the add-on (`tests/test_guide.py`); the clips are in `tools/guide/clips_*.py` (`tests/test_make_guide.py` checks each is complete), browser test part `65_guide`. Every new feature gets a clip there.
+- Test protocol: new section 141.
+
 ## [4.51.0] - 2026-11-02
 ### Added
 - **📅 Special days for own routines** (the owner, 2026-11-01: "dass man jetzt zum Beispiel sagen kann, diese Automatisierung soll aber am folgenden Tag … Feiertag … oder einen vordefinierten Tag … anders sein, wie zum Beispiel an Halloween, an Heiligabend soll zum Beispiel der Rollladen nicht ganz hochfahren, obwohl die Rollladensteuerung sagt, dass jeden Tag 7 Uhr etwas gesteuert wird"):

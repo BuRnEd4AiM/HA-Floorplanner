@@ -2198,4 +2198,12 @@ export default {
   'sd.h.whitmonday': 'Lunedì di Pentecoste', 'sd.h.corpuschristi': 'Corpus Domini', 'sd.h.assumption': 'Assunzione',
   'sd.h.childrensday': 'Giornata mondiale dell’infanzia', 'sd.h.unity': 'Giorno dell’unità tedesca', 'sd.h.reformation': 'Festa della Riforma',
   'sd.h.allsaints': 'Ognissanti', 'sd.h.repentance': 'Giorno di penitenza', 'sd.h.xmas1': 'Natale', 'sd.h.xmas2': 'Santo Stefano',
+  'vg.btn': '🎬 Guida', 'vg.tip': 'Guida video: ogni funzione in un breve video, con ricerca', 'vg.title': 'Guida video',
+  'vg.save': '📥 Salva per l\'uso senza internet ({mb} MB)', 'vg.saveNoSize': '📥 Salva per l\'uso senza internet',
+  'vg.saveTip': 'Carica una volta i video in formato ridotto nell\'add-on. Poi funzionano anche senza internet.', 'vg.update': '↻ Aggiorna i video salvati',
+  'vg.del': '🗑 Elimina la copia', 'vg.delAsk': 'Eliminare i video salvati? Dopo verranno di nuovo da internet.', 'vg.checking': 'Un momento …',
+  'vg.loading': 'Salvataggio … {done} di {total} file', 'vg.error': 'Salvataggio non riuscito: {msg}',
+  'vg.saved': 'Salvato nell\'add-on ({mb} MB, {date}), funziona anche senza internet', 'vg.online': 'I video arrivano da internet (GitHub)',
+  'vg.offline': 'Nessuna connessione a internet. Salva i video una volta online, poi funzionano anche senza.',
+  'vg.demo': 'Nella demo i video arrivano sempre da internet.', 'vg.out': 'Apri in una finestra a parte',
 };

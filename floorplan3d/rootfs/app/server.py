@@ -16,6 +16,7 @@ import logging
 import os
 import re
 import secrets
+import shutil
 import time
 import types
 from pathlib import Path
@@ -29,6 +30,7 @@ import boards
 import flows as fl
 import garden as gn
 import guard as gd
+import guide as vg
 import haflows as hf
 import devlog as dl
 import heatlog as hlog
@@ -4169,6 +4171,57 @@ async def get_import_example(request):
     return web.FileResponse(path)
 
 
+# ---------- 🎬 the video guide (guide.py): a copy for without internet, saved by an admin ----------
+
+KEY_GUIDE = web.AppKey("guide", vg.Job)
+
+
+def guide_dir(request) -> Path:
+    return request.app[KEY_DATA] / "guide"
+
+
+async def get_guide(request):
+    """is there a saved copy of the video guide, is a download running (only for those who may edit: the button is theirs)"""
+    if not await can_edit(request):
+        return forbidden()
+    return web.json_response(vg.status(guide_dir(request), request.app[KEY_GUIDE]))
+
+
+async def post_guide(request):
+    """📥 save the guide in one language (de or en) into the add-on; runs in the background, GET api/guide tells how far"""
+    if not await can_edit(request):
+        return forbidden()
+    job = request.app[KEY_GUIDE]
+    body = await request.json() if request.can_read_body else {}
+    lang = body.get("lang") if body.get("lang") in vg.LANGS else "en"
+    if not job.running():
+        job.start(lang)
+        timeout = aiohttp.ClientTimeout(total=1800, sock_read=60)
+        job.task = asyncio.create_task(vg.download(guide_dir(request), lang, job, lambda: aiohttp.ClientSession(timeout=timeout), vg.URL))
+    return web.json_response(vg.status(guide_dir(request), job))
+
+
+async def delete_guide(request):
+    """🗑 remove the saved copy (the button then opens the guide on the internet again)"""
+    if not await can_edit(request):
+        return forbidden()
+    job = request.app[KEY_GUIDE]
+    if job.task and not job.task.done():
+        job.task.cancel()
+    shutil.rmtree(guide_dir(request), ignore_errors=True)
+    job.state, job.error = "idle", None
+    return web.json_response(vg.status(guide_dir(request), job))
+
+
+async def get_guide_file(request):
+    """the saved copy: guide/ (its page), guide/guide.json, guide/<lang>/<clip>.small.mp4 and .jpg; nothing else"""
+    name = request.match_info.get("name") or "index.html"
+    f = guide_dir(request) / name
+    if not vg.allowed(name) or not f.is_file():
+        raise web.HTTPNotFound()
+    return web.FileResponse(f, headers={"Cache-Control": "no-cache"})
+
+
 def make_app(data_path: Path | None = None, config_path: Path | None = None) -> web.Application:
     app = web.Application(client_max_size=max(MAX_LAYOUT_BYTES, MAX_BG_BYTES + 1024 * 1024), middlewares=[login_gate])
     app[KEY_DATA] = Path(data_path or os.environ.get("DATA_DIR", "./data"))
@@ -4177,6 +4230,7 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
     app[KEY_TIMELINE] = {}
     app[KEY_PAGES] = {}
     app[KEY_FULL] = {}
+    app[KEY_GUIDE] = vg.Job()
     app.on_startup.append(seed_users_file)
     app.on_response_prepare.append(no_stale_files)
     app.on_cleanup.append(stop_live)
@@ -4285,6 +4339,11 @@ def make_app(data_path: Path | None = None, config_path: Path | None = None) -> 
         web.get("/api/camera/{entity}", get_camera),
         web.get("/api/camera/{entity}/hls", get_camera_hls),
         web.get("/api/hls/{token}/{name:.+}", get_hls),
+        web.get("/api/guide", get_guide),                   # 🎬 video guide (guide.py)
+        web.post("/api/guide", post_guide),
+        web.delete("/api/guide", delete_guide),
+        web.get("/guide/", get_guide_file),
+        web.get("/guide/{name:.+}", get_guide_file),
         web.static("/", STATIC_DIR, show_index=False),
     ])
     sub = web.Application(client_max_size=MAX_BACKUP_BYTES)   # the restore upload may be far larger than any other request

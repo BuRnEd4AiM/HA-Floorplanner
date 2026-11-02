@@ -2216,4 +2216,13 @@ export default {
   'sd.h.whitsunday': 'Dimanche de Pentecôte', 'sd.h.whitmonday': 'Lundi de Pentecôte', 'sd.h.corpuschristi': 'Fête-Dieu', 'sd.h.assumption': 'Assomption',
   'sd.h.childrensday': 'Journée mondiale de l’enfance', 'sd.h.unity': 'Fête de l’unité allemande', 'sd.h.reformation': 'Fête de la Réforme',
   'sd.h.allsaints': 'Toussaint', 'sd.h.repentance': 'Jour de pénitence', 'sd.h.xmas1': 'Noël', 'sd.h.xmas2': 'Saint-Étienne',
+  'vg.btn': '🎬 Guide', 'vg.tip': 'Guide vidéo : chaque fonction en courte vidéo, avec recherche', 'vg.title': 'Guide vidéo',
+  'vg.save': '📥 Enregistrer pour sans internet ({mb} Mo)', 'vg.saveNoSize': '📥 Enregistrer pour sans internet',
+  'vg.saveTip': 'Charge une fois les vidéos en taille réduite dans l\'add-on. Ensuite elles fonctionnent aussi sans internet.',
+  'vg.update': '↻ Actualiser les vidéos enregistrées', 'vg.del': '🗑 Supprimer la copie',
+  'vg.delAsk': 'Supprimer les vidéos enregistrées ? Elles viendront de nouveau d\'internet.', 'vg.checking': 'Un instant …',
+  'vg.loading': 'Enregistrement … {done} sur {total} fichiers', 'vg.error': 'L\'enregistrement a échoué : {msg}',
+  'vg.saved': 'Enregistré dans l\'add-on ({mb} Mo, {date}), fonctionne aussi sans internet', 'vg.online': 'Les vidéos viennent d\'internet (GitHub)',
+  'vg.offline': 'Pas de connexion à internet. Enregistrez les vidéos une fois en ligne, ensuite elles fonctionnent sans.',
+  'vg.demo': 'Dans la démo, les vidéos viennent toujours d\'internet.', 'vg.out': 'Ouvrir dans une fenêtre à part',
 };

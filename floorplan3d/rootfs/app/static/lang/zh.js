@@ -3830,4 +3830,8 @@ export default {
   'sd.h.goodfriday': '耶稣受难日', 'sd.h.eastersunday': '复活节', 'sd.h.eastermonday': '复活节星期一', 'sd.h.mayday': '劳动节', 'sd.h.ascension': '耶稣升天节',
   'sd.h.whitsunday': '圣灵降临节', 'sd.h.whitmonday': '圣灵降临节星期一', 'sd.h.corpuschristi': '基督圣体节', 'sd.h.assumption': '圣母升天节', 'sd.h.childrensday': '世界儿童节',
   'sd.h.unity': '德国统一日', 'sd.h.reformation': '宗教改革日', 'sd.h.allsaints': '万圣节', 'sd.h.repentance': '忏悔祈祷日', 'sd.h.xmas1': '圣诞节', 'sd.h.xmas2': '节礼日',
+  'vg.btn': '🎬 教程', 'vg.tip': '视频教程：每个功能一段短视频，可搜索', 'vg.title': '视频教程', 'vg.save': '📥 保存以便离线使用（{mb} MB）', 'vg.saveNoSize': '📥 保存以便离线使用',
+  'vg.saveTip': '将较小尺寸的视频一次性下载到插件中，之后无需联网也能观看。', 'vg.update': '↻ 更新已保存的视频', 'vg.del': '🗑 删除已保存的副本', 'vg.delAsk': '删除已保存的视频？之后将重新从网络加载。', 'vg.checking': '请稍候 …',
+  'vg.loading': '正在保存 … {done} / {total} 个文件', 'vg.error': '保存失败：{msg}', 'vg.saved': '已保存在插件中（{mb} MB，{date}），离线也可观看', 'vg.online': '视频来自网络（GitHub）',
+  'vg.offline': '无法连接网络。联网时保存一次视频，之后离线也能观看。', 'vg.demo': '在演示中，视频始终来自网络。', 'vg.out': '在新窗口中打开',
 };

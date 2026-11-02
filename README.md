@@ -19,6 +19,10 @@
 
 <sub>**Try the demo:** one click and it runs right in your browser, always the newest version, no install and no Home Assistant needed. Or download it as one HTML file with an example house, lights and sensors and double-click it.</sub>
 
+[![Video guide](https://img.shields.io/badge/%F0%9F%8E%AC%20Video%20guide-every%20feature%20as%20a%20short%20video-ffb347?style=for-the-badge&labelColor=0a3ba8)](https://burned4aim.github.io/HA-Floorplanner/guide/)
+
+<sub>**Video guide:** every feature shown in a short video (German or English interface), searchable down to the single step. Recorded automatically in the demo after every update.</sub>
+
 <img src="docs/img/3d.jpg" alt="3D view of a house at dusk with live lights, labels over the rooms and room tiles at the bottom" width="900">
 
 *Your own floor plan in 3D on its plot, live with your real lights, sensors, windows and scenes, under the sky of the time of day.*
@@ -416,6 +420,8 @@ It contains an example house with a basement in the ground, several floors, a ro
 To build it yourself: `cd demo && npm install && npm run build`.
 
 ## 📚 Documentation
+
+- **[🎬 Video guide](https://burned4aim.github.io/HA-Floorplanner/guide/)**: every feature as a short video, searchable (also in the add-on: *🎬 Anleitung* at the top, for editors; *📥 Für ohne Internet speichern* keeps a small copy in the add-on).
 
 - [User guide](floorplan3d/DOCS.md): permissions, tablets and views, areas, whole-room control, Nanoleaf, 2D editor, houses, backup
 - [Import a house by JSON / AI / GeoJSON](docs/IMPORT.en.md) ([Deutsch](docs/IMPORT.md); with screenshots, format reference, API, prompt tips; examples in [docs/examples](docs/examples))

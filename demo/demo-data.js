@@ -1031,6 +1031,7 @@ export function installDemoBackend() {
     if (path === 'api/family') return json(family());
     if (path === 'api/voice') return json({ assist: false, locked: false });    // the voice search (#509): the browser's own recognition; no Assist in the demo
     if (path === 'api/voice/stt') return json({ error: ONLY_ADDON }, 501);
+    if (path === 'api/guide') return method === 'GET' ? json({ local: false, demo: true, state: 'idle' }) : json({ error: ONLY_ADDON }, 501);   // 🎬 the guide comes from the internet in the demo (no copy to save)
     if (path === 'api/history') {                           // #484: a card "Verlauf": made-up numbers around the value now, one per hour (more for 7 / 30 days)
       const q = new URL(url, location.href).searchParams, e = entities[q.get('entity')], hours = Number(q.get('hours')) || 24;
       const now = Date.now(), base = parseFloat(e?.state) || 10, n = Math.min(240, hours), step = (hours * 3600000) / n;
