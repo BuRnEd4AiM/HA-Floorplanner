@@ -22,7 +22,7 @@ FLOW_ID = re.compile(r"^f_[a-z0-9]{1,16}$")
 LANE_ID = re.compile(r"^l[a-z0-9]{1,8}$")
 HHMM = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
 MAX_FLOWS, MAX_LANES, MAX_BLOCKS, MAX_ENTS = 40, 4, 12, 20
-OPEN, CLOSED, GONE = {"on", "open", "opening"}, {"off", "closed"}, {None, "unavailable", "unknown"}
+OPEN, CLOSED, GONE = {"on", "open", "opening", "tilted"}, {"off", "closed"}, {None, "unavailable", "unknown"}   # tilted: #624
 
 TRIGGERS = ("state", "num", "time", "sun", "presence", "button")
 CONDS = ("if_time", "if_days", "if_home", "if_state", "if_num", "if_outside", "if_sun", "if_special")

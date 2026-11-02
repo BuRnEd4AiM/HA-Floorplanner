@@ -118,7 +118,7 @@ Ready-made examples: [`docs/examples/flat.json`](examples/flat.json) (flat, 1 fl
 | `windowBath` | Window | single | 0.6 × 0.6 m | 1.5 m |
 | `windowFixed` | Window | fixed | 1.6 × 1.4 m | 0.6 m |
 
-Can be overridden: `width`, `height`, `sill`, `style`, `entity` (e.g. a window sensor), `name`. Instead of `preset` you can use `"type": "door"|"window"`. A window with a **roller shutter**: `"shutter": true` and `"shutterEntity": "cover.kitchen_shutter"` (the entity alone is enough too); doors have none.
+Can be overridden: `width`, `height`, `sill`, `style`, `entity` (e.g. a window sensor), `name`. Instead of `preset` you can use `"type": "door"|"window"`. A window with a **roller shutter**: `"shutter": true` and `"shutterEntity": "cover.kitchen_shutter"` (the entity alone is enough too); doors have none. A window with a second contact that reports it **tilted** (4.59.0): `"tiltEntity": "binary_sensor.window_tilted"`; `entity` then reports it open.
 
 ### Devices and furniture
 

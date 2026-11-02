@@ -2236,4 +2236,7 @@ export default {
   'terrain.heightHelp': '{list}. Dos puntos: una pendiente uniforme, llana delante y detrás. Desde tres: triángulos entre ellos.', 'terrain.off': 'no',
   'terrain.lines': 'Curvas de nivel', 'terrain.clear': 'Quitar terreno',
   'terrain.houseStays': 'La casa se queda donde está. Césped, caminos, parterres y objetos de jardín siguen el terreno; donde está más bajo, el sótano queda libre y las partes sin sótano se apoyan en un zócalo. Una meseta sigue llana (p. ej. una terraza).',
+  'state.tilted': 'Abatida', 'prop.tiltContact': 'Contacto abatida',
+  'prop.tiltContactHint': 'Un segundo contacto para una ventana oscilobatiente: indica «abatida». El contacto de arriba indica entonces «abierta».',
+  'prop.tiltContactSub': 'Opcional, para una ventana que se puede abatir y abrir: abatida, se vuelve amarilla y se inclina en 3D; abierta, se vuelve roja.',
 };

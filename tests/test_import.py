@@ -287,6 +287,26 @@ def test_window_without_rain_warning_survives_export():
     assert ops2["binary_sensor.fenster_bad"]["rainWarn"] is False and "rainWarn" not in ops2["binary_sensor.fenster_kueche"] and not rep2.errors
 
 
+def test_tilt_contact_is_imported_and_exported():
+    """#624: a window's contact "gekippt" (tiltEntity) survives import and export; a door and fixed glazing have none"""
+    room = [{"points": [[0, 0], [8, 0], [8, 3], [0, 3]]}]
+    f = square_flat(rooms=room, openings=[
+        {"preset": "window", "at": [1.5, 0], "entity": "binary_sensor.offen", "tiltEntity": "binary_sensor.kipp"},
+        {"preset": "windowFixed", "at": [4.5, 0], "tiltEntity": "binary_sensor.fest"},
+        {"preset": "door", "at": [3, 3], "tiltEntity": "binary_sensor.tuer"}])
+    layout, _, rep, _ = importer.build_layout(f)
+    assert not rep.errors
+    ops = [o for w in layout["floors"][0]["walls"] for o in w["openings"]]
+    assert [o.get("tiltEntity") for o in ops if o.get("entity") == "binary_sensor.offen"] == ["binary_sensor.kipp"]
+    assert not any(o.get("tiltEntity") for o in ops if o["type"] == "door" or o.get("style") == "fixed")
+    assert any(w["path"].endswith(".tiltEntity") for w in rep.warnings), "a door: warned"
+    again, _, rep2, _ = importer.build_layout(importer.layout_to_property(layout, "x"))
+    ops2 = [o for w in again["floors"][0]["walls"] for o in w["openings"]]
+    assert [o.get("tiltEntity") for o in ops2 if o.get("entity") == "binary_sensor.offen"] == ["binary_sensor.kipp"] and not rep2.errors
+    schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
+    assert any("tiltEntity" in d.get("properties", {}) for d in schema["$defs"].values())
+
+
 def test_schema_describes_covers_and_per_pane_hinges():
     schema = json.loads((APP / "property.schema.json").read_text(encoding="utf-8"))
     props = next(d["properties"] for d in schema["$defs"].values() if "paneEntities" in d.get("properties", {}))

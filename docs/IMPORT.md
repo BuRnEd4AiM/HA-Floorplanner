@@ -120,7 +120,7 @@ Fertige Beispiele zum Herunterladen: [`docs/examples/flat.json`](examples/flat.j
 | `windowBath` | Fenster | single | 0.6 × 0.6 m | 1.5 m |
 | `windowFixed` | Fenster | fixed | 1.6 × 1.4 m | 0.6 m |
 
-Überschreibbar: `width`, `height`, `sill`, `style`, `entity` (z. B. Fenstersensor), `name`. Statt `preset` geht auch `"type": "door"|"window"`. Ein Fenster mit **Rollladen**: `"shutter": true` und `"shutterEntity": "cover.rollladen_kueche"` (die Entität allein reicht auch); Türen haben keinen.
+Überschreibbar: `width`, `height`, `sill`, `style`, `entity` (z. B. Fenstersensor), `name`. Statt `preset` geht auch `"type": "door"|"window"`. Ein Fenster mit **Rollladen**: `"shutter": true` und `"shutterEntity": "cover.rollladen_kueche"` (die Entität allein reicht auch); Türen haben keinen. Ein Fenster mit einem zweiten Kontakt, der **gekippt** meldet (4.59.0): `"tiltEntity": "binary_sensor.fenster_gekippt"`; `entity` meldet dann offen.
 
 ### Geräte & Möbel
 

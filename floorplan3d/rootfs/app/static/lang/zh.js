@@ -3849,4 +3849,6 @@ export default {
   'terrain.points': '高程点（{n}）', 'terrain.none': '还没有：地面是平的。', 'terrain.pick': '在平面图中显示', 'terrain.height': '高度（0 = 一楼）', 'terrain.remove': '删除高程点',
   'terrain.heightHelp': '{list}。两个点：均匀的斜坡，两端之外是平的。三个及以上：点之间形成三角形。', 'terrain.off': '关', 'terrain.lines': '等高线', 'terrain.clear': '移除地形',
   'terrain.houseStays': '房屋保持原位。草坪、小路、花坛和花园物品随地面变化；地面较低处地下室露出，没有地下室的部分立在基座上。平台保持水平（例如露台）。',
+  'state.tilted': '内倒', 'prop.tiltContact': '内倒触点', 'prop.tiltContactHint': '内开内倒窗的第二个触点：它报告“内倒”。上面的触点则报告“打开”。',
+  'prop.tiltContactSub': '可选，用于可内倒也可打开的窗户：内倒时窗户变黄并在 3D 中倾斜，打开时变红。',
 };

@@ -52,7 +52,8 @@ export const areaText = (points, imperial) => fmtArea(polyArea(points), imperial
 export const SHEET_MEDIA = '(max-width: 760px)';
 
 /** ctx: $, t, live (initLiveControls), floor(), states(), entities(), areas(), entityDevices(f), pointInPoly, onStates, imperial(), stateText(id), cams,
- *  settings(), openings: { entities(o), kind(o), KINDS, pane(o, i), isOpen(e), text(e) }, closeLivePopup(), leaveFocus(),
+ *  settings(), openings: { entities(o), kind(o), KINDS, pane(o, i), isOpen(e), text(e), tilt(o), contactText(o, e),
+ *  windowText(o) (#624) }, closeLivePopup(), leaveFocus(),
  *  off() (optional: true = never opens, a dashboard card without the room panel, #13),
  *  alone() (optional: true = the page shows nothing but the room panel, a dashboard card for the controls of one room: it stays open and the
  *  heating goes inside it, #356) */
@@ -176,13 +177,17 @@ export function initRoomPanel(ctx) {
       const h = document.createElement('h4'); h.textContent = t(`rp.${kind}`); box.append(h);
       list.forEach((o) => {
         const count = contactRows(o), multi = count > 1;                // one row per pane with contacts of their own (up to 8, #606)
-        for (let i = 0; i < count; i++) {
-          const e = multi ? op.pane(o, i) : o.entity || op.pane(o, 0);
+        const tilt = multi ? op.tilt(o) : '';                           // and one for the tilt contact of such a window (#624)
+        for (let i = 0; i < count + (tilt ? 1 : 0); i++) {
+          const isTilt = i === count;
+          const e = isTilt ? tilt : multi ? op.pane(o, i) : o.entity || op.entities(o)[0];
           if (!e) continue;
           const row = document.createElement('div');
-          row.className = 'row' + (op.isOpen(e) ? ' alert' : '');
-          const n = document.createElement('span'); n.className = 'n'; n.textContent = (o.name || t(`prop.${o.type}`)) + (multi ? ` · ${t('pane.n', { n: i + 1 })}` : '');
-          const v = document.createElement('span'); v.className = 'v'; v.textContent = op.text(e);
+          // one row for the whole window: "Offen", "Gekippt" (#624) or "Geschlossen" by all its contacts
+          row.className = 'row' + ((multi ? op.isOpen(e) : op.entities(o).some(op.isOpen)) ? ' alert' : '');
+          const n = document.createElement('span'); n.className = 'n';
+          n.textContent = (o.name || t(`prop.${o.type}`)) + (isTilt ? ` · ${t('prop.tiltContact')}` : multi ? ` · ${t('pane.n', { n: i + 1 })}` : '');
+          const v = document.createElement('span'); v.className = 'v'; v.textContent = multi ? op.contactText(o, e) : op.windowText(o);
           row.append(n, v);
           if (e.startsWith('cover.')) {                          // a garage door or shutter-like opening can be driven from here
             ['open_cover', 'stop_cover', 'close_cover'].forEach((act) => {

@@ -564,7 +564,10 @@ export function createPlan(ctx) {
         }
         const hit = `M${P(-hw, -t - 0.15)}L${P(hw, -t - 0.15)}L${P(hw, t + 0.15)}L${P(-hw, t + 0.15)}Z`;
         if (isSel) o += `<path d="${hit}" fill="rgba(255,176,74,.12)" stroke="${C.sel}" stroke-dasharray="4 3"/>`;
-        if (live && op.entity) { const p = P(0, -t - 0.35); o += `<text x="${p[0]}" y="${p[1]}" fill="${open ? C.warn : C.text}" font-size="10" text-anchor="middle">${esc(ctx.openText(op.entity))}</text>`; }
+        if (live && (op.entity || op.tiltEntity)) {          // the word of the whole window: also "Gekippt" by its tilt contact (#624)
+          const p = P(0, -t - 0.35), word = ctx.windowText ? ctx.windowText(op) : ctx.openText(op.entity), alert = word !== ctx.t('state.closed') && word !== '—';
+          o += `<text x="${p[0]}" y="${p[1]}" fill="${open || alert ? C.warn : C.text}" font-size="10" text-anchor="middle">${esc(word)}</text>`;
+        }
       });
     });
 

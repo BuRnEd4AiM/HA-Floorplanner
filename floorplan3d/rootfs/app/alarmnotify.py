@@ -234,7 +234,7 @@ def _spots(f, eid):
         if not isinstance(w, dict) or len(w.get("a") or []) < 2 or len(w.get("b") or []) < 2:
             continue
         for o in w.get("openings") or []:
-            if not isinstance(o, dict) or eid not in [o.get("entity"), *(o.get("paneEntities") or [])]:
+            if not isinstance(o, dict) or eid not in [o.get("entity"), *(o.get("paneEntities") or []), o.get("tiltEntity")]:
                 continue
             (ax, az), (bx, bz) = w["a"][:2], w["b"][:2]
             length = ((bx - ax) ** 2 + (bz - az) ** 2) ** 0.5 or 1

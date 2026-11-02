@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3KTuffmiV9y4d2t3zQ",
+ "start": "2026-11-02",
+ "updated": "2026-11-02T23:10:41Z",
+ "branch": "claude/fenster-gekippt",
+ "source": "counted",
+ "input": 342,
+ "cache_write": 322087,
+ "cache_read": 38811368,
+ "output": 107933,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 342,
+   "cache_write": 322087,
+   "cache_read": 38811368,
+   "output": 107933,
+   "requests": 169
+  }
+ }
+}

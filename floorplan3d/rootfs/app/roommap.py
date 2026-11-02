@@ -44,9 +44,11 @@ def _num(v):
 
 
 def opening_entities(o) -> list:
-    """the contact sensors of a door or window: its own and those of its panes (openings.js openingEntities)"""
+    """the contact sensors of a door or window: its own, those of its panes and the tilt contact of a window (#624; openings.js
+    openingEntities): a tilted window is not shut, it counts for the window rule like an open one"""
     out = []
-    for e in [o.get("entity"), *(o.get("paneEntities") or [])]:
+    tilt = o.get("tiltEntity") if o.get("type") == "window" and o.get("style") != "fixed" else None
+    for e in [o.get("entity"), *(o.get("paneEntities") or []), tilt]:
         if isinstance(e, str) and e and e not in out:
             out.append(e)
     return out

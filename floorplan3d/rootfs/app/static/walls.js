@@ -3,6 +3,7 @@ import { mergeGeometries } from './vendor/utils/BufferGeometryUtils.js';
 import { hasShutter, curtainStyle, curtainSide, shutterSlats, curtainDepth, curtainHangDepth, SHUTTER_UP, SHUTTER_SPEED, CURTAIN_GATHER, CURTAIN_SPEED } from './shutters.js';
 import { mergeParts } from './meshmerge.js';
 import { windowPanes, paneHinge } from './windowpanes.js';
+import { TILT_ANGLE } from './windowtilt.js';
 
 /* Wall geometry with real openings (doors/windows).
  * Wall data: { id, a:[x,z], b:[x,z], thickness, height, openings:[{id,type,pos,width,height,sill}] }
@@ -220,10 +221,19 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
         dir = flip * (top ? side : -side);
       }
       pv.add(pane);
-      g.add(pv);
-      if (st !== 'fixed' && hinge !== 'fixed') { pv.userData.dir = dir; pv.userData.axis = axis; pv.userData.max = max; }
+      if (st !== 'fixed' && hinge !== 'fixed') {
+        pv.userData.dir = dir; pv.userData.axis = axis; pv.userData.max = max;
+        // tilted (#624, windowtilt.js): the pane leans into the room round its bottom edge, whatever its hinge (a tilt-and-turn window)
+        const tg = new THREE.Group();
+        tg.position.set(0, s + ft, 0);
+        pv.position.y -= s + ft;
+        tg.add(pv); g.add(tg);
+        tg.userData = { dir: flip * -side, axis: 'x', max: TILT_ANGLE, target: 0 };
+        tilts[i] = tg;
+      } else g.add(pv);
       return pv;
     };
+    const tilts = [];
     const pvs = [];
     for (let i = 0; i < panes; i++) pvs.push(mkPane(x0 + ft + ((w - 2 * ft) * i) / panes, x0 + ft + ((w - 2 * ft) * (i + 1)) / panes, i));
     for (let i = 1; i < panes; i++) {
@@ -232,7 +242,7 @@ function buildOpening(o, t, mats0, low, shutterMat, side = 1, curtainMat = null)
       bar.position.y = s + ft + inner / 2;
       g.add(bar);
     }
-    if (st !== 'fixed') { pivot = pvs[0]; g.userData.panePivots = pvs; }
+    if (st !== 'fixed') { pivot = pvs[0]; g.userData.panePivots = pvs; g.userData.tiltPivots = tilts; }
     if (o.sill > 0.2) g.add(boxMesh(x0 - 0.04, x1 + 0.04, s - 0.03, s, fd + 0.08, mats.frame));   // sill ledge
     const hangSide = curtainSide(o) === 'out' ? side : -side;   // the room side by default (cloth curtain), the facade for a roller shutter
     if (shade === 'roller' && shutterMat) g.userData.shutter = addShutter(g, x0, x1, o.sill > 0 ? s + ft : s, s + h - ft, t, ft, shutterMat, hangSide);

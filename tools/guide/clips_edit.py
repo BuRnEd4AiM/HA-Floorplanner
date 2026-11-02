@@ -167,8 +167,8 @@ def window_room(r):
 
 @clip("window-setup", "edit",
       {"de": "Ein Fenster einstellen: Flügel, Rollladen, Vorhang", "en": "Set up a window: panes, shutter, curtain"},
-      {"de": "Ein Fenster anklicken: wie viele Flügel, wo jeder Flügel angeschlagen ist (kippen, links, rechts oder fest), der Kontakt aus Home Assistant, dazu ein Rollladen oder ein Vorhang, der nach links, rechts oder zur Mitte aufgeht.",
-       "en": "Click a window: how many panes, where each pane is hinged (tilt, left, right or fixed), the contact from Home Assistant, and a roller shutter or a curtain that opens to the left, the right or from the middle."},
+      {"de": "Ein Fenster anklicken: wie viele Flügel, wo jeder Flügel angeschlagen ist (kippen, links, rechts oder fest), der Kontakt aus Home Assistant (und auf Wunsch ein zweiter für „gekippt“), dazu ein Rollladen oder ein Vorhang, der nach links, rechts oder zur Mitte aufgeht.",
+       "en": "Click a window: how many panes, where each pane is hinged (tilt, left, right or fixed), the contact from Home Assistant (and, if you like, a second one for “tilted”), and a roller shutter or a curtain that opens to the left, the right or from the middle."},
       "Fenster Flügel Fensterflügel Anschlag kippen Drehflügel fest Kontakt Fensterkontakt Rollladen Rolladen Vorhang Gardine aufziehen mittig window pane sash hinge tilt turn fixed contact sensor shutter blind curtain",
       query="mode=edit", prep=window_room)
 def _(r):
@@ -196,6 +196,9 @@ def _(r):
     r.wait(500)
     r.click("#propsBody .entItem[data-id='binary_sensor.fenster_wohnzimmer']")
     r.wait(2200)
+    r.say("Darunter „Kontakt gekippt“: ein zweiter Sensor für ein Dreh-Kipp-Fenster (eigenes Video).", "Below it “Tilt contact”: a second sensor for a tilt-and-turn window (a video of its own).")
+    r.move("#tiltContact")
+    r.wait(1600)
     r.say("„Vorhang / Rollladen“ anhaken.", "Tick “Curtain / roller shutter”.")
     r.click("#openShutter")
     r.wait(1200)
@@ -205,15 +208,63 @@ def _(r):
     r.loc("#curtainStyle").select_option("split")
     r.wait(1800)
     r.say("Darunter der Rollladen oder Vorhang aus Home Assistant: er steht im Bild, wie er wirklich steht.", "Below it the cover from Home Assistant: it stands in the picture as it really does.")
-    r.click("#propsBody .entPicker input[type=search]", nth=1)
+    r.click("#propsBody .entPicker input[type=search]", nth=2)          # after the contact and the tilt contact (#624)
     r.type("rollladen wohn")
     r.wait(500)
     r.click("#propsBody .entItem[data-id='cover.wohnzimmer']")
     r.wait(2400)
     r.poster()
     r.say("Unter „Einzelne Flügel“ bekommt auf Wunsch jeder Flügel seinen eigenen Kontakt.", "Under “Individual panes” each pane can get a contact of its own.")
-    r.move("#propsBody .entPicker input[type=search]", nth=2)
+    r.move("#propsBody .entPicker input[type=search]", nth=3)
     r.wait(2200)
+
+
+@clip("window-tilt", "edit",
+      {"de": "Fenster mit zwei Kontakten: gekippt und offen", "en": "A window with two contacts: tilted and open"},
+      {"de": "Ein Dreh-Kipp-Fenster mit einem Flügel bekommt zwei Kontakte: „Kontakt“ meldet offen, „Kontakt gekippt“ meldet gekippt. Gekippt wird das Fenster gelb und kippt nach innen, offen wird es rot und geht auf, zu hat es einen grünen Rahmen.",
+       "en": "A tilt-and-turn window with one pane gets two contacts: “Contact” reports open, “Tilt contact” reports tilted. Tilted, the window turns yellow and tilts in; open, it turns red and swings open; shut, it has a green frame."},
+      "Fenster gekippt kippen Kipp Dreh-Kipp Drehkipp zwei Kontakte zweiter Kontakt Fensterkontakt offen geschlossen gelb Griff Fenstergriff window tilted tilt turn two contacts second contact handle sensor open closed yellow",
+      query="mode=edit", prep=window_room)
+def _(r):
+    r.say("Klicke das Fenster an: es hat einen Flügel.", "Click the window: it has one pane.")
+    p = r.js("window.__fp.openingCenter('guideWin')")
+    r.click(p["x"], p["y"])
+    r.wait(1200)
+    r.say("Es geht links auf: „Fenster öffnet“ auf „Links angeschlagen“.", "It opens on the left: “Window opens” to “Left hinged”.")
+    r.click("#winHinge")
+    r.loc("#winHinge").select_option("left")
+    r.wait(1000)
+    r.say("„Kontakt“: der Sensor, der „offen“ meldet.", "“Contact”: the sensor that reports “open”.")
+    r.click("#propsBody .entPicker input[type=search]", nth=0)
+    r.type("terrasse")
+    r.wait(500)
+    r.click("#propsBody .entItem[data-id='binary_sensor.fenster_wz_offen']")
+    r.wait(1200)
+    r.say("Neu darunter: „Kontakt gekippt“, der zweite Sensor, der „gekippt“ meldet.", "New below it: “Tilt contact”, the second sensor that reports “tilted”.")
+    r.move("#tiltContact")
+    r.wait(900)
+    r.click("#tiltContact .entPicker input[type=search]")
+    r.type("terrasse")
+    r.wait(500)
+    r.click("#tiltContact .entItem[data-id='binary_sensor.fenster_wz_gekippt']")
+    r.wait(1200)
+    r.say("Er ist gerade auf: das Fenster ist gekippt. Es wird gelb und kippt nach innen.", "It is on right now: the window is tilted. It turns yellow and tilts in.")
+    r.wait(1400)
+    r.js("""(() => { const fp = window.__fp, f = fp.layout.floors[fp.floorIdx()], w = (%s)(f);
+      const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2;
+      fp.camAt(mx + 2.4, 1.9, mz - 2.2, mx - 1.2, mz + 3); })()""" % FRONT_WALL)          # a little from the side: the pane leans in
+    r.wait(2200)
+    r.poster()
+    r.say("Meldet der Kontakt „offen“, ist es offen: rot, der Flügel geht auf. „Offen“ gewinnt, auch wenn beide melden.",
+          "When the contact reports “open”, it is open: red, the pane swings open. “Open” wins, also when both report.")
+    r.js("""clearInterval(window.__guideHold); window.__guideHold = setInterval(() => window.__fp.fakeState('binary_sensor.fenster_wz_offen', 'on'), 150)""")
+    r.wait(3000)
+    r.say("Beide zu: das Fenster ist geschlossen, mit grünem Rahmen.", "Both shut: the window is closed, with a green frame.")
+    r.js("""clearInterval(window.__guideHold); window.__guideHold = setInterval(() => { window.__fp.fakeState('binary_sensor.fenster_wz_offen', 'off'); window.__fp.fakeState('binary_sensor.fenster_wz_gekippt', 'off'); }, 150)""")
+    r.wait(2600)
+    r.say("Gekippt zählt wie offen: für die Heizung, den Alarm und die Regenwarnung. Ein Fenstergriff-Sensor, der selbst „gekippt“ meldet, braucht keinen zweiten Kontakt.",
+          "Tilted counts like open: for the heating, the alarm and the rain warning. A handle sensor that reports “tilted” itself needs no second contact.")
+    r.wait(3200)
 
 
 @clip("devices-place", "edit",
