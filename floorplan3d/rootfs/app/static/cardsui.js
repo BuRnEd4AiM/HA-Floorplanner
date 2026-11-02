@@ -4,6 +4,7 @@
  * numbers (api/history, again after 5 minutes). Switching goes through live.callService like everywhere else. */
 import { TYPE_ICON, COLOR_HEX, cardEntities, tapService, valueOf, chartPaths, chartMany, seriesColor } from './cards.js';
 import { initButtonCard } from './buttoncardui.js';
+import { presetRow } from './coverrow.js';
 
 const TOGGLE = new Set(['light', 'switch', 'input_boolean', 'fan', 'automation']);
 const ON = new Set(['on', 'open', 'playing', 'heat', 'cool', 'heat_cool', 'auto', 'dry', 'fan_only', 'unlocked', 'home']);
@@ -122,6 +123,8 @@ export function initCards(ctx) {
     row.append(btn('', '▲', () => ctx.callService(e, 'open_cover'), t('ct.open')), btn('', '■', () => ctx.callService(e, 'stop_cover'), t('ct.stop')),
       btn('', '▼', () => ctx.callService(e, 'close_cover'), t('ct.close')));
     box.append(row);
+    const pre = presetRow(e, s, c.presets, { t, callService: ctx.callService });   // 0 % · 50 % · 75 % · 100 % (coverrow.js)
+    if (pre) box.append(pre);
   }
   function entities(c, box) {
     c.entities.forEach((e) => {

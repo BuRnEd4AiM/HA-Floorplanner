@@ -6,14 +6,17 @@
  * what it needs. Where the blocks stand, the words and whether a block is complete come from rules.js (tested). "🏠 Home Assistant" (#548,
  * the owner: "es soll dann auch eine echte Home Assistant Automatisierung … daraus werden"): saving writes it as automations of Home
  * Assistant (haflows.py), which runs it; "⚙️ Add-on": the add-on runs it (flows.py). What became of it in Home Assistant is said under the
- * top bar (saved, cannot be done there, changed in Home Assistant: overwrite?). */
+ * top bar (saved, cannot be done there, changed in Home Assistant: overwrite?). "🎉 Besonderer Tag" (the owner, 2026-11-01: "an Heiligabend
+ * soll zum Beispiel der Rollladen nicht ganz hochfahren"): a condition on the special days of the window "📅 Besondere Tage"
+ * (specialdaysui.js); at a trigger "An besonderen Tagen anders" makes a lane two: as it was on all other days, a copy on those days. */
 import { blockWords, laneWords, laneLayout, newBlock, newId, flowReady, blockReady, groupOf, TRIGGERS, duration, hhmm, autoId, syncWords, haEditUrl } from './rules.js';
+import { splitLane, dayName, dayIcon, which } from './specialdays.js';
 
 const PALETTE = [
   ['when', [['state', { to: 'open' }, '🪟', 'fe.p.open'], ['state', { to: 'on' }, '🏃', 'fe.p.on'], ['time', null, '🕐', 'fe.p.time'], ['sun', null, '🌇', 'fe.p.sun'],
     ['presence', null, '👤', 'fe.p.presence'], ['num', null, '🌡', 'fe.p.num'], ['button', null, '🔘', 'fe.p.button']]],
   ['and', [['if_time', null, '🕐', 'fe.p.ifTime'], ['if_days', null, '📅', 'fe.p.ifDays'], ['if_home', null, '🏠', 'fe.p.ifHome'], ['if_outside', null, '🌡', 'fe.p.ifOutside'],
-    ['if_sun', null, '🌙', 'fe.p.ifSun'], ['if_state', null, '💡', 'fe.p.ifState'], ['if_num', null, '📈', 'fe.p.ifNum']]],
+    ['if_sun', null, '🌙', 'fe.p.ifSun'], ['if_special', null, '🎉', 'fe.p.ifSpecial'], ['if_state', null, '💡', 'fe.p.ifState'], ['if_num', null, '📈', 'fe.p.ifNum']]],
   ['wait', [['hold', null, '⏱', 'fe.p.hold'], ['wait', null, '⏳', 'fe.p.wait']]],
   ['then', [['heat', null, '🔥', 'fe.p.heat'], ['switch', null, '💡', 'fe.p.switch'], ['cover', null, '🪟', 'fe.p.cover'], ['run', null, '🎬', 'fe.p.run'],
     ['notify', null, '🔔', 'fe.p.notify'], ['restore', null, '↩', 'fe.p.restore']]],
@@ -28,14 +31,17 @@ const DOMS = {
 const SIZES = [30, 60, 120, 300, 600, 1800, 3600];
 const MAX_LANES = 4, MAX_BLOCKS = 12;
 
-/** ctx: t, lang(), entities() ([{ entity_id, name }]), states(), nameOf(entity), rules (rulesstore.js), canEdit() */
+/** ctx: t, lang(), entities() ([{ entity_id, name }]), states(), nameOf(entity), rules (rulesstore.js), canEdit(), days (specialdaysui.js: the
+ *  window "📅 Besondere Tage") */
 export function initFlowEdit(ctx) {
   const { t } = ctx;
   let dlg = null, draft = null, sel = null, dirty = false, flash = '', timer = 0, drawnSig = '', search = '';   // sel: { l (lane), i (block) }
   let sync = null;                                     // what saving it in Home Assistant came to (rules.js syncWords)
+  let splitIds = [];                                   // "An besonderen Tagen anders": the days chosen at the trigger ([]: any)
   const make = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const btn = (cls, text, on, title) => { const b = make('button', cls, text); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', on); return b; };
-  const wctx = () => ({ t, lang: ctx.lang(), nameOf: ctx.nameOf, states: ctx.states() });
+  const specials = () => ctx.rules.get()?.days || [];               // 📅 the special days (specialdays.js)
+  const wctx = () => ({ t, lang: ctx.lang(), nameOf: ctx.nameOf, states: ctx.states(), days: specials(), today: new Date() });
   const now = () => Math.round(Date.now() / 1000);
   const change = (fn) => { fn(); dirty = true; draw(); };
   const saved = () => (ctx.rules.get()?.flows || []).find((f) => f.id === draft?.id) || null;
@@ -128,6 +134,47 @@ export function initFlowEdit(ctx) {
     return box;
   }
   const canSame = (l) => ['state'].includes(draft.lanes[l].blocks[0].k);
+  /** the special days to tap (📅 specialdays.js): "Jeder besondere Tag" (none chosen) and every day of the list; "📅 Tage verwalten …" */
+  function dayChips(chosen, pick) {
+    const box = make('div', 'feChips'); box.dataset.field = 'days';
+    const any = btn(`tpChip${chosen.length ? '' : ' on'}`, t('sd.anyDayChip'), () => pick([])); any.dataset.value = '';
+    box.append(any);
+    specials().forEach((d) => {
+      const on = chosen.includes(d.id);
+      const b = btn(`tpChip${on ? ' on' : ''}`, `${dayIcon(d)} ${dayName(d, t, ctx.lang(), ctx.nameOf)}`, () => pick(on ? chosen.filter((x) => x !== d.id) : [...chosen, d.id]));
+      b.dataset.value = d.id;
+      box.append(b);
+    });
+    return box;
+  }
+  function manageDays() {
+    const b = btn('bdBtn', `📅 ${t('sd.manage')}`, () => ctx.days?.open(() => draw())); b.dataset.act = 'feDays';
+    return b;
+  }
+  /** "An besonderen Tagen anders" at a trigger: the lane as it is on all other days, a copy on the chosen days (specialdays.splitLane) */
+  function splitBox(l) {
+    const box = make('div', 'feSplit');
+    box.append(make('h6', '', `🎉 ${t('fe.split.title')}`), make('p', 'tpSub', t('fe.split.help')));
+    if (!specials().length) { box.append(make('p', 'tpSub', t('fe.special.none')), manageDays()); return box; }
+    splitIds = splitIds.filter((id) => specials().some((d) => d.id === id));
+    box.append(dayChips(splitIds, (v) => { splitIds = v; draw(); }));
+    const go = btn('bdBtn primary', `＋ ${t('fe.split.go')}`, () => {
+      const lanes = splitLane(draft.lanes, l, splitIds, laneId(), { maxLanes: MAX_LANES, maxBlocks: MAX_BLOCKS });
+      if (!lanes) { flash = draft.lanes.length >= MAX_LANES ? t('fe.maxLanes') : t('fe.maxBlocks'); draw(); return; }
+      change(() => {
+        draft.lanes = lanes;
+        const copy = draft.lanes[l + 1];
+        const act = copy.blocks.findIndex((b, i) => i > 1 && groupOf(b.k) === 'then');
+        sel = { l: l + 1, i: act > 0 ? act : 1 };          // what the copy does is what changes: it is chosen right away
+        flash = t('fe.split.done');
+        splitIds = [];
+      });
+    });
+    go.dataset.act = 'feSplit';
+    go.disabled = draft.lanes.length >= MAX_LANES || draft.lanes[l].blocks.length >= MAX_BLOCKS;
+    box.append(go, manageDays());
+    return box;
+  }
 
   function panel() {
     const box = make('div', 'feProps');
@@ -181,6 +228,15 @@ export function initFlowEdit(ctx) {
         f.push(field(t('fe.value'), number(b.v, (v) => set((x) => { x.v = v; }), { step: 1, min: -50, max: 60, data: 'v' })));
         break;
       case 'if_sun': f.push(field(t('fe.is'), chips([['dark', t('fl.b.sun.dark')], ['light', t('fl.b.sun.light')]], b.is, (v) => set((x) => { x.is = v; }), 'is'))); break;
+      case 'if_special': {                          // 🎉 today is (not) one of the special days (📅 Besondere Tage)
+        f.push(field(t('fe.special.when'), chips([['yes', t('fe.special.yes')], ['no', t('fe.special.no')]], b.is, (v) => set((x) => { x.is = v; }), 'is')));
+        if (specials().length) f.push(field(t('fe.special.days'), dayChips(b.days, (v) => set((x) => { x.days = v; }))));
+        else f.push(make('p', 'tpSub', t('fe.special.none')));
+        const now = which(specials(), new Date(), ctx.states()).map((id) => specials().find((d) => d.id === id));
+        f.push(make('p', 'tpSub', now.length ? t('sd.todayIs', { days: now.map((d) => `${dayIcon(d)} ${dayName(d, t, ctx.lang(), ctx.nameOf)}`).join(', ') }) : t('sd.todayNone')));
+        f.push(manageDays());
+        break;
+      }
       case 'hold': f.push(make('p', 'tpSub', t('fe.holdHelp')), field(t('fe.duration'), dur(b.s, (v) => set((x) => { x.s = v; })))); break;
       case 'wait': f.push(field(t('fe.duration'), dur(b.s, (v) => set((x) => { x.s = v; })))); break;
       case 'switch':
@@ -218,6 +274,7 @@ export function initFlowEdit(ctx) {
     }
     box.append(...f);
     if (!blockReady(b)) box.append(make('p', 'feMissing', `⚠ ${t('fe.missing')}`));
+    if (sel.i === 0 && b.k !== 'button' && ctx.days) box.append(splitBox(sel.l));
     const tools = make('div', 'feTools');
     if (sel.i > 0) tools.append(btn('bdBtn', '◀', () => move(-1), t('fe.earlier')), btn('bdBtn', '▶', () => move(1), t('fe.later')));
     const del = btn('bdBtn', `🗑 ${sel.i === 0 ? t('fe.removeLane') : t('fe.remove')}`, remove); del.dataset.act = 'removeBlock';
@@ -399,7 +456,7 @@ export function initFlowEdit(ctx) {
     const base = flow ? JSON.parse(JSON.stringify(flow)) : { id: null, name: t('fl.newName'), on: true, lanes: [] };
     const ha = ctx.rules.get()?.ha === true;               // a new one becomes an automation of Home Assistant (the owner's choice)
     draft = { ...base, id: base.id || newId(), on: base.on !== false, ha: ha && (base.id ? base.ha === true : base.ha !== false) };
-    dirty = !flow?.id; sel = draft.lanes.length ? { l: 0, i: 0 } : null; flash = ''; search = ''; sync = null;
+    dirty = !flow?.id; sel = draft.lanes.length ? { l: 0, i: 0 } : null; flash = ''; search = ''; sync = null; splitIds = [];
     if (!dlg.open) dlg.showModal();
     draw();
     clearInterval(timer);

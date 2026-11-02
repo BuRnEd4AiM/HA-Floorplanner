@@ -91,6 +91,22 @@ async def test_rules_go_into_the_backup_and_come_back(client):
     assert r["heat"]["night"]["on"] is True and [f["id"] for f in r["flows"]] == ["f_kino", "f_fenster"]
 
 
+async def test_special_days_are_kept_cleaned_and_in_the_backup(client, tmp_path):
+    """📅 Besondere Tage (specialdays.py): saved on their own (the routines stay), cleaned, in the backup, put back with it"""
+    days = [{"id": "d_xmas", "kind": "date", "name": "Heiligabend", "icon": "🎄", "md": "12-24"}, {"id": "d_bad", "kind": "date", "md": "13-01"},
+            {"id": "d_ft", "kind": "holidays", "region": "BW"}]
+    await client.put("/api/rules", json={"flows": FLOWS})
+    r = await (await client.put("/api/rules", json={"days": days})).json()
+    assert [d["id"] for d in r["days"]] == ["d_xmas", "d_ft"] and len(r["flows"]) == 2 and "haSync" in r
+    assert (await (await client.get("/api/rules")).json())["days"][0] == {"id": "d_xmas", "kind": "date", "name": "Heiligabend", "icon": "🎄", "md": "12-24"}
+    assert (await client.put("/api/rules", json={"days": "x"})).status == 400
+    data = await (await client.get("/api/backup?files=0")).json()
+    assert [d["id"] for d in data["extras"]["rules"]["days"]] == ["d_xmas", "d_ft"]
+    await client.put("/api/rules", json={"days": []})
+    assert (await client.post("/api/backup", json=data)).status == 200
+    assert [d["id"] for d in (await (await client.get("/api/rules")).json())["days"]] == ["d_xmas", "d_ft"]
+
+
 async def test_routines_become_automations_of_home_assistant(client, monkeypatch, aiohttp_server, tmp_path):
     """#548: a routine with ha: true is written through Home Assistant's own editor (fp3d_… ids only), not again when unchanged, not over
     a change made in Home Assistant unless the page says so (the old one kept), switched off with the routine and deleted with it"""

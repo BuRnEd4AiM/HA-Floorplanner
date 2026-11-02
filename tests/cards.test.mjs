@@ -73,3 +73,12 @@ test('a train card: a station or a sensor of DB Infoscreen, "mein Zug" as HH:MM,
     { id: 'c_zug2', type: 'train', name: '', width: 2, station: '', via: '', mine: '', count: 4, sensor: 'sensor.fulda_departures' });
   assert.equal(C.cleanCard({ id: 'c_zug3', type: 'train', sensor: 'light.x' }), null);
 });
+test('a roller shutter card has quick positions under ▲ ■ ▼ (the owner, 2026-11-01: 0 %, 50 %, 75 %, 100 %); boards.py cleans the same', () => {
+  assert.deepEqual(C.COVER_PRESETS, [0, 50, 75, 100]);
+  assert.deepEqual(card({ type: 'cover', entity: 'cover.wohnzimmer' }), { id: 'c_abc123', type: 'cover', name: '', width: 1, entity: 'cover.wohnzimmer', presets: [0, 50, 75, 100] });
+  assert.deepEqual(card({ type: 'cover', entity: 'cover.wz', presets: [100, 25, 25, 'x', 101, -1, 7.5, true] }).presets, [25, 100]);
+  assert.deepEqual(card({ type: 'cover', entity: 'cover.wz', presets: [] }).presets, [], 'none at all: the card shows only ▲ ■ ▼');
+  assert.deepEqual(card({ type: 'cover', entity: 'cover.wz', presets: [0, 10, 20, 30, 40, 50, 60, 70] }).presets, [0, 10, 20, 30, 40, 50], 'at most six');
+  assert.equal('presets' in card({ type: 'light', entity: 'light.a' }), false);
+  assert.ok(C.COVER_STEPS.every((p) => C.cleanPresets([p])[0] === p));
+});

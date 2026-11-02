@@ -4,6 +4,18 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.51.0] - 2026-11-02
+### Added
+- **📅 Special days for own routines** (the owner, 2026-11-01: "dass man jetzt zum Beispiel sagen kann, diese Automatisierung soll aber am folgenden Tag … Feiertag … oder einen vordefinierten Tag … anders sein, wie zum Beispiel an Halloween, an Heiligabend soll zum Beispiel der Rollladen nicht ganz hochfahren, obwohl die Rollladensteuerung sagt, dass jeden Tag 7 Uhr etwas gesteuert wird"):
+  - **📅 Besondere Tage** on ▶ Abläufe: one list of days for all routines: a date every year (also from … to, over the new year too), one day or a few days once, a day around Easter, the public holidays of Germany or of one German state (all 16, with their names and the next one), or a calendar of Home Assistant (while it has an event); ready ones with one tap (Feiertage, Heiligabend, Weihnachten, Silvester, Halloween, Nikolaus, Rosenmontag, Morgen, Urlaub, Eigener Tag, Kalender);
+  - a new block **🎉 Besonderer Tag** under *Nur wenn …*: a path runs only on special days or only on the other days, on any of them or on the ones ticked; the block says when its day comes next;
+  - **An besonderen Tagen anders** at the trigger of a path: pick the days and the path becomes two, one as before for every other day and a copy for those days, in which you only change what is different (the shutter only to 50 %, another time);
+  - it works for routines the add-on runs and for routines that are automations of Home Assistant (one template condition with the dates of the next ten years; written anew when the routine or the days are saved); the days are in the backup.
+- **Quick positions on the roller shutter card** (the owner, 2026-11-01: "bei der Rollladensteuerungskarte in diesem Dashboard hätte ich gern auch so eine Voreinstellung mit 50 %, 75 %, 100 % und 0 % zusätzlich zu dem Hoch- und Runterfahren"): the own card 🪟 *Rollladen* has 0 % · 50 % · 75 % · 100 % under ▲ ■ ▼ (the one it stands at is marked); in the card's settings up to six of 0 … 100 % can be picked under *Feste Stufen*. The window of a button card for a cover has them too.
+### Changed
+- The logic of the special days is a module of its own, `specialdays.js` (page) and `specialdays.py` (add-on), with unit tests that also check both say the same on 800 days and for every German state (`tests/specialdays.test.mjs`, a new CI step, `tests/test_specialdays.py`); the window is `specialdaysui.js`, the quick positions `coverrow.js`. `tools/ha_check.py` lets a real Home Assistant render the condition on 800 days.
+- Test protocol: new section 140.
+
 ## [4.50.1] - 2026-10-31
 ### Added
 - **A window pane can be "Fest (öffnet nicht)"** (the revised #606 by @aixmoyu, pushed shortly before 4.50.0 was merged; the owner: "Ja, als 4.50.1"): with several panes, the field "Fenster öffnet" of each pane also offers *Fest*; such a pane has no contact field of its own and never opens (e.g. the middle of a triple window).

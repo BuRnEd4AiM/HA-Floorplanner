@@ -41,6 +41,8 @@ MAX_VARIANTS = 6         # per page, besides "Für alle"
 MAX_PICKS = 30           # the versions one user gets (static/tabs.js cleanPicks)
 MAX_SECTIONS = 12
 MAX_TITLE = 40
+COVER_PRESETS = [0, 50, 75, 100]   # the quick positions of a roller shutter card (cleanPresets in static/cards.js)
+MAX_PRESETS = 6
 SIZES = ("big", "small")   # a thermostat card, a built-in card that can be small (static/thermostat.js, #495)
 # the calendar card (static/calcard.js, #495): its calendars each in a colour, the days, the view
 CAL_VIEWS = ("week", "list", "month", "next")
@@ -143,6 +145,13 @@ def clean_look(v) -> dict:
             "hold": pick("hold", BTN_HOLD, "more"), "page": page if tap == "page" else "", **({"card": card} if tap == "lights" else {})}
 
 
+def clean_presets(v) -> list:
+    """the quick positions of a roller shutter card: whole numbers 0 … 100, each once, small to big, at most six; none given: COVER_PRESETS"""
+    if not isinstance(v, list):
+        return list(COVER_PRESETS)
+    return sorted({x for x in v if isinstance(x, int) and not isinstance(x, bool) and 0 <= x <= 100})[:MAX_PRESETS]
+
+
 def clean_card(c):
     """an own card made safe, or None (cleanCard in static/cards.js)"""
     if not isinstance(c, dict) or not isinstance(c.get("id"), str) or not OWN_ID.match(c["id"]) or c.get("type") not in CARD_TYPES:
@@ -166,6 +175,8 @@ def clean_card(c):
         out["color"] = c["color"] if c.get("color") in COLORS else "blue"
     if kind == "thermostat":
         out["size"] = c["size"] if c.get("size") in SIZES else "big"
+    if kind == "cover":                                 # 0 % · 50 % · 75 % · 100 % under ▲ ■ ▼ (the owner, 2026-11-01)
+        out["presets"] = clean_presets(c.get("presets"))
     if kind == "button":
         out.update(clean_look(c))
     if kind == "calendar":

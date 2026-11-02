@@ -33,6 +33,7 @@ import haflows as hf
 import devlog as dl
 import heatlog as hlog
 import heatrules as hr
+import specialdays as sdays
 import roomsensors as rsens
 import household as hh
 import controls
@@ -1686,7 +1687,8 @@ def backup_extras(request) -> dict:
     return {"pinboard": read_notes(request),
             "guard": {k: v for k, v in gd.clean_cfg(g.get("cfg"), g.get("cfg")).items() if k != "code"},
             "notify": {k: v for k, v in an.clean(n, n).items() if k not in an.SECRETS},
-            "rules": {"heat": hr.clean_rules(rules.get("heat")), "flows": fl.clean_flows(rules.get("flows"))}}   # heating rules, routines (#546)
+            "rules": {"heat": hr.clean_rules(rules.get("heat")), "flows": fl.clean_flows(rules.get("flows")),   # heating rules, routines (#546)
+                      "days": sdays.clean_days(rules.get("days"))}}                                        # 📅 Besondere Tage
 
 
 def apply_extras(request, extras) -> list:
@@ -1708,7 +1710,8 @@ def apply_extras(request, extras) -> list:
         app_state(request)[KEY_NOTIFY]["cfg"] = cfg
         done.append("notify")
     if isinstance(extras.get("rules"), dict):
-        cfg = {"heat": hr.clean_rules(extras["rules"].get("heat")), "flows": fl.clean_flows(extras["rules"].get("flows"))}
+        cfg = {"heat": hr.clean_rules(extras["rules"].get("heat")), "flows": fl.clean_flows(extras["rules"].get("flows")),
+               "days": sdays.clean_days(extras["rules"].get("days"))}
         write_json_atomic(rules_path(request), cfg)
         store = app_state(request).get(KEY_RULES)
         if store is not None and "rules" in store:
@@ -3347,7 +3350,7 @@ async def sensor_caps(app) -> dict:
 
 async def rules_answer(request, r: rr.Rules) -> dict:
     status = r.status if r.connected or not SUPERVISOR_TOKEN else {**r.status, **await sensor_caps(app_state(request))}
-    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "status": status, "log": r.mem["log"][-100:], "running": r.connected,
+    return {"heat": r.cfg["heat"], "flows": r.cfg["flows"], "days": r.cfg.get("days", []), "status": status, "log": r.mem["log"][-100:], "running": r.connected,
             "active": r.active(), "ha": bool(SUPERVISOR_TOKEN), "canEdit": await can_edit(request), "now": round(time.time()),
             "haLink": hl.browser_ha(HA_URL, HA_PUBLIC_URL, request.host) if HA_URL else ""}   # where the browser opens Home Assistant (#548)
 
@@ -3393,12 +3396,16 @@ async def put_rules(request):
         if not isinstance(body["flows"], list):
             return web.json_response({"error": "flows: a list expected"}, status=400)
         r.cfg["flows"] = fl.clean_flows(body["flows"])
+    if "days" in body:                                   # 📅 Besondere Tage (specialdays.py) for "Nur wenn: besonderer Tag"
+        if not isinstance(body["days"], list):
+            return web.json_response({"error": "days: a list expected"}, status=400)
+        r.cfg["days"] = sdays.clean_days(body["days"])
     write_json_atomic(rules_path(request), r.cfg)
     r.ask("cfg")
     out = await rules_answer(request, r)
-    if "flows" in body:                                  # the routines with ha: true become automations of Home Assistant (#548)
+    if "flows" in body or "days" in body:                # the routines with ha: true become automations of Home Assistant (#548)
         force = [x for x in body.get("force") or [] if isinstance(x, str)] if isinstance(body.get("force"), list) else []
-        out["haSync"] = await ha_sync_flows(request, r.cfg["flows"], force)
+        out["haSync"] = await ha_sync_flows(request, r.cfg["flows"], force, r.cfg.get("days", []))   # the dates of the days are in them
     return web.json_response(out)
 
 
@@ -3718,7 +3725,7 @@ def ha_notify_targets(request):
     return {"services": list(cfg.get("services") or []), "entities": list(cfg.get("entities") or [])}
 
 
-async def ha_sync_flows(request, flows: list, force=()) -> dict:
+async def ha_sync_flows(request, flows: list, force=(), days=()) -> dict:
     """the routines with ha: true written as automations of Home Assistant, the ones no longer wanted deleted, each set on or off:
     {routine id: {ok, ids, problems, missing} | {problems} (cannot be done there) | {conflict: [ids]} (changed in Home Assistant since the
     add-on wrote it: written only when the page says so, force) | {error}}"""
@@ -3731,7 +3738,7 @@ async def ha_sync_flows(request, flows: list, force=()) -> dict:
     try:
         ctx = hf.context(await rules_rooms(request.app), await ha_states_cached(request.app),
                          weather=rules_weather(request.app, await ha_states_cached(request.app)), notify=ha_notify_targets(request),
-                         lang=notify_lang(request))
+                         lang=notify_lang(request), days=list(days))
     except (aiohttp.ClientError, asyncio.TimeoutError, RuntimeError, OSError) as err:
         return {f["id"]: {"error": str(err)[:120] or "nohass"} for f in mine}
     out, desired, owner, keep = {}, {}, {}, set()

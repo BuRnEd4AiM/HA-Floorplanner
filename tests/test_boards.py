@@ -262,3 +262,17 @@ def test_free_places_are_cleaned_like_on_the_page():
     assert len(boards.clean_places({f"k{i}": [0, i % 300, 1, 1] for i in range(200)})) == boards.MAX_PLACES
     assert boards.clean_page_layouts({"today": {"free": True}}, []) == {"today": {"order": [], "hidden": [], "sizes": {}, "sections": [],
                                                                               "widths": {}, "cards": [], "free": True}}
+
+
+def test_a_roller_shutter_card_has_quick_positions():
+    """the owner, 2026-11-01: 0 %, 50 %, 75 %, 100 % under ▲ ■ ▼; the same rules as cleanPresets in static/cards.js (tests/cards.test.mjs)"""
+    cards = (STATIC / "cards.js").read_text()
+    assert re.search(r"export const COVER_PRESETS = \[([^\]]+)\]", cards).group(1).replace(" ", "") == ",".join(map(str, boards.COVER_PRESETS))
+    assert f"MAX_PRESETS = {boards.MAX_PRESETS}" in cards
+    assert boards.clean_card({"id": "c_abc123", "type": "cover", "entity": "cover.wohnzimmer"}) == {
+        "id": "c_abc123", "type": "cover", "name": "", "width": 1, "entity": "cover.wohnzimmer", "presets": [0, 50, 75, 100]}
+    clean = lambda p: boards.clean_card({"id": "c_abc123", "type": "cover", "entity": "cover.wz", "presets": p})["presets"]  # noqa: E731
+    assert clean([100, 25, 25, "x", 101, -1, 7.5, True]) == [25, 100]
+    assert clean([]) == []
+    assert clean([0, 10, 20, 30, 40, 50, 60, 70]) == [0, 10, 20, 30, 40, 50]
+    assert "presets" not in boards.clean_card({"id": "c_abc123", "type": "light", "entity": "light.a"})

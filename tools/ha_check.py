@@ -1,6 +1,7 @@
 """Let a real Home Assistant check the automations haflows.py writes (#548): its own validation of every block, and a run with stand-in
 devices (a window switches the heating off after it stayed open 5 s and closing it puts it back through scene.create; motion switches a
-light on and off); and a scene of scenes.py (#549) played with scene.turn_on and scene.apply. Not in CI (Home Assistant is big); run it
+light on and off); a scene of scenes.py (#549) played with scene.turn_on and scene.apply; and "Nur wenn: besonderer Tag" (📅
+specialdays.py): Home Assistant's own template engine says on many days the same as the add-on. Not in CI (Home Assistant is big); run it
 after changing haflows.py or scenes.py:
 
     python3.13 -m venv /tmp/havenv && /tmp/havenv/bin/pip install homeassistant==2026.2.3
@@ -19,6 +20,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 import flows as fl  # noqa: E402
 import haflows as hf  # noqa: E402
 import scenes as sc  # noqa: E402
+import specialdays as sd  # noqa: E402
 from homeassistant import config_entries, core, loader  # noqa: E402
 from homeassistant.components.automation import config as acfg  # noqa: E402
 from homeassistant.helpers import area_registry as ar, category_registry as cr, device_registry as dr, entity_registry as er  # noqa: E402
@@ -196,6 +198,45 @@ async def scene(hass) -> int:
     return 0 if played == want and sorted(calls, key=str) == want else 1
 
 
+async def special(hass) -> int:
+    """📅 the template of "Nur wenn: besonderer Tag" rendered by Home Assistant on 800 days (its clock moved) = specialdays.is_special"""
+    import datetime
+    from unittest import mock
+    from homeassistant.helpers.template import Template
+    from homeassistant.util import dt as dt_util
+    days = sd.clean_days([{"id": "d_xmas", "kind": "date", "md": "12-24"}, {"id": "d_wn", "kind": "date", "md": "12-27", "to": "01-06"},
+                          {"id": "d_ws", "kind": "date", "md": "06-01", "to": "06-03"}, {"id": "d_once", "kind": "once", "from": "2026-11-02", "to": "2026-11-04"},
+                          {"id": "d_ros", "kind": "easter", "off": -48}, {"id": "d_ft", "kind": "holidays", "region": "BW"},
+                          {"id": "d_cal", "kind": "calendar", "ent": "calendar.urlaub"}])
+    flow = fl.clean_flows([{"id": "f_sd", "name": "Rollladen", "ha": True, "lanes": [
+        {"id": "l1", "blocks": [{"k": "time", "at": "07:00", "days": []}, {"k": "if_special", "is": "no", "days": []}, {"k": "cover", "ents": ["cover.wz"], "do": "open"}]},
+        {"id": "l2", "blocks": [{"k": "time", "at": "07:00", "days": []}, {"k": "if_special", "is": "yes", "days": ["d_xmas", "d_ft", "d_cal"]},
+                                {"k": "cover", "ents": ["cover.wz"], "do": "pos", "v": 50}]}]}])[0]
+    autos = hf.compile_flow(flow, hf.context([], {}, days=days, year=2026))["autos"]
+    bad = 0
+    for a in autos:
+        try:
+            await acfg.async_validate_config_item(hass, a["id"], a)
+        except Exception as err:  # noqa: BLE001 - said, then the next one
+            bad += 1
+            print("NOT TAKEN", a["id"], err)
+    tz = dt_util.get_time_zone("Europe/Berlin")
+    for cal in ("off", "on"):
+        hass.states.async_set("calendar.urlaub", cal, {})
+        for i in range(800):
+            d = datetime.date(2026, 1, 1) + datetime.timedelta(days=i)
+            at = datetime.datetime(d.year, d.month, d.day, 7, 0, tzinfo=tz)
+            with mock.patch("homeassistant.util.dt.now", return_value=at):          # the template engine asks dt_util.now()
+                got = [Template(a["actions"][0]["value_template"], hass).async_render(parse_result=False) == "True" for a in autos]
+            want = [not sd.is_special(days, [], d, {"calendar.urlaub": {"state": cal}}),
+                    sd.is_special(days, ["d_xmas", "d_ft", "d_cal"], d, {"calendar.urlaub": {"state": cal}})]
+            if got != want:
+                bad += 1
+                print("DIFFERENT", d, cal, got, want)
+    print("special days: 2 × 800 days compared, different:", bad)
+    return bad
+
+
 async def main():
     with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b, tempfile.TemporaryDirectory() as c:
         hass = await make_hass(a)
@@ -206,6 +247,9 @@ async def main():
         await hass.async_stop(force=True)
         hass = await make_hass(c)
         bad += await scene(hass)
+        await hass.async_stop(force=True)
+        hass = await make_hass(c)
+        bad += await special(hass)
         await hass.async_stop(force=True)
     print("ALL OK" if not bad else f"{bad} PROBLEM(S)")
     sys.exit(1 if bad else 0)

@@ -2,6 +2,18 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [4.51.0] - 2026-11-02
+### Neu
+- **📅 Besondere Tage für eigene Abläufe** (der Besitzer, 2026-11-01: „dass man jetzt zum Beispiel sagen kann, diese Automatisierung soll aber am folgenden Tag … Feiertag … oder einen vordefinierten Tag … anders sein, wie zum Beispiel an Halloween, an Heiligabend soll zum Beispiel der Rollladen nicht ganz hochfahren, obwohl die Rollladensteuerung sagt, dass jeden Tag 7 Uhr etwas gesteuert wird“):
+  - **📅 Besondere Tage** auf ▶ Abläufe: eine Liste von Tagen für alle Abläufe: ein Datum jedes Jahr (auch von … bis, auch über Neujahr), ein Tag oder ein paar Tage einmal, ein Tag rund um Ostern, die Feiertage von ganz Deutschland oder eines Bundeslands (alle 16, mit Namen und dem nächsten), oder ein Kalender von Home Assistant (solange er einen Termin hat); fertige mit einem Tipp (Feiertage, Heiligabend, Weihnachten, Silvester, Halloween, Nikolaus, Rosenmontag, Morgen, Urlaub, Eigener Tag, Kalender);
+  - ein neuer Baustein **🎉 Besonderer Tag** unter *Nur wenn …*: ein Weg läuft nur an besonderen Tagen oder nur an den anderen Tagen, an jedem davon oder an den angehakten; der Baustein sagt, wann sein Tag das nächste Mal ist;
+  - **An besonderen Tagen anders** beim Auslöser eines Wegs: die Tage wählen, und aus dem Weg werden zwei, einer wie bisher für alle anderen Tage und eine Kopie für diese Tage, in der du nur noch änderst, was anders ist (der Rollladen nur auf 50 %, eine andere Uhrzeit);
+  - das geht für Abläufe, die das Add-on ausführt, und für Abläufe, die Automationen in Home Assistant sind (eine Vorlagen-Bedingung mit den Daten der nächsten zehn Jahre; neu geschrieben, wenn der Ablauf oder die Tage gespeichert werden); die Tage sind im Backup.
+- **Feste Stufen auf der Rollladen-Karte** (der Besitzer, 2026-11-01: „bei der Rollladensteuerungskarte in diesem Dashboard hätte ich gern auch so eine Voreinstellung mit 50 %, 75 %, 100 % und 0 % zusätzlich zu dem Hoch- und Runterfahren“): die eigene Karte 🪟 *Rollladen* hat unter ▲ ■ ▼ die Knöpfe 0 % · 50 % · 75 % · 100 % (der, auf dem er steht, ist markiert); in den Einstellungen der Karte lassen sich unter *Feste Stufen* bis zu sechs von 0 … 100 % wählen. Das Fenster einer Knopf-Karte für einen Rollladen hat sie auch.
+### Verbessert
+- Die Logik der besonderen Tage ist ein eigenes Modul, `specialdays.js` (Seite) und `specialdays.py` (Add-on), mit Unit-Tests, die auch prüfen, dass beide an 800 Tagen und für jedes Bundesland dasselbe sagen (`tests/specialdays.test.mjs`, ein neuer CI-Schritt, `tests/test_specialdays.py`); das Fenster ist `specialdaysui.js`, die festen Stufen `coverrow.js`. `tools/ha_check.py` lässt ein echtes Home Assistant die Bedingung an 800 Tagen ausrechnen.
+- Testprotokoll: neuer Abschnitt 140.
+
 ## [4.50.1] - 2026-10-31
 ### Neu
 - **Ein Fensterflügel kann „Fest (öffnet nicht)“ sein** (die überarbeitete Fassung von #606 von @aixmoyu, kurz vor dem Merge von 4.50.0 hochgeladen; der Besitzer: „Ja, als 4.50.1“): bei mehreren Flügeln bietet das Feld „Fenster öffnet“ jedes Flügels auch *Fest*; so ein Flügel hat kein eigenes Kontaktfeld und geht nie auf (z. B. die Mitte eines Dreifachfensters).

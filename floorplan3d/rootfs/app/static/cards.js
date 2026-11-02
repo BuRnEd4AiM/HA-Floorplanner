@@ -33,6 +33,18 @@ export const MAX_ENTITIES = 12;
 export const MAX_SERIES = 6;
 export const SERIES_COLORS = ['#3fa9f5', '#f5a623', '#c678dd', '#46a758', '#e5484d', '#8b98a5'];
 export const OWN_ID = /^c_[a-z0-9]{3,16}$/;
+/** the quick positions of a roller shutter card under ▲ ■ ▼ (the owner, 2026-11-01: "so eine Voreinstellung mit 50 %, 75 %, 100 % und
+ *  0 % zusätzlich zu dem Hoch- und Runterfahren"); 100 % = all the way open, as in Home Assistant */
+export const COVER_PRESETS = [0, 50, 75, 100];
+/** the positions the card editor offers to pick from */
+export const COVER_STEPS = [0, 10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90, 100];
+export const MAX_PRESETS = 6;
+/** the quick positions of a card made safe: whole numbers 0 … 100, each once, small to big, at most six; none given: COVER_PRESETS
+ *  (an empty list: the card has none) */
+export function cleanPresets(v) {
+  if (!Array.isArray(v)) return [...COVER_PRESETS];
+  return [...new Set(v.filter((x) => Number.isInteger(x) && x >= 0 && x <= 100))].sort((a, b) => a - b).slice(0, MAX_PRESETS);
+}
 const ENTITY = /^[a-z_]+\.[a-z0-9_]+$/;
 const domainOf = (id) => String(id).split('.')[0];
 
@@ -64,6 +76,7 @@ export function cleanCard(c) {
   }
   if (c.type === 'graph' || c.type === 'value') out.color = COLORS.includes(c.color) ? c.color : 'blue';
   if (c.type === 'thermostat') out.size = SIZES.includes(c.size) ? c.size : 'big';      // the circle big or small (#495)
+  if (c.type === 'cover') out.presets = cleanPresets(c.presets);                     // 0 % · 50 % · 75 % · 100 % under ▲ ■ ▼
   if (c.type === 'button') Object.assign(out, cleanLook(c));   // symbol, colour, shape, size, what it shows, tap and long press (#495)
   if (c.type === 'calendar') {                       // several calendars, each in its colour (#495)
     out.cals = cleanCals(c.cals);

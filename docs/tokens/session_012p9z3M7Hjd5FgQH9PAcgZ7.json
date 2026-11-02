@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3M7Hjd5FgQH9PAcgZ7",
+ "start": "2026-11-01",
+ "updated": "2026-11-01T23:48:32Z",
+ "branch": "claude/besondere-tage",
+ "source": "counted",
+ "input": 339,
+ "cache_write": 398796,
+ "cache_read": 50329422,
+ "output": 143432,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 339,
+   "cache_write": 398796,
+   "cache_read": 50329422,
+   "output": 143432,
+   "requests": 169
+  }
+ }
+}

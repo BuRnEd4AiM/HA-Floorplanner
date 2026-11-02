@@ -17,6 +17,7 @@ import heatlog as hl
 import heatrules as hr
 import roommap as rm
 import roomsensors as rs
+import specialdays as sd
 
 log = logging.getLogger("floorplan3d.rules")
 
@@ -33,7 +34,8 @@ class Rules:
     def __init__(self, cfg=None, mem=None, trace=None):
         cfg = cfg if isinstance(cfg, dict) else {}
         mem = mem if isinstance(mem, dict) else {}
-        self.cfg = {"heat": hr.clean_rules(cfg.get("heat")), "flows": fl.clean_flows(cfg.get("flows"))}
+        self.cfg = {"heat": hr.clean_rules(cfg.get("heat")), "flows": fl.clean_flows(cfg.get("flows")),
+                    "days": sd.clean_days(cfg.get("days"))}                 # 📅 Besondere Tage for "Nur wenn: besonderer Tag"
         self.mem = {"heat": hr.clean_mem(mem.get("heat")), "flows": fl.clean_mem(mem.get("flows")),
                     "sensors": rs.clean_mem(mem.get("sensors")),             # 🌡 Raumfühler (roomsensors.py, #573)
                     "log": [x for x in mem.get("log") or [] if isinstance(x, dict)][-MAX_LOG:]}
@@ -204,10 +206,10 @@ async def _loop(rules: Rules, ws, states: dict, pending: list, env, check: float
         _save_trace(rules, env)
 
 
-def _ctx(states, cache, env, now, local):
+def _ctx(states, cache, env, now, local, days=()):
     rooms = cache["rooms"]
     idx = rm.room_index(rooms)
-    return {"states": states, "now": now, "local": local, "weather": env.weather(states),
+    return {"states": states, "now": now, "local": local, "weather": env.weather(states), "days": list(days),
             "names": {e: (s.get("attributes") or {}).get("friendly_name") or e for e, s in states.items()},
             "room_of": lambda e: idx.get(e, ""), "in_room": lambda key, dom: rm.in_room(rooms, key, dom),
             "room_names": {r["key"]: r["name"] for r in rooms}}
@@ -283,7 +285,7 @@ async def _do(rules, calls, lines, now, env):
 
 async def _look(rules, states, cache, env, clock=False, changed=None):
     now, local = time.time(), env.local()
-    ctx = _ctx(states, cache, env, now, local)
+    ctx = _ctx(states, cache, env, now, local, rules.cfg.get("days", []))
     if changed:
         eid, old, new = changed
         rules.mem["flows"], calls, lines = fl.changed(rules.local(), rules.mem["flows"], eid, old, new, ctx)
@@ -355,7 +357,7 @@ async def _wish(rules, req, states, cache, env):
     elif kind == "run":
         _, fid, lane, test = req
         now = time.time()
-        out = fl.run_now(rules.cfg["flows"], rules.mem["flows"], fid, lane, _ctx(states, cache, env, now, env.local()), test)
+        out = fl.run_now(rules.cfg["flows"], rules.mem["flows"], fid, lane, _ctx(states, cache, env, now, env.local(), rules.cfg.get("days", [])), test)
         if out:
             rules.mem["flows"], calls, lines = out
             await _do(rules, calls, lines, now, env)
