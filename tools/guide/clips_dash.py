@@ -79,3 +79,49 @@ def _(r):
     r.say("„Fertig“, wenn alles passt.", "“Done” when everything fits.")
     r.click("#tabEditBar button", text="Fertig|Done")
     r.wait(1300)
+
+
+@clip("scenebar-edit", "dash",
+      {"de": "Die Szenen-Leiste einstellen", "en": "Set up the scene bar"},
+      {"de": "Welche Szenen und Skripte unten in der Leiste stehen, mit Symbol und Farbe, für alle Seiten oder je Seite eigene.",
+       "en": "Which scenes and scripts are in the bar at the bottom, with icon and colour, for all pages or different per page."},
+      "Szenen-Leiste Leiste unten Szene Skript Symbol Farbe einstellen sortieren scene bar bottom scene script icon colour set up sort")
+def _(r):
+    edit_today(r)
+    r.say("„🎬 Szenen-Leiste“.", "“🎬 Scene bar”.")
+    r.click("[data-page=today] .bdStrip [data-act=sceneBar]")
+    r.wait(1300)
+    r.poster()
+    r.say("Jede Szene mit Symbol und Farbe; ⠿ zieht sie an einen anderen Platz.", "Every scene with icon and colour; ⠿ drags it to another place.")
+    r.wait(2000)
+    r.say("Oben: für alle Seiten gleich oder eine eigene Leiste für diese Seite.", "At the top: the same for all pages or a bar of its own for this page.")
+    r.wait(1800)
+    r.click(".sbDlg [data-act=save]")
+    r.wait(800)
+    r.click("[data-page=today] .bdStrip [data-act=done]")
+    r.wait(900)
+
+
+@clip("variants", "dash",
+      {"de": "Eine Seite je Person anders", "en": "A page different per person"},
+      {"de": "Fassungen: dieselbe Seite sieht für die Kinder anders aus als für die Eltern; „Ansehen als …“ zeigt sie mit den Augen eines Benutzers.",
+       "en": "Versions: the same page looks different for the children than for the parents; “View as …” shows it with the eyes of a user."},
+      "Fassung Version je Benutzer Kinder Eltern andere Seite ansehen als wer sieht was version per user children parents view as who sees what")
+def _(r):
+    edit_today(r)
+    r.say("Unter der Leiste: „Fassung“. „Für alle“ ist die normale Seite.", "Below the bar: “Version”. “For everyone” is the normal page.")
+    r.move(".pvBar")
+    r.wait(1500)
+    r.say("„＋ Neue Fassung“ macht eine eigene Seite, zum Beispiel für die Kinder.", "“＋ New version” makes a page of its own, for example for the children.")
+    r.click(".pvBar [data-act=newVariant]")
+    r.wait(1500)
+    r.poster()
+    r.say("Danach wählst du, wer diese Fassung sieht, und richtest sie ein wie jede Seite.", "Then you choose who sees this version and set it up like any page.")
+    r.wait(2000)
+    r.key("Escape")
+    r.wait(600)
+    r.say("„Ansehen als …“ zeigt die Seite so, wie ein Benutzer sie sieht.", "“View as …” shows the page the way a user sees it.")
+    r.move(".pvBar [data-act=viewAs]")
+    r.wait(1600)
+    r.click("[data-page=today] .bdStrip [data-act=done]")
+    r.wait(900)

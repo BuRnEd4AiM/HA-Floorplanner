@@ -3,6 +3,11 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- **28 more videos in the video guide, 74 in all** (the owner, 2026-11-02: "für manche speziellen Sachen … das Programm hat echt viele Funktionen … nicht dass man da was vergisst"): voice questions, the view menu, sky and weather, warnings, LED ring, effects, doorbell, 🔎 used by, the heating log, special days, a new scene, tracing a floor plan, roof and dormers, stairs, plot and garden, floors and basement, floors and walls per room, the furniture library, the closet editor, several houses, the object list, the tool bar, the import, the scene bar, versions per person, wall tablet, messages on an alarm, version and checksum.
+- **Every feature from A to Z** at the bottom of the guide page: all 83 features of the add-on, each with ▶ to its video, or why it has none (`tools/guide/features.py`); a test fails when a feature has neither, and when a new version adds something without a line there.
+### Fixed
+- **Video guide on a phone** (#619, test 141.6, the owner: "links und rechts … abgeschnitten … nicht rauszoomen"): the player of a video was wider than the screen and cut off on both sides; now it fits the width (only the page on GitHub Pages changed, not the add-on).
 
 ## [4.52.0] - 2026-11-02
 ### Added

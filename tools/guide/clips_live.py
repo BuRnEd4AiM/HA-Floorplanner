@@ -251,3 +251,134 @@ def _(r):
     r.poster()
     r.slide("#tlBar input[type=range]", 0.82)
     r.wait(1600)
+
+
+@clip("voice", "live",
+      {"de": "Fragen stellen: „Welche Fenster sind offen?“", "en": "Ask: “Which windows are open?”"},
+      {"de": "Mit 🎤 fragst du das Haus (am Tablet mit Mikrofon, über Assist von Home Assistant): die Antwort steht da, und das Bild zeigt die Stellen.",
+       "en": "With 🎤 you ask the house (on a tablet with a microphone, through Home Assistant's Assist): the answer shows and the picture points at the places."},
+      "Sprachsuche Mikrofon fragen sprechen Assist Antwort Fenster offen wie warm voice search microphone ask speak answer windows open how warm")
+def _(r):
+    r.say("Unten links neben der Lupe ist das 🎤 (am Tablet mit Mikrofon).", "Bottom left beside the magnifier is the 🎤 (on a tablet with a microphone).")
+    r.move("#findBtn")
+    r.wait(1200)
+    r.say("Du fragst: „Welche Fenster sind offen?“", "You ask: “Which windows are open?”")
+    r.wait(800)
+    r.js("window.__fp.voiceAsk('Welche Fenster sind offen?')" if r.lang == "de" else "window.__fp.voiceAsk('Which windows are open?')")
+    r.wait(2200)
+    r.poster()
+    r.say("Die Antwort steht oben, das Fenster ist im Bild markiert.", "The answer is at the top, the window is marked in the picture.")
+    r.wait(2200)
+    r.say("Auch „Schalte das Licht im Wohnzimmer aus“ geht (mit Nachfrage beim ganzen Haus).", "“Turn off the light in the living room” works too (the whole house asks first).")
+    r.wait(2200)
+
+
+@clip("warnings", "live",
+      {"de": "Warnungen: Regen am offenen Fenster, Rauch, Wasser", "en": "Warnings: rain at an open window, smoke, water"},
+      {"de": "Regnet es und ein Fenster ist offen, steht oben ein Hinweis und der Raum leuchtet. Genauso bei Rauch, Gas, Wasser und Alarm (rot).",
+       "en": "When it rains and a window is open, a note shows at the top and the room glows. The same for smoke, gas, water and alarm (red)."},
+      "Warnung Regen Fenster offen Rauchmelder Rauch Gas Wasser Leck Alarm rot blinkt warning rain window open smoke detector gas water leak alarm red",
+      query="mode=live&weather=rainy")
+def _(r):
+    r.say("Es regnet, und im Wohnzimmer ist ein Fenster offen.", "It is raining, and a window is open in the living room.")
+    r.wait(1200)
+    r.say("Oben steht die Warnung; ein Tipp zeigt das Fenster.", "The warning is at the top; a tap shows the window.")
+    r.move("#alertBar")
+    r.wait(900)
+    r.poster()
+    r.click("#alertBar")
+    r.wait(2400)
+    r.say("Rauch, Gas, Wasser und Alarm warnen genauso, nur in Rot und mit Blinken.", "Smoke, gas, water and alarm warn the same way, only in red and flashing.")
+    r.wait(2200)
+
+
+@clip("ledring", "live",
+      {"de": "LED-Ring unter der Decke", "en": "LED ring under the ceiling"},
+      {"de": "Ein LED-Streifen rund um den Raum, in Abschnitte geteilt: jeden Abschnitt einzeln oder den ganzen Ring schalten und färben.",
+       "en": "An LED strip all around the room, split into sections: switch and colour every section on its own or the whole ring."},
+      "LED Ring Streifen Voute indirekt Decke Abschnitt Farbe Licht LED ring strip cove indirect ceiling section colour light", sky="21:30")
+def _(r):
+    r.say("Im Schlafzimmer läuft ein LED-Ring unter der Decke.", "An LED ring runs under the ceiling in the bedroom.")
+    room(r, "r4")
+    r.wait(400)
+    r.say("Tippe auf seine Kugel.", "Tap its ball.")
+    r.click(*r.ball("d22"))
+    r.wait(1100)
+    r.say("Jeder Abschnitt lässt sich einzeln schalten …", "Every section can be switched on its own …")
+    r.click("#livePopup button", text="^2$")
+    r.wait(1300)
+    r.click("#livePopup button", text="^2$")
+    r.wait(900)
+    r.poster()
+    r.say("… oder der ganze Ring bekommt eine Farbe.", "… or the whole ring gets a colour.")
+    r.click("#livePopup .swatches .sw", nth=6)
+    r.wait(1800)
+
+
+@clip("effects", "live",
+      {"de": "Effekte: Nanoleaf, WLED und Co.", "en": "Effects: Nanoleaf, WLED and more"},
+      {"de": "Lampen mit Effekten (Nanoleaf, WLED, Hue …) zeigen ihre Effekte in der Karte; ein Nanoleaf leuchtet im Bild in seiner Form.",
+       "en": "Lamps with effects (Nanoleaf, WLED, Hue …) list their effects on their card; a Nanoleaf glows in its own shape in the picture."},
+      "Effekt Nanoleaf WLED Hue Szene Lichteffekt Farbe Form Dreiecke effect light effect colour shape triangles", sky="20:30")
+def _(r):
+    r.say("An der Wand im Wohnzimmer hängt ein Nanoleaf.", "A Nanoleaf hangs on the wall of the living room.")
+    room(r, "r1")
+    r.say("Tippe auf seine Kugel.", "Tap its ball.")
+    r.click(*r.ball("d21"))
+    r.wait(1000)
+    r.say("Unten in der Karte: die Effekte des Leuchtmittels.", "At the bottom of the card: the effects of the light.")
+    sel = r.loc("#livePopup .fxsel")
+    r.click(sel)
+    opts = sel.evaluate("(s) => [...s.options].map((o) => o.value).filter(Boolean)")
+    if opts:
+        sel.select_option(opts[min(1, len(opts) - 1)])
+    r.wait(1600)
+    r.poster()
+    r.say("Mit einem Tipp auf eine Farbe ist er wieder einfarbig.", "Tap a colour and it is one colour again.")
+    r.click("#livePopup .swatches .sw", nth=4)
+    r.wait(1600)
+
+
+@clip("doorbell", "live",
+      {"de": "Türklingel mit Kamera", "en": "Doorbell with camera"},
+      {"de": "Klingelt es, zeigt jedes Wandtablet die Kamera an der Tür mit „Tür öffnen“ (es fragt noch einmal) und spielt einen Gong.",
+       "en": "When someone rings, every wall tablet shows the camera at the door with “Open the door” (it asks once more) and plays a chime."},
+      "Türklingel Klingel Tür öffnen Kamera Gong Besuch Wandtablet doorbell ring door open camera chime visitor wall tablet")
+def _(r):
+    r.say("Jemand klingelt an der Haustür …", "Someone rings at the front door …")
+    r.hide()
+    r.wait(600)
+    r.js("window.__fp.bellTest()")
+    r.wait(1800)
+    r.show()
+    r.poster()
+    r.say("… das Tablet zeigt die Kamera an der Tür.", "… the tablet shows the camera at the door.")
+    r.wait(1500)
+    r.say("„Tür öffnen“ fragt noch einmal, bevor es aufmacht.", "“Open the door” asks once more before it opens.")
+    r.move("#bellOpen")
+    r.wait(1500)
+    r.say("„Schließen“ und alles ist wie vorher.", "“Close” and everything is as before.")
+    r.click("#bellClose")
+    r.wait(1300)
+
+
+@clip("usedby", "live",
+      {"de": "🔎 Wer benutzt dieses Gerät?", "en": "🔎 What uses this device?"},
+      {"de": "🔎 „Wird benutzt“ zeigt, welche Automationen, Skripte, Szenen und Regeln ein Gerät benutzen und ob sie gerade laufen.",
+       "en": "🔎 “Used by” shows which automations, scripts, scenes and rules use a device and whether they run right now."},
+      "wird benutzt Automation Skript Szene Regel welche benutzt Gerät used by automation script scene rule which uses device")
+def _(r):
+    r.say("Zum Beispiel beim Thermostat: unten „Klima“.", "For example with a thermostat: “Climate” at the bottom.")
+    r.click("#tabBar [data-tab=climate]")
+    r.wait(1200)
+    r.say("Am Wohnzimmer: „🔎 Wird benutzt“.", "At the living room: “🔎 Used by”.")
+    r.click("[data-page=climate] .ubBtn", nth=0)
+    r.wait(2600)
+    r.poster()
+    r.say("Die Liste zeigt alles, was dieses Gerät schaltet: Automationen, Skripte, Szenen und Heiz-Regeln, und ob sie gerade laufen.",
+          "The list shows everything that switches this device: automations, scripts, scenes and heating rules, and whether they run right now.")
+    r.wait(2800)
+    r.say("Das 🔎 gibt es auch auf der Karte jedes Geräts im Haus.", "The 🔎 is also on the card of every device in the house.")
+    r.wait(1800)
+    r.key("Escape")
+    r.wait(600)

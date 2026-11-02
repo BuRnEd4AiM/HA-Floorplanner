@@ -12,3 +12,6 @@ tests/e2e/backup.json
 
 # knowledge graph of the code (rebuilt at the start of every Claude Code session)
 graphify-out/
+
+# the floor plan picture the video guide puts next to the demo while it records (tools/guide/clips_edit.py)
+demo/api/

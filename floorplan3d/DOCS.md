@@ -41,7 +41,7 @@ All other settings (language, theme, units, grid ...) live in the ⚙ dialog ins
 
 ## Video guide
 
-**🎬 Every feature as a short video** (4.52.0): https://burned4aim.github.io/HA-Floorplanner/guide/ (next to the demo). About 50 videos in groups (first steps, control, pages, drawing the plan, designing pages, settings, phone and tablet), each with a German and an English interface, recorded automatically in the demo after every update. The search finds titles, descriptions and every single step (a hit jumps to its second); the steps are subtitles (on or off) and chapters beside the video.
+**🎬 Every feature as a short video** (4.52.0): https://burned4aim.github.io/HA-Floorplanner/guide/ (next to the demo). Over 70 videos in groups (first steps, control, pages, drawing the plan, designing pages, settings, phone and tablet), each with a German and an English interface, recorded automatically in the demo after every update. The search finds titles, descriptions and every single step (a hit jumps to its second); the steps are subtitles (on or off) and chapters beside the video. At the bottom, **Every feature from A to Z** lists all features of the add-on with ▶ to their video (or why one has none).
 
 In the add-on, **🎬 Anleitung** at the top (only for those who may edit) opens the guide in a window. The videos come from the internet, so the add-on does not get bigger. For a home without internet: **📥 Für ohne Internet speichern** in that window loads the videos of your language once in a smaller size (about 20 MB) into the add-on's data folder; from then on the window plays them from the add-on, also without internet (**↻** renews them after an update, **🗑** deletes the copy). In the Docker version the copy goes into its data folder as well.
 

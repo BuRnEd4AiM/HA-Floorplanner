@@ -16,6 +16,13 @@ Every feature as a short video, recorded automatically in the demo. The page: ht
 4. **The page** (`page.html`): search over titles, descriptions, search words and every step, groups, the player with subtitles
    and chapters. It reads `guide.json`, which `make_guide.py --site` writes from the clips and the recorded steps.
 
+## Every feature (features.py)
+
+`features.py` lists every feature of the add-on with the clips that show it, or why it has none (shown on the page under
+"Alle Funktionen von A bis Z"). `tests/test_make_guide.py` fails when a feature has neither, when a clip shows no feature, and when
+a version from 4.52.0 on adds something (`### Added` in CHANGELOG.md) without a line `since="<version>"` here. So a new feature
+cannot be forgotten in the guide.
+
 ## A new clip
 
 Every new feature gets a clip (`.claude/CLAUDE.md`). Put it in the `clips_<group>.py` that fits:
