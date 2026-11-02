@@ -442,6 +442,7 @@ export function createPlan(ctx) {
       o += `<polygon points="${pts(plotB)}" fill="rgba(60,255,176,.05)" stroke="${on ? C.sel : 'rgba(60,255,176,.7)'}" stroke-width="${on ? 2.5 : 1.5}" stroke-dasharray="8 5"/>`;
     }
     o += yardSvg(sel, live);
+    if (yardsHere()) o += ctx.terrainSvg?.({ clip: plotB?.length >= 3 ? plotB : null, sx, sy, s, live, edit: ctx.getTool() === 'plot' && !!ctx.terrainMode?.() }) || '';   // ⛰ contour lines, spot heights (#629)
 
     /* placeholder blocks: solid masses that stand in for floors you do not draw */
     const idxB = ctx.getFloorIdx(), H3 = ctx.floorH(), view = ctx.shownLayout?.() || ctx.layout();   // one building of several (#409)
@@ -903,6 +904,9 @@ export function createPlan(ctx) {
       }
     } else if (tool === 'erase') {
       drag = { type: 'erase', px, py };
+    } else if (tool === 'plot' && ctx.terrainMode?.()) {            // the mode "Gelände" (#629): a spot height is dragged, a tap sets one
+      const id = ctx.terrainHit?.(x, z, Math.max(0.2, 14 / s));
+      drag = id ? { type: 'tpoint', id, px, py, moved: false } : { type: 'tool', px, py, moved: false };
     } else {
       drag = { type: 'tool', px, py, moved: false };
     }
@@ -989,6 +993,10 @@ export function createPlan(ctx) {
       const moved = Math.hypot(px - drag.px, py - drag.py) > 4;
       if (drag.type === 'pan') { tx = drag.tx + (px - drag.px); ty = drag.ty + (py - drag.py); render(); return; }
       if (drag.type === 'multi') { if (moved) { drag.b = [x, z]; render(); } return; }
+      if (drag.type === 'tpoint') {                                   // a spot height of the terrain (#629)
+        if (moved || drag.moved) { snapshotOnce(); const p = snapPt(x, z, { free: e.altKey }); ctx.terrainMove(drag.id, p[0], p[1]); drag.moved = true; scheduleRebuild(); render(); }
+        return;
+      }
       if (drag.type === 'devsize' && moved) {
         snapshotOnce();
         const d = drag.d, [lx, lz] = devLocal(d, x, z), b = baseFoot(d), k = d.scale || 1;
@@ -1169,6 +1177,7 @@ export function createPlan(ctx) {
     const tool = ctx.getTool();
 
     if (d.type === 'devsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
+    if (d.type === 'tpoint') { if (d.moved) ctx.commit(); else ctx.terrainPick?.(d.id); snapDone = false; return; }
     if (d.type === 'ringend') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'stairsize') { if (d.moved) { ctx.commit(); ctx.setSelection(ctx.getSelection()); } snapDone = false; return; }
     if (d.type === 'bgmove' || d.type === 'bgscale') { if (d.moved) { ctx.commit(); ctx.bgChanged(); } snapDone = false; return; }
@@ -1234,6 +1243,9 @@ export function createPlan(ctx) {
         ctx.setStatus(ctx.t('stair.wallNext'));
         render();
       } else ctx.placeStair(px2, pz2);
+    } else if (tool === 'plot' && ctx.terrainMode?.()) {        // the mode "Gelände" (#629): a spot height (or the low side of a slope)
+      const p = snapPt(x, z, { free: e.altKey });
+      ctx.terrainClick?.(p[0], p[1]);
     } else if (tool === 'room' || tool === 'block' || tool === 'plot' || tool === 'hole') {
       const p = snapPt(x, z, { free: e.altKey });
       if (tool === 'plot' && ctx.plotRect?.() && drawPts.length === 1) {          // a rectangle: the second click is the opposite corner (#538)

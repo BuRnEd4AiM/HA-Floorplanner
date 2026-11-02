@@ -37,6 +37,8 @@ import { buildYards } from './yard3d.js';
 import { buildPlateaus } from './plateau3d.js';
 import { groundAt, plateausOf } from './levels.js';
 import { YARD } from './yarddeco.js';
+import { memoField, standsOn } from './terrain.js';
+import { drapeLine } from './terrain3d.js';
 import { initStairTool } from './stairtool.js';
 import { initLiveControls } from './livecontrols.js';
 import { initLivePopup } from './livepopup.js';
@@ -330,7 +332,11 @@ const entityDevices = (f) => {
 const roomMeshes = new Map();     // room id -> { mesh, room }
 
 /* ---- Ground: earth around the basement with lawn on top, cut open on the camera's side like a section drawing; the code lives in earth.js ---- */
-const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH: FLOOR_H, settings: () => settings, houseMode: () => houseMode });
+/* ---- ⛰ The ground on a slope (#629): the height of the ground from the spot heights of the plot (terrain.js); the panel: terrainui.js ---- */
+const groundOf = memoField();
+const terrainHere = () => groundOf(layout.plot?.terrain);
+const GARDEN = new Set([...OUTDOOR, ...Object.keys(YARD)]);           // garden things stand on the ground even close to the house
+const earth = initEarth({ layout: () => shownLayout(), groundIdx: () => groundIdx(), floorH: FLOOR_H, settings: () => settings, houseMode: () => houseMode, terrain: terrainHere });
 const sky = initSky({ $, t, canvas, params, settings: () => settings, states: () => states, isLive: () => isLive(), isHolo: () => isHolo(),   // sky and weather (#418, #419), skyui.js
   low: () => perfParam === 'low', earthTint: (c) => earth.setTint(c) });
 let plotLoop = null;                  // the plot outline: a drawing aid, only in edit mode
@@ -452,6 +458,7 @@ const neighbors = initNeighbors({
 /* a floor in 3D: room floors, floor opening rims, blocks, stairs, walls and devices; the code lives in floorbuild.js */
 const floorBuild = initFloorBuild({
   plotAreas: () => plotUi.areas(),                                // a plateau lifts what stands on it (levels.js, #566)
+  terrainFor: (f) => standsOn(terrainHere(), f, layout.floors[groundIdx()], GARDEN),   // on a slope the garden things stand on the ground (#629)
   settings: () => settings, floorIdx: () => floorIdx, topView: () => is2d, imperial: () => imperial(), belowVis: () => belowVis(), fast: () => LOW,
   mat: (...a) => mat(...a), roomLightMat: (...a) => roomLightMat(...a), textSprite: (...a) => textSprite(...a), railing: (...a) => roofsUi.railing(...a),
   lowWalls: () => lowWalls, roomMeshes, alerts: { hasRoom: (id) => alertsUi.hasRoom(id), get pulses() { return alertsUi.pulses; } },
@@ -485,8 +492,9 @@ function build() {
   if (withEarth) { earth.build(world, holo); updateEarthCut(); }          // the house stands in the ground: lawn on top, the basement inside the earth
   if (layout.plot?.boundary?.length >= 3) {      // the plot (Grundstück): outline + a faint ground area
     const pb = layout.plot.boundary, shape = new THREE.Shape(pb.map(([x, z]) => new THREE.Vector2(x, -z)));
-    const loop = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pb.map(([x, z]) => new THREE.Vector3(x, withEarth ? 0.005 : (houseMode || floorIdx >= groundIdx() ? -0.035 : elev(floorIdx) - 0.035), z))), new THREE.LineBasicMaterial({ color: holo ? 0x3dffb0 : 0x3f7a35 }));
-    if (!withEarth && floorIdx >= groundIdx()) {              // not while looking at the basement: this area lies at ground level, above it
+    const hf = terrainHere(), onGround = houseMode || floorIdx >= groundIdx();
+    const loop = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(hf && onGround ? drapeLine(pb, hf, 0.005) : pb.map(([x, z]) => new THREE.Vector3(x, withEarth ? 0.005 : (onGround ? -0.035 : elev(floorIdx) - 0.035), z))), new THREE.LineBasicMaterial({ color: holo ? 0x3dffb0 : 0x3f7a35 }));
+    if (!withEarth && floorIdx >= groundIdx() && !hf) {       // not while looking at the basement: this area lies at ground level, above it
       const ground = new THREE.Mesh(new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: holo ? 0x1a8f6a : 0x6aa05a, transparent: true, opacity: holo ? 0.1 : 0.35, depthWrite: false, side: THREE.DoubleSide }));
       ground.position.y = -0.04;
       world.add(ground);
@@ -496,8 +504,9 @@ function build() {
     world.add(loop);
   }
   if ((houseMode || floorIdx >= groundIdx()) && !iso && plotUi.areas().length) {   // the areas of the plot (#538): yard, terrace, drive ... on the ground
-    buildYards(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null });
-    buildPlateaus(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, clip: earth.cut() ? earth.plane : null });   // their walls or banks (#566)
+    const hf = terrainHere();                                    // on a slope they lie on the ground, a plateau stays level (#629)
+    buildYards(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, low: perfParam === 'low', clip: earth.cut() ? earth.plane : null, hf });
+    buildPlateaus(world, plotUi.areas(), { y: withEarth ? -0.014 : -0.034, holo, clip: earth.cut() ? earth.plane : null, hf });   // their walls or banks (#566)
   }
   if (tool === 'plot') plotUi.render();
   const stacked = floorsMode(settings, houseMode) === 'stacked' && !iso;   // like a real house: ceilings between the floors (housefloors.js)
@@ -1527,6 +1536,7 @@ const plotUi = initPlotUi({
   select: (sel) => { multiSel.clear(); selection = sel; refreshSelection(); }, selection: () => selection, fmtLen: (m) => fmtLen(m), imperial: () => imperial(),
   toDisp: (m) => toDisp(m), fromDisp: (v) => fromDisp(v), fields: { field, inp, lenInput }, deleteItem: (sel) => deleteItem(sel),
   hint: (x) => { $('#hintText').textContent = x; }, cancelDraft: () => plan?.cancel(), floorIdx: () => floorIdx,
+  floorH: FLOOR_H, planRender: () => plan?.render(),                // the mode "Gelände": a slope of one storey, the plan drawn again (#629)
 });
 const stairTool = initStairTool({
   $, t, settings: () => settings, layout: () => layout, floor: () => floor(), floorIdx: () => floorIdx, floorH: FLOOR_H, snapshot: () => snapshot(), changed: (...a) => changed(...a),
@@ -1738,6 +1748,8 @@ plan = createPlan({
   states: () => states, isOn: (e) => ON_STATES.has(states[e]?.state), stateText, openText, fmtLen, t, setStatus, measure: measureTool,
   area: (p) => fmtArea(polyArea(p), imperial()),
   yards: () => plotUi.areas(), yardShown: () => tool === 'plot' || floorIdx === groundIdx(), plotRect: () => plotUi.rect(),   // the plot and its areas (#538)
+  terrainMode: () => tool === 'plot' && plotUi.mode() === 'terrain', terrainSvg: (o) => plotUi.terrain.svg(o), terrainHit: (x, z, tol) => plotUi.terrain.hit(x, z, tol),   // ⛰ spot heights (#629, terrainui.js)
+  terrainMove: (id, x, z) => plotUi.terrain.move(id, x, z), terrainPick: (id) => plotUi.terrain.pick(id), terrainClick: (x, z) => plotUi.terrain.click(x, z),
 });
 
 var booted = false;                                       // init() is through: layout, models and first scene are there (test hook ready())
@@ -1890,7 +1902,8 @@ if (params.get('debug')) {
     roofKeep: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { n = Math.max(n, m.userData.atticU?.atticNR.value || 0); }); }); return n; },
     roofRise: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material) [].concat(o.material).forEach((m) => { n = Math.max(n, ...(m.userData.atticU?.atticRise.value || []).map((v) => v.x)); }); }); return n; },   // a shed dormer's sloping ceiling over wall id (#339)   // dormer rooms kept on wall id (#265)
     clipped: (id) => { let n = 0; registry.get(id)?.traverse((o) => { if (o.material && [].concat(o.material).some((m) => m.clippingPlanes?.includes(earth.plane))) n++; }); return n; },
-    earthDbg: () => ({ n: earth.plane.normal.toArray(), c: earth.plane.constant, solid: earth.lawn(), cut: earth.cut(), capVisible: !!earth.info()?.cap.visible, capVerts: earth.info()?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earth.box(), ground: earth.ground(), pads: earth.pads() }),
+    earthDbg: () => ({ n: earth.plane.normal.toArray(), c: earth.plane.constant, solid: earth.lawn(), cut: earth.cut(), capVisible: !!earth.info()?.cap.visible, capVerts: earth.info()?.cap.geometry.getAttribute('position')?.count || 0, gridShown: !!grid?.visible, box: earth.box(), ground: earth.ground(), pads: earth.pads(), plinths: earth.plinths(), sloped: !!terrainHere() }),
+    terrainAt: (x, z) => terrainHere()?.(x, z) ?? 0,               // the height of the ground on a slope (#629)
     stateOf: (e) => states[e]?.state,
     fakeState(e, st, unit) { states[e] = { ...(states[e] || {}), state: st, ...(unit ? { unit } : {}) }; applyOpenings(); },
     has: (id) => registry.has(id),
