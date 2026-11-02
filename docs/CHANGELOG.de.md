@@ -4,6 +4,11 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
 
 ## [Unreleased]
 
+### Verbessert
+- **Video-Anleitung: ein Video „Ein Fenster einstellen: Flügel, Rollladen, Vorhang“** (der Besitzer, 2026-11-02: „bei Fenster ein Video … wo man das mit den Flügeln einstellt und Rollladen und Vorhänge“): ein Fenster im 3D-Bild anklicken, zwei Flügel, der linke links angeschlagen, der rechte rechts („Fest“ für einen Flügel, der nie aufgeht), der Kontakt aus Home Assistant öffnet es im Bild, das Häkchen „Vorhang / Rollladen“ mit den Vorhangarten, der Vorhang aus Home Assistant (ein Vorhang, der sich in der Mitte teilt, 60 % offen), ein eigener Kontakt je Flügel. Nur die Anleitung hat sich geändert, nicht das Add-on.
+- **Die Demo startet mit durchsichtigen Wänden** (der Besitzer, 2026-11-02: „wenn man die Demo startet … immer im durchsichtigen Modus … anstatt dass man die Wände absenkt, das sieht geiler aus“): in der Demo werden die Wände zur Kamera und das Dach durchsichtig („Ansicht“ → „Durchsichtig“) statt abgesenkt („Auto“); das Add-on behält seine eigene Einstellung.
+- **Video „Ansicht“**: Es sagte, „Auto“ drehe das Haus von selbst; „Auto“ senkt aber die Wände zur Kamera ab. Das Video zeigt jetzt „Durchsichtig“ (in der Demo an), „Auto“ und zurück.
+
 ## [4.54.0] - 2026-11-02
 ### Neu
 - **Ein L-förmiges Dach: ein weiteres Dach wie das Hauptdach** (#625, gefragt von LoggieXC81 in der Q&A-Diskussion #621: „if I add a second roof, the Kniestock is not carried over from the main roof“; er fragte, wie beide Dächer auf die gleiche Höhe kommen): „Sitzt auf“ eines weiteren Dachs hat als erste Wahl neu **wie das Hauptdach (gleiche Höhe, auch auf dem Kniestock)**. Hat das Hauptdach eine eigene Größe und liegt ein Teil des Hauses außerhalb, legt **+ Weiteres Dach** so ein Dach gleich über diesen Flügel: dieselbe Form, Neigung und derselbe Überstand wie beim Hauptdach, bis zum First des Hauptdachs, damit sich beide Dächer in einer Kehle treffen, sein First quer dazu. Video „Ein L-förmiges Dach (zweiter Flügel)“ in der Anleitung.
