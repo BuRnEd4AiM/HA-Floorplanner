@@ -2,15 +2,15 @@
 
 <!-- Wird von tools/tokens.py erzeugt (Workflow „Token count“ nach jedem Merge). Nicht von Hand ändern. -->
 
-Stand: 2026-11-02 · 90 Sitzungen
+Stand: 2026-11-02 · 91 Sitzungen
 
-**Insgesamt: 6,42 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
+**Insgesamt: 6,48 Mrd. Tokens** (davon 2,00 Mrd. geschätzt)
 
 | | Tokens | Was ist das? |
 |---|---:|---|
-| Geschrieben | 18,5 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
-| Neu gelesen | 64,9 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
-| Wieder gelesen | 6,34 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
+| Geschrieben | 18,7 Mio. | Text, Code und Nachdenken, das Claude neu geschrieben hat |
+| Neu gelesen | 65,3 Mio. | Nachrichten, Dateien und Ausgaben, die zum ersten Mal ins Gespräch kamen |
+| Wieder gelesen | 6,40 Mrd. | das bisherige Gespräch, das Claude bei jedem Schritt noch einmal liest (die meisten Tokens, aber billig) |
 
 Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal mit welchem Zugang). Was nach dem letzten Commit einer Sitzung noch verbraucht wird, fehlt; die Zahl ist also eher zu klein.
 
@@ -18,7 +18,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Monat | Sitzungen | Tokens | davon geschrieben |
 |---|---:|---:|---:|
-| 2026-11 | 4 | 295,2 Mio. | 731 Tsd. |
+| 2026-11 | 5 | 356,7 Mio. | 919 Tsd. |
 | 2026-10 | 73 | 4,13 Mrd. | 11,7 Mio. |
 | geschätzt | 13 | 2,00 Mrd. | 6,0 Mio. |
 
@@ -26,6 +26,7 @@ Jede Sitzung schreibt ihre Zahlen bei jedem `git commit` in `docs/tokens/` (egal
 
 | Beginn | Sitzung | Worum es ging | Tokens | davon geschrieben | Quelle |
 |---|---|---|---:|---:|---|
+| 2026-11-02 | [012p9z3K…](https://claude.ai/code/session_012p9z3KHPevDmhRg73m49xE) | claude/github-issue-628-p6mfc1 | 61,5 Mio. | 189 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3N…](https://claude.ai/code/session_012p9z3NqajFvYzgPkCU1W4T) | claude/ecstatic-fermat-2nup12 | 65,9 Mio. | 165 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3L…](https://claude.ai/code/session_012p9z3LEvbZDmg5wK6wBzns) | claude/backup-komplett | 35,8 Mio. | 108 Tsd. | gezählt |
 | 2026-11-02 | [012p9z3N…](https://claude.ai/code/session_012p9z3NHQDzcAbYuPScYobG) | claude/keen-babbage-0ovkmx | 142,7 Mio. | 314 Tsd. | gezählt |
