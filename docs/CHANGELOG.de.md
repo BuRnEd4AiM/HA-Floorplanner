@@ -2,6 +2,10 @@
 
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
+## [Unreleased]
+### Repariert
+- **Video-Anleitung am Handy** (#619, Test 141.6, der Besitzer: „links und rechts … abgeschnitten … nicht rauszoomen“): das Fenster eines Videos war breiter als der Bildschirm und links und rechts abgeschnitten; jetzt passt es in die Breite (nur die Seite auf GitHub Pages, nicht das Add-on).
+
 ## [4.52.0] - 2026-11-02
 ### Neu
 - **🎬 Video-Anleitung: jede Funktion als kurzes Video, zum Durchsuchen** (der Besitzer, 2026-11-02: „ein Programm …, das mir automatisch jede Funktion in einem kleinen Kurzvideo aufnimmt, so dass man es durchsuchen kann und dann sehen kann, was man alles machen kann, wie eine riesige Anleitung … und ich meine, dass das auch hochwertig sein soll“):

@@ -49,3 +49,12 @@ def test_the_page_needs_nothing_from_elsewhere():
     assert not re.search(r"<script[^>]+src=|<link[^>]+href=\"http", page)       # works offline as the add-on's copy
     for key in re.findall(r'data-t="([a-zA-Z]+)"', page):
         assert re.search(rf"\b{key}:", page.split("en: {")[0]) and re.search(rf"\b{key}:", page.split("en: {")[1]), key
+
+
+def test_the_player_fits_a_phone():
+    """#619: under 900 px the player's column was "1fr", which grew to the width of the video and the title; on a phone the player
+    was cut off left and right and could not be zoomed out (checked in Chromium at 360 and 390 px: now nothing is wider)"""
+    page = mg.PAGE.read_text()
+    narrow = page.split("@media (max-width: 900px) {")[1].split("}")[0]
+    assert re.search(r"\.pIn\s*\{\s*grid-template-columns:\s*minmax\(0,\s*1fr\)", narrow), narrow
+    assert re.search(r"\.pIn\s*>\s*\*\s*\{\s*min-width:\s*0", page)

@@ -3,6 +3,8 @@
 All notable changes are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- **Video guide on a phone** (#619, test 141.6, the owner: "links und rechts … abgeschnitten … nicht rauszoomen"): the player of a video was wider than the screen and cut off on both sides; now it fits the width (only the page on GitHub Pages changed, not the add-on).
 
 ## [4.52.0] - 2026-11-02
 ### Added
