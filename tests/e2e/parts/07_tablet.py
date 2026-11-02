@@ -114,7 +114,7 @@ check("search: Enter goes to the first hit and shows it", pg17.locator("#findBox
 check("phone menu: tool bar folded, ☰ shown", pg17.locator("#tbMenuBtn").is_visible() and pg17.locator("#toolbar").is_hidden())
 pg17.click("#tbMenuBtn"); pg17.wait_for_timeout(300)
 check("phone menu: ☰ opens the tool bar as a list", pg17.locator("#toolbar").is_visible() and pg17.locator("#fitBtn").is_visible())
-check("phone (#299): only live and 3D, no Edit, no 2D, no users", pg17.locator("#modeSwitch").is_hidden() and pg17.locator("#view2d").is_hidden()
+check("phone (#299, #624): live only in 3D, Edit in the menu, no users", pg17.locator("#modeSwitch [data-mode=edit]").is_visible() and pg17.locator("#view2d").is_hidden()
       and pg17.locator("#viewSplit").is_hidden() and pg17.evaluate("getComputedStyle(document.querySelector('details[data-group=users]')).display") == "none" and pg17.evaluate("document.body.classList.contains('live')"))
 pg17.click("#fitBtn"); pg17.wait_for_timeout(300)
 check("phone menu: a choice closes it again", pg17.locator("#toolbar").is_hidden() and pg17.locator("#tbMenuBtn").inner_text() == "☰")

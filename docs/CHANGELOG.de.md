@@ -4,6 +4,12 @@ Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`
 
 ## [Unreleased]
 
+## [4.56.0] - 2026-11-02
+### Neu
+- **Bearbeiten am Handy** (#624, gefragt von biggilottecassi: „Was auch noch schön wäre, wenn man am Handy auch was bearbeiten könnte“; der Besitzer: „das man es nun auch wenn man möchte editieren … auch am handy machen kann“): Seit 3.63.0 (#299) zeigte ein Handy nur das Haus. Es startet weiter mit dem Haus (Live-Ansicht, 3D), aber das ☰-Menü bietet wieder **Bearbeiten** an (für alle, die bearbeiten dürfen). Der Editor hat am Handy eine eigene Aufteilung: Die Werkzeugleiste ist eine Leiste, hochkant mit ☰, **2D / 3D**, ↶ ↷ und *Speichern* in der ersten Reihe und den Werkzeugen in einer Reihe darunter, die man zur Seite wischt (quer gehalten alles in einer Reihe); *Mehr* klappt unter seinem Knopf im Bildschirm auf. ☰ öffnet den Rest der Leiste (Live, 2D + 3D, Einpassen, + Etage, Haus, Version, ⚙ …) als dieselbe Liste wie in der Live-Ansicht, ohne dass das Bild springt. Die Seitenleiste ist unten ein Blatt, zuerst mit dem, was ausgewählt ist (dann der Hinweis zum Werkzeug), ohne die Hilfe zu Tasten und Maus; die Farbknöpfe (Temp., Feuchte …) fallen weg, *Ansicht* bleibt. Zeichnen geht mit dem Finger wie am Tablet (Punkt für Punkt tippen, zweimal tippen beendet die Wand, zwei Finger schieben und zoomen). ☰ → **Live** geht zurück zum Haus in 3D. Tablets und Computer bleiben unverändert.
+- **Video-Anleitung: ein neues Video „Am Handy bearbeiten“** (Clip `phone-edit`).
+- Neuer Teil `67_phone_edit` im Browser-Test.
+
 ## [4.55.0] - 2026-11-02
 ### Neu
 - **Giebelwände** (#628, gefragt von christinloehner: „Mein Haus hat an den Stirnseiten jeweils eine Giebelwand … das Satteldach … auch an der Giebelseite die Wand überdeckt“): Der Giebel eines Satteldachs war ein Dreieck in Dachfarbe außen am Überstand, vor der Wand. Jetzt geht die Wand unter jedem Giebel bis unters Dach, auf der Wand und so dick wie die Wände darunter, in ihrer Farbe (oder der Fassade), herunter bis auf die Wände darunter (auf einem Kniestock ab den Wänden des Dachgeschosses). Im Dach-Panel gibt es das Häkchen **Giebelwand (die Wand geht bis unters Dach)** (an; aus: das Dreieck wie bisher, z. B. für einen offenen Carport). Wo der Giebel eines Dachs in einem anderen Dach steht (das innere Ende des zweiten Flügels eines L-Hauses), hat er keine.

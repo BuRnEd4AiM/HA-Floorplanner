@@ -4,6 +4,12 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
+## [4.56.0] - 2026-11-02
+### Added
+- **Editing on a phone** (#624, asked by biggilottecassi: "Was auch noch schön wäre, wenn man am Handy auch was bearbeiten könnte"; the owner: "das man es nun auch wenn man möchte editieren … auch am handy machen kann"): since 3.63.0 (#299) a phone only showed the house. It still starts with the house (live view, 3D), but the ☰ menu offers **Bearbeiten** again (for those who may edit). The editor has its own layout on a phone: the tool bar is a strip, upright with ☰, **2D / 3D**, ↶ ↷ and *Speichern* in the first row and the tools in one row under it that is swiped sideways (held sideways everything is one row); *Mehr* opens under its button inside the screen. ☰ opens the rest of the bar (Live, 2D + 3D, Einpassen, + Etage, house, version, ⚙ …) as the same list as in the live view, without moving the picture. The side panel is a sheet at the bottom with what is selected first (then the hint for the tool), without the help for keys and mouse; the colour buttons (Temp., Feuchte …) are left out, *Ansicht* stays. Drawing works with the finger as on a tablet (tap point by point, a double tap ends the wall, two fingers move and zoom). ☰ → **Live** goes back to the house in 3D. Tablets and computers are unchanged.
+- **Video guide: a new video "Edit on the phone"** (clip `phone-edit`).
+- New browser test part `67_phone_edit`.
+
 ## [4.55.0] - 2026-11-02
 ### Added
 - **Gable walls** (#628, asked by christinloehner: "Mein Haus hat an den Stirnseiten jeweils eine Giebelwand … das Satteldach … auch an der Giebelseite die Wand überdeckt"): the gable of a gable roof was a triangle in the roof's colour out at the edge of the overhang, in front of the wall. Now the wall under each gable goes on up to the roof, on the wall and as thick as the walls under it, in their colour (or the facade's finish), down to the top of the walls under it (on a knee wall from the walls of the attic storey up). The roof panel has the box **Gable wall (the wall goes on up to the roof)** (on; off: the triangle as before, e.g. for an open carport). Where the gable of a roof stands inside another roof (the inner end of the second wing of an L-shaped house) it has none.
