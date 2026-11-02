@@ -2,7 +2,7 @@
 
 The videos are on GitHub Pages next to the demo (tools/make_guide.py records them in the demo after every update). The
 add-on itself stays small: its button opens that page. An admin can save a smaller copy into the add-on
-("📥 Für ohne Internet speichern": the 960 × 540 videos and pictures of one language, about 40 MB) into DATA_DIR/guide;
+("📥 Für ohne Internet speichern": the 960 × 540 videos and pictures of one language, about 20 MB) into DATA_DIR/guide;
 then the add-on serves it under guide/ and the videos also play without internet.
 
 Pure parts (files_of, local_json, allowed, status) are tested in tests/test_guide.py; download() fetches with aiohttp.

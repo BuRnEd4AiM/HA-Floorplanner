@@ -58,9 +58,10 @@ jobs:
           pip install playwright pillow
           for i in 1 2 3; do timeout --kill-after=15 300 playwright install chromium && break; echo "Chromium download attempt $i failed, trying again"; done
           for i in 1 2 3; do
-            timeout --kill-after=15 600 sudo apt-get update -q && timeout --kill-after=15 600 sudo apt-get install -y -q ffmpeg fonts-noto-color-emoji fonts-inter && break
+            timeout --kill-after=15 600 sudo apt-get update -q && timeout --kill-after=15 600 sudo apt-get install -y -q ffmpeg fonts-noto-color-emoji && break
             echo "apt attempt $i failed, trying again"; sudo pkill -f "apt-get" || true; sleep 20
           done
+          sudo apt-get install -y -q fonts-inter || echo "::warning::no Inter font: the videos use the system font"
           python -c "from playwright.sync_api import sync_playwright as s; p = s().start(); p.chromium.launch().close(); p.stop()" || timeout 600 playwright install-deps chromium
           ffmpeg -hide_banner -encoders 2>/dev/null | grep -q libx264
       - name: Record (${{ matrix.lang }}, part ${{ matrix.shard }} of 4)

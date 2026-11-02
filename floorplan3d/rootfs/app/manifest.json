@@ -1,6 +1,6 @@
 {
  "version": "4.52.0",
- "buildHash": "a2336e9e8b4b87dff2728a08e63c87384ba41632e336ea05fb1587cbdf82947c",
+ "buildHash": "56f4bffd37c9edc19a98c2f45d662eb0fa27a75e2c3322ae980448cd6d36a7c0",
  "files": {
   "alarmnotify.py": "be1a38dc996818d78acc29dd078152b4b92698c6238a0e4fab7b318fbe1c0ef9",
   "boards.py": "b506190d5264db67ead00bbb7716bded4cbc7c4f94c50589fc9d15d7a7657d87",
@@ -13,7 +13,7 @@
   "flows.py": "9594cb3ec5c66ee1cb213c356883078501dc5e18bb5616012ce774feec6719f7",
   "garden.py": "477414a411aad9c7450d83f9835f79a0beb7e7dbb4d870cdaf9ee599caea253d",
   "guard.py": "0f52be94144054699bd6ff6e33fe93b7f9efdbd812b616180e7de1803fd3de1d",
-  "guide.py": "9dccfddd45fbd241b34f502914fb11311bae602c36ff3780d1e6d1e86a73d30b",
+  "guide.py": "e8e821c86647f8bbaa2a4dadd5a1e7d79d2f737772665fd63bf968c8a8dbb694",
   "haflows.py": "9196371448de70ad9d3ace5d80a4309c2c5829e623ec7b4e9d3894a68f1800d8",
   "halogin.py": "35436a0cf32daecb73ee31877f2a0d87855a64601cee17bca9bbb3295be6d6a5",
   "heatlog.py": "74fba2e0eba68165f85676caa83791947d247a3f92161b9132115b73edda8954",
