@@ -54,7 +54,10 @@ export function initToolbar({ t, applyI18n, onApply }) {
   function closeMore() { more.hidden = true; moreBtn.setAttribute('aria-expanded', 'false'); }
   moreBtn.addEventListener('click', (e) => {
     e.stopPropagation(); more.hidden = !more.hidden; moreBtn.setAttribute('aria-expanded', String(!more.hidden));
-    more.style.left = `${moreBtn.offsetLeft}px`; more.style.top = `${moreBtn.offsetTop + moreBtn.offsetHeight + 6}px`;   // right under the button, also when the bar wraps
+    if (getComputedStyle(more).position === 'fixed') {   // a phone's strip of tools scrolls sideways (#624): the list hangs in the window under the button
+      const r = moreBtn.getBoundingClientRect();
+      more.style.left = `${Math.max(8, Math.min(r.left, innerWidth - more.offsetWidth - 8))}px`; more.style.top = `${r.bottom + 6}px`;
+    } else { more.style.left = `${moreBtn.offsetLeft}px`; more.style.top = `${moreBtn.offsetTop + moreBtn.offsetHeight + 6}px`; }   // right under the button, also when the bar wraps
   });
   more.addEventListener('click', () => closeMore());      // a click on a folded tool closes the menu
   document.addEventListener('click', (e) => { if (!more.hidden && !more.contains(e.target)) closeMore(); });

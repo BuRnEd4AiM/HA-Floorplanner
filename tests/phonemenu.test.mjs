@@ -15,7 +15,14 @@ test('tablets and narrow desktop windows are no phone', () => {
   assert.equal(P.isPhoneScreen({ coarse: undefined, w: 390, h: 844 }), false);
 });
 
-test('phones always live and 3D, other screens keep their choice', () => {
-  assert.deepEqual(P.phoneView(true, { mode: 'edit', layoutMode: 'split' }), { mode: 'live', layoutMode: '3d' });
+test('phones in the live view only 3D, other screens keep their choice', () => {
+  assert.deepEqual(P.phoneView(true, { mode: 'live', layoutMode: 'split' }), { mode: 'live', layoutMode: '3d' });
+  assert.deepEqual(P.phoneView(true, { mode: 'live', layoutMode: '2d' }), { mode: 'live', layoutMode: '3d' });
+  assert.deepEqual(P.phoneView(false, { mode: 'live', layoutMode: 'split' }), { mode: 'live', layoutMode: 'split' });
   assert.deepEqual(P.phoneView(false, { mode: 'edit', layoutMode: 'split' }), { mode: 'edit', layoutMode: 'split' });
+});
+
+test('phones may edit (#624): the editor keeps Edit and its 2D plan', () => {
+  assert.deepEqual(P.phoneView(true, { mode: 'edit', layoutMode: '2d' }), { mode: 'edit', layoutMode: '2d' });
+  assert.deepEqual(P.phoneView(true, { mode: 'edit', layoutMode: 'split' }), { mode: 'edit', layoutMode: 'split' });
 });

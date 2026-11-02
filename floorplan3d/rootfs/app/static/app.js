@@ -950,7 +950,7 @@ const search = initSearch({
 });
 
 /* ================= Wall tablet (#61): the code lives in kiosk.js ================= */
-const phoneMenu = initPhoneMenu({ $, onPhone: () => setMode('live') });   // phones: the tool bar folds into a ☰ menu, only live and 3D (phonemenu.js, #299)
+const phoneMenu = initPhoneMenu({ $, onPhone: () => applyViewPolicy() });   // phones: the tool bar folds into a ☰ menu, live only 3D (phonemenu.js, #299, #624)
 initSafeArea();   // the iPhone's home bar strip: not kept clear twice in the Home Assistant app (safearea.js)
 const kiosk = initKiosk({
   $, controls, settings: () => settings, states: () => states, isLive: () => isLive(),
@@ -1302,7 +1302,7 @@ decorateTools(TOOLS.map(([id]) => id), (id) => $('#tools').querySelector(TOOLS.f
 const toolbarUi = initToolbar({ t, onApply: (shown) => markGroups(shown, t) });
 
 function setMode(next) {
-  mode = next = phoneView(phoneMenu.isPhone(), { mode: next }).mode;   // phones only show the house (#299)
+  mode = next;
   if (power.isMode() && next === 'live') power.setMode(false);
   document.body.classList.toggle('live', isLive());
   document.querySelectorAll('#modeSwitch button').forEach((b) => b.classList.toggle('active', b.dataset.mode === next));
@@ -1344,9 +1344,9 @@ function fitCamera() {
   controls.update();
 }
 function applyViewPolicy() {          // live mode: only the 3D view unless the user was given more (settings → users)
-  const phone = phoneMenu.isPhone(), lock = (isLive() && me.view !== 'all') || phone;
+  const phone = phoneMenu.isPhone(), lock = isLive() && (me.view !== 'all' || phone);   // phones: live only 3D, editing may use 2D (#624)
   document.body.classList.toggle('viewlock', lock);
-  if (lock) setLayoutMode(phoneView(phone, { layoutMode: ['2d', 'split'].includes(me.view) ? me.view : '3d' }).layoutMode);
+  if (lock) setLayoutMode(phoneView(phone, { mode, layoutMode: ['2d', 'split'].includes(me.view) ? me.view : '3d' }).layoutMode);
 }
 function setLayoutMode(m) {
   layoutMode = m;
