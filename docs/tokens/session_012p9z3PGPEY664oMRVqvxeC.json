@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3PGPEY664oMRVqvxeC",
+ "start": "2026-11-02",
+ "updated": "2026-11-02T20:34:57Z",
+ "branch": "claude/vibrant-rubin-u6bl4t",
+ "source": "counted",
+ "input": 21,
+ "cache_write": 52055,
+ "cache_read": 930720,
+ "output": 11999,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 21,
+   "cache_write": 52055,
+   "cache_read": 930720,
+   "output": 11999,
+   "requests": 11
+  }
+ }
+}

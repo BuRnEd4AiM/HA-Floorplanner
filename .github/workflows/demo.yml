@@ -18,6 +18,7 @@ on:
       - "docs/img/3d.jpg"
       - "tools/guide/page.html"         # the page of the video guide (its videos come from the branch guide-videos, workflow "Video guide")
       - "tools/make_guide.py"
+      - "tools/danke.html"              # hidden thank-you page for donations (return URL in PayPal), not linked anywhere
       - "!demo/floorplan3d-demo.html"
   workflow_dispatch:
 
@@ -59,6 +60,7 @@ jobs:
         run: |
           mkdir _site && cp demo/floorplan3d-demo.html _site/index.html
           python3 tools/make_timeline.py _site
+          cp tools/danke.html _site/danke.html   # hidden thank-you page for donations (return URL in PayPal)
       - name: The video guide next to the demo (guide/, videos from the branch guide-videos)
         run: |
           mkdir -p /tmp/guide-videos
