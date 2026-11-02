@@ -178,3 +178,25 @@ async def test_run_recorder_writes_snapshot_and_events(tmp_path):
     got = [json.loads(x) for f in tmp_path.glob("*.jsonl") for x in f.read_text().splitlines()]
     assert got[0]["snap"] == {"light.a": {"state": "off"}}
     assert got[1]["e"] == "light.a" and got[1]["s"] == {"state": "on", "brightness": 100}
+
+
+def test_days_into_a_backup_and_back_without_overwriting_a_day(tmp_path):
+    """the backup takes the recorded days as their text; put back, only the days not recorded here yet are written"""
+    src, dst = tmp_path / "a", tmp_path / "b"
+    src.mkdir()
+    (src / "2026-10-30.jsonl").write_text('{"t": 1, "snap": {}}\n')
+    (src / "2026-10-31.jsonl").write_text('{"t": 2, "snap": {}}')
+    (src / "notes.txt").write_text("no day")
+    days = tl.backup_days(src)
+    assert sorted(days) == ["2026-10-30", "2026-10-31"]
+    dst.mkdir()
+    (dst / "2026-10-31.jsonl").write_text('{"t": 9, "snap": {}}\n')
+    assert tl.restore_days(dst, {**days, "../evil": "x", "2026-11-01": 5}) == ["2026-10-30"]
+    assert (dst / "2026-10-30.jsonl").read_text() == '{"t": 1, "snap": {}}\n'
+    assert (dst / "2026-10-31.jsonl").read_text() == '{"t": 9, "snap": {}}\n'               # recorded here: stays
+    assert tl.restore_days(tmp_path / "new", {"2026-10-31": days["2026-10-31"]}) == ["2026-10-31"]
+    assert (tmp_path / "new" / "2026-10-31.jsonl").read_text().endswith("\n")                # a line can be added after it
+    assert tl.restore_days(dst, "no") == [] and not list(dst.glob(".*"))
+    many = {f"2026-{m:02d}-{d:02d}": "" for m in (8, 9, 10) for d in range(1, 29)}
+    kept = tl.clean_backup_days(many)
+    assert len(kept) == tl.BACKUP_DAYS and max(kept) == "2026-10-28"                          # the newest

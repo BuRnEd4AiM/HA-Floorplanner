@@ -102,3 +102,13 @@ def test_state_from_a_file():
     assert g.clean_state({"phase": "bogus"}) == g.STATE
     st = g.clean_state({"phase": "armed", "since": 5, "fired": ["a", 3], "offline": {"x": 1, "y": "z"}})
     assert st["phase"] == "armed" and st["fired"] == ["a"] and st["offline"] == {"x": 1}
+
+
+def test_a_stored_code_from_a_backup_is_checked():
+    """the code as a backup carries it (salt and hash, never the code itself): only real hex values come back"""
+    c = g.make_code("2468")
+    assert g.stored_code(c) == c and g.check_code({"code": g.stored_code(c)}, "2468")
+    assert g.stored_code({**c, "more": 1}) == c                                     # only the two fields
+    for bad in (None, "2468", {"salt": c["salt"]}, {"salt": "zz", "hash": c["hash"]}, {"salt": c["salt"], "hash": "abc"},
+                {"salt": "abc", "hash": c["hash"]}, {"salt": c["salt"], "hash": c["hash"].upper()}, {"salt": 1, "hash": 2}):
+        assert g.stored_code(bad) is None

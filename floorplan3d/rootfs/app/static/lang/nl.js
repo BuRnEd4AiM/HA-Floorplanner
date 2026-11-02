@@ -141,7 +141,7 @@ export default {
   'shutter.closing': 'Gaat omlaag',
   'house.panel': 'Huizen',
   'backup.title': 'Back-up',
-  'backup.hint': 'Slaat alle huizen, instellingen (pagina\'s, kaarten, secties …), afbeeldingen, 3D-modellen, het prikbord en de instellingen van het alarm en de alarmberichten op in één bestand. Codes en sleutels blijven erbuiten en blijven bij terugzetten zoals ze zijn.',
+  'backup.hint': 'Slaat alles op in één bestand: alle huizen, instellingen (pagina’s, kaarten, secties …), afbeeldingen, 3D-modellen, het prikbord, het alarm en de alarmberichten, verwarmingsregels en routines, en de codes van het alarm en van het volledig scherm (alleen als onleesbare vingerafdruk, nooit de code zelf). Terugzetten brengt ze terug; een back-up zonder ze laat de huidige staan.',
   'backup.export': 'Back-up downloaden',
   'backup.import': 'Back-up herstellen…',
   'backup.confirm': 'Back-up herstellen? Alle huizen en instellingen worden vervangen door het bestand (de huidige status wordt eerst als veiligheidskopie op de server opgeslagen).',
@@ -2179,4 +2179,7 @@ export default {
   'vg.saved': 'Opgeslagen in de add-on ({mb} MB, {date}), werkt ook zonder internet', 'vg.online': 'De video\'s komen van internet (GitHub)',
   'vg.offline': 'Geen verbinding met internet. Sla de video\'s één keer online op, dan werken ze ook zonder.',
   'vg.demo': 'In de demo komen de video\'s altijd van internet.', 'vg.out': 'In een eigen venster openen',
+  'backup.recording': 'Opnames meenemen: beveiliging, het 📜 logboek en het 🩺 logboek van de verwarming (het bestand wordt groter; terugzetten voegt alleen ontbrekende dagen toe)',
+  'backup.secrets': 'CallMeBot-sleutels meenemen (ze staan leesbaar in het bestand: geef het bestand dan niet door)', 'ab.testRec': 'Plus {days} dagen opnames.',
+  'ab.testKeys': 'Met de CallMeBot-sleutels.',
 };

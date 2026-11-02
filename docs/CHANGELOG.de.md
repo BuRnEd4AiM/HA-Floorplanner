@@ -3,9 +3,18 @@
 Die deutsche Fassung von [CHANGELOG.md](../CHANGELOG.md), für den Zeitstrahl (`tools/make_timeline.py`). Jede neue Version kommt in beide Dateien, mit denselben Abschnitten und denselben Punkten (Neu = Added, Verbessert = Changed, Repariert = Fixed, Entfernt = Removed); `tests/test_make_timeline.py` prüft das.
 
 ## [Unreleased]
+
+## [4.53.0] - 2026-11-02
 ### Neu
+- **Das Backup hat jetzt alles** (der Besitzer, 2026-11-02: „ein Backup sollte ja immer alles sein“): außer den Häusern, Einstellungen, Bildern, 3D-Modellen, der Pinnwand, der Urlaubs-Alarmanlage, den Alarm-Nachrichten, Heizregeln, Abläufen und besonderen Tagen jetzt auch:
+  - die Codes der Alarmanlage und des festen Vollbilds, nur so, wie sie gespeichert sind (mit Salz und Hash, ein Fingerabdruck: niemand kann einen Code aus der Datei lesen);
+  - mit dem neuen Häkchen **Aufzeichnungen mitsichern** (an): die Tage der Sicherheits-Aufzeichnung mit dem 📜 Protokoll und das 🩺 Protokoll der Heizung; beim Einspielen werden sie nur ergänzt (ein Tag, der hier schon aufgezeichnet ist, bleibt, wie er ist);
+  - mit dem neuen Häkchen **CallMeBot-Schlüssel mitsichern** (aus): die Schlüssel für WhatsApp und Telegram (sie stehen lesbar in der Datei, so eine Datei also nicht weitergeben);
+  - beide Häkchen gelten für das Herunterladen und für die automatischen Backups; „Prüfen“ sagt auch, wie viele Tage Aufzeichnung und ob die Schlüssel drin sind. Beim Einspielen kommen die Codes und Schlüssel der Datei zurück; eine Datei ohne sie lässt die jetzigen stehen, ein Einspielen nimmt nie einen Code oder Schlüssel weg.
 - **28 weitere Videos in der Video-Anleitung, zusammen 74** (der Besitzer, 2026-11-02: „für manche speziellen Sachen … das Programm hat echt viele Funktionen … nicht dass man da was vergisst“): Fragen per Sprache, das Ansicht-Menü, Himmel und Wetter, Warnungen, LED-Ring, Effekte, Türklingel, 🔎 Wird benutzt, das Heiz-Protokoll, besondere Tage, eine neue Szene, einen Grundriss nachzeichnen, Dach und Gauben, Treppen, Grundstück und Garten, Etagen und Keller, Böden und Wände je Raum, die Möbel-Bibliothek, der Schrank-Editor, mehrere Häuser, die Objektliste, die Werkzeugleiste, der Import, die Szenen-Leiste, Fassungen je Person, Wandtablet, Nachricht bei Alarm, Version und Prüfsumme.
 - **Alle Funktionen von A bis Z** unten auf der Seite der Anleitung: alle 83 Funktionen des Add-ons, jede mit ▶ zu ihrem Video oder mit dem Grund, warum es keins gibt (`tools/guide/features.py`); ein Test schlägt an, wenn eine Funktion beides nicht hat, und wenn eine neue Version etwas dazubringt, ohne dort eine Zeile.
+### Verbessert
+- **Video-Anleitung**: das Video „Backup“ zeigt die zwei neuen Häkchen und was in der Datei steht; das Video „Messen“ zeigt jetzt auch, was dem Besitzer darin fehlte („dass man auch damit Wände verschieben kann, wenn man diese anklickt, und Winkel definieren kann“): zwei Wände angeklickt, das Innenmaß eingetippt und die Wand rückt, zwei Wände an einer Ecke auf einen Winkel gedreht. Ab jetzt wird jede Änderung, nicht nur eine neue Funktion, mit der Anleitung verglichen und ihre Videos werden gleich mit geändert (der Besitzer: „dass das dann auch immer geprüft werden soll, ob sich was geändert hat und dann halt auch dort abändert“; eine Regel für Claude in `.claude/CLAUDE.md` und `tools/guide/README.md`, eine Zeile in der Vorlage für Pull Requests).
 ### Repariert
 - **Video-Anleitung am Handy** (#619, Test 141.6, der Besitzer: „links und rechts … abgeschnitten … nicht rauszoomen“): das Fenster eines Videos war breiter als der Bildschirm und links und rechts abgeschnitten; jetzt passt es in die Breite (nur die Seite auf GitHub Pages, nicht das Add-on).
 

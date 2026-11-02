@@ -141,7 +141,7 @@ export default {
   'shutter.closing': 'Opuszcza się',
   'house.panel': 'Domy',
   'backup.title': 'Kopia zapasowa',
-  'backup.hint': 'Zapisuje w jednym pliku wszystkie domy, ustawienia (strony, karty, sekcje …), obrazy, modele 3D, tablicę oraz ustawienia alarmu i jego wiadomości. Kody i klucze zostają poza plikiem i nie zmieniają się przy przywracaniu.',
+  'backup.hint': 'Zapisuje wszystko w jednym pliku: wszystkie domy, ustawienia (strony, karty, sekcje …), obrazy, modele 3D, tablicę, alarm i jego wiadomości, reguły ogrzewania i procedury oraz kody alarmu i pełnego ekranu (tylko jako nieczytelny odcisk, nigdy sam kod). Przywrócenie przywraca je; kopia bez nich zostawia obecne.',
   'backup.export': 'Pobierz kopię',
   'backup.import': 'Przywróć kopię…',
   'backup.confirm': 'Przywrócić kopię zapasową? Wszystkie domy i ustawienia zostaną zastąpione zawartością pliku (bieżący stan zostanie wcześniej skopiowany na serwerze do kopii zabezpieczającej).',
@@ -2173,4 +2173,7 @@ export default {
   'vg.saved': 'Zapisano w dodatku ({mb} MB, {date}), działa też bez internetu', 'vg.online': 'Filmy pochodzą z internetu (GitHub)',
   'vg.offline': 'Brak połączenia z internetem. Zapisz filmy raz online, potem zadziałają bez niego.',
   'vg.demo': 'W wersji demo filmy zawsze pochodzą z internetu.', 'vg.out': 'Otwórz w osobnym oknie',
+  'backup.recording': 'Dołącz nagrania: bezpieczeństwo, 📜 dziennik i 🩺 dziennik ogrzewania (plik będzie większy; przy przywracaniu dodawane są tylko brakujące dni)',
+  'backup.secrets': 'Dołącz klucze CallMeBot (są czytelne w pliku: wtedy nie przekazuj go dalej)', 'ab.testRec': 'Do tego {days} dni nagrań.',
+  'ab.testKeys': 'Z kluczami CallMeBot.',
 };

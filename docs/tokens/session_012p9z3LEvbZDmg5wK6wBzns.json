@@ -1,0 +1,20 @@
+{
+ "session": "session_012p9z3LEvbZDmg5wK6wBzns",
+ "start": "2026-11-02",
+ "updated": "2026-11-02T13:00:15Z",
+ "branch": "claude/backup-komplett",
+ "source": "counted",
+ "input": 315,
+ "cache_write": 296827,
+ "cache_read": 35383278,
+ "output": 108100,
+ "models": {
+  "claude-opus-5-5": {
+   "input": 315,
+   "cache_write": 296827,
+   "cache_read": 35383278,
+   "output": 108100,
+   "requests": 153
+  }
+ }
+}

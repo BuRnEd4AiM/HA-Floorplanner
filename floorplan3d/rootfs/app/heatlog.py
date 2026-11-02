@@ -20,6 +20,7 @@ Entries (each with t, the time in seconds, and k, the kind):
 
 Pure (unit test: tests/test_heatlog.py)."""
 import datetime
+import json
 
 MAX = 500                  # entries kept
 OWN = 30 * 60              # s: a target the thermostat reports this long after the add-on sent it is the add-on's own
@@ -174,6 +175,19 @@ def add(trace: list, entries, now=None) -> bool:
             n += 1
     del trace[:-MAX]
     return n > 0
+
+
+def merge(trace: list, more) -> list:
+    """the journal with the entries of a backup put back: both together, each entry once, by time, at most MAX (the newest)"""
+    seen, out = set(), []
+    for x in list(trace or []) + list(more if isinstance(more, list) else []):
+        if isinstance(x, dict) and x.get("k") and _num(x.get("t")) is not None:
+            key = json.dumps(x, sort_keys=True, default=str)
+            if key not in seen:
+                seen.add(key)
+                out.append(x)
+    out.sort(key=lambda x: x["t"])                 # stable: entries of the same second keep their order
+    return out[-MAX:]
 
 
 def link(trace: list, on: bool, now, err=None, quick=False) -> bool:

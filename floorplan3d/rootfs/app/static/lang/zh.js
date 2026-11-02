@@ -180,7 +180,7 @@ export default {
   'shutter.closing': '正在下降',
   'house.panel': '房屋',
   'backup.title': '备份',
-  'backup.hint': '把所有房屋、设置（页面、卡片、分区…）、图片、3D 模型、留言板以及警报和警报消息的设置保存到一个文件。密码和密钥不会包含在内，恢复时也保持原样。',
+  'backup.hint': '把所有内容保存到一个文件：所有房屋、设置（页面、卡片、分区…）、图片、3D 模型、留言板、警报及警报消息、供暖规则和流程，以及警报和全屏的密码（只是无法读出的指纹，绝不是密码本身）。恢复时它们会回来；不含它们的备份会保留现在的密码。',
   'backup.export': '下载备份',
   'backup.import': '恢复备份…',
   'backup.confirm': '恢复备份？所有房屋和设置都会被文件内容替换（当前状态会先在服务器上另存一份安全备份）。',
@@ -3834,4 +3834,6 @@ export default {
   'vg.saveTip': '将较小尺寸的视频一次性下载到插件中，之后无需联网也能观看。', 'vg.update': '↻ 更新已保存的视频', 'vg.del': '🗑 删除已保存的副本', 'vg.delAsk': '删除已保存的视频？之后将重新从网络加载。', 'vg.checking': '请稍候 …',
   'vg.loading': '正在保存 … {done} / {total} 个文件', 'vg.error': '保存失败：{msg}', 'vg.saved': '已保存在插件中（{mb} MB，{date}），离线也可观看', 'vg.online': '视频来自网络（GitHub）',
   'vg.offline': '无法连接网络。联网时保存一次视频，之后离线也能观看。', 'vg.demo': '在演示中，视频始终来自网络。', 'vg.out': '在新窗口中打开',
+  'backup.recording': '同时备份记录：安全记录、📜 日志和 🩺 供暖日志（文件会变大；恢复时只补上缺少的日期）', 'backup.secrets': '同时备份 CallMeBot 密钥（它们在文件中可直接读取：这样就不要把文件转给别人）',
+  'ab.testRec': '另有 {days} 天的记录。', 'ab.testKeys': '包含 CallMeBot 密钥。',
 };

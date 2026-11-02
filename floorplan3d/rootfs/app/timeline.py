@@ -104,6 +104,45 @@ def prune_days(folder: Path, today: str, keep_days: float) -> list:
     return gone
 
 
+BACKUP_DAYS = 40          # at most this many days in a backup (31 kept plus today, and some room)
+
+
+def backup_days(folder: Path) -> dict:
+    """the recorded days for a backup, {day: the text of its file}, the newest BACKUP_DAYS"""
+    out = {}
+    for item in list_days(folder)[:BACKUP_DAYS]:
+        try:
+            out[item["day"]] = (folder / f"{item['day']}.jsonl").read_text("utf-8", errors="replace")
+        except OSError:
+            continue
+    return out
+
+
+def clean_backup_days(v) -> dict:
+    """the days of a backup, checked: {day: text}, only real dates, the newest BACKUP_DAYS"""
+    if not isinstance(v, dict):
+        return {}
+    days = sorted((d for d in v if isinstance(d, str) and DAY.match(d) and isinstance(v[d], str)), reverse=True)[:BACKUP_DAYS]
+    return {d: v[d] for d in days}
+
+
+def restore_days(folder: Path, v) -> list:
+    """the days of a backup put back -> the days written. A day recorded here already stays as it is: a recording is only added to,
+    never overwritten (also not today's, which the recorder may be writing to)"""
+    days = clean_backup_days(v)
+    have = {i["day"] for i in list_days(folder)}
+    done = []
+    for day, text in sorted(days.items()):
+        if day in have:
+            continue
+        folder.mkdir(parents=True, exist_ok=True)
+        tmp = folder / f".{day}.restore"
+        tmp.write_text(text if not text or text.endswith("\n") else text + "\n", "utf-8")
+        tmp.replace(folder / f"{day}.jsonl")
+        done.append(day)
+    return done
+
+
 def read_day(folder: Path, day: str) -> list:
     """The lines of a day file as objects; a damaged line (power cut while writing) is skipped."""
     p = folder / f"{day}.jsonl"

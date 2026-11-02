@@ -74,17 +74,34 @@ def _(r):
 
 @clip("backup", "settings",
       {"de": "Backup: alles sichern und zurückholen", "en": "Backup: save everything and restore it"},
-      {"de": "„Backup“ lädt alle Pläne und Einstellungen als eine Datei herunter und spielt sie wieder ein.",
-       "en": "“Backup” downloads all plans and settings as one file and restores them."},
-      "Backup Sicherung sichern wiederherstellen Datei herunterladen hochladen backup save restore file download upload")
+      {"de": "„Backup“ lädt alles als eine Datei herunter: Häuser, Einstellungen, Bilder, die Codes und auf Wunsch die Aufzeichnungen "
+             "und die CallMeBot-Schlüssel. Mit der Datei kommt alles wieder zurück.",
+       "en": "“Backup” downloads everything as one file: houses, settings, pictures, the codes and, if you like, the recordings and "
+             "the CallMeBot keys. With that file everything comes back."},
+      "Backup Sicherung sichern wiederherstellen Datei herunterladen hochladen alles komplett Codes Schlüssel Aufzeichnung Protokoll "
+      "backup save restore file download upload everything complete codes keys recordings log")
 def _(r):
     r.say("Oben: „Backup“.", "At the top: “Backup”.")
     r.click("#backupBtn")
     r.wait(1300)
     r.poster()
-    r.say("Herunterladen sichert alle Häuser, Seiten und Einstellungen in einer Datei.", "Download saves every house, page and setting in one file.")
+    r.say("Herunterladen sichert alles: Häuser, Seiten, Einstellungen, Bilder und die Codes.",
+          "Download saves everything: houses, pages, settings, pictures and the codes.")
+    r.move("#backupExport")
     r.wait(2000)
+    r.say("Die Codes nur als Fingerabdruck: niemand kann sie aus der Datei lesen.", "The codes only as a fingerprint: nobody can read them from the file.")
+    r.wait(2000)
+    r.say("Mit Häkchen auch die Aufzeichnungen …", "Ticked: the recordings too …")
+    r.move("#setBackupRecording")
+    r.wait(1700)
+    r.say("… und auf Wunsch die CallMeBot-Schlüssel. Die stehen lesbar drin: die Datei dann nicht weitergeben.",
+          "… and, if you like, the CallMeBot keys. They are readable in the file: then do not pass it on.")
+    r.click("#setBackupSecrets")
+    r.wait(2200)
+    r.click("#setBackupSecrets")
+    r.wait(700)
     r.say("Mit der Datei holst du später alles zurück.", "With that file you get everything back later.")
+    r.move("#backupImport")
     r.wait(1800)
     r.key("Escape")
     r.wait(600)

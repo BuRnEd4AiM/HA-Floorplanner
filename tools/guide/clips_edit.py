@@ -217,26 +217,71 @@ def _(r):
 
 
 @clip("measure", "edit",
-      {"de": "Messen", "en": "Measure"},
-      {"de": "„Messen“ zeigt Abstände und Winkel: zwei Punkte anklicken.",
-       "en": "“Measure” shows distances and angles: click two points."},
-      "messen Abstand Länge Winkel Meter Maßband measure distance length angle metre tape",
+      {"de": "Messen, Wände genau verschieben und drehen", "en": "Measure, move and turn walls exactly"},
+      {"de": "„Messen“ zeigt Abstände und Winkel. Zwei Wände nacheinander angeklickt: ihren Abstand oder Winkel eintippen, "
+             "die Wand rückt oder dreht sich genau dorthin, angehängte Wände und Räume ziehen mit.",
+       "en": "“Measure” shows distances and angles. Two walls clicked one after the other: type their distance or angle and the "
+             "wall moves or turns exactly there, joined walls and rooms follow."},
+      "messen Abstand Länge Winkel Meter Maßband Wand verschieben drehen Innenmaß genau Ecke schräg "
+      "measure distance length angle metre tape wall move turn inside exact corner slanted",
       query="mode=edit")
 def _(r):
+    at = lambda x, z: r.js(f"window.__fp.plan().toClient({x}, {z})")      # a point of the plan (metres) on the screen
     r.click("#view2d")
     r.wait(900)
+    r.move(*at(7.5, 3.5))                                                  # closer to the house (the plan shows the whole plot)
+    for _ in range(12):
+        if at(10, 0)[0] - at(0, 0)[0] >= 480:                             # 10 m: the house (15 m with the garage) still fits beside the floor rail
+            break
+        r.wheel(-300, steps=3, ms=240)
+    r.wait(500)
     r.say("Oben: „Messen“.", "At the top: “Measure”.")
     r.click("#tools [data-tool=measure]")
     r.wait(700)
-    r.say("Klicke den Anfang und das Ende.", "Click the start and the end.")
-    a = r.js("(() => { const s = window.__fp.screenOf('d2'); return s && [s.x, s.y]; })()") or (600, 400)
-    r.click(a[0] - 120, a[1] - 60)
+    r.say("Zwei Punkte anklicken: der Abstand steht an der Linie, rechts mehr dazu.", "Click two points: the distance is on the line, more on the right.")
+    r.click(*at(1.2, 1.2))
     r.wait(400)
-    r.click(a[0] + 140, a[1] - 60)
-    r.wait(1200)
-    r.poster()
-    r.say("Die Länge steht an der Linie, rechts mehr dazu.", "The length is on the line, more on the right.")
+    r.click(*at(4.6, 3.2))
     r.wait(2200)
+    r.click("#msAgain")
+    r.wait(500)
+    # the living room (0 … 6 m): its outer wall on the left stays, the wall to the kitchen moves
+    r.say("Jetzt zwei Wände: zuerst die, die stehen bleibt …", "Now two walls: first the one that stays …")
+    r.click(*at(0, 2.25))
+    r.wait(1000)
+    r.say("… dann die, die sich bewegen soll.", "… then the one that is to move.")
+    r.click(*at(6, 2.25))
+    r.wait(1300)
+    r.poster()
+    r.say("Das Innenmaß eintippen und „Setzen“: die Wand rückt, die Wände an ihr und die Räume ziehen mit.",
+          "Type the inside distance and “Set”: the wall moves, the walls joined to it and the rooms follow.")
+    r.click("#msClear")
+    r.key("Control+a")
+    r.type("5")
+    r.wait(400)
+    r.click("#msClearSet")
+    r.wait(2400)
+    r.say("„⇄ Die andere Wand bewegen“ tauscht, welche sich bewegt.", "“⇄ Move the other wall” swaps which one moves.")
+    r.move("#msSwap")
+    r.wait(1600)
+    r.click("#msAgain")
+    r.wait(500)
+    # a corner: the outer wall of the bedroom stays, the wall between bedroom and office turns round the corner
+    r.say("Zwei Wände an einer Ecke: den Winkel eintippen, die Wand dreht sich um die Ecke.",
+          "Two walls at a corner: type the angle and the wall turns round the corner.")
+    r.click(*at(5, 7))
+    r.wait(700)
+    r.click(*at(7, 5.75))
+    r.wait(1200)
+    r.click("#msAngle")
+    r.key("Control+a")
+    r.type("75")
+    r.wait(400)
+    r.click("#msAngleSet")
+    r.wait(2400)
+    r.say("Strg+Z macht es rückgängig.", "Ctrl+Z undoes it.")
+    r.key("Control+z")
+    r.wait(1800)
 
 
 PLAN_PNG = "fp3d-guide-plan.png"

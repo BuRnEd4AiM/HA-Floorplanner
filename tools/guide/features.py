@@ -74,7 +74,7 @@ f("rooms", "edit", "Räume erkennen und benennen", "Find and name rooms", ["room
 f("openings", "edit", "Türen und Fenster", "Doors and windows", ["openings"])
 f("devicesplace", "edit", "Lampen und Geräte platzieren, mit Home Assistant verbinden", "Place lamps and devices, link them to Home Assistant", ["devices-place"])
 f("move", "edit", "Verschieben, drehen, löschen, rückgängig", "Move, turn, delete, undo", ["move"])
-f("measure", "edit", "Messen", "Measure", ["measure"])
+f("measure", "edit", "Messen, Wände genau verschieben und drehen (Abstand, Winkel)", "Measure, move and turn walls exactly (distance, angle)", ["measure"])
 f("background", "edit", "Grundriss nachzeichnen (Hintergrundbild)", "Trace a floor plan (background picture)", ["background"])
 f("roof", "edit", "Dach und Gauben", "Roof and dormers", ["roof"])
 f("stairs", "edit", "Treppen", "Stairs", ["stairs"])
@@ -103,7 +103,8 @@ f("settingssearch", "settings", "Einstellungen finden", "Find a setting", ["sett
 f("users", "settings", "Benutzer, Rechte, Wandtablets", "Users, rights, wall tablets", ["users"])
 f("kiosk", "settings", "Wandtablet: Startansicht, Bildschirmschoner, sparsam", "Wall tablet: start view, screen saver, saving mode", ["kiosk"])
 f("notify", "settings", "Nachricht aufs Handy bei Alarm", "Message to the phone on an alarm", ["notify"])
-f("backup", "settings", "Backup und Wiederherstellen", "Backup and restore", ["backup"])
+f("backup", "settings", "Backup und Wiederherstellen: alles, auch Codes und Aufzeichnungen", "Backup and restore: everything, codes and recordings too",
+  ["backup"], since="4.53.0")
 f("fullscreen", "settings", "Vollbild (mit Code)", "Full screen (with a code)", ["fullscreen"])
 f("version", "settings", "Version und Prüfsumme", "Version and checksum", ["version"])
 f("card", "settings", "Karte im Dashboard von Home Assistant", "Card in a Home Assistant dashboard",

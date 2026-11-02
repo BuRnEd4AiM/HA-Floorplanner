@@ -1,7 +1,11 @@
-/* Backup dialog (🗄️ in the top bar, #321): the whole backup (export / import), the automatic backups (settings, "back up now", check,
- * restore, download, delete) and the security recording (settings, the recorded days). The schedule itself runs in the add-on (server.py);
- * this file only talks to /api/backups. */
+/* Backup dialog (🗄️ in the top bar, #321): the whole backup (export / import, with the recordings and the CallMeBot keys or without),
+ * the automatic backups (settings, "back up now", check, restore, download, delete) and the security recording (settings, the recorded
+ * days). The schedule itself runs in the add-on (server.py); this file only talks to /api/backups. */
 const units = ['B', 'KB', 'MB', 'GB'];
+/** the link of "Download backup": what the two boxes say now (the setting is saved too, but a click right after must not wait for it) */
+export function exportHref(recording, secrets) {
+  return `api/backup?recording=${recording ? 1 : 0}&secrets=${secrets ? 1 : 0}`;
+}
 export function fmtSize(n) {
   let i = 0, v = Number(n) || 0;
   while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
@@ -17,12 +21,16 @@ const post = (url, data) => j(url, { method: 'POST', headers: { 'Content-Type': 
 /** prepare(): load and show the current settings in the fields; onOpen(): more to fill when the dialog opens (the recorded days) */
 export function initBackups({ t, commitSettings, prepare = async () => {}, onOpen = () => {}, reload = () => location.reload() }) {
   const dlg = document.getElementById('backupDialog');
-  document.getElementById('backupBtn')?.addEventListener('click', async () => {
+  const box = (id) => document.getElementById(id);
+  const link = () => { const a = box('backupExport'); if (a) a.href = exportHref(box('setBackupRecording')?.checked, box('setBackupSecrets')?.checked); };
+  box('backupBtn')?.addEventListener('click', async () => {
     await prepare();
+    link();
     dlg?.showModal(); refresh(); onOpen();
   });
   dlg?.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });                   // a click on the dark backdrop closes it
-  ['setTimelineOn', 'setTimelineKeep'].forEach((id) => document.getElementById(id)?.addEventListener('change', () => commitSettings()));
+  ['setTimelineOn', 'setTimelineKeep'].forEach((id) => box(id)?.addEventListener('change', () => commitSettings()));
+  ['setBackupRecording', 'setBackupSecrets'].forEach((id) => box(id)?.addEventListener('change', () => { link(); commitSettings(); }));
   const root = document.getElementById('autoBackup');
   if (!root) return { refresh() {} };
   const list = document.getElementById('abList'), status = document.getElementById('abStatus');
@@ -52,7 +60,8 @@ export function initBackups({ t, commitSettings, prepare = async () => {}, onOpe
   async function check(name) {
     say('…');
     const r = await post('api/backups/test', name ? { name } : {});
-    if (r.ok) say(t('ab.testOk', { houses: r.body.houses.length, pictures: r.body.pictures, models: r.body.models, size: fmtSize(r.body.size) }));
+    if (r.ok) say([t('ab.testOk', { houses: r.body.houses.length, pictures: r.body.pictures, models: r.body.models, size: fmtSize(r.body.size) }),
+      r.body.days ? t('ab.testRec', { days: r.body.days }) : '', r.body.keys ? t('ab.testKeys') : ''].filter(Boolean).join(' '));
     else say(t('ab.testFail', { msg: r.body.error || r.status }), true);
   }
   async function restore(name) {
