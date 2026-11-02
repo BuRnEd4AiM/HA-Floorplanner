@@ -4,9 +4,15 @@ All notable changes are documented here. The format follows [Keep a Changelog](h
 
 ## [Unreleased]
 
-## [4.56.0] - 2026-11-02
+## [4.57.0] - 2026-11-02
 ### Added
 - **Several cars on 🧺 Household** (#631, asked by Zelos001: "I have two electric vehicles … add the option to add multiple cars (e.g., via a "+" button or a list)"): ⚙ → *🗂 Tabs at the bottom* → *🧺 Household* → *🚗 Car* has the new button **＋ Another car** (up to 4 more). Each further car gets its own box "🚗 Car 2", "🚗 Car 3" … with its charge, range, charging, charging power, full at and "Charge with the sun only", its name and × to remove it; there you choose the entities yourself (finding them by name would find the first car again). Household shows a card of its own for every car with a charge or a range, named after it ("Car 2" without a name); every card can be hidden and moved like the others. The settings keep them in `cars` (a list, like `car`). Video "Several cars on Household" in the guide; the demo has a second car's charge to try it.
+
+## [4.56.0] - 2026-11-02
+### Added
+- **Editing on a phone** (#624, asked by biggilottecassi: "Was auch noch schön wäre, wenn man am Handy auch was bearbeiten könnte"; the owner: "das man es nun auch wenn man möchte editieren … auch am handy machen kann"): since 3.63.0 (#299) a phone only showed the house. It still starts with the house (live view, 3D), but the ☰ menu offers **Bearbeiten** again (for those who may edit). The editor has its own layout on a phone: the tool bar is a strip, upright with ☰, **2D / 3D**, ↶ ↷ and *Speichern* in the first row and the tools in one row under it that is swiped sideways (held sideways everything is one row); *Mehr* opens under its button inside the screen. ☰ opens the rest of the bar (Live, 2D + 3D, Einpassen, + Etage, house, version, ⚙ …) as the same list as in the live view, without moving the picture. The side panel is a sheet at the bottom with what is selected first (then the hint for the tool), without the help for keys and mouse; the colour buttons (Temp., Feuchte …) are left out, *Ansicht* stays. Drawing works with the finger as on a tablet (tap point by point, a double tap ends the wall, two fingers move and zoom). ☰ → **Live** goes back to the house in 3D. Tablets and computers are unchanged.
+- **Video guide: a new video "Edit on the phone"** (clip `phone-edit`).
+- New browser test part `67_phone_edit`.
 
 ## [4.55.0] - 2026-11-02
 ### Added

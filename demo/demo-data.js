@@ -356,7 +356,7 @@ const entities = {
   'binary_sensor.auto_laedt': { name: 'Auto lädt',             state: 'on', dc: 'battery_charging' },
   'sensor.wallbox_leistung': { name: 'Wallbox Leistung',       state: '3.2', unit: 'kW', dc: 'power' },
   'sensor.auto_voll_um':     { name: 'Auto voll um',           state: new Date(Date.now() + 150 * 60000).toISOString(), dc: 'timestamp' },
-  'sensor.zweitwagen_ladestand': { name: 'Zweitwagen Ladestand', state: '82', unit: '%' },   // 🚗 a second car (4.56, #631): ⚙ → „＋ Weiteres Auto“
+  'sensor.zweitwagen_ladestand': { name: 'Zweitwagen Ladestand', state: '82', unit: '%' },   // 🚗 a second car (4.57, #631): ⚙ → „＋ Weiteres Auto“
   'select.evcc_garage_mode': { name: 'Wallbox Modus',          state: 'now', ctl: { options: ['off', 'now', 'minpv', 'pv'] } },   // evcc: ☀ = pv
   'valve.rasen':             { name: 'Rasen',                  state: 'closed' },   // 🌱 the garden (4.25, #533): two zones and the soil
   'switch.bewaesserung_beet': { name: 'Bewässerung Beet',      state: 'off' },

@@ -291,7 +291,7 @@ API: `POST /api/import` · `GET /api/export/property` · `GET /api/import/schema
 
 <div align="center"><img src="docs/img/phone.png" alt="Three phones: the house at dusk with room labels and tiles, the card Power now, a room opened with its controls" width="760"><br><sub><b>On the phone</b>: room labels and tiles, <i>Power</i> as a small card, a tapped room opens as a sheet from below, time and weather in the last line</sub></div>
 
-- **Phones**: the same live view, made for one hand: floors and rooms in one drop-down, room labels over the rooms and room tiles you swipe sideways, the room panel as a sheet from below, *Power* as a small card under the top bar, and the time and the weather in a short line at the very bottom
+- **Phones**: the same live view, made for one hand: floors and rooms in one drop-down, room labels over the rooms and room tiles you swipe sideways, the room panel as a sheet from below, *Power* as a small card under the top bar, and the time and the weather in a short line at the very bottom. **Editing works on a phone too** (☰ → *Bearbeiten*): the tools in a strip you swipe, the settings of what you tapped below, draw walls with the finger
 - One Home Assistant user per tablet: it starts in **its own room** and sees only the views you allow
 - **Low-power mode** for Fire tablets and other weak devices (automatic in kiosk mode and on touch screens): lower resolution, throttled animation, no shadows, blur or glow. ⚙ **Performance on this device** switches it per tablet
 - **Warnings** for smoke, gas, CO, water, alarm and windows open in the rain (red banner, the room flashes), a **"Where is …?" search**, and a **kiosk mode**: back to the start view when idle, screen-saver turn, night dimming

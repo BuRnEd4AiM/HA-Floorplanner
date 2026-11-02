@@ -2,7 +2,7 @@
 the range, "☀ Nur mit Sonne laden" (evcc's mode: pv / now). The garden: every valve and the switches named like watering, "💧 … 10 min
 gießen" opens a zone and the add-on keeps a timer (api/garden), "■ Stopp" closes it; a zone whose time is up is closed by the add-on itself;
 a user locked out of switching gets no buttons and the server refuses. The zones chosen in ⚙ replace the ones found.
-4.56.0 (#631): "＋ Weiteres Auto" in ⚙ gives a second car with its own entities and name, a card of its own; × takes it away again.
+4.57.0 (#631): "＋ Weiteres Auto" in ⚙ gives a second car with its own entities and name, a card of its own; × takes it away again.
 """
 import datetime as _dt
 st_cg = api("api/settings")
